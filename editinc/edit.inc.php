@@ -37,12 +37,45 @@ $text['add'] = 'Add';
 $text['a_record'] = 'a Record';
 $text['failed'] = 'failed';
 $text['insert'] = 'Insert';
+$text['order by'] = 'Order by';
+$text['asc'] = 'ascending';
+$text['desc'] = 'descending';
 
 // if $query has no title get it out of field_name
 
 // Variables
 
 $error = false;
+
+function unhtmlspecialchars( $string ) {
+       $string = str_replace ( '&amp;', '&', $string );
+       $string = str_replace ( '&#039;', '\'', $string );
+       $string = str_replace ( '&quot;', '\"', $string );
+       $string = str_replace ( '&lt;', '<', $string );
+       $string = str_replace ( '&gt;', '>', $string );
+      
+       return $string;
+}
+   
+function show_error ($error, $sql, $mytext) {
+	global $list;
+	global $text;
+	global $project;
+	global $error_mail_to;
+	global $error_mail_from;
+	echo '<p><em>'.$text['database-error'].'! '.$text['reason'].':</em> '.$error.'</p>';
+	if (!isset($error_mail_to)) {
+		// Error will be shown
+		if ($list) {
+			echo '<p>';
+			echo '<em>'.$text['sql-query'].':</em> ';
+			echo $sql.'</p>';
+		}
+	} else {
+		// Error will be mailed
+		mail ($error_mail_to, '['.unhtmlspecialchars($project).']', $error."\n\n".$sql, 'From: '.$error_mail_from);
+	}
+}
 
 function hours($seconds) {
 	$hours = 0;
@@ -144,6 +177,7 @@ function read_fields($array, $mode, $values) {
 }
 
 function show_image($path, $record) {
+	global $text;
 	$img = false;
 	if ($record) {
 		$img = '<img src="';
@@ -158,6 +192,20 @@ function show_image($path, $record) {
 		$img.= '" alt="'.$alt.'" class="thumb">';
 	}
 	return $img;
+}
+
+function show_link($path, $record) {
+	global $field;
+	$link = false;
+	if ($record) {
+		foreach (array_keys($path) as $part) {
+			if (substr($part,0,5) == 'field') {
+				$link.= $record[$path[$part]];
+			}
+			else $link.= $path[$part];
+		}
+	}
+	return $link;
 }
 
 $i = 1;
@@ -202,7 +250,7 @@ if (!isset($referer)) {
 	if (isset($_POST['referer'])) $referer = $_POST['referer'];
 } elseif (isset($_POST['referer'])) {
 	$referer = $_POST['referer'];
-} else {
+} elseif (isset($_SERVER['HTTP_REFERER'])) {
 	$referer = $_SERVER['HTTP_REFERER'];
 }
 
@@ -253,14 +301,21 @@ elseif ($mode == 'delete') $submit = 'delete';
 // Extra GET Parameter
 
 $extras = false;
-$addextras = false;
+$add_extras = false;
 if (isset($_GET['where'])) $extras .= get_to_array($_GET['where']);
+if (isset($_GET['order'])) $extras .= '&order='.$_GET['order'];
+if (isset($_GET['dir'])) $extras .= '&dir='.$_GET['dir'];
 // elseif ($values) $extras .= '&where='.$_GET['values'];
 if ($limit) $extras.= '&limit='.$limit;
 if ($referer) $extras.= '&referer='.$referer;
 if ($extras) $extras = substr($extras, 1, strlen($extras) -1 ); // first ? or & to be added as needed!
+if ($extras) $add_extras = '&'.$extras;
 
-if ($mode) echo '<form action="'.$_SERVER['PHP_SELF'].'?'.$extras.'" method="POST">';
+if ($mode) {
+	echo '<form action="'.$_SERVER['PHP_SELF'];
+	if ($extras) echo '?'.$extras;
+	echo '" method="POST">';
+}
 
 // Add, Update or Delete
 
@@ -377,7 +432,9 @@ if ($action == 'insert') {
 	}
 }
 
+//
 // Query Updated, Added or Editable Record
+//
 
 if ($action == 'update') $record_id = $_POST[$query[1]['field_name']];
 elseif ($action == 'insert') $record_id = mysql_insert_id();
@@ -400,10 +457,7 @@ if ($action != 'delete') {
 			} else {
 			// echo 'Error in Database. Possibly the SQL statement is incorrect: '.$sql_edit;
 			}
-		} else {
-			echo '<p>'.$sql_edit.'</p>';
-			echo '<p>'.mysql_error().'</p>';
-		}
+		} else show_error(mysql_error(), $sql_edit, false);
 	}
 }
 if ($sql_where) {
@@ -417,7 +471,9 @@ if ($sql_where) {
 }
 $sql.= $sqlorder; // must be here because of where-clause
 
+//
 // Display Updated, Added or Editable Record
+//
 
 if ($mode) {
 	$display = 'form';
@@ -431,8 +487,7 @@ if ($mode) {
 		$h3 = $text[$action].' '.$text['failed'];
 		echo '<div id="add">'."\n";
 		echo '<h3>'.ucfirst($h3).'</h3>'."\n";
-		echo '<p><em>'.$text['reason'].':</em> '.$my_error;
-		if ($list) echo '<br><em>'.$text['sql-query'].':</em> '.$error_sql.'</p>';
+		show_error($my_error, $error_sql, false);
 		echo '</div>'."\n";
 		$display = false;
 	}
@@ -447,14 +502,24 @@ if ($mode) {
 if ($display) {
 	echo '<div id="add">'."\n";
 	echo '<h3>'.ucfirst($h3).'</h3>'."\n";
-	echo '<table class="record">'; 
+	echo '<table class="record">';
+	$append_next = false; 
 	foreach ($query as $field) {
 		if (!($field['type'] == 'id' AND !$list)) {
-			echo '<tr>';
-			echo '<th>';
-			echo $field['title'];
-			echo '</th> ';
-			echo '<td>';
+			if (!$append_next) {
+				echo '<tr><th>';
+				echo $field['title'];
+				echo '</th> <td>';
+			}
+			if (isset($field['append_next']) && $field['append_next']) $append_next = true;
+			else $append_next = false;
+			if (!isset($field['size'])) $field['size'] = 32;
+			if (isset($field['default'])) {
+				if (!$record) {
+					$record[$field['field_name']] = $field['default'];
+					$default_value = true; // must be unset later on because of this value
+				}
+			}
 			if ($record && isset($field['factor']) && $record[$field['field_name']]) echo $record[$field['field_name']] /=2;
 			if (isset($values[$field['field_name']])) {
 				if ($field['type'] == 'select') $field['type_detail'] = 'select';
@@ -499,7 +564,7 @@ if ($display) {
 							}
 							unset ($my_i);
 						}
-					} else echo $text['database_error'].': '.mysql_error().'<br>'.$mysql;
+					} else show_error(mysql_error(), $mysql, false);
 				} else {
 					echo $values[$field['field_name']];
 				}
@@ -508,7 +573,7 @@ if ($display) {
 				OR $field['type'] == 'set' OR $field['type'] == 'mail'
 				OR $field['type'] == 'datetime'
 			) {
-				if ($display == 'form') echo '<input type="text" name="'.$field['field_name'].'" size="32" ';
+				if ($display == 'form') echo '<input type="text" name="'.$field['field_name'].'" size="'.$field['size'].'" ';
 				if ($display == 'form' && isset($field['required']) && $field['required']) echo ' class="required"';
 				if ($record) {
 					if ($display == 'form') echo 'value="';
@@ -558,12 +623,12 @@ if ($display) {
 					if ($display == 'form') echo '>';
 				}
 				if (isset($field['unit'])) {
-					if ($record) { 
-						if ($record[$field['field_name']]) // display unit if record not null
-							echo ' '.$field['unit']; 
-					} else {
+					//if ($record) { 
+					//	if ($record[$field['field_name']]) // display unit if record not null
+					//		echo ' '.$field['unit']; 
+					//} else {
 						echo ' '.$field['unit']; 
-					}
+					//}
 				}
 			} elseif ($field['type'] == 'thumbnail') {
 				if ($record) {
@@ -580,17 +645,6 @@ if ($display) {
 					if ($display == 'form') echo '"';
 				} 
 				if ($display == 'form') echo '>';
-/*			} elseif ($field['type'] == 'currency') {
-				if ($display == 'form') echo '<input type="text" name="'.$field['field_name'].'" size="32" ';
-				if ($display == 'form' && isset($field['required']) && $field['required']) echo ' class="required"';
-				if ($record) {
-					if ($display == 'form') echo 'value="';
-					echo waehrung($record[$field['field_name']]);
-					if ($display == 'form') echo '"';
-				} 
-				if ($display == 'form') echo '>';
-				echo ' &euro;';
-*/
 			} elseif ($field['type'] == 'memo') {
 				if ($display == 'form') echo '<textarea rows="8" cols="60" name="'.$field['field_name'];
 				if ($display == 'form' && isset($field['required']) && $field['required']) echo ' class="required"';
@@ -619,11 +673,7 @@ if ($display) {
 									if (mysql_num_rows($result) == 1)
 										$index = mysql_result($result,0,0);
 									else echo $sql_where[2];
-								} else {
-									echo mysql_error();
-									echo '<br>';
-									echo $sql_where[2];
-								}
+								} else show_error(mysql_error(), $sql_where[2], false);
 							}
 							$my_where .= $sql_where[0]." = '".$index."'"; 	
 						}
@@ -735,7 +785,13 @@ if ($display) {
 					}
 				} else echo '('.$text['calculated_field'].')';
 			}
-			echo '</td></tr>'."\n";
+			if (isset($default_value)) {
+				if ($default_value)
+					// unset $record so following fields are empty
+					unset($record[$field['field_name']]); 
+			}
+			echo ' ';
+			if (!$append_next) echo '</td></tr>'."\n";
 		}
 	}
 	if ($mode) {
@@ -747,8 +803,8 @@ if ($display) {
 	} else {
 		if ($list) {
 			echo '<tr><th>&nbsp;</th> <td class="reedit">';
-			echo '<a href="'.$_SERVER['PHP_SELF'].'?mode=edit&amp;id='.$record_id.'&'.$extras.'">'.$text['edit'].'</a>';
-			if ($delete) echo ' | <a href="'.$_SERVER['PHP_SELF'].'?mode=delete&amp;id='.$record_id.'&'.$extras.'">'.$text['delete'].'</a>';
+			echo '<a href="'.$_SERVER['PHP_SELF'].'?mode=edit&amp;id='.$record_id.$add_extras.'">'.$text['edit'].'</a>';
+			if ($delete) echo ' | <a href="'.$_SERVER['PHP_SELF'].'?mode=delete&amp;id='.$record_id.$add_extras.'">'.$text['delete'].'</a>';
 			echo '</td></tr>'."\n";
 		}
 	}
@@ -760,8 +816,7 @@ if ($display) {
 	echo '</div>'."\n";
 }
 
-if ($extras) $addextras = '&'.$extras;
-if ($mode != 'add' && $add) echo '<p><a href="'.$_SERVER['PHP_SELF'].'?mode=add'.$addextras.'">'.$text['add_new_record'].'</a></p>';
+if ($mode != 'add' && $add) echo '<p><a href="'.$_SERVER['PHP_SELF'].'?mode=add'.$add_extras.'">'.$text['add_new_record'].'</a></p>';
 if ($referer) echo '<p><a href="'.$referer.'">'.$text['back-to-overview'].'</a></p>';
 
 
@@ -807,9 +862,13 @@ if ($list AND $tabelle) {
 			if (isset($field['display_field'])) $order_val = $field['display_field'];
 			else $order_val = $field['field_name'];
 			$uri = addvar($_SERVER['REQUEST_URI'], 'order', $order_val);
-			if ($uri == $_SERVER['REQUEST_URI']) $uri.= '&dir=desc';
+			$order_dir = 'asc';
+			if ($uri == $_SERVER['REQUEST_URI']) {
+				$uri.= '&dir=desc';
+				$order_dir = 'desc';
+			}
 			echo $uri;
-			echo '">';
+			echo '" title="'.$text['order by'].' '.strip_tags($field['title']).' ('.$text[$order_dir].')">';
 		}
 		echo $field['title'];
 		if ($field['type'] != 'calculated')
@@ -827,9 +886,7 @@ if ($list AND $tabelle) {
 	if ($limit) $sql.= ' LIMIT '.($limit-20).', 20';
 	$result = mysql_query($sql);
 	if (!$result) {
-		echo '<p>'.$text['error-sql-incorrect'].':<br>';
-		echo $sql.'</p>';
-		echo '<p>'.mysql_error().'</p>';
+		show_error (mysql_error(), $sql, $text['error-sql-incorrect'], false);
 	} else {
 		if (mysql_num_rows($result) > 0) {
 			$z = 0;
@@ -864,6 +921,8 @@ if ($list AND $tabelle) {
 								if (!isset($sum[$field['title']])) $sum[$field['title']] = 0;
 								$sum[$field['title']] .= $my_sum;
 							}
+						} elseif ($field['calculation'] == 'sql') {
+							echo $line[$field['field_name']];
 						}
 					} elseif ($field['type'] == 'image') {
 						if (isset($field['path'])) {
@@ -873,7 +932,10 @@ if ($list AND $tabelle) {
 						echo '<img src="'.$level.'/'.$line[$field['field_name']].'" alt="'.$line[$field['field_name']].'">';
 					} else {
 						if ($field['type'] == 'url') echo '<a href="'.$line[$field['field_name']].'">';
-						if (isset($field['link'])) echo '<a href="'.$field['link'].$line[$field['field_name']].'">';
+						if (isset($field['link'])) {
+							if (is_array($field['link'])) echo '<a href="'.show_link($field['link'], $line).$line[$field['field_name']].'">';
+							else echo '<a href="'.$field['link'].$line[$field['field_name']].'">';
+						}
 						if (isset($field['display_field'])) echo htmlspecialchars($line[$field['display_field']]);
 						else {
 							if (isset($field['factor']) && $line[$field['field_name']]) $line[$field['field_name']] /=2;
@@ -901,17 +963,11 @@ if ($list AND $tabelle) {
 					echo '</td>';
 					if ($field['type'] == 'id') $id = $line[$field['field_name']];
 				}
-				echo '<td class="editbutton"><a href="'.$_SERVER['PHP_SELF'].'?mode=edit&amp;id='.$id;
-				echo '&'.$extras;
-				echo '">'.$text['edit'].'</a>';
-				if ($delete) {
-					echo ' | <a href="'.$_SERVER['PHP_SELF'].'?mode=delete&amp;id='.$id;
-					echo '&'.$extras;
-					echo '">'.$text['delete'].'</a>';
-				}
+				echo '<td class="editbutton"><a href="'.$_SERVER['PHP_SELF'].'?mode=edit&amp;id='.$id.$add_extras.'">'.$text['edit'].'</a>';
+				if ($delete) echo '&nbsp;| <a href="'.$_SERVER['PHP_SELF'].'?mode=delete&amp;id='.$id.$add_extras.'">'.$text['delete'].'</a>';
 				if (isset($more_actions)) {
 					foreach ($more_actions as $new_action) {
-						echo ' | <a href="'.$new_action;
+						echo '&nbsp;| <a href="'.$new_action;
 						if (isset($more_actions_url)) {
 							if (is_array($more_actions_url)) {
 								foreach (array_keys($more_actions_url) as $part_key) {
@@ -943,7 +999,7 @@ if ($list AND $tabelle) {
 ?>
 </tbody>
 <?php 
-if ($tfoot) {
+if ($tfoot && isset($z)) {
 	echo '<tfoot>'."\n";
 	echo '<tr>';
 	foreach ($table_query as $field) {
@@ -968,7 +1024,7 @@ if ($tfoot) {
 
 <?php 
 	if ($mode != 'add' & $add) {
-		echo '<p><a href="'.$_SERVER['PHP_SELF'].'?mode=add'.$addextras.'">'.$text['add_new_record'].'</a></p>';
+		echo '<p><a href="'.$_SERVER['PHP_SELF'].'?mode=add'.$add_extras.'">'.$text['add_new_record'].'</a></p>';
 	}
 	if ($limit) {
 		$next = false;
