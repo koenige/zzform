@@ -13,21 +13,15 @@
 	$var['latitude'] = 69¡10'36.4"N	
 */
 
-function dec2dms_sub($mer_dec)
-{
+function dec2dms_sub($mer_dec) {
 	$mer_dms = array ('deg' => '', 'min' => '', 'sec' => '', 'orientation' => '');
-	if ($mer_dec < 0)
-	{
+	if ($mer_dec < 0) {
 		// southern hemisphere
 		$mer_dms['orientation'] = '-';
 		$mer_dec = -$mer_dec;
-	}
-	elseif ($mer_dec == 0)
-	{
+	} elseif ($mer_dec == 0) {
 		$mer_dms['orientation'] = ' ';
-	}
-	else
-	{
+	} else {
 		$mer_dms['orientation'] = '+';
 	}
 
@@ -46,9 +40,9 @@ function dec2dms_sub($mer_dec)
 // Now you would like to have latitude and longitude treated at the same time
 // and of course, differently
 
-function dec2dms($lat_dec, $lon_dec)
-{
-	if (!is_null($lat_dec)) {
+function dec2dms($lat_dec, $lon_dec) {
+	global $precision;
+	if (!is_null($lat_dec) && !is_null($lon_dec)) {
 		$lat_dms = dec2dms_sub($lat_dec);
 		if ($lat_dms['orientation'] == "+") {$lat_dms['orientation'] = "N";}
 		if ($lat_dms['orientation'] == "-") {$lat_dms['orientation'] = "S";}
@@ -58,11 +52,15 @@ function dec2dms($lat_dec, $lon_dec)
 		$coords_dms = array (
 			"lat" => $lat_dms,
 			"latdec" => $lat_dec,
-			"latitude" => $lat_dms['deg']."&deg;".$lat_dms['min']."'".$lat_dms['sec'].'"'.$lat_dms['orientation'], 
+			"latitude" => $lat_dms['deg']."°".$lat_dms['min']."'".$lat_dms['sec'].'"'.$lat_dms['orientation'], 
 			"lon" => $lon_dms,
 			"londec" => $lon_dec,
-			"longitude" => $lon_dms['deg']."&deg;".$lon_dms['min']."'".$lon_dms['sec'].'"'.$lon_dms['orientation']
+			"longitude" => $lon_dms['deg']."°".$lon_dms['min']."'".$lon_dms['sec'].'"'.$lon_dms['orientation']
 		);
+		if ($precision) {
+			$coords_dms['latdec'.$precision] = $lat_dec * pow(10, $precision);
+			$coords_dms['londec'.$precision] = $lon_dec * pow(10, $precision);
+		}
 	} else {
 		$coords_dms = '';
 	}
