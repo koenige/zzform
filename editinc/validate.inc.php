@@ -10,6 +10,7 @@
 */
 $do_validation = true; // enables validation
 
+if (!isset($db)) $db = new mysql_db;
 
 function checkmail($cemail) {
     if (eregi("^[0-9a-z]([-_.]?[0-9a-z])*@[0-9a-z]([-.]?[0-9a-z])*\\.([a-z]{2}|com|edu|gov|int|mil|net|org|shop|aero|biz|coop|info|museum|name|pro)$", $cemail, $check))
@@ -73,7 +74,7 @@ function is_url( $url )
      	#echo "</pre>";
      if ( @$parts['scheme'] != "http" && @$parts['scheme'] != "https" && @$parts['scheme'] != "ftp" && @$parts['scheme'] != "gopher" )
           return false;
-     else if ( !@eregi( "^[0-9a-z]([-.]?[0-9a-z])*\.[a-z]{2,3}$", $parts['host'], $regs ) )
+     else if ( !@eregi( "^[0-9a-z]([-.]?[0-9a-z])*\.[a-z]{2,6}$", $parts['host'], $regs ) )
           return false;
      else if ( !@eregi( "^([0-9a-z-]|[\_])*$", $parts['user'], $regs ) )
           return false;
