@@ -1,0 +1,9 @@
+menu, .noprint {display: none;}
+.editbutton, .recordid {display: none;}
+#back-overview {display: none;}
+.add-new {display: none;}
+a:link {color: black; text-decoration: none;}
+
+body {font-size: 11pt;}
+tr {page-break-inside: avoid;}
+.where {display: none;}
