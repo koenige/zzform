@@ -25,12 +25,11 @@ function print_editform($form_coords, $coords) {
 	} else {
 		echo "Programmer's fault. Variable must have lat or lon in its name";
 	}
-
 	$text_pos = "text_".$orientations['+'];
 	$text_neg = "text_".$orientations['-'];
 
 ?>
-<select name="<?php echo $form_coords; ?>_orientation" id="<?php echo $form_coords; ?>_orientation" size="1">
+<select name="<?php echo $form_coords; ?>orientation" id="<?php echo $form_coords; ?>_orientation" size="1">
 	<option <?php 
 	
 	if ($coords[$form_coords_ll]['orientation'] == $orientations['+']) {
