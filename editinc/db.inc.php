@@ -1,29 +1,24 @@
-<?php
+<?php 
 
-if (is_dir("/Users/Gustaf/")) {
-	// it's a mac
-	include ("/Users/pwd.inc"); // mac
-	$verbindung = mysql_connect('localhost',$db_user,$db_passwort);
-	$dbname = 'photos';
+if (file_exists('/Users/Gustaf/')) {
+	include ("/Users/pwd.inc"); //mac
+	define ("DB_NAME", '');
+	define ("DB_HOST", 'localhost');
+	define ("DB_USER", $db_user);
 } else {
-	// dem2004.de
-	include ("/www/dem2004.de/includes/pwd.inc.php"); //win
-	$verbindung = mysql_connect('localhost',$db_user,$db_passwort);
-	$dbname = 'db53010';
+	$db_passwort = '';
+	define ('DB_USER', '');
+	define ('DB_NAME', '');
+	define ('DB_HOST', 'localhost');
 }
 
-mysql_select_db($dbname);
+#datenbankverbindung
 
+	define ("DB_PWD", $db_passwort);
+	
+	#datenbank verbindung aufbauen
+	$verbindung = mysql_connect(DB_HOST, DB_USER, DB_PWD);
+	mysql_select_db(DB_NAME);
 
-function mysql_enum_values($table, $field)
-{
-   $sql = "SHOW COLUMNS FROM $table LIKE '$field'";
-   $sql_res = mysql_query($sql)
-       or die("Could not query:\n$sql");
-   $row = mysql_fetch_assoc($sql_res);
-   mysql_free_result($sql_res);
-   return(explode("','",
-       preg_replace("/.*\('(.*)'\)/", "\\1",
-           $row["Type"])));
-}
+	if (isset($editinc)) $db = new mysql_db;
 ?>
