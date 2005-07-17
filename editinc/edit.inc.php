@@ -6,7 +6,7 @@
 /*
 
 	This script (c) Copyright 2004/2005 Gustaf Mossakowski, gustaf@koenige.org
-	No use without permission
+	No use without permission. All rights reserved.
 
 
 	$query[4]['sql_where'][1] = array(
@@ -215,7 +215,7 @@ if (isset($language) && $language != 'en')
 	include_once($level.'/'.$inc.'/edit-'.$language.'.inc.php');
 if (!isset($show_output)) $show_output = true; // standardmaessig wird output angezeigt
 
-if (!isset($verbindung)) include ($level.'/'.$inc.'/db.inc.php');
+if (!isset($verbindung)) include_once ($level.'/'.$inc.'/db.inc.php');
 if (!function_exists('datum_de')) include ($level.'/'.$inc.'/numbers.inc.php');
 if (file_exists($level.'/'.$inc.'/dec2dms.inc.php')) include_once($level.'/'.$inc.'/dec2dms.inc.php');
 if (file_exists($level.'/'.$inc.'/coords.inc.php')) include_once($level.'/'.$inc.'/coords.inc.php');
@@ -223,6 +223,8 @@ if (file_exists($level.'/'.$inc.'/coords-edit.inc.php')) include_once($level.'/'
 if (file_exists($level.'/'.$inc.'/validate.inc.php')) include_once($level.'/'.$inc.'/validate.inc.php');
 if (file_exists($level.'/'.$inc.'/markdown.php')) include_once($level.'/'.$inc.'/markdown.php');
 if (file_exists($level.'/'.$inc.'/func/markdown.php')) include_once($level.'/'.$inc.'/func/markdown.php');
+if (file_exists($level.'/'.$inc.'/textile.php')) include_once($level.'/'.$inc.'/textile.php');
+if (file_exists($level.'/'.$inc.'/func/textile.php')) include_once($level.'/'.$inc.'/func/textile.php');
 /*
 if (!function_exists('waehrung')) {
 	if (file_exists ($level.'/'.$inc.'/waehrung.inc.php'))
@@ -1120,11 +1122,14 @@ if ($display) {
 					}
 					$output.=$myvalue;
 				} elseif (isset($field['enum'])) {
+					$myi=0;
 					if ($display == 'form') {
 						if (count($field['enum']) <= 2) {
-							$output.= '<span class="hidden"><input type="radio" name="'.$field['field_name'].'" value=""';
+							$myid = 'radio-'.$field['field_name'].'-'.$myi;
+							$output.= '<label for="'.$myid.'" class="hidden"><input type="radio" id="'.$myid.'" name="'.$field['field_name'].'" value=""';
 							if ($record) if (!$record[$field['field_name']]) $output.= ' checked';
-							$output.= '>'.$text['no_selection'].'</span>';
+							$output.= '>'.$text['no_selection'].'</label>';
+
 						} else {
 							$output.= '<select name="'.$field['field_name'].'">'."\n";
 							$output.= '<option value=""';
@@ -1135,11 +1140,12 @@ if ($display) {
 					foreach ($field['enum'] as $set) {
 						if ($display == 'form') {
 							if (count($field['enum']) <= 2) {
-								$output.= ' <input type="radio" name="'.$field['field_name'].'" value="'.$set.'"';
-								if ($record) {
-									if ($set == $record[$field['field_name']]) $output.= ' checked';
-								} 
-								$output.= '> '.$set;
+								$myi++;
+								$myid = 'radio-'.$field['field_name'].'-'.$myi;
+								$output.= ' <label for="'.$myid.'"><input type="radio" id="'.$myid.'" name="'.$field['field_name'].'" value="'.$set.'"';
+								if ($record) if ($set == $record[$field['field_name']]) $output.= ' checked';
+								$output.= '> '.$set.'</label>';
+
 							} else {
 								$output.= '<option value="'.$set.'"';
 								if ($record) if ($set == $record[$field['field_name']]) $output.= ' selected';
@@ -1302,6 +1308,7 @@ if ($list AND $tabelle) {
 		$output.= '<tbody>'."\n";
 	} else {
 		$tabelle = false;
+		$show_search = true;
 		$output.= '<p>'.$text['table-empty'].'</p>';
 	}
 //
@@ -1404,29 +1411,29 @@ if ($list AND $tabelle) {
 
 // Table footer
 
-$output .= '</tbody>'."\n";
+	$output .= '</tbody>'."\n";
 
-if ($tfoot && isset($z)) {
-	$output.= '<tfoot>'."\n";
-	$output.= '<tr>';
-	foreach ($table_query as $field) {
-		if ($field['type'] == 'id') $output.= '<td class="recordid">'.$z.'</td>';
-		elseif (isset($field['sum']) AND $field['sum'] == true) {
-			$output.= '<td>';
-			if (isset($field['calculation']) AND $field['calculation'] == 'hours')
-				$sum[$field['title']] = hours($sum[$field['title']]);
-			$output.= $sum[$field['title']];
-			if (isset($field['unit'])) $output.= '&nbsp;'.$field['unit'];	
-			$output.= '</td>';
+	if ($tfoot && isset($z)) {
+		$output.= '<tfoot>'."\n";
+		$output.= '<tr>';
+		foreach ($table_query as $field) {
+			if ($field['type'] == 'id') $output.= '<td class="recordid">'.$z.'</td>';
+			elseif (isset($field['sum']) AND $field['sum'] == true) {
+				$output.= '<td>';
+				if (isset($field['calculation']) AND $field['calculation'] == 'hours')
+					$sum[$field['title']] = hours($sum[$field['title']]);
+				$output.= $sum[$field['title']];
+				if (isset($field['unit'])) $output.= '&nbsp;'.$field['unit'];	
+				$output.= '</td>';
+			}
+			else $output.= '<td>&nbsp;</td>';
 		}
-		else $output.= '<td>&nbsp;</td>';
+		$output.= '<td class="editbutton">&nbsp;</td>';
+		$output.= '</tr>'."\n";
+		$output.= '</tfoot>'."\n";
 	}
-	$output.= '<td class="editbutton">&nbsp;</td>';
-	$output.= '</tr>'."\n";
-	$output.= '</tfoot>'."\n";
-}
 
-$output.= '</table>'."\n";
+	$output.= '</table>'."\n";
 
 	if ($mode != 'add' && $add && $tabelle) {
 		$output.= '<p class="add-new bottom-add-new"><a href="'.$self.'?mode=add'.$add_extras.'">'.$text['add_new_record'].'</a></p>';
@@ -1467,21 +1474,24 @@ $output.= '</table>'."\n";
 			$output.= '</ul>';
 		}
 	}
+}
+$output.= '</div>';
+if (($list AND $tabelle) OR isset($show_search)) {
 	if ($editvar['search'] == true) {
 		$output.= "\n";
 		$output.= '<form method="GET" action="'.$self;
-		$output.= '">';
+		$output.= '" class="search">';
 		foreach (array_keys($_GET) as $key)
 			if (is_array($_GET[$key]))
 				foreach(array_keys($_GET[$key]) as $subkey)
 					$output.= '<input type="hidden" name="'.$key.'['.$subkey.']" value="'.$_GET[$key][$subkey].'">';
 			else 
-				if ($key != 'q' && $key != 'scope')
+				if ($key != 'q' && $key != 'scope' && $key != 'limit')
 					$output.= '<input type="hidden" name="'.$key.'" value="'.$_GET[$key].'">';
 		$output.= '<input type="text" size="30" name="q"';
 		if (isset($_GET['q'])) $output.= ' value="'.htmlchars($_GET['q']).'"';
 		$output.= '>';
-		$output.= '<input type="submit" value="'.$text['search'].'">';
+		$output.= ' <input type="submit" value="'.$text['search'].'">';
 		$output.= ' '.$text['in'].' ';	
 		$output.= '<select name="scope">';
 		$output.= '<option value="">'.$text['all fields'].'</option>';
@@ -1497,7 +1507,6 @@ $output.= '</table>'."\n";
 	}
 }
 
-$output.= '</div>';
 if ($show_output) echo $output;
 
 

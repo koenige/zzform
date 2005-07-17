@@ -39,10 +39,10 @@ function ImageCopyResampleBicubic (&$dst_img, &$src_img, $dst_x, $dst_y, $src_x,
 }
 
 
-function thumbnail ($image, $new_image, $thumbw, $ausgabe, $type) {
+function thumbnail ($image, $new_image, $thumbh, $ausgabe) {
 
 	$size = getimagesize($image);
-	$thumbh = (int)($thumbw * $size[1] / $size[0]);
+	$thumbw = (int)($thumbh * $size[0] / $size[1]);
 
 	$src_img = ImageCreateFromJPEG($image);
 	$dst_img = ImageCreateTrueColor($thumbw, $thumbh);
@@ -50,11 +50,11 @@ function thumbnail ($image, $new_image, $thumbw, $ausgabe, $type) {
 	ImageCopyResampled($dst_img, $src_img, 0,0,0,0, $thumbw, $thumbh, $size[0], $size[1]);
 	//ImageCopyResampleBicubic($dst_img, $src_img, 0,0,0,0, $thumbw, $thumbh, ImageSX($src_img), ImageSY($src_img));
 	
-	$thumbfilename = str_replace('.jpg', '.'.$type.'.jpg', $new_image); 
+	$thumbfilename = str_replace('.jpg', '.jpg', $new_image); 
 	ImageJPEG($dst_img, $thumbfilename);
 
-	if ($ausgabe)
-		echo ('<a href="'.$image.'"><IMG SRC="'.$thumbfilename.'" border="0" width="'.$thumbw.'" height="'.$thumbh.'"></a>');
+	//if ($ausgabe)
+	//	echo ('<a href="'.$image.'"><IMG SRC="'.$thumbfilename.'" border="0" width="'.$thumbw.'" height="'.$thumbh.'"></a>');
 
 	ImageDestroy($dst_img);
 
