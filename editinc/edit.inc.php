@@ -290,6 +290,7 @@ if (isset($_GET['mode'])) {
 $output.= '<h2>';
 $output.= (!isset($heading)) ? ueberschrift($maintable) : $heading;
 $output.= '</h2>'."\n";
+if (!empty($zz_subheading)) $output .= $zz_subheading;
 
 // Extra GET Parameter
 
