@@ -191,7 +191,10 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 				if ($my['POST'][$my['fields'][$f]['field_name']]) {
 					if (get_magic_quotes_gpc()) // sometimes unwanted standard config
 						$my['POST'][$my['fields'][$f]['field_name']] = stripslashes($my['POST'][$my['fields'][$f]['field_name']]);
-					$my['POST'][$my['fields'][$f]['field_name']] = '"'.mysql_real_escape_string($my['POST'][$my['fields'][$f]['field_name']]).'"';
+					if (function_exists('mysql_real_escape_string')) // just from 4.3.0
+						$my['POST'][$my['fields'][$f]['field_name']] = '"'.mysql_real_escape_string($my['POST'][$my['fields'][$f]['field_name']]).'"';
+					else
+						$my['POST'][$my['fields'][$f]['field_name']] = '"'.addslashes($my['POST'][$my['fields'][$f]['field_name']]).'"';
 				} else
 					if (isset($my['fields'][$f]['number_type']) AND !is_null($my['POST'][$my['fields'][$f]['field_name']]) 
 						AND $my['fields'][$f]['number_type'] == 'latitude' || $my['fields'][$f]['number_type'] == 'longitude')
