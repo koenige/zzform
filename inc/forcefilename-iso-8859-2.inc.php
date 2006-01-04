@@ -1,0 +1,130 @@
+<?php
+// ---------------------------------------------------------
+// function forceFilename($str, $spaceChar)
+//
+//  iso 8859 2 version
+//
+// convert $str to a UNIX/Windows-conform filename
+// a char for $spaceChar will replace the default whitespace '_'
+// note when using '.' internet exploer adds automatically "[1]"
+// for e.g. "This[1].is.a.filename.ext" in the save as dialog.
+// ---------------------------------------------------------
+
+function forceFilename($str, $spaceChar = '-')
+{
+ 
+  $str=trim($str);
+ 
+  $_str = '';
+  $i_max = strlen($str);
+  for ($i=0; $i<strlen($str); $i++)
+  {
+   $ch = $str[$i];
+   switch ($ch)
+   {
+     case 'Ä':
+     $_str .= 'AE'; break;   
+    
+     case 'ä':
+     $_str .= 'ae'; break;
+    
+     case 'á':  case 'â': case 'ã':  case '±':
+     $_str .= 'a'; break;   
+     case 'Á':  case 'Â': case 'Ã':  case '¡':
+     $_str .= 'a'; break;   
+    
+     case 'Ç': case 'Æ': case 'È':
+     $_str .= 'C'; break;
+     case 'ç': case 'ç': case 'è':
+     $_str .= 'c'; break;
+
+     case 'Ð': case 'Ï':
+     $_str .= 'D'; break;
+     case 'ð': case 'ï':
+     $_str .= 'd'; break;
+ 
+     case 'é': case 'ë': case 'ê': case 'ì': 
+     $_str .= 'e'; break;   
+     case 'É': case 'Ë': case 'Ê': case 'Ì': 
+     $_str .= 'E'; break;   
+    
+     case 'Í':  case 'Î':
+     $_str .= 'I'; break;   
+     case 'í':  case 'î':
+     $_str .= 'i'; break;   
+    
+     case '³': case 'µ':  case 'å':
+     $_str .= 'l'; break;
+     case '£': case '¥': case 'Å':
+     $_str .= 'L'; break;
+
+     case 'Ò': case 'Ñ':
+     $_str .= 'N'; break;
+     case 'ò': case 'ñ':
+     $_str .= 'n'; break;
+    
+     case 'Ö': 
+     $_str .= 'OE'; break;
+     case 'ö':
+     $_str .= 'oe'; break;
+    
+     case 'Ó':  case 'Ô': case 'Õ':
+     $_str .= 'O'; break;   
+     case 'ó':  case 'ô': case 'õ':
+     $_str .= 'o'; break;   
+    
+     case 'À': case 'Ø': 
+     $_str .= 'R'; break;
+     case 'à': case 'ø': 
+     $_str .= 'r'; break;
+ 
+     case 'ß':
+     $_str .= 'ss'; break;
+    
+     case '¦':  case '©':  case 'ª':
+     $_str .= 'S'; break;   
+     case '¶': case '¹': case 'º':
+     $_str .= 's'; break;   
+ 
+     case '«': case 'Þ':
+     $_str .= 'T'; break;   
+     case '»': case 'þ':
+     $_str .= 't'; break;   
+    
+     case 'Ú': case 'Û':
+     $_str .= 'U'; break;   
+     case 'ú': case 'û':
+     $_str .= 'u'; break;   
+    
+     case 'Ü':
+     $_str .= 'UE'; break;
+     case 'ü':
+     $_str .= 'ue'; break;
+    
+     case 'Ý':
+       $_str .= 'Y'; break;
+      
+     case 'ý':
+     $_str .= 'y'; break;
+
+     case '¼': case '¾': case '¿':
+     $_str .= 'z'; break;
+     case '¬': case '®': case '¯':
+     $_str .= 'Z'; break;
+        
+     case ' ': $_str .= $spaceChar; break;
+
+     case '/': case '\'': case '-': case ':':
+     $_str .= '-'; break;
+    
+     default : if (ereg('[A-Za-z0-9\(\)_]', $ch)) { $_str .= $ch;  } break;
+   }
+  }   
+  
+  $_str = str_replace("{$spaceChar}{$spaceChar}", "{$spaceChar}", $_str);
+  $_str = str_replace("{$spaceChar}-", '-', $_str);
+  $_str = str_replace("-{$spaceChar}", '-', $_str);
+ 
+  return $_str;
+}
+?>

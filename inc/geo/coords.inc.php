@@ -27,11 +27,10 @@ function dms2db($coords) {
 	$error_nulls = 0;
 	
 	foreach ($mers as $mer) {
-		if ($mer == 'lat') {
+		if ($mer == 'lat')
 			$error_message .= "[Latitude]:  ";
-		} elseif ($mer == 'lon') {
+		elseif ($mer == 'lon')
 			$error_message .= "[Longitude]: ";
-		}
 		if (isset($coords[$mer])) {
 			if ($coords[$mer]['deg'] != NULL) {
 				#if (gettype($coords[$mer]['deg']) != "integer") {

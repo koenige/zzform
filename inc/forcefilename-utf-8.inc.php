@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // ---------------------------------------------------------
 // function forceFilename($str, $spaceChar)
 //
@@ -8,10 +8,10 @@
 // for e.g. "This[1].is.a.filename.ext" in the save as dialog.
 // ---------------------------------------------------------
 
-function forceFilename($str, $spaceChar = '-')
+function forceFilename($str, $spaceChar = '.')
 {
  
-  $str=trim($str);
+  $str=trim(utf8_decode($str));
  
   $_str = '';
   $i_max = strlen($str);
@@ -20,66 +20,66 @@ function forceFilename($str, $spaceChar = '-')
    $ch = $str[$i];
    switch ($ch)
    {
-     case '√Ñ': case '√Ü':
+     case '�': case '�':
      $_str .= 'AE'; break;   
     
-     case 'ä': case '√¶':
+     case '�': case '�':
      $_str .= 'ae'; break;
     
-     case '√†': case '√°':  case '√¢': case '√£':  case '√•':
+     case '�': case '�':  case '�': case '�':  case '�':
      $_str .= 'a'; break;   
-     case '√Ä': case '√Å':  case '√Ç': case '√É':  case '√Ö':
+     case '�': case '�':  case '�': case '�':  case '�':
      $_str .= 'a'; break;   
     
-     case '√á': case '√ß':
+     case '�': case '�':
      $_str .= 'c'; break;
  
-     case '√®': case '√©':  case '√™': case '√´':
+     case '�': case '�':  case '�': case '�':
      $_str .= 'e'; break;   
     
-     case '√à': case '√â':  case '√ä': case '√ã':
+     case '�': case '�':  case '�': case '�':
      $_str .= 'E'; break;   
     
-     case '√å': case '√ç':  case '√é': case '√è':
+     case '�': case '�':  case '�': case '�':
      $_str .= 'I'; break;   
-     case '√¨': case '√≠':  case '√Æ': case '√Ø':
+     case '�': case '�':  case '�': case '�':
      $_str .= 'i'; break;   
     
-     case '√ë': case '√±':
+     case '�': case '�':
      $_str .= 'n'; break;
     
-     case '√ñ': 
+     case '�': 
      $_str .= 'OE'; break;
     
-     case '√∂':
+     case '�':
      $_str .= 'oe'; break;
     
-     case '√í': case '√ì':  case '√î': case '√ï':
+     case '�': case '�':  case '�': case '�':
      $_str .= 'O'; break;   
-     case '√≤': case '√≥':  case '√¥': case '√µ':
+     case '�': case '�':  case '�': case '�':
      $_str .= 'i'; break;   
     
-     case '√ü':
+     case '�':
      $_str .= 'ss'; break;
     
-     case '√ô': case '√ö':  case '√õ':
+     case '�': case '�':  case '�':
      $_str .= 'U'; break;   
-     case '√π': case '√∫':  case '√ª':
+     case '�': case '�':  case '�':
      $_str .= 'u'; break;   
     
-     case '√ú':
+     case '�':
        $_str .= 'UE'; break;
       
-     case '√º':
+     case '�':
      $_str .= 'ue'; break;
     
-     case '√ù':
+     case '�':
        $_str .= 'Y'; break;
       
-     case '√Ω': case '√ø':
+     case '�': case '�':
      $_str .= 'y'; break;
     
-     case '√ê':
+     case '�':
      $_str .= 'D'; break;
     
      case ' ': $_str .= $spaceChar; break;

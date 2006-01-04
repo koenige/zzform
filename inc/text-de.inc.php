@@ -55,5 +55,15 @@ $text['Database error. This query has ambiguous values in ID field.'] = 'Datenba
 $text['search'] = 'suche';
 $text['in'] = 'in';
 $text['all fields'] = 'allen Feldern';
+$text['review'] = 'Anzeigen';
+$text['hidden'] = 'versteckt';
+$text['dec'] = 'dez';
+$text['Cancel'] = 'Abbrechen';
+$text['Please enter more characters.'] = 'Bitte geben Sie mehr Buchstaben ein.';
+$text['records'] = 'Datens&auml;tze';
+$text['records total'] = 'Datens&auml;tze gesamt';
+$text['record total'] = 'Datensatz gesamt';
+$text['No entry found. Try less characters.'] = 'Keinen Eintrag gefunden. Versuchen Sie es mit weniger Zeichen.';
+$text['all'] = 'Alle';
 
 ?>

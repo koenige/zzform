@@ -1,0 +1,654 @@
+<?php 
+
+
+//
+//	functions
+//	(c) Gustaf Mossakowski <gustaf@koenige.org> 2004-05
+//
+
+function zz_error ($zz_error) {
+	global $zz_error;
+	global $zz_conf;
+	$output = '';
+	if (!isset($zz_error)) $zz_error = array();
+	if (!isset($zz_error['msg'])) $zz_error['msg'] = '';
+	if (!isset($zz_error['level'])) $zz_error['level'] = '';
+	if (!isset($zz_error['type'])) $zz_error['type'] = '';
+	if (!isset($zz_error['query'])) $zz_error['query'] = '';
+	if (!isset($zz_error['mysql'])) $zz_error['mysql'] = '';
+	if (isset($zz_error['msg']) && $zz_error['msg']) {
+		$output = '<div class="error">';
+		if ($zz_error['level'] == 'warning') $output.= '<strong>'.$text['Warning'].'!</strong> ';
+		//$output.= $text[$zz_error['msg']];
+		$output.= '<p>'.$zz_error['msg'].'</p>';
+		if ($zz_error['mysql']) $output.= $zz_error['mysql'].': ';
+		$output.= $zz_error['query'];
+		$output.= '</div>';
+		$zz_error = '';
+	}
+	$zz_error['msg'] = '';
+	$zz_error['level'] = '';
+	$zz_error['type'] = '';
+	$zz_error['query'] = '';
+	$zz_error['mysql'] = '';
+	if ($zz_conf['error_handling'] == 'mail' && $zz_conf['error_mail_to']) {
+		mail ($zz_conf['error_mail_to'], '['.$zz_conf['project'].']', $output, 'From: '.$zz_conf['error_mail_from']);
+		return false;
+	} else
+		return $output;
+}
+
+
+function zz_form_heading($string) {
+	$string = str_replace('_', ' ', $string);
+	$string = ucfirst($string);
+	return $string;
+}
+
+function unhtmlspecialchars( $string ) {
+	$string = str_replace ( '&amp;', '&', $string );
+	$string = str_replace ( '&#039;', '\'', $string );
+	$string = str_replace ( '&quot;', '\"', $string );
+	$string = str_replace ( '&lt;', '<', $string );
+	$string = str_replace ( '&gt;', '>', $string );
+	return $string;
+}
+   
+function hours($seconds) {
+	$hours = 0;
+	$minutes = 0;
+	while ($seconds >= 60) {
+		$seconds -= 60;
+		$minutes++;
+	}
+	while ($minutes >= 60) {
+		$minutes -= 60;
+		$hours++;
+	}
+	if (strlen($minutes) == 1) $minutes = '0'.$minutes;
+	$time = $hours.':'.$minutes;
+	return $time;
+}
+
+function field_in_where($field, $values) {
+	$where = false;
+	foreach (array_keys($values) as $value)
+		if ($value == $field) $where = true;
+	return $where;
+}
+
+function check_maxlength($field, $maintable) {
+	$sql = 'SHOW COLUMNS FROM '.$maintable.' LIKE "'.$field.'"';
+	$result = mysql_query($sql);
+	if ($result)
+		if (mysql_num_rows($result) == 1) {
+			$maxlength = mysql_fetch_array($result);
+			//preg_match('/varchar\((\d+)\)/s', $maxlength['Type'], $my_result);
+			//if ($my_result) return $my_result[1];
+			preg_match('/\((\d+)\)/s', $maxlength['Type'], $my_result);
+			if ($my_result) return ($my_result[1]);
+		}
+	return false;
+}
+
+function check_if_class ($field, $values) {
+	$class = false;
+	if ($field['type'] == 'id') $class[] = 'recordid';
+	elseif ($field['type'] == 'number' OR $field['type'] == 'calculated') $class[] = 'number';
+	if (!empty($_GET['order'])) 
+		if (!empty($field['field_name']) && $field['field_name'] == $_GET['order']) $class[] = 'order';
+		elseif (!empty($field['display_field']) && $field['display_field'] == $_GET['order']) $class[] = 'order';
+	if ($values)
+		if (isset($field['field_name'])) // does not apply for subtables!
+			if (field_in_where($field['field_name'], $values)) 
+				$class[] = 'where';
+	if ($class) return (' class="'.implode(' ',$class).'"');
+	else return false;
+}
+
+function addvar($uri, $field, $value) {
+	$uri_p = parse_url($uri);
+	if (isset($uri_p['query'])) {
+		parse_str($uri_p['query'], $queries);
+		unset($queries['dir']); // ORDER direction will be removed - attention if function will be used for other purposes
+	}
+	$queries[$field] = $value;
+	$new_uri = $uri_p['path'].'?'; 
+	// other uri parts are ignored, may be changed if necessary
+	// e. g. fragment.
+	foreach (array_keys($queries) as $query_key) {
+		if ($new_uri != $uri_p['path'].'?') $new_uri.= '&amp;';
+		if (is_array($queries[$query_key]))
+			foreach (array_keys($queries[$query_key]) as $qq_key)
+				$new_uri.= $query_key.'['.$qq_key.']='.$queries[$query_key][$qq_key];
+		else $new_uri.= $query_key.'='.$queries[$query_key];
+	}
+	return $new_uri;
+}
+
+function timestamp2date($timestamp) {
+	if ($timestamp) {
+		if (strstr($timestamp, '-')) { // new timestamp format, mysql 4 datetime
+			$date = substr($timestamp,8,2).'.'.substr($timestamp,5,2).'.'.substr($timestamp, 0,4).' ';
+			$date.= substr($timestamp,11,2).':'.substr($timestamp,14,2).':'.substr($timestamp,17,2);
+		} else {
+			$date = substr($timestamp,6,2).'.'.substr($timestamp,4,2).'.'.substr($timestamp, 0,4).' ';
+			$date.= substr($timestamp,8,2).':'.substr($timestamp,10,2).':'.substr($timestamp,12,2);
+		}
+		return $date;
+	} else return false;
+}
+
+function get_to_array($get) {
+	$extras = false;
+	foreach (array_keys($get) as $where_key)
+		$extras.= '&amp;where['.$where_key.']='.$get[$where_key];
+	return $extras;
+}
+
+function read_fields($array, $mode, $values, $table) {
+	foreach (array_keys($array) as $val_key) {
+		$values[$val_key] = $array[$val_key];
+		if ($mode == 'replace') {
+			if (substr($val_key, 0, strlen($table)) == $table) {
+				// maintable. aus string entfernen!
+				$val_key_new = substr($val_key, strlen($table) +1, (strlen($val_key) - strlen($table)));
+				$values[$val_key_new] = $array[$val_key];
+				unset ($values[$val_key]);
+			}
+			if (strpos($val_key, '.')) {
+				// macht obere Funktion eigentl. ueberfluessig, oder koennen Feldnamen Punkte enthalten?
+				$val_key_new = strstr($val_key, '.');
+				$val_key_new = substr($val_key_new, 1, strlen($val_key_new) -1);
+				$values[$val_key_new] = $array[$val_key];
+				unset ($values[$val_key]);
+			}
+		}
+	}
+	return $values;
+}
+
+function show_image($path, $record) {
+	global $text;
+	$img = false;
+	if ($record) {
+		$img = '<img src="';
+		$alt = $text['no_image'];
+		$img_src = '';
+		foreach (array_keys($path) as $part) {
+			if (substr($part,0,4) == 'root')
+				$root = $path[$part];
+			elseif (substr($part,0,4) == 'mode') {
+				$mode[] = $path[$part];
+			} elseif (substr($part,0,5) == 'field') {
+				if (isset($record[$path[$part]])) {
+					if (!isset($mode))
+						$img_src.= $record[$path[$part]];
+					else {
+						$content = $record[$path[$part]];
+						foreach ($mode as $mymode)
+							$content = $mymode($content);
+						$img_src.= $content;
+					}
+					$alt = 'Image: '.$record[$path[$part]];
+				} else return false;
+			} else $img_src.= $path[$part];
+		}
+		if (!isset($root))
+			$img.= $img_src;
+		else			// check whether image exists
+			if (file_exists($root.$img_src)) $img.= $img_src;
+			else return false;
+		$img.= '" alt="'.$alt.'" class="thumb">';
+	}
+	return $img;
+}
+
+function show_link($path, $record) {
+	$link = false;
+	if ($record)
+		foreach (array_keys($path) as $part)
+			if (substr($part,0,5) == 'field') $link.= $record[$path[$part]];
+			else $link.= $path[$part];
+	return $link;
+}
+
+function show_more_actions($more_actions, $more_actions_url, $id, $line = '') {
+	$act = 0;
+	$output = '';
+	foreach ($more_actions as $new_action) {
+		$new_action_url = strtolower(forceFilename($new_action));
+		if ($act) $output.= '&nbsp;| ';
+		$act++;
+		$output.= '<a href="'.$new_action_url;
+		if (isset($more_actions_url))
+			if (is_array($more_actions_url))
+				foreach (array_keys($more_actions_url) as $part_key)
+					if (substr($part_key, 0, 5) == 'field')
+						$output.= $line[$more_actions_url[$part_key]];
+					else
+						$output.= $more_actions_url[$part_key];
+			else
+				$output.= $more_actions_url;
+		else $output.= '.php?id=';
+		if (!isset($more_actions_url) OR !is_array($more_actions_url)) $output.= $id;
+		$output.= '&amp;referer='.urlencode($_SERVER['REQUEST_URI']);
+		$output.= '">'.$new_action.'</a>';
+	}
+	return $output;
+}
+
+function draw_select($line, $record, $field, $hierarchy, $level, $parent_field_name, $form) {
+	$output = '';
+	$i = 1;
+	$details = '';
+	if ($form == 'reselect')
+		$output = '<input type="text" size="32" name="'.$field['f_field_name'].'" value="';
+	elseif ($form) {
+		$output = '<option value="'.$line[0].'"';
+		if ($record) if ($line[0] == $record[$field['field_name']]) $output.= ' selected';
+		if ($hierarchy) $output.= ' class="level'.$level.'"';
+		$output.= '>';
+		$output.= str_repeat('&nbsp;', 6*$level); 
+	}
+	if (!isset($field['show_hierarchy'])) $field['show_hierarchy'] = false;
+	if (!isset($field['sql_index_only']) || !$field['sql_index_only'])
+		foreach (array_keys($line) as $key) {	// $i = 1: field['type'] == 'id'!
+			if ($key != $parent_field_name && !is_numeric($key) && $key != $field['show_hierarchy']) {
+				if ($details) $details.= ' | ';
+				if ($i > 1) $details.= $line[$key];
+				$i++;
+			}
+		}
+	else
+		$key = 0;
+	if (!$details) $details = $line[$key]; // if only the id key is in the query, eg. show databases
+	$output.= $details;
+	$level++;
+	if ($form == 'reselect') 
+		$output.= '">';
+	elseif ($form) {
+		$output.= '</option>';
+		if ($hierarchy && isset($hierarchy[$line[0]]))
+			foreach ($hierarchy[$line[0]] as $secondline)
+				$output.= draw_select($secondline, $record, $field, $hierarchy, $level, $parent_field_name, 'form');
+	}
+	return $output;
+}
+
+function htmlchars($string) {
+	$string = str_replace('&amp;', '&', htmlspecialchars($string));
+	//$string = str_replace('&quot;', '"', $string); // does not work 
+	return $string;
+}
+
+function zz_search_sql($query, $sql, $table) {
+	$unsearchable = array('image', 'calculated', 'subtable', 'timestamp', 'upload-image'); // fields that won't be used for search
+	if (isset($_GET['q']))
+	// Search with q
+		if (isset($_GET['scope']) && $_GET['scope']) {
+			$scope = false;
+			foreach ($query as $field)
+			// todo: check whether scope is in_array($searchfields)
+				if (!in_array($field['type'], $unsearchable))
+					if (!isset($field['sql']) && $_GET['scope'] == $field['field_name'] 
+						OR $_GET['scope'] == $table.'.'.$field['field_name']
+						OR (isset($field['display_field']) && $_GET['scope'] == $field['display_field'])) {
+						$scope = $_GET['scope'];
+						if (isset($field['display_field']) && $_GET['scope'] == $field['display_field']) $scope = $_GET['scope'];
+						if (isset($field['search'])) $scope = $field['search'];
+					}
+			if (strstr($sql, 'WHERE')) $sql.= ' AND';
+			else $sql.= ' WHERE';
+			if ($scope)
+				// search results
+				$sql.= ' '.$scope.' LIKE "%'.$_GET['q'].'%"';
+			else
+				$sql.= ' NULL';
+		} else {
+			$q_search = '';
+			foreach ($query as $field)
+				if (!in_array($field['type'], $unsearchable)) {
+					if (!$q_search)
+						if (strstr($sql, 'WHERE')) $q_search = ' AND (';
+						else $q_search = ' WHERE (';
+					else $q_search .= ' OR ';
+					if (isset($field['search'])) $fieldname = $field['search'];
+					elseif (isset($field['display_field'])) $fieldname = $field['display_field'];
+					else $fieldname = $table.'.'.$field['field_name'];
+					$q_search .= $fieldname.' LIKE "%'.$_GET['q'].'%"';
+				}
+			$q_search.= ')';
+			$sql.= $q_search;
+		}
+	return $sql;
+}
+
+function zz_search_form($self, $query, $table) {
+	global $text;
+	$unsearchable = array('image', 'calculated', 'subtable', 'timestamp', 'upload-image'); // fields that won't be used for search
+	$output = "\n";
+	$output.= '<form method="GET" action="'.$self;
+	$output.= '"><p>';
+	$uri = parse_url($_SERVER['REQUEST_URI']);
+	if (isset($uri['query'])) { // better than $_GET because of possible applied rewrite rules!
+		$unwanted_keys = array('q', 'scope', 'limit', 'mode', 'id'); // do not show edited record, limit
+		parse_str($uri['query'], $queryparts);
+		foreach (array_keys($queryparts) as $key)
+			if (in_array($key, $unwanted_keys))
+				unset($queryparts[$key]);
+		foreach (array_keys($queryparts) as $key)
+			if (is_array($queryparts[$key]))
+				foreach (array_keys($queryparts[$key]) as $subkey)
+					$output .= '<input type="hidden" name="'.$key.'['.$subkey.']" value="'.$queryparts[$key][$subkey].'">';
+			else
+				$output.= '<input type="hidden" name="'.$key.'" value="'.$queryparts[$key].'">';
+	}
+	$output.= '<input type="text" size="30" name="q"';
+	if (isset($_GET['q'])) $output.= ' value="'.htmlchars($_GET['q']).'"';
+	$output.= '>';
+	$output.= '<input type="submit" value="'.$text['search'].'">';
+	$output.= ' '.$text['in'].' ';	
+	$output.= '<select name="scope">';
+	$output.= '<option value="">'.$text['all fields'].'</option>';
+	foreach ($query as $field) {
+		if (!in_array($field['type'], $unsearchable)) {
+			$fieldname = (isset($field['display_field']) && $field['display_field']) ? $field['display_field'] : $table.'.'.$field['field_name'];
+			$output.= '<option value="'.$fieldname.'"';
+			if (isset($_GET['scope'])) if ($_GET['scope'] == $fieldname) $output.= ' selected';
+			$output.= '>'.$field['title'].'</option>';
+		}
+	}
+	$output.= '</select>';
+	$output.= '</p></form>'."\n";
+	return $output;
+}
+
+function zz_limit($limit, $count_rows, $sql, $zz_lines, $scope) {
+	global $text;
+	/*
+	
+	if LIMIT is set, shows different pages for each 20 records
+	
+	todo:
+	- <link rel="next">, <link rel="previous">
+	- maybe put class around ul
+	- direct jump to page, e. g. 1 | 2 | 3 | 4 | 5
+	
+	*/
+	$output = '';
+	$step = 20;
+	if ($limit && $count_rows > ($step-1) OR $limit > $step) {
+		$next = false;
+		$prev = false;
+		$result = mysql_query(preg_replace('/LIMIT \d+, \d+/i', '', $sql));
+		if ($result) $total_rows = mysql_num_rows($result);
+		if ($total_rows) {
+			$uri = $_SERVER['REQUEST_URI'];
+			// remove mode, id
+			$my_uri = parse_url($uri);
+			if (isset($my_uri['query'])) {
+				$uri = $my_uri['path'];		// basis: path
+				parse_str($my_uri['query'], $queryparts);
+				foreach (array_keys($queryparts) as $key) // remove id, mode, limit from URI
+					if ($key == 'mode' OR $key == 'id' OR $key == 'limit')  
+						unset ($queryparts[$key]);
+				$parts = '';
+				foreach ($queryparts as $key => $value) { // glue remaining query parts
+					if (!$parts) $parts = '?';
+					else $parts .= '&amp;';
+					if (is_array($value)) // array has to be treated seperately
+						foreach ($value as $mykey => $myvalue)
+							$parts.= $key.'['.$mykey.']='.$myvalue;
+					else $parts.= $key.'='.$value;
+				}
+				$uri .= $parts; // URL without limit, mode, id parameter
+			}
+			$output .= '<ul class="pages">';
+			$output .= '<li class="first">'.($zz_limitlink = limitlink(0, $limit, $step, $uri)).'|&lt;'.($zz_limitend = ($zz_limitlink) ? '</a>' : '').'</li>';
+			$output .= '<li class="prev">'.($zz_limitlink = limitlink($limit-$step, $limit, 0, $uri)).'&lt;&lt;'.($zz_limitend = ($zz_limitlink) ? '</a>' : '').'</li>';
+			$output .= '<li class="all">'.($zz_limitlink = limitlink(-1, $limit, 0, $uri)).$text['all'].($zz_limitend = ($zz_limitlink) ? '</a>' : '').'</li>';
+			for ($i = 0; $i <= $total_rows; $i = $i+20) {
+				$range_min = $i+1;
+				$range_max = $i+20;
+				if ($range_max > $total_rows) $range_max = $total_rows;
+				$output .= '<li>'.($zz_limitlink = limitlink($i, $limit, $step, $uri)).$range_min.'-'.$range_max.($zz_limitend = ($zz_limitlink) ? '</a>' : '').'</li>';
+			}
+			$limit_next = $limit+$step;
+			if ($limit_next > $range_max) $limit_next = $i;
+			$output .= '<li class="next">'.($zz_limitlink = limitlink($limit_next, $limit, 0, $uri)).'&gt;&gt;'.($zz_limitend = ($zz_limitlink) ? '</a>' : '').'</li>';
+			$output .= '<li class="last">'.($zz_limitlink = limitlink($i, $limit, 0, $uri)).'&gt;|'.($zz_limitend = ($zz_limitlink) ? '</a>' : '').'</li>';
+			$output .= '</ul>';
+			$output .= '<br clear="all">';
+		}
+	}
+	return $output;
+}
+
+function limitlink($i, $limit, $step, $uri) {
+	if ($i == -1) {  // all records
+		if (!$limit) return false;
+		else $limit_new = 0;
+	} else {
+		$limit_new = $i + $step;
+		if ($limit_new == $limit) return false; // current page!
+		elseif (!$limit_new) return false; // 0 does not exist, means all records
+	}
+	$uriparts = parse_url($uri);
+	if (isset($uriparts['query'])) $uri.= '&amp;';
+	else $uri.= '?';
+	$uri .= 'limit='.$limit_new;
+	return '<a href="'.$uri.'">';
+}
+
+function zz_subqueries($i, $min, $details, $sql, $subtable, $zz_tab) {
+	$records = false;
+	$my = $zz_tab[$i];
+	if (isset($_POST[$subtable['table_name']]))
+		$myPOST = $_POST[$subtable['table_name']];
+	else
+		$myPOST = false;
+	$deleted_ids = array();
+	foreach ($subtable['fields'] as $field)
+		if (isset($field['type']) && $field['type'] == 'id') $id_field_name = $field['field_name'];
+	if (isset($_POST['deleted'][$subtable['table_name']]))
+	//	fill existing deleted ids in $deleted_ids
+		foreach ($_POST['deleted'][$subtable['table_name']] as $deleted)
+			$deleted_ids[] = $deleted[$id_field_name];
+	if ($min) $records = 1;
+	if ($details)
+		if (isset($_POST['records'][$i]) && $_POST['records'][$i]) {
+			$records = $_POST['records'][$i];
+			if (!$records) $records = 1;
+			// possibly check values if correcht
+		}
+		if (isset($_POST['subtables']['add'][$i]) && $_POST['subtables']['add'][$i] == '+')
+			$records++;
+		if (isset($_POST['subtables']['remove'][$i])) {
+			foreach (array_keys($myPOST) as $k) {
+				if (isset($_POST['subtables']['remove'][$i][$k]) && $_POST['subtables']['remove'][$i][$k] == '-') {
+					if (isset($myPOST[$k][$id_field_name])) // has ID
+						$deleted_ids[] = $myPOST[$k][$id_field_name];
+					unset($myPOST[$k]);
+					$records--;
+				}
+			}
+//			$records--;
+		}
+	if ($sql) {
+		$c_sql = $zz_tab[$i]['sql'];
+		$where = ' WHERE ';
+		if (strstr($c_sql, 'WHERE')) $where = ' AND ';
+		$c_sql.= $where.' '.$zz_tab[0]['table'].'.'.$zz_tab[0][0]['id']['field_name'].' = "'.$zz_tab[0][0]['id']['value'].'"';
+		$result = mysql_query($c_sql);
+		if ($result)
+			if (mysql_num_rows($result))
+				while ($line = mysql_fetch_array($result)) 
+					if (!in_array($line[$id_field_name], $deleted_ids)) 
+						$ids[] = $line[$id_field_name];
+		if (mysql_error()) {
+			$zz_error['msg'] = mysql_error();
+			$zz_error['query'] = $c_sql;
+		}
+		if (isset($ids)) 
+			if (count($ids) > $records)
+				$records = count($ids);
+	}
+	if ($my['max_records'])
+		if ($records > $my['max_records']) $records = $my['max_records'];
+	for ($k = 0; $k<= $records-1; $k++) {
+		$my[$k]['fields'] = $subtable['fields'];
+		$my[$k]['record'] = false;
+		$my[$k]['validation'] = true;
+		$my[$k]['action'] = false;
+		if (isset($ids[$k])) $idval = $ids[$k];
+		else $idval = false;
+		$my[$k]['id']['value'] = $idval;
+		$my[$k]['id']['field_name'] = $id_field_name;
+		$my[$k]['POST'] = '';
+		if ($_POST)
+			if ($idval) {
+				foreach (array_keys($myPOST) as $key)
+					if (isset($myPOST[$key][$id_field_name]))
+						if ($myPOST[$key][$id_field_name] == $idval) {
+							$my[$k]['POST'] = $myPOST[$key];
+							unset($myPOST[$key]);
+						}
+			} else
+				foreach (array_keys($myPOST) as $key)
+					if (!isset($myPOST[$key][$id_field_name]) OR !$myPOST[$key][$id_field_name])
+						// find first value pair that matches and put it into POST
+						if (!($my[$k]['POST'])) {
+							$my[$k]['POST'] = $myPOST[$key];
+							unset($myPOST[$key]);
+						} 
+	}
+	$my['records'] = $records;
+	$my['deleted'] = $deleted_ids;
+	return $my;
+}
+
+function zz_requery_record($my, $validation, $sql, $table, $mode) {
+	global $text;
+	global $zz_error;
+	/*
+		if everything was successful, requery record (except in case it was deleted)
+		if not, change formhead and write POST values back into form
+		
+		changed fields:
+		- $zz['record'] (initalized)
+		- $zz['action']
+		- $zz['formhead']
+		- $zz['fields']
+	*/
+	if ($my['action'] != 'delete') {
+		if ($validation) {
+			if ($mode != 'add' OR $my['action']) {
+				if ($my['id']['value']) {
+					$where = ' WHERE ';
+					if (strstr($sql, 'WHERE')) $where = ' AND ';
+					$sql_edit = $sql.$where;
+					if (isset($my['fields'][1]['ambiguous']))
+						$sql_edit .= $table.'.';
+					$sql_edit .= $my['fields'][1]['field_name']." = '";
+					$sql_edit .= $my['id']['value']."'";
+					$result_edit = mysql_query($sql_edit);
+					if ($result_edit) {
+						if (mysql_num_rows($result_edit) == 1)
+							$my['record'] = mysql_fetch_array($result_edit, MYSQL_ASSOC);
+						// else $zz_error['msg'].= 'Error in Database. Possibly the SQL
+						// statement is incorrect: '.$sql_edit;
+					} else {
+						$zz_error['msg'] = $text['error-sql-incorrect'];
+						$zz_error['mysql'] .= mysql_error();
+						$zz_error['query'] .= $sql_edit;
+					}
+				} else
+					$my['record'] = false;
+			}
+		} else {
+			if (isset($my['POST-notvalid']))
+				$my['record'] = $my['POST-notvalid'];
+			else
+				$my['record'] = $my['POST'];
+			$my['formhead'] = 'Review record';
+			$my['action'] = 'review';	// display form again
+		//	print out all records which were wrong, set class to error
+			$validate_errors = false;
+			foreach (array_keys($my['fields']) as $qf) {
+				if (isset($my['fields'][$qf]['check_validation'])) {
+					if (!$my['fields'][$qf]['check_validation']) {
+						if (isset($my['fields'][$qf]['class']))
+							$my['fields'][$qf]['class'].= ' error';
+						else $my['fields'][$qf]['class'] = 'error';
+						if (!$validate_errors) 
+							$validate_errors = '<p>'.$text['Following_errors_occured'].':</p><ul>';
+						$validate_errors.= '<li>'.$text['Value_incorrect_in_field'].' <strong>'.$my['fields'][$qf]['title'].'</strong></li>';
+					} else
+						echo $my['fields'][$qf]['check_validation'];
+				}
+			}
+			if ($validate_errors) $zz_error['msg'].= $validate_errors.'</ul>';
+		}
+	} else {
+		if (!$validation) {
+		//	check for referential integrity was not passed
+			$my['formhead'] = 'Deletion not possible';
+			//$no_delete_reason['text'] .= '<br>Record cannot be deleted, because there are detail records for this record in other tables.';
+		}
+	}
+	return $my;
+}
+
+function fill_out($tab) {
+	foreach (array_keys($tab['fields']) as $no) {
+		if (!isset($tab['fields'][$no]['type'])) 
+			$tab['fields'][$no]['type'] = 'text';
+		if (!isset($tab['fields'][$no]['title'])) {
+			$tab['fields'][$no]['title'] = ucfirst($tab['fields'][$no]['field_name']);
+			$tab['fields'][$no]['title'] = str_replace('_ID', ' ', $tab['fields'][$no]['title']);
+			$tab['fields'][$no]['title'] = str_replace('_id', ' ', $tab['fields'][$no]['title']);
+			$tab['fields'][$no]['title'] = str_replace('_', ' ', $tab['fields'][$no]['title']);
+		}
+	}
+	return $tab;
+}
+
+function zz_log_sql($sql, $user) {
+	global $zz_conf;
+	// logs each INSERT, UPDATE or DELETE query
+	$sql = 'INSERT INTO '.$zz_conf['logging_table'].' 
+		(query, user) VALUES ("'.addslashes($sql).'", "'.$user.'")';
+	$result = mysql_query($sql);
+	echo mysql_error();
+	if (!$result) return false;
+	else return true;
+	// die if logging is selected but does not work?
+}
+
+function zz_sql_order($fields, $sql) {
+	if (!empty($_GET['order'])) {
+		$dir = (isset($_GET['dir'])) ? $_GET['dir'] : false;
+		$my_order = $_GET['order'];
+		foreach ($fields as $field)
+			if ((isset($field['display_field']) && $field['display_field'] == $my_order) 
+				OR (isset($field['field_name']) && $field['field_name'] == $my_order))
+				if (isset($field['order'])) {
+					$my_order = $field['order'];
+					if ($dir)
+					if ($dir == 'asc') $my_order = str_replace('DESC', 'ASC', $my_order);
+					elseif ($dir == 'desc') $my_order = str_replace('ASC', 'DESC', $my_order);
+					unset($dir);
+				}
+		if (isset($dir))
+			if ($dir == 'asc') $my_order.= ' ASC';
+			elseif ($dir == 'desc') $my_order.= ' DESC';
+		if (strstr($sql, 'ORDER BY'))
+			$sql = str_replace ('ORDER BY', ' ORDER BY '.$my_order.', ', $sql);
+		else
+			$sql.= ' ORDER BY '.$my_order;
+	} 
+	return $sql;
+}	
+
+?>

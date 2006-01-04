@@ -110,7 +110,7 @@ function show_filename($date, $title) {
 function show_files() {	
 	global $dir;
 	global $filename;
-	echo '<h2>Available Files (Incoming)</h2>';
+	echo '<h2>Available Documents</h2>';
 	$mydir = $dir['admin'].'/incoming/';
 	if ($handle = @opendir($_SERVER['DOCUMENT_ROOT'].$mydir)) {
 		while ($file = readdir($handle)) {

@@ -1,0 +1,70 @@
+<?php
+// en lang variables
+
+$text['add_new_record'] = 'Add New Record';
+$text['all_records'] = 'All Records';
+$text['prev_20_records'] = 'Previous 20 Records';
+$text['next_20_records'] = 'Next 20 Records';
+$text['record_was_inserted'] = 'Record was inserted';
+$text['warning'] = 'Warning';
+$text['action'] = 'Action';
+$text['none_selected'] = 'None selected';
+$text['edit'] = 'Edit';
+$text['delete'] = 'Delete';
+$text['back-to-overview'] = 'Back to overview';
+$text['no_selection_possible'] = 'No selection possible.';
+$text['calculated_field'] = 'calculated field';
+$text['will_be_added_automatically'] = 'will be added automatically';
+$text['no_selection'] = 'No selection';
+$text['record_was_updated'] = 'Record was updated';
+$text['record_was_deleted'] = 'Record was deleted';
+$text['reason'] = 'Reason';
+$text['following_values_checked_again'] = 'The following values have to be checked again';
+$text['database'] = 'Database';
+$text['no_image'] = 'No Image';
+$text['sql-query'] = 'SQL-Query';
+$text['database-error'] = 'Database error';
+$text['decimal'] = 'decimal';
+$text['no_source_defined'] = 'No source defined';
+$text['image_not_display'] = 'Image cannot yet be displayed';
+$text['update'] = 'Update';
+$text['delete_from'] = 'Delete from';
+$text['add_to'] = 'Add to';
+$text['error-sql-incorrect'] = 'An Error occured. This SQL Statement seems to be incorrect';
+$text['add'] = 'Add';
+$text['a_record'] = 'a Record';
+$text['failed'] = 'failed';
+$text['insert'] = 'Insert';
+$text['order by'] = 'Order by';
+$text['asc'] = 'ascending';
+$text['desc'] = 'descending';
+$text['new'] = 'New';
+$text['no-data-available'] = 'No data available.';
+$text['edit-after-save'] = 'No entry possible. First save this record.';
+$text['table-empty'] = 'No entries available';
+// if $query has no title get it out of field_name
+$text['detail'] = 'Details';
+$text['Value_incorrect_in_field'] = 'Value missing or incorrect in field';
+$text['Following_errors_occured'] = 'The following errors occured';
+$text['This record could not be deleted because there are details about this record in other records.'] = 'This record could not be deleted because there are details about this record in other records.';
+$text['Detail records exist in the following tables:'] = 'Detail records exist in the following tables:';
+$text['No relation table'] = 'No _relation table. Program will not work without it.';
+$text['No records in relation table'] = 'No records in relation table. Program will not work without records.';
+$text['show_record'] = 'Show record';
+$text['Database error. This database has ambiguous values in ID field.'] ='Database error. This table has ambiguous values in ID field.';
+$text['search'] = 'search';
+$text['in'] = 'in';
+$text['all fields'] = 'all fields';
+$text['Warning'] = 'Warning';
+$text['review'] = 'Review';
+$text['hidden'] = 'hidden';
+$text['dec'] = 'dec';
+$text['Cancel'] = 'Cancel';
+$text['Please enter more characters.'] = 'Please enter more characters.';
+$text['records'] = 'records';
+$text['records total'] = 'records total';
+$text['record total'] = 'record total';
+$text['No entry found. Try less characters.'] = 'No entry found. Try less characters';
+$text['all'] = 'all';
+
+?>

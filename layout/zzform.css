@@ -1,0 +1,125 @@
+/* zzform CSS by Gustaf Mossakowski, 2005 */
+
+/*
+A29F8A
+ADAB99
+405b79
+CFCFC4
+*/
+
+#zzform {z-index: 3;}
+
+.nobr {white-space: nowrap;}
+table td {padding: .2em;}
+body {margin: 0 0 1.5em; padding: 0; font-size: 95%; font-family: Helvetica;
+	 color: #000;}
+	/* h1 {padding: .5em; margin: 0; background-color: #AAF;} */
+div.text #zzform	 {padding: 1em;}
+	
+body, #zzform .editbutton, #zzform td.recordid, #zzform th.recordid 
+	{background-color: #CFCFC4;}
+
+menu li {display: inline; padding: 0 .5em;}
+menu li + li {border-left: 1px solid #666;}
+menu {background-color: #CCB; margin: 0; padding: .5em; border-bottom: 1px solid #999;}
+#menu li {display: inline; padding: 0 .5em;}
+#menu li + li {border-left: 1px solid #666;}
+#menu {background-color: #CCB; margin: 0; padding: .5em; border-bottom: 1px solid #999;}
+.foot {background-color: #CCB; margin: 0; padding: .5em;  border-top: 1px solid #999;}
+
+#record table {margin: 0 0 1em 0;background-color: #EEC;}
+#record tbody tr:first-child td {border-top: none;}
+#record table table {margin: 0 0 .5em; border-collapse: collapse;}
+#record table table th {font-weight: normal; }
+#record .subtable th, #record .subtable td {background-color: #DDB; }
+#record .subtable table {width: 100%; text-align: left;}
+#record .subtable td {width: 88%; text-align: left;}
+#record .subtable th {width: 12%;}
+#record .subtable {margin: 0;}
+
+td.editbutton {/*white-space: nowrap;*/}
+
+.negative {color: red;}
+td.number {text-align: right;}
+td.reedit {text-align: right;}
+#zzform #record tfoot th, #zzform #record tfoot td, td.where, th.where {background-color: #A29F8A;}
+#zzform th.where {padding-top: .5em;}
+
+tfoot td {font-weight: bold; border-top: 1px #999 solid; border-bottom: 3px #999 double;}
+
+a:link {color: #009;}
+a:visited {color: #669;}
+
+#zzform tr.even {background-color: #CCB;}
+#zzform tr.uneven {background-color: #EED;}
+#zzform img {border: none;}
+
+.recordid {display: none;}
+.idrow {display: none;}
+
+#zzform {empty-cells: show;}
+#zzform table {border-collapse: collapse;}
+#zzform .editbutton {padding: 0 .5em;}
+
+#zzform th {width: auto; text-align: left; vertical-align: top;}
+#zzform td {vertical-align: top;}
+#zzform td p {margin-top: 0;}
+
+#zzform table td { padding: .2em;}
+	/* h1 {padding: .5em; margin: 0; background-color: #AAF;} */
+#zzform h1 {font-size: 140%; margin: 0;}
+#zzform div.text {padding: 1em;}
+
+#zzform #record th, #zzform #record td {line-height: 1.5em; padding: .25em .5em;}
+#zzform td, #zzform th {padding: 0 .5em; }
+#zzform .data td, #zzform .data th {vertical-align: top;}
+#zzform .data thead td, #zzform .data thead th {text-align: left; vertical-align: bottom;}
+#zzform #record tfoot th, #zzform #record tfoot td {padding: .5em; border: none;} 
+
+#zzform #record tbody tr:first-child td {border-top: none;}
+
+#zzform .negative {color: red;}
+#zzform td.number {text-align: right;}
+#zzform td.reedit {text-align: right;}
+
+#zzform .error {background: red; color: white; padding: .25em;}
+#zzform div.error {margin: 1em 0;}
+
+#zzform #record .error td, #zzform #record .error th {background: red;}
+tr.error td {border-color: red;}
+
+#zzform table.data td {padding: 0.25em .5em;}
+#zzform table.data thead td, #zzform table.data thead th {padding-bottom: .25em;
+	border-bottom: 1px solid #999;}
+
+td p, td ul {margin-top: 0;}
+
+.hidden {display: none;}
+
+.level0 {font-weight: bold;}
+.level2 {color: #339;}
+.level3 {font-style: italic;}
+
+.sub-add input {float: right; font-weight: bold; background: green; color: white; 
+	margin-left: .5em;}
+.subtable input.sub-remove {background: red; color: white; float: left; font-weight: bold; 
+	margin-right: .5em;}
+
+#zzform .reselect, #zzform .subtable .reselect td, #zzform .subtable .reselect th {
+	background: green; color: white; padding: .25em;}
+
+#zzform h2 {line-height: 120%; font-size: 140%;}
+
+#zzform ul.pages {margin: 0; padding: 0 0 1em 0; list-style: none; }
+#zzform ul.pages li {margin: 0; float: left; padding: 0 .5em; border-left: 1px solid #666;}
+#zzform ul.pages li.first {padding-left: 0; border-left: 0;}
+#zzform p.totalrecords {margin-bottom: 0;}
+
+#zzform p.desc, #zzform .explanation 
+	{margin: 0; padding: 0; font-weight: normal; font-size: 90%;}
+
+th.order {background-color: #DDB;}
+
+#zzform #record .upload td, #zzform #record .upload th {padding-top: 0;}
+#zzform #record .upload th {padding-left: 0;}
+#zzform #record .upload {padding-bottom: 0; margin-bottom: 0;}
