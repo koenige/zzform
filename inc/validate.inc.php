@@ -50,13 +50,13 @@ function zz_check_url($url) {
 
 }
 
-function is_url( $url ) {
+function is_url($url) {
 	 if (!($parts = @parse_url($url)))
 		  return false;
 	 else {
-	 	#echo "<pre>";
-	 	#print_r ($parts);
-	 	#echo "</pre>";
+	// 	echo "<pre>";
+//	 	print_r ($parts);
+//	 	echo "</pre>";
 	 if ( @$parts['scheme'] != "http" && @$parts['scheme'] != "https" && @$parts['scheme'] != "ftp" && @$parts['scheme'] != "gopher" )
 		  return false;
 	 else if ( !@eregi( "^[0-9a-z]([-.]?[0-9a-z])*\.[a-z]{2,6}$", $parts['host'], $regs ) )
@@ -65,7 +65,7 @@ function is_url( $url ) {
 		  return false;
 	 else if ( !@eregi( "^([0-9a-z-]|[\_])*$", $parts['pass'], $regs ) )
 		  return false;
-	 else if ( !@eregi( "^[0-9a-z/_\.@~\-\,=]*$", $parts['path'], $regs ) )
+	 elseif ($parts['path'] && !preg_match("/^[0-9a-z\/_\.@~\-,=]*$/i", $parts['path']))
 		  return false;
 	 else if ( !@eregi( "^[0-9a-z?&=#\,]*$", $parts['query'], $regs ) )
 		  return false;

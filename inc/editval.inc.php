@@ -1,8 +1,12 @@
 <?php
 
 /*
-	edit validation
-	(c) Gustaf Mossakowski <gustaf@koenige.org> 2004-05
+	zzform Scripts
+
+	functions for validation of user input
+	
+	(c) Gustaf Mossakowski <gustaf@koenige.org> 2004-2006
+
 */
 
 function zz_validate($my, $zz_conf, $table, $table_name) {
@@ -37,15 +41,23 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 					$my['POST'][$my['fields'][$f]['field_name']] = $my['POST'][$my['fields'][$f]['field_name']]['dec'];
 				elseif ($my['POST'][$my['fields'][$f]['field_name']]['which'] == 'dms') {
 					$degree = dms2db($my['POST'][$my['fields'][$f]['field_name']]); 
-					$my['POST'][$my['fields'][$f]['field_name']] = $degree[substr($my['fields'][$f]['number_type'], 0, 3).'dec'];
+					if (empty($degree['wrong']))
+						$my['POST'][$my['fields'][$f]['field_name']] = $degree[substr($my['fields'][$f]['number_type'], 0, 3).'dec'];
+					else {
+						$my['fields'][$f]['check_validation'] = false;
+						$my['fields'][$f]['wrong_fields'] = $degree['wrong']; // for output later on
+						$my['validation'] = false;
+					}
 				}
-				if (strlen($my['POST'][$my['fields'][$f]['field_name']]) == 0) $my['POST'][$my['fields'][$f]['field_name']] = '';
+				if (!is_array($my['POST'][$my['fields'][$f]['field_name']]) && strlen($my['POST'][$my['fields'][$f]['field_name']]) == 0) 
+					$my['POST'][$my['fields'][$f]['field_name']] = '';
 			} 
 
 		//	check if numbers are entered with . 			
 
 		//	factor for avoiding doubles
-			if (isset($my['fields'][$f]['factor']) && $my['POST'][$my['fields'][$f]['field_name']]) 
+			if (isset($my['fields'][$f]['factor']) && $my['POST'][$my['fields'][$f]['field_name']]
+				&& !is_array($my['POST'][$my['fields'][$f]['field_name']])) // this line for wrong coordinates
 				$my['POST'][$my['fields'][$f]['field_name']] = str_replace(',', '.', $my['POST'][$my['fields'][$f]['field_name']]) * $my['fields'][$f]['factor'];
 
 		//	md5 encrypt passwords
@@ -191,18 +203,19 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 				if ($my['POST'][$my['fields'][$f]['field_name']]) {
 					if (get_magic_quotes_gpc()) // sometimes unwanted standard config
 						$my['POST'][$my['fields'][$f]['field_name']] = stripslashes($my['POST'][$my['fields'][$f]['field_name']]);
-					if (function_exists('mysql_real_escape_string')) // just from 4.3.0
+					if (function_exists('mysql_real_escape_string')) // just from 4.3.0 on
 						$my['POST'][$my['fields'][$f]['field_name']] = '"'.mysql_real_escape_string($my['POST'][$my['fields'][$f]['field_name']]).'"';
 					else
 						$my['POST'][$my['fields'][$f]['field_name']] = '"'.addslashes($my['POST'][$my['fields'][$f]['field_name']]).'"';
-				} else
-					if (isset($my['fields'][$f]['number_type']) AND !is_null($my['POST'][$my['fields'][$f]['field_name']]) 
+				} else {
+					if (isset($my['fields'][$f]['number_type']) AND ($my['POST'][$my['fields'][$f]['field_name']] !== '') // type string, different from 0
 						AND $my['fields'][$f]['number_type'] == 'latitude' || $my['fields'][$f]['number_type'] == 'longitude')
-						$my['POST'][$my['fields'][$f]['field_name']] = '0';
+						echo $my['POST'][$my['fields'][$f]['field_name']] = '0';
 					elseif (isset($my['fields'][$f]['null']) AND $my['fields'][$f]['null']) 
 						$my['POST'][$my['fields'][$f]['field_name']] = '0';
 					else 
 						$my['POST'][$my['fields'][$f]['field_name']] = 'NULL';
+				}
 			}
 		// foreign_key
 			if ($my['fields'][$f]['type'] == 'foreign_key') $my['POST'][$my['fields'][$f]['field_name']] = '[FOREIGN_KEY]';

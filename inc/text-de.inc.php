@@ -65,5 +65,17 @@ $text['records total'] = 'Datens&auml;tze gesamt';
 $text['record total'] = 'Datensatz gesamt';
 $text['No entry found. Try less characters.'] = 'Keinen Eintrag gefunden. Versuchen Sie es mit weniger Zeichen.';
 $text['all'] = 'Alle';
+$text['N'] = 'N';
+$text['E'] = 'O';
+$text['S'] = 'S';
+$text['W'] = 'W';
+$text['. Correct values are: '] = '. Korrekte Werte: ';
+$text['is not a correct value for'] = 'ist als Eingabe nicht korrekt f&uuml;r';
+$text['sec'] = 'Sekunden';
+$text['deg'] = 'Grad';
+$text['min'] = 'Minuten';
+$text['hemisphere'] = 'Hemisph&auml;re';
+$text['N/A'] = 'k.&nbsp;A.';
+$text['Nothing'] = 'Nichts';
 
 ?>

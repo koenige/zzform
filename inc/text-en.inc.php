@@ -66,5 +66,17 @@ $text['records total'] = 'records total';
 $text['record total'] = 'record total';
 $text['No entry found. Try less characters.'] = 'No entry found. Try less characters';
 $text['all'] = 'all';
+$text['N'] = 'N';
+$text['E'] = 'E';
+$text['S'] = 'S';
+$text['W'] = 'W';
+$text['. Correct values are: '] = '. Correct values are: ';
+$text['is not a correct value for'] = 'is not a correct value for';
+$text['sec'] = 'seconds';
+$text['deg'] = 'degrees';
+$text['min'] = 'minutes';
+$text['hemisphere'] = 'hemisphere';
+$text['N/A'] = 'N/A';
+$text['Nothing'] = 'Nothing';
 
 ?>
