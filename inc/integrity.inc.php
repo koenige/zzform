@@ -13,6 +13,7 @@ name of table may be set with $zz_conf['relations_table']
 */
 
 function check_integrity($master_db, $master_table, $master_field, $master_value, $relation_table, $detailrecords = false) {
+	global $text;
 	// return false - do not delete
 	// return true 	- deletion is possible
 	$sql = 'SELECT * FROM '.$relation_table;
@@ -22,12 +23,12 @@ function check_integrity($master_db, $master_table, $master_field, $master_value
 			while ($line = mysql_fetch_array($result))
 				$relations[$line['master_db']][$line['master_table']][$line['master_field']][] = $line;
 		else {
-			$response['text'] = 'No records in relation table';
+			$response['text'] = sprintf($text['No records in relation table'], $relation_table);
 			return $response;
 		}
 	} else {
 		echo mysql_error();
-		$response['text'] = 'No relation table';
+		$response['text'] = sprintf($text['No relation table'], $relation_table);
 		return $response;
 	}
 	//echo 'rel_check<br>';
@@ -36,7 +37,7 @@ function check_integrity($master_db, $master_table, $master_field, $master_value
 	if (!$check = check_if_detail($relations, $master_db, $master_table, $master_field, $master_value, $detailrecords)) 
 		return false;
 	else {
-		$response['text'] = 'Detail records exist in the following tables:';
+		$response['text'] = $text['Detail records exist in the following tables:'];
 		$response['fields'] = explode(',', $check);
 		return $response;
 	}

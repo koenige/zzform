@@ -19,7 +19,7 @@
 
 */
 
-function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form) {
+function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, &$no_delete_reason) {
 	global $text;
 	//	### Check for validity, do some operations ###
 	foreach (array_keys($zz_tab) as $i)

@@ -258,6 +258,12 @@ function show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf) {
 					else
 						$outputf.= '('.$text['will_be_added_automatically'].')&nbsp;';
 					break;
+				case 'unix_timestamp':
+					$outputf.= '<input type="text" value="';
+					if (isset($field['value'])) $outputf.= $field['value'];
+					elseif ($my['record']) $outputf.= date('Y-m-d H:m:s', $my['record'][$field['field_name']]);
+					$outputf.= '" name="'.$field['f_field_name'].'" id="field_'.$field['f_field_name'].'">';
+					break;
 				case 'foreign':
 					$foreign_res = mysql_query($field['sql'].$my['id']['value']);
 					//$outputf.= $field['sql'].$my['id']['value'];
@@ -315,7 +321,6 @@ function show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf) {
 					if ($display == 'form') {
 						$outputf.= '<input type="password" name="'.$field['f_field_name'].'" id="field_'.$field['f_field_name'].'" size="'.$field['size'].'" ';
 						if (isset($field['maxlength']) && $field['maxlength']) $outputf.= ' maxlength="'.$field['maxlength'].'" ';
-						if (isset($field['required']) && $field['required']) $outputf.= ' class="required"';
 					}
 					if ($my['record'])
 						if ($display == 'form') $outputf.= 'value="'.$my['record'][$field['field_name']].'"';
@@ -331,7 +336,6 @@ function show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf) {
 					if ($display == 'form') {
 						$outputf.= '<input type="text" name="'.$field['f_field_name'].'" id="field_'.$field['f_field_name'].'" size="'.$field['size'].'" ';
 						if (isset($field['maxlength']) && $field['maxlength']) $outputf.= ' maxlength="'.$field['maxlength'].'" ';
-						if (isset($field['required']) && $field['required']) $outputf.= ' class="required"';
 					}
 					if ($my['record']) {
 						if ($display == 'form') $outputf.= 'value="';
@@ -373,7 +377,6 @@ function show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf) {
 							$myid = 'radio-'.$field['field_name'].'-dec';
 							$outputf.= '<label for="'.$myid.'"><input type="radio" id="'.$myid.'" name="'.$field['f_field_name'].'[which]" id="field_'.$field['f_field_name'].'_which" value="dec"> '.$text['dec'].'&nbsp; </label></span>';
 							$outputf.= '<input type="text" name="'.$field['f_field_name'].'[dec]" id="field_'.$field['f_field_name'].'_dec" size="12" ';
-							if (isset($field['required']) && $field['required']) $outputf.= ' class="required"';
 						} 
 						if ($my['record']) {
 							if ($display == 'form') $outputf.= 'value="';
@@ -389,7 +392,6 @@ function show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf) {
 							$outputf.= '<input type="text" ';
 							$outputf.=  'name="'.$field['f_field_name'].'" id="field_'.$field['f_field_name'].'" size="'.$field['size'].'" ';
 						}
-						if ($display == 'form' && isset($field['required']) && $field['required']) $outputf.= ' class="required"';
 						if ($my['record']) {
 							if ($display == 'form') $outputf.= 'value="';
 							$outputf.= htmlchars($my['record'][$field['field_name']]);
@@ -406,16 +408,8 @@ function show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf) {
 						//}
 					}
 					break;
-				case 'thumbnail':
-					if ($my['record']) {
-						$outputf.= '<img src="'.$zzform['dir'].'/'.$my['record'][$field['field_name']].'" alt="'.$my['record'][$field['field_name']].'"><br>';
-						$outputf.= '<input type="hidden" name="'.$field['f_field_name'].'" id="field_'.$field['f_field_name'].'" size="64" value="'.$my['record'][$field['field_name']].'">';
-					}
-					else $outputf.= '<input type="text" name="'.$field['f_field_name'].'" id="field_'.$field['f_field_name'].'" size="64">';
-					break;
 				case 'date':
 					if ($display == 'form') $outputf.= '<input type="text" name="'.$field['f_field_name'].'" id="field_'.$field['f_field_name'].'" size="12" ';
-					if ($display == 'form' && isset($field['required']) && $field['required']) $outputf.= ' class="required"';
 					if ($my['record']) {
 						if ($display == 'form') $outputf.= 'value="';
 						$outputf.= datum_de($my['record'][$field['field_name']]);
@@ -426,7 +420,6 @@ function show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf) {
 				case 'memo':
 					if (!isset($field['rows'])) $field['rows'] = 8;
 					if ($display == 'form') $outputf.= '<textarea rows="'.$field['rows'].'" cols="60" name="'.$field['f_field_name'].'" id="field_'.$field['f_field_name'].'"';
-					if ($display == 'form' && isset($field['required']) && $field['required']) $outputf.= ' class="required"';
 					if ($display == 'form') $outputf.= '>';
 					if ($my['record']) {
 //						$memotext = stripslashes($my['record'][$field['field_name']]);

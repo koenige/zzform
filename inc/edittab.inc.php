@@ -119,8 +119,6 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 							if (isset($field['link'])) $zz['output'] .= '</a>';
 						}
 					}	
-				} elseif ($field['type'] == 'thumbnail' && $line[$field['field_name']]) {
-					$zz['output'].= '<img src="'.$zz_conf['dir'].'/'.$line[$field['field_name']].'" alt="'.$line[$field['field_name']].'">';
 				} elseif ($field['type'] == 'subtable') {
 					// Subtable
 					if (isset($field['display_field'])) $zz['output'].= htmlchars($line[$field['display_field']]);
@@ -137,7 +135,8 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 					if (isset($field['display_field'])) $zz['output'].= htmlchars($line[$field['display_field']]);
 					else {
 						if (isset($field['factor']) && $line[$field['field_name']]) $line[$field['field_name']] /=$field['factor'];
-						if ($field['type'] == 'date') $zz['output'].= datum_de($line[$field['field_name']]);
+						if ($field['type'] == 'unix_timestamp') $zz['output'].= date('Y-m-d H:m:s', $line[$field['field_name']]);
+						elseif ($field['type'] == 'date') $zz['output'].= datum_de($line[$field['field_name']]);
 						elseif (isset($field['number_type']) && $field['number_type'] == 'currency') $zz['output'].= waehrung($line[$field['field_name']], '');
 						elseif (isset($field['number_type']) && $field['number_type'] == 'latitude' && $line[$field['field_name']]) {
 							$deg = dec2dms($line[$field['field_name']], '');

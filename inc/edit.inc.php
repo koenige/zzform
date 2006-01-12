@@ -43,6 +43,7 @@
 		$zz_conf['db_name']			database name
 		$zz_conf['export']			if sql result might be exported (link for export will appear at the end of the page)
 		$zz_conf['export_filetypes']	possible filetypes for export
+		$zz_conf['relations_table']	table for relations for relational integrity
 			
 	$zz
 		$zz['table']				name of main table										$maintable
@@ -61,6 +62,7 @@
 					-> value		value for hidden field
 				timestamp		timestamp
 					-> value		value for timestamp
+				unix_timestamp	unix-timestamp, will be converted to readable date and back
 				foreign			... (not in use currently)
 					-> add_foreign	??
 				password		password input, will be md5 encoded
@@ -77,7 +79,6 @@
 					-> factor		factor for avoiding doubles as database fields
 					-> auto_value
 					-> wrong_fields	(internal value for latitude, longitude)
-				thumbnail		... (out of date, better use image)
 				date			
 				memo			will show textarea
 					-> rows
@@ -124,7 +125,6 @@
 			$zz['fields'][n]['class']				class="" (some classes will be added by zzform, e. g. idrow, ...)
 			$zz['fields'][n]['show_title']			display record: show field title in TH (mainly for subtables, for aesthetic reasons)
 			$zz['fields'][n]['maxlength']			maxlength, if not set will be taken from database
-			$zz['fields'][n]['required']			... ? class="required", might be removed
 			$zz['fields'][n]['size']				size of input field, standard for number 16, for time 8 and for all other fields 32 (or maxlength if smaller)
 			$zz['fields'][n]['suffix']				adds suffix-string to form view	
 			$zz['fields'][n]['suffix_function']		adds suffix-function to form view	
@@ -146,7 +146,6 @@
 			$zz['fields'][n]['factor']				for doubles etc. factor will be multiplied with value
 			$zz['fields'][n]['function']			function which will be called to change input value
 			$zz['fields'][n]['fields']				vars which will be passed to function
-			$zz['fields'][n]['show_id']				... ? might be standard
 			$zz['fields'][n]['auto_value']			increment | ... // 1 will be added and inserted in 'default'
 
 		$zz_tab[1]['table']
@@ -620,8 +619,9 @@ function zzform() {
 	$zz['sql'].= ' '.$zz['sqlorder']; 									// must be here because of where-clause
 	$zz['formhead'] = false;
 	
+	$no_delete_reason = false;
 	if ($zz['action'] == 'insert' OR $zz['action'] == 'update' OR $zz['action'] == 'delete')
-		zz_action($zz_tab, $zz_conf, $zz, $validation, $upload_form); // check for validity, insert/update/delete record
+		zz_action($zz_tab, $zz_conf, $zz, $validation, $upload_form, $no_delete_reason); // check for validity, insert/update/delete record
 	
 	/*
 		Query Updated, Added or Editable Record
@@ -663,7 +663,7 @@ function zzform() {
 		if (!empty($no_delete_reason)) {
 			$zz['formhead'] = $text['warning'].'!';
 			$zz_error['msg'].= '<p>'.$text['This record could not be deleted because there are details about this record in other records.'];
-			$zz_error['msg'].= ' '.$text[$no_delete_reason['text']].'</p>'."\n";
+			$zz_error['msg'].= ' '.$no_delete_reason['text'].'</p>'."\n";
 			if (isset($no_delete_reason['fields'])) {
 				$zz_error['msg'].= '<ul>'."\n";
 				foreach ($no_delete_reason['fields'] as $del_tab) {

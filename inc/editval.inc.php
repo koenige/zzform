@@ -97,6 +97,16 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 						$my['validation'] = false;
 					}
 
+		//	convert unix_timestamp
+			if ($my['fields'][$f]['type'] == 'unix_timestamp')
+				if ($my['POST'][$my['fields'][$f]['field_name']])
+					if ($my_date = strtotime($my['POST'][$my['fields'][$f]['field_name']])) // strtotime converts several formats, returns false if value is not convertable
+						$my['POST'][$my['fields'][$f]['field_name']] = $my_date;
+					else {
+						$my['fields'][$f]['check_validation'] = false;
+						$my['validation'] = false;
+					}
+
 		//	call function
 			if ($my['fields'][$f]['type'] == 'hidden' && isset($my['fields'][$f]['function'])) {
 				foreach ($my['fields'][$f]['fields'] as $var)
