@@ -85,9 +85,9 @@ function geo_editform($form_coords, $coords, $wrong_coords = false) {
 	$form_coords_ll = substr($form_coords, strrpos($form_coords, '[')+1);
 
 	$output = '';
-	$output .= '<input type="text" size="3" maxlength="3" name="'.$form_coords.'][deg]" id="'.make_id($form_coords.'][deg]').'" value="'.$coords[$form_coords_ll]['deg'].'">&deg; ';
-	$output .= '<input type="text" size="3" maxlength="3" name="'.$form_coords.'][min]" id="'.make_id($form_coords.'][min]').'" value="'.$coords[$form_coords_ll]['min'].'">\' ';
-	$output .= '<input type="text" size="4" maxlength="4" name="'.$form_coords.'][sec]" id="'.make_id($form_coords.'][sec]').'" value="'.$coords[$form_coords_ll]['sec'].'">&quot; ';
+	$output .= '<input type="text" size="3" maxlength="3" name="'.$form_coords.'][deg]" id="'.make_id_fieldname($form_coords.'][deg]', false).'" value="'.$coords[$form_coords_ll]['deg'].'">&deg; ';
+	$output .= '<input type="text" size="3" maxlength="3" name="'.$form_coords.'][min]" id="'.make_id_fieldname($form_coords.'][min]', false).'" value="'.$coords[$form_coords_ll]['min'].'">\' ';
+	$output .= '<input type="text" size="4" maxlength="4" name="'.$form_coords.'][sec]" id="'.make_id_fieldname($form_coords.'][sec]', false).'" value="'.$coords[$form_coords_ll]['sec'].'">&quot; ';
 
 	if ($form_coords_ll == "lat")
 		$hemispheres = array('+' => 'N', '-' => 'S');
@@ -96,7 +96,7 @@ function geo_editform($form_coords, $coords, $wrong_coords = false) {
 	else
 		$output.= "Programmer's fault. Variable must have lat or lon in its name";
 
-	$output.= '<select name="'.$form_coords.'][hemisphere]" id="'.$form_coords.'][hemisphere]" size="1">'."\n";
+	$output.= '<select name="'.$form_coords.'][hemisphere]" id="'.make_id_fieldname($form_coords.'][hemisphere]').'" size="1">'."\n";
 	$output.= '<option '; 
 	if ($coords[$form_coords_ll]['hemisphere'] == $hemispheres['+'] OR $coords[$form_coords_ll]['hemisphere'] == '+')
 		$output.= "selected ";
@@ -122,12 +122,6 @@ function zz_geo_error($coords, $wrong_coords, $ll) {
 	return $output;
 }
 
-function make_id($string) {
-	$string = str_replace('][', '_', $string);
-	$string = str_replace('[', '', $string);
-	$string = str_replace(']', '', $string);
-	return $string;
-}
 
 
 /*

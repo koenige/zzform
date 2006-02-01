@@ -69,7 +69,8 @@ div.text #zzform	 {padding: 1em;}
 #zzform .subtable input.sub-remove {background: red; color: white; float: left; font-weight: bold; 
 	margin-right: .5em;}
 
-#zzform .reselect, #zzform .subtable .reselect td, #zzform .subtable .reselect th {
+#zzform form .reselect td, #zzform form .reselect th, 
+#zzform #record .subtable .reselect td, #zzform #record .subtable .reselect th {
 	background: green; color: white; padding: .25em;}
 
 #zzform h2 {line-height: 120%; font-size: 140%;}

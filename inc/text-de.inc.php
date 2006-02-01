@@ -28,7 +28,8 @@ $text['database-error'] = 'Datenbankfehler';
 $text['decimal'] = 'dezimal';
 $text['no_source_defined'] = 'Keine Quelle angegeben';
 $text['image_not_display'] = 'Bild kann (noch) nicht angezeigt werden';
-$text['update'] = 'Aktualisieren der';
+$text['update'] = 'Aktualisieren';
+$text['update_to'] = 'Aktualisieren der';
 $text['delete_from'] = 'L&ouml;schen aus der';
 $text['add_to'] = 'Hinzuf&uuml;gen zur';
 $text['error-sql-incorrect'] = 'Ein Fehler ist aufgetreten. Vermutlich ist diese SQL-Abfrage nicht korrekt';
@@ -77,5 +78,24 @@ $text['min'] = 'Minuten';
 $text['hemisphere'] = 'Hemisph&auml;re';
 $text['N/A'] = 'k.&nbsp;A.';
 $text['Nothing'] = 'Nichts';
+$text['Old:'] = 'Alt:';
+$text['New:'] = 'Neu:';
+$text['(Please confirm your new password twice)'] = '(Bitte best&auml;tigen Sie Ihr Passwort zweimal)';
+$text['Your password has been changed!'] = 'Ihr Passwort wurde ge&auml;ndert.';
+$text['Your current password is different from what you entered. Please try again.'] = 'Ihr aktuelles Passwort ist nicht das, was Sie eingegeben haben. Bitte versuchen Sie es nocheinmal.';
+$text['New passwords do not match. Please try again.'] = 'Die Eingaben f&uuml;r das neue Passwort unterscheiden sich. Bitte versuchen Sie es nocheinmal.';
+$text['Please enter your current password and twice your new password.'] = 'Bitte geben Sie Ihr aktuelles Passwort und zweimal das neue Passwort ein.';
+$text['Error: '] = 'Fehler: ';
+$text['No file was uploaded.'] = 'Es wurde keine Datei hochgeladen.';
+$text['File was only partially uploaded.'] = 'Die Datei wurde nur teilweise hochgeladen.';
+$text['File is too big.'] = 'Die Datei ist zu gro&szlig;.';
+$text['Maximum allowed filesize is'] = 'Maximale Dateigr&ouml;&szlig;e ist';
+$text['Minimum width was not reached.'] = 'Minimale Breite nicht eingehalten.';
+$text['Minimum height was not reached.'] = 'Minimale H&ouml;he nicht eingehalten.';
+$text['Unsupported filetype:'] = 'Nicht unterst&uuml;tzter Dateityp:';
+$text['Supported filetypes are:'] = 'Diese Dateitypen werden unterst&uuml;tzt:';
+$text['Could not delete %s.'] = 'Konnte %s nicht l&ouml;schen.';
+$text['Could not delete %s, file did not exist.'] = 'Konnte %s nicht l&ouml;schen, da die Datei nicht existierte.';
+
 
 ?>

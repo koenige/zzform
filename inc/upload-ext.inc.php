@@ -94,19 +94,6 @@ $text['Image'] = 'Image';
 $text['Please choose a related database record first'] = 'Please choose a related database record first';
 
 
-function check_dir($my_dir) { 
-	// checks if directories above current_dir exist and creates them if necessary
-	if (substr($my_dir, strlen($my_dir)-1) == '/')	//	removes / from the end
-		$my_dir = substr($my_dir, 0, strlen($my_dir)-1);
-	if (!file_exists($my_dir)) { //	if dir does not exist, do a recursive check/makedir on parent director[y|ies]
-		$upper_dir = substr($my_dir, 0, strrpos($my_dir, '/'));
-		$success = check_dir($upper_dir);
-		if ($success) {
-			mkdir($my_dir);
-			return true;
-		}
-		return false;
-	} else return true;
-}
+
 
 ?>

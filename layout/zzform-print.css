@@ -1,4 +1,4 @@
-menu, .noprint {display: none;}
+menu, #menu, .noprint, form {display: none;}
 .editbutton {display: none;}
 #back-overview {display: none;}
 .add-new {display: none;}
@@ -7,3 +7,6 @@ a:link, a:visited {color: black; text-decoration: none;}
 body {font-size: 11pt;}
 tr {page-break-inside: avoid;}
 .where {display: none;}
+
+body, #zzform .editbutton, #zzform td.recordid, #zzform th.recordid 
+	{background-color: #FFF;}

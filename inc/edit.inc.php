@@ -24,11 +24,20 @@
 		$zz_conf['show_output']		
 		$zz_conf['url_self']		own url or target url									$self
 		$zz_conf['details']			column details; links to detail records with foreign key	$details	
+		$zz_conf['details_base']	array, corresponding to details, does not make use of details as first part of details_url but this field instead
 		$zz_conf['details_url']		what url to follow for detail records					$details_url		
+									may be array e. g. array('field1' => 'fieldname_bla', 'string1' => '/', 'field2' => 'fieldname_blubb') etc.
 		$zz_conf['referer']			referer which links back to previous page				$referer	
 		$zz_conf['add']				do not add data
 		$zz_conf['heading']			optional: h2-heading to be used for form instead of $zz['table']
 		$zz_conf['heading_text']	Textblock after heading
+		$zz_conf['heading_sql']		['heading_sql'][$where_id, without tablename] = zz['fields'][n]['sql'] where n is the index of the field corresponding to the key
+		$zz_conf['heading_var']		['heading_var'][$where_id, without tablename] = array() field from heading_sql-query which shall be used for better display of H2 and TITLE blabla:<br>var1 var2 var3
+			-- the corresponding field may be hidden from the form and the list with
+			if (isset($_GET['where']['gebaeude.gebaeude_id'])) {
+				$zz['fields'][2]['class'] = 'hidden';
+				$zz['fields'][2]['hide_in_list'] = true;
+			}
 		$zz_conf['title']			= heading, but without HTML tags
 		$zz_conf['prefix']			table_prefix like zz_ (will be removed in error output)
 		$zz_conf['action']			action to be performed after or before insert, update, delete
@@ -44,7 +53,14 @@
 		$zz_conf['export']			if sql result might be exported (link for export will appear at the end of the page)
 		$zz_conf['export_filetypes']	possible filetypes for export
 		$zz_conf['relations_table']	table for relations for relational integrity
-			
+		$zz_conf['additional_text']	additional textfile in directory local (text-en.inc.php where en = zz_conf['language'])? false | true, overwrites standard messages as well!
+		$zz_conf['logging']			logging of INSERT UPDATE DELETE enabled? default: false
+		$zz_conf['logging_table']	table where logging will be written into, default: _logging
+		$zz_conf['backup']			do a backup of old files?
+		$zz_conf['backup_dir']		directory where old files shall be backed up to, default: zz_conf['dir'].backup
+		$zz_conf['graphics_library'] graphics library used for image manipulation (imagemagick is default, others are currently not supported)
+		$zz_conf['max_select_val_len']	maximum length of values in select, default = 60
+
 	$zz
 		$zz['table']				name of main table										$maintable
 		$zz['fields']				all fields of a table									$query
@@ -54,18 +70,22 @@
 			$zz['fields'][n]['field_name']			field name from database, required if field shall be included
 
 			$zz['fields'][n]['type']				type of field, default if not set is "text"
-				possible values
-				id | text | number | url | mail | subtable | foreign_key | memo | select
+				possible values:
 				
 				id				ID of record, must be first field in list zz['fields'][1]
 				hidden			hidden field
 					-> value		value for hidden field
+				identifier		textual identifier for a record, unique, will be put together from 'fields'
+					-> fields		if one of the fields-values is field_name of current field, identifier will be written only once and not change thereafter
+					-> conf_identifier
 				timestamp		timestamp
 					-> value		value for timestamp
 				unix_timestamp	unix-timestamp, will be converted to readable date and back
 				foreign			... (not in use currently)
 					-> add_foreign	??
 				password		password input, will be md5 encoded
+				password_change	change a password (enter old, enter new twice, md5 encoded)
+					-> sql_password_check
 				text			standard one line text field, maxlength from VARCHAR-value if applicable, size=32
 					-> format
 					-> size
@@ -93,9 +113,11 @@
 					-> show_hierarchy	shows hierarchy in selects, value must be set to corresponding SQL field name
 					-> add_details
 				image
-					-> path			syntax = ...
-				upload-image
+					-> path			syntax = see below
+				upload_image
 					-> path
+				display				column for display only
+					-> display_field
 				calculated
 					-> calculation = hours | sum (only supported modes)
 					-> calculation_fields	array of fields which shall be used for calculation
@@ -116,6 +138,7 @@
 			$zz['fields'][n]['hide_in_list']		field will not be shown in table view
 			$zz['fields'][n]['display_field']		field (from sql query) which will be shown in table (e. g. as replacement for id values)
 			$zz['fields'][n]['default']				default value for field
+			$zz['fields'][n]['value']				value for field, cannot be changed
 			$zz['fields'][n]['append_next']			false | true; appends next record in form view in the same line
 			$zz['fields'][n]['add_details']			add detail records in different table, attention: current input will not be saved.
 			$zz['fields'][n]['explanation']			explanation how to fill in values in this field, will only be shown in edit or insert mode
@@ -130,6 +153,7 @@
 			$zz['fields'][n]['suffix_function']		adds suffix-function to form view	
 			$zz['fields'][n]['suffix_function_var']	parameters for suffix-function to form view	(array)
 			$zz['fields'][n]['prefix']				adds prefix-string to form view	
+			$zz['fields'][n]['exclude_from_search']	search will do no operations in this field
 
 		//--> depending on type of field, see -> above
 
@@ -145,8 +169,13 @@
 			$zz['fields'][n]['number_type']			latitude | longitude, for entering geo information
 			$zz['fields'][n]['factor']				for doubles etc. factor will be multiplied with value
 			$zz['fields'][n]['function']			function which will be called to change input value
-			$zz['fields'][n]['fields']				vars which will be passed to function
+			$zz['fields'][n]['fields']				vars which will be passed to function or identifier
 			$zz['fields'][n]['auto_value']			increment | ... // 1 will be added and inserted in 'default'
+			$zz['fields'][n]['conf_identifier']		array, affects standard values for generating identifier: array('forceFilename' => '-', 'concat' => '.', 'exists' => '.'); - attention: values longer than 1 will be cut off!
+			$zz['fields'][n]['path']				array, values: root DOCUMENT_ROOT or path to directory, will be used as a prefix to check whether file_exists or not
+													fieldXX will add corresponding field value, stringXX will add string value, modeXX: functions that will be applied to all field_values
+													e. g. array('field1' => 'fieldname_bla', 'string1' => '/', 'field2' => 'fieldname_blubb') etc.
+			$zz['fields'][n]['sql_password_check']	query to check existing password
 
 		$zz_tab[1]['table']
 		$zz_tab[1]['no']			= n in $zz['fields'][n]
@@ -160,8 +189,8 @@
 			$zz['fields'][n]['table_name']			Alias if more subtables are included (used for search only, AFAIK)
 
 			$zz['fields'][n]['unique']				if field value is unique, it can be used for where-clauses and will show only one record in display mode, without add new record
-			$zz['fields'][n]['upload-field'] = 8;
-			$zz['fields'][n]['upload-value'] = 'exif[FileName]'; // possible values:
+			$zz['fields'][n]['upload_field'] = 8;
+			$zz['fields'][n]['upload_value'] = 'exif[FileName]'; // possible values:
 				filename = filename without extension and web compatible
 				title = title, tried to extract from filename (_ replaced with space, ucfirst, ...)
 				name	from upload
@@ -175,8 +204,8 @@
 				exif[FileSize] ...
 				
 			
-		$zz['sql']
-		$zz['sqlorder']
+		$zz['sql']					SQL Query without ORDER-part
+		$zz['sqlorder']				ORDER part of SQL Query
 				
 		$zz['output']				HTML output												$output
 		$zz['action']				what to do (POST): insert | update | delete | review	$action
@@ -260,6 +289,13 @@ function zzform() {
 	Default Configuration
 */
 
+	$zz_error['msg'] = '';
+	$zz_error['query'] = '';
+	$zz_error['level'] = '';
+	$zz_error['type'] = '';
+	$zz_error['mysql'] = '';
+	$upload_form = false;
+
 	$zz_default['delete']			= false;	// $delete				show Action: Delete
 	$zz_default['edit']				= true;		// 						show Action: Edit
 	$zz_default['add']				= true;		// $add					show Add new record
@@ -278,6 +314,8 @@ function zzform() {
 	$zz_default['relations_table'] 	= '_relations';	//	name of relations table for referential integrity
 	$zz_default['logging'] 			= false;	//	if logging should occur, turned off by default 
 	$zz_default['logging_table'] 	= '_logging';	//	name of table where INSERT, DELETE and UPDATE actions will be logged
+	$zz_default['backup'] 			= false;	//	backup uploaded files?
+	$zz_default['backup_dir'] 		= $zz_conf['dir'].'/backup';	//	directory where backup will be put into
 	$zz_default['prefix'] 			= false;	//	prefix for ALL tables like zz_
 	$zz_default['max_select'] 		= 60;		//	maximum entries in select/option, if bigger than sub-select
 	$zz_default['dir_ext']			= $zz_conf['dir'].'/ext';			// directory for extensions
@@ -290,6 +328,17 @@ function zzform() {
 	$zz_default['action_dir']		= $zz_conf['dir'].'/local';			// directory for included scripts after action has been taken
 	$zz_default['export']			= false;							// if sql result might be exported (link for export will appear at the end of the page)
 	$zz_default['export_filetypes']	= array('csv');						// possible filetypes for export
+	$zz_default['details_base']		= false;
+	$zz_default['additional_text']	= false;
+	$zz_default['graphics_library'] = 'imagemagick';
+	$zz_default['max_select_val_len']	= 60;		// maximum length of values in select
+	$upload_max_filesize = ini_get('upload_max_filesize');
+	switch (substr($upload_max_filesize, strlen($upload_max_filesize)-1)) {
+		case 'G': $upload_max_filesize *= pow(1024, 3); break;
+		case 'M': $upload_max_filesize *= pow(1024, 2); break;
+		case 'K': $upload_max_filesize *= pow(1024, 1); break;
+	}
+	$zz_default['upload']['MAX_FILE_SIZE']	= $upload_max_filesize;
 
 	foreach (array_keys($zz_default) as $key)
 		if (!isset($zz_conf[$key])) $zz_conf[$key] = $zz_default[$key];
@@ -301,7 +350,7 @@ function zzform() {
 	$zz_var['url_append'] ='?';
 	$test_url_self = parse_url($zz_conf['url_self']);
 	if (!empty($test_url_self['query'])) $zz_var['url_append'] ='&amp;';
-	
+
 	/*
 		Required files
 	*/
@@ -313,13 +362,13 @@ function zzform() {
 	require_once($zz_conf['dir'].'/inc/editrecord.inc.php');		// update/delete/insert
 	require_once($zz_conf['dir'].'/inc/editval.inc.php');			// Basic Validation
 	require_once($zz_conf['dir'].'/inc/text-en.inc.php');			// English text
+	if ($zz_conf['additional_text'] AND file_exists($langfile = $zz_conf['dir'].'/local/text-'.$zz_conf['language'].'.inc.php'))
+		include_once $langfile;
 	
-	$zz_error['msg'] = '';
-	$zz_error['query'] = '';
-	$zz_error['level'] = '';
-	$zz_error['type'] = '';
-	$zz_error['mysql'] = '';
-	$upload_form = false;
+	if ($zz_conf['upload']['MAX_FILE_SIZE'] > $upload_max_filesize) {
+		$zz_error['msg'] = 'Value for upload_max_filesize from php.ini is smaller than value which is set in the script. The value from php.ini will be used. To upload bigger files, please adjust your configuration settings.';
+		$zz_conf['upload']['MAX_FILE_SIZE'] = $upload_max_filesize;
+	}
 	
 	/*
 		Optional files
@@ -330,15 +379,17 @@ function zzform() {
 		if (file_exists($langfile)) include_once($langfile);
 		else {
 			$zz_error['level'] = 'warning';
-			$zz_error['msg'] = 'No language file for <strong>'.$zz_conf['language'].'</strong> found. Using English instead.';
+			$zz_error['msg'] .= 'No language file for <strong>'.$zz_conf['language'].'</strong> found. Using English instead.';
 			$zz_error['type'] = 'config';
 		}
+		if ($zz_conf['additional_text'] AND file_exists($langfile = $zz_conf['dir'].'/local/text-'.$zz_conf['language'].'.inc.php'))
+			include_once $langfile;
 	}
 	// todo: if file exists else lang = en
 	if (!isset($zz_conf['db_connection'])) include_once ($zz_conf['dir'].'/local/db.inc.php');
 	if (!empty($zz_conf['db_name'])) {
 		$dbname = mysql_select_db($zz_conf['db_name']);
-		if (!$dbname) $zz_error['msg'] = mysql_error();
+		if (!$dbname) $zz_error['msg'] .= mysql_error();
 	}
 	if (!function_exists('datum_de')) include ($zz_conf['dir'].'/inc/numbers.inc.php');
 	if (file_exists($zz_conf['dir'].'/inc/geocoords.inc.php')) 
@@ -382,6 +433,7 @@ function zzform() {
 		$zz_conf['referer'] = $_POST['referer'];
 	elseif (isset($_SERVER['HTTP_REFERER']))
 		$zz_conf['referer'] = $_SERVER['HTTP_REFERER'];
+	$zz_conf['referer_esc'] = str_replace('&', '&amp;', $zz_conf['referer']);
 		
 	$zz_conf['heading'] = (!isset($zz_conf['heading'])) ? zz_form_heading($zz['table']) : $zz_conf['heading'];
 	
@@ -421,7 +473,9 @@ function zzform() {
 				$fieldname = $field;
 			}
 	*/
-			$sql_ext .= $field." = '".$sql_where[$field]."' ";
+			$mfield = $field;
+			if (!strstr($field, '.')) $mfield = $zz['table'].'.'.$field; // this makes it unneccessary to add table_name to where-clause
+			$sql_ext .= $mfield." = '".$sql_where[$field]."' ";
 		}
 		$zz['sql'].= $sql_ext;
 	
@@ -494,11 +548,12 @@ function zzform() {
 				$j++;
 			} elseif ($zz['fields'][$i]['type'] == 'id')
 				$zz_tab[0][0]['id']['field_name'] = $zz['fields'][$i]['field_name'];
-			elseif (substr($zz['fields'][$i]['type'], 0, 7) == 'upload-') {// at least one upload field adds enctype-field to form
+			elseif (substr($zz['fields'][$i]['type'], 0, 7) == 'upload_') {// at least one upload field adds enctype-field to form
 				$upload_form = true;
 				include($zz_conf['dir'].'/inc/upload.inc.php');
 			}
 		}
+	if (empty($upload_form)) unset($zz_conf['upload']); // values are not needed
 	
 	$zz['action'] = false;
 	if (isset($_GET['mode'])) {
@@ -568,48 +623,10 @@ function zzform() {
 	$validation = true;
 	
 	//	### put each table (if more than one) into one array of its own ###
-	
-	if ($subqueries && $zz['action'] != 'delete') {
-		$i = 1;
-		foreach ($subqueries as $subquery) {
-			$zz_tab[$i]['table'] = $zz['fields'][$subquery]['table'];
-			$zz_tab[$i]['table_name'] = $zz['fields'][$subquery]['table_name'];
-			$zz_tab[$i]['max_records'] = (isset($zz['fields'][$subquery]['max_records'])) ? $zz['fields'][$subquery]['max_records'] : $zz_conf['max_detail_records'];
-			$zz_tab[$i]['min_records'] = (isset($zz['fields'][$subquery]['min_records'])) ? $zz['fields'][$subquery]['min_records'] : $zz_conf['min_detail_records'];
-			$zz_tab[$i]['no'] = $subquery;
-			$zz_tab[$i]['sql'] = $zz['fields'][$subquery]['sql'];
-			if ($zz['mode']) {
-				if ($zz['mode'] == 'add')
-					$zz_tab[$i] = zz_subqueries($i, true, true, false, $zz['fields'][$zz_tab[$i]['no']], $zz_tab); // min, details
-				elseif ($zz['mode'] == 'edit')
-					$zz_tab[$i] = zz_subqueries($i, true, true, true, $zz['fields'][$zz_tab[$i]['no']], $zz_tab); // min, details, sql
-				elseif ($zz['mode'] == 'delete')
-					$zz_tab[$i] = zz_subqueries($i, false, false, true, $zz['fields'][$zz_tab[$i]['no']], $zz_tab); // sql
-				elseif ($zz['mode'] == 'review')
-					$zz_tab[$i] = zz_subqueries($i, false, false, true, $zz['fields'][$zz_tab[$i]['no']], $zz_tab); // sql
-			} elseif ($zz['action'] && is_array($_POST[$zz['fields'][$subquery]['table_name']])) {
-				foreach (array_keys($_POST[$zz['fields'][$subquery]['table_name']]) as $subkey) {
-					$zz_tab[$i][$subkey]['fields'] = $zz['fields'][$zz_tab[$i]['no']]['fields'];
-					$zz_tab[$i][$subkey]['validation'] = true;
-					$zz_tab[$i][$subkey]['record'] = false;
-					$zz_tab[$i][$subkey]['action'] = false;
-					foreach ($zz_tab[$i][$subkey]['fields'] as $field)
-						if (isset($field['type']) && $field['type'] == 'id') 
-							$zz_tab[$i][$subkey]['id']['field_name'] = $field['field_name'];
-					$table = $zz['fields'][$subquery]['table_name'];
-					$field_name = $zz_tab[$i][$subkey]['id']['field_name'];
-					if (isset($_POST[$table][$subkey][$field_name])) 
-						$zz_tab[$i][$subkey]['id']['value'] = $_POST[$table][$subkey][$field_name];
-					else
-						$zz_tab[$i][$subkey]['id']['value'] = '';
-				}
-			}
-			$i++;
-		}
-		unset($i);	
+	zz_get_subqueries($subqueries, $zz, $zz_tab, $zz_conf);
+	if ($subqueries && $zz['action'] != 'delete')
 		if (isset($_POST['subtables'])) $validation = false;
-	}
-	
+
 	foreach (array_keys($zz_tab) as $i)
 		foreach (array_keys($zz_tab[$i]) as $k)
 			if (is_numeric($k)) $zz_tab[$i][$k] = fill_out($zz_tab[$i][$k]); // set type, title etc. where unset
@@ -621,18 +638,19 @@ function zzform() {
 	
 	$no_delete_reason = false;
 	if ($zz['action'] == 'insert' OR $zz['action'] == 'update' OR $zz['action'] == 'delete')
-		zz_action($zz_tab, $zz_conf, $zz, $validation, $upload_form, $no_delete_reason); // check for validity, insert/update/delete record
-	
+		zz_action($zz_tab, $zz_conf, $zz, $validation, $upload_form, $no_delete_reason, $subqueries); // check for validity, insert/update/delete record
+
 	/*
 		Query Updated, Added or Editable Record
 	*/
 	
-	if (!$validation)
+	if (!$validation) {
 		if ($zz['action'] == 'update') $zz['mode'] = 'edit';
 		elseif ($zz['action'] == 'insert') $zz['mode'] = 'add';
-	
-	$zz['output'].= zz_error($zz_error);
-	
+		zz_get_subqueries($subqueries, $zz, $zz_tab, $zz_conf);
+	}
+	//$zz['output'].= zz_error($zz_error);
+
 	/*
 		Display Updated, Added or Editable Record
 	*/
@@ -712,9 +730,10 @@ function zzform() {
 		$zz['output'] .= zz_display_records($zz, $zz_tab, $zz_conf, $display, $zz_var);
 	else
 		$zz['output'] .= zz_error($zz_error); // will be done in zz_display_records as well, after output of formhead
-	
+
+	if ($zz['mode'] && $zz['mode'] != 'review') $zz['output'].= "</form>\n";
 	if ($zz['mode'] != 'add' && $zz_conf['add']) $zz['output'].= '<p class="add-new"><a accesskey="n" href="'.$zz_conf['url_self'].$zz_var['url_append'].'mode=add'.$zz['extraGET'].'">'.$text['add_new_record'].'</a></p>'."\n";
-	if ($zz_conf['referer'] && $zz_conf['backlink']) $zz['output'].= '<p id="back-overview"><a href="'.$zz_conf['referer'].'">'.$text['back-to-overview'].'</a></p>'."\n";
+	if ($zz_conf['referer'] && $zz_conf['backlink']) $zz['output'].= '<p id="back-overview"><a href="'.$zz_conf['referer_esc'].'">'.$text['back-to-overview'].'</a></p>'."\n";
 	
 	$zz['sql'] = zz_sql_order($zz['fields'], $zz['sql']); // Alter SQL query if GET order (AND maybe GET dir) are set
 	

@@ -19,13 +19,14 @@
 
 */
 
-function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, &$no_delete_reason) {
+function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, &$no_delete_reason, $subqueries) {
 	global $text;
+	global $zz_error;
 	//	### Check for validity, do some operations ###
 	foreach (array_keys($zz_tab) as $i)
 		foreach (array_keys($zz_tab[$i]) as $k) {
-			if (!empty($upload_form) && $zz_tab[0][0]['action'] != 'delete' && is_numeric($k)) // do only for zz_tab 0 0 etc. not zz_tab 0 sql
-				$zz_tab[$i][$k]['images'] = zz_get_upload($zz_tab[$i][$k]); // read upload image information, as required
+			if (!empty($upload_form) && is_numeric($k)) // do only for zz_tab 0 0 etc. not zz_tab 0 sql
+				zz_get_upload($zz_tab[$i][$k], $zz_tab[0][0]['action'], $zz_tab[0]['sql']); // read upload image information, as required
 			if ($i && is_numeric($k)) {
 			// only if $i and $k != 0, i. e. only for subtables!
 				$zz_tab[$i][$k]['POST'] = $_POST[$zz['fields'][$zz_tab[$i]['no']]['table_name']][$k];
@@ -79,6 +80,12 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, &$no_de
 				//test
 						$record_idfield = $zz_tab[$i][$k]['id']['field_name'];
 						$detailrecords = '';
+						if ($subqueries) foreach ($subqueries as $subkey) {
+							$det_key = $zz['fields'][$subkey]['table'];
+							if (!strstr('.', $det_key)) $det_key = $zz_conf['db_name'].'.'.$det_key;
+							$detailrecords[$det_key]['table'] = $zz['fields'][$subkey]['table'];
+							$detailrecords[$det_key]['sql'] = $zz['fields'][$subkey]['sql'];
+						}
 						if (!$no_delete_reason = check_integrity($zz_conf['db_name'], $zz_tab[$i]['table'], $record_idfield, $zz_tab[$i][$k]['POST'][$record_idfield], $zz_conf['relations_table'], $detailrecords))
 						// todo: remove db_name maybe?
 							$zz_tab[$i][$k]['validation'] = true;
@@ -153,6 +160,24 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, &$no_de
 		}
 		// ### Do mysql-query and additional actions ###
 		
+		if ($zz_tab[0][0]['action'] == 'delete' && isset($detail_sql_edit)) { // if delete a record, first delete detail records so that in case of an error there are no orphans
+			foreach (array_keys($detail_sql_edit) as $i)
+				foreach (array_keys($detail_sql_edit[$i]) as $k) {
+					$del_result = mysql_query($detail_sql_edit[$i][$k]);
+					if ($del_result) {
+						if ($zz_conf['logging']) zz_log_sql($detail_sql_edit[$i][$k], $zz_conf['user']); // Logs SQL Query
+						unset($detail_sql_edit[$i][$k]);
+					} else { // something went wrong, but why?
+						$zz['formhead'] = false;
+						$zz_error['msg']	.= 'Detail record could not be deleted';
+						$zz_error['type']	.= 'mysql';
+						$zz_error['query']	.= $detail_sql_edit[$i][$k];
+						$zz_error['mysql']	.= mysql_error();
+						return false; // get out of function, ignore rest (this should never happen, just if there are database errors etc.)
+					}
+				}
+		}
+
 		$result = mysql_query($sql_edit);
 		if ($result) {
 			if ($zz_tab[0][0]['action'] == 'insert') $zz['formhead'] = $text['record_was_inserted'];
@@ -182,19 +207,18 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, &$no_de
 			if (isset($zz_conf['action']['after_'.$zz['action']])) 
 				include ($zz_conf['action_dir'].'/'.$zz_conf['action']['after_'.$zz['action']].'.inc.php'); 
 				// if any other action after insertion/update/delete is required
-			if (!empty($upload_form) && $zz_tab[0][0]['action'] != 'delete')
-				zz_write_upload($zz); // upload images, as required
-			//elseif(!empty($upload_form) && $zz_tab[0][0]['action'] == 'delete') 
-				// todo: delete images
+			if (!empty($upload_form))
+				zz_upload_action($zz_tab, $zz_conf); // upload images, delete images, as required
 		} else {
 			// Output Error Message
 			$zz['formhead'] = false;
 			if ($zz['action'] == 'insert') $zz_tab[0][0]['id']['value'] = false; // for requery
-			$zz_error['msg']	.= $zz['action'].' failed';
+			$zz_error['msg']	.= ' ';
 			$zz_error['level']	.= 'crucial';
 			$zz_error['type']	.= 'mysql';
 			$zz_error['query']	.= $sql_edit;
 			$zz_error['mysql']	.= mysql_error();
+			$validation = false; // show record again!
 		}
 	}	
 }

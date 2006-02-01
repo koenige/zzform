@@ -56,7 +56,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 			}
 			if (isset($zz_conf['multilang_fieldnames']) && $zz_conf['multilang_fieldnames']) $zz['output'].= $text[$field['title']];
 			else $zz['output'].= $field['title'];
-			if ($field['type'] != 'calculated')
+			if ($field['type'] != 'calculated' && $field['type'] != 'image' && isset($field['field_name']))
 				$zz['output'].= '</a>';
 			$zz['output'].= '</th>';
 		}
@@ -104,7 +104,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 						}
 					} elseif ($field['calculation'] == 'sql')
 						$zz['output'].= $line[$field['field_name']];
-				} elseif ($field['type'] == 'image' OR $field['type'] == 'upload-image') {
+				} elseif ($field['type'] == 'image' OR $field['type'] == 'upload_image') {
 					if (isset($field['path'])) {
 						$img = show_image($field['path'], $line);
 						if ($img) {
@@ -128,14 +128,14 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 					if (isset($field['link'])) {
 						if (is_array($field['link'])) {
 							$zz['output'].= '<a href="'.show_link($field['link'], $line);
-							if (!isset($field['link_no_append'])) $zz['output'].= $line[$field['field_name']];
+							if (empty($field['link_no_append'])) $zz['output'].= $line[$field['field_name']];
 							$zz['output'].= '">';
 						} else $zz['output'].= '<a href="'.$field['link'].$line[$field['field_name']].'">';
 					}
 					if (isset($field['display_field'])) $zz['output'].= htmlchars($line[$field['display_field']]);
 					else {
 						if (isset($field['factor']) && $line[$field['field_name']]) $line[$field['field_name']] /=$field['factor'];
-						if ($field['type'] == 'unix_timestamp') $zz['output'].= date('Y-m-d H:m:s', $line[$field['field_name']]);
+						if ($field['type'] == 'unix_timestamp') $zz['output'].= date('Y-m-d H:i:s', $line[$field['field_name']]);
 						elseif ($field['type'] == 'date') $zz['output'].= datum_de($line[$field['field_name']]);
 						elseif (isset($field['number_type']) && $field['number_type'] == 'currency') $zz['output'].= waehrung($line[$field['field_name']], '');
 						elseif (isset($field['number_type']) && $field['number_type'] == 'latitude' && $line[$field['field_name']]) {
@@ -144,10 +144,11 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 						} elseif (isset($field['number_type']) && $field['number_type'] == 'longitude' &&  $line[$field['field_name']]) {
 							$deg = dec2dms('', $line[$field['field_name']]);
 							$zz['output'].= $deg['longitude'];
-						}
+						} elseif ($field['type'] == 'url' && strlen($line[$field['field_name']]) > $zz_conf['max_select_val_len'])
+							$zz['output'].= substr(htmlchars($line[$field['field_name']]), 0, $zz_conf['max_select_val_len']).'...';
 						else $zz['output'].= nl2br(htmlchars($line[$field['field_name']]));
 					}
-					if ($field['type'] == 'url') $zz['output'].= '</a>';
+					if ($field['type'] == 'url' OR $field['type'] == 'mail') $zz['output'].= '</a>';
 					if (isset($field['link'])) $zz['output'].= '</a>';
 					if (isset($field['sum']) && $field['sum'] == true) {
 						if (!isset($sum[$field['title']])) $sum[$field['title']] = 0;
@@ -165,7 +166,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 				if ($zz_conf['delete']) $zz['output'].= '&nbsp;| <a href="'.$zz_conf['url_self'].$zz_var['url_append'].'mode=delete&amp;id='.$id.$zz['extraGET'].'">'.$text['delete'].'</a>';
 				if (isset($zz_conf['details'])) {
 					$zz['output'].= '</td><td class="editbutton">';
-					$zz['output'].= show_more_actions($zz_conf['details'], $zz_conf['details_url'], $id, $line);
+					$zz['output'].= show_more_actions($zz_conf['details'], $zz_conf['details_url'],  $zz_conf['details_base'], $id, $line);
 				}
 				$zz['output'].= '</td>';
 			}
@@ -173,7 +174,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 			$z++;
 		}
 	}
-	$zz['output'].= '</tbody>'."\n";
+	if ($result && $count_rows) $zz['output'].= '</tbody>'."\n";
 	
 	//
 	// Table footer
@@ -199,7 +200,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 		$zz['output'].= '</tfoot>'."\n";
 	}
 
-	$zz['output'].= '</table>'."\n";
+	if ($result && $count_rows) $zz['output'].= '</table>'."\n";
 
 	//
 	// Buttons below table (add, record nav, search)
