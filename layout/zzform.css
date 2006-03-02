@@ -33,7 +33,7 @@ div.text #zzform	 {padding: 1em;}
 
 #zzform th {width: auto; text-align: left; vertical-align: top;}
 #zzform td {vertical-align: top;}
-#zzform td p {margin-top: 0;}
+#zzform td p {margin-top: .5em; margin-bottom: .5em;}
 
 #zzform table td { padding: .2em;}
 #zzform h1 {font-size: 140%; margin: 0;}
@@ -49,12 +49,14 @@ div.text #zzform	 {padding: 1em;}
 
 #zzform .error {background: red; color: white; padding: .25em;}
 #zzform div.error {margin: 1em 0;}
-#zzform #record .error td, #zzform #record .error th {background: red;}
+#zzform #record .error td, #zzform #record .error th,
+#zzform #record .subtable .error td, #zzform #record .subtable .error th {background: red;}
 #zzform tr.error td {border-color: red;}
 
 #zzform table.data td {padding: 0.25em .5em;}
 #zzform table.data thead td, #zzform table.data thead th {padding-bottom: .25em;
 	border-bottom: 1px solid;}
+#zzform .last {	border-bottom: 1px solid;}
 
 #zzform td p, #zzform td ul {margin-top: 0;}
 
@@ -86,3 +88,5 @@ div.text #zzform	 {padding: 1em;}
 #zzform #record .upload td, #zzform #record .upload th {padding-top: 0;}
 #zzform #record .upload th {padding-left: 0;}
 #zzform #record .upload {padding-bottom: 0; margin-bottom: 0;}
+
+#zzform .option th {font-weight: normal; text-align: right;}

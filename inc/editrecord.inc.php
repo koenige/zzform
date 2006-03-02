@@ -19,14 +19,16 @@
 
 */
 
-function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, &$no_delete_reason, $subqueries) {
+function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subqueries) {
 	global $text;
 	global $zz_error;
 	//	### Check for validity, do some operations ###
 	foreach (array_keys($zz_tab) as $i)
 		foreach (array_keys($zz_tab[$i]) as $k) {
-			if (!empty($upload_form) && is_numeric($k)) // do only for zz_tab 0 0 etc. not zz_tab 0 sql
-				zz_get_upload($zz_tab[$i][$k], $zz_tab[0][0]['action'], $zz_tab[0]['sql']); // read upload image information, as required
+			if (!empty($upload_form) && !$i && !$k) {// do only for zz_tab 0 0 etc. not zz_tab 0 sql, not for subtables
+				zz_upload_get($zz_tab[$i][$k], $zz_tab[0][0]['action'], $zz_tab[0]['sql'], $zz_tab); // read upload image information, as required
+				zz_upload_prepare($zz_tab, $zz_conf); // read upload image information, as required
+			}
 			if ($i && is_numeric($k)) {
 			// only if $i and $k != 0, i. e. only for subtables!
 				$zz_tab[$i][$k]['POST'] = $_POST[$zz['fields'][$zz_tab[$i]['no']]['table_name']][$k];
@@ -38,17 +40,24 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, &$no_de
 							// coordinates:
 							// rather problematic stuff because this input is divided into several fields
 							$t_coord = $zz_tab[$i][$k]['POST'][$field['field_name']];
-							if ($t_coord['which'] == 'dms') {
-								if (isset($t_coord['lat'])) $t_sub = 'lat';
-							else $t_sub = 'lon';
-								$values .= $t_coord[$t_sub]['deg'];
-								$values .= $t_coord[$t_sub]['min'];
-								$values .= $t_coord[$t_sub]['sec'];
-							} else 
-								$values .= $t_coord['dec'];
+							if (isset($t_coord['lat_dms']) OR isset($t_coord['lat_dm']))
+								$t_sub = 'lat_'.$t_coord['which'];
+							else
+								$t_sub = 'lon_'.$t_coord['which'];
+							switch ($t_coord['which']) {
+								case 'dms':
+									$values .= $t_coord[$t_sub]['sec']; // seconds only in dms
+								case 'dm':
+									$values .= $t_coord[$t_sub]['deg']; // degrees and minutes in dm and dms
+									$values .= $t_coord[$t_sub]['min'];
+									break;
+								default:
+									$values .= $t_coord['dec']; // dd will be default
+							}
 						} elseif ($field['type'] != 'timestamp' && $field['type'] != 'id')
-							if (!(isset($field['default']) && $field['default'] && $field['default'] == $zz_tab[$i][$k]['POST'][$field['field_name']]) // default values will be ignored
-								AND !isset($field['auto_value'])) // auto values will be ignored 
+							// 	old: !(!empty($field['default']) && $field['default'] == $zz_tab[$i][$k]['POST'][$field['field_name']]) // default values will be ignored
+							if (empty($field['auto_value']) // auto values will be ignored 
+								AND empty($field['value'])) // values will be ignored 
 								$values .= $zz_tab[$i][$k]['POST'][$field['field_name']];
 					if ($field['type'] == 'id')
 						if (!isset($zz_tab[$i][$k]['POST'][$field['field_name']]))
@@ -84,12 +93,15 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, &$no_de
 							$det_key = $zz['fields'][$subkey]['table'];
 							if (!strstr('.', $det_key)) $det_key = $zz_conf['db_name'].'.'.$det_key;
 							$detailrecords[$det_key]['table'] = $zz['fields'][$subkey]['table'];
-							$detailrecords[$det_key]['sql'] = $zz['fields'][$subkey]['sql'];
+							$detailrecords[$det_key]['sql'][] = $zz['fields'][$subkey]['sql']; // might be more than one detail record from the same table
 						}
-						if (!$no_delete_reason = check_integrity($zz_conf['db_name'], $zz_tab[$i]['table'], $record_idfield, $zz_tab[$i][$k]['POST'][$record_idfield], $zz_conf['relations_table'], $detailrecords))
+						if (!$zz_tab[$i][$k]['no-delete'] = check_integrity($zz_conf['db_name'], $zz_tab[$i]['table'], $record_idfield, $zz_tab[$i][$k]['POST'][$record_idfield], $zz_conf['relations_table'], $detailrecords))
 						// todo: remove db_name maybe?
 							$zz_tab[$i][$k]['validation'] = true;
-						else $zz_tab[$i][$k]['validation'] = false;
+						else {
+							$zz_tab[$i][$k]['validation'] = false;
+							$zz['no-delete'][] = $i.','.$k;
+						}
 					}
 		}
 
@@ -97,7 +109,7 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, &$no_de
 		if (is_numeric($subset))
 			if (!$subtab[$subset]['validation'])
 				$validation = false;
-	
+
 	if ($validation) {
 		if (isset($zz_conf['action']['before_'.$zz['action']])) // if any other action before insertion/update/delete is required
 			include ($zz_conf['action_dir'].'/'.$zz_conf['action']['before_'.$zz['action']].'.inc.php'); 
@@ -220,7 +232,8 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, &$no_de
 			$zz_error['mysql']	.= mysql_error();
 			$validation = false; // show record again!
 		}
-	}	
+	}
+	if (!empty($upload_form)) zz_upload_cleanup($zz_tab); // delete temporary unused files
 }
 
 ?>

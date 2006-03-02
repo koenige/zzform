@@ -26,6 +26,7 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 					$my['fields'][$f]['check_validation'] = false;
 				}
 			case 'display':
+			case 'option':
 			case 'calculated':
 			case 'image':
 			case 'foreign':
@@ -50,18 +51,22 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 				if ($my['fields'][$f]['type'] == 'number' AND isset($my['fields'][$f]['number_type']) 
 					AND $my['fields'][$f]['number_type'] == 'latitude' || $my['fields'][$f]['number_type'] == 'longitude') {
 					// geographical coordinates
-					if ($my['POST'][$my['fields'][$f]['field_name']]['which'] == 'dec') 
-						$my['POST'][$my['fields'][$f]['field_name']] = $my['POST'][$my['fields'][$f]['field_name']]['dec'];
-					elseif ($my['POST'][$my['fields'][$f]['field_name']]['which'] == 'dms') {
-						$degree = dms2db($my['POST'][$my['fields'][$f]['field_name']]); 
-						if (empty($degree['wrong']))
-							$my['POST'][$my['fields'][$f]['field_name']] = $degree[substr($my['fields'][$f]['number_type'], 0, 3).'dec'];
-						else {
-							$my['fields'][$f]['check_validation'] = false;
-							$my['fields'][$f]['wrong_fields'] = $degree['wrong']; // for output later on
-							$my['validation'] = false;
-						}
-					}
+					switch ($my['POST'][$my['fields'][$f]['field_name']]['which']) {
+						case 'dec':
+							$my['POST'][$my['fields'][$f]['field_name']] = $my['POST'][$my['fields'][$f]['field_name']]['dec'];
+							break;
+						case 'dm':
+						case 'dms':
+							$degree = dms2db($my['POST'][$my['fields'][$f]['field_name']], $my['POST'][$my['fields'][$f]['field_name']]['which']); 
+							if (empty($degree['wrong']))
+								$my['POST'][$my['fields'][$f]['field_name']] = $degree[substr($my['fields'][$f]['number_type'], 0, 3).'_dec'];
+							else {
+								$my['fields'][$f]['check_validation'] = false;
+								$my['fields'][$f]['wrong_fields'] = $degree['wrong']; // for output later on
+								$my['validation'] = false;
+							}
+							break;
+					} 
 					if (!is_array($my['POST'][$my['fields'][$f]['field_name']]) && strlen($my['POST'][$my['fields'][$f]['field_name']]) == 0) 
 						$my['POST'][$my['fields'][$f]['field_name']] = '';
 
@@ -181,8 +186,12 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 				}
 			
 			//	insert data from file upload/convert
-			//	...		
-				if ($my['fields'][$f]['type'] == 'hidden' && isset($my['fields'][$f]['upload_field'])) {
+			//	...
+				$possible_upload_fields = array('date', 'time', 'text');
+				if (($my['fields'][$f]['type'] == 'hidden' && !empty($my['fields'][$f]['upload_field'])) // type hidden, upload_field set
+					OR (in_array($my['fields'][$f]['type'], $possible_upload_fields) && !empty($my['fields'][$f]['upload_field']) && empty($my['POST'][$my['fields'][$f]['field_name']]))) {
+					$myval = false;
+					$v_arr = false;
 					$g = $my['fields'][$f]['upload_field'];
 					$v = $my['fields'][$f]['upload_value'];
 					if (preg_match('/.+\[.+\]/', $v)) { // construct access to array values
@@ -192,12 +201,24 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 							$v_arr[] = $v_var;
 						}
 						eval('$myval = $my[\'images\'][$g][0][\'upload\'][\''.implode("']['", $v_arr).'\'];');
+						if (!$myval) eval('$myval = $my[\'images\'][$g][0][\''.implode("']['", $v_arr).'\'];');
 					} else
 						$myval = (!empty($my['images'][$g][$v])) 
 							? $my['images'][$g][$v] // take value from upload-array
 							: (!empty($my['images'][$g][0]['upload'][$v]) ? $my['images'][$g][0]['upload'][$v] : ''); // or take value from first sub-image
-					if ($myval)
+					if ($myval && !empty($my['fields'][$f]['upload_sql'])) {
+						$sql = $my['fields'][$f]['upload_sql'].'"'.$myval.'"';
+						$result = mysql_query($sql);
+						if ($result) if (mysql_num_rows($result))
+							$myval = mysql_result($result, 0, 0);
+					}
+					if ($myval) {
 						$my['POST'][$my['fields'][$f]['field_name']] = $myval;
+					}
+					if ($zz_conf['debug']) {
+						echo '<br>uploadfield: '.$my['fields'][$f]['field_name'].' %'.$my['POST'][$my['fields'][$f]['field_name']].'%';
+						echo '<br>val: %'.$myval.'%';
+					}
 					// else: POST left empty, old values will remain (is this true?)
 				}
 	
@@ -260,18 +281,13 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 		foreach (array_keys($my['fields']) as $f) {
 		//	set
 			if ($my['fields'][$f]['type'] == 'select' && isset($my['fields'][$f]['set'])) {
-				$value = '';
-				if (isset($my['POST'][$my['fields'][$f]['field_name']]) && $my['POST'][$my['fields'][$f]['field_name']]) {
-					foreach ($my['POST'][$my['fields'][$f]['field_name']] as $this_value) {
-						if ($value) $value .= ',';
-						$value .= $this_value;
-					}
-					$my['POST'][$my['fields'][$f]['field_name']] = $value;
-				} else
+				if (isset($my['POST'][$my['fields'][$f]['field_name']]) && $my['POST'][$my['fields'][$f]['field_name']])
+					$my['POST'][$my['fields'][$f]['field_name']] = implode(',', $my['POST'][$my['fields'][$f]['field_name']]);
+				else
 					$my['POST'][$my['fields'][$f]['field_name']] = '';
 			}
 		//	slashes, 0 and NULL
-			$unwanted = array('calculated', 'image', 'upload_image', 'id', 'foreign', 'subtable', 'foreign_key', 'display');
+			$unwanted = array('calculated', 'image', 'upload_image', 'id', 'foreign', 'subtable', 'foreign_key', 'display', 'option');
 			if (!in_array($my['fields'][$f]['type'], $unwanted)) {
 				if ($my['POST'][$my['fields'][$f]['field_name']]) {
 					if (get_magic_quotes_gpc()) // sometimes unwanted standard config
@@ -300,19 +316,21 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 
 function zz_check_select($my, $f, $max_select) {
 	global $text;
+	global $zz_error;
 	$sql = $my['fields'][$f]['sql'];
 	preg_match('/SELECT (.+) FROM /i', $sql, $fieldstring); // preg_match, case insensitive, space after select, space around from - might not be 100% perfect, but should work always
 	$fields = explode(",", $fieldstring[1]);
 	$oldfield = false;
 	$newfields = false;
 	foreach ($fields as $myfield) {
-		if ($oldfield) $myfield = $oldfield.', '.$myfield;
+		if ($oldfield) $myfield = $oldfield.', '.$myfield; // oldfield, so we are inside parentheses
 		if (substr_count($myfield, '(') != substr_count($myfield, ')')) $oldfield = $myfield; // not enough brackets, so glue strings together until there are enought - not 100% safe if bracket appears inside string
 		else {
 			$myfields = '';
 			if (stristr($myfield, ') AS')) preg_match('/(.+\)) AS [a-z0-9_]/i', $myfield, $myfields); // replace AS blah against nothing
 			if ($myfields) $myfield = $myfields[1];
 			$newfields[] = $myfield;
+			$oldfield = false; // now that we've written it to array, empty it
 		}
 	}
 	if (stristr($sql, ' ORDER BY ')) {
@@ -322,10 +340,12 @@ function zz_check_select($my, $f, $max_select) {
 	} else
 		$sqlorder = false;
 	$postvalues = explode(' | ', trim($my['POST'][$my['fields'][$f]['field_name']]));
+	if (stristr($sql, ' WHERE ')) $where = ' AND ';
+	else $where = ' WHERE ';
 	$wheresql = '';
 	foreach ($postvalues as $value)
 		foreach ($newfields as $index => $field) {
-			if (!$wheresql) $wheresql.= ' WHERE (';
+			if (!$wheresql) $wheresql.= $where.'(';
 			elseif (!$index) $wheresql.= ' ) AND (';
 			else $wheresql.= ' OR ';
 			$wheresql.= $field.' LIKE "%'.$value.'%"'; 
@@ -361,6 +381,8 @@ function zz_check_select($my, $f, $max_select) {
 			$my['validation'] = false;
 		}
 	else {
+		$zz_error['msg'] .= mysql_error();
+		$zz_error['query'] .= $sql;
 		$my['fields'][$f]['check_validation'] = false;
 		$my['validation'] = false;
 	}

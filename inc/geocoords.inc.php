@@ -28,7 +28,7 @@
 	$var['latitude'] = 69¡10'36.4"N	
 */
 
-function dec2dms_sub($mer_dec) {
+function dec2dms_sub($mer_dec, $which = 'dms') {
 	$mer_dms = array ('deg' => '', 'min' => '', 'sec' => '', 'hemisphere' => '');
 	if ($mer_dec < 0) {
 		// southern hemisphere
@@ -42,10 +42,14 @@ function dec2dms_sub($mer_dec) {
 	$mer_dec -= $mer_dms['deg'];				// so minutes and seconds remain
 	$mer_dec *= 60;								// new unit is minutes
 	$mer_dec = round($mer_dec,4);				// so we don't get any rounding errors
-	$mer_dms['min'] = floor($mer_dec);	
-	$mer_dec -= $mer_dms['min'];
-	$mer_dec *= 600;
-	$mer_dms['sec'] = round($mer_dec) / 10;
+	if ($which == 'dms') {
+		$mer_dms['min'] = floor($mer_dec);	
+		$mer_dec -= $mer_dms['min'];
+		$mer_dec *= 600;
+		$mer_dms['sec'] = round($mer_dec) / 10;
+	} else {
+		$mer_dms['min'] = $mer_dec;	
+	}
 	return $mer_dms;
 }
 
@@ -53,60 +57,70 @@ function dec2dms_sub($mer_dec) {
 // and of course, differently
 
 function dec2dms($lat_dec, $lon_dec, $precision = false) {
+	global $text;
 	if (!is_null($lat_dec) && !is_null($lon_dec) && !is_array($lat_dec) && !is_array($lon_dec)) {
 		$lat_dms = dec2dms_sub($lat_dec);
-		if ($lat_dms['hemisphere'] == "+") $lat_dms['hemisphere'] = "N";
-		if ($lat_dms['hemisphere'] == "-") $lat_dms['hemisphere'] = "S";
+		$lat_dm = dec2dms_sub($lat_dec, 'dm');
+		if ($lat_dms['hemisphere'] == "+") $lat_dm['hemisphere'] = $lat_dms['hemisphere'] = $text["N"];
+		if ($lat_dms['hemisphere'] == "-") $lat_dm['hemisphere'] = $lat_dms['hemisphere'] = $text["S"];
 		$lon_dms = dec2dms_sub($lon_dec);
-		if ($lon_dms['hemisphere'] == "+") $lon_dms['hemisphere'] = "E";
-		if ($lon_dms['hemisphere'] == "-") $lon_dms['hemisphere'] = "W";
+		$lon_dm = dec2dms_sub($lon_dec, 'dm');
+		if ($lon_dms['hemisphere'] == "+") $lon_dm['hemisphere'] = $lon_dms['hemisphere'] = $text["E"];
+		if ($lon_dms['hemisphere'] == "-") $lon_dm['hemisphere'] = $lon_dms['hemisphere'] = $text["W"];
 		$coords_dms = array (
-			"lat" => $lat_dms,
-			"latdec" => $lat_dec,
-			"latitude" => $lat_dms['deg']."&deg;".$lat_dms['min']."'".$lat_dms['sec'].'"'.$lat_dms['hemisphere'], 
-			"lon" => $lon_dms,
-			"londec" => $lon_dec,
-			"longitude" => $lon_dms['deg']."&deg;".$lon_dms['min']."'".$lon_dms['sec'].'"'.$lon_dms['hemisphere']
+			"lat_dms" => $lat_dms,
+			"lat_dm" => $lat_dm,
+			"lat_dec" => $lat_dec,
+			"latitude_dms" => $lat_dms['deg']."&deg;".$lat_dms['min']."'".$lat_dms['sec'].'"'.$lat_dms['hemisphere'], 
+			"latitude_dm" => $lat_dm['deg']."&deg;".$lat_dm['min']."'".$lat_dm['hemisphere'], 
+			"lon_dms" => $lon_dms,
+			"lon_dm" => $lon_dm,
+			"lon_dec" => $lon_dec,
+			"longitude_dms" => $lon_dms['deg']."&deg;".$lon_dms['min']."'".$lon_dms['sec'].'"'.$lon_dms['hemisphere'],
+			"longitude_dm" => $lon_dm['deg']."&deg;".$lon_dm['min']."'".$lon_dm['hemisphere']
 		);
 		if ($precision) {
-			$coords_dms['latdec'.$precision] = $lat_dec * pow(10, $precision);
-			$coords_dms['londec'.$precision] = $lon_dec * pow(10, $precision);
+			$coords_dms['lat_dec_'.$precision] = $lat_dec * pow(10, $precision);
+			$coords_dms['lon_dec_'.$precision] = $lon_dec * pow(10, $precision);
 		}
 	} else
 		$coords_dms = '';
 	return $coords_dms;
 }
 
-function geo_editform($form_coords, $coords, $wrong_coords = false) {
+function geo_editform($form_coords, $coords, $format = 'dms', $wrong_coords = false) {
 	global $text;
-	
 	// Coordinates[0][X_Latitude][lat
 	// X_Latitude[lat
-	$form_coords_ll = substr($form_coords, strrpos($form_coords, '[')+1);
-
+	$form_coords_ext = substr($form_coords, strrpos($form_coords, '[')+1).'_'.$format;
+	
 	$output = '';
-	$output .= '<input type="text" size="3" maxlength="3" name="'.$form_coords.'][deg]" id="'.make_id_fieldname($form_coords.'][deg]', false).'" value="'.$coords[$form_coords_ll]['deg'].'">&deg; ';
-	$output .= '<input type="text" size="3" maxlength="3" name="'.$form_coords.'][min]" id="'.make_id_fieldname($form_coords.'][min]', false).'" value="'.$coords[$form_coords_ll]['min'].'">\' ';
-	$output .= '<input type="text" size="4" maxlength="4" name="'.$form_coords.'][sec]" id="'.make_id_fieldname($form_coords.'][sec]', false).'" value="'.$coords[$form_coords_ll]['sec'].'">&quot; ';
-
-	if ($form_coords_ll == "lat")
+	$output .= '<input type="text" size="3" maxlength="3" name="'.$form_coords.'_'.$format.'][deg]" id="'.make_id_fieldname($form_coords.'_'.$format.'][deg]', false).'" value="'.$coords[$form_coords_ext]['deg'].'">&deg; ';
+	if ($format == 'dm')
+		$output .= '<input type="text" size="6" maxlength="6" name="'.$form_coords.'_'.$format.'][min]" id="'.make_id_fieldname($form_coords.'_'.$format.'][min]', false).'" value="'.$coords[$form_coords_ext]['min'].'">\' ';
+	else {
+		$output .= '<input type="text" size="3" maxlength="3" name="'.$form_coords.'_'.$format.'][min]" id="'.make_id_fieldname($form_coords.'_'.$format.'][min]', false).'" value="'.$coords[$form_coords_ext]['min'].'">\' ';
+		$output .= '<input type="text" size="4" maxlength="4" name="'.$form_coords.'_'.$format.'][sec]" id="'.make_id_fieldname($form_coords.'_'.$format.'][sec]', false).'" value="'.$coords[$form_coords_ext]['sec'].'">&quot; ';
+	}
+	
+	if ($form_coords_ext == "lat_".$format)
 		$hemispheres = array('+' => 'N', '-' => 'S');
-	elseif ($form_coords_ll == "lon")
+	elseif ($form_coords_ext == "lon_".$format)
 		$hemispheres = array('+' => 'E', '-' => 'W');
 	else
 		$output.= "Programmer's fault. Variable must have lat or lon in its name";
 
-	$output.= '<select name="'.$form_coords.'][hemisphere]" id="'.make_id_fieldname($form_coords.'][hemisphere]').'" size="1">'."\n";
+	$output.= '<select name="'.$form_coords.'_'.$format.'][hemisphere]" id="'.make_id_fieldname($form_coords.'_'.$format.'][hemisphere]').'" size="1">'."\n";
 	$output.= '<option '; 
-	if ($coords[$form_coords_ll]['hemisphere'] == $hemispheres['+'] OR $coords[$form_coords_ll]['hemisphere'] == '+')
+	if ($coords[$form_coords_ext]['hemisphere'] == $hemispheres['+'] OR $coords[$form_coords_ext]['hemisphere'] == '+')
 		$output.= "selected ";
 	$output.= 'value="+">'.$text[$hemispheres['+']].'</option>';
 	$output.= '<option '; 
-	if ($coords[$form_coords_ll]['hemisphere'] == $hemispheres['-'] OR $coords[$form_coords_ll]['hemisphere'] == '-')
+	if ($coords[$form_coords_ext]['hemisphere'] == $hemispheres['-'] OR $coords[$form_coords_ext]['hemisphere'] == '-')
 		$output.= "selected ";
 	$output.= 'value="-">'.$text[$hemispheres['-']].'</option>
 </select>';
-	if ($wrong_coords) $output.= zz_geo_error($coords[$form_coords_ll], $wrong_coords[$form_coords_ll], $form_coords_ll);
+	if ($wrong_coords) $output.= zz_geo_error($coords[$form_coords_ext], $wrong_coords[$form_coords_ext], $form_coords_ext);
 	return $output;
 }
 
@@ -131,7 +145,7 @@ function zz_geo_error($coords, $wrong_coords, $ll) {
 			lon: deg | min | sec | hemisphere
 */
 
-function dms2db($input) {
+function dms2db($input, $which = 'dms') {
 	global $text;
 	$gcs = array (
 		'lat' => 'latitude',
@@ -143,37 +157,47 @@ function dms2db($input) {
 		'sec' => array('min' => 0, 'max' => 60), // sligthly more than allowed (float)
 		'hemisphere' => array('-', '+')
 	);
+	if ($which == 'dm') unset($parts['sec']); // no second field in DM
 	$empty = false;
 
 	foreach ($gcs as $coord => $coordinate) {
-		if (!empty($input[$coord])) // only if this coordinate is present
+		$coordf = $coord.'_'.$which;
+		if (!empty($input[$coordf])) // only if this coordinate is present
 			foreach ($parts as $part => $range) {
-				if ($part == 'sec' && strstr($input[$coord][$part], ','))
-					$input[$coord][$part] = str_replace(',', '.', $input[$coord][$part]); // replace decimal comma with decimal point
+				if (!empty($input[$coordf][$part]) && $part == 'sec' && strstr($input[$coordf][$part], ','))
+					$input[$coordf][$part] = str_replace(',', '.', $input[$coordf][$part]); // replace decimal comma with decimal point
+				if (!empty($input[$coordf][$part]) && $part == 'min' && strstr($input[$coordf][$part], ','))
+					$input[$coordf][$part] = str_replace(',', '.', $input[$coordf][$part]); // replace decimal comma with decimal point
 				switch ($part) { // check for integer or double
 					case 'sec':
-						$my = doubleval ($input[$coord][$part]); // type = string
-						if ((string) $my != $input[$coord][$part]) // does not work directly
-							$wrong[$coord][$part] = true;
-					break;
-					case 'min': 
+						$my = doubleval ($input[$coordf][$part]); // type = string
+						if ((string) $my != $input[$coordf][$part]) // does not work directly
+							$wrong[$coordf][$part] = true;
+						break;
+					case 'min':
+						if ($which == 'dm') {
+							$my = doubleval ($input[$coordf][$part]); // type = string
+							if ((string) $my != $input[$coordf][$part]) // does not work directly
+								$wrong[$coordf][$part] = true;
+							break;
+						}
 					case 'deg': 
-						$my = intval ($input[$coord][$part]); // type = string
-						if ((string) $my != $input[$coord][$part]) // does not work directly
-							$wrong[$coord][$part] = true;
-					break;
+						$my = intval ($input[$coordf][$part]); // type = string
+						if ((string) $my != $input[$coordf][$part]) // does not work directly
+							$wrong[$coordf][$part] = true;
+						break;
 				}
 				if (isset($range['max_'.$coord])) 
 					$range['max'] = $range['max_'.$coord]; // insert max range as required
 				if (isset($range['max'])) { // check for min/max
-					if ($input[$coord][$part] < $range['min'] OR 
-						$input[$coord][$part] >= $range['max'])
-						$wrong[$coord][$part] = true;
-				} elseif (!in_array($input[$coord][$part], $range)) // check if in_array
-					$wrong[$coord][$part] = true;
-				if (isset($range['max']) && $input[$coord]['deg'] == $range['max'] - 1) {
-					if ($input[$coord]['min']) $wrong[$coord]['min'] = true;
-					if ($input[$coord]['min']) $wrong[$coord]['sec'] = true;
+					if ($input[$coordf][$part] < $range['min'] OR 
+						$input[$coordf][$part] >= $range['max'])
+						$wrong[$coordf][$part] = true;
+				} elseif (!in_array($input[$coordf][$part], $range)) // check if in_array
+					$wrong[$coordf][$part] = true;
+				if (isset($range['max']) && $input[$coordf]['deg'] == $range['max'] - 1) {
+					if ($input[$coordf]['min']) $wrong[$coordf]['min'] = true;
+					if ($input[$coordf]['min']) $wrong[$coordf]['sec'] = true;
 				}
 			}
 		else
@@ -181,22 +205,27 @@ function dms2db($input) {
 	}
 	if (count($empty) == 2) return false; // no input
 	elseif (count($empty == 1)) // no real input, since hemisphere will always be sent from the browser
-		foreach (array_keys($gcs) as $coord)
+		foreach (array_keys($gcs) as $coord) {
+			$coordf = $coord.'_'.$which;
 			if (!in_array($coord, $empty))
-				if (empty($input[$coord]['deg']) && empty($input[$coord]['min']) && empty($input[$coord]['sec'])) return false;
-		
+				if (empty($input[$coordf]['deg']) && empty($input[$coordf]['min']) && empty($input[$coordf]['sec'])) return false;
+		}
+
 	if (!empty($wrong)) { // there were errors, hand coordinates back
 		$ouput['input'] = $input;
-		$output['wrong'] = $wrong;
+		$output['wrong'][$which] = $wrong;
 		return $output;
 	} else { // okay, values seem to be correct
 
 	/*	output (the same for longitude, "lon"):
-		$var['latdec'] = +69.176778
-		$var['lat']['deg'] = 69
-		$var['lat']['min'] = 10
-		$var['lat']['sec'] = 36.4
-		$var['lat']['hemisphere'] = 'N'
+		$var['lat_dec'] = +69.176778
+		$var['lat_dms']['deg'] = 69
+		$var['lat_dms']['min'] = 10
+		$var['lat_dms']['sec'] = 36.4
+		$var['lat_dms']['hemisphere'] = 'N'
+		$var['lat_dm']['deg'] = 69
+		$var['lat_dm']['min'] = 10.434
+		$var['lat_dm']['hemisphere'] = 'N'
 		$var['latitude'] = 69¡10'36.4"N	
 	*/
 		$hemisphere['lat']['+'] = 'N';
@@ -204,15 +233,25 @@ function dms2db($input) {
 		$hemisphere['lon']['+'] = 'E';
 		$hemisphere['lon']['-'] = 'W';
 		$output = $input; // take all values back
-		foreach ($gcs as $coord => $coordinate)
-			if (!empty($input[$coord])) { // only if this coordinate is present
+		foreach ($gcs as $coord => $coordinate) {
+			$coordf = $coord.'_'.$which;
+			if (!empty($input[$coordf])) { // only if this coordinate is present
 				// latdec,londec
-				$output[$coord.'dec'] = $input[$coord]['deg'] + $input[$coord]['min'] / 60 + $input[$coord]['sec'] / 3600;
-				if ($input[$coord]['hemisphere'] == "-") $output[$coord.'dec'] = -$output[$coord.'dec'];
+				$output[$coord.'_dec'] = $input[$coordf]['deg'] + $input[$coordf]['min'] / 60;
+				if (!empty($input[$coordf]['sec'])) $output[$coord.'_dec'] += $input[$coordf]['sec'] / 3600;
+				if ($input[$coordf]['hemisphere'] == "-") $output[$coord.'_dec'] = -$output[$coord.'_dec'];
 				// latitude, longitude
-				$output[$coordinate] = $input[$coord]['deg'].'&deg;'.$input[$coord]['min']."'"
-					.$input[$coord]['sec'].'"'.$text[$hemisphere[$coord][$input[$coord]['hemisphere']]];
+				$output[$coordinate] = $input[$coordf]['deg'].'&deg;';
+				if ($which == 'dms') {
+					$output[$coordinate].= $input[$coordf]['min']."'";
+					$output[$coordinate].= $input[$coordf]['sec'].'"';
+				} else {
+					$output[$coordinate].= (int) $input[$coordf]['min']."'";
+					$output[$coordinate].= ((($input[$coordf]['min'] - (int) $input[$coordf]['min']))*60).'"';
+				}
+				$output[$coordinate].= $text[$hemisphere[$coord][$input[$coordf]['hemisphere']]];
 			}
+		}
 		return $output;
 	}	
 }

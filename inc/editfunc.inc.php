@@ -206,14 +206,14 @@ function show_image($path, $record) {
 							$content = $mymode($content);
 						$img_src.= $content;
 					}
-					$alt = 'Image: '.$record[$path[$part]];
+					$alt = $text['File: '].$record[$path[$part]];
 				} else return false;
 			} else $img_src.= $path[$part];
 		}
 		if (!isset($root))
 			$img.= $img_src;
 		else			// check whether image exists
-			if (file_exists($root.$img_src)) $img.= $img_src;
+			if (file_exists($root.$img_src) && getimagesize($root.$img_src)) $img.= $img_src; // show only images
 			else return false;
 		$img.= '" alt="'.$alt.'" class="thumb">';
 	}
@@ -489,7 +489,7 @@ function zz_get_subqueries($subqueries, $zz, &$zz_tab, $zz_conf) {
 					$zz_tab[$i] = zz_subqueries($i, true, true, true, $zz['fields'][$zz_tab[$i]['no']], $zz_tab); // min, details, sql
 				elseif ($zz['mode'] == 'delete')
 					$zz_tab[$i] = zz_subqueries($i, false, false, true, $zz['fields'][$zz_tab[$i]['no']], $zz_tab); // sql
-				elseif ($zz['mode'] == 'review')
+				elseif ($zz['mode'] == 'review' OR $zz['mode'] == 'show')
 					$zz_tab[$i] = zz_subqueries($i, false, false, true, $zz['fields'][$zz_tab[$i]['no']], $zz_tab); // sql
 			} elseif ($zz['action'] && is_array($_POST[$zz['fields'][$subquery]['table_name']])) {
 				foreach (array_keys($_POST[$zz['fields'][$subquery]['table_name']]) as $subkey) {
@@ -663,24 +663,37 @@ function zz_requery_record($my, $validation, $sql, $table, $mode) {
 		if (!$validation) {
 		//	check for referential integrity was not passed
 			$my['formhead'] = 'Deletion not possible';
-			//$no_delete_reason['text'] .= '<br>Record cannot be deleted, because there are detail records for this record in other tables.';
 		}
 	}
 	return $my;
 }
 
-function fill_out($tab) {
+function fill_out(&$tab) {
+	global $text;
+	global $zz_conf;
 	foreach (array_keys($tab['fields']) as $no) {
-		if (!isset($tab['fields'][$no]['type'])) 
+		if (!isset($tab['fields'][$no]['type'])) // default type: text
 			$tab['fields'][$no]['type'] = 'text';
-		if (!isset($tab['fields'][$no]['title'])) {
+		if (!isset($tab['fields'][$no]['title'])) { // create title
 			$tab['fields'][$no]['title'] = ucfirst($tab['fields'][$no]['field_name']);
 			$tab['fields'][$no]['title'] = str_replace('_ID', ' ', $tab['fields'][$no]['title']);
 			$tab['fields'][$no]['title'] = str_replace('_id', ' ', $tab['fields'][$no]['title']);
 			$tab['fields'][$no]['title'] = str_replace('_', ' ', $tab['fields'][$no]['title']);
 		}
+		if (($zz_conf['multilang_fieldnames'])) {// translate fieldnames, if set
+			$tab['fields'][$no]['title'] = $text[$tab['fields'][$no]['title']];
+			if (!empty($tab['fields'][$no]['title_append'])) 
+				$tab['fields'][$no]['title_append'] = $text[$tab['fields'][$no]['title_append']];
+		}
+		if ($tab['fields'][$no]['type'] == 'option') { 
+			$tab['fields'][$no]['hide_in_list'] = true; // do not show option-fiels in tab
+			$tab['fields'][$no]['class'] = 'option'; // format option-fields with css
+		}
+		if (!empty($tab['fields'][$no]['sql'])) // replace whitespace with space
+			$tab['fields'][$no]['sql'] = preg_replace("/\s+/", " ", $tab['fields'][$no]['sql']);
+		if ($tab['fields'][$no]['type'] == 'subtable') // for subtables, do this as well
+			fill_out($tab['fields'][$no]);
 	}
-	return $tab;
 }
 
 function zz_log_sql($sql, $user) {

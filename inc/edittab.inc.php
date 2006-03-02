@@ -54,13 +54,12 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 				$zz['output'].= $uri;
 				$zz['output'].= '" title="'.$text['order by'].' '.strip_tags($field['title']).' ('.$text[$order_dir].')">';
 			}
-			if (isset($zz_conf['multilang_fieldnames']) && $zz_conf['multilang_fieldnames']) $zz['output'].= $text[$field['title']];
-			else $zz['output'].= $field['title'];
+			$zz['output'].= $field['title'];
 			if ($field['type'] != 'calculated' && $field['type'] != 'image' && isset($field['field_name']))
 				$zz['output'].= '</a>';
 			$zz['output'].= '</th>';
 		}
-		if ($zz_conf['edit'])
+		if ($zz_conf['edit'] OR $zz_conf['show'])
 			$zz['output'].= ' <th class="editbutton">'.$text['action'].'</th>';
 		if (isset($zz_conf['details']) && $zz_conf['details']) 
 			$zz['output'].= ' <th class="editbutton">'.$text['detail'].'</th>';
@@ -78,91 +77,104 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 	if ($result && $count_rows) {
 		$z = 0;
 		while ($line = mysql_fetch_assoc($result)) {
-			$zz['output'].= '<tr class="'.($z & 1 ? 'uneven':'even').'">'; //onclick="Highlight();"
+			$zz['output'].= '<tr class="'.($z & 1 ? 'uneven':'even').
+				(($z+1) == $count_rows ? ' last' : '').'">'; //onclick="Highlight();"
 			$id = '';
 			foreach ($table_query as $field) {
 				$zz['output'].= '<td'.check_if_class($field, $zz_var['where']).'>';
-				if ($field['type'] == 'calculated') {
-					if ($field['calculation'] == 'hours') {
-						$diff = 0;
-						foreach ($field['calculation_fields'] as $calc_field)
-							if (!$diff) $diff = strtotime($line[$calc_field]);
-							else $diff -= strtotime($line[$calc_field]);
-						$zz['output'].= gmdate('H:i', $diff);
+				switch ($field['type']) {
+					case 'calculated':
+						if ($field['calculation'] == 'hours') {
+							$diff = 0;
+							foreach ($field['calculation_fields'] as $calc_field)
+								if (!$diff) $diff = strtotime($line[$calc_field]);
+								else $diff -= strtotime($line[$calc_field]);
+							$zz['output'].= gmdate('H:i', $diff);
+							if (isset($field['sum']) && $field['sum'] == true) {
+								if (!isset($sum[$field['title']])) $sum[$field['title']] = 0;
+								$sum[$field['title']] += $diff;
+							}
+						} elseif ($field['calculation'] == 'sum') {
+							$my_sum = 0;
+							foreach ($field['calculation_fields'] as $calc_field)
+								$my_sum += $line[$calc_field];
+							$zz['output'].= $my_sum;
+							if (isset($field['sum']) && $field['sum'] == true) {
+								if (!isset($sum[$field['title']])) $sum[$field['title']] = 0;
+								$sum[$field['title']] .= $my_sum;
+							}
+						} elseif ($field['calculation'] == 'sql')
+							$zz['output'].= $line[$field['field_name']];
+						break;
+					case 'image':
+					case 'upload_image':
+						if (isset($field['path'])) {
+							$img = show_image($field['path'], $line);
+							if ($img) {
+								if (isset($field['link'])) {
+									if (is_array($field['link'])) {
+										$zz['output'].= '<a href="'.show_link($field['link'], $line);
+										if (!isset($field['link_no_append'])) $zz['output'].= $line[$field['field_name']];
+										$zz['output'].= '">';
+									} else $zz['output'].= '<a href="'.$field['link'].$line[$field['field_name']].'">';
+								} 
+								$zz['output'].= $img;
+								if (isset($field['link'])) $zz['output'] .= '</a>';
+							}
+						}
+						break;
+					case 'subtable':
+						// Subtable
+						if (isset($field['display_field'])) $zz['output'].= htmlchars($line[$field['display_field']]);
+						break;
+					case 'id':
+						$id = $line[$field['field_name']];
+					default:
+						if ($field['type'] == 'url') $zz['output'].= '<a href="'.$line[$field['field_name']].'">';
+						if ($field['type'] == 'mail') $zz['output'].= '<a href="mailto:'.$line[$field['field_name']].'">';
+						if (isset($field['link'])) {
+							if (is_array($field['link'])) {
+								$zz['output'].= '<a href="'.show_link($field['link'], $line);
+								if (empty($field['link_no_append'])) $zz['output'].= $line[$field['field_name']];
+								$zz['output'].= '">';
+							} else $zz['output'].= '<a href="'.$field['link'].$line[$field['field_name']].'">';
+						}
+						if (isset($field['display_field'])) $zz['output'].= htmlchars($line[$field['display_field']]);
+						else {
+							if (isset($field['factor']) && $line[$field['field_name']]) $line[$field['field_name']] /=$field['factor'];
+							if ($field['type'] == 'unix_timestamp') $zz['output'].= date('Y-m-d H:i:s', $line[$field['field_name']]);
+							elseif ($field['type'] == 'select' && !empty($field['enum']) && !empty($field['enum_title'])) { // show enum_title instead of enum
+								foreach ($field['enum'] as $mkey => $mvalue)
+									if ($mvalue == $line[$field['field_name']]) $zz['output'] .= $field['enum_title'][$mkey];
+							} elseif ($field['type'] == 'date') $zz['output'].= datum_de($line[$field['field_name']]);
+							elseif (isset($field['number_type']) && $field['number_type'] == 'currency') $zz['output'].= waehrung($line[$field['field_name']], '');
+							elseif (isset($field['number_type']) && $field['number_type'] == 'latitude' && $line[$field['field_name']]) {
+								$deg = dec2dms($line[$field['field_name']], '');
+								$zz['output'].= $deg['latitude_dms'];
+							} elseif (isset($field['number_type']) && $field['number_type'] == 'longitude' &&  $line[$field['field_name']]) {
+								$deg = dec2dms('', $line[$field['field_name']]);
+								$zz['output'].= $deg['longitude_dms'];
+							} elseif ($field['type'] == 'url' && strlen($line[$field['field_name']]) > $zz_conf['max_select_val_len'])
+								$zz['output'].= substr(htmlchars($line[$field['field_name']]), 0, $zz_conf['max_select_val_len']).'...';
+							else $zz['output'].= nl2br(htmlchars($line[$field['field_name']]));
+						}
+						if ($field['type'] == 'url' OR $field['type'] == 'mail') $zz['output'].= '</a>';
+						if (isset($field['link'])) $zz['output'].= '</a>';
 						if (isset($field['sum']) && $field['sum'] == true) {
 							if (!isset($sum[$field['title']])) $sum[$field['title']] = 0;
-							$sum[$field['title']] += $diff;
+							$sum[$field['title']] += $line[$field['field_name']];
 						}
-					} elseif ($field['calculation'] == 'sum') {
-						$my_sum = 0;
-						foreach ($field['calculation_fields'] as $calc_field)
-							$my_sum += $line[$calc_field];
-						$zz['output'].= $my_sum;
-						if (isset($field['sum']) && $field['sum'] == true) {
-							if (!isset($sum[$field['title']])) $sum[$field['title']] = 0;
-							$sum[$field['title']] .= $my_sum;
-						}
-					} elseif ($field['calculation'] == 'sql')
-						$zz['output'].= $line[$field['field_name']];
-				} elseif ($field['type'] == 'image' OR $field['type'] == 'upload_image') {
-					if (isset($field['path'])) {
-						$img = show_image($field['path'], $line);
-						if ($img) {
-							if (isset($field['link'])) {
-								if (is_array($field['link'])) {
-									$zz['output'].= '<a href="'.show_link($field['link'], $line);
-									if (!isset($field['link_no_append'])) $zz['output'].= $line[$field['field_name']];
-									$zz['output'].= '">';
-								} else $zz['output'].= '<a href="'.$field['link'].$line[$field['field_name']].'">';
-							} 
-							$zz['output'].= $img;
-							if (isset($field['link'])) $zz['output'] .= '</a>';
-						}
-					}	
-				} elseif ($field['type'] == 'subtable') {
-					// Subtable
-					if (isset($field['display_field'])) $zz['output'].= htmlchars($line[$field['display_field']]);
-				} else {
-					if ($field['type'] == 'url') $zz['output'].= '<a href="'.$line[$field['field_name']].'">';
-					if ($field['type'] == 'mail') $zz['output'].= '<a href="mailto:'.$line[$field['field_name']].'">';
-					if (isset($field['link'])) {
-						if (is_array($field['link'])) {
-							$zz['output'].= '<a href="'.show_link($field['link'], $line);
-							if (empty($field['link_no_append'])) $zz['output'].= $line[$field['field_name']];
-							$zz['output'].= '">';
-						} else $zz['output'].= '<a href="'.$field['link'].$line[$field['field_name']].'">';
 					}
-					if (isset($field['display_field'])) $zz['output'].= htmlchars($line[$field['display_field']]);
-					else {
-						if (isset($field['factor']) && $line[$field['field_name']]) $line[$field['field_name']] /=$field['factor'];
-						if ($field['type'] == 'unix_timestamp') $zz['output'].= date('Y-m-d H:i:s', $line[$field['field_name']]);
-						elseif ($field['type'] == 'date') $zz['output'].= datum_de($line[$field['field_name']]);
-						elseif (isset($field['number_type']) && $field['number_type'] == 'currency') $zz['output'].= waehrung($line[$field['field_name']], '');
-						elseif (isset($field['number_type']) && $field['number_type'] == 'latitude' && $line[$field['field_name']]) {
-							$deg = dec2dms($line[$field['field_name']], '');
-							$zz['output'].= $deg['latitude'];
-						} elseif (isset($field['number_type']) && $field['number_type'] == 'longitude' &&  $line[$field['field_name']]) {
-							$deg = dec2dms('', $line[$field['field_name']]);
-							$zz['output'].= $deg['longitude'];
-						} elseif ($field['type'] == 'url' && strlen($line[$field['field_name']]) > $zz_conf['max_select_val_len'])
-							$zz['output'].= substr(htmlchars($line[$field['field_name']]), 0, $zz_conf['max_select_val_len']).'...';
-						else $zz['output'].= nl2br(htmlchars($line[$field['field_name']]));
-					}
-					if ($field['type'] == 'url' OR $field['type'] == 'mail') $zz['output'].= '</a>';
-					if (isset($field['link'])) $zz['output'].= '</a>';
-					if (isset($field['sum']) && $field['sum'] == true) {
-						if (!isset($sum[$field['title']])) $sum[$field['title']] = 0;
-						$sum[$field['title']] += $line[$field['field_name']];
-					}
-				}
-				if (isset($field['unit'])) 
+					if (isset($field['unit'])) 
 					/* && $line[$field['field_name']]) does not work because of calculated fields*/ 
-					$zz['output'].= '&nbsp;'.$field['unit'];	
-				$zz['output'].= '</td>';
-				if ($field['type'] == 'id') $id = $line[$field['field_name']];
+						$zz['output'].= '&nbsp;'.$field['unit'];	
+					$zz['output'].= '</td>';
 			}
-			if ($zz_conf['edit']) {
-				$zz['output'].= '<td class="editbutton"><a href="'.$zz_conf['url_self'].$zz_var['url_append'].'mode=edit&amp;id='.$id.$zz['extraGET'].'">'.$text['edit'].'</a>';
+			if ($zz_conf['edit'] OR $zz_conf['show']) {
+				if ($zz_conf['edit']) 
+					$zz['output'].= '<td class="editbutton"><a href="'.$zz_conf['url_self'].$zz_var['url_append'].'mode=edit&amp;id='.$id.$zz['extraGET'].'">'.$text['edit'].'</a>';
+				elseif ($zz_conf['show'])
+					$zz['output'].= '<td class="editbutton"><a href="'.$zz_conf['url_self'].$zz_var['url_append'].'mode=show&amp;id='.$id.$zz['extraGET'].'">'.$text['show'].'</a>';
 				if ($zz_conf['delete']) $zz['output'].= '&nbsp;| <a href="'.$zz_conf['url_self'].$zz_var['url_append'].'mode=delete&amp;id='.$id.$zz['extraGET'].'">'.$text['delete'].'</a>';
 				if (isset($zz_conf['details'])) {
 					$zz['output'].= '</td><td class="editbutton">';

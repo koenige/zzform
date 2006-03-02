@@ -12,6 +12,7 @@ $text['action'] = 'Aktion';
 $text['none_selected'] = 'Nichts ausgew&auml;hlt';
 $text['edit'] = 'Bearbeiten';
 $text['delete'] = 'L&ouml;schen';
+$text['show'] = 'Anzeigen';
 $text['back-to-overview'] = 'Zur&uuml;ck zur &Uuml;bersicht';
 $text['no_selection_possible'] = 'Keine Auswahl m&ouml;glich.';
 $text['calculated_field'] = 'berechnetes Feld';
@@ -96,6 +97,6 @@ $text['Unsupported filetype:'] = 'Nicht unterst&uuml;tzter Dateityp:';
 $text['Supported filetypes are:'] = 'Diese Dateitypen werden unterst&uuml;tzt:';
 $text['Could not delete %s.'] = 'Konnte %s nicht l&ouml;schen.';
 $text['Could not delete %s, file did not exist.'] = 'Konnte %s nicht l&ouml;schen, da die Datei nicht existierte.';
-
+$text['File: '] = 'Datei: ';
 
 ?>
