@@ -56,8 +56,7 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 							}
 						} elseif ($field['type'] != 'timestamp' && $field['type'] != 'id')
 							// 	old: !(!empty($field['default']) && $field['default'] == $zz_tab[$i][$k]['POST'][$field['field_name']]) // default values will be ignored
-							if (empty($field['auto_value']) // auto values will be ignored 
-								AND empty($field['value'])) // values will be ignored 
+							if (empty($field['def_val_ignore'])) // some auto values/values/default values will be ignored 
 								$values .= $zz_tab[$i][$k]['POST'][$field['field_name']];
 					if ($field['type'] == 'id')
 						if (!isset($zz_tab[$i][$k]['POST'][$field['field_name']]))
@@ -192,10 +191,13 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 
 		$result = mysql_query($sql_edit);
 		if ($result) {
-			if ($zz_tab[0][0]['action'] == 'insert') $zz['formhead'] = $text['record_was_inserted'];
-			elseif ($zz_tab[0][0]['action'] == 'update') $zz['formhead'] = $text['record_was_updated'];
+			// todo: check for affected rows, problem: also check for affected subrecords how?
+			// echo 'affected: '.mysql_affected_rows();
+			if ($zz_tab[0][0]['action'] == 'insert') {
+				$zz['formhead'] = $text['record_was_inserted'];
+				$zz_tab[0][0]['id']['value'] = mysql_insert_id(); // for requery
+			} elseif ($zz_tab[0][0]['action'] == 'update') $zz['formhead'] = $text['record_was_updated'];
 			elseif ($zz_tab[0][0]['action'] == 'delete') $zz['formhead'] = $text['record_was_deleted'];
-			if ($zz_tab[0][0]['action'] == 'insert') $zz_tab[0][0]['id']['value'] = mysql_insert_id(); // for requery
 			if ($zz_conf['logging']) zz_log_sql($sql_edit, $zz_conf['user']); // Logs SQL Query, must be after insert_id was checked
 			if (isset($detail_sql_edit))
 				foreach (array_keys($detail_sql_edit) as $i)
@@ -205,7 +207,7 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 						//if ($zz['action'] == 'insert') $detail_sql .= $zz_tab[0][0]['id']['value'].');';
 						$detail_result = mysql_query($detail_sql);
 						if (!$detail_result) {
-							$zz['formhead'] = false;
+							$zz['formhead']		= false;
 							$zz_error['msg']	.= 'Detail record could not be handled';
 							$zz_error['level']	.= 'crucial';
 							$zz_error['type']	.= 'mysql';

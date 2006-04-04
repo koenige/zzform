@@ -103,6 +103,7 @@ function zz_upload_write(&$zz_tab, $action, $zz_conf) {
 	global $zz_error;
 	foreach ($zz_tab[0]['upload_fields'] as $uf) {
 		$my_tab = &$zz_tab[$uf['i']][$uf['k']];
+		$my_tab['POST'][$my_tab['id']['field_name']] = $my_tab['id']['value']; // to catch mysql_insert_id
 		foreach ($my_tab['fields'][$uf['f']]['image'] as $img => $val) {
 			$image = &$my_tab['images'][$uf['f']][$img]; // reference on image data
 			
@@ -135,7 +136,7 @@ function zz_upload_write(&$zz_tab, $action, $zz_conf) {
 				if ($path != $old_path) {
 					$image['files']['update']['path'] = $path; // not necessary maybe, but in case ...
 					$image['files']['update']['old_path'] = $old_path; // too
-					$image['files']['update']['tmp_name'] = $tmp_name; // too
+					if (!empty($tmp_name)) $image['files']['update']['tmp_name'] = $tmp_name; // too
 					check_dir(dirname($path));
 					if (file_exists($path) && $zz_conf['backup']) // this case should not occur
 						rename($path, zz_upload_path($zz_conf['backup_dir'], $action, $path));
@@ -192,7 +193,7 @@ function zz_upload_cleanup(&$zz_tab) {
 		foreach ($my_tab['fields'][$uf['f']]['image'] as $img => $val) {
 			$image = &$my_tab['images'][$uf['f']][$img]; // reference on image data
 		// clean up
-			if (!empty($image['files']))
+			if (!empty($image['files']['all_temp']))
 				if (count($image['files']['all_temp']))
 					foreach ($image['files']['all_temp'] as $file)
 						if (file_exists($file) && is_file($file)) unlink($file);
@@ -255,6 +256,7 @@ function zz_upload_prepare(&$zz_tab, $zz_conf) {
 				$tmp_filename = false;
 				if (!empty($image['action'])) {
 					$tmp_filename = tempnam($zz_conf['tmp_dir'], "UPLOAD_"); // create temporary file, so that original file remains the same for further actions
+					$tmp_filename.= '.'.zz_image_extension($image['path'], $my_tab, $zz_tab, $uf);
 					include_once $zz_conf['dir'].'/inc/image-'.$zz_conf['graphics_library'].'.inc.php';
 					$image['action'] = 'zz_image_'.$image['action'];
 					$image['action']($filename, $tmp_filename, $image);
@@ -276,6 +278,32 @@ function zz_upload_prepare(&$zz_tab, $zz_conf) {
 	// output errors
 }
 
+function zz_image_extension($path, &$my_tab, &$zz_tab, &$uf) {
+	foreach ($path as $path_key => $path_value) {// todo: implement mode!
+		// move to last, can be done better, of course. todo! no time right now.
+	}
+	if (substr($path_key, 0, 6) == 'string')
+		$extension = substr($path_value, strrpos('.', $path_value)+1);
+	elseif (substr($path_key, 0, 5) == 'field') {
+		$content = (isset($my_tab['POST'][$path_value])) 
+			? zz_reformat_field($my_tab['POST'][$path_value]) : '';
+		$extension = substr($content, strrpos('.', $content)+1);
+		if (!$extension) { // check for sql-query which gives extension. usual way does not work, because at this stage record is not saved yet.
+			foreach (array_keys($my_tab['fields']) as $key)
+				if(!empty($my_tab['fields'][$key]['display_field']) && $my_tab['fields'][$key]['display_field'] == $path_value) {
+					$sql = $my_tab['fields'][$key]['path_sql'];
+					$sql.= zz_reformat_field($my_tab['POST'][ $my_tab['fields'][$key]['field_name']]);
+					$result = mysql_query($sql);
+					if ($result) if (mysql_num_rows($result) == 1)
+						$extension = mysql_result($result, 0, 0);
+				}
+		}
+	} else {
+		echo 'Error. Could not determine file ending';
+	}
+	return $extension;
+}
+
 function zz_reformat_field($value) {
 	if (substr($value, 0, 1) == '"' AND substr($value, strlen($value) -1) == '"')
 		$value = substr($value, 1, strlen($value) -2);
@@ -294,6 +322,8 @@ function check_dir($my_dir) {
 		if ($success) {
 			$success = mkdir($my_dir, 0777);
 			if (!$success) echo 'Creation of '.$my_dir.' failed.<br>';
+			//else $success = chown($my_dir, getmyuid());
+			//if (!$success) echo 'Change of Ownership of '.$my_dir.' failed.<br>';
 			else return true;
 		}
 		return false;

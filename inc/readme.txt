@@ -28,6 +28,7 @@ lower PHP versions have not been tested
 									may be array e. g. array('field1' => 'fieldname_bla', 'string1' => '/', 'field2' => 'fieldname_blubb') etc.
 		$zz_conf['referer']			referer which links back to previous page				$referer	
 		$zz_conf['add']				do not add data
+		$zz_conf['add_only']		only allow to add record, do not show anything else (add new record-link, list table, ...)
 		$zz_conf['heading']			optional: h2-heading to be used for form instead of $zz['table']
 		$zz_conf['heading_text']	Textblock after heading
 		$zz_conf['heading_sql']		['heading_sql'][$where_id, without tablename] = zz['fields'][n]['sql'] where n is the index of the field corresponding to the key
@@ -61,6 +62,7 @@ lower PHP versions have not been tested
 		$zz_conf['max_select_val_len']	maximum length of values in select, default = 60
 		$zz_conf['debug']			debugging mode, shows several debugging outputs
 		$zz_conf['upload_MAX_FILE_SIZE'] in bytes, default is value from php.ini
+		$zz_conf['max_select']		configures the maximum entries in a select-dialog, if there are more entries, an empty input field will be provided
 		
 	$zz
 		$zz['table']				name of main table										$maintable
@@ -111,9 +113,10 @@ lower PHP versions have not been tested
 					-> sql			SQL-Query for select, first field is key field which will not be displayed but entered into database field
 					-> sql_where	adds where to sql-string, rather complicated ... :-)
 					-> sql_without_id	where['id']-value will be appended automatically
-					-> key_field_name
+					-> key_field_name	if where is used and where-key-name is different from key name in sql-query
 					-> show_hierarchy	shows hierarchy in selects, value must be set to corresponding SQL field name
 					-> add_details
+					-> path_sql		only if this sql query is needed for constructing the extension of a file path
 				image
 					-> path			syntax = see below
 				upload_image
@@ -131,6 +134,7 @@ lower PHP versions have not been tested
 					-> table_name
 					-> 
 				foreign_key		field is foreign_key (only possible for subtables)
+				detail_value	copies value from other field
 
 			internal types
 				predefined	... (only for internal use)
@@ -151,6 +155,7 @@ lower PHP versions have not been tested
 			$zz['fields'][n]['explanation']			explanation how to fill in values in this field, will only be shown in edit or insert mode
 			$zz['fields'][n]['link']				link in list to record
 			$zz['fields'][n]['link_no_append']		don't append record id to link
+			$zz['fields'][n]['link_target']			target="$value" for link
 			$zz['fields'][n]['null']				value might be 0 or '', won't be set to NULL
 			$zz['fields'][n]['class']				class="" (some classes will be added by zzform, e. g. idrow, ...)
 			$zz['fields'][n]['show_title']			display record: show field title in TH (mainly for subtables, for aesthetic reasons)
@@ -164,6 +169,8 @@ lower PHP versions have not been tested
 
 		//--> depending on type of field, see -> above
 
+			$zz['fields'][n]['path_sql']			sql-query which will be used if this field's display_value is set as fieldxx in path to get a correct extension for file conversions
+			$zz['fields'][n]['def_val_ignore']		this is for subtables only. For 'value', 'auto_value' and 'default'-fields, this setting specifies whether value will be accepted without any other input by the user in this sub-record or not. true: input will be ignored, false (standard): input will not be ignored. important for deciding whether to add or delete a sub-record.
 			$zz['fields'][n]['type_detail']			type of field, used for option and predefined to set real type of field but still remain special functionality
 			$zz['fields'][n]['format']				function which will be used to format text for display, e. g. markdown | textile
 			$zz['fields'][n]['enum']				
@@ -178,9 +185,10 @@ lower PHP versions have not been tested
 			$zz['fields'][n]['number_type']			latitude | longitude, for entering geo information
 			$zz['fields'][n]['factor']				for doubles etc. factor will be multiplied with value
 			$zz['fields'][n]['function']			function which will be called to change input value
-			$zz['fields'][n]['fields']				vars which will be passed to function or identifier
+			$zz['fields'][n]['fields']				vars which will be passed to function or identifier, might be in form like "select_id[field_name_from_select]" as well, this refers to a field "select_id" with an associated sql-query and returns the value of the "field_name_from_select" of the query instead
 			$zz['fields'][n]['auto_value']			increment | ... // 1 will be added and inserted in 'default'
 			$zz['fields'][n]['conf_identifier']		array, affects standard values for generating identifier: array('forceFilename' => '-', 'concat' => '.', 'exists' => '.'); - attention: values longer than 1 will be cut off!
+													additional values: 'prefix' for a prefix;
 			$zz['fields'][n]['path']				array, values: 
 				root DOCUMENT_ROOT or path to directory, will be used as a prefix to check whether file_exists or not
 				fieldXX will add corresponding field value, 

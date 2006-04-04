@@ -25,7 +25,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 	// Table head
 	//
 
-	if ($zz_conf['limit']) $zz['sql'].= ' LIMIT '.($zz_conf['limit']-20).', 20';
+	if ($zz_conf['limit']) $zz['sql'].= ' LIMIT '.($zz_conf['this_limit']-$zz_conf['limit']).', '.$zz_conf['limit'];
 	$result = mysql_query($zz['sql']);
 	if ($result) $count_rows = mysql_num_rows($result);
 	else {
@@ -115,7 +115,8 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 									if (is_array($field['link'])) {
 										$zz['output'].= '<a href="'.show_link($field['link'], $line);
 										if (!isset($field['link_no_append'])) $zz['output'].= $line[$field['field_name']];
-										$zz['output'].= '">';
+										$zz['output'].= '"'
+											.(!empty($field['link_target']) ? ' target="'.$field['link_target'].'"' : '').'>';
 									} else $zz['output'].= '<a href="'.$field['link'].$line[$field['field_name']].'">';
 								} 
 								$zz['output'].= $img;
@@ -127,22 +128,35 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 						// Subtable
 						if (isset($field['display_field'])) $zz['output'].= htmlchars($line[$field['display_field']]);
 						break;
+					case 'url':
+					case 'mail':
+						$zz['output'].= '<a href="'.($field['type'] == 'mail' ? 'mailto:' : '')
+							.$line[$field['field_name']].'">';
+						if (!empty($field['display_field']))
+							$zz['output'].= htmlchars($line[$field['display_field']]);
+						elseif ($field['type'] == 'url' && strlen($line[$field['field_name']]) > $zz_conf['max_select_val_len'])
+							$zz['output'].= substr(htmlchars($line[$field['field_name']]), 0, $zz_conf['max_select_val_len']).'...';
+						else
+							$zz['output'].= htmlchars($line[$field['field_name']]);
+						$zz['output'].= '</a>';
+						break;
 					case 'id':
 						$id = $line[$field['field_name']];
 					default:
-						if ($field['type'] == 'url') $zz['output'].= '<a href="'.$line[$field['field_name']].'">';
-						if ($field['type'] == 'mail') $zz['output'].= '<a href="mailto:'.$line[$field['field_name']].'">';
-						if (isset($field['link'])) {
+						if (!empty($field['link'])) {
 							if (is_array($field['link'])) {
 								$zz['output'].= '<a href="'.show_link($field['link'], $line);
 								if (empty($field['link_no_append'])) $zz['output'].= $line[$field['field_name']];
-								$zz['output'].= '">';
+								$zz['output'].= '"'
+									.(!empty($field['link_target']) ? ' target="'.$field['link_target'].'"' : '').'>';
 							} else $zz['output'].= '<a href="'.$field['link'].$line[$field['field_name']].'">';
 						}
-						if (isset($field['display_field'])) $zz['output'].= htmlchars($line[$field['display_field']]);
+						if (!empty($field['display_field'])) $zz['output'].= htmlchars($line[$field['display_field']]);
 						else {
 							if (isset($field['factor']) && $line[$field['field_name']]) $line[$field['field_name']] /=$field['factor'];
 							if ($field['type'] == 'unix_timestamp') $zz['output'].= date('Y-m-d H:i:s', $line[$field['field_name']]);
+							elseif ($field['type'] == 'select' && !empty($field['set']))
+								$zz['output'].= str_replace(',', ', ', $line[$field['field_name']]);
 							elseif ($field['type'] == 'select' && !empty($field['enum']) && !empty($field['enum_title'])) { // show enum_title instead of enum
 								foreach ($field['enum'] as $mkey => $mvalue)
 									if ($mvalue == $line[$field['field_name']]) $zz['output'] .= $field['enum_title'][$mkey];
@@ -154,12 +168,9 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 							} elseif (isset($field['number_type']) && $field['number_type'] == 'longitude' &&  $line[$field['field_name']]) {
 								$deg = dec2dms('', $line[$field['field_name']]);
 								$zz['output'].= $deg['longitude_dms'];
-							} elseif ($field['type'] == 'url' && strlen($line[$field['field_name']]) > $zz_conf['max_select_val_len'])
-								$zz['output'].= substr(htmlchars($line[$field['field_name']]), 0, $zz_conf['max_select_val_len']).'...';
-							else $zz['output'].= nl2br(htmlchars($line[$field['field_name']]));
+							} else $zz['output'].= nl2br(htmlchars($line[$field['field_name']]));
 						}
-						if ($field['type'] == 'url' OR $field['type'] == 'mail') $zz['output'].= '</a>';
-						if (isset($field['link'])) $zz['output'].= '</a>';
+						if (!empty($field['link'])) $zz['output'].= '</a>';
 						if (isset($field['sum']) && $field['sum'] == true) {
 							if (!isset($sum[$field['title']])) $sum[$field['title']] = 0;
 							$sum[$field['title']] += $line[$field['field_name']];
@@ -222,7 +233,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 		$zz['output'].= '<p class="add-new bottom-add-new"><a accesskey="n" href="'.$zz_conf['url_self'].$zz_var['url_append'].'mode=add'.$zz['extraGET'].'">'.$text['add_new_record'].'</a></p>';
 	if ($zz_lines == 1) $zz['output'].= '<p class="totalrecords">'.$zz_lines.' '.$text['record total'].'</p>'; 
 	elseif ($zz_lines) $zz['output'].= '<p class="totalrecords">'.$zz_lines.' '.$text['records total'].'</p>';
-	$zz['output'].= zz_limit($zz_conf['limit'], $count_rows, $zz['sql'], $zz_lines, 'body');	// NEXT, PREV Links at the end of the page
+	$zz['output'].= zz_limit($zz_conf['limit'], $zz_conf['this_limit'], $count_rows, $zz['sql'], $zz_lines, 'body');	// NEXT, PREV Links at the end of the page
 	//$zz_conf['links'] = zz_limit($zz_conf['limit'], $count_rows, $zz['sql'], $zz_lines, 'body');	// NEXT, PREV Links at the end of the page
 	if ($zz_conf['search'] == true) 
 		if ($zz_lines OR isset($_GET['q'])) // show search form only if there are records as a result of this query; q: show search form if empty search result occured as well

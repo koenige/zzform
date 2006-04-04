@@ -42,15 +42,18 @@ div.text #zzform	 {padding: 1em;}
 #zzform #record th, #zzform #record td {line-height: 1.5em; padding: .25em .5em;}
 #zzform td, #zzform th {padding: 0 .5em; }
 #zzform .data td, #zzform .data th {vertical-align: top;}
-#zzform .data thead td, #zzform .data thead th {text-align: left; vertical-align: bottom;}
+#zzform .data thead td, #zzform .data thead th 
+	{text-align: left; vertical-align: bottom;}
 #zzform #record tfoot th, #zzform #record tfoot td {padding: .5em; border: none;} 
 
 #zzform #record tbody tr:first-child td {border-top: none;}
 
-#zzform .error {background: red; color: white; padding: .25em;}
+#zzform .error {background-color: red; color: white; padding: .25em;}
 #zzform div.error {margin: 1em 0;}
 #zzform #record .error td, #zzform #record .error th,
-#zzform #record .subtable .error td, #zzform #record .subtable .error th {background: red;}
+#zzform #record .subtable .error td, #zzform #record .subtable .error th,
+#zzform #record .error .subtable td, #zzform #record .error .subtable  th  {
+	background-color: red;}
 #zzform tr.error td {border-color: red;}
 
 #zzform table.data td {padding: 0.25em .5em;}
@@ -66,14 +69,14 @@ div.text #zzform	 {padding: 1em;}
 #zzform .level2 {color: #339;}
 #zzform .level3 {font-style: italic;}
 
-#zzform .sub-add input {float: right; font-weight: bold; background: green; color: white; 
-	margin-left: .5em;}
-#zzform .subtable input.sub-remove {background: red; color: white; float: left; font-weight: bold; 
-	margin-right: .5em;}
+#zzform .sub-add input {float: right; font-weight: bold; background-color: green; 
+	color: white; margin-left: .5em;}
+#zzform .subtable input.sub-remove {background-color: red; color: white; float: left; 
+	font-weight: bold; margin-right: .5em;}
 
 #zzform form .reselect td, #zzform form .reselect th, 
 #zzform #record .subtable .reselect td, #zzform #record .subtable .reselect th {
-	background: green; color: white; padding: .25em;}
+	background-color: green; color: white; padding: .25em;}
 
 #zzform h2 {line-height: 120%; font-size: 140%;}
 

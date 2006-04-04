@@ -118,10 +118,9 @@ function show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf) {
 			if (!isset($field['title_desc'])) $field['title_desc'] = '';
 			$field['title_desc'] .= " [".ucfirst($field['format']).']';
 		}
-		if (empty($field['explanation'])) $field['explanation'] = '';
 		if ($field['type'] == 'subtable') {
 //	Subtable
-			$output.= '<tr><th class="sub-add">';
+			$output.= '<tr'.(!empty($field['class']) ? ' class="'.$field['class'].'"' : '').'><th class="sub-add">';
 			if ($display == 'form' && !isset($my_tab[$field['subtable']]['records']))  // this happens in case $validation is false
 				$my_tab[$field['subtable']]['records'] = $_POST['records'][$field['subtable']];
 			if ($display == 'form' && $my_tab[$field['subtable']]['max_records'] > $my_tab[$field['subtable']]['records'])
@@ -142,6 +141,7 @@ function show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf) {
 					$output.= show_field_rows($my_tab, $field['subtable'], $mytable_no, $mode, $display, $zz_var, $zz_conf);
 					$output.= '</table>';
 				}
+			if ($display == 'form' && $field['explanation']) $output.= '<p class="explanation">'.$field['explanation'].'</p>';
 			$output.= '</td></tr>';
 		} elseif (!($field['type'] == 'id' AND !$zz_conf['list']) AND $field['type'] != 'foreign_key') {
 //	"Normal" field
@@ -165,9 +165,7 @@ function show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf) {
 				$field['class'] .= 'hidden';
 			}
 			if (!$append_next) {
-				$output.= '<tr';
-				if ($field['class']) $output.= ' class="'.$field['class'].'"';
-				$output.= '>';
+				$output.= '<tr'.($field['class'] ? ' class="'.$field['class'].'"' : '').'>';
 				if (!(isset($field['show_title']) && !$field['show_title'])) {
 					$output.= '<th>';
 					if (!empty($field['title_append'])) $output.= $field['title_append']; // just for form, change title
@@ -178,10 +176,13 @@ function show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf) {
 					$output.= '<th></th>'; // for main record, show empty cells
 				}
 				$output.= ' <td>';
+				$close_span = false;
+			} else {
+				$close_span = true;
+				$output.= '<span'.($field['class'] ? ' class="'.$field['class'].'"' : '').'>'; // so error class does not get lost
 			}
 			if (isset($field['append_next']) && $field['append_next']) $append_next = true;
 			else $append_next = false;
-			if (!isset($field['maxlength'])) $field['maxlength'] = check_maxlength($field['field_name'], $my_tab[$i]['table']);
 			if (!isset($field['size']))
 				if ($field['type'] == 'number') $field['size'] = 16;
 		 		else $field['size'] = 32;
@@ -229,7 +230,8 @@ function show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf) {
 				$field['default'] = $values[$field['field_name']];
 			if (isset($field['default']))
 //				if (!$my['record'] OR !empty($is_option)) { // set default only if record is empty OR if it's an option field which is always empty
-				if (($mode == 'add' && !$my['record']) OR !empty($is_option)) { // set default only if record is empty OR if it's an option field which is always empty
+				if (($mode == 'add' && !$my['record']) OR !empty($is_option)
+					OR !$my['record'] && !empty($field['def_val_ignore'])) { // set default only if record is empty OR if it's an option field which is always empty OR if default value is set to be ignored in case of no further additions
 					$my['record'][$field['field_name']] = $field['default'];
 					$default_value = true; // must be unset later on because of this value
 				}
@@ -528,15 +530,18 @@ function show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf) {
 								$outputf.= '<option value=""';
 								if ($my['record']) if (!$my['record'][$field['field_name']]) $outputf.= ' selected';
 								$outputf.= '>'.$text['none_selected'].'</option>';
+								$my_select = false;
+								$my_h_field = false;
 								while ($line = mysql_fetch_array($result_detail, MYSQL_BOTH))
-									if (isset($field['show_hierarchy']) && $field['show_hierarchy'])
-										if (isset($line[$field['show_hierarchy']]) && $line[$field['show_hierarchy']])
-											$my_select[$line[$field['show_hierarchy']]][] = $line;
+									if (!empty($field['show_hierarchy'])) {
+										if (!empty($line[$field['show_hierarchy']]))
+											$my_h_field = $line[$field['show_hierarchy']];
 										else
-											$my_select['NULL'][] = $line;
-									else
+											$my_h_field = 'NULL'; // this ist the case for uppermost level
+										$my_select[$my_h_field][] = $line;
+									} else
 										$outputf.= draw_select($line, $my['record'], $field, false, 0, false, 'form', $zz_conf);
-								if (isset($field['show_hierarchy']) && $field['show_hierarchy'])
+								if (!empty($field['show_hierarchy']))
 									foreach ($my_select['NULL'] AS $my_field)
 										$outputf.= draw_select($my_field, $my['record'], $field, $my_select, 0, $field['show_hierarchy'], 'form', $zz_conf);
 								$outputf.= '</select>'."\n";
@@ -700,6 +705,7 @@ function show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf) {
 				}
 			} else
 				$output.= $outputf;
+			if (!empty($close_span)) $output.= '</span>';
 			if (!$append_next) {
 				if ($display == 'form' && $field['explanation']) $output.= '<p class="explanation">'.$field['explanation'].'</p>';
 				$output.= '</td></tr>'."\n";

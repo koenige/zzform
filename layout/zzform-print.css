@@ -1,4 +1,5 @@
-menu, #menu, .noprint, form {display: none;}
+
+menu, #menu, .noprint {display: none;}
 .editbutton {display: none;}
 #back-overview {display: none;}
 .add-new {display: none;}
@@ -8,5 +9,15 @@ body {font-size: 11pt;}
 tr {page-break-inside: avoid;}
 .where {display: none;}
 
+/* white background */
+
 body, #zzform .editbutton, #zzform td.recordid, #zzform th.recordid 
 	{background-color: #FFF;}
+#zzform #record table {background-color: #FFF;}
+#zzform #record .subtable th, #zzform #record .subtable td {background-color: #FFF; }
+#zzform #record tfoot th, #zzform #record tfoot td, td.where, th.where 
+	{background-color: #FFF;}
+#zzform tr.even {background-color: #FFF;} /* even rows */
+#zzform tr.uneven {background-color: #FFF;} /* uneven rows */
+
+#zzform th.order {background-color: #FFF;} /* column ORDER BY */

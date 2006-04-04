@@ -53,7 +53,8 @@ function zzform() {
 	$zz_default['tfoot']			= false;  	// $tfoot				Tabellenfuss
 	$zz_default['show_output']		= true;		// $show_output			standardmaessig wird output angezeigt
 	$zz_default['multilang_fieldnames'] = false;	// $multilang_fieldnames translate fieldnames via $text[$fieldname]
-	$zz_default['limit']			= false;	// $limit				nur 20 Datensaetze auf einmal angezeigt
+	$zz_default['limit']			= false;	// $limit				only n records are shown at once
+	$zz_default['this_limit']		= false;	// internal value, current range which records are shown
 	$zz_default['list']				= true;		// $list				nur hinzufügen möglich, nicht bearbeiten, keine Tabelle
 	$zz_default['rootdir']			= $_SERVER['DOCUMENT_ROOT'];		//Root Directory
 	$zz_default['max_detail_records'] = 20;		// max 20 detail records, might be expanded later on
@@ -79,6 +80,8 @@ function zzform() {
 	$zz_default['additional_text']	= false;
 	$zz_default['debug']			= false;
 	$zz_default['tmp_dir']			= false;
+	$zz_default['add_only']			= false;
+	$zz_default['edit_only']		= false;
 	$zz_default['graphics_library'] = 'imagemagick';
 	$zz_default['max_select_val_len']	= 60;		// maximum length of values in select
 	$upload_max_filesize = ini_get('upload_max_filesize');
@@ -99,6 +102,8 @@ function zzform() {
 	$zz_var['url_append'] ='?';
 	$test_url_self = parse_url($zz_conf['url_self']);
 	if (!empty($test_url_self['query'])) $zz_var['url_append'] ='&amp;';
+	if (!$zz_conf['this_limit'] && $zz_conf['limit']) 
+		$zz_conf['this_limit'] = $zz_conf['limit'];
 
 	/*
 		Required files
@@ -172,7 +177,7 @@ function zzform() {
 	//if (isset($_GET['tabelle']))	$zz_conf['show_list'] = $_GET['tabelle'];
 	
 	if (isset($_GET['limit']) && is_numeric($_GET['limit']))	
-		$zz_conf['limit'] = (int) $_GET['limit'];
+		$zz_conf['this_limit'] = (int) $_GET['limit'];
 	
 	if (!isset($zz_conf['referer'])) {
 		$zz_conf['referer'] = false;
@@ -313,20 +318,25 @@ function zzform() {
 			}
 		}
 	if (empty($upload_form)) unset($zz_conf['upload']); // values are not needed
-	
+
 	$zz['action'] = false;
 	if (isset($_GET['mode'])) {
 		$zz['mode'] = $_GET['mode'];
-		if ($zz['mode'] == 'edit' OR $zz['mode'] == 'delete' OR $zz['mode'] == 'show')
+		if (($zz['mode'] == 'edit' OR $zz['mode'] == 'delete' OR $zz['mode'] == 'show')
+			&& !$zz_tab[0][0]['id']['value'])
 			$zz_tab[0][0]['id']['value'] = $_GET['id'];
 	} else {
 		$zz['mode'] = false;
 		if (isset($_POST['action']))
 			$zz['action'] = $_POST['action'];
-			if (isset($_POST[$zz_tab[0][0]['id']['field_name']]))
+			if (isset($_POST[$zz_tab[0][0]['id']['field_name']]) && !$zz_tab[0][0]['id']['value'])
 				$zz_tab[0][0]['id']['value'] = $_POST[$zz_tab[0][0]['id']['field_name']];
+		if ($zz_conf['add_only'] && empty($_POST)) 
+			$zz['mode'] = $_GET['mode'] = 'add';
+		elseif ($zz_conf['edit_only'] && empty($_POST))
+			$zz['mode'] = $_GET['mode'] = 'edit';
 	}
-	
+
 	if (isset($_POST['subtables']))
 		// not submit button but only add or remove form fields for subtable
 		if ($zz['action'] == 'insert') {
@@ -350,7 +360,7 @@ function zzform() {
 	if (!empty($_GET['scope'])) 			$extras .= '&amp;scope='.$_GET['scope'];
 	if (!empty($_GET['dir'])) 				$extras .= '&amp;dir='.$_GET['dir'];
 	if (!empty($_GET['var'])) 				$extras .= get_to_array($_GET['var']);
-	if ($zz_conf['limit']) 					$extras.= '&amp;limit='.$zz_conf['limit'];
+	if ($zz_conf['this_limit']) 			$extras.= '&amp;limit='.$zz_conf['this_limit'];
 	if ($zz_conf['referer']) 				$extras.= '&amp;referer='.urlencode($zz_conf['referer']);
 	if ($extras)
 		if (substr($extras, 0, 1) == '&') $extras = substr($extras, 5);
@@ -366,7 +376,20 @@ function zzform() {
 			$_GET['mode'] = 'show';
 		}
 	}
-	if (isset($_GET['mode']) AND ((!$zz_conf['delete'] && $_GET['mode'] == 'delete') // protection from URL manipulation
+	if ($zz_conf['add_only']) { // show only form, nothing else
+		$zz_conf['delete'] = false;
+		$zz_conf['search'] = false;
+		$zz_conf['show_list'] = false;
+		$zz_conf['list'] = false;
+		$zz_conf['show_output'] = false;
+		$zz_conf['add'] = false;
+	} elseif ($zz_conf['edit_only']) {
+		$zz_conf['add'] = false;
+		$zz_conf['delete'] = false;
+		$zz_conf['limit'] = false;
+		$zz_conf['search'] = false;
+		$zz_conf['show_list'] = false;
+	} elseif (isset($_GET['mode']) AND ((!$zz_conf['delete'] && $_GET['mode'] == 'delete') // protection from URL manipulation
 		OR (!$zz_conf['edit'] && $_GET['mode'] == 'edit')
 		OR (!$zz_conf['add'] && $_GET['mode'] == 'add'))) {
 		$_GET['mode'] = 'show';
@@ -526,14 +549,15 @@ function zzform_all($glob_vals = false) {
 	global $zz_page;	// Page (Layout) variables
 	if ($glob_vals)		// Further variables, may be set by user
 		if (is_array($glob_vals))
-			foreach ($glob_vals as $glob_va)
+			foreach ($glob_vals as $glob_val)
 				global $$glob_val;
 		else
 			global $$glob_vals;
 	$zz_conf['show_output'] = false; // do not show output as it will be included after page head
-
+	
 //	Zusammenbasteln der Seite
 	zzform();					// Funktion aufrufen
+	if (empty($zz_page['title'])) $zz_page['title'] = $zz_conf['title'];
 	include($zz_page['head']);	// Seitenkopf ausgeben, teilw. mit Variablen aus Funktion
 	echo $zz['output'];			// Output der Funktion ausgeben
 	include($zz_page['foot']);	// Seitenfuss ausgeben
