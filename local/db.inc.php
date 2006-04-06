@@ -1,24 +1,8 @@
 <?php 
 
-if (file_exists('/Users/Gustaf/')) {
-	include ("/Users/pwd.inc"); //mac
-	define ("DB_NAME", '');
-	define ("DB_HOST", 'localhost');
-	define ("DB_USER", $db_user);
-} else {
-	$db_passwort = '';
-	define ('DB_USER', '');
-	define ('DB_NAME', '');
-	define ('DB_HOST', 'localhost');
-}
+include "/Users/pwd.inc";
 
-#datenbankverbindung
+$zz_conf['db_name'] = 'gustaf';
+$zz_conf['db_connection'] = mysql_connect($db_host, $db_user, $db_passwort); #datenbank verbindung aufbauen
 
-	define ("DB_PWD", $db_passwort);
-	
-	#datenbank verbindung aufbauen
-	$verbindung = mysql_connect(DB_HOST, DB_USER, DB_PWD);
-	mysql_select_db(DB_NAME);
-
-	if (isset($editinc)) $db = new mysql_db;
 ?>

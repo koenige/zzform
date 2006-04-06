@@ -78,6 +78,7 @@ lower PHP versions have not been tested
 				id				ID of record, must be first field in list zz['fields'][1]
 				hidden			hidden field
 					-> value		value for hidden field
+					-> function		
 				identifier		textual identifier for a record, unique, will be put together from 'fields'
 					-> fields		if one of the fields-values is field_name of current field, identifier will be written only once and not change thereafter
 					-> conf_identifier
@@ -117,6 +118,7 @@ lower PHP versions have not been tested
 					-> show_hierarchy	shows hierarchy in selects, value must be set to corresponding SQL field name
 					-> add_details
 					-> path_sql		only if this sql query is needed for constructing the extension of a file path
+					-> display_field	field to be displayed instead of ID
 				image
 					-> path			syntax = see below
 				upload_image
