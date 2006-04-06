@@ -1,0 +1,32 @@
+/* zzform colours CSS by Gustaf Mossakowski <gustaf@koenige.org>, 2005-2006 */
+
+/*
+A29F8A
+ADAB99
+405b79
+CFCFC4
+*/
+
+body {color: #000;}
+body, #zzform .editbutton, #zzform td.recordid, #zzform th.recordid 
+	{background-color: #CFCFC4;}
+
+#zzform a:link {color: #009;}
+#zzform a:visited {color: #669;}
+
+#zzform #record table {background-color: #EEC;}
+#zzform #record .subtable th, #zzform #record .subtable td {background-color: #DDB; }
+#zzform #record tfoot th, #zzform #record tfoot td, td.where, th.where 
+	{background-color: #A29F8A;}
+
+#zzform table.data thead td, #zzform table.data thead th {border-color: #999;}
+#zzform tr.last {border-color: #999;} /* last row */
+
+#zzform tfoot td {border-color: #999}
+
+#zzform tr.even {background-color: #CCB;} /* even rows */
+#zzform tr.uneven {background-color: #EED;} /* uneven rows */
+
+#zzform th.order {background-color: #DDB;} /* column ORDER BY */
+
+#zzform ul.pages li {border-color: #666;}
