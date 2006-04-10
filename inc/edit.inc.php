@@ -31,9 +31,7 @@ function zzform() {
 	global $text;
 	global $zzform;
 
-/*
-	Default Configuration
-*/
+//	Default Configuration
 
 	$zz_error['msg'] = '';
 	$zz_error['query'] = '';
@@ -105,9 +103,7 @@ function zzform() {
 	if (!$zz_conf['this_limit'] && $zz_conf['limit']) 
 		$zz_conf['this_limit'] = $zz_conf['limit'];
 
-	/*
-		Required files
-	*/
+//	Required files
 	
 	require_once($zz_conf['dir'].'/inc/editform.inc.php');			// Form
 	require_once($zz_conf['dir'].'/inc/editfunc.inc.php');			// Functions
@@ -124,9 +120,7 @@ function zzform() {
 		$zz_conf['upload_MAX_FILE_SIZE'] = $upload_max_filesize;
 	}
 	
-	/*
-		Optional files
-	*/
+//	Optional files
 	
 	if (isset($zz_conf['language']) && $zz_conf['language'] != 'en') {	// text in other languages
 		$langfile = $zz_conf['dir'].'/inc/text-'.$zz_conf['language'].'.inc.php';
@@ -153,28 +147,22 @@ function zzform() {
 	if (file_exists($zz_conf['dir'].'/inc/forcefilename-'.$zz_conf['character_set'].'.inc.php'))
 		include_once($zz_conf['dir'].'/inc/forcefilename-'.$zz_conf['character_set'].'.inc.php');
 	
-	/*
-		External Add-ons
-	*/
+//	External Add-ons
 	
 	if (file_exists($zz_conf['dir_ext'].'/markdown.php'))
 		include_once($zz_conf['dir_ext'].'/markdown.php');
 	if (file_exists($zz_conf['dir_ext'].'/textile.php'))
 		include_once($zz_conf['dir_ext'].'/textile.php');
 
-	/*
-		Variables
-	*/
+//	Variables
 	
 	$zz['output'] = '<div id="zzform">'."\n";
 	$zz['output'].= zz_error($zz_error); // initialise zz_error
 	
-	/*
-		URL parameter
-	*/
+//	URL parameter
 	
-	// not sure if this is useful for anything
-	//if (isset($_GET['tabelle']))	$zz_conf['show_list'] = $_GET['tabelle'];
+	if (get_magic_quotes_gpc()) // sometimes unwanted standard config
+		$_POST = magic_quotes_strip($_POST);
 	
 	if (isset($_GET['limit']) && is_numeric($_GET['limit']))	
 		$zz_conf['this_limit'] = (int) $_GET['limit'];
@@ -201,8 +189,6 @@ function zzform() {
 	if (isset($_GET['where']))  {
 		$zz_var['where'] = read_fields($_GET['where'], 'replace', $zz_var['where'], $zz['table']);
 		$sql_where = read_fields($_GET['where'], false, false, $zz['table']);
-		if (stristr($zz['sql'], ' WHERE ')) $sql_ext = ' ';
-		else $sql_ext = false;
 		foreach (array_keys($sql_where) as $field) {
 			if (strstr($field, '.')) $myfield = substr($field, strrpos($field, '.')+1);
 			else $myfield = $field;
@@ -215,8 +201,6 @@ function zzform() {
 					foreach ($zz['fields'] as $this_field)
 						if (isset($this_field['unique']) && $this_field['unique'] == true && $myfield == $this_field['field_name'])
 							$zz_tab[0][0]['id']['where'] = $thisfield['field_name'];  // just for UNIQUE, see below
-			if (!$sql_ext) $sql_ext = ' WHERE ';
-			else $sql_ext .= ' AND ';
 	/*
 		thought of it, but it would be too complicated (check what type of field it is, ... (add, edit))
 			if (substr($field, 0, 1) == '!') {
@@ -229,10 +213,9 @@ function zzform() {
 	*/
 			$mfield = $field;
 			if (!strstr($field, '.')) $mfield = $zz['table'].'.'.$field; // this makes it unneccessary to add table_name to where-clause
-			$sql_ext .= $mfield." = '".$sql_where[$field]."' ";
+			$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', $mfield." = '".$sql_where[$field]."'");
 		}
-		$zz['sql'].= $sql_ext;
-	
+
 		// in case where is not combined with ID field but UNIQUE
 		
 		if (!($zz_tab[0][0]['id']['value'])) {
@@ -401,9 +384,7 @@ function zzform() {
 		if (in_array($_GET['filetype'], $zz_conf['export_filetypes']))
 			$zz['filetype'] = $_GET['filetype'];
 	
-	/*
-		Add, Update or Delete
-	*/
+//	Add, Update or Delete
 	
 	fill_out($zz); // set type, title etc. where unset
 	// ### variables for main table will be saved in zz_tab[0]
@@ -431,20 +412,15 @@ function zzform() {
 	if ($zz['action'] == 'insert' OR $zz['action'] == 'update' OR $zz['action'] == 'delete')
 		zz_action($zz_tab, $zz_conf, $zz, $validation, $upload_form, $subqueries); // check for validity, insert/update/delete record
 
-	/*
-		Query Updated, Added or Editable Record
-	*/
+//	Query Updated, Added or Editable Record
 	
 	if (!$validation) {
 		if ($zz['action'] == 'update') $zz['mode'] = 'edit';
 		elseif ($zz['action'] == 'insert') $zz['mode'] = 'add';
 		zz_get_subqueries($subqueries, $zz, $zz_tab, $zz_conf);
 	}
-	//$zz['output'].= zz_error($zz_error);
 
-	/*
-		Display Updated, Added or Editable Record
-	*/
+//	Display Updated, Added or Editable Record
 	
 	// Query for table below record and for value = increment
 	// moved to end

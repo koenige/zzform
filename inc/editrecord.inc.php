@@ -66,9 +66,10 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 				}
 				// todo: seems to be twice the same operation since $i and $k are !0
 				if (!$values)
-					if ($zz_tab[$i][$k]['id']['value'])
+					if ($zz_tab[$i][$k]['id']['value']) {
 						$zz_tab[$i][$k]['action'] = 'delete';
-					else
+						$zz_tab[$i]['deleted'][] = $zz_tab[$i][$k]['id']['value']; // only for requery record on error!
+					} else
 						unset($zz_tab[$i][$k]);
 				if ($zz_tab[0][0]['action'] == 'delete') 
 					if ($zz_tab[$i][$k]['id']['value'])

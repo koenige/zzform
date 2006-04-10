@@ -308,8 +308,8 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 			$unwanted = array('calculated', 'image', 'upload_image', 'id', 'foreign', 'subtable', 'foreign_key', 'display', 'option');
 			if (!in_array($my['fields'][$f]['type'], $unwanted)) {
 				if ($my['POST'][$my['fields'][$f]['field_name']]) {
-					if (get_magic_quotes_gpc()) // sometimes unwanted standard config
-						$my['POST'][$my['fields'][$f]['field_name']] = stripslashes($my['POST'][$my['fields'][$f]['field_name']]);
+					//if (get_magic_quotes_gpc()) // sometimes unwanted standard config
+					//	$my['POST'][$my['fields'][$f]['field_name']] = stripslashes($my['POST'][$my['fields'][$f]['field_name']]);
 					if (function_exists('mysql_real_escape_string')) // just from 4.3.0 on
 						$my['POST'][$my['fields'][$f]['field_name']] = '"'.mysql_real_escape_string($my['POST'][$my['fields'][$f]['field_name']]).'"';
 					else

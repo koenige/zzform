@@ -492,7 +492,7 @@ function zz_get_subqueries($subqueries, $zz, &$zz_tab, $zz_conf) {
 					$zz_tab[$i] = zz_subqueries($i, false, false, true, $zz['fields'][$zz_tab[$i]['no']], $zz_tab); // sql
 				elseif ($zz['mode'] == 'review' OR $zz['mode'] == 'show')
 					$zz_tab[$i] = zz_subqueries($i, false, false, true, $zz['fields'][$zz_tab[$i]['no']], $zz_tab); // sql
-			} elseif ($zz['action'] && is_array($_POST[$zz['fields'][$subquery]['table_name']])) {
+			} elseif ($zz['action'] && !empty($_POST[$zz['fields'][$subquery]['table_name']])  && is_array($_POST[$zz['fields'][$subquery]['table_name']])) {
 				foreach (array_keys($_POST[$zz['fields'][$subquery]['table_name']]) as $subkey) {
 					$zz_tab[$i][$subkey]['fields'] = $zz['fields'][$zz_tab[$i]['no']]['fields'];
 					$zz_tab[$i][$subkey]['validation'] = true;
@@ -519,7 +519,7 @@ function zz_subqueries($i, $min, $details, $sql, $subtable, $zz_tab) {
 		$myPOST = $_POST[$subtable['table_name']];
 	else
 		$myPOST = false;
-	$deleted_ids = array();
+	$deleted_ids = (!empty($my['deleted']) ? $my['deleted'] : array());
 	foreach ($subtable['fields'] as $field)
 		if (isset($field['type']) && $field['type'] == 'id') $id_field_name = $field['field_name'];
 	if (isset($_POST['deleted'][$subtable['table_name']]))
@@ -789,6 +789,42 @@ function make_id_fieldname($fieldname, $prefix = 'field') {
 	$fieldname = str_replace(']', '', $fieldname);
 	if ($prefix) $fieldname = $prefix.'_'.$fieldname;
 	return $fieldname;
+}
+
+function magic_quotes_strip($mixed) {
+   if(is_array($mixed))
+       return array_map('magic_quotes_strip', $mixed);
+   return stripslashes($mixed);
+}
+
+function zz_edit_sql($sql, $part = false, $values = false) {
+	// puts parts of SQL query in correct order when they have to be added
+	$sql = preg_replace("/\s+/", " ", $sql);
+	if (preg_match('/ ORDER BY (.*)/i', $sql, $order_by))
+		$sql = (preg_replace('/ ORDER BY (.*)/i', '', $sql));
+	if (preg_match('/ GROUP BY (.*)/i', $sql, $group_by))
+		$sql = (preg_replace('/ GROUP BY (.*)/i', '', $sql));
+	if (preg_match('/ WHERE (.*)/i', $sql, $where))
+		$sql = (preg_replace('/ WHERE (.*)/i', '', $sql));
+	if ($part && $values) {
+		$part = strtoupper($part);
+		switch ($part) {
+			case 'WHERE':
+				if (!empty($where[1])) $where[1] = '('.$where[1].') AND ('.$values.')';
+				else $where[1] = $values;
+			break;
+			case 'ORDER BY':
+				// ... later
+			break;
+			case 'GROUP BY':
+				// ... later
+			break;
+		}
+	}
+	if (!empty($where[1])) $sql.= ' WHERE '.$where[1];
+	if (!empty($group_by[1])) $sql.= ' GROUP BY '.$group_by[1];
+	if (!empty($order_by[1])) $sql.= ' ORDER BY '.$order_by[1];
+	return $sql;
 }
 
 ?>

@@ -25,7 +25,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 	// Table head
 	//
 
-	if ($zz_conf['limit']) $zz['sql'].= ' LIMIT '.($zz_conf['this_limit']-$zz_conf['limit']).', '.$zz_conf['limit'];
+	if ($zz_conf['this_limit']) $zz['sql'].= ' LIMIT '.($zz_conf['this_limit']-$zz_conf['limit']).', '.$zz_conf['limit'];
 	$result = mysql_query($zz['sql']);
 	if ($result) $count_rows = mysql_num_rows($result);
 	else {
@@ -82,6 +82,16 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 			$id = '';
 			foreach ($table_query as $field) {
 				$zz['output'].= '<td'.check_if_class($field, $zz_var['where']).'>';
+			//	if there's a link, glue parts together
+				$link = false;
+				if (isset($field['link']))
+					if (is_array($field['link']))
+						$link = show_link($field['link'], $line).(empty($field['link_no_append']) ? $line[$field['field_name']] : '');
+					else
+						$link = $field['link'].$line[$field['field_name']];
+				if ($link)
+					$link = '<a href="'.$link.'"'.(!empty($field['link_target']) ? ' target="'.$field['link_target'].'"' : '').'>';
+			//	go for type of field!
 				switch ($field['type']) {
 					case 'calculated':
 						if ($field['calculation'] == 'hours') {
@@ -108,21 +118,9 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 						break;
 					case 'image':
 					case 'upload_image':
-						if (isset($field['path'])) {
-							$img = show_image($field['path'], $line);
-							if ($img) {
-								if (isset($field['link'])) {
-									if (is_array($field['link'])) {
-										$zz['output'].= '<a href="'.show_link($field['link'], $line);
-										if (!isset($field['link_no_append'])) $zz['output'].= $line[$field['field_name']];
-										$zz['output'].= '"'
-											.(!empty($field['link_target']) ? ' target="'.$field['link_target'].'"' : '').'>';
-									} else $zz['output'].= '<a href="'.$field['link'].$line[$field['field_name']].'">';
-								} 
-								$zz['output'].= $img;
-								if (isset($field['link'])) $zz['output'] .= '</a>';
-							}
-						}
+						if (isset($field['path']))
+							if ($img = show_image($field['path'], $line))
+								$zz['output'].= ($link ? $link : '').$img.($link ? '</a>' : '');
 						break;
 					case 'subtable':
 						// Subtable
@@ -143,14 +141,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 					case 'id':
 						$id = $line[$field['field_name']];
 					default:
-						if (!empty($field['link'])) {
-							if (is_array($field['link'])) {
-								$zz['output'].= '<a href="'.show_link($field['link'], $line);
-								if (empty($field['link_no_append'])) $zz['output'].= $line[$field['field_name']];
-								$zz['output'].= '"'
-									.(!empty($field['link_target']) ? ' target="'.$field['link_target'].'"' : '').'>';
-							} else $zz['output'].= '<a href="'.$field['link'].$line[$field['field_name']].'">';
-						}
+						if ($link) $zz['output'].= $link;
 						if (!empty($field['display_field'])) $zz['output'].= htmlchars($line[$field['display_field']]);
 						else {
 							if (isset($field['factor']) && $line[$field['field_name']]) $line[$field['field_name']] /=$field['factor'];
@@ -170,7 +161,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 								$zz['output'].= $deg['longitude_dms'];
 							} else $zz['output'].= nl2br(htmlchars($line[$field['field_name']]));
 						}
-						if (!empty($field['link'])) $zz['output'].= '</a>';
+						if ($link) $zz['output'].= '</a>';
 						if (isset($field['sum']) && $field['sum'] == true) {
 							if (!isset($sum[$field['title']])) $sum[$field['title']] = 0;
 							$sum[$field['title']] += $line[$field['field_name']];

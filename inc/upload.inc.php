@@ -66,7 +66,7 @@ function zz_upload_delete($zz_tab, $zz_conf) {
 				elseif (substr($path_key, 0, 4) == 'mode') $mode[] = $path_value;
 				elseif (substr($path_key, 0, 6) == 'string') $path .= $path_value;
 				elseif (substr($path_key, 0, 5) == 'field') {
-					$content = ($my_tab['old_record'][$path_value] 
+					$content = (!empty($my_tab['old_record'][$path_value]) 
 						? $my_tab['old_record'][$path_value] 
 						: 'error'); // error should restrain from deleting something erroneous.
 					if (!empty($mode))

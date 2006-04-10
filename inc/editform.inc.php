@@ -84,15 +84,17 @@ function zz_display_records($my, $my_tab, $zz_conf, $display, $zz_var) {
 			if (isset($_GET['file']) && $_GET['file']) 
 				$output.= '<input type="hidden" value="'.$_GET['file'].'" name="file">';
 		}
-		foreach (array_keys($my_tab) as $tabindex) {
-			if ($tabindex && isset($my_tab[$tabindex]['records']))
-				$output.= '<input type="hidden" name="records['.$tabindex.']" value="'.$my_tab[$tabindex]['records'].'">';
-			if (isset($my_tab[$tabindex]['deleted']))
-				foreach ($my_tab[$tabindex]['deleted'] as $deleted_id)
-					$output.= '<input type="hidden" name="deleted['.$my_tab[$tabindex]['table_name'].'][]['.$my_tab[$tabindex][0]['id']['field_name'].']" value="'.$deleted_id.'">';
-			if ($tabindex && !isset($my_tab[$tabindex]['deleted']) && !isset($my_tab[$tabindex]['records']) && isset($_POST['records'])) 
-				// this occurs when a record is not validated. subtable fields will be validated, so this is not perfect as there are no more options to enter a record even if not all subrecords were filled in
-				$output.= '<input type="hidden" name="records['.$tabindex.']" value="'.$_POST['records'][$tabindex].'">';
+		if ($display == 'form') {
+			foreach (array_keys($my_tab) as $tabindex) {
+				if ($tabindex && isset($my_tab[$tabindex]['records']))
+					$output.= '<input type="hidden" name="records['.$tabindex.']" value="'.$my_tab[$tabindex]['records'].'">';
+				if (isset($my_tab[$tabindex]['deleted']))
+					foreach ($my_tab[$tabindex]['deleted'] as $deleted_id)
+						$output.= '<input type="hidden" name="deleted['.$my_tab[$tabindex]['table_name'].'][]['.$my_tab[$tabindex][0]['id']['field_name'].']" value="'.$deleted_id.'">';
+				if ($tabindex && !isset($my_tab[$tabindex]['deleted']) && !isset($my_tab[$tabindex]['records']) && isset($_POST['records'])) 
+					// this occurs when a record is not validated. subtable fields will be validated, so this is not perfect as there are no more options to enter a record even if not all subrecords were filled in
+					$output.= '<input type="hidden" name="records['.$tabindex.']" value="'.$_POST['records'][$tabindex].'">';
+			}
 		}
 		if (isset($zz_conf['variable']))
 			foreach ($zz_conf['variable'] as $myvar)
@@ -131,16 +133,17 @@ function show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf) {
 			$subtables = array_keys($my_tab[$field['subtable']]);
 			foreach (array_keys($subtables) as $index)
 				if (!is_numeric($subtables[$index])) unset($subtables[$index]);
-			foreach ($subtables as $mytable_no) 
-				if ($my_tab[$field['subtable']][$mytable_no]['action'] != 'delete') {
-					if ($display == 'form' && $my_tab[$field['subtable']]['min_records'] < $my_tab[$field['subtable']]['records']) 
+			foreach ($subtables as $mytable_no) {
+				// show all subtables which are not deleted but 1 record as a minimum
+				if ($my_tab[$field['subtable']][$mytable_no]['action'] != 'delete' 
+					OR (!empty($my_tab[$field['subtable']]['records']) && ($mytable_no + 1) == $my_tab[$field['subtable']]['min_records'])) {
+					if ($display == 'form' && $my_tab[$field['subtable']]['min_records'] < $my_tab[$field['subtable']]['records'])
 						$output.= '<input type="submit" value="-" class="sub-remove" name="subtables[remove]['.$field['subtable'].']['.$mytable_no.']">';
 					$output.= '<table>'; 
-					// maybe tables are better outside foreach? but what happens
-					// if no table is needed at all?
 					$output.= show_field_rows($my_tab, $field['subtable'], $mytable_no, $mode, $display, $zz_var, $zz_conf);
 					$output.= '</table>';
 				}
+			}
 			if ($display == 'form' && $field['explanation']) $output.= '<p class="explanation">'.$field['explanation'].'</p>';
 			$output.= '</td></tr>';
 		} elseif (!($field['type'] == 'id' AND !$zz_conf['list']) AND $field['type'] != 'foreign_key') {
