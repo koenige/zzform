@@ -2,19 +2,19 @@
 
 /*
 
-zzform
-
-datum_de - converts given iso date to d.m.Y or returns date as is if incomplete
-jahr - returns year of given iso date, removes trailing 0 if neccessary
-datum_int - converts user input into iso date
-validate_time - converts user input into iso time
-waehrung - converts currency to nicer readable output
-
+zzform: Number/Date Functions
 (c) Gustaf Mossakowski <gustaf@koenige.org>, 2005-2006
 
 */
 
-function datum_de($datum) {
+/** converts given iso date to d.m.Y or returns date as is if incomplete
+ * 
+ * @param $datum(string) date to be converted, international date or output of this function
+ * @param $param(string) without-year: cuts year from date; short: returns short year
+ * @return string formatted date
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function datum_de($datum, $param = false) {
 	if (isset($datum)) {
 		if (!ereg("^[0-9-]+$",$datum)) return $datum; #wenn kein richtiges datum, einfach datum zur¸ckgeben.
 		if (preg_match("/^[0-9]{1,4}$/", $datum)) return $datum; #wenn nur ein bis vier ziffern, d. h. jahr, einfach jahr zurueckgeben
@@ -27,11 +27,25 @@ function datum_de($datum) {
 		if (substr($datum_arr[0], 0, 1) == "0" AND substr($datum_arr[0],0,2) != "00")
 			$datum .= substr($datum_arr[0], 1, 4);
 		else
-			$datum .= $datum_arr[0];
+			switch ($param) {
+				case 'without-year':
+					break;
+				case 'short':
+					$datum .= substr($datum_arr[0],2);
+					break;
+				default:
+					$datum .= $datum_arr[0];
+			}
 		return $datum;
 	}
 }
 
+/** returns year of given iso date, removes trailing 0 if neccessary
+ * 
+ * @param $datum(string) date in international date format YYYY-MM-DD
+ * @return string year
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
 function jahr($datum) {
 	$datum_arr = explode ("-", $datum);
 	$jahr = $datum_arr[0];
@@ -39,6 +53,12 @@ function jahr($datum) {
 	return $jahr;
 }
 
+/** converts user input date into international date string
+ * 
+ * @param $datum(string) date in several possible formats
+ * @return string international date YYYY-MM-DD
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
 function datum_int($datum) {
 	if ($datum) {
 		$months = array(
@@ -126,6 +146,11 @@ function datum_int($datum) {
 	}	
 }
 
+/** converts user input time into HH:MM:SS or returns false if given time is illegal
+ * 
+ * @param $time(string) time in several possible formats
+ * @return mixed false if input is illegal, time-string if input is correct
+ */
 function validate_time($time) {
 	$time = str_replace('.',':',$time);
 	if (strlen($time)>8) return false;
@@ -156,8 +181,13 @@ function validate_time($time) {
 	return $time;
 }
 
-// Currency
-
+/** converts number into currency
+ * 
+ * @param $int(int) amount of money
+ * @param $unit(string) currency unit
+ * @return string formatted combination of amount and unit
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
 function waehrung($int, $unit) {
 	$int = number_format($int, 2, ',', '.');
 	if (!strstr($int, ',')) $int .= ',&#8211;';

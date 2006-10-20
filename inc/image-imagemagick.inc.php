@@ -9,21 +9,23 @@
 */
 
 
-function zz_image_gray($source, $destination, $image = false) {
-	$convert = imagick_convert('colorspace gray', $source.' '.$destination);
+function zz_image_gray($source, $destination, $dest_extension = false, $image = false) {
+	$convert = imagick_convert('colorspace gray', '"'.$source.'" '.($dest_extension 
+		? $dest_extension.':' : '').'"'.$destination.'"');
 	if ($convert) return true;
 	else return false;
 }
 
-function zz_image_thumbnail($source, $destination, $image = false) {
+function zz_image_thumbnail($source, $destination, $dest_extension = false, $image = false) {
 	$geometry = (isset($image['width']) ? $image['width'] : '');
 	$geometry.= (isset($image['height']) ? 'x'.$image['height'] : '');
-	$convert = imagick_convert('thumbnail '.$geometry, $source.' '.$destination);
+	$convert = imagick_convert('thumbnail '.$geometry, '"'.$source.'" '.($dest_extension 
+		? $dest_extension.':' : '').'"'.$destination.'"');
 	if ($convert) return true;
 	else return false;
 }
 
-function zz_image_crop($source, $destination, $image = false) {
+function zz_image_crop($source, $destination, $dest_extension = false, $image = false) {
 // example: convert -thumbnail x240 -crop 240x240+140x0 reiff-pic09b.jpg test.jpg
 	$dest_ratio = $image['width'] / $image['height'];
 	$source_ratio = $image['upload']['width'] / $image['upload']['height'];
@@ -42,11 +44,16 @@ function zz_image_crop($source, $destination, $image = false) {
 		$options = 'thumbnail '.$image['width'].'x'.$new_height
 			.' -crop '.$image['width'].'x'.$image['height'].'+'.$pos_x.'+'.$pos_y;
 	}
-	$convert = imagick_convert($options	, $source.' '.$destination);
+	$convert = imagick_convert($options	, '"'.$source.'" '.($dest_extension 
+		? $dest_extension.':' : '').'"'.$destination.'"');
+	if ($convert) return true;
+	else return false;
 }
 
 function imagick_convert($options, $files, $more_options = false, $more_files = false) {
-	$possible_paths = array('/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/phpbin');
+	$possible_paths = array('/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/phpbin/im6/',
+		'/usr/phpbin', '/notexistent'); // /usr/phpbin/im6/ for provider Artfiles, project qhz...
+		// phpbin/im6 must be before phpbin
 	$path_convert = $possible_paths[0];
 	$i = 1;
 	while (!file_exists($path_convert.'/convert')) {
@@ -54,17 +61,18 @@ function imagick_convert($options, $files, $more_options = false, $more_files = 
 		$i++;
 		if ($i > count($possible_paths)) break;
 	}
+	if ($path_convert == '/notexistent') echo 'Configuration error on server: ImageMagick could not be found. Paths tried: '.implode(', '.$possible_paths).'<br>';
 	$call_convert = $path_convert.'/convert ';
 	$call_convert.= '-'.$options.' ';
-	$call_convert.= ' "'.str_replace(' ', '" "', $files).'" ';
-	$success = exec($call_convert, $return);
+	$call_convert.= ' '.$files.' ';
+	$success = exec($call_convert, $return, $return_var);
 	if ($return) {
 		echo $call_convert;
 		echo '<pre>';
 		print_r($return);
 		echo '</pre>';
 	}
-	if ($success) return true;
+	if (!$return_var) return true;
 	else return false;
 }
 

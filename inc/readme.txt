@@ -16,8 +16,10 @@ lower PHP versions have not been tested
 		$zz_conf['language']		language of zzform
 		$zz_conf['search']			search records possible or not
 		$zz_conf['delete']			delete records possible or not
+		$zz_conf['view']			view records, this will only be enabled if edit records is turned off
 		$zz_conf['do_validation']	backwards compatiblity to old edit.inc, to be removed in the future
 		$zz_conf['limit']			display only limited amount of records (20)
+	$zz_default['limit_show_range'] = 800;		// range in which links to records around current selection will be shown
 		$zz_conf['show_list']		display list of records in database
 		$zz_conf['list']			?
 		$zz_conf['show_output']		
@@ -28,10 +30,15 @@ lower PHP versions have not been tested
 									may be array e. g. array('field1' => 'fieldname_bla', 'string1' => '/', 'field2' => 'fieldname_blubb') etc.
 		$zz_conf['referer']			referer which links back to previous page				$referer	
 		$zz_conf['add']				do not add data
-		$zz_conf['add_only']		only allow to add record, do not show anything else (add new record-link, list table, ...)
+
+		$zz_conf['access']			default: all
+			add_only: only allow to add record, do not show anything else (add new record-link, list table, ...)
+			edit_only: only allow to edit record, do not show anything else (add new record-link, list table, ...)
+			show: only view records
 		$zz_conf['heading']			optional: h2-heading to be used for form instead of $zz['table']
 		$zz_conf['heading_text']	Textblock after heading
 		$zz_conf['heading_sql']		['heading_sql'][$where_id, without tablename] = zz['fields'][n]['sql'] where n is the index of the field corresponding to the key
+		$zz_conf['heading_enum']	['heading_enum'][$where_id, without tablename] = zz['fields'][n]['enum'] where n is the index of the field corresponding to the key
 		$zz_conf['heading_var']		['heading_var'][$where_id, without tablename] = array() field from heading_sql-query which shall be used for better display of H2 and TITLE blabla:<br>var1 var2 var3
 			-- the corresponding field may be hidden from the form and the list with
 			if (isset($_GET['where']['gebaeude.gebaeude_id'])) {
@@ -41,7 +48,12 @@ lower PHP versions have not been tested
 		$zz_conf['title']			= heading, but without HTML tags
 		$zz_conf['prefix']			table_prefix like zz_ (will be removed in error output)
 		$zz_conf['action']			action to be performed after or before insert, update, delete
-									(file to be included)	$query_action
+									array values: before_update, before_insert, before_delete, after_update, after_insert, after_delete
+									value: file to be included without .inc.php
+									if you do insert/update/delete queries, you might want to add them to the logging table
+									with zz_log_sql($sql, $user); ($sql being the query, $user the username)
+									old: $query_action
+		$zz_conf['action_dir']		Directory where included scripts from $zz_conf['action'] reside, default: $zz_conf['dir'].'/local'
 		$zz_conf['user']			user name, default false
 		$zz_conf['error_mail_to']	mailaddress where errors go to
 		$zz_conf['error_mail_from']	mailaddress where errrors come from
@@ -187,9 +199,10 @@ lower PHP versions have not been tested
 			$zz['fields'][n]['number_type']			latitude | longitude, for entering geo information
 			$zz['fields'][n]['factor']				for doubles etc. factor will be multiplied with value
 			$zz['fields'][n]['function']			function which will be called to change input value
-			$zz['fields'][n]['fields']				vars which will be passed to function or identifier, might be in form like "select_id[field_name_from_select]" as well, this refers to a field "select_id" with an associated sql-query and returns the value of the "field_name_from_select" of the query instead
+			$zz['fields'][n]['fields']				vars which will be passed to function or identifier, might be in form like "select_id[field_name_from_select]" as well, this refers to a field "select_id" with an associated sql-query and returns the value of the "field_name_from_select" of the query instead. Values from subtables will have a table_name. or table. prefix. first value is chosen if more than one (more than one record not recommended!). {0,4} or {4} ... will call a substr()-function to return just a part of the field value
+													if identifier must not be changed after set, include field_name of identifier in list
 			$zz['fields'][n]['auto_value']			increment | ... // 1 will be added and inserted in 'default'
-			$zz['fields'][n]['conf_identifier']		array, affects standard values for generating identifier: array('forceFilename' => '-', 'concat' => '.', 'exists' => '.'); - attention: values longer than 1 will be cut off!
+			$zz['fields'][n]['conf_identifier']		array, affects standard values for generating identifier: array('forceFilename' => '-', 'concat' => '.' (or array in order of use, if array shorter than fields-array, last value will be repeated), 'exists' => '.', lowercase => true, 'start' => 2, 'start_always' => false); - attention: values longer than 1 will be cut off! (start is start value if record already exists, start_always says it has always to add exists and start)
 													additional values: 'prefix' for a prefix;
 			$zz['fields'][n]['path']				array, values: 
 				root DOCUMENT_ROOT or path to directory, will be used as a prefix to check whether file_exists or not
@@ -221,6 +234,7 @@ lower PHP versions have not been tested
 		$zz_tab[1]['records']		number of subrecords
 		$zz_tab[1]['max_records']	max. subrecords
 		$zz_tab[1]['min_records']	min. subrecords
+		$zz_tab[1]['dont_delete_records']	no [-] field, one may not delete a subrecord
 
 
 			$zz['fields'][n]['order']				set order, e. g. for mixed alpha-numerical strings without preceding zeros
@@ -287,7 +301,6 @@ lower PHP versions have not been tested
 		$zz_error['type']			= mysql | config
 		$zz_error['mysql']			mysql error message
 
-	$zz_var['values']				$values
 	$zz_var['where']				$where_values
 	$zz_var['url_append']			? or &amp;
 

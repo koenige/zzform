@@ -26,7 +26,7 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 	foreach (array_keys($zz_tab) as $i)
 		foreach (array_keys($zz_tab[$i]) as $k) {
 			if (!empty($upload_form) && !$i && !$k) {// do only for zz_tab 0 0 etc. not zz_tab 0 sql, not for subtables
-				zz_upload_get($zz_tab[$i][$k], $zz_tab[0][0]['action'], $zz_tab[0]['sql'], $zz_tab); // read upload image information, as required
+				zz_upload_get($zz_tab[$i][$k], $zz_tab[0][0]['action'], $zz_tab[0]['sql'], $zz_tab, $zz_tab[$i]['table']); // read upload image information, as required
 				zz_upload_prepare($zz_tab, $zz_conf); // read upload image information, as required
 			}
 			if ($i && is_numeric($k)) {

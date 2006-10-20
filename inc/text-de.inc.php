@@ -98,5 +98,15 @@ $text['Supported filetypes are:'] = 'Diese Dateitypen werden unterst&uuml;tzt:';
 $text['Could not delete %s.'] = 'Konnte %s nicht l&ouml;schen.';
 $text['Could not delete %s, file did not exist.'] = 'Konnte %s nicht l&ouml;schen, da die Datei nicht existierte.';
 $text['File: '] = 'Datei: ';
+$text['There is no record under this ID:'] = 'Es existiert kein Datensatz unter dieser ID:';
+$text['Rules for secure passwords'] = 'Regeln f&uuml;r sichere Pa&szlig;w&ouml;rter';
+$text['password-rules'] = 'Pa&szlig;w&ouml;rter sollten aus mindestens acht Zeichen bestehen. Dabei sollten Gro&szlig;- und Kleinbuchstaben, Ziffern und Sonderzeichen (?=+; etc.) enthalten sein. Damit man ein Pa&szlig;wort sich auch merken kann, sind Eselsbr&uuml;cken hilfreich.
+
+Beispiele f&uuml;r gute Pa&szlig;w&ouml;rter:
+
+* !1Pw=ig! (Merkregel: !Ein Passwort ist immer geheim!)
+* 1sPh&uuml;o&auml;o&Ouml;  (Merkregel: ein starkes Passwort hat &uuml; oder &auml; oder &ouml;)
+* 17Nbg03h (Merkregel: Ich telefoniere nicht besonders gern oder besonders h&auml;ufig, Buchstaben teilweise durch &auml;hnlich aussehende Zahlen ersetzt)'; 
+$text['New and old password are identical. Please choose a different new password.'] = 'Neues und altes Passwort sind identisch. Bitte w&auml;hlen Sie ein anderes, neues Passwort aus.';
 
 ?>

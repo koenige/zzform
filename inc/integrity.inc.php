@@ -16,11 +16,13 @@ is not 100% correct, but these occasions should be very rare anyways
 
 */
 
-function check_integrity($master_db, $master_table, $master_field, $master_value, $relation_table, $detailrecords) {
+function check_integrity($master_db, $master_table, $master_field, $master_value, 
+	$relation_table, $detailrecords) {
 	global $text;
 	// return false - deletion is possible
 	// return true 	- do not delete
-	if (strstr($master_table, '.')) { // don't know if this is important, but if someone sets master_table to dbname.tablename, this will work
+	if (strstr($master_table, '.')) { // don't know if this is important, but if 
+			//someone sets master_table to dbname.tablename, this will work
 		$master = explode('.', $master_table);
 		$master_db = $master[0];
 		$master_table = $master[1];
@@ -33,7 +35,8 @@ function check_integrity($master_db, $master_table, $master_field, $master_value
 			while ($line = mysql_fetch_array($result))
 				$relations[$line['master_db']][$line['master_table']][$line['master_field']][] = $line;
 		else {
-			$response['text'] = sprintf($text['No records in relation table'], $relation_table);
+			$response['text'] = sprintf($text['No records in relation table']
+				, $relation_table);
 			return $response;
 		}
 	} else {
@@ -41,10 +44,8 @@ function check_integrity($master_db, $master_table, $master_field, $master_value
 		$response['text'] = sprintf($text['No relation table'], $relation_table);
 		return $response;
 	}
-	//echo 'rel_check<br>';
-	//echo 'test MD:'.$master_db.' MT:'.$master_table.' MF:'.$master_field.' MV:'.$master_value.' RT:'.$relation_table.' test<br>';
-	//echo '<pre>test '.print_r($relations).' '.$master_db.' '.$master_table.' '.$master_field.' '.$master_value.' test</pre>';
-	if (!$check = check_if_detail($relations, $master_db, $master_table, $master_field, $master_value, $detailrecords)) 
+	if (!$check = check_if_detail($relations, $master_db, $master_table, 
+		$master_field, $master_value, $detailrecords)) 
 		return false;
 	else {
 		$response['text'] = $text['Detail records exist in the following tables:'];
@@ -53,7 +54,9 @@ function check_integrity($master_db, $master_table, $master_field, $master_value
 	}
 }
 
-function check_if_detail($relations, $master_db, $master_table, $master_field, $master_value, $detailrecords) {
+function check_if_detail($relations, $master_db, $master_table, $master_field, 
+	$master_value, $detailrecords) {
+	global $zz_conf;
 	if (isset($relations[$master_db][$master_table])) {
 	//	this table is master in at least one relation
 	//	check whether there are detail records at all
@@ -63,21 +66,30 @@ function check_if_detail($relations, $master_db, $master_table, $master_field, $
 			$sql = 'SELECT COUNT('.$field['detail_field'].') AS Rows';
 			$sql.= ' FROM '.$field['detail_db'].'.'.$field['detail_table'];
 			$sql.= ' WHERE '.$field['detail_field'].' = '.$master_value;
+			if ($zz_conf['debug']) echo $sql.'<br>';
 			$result = mysql_query($sql);
 			if ($result) if (mysql_num_rows($result))
-				if(mysql_result($result,0,0)) { // there is a detail record
-					$all_detailrecords = mysql_result($result,0,0);
+				if ($all_detailrecords = mysql_result($result,0,0)) { 
+					// there is a detail record
+					if ($zz_conf['debug']) echo $all_detailrecords.'<br>';
 					$my_detailrecords = 0;
 					$detail = $field['detail_db'].'.'.$field['detail_table'];
 					if (!empty($detailrecords[$detail])) {
 						$my_detailrecords = false;
 						foreach ($detailrecords[$detail]['sql'] as $sql) {
-							$sql.= (stristr($sql, ' WHERE ') ? ' AND ' : ' WHERE ')
-								.$detail.'.'.$field['detail_field'].' = '.$master_value;
+							// add master record to selection, neccessary for multiple links on one subtable
+							$sql = zz_edit_sql($sql, 'WHERE', $master_db.'.'
+								.$master_table.'.'
+								.$master_field.' = '.$master_value);
+							// add detail record to selection, neccessary for some cases where there are multiple ID fields of same type (parent/children)
+							$sql = zz_edit_sql($sql, 'WHERE', $detail.'.'
+								.$field['detail_field'].' = '.$master_value);
 							$myres = mysql_query($sql);
 							if ($myres)
 								$my_detailrecords += mysql_num_rows($myres);
+							if ($zz_conf['debug']) echo $sql.'<br>';
 						}
+						if ($zz_conf['debug']) echo $my_detailrecords.'<br><br>';
 					}
 					if ($all_detailrecords == $my_detailrecords) {
 					//	detail records match total number of records in table

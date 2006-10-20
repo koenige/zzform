@@ -7,7 +7,7 @@ a:link, a:visited {color: black; text-decoration: none;}
 
 body {font-size: 11pt;}
 tr {page-break-inside: avoid;}
-.where {display: none;}
+.where, .pages {display: none;}
 
 /* white background */
 
@@ -21,3 +21,6 @@ body, #zzform .editbutton, #zzform td.recordid, #zzform th.recordid
 #zzform tr.uneven {background-color: #FFF;} /* uneven rows */
 
 #zzform th.order {background-color: #FFF;} /* column ORDER BY */
+
+#zzform #zzsearch {display: none;}
+a:link, a:visited {color: #000;}

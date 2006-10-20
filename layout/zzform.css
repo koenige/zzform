@@ -60,6 +60,7 @@ div.text #zzform	 {padding: 1em;}
 #zzform table.data thead td, #zzform table.data thead th {padding-bottom: .25em;
 	border-bottom: 1px solid;}
 #zzform .last {	border-bottom: 1px solid;}
+#zzform .pages .last {border-bottom: none;}
 
 #zzform td p, #zzform td ul {margin-top: 0;}
 

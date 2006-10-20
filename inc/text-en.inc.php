@@ -1,5 +1,10 @@
 <?php
-// en lang variables
+
+// zzform
+// Text and labels in English
+// Gustaf Mossakowski, gustaf@koenige.org, 2005/2006
+
+$text = false;
 
 $text['add_new_record'] = 'Add New Record';
 $text['all_records'] = 'All Records';
@@ -99,5 +104,16 @@ $text['Supported filetypes are:'] = 'Supported filetypes are:';
 $text['Could not delete %s.'] = 'Could not delete %s.';
 $text['Could not delete %s, file did not exist.'] = 'Could not delete %s, file did not exist.';
 $text['File: '] = 'File: ';
+$text['Script configuration error. No display field set.'] = 'Script configuration error. No display field set.';
+$text['There is no record under this ID:'] = 'There is no record under this ID:';
+$text['Rules for secure passwords'] = 'Rules for secure passwords';
+$text['password-rules'] = 'Passwords should consist of a minimum of eight characters. You should use upper- and lowercase letters, numbers and special characters (?=+; etc.). It is good to use a mnemonic trick to remember your password.
+
+Examples for good passwords:
+
+* M\'sCMh8196wii! (Rule: Marx\'s Communist Manifesto has 8196 words in it!)
+* nuit+Pog=tWi.  (Rule: these are artificial words that could be remembered)
+* NYtgPw4n (Rule: generic password part that you could always use: gPw4 = good password for; NYt for New York Times, final n for news)'; 
+$text['New and old password are identical. Please choose a different new password.'] = 'New and old password are identical. Please choose a different new password.';
 
 ?>

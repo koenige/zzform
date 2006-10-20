@@ -68,7 +68,7 @@ function zz_upload_delete($zz_tab, $zz_conf) {
 				elseif (substr($path_key, 0, 5) == 'field') {
 					$content = (!empty($my_tab['old_record'][$path_value]) 
 						? $my_tab['old_record'][$path_value] 
-						: 'error'); // error should restrain from deleting something erroneous.
+						: ''); // todo: check whether something will not be deleted because of an error.
 					if (!empty($mode))
 						foreach ($mode as $mymode)
 							$content = $mymode($content);
@@ -122,12 +122,13 @@ function zz_upload_write(&$zz_tab, $action, $zz_conf) {
 					} elseif (substr($path_key, 0, 5) == 'field') {
 						$content = (isset($my_tab['POST'][$path_value])) 
 							? zz_reformat_field($my_tab['POST'][$path_value])
-							: zz_get_sql_value($path_value, $zz_tab[$uf['i']]['sql'], $my_tab['id']['value'], $my_tab['id']['field_name']);
+							: zz_get_sql_value($path_value, $zz_tab[$uf['i']]['sql'],  $my_tab['id']['value'], $zz_tab[$uf['i']]['table'].'.'.$my_tab['id']['field_name']);
 						if (!empty($mode))
 							foreach ($mode as $mymode)
 								$content = $mymode($content);
 						$path .= $content;
-						$content = $my_tab['old_record'][$path_value];
+						$content = (isset($my_tab['old_record']) 
+							? $my_tab['old_record'][$path_value] : '');
 						if (!empty($mode))
 							foreach ($mode as $mymode)
 								$content = $mymode($content);
@@ -136,12 +137,11 @@ function zz_upload_write(&$zz_tab, $action, $zz_conf) {
 				if ($path != $old_path) {
 					$image['files']['update']['path'] = $path; // not necessary maybe, but in case ...
 					$image['files']['update']['old_path'] = $old_path; // too
-					if (!empty($tmp_name)) $image['files']['update']['tmp_name'] = $tmp_name; // too
 					check_dir(dirname($path));
 					if (file_exists($path) && $zz_conf['backup']) // this case should not occur
 						rename($path, zz_upload_path($zz_conf['backup_dir'], $action, $path));
 					if (file_exists($old_path))
-						if ($tmp_name && $zz_conf['backup']) // new image will be added later on for sure
+						if ($zz_conf['backup'] && isset($image['files']['tmp_file'])) // new image will be added later on for sure
 							rename($old_path, zz_upload_path($zz_conf['backup_dir'], $action, $path));
 						else // just path will change
 							rename($old_path, $path);
@@ -159,7 +159,7 @@ function zz_upload_write(&$zz_tab, $action, $zz_conf) {
 					elseif (substr($dest_key, 0, 5) == 'field') {
 						$content = (!empty($my_tab['POST'][$dest_value])) 
 							? zz_reformat_field($my_tab['POST'][$dest_value])
-							: zz_get_sql_value($dest_value, $zz_tab[$uf['i']]['sql'], $my_tab['id']['value'], $my_tab['id']['field_name']);
+							: zz_get_sql_value($dest_value, $zz_tab[$uf['i']]['sql'], $my_tab['id']['value'], $zz_tab[$uf['i']]['table'].'.'.$my_tab['id']['field_name']);
 						if (!empty($mode))
 							foreach ($mode as $mymode)
 								$content = $mymode($content);
@@ -236,7 +236,8 @@ function zz_upload_prepare(&$zz_tab, $zz_conf) {
 			else {
 				$src_image = $my_tab['images'][$uf['f']][$image['source']];
 				if (!empty($image['use_modified_source']))
-					$tmp_name = $src_image['files']['tmp_file'];
+					$tmp_name = (isset($src_image['files'])
+						? $src_image['files']['tmp_file'] : false);
 				else
 					$tmp_name = $src_image['upload']['tmp_name'];
 				$image['upload'] = $src_image['upload']; // get some variables from source image as well
@@ -255,11 +256,11 @@ function zz_upload_prepare(&$zz_tab, $zz_conf) {
 				} else $filename = $src_image['files']['tmp_file']; // if name has been changed
 				$tmp_filename = false;
 				if (!empty($image['action'])) {
-					$tmp_filename = tempnam($zz_conf['tmp_dir'], "UPLOAD_"); // create temporary file, so that original file remains the same for further actions
-					$tmp_filename.= '.'.zz_image_extension($image['path'], $my_tab, $zz_tab, $uf);
+					$tmp_filename = tempnam(realpath($zz_conf['tmp_dir']), "UPLOAD_"); // create temporary file, so that original file remains the same for further actions
+					$dest_extension = zz_image_extension($image['path'], $my_tab, $zz_tab, $uf);
 					include_once $zz_conf['dir'].'/inc/image-'.$zz_conf['graphics_library'].'.inc.php';
 					$image['action'] = 'zz_image_'.$image['action'];
-					$image['action']($filename, $tmp_filename, $image);
+					$image['action']($filename, $tmp_filename, $dest_extension, $image);
 					if (file_exists($tmp_filename))	{
 						$filename = $tmp_filename;
 						$all_temp_filenames[] = $tmp_filename;
@@ -267,7 +268,8 @@ function zz_upload_prepare(&$zz_tab, $zz_conf) {
 						$image['modified']['width'] = $my_img[0];
 						$image['modified']['height'] = $my_img[1];
 						// todo: name, type, ...
-					} else echo 'Error: File '.$tmp_filename.' does not exist';
+					} else echo 'Error: File '.$tmp_filename.' does not exist<br>
+						Temporary Directory: '.realpath($zz_conf['tmp_dir']).'<br>';
 				}
 				$image['files']['tmp_file'] = $filename;
 				$image['files']['all_temp'] = $all_temp_filenames;
@@ -292,10 +294,15 @@ function zz_image_extension($path, &$my_tab, &$zz_tab, &$uf) {
 			foreach (array_keys($my_tab['fields']) as $key)
 				if(!empty($my_tab['fields'][$key]['display_field']) && $my_tab['fields'][$key]['display_field'] == $path_value) {
 					$sql = $my_tab['fields'][$key]['path_sql'];
-					$sql.= zz_reformat_field($my_tab['POST'][ $my_tab['fields'][$key]['field_name']]);
-					$result = mysql_query($sql);
-					if ($result) if (mysql_num_rows($result) == 1)
-						$extension = mysql_result($result, 0, 0);
+					$id_value = zz_reformat_field($my_tab['POST'][$my_tab['fields'][$key]['field_name']]);
+					if ($id_value) {
+						$result = mysql_query($sql);
+						if ($result) if (mysql_num_rows($result) == 1)
+							$extension = mysql_result($result, 0, 0);
+					} else $extension = false; // no extension could be found,
+						// probably due to extension from field which has not been filled yet
+						// does not matter, that means that filetype for destination
+						// file remains the same.
 				}
 		}
 	} else {
@@ -331,12 +338,11 @@ function check_dir($my_dir) {
 }
 
 function zz_get_sql_value($value, $sql, $idvalue = false, $idfield = false) { // gets a value from sql query. 
-	if ($idvalue) { // if idvalue is not set: note: all values should be the same! First value is taken
-		if (stristr($sql, ' WHERE ')) $sql.= ' AND ';
-		else $sql.= ' WHERE ';
-		$sql.= $idfield.' = "'.$idvalue.'"';
-	} 
+	if ($idvalue) // if idvalue is not set: note: all values should be the same! First value is taken
+		$sql = zz_edit_sql($sql, 'WHERE', $idfield.' = "'.$idvalue.'"');
 	$result = mysql_query($sql);
+	if ($error = mysql_error())
+		echo '<p class="error">Error in zz_get_sql_value: <br>'.$sql.'<br>'.$error.'</p>';
 	if ($result) if (mysql_num_rows($result))
 		$line = mysql_fetch_assoc($result);
 	if (!empty($line[$value])) return $line[$value];
@@ -344,15 +350,15 @@ function zz_get_sql_value($value, $sql, $idvalue = false, $idfield = false) { //
 }
 
 ///
-function zz_upload_get(&$sub_tab, $action, $sql, &$zz_tab) {
+function zz_upload_get(&$sub_tab, $action, $sql, &$zz_tab, $table) {
 	zz_get_upload_fields($zz_tab);
 	if ($action == 'delete' OR $action == 'update') {
-		if (stristr($sql, ' WHERE ')) $sql.= ' AND ';
-		else $sql.= ' WHERE ';
-		$sql.= $sub_tab['id']['field_name'].' = '.$sub_tab['id']['value'];
+		$sql = zz_edit_sql($sql, 'WHERE', $table.'.'.$sub_tab['id']['field_name'].' = '.$sub_tab['id']['value']);
 		$result = mysql_query($sql);
 		if ($result) if (mysql_num_rows($result))
 			$sub_tab['old_record'] = mysql_fetch_assoc($result);
+		if ($error = mysql_error())
+			echo '<p>Error in script: zz_upload_get() <br>'.$sql.'<br>'.$error.'</p>';
 	}
 	if ($_FILES && $action != 'delete')
 		$sub_tab['images'] = zz_check_files($sub_tab);

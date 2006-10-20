@@ -40,7 +40,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 		$zz['output'].= '<thead>'."\n";
 		$zz['output'].= '<tr>';
 		foreach ($table_query as $field) {
-			$zz['output'].= '<th'.check_if_class($field, $zz_var['where']).'>';
+			$zz['output'].= '<th'.check_if_class($field, (!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : '')).'>';
 			if ($field['type'] != 'calculated' && $field['type'] != 'image' && isset($field['field_name'])) { //  && $field['type'] != 'subtable'
 				$zz['output'].= '<a href="';
 				if (isset($field['display_field'])) $order_val = $field['display_field'];
@@ -59,7 +59,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 				$zz['output'].= '</a>';
 			$zz['output'].= '</th>';
 		}
-		if ($zz_conf['edit'] OR $zz_conf['show'])
+		if ($zz_conf['edit'] OR $zz_conf['access'] == 'show' OR $zz_conf['view'])
 			$zz['output'].= ' <th class="editbutton">'.$text['action'].'</th>';
 		if (isset($zz_conf['details']) && $zz_conf['details']) 
 			$zz['output'].= ' <th class="editbutton">'.$text['detail'].'</th>';
@@ -81,7 +81,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 				(($z+1) == $count_rows ? ' last' : '').'">'; //onclick="Highlight();"
 			$id = '';
 			foreach ($table_query as $field) {
-				$zz['output'].= '<td'.check_if_class($field, $zz_var['where']).'>';
+				$zz['output'].= '<td'.check_if_class($field, (!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : '')).'>';
 			//	if there's a link, glue parts together
 				$link = false;
 				if (isset($field['link']))
@@ -172,10 +172,10 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 						$zz['output'].= '&nbsp;'.$field['unit'];	
 					$zz['output'].= '</td>';
 			}
-			if ($zz_conf['edit'] OR $zz_conf['show']) {
+			if ($zz_conf['edit'] OR $zz_conf['access'] == 'show' OR $zz_conf['view']) {
 				if ($zz_conf['edit']) 
 					$zz['output'].= '<td class="editbutton"><a href="'.$zz_conf['url_self'].$zz_var['url_append'].'mode=edit&amp;id='.$id.$zz['extraGET'].'">'.$text['edit'].'</a>';
-				elseif ($zz_conf['show'])
+				elseif ($zz_conf['access'] == 'show' OR $zz_conf['view'])
 					$zz['output'].= '<td class="editbutton"><a href="'.$zz_conf['url_self'].$zz_var['url_append'].'mode=show&amp;id='.$id.$zz['extraGET'].'">'.$text['show'].'</a>';
 				if ($zz_conf['delete']) $zz['output'].= '&nbsp;| <a href="'.$zz_conf['url_self'].$zz_var['url_append'].'mode=delete&amp;id='.$id.$zz['extraGET'].'">'.$text['delete'].'</a>';
 				if (isset($zz_conf['details'])) {

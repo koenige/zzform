@@ -39,11 +39,16 @@ function zzform() {
 	$zz_error['type'] = '';
 	$zz_error['mysql'] = '';
 	$upload_form = false;
-
+	
+//	for backwards compatibility, to be removed ASAP
+	if (!empty($zz_conf['edit_only'])) $zz_conf['access'] = 'edit_only';
+	if (!empty($zz_conf['add_only'])) $zz_conf['access'] = 'add_only';
+	if (!empty($zz_conf['show'])) $zz_conf['access'] = 'show';
+	
+	$zz_default['view']				= false;	// 						show Action: View
 	$zz_default['delete']			= false;	// $delete				show Action: Delete
 	$zz_default['edit']				= true;		// 						show Action: Edit
 	$zz_default['add']				= true;		// $add					show Add new record
-	$zz_default['show']				= false;	// show records only, no edit
 	$zz_default['do_validation']	= true;	// $do_validation		left over from old edit.inc, for backwards compatiblity
 	$zz_default['show_list']		= true;		// $tabelle				nur bearbeiten möglich, keine Tabelle
 	$zz_default['search'] 			= false;	// $editvar['search']	Suchfunktion am Ende des Formulars ja/nein
@@ -53,6 +58,7 @@ function zzform() {
 	$zz_default['multilang_fieldnames'] = false;	// $multilang_fieldnames translate fieldnames via $text[$fieldname]
 	$zz_default['limit']			= false;	// $limit				only n records are shown at once
 	$zz_default['this_limit']		= false;	// internal value, current range which records are shown
+	$zz_default['limit_show_range'] = 800;		// range in which links to records around current selection will be shown
 	$zz_default['list']				= true;		// $list				nur hinzufügen möglich, nicht bearbeiten, keine Tabelle
 	$zz_default['rootdir']			= $_SERVER['DOCUMENT_ROOT'];		//Root Directory
 	$zz_default['max_detail_records'] = 20;		// max 20 detail records, might be expanded later on
@@ -76,11 +82,12 @@ function zzform() {
 	$zz_default['export_filetypes']	= array('csv');						// possible filetypes for export
 	$zz_default['details_base']		= false;
 	$zz_default['additional_text']	= false;
+	$zz_default['lang_dir']			= $zz_conf['dir'].'/local';			// directory for additional text
 	$zz_default['debug']			= false;
 	$zz_default['tmp_dir']			= false;
-	$zz_default['add_only']			= false;
-	$zz_default['edit_only']		= false;
+	$zz_default['access']			= 'all';			// edit_only, add_only, show
 	$zz_default['graphics_library'] = 'imagemagick';
+//	$zz_default['tmp_dir']			= 
 	$zz_default['max_select_val_len']	= 60;		// maximum length of values in select
 	$upload_max_filesize = ini_get('upload_max_filesize');
 	switch (substr($upload_max_filesize, strlen($upload_max_filesize)-1)) {
@@ -112,9 +119,9 @@ function zzform() {
 	require_once($zz_conf['dir'].'/inc/editrecord.inc.php');		// update/delete/insert
 	require_once($zz_conf['dir'].'/inc/editval.inc.php');			// Basic Validation
 	require_once($zz_conf['dir'].'/inc/text-en.inc.php');			// English text
-	if ($zz_conf['additional_text'] AND file_exists($langfile = $zz_conf['dir'].'/local/text-'.$zz_conf['language'].'.inc.php'))
-		include_once $langfile;
-	
+	if ($zz_conf['additional_text'] AND file_exists($langfile = $zz_conf['lang_dir'].'/text-en.inc.php')) 
+		include $langfile; // must not be include_once since $text is cleared beforehands
+
 	if ($zz_conf['upload_MAX_FILE_SIZE'] > $upload_max_filesize) {
 		$zz_error['msg'] = 'Value for upload_max_filesize from php.ini is smaller than value which is set in the script. The value from php.ini will be used. To upload bigger files, please adjust your configuration settings.';
 		$zz_conf['upload_MAX_FILE_SIZE'] = $upload_max_filesize;
@@ -130,8 +137,8 @@ function zzform() {
 			$zz_error['msg'] .= 'No language file for <strong>'.$zz_conf['language'].'</strong> found. Using English instead.';
 			$zz_error['type'] = 'config';
 		}
-		if ($zz_conf['additional_text'] AND file_exists($langfile = $zz_conf['dir'].'/local/text-'.$zz_conf['language'].'.inc.php'))
-			include_once $langfile;
+		if ($zz_conf['additional_text'] AND file_exists($langfile = $zz_conf['lang_dir'].'/text-'.$zz_conf['language'].'.inc.php'))
+			include $langfile; // must not be include_once since $text is cleared beforehands
 	}
 	// todo: if file exists else lang = en
 	if (!isset($zz_conf['db_connection'])) include_once ($zz_conf['dir'].'/local/db.inc.php');
@@ -180,27 +187,27 @@ function zzform() {
 	$zz_conf['heading'] = (!isset($zz_conf['heading'])) ? zz_form_heading($zz['table']) : $zz_conf['heading'];
 	
 	// Add with suggested values
-	$zz_var['values'] = false;
 	$zz_var['where'] = false;
-	$sql_where = false;
 	$zz_tab[0][0]['id']['where'] = false;
 	$zz_tab[0][0]['id']['value'] = false;
-	if (isset($_GET['value'])) $zz_var['values'] = read_fields($_GET['value'], 'replace', $zz_var['values'], $zz['table']);
-	if (isset($_GET['where']))  {
-		$zz_var['where'] = read_fields($_GET['where'], 'replace', $zz_var['where'], $zz['table']);
-		$sql_where = read_fields($_GET['where'], false, false, $zz['table']);
-		foreach (array_keys($sql_where) as $field) {
+	if (isset($_GET['where'])) {
+		// todo: check fields and values in this array for validity
+		$zz_var['where'] = zz_read_fields($_GET['where'], 'replace', $zz['table']);
+		foreach (array_keys($_GET['where']) as $field) {
 			if (strstr($field, '.')) $myfield = substr($field, strrpos($field, '.')+1);
 			else $myfield = $field;
 			foreach ($zz['fields'] as $thisfield)
-				if (isset($thisfield['type']) && $thisfield['type'] == 'id' AND $myfield == $thisfield['field_name']) {
+				if (isset($thisfield['type']) && $thisfield['type'] == 'id'
+					AND $myfield == $thisfield['field_name']) {
 					$zz_tab[0][0]['id']['where'] = $thisfield['field_name'];
-					$zz_tab[0][0]['id']['value'] = $sql_where[$field];
-					if (!isset($_GET['mode']) && !isset($_POST['action'])) $_GET['mode'] = 'review';
+					$zz_tab[0][0]['id']['value'] = $_GET['where'][$field];
 				} elseif (isset($thisfield['type']) && $thisfield['type'] == 'id')
 					foreach ($zz['fields'] as $this_field)
 						if (isset($this_field['unique']) && $this_field['unique'] == true && $myfield == $this_field['field_name'])
 							$zz_tab[0][0]['id']['where'] = $thisfield['field_name'];  // just for UNIQUE, see below
+			$mfield = (!strstr($field, '.') ? $zz['table'].'.' : '').$field; // this makes it unneccessary to add table_name to where-clause
+			$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', $mfield." = '".$_GET['where'][$field]."'");
+		}
 	/*
 		thought of it, but it would be too complicated (check what type of field it is, ... (add, edit))
 			if (substr($field, 0, 1) == '!') {
@@ -211,10 +218,6 @@ function zzform() {
 				$fieldname = $field;
 			}
 	*/
-			$mfield = $field;
-			if (!strstr($field, '.')) $mfield = $zz['table'].'.'.$field; // this makes it unneccessary to add table_name to where-clause
-			$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', $mfield." = '".$sql_where[$field]."'");
-		}
 
 		// in case where is not combined with ID field but UNIQUE
 		
@@ -227,57 +230,14 @@ function zzform() {
 			} else
 				$zz_tab[0][0]['id']['where'] = false;
 		}
-			
+
 		// make nicer headings
-		
-		foreach (array_keys($_GET['where']) as $mywh) {
-			$wh = explode('.', $mywh);
-			if (!isset($wh[1])) $index = 0; // without .
-			else $index = 1;
-			if (isset($zz_conf['heading_sql'][$wh[$index]]) && isset($zz_conf['heading_var'][$wh[$index]])) {
-			//	create sql query, with $mywh instead of $wh[$index] because first might be ambiguous
-				if (strstr($zz_conf['heading_sql'][$wh[$index]], 'WHERE'))
-					$wh_sql = str_replace('WHERE', 'WHERE ('.$mywh.' = '.$_GET['where'][$mywh].') AND ', $zz_conf['heading_sql'][$wh[$index]]);
-				elseif (strstr($zz_conf['heading_sql'][$wh[$index]], 'ORDER BY'))
-					$wh_sql = str_replace('ORDER BY', 'WHERE ('.$mywh.' = '.$_GET['where'][$mywh].') ORDER BY ', $zz_conf['heading_sql'][$wh[$index]]);
-				else
-					$wh_sql = $zz_conf['heading_sql'][$wh[$index]].' WHERE ('.$mywh.' = '.$_GET['where'][$mywh].') LIMIT 1';
-			//	if key_field_name is set
-				foreach ($zz['fields'] as $field)
-					if (isset($field['field_name']) && $field['field_name'] == $wh[$index])
-						if (isset($field['key_field_name']))
-							$wh_sql = str_replace($wh[$index], $field['key_field_name'], $wh_sql);
-			//	do query
-				$result = mysql_query($wh_sql);
-				if (!$result) {
-					$zz_error['msg'] = 'Error';
-					$zz_error['query'] = $wh_sql;
-					$zz_error['mysql'] = mysql_error();
-				} else {
-					$wh_array = mysql_fetch_assoc($result);
-					//echo '<pre>';
-					//print_r($wh_array);
-					//echo '</pre>';
-					$zz_conf['heading'].= ':<br>';
-					if (!empty($zz_conf['heading_link'][$wh[$index]])) {
-						if (strstr($zz_conf['heading_link'][$wh[$index]], '?')) $sep = '&amp;';
-						else $sep = '?';
-						$zz_conf['heading'].= '<a href="'.$zz_conf['heading_link'][$wh[$index]].$sep.'mode=show&amp;id='.$_GET['where'][$mywh].'">';
-					}
-					foreach ($zz_conf['heading_var'][$wh[$index]] as $myfield)
-						$zz_conf['heading'].= ' '.$wh_array[$myfield];
-					if (!empty($zz_conf['heading_link'][$wh[$index]]))
-						$zz_conf['heading'] .= '</a>';
-				}
-			}
-		}
+		zz_nice_headings($zz['fields'], $zz_conf, $zz_error);
 	}
 	
 	$zz_conf['title'] = strip_tags($zz_conf['heading']);
 
-	$zz['output'].= "\n".'<h2>';
-	$zz['output'].= $zz_conf['heading'];
-	$zz['output'].= '</h2>'."\n\n";
+	$zz['output'].= "\n".'<h2>'.$zz_conf['heading'].'</h2>'."\n\n";
 	if (isset($zz_conf['heading_text'])) $zz['output'] .= $zz_conf['heading_text'];
 	$zz['output'].= zz_error($zz_error);
 	
@@ -297,13 +257,13 @@ function zzform() {
 				$zz_tab[0][0]['id']['field_name'] = $zz['fields'][$i]['field_name'];
 			elseif (substr($zz['fields'][$i]['type'], 0, 7) == 'upload_') {// at least one upload field adds enctype-field to form
 				$upload_form = true;
-				include($zz_conf['dir'].'/inc/upload.inc.php');
+				include_once $zz_conf['dir'].'/inc/upload.inc.php';
 			}
 		}
 	if (empty($upload_form)) unset($zz_conf['upload']); // values are not needed
 
 	$zz['action'] = false;
-	if (isset($_GET['mode'])) {
+	if (!empty($_GET['mode'])) {
 		$zz['mode'] = $_GET['mode'];
 		if (($zz['mode'] == 'edit' OR $zz['mode'] == 'delete' OR $zz['mode'] == 'show')
 			&& !$zz_tab[0][0]['id']['value'])
@@ -314,10 +274,11 @@ function zzform() {
 			$zz['action'] = $_POST['action'];
 			if (isset($_POST[$zz_tab[0][0]['id']['field_name']]) && !$zz_tab[0][0]['id']['value'])
 				$zz_tab[0][0]['id']['value'] = $_POST[$zz_tab[0][0]['id']['field_name']];
-		if ($zz_conf['add_only'] && empty($_POST)) 
+		if ($zz_conf['access'] == 'add_only' && empty($_POST)) 
 			$zz['mode'] = $_GET['mode'] = 'add';
-		elseif ($zz_conf['edit_only'] && empty($_POST))
+		elseif ($zz_conf['access'] == 'edit_only' && empty($_POST))
 			$zz['mode'] = $_GET['mode'] = 'edit';
+		elseif (!isset($_POST['action'])) $zz['mode'] = $_GET['mode'] = 'review';
 	}
 
 	if (isset($_POST['subtables']))
@@ -350,7 +311,8 @@ function zzform() {
 		 else $extras = substr($extras, 1, strlen($extras) -1 ); 
 											// first ? or & to be added as needed!
 	if ($extras) 							$zz['extraGET'] = '&amp;'.$extras;
-	if ($zz_conf['show']) {
+
+	if ($zz_conf['access'] == 'show') {
 		$zz_conf['add'] = false;
 		$zz_conf['edit'] = false;
 		$zz_conf['delete'] = false;
@@ -358,15 +320,14 @@ function zzform() {
 			$zz['mode'] = 'show';
 			$_GET['mode'] = 'show';
 		}
-	}
-	if ($zz_conf['add_only']) { // show only form, nothing else
+	} elseif ($zz_conf['access'] == 'add_only') { // show only form, nothing else
 		$zz_conf['delete'] = false;
 		$zz_conf['search'] = false;
 		$zz_conf['show_list'] = false;
 		$zz_conf['list'] = false;
 		$zz_conf['show_output'] = false;
 		$zz_conf['add'] = false;
-	} elseif ($zz_conf['edit_only']) {
+	} elseif ($zz_conf['access'] == 'edit_only') {
 		$zz_conf['add'] = false;
 		$zz_conf['delete'] = false;
 		$zz_conf['limit'] = false;
@@ -493,15 +454,15 @@ function zzform() {
 			if (is_numeric($k))
 				$zz_tab[$i][$k] = zz_requery_record($zz_tab[$i][$k], $validation, $zz_tab[$i]['sql'], $zz_tab[$i]['table'], $zz['mode']);
 			// requery record if successful, 
-	
+	if (($zz['mode'] == 'edit' OR $zz['mode'] == 'delete') AND !$zz_tab[0][0]['record']) {
+		$zz['formhead'] = '<span class="error">'.$text['There is no record under this ID:'].' '.htmlspecialchars($zz_tab[0][0]['id']['value']).'</span>';	
+		$display = false;
+	}
 	$result = mysql_query($zz['sql']);  // must be behind update, insert etc. or it will return the wrong number
 	if ($result) $zz_lines = mysql_num_rows($result);
 	else $zz_lines = 0;
 	
-	if (isset($zz['formhead']))
-		$zz['output'] .= zz_display_records($zz, $zz_tab, $zz_conf, $display, $zz_var);
-	else
-		$zz['output'] .= zz_error($zz_error); // will be done in zz_display_records as well, after output of formhead
+	$zz['output'] .= zz_display_records($zz, $zz_tab, $zz_conf, $display, $zz_var);
 
 	if ($zz['mode'] && $zz['mode'] != 'review' && $zz['mode'] != 'show') $zz['output'].= "</form>\n";
 	if ($zz['mode'] != 'add' && $zz_conf['add']) $zz['output'].= '<p class="add-new"><a accesskey="n" href="'.$zz_conf['url_self'].$zz_var['url_append'].'mode=add'.$zz['extraGET'].'">'.$text['add_new_record'].'</a></p>'."\n";
@@ -517,7 +478,7 @@ function zzform() {
 }
 
 function zzform_all($glob_vals = false) {
-//	Die folgenden globalen Definitionen der  Variablen sind nur noetig, wenn man wie
+//	Die folgenden globalen Definitionen der Variablen sind nur noetig, wenn man wie
 //	hier die darauffolgenden vier Zeilen in einer Funktion zusammenfassen will
 	global $zz;			// Table description
 	global $zz_conf;	// Config variables

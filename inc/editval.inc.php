@@ -14,6 +14,7 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 	global $zz_error;
 	$my['POST-notvalid'] = $my['POST'];
 	$my['validation'] = true;
+	$last_fields = false;
 	foreach (array_keys($my['fields']) as $f)
 	//	remove entries which are for display only
 		switch ($my['fields'][$f]['type']) {
@@ -174,31 +175,11 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 							$func_vars[$var] = $my['POST'][$var];
 					$my['POST'][$my['fields'][$f]['field_name']] = $my['fields'][$f]['function']($func_vars);
 				}
-	
-			//	call function: generate ID
+
 				if ($my['fields'][$f]['type'] == 'identifier') {
-					foreach ($my['fields'][$f]['fields'] as $var) {
-						if (strstr($var, '.')) {
-							$vars = explode('.', $var);
-							$func_vars[$var] = $my['POST'][$vars[0]][0][$vars[1]]; // this might not be correct, because it ignores the table_name
-						} else
-							$func_vars[$var] = $my['POST'][$var];
-						if (!$func_vars[$var]) { // could be empty because it's an array
-							$fieldvar = explode('[', $var); // split array in variable and key
-							foreach ($my['fields'] as $field)
-								if (!empty($field['sql']) && !empty($field['field_name']) // empty: == subtable
-									&& $field['field_name'] == $fieldvar[0]) {
-									$myvalues = zz_get_identifier_vars($field['sql'], $my['POST'][$field['field_name']]);
-									$fieldvar[1] = substr($fieldvar[1], 0, strlen($fieldvar[1]) -1); // remove trailing ]
-									$func_vars[$var] = $myvalues[$fieldvar[1]];
-								}
-						}
-					}
-					if (!empty($my['fields'][$f]['conf_identifier'])) $conf = $my['fields'][$f]['conf_identifier'];
-					else $conf = false;
-					$my['POST'][$my['fields'][$f]['field_name']] = zz_create_identifier($func_vars, $my, $table, $f, $conf);
+					$last_fields[] = $f;
+					continue; // will be dealt with at the end, when all other values are clear
 				}
-			
 			//	insert data from file upload/convert
 			//	...
 				$possible_upload_fields = array('date', 'time', 'text');
@@ -206,6 +187,12 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 					OR (in_array($my['fields'][$f]['type'], $possible_upload_fields) && !empty($my['fields'][$f]['upload_field']) && empty($my['POST'][$my['fields'][$f]['field_name']]))) {
 					$myval = false;
 					$v_arr = false;
+					if ($zz_conf['debug']) {
+						echo 'Possible upload_field values:</p>';
+						echo '<pre>';
+						print_r($my['images']);
+						echo '</pre>';
+					}
 					$g = $my['fields'][$f]['upload_field'];
 					$v = $my['fields'][$f]['upload_value'];
 					if (preg_match('/.+\[.+\]/', $v)) { // construct access to array values
@@ -295,6 +282,18 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 				}
 		// finished
 	}
+	if ($last_fields) { // these fields have to be handled after others because they might get data from other fields (e. g. upload_fields)
+		foreach ($last_fields as $f)
+			//	call function: generate ID
+			if ($my['fields'][$f]['type'] == 'identifier') {
+				$func_vars = zz_get_identifier_vars($my, $f);
+				$conf =(!empty($my['fields'][$f]['conf_identifier']) 
+					? $my['fields'][$f]['conf_identifier'] : false);
+				$my['POST'][$my['fields'][$f]['field_name']] 
+					= zz_create_identifier($func_vars, $my, $table, $f, $conf);
+			}
+	}
+	
 	if ($my['validation']) {
 		foreach (array_keys($my['fields']) as $f) {
 		//	set
@@ -317,7 +316,7 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 				} else {
 					if (isset($my['fields'][$f]['number_type']) AND ($my['POST'][$my['fields'][$f]['field_name']] !== '') // type string, different from 0
 						AND $my['fields'][$f]['number_type'] == 'latitude' || $my['fields'][$f]['number_type'] == 'longitude')
-						echo $my['POST'][$my['fields'][$f]['field_name']] = '0';
+						$my['POST'][$my['fields'][$f]['field_name']] = '0';
 					elseif (isset($my['fields'][$f]['null']) AND $my['fields'][$f]['null']) 
 						$my['POST'][$my['fields'][$f]['field_name']] = '0';
 					else 
@@ -330,129 +329,6 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 		}
 	}
 	return $my;
-}
-
-function zz_check_select($my, $f, $max_select) {
-	global $text;
-	global $zz_error;
-	$sql = $my['fields'][$f]['sql'];
-	preg_match('/SELECT (.+) FROM /i', $sql, $fieldstring); // preg_match, case insensitive, space after select, space around from - might not be 100% perfect, but should work always
-	$fields = explode(",", $fieldstring[1]);
-	$oldfield = false;
-	$newfields = false;
-	foreach ($fields as $myfield) {
-		if ($oldfield) $myfield = $oldfield.', '.$myfield; // oldfield, so we are inside parentheses
-		if (substr_count($myfield, '(') != substr_count($myfield, ')')) $oldfield = $myfield; // not enough brackets, so glue strings together until there are enought - not 100% safe if bracket appears inside string
-		else {
-			$myfields = '';
-			if (stristr($myfield, ') AS')) preg_match('/(.+\)) AS [a-z0-9_]/i', $myfield, $myfields); // replace AS blah against nothing
-			if ($myfields) $myfield = $myfields[1];
-			$newfields[] = $myfield;
-			$oldfield = false; // now that we've written it to array, empty it
-		}
-	}
-	if (stristr($sql, ' ORDER BY ')) {
-		preg_match('/(.+)( ORDER BY .+)/i', $sql, $sqlparts);
-		$sql = $sqlparts[1];
-		$sqlorder = $sqlparts[2];
-	} else
-		$sqlorder = false;
-	$postvalues = explode(' | ', trim($my['POST'][$my['fields'][$f]['field_name']]));
-	if (stristr($sql, ' WHERE ')) $where = ' AND ';
-	else $where = ' WHERE ';
-	$wheresql = '';
-	foreach ($postvalues as $value)
-		foreach ($newfields as $index => $field) {
-			$field = trim($field);
-			if (empty($my['fields'][$f]['show_hierarchy']) OR $field != $my['fields'][$f]['show_hierarchy']) {
-				// do not search in show_hierarchy as this field is there for presentation only
-				// and might be removed below!
-				if (!$wheresql) $wheresql.= $where.'(';
-				elseif (!$index) $wheresql.= ' ) AND (';
-				else $wheresql.= ' OR ';
-				$wheresql.= $field.' LIKE "%'.$value.'%"'; 
-			}
-		}
-	$sql.= $wheresql.')';
-	if ($sqlorder) $sql.= $sqlorder;
-	$result = mysql_query($sql);
-	if ($result)
-		if (!mysql_num_rows($result)) {
-			// no records, user must re-enter values
-			$my['fields'][$f]['type'] = 'select';
-			$my['fields'][$f]['class'] = 'reselect' ;
-			$my['fields'][$f]['suffix'] = '<br>'.$text['No entry found. Try less characters.'];
-			$my['validation'] = false;
-		} elseif (mysql_num_rows($result) == 1) {
-			$my['POST'][$my['fields'][$f]['field_name']] = mysql_result($result, 0, 0);
-			$my['POST-notvalid'][$my['fields'][$f]['field_name']] = mysql_result($result, 0, 0);
-			$my['fields'][$f]['sql'] = $sql; // if other fields contain errors
-		} elseif (mysql_num_rows($result) <= $max_select) {
-			$my['fields'][$f]['type'] = 'select';
-			$my['fields'][$f]['sql'] = $sql;
-			$my['fields'][$f]['class'] = 'reselect';
-			if (!empty($my['fields'][$f]['show_hierarchy'])) {
-				// since this is only a part of the list, hierarchy does not make sense
-				$my['fields'][$f]['sql'] = preg_replace('/,*\s*'.$my['fields'][$f]['show_hierarchy'].'/', '', $my['fields'][$f]['sql']);
-				$my['fields'][$f]['show_hierarchy'] = false;
-			}
-			$my['validation'] = false;
-		} elseif (mysql_num_rows($result)) {
-			$my['fields'][$f]['default'] = 'reselect' ;
-			$my['fields'][$f]['class'] = 'reselect' ;
-			$my['fields'][$f]['suffix'] = $text['Please enter more characters.'];
-			$my['fields'][$f]['check_validation'] = false;
-			$my['validation'] = false;
-		} else {
-			$my['fields'][$f]['class'] = 'error' ;
-			$my['fields'][$f]['check_validation'] = false;
-			$my['validation'] = false;
-		}
-	else {
-		$zz_error['msg'] .= mysql_error();
-		$zz_error['query'] .= $sql;
-		$my['fields'][$f]['check_validation'] = false;
-		$my['validation'] = false;
-	}
-	return $my;
-}
-
-function zz_check_password($old, $new1, $new2, $sql) {
-	global $zz_error;
-	global $text;
-	if ($new1 != $new2) {
-		$zz_error['msg'] = $text['New passwords do not match. Please try again.'];
-		return false; // new passwords do not match
-	}
-	$result = mysql_query($sql);
-	if ($result) if (mysql_num_rows($result) == 1)
-		$old_pwd = mysql_result($result, 0, 0);
-	if (empty($old_pwd)) {
-		$zz_error['msg'] = $text['database-error'];
-		return false;
-	}
-	if (md5($old) == $old_pwd) {
-		$zz_error['msg'] = $text['Your password has been changed!'];
-		return md5($new1); // new1 = new2, old = old, everything is ok
-	} else {
-		$zz_error['msg'] = $text['Your current password is different from what you entered. Please try again.'];
-		return false;
-	}
-}
-
-function zz_get_identifier_vars($sql, $id) {
-	$sqlp = explode(' ORDER BY ', $sql);
-	$sql = $sqlp[0];
-	if (stristr($sql, ' WHERE ')) $sql.= ' AND ';
-	else $sql.= ' WHERE ';
-	$sqlc = explode(' ', $sql); // get first token
-	if (substr($sqlc[1], strlen($sqlc[1])-1) == ',') $sqlc[1] = substr($sqlc[1], 0, strlen($sqlc[1])-1);
-	$sql.= $sqlc[1].' = '.$id; // first token is always ID field
-	if ($sqlp[1]) $sql.= ' ORDER BY '.$sqlp[1];
-	$result = mysql_query($sql);
-	if ($result) if (mysql_num_rows($result) == 1)
-		$line = mysql_fetch_assoc($result);
-	return $line;
 }
 
 ?>
