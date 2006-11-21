@@ -65,7 +65,9 @@ function imagick_convert($options, $files, $more_options = false, $more_files = 
 	$call_convert = $path_convert.'/convert ';
 	$call_convert.= '-'.$options.' ';
 	$call_convert.= ' '.$files.' ';
+	echo $call_convert;
 	$success = exec($call_convert, $return, $return_var);
+	echo '<br>'.$return_var;
 	if ($return) {
 		echo $call_convert;
 		echo '<pre>';

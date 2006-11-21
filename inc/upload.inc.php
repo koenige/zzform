@@ -289,7 +289,7 @@ function zz_image_extension($path, &$my_tab, &$zz_tab, &$uf) {
 	elseif (substr($path_key, 0, 5) == 'field') {
 		$content = (isset($my_tab['POST'][$path_value])) 
 			? zz_reformat_field($my_tab['POST'][$path_value]) : '';
-		$extension = substr($content, strrpos('.', $content)+1);
+		$extension = substr($content, strrpos($content, '.')+1);
 		if (!$extension) { // check for sql-query which gives extension. usual way does not work, because at this stage record is not saved yet.
 			foreach (array_keys($my_tab['fields']) as $key)
 				if(!empty($my_tab['fields'][$key]['display_field']) && $my_tab['fields'][$key]['display_field'] == $path_value) {
@@ -463,6 +463,11 @@ function zz_check_upload(&$images, $action, $zz_conf, $input_filetypes = array()
 			if ($input_filetypes && !in_array($images[$key]['upload']['type'], $input_filetypes))
 				$images[$key]['error'][] = $text['Error: '].$text['Unsupported filetype:'].' '.$images[$key]['upload']['type']
 				.'<br>'.$text['Supported filetypes are:'].' '.implode(', ', $input_filetypes);
+	
+	// 	sometimes MIME types are needed for the database, better change unknown MIME types:
+			$unwanted_mime = array('image/pjpeg' => 'image/jpeg'); // Internet Explorer knows progressive JPEG instead of JPEG
+			if (in_array($images[$key]['upload']['type'], array_keys($unwanted_mime)))
+				$images[$key]['upload']['type'] = $unwanted_mime[$images[$key]['upload']['type']];
 
 	//	check if minimal image size is reached
 			$width_height = array('width', 'height');

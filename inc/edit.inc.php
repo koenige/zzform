@@ -39,6 +39,7 @@ function zzform() {
 	$zz_error['type'] = '';
 	$zz_error['mysql'] = '';
 	$upload_form = false;
+	$zz['result'] = false;
 	
 //	for backwards compatibility, to be removed ASAP
 	if (!empty($zz_conf['edit_only'])) $zz_conf['access'] = 'edit_only';
@@ -96,6 +97,9 @@ function zzform() {
 		case 'K': $upload_max_filesize *= pow(1024, 1); break;
 	}
 	$zz_default['upload_MAX_FILE_SIZE']	= $upload_max_filesize;
+	$zz_default['redirect']['successful_update'] = false;	// redirect to diff. page after update
+	$zz_default['redirect']['successful_insert'] = false;	// redirect to diff. page after insert
+	$zz_default['redirect']['successful_delete'] = false;	// redirect to diff. page after delete
 
 	foreach (array_keys($zz_default) as $key)
 		if (!isset($zz_conf[$key])) $zz_conf[$key] = $zz_default[$key];
@@ -474,6 +478,16 @@ function zzform() {
 		zz_display_table($zz, $zz_conf, $zz_error, $zz_var, $zz_lines); // shows table with all records (limited by zz_conf['limit'] and add/nav if limit/search buttons)
 
 	$zz['output'].= '</div>';
+	// Redirect, if wanted.
+	if ($zz['result'])
+		if (!empty($zz_conf['redirect'][$zz['result']])) {
+			if (substr($zz_conf['redirect'][$zz['result']], 0, 1) == '/') {
+				$scheme = ((isset($_SERVER['HTTPS']) AND $_SERVER['HTTPS'] == "on") ? 'https' : 'http');
+				$zz_conf['redirect'][$zz['result']] = $scheme.'://'.$_SERVER['SERVER_NAME'].$zz_conf['redirect'][$zz['result']];
+			}
+			header('Location: '.$zz_conf['redirect'][$zz['result']]);
+			exit;
+		}
 	if ($zz_conf['show_output']) echo $zz['output'];
 }
 

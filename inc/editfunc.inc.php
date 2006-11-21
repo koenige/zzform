@@ -12,7 +12,8 @@
 function zz_error ($zz_error) {
 	global $zz_error;
 	global $zz_conf;
-	$output = '';
+	$output = false;
+	$sql_output = false;
 	if (!isset($zz_error)) $zz_error = array();
 	if (!isset($zz_error['msg'])) $zz_error['msg'] = '';
 	if (!isset($zz_error['level'])) $zz_error['level'] = '';
@@ -24,8 +25,21 @@ function zz_error ($zz_error) {
 		if ($zz_error['level'] == 'warning') $output.= '<strong>'.$text['Warning'].'!</strong> ';
 		//$output.= $text[$zz_error['msg']];
 		if (trim($zz_error['msg'])) $output.= $zz_error['msg'].'<br>';
-		if ($zz_error['mysql']) $output.= $zz_error['mysql'].': ';
-		$output.= $zz_error['query'];
+		if ($zz_error['mysql']) $sql_output.= $zz_error['mysql'].':<br>';
+		$sql_output.= $zz_error['query'];
+
+		if ($sql_output) {
+			if ($zz_conf['error_handling'] == 'mail' && $zz_conf['error_mail_to']) {
+				$mailtext = strip_tags(str_replace('<br>', "\r\r", $output.$sql_output));
+				$mailtext.= "\n\n-- \nURL: http://".$_SERVER['SERVER_NAME']
+					.$_SERVER['REQUEST_URI']
+					."\nIP: ".$_SERVER['REMOTE_ADDR']
+					."\nBrowser: ".$_SERVER['HTTP_USER_AGENT'];
+				mail ($zz_conf['error_mail_to'], '['.$zz_conf['project'].']', 
+					$mailtext, 'From: '.$zz_conf['error_mail_from']);
+			} else
+				$output .= $sql_output;
+		}
 		$output.= '</div>';
 		$zz_error = '';
 	}
@@ -34,11 +48,7 @@ function zz_error ($zz_error) {
 	$zz_error['type'] = '';
 	$zz_error['query'] = '';
 	$zz_error['mysql'] = '';
-	if ($zz_conf['error_handling'] == 'mail' && $zz_conf['error_mail_to']) {
-		mail ($zz_conf['error_mail_to'], '['.$zz_conf['project'].']', $output, 'From: '.$zz_conf['error_mail_from']);
-		return false;
-	} else
-		return $output;
+	return $output;
 }
 
 
@@ -132,13 +142,14 @@ function addvar($uri, $field, $value) {
 	$new_uri = $uri_p['path'].'?'; 
 	// other uri parts are ignored, may be changed if necessary
 	// e. g. fragment.
+	$fragments = false;
 	foreach (array_keys($queries) as $query_key) {
-		if ($new_uri != $uri_p['path'].'?') $new_uri.= '&amp;';
 		if (is_array($queries[$query_key]))
 			foreach (array_keys($queries[$query_key]) as $qq_key)
-				$new_uri.= $query_key.'['.$qq_key.']='.$queries[$query_key][$qq_key];
-		else $new_uri.= $query_key.'='.$queries[$query_key];
+				$fragments[] = $query_key.'['.$qq_key.']='.$queries[$query_key][$qq_key];
+		else $fragments[] = $query_key.'='.$queries[$query_key];
 	}
+	$new_uri.= implode('&amp;', $fragments);
 	return $new_uri;
 }
 
@@ -244,10 +255,26 @@ function show_image($path, $record) {
 
 function show_link($path, $record) {
 	$link = false;
+	$modes = false;
 	if ($record)
 		foreach (array_keys($path) as $part)
-			if (substr($part,0,5) == 'field') $link.= $record[$path[$part]];
-			else $link.= $path[$part];
+			if (substr($part, 0, 5) == 'field') {
+				if ($modes) {
+					$myval = $record[$path[$part]];
+					foreach ($modes as $mode)
+						if (function_exists($mode))
+							$myval = $mode($myval);
+						else {
+							echo 'Configuration Error: mode with not-existing function';
+							exit;
+						}
+					$link.= $myval;
+					$modes = false;
+				} else
+					$link.= $record[$path[$part]];
+			} elseif (substr($part, 0, 4) == 'mode') {
+				$modes[] = $path[$part];
+			} else $link.= $path[$part];
 	return $link;
 }
 

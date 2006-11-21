@@ -376,6 +376,11 @@ function show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_thi
 						if ($display == 'form') $outputf.= 'value="'.$my['record'][$field['field_name']].'"';
 						else $outputf .= '('.$text['hidden'].')';
 					if ($display == 'form') $outputf.= '>';
+					if ($my['record'] && $display == 'form') $outputf .=
+						'<input type="hidden" name="'.$field['f_field_name'].
+						'--old" value="'.$my['record'][$field['field_name']].'">';
+						// this is for validation purposes - if old and new value are identical
+						// do not apply md5 encoding to password
 					break;
 				case 'password_change':
 					if ($display == 'form') {
@@ -574,10 +579,14 @@ function show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_thi
 										$my_select[$my_h_field][] = $line;
 									} else
 										$outputf.= draw_select($line, $my['record'], $field, false, 0, false, 'form', $zz_conf_thisrec);
-								if (!empty($field['show_hierarchy']))
+								if (!empty($field['show_hierarchy']) && $my_select['NULL'])
 									foreach ($my_select['NULL'] AS $my_field)
 										$outputf.= draw_select($my_field, $my['record'], $field, $my_select, 0, $field['show_hierarchy'], 'form', $zz_conf_thisrec);
+								elseif (!empty($field['show_hierarchy'])) {
+									$zz_error['msg'] = 'Configuration error: "show_hierarchy" used but there is no highest level in the hierarchy.';
+								}
 								$outputf.= '</select>'."\n";
+								if (!empty($zz_error['msg'])) $outputf.= '<p class="error">'.$zz_error['msg'].'</p>';
 							} else 
 								while ($line = mysql_fetch_array($result_detail, MYSQL_BOTH))
 									if ($line[0] == $my['record'][$field['field_name']])

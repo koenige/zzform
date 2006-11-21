@@ -92,10 +92,12 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 					&& !is_array($my['POST'][$my['fields'][$f]['field_name']])) // this line for wrong coordinates
 					$my['POST'][$my['fields'][$f]['field_name']] = str_replace(',', '.', $my['POST'][$my['fields'][$f]['field_name']]) * $my['fields'][$f]['factor'];
 	
-			//	md5 encrypt passwords
+			//	md5 encrypt passwords, only for changed passwords! therefore string is compared against old pwd
 				if ($my['fields'][$f]['type'] == 'password')
 					if ($my['POST'][$my['fields'][$f]['field_name']])
-						$my['POST'][$my['fields'][$f]['field_name']] = md5($my['POST'][$my['fields'][$f]['field_name']]);
+						if (!isset($my['POST'][$my['fields'][$f]['field_name'].'--old'])
+							|| ($my['POST'][$my['fields'][$f]['field_name']] != $my['POST'][$my['fields'][$f]['field_name'].'--old']))
+							$my['POST'][$my['fields'][$f]['field_name']] = md5($my['POST'][$my['fields'][$f]['field_name']]);
 		
 			//	change md5 encrypted password
 				if ($my['fields'][$f]['type'] == 'password_change') {

@@ -200,6 +200,7 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 			} elseif ($zz_tab[0][0]['action'] == 'update') $zz['formhead'] = $text['record_was_updated'];
 			elseif ($zz_tab[0][0]['action'] == 'delete') $zz['formhead'] = $text['record_was_deleted'];
 			if ($zz_conf['logging']) zz_log_sql($sql_edit, $zz_conf['user']); // Logs SQL Query, must be after insert_id was checked
+			$operation_success = true;
 			if (isset($detail_sql_edit))
 				foreach (array_keys($detail_sql_edit) as $i)
 					foreach (array_keys($detail_sql_edit[$i]) as $k) {
@@ -207,14 +208,14 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 						$detail_sql = str_replace('[FOREIGN_KEY]', '"'.$zz_tab[0][0]['id']['value'].'"', $detail_sql);
 						//if ($zz['action'] == 'insert') $detail_sql .= $zz_tab[0][0]['id']['value'].');';
 						$detail_result = mysql_query($detail_sql);
-						if (!$detail_result) {
+						if (!$detail_result) { // This should never occur, since all checks say that this change is possible
 							$zz['formhead']		= false;
 							$zz_error['msg']	.= 'Detail record could not be handled';
 							$zz_error['level']	.= 'crucial';
 							$zz_error['type']	.= 'mysql';
 							$zz_error['query']	.= $detail_sql;
 							$zz_error['mysql']	.= mysql_error();
-
+							$operation_success = false;
 						} elseif ($zz_tab[$i][$k]['action'] == 'insert') 
 							$zz_tab[$i][$k]['id']['value'] = mysql_insert_id(); // for requery
 						if ($zz_conf['logging']) zz_log_sql($detail_sql, $zz_conf['user']); // Logs SQL Query
@@ -224,6 +225,7 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 				// if any other action after insertion/update/delete is required
 			if (!empty($upload_form))
 				zz_upload_action($zz_tab, $zz_conf); // upload images, delete images, as required
+			if ($operation_success) $zz['result'] = 'successful_'.$zz_tab[0][0]['action'];
 		} else {
 			// Output Error Message
 			$zz['formhead'] = false;
