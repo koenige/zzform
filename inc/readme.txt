@@ -75,6 +75,11 @@ lower PHP versions have not been tested
 		$zz_conf['debug']			debugging mode, shows several debugging outputs
 		$zz_conf['upload_MAX_FILE_SIZE'] in bytes, default is value from php.ini
 		$zz_conf['max_select']		configures the maximum entries in a select-dialog, if there are more entries, an empty input field will be provided
+		$zz_conf['redirect']['successful_update']	redirect to this URL (local, starting with / or full qualified URI) when this event occurs
+		$zz_conf['redirect']['successful_insert']	redirect to this URL (local, starting with / or full qualified URI) when this event occurs
+		$zz_conf['redirect']['successful_delete']	redirect to this URL (local, starting with / or full qualified URI) when this event occurs
+		
+		
 		
 	$zz
 		$zz['table']				name of main table										$maintable
@@ -168,6 +173,7 @@ lower PHP versions have not been tested
 			$zz['fields'][n]['add_details']			add detail records in different table, attention: current input will not be saved.
 			$zz['fields'][n]['explanation']			explanation how to fill in values in this field, will only be shown in edit or insert mode
 			$zz['fields'][n]['link']				link in list to record
+													may be array, then it works with field, mode and string (field1, field2, mode1, ...) see also: path
 			$zz['fields'][n]['link_no_append']		don't append record id to link
 			$zz['fields'][n]['link_target']			target="$value" for link
 			$zz['fields'][n]['null']				value might be 0 or '', won't be set to NULL
@@ -267,6 +273,7 @@ lower PHP versions have not been tested
 		$zz['POST']					POST values												$myPOST
 		$zz['record']				current record with all fields							$record
 		$zz['extraGET']				extra GET values										$add_extras
+		$zz['result']				gives result of operation if at all: successful_insert, successful_update, successful_delete
 
 	$zz_tab[n]
 		$zz_tab[0]['table']			= $zz['table']

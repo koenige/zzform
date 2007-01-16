@@ -7,3 +7,7 @@
 .foot {background-color: #CCB; margin: 0; padding: .5em;  border-top: 1px solid #999;}
 
 body {margin: 0 0 1.5em; padding: 0; font-size: 95%; font-family: Helvetica;}
+
+.overview {line-height: 130%;}
+.overview li {padding-bottom: .5em;}
+.overview li li {padding-bottom: 0;}

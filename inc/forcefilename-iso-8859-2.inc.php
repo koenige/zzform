@@ -117,7 +117,7 @@ function forceFilename($str, $spaceChar = '-')
      case '/': case '\'': case '-': case ':':
      $_str .= '-'; break;
     
-     default : if (ereg('[A-Za-z0-9\(\)_]', $ch)) { $_str .= $ch;  } break;
+     default : if (ereg('[A-Za-z0-9\(\)_\.]', $ch)) { $_str .= $ch;  } break;
    }
   }   
   

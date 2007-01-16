@@ -716,7 +716,9 @@ function show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_thi
 							foreach ($field['calculation_fields'] as $calc_field)
 								if (!$diff) $diff = strtotime($my['record'][$calc_field]);
 								else $diff -= strtotime($my['record'][$calc_field]);
+							if ($diff < 0) $outputf .= '<em class="negative">';
 							$outputf.= gmdate('H:i', $diff);
+							if ($diff < 0) $outputf .= '</em>';
 						} elseif ($field['calculation'] == 'sum') {
 							$sum = 0;
 							foreach ($field['calculation_fields'] as $calc_field)

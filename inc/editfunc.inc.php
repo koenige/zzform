@@ -245,9 +245,10 @@ function show_image($path, $record) {
 		if (!isset($root))
 			$img.= $img_src;
 		else			// check whether image exists
-			if (file_exists($root.$root_img_src) && getimagesize($root.$root_img_src)) 
+			if (file_exists($root.'/'.$root_img_src) && getimagesize($root.'/'.$root_img_src)) 
 				$img.= $img_src; // show only images
-			else return false;
+			else
+				return false;
 		$img.= '" alt="'.$alt.'" class="thumb">';
 	}
 	return $img;

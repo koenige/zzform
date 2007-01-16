@@ -99,7 +99,9 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 							foreach ($field['calculation_fields'] as $calc_field)
 								if (!$diff) $diff = strtotime($line[$calc_field]);
 								else $diff -= strtotime($line[$calc_field]);
+							if ($diff < 0) $zz['output'] .= '<em class="negative">';
 							$zz['output'].= gmdate('H:i', $diff);
+							if ($diff < 0) $zz['output'] .= '</em>';
 							if (isset($field['sum']) && $field['sum'] == true) {
 								if (!isset($sum[$field['title']])) $sum[$field['title']] = 0;
 								$sum[$field['title']] += $diff;

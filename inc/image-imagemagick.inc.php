@@ -59,15 +59,13 @@ function imagick_convert($options, $files, $more_options = false, $more_files = 
 	while (!file_exists($path_convert.'/convert')) {
 		$path_convert = $possible_paths[$i];
 		$i++;
-		if ($i > count($possible_paths)) break;
+		if ($i > count($possible_paths) -1) break;
 	}
-	if ($path_convert == '/notexistent') echo 'Configuration error on server: ImageMagick could not be found. Paths tried: '.implode(', '.$possible_paths).'<br>';
+	if ($path_convert == '/notexistent') echo 'Configuration error on server: ImageMagick could not be found. Paths tried: '.implode(', ', $possible_paths).'<br>';
 	$call_convert = $path_convert.'/convert ';
 	$call_convert.= '-'.$options.' ';
 	$call_convert.= ' '.$files.' ';
-	echo $call_convert;
 	$success = exec($call_convert, $return, $return_var);
-	echo '<br>'.$return_var;
 	if ($return) {
 		echo $call_convert;
 		echo '<pre>';
