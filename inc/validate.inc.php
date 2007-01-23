@@ -27,13 +27,18 @@ function checkenum($enum_value, $field, $table) {
 }
 
 function getenums($colum, $table) {
+	global $zz_error;
+	$values = array();
 	$sql = "SHOW COLUMNS FROM $table LIKE '$colum'";
 	$result = mysql_query($sql);
 	if (mysql_num_rows($result)) {
 		$enums = mysql_fetch_row($result);
 		$values = explode("','",preg_replace("/(enum|set)\('(.+?)'\)/","\\2",$enums[1]));
-		return $values;
+	} else {
+		$zz_error['msg'] = 'Admin warning: column name given in table definition might not exist.';
+		// todo: check table definition, whether column exists or not.
 	}
+	return $values;
 }
 
 function zz_check_url($url) {
@@ -58,7 +63,9 @@ function zz_check_url($url) {
 }
 
 function is_url($url) {
+	// todo: give back which part of URL is incorrect
 	$possible_schemes = array('http', 'https', 'ftp', 'gopher');
+	if (!$url) return false;
 	$parts = parse_url($url);
 	if (!$parts) return false;
 	if (empty($parts['scheme']) OR !in_array($parts['scheme'], $possible_schemes))
@@ -77,7 +84,12 @@ function is_url($url) {
 		AND !preg_match("/^[0-9a-z\/_\.@~\-,=]*$/i", $parts['path']))
 		return false;
 	elseif (!empty($parts['query'])
-		AND !eregi( "^[0-9a-z?&=#\,+]*$", $parts['query'], $regs)) // + is a reserved character
+		AND !eregi("^[A-Za-z0-9\-\._~!$&'\(\)\*+,;=:@?\/%]*$", $parts['query'], $regs))
+		// not 100% correct: % must only appear in front of HEXDIG, e. g. %2F
+		// here it may appear in front of any other sign
+		// see 
+		// http://www.ietf.org/rfc/rfc3986.txt and 
+		// http://www.ietf.org/rfc/rfc2234.txt
 		return false;
 	return true;
 }
