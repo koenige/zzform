@@ -28,6 +28,7 @@ lower PHP versions have not been tested
 		$zz_conf['details_base']	array, corresponding to details, does not make use of details as first part of details_url but this field instead
 		$zz_conf['details_url']		what url to follow for detail records					$details_url		
 									may be array e. g. array('field1' => 'fieldname_bla', 'string1' => '/', 'field2' => 'fieldname_blubb') etc.
+		$zz_conf['details_target']	target window for details link	
 		$zz_conf['referer']			referer which links back to previous page				$referer	
 		$zz_conf['add']				do not add data
 
@@ -35,6 +36,7 @@ lower PHP versions have not been tested
 			add_only: only allow to add record, do not show anything else (add new record-link, list table, ...)
 			edit_only: only allow to edit record, do not show anything else (add new record-link, list table, ...)
 			show: only view records
+			edit_details_only: do not edit main record, allow only detail records to be edited, no deletion and adding possible
 		$zz_conf['heading']			optional: h2-heading to be used for form instead of $zz['table']
 		$zz_conf['heading_text']	Textblock after heading
 		$zz_conf['heading_sql']		['heading_sql'][$where_id, without tablename] = zz['fields'][n]['sql'] where n is the index of the field corresponding to the key
@@ -246,6 +248,7 @@ lower PHP versions have not been tested
 			$zz['fields'][n]['order']				set order, e. g. for mixed alpha-numerical strings without preceding zeros
 
 			$zz['fields'][n]['table_name']			Alias if more subtables are included (used for search only, AFAIK)
+			$zz['fields'][n]['access']				values: show; makes a subrecord not editable, just viewable
 
 			$zz['fields'][n]['unique']				if field value is unique, it can be used for where-clauses and will show only one record in display mode, without add new record
 			$zz['fields'][n]['upload_field'] = 8;

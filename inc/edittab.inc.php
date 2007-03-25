@@ -182,7 +182,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 				if ($zz_conf['delete']) $zz['output'].= '&nbsp;| <a href="'.$zz_conf['url_self'].$zz_var['url_append'].'mode=delete&amp;id='.$id.$zz['extraGET'].'">'.$text['delete'].'</a>';
 				if (isset($zz_conf['details'])) {
 					$zz['output'].= '</td><td class="editbutton">';
-					$zz['output'].= show_more_actions($zz_conf['details'], $zz_conf['details_url'],  $zz_conf['details_base'], $id, $line);
+					$zz['output'].= show_more_actions($zz_conf['details'], $zz_conf['details_url'],  $zz_conf['details_base'], $zz_conf['details_target'], $id, $line);
 				}
 				$zz['output'].= '</td>';
 			}
