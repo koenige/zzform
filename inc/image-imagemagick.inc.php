@@ -10,7 +10,7 @@
 
 
 function zz_image_gray($source, $destination, $dest_extension = false, $image = false) {
-	$convert = imagick_convert('colorspace gray', '"'.$source.'" '.($dest_extension 
+	$convert = zz_imagick_convert('colorspace gray', '"'.$source.'" '.($dest_extension 
 		? $dest_extension.':' : '').'"'.$destination.'"');
 	if ($convert) return true;
 	else return false;
@@ -19,7 +19,7 @@ function zz_image_gray($source, $destination, $dest_extension = false, $image = 
 function zz_image_thumbnail($source, $destination, $dest_extension = false, $image = false) {
 	$geometry = (isset($image['width']) ? $image['width'] : '');
 	$geometry.= (isset($image['height']) ? 'x'.$image['height'] : '');
-	$convert = imagick_convert('thumbnail '.$geometry, '"'.$source.'" '.($dest_extension 
+	$convert = zz_imagick_convert('thumbnail '.$geometry, '"'.$source.'" '.($dest_extension 
 		? $dest_extension.':' : '').'"'.$destination.'"');
 	if ($convert) return true;
 	else return false;
@@ -44,13 +44,13 @@ function zz_image_crop($source, $destination, $dest_extension = false, $image = 
 		$options = 'thumbnail '.$image['width'].'x'.$new_height
 			.' -crop '.$image['width'].'x'.$image['height'].'+'.$pos_x.'+'.$pos_y;
 	}
-	$convert = imagick_convert($options	, '"'.$source.'" '.($dest_extension 
+	$convert = zz_imagick_convert($options	, '"'.$source.'" '.($dest_extension 
 		? $dest_extension.':' : '').'"'.$destination.'"');
 	if ($convert) return true;
 	else return false;
 }
 
-function imagick_convert($options, $files, $more_options = false, $more_files = false) {
+function zz_imagick_convert($options, $files, $more_options = false, $more_files = false) {
 	$possible_paths = array('/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/phpbin/im6/',
 		'/usr/phpbin', '/notexistent'); // /usr/phpbin/im6/ for provider Artfiles, project qhz...
 		// phpbin/im6 must be before phpbin

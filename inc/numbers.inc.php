@@ -20,9 +20,9 @@ function datum_de($datum, $param = false) {
 		if (preg_match("/^[0-9]{1,4}$/", $datum)) return $datum; #wenn nur ein bis vier ziffern, d. h. jahr, einfach jahr zurueckgeben
 		$datum_arr = explode("-", $datum);
 		$datum = '';
-		if ($datum_arr[2] != "00")
+		if (isset($datum_arr[2]) && $datum_arr[2] != "00")
 			$datum .= $datum_arr[2].".";
-		if ($datum_arr[1] != "00")
+		if (isset($datum_arr[1]) && $datum_arr[1] != "00")
 			$datum .= $datum_arr[1].".";
 		if (substr($datum_arr[0], 0, 1) == "0" AND substr($datum_arr[0],0,2) != "00")
 			$datum .= substr($datum_arr[0], 1, 4);

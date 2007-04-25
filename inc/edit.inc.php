@@ -61,7 +61,7 @@ function zzform() {
 		? $_GET['mode'] : false;
 
 //	Modules
-	$int_modules = array('geocoords', 'validate', 'export', 'compatibility');
+	$int_modules = array('geo', 'validate', 'export', 'compatibility');
 	$int_modules = zz_add_modules($int_modules, $zz_conf['dir'].'/inc', $zz_conf);
 	$ext_modules = array('markdown', 'textile');
 	$ext_modules = zz_add_modules($ext_modules, $zz_conf['dir_ext'], $zz_conf);
@@ -110,6 +110,7 @@ function zzform() {
 	$zz_default['graphics_library'] = 'imagemagick';
 //	$zz_default['tmp_dir']			= 
 	$zz_default['max_select_val_len']	= 60;		// maximum length of values in select
+	$zz_default['footer_text']		= false;		// text at the end of all
 	$upload_max_filesize = ini_get('upload_max_filesize');
 	switch (substr($upload_max_filesize, strlen($upload_max_filesize)-1)) {
 		case 'G': $upload_max_filesize *= pow(1024, 3); break;
@@ -368,11 +369,13 @@ function zzform() {
 		}
 	}
 	
-	$zz['filetype'] = $zz_conf['export_filetypes'][0]; // default filetype for export
-	if (!empty($_GET['filetype'])) // get filetype for export
-		if (in_array($_GET['filetype'], $zz_conf['export_filetypes']))
-			$zz['filetype'] = $_GET['filetype'];
-	
+	if ($zz['mode'] == 'export') {
+		$zz['filetype'] = $zz_conf['export_filetypes'][0]; // default filetype for export
+		if (!empty($_GET['filetype'])) // get filetype for export
+			if (in_array($_GET['filetype'], $zz_conf['export_filetypes']))
+				$zz['filetype'] = $_GET['filetype'];
+	}
+
 //	Add, Update or Delete
 	
 	fill_out($zz); // set type, title etc. where unset
@@ -506,7 +509,10 @@ function zzform() {
 	if ($zz_conf['list'] AND $zz_conf['show_list'])
 		zz_display_table($zz, $zz_conf, $zz_error, $zz_var, $zz_lines); // shows table with all records (limited by zz_conf['limit'] and add/nav if limit/search buttons)
 
-	if ($zz['mode'] != 'export') $zz['output'].= '</div>';
+	if ($zz['mode'] != 'export') {
+		if ($zz_conf['footer_text']) $zz['output'].= $zz_conf['footer_text'];
+		 $zz['output'].= '</div>';
+	}
 	// Redirect, if wanted.
 	if ($zz['result'])
 		if (!empty($zz_conf['redirect'][$zz['result']])) {

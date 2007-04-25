@@ -39,9 +39,10 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 		$zz['output'].= '<table class="data">';
 		$zz['output'].= '<thead>'."\n";
 		$zz['output'].= '<tr>';
+		$unsortable_fields = array('calculated', 'image', 'upload_image'); // 'subtable'?
 		foreach ($table_query as $field) {
 			$zz['output'].= '<th'.check_if_class($field, (!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : '')).'>';
-			if ($field['type'] != 'calculated' && $field['type'] != 'image' && isset($field['field_name'])) { //  && $field['type'] != 'subtable'
+			if (!in_array($field['type'], $unsortable_fields) && isset($field['field_name'])) { 
 				$zz['output'].= '<a href="';
 				if (isset($field['display_field'])) $order_val = $field['display_field'];
 				else $order_val = $field['field_name'];
