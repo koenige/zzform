@@ -51,9 +51,8 @@ function zz_image_crop($source, $destination, $dest_extension = false, $image = 
 }
 
 function zz_imagick_convert($options, $files, $more_options = false, $more_files = false) {
-	$possible_paths = array('/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/phpbin/im6/',
-		'/usr/phpbin', '/notexistent'); // /usr/phpbin/im6/ for provider Artfiles, project qhz...
-		// phpbin/im6 must be before phpbin
+	$possible_paths = array('/usr/bin', '/usr/sbin', '/usr/local/bin', 
+		'/usr/phpbin', '/notexistent'); 
 	$path_convert = $possible_paths[0];
 	$i = 1;
 	while (!file_exists($path_convert.'/convert')) {
@@ -61,7 +60,10 @@ function zz_imagick_convert($options, $files, $more_options = false, $more_files
 		$i++;
 		if ($i > count($possible_paths) -1) break;
 	}
-	if ($path_convert == '/notexistent') echo 'Configuration error on server: ImageMagick could not be found. Paths tried: '.implode(', ', $possible_paths).'<br>';
+	if ($path_convert == '/notexistent') {
+		echo 'Configuration error on server: ImageMagick could not be found. Paths tried: '.implode(', ', $possible_paths).'<br>';
+		exit;
+	}
 	$call_convert = $path_convert.'/convert ';
 	$call_convert.= '-'.$options.' ';
 	$call_convert.= ' '.$files.' ';

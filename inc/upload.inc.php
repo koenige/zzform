@@ -73,7 +73,7 @@ function zz_upload_delete($zz_tab, $zz_conf) {
 						foreach ($mode as $mymode)
 							$content = $mymode($content);
 					$path.= $content;
-				}
+				} // no else: webroot will be ignored because it's just for webstuff
 				if (file_exists($path) && is_file($path)) {
 					if ($zz_conf['backup'])
 						$success = rename($path, zz_upload_path($zz_conf['backup_dir'], 'delete', $path));
@@ -133,7 +133,7 @@ function zz_upload_write(&$zz_tab, $action, $zz_conf) {
 							foreach ($mode as $mymode)
 								$content = $mymode($content);
 						$old_path.= $content;
-					}
+					} // no else, webroot will be ignored
 				if ($path != $old_path) {
 					$image['files']['update']['path'] = $path; // not necessary maybe, but in case ...
 					$image['files']['update']['old_path'] = $old_path; // too
@@ -164,7 +164,7 @@ function zz_upload_write(&$zz_tab, $action, $zz_conf) {
 							foreach ($mode as $mymode)
 								$content = $mymode($content);
 						$dest .= $content;
-					}
+					} // no else, webroot will be ignored
 				$image['files']['destination'] = $dest; // not necessary, just in case ...
 				$filename = $image['files']['tmp_file'];
 				check_dir(dirname($dest)); // create path if it does not exist

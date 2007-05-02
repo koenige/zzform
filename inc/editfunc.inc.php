@@ -5,7 +5,7 @@
 
 	miscellaneous functions
 	
-	(c) Gustaf Mossakowski <gustaf@koenige.org> 2004-2006
+	(c) Gustaf Mossakowski <gustaf@koenige.org> 2004-2007
 
 */
 
@@ -24,13 +24,13 @@ function zz_error ($zz_error) {
 		$output = '<div class="error">';
 		if ($zz_error['level'] == 'warning') $output.= '<strong>'.$text['Warning'].'!</strong> ';
 		//$output.= $text[$zz_error['msg']];
-		if (trim($zz_error['msg'])) $output.= $zz_error['msg'].'<br>';
+		if (trim($zz_error['msg'])) $output.= $zz_error['msg'];
 		if ($zz_error['mysql']) $sql_output.= $zz_error['mysql'].':<br>';
 		$sql_output.= $zz_error['query'];
 
 		if ($sql_output) {
 			if ($zz_conf['error_handling'] == 'mail' && $zz_conf['error_mail_to']) {
-				$mailtext = strip_tags(str_replace('<br>', "\r\r", $output.$sql_output));
+				$mailtext = strip_tags(str_replace('<br>', "\r\r", $output."\n\r".$sql_output));
 				$mailtext.= "\n\n-- \nURL: http://".$_SERVER['SERVER_NAME']
 					.$_SERVER['REQUEST_URI']
 					."\nIP: ".$_SERVER['REMOTE_ADDR']
@@ -38,7 +38,7 @@ function zz_error ($zz_error) {
 				mail ($zz_conf['error_mail_to'], '['.$zz_conf['project'].']', 
 					$mailtext, 'From: '.$zz_conf['error_mail_from']);
 			} else
-				$output .= $sql_output;
+				$output .= '<br>'.$sql_output;
 		}
 		$output.= '</div>';
 		$zz_error = '';
@@ -216,38 +216,36 @@ function show_image($path, $record) {
 	if ($record) {
 		$img = '<img src="';
 		$alt = $text['no_image'];
-		$img_src = '';
-		$root_img_src = '';
+		$img_src = false;
+		$root = false;
+		$webroot = false;
 		foreach (array_keys($path) as $part) {
-			if (substr($part,0,4) == 'root')
+			if (substr($part, 0, 4) == 'root')
 				$root = $path[$part];
-			elseif (substr($part,0,4) == 'mode') {
+			elseif (substr($part, 0, 7) == 'webroot')
+				$webroot = $path[$part];
+			elseif (substr($part, 0, 4) == 'mode') {
 				$mode[] = $path[$part];
-			} elseif (substr($part,0,5) == 'field') {
+			} elseif (substr($part, 0, 5) == 'field') {
 				if (isset($record[$path[$part]])) {
-					if (!isset($mode)) {
+					if (!isset($mode))
 						$img_src.= $record[$path[$part]];
-						$root_img_src.= $record[$path[$part]];
-					} else {
+					else {
 						$content = $record[$path[$part]];
 						foreach ($mode as $mymode)
 							$content = $mymode($content);
 						$img_src.= $content;
-						$root_img_src.= $content;
 					}
 					$alt = $text['File: '].$record[$path[$part]];
 				} else return false;
-			} else {
-				if ($part != 'string1') $root_img_src .= $path[$part];
+			} else
 				$img_src.= $path[$part];
-			}
 		}
-		if (!isset($root))
-			$img.= $img_src;
-		else			// check whether image exists
-			if (file_exists($root.'/'.$root_img_src) && getimagesize($root.'/'.$root_img_src)) 
-				$img.= $img_src; // show only images
-			else
+		$img.= $webroot.$img_src;
+		if (!empty($root)) // check whether image exists
+			if (!file_exists($root.'/'.$img_src) 	// file does not exist = false
+				OR !filesize($root.'/'.$img_src) 	// filesize is 0 = looks like error
+				OR !getimagesize($root.'/'.$img_src)) // getimagesize test whether it's an image
 				return false;
 		$img.= '" alt="'.$alt.'" class="thumb">';
 	}
@@ -361,17 +359,20 @@ function zz_search_sql($query, $sql, $table) {
 	global $zz_conf;
 	$unsearchable = array('image', 'calculated', 'subtable', 'timestamp', 'upload_image', 'option'); // fields that won't be used for search
 	if (isset($_GET['q'])) {
+		if (get_magic_quotes_gpc())
+			stripslashes($_GET['q']);
+		$qstr = addslashes($_GET['q']);
 		if (isset($_GET['search']))
 			switch ($_GET['search']) {
 				case 'gt':
-					$searchstring = ' > "'.$_GET['q'].'"';
+					$searchstring = ' > "'.$qstr.'"';
 					break;
 				case 'lt';
-					$searchstring = ' < "'.$_GET['q'].'"';
+					$searchstring = ' < "'.$qstr.'"';
 					break;
 			}
 		else
-			$searchstring = ' LIKE "%'.$_GET['q'].'%"';
+			$searchstring = ' LIKE "%'.$qstr.'%"';
 	// Search with q
 		if (isset($_GET['scope']) && $_GET['scope']) {
 			$scope = false;

@@ -584,8 +584,10 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_
 										$my_select[$my_h_field][] = $line;
 									} else
 										$outputf.= draw_select($line, $my['record'], $field, false, 0, false, 'form', $zz_conf_thisrec);
-								if (!empty($field['show_hierarchy']) && $my_select['NULL'])
-									foreach ($my_select['NULL'] AS $my_field)
+								$show_hierarchy_subtree = (!empty($field['show_hierarchy_subtree']) 
+									? $field['show_hierarchy_subtree'] : "NULL");
+								if (!empty($field['show_hierarchy']) && $my_select[$show_hierarchy_subtree])
+									foreach ($my_select[$show_hierarchy_subtree] AS $my_field)
 										$outputf.= draw_select($my_field, $my['record'], $field, $my_select, 0, $field['show_hierarchy'], 'form', $zz_conf_thisrec);
 								elseif (!empty($field['show_hierarchy'])) {
 									$zz_error['msg'] = 'Configuration error: "show_hierarchy" used but there is no highest level in the hierarchy.';

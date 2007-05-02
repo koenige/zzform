@@ -39,6 +39,7 @@ lower PHP versions have not been tested
 			edit_details_only: do not edit main record, allow only detail records to be edited, no deletion and adding possible
 		$zz_conf['heading']			optional: h2-heading to be used for form instead of $zz['table']
 		$zz_conf['heading_text']	Textblock after heading
+		$zz_conf['footer_text']		Textblock at the end of div id zzform
 		$zz_conf['heading_sql']		['heading_sql'][$where_id, without tablename] = zz['fields'][n]['sql'] where n is the index of the field corresponding to the key
 		$zz_conf['heading_enum']	['heading_enum'][$where_id, without tablename] = zz['fields'][n]['enum'] where n is the index of the field corresponding to the key
 		$zz_conf['heading_var']		['heading_var'][$where_id, without tablename] = array() field from heading_sql-query which shall be used for better display of H2 and TITLE blabla:<br>var1 var2 var3
@@ -135,6 +136,7 @@ lower PHP versions have not been tested
 					-> sql_without_id	where['id']-value will be appended automatically
 					-> key_field_name	if where is used and where-key-name is different from key name in sql-query
 					-> show_hierarchy	shows hierarchy in selects, value must be set to corresponding SQL field name
+					-> show_hierarchy_subtree	ID of top hierarchy value, if not set NULL will be used
 					-> add_details
 					-> path_sql		only if this sql query is needed for constructing the extension of a file path
 					-> display_field	field to be displayed instead of ID
@@ -168,6 +170,7 @@ lower PHP versions have not been tested
 			$zz['fields'][n]['title_desc']			description, will always be shown below title in form, values in format will be added automatically (cf. explanation)
 			$zz['fields'][n]['hide_in_list']		field will not be shown in table view
 			$zz['fields'][n]['display_field']		field (from sql query) which will be shown in table (e. g. as replacement for id values)
+			$zz['fields'][n]['display_value']		static value which will be shown in field of type display
 			$zz['fields'][n]['default']				default value for field
 			$zz['fields'][n]['value']				value for field, cannot be changed, overwrites record
 			$zz['fields'][n]['append_next']			false | true; appends next record in form view in the same line
@@ -214,6 +217,7 @@ lower PHP versions have not been tested
 													additional values: 'prefix' for a prefix;
 			$zz['fields'][n]['path']				array, values: 
 				root DOCUMENT_ROOT or path to directory, will be used as a prefix to check whether file_exists or not
+				webroot alternative for DOCUMENT_ROOT on URL basis of the webserver
 				fieldXX will add corresponding field value, 
 				stringXX will add string value, (string1 will be weblink to file, parallel to root)
 				modeXX: functions that will be applied to all field_values
