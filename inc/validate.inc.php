@@ -9,8 +9,6 @@
 
 */
 
-$do_validation = true; // enables validation, just here for backward compatibility AFAIK
-
 function checkmail($cemail) {
 	$cemail = trim($cemail); // spaces never belong to Mailadress
 	if (substr($cemail, 0, 1) == '<' && substr($cemail, strlen($cemail) -1) == '>') 

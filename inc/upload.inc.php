@@ -429,9 +429,12 @@ function zz_check_files($my) {
 function zz_check_upload(&$images, $action, $zz_conf, $input_filetypes = array()) {
 	global $text;
 	$error = false;
-	if ($input_filetypes)
+	if ($input_filetypes) {
 		if (in_array('image/jpeg', $input_filetypes)) 
-			$input_filetypes[] = 'image/pjpeg'; // Internet Explorer renamed this filetype to pjpeg
+			$input_filetypes[] = 'image/pjpeg'; // Internet Explorer treats progressive jpeg separately
+		if (in_array('image/png', $input_filetypes)) 
+			$input_filetypes[] = 'image/x-png'; // Internet Explorer
+	}
 	foreach (array_keys($images) as $key) {
 	//	check if image was uploaded
 		if (!is_numeric($key)) continue; //file_name, title
@@ -460,12 +463,18 @@ function zz_check_upload(&$images, $action, $zz_conf, $input_filetypes = array()
 			}
 			
 	//	check if filetype is allowed
-			if ($input_filetypes && !in_array($images[$key]['upload']['type'], $input_filetypes))
+			if ($input_filetypes && !in_array($images[$key]['upload']['type'], $input_filetypes)) {
 				$images[$key]['error'][] = $text['Error: '].$text['Unsupported filetype:'].' '.$images[$key]['upload']['type']
 				.'<br>'.$text['Supported filetypes are:'].' '.implode(', ', $input_filetypes);
+				$error = true;
+				continue; // do not go on and do further checks, because filetype is wrong anyways
+			}
 	
 	// 	sometimes MIME types are needed for the database, better change unknown MIME types:
-			$unwanted_mime = array('image/pjpeg' => 'image/jpeg'); // Internet Explorer knows progressive JPEG instead of JPEG
+			$unwanted_mime = array(
+				'image/pjpeg' => 'image/jpeg', // Internet Explorer knows progressive JPEG instead of JPEG
+				'image/x-png' => 'image/png'
+			); 
 			if (in_array($images[$key]['upload']['type'], array_keys($unwanted_mime)))
 				$images[$key]['upload']['type'] = $unwanted_mime[$images[$key]['upload']['type']];
 
@@ -473,7 +482,17 @@ function zz_check_upload(&$images, $action, $zz_conf, $input_filetypes = array()
 			$width_height = array('width', 'height');
 			foreach ($width_height as $which)
 				if (!empty($images[$key]['min_'.$which]) && $images[$key]['min_'.$which] > $images[$key]['upload'][$which])
-					$images[$key]['error'][] = $text['Error: '].$text['Minimum '.$which.' was not reached.'].' ('.$images[$key]['min_'.$which].'px)';
+					$images[$key]['error'][] = $text['Error: ']
+						.sprintf($text['Minimum '.$which.' %s was not reached.'], '('.$images[$key]['min_'.$which].'px)')
+						.' ('.$images[$key]['upload'][$which].'px)';
+
+	//	check if maximal image size has not been exceeded
+			$width_height = array('width', 'height');
+			foreach ($width_height as $which)
+				if (!empty($images[$key]['max_'.$which]) && $images[$key]['max_'.$which] < $images[$key]['upload'][$which])
+					$images[$key]['error'][] = $text['Error: ']
+						.sprintf($text['Maximum '.$which.' %s has been exceeded.'], '('.$images[$key]['max_'.$which].'px)')
+						.' ('.$images[$key]['upload'][$which].'px)';
 	
 		}
 		if ($images[$key]['error']) $error = true;

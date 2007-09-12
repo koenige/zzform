@@ -93,12 +93,20 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 					$my['POST'][$my['fields'][$f]['field_name']] = str_replace(',', '.', $my['POST'][$my['fields'][$f]['field_name']]) * $my['fields'][$f]['factor'];
 	
 			//	md5 encrypt passwords, only for changed passwords! therefore string is compared against old pwd
+				// action=update: here, we have to check whether submitted password is equal to password in db
+				// if so, password won't be touched
+				// if not, password will be md5 encrypted
+				// action=insert: password will be md5 encrypted
 				if ($my['fields'][$f]['type'] == 'password')
 					if ($my['POST'][$my['fields'][$f]['field_name']])
-						if (!isset($my['POST'][$my['fields'][$f]['field_name'].'--old'])
-							|| ($my['POST'][$my['fields'][$f]['field_name']] != $my['POST'][$my['fields'][$f]['field_name'].'--old']))
+						if ($my['action'] == 'insert')
 							$my['POST'][$my['fields'][$f]['field_name']] = md5($my['POST'][$my['fields'][$f]['field_name']]);
-		
+						elseif ($my['action'] == 'update') {
+							if (!isset($my['POST'][$my['fields'][$f]['field_name'].'--old'])
+							|| ($my['POST'][$my['fields'][$f]['field_name']] != $my['POST'][$my['fields'][$f]['field_name'].'--old']))
+								$my['POST'][$my['fields'][$f]['field_name']] = md5($my['POST'][$my['fields'][$f]['field_name']]);
+						}
+	
 			//	change md5 encrypted password
 				if ($my['fields'][$f]['type'] == 'password_change') {
 					$pwd = false;

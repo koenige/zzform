@@ -28,6 +28,7 @@ function zz_image_thumbnail($source, $destination, $dest_extension = false, $ima
 function zz_image_crop($source, $destination, $dest_extension = false, $image = false) {
 // example: convert -thumbnail x240 -crop 240x240+140x0 reiff-pic09b.jpg test.jpg
 	$dest_ratio = $image['width'] / $image['height'];
+	if (!$image['upload']['height']) return false; // no height means no picture or error
 	$source_ratio = $image['upload']['width'] / $image['upload']['height'];
 	if ($dest_ratio == $source_ratio)
 		$options = 'thumbnail '.$image['width'].'x'.$image['height'];

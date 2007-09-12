@@ -91,7 +91,9 @@ function field_in_where($field, $values) {
 }
 
 function check_maxlength($field, $maintable) {
+	global $zz_conf;
 	$sql = 'SHOW COLUMNS FROM '.$maintable.' LIKE "'.$field.'"';
+	if ($zz_conf['debug_allsql']) echo "<div>check_maxlength_query:<br /><pre>$sql</pre></div>";
 	$result = mysql_query($sql);
 	if ($result)
 		if (mysql_num_rows($result) == 1) {
@@ -128,6 +130,7 @@ function check_if_class ($field, $values) {
 		if (isset($field['field_name'])) // does not apply for subtables!
 			if (field_in_where($field['field_name'], $values)) 
 				$class[] = 'where';
+	if (!empty($field['class'])) $class[] = $field['class'];
 	if ($class) return (' class="'.implode(' ',$class).'"');
 	else return false;
 }
@@ -277,7 +280,8 @@ function show_link($path, $record) {
 	return $link;
 }
 
-function show_more_actions($more_actions, $more_actions_url, $more_actions_base, $more_actions_target, $id, $line = '') {
+function show_more_actions($more_actions, $more_actions_url, $more_actions_base, 
+		$more_actions_target, $more_actions_referer, $id, $line = false) {
 	$act = false;
 	foreach ($more_actions as $key => $new_action) {
 		$output = false;
@@ -301,7 +305,8 @@ function show_more_actions($more_actions, $more_actions_url, $more_actions_base,
 				$output.= $more_actions_url;
 		else $output.= '.php?id=';
 		if (!isset($more_actions_url) OR !is_array($more_actions_url)) $output.= $id;
-		$output.= '&amp;referer='.urlencode($_SERVER['REQUEST_URI']).'"'
+		$output.= ($more_actions_referer ? '&amp;referer='.urlencode($_SERVER['REQUEST_URI']) : '')
+			.'"'
 			.(!empty($more_actions_target) ? ' target="'.$more_actions_target.'"' : '')
 			.'>'.$new_action.'</a>';
 		$act[] = $output;
@@ -401,7 +406,10 @@ function zz_search_sql($query, $sql, $table) {
 			$sql = zz_edit_sql($sql, 'WHERE', $q_search);
 		}
 	}
-	if ($zz_conf['debug']) echo 'Search query: '.$sql.'<br>';
+	if ($zz_conf['debug']) {
+		global $zz;
+		$zz['output'] .= 'Search query: '.$sql.'<br>';
+	}
 	return $sql;
 }
 
@@ -459,6 +467,7 @@ function zz_limit($step, $this_limit, $count_rows, $sql, $zz_lines, $scope) {
 		AND ($step != $zz_lines)) {
 		$next = false;
 		$prev = false;
+		if ($zz_conf['debug_allsql']) echo "<div>zz_limit_query:<br/><pre>" .preg_replace('/LIMIT \d+, \d+/i', '', $sql). "</pre></div>";
 		$result = mysql_query(preg_replace('/LIMIT \d+, \d+/i', '', $sql));
 		if ($result) $total_rows = mysql_num_rows($result);
 		if ($total_rows) {
@@ -524,6 +533,7 @@ function zz_limit($step, $this_limit, $count_rows, $sql, $zz_lines, $scope) {
 }
 
 function limitlink($i, $limit, $step, $uri) {
+	global $zz_conf;
 	if ($i == -1) {  // all records
 		if (!$limit) return false;
 		else $limit_new = 0;
@@ -533,9 +543,11 @@ function limitlink($i, $limit, $step, $uri) {
 		elseif (!$limit_new) return false; // 0 does not exist, means all records
 	}
 	$uriparts = parse_url($uri);
-	if (isset($uriparts['query'])) $uri.= '&amp;';
-	else $uri.= '?';
-	$uri .= 'limit='.$limit_new;
+	if ($limit_new != $zz_conf['limit']) {
+		if (isset($uriparts['query'])) $uri.= '&amp;';
+		else $uri.= '?';
+		$uri .= 'limit='.$limit_new;
+	}
 	return '<a href="'.$uri.'">';
 }
 
@@ -580,6 +592,7 @@ function zz_get_subqueries($subqueries, $zz, &$zz_tab, $zz_conf) {
 }
 
 function zz_subqueries($i, $min, $details, $sql, $subtable, $zz_tab) {
+	global $zz_conf;
 	// $subtable is branch of $zz with all data for specific subtable
 	// function will be run twice from edit.inc, therefore be careful, programmer!
 	global $zz_error;
@@ -588,7 +601,7 @@ function zz_subqueries($i, $min, $details, $sql, $subtable, $zz_tab) {
 	if (isset($_POST[$subtable['table_name']]))
 		$myPOST = $_POST[$subtable['table_name']];
 	else
-		$myPOST = false;
+		$myPOST = array();
 	$deleted_ids = (!empty($my['deleted']) ? $my['deleted'] : array());
 	foreach ($subtable['fields'] as $field)
 		if (isset($field['type']) && $field['type'] == 'id') $id_field_name = $field['field_name'];
@@ -618,6 +631,7 @@ function zz_subqueries($i, $min, $details, $sql, $subtable, $zz_tab) {
 		}
 	if ($sql) {
 		$c_sql = zz_edit_sql($zz_tab[$i]['sql'], 'WHERE', $zz_tab[0]['table'].'.'.$zz_tab[0][0]['id']['field_name'].' = "'.$zz_tab[0][0]['id']['value'].'"');
+		if ($zz_conf['debug_allsql']) echo "<div>zz_subquery:<br /><pre>$c_sql</pre></div>";
 		$result = mysql_query($c_sql);
 		if ($result) if (mysql_num_rows($result))
 			while ($line = mysql_fetch_array($result)) 
@@ -676,6 +690,7 @@ function zz_subqueries($i, $min, $details, $sql, $subtable, $zz_tab) {
 function zz_requery_record($my, $validation, $sql, $table, $mode) {
 	global $text;
 	global $zz_error;
+	global $zz_conf;
 	/*
 		if everything was successful, requery record (except in case it was deleted)
 		if not, change formhead and write POST values back into form
@@ -692,6 +707,7 @@ function zz_requery_record($my, $validation, $sql, $table, $mode) {
 			if ($mode != 'add' OR $my['action']) {
 				if ($my['id']['value']) {
 					$sql_edit = zz_edit_sql($sql, 'WHERE', $table.'.'.$my['fields'][1]['field_name']." = '".$my['id']['value']."'");
+					if ($zz_conf['debug_allsql']) echo "<div>zz_requery_record:<br /><pre>$sql_edit</pre></div>";
 					$result_edit = mysql_query($sql_edit);
 					if ($result_edit) {
 						if (mysql_num_rows($result_edit) == 1)
@@ -699,6 +715,7 @@ function zz_requery_record($my, $validation, $sql, $table, $mode) {
 						// else $zz_error['msg'].= 'Error in Database. Possibly the SQL
 						// statement is incorrect: '.$sql_edit;
 					} else {
+						if ($zz_conf['debug_allsql']) echo "<div>Huch! Ein Fehler:<br /><pre>$sql_edit</pre></div>";
 						$zz_error['msg'] = $text['error-sql-incorrect'];
 						$zz_error['mysql'] .= mysql_error();
 						$zz_error['query'] .= $sql_edit;
@@ -707,12 +724,19 @@ function zz_requery_record($my, $validation, $sql, $table, $mode) {
 					$my['record'] = false;
 			}
 		} else {
-			if (isset($my['POST-notvalid']))
-				$my['record'] = $my['POST-notvalid'];
-			else
-				$my['record'] = $my['POST'];
+			$my['record'] = (isset($my['POST-notvalid']) ? $my['POST-notvalid'] : $my['POST']);
+			
+		//	get record for display fields and maybe others
+			$my['record_saved'] = false;
+			$sql_edit = zz_edit_sql($sql, 'WHERE', $table.'.'.$my['fields'][1]['field_name']." = '".$my['id']['value']."'");
+			$result_edit = mysql_query($sql_edit);
+			if ($result_edit) if (mysql_num_rows($result_edit) == 1)
+				$my['record_saved'] = mysql_fetch_assoc($result_edit);
+
+		//	display form again			
 			$my['formhead'] = 'Review record';
-			$my['action'] = 'review';	// display form again
+			$my['action'] = 'review';
+
 		//	print out all records which were wrong, set class to error
 			$validate_errors = false;
 			foreach (array_keys($my['fields']) as $qf) {
@@ -861,8 +885,10 @@ function zz_create_identifier($vars, $my, $table, $field, $conf) {
 }
 
 function zz_exists_identifier($idf, $i, $table, $field, $id_field, $id_value, $con_exists = '.', $maxlength = false) {
+	global $zz_conf;
 	$sql = 'SELECT '.$field.' FROM '.$table.' WHERE '.$field.' = "'.$idf.'"
 		AND '.$id_field.' != '.$id_value;
+	if ($zz_conf['debug_allsql']) echo "<div>zz_exists_identifier_query:<br /><pre>$sql</pre></div>";
 	$result = mysql_query($sql);
 	if ($result) if (mysql_num_rows($result)) {
 		if ($i > 2)	$idf = substr($idf, 0, strrpos($idf, $con_exists));
@@ -970,6 +996,7 @@ function zz_check_select($my, $f, $max_select) {
 		}
 	$sql.= $wheresql.')';
 	if ($sqlorder) $sql.= $sqlorder;
+	if ($zz_conf['debug_allsql']) echo "<div>zz_check_select query:<br /><pre>$sql</pre></div>";
 	$result = mysql_query($sql);
 	if ($zz_conf['debug']) {
 		echo '<div class="debug">';
@@ -1048,6 +1075,7 @@ function zz_check_password($old, $new1, $new2, $sql) {
 }
 
 function zz_get_identifier_sql_vars($sql, $id, $fieldname = false) {
+	global $zz_conf;
 	$line = false;
 	$line[$fieldname] = false;
 	$sqlp = explode(' ORDER BY ', $sql);
@@ -1057,7 +1085,8 @@ function zz_get_identifier_sql_vars($sql, $id, $fieldname = false) {
 	$sqlc = explode(' ', $sql); // get first token
 	if (substr($sqlc[1], strlen($sqlc[1])-1) == ',') $sqlc[1] = substr($sqlc[1], 0, strlen($sqlc[1])-1);
 	$sql.= $sqlc[1].' = '.$id; // first token is always ID field
-	if ($sqlp[1]) $sql.= ' ORDER BY '.$sqlp[1];
+	if (!empty($sqlp[1])) $sql.= ' ORDER BY '.$sqlp[1];
+	if ($zz_conf['debug_allsql']) echo "<div>zz_get_identifier_sql_vars query:<br /><pre>$sql</pre></div>";
 	$result = mysql_query($sql);
 	if ($result) if (mysql_num_rows($result) == 1)
 		$line = mysql_fetch_assoc($result);
@@ -1120,6 +1149,7 @@ function zz_get_identifier_vars(&$my, $f) {
 }
 
 function zz_nice_headings(&$zz_fields, &$zz_conf, &$zz_error) {
+	global $zz_conf;
 	foreach (array_keys($_GET['where']) as $mywh) {
 		$wh = explode('.', $mywh);
 		if (!isset($wh[1])) $index = 0; // without .
@@ -1140,6 +1170,7 @@ function zz_nice_headings(&$zz_fields, &$zz_conf, &$zz_error) {
 					if (isset($field['key_field_name']))
 						$wh_sql = str_replace($wh[$index], $field['key_field_name'], $wh_sql);
 		//	do query
+			if ($zz_conf['debug_allsql']) echo "<div>zz_nice_headings query:<br /><pre>$wh_sql</pre></div>";
 			$result = mysql_query($wh_sql);
 			if (!$result) {
 				$zz_error['msg'] = 'Error';

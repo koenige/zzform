@@ -13,15 +13,16 @@ lower PHP versions have not been tested
 
 	$zz_conf - configuration variables
 		$zz_conf['dir']				directory in which zzform resides in
+		$zz_conf['tmp_dir']			TemporŠres Verzeichnis fŸr Bilduploads
 		$zz_conf['language']		language of zzform
 		$zz_conf['search']			search records possible or not
 		$zz_conf['delete']			delete records possible or not
 		$zz_conf['view']			view records, this will only be enabled if edit records is turned off
 		$zz_conf['do_validation']	backwards compatiblity to old edit.inc, to be removed in the future
 		$zz_conf['limit']			display only limited amount of records (20)
-	$zz_default['limit_show_range'] = 800;		// range in which links to records around current selection will be shown
+		$zz_conf['limit_show_range'] = 800;		// range in which links to records around current selection will be shown
 		$zz_conf['show_list']		display list of records in database
-		$zz_conf['list']			?
+		$zz_conf['list_display']	form of list display, defaults to table, other possibilities include "ul"
 		$zz_conf['show_output']		
 		$zz_conf['url_self']		own url or target url									$self
 		$zz_conf['details']			column details; links to detail records with foreign key	$details	
@@ -29,6 +30,7 @@ lower PHP versions have not been tested
 		$zz_conf['details_url']		what url to follow for detail records					$details_url		
 									may be array e. g. array('field1' => 'fieldname_bla', 'string1' => '/', 'field2' => 'fieldname_blubb') etc.
 		$zz_conf['details_target']	target window for details link	
+		$zz_conf['details_referer']	// add referer to details link
 		$zz_conf['referer']			referer which links back to previous page				$referer	
 		$zz_conf['add']				do not add data
 
@@ -76,6 +78,7 @@ lower PHP versions have not been tested
 		$zz_conf['graphics_library'] graphics library used for image manipulation (imagemagick is default, others are currently not supported)
 		$zz_conf['max_select_val_len']	maximum length of values in select, default = 60
 		$zz_conf['debug']			debugging mode, shows several debugging outputs
+		$zz_conf['debug_allsql']	shows even more sql queries. squeezes all of them out of zzform. (all but some password related queries)
 		$zz_conf['upload_MAX_FILE_SIZE'] in bytes, default is value from php.ini
 		$zz_conf['max_select']		configures the maximum entries in a select-dialog, if there are more entries, an empty input field will be provided
 		$zz_conf['redirect']['successful_update']	redirect to this URL (local, starting with / or full qualified URI) when this event occurs
@@ -142,9 +145,14 @@ lower PHP versions have not been tested
 					-> display_field	field to be displayed instead of ID
 				image
 					-> path			syntax = see below
+					-> default_image	in case, path leads to no existing image, use this as a default_image (full path only)
 				upload_image
 					-> path
 					-> image
+					-> max_width
+					-> min_width
+					-> max_height
+					-> min_height
 				display				column for display only
 					-> display_field
 				option				column to choose an option, won't be saved to database
@@ -223,6 +231,7 @@ lower PHP versions have not been tested
 				modeXX: functions that will be applied to all field_values
 				e. g. array('field1' => 'fieldname_bla', 'string1' => '/', 'field2' => 'fieldname_blubb') etc.
 			$zz['fields'][n]['sql_password_check']	query to check existing password
+
 			$zz['fields'][n]['options']				together with enum-array; values from enum-array will have to be set as pairs
 													e. g. enum-value proportional will be an array in options, first is key which will be added to image, second is corresponding value
 													['options'] = array('proportional' => array('key' => 'value')); existing keys will be overwritten
@@ -231,7 +240,7 @@ lower PHP versions have not been tested
 				width
 				height
 				field_name
-				path
+				path (last field/string part must be file extension only! three letters with dot in case of string, field without dot!)
 				required (true | false)
 				source (if no extra upload field shall be shown)
 				options (key value, reads options from this field, overwrite existing keys, options will only be read once)
@@ -240,6 +249,16 @@ lower PHP versions have not been tested
 				auto_size_tolerance (default 15, value in px for auto_size function)
 				action (what to do with image, functions in image-[library].inc.php)
 				ignore (true | false, true = field will be ignored)
+				max_width			max width in px of uploaded image (only applicable for n2-Fields without 'source')
+				min_width			min width in px of uploaded image (only applicable for n2-Fields without 'source')
+				max_height			max height in px of uploaded image (only applicable for n2-Fields without 'source')
+				min_height			min height in px of uploaded image (only applicable for n2-Fields without 'source')
+
+			$zz['fields'][n]['subselect']['sql']	For subtables. SQL-Select query, foreign_key must be included, shows detail records in list view as well.
+			$zz['fields'][n]['subselect']['prefix'] = '<p>'
+			$zz['fields'][n]['subselect']['suffix'] = '</p>'
+			$zz['fields'][n]['subselect']['concat_rows'] = "</p>\n<p>"
+			$zz['fields'][n]['subselect']['concat\_fields'] = ' ' 
 
 		$zz_tab[1]['table']
 		$zz_tab[1]['no']			= n in $zz['fields'][n]
@@ -266,6 +285,7 @@ lower PHP versions have not been tested
 				size	from upload
 				width	getimgsize orig. image
 				height	getimgsize orig. image
+				type_ext	mimetype + extension, e. g. application/octet-stream/dwg
 				exif[FileName]
 				exif[FileSize] ...
 			$zz['fields'][n]['upload_sql'] = 'SELECT ... WHERE ... = '; // uses upload_value to get value for this field

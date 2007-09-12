@@ -89,7 +89,7 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var) {
 			$output.= '</td></tr>'."\n";
 			$output.= '</tfoot>'."\n";
 		} else {
-			if ($zz_conf_thisrec['list']) {
+			if ($zz_conf_thisrec['access'] != 'add_only') {
 				$output.= '<tfoot>'."\n";
 				$output.= '<tr><th>&nbsp;</th> <td class="reedit">';
 				if ($zz_conf_thisrec['edit']) {
@@ -98,17 +98,18 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var) {
 				}
 				$output.= '</td></tr>'."\n";
 				if (isset($zz_conf_thisrec['details'])) {
-					$output.= '<tr><th>&nbsp;</th><td class="editbutton">';
-					if (isset($my_tab[0][0]['POST']))
-						$output.= show_more_actions($zz_conf_thisrec['details'], $zz_conf_thisrec['details_url'], $zz_conf_thisrec['details_base'], $zz_conf_thisrec['details_target'], $my_tab[0][0]['id']['value'], $my_tab[0][0]['POST']);
-					else
-						$output.= show_more_actions($zz_conf_thisrec['details'], $zz_conf_thisrec['details_url'], $zz_conf_thisrec['details_base'], $zz_conf_thisrec['details_target'], $my_tab[0][0]['id']['value']);
-					$output.= '</td></tr>'."\n";
+					$output.= '<tr><th>&nbsp;</th><td class="editbutton">'
+						.show_more_actions($zz_conf_thisrec['details'], 
+						$zz_conf_thisrec['details_url'], $zz_conf_thisrec['details_base'], 
+						$zz_conf_thisrec['details_target'], $zz_conf_thisrec['details_referer'],
+						$my_tab[0][0]['id']['value'], 
+						(!empty($my_tab[0][0]['POST']) ? $my_tab[0][0]['POST'] : false))
+						.'</td></tr>'."\n";
 				}
 				$output.= '</tfoot>'."\n";
 			}
 		}
-		$output.= zz_show_field_rows($my_tab, 0, 0, $zz['mode'], $display, $zz_var, $zz_conf_thisrec);
+		$output.= zz_show_field_rows($my_tab, 0, 0, $zz['mode'], $display, $zz_var, $zz_conf_thisrec, $zz['action']);
 		$output.= '</table>'."\n";
 		if ($zz['mode'] == 'delete') $output.= '<input type="hidden" name="'.$my_tab[0][0]['id']['field_name'].'" value="'.$my_tab[0][0]['id']['value'].'">'."\n";
 		if ($zz['mode'] && $zz['mode'] != 'review' && $zz['mode'] != 'show') {
@@ -142,9 +143,10 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var) {
 	return $output;
 }
 
-function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_thisrec) {
+function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_thisrec, $action) {
 	global $text;
 	global $zz_error;
+	global $zz_conf;	// Config variables
 	$output = '';
 	$append_next = '';
 	$my = $my_tab[$i][$k];
@@ -184,13 +186,13 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_
 						&& empty($field['dont_delete_records']))
 						$output.= '<input type="submit" value="-" class="sub-remove" name="subtables[remove]['.$field['subtable'].']['.$mytable_no.']">';
 					$output.= '<table>'; 
-					$output.= zz_show_field_rows($my_tab, $field['subtable'], $mytable_no, $mode, $st_display, $zz_var, $zz_conf_thisrec);
+					$output.= zz_show_field_rows($my_tab, $field['subtable'], $mytable_no, $mode, $st_display, $zz_var, $zz_conf_thisrec, $action);
 					$output.= '</table>';
 				}
 			}
 			if ($st_display == 'form' && $field['explanation']) $output.= '<p class="explanation">'.$field['explanation'].'</p>';
 			$output.= '</td></tr>';
-		} elseif (!($field['type'] == 'id' AND !$zz_conf_thisrec['list']) AND $field['type'] != 'foreign_key') {
+		} elseif ($field['type'] != 'foreign_key') {
 //	"Normal" field
 			if ($field['type'] == 'option') {
 				if ($mode != 'edit' AND $mode != 'add') continue; // options will only be shown in edit mode
@@ -236,8 +238,9 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_
 			if ($field['type'] == 'time') $field['size'] = 8;
 			if ($field['maxlength'] && $field['maxlength'] < $field['size']) $field['size'] = $field['maxlength'];
 			if ($my['record'] && isset($field['factor']) && $my['record'][$field['field_name']])
-				if (!is_array($my['record'][$field['field_name']])) // for incorrect values
+				if (!is_array($my['record'][$field['field_name']]) && !$action) {// for incorrect values; !action means only divide once
 					$my['record'][$field['field_name']] /=$field['factor'];
+				}
 			if (isset($field['auto_value'])) {
 				if ($field['auto_value'] == 'increment') {
 					/*	added 2004-12-06
@@ -297,8 +300,21 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_
 					if ($my['record']) {
 						if (isset($field['timestamp']) && $field['timestamp'])
 							$outputf.= timestamp2date($my['record'][$field['field_name']]);
-						elseif (isset($field['display_field'])) $outputf.= htmlspecialchars($my['record'][$field['display_field']]);
-						else $outputf.= htmlspecialchars($my['record'][$field['field_name']]);
+						elseif (isset($field['display_field'])) {
+							if (!empty($my['record'][$field['display_field']]))
+								$outputf.= htmlspecialchars($my['record'][$field['display_field']]);
+							elseif (!empty($my['record_saved'][$field['display_field']]))
+								$outputf.= htmlspecialchars($my['record_saved'][$field['display_field']]);
+							else
+								$outputf.= '('.$text['will_be_added_automatically'].')&nbsp;';
+						} else {
+							if (!empty($my['record'][$field['field_name']]))
+								$outputf.= htmlspecialchars($my['record'][$field['field_name']]);
+							elseif (!empty($my['record_saved'][$field['field_name']]))
+								$outputf.= htmlspecialchars($my['record_saved'][$field['field_name']]);
+							else
+								$outputf.= '('.$text['will_be_added_automatically'].')&nbsp;';
+						}
 					} else
 						$outputf.= '('.$text['will_be_added_automatically'].')&nbsp;';
 					break;
@@ -307,7 +323,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_
 					if (isset($field['value'])) $outputf.= $field['value'];
 					elseif ($my['record']) $outputf.= $my['record'][$field['field_name']];
 					$outputf.= '" name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">';
-					if ($my['record'])
+					if ($my['record'] && !empty($my['record'][$field['field_name']]))
 						$outputf.= timestamp2date($my['record'][$field['field_name']]);
 					else
 						$outputf.= '('.$text['will_be_added_automatically'].')&nbsp;';
@@ -365,7 +381,10 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_
 							if ($result_detail) {
 								if (mysql_num_rows($result_detail) == 1)
 									$outputf .= implode(' | ', mysql_fetch_row($result_detail));
-							} else $outputf.= zz_error($zz_error = array('mysql' => mysql_error(), 'query' => $mysql, 'msg' => $text['error-sql-incorrect']));
+							} else {
+								if ($zz_conf['debug_allsql']) echo "<div>a cool piece of query ... but buggy!:<br /><pre>$mysql</pre></div>";
+								$outputf.= zz_error($zz_error = array('mysql' => mysql_error(), 'query' => $mysql, 'msg' => $text['error-sql-incorrect']));
+								}
 						} elseif (isset($field['enum'])) {
 							$outputf.= $zz_var['where'][$table_name][$field['field_name']];
 						}
@@ -381,11 +400,14 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_
 						if ($row_display == 'form') $outputf.= 'value="'.$my['record'][$field['field_name']].'"';
 						else $outputf .= '('.$text['hidden'].')';
 					if ($row_display == 'form') $outputf.= '>';
-					if ($my['record'] && $row_display == 'form') $outputf .=
+					if ($my['record'] && $row_display == 'form' && $action != 'insert') { $outputf .=
 						'<input type="hidden" name="'.$field['f_field_name'].
-						'--old" value="'.$my['record'][$field['field_name']].'">';
-						// this is for validation purposes - if old and new value are identical
+						'--old" value="'.(!empty($my['record'][$field['field_name'].'--old']) ? $my['record'][$field['field_name'].'--old'] : $my['record'][$field['field_name']]).'">';
+						// this is for validation purposes
+						// take saved password (no matter if it's interefered with maliciously by user - worst case, pwd will be useless)
+						// - if old and new value are identical
 						// do not apply md5 encoding to password
+					}
 					break;
 				case 'password_change':
 					if ($row_display == 'form') {
@@ -536,8 +558,11 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_
 										// might be that there are more results, so that should not be a problem
 											$index = mysql_result($result_detail,0,0);
 										//else $outputf.= $sql_where[2];
-									} else $outputf.= zz_error($zz_error = array('mysql' => mysql_error(), 'query' => $sql_where[2], 
-										'msg' => $text['error-sql-incorrect']));
+									} else {
+										if ($zz_conf['debug_allsql']) echo "<div>damned...there was an error in this query:<br /><pre>".$sql_where[2]."</pre></div>";
+										$outputf.= zz_error($zz_error = array('mysql' => mysql_error(), 'query' => $sql_where[2], 
+											'msg' => $text['error-sql-incorrect']));
+									}
 								}
 								$my_where[] = $sql_where[0]." = '".$index."'";
 								$add_details_where .= '&amp;where['.$sql_where[0].']='.$index;
@@ -545,7 +570,10 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_
 							$field['sql'] = zz_edit_sql($field['sql'], 'WHERE', implode(' AND ', $my_where));
 						}
 						$result_detail = mysql_query($field['sql']);
-						if (!$result_detail) $outputf.= zz_error($zz_error = array('mysql' => mysql_error(), 'query' => $field['sql'], 'msg' => $text['error-sql-incorrect']));
+						if (!$result_detail){
+							if ($zz_conf['debug_allsql']) echo "<div>Errors are bad... :<br /><pre>".$field['sql']."</pre></div>";
+							$outputf.= zz_error($zz_error = array('mysql' => mysql_error(), 'query' => $field['sql'], 'msg' => $text['error-sql-incorrect']));
+						}
 						elseif ($row_display == 'form' && mysql_num_rows($result_detail) == 1 && !checkfornull($field['field_name'], $my_tab[$i]['table'])) {
 							// there is only one result in the array, and this will be pre-selected because FIELD must not be NULL
 							$line = mysql_fetch_array($result_detail); // need both numeric and assoc keys
@@ -708,14 +736,20 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_
 				case 'display':
 					if (isset($field['display_value']))
 						$outputf .= $field['display_value']; // internationalization has to be done in zz-fields-definition
-					elseif ($my['record'])
-						if (isset($field['display_field']))
-							$outputf .= $my['record'][$field['display_field']];
-						elseif (isset($field['field_name']))
-							$outputf .= htmlspecialchars($my['record'][$field['field_name']]);
-						else
+					elseif ($my['record']) {
+						if (isset($field['display_field'])) {
+							if (!empty($my['record'][$field['display_field']]))
+								$outputf .= $my['record'][$field['display_field']];
+							elseif (!empty($my['record_saved'][$field['display_field']])) // empty for new record
+								$outputf .= $my['record_saved'][$field['display_field']]; // requery
+						} elseif (isset($field['field_name'])) {
+							if (!empty($my['record'][$field['field_name']]))
+								$outputf .= htmlspecialchars($my['record'][$field['field_name']]);
+							elseif (!empty($my['record_saved'][$field['field_name']])) // empty if new record!
+								$outputf .= htmlspecialchars($my['record_saved'][$field['field_name']]);
+						} else
 							$outputf .= '<span class="error">'.$text['Script configuration error. No display field set.'].'</span>'; // debug!
-					else $outputf .= $text['N/A'];
+					} else $outputf .= $text['N/A'];
 					break;
 				case 'calculated':
 					if (!$mode OR $mode == 'show') {
