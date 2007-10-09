@@ -258,25 +258,31 @@ function show_image($path, $record) {
 function show_link($path, $record) {
 	$link = false;
 	$modes = false;
-	if ($record)
-		foreach (array_keys($path) as $part)
-			if (substr($part, 0, 5) == 'field') {
-				if ($modes) {
-					$myval = $record[$path[$part]];
-					foreach ($modes as $mode)
-						if (function_exists($mode))
-							$myval = $mode($myval);
-						else {
-							echo 'Configuration Error: mode with not-existing function';
-							exit;
-						}
-					$link.= $myval;
-					$modes = false;
-				} else
-					$link.= $record[$path[$part]];
-			} elseif (substr($part, 0, 4) == 'mode') {
-				$modes[] = $path[$part];
-			} else $link.= $path[$part];
+	if (!$record) return false;
+	
+	$root = false;
+	foreach (array_keys($path) as $part)
+		if (substr($part, 0, 4) == 'root')
+			$root = $path[$part];
+		elseif (substr($part, 0, 5) == 'field') {
+			if ($modes) {
+				$myval = $record[$path[$part]];
+				foreach ($modes as $mode)
+					if (function_exists($mode))
+						$myval = $mode($myval);
+					else {
+						echo 'Configuration Error: mode with not-existing function';
+						exit;
+					}
+				$link.= $myval;
+				$modes = false;
+			} else
+				$link.= $record[$path[$part]];
+		} elseif (substr($part, 0, 4) == 'mode') {
+			$modes[] = $path[$part];
+		} else $link.= $path[$part];
+	if ($root && !file_exists($root.$link))
+		return false;
 	return $link;
 }
 

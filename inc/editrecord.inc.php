@@ -22,15 +22,17 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 	global $text;
 	global $zz_error;
 	//	### Check for validity, do some operations ###
-	foreach (array_keys($zz_tab) as $i)
+	// currently, upload fields only possible for main table
+	if (!empty($upload_form)) {// do only for zz_tab 0 0 etc. not zz_tab 0 sql, not for subtables
+		zz_upload_get($zz_tab, 0, 0); // read upload image information, as required
+		zz_upload_prepare($zz_tab, $zz_conf); // read upload image information, as required
+	}
+	foreach (array_keys($zz_tab) as $i) {
+		if (!isset($zz_tab[$i]['table_name'])) 
+			$zz_tab[$i]['table_name'] = $zz_tab[$i]['table'];		
 		foreach (array_keys($zz_tab[$i]) as $k) {
-			if (!isset($zz_tab[$i]['table_name'])) 
-				$zz_tab[$i]['table_name'] = $zz_tab[$i]['table'];
-			if (!empty($upload_form) && !$i && !$k) {// do only for zz_tab 0 0 etc. not zz_tab 0 sql, not for subtables
-				zz_upload_get($zz_tab[$i][$k], $zz_tab[0][0]['action'], $zz_tab[0]['sql'], $zz_tab, $zz_tab[$i]['table']); // read upload image information, as required
-				zz_upload_prepare($zz_tab, $zz_conf); // read upload image information, as required
-			}
-			if ($i && is_numeric($k)) {
+			if (!is_numeric($k)) continue;
+			if ($i) {
 				// only if $i and $k != 0, i. e. only for subtables!
 				// assign $_POST to subtable array
 				$zz_tab[$i][$k]['POST'] = $_POST[$zz['fields'][$zz_tab[$i]['no']]['table_name']][$k];
@@ -38,34 +40,34 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 				$zz_tab[$i][$k] = zz_set_subrecord_action($zz_tab[$i][$k], $zz_tab, $i, $zz);
 				if (!$zz_tab[$i][$k]) unset($zz_tab[$i][$k]);
 			}
-			if (isset($zz_tab[$i][$k]))
-				if ($zz_tab[$i][$k]['action'] == 'insert' OR $zz_tab[$i][$k]['action'] == 'update') {
-				// do something with the POST array before proceeding
-					if (empty($zz_tab[$i][$k]['access']) 
-						|| $zz_tab[$i][$k]['access'] != 'show' ) // don't validate record which only will be shown!!
-						$zz_tab[$i][$k] = zz_validate($zz_tab[$i][$k], $zz_conf, $zz_tab[$i]['table'], $zz_tab[$i]['table_name']); 
-				} elseif (is_numeric($k))
-				//	Check referential integrity
-					if (file_exists($zz_conf['dir'].'/inc/integrity.inc.php')) {
-						include_once($zz_conf['dir'].'/inc/integrity.inc.php');
-				//test
-						$record_idfield = $zz_tab[$i][$k]['id']['field_name'];
-						$detailrecords = '';
-						if ($subqueries) foreach ($subqueries as $subkey) {
-							$det_key = $zz['fields'][$subkey]['table'];
-							if (!strstr('.', $det_key)) $det_key = $zz_conf['db_name'].'.'.$det_key;
-							$detailrecords[$det_key]['table'] = $zz['fields'][$subkey]['table'];
-							$detailrecords[$det_key]['sql'][] = $zz['fields'][$subkey]['sql']; // might be more than one detail record from the same table
-						}
-						if (!$zz_tab[$i][$k]['no-delete'] = check_integrity($zz_conf['db_name'], $zz_tab[$i]['table'], $record_idfield, $zz_tab[$i][$k]['POST'][$record_idfield], $zz_conf['relations_table'], $detailrecords))
-						// todo: remove db_name maybe?
-							$zz_tab[$i][$k]['validation'] = true;
-						else {
-							$zz_tab[$i][$k]['validation'] = false;
-							$zz['no-delete'][] = $i.','.$k;
-						}
+			if ($zz_tab[$i][$k]['action'] == 'insert' OR $zz_tab[$i][$k]['action'] == 'update') {
+			// do something with the POST array before proceeding
+				if (empty($zz_tab[$i][$k]['access']) 
+					|| $zz_tab[$i][$k]['access'] != 'show' ) // don't validate record which only will be shown!!
+					$zz_tab[$i][$k] = zz_validate($zz_tab[$i][$k], $zz_conf, $zz_tab[$i]['table'], $zz_tab[$i]['table_name']); 
+			} elseif (is_numeric($k))
+			//	Check referential integrity
+				if (file_exists($zz_conf['dir'].'/inc/integrity.inc.php')) {
+					include_once($zz_conf['dir'].'/inc/integrity.inc.php');
+			//test
+					$record_idfield = $zz_tab[$i][$k]['id']['field_name'];
+					$detailrecords = '';
+					if ($subqueries) foreach ($subqueries as $subkey) {
+						$det_key = $zz['fields'][$subkey]['table'];
+						if (!strstr('.', $det_key)) $det_key = $zz_conf['db_name'].'.'.$det_key;
+						$detailrecords[$det_key]['table'] = $zz['fields'][$subkey]['table'];
+						$detailrecords[$det_key]['sql'][] = $zz['fields'][$subkey]['sql']; // might be more than one detail record from the same table
 					}
+					if (!$zz_tab[$i][$k]['no-delete'] = check_integrity($zz_conf['db_name'], $zz_tab[$i]['table'], $record_idfield, $zz_tab[$i][$k]['POST'][$record_idfield], $zz_conf['relations_table'], $detailrecords))
+					// todo: remove db_name maybe?
+						$zz_tab[$i][$k]['validation'] = true;
+					else {
+						$zz_tab[$i][$k]['validation'] = false;
+						$zz['no-delete'][] = $i.','.$k;
+					}
+				}
 		}
+	}
 
 	foreach ($zz_tab as $subtab) foreach (array_keys($subtab) as $subset)
 		if (is_numeric($subset))

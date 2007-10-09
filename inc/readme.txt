@@ -183,10 +183,14 @@ lower PHP versions have not been tested
 			$zz['fields'][n]['value']				value for field, cannot be changed, overwrites record
 			$zz['fields'][n]['append_next']			false | true; appends next record in form view in the same line
 			$zz['fields'][n]['title_append']		title for several records which will be in one line
-			$zz['fields'][n]['add_details']			add detail records in different table, attention: current input will not be saved.
+			$zz['fields'][n]['add_details']			add detail records in different table, attention: current input will not be saved. Field gets ID #zz_add_details_x_y_z where x is table no [0...n], y is for subtable no [0 if main table, else 0...n] z is field number in zz-array
+			$zz['fields'][n]['add_details_target']	target window for add_details
 			$zz['fields'][n]['explanation']			explanation how to fill in values in this field, will only be shown in edit or insert mode
 			$zz['fields'][n]['link']				link in list to record
 													may be array, then it works with field, mode and string (field1, field2, mode1, ...) see also: path
+													if root is set, link will be looked for in filesystem. if not existent, returns false (no link)
+			$zz['fields'][n]['link_title']			title for link in list to record
+													may be array, then it works with field and string (field1, field2, string1, ...) see also: path
 			$zz['fields'][n]['link_no_append']		don't append record id to link
 			$zz['fields'][n]['link_target']			target="$value" for link
 			$zz['fields'][n]['null']				value might be 0 or '', won't be set to NULL
@@ -231,6 +235,7 @@ lower PHP versions have not been tested
 				modeXX: functions that will be applied to all field_values
 				e. g. array('field1' => 'fieldname_bla', 'string1' => '/', 'field2' => 'fieldname_blubb') etc.
 			$zz['fields'][n]['sql_password_check']	query to check existing password
+			$zz['fields'][n]['hide_in_form']		hides field in form, but not in list. 
 
 			$zz['fields'][n]['options']				together with enum-array; values from enum-array will have to be set as pairs
 													e. g. enum-value proportional will be an array in options, first is key which will be added to image, second is corresponding value
@@ -253,7 +258,9 @@ lower PHP versions have not been tested
 				min_width			min width in px of uploaded image (only applicable for n2-Fields without 'source')
 				max_height			max height in px of uploaded image (only applicable for n2-Fields without 'source')
 				min_height			min height in px of uploaded image (only applicable for n2-Fields without 'source')
-
+				show_link			shows for files without thumbnails link to file (form: long with filename, list: short with title as linktext)
+				input_filetypes		allowed input_filetypes, e. g. pdf, jpeg, doc, ...
+				
 			$zz['fields'][n]['subselect']['sql']	For subtables. SQL-Select query, foreign_key must be included, shows detail records in list view as well.
 			$zz['fields'][n]['subselect']['prefix'] = '<p>'
 			$zz['fields'][n]['subselect']['suffix'] = '</p>'

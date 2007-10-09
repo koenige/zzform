@@ -22,7 +22,7 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 				$input_filetypes = (isset($my['fields'][$f]['input_filetypes']) 
 					? $my['fields'][$f]['input_filetypes'] 
 					: array());
-				if (!zz_check_upload($my['images'][$f], $my['action'], $zz_conf, $input_filetypes)) {
+				if (!zz_upload_check($my['images'][$f], $my['action'], $zz_conf, $input_filetypes)) {
 					$my['validation'] = false;
 					$my['fields'][$f]['check_validation'] = false;
 				}

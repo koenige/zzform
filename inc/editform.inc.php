@@ -155,6 +155,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_
 	$row_display = (!empty($my['access']) ? $my['access'] : $display); // this is for 0 0 main record
 
 	foreach ($my['fields'] as $fieldkey => $field) {
+		if (!empty($field['hide_in_form'])) continue;
 		$outputf = '';
 		// $i means subtable, since main table has $i = 0
 		if ($i) $field['f_field_name'] = $my_tab[$i]['table_name'].'['.$k.']['.$field['field_name'].']';
@@ -238,7 +239,10 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_
 			if ($field['type'] == 'time') $field['size'] = 8;
 			if ($field['maxlength'] && $field['maxlength'] < $field['size']) $field['size'] = $field['maxlength'];
 			if ($my['record'] && isset($field['factor']) && $my['record'][$field['field_name']])
-				if (!is_array($my['record'][$field['field_name']]) && !$action) {// for incorrect values; !action means only divide once
+				if (!is_array($my['record'][$field['field_name']]) 
+					&& (!$action OR $display == 'review')) {
+					// for incorrect values; !action means only divide once
+					// for review, e. g. if record has been updated, division has to be done to show the correct value	
 					$my['record'][$field['field_name']] /=$field['factor'];
 				}
 			if (isset($field['auto_value'])) {
@@ -714,22 +718,38 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_
 						} else {
 							$image_uploads = 0;
 							foreach ($field['image'] as $imagekey => $image)
-								if (isset($image['source']))
-									$image_uploads++;
-							if (count($image_uploads) > 1) $outputf.= '<table class="upload">';
+								if (!isset($image['source'])) $image_uploads++;
+							if ($image_uploads > 1) $outputf.= '<table class="upload">';
 							foreach ($field['image'] as $imagekey => $image) {
 								if (!isset($image['source'])) {
 									// todo: if only one image, table is unneccessary
 									// title and field_name of image might be empty
-									if (count($image_uploads) > 1) $outputf.= '<tr><th>'.$image['title'].'</th> <td>';
+									if ($image_uploads > 1) $outputf.= '<tr><th>'.$image['title'].'</th> <td>';
 									$outputf .= '<input type="file" name="'.$field['field_name'].'['.$image['field_name'].']">';
+									if ($link = show_link($image['path'], (isset($my['record_saved']) ? $my['record_saved'] : $my['record'])))
+										$outputf .= '<br><a href="'.$link.'">'.$link.'</a>' ;
 									if (!empty($my['images'][$fieldkey][$imagekey]['error']))
 										$outputf.= '<br><small>'.implode('<br>', $my['images'][$fieldkey][$imagekey]['error']).'</small>';
 									if ($row_display == 'form' && !empty($image['explanation'])) $outputf.= '<p class="explanation">'.$image['explanation'].'</p>';
-									if (count($image_uploads) > 1) $outputf.= '</td></tr>'."\n";
+									if ($image_uploads > 1) $outputf.= '</td></tr>'."\n";
 								}
 							}
-							if (count($image_uploads) > 1) $outputf.= '</table>';
+							if ($image_uploads > 1) $outputf.= '</table>';
+						}
+					} else {
+						$image_uploads = 0;
+						foreach ($field['image'] as $imagekey => $image)
+							if (!isset($image['source'])) $image_uploads++;
+						if ($image_uploads > 1) {
+							$outputf.= '<table class="upload">';
+							foreach ($field['image'] as $imagekey => $image)
+								if (!isset($image['source']))
+									if ($link = show_link($image['path'], $my['record'])) {
+										$outputf.= '<tr><th>'.$image['title'].'</th> <td>';
+										$outputf .= '<a href="'.$link.'">'.$link.'</a>';
+										$outputf.= '</td></tr>'."\n";
+									}
+							$outputf.= '</table>';
 						}
 					}
 					break;
@@ -786,7 +806,11 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_
 			if ($mode && $mode != 'delete' && $mode != 'show'  && $mode != 'review')
 				if (isset($field['add_details'])) {
 					$add_details_sep = (strstr($field['add_details'], '?') ? '&amp;' : '?');
-					$outputf.= ' <a href="'.$field['add_details'].$add_details_sep.'mode=add&amp;referer='.urlencode($_SERVER['REQUEST_URI']).$add_details_where.'">['.$text['new'].' &hellip;]</a>';
+					$outputf.= ' <a href="'.$field['add_details'].$add_details_sep
+						.'mode=add&amp;referer='.urlencode($_SERVER['REQUEST_URI'])
+						.$add_details_where.'"'
+						.(!empty($field['add_details_target']) ? ' target="'.$field['add_details_target'].'"' : '')
+						.' id="zz_add_details_'.$i.'_'.$k.'_'.$fieldkey.'">['.$text['new'].' &hellip;]</a>';
 				}
 			if ($outputf && $outputf != ' ') {
 				if (isset($field['prefix'])) $output.= ' '.$field['prefix'].' ';

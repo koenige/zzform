@@ -8,6 +8,73 @@
 
 */
 
+//      GIF*  rw+  
+//   GIF87*  rw-  CompuServe graphics interchange format (version 87a)
+
+/*
+
+$bla = array(
+	1 => array('type' => 'gif', 'ext' => 'gif', 'mime' => 'image/gif', 
+	'imagick_format' => 'GIF', 'imagick_mode' = 'rw+', 
+	'imagick_desc' => 'CompuServe graphics interchange format (LZW disabled)')
+	2 => array('type' => 'gif', 'ext' => 'gif', 'mime' => 'image/gif', 
+	'imagick_format' => 'GIF', 'imagick_mode' = 'rw+', 
+	'imagick_desc' => 'CompuServe graphics interchange format (LZW disabled)')
+);
+*/
+
+function zz_imagick_identify($source) {
+/*
+
+	type			Filetype
+	ext				Extension
+	imagick_format	ImageMagick_Format
+	imagick_mode	ImageMagick_Mode
+	imagick_desc	ImageMagick_Description
+	mime			MimeType
+
+	identify -list Format
+	      XMP*  rw-  Adobe XML metadata
+	identify "phoomap bg.psd"
+	phoomap bg.psd PSD 100x100+0+0 PseudoClass 256c 8-bit 23.9kb 0.000u 0:01
+
+*/
+
+	// 19.09.07 19:45
+
+	global $zz_conf;
+	if (!file_exists($source)) return false;
+	if ($last_dir = array_pop($zz_conf['imagemagick_paths']) != '/notexistent') {
+		$zz_conf['imagemagick_paths'][] = $zz_conf['imagemagick_paths'];
+		$zz_conf['imagemagick_paths'][] = '/notexistent';
+	}
+	$path_identify = $zz_conf['imagemagick_paths'][0];
+	$i = 1;
+	while (!file_exists($path_identify.'/identify')) {
+		$path_identify = $zz_conf['imagemagick_paths'][$i];
+		$i++;
+		if ($i > count($zz_conf['imagemagick_paths']) -1) break;
+	}
+	if ($path_identify == '/notexistent') {
+		echo 'Configuration error on server: ImageMagick "identify" could not be found. Paths tried: '.implode(', ', $zz_conf['imagemagick_paths']).'<br>';
+		exit;
+	}
+	$call_identify = $path_identify.'/identify "'.$source.'"';	
+	exec($call_identify, $output, $return_var);
+	if (!$output) return false;
+	$image = false;
+	foreach ($output as $line) {
+		// just check first line
+		if (substr($line, 0, strlen($source)) == $source) {
+			preg_match('/^ (\w+) (\d+)x(\d+).*$/', substr($line, strlen($source)), $image);
+		}
+	}	
+	//$myimage = $bla[$image[1]];
+	$myimage['width'] = $image[2];
+	$myimage['height'] = $image[3];
+	$myimage['validated'] = true;
+}
+
 
 function zz_image_gray($source, $destination, $dest_extension = false, $image = false) {
 	$convert = zz_imagick_convert('colorspace gray', '"'.$source.'" '.($dest_extension 
@@ -52,17 +119,20 @@ function zz_image_crop($source, $destination, $dest_extension = false, $image = 
 }
 
 function zz_imagick_convert($options, $files, $more_options = false, $more_files = false) {
-	$possible_paths = array('/usr/bin', '/usr/sbin', '/usr/local/bin', 
-		'/usr/phpbin', '/notexistent'); 
-	$path_convert = $possible_paths[0];
+	global $zz_conf;
+	if ($last_dir = array_pop($zz_conf['imagemagick_paths']) != '/notexistent') {
+		$zz_conf['imagemagick_paths'][] = $zz_conf['imagemagick_paths'];
+		$zz_conf['imagemagick_paths'][] = '/notexistent';
+	}
+	$path_convert = $zz_conf['imagemagick_paths'][0];
 	$i = 1;
 	while (!file_exists($path_convert.'/convert')) {
-		$path_convert = $possible_paths[$i];
+		$path_convert = $zz_conf['imagemagick_paths'][$i];
 		$i++;
-		if ($i > count($possible_paths) -1) break;
+		if ($i > count($zz_conf['imagemagick_paths']) -1) break;
 	}
 	if ($path_convert == '/notexistent') {
-		echo 'Configuration error on server: ImageMagick could not be found. Paths tried: '.implode(', ', $possible_paths).'<br>';
+		echo 'Configuration error on server: ImageMagick could not be found. Paths tried: '.implode(', ', $zz_conf['imagemagick_paths']).'<br>';
 		exit;
 	}
 	$call_convert = $path_convert.'/convert ';

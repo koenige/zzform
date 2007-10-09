@@ -52,6 +52,7 @@ function zzform() {
 	$zz_default['debug']			= false;					// turn on/off debugging mode
 	$zz_default['debug_allsql']		= false;	
 	$zz_default['dir_ext']			= $zz_conf['dir'].'/ext';	// directory for extensions
+	$zz_default['ext_modules']		= array('markdown', 'textile');
 	foreach (array_keys($zz_default) as $key)					// create conf from defaults
 		if (!isset($zz_conf[$key])) 
 			$zz_conf[$key] = $zz_default[$key];
@@ -70,13 +71,15 @@ function zzform() {
 		? $_GET['mode'] : false;
 
 //	Modules
-	$int_modules = array('geo', 'validate', 'export', 'compatibility');
+	// todo: include modules geo and upload only if corresponding fields are defined, 
+	// see $upload_form as a way how to do that.
+	$int_modules = array('geo', 'validate', 'export', 'compatibility', 'upload');
 	$int_modules = zz_add_modules($int_modules, $zz_conf['dir'].'/inc', $zz_conf);
-	$ext_modules = array('markdown', 'textile');
-	$ext_modules = zz_add_modules($ext_modules, $zz_conf['dir_ext'], $zz_conf);
+	$ext_modules = zz_add_modules($zz_conf['ext_modules'], $zz_conf['dir_ext'], $zz_conf);
 	$zz_conf['modules'] = $int_modules['modules'];
 	foreach ($int_modules['vars'] as $index => $var)			// import variables from internal modules
 		if (is_array($var)) $$index = array_merge($$index, $var);
+
 	$zz_conf['ext_modules'] = $ext_modules['modules'];
 		
 	$zz_default['view']				= false;	// 						show Action: View
@@ -100,8 +103,6 @@ function zzform() {
 	$zz_default['relations_table'] 	= '_relations';	//	name of relations table for referential integrity
 	$zz_default['logging'] 			= false;	//	if logging should occur, turned off by default 
 	$zz_default['logging_table'] 	= '_logging';	//	name of table where INSERT, DELETE and UPDATE actions will be logged
-	$zz_default['backup'] 			= false;	//	backup uploaded files?
-	$zz_default['backup_dir'] 		= $zz_conf['dir'].'/backup';	//	directory where backup will be put into
 	$zz_default['prefix'] 			= false;	//	prefix for ALL tables like zz_
 	$zz_default['max_select'] 		= 60;		//	maximum entries in select/option, if bigger than sub-select
 	$zz_default['user']				= '';	// character set
@@ -115,19 +116,10 @@ function zzform() {
 	$zz_default['details_referer']	= true;								// add referer to details link
 	$zz_default['additional_text']	= false;
 	$zz_default['lang_dir']			= $zz_conf['dir'].'/local';			// directory for additional text
-	$zz_default['tmp_dir']			= false;
 	$zz_default['access']			= 'all';			// edit_only, add_only, show
-	$zz_default['graphics_library'] = 'imagemagick';
 //	$zz_default['tmp_dir']			= 
 	$zz_default['max_select_val_len']	= 60;		// maximum length of values in select
 	$zz_default['footer_text']		= false;		// text at the end of all
-	$upload_max_filesize = ini_get('upload_max_filesize');
-	switch (substr($upload_max_filesize, strlen($upload_max_filesize)-1)) {
-		case 'G': $upload_max_filesize *= pow(1024, 3); break;
-		case 'M': $upload_max_filesize *= pow(1024, 2); break;
-		case 'K': $upload_max_filesize *= pow(1024, 1); break;
-	}
-	$zz_default['upload_MAX_FILE_SIZE']	= $upload_max_filesize;
 	$zz_default['redirect']['successful_update'] = false;	// redirect to diff. page after update
 	$zz_default['redirect']['successful_insert'] = false;	// redirect to diff. page after insert
 	$zz_default['redirect']['successful_delete'] = false;	// redirect to diff. page after delete
@@ -158,10 +150,11 @@ function zzform() {
 	if ($zz_conf['additional_text'] AND file_exists($langfile = $zz_conf['lang_dir'].'/text-en.inc.php')) 
 		include $langfile; // must not be include_once since $text is cleared beforehands
 
-	if ($zz_conf['upload_MAX_FILE_SIZE'] > $upload_max_filesize) {
-		$zz_error['msg'] .= 'Value for upload_max_filesize from php.ini is smaller than value which is set in the script. The value from php.ini will be used. To upload bigger files, please adjust your configuration settings.';
-		$zz_conf['upload_MAX_FILE_SIZE'] = $upload_max_filesize;
-	}
+	if (in_array('upload', $zz_conf['modules']))
+		if ($zz_conf['upload_MAX_FILE_SIZE'] > $zz_conf['upload_ini_max_filesize']) {
+			$zz_error['msg'] .= 'Value for upload_max_filesize from php.ini is smaller than value which is set in the script. The value from php.ini will be used. To upload bigger files, please adjust your configuration settings.';
+			$zz_conf['upload_MAX_FILE_SIZE'] = $zz_conf['upload_ini_max_filesize'];
+		}
 	
 //	Optional files
 	if (isset($zz_conf['language']) && $zz_conf['language'] != 'en') {	// text in other languages
@@ -288,7 +281,6 @@ function zzform() {
 				$zz_tab[0][0]['id']['field_name'] = $zz['fields'][$i]['field_name'];
 			elseif (substr($zz['fields'][$i]['type'], 0, 7) == 'upload_') {// at least one upload field adds enctype-field to form
 				$upload_form = true;
-				include_once $zz_conf['dir'].'/inc/upload.inc.php';
 			}
 		}
 	if (empty($upload_form)) unset($zz_conf['upload']); // values are not needed
@@ -390,9 +382,9 @@ function zzform() {
 		if ((!$zz_conf['delete'] && $zz['mode'] == 'delete') // protection from URL manipulation
 			OR (!$zz_conf['edit'] && $zz['mode'] == 'edit')) {
 			$zz['mode'] = 'show';
-		} elseif (!$zz_conf['add'] && $zz['mode'] == 'add') {
-			$zz['mode'] = false;
-		}
+		} //elseif (!$zz_conf['add'] && $zz['mode'] == 'add') {
+		//	$zz['mode'] = false;
+		//}
 	}
 	
 	if ($zz['mode'] == 'export') {
@@ -505,7 +497,7 @@ function zzform() {
 	//
 	} else
 		$display = false;
-
+	
 	if ($zz_tab[0][0]['id']['where']) { // ??? in case of where and not unique, ie. only one record in table, don't do this.
 		$zz_conf['show_list'] = false;		// don't show table
 		$zz_conf['add'] = false;			// don't show add new record

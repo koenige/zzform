@@ -141,7 +141,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 								if (!$diff) $diff = strtotime($line[$calc_field]);
 								else $diff -= strtotime($line[$calc_field]);
 							if ($diff < 0) $rows[$z][$fieldindex]['text'] .= '<em class="negative">';
-							$rows[$z][$fieldindex]['text'].= gmdate('H:i', $diff);
+							$rows[$z][$fieldindex]['text'].= hours($diff);
 							if ($diff < 0) $rows[$z][$fieldindex]['text'] .= '</em>';
 							if (isset($field['sum']) && $field['sum'] == true) {
 								if (!isset($sum[$field['title']])) $sum[$field['title']] = 0;
@@ -161,13 +161,18 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 						break;
 					case 'image':
 					case 'upload_image':
-						if (isset($field['path']))
+						if (isset($field['path'])) {
 							if ($img = show_image($field['path'], $line))
 								$rows[$z][$fieldindex]['text'].= ($link ? $link : '').$img.($link ? '</a>' : '');
 							elseif (isset($field['default_image']))
 								$rows[$z][$fieldindex]['text'].= ($link ? $link : '').'<img src="'
 									.$field['default_image'].'"  alt="'.$text['no_image']
 									.'" class="thumb">'.($link ? '</a>' : '');
+							foreach ($field['image'] as $image)
+								if (!empty($image['show_link']))
+									if ($link = show_link($image['path'], $line))
+										$rows[$z][$fieldindex]['text'] .= ' <a href="'.$link.'">'.$image['title'].'</a><br>' ;
+						}
 						break;
 					case 'subtable':
 						if (!empty($field['subselect']['sql'])) {
@@ -215,6 +220,8 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 							} elseif (isset($field['number_type']) && $field['number_type'] == 'longitude' &&  $line[$field['field_name']]) {
 								$deg = dec2dms('', $line[$field['field_name']]);
 								$rows[$z][$fieldindex]['text'].= $deg['longitude_dms'];
+							} elseif (!empty($field['display_value'])) {
+								$rows[$z][$fieldindex]['text'].= $field['display_value'];
 							} else $rows[$z][$fieldindex]['text'].= nl2br(htmlchars($line[$field['field_name']]));
 						}
 						if ($link) $rows[$z][$fieldindex]['text'].= '</a>';
