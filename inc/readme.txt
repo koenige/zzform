@@ -15,7 +15,7 @@ lower PHP versions have not been tested
 		$zz_conf['dir']				directory in which zzform resides in
 		$zz_conf['tmp_dir']			TemporŠres Verzeichnis fŸr Bilduploads
 		$zz_conf['language']		language of zzform
-		$zz_conf['search']			search records possible or not
+		$zz_conf['search']			search records possible or not (true or bottom: below list, top = above list, both = below and above list)
 		$zz_conf['delete']			delete records possible or not
 		$zz_conf['view']			view records, this will only be enabled if edit records is turned off
 		$zz_conf['do_validation']	backwards compatiblity to old edit.inc, to be removed in the future
@@ -133,6 +133,7 @@ lower PHP versions have not been tested
 					-> format
 				select
 					-> enum			array for enum, default value with 'default' should be set as well
+						-> 'show_values_as_list'	puts all values in a radio button list, not in select/option-elements
 					-> set			array for set
 					-> sql			SQL-Query for select, first field is key field which will not be displayed but entered into database field
 					-> sql_where	adds where to sql-string, rather complicated ... :-)
@@ -176,6 +177,7 @@ lower PHP versions have not been tested
 				
 			$zz['fields'][n]['title']				title of field, will be shown in form and table [optional, value will be generated from field_name if not set]
 			$zz['fields'][n]['title_desc']			description, will always be shown below title in form, values in format will be added automatically (cf. explanation)
+			$zz['fields'][n]['title_tab']			title in table display (optional, default = 'title'), e. g. for abbreviations to save place
 			$zz['fields'][n]['hide_in_list']		field will not be shown in table view
 			$zz['fields'][n]['display_field']		field (from sql query) which will be shown in table (e. g. as replacement for id values)
 			$zz['fields'][n]['display_value']		static value which will be shown in field of type display
@@ -186,6 +188,7 @@ lower PHP versions have not been tested
 			$zz['fields'][n]['add_details']			add detail records in different table, attention: current input will not be saved. Field gets ID #zz_add_details_x_y_z where x is table no [0...n], y is for subtable no [0 if main table, else 0...n] z is field number in zz-array
 			$zz['fields'][n]['add_details_target']	target window for add_details
 			$zz['fields'][n]['explanation']			explanation how to fill in values in this field, will only be shown in edit or insert mode
+			$zz['fields'][n]['explanation_top']		same as explanation, this will show up above the form element, not below.
 			$zz['fields'][n]['link']				link in list to record
 													may be array, then it works with field, mode and string (field1, field2, mode1, ...) see also: path
 													if root is set, link will be looked for in filesystem. if not existent, returns false (no link)
@@ -203,6 +206,7 @@ lower PHP versions have not been tested
 			$zz['fields'][n]['suffix_function_var']	parameters for suffix-function to form view	(array)
 			$zz['fields'][n]['prefix']				adds prefix-string to form view	
 			$zz['fields'][n]['exclude_from_search']	search will do no operations in this field
+			$zz['fields'][n]['separator']			true: will put a separation between fields, to improve form layout.
 
 		//--> depending on type of field, see -> above
 

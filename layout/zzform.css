@@ -3,7 +3,6 @@
 #zzform {z-index: 3;}
 
 #zzform .nobr {white-space: nowrap;}
-#zzform table td {padding: .2em;}
 div.text #zzform	 {padding: 1em;}
 	
 #zzform #record table {margin: 0 0 1em 0;}
@@ -48,8 +47,10 @@ div.text #zzform	 {padding: 1em;}
 
 #zzform #record tbody tr:first-child td {border-top: none;}
 
-#zzform .error {background-color: red; color: white; padding: .25em;}
-#zzform div.error {margin: 1em 0;}
+#zzform .error {background-color: #F00; color: white; padding: .25em;  }
+#zzform div.error {margin: 1em 0; padding-left: .75em;}
+
+
 #zzform #record .error td, #zzform #record .error th,
 #zzform #record .subtable .error td, #zzform #record .subtable .error th,
 #zzform #record .error .subtable td, #zzform #record .error .subtable  th  {
@@ -70,6 +71,7 @@ div.text #zzform	 {padding: 1em;}
 #zzform .level2 {color: #339;}
 #zzform .level3 {font-style: italic;}
 
+#zzform .sub-add {text-align: left;}
 #zzform .sub-add input {float: right; font-weight: bold; background-color: green; 
 	color: white; margin-left: .5em;}
 #zzform .subtable input.sub-remove {background-color: red; color: white; float: left; 
@@ -94,3 +96,9 @@ div.text #zzform	 {padding: 1em;}
 #zzform #record .upload {padding-bottom: 0; margin-bottom: 0;}
 
 #zzform .option th {font-weight: normal; text-align: right;}
+
+#zzform .zz_radio_list {list-style: none; padding: 0; margin: 0;}
+#zzform .zz_radio_list li {list-style: none; padding: 0; margin: 0;}
+#zzform .separator hr {width: 100%; margin: 0.25em 0; height: 3px;
+	background-color: #FFF; color: #FFF; border: #FFF;}
+#zzform #record td.separator {padding: .25em 0;}

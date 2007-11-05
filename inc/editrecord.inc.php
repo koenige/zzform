@@ -21,6 +21,7 @@
 function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subqueries) {
 	global $text;
 	global $zz_error;
+	
 	//	### Check for validity, do some operations ###
 	// currently, upload fields only possible for main table
 	if (!empty($upload_form)) {// do only for zz_tab 0 0 etc. not zz_tab 0 sql, not for subtables
@@ -38,7 +39,10 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 				$zz_tab[$i][$k]['POST'] = $_POST[$zz['fields'][$zz_tab[$i]['no']]['table_name']][$k];
 				// set action field in zz_tab-array, 
 				$zz_tab[$i][$k] = zz_set_subrecord_action($zz_tab[$i][$k], $zz_tab, $i, $zz);
-				if (!$zz_tab[$i][$k]) unset($zz_tab[$i][$k]);
+				if (!$zz_tab[$i][$k]) {
+					unset($zz_tab[$i][$k]); // empty subtable, not needed
+					continue;
+				}
 			}
 			if ($zz_tab[$i][$k]['action'] == 'insert' OR $zz_tab[$i][$k]['action'] == 'update') {
 			// do something with the POST array before proceeding
@@ -297,11 +301,14 @@ function zz_set_subrecord_action($subtable, &$zz_tab, $i, &$zz) {
 			$zz_tab[$i]['deleted'][] = $subtable['id']['value']; // only for requery record on error!
 		} else
 			$subtable = false;
+	
 	if ($zz_tab[0][0]['action'] == 'delete') 
-		if ($subtable['id']['value'])
+		if ($subtable['id']['value'] 			// is there a record?
+			&& empty($zz['fields'][$zz_tab[$i]['no']]['keep_detailrecord_shown']))		
 			$subtable['action'] = 'delete';
-		else
+		else									// no data in subtable
 			$subtable = false;
+
 	return $subtable;
 }
 

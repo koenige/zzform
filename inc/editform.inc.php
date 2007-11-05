@@ -149,11 +149,11 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_
 	global $zz_conf;	// Config variables
 	$output = '';
 	$append_next = '';
+	$append_next_type = '';
 	$my = $my_tab[$i][$k];
 	$firstrow = true;
 	$table_name = (!empty($my_tab[$i]['table_name']) ? $my_tab[$i]['table_name'] : $my_tab[$i]['table']);
 	$row_display = (!empty($my['access']) ? $my['access'] : $display); // this is for 0 0 main record
-
 	foreach ($my['fields'] as $fieldkey => $field) {
 		if (!empty($field['hide_in_form'])) continue;
 		$outputf = '';
@@ -176,6 +176,8 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_
 			if (!empty($field['title_desc']) && $st_display == 'form') 
 				$output.= '<p class="desc">'.$field['title_desc'].'</p>';
 			$output.= '</th><td class="subtable">';
+			if ($st_display == 'form' && !empty($field['explanation_top'])) 
+				$output.= '<p class="explanation">'.$field['explanation_top'].'</p>';
 			$subtables = array_keys($my_tab[$field['subtable']]);
 			foreach (array_keys($subtables) as $index)
 				if (!is_numeric($subtables[$index])) unset($subtables[$index]);
@@ -193,6 +195,8 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_
 			}
 			if ($st_display == 'form' && $field['explanation']) $output.= '<p class="explanation">'.$field['explanation'].'</p>';
 			$output.= '</td></tr>';
+			if (!empty($field['separator']))
+				$output.= '<tr><td colspan="2" class="separator"><hr></td></tr>'."\n";
 		} elseif ($field['type'] != 'foreign_key') {
 //	"Normal" field
 			if ($field['type'] == 'option') {
@@ -290,6 +294,9 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_
 			// output all records
 			//
 			
+			if ($row_display == 'form' && !empty($field['explanation_top']))
+				$output.= '<p class="explanation">'.$field['explanation_top'].'</p>';
+
 			switch ($field['type']) {
 				case 'id':
 					if ($my['id']['value']) $outputf.= '<input type="hidden" value="'.$my['id']['value'].'" name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">'.$my['id']['value'];
@@ -665,12 +672,14 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_
 						$outputf.=$myvalue;
 					} elseif (isset($field['enum'])) {
 						$myi = 0;
+						$sel_option = (count($field['enum']) <=2 ? true : (!empty($field['show_values_as_list']) ? true : false));
 						if ($row_display == 'form') {
-							if (count($field['enum']) <= 2) {
+							if ($sel_option) {
 								$myid = 'radio-'.$field['field_name'].'-'.$myi;
 								$outputf.= '<label for="'.$myid.'" class="hidden"><input type="radio" id="'.$myid.'" name="'.$field['f_field_name'].'" value=""';
 								if ($my['record']) if (!$my['record'][$field['field_name']]) $outputf.= ' checked';
 								$outputf.= '>'.$text['no_selection'].'</label>';
+								if (!empty($field['show_values_as_list'])) $outputf .= "\n".'<ul class="zz_radio_list">'."\n";
 							} else {
 								$outputf.= '<select name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">'."\n";
 								$outputf.= '<option value=""';
@@ -680,12 +689,14 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_
 						}
 						foreach ($field['enum'] as $key => $set) {
 							if ($row_display == 'form') {
-								if (count($field['enum']) <= 2) {
+								if ($sel_option) {
 									$myi++;
 									$myid = 'radio-'.$field['field_name'].'-'.$myi;
+									if (!empty($field['show_values_as_list'])) $outputf .= '<li>';
 									$outputf.= ' <label for="'.$myid.'"><input type="radio" id="'.$myid.'" name="'.$field['f_field_name'].'" value="'.$set.'"';
 									if ($my['record']) if ($set == $my['record'][$field['field_name']]) $outputf.= ' checked';
 									$outputf.= '> '.(!empty($field['enum_title'][$key]) ? $field['enum_title'][$key] : $set).'</label>';
+									if (!empty($field['show_values_as_list'])) $outputf .= '</li>'."\n";
 								} else {
 									$outputf.= '<option value="'.$set.'"';
 									if ($my['record']) if ($set == $my['record'][$field['field_name']]) $outputf.= ' selected';
@@ -697,7 +708,11 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_
 								if ($set == $my['record'][$field['field_name']]) $outputf.= (!empty($field['enum_title'][$key]) ? $field['enum_title'][$key] : $set);
 							}
 						}
-						if ($row_display == 'form' && count($field['enum']) > 2) $outputf.= '</select>'."\n";
+						if (!empty($field['show_values_as_list'])) {
+							if (empty($field['append_next'])) $outputf .= '</ul>'."\n";
+							else $append_next_type = 'list';
+						}
+						if ($row_display == 'form' && !$sel_option) $outputf.= '</select>'."\n";
 					} else {
 						$outputf.= $text['no_source_defined'].'. '.$text['no_selection_possible'];
 					}
@@ -736,7 +751,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_
 							}
 							if ($image_uploads > 1) $outputf.= '</table>';
 						}
-					} else {
+					} else if (isset($field['image'])) {
 						$image_uploads = 0;
 						foreach ($field['image'] as $imagekey => $image)
 							if (!isset($image['source'])) $image_uploads++;
@@ -763,10 +778,14 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_
 							elseif (!empty($my['record_saved'][$field['display_field']])) // empty for new record
 								$outputf .= $my['record_saved'][$field['display_field']]; // requery
 						} elseif (isset($field['field_name'])) {
+							$tempval_to_insert = false;
 							if (!empty($my['record'][$field['field_name']]))
-								$outputf .= htmlspecialchars($my['record'][$field['field_name']]);
+								$tempval_to_insert = $my['record'][$field['field_name']];
 							elseif (!empty($my['record_saved'][$field['field_name']])) // empty if new record!
-								$outputf .= htmlspecialchars($my['record_saved'][$field['field_name']]);
+								$tempval_to_insert = $my['record_saved'][$field['field_name']];
+							if (!empty($field['display_title']) && in_array($tempval_to_insert, array_keys($field['display_title'])))
+								$tempval_to_insert = $field['display_title'][$tempval_to_insert];
+							$outputf .= htmlspecialchars($tempval_to_insert);
 						} else
 							$outputf .= '<span class="error">'.$text['Script configuration error. No display field set.'].'</span>'; // debug!
 					} else $outputf .= $text['N/A'];
@@ -826,10 +845,19 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_
 			} else
 				$output.= $outputf;
 			if (!empty($close_span)) $output.= '</span>';
+			if ($append_next_type == 'list' && $row_display == 'form') {
+				$output .= '<li>';
+				$append_next_type = 'list_end';
+			} elseif ($append_next_type == 'list_end' && $row_display == 'form') {
+				$output .= '</li>'."\n".'</ul>'."\n";
+				$append_next_type = false;
+			}
 			if (!$append_next) {
 				if ($row_display == 'form' && $field['explanation']) $output.= '<p class="explanation">'.$field['explanation'].'</p>';
 				$output.= '</td></tr>'."\n";
 			}
+			if (!empty($field['separator']))
+				$output.= '<tr><td colspan="2" class="separator"><hr></td></tr>'."\n";
 		}
 	}
 	return $output;
