@@ -60,6 +60,7 @@ $text['No records in relation table'] = 'No records in relation table %s. Please
 $text['show_record'] = 'Show record';
 $text['Database error. This database has ambiguous values in ID field.'] ='Database error. This table has ambiguous values in ID field.';
 $text['search'] = 'search';
+$text['Search'] = 'Search';
 $text['in'] = 'in';
 $text['all fields'] = 'all fields';
 $text['Warning'] = 'Warning';
@@ -117,5 +118,6 @@ Examples for good passwords:
 * nuit+Pog=tWi.  (Rule: these are artificial words that could be remembered)
 * NYtgPw4n (Rule: generic password part that you could always use: gPw4 = good password for; NYt for New York Times, final n for news)'; 
 $text['New and old password are identical. Please choose a different new password.'] = 'New and old password are identical. Please choose a different new password.';
+$text['selection:'] = 'Selection:';
 
 ?>

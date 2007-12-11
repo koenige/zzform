@@ -1,6 +1,9 @@
-zzform
-readme
 
+/*	----------------------------------------------	*
+ *			README									*
+ *	----------------------------------------------	*/
+
+zzform readme
 (c) 2006 Gustaf Mossakowski, gustaf@koenige.org
 
 required: at least PHP 4.1.2 
@@ -10,6 +13,10 @@ lower PHP versions have not been tested
 
 	Remarks:
 	- ID field has to be $zz['fields'][1], see edit_functions for reason why.
+
+/*	----------------------------------------------	*
+ *			MAIN CONFIGURATION						*
+ *	----------------------------------------------	*/
 
 	$zz_conf - configuration variables
 		$zz_conf['dir']				directory in which zzform resides in
@@ -73,19 +80,34 @@ lower PHP versions have not been tested
 		$zz_conf['additional_text']	additional textfile in directory local (text-en.inc.php where en = zz_conf['language'])? false | true, overwrites standard messages as well!
 		$zz_conf['logging']			logging of INSERT UPDATE DELETE enabled? default: false
 		$zz_conf['logging_table']	table where logging will be written into, default: _logging
-		$zz_conf['backup']			do a backup of old files?
-		$zz_conf['backup_dir']		directory where old files shall be backed up to, default: zz_conf['dir'].backup
-		$zz_conf['graphics_library'] graphics library used for image manipulation (imagemagick is default, others are currently not supported)
 		$zz_conf['max_select_val_len']	maximum length of values in select, default = 60
 		$zz_conf['debug']			debugging mode, shows several debugging outputs
 		$zz_conf['debug_allsql']	shows even more sql queries. squeezes all of them out of zzform. (all but some password related queries)
-		$zz_conf['upload_MAX_FILE_SIZE'] in bytes, default is value from php.ini
 		$zz_conf['max_select']		configures the maximum entries in a select-dialog, if there are more entries, an empty input field will be provided
 		$zz_conf['redirect']['successful_update']	redirect to this URL (local, starting with / or full qualified URI) when this event occurs
 		$zz_conf['redirect']['successful_insert']	redirect to this URL (local, starting with / or full qualified URI) when this event occurs
 		$zz_conf['redirect']['successful_delete']	redirect to this URL (local, starting with / or full qualified URI) when this event occurs
-		
-		
+		$zz_conf['folder'][]		array with root, string, field, mode for a folder that must be renamed/deleted after changing the record
+
+/*	----------------------------------------------	*
+ *		MAIN CONFIGURATION (UPLOAD MODULE)			*
+ *	----------------------------------------------	*/
+
+	// Configuration Variables for upload module
+		$zz_conf['backup']			do a backup of old files?
+		$zz_conf['backup_dir']		directory where old files shall be backed up to, default: zz_conf['dir'].backup
+		$zz_conf['graphics_library'] graphics library used for image manipulation (imagemagick is default, others are currently not supported)
+		$zz_conf['upload_MAX_FILE_SIZE'] in bytes, default is value from php.ini
+		$zz_conf['upload_ini_max_filesize'] = ini_get('upload_max_filesize'); // must not be changed
+		$zz_conf['imagemagick_paths'] = array('/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/phpbin'); 
+		$zz_conf['image_types']		Image filetypes, supported by PHP, should only be changed if PHP supports more.
+		$zz_conf['file_types']		Known filetypes, array with array for each file_type ('filetype', 'ext_old', 'ext', 'mime', 'desc')	
+		$zz_conf['mime_types_rewritten']	array('unwanted_mimetype' => 'wanted_mimetype') e. g. for image/pjpeg = image/jpeg
+		$zz_conf['exif_supported'] = array('jpeg', 'tiff'); // filetypes that support exif.
+
+/*	----------------------------------------------	*
+ *			FIELD DEFINITIONS						*
+ *	----------------------------------------------	*/
 		
 	$zz
 		$zz['table']				name of main table										$maintable
@@ -99,6 +121,7 @@ lower PHP versions have not been tested
 				possible values:
 				
 				id				ID of record, must be first field in list zz['fields'][1]
+					-> show_id
 				hidden			hidden field
 					-> value		value for hidden field
 					-> function		
@@ -184,6 +207,9 @@ lower PHP versions have not been tested
 			$zz['fields'][n]['default']				default value for field
 			$zz['fields'][n]['value']				value for field, cannot be changed, overwrites record
 			$zz['fields'][n]['append_next']			false | true; appends next record in form view in the same line
+			$zz['fields'][n]['list_append_next']	false | true; appends next record in list/tab view in the same line
+				- list_prefix
+				- list_suffix
 			$zz['fields'][n]['title_append']		title for several records which will be in one line
 			$zz['fields'][n]['add_details']			add detail records in different table, attention: current input will not be saved. Field gets ID #zz_add_details_x_y_z where x is table no [0...n], y is for subtable no [0 if main table, else 0...n] z is field number in zz-array
 			$zz['fields'][n]['add_details_target']	target window for add_details
@@ -207,6 +233,8 @@ lower PHP versions have not been tested
 			$zz['fields'][n]['prefix']				adds prefix-string to form view	
 			$zz['fields'][n]['exclude_from_search']	search will do no operations in this field
 			$zz['fields'][n]['separator']			true: will put a separation between fields, to improve form layout.
+			$zz['fields'][n]['show_id']				normally, id fields get class record_id {display: none;}, show_id stops zzform from doing that
+			$zz['fields'][n]['assoc_files']			associated files to field, names will be changed as field value changes
 
 		//--> depending on type of field, see -> above
 
@@ -269,7 +297,7 @@ lower PHP versions have not been tested
 			$zz['fields'][n]['subselect']['prefix'] = '<p>'
 			$zz['fields'][n]['subselect']['suffix'] = '</p>'
 			$zz['fields'][n]['subselect']['concat_rows'] = "</p>\n<p>"
-			$zz['fields'][n]['subselect']['concat\_fields'] = ' ' 
+			$zz['fields'][n]['subselect']['concat_fields'] = ' ' 
 
 		$zz_tab[1]['table']
 		$zz_tab[1]['no']			= n in $zz['fields'][n]
@@ -313,6 +341,11 @@ lower PHP versions have not been tested
 		$zz['extraGET']				extra GET values										$add_extras
 		$zz['result']				gives result of operation if at all: successful_insert, successful_update, successful_delete
 
+/*	----------------------------------------------	*
+ *			INTERNAL zzform VARIABLES				*
+ *	----------------------------------------------	*/
+	can be used inside zzform, e. g. in 'action'-scripts
+
 	$zz_tab[n]
 		$zz_tab[0]['table']			= $zz['table']
 		$zz_tab[0][0]['fields']		= $zz['fields']
@@ -338,7 +371,14 @@ lower PHP versions have not been tested
 		$zz_tab[1][1]['validation']
 		$zz_tab[1][1]['action']
 		$zz_tab[1][1]['record']
-	
+
+	// 	upload, rename folder
+
+		$zz_tab[0]['upload_fields'][0]['i']
+		$zz_tab[0][0]['old_record']		update, delete together with file upload or renaming a folder:
+										save old record before update or delete in this array
+		$zz_tab[0][0]['images']			uploaded documents go here
+
 	$zz_error
 		$zz_error['msg']
 		$zz_error['query']
@@ -364,4 +404,15 @@ undocumented features ;-)
 
 	$_GET['search'] gt, lt greater than, lesser than, default is like
 
+
+/*	----------------------------------------------	*
+ *			FUNCTIONS (NAMESPACE)					*
+ *	----------------------------------------------	*/
+
+	zz_* 				- all zzform functions
+
+	zz_upload_*			- Upload module
+	zz_image_*			- Upload module: Image manipulation via function
+	zz_imagick_*		- Upload module: ImageMagick functions
+	zz_gd_*				- Upload module: GD functions
 

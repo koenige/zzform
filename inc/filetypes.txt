@@ -1,0 +1,167 @@
+###############################################################################
+#Type	Ext.	PExt.	MIME							Description
+###############################################################################
+txt		txt		txt		text/plain						Text
+txt		text	txt		text/plain						Text
+txt		doc		txt		text/plain						Text
+txt		asc		txt		text/plain						Text
+txt		txt		txt		application/txt					Text
+txt		txt		txt		browser/internal				Text
+txt		txt		txt		text/anytext					Text
+txt		txt		txt		widetext/plain					Text
+txt		txt		txt		widetext/paragraph				Text
+
+html	html	html	text/html						Hypertext Markup Language
+html	html	html	text/plain						Hypertext Markup Language
+html	html	html	widetext/html					Hypertext Markup Language
+html	htm		html	text/html						Hypertext Markup Language
+
+rtf		rtf		rtf		text/rtf						Rich Text Format File
+rtf		rtf		rtf		application/rtf					Rich Text Format File
+rtf		rtf		rtf		application/x-rtf				Rich Text Format File
+rtf		rtf		rtf		text/richtext					Rich Text Format File
+rtf		rtf		rtf		application/msword				Rich Text Format File
+rtf		rtf		rtf		application/doc					Rich Text Format File
+rtf		rtf		rtf		application/x-soffice			Rich Text Format File
+
+doc		doc		doc		application/msword				MS Word Document
+doc		doc		doc		application/doc					MS Word Document
+doc		doc		doc		appl/text						MS Word Document
+doc		doc		doc		application/vnd.msword			MS Word Document
+doc		doc		doc		application/vnd.ms-word			MS Word Document
+doc		doc		doc		application/winword				MS Word Document
+doc		doc		doc		application/word				MS Word Document
+doc		doc		doc		application/x-msw6				MS Word Document
+doc		doc		doc		application/x-msword			MS Word Document
+doc		doc		doc		zz-application/zz-winassoc-doc	MS Word Document
+
+dot		dot		dot		application/msword				MS Word Document Template
+dot		dot		dot		application/dot					MS Word Document Template
+dot		dot		dot		application/x-dot				MS Word Document Template
+dot		dot		dot		application/doc					MS Word Document Template
+dot		dot		dot		application/microsoft_word		MS Word Document Template
+dot		dot		dot		application/mswor2c sc2			MS Word Document Template
+dot		dot		dot		application/x-msword			MS Word Document Template
+dot		dot		dot		zz-application/zz-winassoc-dot	MS Word Document Template
+
+xls		xls		xls		application/msexcel				MS Excel Worksheet
+xls		xls		xls		application/x-msexcel			MS Excel Worksheet
+xls		xls		xls		application/x-ms-excel			MS Excel Worksheet
+xls		xls		xls		application/vnd.ms-excel		MS Excel Worksheet
+xls		xls		xls		application/x-excel				MS Excel Worksheet
+xls		xls		xls		application/x-dos_ms_excel		MS Excel Worksheet
+xls		xls		xls		application/xls					MS Excel Worksheet
+xls		xls		xls		application/x-xls				MS Excel Worksheet
+xls		xls		xls		zz-application/zz-winassoc-xls	MS Excel Worksheet
+
+ppt		ppt		ppt		application/mspowerpoint		MS PowerPoint Presentation
+ppt		ppt		ppt		application/vnd.ms-powerpoint	MS PowerPoint Presentation
+ppt		ppt		ppt		application/ms-powerpoint		MS PowerPoint Presentation
+ppt		ppt		ppt		application/mspowerpnt			MS PowerPoint Presentation
+ppt		ppt		ppt		application/vnd-mspowerpoint	MS PowerPoint Presentation
+ppt		ppt		ppt		application/powerpoint			MS PowerPoint Presentation
+ppt		ppt		ppt		application/x-powerpoint		MS PowerPoint Presentation
+ppt		ppt		ppt		application/x-mspowerpoint		MS PowerPoint Presentation
+ppz		ppz		ppz		application/mspowerpoint		MS PowerPoint Packaged Presentation
+ppz		ppz		ppz		application/vnd.ms-powerpoint	MS PowerPoint Packaged Presentation
+pps		pps		pps		application/mspowerpoint		MS PowerPoint Slideshow
+pps		pps		pps		application/vnd.ms-powerpoint	MS PowerPoint Slideshow
+pot		pot		pot		application/mspowerpoint		MS Powerpoint Presentation Template
+pot		pot		pot		application/vnd.ms-powerpoint	MS Powerpoint Presentation Template
+
+skp		skp		skp		application/octet-stream		Google Sketchup Drawing
+
+dwg		dwg		dwg		application/x-dwg				AutoCAD Drawing Database
+dwg		dwg		dwg		application/octet-stream		AutoCAD Drawing Database
+dwg		dwg		dwg		application/acad				AutoCAD Drawing Database
+dwg		dwg		dwg		application/x-acad				AutoCAD Drawing Database
+dwg		dwg		dwg		application/autocad_dwg			AutoCAD Drawing Database
+dwg		dwg		dwg		image/x-dwg						AutoCAD Drawing Database
+dwg		dwg		dwg		application/dwg					AutoCAD Drawing Database
+dwg		dwg		dwg		application/x-autocad			AutoCAD Drawing Database
+dwg		dwg		dwg		image/vnd.dwg					AutoCAD Drawing Database
+dwg		dwg		dwg		drawing/dwg						AutoCAD Drawing Database
+
+dxf		dxf		dxf		application/x-dxf				AutoCAD Drawing Interchange Format
+dxf		dxf		dxf		application/octet-stream		AutoCAD Drawing Interchange Format
+dxf		dxf		dxf		application/dxf					AutoCAD Drawing Interchange Format
+dxf		dxf		dxf		application/x-autocad			AutoCAD Drawing Interchange Format
+dxf		dxf		dxf		drawing/x-dxf					AutoCAD Drawing Interchange Format
+dxf		dxf		dxf		image/vnd.dxf					AutoCAD Drawing Interchange Format
+dxf		dxf		dxf		image/x-autocad					AutoCAD Drawing Interchange Format
+dxf		dxf		dxf		image/x-dxf						AutoCAD Drawing Interchange Format
+
+pdf		pdf		pdf		application/pdf					Adobe Portable Document Format
+pdf		pdf		pdf		application/x-pdf				Adobe Portable Document Format
+pdf		pdf		pdf		application/acrobat				Adobe Portable Document Format
+pdf		pdf		pdf		applications/vnd.pdf			Adobe Portable Document Format
+pdf		pdf		pdf		text/pdf						Adobe Portable Document Format
+pdf		pdf		pdf		text/x-pdf						Adobe Portable Document Format
+
+zip		zip		zip		application/zip					ZIP Archive
+zip		zip		zip		application/x-zip				ZIP Archive
+zip		zip		zip		application/x-zip-compressed	ZIP Archive
+zip		zip		zip		application/octet-stream		ZIP Archive
+zip		zip		zip		application/x-compress			ZIP Archive
+zip		zip		zip		application/x-compressed		ZIP Archive
+zip		zip		zip		multipart/x-zip					ZIP Archive
+
+gz		gz		gz		application/gzip 				Gzip Compressed Archive
+gz		gz		gz		application/x-gzip 				Gzip Compressed Archive
+gz		gz		gz		application/x-gunzip			Gzip Compressed Archive
+gz		gz		gz		application/gzipped				Gzip Compressed Archive
+gz		gz		gz		application/gzip-compressed 	Gzip Compressed Archive
+gz		gz		gz		application/x-compressed 		Gzip Compressed Archive
+gz		gz		gz		application/x-compress 			Gzip Compressed Archive
+gz		gz		gz		gzip/document 					Gzip Compressed Archive
+gz		gz		gz		application/octet-stream 		Gzip Compressed Archive
+
+odt		odt		odt		application/vnd.oasis.opendocument.text		Open Document Text Document
+odt		odt		odt		application/x-vnd.oasis.opendocument.text	Open Document Text Document
+
+ods		ods		ods		application/vnd.oasis.opendocument.spreadsheet		Open Document Spreadsheet
+ods		ods		ods		application/x-vnd.oasis.opendocument.spreadsheet	Open Document Spreadsheet
+
+avi		avi		avi		video/avi						Audio Video Interleave File
+avi		avi		avi		video/msvideo					Audio Video Interleave File
+avi		avi		avi		video/x-msvideo					Audio Video Interleave File
+avi		avi		avi		image/avi						Audio Video Interleave File
+avi		avi		avi		video/xmpg2						Audio Video Interleave File
+avi		avi		avi		application/x-troff-msvideo		Audio Video Interleave File
+avi		avi		avi		audio/aiff						Audio Video Interleave File
+avi		avi		avi		audio/avi						Audio Video Interleave File
+
+3gp		3gp		3gp		audio/3gpp 						3GPP Multimedia File
+3gp		3gp		3gp		video/3gpp 						3GPP Multimedia File
+
+mov		mov		mov		video/quicktime					QuickTime Video Clip
+mov		mov		mov		video/x-quicktime				QuickTime Video Clip
+mov		mov		mov		image/mov						QuickTime Video Clip
+mov		mov		mov		audio/aiff						QuickTime Video Clip
+mov		mov		mov		audio/x-midi					QuickTime Video Clip
+mov		mov		mov		audio/x-wav						QuickTime Video Clip
+mov		mov		mov		video/avi						QuickTime Video Clip
+
+### EOF
+#
+#
+# zzform File Types
+# (c) Gustaf Mossakowski, <gustaf@koenige.org>, 2007
+#
+# Syntax of this file:
+#
+# - Column "Type": internal zzform filetype 
+# - Column "Ext.": local file extension (chosen from user who uploads file)
+# - Column "PExt.": preferred file extension on server
+# - Column "MIME": official or possible MIME Type as browser sends it to server
+# - Column "Description": description, just for information.
+#
+# There might be more than one tab between each column for better readability.
+# Blank lines are ignored.
+#
+# Some image filetypes have already been checked for by php functions.
+# No need to write them down here.
+#
+#
+#	TODO: EPS, PS, MPEG, MPG, MP3, OGG, MP4, AAC, ...
+#

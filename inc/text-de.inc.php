@@ -55,6 +55,7 @@ $text['No records in relation table'] = 'Keine Eintr&auml;ge in der Tabelle %s. 
 $text['show_record'] = 'Datensatz anzeigen';
 $text['Database error. This query has ambiguous values in ID field.'] = 'Datenbankfehler. Diese Abfrage hat kein eindeutiges ID-Feld.';
 $text['search'] = 'suche';
+$text['Search'] = 'Suche';
 $text['in'] = 'in';
 $text['all fields'] = 'allen Feldern';
 $text['review'] = 'Anzeigen';
@@ -110,5 +111,6 @@ Beispiele f&uuml;r gute Pa&szlig;w&ouml;rter:
 * 1sPh&uuml;o&auml;o&Ouml;  (Merkregel: ein starkes Passwort hat &uuml; oder &auml; oder &ouml;)
 * 17Nbg03h (Merkregel: Ich telefoniere nicht besonders gern oder besonders h&auml;ufig, Buchstaben teilweise durch &auml;hnlich aussehende Zahlen ersetzt)'; 
 $text['New and old password are identical. Please choose a different new password.'] = 'Neues und altes Passwort sind identisch. Bitte w&auml;hlen Sie ein anderes, neues Passwort aus.';
+$text['selection:'] = 'Auswahl:';
 
 ?>

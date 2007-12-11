@@ -189,9 +189,10 @@ function validate_time($time) {
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function waehrung($int, $unit) {
+	if (!$int) return false;
 	$int = number_format($int, 2, ',', '.');
-	if (!strstr($int, ',')) $int .= ',&#8211;';
-	$int = str_replace (',00', ',&#8211;', $int);
+	if (!strstr($int, ',')) $int .= ',00';
+	//$int = str_replace (',00', ',&#8211;', $int);
 	if ($unit) $int .= '&nbsp;'.$unit;
 	return $int;
 }

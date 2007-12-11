@@ -83,6 +83,10 @@ function zzform() {
 
 	$zz_conf['ext_modules'] = $ext_modules['modules'];
 		
+	$zz_conf['selection'] 			= false;
+	$zz_default['group']			= false;
+	$zz_conf['group_field_no']		= false;
+	
 	$zz_default['view']				= false;	// 						show Action: View
 	$zz_default['delete']			= false;	// $delete				show Action: Delete
 	$zz_default['edit']				= true;		// 						show Action: Edit
@@ -154,7 +158,7 @@ function zzform() {
 	if ($zz_conf['additional_text'] AND file_exists($langfile = $zz_conf['lang_dir'].'/text-en.inc.php')) 
 		include $langfile; // must not be include_once since $text is cleared beforehands
 
-	if (in_array('upload', $zz_conf['modules']))
+	if (in_array('upload', $zz_conf['modules']) && $zz_conf['modules']['upload'])
 		if ($zz_conf['upload_MAX_FILE_SIZE'] > $zz_conf['upload_ini_max_filesize']) {
 			$zz_error['msg'] .= 'Value for upload_max_filesize from php.ini is smaller than value which is set in the script. The value from php.ini will be used. To upload bigger files, please adjust your configuration settings.';
 			$zz_conf['upload_MAX_FILE_SIZE'] = $zz_conf['upload_ini_max_filesize'];
@@ -184,6 +188,14 @@ function zzform() {
 
 	if ($zz_conf['debug']) 
 		$zz['output'] .= zz_show_microtime('Dateien eingebunden, DB-Verbindung', $zz_timer);
+
+//	required variables
+	if (empty($zz_conf['db_name'])) {
+		$zz_error['msg'] .= 'Please set the variable <code>$zz_conf[\'db_name\']</code>. It has to be set to the main database name used for zzform.';
+		$zz['output'] .= zz_error($zz_error);
+		echo $zz['output'];
+		exit;
+	}
 
 //	Variables
 
@@ -262,6 +274,15 @@ function zzform() {
 		zz_nice_headings($zz['fields'], $zz_conf, $zz_error);
 	}
 	
+	if (!empty($_GET['group']))
+		foreach ($zz['fields'] as $index => $field)
+			if ((isset($field['display_field']) && $field['display_field'] == $_GET['group'])
+				OR (isset($field['field_name']) && $field['field_name'] == $_GET['group'])
+			) {
+				if (isset($field['order'])) $zz_conf['group'] = $field['order'];
+				else $zz_conf['group'] = $_GET['group'];
+			}
+	
 //	page output
 
 	$zz_conf['title'] = strip_tags($zz_conf['heading']);
@@ -269,6 +290,8 @@ function zzform() {
 		$zz['output'].= "\n".'<h2>'.$zz_conf['heading'].'</h2>'."\n\n";
 		if (isset($zz_conf['heading_text'])) $zz['output'] .= $zz_conf['heading_text'];
 		$zz['output'].= zz_error($zz_error);
+		if ($zz_conf['selection'])
+			$zz['output'].= "\n".'<h3>'.$zz_conf['selection'].'</h3>'."\n\n";
 	}
 
 //	process table description zz['fields']
@@ -334,6 +357,7 @@ function zzform() {
 	$zz['extraGET'] = false;
 	if (!empty($_GET['where'])) 			$extras .= get_to_array($_GET['where']);
 	if (!empty($_GET['order'])) 			$extras .= '&amp;order='.$_GET['order'];
+	if (!empty($_GET['group'])) 			$extras .= '&amp;group='.$_GET['group'];
 	if (!empty($_GET['q'])) 				$extras .= '&amp;q='.urlencode($_GET['q']);
 	if (!empty($_GET['scope'])) 			$extras .= '&amp;scope='.$_GET['scope'];
 	if (!empty($_GET['dir'])) 				$extras .= '&amp;dir='.$_GET['dir'];

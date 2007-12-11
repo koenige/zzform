@@ -60,6 +60,9 @@ div.text #zzform	 {padding: 1em;}
 #zzform table.data td {padding: 0.25em .5em;}
 #zzform table.data thead td, #zzform table.data thead th {padding-bottom: .25em;
 	border-bottom: 1px solid;}
+#zzform table.data tr.group td {border-top: 1px solid; padding-top: 1em;}
+#zzform table.data tr.group_sum td {padding-bottom: .5em; font-weight: bold;}
+
 #zzform .last {	border-bottom: 1px solid;}
 #zzform .pages .last {border-bottom: none;}
 

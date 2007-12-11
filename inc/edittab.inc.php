@@ -93,25 +93,36 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 		$zz['output'].= '<thead>'."\n";
 		$zz['output'].= '<tr>';
 		$unsortable_fields = array('calculated', 'image', 'upload_image'); // 'subtable'?
-		foreach ($table_query as $field) {
-			$zz['output'].= '<th'.check_if_class($field, (!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : '')).'>';
-			if (!in_array($field['type'], $unsortable_fields) && isset($field['field_name'])) { 
-				$zz['output'].= '<a href="';
-				if (isset($field['display_field'])) $order_val = $field['display_field'];
-				else $order_val = $field['field_name'];
-				$uri = addvar($_SERVER['REQUEST_URI'], 'order', $order_val);
-				$order_dir = 'asc';
-				if (str_replace('&amp;', '&', $uri) == $_SERVER['REQUEST_URI']) {
-					$uri.= '&amp;dir=desc';
-					$order_dir = 'desc';
-				}
-				$zz['output'].= $uri;
-				$zz['output'].= '" title="'.$text['order by'].' '.strip_tags($field['title']).' ('.$text[$order_dir].')">';
+		$show_field = true;
+		foreach ($table_query as $index => $field) {
+			if ($zz_conf['group']
+				AND ((!empty($field['display_field']) && $field['display_field'] == $zz_conf['group']) 
+				OR $field['field_name'] == $zz_conf['group'])) {
+				$zz_conf['group_field_no'] = $index;
+				$show_field = false;
 			}
-			$zz['output'].= (!empty($field['title_tab']) ? $field['title_tab'] : $field['title']);
-			if (!in_array($field['type'], $unsortable_fields) && isset($field['field_name']))
-				$zz['output'].= '</a>';
-			$zz['output'].= '</th>';
+			if ($show_field) {
+				$zz['output'].= '<th'.check_if_class($field, (!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : '')).'>';
+				if (!in_array($field['type'], $unsortable_fields) && isset($field['field_name'])) { 
+					$zz['output'].= '<a href="';
+					if (isset($field['display_field'])) $order_val = $field['display_field'];
+					else $order_val = $field['field_name'];
+					$uri = addvar($_SERVER['REQUEST_URI'], 'order', $order_val);
+					$order_dir = 'asc';
+					if (str_replace('&amp;', '&', $uri) == $_SERVER['REQUEST_URI']) {
+						$uri.= '&amp;dir=desc';
+						$order_dir = 'desc';
+					}
+					$zz['output'].= $uri;
+					$zz['output'].= '" title="'.$text['order by'].' '.strip_tags($field['title']).' ('.$text[$order_dir].')">';
+				}
+				$zz['output'].= (!empty($field['title_tab']) ? $field['title_tab'] : $field['title']);
+				if (!in_array($field['type'], $unsortable_fields) && isset($field['field_name']))
+					$zz['output'].= '</a>';
+				$zz['output'].= '</th>';
+			}
+			if (!empty($field['list_append_next'])) $show_field = false;
+			else $show_field = true;
 		}
 		if ($zz_conf['edit'] OR $zz_conf['view'])
 			$zz['output'].= ' <th class="editbutton">'.$text['action'].'</th>';
@@ -141,7 +152,25 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 			
 			$id = '';
 			$sub_id = '';
+			if (empty($rows[$z]['group']))
+				$rows[$z]['group'] = '';
+			if ($zz_conf['group']) {
+				foreach ($table_query as $fieldindex => $field) {
+				//	check for group function
+					if ($fieldindex == $zz_conf['group_field_no']) {
+						if (!empty($field['display_field']))
+							$rows[$z]['group'] = $line[$field['display_field']];
+						elseif (!empty($field['field_name']))
+							$rows[$z]['group'] = $line[$field['field_name']];
+						break;
+					}
+				}
+			}
+			
 			foreach ($table_query as $fieldindex => $field) {
+				if ($zz_conf['group'] && $fieldindex == $zz_conf['group_field_no'])
+					continue;
+					
 				if (!empty($field['list_append_next'])) $fieldindex++;
 			//	initialize variables
 				if (empty($rows[$z][$fieldindex]['class']))
@@ -184,6 +213,11 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 							if (isset($field['sum']) && $field['sum'] == true) {
 								if (!isset($sum[$field['title']])) $sum[$field['title']] = 0;
 								$sum[$field['title']] += $diff;
+								if ($rows[$z]['group']) {
+									if (!isset($sum_group[$rows[$z]['group']][$field['title']])) 
+										$sum_group[$rows[$z]['group']][$field['title']] = 0;
+									$sum_group[$rows[$z]['group']][$field['title']] += $diff;
+								}
 							}
 						} elseif ($field['calculation'] == 'sum') {
 							$my_sum = 0;
@@ -193,6 +227,12 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 							if (isset($field['sum']) && $field['sum'] == true) {
 								if (!isset($sum[$field['title']])) $sum[$field['title']] = 0;
 								$sum[$field['title']] .= $my_sum;
+								if ($rows[$z]['group']) {
+									if (!isset($sum_group[$rows[$z]['group']][$field['title']])) 
+										$sum_group[$rows[$z]['group']][$field['title']] = 0;
+									$sum_group[$rows[$z]['group']][$field['title']] .= $my_sum;
+								}
+
 							}
 						} elseif ($field['calculation'] == 'sql')
 							$rows[$z][$fieldindex]['text'].= $line[$field['field_name']];
@@ -225,8 +265,10 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 								$field['subselect']['fieldindex'] = $fieldindex;
 								$subselects[] = $field['subselect'];
 							}
+							$sub_id = $line[$id_fieldname]; // get correct ID
+						} elseif (!empty($field['display_field'])) {
+							$rows[$z][$fieldindex]['text'].= $line[$field['display_field']];
 						}
-						$sub_id = $line[$id_fieldname]; // get correct ID
 						break;
 					case 'url':
 					case 'mail':
@@ -280,10 +322,14 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 						if (isset($field['sum']) && $field['sum'] == true) {
 							if (!isset($sum[$field['title']])) $sum[$field['title']] = 0;
 							$sum[$field['title']] += $line[$field['field_name']];
+							if ($rows[$z]['group']) {
+								if (!isset($sum_group[$rows[$z]['group']][$field['title']])) 
+									$sum_group[$rows[$z]['group']][$field['title']] = 0;
+								$sum_group[$rows[$z]['group']][$field['title']] += $line[$field['field_name']];
+							}
 						}
 					}
-					if (isset($field['unit'])) 
-					/* && $line[$field['field_name']]) does not work because of calculated fields*/ 
+					if (isset($field['unit']) && $rows[$z][$fieldindex]['text']) 
 						$rows[$z][$fieldindex]['text'].= '&nbsp;'.$field['unit'];	
 				if (strlen($rows[$z][$fieldindex]['text']) == $stringlength) { // string empty or nothing appended
 					if (!empty($field['list_prefix']))
@@ -357,22 +403,13 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 	// Table footer
 	//
 	
+	$my_footer_table = (!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : false);
 	if ($zz_conf['show_list'] && $zz_conf['tfoot'] && $zz_conf['list_display'] == 'table') {
 		$zz['output'].= '<tfoot>'."\n".'<tr>';
-		foreach ($table_query as $field) {
-			if ($field['type'] == 'id') $zz['output'].= '<td class="recordid">'.$z.'</td>';
-			elseif (isset($field['sum']) AND $field['sum'] == true) {
-				$zz['output'].= '<td>';
-				if (isset($field['calculation']) AND $field['calculation'] == 'hours')
-					$sum[$field['title']] = hours($sum[$field['title']]);
-				$zz['output'].= $sum[$field['title']];
-				if (isset($field['unit'])) $zz['output'].= '&nbsp;'.$field['unit'];	
-				$zz['output'].= '</td>';
-			}
-			else $zz['output'].= '<td>&nbsp;</td>';
-		}
+		$zz['output'].= zz_field_sum($table_query, $z, $my_footer_table, $sum, $zz_conf);
 		$zz['output'].= '<td class="editbutton">&nbsp;</td>';
 		$zz['output'].= '</tr>'."\n".'</tfoot>'."\n";
+		
 	}
 
 	//
@@ -381,7 +418,18 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 
 	if ($zz_conf['show_list'] && $zz_conf['list_display'] == 'table') {
 		$zz['output'].= '<tbody>'."\n";
+		$rowgroup = false;
 		foreach ($rows as $index => $row) {
+			if (!empty($row['group']))
+				if ($row['group'] != $rowgroup) {
+					if ($rowgroup) {
+						if ($zz_conf['tfoot'])
+							$zz['output'] .= '<tr class="group_sum">'.zz_field_sum($table_query, $z, $my_footer_table, $sum_group[$rowgroup], $zz_conf).'</tr>'."\n";
+						$zz['output'] .= '</tbody><tbody>'."\n";
+					}
+					$zz['output'].= '<tr class="group"><td colspan="'.(count($row)-1).'"><strong>'.$row['group'].'</strong></td></tr>'."\n";
+					$rowgroup = $row['group'];
+				}
 			$zz['output'].= '<tr class="'.($index & 1 ? 'uneven':'even').
 				(($index+1) == $count_rows ? ' last' : '').'">'; //onclick="Highlight();"
 			foreach ($row as $fieldindex => $field)
@@ -392,6 +440,8 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 				$zz['output'].= '<td class="editbutton">'.$row['actionbutton'].'</td>';
 			$zz['output'].= '</tr>'."\n";
 		}
+		if ($zz_conf['tfoot'] && $rowgroup)
+			$zz['output'] .= '<tr class="group_sum">'.zz_field_sum($table_query, $z, $my_footer_table, $sum_group[$rowgroup], $zz_conf).'</tr>'."\n";
 		$zz['output'].= '</tbody>'."\n";
 		unset($rows);
 	} elseif ($zz_conf['show_list'] && $zz_conf['list_display'] == 'ul') {
@@ -450,6 +500,27 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines) {
 		// Search form
 		$zz['output'] .= $searchform_bottom;
 	}
+}
+
+function zz_field_sum($table_query, $z, $table, $sum, $zz_conf) {
+	$tfoot_line = '';
+	foreach ($table_query as $index => $field)
+		if ($index != $zz_conf['group_field_no'])
+			if ($field['type'] == 'id' && empty($field['show_id']))
+				$tfoot_line .= '<td class="recordid">'.$z.'</td>';
+			elseif (!empty($field['sum'])) {
+				$tfoot_line.= '<td'.check_if_class($field, (!empty($table) ? $table : '')).'>';
+				if (isset($field['calculation']) AND $field['calculation'] == 'hours')
+					$sum[$field['title']] = hours($sum[$field['title']]);
+				if (isset($field['number_type']) && $field['number_type'] == 'currency') 
+					$sum[$field['title']] = waehrung($sum[$field['title']], '');
+
+				$tfoot_line.= $sum[$field['title']];
+				if (isset($field['unit']) && $sum[$field['title']]) 
+					$tfoot_line.= '&nbsp;'.$field['unit'];	
+				$tfoot_line.= '</td>';
+			} else $tfoot_line.= '<td>&nbsp;</td>';
+	return $tfoot_line;
 }
 
 ?>

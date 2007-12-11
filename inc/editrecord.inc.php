@@ -25,7 +25,7 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 	//	### Check for validity, do some operations ###
 	// currently, upload fields only possible for main table
 	if (!empty($upload_form)) {// do only for zz_tab 0 0 etc. not zz_tab 0 sql, not for subtables
-		zz_upload_get($zz_tab, 0, 0); // read upload image information, as required
+		zz_upload_get($zz_tab); // read upload image information, as required
 		zz_upload_prepare($zz_tab, $zz_conf); // read upload image information, as required
 	}
 	foreach (array_keys($zz_tab) as $i) {
@@ -79,8 +79,16 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 				$validation = false;
 
 	if ($validation) {
-		if (isset($zz_conf['action']['before_'.$zz['action']])) // if any other action before insertion/update/delete is required
+
+		// if any other action before insertion/update/delete is required
+		if (isset($zz_conf['action']['before_'.$zz['action']])) 
 			include ($zz_conf['action_dir'].'/'.$zz_conf['action']['before_'.$zz['action']].'.inc.php'); 
+
+		// if there is a directory which has to be renamed, save old name in array
+		// do the same if a file might be renamed, deleted ... via upload
+		if (($zz['action'] == 'update' OR $zz['action'] == 'delete')
+			&& (!empty($zz_conf['folder']) OR !empty($upload_form)))
+			zz_foldercheck_before($zz_tab);
 
 		// put delete_ids into zz_tab-array
 		if (isset($_POST['deleted']))
@@ -217,6 +225,8 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 			if (isset($zz_conf['action']['after_'.$zz['action']])) 
 				include ($zz_conf['action_dir'].'/'.$zz_conf['action']['after_'.$zz['action']].'.inc.php'); 
 				// if any other action after insertion/update/delete is required
+			if (!empty($zz_conf['folder']))
+				zz_foldercheck($zz_tab, $zz_conf);
 			if (!empty($upload_form))
 				zz_upload_action($zz_tab, $zz_conf); // upload images, delete images, as required
 			if ($operation_success) $zz['result'] = 'successful_'.$zz_tab[0][0]['action'];

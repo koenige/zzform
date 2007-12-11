@@ -44,8 +44,8 @@ function zz_imagick_identify($source) {
 
 	global $zz_conf;
 	if (!file_exists($source)) return false;
-	if ($last_dir = array_pop($zz_conf['imagemagick_paths']) != '/notexistent') {
-		$zz_conf['imagemagick_paths'][] = $zz_conf['imagemagick_paths'];
+	$paths = $zz_conf['imagemagick_paths'];
+	if ($last_dir = array_pop($paths) != '/notexistent') {
 		$zz_conf['imagemagick_paths'][] = '/notexistent';
 	}
 	$path_identify = $zz_conf['imagemagick_paths'][0];
@@ -70,8 +70,8 @@ function zz_imagick_identify($source) {
 		}
 	}	
 	//$myimage = $bla[$image[1]];
-	$myimage['width'] = $image[2];
-	$myimage['height'] = $image[3];
+	if (!empty($image[2])) $myimage['width'] = $image[2];
+	if (!empty($image[3])) $myimage['height'] = $image[3];
 	$myimage['validated'] = true;
 }
 
@@ -95,7 +95,7 @@ function zz_image_thumbnail($source, $destination, $dest_extension = false, $ima
 function zz_image_crop($source, $destination, $dest_extension = false, $image = false) {
 // example: convert -thumbnail x240 -crop 240x240+140x0 reiff-pic09b.jpg test.jpg
 	$dest_ratio = $image['width'] / $image['height'];
-	if (!$image['upload']['height']) return false; // no height means no picture or error
+	if (empty($image['upload']['height'])) return false; // no height means no picture or error
 	$source_ratio = $image['upload']['width'] / $image['upload']['height'];
 	if ($dest_ratio == $source_ratio)
 		$options = 'thumbnail '.$image['width'].'x'.$image['height'];
@@ -120,8 +120,8 @@ function zz_image_crop($source, $destination, $dest_extension = false, $image = 
 
 function zz_imagick_convert($options, $files, $more_options = false, $more_files = false) {
 	global $zz_conf;
-	if ($last_dir = array_pop($zz_conf['imagemagick_paths']) != '/notexistent') {
-		$zz_conf['imagemagick_paths'][] = $zz_conf['imagemagick_paths'];
+	$paths = $zz_conf['imagemagick_paths'];
+	if ($last_dir = array_pop($paths) != '/notexistent') {
 		$zz_conf['imagemagick_paths'][] = '/notexistent';
 	}
 	$path_convert = $zz_conf['imagemagick_paths'][0];

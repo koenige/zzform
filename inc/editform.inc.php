@@ -677,13 +677,15 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_
 							if ($sel_option) {
 								$myid = 'radio-'.$field['field_name'].'-'.$myi;
 								$outputf.= '<label for="'.$myid.'" class="hidden"><input type="radio" id="'.$myid.'" name="'.$field['f_field_name'].'" value=""';
-								if ($my['record']) if (!$my['record'][$field['field_name']]) $outputf.= ' checked';
+								if ($my['record']) { if (!$my['record'][$field['field_name']]) $outputf.= ' checked'; }
+								else $outputf.= ' checked'; // no value, no default value (both would be written in my record fieldname)
 								$outputf.= '>'.$text['no_selection'].'</label>';
 								if (!empty($field['show_values_as_list'])) $outputf .= "\n".'<ul class="zz_radio_list">'."\n";
 							} else {
 								$outputf.= '<select name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">'."\n";
 								$outputf.= '<option value=""';
-								if ($my['record']) if (!$my['record'][$field['field_name']]) $outputf.= ' selected';
+								if ($my['record']) { if (!$my['record'][$field['field_name']]) $outputf.= ' selected'; }
+								else $outputf.= ' selected'; // no value, no default value (both would be written in my record fieldname)
 								$outputf.= '>'.$text['none_selected'].'</option>';
 							} 
 						}
@@ -830,6 +832,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, $zz_conf_
 						.$add_details_where.'"'
 						.(!empty($field['add_details_target']) ? ' target="'.$field['add_details_target'].'"' : '')
 						.' id="zz_add_details_'.$i.'_'.$k.'_'.$fieldkey.'">['.$text['new'].' &hellip;]</a>';
+						
 				}
 			if ($outputf && $outputf != ' ') {
 				if (isset($field['prefix'])) $output.= ' '.$field['prefix'].' ';
