@@ -9,14 +9,18 @@
 
 */
 
-function zz_validate($my, $zz_conf, $table, $table_name) {
+function zz_validate($my, $zz_conf, $table, $table_name, $k = 0) {
 	global $text;
 	global $zz_error;
 	$my['POST-notvalid'] = $my['POST'];
 	$my['validation'] = true;
 	$last_fields = false;
-	foreach (array_keys($my['fields']) as $f)
+	foreach (array_keys($my['fields']) as $f) {
 	//	remove entries which are for display only
+		if ($my['fields'][$f]['type'] == 'write_once' 
+			AND empty($my['record'][$my['fields'][$f]['field_name']])) {
+			$my['fields'][$f]['type'] = $my['fields'][$f]['type_detail'];
+		}
 		switch ($my['fields'][$f]['type']) {
 			case 'upload_image':
 				$input_filetypes = (isset($my['fields'][$f]['input_filetypes']) 
@@ -27,6 +31,7 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 					$my['fields'][$f]['check_validation'] = false;
 				}
 			case 'display':
+			case 'write_once':
 			case 'option':
 			case 'calculated':
 			case 'image':
@@ -51,13 +56,21 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 					elseif (isset($_POST[$my['fields'][$f]['detail_value']])) // main table, currently no other means to access it
 						$my['POST'][$my['fields'][$f]['field_name']] = $_POST[$my['fields'][$f]['detail_value']];
 	
+			//	convert ipv4 address to long
+				if ($my['fields'][$f]['type'] == 'ipv4' 
+					OR ($my['fields'][$f]['type'] == 'hidden' && !empty($my['fields'][$f]['sub_type'])
+						&& $my['fields'][$f]['sub_type'] == 'ipv4')) {
+						if ($my['POST'][$my['fields'][$f]['field_name']])
+							$my['POST'][$my['fields'][$f]['field_name']] = ip2long($my['POST'][$my['fields'][$f]['field_name']]);
+					}
+					
 			//	calculation and choosing of right values in case of coordinates
-				if ($my['fields'][$f]['type'] == 'number' AND isset($my['fields'][$f]['number_type']) 
+				elseif ($my['fields'][$f]['type'] == 'number' AND isset($my['fields'][$f]['number_type']) 
 					AND $my['fields'][$f]['number_type'] == 'latitude' || $my['fields'][$f]['number_type'] == 'longitude') {
 					// geographical coordinates
 					switch ($my['POST'][$my['fields'][$f]['field_name']]['which']) {
 						case 'dec':
-							$my['POST'][$my['fields'][$f]['field_name']] = $my['POST'][$my['fields'][$f]['field_name']]['dec'];
+							$my['POST'][$my['fields'][$f]['field_name']] = str_replace(',', '.', $my['POST'][$my['fields'][$f]['field_name']]['dec']);
 							break;
 						case 'dm':
 						case 'dms':
@@ -116,7 +129,7 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 						$my_sql = $my['fields'][$f]['sql_password_check'].$my['id']['value'];
 						$pwd = zz_check_password($my['POST'][$my['fields'][$f]['field_name']], $my['POST'][$my['fields'][$f]['field_name'].'_new_1'], $my['POST'][$my['fields'][$f]['field_name'].'_new_2'], $my_sql);
 					} else {
-						$zz_error['msg'] = $text['Please enter your current password and twice your new password.'];
+						$zz_error[]['msg'] = $text['Please enter your current password and twice your new password.'];
 					}
 					if ($pwd) $my['POST'][$my['fields'][$f]['field_name']] = $pwd;
 					else { 
@@ -140,7 +153,7 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 			//	check select /// workwork
 				if (isset($_POST['check_select']) && $my['fields'][$f]['type'] == 'select' 
 						&& (in_array($my['fields'][$f]['field_name'], $_POST['check_select']) 
-							OR (in_array($table_name.'[0]['.$my['fields'][$f]['field_name'].']', $_POST['check_select']))) // check only for 0, might be problem, but 0 should always be there
+							OR (in_array($table_name.'['.$k.']['.$my['fields'][$f]['field_name'].']', $_POST['check_select']))) // check only for 0, might be problem, but 0 should always be there
 						&& $my['POST'][$my['fields'][$f]['field_name']]) { // if null -> accept it
 					$my = zz_check_select($my, $f, $zz_conf['max_select']);
 				}
@@ -192,7 +205,7 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 				}
 			//	insert data from file upload/convert
 			//	...
-				$possible_upload_fields = array('date', 'time', 'text');
+				$possible_upload_fields = array('date', 'time', 'text', 'memo');
 				if (($my['fields'][$f]['type'] == 'hidden' && !empty($my['fields'][$f]['upload_field'])) // type hidden, upload_field set
 					OR (in_array($my['fields'][$f]['type'], $possible_upload_fields) && !empty($my['fields'][$f]['upload_field']) && empty($my['POST'][$my['fields'][$f]['field_name']]))) {
 					$myval = false;
@@ -208,7 +221,7 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 					if (preg_match('/.+\[.+\]/', $v)) { // construct access to array values
 						$myv = explode('[', $v);
 						foreach ($myv as $v_var) {
-							if (substr($v_var, strlen($v_var) -1) == ']') $v_var = substr($v_var, 0, strlen($v_var) - 1);
+							if (substr($v_var, -1) == ']') $v_var = substr($v_var, 0, -1);
 							$v_arr[] = $v_var;
 						}
 						$key1 = '$my[\'images\'][$g][0][\'upload\'][\''.implode("']['", $v_arr).'\']';
@@ -249,14 +262,25 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 							// foreign key will always be empty but most likely also be required.
 							// f. key will be added by script later on (because sometimes it is not known yet)
 							$my['validation'] = true;
+						elseif ($my['fields'][$f]['type'] == 'timestamp')
+							// timestamps will be set to current date, so no check is necessary
+							$my['validation'] = true;
 						elseif (!isset($my['fields'][$f]['set']))
 							$my['validation'] = false;
 						elseif (!checkfornull($my['fields'][$f]['field_name'], $table)) {
 							$my['validation'] = false;
 							$my['fields'][$f]['check_validation'] = false;
+						} elseif (!empty($my['fields'][$f]['required'])) {
+							$my['validation'] = false;
+							$my['fields'][$f]['check_validation'] = false;
 						}
-					} elseif(!$my['POST'][$my['fields'][$f]['field_name']] AND empty($my['fields'][$f]['null']))
+					} elseif(!$my['POST'][$my['fields'][$f]['field_name']] 
+						AND empty($my['fields'][$f]['null'])
+						AND $my['fields'][$f]['type'] != 'timestamp')
 						if (!checkfornull($my['fields'][$f]['field_name'], $table)) {
+							$my['validation'] = false;
+							$my['fields'][$f]['check_validation'] = false;
+						} elseif (!empty($my['fields'][$f]['required'])) {
 							$my['validation'] = false;
 							$my['fields'][$f]['check_validation'] = false;
 						}
@@ -291,6 +315,7 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 					}
 				}
 		// finished
+		}
 	}
 	if ($last_fields) { // these fields have to be handled after others because they might get data from other fields (e. g. upload_fields)
 		foreach ($last_fields as $f)
@@ -314,7 +339,7 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 					$my['POST'][$my['fields'][$f]['field_name']] = '';
 			}
 		//	slashes, 0 and NULL
-			$unwanted = array('calculated', 'image', 'upload_image', 'id', 'foreign', 'subtable', 'foreign_key', 'display', 'option');
+			$unwanted = array('calculated', 'image', 'upload_image', 'id', 'foreign', 'subtable', 'foreign_key', 'display', 'option', 'write_once');
 			if (!in_array($my['fields'][$f]['type'], $unwanted)) {
 				if ($my['POST'][$my['fields'][$f]['field_name']]) {
 					//if (get_magic_quotes_gpc()) // sometimes unwanted standard config
@@ -335,7 +360,7 @@ function zz_validate($my, $zz_conf, $table, $table_name) {
 			}
 		// foreign_key
 			if ($my['fields'][$f]['type'] == 'foreign_key') $my['POST'][$my['fields'][$f]['field_name']] = '[FOREIGN_KEY]';
-			if ($my['fields'][$f]['type'] == 'timestamp') $my['POST'][$my['fields'][$f]['field_name']] = 'NULL';
+			if ($my['fields'][$f]['type'] == 'timestamp') $my['POST'][$my['fields'][$f]['field_name']] = 'NOW()';
 		}
 	}
 	return $my;

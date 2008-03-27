@@ -50,7 +50,7 @@ function zz_imagick_identify($source) {
 	}
 	$path_identify = $zz_conf['imagemagick_paths'][0];
 	$i = 1;
-	while (!file_exists($path_identify.'/identify')) {
+	while (!file_exists($path_identify.'/identify') AND !is_link($path_identify.'/identify')) {
 		$path_identify = $zz_conf['imagemagick_paths'][$i];
 		$i++;
 		if ($i > count($zz_conf['imagemagick_paths']) -1) break;
@@ -126,7 +126,7 @@ function zz_imagick_convert($options, $files, $more_options = false, $more_files
 	}
 	$path_convert = $zz_conf['imagemagick_paths'][0];
 	$i = 1;
-	while (!file_exists($path_convert.'/convert')) {
+	while (!file_exists($path_convert.'/convert') AND !is_link($path_convert.'/convert')) {
 		$path_convert = $zz_conf['imagemagick_paths'][$i];
 		$i++;
 		if ($i > count($zz_conf['imagemagick_paths']) -1) break;
@@ -143,6 +143,12 @@ function zz_imagick_convert($options, $files, $more_options = false, $more_files
 		echo $call_convert;
 		echo '<pre>';
 		print_r($return);
+		echo '</pre>';
+	}
+	if ($return_var) {
+		echo $call_convert;
+		echo '<pre>';
+		print_r($return_var);
 		echo '</pre>';
 	}
 	if (!$return_var) return true;

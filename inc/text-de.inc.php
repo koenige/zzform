@@ -112,5 +112,16 @@ Beispiele f&uuml;r gute Pa&szlig;w&ouml;rter:
 * 17Nbg03h (Merkregel: Ich telefoniere nicht besonders gern oder besonders h&auml;ufig, Buchstaben teilweise durch &auml;hnlich aussehende Zahlen ersetzt)'; 
 $text['New and old password are identical. Please choose a different new password.'] = 'Neues und altes Passwort sind identisch. Bitte w&auml;hlen Sie ein anderes, neues Passwort aus.';
 $text['selection:'] = 'Auswahl:';
+$text['Export'] = 'Export';
+$text['Duplicate entry'] = 'Doppelter Eintrag in dieser Tabelle. Bitte &uuml;berpr&uuml;fen Sie, ob entweder der gew&uuml;nschte Datensatz bereits existiert oder ob Sie Ihren Eintrag &auml;ndern k&ouml;nnen.';
+$text['Detail record could not be handled'] = 'Teildatensatz konnte nicht gespeichert werden.';
+$text['Error during database operation'] = 'Fehler bei Datenbankzugriff';
+$text['The following error(s) occured in project %s:'] = 'Folgende(r) Fehler sind im Projekt %s aufgetaucht:';
+$text['- unknown -'] = '- unbekannt -';
+$text['Add %s'] = '%s hinzuf&uuml;gen';
+$text['Remove %s'] = '%s entfernen';
+$text['Delete this file'] = 'Diese Datei l&ouml;schen';
+$text['Show all records'] = 'Zeige alle Datens&auml;tze';
+
 
 ?>

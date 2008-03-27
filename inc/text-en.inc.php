@@ -119,5 +119,14 @@ Examples for good passwords:
 * NYtgPw4n (Rule: generic password part that you could always use: gPw4 = good password for; NYt for New York Times, final n for news)'; 
 $text['New and old password are identical. Please choose a different new password.'] = 'New and old password are identical. Please choose a different new password.';
 $text['selection:'] = 'Selection:';
+$text['Export'] = 'Export';
+$text['Duplicate entry'] = 'Duplicate entry in this table. Please check whether the record you were about to enter already exists or you\'ll have to change the values you entered.';
+$text['Error during database operation'] = 'Error from database operation';
+$text['The following error(s) occured in project %s:'] = 'The following error(s) occured in project %s:';
+$text['- unknown -'] = '- unknown -';
+$text['Add %s'] = 'Add %s';
+$text['Remove %s'] = 'Remove %s';
+$text['Delete this file'] = 'Delete this file';
+$text['Show all records'] = 'Show all records';
 
 ?>

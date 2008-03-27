@@ -5,7 +5,7 @@
 	zzform Scripts
 	image upload
 
-	(c) Gustaf Mossakowski <gustaf@koenige.org> 2006
+	(c) Gustaf Mossakowski <gustaf@koenige.org> 2006-2008
 */
 
 /*	----------------------------------------------	*
@@ -92,7 +92,7 @@ $zz_default['tmp_dir']			= false;
 $zz_default['graphics_library'] = 'imagemagick';
 $zz_default['imagemagick_paths'] = array('/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/phpbin'); 
 $zz_conf['upload_ini_max_filesize'] = ini_get('upload_max_filesize');
-switch (substr($zz_conf['upload_ini_max_filesize'], strlen($zz_conf['upload_ini_max_filesize'])-1)) {
+switch (substr($zz_conf['upload_ini_max_filesize'], -1)) {
 	case 'G': $zz_conf['upload_ini_max_filesize'] *= pow(1024, 3); break;
 	case 'M': $zz_conf['upload_ini_max_filesize'] *= pow(1024, 2); break;
 	case 'K': $zz_conf['upload_ini_max_filesize'] *= pow(1024, 1); break;
@@ -244,7 +244,7 @@ function zz_upload_check_files(&$zz_tab) {
 			if ($myfiles['size'][$image['field_name']] < 3) { // file is to small or 0, might occur while incorrect refresh of browser
 				$images[$key][$subkey]['upload']['error'] = 4; // no file
 				if (file_exists($images[$key][$subkey]['upload']['tmp_name']))
-					unlink($images[$key][$subkey]['upload']['tmp_name']);
+					zz_unlink_cleanup($images[$key][$subkey]['upload']['tmp_name']);
 				$images[$key][$subkey]['upload']['tmp_name'] = false;
 				$images[$key][$subkey]['upload']['type'] = false;
 				$images[$key][$subkey]['upload']['name'] = false;
@@ -312,6 +312,7 @@ function zz_upload_check_files(&$zz_tab) {
 				}
 				// TODO: allow further file testing here, e. g. for PDF, DXF
 				// and others, go for Identifying Characters.
+				// maybe use magic_mime_type()
 				if (!$images[$key][$subkey]['upload']['validated']) {
 					if (zz_upload_mimecheck($images[$key][$subkey]['upload']['type'], $extension)) {
 						// Error: this mimetype/extension combination was already checked against
@@ -338,6 +339,7 @@ function zz_upload_check_files(&$zz_tab) {
 				// TODO: or read AutoCAD Version from DXF, DWG, ...
 				// TODO: or read IPCT data.
 			}
+
 			$myfilename = false;
 		}
 		$my_tab['images'] = $images;
@@ -404,6 +406,19 @@ function zz_upload_filecheck($mimetype, $extension) {
 			if ($type3) $type3unique = false;
 			else $type3 = $filetype;
 		}
+/*
+	echo '<pre align="left">';
+	echo 'MIME: '.$mimetype;
+	echo '<br>Ext: '.$extension;
+	echo '<br>Type1: ';
+	print_r($type1);
+	echo '<br>Type2: ';
+	print_r($type2);
+	echo '<br>Type2Unique %'.$type2unique.'%';
+	echo '<br>Type3: ';
+	print_r($type3);
+	echo '<br>Type3Unique %'.$type3unique.'%</pre>';
+*/
 	if ($type1) 
 		return $type1;	// first priority: mimetype AND extension match
 	if ($type2 && $type2unique) 
@@ -489,6 +504,10 @@ function zz_upload_prepare(&$zz_tab, $zz_conf) {
 							$image['modified']['width'] = $my_img[0];
 							$image['modified']['height'] = $my_img[1];
 							// todo: name, type, ...
+						}  else {
+						// ELSE: upload original file, this might occur if image-action did not work out the way it should have.
+							if ($zz_conf['debug']) 
+								echo 'No real file was returned from <code>'.$image['action'].'()</code><br>';
 						}
 					} else echo 'Error: File '.$tmp_filename.' does not exist<br>
 						Temporary Directory: '.realpath($zz_conf['tmp_dir']).'<br>';
@@ -518,12 +537,18 @@ function zz_upload_extension($path, &$zz_tab, &$uf) {
 	foreach ($path as $path_key => $path_value) {// todo: implement mode!
 		// move to last, can be done better, of course. todo! no time right now.
 	}
-	if (substr($path_key, 0, 6) == 'string')
-		$extension = substr($path_value, strrpos('.', $path_value)+1);
-	elseif (substr($path_key, 0, 5) == 'field') {
+	if (substr($path_key, 0, 6) == 'string') {
+		if (strstr($path_value, '.'))
+			$extension = substr($path_value, strrpos($path_value, '.')+1);
+		else
+			$extension = $path_value;
+	} elseif (substr($path_key, 0, 5) == 'field') {
 		$content = (isset($my_tab['POST'][$path_value])) 
 			? zz_upload_reformat_field($my_tab['POST'][$path_value]) : '';
-		$extension = substr($content, strrpos($content, '.')+1);
+		if (strstr($content, '.'))
+			$extension = substr($content, strrpos($content, '.')+1);
+		else
+			$extension = $content;
 		if (!$extension) { 
 			// check for sql-query which gives extension. usual way does not work, 
 			// because at this stage record is not saved yet.
@@ -648,10 +673,49 @@ function zz_upload_check(&$images, $action, $zz_conf, $input_filetypes = array()
  */
 function zz_upload_action(&$zz_tab, $zz_conf) {
 	global $zz_error;
+	if (!empty($_POST['zz_delete_file'])) zz_upload_delete_file($zz_tab, $zz_tab[0][0]['action'], $zz_conf);
 	if ($zz_tab[0][0]['action'] != 'delete')
 		zz_upload_write($zz_tab, $zz_tab[0][0]['action'], $zz_conf);
 	else
 		zz_upload_delete($zz_tab, $zz_conf);
+}
+
+/** Deletes files when specifically requested (e. g. in multiple upload forms)
+ * 
+ * called from within function zz_upload_action
+ * @param $zz_tab(array) complete table data
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function zz_upload_delete_file(&$zz_tab, $action, $zz_conf) {
+	foreach ($_POST['zz_delete_file'] as $keys => $status) {
+		if ($status != 'on') return false; // checkbox checked
+		$keys = explode('-', $keys);
+		$field = (int) $keys[0];
+		$image = (int) $keys[1];
+		if (empty($zz_tab[0][0]['images'][$field][$image])) return false; // impossible, might be manipulation or so
+		$val = &$zz_tab[0][0]['images'][$field][$image];
+		// new path is not interesting, old picture shall be deleted
+		$old_path = zz_makepath($val['path'], $zz_tab, 'old', 'file');
+		if (file_exists($old_path)) { // just a precaution for e. g. simultaneous access
+			if ($zz_conf['backup'])
+				rename($old_path, zz_upload_path($zz_conf['backup_dir'], $action, $old_path));
+			else
+				unlink($old_path);
+		}
+		foreach ($zz_tab[0][0]['images'][$field] as $key => $other_image) {
+			if (is_numeric($key) && isset($other_image['source']) && $other_image['source'] == $image) {
+				$old_path = zz_makepath($other_image['path'], $zz_tab, 'old', 'file');
+				if (file_exists($old_path)) { // just a precaution for e. g. simultaneous access
+					if ($zz_conf['backup'])
+						rename($old_path, zz_upload_path($zz_conf['backup_dir'], $action, $old_path));
+					else
+						unlink($old_path);
+				}
+			}
+		}
+		// remove images which base on this image as well (source = $image)
+	}
+	return true;
 }
 
 /** Writes files after successful SQL operations
@@ -685,6 +749,14 @@ function zz_upload_write(&$zz_tab, $action, $zz_conf) {
 			if ($action == 'update') {
 				$path = zz_makepath($val['path'], $zz_tab, 'new', 'file');
 				$old_path = zz_makepath($val['path'], $zz_tab, 'old', 'file');
+				if (!empty($zz_tab[0]['folder']))
+					foreach ($zz_tab[0]['folder'] as $folder) {
+						// escape foldername, preg_match delimiters will
+						// be replaced with \/
+						$folder['old_e'] = str_replace('/', '\\/', $folder['old']);
+						if (preg_match('/^'.$folder['old_e'].'/', $old_path))
+							$old_path = preg_replace('/^('.$folder['old_e'].')/', $folder['new'], $old_path);
+					}
 				if ($path != $old_path) {
 					$image['files']['update']['path'] = $path; // not necessary maybe, but in case ...
 					$image['files']['update']['old_path'] = $old_path; // too
@@ -705,27 +777,36 @@ function zz_upload_write(&$zz_tab, $action, $zz_conf) {
 				$dest = zz_makepath($val['path'], $zz_tab, 'new', 'file');
 				$image['files']['destination'] = $dest; // not necessary, just in case ...
 				$filename = $image['files']['tmp_files'][$img];
-				zz_upload_checkdir(dirname($dest)); // create path if it does not exist
 				if (file_exists($dest) && is_file($dest))
-					if ($zz_conf['backup'])
+					if ($zz_conf['backup']) {
 						rename($dest, zz_upload_path($zz_conf['backup_dir'], $action, $dest));
-					else unlink($dest);
+						zz_cleanup_dirs(dirname($dest));
+					} else zz_unlink_cleanup($dest);
 				elseif (file_exists($dest) && !is_file($dest))
-					$zz_error['msg'].= '<br>'.'Configuration Error [2]: Filename "'
+					$zz_error[]['msg'] = '<br>'.'Configuration Error [2]: Filename "'
 						.$dest.'" is invalid.';
+				zz_upload_checkdir(dirname($dest)); // create path if it does not exist or if cleanup removed it.
 				if (!isset($image['source']) && empty($image['action'])) { 
 					// do this with images which have not been touched
 					// todo: error handling!!
 					copy($filename, $dest);		// instead of rename:
-					unlink($filename);			// this also works in older php versions between partitions.
+					if (!file_exists($dest)) {
+						if (!is_writeable(dirname($dest))) echo '<br>Insufficient rights. Directory <code>'.dirname($dest).'</code> is not writeable.';
+						else echo '<br>Unknown error. Copying not successful<br>from: '.$filename.'<br>to: '.$dest.'<br>';
+					}
+					zz_unlink_cleanup($filename);			// this also works in older php versions between partitions.
 					chmod($dest, 0644);
 				} else {
+				//	echo '<br>FILENAME: %'.$filename.'% DEST %'.$dest.'<br>';
 					$success = copy($filename, $dest);
 					chmod($dest, 0644);
 					if (!$success)
-						echo 'Copying not successful<br>'.$filename.' '.$dest.'<br>';
+						echo '<br>
+						Copying not successful<br>from: '.$filename.'<br>to: '.$dest.'<br>';
 				}
 			}
+
+		// TODO: EXIF or ICPT write operations go here!
 		}
 	}
 }
@@ -768,15 +849,19 @@ function zz_upload_delete($zz_tab, $zz_conf) {
 			$path = zz_makepath($val['path'], $zz_tab, 'old', 'file');
 			$localpath = zz_makepath($val['path'], $zz_tab, 'old', 'local');
 			if (file_exists($path) && is_file($path)) {
-				if ($zz_conf['backup'])
+				if ($zz_conf['backup']) {
 					$success = rename($path, zz_upload_path($zz_conf['backup_dir'], 'delete', $path));
-				else
-					$success = unlink($path);
-				if (!$success) $zz_error['msg'].= sprintf($text['Could not delete %s.'], $path);
+					zz_cleanup_dirs(dirname($path));
+				} else
+					$success = zz_unlink_cleanup($path);
+				if (!$success) 
+					$zz_error[]['msg'] = sprintf($text['Could not delete %s.'], $path);
 			} elseif(file_exists($path) && !is_file($path))
-				$zz_error['msg'].= '<br>'.'Configuration Error [1]: Filename is invalid.';
-			elseif ($path && !isset($val['ignore']))
-				$zz_error['msg'].= '<br>'.sprintf($text['Could not delete %s, file did not exist.'], $localpath);
+				$zz_error[]['msg'] = '<br>'.'Configuration Error [1]: Filename is invalid.';
+			elseif ($path && empty($val['ignore']) 
+				&& empty($my_tab['fields'][$uf['f']]['optional_image'])) { // optional images: don't show error message!
+				$zz_error[]['msg'] = '<br>'.sprintf($text['Could not delete %s, file did not exist.'], $localpath);
+			}
 		}
 	}
 }
@@ -816,7 +901,7 @@ function zz_upload_cleanup(&$zz_tab) {
 			if (!empty($image['files']['all_temp']))
 				if (count($image['files']['all_temp']))
 					foreach ($image['files']['all_temp'] as $file)
-						if (file_exists($file) && is_file($file)) unlink($file);
+						if (file_exists($file) && is_file($file)) zz_unlink_cleanup($file);
 		}
 	}
 }
@@ -832,8 +917,8 @@ function zz_upload_cleanup(&$zz_tab) {
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_reformat_field($value) {
-	if (substr($value, 0, 1) == '"' AND substr($value, strlen($value) -1) == '"')
-		$value = substr($value, 1, strlen($value) -2);
+	if (substr($value, 0, 1) == '"' AND substr($value, -1) == '"')
+		$value = substr($value, 1, -1);
 	return $value;
 }
 
@@ -845,10 +930,10 @@ function zz_upload_reformat_field($value) {
  */
 function zz_upload_checkdir($my_dir) { 
 	// checks if directories above current_dir exist and creates them if necessary
-	while (strstr($my_dir, '//'))
+	while (strpos($my_dir, '//'))
 		$my_dir = str_replace('//', '/', $my_dir);
-	if (substr($my_dir, strlen($my_dir)-1) == '/')	//	removes / from the end
-		$my_dir = substr($my_dir, 0, strlen($my_dir)-1);
+	if (substr($my_dir, -1) == '/')	//	removes / from the end
+		$my_dir = substr($my_dir, 0, -1);
 	if (!file_exists($my_dir)) { //	if dir does not exist, do a recursive check/makedir on parent director[y|ies]
 		$upper_dir = substr($my_dir, 0, strrpos($my_dir, '/'));
 		$success = zz_upload_checkdir($upper_dir);
@@ -949,6 +1034,10 @@ function is_better_ratio($ratio, $old_ratio, $new_ratio) { // returns true if ne
 
 function zz_upload_getfiletypes($filetypes_file) {
 	// TODO: $mode = file, sql; read values from database table
+	if (!file_exists($filetypes_file)) {
+		echo ' Filetype definitions in "'.$filetypes_file.'" are not available!';
+		exit;
+	}
 	$matrix = file($filetypes_file);
 	foreach ($matrix as $line) {
 		$default = false;
@@ -969,79 +1058,37 @@ function zz_upload_getfiletypes($filetypes_file) {
 	return $defaults;
 }
 
-/*	----------------------------------------------	*
- *					TODO						*
- *	----------------------------------------------	*/
+// cleanup after deletion, e. g. remove empty dirs
+function zz_unlink_cleanup($file) {
+	$full_path = realpath($file);
+	$dir = dirname($full_path);
+	$success = unlink($full_path);
+	if ($dir == '/tmp') return true; // don't delete /tmp-Folder
+	
+	zz_cleanup_dirs($dir);
+		
+	if ($success) return true;
+	return false;
+}
 
-
-/*
-
-
-
-http://gustaf.local/phpdoc/function.exif-read-data.html
-http://gustaf.local/phpdoc/function.exif-thumbnail.html
-
-bei umbenennen und file_exists true:
-filetype um zu testen, ob es sich um eine datei oder ein verzeichnis etc. handelt.
-
-is_uploaded_file -- PrŸft, ob die Datei mittels HTTP POST upgeloaded wurde
-move_uploaded_file -- ggf. vorher Zieldatei auf Existenz ŸberprŸfen und sichern
-
-tmpfile ( void ) um eine temporŠre Datei anzulegen, ggf. s. tempnam
-(neues Bild anlegen)
-
-test: function_exists fuer php-imagick-funktionen, sonst ueber exec
-
-lesen:
-http://gustaf.local/phpdoc/ref.image.html
-
-max_size:
-ini_get('post_max_size'), wenn das kleiner ist, Warnung ausgeben! 
-(oder geht das per ini_set einzustellen?)
-
-mime_content_type -- Detect MIME Content-type for a file
-
-set_time_limit, falls safe_mode off ggf. anwenden
-
-imagick shell:
-- escapeshellarg()
-- wie programm im hintergrund laufen lassen?
-
-ggf. mehrere Dateien hochladbar, die gleich behandelt werden (Massenupload)?
-
-
-Kuer:
--------
-
-testen, ob verzeichnis schreibbar fuer eigene gruppe/eigenen user
-(777 oder gruppenspezifisch)
-filegroup ($filename)
-posix_getgrgid($group_id) 
-fileowner()
-posix_getpwuid() 
-fileperms($filename)
-get_current_user -- zeigt den aktuellen User an, der PHP nutzt, getmygid Gruppe, getmyuid
-
-disk_free_space($dir) testen, ob's reicht?!
-
-*/
-/*
-
-* kennung generieren (dateiname ohne endung, exif, was passiert bei mehreren 
-	dateien, forcefilename)
-  (falls erforderlich, s. path. ist das da erkennbar?)
-  kennung kann auch increment sein, ggf. vorhandene dateien checken (bauplan)
-
-allowed output files
-
-todo:
------
-* files that are bigger than in php.ini-var post_max_upload: no 
-  error message will be shown, simply nothing happens!
-  check if there is a possibility to generate an error message from this.
-* check if permissions are correctly set (upload folder, backup folder, ...)
-* check if images may be in subtables as well or if this causes problems (sql-query e. g.)
-
-*/
+function zz_cleanup_dirs($dir) {
+	$success = false;
+	if (is_dir($dir)) {
+		$dir_handle = opendir($dir);
+		$i = 0;
+		// check if directory is empty
+		while ($filename = readdir($dir_handle)) {
+			if ($filename != '.' AND $filename != '..') $i++;
+		}
+		closedir($dir_handle);
+		if ($i == 0) $success = rmdir($dir);
+	}
+	if ($success) {
+		// walk through dirs recursively
+		$upper_dir = dirname($dir);
+		zz_cleanup_dirs($upper_dir);
+	}
+	return true;
+}
 
 ?>

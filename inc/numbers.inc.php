@@ -15,29 +15,36 @@ zzform: Number/Date Functions
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function datum_de($datum, $param = false) {
-	if (isset($datum)) {
-		if (!ereg("^[0-9-]+$",$datum)) return $datum; #wenn kein richtiges datum, einfach datum zur¸ckgeben.
-		if (preg_match("/^[0-9]{1,4}$/", $datum)) return $datum; #wenn nur ein bis vier ziffern, d. h. jahr, einfach jahr zurueckgeben
-		$datum_arr = explode("-", $datum);
-		$datum = '';
-		if (isset($datum_arr[2]) && $datum_arr[2] != "00")
-			$datum .= $datum_arr[2].".";
-		if (isset($datum_arr[1]) && $datum_arr[1] != "00")
-			$datum .= $datum_arr[1].".";
-		if (substr($datum_arr[0], 0, 1) == "0" AND substr($datum_arr[0],0,2) != "00")
-			$datum .= substr($datum_arr[0], 1, 4);
-		else
-			switch ($param) {
-				case 'without-year':
-					break;
-				case 'short':
-					$datum .= substr($datum_arr[0],2);
-					break;
-				default:
-					$datum .= $datum_arr[0];
-			}
-		return $datum;
-	}
+	if (!$datum) return false;
+	if (preg_match("/^([0-9]{4}-[0-9]{2}-[0-9]{2}) [0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/", $datum, $match)) {
+		// DATETIME
+		$datum = $match[1]; // ignore time, it's a date function
+	} elseif (preg_match("/^([0-9]{4})([0-9]{2})([0-9]{2})[0-2][0-9][0-5][0-9][0-5][0-9]$/", $datum, $match)){
+		// old MySQL TIMESTAMP
+		$datum = $match[1].'-'.$match[2].'-'.$match[3]; // ignore time, it's a date function
+	} elseif (!preg_match("/^[0-9-]+$/", $datum)) 
+		return $datum; #wenn kein richtiges datum, einfach datum zurueckgeben.
+	elseif (preg_match("/^[0-9]{1,4}$/", $datum)) 
+		return $datum; #wenn nur ein bis vier ziffern, d. h. jahr, einfach jahr zurueckgeben
+	$datum_arr = explode("-", $datum);
+	$datum = '';
+	if (isset($datum_arr[2]) && $datum_arr[2] != "00")
+		$datum .= $datum_arr[2].".";
+	if (isset($datum_arr[1]) && $datum_arr[1] != "00")
+		$datum .= $datum_arr[1].".";
+	if (substr($datum_arr[0], 0, 1) == "0" AND substr($datum_arr[0],0,2) != "00")
+		$datum .= substr($datum_arr[0], 1, 4);
+	else
+		switch ($param) {
+		case 'without-year':
+			break;
+		case 'short':
+			$datum .= substr($datum_arr[0],2);
+			break;
+		default:
+			$datum .= $datum_arr[0];
+		}
+	return $datum;
 }
 
 /** returns year of given iso date, removes trailing 0 if neccessary

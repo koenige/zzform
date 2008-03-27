@@ -48,7 +48,7 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 			// do something with the POST array before proceeding
 				if (empty($zz_tab[$i][$k]['access']) 
 					|| $zz_tab[$i][$k]['access'] != 'show' ) // don't validate record which only will be shown!!
-					$zz_tab[$i][$k] = zz_validate($zz_tab[$i][$k], $zz_conf, $zz_tab[$i]['table'], $zz_tab[$i]['table_name']); 
+					$zz_tab[$i][$k] = zz_validate($zz_tab[$i][$k], $zz_conf, $zz_tab[$i]['table'], $zz_tab[$i]['table_name'], $k); 
 			} elseif (is_numeric($k))
 			//	Check referential integrity
 				if (file_exists($zz_conf['dir'].'/inc/integrity.inc.php')) {
@@ -79,16 +79,11 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 				$validation = false;
 
 	if ($validation) {
-
+		if ($zz_conf['debug']) echo '<br>Validation of record was successful';
+		
 		// if any other action before insertion/update/delete is required
 		if (isset($zz_conf['action']['before_'.$zz['action']])) 
 			include ($zz_conf['action_dir'].'/'.$zz_conf['action']['before_'.$zz['action']].'.inc.php'); 
-
-		// if there is a directory which has to be renamed, save old name in array
-		// do the same if a file might be renamed, deleted ... via upload
-		if (($zz['action'] == 'update' OR $zz['action'] == 'delete')
-			&& (!empty($zz_conf['folder']) OR !empty($upload_form)))
-			zz_foldercheck_before($zz_tab);
 
 		// put delete_ids into zz_tab-array
 		if (isset($_POST['deleted']))
@@ -170,10 +165,10 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 						unset($detail_sql_edit[$i][$k]);
 					} else { // something went wrong, but why?
 						$zz['formhead'] = false;
-						$zz_error['msg']	.= 'Detail record could not be deleted';
-						$zz_error['type']	.= 'mysql';
-						$zz_error['query']	.= $detail_sql_edit[$i][$k];
-						$zz_error['mysql']	.= mysql_error();
+						$zz_error[] = array('msg' => 'Detail record could not be deleted',
+							'type' => 'mysql',
+							'query' => $detail_sql_edit[$i][$k],
+							'mysql' =>	mysql_error());
 						return false; // get out of function, ignore rest (this should never happen, just if there are database errors etc.)
 					}
 				}
@@ -211,13 +206,17 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 						//if ($zz['action'] == 'insert') $detail_sql .= $zz_tab[0][0]['id']['value'].');';
 						$detail_result = mysql_query($detail_sql);
 						if (!$detail_result) { // This should never occur, since all checks say that this change is possible
+							// only if duplicate entry
 							$zz['formhead']		= false;
-							$zz_error['msg']	.= 'Detail record could not be handled';
-							$zz_error['level']	.= 'crucial';
-							$zz_error['type']	.= 'mysql';
-							$zz_error['query']	.= $detail_sql;
-							$zz_error['mysql']	.= mysql_error();
+							$zz_error[] = array('msg' => 'Detail record could not be handled',
+								'level' => 'crucial',
+								'type' => 'mysql',
+								'query' => $detail_sql,
+								'mysql' => mysql_error(),
+								'mysql_errno' => mysql_errno());
 							$operation_success = false;
+							$validation = false; 
+							$zz_tab[0][0]['fields'][$zz_tab[$i]['no']]['check_validation'] = false;
 						} elseif ($zz_tab[$i][$k]['action'] == 'insert') 
 							$zz_tab[$i][$k]['id']['value'] = mysql_insert_id(); // for requery
 						if ($zz_conf['logging']) zz_log_sql($detail_sql, $zz_conf['user']); // Logs SQL Query
@@ -225,7 +224,8 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 			if (isset($zz_conf['action']['after_'.$zz['action']])) 
 				include ($zz_conf['action_dir'].'/'.$zz_conf['action']['after_'.$zz['action']].'.inc.php'); 
 				// if any other action after insertion/update/delete is required
-			if (!empty($zz_conf['folder']))
+			if (!empty($zz_conf['folder']) && $zz_tab[0][0]['action'] == 'update')
+				// rename connected folder after record has been updated
 				zz_foldercheck($zz_tab, $zz_conf);
 			if (!empty($upload_form))
 				zz_upload_action($zz_tab, $zz_conf); // upload images, delete images, as required
@@ -234,11 +234,12 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 			// Output Error Message
 			$zz['formhead'] = false;
 			if ($zz['action'] == 'insert') $zz_tab[0][0]['id']['value'] = false; // for requery
-			$zz_error['msg']	.= ' ';
-			$zz_error['level']	.= 'crucial';
-			$zz_error['type']	.= 'mysql';
-			$zz_error['query']	.= $sql_edit;
-			$zz_error['mysql']	.= mysql_error();
+			$zz_error[] = array('msg' => ' ',
+				'level' => 'crucial',
+				'type' => 'mysql',
+				'query' => $sql_edit,
+				'mysql' => mysql_error(),
+				'mysql_errno' => mysql_errno());
 			$validation = false; // show record again!
 		}
 	}

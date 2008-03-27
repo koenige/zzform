@@ -14,6 +14,10 @@ div.text #zzform	 {padding: 1em;}
 #zzform #record .subtable th {width: 12%;}
 #zzform #record .subtable {margin: 0;}
 
+#zzform #record .subtable .horizontal {width: auto;}
+#zzform #record .subtable .horizontal td {width: auto;}
+#zzform #record .subtable .horizontal th {width: auto; font-weight: bold;}
+
 #zzform .negative {color: red;}
 #zzform td.number {text-align: right;}
 #zzform td.reedit {text-align: right;}
@@ -36,6 +40,7 @@ div.text #zzform	 {padding: 1em;}
 
 #zzform table td { padding: .2em;}
 #zzform h1 {font-size: 140%; margin: 0;}
+#zzform td h2, #zzform td h3, #zzform td h4, #zzform td h5, #zzform td h6 {margin: 0 0 .5em;}
 #zzform div.text {padding: 1em;}
 
 #zzform #record th, #zzform #record td {line-height: 1.5em; padding: .25em .5em;}
@@ -53,7 +58,8 @@ div.text #zzform	 {padding: 1em;}
 
 #zzform #record .error td, #zzform #record .error th,
 #zzform #record .subtable .error td, #zzform #record .subtable .error th,
-#zzform #record .error .subtable td, #zzform #record .error .subtable  th  {
+#zzform #record .error .subtable td, #zzform #record .error .subtable th,
+#zzform #record .subtable th.error, #zzform #record .subtable td.error{
 	background-color: red;}
 #zzform tr.error td {border-color: red;}
 
@@ -63,25 +69,24 @@ div.text #zzform	 {padding: 1em;}
 #zzform table.data tr.group td {border-top: 1px solid; padding-top: 1em;}
 #zzform table.data tr.group_sum td {padding-bottom: .5em; font-weight: bold;}
 
-#zzform .last {	border-bottom: 1px solid;}
+#zzform td.last {border-bottom: 1px solid;}
 #zzform .pages .last {border-bottom: none;}
 
 #zzform td p, #zzform td ul {margin-top: 0;}
 
 #zzform .hidden {display: none;}
 
-#zzform .level0 {font-weight: bold;}
-#zzform .level2 {color: #339;}
-#zzform .level3 {font-style: italic;}
+#zzform option.level0 {font-weight: bold;}
+#zzform option.level2 {color: #339;}
+#zzform option.level3 {font-style: italic;}
 
-#zzform .sub-add {text-align: left;}
-#zzform .sub-add input {float: right; font-weight: bold; background-color: green; 
-	color: white; margin-left: .5em;}
-#zzform .subtable input.sub-remove {background-color: red; color: white; float: left; 
-	font-weight: bold; margin-right: .5em;}
+#zzform input.sub-add {float: left;}
+#zzform input.sub-remove {float: right;}
 
 #zzform form .reselect td, #zzform form .reselect th, 
-#zzform #record .subtable .reselect td, #zzform #record .subtable .reselect th {
+#zzform form td.reselect, #zzform form th.reselect, 
+#zzform #record .subtable .reselect td, #zzform #record .subtable .reselect th,
+#zzform #record .subtable td.reselect, #zzform #record .subtable th.reselect {
 	background-color: green; color: white; padding: .25em;}
 
 #zzform h2 {line-height: 120%; font-size: 140%;}
@@ -104,4 +109,22 @@ div.text #zzform	 {padding: 1em;}
 #zzform .zz_radio_list li {list-style: none; padding: 0; margin: 0;}
 #zzform .separator hr {width: 100%; margin: 0.25em 0; height: 3px;
 	background-color: #FFF; color: #FFF; border: #FFF;}
+#zzform .left_separator {border-left: 3px #FFF solid;}
 #zzform #record td.separator {padding: .25em 0;}
+
+#zzform div.level1 {padding-left: 2.5em; /* background: url(line-vertical.gif) .5em 0 repeat-y; */
+	margin-bottom: -.25em; padding-bottom: .25em; /* overwrite padding of td */}
+#zzform table td.level1 {padding-left: 2.5em; /*background: url(line-vertical.gif) 1em 0 repeat-y; */}
+#zzform table td.last {background-position: 1em 50%;}
+
+#zzform table td.level2 {padding-left: 5em; /* background: url(line-vertical.gif) 1em 0 repeat-y; */}
+#zzform table td.level3 {padding-left: 7.5em;}
+#zzform table td.level4 {padding-left: 10em;}
+#zzform table td.level5 {padding-left: 12.5em;}
+#zzform table td.level6 {padding-left: 15em;}
+#zzform table td.level7 {padding-left: 17.5em;}
+#zzform table td.level8 {padding-left: 20em;}
+#zzform table td.level9 {padding-left: 22.5em;}
+#zzform table td.level10 {padding-left: 25em;}
+
+#zzform table td small {font-size: 90%;}
