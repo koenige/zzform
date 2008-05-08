@@ -63,6 +63,7 @@ function zzform() {
 		$zz['output'] .= zz_error($zz_error);
 	}
 
+
 //	set mode
 	$zz['mode'] = (!empty($_GET['mode']) && in_array($_GET['mode'], $zz_allowed_params['mode'])) 
 		? $_GET['mode'] : false;
@@ -673,7 +674,7 @@ function zzform() {
 		// shows table with all records (limited by zz_conf['limit'])
 		// and add/nav if limit/search buttons
 	}
-	
+
 	if ($zz['mode'] != 'export') {
 		if ($zz_conf['footer_text']) $zz['output'].= $zz_conf['footer_text'];
 		 $zz['output'].= '</div>';

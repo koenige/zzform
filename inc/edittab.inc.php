@@ -28,6 +28,30 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines, $id_fi
 			if (empty($field['hide_in_list'])) $table_query[] = $field;
 	}
 
+	// Search Form
+	$searchform_top = false;
+	$searchform_bottom = false;
+
+	if ($zz['mode'] != 'export')
+		if ($zz_conf['search'] == true) {
+			$html_searchform = false;
+			if ($zz_lines OR isset($_GET['q'])) 
+				// show search form only if there are records as a result of this query; 
+				// q: show search form if empty search result occured as well
+				$html_searchform = zz_search_form($zz_conf['url_self'], $zz['fields'], $zz['table']);
+			if ($zz_conf['search'] === true) $zz_conf['search'] = 'bottom'; // default!
+			switch ($zz_conf['search']) {
+				case 'top':
+					$searchform_top = $html_searchform;
+				break;
+				case 'both':
+					$searchform_top = $html_searchform;
+				case 'bottom':
+				default:
+					$searchform_bottom = $html_searchform;
+			}
+		}
+
 	//
 	// Table head
 	//
@@ -86,32 +110,6 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines, $id_fi
 		$zz_conf['show_list'] = false;
 		$zz['output'].= '<p>'.$text['table-empty'].'</p>';
 	}
-
-	// Search Form
-	$searchform_top = false;
-	$searchform_bottom = false;
-
-	if ($zz['mode'] != 'export')
-		if ($zz_conf['search'] == true) {
-			$html_searchform = false;
-			if ($zz_lines OR isset($_GET['q'])) 
-				// show search form only if there are records as a result of this query; 
-				// q: show search form if empty search result occured as well
-				$html_searchform = zz_search_form($zz_conf['url_self'], $zz['fields'], $zz['table']);
-			if ($zz_conf['search'] === true) $zz_conf['search'] = 'bottom'; // default!
-			switch ($zz_conf['search']) {
-				case 'top':
-					// show form on top only if there are records!
-					if ($count_rows) $searchform_top = $html_searchform;
-				break;
-				case 'both':
-					// show form on top only if there are records!
-					if ($count_rows) $searchform_top = $html_searchform;
-				case 'bottom':
-				default:
-					$searchform_bottom = $html_searchform;
-			}
-		}
 
 	$zz['output'] .= $searchform_top;
 	
@@ -411,26 +409,15 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines, $id_fi
 			}
 			$ids[$z] = $sub_id; // for subselects
 			if ($zz_conf['edit'] OR $zz_conf['view']) {
-				$rows[$z]['editbutton'] = false;
+				 $rows[$z]['editbutton'] = false;
 				if ($zz_conf['edit']) 
-					$rows[$z]['editbutton'] = '<a href="'.$zz_conf['url_self']
-						.$zz_var['url_append'].'mode=edit&amp;id='.$id
-						.$zz['extraGET'].'">'.$text['edit'].'</a>';
+					$rows[$z]['editbutton'] = '<a href="'.$zz_conf['url_self'].$zz_var['url_append'].'mode=edit&amp;id='.$id.$zz['extraGET'].'">'.$text['edit'].'</a>';
 				elseif ($zz_conf['view'])
-					$rows[$z]['editbutton'] = '<a href="'.$zz_conf['url_self']
-						.$zz_var['url_append'].'mode=show&amp;id='.$id
-						.$zz['extraGET'].'">'.$text['show'].'</a>';
-
-				if ($zz_conf['delete']) {
-					$rows[$z]['editbutton'] .= '&nbsp;| <a href="'
-						.$zz_conf['url_self'].$zz_var['url_append'].'mode=delete&amp;id='
-						.$id.$zz['extraGET'].'">'.$text['delete'].'</a>';
-				}
+					$rows[$z]['editbutton'] = '<a href="'.$zz_conf['url_self'].$zz_var['url_append'].'mode=show&amp;id='.$id.$zz['extraGET'].'">'.$text['show'].'</a>';
+				if ($zz_conf['delete']) $rows[$z]['editbutton'] .= '&nbsp;| <a href="'.$zz_conf['url_self'].$zz_var['url_append'].'mode=delete&amp;id='.$id.$zz['extraGET'].'">'.$text['delete'].'</a>';
 			}
 			if (isset($zz_conf['details'])) {
-				$rows[$z]['actionbutton'] = zz_show_more_actions($zz_conf['details'], 
-					$zz_conf['details_url'],  $zz_conf['details_base'], 
-					$zz_conf['details_target'], $zz_conf['details_referer'], $id, $line);
+				$rows[$z]['actionbutton'] = show_more_actions($zz_conf['details'], $zz_conf['details_url'],  $zz_conf['details_base'], $zz_conf['details_target'], $zz_conf['details_referer'], $id, $line);
 			}
 			$z++;
 		}

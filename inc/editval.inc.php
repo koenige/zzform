@@ -70,7 +70,7 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0) {
 					// geographical coordinates
 					switch ($my['POST'][$my['fields'][$f]['field_name']]['which']) {
 						case 'dec':
-							$my['POST'][$my['fields'][$f]['field_name']] = str_replace(',', '.', $my['POST'][$my['fields'][$f]['field_name']]['dec']);
+							$my['POST'][$my['fields'][$f]['field_name']] = $my['POST'][$my['fields'][$f]['field_name']]['dec'];
 							break;
 						case 'dm':
 						case 'dms':
@@ -205,7 +205,7 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0) {
 				}
 			//	insert data from file upload/convert
 			//	...
-				$possible_upload_fields = array('date', 'time', 'text', 'memo');
+				$possible_upload_fields = array('date', 'time', 'text');
 				if (($my['fields'][$f]['type'] == 'hidden' && !empty($my['fields'][$f]['upload_field'])) // type hidden, upload_field set
 					OR (in_array($my['fields'][$f]['type'], $possible_upload_fields) && !empty($my['fields'][$f]['upload_field']) && empty($my['POST'][$my['fields'][$f]['field_name']]))) {
 					$myval = false;

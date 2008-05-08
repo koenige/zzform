@@ -145,12 +145,6 @@ function zz_imagick_convert($options, $files, $more_options = false, $more_files
 		print_r($return);
 		echo '</pre>';
 	}
-	if ($return_var) {
-		echo $call_convert;
-		echo '<pre>';
-		print_r($return_var);
-		echo '</pre>';
-	}
 	if (!$return_var) return true;
 	else return false;
 }

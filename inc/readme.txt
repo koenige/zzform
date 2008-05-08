@@ -105,7 +105,6 @@ $zz_conf - configuration variables
 	$zz_conf['show_hierarchy'] = true;	display table in a hierarchical view, instead of true, an ID value might be used as well
 	$zz_conf['hierarchy']['mother_id_field_name']	field_name: mother ID, to get hierarchical view
 	$zz_conf['hierarchy']['display_in'] 			field_name where hierarchy shall be displayed (level0...10)
-	$zz_conf['format']['markdown']['link']	Link to markdown help page; similarly use ['format'][$format]['link'] for other formats
 
 /*	----------------------------------------------	*
  *		MAIN CONFIGURATION (UPLOAD MODULE)			*

@@ -9,22 +9,12 @@
 
 */
 
-function checkmail($e_mail) {
-	// multiple e-mail adresses might be separated with a ','
-/* TODO
-	if (strstr(',', $e_mail)) {
-		$e_mails = explode(',', $e_mail);
-		foreach ($e_mails as $mail) {
-			$mail = checkmail($mail);
-			if (!$mail)
-		}
-	}
-*/
-	$e_mail = trim($e_mail); // spaces never belong to Mailadress
-	if (substr($e_mail, 0, 1) == '<' && substr($e_mail, -1) == '>') 
-		$e_mail = substr($e_mail, 1, -1); // remove <>-brackets around address
-	if (preg_match('/^[a-z0-9!#$%&\'*+\/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&\'*+\\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i', $e_mail, $check))
-		return $e_mail;
+function checkmail($cemail) {
+	$cemail = trim($cemail); // spaces never belong to Mailadress
+	if (substr($cemail, 0, 1) == '<' && substr($cemail, -1) == '>') 
+		$cemail = substr($cemail, 1, -1); // remove <>-brackets around address
+	if (eregi("^[0-9a-z]([-_.]?[0-9a-z])*@[0-9a-z]([-.]?[0-9a-z])*\\.([a-z]{2}|com|edu|gov|int|mil|net|org|shop|aero|biz|coop|info|museum|name|pro)$", $cemail, $check))
+		return $cemail;
 	return false;
 }
 

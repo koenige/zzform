@@ -121,7 +121,6 @@ $text['- unknown -'] = '- unbekannt -';
 $text['Add %s'] = '%s hinzuf&uuml;gen';
 $text['Remove %s'] = '%s entfernen';
 $text['Delete this file'] = 'Diese Datei l&ouml;schen';
-$text['Show all records'] = 'Zeige alle Datens&auml;tze';
 
 
 ?>

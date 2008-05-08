@@ -99,7 +99,7 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var) {
 				$output.= '</td></tr>'."\n";
 				if (isset($zz_conf_thisrec['details'])) {
 					$output.= '<tr><th>&nbsp;</th><td class="editbutton">'
-						.zz_show_more_actions($zz_conf_thisrec['details'], 
+						.show_more_actions($zz_conf_thisrec['details'], 
 						$zz_conf_thisrec['details_url'], $zz_conf_thisrec['details_base'], 
 						$zz_conf_thisrec['details_target'], $zz_conf_thisrec['details_referer'],
 						$my_tab[0][0]['id']['value'], 
@@ -194,10 +194,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 		elseif (isset($field['field_name'])) $field['f_field_name'] = $field['field_name'];
 		if (!empty($field['format'])) { // formatted fields: show that they are being formatted!
 			if (!isset($field['title_desc'])) $field['title_desc'] = '';
-			$field['title_desc'] .= ' ['.(!empty($zz_conf['format'][$field['format']]['link']) 
-				? '<a href="'.$zz_conf['format'][$field['format']]['link'].'">' : '')
-				.(ucfirst($field['format']))
-				.(!empty($zz_conf['format'][$field['format']]['link']) ? '</a>' : '').']';
+			$field['title_desc'] .= " [".ucfirst($field['format']).']';
 		}
 		if ($field['type'] == 'subtable') {
 			if (empty($field['form_display'])) $field['form_display'] = 'vertical';
@@ -870,7 +867,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 									if ($link = show_link($image['path'], (isset($my['record_saved']) ? $my['record_saved'] : $my['record'])))
 										$outputf .= '<br><a href="'.$link.'">'.$link
 											.'</a>'
-											.(($image_uploads > 1 OR !empty($field['optional_image'])) ?
+											.($image_uploads > 1 ?
 											'(<small><label for="delete-file-'.$fieldkey.'-'.$imagekey
 											.'"><input type="checkbox" name="zz_delete_file['.$fieldkey.'-'.$imagekey
 											.']" id="delete-file-'.$fieldkey.'-'.$imagekey.'"> '

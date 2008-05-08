@@ -291,12 +291,8 @@ function show_link($path, $record) {
 	return $link;
 }
 
-function zz_show_more_actions($more_actions, $more_actions_url, $more_actions_base, 
+function show_more_actions($more_actions, $more_actions_url, $more_actions_base, 
 		$more_actions_target, $more_actions_referer, $id, $line = false) {
-	if (!function_exists('forceFilename')) {
-		echo 'Function forceFilename() required but not found! It is as well possible that <code>$zz_conf[\'character_set\']</code> is incorrectly set.';
-		exit;
-	}
 	global $text;
 	global $zz_conf;
 	$act = false;
@@ -512,8 +508,6 @@ function zz_search_form($self, $query, $table) {
 		}
 	}
 	$output.= '</select>';
-	if (!empty($_GET['q']))
-		$output.= ' &nbsp;<a href="'.$self.'">'.$text['Show all records'].'</a>';
 	$output.= '</p></form>'."\n";
 	return $output;
 }
@@ -944,10 +938,9 @@ function zz_create_identifier($vars, $my, $table, $field, $conf) {
 		? $conf['concat'] : substr($conf['concat'], 0, 1)) : '.';
 	$con_exists = !empty($conf['exists']) ? substr($conf['exists'], 0, 1) : '.';
 	$con_lowercase = isset($conf['lowercase']) ? $conf['lowercase'] : true;
-	$i = 0;
-	foreach ($vars as $index => $var) {
+	foreach ($vars as $index => $var)
 		if ($var) {
-			if (strstr($var, '/') AND $i != count($vars)-1) { // last var will be treated normally, other vars may inherit slashes from dir names
+			if (strstr($var, '/') AND $index != count($var)-1) { // last var will be treated normally, other vars may inherit slashes from dir names
 				$dir_vars = explode('/', $var);
 				foreach ($dir_vars as $d_var) 
 					if ($d_var) {
@@ -961,8 +954,6 @@ function zz_create_identifier($vars, $my, $table, $field, $conf) {
 				$idf_arr[] = $my_var;
 			}
 		}
-		$i++;
-	}
 	if (empty($idf_arr)) return false;
 	if (!is_array($con_vars))
 		$idf = implode($con_vars, $idf_arr);
