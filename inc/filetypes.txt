@@ -97,6 +97,7 @@ pdf		pdf		pdf		application/acrobat				Adobe Portable Document Format
 pdf		pdf		pdf		applications/vnd.pdf			Adobe Portable Document Format
 pdf		pdf		pdf		text/pdf						Adobe Portable Document Format
 pdf		pdf		pdf		text/x-pdf						Adobe Portable Document Format
+pdf		pdf		pdf		application/x-octet-stream		Adobe Portable Document Format
 
 zip		zip		zip		application/zip					ZIP Archive
 zip		zip		zip		application/x-zip				ZIP Archive

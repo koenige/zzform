@@ -99,7 +99,7 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var) {
 				$output.= '</td></tr>'."\n";
 				if (isset($zz_conf_thisrec['details'])) {
 					$output.= '<tr><th>&nbsp;</th><td class="editbutton">'
-						.show_more_actions($zz_conf_thisrec['details'], 
+						.zz_show_more_actions($zz_conf_thisrec['details'], 
 						$zz_conf_thisrec['details_url'], $zz_conf_thisrec['details_base'], 
 						$zz_conf_thisrec['details_target'], $zz_conf_thisrec['details_referer'],
 						$my_tab[0][0]['id']['value'], 
@@ -867,7 +867,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 									if ($link = show_link($image['path'], (isset($my['record_saved']) ? $my['record_saved'] : $my['record'])))
 										$outputf .= '<br><a href="'.$link.'">'.$link
 											.'</a>'
-											.($image_uploads > 1 ?
+											.(($image_uploads > 1 OR !empty($field['optional_image'])) ?
 											'(<small><label for="delete-file-'.$fieldkey.'-'.$imagekey
 											.'"><input type="checkbox" name="zz_delete_file['.$fieldkey.'-'.$imagekey
 											.']" id="delete-file-'.$fieldkey.'-'.$imagekey.'"> '

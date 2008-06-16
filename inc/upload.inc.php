@@ -339,6 +339,7 @@ function zz_upload_check_files(&$zz_tab) {
 				// TODO: or read AutoCAD Version from DXF, DWG, ...
 				// TODO: or read IPCT data.
 			}
+
 			$myfilename = false;
 		}
 		$my_tab['images'] = $images;
@@ -691,6 +692,18 @@ function zz_upload_delete_file(&$zz_tab, $action, $zz_conf) {
 			else
 				unlink($old_path);
 		}
+		foreach ($zz_tab[0][0]['images'][$field] as $key => $other_image) {
+			if (is_numeric($key) && isset($other_image['source']) && $other_image['source'] == $image) {
+				$old_path = zz_makepath($other_image['path'], $zz_tab, 'old', 'file');
+				if (file_exists($old_path)) { // just a precaution for e. g. simultaneous access
+					if ($zz_conf['backup'])
+						rename($old_path, zz_upload_path($zz_conf['backup_dir'], $action, $old_path));
+					else
+						unlink($old_path);
+				}
+			}
+		}
+		// remove images which base on this image as well (source = $image)
 	}
 	return true;
 }
@@ -826,11 +839,14 @@ function zz_upload_delete($zz_tab, $zz_conf) {
 					zz_cleanup_dirs(dirname($path));
 				} else
 					$success = zz_unlink_cleanup($path);
-				if (!$success) $zz_error[]['msg'] = sprintf($text['Could not delete %s.'], $path);
+				if (!$success) 
+					$zz_error[]['msg'] = sprintf($text['Could not delete %s.'], $path);
 			} elseif(file_exists($path) && !is_file($path))
 				$zz_error[]['msg'] = '<br>'.'Configuration Error [1]: Filename is invalid.';
-			elseif ($path && !isset($val['ignore']))
+			elseif ($path && empty($val['ignore']) 
+				&& empty($my_tab['fields'][$uf['f']]['optional_image'])) { // optional images: don't show error message!
 				$zz_error[]['msg'] = '<br>'.sprintf($text['Could not delete %s, file did not exist.'], $localpath);
+			}
 		}
 	}
 }
@@ -1003,6 +1019,10 @@ function is_better_ratio($ratio, $old_ratio, $new_ratio) { // returns true if ne
 
 function zz_upload_getfiletypes($filetypes_file) {
 	// TODO: $mode = file, sql; read values from database table
+	if (!file_exists($filetypes_file)) {
+		echo ' Filetype definitions in "'.$filetypes_file.'" are not available!';
+		exit;
+	}
 	$matrix = file($filetypes_file);
 	foreach ($matrix as $line) {
 		$default = false;
@@ -1028,6 +1048,8 @@ function zz_unlink_cleanup($file) {
 	$full_path = realpath($file);
 	$dir = dirname($full_path);
 	$success = unlink($full_path);
+	if ($dir == '/tmp') return true; // don't delete /tmp-Folder
+	
 	zz_cleanup_dirs($dir);
 		
 	if ($success) return true;

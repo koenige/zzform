@@ -92,15 +92,24 @@ function geo_editform($form_coords, $coords, $format = 'dms', $wrong_coords = fa
 	global $text;
 	// Coordinates[0][X_Latitude][lat
 	// X_Latitude[lat
+
 	$form_coords_ext = substr($form_coords, strrpos($form_coords, '[')+1).'_'.$format;
 	
 	$output = '';
-	$output .= '<input type="text" size="3" maxlength="3" name="'.$form_coords.'_'.$format.'][deg]" id="'.make_id_fieldname($form_coords.'_'.$format.'][deg]', false).'" value="'.$coords[$form_coords_ext]['deg'].'">&deg; ';
+	$output .= '<input type="text" size="3" maxlength="3" name="'.$form_coords.'_'.$format.'][deg]" id="'
+		.make_id_fieldname($form_coords.'_'.$format.'][deg]', false)
+		.'" value="'.($coords ? $coords[$form_coords_ext]['deg'] : '').'">&deg; ';
 	if ($format == 'dm')
-		$output .= '<input type="text" size="6" maxlength="6" name="'.$form_coords.'_'.$format.'][min]" id="'.make_id_fieldname($form_coords.'_'.$format.'][min]', false).'" value="'.$coords[$form_coords_ext]['min'].'">\' ';
+		$output .= '<input type="text" size="6" maxlength="6" name="'.$form_coords.'_'.$format.'][min]" id="'
+			.make_id_fieldname($form_coords.'_'.$format.'][min]', false)
+			.'" value="'.($coords ? $coords[$form_coords_ext]['min'] : '').'">\' ';
 	else {
-		$output .= '<input type="text" size="3" maxlength="3" name="'.$form_coords.'_'.$format.'][min]" id="'.make_id_fieldname($form_coords.'_'.$format.'][min]', false).'" value="'.$coords[$form_coords_ext]['min'].'">\' ';
-		$output .= '<input type="text" size="4" maxlength="4" name="'.$form_coords.'_'.$format.'][sec]" id="'.make_id_fieldname($form_coords.'_'.$format.'][sec]', false).'" value="'.$coords[$form_coords_ext]['sec'].'">&quot; ';
+		$output .= '<input type="text" size="3" maxlength="3" name="'.$form_coords.'_'.$format.'][min]" id="'
+			.make_id_fieldname($form_coords.'_'.$format.'][min]', false)
+			.'" value="'.($coords ? $coords[$form_coords_ext]['min'] : '').'">\' ';
+		$output .= '<input type="text" size="4" maxlength="4" name="'.$form_coords.'_'.$format.'][sec]" id="'
+			.make_id_fieldname($form_coords.'_'.$format.'][sec]', false)
+			.'" value="'.($coords ? $coords[$form_coords_ext]['sec'] : '').'">&quot; ';
 	}
 	
 	if ($form_coords_ext == "lat_".$format)
@@ -110,13 +119,16 @@ function geo_editform($form_coords, $coords, $format = 'dms', $wrong_coords = fa
 	else
 		$output.= "Programmer's fault. Variable must have lat or lon in its name";
 
-	$output.= '<select name="'.$form_coords.'_'.$format.'][hemisphere]" id="'.make_id_fieldname($form_coords.'_'.$format.'][hemisphere]').'" size="1">'."\n";
+	$output.= '<select name="'.$form_coords.'_'.$format.'][hemisphere]" id="'
+		.make_id_fieldname($form_coords.'_'.$format.'][hemisphere]').'" size="1">'."\n";
 	$output.= '<option '; 
-	if ($coords[$form_coords_ext]['hemisphere'] == $hemispheres['+'] OR $coords[$form_coords_ext]['hemisphere'] == '+')
+	if ($coords && ($coords[$form_coords_ext]['hemisphere'] == $hemispheres['+'] 
+		OR $coords[$form_coords_ext]['hemisphere'] == '+'))
 		$output.= "selected ";
 	$output.= 'value="+">'.$text[$hemispheres['+']].'</option>';
 	$output.= '<option '; 
-	if ($coords[$form_coords_ext]['hemisphere'] == $hemispheres['-'] OR $coords[$form_coords_ext]['hemisphere'] == '-')
+	if ($coords && ($coords[$form_coords_ext]['hemisphere'] == $hemispheres['-'] 
+		OR $coords[$form_coords_ext]['hemisphere'] == '-'))
 		$output.= "selected ";
 	$output.= 'value="-">'.$text[$hemispheres['-']].'</option>
 </select>';
@@ -146,6 +158,7 @@ function zz_geo_error($coords, $wrong_coords, $ll) {
 */
 
 function dms2db($input, $which = 'dms') {
+	setlocale(LC_ALL, 'en_GB'); // we would get into trouble with set locale
 	global $text;
 	$gcs = array (
 		'lat' => 'latitude',
