@@ -512,6 +512,8 @@ function zz_search_form($self, $query, $table) {
 		}
 	}
 	$output.= '</select>';
+	if (!empty($_GET['q']))
+		$output.= ' &nbsp;<a href="'.$self.'">'.$text['Show all records'].'</a>';
 	$output.= '</p></form>'."\n";
 	return $output;
 }

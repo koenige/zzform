@@ -194,7 +194,10 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 		elseif (isset($field['field_name'])) $field['f_field_name'] = $field['field_name'];
 		if (!empty($field['format'])) { // formatted fields: show that they are being formatted!
 			if (!isset($field['title_desc'])) $field['title_desc'] = '';
-			$field['title_desc'] .= " [".ucfirst($field['format']).']';
+			$field['title_desc'] .= ' ['.(!empty($zz_conf['format'][$field['format']]['link']) 
+				? '<a href="'.$zz_conf['format'][$field['format']]['link'].'">' : '')
+				.(ucfirst($field['format']))
+				.(!empty($zz_conf['format'][$field['format']]['link']) ? '</a>' : '').']';
 		}
 		if ($field['type'] == 'subtable') {
 			if (empty($field['form_display'])) $field['form_display'] = 'vertical';
