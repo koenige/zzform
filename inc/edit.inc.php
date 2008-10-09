@@ -731,9 +731,19 @@ function microtime_float() {
 }
 
 function zz_show_microtime($pos, $zz_timer) {
-	return $string = '<p>Verbrauchte Zeit Start - '.$pos.': '
+	return $string = '<p>Elapsed time, start - '.$pos.': '
 			.(microtime_float() - $zz_timer).'</p>';
 
+}
+
+function zz_text($string) {
+	global $text;
+	global $zz_conf;
+	if (empty($text[$string])) {
+		// write missing translation to somewhere.
+		return $string;
+	} else
+		return $text[$string];
 }
 
 ?>

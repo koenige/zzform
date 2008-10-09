@@ -136,6 +136,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines, $id_fi
 				OR $field['field_name'] == $zz_conf['group'])) {
 				$zz_conf['group_field_no'] = $index;
 				$show_field = false;
+				$table_query[$index]['show_field'] = false;
 			}
 			if ($show_field) {
 				$zz['output'].= '<th'.check_if_class($field, (!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : '')).'>';
@@ -158,6 +159,9 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines, $id_fi
 				if (!in_array($field['type'], $unsortable_fields) && isset($field['field_name']))
 					$zz['output'].= '</a>';
 				$zz['output'].= '</th>';
+				$table_query[$index]['show_field'] = true;
+			} else {
+				$table_query[$index]['show_field'] = false;
 			}
 			if (!empty($field['list_append_next'])) $show_field = false;
 			else $show_field = true;
@@ -615,7 +619,8 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines, $id_fi
 function zz_field_sum($table_query, $z, $table, $sum, $zz_conf) {
 	$tfoot_line = '';
 	foreach ($table_query as $index => $field)
-		if (!$zz_conf['group_field_no'] OR $index != $zz_conf['group_field_no']) {
+		if ((!$zz_conf['group_field_no'] OR $index != $zz_conf['group_field_no'])
+			AND $field['show_field']) {
 			if ($field['type'] == 'id' && empty($field['show_id'])) {
 				$tfoot_line .= '<td class="recordid">'.$z.'</td>';
 			} elseif (!empty($field['sum'])) {

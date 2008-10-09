@@ -688,7 +688,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 											$index = mysql_result($result_detail,0,0);
 										//else $outputf.= $sql_where[2];
 									} else {
-										if ($zz_conf['debug_allsql']) echo "<div>damned...there was an error in this query:<br /><pre>".$sql_where[2]."</pre></div>";
+										if ($zz_conf['debug_allsql']) echo "<div>damned... there was an error in this query:<br /><pre>".$sql_where[2]."</pre></div>";
 										$outputf.= zz_error($zz_error[] = array('mysql' => mysql_error(), 'query' => $sql_where[2], 
 											'msg' => $text['error-sql-incorrect']));
 									}
@@ -702,8 +702,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 						if (!$result_detail){
 							if ($zz_conf['debug_allsql']) echo "<div>Errors are bad... :<br /><pre>".$field['sql']."</pre></div>";
 							$outputf.= zz_error($zz_error[] = array('mysql' => mysql_error(), 'query' => $field['sql'], 'msg' => $text['error-sql-incorrect']));
-						}
-						elseif ($row_display == 'form' && mysql_num_rows($result_detail) == 1 && !checkfornull($field['field_name'], $my_tab[$i]['table'])) {
+						} elseif ($row_display == 'form' && mysql_num_rows($result_detail) == 1 && !checkfornull($field['field_name'], $my_tab[$i]['table'])) {
 							// there is only one result in the array, and this will be pre-selected because FIELD must not be NULL
 							$line = mysql_fetch_array($result_detail); // need both numeric and assoc keys
 							if ($my['record'] && $line[0] != $my['record'][$field['field_name']]) $outputf .= 'Possible Values: '.$line[0].' -- Current Value: '.htmlspecialchars($my['record'][$field['field_name']]).' -- Error --<br>'.$text['no_selection_possible'];

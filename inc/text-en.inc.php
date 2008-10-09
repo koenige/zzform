@@ -127,6 +127,6 @@ $text['- unknown -'] = '- unknown -';
 $text['Add %s'] = 'Add %s';
 $text['Remove %s'] = 'Remove %s';
 $text['Delete this file'] = 'Delete this file';
-$text['Show all records'] = 'Show all records';
+$text['Show all records'] = 'Show all records (without search filter)';
 
 ?>

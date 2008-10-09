@@ -512,8 +512,18 @@ function zz_search_form($self, $query, $table) {
 		}
 	}
 	$output.= '</select>';
-	if (!empty($_GET['q']))
+	if (!empty($_GET['q'])) {
+		$parts = array();
+		foreach (array_keys($queryparts) as $key) {
+			if (is_array($queryparts[$key])) {
+				foreach (array_keys($queryparts[$key]) as $subkey)
+					$parts[] = $key.'['.$subkey.']'.'='.$queryparts[$key][$subkey];
+			} else 
+				$parts[] = $key.'='.$queryparts[$key];
+		}
+		if ($parts) $self .= '?'.implode('&amp;', $parts);
 		$output.= ' &nbsp;<a href="'.$self.'">'.$text['Show all records'].'</a>';
+	}
 	$output.= '</p></form>'."\n";
 	return $output;
 }
@@ -892,13 +902,18 @@ function zz_fill_out(&$tab) {
 	}
 }
 
-function zz_log_sql($sql, $user) {
+function zz_log_sql($sql, $user, $record_id = false) {
 	global $zz_conf;
 	// logs each INSERT, UPDATE or DELETE query
-	$sql = 'INSERT INTO '.$zz_conf['logging_table'].' 
-		(query, user) VALUES ("'.addslashes($sql).'", "'.$user.'")';
+	// with record_id
+	if (!empty($zz_conf['logging_id']) AND $record_id)
+		$sql = 'INSERT INTO '.$zz_conf['logging_table'].' 
+			(query, user, record_id) VALUES ("'.mysql_real_escape_string($sql).'", "'.$user.'", '.$record_id.')';
+	// without record_id, only for backwards compatibility
+	else
+		$sql = 'INSERT INTO '.$zz_conf['logging_table'].' 
+			(query, user) VALUES ("'.mysql_real_escape_string($sql).'", "'.$user.'")';
 	$result = mysql_query($sql);
-	echo mysql_error();
 	if (!$result) return false;
 	else return true;
 	// die if logging is selected but does not work?

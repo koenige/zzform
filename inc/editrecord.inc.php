@@ -161,7 +161,8 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 				foreach (array_keys($detail_sql_edit[$i]) as $k) {
 					$del_result = mysql_query($detail_sql_edit[$i][$k]);
 					if ($del_result) {
-						if ($zz_conf['logging']) zz_log_sql($detail_sql_edit[$i][$k], $zz_conf['user']); // Logs SQL Query
+						if ($zz_conf['logging']) 
+							zz_log_sql($detail_sql_edit[$i][$k], $zz_conf['user'], $zz_tab[$i][$k]['id']['value']); // Logs SQL Query
 						unset($detail_sql_edit[$i][$k]);
 					} else { // something went wrong, but why?
 						$zz['formhead'] = false;
@@ -196,7 +197,7 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 			} elseif ($zz_tab[0][0]['action'] == 'update') $zz['formhead'] = $text['record_was_updated'];
 			elseif ($zz_tab[0][0]['action'] == 'delete') $zz['formhead'] = $text['record_was_deleted'];
 			if ($zz_conf['logging'] && $sql_edit != 'SELECT 1')
-				zz_log_sql($sql_edit, $zz_conf['user']); // Logs SQL Query, must be after insert_id was checked
+				zz_log_sql($sql_edit, $zz_conf['user'], $zz_tab[0][0]['id']['value']); // Logs SQL Query, must be after insert_id was checked
 			$operation_success = true;
 			if (isset($detail_sql_edit))
 				foreach (array_keys($detail_sql_edit) as $i)
@@ -219,7 +220,8 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 							$zz_tab[0][0]['fields'][$zz_tab[$i]['no']]['check_validation'] = false;
 						} elseif ($zz_tab[$i][$k]['action'] == 'insert') 
 							$zz_tab[$i][$k]['id']['value'] = mysql_insert_id(); // for requery
-						if ($zz_conf['logging']) zz_log_sql($detail_sql, $zz_conf['user']); // Logs SQL Query
+						if ($zz_conf['logging']) 
+							zz_log_sql($detail_sql, $zz_conf['user'], $zz_tab[$i][$k]['id']['value']); // Logs SQL Query
 					}
 			if (isset($zz_conf['action']['after_'.$zz['action']])) 
 				include ($zz_conf['action_dir'].'/'.$zz_conf['action']['after_'.$zz['action']].'.inc.php'); 

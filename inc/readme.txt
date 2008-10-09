@@ -76,7 +76,7 @@ $zz_conf - configuration variables
 								array values: before_update, before_insert, before_delete, after_update, after_insert, after_delete
 								value: file to be included without .inc.php
 								if you do insert/update/delete queries, you might want to add them to the logging table
-								with zz_log_sql($sql, $user); ($sql being the query, $user the username)
+								with zz_log_sql($sql, $user, $record_id); ($sql being the query, $user the username)
 								old: $query_action
 	$zz_conf['action_dir']		Directory where included scripts from $zz_conf['action'] reside, default: $zz_conf['dir'].'/local'
 	$zz_conf['user']			user name, default false
@@ -92,6 +92,7 @@ $zz_conf - configuration variables
 	$zz_conf['relations_table']	table for relations for relational integrity
 	$zz_conf['additional_text']	additional textfile in directory local (text-en.inc.php where en = zz_conf['language'])? false | true, overwrites standard messages as well!
 	$zz_conf['logging']			logging of INSERT UPDATE DELETE enabled? default: false
+	$zz_conf['logging_id']		logging of record_id enabled? default: false
 	$zz_conf['logging_table']	table where logging will be written into, default: _logging
 	$zz_conf['max_select_val_len']	maximum length of values in select, default = 60
 	$zz_conf['debug']			debugging mode, shows several debugging outputs
@@ -181,6 +182,7 @@ $zz
 				-> sql			SQL-Query for select, first field is key field which will not be displayed but entered into database field
 				-> sql_where	adds where to sql-string, rather complicated ... :-)
 				-> sql_without_id	where['id']-value will be appended automatically
+				-> sql_ignore	doesn't display fields of sql query in form view. this is useful if you need the fields for an identifier field.
 				-> key_field_name	if where is used and where-key-name is different from key name in sql-query
 				-> show_hierarchy	shows hierarchy in selects, value must be set to corresponding SQL field name
 				-> show_hierarchy_subtree	ID of top hierarchy value, if not set NULL will be used
@@ -278,6 +280,7 @@ $zz
 		$zz['fields'][n]['cols']				number of cols in textarea
 		$zz['fields'][n]['sql_without_id']		appends current id_value to sql-query
 		$zz['fields'][n]['sql_where']
+		$zz['fields'][n]['sql_ignore']			array, fields won't display in form view.
 		$zz['fields'][n]['key_field_name']		field name differs from foreign_key, e. g. mother_org_id instead of org_id
 		$zz['fields'][n]['sql_index_only']		only show index field (e. g. for SHOW COLUMNS ... queries)
 		$zz['fields'][n]['number_type']			latitude | longitude, for entering geo information

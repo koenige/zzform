@@ -25,7 +25,10 @@ body, #zzform .editbutton, #zzform td.recordid, #zzform th.recordid
 #zzform #zzsearch {display: none;}
 a:link, a:visited {color: #000;}
 #zzform table.data thead td, #zzform table.data thead th  
-	{border-bottom: 1.5pt black solid;}
+	{border-bottom: 1.5pt black solid; }
+#zzform table.data thead { display: table-header-group; }
 #zzform tfoot td 
 	{border-top: 1.5pt black solid; border-bottom: 3pt black double;}
 #zzform table.data tr.group td {border-top: 1.5pt black solid;}
+
+#zzform table.data {border-collapse: separate; border-spacing: 0;}
