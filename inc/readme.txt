@@ -55,6 +55,7 @@ $zz_conf - configuration variables
 		add_only: only allow to add record, do not show anything else (add new record-link, list table, ...)
 		edit_only: only allow to edit record, do not show anything else (add new record-link, list table, ...)
 		show: only view records
+		show_edit_add
 		show_and_delete
 		add_then_edit: only allow to add a new record, then to reedit this record if it already exists (only works with GET['where']...)
 		edit_details_only: do not edit main record, allow only detail records to be edited, no deletion and adding possible
@@ -303,6 +304,7 @@ $zz
 		$zz['fields'][n]['hide_in_form']		hides field in form, but not in list. 
 
 		$zz['fields'][n]['dont_show_image']		doesn't show image in form view (e. g. good for file upload)
+		$zz['fields'][n]['dont_show_file_link']	doesn't show link below upload field which otherwise will be shown if a file already exists
 		$zz['fields'][n]['options']				together with enum-array; values from enum-array will have to be set as pairs
 												e. g. enum-value proportional will be an array in options, first is key which will be added to image, second is corresponding value
 												['options'] = array('proportional' => array('key' => 'value')); existing keys will be overwritten

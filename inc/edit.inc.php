@@ -465,6 +465,11 @@ function zzform() {
 				$zz['mode'] = 'show';
 			} elseif ($zz['mode'] == 'add')
 				$zz['mode'] = false;
+		} elseif ($zz_conf['access'] == 'show_edit_add') {
+			$zz_conf['delete'] = false;
+			if ($zz['mode'] == 'delete') {
+				$zz['mode'] = 'show';
+			}
 		} elseif ($zz_conf['access'] == 'show_and_delete') {
 			$zz_conf['add'] = false;
 			$zz_conf['edit'] = false;
@@ -551,8 +556,9 @@ function zzform() {
 	$zz['sql'].= ' '.$zz['sqlorder']; 									// must be here because of where-clause
 	$zz['formhead'] = false;
 	
+	$record_action = false;
 	if ($zz['action'] == 'insert' OR $zz['action'] == 'update' OR $zz['action'] == 'delete')
-		zz_action($zz_tab, $zz_conf, $zz, $validation, $upload_form, $subqueries); // check for validity, insert/update/delete record
+		$record_action = zz_action($zz_tab, $zz_conf, $zz, $validation, $upload_form, $subqueries); // check for validity, insert/update/delete record
 
 //	Query Updated, Added or Editable Record
 	
@@ -578,7 +584,7 @@ function zzform() {
 			if ($extras) $zz['output'].= $zz_var['url_append'].$extras;
 			$zz['output'].= '" method="POST"';
 			if (!empty($upload_form)) $zz['output'] .= ' enctype="multipart/form-data"';
-			$zz['output'].= '>';
+			$zz['output'].= ' accept-charset="'.$zz_conf['character_set'].'">';
 		}
 		$zz['formhead'] = $text[$zz['mode']].' '.$text['a_record'];
 	} elseif ($zz['action']) {	
@@ -691,6 +697,11 @@ function zzform() {
 	if ($zz_conf['debug']) 
 		$zz['output'] .= zz_show_microtime('Finished', $zz_timer);
 	if ($zz_conf['show_output']) echo $zz['output'];
+//	if ($record_action) {
+//		$scheme = ((isset($_SERVER['HTTPS']) AND $_SERVER['HTTPS'] == "on") ? 'https' : 'http');
+//		übergabe via SESSION, so dass bestätiger Datensatz angezeigt wird.
+//		header('Location: '.$scheme.'://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI']); // Parameter, die bestätigten Record anzeigen
+//	}
 }
 
 function zzform_all($glob_vals = false) {

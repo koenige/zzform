@@ -866,7 +866,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 									// title and field_name of image might be empty
 									if ($image_uploads > 1) $outputf.= '<tr><th>'.$image['title'].'</th> <td>';
 									$outputf .= '<input type="file" name="'.$field['field_name'].'['.$image['field_name'].']">';
-									if ($link = show_link($image['path'], (isset($my['record_saved']) ? $my['record_saved'] : $my['record'])))
+									if (empty($field['dont_show_file_link']) AND $link = show_link($image['path'], (isset($my['record_saved']) ? $my['record_saved'] : $my['record'])))
 										$outputf .= '<br><a href="'.$link.'">'.$link
 											.'</a>'
 											.(($image_uploads > 1 OR !empty($field['optional_image'])) ?

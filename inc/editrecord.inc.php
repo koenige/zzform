@@ -21,6 +21,7 @@
 function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subqueries) {
 	global $text;
 	global $zz_error;
+	$operation_success = false;
 	
 	//	### Check for validity, do some operations ###
 	// currently, upload fields only possible for main table
@@ -246,6 +247,7 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 		}
 	}
 	if (!empty($upload_form)) zz_upload_cleanup($zz_tab); // delete temporary unused files
+	return $operation_success;
 }
 
 function zz_set_subrecord_action($subtable, &$zz_tab, $i, &$zz) {

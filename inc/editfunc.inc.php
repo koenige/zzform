@@ -479,9 +479,10 @@ function zz_search_sql($query, $sql, $table) {
 
 function zz_search_form($self, $query, $table) {
 	global $text;
+	global $zz_conf;
 	$unsearchable = array('image', 'calculated', 'subtable', 'timestamp', 'upload_image'); // fields that won't be used for search
 	$output = "\n";
-	$output.= '<form method="GET" action="'.$self.'" id="zzsearch"><p>';
+	$output.= '<form method="GET" action="'.$self.'" id="zzsearch" accept-charset="'.$zz_conf['character_set'].'"><p>';
 	$uri = parse_url($_SERVER['REQUEST_URI']);
 	if (isset($uri['query'])) { // better than $_GET because of possible applied rewrite rules!
 		$unwanted_keys = array('q', 'scope', 'limit', 'this_limit', 'mode', 'id'); // do not show edited record, limit

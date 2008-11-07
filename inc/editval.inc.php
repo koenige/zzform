@@ -16,6 +16,14 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0) {
 	$my['validation'] = true;
 	$last_fields = false;
 	foreach (array_keys($my['fields']) as $f) {
+	//	check if there are options-fields and put values into table definition
+		if (!empty($my['fields'][$f]['read_options'])) {
+			$submitted_option = $my['POST'][$my['fields'][$my['fields'][$f]['read_options']]['field_name']];
+			// if there's something submitted which fits in our scheme, replace values corresponding to options-field
+			if (!empty($my['fields'][$my['fields'][$f]['read_options']]['options'][$submitted_option])) {
+				$my['fields'][$f] = array_merge($my['fields'][$f], $my['fields'][$my['fields'][$f]['read_options']]['options'][$submitted_option]);
+			}
+		}
 	//	remove entries which are for display only
 		if ($my['fields'][$f]['type'] == 'write_once' 
 			AND empty($my['record'][$my['fields'][$f]['field_name']])) {
