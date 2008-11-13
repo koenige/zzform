@@ -279,6 +279,15 @@ function zzform() {
 				$table_name = $zz['table'];
 				$field_name = mysql_real_escape_string($field_name);
 			}
+			if (!empty($_GET['where'][$field_name])
+				AND $_GET['where'][$field_name] == 'NULL') {
+				$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', 
+					'ISNULL('.$table_name.'.'.$field_name.')');
+				continue; // don't use NULL as where variable!
+			} else
+				$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', 
+					$table_name.'.'.$field_name." = '"
+					.mysql_real_escape_string($value)."'");
 			$zz_var['where'][$table_name][$field_name] = $value;
 			if ($field_name == $id_field_name) {
 				$zz_tab[0][0]['id']['where'] = $field_name;
@@ -286,14 +295,6 @@ function zzform() {
 			} elseif (in_array($field_name, $unique_fields)) {
 				$zz_tab[0][0]['id']['where'] = $id_field_name;
 			}
-			if (!empty($_GET['where'][$field_name])
-				AND $_GET['where'][$field_name] == 'NULL')
-				$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', 
-					'ISNULL('.$table_name.'.'.$field_name.')');
-			else
-				$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', 
-					$table_name.'.'.$field_name." = '"
-					.mysql_real_escape_string($value)."'");
 		}
 		// in case where is not combined with ID field but UNIQUE field
 		// (e. g. identifier with UNIQUE KEY) retrieve value for ID field from database

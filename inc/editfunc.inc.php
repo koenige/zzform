@@ -394,7 +394,7 @@ function zz_search_sql($query, $sql, $table) {
 			$searchword = trim(substr($searchword, 1));
 			$searchop = '<';
 			$searchstring = ' < "'.trim(substr($searchword, 1)).'"';
-		} elseif (substr($searchword, 0, 1) == '-') {
+		} elseif (substr($searchword, 0, 1) == '-' AND strstr($searchword, ' ')) {
 			$searchword = trim(substr($searchword, 1));
 			$searchword = explode(" ", $searchword);
 			$searchop = 'BETWEEN';
