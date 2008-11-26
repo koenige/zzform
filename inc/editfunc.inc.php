@@ -381,98 +381,100 @@ function zz_search_sql($query, $sql, $table) {
 	global $zz_conf;
 	$addscope = true;
 	$unsearchable = array('image', 'calculated', 'subtable', 'timestamp', 'upload_image', 'option'); // fields that won't be used for search
-	if (!empty($_GET['q'])) {
-		if (get_magic_quotes_gpc())
-			stripslashes($_GET['q']);
-		$searchword = addslashes($_GET['q']);
-		// search: look at first character to change search method
-		if (substr($searchword, 0, 1) == '>') {
-			$searchword = trim(substr($searchword, 1));
-			$searchop = '>';
-			$searchstring = ' '.$searchop.' "'.$searchword.'"';
-		} elseif (substr($searchword, 0, 1) == '<') {
-			$searchword = trim(substr($searchword, 1));
-			$searchop = '<';
-			$searchstring = ' < "'.trim(substr($searchword, 1)).'"';
-		} elseif (substr($searchword, 0, 1) == '-' AND strstr($searchword, ' ')) {
-			$searchword = trim(substr($searchword, 1));
-			$searchword = explode(" ", $searchword);
-			$searchop = 'BETWEEN';
-			$searchstring = $_GET['scope'].' >= "'.trim($searchword[0]).'" AND '.$_GET['scope'].' <= "'.trim($searchword[1]).'"';
-			$addscope = false;
-		} elseif (preg_match('/q\d(.)[0-9]{4}/i', $searchword, $separator) AND !empty($_GET['scope'])) {
-			$searchword = trim(substr($searchword, 1));
-			$searchword = explode($separator[1], $searchword);
-			$searchop = false;
-			$searchstring = ' QUARTER('.$_GET['scope'].') = "'.trim($searchword[0]).'" AND YEAR('.$_GET['scope'].') = "'.trim($searchword[1]).'"';
-			$addscope = false;
-		} else {
-			$searchop = 'LIKE';
-			// first slash will be ignored, this is used to escape reserved characters
-			if (substr($searchword, 0, 1) == '\\') $searchword = substr($searchword, 1);
-			$searchstring = ' '.$searchop.' "%'.$searchword.'%"';
-		}
-	// Search with q
-		if (!empty($_GET['scope'])) {
-			$scope = false;
-			$fieldtype = false;
-			foreach ($query as $field) {
-			// todo: check whether scope is in_array($searchfields)
-				if (!in_array($field['type'], $unsearchable) && empty($field['exclude_from_search'])) {
-					if (!isset($field['sql']) && $_GET['scope'] == $field['field_name'] 
-						OR $_GET['scope'] == $table.'.'.$field['field_name']
-						OR (isset($field['display_field']) && $_GET['scope'] == $field['display_field'])) {
-						$scope = $_GET['scope'];
-						$fieldtype = $field['type'];
-						if (!empty($field['search'])) $scope = $field['search'];
-					}
-				}
-			}
-			// allow searching with strtotime, but do not convert years (2000)
-			// or year-month (2004-12)
-			if (empty($searchword[1]) AND 
-				!preg_match('/^\d{1,4}-*\d{0,2}-*\d{0,2}$/', trim($searchword))) 
-				$timesearch = strtotime($searchword);
-			else $timesearch = false;
-			if ($addscope)
-				$sql_search_part = $scope.$searchstring; // default here
-			else
-				$sql_search_part = $searchstring; // default here
-			switch ($fieldtype) {
-			case 'datetime':
-				if ($timesearch)
-					$sql_search_part = $scope.' '.$searchop.' "'.date('Y-m-d', $timesearch).'%"';
-				break;
-			case 'time':
-				if ($timesearch)
-					$sql_search_part = $scope.' '.$searchop.' "'.date('H:i:s', $timesearch);
-				break;
-			case 'date':
-				if ($timesearch)
-				$sql_search_part = $scope.' '.$searchop.' "'.date('Y-m-d', $timesearch).'%"';
-				break;
-			case '': // scope is false, fieldtype is false
-				$sql_search_part = 'NULL';
-				break;
-			}
-	
-			$sql = zz_edit_sql($sql, 'WHERE', $sql_search_part);
-		} else {
-			$q_search = '';
-			foreach ($query as $field)
-				if (!in_array($field['type'], $unsearchable) && empty($field['exclude_from_search'])) {
-					if (isset($field['search'])) $fieldname = $field['search'];
-					elseif (isset($field['display_field'])) $fieldname = $field['display_field'];
-					else $fieldname = $table.'.'.$field['field_name'];
-					$q_search[] = $fieldname.$searchstring;
-				}
-			$q_search = '('.implode(' OR ', $q_search).')';
-			$sql = zz_edit_sql($sql, 'WHERE', $q_search);
-		}
-	}
 	if ($zz_conf['debug']) {
 		global $zz;
 		$zz['output'] .= 'Search query: '.$sql.'<br>';
+	}
+	// no changes if there's no query string
+	if (empty($_GET['q'])) return $sql;
+
+	// there is something, process it.
+	if (get_magic_quotes_gpc())
+		stripslashes($_GET['q']);
+	$searchword = addslashes($_GET['q']);
+	// search: look at first character to change search method
+	if (substr($searchword, 0, 1) == '>') {
+		$searchword = trim(substr($searchword, 1));
+		$searchop = '>';
+		$searchstring = ' '.$searchop.' "'.$searchword.'"';
+	} elseif (substr($searchword, 0, 1) == '<') {
+		$searchword = trim(substr($searchword, 1));
+		$searchop = '<';
+		$searchstring = ' < "'.trim(substr($searchword, 1)).'"';
+	} elseif (substr($searchword, 0, 1) == '-' AND strstr($searchword, ' ')) {
+		$searchword = trim(substr($searchword, 1));
+		$searchword = explode(" ", $searchword);
+		$searchop = 'BETWEEN';
+		$searchstring = $_GET['scope'].' >= "'.trim($searchword[0]).'" AND '.$_GET['scope'].' <= "'.trim($searchword[1]).'"';
+		$addscope = false;
+	} elseif (preg_match('/q\d(.)[0-9]{4}/i', $searchword, $separator) AND !empty($_GET['scope'])) {
+		$searchword = trim(substr($searchword, 1));
+		$searchword = explode($separator[1], $searchword);
+		$searchop = false;
+		$searchstring = ' QUARTER('.$_GET['scope'].') = "'.trim($searchword[0]).'" AND YEAR('.$_GET['scope'].') = "'.trim($searchword[1]).'"';
+		$addscope = false;
+	} else {
+		$searchop = 'LIKE';
+		// first slash will be ignored, this is used to escape reserved characters
+		if (substr($searchword, 0, 1) == '\\') $searchword = substr($searchword, 1);
+		$searchstring = ' '.$searchop.' "%'.$searchword.'%"';
+	}
+	// Search with q
+	if (!empty($_GET['scope'])) {
+		$scope = false;
+		$fieldtype = false;
+		foreach ($query as $field) {
+		// todo: check whether scope is in_array($searchfields)
+			if (!in_array($field['type'], $unsearchable) && empty($field['exclude_from_search'])) {
+				if (!isset($field['sql']) && $_GET['scope'] == $field['field_name'] 
+					OR $_GET['scope'] == $table.'.'.$field['field_name']
+					OR (isset($field['display_field']) && $_GET['scope'] == $field['display_field'])) {
+					$scope = $_GET['scope'];
+					$fieldtype = $field['type'];
+					if (!empty($field['search'])) $scope = $field['search'];
+				}
+			}
+		}
+		// allow searching with strtotime, but do not convert years (2000)
+		// or year-month (2004-12)
+		if (empty($searchword[1]) AND 
+			!preg_match('/^\d{1,4}-*\d{0,2}-*\d{0,2}$/', trim($searchword))) 
+			$timesearch = strtotime($searchword);
+		else $timesearch = false;
+		if ($addscope)
+			$sql_search_part = $scope.$searchstring; // default here
+		else
+			$sql_search_part = $searchstring; // default here
+		switch ($fieldtype) {
+		case 'datetime':
+			if ($timesearch)
+				$sql_search_part = $scope.' '.$searchop.' "'.date('Y-m-d', $timesearch).'%"';
+			break;
+		case 'time':
+			if ($timesearch)
+				$sql_search_part = $scope.' '.$searchop.' "'.date('H:i:s', $timesearch);
+			break;
+		case 'date':
+			if ($timesearch)
+			$sql_search_part = $scope.' '.$searchop.' "'.date('Y-m-d', $timesearch).'%"';
+			break;
+		case '': // scope is false, fieldtype is false
+			$sql_search_part = 'NULL';
+			break;
+		}
+	
+		$sql = zz_edit_sql($sql, 'WHERE', $sql_search_part);
+	} else {
+		$q_search = '';
+		foreach ($query as $field)
+			if (!in_array($field['type'], $unsearchable) && empty($field['exclude_from_search'])) {
+				if (isset($field['search'])) $fieldname = $field['search'];
+				elseif (isset($field['display_field'])) $fieldname = $field['display_field'];
+				else $fieldname = $table.'.'.$field['field_name'];
+				$q_search[] = $fieldname.$searchstring;
+			}
+		$q_search = '('.implode(' OR ', $q_search).')';
+		$sql = zz_edit_sql($sql, 'WHERE', $q_search);
 	}
 	return $sql;
 }
@@ -555,11 +557,13 @@ function zz_limit($step, $this_limit, $count_rows, $sql, $zz_lines, $scope) {
 					if ($key == 'mode' OR $key == 'id' OR $key == 'limit')  
 						unset ($queryparts[$key]);
 				$parts = array();
-				foreach ($queryparts as $key => $value) // glue remaining query parts
+				foreach ($queryparts as $key => $value) { // glue remaining query parts
+					if (get_magic_quotes_gpc()) $value = stripslashes($value);
 					if (is_array($value)) // array has to be treated seperately
 						foreach ($value as $mykey => $myvalue)
-							$parts[] = $key.'['.$mykey.']='.$myvalue;
-					else $parts[] = $key.'='.$value;
+							$parts[] = $key.'['.$mykey.']='.urlencode($myvalue);
+					else $parts[] = $key.'='.urlencode($value);
+				}
 				if ($parts) $uri .= '?'.implode('&amp;', $parts); // URL without limit, mode, id parameter
 			}
 			$output .= '<ul class="pages">';
@@ -640,6 +644,8 @@ function zz_get_subqueries($subqueries, $zz, &$zz_tab, $zz_conf) {
 		$zz_tab[$i]['no'] = $subquery;
 		$zz_tab[$i]['sql'] = $zz['fields'][$subquery]['sql'];
 		$zz_tab[$i]['sql_not_unique'] =  (!empty($zz['fields'][$subquery]['sql_not_unique']) ? $zz['fields'][$subquery]['sql_not_unique'] : false);
+		$zz_tab[$i]['foreign_key_field_name'] = (!empty($zz['fields'][$subquery]['foreign_key_field_name']) ? $zz['fields'][$subquery]['foreign_key_field_name'] : false);;
+		$zz_tab[$i]['translate_field_name'] = (!empty($zz['fields'][$subquery]['translate_field_name']) ? $zz['fields'][$subquery]['translate_field_name'] : false);;
 		// now go into each individual subrecord
 		if ($zz['mode']) {
 			// first check for review or access, first if must be here because access might override mode here!
@@ -682,12 +688,12 @@ function zz_subqueries($i, $min, $details, $sql, $subtable, $zz_tab) {
 		$myPOST = $_POST[$subtable['table_name']];
 	else
 		$myPOST = array();
-	$deleted_ids = (!empty($my['deleted']) ? $my['deleted'] : array());
+	$deleted_ids = (!empty($my['subtable_deleted']) ? $my['subtable_deleted'] : array());
 	foreach ($subtable['fields'] as $field)
 		if (isset($field['type']) && $field['type'] == 'id') $id_field_name = $field['field_name'];
-	if (isset($_POST['deleted'][$subtable['table_name']]))
-	//	fill existing deleted ids in $deleted_ids
-		foreach ($_POST['deleted'][$subtable['table_name']] as $deleted)
+	if (isset($_POST['zz_subtable_deleted'][$subtable['table_name']]))
+	//	fill existing zz_subtable_deleted ids in $deleted_ids
+		foreach ($_POST['zz_subtable_deleted'][$subtable['table_name']] as $deleted)
 			$deleted_ids[] = $deleted[$id_field_name];
 	if ($min) $records = $min;
 	if ($details) {
@@ -711,14 +717,25 @@ function zz_subqueries($i, $min, $details, $sql, $subtable, $zz_tab) {
 		}
 	}
 	if ($sql) {
-		$c_sql = zz_edit_sql($zz_tab[$i]['sql'].' '.$zz_tab[$i]['sql_not_unique'], 'WHERE', 
-			$zz_tab[0]['table'].'.'.$zz_tab[0][0]['id']['field_name'].' = "'.$zz_tab[0][0]['id']['value'].'"');
-		if ($zz_conf['debug_allsql']) echo "<div>zz_subquery:<br /><pre>$c_sql</pre></div>";
+		if (!empty($zz_tab[$i]['translate_field_name'])) {
+			$c_sql = zz_edit_sql($zz_tab[$i]['sql'].' '.$zz_tab[$i]['sql_not_unique'], 'WHERE', 
+				$zz_conf['translations_table'].'.db_name = "'.$zz_conf['db_name'].'"
+				AND '.$zz_conf['translations_table'].'.table_name = "'.$zz_tab[0]['table'].'"
+				AND '.$zz_conf['translations_table'].'.field_name = "'.$zz_tab[$i]['translate_field_name'].'"');
+			$c_sql = zz_edit_sql($c_sql, 'WHERE', $zz_tab[$i]['foreign_key_field_name'].' = "'.$zz_tab[0][0]['id']['value'].'"');
+		} else {
+			$c_sql = zz_edit_sql($zz_tab[$i]['sql'].' '.$zz_tab[$i]['sql_not_unique'], 'WHERE', 
+				$zz_tab[0]['table'].'.'.$zz_tab[0][0]['id']['field_name'].' = "'.$zz_tab[0][0]['id']['value'].'"');
+		}
+		if ($zz_conf['debug_allsql']) 
+			echo "<div>zz_subquery:<br /><pre>$c_sql</pre></div>";
 		$result = mysql_query($c_sql);
-		if ($result) if (mysql_num_rows($result))
-			while ($line = mysql_fetch_array($result)) 
-				if (!in_array($line[$id_field_name], $deleted_ids)) 
+		if ($result AND mysql_num_rows($result))
+			while ($line = mysql_fetch_assoc($result)) {
+				if (!in_array($line[$id_field_name], $deleted_ids)) {
 					$ids[] = $line[$id_field_name];
+				}
+			}
 		if (mysql_error()) {
 			$zz_error[] = array(
 				'msg' => 'There is an error in the sql statement for the detail record.',
@@ -766,7 +783,7 @@ function zz_subqueries($i, $min, $details, $sql, $subtable, $zz_tab) {
 						} 
 	}
 	$my['records'] = $records;
-	$my['deleted'] = array_unique($deleted_ids); // remove double entries
+	$my['subtable_deleted'] = array_unique($deleted_ids); // remove double entries
 	return $my;
 	
 }
@@ -1125,8 +1142,9 @@ function zz_check_select($my, $f, $max_select) {
 	global $zz_error;
 	global $zz_conf;
 	$sql = $my['fields'][$f]['sql'];
-	preg_match('/SELECT (.+) FROM /i', $sql, $fieldstring); // preg_match, case insensitive, space after select, space around from - might not be 100% perfect, but should work always
-	$fields = explode(",", $fieldstring[1]);
+	preg_match('/SELECT( DISTINCT|) *(.+) FROM /Ui', $sql, $fieldstring); // preg_match, case insensitive, space after select, space around from - might not be 100% perfect, but should work always
+	$fields = explode(",", $fieldstring[2]);
+	unset($fieldstring);
 	$oldfield = false;
 	$newfields = false;
 	foreach ($fields as $myfield) {
@@ -1159,7 +1177,8 @@ function zz_check_select($my, $f, $max_select) {
 				if (!$wheresql) $wheresql.= $where.'(';
 				elseif (!$index) $wheresql.= ' ) AND (';
 				else $wheresql.= ' OR ';
-				if (preg_match('/^(.+)\.\.\.$/', $value, $short_value)) $value = $short_value[1]; // reduces string with dots which come from values which have been cut beforehands
+				if (preg_match('/^(.+)\.\.\.$/', $value, $short_value)) 
+					$value = $short_value[1]; // reduces string with dots which come from values which have been cut beforehands
 				$wheresql.= $field.' LIKE "%'.$value.'%"'; 
 			}
 		}
@@ -1381,15 +1400,15 @@ function zz_nice_headings(&$zz_fields, &$zz_conf, &$zz_error) {
 			$add_equal_sign = true;
 		}
 		if (substr($_GET['q'], 0, 1) == '<')
-			$zz_conf['selection'] .= '< '.htmlentities(substr($_GET['q'], 1));
+			$zz_conf['selection'] .= '< '.htmlspecialchars(substr($_GET['q'], 1));
 		elseif (substr($_GET['q'], 0, 1) == '>')
-			$zz_conf['selection'] .= '> '.htmlentities(substr($_GET['q'], 1));
+			$zz_conf['selection'] .= '> '.htmlspecialchars(substr($_GET['q'], 1));
 		else {
 			if (substr($_GET['q'], 0, 1) == '\\')
 				$_GET['q'] = substr($_GET['q'], 1);
 			if ($add_equal_sign)
 				$zz_conf['selection'] .= $fieldname.' = ';
-			$zz_conf['selection'] .= '*'.htmlentities($_GET['q']).'*';
+			$zz_conf['selection'] .= '*'.htmlspecialchars($_GET['q']).'*';
 		}
 	}
 }

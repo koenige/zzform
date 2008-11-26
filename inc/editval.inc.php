@@ -266,7 +266,7 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0) {
 			//		check whether is false but must not be NULL
 					if (!isset($my['POST'][$my['fields'][$f]['field_name']])) {
 						// no set = must be error
-						if ($my['fields'][$f]['type'] == 'foreign_key')
+						if ($my['fields'][$f]['type'] == 'foreign_key' OR $field['type'] == 'translation_key')
 							// foreign key will always be empty but most likely also be required.
 							// f. key will be added by script later on (because sometimes it is not known yet)
 							$my['validation'] = true;
@@ -341,13 +341,13 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0) {
 		foreach (array_keys($my['fields']) as $f) {
 		//	set
 			if ($my['fields'][$f]['type'] == 'select' && isset($my['fields'][$f]['set'])) {
-				if (isset($my['POST'][$my['fields'][$f]['field_name']]) && $my['POST'][$my['fields'][$f]['field_name']])
+				if (!empty($my['POST'][$my['fields'][$f]['field_name']]))
 					$my['POST'][$my['fields'][$f]['field_name']] = implode(',', $my['POST'][$my['fields'][$f]['field_name']]);
 				else
 					$my['POST'][$my['fields'][$f]['field_name']] = '';
 			}
 		//	slashes, 0 and NULL
-			$unwanted = array('calculated', 'image', 'upload_image', 'id', 'foreign', 'subtable', 'foreign_key', 'display', 'option', 'write_once');
+			$unwanted = array('calculated', 'image', 'upload_image', 'id', 'foreign', 'subtable', 'foreign_key', 'translation_key', 'display', 'option', 'write_once');
 			if (!in_array($my['fields'][$f]['type'], $unwanted)) {
 				if ($my['POST'][$my['fields'][$f]['field_name']]) {
 					//if (get_magic_quotes_gpc()) // sometimes unwanted standard config
@@ -360,15 +360,19 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0) {
 					if (isset($my['fields'][$f]['number_type']) AND ($my['POST'][$my['fields'][$f]['field_name']] !== '') // type string, different from 0
 						AND $my['fields'][$f]['number_type'] == 'latitude' || $my['fields'][$f]['number_type'] == 'longitude')
 						$my['POST'][$my['fields'][$f]['field_name']] = '0';
-					elseif (isset($my['fields'][$f]['null']) AND $my['fields'][$f]['null']) 
+					elseif (!empty($my['fields'][$f]['null'])) 
 						$my['POST'][$my['fields'][$f]['field_name']] = '0';
 					else 
 						$my['POST'][$my['fields'][$f]['field_name']] = 'NULL';
 				}
 			}
 		// foreign_key
-			if ($my['fields'][$f]['type'] == 'foreign_key') $my['POST'][$my['fields'][$f]['field_name']] = '[FOREIGN_KEY]';
-			if ($my['fields'][$f]['type'] == 'timestamp') $my['POST'][$my['fields'][$f]['field_name']] = 'NOW()';
+			if ($my['fields'][$f]['type'] == 'foreign_key') 
+				$my['POST'][$my['fields'][$f]['field_name']] = '[FOREIGN_KEY]';
+			if ($my['fields'][$f]['type'] == 'translation_key') 
+				$my['POST'][$my['fields'][$f]['field_name']] = $my['fields'][$f]['translation_key'];
+			if ($my['fields'][$f]['type'] == 'timestamp') 
+				$my['POST'][$my['fields'][$f]['field_name']] = 'NOW()';
 		}
 	}
 	return $my;

@@ -128,13 +128,13 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var) {
 				if ($tabindex && isset($my_tab[$tabindex]['records']))
 					$output.= '<input type="hidden" name="records['.$tabindex.']" value="'
 					.$my_tab[$tabindex]['records'].'">';
-				if (isset($my_tab[$tabindex]['deleted']))
-					foreach ($my_tab[$tabindex]['deleted'] as $deleted_id)
-						$output.= '<input type="hidden" name="deleted['
+				if (isset($my_tab[$tabindex]['subtable_deleted']))
+					foreach ($my_tab[$tabindex]['subtable_deleted'] as $deleted_id)
+						$output.= '<input type="hidden" name="zz_subtable_deleted['
 						.$my_tab[$tabindex]['table_name'].'][]['
 						.$my_tab[$tabindex][0]['id']['field_name'].']" value="'
 						.$deleted_id.'">';
-				if ($tabindex && !isset($my_tab[$tabindex]['deleted']) 
+				if ($tabindex && !isset($my_tab[$tabindex]['subtable_deleted']) 
 					&& !isset($my_tab[$tabindex]['records']) && isset($_POST['records'])) 
 					// this occurs when a record is not validated. subtable fields 
 					// will be validated, so this is not perfect as there are no 
@@ -207,7 +207,8 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 			$out['th']['attr'][] = 'sub-add';
 			if ($st_display == 'form' && !isset($my_tab[$field['subtable']]['records']))  // this happens in case $validation is false
 				$my_tab[$field['subtable']]['records'] = $_POST['records'][$field['subtable']];
-			$out['th']['content'] .= $field['title'];
+			if (!(isset($field['show_title']) AND !$field['show_title']))
+				$out['th']['content'] .= $field['title'];
 			if (!empty($field['title_desc']) && $st_display == 'form') 
 				$out['th']['content'].= '<p class="desc">'.$field['title_desc'].'</p>';
 			$out['td']['attr'][] = 'subtable';
@@ -258,8 +259,12 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 						$h_show_explanation = true;
 					else
 						$h_show_explanation = false;
+					$subtable_mode = $mode;
+					if ($subtable_mode == 'edit' AND empty($my_tab[$field['subtable']][$mytable_no]['id']['value']))
+						// no saved record exists, so it's add a new record
+						$subtable_mode = 'add';
 					$out['td']['content'].= zz_show_field_rows($my_tab, $field['subtable'], 
-						$mytable_no, $mode, $st_display, $zz_var, $zz_conf_thisrec, $action, 
+						$mytable_no, $subtable_mode, $st_display, $zz_var, $zz_conf_thisrec, $action, 
 						$field['form_display'], $lastrow, $mytable_no, $h_show_explanation);
 					if ($field['form_display'] != 'horizontal' OR $mytable_no == count($subtables)-1)
 						$out['td']['content'].= '</table>'."\n";
@@ -274,7 +279,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 				$out['td']['content'].= '<p class="explanation">'.$field['explanation'].'</p>';
 			if (!empty($field['separator']))
 				$out['separator'] = $field['separator'];
-		} elseif ($field['type'] == 'foreign_key') {
+		} elseif ($field['type'] == 'foreign_key' OR $field['type'] == 'translation_key') {
 			continue; // this must not be displayed, for internal link only
 		} else {
 //	"Normal" field
@@ -371,7 +376,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 				$field['type'] = 'predefined';
 			} elseif (isset($values) && is_array($values) && isset($values[$field['field_name']]))
 				$field['default'] = $values[$field['field_name']];
-			if (!empty($field['default']) AND empty($field['value']))
+			if (!empty($field['default']) AND empty($field['value'])) {
 				// look at default only if no value is set - value overrides default
 //				if (!$my['record'] OR !empty($is_option)) { // set default only if record is empty OR if it's an option field which is always empty
 				if (($mode == 'add' && !$my['record']) OR !empty($is_option)
@@ -379,6 +384,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 					$my['record'][$field['field_name']] = $field['default'];
 					$default_value = true; // must be unset later on because of this value
 				}
+			}
 			//
 			// output all records
 			//
@@ -786,14 +792,14 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 								}
 							}
 						}
-						$outputf.=$myvalue;
+						$outputf .= $myvalue;
 					} elseif (isset($field['enum'])) {
 						$myi = 0;
 						$sel_option = (count($field['enum']) <=2 ? true : (!empty($field['show_values_as_list']) ? true : false));
 						if ($row_display == 'form') {
 							if ($sel_option) {
 								if (!isset($field['hide_novalue'])) $field['hide_novalue'] = true;
-								$myid = 'radio-'.$field['field_name'].'-'.$myi;
+								$myid = make_id_fieldname($field['f_field_name']).'-'.$myi;
 								$outputf.= '<label for="'.$myid.'"'
 									.($field['hide_novalue'] ? ' class="hidden"' : '')
 									.'><input type="radio" id="'.$myid.'" name="'
@@ -814,7 +820,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 							if ($row_display == 'form') {
 								if ($sel_option) {
 									$myi++;
-									$myid = 'radio-'.$field['field_name'].'-'.$myi;
+									$myid = make_id_fieldname($field['f_field_name']).'-'.$myi;
 									if (!empty($field['show_values_as_list'])) $outputf .= '<li>';
 									$outputf.= ' <label for="'.$myid.'"><input type="radio" id="'.$myid.'" name="'.$field['f_field_name'].'" value="'.$set.'"';
 									if ($my['record']) if ($set == $my['record'][$field['field_name']]) $outputf.= ' checked';

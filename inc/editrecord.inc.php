@@ -87,11 +87,11 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 			include ($zz_conf['action_dir'].'/'.$zz_conf['action']['before_'.$zz['action']].'.inc.php'); 
 
 		// put delete_ids into zz_tab-array
-		if (isset($_POST['deleted']))
-			foreach (array_keys($_POST['deleted']) as $del_tab) {
+		if (isset($_POST['zz_subtable_deleted']))
+			foreach (array_keys($_POST['zz_subtable_deleted']) as $del_tab) {
 				foreach (array_keys($zz_tab) as $i)
 					if ($i) if ($zz_tab[$i]['table_name'] == $del_tab) $tabindex = $i;
-				foreach ($_POST['deleted'][$del_tab] as $idfield) {
+				foreach ($_POST['zz_subtable_deleted'][$del_tab] as $idfield) {
 					$my['action'] = 'delete';
 					$my['id']['field_name'] = key($idfield);
 					$my['POST'][$my['id']['field_name']] = $idfield[$my['id']['field_name']];
@@ -221,8 +221,13 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 							$zz_tab[0][0]['fields'][$zz_tab[$i]['no']]['check_validation'] = false;
 						} elseif ($zz_tab[$i][$k]['action'] == 'insert') 
 							$zz_tab[$i][$k]['id']['value'] = mysql_insert_id(); // for requery
-						if ($zz_conf['logging']) 
+						if ($zz_conf['logging']) {
+							// for deleted subtables, id value might not be set, so get it here.
+							// TODO: check why it's not available beforehands, might be unneccessary security risk.
+							if (empty($zz_tab[$i][$k]['id']['value']))
+								$zz_tab[$i][$k]['id']['value'] = $zz_tab[$i][$k]['POST'][$zz_tab[$i][$k]['id']['field_name']];
 							zz_log_sql($detail_sql, $zz_conf['user'], $zz_tab[$i][$k]['id']['value']); // Logs SQL Query
+						}
 					}
 			if (isset($zz_conf['action']['after_'.$zz['action']])) 
 				include ($zz_conf['action_dir'].'/'.$zz_conf['action']['after_'.$zz['action']].'.inc.php'); 
@@ -264,7 +269,7 @@ function zz_set_subrecord_action($subtable, &$zz_tab, $i, &$zz) {
 
 	values affected by this function:
 		$zz_tab[$i][$k]['action']
-		$zz_tab[$i]['deleted']
+		$zz_tab[$i]['zz_subtable_deleted']
 		may unset($zz_tab[$i][$k])
 
 */
@@ -313,7 +318,7 @@ function zz_set_subrecord_action($subtable, &$zz_tab, $i, &$zz) {
 	if (!$values)
 		if ($subtable['id']['value']) {
 			$subtable['action'] = 'delete';
-			$zz_tab[$i]['deleted'][] = $subtable['id']['value']; // only for requery record on error!
+			$zz_tab[$i]['subtable_deleted'][] = $subtable['id']['value']; // only for requery record on error!
 		} else
 			$subtable = false;
 	

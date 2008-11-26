@@ -236,6 +236,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $zz_lines, $id_fi
 				
 			//	initialize variables
 				if (isset($line['zz_level']) 
+					AND !empty($field['field_name'])  // occurs in case of subtables
 					AND $field['field_name'] == $zz_conf['hierarchy']['display_in']) {
 					$field['level'] = $line['zz_level'];
 				}

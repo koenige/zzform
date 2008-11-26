@@ -132,7 +132,7 @@ $zz
 	$zz['table']				name of main table										$maintable
 	$zz['fields']				all fields of a table									$query
 	
-	//--> for all fields
+	//--> for all fields, n might get a maximum value of 899 if you use automatic translations
 
 		$zz['fields'][n]['field_name']			field name from database, required if field shall be included
 
@@ -273,6 +273,7 @@ $zz
 		$zz['fields'][n]['type_detail']			type of field, used for option and predefined to set real type of field but still remain special functionality
 		$zz['fields'][n]['format']				function which will be used to format text for display, e. g. markdown | textile, only in form part
 		$zz['fields'][n]['list_format']			function which will be used to format text for display, e. g. markdown | textile, in list part
+		$zz['fields'][n]['inherit_format']		translation tables: inherit format assignments from field that is to be translated
 		$zz['fields'][n]['enum']				
 		$zz['fields'][n]['enum_title']			optional. in case you don't like your enum values.	
 		$zz['fields'][n]['set']
@@ -328,6 +329,7 @@ $zz
 			min_height			min height in px of uploaded image (only applicable for n2-Fields without 'source')
 			show_link			shows for files without thumbnails link to file (form: long with filename, list: short with title as linktext)
 			input_filetypes		allowed input_filetypes, e. g. pdf, jpeg, doc, ...
+			optional_image		image is optional, i. e. error notices when deleting a record and there are no accompanying files won't be shown.
 			
 		$zz['fields'][n]['subselect']['sql']	For subtables. SQL-Select query, foreign_key must be included, shows detail records in list view as well.
 		$zz['fields'][n]['subselect']['prefix'] = '<p>'

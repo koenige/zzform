@@ -126,6 +126,7 @@ function zzform() {
 	$zz_default['redirect']['successful_update'] = false;	// redirect to diff. page after update
 	$zz_default['redirect']['successful_insert'] = false;	// redirect to diff. page after insert
 	$zz_default['redirect']['successful_delete'] = false;	// redirect to diff. page after delete
+	$zz_default['translations_of_fields'] = false;
 
 	foreach (array_keys($zz_default) as $key)
 		if (!isset($zz_conf[$key])) $zz_conf[$key] = $zz_default[$key];
@@ -179,13 +180,10 @@ function zzform() {
 	// todo: if file exists else lang = en
 	if (!isset($zz_conf['db_connection'])) include_once ($zz_conf['dir'].'/local/db.inc.php');
 	// get db_name.
-	// 1. best way: put it in zz_conf['db_name']
-	if (!empty($zz_conf['db_name'])) {
-		$dbname = mysql_select_db($zz_conf['db_name']);
-		if (!$dbname) $zz_error[]['msg'] = mysql_error();
 	// 2. alternative: put it in zz['table']
-	} elseif (preg_match('~(.+)\..+~', $zz['table'], $db_name)) { // db_name is already in zz['table']
+	if (preg_match('~(.+)\.(.+)~', $zz['table'], $db_name)) { // db_name is already in zz['table']
 		$zz_conf['db_name'] = $db_name[1];
+		$zz['table'] = $db_name[2];
 		$dbname = mysql_select_db($zz_conf['db_name']);
 		if (!$dbname) {
 			$zz_error[]['msg'] = mysql_error();
@@ -193,6 +191,10 @@ function zzform() {
 			exit;
 			// TODO: throw critical exception instead, exit script
 		}
+	// 1. best way: put it in zz_conf['db_name']
+	} elseif (!empty($zz_conf['db_name'])) {
+		$dbname = mysql_select_db($zz_conf['db_name']);
+		if (!$dbname) $zz_error[]['msg'] = mysql_error();
 	// 3. alternative: use current database
 	} else {
 		$result = mysql_query('SELECT DATABASE()');
@@ -250,6 +252,64 @@ function zzform() {
 	if ($zz_conf['multilang_fieldnames'])
 		$zz_conf['heading'] = $text[$zz_conf['heading']];
 	
+//	check whether or not to include default translation subtables
+
+	$translationfields = array();
+	if ($zz_conf['translations_of_fields']) {
+		if (empty($zz_conf['translations_table'])) {
+			echo '<p><strong>ERROR!</strong>: $zz_conf[\'translations_table\'] must be set.</p>';
+			exit;
+		}
+		// Step 1: get fields which might be translated
+		$sql = 'SELECT translationfield_id, field_name, field_type
+			FROM '.$zz_conf['translations_table'].'
+			WHERE db_name = "'.$zz_conf['db_name'].'" AND table_name = "'.$zz['table'].'"';
+		$result = mysql_query($sql);
+		if ($result AND mysql_num_rows($result)) {
+			while ($line = mysql_fetch_assoc($result)) {
+				$translationfields[$line['field_name']] = $line;
+			}
+		}
+	}
+	$k = 0;
+	$j = 1; // how many fields after original position of field to translate
+	foreach (array_keys($zz['fields']) as $i) {
+		if (!empty($zz['fields'][$i]['field_name']) AND !empty($translationfields[$zz['fields'][$i]['field_name']])) {
+			// include new subtable for translations
+			$zz_sub = false;
+			$translationsubtable = false;
+			require $zz_conf['dir'].'/local/'.$zz_conf['translations_script'][$translationfields[$zz['fields'][$i]['field_name']]['field_type']].'.inc.php';
+			
+			// split fields-array
+			// glue together fields-array
+			foreach (array_keys($zz_sub['fields']) as $key) {
+				if (!empty($zz_sub['fields'][$key]['type'])) {
+					if ($zz_sub['fields'][$key]['type'] == 'translation_key') {
+						$zz_sub['fields'][$key]['translation_key'] = $translationfields[$zz['fields'][$i]['field_name']]['translationfield_id'];
+					} elseif ($zz_sub['fields'][$key]['type'] == 'foreign_key') {
+						$zz_sub['foreign_key_field_name'] = $zz_sub['fields'][$key]['field_name'];
+					}
+				}
+				if (!empty($zz_sub['fields'][$key]['inherit_format']) AND !empty($zz['fields'][$i]['format']))
+					$zz_sub['fields'][$key]['format'] = $zz['fields'][$i]['format'];
+			}
+			$translationsubtable[900+$k] = $zz_sub;
+			$translationsubtable[900+$k]['table_name'] .= '-'.$k;
+			$translationsubtable[900+$k]['translate_field_name'] = $zz['fields'][$i]['field_name'];
+			$zz_fields = array_merge(array_slice($zz['fields'], 0, $k+$j), $translationsubtable, array_slice($zz['fields'], $k+$j));
+		// old PHP 4 support
+			$zz_fields_keys = array_merge(array_slice(array_keys($zz['fields']), 0, $k+$j), array_keys($translationsubtable), array_slice(array_keys($zz['fields']), $k+$j));
+			unset($zz['fields']);
+			foreach($zz_fields_keys as $index => $real_index) {
+				$zz['fields'][$real_index] = $zz_fields[$index];
+			}
+			unset ($zz_fields);
+			$j++;
+		// old PHP 4 support end, might be replaced by variables in array_slice
+		}
+		$k++;
+	}
+
 	zz_fill_out($zz); // set type, title etc. where unset
 
 	// Add with suggested values
@@ -646,10 +706,11 @@ function zzform() {
 	
 	foreach (array_keys($zz_tab) as $i)
 		foreach (array_keys($zz_tab[$i]) as $k)
-			if (is_numeric($k))
+			if (is_numeric($k)) {
 				$zz_tab[$i][$k] = zz_requery_record($zz_tab[$i][$k], $validation, $zz_tab[$i]['sql'], $zz_tab[$i]['table'], $zz['mode']);
-
-			// requery record if successful, 
+			}
+	
+	// requery record if successful, 
 	if (($zz['mode'] == 'edit' OR $zz['mode'] == 'delete') AND !$zz_tab[0][0]['record']) {
 		$zz['formhead'] = '<span class="error">'.$text['There is no record under this ID:'].' '.htmlspecialchars($zz_tab[0][0]['id']['value']).'</span>';	
 		$display = false;
