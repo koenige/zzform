@@ -6,10 +6,11 @@
 
 $text = false;
 
-$text['add_new_record'] = 'Add New Record';
-$text['all_records'] = 'All Records';
-$text['prev_20_records'] = 'Previous 20 Records';
-$text['next_20_records'] = 'Next 20 Records';
+$text['Add new record'] = 'Add new record';
+$text['Add new %s'] = 'Add new %s';
+$text['all_records'] = 'All records';
+$text['prev_20_records'] = 'Previous 20 records';
+$text['next_20_records'] = 'Next 20 records';
 $text['record_was_inserted'] = 'Record was inserted';
 $text['warning'] = 'Warning';
 $text['action'] = 'Action';

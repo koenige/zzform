@@ -2,7 +2,8 @@
 
 // de lang variables
 
-$text['add_new_record'] = 'Neuer Datensatz';
+$text['Add new record'] = 'Neuer Datensatz';
+$text['Add new %s'] = 'Neuer Datensatz: %s';
 $text['all_records'] = 'Alle Datens&auml;tze';
 $text['prev_20_records'] = 'Vorige 20 Datens&auml;tze';
 $text['next_20_records'] = 'N&auml;chste 20 Datens&auml;tze';

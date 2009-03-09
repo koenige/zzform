@@ -88,7 +88,10 @@ global $zz_conf;
 
 $zz_default['backup'] 			= false;	//	backup uploaded files?
 $zz_default['backup_dir'] 		= $zz_conf['dir'].'/backup';	//	directory where backup will be put into
-$zz_default['tmp_dir']			= false;
+if (ini_get('upload_tmp_dir'))
+	$zz_default['tmp_dir']		= ini_get('upload_tmp_dir');
+else
+	$zz_default['tmp_dir'] = false;
 $zz_default['graphics_library'] = 'imagemagick';
 $zz_default['imagemagick_paths'] = array('/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/phpbin'); 
 $zz_conf['upload_ini_max_filesize'] = ini_get('upload_max_filesize');
@@ -155,7 +158,7 @@ function zz_upload_get(&$zz_tab) {
 		include_once $zz_conf['dir'].'/inc/image-'.$zz_conf['graphics_library'].'.inc.php';
 	
 	// create array upload_fields in $zz_tab[0] to get easy access to upload fields
-	$zz_tab[0]['upload_fields'] = zz_upload_get_fields($zz_tab);
+	$zz_tab[0]['upload_fields'] = zz_upload_get_fields($zz_tab); // n = (i =>, k =>, f =>)
 
 	//	read information of files, put into 'images'-array
 	if ($_FILES && $zz_tab[0][0]['action'] != 'delete')
@@ -186,7 +189,6 @@ function zz_upload_get_fields(&$zz_tab) {
  */
 function zz_upload_check_files(&$zz_tab) {
 	global $zz_conf;
-
 	foreach ($zz_tab[0]['upload_fields'] as $uf) {
 		$my_tab = &$zz_tab[$uf['i']][$uf['k']];
 		$images = false;
@@ -406,19 +408,6 @@ function zz_upload_filecheck($mimetype, $extension) {
 			if ($type3) $type3unique = false;
 			else $type3 = $filetype;
 		}
-/*
-	echo '<pre align="left">';
-	echo 'MIME: '.$mimetype;
-	echo '<br>Ext: '.$extension;
-	echo '<br>Type1: ';
-	print_r($type1);
-	echo '<br>Type2: ';
-	print_r($type2);
-	echo '<br>Type2Unique %'.$type2unique.'%';
-	echo '<br>Type3: ';
-	print_r($type3);
-	echo '<br>Type3Unique %'.$type3unique.'%</pre>';
-*/
 	if ($type1) 
 		return $type1;	// first priority: mimetype AND extension match
 	if ($type2 && $type2unique) 
@@ -476,6 +465,18 @@ function zz_upload_prepare(&$zz_tab, $zz_conf) {
 					$tmp_name = $src_image['upload']['tmp_name'];
 				$image['upload'] = $src_image['upload']; // get some variables from source image as well
 			}
+			$is_image = true;
+			// only do the following things with images!
+			if (!empty($image['upload']['mime'])) { // check whether some file was uploaded
+				$is_image = explode('/', $image['upload']['mime']);
+				$is_image = ($is_image[0] == 'image' ? true : false);
+			}
+//			if (!is_array($image['input_filetypes'])) $image['input_filetypes'] = array($image['input_filetypes']);
+//			if ((isset($image['source']) AND !$is_image) 
+//				OR (!empty($image['input_filetypes']) AND 
+//				!in_array($image['upload']['filetype'], $image['input_filetypes']))) {
+//				continue; // no thumbnail images from non-image files
+//			}
 			if (!empty($image['auto']) && !empty($image['auto_values'])) 
 				// choose values from uploaded image, best fit
 				if ($tmp_name) {
@@ -490,7 +491,7 @@ function zz_upload_prepare(&$zz_tab, $zz_conf) {
 					$all_temp_filenames[] = $tmp_name;
 				} else $filename = $src_image['files']['tmp_files'][$image['source']]; // if name has been changed
 				$tmp_filename = false;
-				if (!empty($image['action'])) {
+				if (!empty($image['action']) AND $is_image) { // image operations only for images
 					// create temporary file, so that original file remains the same for further actions
 					$tmp_filename = tempnam(realpath($zz_conf['tmp_dir']), "UPLOAD_"); 
 					$dest_extension = zz_upload_extension($image['path'], $zz_tab, $uf);
@@ -505,7 +506,10 @@ function zz_upload_prepare(&$zz_tab, $zz_conf) {
 							$image['modified']['height'] = $my_img[1];
 							// todo: name, type, ...
 						}  else {
-						// ELSE: upload original file, this might occur if image-action did not work out the way it should have.
+							// ELSE: if image-action did not work out the way it should have.
+							$filename = false; // do not upload anything
+							// TODO: mark existing image for deletion if there is one!							
+							$image['delete_thumbnail'] = true;
 							if ($zz_conf['debug']) 
 								echo 'No real file was returned from <code>'.$image['action'].'()</code><br>';
 						}
@@ -513,10 +517,11 @@ function zz_upload_prepare(&$zz_tab, $zz_conf) {
 						Temporary Directory: '.realpath($zz_conf['tmp_dir']).'<br>';
 				}
 				$image['files']['tmp_files'][$img] = $filename;
-				if (!empty($image['files']['all_temp']))
-					$image['files']['all_temp'] = array_merge($image['files']['all_temp'], $all_temp_filenames);
+				if (!empty($my_tab['images'][$uf['f']]['all_temp']))
+					$my_tab['images'][$uf['f']]['all_temp'] = array_merge($my_tab['images'][$uf['f']]['all_temp'], $all_temp_filenames);
 				else
-					$image['files']['all_temp'] = $all_temp_filenames; // for later cleanup of leftover tmp files
+					$my_tab['images'][$uf['f']]['all_temp'] = $all_temp_filenames; // for later cleanup of leftover tmp files
+				$all_temp_filenames = array();
 			}
 		}
 	}
@@ -558,7 +563,7 @@ function zz_upload_extension($path, &$zz_tab, &$uf) {
 					$sql = $my_tab['fields'][$key]['path_sql'];
 					$id_value = zz_upload_reformat_field($my_tab['POST'][$my_tab['fields'][$key]['field_name']]);
 					if ($id_value) {
-						$result = mysql_query($sql);
+						$result = mysql_query($sql.$id_value);
 						if ($result) if (mysql_num_rows($result) == 1)
 							$extension = mysql_result($result, 0, 0);
 					} else $extension = false; // no extension could be found,
@@ -673,7 +678,8 @@ function zz_upload_check(&$images, $action, $zz_conf, $input_filetypes = array()
  */
 function zz_upload_action(&$zz_tab, $zz_conf) {
 	global $zz_error;
-	if (!empty($_POST['zz_delete_file'])) zz_upload_delete_file($zz_tab, $zz_tab[0][0]['action'], $zz_conf);
+	if (!empty($_POST['zz_delete_file'])) 
+		zz_upload_delete_file($zz_tab, $zz_tab[0][0]['action'], $zz_conf);
 	if ($zz_tab[0][0]['action'] != 'delete')
 		zz_upload_write($zz_tab, $zz_tab[0][0]['action'], $zz_conf);
 	else
@@ -692,10 +698,12 @@ function zz_upload_delete_file(&$zz_tab, $action, $zz_conf) {
 		$keys = explode('-', $keys);
 		$field = (int) $keys[0];
 		$image = (int) $keys[1];
-		if (empty($zz_tab[0][0]['images'][$field][$image])) return false; // impossible, might be manipulation or so
+		if (empty($zz_tab[0][0]['images'][$field][$image])) {
+			return false; // impossible, might be manipulation or so
+		}
 		$val = &$zz_tab[0][0]['images'][$field][$image];
 		// new path is not interesting, old picture shall be deleted
-		$old_path = zz_makepath($val['path'], $zz_tab, 'old', 'file');
+		$old_path = zz_makepath($val['path'], $zz_tab, 'old', 'file', 0, 0);
 		if (file_exists($old_path)) { // just a precaution for e. g. simultaneous access
 			if ($zz_conf['backup'])
 				rename($old_path, zz_upload_path($zz_conf['backup_dir'], $action, $old_path));
@@ -704,7 +712,7 @@ function zz_upload_delete_file(&$zz_tab, $action, $zz_conf) {
 		}
 		foreach ($zz_tab[0][0]['images'][$field] as $key => $other_image) {
 			if (is_numeric($key) && isset($other_image['source']) && $other_image['source'] == $image) {
-				$old_path = zz_makepath($other_image['path'], $zz_tab, 'old', 'file');
+				$old_path = zz_makepath($other_image['path'], $zz_tab, 'old', 'file', 0, 0);
 				if (file_exists($old_path)) { // just a precaution for e. g. simultaneous access
 					if ($zz_conf['backup'])
 						rename($old_path, zz_upload_path($zz_conf['backup_dir'], $action, $old_path));
@@ -747,8 +755,8 @@ function zz_upload_write(&$zz_tab, $action, $zz_conf) {
 		//	update
 			$mode = false;
 			if ($action == 'update') {
-				$path = zz_makepath($val['path'], $zz_tab, 'new', 'file');
-				$old_path = zz_makepath($val['path'], $zz_tab, 'old', 'file');
+				$path = zz_makepath($val['path'], $zz_tab, 'new', 'file', $uf['i'], $uf['k']);
+				$old_path = zz_makepath($val['path'], $zz_tab, 'old', 'file', $uf['i'], $uf['k']);
 				if (!empty($zz_tab[0]['folder']))
 					foreach ($zz_tab[0]['folder'] as $folder) {
 						// escape foldername, preg_match delimiters will
@@ -774,7 +782,7 @@ function zz_upload_write(&$zz_tab, $action, $zz_conf) {
 
 		// insert, update
 			if (!empty($image['files']['tmp_files'][$img])) {
-				$dest = zz_makepath($val['path'], $zz_tab, 'new', 'file');
+				$dest = zz_makepath($val['path'], $zz_tab, 'new', 'file', $uf['i'], $uf['k']);
 				$image['files']['destination'] = $dest; // not necessary, just in case ...
 				$filename = $image['files']['tmp_files'][$img];
 				if (file_exists($dest) && is_file($dest))
@@ -791,8 +799,10 @@ function zz_upload_write(&$zz_tab, $action, $zz_conf) {
 					// todo: error handling!!
 					copy($filename, $dest);		// instead of rename:
 					if (!file_exists($dest)) {
-						if (!is_writeable(dirname($dest))) echo '<br>Insufficient rights. Directory <code>'.dirname($dest).'</code> is not writeable.';
-						else echo '<br>Unknown error. Copying not successful<br>from: '.$filename.'<br>to: '.$dest.'<br>';
+						if (!is_writeable(dirname($dest))) 
+							echo '<br>Insufficient rights. Directory <code>'.dirname($dest).'</code> is not writeable.';
+						else 
+							echo '<br>Unknown error. Copying not successful<br>from: '.$filename.'<br>to: '.$dest.'<br>';
 					}
 					zz_unlink_cleanup($filename);			// this also works in older php versions between partitions.
 					chmod($dest, 0644);
@@ -803,6 +813,12 @@ function zz_upload_write(&$zz_tab, $action, $zz_conf) {
 					if (!$success)
 						echo '<br>
 						Copying not successful<br>from: '.$filename.'<br>to: '.$dest.'<br>';
+				}
+			} else {
+				// ok, no thumbnail image, so in this case delete existing thumbnails
+				// if there are any
+				if (!empty($image['delete_thumbnail']) AND !empty($old_path)) {
+					zz_unlink_cleanup($old_path); // delete old thumbnail
 				}
 			}
 
@@ -846,8 +862,8 @@ function zz_upload_delete($zz_tab, $zz_conf) {
 	foreach ($zz_tab[0]['upload_fields'] as $uf) {
 		$my_tab = $zz_tab[$uf['i']][$uf['k']];
 		foreach ($my_tab['fields'][$uf['f']]['image'] as $img => $val) {
-			$path = zz_makepath($val['path'], $zz_tab, 'old', 'file');
-			$localpath = zz_makepath($val['path'], $zz_tab, 'old', 'local');
+			$path = zz_makepath($val['path'], $zz_tab, 'old', 'file', $uf['i'], $uf['k']);
+			$localpath = zz_makepath($val['path'], $zz_tab, 'old', 'local', $uf['i'], $uf['k']);
 			if (file_exists($path) && is_file($path)) {
 				if ($zz_conf['backup']) {
 					$success = rename($path, zz_upload_path($zz_conf['backup_dir'], 'delete', $path));
@@ -859,7 +875,8 @@ function zz_upload_delete($zz_tab, $zz_conf) {
 			} elseif(file_exists($path) && !is_file($path))
 				$zz_error[]['msg'] = '<br>'.'Configuration Error [1]: Filename is invalid.';
 			elseif ($path && empty($val['ignore']) 
-				&& empty($my_tab['fields'][$uf['f']]['optional_image'])) { // optional images: don't show error message!
+				&& empty($my_tab['fields'][$uf['f']]['optional_image'])
+				&& empty($val['optional_image'])) { // optional images: don't show error message!
 				$zz_error[]['msg'] = '<br>'.sprintf($text['Could not delete %s, file did not exist.'], $localpath);
 			}
 		}
@@ -894,15 +911,10 @@ function zz_upload_path($dir, $action, $path) {
  */
 function zz_upload_cleanup(&$zz_tab) {
 	foreach ($zz_tab[0]['upload_fields'] as $uf) {
-		$my_tab = &$zz_tab[$uf['i']][$uf['k']];
-		foreach ($my_tab['fields'][$uf['f']]['image'] as $img => $val) {
-			$image = &$my_tab['images'][$uf['f']][$img]; // reference on image data
-		// clean up
-			if (!empty($image['files']['all_temp']))
-				if (count($image['files']['all_temp']))
-					foreach ($image['files']['all_temp'] as $file)
-						if (file_exists($file) && is_file($file)) zz_unlink_cleanup($file);
-		}
+		if (!empty($zz_tab[$uf['i']][$uf['k']]['images'][$uf['f']]['all_temp']))
+			foreach ($zz_tab[$uf['i']][$uf['k']]['images'][$uf['f']]['all_temp'] as $file)
+				if (file_exists($file) && is_file($file)) 
+					zz_unlink_cleanup($file);
 	}
 }
 
@@ -1089,6 +1101,15 @@ function zz_cleanup_dirs($dir) {
 		zz_cleanup_dirs($upper_dir);
 	}
 	return true;
+}
+
+function zz_image_exif_thumbnail($source, $destination, $dest_extension = false, $image = false) {
+	$exif_thumb = exif_thumbnail($source);
+	if ($exif_thumb) {
+		$imagehandle = fopen($destination, 'a');
+		fwrite($imagehandle, $exif_thumb);	//write the thumbnail image
+		return true;
+	} else return false;
 }
 
 ?>

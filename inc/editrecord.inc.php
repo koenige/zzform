@@ -49,7 +49,7 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 			// do something with the POST array before proceeding
 				if (empty($zz_tab[$i][$k]['access']) 
 					|| $zz_tab[$i][$k]['access'] != 'show' ) // don't validate record which only will be shown!!
-					$zz_tab[$i][$k] = zz_validate($zz_tab[$i][$k], $zz_conf, $zz_tab[$i]['table'], $zz_tab[$i]['table_name'], $k); 
+					$zz_tab[$i][$k] = zz_validate($zz_tab[$i][$k], $zz_conf, $zz_tab[$i]['table'], $zz_tab[$i]['table_name'], $k, $zz_tab[0][0]['POST']); 
 			} elseif (is_numeric($k))
 			//	Check referential integrity
 				if (file_exists($zz_conf['dir'].'/inc/integrity.inc.php')) {
@@ -193,10 +193,10 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 			// todo: check for affected rows, problem: also check for affected subrecords how?
 			// echo 'affected: '.mysql_affected_rows();
 			if ($zz_tab[0][0]['action'] == 'insert') {
-				$zz['formhead'] = $text['record_was_inserted'];
+				$zz['formhead'] = zz_text('record_was_inserted');
 				$zz_tab[0][0]['id']['value'] = mysql_insert_id(); // for requery
-			} elseif ($zz_tab[0][0]['action'] == 'update') $zz['formhead'] = $text['record_was_updated'];
-			elseif ($zz_tab[0][0]['action'] == 'delete') $zz['formhead'] = $text['record_was_deleted'];
+			} elseif ($zz_tab[0][0]['action'] == 'update') $zz['formhead'] = zz_text('record_was_updated');
+			elseif ($zz_tab[0][0]['action'] == 'delete') $zz['formhead'] = zz_text('record_was_deleted');
 			if ($zz_conf['logging'] && $sql_edit != 'SELECT 1')
 				zz_log_sql($sql_edit, $zz_conf['user'], $zz_tab[0][0]['id']['value']); // Logs SQL Query, must be after insert_id was checked
 			$operation_success = true;

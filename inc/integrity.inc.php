@@ -35,20 +35,20 @@ function check_integrity($master_db, $master_table, $master_field, $master_value
 			while ($line = mysql_fetch_array($result))
 				$relations[$line['master_db']][$line['master_table']][$line['master_field']][] = $line;
 		else {
-			$response['text'] = sprintf($text['No records in relation table']
+			$response['text'] = sprintf(zz_text('No records in relation table')
 				, $relation_table);
 			return $response;
 		}
 	} else {
 		echo mysql_error();
-		$response['text'] = sprintf($text['No relation table'], $relation_table);
+		$response['text'] = sprintf(zz_text('No relation table'), $relation_table);
 		return $response;
 	}
 	if (!$check = check_if_detail($relations, $master_db, $master_table, 
 		$master_field, $master_value, $detailrecords)) 
 		return false;
 	else {
-		$response['text'] = $text['Detail records exist in the following tables:'];
+		$response['text'] = zz_text('Detail records exist in the following tables:');
 		$response['fields'] = explode(',', $check);
 		return $response;
 	}
@@ -57,6 +57,7 @@ function check_integrity($master_db, $master_table, $master_field, $master_value
 function check_if_detail($relations, $master_db, $master_table, $master_field, 
 	$master_value, $detailrecords) {
 	global $zz_conf;
+	global $zz_error;
 	if (isset($relations[$master_db][$master_table])) {
 	//	this table is master in at least one relation
 	//	check whether there are detail records at all
@@ -69,7 +70,7 @@ function check_if_detail($relations, $master_db, $master_table, $master_field,
 			if ($zz_conf['debug']) echo $sql.'<br>';
 			$result = mysql_query($sql);
 			if ($result) if (mysql_num_rows($result))
-				if ($all_detailrecords = mysql_result($result,0,0)) { 
+				if ($all_detailrecords = mysql_result($result, 0, 0)) { 
 					// there is a detail record
 					if ($zz_conf['debug']) echo $all_detailrecords.'<br>';
 					$my_detailrecords = 0;
@@ -85,6 +86,8 @@ function check_if_detail($relations, $master_db, $master_table, $master_field,
 							$sql = zz_edit_sql($sql, 'WHERE', $detail.'.'
 								.$field['detail_field'].' = '.$master_value);
 							$myres = mysql_query($sql);
+							if (mysql_error())
+								$zz_error[] = array('msg' => 'Error in check_if_detail():<br><br> '.mysql_error(), 'query' => $sql);
 							if ($myres)
 								$my_detailrecords += mysql_num_rows($myres);
 							if ($zz_conf['debug']) echo $sql.'<br>';
@@ -103,8 +106,10 @@ function check_if_detail($relations, $master_db, $master_table, $master_field,
 							}
 						}
 						// if everything is ok, do nothing, so detail_records_in will still be false
-					} else //	there is a detail record
+					} else { //	there is a detail record
+						if ($zz_conf['debug']) echo 'All records '.$all_detailrecords.', in this record:'.$my_detailrecords.'<br><br>';
 						$detail_records_in[] = ucfirst($field['detail_table']);
+					}
 				}
 		}
 		if (!$detail_records_in) return false;

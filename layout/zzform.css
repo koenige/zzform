@@ -9,10 +9,11 @@ div.text #zzform	 {padding: 1em;}
 #zzform #record tbody tr:first-child td {border-top: none;}
 #zzform #record table table {margin: 0 0 .5em; border-collapse: collapse;}
 #zzform #record table table th {font-weight: normal; }
-#zzform #record .subtable table {width: 100%; text-align: left;}
-#zzform #record .subtable td {width: 88%; text-align: left;}
+#zzform #record .subtable table {float: left; clear: both;}
+#zzform #record .subtable td {/*width: 88%;*/ text-align: left;}
 #zzform #record .subtable th {width: 12%;}
 #zzform #record .subtable {margin: 0;}
+#zzform #record .subtable table {margin-bottom: 0;}
 
 #zzform #record .subtable .horizontal {width: auto;}
 #zzform #record .subtable .horizontal td {width: auto;}
@@ -55,12 +56,7 @@ div.text #zzform	 {padding: 1em;}
 #zzform .error {background-color: #F00; color: white; padding: .25em;  }
 #zzform div.error {margin: 1em 0; padding-left: .75em;}
 
-#zzform #record .error td, #zzform #record .error th,
-#zzform #record .subtable .error td, #zzform #record .subtable .error th,
-#zzform #record .error .subtable td, #zzform #record .error .subtable th,
-#zzform #record .subtable th.error, #zzform #record .subtable td.error{
-	background-color: red;}
-#zzform tr.error td {border-color: red;}
+#zzform #record tr.error td, #zzform #record tr.error th {background-color: red;}
 
 #zzform table.data td {padding: 0.25em .5em;}
 #zzform table.data thead td, #zzform table.data thead th {padding-bottom: .25em;
@@ -72,6 +68,7 @@ div.text #zzform	 {padding: 1em;}
 #zzform .pages .last {border-bottom: none;}
 
 #zzform td p, #zzform td ul {margin-top: 0;}
+#zzform td p:last-child {margin-bottom: 0;}
 
 #zzform .hidden {display: none;}
 
@@ -79,14 +76,8 @@ div.text #zzform	 {padding: 1em;}
 #zzform option.level2 {color: #339;}
 #zzform option.level3 {font-style: italic;}
 
-#zzform input.sub-add {float: left;}
-#zzform input.sub-remove {float: right;}
-
-#zzform form .reselect td, #zzform form .reselect th, 
-#zzform form td.reselect, #zzform form th.reselect, 
-#zzform #record .subtable .reselect td, #zzform #record .subtable .reselect th,
-#zzform #record .subtable td.reselect, #zzform #record .subtable th.reselect {
-	background-color: green; color: white; padding: .25em;}
+#zzform input.sub-add {float: left; clear: left; margin-top: .5em;}
+#zzform input.sub-remove {float: left; margin: .5em 0; }
 
 #zzform h2 {line-height: 120%; font-size: 140%;}
 
@@ -127,3 +118,10 @@ div.text #zzform	 {padding: 1em;}
 #zzform table td.level10 {padding-left: 25em;}
 
 #zzform table td small {font-size: 90%;}
+
+#zzform ul.data {padding: 0;}
+#zzform ul.data li {float: left; overflow: hidden;
+	margin: 0 1em 1em 0; padding: 0;} 
+#zzform ul.data img {vertical-align: middle; margin: 0; border: 0; padding: 0;}
+#zzform ul.data p {margin: 0; font-size: 90%;}
+#zzform ul.data p.editbutton {padding: 0;}

@@ -11,11 +11,40 @@ zzform: Number/Date Functions
  * 
  * @param $datum(string) date to be converted, international date or output of this function
  * @param $param(string) without-year: cuts year from date; short: returns short year
+ * @param $language(string) 2-letter-languagecode ISO 639-1 or 3-letter-code ISO 639-2T
  * @return string formatted date
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function datum_de($datum, $param = false) {
+function datum_de($datum, $param = false, $language = 'de') {
 	if (!$datum) return false;
+
+	// convert ISO 639-1 codes to ISO 639-2T
+	if ($language == 'de') $language = 'deu';
+	if ($language == 'en') $language = 'eng';
+
+	// international format, ISO 8601
+	$date_separator['---'] = '-';
+	$months['---'] = array('01' => '01', '02' => '02', '03' => '03', '04' => '04', 
+		'05' => '05', '06' => '06', '07' => '07', '08' => '08', '09' => '09', 
+		'10' => '10', '11' => '11', '12' => '12');
+	$date_order['---'] = array('year', 'month', 'day');
+
+	// german format (deu)
+	$date_separator['deu'] = '.';
+	$date_order['deu'] = array('day', 'month', 'year');
+
+	// english format (eng)
+	$date_separator['eng'] = '&nbsp;';
+	$months['eng'] = array('01' => 'Jan', '02' => 'Feb', '03' => 'Mar', '04' => 'Apr', 
+		'05' => 'May', '06' => 'Jun', '07' => 'Jul', '08' => 'Aug', '09' => 'Sep', 
+		'10' => 'Oct', '11' => 'Nov', '12' => 'Dec');
+	$date_order['eng'] = array('day', 'month', 'year');
+
+	// default values: international format, or use language specific format
+	$my_date_separator = !empty($date_separator[$language]) ? $date_separator[$language] : $date_separator['---'];
+	$my_months = !empty($months[$language]) ? $months[$language] : $months['---'];
+	$my_date_order = !empty($date_order[$language]) ? $date_order[$language] : $date_order['---'];
+
 	if (preg_match("/^([0-9]{4}-[0-9]{2}-[0-9]{2}) [0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/", $datum, $match)) {
 		// DATETIME
 		$datum = $match[1]; // ignore time, it's a date function
@@ -26,24 +55,28 @@ function datum_de($datum, $param = false) {
 		return $datum; #wenn kein richtiges datum, einfach datum zurueckgeben.
 	elseif (preg_match("/^[0-9]{1,4}$/", $datum)) 
 		return $datum; #wenn nur ein bis vier ziffern, d. h. jahr, einfach jahr zurueckgeben
-	$datum_arr = explode("-", $datum);
+	$date_parts = explode("-", $datum);
 	$datum = '';
-	if (isset($datum_arr[2]) && $datum_arr[2] != "00")
-		$datum .= $datum_arr[2].".";
-	if (isset($datum_arr[1]) && $datum_arr[1] != "00")
-		$datum .= $datum_arr[1].".";
-	if (substr($datum_arr[0], 0, 1) == "0" AND substr($datum_arr[0],0,2) != "00")
-		$datum .= substr($datum_arr[0], 1, 4);
+	$date_parts['day'] = (!empty($date_parts[2]) AND $date_parts[2] != '00') ? $date_parts[2] : false;
+	$date_parts['month'] = (!empty($date_parts[1]) AND $date_parts[1] != '00') ? $my_months[$date_parts[1]] : false;
+	
+	if (substr($date_parts[0], 0, 1) == "0" AND substr($date_parts[0], 0, 2) != "00")
+		$date_parts['year'] = substr($date_parts[0], 1, 4);
 	else
 		switch ($param) {
 		case 'without-year':
+			$date_parts['year'] = false;
 			break;
 		case 'short':
-			$datum .= substr($datum_arr[0],2);
+			$date_parts['year'] = substr($date_parts[0],2);
 			break;
 		default:
-			$datum .= $datum_arr[0];
+			$date_parts['year'] = $date_parts[0];
 		}
+	foreach ($my_date_order as $part) {
+		if ($datum) $datum .= $my_date_separator;
+		$datum .= $date_parts[$part];
+	}
 	return $datum;
 }
 

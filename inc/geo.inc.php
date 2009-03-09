@@ -25,7 +25,7 @@
 	$var['lat']['min'] = 10
 	$var['lat']['sec'] = 36.4
 	$var['lat']['hemisphere'] = 'N'
-	$var['latitude'] = 69¡10'36.4"N	
+	$var['latitude'] = 69°10'36.4"N	
 */
 
 function dec2dms_sub($mer_dec, $which = 'dms') {
@@ -61,12 +61,12 @@ function dec2dms($lat_dec, $lon_dec, $precision = false) {
 	if (!is_null($lat_dec) && !is_null($lon_dec) && !is_array($lat_dec) && !is_array($lon_dec)) {
 		$lat_dms = dec2dms_sub($lat_dec);
 		$lat_dm = dec2dms_sub($lat_dec, 'dm');
-		if ($lat_dms['hemisphere'] == "+") $lat_dm['hemisphere'] = $lat_dms['hemisphere'] = $text["N"];
-		if ($lat_dms['hemisphere'] == "-") $lat_dm['hemisphere'] = $lat_dms['hemisphere'] = $text["S"];
+		if ($lat_dms['hemisphere'] == "+") $lat_dm['hemisphere'] = $lat_dms['hemisphere'] = zz_text("N");
+		if ($lat_dms['hemisphere'] == "-") $lat_dm['hemisphere'] = $lat_dms['hemisphere'] = zz_text("S");
 		$lon_dms = dec2dms_sub($lon_dec);
 		$lon_dm = dec2dms_sub($lon_dec, 'dm');
-		if ($lon_dms['hemisphere'] == "+") $lon_dm['hemisphere'] = $lon_dms['hemisphere'] = $text["E"];
-		if ($lon_dms['hemisphere'] == "-") $lon_dm['hemisphere'] = $lon_dms['hemisphere'] = $text["W"];
+		if ($lon_dms['hemisphere'] == "+") $lon_dm['hemisphere'] = $lon_dms['hemisphere'] = zz_text("E");
+		if ($lon_dms['hemisphere'] == "-") $lon_dm['hemisphere'] = $lon_dms['hemisphere'] = zz_text("W");
 		$coords_dms = array (
 			"lat_dms" => $lat_dms,
 			"lat_dm" => $lat_dm,
@@ -125,12 +125,12 @@ function geo_editform($form_coords, $coords, $format = 'dms', $wrong_coords = fa
 	if ($coords && ($coords[$form_coords_ext]['hemisphere'] == $hemispheres['+'] 
 		OR $coords[$form_coords_ext]['hemisphere'] == '+'))
 		$output.= "selected ";
-	$output.= 'value="+">'.$text[$hemispheres['+']].'</option>';
+	$output.= 'value="+">'.zz_text($hemispheres['+']).'</option>';
 	$output.= '<option '; 
 	if ($coords && ($coords[$form_coords_ext]['hemisphere'] == $hemispheres['-'] 
 		OR $coords[$form_coords_ext]['hemisphere'] == '-'))
 		$output.= "selected ";
-	$output.= 'value="-">'.$text[$hemispheres['-']].'</option>
+	$output.= 'value="-">'.zz_text($hemispheres['-']).'</option>
 </select>';
 	if ($wrong_coords) $output.= zz_geo_error($coords[$form_coords_ext], $wrong_coords[$form_coords_ext], $form_coords_ext);
 	return $output;
@@ -141,10 +141,10 @@ function zz_geo_error($coords, $wrong_coords, $ll) {
 	$correct_values['sec'] = '0 - 59.99';
 	$correct_values['min'] = '0 - 59';
 	$correct_values['deg'] = ($ll == 'lon') ? '0 - 180' : '0 - 90';
-	$correct_values['hemisphere'] = ($ll == 'lon') ? ($text['E'].', '.$text['W']) : ($text['N'].', '.$text['S']);
+	$correct_values['hemisphere'] = ($ll == 'lon') ? (zz_text('E').', '.zz_text('W')) : (zz_text('N').', '.zz_text('S'));
 	$output = '';
 	foreach (array_keys($wrong_coords) as $coord)
-		$output.= '<br><small>'.($coords[$coord] ? $coords[$coord] : $text['Nothing']).' '.$text['is not a correct value for'].' '.$text[$coord].$text['. Correct values are: '].$correct_values[$coord].'</small>';
+		$output.= '<br><small>'.($coords[$coord] ? $coords[$coord] : zz_text('Nothing')).' '.zz_text('is not a correct value for').' '.zz_text($coord).zz_text('. Correct values are: ').$correct_values[$coord].'</small>';
 	return $output;
 }
 
@@ -239,7 +239,7 @@ function dms2db($input, $which = 'dms') {
 		$var['lat_dm']['deg'] = 69
 		$var['lat_dm']['min'] = 10.434
 		$var['lat_dm']['hemisphere'] = 'N'
-		$var['latitude'] = 69¡10'36.4"N	
+		$var['latitude'] = 69°10'36.4"N	
 	*/
 		$hemisphere['lat']['+'] = 'N';
 		$hemisphere['lat']['-'] = 'S';
@@ -262,7 +262,7 @@ function dms2db($input, $which = 'dms') {
 					$output[$coordinate].= (int) $input[$coordf]['min']."'";
 					$output[$coordinate].= ((($input[$coordf]['min'] - (int) $input[$coordf]['min']))*60).'"';
 				}
-				$output[$coordinate].= $text[$hemisphere[$coord][$input[$coordf]['hemisphere']]];
+				$output[$coordinate].= zz_text($hemisphere[$coord][$input[$coordf]['hemisphere']]);
 			}
 		}
 		return $output;

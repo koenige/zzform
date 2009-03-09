@@ -12,7 +12,6 @@ lower PHP versions have not been tested
 - exif_read_info: above 4.2 (no exif data will be read in PHP versions prior)
 
 Remarks:
-- ID field has to be $zz['fields'][1], see edit_functions for reason why.
 - when linking tables (subtables, details), special care has to be taken that the key
 field names are alike
 
@@ -191,6 +190,7 @@ $zz
 				-> path_sql		only if this sql query is needed for constructing the extension of a file path
 				-> display_field	field to be displayed instead of ID
 				-> hide_novalue = false: as a default, the choice of no value for a radio button set will be hidden. By setting this value to false, it will be shown.
+				-> size_select_too_long: if set, this will be the size of input if a select is not shown but input field instead
 			image
 				-> path			syntax = see below
 				-> default_image	in case, path leads to no existing image, use this as a default_image (full path only)
@@ -216,6 +216,7 @@ $zz
 			subtable		subrecord with foreign key which can be edited together with main record
 				-> table_name
 				-> form_display
+				-> foreign_key_field_name - normally, zzform uses maintable.id_field as WHERE maintable.id_field = id_value for subtables. This variable allows to set a different key_field_name, e. g. if you use table aliases
 			foreign_key		field is foreign_key (only possible for subtables)
 			detail_value	copies value from other field
 
@@ -376,7 +377,6 @@ $zz
 	$zz['mode']					what to prepare (GET): add | edit | delete | show		$mode
 	$zz['POST']					POST values												$myPOST
 	$zz['record']				current record with all fields							$record
-	$zz['extraGET']				extra GET values										$add_extras
 	$zz['result']				gives result of operation if at all: successful_insert, successful_update, successful_delete
 
 /*	----------------------------------------------	*
@@ -427,6 +427,7 @@ $zz_error
 
 $zz_var['where']				$where_values
 $zz_var['url_append']			? or &amp;
+$zz_var['extraGET']				extra GET values										$add_extras
 
 $zz['fields'][4]['sql_where'][1] = array(
 	'team_id',
