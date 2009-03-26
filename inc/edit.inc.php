@@ -44,6 +44,7 @@ function zzform() {
 	$zz['result'] = false;
 	$zz['headers'] = false;
 	$zz['output'] = false;
+	$zz['mode'] = false;
 	$zzvar = array();
 	$zz_tab = array();
 
@@ -136,22 +137,46 @@ function zzform() {
 	$zz_default['redirect']['successful_insert'] = false;	// redirect to diff. page after insert
 	$zz_default['redirect']['successful_delete'] = false;	// redirect to diff. page after delete
 	$zz_default['translations_of_fields'] = false;
+	$zz_default['select_multiple_records'] = false;
 
 	foreach (array_keys($zz_default) as $key)
 		if (!isset($zz_conf[$key])) $zz_conf[$key] = $zz_default[$key];
-	
-	if (!isset($zz_conf['url_self'])) {
-		$zz_conf['url_self'] = parse_url($_SERVER['REQUEST_URI']);
-		$zz_conf['url_self'] = $zz_conf['url_self']['path'];
+
+	// set default limit in case 'show_hierarchy' is used because hierarchies need more memory
+	if (!$zz_conf['limit'] AND $zz_conf['show_hierarchy']) $zz_conf['limit'] = 40;
+
+//	Set and get URI
+
+	$zz_var['url_append'] = '?'; // normal situation: there is no query string in the base url, so add query string starting ?
+	$my_uri = parse_url('http://www.example.org'.$_SERVER['REQUEST_URI']);
+	$zz_conf['url_self_qs_base'] = ''; // no base query string which belongs url_self
+	// get own URI
+	if (empty($zz_conf['url_self'])) {
+		$zz_conf['url_self'] = $my_uri['path'];
+		$zz_conf['url_self_qs_zzform'] = (!empty($my_uri['query']) ? '?'.$my_uri['query'] : ''); // zzform query string
+	} else {
+		$base_uri = parse_url($zz_conf['url_self']);
+		$zz_conf['url_self'] = $base_uri['path'];
+		if (!empty($base_uri['query'])) {
+			$zz_conf['url_self_qs_base'] = '?'.$base_uri['query']; // no base query string which belongs url_self
+			$zz_var['url_append'] ='&amp;';
+		}
+		if (!empty($my_uri['query']) AND !empty($base_uri['query']))
+			$zz_conf['url_self_qs_zzform'] = str_replace($base_uri['query'], '', $my_uri['query']);
+		elseif (!empty($my_uri['query']))
+			$zz_conf['url_self_qs_zzform'] = '&'.$my_uri['query'];
+		else
+			$zz_conf['url_self_qs_zzform'] = '';
 	}
-	$zz_var['url_append'] ='?';
-	$test_url_self = parse_url($zz_conf['url_self']);
-	if (!empty($test_url_self['query'])) $zz_var['url_append'] ='&amp;';
+	unset($my_uri);
+
+	// get LIMIT from URI
 	if (!$zz_conf['this_limit'] && $zz_conf['limit']) 
 		$zz_conf['this_limit'] = $zz_conf['limit'];
 	if (isset($_GET['limit']) && is_numeric($_GET['limit']))	
 		$zz_conf['this_limit'] = (int) $_GET['limit'];
 
+	// don't show list in case 'nolist' parameter is set
 	if (isset($_GET['nolist'])) $zz_conf['show_list'] = false;
 
 	if ($zz_conf['debug']) 
@@ -195,7 +220,8 @@ function zzform() {
 
 //	set mode and action
 	$zz['action'] = false;
-	$zz['mode'] = (!empty($_GET['mode']) && in_array($_GET['mode'], $zz_allowed_params['mode'])) 
+	if (!$zz['mode']) // might be set by module
+		$zz['mode'] = (!empty($_GET['mode']) && in_array($_GET['mode'], $zz_allowed_params['mode'])) 
 		? $_GET['mode'] : false;
 	if (!$zz['mode']) {
 		if (!empty($_POST['action'])) 
@@ -535,8 +561,8 @@ function zzform() {
 		// old PHP 4 support
 			$zz_fields_keys = array_merge(array_slice(array_keys($zz['fields']), 0, $k+$j), array_keys($translationsubtable), array_slice(array_keys($zz['fields']), $k+$j));
 			unset($zz['fields']);
-			foreach($zz_fields_keys as $index => $real_index) {
-				$zz['fields'][$real_index] = $zz_fields[$index];
+			foreach($zz_fields_keys as $f_index => $real_index) {
+				$zz['fields'][$real_index] = $zz_fields[$f_index];
 			}
 			unset ($zz_fields);
 			$j++;
@@ -592,7 +618,7 @@ function zzform() {
 
 	$validation = true;
 
-	$zz['sql'] = zz_search_sql($zz['fields'], $zz['sql'], $zz['table']);	// if q modify $zz['sql']: add search query
+	$zz['sql'] = zz_search_sql($zz['fields'], $zz['sql'], $zz['table'], $zz_tab[0][0]['id']['field_name']);	// if q modify $zz['sql']: add search query
 	$zz['sql_without_order'] = $zz['sql'];
 	$zz['sql'].= ' '.$zz['sqlorder']; 									// must be here because of where-clause
 
@@ -611,7 +637,10 @@ function zzform() {
 					AND !empty($condition['add'])
 					AND !empty($zz_var['where'][$zz['table']][$condition['add']['key_field_name']])) {
 					$sql = $condition['add']['sql'].$zz_var['where'][$zz['table']][$condition['add']['key_field_name']];
-					$sql = zz_edit_sql($sql, 'WHERE', $condition['where']);
+					if (!empty($condition['where']))
+						$sql = zz_edit_sql($sql, 'WHERE', $condition['where']);
+					if (!empty($condition['having']))
+						$sql = zz_edit_sql($sql, 'HAVING', $condition['having']);
 					$result = mysql_query($sql);
 					if ($result AND mysql_num_rows($result)) 
 						while ($line = mysql_fetch_assoc($result)) {
@@ -621,7 +650,11 @@ function zzform() {
 						$zz_error[] = array('msg' => mysql_error(), 'query' => $sql);
 				}
 				if (($zz['mode'] != 'review' OR $zz['action']) AND !empty($zz_tab[0][0]['id']['value'])) {
-					$sql = zz_edit_sql($zz['sql'], 'WHERE', $condition['where']);
+					$sql = $zz['sql'];
+					if (!empty($condition['where']))
+						$sql = zz_edit_sql($sql, 'WHERE', $condition['where']);
+					if (!empty($condition['having']))
+						$sql = zz_edit_sql($sql, 'HAVING', $condition['having']);
 					$result = mysql_query($sql);
 					if ($result AND mysql_num_rows($result)) 
 						// maybe get all ids instead?
@@ -743,8 +776,8 @@ function zzform() {
 			$zz_fields_keys = array_merge(array_slice(array_keys($zz['fields']), 0, $all_indices[$fieldindex]), 
 				array_keys($fields_to_add), array_slice(array_keys($zz['fields']), $all_indices[$fieldindex]));
 			unset($zz['fields']);
-			foreach($zz_fields_keys as $index => $real_index) {
-				$zz['fields'][$real_index] = $zz_fields[$index];
+			foreach($zz_fields_keys as $f_index => $real_index) {
+				$zz['fields'][$real_index] = $zz_fields[$f_index];
 			}
 			unset ($zz_fields);
 			// old PHP 4 support end, might be replaced by variables in array_slice
@@ -904,7 +937,7 @@ function zzform() {
 		if ($zz['mode'] == 'delete' OR $zz['mode'] == 'show') $display_form = 'review';
 		else $display_form = 'form';
 		if ($zz['mode'] != 'show') {
-			$zz['output'].= '<form action="'.$zz_conf['url_self'];
+			$zz['output'].= '<form action="'.$zz_conf['url_self'].$zz_conf['url_self_qs_base'];
 			if ($zz_var['extraGET']) $zz['output'].= $zz_var['url_append'].substr($zz_var['extraGET'], 5); // without first &amp;!
 			$zz['output'].= '" method="POST"';
 			if (!empty($upload_form)) $zz['output'] .= ' enctype="multipart/form-data"';
@@ -1002,7 +1035,9 @@ function zzform() {
 	if ($zz['mode'] && !in_array($zz['mode'], $no_record_form) && $zz['mode'] != 'show')
 		$zz['output'].= "</form>\n";
 	if ($zz['mode'] != 'add' && $zz['mode'] != 'export' && $zz_conf['add'] && !is_array($zz_conf['add']))
-		$zz['output'].= '<p class="add-new"><a accesskey="n" href="'.$zz_conf['url_self'].$zz_var['url_append'].'mode=add'.$zz_var['extraGET'].'">'.zz_text('Add new record').'</a></p>'."\n";
+		$zz['output'].= '<p class="add-new"><a accesskey="n" href="'.$zz_conf['url_self']
+			.$zz_conf['url_self_qs_base'].$zz_var['url_append'].'mode=add'
+			.$zz_var['extraGET'].'">'.zz_text('Add new record').'</a></p>'."\n";
 	if ($zz['mode'] != 'export' && $zz_conf['backlink']) {
 		if (!empty($zz_conf['dynamic_referer']))
 			$zz['output'].= '<p id="back-overview"><a href="'

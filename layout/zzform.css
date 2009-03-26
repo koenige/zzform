@@ -10,7 +10,9 @@ div.text #zzform	 {padding: 1em;}
 #zzform #record table table {margin: 0 0 .5em; border-collapse: collapse;}
 #zzform #record table table th {font-weight: normal; }
 #zzform #record .subtable table {float: left; clear: both;}
-#zzform #record .subtable td {/*width: 88%;*/ text-align: left;}
+#zzform #record .subtable td {/*width: 88%;*/ text-align: left; }
+#zzform #record .subtable td {padding: 0;}
+#zzform #record .subtable th {padding: 0 .5em 0 0;}
 #zzform #record .subtable th {width: 12%;}
 #zzform #record .subtable {margin: 0;}
 #zzform #record .subtable table {margin-bottom: 0;}
@@ -39,7 +41,9 @@ div.text #zzform	 {padding: 1em;}
 #zzform td {vertical-align: top;}
 #zzform td p {margin-top: .5em; margin-bottom: .5em;}
 
+#zzform #record .subtable td p, #zzform #record .subtable th p,
 #zzform table td { padding: .2em;}
+
 #zzform h1 {font-size: 140%; margin: 0;}
 #zzform td h2, #zzform td h3, #zzform td h4, #zzform td h5, #zzform td h6 {margin: 0 0 .5em;}
 #zzform div.text {padding: 1em;}
@@ -87,7 +91,7 @@ div.text #zzform	 {padding: 1em;}
 #zzform p.totalrecords {margin-bottom: 0;}
 
 #zzform p.desc, #zzform .explanation 
-	{margin: 0; padding: 0; font-weight: normal; font-size: 90%;}
+	{margin: 0; padding: 0; font-weight: normal; font-size: 90%; clear: both;}
 
 #zzform #record .upload td, #zzform #record .upload th {padding-top: 0;}
 #zzform #record .upload th {padding-left: 0;}
@@ -98,7 +102,7 @@ div.text #zzform	 {padding: 1em;}
 #zzform .zz_radio_list {list-style: none; padding: 0; margin: 0;}
 #zzform .zz_radio_list li {list-style: none; padding: 0; margin: 0;}
 #zzform .separator hr {width: 100%; margin: 0.25em 0; height: 3px;
-	background-color: #FFF; color: #FFF; border: #FFF;}
+	background-color: #FFF; color: #FFF; border: #FFF; max-width: none;}
 #zzform .left_separator {border-left: 3px #FFF solid;}
 #zzform #record td.separator {padding: .25em 0;}
 
@@ -125,3 +129,5 @@ div.text #zzform	 {padding: 1em;}
 #zzform ul.data img {vertical-align: middle; margin: 0; border: 0; padding: 0;}
 #zzform ul.data p {margin: 0; font-size: 90%;}
 #zzform ul.data p.editbutton {padding: 0;}
+
+#zzform input, #zzform textarea {text-rendering:optimizeSpeed;} /* get rid of Firefox wrong ligatures */

@@ -19,8 +19,8 @@
 								i. e. checks which fields offer uploads,
 								collects and writes information about files
 		zz_upload_get_fields()	checks which fields allow upload
-		zz_upload_check_files()	checks files, read information (filesize, exif 
-									etc.), puts information to 'image' array
+		zz_upload_check_files()	checks files,  puts information to 'image' array
+			zz_upload_fileinfo()	read information (filesize, exif etc.)
 			zz_upload_make_title()	converts filename to title
 			zz_upload_make_name()	converts filename to better filename
 			zz_upload_mimecheck()	checks whether supposed mimetype was already checked for
@@ -84,10 +84,8 @@
  *					VARIABLES						*
  *	----------------------------------------------	*/
 
-global $zz_conf;
-
 $zz_default['backup'] 			= false;	//	backup uploaded files?
-$zz_default['backup_dir'] 		= $zz_conf['dir'].'/backup';	//	directory where backup will be put into
+$zz_default['backup_dir'] 		= $zz_conf_global['dir'].'/backup';	//	directory where backup will be put into
 if (ini_get('upload_tmp_dir'))
 	$zz_default['tmp_dir']		= ini_get('upload_tmp_dir');
 else
@@ -125,7 +123,7 @@ $zz_default['image_types'] = array(
 foreach (array_keys($zz_default['image_types']) as $key)
 	$zz_default['image_types'][$key]['filetype'] = $zz_default['image_types'][$key]['ext'];
 
-$zz_default['file_types'] = zz_upload_getfiletypes($zz_conf['dir'].'/inc/filetypes.txt');
+$zz_default['file_types'] = zz_upload_getfiletypes($zz_conf_global['dir'].'/inc/filetypes.txt');
 
 // unwanted mimetypes and their replacements
 
@@ -154,6 +152,7 @@ $zz_default['exif_supported'] = array('jpeg', 'tiff');
  */
 function zz_upload_get(&$zz_tab) {
 	global $zz_conf;
+	if ($zz_conf['debug']) echo 'zz_upload_get()<br>';
 	if ($zz_conf['graphics_library'])
 		include_once $zz_conf['dir'].'/inc/image-'.$zz_conf['graphics_library'].'.inc.php';
 	
@@ -189,6 +188,7 @@ function zz_upload_get_fields(&$zz_tab) {
  */
 function zz_upload_check_files(&$zz_tab) {
 	global $zz_conf;
+	if ($zz_conf['debug']) echo 'zz_upload_check_files()<br>';
 	foreach ($zz_tab[0]['upload_fields'] as $uf) {
 		$my_tab = &$zz_tab[$uf['i']][$uf['k']];
 		$images = false;
@@ -203,6 +203,7 @@ function zz_upload_check_files(&$zz_tab) {
 			$images[$key][$subkey] = $field['image'][$subkey];
 			if (empty($image['field_name'])) continue; // don't do the rest if field_name is not set
 			// title, generated from local filename, to be used for 'upload_value'
+
 			$images[$key]['title'] = (!empty($images[$key]['title'])) 
 				// this and field_name will be '' if first image is false
 				? $images[$key]['title']
@@ -260,92 +261,100 @@ function zz_upload_check_files(&$zz_tab) {
 				case 1: continue 2; // file is too big (UPLOAD_ERR_FORM_SIZE)
 				case false: break; // everything ok. (UPLOAD_ERR_OK)
 			}
-/*
-	determine filetype and file extension
-	1. use reliable functions
-	1a. getimagesize
-	1b. exif_imagetype (despite being faster than getimagesize, this function comes
-		second, because getimagesize also reads width and height)
-		
-		exif_imagetype()
-		When a correct signature is found, the appropriate constant value will be
-		returned otherwise the return value is FALSE. The return value is the same
-		value that getimagesize() returns in index 2 but exif_imagetype() is much
-		faster.
-
-	1c. todo: finfo_file, see: http://www.php.net/manual/en/function.finfo-file.php
-			(c. relies on magic.mime file)
-	1d. use identify in imagemagick
-	2. if this is impossible, check for file extension
-*/				
-
-			// check whether filesize is above 2 bytes or it will give a read error
-			$images[$key][$subkey]['upload']['validated'] = false;
-			if ($images[$key][$subkey]['upload']['size'] >= 3) { 
-				// 1a.
-				// 1b.
-				if (function_exists('getimagesize')) {
-					$sizes = getimagesize($myfilename);
-					if ($sizes && !empty($zz_conf['image_types'][$sizes[2]])) {
-						$images[$key][$subkey]['upload']['width'] = $sizes[0];
-						$images[$key][$subkey]['upload']['height'] = $sizes[1];
-						$images[$key][$subkey]['upload']['ext'] = $zz_conf['image_types'][$sizes[2]]['ext'];
-						$images[$key][$subkey]['upload']['mime'] = $zz_conf['image_types'][$sizes[2]]['mime'];
-						$images[$key][$subkey]['upload']['filetype'] = $zz_conf['image_types'][$sizes[2]]['filetype'];
-						$images[$key][$subkey]['upload']['validated'] = true;
-						$tested_filetypes = array();
-					}
-				} 
-				if (!$images[$key][$subkey]['upload']['validated'] && function_exists('exif_imagetype')) {// > 4.3.0
-					$imagetype = exif_imagetype($myfilename);
-					if ($imagetype && !empty($zz_conf['image_types'][$imagetype])) {
-						$images[$key][$subkey]['upload']['ext'] = $zz_conf['image_types'][$imagetype]['ext'];
-						$images[$key][$subkey]['upload']['mime'] = $zz_conf['image_types'][$imagetype]['mime'];
-						$images[$key][$subkey]['upload']['filetype'] = $zz_conf['image_types'][$imagetype]['filetype'];
-						$images[$key][$subkey]['upload']['validated'] = true;
-						$tested_filetypes = array();
-					}
-				} 
-				if ($zz_conf['graphics_library'] == 'imagemagick') {
-					$temp_imagick = zz_imagick_identify($myfilename);
-					if ($temp_imagick)
-					$images[$key][$subkey]['upload'] = array_merge(
-						$images[$key][$subkey]['upload'], $temp_imagick);
-				}
-				// TODO: allow further file testing here, e. g. for PDF, DXF
-				// and others, go for Identifying Characters.
-				// maybe use magic_mime_type()
-				if (!$images[$key][$subkey]['upload']['validated']) {
-					if (zz_upload_mimecheck($images[$key][$subkey]['upload']['type'], $extension)) {
-						// Error: this mimetype/extension combination was already checked against
-						$images[$key][$subkey]['upload']['ext'] = 'unknown-'.$extension;
-						$images[$key][$subkey]['upload']['mime'] = 'unknown';
-						$images[$key][$subkey]['upload']['filetype'] = 'unknown';
-					} else {
-						$filetype = zz_upload_filecheck($images[$key][$subkey]['upload']['type'], $extension);
-						if ($filetype) {
-							$images[$key][$subkey]['upload']['ext'] = $filetype['ext'];
-							$images[$key][$subkey]['upload']['mime'] = $filetype['mime'];
-							$images[$key][$subkey]['upload']['filetype'] = $filetype['filetype'];
-						} else {
-							$images[$key][$subkey]['upload']['ext'] = 'unknown-'.$extension;
-							$images[$key][$subkey]['upload']['mime'] = 'unknown: '.$images[$key][$subkey]['upload']['type'];
-							$images[$key][$subkey]['upload']['filetype'] = 'unknown';
-						}
-					}
-				}	
-				if (function_exists('exif_read_data') 
-					AND in_array($images[$key][$subkey]['upload']['filetype'], $zz_conf['exif_supported']))
-					$images[$key][$subkey]['upload']['exif'] = exif_read_data($myfilename);
-				// TODO: further functions, e. g. zz_pdf_read_data if filetype == pdf ...
-				// TODO: or read AutoCAD Version from DXF, DWG, ...
-				// TODO: or read IPCT data.
-			}
-
+			$images[$key][$subkey]['upload'] = zz_upload_fileinfo($images[$key][$subkey]['upload'], $myfilename, $extension);
 			$myfilename = false;
 		}
 		$my_tab['images'] = $images;
 	}
+}
+
+/** checks which files allow file upload
+ *
+ *	determine filetype and file extension
+ *	1. use reliable functions
+ *	1a. getimagesize
+ *	1b. exif_imagetype (despite being faster than getimagesize, this function comes
+ *		second, because getimagesize also reads width and height)
+ *		
+ *		exif_imagetype()
+ *		When a correct signature is found, the appropriate constant value will be
+ *		returned otherwise the return value is FALSE. The return value is the same
+ *		value that getimagesize() returns in index 2 but exif_imagetype() is much
+ *		faster.
+ *
+ *	1c. todo: finfo_file, see: http://www.php.net/manual/en/function.finfo-file.php
+ *			(c. relies on magic.mime file)
+ *	1d. use identify in imagemagick
+ *	2. if this is impossible, check for file extension
+ *
+ * @param $my(array) $zz_tab[$i][$k]
+ * @return array multidimensional information about images
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function zz_upload_fileinfo($file, $myfilename, $extension) {
+	global $zz_conf;
+	$file['validated'] = false;
+	// check whether filesize is above 2 bytes or it will give a read error
+	if ($file['size'] >= 3) { 
+		// 1a.
+		// 1b.
+		if (function_exists('getimagesize')) {
+			$sizes = getimagesize($myfilename);
+			if ($sizes && !empty($zz_conf['image_types'][$sizes[2]])) {
+				$file['width'] = $sizes[0];
+				$file['height'] = $sizes[1];
+				$file['ext'] = $zz_conf['image_types'][$sizes[2]]['ext'];
+				$file['mime'] = $zz_conf['image_types'][$sizes[2]]['mime'];
+				$file['filetype'] = $zz_conf['image_types'][$sizes[2]]['filetype'];
+				$file['validated'] = true;
+				$tested_filetypes = array();
+			}
+		} 
+		if (!$file['validated'] && function_exists('exif_imagetype')) {// > 4.3.0
+			$imagetype = exif_imagetype($myfilename);
+			if ($imagetype && !empty($zz_conf['image_types'][$imagetype])) {
+				$file['ext'] = $zz_conf['image_types'][$imagetype]['ext'];
+				$file['mime'] = $zz_conf['image_types'][$imagetype]['mime'];
+				$file['filetype'] = $zz_conf['image_types'][$imagetype]['filetype'];
+				$file['validated'] = true;
+				$tested_filetypes = array();
+			}
+		} 
+		if ($zz_conf['graphics_library'] == 'imagemagick') {
+			$temp_imagick = zz_imagick_identify($myfilename);
+			if ($temp_imagick)
+			$file = array_merge($file, $temp_imagick);
+		}
+		// TODO: allow further file testing here, e. g. for PDF, DXF
+		// and others, go for Identifying Characters.
+		// maybe use magic_mime_type()
+		if (!$file['validated']) {
+			if (zz_upload_mimecheck($file['type'], $extension)) {
+				// Error: this mimetype/extension combination was already checked against
+				$file['ext'] = 'unknown-'.$extension;
+				$file['mime'] = 'unknown';
+				$file['filetype'] = 'unknown';
+			} else {
+				$filetype = zz_upload_filecheck($file['type'], $extension);
+				if ($filetype) {
+					$file['ext'] = $filetype['ext'];
+					$file['mime'] = $filetype['mime'];
+					$file['filetype'] = $filetype['filetype'];
+				} else {
+					$file['ext'] = 'unknown-'.$extension;
+					$file['mime'] = 'unknown: '.$file['type'];
+					$file['filetype'] = 'unknown';
+				}
+			}
+		}	
+		if (function_exists('exif_read_data') 
+			AND in_array($file['filetype'], $zz_conf['exif_supported']))
+			$file['exif'] = exif_read_data($myfilename);
+		// TODO: further functions, e. g. zz_pdf_read_data if filetype == pdf ...
+		// TODO: or read AutoCAD Version from DXF, DWG, ...
+		// TODO: or read IPCT data.
+	}
+	return $file;
 }
 
 /** converts filename to human readable string
@@ -383,6 +392,7 @@ function zz_upload_make_name($filename) {
  */
 function zz_upload_mimecheck($mimetype, $extension) {
 	global $zz_conf;
+	if ($zz_conf['debug']) echo 'zz_upload_mimecheck()<br>';
 	if (in_array($mimetype, $zz_conf['mime_types_rewritten']))
 		$mimetype = $zz_conf['mime_types_rewritten'][$mimetype];
 	foreach ($zz_conf['image_types'] as $imagetype)
@@ -393,6 +403,7 @@ function zz_upload_mimecheck($mimetype, $extension) {
 
 function zz_upload_filecheck($mimetype, $extension) {
 	global $zz_conf;
+	if ($zz_conf['debug']) echo 'zz_upload_filecheck()<br>';
 	$type1 = false;
 	$type2 = false;
 	$type2unique = true;
@@ -432,17 +443,23 @@ function zz_upload_filecheck($mimetype, $extension) {
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_prepare(&$zz_tab, $zz_conf) {
+	if ($zz_conf['debug']) echo 'zz_upload_prepare()<br>';
 	$action = $zz_tab[0][0]['action'];
+	$all_temp_filenames = array();
 	
 	foreach ($zz_tab[0]['upload_fields'] as $uf) {
 		$my_tab = &$zz_tab[$uf['i']][$uf['k']];
 		foreach ($my_tab['fields'][$uf['f']]['image'] as $img => $val) {
-			$image = &$my_tab['images'][$uf['f']][$img]; // reference on image data
+
+			// reference on image data
+			$image = &$my_tab['images'][$uf['f']][$img]; 
+
 			//	read user input via options
-			if (!empty($image['options'])) { // read user input
+			if (!empty($image['options'])) {
+				// to make it easier, allow input without array construct as well
 				if (!is_array($image['options'])) 
-					// to make it easier, allow input without array construct as well
 					$image['options'] = array($image['options']); 
+				// go through all options
 				foreach ($image['options'] as $optionfield) {
 					// field_name of field where options reside
 					$option_fieldname = $my_tab['fields'][$optionfield]['field_name']; 
@@ -453,45 +470,79 @@ function zz_upload_prepare(&$zz_tab, $zz_conf) {
 					// overwrite values in script with selected option
 					$image = array_merge($image, $options[$option_value]); 
 				}
+				unset($option_fieldname);
+				unset($option);
+				unset($option_value);
 			}
-			if (!isset($image['source']))
-				$tmp_name = $image['upload']['tmp_name'];
-			else {
+
+			if (!empty($image['ignore'])) continue; // ignore image
+
+			// check which source file shall be used
+			if (isset($image['source'])) { // must be isset, because 'source' might be 0
+				// it's a thumbnail or some other derivate from the original file
 				$src_image = $my_tab['images'][$uf['f']][$image['source']];
 				if (!empty($image['use_modified_source']))
-					$tmp_name = (isset($src_image['files'])
-						? $src_image['files']['tmp_files'][$image['source']] : false);
+					// get filename from modified source, false if there was an error
+					$source_filename = (isset($src_image['files']) ? $src_image['files']['tmp_files'][$image['source']] : false);
 				else
-					$tmp_name = $src_image['upload']['tmp_name'];
-				$image['upload'] = $src_image['upload']; // get some variables from source image as well
+					$source_filename = $src_image['upload']['tmp_name'];
+				// get some variables from source image as well
+				$image['upload'] = $src_image['upload']; 
+				// check if it's not a form that allows upload of different filetypes at once
+				// cross check input filetypes
+				if (!empty($image['input_filetypes'])) {
+					if (!in_array($src_image['upload']['filetype'], $image['input_filetypes'])) continue;
+					// continue if this file shall not be touched.
+				}
+				unset($src_image);
+			} elseif (!empty($image['source_file'])) {
+				// get source file
+				// test, whether it is an ID field with ... or not
+				$field_index = false;
+				// convert string in ID, if it's a checkselect
+				foreach ($my_tab['fields'] as $index => $field) {
+					if ($field['field_name'] == $image['source_file']) {
+						$field_index = $index;
+					}
+				}
+				if (isset($_POST['check_select']) && $my_tab['fields'][$field_index]['type'] == 'select' 
+						&& (in_array($my_tab['fields'][$field_index]['field_name'], $_POST['check_select']) 
+							OR (in_array($zz_tab[$uf['i']]['table'].'['.$uf['k'].']['.$my['fields'][$field_index]['field_name'].']', $_POST['check_select']))) // check only for 0, might be problem, but 0 should always be there
+						&& $my_tab['POST'][$my_tab['fields'][$field_index]['field_name']]) { // if null -> accept it
+					$my_tab = zz_check_select($my_tab, $field_index, $zz_conf['max_select']);
+				}
+				$sql = $image['source_path_sql'].$my_tab['POST'][$image['source_file']];
+				$result = mysql_query($sql);
+				if ($result AND mysql_num_rows($result) == 1) {
+					$zz_tab[$uf['i']][$uf['k']]['old_record'] = mysql_fetch_assoc($result);
+					$source_filename = zz_makepath($image['source_path'], $zz_tab, 'old', 'file', $uf['i'], $uf['k']);
+					if (file_exists($source_filename)) {
+						$extension = strtolower(substr($source_filename, 
+							strrpos($source_filename, '.')+1));
+						$image['upload']['name'] = basename($source_filename);
+						$image['upload']['type'] = ''; // TODO ?
+						$image['upload']['tmp_name'] = $source_filename; // same because it's no upload
+						$image['upload']['error'] = 0;
+						$image['upload']['size'] = filesize($source_filename);
+						$image['upload'] = zz_upload_fileinfo($image['upload'], $source_filename, $extension);
+					}
+				}
+			} else {
+				// it's the original file we upload to the server
+				$source_filename = $image['upload']['tmp_name'];
+				if (file_exists($source_filename)) $all_temp_filenames[] = $source_filename;
 			}
-			$is_image = true;
-			// only do the following things with images!
-			if (!empty($image['upload']['mime'])) { // check whether some file was uploaded
-				$is_image = explode('/', $image['upload']['mime']);
-				$is_image = ($is_image[0] == 'image' ? true : false);
-			}
-//			if (!is_array($image['input_filetypes'])) $image['input_filetypes'] = array($image['input_filetypes']);
-//			if ((isset($image['source']) AND !$is_image) 
-//				OR (!empty($image['input_filetypes']) AND 
-//				!in_array($image['upload']['filetype'], $image['input_filetypes']))) {
-//				continue; // no thumbnail images from non-image files
-//			}
 			if (!empty($image['auto']) && !empty($image['auto_values'])) 
 				// choose values from uploaded image, best fit
-				if ($tmp_name) {
+				if ($source_filename) {
 					$autofunc = 'zz_image_auto_'.$image['auto'];
 					if (function_exists($autofunc)) $autofunc($image);
 					else echo '<br>Configuration Error: Function <code>'.$autofunc.'()</code> does not exist.';
 				}
-			if (!empty($image['ignore'])) continue; // ignore image
-			if ($tmp_name && $tmp_name != 'none') { // only if something new was uploaded!
-				if (file_exists($tmp_name)) {
-					$filename = $tmp_name;
-					$all_temp_filenames[] = $tmp_name;
-				} else $filename = $src_image['files']['tmp_files'][$image['source']]; // if name has been changed
+			if ($source_filename && $source_filename != 'none') { // only if something new was uploaded!
+				$filename = (file_exists($source_filename) ? $source_filename : '');
 				$tmp_filename = false;
-				if (!empty($image['action']) AND $is_image) { // image operations only for images
+				if (!empty($image['action'])) { // image operations only for images
 					// create temporary file, so that original file remains the same for further actions
 					$tmp_filename = tempnam(realpath($zz_conf['tmp_dir']), "UPLOAD_"); 
 					$dest_extension = zz_upload_extension($image['path'], $zz_tab, $uf);
@@ -589,6 +640,7 @@ function zz_upload_extension($path, &$zz_tab, &$uf) {
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_check(&$images, $action, $zz_conf, $input_filetypes = array()) {
+	if ($zz_conf['debug']) echo 'zz_upload_check()<br>';
 	global $text;
 	$error = false;
 	if ($input_filetypes) {
@@ -677,6 +729,7 @@ function zz_upload_check(&$images, $action, $zz_conf, $input_filetypes = array()
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_action(&$zz_tab, $zz_conf) {
+	if ($zz_conf['debug']) echo 'zz_upload_action()<br>';
 	global $zz_error;
 	if (!empty($_POST['zz_delete_file'])) 
 		zz_upload_delete_file($zz_tab, $zz_tab[0][0]['action'], $zz_conf);
@@ -693,6 +746,7 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_delete_file(&$zz_tab, $action, $zz_conf) {
+	if ($zz_conf['debug']) echo 'zz_upload_delete_file()<br>';
 	foreach ($_POST['zz_delete_file'] as $keys => $status) {
 		if ($status != 'on') return false; // checkbox checked
 		$keys = explode('-', $keys);
@@ -736,6 +790,7 @@ function zz_upload_delete_file(&$zz_tab, $action, $zz_conf) {
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_write(&$zz_tab, $action, $zz_conf) {
+	if ($zz_conf['debug']) echo 'zz_upload_write()<br>';
 
 	// create path
 	// check if path exists, if not, create it
@@ -794,7 +849,7 @@ function zz_upload_write(&$zz_tab, $action, $zz_conf) {
 					$zz_error[]['msg'] = '<br>'.'Configuration Error [2]: Filename "'
 						.$dest.'" is invalid.';
 				zz_upload_checkdir(dirname($dest)); // create path if it does not exist or if cleanup removed it.
-				if (!isset($image['source']) && empty($image['action'])) { 
+				if (!isset($image['source']) && !isset($image['source_file']) && empty($image['action'])) { 
 					// do this with images which have not been touched
 					// todo: error handling!!
 					copy($filename, $dest);		// instead of rename:
@@ -825,6 +880,7 @@ function zz_upload_write(&$zz_tab, $action, $zz_conf) {
 		// TODO: EXIF or ICPT write operations go here!
 		}
 	}
+	if ($zz_conf['debug']) echo 'zz_upload_write() finished<br>';
 }
 
 /** get value needed for upload from sql query
@@ -857,6 +913,7 @@ function zz_upload_sqlval($value, $sql, $idvalue = false, $idfield = false) { //
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_delete($zz_tab, $zz_conf) {
+	if ($zz_conf['debug']) echo 'zz_upload_delete()<br>';
 	global $zz_error;
 	global $text;
 	foreach ($zz_tab[0]['upload_fields'] as $uf) {
@@ -940,7 +997,8 @@ function zz_upload_reformat_field($value) {
  * @return bool true/false = successful/fail
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_upload_checkdir($my_dir) { 
+function zz_upload_checkdir($my_dir) {
+	if (!$my_dir) return false;
 	// checks if directories above current_dir exist and creates them if necessary
 	while (strpos($my_dir, '//'))
 		$my_dir = str_replace('//', '/', $my_dir);

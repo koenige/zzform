@@ -33,6 +33,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 	//
 	// Query records
 	//
+	$zz['sql_without_limit'] = $zz['sql'];
 	if ($zz_conf['this_limit'] && empty($zz_conf['show_hierarchy'])) { // limit, but not for hierarchical sets
 		if (!$zz_conf['limit']) $zz_conf['limit'] = 20; // set a standard value for limit
 			// this standard value will only be used on rare occasions, when NO limit is set
@@ -80,13 +81,12 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 		$my_lines = zz_list_hierarchy($h_lines, $zz_conf['show_hierarchy'], $id_field, $level, $i);
 		$total_rows = $i; // sometimes, more rows might be selected beforehands,
 		// but if show_hierarchy has ID value, not all rows are shown
-		if ($zz_conf['this_limit'] AND $my_lines) {
-			if (!$zz_conf['limit']) $zz_conf['limit'] = 20; // set a standard value for limit
+		if ($my_lines) {
 			$new_lines = array();
 			foreach (range($zz_conf['this_limit'] - $zz_conf['limit'], $zz_conf['this_limit']-1) as $index) {
 				if (!empty($my_lines[$index])) $new_lines[$my_lines[$index][$id_field]] = $my_lines[$index];
 			}
-			$limited_lines = array();
+//			$limited_lines = array();
 			foreach (array_keys($new_lines) as $key_value) {
 				$limited_lines[] = array_merge($new_lines[$key_value], $lines[$key_value]);
 			}
@@ -115,7 +115,11 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 			// case record remains the same as in form view
 			// case query covers more ids
 			case 'record':
-				$sql = zz_edit_sql($zz['sql'], 'WHERE', $condition['where']);
+				$sql = $zz['sql_without_limit'];
+				if (!empty($condition['where']))
+					$sql = zz_edit_sql($sql, 'WHERE', $condition['where']);
+				if (!empty($condition['having']))
+					$sql = zz_edit_sql($sql, 'HAVING', $condition['having']);
 				$result = mysql_query($sql);
 				if ($result AND mysql_num_rows($result)) 
 					// maybe get all ids instead?
@@ -126,7 +130,8 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 					$zz_error[] = array('msg' => mysql_error(), 'query' => $sql);
 				break;
 			case 'query':
-				$sql = zz_edit_sql($condition['sql'], 'WHERE', $condition['key_field_name'].' IN ('.implode(', ', $ids).')');
+				$sql = $condition['sql'];
+				$sql = zz_edit_sql($sql, 'WHERE', $condition['key_field_name'].' IN ('.implode(', ', $ids).')');
 				$result = mysql_query($sql);
 				if (mysql_error())
 					$zz_error[] = array('msg' => mysql_error(), 'query' => $sql);
@@ -143,6 +148,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 			default:
 			}
 		}
+		$zz['output'].= zz_error($zz_error);
 	}
 
 	// check conditions, these might lead to different field definitions for every
@@ -182,13 +188,17 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 				foreach ($line_query[$index] as $fieldindex => $field) {
 					// remove elements from table which shall not be shown
 					if ($zz['mode'] == 'export') {
-						if (!isset($field['export']) || $field['export']) $table_query[$index][] = $field;
+						if (!isset($field['export']) || $field['export']) {
+							$table_query[$index][] = $field;
+						}
 					} else {
-						if (empty($field['hide_in_list'])) $table_query[$index][] = $field;
+						if (empty($field['hide_in_list'])) {
+							$table_query[$index][] = $field;
+						}
 					}
 				}
-	if ($zz_conf['debug']) 
-		$zz['output'] .= zz_show_microtime('After table_query '.$index, $zz_timer);
+				if ($zz_conf['debug']) 
+					$zz['output'] .= zz_show_microtime('After table_query '.$index, $zz_timer);
 			}
 		}
 		// now we have the basic stuff in $table_query[0] and $line_query[0]
@@ -210,7 +220,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 		if ($total_rows OR isset($_GET['q'])) 
 			// show search form only if there are records as a result of this query; 
 			// q: show search form if empty search result occured as well
-			$html_searchform = zz_search_form($zz_conf['url_self'], $zz['fields_in_list'], $zz['table']);
+			$html_searchform = zz_search_form($zz['fields_in_list'], $zz['table']);
 		if ($zz_conf['search'] === true) $zz_conf['search'] = 'bottom'; // default!
 		switch ($zz_conf['search']) {
 			case 'top':
@@ -226,6 +236,13 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 		}
 	}
 	$zz['output'] .= $searchform_top;
+	
+	if ($zz_conf['show_list'] AND $zz_conf['select_multiple_records'] AND $zz['mode'] != 'export') {
+		$zz['output'].= '<form action="'.$zz_conf['url_self'].$zz_conf['url_self_qs_base'];
+		if ($zz_var['extraGET']) $zz['output'].= $zz_var['url_append'].substr($zz_var['extraGET'], 5); // without first &amp;!
+		$zz['output'].= '" method="POST"';
+		$zz['output'].= ' accept-charset="'.$zz_conf['character_set'].'">'."\n";
+	}
 
 	//
 	// Table head
@@ -234,6 +251,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 		$zz['output'].= '<table class="data">';
 		$zz['output'].= '<thead>'."\n";
 		$zz['output'].= '<tr>';
+		if ($zz_conf['select_multiple_records']) $zz['output'].= '<th>[]</th>';
 		$unsortable_fields = array('calculated', 'image', 'upload_image'); // 'subtable'?
 		$show_field = true;
 		foreach ($table_query[0] as $index => $field) {
@@ -251,9 +269,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 					else $order_val = $field['field_name'];
 					$unwanted_keys = array('dir');
 					$new_keys = array('order' => $order_val);
-					$uri = parse_url($_SERVER['REQUEST_URI']);
-					if (empty($uri['query'])) $uri['query'] = '';
-					$uri = $uri['path'].zz_edit_query_string($uri['query'], $unwanted_keys, $new_keys);
+					$uri = $zz_conf['url_self'].zz_edit_query_string($zz_conf['url_self_qs_base'].$zz_conf['url_self_qs_zzform'], $unwanted_keys, $new_keys);
 					$order_dir = 'asc';
 					if (str_replace('&amp;', '&', $uri) == $_SERVER['REQUEST_URI']) {
 						$uri.= '&amp;dir=desc';
@@ -283,7 +299,13 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 		}
 		if ($zz_conf['edit'] OR $zz_conf['view'])
 			$zz['output'].= ' <th class="editbutton">'.zz_text('action').'</th>';
-		if (isset($zz_conf['details']) && $zz_conf['details']) 
+		$show_details_head = false;
+		if (!empty($zz_conf['details'])) $show_details_head = true;
+		if (!empty($zz_conf['conditions'])) {
+			foreach ($zz_conf['conditions'] as $condition)
+				if (!empty($condition['details'])) $show_details_head = true;
+		}
+		if ($show_details_head) 
 			$zz['output'].= ' <th class="editbutton">'.zz_text('detail').'</th>';
 		$zz['output'].= '</tr>';
 		$zz['output'].= '</thead>'."\n";
@@ -352,6 +374,11 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 			$zz_conf_thisrec = $zz_conf; // configuration variables just for this line
 			if (!empty($line['zz_conf'])) // check whether there are different configuration variables e. g. for hierarchies
 				$zz_conf_thisrec = array_merge($zz_conf_thisrec, $line['zz_conf']);
+			if ($zz_conf_thisrec['select_multiple_records']) { // checkbox for records
+				$rows[$z][-1]['text'] = '<input type="checkbox" name="zz_record[]" value="'.$line[$id_field].'">'; // $id
+				$rows[$z][-1]['class'] = ' class="select_multiple_records"';
+			}
+
 			foreach ($table_query[$tq_index] as $fieldindex => $field) {
 				// conditions
 				if (!empty($field['conditions']))
@@ -550,17 +577,17 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 			if ($zz_conf_thisrec['edit'] OR $zz_conf_thisrec['view']) {
 				$rows[$z]['editbutton'] = false;
 				if ($zz_conf_thisrec['edit']) 
-					$rows[$z]['editbutton'] = '<a href="'.$zz_conf['url_self']
+					$rows[$z]['editbutton'] = '<a href="'.$zz_conf['url_self'].$zz_conf['url_self_qs_base']
 						.$zz_var['url_append'].'mode=edit&amp;id='.$id
 						.$zz_var['extraGET'].'">'.zz_text('edit').'</a>';
 				elseif ($zz_conf_thisrec['view'])
-					$rows[$z]['editbutton'] = '<a href="'.$zz_conf['url_self']
+					$rows[$z]['editbutton'] = '<a href="'.$zz_conf['url_self'].$zz_conf['url_self_qs_base']
 						.$zz_var['url_append'].'mode=show&amp;id='.$id
 						.$zz_var['extraGET'].'">'.zz_text('show').'</a>';
 
 				if ($zz_conf_thisrec['delete']) {
 					$rows[$z]['editbutton'] .= '&nbsp;| <a href="'
-						.$zz_conf['url_self'].$zz_var['url_append'].'mode=delete&amp;id='
+						.$zz_conf['url_self'].$zz_conf['url_self_qs_base'].$zz_var['url_append'].'mode=delete&amp;id='
 						.$id.$zz_var['extraGET'].'">'.zz_text('delete').'</a>';
 				}
 			}
@@ -640,7 +667,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 	//
 	// Table body
 	//
-
+	
 	if ($zz_conf['show_list'] && $zz_conf['list_display'] == 'table') {
 		$zz['output'].= '<tbody>'."\n";
 		$rowgroup = false;
@@ -698,7 +725,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 		foreach ($rows as $index => $row) {
 			$tablerow = false;
 			foreach ($row as $fieldindex => $field)
-				if (is_numeric($fieldindex)) {
+				if (!$fieldindex OR is_numeric($fieldindex)) { // 0 or 1 or 2 ...
 					$myfield = str_replace('"', '""', $field['text']);
 					if (!empty($subselect['export_no_html'])) {
 						$myfield = str_replace("&nbsp;", " ", $myfield);
@@ -723,6 +750,11 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 		elseif ($zz_conf['list_display'] == 'ul')
 			$zz['output'].= '</ul>'."\n".'<br clear="all">';
 
+	if ($zz_conf['show_list'] AND $zz_conf['select_multiple_records'] AND $zz['mode'] != 'export') {
+		$zz['output'].= '<input type="hidden" name="action" value="Multiple action"><input type="submit" value="'
+			.zz_text('Delete selected records').'" name="multiple_delete">'
+			.'</form>'."\n";
+	}
 	//
 	// Buttons below table (add, record nav, search)
 	//
@@ -733,17 +765,20 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 		// normal add button, only if list was shown beforehands
 		if ($zz['mode'] != 'add' && $zz_conf['add'] AND !is_array($zz_conf['add']) && $zz_conf['show_list'])
 			$toolsline[] = '<a accesskey="n" href="'
-				.$zz_conf['url_self'].$zz_var['url_append'].'mode=add'.$zz_var['extraGET'].'">'
+				.$zz_conf['url_self'].$zz_conf['url_self_qs_base'].$zz_var['url_append'].'mode=add'.$zz_var['extraGET'].'">'
 				.zz_text('Add new record').'</a>';
 		// multi-add-button, also show if there was no list, because it will only be shown below records!
 		
 		if ($zz['mode'] != 'add' && $zz_conf['add'] AND is_array($zz_conf['add']))
 			foreach ($zz_conf['add'] as $add)
-				$zz['output'].= '<p class="add-new"><a href="'.$zz_conf['url_self'].$zz_var['url_append']
-					.'mode=add'.$zz_var['extraGET'].'&amp;add['.$add['field_name'].']='.$add['value'].'">'.sprintf(zz_text('Add new %s'), $add['type']).'</a></p>'."\n";
+				$zz['output'].= '<p class="add-new"><a href="'.$zz_conf['url_self']
+					.$zz_conf['url_self_qs_base'].$zz_var['url_append']
+					.'mode=add'.$zz_var['extraGET'].'&amp;add['.$add['field_name'].']='
+					.$add['value'].'">'.sprintf(zz_text('Add new %s'), $add['type']).'</a></p>'."\n";
 
 		if ($zz_conf['export'] AND $total_rows) 
-			$toolsline = array_merge($toolsline, zz_export_links($zz_conf['url_self'].$zz_var['url_append'], $zz_var['extraGET']));
+			$toolsline = array_merge($toolsline, zz_export_links($zz_conf['url_self']
+				.$zz_conf['url_self_qs_base'].$zz_var['url_append'], $zz_var['extraGET']));
 		if ($toolsline)
 			$zz['output'].= '<p class="add-new bottom-add-new">'.implode(' | ', $toolsline).'</p>';
 		// Total records

@@ -25,7 +25,7 @@
 	$var['lat']['min'] = 10
 	$var['lat']['sec'] = 36.4
 	$var['lat']['hemisphere'] = 'N'
-	$var['latitude'] = 69°10'36.4"N	
+	$var['latitude'] = 69¡10'36.4"N	
 */
 
 function dec2dms_sub($mer_dec, $which = 'dms') {
@@ -57,7 +57,6 @@ function dec2dms_sub($mer_dec, $which = 'dms') {
 // and of course, differently
 
 function dec2dms($lat_dec, $lon_dec, $precision = false) {
-	global $text;
 	if (!is_null($lat_dec) && !is_null($lon_dec) && !is_array($lat_dec) && !is_array($lon_dec)) {
 		$lat_dms = dec2dms_sub($lat_dec);
 		$lat_dm = dec2dms_sub($lat_dec, 'dm');
@@ -89,7 +88,6 @@ function dec2dms($lat_dec, $lon_dec, $precision = false) {
 }
 
 function geo_editform($form_coords, $coords, $format = 'dms', $wrong_coords = false) {
-	global $text;
 	// Coordinates[0][X_Latitude][lat
 	// X_Latitude[lat
 
@@ -137,7 +135,6 @@ function geo_editform($form_coords, $coords, $format = 'dms', $wrong_coords = fa
 }
 
 function zz_geo_error($coords, $wrong_coords, $ll) {
-	global $text;
 	$correct_values['sec'] = '0 - 59.99';
 	$correct_values['min'] = '0 - 59';
 	$correct_values['deg'] = ($ll == 'lon') ? '0 - 180' : '0 - 90';
@@ -159,7 +156,6 @@ function zz_geo_error($coords, $wrong_coords, $ll) {
 
 function dms2db($input, $which = 'dms') {
 	setlocale(LC_ALL, 'en_GB'); // we would get into trouble with set locale
-	global $text;
 	$gcs = array (
 		'lat' => 'latitude',
 		'lon' => 'longitude'
@@ -239,7 +235,7 @@ function dms2db($input, $which = 'dms') {
 		$var['lat_dm']['deg'] = 69
 		$var['lat_dm']['min'] = 10.434
 		$var['lat_dm']['hemisphere'] = 'N'
-		$var['latitude'] = 69°10'36.4"N	
+		$var['latitude'] = 69¡10'36.4"N	
 	*/
 		$hemisphere['lat']['+'] = 'N';
 		$hemisphere['lat']['-'] = 'S';

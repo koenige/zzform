@@ -173,6 +173,7 @@ $zz
 			memo			will show textarea
 				-> cols
 				-> rows
+				-> rows_max
 				-> format
 				-> list_format
 			select
@@ -186,6 +187,7 @@ $zz
 				-> key_field_name	if where is used and where-key-name is different from key name in sql-query
 				-> show_hierarchy	shows hierarchy in selects, value must be set to corresponding SQL field name
 				-> show_hierarchy_subtree	ID of top hierarchy value, if not set NULL will be used
+				-> show_hierarchy_use_top_value_instead_NULL	if record is saved, no NULL will be used but show_hierarchy_subtree-ID instead
 				-> add_details
 				-> path_sql		only if this sql query is needed for constructing the extension of a file path
 				-> display_field	field to be displayed instead of ID
@@ -280,6 +282,7 @@ $zz
 		$zz['fields'][n]['set']
 		$zz['fields'][n]['sql']
 		$zz['fields'][n]['rows']				number of rows in textarea
+		$zz['fields'][n]['rows_max']			max number of rows in textarea (textarea might expand if text is edited to approximately the numbers of rows needed to display all text without scroll bar)
 		$zz['fields'][n]['cols']				number of cols in textarea
 		$zz['fields'][n]['sql_without_id']		appends current id_value to sql-query
 		$zz['fields'][n]['sql_where']

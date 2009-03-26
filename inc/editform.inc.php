@@ -57,11 +57,10 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var, $zz_condi
 		elseif	($zz['mode'] == 'delete')	$output.= zz_text('delete_from').' ';
 		else 								$output.= zz_text('add_to').' ';
 		if ($zz['mode'] == 'delete') $accesskey = 'd';
-		$my_url = parse_url($_SERVER['REQUEST_URI']);
-		$cancelurl = $my_url['path'];
-		if (isset($my_url['query'])) {
+		$cancelurl = $zz_conf['url_self'];
+		if (($zz_conf['url_self_qs_base'].$zz_conf['url_self_qs_zzform'])) {
 			$unwanted_keys = array('mode', 'id', 'add');
-			$cancelurl.= zz_edit_query_string($my_url['query'], $unwanted_keys);
+			$cancelurl.= zz_edit_query_string($zz_conf['url_self_qs_base'].$zz_conf['url_self_qs_zzform'], $unwanted_keys);
 		}
 		$output.= zz_text('database').'" accesskey="'.$accesskey.'">';
 		if ($cancelurl != $_SERVER['REQUEST_URI'] OR ($zz['action'])) 
@@ -76,11 +75,11 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var, $zz_condi
 			$output.= '<tfoot>'."\n";
 			$output.= '<tr><th>&nbsp;</th> <td class="reedit">';
 			if ($zz_conf_thisrec['edit']) {
-				$output.= '<a href="'.$zz_conf_thisrec['url_self'].$zz_var['url_append']
+				$output.= '<a href="'.$zz_conf['url_self'].$zz_conf['url_self_qs_base'].$zz_var['url_append']
 					.'mode=edit&amp;id='.$my_tab[0][0]['id']['value'].$zz_var['extraGET']
 					.'">'.zz_text('edit').'</a>';
 				if ($zz_conf_thisrec['delete']) $output.= ' | <a href="'
-					.$zz_conf_thisrec['url_self'].$zz_var['url_append'].'mode=delete&amp;id='
+					.$zz_conf['url_self'].$zz_conf['url_self_qs_base'].$zz_var['url_append'].'mode=delete&amp;id='
 					.$my_tab[0][0]['id']['value'].$zz_var['extraGET'].'">'
 					.zz_text('delete').'</a>';
 			}
@@ -539,7 +538,8 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 					break;
 				case 'password':
 					if ($row_display == 'form') {
-						$outputf.= '<input type="password" name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'" size="'.$field['size'].'" ';
+						$outputf.= '<input autocomplete="off" type="password" name="'.$field['f_field_name']
+							.'" id="'.make_id_fieldname($field['f_field_name']).'" size="'.$field['size'].'" ';
 						if (!empty($field['maxlength'])) $outputf.= ' maxlength="'.$field['maxlength'].'" ';
 					}
 					if ($my['record'])
@@ -675,15 +675,27 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 					if ($row_display == 'form') $outputf.= '>';
 					break;
 				case 'memo':
-					if (!isset($field['rows'])) $field['rows'] = 8;
+					$field['cols'] = (!empty($field['cols']) ? $field['cols'] : 60);
+					$field['rows'] = (!empty($field['rows']) ? $field['rows'] : 8);
+					if ($my['record']) {
+						$memotext = $my['record'][$field['field_name']];
+						$calculated_rows = 2; // always add two extra lines
+						$factor = 1.01; // factor for long text to get extra lines because of long words at line breaks
+						$parts = explode("\n", $memotext);
+						foreach ($parts as $part) {
+							if (strlen($part) < $field['cols']+2) $calculated_rows++;
+							else $calculated_rows += ceil(strlen($part)/$field['cols']*$factor); 
+						}
+						if ($calculated_rows >= $field['rows']) $field['rows'] = $calculated_rows;
+						if (!empty($field['rows_max']) AND ($field['rows'] > $field['rows_max']))
+							$field['rows'] = $field['rows_max'];
+						$memotext = htmlspecialchars($memotext);
+					}
 					if ($row_display == 'form') $outputf.= '<textarea rows="'
-						.$field['rows'].'" cols="'.(!empty($field['cols']) ? $field['cols'] : '60').'" name="'
+						.$field['rows'].'" cols="'.$field['cols'].'" name="'
 						.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'"';
 					if ($row_display == 'form') $outputf.= '>';
 					if ($my['record']) {
-//						$memotext = stripslashes($my['record'][$field['field_name']]);
-						$memotext = $my['record'][$field['field_name']];
-						$memotext = htmlspecialchars($memotext);
 						if ($row_display != 'form' && isset($field['format'])) $memotext = $field['format']($memotext);
 						$outputf.= $memotext;
 					}
@@ -738,6 +750,10 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 							}
 						} elseif (mysql_num_rows($result_detail)) {
 							$id_field_name = mysql_field_name($result_detail, 0);
+							$details = array();
+							while ($line = mysql_fetch_assoc($result_detail)) {
+								$details[$line[$id_field_name]] = $line;
+							}
 							if ($row_display == 'form') {
 								$my_select = false;
 								$my_h_field = false;
@@ -745,12 +761,9 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 								$count_rows = mysql_num_rows($result_detail);
 								// get ID field_name which must be 1st field in SQL query
 								if (!empty($field['show_hierarchy'])) {
-									while ($line = mysql_fetch_assoc($result_detail)) {
-										if (!empty($line[$field['show_hierarchy']]))
-											$my_h_field = $line[$field['show_hierarchy']];
-										else
-											$my_h_field = 'NULL'; // this ist the case for uppermost level
-										$my_select[$my_h_field][] = $line;
+									foreach ($details as $line) {
+										// fill in values, index NULL is for uppermost level
+										$my_select[(!empty($line[$field['show_hierarchy']]) ? $line[$field['show_hierarchy']] : 'NULL')][] = $line;
 									}
 									if (!empty($field['show_hierarchy_subtree'])) {
 										$show_hierarchy_subtree = $field['show_hierarchy_subtree'];
@@ -760,12 +773,13 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 								}
 								if ($count_rows > $zz_conf_thisrec['max_select']) {
 									$textinput = true;
-									if ($my['record'])
-										while ($line = mysql_fetch_assoc($result_detail))
-											if ($line[$id_field_name] == $my['record'][$field['field_name']]) {
-												$outputf.= draw_select($line, $id_field_name, $my['record'], $field, false, 0, false, 'reselect', $zz_conf_thisrec);
-												$textinput = false;
-											}
+									if ($my['record']) {
+										if (!empty($details[$my['record'][$field['field_name']]])) {
+											$line = $details[$my['record'][$field['field_name']]];
+											$outputf.= draw_select($line, $id_field_name, $my['record'], $field, false, 0, false, 'reselect', $zz_conf_thisrec);
+											$textinput = false;
+										}
+									}
 									// value will not be checked if one detail record is added because in this case validation procedure will be skipped!
 									if (!empty($my['record'][$field['field_name']])) $value = htmlspecialchars($my['record'][$field['field_name']]); 
 									else $value = '';
@@ -775,15 +789,21 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 									$outputf.= '<input type="hidden" value="'.$field['f_field_name'].'" name="check_select[]">';
 								} else {
 									$outputf.= '<select name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">'."\n";
-									$outputf.= '<option value=""';
+									$outputf.= '<option value="'
+										.((!empty($field['show_hierarchy_subtree']) AND !empty($field['show_hierarchy_use_top_value_instead_NULL'])) 
+											? $field['show_hierarchy_subtree'] : '') // normally don't show a value, unless we only look at a part of a hierarchy
+										.'"';
 									if ($my['record']) if (!$my['record'][$field['field_name']]) $outputf.= ' selected';
 									$outputf.= '>'.zz_text('none_selected').'</option>';
 									if (empty($field['show_hierarchy'])) {
-										while ($line = mysql_fetch_assoc($result_detail))
+										foreach ($details as $line)
 											$outputf.= draw_select($line, $id_field_name, $my['record'], $field, false, 0, false, 'form', $zz_conf_thisrec);
 									} elseif (!empty($field['show_hierarchy']) && $my_select[$show_hierarchy_subtree]) {
 										foreach ($my_select[$show_hierarchy_subtree] AS $my_field)
 											$outputf.= draw_select($my_field, $id_field_name, $my['record'], $field, $my_select, 0, $field['show_hierarchy'], 'form', $zz_conf_thisrec);
+									} elseif (!empty($details[$my['record'][$field['field_name']]])) { // re-edit record, something was posted, ignore hierarchy because there's only one record coming back
+										$line = $details[$my['record'][$field['field_name']]];
+										$outputf.= draw_select($line, $id_field_name, $my['record'], $field, false, 0, false, 'form', $zz_conf_thisrec);
 									} elseif (!empty($field['show_hierarchy'])) {
 										$zz_error[]['msg'] = 'Configuration error: "show_hierarchy" used but there is no highest level in the hierarchy.';
 									}
@@ -791,9 +811,10 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 									if (!empty($zz_error)) $outputf.= zz_error($zz_error);
 								}
 							} else {
-								while ($line = mysql_fetch_assoc($result_detail))
-									if ($line[$id_field_name] == $my['record'][$field['field_name']])
-										$outputf.= draw_select($line, $id_field_name, $my['record'], $field, false, 0, false, false, $zz_conf_thisrec);							
+								if (!empty($details[$my['record'][$field['field_name']]])) {
+									$line = $details[$my['record'][$field['field_name']]];
+									$outputf.= draw_select($line, $id_field_name, $my['record'], $field, false, 0, false, false, $zz_conf_thisrec);
+								}
 							}
 						} else {
 							$outputf.= '<input type="hidden" value="" name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">';
@@ -995,7 +1016,6 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 			}
 			if (!empty($default_value)) // unset $my['record'] so following fields are empty
 				unset($my['record'][$field['field_name']]); 
-			$outputf.= ' ';
 			if (!isset($add_details_where)) $add_details_where = false;
 			if ($mode && $mode != 'delete' && $mode != 'show'  && $mode != 'review')
 				if (isset($field['add_details'])) {
@@ -1007,9 +1027,10 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 						.' id="zz_add_details_'.$i.'_'.$k.'_'.$fieldkey.'">['.zz_text('new').' &hellip;]</a>';
 				}
 			if ($outputf && $outputf != ' ') {
-				if (isset($field['prefix'])) $out['td']['content'].= ' '.$field['prefix'].' ';
+				if (isset($field['prefix'])) $out['td']['content'].= $field['prefix'];
 				$out['td']['content'].= $outputf;
-				if (isset($field['suffix'])) $out['td']['content'].= ' '.$field['suffix'].' ';
+				if (isset($field['suffix'])) $out['td']['content'].= $field['suffix'];
+				$out['td']['content'].= ' ';
 				if ($row_display == 'form') if (isset($field['suffix_function'])) {
 					$vars = '';
 					if (isset($field['suffix_function_var']))
