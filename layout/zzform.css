@@ -11,15 +11,16 @@ div.text #zzform	 {padding: 1em;}
 #zzform #record table table th {font-weight: normal; }
 #zzform #record .subtable table {float: left; clear: both;}
 #zzform #record .subtable td {/*width: 88%;*/ text-align: left; }
-#zzform #record .subtable td {padding: 0;}
-#zzform #record .subtable th {padding: 0 .5em 0 0;}
+#zzform #record .subtable td {padding: 0 0 .25em 0;}
+#zzform #record .subtable th {padding: 0 .5em .25em 0;}
 #zzform #record .subtable th {width: 12%;}
 #zzform #record .subtable {margin: 0;}
-#zzform #record .subtable table {margin-bottom: 0;}
+#zzform #record .subtable table {margin-bottom: .4em;}
 
 #zzform #record .subtable .horizontal {width: auto;}
-#zzform #record .subtable .horizontal td {width: auto;}
-#zzform #record .subtable .horizontal th {width: auto; font-weight: bold;}
+#zzform #record .subtable .horizontal td {width: auto; padding-right: .5em;}
+#zzform #record .subtable .horizontal th {width: auto; font-weight: bold;
+	padding-right: .75em;}
 
 #zzform .negative {color: red;}
 #zzform td.number {text-align: right;}
@@ -80,8 +81,8 @@ div.text #zzform	 {padding: 1em;}
 #zzform option.level2 {color: #339;}
 #zzform option.level3 {font-style: italic;}
 
-#zzform input.sub-add {float: left; clear: left; margin-top: .5em;}
-#zzform input.sub-remove {float: left; margin: .5em 0; }
+#zzform input.sub-add {float: left; clear: left; margin-top: 0;}
+#zzform input.sub-remove {float: left; margin: 0 0 .5em; }
 
 #zzform h2 {line-height: 120%; font-size: 140%;}
 

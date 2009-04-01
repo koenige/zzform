@@ -49,6 +49,11 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var, $zz_condi
 		$output.= '<input type="hidden" name="MAX_FILE_SIZE" value="'.$zz_conf_thisrec['upload_MAX_FILE_SIZE'].'">'."\n";
 	$output.= '<table>'."\n";
 
+	$cancelurl = $zz_conf['url_self'];
+	if (($zz_conf['url_self_qs_base'].$zz_conf['url_self_qs_zzform'])) {
+		$unwanted_keys = array('mode', 'id', 'add');
+		$cancelurl.= zz_edit_query_string($zz_conf['url_self_qs_base'].$zz_conf['url_self_qs_zzform'], $unwanted_keys);
+	}
 	if ($zz['mode'] && $zz['mode'] != 'review' && $zz['mode'] != 'show') {
 		$output.= '<tfoot>'."\n";
 		$output.= '<tr><th>&nbsp;</th> <td><input type="submit" value="';
@@ -57,11 +62,6 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var, $zz_condi
 		elseif	($zz['mode'] == 'delete')	$output.= zz_text('delete_from').' ';
 		else 								$output.= zz_text('add_to').' ';
 		if ($zz['mode'] == 'delete') $accesskey = 'd';
-		$cancelurl = $zz_conf['url_self'];
-		if (($zz_conf['url_self_qs_base'].$zz_conf['url_self_qs_zzform'])) {
-			$unwanted_keys = array('mode', 'id', 'add');
-			$cancelurl.= zz_edit_query_string($zz_conf['url_self_qs_base'].$zz_conf['url_self_qs_zzform'], $unwanted_keys);
-		}
 		$output.= zz_text('database').'" accesskey="'.$accesskey.'">';
 		if ($cancelurl != $_SERVER['REQUEST_URI'] OR ($zz['action'])) 
 			// only show cancel link if it is possible to hide form 
@@ -73,8 +73,8 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var, $zz_condi
 	} else {
 		if ($zz_conf_thisrec['access'] != 'add_only') {
 			$output.= '<tfoot>'."\n";
-			$output.= '<tr><th>&nbsp;</th> <td class="reedit">';
 			if ($zz_conf_thisrec['edit']) {
+				$output.= '<tr><th>&nbsp;</th> <td class="reedit">';
 				$output.= '<a href="'.$zz_conf['url_self'].$zz_conf['url_self_qs_base'].$zz_var['url_append']
 					.'mode=edit&amp;id='.$my_tab[0][0]['id']['value'].$zz_var['extraGET']
 					.'">'.zz_text('edit').'</a>';
@@ -82,9 +82,9 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var, $zz_condi
 					.$zz_conf['url_self'].$zz_conf['url_self_qs_base'].$zz_var['url_append'].'mode=delete&amp;id='
 					.$my_tab[0][0]['id']['value'].$zz_var['extraGET'].'">'
 					.zz_text('delete').'</a>';
+				$output.= '</td></tr>'."\n";
 			}
-			$output.= '</td></tr>'."\n";
-			if (isset($zz_conf_thisrec['details'])) {
+			if (!empty($zz_conf_thisrec['details'])) {
 				$output.= '<tr><th>&nbsp;</th><td class="editbutton">'
 					.zz_show_more_actions($zz_conf_thisrec['details'], 
 					$zz_conf_thisrec['details_url'], $zz_conf_thisrec['details_base'], 
@@ -93,6 +93,11 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var, $zz_condi
 					(!empty($my_tab[0][0]['POST']) ? $my_tab[0][0]['POST'] : false))
 					.'</td></tr>'."\n";
 			}
+			if (empty($zz_conf_thisrec['details']) AND ! $zz_conf_thisrec['edit']) {
+				$output.= '<tr><th>&nbsp;</th><td class="editbutton">'
+					.' <a href="'.$cancelurl.'">'.zz_text('Cancel').'</a>'
+					.'</td></tr>'."\n";
+			}			
 			$output.= '</tfoot>'."\n";
 		}
 	}

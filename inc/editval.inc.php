@@ -232,9 +232,15 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 					$g = $my['fields'][$f]['upload_field'];
 					$v = $my['fields'][$f]['upload_value'];
 					if ($v == 'md5' AND !empty($my['images'])) {
-						$myval = md5_file($my['images'][$g][0]['upload']['tmp_name']);
-					} elseif ($v == 'sha1'  AND !empty($my['images'])) {
-						$myval = sha1_file($my['images'][$g][0]['upload']['tmp_name']);
+						if (!empty($my['images'][$g][0]['modified']['tmp_name']))
+							$myval = md5_file($my['images'][$g][0]['modified']['tmp_name']);
+						else
+							$myval = md5_file($my['images'][$g][0]['upload']['tmp_name']);
+					} elseif ($v == 'sha1' AND !empty($my['images'])) {
+						if (!empty($my['images'][$g][0]['modified']['tmp_name']))
+							$myval = sha1_file($my['images'][$g][0]['modified']['tmp_name']);
+						else
+							$myval = sha1_file($my['images'][$g][0]['upload']['tmp_name']);
 					} else {
 						if (preg_match('/.+\[.+\]/', $v)) { // construct access to array values
 							$myv = explode('[', $v);

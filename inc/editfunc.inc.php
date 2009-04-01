@@ -205,7 +205,8 @@ function show_image($path, $record) {
 		$img_src = false;
 		$root = false;
 		$webroot = false;
-		foreach (array_keys($path) as $part) {
+		foreach ($path as $part => $value) {
+			if (!$value) continue;
 			if (substr($part, 0, 4) == 'root')
 				$root = $path[$part];
 			elseif (substr($part, 0, 7) == 'webroot')
@@ -516,9 +517,9 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 				continue;
 			elseif (is_array($queryparts[$key]))
 				foreach (array_keys($queryparts[$key]) as $subkey)
-					$output .= '<input type="hidden" name="'.$key.'['.$subkey.']" value="'.urlencode($queryparts[$key][$subkey]).'">';
+					$output .= '<input type="hidden" name="'.$key.'['.$subkey.']" value="'.htmlspecialchars($queryparts[$key][$subkey]).'">';
 			else
-				$output.= '<input type="hidden" name="'.$key.'" value="'.urlencode($queryparts[$key]).'">';
+				$output.= '<input type="hidden" name="'.$key.'" value="'.htmlspecialchars($queryparts[$key]).'">';
 		$self .= zz_edit_query_string($zz_conf['url_self_qs_base'].$zz_conf['url_self_qs_zzform'], $unwanted_keys); // remove unwanted keys from link
 	}
 	$output.= '<input type="text" size="30" name="q"';
@@ -1555,8 +1556,9 @@ function zz_foldercheck_before(&$zz_tab) {
 				$zz_tab[$i]['table'].'.'.$zz_tab[$i][$k]['id']['field_name']
 				.' = '.$zz_tab[$i][$k]['id']['value']);
 			$result = mysql_query($sql);
-			if ($result) if (mysql_num_rows($result))
+			if ($result) if (mysql_num_rows($result)) {
 				$zz_tab[$i][$k]['old_record'] = mysql_fetch_assoc($result);
+			}
 			if ($error = mysql_error())
 				echo '<p>Error in script: zz_foldercheck_before() <br>'.$sql
 					.'<br>'.$error.'</p>';
@@ -1614,6 +1616,7 @@ function zz_makepath($path, $zz_tab, $record = 'new', $do = false, $i = 0, $k = 
 
 	// put path together
 	foreach ($path as $pkey => $pvalue) {
+		if (!$pvalue) continue;
 		if ($pkey == 'root') $root = $pvalue;
 		elseif ($pkey == 'webroot') $webroot = $pvalue;
 		elseif (substr($pkey, 0, 4) == 'mode') $modes[] = $pvalue;
@@ -1742,10 +1745,11 @@ function zz_array_merge($old, $new) {
 	return $old;
 }
 
+// this function works only for sql queries without UNION:
 function zz_count_rows($sql, $id_field) {
 	global $zz_error;
 	$sql = preg_replace("/\s+/", " ", $sql); // remove whitespace
-	$sql = preg_replace('/^SELECT (.+?) FROM /', 'SELECT '.$id_field.' FROM ', $sql);
+	$sql = preg_replace('/^SELECT (DISTINCT )*(.+) FROM /', 'SELECT $1 '.$id_field.' FROM ', $sql);
 	$zz_lines = 0;
 	$result = mysql_query($sql);  
 	if ($result) $zz_lines = mysql_num_rows($result);

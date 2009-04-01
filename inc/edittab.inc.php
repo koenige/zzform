@@ -82,11 +82,18 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 		$total_rows = $i; // sometimes, more rows might be selected beforehands,
 		// but if show_hierarchy has ID value, not all rows are shown
 		if ($my_lines) {
+			if (!$zz_conf['this_limit']) {
+				$start = $zz_conf['this_limit'];
+				$end = $total_rows -1;
+			} else {
+				$start = $zz_conf['this_limit'] - $zz_conf['limit'];
+				$end = $zz_conf['this_limit'] -1;
+			}
 			$new_lines = array();
-			foreach (range($zz_conf['this_limit'] - $zz_conf['limit'], $zz_conf['this_limit']-1) as $index) {
+			foreach (range($start, $end) as $index) {
 				if (!empty($my_lines[$index])) $new_lines[$my_lines[$index][$id_field]] = $my_lines[$index];
 			}
-//			$limited_lines = array();
+			$limited_lines = array();
 			foreach (array_keys($new_lines) as $key_value) {
 				$limited_lines[] = array_merge($new_lines[$key_value], $lines[$key_value]);
 			}
@@ -591,7 +598,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 						.$id.$zz_var['extraGET'].'">'.zz_text('delete').'</a>';
 				}
 			}
-			if (isset($zz_conf_thisrec['details'])) {
+			if (!empty($zz_conf_thisrec['details'])) {
 				$rows[$z]['actionbutton'] = zz_show_more_actions($zz_conf_thisrec['details'], 
 					$zz_conf_thisrec['details_url'],  $zz_conf_thisrec['details_base'], 
 					$zz_conf_thisrec['details_target'], $zz_conf_thisrec['details_referer'], $id, $line);
