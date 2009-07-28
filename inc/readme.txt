@@ -78,7 +78,7 @@ $zz_conf - configuration variables
 								if you do insert/update/delete queries, you might want to add them to the logging table
 								with zz_log_sql($sql, $user, $record_id); ($sql being the query, $user the username)
 								old: $query_action
-	$zz_conf['action_dir']		Directory where included scripts from $zz_conf['action'] reside, default: $zz_conf['dir'].'/local'
+	$zz_conf['action_dir']		Directory where included scripts from $zz_conf['action'] reside, default: $zz_conf['dir_custom']
 	$zz_conf['user']			user name, default false
 	$zz_conf['error_mail_to']	mailaddress where errors go to
 	$zz_conf['error_mail_from']	mailaddress where errrors come from
@@ -107,6 +107,7 @@ $zz_conf - configuration variables
 	$zz_conf['hierarchy']['mother_id_field_name']	field_name: mother ID, to get hierarchical view
 	$zz_conf['hierarchy']['display_in'] 			field_name where hierarchy shall be displayed (level0...10)
 	$zz_conf['format']['markdown']['link']	Link to markdown help page; similarly use ['format'][$format]['link'] for other formats
+	$zz_conf['form_scripts']	where form scripts reside
 
 /*	----------------------------------------------	*
  *		MAIN CONFIGURATION (UPLOAD MODULE)			*
@@ -116,7 +117,7 @@ $zz_conf - configuration variables
 	$zz_conf['backup_dir']		directory where old files shall be backed up to, default: zz_conf['dir'].backup
 	$zz_conf['graphics_library'] graphics library used for image manipulation (imagemagick is default, others are currently not supported)
 	$zz_conf['upload_MAX_FILE_SIZE'] in bytes, default is value from php.ini
-	$zz_conf['upload_ini_max_filesize'] = ini_get('upload_max_filesize'); // must not be changed
+	ZZ_UPLOAD_INI_MAXFILESIZE	 = ini_get('upload_max_filesize'); // must not be changed
 	$zz_conf['imagemagick_paths'] = array('/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/phpbin'); 
 	$zz_conf['image_types']		Image filetypes, supported by PHP, should only be changed if PHP supports more.
 	$zz_conf['file_types']		Known filetypes, array with array for each file_type ('filetype', 'ext_old', 'ext', 'mime', 'desc')	
@@ -148,6 +149,7 @@ $zz
 				-> conf_identifier
 			timestamp		timestamp
 				-> value		value for timestamp
+				-> display		display only, don't update automatically (good in conjunction with ON_UPDATE_CURRENT_TIMESTAMP
 			unix_timestamp	unix-timestamp, will be converted to readable date and back
 				-> value
 			foreign			... (not in use currently)
@@ -219,8 +221,13 @@ $zz
 				-> table_name
 				-> form_display
 				-> foreign_key_field_name - normally, zzform uses maintable.id_field as WHERE maintable.id_field = id_value for subtables. This variable allows to set a different key_field_name, e. g. if you use table aliases
+				-> class_add	class name that will be shown if a subrecord will be added
+				-> records_depend_on_upload
 			foreign_key		field is foreign_key (only possible for subtables)
 			detail_value	copies value from other field
+			detail_key		inserts in field id_field from different detail_record
+				-> detail_key_priority_field
+				-> detail_key_priority_values
 
 		internal types
 			predefined	... (only for internal use)
@@ -253,7 +260,8 @@ $zz
 												may be array, then it works with field and string (field1, field2, string1, ...) see also: path
 		$zz['fields'][n]['link_no_append']		don't append record id to link
 		$zz['fields'][n]['link_target']			target="$value" for link
-		$zz['fields'][n]['null']				value might be 0 or '', won't be set to NULL
+		$zz['fields'][n]['null']				value might be 0 or '', won't be set to NULL => output = 0
+		$zz['fields'][n]['null-string']			value might be 0 or '', won't be set to NULL => output = ''
 		$zz['fields'][n]['class']				class="" (some classes will be added by zzform, e. g. idrow, ...)
 		$zz['fields'][n]['show_title']			display record: show field title in TH (mainly for subtables, for aesthetic reasons)
 		$zz['fields'][n]['maxlength']			maxlength, if not set will be taken from database
@@ -268,6 +276,7 @@ $zz
 		$zz['fields'][n]['show_id']				normally, id fields get class record_id {display: none;}, show_id stops zzform from doing that
 		$zz['fields'][n]['assoc_files']			associated files to field, names will be changed as field value changes
 		$zz['fields'][n]['write_once']			value might only be written once, then it's a read only value.
+		$zz['fields'][n]['list_abbr']			name of field whose value will be displayed in <abbr title=""> behind displayed value
 
 	//--> depending on type of field, see -> above
 
@@ -422,9 +431,9 @@ $zz_tab[n]
 
 $zz_error
 	$zz_error[]['msg']
+	$zz_error[]['msg_dev']
 	$zz_error[]['query']
-	$zz_error[]['level']		= crucial | warning
-	$zz_error[]['type']			= mysql | config
+	$zz_error[]['level']		= E_USER_ERROR, E_USER_WARNING, E_USER_NOTICE
 	$zz_error[]['mysql']		mysql error message
 	$zz_error[]['mysql_errno']
 

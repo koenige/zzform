@@ -9,28 +9,64 @@
 
 */
 
-function zz_error($zz_error) {
-	global $zz_error;
+/*
+
+Variables:
+
+$zz_error[]['msg'] message that always will be sent back to browser
+$zz_error[]['msg_dev'] message that will be sent to browser, log and mail, depending on settings
+$zz_error[]['level'] for error level: currently implemented:
+	- E_USER_ERROR: critical error, action could not be finished, unrecoverable error
+	- E_USER_WARNING: error, we need some extra user input
+	- E_USER_NOTICE: some default settings will be used because user input was not enough;
+		e. g. date formats etc.
+$zz_error[]['mysql_errno'] mySQL: error number from mysql_errno()
+$zz_error[]['mysql'] mySQL: error message from mysql_error()
+$zz_error[]['query'] SQL-Query
+
+The output of the error message depends on
+
+- $zz_conf['error_log']['notice'], $zz_conf['error_log']['warning'], 
+	$zz_conf['error_log']['error'] = path to error_log, default from php.ini
+- $zz_default['error_handling'] = value for admin error logging
+	- false: no output, just write into log if set
+	- 'mail': send admin errors via mail
+	- 'output': send admin erros via html
+- $zz_conf['error_mail_to'],  $zz_conf['error_mail_from'] - mail addresses
+
+*/
+function zz_error() {
 	global $zz_conf;
-	$output = array();
-	$mailtext = array();
+	global $zz_error;	// we need this global, because it's global everywhere, 
+						// so we can clear the variable here
 	
+	$user_output = array();
+	$admin_output = array();
+	$log_output = array();
+	$mail_output = array();
+	$return = 'html';
+	unset($zz_error['error']); // we don't need this here
+
+	if (empty($zz_conf['user'])) $zz_conf['user'] = 'No user';
+	$user = ' ['.zz_text('User').': '.$zz_conf['user'].']';
+
 	// browse through all errors
 	foreach ($zz_error as $key => $error) {
-		if (empty($error['msg'])) continue;
-		$output[$key] = '';
-		$sql_output[$key] = '';
-		if (!empty($error['level']) AND $error['level'] == 'warning')
-			$output[$key] .= '<strong>'.zz_text('Warning').'!</strong> ';
-		if ($errmsg = trim($error['msg'])) {
-			$errmsg = zz_text($errmsg);
-			$output[$key] .= $errmsg;
-		} 
+		// initialize error_level
+		if (empty($error['level'])) $error['level'] = '';
+
+		// initialize and translate error messages
+		$error['msg'] = (!empty($error['msg']) ? zz_text(trim($error['msg'])) : '');
+		$error['msg_dev'] = (!empty($error['msg_dev']) ? zz_text(trim($error['msg_dev'])) : '');
+
+		$user_output[$key] = false;
+		$admin_output[$key] = false;
+
 		if (!empty($error['mysql_errno'])) {
 			switch($error['mysql_errno']) {
 			case 1062:
-				$output[$key] .= ' '.zz_text('Duplicate entry');
-					/*
+				$error['msg'] = zz_text('Duplicate entry').'<br>'.$error['msg'];
+				/*
 					TODO:
 					1. get table_name
 					2. parse: Duplicate entry '1-21' for key 2: (e.g. with preg_match)
@@ -45,28 +81,73 @@ function zz_error($zz_error) {
 					}
 					// 4. get title-values from zz['field'], display them
 					// 5. show wrong values, if type select: show values after select ...
-					*/
+				*/
 				break;
 			default:
-				$output[$key] .= ' '.zz_text('database-error');
+				$error['msg'] = zz_text('database-error').'<br>'.$error['msg'];
 			}
 		}
-		if (!empty($error['mysql'])) $sql_output[$key] .= $error['mysql'].':<br>';
-		if (!empty($error['query'])) $sql_output[$key] .= $error['query'];
-		if ($sql_output[$key]) {
-			if ($zz_conf['error_handling'] == 'mail' && $zz_conf['error_mail_to']) {
-				$mailtext[$key] = strip_tags(str_replace('<br>', "\n\n", 
-					trim(html_entity_decode($output[$key]))."\n\n".trim($sql_output[$key])));
-			} else {
-				if ($output[$key]) $output[$key] .= '<br>';
-				$output[$key] .= $sql_output[$key];
-			}
+
+		switch ($error['level']) {
+		case E_USER_ERROR:
+			if (!$error['msg']) $user_output[$key] .= zz_text('An error occured. We are working on the solution of this problem. Sorry for your inconvenience. Please try again later.');
+			$level = 'error';
+			$return = 'exit'; // get out of this function immediately
+			break;
+
+		default:
+		case E_USER_WARNING:
+			$level = 'warning';
+			break;
+
+		case E_USER_NOTICE:
+			$level = 'notice';
+			break;
 		}
+
+		// User output
+		$user_output[$key] .= $error['msg'];
+
+		// Admin output
+		if (!empty($error['msg_dev'])) 
+			$admin_output[$key] .= $error['msg_dev'].'<br>';
+		if (!empty($error['mysql'])) 
+			$admin_output[$key] .= $error['mysql'].':<br>';
+		if (!empty($error['query'])) 
+			$admin_output[$key] .= preg_replace("/\s+/", " ", $error['query']).'<br>';
+		if ($admin_output[$key] AND $error['msg'])
+			$admin_output[$key] = $error['msg'].'<br>'.$admin_output[$key];
+		elseif (!$admin_output[$key])
+			$admin_output[$key] = $error['msg'];
+
+		// Log output
+		$log_output[$key] = strip_tags(str_replace('<br>', "\n\n", trim(html_entity_decode($admin_output[$key]))));
+		// reformat log output
+		if ($zz_conf['error_log'][$level] AND $zz_conf['log_errors']) {
+			$error_line = '['.date('d-M-Y H:i:s').'] zzform '.ucfirst($level).': '.preg_replace("/\s+/", " ", $log_output[$key]);
+			$error_line = substr($error_line, 0, $zz_conf['log_errors_max_len'] -(strlen($user)+1)).$user."\n";
+			error_log($error_line, 3, $zz_conf['error_log'][$level]);
+		}
+		
+		// Mail output
+		if (in_array($level, $zz_conf['error_mail_level']))
+			$mail_output[$key] = $log_output[$key];
+
+		// Heading
+		if (!$user_output[$key]) 
+			unset($user_output[$key]); // there is nothing, so nothing will be shown
+		elseif ($level == 'error' OR $level == 'warning')
+			$user_output[$key] = '<strong>'.zz_text('Warning!').'</strong> '.$user_output[$key];
+		if ($admin_output[$key] AND ($level == 'error' OR $level == 'warning'))		
+			$admin_output[$key] = '<strong>'.zz_text('Warning!').'</strong> '.$admin_output[$key];
+		
 	}
 	
-	// mail sql errors if said to do so
-	if (count($mailtext)) {
-		$mailtext = implode("\n\n", $mailtext);
+	// mail errors if said to do so
+	if (!empty($zz_conf['error_handling']) AND $zz_conf['error_handling'] == 'mail' 
+		AND $zz_conf['error_mail_to']
+		AND count($mail_output)) {
+		$mailtext = implode("\n\n", $mail_output);
 		$mailtext = sprintf(zz_text('The following error(s) occured in project %s:'), $zz_conf['project'])."\n\n".$mailtext;
 		$mailtext .= "\n\n-- \nURL: http://".$_SERVER['SERVER_NAME']
 			.$_SERVER['REQUEST_URI']
@@ -81,13 +162,24 @@ Content-Type: text/plain; charset='.$zz_conf['character_set'].'
 Content-Transfer-Encoding: 8bit
 From: '.$zz_conf['error_mail_from']);
 	// TODO: check what happens with utf8 mails
+	} elseif ((!empty($zz_conf['error_handling']) AND $zz_conf['error_handling'] == 'output')
+		OR empty($zz_conf['error_handling'])) {
+		$user_output = $admin_output;
 	}
 
-	// show errors
-	$zz_error = array();
-	if (!count($output)) return false;
-	$output = '<div class="error">'.implode('<br>', $output).'</div>';
-	return $output;
+	$zz_error = array(); // Went through all errors, so we do not need them anymore
+	$zz_error['error'] = false;
+
+	if ($return == 'exit') {
+		$zz_error['error'] = true;
+		global $zz;
+		$zz['output'] .= '<div id="zzform"><div class="error">'.implode('<br><br>', $user_output).'</div></div>';
+		return false;
+	}
+
+	if (!count($user_output)) return false;
+	$user_output = '<div class="error">'.implode('<br><br>', $user_output).'</div>';
+	return $user_output;
 }
 
 
@@ -129,9 +221,16 @@ function field_in_where($field, $values) {
 	return $where;
 }
 
-function check_maxlength($field, $maintable) {
+/** checks maximum field length in MySQL database table
+ * 
+ * @param $field(string)	field name
+ * @param $table(string)	table name
+ * @return maximum length of field or false if no field length is set
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function check_maxlength($field, $table) {
 	global $zz_conf;
-	$sql = 'SHOW COLUMNS FROM '.$maintable.' LIKE "'.$field.'"';
+	$sql = 'SHOW COLUMNS FROM '.$table.' LIKE "'.$field.'"';
 	if ($zz_conf['debug_allsql']) echo "<div>check_maxlength_query:<br /><pre>$sql</pre></div>";
 	$result = mysql_query($sql);
 	if ($result)
@@ -145,17 +244,34 @@ function check_maxlength($field, $maintable) {
 	return false;
 }
 
+/** checks whether an input is a number or a simple calculation
+ * 
+ * @param $number(string)	number or calculation, may contain +-/* 0123456789 ,.
+ * @return string number, with calculation performed / false if incorrect format
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
 function check_number($number) {
+	// remove whitespace, it's nice to not have to care about this
 	$number = trim($number);
-	if (!preg_match('/^-*[0-9.,]*$/', $number)) return false; // possible feature: return doubleval $number to get at least something
-	if ($dot = strpos($number, '.') AND $comma = strpos($number, ','))
-		if ($dot > $comma) $number = str_replace(',', '', $number);
-		else {
-			$number = str_replace('.', '', $number);
-			$number = str_replace(',', '.', $number);
-		}
-	elseif (strstr($number, ',')) $number = str_replace(',', '.', $number); // must not: enter values like 1,000 and mean 1000!
-	return $number;
+	$number = str_replace(' ', '', $number);
+	// first charater must not be / or *
+	if (!preg_match('~^[0-9.,+-][0-9.,\+\*\/-]*$~', $number)) return false; // possible feature: return doubleval $number to get at least something
+	// put a + at the beginning, so all parts with real numbers start with arithmetic symbols
+	if (substr($number, 0, 1) != '-') $number = '+'.$number;
+	preg_match_all('~[-+/*]+[0-9.,]+~', $number, $parts);
+	$parts = $parts[0];
+	// go through all parts and solve the '.' and ',' problem
+	foreach ($parts as $index => $part) {
+		if ($dot = strpos($part, '.') AND $comma = strpos($part, ','))
+			if ($dot > $comma) $parts[$index] = str_replace(',', '', $part);
+			else {
+				$parts[$index] = str_replace('.', '', $part);
+				$parts[$index] = str_replace(',', '.', $parts[$index]);
+			}
+		elseif (strstr($part, ',')) $parts[$index] = str_replace(',', '.', $part); // must not: enter values like 1,000 and mean 1000!
+	}
+	eval('$sum = '.implode('', $parts).';');
+	return $sum;
 }
 
 function check_if_class ($field, $values) {
@@ -175,6 +291,12 @@ function check_if_class ($field, $values) {
 	else return false;
 }
 
+/** formats timestamp to readable date
+ * 
+ * @param $timestamp(string)
+ * @return reformatted date
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
 function timestamp2date($timestamp) {
 	if ($timestamp) {
 		if (strstr($timestamp, '-')) { // new timestamp format, mysql 4 datetime
@@ -197,7 +319,6 @@ function zz_get_to_array($get, $which) {
 }
 
 function show_image($path, $record) {
-	global $text;
 	$img = false;
 	if ($record) {
 		$img = '<img src="';
@@ -277,7 +398,6 @@ function zz_show_more_actions($more_actions, $more_actions_url, $more_actions_ba
 		echo 'Function forceFilename() required but not found! It is as well possible that <code>$zz_conf[\'character_set\']</code> is incorrectly set.';
 		exit;
 	}
-	global $text;
 	global $zz_conf;
 	$act = false;
 	foreach ($more_actions as $key => $new_action) {
@@ -312,7 +432,8 @@ function zz_show_more_actions($more_actions, $more_actions_url, $more_actions_ba
 	return $output;
 }
 
-function draw_select($line, $id_field_name, $record, $field, $hierarchy, $level, $parent_field_name, $form, $zz_conf) {
+function draw_select($line, $id_field_name, $record, $field, $hierarchy, $level, $parent_field_name, $form, $zz_conf_thisrec) {
+	// initialize variables
 	if (!isset($field['sql_ignore'])) $field['sql_ignore'] = array();
 	$output = '';
 	$i = 1;
@@ -325,14 +446,15 @@ function draw_select($line, $id_field_name, $record, $field, $hierarchy, $level,
 		if ($record) if ($line[$id_field_name] == $record[$field['field_name']]) $output.= ' selected';
 		if ($hierarchy) $output.= ' class="level'.$level.'"';
 		$output.= '>';
-		$output.= str_repeat('&nbsp;', 6*$level); 
 	}
 	if (!isset($field['show_hierarchy'])) $field['show_hierarchy'] = false;
 	if (!isset($field['sql_index_only']) || !$field['sql_index_only'])
 		foreach (array_keys($line) as $key) {	// $i = 1: field['type'] == 'id'!
 			if ($key != $parent_field_name && !is_numeric($key) && $key != $field['show_hierarchy'] && !in_array($key, $field['sql_ignore'])) {
 				if ($details) $details.= ' | ';
-				if ($i > 1) $details.= (strlen($line[$key]) > $zz_conf['max_select_val_len']) ? (substr($line[$key], 0, $zz_conf['max_select_val_len']).'...') : $line[$key]; // cut long values
+				$line[$key] = htmlspecialchars($line[$key]);
+				if ($i > 1) $details.= (strlen($line[$key]) > $zz_conf_thisrec['max_select_val_len']) 
+					? (substr($line[$key], 0, $zz_conf_thisrec['max_select_val_len']).'...') : $line[$key]; // cut long values
 				$i++;
 			}
 		}
@@ -342,12 +464,12 @@ function draw_select($line, $id_field_name, $record, $field, $hierarchy, $level,
 	$output.= strip_tags($details); // remove tags, leave &#-Code as is
 	$level++;
 	if ($form == 'reselect') 
-		$output.= '">';
+		$output.= ' ">'; // extra space, so that there won't be a LIKE operator that this value will be checked against!
 	elseif ($form) {
 		$output.= '</option>';
 		if ($hierarchy && isset($hierarchy[$line[$id_field_name]]))
 			foreach ($hierarchy[$line[$id_field_name]] as $secondline)
-				$output.= draw_select($secondline, $id_field_name, $record, $field, $hierarchy, $level, $parent_field_name, 'form', $zz_conf);
+				$output.= draw_select($secondline, $id_field_name, $record, $field, $hierarchy, $level, $parent_field_name, 'form', $zz_conf_thisrec);
 	}
 	return $output;
 }
@@ -477,7 +599,9 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 						exit;
 					}
 					$subsql = zz_search_sql($field['fields'], $field['sql'], $field['table'], $main_id_fieldname);
-					if ($zz_conf['debug']) '<p>Search query for subtable: '.$subsql.'</p>';
+					if ($zz_conf['debug']) { // $zz is already global
+						$zz['output'] .= '<p>Search query for subtable: '.$subsql.'</p>';
+					}
 					$result = mysql_query($subsql);
 					if ($result AND mysql_num_rows($result)) {
 						$ids = false;
@@ -485,6 +609,14 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 							$ids[$line[$foreign_key]] = $line[$foreign_key];
 						}
 						$q_search[] = $table.'.'.$main_id_fieldname.' IN ('.implode(',', $ids).')';
+					} elseif (!$result) {
+						global $zz_error;
+						$zz_error[] = array(
+							'msg_dev' => zz_text('Subtable cannot be searched, there\'s a problem with the SQL query.'),
+							'mysql' => mysql_error(),
+							'query' => $subsql,
+							'level' => E_USER_NOTICE
+						);
 					}
 				} else $fieldname = $table.'.'.$field['field_name'];
 				if ($fieldname) $q_search[] = $fieldname.$searchstring;
@@ -663,22 +795,63 @@ function limitlink($i, $limit, $step, $uri) {
 
 function zz_get_subqueries($subqueries, $zz, &$zz_tab, $zz_conf) {
 	if (!$subqueries) return false; // && $zz['action'] != 'delete'
-	foreach ($subqueries as $i => $subquery) { // $i starts with 1, as written in edit.inc.php
+	foreach ($subqueries as $i => $subquery) { // $i starts with 1, as written in zzform.php
 		// basics for all subrecords of the same table
-		if (!empty($zz['fields'][$subquery]['values']))
+		if (!empty($zz['fields'][$subquery]['values'])) {
 			$zz_tab[$i]['values'] = $zz['fields'][$subquery]['values'];
+		}
 		$zz_tab[$i]['table'] = $zz['fields'][$subquery]['table'];
 		$zz_tab[$i]['table_name'] = $zz['fields'][$subquery]['table_name'];
 		$zz_tab[$i]['max_records'] = (isset($zz['fields'][$subquery]['max_records'])) 
 			? $zz['fields'][$subquery]['max_records'] : $zz_conf['max_detail_records'];
 		$zz_tab[$i]['min_records'] = (isset($zz['fields'][$subquery]['min_records'])) 
 			? $zz['fields'][$subquery]['min_records'] : $zz_conf['min_detail_records'];
+		$zz_tab[$i]['records_depend_on_upload'] = (isset($zz['fields'][$subquery]['records_depend_on_upload'])) 
+			? $zz['fields'][$subquery]['records_depend_on_upload'] : false;
 		$zz_tab[$i]['no'] = $subquery;
 		$zz_tab[$i]['sql'] = $zz['fields'][$subquery]['sql'];
 		$zz_tab[$i]['sql_not_unique'] =  (!empty($zz['fields'][$subquery]['sql_not_unique']) ? $zz['fields'][$subquery]['sql_not_unique'] : false);
 		$zz_tab[$i]['foreign_key_field_name'] = (!empty($zz['fields'][$subquery]['foreign_key_field_name']) 
 			? $zz['fields'][$subquery]['foreign_key_field_name'] : $zz_tab[0]['table'].'.'.$zz_tab[0][0]['id']['field_name']);
 		$zz_tab[$i]['translate_field_name'] = (!empty($zz['fields'][$subquery]['translate_field_name']) ? $zz['fields'][$subquery]['translate_field_name'] : false);;
+
+		// get detail key, if there is a field definition with it.
+		foreach ($zz['fields'][$subquery]['fields'] AS $field) {
+			if (isset($field['type']) && $field['type'] == 'detail_key') {
+				if (!empty($zz_tab[0][0]['fields'][$field['detail_key']])) {
+					$zz_tab[$i]['detail_key'][] = array('i' => $zz_tab[0][0]['fields'][$field['detail_key']]['subtable'], 'k' => 0);
+				} else {
+					$possible_keys = array();
+					foreach ($zz_tab[0][0]['fields'] AS $f => $definitions) {
+						if (!empty($definitions['template_field']) AND $definitions['template_field'] == $field['detail_key']) {
+							if (!empty($field['detail_key_priority_field'])) {
+ 								foreach ($definitions['fields'] AS $detail_f => $detail_def) {
+									if ($detail_def['field_name'] == $field['detail_key_priority_field']) {
+										foreach ($field['detail_key_priority_values'] AS $index => $val) {
+											if ($val == $detail_def['value']) $possible_keys[$index] = $definitions['subtable'];
+										}
+									}
+								}
+								ksort($possible_keys);
+								$key = array_shift($possible_keys);
+								$zz_tab[$i]['detail_key'][] = array('i' => $key, 'k' => 0);
+							} else {
+								$zz_tab[$i]['detail_key'][] = array('i' => $definitions['subtable'], 'k' => 0);
+							}
+						}
+					}
+				}
+			}
+		}
+		// set values, defaults if forgotten or overwritten
+		if (!empty($_POST[$zz['fields'][$subquery]['table_name']])) {
+			foreach (array_keys($_POST[$zz['fields'][$subquery]['table_name']]) as $subkey) {
+				$_POST[$zz['fields'][$subquery]['table_name']][$subkey] = 
+					zz_check_def_vals($_POST[$zz['fields'][$subquery]['table_name']][$subkey], $zz['fields'][$subquery]['fields'],
+					(!empty($zz_var['where'][$zz['fields'][$subquery]['table_name']]) ? $zz_var['where'][$zz['fields'][$subquery]['table_name']] : ''));
+			}
+		}
+
 		// now go into each individual subrecord
 		if ($zz['mode']) {
 			// first check for review or access, first if must be here because access might override mode here!
@@ -693,18 +866,30 @@ function zz_get_subqueries($subqueries, $zz, &$zz_tab, $zz_conf) {
 				$zz_tab[$i] = zz_subqueries($i, false, false, true, $zz['fields'][$zz_tab[$i]['no']], $zz_tab); // sql
 		} elseif ($zz['action'] && !empty($_POST[$zz['fields'][$subquery]['table_name']])  
 			&& is_array($_POST[$zz['fields'][$subquery]['table_name']])) {
+			// get general definition for all $zz_tab[$i][n]
+			$sub['fields'] = $zz['fields'][$zz_tab[$i]['no']]['fields'];
+			$sub['validation'] = true;
+			$sub['record'] = false;
+			$sub['action'] = false;
+			foreach ($sub['fields'] as $field)
+				if (isset($field['type']) && $field['type'] == 'id') 
+					$sub['id']['field_name'] = $field['field_name'];
+			if (!empty($zz_tab[$i]['values'])) {
+				// TODO: get $ids, get $db_records
+				$saved = zz_query_subrecord($zz_tab[$i], $zz_tab[0]['table'], $zz_tab[0][0]['id']['value'], $sub['id']['field_name']);
+				zz_sort_values($zz_tab[$i]['values'], $saved, $sub['fields'], $sub['id']['field_name']);
+			}
+			// individual definition
 			foreach (array_keys($_POST[$zz['fields'][$subquery]['table_name']]) as $subkey) {
-				$zz_tab[$i][$subkey]['fields'] = $zz['fields'][$zz_tab[$i]['no']]['fields'];
-				$zz_tab[$i][$subkey]['validation'] = true;
-				$zz_tab[$i][$subkey]['record'] = false;
-				$zz_tab[$i][$subkey]['action'] = false;
-				foreach ($zz_tab[$i][$subkey]['fields'] as $field)
-					if (isset($field['type']) && $field['type'] == 'id') 
-						$zz_tab[$i][$subkey]['id']['field_name'] = $field['field_name'];
+				$zz_tab[$i][$subkey] = $sub;
 				$table = $zz['fields'][$subquery]['table_name'];
-				$field_name = $zz_tab[$i][$subkey]['id']['field_name'];
 				$zz_tab[$i][$subkey]['id']['value'] = 
-					(isset($_POST[$table][$subkey][$field_name])) ? $_POST[$table][$subkey][$field_name]: '';
+					(isset($_POST[$table][$subkey][$sub['id']['field_name']])) ? $_POST[$table][$subkey][$sub['id']['field_name']]: '';
+				// set values, rewrite POST-Array
+				if (!empty($zz_tab[$i]['values'])) {
+					if (!isset($zz_var)) $zz_var = array();
+					$zz_tab[$i][$subkey]['fields'] = zz_set_values($zz_tab[$i]['values'], $zz_tab[$i][$subkey]['fields'], $table, $subkey, $zz_var);
+				}
 			}
 		}
 	}
@@ -715,20 +900,18 @@ function zz_subqueries($i, $min, $details, $sql, $subtable, $zz_tab) {
 	// $subtable is branch of $zz with all data for specific subtable
 	// function will be run twice from edit.inc, therefore be careful, programmer!
 	global $zz_error;
+
 	$records = false;
 	$my = $zz_tab[$i];
-	if (isset($_POST[$subtable['table_name']]))
-		$myPOST = $_POST[$subtable['table_name']];
-	else
-		$myPOST = array();
-	$deleted_ids = (!empty($my['subtable_deleted']) ? $my['subtable_deleted'] : array());
-	foreach ($subtable['fields'] as $field)
+	foreach ($subtable['fields'] as $field) {
 		if (isset($field['type']) && $field['type'] == 'id') $id_field_name = $field['field_name'];
+	}
+	if ($min) $records = $min;
+	$deleted_ids = (!empty($my['subtable_deleted']) ? $my['subtable_deleted'] : array());
 	if (isset($_POST['zz_subtable_deleted'][$subtable['table_name']]))
 	//	fill existing zz_subtable_deleted ids in $deleted_ids
 		foreach ($_POST['zz_subtable_deleted'][$subtable['table_name']] as $deleted)
 			$deleted_ids[] = $deleted[$id_field_name];
-	if ($min) $records = $min;
 	if ($details) {
 		if (isset($_POST['records'][$i]) && $_POST['records'][$i]) {
 			$records = $_POST['records'][$i];
@@ -738,88 +921,197 @@ function zz_subqueries($i, $min, $details, $sql, $subtable, $zz_tab) {
 		if (!empty($_POST['subtables']['add'][$i])) // Value does not matter
 			$records++;
 		if (isset($_POST['subtables']['remove'][$i])) {
-			foreach (array_keys($myPOST) as $k) {
+			foreach (array_keys($_POST[$subtable['table_name']]) as $k) {
 				if (!empty($_POST['subtables']['remove'][$i][$k])) { // Value does not matter
-					if (isset($myPOST[$k][$id_field_name])) // has ID
-						$deleted_ids[] = $myPOST[$k][$id_field_name];
-					unset($myPOST[$k]);
+					if (isset($_POST[$subtable['table_name']][$k][$id_field_name])) // has ID
+						$deleted_ids[] = $_POST[$subtable['table_name']][$k][$id_field_name];
+					unset($_POST[$subtable['table_name']][$k]);
 					$records--;
 				}
 			}
-//			$records--;
 		}
 	}
 	if ($sql) {
-		if (!empty($zz_tab[$i]['translate_field_name'])) {
-			$c_sql = zz_edit_sql($zz_tab[$i]['sql'].' '.$zz_tab[$i]['sql_not_unique'], 'WHERE', 
-				$zz_conf['translations_table'].'.db_name = "'.$zz_conf['db_name'].'"
-				AND '.$zz_conf['translations_table'].'.table_name = "'.$zz_tab[0]['table'].'"
-				AND '.$zz_conf['translations_table'].'.field_name = "'.$zz_tab[$i]['translate_field_name'].'"');
-			$c_sql = zz_edit_sql($c_sql, 'WHERE', $zz_tab[$i]['foreign_key_field_name'].' = "'.$zz_tab[0][0]['id']['value'].'"');
-		} else {
-			$c_sql = zz_edit_sql($zz_tab[$i]['sql'].' '.$zz_tab[$i]['sql_not_unique'], 'WHERE', 
-				$zz_tab[$i]['foreign_key_field_name'].' = "'.$zz_tab[0][0]['id']['value'].'"');
+		$saved = zz_query_subrecord($zz_tab[$i], $zz_tab[0]['table'], $zz_tab[0][0]['id']['value'], $id_field_name, $deleted_ids);
+		if (!empty($my['values'])) // sort $my['values'] and $ids corresponding
+			zz_sort_values($my['values'], $saved, $subtable['fields'], $id_field_name);
+		if (!empty($saved['ids'])) {
+			$existing_records = count($saved['ids']);
+			if ($existing_records > $records)
+				$records = $existing_records;
 		}
-		if ($zz_conf['debug_allsql']) 
-			echo "<div>zz_subquery:<br /><pre>$c_sql</pre></div>";
-		$result = mysql_query($c_sql);
-		if ($result AND mysql_num_rows($result))
-			while ($line = mysql_fetch_assoc($result)) {
-				if (!in_array($line[$id_field_name], $deleted_ids)) {
-					$ids[] = $line[$id_field_name];
-				}
-			}
-		if (mysql_error()) {
-			$zz_error[] = array(
-				'msg' => 'There is an error in the sql statement for the detail record.',
-				'mysql' => mysql_error(),
-				'query' => $c_sql);
-		}
-		if (isset($ids)) 
-			if (count($ids) > $records)
-				$records = count($ids);
 	}
+
 	if ($my['max_records'])
 		if ($records > $my['max_records']) $records = $my['max_records'];
-	for ($k = 0; $k<= $records-1; $k++) {
-		if (isset($my[$k])) {
-			if (!empty($subtable['access']))
-				$my[$k]['access'] = $subtable['access'];
-			continue; // do not change values if they are already there (important for error messages etc.)
-		}
+	for ($k = 0; $k < $records; $k++) {
+		// do not change other values if they are already there (important for error messages etc.)
+		$continue_fast = (isset($my[$k]) ? true: false);
 		if (!empty($subtable['access']))
 			$my[$k]['access'] = $subtable['access'];
-		$my[$k]['fields'] = $subtable['fields'];
+		if (!$continue_fast) // reset fields only if neccessary
+			$my[$k]['fields'] = $subtable['fields'];
+		if (isset($my['values'])) {	// isset because might be empty
+			if (empty($zz_var)) $zz_var = array();
+			$my[$k]['fields'] = zz_set_values($my['values'], $my[$k]['fields'], $subtable['table_name'], $k, $zz_var);
+		}
+		// ok, after we got the values, continue, rest already exists.
+		if ($continue_fast) continue;
 		$my[$k]['record'] = false;
 		$my[$k]['validation'] = true;
 		$my[$k]['action'] = false;
-		if (isset($ids[$k])) $idval = $ids[$k];
+		if (isset($saved['ids'][$k])) $idval = $saved['ids'][$k];
 		else $idval = false;
 		$my[$k]['id']['value'] = $idval;
 		$my[$k]['id']['field_name'] = $id_field_name;
 		$my[$k]['POST'] = '';
-		if ($_POST)
+		if ($_POST) {
 			if ($idval) {
-				foreach (array_keys($myPOST) as $key)
-					if (isset($myPOST[$key][$id_field_name]))
-						if ($myPOST[$key][$id_field_name] == $idval) {
-							$my[$k]['POST'] = $myPOST[$key];
-							unset($myPOST[$key]);
+				foreach (array_keys($_POST[$subtable['table_name']]) as $key)
+					if (isset($_POST[$subtable['table_name']][$key][$id_field_name]))
+						if ($_POST[$subtable['table_name']][$key][$id_field_name] == $idval) {
+							$my[$k]['POST'] = $_POST[$subtable['table_name']][$key];
+							unset($_POST[$subtable['table_name']][$key]);
 						}
-			} else
-				foreach (array_keys($myPOST) as $key)
-					if (!isset($myPOST[$key][$id_field_name]) OR !$myPOST[$key][$id_field_name])
+			} else {
+				if (!empty($_POST[$subtable['table_name']])) foreach (array_keys($_POST[$subtable['table_name']]) as $key)
+					if (!isset($_POST[$subtable['table_name']][$key][$id_field_name]) OR !$_POST[$subtable['table_name']][$key][$id_field_name])
 						// find first value pair that matches and put it into POST
 						if (!($my[$k]['POST'])) {
-							$my[$k]['POST'] = $myPOST[$key];
-							unset($myPOST[$key]);
-						} 
+							$my[$k]['POST'] = $_POST[$subtable['table_name']][$key];
+							unset($_POST[$subtable['table_name']][$key]);
+						}
+			}
+		}
 	}
 	$my['records'] = $records;
 	$my['subtable_deleted'] = array_unique($deleted_ids); // remove double entries
+	if (!empty($my['values'])) unset($my['values']);
+	// we need these two arrays in correct order (0, 1, 2, ...) to display the
+	// subtables correctly when requeried
+	ksort($my);
 	return $my;
-	
 }
+
+function zz_query_subrecord($my, $main_table, $main_id_value, $id_field_name, $deleted_ids = array()) {
+	global $zz_conf;
+	global $zz_error;
+	
+	if (!empty($my['translate_field_name'])) {
+		$sql = zz_edit_sql($my['sql'].' '.$my['sql_not_unique'], 'WHERE', 
+			$zz_conf['translations_table'].'.db_name = "'.$zz_conf['db_name'].'"
+			AND '.$zz_conf['translations_table'].'.table_name = "'.$main_table.'"
+			AND '.$zz_conf['translations_table'].'.field_name = "'.$my['translate_field_name'].'"');
+		$sql = zz_edit_sql($sql, 'WHERE', $my['foreign_key_field_name'].' = "'.$main_id_value.'"');
+	} else {
+		$sql = zz_edit_sql($my['sql'].' '.$my['sql_not_unique'], 'WHERE', 
+			$my['foreign_key_field_name'].' = "'.$main_id_value.'"');
+	}
+	if ($zz_conf['debug_allsql']) 
+		echo "<div>zz_subquery:<br /><pre>$sql</pre></div>";
+	$saved['records'] = array();
+	$saved['ids'] = array();
+	$result = mysql_query($sql);
+	if ($result AND mysql_num_rows($result))
+		while ($line = mysql_fetch_assoc($result)) {
+			if (!in_array($line[$id_field_name], $deleted_ids)) {
+				$saved['ids'][] = $line[$id_field_name];
+			}
+			$saved['records'][] = $line;
+		}
+	if (mysql_error()) {
+		$zz_error[] = array(
+			'msg_dev' => 'There is an error in the sql statement for the detail record.',
+			'mysql' => mysql_error(),
+			'query' => $sql
+		);
+	}
+	return $saved;
+}
+
+function zz_set_values(&$values, $fields, $table, $k, $zz_var) {
+	$my_values = array_shift($values);
+	foreach (array_keys($fields) AS $f) {
+		if (!empty($my_values[$f])) {
+			if ($fields[$f]['type'] != 'hidden')
+				$fields[$f]['type_detail'] = $fields[$f]['type'];
+			$fields[$f]['type'] = 'hidden';
+			$fields[$f]['value'] = $my_values[$f];
+		}
+	}
+	// we have new values, so check whether these are set!
+	// it's not possible to do this beforehands!
+	if (!empty($_POST[$table][$k])) {
+		$_POST[$table][$k] = zz_check_def_vals($_POST[$table][$k], $fields,
+			(!empty($zz_var['where'][$table]) ? $zz_var['where'][$table] : ''));
+	}
+	return $fields;
+}
+
+/** sort values 
+ * 
+ *		changed fields:
+ *		- $zz_tab[$i]['values']
+ *		- $ids
+ *
+ * @param $zz_tab[$i]['values']
+ * @param $saved			Existing record IDs
+ * @param $records	
+ * @param $fields
+ * @return $id_field_name
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function zz_sort_values(&$values, &$saved, $fields, $id_field_name) {
+	// check values against record, to get the correct number of detail records
+	// important: go first through values, then through records to maintain
+	// the original order of values
+	$values_sorted = array();
+	$ids_sorted = array();
+	
+	foreach ($values AS $index => $field) {
+		$equal = false;
+		foreach ($saved['records'] as $line) {
+			foreach ($field as $f => $value) {
+				// check whether all values correspond to a record entry
+				$fieldname = $fields[$f]['field_name'];
+				if (!empty($line[$fieldname]) AND $line[$fieldname] == $value) {
+					$equal = true;
+				} else {
+					$equal = false;
+					break; // once false is of course enough
+				}
+			}
+			if ($equal) { // ok, here we go!
+				$values_sorted[$index] = $values[$index];
+				unset($values[$index]);
+				// put ids in sorted array
+				$ids_sorted[$index] = $line[$id_field_name];
+				// remove ids from ids array
+				if (false !== array_search($line[$id_field_name], $saved['ids'])) { // might be 0
+					$id_index = array_search($line[$id_field_name], $saved['ids']);
+					unset($saved['ids'][$id_index]);
+				}
+			} else { // initialize array to show that there is a record but no value should be set
+				if (!isset($values_sorted[$index])) {
+					$values_sorted[$index] = '';
+					$ids_sorted[$index] = '';
+				}
+			}
+		}
+	}
+	foreach (array_keys($values) as $index) {
+		if (isset($values_sorted[$index]) AND !$values_sorted[$index])
+			$values_sorted[$index] = $values[$index];
+			unset($values[$index]);
+	}
+	// append remaining $id at the end of the
+	$saved['ids'] = array_merge($ids_sorted, $saved['ids']);
+
+	if ($values_sorted)
+		$values = array_merge($values_sorted, $values);
+	unset($saved['records']); // not needed anymore
+}
+
 
 /** Requery record 
  * 
@@ -832,19 +1124,20 @@ function zz_subqueries($i, $min, $details, $sql, $subtable, $zz_tab) {
  *		- $zz['formhead']
  *		- $zz['fields']
  *
- * @param $zz(array) complete zz array
- * @param $validation
- * @param $sql
- * @param $table
+ * @param $zz_tab[$i] complete zz_tab[$i] array
+ * @param $k			Number of detail record
+ * @param $validation	true/false
  * @param $mode
- * @return $zz
+ * @return $zz_tab[$i] via &
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_requery_record($my, $validation, $sql, $table, $mode) {
-	global $text;
+function zz_requery_record(&$zz_tab_i, $k, $validation, $mode) {
 	global $zz_error;
 	global $zz_conf;
-	
+	$my = &$zz_tab_i[$k];
+	$sql = $zz_tab_i['sql'];
+	$table = $zz_tab_i['table'];
+
 	// in case, record was deleted, record requery is not neccessary
 	// if $validation is false, this means that the check for referential integrity was not passed
 	if ($my['action'] == 'delete') { // no requery neccessary
@@ -853,7 +1146,6 @@ function zz_requery_record($my, $validation, $sql, $table, $mode) {
 		}
 		return $my;
 	}
-	
 	// in case validation was passed or access is 'show'
 	// everything's okay.
 	if ($validation OR (!empty($my['access']) && $my['access'] == 'show')) {
@@ -866,15 +1158,19 @@ function zz_requery_record($my, $validation, $sql, $table, $mode) {
 				if ($zz_conf['debug_allsql']) echo "<div>zz_requery_record:<br /><pre>$sql_edit</pre></div>";
 				$result_edit = mysql_query($sql_edit);
 				if ($result_edit) {
-					if (mysql_num_rows($result_edit) == 1)
+					if (mysql_num_rows($result_edit) == 1) {
 						$my['record'] = mysql_fetch_assoc($result_edit);
+					}
 					// else $zz_error[]['msg'].= 'Error in Database. Possibly the SQL
 					// statement is incorrect: '.$sql_edit;
 				} else {
-					if ($zz_conf['debug_allsql']) echo "<div>Huch! Ein Fehler:<br /><pre>$sql_edit</pre></div>";
-					$zz_error[] = array('msg' => zz_text('error-sql-incorrect'), 
+					$zz_error[] = array(
+						'msg_dev' => zz_text('error-sql-incorrect'), 
 						'mysql' => mysql_error(),
-						'query' => $sql_edit);
+						'query' => $sql_edit,
+						'level' => E_USER_ERROR
+					);
+					return(zz_error());
 				}
 			}
 		}
@@ -902,17 +1198,13 @@ function zz_requery_record($my, $validation, $sql, $table, $mode) {
 						$my['fields'][$qf]['class'].= ' error';
 					else $my['fields'][$qf]['class'] = 'error';
 					if ($my['fields'][$qf]['type'] != 'password_change') {
-						if (!$validate_errors) 
-							$validate_errors = '<p>'.zz_text('Following_errors_occured').':</p><ul>';
-						$validate_errors.= '<li>'.zz_text('Value_incorrect_in_field').' <strong>'.$my['fields'][$qf]['title'].'</strong></li>';
+						$zz_error['validation']['msg'][] = zz_text('Value_incorrect_in_field').' <strong>'.$my['fields'][$qf]['title'].'</strong>';
 					}
 				} else
 					echo $my['fields'][$qf]['check_validation'];
 			}
 		}
-		if ($validate_errors) $zz_error[]['msg'] = $validate_errors.'</ul>';
 	}
-	return $my;
 }
 
 /*
@@ -971,6 +1263,7 @@ function zz_log_sql($sql, $user, $record_id = false) {
 	global $zz_conf;
 	// logs each INSERT, UPDATE or DELETE query
 	// with record_id
+	if (!mysql_affected_rows()) return false;
 	if (!empty($zz_conf['logging_id']) AND $record_id)
 		$sql = 'INSERT INTO '.$zz_conf['logging_table'].' 
 			(query, user, record_id) VALUES ("'.mysql_real_escape_string($sql).'", "'.$user.'", '.$record_id.')';
@@ -1015,359 +1308,11 @@ function zz_sql_order($fields, $sql) {
 	return $sql;
 }
 
-function zz_create_identifier($vars, $my, $table, $field, $conf) {
-	if (empty($vars)) return false;
-	if (in_array($my['fields'][$field]['field_name'], array_keys($vars)) && $vars[$my['fields'][$field]['field_name']]) 
-		return $vars[$my['fields'][$field]['field_name']]; // do not change anything if there has been a value set once and identifier is in vars array
-	$conf['forceFilename'] = isset($conf['forceFilename']) ? substr($conf['forceFilename'], 0, 1) : '-';
-	$conf['concat'] = isset($conf['concat']) ? (is_array($conf['concat']) 
-		? $conf['concat'] : substr($conf['concat'], 0, 1)) : '.';
-	$conf['exists'] = isset($conf['exists']) ? substr($conf['exists'], 0, 1) : '.';
-	$conf['lowercase'] = isset($conf['lowercase']) ? $conf['lowercase'] : true;
-	$conf['slashes'] = isset($conf['slashes']) ? $conf['slashes'] : false;
-	$i = 0;
-
-	foreach ($vars as $index => $var) {
-		if ($var) {
-			if ((strstr($var, '/') AND $i != count($vars)-1)
-				OR $conf['slashes']) { // last var will be treated normally, other vars may inherit slashes from dir names
-				$dir_vars = explode('/', $var);
-				foreach ($dir_vars as $d_var) 
-					if ($d_var) {
-						$my_var = forceFilename($d_var, $conf['forceFilename']);
-						if ($conf['lowercase']) $my_var = strtolower($my_var);
-						$idf_arr[] = $my_var;
-					}
-			} else {
-				$my_var = forceFilename($var, $conf['forceFilename']);
-				if ($conf['lowercase']) $my_var = strtolower($my_var);
-				$idf_arr[] = $my_var;
-			}
-		}
-		$i++;
-	}
-	if (empty($idf_arr)) return false;
-	$idf = '';
-	if (!is_array($conf['concat'])) {
-		$idf = implode($conf['concat'], $idf_arr);
-	} else { // idf 0 con 0 idf 1 con 1 idf 2 con 1 ...
-		$last_concat = array_pop($conf['concat']);
-		foreach ($idf_arr as $key => $value) {
-			if ($idf) {
-				if ($key == count($idf_arr)-1) {
-					// last one
-					$idf .= $last_concat;
-				} else {
-					// normal order, take actual last one if no other is left
-					// add concat separator 0, 1, ...
-					if (!empty($conf['concat'][$key-1]))
-						$idf .= $conf['concat'][$key-1];
-					else
-						$idf .= $conf['concat'][count($conf['concat'])-1];
-				}
-			}
-			$idf .= $value;
-		}
-	}		
-	if (!empty($conf['prefix'])) $idf = $conf['prefix'].$idf;
-	$i = (!empty($conf['start']) ? $conf['start'] : 2); // start value, if idf already exists
-	if (!empty($conf['start_always'])) $idf .= $conf['exists'].$i;
-	else $conf['start_always'] = false;
-	if (!empty($my['fields'][$field]['maxlength']) && ($my['fields'][$field]['maxlength'] < strlen($idf)))
-		$idf = substr($idf, 0, $my['fields'][$field]['maxlength']);
-	$idf = zz_exists_identifier($idf, $i, $table, $my['fields'][$field]['field_name'], 
-		$my['id']['field_name'], $my['POST'][$my['id']['field_name']], 
-		$conf['exists'], $my['fields'][$field]['maxlength'], $conf['start_always']);
-	return $idf;
-}
-
-function zz_exists_identifier($idf, $i, $table, $field, $id_field, $id_value, 
-	$con_exists = '.', $maxlength = false, $start_always = false) {
-	global $zz_conf;
-	$sql = 'SELECT '.$field.' FROM '.$table.' WHERE '.$field.' = "'.$idf.'"
-		AND '.$id_field.' != '.$id_value;
-	if ($zz_conf['debug_allsql']) echo "<div>zz_exists_identifier_query:<br /><pre>$sql</pre></div>";
-	$result = mysql_query($sql);
-	if ($result) if (mysql_num_rows($result)) {
-		if ($i > 2 OR $start_always) // with start_always, we can be sure, that a generated suffix exists so we can safely remove it. for other cases, this is only true for $i > 2.
-			$idf = substr($idf, 0, strrpos($idf, $con_exists));
-		$suffix = $con_exists.$i;
-		if ($maxlength && strlen($idf.$suffix) > $maxlength) 
-			$idf = substr($idf, 0, ($maxlength-strlen($suffix))); 
-			// in case there is a value for maxlength, make sure that resulting string won't be longer
-		$idf = $idf.$suffix;
-		$i++;
-		$idf = zz_exists_identifier($idf, $i, $table, $field, $id_field, 
-			$id_value, $con_exists, $maxlength, $start_always);
-	}
-	return $idf;
-}
-
-// make_id_fieldname
-// converts fieldnames with [ and ] into allowed id values
-// prepends field_ or other prefix, if wanted
-
-function make_id_fieldname($fieldname, $prefix = 'field') {
-	$fieldname = str_replace('][', '_', $fieldname);
-	$fieldname = str_replace('[', '_', $fieldname);
-	$fieldname = str_replace(']', '', $fieldname);
-	if ($prefix) $fieldname = $prefix.'_'.$fieldname;
-	return $fieldname;
-}
-
-function magic_quotes_strip($mixed) {
-   if(is_array($mixed))
-       return array_map('magic_quotes_strip', $mixed);
-   return stripslashes($mixed);
-}
-
-
-// puts parts of SQL query in correct order when they have to be added
-// this function works only for sql queries without UNION:
-// SELECT ... FROM ... JOIN ...
-// WHERE ... GROUP BY ... HAVING ... ORDER BY ... LIMIT ...
-function zz_edit_sql($sql, $n_part = false, $values = false) {
-	// remove whitespace
-	$sql = preg_replace("/\s+/", " ", $sql);
-	// SQL statements in descending order
-	$statements_desc = array('LIMIT', 'ORDER BY', 'HAVING', 'GROUP BY', 'WHERE');
-	foreach ($statements_desc as $statement) {
-		$explodes = explode(' '.$statement.' ', $sql);
-		if (count($explodes) > 1) {
-		// = look only for last statement
-		// and put remaining query in [1] and cut off part in [2]
-			$o_parts[$statement][2] = array_pop($explodes);
-			$o_parts[$statement][1] = implode(' '.$statement.' ', $explodes);
-		}
-		$search = '/(.+) '.$statement.' (.+?)$/i'; 
-//		preg_match removed because it takes way too long if nothing is found
-//		if (preg_match($search, $sql, $o_parts[$statement])) {
-		if (!empty($o_parts[$statement])) {
-			$found = false;
-			$lastpart = false;
-			while (!$found) {
-				// check if there are () outside '' or "" and count them to check
-				// whether we are inside a subselect
-				$temp_sql = $o_parts[$statement][1]; // look at first part of query
-	
-				// 1. remove everything in '' and "" which are not escaped
-				// replace \" character sequences which escape "
-				$temp_sql = preg_replace('/\\\\"/', '', $temp_sql);
-				// replace "strings" without " inbetween, empty "" as well
-				$temp_sql = preg_replace('/"[^"]*"/', "weg", $temp_sql);
-				// replace \" character sequences which escape "
-				$temp_sql = preg_replace("/\\\\'/", '', $temp_sql);
-				// replace "strings" without " inbetween, empty '' as well
-				$temp_sql = preg_replace("/'[^']*'/", "weg", $temp_sql);
-	
-				// 2. count opening and closing ()
-				//  if equal ok, if not, it's a statement in a subselect
-				// assumption: there must not be brackets outside " or '
-				if (substr_count($temp_sql, '(') == substr_count($temp_sql, ')')) {
-					$sql = $o_parts[$statement][1]; // looks correct, so go on.
-					$found = true;
-				} else {
-					// remove next last statement, and go on until you found 
-					// either something with correct bracket count
-					// or no match anymore at all
-					$lastpart = ' '.$statement.' '.$o_parts[$statement][2];
-					if (preg_match($search, $o_parts[$statement][1], $o_parts[$statement]))
-						$o_parts[$statement][2] = $o_parts[$statement][2].' '.$lastpart;
-					else {
-						unset($o_parts[$statement]); // ignore all this.
-						$found = true;
-					}
-				}
-			}
-		}
-	}
-	if ($n_part && $values) {
-		$n_part = strtoupper($n_part);
-		switch ($n_part) {
-			case 'LIMIT':
-				// replace complete old LIMIT with new LIMIT
-				$o_parts['LIMIT'][2] = $values;
-			break;
-			case 'ORDER BY':
-				// append old ORDER BY to new ORDER BY
-				if (!empty($o_parts['ORDER BY'][2])) 
-					$o_parts['ORDER BY'][2] = $values.', '.$o_parts['ORDER BY'][2];
-				else
-					$o_parts['ORDER BY'][2] = $values;
-			break;
-			case 'WHERE':
-			case 'GROUP BY':
-			case 'HAVING':
-				if (!empty($o_parts[$n_part][2])) 
-					$o_parts[$n_part][2] = '('.$o_parts[$n_part][2].') AND ('.$values.')';
-				else 
-					$o_parts[$n_part][2] = $values;
-			break;
-			default:
-				echo 'The variable <code>'.$n_part.'</code> is not supported by zz_edit_sql().';
-				exit;
-			break;
-		}
-	}
-	$statements_asc = array_reverse($statements_desc);
-	foreach ($statements_asc as $statement) {
-		if (!empty($o_parts[$statement][2])) 
-			$sql.= ' '.$statement.' '.$o_parts[$statement][2];
-	}
-	return $sql;
-}
-
-function zz_check_select($my, $f, $max_select) {
-	global $text;
-	global $zz_error;
-	global $zz_conf;
-	$sql = $my['fields'][$f]['sql'];
-	preg_match('/SELECT( DISTINCT|) *(.+) FROM /Ui', $sql, $fieldstring); // preg_match, case insensitive, space after select, space around from - might not be 100% perfect, but should work always
-	$fields = explode(",", $fieldstring[2]);
-	unset($fieldstring);
-	$oldfield = false;
-	$newfields = false;
-	foreach ($fields as $myfield) {
-		if ($oldfield) $myfield = $oldfield.','.$myfield; // oldfield, so we are inside parentheses
-		if (substr_count($myfield, '(') != substr_count($myfield, ')')) $oldfield = $myfield; // not enough brackets, so glue strings together until there are enought - not 100% safe if bracket appears inside string
-		else {
-			$myfields = '';
-			if (stristr($myfield, ') AS')) preg_match('/(.+\)) AS [a-z0-9_]/i', $myfield, $myfields); // replace AS blah against nothing
-			if ($myfields) $myfield = $myfields[1];
-			$newfields[] = $myfield;
-			$oldfield = false; // now that we've written it to array, empty it
-		}
-	}
-	if (stristr($sql, ' ORDER BY ')) {
-		preg_match('/(.+)( ORDER BY .+)/i', $sql, $sqlparts);
-		$sql = $sqlparts[1];
-		$sqlorder = $sqlparts[2];
-	} else
-		$sqlorder = false;
-	$postvalues = explode(' | ', $my['POST'][$my['fields'][$f]['field_name']]);
-	if (stristr($sql, ' WHERE ')) $where = ' AND ';
-	else $where = ' WHERE ';
-	$wheresql = '';
-	foreach ($postvalues as $value)
-		foreach ($newfields as $index => $field) {
-			$field = trim($field);
-			if (empty($my['fields'][$f]['show_hierarchy']) OR $field != $my['fields'][$f]['show_hierarchy']) {
-				// do not search in show_hierarchy as this field is there for presentation only
-				// and might be removed below!
-				if (!$wheresql) $wheresql.= $where.'(';
-				elseif (!$index) $wheresql.= ' ) AND (';
-				else $wheresql.= ' OR ';
-				if (preg_match('/^(.+?) *\.\.\.$/', $value, $short_value)) 
-					$value = $short_value[1]; // reduces string with dots which come from values which have been cut beforehands
-				if (substr($value, -1) != ' ') // if there is a space at the end of the string, don't do LIKE with %!
-					$wheresql.= $field.' LIKE "%'.trim($value).'%"'; 
-				else
-					$wheresql.= $field.' LIKE "'.trim($value).'"'; 
-			}
-		}
-	$sql.= $wheresql.')';
-	if ($sqlorder) $sql.= $sqlorder;
-	if ($zz_conf['debug_allsql']) echo "<div>zz_check_select query:<br /><pre>$sql</pre></div>";
-	$result = mysql_query($sql);
-	if ($zz_conf['debug']) {
-		echo '<div class="debug">';
-		echo '<h4>Debugging info for zz_check_select():</h4>';
-		echo mysql_error().'<br>';
-		echo $sql.'<br>';
-		if ($result) echo mysql_num_rows($result);
-		echo '</div>';
-	}
-	if ($result)
-		if (!mysql_num_rows($result)) {
-			// no records, user must re-enter values
-			$my['fields'][$f]['type'] = 'select';
-			$my['fields'][$f]['class'] = 'reselect' ;
-			$my['fields'][$f]['suffix'] = '<br>'.zz_text('No entry found. Try less characters.');
-			$my['validation'] = false;
-		} elseif (mysql_num_rows($result) == 1) {
-			$my['POST'][$my['fields'][$f]['field_name']] = mysql_result($result, 0, 0);
-			$my['POST-notvalid'][$my['fields'][$f]['field_name']] = mysql_result($result, 0, 0);
-			$my['fields'][$f]['sql'] = $sql; // if other fields contain errors
-		} elseif (mysql_num_rows($result) <= $max_select) {
-			$my['fields'][$f]['type'] = 'select';
-			$my['fields'][$f]['sql'] = $sql;
-			$my['fields'][$f]['class'] = 'reselect';
-			if (!empty($my['fields'][$f]['show_hierarchy'])) {
-				// since this is only a part of the list, hierarchy does not make sense
-				$my['fields'][$f]['sql'] = preg_replace('/,*\s*'.$my['fields'][$f]['show_hierarchy'].'/', '', $my['fields'][$f]['sql']);
-				$my['fields'][$f]['show_hierarchy'] = false;
-			}
-			$my['validation'] = false;
-		} elseif (mysql_num_rows($result)) {
-			$my['fields'][$f]['default'] = 'reselect' ;
-			$my['fields'][$f]['class'] = 'reselect' ;
-			$my['fields'][$f]['suffix'] = zz_text('Please enter more characters.');
-			$my['fields'][$f]['check_validation'] = false;
-			$my['validation'] = false;
-		} else {
-			$my['fields'][$f]['class'] = 'error' ;
-			$my['fields'][$f]['check_validation'] = false;
-			$my['validation'] = false;
-		}
-	else {
-		$zz_error[] = array('msg' => mysql_error(), 'query' => $sql);
-		$my['fields'][$f]['check_validation'] = false;
-		$my['validation'] = false;
-	}
-	return $my;
-}
-
-function zz_check_password($old, $new1, $new2, $sql) {
-	global $zz_error;
-	if ($new1 != $new2) {
-		$zz_error[]['msg'] = zz_text('New passwords do not match. Please try again.');
-		return false; // new passwords do not match
-	}
-	if ($old == $new1) {
-		$zz_error[]['msg'] = zz_text('New and old password are identical. Please choose a different new password.');
-		return false; // old password eq new password - this is against identity theft if someone interferes a password mail
-	}
-	$result = mysql_query($sql);
-	if ($result) if (mysql_num_rows($result) == 1)
-		$old_pwd = mysql_result($result, 0, 0);
-	if (empty($old_pwd)) {
-		$zz_error[]['msg'] = zz_text('database-error');
-		return false;
-	}
-	if (md5($old) == $old_pwd) {
-		$zz_error[]['msg'] = zz_text('Your password has been changed!');
-		return md5($new1); // new1 = new2, old = old, everything is ok
-	} else {
-		$zz_error[]['msg'] = zz_text('Your current password is different from what you entered. Please try again.');
-		return false;
-	}
-}
-
-function zz_get_identifier_sql_vars($sql, $id, $fieldname = false) {
-	global $zz_conf;
-	$line = false;
-	$line[$fieldname] = false;
-	$sqlp = explode(' ORDER BY ', $sql);
-	$sql = $sqlp[0];
-	if (stristr($sql, ' WHERE ')) $sql.= ' AND ';
-	else $sql.= ' WHERE ';
-	$sqlc = explode(' ', $sql); // get first token
-	if (substr($sqlc[1], -1) == ',') $sqlc[1] = substr($sqlc[1], 0, -1);
-	$sql.= $sqlc[1].' = '.$id; // first token is always ID field
-	if (!empty($sqlp[1])) $sql.= ' ORDER BY '.$sqlp[1];
-	if ($zz_conf['debug_allsql']) echo "<div>zz_get_identifier_sql_vars query:<br /><pre>$sql</pre></div>";
-	$result = mysql_query($sql);
-	if ($result) if (mysql_num_rows($result) == 1)
-		$line = mysql_fetch_assoc($result);
-	if ($fieldname) return $line[$fieldname];
-	else return $line;
-}
-
 function zz_get_identifier_vars(&$my, $f, $main_post) {
 	// content of ['fields']
 	// possible syntax: fieldname[sql_fieldname] or tablename.fieldname or fieldname
 	$func_vars = false;
-	foreach ($my['fields'][$f]['fields'] as $var) {
+	foreach ($my['fields'][$f]['fields'] as $function => $var) {
 	//	check for substring parameter
 		preg_match('/{(.+)}$/', $var, $substr);
 		if ($substr) $var = preg_replace('/{(.+)}$/', '', $var, $substr);
@@ -1424,8 +1369,414 @@ function zz_get_identifier_vars(&$my, $f, $main_post) {
 		}
 		if ($substr)
 			eval ($line ='$func_vars[$var] = substr($func_vars[$var], '.$substr[1].');');
+		if (function_exists($function)) $func_vars[$var] = $function($func_vars[$var]);
 	}
 	return $func_vars;
+}
+
+function zz_get_identifier_sql_vars($sql, $id, $fieldname = false) {
+	global $zz_conf;
+	$line = false;
+	$line[$fieldname] = false;
+	$sqlp = explode(' ORDER BY ', $sql);
+	$sql = $sqlp[0];
+	if (stristr($sql, ' WHERE ')) $sql.= ' AND ';
+	else $sql.= ' WHERE ';
+	$sqlc = explode(' ', $sql); // get first token
+	if (substr($sqlc[1], -1) == ',') $sqlc[1] = substr($sqlc[1], 0, -1);
+	$sql.= $sqlc[1].' = '.$id; // first token is always ID field
+	if (!empty($sqlp[1])) $sql.= ' ORDER BY '.$sqlp[1];
+	if ($zz_conf['debug_allsql']) 
+		echo "<div>zz_get_identifier_sql_vars query:<br /><pre>$sql</pre></div>";
+	$result = mysql_query($sql);
+	if ($result) if (mysql_num_rows($result) == 1)
+		$line = mysql_fetch_assoc($result);
+	if ($fieldname) return $line[$fieldname];
+	else return $line;
+}
+
+/** creates identifier field that is unique
+ * 
+ * @param $vars(array)
+ * @param $conf(array)	Configuration for how to handle the strings (e. g. concatenation)
+ *			$conf['forceFilename'] '-'; value which will be used for replacing spaces and unknown letters
+ *			$conf['concat'] '.'; string used for concatenation of variables. might be array, values are used in the same order they appear in the array
+ *			$conf['exists'] '.'; string used for concatenation if identifier exists
+ *			$conf['lowercase'] true; false will not transform all letters to lowercase
+ *			$conf['slashes'] false; true = slashes will be preserved
+ * @param $my(array)		$zz_tab[$i][$k]
+ * @param $table(string)	Name of Table
+ * @param $field(int)		Number of field definition
+ * @return (string) identifier
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function zz_create_identifier($vars, $conf, $my = false, $table = false, $field = false) {
+	if (empty($vars)) return false;
+	if ($my AND $field AND $table) {
+		if (in_array($my['fields'][$field]['field_name'], array_keys($vars)) && $vars[$my['fields'][$field]['field_name']]) 
+			// do not change anything if there has been a value set once and identifier is in vars array
+			return $vars[$my['fields'][$field]['field_name']]; 
+	}
+	$conf['forceFilename'] = isset($conf['forceFilename']) ? substr($conf['forceFilename'], 0, 1) : '-';
+	$conf['concat'] = isset($conf['concat']) ? (is_array($conf['concat']) 
+		? $conf['concat'] : substr($conf['concat'], 0, 1)) : '.';
+	$conf['exists'] = isset($conf['exists']) ? substr($conf['exists'], 0, 1) : '.';
+	$conf['lowercase'] = isset($conf['lowercase']) ? $conf['lowercase'] : true;
+	$conf['slashes'] = isset($conf['slashes']) ? $conf['slashes'] : false;
+	$i = 0;
+
+	foreach ($vars as $var) {
+		if ($var) {
+			if ((strstr($var, '/') AND $i != count($vars)-1)
+				OR $conf['slashes']) { // last var will be treated normally, other vars may inherit slashes from dir names
+				$dir_vars = explode('/', $var);
+				foreach ($dir_vars as $d_var) 
+					if ($d_var) {
+						$my_var = forceFilename($d_var, $conf['forceFilename']);
+						if ($conf['lowercase']) $my_var = strtolower($my_var);
+						$idf_arr[] = $my_var;
+					}
+			} else {
+				$my_var = forceFilename($var, $conf['forceFilename']);
+				if ($conf['lowercase']) $my_var = strtolower($my_var);
+				$idf_arr[] = $my_var;
+			}
+		}
+		$i++;
+	}
+	if (empty($idf_arr)) return false;
+	$idf = '';
+	if (!is_array($conf['concat'])) {
+		$idf = implode($conf['concat'], $idf_arr);
+	} else { // idf 0 con 0 idf 1 con 1 idf 2 con 1 ...
+		$last_concat = array_pop($conf['concat']);
+		foreach ($idf_arr as $key => $value) {
+			if ($idf) {
+				if ($key == count($idf_arr)-1) {
+					// last one
+					$idf .= $last_concat;
+				} else {
+					// normal order, take actual last one if no other is left
+					// add concat separator 0, 1, ...
+					if (!empty($conf['concat'][$key-1]))
+						$idf .= $conf['concat'][$key-1];
+					else
+						$idf .= $conf['concat'][count($conf['concat'])-1];
+				}
+			}
+			$idf .= $value;
+		}
+	}		
+	if (!empty($conf['prefix'])) $idf = $conf['prefix'].$idf;
+	$i = (!empty($conf['start']) ? $conf['start'] : 2); // start value, if idf already exists
+	if (!empty($conf['start_always'])) $idf .= $conf['exists'].$i;
+	else $conf['start_always'] = false;
+	if ($my AND $field AND $table) {
+		if ($my AND !empty($my['fields'][$field]['maxlength']) && ($my['fields'][$field]['maxlength'] < strlen($idf)))
+			$idf = substr($idf, 0, $my['fields'][$field]['maxlength']);
+		// check whether identifier exists
+		$idf = zz_exists_identifier($idf, $i, $table, $my['fields'][$field]['field_name'], 
+			$my['id']['field_name'], $my['POST'][$my['id']['field_name']], 
+			$conf['exists'], $my['fields'][$field]['maxlength'], $conf['start_always']);
+	}
+	return $idf;
+}
+
+function zz_exists_identifier($idf, $i, $table, $field, $id_field, $id_value, 
+	$con_exists = '.', $maxlength = false, $start_always = false) {
+	global $zz_conf;
+			$sql = 'SELECT '.$field.' FROM '.$table.' WHERE '.$field.' = "'.$idf.'"
+		AND '.$id_field.' != '.$id_value;
+	if ($zz_conf['debug_allsql']) echo "<div>zz_exists_identifier_query:<br /><pre>$sql</pre></div>";
+	$result = mysql_query($sql);
+	if ($result) if (mysql_num_rows($result)) {
+		if ($i > 2 OR $start_always) // with start_always, we can be sure, that a generated suffix exists so we can safely remove it. for other cases, this is only true for $i > 2.
+			$idf = substr($idf, 0, strrpos($idf, $con_exists));
+		$suffix = $con_exists.$i;
+		if ($maxlength && strlen($idf.$suffix) > $maxlength) 
+			$idf = substr($idf, 0, ($maxlength-strlen($suffix))); 
+			// in case there is a value for maxlength, make sure that resulting string won't be longer
+		$idf = $idf.$suffix;
+		$i++;
+		$idf = zz_exists_identifier($idf, $i, $table, $field, $id_field, 
+			$id_value, $con_exists, $maxlength, $start_always);
+	}
+	return $idf;
+}
+
+// make_id_fieldname
+// converts fieldnames with [ and ] into allowed id values
+// prepends field_ or other prefix, if wanted
+function make_id_fieldname($fieldname, $prefix = 'field') {
+	$fieldname = str_replace('][', '_', $fieldname);
+	$fieldname = str_replace('[', '_', $fieldname);
+	$fieldname = str_replace(']', '', $fieldname);
+	if ($prefix) $fieldname = $prefix.'_'.$fieldname;
+	return $fieldname;
+}
+
+function magic_quotes_strip($mixed) {
+   if(is_array($mixed))
+       return array_map('magic_quotes_strip', $mixed);
+   return stripslashes($mixed);
+}
+
+
+// puts parts of SQL query in correct order when they have to be added
+// this function works only for sql queries without UNION:
+// SELECT ... FROM ... JOIN ...
+// WHERE ... GROUP BY ... HAVING ... ORDER BY ... LIMIT ...
+// might get problems with backticks that mark fieldname that is equal with SQL keyword
+// mode = add until now default, mode = replace is only implemented for SELECT
+function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
+	// remove whitespace
+	$sql = ' '.preg_replace("/\s+/", " ", $sql); // first blank needed for SELECT
+	// SQL statements in descending order
+	$statements_desc = array('LIMIT', 'ORDER BY', 'HAVING', 'GROUP BY', 'WHERE', 'FROM', 'SELECT DISTINCT', 'SELECT');
+	foreach ($statements_desc as $statement) {
+		$explodes = explode(' '.$statement.' ', $sql);
+		if (count($explodes) > 1) {
+		// = look only for last statement
+		// and put remaining query in [1] and cut off part in [2]
+			$o_parts[$statement][2] = array_pop($explodes);
+			$o_parts[$statement][1] = implode(' '.$statement.' ', $explodes).' '; // last blank needed for exploding SELECT from DISTINCT
+		}
+		$search = '/(.+) '.$statement.' (.+?)$/i'; 
+//		preg_match removed because it takes way too long if nothing is found
+//		if (preg_match($search, $sql, $o_parts[$statement])) {
+		if (!empty($o_parts[$statement])) {
+			$found = false;
+			$lastpart = false;
+			while (!$found) {
+				// check if there are () outside '' or "" and count them to check
+				// whether we are inside a subselect
+				$temp_sql = $o_parts[$statement][1]; // look at first part of query
+	
+				// 1. remove everything in '' and "" which are not escaped
+				// replace \" character sequences which escape "
+				$temp_sql = preg_replace('/\\\\"/', '', $temp_sql);
+				// replace "strings" without " inbetween, empty "" as well
+				$temp_sql = preg_replace('/"[^"]*"/', "away", $temp_sql);
+				// replace \" character sequences which escape '
+				$temp_sql = preg_replace("/\\\\'/", '', $temp_sql);
+				// replace "strings" without " inbetween, empty '' as well
+				$temp_sql = preg_replace("/'[^']*'/", "away", $temp_sql);
+	
+				// 2. count opening and closing ()
+				//  if equal ok, if not, it's a statement in a subselect
+				// assumption: there must not be brackets outside " or '
+				if (substr_count($temp_sql, '(') == substr_count($temp_sql, ')')) {
+					$sql = $o_parts[$statement][1]; // looks correct, so go on.
+					$found = true;
+				} else {
+					// remove next last statement, and go on until you found 
+					// either something with correct bracket count
+					// or no match anymore at all
+					$lastpart = ' '.$statement.' '.$o_parts[$statement][2];
+					if (preg_match($search, $o_parts[$statement][1], $o_parts[$statement]))
+						$o_parts[$statement][2] = $o_parts[$statement][2].' '.$lastpart;
+					else {
+						unset($o_parts[$statement]); // ignore all this.
+						$found = true;
+					}
+				}
+			}
+		}
+	}
+	if ($n_part && $values) {
+		$n_part = strtoupper($n_part);
+		switch ($n_part) {
+			case 'LIMIT':
+				// replace complete old LIMIT with new LIMIT
+				$o_parts['LIMIT'][2] = $values;
+			break;
+			case 'ORDER BY':
+				if ($mode == 'add') {
+					// append old ORDER BY to new ORDER BY
+					if (!empty($o_parts['ORDER BY'][2])) 
+						$o_parts['ORDER BY'][2] = $values.', '.$o_parts['ORDER BY'][2];
+					else
+						$o_parts['ORDER BY'][2] = $values;
+				} elseif ($mode == 'delete') {
+					unset($o_parts['ORDER BY']);
+				}
+			break;
+			case 'WHERE':
+			case 'GROUP BY':
+			case 'HAVING':
+				if (!empty($o_parts[$n_part][2])) 
+					$o_parts[$n_part][2] = '('.$o_parts[$n_part][2].') AND ('.$values.')';
+				else 
+					$o_parts[$n_part][2] = $values;
+			break;
+			case 'SELECT':
+				if (!empty($o_parts['SELECT DISTINCT'][2])) {
+					if ($mode == 'add')
+						$o_parts['SELECT DISTINCT'][2] .= ','.$values;
+					elseif ($mode == 'replace')
+						$o_parts['SELECT DISTINCT'][2] = $values;
+				} else {
+					if ($mode == 'add')
+						$o_parts['SELECT'][2] = ','.$values;
+					elseif ($mode == 'replace')
+						$o_parts['SELECT'][2] = $values;
+				}
+			break;
+			default:
+				echo 'The variable <code>'.$n_part.'</code> is not supported by zz_edit_sql().';
+				exit;
+			break;
+		}
+	}
+	$statements_asc = array_reverse($statements_desc);
+	foreach ($statements_asc as $statement) {
+		if (!empty($o_parts[$statement][2])) 
+			$sql.= ' '.$statement.' '.$o_parts[$statement][2];
+	}
+	return $sql;
+}
+
+function zz_check_select($my, $f, $max_select) {
+	global $zz_error;
+	global $zz_conf;
+	$sql = $my['fields'][$f]['sql'];
+	// preg_match, case insensitive, space after select, space around from 
+	// - might not be 100% perfect, but should work always
+	preg_match('/SELECT( DISTINCT|) *(.+) FROM /Ui', $sql, $fieldstring); 
+	$fields = explode(",", $fieldstring[2]);
+	unset($fieldstring);
+	$oldfield = false;
+	$newfields = false;
+	foreach ($fields as $myfield) {
+		// oldfield, so we are inside parentheses
+		if ($oldfield) $myfield = $oldfield.','.$myfield; 
+		// not enough brackets, so glue strings together until there are enought - not 100% safe if bracket appears inside string
+		if (substr_count($myfield, '(') != substr_count($myfield, ')')) $oldfield = $myfield; 
+		else {
+			$myfields = '';
+			// replace AS blah against nothing
+			if (stristr($myfield, ') AS')) preg_match('/(.+\)) AS [a-z0-9_]/i', $myfield, $myfields); 
+			if ($myfields) $myfield = $myfields[1];
+			$newfields[] = $myfield;
+			$oldfield = false; // now that we've written it to array, empty it
+		}
+	}
+
+	$postvalues = explode(' | ', $my['POST'][$my['fields'][$f]['field_name']]);
+	$wheresql = '';
+	foreach ($postvalues as $value) {
+		foreach ($newfields as $index => $field) {
+			$field = trim($field);
+			if (empty($my['fields'][$f]['show_hierarchy']) OR $field != $my['fields'][$f]['show_hierarchy']) {
+				// do not search in show_hierarchy as this field is there for presentation only
+				// and might be removed below!
+				if (!$wheresql) $wheresql.= '(';
+				elseif (!$index) $wheresql.= ' ) AND (';
+				else $wheresql.= ' OR ';
+				if (preg_match('/^(.+?) *\.\.\. *$/', $value, $short_value)) // "... ", extra space will be added in draw_select!
+					$value = $short_value[1]; // reduces string with dots which come from values which have been cut beforehands
+				if (substr($value, -1) != ' ') // if there is a space at the end of the string, don't do LIKE with %!
+					$wheresql.= $field.' LIKE "%'.mysql_real_escape_string(trim($value)).'%"'; 
+				else
+					$wheresql.= $field.' LIKE "'.mysql_real_escape_string(trim($value)).'"'; 
+			}
+		}
+	}
+	$wheresql .= ')';
+	$sql = zz_edit_sql($sql, 'WHERE', $wheresql);
+	if ($zz_conf['debug_allsql']) echo "<div>zz_check_select query:<br /><pre>$sql</pre></div>";
+	$result = mysql_query($sql);
+	if ($zz_conf['debug']) {
+		echo '<div class="debug">';
+		echo '<h4>Debugging info for zz_check_select():</h4>';
+		echo mysql_error().'<br>';
+		echo $sql.'<br>';
+		if ($result) echo mysql_num_rows($result);
+		echo '</div>';
+	}
+	if ($result)
+		if (!mysql_num_rows($result)) {
+			// no records, user must re-enter values
+			$my['fields'][$f]['type'] = 'select';
+			$my['fields'][$f]['class'] = 'reselect' ;
+			$my['fields'][$f]['suffix'] = '<br>'.zz_text('No entry found. Try less characters.');
+			$my['validation'] = false;
+		} elseif (mysql_num_rows($result) == 1) {
+			$my['POST'][$my['fields'][$f]['field_name']] = mysql_result($result, 0, 0);
+			$my['POST-notvalid'][$my['fields'][$f]['field_name']] = mysql_result($result, 0, 0);
+			$my['fields'][$f]['sql'] = $sql; // if other fields contain errors
+		} elseif (mysql_num_rows($result) <= $max_select) {
+			$my['fields'][$f]['type'] = 'select';
+			$my['fields'][$f]['sql'] = $sql;
+			$my['fields'][$f]['class'] = 'reselect';
+			if (!empty($my['fields'][$f]['show_hierarchy'])) {
+				// since this is only a part of the list, hierarchy does not make sense
+				$my['fields'][$f]['sql'] = preg_replace('/,*\s*'.$my['fields'][$f]['show_hierarchy'].'/', '', $my['fields'][$f]['sql']);
+				$my['fields'][$f]['show_hierarchy'] = false;
+			}
+			$my['validation'] = false;
+		} elseif (mysql_num_rows($result)) {
+			$my['fields'][$f]['default'] = 'reselect' ;
+			$my['fields'][$f]['class'] = 'reselect' ;
+			$my['fields'][$f]['suffix'] = ' '.zz_text('Please enter more characters.');
+			$my['fields'][$f]['check_validation'] = false;
+			$my['validation'] = false;
+		} else {
+			$my['fields'][$f]['class'] = 'error' ;
+			$my['fields'][$f]['check_validation'] = false;
+			$my['validation'] = false;
+		}
+	else {
+		$zz_error[] = array(
+			'mysql' => mysql_error(), 
+			'query' => $sql
+		);
+		$my['fields'][$f]['check_validation'] = false;
+		$my['validation'] = false;
+	}
+	return $my;
+}
+
+function zz_check_password($old, $new1, $new2, $sql) {
+	global $zz_error;
+	if ($new1 != $new2) {
+		$zz_error[] = array(
+			'msg' => 'New passwords do not match. Please try again.',
+			'level' => E_USER_NOTICE
+		);
+		return false; // new passwords do not match
+	}
+	if ($old == $new1) {
+		$zz_error[] = array(
+			'msg' => 'New and old password are identical. Please choose a different new password.',
+			'level' => E_USER_NOTICE
+		);
+		return false; // old password eq new password - this is against identity theft if someone interferes a password mail
+	}
+	$result = mysql_query($sql);
+	if ($result) if (mysql_num_rows($result) == 1)
+		$old_pwd = mysql_result($result, 0, 0);
+	if (empty($old_pwd)) {
+		$zz_error[] = array(
+			'msg_dev' => zz_text('database-error'),
+			'mysql' => mysql_error(),
+			'query' => $sql
+		);
+		return false;
+	}
+	if (md5($old) == $old_pwd) {
+		$zz_error[] = array(
+			'msg' => zz_text('Your password has been changed!'),
+			'level' => E_USER_NOTICE
+		);
+		return md5($new1); // new1 = new2, old = old, everything is ok
+	} else {
+		$zz_error[] = array(
+			'msg' => 'Your current password is different from what you entered. Please try again.',
+			'level' => E_USER_NOTICE
+		);
+		return false;
+	}
 }
 
 function zz_nice_headings(&$zz_fields, &$zz_conf, &$zz_error, $where_condition) {
@@ -1455,7 +1806,9 @@ function zz_nice_headings(&$zz_fields, &$zz_conf, &$zz_error, $where_condition) 
 			if ($zz_conf['debug_allsql']) echo "<div>zz_nice_headings query:<br /><pre>$wh_sql</pre></div>";
 			$result = mysql_query($wh_sql);
 			if (!$result) {
-				$zz_error[] = array('msg' => 'Error in zz_nice_headings()',
+				$zz_error[] = array(
+					'msg_dev' => 'Error while generating nice headings.',
+					'level' => E_USER_NOTICE,
 					'query' => $wh_sql,
 					'mysql' => mysql_error());
 			} else {
@@ -1518,10 +1871,10 @@ function zz_add_modules($modules, $path, $zz_conf_global) {
 //	import modules
 	foreach ($modules as $module) {
 		if (file_exists($path.'/'.$module.'.inc.php')) {
-			include_once($path.'/'.$module.'.inc.php');
+			include_once $path.'/'.$module.'.inc.php';
 			$mod['modules'][$module] = true;
 		} elseif (file_exists($path.'/'.$module.'.php')) {
-			include_once($path.'/'.$module.'.php');
+			include_once $path.'/'.$module.'.php';
 			$mod['modules'][$module] = true;
 		} else {
 			$mod['modules'][$module] = false;
@@ -1545,6 +1898,7 @@ function zz_add_modules($modules, $path, $zz_conf_global) {
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_foldercheck_before(&$zz_tab) {
+	global $zz_error;
 	// in case of deletion or update, save old record to be able
 	// to get old filename before deletion or update
 	// field_name of ID field for subtables is foreign_key
@@ -1556,13 +1910,17 @@ function zz_foldercheck_before(&$zz_tab) {
 				$zz_tab[$i]['table'].'.'.$zz_tab[$i][$k]['id']['field_name']
 				.' = '.$zz_tab[$i][$k]['id']['value']);
 			$result = mysql_query($sql);
-			if ($result) if (mysql_num_rows($result)) {
-				$zz_tab[$i][$k]['old_record'] = mysql_fetch_assoc($result);
+			if ($result) {
+				if (mysql_num_rows($result)) {
+					$zz_tab[$i][$k]['old_record'] = mysql_fetch_assoc($result);
+				}
+			} else {
+				$zz_error[] = array(
+					'msg_dev' => 'zz_foldercheck_before()',
+					'mysql' => mysql_error(),
+					'query' => $sql
+				);
 			}
-			if ($error = mysql_error())
-				echo '<p>Error in script: zz_foldercheck_before() <br>'.$sql
-					.'<br>'.$error.'</p>';
-			
 		}
 	}
 }
@@ -1573,27 +1931,35 @@ function zz_foldercheck_before(&$zz_tab) {
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_foldercheck(&$zz_tab, $zz_conf) {
+	global $zz_error;
 	foreach ($zz_conf['folder'] as $folder) {
 		$path = zz_makepath($folder, $zz_tab, 'new', 'file');
 		$old_path = zz_makepath($folder, $zz_tab, 'old', 'file');
-	}
-	if ($old_path != $path) {
-		if (file_exists($old_path)) {
-			if (!file_exists($path)) {
-				$success = rename($old_path, $path);
-				if ($success) {
-					$zz_tab[0]['folder'][] = array('old' => $old_path, 'new' => $path);
-					return true;
-				} else { 
-					echo 'Critical error. Folder cannot be renamed.';
+		if ($old_path != $path) {
+			if (file_exists($old_path)) {
+				if (!file_exists($path)) {
+					$success = rename($old_path, $path);
+					if ($success) {
+						$zz_tab[0]['folder'][] = array('old' => $old_path, 'new' => $path);
+					} else { 
+						$zz_error[] = array(
+							'msg_dev' => 'Folder cannot be renamed.'
+						);
+						zz_error();
+						return false;
+					}
+				} else {
+					$zz_error[] = array(
+						'msg_dev' => 'There is already a folder by that name.'
+					);
+					zz_error();
 					return false;
 				}
-			} else {
-				echo 'Critical error. There is already a folder by that name.';
-				return false;
 			}
 		}
 	}
+
+	return true;
 }
 
 /** Construct path from values
@@ -1608,11 +1974,11 @@ function zz_foldercheck(&$zz_tab, $zz_conf) {
  */
 function zz_makepath($path, $zz_tab, $record = 'new', $do = false, $i = 0, $k = 0) {
 	// set variables
-	global $text;
 	$p = false;
 	$modes = false;
 	$root = false;
 	$webroot = false;
+	global $zz_error;
 
 	// put path together
 	foreach ($path as $pkey => $pvalue) {
@@ -1634,8 +2000,11 @@ function zz_makepath($path, $zz_tab, $record = 'new', $do = false, $i = 0, $k = 
 			if ($modes) foreach ($modes as $mode)
 				if (function_exists($mode))
 					$content = $mode($content);
-				else
-					echo 'Configuration Error: mode with not-existing function';
+				else {
+					$zz_error[] = array(
+						'msg_dev' => sprintf(zz_text('Configuration Error: mode with not-existing function "%s"'), $mode)
+					);
+				}
 			$p .= $content;
 			$alt = zz_text('File: ').$content;
 			$modes = false;
@@ -1660,50 +2029,6 @@ function zz_makepath($path, $zz_tab, $record = 'new', $do = false, $i = 0, $k = 
 	return $p;
 }
 
-/** Merge conditional array values with default values if condition is true 
- * 
- * @param $array = $field or $zz_conf
- * @param $bool_conditions	checked conditions
- * @param $record_id		ID of record
- * @return $array			modified $field- or $zz_conf-Array
- * @author Gustaf Mossakowski <gustaf@koenige.org>
- */
-function zz_merge_conditions($array, $bool_conditions, $record_id, $reverse = false) {
-	
-	if (!$reverse) {
-		$conditions = $array['conditions'];
-		unset($array['conditions']);
-	} else {
-		$conditions = $array['not_conditions'];
-		unset($array['not_conditions']);
-	}
-	foreach($conditions as $condition => $new_values) {
-		// if reverse check ('not-condition'), bring all keys to reverse
-		if ($reverse) {
-			if (empty($bool_conditions[$condition][$record_id])) 
-				$bool_conditions[$condition][$record_id] = true;
-			else 
-				$bool_conditions[$condition][$record_id] = false;
-		} else {
-			// if there's no condition defined, ignore this one!
-			if (empty($bool_conditions[$condition])) continue;
-		}
-		// else check it and if it's true, do something
-		if (!empty($bool_conditions[$condition][$record_id])) {
-			if ($new_values) {
-				// if normally there is no field like this, you can't show it in list view
-				// it's not neccessarily there, this field
-				if (empty($array)) $array['hide_in_list'] = true;
-				// add new values for each true condition with values
-				$array = zz_array_merge($array, $new_values);
-			} else {
-				$array = false; // no new values, so unset this field or zz_conf-value
-			}
-		}
-	}
-	return $array;
-}
-
 /** Translate text if possible or write back text string to be translated
  * 
  * @param $string		Text string to be translated
@@ -1713,8 +2038,16 @@ function zz_merge_conditions($array, $bool_conditions, $record_id, $reverse = fa
 function zz_text($string) {
 	global $text;
 	global $zz_conf;
-	if (empty($text[$string])) {
-		// TODO: write missing translation to somewhere.
+	if (!isset($text[$string])) {
+		// write missing translation to somewhere.
+		// TODO: check logfile for duplicates
+		// TODO: optional log directly in database
+		if (!empty($zz_conf['log_missing_text'])) {
+			$log_message = '$text["'.addslashes($string).'"] = "'.$string.'";'."\n";
+			$log_file = sprintf($zz_conf['log_missing_text'], $zz_conf['language']);
+			error_log($log_message, 3, $log_file);
+			chmod($log_file, 0664);
+		}
 		return $string;
 	} else
 		return $text[$string];
@@ -1745,33 +2078,76 @@ function zz_array_merge($old, $new) {
 	return $old;
 }
 
-// this function works only for sql queries without UNION:
 function zz_count_rows($sql, $id_field) {
 	global $zz_error;
-	$sql = preg_replace("/\s+/", " ", $sql); // remove whitespace
-	$sql = preg_replace('/^SELECT (DISTINCT )*(.+) FROM /', 'SELECT $1 '.$id_field.' FROM ', $sql);
+	$sql = zz_edit_sql($sql, 'SELECT', $id_field, 'replace');
 	$zz_lines = 0;
 	$result = mysql_query($sql);  
 	if ($result) $zz_lines = mysql_num_rows($result);
 	if (mysql_error())
-		$zz_error[] = array('msg' => mysql_error(), 'query' => $sql);
+		$zz_error[] = array(
+			'mysql' => mysql_error(), 
+			'query' => $sql
+		);
 	return $zz_lines;
 }
 
-function zz_replace_conditional_values(&$item, $key, $records) {
-	if (is_array($item)) array_walk($item, 'zz_replace_conditional_values', $records);
-	else {
-		foreach ($records as $field_name => $record) {
-			if (preg_match('~%'.$field_name.'%~', $item))
-				$item = preg_replace('~%'.$field_name.'%~', $record, $item);
-		}
-	}
-}
-
-function zz_print_r($array) {
-	echo '<pre>';
+function zz_print_r($array, $color = false) {
+	echo '<pre style="text-align: left;'.($color ? ' background: '.$color.';' : '').'">';
 	print_r($array);
 	echo '</pre>';
+}
+
+/** Protection against overwritten values, set values and defaults for zzform_multi()
+ * Writes values, default values and where-values into POST-Array
+ * initializes unset field names
+ * 
+ * @param $post			POST records of main table or subtable
+ * @param $fields		$zz ...['fields']-definitions of main or subtable
+ * @return $where		where-condition
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function zz_check_def_vals($post, $fields, $where = false) {
+	foreach ($fields as $field) {
+		if (empty($field['field_name'])) continue;
+		// for all values, overwrite posted values with needed values
+		if (!empty($field['value'])) 
+			$post[$field['field_name']] = $field['value'];
+		// just for values which are not set (!) set default value
+		// (not for empty strings!)
+		if (!empty($field['default']) AND !isset($post[$field['field_name']]))
+			$post[$field['field_name']] = $field['default'];
+		// most important, therefore last: [where]
+		if (!empty($where[$field['field_name']]))
+			$post[$field['field_name']] = $where[$field['field_name']];
+		// if it's a mass upload or someone cuts out field_names, treat these fields as if
+		// nothing was posted
+		// some fields must not be initialized, so ignore them
+		$unwanted_field_types = array('id', 'foreign_key', 'translation_key', 'display');
+		if (!isset($post[$field['field_name']])
+			AND !in_array($field['type'], $unwanted_field_types))
+			$post[$field['field_name']] = '';
+	}
+	return $post;
+}
+
+/** Initialize $_FILES-Array for each uploaded file so that zzform knows
+ * that there's something to do
+ * 
+ * @param $files		FILES array
+ * @return $files		FILES array, initialized where neccessary
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function zz_check_def_files($files) {
+	foreach ($files as $key => $values) {
+		if (count($values) == 1 AND !empty($values['name'])) {
+			$files[$key]['type'] = $values['name'];
+			$files[$key]['tmp_name'] = $values['name'];
+			$files[$key]['size'] = $values['name'];
+			$files[$key]['error'] = $values['name'];
+		}
+	}
+	return $files;
 }
 
 ?>

@@ -24,11 +24,11 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 	$operation_success = false;
 	
 	//	### Check for validity, do some operations ###
-	// currently, upload fields only possible for main table
-	if (!empty($upload_form)) {// do only for zz_tab 0 0 etc. not zz_tab 0 sql, not for subtables
+	if (!empty($upload_form)) {// do only for zz_tab 0 0 etc. not zz_tab 0 sql etc.
 		zz_upload_get($zz_tab); // read upload image information, as required
 		zz_upload_prepare($zz_tab, $zz_conf); // read upload image information, as required
 	}
+	if ($zz_error['error']) return false;
 	foreach (array_keys($zz_tab) as $i) {
 		if (!isset($zz_tab[$i]['table_name'])) 
 			$zz_tab[$i]['table_name'] = $zz_tab[$i]['table'];		
@@ -39,21 +39,28 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 				// assign $_POST to subtable array
 				$zz_tab[$i][$k]['POST'] = $_POST[$zz['fields'][$zz_tab[$i]['no']]['table_name']][$k];
 				// set action field in zz_tab-array, 
-				$zz_tab[$i][$k] = zz_set_subrecord_action($zz_tab[$i][$k], $zz_tab, $i, $zz);
+				$zz_tab[$i][$k] = zz_set_subrecord_action($zz_tab, $i, $k, $zz);
 				if (!$zz_tab[$i][$k]) {
 					unset($zz_tab[$i][$k]); // empty subtable, not needed
 					continue;
+				} else {
+					// we don't need POST array anymore, just the ones for the empty subtables later
+					// could do it differently as well, just don't walk through POST there ...
+					// but that's more difficult since zz_requery_record is called twice 
+					// if db operation was unsuccessful
+					unset($_POST[$zz['fields'][$zz_tab[$i]['no']]['table_name']][$k]);
 				}
 			}
 			if ($zz_tab[$i][$k]['action'] == 'insert' OR $zz_tab[$i][$k]['action'] == 'update') {
 			// do something with the POST array before proceeding
 				if (empty($zz_tab[$i][$k]['access']) 
-					|| $zz_tab[$i][$k]['access'] != 'show' ) // don't validate record which only will be shown!!
+					|| $zz_tab[$i][$k]['access'] != 'show' ) {// don't validate record which only will be shown!!
 					$zz_tab[$i][$k] = zz_validate($zz_tab[$i][$k], $zz_conf, $zz_tab[$i]['table'], $zz_tab[$i]['table_name'], $k, $zz_tab[0][0]['POST']); 
+				}
 			} elseif (is_numeric($k))
 			//	Check referential integrity
-				if (file_exists($zz_conf['dir'].'/inc/integrity.inc.php')) {
-					include_once($zz_conf['dir'].'/inc/integrity.inc.php');
+				if (file_exists($zz_conf['dir_inc'].'/integrity.inc.php')) {
+					include_once $zz_conf['dir_inc'].'/integrity.inc.php';
 			//test
 					$record_idfield = $zz_tab[$i][$k]['id']['field_name'];
 					$detailrecords = '';
@@ -63,13 +70,15 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 						$detailrecords[$det_key]['table'] = $zz['fields'][$subkey]['table'];
 						$detailrecords[$det_key]['sql'][] = $zz['fields'][$subkey]['sql']; // might be more than one detail record from the same table
 					}
-					if (!$zz_tab[$i][$k]['no-delete'] = check_integrity($zz_conf['db_name'], $zz_tab[$i]['table'], $record_idfield, $zz_tab[$i][$k]['POST'][$record_idfield], $zz_conf['relations_table'], $detailrecords))
+					if (!$zz_tab[$i][$k]['no-delete'] = check_integrity($zz_conf['db_name'], $zz_tab[$i]['table'], $record_idfield, $zz_tab[$i][$k]['POST'][$record_idfield], $zz_conf['relations_table'], $detailrecords)) {
 					// todo: remove db_name maybe?
+						if ($zz_error['error']) return false;
 						$zz_tab[$i][$k]['validation'] = true;
-					else {
+					} else {
 						$zz_tab[$i][$k]['validation'] = false;
 						$zz['no-delete'][] = $i.','.$k;
 					}
+					if ($zz_error['error']) return false;
 				}
 		}
 	}
@@ -84,7 +93,7 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 		
 		// if any other action before insertion/update/delete is required
 		if (isset($zz_conf['action']['before_'.$zz['action']])) 
-			include ($zz_conf['action_dir'].'/'.$zz_conf['action']['before_'.$zz['action']].'.inc.php'); 
+			include $zz_conf['action_dir'].'/'.$zz_conf['action']['before_'.$zz['action']].'.inc.php';
 
 		// put delete_ids into zz_tab-array
 		if (isset($_POST['zz_subtable_deleted']))
@@ -167,11 +176,12 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 						unset($detail_sql_edit[$i][$k]);
 					} else { // something went wrong, but why?
 						$zz['formhead'] = false;
-						$zz_error[] = array('msg' => 'Detail record could not be deleted',
-							'type' => 'mysql',
+						$zz_error[] = array(
+							'msg' => 'Detail record could not be deleted',
 							'query' => $detail_sql_edit[$i][$k],
 							'mysql' =>	mysql_error());
-						return false; // get out of function, ignore rest (this should never happen, just if there are database errors etc.)
+//						not sure whether to cancel any further operations here, TODO
+//						return zz_error(); // get out of function, ignore rest (this should never happen, just if there are database errors etc.)
 					}
 				}
 		}
@@ -199,20 +209,29 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 			elseif ($zz_tab[0][0]['action'] == 'delete') $zz['formhead'] = zz_text('record_was_deleted');
 			if ($zz_conf['logging'] && $sql_edit != 'SELECT 1')
 				zz_log_sql($sql_edit, $zz_conf['user'], $zz_tab[0][0]['id']['value']); // Logs SQL Query, must be after insert_id was checked
+			if ($sql_edit != 'SELECT 1')
+				$zz['return'][] = array(
+					'table' => $zz_tab[0]['table'],
+					'id_field_name' => $zz_tab[0][0]['id']['field_name'], 
+					'id_value' => $zz_tab[0][0]['id']['value'],
+					'action' => $zz_tab[0][0]['action']
+				);
 			$operation_success = true;
 			if (isset($detail_sql_edit))
 				foreach (array_keys($detail_sql_edit) as $i)
 					foreach (array_keys($detail_sql_edit[$i]) as $k) {
 						$detail_sql = $detail_sql_edit[$i][$k];
 						$detail_sql = str_replace('[FOREIGN_KEY]', '"'.$zz_tab[0][0]['id']['value'].'"', $detail_sql);
-						//if ($zz['action'] == 'insert') $detail_sql .= $zz_tab[0][0]['id']['value'].');';
+						if (!empty($zz_tab[$i]['detail_key'])) {
+							// TODO: allow further detail keys
+							$detail_sql = str_replace('[DETAIL_KEY]', '"'.$zz_tab[$zz_tab[$i]['detail_key'][0]['i']][$zz_tab[$i]['detail_key'][0]['k']]['id']['value'].'"', $detail_sql);
+						}
 						$detail_result = mysql_query($detail_sql);
 						if (!$detail_result) { // This should never occur, since all checks say that this change is possible
 							// only if duplicate entry
 							$zz['formhead']		= false;
 							$zz_error[] = array('msg' => 'Detail record could not be handled',
-								'level' => 'crucial',
-								'type' => 'mysql',
+								'level' => E_USER_WARNING,
 								'query' => $detail_sql,
 								'mysql' => mysql_error(),
 								'mysql_errno' => mysql_errno());
@@ -221,30 +240,37 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 							$zz_tab[0][0]['fields'][$zz_tab[$i]['no']]['check_validation'] = false;
 						} elseif ($zz_tab[$i][$k]['action'] == 'insert') 
 							$zz_tab[$i][$k]['id']['value'] = mysql_insert_id(); // for requery
-						if ($zz_conf['logging']) {
+						if ($zz_conf['logging'] AND $detail_result) {
 							// for deleted subtables, id value might not be set, so get it here.
 							// TODO: check why it's not available beforehands, might be unneccessary security risk.
 							if (empty($zz_tab[$i][$k]['id']['value']))
 								$zz_tab[$i][$k]['id']['value'] = $zz_tab[$i][$k]['POST'][$zz_tab[$i][$k]['id']['field_name']];
 							zz_log_sql($detail_sql, $zz_conf['user'], $zz_tab[$i][$k]['id']['value']); // Logs SQL Query
 						}
+						$zz['return'][] = array(
+							'table' => $zz_tab[$i]['table'],
+							'id_field_name' => $zz_tab[$i][$k]['id']['field_name'], 
+							'id_value' => $zz_tab[$i][$k]['id']['value'],
+							'action' => $zz_tab[$i][$k]['action']
+						);
 					}
 			if (isset($zz_conf['action']['after_'.$zz['action']])) 
-				include ($zz_conf['action_dir'].'/'.$zz_conf['action']['after_'.$zz['action']].'.inc.php'); 
+				include $zz_conf['action_dir'].'/'.$zz_conf['action']['after_'.$zz['action']].'.inc.php'; 
 				// if any other action after insertion/update/delete is required
 			if (!empty($zz_conf['folder']) && $zz_tab[0][0]['action'] == 'update')
 				// rename connected folder after record has been updated
 				zz_foldercheck($zz_tab, $zz_conf);
-			if (!empty($upload_form))
+			if (!empty($upload_form)) {
 				zz_upload_action($zz_tab, $zz_conf); // upload images, delete images, as required
+				if ($zz_error['error']) return false;
+			}
 			if ($operation_success) $zz['result'] = 'successful_'.$zz_tab[0][0]['action'];
 		} else {
 			// Output Error Message
 			$zz['formhead'] = false;
 			if ($zz['action'] == 'insert') $zz_tab[0][0]['id']['value'] = false; // for requery
-			$zz_error[] = array('msg' => ' ',
-				'level' => 'crucial',
-				'type' => 'mysql',
+			$zz_error[] = array(
+				'level' => E_USER_WARNING,
 				'query' => $sql_edit,
 				'mysql' => mysql_error(),
 				'mysql_errno' => mysql_errno());
@@ -255,7 +281,6 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 	return $operation_success;
 }
 
-function zz_set_subrecord_action($subtable, &$zz_tab, $i, &$zz) {
 /*	defines which action will be performed on subrecord:
 	1.	action = insert | update | delete
 		update if id field is not empty and there are values in fields
@@ -273,7 +298,9 @@ function zz_set_subrecord_action($subtable, &$zz_tab, $i, &$zz) {
 		may unset($zz_tab[$i][$k])
 
 */
+function zz_set_subrecord_action(&$zz_tab, $i, $k, &$zz) {
 	// initialize variables
+	$subtable = $zz_tab[$i][$k];
 	$values = '';
 
 	// check whether there are values in fields
@@ -309,25 +336,34 @@ function zz_set_subrecord_action($subtable, &$zz_tab, $i, &$zz) {
 			else
 				$subtable['action'] = 'update';
 	}
+	if (!empty($zz_tab[$i]['records_depend_on_upload']) AND !empty($subtable['no_file_upload'])) {
+		$values = false;
+	} elseif (!empty($zz_tab[$i]['records_depend_on_upload']) AND $subtable['action'] == 'insert'
+		AND empty($subtable['file_upload'])) {
+		$values = false;
+	}
 	// todo: seems to be twice the same operation since $i and $k are !0
 	if (!empty($zz['fields'][$zz_tab[$i]['no']]['access'])
 		&& $zz['fields'][$zz_tab[$i]['no']]['access'] == 'show') {
 		$values = true; // only display subrecords, no deletion, no change!
 		$subtable['action'] = false; // no action insert or update, values are only shown!
 	}
-	if (!$values)
+	if (!$values) {
 		if ($subtable['id']['value']) {
 			$subtable['action'] = 'delete';
 			$zz_tab[$i]['subtable_deleted'][] = $subtable['id']['value']; // only for requery record on error!
-		} else
+		} else {
 			$subtable = false;
+		}
+	}
 	
-	if ($zz_tab[0][0]['action'] == 'delete') 
+	if ($zz_tab[0][0]['action'] == 'delete') {
 		if ($subtable['id']['value'] 			// is there a record?
 			&& empty($zz['fields'][$zz_tab[$i]['no']]['keep_detailrecord_shown']))		
 			$subtable['action'] = 'delete';
 		else									// no data in subtable
 			$subtable = false;
+	}
 
 	return $subtable;
 }

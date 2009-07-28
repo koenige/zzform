@@ -92,7 +92,7 @@ $text['Error: '] = 'Fehler: ';
 $text['No file was uploaded.'] = 'Es wurde keine Datei hochgeladen.';
 $text['File was only partially uploaded.'] = 'Die Datei wurde nur teilweise hochgeladen.';
 $text['File is too big.'] = 'Die Datei ist zu gro&szlig;.';
-$text['Maximum allowed filesize is'] = 'Maximale Dateigr&ouml;&szlig;e ist';
+$text['Maximum allowed filesize is'] = 'Maximal erlaubte Dateigr&ouml;&szlig;e:';
 $text['Minimum width %s was not reached.'] = 'Minimale Breite %s nicht eingehalten.';
 $text['Minimum height %s was not reached.'] = 'Minimale H&ouml;he %s nicht eingehalten.';
 $text['Maximum width %s has been exceeded.'] = 'Maximale Breite %s wurde &uuml;berschritten.';
@@ -123,6 +123,17 @@ $text['Add %s'] = '%s hinzuf&uuml;gen';
 $text['Remove %s'] = '%s entfernen';
 $text['Delete this file'] = 'Diese Datei l&ouml;schen';
 $text['Show all records'] = 'Zeige alle Datens&auml;tze (ohne Suchfilter)';
-
+$text['Warning!'] = 'Achtung!';
+$text['Critical Error!'] = 'Fehler!';
+$text['File could not be saved. There is a problem with the user rights. We are working on it.'] = 'Die Datei konnte nicht gespeichert werden. Es gibt ein Problem, aber wir arbeiten daran.';
+$text['We are working on the solution of this problem. Sorry for your inconvenience.'] = 'Wir arbeiten an der L&ouml;sung dieses Problems. Bitte entschuldigen Sie die Unannehmlichkeiten.';
+$text['An error occured. We are working on the solution of this problem. Sorry for your inconvenience. Please try again later.'] = 'Ein Fehler ist aufgetreten. Wir arbeiten an der L&ouml;sung des Problems. Bitte entschuldigen Sie die Unannehmlichkeiten. Versuchen Sie es bitte sp&auml;ter nocheinmal.';
+$text['File could not be imported.'] = 'Datei konnte nicht importiert werden.';
+$text['Folder could not be imported.'] = 'Verzeichnis konnte nicht importiert werden.';
+$text['Import was successful.'] = 'Import war erfolgreich.';
+$text['Folder OK'] = 'Verzeichnis OK';
+$text['Folder "%s" does not exist.'] = 'Das Verzeichnis "%s" existiert nicht.';
+$text['Warning! Insufficient access rights. Please make sure, that the source directory is writeable.'] = 'Warnung! Die Zugriffsrechte reichen nicht aus. Bitte stellen Sie sicher, dass das Quellverzeichnis schreibbar ist.';
+$text['%s files left for import. Please wait, the script will reload itself.'] = '%s Dateien m&uuml;ssen noch importiert werden. Bitte warten Sie, das Skript ruft sich erneut auf.';
 
 ?>

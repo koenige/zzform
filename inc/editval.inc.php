@@ -32,7 +32,8 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 	//	remove entries which are for display only
 		if ($my['fields'][$f]['type'] == 'write_once' 
 			AND empty($my['record'][$my['fields'][$f]['field_name']])) {
-			$my['fields'][$f]['type'] = $my['fields'][$f]['type_detail'];
+			if (!empty($my['fields'][$f]['type_detail']))
+				$my['fields'][$f]['type'] = $my['fields'][$f]['type_detail'];
 		}
 		switch ($my['fields'][$f]['type']) {
 			case 'upload_image':
@@ -51,6 +52,12 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 			case 'foreign':
 			case 'subtable':
 				$my['fields'][$f]['in_sql_query'] = false;
+				break;
+			case 'timestamp':
+				if (!empty($my['fields'][$f]['display']))
+					$my['fields'][$f]['in_sql_query'] = false;
+				else
+					$my['fields'][$f]['in_sql_query'] = true;
 				break;
 			case 'id':
 				$my['fields'][$f]['in_sql_query'] = true;
@@ -142,7 +149,10 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 						$my_sql = $my['fields'][$f]['sql_password_check'].$my['id']['value'];
 						$pwd = zz_check_password($my['POST'][$my['fields'][$f]['field_name']], $my['POST'][$my['fields'][$f]['field_name'].'_new_1'], $my['POST'][$my['fields'][$f]['field_name'].'_new_2'], $my_sql);
 					} else {
-						$zz_error[]['msg'] = zz_text('Please enter your current password and twice your new password.');
+						$zz_error[] = array(
+							'msg' => zz_text('Please enter your current password and twice your new password.'),
+							'level' => E_USER_NOTICE
+						);
 					}
 					if ($pwd) $my['POST'][$my['fields'][$f]['field_name']] = $pwd;
 					else { 
@@ -230,40 +240,49 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 						echo '</pre>';
 					}
 					$g = $my['fields'][$f]['upload_field'];
-					$v = $my['fields'][$f]['upload_value'];
-					if ($v == 'md5' AND !empty($my['images'])) {
-						if (!empty($my['images'][$g][0]['modified']['tmp_name']))
-							$myval = md5_file($my['images'][$g][0]['modified']['tmp_name']);
-						else
+					$possible_values = $my['fields'][$f]['upload_value'];
+					if (!is_array($possible_values)) $possible_values = array($possible_values);
+					foreach ($possible_values AS $v) {
+						if ($v == 'md5' AND !empty($my['images'])) {
+							if (!empty($my['images'][$g][0]['modified']['tmp_name']))
+								$myval = md5_file($my['images'][$g][0]['modified']['tmp_name']);
+							else
+								$myval = md5_file($my['images'][$g][0]['upload']['tmp_name']);
+						} elseif ($v == 'md5_source_file' AND !empty($my['images'])) {
 							$myval = md5_file($my['images'][$g][0]['upload']['tmp_name']);
-					} elseif ($v == 'sha1' AND !empty($my['images'])) {
-						if (!empty($my['images'][$g][0]['modified']['tmp_name']))
-							$myval = sha1_file($my['images'][$g][0]['modified']['tmp_name']);
-						else
+						} elseif ($v == 'sha1' AND !empty($my['images'])) {
+							if (!empty($my['images'][$g][0]['modified']['tmp_name']))
+								$myval = sha1_file($my['images'][$g][0]['modified']['tmp_name']);
+							else
+								$myval = sha1_file($my['images'][$g][0]['upload']['tmp_name']);
+						} elseif ($v == 'sha1_source_file' AND !empty($my['images'])) {
 							$myval = sha1_file($my['images'][$g][0]['upload']['tmp_name']);
-					} else {
-						if (preg_match('/.+\[.+\]/', $v)) { // construct access to array values
-							$myv = explode('[', $v);
-							foreach ($myv as $v_var) {
-								if (substr($v_var, -1) == ']') $v_var = substr($v_var, 0, -1);
-								$v_arr[] = $v_var;
-							}
-							$key1 = '$my[\'images\'][$g][0][\'upload\'][\''.implode("']['", $v_arr).'\']';
-							eval('$myval = (isset('.$key1.') ? '.$key1.': false);');
-							if (!$myval) {
-								$key1 = '$my[\'images\'][$g][0][\''.implode("']['", $v_arr).'\']';
+						} else {
+							if (preg_match('/.+\[.+\]/', $v)) { // construct access to array values
+								$myv = explode('[', $v);
+								foreach ($myv as $v_var) {
+									if (substr($v_var, -1) == ']') $v_var = substr($v_var, 0, -1);
+									$v_arr[] = $v_var;
+								}
+								$key1 = '$my[\'images\'][$g][0][\'upload\'][\''.implode("']['", $v_arr).'\']';
 								eval('$myval = (isset('.$key1.') ? '.$key1.': false);');
+								if (!$myval) {
+									$key1 = '$my[\'images\'][$g][0][\''.implode("']['", $v_arr).'\']';
+									eval('$myval = (isset('.$key1.') ? '.$key1.': false);');
+								}
+							} else
+								$myval = (!empty($my['images'][$g][$v])) 
+									? $my['images'][$g][$v] // take value from upload-array
+									: (!empty($my['images'][$g][0]['upload'][$v]) ? $my['images'][$g][0]['upload'][$v] : ''); // or take value from first sub-image
+							if ($myval && !empty($my['fields'][$f]['upload_sql'])) {
+								$sql = $my['fields'][$f]['upload_sql'].'"'.$myval.'"';
+								$result = mysql_query($sql);
+								if ($result) if (mysql_num_rows($result))
+									$myval = mysql_result($result, 0, 0);
 							}
-						} else
-							$myval = (!empty($my['images'][$g][$v])) 
-								? $my['images'][$g][$v] // take value from upload-array
-								: (!empty($my['images'][$g][0]['upload'][$v]) ? $my['images'][$g][0]['upload'][$v] : ''); // or take value from first sub-image
-						if ($myval && !empty($my['fields'][$f]['upload_sql'])) {
-							$sql = $my['fields'][$f]['upload_sql'].'"'.$myval.'"';
-							$result = mysql_query($sql);
-							if ($result) if (mysql_num_rows($result))
-								$myval = mysql_result($result, 0, 0);
 						}
+						// go through this foreach until you have a value
+						if ($myval) break;
 					}
 					if ($myval) {
 						$my['POST'][$my['fields'][$f]['field_name']] = $myval;
@@ -283,14 +302,16 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 			//		check whether is false but must not be NULL
 					if (!isset($my['POST'][$my['fields'][$f]['field_name']])) {
 						// no set = must be error
-						if ($my['fields'][$f]['type'] == 'foreign_key' OR $my['fields'][$f]['type'] == 'translation_key')
+						if ($my['fields'][$f]['type'] == 'foreign_key' 
+							OR $my['fields'][$f]['type'] == 'translation_key'
+							OR $my['fields'][$f]['type'] == 'detail_key') {
 							// foreign key will always be empty but most likely also be required.
 							// f. key will be added by script later on (because sometimes it is not known yet)
-							$my['validation'] = true;
-						elseif ($my['fields'][$f]['type'] == 'timestamp')
+							// do nothing, leave $my['validation'] as it is
+						} elseif ($my['fields'][$f]['type'] == 'timestamp') {
 							// timestamps will be set to current date, so no check is necessary
-							$my['validation'] = true;
-						elseif (!isset($my['fields'][$f]['set']))
+							// do nothing, leave $my['validation'] as it is
+						} elseif (!isset($my['fields'][$f]['set']))
 							$my['validation'] = false;
 						elseif (!checkfornull($my['fields'][$f]['field_name'], $table)) {
 							$my['validation'] = false;
@@ -301,6 +322,7 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 						}
 					} elseif(!$my['POST'][$my['fields'][$f]['field_name']] 
 						AND empty($my['fields'][$f]['null'])
+						AND empty($my['fields'][$f]['null-string'])
 						AND $my['fields'][$f]['type'] != 'timestamp')
 						if (!checkfornull($my['fields'][$f]['field_name'], $table)) {
 							$my['validation'] = false;
@@ -347,10 +369,10 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 			//	call function: generate ID
 			if ($my['fields'][$f]['type'] == 'identifier') {
 				$func_vars = zz_get_identifier_vars($my, $f, $main_post);
-				$conf =(!empty($my['fields'][$f]['conf_identifier']) 
+				$conf = (!empty($my['fields'][$f]['conf_identifier']) 
 					? $my['fields'][$f]['conf_identifier'] : false);
 				$my['POST'][$my['fields'][$f]['field_name']] 
-					= zz_create_identifier($func_vars, $my, $table, $f, $conf);
+					= zz_create_identifier($func_vars, $conf, $my, $table, $f);
 			}
 	}
 	
@@ -364,7 +386,9 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 					$my['POST'][$my['fields'][$f]['field_name']] = '';
 			}
 		//	slashes, 0 and NULL
-			$unwanted = array('calculated', 'image', 'upload_image', 'id', 'foreign', 'subtable', 'foreign_key', 'translation_key', 'display', 'option', 'write_once');
+			$unwanted = array('calculated', 'image', 'upload_image', 'id', 
+				'foreign', 'subtable', 'foreign_key', 'translation_key', 
+				'detail_key', 'display', 'option', 'write_once');
 			if (!in_array($my['fields'][$f]['type'], $unwanted)) {
 				if ($my['POST'][$my['fields'][$f]['field_name']]) {
 					//if (get_magic_quotes_gpc()) // sometimes unwanted standard config
@@ -379,6 +403,8 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 						$my['POST'][$my['fields'][$f]['field_name']] = '0';
 					elseif (!empty($my['fields'][$f]['null'])) 
 						$my['POST'][$my['fields'][$f]['field_name']] = '0';
+					elseif (!empty($my['fields'][$f]['null-string'])) 
+						$my['POST'][$my['fields'][$f]['field_name']] = '""';
 					else 
 						$my['POST'][$my['fields'][$f]['field_name']] = 'NULL';
 				}
@@ -386,8 +412,13 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 		// foreign_key
 			if ($my['fields'][$f]['type'] == 'foreign_key') 
 				$my['POST'][$my['fields'][$f]['field_name']] = '[FOREIGN_KEY]';
+		// detail_key
+			if ($my['fields'][$f]['type'] == 'detail_key') 
+				$my['POST'][$my['fields'][$f]['field_name']] = '[DETAIL_KEY]';
+		// translation_key
 			if ($my['fields'][$f]['type'] == 'translation_key') 
 				$my['POST'][$my['fields'][$f]['field_name']] = $my['fields'][$f]['translation_key'];
+		// timestamp
 			if ($my['fields'][$f]['type'] == 'timestamp') 
 				$my['POST'][$my['fields'][$f]['field_name']] = 'NOW()';
 		}

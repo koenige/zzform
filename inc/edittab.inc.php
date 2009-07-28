@@ -40,17 +40,23 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 			// but someone tries to set a limit via URL-parameter
 		$zz['sql'].= ' LIMIT '.($zz_conf['this_limit']-$zz_conf['limit']).', '.($zz_conf['limit']);
 	}
+
+	if ($zz_conf['debug']) 
+		$zz['output'] .= zz_show_microtime('Before count_rows', $zz_timer);
+
 	$result = mysql_query($zz['sql']);
 	if ($result) {
 		$count_rows = mysql_num_rows($result);
 	} else {
 		$count_rows = 0;
-		if ($zz_conf['debug_allsql']) echo "<div>Oh no. An error:<br /><pre>".$zz['sql']."</pre></div>";
 		$zz['output'].= zz_error($zz_error[] = array(
 			'mysql' => mysql_error(), 
 			'query' => $zz['sql'], 
-			'msg' => zz_text('error-sql-incorrect')));
+			'msg_dev' => zz_text('error-sql-incorrect')));
 	}
+
+	if ($zz_conf['debug']) 
+		$zz['output'] .= zz_show_microtime('After count_rows', $zz_timer);
 
 	// read rows from database. depending on hierarchical or normal list view
 	// put rows in $lines or $h_lines.
@@ -113,50 +119,13 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 
 	if ($zz_conf['debug']) 
 		$zz['output'] .= zz_show_microtime('Before conditions are set in table', $zz_timer);
-
-	// Conditions
 	// Check all conditions whether they are true;
-	if ($zz_conf['show_list'] AND !empty($zz['conditions'])) {
-		foreach($zz['conditions'] AS $index => $condition) {
-			switch ($condition['scope']) {
-			// case record remains the same as in form view
-			// case query covers more ids
-			case 'record':
-				$sql = $zz['sql_without_limit'];
-				if (!empty($condition['where']))
-					$sql = zz_edit_sql($sql, 'WHERE', $condition['where']);
-				if (!empty($condition['having']))
-					$sql = zz_edit_sql($sql, 'HAVING', $condition['having']);
-				$result = mysql_query($sql);
-				if ($result AND mysql_num_rows($result)) 
-					// maybe get all ids instead?
-					while ($line = mysql_fetch_assoc($result)) {
-						$zz_conditions['bool'][$index][$line[$id_field]] = true;
-					}
-				if (mysql_error())
-					$zz_error[] = array('msg' => mysql_error(), 'query' => $sql);
-				break;
-			case 'query':
-				$sql = $condition['sql'];
-				$sql = zz_edit_sql($sql, 'WHERE', $condition['key_field_name'].' IN ('.implode(', ', $ids).')');
-				$result = mysql_query($sql);
-				if (mysql_error())
-					$zz_error[] = array('msg' => mysql_error(), 'query' => $sql);
-				if ($result AND mysql_num_rows($result)) 
-					while ($line = mysql_fetch_assoc($result)) {
-						if (empty($line[$condition['key_field_name']])) {
-							echo 'Error in condition '.$index.', key_field_name is not in field list<br>';
-							echo $sql;
-							exit;
-						}
-						$zz_conditions['bool'][$index][$line[$condition['key_field_name']]] = true;
-					}
-				break;
-			default:
-			}
-		}
-		$zz['output'].= zz_error($zz_error);
-	}
+	if (!empty($zz_conf['modules']['conditions']))
+		$zz_conditions = zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids);
+	if ($zz_error['error']) return false;
+	$zz['output'].= zz_error();
+	if ($zz_conf['debug']) 
+		$zz['output'] .= zz_show_microtime('After conditions are set in table', $zz_timer);
 
 	// check conditions, these might lead to different field definitions for every
 	// line in the list output!
@@ -171,7 +140,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 			$line_query[$index] = $zz['fields_in_list'];
 			if ($index) foreach ($line_query[$index] as $fieldindex => $field) {
 				// conditions
-				if (!empty($field['conditions'])) {
+				if (!empty($zz_conf['modules']['conditions']) AND !empty($field['conditions'])) {
 					$line_query[$index][$fieldindex] = zz_merge_conditions($field, $zz_conditions['bool'], $line[$id_field]);
 					$conditions_applied[$index] = true;
 				}
@@ -344,7 +313,8 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 		$z = 0;
 		$ids = array();
 		//$group_hierarchy = false; // see below, hierarchical grouping
-
+		$lastline = false;
+	
 		foreach ($lines as $index => $line) {
 			// put lines in new array, rows.
 			//$rows[$z][0]['text'] = '';
@@ -388,10 +358,12 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 
 			foreach ($table_query[$tq_index] as $fieldindex => $field) {
 				// conditions
-				if (!empty($field['conditions']))
-					$field = zz_merge_conditions($field, $zz_conditions['bool'], $line[$id_field]);
-				if (!empty($zz_conf_thisrec['conditions']))
-					$zz_conf_thisrec = zz_merge_conditions($zz_conf_thisrec, $zz_conditions['bool'], $line[$id_field]);
+				if (!empty($zz_conf['modules']['conditions'])) {
+					if (!empty($field['conditions']))
+						$field = zz_merge_conditions($field, $zz_conditions['bool'], $line[$id_field]);
+					if (!empty($zz_conf_thisrec['conditions']))
+						$zz_conf_thisrec = zz_merge_conditions($zz_conf_thisrec, $zz_conditions['bool'], $line[$id_field]);
+				}
 
 				// group
 				if ($zz_conf['group'] && $fieldindex == $zz_conf['group_field_no'])
@@ -409,10 +381,18 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 				if (empty($rows[$z][$fieldindex]['class']))
 					$rows[$z][$fieldindex]['class'] = check_if_class($field, 
 						(!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : ''));
+				if (!empty($field['field_name']) AND !empty($lastline[$field['field_name']]) 
+					AND $line[$field['field_name']] == $lastline[$field['field_name']])
+					$rows[$z][$fieldindex]['class'] = ($rows[$z][$fieldindex]['class'] 
+						? substr($rows[$z][$fieldindex]['class'], 0, -1).' identical_value"' 
+						: ' class="identical_value"');
 				if (empty($rows[$z][$fieldindex]['text']))
 					$rows[$z][$fieldindex]['text'] = '';
 				
-				if (!empty($field['list_prefix'])) $rows[$z][$fieldindex]['text'] .= zz_text($field['list_prefix']);
+				if (!empty($field['list_prefix'])) 
+					$rows[$z][$fieldindex]['text'] .= zz_text($field['list_prefix']);
+				if (!empty($field['list_abbr'])) 
+					$rows[$z][$fieldindex]['text'] .= '<abbr title="'.htmlspecialchars($line[$field['list_abbr']]).'">';
 				$stringlength = strlen($rows[$z][$fieldindex]['text']);
 			//	if there's a link, glue parts together
 				$link = false;
@@ -536,15 +516,23 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 								&& in_array($line[$field['field_name']], array_keys($field['display_title'])))
 								$line[$field['field_name']] = $field['display_title'][$line[$field['field_name']]];
 
-							if (isset($field['factor']) && $line[$field['field_name']]) $line[$field['field_name']] /=$field['factor'];
-							if ($field['type'] == 'unix_timestamp') $rows[$z][$fieldindex]['text'].= date('Y-m-d H:i:s', $line[$field['field_name']]);
+							if (isset($field['factor']) && $line[$field['field_name']]) 
+								$line[$field['field_name']] /=$field['factor'];
+							
+							if ($field['type'] == 'unix_timestamp') 
+								$rows[$z][$fieldindex]['text'].= date('Y-m-d H:i:s', $line[$field['field_name']]);
+							elseif ($field['type'] == 'timestamp')
+								$rows[$z][$fieldindex]['text'].= timestamp2date($line[$field['field_name']]);
 							elseif ($field['type'] == 'select' && !empty($field['set']))
 								$rows[$z][$fieldindex]['text'].= str_replace(',', ', ', $line[$field['field_name']]);
 							elseif ($field['type'] == 'select' && !empty($field['enum']) && !empty($field['enum_title'])) { // show enum_title instead of enum
 								foreach ($field['enum'] as $mkey => $mvalue)
 									if ($mvalue == $line[$field['field_name']]) $rows[$z][$fieldindex]['text'] .= $field['enum_title'][$mkey];
+							} elseif ($field['type'] == 'select' && !empty($field['enum'])) {
+								$rows[$z][$fieldindex]['text'] .= zz_text($line[$field['field_name']]); // translate field value
 							} elseif ($field['type'] == 'date') $rows[$z][$fieldindex]['text'].= datum_de($line[$field['field_name']]);
-							elseif (isset($field['number_type']) && $field['number_type'] == 'currency') $rows[$z][$fieldindex]['text'].= waehrung($line[$field['field_name']], '');
+							elseif (isset($field['number_type']) && $field['number_type'] == 'currency') 
+								$rows[$z][$fieldindex]['text'].= waehrung($line[$field['field_name']], '');
 							elseif (isset($field['number_type']) && $field['number_type'] == 'latitude' && $line[$field['field_name']]) {
 								$deg = dec2dms($line[$field['field_name']], '');
 								$rows[$z][$fieldindex]['text'].= $deg['latitude_dms'];
@@ -557,7 +545,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 								$rows[$z][$fieldindex]['text'].= $line[$field['field_name']];
 							} elseif (!empty($field['list_format'])) {
 								$rows[$z][$fieldindex]['text'].= $field['list_format']($line[$field['field_name']]);
-							} else
+							} elseif (empty($field['hide_zeros']) OR $line[$field['field_name']]) // show field, but not if hide_zeros is set
 								$rows[$z][$fieldindex]['text'].= nl2br(htmlchars($line[$field['field_name']]));
 						}
 						if ($link) $rows[$z][$fieldindex]['text'].= '</a>';
@@ -576,8 +564,10 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 				if (strlen($rows[$z][$fieldindex]['text']) == $stringlength) { // string empty or nothing appended
 					if (!empty($field['list_prefix']))
 						$rows[$z][$fieldindex]['text'] = substr($rows[$z][$fieldindex]['text'], 0, $stringlength - strlen(zz_text($field['list_prefix'])));
-				} else
+				} else {
 					if (!empty($field['list_suffix'])) $rows[$z][$fieldindex]['text'] .= zz_text($field['list_suffix']);
+				}
+				if (!empty($field['list_abbr'])) $rows[$z][$fieldindex]['text'] .= '</abbr>';
 
 			}
 			$ids[$z] = $sub_id; // for subselects
@@ -604,6 +594,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 					$zz_conf_thisrec['details_target'], $zz_conf_thisrec['details_referer'], $id, $line);
 			}
 			$z++;
+			$lastline = $line;
 		}
 	}
 	
@@ -623,21 +614,27 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 			IN ('.implode(', ', $ids).')');
 		
 		$s_result = mysql_query($subselect['sql']);
-		if ($s_result) if (mysql_num_rows($s_result))
+		if ($s_result AND mysql_num_rows($s_result))
 			while ($line = mysql_fetch_assoc($s_result)) {
 				if (empty($line[$subselect['id_fieldname']])) {
-					$zz_error[] = array('msg' => 'Subselect SQL definition needs the field which is foreign_key!',
-						'query' => $subselect['sql']);
-					echo zz_error($zz_error);
-					exit;
+					$zz_error[] = array(
+						'msg_dev' => 'Subselect SQL definition needs the field which is foreign_key!',
+						'query' => $subselect['sql'],
+						'level' => E_USER_ERROR
+					);
+					return zz_error();
 				}
 				$myline = $line;
 				unset ($myline[$subselect['id_fieldname']]); // ID field will not be shown
 				$lines[$line[$subselect['id_fieldname']]][] = $myline;
 			}
 		if (mysql_error()) {
-			echo (mysql_error());
-			echo '<br>'.$subselect['sql'];
+			$zz_error[] = array(
+				'mysql' => mysql_error(),
+				'query' => $subselect['sql'],
+				'level' => E_USER_ERROR
+			);
+			return zz_error();
 		}
 		
 		foreach ($ids as $z_row => $id) {
@@ -652,8 +649,12 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 					}
 					$linetext[] = $fieldtext;
 				}
-				$rows[$z_row][$subselect['fieldindex']]['text'].= 
-					$subselect['prefix'].implode($subselect['concat_rows'], $linetext).$subselect['suffix'];
+				$subselect_text = implode($subselect['concat_rows'], $linetext);
+				$subselect_text = $subselect['prefix'].$subselect_text.$subselect['suffix'];
+				if (!empty($subselect['list_format'])) {
+					$subselect_text = $subselect['list_format']($subselect_text);
+				}
+				$rows[$z_row][$subselect['fieldindex']]['text'].= $subselect_text;
 			}
 		}
 	}
@@ -776,12 +777,18 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 				.zz_text('Add new record').'</a>';
 		// multi-add-button, also show if there was no list, because it will only be shown below records!
 		
-		if ($zz['mode'] != 'add' && $zz_conf['add'] AND is_array($zz_conf['add']))
-			foreach ($zz_conf['add'] as $add)
-				$zz['output'].= '<p class="add-new"><a href="'.$zz_conf['url_self']
+		if ($zz['mode'] != 'add' && $zz_conf['add'] AND is_array($zz_conf['add'])) {
+			sort($zz_conf['add']); // if some 'add' was unset before, here we get new numerical keys
+			$zz['output'].= '<p class="add-new">'.zz_text('Add new record').': ';
+			foreach ($zz_conf['add'] as $i => $add) {
+				$zz['output'].= '<a href="'.$zz_conf['url_self']
 					.$zz_conf['url_self_qs_base'].$zz_var['url_append']
 					.'mode=add'.$zz_var['extraGET'].'&amp;add['.$add['field_name'].']='
-					.$add['value'].'">'.sprintf(zz_text('Add new %s'), $add['type']).'</a></p>'."\n";
+					.$add['value'].'">'.$add['type'].'</a>';
+				if ($i != count($zz_conf['add']) -1) $zz['output'].= ' | ';
+			}
+			$zz['output'] .= '</p>'."\n";
+		}
 
 		if ($zz_conf['export'] AND $total_rows) 
 			$toolsline = array_merge($toolsline, zz_export_links($zz_conf['url_self']

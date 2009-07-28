@@ -43,34 +43,52 @@ function getenums($colum, $table) {
 		$enums = mysql_fetch_row($result);
 		$values = explode("','",preg_replace("/(enum|set)\('(.+?)'\)/","\\2",$enums[1]));
 	} else {
-		$zz_error[]['msg'] = 'Admin warning: column name given in table definition might not exist.';
+		$zz_error[] = array(
+			'msg_dev' => 'Admin warning: column name given in table definition might not exist.',
+			'level' => E_USER_WARNING
+		);
 		// todo: check table definition, whether column exists or not.
 	}
 	return $values;
 }
 
+/** checks whether an input is a URL
+ * 
+ * This function is also part of zzbrick, there it is called brick_check_url()
+ * @param $url(string)	URL to be tested, may be a relative URL as well (starting with ../, /)
+ *		might add http:// in front of it if this generates a valid URL
+ * @return string url if correct, or false
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
 function zz_check_url($url) {
 	$url = trim($url); // remove invalid white space at the beginning and end of URL
 	$url = str_replace("\\", "/", $url); // not sure: is \ a legal part of a URL?
 	if (substr($url, 0, 1) == "/")
-		if (is_url('http://example.com'.$url)) return $url;
+		if (zz_is_url('http://example.com'.$url)) return $url;
 		else return false;
 	elseif (substr($url, 0, 2) == "./") 
-		if (is_url('http://example.com'.substr($url,1))) return $url;
+		if (zz_is_url('http://example.com'.substr($url,1))) return $url;
 		else return false;
 	elseif (substr($url, 0, 3) == "../") 
-		if (is_url('http://example.com'.substr($url,2))) return $url;
+		if (zz_is_url('http://example.com'.substr($url,2))) return $url;
 		else return false;
 	else
-		if (!is_url($url))  {
+		if (!zz_is_url($url))  {
 			$url = "http://" . $url;
-			if (!is_url($url))	return false;
+			if (!zz_is_url($url))	return false;
 			else				return $url;
 		} else return $url;
 
 }
 
-function is_url($url) {
+/** checks whether an input is a URL
+ * 
+ * This function is also part of zzbrick, there it is called brick_is_url()
+ * @param $url(string)	URL to be tested, only absolute URLs
+ * @return string url if correct, or false
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function zz_is_url($url) {
 	// todo: give back which part of URL is incorrect
 	$possible_schemes = array('http', 'https', 'ftp', 'gopher');
 	if (!$url) return false;

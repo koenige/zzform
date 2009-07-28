@@ -139,13 +139,13 @@ function zz_imagick_convert($options, $files, $more_options = false, $more_files
 	$call_convert.= '-'.$options.' ';
 	$call_convert.= ' '.$files.' ';
 	$success = exec($call_convert, $return, $return_var);
-	if ($return) {
+	if ($return AND $zz_conf['debug']) {
 		echo $call_convert;
 		echo '<pre>';
 		print_r($return);
 		echo '</pre>';
 	}
-	if ($return_var) {
+	if ($return_var AND $zz_conf['debug']) {
 		echo $call_convert;
 		echo '<pre>';
 		print_r($return_var);

@@ -79,17 +79,27 @@ function check_if_detail($relations, $master_db, $master_table, $master_field,
 						$my_detailrecords = false;
 						foreach ($detailrecords[$detail]['sql'] as $sql) {
 							// add master record to selection, neccessary for multiple links on one subtable
-							$sql = zz_edit_sql($sql, 'WHERE', $master_db.'.'
-								.$master_table.'.'
-								.$master_field.' = '.$master_value);
+							// but do NOT do this if master and detail table are the same (main_something_id or mother_something_id)
+							if ($detail != $master_db.'.'.$master_table) {
+								$sql = zz_edit_sql($sql, 'WHERE', $master_db.'.'
+									.$master_table.'.'
+									.$master_field.' = '.$master_value);
+							}
 							// add detail record to selection, neccessary for some cases where there are multiple ID fields of same type (parent/children)
 							$sql = zz_edit_sql($sql, 'WHERE', $detail.'.'
 								.$field['detail_field'].' = '.$master_value);
 							$myres = mysql_query($sql);
-							if (mysql_error())
-								$zz_error[] = array('msg' => 'Error in check_if_detail():<br><br> '.mysql_error(), 'query' => $sql);
 							if ($myres)
 								$my_detailrecords += mysql_num_rows($myres);
+							else {
+								$zz_error[] = array(
+									'msg_dev' => 'Error in check_if_detail():',
+									'mysql' => mysql_error(), 
+									'query' => $sql,
+									'level' => E_USER_ERROR
+								);
+								return zz_error();
+							}
 							if ($zz_conf['debug']) echo $sql.'<br>';
 						}
 						if ($zz_conf['debug']) echo $my_detailrecords.'<br><br>';
@@ -103,7 +113,7 @@ function check_if_detail($relations, $master_db, $master_table, $master_field,
 							if ($detail_line) {
 								$detail_records_in[] = ucfirst($field['detail_table']); // this is of course not correct. but it is too complicated right now to show the exact relation to this record
 								break;
-							}
+							} elseif ($zz_error['error']) return false;
 						}
 						// if everything is ok, do nothing, so detail_records_in will still be false
 					} else { //	there is a detail record

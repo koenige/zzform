@@ -35,6 +35,8 @@ doc		doc		doc		application/x-msw6				MS Word Document
 doc		doc		doc		application/x-msword			MS Word Document
 doc		doc		doc		zz-application/zz-winassoc-doc	MS Word Document
 
+docx	docx	docx	application/vnd.openxmlformats-officedocument.wordprocessingml.document	Microsoft Word Open XML Document
+
 dot		dot		dot		application/msword				MS Word Document Template
 dot		dot		dot		application/dot					MS Word Document Template
 dot		dot		dot		application/x-dot				MS Word Document Template
@@ -91,6 +93,15 @@ dxf		dxf		dxf		image/vnd.dxf					AutoCAD Drawing Interchange Format
 dxf		dxf		dxf		image/x-autocad					AutoCAD Drawing Interchange Format
 dxf		dxf		dxf		image/x-dxf						AutoCAD Drawing Interchange Format
 
+dwt		dwt		dwt		application/octet-stream		AutoCAD Template/Prototype
+
+dwf		dwf		dwf		Model/vnd.dwf					Autodesk Design Web Format
+dwf		dwf		dwf		image/x-dwf						Autodesk Design Web Format
+dwf		dwf		dwf		mage/vnd.dwf 					Autodesk Design Web Format
+dwf		dwf		dwf		drawing/x-dwf 					Autodesk Design Web Format
+dwf		dwf		dwf		application/x-dwf 				Autodesk Design Web Format
+dwf		dwf		dwf		application/dwf 				Autodesk Design Web Format
+
 pdf		pdf		pdf		application/pdf					Adobe Portable Document Format
 pdf		pdf		pdf		application/x-pdf				Adobe Portable Document Format
 pdf		pdf		pdf		application/acrobat				Adobe Portable Document Format
@@ -98,6 +109,9 @@ pdf		pdf		pdf		applications/vnd.pdf			Adobe Portable Document Format
 pdf		pdf		pdf		text/pdf						Adobe Portable Document Format
 pdf		pdf		pdf		text/x-pdf						Adobe Portable Document Format
 pdf		pdf		pdf		application/x-octet-stream		Adobe Portable Document Format
+pdf		pdf		pdf		application/octet-stream		Adobe Portable Document Format
+
+eps		eps		eps		application/postscript			PostScript document text (EPS)
 
 zip		zip		zip		application/zip					ZIP Archive
 zip		zip		zip		application/x-zip				ZIP Archive
@@ -119,6 +133,9 @@ gz		gz		gz		application/octet-stream 		Gzip Compressed Archive
 
 odt		odt		odt		application/vnd.oasis.opendocument.text		Open Document Text Document
 odt		odt		odt		application/x-vnd.oasis.opendocument.text	Open Document Text Document
+
+ott		ott		ott		application/vnd.oasis.opendocument.text-template	OpenDocument Text Document Template
+ott		ott		ott		application/x-vnd.oasis.opendocument.text-template	OpenDocument Text Document Template
 
 ods		ods		ods		application/vnd.oasis.opendocument.spreadsheet		Open Document Spreadsheet
 ods		ods		ods		application/x-vnd.oasis.opendocument.spreadsheet	Open Document Spreadsheet
@@ -144,6 +161,31 @@ mov		mov		mov		audio/x-wav						QuickTime Video Clip
 mov		mov		mov		video/avi						QuickTime Video Clip
 
 edrw	edrw	edrw	application/octet-stream		eDrawings File
+
+cr2		cr2		cr2		image/x-canon-cr2				Canon CR2 raw image
+cr2		cr2		cr2		iapplication/octet-stream		Canon CR2 raw image
+
+csv		csv		csv		text/comma-separated-values		Comma Separated Values
+
+ctb		ctb		ctb		application/octet-stream		AutoCAD Color-dependent Plot Style Table
+
+mpp		mpp		mpp		application/vnd.ms-project		Microsoft Project File
+mpp		mpp		mpp		application/msproj				Microsoft Project File
+mpp		mpp		mpp		application/msproject			Microsoft Project File
+mpp		mpp		mpp		application/x-msproject			Microsoft Project File
+mpp		mpp		mpp		application/x-ms-project		Microsoft Project File
+mpp		mpp		mpp		application/x-dos_ms_project	Microsoft Project File
+mpp		mpp		mpp		application/mpp					Microsoft Project File
+mpp		mpp		mpp		zz-application/zz-winassoc-mpp	Microsoft Project File
+mpp		mpp		mpp		application/octet-stream		Microsoft Project File
+
+tga		tga		tga		application/tga					Truevision Targa Graphic
+tga		tga		tga		application/x-tga				Truevision Targa Graphic
+tga		tga		tga		application/x-targa				Truevision Targa Graphic
+tga		tga		tga		image/tga						Truevision Targa Graphic
+tga		tga		tga		image/x-tga						Truevision Targa Graphic
+tga		tga		tga		image/targa						Truevision Targa Graphic
+tga		tga		tga		image/x-targa					Truevision Targa Graphic
 
 ### EOF
 #

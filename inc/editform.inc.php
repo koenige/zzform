@@ -16,7 +16,7 @@
 /** Display form to edit a record
  * 
  * @param $zz
- * @param $my_tab
+ * @param $my_tab			= $zz_tab, won't be changed by this function
  * @param $zz_conf
  * @param $display			(string) 'review': show form with all values for
  *							review; 'form': show form for editing; false: don't
@@ -31,7 +31,7 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var, $zz_condi
 	$output = '';
 	if ($zz['formhead'] && $zz['mode'] != 'export')
 		$output.= "\n<h3>".ucfirst($zz['formhead'])."</h3>\n\n";
-	$output.= zz_error($zz_error);
+	$output.= zz_error();
 
 	// if there is nothing to display, just show errors and formhead or nothing at all and return
 	if (!$display) {
@@ -145,11 +145,10 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var, $zz_condi
 	return $output;
 }
 
-function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var, 
+function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var, 
 	$zz_conf_thisrec, $action, $formdisplay = 'vertical', $extra_lastcol = false, 
 	$table_count = 0, $show_explanation = true) {
 
-	global $text;
 	global $zz_error;
 	global $zz_conf;	// Config variables
 	$output = '';
@@ -175,6 +174,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 			$out['td']['content'] = '';
 			$out['separator'] = '';
 		}
+		
 		// write values into record, if detail record entry shall be preset
 		if (!empty($my_tab[$i]['values'][$table_count][$fieldkey])) {
 			$field['value'] = $my_tab[$i]['values'][$table_count][$fieldkey];
@@ -210,8 +210,11 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 			if ($st_display == 'form' && !empty($field['explanation_top']) && $show_explanation) 
 				$out['td']['content'].= '<p class="explanation">'.$field['explanation_top'].'</p>';
 			$subtables = array_keys($my_tab[$field['subtable']]);
-			foreach (array_keys($subtables) as $index)
+			foreach ($subtables as $index => $values)
 				if (!is_numeric($subtables[$index])) unset($subtables[$index]);
+			$zz_var['horizontal_table_head'] = false;
+			// go through all detail records
+			$table_open = false;
 			foreach ($subtables as $mytable_no) {
 				// show all subtables which are not deleted but 1 record as a minimum
 				if ($my_tab[$field['subtable']][$mytable_no]['action'] != 'delete' 
@@ -219,26 +222,29 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 					&& ($mytable_no + 1) == $my_tab[$field['subtable']]['min_records'])) {
 					
 					$lastrow = false;
-					$show_add = false;
 					$show_remove = false;
 
 					$dont_delete_records = (!empty($field['dont_delete_records'])
 						? $field['dont_delete_records'] : '');
 					if (!empty($field['values'][$mytable_no])) {
 						$dont_delete_records = true; // dont delete records with values set
-						if ($display == 'form') $lastrow = '&nbsp;'; // just for optical reasons, in case one row allows removing of record
 					}
+					if ($display == 'form') $lastrow = '&nbsp;'; // just for optical reasons, in case one row allows removing of record
 					
 					if ($st_display == 'form') {
 						if ($my_tab[$field['subtable']]['min_records'] < $my_tab[$field['subtable']]['records']
 							&& !$dont_delete_records)
 							$show_remove = true;
-						if ($my_tab[$field['subtable']]['max_records'] > $my_tab[$field['subtable']]['records']
-							AND $mytable_no == $my_tab[$field['subtable']]['records']-1)
-							$show_add = true;
 					}
-					if ($field['form_display'] != 'horizontal' OR !$mytable_no)
-						$out['td']['content'].= '<table class="'.$field['form_display'].'">'; // show this for vertical display and for first horizontal record
+					$zz_var['class_add'] = ((!empty($field['class_add']) AND
+						empty($my_tab[$field['subtable']][$mytable_no]['id']['value'])) 
+						? $field['class_add'] : '');
+					if ($field['form_display'] != 'horizontal' OR !$mytable_no) {
+						$out['td']['content'].= '<table class="'.$field['form_display']
+							.($field['form_display'] != 'horizontal' ? ' '.$zz_var['class_add'] : '')
+							.'">'; // show this for vertical display and for first horizontal record
+						$table_open = true;
+					}
 					if ($field['form_display'] != 'horizontal' OR $mytable_no == count($subtables)-1)
 						$h_show_explanation = true;
 					else
@@ -250,8 +256,10 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 					$out['td']['content'].= zz_show_field_rows($my_tab, $field['subtable'], 
 						$mytable_no, $subtable_mode, $st_display, $zz_var, $zz_conf_thisrec, $action, 
 						$field['form_display'], $lastrow, $mytable_no, $h_show_explanation);
-					if ($field['form_display'] != 'horizontal' OR $mytable_no == count($subtables)-1)
+					if ($field['form_display'] != 'horizontal') {
 						$out['td']['content'].= '</table>'."\n";
+						$table_open = false;
+					}
 					if ($show_remove) {
 						$removebutton = '<input type="submit" value="'
 							.sprintf(zz_text('Remove %s'), $field['title'])
@@ -263,41 +271,50 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 							$lastrow = $removebutton;	
 						}
 					}	
-					if ($show_add) $out['td']['content'] .= '<input type="submit" value="'
-						.sprintf(zz_text('Add %s'), $field['title'])
-						.'" class="sub-add" name="subtables[add]['
-						.$field['subtable'].']">';
 				}
 			}
+			if ($table_open) {
+				$out['td']['content'].= '</table>'."\n";
+			}
+			if ($st_display == 'form' AND $my_tab[$field['subtable']]['max_records'] > $my_tab[$field['subtable']]['records'])
+				$out['td']['content'] .= '<input type="submit" value="'
+					.sprintf(zz_text('Add %s'), $field['title'])
+					.'" class="sub-add" name="subtables[add]['
+					.$field['subtable'].']">';
 			if ($st_display == 'form' && $field['explanation'] && $show_explanation)
 				$out['td']['content'].= '<p class="explanation">'.$field['explanation'].'</p>';
 			if (!empty($field['separator']))
 				$out['separator'] = $field['separator'];
-		} elseif ($field['type'] == 'foreign_key' OR $field['type'] == 'translation_key') {
+		} elseif ($field['type'] == 'foreign_key' OR $field['type'] == 'translation_key' OR $field['type'] == 'detail_key') {
 			continue; // this must not be displayed, for internal link only
 		} else {
 //	"Normal" field
+			// option fields must have type_detail set, these are normal fields in form view
+			// but won't be saved to database
 			if ($field['type'] == 'option') {
 				if ($mode != 'edit' AND $mode != 'add') continue; // options will only be shown in edit mode
 				$field['type'] = $field['type_detail']; // option as normal field, set to type_detail for display form
 				$is_option = true;
 			} else $is_option = false;
-			if (!isset($field['class'])) $field['class'] = '';
-			if ($field['type'] == 'id') {
-				if ($field['class']) $field['class'] .= ' ';
-				$field['class'] .= 'idrow';
-			} else
-				if ($firstrow) {
-					if ($field['class']) $field['class'] .= ' ';
-					$field['class'] .= 'firstrow';
-					$firstrow = false;
-				}
-			if ($i) if ($field['type'] == 'id' OR $field['type'] == 'timestamp') {
-				if ($field['class']) $field['class'] .= ' ';
-				$field['class'] .= 'hidden';
+
+			// initalize class values
+			if (!isset($field['class'])) $field['class'] = array();
+			elseif (!is_array($field['class'])) $field['class'] = array($field['class']);
+
+			// add classes
+			if ($field['type'] == 'id') $field['class'][] = 'idrow';
+			elseif ($firstrow) {
+				$field['class'][] = 'firstrow';
+				$firstrow = false;
 			}
+			if ($i AND ($field['type'] == 'id' OR $field['type'] == 'timestamp')) {
+				$field['class'][] = 'hidden';
+			}
+			$field['class'] = implode(" ", $field['class']);
+
+			// append
 			if (!$append_next) {
-				$out['tr']['attr'][] = ($field['class'] ? $field['class'] : '');
+				$out['tr']['attr'][] = $field['class'];
 				if (!(isset($field['show_title']) && !$field['show_title'])) {
 					if (!empty($field['title_append'])) 
 						$out['th']['content'] .= $field['title_append']; // just for form, change title
@@ -316,6 +333,8 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 			}
 			if (!empty($field['append_next'])) $append_next = true;
 			else $append_next = false;
+
+			// field size, maxlenght
 			if (!isset($field['size']))
 				if ($field['type'] == 'number') $field['size'] = 16;
 		 		else $field['size'] = 32;
@@ -325,6 +344,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 			} elseif ($field['type'] == 'time') $field['size'] = 8;
 			if ($field['maxlength'] && $field['maxlength'] < $field['size']) 
 				$field['size'] = $field['maxlength'];
+
 			// apply factor only if there is a value in field
 			// don't apply it if it's a re-edit
 			if ($my['record'] && isset($field['factor']) && $my['record'][$field['field_name']]) {
@@ -336,6 +356,8 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 					$my['record'][$field['field_name']] /=$field['factor'];
 				}
 			}
+			
+			// auto values
 			if (isset($field['auto_value'])) {
 				if ($field['auto_value'] == 'increment') {
 					/*	added 2004-12-06
@@ -364,6 +386,8 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 							} else $field['default'] = 1;
 				}
 			}
+
+			// $zz_var, values, defaults
 			if (isset($zz_var['where'][$table_name][$field['field_name']])) {
 				if ($field['type'] == 'select') $field['type_detail'] = 'select';
 				elseif (!isset($field['type_detail'])) $field['type_detail'] = false;
@@ -379,6 +403,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 					$default_value = true; // must be unset later on because of this value
 				}
 			}
+
 			//
 			// output all records
 			//
@@ -390,626 +415,614 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 			}
 			$outputf = false;
 			switch ($field['type']) {
-				case 'id':
-					if ($my['id']['value']) $outputf.= '<input type="hidden" value="'.$my['id']['value'].'" name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">'.$my['id']['value'];
-					else $outputf.= '('.zz_text('will_be_added_automatically').')&nbsp;';
-					break;
-				case 'identifier':
-				case 'hidden':
-					$outputf.= '<input type="hidden" value="';
-					if (!empty($field['value'])) $outputf.= $field['value'];
-					elseif ($my['record']) $outputf.= $my['record'][$field['field_name']];
-					$outputf.= '" name="'.$field['f_field_name'].'" id="'
-						.make_id_fieldname($field['f_field_name']).'">';
-					if ($my['record']) {
-						if (!empty($field['type_detail']) && $field['type_detail'] == 'ipv4')
-							$outputf.= long2ip($my['record'][$field['field_name']]);
-						elseif (!empty($field['type_detail']) && $field['type_detail'] == 'date')
-							$outputf.= datum_de($my['record'][$field['field_name']]);
-						elseif (!empty($field['type_detail']) && $field['type_detail'] == 'select') {
-							$detail_key = (!empty($my['record'][$field['field_name']])
-								? $my['record'][$field['field_name']] : 
-								(!empty($field['value']) ? $field['value'] : $field['default']));
-							$my_fieldname = $field['field_name'];
-							if (isset($field['key_field_name'])) $my_fieldname = $field['key_field_name'];
-							if (isset($field['sql'])) {
-								$mysql = zz_edit_sql($field['sql'], 'WHERE', '('.$my_fieldname.' = '.$detail_key.')');
-								$result_detail = mysql_query($mysql);
-								if ($result_detail) {
-									if (mysql_num_rows($result_detail) == 1) {
-										$select_fields = mysql_fetch_row($result_detail);
-										if (count($select_fields) > 1)
-											unset($select_fields[0]); // remove ID for display
-										$outputf .= implode(' | ', $select_fields);
-									}
-								} else {
-									if ($zz_conf['debug_allsql']) echo "<div>a cool piece of query ... but buggy!:<br /><pre>$mysql</pre></div>";
-									$outputf.= zz_error($zz_error[] = array('mysql' => mysql_error(), 'query' => $mysql, 'msg' => zz_text('error-sql-incorrect')));
-								}
-							} elseif (isset($field['enum'])) {
-								$outputf.= $zz_var['where'][$table_name][$field['field_name']];
-							}
-						} elseif (isset($field['timestamp']) && $field['timestamp'])
-							$outputf.= timestamp2date($my['record'][$field['field_name']]);
-						elseif (isset($field['display_field'])) {
-							if (!empty($my['record'][$field['display_field']]))
-								$outputf.= htmlspecialchars($my['record'][$field['display_field']]);
-							elseif (!empty($my['record_saved'][$field['display_field']]))
-								$outputf.= htmlspecialchars($my['record_saved'][$field['display_field']]);
-							else {
-								if (empty($field['append_next']))
-									if (!empty($field['value'])) $outputf.= $field['value'];
-									else $outputf.= '('.zz_text('will_be_added_automatically').')';
+			case 'id':
+				if ($my['id']['value']) $outputf.= '<input type="hidden" value="'.$my['id']['value'].'" name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">'.$my['id']['value'];
+				else $outputf.= '('.zz_text('will_be_added_automatically').')&nbsp;';
+				break;
+			case 'predefined':
+			case 'identifier':
+			case 'hidden':
+				$my_element = '<input type="hidden" value="%s" name="%s" id="%s">';
+				$my_value = '';
+				if (!empty($zz_var['where'][$table_name][$field['field_name']]))
+					$my_value = $zz_var['where'][$table_name][$field['field_name']];
+				elseif (!empty($field['value']))
+					$my_value = $field['value'];
+				elseif ($my['record'])
+					$my_value = $my['record'][$field['field_name']];
+				$outputf .= sprintf($my_element, $my_value, $field['f_field_name'], make_id_fieldname($field['f_field_name']));
+				if ($my_value AND !empty($field['type_detail']) AND $field['type_detail'] == 'ipv4') {
+					$outputf.= long2ip($my_value);
+				} elseif ($my_value AND !empty($field['type_detail']) AND $field['type_detail'] == 'date') {
+					$outputf.= datum_de($my_value);
+				} elseif ($my_value AND !empty($field['type_detail']) AND $field['type_detail'] == 'select') {
+					$detail_key = ($my_value ? $my_value : $field['default']);
+					$my_fieldname = $field['field_name'];
+					if (isset($field['key_field_name'])) $my_fieldname = $field['key_field_name'];
+					if (isset($field['sql'])) {
+						$mysql = zz_edit_sql($field['sql'], 'WHERE', '('.$my_fieldname.' = '.$detail_key.')');
+						$result_detail = mysql_query($mysql);
+						if ($result_detail) {
+							if (mysql_num_rows($result_detail) == 1) {
+								$select_fields = mysql_fetch_row($result_detail);
+								if (count($select_fields) > 1)
+									unset($select_fields[0]); // remove ID for display
+								$outputf .= implode(' | ', $select_fields);
 							}
 						} else {
-							if (!empty($my['record'][$field['field_name']]))
-								$outputf.= htmlspecialchars($my['record'][$field['field_name']]);
-							elseif (!empty($my['record_saved'][$field['field_name']]))
-								$outputf.= htmlspecialchars($my['record_saved'][$field['field_name']]);
-							else {
-								if (empty($field['append_next']))
-									if (!empty($field['value'])) $outputf.= $field['value'];
-									else $outputf.= '('.zz_text('will_be_added_automatically').')';
-							}
+							$outputf.= zz_error($zz_error[] = array(
+								'mysql' => mysql_error(), 
+								'query' => $mysql, 
+								'msg_dev' => zz_text('error-sql-incorrect'))
+							);
 						}
-					} else
-						if (!empty($field['value'])) {
-							if (!empty($field['type_detail']) && $field['type_detail'] == 'ipv4')
-								$outputf.= long2ip($field['value']);
-							elseif (!empty($field['type_detail']) && $field['type_detail'] == 'select')
-								$outputf.= '('.zz_text('will_be_added_automatically').')&nbsp;';
-							else
-								$outputf.= $field['value'];
-						} else $outputf.= '('.zz_text('will_be_added_automatically').')&nbsp;';
-					break;
-				case 'timestamp':
-					$outputf.= '<input type="hidden" value="';
-					if (!empty($field['value'])) $outputf.= $field['value'];
-					elseif ($my['record']) $outputf.= $my['record'][$field['field_name']];
-					$outputf.= '" name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">';
-					if ($my['record'] && !empty($my['record'][$field['field_name']]))
-						$outputf.= timestamp2date($my['record'][$field['field_name']]);
+					} elseif (isset($field['enum'])) {
+						$outputf .= $my_value;
+					}
+				} elseif ($my['record']) {
+					if (isset($field['timestamp']) && $field['timestamp']) {
+						$outputf.= timestamp2date($my_value);
+					} elseif (isset($field['display_field'])) {
+						if (!empty($my['record'][$field['display_field']]))
+							$outputf.= htmlspecialchars($my['record'][$field['display_field']]);
+						elseif (!empty($my['record_saved'][$field['display_field']]))
+							$outputf.= htmlspecialchars($my['record_saved'][$field['display_field']]);
+						else {
+							if (empty($field['append_next']))
+								if (!empty($field['value'])) $outputf.= $field['value'];
+								else $outputf.= '('.zz_text('will_be_added_automatically').')';
+						}
+					} else {
+						if (!empty($my_value)) {
+							$outputf.= htmlspecialchars($my_value);
+						} elseif (!empty($my['record_saved'][$field['field_name']])) {
+							$outputf.= htmlspecialchars($my['record_saved'][$field['field_name']]);
+						} else {
+							if (empty($field['append_next']))
+								if (!empty($field['value'])) $outputf.= $field['value'];
+								else $outputf.= '('.zz_text('will_be_added_automatically').')';
+						}
+					}
+				} else {
+					if ($my_value) {
+						if (!empty($field['type_detail']) && $field['type_detail'] == 'select')
+							$outputf.= '('.zz_text('will_be_added_automatically').')&nbsp;';
+						else
+							$outputf.= $my_value;
+					} else $outputf.= '('.zz_text('will_be_added_automatically').')&nbsp;';
+				}
+				break;
+			case 'timestamp':
+				$outputf.= '<input type="hidden" value="';
+				if (!empty($field['value'])) $outputf.= $field['value'];
+				elseif ($my['record']) $outputf.= $my['record'][$field['field_name']];
+				$outputf.= '" name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">';
+				if (!empty($my['record'][$field['field_name']]))
+					$outputf.= timestamp2date($my['record'][$field['field_name']]);
+				else
+					$outputf.= '('.zz_text('will_be_added_automatically').')&nbsp;';
+				break;
+			case 'unix_timestamp':
+				if (isset($field['value'])) {
+					if ($row_display == 'form') $outputf.= '<input type="hidden" value="';
+					$outputf.= $field['value'];
+				} else {
+					if ($row_display == 'form') $outputf.= '<input type="text" value="';
+					if ($my['record']) {
+						$timestamp = strtotime($my['record'][$field['field_name']]);
+						if ($timestamp != -1)
+							$my['record'][$field['field_name']] = $timestamp;
+						$outputf.= date('Y-m-d H:i:s', $my['record'][$field['field_name']]);
+					}
+				}
+				if ($row_display == 'form') $outputf.= '" name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">';
+				if (!$my['record'] AND isset($field['value'])) $outputf.= '('.zz_text('will_be_added_automatically').')&nbsp;';
+				break;
+			case 'foreign':
+				$foreign_res = mysql_query($field['sql'].$my['id']['value']);
+				//$outputf.= $field['sql'].$my['id']['value'];
+				if ($foreign_res) {
+					if (mysql_num_rows($foreign_res) > 0) {
+						$my_output = false;
+						while ($fline = mysql_fetch_row($foreign_res)) {
+							if ($my_output) $outputf.= ', ';
+							$my_output.= $fline[0]; // All Data in one Line! via SQL
+						}
+						if ($my_output) $outputf.= $my_output;
+						else $outputf.= zz_text('no-data-available');
+					} else {
+						$outputf.= zz_text('no-data-available');
+					}
+				} 
+				if (isset($field['add_foreign'])) {
+					if ($my['id']['value'])
+						$outputf.= ' <a href="'.$field['add_foreign'].$my['id']['value'].'&amp;referer='.urlencode($_SERVER['REQUEST_URI']).'">['.zz_text('edit').' &hellip;]</a>';
 					else
-						$outputf.= '('.zz_text('will_be_added_automatically').')&nbsp;';
-					break;
-				case 'unix_timestamp':
-					if (isset($field['value'])) {
-						if ($row_display == 'form') $outputf.= '<input type="hidden" value="';
-						$outputf.= $field['value'];
-					} else {
-						if ($row_display == 'form') $outputf.= '<input type="text" value="';
-						if ($my['record']) {
-							$timestamp = strtotime($my['record'][$field['field_name']]);
-							if ($timestamp != -1)
-								$my['record'][$field['field_name']] = $timestamp;
-							$outputf.= date('Y-m-d H:i:s', $my['record'][$field['field_name']]);
-						}
-					}
-					if ($row_display == 'form') $outputf.= '" name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">';
-					if (!$my['record'] AND isset($field['value'])) $outputf.= '('.zz_text('will_be_added_automatically').')&nbsp;';
-					break;
-				case 'foreign':
-					$foreign_res = mysql_query($field['sql'].$my['id']['value']);
-					//$outputf.= $field['sql'].$my['id']['value'];
-					if ($foreign_res) {
-						if (mysql_num_rows($foreign_res) > 0) {
-							$my_output = false;
-							while ($fline = mysql_fetch_row($foreign_res)) {
-								if ($my_output) $outputf.= ', ';
-								$my_output.= $fline[0]; // All Data in one Line! via SQL
-							}
-							if ($my_output) $outputf.= $my_output;
-							else $outputf.= zz_text('no-data-available');
-						} else {
-							$outputf.= zz_text('no-data-available');
-						}
-					} 
-					if (isset($field['add_foreign'])) {
-						if ($my['id']['value'])
-							$outputf.= ' <a href="'.$field['add_foreign'].$my['id']['value'].'&amp;referer='.urlencode($_SERVER['REQUEST_URI']).'">['.zz_text('edit').' &hellip;]</a>';
-						else
-							$outputf.= zz_text('edit-after-save');
-					}
-					break;
-				case 'predefined':
-					$detail_key = (!empty($zz_var['where'][$table_name][$field['field_name']])
-						? $zz_var['where'][$table_name][$field['field_name']] : $field['value']);
-					$outputf.= '<input type="hidden" name="'
-						.$field['f_field_name'].'" id="'
-						.make_id_fieldname($field['f_field_name']).'" value="'
-						.$detail_key.'">';
-					if ($field['type_detail'] == 'select') {
-						$my_fieldname = $field['field_name'];
-						if (isset($field['key_field_name'])) $my_fieldname = $field['key_field_name'];
-						if (isset($field['sql'])) {
-							$mysql = zz_edit_sql($field['sql'], 'WHERE', '('.$my_fieldname.' = '.$detail_key.')');
-							$result_detail = mysql_query($mysql);
-							if ($result_detail) {
-								if (mysql_num_rows($result_detail) == 1) {
-									$select_fields = mysql_fetch_row($result_detail);
-									if (count($select_fields) > 1)
-										unset($select_fields[0]); // remove ID for display
-									$outputf .= implode(' | ', $select_fields);
-								}
-							} else {
-								if ($zz_conf['debug_allsql']) echo "<div>a cool piece of query ... but buggy!:<br /><pre>$mysql</pre></div>";
-								$outputf.= zz_error($zz_error[] = array('mysql' => mysql_error(), 'query' => $mysql, 'msg' => zz_text('error-sql-incorrect')));
-							}
-						} elseif (isset($field['enum'])) {
-							$outputf.= $zz_var['where'][$table_name][$field['field_name']];
-						}
-					} else
-						$outputf.= $zz_var['where'][$table_name][$field['field_name']];
-					break;
-				case 'password':
-					if ($row_display == 'form') {
-						$outputf.= '<input autocomplete="off" type="password" name="'.$field['f_field_name']
-							.'" id="'.make_id_fieldname($field['f_field_name']).'" size="'.$field['size'].'" ';
-						if (!empty($field['maxlength'])) $outputf.= ' maxlength="'.$field['maxlength'].'" ';
-					}
-					if ($my['record'])
-						if ($row_display == 'form') $outputf.= 'value="'.$my['record'][$field['field_name']].'"';
-						else $outputf .= '('.zz_text('hidden').')';
-					if ($row_display == 'form') $outputf.= '>';
-					if ($my['record'] && $row_display == 'form' && $action != 'insert') { $outputf .=
-						'<input type="hidden" name="'.$field['f_field_name'].
-						'--old" value="'.(!empty($my['record'][$field['field_name'].'--old']) ? $my['record'][$field['field_name'].'--old'] : $my['record'][$field['field_name']]).'">';
-						// this is for validation purposes
-						// take saved password (no matter if it's interefered with maliciously by user - worst case, pwd will be useless)
-						// - if old and new value are identical
-						// do not apply md5 encoding to password
-					}
-					break;
-				case 'password_change':
-					if ($row_display == 'form') {
-						$outputf.= '<table class="subtable">'."\n";
-						$outputf.= '<tr><th><label for="'.make_id_fieldname($field['f_field_name']).'">'.zz_text('Old:').' </label></th><td><input type="password" name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'" size="'.$field['size'].'" ';
-						if (!empty($field['maxlength'])) $outputf.= ' maxlength="'.$field['maxlength'].'" ';
-						$outputf.= '></td></tr>'."\n";
-						$outputf.= '<tr><th><label for="'.make_id_fieldname($field['f_field_name'].'_new_1').'">'.zz_text('New:').' </label></th><td><input type="password" name="'.$field['f_field_name'].'_new_1" id="'.make_id_fieldname($field['f_field_name'].'_new_1').'" size="'.$field['size'].'" ';
-						if (!empty($field['maxlength'])) $outputf.= ' maxlength="'.$field['maxlength'].'" ';
-						$outputf.= '></td></tr>'."\n";
-						$outputf.= '<tr><th><label for="'.make_id_fieldname($field['f_field_name'].'_new_2').'">'.zz_text('New:').' </label></th><td><input type="password" name="'.$field['f_field_name'].'_new_2" id="'.make_id_fieldname($field['f_field_name'].'_new_2').'" size="'.$field['size'].'" ';
-						if (!empty($field['maxlength'])) $outputf.= ' maxlength="'.$field['maxlength'].'" ';
-						$outputf.= '><p>'.zz_text('(Please confirm your new password twice)').'</td></tr>'."\n";
-						$outputf.= '</table>'."\n";
-					} else {
-						$outputf.= '********';
-					}
-					break;
-				case 'text':
-				case 'url':
-				case 'time':
-				case 'enum':
-				case 'mail':
-				case 'datetime':
-				case 'ipv4':
+						$outputf.= zz_text('edit-after-save');
+				}
+				break;
+			case 'password':
 				if ($row_display == 'form') {
-						$outputf.= '<input type="text" name="'.$field['f_field_name']
-							.'" id="'.make_id_fieldname($field['f_field_name']).'" size="'.$field['size'].'" ';
-						if (!empty($field['maxlength'])) $outputf.= ' maxlength="'.$field['maxlength'].'" ';
-					}
+					$outputf.= '<input autocomplete="off" type="password" name="'.$field['f_field_name']
+						.'" id="'.make_id_fieldname($field['f_field_name']).'" size="'.$field['size'].'" ';
+					if (!empty($field['maxlength'])) $outputf.= ' maxlength="'.$field['maxlength'].'" ';
+				}
+				if ($my['record'])
+					if ($row_display == 'form') $outputf.= 'value="'.$my['record'][$field['field_name']].'"';
+					else $outputf .= '('.zz_text('hidden').')';
+				if ($row_display == 'form') $outputf.= '>';
+				if ($my['record'] && $row_display == 'form' && $action != 'insert') { $outputf .=
+					'<input type="hidden" name="'.$field['f_field_name'].
+					'--old" value="'.(!empty($my['record'][$field['field_name'].'--old']) ? $my['record'][$field['field_name'].'--old'] : $my['record'][$field['field_name']]).'">';
+					// this is for validation purposes
+					// take saved password (no matter if it's interefered with maliciously by user - worst case, pwd will be useless)
+					// - if old and new value are identical
+					// do not apply md5 encoding to password
+				}
+				break;
+			case 'password_change':
+				if ($row_display == 'form') {
+					$outputf.= '<table class="subtable">'."\n";
+					$outputf.= '<tr><th><label for="'.make_id_fieldname($field['f_field_name']).'">'.zz_text('Old:').' </label></th><td><input type="password" name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'" size="'.$field['size'].'" ';
+					if (!empty($field['maxlength'])) $outputf.= ' maxlength="'.$field['maxlength'].'" ';
+					$outputf.= '></td></tr>'."\n";
+					$outputf.= '<tr><th><label for="'.make_id_fieldname($field['f_field_name'].'_new_1').'">'.zz_text('New:').' </label></th><td><input type="password" name="'.$field['f_field_name'].'_new_1" id="'.make_id_fieldname($field['f_field_name'].'_new_1').'" size="'.$field['size'].'" ';
+					if (!empty($field['maxlength'])) $outputf.= ' maxlength="'.$field['maxlength'].'" ';
+					$outputf.= '></td></tr>'."\n";
+					$outputf.= '<tr><th><label for="'.make_id_fieldname($field['f_field_name'].'_new_2').'">'.zz_text('New:').' </label></th><td><input type="password" name="'.$field['f_field_name'].'_new_2" id="'.make_id_fieldname($field['f_field_name'].'_new_2').'" size="'.$field['size'].'" ';
+					if (!empty($field['maxlength'])) $outputf.= ' maxlength="'.$field['maxlength'].'" ';
+					$outputf.= '><p>'.zz_text('(Please confirm your new password twice)').'</td></tr>'."\n";
+					$outputf.= '</table>'."\n";
+				} else {
+					$outputf.= '********';
+				}
+				break;
+			case 'text':
+			case 'url':
+			case 'time':
+			case 'enum':
+			case 'mail':
+			case 'datetime':
+			case 'ipv4':
+				if ($row_display == 'form') {
+					$outputf.= '<input type="text" name="'.$field['f_field_name']
+						.'" id="'.make_id_fieldname($field['f_field_name']).'" size="'.$field['size'].'" ';
+					if (!empty($field['maxlength'])) $outputf.= ' maxlength="'.$field['maxlength'].'" ';
+				}
+				if ($my['record']) {
+					if ($row_display == 'form') $outputf.= 'value="';
+					elseif ($field['type'] == 'url' && !empty($my['record'][$field['field_name']])) 
+						$outputf.= '<a href="'.htmlspecialchars($my['record'][$field['field_name']]).'">';
+					elseif ($field['type'] == 'mail' && !empty($my['record'][$field['field_name']]))
+						$outputf.= '<a href="mailto:'.$my['record'][$field['field_name']].'">';
+					if ($field['type'] == 'url' AND strlen($my['record'][$field['field_name']]) > $zz_conf_thisrec['max_select_val_len'] AND $row_display != 'form')
+						$outputf.= htmlspecialchars(substr($my['record'][$field['field_name']], 0, $zz_conf_thisrec['max_select_val_len'])).'...';
+					elseif ($field['type'] == 'ipv4')
+						$outputf.= long2ip($my['record'][$field['field_name']]);
+					else
+						$outputf.= htmlspecialchars($my['record'][$field['field_name']]);
+					if (($field['type'] == 'url' OR $field['type'] == 'mail')
+						&& !empty($my['record'][$field['field_name']]) && $row_display != 'form') $outputf.= '</a>';
+					if ($row_display == 'form') $outputf.= '"';
+				} elseif ($mode == 'add' AND $field['type'] == 'datetime')
+					$outputf.= 'value="'.date('Y-m-d H:i:s', time()).'"';
+				if ($row_display == 'form') $outputf.= '>';
+				break;
+			case 'number':
+				if (isset($field['number_type']) AND $field['number_type'] == 'latitude' || $field['number_type'] == 'longitude') {
+					$var = false;
 					if ($my['record']) {
-						if ($row_display == 'form') $outputf.= 'value="';
-						elseif ($field['type'] == 'url' && !empty($my['record'][$field['field_name']])) 
-							$outputf.= '<a href="'.htmlspecialchars($my['record'][$field['field_name']]).'">';
-						elseif ($field['type'] == 'mail' && !empty($my['record'][$field['field_name']]))
-							$outputf.= '<a href="mailto:'.$my['record'][$field['field_name']].'">';
-						if ($field['type'] == 'url' AND strlen($my['record'][$field['field_name']]) > $zz_conf_thisrec['max_select_val_len'] AND $row_display != 'form')
-							$outputf.= htmlspecialchars(substr($my['record'][$field['field_name']], 0, $zz_conf_thisrec['max_select_val_len'])).'...';
-						elseif ($field['type'] == 'ipv4')
-							$outputf.= long2ip($my['record'][$field['field_name']]);
-						else
-							$outputf.= htmlspecialchars($my['record'][$field['field_name']]);
-						if (($field['type'] == 'url' OR $field['type'] == 'mail')
-							&& !empty($my['record'][$field['field_name']]) && $row_display != 'form') $outputf.= '</a>';
-						if ($row_display == 'form') $outputf.= '"';
-					} elseif ($mode == 'add' AND $field['type'] == 'datetime')
-						$outputf.= 'value="'.date('Y-m-d H:i:s', time()).'"';
-					if ($row_display == 'form') $outputf.= '>';
-					break;
-				case 'number':
-					if (isset($field['number_type']) AND $field['number_type'] == 'latitude' || $field['number_type'] == 'longitude') {
-						$var = false;
-						if ($my['record']) {
-							if (!is_array($my['record'][$field['field_name']])) {
-							// only if values come directly from db, not if values entered are incorrect
-								if ($field['number_type'] == 'latitude') $var = dec2dms($my['record'][$field['field_name']], '');
-								elseif ($field['number_type'] == 'longitude') $var = dec2dms('', $my['record'][$field['field_name']]);
-							} else
-								$var = $my['record'][$field['field_name']];
-						}
-						//	DMS, DM
-						$input_systems = array('dms' => "&deg; ' ''&nbsp; ", 'dm' => "&deg; '&nbsp; ");
-						if (!empty($my['record'][$field['field_name']]['which']))
-							$w_checked = $my['record'][$field['field_name']]['which'];
-						else $w_checked = 'dms';
-						$checked = ' checked="checked"';
-						foreach ($input_systems as $which => $which_display) {
-							if ($row_display == 'form') {
-								$myid = make_id_fieldname($field['field_name'].'_'.$which, 'radio');
-								if ($which == 'dms') $outputf.= '<span class="edit-coord-degree">'; // for hiding both degree input fields
-								$outputf.= '<label for="'.$myid.'"><input type="radio" id="'.$myid.'" name="'
-									.$field['f_field_name'].'[which]"  value="'.$which.'"'.($w_checked == $which ? $checked: '').'>'." ".$which_display."</label>";
-								if (!isset($field['wrong_fields'][$which])) $field['wrong_fields'][$which] = '';
-								$outputf.= geo_editform($field['f_field_name'].'['.substr($field['number_type'],0,3), $var, $which, $field['wrong_fields'][$which]);
-								$outputf.= ' <br> ';
-							} elseif ($var) {
-								$outputf.= $var[$field['number_type'].'_'.$which];
-								$outputf.= ' || ';
-							} else
-								if ($which == 'dms') $outputf.= zz_text('N/A'); // display it only once!
-						}
-						//	DD
-						if ($row_display == 'form') {
-							$myid = make_id_fieldname($field['field_name'].'_dec', 'radio');
-							$outputf.= '<label for="'.$myid.'"><input type="radio" id="'.$myid.'" name="'.$field['f_field_name'].'[which]" value="dec" '.($w_checked == 'dec' ? $checked: '').'> '.zz_text('dec').'&nbsp; </label></span>';
-							$outputf.= '<input type="text" name="'.$field['f_field_name'].'[dec]" id="'.make_id_fieldname($field['f_field_name']).'_dec" size="12" ';
-						} 
-						if ($my['record']) {
-							if ($row_display == 'form') $outputf.= 'value="';
-							if(!is_array($my['record'][$field['field_name']])) 
-								$outputf.= $my['record'][$field['field_name']];
-							else // this would happen if record is not validated
-								$outputf.= $my['record'][$field['field_name']]['dec'];
-							if ($row_display == 'form') $outputf.= '"';
-						}
-						if ($row_display == 'form') $outputf.= '>';
-					
-					
-					} else {
-						if ($row_display == 'form') {
-							$outputf.= '<input type="text" ';
-							$outputf.=  'name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'" size="'.$field['size'].'" ';
-						}
-						if ($my['record']) {
-							if ($row_display == 'form') $outputf.= 'value="';
-							$outputf.= htmlchars($my['record'][$field['field_name']]);
-							if ($row_display == 'form') $outputf.= '"';
-						}
-						if ($row_display == 'form') $outputf.= '>';
+						if (!is_array($my['record'][$field['field_name']])) {
+						// only if values come directly from db, not if values entered are incorrect
+							if ($field['number_type'] == 'latitude') $var = dec2dms($my['record'][$field['field_name']], '');
+							elseif ($field['number_type'] == 'longitude') $var = dec2dms('', $my['record'][$field['field_name']]);
+						} else
+							$var = $my['record'][$field['field_name']];
 					}
-					break;
-				case 'date':
-					if ($row_display == 'form') $outputf.= '<input type="text" name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'" size="12" ';
-					if ($my['record']) {
-						if ($row_display == 'form') $outputf.= 'value="';
-						$outputf.= datum_de($my['record'][$field['field_name']]);
-						if ($row_display == 'form') $outputf.= '"';
+					//	DMS, DM
+					$input_systems = array('dms' => "&deg; ' ''&nbsp; ", 'dm' => "&deg; '&nbsp; ");
+					if (!empty($my['record'][$field['field_name']]['which']))
+						$w_checked = $my['record'][$field['field_name']]['which'];
+					else $w_checked = 'dms';
+					$checked = ' checked="checked"';
+					foreach ($input_systems as $which => $which_display) {
+						if ($row_display == 'form') {
+							$myid = make_id_fieldname($field['field_name'].'_'.$which, 'radio');
+							if ($which == 'dms') $outputf.= '<span class="edit-coord-degree">'; // for hiding both degree input fields
+							$outputf.= '<label for="'.$myid.'"><input type="radio" id="'.$myid.'" name="'
+								.$field['f_field_name'].'[which]"  value="'.$which.'"'.($w_checked == $which ? $checked: '').'>'." ".$which_display."</label>";
+							if (!isset($field['wrong_fields'][$which])) $field['wrong_fields'][$which] = '';
+							$outputf.= geo_editform($field['f_field_name'].'['.substr($field['number_type'],0,3), $var, $which, $field['wrong_fields'][$which]);
+							$outputf.= ' <br> ';
+						} elseif ($var) {
+							$outputf.= $var[$field['number_type'].'_'.$which];
+							$outputf.= ' || ';
+						} else
+							if ($which == 'dms') $outputf.= zz_text('N/A'); // display it only once!
+					}
+					//	DD
+					if ($row_display == 'form') {
+						$myid = make_id_fieldname($field['field_name'].'_dec', 'radio');
+						$outputf.= '<label for="'.$myid.'"><input type="radio" id="'.$myid.'" name="'.$field['f_field_name'].'[which]" value="dec" '.($w_checked == 'dec' ? $checked: '').'> '.zz_text('dec').'&nbsp; </label></span>';
+						$outputf.= '<input type="text" name="'.$field['f_field_name'].'[dec]" id="'.make_id_fieldname($field['f_field_name']).'_dec" size="12" ';
 					} 
-					if ($row_display == 'form') $outputf.= '>';
-					break;
-				case 'memo':
-					$field['cols'] = (!empty($field['cols']) ? $field['cols'] : 60);
-					$field['rows'] = (!empty($field['rows']) ? $field['rows'] : 8);
 					if ($my['record']) {
-						$memotext = $my['record'][$field['field_name']];
-						$calculated_rows = 2; // always add two extra lines
-						$factor = 1.01; // factor for long text to get extra lines because of long words at line breaks
-						$parts = explode("\n", $memotext);
-						foreach ($parts as $part) {
-							if (strlen($part) < $field['cols']+2) $calculated_rows++;
-							else $calculated_rows += ceil(strlen($part)/$field['cols']*$factor); 
-						}
-						if ($calculated_rows >= $field['rows']) $field['rows'] = $calculated_rows;
-						if (!empty($field['rows_max']) AND ($field['rows'] > $field['rows_max']))
-							$field['rows'] = $field['rows_max'];
-						$memotext = htmlspecialchars($memotext);
+						if ($row_display == 'form') $outputf.= 'value="';
+						if(!is_array($my['record'][$field['field_name']])) 
+							$outputf.= $my['record'][$field['field_name']];
+						else // this would happen if record is not validated
+							$outputf.= $my['record'][$field['field_name']]['dec'];
+						if ($row_display == 'form') $outputf.= '"';
 					}
-					if ($row_display == 'form') $outputf.= '<textarea rows="'
-						.$field['rows'].'" cols="'.$field['cols'].'" name="'
-						.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'"';
 					if ($row_display == 'form') $outputf.= '>';
-					if ($my['record']) {
-						if ($row_display != 'form' && isset($field['format'])) $memotext = $field['format']($memotext);
-						$outputf.= $memotext;
+				
+				} else {
+					$my_value = ($my['record'] ? htmlchars($my['record'][$field['field_name']]) : '');
+					if ($row_display == 'form') {
+						$my_element = '<input type="text" name="%s" id="%s" size="%s" value="%s">';
+						$outputf .= sprintf($my_element, $field['f_field_name'], make_id_fieldname($field['f_field_name']), $field['size'], $my_value);
+					} else {
+						$outputf .= $my_value;
 					}
-					if ($row_display == 'form') $outputf.= '</textarea>';
-					break;
-				//case 'enum':
-				//	$outputf.= mysql_field_flags($field['field_name']);
-				//	break;
-				case 'select':
-					if (!empty($field['sql_without_id'])) $field['sql'] .= $my['id']['value'];
-					if (!empty($field['sql'])) {
-						if (!empty($field['sql_where']) && !empty($zz_var['where'][$table_name])) { // add WHERE to sql clause if necessary
-							$my_where = '';
-							$add_details_where = ''; // for add_details
-							foreach ($field['sql_where'] as $sql_where) {
-								// might be several where-clauses
-								if (isset($sql_where[2])) {
-									foreach (array_keys($zz_var['where'][$table_name]) as $value_key)
-										if ($value_key == $sql_where[1]) $sql_where[2].= $zz_var['where'][$table_name][$value_key];
-									$result_detail = mysql_query($sql_where[2]);
-									if ($result_detail) {
-										//if (mysql_num_rows($result_detail) == 1)
-										// might be that there are more results, so that should not be a problem
-											$index = mysql_result($result_detail,0,0);
-										//else $outputf.= $sql_where[2];
-									} else {
-										if ($zz_conf['debug_allsql']) echo "<div>damned... there was an error in this query:<br /><pre>".$sql_where[2]."</pre></div>";
-										$outputf.= zz_error($zz_error[] = array('mysql' => mysql_error(), 'query' => $sql_where[2], 
-											'msg' => zz_text('error-sql-incorrect')));
-									}
+				}
+				break;
+			case 'date':
+				$my_value = ($my['record'] ? datum_de($my['record'][$field['field_name']]) : '');
+				if ($row_display == 'form') {
+					$my_element = '<input type="text" name="%s" id="%s" size="12" value="%s">';
+					$outputf .= sprintf($my_element, $field['f_field_name'], make_id_fieldname($field['f_field_name']), $my_value);
+				} else {
+					$outputf .= $my_value;
+				}
+				break;
+			case 'memo':
+				$field['cols'] = (!empty($field['cols']) ? $field['cols'] : 60);
+				$field['rows'] = (!empty($field['rows']) ? $field['rows'] : 8);
+				if ($my['record']) {
+					$memotext = $my['record'][$field['field_name']];
+					$calculated_rows = 2; // always add two extra lines
+					$factor = 1.01; // factor for long text to get extra lines because of long words at line breaks
+					$parts = explode("\n", $memotext);
+					foreach ($parts as $part) {
+						if (strlen($part) < $field['cols']+2) $calculated_rows++;
+						else $calculated_rows += ceil(strlen($part)/$field['cols']*$factor); 
+					}
+					if ($calculated_rows >= $field['rows']) $field['rows'] = $calculated_rows;
+					if (!empty($field['rows_max']) AND ($field['rows'] > $field['rows_max']))
+						$field['rows'] = $field['rows_max'];
+					$memotext = htmlspecialchars($memotext);
+				}
+				if ($row_display == 'form') $outputf.= '<textarea rows="'
+					.$field['rows'].'" cols="'.$field['cols'].'" name="'
+					.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">';
+				if ($my['record']) {
+					if ($row_display != 'form' && isset($field['format'])) $memotext = $field['format']($memotext);
+					$outputf.= $memotext;
+				}
+				if ($row_display == 'form') $outputf.= '</textarea>';
+				break;
+			//case 'enum':
+			//	$outputf.= mysql_field_flags($field['field_name']);
+			//	break;
+			case 'select':
+				if (!empty($field['sql_without_id'])) $field['sql'] .= $my['id']['value'];
+				if (!empty($field['sql'])) {
+					if (!empty($field['sql_where']) && !empty($zz_var['where'][$table_name])) { // add WHERE to sql clause if necessary
+						$my_where = array();
+						$add_details_where = ''; // for add_details
+						foreach ($field['sql_where'] as $sql_where) {
+							// might be several where-clauses
+							if (isset($sql_where[2])) {
+								foreach (array_keys($zz_var['where'][$table_name]) as $value_key)
+									if ($value_key == $sql_where[1]) $sql_where[2].= $zz_var['where'][$table_name][$value_key];
+								$result_detail = mysql_query($sql_where[2]);
+								if ($result_detail) {
+									//if (mysql_num_rows($result_detail) == 1)
+									// might be that there are more results, so that should not be a problem
+										$index = mysql_result($result_detail, 0, 0);
+									//else $outputf.= $sql_where[2];
+								} else {
+									$outputf.= zz_error($zz_error[] = array(
+										'mysql' => mysql_error(), 
+										'query' => $sql_where[2], 
+										'msg_dev' => zz_text('error-sql-incorrect')));
 								}
 								$my_where[] = $sql_where[0]." = '".$index."'";
 								$add_details_where .= '&amp;where['.$sql_where[0].']='.$index;
-							}
-							$field['sql'] = zz_edit_sql($field['sql'], 'WHERE', implode(' AND ', $my_where));
-						}
-						$result_detail = mysql_query($field['sql']);
-						if (!$result_detail) {
-							if ($zz_conf['debug_allsql']) echo "<div>Errors are bad... :<br /><pre>".$field['sql']."</pre></div>";
-							$outputf.= zz_error($zz_error[] = array('mysql' => mysql_error(), 'query' => $field['sql'], 'msg' => zz_text('error-sql-incorrect')));
-						} elseif ($row_display == 'form' && mysql_num_rows($result_detail) == 1 && !checkfornull($field['field_name'], $my_tab[$i]['table'])) {
-							// there is only one result in the array, and this will be pre-selected because FIELD must not be NULL
-							$line = mysql_fetch_assoc($result_detail);
-							// get ID field_name which must be 1st field in SQL query
-							$id_field_name = mysql_field_name($result_detail, 0);
-							if ($my['record'] && $line[$id_field_name] != $my['record'][$field['field_name']]) 
-								$outputf .= 'Possible Values: '.$line[$id_field_name].' -- Current Value: '
-									.htmlspecialchars($my['record'][$field['field_name']]).' -- Error --<br>'.zz_text('no_selection_possible');
-							else {
-								$outputf.= '<input type="hidden" value="'.$line[$id_field_name].'" name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">';
-								$outputf.= draw_select($line, $id_field_name, $my['record'], $field, false, 0, false, false, $zz_conf_thisrec);
-							}
-						} elseif (mysql_num_rows($result_detail)) {
-							$id_field_name = mysql_field_name($result_detail, 0);
-							$details = array();
-							while ($line = mysql_fetch_assoc($result_detail)) {
-								$details[$line[$id_field_name]] = $line;
-							}
-							if ($row_display == 'form') {
-								$my_select = false;
-								$my_h_field = false;
-								$show_hierarchy_subtree = 'NULL';
-								$count_rows = mysql_num_rows($result_detail);
-								// get ID field_name which must be 1st field in SQL query
-								if (!empty($field['show_hierarchy'])) {
-									foreach ($details as $line) {
-										// fill in values, index NULL is for uppermost level
-										$my_select[(!empty($line[$field['show_hierarchy']]) ? $line[$field['show_hierarchy']] : 'NULL')][] = $line;
-									}
-									if (!empty($field['show_hierarchy_subtree'])) {
-										$show_hierarchy_subtree = $field['show_hierarchy_subtree'];
-										// count fields in subhierarchy, should be less than existing $count_rows
-										$count_rows = zz_count_records($my_select, $show_hierarchy_subtree, $id_field_name);
-									}
-								}
-								if ($count_rows > $zz_conf_thisrec['max_select']) {
-									$textinput = true;
-									if ($my['record']) {
-										if (!empty($details[$my['record'][$field['field_name']]])) {
-											$line = $details[$my['record'][$field['field_name']]];
-											$outputf.= draw_select($line, $id_field_name, $my['record'], $field, false, 0, false, 'reselect', $zz_conf_thisrec);
-											$textinput = false;
-										}
-									}
-									// value will not be checked if one detail record is added because in this case validation procedure will be skipped!
-									if (!empty($my['record'][$field['field_name']])) $value = htmlspecialchars($my['record'][$field['field_name']]); 
-									else $value = '';
-									if ($textinput) // add new record
-										$outputf.= '<input type="text" size="'.(!empty($field['size_select_too_long']) ? $field['size_select_too_long'] : 32)
-											.'" value="'.$value.'" name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">';
-									$outputf.= '<input type="hidden" value="'.$field['f_field_name'].'" name="check_select[]">';
-								} else {
-									$outputf.= '<select name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">'."\n";
-									$outputf.= '<option value="'
-										.((!empty($field['show_hierarchy_subtree']) AND !empty($field['show_hierarchy_use_top_value_instead_NULL'])) 
-											? $field['show_hierarchy_subtree'] : '') // normally don't show a value, unless we only look at a part of a hierarchy
-										.'"';
-									if ($my['record']) if (!$my['record'][$field['field_name']]) $outputf.= ' selected';
-									$outputf.= '>'.zz_text('none_selected').'</option>';
-									if (empty($field['show_hierarchy'])) {
-										foreach ($details as $line)
-											$outputf.= draw_select($line, $id_field_name, $my['record'], $field, false, 0, false, 'form', $zz_conf_thisrec);
-									} elseif (!empty($field['show_hierarchy']) && $my_select[$show_hierarchy_subtree]) {
-										foreach ($my_select[$show_hierarchy_subtree] AS $my_field)
-											$outputf.= draw_select($my_field, $id_field_name, $my['record'], $field, $my_select, 0, $field['show_hierarchy'], 'form', $zz_conf_thisrec);
-									} elseif (!empty($details[$my['record'][$field['field_name']]])) { // re-edit record, something was posted, ignore hierarchy because there's only one record coming back
-										$line = $details[$my['record'][$field['field_name']]];
-										$outputf.= draw_select($line, $id_field_name, $my['record'], $field, false, 0, false, 'form', $zz_conf_thisrec);
-									} elseif (!empty($field['show_hierarchy'])) {
-										$zz_error[]['msg'] = 'Configuration error: "show_hierarchy" used but there is no highest level in the hierarchy.';
-									}
-									$outputf.= '</select>'."\n";
-									if (!empty($zz_error)) $outputf.= zz_error($zz_error);
-								}
-							} else {
-								if (!empty($details[$my['record'][$field['field_name']]])) {
-									$line = $details[$my['record'][$field['field_name']]];
-									$outputf.= draw_select($line, $id_field_name, $my['record'], $field, false, 0, false, false, $zz_conf_thisrec);
-								}
-							}
-						} else {
-							$outputf.= '<input type="hidden" value="" name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">';
-							$outputf.= zz_text('no_selection_possible');
-						}
-					} elseif (isset($field['set'])) {
-						$myvalue = '';
-						$sets = count($field['set']);
-						$myi=0;
-						foreach ($field['set'] as $set) {
-							$myi++;
-							$myid = 'check-'.$field['field_name'].'-'.$myi;
-							if ($row_display == 'form') {
-								$outputf.= ' <label for="'.$myid.'"><input type="checkbox" id="'.$myid.'" name="'.$field['f_field_name'].'[]" value="'.$set.'"';
-								if ($my['record']) {
-									if (isset($my['record'][$field['field_name']]))
-										if (!is_array($my['record'][$field['field_name']])) 
-										//	won't be array normally
-											$set_array = explode(',', $my['record'][$field['field_name']]);
-										else
-										//	just if a field did not pass validation, set fields become arrays
-											$set_array = $my['record'][$field['field_name']];
-										if (!empty($set_array) && is_array($set_array)) if (in_array($set, $set_array)) $outputf.= ' checked';
-								} 
-								$outputf.= '> '.$set.'</label>';
-								if (count($field['set']) >=4) $outputf.= '<br>';
-							} else {
-								if (in_array($set, explode(',', $my['record'][$field['field_name']]))) {
-									if ($myvalue) $myvalue .= ' | ';
-									$myvalue.= $set;
-								}
+							} elseif (isset($sql_where['where']) AND !empty($zz_var['where'][$table_name][$sql_where['field_name']])) {
+								$my_where[] = sprintf($sql_where['where'], $zz_var['where'][$table_name][$sql_where['field_name']]);
 							}
 						}
-						$outputf .= $myvalue;
-					} elseif (isset($field['enum'])) {
-						$myi = 0;
-						$sel_option = (count($field['enum']) <=2 ? true : (!empty($field['show_values_as_list']) ? true : false));
+						$field['sql'] = zz_edit_sql($field['sql'], 'WHERE', implode(' AND ', $my_where));
+					}
+					$result_detail = mysql_query($field['sql']);
+					if (!$result_detail) {
+						$outputf.= zz_error($zz_error[] = array(
+							'mysql' => mysql_error(), 
+							'query' => $field['sql'], 
+							'msg_dev' => zz_text('error-sql-incorrect'))
+						);
+					} elseif ($row_display == 'form' && mysql_num_rows($result_detail) == 1 && !checkfornull($field['field_name'], $my_tab[$i]['table'])) {
+						// there is only one result in the array, and this will be pre-selected because FIELD must not be NULL
+						$line = mysql_fetch_assoc($result_detail);
+						// get ID field_name which must be 1st field in SQL query
+						$id_field_name = mysql_field_name($result_detail, 0);
+						if ($my['record'] && $line[$id_field_name] != $my['record'][$field['field_name']]) 
+							$outputf .= 'Possible Values: '.$line[$id_field_name].' -- Current Value: '
+								.htmlspecialchars($my['record'][$field['field_name']]).' -- Error --<br>'.zz_text('no_selection_possible');
+						else {
+							$outputf.= '<input type="hidden" value="'.$line[$id_field_name].'" name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">';
+							$outputf.= draw_select($line, $id_field_name, $my['record'], $field, false, 0, false, false, $zz_conf_thisrec);
+						}
+					} elseif (mysql_num_rows($result_detail)) {
+						$id_field_name = mysql_field_name($result_detail, 0);
+						$details = array();
+						while ($line = mysql_fetch_assoc($result_detail)) {
+							$details[$line[$id_field_name]] = $line;
+						}
 						if ($row_display == 'form') {
-							if ($sel_option) {
-								if (!isset($field['hide_novalue'])) $field['hide_novalue'] = true;
-								$myid = make_id_fieldname($field['f_field_name']).'-'.$myi;
-								$outputf.= '<label for="'.$myid.'"'
-									.($field['hide_novalue'] ? ' class="hidden"' : '')
-									.'><input type="radio" id="'.$myid.'" name="'
-									.$field['f_field_name'].'" value=""';
-								if ($my['record']) { if (!$my['record'][$field['field_name']]) $outputf.= ' checked'; }
-								else $outputf.= ' checked'; // no value, no default value (both would be written in my record fieldname)
-								$outputf.= '>'.zz_text('no_selection').'</label>';
-								if (!empty($field['show_values_as_list'])) $outputf .= "\n".'<ul class="zz_radio_list">'."\n";
+							$my_select = false;
+							$my_h_field = false;
+							$show_hierarchy_subtree = 'NULL';
+							$count_rows = mysql_num_rows($result_detail);
+							// get ID field_name which must be 1st field in SQL query
+							if (!empty($field['show_hierarchy'])) {
+								foreach ($details as $line) {
+									// fill in values, index NULL is for uppermost level
+									$my_select[(!empty($line[$field['show_hierarchy']]) ? $line[$field['show_hierarchy']] : 'NULL')][] = $line;
+								}
+								if (!empty($field['show_hierarchy_subtree'])) {
+									$show_hierarchy_subtree = $field['show_hierarchy_subtree'];
+									// count fields in subhierarchy, should be less than existing $count_rows
+									$count_rows = zz_count_records($my_select, $show_hierarchy_subtree, $id_field_name);
+								}
+							}
+							if ($count_rows > $zz_conf_thisrec['max_select']) {
+								// don't show select but text input instead
+								$textinput = true;
+								if ($my['record']) {
+									if (!empty($details[$my['record'][$field['field_name']]])) {
+										$line = $details[$my['record'][$field['field_name']]];
+										$outputf.= draw_select($line, $id_field_name, $my['record'], $field, false, 0, false, 'reselect', $zz_conf_thisrec);
+										$textinput = false;
+									}
+								}
+								// value will not be checked if one detail record is added because in this case validation procedure will be skipped!
+								if (!empty($my['record'][$field['field_name']])) $value = htmlspecialchars($my['record'][$field['field_name']]); 
+								else $value = '';
+								
+								if ($textinput) // add new record
+									$outputf.= '<input type="text" size="'.(!empty($field['size_select_too_long']) ? $field['size_select_too_long'] : 32)
+										.'" value="'.$value.'" name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">';
+								$outputf.= '<input type="hidden" value="'.$field['f_field_name'].'" name="check_select[]">';
 							} else {
 								$outputf.= '<select name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">'."\n";
-								$outputf.= '<option value=""';
-								if ($my['record']) { if (!$my['record'][$field['field_name']]) $outputf.= ' selected'; }
-								else $outputf.= ' selected'; // no value, no default value (both would be written in my record fieldname)
+								$outputf.= '<option value="'
+									.((!empty($field['show_hierarchy_subtree']) AND !empty($field['show_hierarchy_use_top_value_instead_NULL'])) 
+										? $field['show_hierarchy_subtree'] : '') // normally don't show a value, unless we only look at a part of a hierarchy
+									.'"';
+								if ($my['record']) if (!$my['record'][$field['field_name']]) $outputf.= ' selected';
 								$outputf.= '>'.zz_text('none_selected').'</option>';
-							} 
-						}
-						foreach ($field['enum'] as $key => $set) {
-							if ($row_display == 'form') {
-								if ($sel_option) {
-									$myi++;
-									$myid = make_id_fieldname($field['f_field_name']).'-'.$myi;
-									if (!empty($field['show_values_as_list'])) $outputf .= '<li>';
-									$outputf.= ' <label for="'.$myid.'"><input type="radio" id="'.$myid.'" name="'.$field['f_field_name'].'" value="'.$set.'"';
-									if ($my['record']) if ($set == $my['record'][$field['field_name']]) $outputf.= ' checked';
-									$outputf.= '> '.(!empty($field['enum_title'][$key]) ? $field['enum_title'][$key] : $set).'</label>';
-									if (!empty($field['show_values_as_list'])) $outputf .= '</li>'."\n";
-								} else {
-									$outputf.= '<option value="'.$set.'"';
-									if ($my['record']) if ($set == $my['record'][$field['field_name']]) $outputf.= ' selected';
-									$outputf.= '>';
-									$outputf.= (!empty($field['enum_title'][$key]) ? $field['enum_title'][$key] : $set);
-									$outputf.= '</option>';
+								if (empty($field['show_hierarchy'])) {
+									foreach ($details as $line)
+										$outputf.= draw_select($line, $id_field_name, $my['record'], $field, false, 0, false, 'form', $zz_conf_thisrec);
+								} elseif (!empty($field['show_hierarchy']) && !empty($my_select[$show_hierarchy_subtree])) {
+									foreach ($my_select[$show_hierarchy_subtree] AS $my_field)
+										$outputf.= draw_select($my_field, $id_field_name, $my['record'], $field, $my_select, 0, $field['show_hierarchy'], 'form', $zz_conf_thisrec);
+								} elseif (!empty($details[$my['record'][$field['field_name']]])) { // re-edit record, something was posted, ignore hierarchy because there's only one record coming back
+									$line = $details[$my['record'][$field['field_name']]];
+									$outputf.= draw_select($line, $id_field_name, $my['record'], $field, false, 0, false, 'form', $zz_conf_thisrec);
+								} elseif (!empty($field['show_hierarchy'])) {
+									$zz_error[] = array(
+										'msg' => 'No selection possible',
+										'msg_dev' => 'Configuration error: "show_hierarchy" used but there is no highest level in the hierarchy.',
+										'level' => E_USER_WARNING
+									);
 								}
-							} else {
-								if ($set == $my['record'][$field['field_name']]) $outputf.= (!empty($field['enum_title'][$key]) ? $field['enum_title'][$key] : $set);
+								$outputf.= '</select>'."\n";
+								if (!empty($zz_error)) $outputf.= zz_error();
 							}
-						}
-						if (!empty($field['show_values_as_list'])) {
-							if (empty($field['append_next']) && $row_display == 'form')
-								$outputf .= '</ul>'."\n";
-							else $append_next_type = 'list';
-						}
-						if ($row_display == 'form' && !$sel_option) $outputf.= '</select>'."\n";
-					} else {
-						$outputf.= zz_text('no_source_defined').'. '.zz_text('no_selection_possible');
-					}
-					break;
-				case 'image':
-				case 'upload_image':
-					if (($mode != 'add' OR $field['type'] != 'upload_image')
-						AND (empty($field['dont_show_image'])) || !$field['dont_show_image']) {
-						$img = false;
-						$outputf.= '<p>';
-						if (isset($field['path']))
-							$outputf .= $img = show_image($field['path'], $my['record']);
-						if (!$img) $outputf.= '('.zz_text('image_not_display').')';
-						$outputf.= '</p>';
-					}
-					if (($mode == 'add' OR $mode == 'edit') && $field['type'] == 'upload_image') {
-						if (!isset($field['image'])) {
-							$outputf.= zz_error($zz_error[] = array('msg' => 'Configuration error. Missing upload_image details.'));
 						} else {
-							$image_uploads = 0;
-							foreach ($field['image'] as $imagekey => $image)
-								if (!isset($image['source'])) $image_uploads++;
-							if ($image_uploads > 1) $outputf.= '<table class="upload">';
-							foreach ($field['image'] as $imagekey => $image) {
-								if (!isset($image['source'])) {
-									// todo: if only one image, table is unneccessary
-									// title and field_name of image might be empty
-									if ($image_uploads > 1) $outputf.= '<tr><th>'.$image['title'].'</th> <td>';
-									$outputf .= '<input type="file" name="'.$field['field_name'].'['.$image['field_name'].']">';
-									if (empty($field['dont_show_file_link']) AND $link = show_link($image['path'], (isset($my['record_saved']) ? $my['record_saved'] : $my['record'])))
-										$outputf .= '<br><a href="'.$link.'">'.$link
-											.'</a>'
-											.(($image_uploads > 1 OR !empty($field['optional_image'])) ?
-											'(<small><label for="delete-file-'.$fieldkey.'-'.$imagekey
-											.'"><input type="checkbox" name="zz_delete_file['.$fieldkey.'-'.$imagekey
-											.']" id="delete-file-'.$fieldkey.'-'.$imagekey.'"> '
-											.zz_text('Delete this file').'</label></small>)'
-											: '');
-									if (!empty($my['images'][$fieldkey][$imagekey]['error']))
-										$outputf.= '<br><small>'.implode('<br>', $my['images'][$fieldkey][$imagekey]['error']).'</small>';
-									if ($row_display == 'form' && !empty($image['explanation'])) 
-										$outputf.= '<p class="explanation">'.$image['explanation'].'</p>';
-									if ($image_uploads > 1) $outputf.= '</td></tr>'."\n";
-								}
+							if (!empty($details[$my['record'][$field['field_name']]])) {
+								$line = $details[$my['record'][$field['field_name']]];
+								$outputf.= draw_select($line, $id_field_name, $my['record'], $field, false, 0, false, false, $zz_conf_thisrec);
 							}
-							if ($image_uploads > 1) $outputf.= '</table>'."\n";
 						}
-					} else if (isset($field['image'])) {
+					} else {
+						$outputf.= '<input type="hidden" value="" name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">';
+						$outputf.= zz_text('no_selection_possible');
+					}
+				} elseif (isset($field['set'])) {
+					$myvalue = '';
+					$sets = count($field['set']);
+					$myi=0;
+					foreach ($field['set'] as $set) {
+						$myi++;
+						$myid = 'check-'.$field['field_name'].'-'.$myi;
+						if ($row_display == 'form') {
+							$outputf.= ' <label for="'.$myid.'"><input type="checkbox" id="'.$myid.'" name="'.$field['f_field_name'].'[]" value="'.$set.'"';
+							if ($my['record']) {
+								if (isset($my['record'][$field['field_name']]))
+									if (!is_array($my['record'][$field['field_name']])) 
+									//	won't be array normally
+										$set_array = explode(',', $my['record'][$field['field_name']]);
+									else
+									//	just if a field did not pass validation, set fields become arrays
+										$set_array = $my['record'][$field['field_name']];
+									if (!empty($set_array) && is_array($set_array)) if (in_array($set, $set_array)) $outputf.= ' checked';
+							} 
+							$outputf.= '> '.$set.'</label>';
+							if (count($field['set']) >=4) $outputf.= '<br>';
+						} else {
+							if (in_array($set, explode(',', $my['record'][$field['field_name']]))) {
+								if ($myvalue) $myvalue .= ' | ';
+								$myvalue.= $set;
+							}
+						}
+					}
+					$outputf .= $myvalue;
+				} elseif (isset($field['enum'])) {
+					$myi = 0;
+					$sel_option = (count($field['enum']) <=2 ? true : (!empty($field['show_values_as_list']) ? true : false));
+					if ($row_display == 'form') {
+						if ($sel_option) {
+							if (!isset($field['hide_novalue'])) $field['hide_novalue'] = true;
+							$myid = make_id_fieldname($field['f_field_name']).'-'.$myi;
+							$outputf.= '<label for="'.$myid.'"'
+								.($field['hide_novalue'] ? ' class="hidden"' : '')
+								.'><input type="radio" id="'.$myid.'" name="'
+								.$field['f_field_name'].'" value=""';
+							if ($my['record']) { if (!$my['record'][$field['field_name']]) $outputf.= ' checked'; }
+							else $outputf.= ' checked'; // no value, no default value (both would be written in my record fieldname)
+							$outputf.= '>'.zz_text('no_selection').'</label>';
+							if (!empty($field['show_values_as_list'])) $outputf .= "\n".'<ul class="zz_radio_list">'."\n";
+						} else {
+							$outputf.= '<select name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">'."\n";
+							$outputf.= '<option value=""';
+							if ($my['record']) { if (!$my['record'][$field['field_name']]) $outputf.= ' selected'; }
+							else $outputf.= ' selected'; // no value, no default value (both would be written in my record fieldname)
+							$outputf.= '>'.zz_text('none_selected').'</option>';
+						} 
+					}
+					foreach ($field['enum'] as $key => $set) {
+						if ($row_display == 'form') {
+							if ($sel_option) {
+								$myi++;
+								$myid = make_id_fieldname($field['f_field_name']).'-'.$myi;
+								if (!empty($field['show_values_as_list'])) $outputf .= '<li>';
+								$outputf.= ' <label for="'.$myid.'"><input type="radio" id="'.$myid.'" name="'.$field['f_field_name'].'" value="'.$set.'"';
+								if ($my['record']) if ($set == $my['record'][$field['field_name']]) $outputf.= ' checked';
+								$outputf.= '> '.(!empty($field['enum_title'][$key]) ? $field['enum_title'][$key] : zz_text($set)).'</label>';
+								if (!empty($field['show_values_as_list'])) $outputf .= '</li>'."\n";
+							} else {
+								$outputf.= '<option value="'.$set.'"';
+								if ($my['record']) if ($set == $my['record'][$field['field_name']]) $outputf.= ' selected';
+								$outputf.= '>';
+								$outputf.= (!empty($field['enum_title'][$key]) ? $field['enum_title'][$key] : zz_text($set));
+								$outputf.= '</option>';
+							}
+						} else {
+							if ($set == $my['record'][$field['field_name']]) $outputf.= (!empty($field['enum_title'][$key]) ? $field['enum_title'][$key] : zz_text($set));
+						}
+					}
+					if (!empty($field['show_values_as_list'])) {
+						if (empty($field['append_next']) && $row_display == 'form')
+							$outputf .= '</ul>'."\n";
+						else $append_next_type = 'list';
+					}
+					if ($row_display == 'form' && !$sel_option) $outputf.= '</select>'."\n";
+				} else {
+					$outputf.= zz_text('no_source_defined').'. '.zz_text('no_selection_possible');
+				}
+				break;
+			case 'image':
+			case 'upload_image':
+				if (($mode != 'add' OR $field['type'] != 'upload_image')
+					AND (empty($field['dont_show_image'])) || !$field['dont_show_image']) {
+					$img = false;
+					$outputf.= '<p>';
+					if (isset($field['path']))
+						$outputf .= $img = show_image($field['path'], $my['record']);
+					if (!$img) $outputf.= '('.zz_text('image_not_display').')';
+					$outputf.= '</p>';
+				}
+				if (($mode == 'add' OR $mode == 'edit') && $field['type'] == 'upload_image') {
+					if (!isset($field['image'])) {
+						$outputf.= zz_error($zz_error[] = array(
+							'msg' => 'Image upload is currently not possible. '.zz_text('An error occured. We are working on the solution of this problem. Sorry for your inconvenience. Please try again later.'),
+							'msg_dev' => 'Configuration error. Missing upload_image details.',
+							'level' => E_USER_WARNING
+						));
+					} else {
 						$image_uploads = 0;
 						foreach ($field['image'] as $imagekey => $image)
 							if (!isset($image['source'])) $image_uploads++;
-						if ($image_uploads > 1) {
-							$outputf.= '<table class="upload">';
-							foreach ($field['image'] as $imagekey => $image)
-								if (!isset($image['source']))
-									if ($link = show_link($image['path'], $my['record'])) {
-										$outputf.= '<tr><th>'.$image['title'].'</th> <td>';
-										$outputf .= '<a href="'.$link.'">'.$link.'</a>';
-										$outputf.= '</td></tr>'."\n";
-									}
-							$outputf.= '</table>'."\n";
+						if ($image_uploads > 1) $outputf.= '<table class="upload">';
+						foreach ($field['image'] as $imagekey => $image) {
+							if (!isset($image['source'])) {
+								// todo: if only one image, table is unneccessary
+								// title and field_name of image might be empty
+								if ($image_uploads > 1) $outputf.= '<tr><th>'.$image['title'].'</th> <td>';
+								$outputf .= '<input type="file" name="'.make_id_fieldname($field['f_field_name']).'['.$image['field_name'].']">';
+								if (empty($field['dont_show_file_link']) AND $link = show_link($image['path'], (isset($my['record_saved']) ? $my['record_saved'] : $my['record'])))
+									$outputf .= '<br><a href="'.$link.'">'.$link
+										.'</a>'
+										.(($image_uploads > 1 OR !empty($field['optional_image'])) ?
+										'(<small><label for="delete-file-'.$fieldkey.'-'.$imagekey
+										.'"><input type="checkbox" name="zz_delete_file['.$fieldkey.'-'.$imagekey
+										.']" id="delete-file-'.$fieldkey.'-'.$imagekey.'"> '
+										.zz_text('Delete this file').'</label></small>)'
+										: '');
+								if (!empty($my['images'][$fieldkey][$imagekey]['error']))
+									$outputf.= '<br><small>'.implode('<br>', $my['images'][$fieldkey][$imagekey]['error']).'</small>';
+								else
+									$outputf.= '<br><small>'.zz_text('Maximum allowed filesize is').' '.floor($zz_conf['upload_MAX_FILE_SIZE']/1024/1024).'MiB</small>';
+								if ($row_display == 'form' && !empty($image['explanation'])) 
+									$outputf.= '<p class="explanation">'.$image['explanation'].'</p>';
+								if ($image_uploads > 1) $outputf.= '</td></tr>'."\n";
+							}
 						}
+						if ($image_uploads > 1) $outputf.= '</table>'."\n";
 					}
-					break;
-				case 'write_once':
-				case 'display':
-					if (isset($field['display_value']))
-						$outputf .= $field['display_value']; // internationalization has to be done in zz-fields-definition
-					elseif ($my['record']) {
-						if (isset($field['display_field'])) {
-							if (!empty($my['record'][$field['display_field']]))
-								$outputf .= $my['record'][$field['display_field']];
-							elseif (!empty($my['record_saved'][$field['display_field']])) // empty for new record
-								$outputf .= $my['record_saved'][$field['display_field']]; // requery
-						} elseif (isset($field['field_name'])) {
-							$tempval_to_insert = false;
-							if (!empty($my['record'][$field['field_name']]))
-								$tempval_to_insert = $my['record'][$field['field_name']];
-							elseif (!empty($my['record_saved'][$field['field_name']])) // empty if new record!
-								$tempval_to_insert = $my['record_saved'][$field['field_name']];
-							if (!empty($field['display_title']) && in_array($tempval_to_insert, array_keys($field['display_title'])))
-								$tempval_to_insert = $field['display_title'][$tempval_to_insert];
-							$outputf .= htmlspecialchars($tempval_to_insert);
-						} else
-							$outputf .= '<span class="error">'.zz_text('Script configuration error. No display field set.').'</span>'; // debug!
-					} else $outputf .= zz_text('N/A');
-					break;
-				case 'calculated':
-					if (!$mode OR $mode == 'show') {
-						// identischer Code mit weiter unten, nur statt $line $my['record']!!
-						if ($field['calculation'] == 'hours') {
-							$diff = 0;
-							foreach ($field['calculation_fields'] as $calc_field)
-								if (!$diff) $diff = strtotime($my['record'][$calc_field]);
-								else $diff -= strtotime($my['record'][$calc_field]);
-							if ($diff < 0) $outputf .= '<em class="negative">';
-							$outputf.= gmdate('H:i', $diff);
-							if ($diff < 0) $outputf .= '</em>';
-						} elseif ($field['calculation'] == 'sum') {
-							$sum = 0;
-							foreach ($field['calculation_fields'] as $calc_field)
-								$sum += $my['record'][$calc_field];
-							$outputf.= $sum;
-						}
-					} else $outputf.= '('.zz_text('calculated_field').')';
-					break;
+				} else if (isset($field['image'])) {
+					$image_uploads = 0;
+					foreach ($field['image'] as $imagekey => $image)
+						if (!isset($image['source'])) $image_uploads++;
+					if ($image_uploads > 1) {
+						$outputf.= '<table class="upload">';
+						foreach ($field['image'] as $imagekey => $image)
+							if (!isset($image['source']))
+								if ($link = show_link($image['path'], $my['record'])) {
+									$outputf.= '<tr><th>'.$image['title'].'</th> <td>';
+									$outputf .= '<a href="'.$link.'">'.$link.'</a>';
+									$outputf.= '</td></tr>'."\n";
+								}
+						$outputf.= '</table>'."\n";
+					}
+				}
+				break;
+			case 'write_once':
+			case 'display':
+				if (isset($field['display_value']))
+					$outputf .= $field['display_value']; // internationalization has to be done in zz-fields-definition
+				elseif ($my['record']) {
+					if (isset($field['display_field'])) {
+						if (!empty($my['record'][$field['display_field']]))
+							$outputf .= $my['record'][$field['display_field']];
+						elseif (!empty($my['record_saved'][$field['display_field']])) // empty for new record
+							$outputf .= $my['record_saved'][$field['display_field']]; // requery
+					} elseif (isset($field['field_name'])) {
+						$tempval_to_insert = false;
+						if (!empty($my['record'][$field['field_name']]))
+							$tempval_to_insert = $my['record'][$field['field_name']];
+						elseif (!empty($my['record_saved'][$field['field_name']])) // empty if new record!
+							$tempval_to_insert = $my['record_saved'][$field['field_name']];
+						if (!empty($field['display_title']) && in_array($tempval_to_insert, array_keys($field['display_title'])))
+							$tempval_to_insert = $field['display_title'][$tempval_to_insert];
+						$outputf .= htmlspecialchars($tempval_to_insert);
+					} else
+						$outputf .= '<span class="error">'.zz_text('Script configuration error. No display field set.').'</span>'; // debug!
+				} else $outputf .= zz_text('N/A');
+				break;
+			case 'calculated':
+				if (!$mode OR $mode == 'show') {
+					// identischer Code mit weiter unten, nur statt $line $my['record']!!
+					if ($field['calculation'] == 'hours') {
+						$diff = 0;
+						foreach ($field['calculation_fields'] as $calc_field)
+							if (!$diff) $diff = strtotime($my['record'][$calc_field]);
+							else $diff -= strtotime($my['record'][$calc_field]);
+						if ($diff < 0) $outputf .= '<em class="negative">';
+						$outputf.= gmdate('H:i', $diff);
+						if ($diff < 0) $outputf .= '</em>';
+					} elseif ($field['calculation'] == 'sum') {
+						$sum = 0;
+						foreach ($field['calculation_fields'] as $calc_field)
+							$sum += $my['record'][$calc_field];
+						$outputf.= $sum;
+					}
+				} else $outputf.= '('.zz_text('calculated_field').')';
+				break;
 			}
 			if (!empty($field['unit'])) {
 				//if ($my['record']) { 
@@ -1079,7 +1092,8 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 			}
 		}
 	} elseif ($formdisplay == 'horizontal') {
-		if (!$table_count) { // just first detail record: show head
+		if (!$zz_var['class_add'] AND !$zz_var['horizontal_table_head']) { 
+			// just first detail record with values: show head
 			$output .= '<tr>'."\n";
 			foreach ($matrix as $row) { 
 				$output .= '<th'.zz_show_class(array_merge($row['th']['attr'], $row['tr']['attr']))
@@ -1087,8 +1101,9 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, $zz_var,
 			}
 			if ($extra_lastcol) $output .= '<th>&nbsp;</th>';
 			$output .= '</tr>'."\n";
+			$zz_var['horizontal_table_head'] = true;
 		}
-		$output .= '<tr>';
+		$output .= '<tr'.($zz_var['class_add'] ? ' class="'.$zz_var['class_add'].'"' : '').'>';
 		foreach ($matrix as $row) {
 			$output .= '<td'.zz_show_class(array_merge($row['td']['attr'], $row['tr']['attr']))
 				.'>'.$row['td']['content'].'</td>'."\n";

@@ -129,5 +129,15 @@ $text['Add %s'] = 'Add %s';
 $text['Remove %s'] = 'Remove %s';
 $text['Delete this file'] = 'Delete this file';
 $text['Show all records'] = 'Show all records (without search filter)';
-
+$text['Warning!'] = 'Attention!';
+$text['Critical Error!'] = 'Error!';
+$text['File could not be saved. There is a problem with the user rights. We are working on it.'] = 'File could not be saved. There is a problem with the user rights. We are working on it.';
+$text['We are working on the solution of this problem. Sorry for your inconvenience.'] = 'We are working on the solution of this problem. Sorry for your inconvenience.';
+$text['File could not be imported.'] = 'File could not be imported.';
+$text['Folder could not be imported.'] = 'Folder could not be imported.';
+$text['Import was successful.'] = 'Import was successful.';
+$text['Folder OK'] = 'Folder OK';
+$text['Folder "%s" does not exist.'] = 'Folder "%s" does not exist.';
+$text['Warning! Insufficient access rights. Please make sure, that the source directory is writeable.'] = 'Warning! Insufficient access rights. Please make sure, that the source directory is writeable.';
+$text['%s files left for import. Please wait, the script will reload itself.'] = '%s files left for import. Please wait, the script will reload itself.';
 ?>
