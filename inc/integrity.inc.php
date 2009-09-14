@@ -18,7 +18,6 @@ is not 100% correct, but these occasions should be very rare anyways
 
 function check_integrity($master_db, $master_table, $master_field, $master_value, 
 	$relation_table, $detailrecords) {
-	global $text;
 	// return false - deletion is possible
 	// return true 	- do not delete
 	if (strstr($master_table, '.')) { // don't know if this is important, but if 
@@ -57,6 +56,7 @@ function check_integrity($master_db, $master_table, $master_field, $master_value
 function check_if_detail($relations, $master_db, $master_table, $master_field, 
 	$master_value, $detailrecords) {
 	global $zz_conf;
+	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
 	global $zz_error;
 	if (isset($relations[$master_db][$master_table])) {
 	//	this table is master in at least one relation
@@ -67,12 +67,12 @@ function check_if_detail($relations, $master_db, $master_table, $master_field,
 			$sql = 'SELECT COUNT('.$field['detail_field'].') AS Rows';
 			$sql.= ' FROM '.$field['detail_db'].'.'.$field['detail_table'];
 			$sql.= ' WHERE '.$field['detail_field'].' = '.$master_value;
-			if ($zz_conf['debug']) echo $sql.'<br>';
+			if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "sql", $sql);
 			$result = mysql_query($sql);
 			if ($result) if (mysql_num_rows($result))
 				if ($all_detailrecords = mysql_result($result, 0, 0)) { 
 					// there is a detail record
-					if ($zz_conf['debug']) echo $all_detailrecords.'<br>';
+					if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "there is detailrecord");
 					$my_detailrecords = 0;
 					$detail = $field['detail_db'].'.'.$field['detail_table'];
 					if (!empty($detailrecords[$detail])) {
@@ -100,9 +100,9 @@ function check_if_detail($relations, $master_db, $master_table, $master_field,
 								);
 								return zz_error();
 							}
-							if ($zz_conf['debug']) echo $sql.'<br>';
+							if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "sql", $sql);
 						}
-						if ($zz_conf['debug']) echo $my_detailrecords.'<br><br>';
+						if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "my_detailrecords: ".$my_detailrecords, $sql);
 					}
 					if ($all_detailrecords == $my_detailrecords) {
 					//	detail records match total number of records in table
@@ -117,7 +117,7 @@ function check_if_detail($relations, $master_db, $master_table, $master_field,
 						}
 						// if everything is ok, do nothing, so detail_records_in will still be false
 					} else { //	there is a detail record
-						if ($zz_conf['debug']) echo 'All records '.$all_detailrecords.', in this record:'.$my_detailrecords.'<br><br>';
+						if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, 'All records '.$all_detailrecords.', in this record:'.$my_detailrecords, $sql);
 						$detail_records_in[] = ucfirst($field['detail_table']);
 					}
 				}

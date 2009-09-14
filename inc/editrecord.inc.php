@@ -14,12 +14,25 @@
 			- do sql query (queries, in case there are subtables)
 			- perform additional actions after doing sql query
 	
+	custom functions called: 
+		- zz_upload_get()
+		- zz_upload_prepare()
+		- zz_set_subrecord_action()
+		- zz_validate()
+		- check_integrity()
+		- zz_foldercheck()
+		- zz_upload_cleanup()
+		
+	common functions
+		- zz_log_sql()
+		- zz_text()
+	
 	(c) Gustaf Mossakowski <gustaf@koenige.org> 2004-2007
 
 */
 
 function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subqueries) {
-	global $text;
+	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
 	global $zz_error;
 	$operation_success = false;
 	
@@ -89,7 +102,7 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 				$validation = false;
 
 	if ($validation) {
-		if ($zz_conf['debug']) echo '<br>Validation of record was successful';
+		if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "validation successful");
 		
 		// if any other action before insertion/update/delete is required
 		if (isset($zz_conf['action']['before_'.$zz['action']])) 
@@ -186,7 +199,7 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 				}
 		}
 
-		if ($zz_conf['debug']) {
+		if ($zz_conf['modules']['debug'] AND $zz_conf['debug']) {
 			$zz['output'].= '<br>';
 			$zz['output'].= 'Main ID value: '.$zz_tab[0][0]['id']['value'].'<br>';
 			$zz['output'].= 'Main SQL query: '.$sql_edit.'<br>';
@@ -224,6 +237,11 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 						$detail_sql = str_replace('[FOREIGN_KEY]', '"'.$zz_tab[0][0]['id']['value'].'"', $detail_sql);
 						if (!empty($zz_tab[$i]['detail_key'])) {
 							// TODO: allow further detail keys
+							// if not all files where uploaded, go up one detail record until
+							// we got an uploaded file
+							while (empty($zz_tab[$zz_tab[$i]['detail_key'][0]['i']][$zz_tab[$i]['detail_key'][0]['k']]['id']['value'])) {
+								$zz_tab[$i]['detail_key'][0]['k']--;
+							}
 							$detail_sql = str_replace('[DETAIL_KEY]', '"'.$zz_tab[$zz_tab[$i]['detail_key'][0]['i']][$zz_tab[$i]['detail_key'][0]['k']]['id']['value'].'"', $detail_sql);
 						}
 						$detail_result = mysql_query($detail_sql);
@@ -278,6 +296,7 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 		}
 	}
 	if (!empty($upload_form)) zz_upload_cleanup($zz_tab); // delete temporary unused files
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
 	return $operation_success;
 }
 
@@ -336,10 +355,14 @@ function zz_set_subrecord_action(&$zz_tab, $i, $k, &$zz) {
 			else
 				$subtable['action'] = 'update';
 	}
+
 	if (!empty($zz_tab[$i]['records_depend_on_upload']) AND !empty($subtable['no_file_upload'])) {
 		$values = false;
 	} elseif (!empty($zz_tab[$i]['records_depend_on_upload']) AND $subtable['action'] == 'insert'
 		AND empty($subtable['file_upload'])) {
+		$values = false;
+	} elseif (!empty($zz_tab[$i]['records_depend_on_upload_more_than_one']) AND $subtable['action'] == 'insert'
+		AND empty($subtable['file_upload']) AND $k) {
 		$values = false;
 	}
 	// todo: seems to be twice the same operation since $i and $k are !0

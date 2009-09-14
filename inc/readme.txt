@@ -226,8 +226,7 @@ $zz
 			foreign_key		field is foreign_key (only possible for subtables)
 			detail_value	copies value from other field
 			detail_key		inserts in field id_field from different detail_record
-				-> detail_key_priority_field
-				-> detail_key_priority_values
+				-> detail_key_index
 
 		internal types
 			predefined	... (only for internal use)

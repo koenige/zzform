@@ -59,7 +59,6 @@ function zz_make_headers($export, $charset) {
 
 function zz_export_links($url, $querystring) {
 	global $zz_conf;
-	global $text;
 	$links = false;
 	if (!is_array($zz_conf['export']))
 		$zz_conf['export'] = array($zz_conf['export']);

@@ -15,11 +15,12 @@
 
 */
 function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
-	global $text;
+	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
 	global $zz_error;
 	$my['POST-notvalid'] = $my['POST'];
 	$my['validation'] = true;
 	$last_fields = false;
+
 	foreach (array_keys($my['fields']) as $f) {
 	//	check if there are options-fields and put values into table definition
 		if (!empty($my['fields'][$f]['read_options'])) {
@@ -40,7 +41,7 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 				$input_filetypes = (isset($my['fields'][$f]['input_filetypes']) 
 					? $my['fields'][$f]['input_filetypes'] 
 					: array());
-				if (!zz_upload_check($my['images'][$f], $my['action'], $zz_conf, $input_filetypes)) {
+				if (!zz_upload_check($my['images'][$f], $my['action'], $zz_conf, $input_filetypes, $k)) {
 					$my['validation'] = false;
 					$my['fields'][$f]['check_validation'] = false;
 				}
@@ -67,6 +68,12 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 				} else
 					$my['POST'][$my['fields'][$f]['field_name']] = "''";
 			default:
+				if (!empty($my['fields'][$f]['display_only'])) {
+					$my['fields'][$f]['in_sql_query'] = false;
+					$my['fields'][$f]['class'] = 'hidden';
+					break;
+				}
+
 				$my['fields'][$f]['in_sql_query'] = true;
 
 			//	copy value if field detail_value isset
@@ -111,8 +118,9 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 				} elseif ($my['fields'][$f]['type'] == 'number') {
 					if ($my['POST'][$my['fields'][$f]['field_name']]) { // only check if there is a value, NULL values are checked later on
 						$n_val = check_number($my['POST'][$my['fields'][$f]['field_name']]);
-						if ($n_val) $my['POST'][$my['fields'][$f]['field_name']] = $n_val;
-						else {
+						if ($n_val !== NULL) {
+							$my['POST'][$my['fields'][$f]['field_name']] = $n_val;
+						} else {
 							$my['POST'][$my['fields'][$f]['field_name']] = false;
 							$my['fields'][$f]['check_validation'] = false;
 							$my['validation'] = false;
@@ -233,12 +241,6 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 					OR (in_array($my['fields'][$f]['type'], $possible_upload_fields) && !empty($my['fields'][$f]['upload_field']) && empty($my['POST'][$my['fields'][$f]['field_name']]))) {
 					$myval = false;
 					$v_arr = false;
-					if ($zz_conf['debug']) {
-						echo 'Possible upload_field values:</p>';
-						echo '<pre>';
-						print_r($my['images']);
-						echo '</pre>';
-					}
 					$g = $my['fields'][$f]['upload_field'];
 					$possible_values = $my['fields'][$f]['upload_value'];
 					if (!is_array($possible_values)) $possible_values = array($possible_values);
@@ -270,10 +272,11 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 									$key1 = '$my[\'images\'][$g][0][\''.implode("']['", $v_arr).'\']';
 									eval('$myval = (isset('.$key1.') ? '.$key1.': false);');
 								}
-							} else
+							} else {
 								$myval = (!empty($my['images'][$g][$v])) 
 									? $my['images'][$g][$v] // take value from upload-array
 									: (!empty($my['images'][$g][0]['upload'][$v]) ? $my['images'][$g][0]['upload'][$v] : ''); // or take value from first sub-image
+							}
 							if ($myval && !empty($my['fields'][$f]['upload_sql'])) {
 								$sql = $my['fields'][$f]['upload_sql'].'"'.$myval.'"';
 								$result = mysql_query($sql);
@@ -287,10 +290,10 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 					if ($myval) {
 						$my['POST'][$my['fields'][$f]['field_name']] = $myval;
 					}
-					if ($zz_conf['debug']) {
-						echo '<br>uploadfield: '.$my['fields'][$f]['field_name'].' %'.$my['POST'][$my['fields'][$f]['field_name']].'%';
-						echo '<br>val: %'.$myval.'%';
-					}
+					if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, 
+						'uploadfield: '.$my['fields'][$f]['field_name'].' %'.$my['POST'][$my['fields'][$f]['field_name']].'%<br>'
+						.'val: %'.$myval.'%'
+					);
 					// else: POST left empty, old values will remain (is this true?)
 				}
 	
@@ -423,6 +426,7 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 				$my['POST'][$my['fields'][$f]['field_name']] = 'NOW()';
 		}
 	}
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
 	return $my;
 }
 

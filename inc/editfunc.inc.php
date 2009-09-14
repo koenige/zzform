@@ -14,7 +14,8 @@
 Variables:
 
 $zz_error[]['msg'] message that always will be sent back to browser
-$zz_error[]['msg_dev'] message that will be sent to browser, log and mail, depending on settings
+$zz_error[]['msg_dev'] message that will be sent to browser, log and mail, 
+	depending on settings
 $zz_error[]['level'] for error level: currently implemented:
 	- E_USER_ERROR: critical error, action could not be finished, unrecoverable error
 	- E_USER_WARNING: error, we need some extra user input
@@ -123,12 +124,11 @@ function zz_error() {
 		// Log output
 		$log_output[$key] = strip_tags(str_replace('<br>', "\n\n", trim(html_entity_decode($admin_output[$key]))));
 		// reformat log output
-		if ($zz_conf['error_log'][$level] AND $zz_conf['log_errors']) {
+		if (!empty($zz_conf['error_log'][$level]) AND $zz_conf['log_errors']) {
 			$error_line = '['.date('d-M-Y H:i:s').'] zzform '.ucfirst($level).': '.preg_replace("/\s+/", " ", $log_output[$key]);
 			$error_line = substr($error_line, 0, $zz_conf['log_errors_max_len'] -(strlen($user)+1)).$user."\n";
 			error_log($error_line, 3, $zz_conf['error_log'][$level]);
 		}
-		
 		// Mail output
 		if (in_array($level, $zz_conf['error_mail_level']))
 			$mail_output[$key] = $log_output[$key];
@@ -173,12 +173,16 @@ From: '.$zz_conf['error_mail_from']);
 	if ($return == 'exit') {
 		$zz_error['error'] = true;
 		global $zz;
-		$zz['output'] .= '<div id="zzform"><div class="error">'.implode('<br><br>', $user_output).'</div></div>';
+		if (empty($zz['output'])) $zzform_id = true;
+		else $zzform_id = false;
+		$zz['output'] .= ($zzform_id ? '<div id="zzform">'."\n" : '')
+			.'<div class="error">'.implode('<br><br>', $user_output).'</div>'."\n"
+			.($zzform_id ? '</div>'."\n" : '');
 		return false;
 	}
 
 	if (!count($user_output)) return false;
-	$user_output = '<div class="error">'.implode('<br><br>', $user_output).'</div>';
+	$user_output = '<div class="error">'.implode('<br><br>', $user_output).'</div>'."\n";
 	return $user_output;
 }
 
@@ -230,8 +234,8 @@ function field_in_where($field, $values) {
  */
 function check_maxlength($field, $table) {
 	global $zz_conf;
+	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
 	$sql = 'SHOW COLUMNS FROM '.$table.' LIKE "'.$field.'"';
-	if ($zz_conf['debug_allsql']) echo "<div>check_maxlength_query:<br /><pre>$sql</pre></div>";
 	$result = mysql_query($sql);
 	if ($result)
 		if (mysql_num_rows($result) == 1) {
@@ -239,8 +243,11 @@ function check_maxlength($field, $table) {
 			//preg_match('/varchar\((\d+)\)/s', $maxlength['Type'], $my_result);
 			//if ($my_result) return $my_result[1];
 			preg_match('/\((\d+)\)/s', $maxlength['Type'], $my_result);
+			if ($zz_conf['modules']['debug']) 
+				zz_debug(__FUNCTION__, $zz_debug_time_this_function, "sql", $sql);
 			if ($my_result) return ($my_result[1]);
 		}
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "sql", $sql);
 	return false;
 }
 
@@ -255,7 +262,7 @@ function check_number($number) {
 	$number = trim($number);
 	$number = str_replace(' ', '', $number);
 	// first charater must not be / or *
-	if (!preg_match('~^[0-9.,+-][0-9.,\+\*\/-]*$~', $number)) return false; // possible feature: return doubleval $number to get at least something
+	if (!preg_match('~^[0-9.,+-][0-9.,\+\*\/-]*$~', $number)) return NULL; // possible feature: return doubleval $number to get at least something
 	// put a + at the beginning, so all parts with real numbers start with arithmetic symbols
 	if (substr($number, 0, 1) != '-') $number = '+'.$number;
 	preg_match_all('~[-+/*]+[0-9.,]+~', $number, $parts);
@@ -484,12 +491,10 @@ function htmlchars($string) {
 // TOOD zz_search_sql: if there are subtables, part of this functions code is run redundantly
 function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 	global $zz_conf;
+	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
 	$addscope = true;
 	$unsearchable = array('image', 'calculated', 'timestamp', 'upload_image', 'option'); // fields that won't be used for search
-	if ($zz_conf['debug']) {
-		global $zz;
-		$zz['output'] .= 'Search query: '.$sql.'<br>';
-	}
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "search query", $sql);
 	// no changes if there's no query string
 	if (empty($_GET['q'])) return $sql;
 
@@ -599,9 +604,7 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 						exit;
 					}
 					$subsql = zz_search_sql($field['fields'], $field['sql'], $field['table'], $main_id_fieldname);
-					if ($zz_conf['debug']) { // $zz is already global
-						$zz['output'] .= '<p>Search query for subtable: '.$subsql.'</p>';
-					}
+					if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "search query subtable", $subsql);
 					$result = mysql_query($subsql);
 					if ($result AND mysql_num_rows($result)) {
 						$ids = false;
@@ -808,6 +811,8 @@ function zz_get_subqueries($subqueries, $zz, &$zz_tab, $zz_conf) {
 			? $zz['fields'][$subquery]['min_records'] : $zz_conf['min_detail_records'];
 		$zz_tab[$i]['records_depend_on_upload'] = (isset($zz['fields'][$subquery]['records_depend_on_upload'])) 
 			? $zz['fields'][$subquery]['records_depend_on_upload'] : false;
+		$zz_tab[$i]['records_depend_on_upload_more_than_one'] = (isset($zz['fields'][$subquery]['records_depend_on_upload_more_than_one'])) 
+			? $zz['fields'][$subquery]['records_depend_on_upload_more_than_one'] : false;
 		$zz_tab[$i]['no'] = $subquery;
 		$zz_tab[$i]['sql'] = $zz['fields'][$subquery]['sql'];
 		$zz_tab[$i]['sql_not_unique'] =  (!empty($zz['fields'][$subquery]['sql_not_unique']) ? $zz['fields'][$subquery]['sql_not_unique'] : false);
@@ -819,30 +824,12 @@ function zz_get_subqueries($subqueries, $zz, &$zz_tab, $zz_conf) {
 		foreach ($zz['fields'][$subquery]['fields'] AS $field) {
 			if (isset($field['type']) && $field['type'] == 'detail_key') {
 				if (!empty($zz_tab[0][0]['fields'][$field['detail_key']])) {
-					$zz_tab[$i]['detail_key'][] = array('i' => $zz_tab[0][0]['fields'][$field['detail_key']]['subtable'], 'k' => 0);
-				} else {
-					$possible_keys = array();
-					foreach ($zz_tab[0][0]['fields'] AS $f => $definitions) {
-						if (!empty($definitions['template_field']) AND $definitions['template_field'] == $field['detail_key']) {
-							if (!empty($field['detail_key_priority_field'])) {
- 								foreach ($definitions['fields'] AS $detail_f => $detail_def) {
-									if ($detail_def['field_name'] == $field['detail_key_priority_field']) {
-										foreach ($field['detail_key_priority_values'] AS $index => $val) {
-											if ($val == $detail_def['value']) $possible_keys[$index] = $definitions['subtable'];
-										}
-									}
-								}
-								ksort($possible_keys);
-								$key = array_shift($possible_keys);
-								$zz_tab[$i]['detail_key'][] = array('i' => $key, 'k' => 0);
-							} else {
-								$zz_tab[$i]['detail_key'][] = array('i' => $definitions['subtable'], 'k' => 0);
-							}
-						}
-					}
+					$detail_key_index = (isset($field['detail_key_index']) ? $field['detail_key_index'] : 0);
+					$zz_tab[$i]['detail_key'][] = array('i' => $zz_tab[0][0]['fields'][$field['detail_key']]['subtable'], 'k' => $detail_key_index);
 				}
 			}
 		}
+		
 		// set values, defaults if forgotten or overwritten
 		if (!empty($_POST[$zz['fields'][$subquery]['table_name']])) {
 			foreach (array_keys($_POST[$zz['fields'][$subquery]['table_name']]) as $subkey) {
@@ -899,7 +886,6 @@ function zz_subqueries($i, $min, $details, $sql, $subtable, $zz_tab) {
 	global $zz_conf;
 	// $subtable is branch of $zz with all data for specific subtable
 	// function will be run twice from edit.inc, therefore be careful, programmer!
-	global $zz_error;
 
 	$records = false;
 	$my = $zz_tab[$i];
@@ -995,6 +981,7 @@ function zz_subqueries($i, $min, $details, $sql, $subtable, $zz_tab) {
 
 function zz_query_subrecord($my, $main_table, $main_id_value, $id_field_name, $deleted_ids = array()) {
 	global $zz_conf;
+	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
 	global $zz_error;
 	
 	if (!empty($my['translate_field_name'])) {
@@ -1007,8 +994,7 @@ function zz_query_subrecord($my, $main_table, $main_id_value, $id_field_name, $d
 		$sql = zz_edit_sql($my['sql'].' '.$my['sql_not_unique'], 'WHERE', 
 			$my['foreign_key_field_name'].' = "'.$main_id_value.'"');
 	}
-	if ($zz_conf['debug_allsql']) 
-		echo "<div>zz_subquery:<br /><pre>$sql</pre></div>";
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "sql", $sql);
 	$saved['records'] = array();
 	$saved['ids'] = array();
 	$result = mysql_query($sql);
@@ -1068,6 +1054,7 @@ function zz_sort_values(&$values, &$saved, $fields, $id_field_name) {
 	$values_sorted = array();
 	$ids_sorted = array();
 	
+	
 	foreach ($values AS $index => $field) {
 		$equal = false;
 		foreach ($saved['records'] as $line) {
@@ -1100,9 +1087,10 @@ function zz_sort_values(&$values, &$saved, $fields, $id_field_name) {
 		}
 	}
 	foreach (array_keys($values) as $index) {
-		if (isset($values_sorted[$index]) AND !$values_sorted[$index])
+		if (isset($values_sorted[$index]) AND !$values_sorted[$index]) {
 			$values_sorted[$index] = $values[$index];
 			unset($values[$index]);
+		}
 	}
 	// append remaining $id at the end of the
 	$saved['ids'] = array_merge($ids_sorted, $saved['ids']);
@@ -1134,6 +1122,7 @@ function zz_sort_values(&$values, &$saved, $fields, $id_field_name) {
 function zz_requery_record(&$zz_tab_i, $k, $validation, $mode) {
 	global $zz_error;
 	global $zz_conf;
+	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
 	$my = &$zz_tab_i[$k];
 	$sql = $zz_tab_i['sql'];
 	$table = $zz_tab_i['table'];
@@ -1155,7 +1144,7 @@ function zz_requery_record(&$zz_tab_i, $k, $validation, $mode) {
 		if ($mode != 'add' OR $my['action']) {
 			if ($my['id']['value']) {
 				$sql_edit = zz_edit_sql($sql, 'WHERE', $table.'.'.$my['id']['field_name']." = '".$my['id']['value']."'");
-				if ($zz_conf['debug_allsql']) echo "<div>zz_requery_record:<br /><pre>$sql_edit</pre></div>";
+				if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "record exists?", $sql_edit);
 				$result_edit = mysql_query($sql_edit);
 				if ($result_edit) {
 					if (mysql_num_rows($result_edit) == 1) {
@@ -1223,7 +1212,7 @@ function zz_fill_out(&$fields, $table, $multiple_times = false) {
 				if (count($fields[$no]) == 1) continue; // if there are only conditions, go on
 			}
 		}
-		if (!$fields[$no]) {
+		if (!$fields[$no]) { 	// allow placeholder for fields to get them into the wanted order
 			unset($fields[$no]);
 			continue;
 		}
@@ -1250,10 +1239,12 @@ function zz_fill_out(&$fields, $table, $multiple_times = false) {
 			$fields[$no]['class'] = 'option'; // format option-fields with css
 		}
 		if (!isset($fields[$no]['explanation'])) $fields[$no]['explanation'] = false; // initialize
-		if (!isset($fields[$no]['maxlength']) && isset($fields[$no]['field_name'])) 
-			$fields[$no]['maxlength'] = check_maxlength($fields[$no]['field_name'], $table);
-		if (!empty($fields[$no]['sql'])) // replace whitespace with space
-			$fields[$no]['sql'] = preg_replace("/\s+/", " ", $fields[$no]['sql']);
+		if (!$multiple_times) {
+			if (!isset($fields[$no]['maxlength']) && isset($fields[$no]['field_name'])) 
+				$fields[$no]['maxlength'] = check_maxlength($fields[$no]['field_name'], $table);
+			if (!empty($fields[$no]['sql'])) // replace whitespace with space
+				$fields[$no]['sql'] = preg_replace("/\s+/", " ", $fields[$no]['sql']);
+		}
 		if ($fields[$no]['type'] == 'subtable') // for subtables, do this as well
 			zz_fill_out($fields[$no]['fields'], $fields[$no]['table'], $multiple_times);
 	}
@@ -1335,7 +1326,7 @@ function zz_get_identifier_vars(&$my, $f, $main_post) {
 			}
 			if (empty($func_vars[$var])) {
 				preg_match('/^(.+)\[(.+)\]$/', $vars[1], $fieldvar); // split array in variable and key
-				foreach ($my['fields'] as $field) {
+				if ($fieldvar) foreach ($my['fields'] as $field) {
 					if ((!empty($field['table']) && $field['table'] == $vars[0])
 						OR (!empty($field['table_name']) && $field['table_name'] == $vars[0])) 
 						foreach ($field['fields'] as $subfield)
@@ -1376,19 +1367,24 @@ function zz_get_identifier_vars(&$my, $f, $main_post) {
 
 function zz_get_identifier_sql_vars($sql, $id, $fieldname = false) {
 	global $zz_conf;
+	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+	// remove whitespace
+	$sql = preg_replace("/\s+/", " ", $sql); // first blank needed for SELECT
+	$sql_tokens = explode(' ', trim($sql)); // remove whitespace
+	$unwanted = array('SELECT', 'DISTINCT');
+	foreach ($sql_tokens as $token) {
+		if (!in_array($token, $unwanted)) {
+			$id_fieldname = trim($token);
+			if (substr($id_fieldname, -1) == ',')
+				$id_fieldname = substr($id_fieldname, 0, -1);
+			break;
+		}
+	}
+	$sql = zz_edit_sql($sql, 'WHERE', $id_fieldname.' = '.$id);
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "sql", $sql);
+	$result = mysql_query($sql);
 	$line = false;
 	$line[$fieldname] = false;
-	$sqlp = explode(' ORDER BY ', $sql);
-	$sql = $sqlp[0];
-	if (stristr($sql, ' WHERE ')) $sql.= ' AND ';
-	else $sql.= ' WHERE ';
-	$sqlc = explode(' ', $sql); // get first token
-	if (substr($sqlc[1], -1) == ',') $sqlc[1] = substr($sqlc[1], 0, -1);
-	$sql.= $sqlc[1].' = '.$id; // first token is always ID field
-	if (!empty($sqlp[1])) $sql.= ' ORDER BY '.$sqlp[1];
-	if ($zz_conf['debug_allsql']) 
-		echo "<div>zz_get_identifier_sql_vars query:<br /><pre>$sql</pre></div>";
-	$result = mysql_query($sql);
 	if ($result) if (mysql_num_rows($result) == 1)
 		$line = mysql_fetch_assoc($result);
 	if ($fieldname) return $line[$fieldname];
@@ -1485,9 +1481,10 @@ function zz_create_identifier($vars, $conf, $my = false, $table = false, $field 
 function zz_exists_identifier($idf, $i, $table, $field, $id_field, $id_value, 
 	$con_exists = '.', $maxlength = false, $start_always = false) {
 	global $zz_conf;
-			$sql = 'SELECT '.$field.' FROM '.$table.' WHERE '.$field.' = "'.$idf.'"
+	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+	$sql = 'SELECT '.$field.' FROM '.$table.' WHERE '.$field.' = "'.$idf.'"
 		AND '.$id_field.' != '.$id_value;
-	if ($zz_conf['debug_allsql']) echo "<div>zz_exists_identifier_query:<br /><pre>$sql</pre></div>";
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "sql", $sql);
 	$result = mysql_query($sql);
 	if ($result) if (mysql_num_rows($result)) {
 		if ($i > 2 OR $start_always) // with start_always, we can be sure, that a generated suffix exists so we can safely remove it. for other cases, this is only true for $i > 2.
@@ -1639,6 +1636,7 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 function zz_check_select($my, $f, $max_select) {
 	global $zz_error;
 	global $zz_conf;
+	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
 	$sql = $my['fields'][$f]['sql'];
 	// preg_match, case insensitive, space after select, space around from 
 	// - might not be 100% perfect, but should work always
@@ -1684,16 +1682,8 @@ function zz_check_select($my, $f, $max_select) {
 	}
 	$wheresql .= ')';
 	$sql = zz_edit_sql($sql, 'WHERE', $wheresql);
-	if ($zz_conf['debug_allsql']) echo "<div>zz_check_select query:<br /><pre>$sql</pre></div>";
 	$result = mysql_query($sql);
-	if ($zz_conf['debug']) {
-		echo '<div class="debug">';
-		echo '<h4>Debugging info for zz_check_select():</h4>';
-		echo mysql_error().'<br>';
-		echo $sql.'<br>';
-		if ($result) echo mysql_num_rows($result);
-		echo '</div>';
-	}
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "sql, rows: ".($result ? mysql_num_rows($result) : ''), $sql);
 	if ($result)
 		if (!mysql_num_rows($result)) {
 			// no records, user must re-enter values
@@ -1781,6 +1771,7 @@ function zz_check_password($old, $new1, $new2, $sql) {
 
 function zz_nice_headings(&$zz_fields, &$zz_conf, &$zz_error, $where_condition) {
 	global $zz_conf;
+	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
 	foreach (array_keys($where_condition) as $mywh) {
 		$mywh = mysql_real_escape_string($mywh);
 		$wh = explode('.', $mywh);
@@ -1791,19 +1782,15 @@ function zz_nice_headings(&$zz_fields, &$zz_conf, &$zz_error, $where_condition) 
 			isset($zz_conf['heading_var'][$wh[$index]]) AND
 			$where_condition[$mywh]) { // only if there is a value! (might not be the case if write_once-fields come into play)
 		//	create sql query, with $mywh instead of $wh[$index] because first might be ambiguous
-			if (strstr($zz_conf['heading_sql'][$wh[$index]], 'WHERE'))
-				$wh_sql = str_replace('WHERE', 'WHERE ('.$mywh.' = '.mysql_real_escape_string($where_condition[$mywh]).') AND ', $zz_conf['heading_sql'][$wh[$index]]);
-			elseif (strstr($zz_conf['heading_sql'][$wh[$index]], 'ORDER BY'))
-				$wh_sql = str_replace('ORDER BY', 'WHERE ('.$mywh.' = '.mysql_real_escape_string($where_condition[$mywh]).') ORDER BY ', $zz_conf['heading_sql'][$wh[$index]]);
-			else
-				$wh_sql = $zz_conf['heading_sql'][$wh[$index]].' WHERE ('.$mywh.' = '.$where_condition[$mywh].') LIMIT 1';
+			$wh_sql = zz_edit_sql($zz_conf['heading_sql'][$wh[$index]], 'WHERE', $mywh.' = '.mysql_real_escape_string($where_condition[$mywh]));
+			$wh_sql .= ' LIMIT 1';
 		//	if key_field_name is set
 			foreach ($zz_fields as $field)
 				if (isset($field['field_name']) && $field['field_name'] == $wh[$index])
 					if (isset($field['key_field_name']))
 						$wh_sql = str_replace($wh[$index], $field['key_field_name'], $wh_sql);
 		//	do query
-			if ($zz_conf['debug_allsql']) echo "<div>zz_nice_headings query:<br /><pre>$wh_sql</pre></div>";
+			if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "sql", $wh_sql);
 			$result = mysql_query($wh_sql);
 			if (!$result) {
 				$zz_error[] = array(
@@ -1861,6 +1848,7 @@ function zz_nice_headings(&$zz_fields, &$zz_conf, &$zz_error, $where_condition) 
 }
 
 function zz_add_modules($modules, $path, $zz_conf_global) {
+	$zz_debug_time_this_function = microtime_float();
 //	initialize variables
 	$mod['modules'] = false;
 	$zz = false;
@@ -1878,14 +1866,20 @@ function zz_add_modules($modules, $path, $zz_conf_global) {
 			$mod['modules'][$module] = true;
 		} else {
 			$mod['modules'][$module] = false;
-			if ($zz_conf_global['debug'])
-				echo $path.'/'.$module.'(.inc).php not found<br>Optional module "'.$module.'" was not included.<br>';
+			// int_modules/ext_modules have debug module at different place
+			if (!empty($mod['modules']['debug']) OR !empty($zz_conf_global['modules']['debug'])) 
+				zz_debug(__FUNCTION__, $zz_debug_time_this_function, "optional module ".$path.'/'.$module.'(.inc).php not included');
 		}
+		if (!empty($mod['modules']['debug']) OR !empty($zz_conf_global['modules']['debug']))
+			zz_debug(__FUNCTION__, $zz_debug_time_this_function, $module);
 	}
 	$mod['vars']['zz'] = $zz;
 	$mod['vars']['zz_default'] = $zz_default;
 	$mod['vars']['zz_allowed_params'] = $zz_allowed_params;
 	$mod['vars']['zz_conf'] = $zz_conf;
+	// int_modules/ext_modules have debug module at different place
+	if (!empty($mod['modules']['debug']) OR !empty($zz_conf_global['modules']['debug'])) 
+		zz_debug(__FUNCTION__, $zz_debug_time_this_function);
 	return $mod;
 }
 

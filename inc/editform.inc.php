@@ -28,9 +28,11 @@
  */
 function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var, $zz_conditions) {
 	global $zz_error;
+	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+
 	$output = '';
 	if ($zz['formhead'] && $zz['mode'] != 'export')
-		$output.= "\n<h3>".ucfirst($zz['formhead'])."</h3>\n\n";
+		$output.= "\n<h2>".ucfirst($zz['formhead'])."</h2>\n\n";
 	$output.= zz_error();
 
 	// if there is nothing to display, just show errors and formhead or nothing at all and return
@@ -142,6 +144,7 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var, $zz_condi
 			if (isset($zz['record'][$myvar['field_name']])) $output.= '<input type="hidden" value="'
 				.$zz['record'][$myvar['field_name']].'" name="'.$myvar['f_field_name'].'">';
 	$output = '<div id="record">'."\n$output</div>\n";
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
 	return $output;
 }
 
@@ -157,7 +160,6 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 	$matrix = false;
 	$my = $my_tab[$i][$k];
 	$firstrow = true;
-	$debugger = false;
 	$table_name = (!empty($my_tab[$i]['table_name']) ? $my_tab[$i]['table_name'] : $my_tab[$i]['table']);
 	$row_display = (!empty($my['access']) ? $my['access'] : $display); // this is for 0 0 main record
 	foreach ($my['fields'] as $fieldkey => $field) {
@@ -215,12 +217,18 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 			$zz_var['horizontal_table_head'] = false;
 			// go through all detail records
 			$table_open = false;
+			
+			$firstsubtable_no = NULL;
+			
 			foreach ($subtables as $mytable_no) {
 				// show all subtables which are not deleted but 1 record as a minimum
 				if ($my_tab[$field['subtable']][$mytable_no]['action'] != 'delete' 
 					OR (!empty($my_tab[$field['subtable']]['records']) 
 					&& ($mytable_no + 1) == $my_tab[$field['subtable']]['min_records'])) {
-					
+
+					// get first subtable that will be displayed
+					// in order to be able to say whether horizontal table shall be openend		
+					if (!isset($firstsubtable_no)) $firstsubtable_no = $mytable_no;
 					$lastrow = false;
 					$show_remove = false;
 
@@ -239,7 +247,8 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 					$zz_var['class_add'] = ((!empty($field['class_add']) AND
 						empty($my_tab[$field['subtable']][$mytable_no]['id']['value'])) 
 						? $field['class_add'] : '');
-					if ($field['form_display'] != 'horizontal' OR !$mytable_no) {
+					
+					if ($field['form_display'] != 'horizontal' OR $mytable_no == $firstsubtable_no) {
 						$out['td']['content'].= '<table class="'.$field['form_display']
 							.($field['form_display'] != 'horizontal' ? ' '.$zz_var['class_add'] : '')
 							.'">'; // show this for vertical display and for first horizontal record
@@ -757,14 +766,21 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 					} elseif (mysql_num_rows($result_detail)) {
 						$id_field_name = mysql_field_name($result_detail, 0);
 						$details = array();
+						$count_rows = mysql_num_rows($result_detail);
+						$detail_record = array();
 						while ($line = mysql_fetch_assoc($result_detail)) {
-							$details[$line[$id_field_name]] = $line;
+							if (!empty($my['record'][$field['field_name']]) 
+								AND $line[$id_field_name] == $my['record'][$field['field_name']])
+								$detail_record = $line;
+							// fill $details only if needed, otherwise this will need a lot of memory usage
+							if ($count_rows < $zz_conf_thisrec['max_select'] 
+								OR !empty($field['show_hierarchy_subtree'])) 
+								$details[$line[$id_field_name]] = $line;
 						}
 						if ($row_display == 'form') {
 							$my_select = false;
 							$my_h_field = false;
 							$show_hierarchy_subtree = 'NULL';
-							$count_rows = mysql_num_rows($result_detail);
 							// get ID field_name which must be 1st field in SQL query
 							if (!empty($field['show_hierarchy'])) {
 								foreach ($details as $line) {
@@ -780,12 +796,9 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 							if ($count_rows > $zz_conf_thisrec['max_select']) {
 								// don't show select but text input instead
 								$textinput = true;
-								if ($my['record']) {
-									if (!empty($details[$my['record'][$field['field_name']]])) {
-										$line = $details[$my['record'][$field['field_name']]];
-										$outputf.= draw_select($line, $id_field_name, $my['record'], $field, false, 0, false, 'reselect', $zz_conf_thisrec);
-										$textinput = false;
-									}
+								if ($my['record'] AND $detail_record) {
+									$outputf.= draw_select($detail_record, $id_field_name, $my['record'], $field, false, 0, false, 'reselect', $zz_conf_thisrec);
+									$textinput = false;
 								}
 								// value will not be checked if one detail record is added because in this case validation procedure will be skipped!
 								if (!empty($my['record'][$field['field_name']])) $value = htmlspecialchars($my['record'][$field['field_name']]); 
@@ -809,9 +822,8 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 								} elseif (!empty($field['show_hierarchy']) && !empty($my_select[$show_hierarchy_subtree])) {
 									foreach ($my_select[$show_hierarchy_subtree] AS $my_field)
 										$outputf.= draw_select($my_field, $id_field_name, $my['record'], $field, $my_select, 0, $field['show_hierarchy'], 'form', $zz_conf_thisrec);
-								} elseif (!empty($details[$my['record'][$field['field_name']]])) { // re-edit record, something was posted, ignore hierarchy because there's only one record coming back
-									$line = $details[$my['record'][$field['field_name']]];
-									$outputf.= draw_select($line, $id_field_name, $my['record'], $field, false, 0, false, 'form', $zz_conf_thisrec);
+								} elseif ($detail_record) { // re-edit record, something was posted, ignore hierarchy because there's only one record coming back
+									$outputf.= draw_select($detail_record, $id_field_name, $my['record'], $field, false, 0, false, 'form', $zz_conf_thisrec);
 								} elseif (!empty($field['show_hierarchy'])) {
 									$zz_error[] = array(
 										'msg' => 'No selection possible',
@@ -823,9 +835,8 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 								if (!empty($zz_error)) $outputf.= zz_error();
 							}
 						} else {
-							if (!empty($details[$my['record'][$field['field_name']]])) {
-								$line = $details[$my['record'][$field['field_name']]];
-								$outputf.= draw_select($line, $id_field_name, $my['record'], $field, false, 0, false, false, $zz_conf_thisrec);
+							if ($detail_record) {
+								$outputf.= draw_select($detail_record, $id_field_name, $my['record'], $field, false, 0, false, false, $zz_conf_thisrec);
 							}
 						}
 					} else {

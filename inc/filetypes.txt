@@ -163,7 +163,8 @@ mov		mov		mov		video/avi						QuickTime Video Clip
 edrw	edrw	edrw	application/octet-stream		eDrawings File
 
 cr2		cr2		cr2		image/x-canon-cr2				Canon CR2 raw image
-cr2		cr2		cr2		iapplication/octet-stream		Canon CR2 raw image
+cr2		cr2		cr2		application/octet-stream		Canon CR2 raw image
+cr2		cr2		cr2		image/tiff						Canon CR2 raw image
 
 csv		csv		csv		text/comma-separated-values		Comma Separated Values
 
@@ -186,6 +187,13 @@ tga		tga		tga		image/tga						Truevision Targa Graphic
 tga		tga		tga		image/x-tga						Truevision Targa Graphic
 tga		tga		tga		image/targa						Truevision Targa Graphic
 tga		tga		tga		image/x-targa					Truevision Targa Graphic
+
+rar		rar		rar		application/octet-stream		RAR archive data
+
+dng		dng		dng		application/octet-stream		Digital Negative Format
+dng		dng		dng		image/tiff						Digital Negative Format
+
+xmp		xmp		xmp		text/plain						Adobe Extensible Metadata Platform 
 
 ### EOF
 #

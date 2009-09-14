@@ -35,7 +35,8 @@ function zz_conditions_record_check($zz, $zz_tab, &$zz_var) {
 			if (($zz['mode'] == 'add' OR $zz['action'] == 'insert') 
 				AND !empty($condition['add'])
 				AND !empty($zz_var['where'][$zz['table']][$condition['add']['key_field_name']])) {
-				$sql = $condition['add']['sql'].$zz_var['where'][$zz['table']][$condition['add']['key_field_name']];
+				$sql = $condition['add']['sql']
+					.'"'.$zz_var['where'][$zz['table']][$condition['add']['key_field_name']].'"';
 				if (!empty($condition['where']))
 					$sql = zz_edit_sql($sql, 'WHERE', $condition['where']);
 				if (!empty($condition['having']))

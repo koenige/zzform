@@ -77,22 +77,83 @@ function zz_imagick_identify($source) {
 
 
 function zz_image_gray($source, $destination, $dest_extension = false, $image = false) {
+	global $zz_conf;
+	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+
 	$convert = zz_imagick_convert('colorspace gray', '"'.$source.'" '.($dest_extension 
 		? $dest_extension.':' : '').'"'.$destination.'"');
+
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
 	if ($convert) return true;
 	else return false;
 }
 
 function zz_image_thumbnail($source, $destination, $dest_extension = false, $image = false) {
+	global $zz_conf;
+	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+	
 	$geometry = (isset($image['width']) ? $image['width'] : '');
 	$geometry.= (isset($image['height']) ? 'x'.$image['height'] : '');
+	$source_extension = substr($source, strrpos($source, '.') +1);
+	if ($source_extension == 'pdf') {
+		$source .= '[0]';	// convert only first page
+	}
 	$convert = zz_imagick_convert('thumbnail '.$geometry, '"'.$source.'" '.($dest_extension 
 		? $dest_extension.':' : '').'"'.$destination.'"');
+
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
 	if ($convert) return true;
 	else return false;
 }
+/*
+
+ * @param $source (string) temporary name of source file with file extension
+ * @param $destination (string) temporary name of destination file without file extension
+ * @param $dest_extension (string) file extension for destination image
+ * @param $image (array) image array
+ 		source_file (string) field name of source path
+ 		source_path (array) path-array ...
+ 		source_path_sql (string) SQL query ...
+ 		update_from_source_field_name (string)
+ 		update_from_source_value (string)
+ 		field_name (string)
+ 		path (array)
+ 		required (boolean)
+ 		options (array)
+ 		options_sql (string)
+ 		source_field (array)
+ 		upload (array)
+ 		type (string)
+ 		action (string) name of function
+ 		source (int)
+  * @return boolean (false: no image was created; true: image was created)
+*/
+function zz_image_webimage($source, $destination, $dest_extension = false, $image = false) {
+	global $zz_conf;
+	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+
+	global $zz_conf;
+	$convert = false;
+	$source_extension = substr($source, strrpos($source, '.') +1);
+	if (!$source_extension OR !empty($zz_conf['webimages_by_extension'][$source_extension])) {
+		return false; // do not create an identical webimage of already existing webimage
+	} elseif ($source_extension == 'pdf') {
+		$source .= '[0]';	// convert only first page
+		if ($zz_conf['upload_ghostscript_available']) {
+			$dest_extension = $zz_conf['upload_destination_filetype'][$source_extension];
+			$convert = zz_imagick_convert('density '.$zz_conf['upload_pdf_density'], ' "'.$source.'" '.$dest_extension.':'.'"'.$destination.'"');
+		}
+	} elseif (!empty($zz_conf['upload_destination_filetype'][$source_extension])) {
+		$dest_extension = $zz_conf['upload_destination_filetype'][$source_extension];
+		$convert = zz_imagick_convert(false, ' "'.$source.'" '.$dest_extension.':'.'"'.$destination.'"');
+	}
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
+	return $convert;
+}
 
 function zz_image_crop($source, $destination, $dest_extension = false, $image = false) {
+	global $zz_conf;
+	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
 // example: convert -thumbnail x240 -crop 240x240+140x0 reiff-pic09b.jpg test.jpg
 	$dest_ratio = $image['width'] / $image['height'];
 	if (empty($image['upload']['height'])) return false; // no height means no picture or error
@@ -112,14 +173,18 @@ function zz_image_crop($source, $destination, $dest_extension = false, $image = 
 		$options = 'thumbnail '.$image['width'].'x'.$new_height
 			.' -crop '.$image['width'].'x'.$image['height'].'+'.$pos_x.'+'.$pos_y;
 	}
-	$convert = zz_imagick_convert($options	, '"'.$source.'" '.($dest_extension 
+	$convert = zz_imagick_convert($options, '"'.$source.'" '.($dest_extension 
 		? $dest_extension.':' : '').'"'.$destination.'"');
+
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
 	if ($convert) return true;
 	else return false;
 }
 
-function zz_imagick_convert($options, $files, $more_options = false, $more_files = false) {
+function zz_imagick_convert($options, $files) {
 	global $zz_conf;
+
+	if (!empty($zz_conf['upload_imagick_options'])) $options .= ' '.$zz_conf['upload_imagick_options'];
 	$paths = $zz_conf['imagemagick_paths'];
 	if ($last_dir = array_pop($paths) != '/notexistent') {
 		$zz_conf['imagemagick_paths'][] = '/notexistent';
@@ -139,13 +204,13 @@ function zz_imagick_convert($options, $files, $more_options = false, $more_files
 	$call_convert.= '-'.$options.' ';
 	$call_convert.= ' '.$files.' ';
 	$success = exec($call_convert, $return, $return_var);
-	if ($return AND $zz_conf['debug']) {
+	if ($return AND $zz_conf['modules']['debug'] AND $zz_conf['debug']) {
 		echo $call_convert;
 		echo '<pre>';
 		print_r($return);
 		echo '</pre>';
 	}
-	if ($return_var AND $zz_conf['debug']) {
+	if ($return_var AND $zz_conf['modules']['debug'] AND $zz_conf['debug']) {
 		echo $call_convert;
 		echo '<pre>';
 		print_r($return_var);

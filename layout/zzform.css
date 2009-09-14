@@ -23,7 +23,7 @@ div.text #zzform	 {padding: 1em;}
 	padding-right: .75em;}
 
 #zzform .negative {color: red;}
-#zzform td.number {text-align: right;}
+#zzform td.number, #zzform #record .subtable td.number {text-align: right;}
 #zzform td.reedit {text-align: right;}
 #zzform th.where {padding-top: .5em;}
 
@@ -45,8 +45,8 @@ div.text #zzform	 {padding: 1em;}
 #zzform #record .subtable td p, #zzform #record .subtable th p,
 #zzform table td { padding: .2em;}
 
-#zzform h1 {font-size: 140%; margin: 0;}
-#zzform td h2, #zzform td h3, #zzform td h4, #zzform td h5, #zzform td h6 {margin: 0 0 .5em;}
+#zzform td h1, #zzform td h2, #zzform td h3, #zzform td h4, #zzform td h5,
+	#zzform td h6 {margin: 0 0 .5em;}
 #zzform div.text {padding: 1em;}
 
 #zzform #record th, #zzform #record td {line-height: 1.5em; padding: .25em .5em;}
@@ -88,8 +88,6 @@ div.text #zzform	 {padding: 1em;}
 
 #zzform input.sub-add {float: left; clear: left; margin-top: 0;}
 #zzform input.sub-remove {float: left; margin: 0 0 .5em; }
-
-#zzform h2 {line-height: 120%; font-size: 140%;}
 
 #zzform ul.pages {margin: 0; padding: 0 0 1em 0; list-style: none; }
 #zzform ul.pages li {margin: 0; float: left; padding: 0 .5em; border-left: 1px solid;}
@@ -139,3 +137,6 @@ div.text #zzform	 {padding: 1em;}
 #zzform input, #zzform textarea {text-rendering:optimizeSpeed;} /* get rid of Firefox wrong ligatures */
 
 #zzform .reselect th, #zzform .reselect td {background-color: green;}
+
+.debug {background: white; border: 1px solid black; overflow: auto; font-size: 75%;}
+.debug h1 {padding-left: .5em;}

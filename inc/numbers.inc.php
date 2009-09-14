@@ -55,10 +55,12 @@ function datum_de($datum, $param = false, $language = 'de') {
 		return $datum; #wenn kein richtiges datum, einfach datum zurueckgeben.
 	elseif (preg_match("/^[0-9]{1,4}$/", $datum)) 
 		return $datum; #wenn nur ein bis vier ziffern, d. h. jahr, einfach jahr zurueckgeben
+
 	$date_parts = explode("-", $datum);
 	$datum = '';
 	$date_parts['day'] = (!empty($date_parts[2]) AND $date_parts[2] != '00') ? $date_parts[2] : false;
-	$date_parts['month'] = (!empty($date_parts[1]) AND $date_parts[1] != '00') ? $my_months[$date_parts[1]] : false;
+	$date_parts['month'] = (!empty($date_parts[1]) AND $date_parts[1] != '00'
+		AND $date_parts[1] > 0 AND  $date_parts[1] < 13) ? $my_months[$date_parts[1]] : false;
 	
 	if (substr($date_parts[0], 0, 1) == "0" AND substr($date_parts[0], 0, 2) != "00")
 		$date_parts['year'] = substr($date_parts[0], 1, 4);

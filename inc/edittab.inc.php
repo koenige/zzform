@@ -26,8 +26,10 @@
  * @return array $zz_error	Error-Output
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_field, $zz_conditions, $zz_timer) {
+function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_field, $zz_conditions) {
 	global $zz_conf;
+	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+
 	$subselects = array();
 
 	//
@@ -41,8 +43,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 		$zz['sql'].= ' LIMIT '.($zz_conf['this_limit']-$zz_conf['limit']).', '.($zz_conf['limit']);
 	}
 
-	if ($zz_conf['debug']) 
-		$zz['output'] .= zz_show_microtime('Before count_rows', $zz_timer);
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "count_rows start");
 
 	$result = mysql_query($zz['sql']);
 	if ($result) {
@@ -55,8 +56,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 			'msg_dev' => zz_text('error-sql-incorrect')));
 	}
 
-	if ($zz_conf['debug']) 
-		$zz['output'] .= zz_show_microtime('After count_rows', $zz_timer);
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "count_rows end");
 
 	// read rows from database. depending on hierarchical or normal list view
 	// put rows in $lines or $h_lines.
@@ -78,9 +78,9 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 			$h_lines[$line[$zz_conf['hierarchy']['mother_id_field_name']]][$line[$id_field]] = array(
 				$id_field => $line[$id_field],
 				$zz_conf['hierarchy']['mother_id_field_name'] => $line[$zz_conf['hierarchy']['mother_id_field_name']]);
-			$lines[$line[$id_field]] = $line;
 		}
 	}
+	
 	if ($h_lines) {
 		$level = 0; // level (hierarchy)
 		$i = 0; // number of record, for LIMIT
@@ -95,15 +95,21 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 				$start = $zz_conf['this_limit'] - $zz_conf['limit'];
 				$end = $zz_conf['this_limit'] -1;
 			}
-			$new_lines = array();
+			$lines = array();
 			foreach (range($start, $end) as $index) {
-				if (!empty($my_lines[$index])) $new_lines[$my_lines[$index][$id_field]] = $my_lines[$index];
+				if (!empty($my_lines[$index])) 
+					$lines[$my_lines[$index][$id_field]] = $my_lines[$index];
 			}
-			$limited_lines = array();
-			foreach (array_keys($new_lines) as $key_value) {
-				$limited_lines[] = array_merge($new_lines[$key_value], $lines[$key_value]);
+			// for performance reasons, we didn't save the full result set,
+			// so we have to requery it again.
+			$result = mysql_query($zz['sql']);
+			if ($result AND mysql_num_rows($result)) { // no need for error handling here, because we already did this
+				while ($line = mysql_fetch_assoc($result)) {
+					if (in_array($line[$id_field], array_keys($lines))) {
+						$lines[$line[$id_field]] = array_merge($lines[$line[$id_field]], $line);
+					}
+				}
 			}
-			$lines = $limited_lines;
 			$count_rows = count($lines);
 		}
 		foreach ($lines as $line) {
@@ -117,15 +123,13 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 		$zz['output'].= '<p>'.zz_text('table-empty').'</p>';
 	}
 
-	if ($zz_conf['debug']) 
-		$zz['output'] .= zz_show_microtime('Before conditions are set in table', $zz_timer);
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "conditions start");
 	// Check all conditions whether they are true;
 	if (!empty($zz_conf['modules']['conditions']))
 		$zz_conditions = zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids);
 	if ($zz_error['error']) return false;
 	$zz['output'].= zz_error();
-	if ($zz_conf['debug']) 
-		$zz['output'] .= zz_show_microtime('After conditions are set in table', $zz_timer);
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "conditions finished");
 
 	// check conditions, these might lead to different field definitions for every
 	// line in the list output!
@@ -155,11 +159,9 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 		// so now we need to check which fields are shown in list mode
 		foreach (array_keys($lines) as $index) {
 			if (!empty($line_query[$index])) {
-				if ($zz_conf['debug']) 
-					$zz['output'] .= zz_show_microtime('Before fill_out', $zz_timer);
+				if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "fill_out start");
 				zz_fill_out($line_query[$index], $zz['table'], 2);
-				if ($zz_conf['debug']) 
-					$zz['output'] .= zz_show_microtime('After fill_out', $zz_timer);
+				if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "fill_out end");
 				//zz_print_r($line_query);
 				foreach ($line_query[$index] as $fieldindex => $field) {
 					// remove elements from table which shall not be shown
@@ -173,8 +175,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 						}
 					}
 				}
-				if ($zz_conf['debug']) 
-					$zz['output'] .= zz_show_microtime('After table_query '.$index, $zz_timer);
+				if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "table_query end");
 			}
 		}
 		// now we have the basic stuff in $table_query[0] and $line_query[0]
@@ -185,8 +186,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 		unset($lines[0]); // remove first dummy array
 	}
 
-	if ($zz_conf['debug']) 
-		$zz['output'] .= zz_show_microtime('After table_query is set in edittab', $zz_timer);
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "table_query set");
 
 	// Search Form
 	$searchform_top = false;
@@ -336,14 +336,16 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 							$rows[$z]['group'] = zz_tab_show_group_hierarchy($line[$field['field_name']], $group_hierarchy);
 						} else
 					*/
-						if (!empty($field['display_field']))
+						if (!empty($field['display_field'])) {
 							$rows[$z]['group'] = $line[$field['display_field']];
-						elseif (!empty($field['enum_title']) AND $field['type'] == 'select') {
+							// TODOgroup
+						} elseif (!empty($field['enum_title']) AND $field['type'] == 'select') {
 							foreach ($field['enum'] as $mkey => $mvalue)
 								if ($mvalue == $line[$field['field_name']]) 
 									$rows[$z]['group'] = $field['enum_title'][$mkey];
-						} elseif (!empty($field['field_name']))
+						} elseif (!empty($field['field_name'])) {
 							$rows[$z]['group'] = $line[$field['field_name']];
+						}
 						break;
 					}
 				}
@@ -364,10 +366,6 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 					if (!empty($zz_conf_thisrec['conditions']))
 						$zz_conf_thisrec = zz_merge_conditions($zz_conf_thisrec, $zz_conditions['bool'], $line[$id_field]);
 				}
-
-				// group
-				if ($zz_conf['group'] && $fieldindex == $zz_conf['group_field_no'])
-					continue;
 
 				// check all fields next to each other with list_append_next					
 				while (!empty($table_query[$tq_index][$fieldindex]['list_append_next'])) $fieldindex++;
@@ -569,6 +567,14 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 				}
 				if (!empty($field['list_abbr'])) $rows[$z][$fieldindex]['text'] .= '</abbr>';
 
+				// group: go through everything but don't show it in list
+				// TODO: check that it does not collide with append_next
+				if ($zz_conf['group'] && $fieldindex == $zz_conf['group_field_no']) {
+					$grouptitles[$z] = $rows[$z][$fieldindex]['text'];
+					unset ($rows[$z][$fieldindex]);
+				}
+
+
 			}
 			$ids[$z] = $sub_id; // for subselects
 			if ($zz_conf_thisrec['edit'] OR $zz_conf_thisrec['view']) {
@@ -680,17 +686,18 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 		$zz['output'].= '<tbody>'."\n";
 		$rowgroup = false;
 		foreach ($rows as $index => $row) {
-			if (!empty($zz_conf['group']))
-				if (empty($row['group'])) $row['group'] = zz_text('- unknown -');
-				if ($row['group'] != $rowgroup) {
+			if (!empty($zz_conf['group'])) {
+				if (empty($row['group'])) $grouptitles[$index] = zz_text('- unknown -');
+				if ($grouptitles[$index] != $rowgroup) {
 					if ($rowgroup) {
 						if ($zz_conf['tfoot'])
 							$zz['output'] .= '<tr class="group_sum">'.zz_field_sum($table_query[0], $z, $my_footer_table, $sum_group[$rowgroup], $zz_conf).'</tr>'."\n";
 						$zz['output'] .= '</tbody><tbody>'."\n";
 					}
-					$zz['output'].= '<tr class="group"><td colspan="'.(count($row)-1).'"><strong>'.$row['group'].'</strong></td></tr>'."\n";
-					$rowgroup = $row['group'];
+					$zz['output'].= '<tr class="group"><td colspan="'.(count($row)-1).'"><strong>'.$grouptitles[$index].'</strong></td></tr>'."\n";
+					$rowgroup = $grouptitles[$index];
 				}
+			}
 			$zz['output'].= '<tr class="'.($index & 1 ? 'uneven':'even').
 				(($index+1) == $count_rows ? ' last' : '').'">'; //onclick="Highlight();"
 			foreach ($row as $fieldindex => $field)
@@ -708,16 +715,17 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 	} elseif ($zz_conf['show_list'] && $zz_conf['list_display'] == 'ul') {
 		$rowgroup = false;
 		foreach ($rows as $index => $row) {
-			if (!empty($zz_conf['group']))
-				if (empty($row['group'])) $row['group'] = zz_text('- unknown -');
-				if ($row['group'] != $rowgroup) {
+			if (!empty($zz_conf['group'])) {
+				if (empty($row['group'])) $grouptitles[$index] = zz_text('- unknown -');
+				if ($grouptitles[$index] != $rowgroup) {
 					if ($rowgroup) {
 						$zz['output'] .= '</ul><br clear="all">'."\n";
 					}
-					$zz['output'].= "\n".'<h3>'.$row['group'].'</h3>'."\n"
+					$zz['output'].= "\n".'<h2>'.$grouptitles[$index].'</h2>'."\n"
 						.'<ul class="data">';
-					$rowgroup = $row['group'];
+					$rowgroup = $grouptitles[$index];
 				}
+			}
 			$zz['output'].= '<li class="'.($index & 1 ? 'uneven':'even').
 				(($index+1) == $count_rows ? ' last' : '').'">'; //onclick="Highlight();"
 			foreach ($row as $fieldindex => $field)
@@ -803,9 +811,11 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 		// Search form
 		$zz['output'] .= $searchform_bottom;
 	} elseif ($zz_conf['list_display'] == 'pdf') {
+		if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
 		zz_pdf($zz);
 		exit;
 	}
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
 }
 
 function zz_field_sum($table_query, $z, $table, $sum, $zz_conf) {

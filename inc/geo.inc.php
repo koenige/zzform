@@ -57,15 +57,17 @@ function dec2dms_sub($mer_dec, $which = 'dms') {
 // and of course, differently
 
 function dec2dms($lat_dec, $lon_dec, $precision = false) {
+	if (function_exists('cms_text')) $textfunc = 'cms_text';
+	else $textfunc = 'zz_text';
 	if (!is_null($lat_dec) && !is_null($lon_dec) && !is_array($lat_dec) && !is_array($lon_dec)) {
 		$lat_dms = dec2dms_sub($lat_dec);
 		$lat_dm = dec2dms_sub($lat_dec, 'dm');
-		if ($lat_dms['hemisphere'] == "+") $lat_dm['hemisphere'] = $lat_dms['hemisphere'] = zz_text("N");
-		if ($lat_dms['hemisphere'] == "-") $lat_dm['hemisphere'] = $lat_dms['hemisphere'] = zz_text("S");
+		if ($lat_dms['hemisphere'] == "+") $lat_dm['hemisphere'] = $lat_dms['hemisphere'] = $textfunc("N");
+		if ($lat_dms['hemisphere'] == "-") $lat_dm['hemisphere'] = $lat_dms['hemisphere'] = $textfunc("S");
 		$lon_dms = dec2dms_sub($lon_dec);
 		$lon_dm = dec2dms_sub($lon_dec, 'dm');
-		if ($lon_dms['hemisphere'] == "+") $lon_dm['hemisphere'] = $lon_dms['hemisphere'] = zz_text("E");
-		if ($lon_dms['hemisphere'] == "-") $lon_dm['hemisphere'] = $lon_dms['hemisphere'] = zz_text("W");
+		if ($lon_dms['hemisphere'] == "+") $lon_dm['hemisphere'] = $lon_dms['hemisphere'] = $textfunc("E");
+		if ($lon_dms['hemisphere'] == "-") $lon_dm['hemisphere'] = $lon_dms['hemisphere'] = $textfunc("W");
 		$coords_dms = array (
 			"lat_dms" => $lat_dms,
 			"lat_dm" => $lat_dm,
