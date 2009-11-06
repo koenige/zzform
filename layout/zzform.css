@@ -110,12 +110,12 @@ div.text #zzform	 {padding: 1em;}
 #zzform .left_separator {border-left: 3px #FFF solid;}
 #zzform #record td.separator {padding: .25em 0;}
 
-#zzform div.level1 {padding-left: 2.5em; /* background: url(line-vertical.gif) .5em 0 repeat-y; */
+#zzform div.level1 {padding-left: 2.5em; /* background: url line-vertical.gif  .5em 0 repeat-y; */
 	margin-bottom: -.25em; padding-bottom: .25em; /* overwrite padding of td */}
-#zzform table td.level1 {padding-left: 2.5em; /*background: url(line-vertical.gif) 1em 0 repeat-y; */}
+#zzform table td.level1 {padding-left: 2.5em; /*background: url line-vertical.gif  1em 0 repeat-y; */}
 #zzform table td.last {background-position: 1em 50%;}
 
-#zzform table td.level2 {padding-left: 5em; /* background: url(line-vertical.gif) 1em 0 repeat-y; */}
+#zzform table td.level2 {padding-left: 5em; /* background: url line-vertical.gif  1em 0 repeat-y; */}
 #zzform table td.level3 {padding-left: 7.5em;}
 #zzform table td.level4 {padding-left: 10em;}
 #zzform table td.level5 {padding-left: 12.5em;}

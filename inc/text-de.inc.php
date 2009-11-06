@@ -47,7 +47,8 @@ $text['no-data-available'] = 'Keine Daten vorhanden';
 $text['edit-after-save'] = 'Kein Eintrag m&ouml;glich. Bitte speichern Sie zuerst den Datensatz.';
 $text['table-empty'] = 'Keine Eintr&auml;ge vorhanden';
 $text['detail'] = 'Details';
-$text['Value_incorrect_in_field'] = 'Wert fehlt oder ist falsch im Feld';
+$text['Value_incorrect_in_field'] = 'Wert ist falsch im Feld:';
+$text['Value missing in field'] = 'Wert fehlt im Feld:';
 $text['Following_errors_occured'] = 'Die folgenden Fehler sind aufgetreten';
 $text['This record could not be deleted because there are details about this record in other records.'] = 'Dieser Datensatz konnte nicht gel&ouml;scht werden, da es Details zu diesem Datensatz in anderen Datens&auml;tzen gibt.';
 $text['Detail records exist in the following tables:'] = 'Detaildatens&auml;tze existieren in den folgenden Tabellen:';
@@ -135,5 +136,7 @@ $text['Folder OK'] = 'Verzeichnis OK';
 $text['Folder "%s" does not exist.'] = 'Das Verzeichnis "%s" existiert nicht.';
 $text['Warning! Insufficient access rights. Please make sure, that the source directory is writeable.'] = 'Warnung! Die Zugriffsrechte reichen nicht aus. Bitte stellen Sie sicher, dass das Quellverzeichnis schreibbar ist.';
 $text['%s files left for import. Please wait, the script will reload itself.'] = '%s Dateien m&uuml;ssen noch importiert werden. Bitte warten Sie, das Skript ruft sich erneut auf.';
+$text['Field name'] = 'Feldname';
+$text['incorrect value'] = 'falscher Wert';
 
 ?>

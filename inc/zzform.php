@@ -778,10 +778,22 @@ function zzform() {
 		return false;
 	}
 	if (!empty($zz_error['validation']['msg']) AND is_array($zz_error['validation']['msg'])) {
-		$zz_error[]['msg'] = '<p>'.zz_text('Following_errors_occured').': </p><ul><li>'
-			.implode(".</li>\n\n<li>", $zz_error['validation']['msg']).'.</li></ul>';
-		unset ($zz_error['validation']);
+		// user error message, visible to everyone
+		// line breaks \n important for mailing errors
+		$this_error['msg'] = '<p>'.zz_text('Following_errors_occured').': </p>'."\n".'<ul><li>'
+			.implode(".</li>\n<li>", $zz_error['validation']['msg']).'.</li></ul>';
+		// if we got wrong values entered, put this into a developer message
+		if (!empty($zz_error['validation']['incorrect_values'])) {
+			foreach ($zz_error['validation']['incorrect_values'] as $incorrect_value) {
+				$this_dev_msg[] = zz_text('Field name').': '.$incorrect_value['field_name']
+					.' / '.$incorrect_value['msg'];
+			}
+			$this_error['msg_dev'] = "\n\n".implode("\n", $this_dev_msg);
+		}
+		$zz_error[] = $this_error;
+		unset($this_error);
 	}
+	unset ($zz_error['validation']);
 	
 	if (!empty($zz_var['where'][$zz['table']])) {
 		foreach ($zz_var['where'][$zz['table']] as $field_name => $value)

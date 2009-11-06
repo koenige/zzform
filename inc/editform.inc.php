@@ -453,9 +453,14 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 						$result_detail = mysql_query($mysql);
 						if ($result_detail) {
 							if (mysql_num_rows($result_detail) == 1) {
-								$select_fields = mysql_fetch_row($result_detail);
+								$select_fields = mysql_fetch_assoc($result_detail);
+								// remove hierarchy field for display
+								if (!empty($field['show_hierarchy'])) {
+									unset($select_fields[$field['show_hierarchy']]);
+								}
+								// remove ID (= first field) for display
 								if (count($select_fields) > 1)
-									unset($select_fields[0]); // remove ID for display
+									array_shift($select_fields); 
 								$outputf .= implode(' | ', $select_fields);
 							}
 						} else {
@@ -773,7 +778,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 								AND $line[$id_field_name] == $my['record'][$field['field_name']])
 								$detail_record = $line;
 							// fill $details only if needed, otherwise this will need a lot of memory usage
-							if ($count_rows < $zz_conf_thisrec['max_select'] 
+							if ($count_rows <= $zz_conf_thisrec['max_select'] 
 								OR !empty($field['show_hierarchy_subtree'])) 
 								$details[$line[$id_field_name]] = $line;
 						}
@@ -997,20 +1002,28 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 				if (isset($field['display_value']))
 					$outputf .= $field['display_value']; // internationalization has to be done in zz-fields-definition
 				elseif ($my['record']) {
+					$val_to_insert = '';
 					if (isset($field['display_field'])) {
-						if (!empty($my['record'][$field['display_field']]))
-							$outputf .= $my['record'][$field['display_field']];
-						elseif (!empty($my['record_saved'][$field['display_field']])) // empty for new record
-							$outputf .= $my['record_saved'][$field['display_field']]; // requery
+						if (!empty($my['record'][$field['display_field']])) {
+							$val_to_insert = $my['record'][$field['display_field']];
+						} elseif (!empty($my['record_saved'][$field['display_field']])) { // empty for new record
+							$val_to_insert = $my['record_saved'][$field['display_field']]; // requery
+						}
+						if ($val_to_insert) {
+							if (!empty($field['translate_field_value']))
+								$val_to_insert = zz_text($val_to_insert);
+							$outputf .= $val_to_insert;
+						}
 					} elseif (isset($field['field_name'])) {
-						$tempval_to_insert = false;
 						if (!empty($my['record'][$field['field_name']]))
-							$tempval_to_insert = $my['record'][$field['field_name']];
+							$val_to_insert = $my['record'][$field['field_name']];
 						elseif (!empty($my['record_saved'][$field['field_name']])) // empty if new record!
-							$tempval_to_insert = $my['record_saved'][$field['field_name']];
-						if (!empty($field['display_title']) && in_array($tempval_to_insert, array_keys($field['display_title'])))
-							$tempval_to_insert = $field['display_title'][$tempval_to_insert];
-						$outputf .= htmlspecialchars($tempval_to_insert);
+							$val_to_insert = $my['record_saved'][$field['field_name']];
+						if (!empty($field['display_title']) && in_array($val_to_insert, array_keys($field['display_title'])))
+							$val_to_insert = $field['display_title'][$val_to_insert];
+						if (!empty($field['translate_field_value']))
+							$val_to_insert = zz_text($val_to_insert);
+						$outputf .= htmlspecialchars($val_to_insert);
 					} else
 						$outputf .= '<span class="error">'.zz_text('Script configuration error. No display field set.').'</span>'; // debug!
 				} else $outputf .= zz_text('N/A');

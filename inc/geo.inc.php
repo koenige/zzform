@@ -57,7 +57,7 @@ function dec2dms_sub($mer_dec, $which = 'dms') {
 // and of course, differently
 
 function dec2dms($lat_dec, $lon_dec, $precision = false) {
-	if (function_exists('cms_text')) $textfunc = 'cms_text';
+	if (function_exists('wrap_text')) $textfunc = 'wrap_text';
 	else $textfunc = 'zz_text';
 	if (!is_null($lat_dec) && !is_null($lon_dec) && !is_array($lat_dec) && !is_array($lon_dec)) {
 		$lat_dms = dec2dms_sub($lat_dec);

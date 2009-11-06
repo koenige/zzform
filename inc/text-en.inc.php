@@ -52,7 +52,8 @@ $text['edit-after-save'] = 'No entry possible. First save this record.';
 $text['table-empty'] = 'No entries available';
 // if $query has no title get it out of field_name
 $text['detail'] = 'Details';
-$text['Value_incorrect_in_field'] = 'Value missing or incorrect in field';
+$text['Value_incorrect_in_field'] = 'Value incorrect in field:';
+$text['Value missing in field'] = 'Value missing in field:';
 $text['Following_errors_occured'] = 'The following errors occured';
 $text['This record could not be deleted because there are details about this record in other records.'] = 'This record could not be deleted because there are details about this record in other records.';
 $text['Detail records exist in the following tables:'] = 'Detail records exist in the following tables:';
@@ -140,4 +141,7 @@ $text['Folder OK'] = 'Folder OK';
 $text['Folder "%s" does not exist.'] = 'Folder "%s" does not exist.';
 $text['Warning! Insufficient access rights. Please make sure, that the source directory is writeable.'] = 'Warning! Insufficient access rights. Please make sure, that the source directory is writeable.';
 $text['%s files left for import. Please wait, the script will reload itself.'] = '%s files left for import. Please wait, the script will reload itself.';
+$text['Field name'] = 'Field name';
+$text['incorrect value'] = 'incorrect value';
+
 ?>

@@ -507,8 +507,13 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 						$id = $line[$field['field_name']];
 					default:
 						if ($link) $rows[$z][$fieldindex]['text'].= $link;
-						if (!empty($field['display_field'])) $rows[$z][$fieldindex]['text'].= htmlchars($line[$field['display_field']]);
-						else {
+						$val_to_insert = '';
+						if (!empty($field['display_field'])) {
+							$val_to_insert = $line[$field['display_field']];
+							if (!empty($field['translate_field_value']))
+								$val_to_insert = zz_text($val_to_insert);
+							$rows[$z][$fieldindex]['text'].= htmlchars($val_to_insert);
+						} else {
 							// replace field content with display_title, if set.
 							if (!empty($field['display_title']) 
 								&& in_array($line[$field['field_name']], array_keys($field['display_title'])))
@@ -525,26 +530,34 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 								$rows[$z][$fieldindex]['text'].= str_replace(',', ', ', $line[$field['field_name']]);
 							elseif ($field['type'] == 'select' && !empty($field['enum']) && !empty($field['enum_title'])) { // show enum_title instead of enum
 								foreach ($field['enum'] as $mkey => $mvalue)
-									if ($mvalue == $line[$field['field_name']]) $rows[$z][$fieldindex]['text'] .= $field['enum_title'][$mkey];
+									if ($mvalue == $line[$field['field_name']]) 
+										$rows[$z][$fieldindex]['text'] .= $field['enum_title'][$mkey];
 							} elseif ($field['type'] == 'select' && !empty($field['enum'])) {
 								$rows[$z][$fieldindex]['text'] .= zz_text($line[$field['field_name']]); // translate field value
-							} elseif ($field['type'] == 'date') $rows[$z][$fieldindex]['text'].= datum_de($line[$field['field_name']]);
-							elseif (isset($field['number_type']) && $field['number_type'] == 'currency') 
+							} elseif ($field['type'] == 'date') {
+								$rows[$z][$fieldindex]['text'].= datum_de($line[$field['field_name']]);
+							} elseif (isset($field['number_type']) && $field['number_type'] == 'currency') {
 								$rows[$z][$fieldindex]['text'].= waehrung($line[$field['field_name']], '');
-							elseif (isset($field['number_type']) && $field['number_type'] == 'latitude' && $line[$field['field_name']]) {
+							} elseif (isset($field['number_type']) && $field['number_type'] == 'latitude' && $line[$field['field_name']]) {
 								$deg = dec2dms($line[$field['field_name']], '');
 								$rows[$z][$fieldindex]['text'].= $deg['latitude_dms'];
 							} elseif (isset($field['number_type']) && $field['number_type'] == 'longitude' &&  $line[$field['field_name']]) {
 								$deg = dec2dms('', $line[$field['field_name']]);
 								$rows[$z][$fieldindex]['text'].= $deg['longitude_dms'];
 							} elseif (!empty($field['display_value'])) {
+								// translations should be done in $zz-definition-file
 								$rows[$z][$fieldindex]['text'].= $field['display_value'];
 							} elseif ($zz['mode'] == 'export') {
 								$rows[$z][$fieldindex]['text'].= $line[$field['field_name']];
 							} elseif (!empty($field['list_format'])) {
 								$rows[$z][$fieldindex]['text'].= $field['list_format']($line[$field['field_name']]);
-							} elseif (empty($field['hide_zeros']) OR $line[$field['field_name']]) // show field, but not if hide_zeros is set
-								$rows[$z][$fieldindex]['text'].= nl2br(htmlchars($line[$field['field_name']]));
+							} elseif (empty($field['hide_zeros']) OR $line[$field['field_name']]) {
+								// show field, but not if hide_zeros is set
+								$val_to_insert = $line[$field['field_name']];
+								if (!empty($field['translate_field_value']))
+									$val_to_insert = zz_text($val_to_insert);
+								$rows[$z][$fieldindex]['text'].= nl2br(htmlchars($val_to_insert));
+							}
 						}
 						if ($link) $rows[$z][$fieldindex]['text'].= '</a>';
 						if (isset($field['sum']) && $field['sum'] == true) {
@@ -688,14 +701,14 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 		foreach ($rows as $index => $row) {
 			if (!empty($zz_conf['group'])) {
 				if (empty($row['group'])) $grouptitles[$index] = zz_text('- unknown -');
-				if ($grouptitles[$index] != $rowgroup) {
+				if ($row['group'] != $rowgroup) {
 					if ($rowgroup) {
 						if ($zz_conf['tfoot'])
 							$zz['output'] .= '<tr class="group_sum">'.zz_field_sum($table_query[0], $z, $my_footer_table, $sum_group[$rowgroup], $zz_conf).'</tr>'."\n";
 						$zz['output'] .= '</tbody><tbody>'."\n";
 					}
 					$zz['output'].= '<tr class="group"><td colspan="'.(count($row)-1).'"><strong>'.$grouptitles[$index].'</strong></td></tr>'."\n";
-					$rowgroup = $grouptitles[$index];
+					$rowgroup = $row['group'];
 				}
 			}
 			$zz['output'].= '<tr class="'.($index & 1 ? 'uneven':'even').

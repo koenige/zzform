@@ -316,7 +316,7 @@ function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids) {
 					while ($line = mysql_fetch_assoc($result)) {
 						if (empty($line[$condition['key_field_name']])) {
 							$zz_error[] = array(
-								'msg_dev' => sprintf(cms_text('Error in condition %s, key_field_name is not in field list'), $index),
+								'msg_dev' => sprintf(zz_text('Error in condition %s, key_field_name is not in field list'), $index),
 								'sql' => $sql,
 								'level' => E_USER_ERROR
 							);

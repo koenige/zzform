@@ -34,6 +34,7 @@ doc		doc		doc		application/word				MS Word Document
 doc		doc		doc		application/x-msw6				MS Word Document
 doc		doc		doc		application/x-msword			MS Word Document
 doc		doc		doc		zz-application/zz-winassoc-doc	MS Word Document
+doc		doc		doc		application/force-download		MS Word Document
 
 docx	docx	docx	application/vnd.openxmlformats-officedocument.wordprocessingml.document	Microsoft Word Open XML Document
 
@@ -110,6 +111,7 @@ pdf		pdf		pdf		text/pdf						Adobe Portable Document Format
 pdf		pdf		pdf		text/x-pdf						Adobe Portable Document Format
 pdf		pdf		pdf		application/x-octet-stream		Adobe Portable Document Format
 pdf		pdf		pdf		application/octet-stream		Adobe Portable Document Format
+pdf		pdf		pdf		application/download			Adobe Portable Document Format
 
 eps		eps		eps		application/postscript			PostScript document text (EPS)
 
