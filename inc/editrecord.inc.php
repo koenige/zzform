@@ -345,10 +345,22 @@ function zz_set_subrecord_action(&$zz_tab, $i, $k, &$zz) {
 					default:
 						$values .= $t_coord['dec']; // dd will be default
 				}
-			} elseif ($field['type'] != 'timestamp' && $field['type'] != 'id')
-				// 	old: !(!empty($field['default']) && $field['default'] == $subtable['POST'][$field['field_name']]) // default values will be ignored
-				if (empty($field['def_val_ignore'])) // some auto values/values/default values will be ignored 
+			} elseif ($field['type'] != 'timestamp' && $field['type'] != 'id') {
+				// check def_val_ignore, some auto values/values/default values will be ignored 
+				if (!empty($field['def_val_ignore'])) {
+					if (!empty($field['default']) 
+						AND $field['default'] != $subtable['POST'][$field['field_name']]) {
+					// defaults will only be ignored if different from default value
+						$values .= $subtable['POST'][$field['field_name']];				
+					} else {
+					// values need not to be checked, they'll always be ignored
+					// (and it's not easy to check them because they might be in a 'values'-array)
+						$values .= '';
+					}
+				} else {
 					$values .= $subtable['POST'][$field['field_name']];
+				}
+			}
 		if ($field['type'] == 'id')
 			if (!isset($subtable['POST'][$field['field_name']]))
 				$subtable['action'] = 'insert';

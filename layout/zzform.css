@@ -140,3 +140,11 @@ div.text #zzform	 {padding: 1em;}
 
 .debug {background: white; border: 1px solid black; overflow: auto; font-size: 75%;}
 .debug h1 {padding-left: .5em;}
+
+/* Filter */
+#zzform .zzfilter {margin: 1em 0 2em;}
+#zzform .zzfilter dl {margin: 0; padding: 0;}
+#zzform .zzfilter dt {float: left; clear: left;}
+#zzform .zzfilter dd {margin: 0; padding: 0 .5em; float: left;
+	border-right: 1px solid black;}
+#zzform .zzfilter dd.filter_all {border-right: none;}

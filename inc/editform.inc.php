@@ -31,7 +31,7 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var, $zz_condi
 	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
 
 	$output = '';
-	if ($zz['formhead'] && $zz['mode'] != 'export')
+	if ($zz['formhead'] && $zz_conf['access'] != 'export')
 		$output.= "\n<h2>".ucfirst($zz['formhead'])."</h2>\n\n";
 	$output.= zz_error();
 
@@ -44,8 +44,8 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var, $zz_condi
 	// there is a form to display
 	$zz_conf_thisrec = $zz_conf;
 	// check conditions
-	if (!empty($zz_conf_thisrec['conditions']))
-		$zz_conf_thisrec = zz_merge_conditions($zz_conf_thisrec, $zz_conditions['bool'], $my_tab[0][0]['id']['value']);
+	if (!empty($zz_conf_thisrec['conditions']) AND !empty($zz_conditions['bool']))
+		$zz_conf_thisrec = zz_conditions_merge($zz_conf_thisrec, $zz_conditions['bool'], $my_tab[0][0]['id']['value']);
 
 	if (($zz['mode'] == 'add' OR $zz['mode'] == 'edit') && !empty($zz_conf_thisrec['upload_MAX_FILE_SIZE'])) 
 		$output.= '<input type="hidden" name="MAX_FILE_SIZE" value="'.$zz_conf_thisrec['upload_MAX_FILE_SIZE'].'">'."\n";
@@ -56,7 +56,7 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var, $zz_condi
 		$unwanted_keys = array('mode', 'id', 'add');
 		$cancelurl.= zz_edit_query_string($zz_conf['url_self_qs_base'].$zz_conf['url_self_qs_zzform'], $unwanted_keys);
 	}
-	if ($zz['mode'] && $zz['mode'] != 'review' && $zz['mode'] != 'show') {
+	if ($zz['mode'] && $zz['mode'] != 'review' && $zz['mode'] != 'show'  && $zz['mode'] != 'list_only') {
 		$output.= '<tfoot>'."\n";
 		$output.= '<tr><th>&nbsp;</th> <td><input type="submit" value="';
 		$accesskey = 's';
@@ -107,7 +107,7 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var, $zz_condi
 	$output.= '</table>'."\n";
 	if ($zz['mode'] == 'delete') $output.= '<input type="hidden" name="'
 		.$my_tab[0][0]['id']['field_name'].'" value="'.$my_tab[0][0]['id']['value'].'">'."\n";
-	if ($zz['mode'] && $zz['mode'] != 'review' && $zz['mode'] != 'show') {
+	if ($zz['mode'] && $zz['mode'] != 'review' && $zz['mode'] != 'show' AND $zz['mode'] != 'list_only') {
 		switch ($zz['mode']) {
 			case 'add': $submit = 'insert'; break;
 			case 'edit': $submit = 'update'; break;
@@ -162,6 +162,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 	$firstrow = true;
 	$table_name = (!empty($my_tab[$i]['table_name']) ? $my_tab[$i]['table_name'] : $my_tab[$i]['table']);
 	$row_display = (!empty($my['access']) ? $my['access'] : $display); // this is for 0 0 main record
+
 	foreach ($my['fields'] as $fieldkey => $field) {
 		if (!$field) continue;
 		if (!empty($field['hide_in_form'])) continue;
@@ -1059,7 +1060,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 			if (!empty($default_value)) // unset $my['record'] so following fields are empty
 				unset($my['record'][$field['field_name']]); 
 			if (!isset($add_details_where)) $add_details_where = false;
-			if ($mode && $mode != 'delete' && $mode != 'show'  && $mode != 'review')
+			if ($mode && $mode != 'delete' && $mode != 'show' && $mode != 'review' AND $mode != 'list_only')
 				if (isset($field['add_details'])) {
 					$add_details_sep = (strstr($field['add_details'], '?') ? '&amp;' : '?');
 					$outputf.= ' <a href="'.$field['add_details'].$add_details_sep

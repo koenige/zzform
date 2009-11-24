@@ -168,6 +168,10 @@ cr2		cr2		cr2		image/x-canon-cr2				Canon CR2 raw image
 cr2		cr2		cr2		application/octet-stream		Canon CR2 raw image
 cr2		cr2		cr2		image/tiff						Canon CR2 raw image
 
+nef		nef		nef		application/octet-stream		Nikon Electronic format
+nef		nef		nef		image/x-nikon-nef				Nikon Electronic format
+nef		nef		nef		image/tiff						Nikon Electronic format
+
 csv		csv		csv		text/comma-separated-values		Comma Separated Values
 
 ctb		ctb		ctb		application/octet-stream		AutoCAD Color-dependent Plot Style Table

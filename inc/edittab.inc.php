@@ -26,16 +26,40 @@
  * @return array $zz_error	Error-Output
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_field, $zz_conditions) {
+function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_conditions) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+	if ($zz_conf['list_access']) {
+		$zz_conf = array_merge($zz_conf, $zz_conf['list_access']);
+		unset($zz_conf['list_access']);
+	}
 
 	$subselects = array();
+
+	// SQL query without limit and filter for conditions etc.!
+	$zz['sql_without_limit'] = $zz['sql'];
+
+	// list filter
+	if (!empty($zz_conf['filter']) AND !empty($_GET['filter'])) {
+		foreach ($zz_conf['filter'] AS $filter) {
+			if (in_array($filter['identifier'], array_keys($_GET['filter']))
+				AND in_array($_GET['filter'][$filter['identifier']], array_keys($filter['selection']))
+				AND $filter['type'] == 'list'
+				AND !empty($filter['where'])) {
+				// it's a valid filter, so apply it.
+					$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', $filter['where'].$_GET['filter'][$filter['identifier']]);
+			}
+		}
+	}
+	// must be behind update, insert etc. or it will return the wrong number
+	$total_rows = zz_count_rows($zz['sql'], $zz['table'].'.'.$id_field);	
+
+	$zz['sql'].= ' '.$zz['sqlorder']; 						// must be here because of where-clause
+	$zz['sql'] = zz_sql_order($zz['fields'], $zz['sql']); // Alter SQL query if GET order (AND maybe GET dir) are set
 
 	//
 	// Query records
 	//
-	$zz['sql_without_limit'] = $zz['sql'];
 	if ($zz_conf['this_limit'] && empty($zz_conf['show_hierarchy'])) { // limit, but not for hierarchical sets
 		if (!$zz_conf['limit']) $zz_conf['limit'] = 20; // set a standard value for limit
 			// this standard value will only be used on rare occasions, when NO limit is set
@@ -145,7 +169,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 			if ($index) foreach ($line_query[$index] as $fieldindex => $field) {
 				// conditions
 				if (!empty($zz_conf['modules']['conditions']) AND !empty($field['conditions'])) {
-					$line_query[$index][$fieldindex] = zz_merge_conditions($field, $zz_conditions['bool'], $line[$id_field]);
+					$line_query[$index][$fieldindex] = zz_conditions_merge($field, $zz_conditions['bool'], $line[$id_field]);
 					$conditions_applied[$index] = true;
 				}
 			}
@@ -187,31 +211,8 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 	}
 
 	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "table_query set");
-
-	// Search Form
-	$searchform_top = false;
-	$searchform_bottom = false;
-	if ($zz['mode'] != 'export' AND $zz_conf['search'] == true) {
-		$html_searchform = false;
-		if ($total_rows OR isset($_GET['q'])) 
-			// show search form only if there are records as a result of this query; 
-			// q: show search form if empty search result occured as well
-			$html_searchform = zz_search_form($zz['fields_in_list'], $zz['table']);
-		if ($zz_conf['search'] === true) $zz_conf['search'] = 'bottom'; // default!
-		switch ($zz_conf['search']) {
-			case 'top':
-				// show form on top only if there are records!
-				if ($count_rows) $searchform_top = $html_searchform;
-			break;
-			case 'both':
-				// show form on top only if there are records!
-				if ($count_rows) $searchform_top = $html_searchform;
-			case 'bottom':
-			default:
-				$searchform_bottom = $html_searchform;
-		}
-	}
-	$zz['output'] .= $searchform_top;
+	$search_form = zz_search_form($zz['fields_in_list'], $zz['table'], $total_rows, $zz['mode'], $count_rows);
+	$zz['output'] .= $search_form['top'];
 	
 	if ($zz_conf['show_list'] AND $zz_conf['select_multiple_records'] AND $zz['mode'] != 'export') {
 		$zz['output'].= '<form action="'.$zz_conf['url_self'].$zz_conf['url_self_qs_base'];
@@ -298,7 +299,8 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 	} elseif ($zz_conf['show_list'] && $zz_conf['list_display'] == 'csv') {
 		$tablerow = false;
 		foreach ($table_query[0] as $field)
-			$tablerow[] = $zz_conf['export_csv_enclosure'].str_replace($zz_conf['export_csv_enclosure'], $zz_conf['export_csv_enclosure'].$zz_conf['export_csv_enclosure'], $field['title']).$zz_conf['export_csv_enclosure'];
+			$tablerow[] = $zz_conf['export_csv_enclosure'].str_replace($zz_conf['export_csv_enclosure'], $zz_conf['export_csv_enclosure']
+				.$zz_conf['export_csv_enclosure'], $field['title']).$zz_conf['export_csv_enclosure'];
 		$zz['output'].= implode($zz_conf['export_csv_delimiter'], $tablerow)."\r\n";
 	} elseif ($zz_conf['show_list'] && $zz_conf['list_display'] == 'pdf') {
 		$zz['output']['head'] = $table_query[0];
@@ -361,10 +363,13 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 			foreach ($table_query[$tq_index] as $fieldindex => $field) {
 				// conditions
 				if (!empty($zz_conf['modules']['conditions'])) {
-					if (!empty($field['conditions']))
-						$field = zz_merge_conditions($field, $zz_conditions['bool'], $line[$id_field]);
-					if (!empty($zz_conf_thisrec['conditions']))
-						$zz_conf_thisrec = zz_merge_conditions($zz_conf_thisrec, $zz_conditions['bool'], $line[$id_field]);
+					if (!empty($field['conditions'])) {
+						$field = zz_conditions_merge($field, $zz_conditions['bool'], $line[$id_field]);
+					}
+					if (!empty($zz_conf_thisrec['conditions'])) {
+						$zz_conf_thisrec = zz_conditions_merge($zz_conf_thisrec, $zz_conditions['bool'], $line[$id_field]);
+						$zz_conf_thisrec = zz_listandrecord_access($zz_conf_thisrec);
+					}
 				}
 
 				// check all fields next to each other with list_append_next					
@@ -790,15 +795,19 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 
 	// Add new record
 	if ($zz['mode'] != 'export') {
+		// filter, if there was a list
+		if ($zz_conf['filter'] AND $zz_conf['show_list'] 
+			AND in_array($zz_conf['filter_position'], array('bottom', 'both')))
+			$zz['output'] .= zz_filter_selection($zz_conf['filter']);
 		$toolsline = array();
 		// normal add button, only if list was shown beforehands
-		if ($zz['mode'] != 'add' && $zz_conf['add'] AND !is_array($zz_conf['add']) && $zz_conf['show_list'])
+		if ($zz['mode'] != 'add' && $zz_conf['add_link'] AND !is_array($zz_conf['add']) && $zz_conf['show_list'])
 			$toolsline[] = '<a accesskey="n" href="'
 				.$zz_conf['url_self'].$zz_conf['url_self_qs_base'].$zz_var['url_append'].'mode=add'.$zz_var['extraGET'].'">'
 				.zz_text('Add new record').'</a>';
 		// multi-add-button, also show if there was no list, because it will only be shown below records!
 		
-		if ($zz['mode'] != 'add' && $zz_conf['add'] AND is_array($zz_conf['add'])) {
+		if ($zz['mode'] != 'add' && $zz_conf['add_link'] AND is_array($zz_conf['add'])) {
 			sort($zz_conf['add']); // if some 'add' was unset before, here we get new numerical keys
 			$zz['output'].= '<p class="add-new">'.zz_text('Add new record').': ';
 			foreach ($zz_conf['add'] as $i => $add) {
@@ -822,7 +831,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $total_rows, $id_
 		// Limit links
 		$zz['output'].= zz_limit($zz_conf['limit'], $zz_conf['this_limit'], $count_rows, $zz['sql'], $total_rows, 'body');	// NEXT, PREV Links at the end of the page
 		// Search form
-		$zz['output'] .= $searchform_bottom;
+		$zz['output'] .= $search_form['bottom'];
 	} elseif ($zz_conf['list_display'] == 'pdf') {
 		if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
 		zz_pdf($zz);
@@ -876,5 +885,6 @@ function zz_list_hierarchy($h_lines, $show_hierarchy, $id_field, $level, &$i) {
 	}
 	return $my_lines;
 }
+
 
 ?>

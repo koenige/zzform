@@ -122,7 +122,10 @@ function zz_error() {
 			$admin_output[$key] = $error['msg'];
 
 		// Log output
-		$log_output[$key] = strip_tags(str_replace('<br>', "\n\n", trim(html_entity_decode($admin_output[$key]))));
+		$log_output[$key] = trim(html_entity_decode($admin_output[$key]));
+		$log_output[$key] = str_replace('<br>', "\n\n", $log_output[$key]);
+		$log_output[$key] = str_replace('<br class="nonewline_in_mail">', "; ", $log_output[$key]);
+		$log_output[$key] = strip_tags($log_output[$key]);
 		// reformat log output
 		if (!empty($zz_conf['error_log'][$level]) AND $zz_conf['log_errors']) {
 			$error_line = '['.date('d-M-Y H:i:s').'] zzform '.ucfirst($level).': '.preg_replace("/\s+/", " ", $log_output[$key]);
@@ -633,50 +636,126 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 
 /** Generates search form and link to show all records
  * 
- * @param $query			(array) field definitions ($zz)
+ * @param $fields			(array) field definitions ($zz)
  * @param $table			(string) name of database table
+ * @param $total_rows		(number) total rows in database selection
+ * @param $mode				(string) db mode
+ * @param $count_rows		(string) number of rows shown on html page
  * @return $output			(string) HTML output
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
- function zz_search_form($fields, $table) {
+ function zz_search_form($fields, $table, $total_rows, $mode, $count_rows) {
+	global $zz_conf;
+	// Search Form
+	$search_form['top'] = false;
+	$search_form['bottom'] = false;
+	if (!$zz_conf['search']) return $search_form;
+
+	$output = '';
+	if ($total_rows OR isset($_GET['q'])) {
+		// show search form only if there are records as a result of this query; 
+		// q: show search form if empty search result occured as well
+		$self = $zz_conf['url_self'];
+		$unsearchable = array('image', 'calculated', 'subtable', 'timestamp', 'upload_image'); // fields that won't be used for search
+		$output = "\n";
+		$output.= '<form method="GET" action="'.$self.'" id="zzsearch" accept-charset="'.$zz_conf['character_set'].'"><p>';
+		if ($zz_conf['url_self_qs_base'].$zz_conf['url_self_qs_zzform']) { 
+			$unwanted_keys = array('q', 'scope', 'limit', 'this_limit', 'mode', 'id', 'add'); // do not show edited record, limit
+			parse_str(substr($zz_conf['url_self_qs_base'].$zz_conf['url_self_qs_zzform'], 1), $queryparts);
+			foreach (array_keys($queryparts) as $key)
+				if (in_array($key, $unwanted_keys))
+					continue;
+				elseif (is_array($queryparts[$key]))
+					foreach (array_keys($queryparts[$key]) as $subkey)
+						$output .= '<input type="hidden" name="'.$key.'['.$subkey.']" value="'.htmlspecialchars($queryparts[$key][$subkey]).'">';
+				else
+					$output.= '<input type="hidden" name="'.$key.'" value="'.htmlspecialchars($queryparts[$key]).'">';
+			$self .= zz_edit_query_string($zz_conf['url_self_qs_base'].$zz_conf['url_self_qs_zzform'], $unwanted_keys); // remove unwanted keys from link
+		}
+		$output.= '<input type="text" size="30" name="q"';
+		if (isset($_GET['q'])) $output.= ' value="'.htmlchars($_GET['q']).'"';
+		$output.= '>';
+		$output.= '<input type="submit" value="'.zz_text('search').'">';
+		$output.= ' '.zz_text('in').' ';	
+		$output.= '<select name="scope">';
+		$output.= '<option value="">'.zz_text('all fields').'</option>';
+		foreach ($fields as $field) {
+			if (!in_array($field['type'], $unsearchable) && empty($field['exclude_from_search'])) {
+				$fieldname = (isset($field['display_field']) && $field['display_field']) ? $field['display_field'] : $table.'.'.$field['field_name'];
+				$output.= '<option value="'.$fieldname.'"';
+				if (isset($_GET['scope'])) if ($_GET['scope'] == $fieldname) $output.= ' selected';
+				$output.= '>'.strip_tags($field['title']).'</option>';
+			}
+		}
+		$output.= '</select>';
+		if (!empty($_GET['q'])) {
+			$output.= ' &nbsp;<a href="'.$self.'">'.zz_text('Show all records').'</a>';
+		}
+		$output.= '</p></form>'."\n";
+	}
+
+	if ($zz_conf['search'] === true) $zz_conf['search'] = 'bottom'; // default!
+	switch ($zz_conf['search']) {
+	case 'top':
+		// show form on top only if there are records!
+		if ($count_rows) $search_form['top'] = $output;
+		break;
+	case 'both':
+		// show form on top only if there are records!
+		if ($count_rows) $search_form['top'] = $output;
+	case 'bottom':
+	default:
+		$search_form['bottom'] = $output;
+	}
+	return $search_form;
+}
+
+
+function zz_filter_selection($filter) {
+	if (!is_array($filter)) return false;
 	global $zz_conf;
 	$self = $zz_conf['url_self'];
-	$unsearchable = array('image', 'calculated', 'subtable', 'timestamp', 'upload_image'); // fields that won't be used for search
-	$output = "\n";
-	$output.= '<form method="GET" action="'.$self.'" id="zzsearch" accept-charset="'.$zz_conf['character_set'].'"><p>';
-	if (($zz_conf['url_self_qs_base'].$zz_conf['url_self_qs_zzform'])) { 
-		$unwanted_keys = array('q', 'scope', 'limit', 'this_limit', 'mode', 'id', 'add'); // do not show edited record, limit
-		parse_str(substr($zz_conf['url_self_qs_base'].$zz_conf['url_self_qs_zzform'], 1), $queryparts);
-		foreach (array_keys($queryparts) as $key)
-			if (in_array($key, $unwanted_keys))
-				continue;
-			elseif (is_array($queryparts[$key]))
-				foreach (array_keys($queryparts[$key]) as $subkey)
-					$output .= '<input type="hidden" name="'.$key.'['.$subkey.']" value="'.htmlspecialchars($queryparts[$key][$subkey]).'">';
-			else
-				$output.= '<input type="hidden" name="'.$key.'" value="'.htmlspecialchars($queryparts[$key]).'">';
-		$self .= zz_edit_query_string($zz_conf['url_self_qs_base'].$zz_conf['url_self_qs_zzform'], $unwanted_keys); // remove unwanted keys from link
-	}
-	$output.= '<input type="text" size="30" name="q"';
-	if (isset($_GET['q'])) $output.= ' value="'.htmlchars($_GET['q']).'"';
-	$output.= '>';
-	$output.= '<input type="submit" value="'.zz_text('search').'">';
-	$output.= ' '.zz_text('in').' ';	
-	$output.= '<select name="scope">';
-	$output.= '<option value="">'.zz_text('all fields').'</option>';
-	foreach ($fields as $field) {
-		if (!in_array($field['type'], $unsearchable) && empty($field['exclude_from_search'])) {
-			$fieldname = (isset($field['display_field']) && $field['display_field']) ? $field['display_field'] : $table.'.'.$field['field_name'];
-			$output.= '<option value="'.$fieldname.'"';
-			if (isset($_GET['scope'])) if ($_GET['scope'] == $fieldname) $output.= ' selected';
-			$output.= '>'.strip_tags($field['title']).'</option>';
+	// remove unwanted keys from link
+	// do not show edited record, limit
+	$unwanted_keys = array('q', 'scope', 'limit', 'this_limit', 'mode', 'id', 'add', 'filter');
+	$qs = zz_edit_query_string($zz_conf['url_self_qs_base'].$zz_conf['url_self_qs_zzform'], $unwanted_keys);
+	$output = '';
+	$output .= '<div class="zzfilter">'."\n";
+	$output .= '<dl>'."\n";
+	foreach ($filter as $f) {
+		$other_filters['filter'] = (!empty($_GET['filter']) ? $_GET['filter'] : array());
+		unset($other_filters['filter'][$f['identifier']]);
+		$qs = zz_edit_query_string($qs, array(), $other_filters);
+		$output .= '<dt>'.zz_text('Selection').' '.$f['title'].':</dt>';
+		foreach ($f['selection'] as $id => $selection) {
+			$is_selected = ((!empty($_GET['filter'][$f['identifier']]) 
+				AND $_GET['filter'][$f['identifier']] == $id))
+				? true : false;
+			if (!empty($f['default_selection']) AND $f['default_selection'] == $id) {
+				// default selection does not need parameter
+				$link = $self.$qs;
+			} else {
+				$link = $self.($qs ? $qs.'&amp;' : '?').'filter['.$f['identifier'].']='.$id;
+			}
+			$output .= '<dd>'
+				.(!$is_selected ? '<a href="'.$link.'">' : '<strong>')
+				.$selection
+				.(!$is_selected ? '</a>' : '</strong>')
+				.'</dd>'."\n";
 		}
+		if (empty($f['default_selection'])) {
+			$link = $self.$qs;
+		} else {
+			// there is a default selection, so we need a parameter = 0!
+			$link = $self.($qs ? $qs.'&amp;' : '?').'filter['.$f['identifier'].']=0';
+		}
+		$output .= '<dd class="filter_all">&#8211;&nbsp;'
+			.(!empty($_GET['filter'][$f['identifier']]) ? '<a href="'.$link.'">' : '<strong>')
+			.zz_text('all')
+			.(!empty($_GET['filter'][$f['identifier']]) ? '</a>' : '</strong>')
+			.'&nbsp;&#8211;</dd>'."\n";
 	}
-	$output.= '</select>';
-	if (!empty($_GET['q'])) {
-		$output.= ' &nbsp;<a href="'.$self.'">'.zz_text('Show all records').'</a>';
-	}
-	$output.= '</p></form>'."\n";
+	$output .= '</dl></div><br clear="all">'."\n";
 	return $output;
 }
 
@@ -842,7 +921,7 @@ function zz_get_subqueries($subqueries, $zz, &$zz_tab, $zz_conf) {
 		// now go into each individual subrecord
 		if ($zz['mode']) {
 			// first check for review or access, first if must be here because access might override mode here!
-			if ($zz['mode'] == 'review' OR $zz['mode'] == 'show'
+			if ($zz['mode'] == 'review' OR $zz['mode'] == 'show' OR $zz['mode'] == 'list_only'
 				OR (!empty($zz['fields'][$zz_tab[$i]['no']]['access']) && $zz['fields'][$zz_tab[$i]['no']]['access'] == 'show'))
 				$zz_tab[$i] = zz_subqueries($i, false, false, true, $zz['fields'][$zz_tab[$i]['no']], $zz_tab); // sql
 			elseif ($zz['mode'] == 'add')
@@ -1183,11 +1262,25 @@ function zz_requery_record(&$zz_tab_i, $k, $validation, $mode) {
 		foreach (array_keys($my['fields']) as $qf) {
 			if (isset($my['fields'][$qf]['check_validation'])) {
 				if (!$my['fields'][$qf]['check_validation']) {
-					if (isset($my['fields'][$qf]['class']))
+					if (isset($my['fields'][$qf]['class'])) {
 						$my['fields'][$qf]['class'].= ' error';
-					else $my['fields'][$qf]['class'] = 'error';
+					} else {
+						$my['fields'][$qf]['class'] = 'error';
+					}
 					if ($my['fields'][$qf]['type'] != 'password_change') {
-						$zz_error['validation']['msg'][] = zz_text('Value_incorrect_in_field').' <strong>'.$my['fields'][$qf]['title'].'</strong>';
+						if ($my['record'][$my['fields'][$qf]['field_name']]) {
+							// there's a value, so this is an incorrect value
+							$zz_error['validation']['msg'][] = zz_text('Value_incorrect_in_field')
+								.' <strong>'.$my['fields'][$qf]['title'].'</strong>';
+							$zz_error['validation']['incorrect_values'][] = array(
+								'field_name' => $my['fields'][$qf]['field_name'],
+								'msg' => zz_text('incorrect value').': '.$my['record'][$my['fields'][$qf]['field_name']]
+							);
+						} else {
+							// there's a value missing
+							$zz_error['validation']['msg'][] = zz_text('Value missing in field')
+								.' <strong>'.$my['fields'][$qf]['title'].'</strong>';
+						}
 					}
 				} else
 					echo $my['fields'][$qf]['check_validation'];
@@ -1526,6 +1619,8 @@ function magic_quotes_strip($mixed) {
 // might get problems with backticks that mark fieldname that is equal with SQL keyword
 // mode = add until now default, mode = replace is only implemented for SELECT
 function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
+	global $zz_conf; // for debug only
+	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
 	// remove whitespace
 	$sql = ' '.preg_replace("/\s+/", " ", $sql); // first blank needed for SELECT
 	// SQL statements in descending order
@@ -1570,9 +1665,14 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 					// either something with correct bracket count
 					// or no match anymore at all
 					$lastpart = ' '.$statement.' '.$o_parts[$statement][2];
-					if (preg_match($search, $o_parts[$statement][1], $o_parts[$statement]))
+					// check first with strstr if $statement (LIMIT, WHERE etc.)
+					// is still part of the remaining sql query, because
+					// preg_match will take 2000 times longer if there is no match
+					// at all (bug in php?)
+					if (strstr($o_parts[$statement][1], $statement) 
+						AND preg_match($search, $o_parts[$statement][1], $o_parts[$statement])) {
 						$o_parts[$statement][2] = $o_parts[$statement][2].' '.$lastpart;
-					else {
+					} else {
 						unset($o_parts[$statement]); // ignore all this.
 						$found = true;
 					}
@@ -1630,6 +1730,7 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 		if (!empty($o_parts[$statement][2])) 
 			$sql.= ' '.$statement.' '.$o_parts[$statement][2];
 	}
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
 	return $sql;
 }
 
@@ -1692,10 +1793,12 @@ function zz_check_select($my, $f, $max_select) {
 			$my['fields'][$f]['suffix'] = '<br>'.zz_text('No entry found. Try less characters.');
 			$my['validation'] = false;
 		} elseif (mysql_num_rows($result) == 1) {
+			// exactly one record found, so this is the value we want
 			$my['POST'][$my['fields'][$f]['field_name']] = mysql_result($result, 0, 0);
 			$my['POST-notvalid'][$my['fields'][$f]['field_name']] = mysql_result($result, 0, 0);
 			$my['fields'][$f]['sql'] = $sql; // if other fields contain errors
 		} elseif (mysql_num_rows($result) <= $max_select) {
+			// let user reselect value from dropdown select
 			$my['fields'][$f]['type'] = 'select';
 			$my['fields'][$f]['sql'] = $sql;
 			$my['fields'][$f]['class'] = 'reselect';
@@ -1706,6 +1809,7 @@ function zz_check_select($my, $f, $max_select) {
 			}
 			$my['validation'] = false;
 		} elseif (mysql_num_rows($result)) {
+			// still too many records, require more characters
 			$my['fields'][$f]['default'] = 'reselect' ;
 			$my['fields'][$f]['class'] = 'reselect' ;
 			$my['fields'][$f]['suffix'] = ' '.zz_text('Please enter more characters.');
@@ -2142,6 +2246,236 @@ function zz_check_def_files($files) {
 		}
 	}
 	return $files;
+}
+
+/** Sets $zz['mode'], $zz['action'] and several $zz_conf-variables
+ * according to what the user request and what the user is allowed to request
+ * 
+ * @param $zz (array)
+ * @param $zz_conf (array) --> will be changed as well
+ * @param $zz_tab (array) --> will be changed as well
+ * @param $zz_var (array)
+ * @param $zz_allowed_params (array)
+ * @param $where_with_unique_id (bool) if it's just one record to be shown (true)
+ * @return $zz (array) changed zz-Array
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function zz_record_access($zz, &$zz_conf, &$zz_tab, $zz_var, $zz_allowed_params, $where_with_unique_id) {
+	// initialize variables
+	$zz['action'] = false;
+	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+	
+	// set mode and action according to $_GET and $_POST variables
+	// do not care yet if actions are allowed
+
+	if ($zz['mode'] == 'export') {
+		$zz_conf['access'] = 'export'; 	// Export overwrites all
+	} elseif (isset($_POST['subtables'])) {
+		// ok, no submit button was hit but only add/remove form fields for
+		// detail records in subtable, so set mode accordingly (no action!)
+		if (!empty($_POST['action']) AND $_POST['action'] == 'insert') {
+			$zz['mode'] = 'add';
+		} elseif (!empty($_POST['action']) AND $_POST['action'] == 'update'
+			AND !empty($_POST[$zz_tab[0][0]['id']['field_name']])) {
+			$zz['mode'] = 'edit';
+			$id_value = $_POST[$zz_tab[0][0]['id']['field_name']];
+		} else {
+			$zz['mode'] = false; // this should not occur if form is used legally
+		}
+	} else {
+		// standard case, get mode from URL
+		if (!empty($_GET['mode'])) {
+			if (in_array($_GET['mode'], $zz_allowed_params['mode'])) {
+				$zz['mode'] = $_GET['mode']; // set mode from URL
+				if (($zz['mode'] == 'edit' OR $zz['mode'] == 'delete' OR $zz['mode'] == 'show')
+					AND !empty($_GET['id'])) {
+					$id_value = $_GET['id'];
+				}
+			} else {
+				$zz['mode'] = false; // illegal parameter, don't set a mode at all
+			}
+		} else {
+			if (!empty($_POST['action']) AND in_array($_POST['action'], $zz_allowed_params['action'])) {
+				$zz['action'] = $_POST['action']; // triggers valid database action
+				if (!empty($_POST[$zz_tab[0][0]['id']['field_name']]))
+					$id_value = $_POST[$zz_tab[0][0]['id']['field_name']];
+				$zz['mode'] = false;
+			} elseif ($where_with_unique_id) {
+				$zz['mode'] = 'review'; // just show the record
+			} else {
+				$zz['mode'] = 'list_only';
+			}
+		}
+	}
+	// write main id value, might have been written by a more trustful instance
+	// beforehands ($_GET['where'] etc.)
+	if (empty($zz_tab[0][0]['id']['value']) AND !empty($id_value))
+		$zz_tab[0][0]['id']['value'] = $id_value;
+	elseif (!isset($zz_tab[0][0]['id']['value']))
+		$zz_tab[0][0]['id']['value'] = '';
+
+	// if $zz_conf['conditions'] -- check them
+	// get conditions if there are any, for access
+	$zz_conf['list_access'] = array(); // for old variables
+
+	if (!empty($zz_conf['modules']['conditions']) AND !empty($zz['conditions'])
+		AND !empty($zz_conf['conditions']) AND $zz_tab[0][0]['id']['value']) {
+		$zz_conditions = zz_conditions_record_check($zz, $zz_tab, $zz_var);
+		// save old variables for list view
+		$saved_variables = array('access', 'add', 'edit', 'delete', 'view', 'details');
+		foreach ($saved_variables as $var) {
+			$zz_conf['list_access'][$var] = $zz_conf[$var];
+		}
+		// overwrite new variables
+		$zz_conf = zz_conditions_merge($zz_conf, $zz_conditions['bool'], $zz_tab[0][0]['id']['value']);
+	}
+
+	// set (and overwrite if neccessary) access variables, i. e.
+	// $zz_conf['add'], $zz_conf['edit'], $zz_conf['delete']
+	
+	if ($zz_conf['access'] == 'add_then_edit') {
+		if ($zz_tab[0][0]['id']['value']) {
+			$zz_conf['access'] = 'edit_only';
+		} else {
+			$zz_conf['access'] = 'add_only';
+		}
+	}
+
+	switch ($zz_conf['access']) { // access overwrites individual settings
+	// first the record specific or overall settings
+	case 'export':
+		$zz_conf['add'] = false;			// don't add record (form+links)
+		$zz_conf['edit'] = false;			// don't edit record (form+links)
+		$zz_conf['delete'] = false;			// don't delete record (form+links)
+		$zz_conf['view'] = false;			// don't show record (links)
+		$zz_conf['show_list'] = true;		// list
+		$zz_conf['show_record'] = false;	// don't show record
+		$zz_conf['this_limit'] = false; 	// always export all records
+		$zz_conf['backlink'] = false; 		// don't show back to overview link
+		$zz_conf['search'] = false; 		// don't show search form
+		break;
+	case 'add_only';
+		if (!is_array($zz_conf['add'])) $zz_conf['add'] = true;	// add record (form)
+		$zz_conf['add_link'] = false;		// add record (links)
+		$zz_conf['edit'] = false;			// don't edit record (form+links)
+		$zz_conf['delete'] = false;			// don't delete record (form+links)
+		$zz_conf['view'] = false;			// don't show record (links)
+		$zz_conf['search'] = false;			// no search form
+		$zz_conf['show_list'] = false;		// no list
+		if (empty($_POST)) $zz['mode'] = 'add';
+		break;
+	case 'edit_only';
+		$zz_conf['add'] = false;			// don't add record (form+links)
+		$zz_conf['edit'] = true;			// edit record (form+links)
+		$zz_conf['delete'] = false;			// don't delete record (form+links)
+		$zz_conf['view'] = false;			// don't show record (links)
+		$zz_conf['search'] = false;			// no search form
+		$zz_conf['show_list'] = false;		// no list
+		if (empty($_POST)) $zz['mode'] = 'edit';
+		break;
+	default:
+		// now the settings which apply to both record and list
+		$zz_conf = zz_listandrecord_access($zz_conf);
+		break;
+	}
+
+	if ($where_with_unique_id) { // just for record, not for list
+		// in case of where and not unique, ie. only one record in table, don't do this.
+		$zz_conf['show_list'] = false;		// don't show table
+		$zz_conf['add'] = false;			// don't show add record (form+links)
+	}
+
+	if (!isset($zz_conf['add_link']))
+		$zz_conf['add_link'] = ($zz_conf['add'] ? true : false); // Link Add new ...
+
+	if (!$zz_conf['add'] AND $zz['mode'] == 'add') $zz['mode'] = false;
+	if (!$zz_conf['edit'] AND $zz['mode'] == 'edit') $zz['mode'] = false; // show?
+	if (!$zz_conf['delete'] AND $zz['mode'] == 'delete') $zz['mode'] = false; // show?
+
+	if (!$zz_conf['add'] AND $zz['action'] == 'insert') $zz['action'] = false;
+	if (!$zz_conf['edit'] AND $zz['action'] == 'update') $zz['action'] = false;
+	if (!$zz_conf['delete'] AND $zz['action'] == 'delete') $zz['action'] = false;
+
+	if ($zz_conf['access'] == 'edit_details_only') $zz['access'] = 'show';
+	if ($zz_conf['access'] == 'edit_details_and_add' 
+		AND $zz['mode'] != 'add' AND $zz['action'] != 'insert')
+		$zz['access'] = 'show';
+
+	// now, mode is set, do something depending on mode
+	
+	if (in_array($zz['mode'], array('edit', 'delete', 'add')) 
+		AND !$zz_conf['show_list_while_edit']) $zz_conf['show_list'] = false;
+
+	if ($zz['mode'] == 'list_only') {
+		$zz_conf['show_record'] = false;	// don't show record // TODO: not used yet
+	}
+
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
+	return $zz;	
+}
+
+/** Sets configuration variables depending on $var['access']
+ * Access possible for list and for record view
+ * 
+ * @param $zz_conf (array)
+ * @return $zz_conf (array) changed zz_conf-variables
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function zz_listandrecord_access($zz_conf) {
+	switch ($zz_conf['access']) {
+	case 'show';
+		$zz_conf['add'] = false;			// don't add record (form+links)
+		$zz_conf['edit'] = false;			// don't edit record (form+links)
+		$zz_conf['delete'] = false;			// don't delete record (form+links)
+		$zz_conf['view'] = true;			// show record (links)
+		break;
+	case 'show_and_add';
+		if (!is_array($zz_conf['add'])) $zz_conf['add'] = true; // add record (form+links)
+		$zz_conf['edit'] = false;			// edit record (form+links)
+		$zz_conf['delete'] = false;			// don't delete record (form+links)
+		$zz_conf['view'] = true;			// show record (links)
+		break;
+	case 'show_edit_add';
+		if (!is_array($zz_conf['add'])) $zz_conf['add'] = true; // add record (form+links)
+		$zz_conf['edit'] = true;			// edit record (form+links)
+		$zz_conf['delete'] = false;			// don't delete record (form+links)
+		$zz_conf['view'] = true;			// show record (links)
+		break;
+	case 'show_and_delete';
+		$zz_conf['add'] = false;			// don't add record (form+links)
+		$zz_conf['edit'] = false;			// don't edit record (form+links)
+		$zz_conf['delete'] = true;			// delete record (form+links)
+		$zz_conf['view'] = true;			// show record (links)
+		break;
+	case 'edit_details_only';
+		$zz_conf['add'] = false;			// don't add record (form+links)
+		$zz_conf['edit'] = true;			// edit record (form+links)
+		$zz_conf['delete'] = false;			// don't delete record (form+links)
+		$zz_conf['view'] = false;			// don't show record (links)
+		break;
+	case 'edit_details_and_add';
+		if (!is_array($zz_conf['add'])) $zz_conf['add'] = true; // add record (form+links)
+		$zz_conf['edit'] = true;			// edit record (form+links)
+		$zz_conf['delete'] = false;			// don't delete record (form+links)
+		$zz_conf['view'] = false;			// don't show record (links)
+		break;
+	case 'none';
+		$zz_conf['add'] = false;			// don't add record (form+links)
+		$zz_conf['edit'] = false;			// don't edit record (form+links)
+		$zz_conf['delete'] = false;			// don't delete record (form+links)
+		$zz_conf['view'] = false;			// don't show record (links)
+		$zz_conf['show_record'] = false;	// don't show record
+		break;
+	case 'all';
+		if (!is_array($zz_conf['add'])) $zz_conf['add'] = true;	// add record (form+links)
+		$zz_conf['edit'] = true;			// edit record (form+links)
+		$zz_conf['delete'] = true;			// delete record (form+links)
+		$zz_conf['view'] = false;			// don't show record (links)
+		break;
+	}
+	if (!isset($zz_conf['add_link']))
+		$zz_conf['add_link'] = ($zz_conf['add'] ? true : false); // Link Add new ...
+	return $zz_conf;
 }
 
 ?>

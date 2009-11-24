@@ -21,6 +21,8 @@ function checkmail($e_mail) {
 	}
 */
 	$e_mail = trim($e_mail); // spaces never belong to Mailadress
+//	$e_mail = str_replace(';', ',', $e_mail); // sometimes people separate multiple 
+//		// e-mails with ; instead of , - allow this but replace with ','
 	if (substr($e_mail, 0, 1) == '<' && substr($e_mail, -1) == '>') 
 		$e_mail = substr($e_mail, 1, -1); // remove <>-brackets around address
 	if (preg_match('/^[a-z0-9!#$%&\'*+\/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&\'*+\\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i', $e_mail, $check))
@@ -28,20 +30,45 @@ function checkmail($e_mail) {
 	return false;
 }
 
-function checkenum($enum_value, $field, $table) {
-	$values = getenums($field, $table);
-	if (in_array($enum_value, $values)) return $enum_value;
-	else return false;
+function zz_check_enumset($enum_value, $field, $table) {
+	$values = zz_get_enumset($field['field_name'], $table);
+	if ($values) {
+		// it's in the table definition, go for it!
+		if (in_array($enum_value, $values)) return $enum_value;
+	} else {
+		// look like it's neither an ENUM nor a SET type of field
+		// so check the $zz['fields']-definition
+		if (isset($field['enum'])) {
+			if (in_array($enum_value, $field['enum'])) return $enum_value;
+		} elseif (isset($field['set'])) {
+			if (in_array($enum_value, $field['set'])) return $enum_value;
+		}
+	}
+	// Value is incorrect
+	return false;
 }
 
-function getenums($colum, $table) {
+function zz_get_enumset($colum, $table) {
 	global $zz_error;
 	$values = array();
 	$sql = "SHOW COLUMNS FROM $table LIKE '$colum'";
 	$result = mysql_query($sql);
 	if (mysql_num_rows($result)) {
-		$enums = mysql_fetch_row($result);
-		$values = explode("','",preg_replace("/(enum|set)\('(.+?)'\)/","\\2",$enums[1]));
+		$column_definition = mysql_fetch_assoc($result);
+		if (substr($column_definition['Type'], 0, 5) == "set('" 
+			AND substr($column_definition['Type'], -2) == "')") {
+			// column of type SET
+			$values = substr($column_definition['Type'], 5, -2);
+			$values = explode("','", $values);
+		} elseif (substr($column_definition['Type'], 0, 6) == "enum('" 
+			AND substr($column_definition['Type'], -2) == "')") {
+			// column of type ENUM
+			$values = substr($column_definition['Type'], 6, -2);
+			$values = explode("','", $values);
+		} else {
+			// different column
+			$values = false;
+		}
 	} else {
 		$zz_error[] = array(
 			'msg_dev' => 'Admin warning: column name given in table definition might not exist.',

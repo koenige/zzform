@@ -94,6 +94,7 @@ else
 $zz_default['graphics_library'] = 'imagemagick';
 $zz_default['imagemagick_paths'] = array('/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/phpbin'); 
 $zz_default['upload_fileinfo_with_file'] = false;
+$zz_default['upload_identify_with_imagemagick'] = true; // might be turned off for performance reasons while handling raw data
 
 $max_filesize = ini_get('upload_max_filesize');
 switch (substr($max_filesize, -1)) {
@@ -139,7 +140,7 @@ $zz_default['mime_types_rewritten'] = array(
 // extensions for images that can be natively displayed in browser
 $zz_default['webimages_by_extension'] = array('jpg', 'jpeg', 'gif', 'png');
 
-$zz_default['exif_supported'] = array('jpeg', 'tiff', 'dng', 'cr2');
+$zz_default['exif_supported'] = array('jpeg', 'tiff', 'dng', 'cr2', 'nef');
 $zz_default['upload_destination_filetype']['tiff'] = 'png';
 $zz_default['upload_destination_filetype']['tif'] = 'png';
 $zz_default['upload_destination_filetype']['tga'] = 'png';
@@ -370,7 +371,7 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 			}
 			if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "exif_imagetype()");
 		} 
-		if ($zz_conf['graphics_library'] == 'imagemagick') {
+		if ($zz_conf['graphics_library'] == 'imagemagick' AND $zz_conf['upload_identify_with_imagemagick']) {
 			$temp_imagick = zz_imagick_identify($myfilename);
 			if ($temp_imagick) {
 				$file = array_merge($file, $temp_imagick);
@@ -378,7 +379,7 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 			if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "identify()");
 		}
 		if ($zz_conf['upload_fileinfo_with_file']) {
-			exec('file '.$myfilename, $return_var);
+			exec('file "'.$myfilename.'"', $return_var);
 			if ($return_var) {
 				$imagetype = false;
 				$file['filetype_file'] = substr($return_var[0], strpos($return_var[0], ':')+2);
@@ -890,7 +891,7 @@ function zz_upload_check(&$images, $action, $zz_conf, $input_filetypes = array()
 				$images[$key]['error'][] = zz_text('Error: ')
 				.zz_text('Unsupported filetype:').' '
 				.$images[$key]['upload']['filetype']
-				.'<br>'.zz_text('Supported filetypes are:').' '
+				.'<br class="nonewline_in_mail">'.zz_text('Supported filetypes are:').' '
 				.implode(', ', $images[$key]['input_filetypes']);
 				$error = true;
 				continue; // do not go on and do further checks, because filetype is wrong anyways
@@ -1442,6 +1443,11 @@ function zz_cleanup_dirs($dir) {
 	return true;
 }
 
+/* Extracts EXIF thumbnail from image
+ *
+ * This function is independent of the graphics library used, therefore it's
+ * directly part of the upload module
+*/
 function zz_image_exif_thumbnail($source, $destination, $dest_extension = false, $image = false) {
 	global $zz_conf;
 	if (!in_array($image['upload']['filetype'], $zz_conf['exif_supported'])) return false;

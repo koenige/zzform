@@ -143,5 +143,6 @@ $text['Warning! Insufficient access rights. Please make sure, that the source di
 $text['%s files left for import. Please wait, the script will reload itself.'] = '%s files left for import. Please wait, the script will reload itself.';
 $text['Field name'] = 'Field name';
 $text['incorrect value'] = 'incorrect value';
+$text['Selection'] = 'Selection';
 
 ?>
