@@ -10,6 +10,11 @@ to what has been agreed on in written or spoken form beforehands. If nothing
 has been explicitly said about the use, these scripts may not be used for a
 different database than originally intended.
 
+required: at least PHP 4.1.2 
+lower PHP versions have not been tested
+- mysql_real_escape_string: above 4.3 (addslashes will be used in PHP versions prior)
+- exif_read_info: above 4.2 (no exif data will be read in PHP versions prior)
+
 
 List of functions in this file
 
@@ -229,6 +234,9 @@ function zzform() {
 
 	if (!empty($where_condition)) {
 		foreach ($where_condition as $field_name => $value) {
+			// allows you to set a different (or none at all) table name for WHERE queries
+			if (!isset($zz['table_for_where'][$field_name])) 
+				$zz['table_for_where'][$field_name] = $zz['table'];
 			if (strstr($field_name, ' ') OR strstr($field_name, ';')) {
 				unset($where_condition[$field_name]);
 				continue;
@@ -241,19 +249,20 @@ function zzform() {
 				$field_name = mysql_real_escape_string($field_tab[1]);
 				unset($field_tab);
 			} else {
-				$table_name = $zz['table'];
+				$table_name = $zz['table_for_where'][$field_name];
 				$field_name = mysql_real_escape_string($field_name);
 			}
+			$field_reference = ($table_name ? $table_name.'.'.$field_name : $field_name);
 			// restrict list view to where, but not to add
 			if (empty($_GET['add'][$submitted_field_name])) {
 				if (!empty($where_condition[$field_name])
 					AND $where_condition[$field_name] == 'NULL') {
 					$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', 
-						'ISNULL('.$table_name.'.'.$field_name.')');
+						'ISNULL('.$field_reference.')');
 					continue; // don't use NULL as where variable!
 				} else {
 					$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', 
-						$table_name.'.'.$field_name." = '"
+						$field_reference." = '"
 						.mysql_real_escape_string($value)."'");
 				}
 			}
@@ -311,7 +320,7 @@ function zzform() {
 	// (there it will be changed depending on outcome of db operations)
 	// so we can set it to $zz_tab
 	$zz_tab[0][0]['action'] = $zz['action'];
-
+	
 	// check if we are in export mode
 	if ($zz_conf['access'] == 'export') {
 		$zz['filetype'] = $zz_conf['export_filetypes'][0]; // default filetype for export
@@ -849,7 +858,7 @@ function zz_initialize(&$zz_allowed_params, &$zz_var) {
 		elseif ($zz_conf['error_mail_level'] == 'warning') $zz_conf['error_mail_level'] = array('error', 'warning');
 		elseif ($zz_conf['error_mail_level'] == 'notice') $zz_conf['error_mail_level'] = array('error', 'warning', 'notice');
 	}
-	require_once($zz_conf['dir_inc'].'/editfunc.inc.php');		// include core functions
+	require_once $zz_conf['dir_inc'].'/editfunc.inc.php';		// include core functions
 
 
 //	Modules
@@ -874,61 +883,63 @@ function zz_initialize(&$zz_allowed_params, &$zz_var) {
 	$zz_conf['selection'] 			= false;
 	$zz_default['group']			= false;
 	$zz_conf['group_field_no']		= false;
-	
-	$zz_default['export']			= false;	// 						
-	$zz_default['view']				= false;	// 						show Action: View
-	$zz_default['delete']			= false;	// $delete				show Action: Delete
-	$zz_default['edit']				= true;		// 						show Action: Edit
-	$zz_default['add']				= true;		// $add					show Add new record
-	$zz_default['show_list']		= true;		// $tabelle				nur bearbeiten möglich, keine Tabelle
-	$zz_default['list_display']		= 'table';
-	$zz_default['search'] 			= false;	// $editvar['search']	Suchfunktion am Ende des Formulars ja/nein
-	$zz_default['backlink']			= true;		// $backlink			show back-to-overview link
-	$zz_default['tfoot']			= false;  	// $tfoot				Tabellenfuss
-	$zz_default['show_output']		= true;		// $show_output			standardmaessig wird output angezeigt
-	$zz_default['multilang_fieldnames'] = false;	// $multilang_fieldnames translate fieldnames via zz_text($fieldname)
-	$zz_default['limit']			= false;	// $limit				only n records are shown at once
-	$zz_default['this_limit']		= false;	// internal value, current range which records are shown
-	$zz_default['limit_show_range'] = 800;		// range in which links to records around current selection will be shown
-	$zz_default['do_validation']	= true;	// $do_validation		left over from old edit.inc, for backwards compatiblity
-	$zz_default['rootdir']			= $_SERVER['DOCUMENT_ROOT'];		//Root Directory
-	$zz_default['max_detail_records'] = 20;		// max 20 detail records, might be expanded later on
-	$zz_default['min_detail_records'] = 0;		// min 0 detail records, might be expanded later on
-	$zz_default['relations_table'] 	= '_relations';	//	name of relations table for referential integrity
-	$zz_default['logging'] 			= false;	//	if logging should occur, turned off by default 
-	$zz_default['logging_table'] 	= '_logging';	//	name of table where INSERT, DELETE and UPDATE actions will be logged
-	$zz_default['prefix'] 			= false;	//	prefix for ALL tables like zz_
-	$zz_default['max_select'] 		= 60;		//	maximum entries in select/option, if bigger than sub-select
-	$zz_default['user']				= '';	// character set
-	$zz_default['project']			= $_SERVER['SERVER_NAME'];
-	$zz_default['show_hierarchy']	= false;
-	$zz_default['error_mail_to']	= false;
-	$zz_default['error_mail_from']	= false;
-	$zz_default['error_handling']	= 'output';
-	$zz_default['error_log']['error']	= ini_get('error_log');
-	$zz_default['error_log']['warning']	= ini_get('error_log');
-	$zz_default['error_log']['notice']	= ini_get('error_log');
-	$zz_default['log_errors'] 			= ini_get('log_errors');
-	$zz_default['log_errors_max_len'] 	= ini_get('log_errors_max_len');
-	$zz_default['action_dir']		= $zz_conf['dir_custom'];			// directory for included scripts after action has been taken
-	$zz_default['details_base']		= false;
-	$zz_default['details_target']	= false;							// target-window for details link
-	$zz_default['details_referer']	= true;								// add referer to details link
+
+	$zz_default['action_dir']		= $zz_conf['dir_custom'];	// directory for included scripts after action has been taken
+	$zz_default['lang_dir']			= $zz_conf['dir_custom'];	// directory for additional text
+
+	$zz_default['access']			= '';		// nothing, does not need to be set, might be set individually
+	$zz_default['add']				= true;		// add or do not add data.
 	$zz_default['additional_text']	= false;
-	$zz_default['lang_dir']			= $zz_conf['dir_custom'];			// directory for additional text
-	$zz_default['access']			= '';			// nothing, does not need to be set, might be set individually
-	$zz_default['max_select_val_len']	= 60;		// maximum length of values in select
-	$zz_default['footer_text']		= false;		// text at the end of all
-	$zz_default['redirect']['successful_update'] = false;	// redirect to diff. page after update
-	$zz_default['redirect']['successful_insert'] = false;	// redirect to diff. page after insert
-	$zz_default['redirect']['successful_delete'] = false;	// redirect to diff. page after delete
-	$zz_default['select_multiple_records'] = false;
-	$zz_default['multi'] 			= false;				// zzform_multi
-	$zz_default['show_list_while_edit'] = true;				// zzform_multi
-	$zz_default['filter'] 			= array();
-	$zz_default['filter_position'] 	= 'top';
-	$zz_default['heading_text'] 	= '';
+	$zz_default['backlink']			= true;		// show back-to-overview link
+	$zz_default['delete']			= false;	// show Action: Delete
+	$zz_default['details']			= false;	// column details; links to detail records with foreign key
+	$zz_default['details_base']		= false;
+	$zz_default['details_referer']	= true;		// add referer to details link
+	$zz_default['details_target']	= false;	// target-window for details link
+	$zz_default['do_validation']	= true;		// left over from old edit.inc, for backwards compatiblity
+	$zz_default['edit']				= true;		// show Action: Edit
+	$zz_default['error_handling']		= 'output';
+	$zz_default['error_log']['error']	= ini_get('error_log');
+	$zz_default['error_log']['notice']	= ini_get('error_log');
+	$zz_default['error_log']['warning']	= ini_get('error_log');
+	$zz_default['error_mail_from']		= false;
+	$zz_default['error_mail_to']		= false;
+	$zz_default['log_errors_max_len'] 	= ini_get('log_errors_max_len');
+	$zz_default['log_errors'] 			= ini_get('log_errors');
+
+	$zz_default['export']				= false;
+	$zz_default['filter_position'] 		= 'top';
+	$zz_default['filter'] 				= array();
+	$zz_default['footer_text']			= false;		// text at the end of all
+	$zz_default['heading_text'] 		= '';
 	$zz_default['heading_text_hidden_while_editing'] 	= false;
+	$zz_default['limit']				= false;	// only n records are shown at once
+	$zz_default['limit_show_range'] 	= 800;		// range in which links to records around current selection will be shown
+	$zz_default['list_display']			= 'table';
+	$zz_default['logging'] 				= false;	//	if logging should occur, turned off by default 
+	$zz_default['logging_table'] 		= '_logging';	// name of table where INSERT, DELETE and UPDATE actions will be logged
+	$zz_default['max_detail_records']	= 20;		// max 20 detail records, might be expanded later on
+	$zz_default['max_select_val_len']	= 60;		// maximum length of values in select
+	$zz_default['max_select'] 			= 60;		// maximum entries in select/option, if bigger than sub-select
+	$zz_default['min_detail_records']	= 0;		// min 0 detail records, might be expanded later on
+	$zz_default['multi'] 				= false;		// zzform_multi
+	$zz_default['multilang_fieldnames'] = false;	// translate fieldnames via zz_text($fieldname)
+	$zz_default['prefix'] 				= false;	//	prefix for ALL tables like zz_
+	$zz_default['project']				= $_SERVER['SERVER_NAME'];
+	$zz_default['redirect']['successful_delete'] = false;	// redirect to diff. page after delete
+	$zz_default['redirect']['successful_insert'] = false;	// redirect to diff. page after insert
+	$zz_default['redirect']['successful_update'] = false;	// redirect to diff. page after update
+	$zz_default['relations_table'] 	= '_relations';	//	name of relations table for referential integrity
+	$zz_default['search'] 			= false;	// search for records possible or not
+	$zz_default['select_multiple_records'] = false;
+	$zz_default['show_hierarchy']	= false;
+	$zz_default['show_list_while_edit'] = true;	
+	$zz_default['show_list']		= true;		// display list of records in database				
+	$zz_default['show_output']		= true;		// ECHO output or keep it in $zz['output']
+	$zz_default['tfoot']			= false;  	// shows table foot, e. g. for sums of individual values
+	$zz_default['this_limit']		= false;	//	internal value, current range which records are shown
+	$zz_default['user']				= '';		//	username
+	$zz_default['view']				= false;	// 	show Action: View
 	
 	foreach (array_keys($zz_default) as $key)
 		if (!isset($zz_conf[$key])) $zz_conf[$key] = $zz_default[$key];

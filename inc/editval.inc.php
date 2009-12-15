@@ -46,6 +46,7 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 					$my['fields'][$f]['check_validation'] = false;
 					if (is_array($my['images'][$f])) foreach ($my['images'][$f] as $image) {
 						if (isset($image['error'])) {
+							if (!is_array($image['error'])) $image['error'] = array($image['error']);
 							foreach ($image['error'] as $error) {
 								$zz_error['validation']['incorrect_values'][] = array(
 									'field_name' => $my['fields'][$f]['field_name'],
@@ -193,9 +194,9 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 						}
 	
 			//	check select /// workwork
-				if (isset($_POST['check_select']) && $my['fields'][$f]['type'] == 'select' 
-						&& (in_array($my['fields'][$f]['field_name'], $_POST['check_select']) 
-							OR (in_array($table_name.'['.$k.']['.$my['fields'][$f]['field_name'].']', $_POST['check_select']))) // check only for 0, might be problem, but 0 should always be there
+				if (isset($_POST['zz_check_select']) && $my['fields'][$f]['type'] == 'select' 
+						&& (in_array($my['fields'][$f]['field_name'], $_POST['zz_check_select']) 
+							OR (in_array($table_name.'['.$k.']['.$my['fields'][$f]['field_name'].']', $_POST['zz_check_select']))) // check only for 0, might be problem, but 0 should always be there
 						&& $my['POST'][$my['fields'][$f]['field_name']]) { // if null -> accept it
 					$my = zz_check_select($my, $f, $zz_conf['max_select']);
 				}

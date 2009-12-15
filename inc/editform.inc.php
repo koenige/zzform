@@ -42,13 +42,13 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var, $zz_condi
 	}
 	
 	// there is a form to display
-	$zz_conf_thisrec = $zz_conf;
+	$zz_conf_record = zz_record_conf($zz_conf);
 	// check conditions
-	if (!empty($zz_conf_thisrec['conditions']) AND !empty($zz_conditions['bool']))
-		$zz_conf_thisrec = zz_conditions_merge($zz_conf_thisrec, $zz_conditions['bool'], $my_tab[0][0]['id']['value']);
+	if (!empty($zz_conf_record['conditions']) AND !empty($zz_conditions['bool']))
+		$zz_conf_record = zz_conditions_merge($zz_conf_record, $zz_conditions['bool'], $my_tab[0][0]['id']['value']);
 
-	if (($zz['mode'] == 'add' OR $zz['mode'] == 'edit') && !empty($zz_conf_thisrec['upload_MAX_FILE_SIZE'])) 
-		$output.= '<input type="hidden" name="MAX_FILE_SIZE" value="'.$zz_conf_thisrec['upload_MAX_FILE_SIZE'].'">'."\n";
+	if (($zz['mode'] == 'add' OR $zz['mode'] == 'edit') && !empty($zz_conf['upload_MAX_FILE_SIZE'])) 
+		$output.= '<input type="hidden" name="MAX_FILE_SIZE" value="'.$zz_conf['upload_MAX_FILE_SIZE'].'">'."\n";
 	$output.= '<table>'."\n";
 
 	$cancelurl = $zz_conf['url_self'];
@@ -73,29 +73,29 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var, $zz_condi
 		$output.= '</td></tr>'."\n";
 		$output.= '</tfoot>'."\n";
 	} else {
-		if ($zz_conf_thisrec['access'] != 'add_only') {
+		if ($zz_conf_record['access'] != 'add_only') {
 			$output.= '<tfoot>'."\n";
-			if ($zz_conf_thisrec['edit']) {
+			if ($zz_conf_record['edit']) {
 				$output.= '<tr><th>&nbsp;</th> <td class="reedit">';
 				$output.= '<a href="'.$zz_conf['url_self'].$zz_conf['url_self_qs_base'].$zz_var['url_append']
 					.'mode=edit&amp;id='.$my_tab[0][0]['id']['value'].$zz_var['extraGET']
 					.'">'.zz_text('edit').'</a>';
-				if ($zz_conf_thisrec['delete']) $output.= ' | <a href="'
+				if ($zz_conf_record['delete']) $output.= ' | <a href="'
 					.$zz_conf['url_self'].$zz_conf['url_self_qs_base'].$zz_var['url_append'].'mode=delete&amp;id='
 					.$my_tab[0][0]['id']['value'].$zz_var['extraGET'].'">'
 					.zz_text('delete').'</a>';
 				$output.= '</td></tr>'."\n";
 			}
-			if (!empty($zz_conf_thisrec['details'])) {
+			if (!empty($zz_conf_record['details'])) {
 				$output.= '<tr><th>&nbsp;</th><td class="editbutton">'
-					.zz_show_more_actions($zz_conf_thisrec['details'], 
-					$zz_conf_thisrec['details_url'], $zz_conf_thisrec['details_base'], 
-					$zz_conf_thisrec['details_target'], $zz_conf_thisrec['details_referer'],
+					.zz_show_more_actions($zz_conf_record['details'], 
+					$zz_conf_record['details_url'], $zz_conf_record['details_base'], 
+					$zz_conf_record['details_target'], $zz_conf_record['details_referer'],
 					$my_tab[0][0]['id']['value'], 
 					(!empty($my_tab[0][0]['POST']) ? $my_tab[0][0]['POST'] : false))
 					.'</td></tr>'."\n";
 			}
-			if (empty($zz_conf_thisrec['details']) AND ! $zz_conf_thisrec['edit']) {
+			if (empty($zz_conf_record['details']) AND ! $zz_conf_record['edit']) {
 				$output.= '<tr><th>&nbsp;</th><td class="editbutton">'
 					.' <a href="'.$cancelurl.'">'.zz_text('Cancel').'</a>'
 					.'</td></tr>'."\n";
@@ -103,7 +103,7 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var, $zz_condi
 			$output.= '</tfoot>'."\n";
 		}
 	}
-	$output.= zz_show_field_rows($my_tab, 0, 0, $zz['mode'], $display, $zz_var, $zz_conf_thisrec, $zz['action']);
+	$output.= zz_show_field_rows($my_tab, 0, 0, $zz['mode'], $display, $zz_var, $zz_conf_record, $zz['action']);
 	$output.= '</table>'."\n";
 	if ($zz['mode'] == 'delete') $output.= '<input type="hidden" name="'
 		.$my_tab[0][0]['id']['field_name'].'" value="'.$my_tab[0][0]['id']['value'].'">'."\n";
@@ -114,8 +114,8 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var, $zz_condi
 			case 'delete': $submit = 'delete'; break;
 		}
 		$output.= '<input type="hidden" name="action" value="'.$submit.'">';
-		if ($zz_conf_thisrec['referer']) $output.= '<input type="hidden" value="'
-			.$zz_conf_thisrec['referer'].'" name="referer">';
+		if ($zz_conf['referer']) $output.= '<input type="hidden" value="'
+			.$zz_conf['referer'].'" name="referer">';
 		if (isset($_GET['file']) && $_GET['file']) 
 			$output.= '<input type="hidden" value="'.htmlspecialchars($_GET['file']).'" name="file">';
 	}
@@ -139,8 +139,8 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var, $zz_condi
 				.']" value="'.htmlspecialchars($_POST['records'][$tabindex]).'">';
 		}
 	}
-	if (isset($zz_conf_thisrec['variable']))
-		foreach ($zz_conf_thisrec['variable'] as $myvar)
+	if (isset($zz_conf_record['variable']))
+		foreach ($zz_conf_record['variable'] as $myvar)
 			if (isset($zz['record'][$myvar['field_name']])) $output.= '<input type="hidden" value="'
 				.$zz['record'][$myvar['field_name']].'" name="'.$myvar['f_field_name'].'">';
 	$output = '<div id="record">'."\n$output</div>\n";
@@ -149,11 +149,12 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var, $zz_condi
 }
 
 function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var, 
-	$zz_conf_thisrec, $action, $formdisplay = 'vertical', $extra_lastcol = false, 
+	$zz_conf_record, $action, $formdisplay = 'vertical', $extra_lastcol = false, 
 	$table_count = 0, $show_explanation = true) {
 
 	global $zz_error;
 	global $zz_conf;	// Config variables
+	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
 	$output = '';
 	$append_next = '';
 	$append_next_type = '';
@@ -264,7 +265,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 						// no saved record exists, so it's add a new record
 						$subtable_mode = 'add';
 					$out['td']['content'].= zz_show_field_rows($my_tab, $field['subtable'], 
-						$mytable_no, $subtable_mode, $st_display, $zz_var, $zz_conf_thisrec, $action, 
+						$mytable_no, $subtable_mode, $st_display, $zz_var, $zz_conf_record, $action, 
 						$field['form_display'], $lastrow, $mytable_no, $h_show_explanation);
 					if ($field['form_display'] != 'horizontal') {
 						$out['td']['content'].= '</table>'."\n";
@@ -388,6 +389,8 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 						$sql_max = zz_edit_sql($sql_max, 'WHERE', '('.$sql_max_where.')');
 					$sql_max = zz_edit_sql($sql_max, 'ORDER BY', $field['field_name'].' DESC');
 					$myresult = mysql_query($sql_max);
+					if ($zz_conf['modules']['debug']) 
+						zz_debug(__FUNCTION__, $zz_debug_time_this_function, "next auto_value", $sql_max);
 					if (!$i OR $sql_max_where) // query only if maintable or saved record
 						if ($myresult)
 							if (mysql_num_rows($myresult)) {
@@ -452,6 +455,8 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 					if (isset($field['sql'])) {
 						$mysql = zz_edit_sql($field['sql'], 'WHERE', '('.$my_fieldname.' = '.$detail_key.')');
 						$result_detail = mysql_query($mysql);
+						if ($zz_conf['modules']['debug']) 
+							zz_debug(__FUNCTION__, $zz_debug_time_this_function, "fieldtype predefined", $mysql);
 						if ($result_detail) {
 							if (mysql_num_rows($result_detail) == 1) {
 								$select_fields = mysql_fetch_assoc($result_detail);
@@ -535,6 +540,8 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 				break;
 			case 'foreign':
 				$foreign_res = mysql_query($field['sql'].$my['id']['value']);
+				if ($zz_conf['modules']['debug']) 
+					zz_debug(__FUNCTION__, $zz_debug_time_this_function, "fieldtype foreign", $field['sql'].$my['id']['value']);
 				//$outputf.= $field['sql'].$my['id']['value'];
 				if ($foreign_res) {
 					if (mysql_num_rows($foreign_res) > 0) {
@@ -610,8 +617,8 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 						$outputf.= '<a href="'.htmlspecialchars($my['record'][$field['field_name']]).'">';
 					elseif ($field['type'] == 'mail' && !empty($my['record'][$field['field_name']]))
 						$outputf.= '<a href="mailto:'.$my['record'][$field['field_name']].'">';
-					if ($field['type'] == 'url' AND strlen($my['record'][$field['field_name']]) > $zz_conf_thisrec['max_select_val_len'] AND $row_display != 'form')
-						$outputf.= htmlspecialchars(substr($my['record'][$field['field_name']], 0, $zz_conf_thisrec['max_select_val_len'])).'...';
+					if ($field['type'] == 'url' AND strlen($my['record'][$field['field_name']]) > $zz_conf_record['max_select_val_len'] AND $row_display != 'form')
+						$outputf.= htmlspecialchars(substr($my['record'][$field['field_name']], 0, $zz_conf_record['max_select_val_len'])).'...';
 					elseif ($field['type'] == 'ipv4')
 						$outputf.= long2ip($my['record'][$field['field_name']]);
 					else
@@ -731,6 +738,8 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 								foreach (array_keys($zz_var['where'][$table_name]) as $value_key)
 									if ($value_key == $sql_where[1]) $sql_where[2].= $zz_var['where'][$table_name][$value_key];
 								$result_detail = mysql_query($sql_where[2]);
+								if ($zz_conf['modules']['debug']) 
+									zz_debug(__FUNCTION__, $zz_debug_time_this_function, "fieldtype select[where]", $sql_where[2]);
 								if ($result_detail) {
 									//if (mysql_num_rows($result_detail) == 1)
 									// might be that there are more results, so that should not be a problem
@@ -751,6 +760,8 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 						$field['sql'] = zz_edit_sql($field['sql'], 'WHERE', implode(' AND ', $my_where));
 					}
 					$result_detail = mysql_query($field['sql']);
+					if ($zz_conf['modules']['debug']) 
+						zz_debug(__FUNCTION__, $zz_debug_time_this_function, "fieldtype select", $field['sql']);
 					if (!$result_detail) {
 						$outputf.= zz_error($zz_error[] = array(
 							'mysql' => mysql_error(), 
@@ -767,7 +778,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 								.htmlspecialchars($my['record'][$field['field_name']]).' -- Error --<br>'.zz_text('no_selection_possible');
 						else {
 							$outputf.= '<input type="hidden" value="'.$line[$id_field_name].'" name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">';
-							$outputf.= draw_select($line, $id_field_name, $my['record'], $field, false, 0, false, false, $zz_conf_thisrec);
+							$outputf.= draw_select($line, $id_field_name, $my['record'], $field, false, 0, false, false, $zz_conf_record);
 						}
 					} elseif (mysql_num_rows($result_detail)) {
 						$id_field_name = mysql_field_name($result_detail, 0);
@@ -779,7 +790,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 								AND $line[$id_field_name] == $my['record'][$field['field_name']])
 								$detail_record = $line;
 							// fill $details only if needed, otherwise this will need a lot of memory usage
-							if ($count_rows <= $zz_conf_thisrec['max_select'] 
+							if ($count_rows <= $zz_conf_record['max_select'] 
 								OR !empty($field['show_hierarchy_subtree'])) 
 								$details[$line[$id_field_name]] = $line;
 						}
@@ -799,11 +810,11 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 									$count_rows = zz_count_records($my_select, $show_hierarchy_subtree, $id_field_name);
 								}
 							}
-							if ($count_rows > $zz_conf_thisrec['max_select']) {
+							if ($count_rows > $zz_conf_record['max_select']) {
 								// don't show select but text input instead
 								$textinput = true;
 								if ($my['record'] AND $detail_record) {
-									$outputf.= draw_select($detail_record, $id_field_name, $my['record'], $field, false, 0, false, 'reselect', $zz_conf_thisrec);
+									$outputf.= draw_select($detail_record, $id_field_name, $my['record'], $field, false, 0, false, 'reselect', $zz_conf_record);
 									$textinput = false;
 								}
 								// value will not be checked if one detail record is added because in this case validation procedure will be skipped!
@@ -813,7 +824,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 								if ($textinput) // add new record
 									$outputf.= '<input type="text" size="'.(!empty($field['size_select_too_long']) ? $field['size_select_too_long'] : 32)
 										.'" value="'.$value.'" name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">';
-								$outputf.= '<input type="hidden" value="'.$field['f_field_name'].'" name="check_select[]">';
+								$outputf.= '<input type="hidden" value="'.$field['f_field_name'].'" name="zz_check_select[]">';
 							} else {
 								$outputf.= '<select name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">'."\n";
 								$outputf.= '<option value="'
@@ -824,12 +835,12 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 								$outputf.= '>'.zz_text('none_selected').'</option>';
 								if (empty($field['show_hierarchy'])) {
 									foreach ($details as $line)
-										$outputf.= draw_select($line, $id_field_name, $my['record'], $field, false, 0, false, 'form', $zz_conf_thisrec);
+										$outputf.= draw_select($line, $id_field_name, $my['record'], $field, false, 0, false, 'form', $zz_conf_record);
 								} elseif (!empty($field['show_hierarchy']) && !empty($my_select[$show_hierarchy_subtree])) {
 									foreach ($my_select[$show_hierarchy_subtree] AS $my_field)
-										$outputf.= draw_select($my_field, $id_field_name, $my['record'], $field, $my_select, 0, $field['show_hierarchy'], 'form', $zz_conf_thisrec);
+										$outputf.= draw_select($my_field, $id_field_name, $my['record'], $field, $my_select, 0, $field['show_hierarchy'], 'form', $zz_conf_record);
 								} elseif ($detail_record) { // re-edit record, something was posted, ignore hierarchy because there's only one record coming back
-									$outputf.= draw_select($detail_record, $id_field_name, $my['record'], $field, false, 0, false, 'form', $zz_conf_thisrec);
+									$outputf.= draw_select($detail_record, $id_field_name, $my['record'], $field, false, 0, false, 'form', $zz_conf_record);
 								} elseif (!empty($field['show_hierarchy'])) {
 									$zz_error[] = array(
 										'msg' => 'No selection possible',
@@ -842,7 +853,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 							}
 						} else {
 							if ($detail_record) {
-								$outputf.= draw_select($detail_record, $id_field_name, $my['record'], $field, false, 0, false, false, $zz_conf_thisrec);
+								$outputf.= draw_select($detail_record, $id_field_name, $my['record'], $field, false, 0, false, false, $zz_conf_record);
 							}
 						}
 					} else {
@@ -961,7 +972,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 								// title and field_name of image might be empty
 								if ($image_uploads > 1) $outputf.= '<tr><th>'.$image['title'].'</th> <td>';
 								$outputf .= '<input type="file" name="'.make_id_fieldname($field['f_field_name']).'['.$image['field_name'].']">';
-								if (empty($field['dont_show_file_link']) AND $link = show_link($image['path'], (isset($my['record_saved']) ? $my['record_saved'] : $my['record'])))
+								if (empty($field['dont_show_file_link']) AND $link = zz_show_link($image['path'], (isset($my['record_saved']) ? $my['record_saved'] : $my['record'])))
 									$outputf .= '<br><a href="'.$link.'">'.$link
 										.'</a>'
 										.(($image_uploads > 1 OR !empty($field['optional_image'])) ?
@@ -989,7 +1000,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 						$outputf.= '<table class="upload">';
 						foreach ($field['image'] as $imagekey => $image)
 							if (!isset($image['source']))
-								if ($link = show_link($image['path'], $my['record'])) {
+								if ($link = zz_show_link($image['path'], $my['record'])) {
 									$outputf.= '<tr><th>'.$image['title'].'</th> <td>';
 									$outputf .= '<a href="'.$link.'">'.$link.'</a>';
 									$outputf.= '</td></tr>'."\n";
@@ -1136,6 +1147,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 		if ($extra_lastcol) $output .= '<td>'.$extra_lastcol.'</td>';
 		$output .= '</tr>'."\n";
 	}
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
 	return $output;
 }
 

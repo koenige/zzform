@@ -370,17 +370,20 @@ function show_image($path, $record) {
 	return $img;
 }
 
-function show_link($path, $record) {
+function zz_show_link($path, $record) {
 	$link = false;
 	$modes = false;
 	if (!$record) return false;
 	if (!$path) return false;
 	
 	$root = false;
+	$rootpath = false;
 	foreach (array_keys($path) as $part)
-		if (substr($part, 0, 4) == 'root')
+		if (substr($part, 0, 4) == 'root') {
 			$root = $path[$part];
-		elseif (substr($part, 0, 5) == 'field') {
+		} elseif (substr($part, 0, 7) == 'webroot') {
+			$link.= $path[$part];		// add part to link
+		} elseif (substr($part, 0, 5) == 'field') {
 			if ($modes) {
 				$myval = $record[$path[$part]];
 				foreach ($modes as $mode)
@@ -390,14 +393,20 @@ function show_link($path, $record) {
 						echo 'Configuration Error: mode with not-existing function';
 						exit;
 					}
-				$link.= $myval;
+				$link.= $myval;			// add part to link
+				$rootpath .= $myval;	// add part to path
 				$modes = false;
-			} else
-				$link.= $record[$path[$part]];
+			} else {
+				$link.= $record[$path[$part]];		// add part to link
+				$rootpath .= $record[$path[$part]];	// add part to path
+			}
 		} elseif (substr($part, 0, 4) == 'mode') {
 			$modes[] = $path[$part];
-		} else $link.= $path[$part];
-	if ($root && !file_exists($root.$link))
+		} elseif (substr($part, 0, 6) == 'string') {
+			$link.= $path[$part];		// add part to link
+			$rootpath .= $path[$part];	// add part to path
+		}
+	if ($root && !file_exists($root.$rootpath))
 		return false;
 	return $link;
 }
@@ -442,7 +451,7 @@ function zz_show_more_actions($more_actions, $more_actions_url, $more_actions_ba
 	return $output;
 }
 
-function draw_select($line, $id_field_name, $record, $field, $hierarchy, $level, $parent_field_name, $form, $zz_conf_thisrec) {
+function draw_select($line, $id_field_name, $record, $field, $hierarchy, $level, $parent_field_name, $form, $zz_conf_record) {
 	// initialize variables
 	if (!isset($field['sql_ignore'])) $field['sql_ignore'] = array();
 	$output = '';
@@ -463,8 +472,8 @@ function draw_select($line, $id_field_name, $record, $field, $hierarchy, $level,
 			if ($key != $parent_field_name && !is_numeric($key) && $key != $field['show_hierarchy'] && !in_array($key, $field['sql_ignore'])) {
 				if ($details) $details.= ' | ';
 				$line[$key] = htmlspecialchars($line[$key]);
-				if ($i > 1) $details.= (strlen($line[$key]) > $zz_conf_thisrec['max_select_val_len']) 
-					? (substr($line[$key], 0, $zz_conf_thisrec['max_select_val_len']).'...') : $line[$key]; // cut long values
+				if ($i > 1) $details.= (strlen($line[$key]) > $zz_conf_record['max_select_val_len']) 
+					? (substr($line[$key], 0, $zz_conf_record['max_select_val_len']).'...') : $line[$key]; // cut long values
 				$i++;
 			}
 		}
@@ -479,7 +488,7 @@ function draw_select($line, $id_field_name, $record, $field, $hierarchy, $level,
 		$output.= '</option>';
 		if ($hierarchy && isset($hierarchy[$line[$id_field_name]]))
 			foreach ($hierarchy[$line[$id_field_name]] as $secondline)
-				$output.= draw_select($secondline, $id_field_name, $record, $field, $hierarchy, $level, $parent_field_name, 'form', $zz_conf_thisrec);
+				$output.= draw_select($secondline, $id_field_name, $record, $field, $hierarchy, $level, $parent_field_name, 'form', $zz_conf_record);
 	}
 	return $output;
 }
@@ -1493,6 +1502,7 @@ function zz_get_identifier_sql_vars($sql, $id, $fieldname = false) {
  *			$conf['exists'] '.'; string used for concatenation if identifier exists
  *			$conf['lowercase'] true; false will not transform all letters to lowercase
  *			$conf['slashes'] false; true = slashes will be preserved
+ *			$conf['where'] WHERE-condition to be appended to query that checks existence of identifier in database 
  * @param $my(array)		$zz_tab[$i][$k]
  * @param $table(string)	Name of Table
  * @param $field(int)		Number of field definition
@@ -1566,37 +1576,43 @@ function zz_create_identifier($vars, $conf, $my = false, $table = false, $field 
 		// check whether identifier exists
 		$idf = zz_exists_identifier($idf, $i, $table, $my['fields'][$field]['field_name'], 
 			$my['id']['field_name'], $my['POST'][$my['id']['field_name']], 
-			$conf['exists'], $my['fields'][$field]['maxlength'], $conf['start_always']);
+			$conf, $my['fields'][$field]['maxlength']);
 	}
 	return $idf;
 }
 
-function zz_exists_identifier($idf, $i, $table, $field, $id_field, $id_value, 
-	$con_exists = '.', $maxlength = false, $start_always = false) {
+
+function zz_exists_identifier($idf, $i, $table, $field, $id_field, $id_value, $conf, $maxlength = false) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
 	$sql = 'SELECT '.$field.' FROM '.$table.' WHERE '.$field.' = "'.$idf.'"
-		AND '.$id_field.' != '.$id_value;
+		AND '.$id_field.' != '.$id_value.(!empty($conf['where']) ? ' AND '.$conf['where'] : '');
 	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "sql", $sql);
 	$result = mysql_query($sql);
 	if ($result) if (mysql_num_rows($result)) {
-		if ($i > 2 OR $start_always) // with start_always, we can be sure, that a generated suffix exists so we can safely remove it. for other cases, this is only true for $i > 2.
-			$idf = substr($idf, 0, strrpos($idf, $con_exists));
-		$suffix = $con_exists.$i;
+		if ($i > 2 OR $conf['start_always']) {
+			// with start_always, we can be sure, that a generated suffix exists so we can safely remove it. 
+			// for other cases, this is only true for $i > 2.
+			$idf = substr($idf, 0, strrpos($idf, $conf['exists']));
+		}
+		$suffix = $conf['exists'].$i;
 		if ($maxlength && strlen($idf.$suffix) > $maxlength) 
 			$idf = substr($idf, 0, ($maxlength-strlen($suffix))); 
 			// in case there is a value for maxlength, make sure that resulting string won't be longer
 		$idf = $idf.$suffix;
 		$i++;
-		$idf = zz_exists_identifier($idf, $i, $table, $field, $id_field, 
-			$id_value, $con_exists, $maxlength, $start_always);
+		$idf = zz_exists_identifier($idf, $i, $table, $field, $id_field, $id_value, $conf, $maxlength);
 	}
 	return $idf;
 }
 
-// make_id_fieldname
-// converts fieldnames with [ and ] into allowed id values
-// prepends field_ or other prefix, if wanted
+/** converts fieldnames with [ and ] into valid HTML id values
+ * 
+ * @param $fieldname (string) field name with []-brackets
+ * @param $prefix (string) prepends 'field_' as default or other prefix
+ * @return (string) valid HTML id value
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
 function make_id_fieldname($fieldname, $prefix = 'field') {
 	$fieldname = str_replace('][', '_', $fieldname);
 	$fieldname = str_replace('[', '_', $fieldname);
@@ -1605,6 +1621,12 @@ function make_id_fieldname($fieldname, $prefix = 'field') {
 	return $fieldname;
 }
 
+/** strips magic quotes from multidimensional arrays
+ * 
+ * @param $mixed (array) Array with magic_quotes
+ * @return (array) Array without magic_quotes
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
 function magic_quotes_strip($mixed) {
    if(is_array($mixed))
        return array_map('magic_quotes_strip', $mixed);
@@ -1701,10 +1723,14 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 			case 'WHERE':
 			case 'GROUP BY':
 			case 'HAVING':
-				if (!empty($o_parts[$n_part][2])) 
-					$o_parts[$n_part][2] = '('.$o_parts[$n_part][2].') AND ('.$values.')';
-				else 
-					$o_parts[$n_part][2] = $values;
+				if ($mode == 'add') {
+					if (!empty($o_parts[$n_part][2])) 
+						$o_parts[$n_part][2] = '('.$o_parts[$n_part][2].') AND ('.$values.')';
+					else 
+						$o_parts[$n_part][2] = $values;
+				}  elseif ($mode == 'delete') {
+					unset($o_parts[$n_part]);
+				}
 			break;
 			case 'SELECT':
 				if (!empty($o_parts['SELECT DISTINCT'][2])) {
@@ -1876,12 +1902,14 @@ function zz_check_password($old, $new1, $new2, $sql) {
 function zz_nice_headings(&$zz_fields, &$zz_conf, &$zz_error, $where_condition) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+	$i = 0;
+	$heading_addition = array();
 	foreach (array_keys($where_condition) as $mywh) {
 		$mywh = mysql_real_escape_string($mywh);
 		$wh = explode('.', $mywh);
 		if (!isset($wh[1])) $index = 0; // without .
 		else $index = 1;
-		$zz_conf['heading_addition'] = false;
+		$heading_addition[$i] = false;
 		if (isset($zz_conf['heading_sql'][$wh[$index]]) && 
 			isset($zz_conf['heading_var'][$wh[$index]]) AND
 			$where_condition[$mywh]) { // only if there is a value! (might not be the case if write_once-fields come into play)
@@ -1905,26 +1933,26 @@ function zz_nice_headings(&$zz_fields, &$zz_conf, &$zz_error, $where_condition) 
 			} else {
 				$wh_array = mysql_fetch_assoc($result);
 				foreach ($zz_conf['heading_var'][$wh[$index]] as $myfield)
-					$zz_conf['heading_addition'].= ' '.$wh_array[$myfield];
+					$heading_addition[$i] .= ' '.$wh_array[$myfield];
 			}
 		} elseif (isset($zz_conf['heading_enum'][$wh[$index]]) && 
 			isset($zz_conf['heading_var'][$wh[$index]])) {
-				$zz_conf['heading_addition'].= ' '.htmlspecialchars($where_condition[$mywh]);
+				$heading_addition[$i] .= ' '.htmlspecialchars($where_condition[$mywh]);
 				// todo: insert corresponding value in enum_title
 		}
-		if ($zz_conf['heading_addition']) {
-			$zz_conf['heading'].= ':<br>';
-			if (!empty($zz_conf['heading_link'][$wh[$index]])) {
-				if (strstr($zz_conf['heading_link'][$wh[$index]], '?')) $sep = '&amp;';
-				else $sep = '?';
-				$zz_conf['heading'].= '<a href="'.$zz_conf['heading_link'][$wh[$index]]
-					.$sep.'mode=show&amp;id='.urlencode($where_condition[$mywh]).'">';
-			}
-			$zz_conf['heading'] .= $zz_conf['heading_addition'];
-			if (!empty($zz_conf['heading_link'][$wh[$index]]))
-				$zz_conf['heading'] .= '</a>';
+		if ($heading_addition[$i] AND !empty($zz_conf['heading_link'][$wh[$index]])) {
+			if (strstr($zz_conf['heading_link'][$wh[$index]], '?')) $sep = '&amp;';
+			else $sep = '?';
+			$heading_addition[$i] = '<a href="'.$zz_conf['heading_link'][$wh[$index]]
+				.$sep.'mode=show&amp;id='.urlencode($where_condition[$mywh]).'">'
+				.$heading_addition[$i].'</a>';
 		}
+		$i++;
 	}
+	if ($heading_addition) {
+		$zz_conf['heading'] .= ':<br>'.implode(' &#8211; ', $heading_addition); 
+	}
+	
 	if (!empty($_GET['q'])) {
 		$fieldname = false;
 		$zz_conf['selection'] .= zz_text('Search').': ';
@@ -2330,6 +2358,7 @@ function zz_record_access($zz, &$zz_conf, &$zz_tab, $zz_var, $zz_allowed_params,
 		$zz_conf = zz_conditions_merge($zz_conf, $zz_conditions['bool'], $zz_tab[0][0]['id']['value']);
 	}
 
+
 	// set (and overwrite if neccessary) access variables, i. e.
 	// $zz_conf['add'], $zz_conf['edit'], $zz_conf['delete']
 	
@@ -2472,10 +2501,40 @@ function zz_listandrecord_access($zz_conf) {
 		$zz_conf['delete'] = true;			// delete record (form+links)
 		$zz_conf['view'] = false;			// don't show record (links)
 		break;
+	default:
+		// do not change anything, just initalize if required
+		if (!isset($zz_conf['add'])) $zz_conf['add'] = true;
+		if (!isset($zz_conf['edit'])) $zz_conf['edit'] = true;
+		if (!isset($zz_conf['delete'])) $zz_conf['delete'] = false;
+		if (!isset($zz_conf['view'])) $zz_conf['view'] = false;
 	}
 	if (!isset($zz_conf['add_link']))
 		$zz_conf['add_link'] = ($zz_conf['add'] ? true : false); // Link Add new ...
 	return $zz_conf;
 }
+
+
+/** Sets record specific configuration variables that might be changed individually
+ * 
+ * @param $zz_conf (array)
+ * @return $zz_conf_record (array) subset of $zz_conf
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function zz_record_conf($zz_conf) {
+	$wanted_keys = array('access', 'edit', 'delete', 'add', 'view', 'conditions',
+		'details', 'details_url', 'details_base', 'details_target', 'details_referer',
+		'variable', 'max_select', 'max_select_val_len'
+	);
+	$zz_conf_record = array();
+	foreach ($wanted_keys as $key) {
+		if (isset($zz_conf[$key])) {
+			$zz_conf_record[$key] = $zz_conf[$key];
+		} elseif ($key == 'access') {
+			$zz_conf_record['access'] = '';
+		}
+	}
+	return $zz_conf_record;
+}
+
 
 ?>

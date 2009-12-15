@@ -668,10 +668,10 @@ function zz_upload_prepare(&$zz_tab, $zz_conf) {
 					} 
 				}
 				if (isset($field_index)) { 
-					if (isset($_POST['check_select']) 
+					if (isset($_POST['zz_check_select']) 
 						&& $my_tab['fields'][$field_index]['type'] == 'select' 
-						&& (in_array($my_tab['fields'][$field_index]['field_name'], $_POST['check_select']) 
-							OR (in_array($zz_tab[$uf['i']]['table'].'['.$uf['k'].']['.$my_tab['fields'][$field_index]['field_name'].']', $_POST['check_select']))) // check only for 0, might be problem, but 0 should always be there
+						&& (in_array($my_tab['fields'][$field_index]['field_name'], $_POST['zz_check_select']) 
+							OR (in_array($zz_tab[$uf['i']]['table'].'['.$uf['k'].']['.$my_tab['fields'][$field_index]['field_name'].']', $_POST['zz_check_select']))) // check only for 0, might be problem, but 0 should always be there
 						&& $post_record[$my_tab['fields'][$field_index]['field_name']]) { // if null -> accept it
 						$my_tab = zz_check_select($my_tab, $field_index, $zz_conf['max_select']);
 					}

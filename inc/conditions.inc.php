@@ -247,7 +247,7 @@ function zz_replace_conditional_values(&$item, $key, $records) {
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_conditions_merge($array, $bool_conditions, $record_id, $reverse = false) {
-	
+
 	if (!$reverse) {
 		$conditions = $array['conditions'];
 	} else {
@@ -255,6 +255,9 @@ function zz_conditions_merge($array, $bool_conditions, $record_id, $reverse = fa
 	}
 
 	foreach ($conditions as $condition => $new_values) {
+		// only change arrays if there is something
+		if (empty($new_values)) continue;
+
 		// only change arrays if $zz['conditions'] was set!
 		if (empty($bool_conditions[$condition])) continue;
 
@@ -289,6 +292,7 @@ function zz_conditions_merge($array, $bool_conditions, $record_id, $reverse = fa
 function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids) {
 	global $zz_conf;
 	global $zz_error;
+	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
 	if ($zz_conf['show_list'] AND !empty($zz['conditions'])) {
 		// improve database performace, for this query we only need ID field
 		$zz['sql_without_limit'] = zz_edit_sql($zz['sql_without_limit'], 'SELECT', $zz['table'].'.'.$id_field, 'replace');
@@ -349,6 +353,7 @@ function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids) {
 			}
 		}
 	}
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
 	return $zz_conditions;
 }
 

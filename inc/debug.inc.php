@@ -15,7 +15,6 @@
 
 // Default variables for debug module
 $zz_default['debug']			= false;	// turn on/off debugging mode
-$zz_default['debug_allsql']		= false;
 $zz_default['debug_time'] 		= false;
 
 /** HTML output of debugging information 
@@ -37,7 +36,6 @@ $zz_default['debug_time'] 		= false;
 	global $zz_timer;
 
 	$end = microtime_float();
-	$show_sql = ($sql AND $zz_conf['debug_allsql'] ? true: false);
 	$debug = array();
 	$debug['time'] = $end - $zz_timer;
 	$debug['time_used'] = $end - $function_time;
