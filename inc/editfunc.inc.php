@@ -451,44 +451,53 @@ function zz_show_more_actions($more_actions, $more_actions_url, $more_actions_ba
 	return $output;
 }
 
-function draw_select($line, $id_field_name, $record, $field, $hierarchy, $level, $parent_field_name, $form, $zz_conf_record) {
+function zz_draw_select($line, $id_field_name, $record, $field, $hierarchy, $level, $parent_field_name, $form, $zz_conf_record) {
 	// initialize variables
 	if (!isset($field['sql_ignore'])) $field['sql_ignore'] = array();
 	$output = '';
 	$i = 1;
-	$details = '';
+	$details = array();
 	if ($form == 'reselect')
-		$output = '<input type="text" size="'.(!empty($field['size_select_too_long']) ? $field['size_select_too_long'] : 32)
+		$output .= '<input type="text" size="'.(!empty($field['size_select_too_long']) ? $field['size_select_too_long'] : 32)
 			.'" name="'.$field['f_field_name'].'" value="';
 	elseif ($form) {
-		$output = '<option value="'.$line[$id_field_name].'"';
+		$output .= '<option value="'.$line[$id_field_name].'"';
 		if ($record) if ($line[$id_field_name] == $record[$field['field_name']]) $output.= ' selected';
 		if ($hierarchy) $output.= ' class="level'.$level.'"';
 		$output.= '>';
 	}
 	if (!isset($field['show_hierarchy'])) $field['show_hierarchy'] = false;
-	if (!isset($field['sql_index_only']) || !$field['sql_index_only'])
+	if (empty($field['sql_index_only'])) {
 		foreach (array_keys($line) as $key) {	// $i = 1: field['type'] == 'id'!
-			if ($key != $parent_field_name && !is_numeric($key) && $key != $field['show_hierarchy'] && !in_array($key, $field['sql_ignore'])) {
-				if ($details) $details.= ' | ';
+			if ($key != $parent_field_name 
+				&& !is_numeric($key) 
+				&& $key != $field['show_hierarchy'] 
+				&& !in_array($key, $field['sql_ignore'])
+			) {
 				$line[$key] = htmlspecialchars($line[$key]);
-				if ($i > 1) $details.= (strlen($line[$key]) > $zz_conf_record['max_select_val_len']) 
+				if ($i > 1 AND $line[$key]) $details[] = (strlen($line[$key]) > $zz_conf_record['max_select_val_len']) 
 					? (substr($line[$key], 0, $zz_conf_record['max_select_val_len']).'...') : $line[$key]; // cut long values
 				$i++;
 			}
 		}
-	else
+	} else {
 		$key = $id_field_name;
+	}
 	if (!$details) $details = $line[$key]; // if only the id key is in the query, eg. show databases
+	if (is_array($details)) $details = implode(' | ', $details);
 	$output.= strip_tags($details); // remove tags, leave &#-Code as is
 	$level++;
-	if ($form == 'reselect') 
+	if ($form == 'reselect') {
 		$output.= ' ">'; // extra space, so that there won't be a LIKE operator that this value will be checked against!
-	elseif ($form) {
-		$output.= '</option>';
+	} elseif ($form) {
+		$output.= '</option>'."\n";
 		if ($hierarchy && isset($hierarchy[$line[$id_field_name]]))
-			foreach ($hierarchy[$line[$id_field_name]] as $secondline)
-				$output.= draw_select($secondline, $id_field_name, $record, $field, $hierarchy, $level, $parent_field_name, 'form', $zz_conf_record);
+			foreach ($hierarchy[$line[$id_field_name]] as $secondline) {
+				if (!empty($field['group'])) {
+					unset($secondline[$field['group']]); // not needed anymore
+				}
+				$output.= zz_draw_select($secondline, $id_field_name, $record, $field, $hierarchy, $level, $parent_field_name, 'form', $zz_conf_record);
+			}
 	}
 	return $output;
 }
@@ -640,6 +649,7 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 		$q_search = '('.implode(' OR ', $q_search).')';
 		$sql = zz_edit_sql($sql, 'WHERE', $q_search);
 	}
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "search query", $sql);
 	return $sql;
 }
 
@@ -687,13 +697,13 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 		$output.= '<input type="submit" value="'.zz_text('search').'">';
 		$output.= ' '.zz_text('in').' ';	
 		$output.= '<select name="scope">';
-		$output.= '<option value="">'.zz_text('all fields').'</option>';
+		$output.= '<option value="">'.zz_text('all fields').'</option>'."\n";
 		foreach ($fields as $field) {
 			if (!in_array($field['type'], $unsearchable) && empty($field['exclude_from_search'])) {
 				$fieldname = (isset($field['display_field']) && $field['display_field']) ? $field['display_field'] : $table.'.'.$field['field_name'];
 				$output.= '<option value="'.$fieldname.'"';
 				if (isset($_GET['scope'])) if ($_GET['scope'] == $fieldname) $output.= ' selected';
-				$output.= '>'.strip_tags($field['title']).'</option>';
+				$output.= '>'.strip_tags($field['title']).'</option>'."\n";
 			}
 		}
 		$output.= '</select>';
@@ -777,6 +787,7 @@ function zz_filter_selection($filter) {
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_edit_query_string($query, $unwanted_keys = array(), $new_keys = array()) {
+	$query = str_replace('&amp;', '&', $query);
 	if (substr($query, 0, 1) == '?' OR substr($query, 0, 1) == '&')
 		$query = substr($query, 1);
 	parse_str($query, $queryparts);
@@ -1001,6 +1012,9 @@ function zz_subqueries($i, $min, $details, $sql, $subtable, $zz_tab) {
 						$deleted_ids[] = $_POST[$subtable['table_name']][$k][$id_field_name];
 					unset($_POST[$subtable['table_name']][$k]);
 					$records--;
+					// zz_subqueries is called twice, so make sure, that $_POST is
+					// changed as well since subtable is already unset!
+					$_POST['records'][$i] = $records;
 				}
 			}
 		}
@@ -1798,7 +1812,7 @@ function zz_check_select($my, $f, $max_select) {
 				if (!$wheresql) $wheresql.= '(';
 				elseif (!$index) $wheresql.= ' ) AND (';
 				else $wheresql.= ' OR ';
-				if (preg_match('/^(.+?) *\.\.\. *$/', $value, $short_value)) // "... ", extra space will be added in draw_select!
+				if (preg_match('/^(.+?) *\.\.\. *$/', $value, $short_value)) // "... ", extra space will be added in zz_draw_select!
 					$value = $short_value[1]; // reduces string with dots which come from values which have been cut beforehands
 				if (substr($value, -1) != ' ') // if there is a space at the end of the string, don't do LIKE with %!
 					$wheresql.= $field.' LIKE "%'.mysql_real_escape_string(trim($value)).'%"'; 
@@ -2452,13 +2466,13 @@ function zz_record_access($zz, &$zz_conf, &$zz_tab, $zz_var, $zz_allowed_params,
  */
 function zz_listandrecord_access($zz_conf) {
 	switch ($zz_conf['access']) {
-	case 'show';
+	case 'show':
 		$zz_conf['add'] = false;			// don't add record (form+links)
 		$zz_conf['edit'] = false;			// don't edit record (form+links)
 		$zz_conf['delete'] = false;			// don't delete record (form+links)
 		$zz_conf['view'] = true;			// show record (links)
 		break;
-	case 'show_and_add';
+	case 'show_and_add':
 		if (!is_array($zz_conf['add'])) $zz_conf['add'] = true; // add record (form+links)
 		$zz_conf['edit'] = false;			// edit record (form+links)
 		$zz_conf['delete'] = false;			// don't delete record (form+links)
@@ -2476,26 +2490,34 @@ function zz_listandrecord_access($zz_conf) {
 		$zz_conf['delete'] = true;			// delete record (form+links)
 		$zz_conf['view'] = true;			// show record (links)
 		break;
-	case 'edit_details_only';
+	case 'edit_details_only':
 		$zz_conf['add'] = false;			// don't add record (form+links)
 		$zz_conf['edit'] = true;			// edit record (form+links)
 		$zz_conf['delete'] = false;			// don't delete record (form+links)
 		$zz_conf['view'] = false;			// don't show record (links)
 		break;
-	case 'edit_details_and_add';
+	case 'edit_details_and_add':
 		if (!is_array($zz_conf['add'])) $zz_conf['add'] = true; // add record (form+links)
 		$zz_conf['edit'] = true;			// edit record (form+links)
 		$zz_conf['delete'] = false;			// don't delete record (form+links)
 		$zz_conf['view'] = false;			// don't show record (links)
 		break;
-	case 'none';
+	case 'none':
 		$zz_conf['add'] = false;			// don't add record (form+links)
 		$zz_conf['edit'] = false;			// don't edit record (form+links)
 		$zz_conf['delete'] = false;			// don't delete record (form+links)
 		$zz_conf['view'] = false;			// don't show record (links)
 		$zz_conf['show_record'] = false;	// don't show record
 		break;
-	case 'all';
+	case 'search_but_no_list':
+		$zz_conf['add'] = false;			// don't add record (form+links)
+		$zz_conf['edit'] = false;			// don't edit record (form+links)
+		$zz_conf['delete'] = false;			// don't delete record (form+links)
+		$zz_conf['view'] = false;			// don't show record (links)
+		$zz_conf['show_record'] = false;	// don't show record
+		$zz_conf['show_list'] = true;		// show list, further steps will set in zz_display_table()
+		break;
+	case 'all':
 		if (!is_array($zz_conf['add'])) $zz_conf['add'] = true;	// add record (form+links)
 		$zz_conf['edit'] = true;			// edit record (form+links)
 		$zz_conf['delete'] = true;			// delete record (form+links)

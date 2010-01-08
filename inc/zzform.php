@@ -442,7 +442,7 @@ function zzform() {
 
 	// ### variables for main table will be saved in zz_tab[0]
 	$zz_tab[0]['table'] = $zz['table'];
-	$zz_tab[0]['sql'] = $zz['sql'].(!empty($zz['sqlorder']) ? $zz['sqlorder'] : '');
+	$zz_tab[0]['sql'] = $zz['sql'].(!empty($zz['sqlorder']) ? ' '.$zz['sqlorder'] : '');
 
 //	Add, Update or Delete
 
@@ -587,7 +587,7 @@ function zzform() {
 		return false; // if an error occured in zz_action, return false
 	}
 
-//	Query Updated, Added or Editable Record
+//	Query updated, added or editable record
 
 	if (!$validation) {
 		if ($zz['action'] == 'update') $zz['mode'] = 'edit';
@@ -722,7 +722,7 @@ function zzform() {
 	}
 	
 	// requery record if successful, 
-	if (($zz['mode'] == 'edit' OR $zz['mode'] == 'delete') AND !$zz_tab[0][0]['record']) {
+	if (($zz['mode'] == 'edit' OR $zz['mode'] == 'delete' OR $zz['mode'] == 'review') AND !$zz_tab[0][0]['record']) {
 		$zz['formhead'] = '<span class="error">'.zz_text('There is no record under this ID:').' '.htmlspecialchars($zz_tab[0][0]['id']['value']).'</span>';	
 		$display_form = false;
 	}
@@ -929,8 +929,8 @@ function zz_initialize(&$zz_allowed_params, &$zz_var) {
 	$zz_default['redirect']['successful_delete'] = false;	// redirect to diff. page after delete
 	$zz_default['redirect']['successful_insert'] = false;	// redirect to diff. page after insert
 	$zz_default['redirect']['successful_update'] = false;	// redirect to diff. page after update
-	$zz_default['relations_table'] 	= '_relations';	//	name of relations table for referential integrity
-	$zz_default['search'] 			= false;	// search for records possible or not
+	$zz_default['relations_table'] 		= '_relations';	//	name of relations table for referential integrity
+	$zz_default['search'] 				= false;	// search for records possible or not
 	$zz_default['select_multiple_records'] = false;
 	$zz_default['show_hierarchy']	= false;
 	$zz_default['show_list_while_edit'] = true;	
@@ -1056,6 +1056,7 @@ function zzform_multi($definition_file, $values, $type, $params = false) {
 		if (!empty($values['GET'])) $_GET = $values['GET'];
 		if (!empty($values['POST'])) $_POST = $values['POST'];
 		if (!empty($values['FILES'])) $_FILES = $values['FILES'];
+		else $_FILES = '';
 		require $zz_conf['form_scripts'].'/'.$definition_file.'.php';
 		zzform();
 		break;

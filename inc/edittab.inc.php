@@ -33,6 +33,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 		$zz_conf = array_merge($zz_conf, $zz_conf['list_access']);
 		unset($zz_conf['list_access']);
 	}
+	if ($zz_conf['access'] == 'search_but_no_list' AND empty($_GET['q'])) $zz_conf['show_list'] = false;
 
 	$subselects = array();
 
@@ -45,9 +46,19 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 			if (in_array($filter['identifier'], array_keys($_GET['filter']))
 				AND in_array($_GET['filter'][$filter['identifier']], array_keys($filter['selection']))
 				AND $filter['type'] == 'list'
-				AND !empty($filter['where'])) {
-				// it's a valid filter, so apply it.
-					$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', $filter['where'].'"'.$_GET['filter'][$filter['identifier']].'"');
+				AND !empty($filter['where'])
+			) {	// it's a valid filter, so apply it.
+				$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', $filter['where'].'"'.$_GET['filter'][$filter['identifier']].'"');
+			} elseif (in_array($filter['identifier'], array_keys($_GET['filter']))
+				AND $filter['type'] == 'list'
+				AND !empty($filter['where'])
+				AND is_array($filter['where'])
+			) {
+				$wheres = array();
+				foreach ($filter['where'] AS $filter_where) {
+					$wheres[] = $filter_where.'"'.$_GET['filter'][$filter['identifier']].'"';
+				}
+				$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', implode(' OR ', $wheres));
 			}
 		}
 	}
@@ -423,7 +434,9 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 						}
 						$link = '<a href="'.$link.'"'
 							.(!empty($field['link_target']) ? ' target="'.$field['link_target'].'"' : '')
-							.($link_title ? ' title="'.$link_title.'"' : '').'>';
+							.($link_title ? ' title="'.$link_title.'"' : '')
+							.(!empty($field['link_attributes']) ? ' '.$field['link_attributes'] : '')
+							.'>';
 					}
 				}
 			//	go for type of field!
@@ -815,7 +828,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 	//
 
 	// Add new record
-	if ($zz['mode'] != 'export') {
+	if ($zz['mode'] != 'export' AND (!($zz_conf['access'] == 'search_but_no_list' AND empty($_GET['q'])))) {
 		// filter, if there was a list
 		if ($zz_conf['filter'] AND $zz_conf['show_list'] 
 			AND in_array($zz_conf['filter_position'], array('bottom', 'both')))

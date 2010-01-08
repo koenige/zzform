@@ -64,6 +64,7 @@ div.text #zzform	 {padding: 1em;}
 #zzform #record tr.error td, #zzform #record tr.error th, 
 	#zzform #record .subtable td.error {background-color: red;}
 
+#zzform table.data { margin: .5em 0; }
 #zzform table.data td {padding: 0.25em .5em;}
 #zzform table.data thead td, #zzform table.data thead th {padding-bottom: .25em;
 	border-bottom: 1px solid;}
@@ -125,6 +126,8 @@ div.text #zzform	 {padding: 1em;}
 #zzform table td.level9 {padding-left: 22.5em;}
 #zzform table td.level10 {padding-left: 25em;}
 
+#zzform optgroup { font-style: normal; font-weight: bold; }
+
 #zzform table td small {font-size: 90%;}
 
 #zzform ul.data {padding: 0; margin: 1em 0;}
@@ -136,7 +139,7 @@ div.text #zzform	 {padding: 1em;}
 
 #zzform input, #zzform textarea {text-rendering:optimizeSpeed;} /* get rid of Firefox wrong ligatures */
 
-#zzform .reselect th, #zzform .reselect td {background-color: green;}
+#zzform #record .reselect th, #zzform #record .reselect td {background-color: green;}
 
 .debug {background: white; border: 1px solid black; overflow: auto; font-size: 75%;}
 .debug h1 {padding-left: .5em;}

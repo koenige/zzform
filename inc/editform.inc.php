@@ -1,7 +1,7 @@
 <?php
 
 /*
-	zzform Scripts
+	zzform scripts
 
 	function zz_display_records
 		add, edit, delete, review a record
@@ -164,6 +164,21 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 	$table_name = (!empty($my_tab[$i]['table_name']) ? $my_tab[$i]['table_name'] : $my_tab[$i]['table']);
 	$row_display = (!empty($my['access']) ? $my['access'] : $display); // this is for 0 0 main record
 
+	// check if there's a filter with a field_name 
+	// this field will get the filter value as default value
+	$filter_field_name = array();
+	if (!empty($_GET['filter'])) {
+		foreach (array_keys($_GET['filter']) AS $filter_identifier) {
+			foreach ($zz_conf['filter'] as $filter) {
+				if ($filter['identifier'] == $filter_identifier
+					AND !empty($filter['field_name']))
+				{
+					$filter_field_name[$filter_identifier] = $filter['field_name'];
+				}
+			}
+		}
+	}
+	
 	foreach ($my['fields'] as $fieldkey => $field) {
 		if (!$field) continue;
 		if (!empty($field['hide_in_form'])) continue;
@@ -264,6 +279,15 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 					if ($subtable_mode == 'edit' AND empty($my_tab[$field['subtable']][$mytable_no]['id']['value']))
 						// no saved record exists, so it's add a new record
 						$subtable_mode = 'add';
+					if ($show_remove) {
+						$removebutton = '<input type="submit" value="'
+							.sprintf(zz_text('Remove %s'), $field['title'])
+							.'" class="sub-remove" name="subtables[remove]['
+							.$field['subtable'].']['.$mytable_no.']">';
+						if ($field['form_display'] == 'horizontal') {
+							$lastrow = $removebutton;	
+						}
+					}	
 					$out['td']['content'].= zz_show_field_rows($my_tab, $field['subtable'], 
 						$mytable_no, $subtable_mode, $st_display, $zz_var, $zz_conf_record, $action, 
 						$field['form_display'], $lastrow, $mytable_no, $h_show_explanation);
@@ -272,16 +296,10 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 						$table_open = false;
 					}
 					if ($show_remove) {
-						$removebutton = '<input type="submit" value="'
-							.sprintf(zz_text('Remove %s'), $field['title'])
-							.'" class="sub-remove" name="subtables[remove]['
-							.$field['subtable'].']['.$mytable_no.']">';
 						if ($field['form_display'] != 'horizontal') {
 							$out['td']['content'] .= $removebutton;
-						} else {
-							$lastrow = $removebutton;	
 						}
-					}	
+					}
 				}
 			}
 			if ($table_open) {
@@ -374,29 +392,29 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 					/*	added 2004-12-06
 						maybe easier and faster without sql query - instead rely on table query
 					*/
-					$sql_max = $my_tab[$i]['sql'];
+					// get main (sub-)table query, change field order
+					$sql_max = zz_edit_sql($my_tab[$i]['sql'], 'ORDER BY', $field['field_name'].' DESC');
 					if ($i) { // it's a subtable
-						$sql_max_where = '';
-						if (!empty($my_tab[0][0]['id']['field_name']) && !empty($my_tab[0][0]['id']['value']))
-							$sql_max_where = $my_tab[0]['table'].'.'.$my_tab[0][0]['id']['field_name'].' = '.$my_tab[0][0]['id']['value'];
+						if (!empty($my_tab[0][0]['id']['field_name']) && !empty($my_tab[0][0]['id']['value'])) {
+							$sql_max = zz_edit_sql($sql_max, 'WHERE', '('
+								.$my_tab[0]['table'].'.'
+								.$my_tab[0][0]['id']['field_name'].' = '
+								.$my_tab[0][0]['id']['value'].')');
+						}
 						$field['default'] = $k + 1;
 					}
-					if (stristr($sql_max, 'ORDER BY')) {
-						preg_match('/(.*) ORDER BY.*/i', $sql_max, $sql_result);
-						$sql_max = $sql_result[1];
-					}
-					if ($i && $sql_max_where) 
-						$sql_max = zz_edit_sql($sql_max, 'WHERE', '('.$sql_max_where.')');
-					$sql_max = zz_edit_sql($sql_max, 'ORDER BY', $field['field_name'].' DESC');
 					$myresult = mysql_query($sql_max);
 					if ($zz_conf['modules']['debug']) 
 						zz_debug(__FUNCTION__, $zz_debug_time_this_function, "next auto_value", $sql_max);
-					if (!$i OR $sql_max_where) // query only if maintable or saved record
-						if ($myresult)
-							if (mysql_num_rows($myresult)) {
-								$field['default'] = mysql_result($myresult, 0, $field['field_name']);
-								$field['default']++;
-							} else $field['default'] = 1;
+					if ($myresult) {
+						if (mysql_num_rows($myresult)) {
+							$field['default'] = mysql_result($myresult, 0, $field['field_name']);
+							$field['default']++;
+						} elseif (!$i) {
+							// only if it's the maintable, for subtable default is already set
+							$field['default'] = 1;
+						}
+					}
 				}
 			}
 
@@ -407,6 +425,12 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 				$field['type'] = 'predefined';
 			} elseif (isset($values) && is_array($values) && isset($values[$field['field_name']]))
 				$field['default'] = $values[$field['field_name']];
+			// Check if filter is applied to this field, set filter value as default value
+			if (in_array($field['field_name'], $filter_field_name) AND empty($field['value'])) {
+				if (!empty($_GET['filter'][array_search($field['field_name'], $filter_field_name)])) {
+					$field['default'] = $_GET['filter'][array_search($field['field_name'], $filter_field_name)];
+				}
+			}
 			if (!empty($field['default']) AND empty($field['value'])) {
 				// look at default only if no value is set - value overrides default
 //				if (!$my['record'] OR !empty($is_option)) { // set default only if record is empty OR if it's an option field which is always empty
@@ -416,7 +440,6 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 					$default_value = true; // must be unset later on because of this value
 				}
 			}
-
 			//
 			// output all records
 			//
@@ -778,7 +801,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 								.htmlspecialchars($my['record'][$field['field_name']]).' -- Error --<br>'.zz_text('no_selection_possible');
 						else {
 							$outputf.= '<input type="hidden" value="'.$line[$id_field_name].'" name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">';
-							$outputf.= draw_select($line, $id_field_name, $my['record'], $field, false, 0, false, false, $zz_conf_record);
+							$outputf.= zz_draw_select($line, $id_field_name, $my['record'], $field, false, 0, false, false, $zz_conf_record);
 						}
 					} elseif (mysql_num_rows($result_detail)) {
 						$id_field_name = mysql_field_name($result_detail, 0);
@@ -814,7 +837,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 								// don't show select but text input instead
 								$textinput = true;
 								if ($my['record'] AND $detail_record) {
-									$outputf.= draw_select($detail_record, $id_field_name, $my['record'], $field, false, 0, false, 'reselect', $zz_conf_record);
+									$outputf.= zz_draw_select($detail_record, $id_field_name, $my['record'], $field, false, 0, false, 'reselect', $zz_conf_record);
 									$textinput = false;
 								}
 								// value will not be checked if one detail record is added because in this case validation procedure will be skipped!
@@ -832,15 +855,41 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 										? $field['show_hierarchy_subtree'] : '') // normally don't show a value, unless we only look at a part of a hierarchy
 									.'"';
 								if ($my['record']) if (!$my['record'][$field['field_name']]) $outputf.= ' selected';
-								$outputf.= '>'.zz_text('none_selected').'</option>';
-								if (empty($field['show_hierarchy'])) {
+								$outputf.= '>'.zz_text('none_selected').'</option>'."\n";
+								if (empty($field['show_hierarchy']) AND empty($field['group'])) {
 									foreach ($details as $line)
-										$outputf.= draw_select($line, $id_field_name, $my['record'], $field, false, 0, false, 'form', $zz_conf_record);
+										$outputf.= zz_draw_select($line, $id_field_name, $my['record'], $field, false, 0, false, 'form', $zz_conf_record);
+								} elseif (!empty($field['show_hierarchy']) && !empty($my_select[$show_hierarchy_subtree]) AND !empty($field['group'])) {
+									// optgroup
+									$optgroup = false;
+									foreach ($my_select[$show_hierarchy_subtree] as $line) {
+										if ($optgroup != $line[$field['group']]) {
+											if (!$optgroup) $outputf .= '</optgroup>'."\n";
+											$optgroup = $line[$field['group']];
+											$outputf .= '<optgroup label="'.$optgroup.'">'."\n";
+										}
+										unset($line[$field['group']]); // not needed anymore
+										$outputf.= zz_draw_select($line, $id_field_name, $my['record'], $field, $my_select, 1, $field['show_hierarchy'], 'form', $zz_conf_record);
+									}
+									$outputf .= '</optgroup>'."\n";
 								} elseif (!empty($field['show_hierarchy']) && !empty($my_select[$show_hierarchy_subtree])) {
-									foreach ($my_select[$show_hierarchy_subtree] AS $my_field)
-										$outputf.= draw_select($my_field, $id_field_name, $my['record'], $field, $my_select, 0, $field['show_hierarchy'], 'form', $zz_conf_record);
+									foreach ($my_select[$show_hierarchy_subtree] AS $line)
+										$outputf.= zz_draw_select($line, $id_field_name, $my['record'], $field, $my_select, 0, $field['show_hierarchy'], 'form', $zz_conf_record);
+								} elseif (!empty($field['group'])) {
+									// optgroup
+									$optgroup = false;
+									foreach ($details as $line) {
+										if ($optgroup != $line[$field['group']]) {
+											if (!$optgroup) $outputf .= '</optgroup>'."\n";
+											$optgroup = $line[$field['group']];
+											$outputf .= '<optgroup label="'.$optgroup.'">'."\n";
+										}
+										unset($line[$field['group']]); // not needed anymore
+										$outputf.= zz_draw_select($line, $id_field_name, $my['record'], $field, false, 1, false, 'form', $zz_conf_record);
+									}
+									$outputf .= '</optgroup>'."\n";
 								} elseif ($detail_record) { // re-edit record, something was posted, ignore hierarchy because there's only one record coming back
-									$outputf.= draw_select($detail_record, $id_field_name, $my['record'], $field, false, 0, false, 'form', $zz_conf_record);
+									$outputf.= zz_draw_select($detail_record, $id_field_name, $my['record'], $field, false, 0, false, 'form', $zz_conf_record);
 								} elseif (!empty($field['show_hierarchy'])) {
 									$zz_error[] = array(
 										'msg' => 'No selection possible',
@@ -853,7 +902,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 							}
 						} else {
 							if ($detail_record) {
-								$outputf.= draw_select($detail_record, $id_field_name, $my['record'], $field, false, 0, false, false, $zz_conf_record);
+								$outputf.= zz_draw_select($detail_record, $id_field_name, $my['record'], $field, false, 0, false, false, $zz_conf_record);
 							}
 						}
 					} else {
@@ -909,7 +958,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 							$outputf.= '<option value=""';
 							if ($my['record']) { if (!$my['record'][$field['field_name']]) $outputf.= ' selected'; }
 							else $outputf.= ' selected'; // no value, no default value (both would be written in my record fieldname)
-							$outputf.= '>'.zz_text('none_selected').'</option>';
+							$outputf.= '>'.zz_text('none_selected').'</option>'."\n";
 						} 
 					}
 					foreach ($field['enum'] as $key => $set) {
@@ -927,7 +976,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 								if ($my['record']) if ($set == $my['record'][$field['field_name']]) $outputf.= ' selected';
 								$outputf.= '>';
 								$outputf.= (!empty($field['enum_title'][$key]) ? $field['enum_title'][$key] : zz_text($set));
-								$outputf.= '</option>';
+								$outputf.= '</option>'."\n";
 							}
 						} else {
 							if ($set == $my['record'][$field['field_name']]) $outputf.= (!empty($field['enum_title'][$key]) ? $field['enum_title'][$key] : zz_text($set));

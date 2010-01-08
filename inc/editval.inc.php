@@ -1,12 +1,8 @@
 <?php
-
 /*
 	zzform Scripts
-
 	functions for validation of user input
-	
-	(c) Gustaf Mossakowski <gustaf@koenige.org> 2004-2006
-
+	(c) Gustaf Mossakowski <gustaf@koenige.org> 2004-2010
 */
 
 /*
@@ -45,8 +41,7 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 					$my['validation'] = false;
 					$my['fields'][$f]['check_validation'] = false;
 					if (is_array($my['images'][$f])) foreach ($my['images'][$f] as $image) {
-						if (isset($image['error'])) {
-							if (!is_array($image['error'])) $image['error'] = array($image['error']);
+						if (!empty($image['error']) AND $image['error'] != 1) {
 							foreach ($image['error'] as $error) {
 								$zz_error['validation']['incorrect_values'][] = array(
 									'field_name' => $my['fields'][$f]['field_name'],
