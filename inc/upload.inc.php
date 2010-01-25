@@ -28,9 +28,8 @@
 	zz_upload_prepare()			prepares files for upload (resize, rotate etc.)
 		zz_upload_extension()	gets extension
 	zz_upload_check()			validates file input (upload errors, requirements)
-	zz_upload_action()			diverts to zz_upload_write or _delete		
-		zz_upload_write()		writes/deletes files after successful sql insert/update
-			zz_upload_sqlval()	
+	zz_upload_action()			writes/deletes files after successful sql insert/update
+		zz_upload_sqlval()	
 	zz_upload_cleanup()			cleanup after files have been moved or deleted
 
 	2. additional functions
@@ -134,7 +133,8 @@ $zz_default['upload_iptc_fields'] = zz_upload_get_typelist($zz_conf_global['dir_
 // unwanted mimetypes and their replacements
 $zz_default['mime_types_rewritten'] = array(
 	'image/pjpeg' => 'image/jpeg', 	// Internet Explorer knows progressive JPEG instead of JPEG
-	'image/x-png' => 'image/png'	// Internet Explorer
+	'image/x-png' => 'image/png',	// Internet Explorer
+	'application/octet_stream' => 'application/octet-stream'
 ); 
 
 // extensions for images that can be natively displayed in browser
@@ -145,6 +145,8 @@ $zz_default['upload_destination_filetype']['tiff'] = 'png';
 $zz_default['upload_destination_filetype']['tif'] = 'png';
 $zz_default['upload_destination_filetype']['tga'] = 'png';
 $zz_default['upload_destination_filetype']['pdf'] = 'png';
+$zz_default['upload_destination_filetype']['cr2'] = 'jpeg';
+$zz_default['upload_destination_filetype']['dng'] = 'jpeg';
 $zz_default['upload_pdf_density'] = '300x300'; // dpi in which pdf will be rasterized
 $zz_default['upload_ghostscript_available'] = false; // whether we can use gs library
 
@@ -332,6 +334,11 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
 	global $zz_error;
 	$file['validated'] = false;
+	// rewrite some misspelled and misset filetypes
+	if (!empty($file['type'])) {
+		if (in_array($file['type'], array_keys($zz_conf['mime_types_rewritten'])))
+			$file['type'] = $zz_conf['mime_types_rewritten'][$file['type']];
+	}
 	// check whether filesize is above 2 bytes or it will give a read error
 	if ($file['size'] >= 3) { 
 		$extension = substr($myfilename, strrpos($myfilename, '.') +1);
@@ -490,8 +497,6 @@ function zz_upload_mimecheck($mimetype, $extension) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
 	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function);
-	if (in_array($mimetype, $zz_conf['mime_types_rewritten']))
-		$mimetype = $zz_conf['mime_types_rewritten'][$mimetype];
 	foreach ($zz_conf['image_types'] as $imagetype)
 		if ($imagetype['mime'] == $mimetype AND $imagetype['ext'] == $extension)
 			return true;
@@ -924,21 +929,6 @@ function zz_upload_check(&$images, $action, $zz_conf, $input_filetypes = array()
 	else return true;
 }
 
-/** Moves or deletes file after successful SQL operations
- * 
- * called from within function zz_action
- * @param $zz_tab(array) complete table data
- * @param $zz_conf(array) configuration variables
- * @author Gustaf Mossakowski <gustaf@koenige.org>
- */
-function zz_upload_action(&$zz_tab, $zz_conf) {
-	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
-	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function);
-	if (!empty($_POST['zz_delete_file'])) 
-		zz_upload_delete_file($zz_tab, $zz_tab[0][0]['action'], $zz_conf);
-	zz_upload_write($zz_tab, $zz_conf);
-}
-
 /** Deletes files when specifically requested (e. g. in multiple upload forms)
  * 
  * called from within function zz_upload_action
@@ -987,17 +977,20 @@ function zz_upload_delete_file(&$zz_tab, $action, $zz_conf) {
 	return true;
 }
 
-/** Writes files after successful SQL operations
+/** Moves or deletes file after successful SQL operations
  * 
  * if backup variable is set to true, script will move old files to backup folder
- * called from within function zz_upload_action
+ * called from within function zz_action
  * @param $zz_tab(array) complete table data
- * @param $action(string) action: update or something else
  * @param $zz_conf(array) configuration variables
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_upload_write(&$zz_tab, $zz_conf) {
+function zz_upload_action(&$zz_tab, $zz_conf) {
 	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+
+	// delete files, if neccessary
+	if (!empty($_POST['zz_delete_file'])) 
+		zz_upload_delete_file($zz_tab, $zz_tab[0][0]['action'], $zz_conf);
 
 	// create path
 	// check if path exists, if not, create it
@@ -1195,7 +1188,7 @@ function zz_upload_sqlval($value, $sql, $idvalue = false, $idfield = false) { //
 
 /** Creates unique filename from backup dir, action and file path
  * 
- * called form zz_upload_write and zz_upload_delete
+ * called form zz_upload_action
  * @param $dir(string) backup directory
  * @param $action(string) sql action
  * @param $path(string) file path

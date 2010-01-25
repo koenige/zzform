@@ -1,14 +1,12 @@
 <?php
-/*
-	zzform Scripts
-	functions for validation of user input
-	(c) Gustaf Mossakowski <gustaf@koenige.org> 2004-2010
-*/
+
+// zzform
+// (c) Gustaf Mossakowski, <gustaf@koenige.org>, 2004-2010
+// Main function for validation of user input
+
 
 /*
-
 	$main_post		POST values of $zz_tab[0][0]['POST']
-
 */
 function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
@@ -140,22 +138,22 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 					&& !is_array($my['POST'][$my['fields'][$f]['field_name']])) // this line for wrong coordinates
 					$my['POST'][$my['fields'][$f]['field_name']] = str_replace(',', '.', $my['POST'][$my['fields'][$f]['field_name']]) * $my['fields'][$f]['factor'];
 	
-			//	md5 encrypt passwords, only for changed passwords! therefore string is compared against old pwd
+			//	encrypt passwords, only for changed passwords! therefore string is compared against old pwd
 				// action=update: here, we have to check whether submitted password is equal to password in db
 				// if so, password won't be touched
-				// if not, password will be md5 encrypted
-				// action=insert: password will be md5 encrypted
+				// if not, password will be encrypted
+				// action=insert: password will be encrypted
 				if ($my['fields'][$f]['type'] == 'password')
 					if ($my['POST'][$my['fields'][$f]['field_name']])
 						if ($my['action'] == 'insert')
-							$my['POST'][$my['fields'][$f]['field_name']] = md5($my['POST'][$my['fields'][$f]['field_name']]);
+							$my['POST'][$my['fields'][$f]['field_name']] = $zz_conf['password_encryption']($my['POST'][$my['fields'][$f]['field_name']]);
 						elseif ($my['action'] == 'update') {
 							if (!isset($my['POST'][$my['fields'][$f]['field_name'].'--old'])
 							|| ($my['POST'][$my['fields'][$f]['field_name']] != $my['POST'][$my['fields'][$f]['field_name'].'--old']))
-								$my['POST'][$my['fields'][$f]['field_name']] = md5($my['POST'][$my['fields'][$f]['field_name']]);
+								$my['POST'][$my['fields'][$f]['field_name']] = $zz_conf['password_encryption']($my['POST'][$my['fields'][$f]['field_name']]);
 						}
 	
-			//	change md5 encrypted password
+			//	change encrypted password
 				if ($my['fields'][$f]['type'] == 'password_change') {
 					$pwd = false;
 					if ($my['POST'][$my['fields'][$f]['field_name']] 
@@ -323,7 +321,7 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 							// do nothing, leave $my['validation'] as it is
 						} elseif (!isset($my['fields'][$f]['set']))
 							$my['validation'] = false;
-						elseif (!checkfornull($my['fields'][$f]['field_name'], $table)) {
+						elseif (!zz_check_for_null($my['fields'][$f]['field_name'], $table)) {
 							$my['validation'] = false;
 							$my['fields'][$f]['check_validation'] = false;
 						} elseif (!empty($my['fields'][$f]['required'])) {
@@ -334,7 +332,7 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 						AND empty($my['fields'][$f]['null'])
 						AND empty($my['fields'][$f]['null-string'])
 						AND $my['fields'][$f]['type'] != 'timestamp')
-						if (!checkfornull($my['fields'][$f]['field_name'], $table)) {
+						if (!zz_check_for_null($my['fields'][$f]['field_name'], $table)) {
 							$my['validation'] = false;
 							$my['fields'][$f]['check_validation'] = false;
 						} elseif (!empty($my['fields'][$f]['required'])) {
@@ -365,7 +363,7 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 			//		check for correct mailaddress
 					if ($my['fields'][$f]['type'] == 'mail') {
 						if ($my['POST'][$my['fields'][$f]['field_name']]) {
-							if (!$tempvar = checkmail($my['POST'][$my['fields'][$f]['field_name']])) {
+							if (!$tempvar = zz_check_mail($my['POST'][$my['fields'][$f]['field_name']])) {
 								$my['validation'] = false;
 								$my['fields'][$f]['check_validation'] = false;
 							} else $my['POST'][$my['fields'][$f]['field_name']] = $tempvar;

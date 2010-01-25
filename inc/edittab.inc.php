@@ -1,15 +1,14 @@
 <?php
 
-/*
-	zzform Scripts
+// zzform
+// (c) Gustaf Mossakowski, <gustaf@koenige.org>, 2004-2010
+// Display all or a subset of all records in a list (e. g. table, ul)
 
+/*
 	function zz_display_table
 		displays table with records (limited by zz_conf['limit'])
 		displays add new record, record navigation (if zz_conf['limit'] = true)
 		and search form below table
-	
-	(c) Gustaf Mossakowski <gustaf@koenige.org> 2004-2006
-
 */
 
 
@@ -416,7 +415,8 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 					// set link depending on $field['type'] or $field['link']
 					if ($field['type'] == 'url') {
 						$link = $line[$field['field_name']];
-					} elseif ($field['type'] == 'mail') {
+					} elseif ($field['type'] == 'mail' AND $line[$field['field_name']]) {
+						// mailto-Link only if there is an address in that field
 						$link = 'mailto:'.$line[$field['field_name']];
 					} elseif (isset($field['link']) AND is_array($field['link'])) {
 						$link = zz_show_link($field['link'], $line).(empty($field['link_no_append']) ? $line[$field['field_name']] : '');
@@ -480,7 +480,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 					case 'image':
 					case 'upload_image':
 						if (isset($field['path'])) {
-							if ($img = show_image($field['path'], $line))
+							if ($img = zz_show_image($field['path'], $line))
 								$rows[$z][$fieldindex]['text'].= ($link ? $link : '').$img.($link ? '</a>' : '');
 							elseif (isset($field['default_image']))
 								$rows[$z][$fieldindex]['text'].= ($link ? $link : '').'<img src="'
@@ -819,7 +819,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 			$zz['output'].= '</ul>'."\n".'<br clear="all">';
 
 	if ($zz_conf['show_list'] AND $zz_conf['select_multiple_records'] AND $zz['mode'] != 'export') {
-		$zz['output'].= '<input type="hidden" name="action" value="Multiple action"><input type="submit" value="'
+		$zz['output'].= '<input type="hidden" name="zz_action" value="Multiple action"><input type="submit" value="'
 			.zz_text('Delete selected records').'" name="multiple_delete">'
 			.'</form>'."\n";
 	}

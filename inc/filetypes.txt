@@ -35,6 +35,7 @@ doc		doc		doc		application/x-msw6				MS Word Document
 doc		doc		doc		application/x-msword			MS Word Document
 doc		doc		doc		zz-application/zz-winassoc-doc	MS Word Document
 doc		doc		doc		application/force-download		MS Word Document
+doc		doc		doc		application/octet-stream		MS Word Document
 
 docx	docx	docx	application/vnd.openxmlformats-officedocument.wordprocessingml.document	Microsoft Word Open XML Document
 
@@ -84,6 +85,7 @@ dwg		dwg		dwg		application/dwg					AutoCAD Drawing Database
 dwg		dwg		dwg		application/x-autocad			AutoCAD Drawing Database
 dwg		dwg		dwg		image/vnd.dwg					AutoCAD Drawing Database
 dwg		dwg		dwg		drawing/dwg						AutoCAD Drawing Database
+dwg		dwg		dwg		application/x-bravaacx			AutoCAD Drawing Database # Free DWG Viewer
 
 dxf		dxf		dxf		application/x-dxf				AutoCAD Drawing Interchange Format
 dxf		dxf		dxf		application/octet-stream		AutoCAD Drawing Interchange Format
@@ -112,6 +114,7 @@ pdf		pdf		pdf		text/x-pdf						Adobe Portable Document Format
 pdf		pdf		pdf		application/x-octet-stream		Adobe Portable Document Format
 pdf		pdf		pdf		application/octet-stream		Adobe Portable Document Format
 pdf		pdf		pdf		application/download			Adobe Portable Document Format
+pdf		pdf		pdf		application/x-download			Adobe Portable Document Format
 
 eps		eps		eps		application/postscript			PostScript document text (EPS)
 

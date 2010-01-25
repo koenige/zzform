@@ -1,16 +1,15 @@
 <?php
 
-/*
-	zzform scripts
+// zzform
+// (c) Gustaf Mossakowski, <gustaf@koenige.org>, 2004-2009
+// display of single record as a html form+table or for review as a table
 
+/*
 	function zz_display_records
 		add, edit, delete, review a record
 	function zz_show_field_rows
 		will be called from zz_display_records
 		shows all table rows for given record
-	
-	(c) Gustaf Mossakowski <gustaf@koenige.org> 2004-2009
-
 */
 
 /** Display form to edit a record
@@ -113,7 +112,7 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var, $zz_condi
 			case 'edit': $submit = 'update'; break;
 			case 'delete': $submit = 'delete'; break;
 		}
-		$output.= '<input type="hidden" name="action" value="'.$submit.'">';
+		$output.= '<input type="hidden" name="zz_action" value="'.$submit.'">';
 		if ($zz_conf['referer']) $output.= '<input type="hidden" value="'
 			.$zz_conf['referer'].'" name="referer">';
 		if (isset($_GET['file']) && $_GET['file']) 
@@ -602,7 +601,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 					// this is for validation purposes
 					// take saved password (no matter if it's interefered with maliciously by user - worst case, pwd will be useless)
 					// - if old and new value are identical
-					// do not apply md5 encoding to password
+					// do not apply encryption to password
 				}
 				break;
 			case 'password_change':
@@ -791,7 +790,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 							'query' => $field['sql'], 
 							'msg_dev' => zz_text('error-sql-incorrect'))
 						);
-					} elseif ($row_display == 'form' && mysql_num_rows($result_detail) == 1 && !checkfornull($field['field_name'], $my_tab[$i]['table'])) {
+					} elseif ($row_display == 'form' && mysql_num_rows($result_detail) == 1 && !zz_check_for_null($field['field_name'], $my_tab[$i]['table'])) {
 						// there is only one result in the array, and this will be pre-selected because FIELD must not be NULL
 						$line = mysql_fetch_assoc($result_detail);
 						// get ID field_name which must be 1st field in SQL query
@@ -999,7 +998,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 					$img = false;
 					$outputf.= '<p>';
 					if (isset($field['path']))
-						$outputf .= $img = show_image($field['path'], $my['record']);
+						$outputf .= $img = zz_show_image($field['path'], $my['record']);
 					if (!$img) $outputf.= '('.zz_text('image_not_display').')';
 					$outputf.= '</p>';
 				}
@@ -1033,7 +1032,8 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 								if (!empty($my['images'][$fieldkey][$imagekey]['error']))
 									$outputf.= '<br><small>'.implode('<br>', $my['images'][$fieldkey][$imagekey]['error']).'</small>';
 								else
-									$outputf.= '<br><small>'.zz_text('Maximum allowed filesize is').' '.floor($zz_conf['upload_MAX_FILE_SIZE']/1024/1024).'MiB</small>';
+									$outputf.= '<br><small>'.zz_text('Maximum allowed filesize is').' '
+										.floor($zz_conf['upload_MAX_FILE_SIZE']/1024/1024).'MiB</small>';
 								if ($row_display == 'form' && !empty($image['explanation'])) 
 									$outputf.= '<p class="explanation">'.$image['explanation'].'</p>';
 								if ($image_uploads > 1) $outputf.= '</td></tr>'."\n";

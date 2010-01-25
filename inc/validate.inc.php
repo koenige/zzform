@@ -1,21 +1,21 @@
 <?php 
+
+// zzform
+// (c) Gustaf Mossakowski, <gustaf@koenige.org>, 2005-2010
+// Functions for validation of user input
+
 /*
-
-
-	functions for valdidation fo fields
-
 	all functions return false if requirements are not met
-	else they will return the value
-
+	else they will return the value that was checked against
 */
 
-function checkmail($e_mail) {
+function zz_check_mail($e_mail) {
 	// multiple e-mail adresses might be separated with a ','
 /* TODO
 	if (strstr(',', $e_mail)) {
 		$e_mails = explode(',', $e_mail);
 		foreach ($e_mails as $mail) {
-			$mail = checkmail($mail);
+			$mail = zz_check_mail($mail);
 			if (!$mail)
 		}
 	}
@@ -108,7 +108,7 @@ function zz_check_url($url) {
 
 }
 
-/** checks whether an input is a URL
+/** checks whether an input is a valid URL
  * 
  * This function is also part of zzbrick, there it is called brick_is_url()
  * @param $url(string)	URL to be tested, only absolute URLs
@@ -124,20 +124,20 @@ function zz_is_url($url) {
 	if (empty($parts['scheme']) OR !in_array($parts['scheme'], $possible_schemes))
 		return false;
 	elseif (empty($parts['host']) 
-		OR (!eregi("^[0-9a-z]([-.]?[0-9a-z])*\.[a-z]{2,6}$", $parts['host'], $regs)
+		OR (!preg_match("/^[0-9a-z]([-.]?[0-9a-z])*\.[a-z]{2,6}$/i", $parts['host'], $regs)
 		AND !preg_match('/[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/', $parts['host'])))
 		return false;
 	elseif (!empty($parts['user']) 
-		AND !eregi( "^([0-9a-z-]|[\_])*$", $parts['user'], $regs))
+		AND !preg_match("/^([0-9a-z-]|[\_])*$/i", $parts['user'], $regs))
 		return false;
 	elseif (!empty($parts['pass']) 
-		AND !eregi( "^([0-9a-z-]|[\_])*$", $parts['pass'], $regs))
+		AND !preg_match("/^([0-9a-z-]|[\_])*$/i", $parts['pass'], $regs))
 		return false;
 	elseif (!empty($parts['path']) 
-		AND !preg_match("/^[0-9a-z\/_\.@~\-,=]*$/i", $parts['path']))
+		AND !preg_match("/^[0-9a-z\/_\.@~\-,=%]*$/i", $parts['path']))
 		return false;
 	elseif (!empty($parts['query'])
-		AND !eregi("^[A-Za-z0-9\-\._~!$&'\(\)\*+,;=:@?\/%]*$", $parts['query'], $regs))
+		AND !preg_match("/^[A-Za-z0-9\-\._~!$&'\(\)\*+,;=:@?\/%]*$/i", $parts['query'], $regs))
 		// not 100% correct: % must only appear in front of HEXDIG, e. g. %2F
 		// here it may appear in front of any other sign
 		// see 
@@ -147,7 +147,7 @@ function zz_is_url($url) {
 	return true;
 }
 
-function checkfornull($field, $table) {
+function zz_check_for_null($field, $table) {
 	$sql = 'SHOW COLUMNS FROM '.$table.' LIKE "'.$field.'"';
 	$result = mysql_query($sql);
 	if ($result) {

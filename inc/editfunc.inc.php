@@ -1,13 +1,9 @@
 <?php 
 
-/*
-	zzform Scripts
+// zzform
+// (c) Gustaf Mossakowski, <gustaf@koenige.org>, 2004-2010
+// Miscellaneous functions
 
-	miscellaneous functions
-	
-	(c) Gustaf Mossakowski <gustaf@koenige.org> 2004-2007
-
-*/
 
 /*
 
@@ -328,10 +324,9 @@ function zz_get_to_array($get, $which) {
 	return $extras;
 }
 
-function show_image($path, $record) {
+function zz_show_image($path, $record) {
 	$img = false;
 	if ($record) {
-		$img = '<img src="';
 		$alt = zz_text('no_image');
 		$img_src = false;
 		$root = false;
@@ -365,7 +360,7 @@ function show_image($path, $record) {
 				OR !filesize($root.'/'.$img_src) 	// filesize is 0 = looks like error
 				OR !getimagesize($root.'/'.$img_src)) // getimagesize test whether it's an image
 				return false;
-		$img.= '" alt="'.$alt.'" class="thumb">';
+		if ($img) $img = '<img src="'.$img.'" alt="'.$alt.'" class="thumb">';
 	}
 	return $img;
 }
@@ -984,7 +979,7 @@ function zz_get_subqueries($subqueries, $zz, &$zz_tab, $zz_conf) {
 function zz_subqueries($i, $min, $details, $sql, $subtable, $zz_tab) {
 	global $zz_conf;
 	// $subtable is branch of $zz with all data for specific subtable
-	// function will be run twice from edit.inc, therefore be careful, programmer!
+	// function will be run twice from zzform(), therefore be careful, programmer!
 
 	$records = false;
 	$my = $zz_tab[$i];
@@ -1873,6 +1868,7 @@ function zz_check_select($my, $f, $max_select) {
 
 function zz_check_password($old, $new1, $new2, $sql) {
 	global $zz_error;
+	global $zz_conf;
 	if ($new1 != $new2) {
 		$zz_error[] = array(
 			'msg' => 'New passwords do not match. Please try again.',
@@ -1898,12 +1894,12 @@ function zz_check_password($old, $new1, $new2, $sql) {
 		);
 		return false;
 	}
-	if (md5($old) == $old_pwd) {
+	if ($zz_conf['password_encryption']($old) == $old_pwd) {
 		$zz_error[] = array(
 			'msg' => zz_text('Your password has been changed!'),
 			'level' => E_USER_NOTICE
 		);
-		return md5($new1); // new1 = new2, old = old, everything is ok
+		return $zz_conf['password_encryption']($new1); // new1 = new2, old = old, everything is ok
 	} else {
 		$zz_error[] = array(
 			'msg' => 'Your current password is different from what you entered. Please try again.',
@@ -2315,9 +2311,9 @@ function zz_record_access($zz, &$zz_conf, &$zz_tab, $zz_var, $zz_allowed_params,
 	} elseif (isset($_POST['subtables'])) {
 		// ok, no submit button was hit but only add/remove form fields for
 		// detail records in subtable, so set mode accordingly (no action!)
-		if (!empty($_POST['action']) AND $_POST['action'] == 'insert') {
+		if (!empty($_POST['zz_action']) AND $_POST['zz_action'] == 'insert') {
 			$zz['mode'] = 'add';
-		} elseif (!empty($_POST['action']) AND $_POST['action'] == 'update'
+		} elseif (!empty($_POST['zz_action']) AND $_POST['zz_action'] == 'update'
 			AND !empty($_POST[$zz_tab[0][0]['id']['field_name']])) {
 			$zz['mode'] = 'edit';
 			$id_value = $_POST[$zz_tab[0][0]['id']['field_name']];
@@ -2337,8 +2333,8 @@ function zz_record_access($zz, &$zz_conf, &$zz_tab, $zz_var, $zz_allowed_params,
 				$zz['mode'] = false; // illegal parameter, don't set a mode at all
 			}
 		} else {
-			if (!empty($_POST['action']) AND in_array($_POST['action'], $zz_allowed_params['action'])) {
-				$zz['action'] = $_POST['action']; // triggers valid database action
+			if (!empty($_POST['zz_action']) AND in_array($_POST['zz_action'], $zz_allowed_params['action'])) {
+				$zz['action'] = $_POST['zz_action']; // triggers valid database action
 				if (!empty($_POST[$zz_tab[0][0]['id']['field_name']]))
 					$id_value = $_POST[$zz_tab[0][0]['id']['field_name']];
 				$zz['mode'] = false;

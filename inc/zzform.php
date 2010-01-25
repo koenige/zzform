@@ -567,7 +567,7 @@ function zzform() {
 			}
 		}
 	}
-	if (!empty($_POST['action'])) {
+	if (!empty($_POST['zz_action'])) {
 		$_POST = zz_check_def_vals($_POST, $zz_tab[0][0]['fields'], 
 			(!empty($zz_var['where'][$zz_tab[0]['table']]) ? $zz_var['where'][$zz_tab[0]['table']] : ''));
 		if (!empty($_FILES)) 
@@ -940,6 +940,7 @@ function zz_initialize(&$zz_allowed_params, &$zz_var) {
 	$zz_default['this_limit']		= false;	//	internal value, current range which records are shown
 	$zz_default['user']				= '';		//	username
 	$zz_default['view']				= false;	// 	show Action: View
+	$zz_default['password_encryption'] = 'md5';
 	
 	foreach (array_keys($zz_default) as $key)
 		if (!isset($zz_conf[$key])) $zz_conf[$key] = $zz_default[$key];
