@@ -145,7 +145,7 @@ div.text #zzform	 {padding: 1em;}
 .debug h1 {padding-left: .5em;}
 
 /* Filter */
-#zzform .zzfilter {margin: 1em 0 2em;}
+#zzform .zzfilter {margin: 1em 0 1.5em;}
 #zzform .zzfilter dl {margin: 0; padding: 0;}
 #zzform .zzfilter dt {float: left; clear: left;}
 #zzform .zzfilter dd {margin: 0; padding: 0 .5em; float: left;

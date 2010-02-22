@@ -231,7 +231,7 @@ function field_in_where($field, $values) {
  * @return maximum length of field or false if no field length is set
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function check_maxlength($field, $table) {
+function zz_check_maxlength($field, $table) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
 	$sql = 'SHOW COLUMNS FROM '.$table.' LIKE "'.$field.'"';
@@ -769,7 +769,7 @@ function zz_filter_selection($filter) {
 			.(!empty($_GET['filter'][$f['identifier']]) ? '</a>' : '</strong>')
 			.'&nbsp;&#8211;</dd>'."\n";
 	}
-	$output .= '</dl></div><br clear="all">'."\n";
+	$output .= '</dl><br clear="all"></div>'."\n";
 	return $output;
 }
 
@@ -897,7 +897,14 @@ function zz_get_subqueries($subqueries, $zz, &$zz_tab, $zz_conf) {
 		if (!empty($zz['fields'][$subquery]['values'])) {
 			$zz_tab[$i]['values'] = $zz['fields'][$subquery]['values'];
 		}
-		$zz_tab[$i]['table'] = $zz['fields'][$subquery]['table'];
+		if (strstr($zz['fields'][$subquery]['table'], '.')) {
+			$table = explode('.', $zz['fields'][$subquery]['table']);
+			$zz_tab[$i]['db_name'] = $table[0];
+			$zz_tab[$i]['table'] = $table[1];
+		} else {
+			$zz_tab[$i]['db_name'] = $zz_tab[0]['db_name'];
+			$zz_tab[$i]['table'] = $zz['fields'][$subquery]['table'];
+		}
 		$zz_tab[$i]['table_name'] = $zz['fields'][$subquery]['table_name'];
 		$zz_tab[$i]['max_records'] = (isset($zz['fields'][$subquery]['max_records'])) 
 			? $zz['fields'][$subquery]['max_records'] : $zz_conf['max_detail_records'];
@@ -912,7 +919,7 @@ function zz_get_subqueries($subqueries, $zz, &$zz_tab, $zz_conf) {
 		$zz_tab[$i]['sql_not_unique'] =  (!empty($zz['fields'][$subquery]['sql_not_unique']) ? $zz['fields'][$subquery]['sql_not_unique'] : false);
 		$zz_tab[$i]['foreign_key_field_name'] = (!empty($zz['fields'][$subquery]['foreign_key_field_name']) 
 			? $zz['fields'][$subquery]['foreign_key_field_name'] : $zz_tab[0]['table'].'.'.$zz_tab[0][0]['id']['field_name']);
-		$zz_tab[$i]['translate_field_name'] = (!empty($zz['fields'][$subquery]['translate_field_name']) ? $zz['fields'][$subquery]['translate_field_name'] : false);;
+		$zz_tab[$i]['translate_field_name'] = (!empty($zz['fields'][$subquery]['translate_field_name']) ? $zz['fields'][$subquery]['translate_field_name'] : false);
 
 		// get detail key, if there is a field definition with it.
 		foreach ($zz['fields'][$subquery]['fields'] AS $field) {
@@ -1076,6 +1083,16 @@ function zz_subqueries($i, $min, $details, $sql, $subtable, $zz_tab) {
 	return $my;
 }
 
+/** query a detail record
+ * 
+ * @param $zz_tab[$i] = where $i is the detail record to query
+ * @param $zz_tab[0]['table'] = main table name
+ * @param $zz_tab[0][0]['id']['value'] = main id value	
+ * @param $id_field_name = ID field name of detail record
+ * @param $deleted_ids = IDs that were deleted by user
+ * @return $saved = array with 'records' and 'ids' in detail records
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
 function zz_query_subrecord($my, $main_table, $main_id_value, $id_field_name, $deleted_ids = array()) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
@@ -1307,12 +1324,14 @@ function zz_requery_record(&$zz_tab_i, $k, $validation, $mode) {
 	}
 }
 
-/*
-
-returns:
-	- $fields
-
-*/
+/** Fills field definitions with default definitions and infos from database
+ * 
+ * will change &$fields but return nothing
+ * @param array &$fields
+ * @param string $table [i. e. db_name.table]
+ * @param bool $multiple_times marker for conditions
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
 function zz_fill_out(&$fields, $table, $multiple_times = false) {
 	global $zz_conf;
 	foreach (array_keys($fields) as $no) {
@@ -1352,20 +1371,35 @@ function zz_fill_out(&$fields, $table, $multiple_times = false) {
 		if (!isset($fields[$no]['explanation'])) $fields[$no]['explanation'] = false; // initialize
 		if (!$multiple_times) {
 			if (!isset($fields[$no]['maxlength']) && isset($fields[$no]['field_name'])) 
-				$fields[$no]['maxlength'] = check_maxlength($fields[$no]['field_name'], $table);
+				$fields[$no]['maxlength'] = zz_check_maxlength($fields[$no]['field_name'], $table);
 			if (!empty($fields[$no]['sql'])) // replace whitespace with space
 				$fields[$no]['sql'] = preg_replace("/\s+/", " ", $fields[$no]['sql']);
 		}
 		if ($fields[$no]['type'] == 'subtable') // for subtables, do this as well
+			// here we still should have a different db_name in 'table' if using multiples dbs
+			// so it's no need to prepend the db name of this table
 			zz_fill_out($fields[$no]['fields'], $fields[$no]['table'], $multiple_times);
 	}
 }
 
+/** Logs SQL operation in logging table in database
+ * 
+ * @param string $sql = SQL Query
+ * @param string $user = Active user
+ * @param int $record_id = record ID, optional, if ID shall be logged
+ * @return bool = operation successful or not
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
 function zz_log_sql($sql, $user, $record_id = false) {
 	global $zz_conf;
 	// logs each INSERT, UPDATE or DELETE query
 	// with record_id
 	if (!mysql_affected_rows()) return false;
+	// check if zzform() set db_main, test against !empty because need not be set
+	// (zz_log_sql() might be called from outside zzform())
+	if (!strstr($zz_conf['logging_table'], '.') AND !empty($zz_conf['db_main'])) {
+		$zz_conf['logging_table'] = $zz_conf['db_main'].'.'.$zz_conf['logging_table'];
+	}
 	if (!empty($zz_conf['logging_id']) AND $record_id)
 		$sql = 'INSERT INTO '.$zz_conf['logging_table'].' 
 			(query, user, record_id) VALUES ("'.mysql_real_escape_string($sql).'", "'.$user.'", '.$record_id.')';

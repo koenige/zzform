@@ -51,7 +51,7 @@ function zz_check_enumset($enum_value, $field, $table) {
 function zz_get_enumset($colum, $table) {
 	global $zz_error;
 	$values = array();
-	$sql = "SHOW COLUMNS FROM $table LIKE '$colum'";
+	$sql = 'SHOW COLUMNS FROM '.$table.' LIKE "'.$colum.'"';
 	$result = mysql_query($sql);
 	if (mysql_num_rows($result)) {
 		$column_definition = mysql_fetch_assoc($result);
@@ -72,6 +72,8 @@ function zz_get_enumset($colum, $table) {
 	} else {
 		$zz_error[] = array(
 			'msg_dev' => 'Admin warning: column name given in table definition might not exist.',
+			'query' => $sql,
+			'mysql' => mysql_error(),
 			'level' => E_USER_WARNING
 		);
 		// todo: check table definition, whether column exists or not.

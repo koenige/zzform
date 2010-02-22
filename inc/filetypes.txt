@@ -115,6 +115,7 @@ pdf		pdf		pdf		application/x-octet-stream		Adobe Portable Document Format
 pdf		pdf		pdf		application/octet-stream		Adobe Portable Document Format
 pdf		pdf		pdf		application/download			Adobe Portable Document Format
 pdf		pdf		pdf		application/x-download			Adobe Portable Document Format
+pdf		pdf		pdf		application/x-unknown-application-pdf	Adobe Portable Document Format
 
 eps		eps		eps		application/postscript			PostScript document text (EPS)
 

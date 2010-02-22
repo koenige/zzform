@@ -5,10 +5,18 @@
 // Main function for validation of user input
 
 
-/*
-	$main_post		POST values of $zz_tab[0][0]['POST']
-*/
-function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
+/** Validates user input
+ * 
+ * @param array $my = $zz_tab[$i][$k]
+ * @param array $zz_conf
+ * @param string $db_table [db_name.table]
+ * @param string $table_name Alias for table if it occurs in the form more than once
+ * @param int $k
+ * @param array $main_post		POST values of $zz_tab[0][0]['POST']
+ * @return array $my with validated values and marker if validation was successful ($my['validation'])
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function zz_validate($my, $zz_conf, $db_table, $table_name, $k = 0, $main_post) {
 	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
 	global $zz_error;
 	$my['POST-notvalid'] = $my['POST'];
@@ -321,7 +329,7 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 							// do nothing, leave $my['validation'] as it is
 						} elseif (!isset($my['fields'][$f]['set']))
 							$my['validation'] = false;
-						elseif (!zz_check_for_null($my['fields'][$f]['field_name'], $table)) {
+						elseif (!zz_check_for_null($my['fields'][$f]['field_name'], $db_table)) {
 							$my['validation'] = false;
 							$my['fields'][$f]['check_validation'] = false;
 						} elseif (!empty($my['fields'][$f]['required'])) {
@@ -332,7 +340,7 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 						AND empty($my['fields'][$f]['null'])
 						AND empty($my['fields'][$f]['null-string'])
 						AND $my['fields'][$f]['type'] != 'timestamp')
-						if (!zz_check_for_null($my['fields'][$f]['field_name'], $table)) {
+						if (!zz_check_for_null($my['fields'][$f]['field_name'], $db_table)) {
 							$my['validation'] = false;
 							$my['fields'][$f]['check_validation'] = false;
 						} elseif (!empty($my['fields'][$f]['required'])) {
@@ -344,7 +352,7 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 					if (isset($my['fields'][$f]['enum'])) {
 						if ($my['POST'][$my['fields'][$f]['field_name']]) {
 							if (!$tempvar = zz_check_enumset($my['POST'][$my['fields'][$f]['field_name']], 
-									$my['fields'][$f], $table)) {
+									$my['fields'][$f], $db_table)) {
 								$my['validation'] = false;
 								$my['fields'][$f]['check_validation'] = false;
 							} else $my['POST'][$my['fields'][$f]['field_name']] = $tempvar;
@@ -381,7 +389,7 @@ function zz_validate($my, $zz_conf, $table, $table_name, $k = 0, $main_post) {
 				$conf = (!empty($my['fields'][$f]['conf_identifier']) 
 					? $my['fields'][$f]['conf_identifier'] : false);
 				$my['POST'][$my['fields'][$f]['field_name']] 
-					= zz_create_identifier($func_vars, $conf, $my, $table, $f);
+					= zz_create_identifier($func_vars, $conf, $my, $db_table, $f);
 			}
 	}
 	

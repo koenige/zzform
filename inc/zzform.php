@@ -109,23 +109,19 @@ function zzform() {
 //	Database connection, set db_name
 //
 
+	// get current db to SELECT it again before exitting
+	$result = mysql_query('SELECT DATABASE()');
+	$zz_conf['db_current'] = $result ? mysql_result($result, 0, 0) : '';
+	// main database normally is the same db that zzform() uses for its
+	// operations, but if you use several databases, this is the one which
+	// is the main db, i. e. the one that will be used if no other database
+	// name is specified
+	$zz_conf['db_main'] = false;
+
 	if (!isset($zz_conf['db_connection'])) include_once $zz_conf['dir_custom'].'/db.inc.php';
 	// get db_name.
-	// 2. alternative: put it in zz['table']
-	if (preg_match('~(.+)\.(.+)~', $zz['table'], $db_name)) { // db_name is already in zz['table']
-		$zz_conf['db_name'] = $db_name[1];
-		$zz['table'] = $db_name[2];
-		$dbname = mysql_select_db($zz_conf['db_name']);
-		if (!$dbname) {
-			$zz_error[] = array(
-				'mysql' => mysql_error(),
-				'query' => 'SELECT DATABASE("'.$zz_conf['db_name'].'")',
-				'level' => E_USER_ERROR
-			);
-			return zz_error(); // exits script
-		}
 	// 1. best way: put it in zz_conf['db_name']
-	} elseif (!empty($zz_conf['db_name'])) {
+	if (!empty($zz_conf['db_name'])) {
 		$dbname = mysql_select_db($zz_conf['db_name']);
 		if (!$dbname) {
 			$zz_error[] = array(
@@ -135,7 +131,8 @@ function zzform() {
 			);
 			return zz_error(); // exits script
 		}
-	// 3. alternative: use current database
+		$zz_tab[0]['db_name'] = $zz_conf['db_name'];
+	// 2. alternative: use current database
 	} else {
 		$result = mysql_query('SELECT DATABASE()');
 		if (mysql_error()) {
@@ -147,7 +144,32 @@ function zzform() {
 			return zz_error(); // exits script
 		}
 		$zz_conf['db_name'] = mysql_result($result, 0, 0);
+		$zz_tab[0]['db_name'] = $zz_conf['db_name'];
 	}
+
+	// 3. alternative plus foreign db: put it in zz['table']
+	if (preg_match('~(.+)\.(.+)~', $zz['table'], $db_name)) { // db_name is already in zz['table']
+		if ($zz_conf['db_name'] AND $zz_conf['db_name'] != $db_name[1]) {
+			// this database is different from main database, so save it here
+			// for later
+			$zz_conf['db_main'] = $zz_conf['db_name'];
+		} elseif (!$zz_conf['db_name']) { 
+			// no database selected, get one, quick!
+			$dbname = mysql_select_db($db_name[1]);
+			if (!$dbname) {
+				$zz_error[] = array(
+					'mysql' => mysql_error(),
+					'query' => 'SELECT DATABASE("'.$db_name[1].'")',
+					'level' => E_USER_ERROR
+				);
+				return zz_error(); // exits script
+			}
+		}
+		$zz_conf['db_name'] = $db_name[1];
+		$zz_tab[0]['db_name'] = $db_name[1];
+		$zz['table'] = $db_name[2];
+	}
+
 	if (empty($zz_conf['db_name'])) {
 		$zz_error[] = array(
 			'msg_dev' => 'Please set the variable <code>$zz_conf[\'db_name\']</code>. It has to be set to the main database name used for zzform.',
@@ -398,6 +420,7 @@ function zzform() {
 		$zz['fields'] = zz_translations_init($zz['table'], $zz['fields']);
 		if ($zz_error['error']) {
 			if ($zz_conf['access'] != 'export') $zz['output'].= '</div>';
+			if ($zz_conf['db_current']) mysql_select_db($zz_conf['db_current']);
 			return false; // if an error occured in zz_translations_check_for, return false
 		}
 	}
@@ -508,7 +531,7 @@ function zzform() {
 
 	// now we have the correct field definitions	
 	// set type, title etc. where unset
-	zz_fill_out($zz['fields'], $zz['table']); 
+	zz_fill_out($zz['fields'], $zz_tab[0]['db_name'].'.'.$zz['table']); 
 
 //	Upload
 
@@ -584,6 +607,7 @@ function zzform() {
 		$record_action = zz_action($zz_tab, $zz_conf, $zz, $validation, $upload_form, $subqueries); // check for validity, insert/update/delete record
 	if ($zz_error['error']) {
 		if ($zz_conf['access'] != 'export') $zz['output'].= '</div>';
+		if ($zz_conf['db_current']) mysql_select_db($zz_conf['db_current']);
 		return false; // if an error occured in zz_action, return false
 	}
 
@@ -693,6 +717,7 @@ function zzform() {
 	if ($zz_error['error']) {
 		if ($form_open) $zz['output'] .= '</form>';
 		if ($zz_conf['access'] != 'export') $zz['output'].= '</div>';
+		if ($zz_conf['db_current']) mysql_select_db($zz_conf['db_current']);
 		return false;
 	}
 	if (!empty($zz_error['validation']['msg']) AND is_array($zz_error['validation']['msg'])) {
@@ -757,6 +782,7 @@ function zzform() {
 	}
 	if ($zz_error['error']) {
 		if ($zz_conf['access'] != 'export') $zz['output'].= '</div>';
+		if ($zz_conf['db_current']) mysql_select_db($zz_conf['db_current']);
 		return false; // critical error: exit;
 	}
 
@@ -796,6 +822,8 @@ function zzform() {
 //		übergabe via SESSION, so dass bestätiger Datensatz angezeigt wird.
 //		header('Location: '.$scheme.'://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI']); // Parameter, die bestätigten Record anzeigen
 //	}
+	// return to old database
+	if ($zz_conf['db_current']) mysql_select_db($zz_conf['db_current']);
 }
 
 function zzform_all($glob_vals = false) {

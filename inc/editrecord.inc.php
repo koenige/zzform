@@ -19,7 +19,7 @@
 		- zz_upload_prepare()
 		- zz_set_subrecord_action()
 		- zz_validate()
-		- check_integrity()
+		- zz_check_integrity()
 		- zz_foldercheck()
 		- zz_upload_cleanup()
 		
@@ -68,7 +68,7 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 			// do something with the POST array before proceeding
 				if (empty($zz_tab[$i][$k]['access']) 
 					|| $zz_tab[$i][$k]['access'] != 'show' ) {// don't validate record which only will be shown!!
-					$zz_tab[$i][$k] = zz_validate($zz_tab[$i][$k], $zz_conf, $zz_tab[$i]['table'], $zz_tab[$i]['table_name'], $k, $zz_tab[0][0]['POST']); 
+					$zz_tab[$i][$k] = zz_validate($zz_tab[$i][$k], $zz_conf, $zz_tab[$i]['db_name'].'.'.$zz_tab[$i]['table'], $zz_tab[$i]['table_name'], $k, $zz_tab[0][0]['POST']); 
 				}
 			} elseif (is_numeric($k))
 			//	Check referential integrity
@@ -79,12 +79,11 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 					$detailrecords = '';
 					if ($subqueries) foreach ($subqueries as $subkey) {
 						$det_key = $zz['fields'][$subkey]['table'];
-						if (!strstr('.', $det_key)) $det_key = $zz_conf['db_name'].'.'.$det_key;
+						if (!strstr('.', $det_key)) $det_key = $zz_tab[0]['db_name'].'.'.$det_key;
 						$detailrecords[$det_key]['table'] = $zz['fields'][$subkey]['table'];
 						$detailrecords[$det_key]['sql'][] = $zz['fields'][$subkey]['sql']; // might be more than one detail record from the same table
 					}
-					if (!$zz_tab[$i][$k]['no-delete'] = check_integrity($zz_conf['db_name'], $zz_tab[$i]['table'], $record_idfield, $zz_tab[$i][$k]['POST'][$record_idfield], $zz_conf['relations_table'], $detailrecords)) {
-					// todo: remove db_name maybe?
+					if (!$zz_tab[$i][$k]['no-delete'] = zz_check_integrity($zz_tab[$i]['db_name'], $zz_tab[$i]['table'], $record_idfield, $zz_tab[$i][$k]['POST'][$record_idfield], $zz_conf['relations_table'], $detailrecords)) {
 						if ($zz_error['error']) return false;
 						$zz_tab[$i][$k]['validation'] = true;
 					} else {
@@ -125,6 +124,17 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 			foreach (array_keys($zz_tab[$i]) as $me) if (is_numeric($me)) {
 				//echo 'rec '.$i.' '.$me.'<br>';
 			
+			// get database name for query
+			$me_db = false;
+			if ($zz_conf['db_main']) {
+				// the 'main' zzform() database is different from the database for the main
+				// record, so check against db_main
+				if ($zz_tab[$i]['db_name'] != $zz_conf['db_main']) $me_db = $zz_tab[$i]['db_name'].'.';
+			} else {
+				// the 'main' zzform() database is equal to the database for the main
+				// record, so check against db_name
+				if ($zz_tab[$i]['db_name'] != $zz_conf['db_name']) $me_db = $zz_tab[$i]['db_name'].'.';
+			}
 			$me_sql = false;
 			
 		//	### Do nothing with the record, here: main record ###
@@ -145,7 +155,7 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 						//if ($me == 0 OR $field['type'] != 'foreign_key')
 							$field_values .= $zz_tab[$i][$me]['POST'][$field['field_name']];
 					}
-				$me_sql = ' INSERT INTO '.$zz_tab[$i]['table'];
+				$me_sql = ' INSERT INTO '.$me_db.$zz_tab[$i]['table'];
 				$me_sql .= ' ('.$field_list.') VALUES ('.$field_values.')';
 				
 		// ### Update a record ###
@@ -157,13 +167,13 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 						if ($update_values) $update_values.= ', ';
 						$update_values.= $field['field_name'].' = '.$zz_tab[$i][$me]['POST'][$field['field_name']];
 					}
-				$me_sql = ' UPDATE '.$zz_tab[$i]['table'];
+				$me_sql = ' UPDATE '.$me_db.$zz_tab[$i]['table'];
 				$me_sql.= ' SET '.$update_values.' WHERE '.$zz_tab[$i][$me]['id']['field_name'].' = "'.$zz_tab[$i][$me]['id']['value'].'"';
 			
 		// ### Delete a record ###
 	
 			} elseif ($zz_tab[$i][$me]['action'] == 'delete') {
-				$me_sql= ' DELETE FROM '.$zz_tab[$i]['table'];
+				$me_sql= ' DELETE FROM '.$me_db.$zz_tab[$i]['table'];
 				$id_field = $zz_tab[$i][$me]['id']['field_name'];
 				$me_sql.= ' WHERE '.$id_field." = '".$zz_tab[$i][$me]['POST'][$id_field]."'";
 				$me_sql.= ' LIMIT 1';
@@ -319,6 +329,8 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 */
 function zz_set_subrecord_action(&$zz_tab, $i, $k, &$zz) {
 	// initialize variables
+	global $zz_conf;
+	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
 	$subtable = $zz_tab[$i][$k];
 	$values = '';
 
@@ -348,9 +360,10 @@ function zz_set_subrecord_action(&$zz_tab, $i, $k, &$zz) {
 			} elseif ($field['type'] != 'timestamp' && $field['type'] != 'id') {
 				// check def_val_ignore, some auto values/values/default values will be ignored 
 				if (!empty($field['def_val_ignore'])) {
-					if (!empty($field['default']) 
+					if (empty($field['value']) AND !empty($field['default'])
 						AND $field['default'] != $subtable['POST'][$field['field_name']]) {
 					// defaults will only be ignored if different from default value
+					// but only if no value is set!
 						$values .= $subtable['POST'][$field['field_name']];				
 					} else {
 					// values need not to be checked, they'll always be ignored
@@ -400,6 +413,7 @@ function zz_set_subrecord_action(&$zz_tab, $i, $k, &$zz) {
 			$subtable = false;
 	}
 
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end, values: ".$values);
 	return $subtable;
 }
 

@@ -79,18 +79,21 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 
 	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "count_rows start");
 
-	$result = mysql_query($zz['sql']);
+//	$sql = zz_edit_sql($zz['sql'], 'ORDER BY', '', 'delete');
+//	$sql = zz_edit_sql($zz['sql'], 'SELECT', 'objects.object_id', 'replace');
+	$sql = $zz['sql'];
+	$result = mysql_query($sql);
 	if ($result) {
 		$count_rows = mysql_num_rows($result);
 	} else {
 		$count_rows = 0;
 		$zz['output'].= zz_error($zz_error[] = array(
 			'mysql' => mysql_error(), 
-			'query' => $zz['sql'], 
+			'query' => $sql, 
 			'msg_dev' => zz_text('error-sql-incorrect')));
 	}
 
-	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "count_rows end");
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "count_rows end", $sql);
 
 	// read rows from database. depending on hierarchical or normal list view
 	// put rows in $lines or $h_lines.
@@ -178,7 +181,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 	// that means, $table_query cannot be used for the rest but $line_query instead
 	// zz_fill_out must be outside if show_list, because it is neccessary for
 	// search results with no resulting records
-	zz_fill_out($zz['fields_in_list'], $zz['table'], true); // fill_out, but do not unset conditions
+	zz_fill_out($zz['fields_in_list'], $zz_conf['db_name'].'.'.$zz['table'], true); // fill_out, but do not unset conditions
 	if ($zz_conf['show_list']) {
 		$conditions_applied = array(); // check if there are any conditions
 		array_unshift($lines, '0'); // 0 as a dummy record for which no conditions will be set
@@ -202,7 +205,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 		foreach (array_keys($lines) as $index) {
 			if (!empty($line_query[$index])) {
 				if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "fill_out start");
-				zz_fill_out($line_query[$index], $zz['table'], 2);
+				zz_fill_out($line_query[$index], $zz_conf['db_name'].'.'.$zz['table'], 2);
 				if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "fill_out end");
 				//zz_print_r($line_query);
 				foreach ($line_query[$index] as $fieldindex => $field) {
@@ -498,12 +501,15 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 							if (!$z) {
 								foreach ($field['fields'] as $subfield) {
 									if ($subfield['type'] == 'foreign_key') {
+										// get field name of foreign key
+										$id_fieldname = $subfield['field_name'];
+										// if main field name and foreign field name differ, use main ID for requests
 										if (!empty($subfield['key_field_name'])) // different fieldnames
-											$id_fieldname = $subfield['key_field_name'];
+											$key_fieldname = $subfield['key_field_name'];
 										else
-											$id_fieldname = $subfield['field_name'];
+											$key_fieldname = $subfield['field_name'];
 										// id_field = joined_table.field_name
-										$field['subselect']['id_table_and_fieldname'] = $zz['table'].'.'.$id_fieldname;
+										$field['subselect']['id_table_and_fieldname'] = $field['table'].'.'.$id_fieldname;
 										// just field_name
 										$field['subselect']['id_fieldname'] = $id_fieldname;
 									}
@@ -511,7 +517,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 								$field['subselect']['fieldindex'] = $fieldindex;
 								$subselects[] = $field['subselect'];
 							}
-							$sub_id = $line[$id_fieldname]; // get correct ID
+							$sub_id = $line[$key_fieldname]; // get correct ID
 						} elseif (!empty($field['display_field'])) {
 							$rows[$z][$fieldindex]['text'].= $line[$field['display_field']];
 						}

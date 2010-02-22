@@ -16,17 +16,10 @@ is not 100% correct, but these occasions should be very rare anyways
 
 */
 
-function check_integrity($master_db, $master_table, $master_field, $master_value, 
+function zz_check_integrity($master_db, $master_table, $master_field, $master_value, 
 	$relation_table, $detailrecords) {
 	// return false - deletion is possible
 	// return true 	- do not delete
-	if (strstr($master_table, '.')) { // don't know if this is important, but if 
-			//someone sets master_table to dbname.tablename, this will work
-		$master = explode('.', $master_table);
-		$master_db = $master[0];
-		$master_table = $master[1];
-		unset($master);
-	}
 	$sql = 'SELECT * FROM '.$relation_table;
 	$result = mysql_query($sql);
 	if ($result) {
