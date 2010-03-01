@@ -46,8 +46,8 @@ function zz_validate($my, $zz_conf, $db_table, $table_name, $k = 0, $main_post) 
 				if (!zz_upload_check($my['images'][$f], $my['action'], $zz_conf, $input_filetypes, $k)) {
 					$my['validation'] = false;
 					$my['fields'][$f]['check_validation'] = false;
-					if (is_array($my['images'][$f])) foreach ($my['images'][$f] as $image) {
-						if (!empty($image['error']) AND $image['error'] != 1) {
+					if (is_array($my['images'][$f])) foreach ($my['images'][$f] as $key => $image) {
+						if (is_numeric($key) AND !empty($image['error'])) {
 							foreach ($image['error'] as $error) {
 								$zz_error['validation']['incorrect_values'][] = array(
 									'field_name' => $my['fields'][$f]['field_name'],
@@ -56,7 +56,6 @@ function zz_validate($my, $zz_conf, $db_table, $table_name, $k = 0, $main_post) 
 							}
 						}
 					}
-					// $images[$key]['error']
 				}
 			case 'display':
 			case 'write_once':

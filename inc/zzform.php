@@ -110,7 +110,10 @@ function zzform() {
 //
 
 	// get current db to SELECT it again before exitting
-	$result = mysql_query('SELECT DATABASE()');
+	// might be that there was no database connection established so far
+	// therefore the @, but it does not matter because we simply want to
+	// revert to the current database after exitting this script
+	$result = @mysql_query('SELECT DATABASE()');
 	$zz_conf['db_current'] = $result ? mysql_result($result, 0, 0) : '';
 	// main database normally is the same db that zzform() uses for its
 	// operations, but if you use several databases, this is the one which
@@ -225,6 +228,20 @@ function zzform() {
 		foreach ($_GET['add'] as $key => $value) {
 			$zz_var['zz_fields'][$key]['value'] = $value;
 			$zz_var['zz_fields'][$key]['type'] = 'hidden';
+		}
+	}
+	// check if there's a 'where'-filter
+	if (!empty($zz_conf['filter'])) {
+		foreach ($zz_conf['filter'] AS $index => $filter) {
+			if ($filter['type'] == 'where') {
+				if (!empty($_GET['filter'][$filter['identifier']])) {
+					$where_condition[$filter['where']] = $_GET['filter'][$filter['identifier']];
+				} elseif (!empty($filter['default_selection'])) {
+					$where_condition[$filter['where']] = $filter['default_selection'];
+				}
+				// 'where'-filters are beyond that 'list'-filters
+				$zz_conf['filter'][$index]['type'] = 'list';
+			}
 		}
 	}
 
@@ -416,6 +433,8 @@ function zzform() {
 
 	//	Translation module
 	//	check whether or not to include default translation subtables
+	//	this will be done after conditions were checked for so to be able
+	//	to not include certain fields and not to get translation fields for these
 	if ($zz_conf['modules']['translations']) {
 		$zz['fields'] = zz_translations_init($zz['table'], $zz['fields']);
 		if ($zz_error['error']) {
@@ -490,17 +509,28 @@ function zzform() {
 	if (!empty($zz_conf['modules']['conditions']) AND !empty($zz_conditions['values']))
 		$zz['fields'] = zz_conditions_record_fields($zz['fields'], $zz['conditional_fields'], $zz_conditions['values']);
 		
-	// check if there are any subtables, any bool-conditions 
-	$subqueries = '';
-	$j = 1;
-	foreach (array_keys($zz['fields']) as $i) {
-		if (!empty($zz_conf['modules']['conditions'])) {
+
+	// check if there are any bool-conditions 
+	if (!empty($zz_conf['modules']['conditions'])) {
+		foreach (array_keys($zz['fields']) as $i) {
 			if (!empty($zz['fields'][$i]['conditions'])) {
 				$zz['fields'][$i] = zz_conditions_merge($zz['fields'][$i], $zz_conditions['bool'], $zz_tab[0][0]['id']['value']);
 			}
 			if (!empty($zz['fields'][$i]['not_conditions'])) {
 				$zz['fields'][$i] = zz_conditions_merge($zz['fields'][$i], $zz_conditions['bool'], $zz_tab[0][0]['id']['value'], true);
 			}
+		}
+	}
+	// check if there are any subqueries
+	$subqueries = '';
+	$j = 1;
+	foreach (array_keys($zz['fields']) as $i) {
+		if (!empty($zz['fields'][$i]['translate_field_index'])
+			AND isset($zz['fields'][$zz['fields'][$i]['translate_field_index']]['translation'])
+			AND !$zz['fields'][$zz['fields'][$i]['translate_field_index']]['translation'])
+		{
+			unset ($zz['fields'][$i]);
+			continue;
 		}
 		if (isset($zz['fields'][$i]['type'])) {
 			switch ($zz['fields'][$i]['type']) {
@@ -531,7 +561,7 @@ function zzform() {
 
 	// now we have the correct field definitions	
 	// set type, title etc. where unset
-	zz_fill_out($zz['fields'], $zz_tab[0]['db_name'].'.'.$zz['table']); 
+	zz_fill_out($zz['fields'], $zz_tab[0]['db_name'].'.'.$zz['table'], false, $zz['mode']); 
 
 //	Upload
 
@@ -877,9 +907,8 @@ function zz_initialize(&$zz_allowed_params, &$zz_var) {
 	$zz_default['dir_inc']			= $zz_conf['dir'].'/inc';
 	$zz_default['error_mail_level']	= array('error', 'warning', 'notice');
 	$zz_default['ext_modules']		= array('markdown', 'textile');
-	foreach (array_keys($zz_default) as $key)					// create conf from defaults
-		if (!isset($zz_conf[$key])) 
-			$zz_conf[$key] = $zz_default[$key];
+	zz_write_defaults($zz_default, $zz_conf);
+
 	// shorthand values
 	if (!is_array($zz_conf['error_mail_level'])) {
 		if ($zz_conf['error_mail_level'] == 'error') $zz_conf['error_mail_level'] = array('error');
@@ -970,8 +999,7 @@ function zz_initialize(&$zz_allowed_params, &$zz_var) {
 	$zz_default['view']				= false;	// 	show Action: View
 	$zz_default['password_encryption'] = 'md5';
 	
-	foreach (array_keys($zz_default) as $key)
-		if (!isset($zz_conf[$key])) $zz_conf[$key] = $zz_default[$key];
+	zz_write_defaults($zz_default, $zz_conf);
 
 	// set default limit in case 'show_hierarchy' is used because hierarchies need more memory
 	if (!$zz_conf['limit'] AND $zz_conf['show_hierarchy']) $zz_conf['limit'] = 40;
@@ -1118,6 +1146,30 @@ function zzform_multi($definition_file, $values, $type, $params = false) {
 function microtime_float() {
     list($usec, $sec) = explode(" ", microtime());
     return ((float)$usec + (float)$sec);
+}
+
+/* Create config variables from defaults
+ *
+ * @param array $zz_default	default configuration variables
+ * @param array $zz_conf	definitive configuration variables
+ * @return - writes directly to $zz_conf
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function zz_write_defaults($zz_default, &$zz_conf) {
+	foreach (array_keys($zz_default) as $key) {
+		// no key set, so write default values in configuration
+		if (!isset($zz_conf[$key])) {
+			$zz_conf[$key] = $zz_default[$key];
+		} elseif (is_array($zz_default[$key])) {
+			// check if it's an array, it might be that some of the subkeys
+			// are already set, others not
+			foreach (array_keys($zz_default[$key]) as $subkey) {
+				if (!isset($zz_conf[$key][$subkey])) {
+					$zz_conf[$key][$subkey] = $zz_default[$key][$subkey];
+				}
+			}
+		}
+	}
 }
 
 ?>

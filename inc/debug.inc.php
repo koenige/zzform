@@ -59,7 +59,7 @@ $zz_default['debug_time'] 		= false;
  */
 function zz_debug_htmlout($zz_debug) {
 	$output = '<h1>'.zz_text('Debug Information').'</h1>';
-	$output .= '<table class="data"><thead>'."\n".'<tr><th>'.zz_text('Time').'</th><th>'
+	$output .= '<table class="data debugtable"><thead>'."\n".'<tr><th>'.zz_text('Time').'</th><th>'
 		.zz_text('Mem').'</th><th>'.zz_text('Function').'</th><th>'
 		.zz_text('Marker').'</th><th>'.zz_text('SQL').'</th></tr>'."\n"
 		.'</thead><tbody>';
@@ -67,10 +67,11 @@ function zz_debug_htmlout($zz_debug) {
 	foreach ($zz_debug['output'] as $row) {
 		$output .= '<tr class="'.($i & 1 ? 'even': 'uneven').'">';
 		foreach ($row as $key => $val) {
+			if ($key == 'time') $val = '<dl><dt>'.$val.'</dt>';
+			elseif ($key == 'time_used') $val = '<dd>'.$val.'</dd></dl>';
 			if ($key != 'time_used') $output .= '<td>';
 			$output .= $val;
 			if ($key != 'time') $output .= '</td>';
-			else $output .= '<br>';
 		}
 		$output .= '</tr>'."\n";
 		$i++;

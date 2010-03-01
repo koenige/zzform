@@ -143,6 +143,9 @@ div.text #zzform	 {padding: 1em;}
 
 .debug {background: white; border: 1px solid black; overflow: auto; font-size: 75%;}
 .debug h1 {padding-left: .5em;}
+#zzform .debugtable dl { padding: 0; margin: 0; line-height: 1.5;}
+#zzform .debugtable dt { font-weight: bold; }
+#zzform .debugtable dd { padding: 0; margin: 0; }
 
 /* Filter */
 #zzform .zzfilter {margin: 1em 0 1.5em;}

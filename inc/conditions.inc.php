@@ -29,6 +29,7 @@ function zz_conditions_record_check($zz, $zz_tab, &$zz_var) {
 	global $zz_error;
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+
 	$zz_conditions = array();
 	foreach($zz['conditions'] AS $index => $condition) {
 		switch ($condition['scope']) {
@@ -182,6 +183,9 @@ function zz_conditions_record_check($zz, $zz_tab, &$zz_var) {
 // we get new field definitions
 // get last index to add extra fields
 function zz_conditions_record_fields($fields, $conditional_fields, $values) {
+	global $zz_conf;
+	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+
 	$all_indices = array_keys($fields);
 	asort($all_indices);
 	$last_index = array_pop($all_indices);
@@ -225,6 +229,7 @@ function zz_conditions_record_fields($fields, $conditional_fields, $values) {
 	foreach (array_keys($remove_fields) as $fieldkey) {
 		unset($fields[$fieldkey]);
 	}
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
 	return $fields;
 }
 
@@ -247,7 +252,9 @@ function zz_replace_conditional_values(&$item, $key, $records) {
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_conditions_merge($array, $bool_conditions, $record_id, $reverse = false) {
-
+	global $zz_conf;
+	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+	
 	if (!$reverse) {
 		$conditions = $array['conditions'];
 	} else {
@@ -284,6 +291,7 @@ function zz_conditions_merge($array, $bool_conditions, $record_id, $reverse = fa
 			}
 		}
 	}
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
 	return $array;
 }
 

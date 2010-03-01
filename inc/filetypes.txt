@@ -104,6 +104,7 @@ dwf		dwf		dwf		mage/vnd.dwf 					Autodesk Design Web Format
 dwf		dwf		dwf		drawing/x-dwf 					Autodesk Design Web Format
 dwf		dwf		dwf		application/x-dwf 				Autodesk Design Web Format
 dwf		dwf		dwf		application/dwf 				Autodesk Design Web Format
+dwf		dwf		dwf		application/octet-stream		Autodesk Design Web Format
 
 pdf		pdf		pdf		application/pdf					Adobe Portable Document Format
 pdf		pdf		pdf		application/x-pdf				Adobe Portable Document Format

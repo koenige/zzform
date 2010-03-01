@@ -231,9 +231,18 @@ function field_in_where($field, $values) {
  * @return maximum length of field or false if no field length is set
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_check_maxlength($field, $table) {
+function zz_check_maxlength($field, $type, $table) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+	// just if it's a field with a field_name
+	if (!$field) return false;
+	// for some field types it makes no sense to check for maxlength
+	$dont_check = array('image', 'display', 'timestamp', 'hidden', 'foreign_key',
+		'select', 'id', 'date', 'time');
+	if (in_array($type, $dont_check)) return false;
+	if (substr($table, 0, 1) != '`' AND substr($table, -1) != '`') {
+		$table = '`'.str_replace('.', '`.`', $table).'`';
+	}
 	$sql = 'SHOW COLUMNS FROM '.$table.' LIKE "'.$field.'"';
 	$result = mysql_query($sql);
 	if ($result)
@@ -243,10 +252,10 @@ function zz_check_maxlength($field, $table) {
 			//if ($my_result) return $my_result[1];
 			preg_match('/\((\d+)\)/s', $maxlength['Type'], $my_result);
 			if ($zz_conf['modules']['debug']) 
-				zz_debug(__FUNCTION__, $zz_debug_time_this_function, "sql", $sql);
+				zz_debug(__FUNCTION__, $zz_debug_time_this_function, "sql-".$type.(isset($my_result[1]) ? '-'.$my_result[1] : ''), $sql);
 			if ($my_result) return ($my_result[1]);
 		}
-	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "sql", $sql);
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "sql-".$type, $sql);
 	return false;
 }
 
@@ -741,7 +750,8 @@ function zz_filter_selection($filter) {
 		unset($other_filters['filter'][$f['identifier']]);
 		$qs = zz_edit_query_string($qs, array(), $other_filters);
 		$output .= '<dt>'.zz_text('Selection').' '.$f['title'].':</dt>';
-		foreach ($f['selection'] as $id => $selection) {
+		// $f['selection'] might be empty if there's no record in the database
+		if (!empty($f['selection'])) foreach ($f['selection'] as $id => $selection) {
 			$is_selected = ((!empty($_GET['filter'][$f['identifier']]) 
 				AND $_GET['filter'][$f['identifier']] == $id))
 				? true : false;
@@ -1332,8 +1342,10 @@ function zz_requery_record(&$zz_tab_i, $k, $validation, $mode) {
  * @param bool $multiple_times marker for conditions
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_fill_out(&$fields, $table, $multiple_times = false) {
+function zz_fill_out(&$fields, $table, $multiple_times = false, $mode = false) {
 	global $zz_conf;
+	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+
 	foreach (array_keys($fields) as $no) {
 		if (!empty($fields[$no]['conditions'])) {
 			if (!$multiple_times) 
@@ -1370,16 +1382,20 @@ function zz_fill_out(&$fields, $table, $multiple_times = false) {
 		}
 		if (!isset($fields[$no]['explanation'])) $fields[$no]['explanation'] = false; // initialize
 		if (!$multiple_times) {
-			if (!isset($fields[$no]['maxlength']) && isset($fields[$no]['field_name'])) 
-				$fields[$no]['maxlength'] = zz_check_maxlength($fields[$no]['field_name'], $table);
+			if (!isset($fields[$no]['maxlength']) && isset($fields[$no]['field_name'])
+				AND $mode != 'list_only') // no need to check maxlength in list view only 
+			{
+				$fields[$no]['maxlength'] = zz_check_maxlength($fields[$no]['field_name'], $fields[$no]['type'], $table);
+			}
 			if (!empty($fields[$no]['sql'])) // replace whitespace with space
 				$fields[$no]['sql'] = preg_replace("/\s+/", " ", $fields[$no]['sql']);
 		}
 		if ($fields[$no]['type'] == 'subtable') // for subtables, do this as well
 			// here we still should have a different db_name in 'table' if using multiples dbs
 			// so it's no need to prepend the db name of this table
-			zz_fill_out($fields[$no]['fields'], $fields[$no]['table'], $multiple_times);
+			zz_fill_out($fields[$no]['fields'], $fields[$no]['table'], $multiple_times, $mode);
 	}
+	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
 }
 
 /** Logs SQL operation in logging table in database
@@ -1686,11 +1702,27 @@ function magic_quotes_strip($mixed) {
 function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 	global $zz_conf; // for debug only
 	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+
+	if (substr(trim($sql), 0, 4) == 'SHOW' AND $n_part == 'LIMIT') {
+	// LIMIT, WHERE etc. is only allowed with SHOW
+	// not allowed e. g. for SHOW DATABASES(), SHOW TABLES FROM ...
+		return $sql;
+	}
+	if (substr(trim($sql), 0, 14) == 'SHOW DATABASES' AND $n_part == 'WHERE') {
+		return false; // this is impossible and will automatically trigger an error
+		// TODO: implement LIKE here.
+	}
+
 	// remove whitespace
 	$sql = ' '.preg_replace("/\s+/", " ", $sql); // first blank needed for SELECT
 	// SQL statements in descending order
 	$statements_desc = array('LIMIT', 'ORDER BY', 'HAVING', 'GROUP BY', 'WHERE', 'FROM', 'SELECT DISTINCT', 'SELECT');
 	foreach ($statements_desc as $statement) {
+		// add whitespace in between brackets and statements to make life easier
+		$sql = str_replace(')'.$statement.' ', ') '.$statement.' ', $sql);
+		$sql = str_replace(')'.$statement.'(', ') '.$statement.' (', $sql);
+		$sql = str_replace(' '.$statement.'(', ' '.$statement.' (', $sql);
+		// check for statements
 		$explodes = explode(' '.$statement.' ', $sql);
 		if (count($explodes) > 1) {
 		// = look only for last statement

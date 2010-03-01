@@ -139,7 +139,7 @@ function zz_image_webimage($source, $destination, $dest_extension = false, $imag
 		return false; // do not create an identical webimage of already existing webimage
 	} elseif ($source_extension == 'pdf') {
 		$source .= '[0]';	// convert only first page
-		if ($zz_conf['upload_ghostscript_available']) {
+		if ($zz_conf['upload_tools']['ghostscript']) {
 			$dest_extension = $zz_conf['upload_destination_filetype'][$source_extension];
 			$convert = zz_imagick_convert('density '.$zz_conf['upload_pdf_density'], ' "'.$source.'" '.$dest_extension.':'.'"'.$destination.'"');
 		}

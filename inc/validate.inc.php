@@ -51,6 +51,9 @@ function zz_check_enumset($enum_value, $field, $table) {
 function zz_get_enumset($colum, $table) {
 	global $zz_error;
 	$values = array();
+	if (substr($table, 0, 1) != '`' AND substr($table, -1) != '`') {
+		$table = '`'.str_replace('.', '`.`', $table).'`';
+	}
 	$sql = 'SHOW COLUMNS FROM '.$table.' LIKE "'.$colum.'"';
 	$result = mysql_query($sql);
 	if (mysql_num_rows($result)) {
@@ -150,6 +153,9 @@ function zz_is_url($url) {
 }
 
 function zz_check_for_null($field, $table) {
+	if (substr($table, 0, 1) != '`' AND substr($table, -1) != '`') {
+		$table = '`'.str_replace('.', '`.`', $table).'`';
+	}
 	$sql = 'SHOW COLUMNS FROM '.$table.' LIKE "'.$field.'"';
 	$result = mysql_query($sql);
 	if ($result) {

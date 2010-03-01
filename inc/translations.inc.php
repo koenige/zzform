@@ -84,6 +84,7 @@ function zz_translations_init($table, $fields) {
 			$translationsubtable[$index+$k] = $zz_sub;
 			$translationsubtable[$index+$k]['table_name'] .= '-'.$k;
 			$translationsubtable[$index+$k]['translate_field_name'] = $field_name;
+			$translationsubtable[$index+$k]['translate_field_index'] = $i;
 			$zz_fields = array_merge(array_slice($fields, 0, $k+$j), $translationsubtable, array_slice($fields, $k+$j));
 		// old PHP 4 support
 			$zz_fields_keys = array_merge(array_slice(array_keys($fields), 0, $k+$j), array_keys($translationsubtable), array_slice(array_keys($fields), $k+$j));

@@ -92,8 +92,10 @@ else
 	$zz_default['tmp_dir'] 		= false;
 $zz_default['graphics_library'] = 'imagemagick';
 $zz_default['imagemagick_paths'] = array('/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/phpbin'); 
-$zz_default['upload_fileinfo_with_file'] = false;
-$zz_default['upload_identify_with_imagemagick'] = true; // might be turned off for performance reasons while handling raw data
+$zz_default['upload_tools']['fileinfo'] = false;
+$zz_default['upload_tools']['exiftools'] = false;
+$zz_default['upload_tools']['identify'] = true; // might be turned off for performance reasons while handling raw data
+$zz_default['upload_tools']['ghostscript'] = false; // whether we can use gs library
 
 $max_filesize = ini_get('upload_max_filesize');
 switch (substr($max_filesize, -1)) {
@@ -148,7 +150,6 @@ $zz_default['upload_destination_filetype']['pdf'] = 'png';
 $zz_default['upload_destination_filetype']['cr2'] = 'jpeg';
 $zz_default['upload_destination_filetype']['dng'] = 'jpeg';
 $zz_default['upload_pdf_density'] = '300x300'; // dpi in which pdf will be rasterized
-$zz_default['upload_ghostscript_available'] = false; // whether we can use gs library
 
 
 /*	----------------------------------------------	*
@@ -340,6 +341,7 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 			$file['type'] = $zz_conf['mime_types_rewritten'][$file['type']];
 	}
 	// check whether filesize is above 2 bytes or it will give a read error
+	$file['filetype'] = 'unknown';
 	if ($file['size'] >= 3) { 
 		$extension = substr($myfilename, strrpos($myfilename, '.') +1);
 		// 1a.
@@ -361,7 +363,7 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 				}
 				$tested_filetypes = array();
 			}
-			if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "getimagesize()");
+			if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "getimagesize(): ".$file['filetype']);
 		} 
 		if (!$file['validated'] && function_exists('exif_imagetype')) {// > 4.3.0
 			$imagetype = exif_imagetype($myfilename);
@@ -376,20 +378,28 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 				}
 				$tested_filetypes = array();
 			}
-			if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "exif_imagetype()");
+			if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "exif_imagetype(): ".$file['filetype']);
 		} 
-		if ($zz_conf['graphics_library'] == 'imagemagick' AND $zz_conf['upload_identify_with_imagemagick']) {
+		if ($zz_conf['graphics_library'] == 'imagemagick' AND $zz_conf['upload_tools']['identify']) {
 			$temp_imagick = zz_imagick_identify($myfilename);
 			if ($temp_imagick) {
 				$file = array_merge($file, $temp_imagick);
 			}
-			if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "identify()");
+			if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "identify(): ".$file['filetype']);
 		}
-		if ($zz_conf['upload_fileinfo_with_file']) {
-			exec('file "'.$myfilename.'"', $return_var);
+		if ($zz_conf['upload_tools']['fileinfo']) {
+			// use unix `file` command
+			exec('file --brief "'.$myfilename.'"', $return_var);
 			if ($return_var) {
 				$imagetype = false;
-				$file['filetype_file'] = substr($return_var[0], strpos($return_var[0], ':')+2);
+				$file['filetype_file'] = $return_var[0];
+				// attention, -I changed to -i in file, therefore we don't use shorthand here
+				// get mime type
+				unset($return_var);
+				exec('file --mime --brief "'.$myfilename.'"', $return_var); 
+				$file['type_user_upload'] = $file['type'];
+				$file['type'] = $return_var[0];
+
 				if ($file['filetype_file'] == 'AutoCad (release 14)') {
 					$imagetype = 'dwg';
 					$file['validated'] = true;
@@ -397,6 +407,9 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 //				} elseif ($file['filetype_file'] == 'Microsoft Office Document') {
 //					$imagetype = 'doc';
 //					$file['validated'] = true;
+				} elseif ($file['filetype_file'] == 'data') {
+					// check if it's an autocad document
+					// ...
 				}
 				if ($file['validated'] AND $imagetype) {
 					$file['ext'] = $zz_conf['file_types'][$imagetype][0]['ext'];
@@ -404,7 +417,8 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 					$file['filetype'] = $zz_conf['file_types'][$imagetype][0]['filetype'];
 				}
 			}
-			if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "file()");
+			if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "file(): "
+				.(!empty($file['filetype_file']) ? $file['filetype_file'] : $file['type']));
 		}
 		// TODO: allow further file testing here, e. g. for PDF, DXF
 		// and others, go for Identifying Characters.

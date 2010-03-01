@@ -49,6 +49,13 @@ function zz_make_headers($export, $charset) {
 	$headers = array();
 	switch ($export) {
 		case 'csv':
+			// correct download of csv files
+			if (!empty($_SERVER['HTTP_USER_AGENT']) 
+				AND strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE'))
+			{
+				$headers[]['true'] = 'Cache-Control: maxage=1'; // in seconds
+				$headers[]['true'] = 'Pragma: public';
+			}
 			$headers[]['true'] = 'Content-Type: text/csv; charset='.$charset;
 			$filename = parse_url('http://www.example.org/'.$_SERVER['REQUEST_URI']);
 			$headers[]['true'] = 'Content-Disposition: attachment; filename='.basename($filename['path']).'.csv';

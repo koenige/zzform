@@ -47,7 +47,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 				AND $filter['type'] == 'list'
 				AND !empty($filter['where'])
 			) {	// it's a valid filter, so apply it.
-				$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', $filter['where'].'"'.$_GET['filter'][$filter['identifier']].'"');
+				$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', $filter['where'].' = "'.$_GET['filter'][$filter['identifier']].'"');
 			} elseif (in_array($filter['identifier'], array_keys($_GET['filter']))
 				AND $filter['type'] == 'list'
 				AND !empty($filter['where'])
@@ -55,7 +55,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 			) {
 				$wheres = array();
 				foreach ($filter['where'] AS $filter_where) {
-					$wheres[] = $filter_where.'"'.$_GET['filter'][$filter['identifier']].'"';
+					$wheres[] = $filter_where.' = "'.$_GET['filter'][$filter['identifier']].'"';
 				}
 				$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', implode(' OR ', $wheres));
 			}
@@ -516,6 +516,11 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 								}
 								$field['subselect']['fieldindex'] = $fieldindex;
 								$subselects[] = $field['subselect'];
+							}
+							if (empty($line[$key_fieldname])) {
+								$zz_error[] = array(
+									'msg_dev' => 'Wrong key_field_name. Please set $zz_sub["fields"]['
+									.'n]["key_field_name"] to something different: '.implode(', ', array_keys($line)));
 							}
 							$sub_id = $line[$key_fieldname]; // get correct ID
 						} elseif (!empty($field['display_field'])) {
