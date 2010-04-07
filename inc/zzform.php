@@ -56,6 +56,14 @@ function zzform() {
 	if (empty($zz_conf['zzform_calls'])) $zz_conf['zzform_calls'] = 1;
 	else $zz_conf['zzform_calls']++;
 
+	// divert to import if set
+	if (!empty($_GET['mode']) AND $_GET['mode'] == 'import' AND !empty($zz_conf['import'])) {
+		if (empty($zz_conf['dir_inc'])) 
+			$zz_conf['dir_inc'] = $zz_conf['dir'].'/inc';
+		require_once $zz_conf['dir_inc'].'/import.inc.php';
+		return zzform_import();
+	}
+
 //	Variables which are required by several functions
 	global $zz_error;
 	global $text;
@@ -196,7 +204,9 @@ function zzform() {
 		}
 		// set filter for complete form
 		if (!empty($_GET['filter'])) {
-			foreach ($zz_conf['filter'] AS $filter) {
+			foreach ($zz_conf['filter'] AS $index => $filter) {
+				if (!isset($filter['selection'])) 
+					$filter['selection'] = $zz_conf['filter'][$index]['selection'] = array();
 				if (in_array($filter['identifier'], array_keys($_GET['filter']))
 					AND in_array($_GET['filter'][$filter['identifier']], array_keys($filter['selection']))
 					AND $filter['type'] == 'show_hierarchy') {
@@ -576,10 +586,9 @@ function zzform() {
 		}
 
 //	page output
-	if (!empty($where_condition)) {
-		// make nicer headings
-		zz_nice_headings($zz['fields'], $zz_conf, $zz_error, $where_condition);
-	}
+	// make nicer headings
+	zz_nice_headings($zz['fields'], $zz_conf, $zz_error, (!empty($where_condition) ? $where_condition : array()));
+
 	$zz_conf['title'] = strip_tags($zz_conf['heading']);
 	if ($zz_conf['access'] != 'export') {
 		$zz['output'].= "\n".'<h1>'.$zz_conf['heading'].'</h1>'."\n\n";
@@ -791,11 +800,22 @@ function zzform() {
 	if (!empty($zz_conf['filter']) AND $zz_conf['access'] != 'export'
 		AND in_array($zz_conf['filter_position'], array('top', 'both')))
 		$zz['output'] .= zz_filter_selection($zz_conf['filter']);
+	$toolsline = array();
 	if ($zz['mode'] != 'add' && $zz_conf['add_link'] && !is_array($zz_conf['add'])
-		&& $zz_conf['access'] != 'export')
-		$zz['output'].= '<p class="add-new"><a accesskey="n" href="'.$zz_conf['url_self']
+		&& $zz_conf['access'] != 'export') {
+		$toolsline[] = '<a accesskey="n" href="'.$zz_conf['url_self']
 			.$zz_conf['url_self_qs_base'].$zz_var['url_append'].'mode=add'
-			.$zz_var['extraGET'].'">'.zz_text('Add new record').'</a></p>'."\n";
+			.$zz_var['extraGET'].'">'.zz_text('Add new record').'</a>';
+		if ($zz_conf['import']) {
+			$toolsline[] = '<a href="'
+				.$zz_conf['url_self'].$zz_conf['url_self_qs_base']
+				.$zz_var['url_append'].'mode=import'.$zz_var['extraGET'].'">'
+				.zz_text('Import data').'</a>';
+		}
+	}
+	if ($toolsline) {
+		$zz['output'] .= '<p class="add-new">'.implode(' | ', $toolsline).'</p>'."\n";
+	}
 	if ($zz_conf['backlink']) {
 		if (!empty($zz_conf['dynamic_referer']))
 			$zz['output'].= '<p id="back-overview"><a href="'
@@ -955,6 +975,8 @@ function zz_initialize(&$zz_allowed_params, &$zz_var) {
 	$zz_default['details_target']	= false;	// target-window for details link
 	$zz_default['do_validation']	= true;		// left over from old edit.inc, for backwards compatiblity
 	$zz_default['edit']				= true;		// show Action: Edit
+	$zz_default['import']			= false;	// import files
+
 	$zz_default['error_handling']		= 'output';
 	$zz_default['error_log']['error']	= ini_get('error_log');
 	$zz_default['error_log']['notice']	= ini_get('error_log');
@@ -1070,6 +1092,10 @@ function zz_initialize(&$zz_allowed_params, &$zz_var) {
 		// _COOKIE and _REQUEST are not being used
 	}
 
+	if ($zz_conf['character_set'] == 'utf-8') {
+		mb_internal_encoding("UTF-8");
+	}
+
 	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function);
 }
 
@@ -1164,6 +1190,7 @@ function zz_write_defaults($zz_default, &$zz_conf) {
 			// check if it's an array, it might be that some of the subkeys
 			// are already set, others not
 			foreach (array_keys($zz_default[$key]) as $subkey) {
+				if (is_numeric($subkey)) continue;
 				if (!isset($zz_conf[$key][$subkey])) {
 					$zz_conf[$key][$subkey] = $zz_default[$key][$subkey];
 				}

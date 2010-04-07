@@ -195,21 +195,21 @@ function datum_int($datum) {
  */
 function validate_time($time) {
 	$time = str_replace('.',':',$time);
-	if (strlen($time)>8) return false;
-	if (ereg("^[0-9]+$",$time)) {
-		if (strlen($time)>4) return false;
-		elseif (strlen($time)==1)    {$time = $time . ":00:00";}
-		elseif (strlen($time)==2)
-			if ($time<25) $time = $time . ":00:00";
+	if (strlen($time) > 8) return false;
+	if (preg_match("/^[0-9]+$/",$time)) {
+		if (strlen($time) > 4) return false;
+		elseif (strlen($time) == 1)    {$time = $time . ":00:00";}
+		elseif (strlen($time) == 2)
+			if ($time < 25) $time = $time . ":00:00";
 			else return false;
 		else {
-			$tmin = substr($time,-2);
-			$th   = substr($time,-4,-2);
+			$tmin = substr($time, -2);
+			$th   = substr($time, -4, -2);
 			if ($tmin > 60) return false;
 			if ($th > 24)   return false;
 			$time = $th . ":" . $tmin . ":00";
 		}
-	} elseif (ereg("^[0-9:]+$",$time)) {
+	} elseif (preg_match("/^[0-9:]+$/",$time)) {
 		$timex = explode(":",$time);
 		if (count($timex) > 3) return false;
 		elseif ($timex[0] > 24 OR $timex[1] > 59) return false;

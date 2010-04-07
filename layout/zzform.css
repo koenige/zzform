@@ -9,7 +9,8 @@ div.text #zzform	 {padding: 1em;}
 #zzform #record tbody tr:first-child td {border-top: none;}
 #zzform #record table table {margin: 0 0 .5em; border-collapse: collapse;}
 #zzform #record table table th {font-weight: normal; }
-#zzform #record .subtable table {float: left; clear: both;}
+#zzform #record .subtable table {float: left;}
+#zzform #record .detailrecord {clear: both;}
 #zzform #record .subtable td {/*width: 88%;*/ text-align: left; }
 #zzform #record .subtable td {padding: 0 0 .25em 0;}
 #zzform #record .subtable th {padding: 0 .5em .25em 0;}
@@ -21,6 +22,8 @@ div.text #zzform	 {padding: 1em;}
 #zzform #record .subtable .horizontal td {width: auto; padding-right: .5em;}
 #zzform #record .subtable .horizontal th {width: auto; font-weight: bold;
 	padding-right: .75em;}
+
+#zzform #record .tick_to_save {float: left; padding-right: .5em; margin: 0;}
 
 #zzform .negative {color: red;}
 #zzform td.number, #zzform #record .subtable td.number {text-align: right;}

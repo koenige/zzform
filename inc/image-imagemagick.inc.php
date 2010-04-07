@@ -206,15 +206,11 @@ function zz_imagick_convert($options, $files) {
 	$success = exec($call_convert, $return, $return_var);
 	if ($return AND $zz_conf['modules']['debug'] AND $zz_conf['debug']) {
 		echo $call_convert;
-		echo '<pre>';
-		print_r($return);
-		echo '</pre>';
+		zz_print_r($return);
 	}
 	if ($return_var AND $zz_conf['modules']['debug'] AND $zz_conf['debug']) {
 		echo $call_convert;
-		echo '<pre>';
-		print_r($return_var);
-		echo '</pre>';
+		zz_print_r($return_var);
 	}
 	if (!$return_var) return true;
 	else return false;

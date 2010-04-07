@@ -40,24 +40,41 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 	$zz['sql_without_limit'] = $zz['sql'];
 
 	// list filter
-	if (!empty($zz_conf['filter']) AND !empty($_GET['filter'])) {
+	if (!empty($zz_conf['filter']) AND isset($_GET['filter'])) {
 		foreach ($zz_conf['filter'] AS $filter) {
 			if (in_array($filter['identifier'], array_keys($_GET['filter']))
 				AND in_array($_GET['filter'][$filter['identifier']], array_keys($filter['selection']))
 				AND $filter['type'] == 'list'
 				AND !empty($filter['where'])
 			) {	// it's a valid filter, so apply it.
-				$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', $filter['where'].' = "'.$_GET['filter'][$filter['identifier']].'"');
+				if ($_GET['filter'][$filter['identifier']] == 'NULL') {
+					$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', 'ISNULL('.$filter['where'].')');
+				} elseif ($_GET['filter'][$filter['identifier']] == '!NULL') {
+					$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', '!ISNULL('.$filter['where'].')');
+				} else {
+					$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', $filter['where'].' = "'.$_GET['filter'][$filter['identifier']].'"');
+				}
 			} elseif (in_array($filter['identifier'], array_keys($_GET['filter']))
 				AND $filter['type'] == 'list'
 				AND !empty($filter['where'])
 				AND is_array($filter['where'])
-			) {
+			) { // valid filter with several wheres
 				$wheres = array();
 				foreach ($filter['where'] AS $filter_where) {
-					$wheres[] = $filter_where.' = "'.$_GET['filter'][$filter['identifier']].'"';
+					if ($_GET['filter'][$filter['identifier']] == 'NULL') {
+						$wheres[] = 'ISNULL('.$filter_where.')';
+					} elseif ($_GET['filter'][$filter['identifier']] == '!NULL') {
+						$wheres[] = '!ISNULL('.$filter_where.')';
+					} else {
+						$wheres[] = $filter_where.' = "'.$_GET['filter'][$filter['identifier']].'"';
+					}
 				}
 				$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', implode(' OR ', $wheres));
+			} elseif (in_array($filter['identifier'], array_keys($_GET['filter']))
+				AND $filter['type'] == 'like'
+				AND !empty($filter['where'])
+			) { // valid filter with LIKE
+				$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', $filter['where'].' LIKE "%'.$_GET['filter'][$filter['identifier']].'%"');
 			}
 		}
 	}
@@ -207,7 +224,6 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 				if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "fill_out start");
 				zz_fill_out($line_query[$index], $zz_conf['db_name'].'.'.$zz['table'], 2);
 				if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "fill_out end");
-				//zz_print_r($line_query);
 				foreach ($line_query[$index] as $fieldindex => $field) {
 					// remove elements from table which shall not be shown
 					if ($zz['mode'] == 'export') {
@@ -426,6 +442,8 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 					} elseif (isset($field['link'])) {
 						$link = $field['link'].$line[$field['field_name']];
 					}
+					if ($link AND !empty($field['link_referer'])) 
+						$link .= '&amp;referer='.urlencode($_SERVER['REQUEST_URI']);
 					// if there's something, go on and put HTML for link together
 					if ($link) {
 						$link_title = false;
@@ -533,7 +551,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 						if (!empty($field['display_field']))
 							$rows[$z][$fieldindex]['text'].= htmlchars($line[$field['display_field']]);
 						elseif ($field['type'] == 'url' && strlen($line[$field['field_name']]) > $zz_conf_record['max_select_val_len'])
-							$rows[$z][$fieldindex]['text'].= substr(htmlchars($line[$field['field_name']]), 0, $zz_conf_record['max_select_val_len']).'...';
+							$rows[$z][$fieldindex]['text'].= mb_substr(htmlchars($line[$field['field_name']]), 0, $zz_conf_record['max_select_val_len']).'...';
 						else
 							$rows[$z][$fieldindex]['text'].= htmlchars($line[$field['field_name']]);
 						if ($link) $rows[$z][$fieldindex]['text'].= '</a>';
@@ -846,10 +864,17 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 			$zz['output'] .= zz_filter_selection($zz_conf['filter']);
 		$toolsline = array();
 		// normal add button, only if list was shown beforehands
-		if ($zz['mode'] != 'add' && $zz_conf['add_link'] AND !is_array($zz_conf['add']) && $zz_conf['show_list'])
+		if ($zz['mode'] != 'add' && $zz_conf['add_link'] AND !is_array($zz_conf['add']) && $zz_conf['show_list']) {
 			$toolsline[] = '<a accesskey="n" href="'
 				.$zz_conf['url_self'].$zz_conf['url_self_qs_base'].$zz_var['url_append'].'mode=add'.$zz_var['extraGET'].'">'
 				.zz_text('Add new record').'</a>';
+			if ($zz_conf['import']) {
+				$toolsline[] = '<a href="'
+					.$zz_conf['url_self'].$zz_conf['url_self_qs_base']
+					.$zz_var['url_append'].'mode=import'.$zz_var['extraGET'].'">'
+					.zz_text('Import data').'</a>';
+			}
+		}
 		// multi-add-button, also show if there was no list, because it will only be shown below records!
 		
 		if ($zz['mode'] != 'add' && $zz_conf['add_link'] AND is_array($zz_conf['add'])) {

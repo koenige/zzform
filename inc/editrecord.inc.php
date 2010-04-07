@@ -167,9 +167,12 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 						if ($update_values) $update_values.= ', ';
 						$update_values.= $field['field_name'].' = '.$zz_tab[$i][$me]['POST'][$field['field_name']];
 					}
-				$me_sql = ' UPDATE '.$me_db.$zz_tab[$i]['table'];
-				$me_sql.= ' SET '.$update_values.' WHERE '.$zz_tab[$i][$me]['id']['field_name'].' = "'.$zz_tab[$i][$me]['id']['value'].'"';
-			
+				if ($update_values) {
+					$me_sql = ' UPDATE '.$me_db.$zz_tab[$i]['table'];
+					$me_sql.= ' SET '.$update_values.' WHERE '.$zz_tab[$i][$me]['id']['field_name'].' = "'.$zz_tab[$i][$me]['id']['value'].'"';
+				} else {
+					$me_sql = 'SELECT 1'; // nothing to update, just detail records
+				}
 		// ### Delete a record ###
 	
 			} elseif ($zz_tab[$i][$me]['action'] == 'delete') {
@@ -374,11 +377,20 @@ function zz_set_subrecord_action(&$zz_tab, $i, $k, &$zz) {
 					$values .= $subtable['POST'][$field['field_name']];
 				}
 			}
-		if ($field['type'] == 'id')
-			if (!isset($subtable['POST'][$field['field_name']]))
-				$subtable['action'] = 'insert';
-			else
-				$subtable['action'] = 'update';
+		if ($field['type'] == 'id') {
+			if (($zz_tab[$i]['tick_to_save'] AND !empty($_POST['zz_save_record'][$i][$k]))
+				OR empty($zz_tab[$i]['tick_to_save'])) {
+				if (!isset($subtable['POST'][$field['field_name']]))
+					$subtable['action'] = 'insert';
+				else
+					$subtable['action'] = 'update';
+			} elseif ($zz_tab[$i]['tick_to_save'] AND empty($_POST['zz_save_record'][$i][$k])) {
+				if (!isset($subtable['POST'][$field['field_name']]))
+					$subtable['action'] = 'ignore'; // ignore subrecord
+				else
+					$subtable['action'] = 'delete';
+			}
+		}
 	}
 
 	if (!empty($zz_tab[$i]['records_depend_on_upload']) AND !empty($subtable['no_file_upload'])) {
@@ -412,6 +424,7 @@ function zz_set_subrecord_action(&$zz_tab, $i, $k, &$zz) {
 		else									// no data in subtable
 			$subtable = false;
 	}
+	if ($subtable['action'] == 'ignore') unset($subtable);
 
 	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end, values: ".$values);
 	return $subtable;

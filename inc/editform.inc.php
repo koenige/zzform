@@ -166,11 +166,13 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 	// check if there's a filter with a field_name 
 	// this field will get the filter value as default value
 	$filter_field_name = array();
+	$unwanted_filter_values = array('NULL', '!NULL');
 	if (!empty($_GET['filter'])) {
 		foreach (array_keys($_GET['filter']) AS $filter_identifier) {
 			foreach ($zz_conf['filter'] as $filter) {
 				if ($filter['identifier'] == $filter_identifier
-					AND !empty($filter['field_name']))
+					AND !empty($filter['field_name']) 
+					AND !in_array($_GET['filter'][$filter_identifier], $unwanted_filter_values))
 				{
 					$filter_field_name[$filter_identifier] = $filter['field_name'];
 				}
@@ -263,7 +265,36 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 					$zz_var['class_add'] = ((!empty($field['class_add']) AND
 						empty($my_tab[$field['subtable']][$mytable_no]['id']['value'])) 
 						? $field['class_add'] : '');
+
+					// Mode
+					if (!empty($field['tick_to_save'])) $show_tick = true;
+					$subtable_mode = $mode;
+					if ($subtable_mode == 'edit' AND empty($my_tab[$field['subtable']][$mytable_no]['id']['value'])) {
+						// no saved record exists, so it's add a new record
+						$subtable_mode = 'add';
+						if ($field['form_display'] != 'horizontal' AND !empty($field['tick_to_save'])) {
+							$show_tick = false;
+						}
+					} elseif (empty($my_tab[$field['subtable']][$mytable_no]['id']['value'])) {
+						if ($field['form_display'] != 'horizontal' AND !empty($field['tick_to_save'])) {
+							$show_tick = false;
+						}
+					}
+					if (!empty($_POST['zz_save_record'][$field['subtable']][$mytable_no])) {
+						$show_tick = true;
+					}
+
+					if ($field['form_display'] != 'horizontal' OR $mytable_no == $firstsubtable_no) {
+						$out['td']['content'].= '<div class="detailrecord">';
+					}
+					if (!empty($field['tick_to_save'])) {
+						$out['td']['content'].= '<p class="tick_to_save"><input type="checkbox"'
+							.($show_tick ? ' checked="checked"' : '')
+							.($row_display != 'form' ? ' disabled="disabled"' : '')
+							.' name="zz_save_record['.$field['subtable'].']['.$mytable_no.']"></p>';
+					}
 					
+					// HTML output depending on form display
 					if ($field['form_display'] != 'horizontal' OR $mytable_no == $firstsubtable_no) {
 						$out['td']['content'].= '<table class="'.$field['form_display']
 							.($field['form_display'] != 'horizontal' ? ' '.$zz_var['class_add'] : '')
@@ -274,10 +305,6 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 						$h_show_explanation = true;
 					else
 						$h_show_explanation = false;
-					$subtable_mode = $mode;
-					if ($subtable_mode == 'edit' AND empty($my_tab[$field['subtable']][$mytable_no]['id']['value']))
-						// no saved record exists, so it's add a new record
-						$subtable_mode = 'add';
 					if ($show_remove) {
 						$removebutton = '<input type="submit" value="'
 							.sprintf(zz_text('Remove %s'), $field['title'])
@@ -291,7 +318,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 						$mytable_no, $subtable_mode, $st_display, $zz_var, $zz_conf_record, $action, 
 						$field['form_display'], $lastrow, $mytable_no, $h_show_explanation);
 					if ($field['form_display'] != 'horizontal') {
-						$out['td']['content'].= '</table>'."\n";
+						$out['td']['content'].= '</table></div>'."\n";
 						$table_open = false;
 					}
 					if ($show_remove) {
@@ -302,7 +329,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 				}
 			}
 			if ($table_open) {
-				$out['td']['content'].= '</table>'."\n";
+				$out['td']['content'].= '</table></div>'."\n";
 			}
 			if ($st_display == 'form' AND $my_tab[$field['subtable']]['max_records'] > $my_tab[$field['subtable']]['records'])
 				$out['td']['content'] .= '<input type="submit" value="'
@@ -642,7 +669,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 					elseif ($field['type'] == 'mail' && !empty($my['record'][$field['field_name']]))
 						$outputf.= '<a href="mailto:'.$my['record'][$field['field_name']].'">';
 					if ($field['type'] == 'url' AND strlen($my['record'][$field['field_name']]) > $zz_conf_record['max_select_val_len'] AND $row_display != 'form')
-						$outputf.= htmlspecialchars(substr($my['record'][$field['field_name']], 0, $zz_conf_record['max_select_val_len'])).'...';
+						$outputf.= htmlspecialchars(mb_substr($my['record'][$field['field_name']], 0, $zz_conf_record['max_select_val_len'])).'...';
 					elseif ($field['type'] == 'ipv4')
 						$outputf.= long2ip($my['record'][$field['field_name']]);
 					else
@@ -667,7 +694,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 					}
 					//	DMS, DM
 					$input_systems = array('dms' => "&deg; ' ''&nbsp; ", 'dm' => "&deg; '&nbsp; ");
-					if (!empty($my['record'][$field['field_name']]['which']))
+					if (is_array($my['record'][$field['field_name']]) AND !empty($my['record'][$field['field_name']]['which']))
 						$w_checked = $my['record'][$field['field_name']]['which'];
 					else $w_checked = 'dms';
 					$checked = ' checked="checked"';
@@ -756,8 +783,11 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 				if (!empty($field['sql'])) {
 					if (!empty($field['sql_without_id'])) $field['sql'] .= $my['id']['value'];
 					$add_details_where = ''; // for add_details
+					
 					$outputf .= zz_form_select_sql($field, $my_tab[$i]['table'], 
-						$my['record'], $row_display, $zz_conf_record, $add_details_where, $zz_var['where'][$table_name]);
+						$my['record'], $row_display, $zz_conf_record, $add_details_where, 
+						(!empty($zz_var['where'][$table_name]) ? $zz_var['where'][$table_name] : ''),
+						$my_tab[0][0]['id']);
 
 			// #2 SELECT with set
 				} elseif (isset($field['set'])) {
@@ -1074,14 +1104,14 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_form_select_sql($field, $table, $record, $row_display, $zz_conf_record, 
-	&$add_details_where, $where_vars = array())
+	&$add_details_where, $where_vars = array(), $main_id = false)
 {
 	global $zz_conf;
 	global $zz_error;
 	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
 	$outputf = '';
 
-	// a$wdd WHERE to sql clause if necessary
+	// add WHERE to sql clause if necessary
 	if (!empty($field['sql_where']) && $where_vars) { 
 		$where_conditions = array();
 		foreach ($field['sql_where'] as $sql_where) {
@@ -1111,10 +1141,17 @@ function zz_form_select_sql($field, $table, $record, $row_display, $zz_conf_reco
 		}
 		$field['sql'] = zz_edit_sql($field['sql'], 'WHERE', implode(' AND ', $where_conditions));
 	}
+	if (!empty($field['sql_where_with_id']) AND !empty($main_id['value']))
+		$field['sql'] = zz_edit_sql($field['sql'], 'WHERE', $main_id['field_name'].' = "'.$main_id['value'].'"');
+	
 
 	// we do not show all fields if query is bigger than $zz_conf_record['max_select']
-	// so no need to query them
-	$sql = zz_edit_sql($field['sql'], 'LIMIT', '0, '.($zz_conf_record['max_select']+1));
+	// so no need to query them (only if show_hierarchy_subtree is empty)
+	if (empty($field['show_hierarchy_subtree'])) {
+		$sql = zz_edit_sql($field['sql'], 'LIMIT', '0, '.($zz_conf_record['max_select']+1));
+	} else {
+		$sql = $field['sql'];
+	}
 	$result = mysql_query($sql);
 	if ($zz_conf['modules']['debug']) 
 		zz_debug(__FUNCTION__, $zz_debug_time_this_function, "main"

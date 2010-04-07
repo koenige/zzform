@@ -206,6 +206,10 @@ dng		dng		dng		image/tiff						Digital Negative Format
 
 xmp		xmp		xmp		text/plain						Adobe Extensible Metadata Platform 
 
+wps		wps		wps		application/vnd.ms-works		Microsoft Works Document
+
+flv		flv		flv		video/x-flv						Flash Video File
+
 ### EOF
 #
 #

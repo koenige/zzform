@@ -139,5 +139,6 @@ $text['%s files left for import. Please wait, the script will reload itself.'] =
 $text['Field name'] = 'Feldname';
 $text['incorrect value'] = 'falscher Wert';
 $text['Selection'] = 'Auswahl';
+$text['Import data'] = 'Import Daten';
 
 ?>

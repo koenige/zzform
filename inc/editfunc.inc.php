@@ -43,8 +43,8 @@ function zz_error() {
 	$mail_output = array();
 	$return = 'html';
 	unset($zz_error['error']); // we don't need this here
-
-	if (empty($zz_conf['user'])) $zz_conf['user'] = 'No user';
+	
+	if (empty($zz_conf['user'])) $zz_conf['user'] = zz_text('No user');
 	$user = ' ['.zz_text('User').': '.$zz_conf['user'].']';
 
 	// browse through all errors
@@ -480,7 +480,7 @@ function zz_draw_select($line, $id_field_name, $record, $field, $hierarchy, $lev
 			) {
 				$line[$key] = htmlspecialchars($line[$key]);
 				if ($i > 1 AND $line[$key]) $details[] = (strlen($line[$key]) > $zz_conf_record['max_select_val_len']) 
-					? (substr($line[$key], 0, $zz_conf_record['max_select_val_len']).'...') : $line[$key]; // cut long values
+					? (mb_substr($line[$key], 0, $zz_conf_record['max_select_val_len']).'...') : $line[$key]; // cut long values
 				$i++;
 			}
 		}
@@ -620,9 +620,13 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 				elseif (isset($field['display_field'])) $fieldname = $field['display_field'];
 				elseif ($field['type'] == 'subtable') {
 					$foreign_key = '';
-					foreach ($field['fields'] as $subfield) {
-						if (!empty($subfield['type']) AND $subfield['type'] == 'foreign_key') 
+					foreach ($field['fields'] as $f_index => $subfield) {
+						if (!empty($subfield['type']) AND $subfield['type'] == 'foreign_key') {
 							$foreign_key = $subfield['field_name'];
+							// do not search in foreign_key since this is the same
+							// as the main record
+							unset($field['fields'][$f_index]);
+						}
 					}
 					if (!$foreign_key) {
 						echo 'Subtable definition is wrong. There must be a field which is defined as "foreign_key".';
@@ -751,21 +755,26 @@ function zz_filter_selection($filter) {
 		$qs = zz_edit_query_string($qs, array(), $other_filters);
 		$output .= '<dt>'.zz_text('Selection').' '.$f['title'].':</dt>';
 		// $f['selection'] might be empty if there's no record in the database
-		if (!empty($f['selection'])) foreach ($f['selection'] as $id => $selection) {
-			$is_selected = ((!empty($_GET['filter'][$f['identifier']]) 
-				AND $_GET['filter'][$f['identifier']] == $id))
-				? true : false;
-			if (!empty($f['default_selection']) AND $f['default_selection'] == $id) {
-				// default selection does not need parameter
-				$link = $self.$qs;
-			} else {
-				$link = $self.($qs ? $qs.'&amp;' : '?').'filter['.$f['identifier'].']='.$id;
+		if (!empty($f['selection'])) { 
+			foreach ($f['selection'] as $id => $selection) {
+				$is_selected = ((isset($_GET['filter'][$f['identifier']]) 
+					AND $_GET['filter'][$f['identifier']] == $id))
+					? true : false;
+				if (!empty($f['default_selection']) AND $f['default_selection'] == $id) {
+					// default selection does not need parameter
+					$link = $self.$qs;
+				} else {
+					$link = $self.($qs ? $qs.'&amp;' : '?').'filter['.$f['identifier'].']='.$id;
+				}
+				$output .= '<dd>'
+					.(!$is_selected ? '<a href="'.$link.'">' : '<strong>')
+					.$selection
+					.(!$is_selected ? '</a>' : '</strong>')
+					.'</dd>'."\n";
 			}
-			$output .= '<dd>'
-				.(!$is_selected ? '<a href="'.$link.'">' : '<strong>')
-				.$selection
-				.(!$is_selected ? '</a>' : '</strong>')
-				.'</dd>'."\n";
+		} elseif (isset($_GET['filter'][$f['identifier']])) {
+			// no filter selections are shown, but there is a current filter, so show this
+			$output .= '<dd><strong>'.htmlspecialchars($_GET['filter'][$f['identifier']]).'</strong></dd>'."\n";
 		}
 		if (empty($f['default_selection'])) {
 			$link = $self.$qs;
@@ -774,9 +783,9 @@ function zz_filter_selection($filter) {
 			$link = $self.($qs ? $qs.'&amp;' : '?').'filter['.$f['identifier'].']=0';
 		}
 		$output .= '<dd class="filter_all">&#8211;&nbsp;'
-			.(!empty($_GET['filter'][$f['identifier']]) ? '<a href="'.$link.'">' : '<strong>')
+			.(isset($_GET['filter'][$f['identifier']]) ? '<a href="'.$link.'">' : '<strong>')
 			.zz_text('all')
-			.(!empty($_GET['filter'][$f['identifier']]) ? '</a>' : '</strong>')
+			.(isset($_GET['filter'][$f['identifier']]) ? '</a>' : '</strong>')
 			.'&nbsp;&#8211;</dd>'."\n";
 	}
 	$output .= '</dl><br clear="all"></div>'."\n";
@@ -907,6 +916,9 @@ function zz_get_subqueries($subqueries, $zz, &$zz_tab, $zz_conf) {
 		if (!empty($zz['fields'][$subquery]['values'])) {
 			$zz_tab[$i]['values'] = $zz['fields'][$subquery]['values'];
 		}
+		if (!empty($zz['fields'][$subquery]['fielddefs'])) {
+			$zz_tab[$i]['fielddefs'] = $zz['fields'][$subquery]['fielddefs'];
+		}
 		if (strstr($zz['fields'][$subquery]['table'], '.')) {
 			$table = explode('.', $zz['fields'][$subquery]['table']);
 			$zz_tab[$i]['db_name'] = $table[0];
@@ -926,17 +938,24 @@ function zz_get_subqueries($subqueries, $zz, &$zz_tab, $zz_conf) {
 			? $zz['fields'][$subquery]['records_depend_on_upload_more_than_one'] : false;
 		$zz_tab[$i]['no'] = $subquery;
 		$zz_tab[$i]['sql'] = $zz['fields'][$subquery]['sql'];
-		$zz_tab[$i]['sql_not_unique'] =  (!empty($zz['fields'][$subquery]['sql_not_unique']) ? $zz['fields'][$subquery]['sql_not_unique'] : false);
+		$zz_tab[$i]['sql_not_unique'] =  (!empty($zz['fields'][$subquery]['sql_not_unique']) 
+			? $zz['fields'][$subquery]['sql_not_unique'] : false);
 		$zz_tab[$i]['foreign_key_field_name'] = (!empty($zz['fields'][$subquery]['foreign_key_field_name']) 
 			? $zz['fields'][$subquery]['foreign_key_field_name'] : $zz_tab[0]['table'].'.'.$zz_tab[0][0]['id']['field_name']);
-		$zz_tab[$i]['translate_field_name'] = (!empty($zz['fields'][$subquery]['translate_field_name']) ? $zz['fields'][$subquery]['translate_field_name'] : false);
+		$zz_tab[$i]['translate_field_name'] = (!empty($zz['fields'][$subquery]['translate_field_name']) 
+			? $zz['fields'][$subquery]['translate_field_name'] : false);
+		$zz_tab[$i]['tick_to_save'] = (!empty($zz['fields'][$subquery]['tick_to_save']) 
+			? $zz['fields'][$subquery]['tick_to_save'] : '');
 
 		// get detail key, if there is a field definition with it.
 		foreach ($zz['fields'][$subquery]['fields'] AS $field) {
 			if (isset($field['type']) && $field['type'] == 'detail_key') {
 				if (!empty($zz_tab[0][0]['fields'][$field['detail_key']])) {
 					$detail_key_index = (isset($field['detail_key_index']) ? $field['detail_key_index'] : 0);
-					$zz_tab[$i]['detail_key'][] = array('i' => $zz_tab[0][0]['fields'][$field['detail_key']]['subtable'], 'k' => $detail_key_index);
+					$zz_tab[$i]['detail_key'][] = array(
+						'i' => $zz_tab[0][0]['fields'][$field['detail_key']]['subtable'], 
+						'k' => $detail_key_index
+					);
 				}
 			}
 		}
@@ -987,6 +1006,8 @@ function zz_get_subqueries($subqueries, $zz, &$zz_tab, $zz_conf) {
 				if (!empty($zz_tab[$i]['values'])) {
 					if (!isset($zz_var)) $zz_var = array();
 					$zz_tab[$i][$subkey]['fields'] = zz_set_values($zz_tab[$i]['values'], $zz_tab[$i][$subkey]['fields'], $table, $subkey, $zz_var);
+					if (!empty($zz_tab[$i]['fielddefs']))
+						$zz_tab[$i][$subkey]['fields'] = zz_set_fielddefs($zz_tab[$i]['fielddefs'], $zz_tab[$i][$subkey]['fields'], $table, $subkey, $zz_var);
 				}
 			}
 		}
@@ -1054,6 +1075,8 @@ function zz_subqueries($i, $min, $details, $sql, $subtable, $zz_tab) {
 		if (isset($my['values'])) {	// isset because might be empty
 			if (empty($zz_var)) $zz_var = array();
 			$my[$k]['fields'] = zz_set_values($my['values'], $my[$k]['fields'], $subtable['table_name'], $k, $zz_var);
+			if (!empty($my['fielddefs']))
+				$my[$k]['fields'] = zz_set_fielddefs($my['fielddefs'], $my[$k]['fields'], $subtable['table_name'], $k, $zz_var);
 		}
 		// ok, after we got the values, continue, rest already exists.
 		if ($continue_fast) continue;
@@ -1158,11 +1181,25 @@ function zz_set_values(&$values, $fields, $table, $k, $zz_var) {
 	return $fields;
 }
 
+function zz_set_fielddefs(&$fielddefs, $fields, $table, $k, $zz_var) {
+	$my_field_def = array_shift($fielddefs);
+	foreach ($my_field_def as $f => $field) {
+		if (!$field) {
+			unset($fields[$f]);
+		} else {
+			$fields[$f] = array_merge($fields[$f], $my_field_def[$f]);
+		}
+	}
+	return $fields;
+}
+
+
 /** sort values 
  * 
- *		changed fields:
+ *		changed variables:
  *		- $zz_tab[$i]['values']
- *		- $ids
+ *		- $saved['ids']
+ *		deletes $saved['records']
  *
  * @param $zz_tab[$i]['values']
  * @param $saved			Existing record IDs
@@ -1178,7 +1215,8 @@ function zz_sort_values(&$values, &$saved, $fields, $id_field_name) {
 	$values_sorted = array();
 	$ids_sorted = array();
 	
-	
+	// example for $values: array(0 => array(6 => "val1"), 1 => array(6 => "val2"));
+	// where 0, 1 = index, 6 = field_index and val1, val2 = values
 	foreach ($values AS $index => $field) {
 		$equal = false;
 		foreach ($saved['records'] as $line) {
@@ -1378,7 +1416,10 @@ function zz_fill_out(&$fields, $table, $multiple_times = false, $mode = false) {
 		}
 		if ($fields[$no]['type'] == 'option') { 
 			$fields[$no]['hide_in_list'] = true; // do not show option-fiels in tab
-			$fields[$no]['class'] = 'option'; // format option-fields with css
+			if (!empty($fields[$no]['class']))
+				$fields[$no]['class'] .= ' option'; // format option-fields with css
+			else
+				$fields[$no]['class'] = 'option'; // format option-fields with css
 		}
 		if (!isset($fields[$no]['explanation'])) $fields[$no]['explanation'] = false; // initialize
 		if (!$multiple_times) {
@@ -1450,6 +1491,7 @@ function zz_sql_order($fields, $sql) {
 				if (isset($field['order'])) $order[] = $field['order'].$my_order;
 				else $order[] = $_GET['group'].$my_order;
 		}
+		if (!$order) return $sql;
 		if (strstr($sql, 'ORDER BY'))
 			// if there's already an order, put new orders in front of this
 			$sql = str_replace ('ORDER BY', ' ORDER BY '.implode(',', $order).', ', $sql);
@@ -1975,11 +2017,22 @@ function zz_check_password($old, $new1, $new2, $sql) {
 	}
 }
 
-function zz_nice_headings(&$zz_fields, &$zz_conf, &$zz_error, $where_condition) {
+
+/** Formats a heading for WHERE-conditions and for search results
+ *
+ * @params $zz_fields(array)
+ * @params $zz_conf(array)
+ * @params $zz_error(array)
+ * @params $where_condition(array), optional
+ * @return -
+ */
+function zz_nice_headings(&$zz_fields, &$zz_conf, &$zz_error, $where_condition = array()) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
 	$i = 0;
 	$heading_addition = array();
+	
+	// depending on WHERE-Condition
 	foreach (array_keys($where_condition) as $mywh) {
 		$mywh = mysql_real_escape_string($mywh);
 		$wh = explode('.', $mywh);
@@ -1990,7 +2043,8 @@ function zz_nice_headings(&$zz_fields, &$zz_conf, &$zz_error, $where_condition) 
 			isset($zz_conf['heading_var'][$wh[$index]]) AND
 			$where_condition[$mywh]) { // only if there is a value! (might not be the case if write_once-fields come into play)
 		//	create sql query, with $mywh instead of $wh[$index] because first might be ambiguous
-			$wh_sql = zz_edit_sql($zz_conf['heading_sql'][$wh[$index]], 'WHERE', $mywh.' = '.mysql_real_escape_string($where_condition[$mywh]));
+			$wh_sql = zz_edit_sql($zz_conf['heading_sql'][$wh[$index]], 'WHERE', 
+				$mywh.' = '.mysql_real_escape_string($where_condition[$mywh]));
 			$wh_sql .= ' LIMIT 1';
 		//	if key_field_name is set
 			foreach ($zz_fields as $field)
@@ -2023,12 +2077,14 @@ function zz_nice_headings(&$zz_fields, &$zz_conf, &$zz_error, $where_condition) 
 				.$sep.'mode=show&amp;id='.urlencode($where_condition[$mywh]).'">'
 				.$heading_addition[$i].'</a>';
 		}
+		if (empty($heading_addition[$i])) unset($heading_addition[$i]);
 		$i++;
 	}
 	if ($heading_addition) {
 		$zz_conf['heading'] .= ':<br>'.implode(' &#8211; ', $heading_addition); 
 	}
 	
+	// Display search filter
 	if (!empty($_GET['q'])) {
 		$fieldname = false;
 		$zz_conf['selection'] .= zz_text('Search').': ';
@@ -2042,15 +2098,16 @@ function zz_nice_headings(&$zz_fields, &$zz_conf, &$zz_error, $where_condition) 
 			$add_equal_sign = true;
 		}
 		if (substr($_GET['q'], 0, 1) == '<')
-			$zz_conf['selection'] .= '< '.htmlspecialchars(substr($_GET['q'], 1));
+			$zz_conf['selection'] .= '<strong>&lt;</strong> '.htmlspecialchars(substr($_GET['q'], 1));
 		elseif (substr($_GET['q'], 0, 1) == '>')
-			$zz_conf['selection'] .= '> '.htmlspecialchars(substr($_GET['q'], 1));
+			$zz_conf['selection'] .= '<strong>&gt;</strong> '.htmlspecialchars(substr($_GET['q'], 1));
 		else {
-			if (substr($_GET['q'], 0, 1) == '\\')
-				$_GET['q'] = substr($_GET['q'], 1);
+			$q = $_GET['q'];
+			if (substr($q, 0, 2) == '\\')
+				$q = substr($q, 1);
 			if ($add_equal_sign)
-				$zz_conf['selection'] .= $fieldname.' = ';
-			$zz_conf['selection'] .= '*'.htmlspecialchars($_GET['q']).'*';
+				$zz_conf['selection'] .= $fieldname.' <strong>=</strong> ';
+			$zz_conf['selection'] .= '*'.htmlspecialchars($q).'*';
 		}
 	}
 }

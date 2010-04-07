@@ -81,13 +81,6 @@ function zz_pdf($zz) {
 
 	require_once $zz_conf['dir_ext'].'/fpdf/fpdf.php';
 
-/*
-	echo '<pre>';
-	print_r($zz);
-	echo '</pre>';
-	exit;
-*/
-
 // GFPS-Zertifikat
 
 	$pdf = new FPDF();
@@ -112,10 +105,6 @@ function zz_pdf($zz) {
 	}
 	$pdf->Output();
 
-
-//	echo '<pre>';
-//	print_r($zz);
-//	echo '</pre>';
 }
 
 ?>
