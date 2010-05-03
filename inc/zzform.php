@@ -1151,6 +1151,13 @@ function zzform_multi($definition_file, $values, $type, $params = false) {
 		return $zz['output'];
 	}
 	
+	// clean up, $zz must remain intact!
+	unset($_GET);
+	unset($_POST);
+	unset($_FILES);
+	if (!empty($zz_conf['zzform_calls']))
+		$zz_conf = $zz_saved['conf'];	// get clean $zz_conf without changes from different zzform calls or included scripts
+
 	// create new $_GET, $_POST and $_FILES from $values as needed
 //	$actions = array();	// for each call, create one action
 

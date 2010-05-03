@@ -2404,6 +2404,11 @@ function zz_check_def_files($files) {
 			$files[$key]['tmp_name'] = $values['name'];
 			$files[$key]['size'] = $values['name'];
 			$files[$key]['error'] = $values['name'];
+		} elseif (count($values) == 1 AND isset($values['name'])) {
+			$files[$key]['type'] = false;
+			$files[$key]['tmp_name'] = false;
+			$files[$key]['size'] = 0;
+			$files[$key]['error'] = 4; // no file was uploaded
 		}
 	}
 	return $files;
@@ -2485,7 +2490,7 @@ function zz_record_access($zz, &$zz_conf, &$zz_tab, $zz_var, $zz_allowed_params,
 		// save old variables for list view
 		$saved_variables = array('access', 'add', 'edit', 'delete', 'view', 'details');
 		foreach ($saved_variables as $var) {
-			$zz_conf['list_access'][$var] = $zz_conf[$var];
+			if (isset($zz_conf[$var])) $zz_conf['list_access'][$var] = $zz_conf[$var];
 		}
 		// overwrite new variables
 		$zz_conf = zz_conditions_merge($zz_conf, $zz_conditions['bool'], $zz_tab[0][0]['id']['value']);

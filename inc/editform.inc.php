@@ -1283,6 +1283,42 @@ function zz_form_select_sql($field, $table, $record, $row_display, $zz_conf_reco
 			$outputf.= '<input type="hidden" value="'.$field['f_field_name']
 				.'" name="zz_check_select[]">';
 
+		// draw RADIO buttons
+		} elseif (!empty($field['show_values_as_list'])) {
+			$myi = 0;
+			if ($row_display == 'form') {
+				if (!isset($field['hide_novalue'])) $field['hide_novalue'] = true;
+				$myid = make_id_fieldname($field['f_field_name']).'-'.$myi;
+				$outputf.= '<label for="'.$myid.'"'
+					.($field['hide_novalue'] ? ' class="hidden"' : '')
+					.'><input type="radio" id="'.$myid.'" name="'
+					.$field['f_field_name'].'" value=""';
+				if ($record) { if (!$record[$field['field_name']]) $outputf.= ' checked'; }
+				else $outputf.= ' checked'; // no value, no default value (both would be written in my record fieldname)
+				$outputf.= '>'.zz_text('no_selection').'</label>';
+				$outputf .= "\n".'<ul class="zz_radio_list">'."\n";
+			}
+			
+			foreach ($details as $id => $fields) {
+				array_shift($fields); // get rid of ID, is already in $id
+				if ($row_display == 'form') {
+					$myi++;
+					$myid = make_id_fieldname($field['f_field_name']).'-'.$myi;
+					$outputf .= '<li>';
+					$outputf.= ' <label for="'.$myid.'"><input type="radio" id="'
+						.$myid.'" name="'.$field['f_field_name'].'" value="'.$id.'"';
+					if ($record) if ($id == $record[$field['field_name']]) $outputf.= ' checked';
+					$outputf.= '> '.implode(' | ', $fields).'</label>';
+					$outputf .= '</li>'."\n";
+				} else {
+					if ($id == $record[$field['field_name']]) 
+						$outputf.= implode(' | ', $fields);
+				}
+			}
+			if (empty($field['append_next']) && $row_display == 'form')
+				$outputf .= '</ul>'."\n";
+			else $append_next_type = 'list';
+
 		// draw a SELECT element
 		} else {
 			$outputf.= '<select name="'.$field['f_field_name'].'" id="'
@@ -1293,7 +1329,7 @@ function zz_form_select_sql($field, $table, $record, $row_display, $zz_conf_reco
 					AND !empty($field['show_hierarchy_use_top_value_instead_NULL'])) 
 					? $field['show_hierarchy_subtree'] : '') 
 				.'"';
-			if ($record) if (!$record[$field['field_name']]) $outputf.= ' selected';
+			if ($record) if (!$record[$field['field_name']]) $outputf.= ' selected="selected"';
 			$outputf.= '>'.zz_text('none_selected').'</option>'."\n";
 			if (empty($field['show_hierarchy']) AND empty($field['group'])) {
 				foreach ($details as $line)
@@ -1305,7 +1341,7 @@ function zz_form_select_sql($field, $table, $record, $row_display, $zz_conf_reco
 				$optgroup = false;
 				foreach ($my_select[$show_hierarchy_subtree] as $line) {
 					if ($optgroup != $line[$field['group']]) {
-						if (!$optgroup) $outputf .= '</optgroup>'."\n";
+						if ($optgroup) $outputf .= '</optgroup>'."\n";
 						$optgroup = $line[$field['group']];
 						$outputf .= '<optgroup label="'.$optgroup.'">'."\n";
 					}
@@ -1323,7 +1359,7 @@ function zz_form_select_sql($field, $table, $record, $row_display, $zz_conf_reco
 				$optgroup = false;
 				foreach ($details as $line) {
 					if ($optgroup != $line[$field['group']]) {
-						if (!$optgroup) $outputf .= '</optgroup>'."\n";
+						if ($optgroup) $outputf .= '</optgroup>'."\n";
 						$optgroup = $line[$field['group']];
 						$outputf .= '<optgroup label="'.$optgroup.'">'."\n";
 					}

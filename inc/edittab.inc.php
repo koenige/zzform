@@ -503,10 +503,16 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 						if (isset($field['path'])) {
 							if ($img = zz_show_image($field['path'], $line))
 								$rows[$z][$fieldindex]['text'].= ($link ? $link : '').$img.($link ? '</a>' : '');
-							elseif (isset($field['default_image']))
+							elseif (isset($field['default_image'])) {
+								if (is_array($field['default_image'])) {
+									$default_image = zz_show_link($field['default_image'], $line);
+								} else {
+									$default_image = $field['default_image'];
+								}
 								$rows[$z][$fieldindex]['text'].= ($link ? $link : '').'<img src="'
-									.$field['default_image'].'"  alt="'.zz_text('no_image')
+									.$default_image.'"  alt="'.zz_text('no_image')
 									.'" class="thumb">'.($link ? '</a>' : '');
+							}
 							if (!empty($field['image'])) foreach ($field['image'] as $image)
 								if (!empty($image['show_link']) && $zz['mode'] != 'export')
 									if ($imglink = zz_show_link($image['path'], $line))

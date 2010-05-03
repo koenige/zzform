@@ -95,8 +95,8 @@ function zz_image_thumbnail($source, $destination, $dest_extension = false, $ima
 	$geometry = (isset($image['width']) ? $image['width'] : '');
 	$geometry.= (isset($image['height']) ? 'x'.$image['height'] : '');
 	$source_extension = substr($source, strrpos($source, '.') +1);
-	if ($source_extension == 'pdf') {
-		$source .= '[0]';	// convert only first page
+	if (in_array($source_extension, $zz_conf['upload_multipage_images'])) {
+		$source .= '[0]'; // convert only first page or top layer
 	}
 	$convert = zz_imagick_convert('thumbnail '.$geometry, '"'.$source.'" '.($dest_extension 
 		? $dest_extension.':' : '').'"'.$destination.'"');
@@ -135,10 +135,13 @@ function zz_image_webimage($source, $destination, $dest_extension = false, $imag
 	global $zz_conf;
 	$convert = false;
 	$source_extension = substr($source, strrpos($source, '.') +1);
+	if (in_array($source_extension, $zz_conf['upload_multipage_images'])) {
+		$source .= '[0]'; // convert only first page or top layer
+	}
+
 	if (!$source_extension OR !empty($zz_conf['webimages_by_extension'][$source_extension])) {
 		return false; // do not create an identical webimage of already existing webimage
-	} elseif ($source_extension == 'pdf') {
-		$source .= '[0]';	// convert only first page
+	} elseif ($source_extension == 'pdf' OR $source_extension == 'eps') {
 		if ($zz_conf['upload_tools']['ghostscript']) {
 			$dest_extension = $zz_conf['upload_destination_filetype'][$source_extension];
 			$convert = zz_imagick_convert('density '.$zz_conf['upload_pdf_density'], ' "'.$source.'" '.$dest_extension.':'.'"'.$destination.'"');
@@ -184,6 +187,7 @@ function zz_image_crop($source, $destination, $dest_extension = false, $image = 
 function zz_imagick_convert($options, $files) {
 	global $zz_conf;
 
+	if ($options) $options = '-'.$options;
 	if (!empty($zz_conf['upload_imagick_options'])) $options .= ' '.$zz_conf['upload_imagick_options'];
 	$paths = $zz_conf['imagemagick_paths'];
 	if ($last_dir = array_pop($paths) != '/notexistent') {
@@ -201,7 +205,7 @@ function zz_imagick_convert($options, $files) {
 		exit;
 	}
 	$call_convert = $path_convert.'/convert ';
-	$call_convert.= '-'.$options.' ';
+	if ($options) $call_convert.= $options.' ';
 	$call_convert.= ' '.$files.' ';
 	$success = exec($call_convert, $return, $return_var);
 	if ($return AND $zz_conf['modules']['debug'] AND $zz_conf['debug']) {

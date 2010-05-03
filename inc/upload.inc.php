@@ -147,10 +147,14 @@ $zz_default['upload_destination_filetype']['tiff'] = 'png';
 $zz_default['upload_destination_filetype']['tif'] = 'png';
 $zz_default['upload_destination_filetype']['tga'] = 'png';
 $zz_default['upload_destination_filetype']['pdf'] = 'png';
+$zz_default['upload_destination_filetype']['eps'] = 'png';
 $zz_default['upload_destination_filetype']['cr2'] = 'jpeg';
 $zz_default['upload_destination_filetype']['dng'] = 'jpeg';
+$zz_default['upload_destination_filetype']['psd'] = 'jpeg';
+
 $zz_default['upload_pdf_density'] = '300x300'; // dpi in which pdf will be rasterized
 
+$zz_default['upload_multipage_images'] = array('pdf', 'psd');
 
 /*	----------------------------------------------	*
  *					MAIN FUNCTIONS					*
@@ -270,7 +274,7 @@ function zz_upload_check_files(&$zz_tab) {
 					$images[$key][$subkey]['upload']['type'] = false; // set to application/octet-stream
 					$images[$key][$subkey]['upload']['name'] = false;
 					$images[$key][$subkey]['upload']['tmp_name'] = false;
-				} elseif ($zz_conf['upload_MAX_FILE_SIZE'] 
+				} elseif ($zz_conf['upload_MAX_FILE_SIZE'] AND (isset($images[$key][$subkey]['upload']['size']))
 					&& $images[$key][$subkey]['upload']['size'] > $zz_conf['upload_MAX_FILE_SIZE']) {
 					$images[$key][$subkey]['upload']['error'] = 2; // too big
 					$images[$key][$subkey]['upload']['type'] = false; // set to application/octet-stream
@@ -397,7 +401,8 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 				// get mime type
 				unset($return_var);
 				exec('file --mime --brief "'.$myfilename.'"', $return_var); 
-				$file['type_user_upload'] = $file['type'];
+				if (!empty($file['type']))
+					$file['type_user_upload'] = $file['type'];
 				$file['type'] = $return_var[0];
 
 				if ($file['filetype_file'] == 'AutoCad (release 14)') {
