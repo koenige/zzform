@@ -7,11 +7,12 @@ zzform: Number/Date Functions
 
 */
 
-/** converts given iso date to d.m.Y or returns date as is if incomplete
+/**
+ * converts given iso date to d.m.Y or returns date as is if incomplete
  * 
- * @param $datum(string) date to be converted, international date or output of this function
- * @param $param(string) without-year: cuts year from date; short: returns short year
- * @param $language(string) 2-letter-languagecode ISO 639-1 or 3-letter-code ISO 639-2T
+ * @param string $datum date to be converted, international date or output of this function
+ * @param string $param without-year: cuts year from date; short: returns short year
+ * @param string $language 2-letter-languagecode ISO 639-1 or 3-letter-code ISO 639-2T
  * @return string formatted date
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -82,9 +83,10 @@ function datum_de($datum, $param = false, $language = 'de') {
 	return $datum;
 }
 
-/** returns year of given iso date, removes trailing 0 if neccessary
+/**
+ * returns year of given iso date, removes trailing 0 if neccessary
  * 
- * @param $datum(string) date in international date format YYYY-MM-DD
+ * @param string $datum date in international date format YYYY-MM-DD
  * @return string year
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -95,9 +97,10 @@ function jahr($datum) {
 	return $jahr;
 }
 
-/** converts user input date into international date string
+/**
+ * converts user input date into international date string
  * 
- * @param $datum(string) date in several possible formats
+ * @param string $datum date in several possible formats
  * @return string international date YYYY-MM-DD
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -188,9 +191,10 @@ function datum_int($datum) {
 	}	
 }
 
-/** converts user input time into HH:MM:SS or returns false if given time is illegal
+/**
+ * converts user input time into HH:MM:SS or returns false if given time is illegal
  * 
- * @param $time(string) time in several possible formats
+ * @param string $time time in several possible formats
  * @return mixed false if input is illegal, time-string if input is correct
  */
 function validate_time($time) {
@@ -223,10 +227,11 @@ function validate_time($time) {
 	return $time;
 }
 
-/** converts number into currency
+/**
+ * converts number into currency
  * 
- * @param $int(int) amount of money
- * @param $unit(string) currency unit
+ * @param int $int amount of money
+ * @param string $unit currency unit
  * @return string formatted combination of amount and unit
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */

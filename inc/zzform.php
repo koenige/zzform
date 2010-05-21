@@ -61,6 +61,7 @@ function zzform() {
 		if (empty($zz_conf['dir_inc'])) 
 			$zz_conf['dir_inc'] = $zz_conf['dir'].'/inc';
 		require_once $zz_conf['dir_inc'].'/import.inc.php';
+		if ($zz_conf['modules']['debug']) zz_debug('end');
 		return zzform_import();
 	}
 
@@ -89,7 +90,11 @@ function zzform() {
 		// import modules
 		// set and get URI
 		zz_initialize($zz_allowed_params, $zz_var);
-		if ($zz_error['error']) return zz_error(); // exits script
+		if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+		if ($zz_error['error']) {
+			if ($zz_conf['modules']['debug']) zz_debug('end');
+			return zz_error(); // exits script
+		}
 		if ($zz_conf['multi']) {
 			// save variables for later use
 			$zz_saved['conf'] = $zz_conf;
@@ -97,21 +102,20 @@ function zzform() {
 			$zz_saved['allowed_params'] = $zz_allowed_params;
 		}
 	} elseif (empty($zz_conf['multi'])) { // show a warning only if zzform is not explicitly called via zzform_multi()
+		if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 		$zz_error[] = array(
 			'msg_dev' => 'zzform has been called as a function more than once. You might want to check if this is correct.',
 			'level' => E_USER_NOTICE
 		);
 		$zz['output'] .= zz_error();
 	} else {	// it's called via zzform_multi and not for the first time
+		if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 		// use initial settings
 		$zz_var = $zz_saved['var'];
 		$zz_allowed_params = $zz_saved['allowed_params'];
 	}
 
-	if ($zz_conf['modules']['debug']) {
-		$zz_debug_time_this_function = microtime_float();
-		zz_debug(__FUNCTION__, $zz_debug_time_this_function, "variables");
-	}
+	if ($zz_conf['modules']['debug']) zz_debug('variables');
 
 //
 //	Database connection, set db_name
@@ -140,6 +144,7 @@ function zzform() {
 				'query' => 'SELECT DATABASE("'.$zz_conf['db_name'].'")',
 				'level' => E_USER_ERROR
 			);
+			if ($zz_conf['modules']['debug']) zz_debug('end');
 			return zz_error(); // exits script
 		}
 		$zz_tab[0]['db_name'] = $zz_conf['db_name'];
@@ -152,6 +157,7 @@ function zzform() {
 				'query' => 'SELECT DATABASE()',
 				'level' => E_USER_ERROR
 			);
+			if ($zz_conf['modules']['debug']) zz_debug('end');
 			return zz_error(); // exits script
 		}
 		$zz_conf['db_name'] = mysql_result($result, 0, 0);
@@ -173,6 +179,7 @@ function zzform() {
 					'query' => 'SELECT DATABASE("'.$db_name[1].'")',
 					'level' => E_USER_ERROR
 				);
+				if ($zz_conf['modules']['debug']) zz_debug('end');
 				return zz_error(); // exits script
 			}
 		}
@@ -186,6 +193,7 @@ function zzform() {
 			'msg_dev' => 'Please set the variable <code>$zz_conf[\'db_name\']</code>. It has to be set to the main database name used for zzform.',
 			'level' => E_USER_ERROR
 		);
+		if ($zz_conf['modules']['debug']) zz_debug('end');
 		return zz_error(); // exits script
 	}
 
@@ -329,7 +337,7 @@ function zzform() {
 		// (e. g. identifier with UNIQUE KEY) retrieve value for ID field from database
 		if (!($zz_tab[0][0]['id']['value'])) {
 			if ($zz_conf['modules']['debug']) {
-				zz_debug(__FUNCTION__, $zz_debug_time_this_function, "where_conditions", $zz['sql']);
+				zz_debug("where_conditions", $zz['sql']);
 			}
 			$result = mysql_query($zz['sql']);
 			if ($result AND mysql_num_rows($result) == 1) {
@@ -399,7 +407,7 @@ function zzform() {
 		include $langfile; // must not be include_once since $text is cleared beforehands
 
 	if ($zz_conf['modules']['debug']) {
-		zz_debug(__FUNCTION__, $zz_debug_time_this_function, "required files included");
+		zz_debug("required files included");
 	}
 	
 //	Optional files
@@ -427,7 +435,7 @@ function zzform() {
 		include_once $zz_conf['dir_inc'].'/forcefilename-'.$zz_conf['character_set'].'.inc.php';
 
 	if ($zz_conf['modules']['debug']) {
-		zz_debug(__FUNCTION__, $zz_debug_time_this_function, "files and database connection ok");
+		zz_debug("files and database connection ok");
 	}
 
 //	Variables
@@ -450,6 +458,7 @@ function zzform() {
 		if ($zz_error['error']) {
 			if ($zz_conf['access'] != 'export') $zz['output'].= '</div>';
 			if ($zz_conf['db_current']) mysql_select_db($zz_conf['db_current']);
+			if ($zz_conf['modules']['debug']) zz_debug('end');
 			return false; // if an error occured in zz_translations_check_for, return false
 		}
 	}
@@ -504,7 +513,7 @@ function zzform() {
 		$zz['sql'] = zz_search_sql($zz['fields'], $zz['sql'], $zz['table'], $zz_tab[0][0]['id']['field_name']);	// if q modify $zz['sql']: add search query
 
 	if ($zz_conf['modules']['debug']) {
-		zz_debug(__FUNCTION__, $zz_debug_time_this_function, "start conditions");
+		zz_debug("start conditions");
 	}
 
 	// Module 'conditions': evaluate conditions
@@ -647,6 +656,7 @@ function zzform() {
 	if ($zz_error['error']) {
 		if ($zz_conf['access'] != 'export') $zz['output'].= '</div>';
 		if ($zz_conf['db_current']) mysql_select_db($zz_conf['db_current']);
+		if ($zz_conf['modules']['debug']) zz_debug('end');
 		return false; // if an error occured in zz_action, return false
 	}
 
@@ -659,7 +669,7 @@ function zzform() {
 	}
 
 	if ($zz_conf['modules']['debug']) {
-		zz_debug(__FUNCTION__, $zz_debug_time_this_function, "subqueries end");
+		zz_debug("subqueries end");
 	}
 
 	// Extra GET Parameter
@@ -719,17 +729,7 @@ function zzform() {
 				if (isset($no_delete_reason['fields'])) {
 					$tmp_error_msg .= '<ul>'."\n";
 					foreach ($no_delete_reason['fields'] as $del_tab) {
-						if ($zz_conf['prefix']) { // makes the response look nicer
-							if (strtolower(substr($del_tab, 0, strlen($zz_conf['prefix']))) == strtolower($zz_conf['prefix']))
-								$del_tab = substr($del_tab, strlen($zz_conf['prefix']));
-							else {
-								$zz_error[] = array(
-									'msg_dev' => sprintf(zz_text('Table prefix is incorrect somehow: %s'), substr($del_tab, 0, strlen($zz_conf['prefix'])))
-								);
-							}
-						}
-						$del_tab = ucfirst($del_tab);
-						$tmp_error_msg .= '<li>'.$del_tab.'</li>'."\n";
+						$tmp_error_msg .= '<li>'.zz_nice_tablenames($del_tab).'</li>'."\n";
 					}
 					$tmp_error_msg .= '</ul>'."\n";
 				} 
@@ -743,7 +743,7 @@ function zzform() {
 		$display_form = false;
 	
 	if ($zz_conf['modules']['debug']) {
-		zz_debug(__FUNCTION__, $zz_debug_time_this_function, "database operations end");
+		zz_debug("database operations end");
 	}
 
 	// requery record
@@ -757,6 +757,7 @@ function zzform() {
 		if ($form_open) $zz['output'] .= '</form>';
 		if ($zz_conf['access'] != 'export') $zz['output'].= '</div>';
 		if ($zz_conf['db_current']) mysql_select_db($zz_conf['db_current']);
+		if ($zz_conf['modules']['debug']) zz_debug('end');
 		return false;
 	}
 	if (!empty($zz_error['validation']['msg']) AND is_array($zz_error['validation']['msg'])) {
@@ -768,7 +769,7 @@ function zzform() {
 		if (!empty($zz_error['validation']['incorrect_values'])) {
 			foreach ($zz_error['validation']['incorrect_values'] as $incorrect_value) {
 				$this_dev_msg[] = zz_text('Field name').': '.$incorrect_value['field_name']
-					.' / '.$incorrect_value['msg'];
+					.' / '.htmlspecialchars($incorrect_value['msg']);
 			}
 			$this_error['msg_dev'] = "\n\n".implode("\n", $this_dev_msg);
 		}
@@ -833,12 +834,13 @@ function zzform() {
 	if ($zz_error['error']) {
 		if ($zz_conf['access'] != 'export') $zz['output'].= '</div>';
 		if ($zz_conf['db_current']) mysql_select_db($zz_conf['db_current']);
+		if ($zz_conf['modules']['debug']) zz_debug('end');
 		return false; // critical error: exit;
 	}
 
 
 	if ($zz_conf['modules']['debug']) {
-		zz_debug(__FUNCTION__, $zz_debug_time_this_function, "finished");
+		zz_debug("finished");
 		if ($zz_conf['debug']) {
 			$zz['output'] .= '<div class="debug">'.zz_debug_htmlout($zz_debug).'</div>'."\n";
 		}
@@ -874,6 +876,7 @@ function zzform() {
 //	}
 	// return to old database
 	if ($zz_conf['db_current']) mysql_select_db($zz_conf['db_current']);
+	if ($zz_conf['modules']['debug']) zz_debug('end');
 }
 
 function zzform_all($glob_vals = false) {
@@ -912,8 +915,6 @@ function zzform_all($glob_vals = false) {
 
 function zz_initialize(&$zz_allowed_params, &$zz_var) {
 	global $zz_conf;
-	// Always get debug time, there's no debug module yet
-	$zz_debug_time_this_function = microtime_float();
 	global $zz_error;
 
 	//	allowed parameters
@@ -947,13 +948,18 @@ function zz_initialize(&$zz_allowed_params, &$zz_var) {
 		'conditions', 'translations');
 	$int_modules = zz_add_modules($int_modules, $zz_conf['dir_inc'], $zz_conf);
 	$zz_conf['modules'] = $int_modules['modules'];
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+
 	$ext_modules = zz_add_modules($zz_conf['ext_modules'], $zz_conf['dir_ext'], $zz_conf);
 	foreach ($int_modules['vars'] as $index => $var) {			// import variables from internal modules
 		if (is_array($var)) {
 			$$index = zz_array_merge($$index, $var);
 		}
 	}
-	if ($zz_error['error']) return false;		// stop if there were errors while adding modules
+	if ($zz_error['error']) {
+		if ($zz_conf['modules']['debug']) zz_debug('end');
+		return false;		// stop if there were errors while adding modules
+	}
 
 	$zz_conf['ext_modules'] = $ext_modules['modules'];
 		
@@ -1096,14 +1102,15 @@ function zz_initialize(&$zz_allowed_params, &$zz_var) {
 		mb_internal_encoding("UTF-8");
 	}
 
-	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function);
+	if ($zz_conf['modules']['debug']) zz_debug('end');
 }
 
-/** call zzform() once or multiple times without user interaction 
+/**
+ * call zzform() once or multiple times without user interaction 
  * 
- * @param $definition_file(string) - script filename
- * @param $values(array) - values sent to script (instead of $_GET, $_POST and $_FILES)
- * @param $type(string) - what to do
+ * @param string $definition_file - script filename
+ * @param array $values - values sent to script (instead of $_GET, $_POST and $_FILES)
+ * @param string $type - what to do
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zzform_multi($definition_file, $values, $type, $params = false) {

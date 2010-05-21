@@ -12,22 +12,23 @@
 */
 
 
-/** shows records in list view
+/**
+ * shows records in list view
  * 
- * @param $zz(array)		table and field definition
- * @param $zz_conf			configuration variables
- * @param $zz_error			errorhandling
- * @param $zz_var			internal variables
- * @param $total_rows		total rows in main table
- * @param $id_field			name of ID field for main table
- * @return array $zz		Output for page, ...
- * @return array $zz_conf	Modified conifguration parameters
- * @return array $zz_error	Error-Output
+ * @param array $zz				table and field definition
+ * @param array $zz_conf		configuration variables
+ * @param array $zz_error		errorhandling
+ * @param array $zz_var			internal variables
+ * @param int $total_rows		total rows in main table
+ * @param string $id_field		name of ID field for main table
+ * @return array $zz			Output for page, ...
+ * @return array $zz_conf		Modified conifguration parameters
+ * @return array $zz_error		Error-Output
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_conditions) {
 	global $zz_conf;
-	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if ($zz_conf['list_access']) {
 		$zz_conf = array_merge($zz_conf, $zz_conf['list_access']);
 		unset($zz_conf['list_access']);
@@ -81,7 +82,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 	// must be behind update, insert etc. or it will return the wrong number
 	$total_rows = zz_count_rows($zz['sql'], $zz['table'].'.'.$id_field);	
 
-	$zz['sql'].= ' '.$zz['sqlorder']; 						// must be here because of where-clause
+	$zz['sql'].= (!empty($zz['sqlorder']) ? ' '.$zz['sqlorder'] : ''); 	// must be here because of where-clause
 	$zz['sql'] = zz_sql_order($zz['fields'], $zz['sql']); // Alter SQL query if GET order (AND maybe GET dir) are set
 
 	//
@@ -94,7 +95,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 		$zz['sql'].= ' LIMIT '.($zz_conf['this_limit']-$zz_conf['limit']).', '.($zz_conf['limit']);
 	}
 
-	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "count_rows start");
+	if ($zz_conf['modules']['debug']) zz_debug("count_rows start");
 
 //	$sql = zz_edit_sql($zz['sql'], 'ORDER BY', '', 'delete');
 //	$sql = zz_edit_sql($zz['sql'], 'SELECT', 'objects.object_id', 'replace');
@@ -110,7 +111,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 			'msg_dev' => zz_text('error-sql-incorrect')));
 	}
 
-	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "count_rows end", $sql);
+	if ($zz_conf['modules']['debug']) zz_debug("count_rows end", $sql);
 
 	// read rows from database. depending on hierarchical or normal list view
 	// put rows in $lines or $h_lines.
@@ -185,13 +186,16 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 		$zz['output'].= '<p>'.zz_text('table-empty').'</p>';
 	}
 
-	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "conditions start");
+	if ($zz_conf['modules']['debug']) zz_debug("conditions start");
 	// Check all conditions whether they are true;
 	if (!empty($zz_conf['modules']['conditions']))
 		$zz_conditions = zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids);
-	if ($zz_error['error']) return false;
+	if ($zz_error['error']) {
+		if ($zz_conf['modules']['debug']) zz_debug('end');
+		return false;
+	}
 	$zz['output'].= zz_error();
-	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "conditions finished");
+	if ($zz_conf['modules']['debug']) zz_debug("conditions finished");
 
 	// check conditions, these might lead to different field definitions for every
 	// line in the list output!
@@ -221,9 +225,9 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 		// so now we need to check which fields are shown in list mode
 		foreach (array_keys($lines) as $index) {
 			if (!empty($line_query[$index])) {
-				if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "fill_out start");
+				if ($zz_conf['modules']['debug']) zz_debug("fill_out start");
 				zz_fill_out($line_query[$index], $zz_conf['db_name'].'.'.$zz['table'], 2);
-				if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "fill_out end");
+				if ($zz_conf['modules']['debug']) zz_debug("fill_out end");
 				foreach ($line_query[$index] as $fieldindex => $field) {
 					// remove elements from table which shall not be shown
 					if ($zz['mode'] == 'export') {
@@ -236,7 +240,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 						}
 					}
 				}
-				if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "table_query end");
+				if ($zz_conf['modules']['debug']) zz_debug("table_query end");
 			}
 		}
 		// now we have the basic stuff in $table_query[0] and $line_query[0]
@@ -247,7 +251,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 		unset($lines[0]); // remove first dummy array
 	}
 
-	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "table_query set");
+	if ($zz_conf['modules']['debug']) zz_debug("table_query set");
 	$search_form = zz_search_form($zz['fields_in_list'], $zz['table'], $total_rows, $zz['mode'], $count_rows);
 	$zz['output'] .= $search_form['top'];
 	
@@ -438,7 +442,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 						// mailto-Link only if there is an address in that field
 						$link = 'mailto:'.$line[$field['field_name']];
 					} elseif (isset($field['link']) AND is_array($field['link'])) {
-						$link = zz_show_link($field['link'], $line).(empty($field['link_no_append']) ? $line[$field['field_name']] : '');
+						$link = zz_makelink($field['link'], $line).(empty($field['link_no_append']) ? $line[$field['field_name']] : '');
 					} elseif (isset($field['link'])) {
 						$link = $field['link'].$line[$field['field_name']];
 					}
@@ -449,7 +453,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 						$link_title = false;
 						if (!empty($field['link_title'])) {
 							if (is_array($field['link_title']))
-								$link_title = zz_show_link($field['link_title'], $line);
+								$link_title = zz_makelink($field['link_title'], $line);
 							else
 								$link_title = $field['link_title'];
 						}
@@ -501,11 +505,11 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 					case 'image':
 					case 'upload_image':
 						if (isset($field['path'])) {
-							if ($img = zz_show_image($field['path'], $line))
+							if ($img = zz_makelink($field['path'], $line, 'image'))
 								$rows[$z][$fieldindex]['text'].= ($link ? $link : '').$img.($link ? '</a>' : '');
 							elseif (isset($field['default_image'])) {
 								if (is_array($field['default_image'])) {
-									$default_image = zz_show_link($field['default_image'], $line);
+									$default_image = zz_makelink($field['default_image'], $line);
 								} else {
 									$default_image = $field['default_image'];
 								}
@@ -515,7 +519,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 							}
 							if (!empty($field['image'])) foreach ($field['image'] as $image)
 								if (!empty($image['show_link']) && $zz['mode'] != 'export')
-									if ($imglink = zz_show_link($image['path'], $line))
+									if ($imglink = zz_makelink($image['path'], $line))
 										$rows[$z][$fieldindex]['text'] .= ' <a href="'.$imglink.'">'.$image['title'].'</a><br>' ;
 						}
 						break;
@@ -702,6 +706,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 						'query' => $subselect['sql'],
 						'level' => E_USER_ERROR
 					);
+					if ($zz_conf['modules']['debug']) zz_debug('end');
 					return zz_error();
 				}
 				$myline = $line;
@@ -714,6 +719,7 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 				'query' => $subselect['sql'],
 				'level' => E_USER_ERROR
 			);
+			if ($zz_conf['modules']['debug']) zz_debug('end');
 			return zz_error();
 		}
 		
@@ -909,11 +915,11 @@ function zz_display_table(&$zz, $zz_conf, &$zz_error, $zz_var, $id_field, $zz_co
 		// Search form
 		$zz['output'] .= $search_form['bottom'];
 	} elseif ($zz_conf['list_display'] == 'pdf') {
-		if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
+		if ($zz_conf['modules']['debug']) zz_debug("end");
 		zz_pdf($zz);
 		exit;
 	}
-	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
+	if ($zz_conf['modules']['debug']) zz_debug("end");
 }
 
 function zz_field_sum($table_query, $z, $table, $sum, $zz_conf) {

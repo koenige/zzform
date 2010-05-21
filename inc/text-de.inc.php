@@ -140,5 +140,5 @@ $text['Field name'] = 'Feldname';
 $text['incorrect value'] = 'falscher Wert';
 $text['Selection'] = 'Auswahl';
 $text['Import data'] = 'Import Daten';
-
+$text['String <em>"%s"</em> is not allowed'] = 'Die Zeichenfolge <em>"%s"</em> ist nicht erlaubt';
 ?>

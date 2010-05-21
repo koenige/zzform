@@ -12,22 +12,23 @@
 		shows all table rows for given record
 */
 
-/** Display form to edit a record
+/**
+ * Display form to edit a record
  * 
- * @param $zz
- * @param $my_tab			= $zz_tab, won't be changed by this function
- * @param $zz_conf
- * @param $display			(string) 'review': show form with all values for
+ * @param array $zz
+ * @param array $my_tab			= $zz_tab, won't be changed by this function
+ * @param array $zz_conf
+ * @param string $display	'review': show form with all values for
  *							review; 'form': show form for editing; false: don't
  *							show form at all
- * @param $zz_var
- * @param $zz_conditions
- * @return $string			HTML-Output with all form fields
+ * @param array $zz_var
+ * @param array $zz_conditions
+ * @return string $string			HTML-Output with all form fields
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var, $zz_conditions) {
 	global $zz_error;
-	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	$output = '';
 	if ($zz['formhead'] && $zz_conf['access'] != 'export')
@@ -37,6 +38,7 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var, $zz_condi
 	// if there is nothing to display, just show errors and formhead or nothing at all and return
 	if (!$display) {
 		if ($output) $output = '<div id="record">'."\n$output</div>\n";
+		if ($zz_conf['modules']['debug']) zz_debug('end');
 		return $output;
 	}
 	
@@ -143,7 +145,7 @@ function zz_display_records($zz, $my_tab, $zz_conf, $display, $zz_var, $zz_condi
 			if (isset($zz['record'][$myvar['field_name']])) $output.= '<input type="hidden" value="'
 				.$zz['record'][$myvar['field_name']].'" name="'.$myvar['f_field_name'].'">';
 	$output = '<div id="record">'."\n$output</div>\n";
-	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
+	if ($zz_conf['modules']['debug']) zz_debug('end');
 	return $output;
 }
 
@@ -153,7 +155,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 
 	global $zz_error;
 	global $zz_conf;	// Config variables
-	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$output = '';
 	$append_next = '';
 	$append_next_type = '';
@@ -416,34 +418,8 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 			
 			// auto values
 			if (isset($field['auto_value'])) {
-				if ($field['auto_value'] == 'increment') {
-					/*	added 2004-12-06
-						maybe easier and faster without sql query - instead rely on table query
-					*/
-					// get main (sub-)table query, change field order
-					$sql_max = zz_edit_sql($my_tab[$i]['sql'], 'ORDER BY', $field['field_name'].' DESC');
-					if ($i) { // it's a subtable
-						if (!empty($my_tab[0][0]['id']['field_name']) && !empty($my_tab[0][0]['id']['value'])) {
-							$sql_max = zz_edit_sql($sql_max, 'WHERE', '('
-								.$my_tab[0]['table'].'.'
-								.$my_tab[0][0]['id']['field_name'].' = '
-								.$my_tab[0][0]['id']['value'].')');
-						}
-						$field['default'] = $k + 1;
-					}
-					$myresult = mysql_query($sql_max);
-					if ($zz_conf['modules']['debug']) 
-						zz_debug(__FUNCTION__, $zz_debug_time_this_function, "next auto_value", $sql_max);
-					if ($myresult) {
-						if (mysql_num_rows($myresult)) {
-							$field['default'] = mysql_result($myresult, 0, $field['field_name']);
-							$field['default']++;
-						} elseif (!$i) {
-							// only if it's the maintable, for subtable default is already set
-							$field['default'] = 1;
-						}
-					}
-				}
+				$field['default'] = zz_set_auto_value($field, $my_tab[$i]['sql'], $i, $k,
+					$my_tab[0][0]['id'], $my_tab[0]['table']);
 			}
 
 			// $zz_var, values, defaults
@@ -505,27 +481,16 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 					if (isset($field['key_field_name'])) $my_fieldname = $field['key_field_name'];
 					if (isset($field['sql'])) {
 						$mysql = zz_edit_sql($field['sql'], 'WHERE', '('.$my_fieldname.' = '.$detail_key.')');
-						$result_detail = mysql_query($mysql);
-						if ($zz_conf['modules']['debug']) 
-							zz_debug(__FUNCTION__, $zz_debug_time_this_function, "fieldtype predefined", $mysql);
-						if ($result_detail) {
-							if (mysql_num_rows($result_detail) == 1) {
-								$select_fields = mysql_fetch_assoc($result_detail);
-								// remove hierarchy field for display
-								if (!empty($field['show_hierarchy'])) {
-									unset($select_fields[$field['show_hierarchy']]);
-								}
-								// remove ID (= first field) for display
-								if (count($select_fields) > 1)
-									array_shift($select_fields); 
-								$outputf .= implode(' | ', $select_fields);
+						$select_fields = zz_db_fetch($mysql);
+						if ($select_fields) {
+							// remove hierarchy field for display
+							if (!empty($field['show_hierarchy'])) {
+								unset($select_fields[$field['show_hierarchy']]);
 							}
-						} else {
-							$outputf.= zz_error($zz_error[] = array(
-								'mysql' => mysql_error(), 
-								'query' => $mysql, 
-								'msg_dev' => zz_text('error-sql-incorrect'))
-							);
+							// remove ID (= first field) for display
+							if (count($select_fields) > 1)
+								array_shift($select_fields); 
+							$outputf .= implode(' | ', $select_fields);
 						}
 					} elseif (isset($field['enum'])) {
 						$outputf .= $my_value;
@@ -567,7 +532,8 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 				$outputf.= '<input type="hidden" value="';
 				if (!empty($field['value'])) $outputf.= $field['value'];
 				elseif ($my['record']) $outputf.= $my['record'][$field['field_name']];
-				$outputf.= '" name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">';
+				$outputf.= '" name="'.$field['f_field_name'].'" id="'
+					.make_id_fieldname($field['f_field_name']).'">';
 				if (!empty($my['record'][$field['field_name']]))
 					$outputf.= timestamp2date($my['record'][$field['field_name']]);
 				else
@@ -586,13 +552,16 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 						$outputf.= date('Y-m-d H:i:s', $my['record'][$field['field_name']]);
 					}
 				}
-				if ($row_display == 'form') $outputf.= '" name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">';
-				if (!$my['record'] AND isset($field['value'])) $outputf.= '('.zz_text('will_be_added_automatically').')&nbsp;';
+				if ($row_display == 'form') 
+					$outputf.= '" name="'.$field['f_field_name'].'" id="'
+						.make_id_fieldname($field['f_field_name']).'">';
+				if (!$my['record'] AND isset($field['value'])) 
+					$outputf.= '('.zz_text('will_be_added_automatically').')&nbsp;';
 				break;
 			case 'foreign':
 				$foreign_res = mysql_query($field['sql'].$my['id']['value']);
 				if ($zz_conf['modules']['debug']) 
-					zz_debug(__FUNCTION__, $zz_debug_time_this_function, "fieldtype foreign", $field['sql'].$my['id']['value']);
+					zz_debug("fieldtype foreign", $field['sql'].$my['id']['value']);
 				//$outputf.= $field['sql'].$my['id']['value'];
 				if ($foreign_res) {
 					if (mysql_num_rows($foreign_res) > 0) {
@@ -609,7 +578,9 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 				} 
 				if (isset($field['add_foreign'])) {
 					if ($my['id']['value'])
-						$outputf.= ' <a href="'.$field['add_foreign'].$my['id']['value'].'&amp;referer='.urlencode($_SERVER['REQUEST_URI']).'">['.zz_text('edit').' &hellip;]</a>';
+						$outputf.= ' <a href="'.$field['add_foreign'].$my['id']['value']
+							.'&amp;referer='.urlencode($_SERVER['REQUEST_URI']).'">['
+							.zz_text('edit').' &hellip;]</a>';
 					else
 						$outputf.= zz_text('edit-after-save');
 				}
@@ -636,13 +607,22 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 			case 'password_change':
 				if ($row_display == 'form') {
 					$outputf.= '<table class="subtable">'."\n";
-					$outputf.= '<tr><th><label for="'.make_id_fieldname($field['f_field_name']).'">'.zz_text('Old:').' </label></th><td><input type="password" name="'.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'" size="'.$field['size'].'" ';
+					$outputf.= '<tr><th><label for="'.make_id_fieldname($field['f_field_name']).'">'
+						.zz_text('Old:').' </label></th><td><input type="password" name="'
+						.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name'])
+						.'" size="'.$field['size'].'" ';
 					if (!empty($field['maxlength'])) $outputf.= ' maxlength="'.$field['maxlength'].'" ';
 					$outputf.= '></td></tr>'."\n";
-					$outputf.= '<tr><th><label for="'.make_id_fieldname($field['f_field_name'].'_new_1').'">'.zz_text('New:').' </label></th><td><input type="password" name="'.$field['f_field_name'].'_new_1" id="'.make_id_fieldname($field['f_field_name'].'_new_1').'" size="'.$field['size'].'" ';
+					$outputf.= '<tr><th><label for="'.make_id_fieldname($field['f_field_name'].'_new_1').'">'
+						.zz_text('New:').' </label></th><td><input type="password" name="'
+						.$field['f_field_name'].'_new_1" id="'.make_id_fieldname($field['f_field_name']
+						.'_new_1').'" size="'.$field['size'].'" ';
 					if (!empty($field['maxlength'])) $outputf.= ' maxlength="'.$field['maxlength'].'" ';
 					$outputf.= '></td></tr>'."\n";
-					$outputf.= '<tr><th><label for="'.make_id_fieldname($field['f_field_name'].'_new_2').'">'.zz_text('New:').' </label></th><td><input type="password" name="'.$field['f_field_name'].'_new_2" id="'.make_id_fieldname($field['f_field_name'].'_new_2').'" size="'.$field['size'].'" ';
+					$outputf.= '<tr><th><label for="'.make_id_fieldname($field['f_field_name'].'_new_2').'">'
+						.zz_text('New:').' </label></th><td><input type="password" name="'
+						.$field['f_field_name'].'_new_2" id="'.make_id_fieldname($field['f_field_name']
+						.'_new_2').'" size="'.$field['size'].'" ';
 					if (!empty($field['maxlength'])) $outputf.= ' maxlength="'.$field['maxlength'].'" ';
 					$outputf.= '><p>'.zz_text('(Please confirm your new password twice)').'</td></tr>'."\n";
 					$outputf.= '</table>'."\n";
@@ -887,7 +867,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 					$img = false;
 					$outputf.= '<p>';
 					if (isset($field['path']))
-						$outputf .= $img = zz_show_image($field['path'], $my['record']);
+						$outputf .= $img = zz_makelink($field['path'], $my['record'], 'image');
 					if (!$img) $outputf.= '('.zz_text('image_not_display').')';
 					$outputf.= '</p>';
 				}
@@ -911,7 +891,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 								$outputf .= '<input type="file" name="'
 									.make_id_fieldname($field['f_field_name']).'['.$image['field_name'].']">';
 								if (empty($field['dont_show_file_link']) 
-									AND $link = zz_show_link($image['path'], (isset($my['record_saved']) ? $my['record_saved'] : $my['record'])))
+									AND $link = zz_makelink($image['path'], (isset($my['record_saved']) ? $my['record_saved'] : $my['record'])))
 									$outputf .= '<br><a href="'.$link.'">'.$link
 										.'</a>'
 										.(($image_uploads > 1 OR !empty($field['optional_image'])) ?
@@ -940,7 +920,7 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 						$outputf.= '<table class="upload">';
 						foreach ($field['image'] as $imagekey => $image)
 							if (!isset($image['source']))
-								if ($link = zz_show_link($image['path'], $my['record'])) {
+								if ($link = zz_makelink($image['path'], $my['record'])) {
 									$outputf.= '<tr><th>'.$image['title'].'</th> <td>';
 									$outputf .= '<a href="'.$link.'">'.$link.'</a>';
 									$outputf.= '</td></tr>'."\n";
@@ -1087,19 +1067,20 @@ function zz_show_field_rows($my_tab, $i, $k, $mode, $display, &$zz_var,
 		if ($extra_lastcol) $output .= '<td>'.$extra_lastcol.'</td>';
 		$output .= '</tr>'."\n";
 	}
-	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
+	if ($zz_conf['modules']['debug']) zz_debug('end');
 	return $output;
 }
 
-/** Output form element type="select", foreign_key with sql query
+/**
+ * Output form element type="select", foreign_key with sql query
  * 
- * @param $field(array) field that will be checked
- * @param $table(string) $my_tab[$i]['table']
- * @param $record(array) $my['record']
- * @param $row_display(string)
- * @param $zz_conf_record(array)
- * @param $add_details_where(string)
- * @param $where_vars(array) = $zz_var['where'][$table_name]
+ * @param array $field field that will be checked
+ * @param string $table $my_tab[$i]['table']
+ * @param array $record $my['record']
+ * @param string $row_display
+ * @param array $zz_conf_record
+ * @param string $add_details_where
+ * @param array $where_vars = $zz_var['where'][$table_name]
  * @return string HTML output for form
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -1108,7 +1089,7 @@ function zz_form_select_sql($field, $table, $record, $row_display, $zz_conf_reco
 {
 	global $zz_conf;
 	global $zz_error;
-	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$outputf = '';
 
 	// add WHERE to sql clause if necessary
@@ -1120,8 +1101,7 @@ function zz_form_select_sql($field, $table, $record, $row_display, $zz_conf_reco
 				if (!empty($where_vars[$sql_where[1]]))
 					$sql_where[2].= $where_vars[$sql_where[1]];
 				$result = mysql_query($sql_where[2]);
-				if ($zz_conf['modules']['debug']) 
-					zz_debug(__FUNCTION__, $zz_debug_time_this_function, "where", $sql_where[2]);
+				if ($zz_conf['modules']['debug']) zz_debug("where", $sql_where[2]);
 				if ($result) {
 					//if (mysql_num_rows($result) == 1)
 					// might be that there are more results, so that should not be a problem
@@ -1153,15 +1133,14 @@ function zz_form_select_sql($field, $table, $record, $row_display, $zz_conf_reco
 		$sql = $field['sql'];
 	}
 	$result = mysql_query($sql);
-	if ($zz_conf['modules']['debug']) 
-		zz_debug(__FUNCTION__, $zz_debug_time_this_function, "main"
-			.$field['field_name'], $sql);
+	if ($zz_conf['modules']['debug']) zz_debug('main'.$field['field_name'], $sql);
 	if (!$result) {
 		$outputf.= zz_error($zz_error[] = array(
 			'mysql' => mysql_error(), 
 			'query' => $sql, 
 			'msg_dev' => zz_text('error-sql-incorrect'))
 		);
+		if ($zz_conf['modules']['debug']) zz_debug('end');
 		return $outputf;
 	}
 	unset($sql);
@@ -1203,23 +1182,21 @@ function zz_form_select_sql($field, $table, $record, $row_display, $zz_conf_reco
 
 		// get single record if there is already something in the database
 		if (!empty($record[$field['field_name']])) {
-			$sql = zz_edit_sql($field['sql'], 'WHERE', $where_field_name.' = "'
-				.$record[$field['field_name']].'"');
+			$sql = zz_edit_sql($field['sql'], 'WHERE', $where_field_name
+				.' = "'.$record[$field['field_name']].'"');
 			if (!$sql) $sql = $field['sql'];
-			if ($zz_conf['modules']['debug']) 
-				zz_debug(__FUNCTION__, $zz_debug_time_this_function, "record: "
-					.$field['field_name'], $sql);
-			$result_record = mysql_query($sql);
-			if (mysql_num_rows($result_record) == 1) {
-				$detail_record = mysql_fetch_assoc($result_record);
-			} else {
+			if (!empty($zz_conf['modules']['debug']))
+				zz_debug("record: ".$field['field_name'], $sql);
+			$detail_records = zz_db_fetch($sql, $id_field_name);
+			if (count($detail_records) == 1) 
+				$detail_record = reset($detail_records);
+			else {
 				// check for equal record values
-				while ($line = mysql_fetch_assoc($result_record)) {
+				foreach ($detail_records as $line) {
 					if ($line[$id_field_name] == $record[$field['field_name']]) {
 						$detail_record = $line;
 					}
 				}
-				unset($line);
 			}
 		}
 
@@ -1229,6 +1206,7 @@ function zz_form_select_sql($field, $table, $record, $row_display, $zz_conf_reco
 				$outputf.= zz_draw_select($detail_record, $id_field_name, $record, 
 					$field, false, 0, false, false, $zz_conf_record);
 			}
+			if ($zz_conf['modules']['debug']) zz_debug('end');
 			return $outputf;
 		}
 		
@@ -1391,6 +1369,7 @@ function zz_form_select_sql($field, $table, $record, $row_display, $zz_conf_reco
 			.zz_text('no_selection_possible');
 	}
 
+	if ($zz_conf['modules']['debug']) zz_debug('end');
 	return $outputf;
 }
 
@@ -1411,6 +1390,8 @@ function zz_show_separator($separator) {
 		return "</tbody></table>\n</td>\n\n".'<td class="left_separator"><table><tbody>'."\n";
 	elseif ($separator == 'column_end')
 		return "</tbody></table>\n</td></tr>\n";
+	elseif (substr($separator, 0, 5) == 'text ')
+		return '<tr><td colspan="2" class="separator"><hr>'.substr($separator, 4).'</td></tr>'."\n";
 }
 
 function zz_count_records($select, $subtree, $id_field_name) {
@@ -1423,5 +1404,57 @@ function zz_count_records($select, $subtree, $id_field_name) {
 	}
 	return $records;
 }
+
+/**
+ * sets auto value depending on existing records
+ *
+ * @param array $field field for which auto value shall be set
+ *		'field_name', 'auto_value', 'default'
+ * @param string $sql SQL query of main record
+ * @param int $i number of table (0 = main record, 1...n = detail tables)
+ * @param int $k number of detail record in table $i
+ * @param array $id_field 'value', 'field_name' of main table
+ * @param string $table name of main table
+ * @return int value for default field
+ * @author Gustaf Mossakowski, <gustaf@koenige.org>
+ */
+function zz_set_auto_value($field, $sql, $i, $k, $id_field, $table) {
+	global $zz_conf;
+
+	// currently, only 'increment' is supported for auto values
+	if ($field['auto_value'] != 'increment') return $field['default'];
+	
+	$field['default'] = 1;
+	
+	// get main (sub-)table query, change field order
+	$sql = zz_edit_sql($sql, 'ORDER BY', $field['field_name'].' DESC');
+	// we just need the field increment is based on
+	$sql = zz_edit_sql($sql, 'SELECT', $field['field_name'], 'replace');
+	// we just need the field with the highest value
+	$sql = zz_edit_sql($sql, 'LIMIT', '1');
+
+	if ($i) { 
+		// subtable
+		if (!empty($id_field['field_name']) AND !empty($id_field['value'])) {
+			$sql = zz_edit_sql($sql, 'WHERE', '('.$table.'.'
+				.$id_field['field_name'].' = '.$id_field['value'].')');
+			$last_record = zz_db_fetch($sql, '', 'single value');
+			if ($last_record) {
+				$field['default'] = $k + $last_record;
+			} else {
+				$field['default'] = $k + 1;
+			}
+		} else {
+			$field['default'] = $k + 1;
+		}
+	} else {
+		// main table
+		$last_record = zz_db_fetch($sql, '', 'single value');
+		if ($last_record) $field['default'] = $last_record + 1;
+	}
+
+	return $field['default'];
+}
+
 
 ?>

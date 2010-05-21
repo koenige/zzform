@@ -160,21 +160,22 @@ $zz_default['upload_multipage_images'] = array('pdf', 'psd');
  *					MAIN FUNCTIONS					*
  *	----------------------------------------------	*/
 
-/** writes arrays upload_fields, images
+/**
+ * writes arrays upload_fields, images
  *
  * i. e. checks which fields offer uploads, 
  * collects and writes information about files
  * 1- get faster access to upload fields
  * 2- get 'images' array with information about each file
  * 
- * @param $zz_tab(array) complete table data
+ * @param array $zz_tab complete table data
  * @return array $zz_tab[0]['upload_fields']
  * @return array $zz_tab[0][0]['images']
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_get(&$zz_tab) {
 	global $zz_conf;
-	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if ($zz_conf['graphics_library'])
 		include_once $zz_conf['dir_inc'].'/image-'.$zz_conf['graphics_library'].'.inc.php';
 	
@@ -184,12 +185,14 @@ function zz_upload_get(&$zz_tab) {
 	//	read information of files, put into 'images'-array
 	if ($_FILES && $zz_tab[0][0]['action'] != 'delete')
 		zz_upload_check_files($zz_tab);
-	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
+	if ($zz_conf['modules']['debug']) zz_debug("end");
 }
 
-/** checks which fields allow file upload
- * @param $zz_tab(array) complete table data
- * @return $upload_fields with i, k, and f in $zz_tab[$i][$k]['fields'][$f]
+/**
+ * checks which fields allow file upload
+ * 
+ * @param array $zz_tab complete table data
+ * @return array $upload_fields with i, k, and f in $zz_tab[$i][$k]['fields'][$f]
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_get_fields(&$zz_tab) {
@@ -206,14 +209,16 @@ function zz_upload_get_fields(&$zz_tab) {
 	return $upload_fields;
 }
 
-/** checks which files allow file upload
- * @param $my(array) $zz_tab[$i][$k]
+/**
+ * checks which files allow file upload
+ *
+ * @param array $my = $zz_tab[$i][$k]
  * @return array multidimensional information about images
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_check_files(&$zz_tab) {
 	global $zz_conf;
-	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	global $zz_error;
 	foreach ($zz_tab[0]['upload_fields'] as $uf) {
 		$my_tab = &$zz_tab[$uf['i']][$uf['k']];
@@ -308,10 +313,11 @@ function zz_upload_check_files(&$zz_tab) {
 		}
 		$my_tab['images'] = $images;
 	}
-	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
+	if ($zz_conf['modules']['debug']) zz_debug("end");
 }
 
-/** checks which files allow file upload
+/**
+ * checks which files allow file upload
  *
  *	determine filetype and file extension
  *	1. use reliable functions
@@ -329,14 +335,13 @@ function zz_upload_check_files(&$zz_tab) {
  *			(c. relies on magic.mime file)
  *	1d. use identify in imagemagick
  *	2. if this is impossible, check for file extension
- *
- * @param $my(array) $zz_tab[$i][$k]
+ * @param array $my = $zz_tab[$i][$k]
  * @return array multidimensional information about images
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_fileinfo($file, $myfilename, $extension) {
 	global $zz_conf;
-	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	global $zz_error;
 	$file['validated'] = false;
 	// rewrite some misspelled and misset filetypes
@@ -367,7 +372,7 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 				}
 				$tested_filetypes = array();
 			}
-			if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "getimagesize(): ".$file['filetype']);
+			if ($zz_conf['modules']['debug']) zz_debug("getimagesize(): ".$file['filetype']);
 		} 
 		if (!$file['validated'] && function_exists('exif_imagetype')) {// > 4.3.0
 			$imagetype = exif_imagetype($myfilename);
@@ -382,14 +387,14 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 				}
 				$tested_filetypes = array();
 			}
-			if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "exif_imagetype(): ".$file['filetype']);
+			if ($zz_conf['modules']['debug']) zz_debug("exif_imagetype(): ".$file['filetype']);
 		} 
 		if ($zz_conf['graphics_library'] == 'imagemagick' AND $zz_conf['upload_tools']['identify']) {
 			$temp_imagick = zz_imagick_identify($myfilename);
 			if ($temp_imagick) {
 				$file = array_merge($file, $temp_imagick);
 			}
-			if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "identify(): ".$file['filetype']);
+			if ($zz_conf['modules']['debug']) zz_debug("identify(): ".$file['filetype']);
 		}
 		if ($zz_conf['upload_tools']['fileinfo']) {
 			// use unix `file` command
@@ -422,7 +427,7 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 					$file['filetype'] = $zz_conf['file_types'][$imagetype][0]['filetype'];
 				}
 			}
-			if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "file(): "
+			if ($zz_conf['modules']['debug']) zz_debug("file(): "
 				.(!empty($file['filetype_file']) ? $file['filetype_file'] : $file['type']));
 		}
 		// TODO: allow further file testing here, e. g. for PDF, DXF
@@ -475,13 +480,14 @@ an unknown filetype. You might want to check this.
 		// TODO: or read AutoCAD Version from DXF, DWG, ...
 		// TODO: or read IPCT data.
 	}
-	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
+	if ($zz_conf['modules']['debug']) zz_debug("end");
 	return $file;
 }
 
-/** converts filename to human readable string
+/**
+ * converts filename to human readable string
  * 
- * @param $filename(string) filename
+ * @param string $filename filename
  * @return string title
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -493,9 +499,10 @@ function zz_upload_make_title($filename) {
 	return $filename;
 }
 
-/** converts filename to wanted filename
+/**
+ * converts filename to wanted filename
  * 
- * @param $filename(string) filename
+ * @param string $filename filename
  * @return string filename
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -505,16 +512,17 @@ function zz_upload_make_name($filename) {
 	return $filename;
 }
 
-/** checks whether a given combination of mimetype and extension exists
+/**
+ * checks whether a given combination of mimetype and extension exists
  * 
- * @param $mimetype(string) mime type
- * @param $extension(string) file extension
+ * @param string $mimetype mime type
+ * @param string $extension file extension
  * @return boolean
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_mimecheck($mimetype, $extension) {
 	global $zz_conf;
-	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function);
 	foreach ($zz_conf['image_types'] as $imagetype)
 		if ($imagetype['mime'] == $mimetype AND $imagetype['ext'] == $extension)
@@ -524,7 +532,7 @@ function zz_upload_mimecheck($mimetype, $extension) {
 
 function zz_upload_filecheck($mimetype, $extension) {
 	global $zz_conf;
-	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$extension = strtolower($extension);
 	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function);
 	$type1 = false;
@@ -554,7 +562,8 @@ function zz_upload_filecheck($mimetype, $extension) {
 }
 
 
-/** prepares files for upload (resize, rotate etc.)
+/**
+ * prepares files for upload (resize, rotate etc.)
  * 
  * 1- checks user input via option fields
  * 2- checks which source has to be used (own source, other fields source)
@@ -564,12 +573,12 @@ function zz_upload_filecheck($mimetype, $extension) {
  * 5- perform actions (e. g. decrease size, rotate etc.) on file if applicable,
  *    modified files will get temporary filename
  *
- * @param $zz_tab(array) complete table data
- * @param $zz_conf(array) configuration variables
+ * @param array $zz_tab complete table data
+ * @param array $zz_conf configuration variables
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_prepare(&$zz_tab, $zz_conf) {
-	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	global $zz_error;
 	$all_temp_filenames = array();
 	
@@ -793,17 +802,18 @@ function zz_upload_prepare(&$zz_tab, $zz_conf) {
 			}
 		}
 	}
-	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
+	if ($zz_conf['modules']['debug']) zz_debug("end");
 	// return true or false
 	// output errors
 }
 
-/** get file extension 
+/**
+ * get file extension 
  * 
- * @param $path(array)
- * @param $zz_tab(array)
- * @param $uf(string)
- * @return $extension
+ * @param array $path
+ * @param array $zz_tab
+ * @param string $uf
+ * @return string $extension
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_extension($path, &$zz_tab, &$uf) {
@@ -850,20 +860,21 @@ function zz_upload_extension($path, &$zz_tab, &$uf) {
 	return $extension;
 }
 
-/** checks uploads for conformity and problems
+/**
+ * checks uploads for conformity and problems
  * 
- * @param $images(array) $zz_tab[$i][$k]['images']
- * @param $action(string) sql action (insert|delete|update)
- * @param $zz_conf(array) configuration variables
- * @param $input_filetypes(array) array with allowed filetypes for input, e. g. 'image/png'
+ * @param array $images $zz_tab[$i][$k]['images']
+ * @param string $action sql action (insert|delete|update)
+ * @param array $zz_conf configuration variables
+ * @param array $input_filetypes array with allowed filetypes for input, e. g. 'image/png'
  * @return bool true/false
  * @return $images might change as well (?)
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_check(&$images, $action, $zz_conf, $input_filetypes = array(), $k = 0) {
 	global $zz_error;
-	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
-	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function);
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if ($zz_conf['modules']['debug']) zz_debug();
 	$error = false;
 	if ($input_filetypes) {
 		if (strstr($input_filetypes[0], 'image/') 
@@ -944,6 +955,7 @@ function zz_upload_check(&$images, $action, $zz_conf, $input_filetypes = array()
 		}
 		if ($images[$key]['error']) $error = true;
 	}
+	if ($zz_conf['modules']['debug']) zz_debug('end');
 	if ($error) return false;
 	else return true;
 }
@@ -956,14 +968,18 @@ function zz_upload_check(&$images, $action, $zz_conf, $input_filetypes = array()
  */
 function zz_upload_delete_file(&$zz_tab, $action, $zz_conf) {
 	global $zz_error;
-	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
-	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function);
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if ($zz_conf['modules']['debug']) zz_debug();
 	foreach ($_POST['zz_delete_file'] as $keys => $status) {
-		if ($status != 'on') return false; // checkbox checked
+		if ($status != 'on') {
+			if ($zz_conf['modules']['debug']) zz_debug('end');
+			return false; // checkbox checked
+		}
 		$keys = explode('-', $keys);
 		$field = (int) $keys[0];
 		$image = (int) $keys[1];
 		if (empty($zz_tab[0][0]['images'][$field][$image])) {
+			if ($zz_conf['modules']['debug']) zz_debug('end');
 			return false; // impossible, might be manipulation or so
 		}
 		$val = &$zz_tab[0][0]['images'][$field][$image];
@@ -973,7 +989,10 @@ function zz_upload_delete_file(&$zz_tab, $action, $zz_conf) {
 			// just a precaution for e. g. simultaneous access
 			if ($zz_conf['backup']) {
 				rename($old_path, zz_upload_path($zz_conf['backup_dir'], $action, $old_path));
-				if ($zz_error['error']) return false;
+				if ($zz_error['error']) {
+					if ($zz_conf['modules']['debug']) zz_debug('end');
+					return false;
+				}
 			} else {
 				unlink($old_path);
 			}
@@ -984,7 +1003,10 @@ function zz_upload_delete_file(&$zz_tab, $action, $zz_conf) {
 				if (file_exists($old_path)) { // just a precaution for e. g. simultaneous access
 					if ($zz_conf['backup']) {
 						rename($old_path, zz_upload_path($zz_conf['backup_dir'], $action, $old_path));
-						if ($zz_error['error']) return false;
+						if ($zz_error['error']) {
+							if ($zz_conf['modules']['debug']) zz_debug('end');
+							return false;
+						}
 					} else {
 						unlink($old_path);
 					}
@@ -993,6 +1015,7 @@ function zz_upload_delete_file(&$zz_tab, $action, $zz_conf) {
 		}
 		// remove images which base on this image as well (source = $image)
 	}
+	if ($zz_conf['modules']['debug']) zz_debug('end');
 	return true;
 }
 
@@ -1005,7 +1028,7 @@ function zz_upload_delete_file(&$zz_tab, $action, $zz_conf) {
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_action(&$zz_tab, $zz_conf) {
-	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	// delete files, if neccessary
 	if (!empty($_POST['zz_delete_file'])) 
@@ -1039,7 +1062,10 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 				if (file_exists($path) && is_file($path)) {
 					if ($zz_conf['backup']) {
 						$success = rename($path, zz_upload_path($zz_conf['backup_dir'], 'delete', $path));
-						if ($zz_error['error']) return false;
+						if ($zz_error['error']) {
+							if ($zz_conf['modules']['debug']) zz_debug('end');
+							return false;
+						}
 						zz_cleanup_dirs(dirname($path));
 					} else {
 						$success = zz_unlink_cleanup($path);
@@ -1054,6 +1080,7 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 						'msg_dev' => zz_text('Configuration Error [1]: Filename is invalid: ').$path,
 						'level' => E_USER_ERROR
 					);
+					if ($zz_conf['modules']['debug']) zz_debug('end');
 					return (zz_error());
 				} elseif ($path && empty($val['ignore']) 
 					&& empty($my_tab['fields'][$uf['f']]['optional_image'])
@@ -1082,18 +1109,27 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 					$image['files']['update']['path'] = $path; // not necessary maybe, but in case ...
 					$image['files']['update']['old_path'] = $old_path; // too
 					zz_upload_checkdir(dirname($path));
-					if ($zz_error['error']) return false;
+					if ($zz_error['error']) {
+						if ($zz_conf['modules']['debug']) zz_debug('end');
+						return false;
+					}
 					if (file_exists($path) && $zz_conf['backup'] AND (strtolower($old_path) != strtolower($path))
 						) { // this case should not occur
 							 // attention: file_exists returns true even if there is a change in case
 						rename($path, zz_upload_path($zz_conf['backup_dir'], $action, $path));
-						if ($zz_error['error']) return false;
+						if ($zz_error['error']) {
+							if ($zz_conf['modules']['debug']) zz_debug('end');
+							return false;
+						}
 					}
 					if (file_exists($old_path)) {
 						if ($zz_conf['backup'] && isset($image['files']['tmp_files'][$img])) {
 							// new image will be added later on for sure
 							rename($old_path, zz_upload_path($zz_conf['backup_dir'], $action, $path));
-							if ($zz_error['error']) return false;
+							if ($zz_error['error']) {
+								if ($zz_conf['modules']['debug']) zz_debug('end');
+								return false;
+							}
 						} else { // just path will change
 							rename($old_path, $path);
 						}
@@ -1108,7 +1144,10 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 				if (file_exists($image['files']['destination']) && is_file($image['files']['destination'])) {
 					if ($zz_conf['backup']) {
 						rename($image['files']['destination'], zz_upload_path($zz_conf['backup_dir'], $action, $image['files']['destination']));
-						if ($zz_error['error']) return false;
+						if ($zz_error['error']) {
+							if ($zz_conf['modules']['debug']) zz_debug('end');
+							return false;
+						}
 						zz_cleanup_dirs(dirname($image['files']['destination']));
 					} else {
 						zz_unlink_cleanup($image['files']['destination']);
@@ -1118,10 +1157,14 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 						'msg_dev' => sprintf(zz_text('Configuration Error [2]: Filename "%s" is invalid.'), $image['files']['destination']),
 						'level' => E_USER_ERROR
 					);
+					if ($zz_conf['modules']['debug']) zz_debug('end');
 					return zz_error();
 				}
 				zz_upload_checkdir(dirname($image['files']['destination'])); // create path if it does not exist or if cleanup removed it.
-				if ($zz_error['error']) return false;
+				if ($zz_error['error']) {
+					if ($zz_conf['modules']['debug']) zz_debug('end');
+					return false;
+				}
 				if (!isset($image['source']) && !isset($image['source_file']) && empty($image['action'])) { 
 					// do this with images which have not been touched
 					// todo: error handling!!
@@ -1134,6 +1177,7 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 									'<code>'.dirname($image['files']['destination']).'</code>'),
 								'level' => E_USER_ERROR
 							);
+							if ($zz_conf['modules']['debug']) zz_debug('end');
 							return zz_error();
 								
 						} else { 
@@ -1144,6 +1188,7 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 									.$image['files']['destination'].'<br>',
 								'level' => E_USER_ERROR
 							);
+							if ($zz_conf['modules']['debug']) zz_debug('end');
 							return zz_error();
 						}
 					}
@@ -1158,6 +1203,7 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 							'msg_dev' => zz_text('Copying not successful.').'<br>'.zz_text('from:').' '.$filename.'<br>'.zz_text('to:').' '.$image['files']['destination'].'<br>',
 							'level' => E_USER_ERROR
 						);
+						if ($zz_conf['modules']['debug']) zz_debug('end');
 						return zz_error();
 					}
 				}
@@ -1172,7 +1218,7 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 		// TODO: EXIF or ICPT write operations go here!
 		}
 	}
-	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
+	if ($zz_conf['modules']['debug']) zz_debug("end");
 }
 
 /** get value needed for upload from sql query
@@ -1205,13 +1251,14 @@ function zz_upload_sqlval($value, $sql, $idvalue = false, $idfield = false) { //
 }
 
 
-/** Creates unique filename from backup dir, action and file path
+/**
+ * Creates unique filename from backup dir, action and file path
  * 
  * called form zz_upload_action
- * @param $dir(string) backup directory
- * @param $action(string) sql action
- * @param $path(string) file path
- * @return unique filename ? path?
+ * @param string $dir backup directory
+ * @param string $action sql action
+ * @param string $path file path
+ * @return string unique filename ? path?
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_path($dir, $action, $path) {
@@ -1227,10 +1274,11 @@ function zz_upload_path($dir, $action, $path) {
 	return $my_path;
 }
 
-/** Remove unused files from upload process
+/**
+ * Remove unused files from upload process
  * 
  * called form zz_action
- * @param $zz_tab(array) table data
+ * @param array $zz_tab table data
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_cleanup(&$zz_tab) {
@@ -1247,9 +1295,10 @@ function zz_upload_cleanup(&$zz_tab) {
  *					FUNCTIONS						*
  *	----------------------------------------------	*/
 
-/** Remove "" from validated field input
+/**
+ * Remove "" from validated field input
  * 
- * @param $value(string) value that will be checked and reformatted
+ * @param string $value value that will be checked and reformatted
  * @return string checked value, reformatted
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -1259,9 +1308,10 @@ function zz_upload_reformat_field($value) {
 	return $value;
 }
 
-/** Creates new directory (and dirs above, if neccessary)
+/**
+ * Creates new directory (and dirs above, if neccessary)
  * 
- * @param $my_dir(string) directory to be created
+ * @param string $my_dir directory to be created
  * @return bool true/false = successful/fail
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -1455,11 +1505,12 @@ function zz_cleanup_dirs($dir) {
 	return true;
 }
 
-/* Extracts EXIF thumbnail from image
+/**
+ * Extracts EXIF thumbnail from image
  *
  * This function is independent of the graphics library used, therefore it's
  * directly part of the upload module
-*/
+ */
 function zz_image_exif_thumbnail($source, $destination, $dest_extension = false, $image = false) {
 	global $zz_conf;
 	if (!in_array($image['upload']['filetype'], $zz_conf['exif_supported'])) return false;

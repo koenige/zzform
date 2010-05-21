@@ -17,49 +17,73 @@
 $zz_default['debug']			= false;	// turn on/off debugging mode
 $zz_default['debug_time'] 		= false;
 
-/** HTML output of debugging information 
+/**
+ * HTML output of debugging information 
  * 
  *	start of function
- *		if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+ *		if ($zz_conf['modules']['debug']) {
+ *			global $zz_debug;
+ *			$zz_debug['function'] = __FUNCTION__;
+ *			$zz_debug['function_time'] = microtime_float();
+ *		}
  *	end of function
- *		if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function);
- * @param $function(string)	name of function (__FUNCTION__)
- * @param $function_time(string)	microtime at which function started
- * @param $marker(string)	optional: marker to define position in function
- * @param $sql(string)		optional: SQL query
- * @return (string)			HTML output
+ *		if ($zz_conf['modules']['debug']) zz_debug();
+ * @param string $marker	optional: marker to define position in function
+ * @param string $text		optional: SQL query or function name
+ * @global array $zz_debug
+ *		'function' (name of function __FUNCTION__), 'function_time' (microtime 
+ *		at which function started), ...
+ * @return string			HTML output
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
- function zz_debug($function, $function_time, $marker = false, $sql = false) {
+function zz_debug($marker = false, $text = false) {
 	global $zz_conf;
 	global $zz_debug;
 	global $zz_timer;
+	
+	$time = microtime_float();
+	// initialize function parameters
+	if (substr($marker, 0, 5) == 'start') {
+		$current = array(
+			'function' => $text,
+			'time_start' => $time
+		);
+		$zz_debug['function'][] = $current;
+	} elseif (substr($marker, 0, 3) == 'end') {
+		// set current function to last element and remove it
+		$current = array_pop($zz_debug['function']);
+	} else {
+		// set current function to last element and keep it
+		$current = end($zz_debug['function']);
+	}
+	if ($marker == 'start') return true; // no output, just initialize
 
-	$end = microtime_float();
 	$debug = array();
-	$debug['time'] = $end - $zz_timer;
-	$debug['time_used'] = $end - $function_time;
+	$debug['time'] = $time - $zz_timer;
+	$debug['time_used'] = $time - $current['time_start'];
 	$debug['memory'] = memory_get_usage();
-	$debug['function'] = $function;
+	$debug['function'] = $current['function'];
 	$debug['marker'] = $marker;
-	$debug['sql'] = $sql;
+	$debug['sql'] = $text;
 
 	// HTML output
 	$zz_debug['output'][] = $debug;
 
 	// Time output for Logfile
-	$zz_debug['time'][] = $function.'='.round($debug['time_used'],4);
+	$zz_debug['time'][] = $zz_debug['function'].'='.round($debug['time_used'],4);
 }
 
-/** HTML output of debugging information 
+/**
+ * HTML output of debugging information 
  * 
- * @param $zzdebug(array)	$zz_debug['output'] as returned from zz_debug()
- * @return (string)			HTML output
+ * @param array $zz_debug	$zz_debug['output'] as returned from zz_debug()
+ * @return string			HTML output
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_debug_htmlout($zz_debug) {
 	$output = '<h1>'.zz_text('Debug Information').'</h1>';
-	$output .= '<table class="data debugtable"><thead>'."\n".'<tr><th>'.zz_text('Time').'</th><th>'
+	$output .= '<table class="data debugtable"><thead>'."\n".'<tr><th>'
+		.zz_text('Time').'</th><th>'
 		.zz_text('Mem').'</th><th>'.zz_text('Function').'</th><th>'
 		.zz_text('Marker').'</th><th>'.zz_text('SQL').'</th></tr>'."\n"
 		.'</thead><tbody>';

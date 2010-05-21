@@ -28,7 +28,7 @@
 function zz_conditions_record_check($zz, $zz_tab, &$zz_var) {
 	global $zz_error;
 	global $zz_conf;
-	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	$zz_conditions = array();
 	foreach($zz['conditions'] AS $index => $condition) {
@@ -45,8 +45,7 @@ function zz_conditions_record_check($zz, $zz_tab, &$zz_var) {
 				if (!empty($condition['having']))
 					$sql = zz_edit_sql($sql, 'HAVING', $condition['having']);
 				$result = mysql_query($sql);
-				if ($zz_conf['modules']['debug']) 
-					zz_debug(__FUNCTION__, $zz_debug_time_this_function, "record [".$index."]", $sql);
+				if ($zz_conf['modules']['debug']) zz_debug("record [".$index."]", $sql);
 				if ($result AND mysql_num_rows($result)) 
 					while ($line = mysql_fetch_assoc($result)) {
 						$zz_conditions['bool'][$index][0] = true; // 0 = new record
@@ -65,8 +64,7 @@ function zz_conditions_record_check($zz, $zz_tab, &$zz_var) {
 				if (!empty($condition['having']))
 					$sql = zz_edit_sql($sql, 'HAVING', $condition['having']);
 				$result = mysql_query($sql);
-				if ($zz_conf['modules']['debug']) 
-					zz_debug(__FUNCTION__, $zz_debug_time_this_function, "record [".$index."]", $sql);
+				if ($zz_conf['modules']['debug']) zz_debug("record [".$index."]", $sql);
 				if ($result AND mysql_num_rows($result)) 
 					// maybe get all ids instead?
 					while ($line = mysql_fetch_assoc($result)) {
@@ -85,8 +83,7 @@ function zz_conditions_record_check($zz, $zz_tab, &$zz_var) {
 			if ($zz['mode'] != 'list_only' AND !empty($zz_tab[0][0]['id']['value'])) {
 				$sql = zz_edit_sql($condition['sql'], 'WHERE', $condition['key_field_name'].' = '.$zz_tab[0][0]['id']['value']);
 				$result = mysql_query($sql);
-				if ($zz_conf['modules']['debug']) 
-					zz_debug(__FUNCTION__, $zz_debug_time_this_function, "query [".$index."]", $sql);
+				if ($zz_conf['modules']['debug']) zz_debug("query [".$index."]", $sql);
 				if ($result AND mysql_num_rows($result)) 
 					while ($line = mysql_fetch_assoc($result)) {
 						$zz_conditions['bool'][$index][$line[$condition['key_field_name']]] = true;
@@ -113,8 +110,7 @@ function zz_conditions_record_check($zz, $zz_tab, &$zz_var) {
 					$sql = zz_edit_sql($zz['sql'], 'WHERE', $zz['table'].'.'
 						.$zz_tab[0][0]['id']['field_name'].' = '.$zz_tab[0][0]['id']['value']);
 					$result = mysql_query($sql);
-					if ($zz_conf['modules']['debug']) 
-						zz_debug(__FUNCTION__, $zz_debug_time_this_function, "value [".$index."]", $sql);
+					if ($zz_conf['modules']['debug']) zz_debug("value [".$index."]", $sql);
 					if ($result AND mysql_num_rows($result) == 1) {
 						$line = mysql_fetch_assoc($result);
 						$value = $line[$condition['field_name']];
@@ -128,8 +124,7 @@ function zz_conditions_record_check($zz, $zz_tab, &$zz_var) {
 					if (!$value) break; // attempt to try to delete/edit a value that does not exist
 				}
 				$sql = sprintf($condition['sql'], $value);
-				if ($zz_conf['modules']['debug']) 
-					zz_debug(__FUNCTION__, $zz_debug_time_this_function, "value [".$index."]", $sql);
+				if ($zz_conf['modules']['debug']) zz_debug("value [".$index."]", $sql);
 				$result = mysql_query($sql);
 				if ($result AND mysql_num_rows($result))
 					while ($line = mysql_fetch_assoc($result))
@@ -175,7 +170,7 @@ function zz_conditions_record_check($zz, $zz_tab, &$zz_var) {
 		default:
 		}
 	}
-	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
+	if ($zz_conf['modules']['debug']) zz_debug('end');
 	return $zz_conditions;
 }
 
@@ -184,7 +179,7 @@ function zz_conditions_record_check($zz, $zz_tab, &$zz_var) {
 // get last index to add extra fields
 function zz_conditions_record_fields($fields, $conditional_fields, $values) {
 	global $zz_conf;
-	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	$all_indices = array_keys($fields);
 	asort($all_indices);
@@ -229,7 +224,7 @@ function zz_conditions_record_fields($fields, $conditional_fields, $values) {
 	foreach (array_keys($remove_fields) as $fieldkey) {
 		unset($fields[$fieldkey]);
 	}
-	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
+	if ($zz_conf['modules']['debug']) zz_debug('end');
 	return $fields;
 }
 
@@ -243,17 +238,18 @@ function zz_replace_conditional_values(&$item, $key, $records) {
 	}
 }
 
-/** Merge conditional array values with default values if condition is true 
+/**
+ * Merge conditional array values with default values if condition is true 
  * 
- * @param $array = $field or $zz_conf
- * @param $bool_conditions	checked conditions
- * @param $record_id		ID of record
- * @return $array			modified $field- or $zz_conf-Array
+ * @param array $array = $field or $zz_conf
+ * @param array $bool_conditions	checked conditions
+ * @param int $record_id		ID of record
+ * @return array $array			modified $field- or $zz_conf-Array
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_conditions_merge($array, $bool_conditions, $record_id, $reverse = false) {
 	global $zz_conf;
-	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	
 	if (!$reverse) {
 		$conditions = $array['conditions'];
@@ -291,7 +287,7 @@ function zz_conditions_merge($array, $bool_conditions, $record_id, $reverse = fa
 			}
 		}
 	}
-	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
+	if ($zz_conf['modules']['debug']) zz_debug('end');
 	return $array;
 }
 
@@ -300,7 +296,7 @@ function zz_conditions_merge($array, $bool_conditions, $record_id, $reverse = fa
 function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids) {
 	global $zz_conf;
 	global $zz_error;
-	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if ($zz_conf['show_list'] AND !empty($zz['conditions'])) {
 		// improve database performace, for this query we only need ID field
 		$zz['sql_without_limit'] = zz_edit_sql($zz['sql_without_limit'], 'SELECT', $zz['table'].'.'.$id_field, 'replace');
@@ -318,8 +314,7 @@ function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids) {
 				if (!empty($condition['having']))
 					$sql = zz_edit_sql($sql, 'HAVING', $condition['having']);
 				$result = mysql_query($sql);
-				if ($zz_conf['modules']['debug']) 
-					zz_debug(__FUNCTION__, $zz_debug_time_this_function, "record [".$index."]", $sql);
+				if ($zz_conf['modules']['debug']) zz_debug("record [".$index."]", $sql);
 				if ($result AND mysql_num_rows($result)) 
 					// maybe get all ids instead?
 					while ($line = mysql_fetch_assoc($result)) {
@@ -336,8 +331,7 @@ function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids) {
 				$sql = $condition['sql'];
 				$sql = zz_edit_sql($sql, 'WHERE', $condition['key_field_name'].' IN ('.implode(', ', $ids).')');
 				$result = mysql_query($sql);
-				if ($zz_conf['modules']['debug']) 
-					zz_debug(__FUNCTION__, $zz_debug_time_this_function, "query [".$index."]", $sql);
+				if ($zz_conf['modules']['debug']) zz_debug("query [".$index."]", $sql);
 				if (mysql_error())
 					$zz_error[] = array(
 						'msg_dev' => 'Error in conditions, probably SQL query is incorrect [list-query].',
@@ -352,6 +346,7 @@ function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids) {
 								'sql' => $sql,
 								'level' => E_USER_ERROR
 							);
+							if ($zz_conf['modules']['debug']) zz_debug('end');
 							return zz_error(); // critical error, exit script
 						}
 						$zz_conditions['bool'][$index][$line[$condition['key_field_name']]] = true;
@@ -361,7 +356,7 @@ function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids) {
 			}
 		}
 	}
-	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
+	if ($zz_conf['modules']['debug']) zz_debug('end');
 	return $zz_conditions;
 }
 

@@ -84,10 +84,11 @@ function zz_get_enumset($colum, $table) {
 	return $values;
 }
 
-/** checks whether an input is a URL
+/**
+ * checks whether an input is a URL
  * 
  * This function is also part of zzbrick, there it is called brick_check_url()
- * @param $url(string)	URL to be tested, may be a relative URL as well (starting with ../, /)
+ * @param string $url	URL to be tested, may be a relative URL as well (starting with ../, /)
  *		might add http:// in front of it if this generates a valid URL
  * @return string url if correct, or false
  * @author Gustaf Mossakowski <gustaf@koenige.org>
@@ -113,10 +114,11 @@ function zz_check_url($url) {
 
 }
 
-/** checks whether an input is a valid URL
+/**
+ * checks whether an input is a valid URL
  * 
  * This function is also part of zzbrick, there it is called brick_is_url()
- * @param $url(string)	URL to be tested, only absolute URLs
+ * @param string $url	URL to be tested, only absolute URLs
  * @return string url if correct, or false
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
