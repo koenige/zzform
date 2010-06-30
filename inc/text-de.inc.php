@@ -1,6 +1,9 @@
 <?php
 
-// de lang variables
+// zzform scripts (Zugzwang Project)
+// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2005-2010
+// Text and labels in German (de) us-ascii
+
 
 $text['Add new record'] = 'Neuer Datensatz';
 $text['Add new %s'] = 'Neuer Datensatz: %s';
@@ -141,4 +144,6 @@ $text['incorrect value'] = 'falscher Wert';
 $text['Selection'] = 'Auswahl';
 $text['Import data'] = 'Import Daten';
 $text['String <em>"%s"</em> is not allowed'] = 'Die Zeichenfolge <em>"%s"</em> ist nicht erlaubt';
+$text['Would be changed on update'] = 'W&uuml;rde bei Aktualisierung ge&auml;ndert.';
+
 ?>

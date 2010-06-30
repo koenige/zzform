@@ -1,9 +1,8 @@
 <?php
 
-// zzform (Zugzwang Project)
-// (c) Gustaf Mossakowski, <gustaf@koenige.org>, 2004-2010
-// Module geo
-// handling of geographic coordinates 
+// zzform scripts (Zugzwang Project)
+// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2004-2010
+// Module geo: handling of geographic coordinates 
 // (input, output, transformation DMS - DD and vice versa)
 
 

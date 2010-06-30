@@ -1,8 +1,8 @@
 <?php 
 
-// Project Zugzwang
-// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2009
-// zzform Scripts: debug module
+// zzform scripts (Zugzwang Project)
+// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2009-2010
+// Module debug for debugging
 
 
 /*	About this file

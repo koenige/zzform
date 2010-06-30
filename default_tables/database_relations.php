@@ -1,7 +1,7 @@
 <?php 
 
-// Zugzwang Project
-// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2005-2010
+// zzform scripts (Zugzwang Project)
+// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2005-2010
 // Database table to set relations for upholding referential integrity
 // DB-Tabelle zur Eingabe von Beziehungen fuer die referentielle Integritaet
 

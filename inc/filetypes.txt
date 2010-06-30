@@ -213,8 +213,9 @@ flv		flv		flv		video/x-flv						Flash Video File
 ### EOF
 #
 #
+# zzform scripts (Zugzwang Project)
+# (c) Gustaf Mossakowski <gustaf@koenige.org>, 2007-2010
 # zzform File Types
-# (c) Gustaf Mossakowski, <gustaf@koenige.org>, 2007
 #
 # Syntax of this file:
 #

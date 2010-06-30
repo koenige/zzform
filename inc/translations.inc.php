@@ -1,11 +1,9 @@
 <?php 
 
-/*
-	zzform Scripts
-	conditions
+// zzform scripts (Zugzwang Project)
+// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2009-2010
+// Translations
 
-	(c) Gustaf Mossakowski <gustaf@koenige.org> 2009
-*/
 
 /*	----------------------------------------------	*
  *					DESCRIPTION						*
@@ -24,6 +22,16 @@ $zz_default['translations_table'] = '';
 $zz_default['translations_script'] = array();
 
 
+/**
+ * initalizes zzform for translation subtables
+ *
+ * @param string $table current table name to check which fields to translate
+ * @param array $fields
+ * @global array $zz_conf
+ * @global array $zz_error
+ * @return array $fields
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
 function zz_translations_init($table, $fields) {
 	global $zz_conf;
 	global $zz_error;

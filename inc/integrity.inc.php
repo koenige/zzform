@@ -1,7 +1,7 @@
 <?php 
 
-// zzform (Zugzwang Project)
-// (c) Gustaf Mossakowski, <gustaf@koenige.org>, 2004-2010
+// zzform scripts (Zugzwang Project)
+// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2004-2010
 // Standard module for integrity
 
 /*
@@ -77,8 +77,7 @@ function zz_check_if_detail($relations, $master_db, $master_table, $master_field
 	//	no relations which have this table as master
 	//	do not care about master_field because it has to be PRIMARY key anyways
 	//	so only one field name possible
-		if ($zz_conf['modules']['debug']) zz_debug('end');
-		return false;
+		return zz_return(false);
 	}
 
 	//	this table is master in at least one relation
@@ -112,10 +111,7 @@ function zz_check_if_detail($relations, $master_db, $master_table, $master_field
 				$sql = zz_edit_sql($sql, 'WHERE', $detail.'.'
 					.$field['detail_field'].' = '.$master_value);
 				$records = zz_db_fetch($sql, $field['detail_id_field']);
-				if ($zz_error['error']) {
-					if ($zz_conf['modules']['debug']) zz_debug('end');
-					return zz_error();
-				}
+				if ($zz_error['error']) return zz_return(zz_error());
 
 				if ($records) {
 					$my_detailrecords += count($records);
@@ -140,10 +136,7 @@ function zz_check_if_detail($relations, $master_db, $master_table, $master_field
 					// complicated right now to show the exact 
 					// relation to this record
 					break;
-				} elseif ($zz_error['error']) {
-					if ($zz_conf['modules']['debug']) zz_debug('end');
-					return false;
-				}
+				} elseif ($zz_error['error']) return zz_return(false);
 			}
 			// if everything is ok, do nothing, so detail_records_in will still be false
 		} else { //	there is a detail record
@@ -153,9 +146,8 @@ function zz_check_if_detail($relations, $master_db, $master_table, $master_field
 			$detail_records_in[$field['detail_table']] = $field['detail_table'];
 		}
 	}
-	if ($zz_conf['modules']['debug']) zz_debug('end');
-	if (!$detail_records_in) return false;
-	else return implode(',', $detail_records_in);
+	if (!$detail_records_in) return zz_return(false);
+	else return zz_return(implode(',', $detail_records_in));
 }
 
 

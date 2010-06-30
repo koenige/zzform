@@ -1,7 +1,7 @@
 <?php 
 
-// Zugzwang Project
-// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2007-2010
+// zzform scripts (Zugzwang Project)
+// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2007-2010
 // Logging of the database operations via zzform, function zzlog()
 // Protokoll der Datenbankeingaben mittels zzform, Funktion zz_log
 

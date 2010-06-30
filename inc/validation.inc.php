@@ -1,7 +1,7 @@
 <?php
 
-// zzform
-// (c) Gustaf Mossakowski, <gustaf@koenige.org>, 2004-2010
+// zzform scripts (Zugzwang Project)
+// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2004-2010
 // Main functions for validation of user input
 
 
@@ -329,7 +329,7 @@ function zz_validate($my, $db_table, $table_name, $k = 0) {
 				} elseif ($my['fields'][$f]['type'] == 'timestamp') {
 					// timestamps will be set to current date, so no check is necessary
 					// do nothing, leave $my['validation'] as it is
-				} elseif (!isset($my['fields'][$f]['set']))
+				} elseif (!isset($my['fields'][$f]['set']) AND !isset($my['fields'][$f]['set_sql']))
 					$my['validation'] = false;
 				elseif (!zz_check_for_null($my['fields'][$f]['field_name'], $db_table)) {
 					$my['validation'] = false;
@@ -392,8 +392,7 @@ function zz_validate($my, $db_table, $table_name, $k = 0) {
 	}
 
 	// finished
-	if ($zz_conf['modules']['debug']) zz_debug('end');
-	return $my;
+	return zz_return($my);
 }
 
 /**

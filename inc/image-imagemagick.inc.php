@@ -1,15 +1,9 @@
 <?php 
 
-/*
-	zzform Scripts
-	image manipulation with imageMagick
+// zzform scripts (Zugzwang Project)
+// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2006-2010
+// image manipulation with imageMagick
 
-	(c) Gustaf Mossakowski <gustaf@koenige.org> 2006
-
-*/
-
-//      GIF*  rw+  
-//   GIF87*  rw-  CompuServe graphics interchange format (version 87a)
 
 /*
 
@@ -123,9 +117,8 @@ function zz_image_thumbnail($source, $destination, $dest_extension = false, $ima
 	$convert = zz_imagick_convert('thumbnail '.$geometry, '"'.$source.'" '.($dest_extension 
 		? $dest_extension.':' : '').'"'.$destination.'"');
 
-	if ($zz_conf['modules']['debug']) zz_debug("end");
-	if ($convert) return true;
-	else return false;
+	if ($convert) return zz_return(true);
+	else return zz_return(false);
 }
 
 /**
@@ -156,8 +149,7 @@ function zz_image_webimage($source, $destination, $dest_extension = false, $imag
 	}
 
 	if (!$source_extension OR !empty($zz_conf['webimages_by_extension'][$source_extension])) {
-		if ($zz_conf['modules']['debug']) zz_debug('end');
-		return false; // do not create an identical webimage of already existing webimage
+		return zz_return(false); // do not create an identical webimage of already existing webimage
 	} elseif ($source_extension == 'pdf' OR $source_extension == 'eps') {
 		if ($zz_conf['upload_tools']['ghostscript']) {
 			$dest_extension = $zz_conf['upload_destination_filetype'][$source_extension];
@@ -167,8 +159,7 @@ function zz_image_webimage($source, $destination, $dest_extension = false, $imag
 		$dest_extension = $zz_conf['upload_destination_filetype'][$source_extension];
 		$convert = zz_imagick_convert(false, ' "'.$source.'" '.$dest_extension.':'.'"'.$destination.'"');
 	}
-	if ($zz_conf['modules']['debug']) zz_debug("end");
-	return $convert;
+	return zz_return($convert);
 }
 
 function zz_image_crop($source, $destination, $dest_extension = false, $image = false) {
@@ -177,8 +168,7 @@ function zz_image_crop($source, $destination, $dest_extension = false, $image = 
 // example: convert -thumbnail x240 -crop 240x240+140x0 reiff-pic09b.jpg test.jpg
 	$dest_ratio = $image['width'] / $image['height'];
 	if (empty($image['upload']['height'])) {
-		if ($zz_conf['modules']['debug']) zz_debug('end');
-		return false; // no height means no picture or error
+		return zz_return(false); // no height means no picture or error
 	}
 	$source_ratio = $image['upload']['width'] / $image['upload']['height'];
 	if ($dest_ratio == $source_ratio)
@@ -199,9 +189,8 @@ function zz_image_crop($source, $destination, $dest_extension = false, $image = 
 	$convert = zz_imagick_convert($options, '"'.$source.'" '.($dest_extension 
 		? $dest_extension.':' : '').'"'.$destination.'"');
 
-	if ($zz_conf['modules']['debug']) zz_debug("end");
-	if ($convert) return true;
-	else return false;
+	if ($convert) return zz_return(true);
+	else return zz_return(false);
 }
 
 function zz_imagick_convert($options, $files) {

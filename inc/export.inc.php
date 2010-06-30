@@ -1,10 +1,9 @@
 <?php
 
-/*
-	zzform scripts
-	module: export
-	(c) 2007-2009 Gustaf Mossakowski, gustaf@koenige.org
-*/
+// zzform scripts (Zugzwang Project)
+// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2007-2010
+// Module: export
+
 
 /*		----------------------------------------------
  *					VARIABLES
@@ -105,6 +104,60 @@ function zz_pdf($zz) {
 	}
 	$pdf->Output();
 
+}
+
+/**
+ * outputs data as CSV (head)
+ *
+ * @param array $main_rows main rows (without subtables)
+ * @param array $zz_conf configuration
+ *		'export_csv_enclosure', 'export_csv_delimiter'
+ * @return string CSV output, head
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function zz_export_csv_head($main_rows, $zz_conf) {
+	$output = '';
+	$tablerow = false;
+	foreach ($main_rows as $field)
+		$tablerow[] = $zz_conf['export_csv_enclosure']
+			.str_replace($zz_conf['export_csv_enclosure'], $zz_conf['export_csv_enclosure']
+				.$zz_conf['export_csv_enclosure'], $field['title'])
+			.$zz_conf['export_csv_enclosure'];
+	$output .= implode($zz_conf['export_csv_delimiter'], $tablerow)."\r\n";
+	return $output;
+}
+
+/**
+ * outputs data as CSV (body)
+ *
+ * @param array $rows data in rows
+ * @param array $zz_conf configuration
+ *		'export_csv_enclosure', 'export_csv_delimiter'
+ * @return string CSV output, data
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function zz_export_csv_body($rows, $zz_conf) {
+	$output = '';
+	foreach ($rows as $index => $row) {
+		$tablerow = false;
+		foreach ($row as $fieldindex => $field) {
+			if ($fieldindex AND !is_numeric($fieldindex)) continue; // 0 or 1 or 2 ...
+			$myfield = str_replace('"', '""', $field['text']);
+			if (!empty($field['export_no_html'])) {
+				$myfield = str_replace("&nbsp;", " ", $myfield);
+				$myfield = str_replace("<\p>", "\n\n", $myfield);
+				$myfield = str_replace("<br>", "\n", $myfield);
+				$myfield = strip_tags($myfield);
+			}
+			if ($myfield)
+				$tablerow[] = $zz_conf['export_csv_enclosure'].$myfield
+					.$zz_conf['export_csv_enclosure'];
+			else
+				$tablerow[] = false; // empty value
+		}
+		$output .= implode($zz_conf['export_csv_delimiter'], $tablerow)."\r\n";
+	}
+	return $output;
 }
 
 ?>

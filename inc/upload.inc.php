@@ -1,12 +1,9 @@
 <?php 
 
+// zzform scripts (Zugzwang Project)
+// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2006-2010
+// File upload
 
-/*
-	zzform Scripts
-	image upload
-
-	(c) Gustaf Mossakowski <gustaf@koenige.org> 2006-2008
-*/
 
 /*	----------------------------------------------	*
  *					DESCRIPTION						*
@@ -213,6 +210,8 @@ function zz_upload_get_fields(&$zz_tab) {
  * checks which files allow file upload
  *
  * @param array $my = $zz_tab[$i][$k]
+ * @global array $zz_conf
+ * @global array $zz_error
  * @return array multidimensional information about images
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -480,8 +479,7 @@ an unknown filetype. You might want to check this.
 		// TODO: or read AutoCAD Version from DXF, DWG, ...
 		// TODO: or read IPCT data.
 	}
-	if ($zz_conf['modules']['debug']) zz_debug("end");
-	return $file;
+	return zz_return($file);
 }
 
 /**
@@ -523,18 +521,26 @@ function zz_upload_make_name($filename) {
 function zz_upload_mimecheck($mimetype, $extension) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function);
 	foreach ($zz_conf['image_types'] as $imagetype)
 		if ($imagetype['mime'] == $mimetype AND $imagetype['ext'] == $extension)
-			return true;
-	return false;
+			return zz_return(true);
+	return zz_return(false);
 }
 
+/**
+ * checks from a list of filetypes if mimetype and extension match with
+ * a filetype from this list
+ * 
+ * @param string $mimetype mime type
+ * @param string $extension file extension
+ * @global array $zz_conf 'file_types'
+ * @return string $type or false
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
 function zz_upload_filecheck($mimetype, $extension) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$extension = strtolower($extension);
-	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function);
 	$type1 = false;
 	$type2 = false;
 	$type2unique = true;
@@ -554,11 +560,11 @@ function zz_upload_filecheck($mimetype, $extension) {
 		}
 	}
 	if ($type1) 
-		return $type1;	// first priority: mimetype AND extension match
+		return zz_return($type1);	// first priority: mimetype AND extension match
 	if ($type2 && $type2unique) 
-		return $type2;	// second priority: extension matches AND is unique
+		return zz_return($type2);	// second priority: extension matches AND is unique
 	if ($type3 && $type3unique) 
-		return $type3;	// third priority: mimetype matches AND is unique
+		return zz_return($type3);	// third priority: mimetype matches AND is unique
 }
 
 
@@ -575,6 +581,8 @@ function zz_upload_filecheck($mimetype, $extension) {
  *
  * @param array $zz_tab complete table data
  * @param array $zz_conf configuration variables
+ * @global array $zz_error
+ * @return bool
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_prepare(&$zz_tab, $zz_conf) {
@@ -618,7 +626,7 @@ function zz_upload_prepare(&$zz_tab, $zz_conf) {
 								'mysql' => mysql_error()
 							);
 							zz_error();
-							return false;
+							return zz_return(false);
 						}
 					} else {
 						// these are the options from the script
@@ -748,7 +756,7 @@ function zz_upload_prepare(&$zz_tab, $zz_conf) {
 							'level' => E_USER_ERROR
 						);
 						zz_error();
-						return false;
+						return zz_return(false);
 					}
 				}
 			if ($source_filename && $source_filename != 'none') { // only if something new was uploaded!
@@ -802,13 +810,13 @@ function zz_upload_prepare(&$zz_tab, $zz_conf) {
 			}
 		}
 	}
-	if ($zz_conf['modules']['debug']) zz_debug("end");
 	// return true or false
 	// output errors
+	return zz_return(true);
 }
 
 /**
- * get file extension 
+ * get wanted file extension from database record
  * 
  * @param array $path
  * @param array $zz_tab
@@ -955,32 +963,30 @@ function zz_upload_check(&$images, $action, $zz_conf, $input_filetypes = array()
 		}
 		if ($images[$key]['error']) $error = true;
 	}
-	if ($zz_conf['modules']['debug']) zz_debug('end');
-	if ($error) return false;
-	else return true;
+	if ($error) return zz_return(false);
+	else return zz_return(true);
 }
 
-/** Deletes files when specifically requested (e. g. in multiple upload forms)
+/** 
+ * Deletes files when specifically requested (e. g. in multiple upload forms)
  * 
  * called from within function zz_upload_action
- * @param $zz_tab(array) complete table data
+ * @param array $zz_tab complete table data
+ * @global array $zz_error
  * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @see zz_upload_action()
  */
 function zz_upload_delete_file(&$zz_tab, $action, $zz_conf) {
 	global $zz_error;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if ($zz_conf['modules']['debug']) zz_debug();
 	foreach ($_POST['zz_delete_file'] as $keys => $status) {
-		if ($status != 'on') {
-			if ($zz_conf['modules']['debug']) zz_debug('end');
-			return false; // checkbox checked
-		}
+		if ($status != 'on') return zz_return(false); // checkbox checked
 		$keys = explode('-', $keys);
 		$field = (int) $keys[0];
 		$image = (int) $keys[1];
 		if (empty($zz_tab[0][0]['images'][$field][$image])) {
-			if ($zz_conf['modules']['debug']) zz_debug('end');
-			return false; // impossible, might be manipulation or so
+			return zz_return(false); // impossible, might be manipulation or so
 		}
 		$val = &$zz_tab[0][0]['images'][$field][$image];
 		// new path is not interesting, old picture shall be deleted
@@ -988,38 +994,33 @@ function zz_upload_delete_file(&$zz_tab, $action, $zz_conf) {
 		if (file_exists($old_path)) { 
 			// just a precaution for e. g. simultaneous access
 			if ($zz_conf['backup']) {
-				rename($old_path, zz_upload_path($zz_conf['backup_dir'], $action, $old_path));
-				if ($zz_error['error']) {
-					if ($zz_conf['modules']['debug']) zz_debug('end');
-					return false;
-				}
+				zz_rename($old_path, zz_upload_path($zz_conf['backup_dir'], $action, $old_path));
+				if ($zz_error['error']) return zz_return();
 			} else {
 				unlink($old_path);
 			}
 		}
 		foreach ($zz_tab[0][0]['images'][$field] as $key => $other_image) {
-			if (is_numeric($key) && isset($other_image['source']) && $other_image['source'] == $image) {
-				$old_path = zz_makepath($other_image['path'], $zz_tab, 'old', 'file', 0, 0);
-				if (file_exists($old_path)) { // just a precaution for e. g. simultaneous access
-					if ($zz_conf['backup']) {
-						rename($old_path, zz_upload_path($zz_conf['backup_dir'], $action, $old_path));
-						if ($zz_error['error']) {
-							if ($zz_conf['modules']['debug']) zz_debug('end');
-							return false;
-						}
-					} else {
-						unlink($old_path);
-					}
-				}
+			if (!is_numeric($key)) continue;
+			if (!isset($other_image['source'])) continue;
+			if ($other_image['source'] != $image) continue;
+			$old_path = zz_makepath($other_image['path'], $zz_tab, 'old', 'file', 0, 0);
+			if (!file_exists($old_path)) continue;
+			// just a precaution for e. g. simultaneous access
+			if ($zz_conf['backup']) {
+				zz_rename($old_path, zz_upload_path($zz_conf['backup_dir'], $action, $old_path));
+				if ($zz_error['error']) return zz_return(false);
+			} else {
+				unlink($old_path);
 			}
 		}
 		// remove images which base on this image as well (source = $image)
 	}
-	if ($zz_conf['modules']['debug']) zz_debug('end');
-	return true;
+	return zz_return(true);
 }
 
-/** Moves or deletes file after successful SQL operations
+/** 
+ * Moves or deletes file after successful SQL operations
  * 
  * if backup variable is set to true, script will move old files to backup folder
  * called from within function zz_action
@@ -1061,11 +1062,8 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 				$localpath = zz_makepath($val['path'], $zz_tab, 'old', 'local', $uf['i'], $uf['k']);
 				if (file_exists($path) && is_file($path)) {
 					if ($zz_conf['backup']) {
-						$success = rename($path, zz_upload_path($zz_conf['backup_dir'], 'delete', $path));
-						if ($zz_error['error']) {
-							if ($zz_conf['modules']['debug']) zz_debug('end');
-							return false;
-						}
+						$success = zz_rename($path, zz_upload_path($zz_conf['backup_dir'], 'delete', $path));
+						if ($zz_error['error']) return zz_return(false);
 						zz_cleanup_dirs(dirname($path));
 					} else {
 						$success = zz_unlink_cleanup($path);
@@ -1080,8 +1078,7 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 						'msg_dev' => zz_text('Configuration Error [1]: Filename is invalid: ').$path,
 						'level' => E_USER_ERROR
 					);
-					if ($zz_conf['modules']['debug']) zz_debug('end');
-					return (zz_error());
+					return zz_return(zz_error());
 				} elseif ($path && empty($val['ignore']) 
 					&& empty($my_tab['fields'][$uf['f']]['optional_image'])
 					&& empty($val['optional_image'])) { // optional images: don't show error message!
@@ -1109,29 +1106,20 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 					$image['files']['update']['path'] = $path; // not necessary maybe, but in case ...
 					$image['files']['update']['old_path'] = $old_path; // too
 					zz_upload_checkdir(dirname($path));
-					if ($zz_error['error']) {
-						if ($zz_conf['modules']['debug']) zz_debug('end');
-						return false;
-					}
+					if ($zz_error['error']) return zz_return(false);
 					if (file_exists($path) && $zz_conf['backup'] AND (strtolower($old_path) != strtolower($path))
 						) { // this case should not occur
 							 // attention: file_exists returns true even if there is a change in case
-						rename($path, zz_upload_path($zz_conf['backup_dir'], $action, $path));
-						if ($zz_error['error']) {
-							if ($zz_conf['modules']['debug']) zz_debug('end');
-							return false;
-						}
+						zz_rename($path, zz_upload_path($zz_conf['backup_dir'], $action, $path));
+						if ($zz_error['error']) return zz_return(false);
 					}
 					if (file_exists($old_path)) {
 						if ($zz_conf['backup'] && isset($image['files']['tmp_files'][$img])) {
 							// new image will be added later on for sure
-							rename($old_path, zz_upload_path($zz_conf['backup_dir'], $action, $path));
-							if ($zz_error['error']) {
-								if ($zz_conf['modules']['debug']) zz_debug('end');
-								return false;
-							}
+							zz_rename($old_path, zz_upload_path($zz_conf['backup_dir'], $action, $path));
+							if ($zz_error['error']) return zz_return(false);
 						} else { // just path will change
-							rename($old_path, $path);
+							zz_rename($old_path, $path);
 						}
 					}
 				}
@@ -1143,11 +1131,8 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 				$filename = $image['files']['tmp_files'][$img];
 				if (file_exists($image['files']['destination']) && is_file($image['files']['destination'])) {
 					if ($zz_conf['backup']) {
-						rename($image['files']['destination'], zz_upload_path($zz_conf['backup_dir'], $action, $image['files']['destination']));
-						if ($zz_error['error']) {
-							if ($zz_conf['modules']['debug']) zz_debug('end');
-							return false;
-						}
+						zz_rename($image['files']['destination'], zz_upload_path($zz_conf['backup_dir'], $action, $image['files']['destination']));
+						if ($zz_error['error']) return zz_return(false);
 						zz_cleanup_dirs(dirname($image['files']['destination']));
 					} else {
 						zz_unlink_cleanup($image['files']['destination']);
@@ -1157,14 +1142,10 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 						'msg_dev' => sprintf(zz_text('Configuration Error [2]: Filename "%s" is invalid.'), $image['files']['destination']),
 						'level' => E_USER_ERROR
 					);
-					if ($zz_conf['modules']['debug']) zz_debug('end');
-					return zz_error();
+					return zz_return(zz_error());
 				}
 				zz_upload_checkdir(dirname($image['files']['destination'])); // create path if it does not exist or if cleanup removed it.
-				if ($zz_error['error']) {
-					if ($zz_conf['modules']['debug']) zz_debug('end');
-					return false;
-				}
+				if ($zz_error['error']) return zz_return(false);
 				if (!isset($image['source']) && !isset($image['source_file']) && empty($image['action'])) { 
 					// do this with images which have not been touched
 					// todo: error handling!!
@@ -1177,8 +1158,7 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 									'<code>'.dirname($image['files']['destination']).'</code>'),
 								'level' => E_USER_ERROR
 							);
-							if ($zz_conf['modules']['debug']) zz_debug('end');
-							return zz_error();
+							return zz_return(zz_error());
 								
 						} else { 
 							$zz_error[] = array(
@@ -1188,8 +1168,7 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 									.$image['files']['destination'].'<br>',
 								'level' => E_USER_ERROR
 							);
-							if ($zz_conf['modules']['debug']) zz_debug('end');
-							return zz_error();
+							return zz_return(zz_error());
 						}
 					}
 					zz_unlink_cleanup($filename);			// this also works in older php versions between partitions.
@@ -1203,8 +1182,7 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 							'msg_dev' => zz_text('Copying not successful.').'<br>'.zz_text('from:').' '.$filename.'<br>'.zz_text('to:').' '.$image['files']['destination'].'<br>',
 							'level' => E_USER_ERROR
 						);
-						if ($zz_conf['modules']['debug']) zz_debug('end');
-						return zz_error();
+						return zz_return(zz_error());
 					}
 				}
 			} else {
@@ -1221,23 +1199,27 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 	if ($zz_conf['modules']['debug']) zz_debug("end");
 }
 
-/** get value needed for upload from sql query
+/** 
+ * get value needed for upload from sql query
  * 
- * @param $value
- * @param $sql
- * @param $idvalue
- * @param $idfield
+ * @param string $value
+ * @param string $sql
+ * @param string $idvalue (optional)
+ * @param string $idfield (optional)
+ * @global array $zz_error
+ * @return string $value
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_upload_sqlval($value, $sql, $idvalue = false, $idfield = false) { // gets a value from sql query. 
-	if ($idvalue) // if idvalue is not set: note: all values should be the same! First value is taken
+function zz_upload_sqlval($value, $sql, $idvalue = false, $idfield = false) { 
+	global $zz_error;
+	// if idvalue is not set: note: all values should be the same! First value is taken
+	if ($idvalue) 
 		$sql = zz_edit_sql($sql, 'WHERE', $idfield.' = "'.$idvalue.'"');
 	$result = mysql_query($sql);
 	if ($result) {
 		if (mysql_num_rows($result))
 			$line = mysql_fetch_assoc($result);
 	} else {
-		global $zz_error;
 		$zz_error[] = array(
 			'mysql' => mysql_error(),
 			'query' => $sql,
@@ -1258,6 +1240,7 @@ function zz_upload_sqlval($value, $sql, $idvalue = false, $idfield = false) { //
  * @param string $dir backup directory
  * @param string $action sql action
  * @param string $path file path
+ * @global array $zz_error
  * @return string unique filename ? path?
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -1344,11 +1327,20 @@ function zz_upload_checkdir($my_dir) {
 	} else return true;
 }
 
+
 /*	----------------------------------------------	*
  *				IMAGE FUNCTIONS (zz_image...)		*
  *	----------------------------------------------	*/
-/* 	will be called via 'auto_size' */
 
+/**
+ * checks automatically which size from a given list suits best for thumbnail
+ * generation
+ *
+ * will be called via 'auto_size'
+ * @param array $image
+ * @return bool
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
 function zz_image_auto_size(&$image) {
 	//	basics
 	$tolerance = (!empty($image['auto_size_tolerance']) ? $image['auto_size_tolerance'] : 15); // tolerance in px
@@ -1413,7 +1405,16 @@ function zz_image_auto_size(&$image) {
 	return true;
 }
 
-function is_better_ratio($ratio, $old_ratio, $new_ratio) { // returns true if new_ratio is better
+/**
+ * checks whether a ratio is better than the other
+ *
+ * @param double $ratio			given ratio
+ * @param double $old_ratio		old ratio, which will be checked if its better
+ * @param double $new_ratio		new ratio to compare with
+ * @return bool true if ratio is better, false if ratio is not better
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function is_better_ratio($ratio, $old_ratio, $new_ratio) {
 	if ($ratio > 1) {
 		if ($old_ratio > $ratio AND $new_ratio < $old_ratio) return true; // ratio too big, small always better
 		if ($old_ratio < $ratio AND $new_ratio <= $ratio AND $new_ratio > $old_ratio) return true; // closer to ratio, better
@@ -1428,8 +1429,18 @@ function is_better_ratio($ratio, $old_ratio, $new_ratio) { // returns true if ne
 	return false;
 }
 
+/**
+ * reads default definitions from a textfile and writes them into an array
+ *
+ * @param string $filename Name of file
+ * @param string $type (optional) 'Filetype' or 'IPTC'
+ * @param string $optional
+ * @global array $zz_error 
+ * @return array $defaults
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @todo $mode = file, sql; read values from database table
+ */
 function zz_upload_get_typelist($filename, $type = 'Filetype', $optional = false) {
-	// TODO: $mode = file, sql; read values from database table
 	if (!file_exists($filename)) {
 		if ($optional) return false;
 		global $zz_error;
@@ -1472,7 +1483,14 @@ function zz_upload_get_typelist($filename, $type = 'Filetype', $optional = false
 	return $defaults;
 }
 
-// cleanup after deletion, e. g. remove empty dirs
+/**
+ * extracts dirname from filename and checks whether directory is empty
+ * removes this directory and upper directories if they are empty
+ *
+ * @param string $file filename
+ * @return bool 
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
 function zz_unlink_cleanup($file) {
 	$full_path = realpath($file);
 	$dir = dirname($full_path);
@@ -1485,6 +1503,13 @@ function zz_unlink_cleanup($file) {
 	return false;
 }
 
+/**
+ * removes empty directories hierarchically
+ *
+ * @param string $dir name of directory
+ * @return bool true
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
 function zz_cleanup_dirs($dir) {
 	$success = false;
 	if (is_dir($dir)) {
@@ -1510,6 +1535,11 @@ function zz_cleanup_dirs($dir) {
  *
  * This function is independent of the graphics library used, therefore it's
  * directly part of the upload module
+ * @param string $source
+ * @param string $destination
+ * @param string $dest_extension (optional)
+ * @param array $image (optional)
+ * @return bool true if image was extracted, false if not
  */
 function zz_image_exif_thumbnail($source, $destination, $dest_extension = false, $image = false) {
 	global $zz_conf;
@@ -1522,12 +1552,48 @@ function zz_image_exif_thumbnail($source, $destination, $dest_extension = false,
 	} else return false;
 }
 
+/**
+ * returns extension from any given filename
+ *
+ * @param string $filename
+ * @return string $extension (part behind last dot or 'unknown')
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
 function zz_upload_file_extension($filename) {
 	if (strstr($filename, '.'))
 		$extension = strtolower(substr($filename, strrpos($filename, '.')+1));
 	else
 		$extension = 'unknown';
 	return $extension;
+}
+
+/**
+ * renames a file with php rename, only if 'upload_copy_for_rename' is set
+ * copies file and then deletes old file (in case there are problems renaming
+ * files from one mount to another)
+ *
+ * @param string $oldname old file name
+ * @param string $newname new file name
+ * @param ressource $context
+ * @global array $zz_conf -> bool 'upload_copy_for_rename'
+ * @return bool true if rename was successful, false if not
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function zz_rename($oldname, $newname, $context = false) {
+	global $zz_conf;
+	if (!empty($zz_conf['upload_copy_for_rename'])) {
+		$success = copy($oldname, $newname);
+		if ($success) {
+			$success = unlink($oldname);
+			if ($success) return true;
+		}
+		return false;
+	} else {
+		if ($context)
+			return rename($oldname, $newname, $context);
+		else
+			return rename($oldname, $newname);
+	}
 }
 
 ?>

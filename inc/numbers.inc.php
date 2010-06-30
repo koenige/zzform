@@ -1,11 +1,9 @@
 <?php
 
-/*
+// zzform scripts (Zugzwang Project)
+// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2005-2010
+// Number/Date Functions
 
-zzform: Number/Date Functions
-(c) Gustaf Mossakowski <gustaf@koenige.org>, 2005-2006
-
-*/
 
 /**
  * converts given iso date to d.m.Y or returns date as is if incomplete

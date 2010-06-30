@@ -1,7 +1,7 @@
 <?php 
 
-// zzform
-// (c) Gustaf Mossakowski, <gustaf@koenige.org>, 2005-2010
+// zzform scripts (Zugzwang Project)
+// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2005-2010
 // Functions for validation of user input
 
 /*
@@ -161,7 +161,7 @@ function zz_check_for_null($field, $table) {
 	$sql = 'SHOW COLUMNS FROM '.$table.' LIKE "'.$field.'"';
 	$result = mysql_query($sql);
 	if ($result) {
-		$line = mysql_fetch_array($result);
+		$line = mysql_fetch_assoc($result);
 		if ($line['Null'] == 'YES') return true;
 		else return false;
 	}

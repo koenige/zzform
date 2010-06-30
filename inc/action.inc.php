@@ -1,9 +1,11 @@
 <?php 
+
+// zzform scripts (Zugzwang Project)
+// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2004-2010
+// scripts for action: update, delete, insert or review a record
+
+
 /*
-	zzform Scripts
-
-	scripts for action: update, delete, insert or review a record
-
 	function zz_action
 		- check whether fields are empty or not (default and auto values do not count)
 		- if all are empty = for subtables it's action = delete
@@ -27,12 +29,9 @@
 	common functions
 		- zz_log_sql()
 		- zz_text()
-	
-	(c) Gustaf Mossakowski <gustaf@koenige.org> 2004-2010
-
 */
 
-function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subqueries) {
+function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	global $zz_error;
 	$operation_success = false;
@@ -42,10 +41,8 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 		zz_upload_get($zz_tab); // read upload image information, as required
 		zz_upload_prepare($zz_tab, $zz_conf); // read upload image information, as required
 	}
-	if ($zz_error['error']) {
-		if ($zz_conf['modules']['debug']) zz_debug('end');
-		return false;
-	}
+	if ($zz_error['error']) return zz_return(false);
+
 	foreach (array_keys($zz_tab) as $i) {
 		if (!isset($zz_tab[$i]['table_name'])) 
 			$zz_tab[$i]['table_name'] = $zz_tab[$i]['table'];		
@@ -90,7 +87,7 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 				include_once $zz_conf['dir_inc'].'/integrity.inc.php';
 				$record_idfield = $zz_tab[$i][$k]['id']['field_name'];
 				$detailrecords = array();
-				if ($subqueries) foreach ($subqueries as $subkey) {
+				if ($zz['subqueries']) foreach ($zz['subqueries'] as $subkey) {
 					$det_key = $zz['fields'][$subkey]['table'];
 					if (!strstr('.', $det_key)) $det_key = $zz_tab[0]['db_name'].'.'.$det_key;
 					$detailrecords[$det_key]['table'] = $zz['fields'][$subkey]['table'];
@@ -100,19 +97,13 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 				if (!$zz_tab[$i][$k]['no-delete'] = zz_check_integrity($zz_tab[$i]['db_name'], 
 						$zz_tab[$i]['table'], $record_idfield, $zz_tab[$i][$k]['POST'][$record_idfield], 
 						$zz_conf['relations_table'], $detailrecords)) {
-					if ($zz_error['error']) {
-						if ($zz_conf['modules']['debug']) zz_debug('end');
-						return false;
-					}
+					if ($zz_error['error']) return zz_return(false);
 					$zz_tab[$i][$k]['validation'] = true;
 				} else {
 					$zz_tab[$i][$k]['validation'] = false;
 					$zz['no-delete'][] = $i.','.$k;
 				}
-				if ($zz_error['error']) {
-					if ($zz_conf['modules']['debug']) zz_debug('end');
-					return false;
-				}
+				if ($zz_error['error']) return zz_return(false);
 			}
 		}
 	}
@@ -121,8 +112,7 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 		if (is_numeric($subset) AND !$subtab[$subset]['validation']) {
 			$validation = false;
 			if (!empty($upload_form)) zz_upload_cleanup($zz_tab); // delete temporary unused files
-			if ($zz_conf['modules']['debug']) zz_debug('end');
-			return false;
+			return zz_return(false);
 		}
 	}
 
@@ -339,10 +329,7 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 			zz_foldercheck($zz_tab, $zz_conf);
 		if (!empty($upload_form)) {
 			zz_upload_action($zz_tab, $zz_conf); // upload images, delete images, as required
-			if ($zz_error['error']) {
-				if ($zz_conf['modules']['debug']) zz_debug('end');
-				return false;
-			}
+			if ($zz_error['error']) return zz_return(false);
 		}
 		if ($operation_success) $zz['result'] = 'successful_'.$zz_tab[0][0]['action'];
 	} else {
@@ -358,8 +345,7 @@ function zz_action(&$zz_tab, $zz_conf, &$zz, &$validation, $upload_form, $subque
 	}
 
 	if (!empty($upload_form)) zz_upload_cleanup($zz_tab); // delete temporary unused files
-	if ($zz_conf['modules']['debug']) zz_debug('end');
-	return $operation_success;
+	return zz_return($operation_success);
 }
 
 /**
@@ -522,7 +508,8 @@ function zz_prepare_for_db($my, $db_table, $main_post) {
 	
 	foreach (array_keys($my['fields']) as $f) {
 	//	set
-		if ($my['fields'][$f]['type'] == 'select' && isset($my['fields'][$f]['set'])) {
+		if ($my['fields'][$f]['type'] == 'select' 
+			AND (isset($my['fields'][$f]['set']) OR isset($my['fields'][$f]['set_sql']))) {
 			if (!empty($my['POST'][$my['fields'][$f]['field_name']]))
 				$my['POST'][$my['fields'][$f]['field_name']] = implode(',', $my['POST'][$my['fields'][$f]['field_name']]);
 			else
@@ -569,8 +556,7 @@ function zz_prepare_for_db($my, $db_table, $main_post) {
 			$my['POST'][$my['fields'][$f]['field_name']] = 'NOW()';
 	}
 
-	if ($zz_conf['modules']['debug']) zz_debug('end');
-	return $my;
+	return zz_return($my);
 }
 
 ?>

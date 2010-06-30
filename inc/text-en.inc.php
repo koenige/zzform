@@ -1,8 +1,9 @@
 <?php
 
-// zzform
-// Text and labels in English
-// Gustaf Mossakowski, gustaf@koenige.org, 2005/2006
+// zzform scripts (Zugzwang Project)
+// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2005-2010
+// Text and labels in English (en) us-ascii
+
 
 $text = false;
 
