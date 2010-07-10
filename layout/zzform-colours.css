@@ -19,7 +19,8 @@ body, #zzform .editbutton, #zzform td.recordid, #zzform th.recordid
 #zzform #record tfoot th, #zzform #record tfoot td, td.where, th.where 
 	{background-color: #A29F8A;}
 
-#zzform table.data thead td, #zzform table.data thead th {border-color: #999;}
+#zzform table.data thead td, #zzform table.data thead th,
+	#zzform table.data tr.group td {border-color: #999;}
 #zzform tr.last {border-color: #999;} /* last row */
 
 #zzform tfoot td {border-color: #999}
@@ -30,3 +31,8 @@ body, #zzform .editbutton, #zzform td.recordid, #zzform th.recordid
 #zzform th.order {background-color: #DDB;} /* column ORDER BY */
 
 #zzform ul.pages li {border-color: #666;}
+
+#zzform td.left_separator {border-left-color: #A29F8A;}
+
+body #zzform .separator hr {width: 100%; margin: 0.25em 0; height: 3px;
+	background-color: #FFF; color: #FFF; border: #FFF; max-width: none;}
