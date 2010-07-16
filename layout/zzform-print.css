@@ -32,5 +32,3 @@ a:link, a:visited {color: #000;}
 #zzform table.data tr.group td {border-top: 1.5pt black solid;}
 
 #zzform table.data {border-collapse: separate; border-spacing: 0;}
-
-#zzform .zzfilter dd a {display: none; }

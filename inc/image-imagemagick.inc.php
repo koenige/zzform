@@ -117,6 +117,8 @@ function zz_image_thumbnail($source, $destination, $dest_extension = false, $ima
 	$convert = zz_imagick_convert('thumbnail '.$geometry, '"'.$source.'" '.($dest_extension 
 		? $dest_extension.':' : '').'"'.$destination.'"');
 
+	if ($zz_conf['modules']['debug']) zz_debug('thumbnail creation '
+		.($convert ? '' : 'un').'successful:<br>'.$destination);
 	if ($convert) return zz_return(true);
 	else return zz_return(false);
 }

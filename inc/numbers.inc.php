@@ -196,6 +196,10 @@ function datum_int($datum) {
  * @return mixed false if input is illegal, time-string if input is correct
  */
 function validate_time($time) {
+	if (strlen($time) == 19 AND strstr($time, ' ')) {
+		// might be a date
+		$time = substr($time, strrpos($time, ' ')+1);
+	}
 	$time = str_replace('.',':',$time);
 	if (strlen($time) > 8) return false;
 	if (preg_match("/^[0-9]+$/",$time)) {

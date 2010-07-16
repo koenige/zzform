@@ -30,6 +30,14 @@ function zz_check_mail($e_mail) {
 	return false;
 }
 
+/**
+ * checks whether a value is correct for enum/set
+ *
+ * @param string $enum_value
+ * @param array $field field definition
+ * @param string $table [db_name.table]
+ * @return mixed string $enum_value if correct, bool false if not
+ */
 function zz_check_enumset($enum_value, $field, $table) {
 	$values = zz_get_enumset($field['field_name'], $table);
 	if ($values) {
@@ -48,38 +56,34 @@ function zz_check_enumset($enum_value, $field, $table) {
 	return false;
 }
 
+/**
+ * gets values for enum/set-fields from database
+ *
+ * @param string $column Name of column
+ * @param string $table [db_name.table]
+ * @return mixed array $values, bool false if no values
+ */
 function zz_get_enumset($colum, $table) {
-	global $zz_error;
 	$values = array();
 	if (substr($table, 0, 1) != '`' AND substr($table, -1) != '`') {
 		$table = '`'.str_replace('.', '`.`', $table).'`';
 	}
 	$sql = 'SHOW COLUMNS FROM '.$table.' LIKE "'.$colum.'"';
-	$result = mysql_query($sql);
-	if (mysql_num_rows($result)) {
-		$column_definition = mysql_fetch_assoc($result);
-		if (substr($column_definition['Type'], 0, 5) == "set('" 
-			AND substr($column_definition['Type'], -2) == "')") {
-			// column of type SET
-			$values = substr($column_definition['Type'], 5, -2);
-			$values = explode("','", $values);
-		} elseif (substr($column_definition['Type'], 0, 6) == "enum('" 
-			AND substr($column_definition['Type'], -2) == "')") {
-			// column of type ENUM
-			$values = substr($column_definition['Type'], 6, -2);
-			$values = explode("','", $values);
-		} else {
-			// different column
-			$values = false;
-		}
+	$column_definition = zz_db_fetch($sql, '', '', __FUNCTION__);
+	if (!$column_definition) return false;
+	if (substr($column_definition['Type'], 0, 5) == "set('" 
+		AND substr($column_definition['Type'], -2) == "')") {
+		// column of type SET
+		$values = substr($column_definition['Type'], 5, -2);
+		$values = explode("','", $values);
+	} elseif (substr($column_definition['Type'], 0, 6) == "enum('" 
+		AND substr($column_definition['Type'], -2) == "')") {
+		// column of type ENUM
+		$values = substr($column_definition['Type'], 6, -2);
+		$values = explode("','", $values);
 	} else {
-		$zz_error[] = array(
-			'msg_dev' => 'Admin warning: column name given in table definition might not exist.',
-			'query' => $sql,
-			'mysql' => mysql_error(),
-			'level' => E_USER_WARNING
-		);
-		// todo: check table definition, whether column exists or not.
+		// different column
+		$values = false;
 	}
 	return $values;
 }
@@ -115,7 +119,7 @@ function zz_check_url($url) {
 }
 
 /**
- * checks whether an input is a valid URL
+ * checks whether an input is a valid URI
  * 
  * This function is also part of zzbrick, there it is called brick_is_url()
  * @param string $url	URL to be tested, only absolute URLs
@@ -124,33 +128,34 @@ function zz_check_url($url) {
  */
 function zz_is_url($url) {
 	// todo: give back which part of URL is incorrect
-	$possible_schemes = array('http', 'https', 'ftp', 'gopher');
 	if (!$url) return false;
 	$parts = parse_url($url);
 	if (!$parts) return false;
-	if (empty($parts['scheme']) OR !in_array($parts['scheme'], $possible_schemes))
+	if (empty($parts['scheme'])) { // OR !in_array($parts['scheme'], $possible_schemes))
 		return false;
-	elseif (empty($parts['host']) 
-		OR (!preg_match("/^[0-9a-z]([-.]?[0-9a-z])*\.[a-z]{2,6}$/i", $parts['host'], $regs)
-		AND !preg_match('/[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/', $parts['host'])))
+	} elseif (!empty($parts['host']) 
+		AND (!preg_match("/^[0-9a-z]([-.]?[:0-9a-z])*\.[a-z]{2,6}$/i", $parts['host'], $regs)
+		AND !preg_match('/[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/', $parts['host']) // IP
+		AND !preg_match('/\[[0-9a-zA-Z:]*\]/', $parts['host']))) {	// LDAP
 		return false;
-	elseif (!empty($parts['user']) 
-		AND !preg_match("/^([0-9a-z-]|[\_])*$/i", $parts['user'], $regs))
+	} elseif (!empty($parts['user']) 
+		AND !preg_match("/^([0-9a-z-]|[\_])*$/i", $parts['user'], $regs)) {
 		return false;
-	elseif (!empty($parts['pass']) 
-		AND !preg_match("/^([0-9a-z-]|[\_])*$/i", $parts['pass'], $regs))
+	} elseif (!empty($parts['pass']) 
+		AND !preg_match("/^([0-9a-z-]|[\_])*$/i", $parts['pass'], $regs)) {
 		return false;
-	elseif (!empty($parts['path']) 
-		AND !preg_match("/^[0-9a-z\/_\.@~\-,=%]*$/i", $parts['path']))
+	} elseif (!empty($parts['path']) 
+		AND !preg_match("/^[0-9a-z\/_\.@~\-,=%;:+]*$/i", $parts['path'])) {
 		return false;
-	elseif (!empty($parts['query'])
-		AND !preg_match("/^[A-Za-z0-9\-\._~!$&'\(\)\*+,;=:@?\/%]*$/i", $parts['query'], $regs))
+	} elseif (!empty($parts['query']) 
+		AND !preg_match("/^[A-Za-z0-9\-\._~!$&'\(\)\*+,;=:@?\/%]*$/i", $parts['query'], $regs)) {
 		// not 100% correct: % must only appear in front of HEXDIG, e. g. %2F
 		// here it may appear in front of any other sign
 		// see 
 		// http://www.ietf.org/rfc/rfc3986.txt and 
 		// http://www.ietf.org/rfc/rfc2234.txt
 		return false;
+	}
 	return true;
 }
 
@@ -159,12 +164,9 @@ function zz_check_for_null($field, $table) {
 		$table = '`'.str_replace('.', '`.`', $table).'`';
 	}
 	$sql = 'SHOW COLUMNS FROM '.$table.' LIKE "'.$field.'"';
-	$result = mysql_query($sql);
-	if ($result) {
-		$line = mysql_fetch_assoc($result);
-		if ($line['Null'] == 'YES') return true;
-		else return false;
-	}
+	$line = zz_db_fetch($sql);
+	if ($line AND $line['Null'] == 'YES') return true;
+	else return false;
 }
 
 ?>

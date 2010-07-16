@@ -36,12 +36,11 @@ function zz_conditions_record_check($zz, &$zz_var) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
-	$cond_for_debug = 0;
 	$zz_conditions = array();
 	foreach($zz['conditions'] AS $index => $condition) {
 		switch ($condition['scope']) {
 		case 'record': // for form view (of saved records), list view comes later in zz_list() because requery of record 
-			$zz_conditions['bool'][$index] = false;
+			$zz_conditions['bool'][$index] = array();
 			if (($zz['mode'] == 'add' OR $zz['action'] == 'insert') 
 				AND !empty($condition['add'])
 				AND !empty($zz_var['where'][$zz['table']][$condition['add']['key_field_name']])) {
@@ -51,20 +50,10 @@ function zz_conditions_record_check($zz, &$zz_var) {
 					$sql = zz_edit_sql($sql, 'WHERE', $condition['where']);
 				if (!empty($condition['having']))
 					$sql = zz_edit_sql($sql, 'HAVING', $condition['having']);
-				$result = mysql_query($sql);
-				if ($result AND mysql_num_rows($result)) 
-					while ($line = mysql_fetch_assoc($result)) {
-						$zz_conditions['bool'][$index][0] = true; // 0 = new record
-						$cond_for_debug = 1;
-					}
-				if ($zz_conf['modules']['debug']) zz_debug("record-new [".$index."] ".$cond_for_debug, $sql);
-				$cond_for_debug = 0;
-				if (mysql_error())
-					$zz_error[] = array(
-						'msg_dev' => 'Error in conditions, probably SQL query is incorrect [record-add/insert].',
-						'mysql' => mysql_error(), 
-						'query' => $sql
-					);
+				if (zz_db_fetch($sql, '', '', 'record-new ['.$index.']'))
+					$zz_conditions['bool'][$index][0] = true;
+				else
+					$zz_conditions['bool'][$index][0] = false;
 			}
 			if ($zz['mode'] != 'list_only' AND !empty($zz_var['id']['value'])) {
 				$sql = $zz['sql'];
@@ -72,45 +61,26 @@ function zz_conditions_record_check($zz, &$zz_var) {
 					$sql = zz_edit_sql($sql, 'WHERE', $condition['where']);
 				if (!empty($condition['having']))
 					$sql = zz_edit_sql($sql, 'HAVING', $condition['having']);
-				$result = mysql_query($sql);
-				if ($result AND mysql_num_rows($result)) 
-					// maybe get all ids instead?
-					while ($line = mysql_fetch_assoc($result)) {
-						$zz_conditions['bool'][$index][$line[$zz_var['id']['field_name']]] = true;
-						$cond_for_debug = 1;
-					}
-				if ($zz_conf['modules']['debug']) zz_debug("record-list [".$index."] ".$cond_for_debug, $sql);
-				$cond_for_debug = 0;
-				if (mysql_error())
-					$zz_error[] = array(
-						'msg_dev' => 'Error in conditions, probably SQL query is incorrect [record].',
-						'mysql' => mysql_error(), 
-						'query' => $sql
-					);
+				$lines = zz_db_fetch($sql, $zz_var['id']['field_name'], 'id as key', 'record-list ['.$index.']');
+				if (empty($zz_conditions['bool'][$index]))
+					$zz_conditions['bool'][$index] = $lines;
+				else
+					$zz_conditions['bool'][$index] = zz_array_merge($zz_conditions['bool'][$index], $lines);
 			}
 			break;
 		case 'query': // just for form view (of saved records), for list view will be later in zz_list()
-			$zz_conditions['bool'][$index] = false;
+			$zz_conditions['bool'][$index] = array();
 			if ($zz['mode'] != 'list_only' AND !empty($zz_var['id']['value'])) {
 				$sql = zz_edit_sql($condition['sql'], 'WHERE', $condition['key_field_name'].' = '.$zz_var['id']['value']);
-				$result = mysql_query($sql);
-				if ($result AND mysql_num_rows($result)) 
-					while ($line = mysql_fetch_assoc($result)) {
-						$zz_conditions['bool'][$index][$line[$condition['key_field_name']]] = true;
-						$cond_for_debug = 1;
-					}
-				if ($zz_conf['modules']['debug']) zz_debug("query [".$index."] ".$cond_for_debug, $sql);
-				$cond_for_debug = 0;
-				if (mysql_error())
-					$zz_error[] = array(
-						'msg_dev' => 'Error in conditions, probably SQL query is incorrect [query].',
-						'mysql' => mysql_error(), 
-						'query' => $sql
-					);
+				$lines = zz_db_fetch($sql, $condition['key_field_name'], 'id as key', 'query ['.$index.']');
+				if (empty($zz_conditions['bool'][$index]))
+					$zz_conditions['bool'][$index] = $lines;
+				else
+					$zz_conditions['bool'][$index] = zz_array_merge($zz_conditions['bool'][$index], $lines);
 			}
 			break;
-		case 'value': // just for form view
-			$zz_conditions['values'][$index] = false;
+		case 'value': // just for record view
+			$zz_conditions['values'][$index] = array();
 			if ($zz['mode'] != 'list_only') {
 				// get value for $condition['field_name']
 				$value = false;
@@ -122,41 +92,24 @@ function zz_conditions_record_check($zz, &$zz_var) {
 				} else {
 					$sql = zz_edit_sql($zz['sql'], 'WHERE', $zz['table'].'.'
 						.$zz_var['id']['field_name'].' = '.$zz_var['id']['value']);
-					$result = mysql_query($sql);
-					if ($result AND mysql_num_rows($result) == 1) {
-						$line = mysql_fetch_assoc($result);
+					$line = zz_db_fetch($sql, '', '', 'value/1 ['.$index.']');
+					if ($line) {
 						$value = $line[$condition['field_name']];
-						$cond_for_debug = 1;
+					} else {
+						// attempt to try to delete/edit a value that does not exist
+						break; 
 					}
-					if ($zz_conf['modules']['debug']) zz_debug("value [".$index."] ".$cond_for_debug, $sql);
-					$cond_for_debug = 0;
-					if (mysql_error())
-						$zz_error[] = array(
-							'msg_dev' => 'Error in conditions, probably SQL query is incorrect [value].',
-							'mysql' => mysql_error(), 
-							'query' => $sql
-						);
-					if (!$value) break; // attempt to try to delete/edit a value that does not exist
 				}
 				$sql = sprintf($condition['sql'], $value);
-				$result = mysql_query($sql);
-				if ($result AND mysql_num_rows($result))
-					while ($line = mysql_fetch_assoc($result)) {
-						$zz_conditions['values'][$index][] = $line;
-						$cond_for_debug = 1;
-					}
-				if ($zz_conf['modules']['debug']) zz_debug("value [".$index."] ".$cond_for_debug, $sql);
-				$cond_for_debug = 0;
-				if (mysql_error())
-					$zz_error[] = array(
-						'msg_dev' => 'Error in conditions, probably SQL query is incorrect [value/2].',
-						'mysql' => mysql_error(), 
-						'query' => $sql
-					);
+				$lines = zz_db_fetch($sql, 'dummy_id', 'numeric', 'value/2 ['.$index.']');
+				if (empty($zz_conditions['bool'][$index]))
+					$zz_conditions['values'][$index] = $lines;
+				else
+					$zz_conditions['values'][$index] = array_merge($zz_conditions['values'][$index], $lines);
 			}
 			break;
 		case 'upload': // just for form view
-			$zz_conditions['uploads'][$index] = false;
+			$zz_conditions['uploads'][$index] = array();
 			$table = 0;
 			foreach ($zz['fields'] as $f => $field) {
 				if (!empty($field['type']) AND $field['type'] == 'upload_image') {
@@ -339,7 +292,6 @@ function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids) {
 		$zz['sql_without_limit'] = zz_edit_sql($zz['sql_without_limit'], 'ORDER BY', ' ', 'delete');
 
 		foreach($zz['conditions'] AS $index => $condition) {
-			$cond_for_debug = 0;
 			switch ($condition['scope']) {
 			// case record remains the same as in form view
 			// case query covers more ids
@@ -349,50 +301,21 @@ function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids) {
 					$sql = zz_edit_sql($sql, 'WHERE', $condition['where']);
 				if (!empty($condition['having']))
 					$sql = zz_edit_sql($sql, 'HAVING', $condition['having']);
-				$result = mysql_query($sql);
-				if ($result AND mysql_num_rows($result)) 
-					// maybe get all ids instead?
-					while ($line = mysql_fetch_assoc($result)) {
-						$zz_conditions['bool'][$index][$line[$id_field]] = true;
-						$cond_for_debug = 1;
-					}
-				if ($zz_conf['modules']['debug']) zz_debug("record [".$index."] ".$cond_for_debug, $sql);
-				$cond_for_debug = 0;
-				if (mysql_error())
-					$zz_error[] = array(
-						'msg_dev' => 'Error in conditions, probably SQL query is incorrect [list-record].',
-						'mysql' => mysql_error(), 
-						'query' => $sql
-					);
+				$lines = zz_db_fetch($sql, $id_field, 'id as key', 'list-record ['.$index.']');
 				break;
 			case 'query':
 				$sql = $condition['sql'];
 				$sql = zz_edit_sql($sql, 'WHERE', $condition['key_field_name'].' IN ('.implode(', ', $ids).')');
-				$result = mysql_query($sql);
-				if (mysql_error())
-					$zz_error[] = array(
-						'msg_dev' => 'Error in conditions, probably SQL query is incorrect [list-query].',
-						'mysql' => mysql_error(), 
-						'query' => $sql
-					);
-				if ($result AND mysql_num_rows($result)) 
-					while ($line = mysql_fetch_assoc($result)) {
-						if (empty($line[$condition['key_field_name']])) {
-							$zz_error[] = array(
-								'msg_dev' => sprintf(wrap_text('Error in condition %s, key_field_name is not in field list'), $index),
-								'sql' => $sql,
-								'level' => E_USER_ERROR
-							);
-							return zz_return(zz_error()); // critical error, exit script
-						}
-						$zz_conditions['bool'][$index][$line[$condition['key_field_name']]] = true;
-						$cond_for_debug = 1;
-					}
-				if ($zz_conf['modules']['debug']) zz_debug("query [".$index."] ".$cond_for_debug, $sql);
-				$cond_for_debug = 0;
+				$lines = zz_db_fetch($sql, $condition['key_field_name'], 'id as key', 'list-query ['.$index.']');
 				break;
 			default:
+				$lines = array();
+				break;
 			}
+			if (empty($zz_conditions['bool'][$index]))
+				$zz_conditions['bool'][$index] = $lines;
+			else
+				$zz_conditions['bool'][$index] = zz_array_merge($zz_conditions['bool'][$index], $lines);
 		}
 	}
 	return zz_return($zz_conditions);

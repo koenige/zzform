@@ -152,12 +152,12 @@ function geo_editform($form_coords, $coords, $format = 'dms', $wrong_coords = fa
 	$output.= '<option '; 
 	if ($coords && ($coords[$form_coords_ext]['hemisphere'] == $hemispheres['+'] 
 		OR $coords[$form_coords_ext]['hemisphere'] == '+'))
-		$output.= "selected ";
+		$output.= 'selected="selected" ';
 	$output.= 'value="+">'.zz_text($hemispheres['+']).'</option>';
 	$output.= '<option '; 
 	if ($coords && ($coords[$form_coords_ext]['hemisphere'] == $hemispheres['-'] 
 		OR $coords[$form_coords_ext]['hemisphere'] == '-'))
-		$output.= "selected ";
+		$output.= 'selected="selected" ';
 	$output.= 'value="-">'.zz_text($hemispheres['-']).'</option>
 </select>';
 	if ($wrong_coords) $output.= zz_geo_error($coords[$form_coords_ext], $wrong_coords[$form_coords_ext], $form_coords_ext);
@@ -314,5 +314,31 @@ function dms2db($input, $which = 'dms') {
 		}
 		return $output;
 	}	
+}
+
+/**
+ * Checks whether a coordinate was posted
+ *
+ * @param array $t_coord
+ *		'which', 'lat_dms', 'lat_dm', ...
+ * @return string $values '' if nothing was posted, 'something' otherwise
+ */
+function zz_geo_check_if_coords($t_coord) {
+	$values = '';
+	if (isset($t_coord['lat_dms']) OR isset($t_coord['lat_dm']))
+		$t_sub = 'lat_'.$t_coord['which'];
+	else
+		$t_sub = 'lon_'.$t_coord['which'];
+	switch ($t_coord['which']) {
+	case 'dms':
+		$values .= $t_coord[$t_sub]['sec']; // seconds only in dms
+	case 'dm':
+		$values .= $t_coord[$t_sub]['deg']; // degrees and minutes in dm and dms
+		$values .= $t_coord[$t_sub]['min'];
+	break;
+	default:
+		$values .= $t_coord['dec']; // dd will be default
+	}
+	return $values;
 }
 ?>

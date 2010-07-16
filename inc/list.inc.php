@@ -31,7 +31,8 @@ function zz_list(&$zz, $zz_conf, $zz_var, $id_field, $zz_conditions) {
 		$zz_conf = array_merge($zz_conf, $zz_conf['list_access']);
 		unset($zz_conf['list_access']);
 	}
-	if ($zz_conf['access'] == 'search_but_no_list' AND empty($_GET['q'])) $zz_conf['show_list'] = false;
+	if ($zz_conf['access'] == 'search_but_no_list' AND empty($_GET['q'])) 
+		$zz_conf['show_list'] = false;
 
 	$subselects = array();
 
@@ -79,7 +80,6 @@ function zz_list(&$zz, $zz_conf, $zz_var, $id_field, $zz_conditions) {
 	}
 	// must be behind update, insert etc. or it will return the wrong number
 	$total_rows = zz_count_rows($zz['sql'], $zz['table'].'.'.$id_field);	
-
 	$zz['sql'].= (!empty($zz['sqlorder']) ? ' '.$zz['sqlorder'] : ''); 	// must be here because of where-clause
 	$zz['sql'] = zz_sql_order($zz['fields'], $zz['sql']); // Alter SQL query if GET order (AND maybe GET dir) are set
 
@@ -252,7 +252,7 @@ function zz_list(&$zz, $zz_conf, $zz_var, $id_field, $zz_conditions) {
 	
 	if ($zz_conf['show_list'] AND $zz_conf['select_multiple_records'] AND $zz['mode'] != 'export') {
 		$zz['output'].= '<form action="'.$zz_conf['url_self'].$zz_conf['url_self_qs_base'];
-		if ($zz_var['extraGET']) $zz['output'].= $zz_var['url_append'].substr($zz_var['extraGET'], 5); // without first &amp;!
+		if ($zz_var['extraGET']) $zz['output'].= $zz_conf['url_append'].substr($zz_var['extraGET'], 5); // without first &amp;!
 		$zz['output'].= '" method="POST"';
 		$zz['output'].= ' accept-charset="'.$zz_conf['character_set'].'">'."\n";
 	}
@@ -484,6 +484,14 @@ function zz_list(&$zz, $zz_conf, $zz_var, $id_field, $zz_conditions) {
 							if (!empty($image['show_link']) && $zz['mode'] != 'export')
 								if ($imglink = zz_makelink($image['path'], $line))
 									$rows[$z][$fieldindex]['text'] .= ' <a href="'.$imglink.'">'.$image['title'].'</a><br>' ;
+					} elseif (isset($field['path_json_request'])) {
+						$img = zz_makelink($field['path_json_request'], $line);
+						if ($img = brick_request_getjson($img)) {
+							$rows[$z][$fieldindex]['text'].= $link.'<img src="'
+								.(!empty($field['path_json_base']) ? $field['path_json_base'] : '')
+								.$img.'"  alt="" class="thumb">'
+								.($link ? '</a>' : '');
+						}
 					}
 					break;
 				case 'subtable':
@@ -619,18 +627,18 @@ function zz_list(&$zz, $zz_conf, $zz_var, $id_field, $zz_conditions) {
 				$rows[$z]['modes'] = false;
 				if ($zz_conf_record['edit']) {
 					$rows[$z]['modes'] = '<a href="'.$zz_conf['url_self'].$zz_conf['url_self_qs_base']
-						.$zz_var['url_append'].'mode=edit&amp;id='.$id
+						.$zz_conf['url_append'].'mode=edit&amp;id='.$id
 						.$zz_var['extraGET'].'">'.zz_text('edit').'</a>';
 					$modes = true; // need a table row for this
 				} elseif ($zz_conf_record['view']) {
 					$rows[$z]['modes'] = '<a href="'.$zz_conf['url_self'].$zz_conf['url_self_qs_base']
-						.$zz_var['url_append'].'mode=show&amp;id='.$id
+						.$zz_conf['url_append'].'mode=show&amp;id='.$id
 						.$zz_var['extraGET'].'">'.zz_text('show').'</a>';
 					$modes = true; // need a table row for this
 				}
 				if ($zz_conf_record['delete']) {
 					$rows[$z]['modes'] .= '&nbsp;| <a href="'
-						.$zz_conf['url_self'].$zz_conf['url_self_qs_base'].$zz_var['url_append'].'mode=delete&amp;id='
+						.$zz_conf['url_self'].$zz_conf['url_self_qs_base'].$zz_conf['url_append'].'mode=delete&amp;id='
 						.$id.$zz_var['extraGET'].'">'.zz_text('delete').'</a>';
 					$modes = true; // need a table row for this
 				}
@@ -826,12 +834,12 @@ function zz_list(&$zz, $zz_conf, $zz_var, $id_field, $zz_conditions) {
 		// normal add button, only if list was shown beforehands
 		if ($zz['mode'] != 'add' && $zz_conf['add_link'] AND !is_array($zz_conf['add']) && $zz_conf['show_list']) {
 			$toolsline[] = '<a accesskey="n" href="'
-				.$zz_conf['url_self'].$zz_conf['url_self_qs_base'].$zz_var['url_append'].'mode=add'.$zz_var['extraGET'].'">'
+				.$zz_conf['url_self'].$zz_conf['url_self_qs_base'].$zz_conf['url_append'].'mode=add'.$zz_var['extraGET'].'">'
 				.zz_text('Add new record').'</a>';
 			if ($zz_conf['import']) {
 				$toolsline[] = '<a href="'
 					.$zz_conf['url_self'].$zz_conf['url_self_qs_base']
-					.$zz_var['url_append'].'mode=import'.$zz_var['extraGET'].'">'
+					.$zz_conf['url_append'].'mode=import'.$zz_var['extraGET'].'">'
 					.zz_text('Import data').'</a>';
 			}
 		}
@@ -842,7 +850,7 @@ function zz_list(&$zz, $zz_conf, $zz_var, $id_field, $zz_conditions) {
 			$zz['output'].= '<p class="add-new">'.zz_text('Add new record').': ';
 			foreach ($zz_conf['add'] as $i => $add) {
 				$zz['output'].= '<a href="'.$zz_conf['url_self']
-					.$zz_conf['url_self_qs_base'].$zz_var['url_append']
+					.$zz_conf['url_self_qs_base'].$zz_conf['url_append']
 					.'mode=add'.$zz_var['extraGET'].'&amp;add['.$add['field_name'].']='
 					.$add['value'].'">'.$add['type'].'</a>';
 				if ($i != count($zz_conf['add']) -1) $zz['output'].= ' | ';
@@ -852,14 +860,15 @@ function zz_list(&$zz, $zz_conf, $zz_var, $id_field, $zz_conditions) {
 
 		if ($zz_conf['export'] AND $total_rows) 
 			$toolsline = array_merge($toolsline, zz_export_links($zz_conf['url_self']
-				.$zz_conf['url_self_qs_base'].$zz_var['url_append'], $zz_var['extraGET']));
+				.$zz_conf['url_self_qs_base'].$zz_conf['url_append'], $zz_var['extraGET']));
 		if ($toolsline)
 			$zz['output'].= '<p class="add-new bottom-add-new">'.implode(' | ', $toolsline).'</p>';
 		// Total records
 		if ($total_rows == 1) $zz['output'].= '<p class="totalrecords">'.$total_rows.' '.zz_text('record total').'</p>'; 
 		elseif ($total_rows) $zz['output'].= '<p class="totalrecords">'.$total_rows.' '.zz_text('records total').'</p>';
 		// Limit links
-		$zz['output'].= zz_limit($zz_conf['limit'], $zz_conf['this_limit'], $count_rows, $zz['sql'], $total_rows, 'body');	// NEXT, PREV Links at the end of the page
+		$zz['output'].= zz_limit($zz_conf['limit'], $zz_conf['this_limit'], $count_rows, $total_rows);	
+		// TODO: NEXT, PREV Links at the end of the page
 		// Search form
 		$zz['output'] .= $search_form['bottom'];
 	} elseif ($zz_conf['list_display'] == 'pdf') {
