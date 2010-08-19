@@ -283,7 +283,8 @@ function zz_list(&$zz, $zz_conf, $zz_var, $id_field, $zz_conditions) {
 					else $order_val = $field['field_name'];
 					$unwanted_keys = array('dir');
 					$new_keys = array('order' => $order_val);
-					$uri = $zz_conf['url_self'].zz_edit_query_string($zz_conf['url_self_qs_base'].$zz_conf['url_self_qs_zzform'], $unwanted_keys, $new_keys);
+					$uri = $zz_conf['url_self'].zz_edit_query_string($zz_conf['url_self_qs_base']	
+						.$zz_conf['url_self_qs_zzform'], $unwanted_keys, $new_keys);
 					$order_dir = 'asc';
 					if (str_replace('&amp;', '&', $uri) == $_SERVER['REQUEST_URI']) {
 						$uri.= '&amp;dir=desc';
@@ -393,7 +394,7 @@ function zz_list(&$zz, $zz_conf, $zz_var, $id_field, $zz_conditions) {
 						$field = zz_conditions_merge($field, $zz_conditions['bool'], $line[$id_field]);
 					}
 					if (!empty($zz_conf_record['conditions'])) {
-						$zz_conf_record = zz_conditions_merge($zz_conf_record, $zz_conditions['bool'], $line[$id_field]);
+						$zz_conf_record = zz_conditions_merge($zz_conf_record, $zz_conditions['bool'], $line[$id_field], false, 'conf');
 						$zz_conf_record = zz_listandrecord_access($zz_conf_record);
 					}
 				}
@@ -528,13 +529,14 @@ function zz_list(&$zz, $zz_conf, $zz_var, $id_field, $zz_conditions) {
 					break;
 				case 'url':
 				case 'mail':
+				case 'mail+name':
 					if ($link) $rows[$z][$fieldindex]['text'].= $link;
 					if (!empty($field['display_field']))
 						$rows[$z][$fieldindex]['text'].= htmlchars($line[$field['display_field']]);
 					elseif ($field['type'] == 'url' && strlen($line[$field['field_name']]) > $zz_conf_record['max_select_val_len'])
 						$rows[$z][$fieldindex]['text'].= mb_substr(htmlchars($line[$field['field_name']]), 0, $zz_conf_record['max_select_val_len']).'...';
 					else
-						$rows[$z][$fieldindex]['text'].= htmlchars($line[$field['field_name']]);
+						$rows[$z][$fieldindex]['text'].= htmlspecialchars($line[$field['field_name']]);
 					if ($link) $rows[$z][$fieldindex]['text'].= '</a>';
 					break;
 				case 'id':
@@ -867,7 +869,7 @@ function zz_list(&$zz, $zz_conf, $zz_var, $id_field, $zz_conditions) {
 		if ($total_rows == 1) $zz['output'].= '<p class="totalrecords">'.$total_rows.' '.zz_text('record total').'</p>'; 
 		elseif ($total_rows) $zz['output'].= '<p class="totalrecords">'.$total_rows.' '.zz_text('records total').'</p>';
 		// Limit links
-		$zz['output'].= zz_limit($zz_conf['limit'], $zz_conf['this_limit'], $count_rows, $total_rows);	
+		$zz['output'].= zz_limit($zz_conf['limit'], $zz_conf['this_limit'], $total_rows);	
 		// TODO: NEXT, PREV Links at the end of the page
 		// Search form
 		$zz['output'] .= $search_form['bottom'];
@@ -967,6 +969,9 @@ function zz_set_link($field, $line) {
 	} elseif ($field['type'] == 'mail' AND $line[$field['field_name']]) {
 		// mailto-Link only if there is an address in that field
 		$link = 'mailto:'.$line[$field['field_name']];
+	} elseif ($field['type'] == 'mail+name' AND $line[$field['field_name']]) {
+		// mailto-Link only if there is an address in that field
+		$link = 'mailto:'.rawurlencode($line[$field['field_name']]);
 	} elseif (isset($field['link']) AND is_array($field['link'])) {
 		$link = zz_makelink($field['link'], $line)
 			.(empty($field['link_no_append']) ? $line[$field['field_name']] : '');

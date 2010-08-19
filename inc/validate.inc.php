@@ -9,23 +9,84 @@
 	else they will return the value that was checked against
 */
 
-function zz_check_mail($e_mail) {
-	// multiple e-mail adresses might be separated with a ','
-/* TODO
-	if (strstr(',', $e_mail)) {
-		$e_mails = explode(',', $e_mail);
-		foreach ($e_mails as $mail) {
-			$mail = zz_check_mail($mail);
-			if (!$mail)
+/**
+ * checks whether a given string is a valid e-mail address
+ *
+ * @param string $e_mail
+ * @param string $type (optional): mail, mail+name
+ * @return string $e_mail if correct, '' if not correct
+ */
+function zz_check_mail($e_mail, $type = 'mail') {
+	// remove whitespace from address(es)
+	$e_mail = trim($e_mail);
+
+	if ($type == 'mail+name') {
+		// bla@example.org
+		// bla@example.org, blubb@example.org
+		// bla@example.org,blubb@example.org
+		// bla@example.org,<blubb@example.org>
+		// Bla Blubb <bla@example.org>
+		// Bla Blubb <bla@example.org>, Blobb blubb <blubb@example.org>
+		// Bla Blubb <bla@example.org>, <blubb@example.org>
+		// Bla Blubb <bla@example.org>, blubb@example.org
+		// Bla, Dept. Blubb <bla@example.org>, blubb@example.org
+		
+		// treat , and ; alike
+		$e_mail = str_replace(';', ',', $e_mail);
+		
+		// get individual addresses
+		$mails = explode(',', $e_mail);
+		foreach ($mails as $index => $mail) {
+			if (!strstr($mail, '@')) {
+				// last part must be e-mail address
+				if (empty($mails[$index+1])) return false;
+				$mails[$index+1] = $mail.','.$mails[$index+1];
+				unset($mails[$index]);
+			}
 		}
+		
+		// check indivual addresses
+		$correct_mails = array();
+		foreach ($mails as $mail) {
+			$mail = trim($mail);
+			$parts = explode(' ', $mail);
+			$this_name = '';
+			$this_mail = '';
+			foreach ($parts as $index => $part) {
+				if ($index < count($parts)-1)
+					$this_name .= ' '.$part;
+				else {
+					$this_mail = zz_check_mail_single($part);
+					if (!$this_mail) return false;
+				}
+			}
+			if (trim($this_name)) {
+				$this_name = trim($this_name);
+				if (substr($this_name, 0, 1) != '"' AND substr($this_name, -1) != '"')
+					$this_name = '"'.$this_name.'"';
+				$correct_mails[] = $this_name.' <'.$this_mail.'>';
+			} else { 
+				$correct_mails[] =  $this_mail;
+			}
+		}
+		$e_mail = implode(', ', $correct_mails);
+		return $e_mail;
+	} else {
+		// single e-mail-address
+		$e_mail = zz_check_mail_single($e_mail);
+		return $e_mail;
 	}
-*/
-	$e_mail = trim($e_mail); // spaces never belong to Mailadress
-//	$e_mail = str_replace(';', ',', $e_mail); // sometimes people separate multiple 
-//		// e-mails with ; instead of , - allow this but replace with ','
+
+	return false;
+}
+
+function zz_check_mail_single($e_mail) {
+	// remove <>-brackets around address
 	if (substr($e_mail, 0, 1) == '<' && substr($e_mail, -1) == '>') 
-		$e_mail = substr($e_mail, 1, -1); // remove <>-brackets around address
-	if (preg_match('/^[a-z0-9!#$%&\'*+\/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&\'*+\\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i', $e_mail, $check))
+		$e_mail = substr($e_mail, 1, -1); 
+	// check address
+	$e_mail_pm = '/^[a-z0-9!#$%&\'*+\/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&\'*+\\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i';
+	if (preg_match($e_mail_pm, $e_mail, $check))
 		return $e_mail;
 	return false;
 }
@@ -35,11 +96,11 @@ function zz_check_mail($e_mail) {
  *
  * @param string $enum_value
  * @param array $field field definition
- * @param string $table [db_name.table]
+ * @param string $db_table [db_name.table]
  * @return mixed string $enum_value if correct, bool false if not
  */
-function zz_check_enumset($enum_value, $field, $table) {
-	$values = zz_get_enumset($field['field_name'], $table);
+function zz_check_enumset($enum_value, $field, $db_table) {
+	$values = zz_get_enumset($field['field_name'], $db_table);
 	if ($values) {
 		// it's in the table definition, go for it!
 		if (in_array($enum_value, $values)) return $enum_value;
@@ -60,15 +121,12 @@ function zz_check_enumset($enum_value, $field, $table) {
  * gets values for enum/set-fields from database
  *
  * @param string $column Name of column
- * @param string $table [db_name.table]
+ * @param string $db_table [db_name.table]
  * @return mixed array $values, bool false if no values
  */
-function zz_get_enumset($colum, $table) {
+function zz_get_enumset($colum, $db_table) {
 	$values = array();
-	if (substr($table, 0, 1) != '`' AND substr($table, -1) != '`') {
-		$table = '`'.str_replace('.', '`.`', $table).'`';
-	}
-	$sql = 'SHOW COLUMNS FROM '.$table.' LIKE "'.$colum.'"';
+	$sql = 'SHOW COLUMNS FROM '.zz_db_table_backticks($db_table).' LIKE "'.$colum.'"';
 	$column_definition = zz_db_fetch($sql, '', '', __FUNCTION__);
 	if (!$column_definition) return false;
 	if (substr($column_definition['Type'], 0, 5) == "set('" 
@@ -159,11 +217,8 @@ function zz_is_url($url) {
 	return true;
 }
 
-function zz_check_for_null($field, $table) {
-	if (substr($table, 0, 1) != '`' AND substr($table, -1) != '`') {
-		$table = '`'.str_replace('.', '`.`', $table).'`';
-	}
-	$sql = 'SHOW COLUMNS FROM '.$table.' LIKE "'.$field.'"';
+function zz_check_for_null($field, $db_table) {
+	$sql = 'SHOW COLUMNS FROM '.zz_db_table_backticks($db_table).' LIKE "'.$field.'"';
 	$line = zz_db_fetch($sql);
 	if ($line AND $line['Null'] == 'YES') return true;
 	else return false;

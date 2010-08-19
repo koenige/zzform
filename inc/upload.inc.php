@@ -702,9 +702,9 @@ function zz_upload_prepare($zz_tab) {
 				$image['upload'] = $src_image['upload']; 
 				// check if it's not a form that allows upload of different filetypes at once
 				// cross check input filetypes
-				if (!empty($image['input_filetypes'])) {
-					if (!in_array($src_image['upload']['filetype'], $image['input_filetypes'])) continue;
+				if (!empty($image['input_filetypes']) AND !empty($src_image['upload']['filetype'])) {
 					// continue if this file shall not be touched.
+					if (!in_array($src_image['upload']['filetype'], $image['input_filetypes'])) continue;
 				}
 				unset($src_image);
 				$dont_use_upload = true;

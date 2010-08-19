@@ -210,6 +210,10 @@ wps		wps		wps		application/vnd.ms-works		Microsoft Works Document
 
 flv		flv		flv		video/x-flv						Flash Video File
 
+plt		plt		plt		application/x-plt				HPGL Plotfile
+plt		plt		plt		drawing/plt						HPGL Plotfile
+plt		plt		plt		application/plt					HPGL Plotfile
+
 ### EOF
 #
 #

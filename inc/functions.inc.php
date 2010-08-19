@@ -229,11 +229,11 @@ function field_in_where($field, $values) {
  * checks maximum field length in MySQL database table
  * 
  * @param string $field	field name
- * @param string $table	table name [i. e. db_name.table]
+ * @param string $db_table	table name [i. e. db_name.table]
  * @return maximum length of field or false if no field length is set
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_check_maxlength($field, $type, $table) {
+function zz_check_maxlength($field, $type, $db_table) {
 	if (!$field) return false;
 	// just if it's a field with a field_name
 	// for some field types it makes no sense to check for maxlength
@@ -243,10 +243,7 @@ function zz_check_maxlength($field, $type, $table) {
 
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	if (substr($table, 0, 1) != '`' AND substr($table, -1) != '`') {
-		$table = '`'.str_replace('.', '`.`', $table).'`';
-	}
-	$sql = 'SHOW COLUMNS FROM '.$table.' LIKE "'.$field.'"';
+	$sql = 'SHOW COLUMNS FROM '.zz_db_table_backticks($db_table).' LIKE "'.$field.'"';
 	$maxlength = false;
 	$field_def = zz_db_fetch($sql);
 	if ($field_def) {
@@ -674,7 +671,6 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 		if (empty($field['type'])) $field['type'] = 'text';
 		if (in_array($field['type'], $unsearchable)) continue;
 
-
 		// check what to search for
 		$fieldname = false;
 		if (isset($field['search'])) {
@@ -885,7 +881,7 @@ function zz_filter_selection($filter) {
  */
 function zz_edit_query_string($query, $unwanted_keys = array(), $new_keys = array()) {
 	$query = str_replace('&amp;', '&', $query);
-	if (substr($query, 0, 1) == '?' OR substr($query, 0, 1) == '&')
+	if (substr($query, 0, 1) == '?' OR substr($query, 0, 5) == '&')
 		$query = substr($query, 1);
 	parse_str($query, $queryparts);
 	// remove unwanted keys from URI
@@ -896,7 +892,7 @@ function zz_edit_query_string($query, $unwanted_keys = array(), $new_keys = arra
 	foreach ($new_keys as $new_key => $new_value)
 		$queryparts[$new_key] = $new_value; 
 	// glue everything back together
-	$query_string = http_build_query($queryparts);
+	$query_string = http_build_query($queryparts, '', '&amp;');
 	if ($query_string) return '?'.$query_string; // URL without unwanted keys
 	else return false;
 }
@@ -904,10 +900,9 @@ function zz_edit_query_string($query, $unwanted_keys = array(), $new_keys = arra
 /**
  * if LIMIT is set, shows different pages for each $step records
  *
- * @param int $step = $zz_conf['limit'] how many records shall be shown on each page
+ * @param int $limit_step = $zz_conf['limit'] how many records shall be shown on each page
  * @param int $this_limit = $zz_conf['this_limit'] last record no. on this page
- * @param int $count_rows total records ?
- * @param int $total_rows total records ? 
+ * @param int $total_rows	count of total records that might be shown
  * @param string $scope 'body', todo: 'head' (not yet implemented)
  * @global array $zz_conf
  *		url_self, url_self_qs_base, url_self_qs_zzform, limit_show_range
@@ -915,72 +910,127 @@ function zz_edit_query_string($query, $unwanted_keys = array(), $new_keys = arra
  * @todo
  * 	- <link rel="next">, <link rel="previous">
  */
-function zz_limit($step, $this_limit, $count_rows, $total_rows, $scope = 'body') {
+function zz_limit($limit_step, $this_limit, $total_rows, $scope = 'body') {
 	global $zz_conf;
+
+	// check whether there are records
+	if (!$total_rows) return false;
 	
-	$output = '';
-	if (($this_limit && $count_rows >= $step OR $this_limit > $step) 
-		AND ($step != $total_rows)) {
-		$next = false;
-		$prev = false;
-		if ($total_rows) {
-			// remove mode, id
-			$unwanted_keys = array('mode', 'id', 'limit', 'add');
-			$uri = $zz_conf['url_self'].zz_edit_query_string($zz_conf['url_self_qs_base'].$zz_conf['url_self_qs_zzform'], $unwanted_keys);
-			$output .= '<ul class="pages">';
-			$output .= '<li class="first">'.($zz_limitlink = limitlink(0, $this_limit, $step, $uri)).'|&lt;'.($zz_limitlink ? '</a>' : '').'</li>';
-			$output .= '<li class="prev">'.($zz_limitlink = limitlink($this_limit-$step, $this_limit, 0, $uri)).'&lt;'.($zz_limitlink ? '</a>' : '').'</li>';
-			$output .= '<li class="all">'.($zz_limitlink = limitlink(-1, $this_limit, 0, $uri)).zz_text('all').($zz_limitlink ? '</a>' : '').'</li>';
-			$ellipsis_min = false;
-			$ellipsis_max = false;
-			$i_last = 0;
-			if ($zz_conf['limit_show_range'] && $total_rows >= $zz_conf['limit_show_range']) {
-				$i_start = $this_limit - ($zz_conf['limit_show_range']/2 + 2*$step);
-				if ($i_start < 0) $i_start = 0;
-				$i_end = $this_limit + ($zz_conf['limit_show_range'] + $step);
-				if ($i_end > $total_rows -1) $i_end = $total_rows -1;
-				$i_last = (ceil($total_rows/$step)*$step); // total_rows -1 because min is + 1 later on
-			} else {
-				$i_start = 0;
-				$i_end = $total_rows -1; // total_rows -1 because min is + 1 later on
-			}
-			for ($i = $i_start; $i <= $i_end; $i = $i+$step) { 
-				$range_min = $i+1;
-				$range_max = $i+$step;
-				if ($this_limit + 400 < $range_min) {
-					if (!$ellipsis_max)
-						$output .= $ellipsis_max = '<li>&hellip;</li>';
-					continue;
-				}
-				if ($this_limit > $range_max + 400) {
-					if (!$ellipsis_min)
-						$output .= $ellipsis_min = '<li>&hellip;</li>';
-					continue;
-				}
-				if ($range_max > $total_rows) $range_max = $total_rows;
-				$output .= '<li>'.($zz_limitlink = limitlink($i, $this_limit, $step, $uri))
-					.($range_min == $range_max ? $range_min: $range_min.'-'.$range_max) // if just one above the last limit show this numver only once
-					.($zz_limitlink ? '</a>' : '').'</li>';
-			}
-			$limit_next = $this_limit+$step;
-			if ($limit_next > $range_max) $limit_next = $i;
-			if (!$i_last) $i_last = $i;
-			$output .= '<li class="next">'.($zz_limitlink = limitlink($limit_next, $this_limit, 0, $uri)).'&gt;'.($zz_limitlink ? '</a>' : '').'</li>';
-			$output .= '<li class="last">'.($zz_limitlink = limitlink($i_last, $this_limit, 0, $uri)).'&gt;|'.($zz_limitlink ? '</a>' : '').'</li>';
-			$output .= '</ul>';
-			$output .= '<br clear="all">';
+	// check whether records shall be limited or not
+	if (!$limit_step) return false;
+
+	// check whether a limit is set (all records shown won't need a navigation)
+	// for performance reasons, next time a record is edited, limit will be reset
+	if (!$this_limit) return false;
+
+	// check whether all records fit on one page
+	if ($limit_step >= $total_rows) return false;
+
+	// remove mode, id
+	$unwanted_keys = array('mode', 'id', 'limit', 'add');
+	$uri = $zz_conf['url_self'].zz_edit_query_string($zz_conf['url_self_qs_base']
+		.$zz_conf['url_self_qs_zzform'], $unwanted_keys);
+
+	// set standard links
+	$links = array();
+	$links[] = array(
+		'link'	=> limitlink(0, $this_limit, $limit_step, $uri),
+		'text'	=> '|&lt;',
+		'class' => 'first'
+	);
+	$links[] = array(
+		'link'	=> limitlink($this_limit-$limit_step, $this_limit, 0, $uri),
+		'text'	=> '&lt;',
+		'class' => 'prev'
+	);
+	$links[] = array(
+		'link'	=> limitlink(-1, $this_limit, 0, $uri),
+		'text'	=> zz_text('all'),
+		'class' => 'all'
+	);
+
+	// set links for each step
+	$ellipsis_min = false;
+	$ellipsis_max = false;
+	// last step, = next integer from total_rows which can be divided by limit_step
+	$rec_last = 0; 
+
+	if ($zz_conf['limit_show_range'] AND $total_rows >= $zz_conf['limit_show_range']) {
+		$rec_start = $this_limit - ($zz_conf['limit_show_range']/2 + 2*$limit_step);
+		if ($rec_start < 0) $rec_start = 0;
+		elseif ($rec_start > 0) {
+			// set rec start to something which can be divided through step
+			$rec_start = ceil($rec_start/$limit_step)*$limit_step;
 		}
+		$rec_end = $this_limit + ($zz_conf['limit_show_range'] + $limit_step);
+		// total_rows -1 because min is + 1 later on
+		if ($rec_end > $total_rows -1) $rec_end = $total_rows -1;
+		$rec_last = (ceil($total_rows/$limit_step)*$limit_step);
+	} else {
+		$rec_start = 0;
+		$rec_end = $total_rows -1; // total_rows -1 because min is + 1 later on
 	}
+
+	for ($i = $rec_start; $i <= $rec_end; $i = $i+$limit_step) { 
+		$range_min = $i+1;
+		$range_max = $i+$limit_step;
+		if ($this_limit + ceil($zz_conf['limit_show_range']/2) < $range_min) {
+			if (!$ellipsis_max) {
+				$links[] = array('text' => '&hellip;', 'link' => '');
+				$ellipsis_max = true;
+			}
+			continue;
+		}
+		if ($this_limit > $range_max + floor($zz_conf['limit_show_range']/2)) {
+			if (!$ellipsis_min) {
+				$links[] = array('text' => '&hellip;', 'link' => '');
+				$ellipsis_min = true;
+			}
+			continue;
+		}
+		if ($range_max > $total_rows) $range_max = $total_rows;
+		// if just one above the last limit show this number only once
+		$links[] = array(
+			'link'	=> limitlink($i, $this_limit, $limit_step, $uri),
+			'text'	=> ($range_min == $range_max ? $range_min: $range_min.'-'.$range_max)
+		);
+	}
+	$limit_next = $this_limit+$limit_step;
+	if ($limit_next > $range_max) $limit_next = $i;
+	if (!$rec_last) $rec_last = $i;
+
+	// set more standard links
+	$links[] = array(
+		'link'	=> limitlink($limit_next, $this_limit, 0, $uri),
+		'text'	=> '&gt;',
+		'class' => 'next'
+	);
+	$links[] = array(
+		'link'	=> limitlink($rec_last, $this_limit, 0, $uri),
+		'text'	=> '&gt;|',
+		'class' => 'last'
+	);
+
+	// output links
+	$output = '<ul class="pages">'."\n";
+	foreach ($links as $link) {
+		$output .= '<li'.(!empty($link['class']) ? ' class="'.$link['class'].'"' : '').'>'
+			.($link['link'] ? '<a href="'.$link['link'].'">' : '')
+			.$link['text']
+			.($link['link'] ? '</a>' : '').'</li>'."\n";
+	}
+	$output .= '</ul>'."\n";
+	$output .= '<br clear="all">'."\n";
 	return $output;
 }
 
-function limitlink($i, $limit, $step, $uri) {
+function limitlink($i, $limit, $limit_step, $uri) {
 	global $zz_conf;
 	if ($i == -1) {  // all records
 		if (!$limit) return false;
 		else $limit_new = 0;
 	} else {
-		$limit_new = $i + $step;
+		$limit_new = $i + $limit_step;
 		if ($limit_new == $limit) return false; // current page!
 		elseif (!$limit_new) return false; // 0 does not exist, means all records
 	}
@@ -990,7 +1040,7 @@ function limitlink($i, $limit, $step, $uri) {
 		else $uri.= '?';
 		$uri .= 'limit='.$limit_new;
 	}
-	return '<a href="'.$uri.'">';
+	return $uri;
 }
 
 /**
@@ -1049,6 +1099,10 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 		? $field['max_records'] : $zz_conf['max_detail_records'];
 	$my_tab['min_records'] = (isset($field['min_records'])) 
 		? $field['min_records'] : $zz_conf['min_detail_records'];
+	$my_tab['min_records_required'] = (isset($field['min_records_required'])) 
+		? $field['min_records_required'] : 0;
+	if ($my_tab['min_records'] < $my_tab['min_records_required'])
+		$my_tab['min_records'] = $my_tab['min_records_required'];
 	$my_tab['records_depend_on_upload'] = (isset($field['records_depend_on_upload'])) 
 		? $field['records_depend_on_upload'] : false;
 	$my_tab['records_depend_on_upload_more_than_one'] = 
@@ -1127,7 +1181,16 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 function zz_get_subrecords($zz, $field, $my_tab, $main_tab, $zz_var, $tab) {
 	// set values, defaults if forgotten or overwritten
 	foreach (array_keys($my_tab['POST']) as $rec) {
-		$my_tab['POST'][$rec] = zz_check_def_vals($my_tab['POST'][$rec], $field['fields'],
+		$my_tab['existing'][$rec] = array();
+		if (!empty($my_tab['POST'][$rec][$my_tab['id_field_name']]) 
+			AND $zz['action'] == 'update') {
+			$sql = 'SELECT * 
+				FROM `'.$my_tab['db_name'].'`.`'.$my_tab['table'].'`
+				WHERE '.$my_tab['id_field_name'].' = '.$my_tab['POST'][$rec][$my_tab['id_field_name']];
+			$my_tab['existing'][$rec] = zz_db_fetch($sql);
+
+		}
+		$my_tab['POST'][$rec] = zz_check_def_vals($my_tab['POST'][$rec], $field['fields'], $my_tab['existing'][$rec],
 			(!empty($zz_var['where'][$my_tab['table_name']]) ? $zz_var['where'][$my_tab['table_name']] : ''));
 	}
 
@@ -1345,7 +1408,7 @@ function zz_set_values($my_tab, $rec, $zz_var) {
 	// we have new values, so check whether these are set!
 	// it's not possible to do this beforehands!
 	if (!empty($my_tab['POST'][$rec])) {
-		$my_tab['POST'][$rec] = zz_check_def_vals($my_tab['POST'][$rec], $fields,
+		$my_tab['POST'][$rec] = zz_check_def_vals($my_tab['POST'][$rec], $fields, array(),
 			(!empty($zz_var['where'][$table]) ? $zz_var['where'][$table] : ''));
 	}
 	return $my_tab;
@@ -1525,12 +1588,12 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
  * Fills field definitions with default definitions and infos from database
  * 
  * @param array $fields
- * @param string $table [i. e. db_name.table]
+ * @param string $db_table [i. e. db_name.table]
  * @param bool $multiple_times marker for conditions
  * @param array $fields
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_fill_out($fields, $table, $multiple_times = false, $mode = false) {
+function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
@@ -1576,7 +1639,7 @@ function zz_fill_out($fields, $table, $multiple_times = false, $mode = false) {
 			if (!isset($fields[$no]['maxlength']) && isset($fields[$no]['field_name'])
 				AND $mode != 'list_only') // no need to check maxlength in list view only 
 			{
-				$fields[$no]['maxlength'] = zz_check_maxlength($fields[$no]['field_name'], $fields[$no]['type'], $table);
+				$fields[$no]['maxlength'] = zz_check_maxlength($fields[$no]['field_name'], $fields[$no]['type'], $db_table);
 			}
 			if (!empty($fields[$no]['sql'])) // replace whitespace with space
 				$fields[$no]['sql'] = preg_replace("/\s+/", " ", $fields[$no]['sql']);
@@ -1670,26 +1733,27 @@ function zz_get_identifier_vars(&$my_rec, $f, $main_post) {
 	$func_vars = false;
 	foreach ($my_rec['fields'][$f]['fields'] as $function => $var) {
 	//	check for substring parameter
+		$var_index = $var; // get full var as index
 		preg_match('/{(.+)}$/', $var, $substr);
-		if ($substr) $var = preg_replace('/{(.+)}$/', '', $var, $substr);
+		if ($substr) $var = preg_replace('/{.+}$/', '', $var);
 	//	check whether subtable or not
 		if (strstr($var, '.')) { // subtable
 			$vars = explode('.', $var);
 			if (isset($my_rec['POST'][$vars[0]]) && isset($my_rec['POST'][$vars[0]][0][$vars[1]])) {
 				// todo: problem: subrecords are being validated after main record, so we might get invalid results
-				$func_vars[$var] = $my_rec['POST'][$vars[0]][0][$vars[1]]; // this might not be correct, because it ignores the table_name
+				$func_vars[$var_index] = $my_rec['POST'][$vars[0]][0][$vars[1]]; // this might not be correct, because it ignores the table_name
 				foreach ($my_rec['fields'] as $field) {
 					if (empty($field['table']) OR $field['table'] != $vars[0]
 						AND (empty($field['table_name']) OR $field['table_name'] != $vars[0])) continue;
 					foreach ($field['fields'] as $subfield)
 						if (empty($subfield['field_name']) OR $subfield['field_name'] != $vars[1]) continue;
 						if ($subfield['type'] != 'date') continue;
-						$func_vars[$var] = datum_int($func_vars[$var]); 
-						$func_vars[$var] = str_replace('-00', '', $func_vars[$var]); 
-						$func_vars[$var] = str_replace('-00', '', $func_vars[$var]); 
+						$func_vars[$var_index] = datum_int($func_vars[$var]); 
+						$func_vars[$var_index] = str_replace('-00', '', $func_vars[$var]); 
+						$func_vars[$var_index] = str_replace('-00', '', $func_vars[$var]); 
 				}
 			}
-			if (empty($func_vars[$var])) {
+			if (empty($func_vars[$var_index])) {
 				preg_match('/^(.+)\[(.+)\]$/', $vars[1], $fieldvar); // split array in variable and key
 				if ($fieldvar) foreach ($my_rec['fields'] as $field) {
 					if ((!empty($field['table']) && $field['table'] == $vars[0])
@@ -1699,7 +1763,7 @@ function zz_get_identifier_vars(&$my_rec, $f, $main_post) {
 							if (empty($subfield['field_name'])) continue; // empty: == subtable
 							if (empty($my_rec['POST'][$vars[0]][0][$subfield['field_name']])) continue;
 							if ($subfield['field_name'] == $fieldvar[1]) {
-								$func_vars[$var] = zz_get_identifier_sql_vars($subfield['sql'], 
+								$func_vars[$var_index] = zz_get_identifier_sql_vars($subfield['sql'], 
 									$my_rec['POST'][$vars[0]][0][$subfield['field_name']], $fieldvar[2]);
 							}
 						}
@@ -1707,20 +1771,20 @@ function zz_get_identifier_vars(&$my_rec, $f, $main_post) {
 			}
 		} else {
 			if (isset($my_rec['POST'][$var]))
-				$func_vars[$var] = $my_rec['POST'][$var];
-			if (empty($func_vars[$var])) { // could be empty because it's an array
+				$func_vars[$var_index] = $my_rec['POST'][$var];
+			if (empty($func_vars[$var_index])) { // could be empty because it's an array
 				preg_match('/^(.+)\[(.+)\]$/', $var, $fieldvar); // split array in variable and key
 				if (isset($fieldvar[1]) AND $fieldvar[1] == '0'
 					AND !empty($main_post[$fieldvar[2]]) AND !is_array($main_post[$fieldvar[2]])) {
-					$func_vars[$var] = $main_post[$fieldvar[2]];
-					if (substr($func_vars[$var], 0, 1)  == '"' AND substr($func_vars[$var], -1) == '"')
-						$func_vars[$var] = substr($func_vars[$var], 1, -1); // remove " "
+					$func_vars[$var_index] = $main_post[$fieldvar[2]];
+					if (substr($func_vars[$var_index], 0, 1)  == '"' AND substr($func_vars[$var_index], -1) == '"')
+						$func_vars[$var_index] = substr($func_vars[$var_index], 1, -1); // remove " "
 				} else {
 					foreach ($my_rec['fields'] as $field) {
 						if (!empty($field['sql']) && !empty($field['field_name']) // empty: == subtable
 							&& !empty($fieldvar[1]) && $field['field_name'] == $fieldvar[1]
 							&& !empty($my_rec['POST'][$field['field_name']])) {
-							$func_vars[$var] = zz_get_identifier_sql_vars($field['sql'], 
+							$func_vars[$var_index] = zz_get_identifier_sql_vars($field['sql'], 
 								$my_rec['POST'][$field['field_name']], $fieldvar[2]);
 						}
 					}
@@ -1728,8 +1792,8 @@ function zz_get_identifier_vars(&$my_rec, $f, $main_post) {
 			}
 		}
 		if ($substr)
-			eval ($line ='$func_vars[$var] = substr($func_vars[$var], '.$substr[1].');');
-		if (function_exists($function)) $func_vars[$var] = $function($func_vars[$var]);
+			eval ($line ='$func_vars[$var_index] = substr($func_vars[$var_index], '.$substr[1].');');
+		if (function_exists($function)) $func_vars[$var_index] = $function($func_vars[$var_index]);
 	}
 	return $func_vars;
 }
@@ -1781,14 +1845,14 @@ function zz_get_identifier_sql_vars($sql, $id, $fieldname = false) {
  *			$conf['slashes'] false; true = slashes will be preserved
  *			$conf['where'] WHERE-condition to be appended to query that checks existence of identifier in database 
  * @param array $my_rec		$zz_tab[$tab][$rec]
- * @param string $table	Name of Table
+ * @param string $db_table	Name of Table [dbname.table]
  * @param int $field		Number of field definition
  * @return string identifier
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_create_identifier($vars, $conf, $my_rec = false, $table = false, $field = false) {
+function zz_create_identifier($vars, $conf, $my_rec = false, $db_table = false, $field = false) {
 	if (empty($vars)) return false;
-	if ($my_rec AND $field AND $table) {
+	if ($my_rec AND $field AND $db_table) {
 		if (in_array($my_rec['fields'][$field]['field_name'], array_keys($vars)) && $vars[$my_rec['fields'][$field]['field_name']]) 
 			// do not change anything if there has been a value set once and identifier is in vars array
 			return $vars[$my_rec['fields'][$field]['field_name']]; 
@@ -1846,11 +1910,11 @@ function zz_create_identifier($vars, $conf, $my_rec = false, $table = false, $fi
 	$i = (!empty($conf['start']) ? $conf['start'] : 2); // start value, if idf already exists
 	if (!empty($conf['start_always'])) $idf .= $conf['exists'].$i;
 	else $conf['start_always'] = false;
-	if ($my_rec AND $field AND $table) {
+	if ($my_rec AND $field AND $db_table) {
 		if ($my_rec AND !empty($my_rec['fields'][$field]['maxlength']) && ($my_rec['fields'][$field]['maxlength'] < strlen($idf)))
 			$idf = substr($idf, 0, $my_rec['fields'][$field]['maxlength']);
 		// check whether identifier exists
-		$idf = zz_exists_identifier($idf, $i, $table, $my_rec['fields'][$field]['field_name'], 
+		$idf = zz_exists_identifier($idf, $i, $db_table, $my_rec['fields'][$field]['field_name'], 
 			$my_rec['id']['field_name'], $my_rec['POST'][$my_rec['id']['field_name']], 
 			$conf, $my_rec['fields'][$field]['maxlength']);
 	}
@@ -1863,7 +1927,7 @@ function zz_create_identifier($vars, $conf, $my_rec = false, $table = false, $fi
  *
  * @param string $idf
  * @param int $i
- * @param string $table
+ * @param string $db_table [dbname.table]
  * @param string $field
  * @param string $id_field
  * @param string $id_value
@@ -1872,10 +1936,10 @@ function zz_create_identifier($vars, $conf, $my_rec = false, $table = false, $fi
  * @global array $zz_conf
  * @return string $idf
  */
-function zz_exists_identifier($idf, $i, $table, $field, $id_field, $id_value, $conf, $maxlength = false) {
+function zz_exists_identifier($idf, $i, $db_table, $field, $id_field, $id_value, $conf, $maxlength = false) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	$sql = 'SELECT '.$field.' FROM '.$table.' WHERE '.$field.' = "'.$idf.'"
+	$sql = 'SELECT '.$field.' FROM '.zz_db_table_backticks($db_table).' WHERE '.$field.' = "'.$idf.'"
 		AND '.$id_field.' != '.$id_value.(!empty($conf['where']) ? ' AND '.$conf['where'] : '');
 	$records = zz_db_fetch($sql, $field);
 	if ($records) {
@@ -1890,7 +1954,7 @@ function zz_exists_identifier($idf, $i, $table, $field, $id_field, $id_value, $c
 			// in case there is a value for maxlength, make sure that resulting string won't be longer
 		$idf = $idf.$suffix;
 		$i++;
-		$idf = zz_exists_identifier($idf, $i, $table, $field, $id_field, $id_value, $conf, $maxlength);
+		$idf = zz_exists_identifier($idf, $i, $db_table, $field, $id_field, $id_value, $conf, $maxlength);
 	}
 	return zz_return($idf);
 }
@@ -2604,6 +2668,10 @@ function zz_count_rows($sql, $id_field) {
 }
 
 function zz_print_r($array, $color = false, $caption = 'Variables') {
+	if (!$array) {
+		echo 'Variable is empty.<br>';
+		return false;
+	}
 	echo '<table class="zzvariables" style="text-align: left;'.($color ? ' background: '.$color.';' : '').'">';
 	echo '<caption>'.$caption.'</caption>';
 	$vars = zz_print_multiarray($array);
@@ -2652,17 +2720,24 @@ function zz_print_multiarray($array, $parent_key = '') {
  * 
  * @param array $post		POST records of main table or subtable
  * @param array $fields		$zz ...['fields']-definitions of main or subtable
+ * @param array $existing_record values of existing record in case record is not set
+ * @param array $where
  * @return array $post		POST
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_check_def_vals($post, $fields, $where = false) {
+function zz_check_def_vals($post, $fields, $existing_record = array(), $where = false) {
 	foreach ($fields as $field) {
 		if (empty($field['field_name'])) continue;
 		// for all values, overwrite posted values with needed values
 		if (!empty($field['value'])) 
 			$post[$field['field_name']] = $field['value'];
-		// just for values which are not set (!) set default value
+		// just for values which are not set (!) set existing value (on update)
+		// if there is one
 		// (not for empty strings!)
+		if (!empty($existing_record[$field['field_name']]) AND !isset($post[$field['field_name']]))
+			$post[$field['field_name']] = $existing_record[$field['field_name']];
+		// just for values which are not set (!) set default value
+		// (not for empty strings!, not for update)
 		if (!empty($field['default']) AND !isset($post[$field['field_name']]))
 			$post[$field['field_name']] = $field['default'];
 		// most important, therefore last: [where]
@@ -2799,7 +2874,7 @@ function zz_record_access($zz, $zz_var, $zz_allowed_params) {
 			if (isset($zz_conf[$var])) $zz_conf['list_access'][$var] = $zz_conf[$var];
 		}
 		// overwrite new variables
-		$zz_conf = zz_conditions_merge($zz_conf, $zz_conditions['bool'], $zz_var['id']['value']);
+		$zz_conf = zz_conditions_merge($zz_conf, $zz_conditions['bool'], $zz_var['id']['value'], false, 'conf');
 	}
 
 
@@ -2959,9 +3034,11 @@ function zz_listandrecord_access($zz_conf) {
 		if (!isset($zz_conf['edit'])) $zz_conf['edit'] = true;
 		if (!isset($zz_conf['delete'])) $zz_conf['delete'] = false;
 		if (!isset($zz_conf['view'])) $zz_conf['view'] = false;
+		break;
 	}
 	if (!isset($zz_conf['add_link']))
 		$zz_conf['add_link'] = ($zz_conf['add'] ? true : false); // Link Add new ...
+
 	return $zz_conf;
 }
 
@@ -3482,7 +3559,7 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = arr
 	}
 	// in case where is not combined with ID field but UNIQUE field
 	// (e. g. identifier with UNIQUE KEY) retrieve value for ID field from database
-	if (!($zz_var['id']['value'])) {
+	if (!$zz_var['id']['value'] AND $zz_var['where_with_unique_id']) {
 		if ($zz_conf['modules']['debug']) zz_debug("where_conditions", $sql);
 		$line = zz_db_fetch($sql, '', '', 'WHERE; ambiguous values in ID?');
 		if ($line) {
@@ -3570,4 +3647,19 @@ function zz_set_fielddefs_for_record($zz) {
 	}
 	return $zz;
 }
+
+/**
+ * puts backticks around database and table name
+ *
+ * @param string $db_table = db_name, table name or both concatenated
+ *		with a dot
+ * @return string $db_table `database`.`table` or `database` or `table`
+ */
+function zz_db_table_backticks($db_table) {
+	if (substr($db_table, 0, 1) != '`' AND substr($db_table, -1) != '`') {
+		$db_table = '`'.str_replace('.', '`.`', $db_table).'`';
+	}
+	return $db_table;
+}
+
 ?>

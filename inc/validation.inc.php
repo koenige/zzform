@@ -263,12 +263,6 @@ function zz_validate($my_rec, $db_table, $table_name, $rec = 0, $main) {
 				$my_rec['validation'] = false;
 			}
 			break;
-		case 'timestamp':
-			if (empty($my_rec['fields'][$f]['display'])) {
-				$my_rec['fields'][$f]['in_sql_query'] = false;
-				break;
-			}
-			break;
 		case 'identifier':
 			// will be dealt with at the end, when all other values are clear
 			$my_rec['last_fields'][] = $f;
@@ -283,9 +277,10 @@ function zz_validate($my_rec, $db_table, $table_name, $rec = 0, $main) {
 			}
 			break;
 		case 'mail':
+		case 'mail+name':
 			//	check for correct mailaddress
 			if ($my_rec['POST'][$my_rec['fields'][$f]['field_name']]) {
-				if (!$tempvar = zz_check_mail($my_rec['POST'][$my_rec['fields'][$f]['field_name']])) {
+				if (!$tempvar = zz_check_mail($my_rec['POST'][$my_rec['fields'][$f]['field_name']], $type)) {
 					$my_rec['fields'][$f]['check_validation'] = false;
 					$my_rec['validation'] = false;
 				} else $my_rec['POST'][$my_rec['fields'][$f]['field_name']] = $tempvar;

@@ -52,8 +52,8 @@ function zz_record($zz, $zz_tab, $zz_var, $zz_conditions) {
 	}
 
 	// Heading inside HTML form element
-	if (($zz['mode'] == 'edit' OR $zz['mode'] == 'delete' OR $zz['mode'] == 'review') 
-		AND !$zz_tab[0][0]['record']) {
+	if (($zz['mode'] == 'edit' OR $zz['mode'] == 'delete' OR $zz['mode'] == 'review'
+		OR $zz['mode'] == 'show') AND !$zz_tab[0][0]['record']) {
 		$zz['formhead'] = '<span class="error">'.zz_text('There is no record under this ID:')
 			.' '.htmlspecialchars($zz_tab[0][0]['id']['value']).'</span>';	
 	} elseif (in_array($zz['mode'], $record_form) OR $zz['mode'] == 'show') {
@@ -134,7 +134,8 @@ function zz_record($zz, $zz_tab, $zz_var, $zz_conditions) {
 		$display_form = 'review';
 	} else
 		$display_form = false;
-	if (($zz['mode'] == 'edit' OR $zz['mode'] == 'delete' OR $zz['mode'] == 'review') 
+	if (($zz['mode'] == 'edit' OR $zz['mode'] == 'delete' OR $zz['mode'] == 'review'
+		OR $zz['mode'] == 'show') 
 		AND !$zz_tab[0][0]['record']) {
 		$display_form = false;
 	}
@@ -183,7 +184,7 @@ function zz_display_records($zz, $zz_tab, $display, $zz_var, $zz_conditions) {
 	$zz_conf_record = zz_record_conf($zz_conf);
 	// check conditions
 	if (!empty($zz_conf_record['conditions']) AND !empty($zz_conditions['bool']))
-		$zz_conf_record = zz_conditions_merge($zz_conf_record, $zz_conditions['bool'], $zz_var['id']['value']);
+		$zz_conf_record = zz_conditions_merge($zz_conf_record, $zz_conditions['bool'], $zz_var['id']['value'], false, 'conf');
 
 	if (($zz['mode'] == 'add' OR $zz['mode'] == 'edit') && !empty($zz_conf['upload_MAX_FILE_SIZE'])) 
 		$output.= '<input type="hidden" name="MAX_FILE_SIZE" value="'.$zz_conf['upload_MAX_FILE_SIZE'].'">'."\n";
@@ -815,6 +816,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 			case 'time':
 			case 'enum':
 			case 'mail':
+			case 'mail+name':
 			case 'datetime':
 			case 'ipv4':
 				if ($row_display == 'form') {
@@ -828,6 +830,8 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 						$outputf.= '<a href="'.htmlspecialchars($my_rec['record'][$field['field_name']]).'">';
 					elseif ($field['type'] == 'mail' && !empty($my_rec['record'][$field['field_name']]))
 						$outputf.= '<a href="mailto:'.$my_rec['record'][$field['field_name']].'">';
+					elseif ($field['type'] == 'mail+name' && !empty($my_rec['record'][$field['field_name']]))
+						$outputf.= '<a href="mailto:'.rawurlencode($my_rec['record'][$field['field_name']]).'">';
 					if ($field['type'] == 'url' 
 						AND strlen($my_rec['record'][$field['field_name']]) > $zz_conf_record['max_select_val_len'] 
 						AND $row_display != 'form')
@@ -837,7 +841,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 						$outputf.= long2ip($my_rec['record'][$field['field_name']]);
 					else
 						$outputf.= htmlspecialchars($my_rec['record'][$field['field_name']]);
-					if (($field['type'] == 'url' OR $field['type'] == 'mail')
+					if (($field['type'] == 'url' OR $field['type'] == 'mail' OR $field['type'] == 'mail+name')
 						&& !empty($my_rec['record'][$field['field_name']]) && $row_display != 'form')
 						$outputf.= '</a>';
 					if ($row_display == 'form') $outputf.= '"';
@@ -873,7 +877,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 								$outputf.= '<span class="edit-coord-degree">'; 
 							$outputf.= '<label for="'.$myid.'"><input type="radio" id="'
 								.$myid.'" name="'
-								.$field['f_field_name'].'[which]"  value="'.$which
+								.$field['f_field_name'].'[which]" value="'.$which
 								.'"'.($w_checked == $which ? $checked: '').'>'." "
 								.$which_display."</label>";
 							if (!isset($field['wrong_fields'][$which])) 
@@ -1026,7 +1030,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 								// written in my record fieldname)
 								$outputf.= ' checked="checked"'; 
 							}
-							$outputf.= '>'.zz_text('no_selection').'</label>';
+							$outputf.= '> '.zz_text('no_selection').'</label>';
 							if (!empty($field['show_values_as_list'])) 
 								$outputf .= "\n".'<ul class="zz_radio_list">'."\n";
 						} else {
@@ -1350,7 +1354,7 @@ function zz_form_select_sql_where($field, $where_fields) {
  * Output form element type="select", foreign_key with sql query
  * 
  * @param array $field field that will be checked
- * @param string $table db_name.table
+ * @param string $db_table db_name.table
  * @param array $record $my_rec['record']
  * @param string $row_display
  * @param array $zz_conf_record
@@ -1359,7 +1363,7 @@ function zz_form_select_sql_where($field, $where_fields) {
  * @return string HTML output for form
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_form_select_sql($field, $table, $record, $row_display, $zz_conf_record) {
+function zz_form_select_sql($field, $db_table, $record, $row_display, $zz_conf_record) {
 	global $zz_conf;
 	global $zz_error;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
@@ -1387,7 +1391,7 @@ function zz_form_select_sql($field, $table, $record, $row_display, $zz_conf_reco
 // #1.2 SELECT has only one result in the array, and this will be pre-selected 
 // because FIELD must not be NULL
 	if ($row_display == 'form' && mysql_num_rows($result) == 1 
-		&& !zz_check_for_null($field['field_name'], $table)) {
+		&& !zz_check_for_null($field['field_name'], $db_table)) {
 		$line = mysql_fetch_assoc($result);
 		// get ID field_name which must be 1st field in SQL query
 		$id_field_name = mysql_field_name($result, 0);
@@ -1468,12 +1472,12 @@ function zz_form_select_sql($field, $table, $record, $row_display, $zz_conf_reco
 			foreach ($details as $line) {
 				// fill in values, index NULL is for uppermost level
 				$my_select[(!empty($line[$field['show_hierarchy']]) 
-					? $line[$field['show_hierarchy']] : 'NULL')][] = $line;
+					? $line[$field['show_hierarchy']] : 'NULL')][$line[$id_field_name]] = $line;
 			}
 			if (!empty($field['show_hierarchy_subtree'])) {
 				$show_hierarchy_subtree = $field['show_hierarchy_subtree'];
 				// count fields in subhierarchy, should be less than existing $count_rows
-				$count_rows = zz_count_records($my_select, $show_hierarchy_subtree, $id_field_name);
+				$count_rows = zz_count_records($my_select, $show_hierarchy_subtree);
 			}
 		}
 
@@ -1573,10 +1577,20 @@ function zz_form_select_sql($field, $table, $record, $row_display, $zz_conf_reco
 						$field, $my_select, 1, $field['show_hierarchy'], 'form', $zz_conf_record);
 				}
 				$outputf .= '</optgroup>'."\n";
-			} elseif (!empty($field['show_hierarchy']) && !empty($my_select[$show_hierarchy_subtree])) {
-				foreach ($my_select[$show_hierarchy_subtree] AS $line)
+			} elseif (!empty($field['show_hierarchy']) AND !empty($my_select[$show_hierarchy_subtree])) {
+				foreach ($my_select[$show_hierarchy_subtree] AS $line) {
 					$outputf.= zz_draw_select($line, $id_field_name, $record, 
 						$field, $my_select, 0, $field['show_hierarchy'], 'form', $zz_conf_record);
+				}
+			} elseif (!empty($field['show_hierarchy']) AND $count_rows == 1) {
+				$line = false;
+				foreach ($my_select as $id => $my_main_field) {
+					if (isset($my_main_field[$show_hierarchy_subtree])) {
+						$line = $my_main_field[$show_hierarchy_subtree];
+					}
+				}
+				$outputf.= zz_draw_select($line, $id_field_name, $record, 
+					$field, $my_select, 0, $field['show_hierarchy'], 'form', $zz_conf_record);
 			} elseif (!empty($field['group'])) {
 				// optgroup
 				$optgroup = false;
@@ -1718,16 +1732,24 @@ function zz_show_separator($separator) {
  * counts records in hierarchical select
  *
  * @param array $select
- * @param string $subtree
- * @param string $id_field_name
+ * @param int $subtree
  * @return HTML string
  */
-function zz_count_records($select, $subtree, $id_field_name) {
+function zz_count_records($select, $subtree) {
 	$records = 0;
-	foreach ($select[$subtree] AS $field) {
+	// no records below this ID
+	if (empty($select[$subtree])) {
+		foreach ($select as $mother_id => $field) {
+			foreach (array_keys($field) as $id)
+				// if there is an ID in this SELECT but no subtree, that
+				// means there's only one record
+				if ($id == $subtree) return 1;
+		}
+	}
+	foreach ($select[$subtree] AS $id => $field) {
 		$records++;
-		if (!empty($select[$field[$id_field_name]])) {
-			$records += zz_count_records($select, $field[$id_field_name], $id_field_name);
+		if (!empty($select[$id])) {
+			$records += zz_count_records($select, $id);
 		}
 	}
 	return $records;

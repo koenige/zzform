@@ -23,6 +23,7 @@ $text['calculated_field'] = 'berechnetes Feld';
 $text['will_be_added_automatically'] = 'wird automatisch hinzugef&uuml;gt';
 $text['no_selection'] = 'Keine Auswahl';
 $text['record_was_updated'] = 'Datensatz wurde aktualisiert';
+$text['Record was not updated (no changes were made)'] = 'Datensatz wurde nicht aktualisiert (es gab keine &Auml;nderungen)';
 $text['record_was_deleted'] = 'Datensatz wurde gel&ouml;scht';
 $text['reason'] = 'Grund';
 $text['following_values_checked_again'] = 'Die folgenden Werte m&uuml;ssen &uuml;berpr&uuml;ft werden';
@@ -145,5 +146,6 @@ $text['Selection'] = 'Auswahl';
 $text['Import data'] = 'Import Daten';
 $text['String <em>"%s"</em> is not allowed'] = 'Die Zeichenfolge <em>"%s"</em> ist nicht erlaubt';
 $text['Would be changed on update'] = 'W&uuml;rde bei Aktualisierung ge&auml;ndert.';
+$text['Minimum of records for table `%s` was not met (%d)'] = 'Im Feld `%s` sind mehr Daten erforderlich (min. Anzahl: %d)';
 
 ?>

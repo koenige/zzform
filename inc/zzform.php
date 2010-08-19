@@ -342,7 +342,8 @@ function zzform() {
 		$zz_conditions = array();
 
 	if ($zz_conf['show_record']) {
-		if (!empty($zz_conf['modules']['conditions']) AND !empty($zz_conditions['values']))
+		if (!empty($zz_conf['modules']['conditions']) AND !empty($zz_conditions['values'])
+			AND !empty($zz['conditional_fields']))
 			$zz['fields'] = zz_conditions_record_fields($zz['fields'], $zz['conditional_fields'], $zz_conditions['values']);
 		
 		// check if there are any bool-conditions 
@@ -355,6 +356,9 @@ function zzform() {
 					$zz['fields'][$no] = zz_conditions_merge($zz['fields'][$no], $zz_conditions['bool'], $zz_var['id']['value'], true);
 				}
 			}
+		} elseif (!empty($zz_conf['modules']['conditions']) AND !empty($zz_conditions['values'])
+			AND $zz_conf['modules']['debug']) {
+			zz_debug('Notice: `values`-condition was set, but there\'s no `conditional_field`! (Waste of ressources)');
 		}
 	 	// sets some $zz-definitions for records depending on existing definition for
 		// translations, subtabes, uploads, write_once-fields
@@ -441,7 +445,14 @@ function zzform() {
 		if (!empty($_POST['zz_action'])) {
 			// fields with values must still have values
 			// TODO TODO
-			$zz_tab[0][0]['POST'] = zz_check_def_vals($_POST, $zz_tab[0][0]['fields'], 
+			$zz_tab[0]['existing'][0] = array();
+			if (!empty($_POST[$zz_var['id']['field_name']]) AND $_POST['zz_action'] == 'update') {
+				$sql = 'SELECT * 
+					FROM `'.$zz_tab[0]['db_name'].'`.`'.$zz_tab[0]['table'].'`
+					WHERE '.$zz_var['id']['field_name'].' = '.$_POST[$zz_var['id']['field_name']];
+				$zz_tab[0]['existing'][0] = wrap_db_fetch($sql);
+			}
+			$zz_tab[0][0]['POST'] = zz_check_def_vals($_POST, $zz_tab[0][0]['fields'], $zz_tab[0]['existing'][0],
 				(!empty($zz_var['where'][$zz_tab[0]['table']]) ? $zz_var['where'][$zz_tab[0]['table']] : ''));
 			// get rid of some POST values that are used at another place
 			$internal_fields = array('MAX_FILE_SIZE', 'zz_check_select', 'zz_action',
@@ -506,8 +517,10 @@ function zzform() {
 
 		$zz_var['extraGET'] = zz_extra_get_params($zz['mode'], $zz_conf);
 
+		if ($zz_conf['generate_output']) {
 	//	Display Updated, Added or Editable Record
-		$zz['output'] .= zz_record($zz, $zz_tab, $zz_var, $zz_conditions);	
+			$zz['output'] .= zz_record($zz, $zz_tab, $zz_var, $zz_conditions);	
+		}
 		unset ($zz['formhead']); // has served it's duty, good bye.
 
 	} else {
@@ -518,7 +531,8 @@ function zzform() {
 
 	// filter
 	if (!empty($zz_conf['filter']) AND $zz_conf['access'] != 'export'
-		AND in_array($zz_conf['filter_position'], array('top', 'both')))
+		AND in_array($zz_conf['filter_position'], array('top', 'both'))
+		AND $zz_conf['show_list'])
 		$zz['output'] .= zz_filter_selection($zz_conf['filter']);
 	
 	if ($zz['mode'] != 'add' && $zz_conf['add_link'] && !is_array($zz_conf['add'])
@@ -752,6 +766,7 @@ function zz_initialize(&$zz_allowed_params) {
 	$zz_default['filter_position'] 		= 'top';
 	$zz_default['filter'] 				= array();
 	$zz_default['footer_text']			= false;		// text at the end of all
+	$zz_default['generate_output']		= true;
 	$zz_default['heading_text'] 		= '';
 	$zz_default['heading_text_hidden_while_editing'] 	= false;
 	$zz_default['limit']				= false;	// only n records are shown at once
