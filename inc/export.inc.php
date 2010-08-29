@@ -9,8 +9,8 @@
  *					VARIABLES
  *		---------------------------------------------- */
 
-$zz_allowed_params['mode'][] = 'export';
-$zz_allowed_params['export'] = array('csv', 'pdf');
+$zz_conf['allowed_params']['mode'][] = 'export';
+$zz_conf['allowed_params']['export'] = array('csv', 'pdf');
 
 $zz_default['export']			= false;				// if sql result might be exported (link for export will appear at the end of the page)
 $zz_default['export_filetypes']	= array('csv', 'pdf');	// possible filetypes for export
@@ -25,7 +25,7 @@ $zz_default['export_csv_enclosure'] = '"';
  *					FUNCTIONS
  *		---------------------------------------------- */
 
-function zz_export_init($zz_allowed_params) {
+function zz_export_init() {
 	global $zz_conf;
 	global $zz;
 	
@@ -35,7 +35,7 @@ function zz_export_init($zz_allowed_params) {
 		// should not happen, but just in case
 		if (empty($_GET['export'])) $_GET['export'] = 'csv';
 	}
-	if (!empty($_GET['export']) && in_array($_GET['export'], $zz_allowed_params['export'])) {
+	if (!empty($_GET['export']) && in_array($_GET['export'], $zz_conf['allowed_params']['export'])) {
 		$zz['headers'] = zz_make_headers($_GET['export'], $zz_conf['character_set']);
 		$zz['mode'] = 'export';
 		$zz_conf['list_display'] = $_GET['export'];

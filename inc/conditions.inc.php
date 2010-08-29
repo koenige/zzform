@@ -41,7 +41,7 @@ function zz_conditions_record_check($zz, &$zz_var) {
 		switch ($condition['scope']) {
 		case 'record': // for form view (of saved records), list view comes later in zz_list() because requery of record 
 			$zz_conditions['bool'][$index] = array();
-			if (($zz['mode'] == 'add' OR $zz['action'] == 'insert') 
+			if (($zz['mode'] == 'add' OR $zz_var['action'] == 'insert') 
 				AND !empty($condition['add'])
 				AND !empty($zz_var['where'][$zz['table']][$condition['add']['key_field_name']])) {
 				$sql = $condition['add']['sql']

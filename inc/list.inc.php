@@ -12,19 +12,20 @@
  * displays add new record, record navigation (if zz_conf['limit'] = true)
  * and search form below table
  * @param array $zz				table and field definition
- * @param array $zz_conf		configuration variables
- * @param array $zz_var			internal variables
- * @param int $total_rows		total rows in main table
- * @param string $id_field		name of ID field for main table
+ * @param array $zz_var			Main variables
+ * @param array $zz_conditions	configuration variables
  * @global array $zz_error		errorhandling
- * @return array $zz			Output for page, ...
- * @return array $zz_conf		Modified conifguration parameters
- * @return array $zz_error		Error-Output
+ * @global array $zz_conf		Main conifguration parameters, will be modified
+ * @return array
+ *		array $zz
+ *		array $zz_var
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_list(&$zz, $zz_conf, $zz_var, $id_field, $zz_conditions) {
+function zz_list($zz, $zz_var, $zz_conditions) {
 	global $zz_conf;
 	global $zz_error;
+
+	$id_field = $zz_var['id']['field_name'];
 
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if ($zz_conf['list_access']) {
@@ -188,7 +189,7 @@ function zz_list(&$zz, $zz_conf, $zz_var, $id_field, $zz_conditions) {
 	// Check all conditions whether they are true;
 	if (!empty($zz_conf['modules']['conditions']))
 		$zz_conditions = zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids);
-	if ($zz_error['error']) return zz_return(false);
+	if ($zz_error['error']) return zz_return(array($zz, $zz_var));
 	$zz['output'].= zz_error();
 	if ($zz_conf['modules']['debug']) zz_debug("conditions finished");
 
@@ -524,7 +525,7 @@ function zz_list(&$zz, $zz_conf, $zz_var, $id_field, $zz_conditions) {
 						}
 						$sub_id = $line[$key_fieldname]; // get correct ID
 					} elseif (!empty($field['display_field'])) {
-						$rows[$z][$fieldindex]['text'].= $line[$field['display_field']];
+						$rows[$z][$fieldindex]['text'].= zz_mark_search_string($line[$field['display_field']], $field['display_field']);
 					}
 					break;
 				case 'url':
@@ -532,11 +533,13 @@ function zz_list(&$zz, $zz_conf, $zz_var, $id_field, $zz_conditions) {
 				case 'mail+name':
 					if ($link) $rows[$z][$fieldindex]['text'].= $link;
 					if (!empty($field['display_field']))
-						$rows[$z][$fieldindex]['text'].= htmlchars($line[$field['display_field']]);
+						$rows[$z][$fieldindex]['text'].= zz_mark_search_string(htmlchars($line[$field['display_field']]), $field['display_field']);
 					elseif ($field['type'] == 'url' && strlen($line[$field['field_name']]) > $zz_conf_record['max_select_val_len'])
-						$rows[$z][$fieldindex]['text'].= mb_substr(htmlchars($line[$field['field_name']]), 0, $zz_conf_record['max_select_val_len']).'...';
+						$rows[$z][$fieldindex]['text'].= zz_mark_search_string(
+							mb_substr(htmlchars($line[$field['field_name']]), 0, 
+							$zz_conf_record['max_select_val_len']).'...', $field['field_name']);
 					else
-						$rows[$z][$fieldindex]['text'].= htmlspecialchars($line[$field['field_name']]);
+						$rows[$z][$fieldindex]['text'].= zz_mark_search_string(htmlspecialchars($line[$field['field_name']]), $field['field_name']);
 					if ($link) $rows[$z][$fieldindex]['text'].= '</a>';
 					break;
 				case 'id':
@@ -548,7 +551,7 @@ function zz_list(&$zz, $zz_conf, $zz_var, $id_field, $zz_conditions) {
 						$val_to_insert = $line[$field['display_field']];
 						if (!empty($field['translate_field_value']))
 							$val_to_insert = zz_text($val_to_insert);
-						$rows[$z][$fieldindex]['text'].= htmlchars($val_to_insert);
+						$rows[$z][$fieldindex]['text'].= zz_mark_search_string(htmlchars($val_to_insert), $field['display_field']);
 					} else {
 						// replace field content with display_title, if set.
 						if (!empty($field['display_title']) 
@@ -559,41 +562,41 @@ function zz_list(&$zz, $zz_conf, $zz_var, $id_field, $zz_conditions) {
 							$line[$field['field_name']] /=$field['factor'];
 						
 						if ($field['type'] == 'unix_timestamp') 
-							$rows[$z][$fieldindex]['text'].= date('Y-m-d H:i:s', $line[$field['field_name']]);
+							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(date('Y-m-d H:i:s', $line[$field['field_name']]), $field['field_name']);
 						elseif ($field['type'] == 'timestamp')
-							$rows[$z][$fieldindex]['text'].= timestamp2date($line[$field['field_name']]);
+							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(timestamp2date($line[$field['field_name']]), $field['field_name']);
 						elseif ($field['type'] == 'select' 
 							AND (!empty($field['set']) OR !empty($field['set_sql'])))
-							$rows[$z][$fieldindex]['text'].= str_replace(',', ', ', $line[$field['field_name']]);
+							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(str_replace(',', ', ', $line[$field['field_name']]), $field['field_name']);
 						elseif ($field['type'] == 'select' && !empty($field['enum']) && !empty($field['enum_title'])) { // show enum_title instead of enum
 							foreach ($field['enum'] as $mkey => $mvalue)
 								if ($mvalue == $line[$field['field_name']]) 
-									$rows[$z][$fieldindex]['text'] .= $field['enum_title'][$mkey];
+									$rows[$z][$fieldindex]['text'] .= zz_mark_search_string($field['enum_title'][$mkey], $field['field_name']);
 						} elseif ($field['type'] == 'select' && !empty($field['enum'])) {
-							$rows[$z][$fieldindex]['text'] .= zz_text($line[$field['field_name']]); // translate field value
+							$rows[$z][$fieldindex]['text'] .= zz_mark_search_string(zz_text($line[$field['field_name']]), $field['field_name']); // translate field value
 						} elseif ($field['type'] == 'date') {
-							$rows[$z][$fieldindex]['text'].= datum_de($line[$field['field_name']]);
+							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(datum_de($line[$field['field_name']]), $field['field_name']);
 						} elseif (isset($field['number_type']) && $field['number_type'] == 'currency') {
-							$rows[$z][$fieldindex]['text'].= waehrung($line[$field['field_name']], '');
+							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(waehrung($line[$field['field_name']], ''), $field['field_name']);
 						} elseif (isset($field['number_type']) && $field['number_type'] == 'latitude' && $line[$field['field_name']]) {
 							$deg = dec2dms($line[$field['field_name']], '');
-							$rows[$z][$fieldindex]['text'].= $deg['latitude_dms'];
+							$rows[$z][$fieldindex]['text'].= zz_mark_search_string($deg['latitude_dms'], $field['field_name']);
 						} elseif (isset($field['number_type']) && $field['number_type'] == 'longitude' && $line[$field['field_name']]) {
 							$deg = dec2dms('', $line[$field['field_name']]);
-							$rows[$z][$fieldindex]['text'].= $deg['longitude_dms'];
+							$rows[$z][$fieldindex]['text'].= zz_mark_search_string($deg['longitude_dms'], $field['field_name']);
 						} elseif (!empty($field['display_value'])) {
 							// translations should be done in $zz-definition-file
 							$rows[$z][$fieldindex]['text'].= $field['display_value'];
 						} elseif ($zz['mode'] == 'export') {
 							$rows[$z][$fieldindex]['text'].= $line[$field['field_name']];
 						} elseif (!empty($field['list_format'])) {
-							$rows[$z][$fieldindex]['text'].= $field['list_format']($line[$field['field_name']]);
+							$rows[$z][$fieldindex]['text'].= zz_mark_search_string($field['list_format']($line[$field['field_name']]), $field['field_name']);
 						} elseif (empty($field['hide_zeros']) OR $line[$field['field_name']]) {
 							// show field, but not if hide_zeros is set
 							$val_to_insert = $line[$field['field_name']];
 							if (!empty($field['translate_field_value']))
 								$val_to_insert = zz_text($val_to_insert);
-							$rows[$z][$fieldindex]['text'].= nl2br(htmlchars($val_to_insert));
+							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(nl2br(htmlchars($val_to_insert)), $field['field_name']);
 						}
 					}
 					if ($link) $rows[$z][$fieldindex]['text'].= '</a>';
@@ -680,7 +683,8 @@ function zz_list(&$zz, $zz_conf, $zz_var, $id_field, $zz_conditions) {
 						'query' => $subselect['sql'],
 						'level' => E_USER_ERROR
 					);
-					return zz_return(zz_error());
+					zz_error();
+					return zz_return(array($zz, $zz_var));
 				}
 				$myline = $line;
 				unset ($myline[$subselect['id_fieldname']]); // ID field will not be shown
@@ -692,7 +696,8 @@ function zz_list(&$zz, $zz_conf, $zz_var, $id_field, $zz_conditions) {
 				'query' => $subselect['sql'],
 				'level' => E_USER_ERROR
 			);
-			return zz_return(zz_error());
+			zz_error();
+			return zz_return(array($zz, $zz_var));
 		}
 		
 		foreach ($ids as $z_row => $id) {
@@ -712,7 +717,7 @@ function zz_list(&$zz, $zz_conf, $zz_var, $id_field, $zz_conditions) {
 				if (!empty($subselect['list_format'])) {
 					$subselect_text = $subselect['list_format']($subselect_text);
 				}
-				$rows[$z_row][$subselect['fieldindex']]['text'].= $subselect_text;
+				$rows[$z_row][$subselect['fieldindex']]['text'].= zz_mark_search_string($subselect_text);
 				if (!empty($subselect['export_no_html'])) {
 					$rows[$z_row][$subselect['fieldindex']]['export_no_html'] = true;
 				}
@@ -878,7 +883,10 @@ function zz_list(&$zz, $zz_conf, $zz_var, $id_field, $zz_conditions) {
 		zz_pdf($zz);
 		exit;
 	}
+	// save total rows in zz_var for use in zz_nice_title()
+	$zz_var['limit_total_rows'] = $total_rows;
 	if ($zz_conf['modules']['debug']) zz_debug("end");
+	return zz_return(array($zz, $zz_var));
 }
 
 function zz_field_sum($table_query, $z, $table, $sum, $zz_conf) {
@@ -996,6 +1004,22 @@ function zz_set_link($field, $line) {
 		.(!empty($field['link_attributes']) ? ' '.$field['link_attributes'] : '')
 		.'>';
 	return $link;
+}
+
+function zz_mark_search_string($value, $field_name = false) {
+	global $zz_conf;
+	if (!$zz_conf['show_list']) return $value;
+	if ($zz_conf['list_display'] != 'table' AND $zz_conf['list_display'] != 'ul') return $value;
+	if (empty($_GET['q'])) return $value;
+	if (!empty($_GET['scope'])) {
+		if (strstr($_GET['scope'], '.'))
+			$my_field_name = substr($_GET['scope'], strrpos($_GET['scope'], '.')+1);
+		else
+			$my_field_name = $_GET['scope'];
+		if ($my_field_name != $field_name) return $value;
+	}
+	$value = preg_replace('~('.$_GET['q'].')~i', '<span class="highlight">\1</span>', $value);
+	return $value;
 }
 
 ?>

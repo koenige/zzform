@@ -81,6 +81,7 @@ div.text #zzform	 {padding: 1em;}
 #zzform td p:last-child {margin-bottom: 0;}
 
 #zzform .hidden {display: none;}
+#zzform form .hidden_in_form {display: none;}
 
 #zzform option.level0 {font-weight: bold;}
 #zzform option.level1 {padding-left: 2em;}
@@ -100,6 +101,7 @@ div.text #zzform	 {padding: 1em;}
 
 #zzform p.desc, #zzform .explanation 
 	{margin: 0; padding: 0; font-weight: normal; font-size: 90%; clear: both;}
+#zzform p.explanation {line-height: 1.2;}
 
 #zzform #record .upload td, #zzform #record .upload th {padding-top: 0;}
 #zzform #record .upload th {padding-left: 0;}
@@ -109,7 +111,7 @@ div.text #zzform	 {padding: 1em;}
 
 #zzform .zz_radio_list {list-style: none; padding: 0; margin: 0;}
 #zzform .zz_radio_list li {list-style: none; padding: 0; margin: 0;}
-#zzform .separator hr {width: 100%; margin: 0.25em 0; height: 3px;
+body #zzform .separator hr {width: 100%; margin: 0.25em 0; height: 3px;
 	max-width: none;}
 #zzform .left_separator {border-left: 3px #FFF solid;}
 #zzform #record td.separator {padding: .25em 0;}
@@ -142,7 +144,8 @@ div.text #zzform	 {padding: 1em;}
 
 #zzform input, #zzform textarea {text-rendering:optimizeSpeed;} /* get rid of Firefox wrong ligatures */
 
-#zzform #record .reselect th, #zzform #record .reselect td {background-color: green;}
+#zzform #record .reselect th, #zzform #record .reselect td, #zzform #record .reselect
+	{background-color: green;}
 
 .debug {background: white; border: 1px solid black; overflow: auto; font-size: 75%;}
 .debug h1 {padding-left: .5em;}
@@ -155,5 +158,11 @@ div.text #zzform	 {padding: 1em;}
 #zzform .zzfilter dl {margin: 0; padding: 0;}
 #zzform .zzfilter dt {float: left; clear: left;}
 #zzform .zzfilter dd {margin: 0; padding: 0 .5em; float: left;
-	border-right: 1px solid black;}
+	border-right: 1px solid black; white-space: nowrap; }
 #zzform .zzfilter dd.filter_all {border-right: none;}
+
+/* Variables */
+.zzvariables th { white-space: nowrap; text-align: left; padding-right: .5em; 
+		vertical-align: top; }
+
+#zzform .highlight { background-color: yellow; }

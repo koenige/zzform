@@ -18,9 +18,10 @@
  * input elements or only for display
  *
  * @param array $zz
- *		'output', 'mode', 'upload_form', 'action', 'no-delete'
+ *		'output', 'mode'
  * @param array $zz_tab
  * @param array $zz_var
+ *		'upload_form', 'no-delete', 'action'
  * @param array $zz_conditions
  * @global array $zz_conf
  *		'url_self', 'url_self_qs_base', 'url_append', 'character_set'
@@ -46,7 +47,7 @@ function zz_record($zz, $zz_tab, $zz_var, $zz_conditions) {
 		if ($zz_var['extraGET']) 
 			$output .= $zz_conf['url_append'].substr($zz_var['extraGET'], 5); 
 		$output .= '" method="POST"';
-		if (!empty($zz['upload_form'])) 
+		if (!empty($zz_var['upload_form'])) 
 			$output .= ' enctype="multipart/form-data"';
 		$output .= ' accept-charset="'.$zz_conf['character_set'].'">';
 	}
@@ -54,19 +55,19 @@ function zz_record($zz, $zz_tab, $zz_var, $zz_conditions) {
 	// Heading inside HTML form element
 	if (($zz['mode'] == 'edit' OR $zz['mode'] == 'delete' OR $zz['mode'] == 'review'
 		OR $zz['mode'] == 'show') AND !$zz_tab[0][0]['record']) {
-		$zz['formhead'] = '<span class="error">'.zz_text('There is no record under this ID:')
+		$zz_var['formhead'] = '<span class="error">'.zz_text('There is no record under this ID:')
 			.' '.htmlspecialchars($zz_tab[0][0]['id']['value']).'</span>';	
 	} elseif (in_array($zz['mode'], $record_form) OR $zz['mode'] == 'show') {
 	//	mode = add | edit | delete: show form
-		$zz['formhead'] = zz_text($zz['mode']).' '.zz_text('a_record');
-	} elseif ($zz['action']) {	
+		$zz_var['formhead'] = zz_text($zz['mode']).' '.zz_text('a_record');
+	} elseif ($zz_var['action']) {	
 	//	action = insert update review: show form with new values
-		if (!$zz['formhead']) {
-			$zz['formhead'] = ucfirst(zz_text($zz['action']).' '.zz_text('failed'));
+		if (!$zz_var['formhead']) {
+			$zz_var['formhead'] = ucfirst(zz_text($zz_var['action']).' '.zz_text('failed'));
 		}
-		if (!empty($zz['no-delete'])) {
-			$zz['formhead'] = zz_text('warning').'!';
-			foreach ($zz['no-delete'] as $tab) {
+		if (!empty($zz_var['no-delete'])) {
+			$zz_var['formhead'] = zz_text('warning').'!';
+			foreach ($zz_var['no-delete'] as $tab) {
 				$tab = explode(',', $tab);
 				$no_delete_reason = $zz_tab[$tab[0]][$tab[1]]['no-delete'];
 				$tmp_error_msg = 
@@ -83,10 +84,10 @@ function zz_record($zz, $zz_tab, $zz_var, $zz_conditions) {
 			}
 		}
 	} elseif ($zz['mode'] == 'review') {
-		$zz['formhead'] = zz_text('show_record');
+		$zz_var['formhead'] = zz_text('show_record');
 	}
-	if ($zz['formhead']) {
-		$output .= '<div id="record">'."\n<h2>".ucfirst($zz['formhead'])."</h2>\n\n";
+	if ($zz_var['formhead']) {
+		$output .= '<div id="record">'."\n<h2>".ucfirst($zz_var['formhead'])."</h2>\n\n";
 		$div_record_open = true;
 	}
 
@@ -124,11 +125,11 @@ function zz_record($zz, $zz_tab, $zz_var, $zz_conditions) {
 		$display_form = 'review';
 	} elseif (in_array($zz['mode'], $record_form)) {
 		$display_form = 'form';
-	} elseif ($zz['action'] == 'delete') {
+	} elseif ($zz_var['action'] == 'delete') {
 		$display_form = false;
-	} elseif ($zz['action'] AND $zz['formhead']) {
+	} elseif ($zz_var['action'] AND $zz_var['formhead']) {
 		$display_form = 'review';
-	} elseif ($zz['action']) {
+	} elseif ($zz_var['action']) {
 		$display_form = false;
 	} elseif ($zz['mode'] == 'review') {
 		$display_form = 'review';
@@ -204,7 +205,7 @@ function zz_display_records($zz, $zz_tab, $display, $zz_var, $zz_conditions) {
 		else 								$output.= zz_text('add_to').' ';
 		if ($zz['mode'] == 'delete') $accesskey = 'd';
 		$output.= zz_text('database').'" accesskey="'.$accesskey.'">';
-		if ($cancelurl != $_SERVER['REQUEST_URI'] OR ($zz['action'])) 
+		if ($cancelurl != $_SERVER['REQUEST_URI'] OR ($zz_var['action'])) 
 			// only show cancel link if it is possible to hide form 
 			// todo: expanded to action, not sure if this works on add only forms, 
 			// this is for re-edit a record in case of missing field values etc.
@@ -244,7 +245,7 @@ function zz_display_records($zz, $zz_tab, $display, $zz_var, $zz_conditions) {
 			$output.= '</tfoot>'."\n";
 		}
 	}
-	$output.= zz_show_field_rows($zz_tab, 0, 0, $zz['mode'], $display, $zz_var, $zz_conf_record, $zz['action']);
+	$output.= zz_show_field_rows($zz_tab, 0, 0, $zz['mode'], $display, $zz_var, $zz_conf_record, $zz_var['action']);
 	$output.= '</table>'."\n";
 	if ($zz['mode'] == 'delete') $output.= '<input type="hidden" name="'
 		.$zz_var['id']['field_name'].'" value="'.$zz_var['id']['value'].'">'."\n";
@@ -556,6 +557,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 			} else {
 				$close_span = true;
 				// so error class does not get lost
+				$out['tr']['attr'][]  = $field['class']; 
 				$out['td']['content'].= '<span'.($field['class'] ? ' class="'.$field['class'].'"' : '').'>'; 
 			}
 			if (!empty($field['append_next'])) $append_next = true;
