@@ -26,7 +26,7 @@ $zz['fields'][3]['title_tab'] = 'Master Table';
 $zz['fields'][3]['field_name'] = 'master_table';
 if (!empty($_POST['master_db'])) {
 	$zz['fields'][3]['type'] = 'select';	
-	$zz['fields'][3]['sql'] = 'SHOW TABLES FROM '.$_POST['master_db'];
+	$zz['fields'][3]['sql'] = 'SHOW TABLES FROM `'.$_POST['master_db'].'`';
 } else
 	$zz['fields'][3]['type'] = 'text';	
 $zz['fields'][3]['list_append_next'] = true;
@@ -37,7 +37,7 @@ $zz['fields'][4]['title_tab'] = 'Primary Key';
 $zz['fields'][4]['field_name'] = 'master_field';
 if (!empty($_POST['master_db']) AND !empty($_POST['master_table'])) {
 	$zz['fields'][4]['type'] = 'select';	
-	$zz['fields'][4]['sql'] = 'SHOW COLUMNS FROM '.$_POST['master_table'];
+	$zz['fields'][4]['sql'] = 'SHOW COLUMNS FROM `'.$_POST['master_db'].'`.`'.$_POST['master_table'].'`';
 	$zz['fields'][4]['sql_index_only'] = true;
 } else {
 	$zz['fields'][4]['type'] = 'text';
@@ -55,7 +55,7 @@ $zz['fields'][6]['title_tab'] = 'Detail Table';
 $zz['fields'][6]['field_name'] = 'detail_table';
 if (!empty($_POST['detail_db'])) {
 	$zz['fields'][6]['type'] = 'select';	
-	$zz['fields'][6]['sql'] = 'SHOW TABLES FROM '.$_POST['detail_db'];
+	$zz['fields'][6]['sql'] = 'SHOW TABLES FROM `'.$_POST['detail_db'].'`';
 } else {
 	$zz['fields'][6]['type'] = 'text';	
 }
@@ -67,7 +67,7 @@ $zz['fields'][8]['title_tab'] = 'Detail Primary Key';
 $zz['fields'][8]['field_name'] = 'detail_id_field';	
 if (!empty($_POST['detail_db']) AND !empty($_POST['detail_table'])){
 	$zz['fields'][8]['type'] = 'select';	
-	$zz['fields'][8]['sql'] = 'SHOW COLUMNS FROM '.$_POST['detail_table'];
+	$zz['fields'][8]['sql'] = 'SHOW COLUMNS FROM `'.$_POST['detail_db'].'`.`'.$_POST['detail_table'].'`';
 	$zz['fields'][8]['sql_index_only'] = true;
 } else {
 	$zz['fields'][8]['type'] = 'text';
@@ -78,11 +78,17 @@ $zz['fields'][7]['title_tab'] = 'Foreign Key';
 $zz['fields'][7]['field_name'] = 'detail_field';
 if (!empty($_POST['detail_db']) AND !empty($_POST['detail_table'])){
 	$zz['fields'][7]['type'] = 'select';	
-	$zz['fields'][7]['sql'] = 'SHOW COLUMNS FROM '.$_POST['detail_table'];
+	$zz['fields'][7]['sql'] = 'SHOW COLUMNS FROM `'.$_POST['detail_db'].'`.`'.$_POST['detail_table'].'`';
 	$zz['fields'][7]['sql_index_only'] = true;
 } else {
 	$zz['fields'][7]['type'] = 'text';
 }
+
+$zz['fields'][10]['field_name'] = 'delete';
+$zz['fields'][10]['type'] = 'select';
+$zz['fields'][10]['enum'] = array('delete', 'no-delete');
+$zz['fields'][10]['default'] = 'no-delete';
+$zz['fields'][10]['explanation'] = 'If main record will be deleted, what should happen with detail record?';
 
 /*	
 $zz['fields'][9]['title'] = 'URL of Detail Table';

@@ -69,8 +69,6 @@
 	$zz_tab[0][0]['images'][n][0]['upload']['imagick_mode']		ImageMagick_Mode
 	$zz_tab[0][0]['images'][n][0]['upload']['imagick_desc']		ImageMagick_Description
 	$zz_tab[0][0]['images'][n][0]['upload']['validated']	validated (yes = tested, no = rely on fileupload i. e. user)
-
-	$zz_tab[0][0]['old_record']
 	
 */
 
@@ -192,7 +190,7 @@ function zz_upload_get(&$zz_tab) {
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_get_fields(&$zz_tab) {
-	$upload_fields = false;
+	$upload_fields = array();
 	foreach (array_keys($zz_tab) as $tab)
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
 			if (!is_int($tab) OR !is_int($rec)) continue;
@@ -730,12 +728,12 @@ function zz_upload_prepare($zz_tab) {
 					}
 					$sql = $image['source_path_sql'].$zz_tab[$tab][$rec]['POST'][$image['source_file']];
 					if (!empty($image['update_from_source_field_name']) AND !empty($image['update_from_source_value'])
-						AND !empty($zz_tab[$tab][$rec]['old_record'][$image['update_from_source_value']])) {
-						$sql = zz_edit_sql($sql, 'WHERE', $image['update_from_source_field_name'].' != "'.$zz_tab[$tab][$rec]['old_record'][$image['update_from_source_value']].'"');
+						AND !empty($zz_tab[$tab]['existing'][$rec][$image['update_from_source_value']])) {
+						$sql = zz_edit_sql($sql, 'WHERE', $image['update_from_source_field_name'].' != "'.$zz_tab[$tab]['existing'][$rec][$image['update_from_source_value']].'"');
 					}
 					$old_record = zz_db_fetch($sql);
 					if ($old_record) {
-						$source_tab[$tab][$rec]['old_record'] = $old_record;
+						$source_tab[$tab]['existing'][$rec] = $old_record;
 						$source_filename = zz_makepath($image['source_path'], $source_tab, 'old', 'file', $tab, $rec);
 						unset($source_tab);
 						if (file_exists($source_filename)) {
@@ -984,20 +982,27 @@ function zz_upload_check(&$images, $action, $zz_conf, $input_filetypes = array()
  * called from within function zz_upload_action
  * @param array $zz_tab complete table data
  * @global array $zz_error
+ * @global array $zz_conf
+ *		modules[debug], backup, backup_dir
+ * @return array $zz_tab with changed values
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @see zz_upload_action()
  */
-function zz_upload_delete_file(&$zz_tab, $action, $zz_conf) {
+function zz_upload_delete_file($zz_tab) {
+	if (empty($_POST['zz_delete_file'])) return $zz_tab;
+
+	global $zz_conf;
 	global $zz_error;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	if ($zz_conf['modules']['debug']) zz_debug();
+	$action = $zz_tab[0][0]['action'];
+
 	foreach ($_POST['zz_delete_file'] as $keys => $status) {
-		if ($status != 'on') return zz_return(false); // checkbox checked
+		if ($status != 'on') return zz_return($zz_tab); // checkbox checked
 		$keys = explode('-', $keys);
 		$field = (int) $keys[0];
 		$image = (int) $keys[1];
 		if (empty($zz_tab[0][0]['images'][$field][$image])) {
-			return zz_return(false); // impossible, might be manipulation or so
+			return zz_return($zz_tab); // impossible, might be manipulation or so
 		}
 		$val = &$zz_tab[0][0]['images'][$field][$image];
 		// new path is not interesting, old picture shall be deleted
@@ -1006,7 +1011,7 @@ function zz_upload_delete_file(&$zz_tab, $action, $zz_conf) {
 			// just a precaution for e. g. simultaneous access
 			if ($zz_conf['backup']) {
 				zz_rename($old_path, zz_upload_path($zz_conf['backup_dir'], $action, $old_path));
-				if ($zz_error['error']) return zz_return();
+				if ($zz_error['error']) return zz_return($zz_tab);
 			} else {
 				unlink($old_path);
 			}
@@ -1020,14 +1025,14 @@ function zz_upload_delete_file(&$zz_tab, $action, $zz_conf) {
 			// just a precaution for e. g. simultaneous access
 			if ($zz_conf['backup']) {
 				zz_rename($old_path, zz_upload_path($zz_conf['backup_dir'], $action, $old_path));
-				if ($zz_error['error']) return zz_return(false);
+				if ($zz_error['error']) return zz_return($zz_tab);
 			} else {
 				unlink($old_path);
 			}
 		}
 		// remove images which base on this image as well (source = $image)
 	}
-	return zz_return(true);
+	return zz_return($zz_tab);
 }
 
 /** 
@@ -1040,11 +1045,11 @@ function zz_upload_delete_file(&$zz_tab, $action, $zz_conf) {
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_action(&$zz_tab, $zz_conf) {
+	global $zz_error;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	// delete files, if neccessary
-	if (!empty($_POST['zz_delete_file'])) 
-		zz_upload_delete_file($zz_tab, $zz_tab[0][0]['action'], $zz_conf);
+	$zz_tab = zz_upload_delete_file($zz_tab);
 
 	// create path
 	// check if path exists, if not, create it
@@ -1054,7 +1059,6 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 	// changes: move changed file to dest. directory
 	// on error: return error_message - critical error, because record has already been saved!
 
-	global $zz_error;
 	foreach ($zz_tab[0]['upload_fields'] as $index => $uf) {
 		$tab = $uf['tab'];
 		$rec = $uf['rec'];
@@ -1108,7 +1112,7 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 			}
 
 		//	update, only if we have an old record (might sometimes not be the case!)
-			if ($action == 'update' AND !empty($my_rec['old_record'])) {
+			if ($action == 'update' AND !empty($zz_tab[$tab]['existing'][$rec])) {
 				$path = zz_makepath($val['path'], $zz_tab, 'new', 'file', $tab, $rec);
 				$old_path = zz_makepath($val['path'], $zz_tab, 'old', 'file', $tab, $rec);
 				if (!empty($zz_tab[0]['folder']))
@@ -1585,19 +1589,28 @@ function zz_upload_file_extension($filename) {
  */
 function zz_rename($oldname, $newname, $context = false) {
 	global $zz_conf;
+	global $zz_error;
 	if (!empty($zz_conf['upload_copy_for_rename'])) {
 		$success = copy($oldname, $newname);
 		if ($success) {
 			$success = unlink($oldname);
 			if ($success) return true;
 		}
-		return false;
 	} else {
-		if ($context)
-			return rename($oldname, $newname, $context);
-		else
-			return rename($oldname, $newname);
+		if ($context) {
+			$success = rename($oldname, $newname, $context);
+			if ($success) return $success;
+		} else {
+			$success = rename($oldname, $newname);
+			if ($success) return $success;
+		}
 	}
+	$zz_error[] = array(
+		'msg_dev' => sprintf(zz_text('Copy/Delete for rename failed. Old filename: %s, new filename: %s'),
+			$oldname, $newname),
+		'level' => E_USER_NOTICE
+	);
+	return false;
 }
 
 ?>

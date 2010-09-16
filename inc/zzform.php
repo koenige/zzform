@@ -28,7 +28,6 @@ List of functions in this file
 		zzform				main zzform function
 
 			zz_initialize		sets defaults, imports modules, reads URI
-			microtime_float		microtimer, for debugging
 
 	zzform_multi			multi edit for zzform, e. g. import
 
@@ -46,8 +45,6 @@ global $zz_page;	// Page (Layout) variables
  * zzform generates forms for editing single records, list views with several
  * records and does insert, update and delete database operations
  *
- * @global float $zz_timer microtime when zzform was started
- * @global array $zz_debug see zz_debug()
  * @global array $zz
  * @global array $zz_conf
  * @global array $zz_error
@@ -56,11 +53,6 @@ global $zz_page;	// Page (Layout) variables
 function zzform() {
 	global $zz;			// Table description
 	global $zz_conf;	// Config variables
-	global $zz_timer;	// debug module
-	global $zz_debug;	// debug module
-
-	$zz_timer = microtime_float();	// debug module
-	$zz_debug = array();			// debug module
 
 	// This variable signals that zzform is included
 	if (empty($zz_conf['zzform_calls'])) $zz_conf['zzform_calls'] = 1;
@@ -321,7 +313,7 @@ function zzform() {
 	// conditions for list view will be set later
 	$zz['fields_in_list'] = $zz['fields']; 
 
-	if ($zz_conf['modules']['debug']) zz_debug("start conditions");
+	if ($zz_conf['modules']['debug']) zz_debug("conditions start");
 
 	// Module 'conditions': evaluate conditions
 	if (!empty($zz_conf['modules']['conditions']) AND !empty($zz['conditions']))
@@ -365,7 +357,8 @@ function zzform() {
 		$zz_conf['heading'] = zz_nice_headings($zz_conf['heading'], $zz['fields'], $zz_var['where_condition']);
 		// provisional title, in case errors occur
 		$zz_conf['title'] = strip_tags($zz_conf['heading']);
-		$zz['output'].= "\n".'<h1>'.$zz_conf['heading'].'</h1>'."\n\n";
+		if (trim($zz_conf['heading']))
+			$zz['output'].= "\n".'<h1>'.$zz_conf['heading'].'</h1>'."\n\n";
 		if ($zz_conf['heading_text'] 
 			AND (!$zz_conf['heading_text_hidden_while_editing'] OR $zz['mode'] == 'list_only')) 
 			$zz['output'] .= $zz_conf['heading_text'];
@@ -407,46 +400,45 @@ function zzform() {
 			$zz_tab[$tab] = zz_get_subtable($zz['fields'][$no], $zz_tab[0], $tab, $no);
 			$zz_tab[$tab] = zz_get_subrecords($zz, $zz['fields'][$no], $zz_tab[$tab], $zz_tab[0], $zz_var, $tab);
 		}
+
 		if ($zz_var['subtables'] && $zz_var['action'] != 'delete')
 			if (isset($_POST['zz_subtables'])) $validation = false;
 
-	
-	// Upload
-		// if there is a directory which has to be renamed, save old name in array
-		// do the same if a file might be renamed, deleted ... via upload
-		// or if there is a display or write_once field (so that it can be used
-		// e. g. for identifiers):
-		if ($zz_var['action'] == 'update' OR $zz_var['action'] == 'delete') {
-			if (!empty($zz_conf['folder']) OR !empty($zz_var['upload_form']) 
-				OR count($zz_var['save_old_record']) OR $zz_conf['get_old_record']) {
-				zz_foldercheck_before($zz_tab);
-				$zz_conf['get_old_record'] = true;
-			}
-			if (count($zz_var['save_old_record']) && !empty($zz_tab[0][0]['old_record'])) {
-				foreach ($zz_var['save_old_record'] as $no) {
-					if (!empty($zz_tab[0][0]['old_record'][$zz['fields'][$no]['field_name']])) {
-						$_POST[$zz['fields'][$no]['field_name']] = $zz_tab[0][0]['old_record'][$zz['fields'][$no]['field_name']];
+		if (!empty($_POST['zz_action'])) {		
+			// POST because $zz_var may be set to '' in case of add/delete subrecord
+			// get existing record
+			if (!empty($zz_var['id']['value'])) {
+				$sql = 'SELECT * 
+					FROM `'.$zz_tab[0]['db_name'].'`.`'.$zz_tab[0]['table'].'`
+					WHERE '.$zz_var['id']['field_name'].' = '.$zz_var['id']['value'];
+				$zz_tab[0]['existing'][0] = zz_db_fetch($sql);
+			} else
+				$zz_tab[0]['existing'][0] = array();
+
+			// Upload
+			// if there is a directory which has to be renamed, save old name in array
+			// do the same if a file might be renamed, deleted ... via upload
+			// or if there is a display or write_once field (so that it can be used
+			// e. g. for identifiers):
+			if ($zz_var['action'] == 'update' OR $zz_var['action'] == 'delete') {
+				if (count($zz_var['save_old_record']) && !empty($zz_tab[0]['existing'][0])) {
+					foreach ($zz_var['save_old_record'] as $no) {
+						if (empty($zz_tab[0]['existing'][0][$zz['fields'][$no]['field_name']])) continue;
+						$_POST[$zz['fields'][$no]['field_name']] = $zz_tab[0]['existing'][0][$zz['fields'][$no]['field_name']];
 					}
 				}
 			}
-		}
-		if (!empty($_POST['zz_action'])) {
-			// fields with values must still have values
-			// TODO TODO
-			$zz_tab[0]['existing'][0] = array();
-			if (!empty($_POST[$zz_var['id']['field_name']]) AND $_POST['zz_action'] == 'update') {
-				$sql = 'SELECT * 
-					FROM `'.$zz_tab[0]['db_name'].'`.`'.$zz_tab[0]['table'].'`
-					WHERE '.$zz_var['id']['field_name'].' = '.$_POST[$zz_var['id']['field_name']];
-				$zz_tab[0]['existing'][0] = zz_db_fetch($sql);
-			}
+
+			// set defaults and values, clean up POST
 			$zz_tab[0][0]['POST'] = zz_check_def_vals($_POST, $zz_tab[0][0]['fields'], $zz_tab[0]['existing'][0],
 				(!empty($zz_var['where'][$zz_tab[0]['table']]) ? $zz_var['where'][$zz_tab[0]['table']] : ''));
 			// get rid of some POST values that are used at another place
 			$internal_fields = array('MAX_FILE_SIZE', 'zz_check_select', 'zz_action',
-				'zz_records', 'zz_subtables', 'zz_subtable_deleted', 'zz_delete_file',
+				'zz_subtables', 'zz_subtable_deleted', 'zz_delete_file',
 				'zz_referer');
 			foreach ($internal_fields as $key) unset($zz_tab[0][0]['POST'][$key]);
+			
+			// set defaults for FILES
 			if (!empty($_FILES)) 
 				$_FILES = zz_check_def_files($_FILES);
 		}
@@ -460,6 +452,7 @@ function zzform() {
 			require_once $zz_conf['dir_inc'].'/validation.inc.php';	// Basic Validation
 			list($zz, $zz_tab, $validation, $zz_var) = zz_action($zz, $zz_tab, $validation, $zz_var); 
 			if ($zz_error['error']) {
+				zz_error();
 				$zz['output'].= '</div>';
 				return zzform_exit(); // if an error occured in zz_action, return false
 			}
@@ -474,10 +467,6 @@ function zzform() {
 			// checked against again
 			if (in_array($zz['mode'], array('edit', 'add')) 
 				AND !$zz_conf['show_list_while_edit']) $zz_conf['show_list'] = false;
-	
-			foreach ($zz_var['subtables'] as $tab => $no) {
-				$zz_tab[$tab] = zz_get_subrecords($zz, $zz['fields'][$no], $zz_tab[$tab], $zz_tab[0], $zz_var, $tab);
-			}
 		}
 	
 		if ($zz_conf['modules']['debug']) zz_debug('subtables end');
@@ -565,17 +554,13 @@ function zzform() {
 	if ($zz_conf['modules']['debug']) {
 		zz_debug("finished");
 		if ($zz_conf['debug'] AND $zz_conf['access'] != 'export') {
-			$zz['output'] .= '<div class="debug">'.zz_debug_htmlout($zz_debug).'</div>'."\n";
+			$zz['output'] .= '<div class="debug">'.zz_debug_htmlout().'</div>'."\n";
 		}
 	}
 	if ($zz_conf['show_record'] AND $zz['result']) {
 		// debug time only if there's a result and before leaving the page
 		if ($zz_conf['modules']['debug'] AND $zz_conf['debug_time']) {
-			$zz_error[] = array(
-				'msg_dev' => '[DEBUG] time: '.implode(' ', $zz_debug['time']),
-				'level' => E_USER_NOTICE
-			);
-			zz_error();
+			zz_debug_time($zz['return']);
 		}
 		// Redirect, if wanted.
 		if (!empty($zz_conf['redirect'][$zz['result']])) {
@@ -602,22 +587,26 @@ function zzform() {
 //		übergabe via SESSION, so dass bestätiger Datensatz angezeigt wird.
 //		header('Location: '.$scheme.'://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI']); // Parameter, die bestätigten Record anzeigen
 //	}
-	return zzform_exit(true);
+	return zzform_exit(true, __FUNCTION__);
 }
 
 /** 
  * exit function for zzform, will always be called to adjust some settings
  *
  * @param mixed $return return parameter
+ * @param string $function Name of returning function
  * @return mixed return parameter
  */
-function zzform_exit($return = false) {
+function zzform_exit($return = false, $function = false) {
 	global $zz_conf;
 
 	// return to old database
 	if ($zz_conf['db_current']) mysql_select_db($zz_conf['db_current']);
 	// end debug mode
-	if ($zz_conf['modules']['debug']) zz_debug('end');
+	if ($zz_conf['modules']['debug']) {
+		zz_debug('end');
+		if ($function == 'zzform') zz_debug_unset();
+	}
 	return $return;
 }
 
@@ -673,12 +662,16 @@ function zzform_all($glob_vals = false) {
  * @global array $zz_conf
  * @global array $zz_error
  * @global array $zz_saved
+ * @global array $zz_debug see zz_debug()
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_initialize($mode = false) {
 	global $zz_conf;
 	global $zz_error;
 	global $zz_saved;
+	global $zz_debug;	// debug module
+
+	$zz_conf['id'] = mt_rand();
 
 	if (!empty($zz_conf['zzform_init'])) {
 		// get clean $zz_conf without changes from different zzform calls or included scripts
@@ -803,7 +796,6 @@ function zz_initialize($mode = false) {
 	$zz_default['user']				= '';		//	username
 	$zz_default['view']				= false;	// 	show Action: View
 	$zz_default['password_encryption'] = 'md5';
-	$zz_default['get_old_record']	= false;
 	
 	zz_write_defaults($zz_default, $zz_conf);
 
@@ -870,9 +862,9 @@ function zz_initialize($mode = false) {
 
 	//	URL parameter
 	if (get_magic_quotes_gpc()) { // sometimes unwanted standard config
-		$_POST = magic_quotes_strip($_POST);
-		$_GET = magic_quotes_strip($_GET);
-		$_FILES = magic_quotes_strip($_FILES);
+		if (!empty($_POST)) $_POST = magic_quotes_strip($_POST);
+		if (!empty($_GET)) $_GET = magic_quotes_strip($_GET);
+		if (!empty($_FILES)) $_FILES = magic_quotes_strip($_FILES);
 		// _COOKIE and _REQUEST are not being used
 	}
 
@@ -899,6 +891,13 @@ function zzform_multi($definition_file, $values, $type, $params = false) {
 	global $zz_conf;
 	global $zz_setting;
 	global $zz_saved;
+	
+	// debug, note: this will only start from the second time, zzform_multi()
+	// has been called! (modules debug is not set beforehands)
+	if (!empty($zz_conf['modules']['debug']) AND !empty($zz_conf['id'])) {
+		$id = $zz_conf['id'];
+		zz_debug('start', __FUNCTION__);
+	}
 
 	// Allowed:
 	$allowed_types = array('csv', 'xml', 'files', 'record');
@@ -921,6 +920,7 @@ function zzform_multi($definition_file, $values, $type, $params = false) {
 		// TODO: zzform() and zzform_multi() called within an action-script
 		// causes not all zz_conf variables to be reset
 		zz_initialize('overwrite');
+//		if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__)
 		$zz_conf['show_output'] = false; // do not show output as it will be included after page head
 		$zz_conf['show_list'] = false; // no output, so list view is not neccessary
 		$zz_conf['multi'] = true;		// so we know the operation mode for other scripts
@@ -928,7 +928,16 @@ function zzform_multi($definition_file, $values, $type, $params = false) {
 		if (!empty($values['POST'])) $_POST = $values['POST'];
 		if (!empty($values['FILES'])) $_FILES = $values['FILES'];
 		else $_FILES = '';
+		if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
+			$old_id = $zz_conf['id'];	
+			$zz_conf['id'] = $id;
+			zz_debug('before including definition file');
+		}
 		require $zz_conf['form_scripts'].'/'.$definition_file.'.php';
+		if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
+			zz_debug('definition file included');
+			$zz_conf['id'] = $old_id;
+		}
 		// return on error in form script
 		if (!empty($zz['error'])) return false;
 		zzform();
@@ -962,11 +971,11 @@ function zzform_multi($definition_file, $values, $type, $params = false) {
 
 	// what to return:
 	// array whith all record_ids that were inserted, sorted by operation (so to include subrecords)
-}
 
-function microtime_float() {
-    list($usec, $sec) = explode(" ", microtime());
-    return ((float)$usec + (float)$sec);
+	if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
+		$zz_conf['id'] = $id;
+		zz_debug('end');
+	}
 }
 
 /* Create config variables from defaults

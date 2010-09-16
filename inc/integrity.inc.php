@@ -19,134 +19,146 @@ is not 100% correct, but these occasions should be very rare anyways
 */
 
 /**
- * Checks relational integrity upon a deletion request and says if its ok.
+ * gets all entries from the table where the database relations are stored
  *
- * @param string $master_db		Name of master database
- * @param string $master_table	Name of master table
- * @param string $master_field	Name of master field
- * @param string $master_value	Value of field
  * @param string $relation_table	Name of relation table ($zz_conf['relation_table'])
- * @param array $detailrecords	...
- * @return mixed bool false: deletion of record possible, integrity will remain
- *		array: 'text' (error message), 'fields' (optional, names of tables
- *		which have a relation to the current record)
- * @author Gustaf Mossakowski, <gustaf@koenige.org>
+ * @return array $relations
  */
-function zz_check_integrity($master_db, $master_table, $master_field, $master_value, 
-	$relation_table, $detailrecords) {
-	$response = array();
+function zz_integrity_relations($relation_table) {
 	$sql = 'SELECT * FROM '.$relation_table;
 	$relations = zz_db_fetch($sql, array('master_db', 'master_table', 'master_field', 'rel_id'));
-	if (!$relations) {
-		$response['text'] = sprintf(zz_text('No records in relation table'), $relation_table);
-		return $response;
-	}
-	if (!$check = zz_check_if_detail($relations, $master_db, $master_table, 
-		$master_field, $master_value, $detailrecords)) 
-		return false;
-	else {
-		$response['text'] = zz_text('Detail records exist in the following tables:');
-		$response['fields'] = explode(',', $check);
-		return $response;
-	}
+	return $relations;
 }
 
 /**
  * Checks relational integrity upon a deletion request and says if its ok.
  *
- * @param array $relations		All entries of relations table
- * @param string $master_db		Name of master database
- * @param string $master_table	Name of master table
- * @param string $master_field	Name of master field
- * @param string $master_value	Value of field
- * @param array $detailrecords	...
- * @global array $zz_conf
- * @global array $zz_error
- * @return mixed bool false: no detail records; string: Table names of detail records
+ * @param array $deletable_ids
+ * @param array $relations
+ * @return mixed bool false: deletion of record possible, integrity will remain
+ *		array: 'text' (error message), 'fields' (optional, names of tables
+ *		which have a relation to the current record)
  * @author Gustaf Mossakowski, <gustaf@koenige.org>
  */
-function zz_check_if_detail($relations, $master_db, $master_table, $master_field, 
-	$master_value, $detailrecords) {
-	global $zz_conf;
-	global $zz_error;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-
-	if (!isset($relations[$master_db][$master_table])) {
-	//	no relations which have this table as master
-	//	do not care about master_field because it has to be PRIMARY key anyways
-	//	so only one field name possible
-		return zz_return(false);
+function zz_integrity_check($deletable_ids, $relations) {
+	if (!$relations) {
+		$response['text'] = zz_text('No records in relation table');
+		return $response;
 	}
 
-	//	this table is master in at least one relation
-	//	check whether there are detail records at all
-	$detail_records_in = false;
-	foreach ($relations[$master_db][$master_table][$master_field] as $key => $field) {
-		$sql = 'SELECT COUNT('.$field['detail_field'].') AS Rows
-			FROM '.$field['detail_db'].'.'.$field['detail_table'].'
-			WHERE '.$field['detail_field'].' = '.$master_value;
-		$all_detailrecords = zz_db_fetch($sql, '', 'single value');
-		if (!$all_detailrecords) continue;
-
-		// there is a detail record
-		if ($zz_conf['modules']['debug']) zz_debug('There is a detailrecord');
-		$my_detailrecords = 0;
-		$detail = $field['detail_db'].'.'.$field['detail_table'];
-		$all_records = array();
-		if (!empty($detailrecords[$detail])) {
-			$my_detailrecords = false;
-			foreach ($detailrecords[$detail]['sql'] as $sql) {
-				// add master record to selection, neccessary for 
-				// multiple links on one subtable
-				// but do NOT do this if master and detail table 
-				// are the same (main_something_id or mother_something_id)
-				if ($detail != $master_db.'.'.$master_table) {
-					$sql = zz_edit_sql($sql, 'WHERE', $master_db.'.'
-						.$master_table.'.'.$master_field.' = '.$master_value);
+	$response = array();
+	$response['fields'] = array();
+	foreach ($deletable_ids as $master_db => $tables) {
+		foreach ($tables as $master_table => $fields) {
+			if (!isset($relations[$master_db][$master_table])) {
+			//	no relations which have this table as master
+			//	do not care about master_field because it has to be PRIMARY key anyways
+			//	so only one field name possible
+				continue;
+			}
+			$master_field = key($fields);
+			$ids = array_shift($fields);
+			foreach ($relations[$master_db][$master_table][$master_field] as $key => $field) {
+				$sql = 'SELECT `'.$field['detail_id_field'].'`
+					FROM `'.$field['detail_db'].'`.`'.$field['detail_table'].'`
+					WHERE `'.$field['detail_field'].'` IN ('.implode(',', $ids).')';
+				$detail_ids = zz_db_fetch($sql, $field['detail_id_field'], 'single value');
+				if (!$detail_ids) continue;
+				
+				if (!empty($deletable_ids[$field['detail_db']][$field['detail_table']][$field['detail_id_field']])) {
+					$deletable_detail_ids = $deletable_ids[$field['detail_db']][$field['detail_table']][$field['detail_id_field']];
+					$remaining_ids = array_diff($detail_ids, $deletable_detail_ids);
+				} else {
+					$remaining_ids = $detail_ids;
 				}
-				// add detail record to selection, neccessary for some 
-				// cases where there are multiple ID fields of same type (parent/children)
-				$sql = zz_edit_sql($sql, 'WHERE', $detail.'.'
-					.$field['detail_field'].' = '.$master_value);
-				$records = zz_db_fetch($sql, $field['detail_id_field']);
-				if ($zz_error['error']) return zz_return(zz_error());
-
-				if ($records) {
-					$my_detailrecords += count($records);
-					$all_records += $records;
+				if ($remaining_ids) {
+					// there are still IDs which cannot be deleted
+					// check which record they belong to
+					$response['fields'][] = $field['detail_table'];
 				}
 			}
-			if ($zz_conf['modules']['debug']) 
-				zz_debug("my_detailrecords: ".$my_detailrecords, $sql);
-		}
-		if ($all_detailrecords == $my_detailrecords) {
-		// detail records match total number of records in table
-		// this should always be the case if $detailrecords... is not 
-		// emtpy. there may be rare cases when it is not so,  
-		// therefore we compare the count and the sql clause
-			foreach ($all_records as $line) { 
-				// check if the detail record has a detail record
-				$detail_line = zz_check_if_detail($relations, $field['detail_db'], $field['detail_table'], 
-					$field['detail_id_field'], $line[$field['detail_id_field']], $detailrecords);
-				if ($detail_line) {
-					$detail_records_in[$field['detail_table']] = $field['detail_table']; 
-					// this is of course not correct. but it is too 
-					// complicated right now to show the exact 
-					// relation to this record
-					break;
-				} elseif ($zz_error['error']) return zz_return(false);
-			}
-			// if everything is ok, do nothing, so detail_records_in will still be false
-		} else { //	there is a detail record
-			if ($zz_conf['modules']['debug']) 
-				zz_debug('All records '.$all_detailrecords.', in this record:'
-					.$my_detailrecords, $sql);
-			$detail_records_in[$field['detail_table']] = $field['detail_table'];
 		}
 	}
-	if (!$detail_records_in) return zz_return(false);
-	else return zz_return(implode(',', $detail_records_in));
+	if ($response['fields']) {
+		// we still have detail records
+		$response['text'] = zz_text('Detail records exist in the following tables:');
+		return $response;
+	} else {
+		// everything is okay
+		return false;
+	}
 }
 
+/**
+ * checks tables if there are records in other tables which will be deleted
+ * with their main records in this table together (relation = delete)
+ *
+ * @param array $zz_tab (all table definitions and records)
+ * @param array $relations		All entries of relations table
+ * @return array $details
+ *		[db][table][id_field] = array with IDs that can be deleted safely
+ * @see zz_get_detail_record_ids()
+ */
+function zz_integrity_dependent_record_ids($zz_tab, $relations) {
+	if (!$relations) return array();
+
+	$details = array();
+	foreach (array_keys($zz_tab) as $tab) {
+		foreach (array_keys($zz_tab[$tab]) as $rec) {
+			if (!is_numeric($rec)) continue;
+			if (!$zz_tab[$tab][$rec]['id']['value']) continue;
+			if ($zz_tab[$tab][$rec]['action'] != 'delete') continue;
+			if (empty($relations[$zz_tab[$tab]['db_name']])) continue;
+			if (empty($relations[$zz_tab[$tab]['db_name']][$zz_tab[$tab]['table']])) continue;
+			if (empty($relations[$zz_tab[$tab]['db_name']][$zz_tab[$tab]['table']][$zz_tab[$tab][$rec]['id']['field_name']])) continue;
+
+			$my_relations = $relations[$zz_tab[$tab]['db_name']][$zz_tab[$tab]['table']][$zz_tab[$tab][$rec]['id']['field_name']];
+			foreach ($my_relations as $rel) {
+				// we care just about 'delete'-relations
+				if ($rel['delete'] != 'delete') continue;
+				$sql = 'SELECT `'.$rel['detail_id_field'].'`
+					FROM `'.$rel['detail_db'].'`.`'.$rel['detail_table'].'`
+					WHERE `'.$rel['detail_field'].'` = '.$zz_tab[$tab][$rec]['id']['value'];
+				$records = zz_db_fetch($sql, $rel['detail_id_field'], 'single value');
+				if (!$records) continue;
+				// check if detail records have other detail records
+				// if no entry in relations table exists, make no changes
+				if (empty($details[$rel['detail_db']][$rel['detail_table']][$rel['detail_id_field']]))
+					$details[$rel['detail_db']][$rel['detail_table']][$rel['detail_id_field']] = array();
+				$details[$rel['detail_db']][$rel['detail_table']][$rel['detail_id_field']] 
+					= array_merge($records, $details[$rel['detail_db']][$rel['detail_table']][$rel['detail_id_field']]);
+			}
+		}
+	}
+	if (!$details) return array();
+	return $details;
+}
+
+/**
+ * reads all existing ID values from main record and subrecords which
+ * are going to be deleted 
+ * 
+ * (if main record will be deleted, subrecords will all
+ * be deleted; it is possible that only some subrecords will be deleted while
+ * main record gets updated)
+ *
+ * @param array $zz_tab (all table definitions and records)
+ * @return array $details
+ *		[db][table][id_field] = array with IDs that can be deleted safely
+ * @see zz_get_depending_records()
+ */
+function zz_integrity_record_ids($zz_tab) {
+	$records = array();
+	foreach (array_keys($zz_tab) as $tab) {
+		foreach (array_keys($zz_tab[$tab]) as $rec) {
+			if (!is_numeric($rec)) continue;
+			if (!$zz_tab[$tab][$rec]['id']['value']) continue;
+			if ($zz_tab[$tab][$rec]['action'] != 'delete') continue;
+			$records[$zz_tab[$tab]['db_name']][$zz_tab[$tab]['table']][$zz_tab[$tab][$rec]['id']['field_name']][]
+				= $zz_tab[$tab][$rec]['id']['value'];
+		}
+	}
+	return $records;
+}
 
 ?>

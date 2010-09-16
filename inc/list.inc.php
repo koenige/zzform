@@ -336,6 +336,7 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 	// Table data
 	//	
 
+	$current_record = NULL;
 	$modes = false;		// don't show a table head for link to modes until neccessary
 	$details = false;	// don't show a table head for link to details until neccessary
 	if ($zz_conf['show_list']) {
@@ -384,11 +385,12 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 			if (!empty($line['zz_conf'])) // check whether there are different configuration variables e. g. for hierarchies
 				$zz_conf_record = array_merge($zz_conf_record, $line['zz_conf']);
 			if ($zz_conf['select_multiple_records']) { // checkbox for records
-				$rows[$z][-1]['text'] = '<input type="checkbox" name="zz_record[]" value="'.$line[$id_field].'">'; // $id
+				$rows[$z][-1]['text'] = '<input type="checkbox" name="zz_record_id[]" value="'.$line[$id_field].'">'; // $id
 				$rows[$z][-1]['class'] = ' class="select_multiple_records"';
 			}
 
 			foreach ($table_query[$tq_index] as $fieldindex => $field) {
+				if ($zz_conf['modules']['debug']) zz_debug("table_query foreach ".$fieldindex);
 				// conditions
 				if (!empty($zz_conf['modules']['conditions'])) {
 					if (!empty($field['conditions'])) {
@@ -399,6 +401,7 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 						$zz_conf_record = zz_listandrecord_access($zz_conf_record);
 					}
 				}
+				if ($zz_conf['modules']['debug']) zz_debug("table_query foreach cond set ".$fieldindex);
 				
 				// check all fields next to each other with list_append_next					
 				while (!empty($table_query[$tq_index][$fieldindex]['list_append_next'])) $fieldindex++;
@@ -429,6 +432,8 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 				$link = false;
 				if ($zz['mode'] != 'export') $link = zz_set_link($field, $line);
 					
+				if ($zz_conf['modules']['debug']) zz_debug("table_query before switch ".$fieldindex.'-'.$field['type']);
+
 			//	go for type of field!
 				switch ($field['type']) {
 				case 'calculated':
@@ -544,31 +549,33 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 					break;
 				case 'id':
 					$id = $line[$field['field_name']];
+					if ($id == $zz_var['id']['value']) $current_record = $z;
 				default:
 					if ($link) $rows[$z][$fieldindex]['text'].= $link;
 					$val_to_insert = '';
+					if ($zz_conf['modules']['debug']) zz_debug("table_query switch default start ".$fieldindex.'-'.$field['type']);
 					if (!empty($field['display_field'])) {
 						$val_to_insert = $line[$field['display_field']];
 						if (!empty($field['translate_field_value']))
 							$val_to_insert = zz_text($val_to_insert);
 						$rows[$z][$fieldindex]['text'].= zz_mark_search_string(htmlchars($val_to_insert), $field['display_field']);
 					} else {
+						if ($zz_conf['modules']['debug']) zz_debug("table_query switch default 1 ".$fieldindex.'-'.$field['type']);
+
 						// replace field content with display_title, if set.
 						if (!empty($field['display_title']) 
 							&& in_array($line[$field['field_name']], array_keys($field['display_title'])))
 							$line[$field['field_name']] = $field['display_title'][$line[$field['field_name']]];
-
 						if (isset($field['factor']) && $line[$field['field_name']]) 
 							$line[$field['field_name']] /=$field['factor'];
-						
-						if ($field['type'] == 'unix_timestamp') 
+						if ($field['type'] == 'unix_timestamp') {
 							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(date('Y-m-d H:i:s', $line[$field['field_name']]), $field['field_name']);
-						elseif ($field['type'] == 'timestamp')
+						} elseif ($field['type'] == 'timestamp') {
 							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(timestamp2date($line[$field['field_name']]), $field['field_name']);
-						elseif ($field['type'] == 'select' 
-							AND (!empty($field['set']) OR !empty($field['set_sql'])))
+						} elseif ($field['type'] == 'select' 
+							AND (!empty($field['set']) OR !empty($field['set_sql']))) {
 							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(str_replace(',', ', ', $line[$field['field_name']]), $field['field_name']);
-						elseif ($field['type'] == 'select' && !empty($field['enum']) && !empty($field['enum_title'])) { // show enum_title instead of enum
+						} elseif ($field['type'] == 'select' && !empty($field['enum']) && !empty($field['enum_title'])) { // show enum_title instead of enum
 							foreach ($field['enum'] as $mkey => $mvalue)
 								if ($mvalue == $line[$field['field_name']]) 
 									$rows[$z][$fieldindex]['text'] .= zz_mark_search_string($field['enum_title'][$mkey], $field['field_name']);
@@ -626,9 +633,12 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 					$grouptitles[$z] = $rows[$z][$fieldindex]['text'];
 					unset ($rows[$z][$fieldindex]);
 				}
+
+				if ($zz_conf['modules']['debug']) zz_debug("table_query end ".$fieldindex.'-'.$field['type']);
+
 			}
 			$ids[$z] = $sub_id; // for subselects
-			if ($zz_conf_record['edit'] OR $zz_conf_record['view']) {
+			if ($zz_conf_record['edit'] OR $zz_conf_record['view'] OR $zz_conf_record['delete']) {
 				$rows[$z]['modes'] = false;
 				if ($zz_conf_record['edit']) {
 					$rows[$z]['modes'] = '<a href="'.$zz_conf['url_self'].$zz_conf['url_self_qs_base']
@@ -642,7 +652,8 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 					$modes = true; // need a table row for this
 				}
 				if ($zz_conf_record['delete']) {
-					$rows[$z]['modes'] .= '&nbsp;| <a href="'
+					if ($rows[$z]['modes']) $rows[$z]['modes'] .= '&nbsp;| ';
+					$rows[$z]['modes'] .= '<a href="'
 						.$zz_conf['url_self'].$zz_conf['url_self_qs_base'].$zz_conf['url_append'].'mode=delete&amp;id='
 						.$id.$zz_var['extraGET'].'">'.zz_text('delete').'</a>';
 					$modes = true; // need a table row for this
@@ -771,8 +782,10 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 					$rowgroup = $row['group'];
 				}
 			}
-			$zz['output'].= '<tr class="'.($index & 1 ? 'uneven':'even').
-				(($index+1) == $count_rows ? ' last' : '').'">'; //onclick="Highlight();"
+			$zz['output'].= '<tr class="'.($index & 1 ? 'uneven':'even')
+				.(($index+1) == $count_rows ? ' last' : '')
+				.((isset($current_record) AND $current_record == $index) ? ' current_record' : '')
+				.'">'; //onclick="Highlight();"
 			foreach ($row as $fieldindex => $field)
 				if (is_numeric($fieldindex)) $zz['output'].= '<td'.$field['class'].'>'.$field['text'].'</td>';
 			if (!empty($row['modes']))
@@ -799,8 +812,9 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 					$rowgroup = $grouptitles[$index];
 				}
 			}
-			$zz['output'].= '<li class="'.($index & 1 ? 'uneven':'even').
-				(($index+1) == $count_rows ? ' last' : '').'">'; //onclick="Highlight();"
+			$zz['output'].= '<li class="'.($index & 1 ? 'uneven':'even')
+				.((isset($current_record) AND $current_record == $index) ? ' current_record' : '')
+				.(($index+1) == $count_rows ? ' last' : '').'">'; //onclick="Highlight();"
 			foreach ($row as $fieldindex => $field)
 				if (is_numeric($fieldindex) && $field['text'])
 					$zz['output'].= '<p'.$field['class'].'>'.$field['text'].'</p>';
@@ -853,7 +867,7 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 		// multi-add-button, also show if there was no list, because it will only be shown below records!
 		
 		if ($zz['mode'] != 'add' && $zz_conf['add_link'] AND is_array($zz_conf['add'])) {
-			sort($zz_conf['add']); // if some 'add' was unset before, here we get new numerical keys
+			ksort($zz_conf['add']); // if some 'add' was unset before, here we get new numerical keys
 			$zz['output'].= '<p class="add-new">'.zz_text('Add new record').': ';
 			foreach ($zz_conf['add'] as $i => $add) {
 				$zz['output'].= '<a href="'.$zz_conf['url_self']

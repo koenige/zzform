@@ -148,5 +148,9 @@ $text['String <em>"%s"</em> is not allowed'] = 'Die Zeichenfolge <em>"%s"</em> i
 $text['Would be changed on update'] = 'W&uuml;rde bei Aktualisierung ge&auml;ndert.';
 $text['Minimum of records for table `%s` was not met (%d)'] = 'Im Feld `%s` sind mehr Daten erforderlich (min. Anzahl: %d)';
 $text['page'] = 'Seite';
+$text['Configuration does not allow this action: %s'] = 'Die Konfiguration erlaubt diese Aktion nicht: %s';
+$text['Configuration does not allow this mode: %s'] = 'Die Konfiguration erlaubt diesen Modus nicht: %s';
+$text['no-delete'] = 'Nicht l&ouml;schen';
+$text['Delete'] = 'L&ouml;schen';
 
 ?>

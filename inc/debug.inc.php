@@ -30,17 +30,25 @@ $zz_default['debug_time'] 		= false;
  *		if ($zz_conf['modules']['debug']) zz_debug();
  * @param string $marker	optional: marker to define position in function
  * @param string $text		optional: SQL query or function name
+ * @param int $id			optional: Random ID for function, allows to log in different functions
  * @global array $zz_debug
  *		'function' (name of function __FUNCTION__), 'function_time' (microtime 
- *		at which function started), ...
+ *		at which function started), 'timer', ...
  * @return string			HTML output
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_debug($marker = false, $text = false) {
-	global $zz_conf;
+function zz_debug($marker = false, $text = false, $id = false) {
 	global $zz_debug;
-	global $zz_timer;
-	
+	global $zz_conf;
+
+	if (!$id) $id = $zz_conf['id'];
+
+	// initialize
+	if (empty($zz_debug[$id])) {
+		$zz_debug[$id] = array();					// debug module
+		$zz_debug[$id]['timer'] = microtime_float();	// debug module
+	}
+
 	$time = microtime_float();
 	// initialize function parameters
 	if (substr($marker, 0, 5) == 'start') {
@@ -48,18 +56,18 @@ function zz_debug($marker = false, $text = false) {
 			'function' => $text,
 			'time_start' => $time
 		);
-		$zz_debug['function'][] = $current;
+		$zz_debug[$id]['function'][] = $current;
 	} elseif (substr($marker, 0, 3) == 'end') {
 		// set current function to last element and remove it
-		$current = array_pop($zz_debug['function']);
+		$current = array_pop($zz_debug[$id]['function']);
 	} else {
 		// set current function to last element and keep it
-		$current = end($zz_debug['function']);
+		$current = end($zz_debug[$id]['function']);
 	}
 	if ($marker == 'start') return true; // no output, just initialize
 
 	$debug = array();
-	$debug['time'] = $time - $zz_timer;
+	$debug['time'] = $time - $zz_debug[$id]['timer'];
 	$debug['time_used'] = $time - $current['time_start'];
 	$debug['memory'] = memory_get_usage();
 	$debug['function'] = $current['function'];
@@ -67,20 +75,23 @@ function zz_debug($marker = false, $text = false) {
 	$debug['sql'] = $text;
 
 	// HTML output
-	$zz_debug['output'][] = $debug;
+	$zz_debug[$id]['output'][] = $debug;
 
 	// Time output for Logfile
-	$zz_debug['time'][] = $zz_debug['function'].'='.round($debug['time_used'],4);
+	$zz_debug[$id]['time'][] = $current['function'].'='.round($debug['time_used'],4);
 }
 
 /**
  * HTML output of debugging information 
  * 
- * @param array $zz_debug	$zz_debug['output'] as returned from zz_debug()
+ * @global array $zz_debug	$zz_debug['output'] as returned from zz_debug()
  * @return string			HTML output
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_debug_htmlout($zz_debug) {
+function zz_debug_htmlout() {
+	global $zz_debug;
+	global $zz_conf;
+
 	$output = '<h1>'.zz_text('Debug Information').'</h1>';
 	$output .= '<table class="data debugtable"><thead>'."\n".'<tr><th>'
 		.zz_text('Time').'</th><th>'
@@ -88,7 +99,7 @@ function zz_debug_htmlout($zz_debug) {
 		.zz_text('Marker').'</th><th>'.zz_text('SQL').'</th></tr>'."\n"
 		.'</thead><tbody>';
 	$i = 0;
-	foreach ($zz_debug['output'] as $row) {
+	foreach ($zz_debug[$zz_conf['id']]['output'] as $row) {
 		$output .= '<tr class="'.($i & 1 ? 'even': 'uneven').'">';
 		foreach ($row as $key => $val) {
 			if ($key == 'time') $val = '<dl><dt>'.$val.'</dt>';
@@ -103,6 +114,42 @@ function zz_debug_htmlout($zz_debug) {
 	$output .= '</tbody></table>'."\n";
 	$output .= zz_text('Memory peak usage').': '.memory_get_peak_usage();
 	return $output;
+}
+
+/**
+ * Logs time from different debug-markers in logfile
+ * 
+ * @param array $return (optional, $zz['return']);
+ * @global array $zz_error
+ * @global array $zz_debug
+ */
+function zz_debug_time($return = array()) {
+	global $zz_error;
+	global $zz_debug;
+	global $zz_conf;
+
+	$rec = '';
+	if ($return) $rec = $return[0]['action'].' '.$return[0]['table'].' '
+		.$return[0]['id_value'].' (mem pk: '.memory_get_peak_usage().') ';
+	
+	$zz_error[] = array(
+		'msg_dev' => '[DEBUG] '.$rec.'time: '.implode(' ', $zz_debug[$zz_conf['id']]['time']),
+		'level' => E_USER_NOTICE
+	);
+	zz_error();
+}
+
+function microtime_float() {
+    list($usec, $sec) = explode(" ", microtime());
+    return ((float)$usec + (float)$sec);
+}
+
+function zz_debug_unset($id = false) {
+	global $zz_debug;
+	global $zz_conf;
+
+	if (!$id) $id = $zz_conf['id'];
+	unset($zz_debug[$id]);
 }
 
 ?>

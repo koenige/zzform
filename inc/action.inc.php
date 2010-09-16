@@ -30,9 +30,9 @@
  */
 function zz_action($zz, $zz_tab, $validation, $zz_var) {
 	global $zz_conf;
+	global $zz_error;
 	
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	global $zz_error;
 	$zz_var['record_action'] = false;
 
 	// assign POST values to each subrecord
@@ -78,17 +78,7 @@ function zz_action($zz, $zz_tab, $validation, $zz_var) {
 				// only if $tab and $rec != 0, i. e. only for subtables!
 				// set action field in zz_tab-array, 
 				$zz_tab[$tab] = zz_set_subrecord_action($zz_tab[$tab], $rec, $zz_tab[0][0]['action']);
-				if (!isset($zz_tab[$tab][$rec])) {
-					continue;
-				} else {
-					// we don't need POST array anymore, just the ones for the 
-					// empty subtables later
-					// could do it differently as well, just don't walk through 
-					// POST there ... but that's more difficult since 
-					// zz_query_record is called twice (TODO: check this, ?)
-					// if db operation was unsuccessful
-					unset($zz_tab[$tab]['POST'][$rec]);
-				}
+				if ($zz_tab[$tab][$rec]['action'] == 'ignore') continue;
 			}
 			if ($zz_tab[$tab][$rec]['action'] == 'insert' 
 				OR $zz_tab[$tab][$rec]['action'] == 'update') {
@@ -107,31 +97,29 @@ function zz_action($zz, $zz_tab, $validation, $zz_var) {
 					foreach ($zz_tab[$tab][$rec]['extra'] AS $key => $value)
 						$zz_tab[0][0]['extra'][$zz_tab[$tab]['table_name'].'['.$rec.']['.$key.']'] = $value;
 				}
-			} elseif (is_numeric($rec) AND $zz_tab[$tab][$rec]['action'] == 'delete') {
-			//	Check referential integrity
-				if (!file_exists($zz_conf['dir_inc'].'/integrity.inc.php')) continue;
-				include_once $zz_conf['dir_inc'].'/integrity.inc.php';
-				$record_idfield = $zz_tab[$tab][$rec]['id']['field_name'];
-				$detailrecords = array();
-				if ($zz_var['subtables']) foreach ($zz_var['subtables'] as $subkey) {
-					$det_key = $zz['fields'][$subkey]['table'];
-					if (!strstr('.', $det_key))
-						$det_key = $zz_tab[0]['db_name'].'.'.$det_key;
-					$detailrecords[$det_key]['table'] = $zz['fields'][$subkey]['table'];
-					// might be more than one detail record from the same table
-					$detailrecords[$det_key]['sql'][] = $zz['fields'][$subkey]['sql'];
-				}
-				if (!$zz_tab[$tab][$rec]['no-delete'] = zz_check_integrity($zz_tab[$tab]['db_name'], 
-						$zz_tab[$tab]['table'], $record_idfield, $zz_tab[$tab][$rec]['POST'][$record_idfield], 
-						$zz_conf['relations_table'], $detailrecords)) {
-					if ($zz_error['error']) return zz_return(array($zz, $zz_tab, $validation, $zz_var));
-					$zz_tab[$tab][$rec]['validation'] = true;
-				} else {
-					$zz_tab[$tab][$rec]['validation'] = false;
-					$zz_var['no-delete'][] = $tab.','.$rec;
-				}
-				if ($zz_error['error']) return zz_return(array($zz, $zz_tab, $validation, $zz_var));
 			}
+		}
+	}
+
+	// check referential integrity
+	if (file_exists($zz_conf['dir_inc'].'/integrity.inc.php')) {
+		require_once $zz_conf['dir_inc'].'/integrity.inc.php';
+		// get table relations
+		$zz_var['relations'] = zz_integrity_relations($zz_conf['relations_table']);
+		// get record IDs of all records in table definition (1 main, n sub records)
+		$record_ids = zz_integrity_record_ids($zz_tab);
+		// if no record IDs = no deletion is possible
+		if ($record_ids) {
+			// get record IDs of dependent records which have 'delete' set
+			// in table relations
+			$dependent_ids = zz_integrity_dependent_record_ids($zz_tab, $zz_var['relations']);
+			// merge arrays for later
+			$deletable_ids = zz_array_merge($record_ids, $dependent_ids);
+			$zz_var['integrity'] = zz_integrity_check($deletable_ids, $zz_var['relations']);
+			// return database errors
+			if ($zz_error['error']) return zz_return(array($zz, $zz_tab, $validation, $zz_var));
+			// if something was returned, validation failed because there probably are records
+			if ($zz_var['integrity']) $validation = false;
 		}
 	}
 
@@ -139,6 +127,7 @@ function zz_action($zz, $zz_tab, $validation, $zz_var) {
 		$my_recs = 0;
 		foreach (array_keys($my_tab) as $rec) {
 			if (!is_numeric($rec)) continue;
+			if ($my_tab[$rec]['action'] == 'ignore') continue;
 			if ($tab AND $my_tab['min_records_required']) {
 				// add record count to check if we got enough of them
 				if ($my_tab[$rec]['action'] != 'delete') $my_recs++;
@@ -178,15 +167,17 @@ function zz_action($zz, $zz_tab, $validation, $zz_var) {
 				.'.'.$my_tab['table'], $zz_tab[0][0]['POST']); 
 		}
 	}
-	
+
 	// put delete_ids into zz_tab-array to delete them
 	foreach ($zz_tab as $tab => $my_tab) {
 		if (!$tab) continue; // only subtables
 		foreach ($my_tab['subtable_deleted'] AS $del_id) {
+			unset($my_rec);
 			$my_rec['action'] = 'delete';
 			$my_rec['access'] = '';
 			$my_rec['fields'] = array();
 			$my_rec['id']['field_name'] = $my_tab['id_field_name'];
+			$my_rec['id']['value'] = $del_id;
 			$my_rec['POST'][$my_rec['id']['field_name']] = $del_id;
 			$zz_tab[$tab][] = $my_rec;
 			unset($my_rec);
@@ -205,7 +196,7 @@ function zz_action($zz, $zz_tab, $validation, $zz_var) {
 	$sql_edit = '';
 	foreach (array_keys($zz_tab) as $tab)
 		foreach (array_keys($zz_tab[$tab]) as $rec) if (is_numeric($rec)) {
-			//echo 'rec '.$tab.' '.$rec.'<br>';
+		if ($zz_tab[$tab][$rec]['action'] == 'ignore') continue;
 		
 		// get database name for query
 		$me_db = false;
@@ -234,7 +225,7 @@ function zz_action($zz, $zz_tab, $validation, $zz_var) {
 			$field_list = array();
 			foreach ($zz_tab[$tab][$rec]['fields'] as $field) {
 				if (!$field['in_sql_query']) continue;
-				$field_list[] = $field['field_name'];
+				$field_list[] = '`'.$field['field_name'].'`';
 				$field_values[] = $zz_tab[$tab][$rec]['POST_db'][$field['field_name']];
 			}
 			$me_sql = ' INSERT INTO '.$me_db.$zz_tab[$tab]['table'].' ('
@@ -250,7 +241,7 @@ function zz_action($zz, $zz_tab, $validation, $zz_var) {
 					if ($field['type'] != 'timestamp' AND empty($field['dont_check_on_update']))
 						$fields[] = $field['field_name'];
 					if ($update_values) $update_values.= ', ';
-					$update_values.= $field['field_name'].' = '.$zz_tab[$tab][$rec]['POST_db'][$field['field_name']];
+					$update_values.= '`'.$field['field_name'].'` = '.$zz_tab[$tab][$rec]['POST_db'][$field['field_name']];
 				}
 			if ($update_values) {
 				$equal = true; // old and new record are equal
@@ -276,10 +267,10 @@ function zz_action($zz, $zz_tab, $validation, $zz_var) {
 
 		} elseif ($zz_tab[$tab][$rec]['action'] == 'delete') {
 			// no POST_db, because here, validation is not neccessary
-			$me_sql= ' DELETE FROM '.$me_db.$zz_tab[$tab]['table'];
-			$id_field = $zz_tab[$tab][$rec]['id']['field_name'];
-			$me_sql.= ' WHERE '.$id_field." = '".$zz_tab[$tab][$rec]['POST'][$id_field]."'";
-			$me_sql.= ' LIMIT 1';
+			$me_sql= ' DELETE FROM '.$me_db.$zz_tab[$tab]['table']
+				.' WHERE '.$zz_tab[$tab][$rec]['id']['field_name']." = '"
+				.$zz_tab[$tab][$rec]['id']['value']."'"
+				.' LIMIT 1';
 
 	// ### Again, do nothing with the record, here: detail record
 
@@ -293,27 +284,60 @@ function zz_action($zz, $zz_tab, $validation, $zz_var) {
 	// ### Do mysql-query and additional actions ###
 	
 	$del_msg = array();
-	if ($zz_tab[0][0]['action'] == 'delete' && isset($detail_sql_edit)) { 
+	if ($zz_tab[0][0]['action'] == 'delete' && isset($detail_sql_edit) 
+		OR isset($dependent_ids)) { 
 	// if delete a record, first delete detail records so that in case of an 
 	// error there are no orphans
-		foreach (array_keys($detail_sql_edit) as $tab)
+
+	// detail records from relations-table
+		if (isset($dependent_ids)) {
+			foreach ($dependent_ids as $db_name => $tables) {
+				$me_db = '';
+				if ($zz_conf['db_main']) {
+					// the 'main' zzform() database is different from the database for 
+					// the main record, so check against db_main
+					if ($db_name != $zz_conf['db_main']) 
+						$me_db = '`'.$db_name.'`.';
+				} else {
+					// the 'main' zzform() database is equal to the database for the 
+					// main record, so check against db_name
+					if ($db_name != $zz_conf['db_name']) 
+						$me_db = '`'.$db_name.'`.';
+				}
+				foreach ($tables as $table => $fields) {
+					$id_field = key($fields);
+					$ids = array_shift($fields);
+					$me_sql = ' DELETE FROM '.$me_db.$table
+						.' WHERE `'.$id_field.'` IN ('.implode(',', $ids).')'
+						.' LIMIT '.count($ids);
+					$id = false;
+					if (count($ids) == 1) $id = array_shift($ids);
+					$result = zz_db_change($me_sql, $id);
+					if ($result['action']) {
+						$del_msg[] = 'integrity delete: '.$me_sql.'<br>';
+					} else {
+						$zz_var['formhead'] = false;
+						$result['error']['msg'] = 'Detail record could not be deleted';
+						$zz_error[] = $result['error'];
+					}
+				}
+			}
+		}
+	// detail records in form
+		if (isset($detail_sql_edit)) foreach (array_keys($detail_sql_edit) as $tab)
 			foreach (array_keys($detail_sql_edit[$tab]) as $rec) {
-				$del_result = mysql_query($detail_sql_edit[$tab][$rec]);
-				if ($del_result) {
-					if ($zz_conf['logging']) 
-						zz_log_sql($detail_sql_edit[$tab][$rec], $zz_conf['user'], $zz_tab[$tab][$rec]['id']['value']); // Logs SQL Query
+				// might already deleted if in dependent IDs but that does not matter
+				$result = zz_db_change($detail_sql_edit[$tab][$rec], $zz_tab[$tab][$rec]['id']['value']);
+				if ($result['action']) {
 					$del_msg[] = 'zz_tab '.$tab.' '.$rec.': '.$detail_sql_edit[$tab][$rec].'<br>';
 					unset($detail_sql_edit[$tab][$rec]);
 					// save record values for use outside of zzform()
 					$zz = zz_record_info($zz, $zz_tab, $tab, $rec);
 				} else { // something went wrong, but why?
 					$zz_var['formhead'] = false;
-					$error_msg = array(
-						'msg' => 'Detail record could not be deleted',
-						'query' => $detail_sql_edit[$tab][$rec],
-						'mysql' =>	mysql_error());
-					$zz_error[] = $error_msg;
-					$zz_tab[$tab][$rec]['error'] = $error_msg;
+					$result['error']['msg'] = 'Detail record could not be deleted';
+					$zz_error[] = $result['error'];
+					$zz_tab[$tab][$rec]['error'] = $result['error'];
 //					not sure whether to cancel any further operations here, TODO
 //					return zz_error(); // get out of function, ignore rest 
 					// (this should never happen, just if there are database errors etc.)
@@ -331,23 +355,18 @@ function zz_action($zz, $zz_tab, $validation, $zz_var) {
 		}
 	}
 
-	$result = mysql_query($sql_edit);
-	if ($result) {
-		// todo: check for affected rows, problem: also check for affected subrecords how?
-		// echo 'affected: '.mysql_affected_rows();
+	$result = zz_db_change($sql_edit, $zz_tab[0][0]['id']['value']);
+	if ($result['action']) {
 		if ($zz_tab[0][0]['action'] == 'insert') {
 			$zz_var['formhead'] = zz_text('record_was_inserted');
-			$zz_tab[0][0]['id']['value'] = mysql_insert_id(); // for requery
+			$zz_tab[0][0]['id']['value'] = $result['id_value']; // for requery
 		} elseif ($zz_tab[0][0]['action'] == 'update') {
 			$zz_var['formhead'] = zz_text('record_was_updated');
 		} elseif ($zz_tab[0][0]['action'] == 'delete') {
 			$zz_var['formhead'] = zz_text('record_was_deleted');
 		}
-		if ($zz_conf['logging'])
-			// Logs SQL Query, must be after insert_id was checked
-			zz_log_sql($sql_edit, $zz_conf['user'], $zz_tab[0][0]['id']['value']);
 		// save record values for use outside of zzform()
-		if (trim($sql_edit) == 'SELECT 1') $zz_tab[0][0]['actual_action'] = 'nothing';
+		if ($result['action'] == 'nothing') $zz_tab[0][0]['actual_action'] = 'nothing';
 		$zz = zz_record_info($zz, $zz_tab);
 		$zz_var['record_action'] = true;
 		if (isset($detail_sql_edit))
@@ -364,33 +383,30 @@ function zz_action($zz, $zz_tab, $validation, $zz_var) {
 						}
 						$detail_sql = str_replace('[DETAIL_KEY]', '"'.$zz_tab[$zz_tab[$tab]['detail_key'][0]['tab']][$zz_tab[$tab]['detail_key'][0]['rec']]['id']['value'].'"', $detail_sql);
 					}
-					$detail_result = mysql_query($detail_sql);
-					if (!$detail_result) { 
+					// for deleted subtables, id value might not be set, so get it here.
+					// TODO: check why it's not available beforehands, might be unneccessary security risk.
+					if (empty($zz_tab[$tab][$rec]['id']['value'])
+						AND !empty($zz_tab[$tab][$rec]['POST'][$zz_tab[$tab][$rec]['id']['field_name']]))
+						$zz_tab[$tab][$rec]['id']['value'] = $zz_tab[$tab][$rec]['POST'][$zz_tab[$tab][$rec]['id']['field_name']];
+
+					$result = zz_db_change($detail_sql, $zz_tab[$tab][$rec]['id']['value']);
+					if (!$result['action']) { 
 						// This should never occur, since all checks say that 
 						// this change is possible
 						// only if duplicate entry
-						$zz_var['formhead']		= false;
-						$error_msg = array('msg' => 'Detail record could not be handled',
-							'level' => E_USER_WARNING,
-							'query' => $detail_sql,
-							'mysql' => mysql_error(),
-							'mysql_errno' => mysql_errno());
-						$zz_error[] = $error_msg;
-						$zz_tab[$tab][$rec]['error'] = $error_msg;
+						$zz_var['formhead']	= false;
+						$result['error']['msg'] = 'Detail record could not be handled';
+						$result['error']['level'] = E_USER_WARNING;
+						$zz_error[] = $result['error'];
+						$zz_tab[$tab][$rec]['error'] = $result['error'];
 						$zz_var['record_action'] = false;
 						$validation = false; 
 						$zz_tab[0][0]['fields'][$zz_tab[$tab]['no']]['check_validation'] = false;
-					} elseif ($zz_tab[$tab][$rec]['action'] == 'insert') 
-						$zz_tab[$tab][$rec]['id']['value'] = mysql_insert_id(); // for requery
-					if ($zz_conf['logging'] AND $detail_result) {
-						// for deleted subtables, id value might not be set, so get it here.
-						// TODO: check why it's not available beforehands, might be unneccessary security risk.
-						if (empty($zz_tab[$tab][$rec]['id']['value']))
-							$zz_tab[$tab][$rec]['id']['value'] = $zz_tab[$tab][$rec]['POST'][$zz_tab[$tab][$rec]['id']['field_name']];
-						zz_log_sql($detail_sql, $zz_conf['user'], $zz_tab[$tab][$rec]['id']['value']); // Logs SQL Query
+					} elseif ($zz_tab[$tab][$rec]['action'] == 'insert') {
+						$zz_tab[$tab][$rec]['id']['value'] = $result['id_value']; // for requery
 					}
 					// save record values for use outside of zzform()
-					if (trim($detail_sql) == 'SELECT 1')
+					if ($result['action'] == 'nothing')
 						$zz_tab[$tab][$rec]['actual_action'] = 'nothing';
 					$zz = zz_record_info($zz, $zz_tab, $tab, $rec);
 					if ($zz_conf['modules']['debug'] AND $zz_conf['debug']) {
@@ -413,13 +429,9 @@ function zz_action($zz, $zz_tab, $validation, $zz_var) {
 		// Output Error Message
 		$zz_var['formhead'] = false;
 		if ($zz_var['action'] == 'insert') $zz_tab[0][0]['id']['value'] = false; // for requery
-		$error_msg = array(
-			'level' => E_USER_WARNING,
-			'query' => $sql_edit,
-			'mysql' => mysql_error(),
-			'mysql_errno' => mysql_errno());
-		$zz_error[] = $error_msg;
-		$zz_tab[0][0]['error'] = $error_msg;
+		$result['error']['level'] = E_USER_WARNING;
+		$zz_error[] = $result['error'];
+		$zz_tab[0][0]['error'] = $result['error'];
 		$zz = zz_record_info($zz, $zz_tab);
 		$validation = false; // show record again!
 	}
@@ -431,7 +443,7 @@ function zz_action($zz, $zz_tab, $validation, $zz_var) {
 		}
 		if (!$update) $zz_var['formhead'] = zz_text('Record was not updated (no changes were made)');
 	}
-
+	
 	if (!empty($zz_var['upload_form'])) zz_upload_cleanup($zz_tab); // delete temporary unused files
 	return zz_return(array($zz, $zz_tab, $validation, $zz_var));
 }
@@ -545,7 +557,6 @@ function zz_set_subrecord_action($my_tab, $rec, $action) {
 		else									// no data in subtable
 			$my_tab[$rec]['action'] = 'ignore';
 	}
-	if ($my_tab[$rec]['action'] == 'ignore') unset($my_tab[$rec]);
 
 	if ($zz_conf['modules']['debug']) zz_debug("end, values: ".substr($values, 0, 20));
 	return $my_tab;
@@ -640,13 +651,13 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
  * @param int $tab
  * @param int $rec
  * @param string $type (optional) 'return', 'planned'
- * @global array $zz_conf 'get_old_record'
  * @return array $zz
  *		'return' ('action' might be nothing if update, but nothing was updated),
  *		'record_new', 'record_old'
  */
 function zz_record_info($zz, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
-	global $zz_conf;
+	if ($zz_tab[$tab][$rec]['action'] == 'ignore') return $zz;
+	
 	if (!isset($zz['record_new'])) $zz['record_new'] = array();
 	if (!isset($zz['record_old'])) $zz['record_old'] = array();
 	if (!isset($zz['record_diff'])) $zz['record_diff'] = array();
@@ -674,41 +685,40 @@ function zz_record_info($zz, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
 		$rn[$zz_tab[$tab][$rec]['id']['field_name']] = $zz_tab[$tab][$rec]['id']['value'];
 		// remove subtables
 		if ($tab == 0 AND $rec == 0) {
-			foreach ($zz_tab as $tab => $my_tab) {
-				if (!is_numeric($tab)) continue;
-				if ($my_tab['table_name']) unset($rn[$my_tab['table_name']]);
+			foreach (array_keys($zz_tab) as $my_tab) {
+				if (!is_numeric($my_tab)) continue;
+				if ($zz_tab[$my_tab]['table_name']) unset($rn[$zz_tab[$my_tab]['table_name']]);
 			}
 		}
 		$zz['record_new'][] = $rn;
 	} else $zz['record_new'][] = array();
 	
 	// set old record
-	if (!empty($zz_tab[$tab][$rec]['old_record'])) {
-		$zz['record_old'][] = $zz_tab[$tab][$rec]['old_record'];
-		$ro = $zz_tab[$tab][$rec]['old_record'];
-	} else $zz['record_old'][] = array();
+	if (!empty($zz_tab[$tab]['existing'][$rec])) {
+		$zz['record_old'][] = $zz_tab[$tab]['existing'][$rec];
+		$ro = $zz_tab[$tab]['existing'][$rec];
+	} else
+		$zz['record_old'][] = array();
 	
 	// diff old record and new record
-	if ($zz_conf['get_old_record']) {
-		$rd = array();
-		if (!$rn) {
-			foreach ($zz_tab[$tab][$rec]['fields'] as $field) {
-				if (empty($field['field_name'])) continue;
-				$rd[$field['field_name']] = 'delete';
-			}
-		} else {
-			foreach ($rn as $field => $value) {
-				if (!isset($ro[$field])) {
-					$rd[$field] = 'insert';
-				} elseif ($ro[$field] != $value) {
-					$rd[$field] = 'diff';
-				} else {
-					$rd[$field] = 'same';
-				}
+	$rd = array();
+	if (!$rn) {
+		foreach ($zz_tab[$tab][$rec]['fields'] as $field) {
+			if (empty($field['field_name'])) continue;
+			$rd[$field['field_name']] = 'delete';
+		}
+	} else {
+		foreach ($rn as $field => $value) {
+			if (!key_exists($field, $ro)) {
+				$rd[$field] = 'insert';
+			} elseif ($ro[$field] != $value) {
+				$rd[$field] = 'diff';
+			} else {
+				$rd[$field] = 'same';
 			}
 		}
-		$zz['record_diff'][] = $rd;
-	} else $zz['record_diff'][] = array();
+	}
+	$zz['record_diff'][] = $rd;
 
 	return $zz;
 }

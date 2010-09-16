@@ -21,7 +21,7 @@
  *		'output', 'mode'
  * @param array $zz_tab
  * @param array $zz_var
- *		'upload_form', 'no-delete', 'action'
+ *		'upload_form', 'integrity', 'action'
  * @param array $zz_conditions
  * @global array $zz_conf
  *		'url_self', 'url_self_qs_base', 'url_append', 'character_set'
@@ -57,6 +57,20 @@ function zz_record($zz, $zz_tab, $zz_var, $zz_conditions) {
 		OR $zz['mode'] == 'show') AND !$zz_tab[0][0]['record']) {
 		$zz_var['formhead'] = '<span class="error">'.zz_text('There is no record under this ID:')
 			.' '.htmlspecialchars($zz_tab[0][0]['id']['value']).'</span>';	
+	} elseif (!empty($zz_var['integrity'])) {
+		$zz_var['formhead'] = zz_text('warning').'!';
+		$tmp_error_msg = 
+			zz_text('This record could not be deleted because there are details about this record in other records.')
+			.' '.$zz_var['integrity']['text']."\n";
+
+		if (isset($zz_var['integrity']['fields'])) {
+			$tmp_error_msg .= '<ul>'."\n";
+			foreach ($zz_var['integrity']['fields'] as $del_tab) {
+				$tmp_error_msg .= '<li>'.zz_nice_tablenames($del_tab).'</li>'."\n";
+			}
+			$tmp_error_msg .= '</ul>'."\n";
+		} 
+		$zz_error[]['msg'] = $tmp_error_msg;
 	} elseif (in_array($zz['mode'], $record_form) OR $zz['mode'] == 'show') {
 	//	mode = add | edit | delete: show form
 		$zz_var['formhead'] = zz_text($zz['mode']).' '.zz_text('a_record');
@@ -64,24 +78,6 @@ function zz_record($zz, $zz_tab, $zz_var, $zz_conditions) {
 	//	action = insert update review: show form with new values
 		if (!$zz_var['formhead']) {
 			$zz_var['formhead'] = ucfirst(zz_text($zz_var['action']).' '.zz_text('failed'));
-		}
-		if (!empty($zz_var['no-delete'])) {
-			$zz_var['formhead'] = zz_text('warning').'!';
-			foreach ($zz_var['no-delete'] as $tab) {
-				$tab = explode(',', $tab);
-				$no_delete_reason = $zz_tab[$tab[0]][$tab[1]]['no-delete'];
-				$tmp_error_msg = 
-					zz_text('This record could not be deleted because there are details about this record in other records.')
-					.' '.$no_delete_reason['text']."\n";
-				if (isset($no_delete_reason['fields'])) {
-					$tmp_error_msg .= '<ul>'."\n";
-					foreach ($no_delete_reason['fields'] as $del_tab) {
-						$tmp_error_msg .= '<li>'.zz_nice_tablenames($del_tab).'</li>'."\n";
-					}
-					$tmp_error_msg .= '</ul>'."\n";
-				} 
-				$zz_error[]['msg'] = $tmp_error_msg;
-			}
 		}
 	} elseif ($zz['mode'] == 'review') {
 		$zz_var['formhead'] = zz_text('show_record');
@@ -92,7 +88,6 @@ function zz_record($zz, $zz_tab, $zz_var, $zz_conditions) {
 	}
 
 	// output error messages to the user
-
 	if (!empty($zz_error['validation']['msg']) AND is_array($zz_error['validation']['msg'])) {
 		// user error message, visible to everyone
 		// line breaks \n important for mailing errors
@@ -264,21 +259,11 @@ function zz_display_records($zz, $zz_tab, $display, $zz_var, $zz_conditions) {
 	}
 	if ($display == 'form') {
 		foreach ($zz_tab as $tab => $my_tab) {
-			if ($tab && isset($my_tab['records']))
-				$output.= '<input type="hidden" name="zz_records['.$tab.']" value="'
-				.$my_tab['records'].'">';
-			if (isset($my_tab['subtable_deleted']))
-				foreach ($my_tab['subtable_deleted'] as $deleted_id)
-					$output.= '<input type="hidden" name="zz_subtable_deleted['
-					.$my_tab['table_name'].'][]['.$my_tab['id_field_name']
-					.']" value="'.$deleted_id.'">';
-			if ($tab && !isset($my_tab['subtable_deleted']) 
-				&& !isset($my_tab['records']) && isset($my_tab['zz_records'])) 
-				// this occurs when a record is not validated. subtable fields 
-				// will be validated, so this is not perfect as there are no 
-				// more options to enter a record even if not all subrecords were filled in
-				$output.= '<input type="hidden" name="records['.$tab
-				.']" value="'.$my_tab['zz_records'].'">';
+			if (empty($my_tab['subtable_deleted'])) continue;
+			foreach ($my_tab['subtable_deleted'] as $deleted_id)
+				$output.= '<input type="hidden" name="zz_subtable_deleted['
+				.$my_tab['table_name'].'][]['.$my_tab['id_field_name']
+				.']" value="'.$deleted_id.'">';
 		}
 	}
 	return zz_return($output);
@@ -377,9 +362,6 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 			$st_display = (!empty($field['access']) ? $field['access'] : $display);
 			$out['tr']['attr'][] = (!empty($field['class']) ? $field['class'] : '');
 			$out['th']['attr'][] = 'sub-add';
-			if ($st_display == 'form' && !isset($zz_tab[$sub_tab]['records']))  
-				// this happens in case $validation is false
-				$zz_tab[$sub_tab]['records'] = $zz_tab[$sub_tab]['zz_records'];
 			if (!(isset($field['show_title']) AND !$field['show_title']))
 				$out['th']['content'] .= $field['title'];
 			if (!empty($field['title_desc']) && $st_display == 'form') 
@@ -402,6 +384,14 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 				if ($zz_tab[$sub_tab][$sub_rec]['action'] == 'delete'
 					AND (empty($zz_tab[$sub_tab]['records'])
 						AND ($sub_rec + 1) != $zz_tab[$sub_tab]['min_records'])) continue;
+				// don't show records which are being ignored
+				if ($zz_tab[$sub_tab][$sub_rec]['action'] == 'ignore'
+					AND $st_display != 'form') continue;
+				// don't show records which are deleted with tick_to_save
+				if ($zz_tab[$sub_tab][$sub_rec]['action'] == 'delete'
+					AND $st_display != 'form'
+					AND !empty($field['tick_to_save'])) continue;
+
 				$c_subtables++;
 				$my_st_display = $st_display;
 
@@ -556,8 +546,9 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 				$close_span = false;
 			} else {
 				$close_span = true;
-				// so error class does not get lost
-				$out['tr']['attr'][]  = $field['class']; 
+				// so error class does not get lost (but only error, no hidden classes)
+				if ($field['class'] == 'error')
+					$out['tr']['attr'][]  = $field['class']; 
 				$out['td']['content'].= '<span'.($field['class'] ? ' class="'.$field['class'].'"' : '').'>'; 
 			}
 			if (!empty($field['append_next'])) $append_next = true;
@@ -956,7 +947,9 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 					.$field['rows'].'" cols="'.$field['cols'].'" name="'
 					.$field['f_field_name'].'" id="'.make_id_fieldname($field['f_field_name']).'">';
 				if ($my_rec['record']) {
-					if ($row_display != 'form' && isset($field['format'])) $memotext = $field['format']($memotext);
+					// format in case it's not editable and won't be saved in db
+					if ($row_display != 'form' AND isset($field['format']))
+						$memotext = $field['format']($memotext);
 					$outputf.= $memotext;
 				}
 				if ($row_display == 'form') $outputf.= '</textarea>';
@@ -1197,7 +1190,10 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 							$val_to_insert = $field['display_title'][$val_to_insert];
 						if (!empty($field['translate_field_value']))
 							$val_to_insert = zz_text($val_to_insert);
-						$outputf .= htmlspecialchars($val_to_insert);
+						$val_to_insert = htmlspecialchars($val_to_insert);
+						if (isset($field['format']))
+							$val_to_insert = $field['format']($val_to_insert);
+						$outputf .= $val_to_insert;
 					} else
 						$outputf .= '<span class="error">'
 							.zz_text('Script configuration error. No display field set.').'</span>'; // debug!
@@ -1523,7 +1519,7 @@ function zz_form_select_sql($field, $db_table, $record, $row_display, $zz_conf_r
 					// (both would be written in my record fieldname)
 					$outputf.= ' checked="checked"'; 
 				}
-				$outputf.= '>'.zz_text('no_selection').'</label>';
+				$outputf.= '> '.zz_text('no_selection').'</label>';
 				$outputf .= "\n".'<ul class="zz_radio_list">'."\n";
 			}
 			
@@ -1537,7 +1533,13 @@ function zz_form_select_sql($field, $db_table, $record, $row_display, $zz_conf_r
 						.$myid.'" name="'.$field['f_field_name'].'" value="'.$id.'"';
 					if ($record AND $id == $record[$field['field_name']]) 
 						$outputf.= ' checked="checked"';
-					$outputf.= '> '.implode(' | ', $fields).'</label>';
+					$outputf.= '> ';
+					if (!empty($field['group'])) { // group display
+						if ($fields[$field['group']])
+							$outputf .= '<em>'.$fields[$field['group']].':</em> ';
+						unset($fields[$field['group']]);
+					}
+					$outputf .= implode(' | ', $fields).'</label>';
 					$outputf .= '</li>'."\n";
 				} else {
 					if ($id == $record[$field['field_name']]) 

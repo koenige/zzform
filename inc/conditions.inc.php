@@ -231,7 +231,7 @@ function zz_replace_conditional_values(&$item, $key, $records) {
  */
 function zz_conditions_merge($array, $bool_conditions, $record_id, $reverse = false, $type = 'field') {
 	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if ($zz_conf['modules']['debug']) zz_debug('start ID'.$record_id, __FUNCTION__);
 
 	if (!$reverse) {
 		$conditions = $array['conditions'];
@@ -246,8 +246,8 @@ function zz_conditions_merge($array, $bool_conditions, $record_id, $reverse = fa
 		// whole configuration might not be unset!
 		if ($type == 'conf' AND empty($new_values)) continue;
 
-		// only change arrays if $zz['conditions'] was set!
-		if (empty($bool_conditions[$condition])) continue;
+		// only change arrays if $zz['conditions'] was set! (might be empty!)
+		if (!isset($bool_conditions[$condition])) continue;
 
 		// if reverse check ('not-condition'), bring all keys to reverse
 		if ($reverse) {

@@ -36,25 +36,66 @@ function zz_maintenance($params) {
 	$page['title'] = zz_text('Maintenance');
 	$page['dont_show_h1'] = true;
 	$page['text'] = '';
+	
+	unset($_GET['no-cookie']);
+
+	$sql = '';
+	if (!empty($_POST['sql'])) {
+		$sql = $_POST['sql'];
+
+		$page['text'] = '<h1><a href="./">'.wrap_text('Maintenance scripts').'</a></h1>'."\n";
+		$page['text'] .= '<div id="zzform">'."\n";
+		$page['text'] .= '<h2>'.wrap_text('SQL query').'</h2>'."\n";
+		$page['text'] .= '<pre style="font-size: 1.1em;"><code>'.zz_maintenance_sql($sql).'</code></pre>';
+
+		$tokens = explode(' ', $sql);
+		switch ($tokens[0]) {
+		case 'INSERT':
+		case 'UPDATE':
+		case 'DELETE':
+			$result = zz_db_change($sql);
+			$page['text'] .= '<h2>'.wrap_text('Result').'</h2>'."\n";
+			if (!$result['action']) {
+				$page['text'] .= '<div class="error">'
+					.'MySQL says: '.$result['error']['mysql'].' [Code '
+					.$result['error']['mysql_errno'].']'
+					.'</div>'."\n";
+			} elseif ($result['action'] == 'nothing') {
+				$page['text'] .= '<p>'.wrap_text('No changes were done to database.').'</p>'."\n";
+			} else {
+				$page['text'] .= '<p>'.sprintf(wrap_text('%s was successful'), wrap_text(ucfirst($result['action'])))
+					.': '.sprintf(wrap_text('%s row(s) affected'), $result['rows'])
+					.($result['id_value'] ? ' (ID: '.$result['id_value'].')' : '').'</p>'."\n";
+			}
+			break;
+		case 'SELECT':
+		default:
+			$page['text'] .= sprintf(wrap_text('Sorry, %s is not yet supported'), htmlentities($tokens[0]));
+		}
+	}
 
 	if (empty($_GET)) {	
-		$page['text'] = '<h1>'.wrap_text('Maintenance scripts').'</h1>'."\n";
-		$page['text'] .= '<div id="zzform">'."\n";
+		if (!$sql) {
+			$page['text'] = '<h1>'.wrap_text('Maintenance scripts').'</h1>'."\n";
+			$page['text'] .= '<div id="zzform">'."\n";
 
-		// 'relations'
-		// 'translations'
-		$page['text'] .= '<h2>'.zz_text('Relations and Translation Tables').'</h2>'."\n";
-		$page['text'] .= zz_maintenance_tables();
-
+			// 'relations'
+			// 'translations'
+			$page['text'] .= '<h2>'.zz_text('Relations and Translation Tables').'</h2>'."\n";
+			$page['text'] .= zz_maintenance_tables();
 	
-	// 	- Backup/errors, insert, update, delete
-		$page['text'] .= '<h2>'.zz_text('Backup Files').'</h2>'."\n";
-		$page['text'] .= zz_maintenance_folders();
-
+		
+		// 	- Backup/errors, insert, update, delete
+			$page['text'] .= '<h2>'.zz_text('Backup Files').'</h2>'."\n";
+			$page['text'] .= zz_maintenance_folders();
+		}
 	
 		$page['text'] .= '<h2>'.zz_text('Custom SQL query').'</h2>'."\n";
 	//	$page['text'] .= '<form action="" method="POST">';
-		$page['text'] .= '<p>...</p>'."\n";
+		$page['text'] .= '<form method="POST" action=""><textarea cols="60" rows="10" name="sql">'
+			.htmlentities($sql)
+			.'</textarea>
+			<br><input type="submit"></form>'."\n";
 	// 	- SQL query absetzen, Häkchen für zz_log_sql()
 	} else {
 		if (!empty($_GET['folder'])) {
@@ -109,12 +150,9 @@ function zz_maintenance_tables() {
 						$field_name = $area.'_db';
 					}
 					$sql = 'UPDATE '.$table
-						.' SET '.$field_name.' = "'.mysql_real_escape_string($new)
-						.'" WHERE '.$field_name.' = "'.mysql_real_escape_string($old).'"';
-					$result = mysql_query($sql);
-					if ($result) {
-						zz_log_sql($sql, $zz_conf['user']);
-					}
+						.' SET '.$field_name.' = "'.zz_db_escape($new)
+						.'" WHERE '.$field_name.' = "'.zz_db_escape($old).'"';
+					zz_db_change($sql);
 				}
 			}
 		}
@@ -177,6 +215,33 @@ function zz_maintenance_tables() {
 	$text .= '</form>';
 
 	return $text;
+}
+
+/**
+ * reformats SQL query for better readability
+ * 
+ * @param string $sql
+ * @return string $sql, formatted
+ */
+function zz_maintenance_sql($sql) {
+	$sql = preg_replace("/\s+/", " ", $sql);
+	$tokens = explode(' ', $sql);
+	$sql = array();
+	$keywords = array('INSERT', 'INTO', 'DELETE', 'FROM', 'UPDATE', 'SELECT',
+		'UNION', 'WHERE', 'GROUP', 'BY', 'ORDER', 'DISTINCT', 'LEFT', 'JOIN',
+		'RIGHT', 'INNER', 'NATURAL', 'USING', 'SET', 'CONCAT', 'SUBSTRING_INDEX',
+		'VALUES');
+	$newline = array('LEFT', 'FROM', 'GROUP', 'WHERE', 'SET', 'VALUES');
+	$newline_tab = array('ON', 'AND');
+	foreach ($tokens as $token) {
+		$out = htmlentities($token);
+		if (in_array($token, $keywords)) $out = '<strong>'.$out.'</strong>';
+		if (in_array($token, $newline)) $out = "\n".$out;
+		if (in_array($token, $newline_tab)) $out = "\n\t".$out;
+		$sql[] = $out;
+	}
+	$sql = implode(' ', $sql);
+	return $sql;
 }
 
 function zz_maintenance_folders() {

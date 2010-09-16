@@ -144,6 +144,8 @@ body #zzform .separator hr {width: 100%; margin: 0.25em 0; height: 3px;
 
 #zzform input, #zzform textarea {text-rendering:optimizeSpeed;} /* get rid of Firefox wrong ligatures */
 
+#zzform .current_record td, #zzform .current_record p { background: yellow; }
+
 #zzform #record .reselect th, #zzform #record .reselect td, #zzform #record .reselect
 	{background-color: green;}
 
