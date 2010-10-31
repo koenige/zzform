@@ -101,7 +101,9 @@ $zz['sql'] = 'SELECT * FROM '.$zz_conf['relations_table'];
 $zz['sqlorder'] = ' ORDER BY rel_id';
 
 $zz_conf['heading'] = 'Database Table Relations';
+$zz_conf['multilang_fieldnames'] = true;
 $zz_conf['max_select'] = 200;
+$zz_conf['limit'] = 20;
 $zz_conf['delete'] = true;
 
 ?>

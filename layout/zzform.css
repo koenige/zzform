@@ -95,8 +95,11 @@ div.text #zzform	 {padding: 1em;}
 #zzform input.sub-remove {float: left; margin: 0 0 .5em; }
 
 #zzform ul.pages {margin: 0; padding: 0 0 1em 0; list-style: none; }
-#zzform ul.pages li {margin: 0; float: left; padding: 0 .5em; border-left: 1px solid;}
-#zzform ul.pages li.first {padding-left: 0; border-left: 0;}
+#zzform ul.pages li {margin: 0; float: left; padding: 0; border-left: 1px solid;}
+#zzform ul.pages li a, #zzform ul.pages li span { padding: 0 .5em; }
+#zzform ul.pages li.first { border-left: 0;}
+#zzform ul.pages li.first a, #zzform ul.pages li.first span 
+	{ padding-left: 0; }
 #zzform p.totalrecords {margin-bottom: 0;}
 
 #zzform p.desc, #zzform .explanation 
@@ -168,3 +171,5 @@ body #zzform .separator hr {width: 100%; margin: 0.25em 0; height: 3px;
 		vertical-align: top; }
 
 #zzform .highlight { background-color: yellow; }
+
+#zzform .blocklabel { display: block; height: 100%; width: 100%; }

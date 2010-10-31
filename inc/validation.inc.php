@@ -29,6 +29,15 @@ function zz_validate($my_rec, $db_table, $table_name, $rec = 0, $main) {
 	$my_rec['extra'] = array();
 
 	foreach (array_keys($my_rec['fields']) as $f) {
+	//	check if some values are to be replaced internally
+		if (!empty($my_rec['fields'][$f]['replace_values']) 
+			AND !empty($my_rec['POST'][$my_rec['fields'][$f]['field_name']])) {
+			if (in_array($my_rec['POST'][$my_rec['fields'][$f]['field_name']],
+				array_keys($my_rec['fields'][$f]['replace_values'])))
+			$my_rec['POST'][$my_rec['fields'][$f]['field_name']]
+				= $my_rec['fields'][$f]['replace_values'][$my_rec['POST'][$my_rec['fields'][$f]['field_name']]];
+		}
+	
 	//	check if there are options-fields and put values into table definition
 		if (!empty($my_rec['fields'][$f]['read_options'])) {
 			$submitted_option = $my_rec['POST'][$my_rec['fields'][$my_rec['fields'][$f]['read_options']]['field_name']];
@@ -246,7 +255,7 @@ function zz_validate($my_rec, $db_table, $table_name, $rec = 0, $main) {
 			if (!$my_rec['POST'][$my_rec['fields'][$f]['field_name']]) break;
 			if ($my_rec['POST'][$my_rec['fields'][$f]['field_name']]) {
 				$my_date = strtotime($my_rec['POST'][$my_rec['fields'][$f]['field_name']]); 
-				if ($my_date != -1) 
+				if ($my_date AND $my_date != -1) 
 					// strtotime converts several formats, returns -1 if value
 					// is not convertable
 					$my_rec['POST'][$my_rec['fields'][$f]['field_name']] = $my_date;
@@ -288,7 +297,9 @@ function zz_validate($my_rec, $db_table, $table_name, $rec = 0, $main) {
 			break;
 		case 'upload_image':
 			$input_filetypes = (isset($my_rec['fields'][$f]['input_filetypes']) 
-				? $my_rec['fields'][$f]['input_filetypes'] 
+				? (is_array($my_rec['fields'][$f]['input_filetypes']) 
+					? array_values($my_rec['fields'][$f]['input_filetypes'])
+					: array($my_rec['fields'][$f]['input_filetypes']))
 				: array());
 			if (!zz_upload_check($my_rec['images'][$f], $my_rec['action'], $zz_conf, $input_filetypes, $rec)) {
 				$my_rec['validation'] = false;

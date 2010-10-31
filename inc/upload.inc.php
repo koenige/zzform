@@ -85,7 +85,7 @@ if (ini_get('upload_tmp_dir'))
 else
 	$zz_default['tmp_dir'] 		= false;
 $zz_default['graphics_library'] = 'imagemagick';
-$zz_default['imagemagick_paths'] = array('/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/phpbin'); 
+$zz_default['imagemagick_paths'] = array('/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/phpbin', '/opt/local/bin/'); 
 $zz_default['upload_tools']['fileinfo'] = false;
 $zz_default['upload_tools']['exiftools'] = false;
 $zz_default['upload_tools']['identify'] = true; // might be turned off for performance reasons while handling raw data
@@ -345,8 +345,8 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	global $zz_error;
 	$file['validated'] = false;
-	// rewrite some misspelled and misset filetypes
 	if (!empty($file['type'])) {
+		// rewrite some misspelled and misset filetypes
 		if (in_array($file['type'], array_keys($zz_conf['mime_types_rewritten'])))
 			$file['type'] = $zz_conf['mime_types_rewritten'][$file['type']];
 	}
@@ -410,7 +410,21 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 				if (!empty($file['type']))
 					$file['type_user_upload'] = $file['type'];
 				$file['type'] = $return_var[0];
-
+				// save charset somewhere else
+				// application/pdf; charset=binary or text/plain; charset=utf-8
+				if (strstr($file['type'], ';')) {
+					$type = explode(';', $file['type']);
+					$file['type'] = array_shift($type);
+					foreach ($type as $appendix) {
+						$appendix = trim($appendix);
+						if (strstr($appendix, '=')) {
+							$appendix = explode('=', $appendix);
+							$file[$appendix[0]] = $appendix[1];
+						} else {
+							$file[$appendix] = true;
+						}
+					}
+				}
 				if ($file['filetype_file'] == 'AutoCad (release 14)') {
 					$imagetype = 'dwg';
 					$file['validated'] = true;
@@ -773,7 +787,8 @@ function zz_upload_prepare($zz_tab) {
 			if ($source_filename && $source_filename != 'none') { // only if something new was uploaded!
 				$filename = (file_exists($source_filename) ? $source_filename : '');
 				$tmp_filename = false;
-				if (!empty($image['action'])) { // image operations only for images
+				if (!empty($image['action']) AND $filename) { 
+					// image operations only for images
 					// create temporary file, so that original file remains the same for further actions
 					$tmp_filename = tempnam(realpath($zz_conf['tmp_dir']), "UPLOAD_"); 
 					$dest_extension = zz_upload_extension($image['path'], $zz_tab[$tab][$rec]);
@@ -811,6 +826,10 @@ function zz_upload_prepare($zz_tab) {
 						);
 					}
 					zz_error();
+				} elseif (!empty($image['action'])) {
+					$zz_error[] = array(
+						'msg_dev' => sprintf(zz_text('Error: Source file %s does not exist. '), $filename)
+					);
 				}
 				$image['files']['tmp_files'][$img] = $filename;
 				if (!empty($zz_tab[$tab][$rec]['images'][$no]['all_temp']))
@@ -1324,7 +1343,7 @@ function zz_upload_checkdir($my_dir) {
 					'msg_dev' => sprintf(zz_text('Creation of directory %s failed.'), $my_dir),
 					'level' => E_USER_ERROR
 				);
-				zz_error();
+				$zz_error['error'] = true;
 				return false;
 			
 			//else $success = chown($my_dir, getmyuid());

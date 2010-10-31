@@ -25,9 +25,21 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 	global $zz_conf;
 	global $zz_error;
 
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+
+	// Turn off hierarchical sorting when using search
+	// TODO: implement hierarchical view even when using search
+	if (!empty($_GET['q']) AND $zz_conf['search'] AND $zz_conf['show_hierarchy']) {
+		$zz_conf['show_hierarchy'] = false;
+	}
+
+	// only if search is allowed and there is something
+	// if q modify $zz['sql']: add search query
+	if (!empty($_GET['q']) AND $zz_conf['search']) 
+		$zz['sql'] = zz_search_sql($zz['fields'], $zz['sql'], $zz['table'], $zz_var['id']['field_name']);	
+
 	$id_field = $zz_var['id']['field_name'];
 
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if ($zz_conf['list_access']) {
 		$zz_conf = array_merge($zz_conf, $zz_conf['list_access']);
 		unset($zz_conf['list_access']);
@@ -94,46 +106,38 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 		$zz['sql'].= ' LIMIT '.($zz_conf['this_limit']-$zz_conf['limit']).', '.($zz_conf['limit']);
 	}
 
-	if ($zz_conf['modules']['debug']) zz_debug("count_rows start");
-
-//	$sql = zz_edit_sql($zz['sql'], 'ORDER BY', '', 'delete');
-//	$sql = zz_edit_sql($zz['sql'], 'SELECT', 'objects.object_id', 'replace');
-	$sql = $zz['sql'];
-	$result = mysql_query($sql);
-	if ($result) {
-		$count_rows = mysql_num_rows($result);
-	} else {
-		$count_rows = 0;
-		$zz['output'].= zz_error($zz_error[] = array(
-			'mysql' => mysql_error(), 
-			'query' => $sql, 
-			'msg_dev' => zz_text('error-sql-incorrect')));
-	}
-
-	if ($zz_conf['modules']['debug']) zz_debug("count_rows end", $sql);
-
 	// read rows from database. depending on hierarchical or normal list view
 	// put rows in $lines or $h_lines.
-	$ids = array();
 	$h_lines = false;
-	if ($result) while ($line = mysql_fetch_assoc($result)) {
-		if (empty($zz_conf['show_hierarchy'])) {
-			$lines[] = $line;
-			$ids[] = $line[$id_field];
-		} else {
+	if (empty($zz_conf['show_hierarchy'])) {
+		$lines = zz_db_fetch($zz['sql'], $id_field);
+		if ($zz_error['error']) {
+			global $zz;
+			return zz_return(array($zz, $zz_var));
+		}
+	} else {
+		// for performance reasons, we only get the fields which are important
+		// for the hierarchy (we need to get all records)
+		$lines = zz_db_fetch($zz['sql'], array($id_field, $zz_conf['hierarchy']['mother_id_field_name']), 'key/value'); 
+		if ($zz_error['error']) {
+			global $zz;
+			return zz_return(array($zz, $zz_var));
+		}
+		foreach ($lines as $id => $mother_id) {
 			// sort lines by mother_id
 			if ($zz_conf['show_hierarchy'] === true) 
 				$zz_conf['show_hierarchy'] = 'NULL';
-			if ($line[$id_field] == $zz_conf['show_hierarchy']) { // get uppermost line
-				// if show_hierarchy is not NULL!
-				$line[$zz_conf['hierarchy']['mother_id_field_name']] = 'TOP';
-			} elseif (empty($line[$zz_conf['hierarchy']['mother_id_field_name']]))
-				$line[$zz_conf['hierarchy']['mother_id_field_name']] = 'NULL';
-			$h_lines[$line[$zz_conf['hierarchy']['mother_id_field_name']]][$line[$id_field]] = $line[$id_field];
+			if ($id == $zz_conf['show_hierarchy']) {
+				// get uppermost line if show_hierarchy is not NULL!
+				$mother_id = 'TOP';
+			} elseif (empty($mother_id))
+				$mother_id = 'NULL';
+			$h_lines[$mother_id][$id] = $id;
 		}
 	}
-	
+
 	if ($h_lines) {
+		$lines = array(); // unset and initialize
 		$level = 0; // level (hierarchy)
 		$i = 0; // number of record, for LIMIT
 		$my_lines = zz_list_hierarchy($h_lines, $zz_conf['show_hierarchy'], $id_field, $level, $i);
@@ -141,43 +145,39 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 		// but if show_hierarchy has ID value, not all rows are shown
 		if ($my_lines) {
 			if (!$zz_conf['this_limit']) {
-				$start = $zz_conf['this_limit'];
+				$start = 0;
 				$end = $total_rows -1;
 			} else {
 				$start = $zz_conf['this_limit'] - $zz_conf['limit'];
 				$end = $zz_conf['this_limit'] -1;
 			}
-			$lines = array();
 			foreach (range($start, $end) as $index) {
 				if (!empty($my_lines[$index])) 
 					$lines[$my_lines[$index][$id_field]] = $my_lines[$index];
 			}
 			// for performance reasons, we didn't save the full result set,
 			// so we have to requery it again.
-			$result = mysql_query($zz['sql']);
-			if ($result AND mysql_num_rows($result)) { // no need for error handling here, because we already did this
-				while ($line = mysql_fetch_assoc($result)) {
-					if (in_array($line[$id_field], array_keys($lines))) {
-						$lines[$line[$id_field]] = array_merge($lines[$line[$id_field]], $line);
-					}
-				}
+			if ($zz_conf['this_limit']) {
+				$sql = zz_edit_sql($zz['sql'], 'WHERE', '`'.$zz['table'].'`.'.$id_field
+					.' IN ('.implode(',', array_keys($lines)).')');
+			} else {
+				$sql = $zz['sql'];
 			}
-			$count_rows = count($lines);
+			$lines = zz_array_merge($lines, zz_db_fetch($sql, $id_field));
 		}
 		foreach ($lines as $line) {
-			$ids[] = $line[$id_field];
-			if (!empty($line['zz_hidden_line'])) {
-				// get record which is normally beyond our scope via ID
- 				$sql = zz_edit_sql($zz['sql'], 'WHERE', 'nothing', 'delete');
- 				$sql = zz_edit_sql($sql, 'WHERE', $id_field.' = '.$line[$id_field]);
- 				$result = mysql_query($sql);
- 				if ($result AND mysql_num_rows($result) == 1) {
- 					$line = mysql_fetch_assoc($result);
- 					$lines[$line[$id_field]] = array_merge($lines[$line[$id_field]], $line);
- 				}
+			if (empty($line['zz_hidden_line'])) continue;
+			// get record which is normally beyond our scope via ID
+			$sql = zz_edit_sql($zz['sql'], 'WHERE', 'nothing', 'delete');
+			$sql = zz_edit_sql($sql, 'WHERE', '`'.$zz['table'].'`.'.$id_field.' = '.$line[$id_field]);
+			$line = zz_db_fetch($sql);
+			if ($line) {
+				$lines[$line[$id_field]] = array_merge($lines[$line[$id_field]], $line);
 			}
 		}
 	}
+
+	$count_rows = count($lines);
 
 	// don't show anything if there is nothing
 	if (!$count_rows) {
@@ -188,8 +188,11 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 	if ($zz_conf['modules']['debug']) zz_debug("conditions start");
 	// Check all conditions whether they are true;
 	if (!empty($zz_conf['modules']['conditions']))
-		$zz_conditions = zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids);
-	if ($zz_error['error']) return zz_return(array($zz, $zz_var));
+		$zz_conditions = zz_conditions_list_check($zz, $zz_conditions, $id_field, array_keys($lines));
+	if ($zz_error['error']) {
+		$zz['output'].= zz_error();
+		return zz_return(array($zz, $zz_var));
+	}
 	$zz['output'].= zz_error();
 	if ($zz_conf['modules']['debug']) zz_debug("conditions finished");
 
@@ -198,7 +201,8 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 	// that means, $table_query cannot be used for the rest but $line_query instead
 	// zz_fill_out must be outside if show_list, because it is neccessary for
 	// search results with no resulting records
-	$zz['fields_in_list'] = zz_fill_out($zz['fields_in_list'], $zz_conf['db_name'].'.'.$zz['table'], true); // fill_out, but do not unset conditions
+	// fill_out, but do not unset conditions
+	$zz['fields_in_list'] = zz_fill_out($zz['fields_in_list'], $zz_conf['db_name'].'.'.$zz['table'], true); 
 	if ($zz_conf['show_list']) {
 		$conditions_applied = array(); // check if there are any conditions
 		array_unshift($lines, '0'); // 0 as a dummy record for which no conditions will be set
@@ -206,10 +210,10 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 			$line_query[$index] = $zz['fields_in_list'];
 			if ($index) foreach ($line_query[$index] as $fieldindex => $field) {
 				// conditions
-				if (!empty($zz_conf['modules']['conditions']) AND !empty($field['conditions'])) {
-					$line_query[$index][$fieldindex] = zz_conditions_merge($field, $zz_conditions['bool'], $line[$id_field]);
-					$conditions_applied[$index] = true;
-				}
+				if (empty($zz_conf['modules']['conditions'])) continue;
+				if (empty($field['conditions'])) continue;
+				$line_query[$index][$fieldindex] = zz_conditions_merge($field, $zz_conditions['bool'], $line[$id_field]);
+				$conditions_applied[$index] = true;
 			}
 		}
 		if (empty($conditions_applied)) {
@@ -220,24 +224,23 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 		// table definition is complete
 		// so now we need to check which fields are shown in list mode
 		foreach (array_keys($lines) as $index) {
-			if (!empty($line_query[$index])) {
-				if ($zz_conf['modules']['debug']) zz_debug("fill_out start");
-				$line_query[$index] = zz_fill_out($line_query[$index], $zz_conf['db_name'].'.'.$zz['table'], 2);
-				if ($zz_conf['modules']['debug']) zz_debug("fill_out end");
-				foreach ($line_query[$index] as $fieldindex => $field) {
-					// remove elements from table which shall not be shown
-					if ($zz['mode'] == 'export') {
-						if (!isset($field['export']) || $field['export']) {
-							$table_query[$index][] = $field;
-						}
-					} else {
-						if (empty($field['hide_in_list'])) {
-							$table_query[$index][] = $field;
-						}
+			if (empty($line_query[$index])) continue;
+			if ($zz_conf['modules']['debug']) zz_debug("fill_out start");
+			$line_query[$index] = zz_fill_out($line_query[$index], $zz_conf['db_name'].'.'.$zz['table'], 2);
+			if ($zz_conf['modules']['debug']) zz_debug("fill_out end");
+			foreach ($line_query[$index] as $fieldindex => $field) {
+				// remove elements from table which shall not be shown
+				if ($zz['mode'] == 'export') {
+					if (!isset($field['export']) || $field['export']) {
+						$table_query[$index][] = $field;
+					}
+				} else {
+					if (empty($field['hide_in_list'])) {
+						$table_query[$index][] = $field;
 					}
 				}
-				if ($zz_conf['modules']['debug']) zz_debug("table_query end");
 			}
+			if ($zz_conf['modules']['debug']) zz_debug("table_query end");
 		}
 		// now we have the basic stuff in $table_query[0] and $line_query[0]
 		// if there are conditions, $table_query[1], [2], [3]... and
@@ -252,8 +255,8 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 	$zz['output'] .= $search_form['top'];
 	
 	if ($zz_conf['show_list'] AND $zz_conf['select_multiple_records'] AND $zz['mode'] != 'export') {
-		$zz['output'].= '<form action="'.$zz_conf['url_self'].$zz_conf['url_self_qs_base'];
-		if ($zz_var['extraGET']) $zz['output'].= $zz_conf['url_append'].substr($zz_var['extraGET'], 5); // without first &amp;!
+		$zz['output'].= '<form action="'.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs'];
+		if ($zz_var['extraGET']) $zz['output'].= $zz_conf['int']['url']['?&'].substr($zz_var['extraGET'], 5); // without first &amp;!
 		$zz['output'].= '" method="POST"';
 		$zz['output'].= ' accept-charset="'.$zz_conf['character_set'].'">'."\n";
 	}
@@ -261,6 +264,10 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 	//
 	// Table head
 	//
+	
+	// allow $zz_conf['group'] to be a string
+	if (!is_array($zz_conf['group']) AND $zz_conf['group'])
+		$zz_conf['group'] = array($zz_conf['group']);
 
 	if ($zz_conf['show_list'] && $zz_conf['list_display'] == 'table') {
 		$zz['output'].= '<table class="data">';
@@ -270,11 +277,9 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 		$unsortable_fields = array('calculated', 'image', 'upload_image'); // 'subtable'?
 		$show_field = true;
 		foreach ($table_query[0] as $index => $field) {
-			if ($zz_conf['group']
-				AND ((!empty($field['display_field']) && $field['display_field'] == $zz_conf['group']) 
-				OR (!empty($field['field_name']) AND $field['field_name'] == $zz_conf['group']))) {
-				$zz_conf['group_field_no'] = $index;
-				$show_field = false;
+			if ($zz_conf['group']) {
+				$show_field_group = zz_list_group_field_no($field, $index);
+				if ($show_field AND !$show_field_group) $show_field = false;
 			}
 			if ($show_field) {
 				$zz['output'].= '<th'.check_if_class($field, (!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : '')).'>';
@@ -284,8 +289,8 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 					else $order_val = $field['field_name'];
 					$unwanted_keys = array('dir');
 					$new_keys = array('order' => $order_val);
-					$uri = $zz_conf['url_self'].zz_edit_query_string($zz_conf['url_self_qs_base']	
-						.$zz_conf['url_self_qs_zzform'], $unwanted_keys, $new_keys);
+					$uri = $zz_conf['int']['url']['self'].zz_edit_query_string($zz_conf['int']['url']['qs']	
+						.$zz_conf['int']['url']['qs_zzform'], $unwanted_keys, $new_keys);
 					$order_dir = 'asc';
 					if (str_replace('&amp;', '&', $uri) == $_SERVER['REQUEST_URI']) {
 						$uri.= '&amp;dir=desc';
@@ -318,11 +323,8 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 
 	} elseif ($zz_conf['show_list'] && $zz_conf['list_display'] == 'ul') {
 		if ($zz_conf['group']) {
-			foreach ($table_query[0] as $index => $field) {
-				if ((!empty($field['display_field']) && $field['display_field'] == $zz_conf['group']) 
-					OR (!empty($field['field_name']) AND $field['field_name'] == $zz_conf['group']))
-				$zz_conf['group_field_no'] = $index;
-			}
+			foreach ($table_query[0] as $index => $field)
+				zz_list_group_field_no($field, $index);
 		} else {
 			$zz['output'].= '<ul class="data">'."\n";
 		}
@@ -337,6 +339,7 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 	//	
 
 	$current_record = NULL;
+	$sum_group = array();
 	$modes = false;		// don't show a table head for link to modes until neccessary
 	$details = false;	// don't show a table head for link to details until neccessary
 	if ($zz_conf['show_list']) {
@@ -355,28 +358,35 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 			$id = '';
 			$sub_id = '';
 			if (empty($rows[$z]['group']))
-				$rows[$z]['group'] = '';
+				$rows[$z]['group'] = array();
 			if ($zz_conf['group']) {
+				$group_count = count($zz_conf['group']);
 				foreach ($table_query[$tq_index] as $fieldindex => $field) {
 				//	check for group function
-					if ($fieldindex == $zz_conf['group_field_no']) {
+					$pos = array_search($fieldindex, $zz_conf['group_field_no']);
+					if ($pos === false) continue;
 					/*	
 						TODO: hierarchical grouping!
 						if (!empty($field['show_hierarchy'])) {
-							if (!$group_hierarchy) $group_hierarchy = zz_tab_get_group_hierarchy($field);
-							$rows[$z]['group'] = zz_tab_show_group_hierarchy($line[$field['field_name']], $group_hierarchy);
+							if (!$group_hierarchy) $group_hierarchy = zz_list_get_group_hierarchy($field);
+							$rows[$z]['group'][$pos] = zz_list_show_group_hierarchy($line[$field['field_name']], $group_hierarchy);
 						} else
 					*/
-						if (!empty($field['display_field'])) {
-							$rows[$z]['group'] = $line[$field['display_field']];
-							// TODOgroup
-						} elseif (!empty($field['enum_title']) AND $field['type'] == 'select') {
-							foreach ($field['enum'] as $mkey => $mvalue)
-								if ($mvalue == $line[$field['field_name']]) 
-									$rows[$z]['group'] = $field['enum_title'][$mkey];
-						} elseif (!empty($field['field_name'])) {
-							$rows[$z]['group'] = $line[$field['field_name']];
-						}
+					if (!empty($field['display_field'])) {
+						$rows[$z]['group'][$pos] = $line[$field['display_field']];
+						// TODOgroup
+					} elseif (!empty($field['enum_title']) AND $field['type'] == 'select') {
+						foreach ($field['enum'] as $mkey => $mvalue)
+							if ($mvalue == $line[$field['field_name']]) 
+								$rows[$z]['group'][$pos] = $field['enum_title'][$mkey];
+					} elseif (!empty($field['field_name'])) {
+						$rows[$z]['group'][$pos] = $line[$field['field_name']];
+					}
+					$group_count--;
+					// we don't need to go throug all records if we found all
+					// group records already
+					if (!$group_count) {
+						ksort($rows[$z]['group']);
 						break;
 					}
 				}
@@ -407,10 +417,14 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 				while (!empty($table_query[$tq_index][$fieldindex]['list_append_next'])) $fieldindex++;
 				
 			//	initialize variables
-				if (isset($line['zz_level']) 
-					AND !empty($field['field_name'])  // occurs in case of subtables
-					AND $field['field_name'] == $zz_conf['hierarchy']['display_in']) {
-					$field['level'] = $line['zz_level'];
+				if (isset($line['zz_level'])) {
+					if (!empty($field['field_name'])  // occurs in case of subtables
+						AND $field['field_name'] == $zz_conf['hierarchy']['display_in']) {
+						$field['level'] = $line['zz_level'];
+					} elseif (!empty($field['table_name']) 
+						AND $field['table_name'] == $zz_conf['hierarchy']['display_in']) {
+						$field['level'] = $line['zz_level'];
+					}
 				}
 				if (empty($rows[$z][$fieldindex]['class']))
 					$rows[$z][$fieldindex]['class'] = check_if_class($field, 
@@ -448,26 +462,17 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 						if (isset($field['sum']) && $field['sum'] == true) {
 							if (!isset($sum[$field['title']])) $sum[$field['title']] = 0;
 							$sum[$field['title']] += $diff;
-							if ($rows[$z]['group']) {
-								if (!isset($sum_group[$rows[$z]['group']][$field['title']])) 
-									$sum_group[$rows[$z]['group']][$field['title']] = 0;
-								$sum_group[$rows[$z]['group']][$field['title']] += $diff;
-							}
+							$sum_group = zz_list_group_sum($rows[$z]['group'], $sum_group, $field['title'], $diff);
 						}
 					} elseif ($field['calculation'] == 'sum') {
 						$my_sum = 0;
 						foreach ($field['calculation_fields'] as $calc_field)
 							$my_sum += $line[$calc_field];
-						$rows[$z][$fieldindex]['text'].= $my_sum;
+						$rows[$z][$fieldindex]['text'] .= $my_sum;
 						if (isset($field['sum']) && $field['sum'] == true) {
 							if (!isset($sum[$field['title']])) $sum[$field['title']] = 0;
 							$sum[$field['title']] .= $my_sum;
-							if ($rows[$z]['group']) {
-								if (!isset($sum_group[$rows[$z]['group']][$field['title']])) 
-									$sum_group[$rows[$z]['group']][$field['title']] = 0;
-								$sum_group[$rows[$z]['group']][$field['title']] .= $my_sum;
-							}
-
+							$sum_group = zz_list_group_sum($rows[$z]['group'], $sum_group, $field['title'], $my_sum);
 						}
 					} elseif ($field['calculation'] == 'sql')
 						$rows[$z][$fieldindex]['text'].= $line[$field['field_name']];
@@ -530,7 +535,7 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 						}
 						$sub_id = $line[$key_fieldname]; // get correct ID
 					} elseif (!empty($field['display_field'])) {
-						$rows[$z][$fieldindex]['text'].= zz_mark_search_string($line[$field['display_field']], $field['display_field']);
+						$rows[$z][$fieldindex]['text'].= zz_mark_search_string($line[$field['display_field']], $field['display_field'], $field);
 					}
 					break;
 				case 'url':
@@ -538,13 +543,13 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 				case 'mail+name':
 					if ($link) $rows[$z][$fieldindex]['text'].= $link;
 					if (!empty($field['display_field']))
-						$rows[$z][$fieldindex]['text'].= zz_mark_search_string(htmlchars($line[$field['display_field']]), $field['display_field']);
+						$rows[$z][$fieldindex]['text'].= zz_mark_search_string(htmlchars($line[$field['display_field']]), $field['display_field'], $field);
 					elseif ($field['type'] == 'url' && strlen($line[$field['field_name']]) > $zz_conf_record['max_select_val_len'])
 						$rows[$z][$fieldindex]['text'].= zz_mark_search_string(
 							mb_substr(htmlchars($line[$field['field_name']]), 0, 
-							$zz_conf_record['max_select_val_len']).'...', $field['field_name']);
+							$zz_conf_record['max_select_val_len']).'...', $field['field_name'], $field);
 					else
-						$rows[$z][$fieldindex]['text'].= zz_mark_search_string(htmlspecialchars($line[$field['field_name']]), $field['field_name']);
+						$rows[$z][$fieldindex]['text'].= zz_mark_search_string(htmlspecialchars($line[$field['field_name']]), $field['field_name'], $field);
 					if ($link) $rows[$z][$fieldindex]['text'].= '</a>';
 					break;
 				case 'id':
@@ -558,7 +563,7 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 						$val_to_insert = $line[$field['display_field']];
 						if (!empty($field['translate_field_value']))
 							$val_to_insert = zz_text($val_to_insert);
-						$rows[$z][$fieldindex]['text'].= zz_mark_search_string(htmlchars($val_to_insert), $field['display_field']);
+						$rows[$z][$fieldindex]['text'].= zz_mark_search_string(htmlchars($val_to_insert), $field['display_field'], $field);
 					} else {
 						if ($zz_conf['modules']['debug']) zz_debug("table_query switch default 1 ".$fieldindex.'-'.$field['type']);
 
@@ -569,52 +574,50 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 						if (isset($field['factor']) && $line[$field['field_name']]) 
 							$line[$field['field_name']] /=$field['factor'];
 						if ($field['type'] == 'unix_timestamp') {
-							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(date('Y-m-d H:i:s', $line[$field['field_name']]), $field['field_name']);
+							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(date('Y-m-d H:i:s', $line[$field['field_name']]), $field['field_name'], $field);
 						} elseif ($field['type'] == 'timestamp') {
-							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(timestamp2date($line[$field['field_name']]), $field['field_name']);
+							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(timestamp2date($line[$field['field_name']]), $field['field_name'], $field);
 						} elseif ($field['type'] == 'select' 
 							AND (!empty($field['set']) OR !empty($field['set_sql']))) {
-							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(str_replace(',', ', ', $line[$field['field_name']]), $field['field_name']);
+							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(str_replace(',', ', ', $line[$field['field_name']]), $field['field_name'], $field);
 						} elseif ($field['type'] == 'select' && !empty($field['enum']) && !empty($field['enum_title'])) { // show enum_title instead of enum
 							foreach ($field['enum'] as $mkey => $mvalue)
 								if ($mvalue == $line[$field['field_name']]) 
-									$rows[$z][$fieldindex]['text'] .= zz_mark_search_string($field['enum_title'][$mkey], $field['field_name']);
+									$rows[$z][$fieldindex]['text'] .= zz_mark_search_string($field['enum_title'][$mkey], $field['field_name'], $field);
 						} elseif ($field['type'] == 'select' && !empty($field['enum'])) {
-							$rows[$z][$fieldindex]['text'] .= zz_mark_search_string(zz_text($line[$field['field_name']]), $field['field_name']); // translate field value
+							$rows[$z][$fieldindex]['text'] .= zz_mark_search_string(zz_text($line[$field['field_name']]), $field['field_name'], $field); // translate field value
 						} elseif ($field['type'] == 'date') {
-							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(datum_de($line[$field['field_name']]), $field['field_name']);
+							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(datum_de($line[$field['field_name']]), $field['field_name'], $field);
 						} elseif (isset($field['number_type']) && $field['number_type'] == 'currency') {
-							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(waehrung($line[$field['field_name']], ''), $field['field_name']);
+							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(waehrung($line[$field['field_name']], ''), $field['field_name'], $field);
 						} elseif (isset($field['number_type']) && $field['number_type'] == 'latitude' && $line[$field['field_name']]) {
 							$deg = dec2dms($line[$field['field_name']], '');
-							$rows[$z][$fieldindex]['text'].= zz_mark_search_string($deg['latitude_dms'], $field['field_name']);
+							$rows[$z][$fieldindex]['text'].= zz_mark_search_string($deg['latitude_dms'], $field['field_name'], $field);
 						} elseif (isset($field['number_type']) && $field['number_type'] == 'longitude' && $line[$field['field_name']]) {
 							$deg = dec2dms('', $line[$field['field_name']]);
-							$rows[$z][$fieldindex]['text'].= zz_mark_search_string($deg['longitude_dms'], $field['field_name']);
+							$rows[$z][$fieldindex]['text'].= zz_mark_search_string($deg['longitude_dms'], $field['field_name'], $field);
 						} elseif (!empty($field['display_value'])) {
 							// translations should be done in $zz-definition-file
 							$rows[$z][$fieldindex]['text'].= $field['display_value'];
 						} elseif ($zz['mode'] == 'export') {
 							$rows[$z][$fieldindex]['text'].= $line[$field['field_name']];
 						} elseif (!empty($field['list_format'])) {
-							$rows[$z][$fieldindex]['text'].= zz_mark_search_string($field['list_format']($line[$field['field_name']]), $field['field_name']);
+							if (!empty($zz_conf['modules']['debug'])) zz_debug('start', $field['list_format']);
+							$rows[$z][$fieldindex]['text'].= zz_mark_search_string($field['list_format']($line[$field['field_name']]), $field['field_name'], $field);
+							if (!empty($zz_conf['modules']['debug'])) zz_debug('end');
 						} elseif (empty($field['hide_zeros']) OR $line[$field['field_name']]) {
 							// show field, but not if hide_zeros is set
 							$val_to_insert = $line[$field['field_name']];
 							if (!empty($field['translate_field_value']))
 								$val_to_insert = zz_text($val_to_insert);
-							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(nl2br(htmlchars($val_to_insert)), $field['field_name']);
+							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(nl2br(htmlchars($val_to_insert)), $field['field_name'], $field);
 						}
 					}
 					if ($link) $rows[$z][$fieldindex]['text'].= '</a>';
 					if (isset($field['sum']) && $field['sum'] == true) {
 						if (!isset($sum[$field['title']])) $sum[$field['title']] = 0;
 						$sum[$field['title']] += $line[$field['field_name']];
-						if ($rows[$z]['group']) {
-							if (!isset($sum_group[$rows[$z]['group']][$field['title']])) 
-								$sum_group[$rows[$z]['group']][$field['title']] = 0;
-							$sum_group[$rows[$z]['group']][$field['title']] += $line[$field['field_name']];
-						}
+						$sum_group = zz_list_group_sum($rows[$z]['group'], $sum_group, $field['title'], $line[$field['field_name']]);
 					}
 				}
 				if (isset($field['unit']) && $rows[$z][$fieldindex]['text']) 
@@ -629,9 +632,13 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 
 				// group: go through everything but don't show it in list
 				// TODO: check that it does not collide with append_next
-				if ($zz_conf['group'] && $fieldindex == $zz_conf['group_field_no']) {
-					$grouptitles[$z] = $rows[$z][$fieldindex]['text'];
-					unset ($rows[$z][$fieldindex]);
+				if ($zz_conf['group']) {
+					$pos = array_search($fieldindex, $zz_conf['group_field_no']);
+					if ($pos !== false) {
+						$grouptitles[$z][$pos] = $rows[$z][$fieldindex]['text'];
+						unset ($rows[$z][$fieldindex]);
+						ksort($grouptitles[$z]);
+					}
 				}
 
 				if ($zz_conf['modules']['debug']) zz_debug("table_query end ".$fieldindex.'-'.$field['type']);
@@ -641,20 +648,20 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 			if ($zz_conf_record['edit'] OR $zz_conf_record['view'] OR $zz_conf_record['delete']) {
 				$rows[$z]['modes'] = false;
 				if ($zz_conf_record['edit']) {
-					$rows[$z]['modes'] = '<a href="'.$zz_conf['url_self'].$zz_conf['url_self_qs_base']
-						.$zz_conf['url_append'].'mode=edit&amp;id='.$id
+					$rows[$z]['modes'] = '<a href="'.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
+						.$zz_conf['int']['url']['?&'].'mode=edit&amp;id='.$id
 						.$zz_var['extraGET'].'">'.zz_text('edit').'</a>';
 					$modes = true; // need a table row for this
 				} elseif ($zz_conf_record['view']) {
-					$rows[$z]['modes'] = '<a href="'.$zz_conf['url_self'].$zz_conf['url_self_qs_base']
-						.$zz_conf['url_append'].'mode=show&amp;id='.$id
+					$rows[$z]['modes'] = '<a href="'.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
+						.$zz_conf['int']['url']['?&'].'mode=show&amp;id='.$id
 						.$zz_var['extraGET'].'">'.zz_text('show').'</a>';
 					$modes = true; // need a table row for this
 				}
 				if ($zz_conf_record['delete']) {
 					if ($rows[$z]['modes']) $rows[$z]['modes'] .= '&nbsp;| ';
 					$rows[$z]['modes'] .= '<a href="'
-						.$zz_conf['url_self'].$zz_conf['url_self_qs_base'].$zz_conf['url_append'].'mode=delete&amp;id='
+						.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs'].$zz_conf['int']['url']['?&'].'mode=delete&amp;id='
 						.$id.$zz_var['extraGET'].'">'.zz_text('delete').'</a>';
 					$modes = true; // need a table row for this
 				}
@@ -669,6 +676,7 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 			$lastline = $line;
 		}
 	}
+	unset($lines);
 		
 	// get values for "subselects" in detailrecords
 	
@@ -680,58 +688,36 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 		if (!isset($subselect['concat_fields'])) $subselect['concat_fields'] = ' ';
 		if (!isset($subselect['show_empty_cells'])) $subselect['show_empty_cells'] = false;
 		
-		$lines = false;
-		
 		$subselect['sql'] = zz_edit_sql($subselect['sql'], 'WHERE', $subselect['id_table_and_fieldname'].' 
 			IN ('.implode(', ', $ids).')');
-		
-		$s_result = mysql_query($subselect['sql']);
-		if ($s_result AND mysql_num_rows($s_result))
-			while ($line = mysql_fetch_assoc($s_result)) {
-				if (empty($line[$subselect['id_fieldname']])) {
-					$zz_error[] = array(
-						'msg_dev' => 'Subselect SQL definition needs the field which is foreign_key!',
-						'query' => $subselect['sql'],
-						'level' => E_USER_ERROR
-					);
-					zz_error();
-					return zz_return(array($zz, $zz_var));
-				}
-				$myline = $line;
-				unset ($myline[$subselect['id_fieldname']]); // ID field will not be shown
-				$lines[$line[$subselect['id_fieldname']]][] = $myline;
-			}
-		if (mysql_error()) {
-			$zz_error[] = array(
-				'mysql' => mysql_error(),
-				'query' => $subselect['sql'],
-				'level' => E_USER_ERROR
-			);
-			zz_error();
-			return zz_return(array($zz, $zz_var));
-		}
-		
+		$lines = zz_db_fetch($subselect['sql'], array($subselect['id_fieldname'], '_dummy_id_'), 'numeric', false, E_USER_WARNING);
+		// E_USER_WARNING might return message, we do not want to see this message
+		// but in the logs
+		if (!is_array($lines)) $lines = array();
+
 		foreach ($ids as $z_row => $id) {
-			if (!empty($lines[$id])) {
-				$linetext = false;
-				foreach ($lines[$id] as $linefields) {
-					$fieldtext = false;
-					foreach ($linefields as $db_fields) {
-						if ($subselect['show_empty_cells'] AND !$db_fields) $db_fields = '&nbsp;';
-						if ($fieldtext AND $db_fields) $fieldtext .= $subselect['concat_fields'];
-						$fieldtext .= $db_fields;
-					}
-					$linetext[] = $fieldtext;
+			if (empty($lines[$id])) continue;
+			$linetext = false;
+			foreach ($lines[$id] as $linefields) {
+				unset($linefields[$subselect['id_fieldname']]); // ID field will not be shown
+				$fieldtext = false;
+				foreach ($linefields as $db_fields) {
+					if ($subselect['show_empty_cells'] AND !$db_fields) $db_fields = '&nbsp;';
+					if ($fieldtext AND $db_fields) $fieldtext .= $subselect['concat_fields'];
+					$fieldtext .= $db_fields;
 				}
-				$subselect_text = implode($subselect['concat_rows'], $linetext);
-				$subselect_text = $subselect['prefix'].$subselect_text.$subselect['suffix'];
-				if (!empty($subselect['list_format'])) {
-					$subselect_text = $subselect['list_format']($subselect_text);
-				}
-				$rows[$z_row][$subselect['fieldindex']]['text'].= zz_mark_search_string($subselect_text);
-				if (!empty($subselect['export_no_html'])) {
-					$rows[$z_row][$subselect['fieldindex']]['export_no_html'] = true;
-				}
+				$linetext[] = $fieldtext;
+			}
+			$subselect_text = implode($subselect['concat_rows'], $linetext);
+			$subselect_text = $subselect['prefix'].$subselect_text.$subselect['suffix'];
+			if (!empty($subselect['list_format'])) {
+				if (!empty($zz_conf['modules']['debug'])) zz_debug('start', $subselect['list_format']);
+				$subselect_text = $subselect['list_format']($subselect_text);
+				if (!empty($zz_conf['modules']['debug'])) zz_debug('end');
+			}
+			$rows[$z_row][$subselect['fieldindex']]['text'].= zz_mark_search_string($subselect_text, '', $field);
+			if (!empty($subselect['export_no_html'])) {
+				$rows[$z_row][$subselect['fieldindex']]['export_no_html'] = true;
 			}
 		}
 	}
@@ -756,7 +742,7 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 	$my_footer_table = (!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : false);
 	if ($zz_conf['show_list'] && $zz_conf['tfoot'] && $zz_conf['list_display'] == 'table') {
 		$zz['output'].= '<tfoot>'."\n".'<tr>';
-		$zz['output'].= zz_field_sum($table_query[0], $z, $my_footer_table, $sum, $zz_conf);
+		$zz['output'].= zz_field_sum($table_query[0], $z, $my_footer_table, $sum);
 		$zz['output'].= '<td class="editbutton">&nbsp;</td>';
 		$zz['output'].= '</tr>'."\n".'</tfoot>'."\n";
 		
@@ -770,17 +756,26 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 		$zz['output'].= '<tbody>'."\n";
 		$rowgroup = false;
 		foreach ($rows as $index => $row) {
-			if (!empty($zz_conf['group'])) {
-				if (empty($row['group'])) $grouptitles[$index] = zz_text('- unknown -');
-				if ($row['group'] != $rowgroup) {
-					if ($rowgroup) {
-						if ($zz_conf['tfoot'])
-							$zz['output'] .= '<tr class="group_sum">'.zz_field_sum($table_query[0], $z, $my_footer_table, $sum_group[$rowgroup], $zz_conf).'</tr>'."\n";
-						$zz['output'] .= '</tbody><tbody>'."\n";
-					}
-					$zz['output'].= '<tr class="group"><td colspan="'.(count($row)-1).'"><strong>'.$grouptitles[$index].'</strong></td></tr>'."\n";
-					$rowgroup = $row['group'];
+			if ($zz_conf['group'] AND $row['group'] != $rowgroup) {
+				foreach ($zz_conf['group'] as $pos => $my_group) {
+					if (empty($row['group'][$pos])) 
+						$grouptitles[$index][$pos] = zz_text('- unknown -');
 				}
+				if ($rowgroup) {
+					$my_groups = $rowgroup;
+					$my_old_groups = $row['group'];
+					while ($my_groups) {
+						if ($zz_conf['tfoot'])
+							$zz['output'] .= zz_list_group_foot($my_groups, $table_query[0], $z, $my_footer_table, $sum_group);
+						array_pop($my_groups);
+						array_pop($my_old_groups);
+						if ($my_groups == $my_old_groups) break;
+					}
+					$zz['output'] .= '</tbody><tbody>'."\n";
+				}
+				$zz['output'].= '<tr class="group"><td colspan="'.(count($row)-1)
+					.'"><strong>'.implode(' &#8211; ', $grouptitles[$index]).'</strong></td></tr>'."\n";
+				$rowgroup = $row['group'];
 			}
 			$zz['output'].= '<tr class="'.($index & 1 ? 'uneven':'even')
 				.(($index+1) == $count_rows ? ' last' : '')
@@ -794,23 +789,29 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 				$zz['output'].= '<td class="editbutton">'.$row['details'].'</td>';
 			$zz['output'].= '</tr>'."\n";
 		}
-		if ($zz_conf['tfoot'] && $rowgroup)
-			$zz['output'] .= '<tr class="group_sum">'.zz_field_sum($table_query[0], $z, $my_footer_table, $sum_group[$rowgroup], $zz_conf).'</tr>'."\n";
+		if ($zz_conf['tfoot'] AND $rowgroup) {
+			$my_groups = $rowgroup;
+			while ($my_groups) {
+				$zz['output'] .= zz_list_group_foot($my_groups, $table_query[0], $z, $my_footer_table, $sum_group);
+				array_pop($my_groups);
+			}
+		}
 		$zz['output'].= '</tbody>'."\n";
 		unset($rows);
 	} elseif ($zz_conf['show_list'] && $zz_conf['list_display'] == 'ul') {
 		$rowgroup = false;
 		foreach ($rows as $index => $row) {
-			if (!empty($zz_conf['group'])) {
-				if (empty($row['group'])) $grouptitles[$index] = zz_text('- unknown -');
-				if ($grouptitles[$index] != $rowgroup) {
-					if ($rowgroup) {
-						$zz['output'] .= '</ul><br clear="all">'."\n";
-					}
-					$zz['output'].= "\n".'<h2>'.$grouptitles[$index].'</h2>'."\n"
-						.'<ul class="data">'."\n";
-					$rowgroup = $grouptitles[$index];
+			if ($zz_conf['group'] AND $row['group'] != $rowgroup) {
+				foreach ($zz_conf['group'] as $pos => $my_group) {
+					if (empty($row['group'][$pos])) 
+						$grouptitles[$index][$pos] = zz_text('- unknown -');
 				}
+				if ($rowgroup) {
+					$zz['output'] .= '</ul><br clear="all">'."\n";
+				}
+				$zz['output'].= "\n".'<h2>'.implode(' &#8211; ', $grouptitles[$index]).'</h2>'."\n"
+					.'<ul class="data">'."\n";
+				$rowgroup = $row['group'];
 			}
 			$zz['output'].= '<li class="'.($index & 1 ? 'uneven':'even')
 				.((isset($current_record) AND $current_record == $index) ? ' current_record' : '')
@@ -855,12 +856,13 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 		// normal add button, only if list was shown beforehands
 		if ($zz['mode'] != 'add' && $zz_conf['add_link'] AND !is_array($zz_conf['add']) && $zz_conf['show_list']) {
 			$toolsline[] = '<a accesskey="n" href="'
-				.$zz_conf['url_self'].$zz_conf['url_self_qs_base'].$zz_conf['url_append'].'mode=add'.$zz_var['extraGET'].'">'
+				.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
+				.$zz_conf['int']['url']['?&'].'mode=add'.$zz_var['extraGET'].'">'
 				.zz_text('Add new record').'</a>';
 			if ($zz_conf['import']) {
 				$toolsline[] = '<a href="'
-					.$zz_conf['url_self'].$zz_conf['url_self_qs_base']
-					.$zz_conf['url_append'].'mode=import'.$zz_var['extraGET'].'">'
+					.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
+					.$zz_conf['int']['url']['?&'].'mode=import'.$zz_var['extraGET'].'">'
 					.zz_text('Import data').'</a>';
 			}
 		}
@@ -870,18 +872,20 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 			ksort($zz_conf['add']); // if some 'add' was unset before, here we get new numerical keys
 			$zz['output'].= '<p class="add-new">'.zz_text('Add new record').': ';
 			foreach ($zz_conf['add'] as $i => $add) {
-				$zz['output'].= '<a href="'.$zz_conf['url_self']
-					.$zz_conf['url_self_qs_base'].$zz_conf['url_append']
+				$zz['output'].= '<a href="'.$zz_conf['int']['url']['self']
+					.$zz_conf['int']['url']['qs'].$zz_conf['int']['url']['?&']
 					.'mode=add'.$zz_var['extraGET'].'&amp;add['.$add['field_name'].']='
-					.$add['value'].'">'.$add['type'].'</a>';
+					.$add['value'].'"'
+					.(!empty($add['title']) ? ' title="'.$add['title'].'"' : '')
+					.'>'.$add['type'].'</a>';
 				if ($i != count($zz_conf['add']) -1) $zz['output'].= ' | ';
 			}
 			$zz['output'] .= '</p>'."\n";
 		}
 
 		if ($zz_conf['export'] AND $total_rows) 
-			$toolsline = array_merge($toolsline, zz_export_links($zz_conf['url_self']
-				.$zz_conf['url_self_qs_base'].$zz_conf['url_append'], $zz_var['extraGET']));
+			$toolsline = array_merge($toolsline, zz_export_links($zz_conf['int']['url']['self']
+				.$zz_conf['int']['url']['qs'].$zz_conf['int']['url']['?&'], $zz_var['extraGET']));
 		if ($toolsline)
 			$zz['output'].= '<p class="add-new bottom-add-new">'.implode(' | ', $toolsline).'</p>';
 		// Total records
@@ -903,29 +907,51 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 	return zz_return(array($zz, $zz_var));
 }
 
-function zz_field_sum($table_query, $z, $table, $sum, $zz_conf) {
+/**
+ * adds values, outputs HTML table foot
+ *
+ * @param array $table_query
+ * @param int $z
+ * @param array $table (foreign_key_field_name => value)
+ * @param array $sum (field_name => value)
+ * @global array $zz_conf ($zz_conf['group_field_no'])
+ * @return string HTML output of table foot
+ */
+function zz_field_sum($table_query, $z, $table, $sum) {
+	global $zz_conf;
 	$tfoot_line = '';
-	foreach ($table_query as $index => $field)
-		if ((!$zz_conf['group_field_no'] OR $index != $zz_conf['group_field_no'])
-			AND $field['show_field']) {
-			if ($field['type'] == 'id' && empty($field['show_id'])) {
-				$tfoot_line .= '<td class="recordid">'.$z.'</td>';
-			} elseif (!empty($field['sum'])) {
-				$tfoot_line.= '<td'.check_if_class($field, (!empty($table) ? $table : '')).'>';
-				if (isset($field['calculation']) AND $field['calculation'] == 'hours')
-					$sum[$field['title']] = hours($sum[$field['title']]);
-				if (isset($field['number_type']) && $field['number_type'] == 'currency') 
-					$sum[$field['title']] = waehrung($sum[$field['title']], '');
+	foreach ($table_query as $index => $field) {
+		if (!$field['show_field']) continue;
+		if (in_array($index, $zz_conf['group_field_no'])) continue;
+		if ($field['type'] == 'id' && empty($field['show_id'])) {
+			$tfoot_line .= '<td class="recordid">'.$z.'</td>';
+		} elseif (!empty($field['sum'])) {
+			$tfoot_line.= '<td'.check_if_class($field, (!empty($table) ? $table : '')).'>';
+			if (isset($field['calculation']) AND $field['calculation'] == 'hours')
+				$sum[$field['title']] = hours($sum[$field['title']]);
+			if (isset($field['number_type']) && $field['number_type'] == 'currency') 
+				$sum[$field['title']] = waehrung($sum[$field['title']], '');
 
-				$tfoot_line.= $sum[$field['title']];
-				if (isset($field['unit']) && $sum[$field['title']]) 
-					$tfoot_line.= '&nbsp;'.$field['unit'];	
-				$tfoot_line.= '</td>';
-			} else $tfoot_line.= '<td'.(!empty($field['class']) ? ' class="'.$field['class'].'"' : '').'>&nbsp;</td>';
-		}
+			$tfoot_line.= $sum[$field['title']];
+			if (isset($field['unit']) && $sum[$field['title']]) 
+				$tfoot_line.= '&nbsp;'.$field['unit'];	
+			$tfoot_line.= '</td>';
+		} else $tfoot_line.= '<td'.(!empty($field['class']) ? ' class="'
+			.$field['class'].'"' : '').'>&nbsp;</td>';
+	}
 	return $tfoot_line;
 }
 
+/**
+ * sorts $lines hierarchically
+ *
+ * @param array $h_lines
+ * @param string $show_hierarchy
+ * @param string $id_field
+ * @param int $level
+ * @param int $i
+ * @return array $my_lines
+ */
 function zz_list_hierarchy($h_lines, $show_hierarchy, $id_field, $level, &$i) {
 	$my_lines = array();
 	$show_only = array();
@@ -933,7 +959,8 @@ function zz_list_hierarchy($h_lines, $show_hierarchy, $id_field, $level, &$i) {
 		// show uppermost line
 		$h_lines['TOP'][0]['zz_level'] = $level;
 		$my_lines[$i][$id_field] = $h_lines['TOP'][$show_hierarchy];
-		$my_lines[$i]['zz_conf']['delete'] = false; // this page has child pages, don't allow deletion
+		// this page has child pages, don't allow deletion
+		$my_lines[$i]['zz_conf']['delete'] = false; 
 		$i++;
 	}
 	if ($show_hierarchy != 'NULL') $level++; // don't indent uppermost level if top category is NULL
@@ -943,7 +970,8 @@ function zz_list_hierarchy($h_lines, $show_hierarchy, $id_field, $level, &$i) {
 		foreach (array_keys($h_lines) as $main_id) {
 			$nulls[$main_id] = $main_id; // put all main_ids in Array
 			foreach ($h_lines[$main_id] as $id) {
-				unset($nulls[$id]); // remove from Array if id has already a from NULL different main_id
+				// remove from Array if id has already a from NULL different main_id
+				unset($nulls[$id]); 
 			}
 		}
 		foreach ($nulls as $id) {
@@ -958,13 +986,15 @@ function zz_list_hierarchy($h_lines, $show_hierarchy, $id_field, $level, &$i) {
 				$id_field => $h_line,
 				'zz_level' => $level
 			);
-			if (in_array($h_line, $show_only)) { // added nulls are not editable, won't be shown
+			if (in_array($h_line, $show_only)) {
+				// added nulls are not editable, won't be shown
 				$my_lines[$i]['zz_conf']['access'] = 'none';
 				$my_lines[$i]['zz_hidden_line'] = true;
 			}
 			$i++;
 			if (!empty($h_lines[$h_line])) {
-				$my_lines[($i-1)]['zz_conf']['delete'] = false; // this page has child pages, don't allow deletion
+				// this page has child pages, don't allow deletion
+				$my_lines[($i-1)]['zz_conf']['delete'] = false; 
 				$my_lines = array_merge($my_lines, 
 					zz_list_hierarchy($h_lines, $h_line, $id_field, $level, $i));
 			}
@@ -1020,9 +1050,20 @@ function zz_set_link($field, $line) {
 	return $link;
 }
 
-function zz_mark_search_string($value, $field_name = false) {
+/**
+ * marks search string in list display on webpage
+ *
+ * @param string $value value to mark
+ * @param string $field_name (optional) if set, only values in this column
+ *			will be marked
+ * @param array $field field definition
+ * @global array $zz_conf
+ * @return string $value value with marks
+ */
+function zz_mark_search_string($value, $field_name = false, $field) {
 	global $zz_conf;
 	if (!$zz_conf['show_list']) return $value;
+	if (!empty($field['dont_mark_search_string'])) return $value;
 	if ($zz_conf['list_display'] != 'table' AND $zz_conf['list_display'] != 'ul') return $value;
 	if (empty($_GET['q'])) return $value;
 	if (!empty($_GET['scope'])) {
@@ -1032,8 +1073,87 @@ function zz_mark_search_string($value, $field_name = false) {
 			$my_field_name = $_GET['scope'];
 		if ($my_field_name != $field_name) return $value;
 	}
-	$value = preg_replace('~('.$_GET['q'].')~i', '<span class="highlight">\1</span>', $value);
+	$preg_q = str_replace('\\', '\\\\', $_GET['q']);
+	$preg_q = str_replace('[', '\[', $preg_q);
+	$preg_q = str_replace('$', '\$', $preg_q);
+	$value = preg_replace('~('.$preg_q.')~i', '<span class="highlight">\1</span>', $value);
 	return $value;
+}
+
+/**
+ * checks field indices of fields which will be grouped
+ *
+ * @param array $field $zz['fields'][n]-field definition
+ * @param int $index index 'n' of $zz['fields']
+ * @global array $zz_conf
+ *		string 'group', array 'group_field_no' (will be set to 'n') 
+ * @return bool true/false if field will be shown (group: false, otherwise true)
+ */
+function zz_list_group_field_no($field, $index) {
+	global $zz_conf;
+	if (!isset($zz_conf['group_field_no'])) 
+		$zz_conf['group_field_no'] = array();
+	if (!empty($field['display_field'])) {
+		$pos = array_search($field['display_field'], $zz_conf['group']);
+		if ($pos !== false) {
+			$zz_conf['group_field_no'][$pos] = $index;
+			ksort($zz_conf['group_field_no']);
+			return false;
+		}
+	}
+	if (!empty($field['field_name'])) {
+		$pos = array_search($field['field_name'], $zz_conf['group']);
+		if ($pos !== false) {
+			$zz_conf['group_field_no'][$pos] = $index;
+			ksort($zz_conf['group_field_no']);
+			return false;
+		}
+	}
+	return true;
+}
+
+/**
+ * calculates sums for fields which will be grouped
+ *
+ * @param array $row_group ($rows[$z]['group'])
+ * @param array $sum_group (will be created/amended by this function)
+ * @param string $field_title (for there may be more than one field per row
+ *		which we would like to get the sum from)
+ * @param double $sum sum to be added
+ * @return array $sum_group
+ *		e. g. Architecture = 40; Architecture[income] = 100; 
+ *		Architecture[expenses] = 60 etc.
+ */
+function zz_list_group_sum($row_group, $sum_group, $field_title, $sum) {
+	$index = '';
+	foreach ($row_group as $my_group) {
+		if ($index) $index .= '['.$my_group.']';
+		else $index = $my_group;
+		if (!isset($sum_group[$index][$field_title])) 
+			$sum_group[$index][$field_title] = 0;
+		$sum_group[$index][$field_title] += $sum;
+	}
+	return $sum_group;
+}
+
+/**
+ * shows footer line for group with calculated sums
+ * 
+ * @param array $rowgroup
+ * @param array $main_table_query ($table_query[0] from zz_list)
+ * @param int $z
+ * @param string $my_footer_table
+ * @param array $sum_group
+ */
+function zz_list_group_foot($rowgroup, $main_table_query, $z, $my_footer_table, $sum_group) {
+	$my_index = '';
+	foreach ($rowgroup as $my_group) {
+		if ($my_index) $my_index .= '['.$my_group.']';
+		else $my_index = $my_group;
+	}
+	return '<tr class="group_sum">'
+		.zz_field_sum($main_table_query, $z, $my_footer_table, $sum_group[$my_index])
+		.'</tr>'."\n";
 }
 
 ?>

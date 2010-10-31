@@ -38,24 +38,12 @@ function zz_imagick_identify($source) {
 
 	global $zz_conf;
 	if (!file_exists($source)) return false;
-	$paths = $zz_conf['imagemagick_paths'];
-	if ($last_dir = array_pop($paths) != '/notexistent') {
-		$zz_conf['imagemagick_paths'][] = '/notexistent';
-	}
-	$path_identify = $zz_conf['imagemagick_paths'][0];
-	$i = 1;
-	while (!file_exists($path_identify.'/identify') AND !is_link($path_identify.'/identify')) {
-		$path_identify = $zz_conf['imagemagick_paths'][$i];
-		$i++;
-		if ($i > count($zz_conf['imagemagick_paths']) -1) break;
-	}
-	if ($path_identify == '/notexistent') {
-		echo 'Configuration error on server: ImageMagick "identify" could not be found. Paths tried: '.implode(', ', $zz_conf['imagemagick_paths']).'<br>';
-		exit;
-	}
-	$call_identify = $path_identify.'/identify "'.$source.'"';	
-	exec($call_identify, $output, $return_var);
+
+	$command = zz_imagick_findpath('identify');
+	$command .= '"'.$source.'"';	
+	exec($command, $output, $return_var);
 	if (!$output) return false;
+
 	$image = false;
 	foreach ($output as $line) {
 		// just check first line
@@ -198,37 +186,62 @@ function zz_image_crop($source, $destination, $dest_extension = false, $image = 
 function zz_imagick_convert($options, $files) {
 	global $zz_conf;
 
+	$command = zz_imagick_findpath('convert');
+
 	if ($options) $options = '-'.$options;
 	if (!empty($zz_conf['upload_imagick_options'])) $options .= ' '.$zz_conf['upload_imagick_options'];
-	$paths = $zz_conf['imagemagick_paths'];
-	if ($last_dir = array_pop($paths) != '/notexistent') {
-		$zz_conf['imagemagick_paths'][] = '/notexistent';
-	}
-	$path_convert = $zz_conf['imagemagick_paths'][0];
-	$i = 1;
-	while (!file_exists($path_convert.'/convert') AND !is_link($path_convert.'/convert')) {
-		$path_convert = $zz_conf['imagemagick_paths'][$i];
-		$i++;
-		if ($i > count($zz_conf['imagemagick_paths']) -1) break;
-	}
-	if ($path_convert == '/notexistent') {
-		echo 'Configuration error on server: ImageMagick could not be found. Paths tried: '.implode(', ', $zz_conf['imagemagick_paths']).'<br>';
-		exit;
-	}
-	$call_convert = $path_convert.'/convert ';
-	if ($options) $call_convert.= $options.' ';
-	$call_convert.= ' '.$files.' ';
-	$success = exec($call_convert, $return, $return_var);
+	if ($options) $command .= $options.' ';
+
+	$command .= ' '.$files.' ';
+	$success = exec($command, $return, $return_var);
 	if ($return AND $zz_conf['modules']['debug'] AND $zz_conf['debug']) {
-		echo $call_convert;
+		echo $command;
 		zz_print_r($return);
 	}
 	if ($return_var AND $zz_conf['modules']['debug'] AND $zz_conf['debug']) {
-		echo $call_convert;
+		echo $command;
 		zz_print_r($return_var);
 	}
 	if (!$return_var) return true;
 	else return false;
+}
+
+/**
+ * find imagemagick path
+ *
+ * @param string $command name of imagemagick command
+ * @global array $zz_conf
+ *		imagemagick_path_unchecked, imagemagick_paths
+ * @return string $command correct path and command
+ */
+function zz_imagick_findpath($command = 'convert') {
+	global $zz_conf;
+
+	if (!empty($zz_conf['imagemagick_path_unchecked'])) {
+		// don't do checks
+		$command = $zz_conf['imagemagick_path_unchecked'].'/'.$command.' ';
+		return $command;
+	}
+
+	$paths = $zz_conf['imagemagick_paths'];
+	if ($last_dir = array_pop($paths) != '/notexistent') {
+		$zz_conf['imagemagick_paths'][] = '/notexistent';
+	}
+	$path = $zz_conf['imagemagick_paths'][0];
+	$i = 1;
+	while (!file_exists($path.'/'.$command) AND !is_link($path.'/'.$command)) {
+		$path = $zz_conf['imagemagick_paths'][$i];
+		$i++;
+		if ($i > count($zz_conf['imagemagick_paths']) -1) break;
+	}
+	if ($path == '/notexistent') {
+		echo '<p>Configuration error on server: ImageMagick <code>'.$command
+			.'</code> could not be found. Paths tried: '
+			.implode(', ', $zz_conf['imagemagick_paths']).'</p>';
+		exit;
+	}
+	$command = $path.'/'.$command.' ';
+	return $command;
 }
 
 

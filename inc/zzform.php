@@ -49,6 +49,8 @@ global $zz_page;	// Page (Layout) variables
  * @global array $zz_conf
  * @global array $zz_error
  * @global array $text
+ * @todo think of zzform($zz, $zz_conf) and $zz = $in + $out to separate input
+ * 		and output and to get rid of global variables
  */
 function zzform() {
 	global $zz;			// Table description
@@ -92,7 +94,6 @@ function zzform() {
 		return zzform_exit(zz_error()); // exits script
 	}
 
-
 	if ($zz_conf['zzform_calls'] > 1 AND empty($zz_conf['multi'])) { 
 		// show a warning only if zzform is not explicitly called via zzform_multi()
 		$zz_error[] = array(
@@ -113,8 +114,8 @@ function zzform() {
 //	Filter, WHERE, ID
 //
 
-	// check GET 'filter', set $zz_conf['show_hierarchy']
-	zz_apply_filter();
+	// check GET 'filter'
+	zz_filter_defaults();
 
 	// get 'where_conditions' for SQL query from GET add, filter oder where
 	// get 'zz_fields' from GET add
@@ -185,13 +186,6 @@ function zzform() {
 	}
 
 	if (!$zz_conf['show_record']) unset($zz_conf['upload']); // values are not needed
-
-	// Turn off hierarchical sorting when using search
-	// TODO: implement hierarchical view even when using search
-	if (!empty($_GET['q']) AND $zz_conf['search'] AND $zz_conf['show_hierarchy']) {
-		$zz_conf['show_hierarchy'] = false;
-	}
-	
 
 //	Required files
 
@@ -303,11 +297,6 @@ function zzform() {
 		$zz_tab[0]['sql'] = $zz['sql'].(!empty($zz['sqlorder']) ? ' '.$zz['sqlorder'] : '');
 	}
 	
-	// only if search is allowed and there is something
-	// if q modify $zz['sql']: add search query
-	if (!empty($_GET['q']) AND $zz_conf['search']) 
-		$zz['sql'] = zz_search_sql($zz['fields'], $zz['sql'], $zz['table'], $zz_var['id']['field_name']);	
-
 //	Add, Update or Delete
 
 	// conditions for list view will be set later
@@ -349,7 +338,6 @@ function zzform() {
 	// now we have the correct field definitions	
 	// set type, title etc. where unset
 	$zz['fields'] = zz_fill_out($zz['fields'], $zz_tab[0]['db_name'].'.'.$zz['table'], false, $zz['mode']); 
-
 
 //	page output
 	if ($zz_conf['access'] != 'export') {
@@ -408,9 +396,8 @@ function zzform() {
 			// POST because $zz_var may be set to '' in case of add/delete subrecord
 			// get existing record
 			if (!empty($zz_var['id']['value'])) {
-				$sql = 'SELECT * 
-					FROM `'.$zz_tab[0]['db_name'].'`.`'.$zz_tab[0]['table'].'`
-					WHERE '.$zz_var['id']['field_name'].' = '.$zz_var['id']['value'];
+				$sql = zz_edit_sql($zz_tab[0]['sql'], 'WHERE', $zz_tab[0]['table'].'.'
+					.$zz_var['id']['field_name']." = '".$zz_var['id']['value']."'");
 				$zz_tab[0]['existing'][0] = zz_db_fetch($sql);
 			} else
 				$zz_tab[0]['existing'][0] = array();
@@ -444,7 +431,6 @@ function zzform() {
 		}
 	
 	//	Start action
-		$zz_var['formhead'] = false;
 		$zz_var['record_action'] = false;
 		if ($zz_var['action'] == 'insert' OR $zz_var['action'] == 'update' OR $zz_var['action'] == 'delete') {
 			// check for validity, insert/update/delete record
@@ -455,6 +441,44 @@ function zzform() {
 				zz_error();
 				$zz['output'].= '</div>';
 				return zzform_exit(); // if an error occured in zz_action, return false
+			}
+			// was action successful?
+			if ($zz['result'] AND $zz_conf['generate_output']) {
+				// Redirect, if wanted.
+				if (!empty($zz_conf['redirect'][$zz['result']])) {
+					if ($zz_conf['modules']['debug'] AND $zz_conf['debug_time']) {
+						zz_debug_time($zz['return']);
+					}
+					if (substr($zz_conf['redirect'][$zz['result']], 0, 1) == '/') {
+						$zz_conf['redirect'][$zz['result']] = $zz_conf['int']['url']['base']
+							.$zz_conf['redirect'][$zz['result']];
+					}
+					header('Location: '.$zz_conf['redirect'][$zz['result']]);
+					exit;
+				} elseif (!$zz_conf['debug'] AND $zz_conf['redirect_on_change']) {
+				// redirect to same URL, don't do so in case of debugging
+				// as to protect against reloading the POST variables
+					$self = $zz_conf['int']['url']['full']
+						.$zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']
+						.($zz_conf['int']['url']['qs_zzform'] ? '&' : $zz_conf['int']['url']['?&'])
+						.'zzaction=';
+					switch ($zz['result']) {
+					case 'successful_delete':
+						header('Location: '.$self.'delete');
+						exit;
+					case 'successful_insert':
+						header('Location: '.$self.'insert&id='.$zz_var['id']['value']);
+						exit;
+					case 'successful_update':
+						header('Location: '.$self.'update&id='.$zz_var['id']['value']);
+						exit;
+					case 'no_update':
+						header('Location: '.$self.'noupdate&id='.$zz_var['id']['value']);
+						exit;
+					default:
+						break;
+					}
+				}
 			}
 		}
 
@@ -498,7 +522,6 @@ function zzform() {
 	//	Display Updated, Added or Editable Record
 			$zz['output'] .= zz_record($zz, $zz_tab, $zz_var, $zz_conditions);	
 		}
-		unset ($zz_var['formhead']); // has served it's duty, good bye.
 
 	} else {
 		// call error function if there's anything
@@ -506,22 +529,26 @@ function zzform() {
 		$zz['output'] .= zz_error();
 	}
 
-	// filter
-	if (!empty($zz_conf['filter']) AND $zz_conf['access'] != 'export'
-		AND in_array($zz_conf['filter_position'], array('top', 'both'))
-		AND $zz_conf['show_list'])
-		$zz['output'] .= zz_filter_selection($zz_conf['filter']);
-	
+	if ($zz_conf['show_list']) {
+		// set 'selection', $zz_conf['show_hierarchy']
+		zz_apply_filter();
+
+		// filter
+		if (!empty($zz_conf['filter']) AND $zz_conf['access'] != 'export'
+			AND in_array($zz_conf['filter_position'], array('top', 'both')))
+			$zz['output'] .= zz_filter_selection($zz_conf['filter']);
+	}
+
 	if ($zz['mode'] != 'add' && $zz_conf['add_link'] && !is_array($zz_conf['add'])
 		&& $zz_conf['access'] != 'export') {
 		$toolsline = array();
-		$toolsline[] = '<a accesskey="n" href="'.$zz_conf['url_self']
-			.$zz_conf['url_self_qs_base'].$zz_conf['url_append'].'mode=add'
+		$toolsline[] = '<a accesskey="n" href="'.$zz_conf['int']['url']['self']
+			.$zz_conf['int']['url']['qs'].$zz_conf['int']['url']['?&'].'mode=add'
 			.$zz_var['extraGET'].'">'.zz_text('Add new record').'</a>';
 		if ($zz_conf['import']) {
 			$toolsline[] = '<a href="'
-				.$zz_conf['url_self'].$zz_conf['url_self_qs_base']
-				.$zz_conf['url_append'].'mode=import'.$zz_var['extraGET'].'">'
+				.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
+				.$zz_conf['int']['url']['?&'].'mode=import'.$zz_var['extraGET'].'">'
 				.zz_text('Import data').'</a>';
 		}
 		if ($toolsline) {
@@ -562,16 +589,6 @@ function zzform() {
 		if ($zz_conf['modules']['debug'] AND $zz_conf['debug_time']) {
 			zz_debug_time($zz['return']);
 		}
-		// Redirect, if wanted.
-		if (!empty($zz_conf['redirect'][$zz['result']])) {
-			if (substr($zz_conf['redirect'][$zz['result']], 0, 1) == '/') {
-				$scheme = ((isset($_SERVER['HTTPS']) AND $_SERVER['HTTPS'] == "on") ? 'https' : 'http');
-				$zz_conf['redirect'][$zz['result']] = $scheme.'://'.$_SERVER['SERVER_NAME']
-					.$zz_conf['redirect'][$zz['result']];
-			}
-			header('Location: '.$zz_conf['redirect'][$zz['result']]);
-			exit;
-		}
 	}
 	if ($zz_conf['access'] != 'export') {
 		if ($zz_conf['footer_text']) $zz['output'].= $zz_conf['footer_text'];
@@ -582,11 +599,6 @@ function zzform() {
 	// last time check for errors
 	$zz['output'] .= zz_error();
 	if ($zz_conf['show_output']) echo $zz['output'];
-//	if ($zz_var['record_action']) {
-//		$scheme = ((isset($_SERVER['HTTPS']) AND $_SERVER['HTTPS'] == "on") ? 'https' : 'http');
-//		übergabe via SESSION, so dass bestätiger Datensatz angezeigt wird.
-//		header('Location: '.$scheme.'://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI']); // Parameter, die bestätigten Record anzeigen
-//	}
 	return zzform_exit(true, __FUNCTION__);
 }
 
@@ -747,7 +759,7 @@ function zz_initialize($mode = false) {
 	$zz_default['details_target']	= false;	// target-window for details link
 	$zz_default['edit']				= true;		// show Action: Edit
 	$zz_default['group']			= false;
-	$zz_conf['group_field_no']		= false;
+	$zz_conf['group_field_no']		= array();
 	$zz_default['import']			= false;	// import files
 
 	$zz_default['error_handling']		= 'output';
@@ -758,6 +770,7 @@ function zz_initialize($mode = false) {
 	$zz_default['error_mail_to']		= false;
 	$zz_default['log_errors_max_len'] 	= ini_get('log_errors_max_len');
 	$zz_default['log_errors'] 			= ini_get('log_errors');
+	$zz_default['error_log_post']		= false;
 
 	$zz_default['export']				= false;
 	$zz_default['filter_position'] 		= 'top';
@@ -783,6 +796,8 @@ function zz_initialize($mode = false) {
 	$zz_default['redirect']['successful_delete'] = false;	// redirect to diff. page after delete
 	$zz_default['redirect']['successful_insert'] = false;	// redirect to diff. page after insert
 	$zz_default['redirect']['successful_update'] = false;	// redirect to diff. page after update
+	$zz_default['redirect']['no_update'] = false;	// redirect to diff. page after update without changes
+	$zz_default['redirect_on_change']	= true;
 	$zz_default['relations_table'] 		= '_relations';	//	name of relations table for referential integrity
 	$zz_default['search'] 				= false;	// search for records possible or not
 	$zz_default['select_multiple_records'] = false;
@@ -796,49 +811,17 @@ function zz_initialize($mode = false) {
 	$zz_default['user']				= '';		//	username
 	$zz_default['view']				= false;	// 	show Action: View
 	$zz_default['password_encryption'] = 'md5';
+	$zz_default['translate_log_encodings'] = array(
+		'iso-8859-2' => 'iso-8859-1'
+	);
+	$zz_default['url_self']			= false;
 	
 	zz_write_defaults($zz_default, $zz_conf);
 
 	// set default limit in case 'show_hierarchy' is used because hierarchies need more memory
 	if (!$zz_conf['limit'] AND $zz_conf['show_hierarchy']) $zz_conf['limit'] = 40;
 
-	$zz_conf['url_append'] = '?'; // normal situation: there is no query string in the base url, so add query string starting ?
-	$my_uri = parse_url('http://www.example.org'.$_SERVER['REQUEST_URI']);
-	$zz_conf['url_self_qs_base'] = ''; // no base query string which belongs url_self
-	// get own URI
-	if (empty($zz_conf['url_self'])) {
-		$zz_conf['url_self'] = $my_uri['path'];
-		$zz_conf['url_self_qs_zzform'] = (!empty($my_uri['query']) ? '?'.$my_uri['query'] : ''); // zzform query string
-	} else {
-		// it's possible to use url_self without http://hostname, so check for that
-		$examplebase = (substr($zz_conf['url_self'], 0, 1) == '/' ? 'http://www.example.org' : '');
-		$base_uri = parse_url($examplebase.$zz_conf['url_self']);
-		if ($examplebase) {
-			$zz_conf['url_self'] = $base_uri['path'];
-		} else {
-			$zz_conf['url_self'] = $base_uri['scheme'].'://'.$base_uri['host'].$base_uri['path'];
-		}
-		if (!empty($base_uri['query'])) {
-			$zz_conf['url_self_qs_base'] = '?'.$base_uri['query']; // no base query string which belongs url_self
-			$zz_conf['url_append'] = '&amp;';
-		}
-		if (!empty($my_uri['query']) AND !empty($base_uri['query'])) {
-			parse_str($my_uri['query'], $my_uri_query);
-			parse_str($base_uri['query'], $base_uri_query);
-			foreach ($my_uri_query AS $key => $value) {
-				if (!empty($base_uri_query[$key]) AND $base_uri_query[$key] == $value) {
-					unset($my_uri_query[$key]);
-				}
-			}
-			unset($base_uri_query);
-			$zz_conf['url_self_qs_zzform'] = http_build_query($my_uri_query);
-			if ($zz_conf['url_self_qs_zzform']) $zz_conf['url_self_qs_zzform'] = '&'.$zz_conf['url_self_qs_zzform'];
-		} elseif (!empty($my_uri['query']))
-			$zz_conf['url_self_qs_zzform'] = '&'.$my_uri['query'];
-		else
-			$zz_conf['url_self_qs_zzform'] = '';
-	}
-	unset($my_uri);
+	$zz_conf['int']['url'] = zz_get_url_self($zz_conf['url_self']);
 
 	// get LIMIT from URI
 	if (!$zz_conf['this_limit'] && $zz_conf['limit']) 
@@ -880,6 +863,13 @@ function zz_initialize($mode = false) {
 /**
  * call zzform() once or multiple times without user interaction 
  * 
+ * If zzform_multi() is called from within zzform() (e. g. via an action before/
+ * after-script), not all values in $zz_conf will be reset to default. Therefore,
+ * it is important that the script used for zzform_multi() will set all variables
+ * as it needs them.
+ * A solution might be for you to run zz_initialize() before setting the record
+ * specific variables and calling zzform()
+ *
  * @param string $definition_file - script filename
  * @param array $values - values sent to script (instead of $_GET, $_POST and $_FILES)
  * @param string $type - what to do

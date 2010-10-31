@@ -61,6 +61,9 @@ function zz_conditions_record_check($zz, &$zz_var) {
 					$sql = zz_edit_sql($sql, 'WHERE', $condition['where']);
 				if (!empty($condition['having']))
 					$sql = zz_edit_sql($sql, 'HAVING', $condition['having']);
+				// just get this single record
+				$sql = zz_edit_sql($sql, 'WHERE', '`'.$zz['table'].'`.`'
+					.$zz_var['id']['field_name'].'` = '.$zz_var['id']['value']);
 				$lines = zz_db_fetch($sql, $zz_var['id']['field_name'], 'id as key', 'record-list ['.$index.']');
 				if (empty($zz_conditions['bool'][$index]))
 					$zz_conditions['bool'][$index] = $lines;
@@ -102,7 +105,7 @@ function zz_conditions_record_check($zz, &$zz_var) {
 				}
 				$sql = sprintf($condition['sql'], $value);
 				$lines = zz_db_fetch($sql, 'dummy_id', 'numeric', 'value/2 ['.$index.']');
-				if (empty($zz_conditions['bool'][$index]))
+				if (empty($zz_conditions['values'][$index]))
 					$zz_conditions['values'][$index] = $lines;
 				else
 					$zz_conditions['values'][$index] = array_merge($zz_conditions['values'][$index], $lines);
@@ -307,6 +310,13 @@ function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids) {
 					$sql = zz_edit_sql($sql, 'WHERE', $condition['where']);
 				if (!empty($condition['having']))
 					$sql = zz_edit_sql($sql, 'HAVING', $condition['having']);
+				if (count($ids) < 200) {
+					// using IDs is faster than getting the full query
+					// not sure if WHERE .. IN () is slowing things down with
+					// a big number of IDs
+					// this restriction might be removed in later versions of zzform
+					$sql = zz_edit_sql($sql, 'WHERE', '`'.$zz['table'].'`.'.$id_field.' IN ('.implode(',', $ids).')');
+				}
 				$lines = zz_db_fetch($sql, $id_field, 'id as key', 'list-record ['.$index.']');
 				break;
 			case 'query':
