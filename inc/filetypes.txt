@@ -214,6 +214,26 @@ plt		plt		plt		application/x-plt				HPGL Plotfile
 plt		plt		plt		drawing/plt						HPGL Plotfile
 plt		plt		plt		application/plt					HPGL Plotfile
 
+vcf		vcf		vcf		text/x-vcard					vCard File
+vcf		vcf		vcf		application/vcard				vCard File
+vcf		vcf		vcf		text/anytext					vCard File
+vcf		vcf		vcf		text/directory					vCard File
+vcf		vcf		vcf		application/x-versit			vCard File
+vcf		vcf		vcf		text/x-versi					vCard File
+vcf		vcf		vcf		text/x-vcalendar				vCard File
+
+mp4		mp4		mp4		video/mp4						MPEG-4 Video File
+
+mp3		mp3		mp3		audio/mpeg						MPEG Audio Stream, Layer III
+mp3		mp3		mp3		audio/mp3						MPEG Audio Stream, Layer III
+mp3		mp3		mp3		audio/x-mpeg					MPEG Audio Stream, Layer III
+mp3		mp3		mp3		audio/x-mp3						MPEG Audio Stream, Layer III
+mp3		mp3		mp3		audio/mpeg3						MPEG Audio Stream, Layer III
+mp3		mp3		mp3		audio/x-mpeg3					MPEG Audio Stream, Layer III
+mp3		mp3		mp3		audio/mpg						MPEG Audio Stream, Layer III
+mp3		mp3		mp3		audio/x-mpg						MPEG Audio Stream, Layer III
+mp3		mp3		mp3		audio/x-mpegaudio				MPEG Audio Stream, Layer III
+
 ### EOF
 #
 #

@@ -148,7 +148,8 @@ $zz_default['upload_destination_filetype']['psd'] = 'jpeg';
 
 $zz_default['upload_pdf_density'] = '300x300'; // dpi in which pdf will be rasterized
 
-$zz_default['upload_multipage_images'] = array('pdf', 'psd');
+$zz_default['upload_multipage_images'] = array('pdf', 'psd', 'mp4');
+$zz_default['upload_multipage_which']['mp4'] = 5;
 
 /*	----------------------------------------------	*
  *					MAIN FUNCTIONS					*
@@ -1213,7 +1214,8 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 					} elseif ($zz_conf['modules']['debug']) {
 						zz_debug('file copied: %'.$filename.'% to: %'.$image['files']['destination'].'%');
 					}
-					zz_unlink_cleanup($filename);			// this also works in older php versions between partitions.
+					// this also works in older php versions between partitions.
+					zz_unlink_cleanup($filename);			
 					chmod($image['files']['destination'], 0644);
 				} else {
 					$success = copy($filename, $image['files']['destination']);
@@ -1522,7 +1524,6 @@ function zz_unlink_cleanup($file) {
 	$full_path = realpath($file);
 	$dir = dirname($full_path);
 	$success = unlink($full_path);
-	if ($dir == '/tmp') return true; // don't delete /tmp-Folder
 	
 	zz_cleanup_dirs($dir);
 		
@@ -1531,13 +1532,20 @@ function zz_unlink_cleanup($file) {
 }
 
 /**
- * removes empty directories hierarchically
+ * removes empty directories hierarchically, except for system directories
  *
  * @param string $dir name of directory
+ * @global array $zz_conf
  * @return bool true
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_cleanup_dirs($dir) {
+	// first check if it's a directory that shall always be there
+	global $zz_conf;
+	$undeletable = array($zz_conf['backup_dir'], $zz_conf['tmp_dir'],
+		$zz_conf['root'], '/tmp');
+	if (in_array($dir, $undeletable)) return false;
+
 	$success = false;
 	if (is_dir($dir)) {
 		$dir_handle = opendir($dir);

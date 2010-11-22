@@ -258,5 +258,8 @@ $text['File %s is not writable.'] = 'Datei %s kann nicht beschreibbar';
 $text['Cannot open %s for writing.'] = 'Datei %s kann nicht zum Schreiben ge&ouml;ffnet werden';
 $text['%s lines deleted.'] = '%s Eintr&auml;ge gel&ouml;scht';
 $text['Please choose one of the filters.'] = 'Bitte w&auml;hlen Sie aus den Filtern aus.';
+$text['Show PHP info on server'] = 'Zeige Informationen zu PHP auf dem Server';
+
+$text['Copy'] = 'Kopieren';
 
 ?>

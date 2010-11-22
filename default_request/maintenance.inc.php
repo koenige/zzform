@@ -58,7 +58,7 @@ function zz_maintenance($params) {
 		$page['text'] = '<h1><a href="./">'.zz_text('Maintenance scripts').'</a></h1>'."\n";
 		$page['text'] .= '<div id="zzform">'."\n";
 		$page['text'] .= '<h2>'.zz_text('SQL query').'</h2>'."\n";
-		$page['text'] .= '<pre style="font-size: 1.1em;"><code>'.zz_maintenance_sql($sql).'</code></pre>';
+		$page['text'] .= '<pre style="font-size: 1.1em; white-space: pre-wrap;"><code>'.zz_maintenance_sql($sql).'</code></pre>';
 
 		$tokens = explode(' ', $sql);
 		switch ($tokens[0]) {
@@ -96,14 +96,18 @@ function zz_maintenance($params) {
 			$page['text'] .= '<h2>'.zz_text('Relation and Translation Tables').'</h2>'."\n";
 			$page['text'] .= zz_maintenance_tables();
 	
-
 		// 	- Backup/errors, insert, update, delete
 			$page['text'] .= '<h2>'.zz_text('Error Logging').'</h2>'."\n";
 			$page['text'] .= zz_maintenance_errors();
 		
 		// 	- Backup/errors, insert, update, delete
+			$page['text'] .= '<h2>'.zz_text('PHP & Server').'</h2>'."\n";
+			$page['text'] .= '<p><a href="?phpinfo">'.zz_text('Show PHP info on server').'</a></p>';
+
+		// 	- Backup/errors, insert, update, delete
 			$page['text'] .= '<h2>'.zz_text('Temp and Backup Files').'</h2>'."\n";
 			$page['text'] .= zz_maintenance_folders();
+
 
 		}
 	
@@ -125,6 +129,9 @@ function zz_maintenance($params) {
 				.zz_text('Logs').'</h1>'."\n";
 			$page['text'] .= '<div id="zzform">'."\n";
 			$page['text'] .= zz_maintenance_logs();
+		} elseif (isset($_GET['phpinfo'])) {
+			phpinfo();
+			exit;
 		} else {
 			$page['text'] .= '<div id="zzform">'."\n";
 			$page['text'] .= zz_text('GET should be empty, please test that:').' <pre>';
@@ -253,7 +260,7 @@ function zz_maintenance_sql($sql) {
 		'UNION', 'WHERE', 'GROUP', 'BY', 'ORDER', 'DISTINCT', 'LEFT', 'JOIN',
 		'RIGHT', 'INNER', 'NATURAL', 'USING', 'SET', 'CONCAT', 'SUBSTRING_INDEX',
 		'VALUES');
-	$newline = array('LEFT', 'FROM', 'GROUP', 'WHERE', 'SET', 'VALUES');
+	$newline = array('LEFT', 'FROM', 'GROUP', 'WHERE', 'SET', 'VALUES', 'SELECT');
 	$newline_tab = array('ON', 'AND');
 	foreach ($tokens as $token) {
 		$out = htmlentities($token);
@@ -645,6 +652,10 @@ function zz_maintenance_logs() {
 		$line = str_replace('=', '=&#8203;', $line);
 		$line = str_replace('%', '&#8203;%', $line);
 		$line = str_replace('-at-', '&#8203;-at-', $line);
+		// htmlify links
+		if (strstr($line, 'http:/&#8203;/&#8203;') OR strstr($line, 'https:/&#8203;/&#8203;')) {
+			$line = preg_replace_callback('~(\S+):/&#8203;/&#8203;(\S+)~', 'zz_maintenance_make_url', $line);
+		}
 		$line = str_replace(',', ', ', $line);
 
 		if (!$group) {
@@ -701,6 +712,11 @@ function zz_maintenance_logs() {
 	$text .= '<input type="submit" value="'.zz_text('Delete selected lines').'">';
 	$text .= '</form>';
 	return $text;
+}
+
+function zz_maintenance_make_url($array) {
+	$link = '<a href="'.str_replace('&#8203;', '', $array[0]).'">'.$array[0].'</a>'; 
+	return $link;
 }
 
 function zz_delete_line_from_file($file, $lines) {

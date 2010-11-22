@@ -504,7 +504,7 @@ function zz_set_subrecord_action($my_tab, $rec, $action) {
 		// timestamp, foreign_key and id will always be ignored
 		// since there is no user input
 		if ($field['type'] == 'timestamp' OR $field['type'] == 'id'
-			OR $field['type'] == 'foreign_key') continue;
+			OR $field['type'] == 'foreign_key' OR $field['type'] == 'translation_key') continue;
 		// check def_val_ignore, some auto values/values/default values will be ignored 
 		if (!empty($field['def_val_ignore'])) {
 			if (empty($field['value']) AND !empty($field['default'])

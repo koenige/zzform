@@ -492,24 +492,22 @@ function zz_show_more_actions($more_actions, $more_actions_url, $more_actions_ba
 		if ($more_actions_base) $new_action_url = $more_actions_base[$key];
 		else $new_action_url = strtolower(forceFilename($new_action));
 		$output.= '<a href="'.$new_action_url;
-		if (!empty($more_actions_url)) {
-			if (isset($more_actions_url[$key]) && is_array($more_actions_url[$key])) {
-			// values are different for each key
-				foreach ($more_actions_url[$key] as $part_key => $value)
-					if (substr($part_key, 0, 5) == 'field')
-						$output.= $line[$value];
-					else
-						$output.= $value;
-			} elseif (is_array($more_actions_url)) {
-			// all values are the same
-				foreach ($more_actions_url as $part_key => $value)
-					if (substr($part_key, 0, 5) == 'field')
-						$output.= $line[$value];
-					else
-						$output.= $value;
-			} else
-				$output.= $more_actions_url;
-		} else $output.= '.php?id=';
+		if (isset($more_actions_url[$key]) && is_array($more_actions_url[$key])) {
+		// values are different for each key
+			foreach ($more_actions_url[$key] as $part_key => $value)
+				if (substr($part_key, 0, 5) == 'field')
+					$output.= $line[$value];
+				else
+					$output.= $value;
+		} elseif (is_array($more_actions_url)) {
+		// all values are the same
+			foreach ($more_actions_url as $part_key => $value)
+				if (substr($part_key, 0, 5) == 'field')
+					$output.= $line[$value];
+				else
+					$output.= $value;
+		} else
+			$output.= $more_actions_url;
 		if (!isset($more_actions_url) OR !is_array($more_actions_url)) $output.= $id;
 		$output.= ($more_actions_referer ? '&amp;referer='.urlencode($_SERVER['REQUEST_URI']) : '')
 			.'"'
@@ -1249,7 +1247,7 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 		if (!empty($my_tab['POST'][$rec][$my_tab['id_field_name']])) // has ID?
 			$my_tab['subtable_deleted'][] = $my_tab['POST'][$rec][$my_tab['id_field_name']];
 	}
-
+	
 	return $my_tab;
 } 
 
@@ -1266,6 +1264,7 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
  */
 function zz_get_subrecords($zz, $field, $my_tab, $main_tab, $zz_var, $tab) {
 	global $zz_error;
+	global $zz_conf;
 	
 	// set general definition for all $my_tab[$rec] (kind of a record template)
 	$rec_tpl = array();
@@ -1286,8 +1285,8 @@ function zz_get_subrecords($zz, $field, $my_tab, $main_tab, $zz_var, $tab) {
 	else
 		$state = 'show';
 
-	// records may only be removed in state 'edit' but not with access = show
-	if ($state == 'edit' AND $rec_tpl['access'] != 'show') {
+	// records may only be removed in state 'edit' or 'add' but not with access = show
+	if (($state == 'add' OR $state == 'edit') AND $rec_tpl['access'] != 'show') {
 		// remove deleted subtables
 		foreach (array_keys($my_tab['subtable_remove']) as $rec) {
 			if (empty($my_tab['subtable_remove'][$rec])) continue;
@@ -1307,6 +1306,24 @@ function zz_get_subrecords($zz, $field, $my_tab, $main_tab, $zz_var, $tab) {
 			$main_tab[0]['id']['value'], $rec_tpl['id']['field_name'], $my_tab['subtable_deleted']); 
 	} else 
 		$my_tab['existing'] = array();
+	// get detail records for source_id
+	$source_values = array();
+	if ($zz['mode'] == 'add' AND !empty($main_tab[0]['id']['source_value'])) {
+		$my_tab['POST'] = zz_query_subrecord($my_tab, $main_tab['table'], 
+			$main_tab[0]['id']['source_value'], $rec_tpl['id']['field_name'], $my_tab['subtable_deleted']);
+		// get rid of foreign_keys and ids
+		foreach (array_keys($my_tab['POST']) as $post_id) {
+			foreach ($rec_tpl['fields'] AS $my_field) {
+				if (empty($my_field['type'])) continue;
+				if ($my_field['type'] == 'id') {
+					$source_values[$post_id] = $my_tab['POST'][$post_id][$my_field['field_name']];
+					$my_tab['POST'][$post_id][$my_field['field_name']] = '';
+				} elseif ($my_field['type'] == 'foreign_key') {
+					$my_tab['POST'][$post_id][$my_field['field_name']] = '';
+				}
+			}
+		}
+	}
 
 	if ($my_tab['values']) {
 		// get field names for values
@@ -1330,6 +1347,7 @@ function zz_get_subrecords($zz, $field, $my_tab, $main_tab, $zz_var, $tab) {
 	// assign POST array, first existing records, then new records,
 	// ignore illegally sent records
 	$post = array();
+	
 	foreach ($my_tab['POST'] as $rec => $posted) {
 		if (!empty($posted[$my_tab['id_field_name']])) {
 			// this will only occur if main record is updated or deleted!
@@ -1353,6 +1371,10 @@ function zz_get_subrecords($zz, $field, $my_tab, $main_tab, $zz_var, $tab) {
 			// this is a new record, append it
 			$key = $start_new_recs;
 			$my_tab['existing'][$key] = array(); // no existing record exists
+			// get source_value key
+			if ($zz['mode'] == 'add' AND !empty($main_tab[0]['id']['source_value'])) {
+				$my_tab['source_values'][$key] = $source_values[$rec];
+			}
 			$start_new_recs++;
 			if ($my_tab['max_records'] < $start_new_recs) $start_new_recs = -1;
 		} else {
@@ -1395,13 +1417,15 @@ function zz_get_subrecords($zz, $field, $my_tab, $main_tab, $zz_var, $tab) {
 		}
 		if ($my_tab['records'] < $my_tab['min_records']) 
 			$my_tab['records'] = $my_tab['min_records'];
-		if (!$my_tab['records']) $my_tab['records'] = 1;
+		// always show one record minimum
+		if ($zz_conf['always_show_empty_detail_record'])
+			if (!$my_tab['records']) $my_tab['records'] = 1;
 	}
 	
 	// check records against database, if we have values, check number of records
 	if ($zz['mode']) {
 		$my_tab = zz_get_subrecords_mode($my_tab, $rec_tpl, $zz_var, $existing_ids);
-	} elseif ($zz_var['action'] && !empty($my_tab['POST'])) {
+	} elseif ($zz_var['action'] AND !empty($my_tab['POST'])) {
 		// individual definition
 		foreach (array_keys($records) as $rec) {
 			$my_tab[$rec] = $rec_tpl;
@@ -1551,6 +1575,8 @@ function zz_get_subrecords_mode($my_tab, $rec_tpl, $zz_var, $existing_ids) {
 		if (isset($existing_ids[$rec])) $idval = $existing_ids[$rec];
 		else $idval = false;
 		$my_tab[$rec]['id']['value'] = $idval;
+		if (!empty($my_tab['source_values'][$rec]))
+			$my_tab[$rec]['id']['source_value'] = $my_tab['source_values'][$rec];
 		$my_tab[$rec]['save_record'] = (isset($my_tab['zz_save_record'][$rec])
 			? $my_tab['zz_save_record'][$rec] : '');
 
@@ -1702,6 +1728,24 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
 				$sql = zz_edit_sql($sql, 'WHERE', $table.'.'
 					.$my_rec['id']['field_name']." = '".$my_rec['id']['value']."'");
 				$my_rec['record'] = zz_db_fetch($sql, '', '', 'record exists?');
+			}
+		} elseif ($mode == 'add' AND !empty($my_rec['id']['source_value'])) {
+			if (!empty($my_rec['POST'])) {
+				// no need to requery, we already did query a fresh record
+				// as a template
+				$my_rec['record'] = $my_rec['POST'];
+			} else {
+				$sql = zz_edit_sql($sql, 'WHERE', $table.'.'
+					.$my_rec['id']['field_name']." = '".$my_rec['id']['source_value']."'");
+				$my_rec['record'] = zz_db_fetch($sql, '', '', 'source record');
+				$my_rec['record'][$my_rec['id']['field_name']] = false;
+			}
+			// remove some values which cannot be copied
+			foreach ($my_rec['fields'] as $my_field) {
+				if (empty($my_field['type'])) continue;
+				// identifier must be created from scratch
+				if ($my_field['type'] == 'identifier')
+					$my_rec['record'][$my_field['field_name']] = false;
 			}
 		}
 	// record has to be passed back to user
@@ -2005,7 +2049,8 @@ function zz_get_identifier_sql_vars($sql, $id, $fieldname = false) {
  * @param array $vars
  * @param array $conf	Configuration for how to handle the strings
  *		'forceFilename' = '-'; value which will be used for replacing spaces and unknown letters
- *			$conf['concat'] '.'; string used for concatenation of variables. might be array, values are used in the same order they appear in the array
+ *			$conf['concat'] '.'; string used for concatenation of variables. might be array, 
+ *				values are used in the same order they appear in the array
  *			$conf['exists'] '.'; string used for concatenation if identifier exists
  *			$conf['lowercase'] true; false will not transform all letters to lowercase
  *			$conf['slashes'] false; true = slashes will be preserved
@@ -2030,7 +2075,7 @@ function zz_create_identifier($vars, $conf, $my_rec = false, $db_table = false, 
 	}
 	$conf['forceFilename'] = isset($conf['forceFilename']) ? substr($conf['forceFilename'], 0, 1) : '-';
 	$conf['concat'] = isset($conf['concat']) ? (is_array($conf['concat']) 
-		? $conf['concat'] : substr($conf['concat'], 0, 1)) : '.';
+		? $conf['concat'] : $conf['concat']) : '.';
 	$conf['exists'] = isset($conf['exists']) ? substr($conf['exists'], 0, 1) : '.';
 	$conf['lowercase'] = isset($conf['lowercase']) ? $conf['lowercase'] : true;
 	$conf['slashes'] = isset($conf['slashes']) ? $conf['slashes'] : false;
@@ -2839,6 +2884,7 @@ function zz_count_rows($sql, $id_field) {
 	// GROUP BY also does not work with COUNT
 	if (substr($sql, 0, 15) != 'SELECT DISTINCT'
 		AND !stristr($sql, 'GROUP BY')) {
+		$sql = zz_edit_sql($sql, 'ORDER BY', '_dummy_', 'delete');
 		$sql = zz_edit_sql($sql, 'SELECT', 'COUNT('.$id_field.')', 'replace');
 		// unneccessary LEFT JOINs may slow down query
 		// remove them in case no WHERE, HAVING or GROUP BY is set
@@ -3020,6 +3066,8 @@ function zz_record_access($zz, $zz_var) {
 				if (($zz['mode'] == 'edit' OR $zz['mode'] == 'delete' OR $zz['mode'] == 'show')
 					AND !empty($_GET['id'])) {
 					$id_value = $_GET['id'];
+				} elseif ($zz['mode'] == 'add' AND $zz_conf['copy'] AND !empty($_GET['source_id'])) {
+					$zz_var['id']['source_value'] = $_GET['source_id'];
 				}
 			} else {
 				// illegal parameter, don't set a mode at all
@@ -3126,6 +3174,9 @@ function zz_record_access($zz, $zz_var) {
 		$zz_conf['add'] = false;			// don't show add record (form+links)
 	}
 
+	// $zz_conf is set regarding add, edit, delete
+	if (!$zz_conf['add']) $zz_conf['copy'] = false;			// don't copy record (form+links)
+
 	if (!isset($zz_conf['add_link']))
 		$zz_conf['add_link'] = ($zz_conf['add'] ? true : false); // Link Add new ...
 
@@ -3159,7 +3210,6 @@ function zz_record_access($zz, $zz_var) {
 	if ($zz['mode'] == 'list_only' AND empty($_GET['zzaction'])) {
 		$zz_conf['show_record'] = false;	// don't show record
 	}
-
 	return zz_return(array($zz, $zz_var));
 }
 
@@ -3238,8 +3288,6 @@ function zz_listandrecord_access($zz_conf) {
 		if (!isset($zz_conf['view'])) $zz_conf['view'] = false;
 		break;
 	}
-	if (!isset($zz_conf['add_link']))
-		$zz_conf['add_link'] = ($zz_conf['add'] ? true : false); // Link Add new ...
 
 	return $zz_conf;
 }
@@ -3255,7 +3303,7 @@ function zz_listandrecord_access($zz_conf) {
 function zz_record_conf($zz_conf) {
 	$wanted_keys = array('access', 'edit', 'delete', 'add', 'view', 'conditions',
 		'details', 'details_url', 'details_base', 'details_target', 'details_referer',
-		'max_select', 'max_select_val_len'
+		'max_select', 'max_select_val_len', 'copy'
 	);
 	$zz_conf_record = array();
 	foreach ($wanted_keys as $key) {
@@ -3730,7 +3778,8 @@ function zz_apply_filter() {
 			foreach ($elements as $key => $value) {
 				$zz_conf['filter'][$index]['selection'][$key] = $value;
 			}
-			$filter['selection'] = $zz_conf['filter'][$index]['selection'];
+			$filter['selection'] = (!empty($zz_conf['filter'][$index]['selection']) 
+				? $zz_conf['filter'][$index]['selection'] : array());
 		} elseif (!isset($filter['selection'])) {
 			$filter['selection'] = $zz_conf['filter'][$index]['selection'] = array();
 		}

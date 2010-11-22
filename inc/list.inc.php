@@ -409,6 +409,11 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 					if (!empty($zz_conf_record['conditions'])) {
 						$zz_conf_record = zz_conditions_merge($zz_conf_record, $zz_conditions['bool'], $line[$id_field], false, 'conf');
 						$zz_conf_record = zz_listandrecord_access($zz_conf_record);
+						if (!isset($zz_conf_record['add_link']))
+							// Link Add new ...
+							$zz_conf_record['add_link'] = ($zz_conf_record['add'] ? true : false); 
+						// $zz_conf is set regarding add, edit, delete
+						if (!$zz_conf['add']) $zz_conf['copy'] = false;			// don't copy record (form+links)
 					}
 				}
 				if ($zz_conf['modules']['debug']) zz_debug("table_query foreach cond set ".$fieldindex);
@@ -510,21 +515,31 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 					if (!empty($field['subselect']['sql'])) {
 						// fill array subselects, just in row 0, will always be the same!
 						if (!$z) {
+							$foreign_key_field = array();
+							$translation_key_field = array();
 							foreach ($field['fields'] as $subfield) {
 								if ($subfield['type'] == 'foreign_key') {
-									// get field name of foreign key
-									$id_fieldname = $subfield['field_name'];
-									// if main field name and foreign field name differ, use main ID for requests
-									if (!empty($subfield['key_field_name'])) // different fieldnames
-										$key_fieldname = $subfield['key_field_name'];
-									else
-										$key_fieldname = $subfield['field_name'];
-									// id_field = joined_table.field_name
-									$field['subselect']['id_table_and_fieldname'] = $field['table'].'.'.$id_fieldname;
-									// just field_name
-									$field['subselect']['id_fieldname'] = $id_fieldname;
+									$foreign_key_field = $subfield;
+								} elseif ($subfield['type'] == 'translation_key') {
+									$translation_key_field = $subfield;
 								}
 							}
+							// get field name of foreign key
+							$id_fieldname = $foreign_key_field['field_name'];
+							if ($translation_key_field) {
+								$key_fieldname = $zz_var['id']['field_name'];
+								$field['subselect']['translation_key'] = $translation_key_field['translation_key'];
+							} else { // $foreign_key_field
+								// if main field name and foreign field name differ, use main ID for requests
+								if (!empty($foreign_key_field['key_field_name'])) // different fieldnames
+									$key_fieldname = $foreign_key_field['key_field_name'];
+								else
+									$key_fieldname = $foreign_key_field['field_name'];
+							}
+							// id_field = joined_table.field_name
+							$field['subselect']['id_table_and_fieldname'] = $field['table'].'.'.$id_fieldname;
+							// just field_name
+							$field['subselect']['id_fieldname'] = $id_fieldname;
 							$field['subselect']['fieldindex'] = $fieldindex;
 							$subselects[] = $field['subselect'];
 						}
@@ -658,6 +673,13 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 						.$zz_var['extraGET'].'">'.zz_text('show').'</a>';
 					$modes = true; // need a table row for this
 				}
+				if ($zz_conf_record['copy']) {
+					if ($rows[$z]['modes']) $rows[$z]['modes'] .= '&nbsp;| ';
+					$rows[$z]['modes'] .= '<a href="'
+						.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs'].$zz_conf['int']['url']['?&'].'mode=add&amp;source_id='
+						.$id.$zz_var['extraGET'].'">'.zz_text('Copy').'</a>';
+					$modes = true; // need a table row for this
+				}
 				if ($zz_conf_record['delete']) {
 					if ($rows[$z]['modes']) $rows[$z]['modes'] .= '&nbsp;| ';
 					$rows[$z]['modes'] .= '<a href="'
@@ -690,6 +712,9 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 		
 		$subselect['sql'] = zz_edit_sql($subselect['sql'], 'WHERE', $subselect['id_table_and_fieldname'].' 
 			IN ('.implode(', ', $ids).')');
+		if (!empty($subselect['translation_key']))
+			$subselect['sql']  = zz_edit_sql($subselect['sql'], 'WHERE', 
+				'translationfield_id = '.$subselect['translation_key']);
 		$lines = zz_db_fetch($subselect['sql'], array($subselect['id_fieldname'], '_dummy_id_'), 'numeric', false, E_USER_WARNING);
 		// E_USER_WARNING might return message, we do not want to see this message
 		// but in the logs

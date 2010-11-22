@@ -62,7 +62,7 @@ function zz_translations_init($table, $fields) {
 	$j = 1; // how many fields after original position of field to translate
 
 	foreach (array_keys($fields) as $no) {
-		$field_name = $fields[$no]['field_name'];
+		$field_name = (!empty($fields[$no]['field_name']) ? $fields[$no]['field_name'] : '');
 		if (!empty($field_name) AND !empty($translationfields[$field_name])) {
 			// include new subtable for translations
 			$zz_sub = false;	
@@ -88,6 +88,9 @@ function zz_translations_init($table, $fields) {
 			$translationsubtable[$index+$k]['table_name'] .= '-'.$k;
 			$translationsubtable[$index+$k]['translate_field_name'] = $field_name;
 			$translationsubtable[$index+$k]['translate_field_index'] = $no;
+			if(!empty($fields[$no]['translation'])) {
+				$translationsubtable[$index+$k] = array_merge($translationsubtable[$index+$k], $fields[$no]['translation']);
+			}
 			$zz_fields = array_merge(array_slice($fields, 0, $k+$j), $translationsubtable, array_slice($fields, $k+$j));
 		// old PHP 4 support
 			$zz_fields_keys = array_merge(array_slice(array_keys($fields), 0, $k+$j), array_keys($translationsubtable), array_slice(array_keys($fields), $k+$j));

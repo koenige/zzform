@@ -32,6 +32,18 @@ function zz_imagick_identify($source) {
 	identify "phoomap bg.psd"
 	phoomap bg.psd PSD 100x100+0+0 PseudoClass 256c 8-bit 23.9kb 0.000u 0:01
 
+    [0] => /private/var/tmp/phpLjPhBP.mp4=>/var/tmp/magick-xN8MBYXd.pam[0]
+    [1] => MP4
+    [2] => 384x288
+    [3] => 384x288+0+0
+    [4] => 8-bit
+    [5] => TrueColor
+    [6] => DirectClass
+    [7] => 165.9MB
+    [8] => 0.350u
+    [9] => 0:00.349
+
+
 */
 
 	// 19.09.07 19:45
@@ -44,17 +56,46 @@ function zz_imagick_identify($source) {
 	exec($command, $output, $return_var);
 	if (!$output) return false;
 
-	$image = false;
+	$image = array();
+	$tokens = array();
 	foreach ($output as $line) {
 		// just check first line
 		if (substr($line, 0, strlen($source)) == $source) {
-			preg_match('/^ (\w+) (\d+)x(\d+).*$/', substr($line, strlen($source)), $image);
+			$tokens = explode(' ', $line);
+			break;
 		}
 	}	
-	//$myimage = $bla[$image[1]];
-	if (!empty($image[2])) $myimage['width'] = $image[2];
-	if (!empty($image[3])) $myimage['height'] = $image[3];
-	$myimage['validated'] = true;
+	if (!empty($tokens[1])) {
+		$image['filetype'] = strtolower($tokens[1]);
+	}
+	if (!empty($tokens[2])) {
+		$size = explode('x', $tokens[2]);
+		if (!empty($size[0]) AND !empty($size[1])) {
+			$image['width'] = $size[0];
+			$image['height'] = $size[1];
+		}
+	}
+	$image['validated'] = true;
+	return $image;
+}
+
+/**
+ * checks whether filetype has multiple pages
+ *
+ * @param string $source
+ * @param global $zz_conf
+ * @param return $source
+ */
+function zz_imagick_check_multipage($source) {
+	global $zz_conf;
+	$source_extension = substr($source, strrpos($source, '.') +1);
+	if (in_array($source_extension, $zz_conf['upload_multipage_images'])) {
+		$source .= '['.(!empty($zz_conf['upload_multipage_which'][$source_extension])
+			? $zz_conf['upload_multipage_which'][$source_extension] : '0')
+			.']'; // convert only first page or top layer
+	}
+
+	return $source;
 }
 
 /**
@@ -72,6 +113,7 @@ function zz_image_gray($source, $destination, $dest_extension = false, $image = 
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
+	$source = zz_imagick_check_multipage($source);
 	$convert = zz_imagick_convert('colorspace gray', '"'.$source.'" '.($dest_extension 
 		? $dest_extension.':' : '').'"'.$destination.'"');
 
@@ -98,10 +140,7 @@ function zz_image_thumbnail($source, $destination, $dest_extension = false, $ima
 	
 	$geometry = (isset($image['width']) ? $image['width'] : '');
 	$geometry.= (isset($image['height']) ? 'x'.$image['height'] : '');
-	$source_extension = substr($source, strrpos($source, '.') +1);
-	if (in_array($source_extension, $zz_conf['upload_multipage_images'])) {
-		$source .= '[0]'; // convert only first page or top layer
-	}
+	$source = zz_imagick_check_multipage($source);
 	$convert = zz_imagick_convert('thumbnail '.$geometry, '"'.$source.'" '.($dest_extension 
 		? $dest_extension.':' : '').'"'.$destination.'"');
 
@@ -133,10 +172,7 @@ function zz_image_webimage($source, $destination, $dest_extension = false, $imag
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	$convert = false;
-	$source_extension = substr($source, strrpos($source, '.') +1);
-	if (in_array($source_extension, $zz_conf['upload_multipage_images'])) {
-		$source .= '[0]'; // convert only first page or top layer
-	}
+	$source = zz_imagick_check_multipage($source);
 
 	if (!$source_extension OR !empty($zz_conf['webimages_by_extension'][$source_extension])) {
 		return zz_return(false); // do not create an identical webimage of already existing webimage
@@ -157,10 +193,11 @@ function zz_image_crop($source, $destination, $dest_extension = false, $image = 
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 // example: convert -thumbnail x240 -crop 240x240+140x0 reiff-pic09b.jpg test.jpg
 	$dest_ratio = $image['width'] / $image['height'];
-	if (empty($image['upload']['height'])) {
+	$source_image = getimagesize($source);
+	if (empty($source_image[0])) {
 		return zz_return(false); // no height means no picture or error
 	}
-	$source_ratio = $image['upload']['width'] / $image['upload']['height'];
+	$source_ratio = $source_image[0] / $source_image[1]; // 0 = width, 1 = height
 	if ($dest_ratio == $source_ratio)
 		$options = 'thumbnail '.$image['width'].'x'.$image['height'];
 	elseif ($dest_ratio < $source_ratio) {
@@ -176,6 +213,7 @@ function zz_image_crop($source, $destination, $dest_extension = false, $image = 
 		$options = 'thumbnail '.$image['width'].'x'.$new_height
 			.' -crop '.$image['width'].'x'.$image['height'].'+'.$pos_x.'+'.$pos_y;
 	}
+	$source = zz_imagick_check_multipage($source);
 	$convert = zz_imagick_convert($options, '"'.$source.'" '.($dest_extension 
 		? $dest_extension.':' : '').'"'.$destination.'"');
 

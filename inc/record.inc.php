@@ -32,6 +32,7 @@ function zz_record($zz, $zz_tab, $zz_var, $zz_conditions) {
 	global $zz_conf;
 	global $zz_error;
 
+	$formhead = false;
 	$action_before_redirect = !empty($_GET['zzaction']) ? $_GET['zzaction'] : '';
 	if ($zz_var['record_action'] OR $action_before_redirect) {
 		if ($zz_var['action'] == 'insert' OR $action_before_redirect == 'insert') {
@@ -69,7 +70,8 @@ function zz_record($zz, $zz_tab, $zz_var, $zz_conditions) {
 
 	// Heading inside HTML form element
 	if (($zz['mode'] == 'edit' OR $zz['mode'] == 'delete' OR $zz['mode'] == 'review'
-		OR $zz['mode'] == 'show') AND !$zz_tab[0][0]['record']) {
+		OR $zz['mode'] == 'show') AND !$zz_tab[0][0]['record']
+		AND ($action_before_redirect != 'delete')) {
 		$formhead = '<span class="error">'.zz_text('There is no record under this ID:')
 			.' '.htmlspecialchars($zz_tab[0][0]['id']['value']).'</span>';	
 	} elseif (!empty($zz_var['integrity'])) {
@@ -90,7 +92,7 @@ function zz_record($zz, $zz_tab, $zz_var, $zz_conditions) {
 		($zz['mode'] == 'show' AND !$action_before_redirect)) {
 	//	mode = add | edit | delete: show form
 		$formhead = zz_text($zz['mode']).' '.zz_text('a_record');
-	} elseif ($zz_var['action']) {	
+	} elseif ($zz_var['action'] OR $action_before_redirect) {	
 	//	action = insert update review: show form with new values
 		if (!$formhead) {
 			$formhead = ucfirst(zz_text($zz_var['action']).' '.zz_text('failed'));
@@ -238,6 +240,11 @@ function zz_display_records($zz, $zz_tab, $display, $zz_var, $zz_conditions) {
 					.$zz_conf['int']['url']['?&'].'mode=delete&amp;id='
 					.$zz_var['id']['value'].$zz_var['extraGET'].'">'
 					.zz_text('delete').'</a>';
+				if ($zz_conf_record['copy']) $output.= ' | <a href="'
+					.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
+					.$zz_conf['int']['url']['?&'].'mode=add&amp;source_id='
+					.$zz_var['id']['value'].$zz_var['extraGET'].'">'
+					.zz_text('Copy').'</a>';
 				$output.= '</td></tr>'."\n";
 			}
 			if (!empty($zz_conf_record['details'])) {
@@ -1657,6 +1664,12 @@ function zz_form_select_set($field, $row_display, $record = false) {
 	$myvalue = '';
 	$output = '';
 	$myi = 0;
+	if ($row_display == 'form') {
+		// send dummy field to get a response if field content should be deleted
+		$myid = 'check-'.$field['field_name'].'-'.$myi;
+		$output .= '<input type="hidden" id="'
+			.$myid.'" name="'.$field['f_field_name'].'[]" value="">';
+	}
 	foreach ($field['set'] as $key => $set) {
 		$myi++;
 		$myid = 'check-'.$field['field_name'].'-'.$myi;

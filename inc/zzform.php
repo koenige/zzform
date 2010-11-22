@@ -449,6 +449,9 @@ function zzform() {
 					if ($zz_conf['modules']['debug'] AND $zz_conf['debug_time']) {
 						zz_debug_time($zz['return']);
 					}
+					if (is_array($zz_conf['redirect'][$zz['result']])) {
+						$zz_conf['redirect'][$zz['result']] = zz_makepath($zz_conf['redirect'][$zz['result']], $zz_tab);
+					}
 					if (substr($zz_conf['redirect'][$zz['result']], 0, 1) == '/') {
 						$zz_conf['redirect'][$zz['result']] = $zz_conf['int']['url']['base']
 							.$zz_conf['redirect'][$zz['result']];
@@ -748,15 +751,18 @@ function zz_initialize($mode = false) {
 	$zz_default['action_dir']		= $zz_conf['dir_custom'];	// directory for included scripts after action has been taken
 	$zz_default['lang_dir']			= $zz_conf['dir_custom'];	// directory for additional text
 
+	$zz_default['always_show_empty_detail_record'] = false;
 	$zz_default['additional_text']	= false;
 	$zz_default['backlink']			= true;		// show back-to-overview link
 	$zz_default['access']			= '';		// nothing, does not need to be set, might be set individually
 	$zz_default['add']				= true;		// add or do not add data.
-	$zz_default['delete']			= false;	// show Action: Delete
+	$zz_default['copy']				= false;	// show action: copy
+	$zz_default['delete']			= false;	// show action: delete
 	$zz_default['details']			= false;	// column details; links to detail records with foreign key
 	$zz_default['details_base']		= false;
 	$zz_default['details_referer']	= true;		// add referer to details link
 	$zz_default['details_target']	= false;	// target-window for details link
+	$zz_default['details_url']		= '.php?id=';
 	$zz_default['edit']				= true;		// show Action: Edit
 	$zz_default['group']			= false;
 	$zz_conf['group_field_no']		= array();
@@ -918,6 +924,7 @@ function zzform_multi($definition_file, $values, $type, $params = false) {
 		if (!empty($values['POST'])) $_POST = $values['POST'];
 		if (!empty($values['FILES'])) $_FILES = $values['FILES'];
 		else $_FILES = '';
+		$zz_conf['generate_output'] = false; // don't generate output
 		if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
 			$old_id = $zz_conf['id'];	
 			$zz_conf['id'] = $id;
@@ -931,6 +938,7 @@ function zzform_multi($definition_file, $values, $type, $params = false) {
 		// return on error in form script
 		if (!empty($zz['error'])) return false;
 		zzform();
+		$zz_conf['generate_output'] = true;
 		break;
 	case 'files':
 		require_once $zz_conf['dir_inc'].'/functions.inc.php';

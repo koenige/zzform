@@ -66,6 +66,7 @@ div.text #zzform	 {padding: 1em;}
 
 #zzform #record tr.error td, #zzform #record tr.error th, 
 	#zzform #record .subtable td.error {background-color: red;}
+#zzform .error small { padding: 0 .4em; display: block; }
 
 #zzform table.data { margin: .5em 0; }
 #zzform table.data td {padding: 0.25em .5em;}
@@ -138,11 +139,11 @@ body #zzform .separator hr {width: 100%; margin: 0.25em 0; height: 3px;
 
 #zzform table td small {font-size: 90%;}
 
-#zzform ul.data {padding: 0; margin: 1em 0;}
-#zzform ul.data li {float: left; overflow: hidden;
-	margin: 0 1em 1em 0; padding: 0;} 
-#zzform ul.data img {vertical-align: middle; margin: 0; border: 0; padding: 0;}
-#zzform ul.data p {margin: 0; font-size: 90%;}
+#zzform ul.data		{padding: 0; margin: 1em 0;}
+#zzform ul.data li	{float: left; overflow: hidden; list-style: none;
+					margin: 0 1em 1em 0; padding: 0;} 
+#zzform ul.data img	{vertical-align: middle; margin: 0; border: 0; padding: 0;}
+#zzform ul.data p	{margin: 0; font-size: 90%;}
 #zzform ul.data p.editbutton {padding: 0;}
 
 #zzform input, #zzform textarea {text-rendering:optimizeSpeed;} /* get rid of Firefox wrong ligatures */
@@ -170,6 +171,6 @@ body #zzform .separator hr {width: 100%; margin: 0.25em 0; height: 3px;
 .zzvariables th { white-space: nowrap; text-align: left; padding-right: .5em; 
 		vertical-align: top; }
 
-#zzform .highlight { background-color: yellow; }
+#zzform .highlight { background-color: yellow; color: black; }
 
 #zzform .blocklabel { display: block; height: 100%; width: 100%; }
