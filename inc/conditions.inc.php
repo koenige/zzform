@@ -266,7 +266,7 @@ function zz_conditions_merge($array, $bool_conditions, $record_id, $reverse = fa
 		if (!empty($bool_conditions[$condition][$record_id])) {
 			if ($new_values) {
 				// if normally there is no field like this, you can't show it in list view
-				// it's not neccessarily there, this field
+				// it's not necessarily there, this field
 				if (empty($array)) $array['hide_in_list'] = true;
 				// add new values for each true condition with values
 				$array = zz_array_merge($array, $new_values);

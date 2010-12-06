@@ -159,7 +159,7 @@ function zz_record($zz, $zz_tab, $zz_var, $zz_conditions) {
 			$output .= '<div id="record">';
 			$div_record_open = true;
 		}
-		// output form if neccessary
+		// output form if necessary
 		$output .= zz_display_records($zz, $zz_tab, $display_form, $zz_var, $zz_conditions);
 	}
 
@@ -376,7 +376,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 			// formatted fields: show that they are being formatted!
 			if (!isset($field['title_desc'])) $field['title_desc'] = '';
 			$field['title_desc'] .= ' ['.(!empty($zz_conf['format'][$field['format']]['link']) 
-				? '<a href="'.$zz_conf['format'][$field['format']]['link'].'">' : '')
+				? '<a href="'.$zz_conf['format'][$field['format']]['link'].'" target="help">' : '')
 				.(ucfirst($field['format']))
 				.(!empty($zz_conf['format'][$field['format']]['link']) ? '</a>' : '').']';
 		}
@@ -1002,6 +1002,33 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 					$outputf .= zz_form_select_sql($field, $zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table'], 
 						$my_rec['record'], $row_display, $zz_conf_record);
 
+			// #2a SELECT with set_folder
+				} elseif (isset($field['set_folder'])) {
+					if (!is_dir($field['set_folder'])) {
+						echo '`'.$field['set_folder'].'` is not a folder. Check `["set_folder"]` definition.';
+						exit;
+					}
+					$files = array();
+					$handle = opendir($field['set_folder']);
+					while ($file = readdir($handle)) {
+						if (substr($file, 0, 1) == '.') continue;
+						$files[] = $file;
+					}
+					if (!$files)
+						$field['set'] = array();
+					elseif ($field['set_title'] === true) {
+						$field['set_title'] = array();
+						foreach ($files as $file) {
+							$size = filesize($field['set_folder'].'/'.$file);
+							$size = (floor($size/1024/1024*10)/10).' MB';
+							$field['set'][] = $file;
+							$field['set_title'][] = $file.' ['.$size.']';
+						}
+					} else {
+						$field['set'][] = $files;
+					}
+					$outputf .= zz_form_select_set($field, $row_display, $my_rec['record']);
+
 			// #2 SELECT with set_sql
 				} elseif (isset($field['set_sql'])) {
 					$field['sql'] = $field['set_sql'];
@@ -1142,7 +1169,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 						if ($image_uploads > 1) $outputf.= '<table class="upload">';
 						foreach ($field['image'] as $imagekey => $image) {
 							if (isset($image['source'])) continue;
-							// todo: if only one image, table is unneccessary
+							// todo: if only one image, table is unnecessary
 							// title and field_name of image might be empty
 							if ($image_uploads > 1) $outputf.= '<tr><th>'.$image['title'].'</th> <td>';
 							$outputf .= '<input type="file" name="'
@@ -1163,7 +1190,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 									$my_rec['images'][$fieldkey][$imagekey]['error']).'</small>';
 							else
 								$outputf.= '<br><small>'.zz_text('Maximum allowed filesize is').' '
-									.floor($zz_conf['upload_MAX_FILE_SIZE']/1024/1024).'MiB</small>';
+									.(floor($zz_conf['upload_MAX_FILE_SIZE']/1024/1024*10)/10).'MB</small>';
 							if ($row_display == 'form' && !empty($image['explanation'])) 
 								$outputf.= '<p class="explanation">'.$image['explanation'].'</p>';
 							if ($image_uploads > 1) $outputf.= '</td></tr>'."\n";
@@ -1661,7 +1688,7 @@ function zz_form_select_sql($field, $db_table, $record, $row_display, $zz_conf_r
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_form_select_set($field, $row_display, $record = false) {
-	$myvalue = '';
+	$myvalue = array();
 	$output = '';
 	$myi = 0;
 	if ($row_display == 'form') {
@@ -1707,13 +1734,16 @@ function zz_form_select_set($field, $row_display, $record = false) {
 			if (count($field['set']) >= 4 OR !empty($field['show_values_as_list']))
 				$output.= '<br>';
 		} else {
-			if (in_array($set, explode(',', $record[$field['field_name']]))) {
-				if ($myvalue) $myvalue .= ' | ';
-				$myvalue.= $set;
+			if (in_array($set, explode(',', $record[$field['field_name']]))
+				AND empty($field['set_show_all_values'])) {
+				$myvalue[] = $set;
 			}
 		}
 	}
-	$output .= $myvalue;
+	if ($row_display != 'form' AND !empty($field['set_show_all_values'])) {
+		$myvalue = explode(',', $record[$field['field_name']]);
+	}
+	$output .= implode(' | ', $myvalue);
 	return $output;
 }
 

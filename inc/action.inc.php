@@ -88,7 +88,7 @@ function zz_action($zz, $zz_tab, $validation, $zz_var) {
 				// first part of validation where field values are independent
 				// from other field values
 				$zz_tab[$tab][$rec] = zz_validate($zz_tab[$tab][$rec], $zz_tab[$tab]['db_name']
-					.'.'.$zz_tab[$tab]['table'], $zz_tab[$tab]['table_name'], $rec, $zz_tab[0][0]); 
+					.'.'.$zz_tab[$tab]['table'], $zz_tab[$tab]['table_name'], $rec, $zz_tab); 
 				if ($tab) {
 					// write changed POST values back to main POST array
 					// todo: let the next functions access the main POST array 
@@ -272,7 +272,7 @@ function zz_action($zz, $zz_tab, $validation, $zz_var) {
 	// ### Delete a record ###
 
 		} elseif ($zz_tab[$tab][$rec]['action'] == 'delete') {
-			// no POST_db, because here, validation is not neccessary
+			// no POST_db, because here, validation is not necessary
 			$me_sql = ' DELETE FROM '.$me_db.$zz_tab[$tab]['table']
 				.' WHERE '.$zz_tab[$tab][$rec]['id']['field_name']." = '"
 				.$zz_tab[$tab][$rec]['id']['value']."'"
@@ -382,7 +382,7 @@ function zz_action($zz, $zz_tab, $validation, $zz_var) {
 						$detail_sql = str_replace('[DETAIL_KEY]', '"'.$zz_tab[$zz_tab[$tab]['detail_key'][0]['tab']][$zz_tab[$tab]['detail_key'][0]['rec']]['id']['value'].'"', $detail_sql);
 					}
 					// for deleted subtables, id value might not be set, so get it here.
-					// TODO: check why it's not available beforehands, might be unneccessary security risk.
+					// TODO: check why it's not available beforehands, might be unnecessary security risk.
 					if (empty($zz_tab[$tab][$rec]['id']['value'])
 						AND !empty($zz_tab[$tab][$rec]['POST'][$zz_tab[$tab][$rec]['id']['field_name']]))
 						$zz_tab[$tab][$rec]['id']['value'] = $zz_tab[$tab][$rec]['POST'][$zz_tab[$tab][$rec]['id']['field_name']];
@@ -598,10 +598,16 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 	foreach (array_keys($my_rec['fields']) as $f) {
 	//	set
 		if ($my_rec['fields'][$f]['type'] == 'select' 
-			AND (isset($my_rec['fields'][$f]['set']) OR isset($my_rec['fields'][$f]['set_sql']))) {
-			if (!empty($my_rec['POST'][$my_rec['fields'][$f]['field_name']]))
+			AND (isset($my_rec['fields'][$f]['set']) OR isset($my_rec['fields'][$f]['set_sql'])
+			OR isset($my_rec['fields'][$f]['set_folder']))) {
+			if (!empty($my_rec['POST'][$my_rec['fields'][$f]['field_name']])) {
+				// remove empty set values, we needed them to check whether 
+				// set is NULL or ""
+				if (isset($my_rec['POST'][$my_rec['fields'][$f]['field_name']][0])
+					AND !($my_rec['POST'][$my_rec['fields'][$f]['field_name']][0]))
+					array_shift($my_rec['POST'][$my_rec['fields'][$f]['field_name']]);
 				$my_rec['POST_db'][$my_rec['fields'][$f]['field_name']] = implode(',', $my_rec['POST'][$my_rec['fields'][$f]['field_name']]);
-			else
+			} else
 				$my_rec['POST_db'][$my_rec['fields'][$f]['field_name']] = '';
 		}
 	//	slashes, 0 and NULL

@@ -783,6 +783,7 @@ function zz_initialize($mode = false) {
 	$zz_default['filter'] 				= array();
 	$zz_default['footer_text']			= false;		// text at the end of all
 	$zz_default['generate_output']		= true;
+	$zz_default['group_html_table']		= '<strong>%s</strong>';
 	$zz_default['heading_text'] 		= '';
 	$zz_default['heading_text_hidden_while_editing'] 	= false;
 	$zz_default['limit']				= false;	// only n records are shown at once
@@ -918,7 +919,7 @@ function zzform_multi($definition_file, $values, $type, $params = false) {
 		zz_initialize('overwrite');
 //		if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__)
 		$zz_conf['show_output'] = false; // do not show output as it will be included after page head
-		$zz_conf['show_list'] = false; // no output, so list view is not neccessary
+		$zz_conf['show_list'] = false; // no output, so list view is not necessary
 		$zz_conf['multi'] = true;		// so we know the operation mode for other scripts
 		if (!empty($values['GET'])) $_GET = $values['GET'];
 		if (!empty($values['POST'])) $_POST = $values['POST'];

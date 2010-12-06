@@ -211,6 +211,7 @@ $text['Master'] = 'Haupt';
 $text['Detail'] = 'Detail';
 $text['Backup of uploaded files is not active.'] = 'Backup von hochgeladenen Dateien ist nicht aktiv.';
 $text['Current TEMP dir is:'] = 'Aktuelles tempor&auml;res Verzeichnis:';
+$text['Current TEMP dir does not exist:'] = 'Aktuelles tempor&auml;res Verzeichnis existiert nicht:';
 $text['Current backup dir is:'] = 'Aktuelles Backup-Verzeichnis:';
 $text['Filename'] = 'Dateiname';
 $text['Filetype'] = 'Dateityp';

@@ -12,15 +12,15 @@
  * @param string $db_table [db_name.table]
  * @param string $table_name Alias for table if it occurs in the form more than once
  * @param int $rec
- * @param array $main = $zz_tab[0][0], keys ['POST'] and ['extra']
+ * @param array $zz_tab = $zz_tab[0][0], keys ['POST'], ['images'] and ['extra']
  * @global array $zz_conf
  * @return array $my_rec with validated values and marker if validation was successful ($my_rec['validation'])
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_validate($my_rec, $db_table, $table_name, $rec = 0, $main) {
+function zz_validate($my_rec, $db_table, $table_name, $rec = 0, $zz_tab) {
 	global $zz_conf;
 	global $zz_error;
-
+	
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	// in case validation fails, these values will be send back to user
 	$my_rec['POST-notvalid'] = $my_rec['POST']; 
@@ -66,26 +66,43 @@ function zz_validate($my_rec, $db_table, $table_name, $rec = 0, $main) {
 			if (isset($my_rec['POST'][$my_field])) 
 				// first test same subtable
 				$my_rec['POST'][$my_rec['fields'][$f]['field_name']] = $my_rec['POST'][$my_field];
-			elseif (isset($main['POST'][$my_field])) 
+			elseif (isset($zz_tab[0][0]['POST'][$my_field])) 
 				// main table, currently no other means to access it
-				$my_rec['POST'][$my_rec['fields'][$f]['field_name']] = $main['POST'][$my_field];
-			elseif (isset($main['extra'][$my_field])) {
-				$my_rec['POST'][$my_rec['fields'][$f]['field_name']] = $main['extra'][$my_field];
+				$my_rec['POST'][$my_rec['fields'][$f]['field_name']] = $zz_tab[0][0]['POST'][$my_field];
+			elseif (isset($zz_tab[0][0]['extra'][$my_field])) {
+				$my_rec['POST'][$my_rec['fields'][$f]['field_name']] = $zz_tab[0][0]['extra'][$my_field];
 			}
 		}
 
 		// check if some values should be gotten from upload fields
 		if (!empty($my_rec['fields'][$f]['upload_field'])) {
-			//	insert data from file upload/convert
-			$my_rec['POST'][$my_rec['fields'][$f]['field_name']] 
-				= zz_val_get_from_upload($my_rec['fields'][$f], 
-					$my_rec['images'][$my_rec['fields'][$f]['upload_field']],
-					$my_rec['POST'][$my_rec['fields'][$f]['field_name']]
-				);
+			if (strstr($my_rec['fields'][$f]['upload_field'], '[')) {
+				preg_match('~(\d+)\[(\d+)\]\[(\d+)\]~', $my_rec['fields'][$f]['upload_field'], $nos);
+				if (count($nos) != 4) {
+					$zz_error[] = array(
+						'msg_dev' => 'Error in $zz definition for upload_field: ['.$f.']',
+						'level' => E_USER_NOTICE
+					);
+				} elseif (!empty($zz_tab[$nos[1]][$nos[2]]['images'][$nos[3]])) {
+					//	insert data from file upload/convert
+					$my_rec['POST'][$my_rec['fields'][$f]['field_name']] 
+						= zz_val_get_from_upload($my_rec['fields'][$f], 
+							$zz_tab[$nos[1]][$nos[2]]['images'][$nos[3]],
+							$my_rec['POST'][$my_rec['fields'][$f]['field_name']]
+						);
+				}
+			} else {
+				//	insert data from file upload/convert
+				$my_rec['POST'][$my_rec['fields'][$f]['field_name']] 
+					= zz_val_get_from_upload($my_rec['fields'][$f], 
+						$my_rec['images'][$my_rec['fields'][$f]['upload_field']],
+						$my_rec['POST'][$my_rec['fields'][$f]['field_name']]
+					);
+			}
 		}
 
 		//	call function
-		if ($my_rec['fields'][$f]['type'] == 'hidden' AND !empty($my_rec['fields'][$f]['function'])) {
+		if (!empty($my_rec['fields'][$f]['function'])) { // $my_rec['fields'][$f]['type'] == 'hidden' AND 
 			foreach ($my_rec['fields'][$f]['fields'] as $var)
 				if (strstr($var, '.')) {
 					$vars = explode('.', $var);
@@ -338,7 +355,7 @@ function zz_validate($my_rec, $db_table, $table_name, $rec = 0, $main) {
 			$values = $my_rec['fields'][$f]['post_validation']($my_rec['POST'][$my_rec['fields'][$f]['field_name']]);
 			if ($values == -1) {
 				// in this case, the function explicitly says:
-				// record is invalid, so delete valutes
+				// record is invalid, so delete values
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['validation'] = false;
 			} elseif ($values) {
@@ -374,7 +391,8 @@ function zz_validate($my_rec, $db_table, $table_name, $rec = 0, $main) {
 			} elseif ($my_rec['fields'][$f]['type'] == 'timestamp') {
 				// timestamps will be set to current date, so no check is necessary
 				// do nothing, leave $my_rec['validation'] as it is
-			} elseif (!isset($my_rec['fields'][$f]['set']) AND !isset($my_rec['fields'][$f]['set_sql']))
+			} elseif (!isset($my_rec['fields'][$f]['set']) AND !isset($my_rec['fields'][$f]['set_sql'])
+				 AND !isset($my_rec['fields'][$f]['set_folder']))
 				$my_rec['validation'] = false;
 			elseif (!zz_check_for_null($my_rec['fields'][$f]['field_name'], $db_table)) {
 				$my_rec['validation'] = false;

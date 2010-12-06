@@ -314,7 +314,7 @@ function check_number($number) {
 }
 
 /**
- * sets class attribute if neccessary
+ * sets class attribute if necessary
  * 
  * @param array $field
  * @param array $values
@@ -1562,7 +1562,7 @@ function zz_get_subrecords_mode($my_tab, $rec_tpl, $zz_var, $existing_ids) {
 	for ($rec = 0; $rec < $my_tab['records']; $rec++) {
 		// do not change other values if they are already there (important for error messages etc.)
 		$continue_fast = (isset($my_tab[$rec]) ? true: false);
-		if (!$continue_fast) // reset fields only if neccessary
+		if (!$continue_fast) // reset fields only if necessary
 			$my_tab[$rec] = $rec_tpl;
 		if (isset($my_tab['values'])) {	// isset because might be empty
 			$my_tab = zz_set_values($my_tab, $rec, $zz_var);
@@ -1712,7 +1712,7 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
 	$sql = $my_tab['sql'];
 	$table = $my_tab['table'];
 
-	// in case, record was deleted, query record is not neccessary
+	// in case, record was deleted, query record is not necessary
 	if ($my_rec['action'] == 'delete') {
 		unset($my_rec);
 		return zz_return($my_tab);
@@ -2886,7 +2886,7 @@ function zz_count_rows($sql, $id_field) {
 		AND !stristr($sql, 'GROUP BY')) {
 		$sql = zz_edit_sql($sql, 'ORDER BY', '_dummy_', 'delete');
 		$sql = zz_edit_sql($sql, 'SELECT', 'COUNT('.$id_field.')', 'replace');
-		// unneccessary LEFT JOINs may slow down query
+		// unnecessary LEFT JOINs may slow down query
 		// remove them in case no WHERE, HAVING or GROUP BY is set
 		$sql = zz_edit_sql($sql, 'LEFT JOIN', '_dummy_', 'delete');
 		$lines = zz_db_fetch($sql, '', 'single value');
@@ -2993,7 +2993,7 @@ function zz_check_def_vals($post, $fields, $existing_record = array(), $where = 
  * that there's something to do
  * 
  * @param array $files		FILES array
- * @return array $files		FILES array, initialized where neccessary
+ * @return array $files		FILES array, initialized where necessary
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_check_def_files($files) {
@@ -3119,7 +3119,7 @@ function zz_record_access($zz, $zz_var) {
 	}
 
 
-	// set (and overwrite if neccessary) access variables, i. e.
+	// set (and overwrite if necessary) access variables, i. e.
 	// $zz_conf['add'], $zz_conf['edit'], $zz_conf['delete']
 	
 	if ($zz_conf['access'] == 'add_then_edit') {

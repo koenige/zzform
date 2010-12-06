@@ -82,7 +82,7 @@ function datum_de($datum, $param = false, $language = 'de') {
 }
 
 /**
- * returns year of given iso date, removes trailing 0 if neccessary
+ * returns year of given iso date, removes trailing 0 if necessary
  * 
  * @param string $datum date in international date format YYYY-MM-DD
  * @return string year

@@ -199,7 +199,7 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 	// check conditions, these might lead to different field definitions for every
 	// line in the list output!
 	// that means, $table_query cannot be used for the rest but $line_query instead
-	// zz_fill_out must be outside if show_list, because it is neccessary for
+	// zz_fill_out must be outside if show_list, because it is necessary for
 	// search results with no resulting records
 	// fill_out, but do not unset conditions
 	$zz['fields_in_list'] = zz_fill_out($zz['fields_in_list'], $zz_conf['db_name'].'.'.$zz['table'], true); 
@@ -340,8 +340,8 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 
 	$current_record = NULL;
 	$sum_group = array();
-	$modes = false;		// don't show a table head for link to modes until neccessary
-	$details = false;	// don't show a table head for link to details until neccessary
+	$modes = false;		// don't show a table head for link to modes until necessary
+	$details = false;	// don't show a table head for link to details until necessary
 	if ($zz_conf['show_list']) {
 		$id_fieldname = false;
 		$z = 0;
@@ -593,7 +593,7 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 						} elseif ($field['type'] == 'timestamp') {
 							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(timestamp2date($line[$field['field_name']]), $field['field_name'], $field);
 						} elseif ($field['type'] == 'select' 
-							AND (!empty($field['set']) OR !empty($field['set_sql']))) {
+							AND (!empty($field['set']) OR !empty($field['set_sql']) OR !empty($field['set_folder']))) {
 							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(str_replace(',', ', ', $line[$field['field_name']]), $field['field_name'], $field);
 						} elseif ($field['type'] == 'select' && !empty($field['enum']) && !empty($field['enum_title'])) { // show enum_title instead of enum
 							foreach ($field['enum'] as $mkey => $mvalue)
@@ -799,7 +799,8 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 					$zz['output'] .= '</tbody><tbody>'."\n";
 				}
 				$zz['output'].= '<tr class="group"><td colspan="'.(count($row)-1)
-					.'"><strong>'.implode(' &#8211; ', $grouptitles[$index]).'</strong></td></tr>'."\n";
+					.'">'.sprintf($zz_conf['group_html_table'], implode(' &#8211; ', $grouptitles[$index]))
+					.'</td></tr>'."\n";
 				$rowgroup = $row['group'];
 			}
 			$zz['output'].= '<tr class="'.($index & 1 ? 'uneven':'even')
@@ -902,7 +903,8 @@ function zz_list($zz, $zz_var, $zz_conditions) {
 					.'mode=add'.$zz_var['extraGET'].'&amp;add['.$add['field_name'].']='
 					.$add['value'].'"'
 					.(!empty($add['title']) ? ' title="'.$add['title'].'"' : '')
-					.'>'.$add['type'].'</a>';
+					.'>'.$add['type'].'</a>'.(!empty($add['explanation']) 
+						? ' ('.$add['explanation'].')' : '');
 				if ($i != count($zz_conf['add']) -1) $zz['output'].= ' | ';
 			}
 			$zz['output'] .= '</p>'."\n";

@@ -289,12 +289,16 @@ function zz_maintenance_folders() {
 
 	$folders = array();
 	if (!empty($zz_conf['tmp_dir'])) {
-		$text .= '<p>'.zz_text('Current TEMP dir is:').' '.$zz_conf['tmp_dir'].'</p>'."\n";
-		$folders[] = 'TEMP';
-		if (substr($zz_conf['tmp_dir'], -1) == '/')
-			$zz_conf['tmp_dir'] = substr($zz_conf['tmp_dir'], 0, -1);
-		if (!empty($_GET['folder']) AND substr($_GET['folder'], 0, 4) == 'TEMP') {
-			$my_folder = $zz_conf['tmp_dir'].substr($_GET['folder'], 4);
+		if (is_dir($zz_conf['tmp_dir'])) {
+			$text .= '<p>'.zz_text('Current TEMP dir is:').' '.$zz_conf['tmp_dir'].'</p>'."\n";
+			$folders[] = 'TEMP';
+			if (substr($zz_conf['tmp_dir'], -1) == '/')
+				$zz_conf['tmp_dir'] = substr($zz_conf['tmp_dir'], 0, -1);
+			if (!empty($_GET['folder']) AND substr($_GET['folder'], 0, 4) == 'TEMP') {
+				$my_folder = $zz_conf['tmp_dir'].substr($_GET['folder'], 4);
+			}
+		} else {
+			$text .= '<p>'.zz_text('Current TEMP dir does not exist:').' '.$zz_conf['tmp_dir'].'</p>'."\n";
 		}
 	}
 	if (!empty($zz_conf['backup_dir'])) {
