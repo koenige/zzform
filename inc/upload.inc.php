@@ -15,6 +15,7 @@
 	zz_upload_get()				writes arrays upload_fields, images
 								i. e. checks which fields offer uploads,
 								collects and writes information about files
+		zz_check_def_files()
 		zz_upload_get_fields()	checks which fields allow upload
 		zz_upload_check_files()	checks files,  puts information to 'image' array
 			zz_upload_fileinfo()	read information (filesize, exif etc.)
@@ -141,6 +142,7 @@ $zz_default['upload_destination_filetype']['tiff'] = 'png';
 $zz_default['upload_destination_filetype']['tif'] = 'png';
 $zz_default['upload_destination_filetype']['tga'] = 'png';
 $zz_default['upload_destination_filetype']['pdf'] = 'png';
+$zz_default['upload_destination_filetype']['ai'] = 'png';
 $zz_default['upload_destination_filetype']['eps'] = 'png';
 $zz_default['upload_destination_filetype']['cr2'] = 'jpeg';
 $zz_default['upload_destination_filetype']['dng'] = 'jpeg';
@@ -149,7 +151,8 @@ $zz_default['upload_destination_filetype']['psd'] = 'jpeg';
 $zz_default['upload_pdf_density'] = '300x300'; // dpi in which pdf will be rasterized
 
 $zz_default['upload_multipage_images'] = array('pdf', 'psd', 'mp4');
-$zz_default['upload_multipage_which']['mp4'] = 5;
+$zz_default['upload_multipage_which']['mp4'] = 5; // don't take first frame, might be black
+
 
 /*	----------------------------------------------	*
  *					MAIN FUNCTIONS					*
@@ -164,23 +167,25 @@ $zz_default['upload_multipage_which']['mp4'] = 5;
  * 2- get 'images' array with information about each file
  * 
  * @param array $zz_tab complete table data
- * @return array $zz_tab[0]['upload_fields']
- * @return array $zz_tab[0][0]['images']
+ * @return array $zz_tab
+ *		$zz_tab[0]['upload_fields']
+ * 		$zz_tab[0][0]['images']
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_upload_get(&$zz_tab) {
+function zz_upload_get($zz_tab) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if ($zz_conf['graphics_library'])
 		include_once $zz_conf['dir_inc'].'/image-'.$zz_conf['graphics_library'].'.inc.php';
-	
+
 	// create array upload_fields in $zz_tab[0] to get easy access to upload fields
 	$zz_tab[0]['upload_fields'] = zz_upload_get_fields($zz_tab); // n = (tab =>, rec =>, f =>)
 
 	//	read information of files, put into 'images'-array
-	if ($_FILES && $zz_tab[0][0]['action'] != 'delete')
+	if ($zz_tab[0][0]['action'] != 'delete')
 		zz_upload_check_files($zz_tab);
 	if ($zz_conf['modules']['debug']) zz_debug("end");
+	return $zz_tab;
 }
 
 /**
@@ -190,7 +195,7 @@ function zz_upload_get(&$zz_tab) {
  * @return array $upload_fields with tab, rec, and f in $zz_tab[$tab][$rec]['fields'][$f]
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_upload_get_fields(&$zz_tab) {
+function zz_upload_get_fields($zz_tab) {
 	$upload_fields = array();
 	foreach (array_keys($zz_tab) as $tab)
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
@@ -218,6 +223,7 @@ function zz_upload_check_files(&$zz_tab) {
 	
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	global $zz_error;
+
 	foreach ($zz_tab[0]['upload_fields'] as $uf) {
 		$tab = $uf['tab'];
 		$rec = $uf['rec'];
@@ -233,11 +239,26 @@ function zz_upload_check_files(&$zz_tab) {
 		elseif (isset($field['field_name'])) $field['f_field_name'] = $field['field_name'];
 		$field['f_field_name'] = make_id_fieldname($field['f_field_name']);
 
+		$myfiles = array();
 		if (empty($_FILES[$field['f_field_name']])) {
-			$my_rec['images'] = $images;
-			continue;
+			$myfiles['name'] = false;
+			$myfiles['type'] = false;
+			$myfiles['tmp_name'] = false;
+			$myfiles['size'] = 0;
+			$myfiles['error'] = 4; // no file was uploaded
+		} else {
+			$myfiles = $_FILES[$field['f_field_name']];
+			if (!isset($myfiles['name']))
+				$myfiles['name'] = false;
+			if (!isset($myfiles['type']))
+				$myfiles['type'] = $myfiles['name'];
+			if (!isset($myfiles['tmp_name']))
+				$myfiles['tmp_name'] = $myfiles['name'];
+			if (!isset($myfiles['size']))
+				$myfiles['size'] = $myfiles['name'];
+			if (!isset($myfiles['error']))
+				$myfiles['error'] = $myfiles['name'];
 		}
-		$myfiles = &$_FILES[$field['f_field_name']];
 		foreach ($field['image'] as $subkey => $image) {
 			$images[$no][$subkey] = $field['image'][$subkey];
 			if (empty($image['field_name'])) continue; // don't do the rest if field_name is not set
@@ -355,64 +376,75 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 		if (in_array($file['type'], array_keys($zz_conf['mime_types_rewritten'])))
 			$file['type'] = $zz_conf['mime_types_rewritten'][$file['type']];
 	}
-	// check whether filesize is above 2 bytes or it will give a read error
 	$file['filetype'] = 'unknown';
-	if ($file['size'] >= 3) { 
-		$extension = substr($myfilename, strrpos($myfilename, '.') +1);
-		// 1a.
-		// 1b.
-		if (function_exists('getimagesize')) {
-			$sizes = getimagesize($myfilename);
-			if ($sizes && !empty($zz_conf['image_types'][$sizes[2]])) {
-				$file['width'] = $sizes[0];
-				$file['height'] = $sizes[1];
-				$file['ext'] = $zz_conf['image_types'][$sizes[2]]['ext'];
-				$file['mime'] = $zz_conf['image_types'][$sizes[2]]['mime'];
-				$file['filetype'] = $zz_conf['image_types'][$sizes[2]]['filetype'];
-				if (!empty($sizes['bits'])) $file['bits'] = $sizes['bits'];
-				if (!empty($sizes['channels'])) $file['channels'] = $sizes['channels'];
-				$file['validated'] = true;
-				if ($file['filetype'] == 'tiff' AND $extension != 'tif' AND $extension != 'tiff') {
-					// there are problems with RAW images recognized as tiff images
-					$file['validated'] = false;
-				}
-				$tested_filetypes = array();
+	// check whether filesize is above 2 bytes or it will give a read error
+	if ($file['size'] <= 3) return zz_return($file);
+
+	if (!$extension) $extension = substr($myfilename, strrpos($myfilename, '.') +1);
+	// 1a.
+	// 1b.
+
+	if ($zz_conf['modules']['debug']) zz_debug("fileinfo start", json_encode($file));
+	if (function_exists('getimagesize')) {
+		$sizes = getimagesize($myfilename);
+		if ($sizes && !empty($zz_conf['image_types'][$sizes[2]])) {
+			$file['width'] = $sizes[0];
+			$file['height'] = $sizes[1];
+			$file['ext'] = $zz_conf['image_types'][$sizes[2]]['ext'];
+			$file['mime'] = $zz_conf['image_types'][$sizes[2]]['mime'];
+			$file['filetype'] = $zz_conf['image_types'][$sizes[2]]['filetype'];
+			if (!empty($sizes['bits'])) $file['bits'] = $sizes['bits'];
+			if (!empty($sizes['channels'])) $file['channels'] = $sizes['channels'];
+			$file['validated'] = true;
+			if ($file['filetype'] == 'tiff' AND $extension != 'tif' AND $extension != 'tiff') {
+				// there are problems with RAW images recognized as tiff images
+				$file['validated'] = false;
 			}
-			if ($zz_conf['modules']['debug']) zz_debug("getimagesize(): ".$file['filetype']);
-		} 
-		if (!$file['validated'] && function_exists('exif_imagetype')) {// > PHP 4.3.0
-			$imagetype = exif_imagetype($myfilename);
-			if ($imagetype && !empty($zz_conf['image_types'][$imagetype])) {
-				$file['ext'] = $zz_conf['image_types'][$imagetype]['ext'];
-				$file['mime'] = $zz_conf['image_types'][$imagetype]['mime'];
-				$file['filetype'] = $zz_conf['image_types'][$imagetype]['filetype'];
-				$file['validated'] = true;
-				if ($file['filetype'] == 'tiff' AND $extension != 'tif' AND $extension != 'tiff') {
-					// there are problems with RAW images recognized as tiff images
-					$file['validated'] = false;
-				}
-				$tested_filetypes = array();
-			}
-			if ($zz_conf['modules']['debug']) zz_debug("exif_imagetype(): ".$file['filetype']);
-		} 
-		if ($zz_conf['graphics_library'] == 'imagemagick' AND $zz_conf['upload_tools']['identify']) {
-			$temp_imagick = zz_imagick_identify($myfilename);
-			if ($temp_imagick) {
-				$file = array_merge($file, $temp_imagick);
-				if (!isset($file['ext'])) $file['ext'] = substr($file['name'], strrpos($file['name'], '.')+1);
-			}
-			if ($zz_conf['modules']['debug']) zz_debug("identify(): ".$file['filetype']);
+			$tested_filetypes = array();
 		}
-		if ($zz_conf['upload_tools']['fileinfo']) {
-			// use unix `file` command
-			exec('file --brief "'.$myfilename.'"', $return_var);
-			if ($return_var) {
-				$imagetype = false;
-				$file['filetype_file'] = $return_var[0];
-				// attention, -I changed to -i in file, therefore we don't use shorthand here
-				// get mime type
-				unset($return_var);
-				exec('file --mime --brief "'.$myfilename.'"', $return_var); 
+		if ($zz_conf['modules']['debug']) zz_debug("getimagesize()", $file['filetype']);
+	} 
+	if ($zz_conf['modules']['debug']) zz_debug("fileinfo getimagesize", json_encode($file));
+	if (!$file['validated'] && function_exists('exif_imagetype')) {// > PHP 4.3.0
+		$imagetype = exif_imagetype($myfilename);
+		if ($imagetype && !empty($zz_conf['image_types'][$imagetype])) {
+			$file['ext'] = $zz_conf['image_types'][$imagetype]['ext'];
+			$file['mime'] = $zz_conf['image_types'][$imagetype]['mime'];
+			$file['filetype'] = $zz_conf['image_types'][$imagetype]['filetype'];
+			$file['validated'] = true;
+			if ($file['filetype'] == 'tiff' AND $extension != 'tif' AND $extension != 'tiff') {
+				// there are problems with RAW images recognized as tiff images
+				$file['validated'] = false;
+			}
+			$tested_filetypes = array();
+		}
+		if ($zz_conf['modules']['debug']) zz_debug("exif_imagetype()", $file['filetype']);
+	} 
+	if ($zz_conf['modules']['debug']) zz_debug("fileinfo exif_imagetype", json_encode($file));
+	if ($zz_conf['graphics_library'] == 'imagemagick' AND $zz_conf['upload_tools']['identify']) {
+		$temp_imagick = zz_imagick_identify($myfilename);
+		if ($temp_imagick) {
+			if ($zz_conf['modules']['debug']) zz_debug("identify()", json_encode($temp_imagick));
+			$file = array_merge($file, $temp_imagick);
+			if (!isset($file['ext']) AND isset($file['name']))
+				$file['ext'] = substr($file['name'], strrpos($file['name'], '.')+1);
+		}
+		if ($zz_conf['modules']['debug']) zz_debug("identify()", $file['filetype']);
+	}
+	if ($zz_conf['modules']['debug']) zz_debug("fileinfo identify", json_encode($file));
+	if ($zz_conf['upload_tools']['fileinfo']) {
+		// use unix `file` command
+		exec('file --brief "'.$myfilename.'"', $return_var);
+		if ($return_var) {
+			if ($zz_conf['modules']['debug']) zz_debug("fileinfo() brief", json_encode($return_var));
+			$imagetype = false;
+			$file['filetype_file'] = $return_var[0];
+			// attention, -I changed to -i in file, therefore we don't use shorthand here
+			// get mime type
+			unset($return_var);
+			exec('file --mime --brief "'.$myfilename.'"', $return_var);
+			if ($zz_conf['modules']['debug']) zz_debug("fileinfo() mime", json_encode($return_var));
+			if (!empty($return_var[0])) {
 				if (!empty($file['type']))
 					$file['type_user_upload'] = $file['type'];
 				$file['type'] = $return_var[0];
@@ -434,11 +466,11 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 				if ($file['filetype_file'] == 'AutoCad (release 14)') {
 					$imagetype = 'dwg';
 					$file['validated'] = true;
-// TODO: check this, these are not only DOCs but also MPPs.
-//				} elseif ($file['filetype_file'] == 'Microsoft Office Document') {
-//					$imagetype = 'doc';
-//					$file['validated'] = true;
-				} elseif ($file['filetype_file'] == 'data') {
+	// TODO: check this, these are not only DOCs but also MPPs.
+	//				} elseif ($file['filetype_file'] == 'Microsoft Office Document') {
+	//					$imagetype = 'doc';
+	//					$file['validated'] = true;
+	//			} elseif ($file['filetype_file'] == 'data') {
 					// check if it's an autocad document
 					// ...
 				}
@@ -448,59 +480,61 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 					$file['filetype'] = $zz_conf['file_types'][$imagetype][0]['filetype'];
 				}
 			}
-			if ($zz_conf['modules']['debug']) zz_debug("file(): "
-				.(!empty($file['filetype_file']) ? $file['filetype_file'] : $file['type']));
 		}
-		// TODO: allow further file testing here, e. g. for PDF, DXF
-		// and others, go for Identifying Characters.
-		// maybe use magic_mime_type()
-		if (!$file['validated']) {
-			if (zz_upload_mimecheck($file['type'], $extension)) {
-				// Error: this mimetype/extension combination was already checked against
-				$file['ext'] = 'unknown-'.$extension;
-				$file['mime'] = 'unknown';
-				$file['filetype'] = 'unknown';
+		if ($zz_conf['modules']['debug']) zz_debug("file()",
+			(!empty($file['filetype_file']) ? $file['filetype_file'] : $file['type']));
+	}
+	if ($zz_conf['modules']['debug']) zz_debug("fileinfo file", json_encode($file));
+	// TODO: allow further file testing here, e. g. for PDF, DXF
+	// and others, go for Identifying Characters.
+	// maybe use magic_mime_type()
+	if (!$file['validated']) {
+		if (zz_upload_mimecheck($file['type'], $extension)) {
+			// Error: this mimetype/extension combination was already checked against
+			$file['ext'] = 'unknown-'.$extension;
+			$file['mime'] = 'unknown';
+			$file['filetype'] = 'unknown';
+		} else {
+			$filetype = zz_upload_filecheck($file['type'], $extension);
+			if ($filetype) {
+				$file['ext'] = $filetype['ext'];
+				$file['mime'] = $filetype['mime'];
+				$file['filetype'] = $filetype['filetype'];
 			} else {
-				$filetype = zz_upload_filecheck($file['type'], $extension);
-				if ($filetype) {
-					$file['ext'] = $filetype['ext'];
-					$file['mime'] = $filetype['mime'];
-					$file['filetype'] = $filetype['filetype'];
-				} else {
-					$file['ext'] = 'unknown-'.$extension;
-					$file['mime'] = 'unknown: '.$file['type'];
-					$file['filetype'] = 'unknown';
-				}
+				$file['ext'] = 'unknown-'.$extension;
+				$file['mime'] = 'unknown: '.$file['type'];
+				$file['filetype'] = 'unknown';
 			}
 		}
-		if ($file['filetype'] == 'unknown' AND !empty($zz_conf['debug_upload'])) {
-			$error_filename = false;
-			if ($zz_conf['backup']) {
-				// don't return here in case of error - it's not so important to break the whole process
-				$my_error = $zz_error['error'];
-				$error_filename = zz_upload_path($zz_conf['backup_dir'], 'error', $myfilename);
-				if (!$zz_error['error'])
-					copy ($myfilename, $error_filename);
-				$zz_error['error'] = $my_error;
-			}
-			$mailtext = zz_text('There was an attempt to upload the following file but it resulted with
+	}
+	if ($zz_conf['modules']['debug']) zz_debug("fileinfo finish", json_encode($file));
+	if ($file['filetype'] == 'unknown' AND !empty($zz_conf['debug_upload'])) {
+		$error_filename = false;
+		if ($zz_conf['backup']) {
+			// don't return here in case of error - it's not so important to break the whole process
+			$my_error = $zz_error['error'];
+			$error_filename = zz_upload_path($zz_conf['backup_dir'], 'error', $myfilename);
+			if (!$zz_error['error'])
+				copy ($myfilename, $error_filename);
+			$zz_error['error'] = $my_error;
+		}
+		$mailtext = zz_text('There was an attempt to upload the following file but it resulted with
 an unknown filetype. You might want to check this.
 
 ').var_export($file, true);
-			if ($error_filename) $mailtext .= "\r\n".'The file was temporarily saved under: '.$error_filename;
-			$zz_error[] = array(
-				'msg_dev' => $mailtext,
-				'level' => E_USER_NOTICE
-			);
-			zz_error();
-		}
-		if (function_exists('exif_read_data') 
-			AND in_array($file['filetype'], $zz_conf['exif_supported']))
-			$file['exif'] = exif_read_data($myfilename);
-		// TODO: further functions, e. g. zz_pdf_read_data if filetype == pdf ...
-		// TODO: or read AutoCAD Version from DXF, DWG, ...
-		// TODO: or read IPCT data.
+		if ($error_filename) $mailtext .= "\r\n".'The file was temporarily saved under: '.$error_filename;
+		$zz_error[] = array(
+			'msg_dev' => $mailtext,
+			'level' => E_USER_NOTICE
+		);
+		zz_error();
 	}
+	if (function_exists('exif_read_data') 
+		AND in_array($file['filetype'], $zz_conf['exif_supported']))
+		$file['exif'] = exif_read_data($myfilename);
+	// TODO: further functions, e. g. zz_pdf_read_data if filetype == pdf ...
+	// TODO: or read AutoCAD Version from DXF, DWG, ...
+	// TODO: or read IPCT data.
 	return zz_return($file);
 }
 
@@ -546,6 +580,7 @@ function zz_upload_mimecheck($mimetype, $extension) {
 	foreach ($zz_conf['image_types'] as $imagetype)
 		if ($imagetype['mime'] == $mimetype AND $imagetype['ext'] == $extension)
 			return zz_return(true);
+	if ($zz_conf['modules']['debug']) zz_debug("combination not yet checked");
 	return zz_return(false);
 }
 
@@ -561,7 +596,10 @@ function zz_upload_mimecheck($mimetype, $extension) {
  */
 function zz_upload_filecheck($mimetype, $extension) {
 	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if ($zz_conf['modules']['debug']) {
+		zz_debug('start', __FUNCTION__);
+		zz_debug('check', $mimetype.' .'.$extension);
+	}
 	$extension = strtolower($extension);
 	$type1 = false;
 	$type2 = false;
@@ -807,6 +845,7 @@ function zz_upload_prepare($zz_tab) {
 						if (!empty($zz_conf['upload_destination_filetype'][$dest_extension]))
 							$dest_extension = $zz_conf['upload_destination_filetype'][$dest_extension];
 					}
+					$zz_conf['int']['no_image_action'] = false;
 					$image['action'] = 'zz_image_'.$image['action'];
 					$image['action']($filename, $tmp_filename, $dest_extension, $image);
 					if (file_exists($tmp_filename))	{
@@ -824,17 +863,23 @@ function zz_upload_prepare($zz_tab) {
 							// TODO: mark existing image for deletion if there is one!							
 							$image['delete_thumbnail'] = true;
 							$zz_tab[$tab][$rec]['no_file_upload'] = true;
-							$zz_error[] = array(
-								'msg_dev' => sprintf(zz_text('No real file was returned from function %s'), '<code>'.$image['action'].'()</code>'),
-								'level' => E_USER_NOTICE
-							);
+							if (!$zz_conf['int']['no_image_action'])
+								$zz_error[] = array(
+									'msg_dev' => sprintf(zz_text('No real file was returned from function %s'), '<code>'.$image['action'].'()</code>'),
+									'level' => E_USER_NOTICE
+								);
 						}
 					} else {
 						$zz_error[] = array(
 							'msg_dev' => sprintf(zz_text('Error: File %s does not exist. Temporary Directory: %s'), $tmp_filename, realpath($zz_conf['tmp_dir']))
 						);
 					}
+					$zz_conf['int']['no_image_action'] = false;
+					// set error_log_post to false because errors in file creation have nothing to do with POST
+					$error_log_post = $zz_conf['error_log_post'];
+					$zz_conf['error_log_post'] = false;
 					zz_error();
+					$zz_conf['error_log_post'] = $error_log_post;
 				} elseif (!empty($image['action'])) {
 					$zz_error[] = array(
 						'msg_dev' => sprintf(zz_text('Error: Source file %s does not exist. '), $filename)
@@ -865,9 +910,10 @@ function zz_upload_prepare($zz_tab) {
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_extension($path, &$my_rec) {
-	foreach ($path as $path_key => $path_value) {// todo: implement mode!
-		// move to last, can be done better, of course. todo! no time right now.
-	}
+	// todo: implement mode!
+	$path_value = end($path);
+	$path_key = key($path);
+
 	if (substr($path_key, 0, 6) == 'string') {
 		if (strstr($path_value, '.'))
 			$extension = substr($path_value, strrpos($path_value, '.')+1);
@@ -937,69 +983,69 @@ function zz_upload_check(&$images, $action, $zz_conf, $input_filetypes = array()
 		if ($rec AND !empty($images[$no]['required_only_first_detail_record']))
 			$images[$no]['required'] = false;
 		$images[$no]['error'] = false;
-		if (!empty($images[$no]['field_name'])) {
-			switch ($images[$no]['upload']['error']) {
-				case UPLOAD_ERR_NO_FILE: // no file
-					if ($images[$no]['required'] && $action == 'insert') // required only for insert
-						$images[$no]['error'][] = zz_text('Error: ').zz_text('No file was uploaded.');
-					else continue 2;
-					break;
-				case UPLOAD_ERR_PARTIAL: // partial upload
-					$images[$no]['error'][] = zz_text('Error: ').zz_text('File was only partially uploaded.');
-					break; 
-				case UPLOAD_ERR_FORM_SIZE: // file is too big
-				case UPLOAD_ERR_INI_SIZE: // file is too big
-					$images[$no]['error'][] = zz_text('Error: ').zz_text('File is too big.').' '
-						.zz_text('Maximum allowed filesize is').' '
-						.floor($zz_conf['upload_MAX_FILE_SIZE']/1024).'KB'; // Max allowed
-					break; 
-				case UPLOAD_ERR_OK: // everything ok.
-					break; 
-			}
-			if ($images[$no]['error']) {
-				$error = true;
-				continue;
-			}
-			
-	//	check if filetype is allowed
-			if (empty($images[$no]['input_filetypes']))
-				$images[$no]['input_filetypes'] = $input_filetypes;
-			if (!is_array($images[$no]['input_filetypes']))
-				$images[$no]['input_filetypes'] = array($images[$no]['input_filetypes']);
-			if (!in_array($images[$no]['upload']['filetype'], $images[$no]['input_filetypes'])) {
-				$filetype = $images[$no]['upload']['filetype'];
-				if ($filetype == 'unknown') // give more information
-					$filetype .= ' ('.htmlspecialchars($images[$no]['upload']['type']).')';
-				$images[$no]['error'][] = zz_text('Error: ')
-					.zz_text('Unsupported filetype:').' '
-					.$filetype
-					.'<br class="nonewline_in_mail">'.zz_text('Supported filetypes are:').' '
-					.implode(', ', $images[$no]['input_filetypes']);
-				$error = true;
-				continue; // do not go on and do further checks, because filetype is wrong anyways
-			}
+		if (empty($images[$no]['field_name'])) continue;
 
-	//	check if minimal image size is reached
-			$width_height = array('width', 'height');
-			foreach ($width_height as $which)
-				if (!empty($images[$no]['min_'.$which]) 
-					&& $images[$no]['min_'.$which] > $images[$no]['upload'][$which])
-					$images[$no]['error'][] = zz_text('Error: ')
-						.sprintf(zz_text('Minimum '.$which
-						.' %s was not reached.'), '('.$images[$no]['min_'.$which].'px)')
-						.' ('.$images[$no]['upload'][$which].'px)';
-
-	//	check if maximal image size has not been exceeded
-			$width_height = array('width', 'height');
-			foreach ($width_height as $which)
-				if (!empty($images[$no]['max_'.$which])
-					&& $images[$no]['max_'.$which] < $images[$no]['upload'][$which])
-					$images[$no]['error'][] = zz_text('Error: ')
-						.sprintf(zz_text('Maximum '.$which
-						.' %s has been exceeded.'), '('.$images[$no]['max_'.$which].'px)')
-						.' ('.$images[$no]['upload'][$which].'px)';
-	
+		switch ($images[$no]['upload']['error']) {
+			case UPLOAD_ERR_NO_FILE: // no file
+				if ($images[$no]['required'] && $action == 'insert') // required only for insert
+					$images[$no]['error'][] = zz_text('Error: ').zz_text('No file was uploaded.');
+				else continue 2;
+				break;
+			case UPLOAD_ERR_PARTIAL: // partial upload
+				$images[$no]['error'][] = zz_text('Error: ').zz_text('File was only partially uploaded.');
+				break; 
+			case UPLOAD_ERR_FORM_SIZE: // file is too big
+			case UPLOAD_ERR_INI_SIZE: // file is too big
+				$images[$no]['error'][] = zz_text('Error: ').zz_text('File is too big.').' '
+					.zz_text('Maximum allowed filesize is').' '
+					.floor($zz_conf['upload_MAX_FILE_SIZE']/1024).'KB'; // Max allowed
+				break; 
+			case UPLOAD_ERR_OK: // everything ok.
+				break; 
 		}
+		if ($images[$no]['error']) {
+			$error = true;
+			continue;
+		}
+		
+//	check if filetype is allowed
+		if (empty($images[$no]['input_filetypes']))
+			$images[$no]['input_filetypes'] = $input_filetypes;
+		if (!is_array($images[$no]['input_filetypes']))
+			$images[$no]['input_filetypes'] = array($images[$no]['input_filetypes']);
+		if (!in_array($images[$no]['upload']['filetype'], $images[$no]['input_filetypes'])) {
+			$filetype = $images[$no]['upload']['filetype'];
+			if ($filetype == 'unknown') // give more information
+				$filetype .= ' ('.htmlspecialchars($images[$no]['upload']['type']).')';
+			$images[$no]['error'][] = zz_text('Error: ')
+				.zz_text('Unsupported filetype:').' '
+				.$filetype
+				.'<br class="nonewline_in_mail">'.zz_text('Supported filetypes are:').' '
+				.implode(', ', $images[$no]['input_filetypes']);
+			$error = true;
+			continue; // do not go on and do further checks, because filetype is wrong anyways
+		}
+
+//	check if minimal image size is reached
+		$width_height = array('width', 'height');
+		foreach ($width_height as $which)
+			if (!empty($images[$no]['min_'.$which]) 
+				&& $images[$no]['min_'.$which] > $images[$no]['upload'][$which])
+				$images[$no]['error'][] = zz_text('Error: ')
+					.sprintf(zz_text('Minimum '.$which
+					.' %s was not reached.'), '('.$images[$no]['min_'.$which].'px)')
+					.' ('.$images[$no]['upload'][$which].'px)';
+
+//	check if maximal image size has not been exceeded
+		$width_height = array('width', 'height');
+		foreach ($width_height as $which)
+			if (!empty($images[$no]['max_'.$which])
+				&& $images[$no]['max_'.$which] < $images[$no]['upload'][$which])
+				$images[$no]['error'][] = zz_text('Error: ')
+					.sprintf(zz_text('Maximum '.$which
+					.' %s has been exceeded.'), '('.$images[$no]['max_'.$which].'px)')
+					.' ('.$images[$no]['upload'][$which].'px)';
+
 		if ($images[$no]['error']) $error = true;
 	}
 	if ($error) return zz_return(false);
@@ -1552,8 +1598,10 @@ function zz_unlink_cleanup($file) {
 function zz_cleanup_dirs($dir) {
 	// first check if it's a directory that shall always be there
 	global $zz_conf;
-	$undeletable = array($zz_conf['backup_dir'], $zz_conf['tmp_dir'],
-		$zz_conf['root'], '/tmp');
+	$dir = realpath($dir);
+	if (!$dir) return false;
+	$undeletable = array(realpath($zz_conf['backup_dir']), realpath($zz_conf['tmp_dir']),
+		realpath($zz_conf['root']), '/tmp');
 	if (in_array($dir, $undeletable)) return false;
 
 	$success = false;
@@ -1588,7 +1636,10 @@ function zz_cleanup_dirs($dir) {
  */
 function zz_image_exif_thumbnail($source, $destination, $dest_extension = false, $image = false) {
 	global $zz_conf;
-	if (!in_array($image['upload']['filetype'], $zz_conf['exif_supported'])) return false;
+	if (!in_array($image['upload']['filetype'], $zz_conf['exif_supported'])) {
+		$zz_conf['int']['no_image_action'] = true;
+		return false;
+	}
 	$exif_thumb = exif_thumbnail($source);
 	if ($exif_thumb) {
 		$imagehandle = fopen($destination, 'a');

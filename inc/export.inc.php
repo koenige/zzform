@@ -25,9 +25,8 @@ $zz_default['export_csv_enclosure'] = '"';
  *					FUNCTIONS
  *		---------------------------------------------- */
 
-function zz_export_init() {
+function zz_export_init($ops) {
 	global $zz_conf;
-	global $zz;
 	
 	//	export
 	if (empty($zz_conf['export'])) return false;
@@ -36,12 +35,12 @@ function zz_export_init() {
 		if (empty($_GET['export'])) $_GET['export'] = 'csv';
 	}
 	if (!empty($_GET['export']) && in_array($_GET['export'], $zz_conf['allowed_params']['export'])) {
-		$zz['headers'] = zz_make_headers($_GET['export'], $zz_conf['character_set']);
-		$zz['mode'] = 'export';
+		$ops['headers'] = zz_make_headers($_GET['export'], $zz_conf['character_set']);
+		$ops['mode'] = 'export';
 		$zz_conf['list_display'] = $_GET['export'];
 		$zz_conf['group'] = false; // no grouping in export files
 	}
-	return true;
+	return $ops;
 }
 
 function zz_make_headers($export, $charset) {
@@ -73,17 +72,17 @@ function zz_export_links($url, $querystring) {
 	return $links;
 }
 
-function zz_pdf($zz) {
+function zz_pdf($ops) {
 	global $zz_conf;
-	// table definitions in $zz
-	// values in $zz['output']
+	// table definitions in $ops
+	// values in $ops['output']
 
 	require_once $zz_conf['dir_ext'].'/fpdf/fpdf.php';
 
 // GFPS-Zertifikat
 
 	$pdf = new FPDF();
-	foreach ($zz['output']['rows'] as $row) {
+	foreach ($ops['output']['rows'] as $row) {
 		$pdf->AddPage();
 		// Logo
 		$pdf->Image($zz_conf['dir_custom'].'/img/gfps-logo.png',10,10,120);
@@ -118,11 +117,23 @@ function zz_pdf($zz) {
 function zz_export_csv_head($main_rows, $zz_conf) {
 	$output = '';
 	$tablerow = false;
-	foreach ($main_rows as $field)
+	$continue_next = false;
+	foreach ($main_rows as $field) {
+		if ($continue_next) {
+			$continue_next = false;
+			continue;
+		}
+		if (!empty($field['list_append_next'])) {
+			$continue_next = true;
+			if (!empty($field['title_append'])) {
+				$field['title'] = $field['title_append'];
+			}
+		}
 		$tablerow[] = $zz_conf['export_csv_enclosure']
 			.str_replace($zz_conf['export_csv_enclosure'], $zz_conf['export_csv_enclosure']
 				.$zz_conf['export_csv_enclosure'], $field['title'])
 			.$zz_conf['export_csv_enclosure'];
+	}
 	$output .= implode($zz_conf['export_csv_delimiter'], $tablerow)."\r\n";
 	return $output;
 }

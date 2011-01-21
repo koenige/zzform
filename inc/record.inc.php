@@ -17,8 +17,8 @@
  * HTML output of a single record and its detail recors, inside of a FORM with
  * input elements or only for display
  *
- * @param array $zz
- *		'output', 'mode'
+ * @param array $ops
+ *		'output', 'mode', 'result'
  * @param array $zz_tab
  * @param array $zz_var
  *		'upload_form', 'integrity', 'action'
@@ -28,7 +28,7 @@
  * @global array $zz_error
  * @return string $output
  */
-function zz_record($zz, $zz_tab, $zz_var, $zz_conditions) {
+function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 	global $zz_conf;
 	global $zz_error;
 
@@ -37,12 +37,12 @@ function zz_record($zz, $zz_tab, $zz_var, $zz_conditions) {
 	if ($zz_var['record_action'] OR $action_before_redirect) {
 		if ($zz_var['action'] == 'insert' OR $action_before_redirect == 'insert') {
 			$formhead = zz_text('record_was_inserted');
-		} elseif (($zz_var['action'] == 'update' AND $zz['result'] == 'successful_update')
+		} elseif (($zz_var['action'] == 'update' AND $ops['result'] == 'successful_update')
 			OR $action_before_redirect == 'update') {
 			$formhead = zz_text('record_was_updated');
 		} elseif ($zz_var['action'] == 'delete' OR $action_before_redirect == 'delete') {
 			$formhead = zz_text('record_was_deleted');
-		} elseif (($zz_var['action'] == 'update' AND $zz['result'] == 'no_update')
+		} elseif (($zz_var['action'] == 'update' AND $ops['result'] == 'no_update')
 			OR $action_before_redirect == 'noupdate') {
 			$formhead = zz_text('Record was not updated (no changes were made)');
 		}
@@ -56,7 +56,7 @@ function zz_record($zz, $zz_tab, $zz_var, $zz_conditions) {
 	// Variable to correctly close form markup in case of error
 	$form_open = false;
 	$div_record_open = false;
-	if (in_array($zz['mode'], $record_form)) {
+	if (in_array($ops['mode'], $record_form)) {
 		$form_open = true;
 		$output.= '<form action="'.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs'];
 		// without first &amp;!
@@ -69,8 +69,8 @@ function zz_record($zz, $zz_tab, $zz_var, $zz_conditions) {
 	}
 
 	// Heading inside HTML form element
-	if (($zz['mode'] == 'edit' OR $zz['mode'] == 'delete' OR $zz['mode'] == 'review'
-		OR $zz['mode'] == 'show') AND !$zz_tab[0][0]['record']
+	if (($ops['mode'] == 'edit' OR $ops['mode'] == 'delete' OR $ops['mode'] == 'review'
+		OR $ops['mode'] == 'show') AND !$zz_tab[0][0]['record']
 		AND ($action_before_redirect != 'delete')) {
 		$formhead = '<span class="error">'.zz_text('There is no record under this ID:')
 			.' '.htmlspecialchars($zz_tab[0][0]['id']['value']).'</span>';	
@@ -88,16 +88,16 @@ function zz_record($zz, $zz_tab, $zz_var, $zz_conditions) {
 			$tmp_error_msg .= '</ul>'."\n";
 		} 
 		$zz_error[]['msg'] = $tmp_error_msg;
-	} elseif (in_array($zz['mode'], $record_form) OR 
-		($zz['mode'] == 'show' AND !$action_before_redirect)) {
+	} elseif (in_array($ops['mode'], $record_form) OR 
+		($ops['mode'] == 'show' AND !$action_before_redirect)) {
 	//	mode = add | edit | delete: show form
-		$formhead = zz_text($zz['mode']).' '.zz_text('a_record');
+		$formhead = zz_text($ops['mode']).' '.zz_text('a_record');
 	} elseif ($zz_var['action'] OR $action_before_redirect) {	
 	//	action = insert update review: show form with new values
 		if (!$formhead) {
 			$formhead = ucfirst(zz_text($zz_var['action']).' '.zz_text('failed'));
 		}
-	} elseif ($zz['mode'] == 'review') {
+	} elseif ($ops['mode'] == 'review') {
 		$formhead = zz_text('show_record');
 	}
 	if ($formhead) {
@@ -134,9 +134,9 @@ function zz_record($zz, $zz_tab, $zz_var, $zz_conditions) {
 
 	// set display of record (review, form, not at all)
 
-	if ($zz['mode'] == 'delete' OR $zz['mode'] == 'show') {
+	if ($ops['mode'] == 'delete' OR $ops['mode'] == 'show') {
 		$display_form = 'review';
-	} elseif (in_array($zz['mode'], $record_form)) {
+	} elseif (in_array($ops['mode'], $record_form)) {
 		$display_form = 'form';
 	} elseif ($zz_var['action'] == 'delete') {
 		$display_form = false;
@@ -144,12 +144,12 @@ function zz_record($zz, $zz_tab, $zz_var, $zz_conditions) {
 		$display_form = 'review';
 	} elseif ($zz_var['action']) {
 		$display_form = false;
-	} elseif ($zz['mode'] == 'review') {
+	} elseif ($ops['mode'] == 'review') {
 		$display_form = 'review';
 	} else
 		$display_form = false;
-	if (($zz['mode'] == 'edit' OR $zz['mode'] == 'delete' OR $zz['mode'] == 'review'
-		OR $zz['mode'] == 'show') 
+	if (($ops['mode'] == 'edit' OR $ops['mode'] == 'delete' OR $ops['mode'] == 'review'
+		OR $ops['mode'] == 'show') 
 		AND !$zz_tab[0][0]['record']) {
 		$display_form = false;
 	}
@@ -160,7 +160,7 @@ function zz_record($zz, $zz_tab, $zz_var, $zz_conditions) {
 			$div_record_open = true;
 		}
 		// output form if necessary
-		$output .= zz_display_records($zz, $zz_tab, $display_form, $zz_var, $zz_conditions);
+		$output .= zz_display_records($ops['mode'], $zz_tab, $display_form, $zz_var, $zz_conditions);
 	}
 
 	// close HTML form element
@@ -174,7 +174,7 @@ function zz_record($zz, $zz_tab, $zz_var, $zz_conditions) {
 /**
  * Display form to edit a record
  * 
- * @param array $zz
+ * @param string $mode
  * @param array $zz_tab		
  * @param string $display	'review': show form with all values for
  *							review; 'form': show form for editing; 
@@ -185,7 +185,7 @@ function zz_record($zz, $zz_tab, $zz_var, $zz_conditions) {
  * @return string $string			HTML-Output with all form fields
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_display_records($zz, $zz_tab, $display, $zz_var, $zz_conditions) {
+function zz_display_records($mode, $zz_tab, $display, $zz_var, $zz_conditions) {
 	global $zz_conf;
 	global $zz_error;
 	
@@ -200,7 +200,8 @@ function zz_display_records($zz, $zz_tab, $display, $zz_var, $zz_conditions) {
 	if (!empty($zz_conf_record['conditions']) AND !empty($zz_conditions['bool']))
 		$zz_conf_record = zz_conditions_merge($zz_conf_record, $zz_conditions['bool'], $zz_var['id']['value'], false, 'conf');
 
-	if (($zz['mode'] == 'add' OR $zz['mode'] == 'edit') && !empty($zz_conf['upload_MAX_FILE_SIZE'])) 
+	if (($mode == 'add' OR $mode == 'edit') && !empty($zz_conf['upload_MAX_FILE_SIZE'])
+		AND !empty($zz_var['upload_form'])) 
 		$output.= '<input type="hidden" name="MAX_FILE_SIZE" value="'.$zz_conf['upload_MAX_FILE_SIZE'].'">'."\n";
 	$output.= '<table>'."\n";
 
@@ -209,16 +210,17 @@ function zz_display_records($zz, $zz_tab, $display, $zz_var, $zz_conditions) {
 		$unwanted_keys = array('mode', 'id', 'add', 'zzaction');
 		$cancelurl.= zz_edit_query_string($base_qs, $unwanted_keys);
 	}
-	if ($zz['mode'] && $zz['mode'] != 'review' && $zz['mode'] != 'show') {
+	if ($mode && $mode != 'review' && $mode != 'show') {
 		$output.= '<tfoot>'."\n";
 		$output.= '<tr><th>&nbsp;</th> <td><input type="submit" value="';
 		$accesskey = 's';
-		if		($zz['mode'] == 'edit') 	$output.= zz_text('update_to').' ';
-		elseif	($zz['mode'] == 'delete')	$output.= zz_text('delete_from').' ';
+		if		($mode == 'edit') 	$output.= zz_text('update_to').' ';
+		elseif	($mode == 'delete')	$output.= zz_text('delete_from').' ';
 		else 								$output.= zz_text('add_to').' ';
-		if ($zz['mode'] == 'delete') $accesskey = 'd';
+		if ($mode == 'delete') $accesskey = 'd';
 		$output.= zz_text('database').'" accesskey="'.$accesskey.'">';
-		if ($cancelurl != $_SERVER['REQUEST_URI'] OR ($zz_var['action'])) 
+		if (($cancelurl != $_SERVER['REQUEST_URI'] OR ($zz_var['action']))
+			AND $zz_conf_record['cancel_link']) 
 			// only show cancel link if it is possible to hide form 
 			// todo: expanded to action, not sure if this works on add only forms, 
 			// this is for re-edit a record in case of missing field values etc.
@@ -230,8 +232,9 @@ function zz_display_records($zz, $zz_tab, $display, $zz_var, $zz_conditions) {
 			$output.= '<tfoot>'."\n";
 			if ($zz_conf_record['edit']) {
 				$output.= '<tr><th>&nbsp;</th> <td class="reedit">';
-				$output.= '<a href="'.$cancelurl.'">'.zz_text('OK').'</a> | '
-					.'<a href="'.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
+				if (empty($zz_conf_record['no_ok']))
+					$output.= '<a href="'.$cancelurl.'">'.zz_text('OK').'</a> | ';
+				$output .= '<a href="'.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
 					.$zz_conf['int']['url']['?&'].'mode=edit&amp;id='
 					.$zz_var['id']['value'].$zz_var['extraGET']
 					.'">'.zz_text('edit').'</a>';
@@ -256,7 +259,8 @@ function zz_display_records($zz, $zz_tab, $display, $zz_var, $zz_conditions) {
 					(!empty($zz_tab[0][0]['POST']) ? $zz_tab[0][0]['POST'] : false))
 					.'</td></tr>'."\n";
 			}
-			if (empty($zz_conf_record['details']) AND !$zz_conf_record['edit']) {
+			if (empty($zz_conf_record['details']) AND !$zz_conf_record['edit']
+				AND $zz_conf_record['cancel_link']) {
 				$output.= '<tr><th>&nbsp;</th><td class="editbutton">'
 					.' <a href="'.$cancelurl.'">'.zz_text('Cancel').'</a>'
 					.'</td></tr>'."\n";
@@ -264,12 +268,12 @@ function zz_display_records($zz, $zz_tab, $display, $zz_var, $zz_conditions) {
 			$output.= '</tfoot>'."\n";
 		}
 	}
-	$output.= zz_show_field_rows($zz_tab, 0, 0, $zz['mode'], $display, $zz_var, $zz_conf_record, $zz_var['action']);
+	$output.= zz_show_field_rows($zz_tab, 0, 0, $mode, $display, $zz_var, $zz_conf_record, $zz_var['action']);
 	$output.= '</table>'."\n";
-	if ($zz['mode'] == 'delete') $output.= '<input type="hidden" name="'
+	if ($mode == 'delete') $output.= '<input type="hidden" name="'
 		.$zz_var['id']['field_name'].'" value="'.$zz_var['id']['value'].'">'."\n";
-	if ($zz['mode'] && $zz['mode'] != 'review' && $zz['mode'] != 'show') {
-		switch ($zz['mode']) {
+	if ($mode && $mode != 'review' && $mode != 'show') {
+		switch ($mode) {
 			case 'add': $submit = 'insert'; break;
 			case 'edit': $submit = 'update'; break;
 			case 'delete': $submit = 'delete'; break;
@@ -348,6 +352,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 	if (!empty($my_rec['fields'])) foreach ($my_rec['fields'] as $fieldkey => $field) {
 		if (!$field) continue;
 		if (!empty($field['hide_in_form'])) continue;
+		if (!empty($field['hide_in_form_add']) AND empty($zz_tab[$sub_tab][$sub_rec]['id']['value'])) continue;
 
 		// initialize variables
 		if (!$append_next) {
@@ -1165,10 +1170,11 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 					} else {
 						$image_uploads = 0;
 						foreach ($field['image'] as $imagekey => $image)
-							if (!isset($image['source'])) $image_uploads++;
+							if (!isset($image['source']) AND !isset($image['source_field'])) $image_uploads++;
 						if ($image_uploads > 1) $outputf.= '<table class="upload">';
 						foreach ($field['image'] as $imagekey => $image) {
 							if (isset($image['source'])) continue;
+							if (isset($image['source_field'])) continue;
 							// todo: if only one image, table is unnecessary
 							// title and field_name of image might be empty
 							if ($image_uploads > 1) $outputf.= '<tr><th>'.$image['title'].'</th> <td>';
@@ -1512,15 +1518,25 @@ function zz_form_select_sql($field, $db_table, $record, $row_display, $zz_conf_r
 			$my_select = false;
 			$show_hierarchy_subtree = 'NULL';
 			foreach ($details as $line) {
+				// if hierarchy is hierarchy of same table, don't allow to set
+				// IDs in hierarchy or below to avoid recursion
+				if (!empty($record[$id_field_name])) {
+					if (!empty($field['show_hierarchy_same_table'])
+						AND $line[$id_field_name] == $record[$id_field_name]) continue;
+					if (!empty($field['show_hierarchy_same_table'])
+						AND $line[$field['show_hierarchy']] == $record[$id_field_name]) continue;
+				}
 				// fill in values, index NULL is for uppermost level
 				$my_select[(!empty($line[$field['show_hierarchy']]) 
 					? $line[$field['show_hierarchy']] : 'NULL')][$line[$id_field_name]] = $line;
 			}
-			if (!empty($field['show_hierarchy_subtree'])) {
+			if (!empty($field['show_hierarchy_subtree']) 
+				AND !empty($my_select[$field['show_hierarchy_subtree']])) {
 				$show_hierarchy_subtree = $field['show_hierarchy_subtree'];
 				// count fields in subhierarchy, should be less than existing $count_rows
 				$count_rows = zz_count_records($my_select, $show_hierarchy_subtree);
-			}
+			} else
+				$field['show_hierarchy_subtree'] = false;
 		}
 
 		// more records than we'd like to display		

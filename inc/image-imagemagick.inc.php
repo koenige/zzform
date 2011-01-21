@@ -49,34 +49,47 @@ function zz_imagick_identify($source) {
 	// 19.09.07 19:45
 
 	global $zz_conf;
-	if (!file_exists($source)) return false;
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (!file_exists($source)) return zzreturn(false);
 
 	$command = zz_imagick_findpath('identify');
 	$command .= '"'.$source.'"';	
 	exec($command, $output, $return_var);
-	if (!$output) return false;
+	if ($zz_conf['modules']['debug']) zz_debug("identify command: ".$command);
+	if (!$output) return zz_return(false);
+
+	if ($zz_conf['modules']['debug']) zz_debug("identify(): ".json_encode($output));
 
 	$image = array();
 	$tokens = array();
+	// /Users/Gustaf/Sites/media/_temp/UPLOAD_BbTzPd JPEG 450x600 450x600+0+0 8-bit DirectClass 77.6KB 0.000u 0:00.000
+
 	foreach ($output as $line) {
-		// just check first line
-		if (substr($line, 0, strlen($source)) == $source) {
-			$tokens = explode(' ', $line);
-			break;
-		}
-	}	
-	if (!empty($tokens[1])) {
-		$image['filetype'] = strtolower($tokens[1]);
+		// just check first line without error message
+		if (substr($line, 0, strlen($source)) != $source) continue;
+
+		$line = substr($line, strlen($source));
+		if (substr($line, 0, 3) == '[0]') $line = substr($line, 3); // multipage files
+		if (substr($line, 0, 2) == '=>') $line = substr($line, strpos(' ', $line)); // temporary files
+		if (substr($line, 0, 1) == ' ') $line = substr($line, 1); // space
+		$tokens = explode(' ', $line);
+		break;
 	}
-	if (!empty($tokens[2])) {
-		$size = explode('x', $tokens[2]);
+
+	if (empty($tokens[0])) {
+		return zz_return($image);
+	}
+
+	$image['filetype'] = strtolower($tokens[0]);
+	if (!empty($tokens[1])) {
+		$size = explode('x', $tokens[1]);
 		if (!empty($size[0]) AND !empty($size[1])) {
 			$image['width'] = $size[0];
 			$image['height'] = $size[1];
 		}
 	}
 	$image['validated'] = true;
-	return $image;
+	return zz_return($image);
 }
 
 /**
@@ -173,8 +186,10 @@ function zz_image_webimage($source, $destination, $dest_extension = false, $imag
 
 	$convert = false;
 	$source = zz_imagick_check_multipage($source);
+	$source_extension = substr($source, strrpos($source, '.') +1);
 
 	if (!$source_extension OR !empty($zz_conf['webimages_by_extension'][$source_extension])) {
+		$zz_conf['int']['no_image_action'] = true;
 		return zz_return(false); // do not create an identical webimage of already existing webimage
 	} elseif ($source_extension == 'pdf' OR $source_extension == 'eps') {
 		if ($zz_conf['upload_tools']['ghostscript']) {
@@ -184,6 +199,9 @@ function zz_image_webimage($source, $destination, $dest_extension = false, $imag
 	} elseif (!empty($zz_conf['upload_destination_filetype'][$source_extension])) {
 		$dest_extension = $zz_conf['upload_destination_filetype'][$source_extension];
 		$convert = zz_imagick_convert(false, ' "'.$source.'" '.$dest_extension.':'.'"'.$destination.'"');
+	} else {
+		$zz_conf['int']['no_image_action'] = true;
+		return zz_return(false);
 	}
 	return zz_return($convert);
 }

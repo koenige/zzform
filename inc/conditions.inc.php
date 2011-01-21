@@ -24,14 +24,16 @@
  * Check all conditions whether they are true;
  *
  * @param array $zz
+ *		'conditions', 'table', 'sql', 'fields'
+ * @param string $mode
  * @param array $zz_var
- *			'id' array ('value', 'name'), 'where', 'zz_fields'
+ *		'id' array ('value', 'name'), 'where', 'zz_fields'
  * @global array $zz_error
  * @global array $zz_conf
  * @return array $zz_conditions
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_conditions_record_check($zz, &$zz_var) {
+function zz_conditions_record_check($zz, $mode, $zz_var) {
 	global $zz_error;
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
@@ -41,7 +43,7 @@ function zz_conditions_record_check($zz, &$zz_var) {
 		switch ($condition['scope']) {
 		case 'record': // for form view (of saved records), list view comes later in zz_list() because requery of record 
 			$zz_conditions['bool'][$index] = array();
-			if (($zz['mode'] == 'add' OR $zz_var['action'] == 'insert') 
+			if (($mode == 'add' OR $zz_var['action'] == 'insert') 
 				AND !empty($condition['add'])
 				AND !empty($zz_var['where'][$zz['table']][$condition['add']['key_field_name']])) {
 				$sql = $condition['add']['sql']
@@ -55,7 +57,7 @@ function zz_conditions_record_check($zz, &$zz_var) {
 				else
 					$zz_conditions['bool'][$index][0] = false;
 			}
-			if ($zz['mode'] != 'list_only' AND !empty($zz_var['id']['value'])) {
+			if ($mode != 'list_only' AND !empty($zz_var['id']['value'])) {
 				$sql = $zz['sql'];
 				if (!empty($condition['where']))
 					$sql = zz_edit_sql($sql, 'WHERE', $condition['where']);
@@ -73,7 +75,7 @@ function zz_conditions_record_check($zz, &$zz_var) {
 			break;
 		case 'query': // just for form view (of saved records), for list view will be later in zz_list()
 			$zz_conditions['bool'][$index] = array();
-			if ($zz['mode'] != 'list_only' AND !empty($zz_var['id']['value'])) {
+			if ($mode != 'list_only' AND !empty($zz_var['id']['value'])) {
 				$sql = zz_edit_sql($condition['sql'], 'WHERE', $condition['key_field_name'].' = '.$zz_var['id']['value']);
 				$lines = zz_db_fetch($sql, $condition['key_field_name'], 'id as key', 'query ['.$index.']');
 				if (empty($zz_conditions['bool'][$index]))
@@ -84,7 +86,7 @@ function zz_conditions_record_check($zz, &$zz_var) {
 			break;
 		case 'value': // just for record view
 			$zz_conditions['values'][$index] = array();
-			if ($zz['mode'] != 'list_only') {
+			if ($mode != 'list_only') {
 				// get value for $condition['field_name']
 				$value = false;
 				if (!empty($zz_var['zz_fields'][$condition['field_name']])) {

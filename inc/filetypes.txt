@@ -36,6 +36,7 @@ doc		doc		doc		application/x-msword			MS Word Document
 doc		doc		doc		zz-application/zz-winassoc-doc	MS Word Document
 doc		doc		doc		application/force-download		MS Word Document
 doc		doc		doc		application/octet-stream		MS Word Document
+doc		doc		doc		application/vnd.ms-office		MS Word Document
 
 docx	docx	docx	application/vnd.openxmlformats-officedocument.wordprocessingml.document	Microsoft Word Open XML Document
 
@@ -47,16 +48,18 @@ dot		dot		dot		application/microsoft_word		MS Word Document Template
 dot		dot		dot		application/mswor2c sc2			MS Word Document Template
 dot		dot		dot		application/x-msword			MS Word Document Template
 dot		dot		dot		zz-application/zz-winassoc-dot	MS Word Document Template
+dot		dot		dot		application/vnd.ms-office		MS Word Document Template
 
+xls		xls		xls		application/vnd.ms-excel		MS Excel Worksheet
 xls		xls		xls		application/msexcel				MS Excel Worksheet
 xls		xls		xls		application/x-msexcel			MS Excel Worksheet
 xls		xls		xls		application/x-ms-excel			MS Excel Worksheet
-xls		xls		xls		application/vnd.ms-excel		MS Excel Worksheet
 xls		xls		xls		application/x-excel				MS Excel Worksheet
 xls		xls		xls		application/x-dos_ms_excel		MS Excel Worksheet
 xls		xls		xls		application/xls					MS Excel Worksheet
 xls		xls		xls		application/x-xls				MS Excel Worksheet
 xls		xls		xls		zz-application/zz-winassoc-xls	MS Excel Worksheet
+xls		xls		xls		application/vnd.ms-office		MS Excel Worksheet
 
 ppt		ppt		ppt		application/mspowerpoint		MS PowerPoint Presentation
 ppt		ppt		ppt		application/vnd.ms-powerpoint	MS PowerPoint Presentation
@@ -233,6 +236,8 @@ mp3		mp3		mp3		audio/x-mpeg3					MPEG Audio Stream, Layer III
 mp3		mp3		mp3		audio/mpg						MPEG Audio Stream, Layer III
 mp3		mp3		mp3		audio/x-mpg						MPEG Audio Stream, Layer III
 mp3		mp3		mp3		audio/x-mpegaudio				MPEG Audio Stream, Layer III
+
+ics		ics		ics		text/calendar					vCalendar calendar file
 
 ### EOF
 #

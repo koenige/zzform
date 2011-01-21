@@ -356,8 +356,13 @@ function zz_maintenance_folders() {
 		$i = 0;
 		$size_total = 0;
 		$tbody = '';
+		$files = array();
 		while ($file = readdir($folder_handle)) {
 			if (substr($file, 0, 1) == '.') continue;
+			$files[] = $file;
+		}
+		sort($files);
+		foreach ($files as $file) {
 			$size = filesize($my_folder.'/'.$file);
 			$size_total += $size;
 			if (is_dir($my_folder.'/'.$file)) 

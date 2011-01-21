@@ -88,9 +88,12 @@ function zz_debug($marker = false, $text = false, $id = false) {
  * @return string			HTML output
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_debug_htmlout() {
+function zz_debug_htmlout($id = false) {
 	global $zz_debug;
-	global $zz_conf;
+	if (!$id) {
+		global $zz_conf;
+		$id = $zz_conf['id'];
+	}
 
 	$output = '<h1>'.zz_text('Debug Information').'</h1>';
 	$output .= '<table class="data debugtable"><thead>'."\n".'<tr><th>'
@@ -99,7 +102,7 @@ function zz_debug_htmlout() {
 		.zz_text('Marker').'</th><th>'.zz_text('SQL').'</th></tr>'."\n"
 		.'</thead><tbody>';
 	$i = 0;
-	foreach ($zz_debug[$zz_conf['id']]['output'] as $row) {
+	foreach ($zz_debug[$id]['output'] as $row) {
 		$output .= '<tr class="'.($i & 1 ? 'even': 'uneven').'">';
 		foreach ($row as $key => $val) {
 			if ($key == 'time') $val = '<dl><dt>'.$val.'</dt>';
@@ -119,7 +122,7 @@ function zz_debug_htmlout() {
 /**
  * Logs time from different debug-markers in logfile
  * 
- * @param array $return (optional, $zz['return']);
+ * @param array $return (optional, $ops['return']);
  * @global array $zz_error
  * @global array $zz_debug
  */

@@ -17,21 +17,21 @@
  * 		- perform additional actions before doing sql query
  * 		- do sql query (queries, in case there are subtables)
  * 		- perform additional actions after doing sql query
- * @param array $zz
+ * @param array $ops
  * @param array $zz_tab
  * @param bool $validation
  * @param array $zz_var
  * @global array $zz_error
  * @global array $zz_conf
- * @return array ($zz, $zz_tab, $validation, $zz_var)
+ * @return array ($ops, $zz_tab, $validation, $zz_var)
  * @see zz_upload_get(), zz_upload_prepare(), zz_set_subrecord_action(),
  *		zz_validate(), zz_check_integrity(), zz_upload_cleanup(), 
  *		zz_prepare_for_db(), zz_log_sql(), zz_foldercheck(), zz_upload_action()
  */
-function zz_action($zz, $zz_tab, $validation, $zz_var) {
+function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	global $zz_conf;
 	global $zz_error;
-	
+
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$zz_var['record_action'] = false;
 
@@ -41,13 +41,13 @@ function zz_action($zz, $zz_tab, $validation, $zz_var) {
 			if (!is_numeric($rec)) continue;
 			if (!$tab) {  // main record already assigned
 				if (!empty($zz_conf['action']['upload'])) {
-					$zz = zz_record_info($zz, $zz_tab, $tab, $rec, 'not_validated');
+					$ops = zz_record_info($ops, $zz_tab, $tab, $rec, 'not_validated');
 				}
 				continue;
 			}
 			$zz_tab[$tab][$rec]['POST'] = $zz_tab[$tab]['POST'][$rec];
 			if (!empty($zz_conf['action']['upload'])) {
-				$zz = zz_record_info($zz, $zz_tab, $tab, $rec, 'not_validated');
+				$ops = zz_record_info($ops, $zz_tab, $tab, $rec, 'not_validated');
 			}
 		}
 	}
@@ -56,20 +56,20 @@ function zz_action($zz, $zz_tab, $validation, $zz_var) {
 	// if any other action before insertion/update/delete is required
 	if (!empty($zz_conf['action']['upload'])) {
 		include $zz_conf['action_dir'].'/'.$zz_conf['action']['upload'].'.inc.php';
-		unset($zz['not_validated']);
-		unset($zz['record_old']);
-		unset($zz['record_new']);
-		unset($zz['record_diff']);
+		unset($ops['not_validated']);
+		unset($ops['record_old']);
+		unset($ops['record_new']);
+		unset($ops['record_diff']);
 	}
 	
 	//	### Check for validity, do some operations ###
 	if (!empty($zz_var['upload_form'])) { // do only for zz_tab 0 0 etc. not zz_tab 0 sql etc.
-		zz_upload_get($zz_tab); // read upload image information, as required
+		$zz_tab = zz_upload_get($zz_tab); // read upload image information, as required
 		if ($zz_var['action'] != 'delete') {
 			$zz_tab = zz_upload_prepare($zz_tab); // read upload image information, as required
 		}
 	}
-	if ($zz_error['error']) return zz_return(array($zz, $zz_tab, $validation, $zz_var));
+	if ($zz_error['error']) return zz_return(array($ops, $zz_tab, $validation, $zz_var));
 
 	foreach (array_keys($zz_tab) as $tab) {
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
@@ -117,7 +117,7 @@ function zz_action($zz, $zz_tab, $validation, $zz_var) {
 			$deletable_ids = zz_array_merge($record_ids, $dependent_ids);
 			$zz_var['integrity'] = zz_integrity_check($deletable_ids, $zz_var['relations']);
 			// return database errors
-			if ($zz_error['error']) return zz_return(array($zz, $zz_tab, $validation, $zz_var));
+			if ($zz_error['error']) return zz_return(array($ops, $zz_tab, $validation, $zz_var));
 			// if something was returned, validation failed because there probably are records
 			if ($zz_var['integrity']) $validation = false;
 		}
@@ -142,7 +142,7 @@ function zz_action($zz, $zz_tab, $validation, $zz_var) {
 			$zz_tab[0][0]['fields'][$my_tab['no']]['check_validation'] = false;
 			// show error message
 			$zz_error['validation']['msg'][] = sprintf(zz_text('Minimum of records for table `%s` was not met (%d)'), 
-				zz_text($zz['fields'][$my_tab['no']]['title']), $my_tab['min_records_required']);
+				zz_text($zz_tab[0][0]['fields'][$my_tab['no']]['title']), $my_tab['min_records_required']);
 			$validation = false;
 		}
 	}
@@ -150,7 +150,7 @@ function zz_action($zz, $zz_tab, $validation, $zz_var) {
 	if (!$validation) {
 		// delete temporary unused files
 		if (!empty($zz_var['upload_form'])) zz_upload_cleanup($zz_tab); 
-		return zz_return(array($zz, $zz_tab, $validation, $zz_var));
+		return zz_return(array($ops, $zz_tab, $validation, $zz_var));
 	}
 
 	if ($zz_conf['modules']['debug']) zz_debug("validation successful");
@@ -158,13 +158,7 @@ function zz_action($zz, $zz_tab, $validation, $zz_var) {
 	foreach ($zz_tab as $tab => $my_tab) {
 		foreach ($my_tab as $rec => $my_rec) {
 			if (!is_numeric($rec)) continue;
-			$zz = zz_record_info($zz, $zz_tab, $tab, $rec, 'planned');
-			if ($my_rec['action'] != 'insert' 
-				AND $my_rec['action'] != 'update') continue;
-			if ($my_rec['access'] == 'show') continue;
-			// do something with the POST array before proceeding
-			$zz_tab[$tab][$rec] = zz_prepare_for_db($my_rec, '`'.$my_tab['db_name'].'`'
-				.'.'.$my_tab['table'], $zz_tab[0][0]['POST']); 
+			$ops = zz_record_info($ops, $zz_tab, $tab, $rec, 'planned');
 		}
 	}
 
@@ -193,14 +187,35 @@ function zz_action($zz, $zz_tab, $validation, $zz_var) {
 	if (!empty($zz_conf['action']['before_'.$zz_var['action']]))
 		include $zz_conf['action_dir'].'/'.$zz_conf['action']['before_'.$zz_var['action']].'.inc.php';
 	// 'planned' is a variable just for custom 'action' scripts
-	unset($zz['planned']);
-	unset($zz['record_old']);
-	unset($zz['record_new']);
-	unset($zz['record_diff']);
+	unset($ops['planned']);
+	unset($ops['record_old']);
+	unset($ops['record_new']);
+	unset($ops['record_diff']);
+
+	if ($zz_error['error']) { // repeat, might be set in before_action
+		$zz_error['error'] = false;
+		$validation = false;
+		// delete temporary unused files
+		if (!empty($zz_var['upload_form'])) zz_upload_cleanup($zz_tab); 
+		return zz_return(array($ops, $zz_tab, $validation, $zz_var));
+	}
 
 	$sql_edit = '';
+	foreach (array_keys($zz_tab) as $tab) {
+		foreach (array_keys($zz_tab[$tab]) as $rec) {
+			if (!is_numeric($rec)) continue;
+			if ($zz_tab[$tab][$rec]['action'] != 'insert' 
+				AND $zz_tab[$tab][$rec]['action'] != 'update') continue;
+			if ($zz_tab[$tab][$rec]['access'] == 'show') continue;
+			// do something with the POST array before proceeding
+			$zz_tab[$tab][$rec] = zz_prepare_for_db($zz_tab[$tab][$rec], '`'
+				.$zz_tab[$tab]['db_name'].'`'.'.'.$zz_tab[$tab]['table'], $zz_tab[0][0]['POST']); 
+		}
+	}
+
 	foreach (array_keys($zz_tab) as $tab)
-		foreach (array_keys($zz_tab[$tab]) as $rec) if (is_numeric($rec)) {
+		foreach (array_keys($zz_tab[$tab]) as $rec) {
+		if (!is_numeric($rec)) continue;
 		if ($zz_tab[$tab][$rec]['action'] == 'ignore') continue;
 		
 		// get database name for query
@@ -336,24 +351,22 @@ function zz_action($zz, $zz_tab, $validation, $zz_var) {
 					$del_msg[] = 'zz_tab '.$tab.' '.$rec.': '.$detail_sql_edit[$tab][$rec].'<br>';
 					unset($detail_sql_edit[$tab][$rec]);
 					// save record values for use outside of zzform()
-					$zz = zz_record_info($zz, $zz_tab, $tab, $rec);
+					$ops = zz_record_info($ops, $zz_tab, $tab, $rec);
 				} else { // something went wrong, but why?
 					$result['error']['msg'] = 'Detail record could not be deleted';
 					$zz_error[] = $result['error'];
 					$zz_tab[$tab][$rec]['error'] = $result['error'];
 //					not sure whether to cancel any further operations here, TODO
-//					return zz_error(); // get out of function, ignore rest 
-					// (this should never happen, just if there are database errors etc.)
 				}
 			}
 	}
 
 	if ($zz_conf['modules']['debug'] AND $zz_conf['debug']) {
-		$zz['output'].= '<br>';
-		$zz['output'].= 'Main ID value: '.$zz_tab[0][0]['id']['value'].'<br>';
-		$zz['output'].= 'Main SQL query: '.$sql_edit.'<br>';
+		$ops['output'].= '<br>';
+		$ops['output'].= 'Main ID value: '.$zz_tab[0][0]['id']['value'].'<br>';
+		$ops['output'].= 'Main SQL query: '.$sql_edit.'<br>';
 		if ($del_msg) {
-			$zz['output'].= 'Further SQL queries:<br>'.(implode('', $del_msg));
+			$ops['output'].= 'Further SQL queries:<br>'.(implode('', $del_msg));
 			unset($del_msg);
 		}
 	}
@@ -365,7 +378,7 @@ function zz_action($zz, $zz_tab, $validation, $zz_var) {
 		}
 		// save record values for use outside of zzform()
 		if ($result['action'] == 'nothing') $zz_tab[0][0]['actual_action'] = 'nothing';
-		$zz = zz_record_info($zz, $zz_tab);
+		$ops = zz_record_info($ops, $zz_tab);
 		$zz_var['record_action'] = true;
 		if (isset($detail_sql_edit))
 			foreach (array_keys($detail_sql_edit) as $tab)
@@ -405,9 +418,9 @@ function zz_action($zz, $zz_tab, $validation, $zz_var) {
 					// save record values for use outside of zzform()
 					if ($result['action'] == 'nothing')
 						$zz_tab[$tab][$rec]['actual_action'] = 'nothing';
-					$zz = zz_record_info($zz, $zz_tab, $tab, $rec);
+					$ops = zz_record_info($ops, $zz_tab, $tab, $rec);
 					if ($zz_conf['modules']['debug'] AND $zz_conf['debug']) {
-						$zz['output'].= 'Further SQL queries:<br>'
+						$ops['output'].= 'Further SQL queries:<br>'
 							.'zz_tab '.$tab.' '.$rec.': '.$detail_sql.'<br>';
 					}
 				}
@@ -419,29 +432,31 @@ function zz_action($zz, $zz_tab, $validation, $zz_var) {
 			zz_foldercheck($zz_tab, $zz_conf);
 		if (!empty($zz_var['upload_form'])) {
 			zz_upload_action($zz_tab, $zz_conf); // upload images, delete images, as required
-			if ($zz_error['error']) return zz_return(array($zz, $zz_tab, $validation, $zz_var));
+			if ($zz_error['error']) {
+				return zz_return(array($ops, $zz_tab, $validation, $zz_var));
+			}
 		}
-		if ($zz_var['record_action']) $zz['result'] = 'successful_'.$zz_tab[0][0]['action'];
+		if ($zz_var['record_action']) $ops['result'] = 'successful_'.$zz_tab[0][0]['action'];
 	} else {
 		// Output Error Message
 		if ($zz_var['action'] == 'insert') $zz_tab[0][0]['id']['value'] = false; // for requery
 		$result['error']['level'] = E_USER_WARNING;
 		$zz_error[] = $result['error'];
 		$zz_tab[0][0]['error'] = $result['error'];
-		$zz = zz_record_info($zz, $zz_tab);
+		$ops = zz_record_info($ops, $zz_tab);
 		$validation = false; // show record again!
 	}
 	if ($zz_var['record_action'] == 'successful_update') {
 		$update = false;
-		foreach ($zz['return'] as $my_table) {
+		foreach ($ops['return'] as $my_table) {
 			// check for action in main record and detail records
 			if ($my_table['action'] != 'nothing') $update = true;
 		}
-		if (!$update) $zz['result'] = 'no_update';
+		if (!$update) $ops['result'] = 'no_update';
 	}
 	
 	if (!empty($zz_var['upload_form'])) zz_upload_cleanup($zz_tab); // delete temporary unused files
-	return zz_return(array($zz, $zz_tab, $validation, $zz_var));
+	return zz_return(array($ops, $zz_tab, $validation, $zz_var));
 }
 
 /**
@@ -579,7 +594,7 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
-	if ($my_rec['last_fields']) { 
+	if (!empty($my_rec['last_fields'])) { 
 	// these fields have to be handled after others because they might get data 
 	// from other fields (e. g. upload_fields)
 		foreach ($my_rec['last_fields'] as $f)
@@ -650,32 +665,32 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 /**
  * save record information in array for return and use in user action-scripts 
  *
- * @param array $zz
+ * @param array $ops
  * @param array $my_rec $zz_tab[$tab][$rec]
  * @param int $tab
  * @param int $rec
  * @param string $type (optional) 'return', 'planned'
- * @return array $zz
+ * @return array $ops
  *		'return' ('action' might be nothing if update, but nothing was updated),
  *		'record_new', 'record_old'
  */
-function zz_record_info($zz, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
-	if ($zz_tab[$tab][$rec]['action'] == 'ignore') return $zz;
+function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
+	if ($zz_tab[$tab][$rec]['action'] == 'ignore') return $ops;
 	
-	if (!isset($zz['record_new'])) $zz['record_new'] = array();
-	if (!isset($zz['record_old'])) $zz['record_old'] = array();
-	if (!isset($zz['record_diff'])) $zz['record_diff'] = array();
+	if (!isset($ops['record_new'])) $ops['record_new'] = array();
+	if (!isset($ops['record_old'])) $ops['record_old'] = array();
+	if (!isset($ops['record_diff'])) $ops['record_diff'] = array();
 	
 	$rn = array();
 	$ro = array();
 	
 	// set index to make sure that main record is always 0
 	if (!$tab AND !$rec) $index = 0;
-	elseif (!isset($zz[$type])) $index = 1;
-	else $index = count($zz[$type]);
+	elseif (!isset($ops[$type])) $index = 1;
+	else $index = count($ops[$type]);
 
 	// set information on successful record operation
-	$zz[$type][$index] = array(
+	$ops[$type][$index] = array(
 		'table' => $zz_tab[$tab]['table'],
 		'id_field_name' => $zz_tab[$tab][$rec]['id']['field_name'], 
 		'id_value' => $zz_tab[$tab][$rec]['id']['value'],
@@ -699,15 +714,15 @@ function zz_record_info($zz, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
 				if ($zz_tab[$my_tab]['table_name']) unset($rn[$zz_tab[$my_tab]['table_name']]);
 			}
 		}
-		$zz['record_new'][$index] = $rn;
-	} else $zz['record_new'][$index] = array();
+		$ops['record_new'][$index] = $rn;
+	} else $ops['record_new'][$index] = array();
 	
 	// set old record
 	if (!empty($zz_tab[$tab]['existing'][$rec])) {
-		$zz['record_old'][$index] = $zz_tab[$tab]['existing'][$rec];
+		$ops['record_old'][$index] = $zz_tab[$tab]['existing'][$rec];
 		$ro = $zz_tab[$tab]['existing'][$rec];
 	} else
-		$zz['record_old'][$index] = array();
+		$ops['record_old'][$index] = array();
 	
 	// diff old record and new record
 	$rd = array();
@@ -727,9 +742,9 @@ function zz_record_info($zz, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
 			}
 		}
 	}
-	$zz['record_diff'][$index] = $rd;
+	$ops['record_diff'][$index] = $rd;
 
-	return $zz;
+	return $ops;
 }
 
 ?>

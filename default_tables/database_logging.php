@@ -35,5 +35,6 @@ $zz_conf['max_select'] = 200;
 $zz_conf['limit'] = 20;
 $zz_conf['add'] = false;
 $zz_conf['edit'] = false;
+$zz_conf['delete'] = false;
 
 ?>
