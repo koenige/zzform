@@ -9,8 +9,8 @@
  *					VARIABLES
  *		---------------------------------------------- */
 
-$zz_conf['allowed_params']['mode'][] = 'export';
-$zz_conf['allowed_params']['export'] = array('csv', 'pdf');
+$zz_conf['int']['allowed_params']['mode'][] = 'export';
+$zz_conf['int']['allowed_params']['export'] = array('csv', 'pdf');
 
 $zz_default['export']			= false;				// if sql result might be exported (link for export will appear at the end of the page)
 $zz_default['export_filetypes']	= array('csv', 'pdf');	// possible filetypes for export
@@ -25,62 +25,147 @@ $zz_default['export_csv_enclosure'] = '"';
  *					FUNCTIONS
  *		---------------------------------------------- */
 
+/**
+ * initializes export, sets a few variables
+ *
+ * @param array $ops
+ * @global array $zz_conf
+ * @global array $zz_error
+ * @return array $ops
+ */
 function zz_export_init($ops) {
 	global $zz_conf;
+	global $zz_error;
+	if (empty($zz_conf['export'])) return $ops;
 	
 	//	export
-	if (empty($zz_conf['export'])) return false;
-	if (!empty($_GET['mode']) && 	$_GET['mode'] == 'export') {
+	if (!empty($_GET['mode']) AND $_GET['mode'] == 'export') {
 		// should not happen, but just in case
 		if (empty($_GET['export'])) $_GET['export'] = 'csv';
 	}
-	if (!empty($_GET['export']) && in_array($_GET['export'], $zz_conf['allowed_params']['export'])) {
-		$ops['headers'] = zz_make_headers($_GET['export'], $zz_conf['character_set']);
-		$ops['mode'] = 'export';
-		$zz_conf['list_display'] = $_GET['export'];
-		$zz_conf['group'] = false; // no grouping in export files
+	if (empty($_GET['export'])) return $ops;
+
+	// get type and (optional) script name
+	$export = false;
+	foreach ($zz_conf['export'] as $type => $mode) {
+		if ($_GET['export'] != strtolower($mode)) continue;
+		if (is_numeric($type)) {
+			$export = strtolower($mode);
+			$zz_conf['int']['export_script'] = '';
+		} else {
+			$export = strtolower($type);
+			$zz_conf['int']['export_script'] = strtolower($mode);
+		}
 	}
+	if (!in_array($export, $zz_conf['int']['allowed_params']['export'])) {
+		$zz_error[] = array(
+			'msg_dev' => 'Export parameter not allowed :'.$export,
+			'level' => E_USER_NOTICE
+		);
+		return $ops;
+	}
+	$ops['headers'] = zz_make_headers($export, $zz_conf['character_set']);
+	$ops['mode'] = 'export';
+	$zz_conf['list_display'] = $export;
+	$zz_conf['group'] = false; // no grouping in export files
 	return $ops;
 }
 
+/**
+ * Creates HTTP headers for export depending on type of export
+ *
+ * @param string $export type of export ('csv', 'pdf', ...)
+ * @param string $charset character encoding ($zz_conf['character_set'])
+ * @return array $headers
+ */
 function zz_make_headers($export, $charset) {
 	$headers = array();
 	switch ($export) {
-		case 'csv':
-			// correct download of csv files
-			if (!empty($_SERVER['HTTP_USER_AGENT']) 
-				AND strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE'))
-			{
-				$headers[]['true'] = 'Cache-Control: maxage=1'; // in seconds
-				$headers[]['true'] = 'Pragma: public';
-			}
-			$headers[]['true'] = 'Content-Type: text/csv; charset='.$charset;
-			$filename = parse_url('http://www.example.org/'.$_SERVER['REQUEST_URI']);
-			$headers[]['true'] = 'Content-Disposition: attachment; filename='.basename($filename['path']).'.csv';
+	case 'csv':
+		// correct download of csv files
+		if (!empty($_SERVER['HTTP_USER_AGENT']) 
+			AND strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE'))
+		{
+			$headers[]['true'] = 'Cache-Control: maxage=1'; // in seconds
+			$headers[]['true'] = 'Pragma: public';
+		}
+		$headers[]['true'] = 'Content-Type: text/csv; charset='.$charset;
+		$filename = parse_url('http://www.example.org/'.$_SERVER['REQUEST_URI']);
+		$headers[]['true'] = 'Content-Disposition: attachment; filename='.basename($filename['path']).'.csv';
+		break;
+	case 'pdf':
+		$headers[]['true'] = 'Content-Type: application/pdf;';
+		$filename = parse_url('http://www.example.org/'.$_SERVER['REQUEST_URI']);
+		$headers[]['true'] = 'Content-Disposition: attachment; filename='.basename($filename['path']).'.pdf';
 		break;
 	}
 	return $headers;
 }
 
+/**
+ * HTML output of links for export
+ *
+ * @param string $url
+ * @param string $querystring
+ * @global array $zz_conf
+ * @return array $links array of strings with links for export
+ */
 function zz_export_links($url, $querystring) {
 	global $zz_conf;
 	$links = false;
 	if (!is_array($zz_conf['export']))
 		$zz_conf['export'] = array($zz_conf['export']);
-	foreach ($zz_conf['export'] as $exportmode)
-		$links[] = '<a href="'.$url.'export='.$exportmode.$querystring.'">'.zz_text('Export').' ('.$exportmode.')</a>';
+	$html = '<a href="%sexport=%s%s">'.zz_text('Export').' (%s)</a>';
+	foreach ($zz_conf['export'] as $type => $exportmode) {
+		if (is_numeric($type)) $type = $exportmode;
+		else $type = $exportmode.', '.$type;
+		$links[] = sprintf($html, $url, strtolower($exportmode), $querystring, $type);
+	}
 	return $links;
 }
 
+/**
+ * Create PDF with table data
+ * 
+ * @param array $ops
+ *		$ops['headers'] = HTTP headers which might be used for sending PDF to browser
+ *		$ops['output']['head'] = Table definition, each field has an index
+ *		$ops['output']['rows'] = Table data, lines 0...n, each line has fields
+ *			with numerical index corresponding to 'head', each field is array
+ *			made of 'class' (= HTML attribute values) and 'text' (= content)
+ * @global array $zz_conf
+ *		$zz_conf['int']['export_script']
+ */
 function zz_pdf($ops) {
 	global $zz_conf;
-	// table definitions in $ops
-	// values in $ops['output']
 
-	require_once $zz_conf['dir_ext'].'/fpdf/fpdf.php';
+	// check if a specific script should be called
+	if (!empty($zz_conf['int']['export_script'])) {
+		// script may reside in extra file
+		// if not, function has to exist already
+		$script_filename = $zz_conf['dir_custom'].'/export-pdf-'
+			.str_replace( ' ', '-', $zz_conf['int']['export_script']).'.inc.php';
+		if (file_exists($script_filename))
+			require_once $script_filename;
 
-// GFPS-Zertifikat
+		// check if custom function exists
+		$function = 'export_pdf_'.str_replace(' ', '_', $zz_conf['int']['export_script']);
+		if (!function_exists($function)) {
+			echo 'Sorry, the required custom PDF export function <code>'
+				.$function.'()</code> does not exist.';
+			exit;
+		}
+		// include pdf library
+		if (!empty($zz_conf['pdflib_path'])) require_once $zz_conf['pdflib_path'];
+		// execute and return function
+		return $function($ops);
+	}
 
+	// no script is defined: standard PDF output
+	echo 'Sorry, standard PDF support is not yet available. Please use a custom script.';
+	exit;
+/*
+	require_once $zz_conf['pdflib_path'];
 	$pdf = new FPDF();
 	foreach ($ops['output']['rows'] as $row) {
 		$pdf->AddPage();
@@ -102,7 +187,7 @@ function zz_pdf($ops) {
 		// Unterschrift
 	}
 	$pdf->Output();
-
+*/
 }
 
 /**

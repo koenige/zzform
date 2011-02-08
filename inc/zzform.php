@@ -52,8 +52,8 @@ elseif (file_exists($zz_conf['dir'].'/inc/page.inc.php'))
  * @todo think of zzform($zz, $zz_conf) to get rid of global variables
  */
 function zzform($zz = array()) {
-	if (!$zz) global $zz;	// Table description
-	global $zz_conf;		// Config variables
+	if (!$zz) $zz = $GLOBALS['zz'];	// Table description
+	global $zz_conf;				// Config variables
 
 	// This variable signals that zzform is included
 	if (empty($zz_conf['zzform_calls'])) $zz_conf['zzform_calls'] = 1;
@@ -71,6 +71,7 @@ function zzform($zz = array()) {
 	global $zz_error;
 	$zz_error = array();
 	$zz_error['error'] = false;	// if true, exit script immediately
+	$zz_error['output'] = array();
 	global $text;
 	
 //
@@ -98,8 +99,14 @@ function zzform($zz = array()) {
 			'msg_dev' => 'zzform has been called as a function more than once. You might want to check if this is correct.',
 			'level' => E_USER_NOTICE
 		);
-		$ops['output'] .= zz_error();
+		zz_error();
+		$ops['output'] .= zz_error_output();
 	}
+	
+	// get hash from $zz and $zz_conf to get a unique identification of
+	// the settings, e. g. to save time for zzform_multi() or to get a
+	// secret key for some cases
+	$zz_conf['int']['hash'] = zz_hash($zz, $zz_conf);
 
 //
 //	Database connection, set db_name
@@ -231,7 +238,8 @@ function zzform($zz = array()) {
 //	Variables
 
 	if ($zz_conf['access'] != 'export') {
-		$ops['output'].= zz_error(); // initialise zz_error
+		zz_error();
+		$ops['output'] .= zz_error_output(); // initialise zz_error
 	}	
 
 	$zz_conf['heading'] = !isset($zz_conf['heading']) ? zz_form_heading($zz['table']) : $zz_conf['heading'];
@@ -348,7 +356,8 @@ function zzform($zz = array()) {
 		if ($zz_conf['heading_text'] 
 			AND (!$zz_conf['heading_text_hidden_while_editing'] OR $ops['mode'] == 'list_only')) 
 			$ops['output'] .= $zz_conf['heading_text'];
-		$ops['output'].= zz_error();
+		zz_error();
+		$ops['output'] .= zz_error_output();
 
 		$selection = zz_nice_selection($zz['fields']);
 		if ($selection)
@@ -426,7 +435,7 @@ function zzform($zz = array()) {
 			// get rid of some POST values that are used at another place
 			$internal_fields = array('MAX_FILE_SIZE', 'zz_check_select', 'zz_action',
 				'zz_subtables', 'zz_subtable_deleted', 'zz_delete_file',
-				'zz_referer');
+				'zz_referer', 'zz_save_record');
 			foreach ($internal_fields as $key) unset($zz_tab[0][0]['POST'][$key]);
 		}
 	
@@ -435,7 +444,6 @@ function zzform($zz = array()) {
 		if ($zz_var['action'] == 'insert' OR $zz_var['action'] == 'update' OR $zz_var['action'] == 'delete') {
 			// check for validity, insert/update/delete record
 			require_once $zz_conf['dir_inc'].'/action.inc.php';		// update/delete/insert
-			require_once $zz_conf['dir_inc'].'/validation.inc.php';	// Basic Validation
 			list($ops, $zz_tab, $validation, $zz_var) = zz_action($ops, $zz_tab, $validation, $zz_var); 
 			// if an error occured in zz_action, exit
 			if ($zz_error['error']) return zzform_exit($ops); 
@@ -462,18 +470,22 @@ function zzform($zz = array()) {
 						.$zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']
 						.($zz_conf['int']['url']['qs_zzform'] ? '&' : $zz_conf['int']['url']['?&'])
 						.'zzaction=';
+					$secure = false;
+					if (!empty($zz_conf['int']['hash_id'])) {
+						$secure = '&zzhash='.$zz_conf['int']['secret_key'];
+					}
 					switch ($ops['result']) {
 					case 'successful_delete':
 						header('Location: '.$self.'delete');
 						exit;
 					case 'successful_insert':
-						header('Location: '.$self.'insert&id='.$zz_var['id']['value']);
+						header('Location: '.$self.'insert&id='.$zz_var['id']['value'].$secure);
 						exit;
 					case 'successful_update':
-						header('Location: '.$self.'update&id='.$zz_var['id']['value']);
+						header('Location: '.$self.'update&id='.$zz_var['id']['value'].$secure);
 						exit;
 					case 'no_update':
-						header('Location: '.$self.'noupdate&id='.$zz_var['id']['value']);
+						header('Location: '.$self.'noupdate&id='.$zz_var['id']['value'].$secure);
 						exit;
 					default:
 						break;
@@ -516,8 +528,6 @@ function zzform($zz = array()) {
 		$zz_var['extraGET'] = zz_extra_get_params($ops['mode'], $zz_conf);
 
 		if ($zz_conf['generate_output']) {
-			// show errors, if there are any
-			$ops['output'] .= zz_error();
 			// display updated, added or editable Record
 			$ops['output'] .= zz_record($ops, $zz_tab, $zz_var, $zz_conditions);	
 		}
@@ -525,7 +535,8 @@ function zzform($zz = array()) {
 	} else {
 		// call error function if there's anything
 		$zz_var['extraGET'] = zz_extra_get_params($ops['mode'], $zz_conf);
-		$ops['output'] .= zz_error();
+		zz_error();
+		$ops['output'] .= zz_error_output();
 	}
 
 	if ($zz_conf['show_list']) {
@@ -562,7 +573,7 @@ function zzform($zz = array()) {
 				.zz_makepath($zz_conf['dynamic_referer'], $zz_tab, 'new', 'local')
 				.'">'.zz_text('back-to-overview').'</a></p>'."\n";
 		} elseif ($zz_conf['referer'])
-			$ops['output'].= '<p id="back-overview"><a href="'.$zz_conf['referer_esc'].'">'
+			$ops['output'].= '<p id="back-overview"><a href="'.$zz_conf['int']['referer_esc'].'">'
 				.zz_text('back-to-overview').'</a></p>'."\n";
 	}
 	
@@ -603,12 +614,15 @@ function zzform($zz = array()) {
  */
 function zzform_exit($ops) {
 	global $zz_conf;
-
+	global $zz_error;
+	
 	// last time check for errors
-	$ops['output'] .= zz_error();
+	zz_error();
+	$ops['output'] .= zz_error_output();
+	$ops['critical_error'] = $zz_error['error'] ? true : false;
 
 	// return to old database
-	if ($zz_conf['db_current']) mysql_select_db($zz_conf['db_current']);
+	if ($zz_conf['int']['db_current']) mysql_select_db($zz_conf['int']['db_current']);
 	// end debug mode
 	if ($zz_conf['modules']['debug']) {
 		zz_debug('end');
@@ -619,6 +633,9 @@ function zzform_exit($ops) {
 	if ($zz_conf['access'] != 'export')
 		$ops['output'] = '<div id="zzform">'."\n".$ops['output'].'</div>'."\n";
 	if ($zz_conf['show_output']) echo $ops['output'];
+
+	// get rid of internal variables
+	unset($zz_conf['int']);
 
 	return $ops;
 }
@@ -647,15 +664,18 @@ function zz_initialize($mode = false) {
 		// get clean $zz_conf without changes from different zzform calls or included scripts
 		if (!empty($zz_conf['zzform_calls']) AND !empty($zz_saved) AND $mode == 'overwrite') {
 			$calls = $zz_conf['zzform_calls'];
-			$zz_conf = $zz_saved;
+			$zz_conf = $zz_saved['conf'];
 			$zz_conf['zzform_calls'] = $calls;
 		}
 		return true;
 	}
 
 	//	allowed parameters
-	$zz_conf['allowed_params']['mode'] = array('edit', 'delete', 'show', 'add', 'review', 'list_only');
-	$zz_conf['allowed_params']['action'] = array('insert', 'delete', 'update'); // review is for internal use only
+	// initialize internal variables
+	$zz_conf['int'] = array();
+	$zz_conf['int']['this_limit']		= false;	// current range which records are shown
+	$zz_conf['int']['allowed_params']['mode'] = array('edit', 'delete', 'show', 'add', 'review', 'list_only');
+	$zz_conf['int']['allowed_params']['action'] = array('insert', 'delete', 'update'); // review is for internal use only
 	
 	// Configuration on project level: Core defaults and functions
 	$zz_default['character_set']	= 'utf-8';					// character set
@@ -676,7 +696,6 @@ function zz_initialize($mode = false) {
 			$zz_conf['error_mail_level'] = array('error', 'warning', 'notice');
 	}
 	require_once $zz_conf['dir_inc'].'/functions.inc.php';		// include core functions
-
 
 //	Modules
 
@@ -712,6 +731,7 @@ function zz_initialize($mode = false) {
 	$zz_default['access']			= '';		// nothing, does not need to be set, might be set individually
 	$zz_default['add']				= true;		// add or do not add data.
 	$zz_default['cancel_link']		= true;
+	$zz_default['check_referential_integrity'] = true;
 	$zz_default['copy']				= false;	// show action: copy
 	$zz_default['delete']			= false;	// show action: delete
 	$zz_default['details']			= false;	// column details; links to detail records with foreign key
@@ -721,7 +741,6 @@ function zz_initialize($mode = false) {
 	$zz_default['details_target']	= false;	// target-window for details link
 	$zz_default['edit']				= true;		// show Action: Edit
 	$zz_default['group']			= false;
-	$zz_conf['group_field_no']		= array();
 	$zz_default['import']			= false;	// import files
 
 	$zz_default['error_handling']		= 'output';
@@ -754,6 +773,7 @@ function zz_initialize($mode = false) {
 	$zz_default['min_detail_records']	= 0;		// min 0 detail records, might be expanded later on
 	$zz_default['multi'] 				= false;		// zzform_multi
 	$zz_default['multilang_fieldnames'] = false;	// translate fieldnames via zz_text($fieldname)
+	$zz_default['pdflib_path']			= false;
 	$zz_default['prefix'] 				= false;	//	prefix for ALL tables like zz_
 	$zz_default['project']				= $_SERVER['SERVER_NAME'];
 	$zz_default['redirect']['successful_delete'] = false;	// redirect to diff. page after delete
@@ -769,7 +789,6 @@ function zz_initialize($mode = false) {
 	$zz_default['show_list']		= true;		// display list of records in database				
 	$zz_default['show_output']		= true;		// ECHO output or keep it in $ops['output']
 	$zz_default['tfoot']			= false;  	// shows table foot, e. g. for sums of individual values
-	$zz_default['this_limit']		= false;	//	internal value, current range which records are shown
 	$zz_default['title_separator']	= ' &#8211; ';
 	$zz_default['user']				= '';		//	username
 	$zz_default['view']				= false;	// 	show Action: View
@@ -787,10 +806,10 @@ function zz_initialize($mode = false) {
 	$zz_conf['int']['url'] = zz_get_url_self($zz_conf['url_self']);
 
 	// get LIMIT from URI
-	if (!$zz_conf['this_limit'] && $zz_conf['limit']) 
-		$zz_conf['this_limit'] = $zz_conf['limit'];
+	if (!$zz_conf['int']['this_limit'] && $zz_conf['limit']) 
+		$zz_conf['int']['this_limit'] = $zz_conf['limit'];
 	if (isset($_GET['limit']) && is_numeric($_GET['limit']))	
-		$zz_conf['this_limit'] = (int) $_GET['limit'];
+		$zz_conf['int']['this_limit'] = (int) $_GET['limit'];
 	
 	// don't show list in case 'nolist' parameter is set
 	if (isset($_GET['nolist'])) $zz_conf['show_list'] = false;
@@ -804,7 +823,7 @@ function zz_initialize($mode = false) {
 		$zz_conf['referer'] = $_POST['zz_referer'];
 	elseif (isset($_SERVER['HTTP_REFERER']))
 		$zz_conf['referer'] = $_SERVER['HTTP_REFERER'];
-	$zz_conf['referer_esc'] = str_replace('&', '&amp;', $zz_conf['referer']);
+	$zz_conf['int']['referer_esc'] = str_replace('&', '&amp;', $zz_conf['referer']);
 
 	//	URL parameter
 	if (get_magic_quotes_gpc()) { // sometimes unwanted standard config
@@ -819,7 +838,7 @@ function zz_initialize($mode = false) {
 	}
 
 	$zz_conf['zzform_init'] = true;
-	$zz_saved = $zz_conf;
+	$zz_saved['conf'] = $zz_conf;
 	zz_return(true);
 }
 

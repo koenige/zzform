@@ -25,6 +25,7 @@ rtf		rtf		rtf		application/doc					Rich Text Format File
 rtf		rtf		rtf		application/x-soffice			Rich Text Format File
 
 doc		doc		doc		application/msword				MS Word Document
+doc		doc		doc		application/ms-word				MS Word Document
 doc		doc		doc		application/doc					MS Word Document
 doc		doc		doc		appl/text						MS Word Document
 doc		doc		doc		application/vnd.msword			MS Word Document

@@ -26,6 +26,8 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	global $zz_conf;
 	global $zz_error;
 
+	$zz_conf['int']['group_field_no'] = array();
+
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	// Turn off hierarchical sorting when using search
@@ -100,11 +102,11 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	//
 	// Query records
 	//
-	if ($zz_conf['this_limit'] && empty($zz_conf['show_hierarchy'])) { // limit, but not for hierarchical sets
+	if ($zz_conf['int']['this_limit'] && empty($zz_conf['show_hierarchy'])) { // limit, but not for hierarchical sets
 		if (!$zz_conf['limit']) $zz_conf['limit'] = 20; // set a standard value for limit
 			// this standard value will only be used on rare occasions, when NO limit is set
 			// but someone tries to set a limit via URL-parameter
-		$zz['sql'].= ' LIMIT '.($zz_conf['this_limit']-$zz_conf['limit']).', '.($zz_conf['limit']);
+		$zz['sql'].= ' LIMIT '.($zz_conf['int']['this_limit']-$zz_conf['limit']).', '.($zz_conf['limit']);
 	}
 
 	// read rows from database. depending on hierarchical or normal list view
@@ -139,12 +141,12 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		$total_rows = $i; // sometimes, more rows might be selected beforehands,
 		// but if show_hierarchy has ID value, not all rows are shown
 		if ($my_lines) {
-			if (!$zz_conf['this_limit']) {
+			if (!$zz_conf['int']['this_limit']) {
 				$start = 0;
 				$end = $total_rows -1;
 			} else {
-				$start = $zz_conf['this_limit'] - $zz_conf['limit'];
-				$end = $zz_conf['this_limit'] -1;
+				$start = $zz_conf['int']['this_limit'] - $zz_conf['limit'];
+				$end = $zz_conf['int']['this_limit'] -1;
 			}
 			foreach (range($start, $end) as $index) {
 				if (!empty($my_lines[$index])) 
@@ -152,7 +154,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			}
 			// for performance reasons, we didn't save the full result set,
 			// so we have to requery it again.
-			if ($zz_conf['this_limit']) {
+			if ($zz_conf['int']['this_limit']) {
 				$sql = zz_edit_sql($zz['sql'], 'WHERE', '`'.$zz['table'].'`.'.$id_field
 					.' IN ('.implode(',', array_keys($lines)).')');
 			} else {
@@ -185,7 +187,8 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	if (!empty($zz_conf['modules']['conditions']))
 		$zz_conditions = zz_conditions_list_check($zz, $zz_conditions, $id_field, array_keys($lines));
 	if ($zz_error['error']) return zz_return(array($ops, $zz_var));
-	$ops['output'].= zz_error();
+	zz_error();
+	$ops['output'] .= zz_error_output();
 	if ($zz_conf['modules']['debug']) zz_debug("conditions finished");
 
 	// check conditions, these might lead to different field definitions for every
@@ -274,12 +277,12 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				if ($show_field AND !$show_field_group) $show_field = false;
 			}
 			if ($show_field) {
-				$ops['output'].= '<th'.check_if_class($field, (!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : '')).'>';
+				$ops['output'].= '<th'.zz_field_class($field, (!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : ''), true).'>';
 				if (!in_array($field['type'], $unsortable_fields) && isset($field['field_name'])) { 
 					$ops['output'].= '<a href="';
 					if (isset($field['display_field'])) $order_val = $field['display_field'];
 					else $order_val = $field['field_name'];
-					$unwanted_keys = array('dir');
+					$unwanted_keys = array('dir', 'zzaction', 'zzhash');
 					$new_keys = array('order' => $order_val);
 					$uri = $zz_conf['int']['url']['self'].zz_edit_query_string($zz_conf['int']['url']['qs']	
 						.$zz_conf['int']['url']['qs_zzform'], $unwanted_keys, $new_keys);
@@ -346,7 +349,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		foreach ($lines as $index => $line) {
 			// put lines in new array, rows.
 			//$rows[$z][0]['text'] = '';
-			//$rows[$z][0]['class'] = '';
+			//$rows[$z][0]['class'] = array();
 			
 			$tq_index = (count($table_query) > 1 ? $index : 0);
 			$id = '';
@@ -357,7 +360,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				$group_count = count($zz_conf['group']);
 				foreach ($table_query[$tq_index] as $fieldindex => $field) {
 				//	check for group function
-					$pos = array_search($fieldindex, $zz_conf['group_field_no']);
+					$pos = array_search($fieldindex, $zz_conf['int']['group_field_no']);
 					if ($pos === false) continue;
 					/*	
 						TODO: hierarchical grouping!
@@ -390,7 +393,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				$zz_conf_record = array_merge($zz_conf_record, $line['zz_conf']);
 			if ($zz_conf['select_multiple_records']) { // checkbox for records
 				$rows[$z][-1]['text'] = '<input type="checkbox" name="zz_record_id[]" value="'.$line[$id_field].'">'; // $id
-				$rows[$z][-1]['class'] = ' class="select_multiple_records"';
+				$rows[$z][-1]['class'][] = 'select_multiple_records';
 			}
 
 			foreach ($table_query[$tq_index] as $fieldindex => $field) {
@@ -425,14 +428,13 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 						$field['level'] = $line['zz_level'];
 					}
 				}
-				if (empty($rows[$z][$fieldindex]['class']))
-					$rows[$z][$fieldindex]['class'] = check_if_class($field, 
-						(!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : ''));
+				if (!isset($rows[$z][$fieldindex]['class']))
+					$rows[$z][$fieldindex]['class'] = array();
+				$rows[$z][$fieldindex]['class'] += zz_field_class($field, 
+					(!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : ''));
 				if (!empty($field['field_name']) AND !empty($lastline[$field['field_name']]) 
 					AND $line[$field['field_name']] == $lastline[$field['field_name']])
-					$rows[$z][$fieldindex]['class'] = ($rows[$z][$fieldindex]['class'] 
-						? substr($rows[$z][$fieldindex]['class'], 0, -1).' identical_value"' 
-						: ' class="identical_value"');
+					$rows[$z][$fieldindex]['class'][] = 'identical_value';
 				if (empty($rows[$z][$fieldindex]['text']))
 					$rows[$z][$fieldindex]['text'] = '';
 				
@@ -650,7 +652,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				// group: go through everything but don't show it in list
 				// TODO: check that it does not collide with append_next
 				if ($zz_conf['group']) {
-					$pos = array_search($fieldindex, $zz_conf['group_field_no']);
+					$pos = array_search($fieldindex, $zz_conf['int']['group_field_no']);
 					if ($pos !== false) {
 						$grouptitles[$z][$pos] = $rows[$z][$fieldindex]['text'];
 						unset ($rows[$z][$fieldindex]);
@@ -810,8 +812,12 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				.(($index+1) == $count_rows ? ' last' : '')
 				.((isset($current_record) AND $current_record == $index) ? ' current_record' : '')
 				.'">'; //onclick="Highlight();"
-			foreach ($row as $fieldindex => $field)
-				if (is_numeric($fieldindex)) $ops['output'].= '<td'.$field['class'].'>'.$field['text'].'</td>';
+			foreach ($row as $fieldindex => $field) {
+				if (is_numeric($fieldindex)) 
+					$ops['output'].= '<td'
+						.($field['class'] ? ' class="'.implode(' ', $field['class']).'"' : '')
+						.'>'.$field['text'].'</td>';
+			}
 			if (!empty($row['modes']))
 				$ops['output'].= '<td class="editbutton">'.$row['modes'].'</td>';
 			if (!empty($row['details']))
@@ -845,9 +851,11 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			$ops['output'].= '<li class="'.($index & 1 ? 'uneven':'even')
 				.((isset($current_record) AND $current_record == $index) ? ' current_record' : '')
 				.(($index+1) == $count_rows ? ' last' : '').'">'; //onclick="Highlight();"
-			foreach ($row as $fieldindex => $field)
+			foreach ($row as $fieldindex => $field) {
 				if (is_numeric($fieldindex) && $field['text'])
-					$ops['output'].= '<p'.$field['class'].'>'.$field['text'].'</p>';
+					$ops['output'].= '<p'.($field['class'] ? ' class="'.implode(' ', $field['class']).'"' : '')
+						.'>'.$field['text'].'</p>';
+			}
 			if (!empty($row['modes']))
 				$ops['output'].= '<p class="editbutton">'.$row['modes'].'</p>';
 			if (!empty($row['details']))
@@ -922,7 +930,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		if ($total_rows == 1) $ops['output'].= '<p class="totalrecords">'.$total_rows.' '.zz_text('record total').'</p>'; 
 		elseif ($total_rows) $ops['output'].= '<p class="totalrecords">'.$total_rows.' '.zz_text('records total').'</p>';
 		// Limit links
-		$ops['output'].= zz_limit($zz_conf['limit'], $zz_conf['this_limit'], $total_rows);	
+		$ops['output'].= zz_limit($zz_conf['limit'], $zz_conf['int']['this_limit'], $total_rows);	
 		// TODO: NEXT, PREV Links at the end of the page
 		// Search form
 		$ops['output'] .= $search_form['bottom'];
@@ -943,7 +951,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
  * @param int $z
  * @param array $table (foreign_key_field_name => value)
  * @param array $sum (field_name => value)
- * @global array $zz_conf ($zz_conf['group_field_no'])
+ * @global array $zz_conf ($zz_conf['int']['group_field_no'])
  * @return string HTML output of table foot
  */
 function zz_field_sum($table_query, $z, $table, $sum) {
@@ -951,11 +959,11 @@ function zz_field_sum($table_query, $z, $table, $sum) {
 	$tfoot_line = '';
 	foreach ($table_query as $index => $field) {
 		if (!$field['show_field']) continue;
-		if (in_array($index, $zz_conf['group_field_no'])) continue;
+		if (in_array($index, $zz_conf['int']['group_field_no'])) continue;
 		if ($field['type'] == 'id' && empty($field['show_id'])) {
 			$tfoot_line .= '<td class="recordid">'.$z.'</td>';
 		} elseif (!empty($field['sum'])) {
-			$tfoot_line .= '<td'.check_if_class($field, (!empty($table) ? $table : '')).'>';
+			$tfoot_line .= '<td'.zz_field_class($field, (!empty($table) ? $table : ''), true).'>';
 			if (isset($field['calculation']) AND $field['calculation'] == 'hours')
 				$sum[$field['title']] = hours($sum[$field['title']]);
 			if (isset($field['number_type']) && $field['number_type'] == 'currency') 
@@ -1120,26 +1128,26 @@ function zz_mark_search_string($value, $field_name = false, $field) {
  * @param array $field $zz['fields'][n]-field definition
  * @param int $index index 'n' of $zz['fields']
  * @global array $zz_conf
- *		string 'group', array 'group_field_no' (will be set to 'n') 
+ *		string 'group', array 'int'['group_field_no'] (will be set to 'n') 
  * @return bool true/false if field will be shown (group: false, otherwise true)
  */
 function zz_list_group_field_no($field, $index) {
 	global $zz_conf;
-	if (!isset($zz_conf['group_field_no'])) 
-		$zz_conf['group_field_no'] = array();
+	if (!isset($zz_conf['int']['group_field_no'])) 
+		$zz_conf['int']['group_field_no'] = array();
 	if (!empty($field['display_field'])) {
 		$pos = array_search($field['display_field'], $zz_conf['group']);
 		if ($pos !== false) {
-			$zz_conf['group_field_no'][$pos] = $index;
-			ksort($zz_conf['group_field_no']);
+			$zz_conf['int']['group_field_no'][$pos] = $index;
+			ksort($zz_conf['int']['group_field_no']);
 			return false;
 		}
 	}
 	if (!empty($field['field_name'])) {
 		$pos = array_search($field['field_name'], $zz_conf['group']);
 		if ($pos !== false) {
-			$zz_conf['group_field_no'][$pos] = $index;
-			ksort($zz_conf['group_field_no']);
+			$zz_conf['int']['group_field_no'][$pos] = $index;
+			ksort($zz_conf['int']['group_field_no']);
 			return false;
 		}
 	}
@@ -1188,6 +1196,454 @@ function zz_list_group_foot($rowgroup, $main_table_query, $z, $my_footer_table, 
 	return '<tr class="group_sum">'
 		.zz_field_sum($main_table_query, $z, $my_footer_table, $sum_group[$my_index])
 		.'</tr>'."\n";
+}
+
+/**
+ * if LIMIT is set, shows different pages for each $step records
+ *
+ * @param int $limit_step = $zz_conf['limit'] how many records shall be shown on each page
+ * @param int $this_limit = $zz_conf['int']['this_limit'] last record no. on this page
+ * @param int $total_rows	count of total records that might be shown
+ * @param string $scope 'body', todo: 'head' (not yet implemented)
+ * @global array $zz_conf
+ *		url_self, url_self_qs_base, url_self_qs_zzform, limit_show_range
+ * @return string HTML output
+ * @todo
+ * 	- <link rel="next">, <link rel="previous">
+ */
+function zz_limit($limit_step, $this_limit, $total_rows, $scope = 'body') {
+	global $zz_conf;
+
+	// check whether there are records
+	if (!$total_rows) return false;
+	
+	// check whether records shall be limited or not
+	if (!$limit_step) return false;
+
+	// check whether a limit is set (all records shown won't need a navigation)
+	// for performance reasons, next time a record is edited, limit will be reset
+	if (!$this_limit) return false;
+
+	// check whether all records fit on one page
+	if ($limit_step >= $total_rows) return false;
+
+	// remove mode, id
+	$unwanted_keys = array('mode', 'id', 'limit', 'add', 'zzaction', 'zzhash');
+	$uri = $zz_conf['int']['url']['self'].zz_edit_query_string($zz_conf['int']['url']['qs']
+		.$zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
+
+	// set standard links
+	$links = array();
+	$links[] = array(
+		'link'	=> zz_limitlink(0, $this_limit, $limit_step, $uri),
+		'text'	=> '|&lt;',
+		'class' => 'first'
+	);
+	$links[] = array(
+		'link'	=> zz_limitlink($this_limit-$limit_step, $this_limit, 0, $uri),
+		'text'	=> '&lt;',
+		'class' => 'prev'
+	);
+	$links[] = array(
+		'link'	=> zz_limitlink(-1, $this_limit, 0, $uri),
+		'text'	=> zz_text('all'),
+		'class' => 'all'
+	);
+
+	// set links for each step
+	$ellipsis_min = false;
+	$ellipsis_max = false;
+	// last step, = next integer from total_rows which can be divided by limit_step
+	$rec_last = 0; 
+
+	if ($zz_conf['limit_show_range'] AND $total_rows >= $zz_conf['limit_show_range']) {
+		$rec_start = $this_limit - ($zz_conf['limit_show_range']/2 + 2*$limit_step);
+		if ($rec_start < 0) $rec_start = 0;
+		elseif ($rec_start > 0) {
+			// set rec start to something which can be divided through step
+			$rec_start = ceil($rec_start/$limit_step)*$limit_step;
+		}
+		$rec_end = $this_limit + ($zz_conf['limit_show_range'] + $limit_step);
+		// total_rows -1 because min is + 1 later on
+		if ($rec_end > $total_rows -1) $rec_end = $total_rows -1;
+		$rec_last = (ceil($total_rows/$limit_step)*$limit_step);
+	} else {
+		$rec_start = 0;
+		$rec_end = $total_rows -1; // total_rows -1 because min is + 1 later on
+	}
+
+	for ($i = $rec_start; $i <= $rec_end; $i = $i+$limit_step) { 
+		$range_min = $i+1;
+		$range_max = $i+$limit_step;
+		if ($this_limit + ceil($zz_conf['limit_show_range']/2) < $range_min) {
+			if (!$ellipsis_max) {
+				$links[] = array('text' => '&hellip;', 'link' => '');
+				$ellipsis_max = true;
+			}
+			continue;
+		}
+		if ($this_limit > $range_max + floor($zz_conf['limit_show_range']/2)) {
+			if (!$ellipsis_min) {
+				$links[] = array('text' => '&hellip;', 'link' => '');
+				$ellipsis_min = true;
+			}
+			continue;
+		}
+		if ($range_max > $total_rows) $range_max = $total_rows;
+		// if just one above the last limit show this number only once
+		switch ($zz_conf['limit_display']) {
+		case 'entries':
+			$text = ($range_min == $range_max ? $range_min: $range_min.'-'.$range_max);
+		default:
+		case 'pages':
+			$text = $i/$zz_conf['limit']+1;
+		}
+		$links[] = array(
+			'link'	=> zz_limitlink($i, $this_limit, $limit_step, $uri),
+			'text'	=> $text
+		);
+	}
+	$limit_next = $this_limit+$limit_step;
+	if ($limit_next > $range_max) $limit_next = $i;
+	if (!$rec_last) $rec_last = $i;
+
+	// set more standard links
+	$links[] = array(
+		'link'	=> zz_limitlink($limit_next, $this_limit, 0, $uri),
+		'text'	=> '&gt;',
+		'class' => 'next'
+	);
+	$links[] = array(
+		'link'	=> zz_limitlink($rec_last, $this_limit, 0, $uri),
+		'text'	=> '&gt;|',
+		'class' => 'last'
+	);
+
+	// output links
+	$output = '<ul class="pages">'."\n";
+	foreach ($links as $link) {
+		$output .= '<li'.(!empty($link['class']) ? ' class="'.$link['class'].'"' : '').'>'
+			.($link['link'] ? '<a href="'.$link['link'].'">' : '<span>')
+			.$link['text']
+			.($link['link'] ? '</a>' : '</span>').'</li>'."\n";
+	}
+	$output .= '</ul>'."\n";
+	$output .= '<br clear="all">'."\n";
+	return $output;
+}
+
+function zz_limitlink($i, $limit, $limit_step, $uri) {
+	global $zz_conf;
+	if ($i == -1) {  // all records
+		if (!$limit) return false;
+		else $limit_new = 0;
+	} else {
+		$limit_new = $i + $limit_step;
+		if ($limit_new == $limit) return false; // current page!
+		elseif (!$limit_new) return false; // 0 does not exist, means all records
+	}
+	$uriparts = parse_url($uri);
+	if ($limit_new != $zz_conf['limit']) {
+		if (isset($uriparts['query'])) $uri.= '&amp;';
+		else $uri.= '?';
+		$uri .= 'limit='.$limit_new;
+	}
+	return $uri;
+}
+
+/**
+ * modifies SQL query according to search results
+ *
+ * @param array $fields
+ * @param string $sql
+ * @param string $table
+ * @param string $main_id_fieldname
+ * @global array $zz_conf main configuration variables
+ * @global array $zz_error
+ * @return string $sql (un-)modified SQL query
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @todo if there are subtables, part of this functions code is run redundantly
+ */
+function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
+	// no changes if there's no query string
+	if (empty($_GET['q'])) return $sql;
+
+	global $zz_conf;
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	$addscope = true;
+	// fields that won't be used for search
+	$unsearchable = array('image', 'calculated', 'timestamp', 'upload_image', 'option'); 
+	if ($zz_conf['modules']['debug']) zz_debug("search query", $sql);
+
+	// there is something, process it.
+	$searchword = $_GET['q'];
+	$scope = (!empty($_GET['scope']) ? zz_db_escape($_GET['scope']) : '');
+	// search: look at first character to change search method
+	if (substr($searchword, 0, 1) == '>') {
+		$searchword = trim(substr($searchword, 1));
+		$searchop = '>';
+		$searchstring = ' '.$searchop.' "'.zz_db_escape($searchword).'"';
+	} elseif (substr($searchword, 0, 1) == '<') {
+		$searchword = trim(substr($searchword, 1));
+		$searchop = '<';
+		$searchstring = ' < "'.zz_db_escape(trim(substr($searchword, 1))).'"';
+	} elseif (substr($searchword, 0, 1) == '-' 
+		AND strstr(trim(substr($searchword, 1)), ' ')) {
+		$searchword = trim(substr($searchword, 1));
+		$searchword = explode(" ", $searchword);
+		$searchop = 'BETWEEN';
+		$searchstring = $scope.' >= "'.zz_db_escape(trim($searchword[0]))
+			.'" AND '.$scope.' <= "'.zz_db_escape(trim($searchword[1])).'"';
+		$addscope = false;
+	} elseif (preg_match('/q\d(.)[0-9]{4}/i', $searchword, $separator) AND !empty($_GET['scope'])) {
+		// search for quarter of year
+		$searchword = trim(substr($searchword, 1));
+		$searchword = explode($separator[1], $searchword);
+		$searchop = false;
+		$searchstring = ' QUARTER('.$scope.') = "'.trim($searchword[0])
+			.'" AND YEAR('.$scope.') = "'.trim($searchword[1]).'"';
+		$addscope = false;
+	} elseif ($searchword == '!NULL') {
+		$addscope = false;
+		$searchstring = ' !ISNULL('.$scope.')';
+	} elseif ($searchword == 'NULL') {
+		$addscope = false;
+		$searchstring = ' ISNULL('.$scope.')';
+	} else {
+		$searchop = 'LIKE';
+		// first slash will be ignored, this is used to escape reserved characters
+		if (substr($searchword, 0, 1) == '\\') $searchword = substr($searchword, 1);
+		$searchstring = ' '.$searchop.' "%'.zz_db_escape($searchword).'%"';
+	}
+
+	// Search with q and scope
+	// so look only at one field!
+	if (!empty($_GET['scope'])) {
+		$scope = false;
+		$fieldtype = false;
+		foreach ($fields as $field) {
+		// todo: check whether scope is in_array($searchfields)
+			if (empty($field)) continue;
+			if (empty($field['type'])) $field['type'] = 'text';
+			if (empty($field['field_name'])) $field['field_name'] = '';
+			if (!in_array($field['type'], $unsearchable) && empty($field['exclude_from_search'])) {
+				if (!isset($field['sql']) && $_GET['scope'] == $field['field_name'] 
+					OR $_GET['scope'] == $table.'.'.$field['field_name']
+					OR (isset($field['display_field']) && $_GET['scope'] == $field['display_field'])) {
+					$scope = $_GET['scope'];
+					$fieldtype = $field['type'];
+					if (!empty($field['search'])) $scope = $field['search'];
+				}
+			}
+		}
+		// allow searching with strtotime, but do not convert years (2000)
+		// or year-month (2004-12)
+		if (!is_array($searchword) AND // no array
+			!preg_match('/^\d{1,4}-*\d{0,2}-*\d{0,2}$/', trim($searchword))) 
+			$timesearch = strtotime($searchword);
+		else $timesearch = false;
+		if ($addscope)
+			$sql_search_part = $scope.$searchstring; // default here
+		else
+			$sql_search_part = $searchstring; // default here
+		switch ($fieldtype) {
+		case 'datetime':
+			if ($timesearch)
+				$sql_search_part = $scope.' '.$searchop.' "'.date('Y-m-d', $timesearch).'%"';
+			break;
+		case 'time':
+			if ($timesearch)
+				$sql_search_part = $scope.' '.$searchop.' "'.date('H:i:s', $timesearch);
+			break;
+		case 'date':
+			if ($timesearch)
+			$sql_search_part = $scope.' '.$searchop.' "'.date('Y-m-d', $timesearch).'%"';
+			break;
+		case '': // scope is false, fieldtype is false
+			$sql_search_part = 'NULL';
+			break;
+		}
+		$sql = zz_edit_sql($sql, 'WHERE', $sql_search_part);
+		if ($zz_conf['modules']['debug']) zz_debug("end; search query", $sql);
+		return $sql;
+	}
+	
+	// no scope is set, so search with q
+	// Look at _all_ fields
+	$q_search = '';
+	foreach ($fields as $index => $field) {
+		// skip certain fields
+		if (empty($field)) continue;
+		if (!empty($field['exclude_from_search'])) continue;
+		if (empty($field['type'])) $field['type'] = 'text';
+		if (in_array($field['type'], $unsearchable)) continue;
+
+		// check what to search for
+		$fieldname = false;
+		if (isset($field['search'])) {
+			$fieldname = $field['search'];
+		} elseif (isset($field['display_field'])) {
+			$fieldname = $field['display_field'];
+		} elseif ($field['type'] == 'subtable') {
+			$foreign_key = '';
+			foreach ($field['fields'] as $f_index => $subfield) {
+				if (!empty($subfield['type']) AND $subfield['type'] == 'foreign_key') {
+					$foreign_key = $subfield['field_name'];
+					// do not search in foreign_key since this is the same
+					// as the main record
+					unset($field['fields'][$f_index]);
+				}
+			}
+			if (!$foreign_key) {
+				echo zz_text('Subtable definition is wrong. There must be a field which is defined as "foreign_key".');
+				exit;
+			}
+			$subsql = zz_search_sql($field['fields'], $field['sql'], $field['table'], $main_id_fieldname);
+			if ($ids = zz_db_fetch($subsql, $foreign_key, '', 'Search query for subtable.', E_USER_WARNING)) {
+				$q_search[] = $table.'.'.$main_id_fieldname.' IN ('.implode(',', array_keys($ids)).')';
+			}
+		} elseif (!empty($field['field_name'])) {
+			// standard: use table- and field name
+			$fieldname = $table.'.'.$field['field_name'];
+		}
+		if ($fieldname) $q_search[] = $fieldname.$searchstring;
+	}
+	$q_search = '('.implode(' OR ', $q_search).')';
+	$sql = zz_edit_sql($sql, 'WHERE', $q_search);
+
+	if ($zz_conf['modules']['debug']) zz_debug("end; search query", $sql);
+	return $sql;
+}
+
+/** 
+ * Generates search form and link to show all records
+ * 
+ * @param array $fields			field definitions ($zz)
+ * @param string $table			name of database table
+ * @param int $total_rows		total rows in database selection
+ * @param string $count_rows	number of rows shown on html page
+ * @return string $output		HTML output
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function zz_search_form($fields, $table, $total_rows, $count_rows) {
+	global $zz_conf;
+	// Search Form
+	$search_form['top'] = false;
+	$search_form['bottom'] = false;
+	if (!$zz_conf['search']) return $search_form;
+
+	$output = '';
+	if ($total_rows OR isset($_GET['q'])) {
+		// show search form only if there are records as a result of this query; 
+		// q: show search form if empty search result occured as well
+		$self = $zz_conf['int']['url']['self'];
+		// fields that won't be used for search
+		$unsearchable = array('image', 'calculated', 'subtable', 'timestamp', 'upload_image');
+		$output = "\n".'<form method="GET" action="'.$self
+			.'" id="zzsearch" accept-charset="'.$zz_conf['character_set'].'"><p>';
+		if ($qs = $zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']) { 
+			// do not show edited record, limit, ...
+			$unwanted_keys = array('q', 'scope', 'limit', 'mode', 'id', 'add', 'zzaction', 'zzhash'); 
+			$output .= zz_querystring_to_hidden(substr($qs, 1), $unwanted_keys);
+			// remove unwanted keys from link
+			$self .= zz_edit_query_string($qs, $unwanted_keys); 
+		}
+		$output.= '<input type="text" size="30" name="q"';
+		if (isset($_GET['q'])) $output.= ' value="'.htmlchars($_GET['q']).'"';
+		$output.= '>';
+		$output.= '<input type="submit" value="'.zz_text('search').'">';
+		$output.= ' '.zz_text('in').' ';	
+		$output.= '<select name="scope">';
+		$output.= '<option value="">'.zz_text('all fields').'</option>'."\n";
+		foreach ($fields as $field) {
+			if (in_array($field['type'], $unsearchable)) continue;
+			if (!empty($field['exclude_from_search'])) continue;
+			$fieldname = (isset($field['display_field']) && $field['display_field']) 
+				? $field['display_field'] : $table.'.'.$field['field_name'];
+			$output.= '<option value="'.$fieldname.'"';
+			if (isset($_GET['scope']) AND $_GET['scope'] == $fieldname) 
+				$output.= ' selected="selected"';
+			$output.= '>'.strip_tags($field['title']).'</option>'."\n";
+		}
+		$output.= '</select>';
+		if (!empty($_GET['q'])) {
+			$output.= ' &nbsp;<a href="'.$self.'">'.zz_text('Show all records').'</a>';
+		}
+		$output.= '</p></form>'."\n";
+	}
+
+	if ($zz_conf['search'] === true) $zz_conf['search'] = 'bottom'; // default!
+	switch ($zz_conf['search']) {
+	case 'top':
+		// show form on top only if there are records!
+		if ($count_rows) $search_form['top'] = $output;
+		break;
+	case 'both':
+		// show form on top only if there are records!
+		if ($count_rows) $search_form['top'] = $output;
+	case 'bottom':
+	default:
+		$search_form['bottom'] = $output;
+	}
+	return $search_form;
+}
+
+function zz_sql_order($fields, $sql) {
+	$order = false;
+	if (!empty($_GET['order']) OR !empty($_GET['group'])) {
+		$my_order = false;
+		if (!empty($_GET['dir']))
+			if ($_GET['dir'] == 'asc') $my_order = ' ASC';
+			elseif ($_GET['dir'] == 'desc') $my_order = ' DESC';
+		foreach ($fields as $field) {
+			if (!empty($_GET['order'])
+				AND ((isset($field['display_field']) && $field['display_field'] == $_GET['order'])
+				OR (isset($field['field_name']) && $field['field_name'] == $_GET['order']))
+			)
+				if (isset($field['order'])) $order[] = $field['order'].$my_order;
+				else $order[] = $_GET['order'].$my_order;
+			if (!empty($_GET['group'])
+				AND ((isset($field['display_field']) && $field['display_field'] == $_GET['group'])
+				OR (isset($field['field_name']) && $field['field_name'] == $_GET['group']))
+			)
+				if (isset($field['order'])) $order[] = $field['order'].$my_order;
+				else $order[] = $_GET['group'].$my_order;
+		}
+		if (!$order) return $sql;
+		if (strstr($sql, 'ORDER BY'))
+			// if there's already an order, put new orders in front of this
+			$sql = str_replace ('ORDER BY', ' ORDER BY '.implode(',', $order).', ', $sql);
+		else
+			// if not, just append the order
+			$sql.= ' ORDER BY '.implode(', ', $order);
+	} 
+	return $sql;
+}
+
+/**
+ * counts number of records that will be caught by current SQL query
+ *
+ * @param string $sql
+ * @param string $id_field
+ * @return int $lines
+ */
+function zz_count_rows($sql, $id_field) {
+	$sql = trim($sql);
+	// if it's not a SELECT DISTINCT, we can use COUNT, that's faster
+	// GROUP BY also does not work with COUNT
+	if (substr($sql, 0, 15) != 'SELECT DISTINCT'
+		AND !stristr($sql, 'GROUP BY')) {
+		$sql = zz_edit_sql($sql, 'ORDER BY', '_dummy_', 'delete');
+		$sql = zz_edit_sql($sql, 'SELECT', 'COUNT('.$id_field.')', 'replace');
+		// unnecessary LEFT JOINs may slow down query
+		// remove them in case no WHERE, HAVING or GROUP BY is set
+		$sql = zz_edit_sql($sql, 'LEFT JOIN', '_dummy_', 'delete');
+		$lines = zz_db_fetch($sql, '', 'single value');
+	} else {
+		$lines = zz_db_fetch($sql, $id_field, 'count');
+	}
+	if (!$lines) $lines = 0;
+	return $lines;
 }
 
 ?>

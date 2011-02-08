@@ -100,7 +100,7 @@ function zz_check_mail_single($e_mail) {
  * @return mixed string $enum_value if correct, bool false if not
  */
 function zz_check_enumset($enum_value, $field, $db_table) {
-	$values = zz_get_enumset($field['field_name'], $db_table);
+	$values = zz_db_get_enumset($field['field_name'], $db_table);
 	if ($values) {
 		// it's in the table definition, go for it!
 		if (in_array($enum_value, $values)) return $enum_value;
@@ -124,7 +124,7 @@ function zz_check_enumset($enum_value, $field, $db_table) {
  * @param string $db_table [db_name.table]
  * @return mixed array $values, bool false if no values
  */
-function zz_get_enumset($colum, $db_table) {
+function zz_db_get_enumset($colum, $db_table) {
 	$values = array();
 	$sql = 'SHOW COLUMNS FROM '.zz_db_table_backticks($db_table).' LIKE "'.$colum.'"';
 	$column_definition = zz_db_fetch($sql, '', '', __FUNCTION__);
@@ -183,9 +183,9 @@ function zz_check_url($url) {
  * @param string $url	URL to be tested, only absolute URLs
  * @return string url if correct, or false
  * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @todo return which part of URL is incorrect
  */
 function zz_is_url($url) {
-	// todo: give back which part of URL is incorrect
 	if (!$url) return false;
 	$parts = parse_url($url);
 	if (!$parts) return false;
@@ -215,13 +215,6 @@ function zz_is_url($url) {
 		return false;
 	}
 	return true;
-}
-
-function zz_check_for_null($field, $db_table) {
-	$sql = 'SHOW COLUMNS FROM '.zz_db_table_backticks($db_table).' LIKE "'.$field.'"';
-	$line = zz_db_fetch($sql);
-	if ($line AND $line['Null'] == 'YES') return true;
-	else return false;
 }
 
 ?>

@@ -33,7 +33,6 @@
 	2. additional functions
 
 	zz_upload_path()			creates unique name for file (?)
-	zz_upload_checkdir()		creates new directory and upper dirs as well
 	zz_upload_get_typelist()	reads filetypes from txt-file
 
 	3. zz_tab array
@@ -1202,7 +1201,7 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 				if ($path != $old_path) {
 					$image['files']['update']['path'] = $path; // not necessary maybe, but in case ...
 					$image['files']['update']['old_path'] = $old_path; // too
-					zz_upload_checkdir(dirname($path));
+					zz_create_topfolders(dirname($path));
 					if ($zz_error['error']) return zz_return(false);
 					if (file_exists($path) && $zz_conf['backup'] AND (strtolower($old_path) != strtolower($path))
 						) { // this case should not occur
@@ -1241,7 +1240,7 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 					);
 					return zz_return(zz_error());
 				}
-				zz_upload_checkdir(dirname($image['files']['destination'])); // create path if it does not exist or if cleanup removed it.
+				zz_create_topfolders(dirname($image['files']['destination'])); // create path if it does not exist or if cleanup removed it.
 				if ($zz_error['error']) return zz_return(false);
 				if (!isset($image['source']) && !isset($image['source_file']) && empty($image['action'])) { 
 					// do this with images which have not been touched
@@ -1255,7 +1254,7 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 									'<code>'.dirname($image['files']['destination']).'</code>'),
 								'level' => E_USER_ERROR
 							);
-							return zz_return(zz_error());
+							return zz_return();
 								
 						} else { 
 							$zz_error[] = array(
@@ -1265,7 +1264,7 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 									.$image['files']['destination'].'<br>',
 								'level' => E_USER_ERROR
 							);
-							return zz_return(zz_error());
+							return zz_return();
 						}
 					} elseif ($zz_conf['modules']['debug']) {
 						zz_debug('file copied: %'.$filename.'% to: %'.$image['files']['destination'].'%');
@@ -1284,7 +1283,7 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 							'msg_dev' => zz_text('Copying not successful.').'<br>'.zz_text('from:').' '.$filename.'<br>'.zz_text('to:').' '.$image['files']['destination'].'<br>',
 							'level' => E_USER_ERROR
 						);
-						return zz_return(zz_error());
+						return zz_return();
 					}
 				}
 			} else {
@@ -1337,7 +1336,7 @@ function zz_upload_sqlval($value, $sql, $idvalue = false, $idfield = false) {
 function zz_upload_path($dir, $action, $path) {
 	global $zz_error;
 	$my_base = $dir.'/'.$action.'/';
-	zz_upload_checkdir($my_base);
+	zz_create_topfolders($my_base);
 	if ($zz_error['error']) return false;
 	$i = 0;
 	do  { 
@@ -1369,47 +1368,6 @@ function zz_upload_cleanup($zz_tab) {
 		}
 	}
 	return true;
-}
-
-/*	----------------------------------------------	*
- *					FUNCTIONS						*
- *	----------------------------------------------	*/
-
-
-/**
- * Creates new directory (and dirs above, if necessary)
- * 
- * @param string $my_dir directory to be created
- * @return bool true/false = successful/fail
- * @author Gustaf Mossakowski <gustaf@koenige.org>
- */
-function zz_upload_checkdir($my_dir) {
-	global $zz_error;
-	if (!$my_dir) return false;
-	// checks if directories above current_dir exist and creates them if necessary
-	while (strpos($my_dir, '//'))
-		$my_dir = str_replace('//', '/', $my_dir);
-	if (substr($my_dir, -1) == '/')	//	removes / from the end
-		$my_dir = substr($my_dir, 0, -1);
-	if (!file_exists($my_dir)) { //	if dir does not exist, do a recursive check/makedir on parent director[y|ies]
-		$upper_dir = substr($my_dir, 0, strrpos($my_dir, '/'));
-		$success = zz_upload_checkdir($upper_dir);
-		if ($success) {
-			$success = mkdir($my_dir, 0777);
-			if (!$success) {
-				$zz_error[] = array(
-					'msg_dev' => sprintf(zz_text('Creation of directory %s failed.'), $my_dir),
-					'level' => E_USER_ERROR
-				);
-				$zz_error['error'] = true;
-				return false;
-			
-			//else $success = chown($my_dir, getmyuid());
-			//if (!$success) echo 'Change of Ownership of '.$my_dir.' failed.<br>';
-			} else return true;
-		}
-		return false;
-	} else return true;
 }
 
 

@@ -129,7 +129,7 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 			$output .= '<div id="record">';
 			$div_record_open = true;
 		}
-		$output .= $error;
+		$output .= zz_error_output();
 	}
 
 	// set display of record (review, form, not at all)
@@ -207,7 +207,7 @@ function zz_display_records($mode, $zz_tab, $display, $zz_var, $zz_conditions) {
 
 	$cancelurl = $zz_conf['int']['url']['self'];
 	if ($base_qs = $zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']) {
-		$unwanted_keys = array('mode', 'id', 'add', 'zzaction');
+		$unwanted_keys = array('mode', 'id', 'add', 'zzaction', 'zzhash');
 		$cancelurl.= zz_edit_query_string($base_qs, $unwanted_keys);
 	}
 	if ($mode && $mode != 'review' && $mode != 'show') {
@@ -1154,19 +1154,25 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 					$outputf.= '<p>';
 					if (isset($field['path']))
 						$outputf .= $img = zz_makelink($field['path'], $my_rec['record'], 'image');
-					if (!$img) $outputf.= '('.zz_text('image_not_display').')';
+					if (!$img AND !empty($my_rec['record_saved'])) {
+						$outputf .= $img = zz_makelink($field['path'], $my_rec['record_saved'], 'image');
+					}
+					if (!$img)
+						$outputf.= '('.zz_text('image_not_display').')';
 					$outputf.= '</p>';
 				}
 				if (($mode == 'add' OR $mode == 'edit') && $field['type'] == 'upload_image') {
 					if (!isset($field['image'])) {
-						$outputf.= zz_error($zz_error[] = array(
+						$zz_error[] = array(
 							'msg' => 'Image upload is currently not possible. '
 								.zz_text('An error occured. We are working on the '
 								.'solution of this problem. Sorry for your '
 								.'inconvenience. Please try again later.'),
 							'msg_dev' => 'Configuration error. Missing upload_image details.',
 							'level' => E_USER_WARNING
-						));
+						);
+						zz_error();
+						$outputf.= zz_error_output();
 					} else {
 						$image_uploads = 0;
 						foreach ($field['image'] as $imagekey => $image)
@@ -1439,7 +1445,7 @@ function zz_form_select_sql($field, $db_table, $record, $row_display, $zz_conf_r
 // #1.2 SELECT has only one result in the array, and this will be pre-selected 
 // because FIELD must not be NULL
 	if ($row_display == 'form' && count($lines) == 1 
-		&& !zz_check_for_null($field['field_name'], $db_table)) {
+		&& !zz_db_field_null($field['field_name'], $db_table)) {
 		$line = array_shift($lines);
 		// get ID field_name which must be 1st field in SQL query
 		$id_field_name = current(array_keys($line));
@@ -1680,7 +1686,8 @@ function zz_form_select_sql($field, $db_table, $record, $row_display, $zz_conf_r
 				);
 			}
 			$outputf.= '</select>'."\n";
-			if (!empty($zz_error)) $outputf.= zz_error();
+			zz_error();
+			$outputf.= zz_error_output();
 		}
 	
 	// #1.4 SELECT has no result
@@ -1878,5 +1885,90 @@ function zz_set_auto_value($field, $sql, $table, $tab, $rec, $id_field, $main_ta
 	return $field['default'];
 }
 
+/**
+ * HTML output of values, either in <option>, <input> or as plain text
+ *
+ * @param array $line record from database
+ * @param string $id_field_name
+ * @param array $record $my_rec['record']
+ * @param array $field field definition
+ * @param array $zz_conf_record configuration variables adjusted to this record
+ * @param string $form (optional) 
+ *		false => outputs just the selected and saved value
+ *		'reselect' => outputs input element in case there are too many elements,
+ *		'form' => outputs option fields
+ * @param int $level
+ * @param array $hierarchy (optional)
+ * @param string $parent_field_name
+ * @return string $output HTML output
+ * @see zz_form_select_sql()
+ */
+function zz_draw_select($line, $id_field_name, $record, $field, $zz_conf_record,
+	$form = false, $level = 0, $hierarchy = false, $parent_field_name = false) {
+	// initialize variables
+	if (!isset($field['sql_ignore'])) $field['sql_ignore'] = array();
+	$output = '';
+	$i = 1;
+	$details = array();
+	if ($form == 'reselect')
+		$output .= '<input type="text" size="'
+			.(!empty($field['size_select_too_long']) ? $field['size_select_too_long'] : 32)
+			.'" name="'.$field['f_field_name'].'" value="';
+	elseif ($form) {
+		$output .= '<option value="'.$line[$id_field_name].'"';
+		if ($record AND $line[$id_field_name] == $record[$field['field_name']]) {
+			$output.= ' selected="selected"';
+		} elseif (!empty($field['disabled_ids']) 
+			AND is_array($field['disabled_ids'])
+			AND in_array($line[$id_field_name], $field['disabled_ids'])) {
+			$output.= ' disabled="disabled"';
+		}
+		
+		if ($hierarchy) $output.= ' class="level'.$level.'"';
+		$output.= '>';
+	}
+	if (!isset($field['show_hierarchy'])) $field['show_hierarchy'] = false;
+	if (empty($field['sql_index_only'])) {
+		foreach (array_keys($line) as $key) {	
+			// $i = 1: field['type'] == 'id'!
+			if ($key == $parent_field_name) continue;
+			if (is_numeric($key)) continue;
+			if ($key == $field['show_hierarchy']) continue;
+			if (in_array($key, $field['sql_ignore'])) continue;
+			$line[$key] = htmlspecialchars($line[$key]);
+			if ($i > 1 AND $line[$key]) 
+				$details[] = (strlen($line[$key]) > $zz_conf_record['max_select_val_len']) 
+					? (mb_substr($line[$key], 0, $zz_conf_record['max_select_val_len']).'...') 
+					: $line[$key]; // cut long values
+			$i++;
+		}
+	} else {
+		$key = $id_field_name;
+	}
+	// remove empty fields, makes no sense
+	foreach ($details as $my_key => $value)
+		if (!$value) unset ($details[$my_key]);
+	// if only the id key is in the query, eg. show databases:
+	if (!$details) $details = $line[$key]; 
+	if (is_array($details)) $details = implode(' | ', $details);
+	$output.= strip_tags($details); // remove tags, leave &#-Code as is
+	$level++;
+	if ($form == 'reselect') {
+		// extra space, so that there won't be a LIKE operator that this value
+		// will be checked against!
+		$output.= ' ">'; 
+	} elseif ($form) {
+		$output.= '</option>'."\n";
+		if ($hierarchy && isset($hierarchy[$line[$id_field_name]]))
+			foreach ($hierarchy[$line[$id_field_name]] as $secondline) {
+				if (!empty($field['group'])) {
+					unset($secondline[$field['group']]); // not needed anymore
+				}
+				$output.= zz_draw_select($secondline, $id_field_name, $record, 
+					$field, $zz_conf_record, $form, $level, $hierarchy, $parent_field_name);
+			}
+	}
+	return $output;
+}
 
 ?>

@@ -281,6 +281,7 @@ function zz_maintenance_folders() {
 	global $zz_conf;
 	$text = '';
 
+	if (!isset($zz_conf['backup'])) $zz_conf['backup'] = '';
 	if ((!$zz_conf['backup'] OR empty($zz_conf['backup_dir']))
 		AND empty($zz_conf['temp_dir'])) {
 		$text .= '<p>'.zz_text('Backup of uploaded files is not active.').'</p>'."\n";
@@ -614,8 +615,9 @@ function zz_maintenance_logs() {
 		if (substr($line, -1) == ']' AND strstr($line, '[')) {
 			$user = substr($line, strrpos($line, '[')+1, -1);
 			$user = explode(' ', $user);
-			if (count($user) > 1)
+			if (count($user) > 1 AND substr($user[0], -1) == ':') {
 				array_shift($user); // get rid of User: or translations of it
+			}
 			$user = implode(' ', $user);
 			$line = substr($line, 0, strrpos($line, '['));
 		}

@@ -43,19 +43,26 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 		switch ($condition['scope']) {
 		case 'record': // for form view (of saved records), list view comes later in zz_list() because requery of record 
 			$zz_conditions['bool'][$index] = array();
-			if (($mode == 'add' OR $zz_var['action'] == 'insert') 
-				AND !empty($condition['add'])
-				AND !empty($zz_var['where'][$zz['table']][$condition['add']['key_field_name']])) {
-				$sql = $condition['add']['sql']
-					.'"'.$zz_var['where'][$zz['table']][$condition['add']['key_field_name']].'"';
-				if (!empty($condition['where']))
-					$sql = zz_edit_sql($sql, 'WHERE', $condition['where']);
-				if (!empty($condition['having']))
-					$sql = zz_edit_sql($sql, 'HAVING', $condition['having']);
-				if (zz_db_fetch($sql, '', '', 'record-new ['.$index.']'))
+			if (($mode == 'add' OR $zz_var['action'] == 'insert') AND !empty($condition['add'])) {
+				if (!empty($condition['add']['always'])) {
+					// mode = 'add': this condition is always true
+					// (because condition is true for this record after being 
+					// inserted and it's not yet possible to check that)
 					$zz_conditions['bool'][$index][0] = true;
-				else
-					$zz_conditions['bool'][$index][0] = false;
+				} elseif (!empty($zz_var['where'][$zz['table']][$condition['add']['key_field_name']])) {
+					$sql = $condition['add']['sql']
+						.'"'.$zz_var['where'][$zz['table']][$condition['add']['key_field_name']].'"';
+					if (!empty($condition['where']))
+						$sql = zz_edit_sql($sql, 'WHERE', $condition['where']);
+					if (!empty($condition['having']))
+						$sql = zz_edit_sql($sql, 'HAVING', $condition['having']);
+					if (zz_db_fetch($sql, '', '', 'record-new ['.$index.']')) {
+						$zz_conditions['bool'][$index][0] = true;
+					} else {
+						$zz_conditions['bool'][$index][0] = false;
+					}
+					if ($zz_error['error']) return zz_return($zz_conditions); // DB error
+				}
 			}
 			if ($mode != 'list_only' AND !empty($zz_var['id']['value'])) {
 				$sql = $zz['sql'];
@@ -67,6 +74,7 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 				$sql = zz_edit_sql($sql, 'WHERE', '`'.$zz['table'].'`.`'
 					.$zz_var['id']['field_name'].'` = '.$zz_var['id']['value']);
 				$lines = zz_db_fetch($sql, $zz_var['id']['field_name'], 'id as key', 'record-list ['.$index.']');
+				if ($zz_error['error']) return zz_return($zz_conditions); // DB error
 				if (empty($zz_conditions['bool'][$index]))
 					$zz_conditions['bool'][$index] = $lines;
 				else
@@ -78,6 +86,7 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 			if ($mode != 'list_only' AND !empty($zz_var['id']['value'])) {
 				$sql = zz_edit_sql($condition['sql'], 'WHERE', $condition['key_field_name'].' = '.$zz_var['id']['value']);
 				$lines = zz_db_fetch($sql, $condition['key_field_name'], 'id as key', 'query ['.$index.']');
+				if ($zz_error['error']) return zz_return($zz_conditions); // DB error
 				if (empty($zz_conditions['bool'][$index]))
 					$zz_conditions['bool'][$index] = $lines;
 				else
@@ -98,6 +107,7 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 					$sql = zz_edit_sql($zz['sql'], 'WHERE', $zz['table'].'.'
 						.$zz_var['id']['field_name'].' = '.$zz_var['id']['value']);
 					$line = zz_db_fetch($sql, '', '', 'value/1 ['.$index.']');
+					if ($zz_error['error']) return zz_return($zz_conditions); // DB error
 					if ($line) {
 						$value = $line[$condition['field_name']];
 					} else {
@@ -107,6 +117,7 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 				}
 				$sql = sprintf($condition['sql'], $value);
 				$lines = zz_db_fetch($sql, 'dummy_id', 'numeric', 'value/2 ['.$index.']');
+				if ($zz_error['error']) return zz_return($zz_conditions); // DB error
 				if (empty($zz_conditions['values'][$index]))
 					$zz_conditions['values'][$index] = $lines;
 				else
@@ -320,11 +331,13 @@ function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids) {
 					$sql = zz_edit_sql($sql, 'WHERE', '`'.$zz['table'].'`.'.$id_field.' IN ('.implode(',', $ids).')');
 				}
 				$lines = zz_db_fetch($sql, $id_field, 'id as key', 'list-record ['.$index.']');
+				if ($zz_error['error']) return zz_return($zz_conditions); // DB error
 				break;
 			case 'query':
 				$sql = $condition['sql'];
 				$sql = zz_edit_sql($sql, 'WHERE', $condition['key_field_name'].' IN ('.implode(', ', $ids).')');
 				$lines = zz_db_fetch($sql, $condition['key_field_name'], 'id as key', 'list-query ['.$index.']');
+				if ($zz_error['error']) return zz_return($zz_conditions); // DB error
 				break;
 			default:
 				$lines = array();
