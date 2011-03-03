@@ -240,6 +240,9 @@ mp3		mp3		mp3		audio/x-mpegaudio				MPEG Audio Stream, Layer III
 
 ics		ics		ics		text/calendar					vCalendar calendar file
 
+ai		ai		ai		application/postscript			Adobe Illustrator graphics file
+ai		ai		ai		application/pdf					Adobe Illustrator graphics file
+
 ### EOF
 #
 #

@@ -24,11 +24,9 @@
  */
 function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	global $zz_conf;
-	global $zz_error;
-
-	$zz_conf['int']['group_field_no'] = array();
-
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	global $zz_error;
+	$zz_conf['int']['group_field_no'] = array();
 
 	// Turn off hierarchical sorting when using search
 	// TODO: implement hierarchical view even when using search
@@ -39,7 +37,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	// only if search is allowed and there is something
 	// if q modify $zz['sql']: add search query
 	if (!empty($_GET['q']) AND $zz_conf['search']) 
-		$zz['sql'] = zz_search_sql($zz['fields'], $zz['sql'], $zz['table'], $zz_var['id']['field_name']);	
+		$zz['sql'] = zz_search_sql($zz['fields_in_list'], $zz['sql'], $zz['table'], $zz_var['id']['field_name']);	
 
 	$id_field = $zz_var['id']['field_name'];
 
@@ -97,7 +95,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	// must be behind update, insert etc. or it will return the wrong number
 	$total_rows = zz_count_rows($zz['sql'], $zz['table'].'.'.$id_field);	
 	$zz['sql'].= (!empty($zz['sqlorder']) ? ' '.$zz['sqlorder'] : ''); 	// must be here because of where-clause
-	$zz['sql'] = zz_sql_order($zz['fields'], $zz['sql']); // Alter SQL query if GET order (AND maybe GET dir) are set
+	$zz['sql'] = zz_sql_order($zz['fields_in_list'], $zz['sql']); // Alter SQL query if GET order (AND maybe GET dir) are set
 
 	//
 	// Query records
@@ -179,17 +177,22 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	// don't show anything if there is nothing
 	if (!$count_rows) {
 		$zz_conf['show_list'] = false;
-		$ops['output'].= '<p>'.zz_text('table-empty').'</p>';
+		if ($text = zz_text('table-empty')) {
+			$ops['output'].= '<p>'.$text.'</p>';
+		}
 	}
 
-	if ($zz_conf['modules']['debug']) zz_debug("conditions start");
 	// Check all conditions whether they are true;
-	if (!empty($zz_conf['modules']['conditions']))
+	if (!empty($zz_conf['modules']['conditions'])) {
+		if ($zz_conf['modules']['debug']) zz_debug("conditions start");
 		$zz_conditions = zz_conditions_list_check($zz, $zz_conditions, $id_field, array_keys($lines));
+	}
 	if ($zz_error['error']) return zz_return(array($ops, $zz_var));
 	zz_error();
 	$ops['output'] .= zz_error_output();
-	if ($zz_conf['modules']['debug']) zz_debug("conditions finished");
+	if (!empty($zz_conf['modules']['conditions'])) {
+		if ($zz_conf['modules']['debug']) zz_debug("conditions finished");
+	}
 
 	// check conditions, these might lead to different field definitions for every
 	// line in the list output!
@@ -197,7 +200,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	// zz_fill_out must be outside if show_list, because it is necessary for
 	// search results with no resulting records
 	// fill_out, but do not unset conditions
-	$zz['fields_in_list'] = zz_fill_out($zz['fields_in_list'], $zz_conf['db_name'].'.'.$zz['table'], true); 
+	$zz['fields_in_list'] = zz_fill_out($zz['fields_in_list'], $zz_conf['db_name'].'.'.$zz['table'], 1); 
 	if ($zz_conf['show_list']) {
 		$conditions_applied = array(); // check if there are any conditions
 		array_unshift($lines, '0'); // 0 as a dummy record for which no conditions will be set
@@ -278,7 +281,8 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			}
 			if ($show_field) {
 				$ops['output'].= '<th'.zz_field_class($field, (!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : ''), true).'>';
-				if (!in_array($field['type'], $unsortable_fields) && isset($field['field_name'])) { 
+				if (!in_array($field['type'], $unsortable_fields) && isset($field['field_name'])
+					AND empty($field['dont_sort'])) { 
 					$ops['output'].= '<a href="';
 					if (isset($field['display_field'])) $order_val = $field['display_field'];
 					else $order_val = $field['field_name'];
@@ -586,7 +590,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 							&& in_array($line[$field['field_name']], array_keys($field['display_title'])))
 							$line[$field['field_name']] = $field['display_title'][$line[$field['field_name']]];
 						if (isset($field['factor']) && $line[$field['field_name']]) 
-							$line[$field['field_name']] /=$field['factor'];
+							$line[$field['field_name']] /= $field['factor'];
 						if ($field['type'] == 'unix_timestamp') {
 							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(date('Y-m-d H:i:s', $line[$field['field_name']]), $field['field_name'], $field);
 						} elseif ($field['type'] == 'timestamp') {
@@ -605,11 +609,13 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 						} elseif (isset($field['number_type']) && $field['number_type'] == 'currency') {
 							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(waehrung($line[$field['field_name']], ''), $field['field_name'], $field);
 						} elseif (isset($field['number_type']) && $field['number_type'] == 'latitude' && $line[$field['field_name']]) {
-							$deg = dec2dms($line[$field['field_name']], '');
-							$rows[$z][$fieldindex]['text'].= zz_mark_search_string($deg['latitude_dms'], $field['field_name'], $field);
+							if (empty($field['geo_format'])) $field['geo_format'] = 'dms';
+							$deg = zz_geo_coord_out($line[$field['field_name']], 'latitude', $field['geo_format']);
+							$rows[$z][$fieldindex]['text'].= zz_mark_search_string($deg, $field['field_name'], $field);
 						} elseif (isset($field['number_type']) && $field['number_type'] == 'longitude' && $line[$field['field_name']]) {
-							$deg = dec2dms('', $line[$field['field_name']]);
-							$rows[$z][$fieldindex]['text'].= zz_mark_search_string($deg['longitude_dms'], $field['field_name'], $field);
+							if (empty($field['geo_format'])) $field['geo_format'] = 'dms';
+							$deg = zz_geo_coord_out($line[$field['field_name']], 'longitude', $field['geo_format']);
+							$rows[$z][$fieldindex]['text'].= zz_mark_search_string($deg, $field['field_name'], $field);
 						} elseif (!empty($field['display_value'])) {
 							// translations should be done in $zz-definition-file
 							$rows[$z][$fieldindex]['text'].= $field['display_value'];
@@ -695,7 +701,8 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			if (!empty($zz_conf_record['details'])) {
 				$rows[$z]['details'] = zz_show_more_actions($zz_conf_record['details'], 
 					$zz_conf_record['details_url'],  $zz_conf_record['details_base'], 
-					$zz_conf_record['details_target'], $zz_conf_record['details_referer'], $id, $line);
+					$zz_conf_record['details_target'], $zz_conf_record['details_referer'], 
+					$zz_conf_record['details_sql'], $id, $line);
 				$details = true; // need a table row for this
 			}
 			$z++;
@@ -1507,6 +1514,11 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 			$fieldname = $table.'.'.$field['field_name'];
 		}
 		if ($fieldname) $q_search[] = $fieldname.$searchstring;
+		
+		// additional between search
+		if (isset($field['search_between'])) {
+			$q_search[] = sprintf($field['search_between'], $searchword, $searchword);
+		}
 	}
 	$q_search = '('.implode(' OR ', $q_search).')';
 	$sql = zz_edit_sql($sql, 'WHERE', $q_search);

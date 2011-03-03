@@ -165,7 +165,8 @@ body #zzform .separator hr {width: 100%; margin: 0.25em 0; height: 3px;
 #zzform .zzfilter dt {float: left; clear: left;}
 #zzform .zzfilter dd {margin: 0; padding: 0 .5em; float: left;
 	border-right: 1px solid black; white-space: nowrap; }
-#zzform .zzfilter dd.filter_all {border-right: none;}
+#zzform .zzfilter dd.filter_all {border-right: none; /* for old browsers */}
+#zzform .zzfilter dd:last-child {border-right: none;}
 
 /* Variables */
 .zzvariables th { white-space: nowrap; text-align: left; padding-right: .5em; 

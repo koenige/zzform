@@ -246,4 +246,23 @@ function waehrung($int, $unit) {
 	return $int;
 }
 
+function zz_format_bytes($bytes, $precision = 1) { 
+	global $zz_conf;
+    $units = array('B', 'KB', 'MB', 'GB', 'TB'); 
+
+    $bytes = max($bytes, 0); 
+    $pow = floor(($bytes ? log($bytes) : 0) / log(1024)); 
+    $pow = min($pow, count($units) - 1); 
+
+    // Uncomment one of the following alternatives
+    // $bytes /= pow(1024, $pow);
+    $bytes /= (1 << (10 * $pow)); 
+
+    $text = round($bytes, $precision) . '&nbsp;' . $units[$pow]; 
+    if ($zz_conf['language'] == 'de')
+    	$text = str_replace('.', ',', $text);
+    return $text;
+}
+
+
 ?>

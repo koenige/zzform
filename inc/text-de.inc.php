@@ -262,5 +262,19 @@ $text['Please choose one of the filters.'] = 'Bitte w&auml;hlen Sie aus den Filt
 $text['Show PHP info on server'] = 'Zeige Informationen zu PHP auf dem Server';
 
 $text['Copy'] = 'Kopieren';
+$text['Transfer failed. Probably you sent a file that was too large.'] = '&Uuml;bertragung fehlgeschlagen. Vermutlich haben Sie eine Datei gesendet, die zu gro&szlig; war.';
+$text['You sent: %s data.'] = 'Sie haben %s Daten gesendet.';
+
+$text['It looks like this coordinate has a different orientation. Maybe latitude and longitude were interchanged?'] = 'Es sieht aus, als ob diese Koordinate eine andere Orientierung hat. Wurden Länge und Breite vertauscht?';
+$text['Mismatch: %s signals different hemisphere than %s.'] = 'Nicht eindeutig: %s zeigt eine andere Hemisph&auml;re an als %s.';
+$text['There are too many decimal points (or commas) in this value.'] = 'In diesem Wert sind zuviele Kommas oder Punkte.';
+$text['Only the last number might have a decimal point (or comma).'] = 'Nur die letzte Zahl darf ein Komma enthalten (oder einen Punkt).';
+$text['%s is too small. Please enter for minutes a positive value or 0.'] = '%s ist zu klein. Bitte geben Sie f&uuml;r Minuten einen positiven Wert oder 0 ein.';
+$text['%s is too small. Please enter for seconds a positive value or 0.'] = '%s ist zu klein. Bitte geben Sie f&uuml;r Sekunden einen positiven Wert oder 0 ein';
+$text['%s is too big. Please enter for minutes a value smaller than 60.'] = '%s ist zu gro&szlig;. Bitte geben Sie f&uuml;r Minuten einen Wert kleiner als 60 ein.';
+$text['%s is too big. Please enter for seconds a value smaller than 60.'] = '%s ist zu gro&szlig;. Bitte geben Sie f&uuml;r Sekunden einen Wert kleiner als 60 ein.';
+$text['Sorry, there are too many numbers. We cannot interpret what you entered.'] = 'Wir können leider nicht diese Koordinate korrekt interpretieren, da zuviele Zahlen eingegeben wurden.';
+$text['Minimum value for degrees is %s. The value you entered is too small: %s.'] = 'Der kleinste Wert für Grad ist %s. Der Wert, den Sie eingegeben haben, ist zu klein: %s.';
+$text['Maximum value for degrees is %s. The value you entered is too big: %s.'] = 'Der gr&ouml;&szlig;te Wert für Grad ist %s. Der Wert, den Sie eingegeben haben, ist zu gro&szlig;: %s.';
 
 ?>

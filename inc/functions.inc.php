@@ -32,36 +32,35 @@
  *
  * @param array $modules			list of modules to be added
  * @param string $path				path to where modules can be found
- * @param array $zz_conf_global		global config, modules may add further config variables
  * @return array $mod
  */
-function zz_add_modules($modules, $path, $zz_conf_global) {
+function zz_add_modules($modules, $path) {
 	$debug_started = false;
-	if (!empty($mod['modules']['debug']) OR !empty($zz_conf_global['modules']['debug'])) {
+	if (!empty($GLOBALS['zz_conf']['modules']['debug'])) {
 		zz_debug('start', __FUNCTION__);
 		$debug_started = true;
 	}
 //	initialize variables
-	$mod['modules'] = false;
+	$mod = array();
 	$zz_default = array();
 	$zz_conf = array();
 
 //	import modules
 	foreach ($modules as $module) {
-		if ($module == 'debug' AND empty($zz_conf_global['debug'])) {
-			$mod['modules'][$module] = false;
+		if ($module == 'debug' AND empty($GLOBALS['zz_conf']['debug'])) {
+			$mod[$module] = false;
 			continue;
 		}
 		if (file_exists($path.'/'.$module.'.inc.php')) {
 			include_once $path.'/'.$module.'.inc.php';
-			$mod['modules'][$module] = true;
+			$mod[$module] = true;
 		} elseif (file_exists($path.'/'.$module.'.php')) {
 			include_once $path.'/'.$module.'.php';
-			$mod['modules'][$module] = true;
+			$mod[$module] = true;
 		} else {
-			$mod['modules'][$module] = false;
+			$mod[$module] = false;
 			// int_modules/ext_modules have debug module at different place
-			if (!empty($mod['modules']['debug']) OR !empty($zz_conf_global['modules']['debug'])) {
+			if (!empty($mod['debug']) OR !empty($GLOBALS['zz_conf']['modules']['debug'])) {
 				if (!$debug_started) {
 					zz_debug('start', __FUNCTION__);
 					$debug_started = true;
@@ -69,7 +68,7 @@ function zz_add_modules($modules, $path, $zz_conf_global) {
 				zz_debug("optional module ".$path.'/'.$module.'(.inc).php not included');
 			}
 		}
-		if (!empty($mod['modules']['debug']) OR !empty($zz_conf_global['modules']['debug'])) {
+		if (!empty($mod['debug']) OR !empty($GLOBALS['zz_conf']['modules']['debug'])) {
 			if (!$debug_started) {
 				zz_debug('start', __FUNCTION__);
 				$debug_started = true;
@@ -77,11 +76,53 @@ function zz_add_modules($modules, $path, $zz_conf_global) {
 			zz_debug($module);
 		}
 	}
-	$mod['vars']['zz_default'] = $zz_default;
-	$mod['vars']['zz_conf'] = $zz_conf;
+
+	// import variables from internal modules
+	$GLOBALS['zz_conf'] = zz_array_merge($GLOBALS['zz_conf'], $zz_conf);
+	zz_write_defaults($zz_default, $GLOBALS['zz_conf']);
+	// zzform_multi: module might be added later, so add default variables
+	// for $zz_saved as well
+	if (!empty($GLOBALS['zz_saved']['conf'])) {
+		$GLOBALS['zz_saved']['conf'] = zz_array_merge($GLOBALS['zz_saved']['conf'], $zz_conf);
+		zz_write_defaults($zz_default, $GLOBALS['zz_saved']['conf']);
+	}
+
 	// int_modules/ext_modules have debug module at different place
 	if ($debug_started) zz_debug('end');
 	return $mod;
+}
+
+/**
+ * checks whether fields contain a value for a certain key
+ *
+ * @param array @zz
+ * @param string @key
+ * @param string $field_type
+ * @return
+ */
+function zz_module_fieldcheck($zz, $key, $field_type) {
+	$types = array('fields', 'conditional_fields');
+	foreach ($types as $type) {
+		if (empty($zz[$type])) continue;
+		foreach ($zz[$type] as $field) {
+			if (!empty($field[$key]) AND $field[$key] == $field_type) return true;
+			if (!empty($field['conditions'])) {
+				foreach ($field['conditions'] as $condfield) {
+					if (!empty($condfield[$key]) AND $condfield[$key] == $field_type) return true;
+				}
+			}
+			if (empty($field['fields'])) continue;
+			foreach ($field['fields'] as $index => $subfield) {
+				if (!is_array($subfield)) continue;
+				if (!empty($subfield[$key]) AND $subfield[$key] == $field_type) return true;
+				if (empty($subfield['conditions'])) continue;
+				foreach ($subfield['conditions'] as $condfield) {
+					if (!empty($condfield[$key]) AND $condfield[$key] == $field_type) return true;
+				}
+			}
+		}
+	}
+	return false;
 }
 
 /**
@@ -204,7 +245,8 @@ function zz_get_where_conditions() {
 function zz_record_conf($zz_conf) {
 	$wanted_keys = array('access', 'edit', 'delete', 'add', 'view', 'conditions',
 		'details', 'details_url', 'details_base', 'details_target', 'details_referer',
-		'max_select', 'max_select_val_len', 'copy', 'no_ok', 'cancel_link'
+		'details_sql', 'max_select', 'max_select_val_len', 'copy', 'no_ok',
+		'cancel_link'
 	);
 	$zz_conf_record = array();
 	foreach ($wanted_keys as $key) {
@@ -353,7 +395,7 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = arr
 		if ($field_name == $zz_var['id']['field_name']) {
 			$zz_var['where_with_unique_id'] = true;
 			$zz_var['id']['value'] = $value;
-		} elseif (in_array($field_name, $zz_var['unique_fields'])) {
+		} elseif (in_array($field_name, array_keys($zz_var['unique_fields']))) {
 			$zz_var['where_with_unique_id'] = true;
 		}
 	}
@@ -435,6 +477,12 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false)
 		if (!isset($fields[$no]['type'])) // default type: text
 			$fields[$no]['type'] = 'text';
 		if (!isset($fields[$no]['title'])) { // create title
+			if (!isset($fields[$no]['field_name'])) {
+				global $zz_error;
+				$zz_error[] = array(
+					'msg_dev' => 'Field definition incorrect: [No. '.$no.'] '.serialize($fields[$no])
+				);
+			}
 			$fields[$no]['title'] = ucfirst($fields[$no]['field_name']);
 			$fields[$no]['title'] = str_replace('_ID', ' ', $fields[$no]['title']);
 			$fields[$no]['title'] = str_replace('_id', ' ', $fields[$no]['title']);
@@ -442,13 +490,14 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false)
 			$fields[$no]['title'] = rtrim($fields[$no]['title']);
 		}
 
-		if (($zz_conf['multilang_fieldnames']) 
-			AND (!$multiple_times OR $multiple_times > 1)) {// translate fieldnames, if set
+		if ($zz_conf['multilang_fieldnames'] AND empty($fields[$no]['translated'])) {
+			// translate fieldnames, if set
 			$fields[$no]['title'] = zz_text($fields[$no]['title']);
 			if (!empty($fields[$no]['explanation']))
 				$fields[$no]['explanation'] = zz_text($fields[$no]['explanation']);
 			if (!empty($fields[$no]['title_append'])) 
 				$fields[$no]['title_append'] = zz_text($fields[$no]['title_append']);
+			$fields[$no]['translated'] = true;
 		}
 		if ($fields[$no]['type'] == 'option') { 
 			$fields[$no]['hide_in_list'] = true; // do not show option-fiels in tab
@@ -729,11 +778,13 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 			$main_tab[0]['id']['value'], $rec_tpl['id']['field_name'], $my_tab['subtable_deleted']); 
 	} else 
 		$my_tab['existing'] = array();
+	if (!empty($zz_error['error'])) return $my_tab;
 	// get detail records for source_id
 	$source_values = array();
 	if ($mode == 'add' AND !empty($main_tab[0]['id']['source_value'])) {
 		$my_tab['POST'] = zz_query_subrecord($my_tab, $main_tab['table'], 
 			$main_tab[0]['id']['source_value'], $rec_tpl['id']['field_name'], $my_tab['subtable_deleted']);
+		if (!empty($zz_error['error'])) return $my_tab;
 		// get rid of foreign_keys and ids
 		foreach (array_keys($my_tab['POST']) as $post_id) {
 			foreach ($rec_tpl['fields'] AS $my_field) {
@@ -844,7 +895,7 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 		if ($zz_conf['always_show_empty_detail_record'])
 			if (!$my_tab['records']) $my_tab['records'] = 1;
 	}
-	
+
 	// check records against database, if we have values, check number of records
 	if ($mode) {
 		$my_tab = zz_get_subrecords_mode($my_tab, $rec_tpl, $zz_var, $existing_ids);
@@ -859,11 +910,13 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 			// set values, rewrite POST-Array
 			if (!empty($my_tab['values'])) {
 				$my_tab = zz_set_values($my_tab, $rec, $zz_var);
-				if (!empty($my_tab['fielddefs']))
+				if (!empty($my_tab['fielddefs'])) {
 					$my_tab[$rec]['fields'] = zz_set_fielddefs($my_tab['fielddefs'], $my_tab[$rec]['fields']);
+				}
 			}
 		}
 	}
+
 	return $my_tab;
 }
 
@@ -978,20 +1031,19 @@ function zz_values_get_equal_key(&$values, $record) {
  */
 function zz_set_values($my_tab, $rec, $zz_var) {
 	$my_values = array_shift($my_tab['values']);
-	$fields = &$my_tab[$rec]['fields'];
 	$table = $my_tab['table_name'];
-	foreach (array_keys($fields) AS $f) {
+	foreach (array_keys($my_tab[$rec]['fields']) AS $f) {
 		if (!empty($my_values[$f])) {
-			if ($fields[$f]['type'] != 'hidden')
-				$fields[$f]['type_detail'] = $fields[$f]['type'];
-			$fields[$f]['type'] = 'hidden';
-			$fields[$f]['value'] = $my_values[$f];
+			if ($my_tab[$rec]['fields'][$f]['type'] != 'hidden')
+				$my_tab[$rec]['fields'][$f]['type_detail'] = $my_tab[$rec]['fields'][$f]['type'];
+			$my_tab[$rec]['fields'][$f]['type'] = 'hidden';
+			$my_tab[$rec]['fields'][$f]['value'] = $my_values[$f];
 		}
 	}
 	// we have new values, so check whether these are set!
 	// it's not possible to do this beforehands!
 	if (!empty($my_tab['POST'][$rec])) {
-		$my_tab['POST'][$rec] = zz_check_def_vals($my_tab['POST'][$rec], $fields, array(),
+		$my_tab['POST'][$rec] = zz_check_def_vals($my_tab['POST'][$rec], $my_tab[$rec]['fields'], array(),
 			(!empty($zz_var['where'][$table]) ? $zz_var['where'][$table] : ''));
 	}
 	return $my_tab;
@@ -1017,8 +1069,9 @@ function zz_get_subrecords_mode($my_tab, $rec_tpl, $zz_var, $existing_ids) {
 			$my_tab[$rec] = $rec_tpl;
 		if (isset($my_tab['values'])) {	// isset because might be empty
 			$my_tab = zz_set_values($my_tab, $rec, $zz_var);
-			if (!empty($my_tab['fielddefs']))
+			if (!empty($my_tab['fielddefs'])) {
 				$my_tab[$rec]['fields'] = zz_set_fielddefs($my_tab['fielddefs'], $my_tab[$rec]['fields']);
+			}
 		}
 		// ok, after we got the values, continue, rest already exists.
 		if ($continue_fast) continue;
@@ -1203,9 +1256,9 @@ function zz_record_access($zz, $ops, $zz_var) {
 	
 	// set mode and action according to $_GET and $_POST variables
 	// do not care yet if actions are allowed
-
 	if ($ops['mode'] == 'export') {
-		$zz_conf['access'] = 'export'; 	// Export overwrites all
+		// Export overwrites all
+		$zz_conf['access'] = 'export'; 	
 		$zz_conf['show_record'] = false;
 	} elseif (isset($_POST['zz_subtables'])) {
 		// ok, no submit button was hit but only add/remove form fields for
@@ -1219,43 +1272,40 @@ function zz_record_access($zz, $ops, $zz_var) {
 		} else {
 			$ops['mode'] = false; // this should not occur if form is used legally
 		}
-	} else {
+	} elseif (!empty($_GET['mode'])) {
 		// standard case, get mode from URL
-		if (!empty($_GET['mode'])) {
-			if (in_array($_GET['mode'], $zz_conf['int']['allowed_params']['mode'])) {
-				$ops['mode'] = $_GET['mode']; // set mode from URL
-				if (($ops['mode'] == 'edit' OR $ops['mode'] == 'delete' OR $ops['mode'] == 'show')
-					AND !empty($_GET['id'])) {
-					$id_value = $_GET['id'];
-				} elseif ($ops['mode'] == 'add' AND $zz_conf['copy'] AND !empty($_GET['source_id'])) {
-					$zz_var['id']['source_value'] = $_GET['source_id'];
-				}
-			} else {
-				// illegal parameter, don't set a mode at all
-				$ops['mode'] = false;
+		if (in_array($_GET['mode'], $zz_conf['int']['allowed_params']['mode'])) {
+			$ops['mode'] = $_GET['mode']; // set mode from URL
+			if (($ops['mode'] == 'edit' OR $ops['mode'] == 'delete' OR $ops['mode'] == 'show')
+				AND !empty($_GET['id'])) {
+				$id_value = $_GET['id'];
+			} elseif ($ops['mode'] == 'add' AND $zz_conf['copy'] AND !empty($_GET['source_id'])) {
+				$zz_var['id']['source_value'] = $_GET['source_id'];
 			}
-		} elseif (!empty($_GET['zzaction']) AND !empty($_GET['id'])) {
-			// last record operation was successful
-			$ops['mode'] = 'show';
-			$id_value = $_GET['id'];
 		} else {
-			if (!empty($_POST['zz_action']) 
-				AND in_array($_POST['zz_action'], $zz_conf['int']['allowed_params']['action'])) {
-				// triggers valid database action
-				$zz_var['action'] = $_POST['zz_action']; 
-				if (!empty($_POST[$zz_var['id']['field_name']]))
-					$id_value = $_POST[$zz_var['id']['field_name']];
-				$ops['mode'] = false;
-			} elseif ($zz_var['where_with_unique_id']) {
-				// just review the record
-				$ops['mode'] = 'review'; 
-			} else {
-				// no record is selected, basic view when starting to edit data
-				// list mode only
-				$ops['mode'] = 'list_only';
-			}
+			// illegal parameter, don't set a mode at all
+			$ops['mode'] = false;
 		}
+	} elseif (!empty($_GET['zzaction']) AND !empty($_GET['id'])) {
+		// last record operation was successful
+		$ops['mode'] = 'show';
+		$id_value = $_GET['id'];
+	} elseif (!empty($_POST['zz_action']) 
+		AND in_array($_POST['zz_action'], $zz_conf['int']['allowed_params']['action'])) {
+		// triggers valid database action
+		$zz_var['action'] = $_POST['zz_action']; 
+		if (!empty($_POST[$zz_var['id']['field_name']]))
+			$id_value = $_POST[$zz_var['id']['field_name']];
+		$ops['mode'] = false;
+	} elseif ($zz_var['where_with_unique_id']) {
+		// just review the record
+		$ops['mode'] = 'review'; 
+	} else {
+		// no record is selected, basic view when starting to edit data
+		// list mode only
+		$ops['mode'] = 'list_only';
 	}
+
 	// write main id value, might have been written by a more trustful instance
 	// beforehands ($_GET['where'] etc.)
 	if (empty($zz_var['id']['value']) AND !empty($id_value))
@@ -2324,8 +2374,8 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 		} else {
 			$current['function'] = '';
 		}
-		$msg_dev = 'Error in SQL query in function'
-			.(!empty($current['function']) ? ' '.$current['function'] : '')
+		$msg_dev = 'Error in SQL query'
+			.(!empty($current['function']) ? ' in function '.$current['function'] : '')
 			.($info ? ' - '.$info.'.' : '');
 
 		global $zz_error;
@@ -2578,6 +2628,7 @@ function zz_error() {
 	global $zz_error;	// we need this global, because it's global everywhere, 
 						// so we can clear the variable here
 	
+	if (empty($zz_conf['error_handling'])) $zz_conf['error_handling'] = 'output';
 	$user_output = array();
 	$admin_output = array();
 	$log_output = array();
@@ -2688,9 +2739,10 @@ function zz_error() {
 	}
 
 	// mail errors if said to do so
-	if (!empty($zz_conf['error_handling']) AND $zz_conf['error_handling'] == 'mail' 
-		AND $zz_conf['error_mail_to']
-		AND count($mail_output)) {
+	switch ($zz_conf['error_handling']) {
+	case 'mail':	
+		if (!$zz_conf['error_mail_to']) break;
+		if (!count($mail_output)) break;
 		$mailtext = implode("\n\n", $mail_output);
 		$mailtext = sprintf(zz_text('The following error(s) occured in project %s:'), $zz_conf['project'])."\n\n".$mailtext;
 		$mailtext = html_entity_decode($mailtext, ENT_QUOTES, $log_encoding);		
@@ -2706,10 +2758,14 @@ function zz_error() {
 Content-Type: text/plain; charset='.$zz_conf['character_set'].'
 Content-Transfer-Encoding: 8bit
 From: '.$zz_conf['error_mail_from']);
-	// TODO: check what happens with utf8 mails
-	} elseif ((!empty($zz_conf['error_handling']) AND $zz_conf['error_handling'] == 'output')
-		OR empty($zz_conf['error_handling'])) {
+		break;
+	case 'output':
 		$user_output = $admin_output;
+		break;
+	case 'save_mail':
+		if (!count($mail_output)) break;
+		$zz_conf['int']['error'][] = $mail_output;
+		break;
 	}
 
 	$zz_error = array(); // Went through all errors, so we do not need them anymore
@@ -2787,12 +2843,46 @@ function zz_create_topfolders($my_dir) {
  * Translate text if possible or write back text string to be translated
  * 
  * @param string $string		Text string to be translated
+ * @global array $zz_conf
  * @return string $string		Translation of text
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_text($string) {
-	global $text;
+	static $text;				// $text will only be available to this function
 	global $zz_conf;
+
+	if (empty($zz_conf['int']['text_included'])) {
+		if (!isset($zz_conf['lang_dir'])) {
+			$zz_conf['lang_dir'] = $zz_conf['dir_custom'];
+		}
+		require $zz_conf['dir_inc'].'/text-en.inc.php';			// English text
+		if (!empty($zz_conf['additional_text']) 
+			AND file_exists($langfile = $zz_conf['lang_dir'].'/text-en.inc.php')) 
+			include $langfile; // must not be include_once since $text is cleared beforehands
+
+		// text in other languages
+		if (isset($zz_conf['language']) && $zz_conf['language'] != 'en') {
+			$langfile = $zz_conf['dir_inc'].'/text-'.$zz_conf['language'].'.inc.php';
+			if (file_exists($langfile)) include $langfile;
+			else {
+				$zz_error[] = array(
+					'msg_dev' => sprintf(zz_text('No language file for "%s" found. Using English instead.'), 
+						'<strong>'.$zz_conf['language'].'</strong>'),
+					'level' => E_USER_NOTICE
+				);
+			}
+			if (!empty($zz_conf['additional_text']) AND file_exists($langfile = $zz_conf['lang_dir']
+				.'/text-'.$zz_conf['language'].'.inc.php')) {
+				include $langfile; // must not be include_once since $text is cleared beforehands
+			}
+		}
+		// todo: if file exists else lang = en
+		$zz_conf['int']['text_included'] = true;
+	}
+	if (!empty($zz_conf['text'][$zz_conf['language']])) {
+		$text = array_merge($text, $zz_conf['text'][$zz_conf['language']]);
+	}
+
 	if (!isset($text[$string])) {
 		// write missing translation to somewhere.
 		// TODO: check logfile for duplicates
@@ -2804,8 +2894,8 @@ function zz_text($string) {
 			chmod($log_file, 0664);
 		}
 		return $string;
-	} else
-		return $text[$string];
+	}
+	return $text[$string];
 }
 
 
@@ -2972,6 +3062,7 @@ function zz_filter_selection($filter) {
 			// there is a default selection, so we need a parameter = 0!
 			$link = $self.($qs ? $qs.'&amp;' : '?').'filter['.$f['identifier'].']=0';
 		}
+		if (!empty($filter[$index]['hide_all_link'])) continue;
 		$filter_output[$index] .= '<dd class="filter_all">&#8211;&nbsp;'
 			.(isset($_GET['filter'][$f['identifier']]) ? '<a href="'.$link.'">' : '<strong>')
 			.zz_text('all')
@@ -2997,13 +3088,13 @@ function zz_filter_selection($filter) {
  *		will be created from 'details'
  * @param string $more_actions_target	$zz_conf['details_target']
  * @param bool $more_actions_referer	$zz_conf['details_referer']
+ * @param array $sql	$zz_conf['details_sql']
  * @param int $id
  * @param array $line
  * @global array $zz_conf
  * @return string HTML output of all detail links
  */
-function zz_show_more_actions($more_actions, $more_actions_url, $more_actions_base, 
-		$more_actions_target, $more_actions_referer, $id, $line = false) {
+function zz_show_more_actions($more_actions, $more_actions_url, $more_actions_base, $more_actions_target, $more_actions_referer, $sql, $id, $line = false) {
 	if (!function_exists('forceFilename')) {
 		echo zz_text('Function forceFilename() required but not found! It is as well '
 			.'possible that <code>$zz_conf[\'character_set\']</code> is incorrectly set.');
@@ -3038,6 +3129,10 @@ function zz_show_more_actions($more_actions, $more_actions_url, $more_actions_ba
 			.'"'
 			.(!empty($more_actions_target) ? ' target="'.$more_actions_target.'"' : '')
 			.'>'.($zz_conf['multilang_fieldnames'] ? zz_text($new_action) : $new_action).'</a>';
+		if (!empty($sql[$key])) {
+			$count = zz_db_fetch($sql[$key].$id, '', 'single value');
+			if ($count) $output .= ' ('.$count.')';
+		}
 		$act[] = $output;
 	}
 	$output = implode('&nbsp;| ', $act);
@@ -3129,7 +3224,8 @@ function zz_nice_title($heading, $fields, $zz_var, $mode) {
 	}
 	
 	// addition: mode
-	if ($mode AND $mode != 'list_only') {
+	// don't show if zzhash is set (add_only, edit_only: too much information)
+	if ($mode AND $mode != 'list_only' AND empty($_GET['zzhash'])) {
 		$title .= $zz_conf['title_separator'].zz_text($mode)
 			.($zz_var['id']['value'] ? ': ID '.$zz_var['id']['value'] : '');
 	}

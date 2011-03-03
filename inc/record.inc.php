@@ -255,7 +255,7 @@ function zz_display_records($mode, $zz_tab, $display, $zz_var, $zz_conditions) {
 					.zz_show_more_actions($zz_conf_record['details'], 
 					$zz_conf_record['details_url'], $zz_conf_record['details_base'], 
 					$zz_conf_record['details_target'], $zz_conf_record['details_referer'],
-					$zz_var['id']['value'], 
+					$zz_conf_record['details_sql'], $zz_var['id']['value'], 
 					(!empty($zz_tab[0][0]['POST']) ? $zz_tab[0][0]['POST'] : false))
 					.'</td></tr>'."\n";
 			}
@@ -325,6 +325,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 	$output = '';
 	$append_next = '';
 	$append_next_type = '';
+	$append_explanation = array();
 	$matrix = array();
 	$my_rec = $zz_tab[$tab][$rec];
 	$firstrow = true;
@@ -352,7 +353,8 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 	if (!empty($my_rec['fields'])) foreach ($my_rec['fields'] as $fieldkey => $field) {
 		if (!$field) continue;
 		if (!empty($field['hide_in_form'])) continue;
-		if (!empty($field['hide_in_form_add']) AND empty($zz_tab[$sub_tab][$sub_rec]['id']['value'])) continue;
+		if (!empty($field['hide_in_form_add']) 
+			AND empty($zz_tab[$sub_tab][$sub_rec]['id']['value'])) continue;
 
 		// initialize variables
 		if (!$append_next) {
@@ -400,8 +402,8 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 			if ($st_display == 'form' && !empty($field['explanation_top']) && $show_explanation) 
 				$out['td']['content'].= '<p class="explanation">'.$field['explanation_top'].'</p>';
 			$subtables = array_keys($zz_tab[$sub_tab]);
-			foreach ($subtables as $rec => $values)
-				if (!is_numeric($subtables[$rec])) unset($subtables[$rec]);
+			foreach ($subtables as $this_rec => $values)
+				if (!is_numeric($subtables[$this_rec])) unset($subtables[$this_rec]);
 			$zz_var['horizontal_table_head'] = false;
 			// go through all detail records
 			$table_open = false;
@@ -583,19 +585,32 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 					$out['tr']['attr'][]  = $field['class']; 
 				$out['td']['content'].= '<span'.($field['class'] ? ' class="'.$field['class'].'"' : '').'>'; 
 			}
-			if (!empty($field['append_next'])) $append_next = true;
-			else $append_next = false;
+			if (!empty($field['append_next'])) {
+				$append_next = true;
+				if (!empty($field['explanation']))
+					$append_explanation[] = $field['explanation'];
+			} else {
+				$append_next = false;
+			}
 
-			// field size, maxlenght
-			if (!isset($field['size']))
-				if ($field['type'] == 'number') $field['size'] = 16;
-		 		else $field['size'] = 32;
+			// field size, maxlength
+			if (!isset($field['size'])) {
+				if ($field['type'] == 'number') {
+					$field['size'] = 16;
+		 		} else {
+		 			$field['size'] = 32;
+		 		}
+			}
 		 	if ($field['type'] == 'ipv4') {
 		 		$field['size'] = 16;
 		 		$field['maxlength'] = 16;
-			} elseif ($field['type'] == 'time') $field['size'] = 8;
-			if ($field['maxlength'] && $field['maxlength'] < $field['size']) 
+			} elseif ($field['type'] == 'time') {
+				$field['size'] = 8;
+			}
+			if ($field['maxlength'] && $field['maxlength'] < $field['size']
+				AND (empty($field['number_type']) OR !in_array($field['number_type'], array('latitude', 'longitude')))) {
 				$field['size'] = $field['maxlength'];
+			}
 
 			// apply factor only if there is a value in field
 			// don't apply it if it's a re-edit
@@ -876,79 +891,36 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 				if ($row_display == 'form') $outputf.= '>';
 				break;
 			case 'number':
+				$suffix = false;
 				if (isset($field['number_type']) 
-					AND $field['number_type'] == 'latitude' 
-					|| $field['number_type'] == 'longitude') {
-					$var = false;
+					AND $field['number_type'] == 'latitude' || $field['number_type'] == 'longitude') {
+					if (!isset($field['geo_format'])) $field['geo_format'] = 'dms';
 					if ($my_rec['record']) {
-						if (!is_array($my_rec['record'][$field['field_name']])) {
-						// only if values come directly from db, not if values entered are incorrect
-							if ($field['number_type'] == 'latitude')
-								$var = dec2dms($my_rec['record'][$field['field_name']], '');
-							elseif ($field['number_type'] == 'longitude')
-								$var = dec2dms('', $my_rec['record'][$field['field_name']]);
-						} else
-							$var = $my_rec['record'][$field['field_name']];
+						if ($my_rec['record'][$field['field_name']] === NULL) {
+							$my_value = '';
+						} elseif (isset($field['check_validation']) AND !$field['check_validation']) {
+							// validation was not passed, hand back invalid field
+							$my_value = htmlchars($my_rec['record'][$field['field_name']]);
+						} else {
+							$my_value = zz_geo_coord_out($my_rec['record'][$field['field_name']], $field['number_type'], $field['geo_format']);
+							if (!empty($field['geo_display_behind'])) {
+								$suffix = zz_geo_coord_out($my_rec['record'][$field['field_name']], $field['number_type'], $field['geo_display_behind']);
+							}
+						}
+					} else {
+						$my_value = '';
 					}
-					//	DMS, DM
-					$input_systems = array('dms' => "&deg; ' ''&nbsp; ", 'dm' => "&deg; '&nbsp; ");
-					if ($my_rec['record'] AND is_array($my_rec['record'][$field['field_name']]) 
-						AND !empty($my_rec['record'][$field['field_name']]['which']))
-						$w_checked = $my_rec['record'][$field['field_name']]['which'];
-					else $w_checked = 'dms';
-					$checked = ' checked="checked"';
-					foreach ($input_systems as $which => $which_display) {
-						if ($row_display == 'form') {
-							$myid = make_id_fieldname($field['field_name'].'_'.$which, 'radio');
-							if ($which == 'dms') // for hiding both degree input fields
-								$outputf.= '<span class="edit-coord-degree">'; 
-							$outputf.= '<label for="'.$myid.'"><input type="radio" id="'
-								.$myid.'" name="'
-								.$field['f_field_name'].'[which]" value="'.$which
-								.'"'.($w_checked == $which ? $checked: '').'>'." "
-								.$which_display."</label>";
-							if (!isset($field['wrong_fields'][$which])) 
-								$field['wrong_fields'][$which] = '';
-							$outputf.= geo_editform($field['f_field_name'].'['
-								.substr($field['number_type'],0,3), $var, $which, $field['wrong_fields'][$which]);
-							$outputf.= ' <br> ';
-						} elseif ($var) {
-							$outputf.= $var[$field['number_type'].'_'.$which];
-							$outputf.= ' || ';
-						} else
-							if ($which == 'dms') $outputf.= zz_text('N/A'); // display it only once!
-					}
-					//	DD
-					if ($row_display == 'form') {
-						$myid = make_id_fieldname($field['field_name'].'_dec', 'radio');
-						$outputf.= '<label for="'.$myid.'"><input type="radio" id="'
-							.$myid.'" name="'.$field['f_field_name'].'[which]" value="dec" '
-							.($w_checked == 'dec' ? $checked: '').'> '.zz_text('dec')
-							.'&nbsp; </label></span>';
-						$outputf.= '<input type="text" name="'.$field['f_field_name']
-							.'[dec]" id="'.make_id_fieldname($field['f_field_name'])
-							.'_dec" size="12" ';
-					} 
-					if ($my_rec['record']) {
-						if ($row_display == 'form') $outputf.= 'value="';
-						if(!is_array($my_rec['record'][$field['field_name']])) 
-							$outputf.= $my_rec['record'][$field['field_name']];
-						else // this would happen if record is not validated
-							$outputf.= $my_rec['record'][$field['field_name']]['dec'];
-						if ($row_display == 'form') $outputf.= '"';
-					}
-					if ($row_display == 'form') $outputf.= '>';
-				
 				} else {
 					$my_value = ($my_rec['record'] ? htmlchars($my_rec['record'][$field['field_name']]) : '');
-					if ($row_display == 'form') {
-						$my_element = '<input type="text" name="%s" id="%s" size="%s" value="%s">';
-						$outputf .= sprintf($my_element, $field['f_field_name'], 
-							make_id_fieldname($field['f_field_name']), $field['size'], $my_value);
-					} else {
-						$outputf .= $my_value;
-					}
 				}
+				if ($row_display == 'form') {
+					$my_element = '<input type="text" name="%s" id="%s" size="%s" value="%s">';
+					$outputf .= sprintf($my_element, $field['f_field_name'], 
+						make_id_fieldname($field['f_field_name']), $field['size'], $my_value);
+				} else {
+					$outputf .= $my_value;
+				}
+				if ($suffix) $outputf .= ' <small>( = '.$suffix.')</small>';
 				break;
 			case 'date':
 				$my_value = ($my_rec['record'] ? datum_de($my_rec['record'][$field['field_name']]) : '');
@@ -1025,7 +997,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 						$field['set_title'] = array();
 						foreach ($files as $file) {
 							$size = filesize($field['set_folder'].'/'.$file);
-							$size = (floor($size/1024/1024*10)/10).' MB';
+							$size = zz_format_bytes($size);
 							$field['set'][] = $file;
 							$field['set_title'][] = $file.' ['.$size.']';
 						}
@@ -1202,7 +1174,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 									$my_rec['images'][$fieldkey][$imagekey]['error']).'</small>';
 							else
 								$outputf.= '<br><small>'.zz_text('Maximum allowed filesize is').' '
-									.(floor($zz_conf['upload_MAX_FILE_SIZE']/1024/1024*10)/10).'MB</small>';
+									.zz_format_bytes($zz_conf['upload_MAX_FILE_SIZE']).'</small>';
 							if ($row_display == 'form' && !empty($image['explanation'])) 
 								$outputf.= '<p class="explanation">'.$image['explanation'].'</p>';
 							if ($image_uploads > 1) $outputf.= '</td></tr>'."\n";
@@ -1329,8 +1301,15 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 				$append_next_type = false;
 			}
 			if (!$append_next) {
-				if ($row_display == 'form' && $field['explanation'] && $show_explanation) 
-					$out['td']['content'].= '<p class="explanation">'.$field['explanation'].'</p>';
+				if ($row_display == 'form' && $show_explanation) {
+					if (!empty($append_explanation)) {
+						$field['explanation'] = implode('<br>', $append_explanation)
+							.($field['explanation'] ? '<br>'.$field['explanation'] : '');
+						$append_explanation = array();
+					}
+					if ($field['explanation'])
+						$out['td']['content'].= '<p class="explanation">'.$field['explanation'].'</p>';
+				}
 			}
 			if (!empty($field['separator']))
 				$out['separator'].= $field['separator'];
@@ -1448,7 +1427,8 @@ function zz_form_select_sql($field, $db_table, $record, $row_display, $zz_conf_r
 		&& !zz_db_field_null($field['field_name'], $db_table)) {
 		$line = array_shift($lines);
 		// get ID field_name which must be 1st field in SQL query
-		$id_field_name = current(array_keys($line));
+		$id_field_name = array_keys($line);
+		$id_field_name = current($id_field_name);
 		if ($record && $line[$id_field_name] != $record[$field['field_name']]) 
 			$outputf .= 'Possible Values: '.$line[$id_field_name]
 				.' -- Current Value: '
@@ -1471,7 +1451,9 @@ function zz_form_select_sql($field, $db_table, $record, $row_display, $zz_conf_r
 		// field name in the SQL query; sometimes you need to set a field_name
 		// for WHERE separately depending on database design
 		$line = current($lines);
-		$id_field_name = current(array_keys($line));
+		$line = array_keys($line);
+		$id_field_name = current($line);
+		unset($line);
 		if (!empty($field['id_field_name']))
 			$where_field_name = $field['id_field_name'];
 		else
@@ -1591,6 +1573,10 @@ function zz_form_select_sql($field, $db_table, $record, $row_display, $zz_conf_r
 			
 			foreach ($details as $id => $fields) {
 				array_shift($fields); // get rid of ID, is already in $id
+				if (!empty($field['sql_ignore'])) foreach (array_keys($fields) as $key) {
+					if (!in_array($key, $field['sql_ignore'])) continue;
+					unset($fields[$key]);
+				}
 				if ($row_display == 'form') {
 					$myi++;
 					$myid = make_id_fieldname($field['f_field_name']).'-'.$myi;

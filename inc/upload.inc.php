@@ -79,7 +79,7 @@
 global $zz_error;
 
 $zz_default['backup'] 			= false;	//	backup uploaded files?
-$zz_default['backup_dir'] 		= $zz_conf_global['dir'].'/backup';	//	directory where backup will be put into
+$zz_default['backup_dir'] 		= $GLOBALS['zz_conf']['dir'].'/backup';	//	directory where backup will be put into
 if (ini_get('upload_tmp_dir'))
 	$zz_default['tmp_dir']		= ini_get('upload_tmp_dir');
 else
@@ -87,16 +87,13 @@ else
 $zz_default['graphics_library'] = 'imagemagick';
 $zz_default['imagemagick_paths'] = array('/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/phpbin', '/opt/local/bin/'); 
 $zz_default['upload_tools']['fileinfo'] = false;
+$zz_default['upload_tools']['fileinfo_whereis'] = 'file';
 $zz_default['upload_tools']['exiftools'] = false;
 $zz_default['upload_tools']['identify'] = true; // might be turned off for performance reasons while handling raw data
 $zz_default['upload_tools']['ghostscript'] = false; // whether we can use gs library
 
 $max_filesize = ini_get('upload_max_filesize');
-switch (substr($max_filesize, -1)) {
-	case 'G': define('ZZ_UPLOAD_INI_MAXFILESIZE', $max_filesize * pow(1024, 3)); break;
-	case 'M': define('ZZ_UPLOAD_INI_MAXFILESIZE', $max_filesize * pow(1024, 2)); break;
-	case 'K': define('ZZ_UPLOAD_INI_MAXFILESIZE', $max_filesize * pow(1024, 1)); break;
-}
+define('ZZ_UPLOAD_INI_MAXFILESIZE', return_bytes($max_filesize));
 $zz_default['upload_MAX_FILE_SIZE']	= ZZ_UPLOAD_INI_MAXFILESIZE;
 
 // mimetypes, hardcoded in php
@@ -122,9 +119,9 @@ $zz_default['image_types'] = array(
 foreach (array_keys($zz_default['image_types']) as $key)
 	$zz_default['image_types'][$key]['filetype'] = $zz_default['image_types'][$key]['ext'];
 
-$zz_default['file_types'] = zz_upload_get_typelist($zz_conf_global['dir_inc'].'/filetypes.txt');
+$zz_default['file_types'] = zz_upload_get_typelist($GLOBALS['zz_conf']['dir_inc'].'/filetypes.txt');
 if ($zz_error['error']) return false;
-$zz_default['upload_iptc_fields'] = zz_upload_get_typelist($zz_conf_global['dir_inc'].'/iptc-iimv4-1.txt', 'IPTC', true);
+$zz_default['upload_iptc_fields'] = zz_upload_get_typelist($GLOBALS['zz_conf']['dir_inc'].'/iptc-iimv4-1.txt', 'IPTC', true);
 
 // unwanted mimetypes and their replacements
 $zz_default['mime_types_rewritten'] = array(
@@ -317,6 +314,7 @@ function zz_upload_check_files(&$zz_tab) {
 				// file is to small or 0, might occur while incorrect refresh of browser
 				$images[$no][$subkey]['upload']['error'] = UPLOAD_ERR_NO_FILE; // no file
 				if (file_exists($images[$no][$subkey]['upload']['tmp_name'])) {
+					// get rid of max 3 byte large file
 					zz_unlink_cleanup($images[$no][$subkey]['upload']['tmp_name']);
 				}
 				$images[$no][$subkey]['upload']['tmp_name'] = false;
@@ -383,7 +381,7 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 	// 1a.
 	// 1b.
 
-	if ($zz_conf['modules']['debug']) zz_debug("fileinfo start", json_encode($file));
+	if ($zz_conf['modules']['debug']) zz_debug("file", json_encode($file));
 	if (function_exists('getimagesize')) {
 		$sizes = getimagesize($myfilename);
 		if ($sizes && !empty($zz_conf['image_types'][$sizes[2]])) {
@@ -403,7 +401,7 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 		}
 		if ($zz_conf['modules']['debug']) zz_debug("getimagesize()", $file['filetype']);
 	} 
-	if ($zz_conf['modules']['debug']) zz_debug("fileinfo getimagesize", json_encode($file));
+	if ($zz_conf['modules']['debug']) zz_debug("getimagesize", json_encode($file));
 	if (!$file['validated'] && function_exists('exif_imagetype')) {// > PHP 4.3.0
 		$imagetype = exif_imagetype($myfilename);
 		if ($imagetype && !empty($zz_conf['image_types'][$imagetype])) {
@@ -419,7 +417,7 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 		}
 		if ($zz_conf['modules']['debug']) zz_debug("exif_imagetype()", $file['filetype']);
 	} 
-	if ($zz_conf['modules']['debug']) zz_debug("fileinfo exif_imagetype", json_encode($file));
+	if ($zz_conf['modules']['debug']) zz_debug("exif_imagetype", json_encode($file));
 	if ($zz_conf['graphics_library'] == 'imagemagick' AND $zz_conf['upload_tools']['identify']) {
 		$temp_imagick = zz_imagick_identify($myfilename);
 		if ($temp_imagick) {
@@ -430,19 +428,19 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 		}
 		if ($zz_conf['modules']['debug']) zz_debug("identify()", $file['filetype']);
 	}
-	if ($zz_conf['modules']['debug']) zz_debug("fileinfo identify", json_encode($file));
+	if ($zz_conf['modules']['debug']) zz_debug("identify", json_encode($file));
 	if ($zz_conf['upload_tools']['fileinfo']) {
 		// use unix `file` command
-		exec('file --brief "'.$myfilename.'"', $return_var);
+		exec($zz_conf['upload_tools']['fileinfo_whereis'].' --brief "'.$myfilename.'"', $return_var);
 		if ($return_var) {
-			if ($zz_conf['modules']['debug']) zz_debug("fileinfo() brief", json_encode($return_var));
+			if ($zz_conf['modules']['debug']) zz_debug("file brief", json_encode($return_var));
 			$imagetype = false;
 			$file['filetype_file'] = $return_var[0];
 			// attention, -I changed to -i in file, therefore we don't use shorthand here
 			// get mime type
 			unset($return_var);
-			exec('file --mime --brief "'.$myfilename.'"', $return_var);
-			if ($zz_conf['modules']['debug']) zz_debug("fileinfo() mime", json_encode($return_var));
+			exec($zz_conf['upload_tools']['fileinfo_whereis'].' --mime --brief "'.$myfilename.'"', $return_var);
+			if ($zz_conf['modules']['debug']) zz_debug("file mime", json_encode($return_var));
 			if (!empty($return_var[0])) {
 				if (!empty($file['type']))
 					$file['type_user_upload'] = $file['type'];
@@ -462,9 +460,13 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 						}
 					}
 				}
-				if ($file['filetype_file'] == 'AutoCad (release 14)') {
+				if (substr($file['filetype_file'], 0, 20) == 'DWG AutoDesk AutoCAD') {
 					$imagetype = 'dwg';
 					$file['validated'] = true;
+				} elseif ($file['filetype_file'] == 'AutoCad (release 14)') {
+					$imagetype = 'dwg';
+					$file['validated'] = true;
+				}
 	// TODO: check this, these are not only DOCs but also MPPs.
 	//				} elseif ($file['filetype_file'] == 'Microsoft Office Document') {
 	//					$imagetype = 'doc';
@@ -472,7 +474,6 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 	//			} elseif ($file['filetype_file'] == 'data') {
 					// check if it's an autocad document
 					// ...
-				}
 				if ($file['validated'] AND $imagetype) {
 					$file['ext'] = $zz_conf['file_types'][$imagetype][0]['ext'];
 					$file['mime'] = $zz_conf['file_types'][$imagetype][0]['mime'];
@@ -483,7 +484,7 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 		if ($zz_conf['modules']['debug']) zz_debug("file()",
 			(!empty($file['filetype_file']) ? $file['filetype_file'] : $file['type']));
 	}
-	if ($zz_conf['modules']['debug']) zz_debug("fileinfo file", json_encode($file));
+	if ($zz_conf['modules']['debug']) zz_debug("all external checks", json_encode($file));
 	// TODO: allow further file testing here, e. g. for PDF, DXF
 	// and others, go for Identifying Characters.
 	// maybe use magic_mime_type()
@@ -506,7 +507,7 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 			}
 		}
 	}
-	if ($zz_conf['modules']['debug']) zz_debug("fileinfo finish", json_encode($file));
+	if ($zz_conf['modules']['debug']) zz_debug("finish", json_encode($file));
 	if ($file['filetype'] == 'unknown' AND !empty($zz_conf['debug_upload'])) {
 		$error_filename = false;
 		if ($zz_conf['backup']) {
@@ -514,7 +515,7 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 			$my_error = $zz_error['error'];
 			$error_filename = zz_upload_path($zz_conf['backup_dir'], 'error', $myfilename);
 			if (!$zz_error['error'])
-				copy ($myfilename, $error_filename);
+				copy($myfilename, $error_filename);
 			$zz_error['error'] = $my_error;
 		}
 		$mailtext = zz_text('There was an attempt to upload the following file but it resulted with
@@ -528,12 +529,28 @@ an unknown filetype. You might want to check this.
 		);
 		zz_error();
 	}
+	// some filetypes are identical to others, so we have to check the
+	// extension
+	if ($file['ext'] == 'ai' AND $file['filetype'] == 'pdf') {
+		// it's a valid PDF, so it might be an AI file
+		$file['filetype'] = 'ai';
+		$file['type'] = 'application/postscript';
+	}
+	
+	// read metadata
 	if (function_exists('exif_read_data') 
-		AND in_array($file['filetype'], $zz_conf['exif_supported']))
+		AND in_array($file['filetype'], $zz_conf['exif_supported'])) {
+		// you will need enough memory size to handle this if you are uploading
+		// pictures with layers from photoshop, because the original image is
+		// saved as metadata. exif_read_data() cannot read only the array keys
+		// or you could exclude key ImageSourceData where the original image
+		// is kept
 		$file['exif'] = exif_read_data($myfilename);
+	}
 	// TODO: further functions, e. g. zz_pdf_read_data if filetype == pdf ...
 	// TODO: or read AutoCAD Version from DXF, DWG, ...
 	// TODO: or read IPCT data.
+	
 	return zz_return($file);
 }
 
@@ -997,7 +1014,7 @@ function zz_upload_check(&$images, $action, $zz_conf, $input_filetypes = array()
 			case UPLOAD_ERR_INI_SIZE: // file is too big
 				$images[$no]['error'][] = zz_text('Error: ').zz_text('File is too big.').' '
 					.zz_text('Maximum allowed filesize is').' '
-					.floor($zz_conf['upload_MAX_FILE_SIZE']/1024).'KB'; // Max allowed
+					.zz_format_bytes($zz_conf['upload_MAX_FILE_SIZE']); // Max allowed
 				break; 
 			case UPLOAD_ERR_OK: // everything ok.
 				break; 
@@ -1187,6 +1204,7 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 			}
 
 		//	update, only if we have an old record (might sometimes not be the case!)
+			$old_path = ''; // initialize here, will be used later with delete_thumbnail
 			if ($action == 'update' AND !empty($zz_tab[$tab]['existing'][$rec])) {
 				$path = zz_makepath($val['path'], $zz_tab, 'new', 'file', $tab, $rec);
 				$old_path = zz_makepath($val['path'], $zz_tab, 'old', 'file', $tab, $rec);
@@ -1270,7 +1288,7 @@ function zz_upload_action(&$zz_tab, $zz_conf) {
 						zz_debug('file copied: %'.$filename.'% to: %'.$image['files']['destination'].'%');
 					}
 					// this also works in older php versions between partitions.
-					zz_unlink_cleanup($filename);			
+					zz_unlink_cleanup($filename);	
 					chmod($image['files']['destination'], 0644);
 				} else {
 					$success = copy($filename, $image['files']['destination']);

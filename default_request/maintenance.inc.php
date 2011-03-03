@@ -14,6 +14,7 @@
  * - enter an sql query
  * @param array $params
  * @global array $zz_conf configuration variables
+ * @global array $zz_setting
  * @return array $page
  *		'text' => page content, 'title', 'breadcrumbs', ...
  * @author Gustaf Mossakowski <gustaf@koenige.org>
@@ -21,13 +22,6 @@
 function zz_maintenance($params) {
 	global $zz_conf;
 	global $zz_setting;
-
-	// Translations
-	global $text;
-	if (file_exists($zz_conf['dir_inc'].'/text-'.$zz_conf['language'].'.inc.php'))
-		include $zz_conf['dir_inc'].'/text-'.$zz_conf['language'].'.inc.php';
-	if (file_exists($zz_conf['dir'].'/text-'.$zz_conf['language'].'.inc.php'))
-		include $zz_conf['dir'].'/text-'.$zz_conf['language'].'.inc.php';
 
 	if (!isset($zz_conf['modules'])) {
 		$zz_conf['modules'] = array();
@@ -517,9 +511,7 @@ function zz_maintenance_logs() {
 	// delete
 	$message = false;
 	if (!empty($_POST['line'])) {
-		foreach ($_POST['line'] as $file => $bool)
-			if ($bool != 'on') unset($_POST['line'][$file]);
-		$message = zz_delete_line_from_file($_GET['log'], array_keys($_POST['line']));
+		$message = zz_delete_line_from_file($_GET['log'], $_POST['line']);
 	}
 
 	$filters['type'] = array('PHP', 'zzform', 'zzwrap');
@@ -562,7 +554,7 @@ function zz_maintenance_logs() {
 			.'&nbsp;&#8211;</dd>'."\n";
 	}
 	if ($filter_output) {
-		$text = '<div class="zzfilter">'."\n";
+		$text .= '<div class="zzfilter">'."\n";
 		$text .= '<dl>'."\n";
 		$text .= implode("", $filter_output);
 		$text .= '</dl><br clear="all"></div>'."\n";
@@ -672,7 +664,7 @@ function zz_maintenance_logs() {
 		if (!$group) {
 			$text .= '<tr class="'.($j & 1 ? 'uneven' : 'even').'">'
 				.'<td><label for="line'.$i.'" class="blocklabel"><input type="checkbox" name="line['
-					.$i.']" id="line'.$i.'"></label></td>'
+					.$i.']" value="'.$i.'" id="line'.$i.'"></label></td>'
 				.'<td>'.$date.'</td>'
 				.'<td>'.$type.'</td>'
 				.'<td>'.$level.'</td>'
@@ -708,7 +700,7 @@ function zz_maintenance_logs() {
 		foreach ($output as $line) {
 			$text .= '<tr class="'.($j & 1 ? 'uneven' : 'even').'">'
 				.'<td><label for="line'.$j.'" class="blocklabel"><input type="checkbox" name="line['
-					.implode(',', $line['i']).']" id="line'.$j.'"></label></td>'
+					.$j.']" value="'.implode(',', $line['i']).'" id="line'.$j.'"></label></td>'
 				.'<td>'.$line['date_begin'].'</td>'
 				.'<td>'.((!empty($line['date_end']) AND $line['date_end'] != $line['date_begin'])
 					? $line['date_end']: '').'</td>'
@@ -731,15 +723,19 @@ function zz_maintenance_make_url($array) {
 }
 
 function zz_delete_line_from_file($file, $lines) {
-	
+
 	// check if file exists ans is writable
 	if (!is_writable($file))
 		return sprintf(zz_text('File %s is not writable.'), $file);
 
+	$deleted = 0;
 	$content = file($file);
 	foreach ($lines as $line) {
 		$line = explode(',', $line);
-		foreach ($line as $no) unset($content[$no]);
+		foreach ($line as $no) {
+			unset($content[$no]);
+			$deleted++;
+		}
 	}
 
 	// open file for writing
@@ -750,7 +746,7 @@ function zz_delete_line_from_file($file, $lines) {
 		fwrite($handle, $line);
 
 	fclose($handle);
-	return sprintf(zz_text('%s lines deleted.'), count($lines));
+	return sprintf(zz_text('%s lines deleted.'), $deleted);
 }
 
 ?>

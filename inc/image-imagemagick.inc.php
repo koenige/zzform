@@ -55,10 +55,10 @@ function zz_imagick_identify($source) {
 	$command = zz_imagick_findpath('identify');
 	$command .= '"'.$source.'"';	
 	exec($command, $output, $return_var);
-	if ($zz_conf['modules']['debug']) zz_debug("identify command: ".$command);
+	if ($zz_conf['modules']['debug']) zz_debug("identify command", $command);
 	if (!$output) return zz_return(false);
 
-	if ($zz_conf['modules']['debug']) zz_debug("identify(): ".json_encode($output));
+	if ($zz_conf['modules']['debug']) zz_debug("identify output", json_encode($output));
 
 	$image = array();
 	$tokens = array();

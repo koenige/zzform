@@ -48,7 +48,6 @@ elseif (file_exists($zz_conf['dir'].'/inc/page.inc.php'))
  * @param array $zz (if empty, will be taken from global namespace)
  * @global array $zz_conf
  * @global array $zz_error
- * @global array $text
  * @todo think of zzform($zz, $zz_conf) to get rid of global variables
  */
 function zzform($zz = array()) {
@@ -72,7 +71,6 @@ function zzform($zz = array()) {
 	$zz_error = array();
 	$zz_error['error'] = false;	// if true, exit script immediately
 	$zz_error['output'] = array();
-	global $text;
 	
 //
 //	Default Configuration
@@ -92,6 +90,48 @@ function zzform($zz = array()) {
 	zz_initialize();
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if ($zz_error['error']) return zzform_exit($ops); // exits script
+
+	// Modules dependent on $zz-table definition
+	$modules = array('translations', 'conditions', 'geo', 'export', 'upload');
+	foreach ($modules as $index => $module) {
+		if (!empty($zz_conf['modules'][$module])) continue; // module already loaded
+		$zz_conf['modules'][$module] = false;
+		switch ($module) {
+		case 'translations':
+			if (empty($zz_conf['translations_of_fields'])) unset($modules[$index]);
+			break;
+		case 'conditions':
+			if (empty($zz['conditions'])) unset($modules[$index]);
+			break;
+		case 'geo':
+			if (!zz_module_fieldcheck($zz, 'number_type', 'latitude')
+				AND !zz_module_fieldcheck($zz, 'number_type', 'longitude')) unset($modules[$index]);
+			break;
+		case 'export':
+			$export = false;
+			if (!empty($zz_conf['export'])) {
+				$export = true;
+				break;
+			}
+			if (!empty($zz_conf['conditions'])) {
+				foreach ($zz_conf['conditions'] as $condition) {
+					if (!empty($condition['export'])) {
+						$export = true;
+						break;
+					}
+				}
+			}
+			if (!$export) unset($modules[$index]);
+			break;
+		case 'upload':
+			if (!zz_module_fieldcheck($zz, 'type', 'upload_image')) unset($modules[$index]);
+			break;
+		}
+	}
+	$zz_conf['modules'] = array_merge($zz_conf['modules'], zz_add_modules($modules, $zz_conf['dir_inc']));
+	if (!empty($GLOBALS['zz_saved']['conf'])) {
+		$GLOBALS['zz_saved']['conf']['modules'] = $zz_conf['modules'];
+	}
 
 	if ($zz_conf['zzform_calls'] > 1 AND empty($zz_conf['multi'])) { 
 		// show a warning only if zzform is not explicitly called via zzform_multi()
@@ -118,6 +158,9 @@ function zzform($zz = array()) {
 //
 //	Filter, WHERE, ID
 //
+
+	// check if POST is too big, then it will be empty
+	$post_too_big = zzform_post_too_big();
 
 	// check GET 'filter'
 	zz_filter_defaults();
@@ -199,34 +242,10 @@ function zzform($zz = array()) {
 	if ($zz_conf['show_record']) {
 		require_once $zz_conf['dir_inc'].'/record.inc.php';		// Form
 	}
-	require $zz_conf['dir_inc'].'/text-en.inc.php';					// English text
-	if ($zz_conf['additional_text'] AND file_exists($langfile = $zz_conf['lang_dir'].'/text-en.inc.php')) 
-		include $langfile; // must not be include_once since $text is cleared beforehands
-
 	if ($zz_conf['modules']['debug']) zz_debug('required files included');
 	
 
 //	Optional files
-
-	if (isset($zz_conf['language']) && $zz_conf['language'] != 'en') {	// text in other languages
-		$langfile = $zz_conf['dir_inc'].'/text-'.$zz_conf['language'].'.inc.php';
-		if (file_exists($langfile)) include $langfile;
-		else {
-			$zz_error[] = array(
-				'msg_dev' => sprintf(zz_text('No language file for "%s" found. Using English instead.'), 
-					'<strong>'.$zz_conf['language'].'</strong>'),
-				'level' => E_USER_NOTICE
-			);
-		}
-		if ($zz_conf['additional_text'] AND file_exists($langfile = $zz_conf['lang_dir']
-			.'/text-'.$zz_conf['language'].'.inc.php')) {
-			include $langfile; // must not be include_once since $text is cleared beforehands
-		}
-	}
-	if (!empty($zz_conf['text'][$zz_conf['language']])) {
-		$text = array_merge($text, $zz_conf['text'][$zz_conf['language']]);
-	}
-	// todo: if file exists else lang = en
 
 	if (!function_exists('datum_de')) include_once $zz_conf['dir_inc'].'/numbers.inc.php';
 	if (file_exists($zz_conf['dir_inc'].'/forcefilename-'.$zz_conf['character_set'].'.inc.php'))
@@ -305,16 +324,16 @@ function zzform($zz = array()) {
 	
 //	Add, Update or Delete
 
+	// Module 'conditions': evaluate conditions
+	if (!empty($zz_conf['modules']['conditions']) AND !empty($zz['conditions'])) {
+		if ($zz_conf['modules']['debug']) zz_debug("conditions start");
+		$zz_conditions = zz_conditions_record_check($zz, $ops['mode'], $zz_var);
+	} else {
+		$zz_conditions = array();
+	}
+
 	// conditions for list view will be set later
 	$zz['fields_in_list'] = $zz['fields']; 
-
-	if ($zz_conf['modules']['debug']) zz_debug("conditions start");
-
-	// Module 'conditions': evaluate conditions
-	if (!empty($zz_conf['modules']['conditions']) AND !empty($zz['conditions']))
-		$zz_conditions = zz_conditions_record_check($zz, $ops['mode'], $zz_var);
-	else
-		$zz_conditions = array();
 
 	if ($zz_conf['show_record']) {
 		if (!empty($zz_conf['modules']['conditions']) AND !empty($zz_conditions['values'])
@@ -356,6 +375,15 @@ function zzform($zz = array()) {
 		if ($zz_conf['heading_text'] 
 			AND (!$zz_conf['heading_text_hidden_while_editing'] OR $ops['mode'] == 'list_only')) 
 			$ops['output'] .= $zz_conf['heading_text'];
+		if ($post_too_big) {
+			$zz_error[] = array(
+				'msg' => zz_text('Transfer failed. Probably you sent a file that was too large.').'<br>'
+					.zz_text('Maximum allowed filesize is').' '
+					.zz_format_bytes($zz_conf['upload_MAX_FILE_SIZE']).' &#8211; '
+					.sprintf(zz_text('You sent: %s data.'), zz_format_bytes($_SERVER['CONTENT_LENGTH'])),
+				'level' => E_USER_WARNING
+			);
+		}
 		zz_error();
 		$ops['output'] .= zz_error_output();
 
@@ -393,7 +421,13 @@ function zzform($zz = array()) {
 		//	### put each table (if more than one) into one array of its own ###
 		foreach ($zz_var['subtables'] as $tab => $no) {
 			$zz_tab[$tab] = zz_get_subtable($zz['fields'][$no], $zz_tab[0], $tab, $no);
+			if ($ops['mode'] == 'show' AND $zz_tab[$tab]['values']) {
+				// don't show values which are not saved in show-record mode
+				$zz_tab[$tab]['values'] = array();
+			}
+			if ($zz_error['error']) return zzform_exit($ops);
 			$zz_tab[$tab] = zz_get_subrecords($ops['mode'], $zz['fields'][$no], $zz_tab[$tab], $zz_tab[0], $zz_var, $tab);
+			if ($zz_error['error']) return zzform_exit($ops);
 		}
 
 		if ($zz_var['subtables'] && $zz_var['action'] != 'delete')
@@ -585,21 +619,6 @@ function zzform($zz = array()) {
 	}
 	if ($zz_error['error']) return zzform_exit($ops); // critical error: exit;
 
-	if ($zz_conf['modules']['debug']) {
-		zz_debug("finished");
-		if ($zz_conf['debug'] AND $zz_conf['access'] != 'export') {
-			$ops['output'] .= '<div class="debug">'.zz_debug_htmlout().'</div>'."\n";
-		}
-	}
-	if ($zz_conf['show_record'] AND $ops['result']) {
-		// debug time only if there's a result and before leaving the page
-		if ($zz_conf['modules']['debug'] AND $zz_conf['debug_time']) {
-			zz_debug_time($ops['return']);
-		}
-	}
-	if ($zz_conf['access'] != 'export') {
-		if ($zz_conf['footer_text']) $ops['output'].= $zz_conf['footer_text'];
-	}
 	// set title
 	$zz_conf['title'] = zz_nice_title($zz_conf['heading'], $zz['fields'], $zz_var, $ops['mode']);
 	return zzform_exit($ops);
@@ -620,13 +639,28 @@ function zzform_exit($ops) {
 	zz_error();
 	$ops['output'] .= zz_error_output();
 	$ops['critical_error'] = $zz_error['error'] ? true : false;
+	$ops['error_mail'] = array();
+	if (!empty($zz_conf['int']['error']))
+		$ops['error_mail'] = $zz_conf['int']['error'];
 
 	// return to old database
 	if ($zz_conf['int']['db_current']) mysql_select_db($zz_conf['int']['db_current']);
+
+	// debug time only if there's a result and before leaving the page
+	if ($ops['result'] AND $zz_conf['modules']['debug'] AND $zz_conf['debug_time']) {
+		zz_debug_time($ops['return']);
+	}
 	// end debug mode
 	if ($zz_conf['modules']['debug']) {
 		zz_debug('end');
+		if ($zz_conf['debug'] AND $zz_conf['access'] != 'export') {
+			$ops['output'] .= '<div class="debug">'.zz_debug_htmlout().'</div>'."\n";
+		}
 		zz_debug_unset();
+	}
+	// output footer text
+	if ($zz_conf['access'] != 'export') {
+		if ($zz_conf['footer_text']) $ops['output'].= $zz_conf['footer_text'];
 	}
 
 	// prepare HTML output, not for export
@@ -699,28 +733,15 @@ function zz_initialize($mode = false) {
 
 //	Modules
 
-	// todo: include modules geo and upload only if corresponding fields are defined, 
-	// see $upload_form as a way how to do that.
-	// Problem: zzform_multi() might have problems with a solution like that!
-
 	// Modules on project level
 	// debug module must come first because of debugging reasons!
-	$int_modules = array('debug', 'geo', 'validate', 'export', 'compatibility', 'upload', 
-		'conditions', 'translations');
-	$int_modules = zz_add_modules($int_modules, $zz_conf['dir_inc'], $zz_conf);
-	$zz_conf['modules'] = $int_modules['modules'];
+	$int_modules = array('debug', 'compatibility', 'validate');
+	$zz_conf['modules'] = zz_add_modules($int_modules, $zz_conf['dir_inc']);
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	$zz_conf['ext_modules'] = zz_add_modules($zz_conf['ext_modules'], $zz_conf['dir_ext']);
 
-	$ext_modules = zz_add_modules($zz_conf['ext_modules'], $zz_conf['dir_ext'], $zz_conf);
-	foreach ($int_modules['vars'] as $index => $var) {			// import variables from internal modules
-		if ($var AND is_array($var)) {
-			$$index = zz_array_merge($$index, $var);
-		}
-	}
 	// stop if there were errors while adding modules
 	if ($zz_error['error']) zz_return(false);
-
-	$zz_conf['ext_modules'] = $ext_modules['modules'];
 
 	$zz_default['action_dir']		= $zz_conf['dir_custom'];	// directory for included scripts after action has been taken
 	$zz_default['lang_dir']			= $zz_conf['dir_custom'];	// directory for additional text
@@ -738,6 +759,7 @@ function zz_initialize($mode = false) {
 	$zz_default['details_base']		= false;
 	$zz_default['details_referer']	= true;		// add referer to details link
 	$zz_default['details_url']		= array(); // might be array, therefore no $zz_default
+	$zz_default['details_sql']		= array();
 	$zz_default['details_target']	= false;	// target-window for details link
 	$zz_default['edit']				= true;		// show Action: Edit
 	$zz_default['group']			= false;
@@ -773,7 +795,6 @@ function zz_initialize($mode = false) {
 	$zz_default['min_detail_records']	= 0;		// min 0 detail records, might be expanded later on
 	$zz_default['multi'] 				= false;		// zzform_multi
 	$zz_default['multilang_fieldnames'] = false;	// translate fieldnames via zz_text($fieldname)
-	$zz_default['pdflib_path']			= false;
 	$zz_default['prefix'] 				= false;	//	prefix for ALL tables like zz_
 	$zz_default['project']				= $_SERVER['SERVER_NAME'];
 	$zz_default['redirect']['successful_delete'] = false;	// redirect to diff. page after delete
@@ -823,6 +844,15 @@ function zz_initialize($mode = false) {
 		$zz_conf['referer'] = $_POST['zz_referer'];
 	elseif (isset($_SERVER['HTTP_REFERER']))
 		$zz_conf['referer'] = $_SERVER['HTTP_REFERER'];
+	// remove 'zzaction' from referer if set
+	$zz_conf['referer'] = parse_url($zz_conf['referer']);
+	if (!empty($zz_conf['referer']['query'])) {
+		$zz_conf['referer']['query'] = zz_edit_query_string($zz_conf['referer']['query'], array('zzaction'));
+	}
+	$zz_conf['referer'] = (
+		(!empty($zz_conf['referer']['scheme']) ? $zz_conf['referer']['scheme'].'://'
+		.$zz_conf['referer']['host'] : '').$zz_conf['referer']['path']
+		.(!empty($zz_conf['referer']['query']) ? $zz_conf['referer']['query'] : ''));
 	$zz_conf['int']['referer_esc'] = str_replace('&', '&amp;', $zz_conf['referer']);
 
 	//	URL parameter
@@ -974,6 +1004,29 @@ function zz_write_defaults($zz_default, &$zz_conf) {
 			}
 		}
 	}
+}
+
+/**
+ * checks whether an error occured because too much was POSTed
+ * will try to get GET-Variables from HTTP_REFERER
+ *
+ * @return bool true: error, false: everything ok
+ */
+function zzform_post_too_big() {	
+	if ($_SERVER['REQUEST_METHOD'] == 'POST' AND empty($_POST)
+		AND $_SERVER['CONTENT_LENGTH'] > return_bytes(ini_get('post_max_size'))) {
+		// without sessions, we can't find out where the user has come from
+		// just if we have a REFERER
+		if (!empty($_SERVER['HTTP_REFERER'])) {
+			$url = parse_url($_SERVER['HTTP_REFERER']);
+			if (!empty($url['query'])) {
+				parse_str($url['query'], $query);
+				$_GET = array_merge($_GET, $query);
+			}
+		}
+		return true;
+	}
+	return false;
 }
 
 

@@ -14,7 +14,7 @@ $zz_conf['int']['allowed_params']['export'] = array('csv', 'pdf');
 
 $zz_default['export']			= false;				// if sql result might be exported (link for export will appear at the end of the page)
 $zz_default['export_filetypes']	= array('csv', 'pdf');	// possible filetypes for export
-$zz_default['list_display'] 	= 'csv';				// standard export
+$zz_default['pdflib_path']		= false;
 
 // csv standards
 $zz_default['export_csv_delimiter'] = ',';
@@ -47,6 +47,9 @@ function zz_export_init($ops) {
 
 	// get type and (optional) script name
 	$export = false;
+	if (!is_array($zz_conf['export'])) {
+		$zz_conf['export'] = array($zz_conf['export']);
+	}
 	foreach ($zz_conf['export'] as $type => $mode) {
 		if ($_GET['export'] != strtolower($mode)) continue;
 		if (is_numeric($type)) {
@@ -59,7 +62,7 @@ function zz_export_init($ops) {
 	}
 	if (!in_array($export, $zz_conf['int']['allowed_params']['export'])) {
 		$zz_error[] = array(
-			'msg_dev' => 'Export parameter not allowed :'.$export,
+			'msg_dev' => 'Export parameter not allowed: <code>'.($export ? $export : $_GET['export']).'</code>',
 			'level' => E_USER_NOTICE
 		);
 		return $ops;
