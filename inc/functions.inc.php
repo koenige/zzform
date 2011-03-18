@@ -226,7 +226,9 @@ function zz_get_where_conditions() {
 		if (!empty($_GET['filter'][$filter['identifier']])) {
 			$zz_var['where_condition'][$filter['where']] = $_GET['filter'][$filter['identifier']];
 		} elseif (!empty($filter['default_selection'])) {
-			$zz_var['where_condition'][$filter['where']] = $filter['default_selection'];
+			$default_selection = is_array($filter['default_selection'])
+				? key($filter['default_selection']) : $filter['default_selection'];
+			$zz_var['where_condition'][$filter['where']] = $default_selection;
 		}
 		// 'where'-filters are beyond that 'list'-filters
 		$zz_conf['filter'][$index]['type'] = 'list';
@@ -276,7 +278,9 @@ function zz_filter_defaults() {
 			$filter['identifier'] = $zz_conf['filter'][$index]['identifier'] = urlencode(strtolower($filter['title']));
 		// set default filter, default default filter is 'all'
 		if (!empty($filter['default_selection']) AND !isset($_GET['filter'][$filter['identifier']])) {
-			$_GET['filter'][$filter['identifier']] = $filter['default_selection'];
+			$default_selection = is_array($filter['default_selection'])
+				? key($filter['default_selection']) : $filter['default_selection'];
+			$_GET['filter'][$filter['identifier']] = $default_selection;
 		}
 	}
 }
@@ -303,11 +307,21 @@ function zz_apply_filter() {
 			foreach ($elements as $key => $value) {
 				$zz_conf['filter'][$index]['selection'][$key] = $value;
 			}
-			$filter['selection'] = (!empty($zz_conf['filter'][$index]['selection']) 
-				? $zz_conf['filter'][$index]['selection'] : array());
-		} elseif (!isset($filter['selection'])) {
-			$filter['selection'] = $zz_conf['filter'][$index]['selection'] = array();
 		}
+		if (empty($zz_conf['filter'][$index]['selection'])) {
+			if (!empty($zz_conf['filter'][$index]['default_selection'])) {
+				if (is_array($zz_conf['filter'][$index]['default_selection'])) {
+					$zz_conf['filter'][$index]['selection'] = $zz_conf['filter'][$index]['default_selection'];
+				} else {
+					$zz_conf['filter'][$index]['selection'] = array(
+						$zz_conf['filter'][$index]['default_selection'] => $zz_conf['filter'][$index]['default_selection']
+					);
+				}
+			} else {
+				$zz_conf['filter'][$index]['selection'] = array();
+			}
+		}
+		$filter['selection'] = $zz_conf['filter'][$index]['selection'];
 		if (!empty($_GET['filter'])) {
 			if (in_array($filter['identifier'], array_keys($_GET['filter']))
 				AND in_array($_GET['filter'][$filter['identifier']], array_keys($filter['selection']))
@@ -509,8 +523,9 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false)
 		if (!isset($fields[$no]['explanation'])) $fields[$no]['explanation'] = false; // initialize
 		if (!$multiple_times) {
 			if (!isset($fields[$no]['maxlength']) && isset($fields[$no]['field_name'])
-				AND $mode != 'list_only') // no need to check maxlength in list view only 
+				AND $mode != 'list_only') 
 			{
+				// no need to check maxlength in list view only 
 				$fields[$no]['maxlength'] = zz_db_field_maxlength($fields[$no]['field_name'], $fields[$no]['type'], $db_table);
 			}
 			if (!empty($fields[$no]['sql'])) // replace whitespace with space
@@ -1340,7 +1355,8 @@ function zz_record_access($zz, $ops, $zz_var) {
 		$zz_conf['access'] = 'show_after_add';
 	}
 	if ($zz_conf['access'] == 'edit_only' AND !empty($_GET['zzaction'])
-		AND $_GET['zzaction'] == 'update' AND !empty($_GET['zzhash'])
+		AND ($_GET['zzaction'] == 'update' OR $_GET['zzaction'] == 'noupdate')
+		AND !empty($_GET['zzhash'])
 		AND $_GET['zzhash'] == $zz_conf['int']['secret_key']
 	) {
 		$zz_conf['access'] = 'show_after_edit';
@@ -1412,6 +1428,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		$zz_conf['search'] = false;			// no search form
 		$zz_conf['show_list'] = false;		// no list
 		$zz_conf['cancel_link'] = false; 	// no cancel link
+		$zz_conf['no_ok'] = true;			// no OK button
 		$zz_conf['int']['hash_id'] = true;	// ID will be hashed so user cannot view all IDs
 		if (empty($_POST)) $ops['mode'] = 'add';
 		break;
@@ -1422,6 +1439,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		$zz_conf['view'] = false;			// don't show record (links)
 		$zz_conf['search'] = false;			// no search form
 		$zz_conf['show_list'] = false;		// no list
+		$zz_conf['no_ok'] = true;			// no OK button
 		$zz_conf['int']['hash_id'] = true;	// ID will be hashed so user cannot view all IDs
 		if (empty($_POST)) $ops['mode'] = 'edit';
 		break;
@@ -2385,7 +2403,8 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 			'query' => $sql,
 			'level' => $errorcode
 		);
-		return zz_error();
+		zz_error();
+		return array();
 	}
 	return $lines;
 }
@@ -2529,7 +2548,7 @@ function zz_db_field_maxlength($field, $type, $db_table) {
 	// just if it's a field with a field_name
 	// for some field types it makes no sense to check for maxlength
 	$dont_check = array('image', 'display', 'timestamp', 'hidden', 'foreign_key',
-		'select', 'id', 'date', 'time');
+		'select', 'id', 'date', 'time', 'option');
 	if (in_array($type, $dont_check)) return false;
 
 	global $zz_conf;
@@ -2752,12 +2771,15 @@ function zz_error() {
 			.(!empty($_SERVER['HTTP_USER_AGENT']) ? "\nBrowser: ".$_SERVER['HTTP_USER_AGENT'] : '');		
 		if ($zz_conf['user'])
 			$mailtext .= "\nUser: ".$zz_conf['user'];
-		mail($zz_conf['error_mail_to'], '['.$zz_conf['project'].'] '
-			.zz_text('Error during database operation'), 
+		$subject = (!empty($zz_conf['mail_subject_prefix']) 
+			? $zz_conf['mail_subject_prefix'] : '['.$zz_conf['project'].']').' '
+			.zz_text('Error during database operation');
+		$from = '"'.$zz_conf['project'].'" <'.$zz_conf['error_mail_from'].'>';
+		mail($zz_conf['error_mail_to'], $subject, 
 			$mailtext, 'MIME-Version: 1.0
 Content-Type: text/plain; charset='.$zz_conf['character_set'].'
 Content-Transfer-Encoding: 8bit
-From: '.$zz_conf['error_mail_from']);
+From: '.$from);
 		break;
 	case 'output':
 		$user_output = $admin_output;
@@ -3036,7 +3058,9 @@ function zz_filter_selection($filter) {
 				$is_selected = ((isset($_GET['filter'][$f['identifier']]) 
 					AND $_GET['filter'][$f['identifier']] == $id))
 					? true : false;
-				if (!empty($f['default_selection']) AND $f['default_selection'] == $id) {
+				if (!empty($f['default_selection']) 
+					AND ((is_array($f['default_selection']) AND key($f['default_selection']) == $id)
+					OR $f['default_selection'] == $id)) {
 					// default selection does not need parameter
 					$link = $self.$qs;
 				} else {

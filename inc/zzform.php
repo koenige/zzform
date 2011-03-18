@@ -432,7 +432,9 @@ function zzform($zz = array()) {
 
 		if ($zz_var['subtables'] && $zz_var['action'] != 'delete')
 			if (isset($_POST['zz_subtables'])) $validation = false;
-
+		// just handing over form with values
+		if (isset($_POST['zz_review'])) $validation = false;
+		
 		if (!empty($_POST['zz_action'])) {		
 			// POST because $zz_var may be set to '' in case of add/delete subrecord
 			// get existing record
@@ -620,7 +622,9 @@ function zzform($zz = array()) {
 	if ($zz_error['error']) return zzform_exit($ops); // critical error: exit;
 
 	// set title
-	$zz_conf['title'] = zz_nice_title($zz_conf['heading'], $zz['fields'], $zz_var, $ops['mode']);
+	if ($zz_conf['heading']) {
+		$zz_conf['title'] = zz_nice_title($zz_conf['heading'], $zz['fields'], $zz_var, $ops['mode']);
+	}
 	return zzform_exit($ops);
 }
 
@@ -795,6 +799,8 @@ function zz_initialize($mode = false) {
 	$zz_default['min_detail_records']	= 0;		// min 0 detail records, might be expanded later on
 	$zz_default['multi'] 				= false;		// zzform_multi
 	$zz_default['multilang_fieldnames'] = false;	// translate fieldnames via zz_text($fieldname)
+	$zz_default['password_salt']		= '';
+	$zz_default['password_encryption']	= 'md5';
 	$zz_default['prefix'] 				= false;	//	prefix for ALL tables like zz_
 	$zz_default['project']				= $_SERVER['SERVER_NAME'];
 	$zz_default['redirect']['successful_delete'] = false;	// redirect to diff. page after delete
@@ -888,7 +894,7 @@ function zz_initialize($mode = false) {
  * @return array $ops
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zzform_multi($definition_file, $values, $type, $params = false) {
+function zzform_multi($definition_file, $values, $type = 'record', $params = false) {
 	// unset all variables that are not needed
 	// important because there may be multiple zzform calls
 	global $zz_conf;
@@ -903,7 +909,7 @@ function zzform_multi($definition_file, $values, $type, $params = false) {
 	}
 
 	// Allowed:
-	$allowed_types = array('csv', 'xml', 'files', 'record');
+	$allowed_types = array('csv', 'xml', 'files', 'record', 'form');
 	if (!in_array($type, $allowed_types)) {
 		echo 'Illegal type set for function zzform_multi(): '.htmlspecialchars($type);
 		return false;
@@ -914,6 +920,33 @@ function zzform_multi($definition_file, $values, $type, $params = false) {
 	unset($_FILES);
 
 	switch ($type) {
+	case 'form': // hand back form to user, just fill out values
+		$ops = array();
+		// causes not all zz_conf variables to be reset
+		zz_initialize('overwrite');
+		$zz_conf['show_output'] = false; // do not show output as it will be included after page head
+		$zz_conf['show_list'] = false;	// no output, so list view is not necessary
+		$zz_conf['multi'] = true;		// so we know the operation mode for other scripts
+		if (!empty($values['GET'])) $_GET = $values['GET'];
+		if (!empty($values['POST'])) $_POST = $values['POST'];
+		if (!empty($values['FILES'])) $_FILES = $values['FILES'];
+		else $_FILES = array();
+		// set action to form view
+		$_POST['zz_review'] = true;
+		if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
+			$old_id = $zz_conf['id'];	
+			$zz_conf['id'] = $id;
+			zz_debug('before including definition file');
+		}
+		require $zz_conf['form_scripts'].'/'.$definition_file.'.php';
+		if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
+			zz_debug('definition file included');
+			$zz_conf['id'] = $old_id;
+		}
+		// return on error in form script
+		if (!empty($ops['error'])) return $ops;
+		$ops = zzform($zz);
+		break;
 	case 'record':  // one operation only
 		$ops = array();
 		// TODO: so far, we have no support for 'values' for subrecords
@@ -922,7 +955,7 @@ function zzform_multi($definition_file, $values, $type, $params = false) {
 		zz_initialize('overwrite');
 //		if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__)
 		$zz_conf['show_output'] = false; // do not show output as it will be included after page head
-		$zz_conf['show_list'] = false; // no output, so list view is not necessary
+		$zz_conf['show_list'] = false;	// no output, so list view is not necessary
 		$zz_conf['multi'] = true;		// so we know the operation mode for other scripts
 		if (!empty($values['GET'])) $_GET = $values['GET'];
 		if (!empty($values['POST'])) $_POST = $values['POST'];

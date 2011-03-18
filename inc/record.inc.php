@@ -268,7 +268,8 @@ function zz_display_records($mode, $zz_tab, $display, $zz_var, $zz_conditions) {
 			$output.= '</tfoot>'."\n";
 		}
 	}
-	$output.= zz_show_field_rows($zz_tab, 0, 0, $mode, $display, $zz_var, $zz_conf_record, $zz_var['action']);
+	$output.= zz_show_field_rows($zz_tab, 0, 0, $mode, $display, $zz_var, $zz_conf_record);
+	if ($zz_error['error']) return zz_return(false);
 	$output.= '</table>'."\n";
 	if ($mode == 'delete') $output.= '<input type="hidden" name="'
 		.$zz_var['id']['field_name'].'" value="'.$zz_var['id']['value'].'">'."\n";
@@ -308,7 +309,6 @@ function zz_display_records($mode, $zz_tab, $display, $zz_var, $zz_conditions) {
  *		function calls itself and uses 'horizontal_table_head', 'class_add'
  *		internally, therefore &$zz_var
  * @param array $zz_conf_record
- * @param string $action
  * @param string $formdisplay (optional)
  * @param string $extra_lastcol (optional)
  * @param int $table_count (optional)
@@ -316,7 +316,7 @@ function zz_display_records($mode, $zz_tab, $display, $zz_var, $zz_conditions) {
  * @return string HTML output
  */
 function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var, 
-	$zz_conf_record, $action, $formdisplay = 'vertical', $extra_lastcol = false, 
+	$zz_conf_record, $formdisplay = 'vertical', $extra_lastcol = false, 
 	$table_count = 0, $show_explanation = true) {
 
 	global $zz_error;
@@ -389,6 +389,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 		}
 		if ($field['type'] == 'subtable') {
 			$sub_tab = $field['subtable'];
+			if (empty($field['title_button'])) $field['title_button'] = strip_tags($field['title']); 
 			if (empty($field['form_display'])) $field['form_display'] = 'vertical';
 //	Subtable
 			$st_display = (!empty($field['access']) ? $field['access'] : $display);
@@ -493,7 +494,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 					$h_show_explanation = false;
 				if ($show_remove) {
 					$removebutton = '<input type="submit" value="'
-						.sprintf(zz_text('Remove %s'), $field['title'])
+						.sprintf(zz_text('Remove %s'), $field['title_button'])
 						.'" class="sub-remove" name="zz_subtables[remove]['
 						.$sub_tab.']['.$sub_rec.']">';
 					if ($field['form_display'] == 'horizontal') {
@@ -501,7 +502,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 					}
 				}	
 				$out['td']['content'].= zz_show_field_rows($zz_tab, $sub_tab, 
-					$sub_rec, $subtable_mode, $my_st_display, $zz_var, $zz_conf_record, $action, 
+					$sub_rec, $subtable_mode, $my_st_display, $zz_var, $zz_conf_record, 
 					$field['form_display'], $lastrow, $sub_rec, $h_show_explanation);
 				if ($field['form_display'] != 'horizontal') {
 					$out['td']['content'].= '</table></div>'."\n";
@@ -523,7 +524,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 			if ($st_display == 'form' 
 				AND $zz_tab[$sub_tab]['max_records'] > $zz_tab[$sub_tab]['records'])
 				$out['td']['content'] .= '<input type="submit" value="'
-					.sprintf(zz_text('Add %s'), $field['title'])
+					.sprintf(zz_text('Add %s'), $field['title_button'])
 					.'" class="sub-add" name="zz_subtables[add]['
 					.$sub_tab.']">';
 			if ($st_display == 'form' && $field['explanation'] && $show_explanation)
@@ -662,7 +663,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 			
 			if ($row_display == 'form' && !empty($field['explanation_top']))
 				$out['td']['content'].= '<p class="explanation">'.$field['explanation_top'].'</p>';
-			if ($field['type'] == 'write_once' AND ($mode == 'add' OR $action == 'insert')) {
+			if ($field['type'] == 'write_once' AND ($mode == 'add' OR $zz_var['action'] == 'insert')) {
 				$field['type'] = $field['type_detail'];
 			}
 			$outputf = false;
@@ -693,8 +694,6 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 					$db_value = $my_rec['record'][$field['field_name']];
 				}
 				if (!$display_value) $display_value = $db_value;
-				$outputf .= sprintf($my_element, $db_value, $field['f_field_name'], 
-					make_id_fieldname($field['f_field_name']));
 				if ($mark_italics) $outputf .= '<em title="'.zz_text('Would be changed on update').'">';
 				if ($db_value AND !empty($field['type_detail']) AND $field['type_detail'] == 'ipv4') {
 					$outputf.= long2ip($display_value);
@@ -716,6 +715,13 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 							if (count($select_fields) > 1)
 								array_shift($select_fields); 
 							$outputf .= implode(' | ', $select_fields);
+						} else {
+							$zz_error[]['msg'] = sprintf(zz_text('Record for %s does not exist.')
+								, '<strong>'.$field['title'].'</strong>')
+								.' (ID: '.htmlspecialchars($db_value).')';
+							$zz_error['error'] = true;
+							zz_error();
+							return zz_return(false);
 						}
 					} elseif (isset($field['enum'])) {
 						$outputf .= $display_value;
@@ -753,6 +759,8 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 					} else $outputf.= '('.zz_text('will_be_added_automatically').')&nbsp;';
 				}
 				if ($mark_italics) $outputf .= '</em>';
+				$outputf .= sprintf($my_element, $db_value, $field['f_field_name'], 
+					make_id_fieldname($field['f_field_name']));
 				break;
 			case 'timestamp':
 				$outputf.= '<input type="hidden" value="';
@@ -816,9 +824,9 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 					if ($row_display == 'form') $outputf.= 'value="'.$my_rec['record'][$field['field_name']].'"';
 					else $outputf .= '('.zz_text('hidden').')';
 				if ($row_display == 'form') $outputf.= '>';
-				if ($my_rec['record'] && $row_display == 'form' && $action != 'insert') { $outputf .=
-					'<input type="hidden" name="'.$field['f_field_name'].
-					'--old" value="'.(!empty($my_rec['record'][$field['field_name'].'--old']) 
+				if ($my_rec['record'] && $row_display == 'form' && $zz_var['action'] != 'insert') {
+					$outputf .= '<input type="hidden" name="'.$field['f_field_name'].
+						'--old" value="'.(!empty($my_rec['record'][$field['field_name'].'--old']) 
 						? $my_rec['record'][$field['field_name'].'--old'] : $my_rec['record'][$field['field_name']]).'">';
 					// this is for validation purposes
 					// take saved password (no matter if it's interefered with 
@@ -1055,7 +1063,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 								// written in my record fieldname)
 								$outputf.= ' checked="checked"'; 
 							}
-							$outputf.= '> '.zz_text('no_selection').'</label>';
+							$outputf.= '>&nbsp;'.zz_text('no_selection').'</label>';
 							if (!empty($field['show_values_as_list'])) 
 								$outputf .= "\n".'<ul class="zz_radio_list">'."\n";
 						} else {
@@ -1083,7 +1091,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 									.$myid.'" name="'.$field['f_field_name'].'" value="'.$set.'"';
 								if ($my_rec['record']) if ($set == $my_rec['record'][$field['field_name']]) 
 									$outputf.= ' checked="checked"';
-								$outputf.= '> '.(!empty($field['enum_title'][$key]) 
+								$outputf.= '>&nbsp;'.(!empty($field['enum_title'][$key]) 
 									? $field['enum_title'][$key] : zz_text($set)).'</label>';
 								if (!empty($field['show_values_as_list'])) $outputf .= '</li>'."\n";
 							} else {
@@ -1166,7 +1174,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 									.(($image_uploads > 1 OR !empty($field['optional_image'])) ?
 									'(<small><label for="delete-file-'.$fieldkey.'-'.$imagekey
 									.'"><input type="checkbox" name="zz_delete_file['.$fieldkey.'-'.$imagekey
-									.']" id="delete-file-'.$fieldkey.'-'.$imagekey.'"> '
+									.']" id="delete-file-'.$fieldkey.'-'.$imagekey.'">&nbsp;'
 									.zz_text('Delete this file').'</label></small>)'
 									: '');
 							if (!empty($my_rec['images'][$fieldkey][$imagekey]['error']))
@@ -1328,7 +1336,6 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 				.$row['td']['content'].'</td></tr>'."\n";
 			if ($row['separator']) {
 				$output .= zz_show_separator($row['separator']);
-				
 			}
 		}
 	} elseif ($formdisplay == 'horizontal') {
@@ -1350,6 +1357,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 		}
 		if ($extra_lastcol) $output .= '<td>'.$extra_lastcol.'</td>';
 		$output .= '</tr>'."\n";
+		if ($row['separator']) $output .= zz_show_separator($row['separator'], count($matrix));
 	}
 	return zz_return($output);
 }
@@ -1503,7 +1511,7 @@ function zz_form_select_sql($field, $db_table, $record, $row_display, $zz_conf_r
 		
 		// do we have to display the results hierarchical in a SELECT?
 		if (!empty($field['show_hierarchy'])) {
-			$my_select = false;
+			$my_select = array();
 			$show_hierarchy_subtree = 'NULL';
 			foreach ($details as $line) {
 				// if hierarchy is hierarchy of same table, don't allow to set
@@ -1567,7 +1575,7 @@ function zz_form_select_sql($field, $db_table, $record, $row_display, $zz_conf_r
 					// (both would be written in my record fieldname)
 					$outputf.= ' checked="checked"'; 
 				}
-				$outputf.= '> '.zz_text('no_selection').'</label>';
+				$outputf.= '>&nbsp;'.zz_text('no_selection').'</label>';
 				$outputf .= "\n".'<ul class="zz_radio_list">'."\n";
 			}
 			
@@ -1585,7 +1593,7 @@ function zz_form_select_sql($field, $db_table, $record, $row_display, $zz_conf_r
 						.$myid.'" name="'.$field['f_field_name'].'" value="'.$id.'"';
 					if ($record AND $id == $record[$field['field_name']]) 
 						$outputf.= ' checked="checked"';
-					$outputf.= '> ';
+					$outputf.= '>&nbsp;';
 					if (!empty($field['group'])) { // group display
 						if ($fields[$field['group']])
 							$outputf .= '<em>'.$fields[$field['group']].':</em> ';
@@ -1614,6 +1622,7 @@ function zz_form_select_sql($field, $db_table, $record, $row_display, $zz_conf_r
 				.'"';
 			if ($record) if (!$record[$field['field_name']]) $outputf.= ' selected="selected"';
 			$outputf.= '>'.zz_text('none_selected').'</option>'."\n";
+			$close_select = true;
 			if (empty($field['show_hierarchy']) AND empty($field['group'])) {
 				foreach ($details as $line)
 					$outputf.= zz_draw_select($line, $id_field_name, $record, 
@@ -1638,12 +1647,18 @@ function zz_form_select_sql($field, $db_table, $record, $row_display, $zz_conf_r
 					$outputf.= zz_draw_select($line, $id_field_name, $record, 
 						$field, $zz_conf_record, 'form', 0, $my_select, $field['show_hierarchy']);
 				}
-			} elseif (!empty($field['show_hierarchy']) AND $count_rows == 1) {
+			} elseif (!empty($field['show_hierarchy']) AND $count_rows == 1 AND $my_select) {
 				// just one line, change multidimensional array into simple array
 				$line = array_shift($my_select); // first hierarchy
 				$line = array_shift($line); // first record in hierarchy
 				$outputf.= zz_draw_select($line, $id_field_name, $record, 
 					$field, $zz_conf_record, 'form', 0, $my_select, $field['show_hierarchy']);
+			} elseif (!empty($field['show_hierarchy']) AND $count_rows == 1) {
+				// could only select itself, so treat as if no selection possible
+				$outputf = '<input type="hidden" value="" name="'.$field['f_field_name']
+					.'" id="'.make_id_fieldname($field['f_field_name']).'">'
+					.zz_text('no_selection_possible');
+				$close_select = false;
 			} elseif (!empty($field['group'])) {
 				// optgroup
 				$optgroup = false;
@@ -1663,15 +1678,22 @@ function zz_form_select_sql($field, $db_table, $record, $row_display, $zz_conf_r
 			// there's only one record coming back
 				$outputf.= zz_draw_select($detail_record, $id_field_name, $record, 
 					$field, $zz_conf_record, 'form');
+			} elseif (!empty($field['show_hierarchy']) AND $show_hierarchy_subtree == 'NULL') {
+				// could only select itself, so treat as if no selection possible
+				$outputf = '<input type="hidden" value="" name="'.$field['f_field_name']
+					.'" id="'.make_id_fieldname($field['f_field_name']).'">'
+					.zz_text('no_selection_possible').' '
+					.zz_text('(This entry is the highest entry in the hierarchy.)');
+				$close_select = false;
 			} elseif (!empty($field['show_hierarchy'])) {
 				$zz_error[] = array(
-					'msg' => 'No selection possible',
+					'msg' => 'no_selection_possible',
 					'msg_dev' => 'Configuration error: "show_hierarchy" used but '
 						.'there is no highest level in the hierarchy.',
 					'level' => E_USER_WARNING
 				);
 			}
-			$outputf.= '</select>'."\n";
+			if ($close_select) $outputf.= '</select>'."\n";
 			zz_error();
 			$outputf.= zz_error_output();
 		}
@@ -1738,7 +1760,7 @@ function zz_form_select_set($field, $row_display, $record = false) {
 				AND in_array($set, $field['disabled_ids'])) {
 				$output.= ' disabled="disabled"';
 			}
-			$output.= '> '.(!empty($field['set_title'][$key]) 
+			$output.= '>&nbsp;'.(!empty($field['set_title'][$key]) 
 				? $field['set_title'][$key] : $set).'</label>';
 			if (count($field['set']) >= 4 OR !empty($field['show_values_as_list']))
 				$output.= '<br>';
@@ -1776,11 +1798,12 @@ function zz_show_class($attr) {
  *		1 or true: simple HR line
  *		'column_begin', 'column', 'column_end': allows to put form into two columns
  *		'text '.*** like true, but with text printed behind HR
+ * @param int colspan
  * @return HTML string
  */
-function zz_show_separator($separator) {
+function zz_show_separator($separator, $span = 2) {
 	if ($separator == 1)
-		return '<tr><td colspan="2" class="separator"><hr></td></tr>'."\n";
+		return '<tr><td colspan="'.$span.'" class="separator"><hr></td></tr>'."\n";
 	elseif ($separator == 'column_begin')
 		return '<tr><td><table><tbody>'."\n";
 	elseif ($separator == 'column')
@@ -1788,7 +1811,7 @@ function zz_show_separator($separator) {
 	elseif ($separator == 'column_end')
 		return "</tbody></table>\n</td></tr>\n";
 	elseif (substr($separator, 0, 5) == 'text ')
-		return '<tr><td colspan="2" class="separator"><hr>'.substr($separator, 4).'</td></tr>'."\n";
+		return '<tr><td colspan="'.$span.'" class="separator"><hr>'.substr($separator, 4).'</td></tr>'."\n";
 }
 
 /**

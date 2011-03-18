@@ -184,15 +184,11 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 
 	// Check all conditions whether they are true;
 	if (!empty($zz_conf['modules']['conditions'])) {
-		if ($zz_conf['modules']['debug']) zz_debug("conditions start");
 		$zz_conditions = zz_conditions_list_check($zz, $zz_conditions, $id_field, array_keys($lines));
 	}
 	if ($zz_error['error']) return zz_return(array($ops, $zz_var));
 	zz_error();
 	$ops['output'] .= zz_error_output();
-	if (!empty($zz_conf['modules']['conditions'])) {
-		if ($zz_conf['modules']['debug']) zz_debug("conditions finished");
-	}
 
 	// check conditions, these might lead to different field definitions for every
 	// line in the list output!
@@ -209,9 +205,14 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			if ($index) foreach ($line_query[$index] as $fieldindex => $field) {
 				// conditions
 				if (empty($zz_conf['modules']['conditions'])) continue;
-				if (empty($field['conditions'])) continue;
-				$line_query[$index][$fieldindex] = zz_conditions_merge($field, $zz_conditions['bool'], $line[$id_field]);
-				$conditions_applied[$index] = true;
+				if (!empty($field['conditions'])) {
+					$line_query[$index][$fieldindex] = zz_conditions_merge($field, $zz_conditions['bool'], $line[$id_field]);
+					$conditions_applied[$index] = true;
+				}
+				if (!empty($field['not_conditions'])) {
+					$line_query[$index][$fieldindex] = zz_conditions_merge($line_query[$index][$fieldindex], $zz_conditions['bool'], $line[$id_field], true);
+					$conditions_applied[$index] = true;
+				}
 			}
 		}
 		if (empty($conditions_applied)) {
@@ -407,6 +408,9 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 					if (!empty($field['conditions'])) {
 						$field = zz_conditions_merge($field, $zz_conditions['bool'], $line[$id_field]);
 					}
+					if (!empty($field['not_conditions'])) {
+						$field = zz_conditions_merge($field, $zz_conditions['bool'], $line[$id_field], true);
+					}
 					if (!empty($zz_conf_record['conditions'])) {
 						$zz_conf_record = zz_conditions_merge($zz_conf_record, $zz_conditions['bool'], $line[$id_field], false, 'conf');
 						$zz_conf_record = zz_listandrecord_access($zz_conf_record);
@@ -569,6 +573,9 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 					else
 						$rows[$z][$fieldindex]['text'].= zz_mark_search_string(htmlspecialchars($line[$field['field_name']]), $field['field_name'], $field);
 					if ($link) $rows[$z][$fieldindex]['text'].= '</a>';
+					break;
+				case 'ipv4':
+					$rows[$z][$fieldindex]['text'].= zz_mark_search_string(long2ip($line[$field['field_name']]), $field['field_name'], $field);
 					break;
 				case 'id':
 					$id = $line[$field['field_name']];
@@ -1071,7 +1078,7 @@ function zz_set_link($field, $line) {
 	} elseif (isset($field['link']) AND is_array($field['link'])) {
 		$link = zz_makelink($field['link'], $line)
 			.(empty($field['link_no_append']) ? $line[$field['field_name']] : '');
-	} elseif (isset($field['link'])) {
+	} elseif (!empty($field['link'])) {
 		$link = $field['link'].$line[$field['field_name']];
 	}
 	if ($link AND !empty($field['link_referer'])) 
@@ -1517,7 +1524,7 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 		
 		// additional between search
 		if (isset($field['search_between'])) {
-			$q_search[] = sprintf($field['search_between'], $searchword, $searchword);
+			$q_search[] = sprintf($field['search_between'], '"'.$searchword.'"', '"'.$searchword.'"');
 		}
 	}
 	$q_search = '('.implode(' OR ', $q_search).')';

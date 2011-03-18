@@ -294,60 +294,68 @@ function zz_conditions_merge($array, $bool_conditions, $record_id, $reverse = fa
 /**
  * Check all conditions whether they are true
  * 
- * @param array $zz
- * @param array $zz_conditions
- * @param string $id_field
- * @param array $ids
+ * @param array $zz (table definition)
+ * @param array $zz_conditions (existing conditions from zz_conditions_record_check)
+ * @param string $id_field (record ID field name)
+ * @param array $ids (record IDs)
  * @global array $zz_conf
  * @global array $zz_error
- * @return array $zz_conditions
+ * @return array $zz_conditions 
+ *		['bool'][$index of condition] = array($record ID1 => true, $record ID2 
+ *		=> true, ..., $record IDn => true)
  * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @see zz_conditions_record_check()
  */
 function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids) {
 	global $zz_conf;
 	global $zz_error;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	if ($zz_conf['show_list'] AND !empty($zz['conditions'])) {
-		// improve database performace, for this query we only need ID field
-		$zz['sql_without_limit'] = zz_edit_sql($zz['sql_without_limit'], 'SELECT', $zz['table'].'.'.$id_field, 'replace');
-		// get rid of ORDER BY because we don't have the fields and we don't need it
-		$zz['sql_without_limit'] = zz_edit_sql($zz['sql_without_limit'], 'ORDER BY', ' ', 'delete');
+	if (!$zz_conf['show_list']) return zz_return($zz_conditions);
+	if (empty($zz['conditions'])) return zz_return($zz_conditions);
 
-		foreach($zz['conditions'] AS $index => $condition) {
-			switch ($condition['scope']) {
-			// case record remains the same as in form view
-			// case query covers more ids
-			case 'record':
-				$sql = $zz['sql_without_limit'];
-				if (!empty($condition['where']))
-					$sql = zz_edit_sql($sql, 'WHERE', $condition['where']);
-				if (!empty($condition['having']))
-					$sql = zz_edit_sql($sql, 'HAVING', $condition['having']);
-				if (count($ids) < 200) {
-					// using IDs is faster than getting the full query
-					// not sure if WHERE .. IN () is slowing things down with
-					// a big number of IDs
-					// this restriction might be removed in later versions of zzform
-					$sql = zz_edit_sql($sql, 'WHERE', '`'.$zz['table'].'`.'.$id_field.' IN ('.implode(',', $ids).')');
-				}
-				$lines = zz_db_fetch($sql, $id_field, 'id as key', 'list-record ['.$index.']');
-				if ($zz_error['error']) return zz_return($zz_conditions); // DB error
-				break;
-			case 'query':
-				$sql = $condition['sql'];
-				$sql = zz_edit_sql($sql, 'WHERE', $condition['key_field_name'].' IN ('.implode(', ', $ids).')');
-				$lines = zz_db_fetch($sql, $condition['key_field_name'], 'id as key', 'list-query ['.$index.']');
-				if ($zz_error['error']) return zz_return($zz_conditions); // DB error
-				break;
-			default:
-				$lines = array();
-				break;
+	// improve database performace, for this query we only need ID field
+	$zz['sql_without_limit'] = zz_edit_sql($zz['sql_without_limit'], 'SELECT', $zz['table'].'.'.$id_field, 'replace');
+	// get rid of ORDER BY because we don't have the fields and we don't need it
+	$zz['sql_without_limit'] = zz_edit_sql($zz['sql_without_limit'], 'ORDER BY', ' ', 'delete');
+
+	foreach ($zz['conditions'] AS $index => $condition) {
+		switch ($condition['scope']) {
+		// case record remains the same as in form view
+		// case query covers more ids
+		case 'record':
+			$sql = $zz['sql_without_limit'];
+			if (!empty($condition['where']))
+				$sql = zz_edit_sql($sql, 'WHERE', $condition['where']);
+			if (!empty($condition['having']))
+				$sql = zz_edit_sql($sql, 'HAVING', $condition['having']);
+			if (count($ids) < 200) {
+				// using IDs is faster than getting the full query
+				// not sure if WHERE .. IN () is slowing things down with
+				// a big number of IDs
+				// this restriction might be removed in later versions of zzform
+				$sql = zz_edit_sql($sql, 'WHERE', '`'.$zz['table'].'`.'.$id_field.' IN ('.implode(',', $ids).')');
 			}
-			if (empty($zz_conditions['bool'][$index]))
-				$zz_conditions['bool'][$index] = $lines;
-			else
-				$zz_conditions['bool'][$index] = zz_array_merge($zz_conditions['bool'][$index], $lines);
+			$lines = zz_db_fetch($sql, $id_field, 'id as key', 'list-record ['.$index.']');
+			if ($zz_error['error']) return zz_return($zz_conditions); // DB error
+			break;
+		case 'query':
+			$sql = $condition['sql'];
+			$sql = zz_edit_sql($sql, 'WHERE', $condition['key_field_name'].' IN ('.implode(', ', $ids).')');
+			$lines = zz_db_fetch($sql, $condition['key_field_name'], 'id as key', 'list-query ['.$index.']');
+			if ($zz_error['error']) return zz_return($zz_conditions); // DB error
+			break;
+		case 'access':
+			// get access rights for each ID with user function
+			$lines = $condition['function']($ids, $condition);
+			break;
+		default:
+			$lines = array();
+			break;
 		}
+		if (empty($zz_conditions['bool'][$index]))
+			$zz_conditions['bool'][$index] = $lines;
+		else
+			$zz_conditions['bool'][$index] = zz_array_merge($zz_conditions['bool'][$index], $lines);
 	}
 	return zz_return($zz_conditions);
 }

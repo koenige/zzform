@@ -276,5 +276,7 @@ $text['%s is too big. Please enter for seconds a value smaller than 60.'] = '%s 
 $text['Sorry, there are too many numbers. We cannot interpret what you entered.'] = 'Wir können leider nicht diese Koordinate korrekt interpretieren, da zuviele Zahlen eingegeben wurden.';
 $text['Minimum value for degrees is %s. The value you entered is too small: %s.'] = 'Der kleinste Wert für Grad ist %s. Der Wert, den Sie eingegeben haben, ist zu klein: %s.';
 $text['Maximum value for degrees is %s. The value you entered is too big: %s.'] = 'Der gr&ouml;&szlig;te Wert für Grad ist %s. Der Wert, den Sie eingegeben haben, ist zu gro&szlig;: %s.';
+$text['Record for %s does not exist.'] = 'Eintrag für %s existiert nicht.';
+$text['(This entry is the highest entry in the hierarchy.)'] = '(Dieser Eintrag ist der oberste Eintrag in der Hierarchie.)';
 
 ?>

@@ -143,6 +143,7 @@ $zz_default['upload_destination_filetype']['eps'] = 'png';
 $zz_default['upload_destination_filetype']['cr2'] = 'jpeg';
 $zz_default['upload_destination_filetype']['dng'] = 'jpeg';
 $zz_default['upload_destination_filetype']['psd'] = 'jpeg';
+$zz_default['upload_destination_filetype']['mp4'] = 'jpeg';
 
 $zz_default['upload_pdf_density'] = '300x300'; // dpi in which pdf will be rasterized
 
@@ -378,9 +379,8 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 	if ($file['size'] <= 3) return zz_return($file);
 
 	if (!$extension) $extension = substr($myfilename, strrpos($myfilename, '.') +1);
-	// 1a.
-	// 1b.
 
+	// 1a. getimagesize()
 	if ($zz_conf['modules']['debug']) zz_debug("file", json_encode($file));
 	if (function_exists('getimagesize')) {
 		$sizes = getimagesize($myfilename);
@@ -402,6 +402,8 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 		if ($zz_conf['modules']['debug']) zz_debug("getimagesize()", $file['filetype']);
 	} 
 	if ($zz_conf['modules']['debug']) zz_debug("getimagesize", json_encode($file));
+
+	// 1b. exif_imagetype()
 	if (!$file['validated'] && function_exists('exif_imagetype')) {// > PHP 4.3.0
 		$imagetype = exif_imagetype($myfilename);
 		if ($imagetype && !empty($zz_conf['image_types'][$imagetype])) {
@@ -418,6 +420,8 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 		if ($zz_conf['modules']['debug']) zz_debug("exif_imagetype()", $file['filetype']);
 	} 
 	if ($zz_conf['modules']['debug']) zz_debug("exif_imagetype", json_encode($file));
+
+	// 1d. identify
 	if ($zz_conf['graphics_library'] == 'imagemagick' AND $zz_conf['upload_tools']['identify']) {
 		$temp_imagick = zz_imagick_identify($myfilename);
 		if ($temp_imagick) {
@@ -429,6 +433,8 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 		if ($zz_conf['modules']['debug']) zz_debug("identify()", $file['filetype']);
 	}
 	if ($zz_conf['modules']['debug']) zz_debug("identify", json_encode($file));
+
+	// 1c. fileinfo file()
 	if ($zz_conf['upload_tools']['fileinfo']) {
 		// use unix `file` command
 		exec($zz_conf['upload_tools']['fileinfo_whereis'].' --brief "'.$myfilename.'"', $return_var);
@@ -484,6 +490,7 @@ function zz_upload_fileinfo($file, $myfilename, $extension) {
 		if ($zz_conf['modules']['debug']) zz_debug("file()",
 			(!empty($file['filetype_file']) ? $file['filetype_file'] : $file['type']));
 	}
+
 	if ($zz_conf['modules']['debug']) zz_debug("all external checks", json_encode($file));
 	// TODO: allow further file testing here, e. g. for PDF, DXF
 	// and others, go for Identifying Characters.

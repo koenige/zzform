@@ -256,31 +256,44 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	// ### Update a record ###
 
 		} elseif ($zz_tab[$tab][$rec]['action'] == 'update') {
-			$update_values = '';
+			$update_values = array();
 			$fields = array();
-			foreach ($zz_tab[$tab][$rec]['fields'] as $field)
-				if ($field['type'] != 'subtable' AND $field['type'] != 'id' && $field['in_sql_query']) {
-					if ($field['type'] != 'timestamp' AND empty($field['dont_check_on_update']))
-						$fields[] = $field['field_name'];
-					if ($update_values) $update_values.= ', ';
-					$update_values.= '`'.$field['field_name'].'` = '.$zz_tab[$tab][$rec]['POST_db'][$field['field_name']];
+			$equal = true; // old and new record are said to be equal
+			foreach ($zz_tab[$tab][$rec]['fields'] as $field) {
+				if ($field['type'] == 'subtable') continue;
+				if ($field['type'] == 'id') continue;
+				if (!$field['in_sql_query']) continue;
+				$update = true;
+				// check if field values are different to existing record
+				if (isset($zz_tab[$tab][$rec]['POST'][$field['field_name']])
+					AND isset($zz_tab[$tab]['existing'][$rec])) {
+					// ok, we have values which might be compared
+					if ($field['type'] != 'timestamp' 
+						AND empty($field['dont_check_on_update'])) {
+						// check difference to existing record
+						$post = $zz_tab[$tab][$rec]['POST'][$field['field_name']];
+						if ($field['type'] == 'select' AND !empty($field['set'])) {
+							// to compare it, make array into string
+							$post = implode(',', $post);
+						}
+						if ($post != $zz_tab[$tab]['existing'][$rec][$field['field_name']]) {
+							$equal = false; // we have to sent this query
+						} else {
+							$update = false; // we don't know yet from this one
+							// whether to send the query or not, but we do not
+							// need to send the values for this field since they
+							// are equal
+						}
+					}
 				}
-			if ($update_values) {
-				$equal = true; // old and new record are equal
-				// check existing record
-				foreach ($fields as $field_name) {
-					if (!isset($zz_tab[$tab][$rec]['POST'][$field_name])) continue;
-					// 'existing' not set: should not happen
-					if (!isset($zz_tab[$tab]['existing'][$rec])) continue;
-					if ($zz_tab[$tab][$rec]['POST'][$field_name] != $zz_tab[$tab]['existing'][$rec][$field_name])
-						$equal = false;
-				}
-				if (!$equal)
-					$me_sql = ' UPDATE '.$me_db.$zz_tab[$tab]['table']
-						.' SET '.$update_values.' WHERE '.$zz_tab[$tab][$rec]['id']['field_name']
-						.' = "'.$zz_tab[$tab][$rec]['id']['value'].'"';
-				else
-					$me_sql = 'SELECT 1'; // nothing to update, existing record is equal
+				if (!$update) continue;
+				$update_values[] = '`'.$field['field_name'].'` = '.$zz_tab[$tab][$rec]['POST_db'][$field['field_name']];
+			}
+			if ($update_values AND !$equal) {
+				$me_sql = ' UPDATE '.$me_db.$zz_tab[$tab]['table']
+					.' SET '.implode(', ', $update_values)
+					.' WHERE '.$zz_tab[$tab][$rec]['id']['field_name']
+					.' = "'.$zz_tab[$tab][$rec]['id']['value'].'"';
 			} else {
 				$me_sql = 'SELECT 1'; // nothing to update, just detail records
 			}
@@ -515,10 +528,15 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 		// check if some values should be gotten from upload fields
 		// must be here before setting the action
 		if ($zz_tab[$tab][$rec]['access'] == 'show') continue;
-		if (empty($field['upload_field'])) continue;
 		if (!in_array($zz_tab[0][0]['action'], array('insert', 'update'))) continue;
-		$my_tab[$rec]['POST'][$field['field_name']] 
-			= zz_write_upload_fields($zz_tab, $f, $tab, $rec);
+		if (!empty($field['detail_value'])) {
+			$value = zz_write_detail_values($zz_tab, $f, $tab, $rec);
+			if ($value) $my_tab[$rec]['POST'][$field['field_name']] = $value;
+		}
+		if (!empty($field['upload_field'])) {
+			$value = zz_write_upload_fields($zz_tab, $f, $tab, $rec);
+			if ($value) $my_tab[$rec]['POST'][$field['field_name']] = $value;
+		}
 	}
 
 	foreach ($my_tab[$rec]['fields'] as $field) {
@@ -533,7 +551,7 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 		// check def_val_ignore, some auto values/values/default values will be ignored 
 		if (!empty($field['def_val_ignore'])) {
 			if (empty($field['value']) AND !empty($field['default'])
-				AND $field['default'] != $my_tab[$rec]['POST'][$field['field_name']]) {
+				AND $field['default'] != trim($my_tab[$rec]['POST'][$field['field_name']])) {
 			// defaults will only be ignored if different from default value
 			// but only if no value is set!
 				$values .= $fvalues;				
@@ -646,6 +664,9 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 			} else
 				$my_rec['POST_db'][$field_name] = '';
 		}
+	//	password: remove unencrypted password
+		if ($my_rec['fields'][$f]['type'] == 'password')
+			unset($my_rec['POST_db']['zz_unencrypted_'.$field_name]);
 	//	slashes, 0 and NULL
 		$unwanted = array('calculated', 'image', 'upload_image', 'id', 
 			'foreign', 'subtable', 'foreign_key', 'translation_key', 
@@ -831,7 +852,7 @@ function zz_foldercheck(&$zz_tab, $zz_conf) {
 function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 	global $zz_conf;
 	global $zz_error;
-	
+
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	// in case validation fails, these values will be send back to user
 	$my_rec['POST-notvalid'] = $my_rec['POST']; 
@@ -874,25 +895,19 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			continue;
 		}
 
-		//	copy value if field detail_value isset
-		if (isset($my_rec['fields'][$f]['detail_value'])) {
-			$my_field = $my_rec['fields'][$f]['detail_value'];
-			if (isset($my_rec['POST'][$my_field])) 
-				// first test same subtable
-				$my_rec['POST'][$field_name] = $my_rec['POST'][$my_field];
-			elseif (isset($zz_tab[0][0]['POST'][$my_field])) 
-				// main table, currently no other means to access it
-				$my_rec['POST'][$field_name] = $zz_tab[0][0]['POST'][$my_field];
-			elseif (isset($zz_tab[0][0]['extra'][$my_field])) {
-				$my_rec['POST'][$field_name] = $zz_tab[0][0]['extra'][$my_field];
+		if (!$tab AND !$rec) {
+			//	copy value if field detail_value isset
+			if (!empty($my_rec['fields'][$f]['detail_value'])) {
+				$value = zz_write_detail_values($zz_tab, $f);
+				if ($value) $my_rec['POST'][$field_name] = $value;
 			}
-		}
-
-		// check if some values should be gotten from upload fields
-		// here: only for main record, since subrecords already were taken care for
-		if (!empty($my_rec['fields'][$f]['upload_field']) AND !$tab AND !$rec) {
-			$my_rec['POST'][$field_name] 
-				= zz_write_upload_fields($zz_tab, $f);
+	
+			// check if some values should be gotten from upload fields
+			// here: only for main record, since subrecords already were taken care for
+			if (!empty($my_rec['fields'][$f]['upload_field'])) {
+				$value = zz_write_upload_fields($zz_tab, $f);
+				if ($value) $my_rec['POST'][$field_name] = $value;
+			}
 		}
 
 		//	call function
@@ -971,13 +986,15 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			// action=insert: password will be encrypted
 			if ($my_rec['POST'][$field_name]) {
 				if ($my_rec['action'] == 'insert') {
+					$my_rec['POST']['zz_unencrypted_'.$field_name] = $my_rec['POST'][$field_name];
 					$my_rec['POST'][$field_name] 
-						= $zz_conf['password_encryption']($my_rec['POST'][$field_name]);
+						= $zz_conf['password_encryption']($my_rec['POST'][$field_name].$zz_conf['password_salt']);
 				} elseif ($my_rec['action'] == 'update') {
+					$my_rec['POST']['zz_unencrypted_'.$field_name] = $my_rec['POST'][$field_name];
 					if (!isset($my_rec['POST'][$field_name.'--old'])
 					|| ($my_rec['POST'][$field_name] != $my_rec['POST'][$field_name.'--old']))
 						$my_rec['POST'][$field_name] 
-							= $zz_conf['password_encryption']($my_rec['POST'][$field_name]);
+							= $zz_conf['password_encryption']($my_rec['POST'][$field_name].$zz_conf['password_salt']);
 				}
 			}
 			break;
@@ -1032,7 +1049,6 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			if ($my_date = datum_int($my_rec['POST'][$field_name]))
 				$my_rec['POST'][$field_name] = $my_date;
 			else {
-				//echo $my_rec['POST'][$field_name].'<br>';
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['validation'] = false;
 			}
@@ -1043,7 +1059,6 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				if ($my_time = validate_time($my_rec['POST'][$field_name]))
 					$my_rec['POST'][$field_name] = $my_time;
 				else {
-					//echo $my_rec['POST'][$field_name].'<br>';
 					$my_rec['fields'][$f]['check_validation'] = false;
 					$my_rec['validation'] = false;
 				}
@@ -1209,6 +1224,29 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 	// finished
 	return zz_return($my_rec);
 }
+
+function zz_write_detail_values($zz_tab, $f, $tab = 0, $rec = 0) {
+	global $zz_conf;
+	$my_field = $zz_tab[$tab][$rec]['fields'][$f]['detail_value'];
+	$value = false;
+	if (isset($zz_tab[$tab][$rec]['POST'][$my_field])) 
+		// first test same subtable
+		$value = $zz_tab[$tab][$rec]['POST'][$my_field];
+	elseif (isset($zz_tab[0][0]['POST'][$my_field])) 
+		// main table, currently no other means to access it
+		$value = $zz_tab[0][0]['POST'][$my_field];
+	elseif (isset($zz_tab[0][0]['extra'][$my_field])) {
+		$value = $zz_tab[0][0]['extra'][$my_field];
+	}
+	if (!$value) {
+		$field_name = $zz_tab[$tab][$rec]['fields'][$f]['field_name'];
+		$value = $zz_tab[$tab][$rec]['POST'][$field_name];
+	}
+	if ($zz_conf['modules']['debug'])
+		zz_debug('zz_write_detail_values(): field '.$my_field.', value: '.$value);
+	return $value;
+}
+
 
 /**
  * writes values from upload metadata to fields
@@ -1423,17 +1461,17 @@ function zz_check_password($old, $new1, $new2, $sql) {
 	}
 	$old_pwd = zz_db_fetch($sql, '', 'single value', __FUNCTION__);
 	if (!$old_pwd) return false;
-	if ($zz_conf['password_encryption']($old) == $old_pwd) {
+	if ($zz_conf['password_encryption']($old.$zz_conf['password_salt']) == $old_pwd) {
 		$zz_error[] = array(
 			'msg' => zz_text('Your password has been changed!'),
 			'level' => E_USER_NOTICE
 		);
-		return $zz_conf['password_encryption']($new1); // new1 = new2, old = old, everything is ok
+		return $zz_conf['password_encryption']($new1.$zz_conf['password_salt']); // new1 = new2, old = old, everything is ok
 	} else {
 		$zz_error[] = array(
 			'msg' => 'Your current password is different from what you entered. Please try again.',
 			'msg_dev' => '(Encryption: '.$zz_conf['password_encryption'].', existing hash: '
-				.$old_pwd.', entered hash: '.$zz_conf['password_encryption']($old),
+				.$old_pwd.', entered hash: '.$zz_conf['password_encryption']($old.$zz_conf['password_salt']),
 			'level' => E_USER_NOTICE
 		);
 		return false;

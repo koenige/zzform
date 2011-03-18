@@ -7,6 +7,17 @@
 
 /*
 
+// TODO
+	identify -list Format
+	      XMP*  rw-  Adobe XML metadata
+
+	type			Filetype
+	ext				Extension
+	imagick_format	ImageMagick_Format
+	imagick_mode	ImageMagick_Mode
+	imagick_desc	ImageMagick_Description
+	mime			MimeType
+
 $bla = array(
 	1 => array('type' => 'gif', 'ext' => 'gif', 'mime' => 'image/gif', 
 	'imagick_format' => 'GIF', 'imagick_mode' = 'rw+', 
@@ -17,43 +28,36 @@ $bla = array(
 );
 */
 
-function zz_imagick_identify($source) {
-/*
-
-	type			Filetype
-	ext				Extension
-	imagick_format	ImageMagick_Format
-	imagick_mode	ImageMagick_Mode
-	imagick_desc	ImageMagick_Description
-	mime			MimeType
-
-	identify -list Format
-	      XMP*  rw-  Adobe XML metadata
-	identify "phoomap bg.psd"
-	phoomap bg.psd PSD 100x100+0+0 PseudoClass 256c 8-bit 23.9kb 0.000u 0:01
-
-    [0] => /private/var/tmp/phpLjPhBP.mp4=>/var/tmp/magick-xN8MBYXd.pam[0]
-    [1] => MP4
-    [2] => 384x288
-    [3] => 384x288+0+0
-    [4] => 8-bit
-    [5] => TrueColor
-    [6] => DirectClass
-    [7] => 165.9MB
-    [8] => 0.350u
-    [9] => 0:00.349
-
-
-*/
-
-	// 19.09.07 19:45
-
+/**
+ * get information about file via ImageMagick's identify
+ *
+ * function call:
+ *	identify "phoomap bg.psd"
+ *	phoomap bg.psd PSD 100x100+0+0 PseudoClass 256c 8-bit 23.9kb 0.000u 0:01
+ * result:
+ *    [0] => /private/var/tmp/phpLjPhBP.mp4=>/var/tmp/magick-xN8MBYXd.pam[0]
+ *    [1] => MP4
+ *    [2] => 384x288
+ *    [3] => 384x288+0+0
+ *    [4] => 8-bit
+ *    [5] => TrueColor
+ *    [6] => DirectClass
+ *    [7] => 165.9MB
+ *    [8] => 0.350u
+ *    [9] => 0:00.349
+ * @param string $filename filename of file which needs to be identified
+ * @global array $zz_conf
+ * @return array $image
+ *		'filetype', 'width', 'height', 'validated'
+ */
+function zz_imagick_identify($filename) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	if (!file_exists($source)) return zzreturn(false);
+	if (!file_exists($filename)) return zzreturn(false);
 
 	$command = zz_imagick_findpath('identify');
-	$command .= '"'.$source.'"';	
+	// always check only first page if it's a multipage file (document, movie etc.)
+	$command .= '"'.$filename.'[0]"';
 	exec($command, $output, $return_var);
 	if ($zz_conf['modules']['debug']) zz_debug("identify command", $command);
 	if (!$output) return zz_return(false);
@@ -62,15 +66,14 @@ function zz_imagick_identify($source) {
 
 	$image = array();
 	$tokens = array();
-	// /Users/Gustaf/Sites/media/_temp/UPLOAD_BbTzPd JPEG 450x600 450x600+0+0 8-bit DirectClass 77.6KB 0.000u 0:00.000
 
 	foreach ($output as $line) {
 		// just check first line without error message
-		if (substr($line, 0, strlen($source)) != $source) continue;
-
-		$line = substr($line, strlen($source));
+		// remove filename
+		if (substr($line, 0, strlen($filename)) != $filename) continue;
+		$line = substr($line, strlen($filename));
 		if (substr($line, 0, 3) == '[0]') $line = substr($line, 3); // multipage files
-		if (substr($line, 0, 2) == '=>') $line = substr($line, strpos(' ', $line)); // temporary files
+		if (substr($line, 0, 2) == '=>') $line = substr($line, strpos($line, ' ')); // temporary files
 		if (substr($line, 0, 1) == ' ') $line = substr($line, 1); // space
 		$tokens = explode(' ', $line);
 		break;
@@ -239,8 +242,19 @@ function zz_image_crop($source, $destination, $dest_extension = false, $image = 
 	else return zz_return(false);
 }
 
+/**
+ * converts a file with ImageMagick
+ *
+ * @param string $options
+ * @param string $files
+ * @global array $zz_conf
+ *		string 'upload_imagick_options', bool 'modules'['debug'], bool 'debug'
+ * @global array $zz_error
+ * @return bool
+ */
 function zz_imagick_convert($options, $files) {
 	global $zz_conf;
+	global $zz_error;
 
 	$command = zz_imagick_findpath('convert');
 
@@ -250,22 +264,20 @@ function zz_imagick_convert($options, $files) {
 
 	$command .= ' '.$files.' ';
 	$success = exec($command, $return, $return_var);
-	if ($return AND $zz_conf['modules']['debug'] AND $zz_conf['debug']) {
-		echo $command;
-		zz_print_r($return);
+	if ($return) {
+		$zz_error[] = array('msg_dev' => $command.': '.json_encode($return));
 	}
-	if ($return_var AND $zz_conf['modules']['debug'] AND $zz_conf['debug']) {
-		echo $command;
-		zz_print_r($return_var);
+	if ($return_var) {
+		$zz_error[] = array('msg_dev' => $command.': '.json_encode($return_var));
 	}
 	if (!$return_var) return true;
 	else return false;
 }
 
 /**
- * find imagemagick path
+ * find ImageMagick path
  *
- * @param string $command name of imagemagick command
+ * @param string $command name of ImageMagick command
  * @global array $zz_conf
  *		imagemagick_path_unchecked, imagemagick_paths
  * @return string $command correct path and command
@@ -299,6 +311,5 @@ function zz_imagick_findpath($command = 'convert') {
 	$command = $path.'/'.$command.' ';
 	return $command;
 }
-
 
 ?>
