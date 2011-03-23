@@ -91,6 +91,9 @@ function zzform($zz = array()) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if ($zz_error['error']) return zzform_exit($ops); // exits script
 
+	// check if POST is too big, then it will be empty
+	$post_too_big = zzform_post_too_big();
+
 	// Modules dependent on $zz-table definition
 	$modules = array('translations', 'conditions', 'geo', 'export', 'upload');
 	foreach ($modules as $index => $module) {
@@ -124,6 +127,8 @@ function zzform($zz = array()) {
 			if (!$export) unset($modules[$index]);
 			break;
 		case 'upload':
+			if ($post_too_big) break; // there was an upload, we need this module
+			if (!empty($_FILES)) break; // there was an upload, we need this module
 			if (!zz_module_fieldcheck($zz, 'type', 'upload_image')) unset($modules[$index]);
 			break;
 		}
@@ -158,9 +163,6 @@ function zzform($zz = array()) {
 //
 //	Filter, WHERE, ID
 //
-
-	// check if POST is too big, then it will be empty
-	$post_too_big = zzform_post_too_big();
 
 	// check GET 'filter'
 	zz_filter_defaults();
@@ -1047,7 +1049,7 @@ function zz_write_defaults($zz_default, &$zz_conf) {
  */
 function zzform_post_too_big() {	
 	if ($_SERVER['REQUEST_METHOD'] == 'POST' AND empty($_POST)
-		AND $_SERVER['CONTENT_LENGTH'] > return_bytes(ini_get('post_max_size'))) {
+		AND $_SERVER['CONTENT_LENGTH'] > zz_return_bytes(ini_get('post_max_size'))) {
 		// without sessions, we can't find out where the user has come from
 		// just if we have a REFERER
 		if (!empty($_SERVER['HTTP_REFERER'])) {
@@ -1062,5 +1064,26 @@ function zzform_post_too_big() {
 	return false;
 }
 
+/**
+ * returns integer byte value from PHP shorthand byte notation
+ *
+ * @param string $val
+ * @return int
+ * @see wrap_return_bytes(), identical
+ */
+function zz_return_bytes($val) {
+    $val = trim($val);
+    $last = strtolower($val[strlen($val)-1]);
+    switch($last) {
+        // The 'G' modifier is available since PHP 5.1.0
+        case 'g':
+            $val *= 1024;
+        case 'm':
+            $val *= 1024;
+        case 'k':
+            $val *= 1024;
+    }
 
+    return $val;
+}
 ?>

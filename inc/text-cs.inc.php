@@ -1,0 +1,126 @@
+<?php
+
+// zzform scripts (Zugzwang Project)
+// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2006-2010
+// Text and labels in Czech (cs) iso-8859-2
+
+
+$text['Add new record'] = 'Pøidat nový záznam';
+$text['all_records'] = 'V¹echny záznamy';
+$text['prev_20_records'] = 'Pøedchozích 20 záznamù';
+$text['next_20_records'] = 'Dal¹ích 20 záznamù';
+$text['record_was_inserted'] = 'Pøíspìvek byl ulo¾en';
+$text['warning'] = 'Varování';
+$text['action'] = 'Akce';
+$text['none_selected'] = '®ádný nevybrán';
+$text['edit'] = 'Editovat';
+$text['delete'] = 'Vymazat';
+$text['show'] = 'Zobrazit';
+$text['back-to-overview'] = 'Zpìt na pøehled';
+$text['no_selection_possible'] = '®ádný výbìr není mo¾ný.';
+$text['calculated_field'] = 'Generované políèko';
+$text['will_be_added_automatically'] = 'bude pøidáno automaticky';
+$text['no_selection'] = '®ádný výbìr';
+$text['record_was_updated'] = 'Záznam byl aktualizován';
+$text['record_was_deleted'] = 'Záznam byl vymazán';
+$text['reason'] = 'Pøíèina';
+$text['following_values_checked_again'] = 'Následující hodnoty je tøeba znovu oznaèit';
+$text['database'] = 'Databáze';
+$text['no_image'] = '®ádný obrázek';
+$text['sql-query'] = 'SQL - pøíkaz';
+$text['database-error'] = 'Chyba databáze';
+$text['decimal'] = 'decimální';
+$text['no_source_defined'] = '®ádný zdroj nebyl definován';
+$text['image_not_display'] = 'Nelze zobrazit';
+$text['update'] = 'Aktualizovat';
+$text['update_to'] = 'Aktualizovat k';
+$text['delete_from'] = 'Vymazat z';
+$text['add_to'] = 'Pøidat k';
+$text['error-sql-incorrect'] = 'Chyba v pøíkazu SQL.';
+$text['add'] = 'Pøidat';
+$text['a_record'] = 'záznam';
+$text['failed'] = 'neúspì¹né';
+$text['insert'] = 'Pøidat';
+$text['order by'] = 'Seøadit';
+$text['asc'] = 'Vzestupnì';
+$text['desc'] = 'Sestupnì';
+$text['new'] = 'Nový';
+$text['no-data-available'] = '®ádná data k dispozici.';
+$text['edit-after-save'] = 'Nelze pøidat záznam - je tøeba ulo¾it aktuálnì otevøený pøíspìvek.';
+$text['table-empty'] = '®ádné záznamy k dispozici';
+// if $query has no title get it out of field_name
+$text['detail'] = 'Detaily';
+$text['Value_incorrect_in_field'] = '©patná hodnota';
+$text['Value missing in field'] = 'Chybìjící hodnota';
+$text['Following_errors_occured'] = 'Do¹lo k následujícím chybám';
+$text['This record could not be deleted because there are details about this record in other records.'] = 'Tento pøíspìvek nemù¾e být vymazán, proto¾e je vázán na ostatní záznamy.';
+$text['Detail records exist in the following tables:'] = 'Detailní záznamy jsou v tìchto tabulkách:';
+$text['No relation table'] = '®ádná tabulka %s. Program nemù¾e dále fungovat.';
+$text['No records in relation table'] = '®ádné záznamy v související tabulce %s. Prosím, doplòte.';
+$text['show_record'] = 'Zobrazit záznam';
+$text['Database error. This database has ambiguous values in ID field.'] ='Chyba databáze. Nelze pøeèíst záznamy ze sloupce ID databázové tabulky.';
+$text['search'] = 'hledat';
+$text['Search'] = 'Hledat';
+$text['in'] = 've';
+$text['all fields'] = 'v¹ech polích';
+$text['Warning'] = 'Varování';
+$text['review'] = 'Prohlédnout';
+$text['hidden'] = 'schovat';
+$text['dec'] = 'dec';
+$text['Cancel'] = 'Storno';
+$text['Please enter more characters.'] = 'Prosím, zadejte více znakù.';
+$text['records'] = 'záznamù';
+$text['records total'] = 'záznamù celkovì';
+$text['record total'] = 'celkový záznam';
+$text['No entry found. Try less characters.'] = 'Hledání bylo neúspì¹né, zkuste zadat ménì znakù.';
+$text['all'] = 'v¹echny';
+$text['N'] = 'N';
+$text['E'] = 'V';
+$text['S'] = 'J';
+$text['W'] = 'Z';
+$text['. Correct values are: '] = '. Správné hodnoty jsou: ';
+$text['is not a correct value for'] = 'není správnou hodnotou pro';
+$text['sec'] = 'sekund';
+$text['deg'] = 'stupòù';
+$text['min'] = 'minut';
+$text['hemisphere'] = 'hemisféry';
+$text['N/A'] = 'N/A';
+$text['Nothing'] = 'Nic';
+$text['Old:'] = 'Staré:';
+$text['New:'] = 'Nové:';
+$text['(Please confirm your new password twice)'] = '(Zadejte va¹e heslo dvakrát)';
+$text['Your password has been changed!'] = 'Va¹e heslo bylo zmìnìno!';
+$text['Your current password is different from what you entered. Please try again.'] = 'Va¹e heslo je odli¹né od toho, které jste právì zadali. Zkuste to je¹tì jednou.';
+$text['New passwords do not match. Please try again.'] = 'Novì zadaná hesla nesedí. Zkuste je¹tì jednou.';
+$text['Please enter your current password and twice your new password.'] = 'Zadejte va¹e souèasné heslo a zároveò dvakrát potvrïte nové.';
+$text['Error: '] = 'Chyba: ';
+$text['No file was uploaded.'] = '®ádný soubor nebyl nahrán.';
+$text['File was only partially uploaded.'] = 'Soubor byl nahrán pouze èásteènì.';
+$text['File is too big.'] = 'Soubor je pøíli¹ velký.';
+$text['Maximum allowed filesize is'] = 'Maximálnì povolená velikost souboru je';
+$text['Minimum width %s was not reached.'] = 'Minimální ¹íøka %s nebyla dosa¾ena.';
+$text['Minimum height %s was not reached.'] = 'Minimální vý¹ka %s nebyla dosa¾ena.';
+$text['Maximum width %s has been exceeded.'] = 'Maximální ¹íøka %s byla pøekroèena.';
+$text['Maximum height %s has been exceeded.'] = 'Maximální vý¹ka %s byla pøekroèena.';
+$text['Unsupported filetype:'] = 'Nepovolený formát souboru:';
+$text['Supported filetypes are:'] = 'Povolené formáty souborù jsou:';
+$text['Could not delete %s.'] = 'Soubor %s nelze vymazat.';
+$text['Could not delete %s, file did not exist.'] = 'Soubor %s nelze vymazat, proto¾e neexistuje :-).';
+$text['File: '] = 'Soubor: ';
+$text['Script configuration error. No display field set.'] = 'Chyba konfigurace skriptu.';
+$text['There is no record under this ID:'] = 'V poli ID není ¾ádný záznam:';
+$text['Rules for secure passwords'] = 'Pravidla pro tvorbu bezpeèného hesla';
+$text['password-rules'] = 'Heslo musí obsahovat minimálnì osm znakù. Doporuèuje se pou¾ívat velká i malá písmena, èísla a speciální znaky jako ?=+; atd.'; 
+$text['New and old password are identical. Please choose a different new password.'] = 'Nové a staré heslo je stejné. Zadejte jiné nové heslo.';
+$text['selection:'] = 'Výbìr:';
+$text['Export'] = 'Export';
+$text['Duplicate entry'] = 'Duplikovaný záznam v této tabulce.';
+$text['Error during database operation'] = 'Chyba zpracování dat';
+$text['The following error(s) occured in project %s:'] = 'Následující chyby se vyskytují v projektu %s:';
+$text['- unknown -'] = '- neznámý -';
+$text['Add %s'] = 'Pøidat %s';
+$text['Remove %s'] = 'Odebrat %s';
+$text['Delete this file'] = 'Smazat tento soubor';
+
+
+?>

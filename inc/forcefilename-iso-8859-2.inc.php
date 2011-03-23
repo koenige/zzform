@@ -13,6 +13,10 @@
 function forceFilename($str, $spaceChar = '-')
 {
  
+	// get rid of html entities
+	$str = html_entity_decode($str);
+	$str = preg_replace('~&#x([0-9a-f]+);~ei', '', $str);
+    $str = preg_replace('~&#([0-9]+);~e', '', $str);
   $str=trim($str);
  
   $_str = '';
@@ -33,9 +37,9 @@ function forceFilename($str, $spaceChar = '-')
      case 'Á':  case 'Â': case 'Ã':  case '¡':
      $_str .= 'a'; break;   
     
-     case 'Ç': case 'Æ': case 'È':
+     case 'Ç': case 'Æ': case 'È': case 'Æ':
      $_str .= 'C'; break;
-     case 'ç': case 'ç': case 'è':
+     case 'ç': case 'ç': case 'è': case 'æ':
      $_str .= 'c'; break;
 
      case 'Ð': case 'Ï':
@@ -117,7 +121,7 @@ function forceFilename($str, $spaceChar = '-')
      case '/': case '\'': case '-': case ':':
      $_str .= '-'; break;
     
-     default : if (ereg('[A-Za-z0-9\(\)_\.]', $ch)) { $_str .= $ch;  } break;
+     default : if (preg_match('/[A-Za-z0-9\(\)_\.]/', $ch)) { $_str .= $ch;  } break;
    }
   }   
   

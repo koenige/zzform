@@ -93,7 +93,7 @@ $zz_default['upload_tools']['identify'] = true; // might be turned off for perfo
 $zz_default['upload_tools']['ghostscript'] = false; // whether we can use gs library
 
 $max_filesize = ini_get('upload_max_filesize');
-define('ZZ_UPLOAD_INI_MAXFILESIZE', return_bytes($max_filesize));
+define('ZZ_UPLOAD_INI_MAXFILESIZE', zz_return_bytes($max_filesize));
 $zz_default['upload_MAX_FILE_SIZE']	= ZZ_UPLOAD_INI_MAXFILESIZE;
 
 // mimetypes, hardcoded in php
@@ -144,10 +144,14 @@ $zz_default['upload_destination_filetype']['cr2'] = 'jpeg';
 $zz_default['upload_destination_filetype']['dng'] = 'jpeg';
 $zz_default['upload_destination_filetype']['psd'] = 'jpeg';
 $zz_default['upload_destination_filetype']['mp4'] = 'jpeg';
+$zz_default['upload_destination_filetype']['mov'] = 'jpeg';
+$zz_default['upload_destination_filetype']['mpg'] = 'jpeg';
+$zz_default['upload_destination_filetype']['flv'] = 'jpeg';
+$zz_default['upload_destination_filetype']['avi'] = 'jpeg';
 
 $zz_default['upload_pdf_density'] = '300x300'; // dpi in which pdf will be rasterized
 
-$zz_default['upload_multipage_images'] = array('pdf', 'psd', 'mp4');
+$zz_default['upload_multipage_images'] = array('pdf', 'psd', 'mp4', 'mov', 'mpg', 'flv', 'avi');
 $zz_default['upload_multipage_which']['mp4'] = 5; // don't take first frame, might be black
 
 
@@ -1583,9 +1587,9 @@ function zz_cleanup_dirs($dir) {
 	global $zz_conf;
 	$dir = realpath($dir);
 	if (!$dir) return false;
-	$undeletable = array(realpath($zz_conf['backup_dir']), realpath($zz_conf['tmp_dir']),
+	$indelible = array(realpath($zz_conf['backup_dir']), realpath($zz_conf['tmp_dir']),
 		realpath($zz_conf['root']), '/tmp');
-	if (in_array($dir, $undeletable)) return false;
+	if (in_array($dir, $indelible)) return false;
 
 	$success = false;
 	if (is_dir($dir)) {

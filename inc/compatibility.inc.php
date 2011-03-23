@@ -1,6 +1,10 @@
 <?php 
 
-//	for zzform backwards compatibility, to be removed ASAP
+// zzform scripts (Zugzwang Project)
+// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2009-2010
+// for zzform backwards compatibility, to be removed ASAP
+
+
 if (!empty($zz_conf['edit_only'])) $zz_conf['access'] = 'edit_only';
 if (!empty($zz_conf['add_only'])) $zz_conf['access'] = 'add_only';
 if (!empty($zz_conf['show'])) $zz_conf['access'] = 'show';
@@ -40,5 +44,21 @@ if(!function_exists('http_build_query')) {
         return implode($sep, $ret);
     };
 };
+
+// constants since PHP 4.3.0!
+if (!defined('UPLOAD_ERR_FORM_SIZE'))
+	define('UPLOAD_ERR_FORM_SIZE', 1);
+
+if (!defined('UPLOAD_ERR_INI_SIZE'))
+	define('UPLOAD_ERR_INI_SIZE', 2);
+
+if (!defined('UPLOAD_ERR_PARTIAL'))
+	define('UPLOAD_ERR_PARTIAL', 3);
+
+if (!defined('UPLOAD_ERR_NO_FILE'))
+	define('UPLOAD_ERR_NO_FILE', 4);
+
+if (!defined('UPLOAD_ERR_OK'))
+	define('UPLOAD_ERR_OK', 0);
 
 ?>

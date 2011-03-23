@@ -3461,7 +3461,6 @@ function zz_print_multiarray($array, $parent_key = '') {
 	return $vars;
 }
 
-
 /*
  * --------------------------------------------------------------------
  * R - Record functions used by several modules
