@@ -1,36 +1,53 @@
+/*
+// zzform scripts (Zugzwang Project)
+// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2004-2010
+// Cascading Style Sheets (CSS) for print
+*/
 
-menu, #menu, .noprint {display: none;}
-#zzform .editbutton {display: none;}
-#zzform #back-overview {display: none;}
-#zzform .add-new {display: none;}
-#zzform a:link, #zzform a:visited {color: black; text-decoration: none;}
+body				{ font-size: 11pt; }
+tr					{ page-break-inside: avoid; }
 
-body {font-size: 11pt;}
-tr {page-break-inside: avoid;}
-.where, .pages {display: none;}
+menu, #menu, .noprint
+					{ display: none; }
+#zzform .editbutton	{ display: none; }
+#zzform #back-overview
+					{ display: none; }
+#zzform .add-new	{ display: none; }
+#zzform a:link, #zzform a:visited
+					{ color: black; text-decoration: none; }
+
+#zzform .where, #zzform .pages
+					{ display: none; }
 
 /* white background */
 
 body, #zzform .editbutton, #zzform td.recordid, #zzform th.recordid 
-	{background-color: #FFF;}
-#zzform #record table {background-color: #FFF;}
-#zzform #record .subtable th, #zzform #record .subtable td {background-color: #FFF; }
+					{ background-color: #FFF; }
+#zzform #record table
+					{ background-color: #FFF; }
+#zzform #record .subtable th, #zzform #record .subtable td
+					{ background-color: #FFF; }
 #zzform #record tfoot th, #zzform #record tfoot td, td.where, th.where 
-	{background-color: #FFF;}
-#zzform tr.even {background-color: #FFF;} /* even rows */
-#zzform tr.uneven {background-color: #FFF;} /* uneven rows */
+					{ background-color: #FFF; }
+#zzform tr.even		{ background-color: #FFF; } /* even rows */
+#zzform tr.uneven	{ background-color: #FFF; } /* uneven rows */
 
-#zzform th.order {background-color: #FFF;} /* column ORDER BY */
+#zzform th.order	{ background-color: #FFF; } /* column ORDER BY */
 
-#zzform #zzsearch {display: none;}
-a:link, a:visited {color: #000;}
+#zzform #zzsearch	{ display: none; }
+#zzform a:link, #zzform a:visited
+					{ color: #000; }
 #zzform table.data thead td, #zzform table.data thead th  
-	{border-bottom: 1.5pt black solid; }
-#zzform table.data thead { display: table-header-group; }
+					{ border-bottom: 1.5pt black solid; }
+#zzform table.data thead
+					{ display: table-header-group; }
 #zzform tfoot td 
-	{border-top: 1.5pt black solid; border-bottom: 3pt black double;}
-#zzform table.data tr.group td {border-top: 1.5pt black solid;}
+					{ border-top: 1.5pt black solid; 
+					border-bottom: 3pt black double; }
+#zzform table.data tr.group td
+					{ border-top: 1.5pt black solid; }
 
-#zzform table.data {border-collapse: separate; border-spacing: 0;}
+#zzform table.data	{ border-collapse: separate; border-spacing: 0; }
 
-#zzform .zzfilter dd a {display: none; }
+#zzform .zzfilter dd a
+					{ display: none; }
