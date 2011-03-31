@@ -1335,11 +1335,14 @@ function zz_limit($limit_step, $this_limit, $total_rows, $scope = 'body') {
 
 	// output links
 	$output = '<ul class="pages">'."\n";
+	$no_pages = array('&hellip;', '&gt;', '&gt;|', '|&lt;', '&lt;');
 	foreach ($links as $link) {
+		// mark current page, but not ellipsis
+		$span = (in_array($link['text'], $no_pages) ? 'span' : 'strong');
 		$output .= '<li'.(!empty($link['class']) ? ' class="'.$link['class'].'"' : '').'>'
-			.($link['link'] ? '<a href="'.$link['link'].'">' : '<span>')
+			.($link['link'] ? '<a href="'.$link['link'].'">' : '<'.$span.'>')
 			.$link['text']
-			.($link['link'] ? '</a>' : '</span>').'</li>'."\n";
+			.($link['link'] ? '</a>' : '</'.$span.'>').'</li>'."\n";
 	}
 	$output .= '</ul>'."\n";
 	$output .= '<br clear="all">'."\n";
