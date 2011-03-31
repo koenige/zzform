@@ -297,7 +297,9 @@ function zz_maintenance_folders() {
 		}
 	}
 	if (!empty($zz_conf['backup_dir'])) {
-		$text .= '<p>'.zz_text('Current backup dir is:').' '.$zz_conf['backup_dir'].'</p>'."\n";
+		$exists = file_exists($zz_conf['backup_dir']) ? true : false;
+		$text .= '<p>'.zz_text('Current backup dir is:').' '.$zz_conf['backup_dir']
+			.(!$exists ? ' &#8211; <span class="error">but this directory does not exist</span>' : '').'</p>'."\n";
 		$backupdir = $zz_conf['backup_dir'];
 		if (substr($backupdir, -1) == '/')
 			$backupdir = substr($backupdir, 0, -1);
@@ -325,10 +327,12 @@ function zz_maintenance_folders() {
 		}
 	}
 
-	$handle = opendir($backupdir);
-	while ($folder = readdir($handle)) {
-		if (substr($folder, 0, 1) == '.') continue;
-		$folders[] = $folder;
+	if (file_exists($backupdir)) {
+		$handle = opendir($backupdir);
+		while ($folder = readdir($handle)) {
+			if (substr($folder, 0, 1) == '.') continue;
+			$folders[] = $folder;
+		}
 	}
 
 	foreach ($folders as $folder) {
@@ -402,7 +406,7 @@ function zz_maintenance_folders() {
 		}
 		$text .= '</form>';
 	}
-	closedir($handle);
+	if (isset($handle)) closedir($handle);
 
 	return $text;
 }
