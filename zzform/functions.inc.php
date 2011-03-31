@@ -3064,7 +3064,8 @@ function zz_filter_selection($filter) {
 					// default selection does not need parameter
 					$link = $self.$qs;
 				} else {
-					$link = $self.($qs ? $qs.'&amp;' : '?').'filter['.$f['identifier'].']='.$id;
+					// ID might be string as well, so better urlencode it
+					$link = $self.($qs ? $qs.'&amp;' : '?').'filter['.$f['identifier'].']='.urlencode($id);
 				}
 				$filter_output[$index] .= '<dd>'
 					.(!$is_selected ? '<a href="'.$link.'">' : '<strong>')
