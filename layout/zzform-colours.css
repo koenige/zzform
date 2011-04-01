@@ -1,38 +1,70 @@
-/* zzform colours CSS by Gustaf Mossakowski <gustaf@koenige.org>, 2005-2006 */
-
 /*
-A29F8A
-ADAB99
-405b79
-CFCFC4
+// zzform scripts (Zugzwang Project)
+// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2005-2011
+// Cascading Style Sheets (CSS): Sample CSS for colours
+// adjust to your colour scheme as you like it
 */
 
-body {color: #000;}
+
+/* body and list view */
+body				{ color: #000; }
 body, #zzform .editbutton, #zzform td.recordid, #zzform th.recordid 
-	{background-color: #CFCFC4;}
+					{ background-color: #CFCFC4; }
 
-#zzform a:link {color: #009;}
-#zzform a:visited {color: #669;}
+/* links */
+#zzform a:link		{ color: #009; }
+#zzform a:visited	{ color: #669; }
 
-#zzform #record table {background-color: #EEC;}
-#zzform #record .subtable th, #zzform #record .subtable td {background-color: #DDB; }
+
+/* record view */
+#zzform #record table
+					{ background-color: #EEC; }
+#zzform #record .subtable th, #zzform #record .subtable td
+					{ background-color: #DDB; }
 #zzform #record tfoot th, #zzform #record tfoot td, td.where, th.where 
-	{background-color: #A29F8A;}
+					{ background-color: #A29F8A; }
 
+
+/* filter */
+#zzform .zzfilter dd
+					{ border-color: #000; }
+
+
+/* list view (table) */
 #zzform table.data thead td, #zzform table.data thead th,
-	#zzform table.data tr.group td {border-color: #999;}
-#zzform tr.last {border-color: #999;} /* last row */
+#zzform table.data tr.group td, #zzform tr.last, #zzform tfoot td
+					{ border-color: #999; }
+#zzform tr.even		{ background-color: #CCB; }	/* even rows */
+#zzform tr.uneven	{ background-color: #EED; }	/* uneven rows */
+#zzform th.order	{ background-color: #DDB; }	/* column ORDER BY */
 
-#zzform tfoot td {border-color: #999}
 
-#zzform tr.even {background-color: #CCB;} /* even rows */
-#zzform tr.uneven {background-color: #EED;} /* uneven rows */
+/* list view (page navigation below list) */
+#zzform ul.pages li	{ border-color: #666; }
 
-#zzform th.order {background-color: #DDB;} /* column ORDER BY */
 
-#zzform ul.pages li {border-color: #666;}
+/* separating borders */
+#zzform td.left_separator
+					{ border-left-color: #A29F8A; }
+body #zzform .separator hr
+					{ background-color: #FFF; color: #FFF; border: #FFF; }
 
-#zzform td.left_separator {border-left-color: #A29F8A;}
 
-body #zzform .separator hr {width: 100%; margin: 0.25em 0; height: 3px;
-	background-color: #FFF; color: #FFF; border: #FFF; max-width: none;}
+/* highlighting */
+/* search */
+#zzform .highlight	{ background-color: yellow; color: black; }
+/* current record */
+#zzform .current_record td, #zzform .current_record p
+					{ background: yellow; }
+/* make a choice again */
+#zzform #record .reselect th, #zzform #record .reselect td, #zzform #record .reselect
+					{ background-color: green; }
+/* negative values */
+#zzform .negative	{ color: red; }
+/* errors */
+#zzform .error, #zzform .subtable .horizontal td.error,
+#zzform #record tr.error td, #zzform #record tr.error th, 
+#zzform #record .subtable td.error
+					{ background-color: red; }
+#zzform .error, #zzform .subtable .horizontal td.error
+					{ color: white; }
