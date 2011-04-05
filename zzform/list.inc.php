@@ -921,9 +921,9 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		
 		if ($ops['mode'] != 'add' && $zz_conf['add_link'] AND is_array($zz_conf['add'])) {
 			ksort($zz_conf['add']); // if some 'add' was unset before, here we get new numerical keys
-			$ops['output'].= '<p class="add-new">'.zz_text('Add new record').': ';
+			$ops['output'] .= '<p class="add-new">'.zz_text('Add new record').': ';
 			foreach ($zz_conf['add'] as $i => $add) {
-				$ops['output'].= '<a href="'.$zz_conf['int']['url']['self']
+				$ops['output'] .= '<a href="'.$zz_conf['int']['url']['self']
 					.$zz_conf['int']['url']['qs'].$zz_conf['int']['url']['?&']
 					.'mode=add'.$zz_var['extraGET'].'&amp;add['.$add['field_name'].']='
 					.$add['value'].'"'
@@ -939,7 +939,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			$toolsline = array_merge($toolsline, zz_export_links($zz_conf['int']['url']['self']
 				.$zz_conf['int']['url']['qs'].$zz_conf['int']['url']['?&'], $zz_var['extraGET']));
 		if ($toolsline)
-			$ops['output'].= '<p class="add-new bottom-add-new">'.implode(' | ', $toolsline).'</p>';
+			$ops['output'] .= '<p class="add-new bottom-add-new">'.implode(' | ', $toolsline).'</p>';
 		// Total records
 		if ($total_rows == 1) $ops['output'].= '<p class="totalrecords">'.$total_rows.' '.zz_text('record total').'</p>'; 
 		elseif ($total_rows) $ops['output'].= '<p class="totalrecords">'.$total_rows.' '.zz_text('records total').'</p>';

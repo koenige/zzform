@@ -1172,7 +1172,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 								$outputf .= '<br><a href="'.$link.'">'.$link
 									.'</a>'
 									.(($image_uploads > 1 OR !empty($field['optional_image'])) ?
-									'(<small><label for="delete-file-'.$fieldkey.'-'.$imagekey
+									' (<small><label for="delete-file-'.$fieldkey.'-'.$imagekey
 									.'"><input type="checkbox" name="zz_delete_file['.$fieldkey.'-'.$imagekey
 									.']" id="delete-file-'.$fieldkey.'-'.$imagekey.'">&nbsp;'
 									.zz_text('Delete this file').'</label></small>)'
