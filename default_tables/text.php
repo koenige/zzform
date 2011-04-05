@@ -24,6 +24,8 @@ $zz['fields'][3]['title'] = 'More Text';
 $zz['fields'][3]['field_name'] = 'more_text';
 $zz['fields'][3]['type'] = 'memo';
 
+$zz['fields'][4]['field_name'] = 'area';
+
 $zz['fields'][20]['title'] = 'Last Update';
 $zz['fields'][20]['field_name'] = 'last_update';
 $zz['fields'][20]['type'] = 'timestamp';
@@ -31,9 +33,10 @@ $zz['fields'][20]['hide_in_list'] = true;
 
 	
 $zz['sql'] = 'SELECT * FROM '.$zz_conf['text_table'].'
-	ORDER BY text';
+	ORDER BY area, text';
 
 $zz_conf['heading'] = 'Text';
 $zz_conf['delete'] = true;
+$zz_conf['group'] = 'area';
 
 ?>
