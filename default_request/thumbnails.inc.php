@@ -23,6 +23,7 @@
  */
 function zz_thumbnails($params) {
 	global $zz_conf;
+	global $zz_setting;
 	
 	if (count($params) > 2) return false;
 	if (count($params) > 1 AND $params[1] != 'overwrite') return false;
@@ -30,8 +31,9 @@ function zz_thumbnails($params) {
 
 	$saved_conf = $zz_conf;
 	require_once $zz_conf['dir'].'/zzform.php';
+	$zz_conf['int_modules'] 		= array('debug', 'compatibility', 'validate', 'upload');
 	zz_initialize();
-	if ($zz_conf['graphics_library'])
+	if (!empty($zz_conf['graphics_library']))
 		include_once $zz_conf['dir_inc'].'/image-'.$zz_conf['graphics_library'].'.inc.php';
 	
 	if (strstr($params[0], '..')) return false;

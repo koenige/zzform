@@ -724,6 +724,7 @@ function zz_initialize($mode = false) {
 	$zz_default['dir_inc']			= $zz_conf['dir'].'/inc';
 	$zz_default['error_mail_level']	= array('error', 'warning', 'notice');
 	$zz_default['ext_modules']		= array('markdown', 'textile');
+	$zz_default['int_modules'] 		= array('debug', 'compatibility', 'validate');
 	zz_write_defaults($zz_default, $zz_conf);
 
 	// Configuration on project level: shorthand values
@@ -741,8 +742,7 @@ function zz_initialize($mode = false) {
 
 	// Modules on project level
 	// debug module must come first because of debugging reasons!
-	$int_modules = array('debug', 'compatibility', 'validate');
-	$zz_conf['modules'] = zz_add_modules($int_modules, $zz_conf['dir_inc']);
+	$zz_conf['modules'] = zz_add_modules($zz_conf['int_modules'], $zz_conf['dir_inc']);
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$zz_conf['ext_modules'] = zz_add_modules($zz_conf['ext_modules'], $zz_conf['dir_ext']);
 
