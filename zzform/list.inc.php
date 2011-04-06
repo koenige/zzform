@@ -438,8 +438,10 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				}
 				if (!isset($rows[$z][$fieldindex]['class']))
 					$rows[$z][$fieldindex]['class'] = array();
-				$rows[$z][$fieldindex]['class'] += zz_field_class($field, 
-					(!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : ''));
+				elseif (!is_array($rows[$z][$fieldindex]['class']))
+					$rows[$z][$fieldindex]['class'] = array($rows[$z][$fieldindex]['class']);
+				$rows[$z][$fieldindex]['class'] = array_merge($rows[$z][$fieldindex]['class'], zz_field_class($field, 
+					(!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : '')));
 				if (!empty($field['field_name']) AND !empty($lastline[$field['field_name']]) 
 					AND $line[$field['field_name']] == $lastline[$field['field_name']])
 					$rows[$z][$fieldindex]['class'][] = 'identical_value';
