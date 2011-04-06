@@ -196,7 +196,7 @@ body #zzform .separator hr
 #zzform ul.pages	{ margin: 0; padding: 0 0 1em 0; list-style: none; 
 					line-height: 1; }
 #zzform ul.pages li { margin: 0 0 .5em; float: left; padding: 0; 
-					border-left: 1px solid; }
+					border-left: 1px dotted; }
 #zzform ul.pages li a, #zzform ul.pages li span, #zzform ul.pages li strong 
 					{ padding: 0 .5em; text-decoration: none; }
 #zzform ul.pages li.first
