@@ -1110,16 +1110,13 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			}
 			break;
 		case 'upload_image':
-			$input_filetypes = (isset($my_rec['fields'][$f]['input_filetypes']) 
-				? (is_array($my_rec['fields'][$f]['input_filetypes']) 
-					? array_values($my_rec['fields'][$f]['input_filetypes'])
-					: array($my_rec['fields'][$f]['input_filetypes']))
-				: array());
-			if (!zz_upload_check($my_rec['images'][$f], $my_rec['action'], $zz_conf, $input_filetypes, $rec)) {
+			if (!zz_upload_check($my_rec['images'][$f], $my_rec['action'], $zz_conf, $rec)) {
 				$my_rec['validation'] = false;
 				$my_rec['fields'][$f]['check_validation'] = false;
-				if (is_array($my_rec['images'][$f])) foreach ($my_rec['images'][$f] as $key => $image) {
-					if (is_numeric($key) AND !empty($image['error'])) {
+				if (is_array($my_rec['images'][$f])) {
+					foreach ($my_rec['images'][$f] as $key => $image) {
+						if (!is_numeric($key)) continue;
+						if (empty($image['error'])) continue;
 						foreach ($image['error'] as $error) {
 							$zz_error['validation']['incorrect_values'][] = array(
 								'field_name' => $field_name,
