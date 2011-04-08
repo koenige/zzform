@@ -334,6 +334,9 @@ function zz_upload_check_files(&$zz_tab) {
 				case UPLOAD_ERR_INI_SIZE: continue 2; // file is too big
 				case UPLOAD_ERR_OK: break; // everything ok.
 			}
+			// get upload info
+			$images[$no][$img]['upload'] = zz_upload_fileinfo($images[$no][$img]['upload'], $myfilename, $extension);
+
 			// input_filetypes
 			if (empty($images[$no][$img]['input_filetypes'])) {
 				// if not set, inherit from $zz['fields'][n]['input_filetypes']
@@ -358,8 +361,19 @@ function zz_upload_check_files(&$zz_tab) {
 			if (!is_array($images[$no][$img]['input_filetypes'])) {
 				$images[$no][$img]['input_filetypes'] = array($images[$no][$img]['input_filetypes']);
 			}
-			// get upload info
-			$images[$no][$img]['upload'] = zz_upload_fileinfo($images[$no][$img]['upload'], $myfilename, $extension);
+
+			//	check if filetype is allowed
+			if (!in_array($images[$no][$img]['upload']['filetype'], $images[$no][$img]['input_filetypes'])) {
+				$filetype = $images[$no][$img]['upload']['filetype'];
+				if ($filetype == 'unknown') // give more information
+					$filetype .= ' ('.htmlspecialchars($images[$no][$img]['upload']['type']).')';
+				$images[$no][$img]['unsupported_filetype'] = zz_text('Error: ')
+					.zz_text('Unsupported filetype:').' '
+					.$filetype
+					.'<br class="nonewline_in_mail">'.zz_text('Supported filetypes are:').' '
+					.implode(', ', $images[$no][$img]['input_filetypes']);
+			}
+
 			$myfilename = false;
 			$my_rec['file_upload'] = true;
 		}
@@ -716,7 +730,8 @@ function zz_upload_prepare($zz_tab) {
 			if (empty($zz_tab[$tab][$rec]['images'][$no][$img])) continue;
 
 			// reference on image data
-			$image = $zz_tab[$tab][$rec]['images'][$no][$img]; 
+			$image = $zz_tab[$tab][$rec]['images'][$no][$img];
+			if (!empty($image['unsupported_filetype'])) continue;
 
 			//	read user input via options
 			if (!empty($image['options'])) {
@@ -801,6 +816,7 @@ function zz_upload_prepare($zz_tab) {
 
 				if (!$src_image) 
 					$src_image = $zz_tab[$tab][$rec]['images'][$no][$image['source']];
+				if (!empty($src_image['unsupported_filetype'])) continue;
 				if (!empty($image['use_modified_source'])) {
 					// get filename from modified source, false if there was an error
 					$source_filename = (isset($src_image['files']) 
@@ -1007,12 +1023,14 @@ function zz_upload_extension($path, &$my_rec) {
  * 
  * @param array $images $zz_tab[$tab][$rec]['images']
  * @param string $action sql action (insert|delete|update)
- * @param array $zz_conf configuration variables
+ * @global array $zz_conf configuration variables
+ * @global array $zz_error
  * @return bool true/false
  * @return $images might change as well (?)
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_upload_check(&$images, $action, $zz_conf, $rec = 0) {
+function zz_upload_check(&$images, $action, $rec = 0) {
+	global $zz_conf;
 	global $zz_error;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if ($zz_conf['modules']['debug']) zz_debug();
@@ -1025,7 +1043,7 @@ function zz_upload_check(&$images, $action, $zz_conf, $rec = 0) {
 		$images[$img]['required'] = (!empty($images[$img]['required']) ? $images[$img]['required'] : false);
 		if ($rec AND !empty($images[$img]['required_only_first_detail_record']))
 			$images[$img]['required'] = false;
-		$images[$img]['error'] = false;
+		$images[$img]['error'] = array();
 		if (empty($images[$img]['field_name'])) continue;
 
 		switch ($images[$img]['upload']['error']) {
@@ -1052,15 +1070,8 @@ function zz_upload_check(&$images, $action, $zz_conf, $rec = 0) {
 		}
 		
 //	check if filetype is allowed
-		if (!in_array($images[$img]['upload']['filetype'], $images[$img]['input_filetypes'])) {
-			$filetype = $images[$img]['upload']['filetype'];
-			if ($filetype == 'unknown') // give more information
-				$filetype .= ' ('.htmlspecialchars($images[$img]['upload']['type']).')';
-			$images[$img]['error'][] = zz_text('Error: ')
-				.zz_text('Unsupported filetype:').' '
-				.$filetype
-				.'<br class="nonewline_in_mail">'.zz_text('Supported filetypes are:').' '
-				.implode(', ', $images[$img]['input_filetypes']);
+		if (!empty($images[$img]['unsupported_filetype'])) {
+			$images[$img]['error'][] = $images[$img]['unsupported_filetype'];
 			$error = true;
 			continue; // do not go on and do further checks, because filetype is wrong anyways
 		}
