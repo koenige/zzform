@@ -348,7 +348,7 @@ function zz_upload_check_files(&$zz_tab) {
 							'level' => E_USER_NOTICE
 						);
 					}
-					$images[$no][$img]['input_filetypes'] = $field['input_filetypes']
+					$images[$no][$img]['input_filetypes'] = $field['input_filetypes'];
 				} else {
 					$images[$no][$img]['input_filetypes'] = array();
 				}
