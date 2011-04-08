@@ -936,7 +936,8 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 		case 'id':
 			if ($my_rec['action'] == 'update') {
 				$my_rec['id']['field_name'] = $field_name;
-				$my_rec['id']['value'] = $my_rec['POST'][$my_rec['id']['field_name']]; // for display of updated record
+				// for display of updated record:
+				$my_rec['id']['value'] = $my_rec['POST'][$my_rec['id']['field_name']];
 			} else
 				$my_rec['POST'][$field_name] = "''";
 			break;
@@ -948,7 +949,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 		case 'number':
 			//	calculation and choosing of right values in case of coordinates
 			if (isset($my_rec['fields'][$f]['number_type']) 
-				AND $my_rec['fields'][$f]['number_type'] == 'latitude' || $my_rec['fields'][$f]['number_type'] == 'longitude') {
+				AND in_array($my_rec['fields'][$f]['number_type'], array('latitude', 'longitude'))) {
 				// geographical coordinates
 				
 				$coord = zz_geo_coord_in($my_rec['POST'][$field_name], $my_rec['fields'][$f]['number_type']);
@@ -964,38 +965,38 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 					$my_rec['POST'][$field_name] = $coord['value'];
 				}
 			} else {
-			//	check if numbers are entered with .
-				if ($my_rec['POST'][$field_name]) { 
-					// only check if there is a value, NULL values are checked later on
-					$n_val = check_number($my_rec['POST'][$field_name]);
-					if ($n_val !== NULL) {
-						$my_rec['POST'][$field_name] = $n_val;
-					} else {
-						$my_rec['POST'][$field_name] = false;
-						$my_rec['fields'][$f]['check_validation'] = false;
-						$my_rec['validation'] = false;
-					}
+				// check if numbers are entered with .
+				if (!$my_rec['POST'][$field_name]) break;
+
+				// only check if there is a value, NULL values are checked later on
+				$n_val = check_number($my_rec['POST'][$field_name]);
+				if ($n_val !== NULL) {
+					$my_rec['POST'][$field_name] = $n_val;
+				} else {
+					$my_rec['POST'][$field_name] = false;
+					$my_rec['fields'][$f]['check_validation'] = false;
+					$my_rec['validation'] = false;
 				}
 			}
 			break;
 		case 'password':
+			if (!$my_rec['POST'][$field_name]) break;
+
 			//	encrypt passwords, only for changed passwords! therefore string is compared against old pwd
 			// action=update: here, we have to check whether submitted password is equal to password in db
 			// if so, password won't be touched
 			// if not, password will be encrypted
 			// action=insert: password will be encrypted
-			if ($my_rec['POST'][$field_name]) {
-				if ($my_rec['action'] == 'insert') {
-					$my_rec['POST']['zz_unencrypted_'.$field_name] = $my_rec['POST'][$field_name];
+			if ($my_rec['action'] == 'insert') {
+				$my_rec['POST']['zz_unencrypted_'.$field_name] = $my_rec['POST'][$field_name];
+				$my_rec['POST'][$field_name] 
+					= $zz_conf['password_encryption']($my_rec['POST'][$field_name].$zz_conf['password_salt']);
+			} elseif ($my_rec['action'] == 'update') {
+				$my_rec['POST']['zz_unencrypted_'.$field_name] = $my_rec['POST'][$field_name];
+				if (!isset($my_rec['POST'][$field_name.'--old'])
+				|| ($my_rec['POST'][$field_name] != $my_rec['POST'][$field_name.'--old']))
 					$my_rec['POST'][$field_name] 
 						= $zz_conf['password_encryption']($my_rec['POST'][$field_name].$zz_conf['password_salt']);
-				} elseif ($my_rec['action'] == 'update') {
-					$my_rec['POST']['zz_unencrypted_'.$field_name] = $my_rec['POST'][$field_name];
-					if (!isset($my_rec['POST'][$field_name.'--old'])
-					|| ($my_rec['POST'][$field_name] != $my_rec['POST'][$field_name.'--old']))
-						$my_rec['POST'][$field_name] 
-							= $zz_conf['password_encryption']($my_rec['POST'][$field_name].$zz_conf['password_salt']);
-				}
 			}
 			break;
 		case 'password_change':
@@ -1031,13 +1032,14 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				$my_rec = zz_check_select($my_rec, $f, $zz_conf['max_select']);
 			}
 			//	check for correct enum values
+			if (!$my_rec['POST'][$field_name]) break;
 			if (isset($my_rec['fields'][$f]['enum'])) {
-				if ($my_rec['POST'][$field_name]) {
-					if (!$tempvar = zz_check_enumset($my_rec['POST'][$field_name], 
-							$my_rec['fields'][$f], $db_table)) {
-						$my_rec['validation'] = false;
-						$my_rec['fields'][$f]['check_validation'] = false;
-					} else $my_rec['POST'][$field_name] = $tempvar;
+				if (!$tempvar = zz_check_enumset($my_rec['POST'][$field_name], 
+						$my_rec['fields'][$f], $db_table)) {
+					$my_rec['validation'] = false;
+					$my_rec['fields'][$f]['check_validation'] = false;
+				} else {
+					$my_rec['POST'][$field_name] = $tempvar;
 				}
 			}
 			break;
@@ -1055,33 +1057,27 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			break;
 		case 'time':
 			//	validate time
-			if ($my_rec['POST'][$field_name]) {
-				if ($my_time = validate_time($my_rec['POST'][$field_name]))
-					$my_rec['POST'][$field_name] = $my_time;
-				else {
-					$my_rec['fields'][$f]['check_validation'] = false;
-					$my_rec['validation'] = false;
-				}
+			if (!$my_rec['POST'][$field_name]) break;
+			if ($my_time = validate_time($my_rec['POST'][$field_name]))
+				$my_rec['POST'][$field_name] = $my_time;
+			else {
+				$my_rec['fields'][$f]['check_validation'] = false;
+				$my_rec['validation'] = false;
 			}
 			break;
 		case 'unix_timestamp':
 			//	convert unix_timestamp, if something was posted
 			if (!$my_rec['POST'][$field_name]) break;
-			if ($my_rec['POST'][$field_name]) {
-				$my_date = strtotime($my_rec['POST'][$field_name]); 
-				if ($my_date AND $my_date != -1) 
-					// strtotime converts several formats, returns -1 if value
-					// is not convertable
-					$my_rec['POST'][$field_name] = $my_date;
-				elseif (preg_match('/^[0-9]+$/', $my_rec['POST'][$field_name])) 
-					// is already timestamp, does not work with all integer 
-					// values since some of them are converted with strtotime
-					$my_rec['POST'][$field_name] = $my_rec['POST'][$field_name];
-				else {
-					$my_rec['fields'][$f]['check_validation'] = false;
-					$my_rec['validation'] = false;
-				}
-			} else {
+			$my_date = strtotime($my_rec['POST'][$field_name]); 
+			if ($my_date AND $my_date != -1) 
+				// strtotime converts several formats, returns -1 if value
+				// is not convertable
+				$my_rec['POST'][$field_name] = $my_date;
+			elseif (preg_match('/^[0-9]+$/', $my_rec['POST'][$field_name])) 
+				// is already timestamp, does not work with all integer 
+				// values since some of them are converted with strtotime
+				$my_rec['POST'][$field_name] = $my_rec['POST'][$field_name];
+			else {
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['validation'] = false;
 			}
@@ -1110,23 +1106,25 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			}
 			break;
 		case 'upload_image':
-			if (!zz_upload_check($my_rec['images'][$f], $my_rec['action'], $zz_conf, $rec)) {
-				$my_rec['validation'] = false;
-				$my_rec['fields'][$f]['check_validation'] = false;
-				if (is_array($my_rec['images'][$f])) {
-					foreach ($my_rec['images'][$f] as $key => $image) {
-						if (!is_numeric($key)) continue;
-						if (empty($image['error'])) continue;
-						foreach ($image['error'] as $error) {
-							$zz_error['validation']['incorrect_values'][] = array(
-								'field_name' => $field_name,
-								'msg' => $error
-							);
-						}
-					}
+			$my_rec['fields'][$f]['in_sql_query'] = false;
+			if (zz_upload_check($my_rec['images'][$f], $my_rec['action'], $rec)) break;
+			
+			// check failed
+			$my_rec['validation'] = false;
+			$my_rec['fields'][$f]['check_validation'] = false;
+			if (!is_array($my_rec['images'][$f])) break;
+
+			// get detailed error message
+			foreach ($my_rec['images'][$f] as $key => $image) {
+				if (!is_numeric($key)) continue;
+				if (empty($image['error'])) continue;
+				foreach ($image['error'] as $error) {
+					$zz_error['validation']['incorrect_values'][] = array(
+						'field_name' => $field_name,
+						'msg' => $error
+					);
 				}
 			}
-			$my_rec['fields'][$f]['in_sql_query'] = false;
 			break;
 		case 'display':
 		case 'write_once':
@@ -1135,8 +1133,8 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 		case 'image':
 		case 'foreign':
 		case 'subtable':
-		//	remove entries which are for display only
-		// 	or will be processed somewhere else
+			//	remove entries which are for display only
+			// 	or will be processed somewhere else
 			$my_rec['fields'][$f]['in_sql_query'] = false;
 			break;
 		default:
