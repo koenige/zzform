@@ -339,9 +339,10 @@ function zz_upload_check_files(&$zz_tab) {
 				// if not set, inherit from $zz['fields'][n]['input_filetypes']
 				// or initialize it
 				if (isset($field['input_filetypes'])) {
-					if (is_array($field['input_filetypes']) 
-						AND strstr($field['input_filetypes'][0], 'image/') 
-						OR strstr($field['input_filetypes'][0], 'application/')) {
+					if (is_array($field['input_filetypes'])
+						AND isset($field['input_filetypes'][0]) 
+						AND (strstr($field['input_filetypes'][0], 'image/') 
+						OR strstr($field['input_filetypes'][0], 'application/'))) {
 						// deprecated version, please change
 						$zz_error[] = array(
 							'msg_dev' => zz_text('Error: Deprecated use of MIME types in input_filetypes. Please use filetypes instead.'),
