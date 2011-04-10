@@ -49,7 +49,9 @@ $bla = array(
  * @param array $file
  * @global array $zz_conf
  * @return array $file
- *		'filetype', 'width', 'height', 'validated', 'ext'
+ *		string 'filetype', int 'width', int 'height', bool 'validated',
+ *		string 'ext'
+ * @todo always fill out $file['ext']
  */
 function zz_imagick_identify($filename, $file) {
 	global $zz_conf;
@@ -88,8 +90,11 @@ function zz_imagick_identify($filename, $file) {
 			$file['height'] = $size[1];
 		}
 	}
-	if (!isset($file['ext']) AND isset($file['name']))
-		$file['ext'] = substr($file['name'], strrpos($file['name'], '.')+1);
+	if (empty($file['ext'])) {
+		if (isset($file['name'])) {
+			$file['ext'] = substr($file['name'], strrpos($file['name'], '.') +1);
+		}
+	}
 	$file['validated'] = true;
 	return zz_return($file);
 }
