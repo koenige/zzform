@@ -1028,7 +1028,7 @@ function zz_upload_merge_options($image, $my_rec) {
  * @param array $zz_tab
  * @return array $src_image
  */
-function zz_upload_get_source_field($image, $zz_tab)				
+function zz_upload_get_source_field($image, $zz_tab) {				
 	// values might be numeric (e. g. 14) for main table
 	// or array style (14[20]) for subtables
 	// source might only be 0, if other values are needed change to 
@@ -1044,7 +1044,7 @@ function zz_upload_get_source_field($image, $zz_tab)
 	$src_image = false;
 	foreach ($zz_tab[0]['upload_fields'] AS $index => $tab) {
 		if ($tab['field_index'] != $source_field[0]) continue;
-		if (!empty($source_field[1]) AND $tab['f'] == $source_field[1])) continue;
+		if (!empty($source_field[1]) AND $tab['f'] == $source_field[1]) continue;
 
 		// if there are several subtables, value for 0 should always be set.
 		// then go through other subtables, if there's a better field,
@@ -1518,7 +1518,7 @@ function zz_upload_insert($source, $dest, $action = '-', $mode = 'copy') {
 		} else { 
 			$msg_dev = zz_text('Unknown error.').zz_text('Copying not successful.')
 				.'<br>'.zz_text('from:').' '.$source
-				.'<br>'.zz_text('to:').' '.$dest.'<br>',
+				.'<br>'.zz_text('to:').' '.$dest.'<br>';
 		}
 		$zz_error[] = array(
 			'msg' => zz_text('File could not be saved. There is a problem with '
