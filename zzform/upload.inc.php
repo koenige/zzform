@@ -425,7 +425,7 @@ function zz_upload_fileinfo($file, $extension) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$file['validated'] = false;
 	$file['filetype'] = 'unknown';
-	$file['mime'] = $file['type'];
+	$file['mime'] = (!empty($file['type']) ? $file['type'] : '');
 	// check if there is a file
 	if (empty($file['tmp_name'])) return $file;
 	// rewrite some misspelled and misset filetypes
