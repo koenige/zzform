@@ -1505,7 +1505,10 @@ function check_number($number) {
 		// must not: enter values like 1,000 and mean 1000!
 		elseif (strstr($part, ',')) $parts[$index] = str_replace(',', '.', $part);
 	}
-	eval('$sum = '.implode('', $parts).';');
+	$calculation = implode('', $parts);
+	// GPS EXIF data sometimes is written like +0/0
+	if (substr($calculation, -2) == '/0') return NULL; 
+	eval('$sum = '.$calculation.';');
 	// in case some error occured, check what it is
 	if (!$sum) {
 		global $zz_error;
