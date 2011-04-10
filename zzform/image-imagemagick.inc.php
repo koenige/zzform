@@ -46,12 +46,15 @@ $bla = array(
  *    [8] => 0.350u
  *    [9] => 0:00.349
  * @param string $filename filename of file which needs to be identified
+ * @param array $file
  * @global array $zz_conf
- * @return array $image
- *		'filetype', 'width', 'height', 'validated'
+ * @return array $file
+ *		'filetype', 'width', 'height', 'validated', 'ext'
  */
-function zz_imagick_identify($filename) {
+function zz_imagick_identify($filename, $file) {
 	global $zz_conf;
+	if ($zz_conf['graphics_library'] != 'imagemagick') return $file;
+	if (!$zz_conf['upload_tools']['identify']) return $file;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if (!file_exists($filename)) return zzreturn(false);
 
@@ -60,13 +63,10 @@ function zz_imagick_identify($filename) {
 	$command .= '"'.$filename.'[0]"';
 	exec($command, $output, $return_var);
 	if ($zz_conf['modules']['debug']) zz_debug("identify command", $command);
-	if (!$output) return zz_return(false);
-
+	if (!$output) return zz_return($file);
 	if ($zz_conf['modules']['debug']) zz_debug("identify output", json_encode($output));
 
-	$image = array();
 	$tokens = array();
-
 	foreach ($output as $line) {
 		// just check first line without error message
 		// remove filename
@@ -78,21 +78,20 @@ function zz_imagick_identify($filename) {
 		$tokens = explode(' ', $line);
 		break;
 	}
+	if (empty($tokens[0])) return zz_return($file);
 
-	if (empty($tokens[0])) {
-		return zz_return($image);
-	}
-
-	$image['filetype'] = strtolower($tokens[0]);
+	$file['filetype'] = strtolower($tokens[0]);
 	if (!empty($tokens[1])) {
 		$size = explode('x', $tokens[1]);
 		if (!empty($size[0]) AND !empty($size[1])) {
-			$image['width'] = $size[0];
-			$image['height'] = $size[1];
+			$file['width'] = $size[0];
+			$file['height'] = $size[1];
 		}
 	}
-	$image['validated'] = true;
-	return zz_return($image);
+	if (!isset($file['ext']) AND isset($file['name']))
+		$file['ext'] = substr($file['name'], strrpos($file['name'], '.')+1);
+	$file['validated'] = true;
+	return zz_return($file);
 }
 
 /**

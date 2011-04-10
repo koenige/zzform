@@ -441,11 +441,13 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		if (!empty($zz_conf['action']['after_'.$zz_var['action']])) 
 			include $zz_conf['action_dir'].'/'.$zz_conf['action']['after_'.$zz_var['action']].'.inc.php'; 
 			// if any other action after insertion/update/delete is required
-		if (!empty($zz_conf['folder']) && $zz_tab[0][0]['action'] == 'update')
+		if (!empty($zz_conf['folder']) && $zz_tab[0][0]['action'] == 'update') {
 			// rename connected folder after record has been updated
-			zz_foldercheck($zz_tab, $zz_conf);
+			$folders = zz_foldercheck($zz_tab);
+			if ($folders) $zz_tab[0]['folder'] = $folders;
+		}
 		if (!empty($zz_var['upload_form'])) {
-			zz_upload_action($zz_tab, $zz_conf); // upload images, delete images, as required
+			$zz_tab = zz_upload_action($zz_tab); // upload images, delete images, as required
 			$ops['output'] .= zz_error();
 			if ($zz_error['error']) {
 				return zz_return(array($ops, $zz_tab, $validation, $zz_var));
@@ -793,13 +795,15 @@ function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
  * Create, move or delete folders which are connected to records
  * 
  * @param array $zz_tab complete zz_tab array
- *		$zz_tab[0]['folder'][] will be set
- * @param array $zz_conf
- * @return bool true: renaming was successful, false: not successful
+ * @global array $zz_conf
+ * @global array $zz_error
+ * @return array $folders => $zz_tab[0]['folder'][] will be set
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_foldercheck(&$zz_tab, $zz_conf) {
+function zz_foldercheck($zz_tab) {
+	global $zz_conf;
 	global $zz_error;
+	$folders = array();
 	foreach ($zz_conf['folder'] as $folder) {
 		$path = zz_makepath($folder, $zz_tab, 'new', 'file');
 		$old_path = zz_makepath($folder, $zz_tab, 'old', 'file');
@@ -811,23 +815,21 @@ function zz_foldercheck(&$zz_tab, $zz_conf) {
 				$success = rename($old_path, $path);
 			}
 			if ($success) {
-				$zz_tab[0]['folder'][] = array('old' => $old_path, 'new' => $path);
+				$folders[] = array('old' => $old_path, 'new' => $path);
 			} else { 
 				$zz_error[] = array(
 					'msg_dev' => 'Folder cannot be renamed.'
 				);
 				zz_error();
-				return false;
 			}
 		} else {
 			$zz_error[] = array(
 				'msg_dev' => 'There is already a folder by that name.'
 			);
 			zz_error();
-			return false;
 		}
 	}
-	return true;
+	return $folders;
 }
 
 /*
