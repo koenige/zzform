@@ -459,7 +459,7 @@ function zz_upload_fileinfo($file, $filename, $extension) {
 			unset($file['recheck']);
 		}
 		if ($zz_conf['modules']['debug']) {
-			$function_name = substr($function_name, strpos('_', $functioname));
+			$function_name = substr($function_name, strpos('_', $function_name));
 			$type = (!empty($file['filetype_file']) ? $file['filetype_file'] : $file['filetype']);
 			zz_debug($function_name."()", $type.': '.json_encode($file));
 		}
