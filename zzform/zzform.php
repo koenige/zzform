@@ -169,7 +169,7 @@ function zzform($zz = array()) {
 
 	// get 'where_conditions' for SQL query from GET add, filter oder where
 	// get 'zz_fields' from GET add
-	$zz_var = zz_get_where_conditions();
+	$zz_var = zz_get_where_conditions($zz);
 
 	// get 'unique_fields', especially 'id' = PRIMARY KEY
 	$zz_var = zz_get_unique_fields($zz_var, $zz['fields']);

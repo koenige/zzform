@@ -193,6 +193,7 @@ function zz_get_url_self($url_self) {
  * checks if there is a parameter in the URL (where, add, filter) that
  * results in a WHERE condition applied to the main SQL query
  *
+ * @param array $zz ('where', like in $_GET)
  * @global array $zz_conf
  *		'filter' will be checked for 'where'-filter and set if there is one
  * @return array $zz_var
@@ -200,7 +201,7 @@ function zz_get_url_self($url_self) {
  *		(values for fields depending on where conditions)
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_get_where_conditions() {
+function zz_get_where_conditions($zz) {
 	global $zz_conf;
 
 	$zz_var = array();
@@ -208,6 +209,11 @@ function zz_get_where_conditions() {
 	$zz_var['where_condition'] = array();
 	if (!empty($_GET['where'])) {
 		$zz_var['where_condition'] = $_GET['where'];
+	}
+	if (!empty($zz['where'])) {
+		// $zz['where'] will be merged to $_GET['where'], identical keys
+		// will be overwritten
+		$zz_var['where_condition'] = array_merge($zz_var['where_condition'], $zz['where']);
 	}
 
 	// ADD: overwrite write_once with values, in case there are identical fields
