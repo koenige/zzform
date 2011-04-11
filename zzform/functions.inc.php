@@ -3264,6 +3264,7 @@ function zz_nice_title($heading, $fields, $zz_var, $mode) {
 		AND $zz_var['where_condition'][$zz_var['id']['field_name']] == $zz_var['id']['value']) {
 		$show_id = false;	
 	}
+	if (!empty($zz_var['where_with_unique_id'])) $show_id = false;
 	if ($show_id) {
 		$title .= $zz_conf['title_separator'].zz_text($mode)
 			.($zz_var['id']['value'] ? ': ID '.$zz_var['id']['value'] : '');
