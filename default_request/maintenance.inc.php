@@ -106,7 +106,6 @@ function zz_maintenance($params) {
 		}
 	
 		$page['text'] .= '<h2>'.zz_text('Custom SQL query').'</h2>'."\n";
-	//	$page['text'] .= '<form action="" method="POST">';
 		$page['text'] .= '<form method="POST" action=""><textarea cols="60" rows="10" name="sql">'
 			.str_replace('%%%', '%&shy;%&shy;%', htmlentities($sql))
 			.'</textarea>
