@@ -3250,7 +3250,15 @@ function zz_nice_title($heading, $fields, $zz_var, $mode) {
 	
 	// addition: mode
 	// don't show if zzhash is set (add_only, edit_only: too much information)
-	if ($mode AND $mode != 'list_only' AND empty($_GET['zzhash'])) {
+	$show_id = true;
+	if (!$mode) $show_id = false;
+	if ($mode == 'list_only') $show_id = false;
+	if (!empty($_GET['zzhash'])) $show_id = false;
+	if (!empty($zz_var['where_condition'][$zz_var['id']['field_name']])
+		AND $zz_var['where_condition'][$zz_var['id']['field_name']] == $zz_var['id']['value']) {
+		$show_id = false;	
+	}
+	if ($show_id) {
 		$title .= $zz_conf['title_separator'].zz_text($mode)
 			.($zz_var['id']['value'] ? ': ID '.$zz_var['id']['value'] : '');
 	}
