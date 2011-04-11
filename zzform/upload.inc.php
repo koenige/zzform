@@ -1891,6 +1891,13 @@ function zz_upload_file_extension($filename) {
 function zz_rename($oldname, $newname, $context = false) {
 	global $zz_conf;
 	global $zz_error;
+	if (!file_exists($oldname)) {
+		$zz_error[] = array(
+			'msg_dev' => sprintf(zz_text('zz_rename(): File %s does not exist.'), $oldname),
+			'level' => E_USER_NOTICE
+		);
+		return false;
+	}
 	if (!empty($zz_conf['upload_copy_for_rename'])) {
 		$success = copy($oldname, $newname);
 		if ($success) {
