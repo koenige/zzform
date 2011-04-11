@@ -517,6 +517,8 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false)
 				$fields[$no]['explanation'] = zz_text($fields[$no]['explanation']);
 			if (!empty($fields[$no]['title_append'])) 
 				$fields[$no]['title_append'] = zz_text($fields[$no]['title_append']);
+			if (!empty($fields[$no]['title_tab']))
+				$fields[$no]['title_tab'] = zz_text($fields[$no]['title_tab']);
 			$fields[$no]['translated'] = true;
 		}
 		if ($fields[$no]['type'] == 'option') { 

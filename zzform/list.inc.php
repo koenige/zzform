@@ -273,56 +273,38 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		$ops['output'].= '<thead>'."\n";
 		$ops['output'].= '<tr>';
 		if ($zz_conf['select_multiple_records']) $ops['output'].= '<th>[]</th>';
-		$unsortable_fields = array('calculated', 'image', 'upload_image'); // 'subtable'?
 		$show_field = true;
+		$thead = array();
+		$j = 0;
+		$where_values = (!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : '');
 		foreach ($table_query[0] as $index => $field) {
 			if ($zz_conf['group']) {
 				$show_field_group = zz_list_group_field_no($field, $index);
 				if ($show_field AND !$show_field_group) $show_field = false;
 			}
 			if ($show_field) {
-				$ops['output'].= '<th'.zz_field_class($field, (!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : ''), true).'>';
-				if (!in_array($field['type'], $unsortable_fields) && isset($field['field_name'])
-					AND empty($field['dont_sort'])) { 
-					$ops['output'].= '<a href="';
-					if (isset($field['display_field'])) $order_val = $field['display_field'];
-					else $order_val = $field['field_name'];
-					$unwanted_keys = array('dir', 'zzaction', 'zzhash');
-					$new_keys = array('order' => $order_val);
-					$uri = $zz_conf['int']['url']['self'].zz_edit_query_string($zz_conf['int']['url']['qs']	
-						.$zz_conf['int']['url']['qs_zzform'], $unwanted_keys, $new_keys);
-					$order_dir = 'asc';
-					if (str_replace('&amp;', '&', $uri) == $_SERVER['REQUEST_URI']) {
-						$uri.= '&amp;dir=desc';
-						$order_dir = 'desc';
-					}
-					$ops['output'].= $uri;
-					$ops['output'].= '" title="'.zz_text('order by').' '.strip_tags($field['title']).' ('.zz_text($order_dir).')">';
-				}
-				$ops['output'].= (!empty($field['title_tab']) 
-					? ($zz_conf['multilang_fieldnames'] ? zz_text($field['title_tab']) : $field['title_tab']) 
-					: $field['title']);
-				if (!in_array($field['type'], $unsortable_fields) && isset($field['field_name']))
-					$ops['output'].= '</a>';
-				$ops['output'].= '</th>';
-				// show field
-				foreach (array_keys($table_query) as $tq_index) { // each line seperately
-					if (!empty($table_query[$tq_index][$index])) // only if field exists
-						$table_query[$tq_index][$index]['show_field'] = true;
-				}
-			} else {
-				// hide field
-				foreach (array_keys($table_query) as $tq_index) { // each line seperately
-					if (!empty($table_query[$tq_index][$index])) // only if field exists
-						$table_query[$tq_index][$index]['show_field'] = false;
-				}
+				$j++;
+				$thead[$j]['class'] = zz_field_class($field, $where_values);
+				$thead[$j]['th'] = zz_list_th($field);
+			} elseif (!empty($field['list_append_show_title'])) {
+				$thead[$j]['class'] = array_merge($thead[$j]['class'], zz_field_class($field, $where_values));
+				$thead[$j]['th'] .= ' / '.zz_list_th($field);
+			}
+			// show or hide field
+			foreach (array_keys($table_query) as $tq_index) { // each line seperately
+				if (!empty($table_query[$tq_index][$index])) // only if field exists
+					$table_query[$tq_index][$index]['show_field'] = $show_field;
 			}
 			if (!empty($field['list_append_next'])) $show_field = false;
 			else $show_field = true;
 		}
 		// Rest cannot be set yet because we do not now details/mode-links
 		// of individual records
-
+		foreach ($thead as $col) {
+			if ($col['class']) $col['class'] = ' class="'.implode(' ', $col['class']).'"';
+			else $col['class'] = '';
+			$ops['output'] .= '<th'.$col['class'].'>'.$col['th'].'</th>';
+		}
 	} elseif ($zz_conf['show_list'] && $zz_conf['list_display'] == 'ul') {
 		if ($zz_conf['group']) {
 			foreach ($table_query[0] as $index => $field)
@@ -1668,6 +1650,45 @@ function zz_count_rows($sql, $id_field) {
 	}
 	if (!$lines) $lines = 0;
 	return $lines;
+}
+
+/**
+ * HTML output inside of <th> field in <thead>
+ *
+ * @param array $field
+ * @global $zz_conf
+ * @return string HTML output
+ */
+function zz_list_th($field) {
+	global $zz_conf;
+	$unsortable_fields = array('calculated', 'image', 'upload_image'); // 'subtable'?
+	$unwanted_keys = array('dir', 'zzaction', 'zzhash');
+	$link_open = '';
+	$link_close = '';
+
+	// create a link to order this column if desired
+	if (!in_array($field['type'], $unsortable_fields) && isset($field['field_name'])
+		AND empty($field['dont_sort'])) { 
+		if (isset($field['display_field'])) $order_val = $field['display_field'];
+		else $order_val = $field['field_name'];
+		$new_keys = array('order' => $order_val);
+		$uri = $zz_conf['int']['url']['self'].zz_edit_query_string($zz_conf['int']['url']['qs']	
+			.$zz_conf['int']['url']['qs_zzform'], $unwanted_keys, $new_keys);
+		$order_dir = 'asc';
+		if (str_replace('&amp;', '&', $uri) == $_SERVER['REQUEST_URI']) {
+			$uri.= '&amp;dir=desc';
+			$order_dir = 'desc';
+		}
+		$link_open = '<a href="'.$uri.'" title="'.zz_text('order by').' '
+			.strip_tags($field['title']).' ('.zz_text($order_dir).')">';
+		$link_close = '</a>';
+	}
+
+	// HTML output
+	$out = $link_open
+		.(!empty($field['title_tab']) ? $field['title_tab'] : $field['title'])
+		.$link_close;
+	return $out;
 }
 
 ?>
