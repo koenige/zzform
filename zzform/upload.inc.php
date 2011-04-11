@@ -919,8 +919,8 @@ function zz_upload_prepare($zz_tab) {
 					$all_temp_filenames[] = $source_filename;
 			}
 			if ($source_filename) {
-				$resize = zz_upload_auto_image($image);
-				if ($resize === -1) zz_return($zz_tab);
+				$image = zz_upload_auto_image($image);
+				if (!$image) zz_return($zz_tab);
 			}
 
 			if ($zz_conf['modules']['debug']) zz_debug('source_filename: '.$source_filename);
@@ -1079,12 +1079,11 @@ function zz_upload_get_source_field($image, $zz_tab) {
  * calls function that will do some automatic stuff to images
  *
  * @param array $image
- * @return int (0: nothing was done; 1: something was done; -1: please exit, an
- *		error occured)
+ * @return mixed array $image if everything is ok, false if an error occured
  */
 function zz_upload_auto_image($image) {
-	if (empty($image['auto'])) return 0;
-	if (empty($image['auto_values'])) return 0;
+	if (empty($image['auto'])) return $image;
+	if (empty($image['auto_values'])) return $image;
 
 	// choose values from uploaded image, best fit
 	$autofunc = 'zz_image_auto_'.$image['auto'];
@@ -1095,10 +1094,10 @@ function zz_upload_auto_image($image) {
 			'level' => E_USER_ERROR
 		);
 		zz_error();
-		return -1;
+		return false;
 	}
-	$autofunc($image);
-	return 1;
+	$image = $autofunc($image);
+	return $image;
 }
 
 /**
@@ -1631,16 +1630,16 @@ function zz_upload_cleanup($zz_tab) {
  *
  * will be called via 'auto_size'
  * @param array $image
- * @return bool
+ * @return array $image
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_image_auto_size(&$image) {
+function zz_image_auto_size($image) {
 	//	basics
 	// tolerance in px
 	$tolerance = (!empty($image['auto_size_tolerance']) ? $image['auto_size_tolerance'] : 15); 
 	$width = $image['upload']['width'];
 	$height = $image['upload']['height'];
-	if (!$height) return false;
+	if (!$height) return $image;
 	$ratio = $width/$height;
 	$key = 0;
 	foreach ($image['auto_values'] as $pair) {
@@ -1675,7 +1674,7 @@ function zz_image_auto_size(&$image) {
 		// return field with smallest size
 		$image['width'] = $pairs[$smallest['key']]['width'];
 		$image['height'] = $pairs[$smallest['key']]['height'];
-		return true;
+		return $image;
 	}
 
 	// check for best ratio
@@ -1697,7 +1696,7 @@ function zz_image_auto_size(&$image) {
 	// these values will be returned (&$image)
 	$image['width'] = $pairs[$best_pair['key']]['width'];
 	$image['height'] = $pairs[$best_pair['key']]['height'];
-	return true;
+	return $image;
 }
 
 /**
