@@ -234,15 +234,17 @@ function zz_display_records($mode, $zz_tab, $display, $zz_var, $zz_conditions) {
 				$output.= '<tr><th>&nbsp;</th> <td class="reedit">';
 				if (empty($zz_conf_record['no_ok']))
 					$output.= '<a href="'.$cancelurl.'">'.zz_text('OK').'</a> | ';
+				$id_link = '&amp;id='.$zz_var['id']['value'];
+				if (!empty($zz_var['where_with_unique_id'])) $id_link = '';
+				$edit_link = 'mode=edit'.$id_link.$zz_var['extraGET'];
+				if ($zz_conf['access'] === 'show_after_edit')
+					$edit_link = substr($zz_var['extraGET'], 5); // remove &amp;
 				$output .= '<a href="'.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
-					.$zz_conf['int']['url']['?&'].'mode=edit&amp;id='
-					.$zz_var['id']['value'].$zz_var['extraGET']
-					.'">'.zz_text('edit').'</a>';
+					.$zz_conf['int']['url']['?&'].$edit_link.'">'.zz_text('edit').'</a>';
 				if ($zz_conf_record['delete']) $output.= ' | <a href="'
 					.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
-					.$zz_conf['int']['url']['?&'].'mode=delete&amp;id='
-					.$zz_var['id']['value'].$zz_var['extraGET'].'">'
-					.zz_text('delete').'</a>';
+					.$zz_conf['int']['url']['?&'].'mode=delete'.$id_link
+					.$zz_var['extraGET'].'">'.zz_text('delete').'</a>';
 				if ($zz_conf_record['copy']) $output.= ' | <a href="'
 					.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
 					.$zz_conf['int']['url']['?&'].'mode=add&amp;source_id='
