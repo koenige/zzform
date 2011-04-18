@@ -673,6 +673,9 @@ function zzform_exit($ops) {
 	if ($zz_conf['access'] != 'export')
 		$ops['output'] = '<div id="zzform">'."\n".$ops['output'].'</div>'."\n";
 	if ($zz_conf['show_output']) echo $ops['output'];
+	
+	// HTML head
+	$ops['meta'] = zz_meta_tags();
 
 	// get rid of internal variables
 	unset($zz_conf['int']);
@@ -1086,4 +1089,23 @@ function zz_return_bytes($val) {
 
     return $val;
 }
+
+/**
+ * Gives information which meta tags should be added to HTML head
+ *
+ * @return array
+ */
+function zz_meta_tags() {
+	$meta = array();
+	$noindex = false;
+	if (!empty($_GET['order'])) $noindex = true;
+	if (!empty($_GET['group'])) $noindex = true;
+	if (!empty($_GET['mode'])) $noindex = true;
+	if (!empty($_GET['q'])) $noindex = true;
+	if ($noindex) {
+		$meta[] = array('name' => 'robots', 'content' => 'noindex, follow');
+	}
+	return $meta;
+}
+
 ?>
