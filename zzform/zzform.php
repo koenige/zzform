@@ -701,17 +701,18 @@ function zz_initialize($mode = false) {
 	global $zz_saved;
 	global $zz_debug;	// debug module
 
-	$zz_conf['id'] = mt_rand();
-
 	if (!empty($zz_conf['zzform_init'])) {
 		// get clean $zz_conf without changes from different zzform calls or included scripts
 		if (!empty($zz_conf['zzform_calls']) AND !empty($zz_saved) AND $mode == 'overwrite') {
 			$calls = $zz_conf['zzform_calls'];
+			$zz_saved['old_conf'] = $zz_conf;
 			$zz_conf = $zz_saved['conf'];
 			$zz_conf['zzform_calls'] = $calls;
 		}
+		$zz_conf['id'] = mt_rand();
 		return true;
 	}
+	$zz_conf['id'] = mt_rand();
 
 	//	allowed parameters
 	// initialize internal variables
@@ -980,7 +981,12 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 		// return on error in form script
 		if (!empty($ops['error'])) return $ops;
 		$ops = zzform($zz);
-		$zz_conf['generate_output'] = true;
+		// in case zzform was called from within zzform, get the old conf back
+		if ($zz_conf['zzform_calls'] > 1) {
+			$zz_conf = $zz_saved['old_conf'];
+		} else {
+			$zz_conf['generate_output'] = true;
+		}
 		break;
 	case 'files':
 		require_once $zz_conf['dir_inc'].'/functions.inc.php';
