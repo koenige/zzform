@@ -957,7 +957,6 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 					if ($calculated_rows >= $field['rows']) $field['rows'] = $calculated_rows;
 					if (!empty($field['rows_max']) AND ($field['rows'] > $field['rows_max']))
 						$field['rows'] = $field['rows_max'];
-					$memotext = htmlspecialchars($memotext);
 				}
 				if ($row_display == 'form') $outputf.= '<textarea rows="'
 					.$field['rows'].'" cols="'.$field['cols'].'" name="'
@@ -966,6 +965,8 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 					// format in case it's not editable and won't be saved in db
 					if ($row_display != 'form' AND isset($field['format']))
 						$memotext = $field['format']($memotext);
+					else
+						$memotext = htmlspecialchars($memotext);
 					$outputf.= $memotext;
 				}
 				if ($row_display == 'form') $outputf.= '</textarea>';
