@@ -384,6 +384,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			}
 
 			foreach ($table_query[$tq_index] as $fieldindex => $field) {
+				$subselect_init = false;
 				if ($zz_conf['modules']['debug']) zz_debug("table_query foreach ".$fieldindex);
 				// conditions
 				if (!empty($zz_conf['modules']['conditions'])) {
@@ -502,7 +503,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				case 'subtable':
 					if (!empty($field['subselect']['sql'])) {
 						// fill array subselects, just in row 0, will always be the same!
-						if (!$z) {
+						if (!$subselect_init) {
 							$foreign_key_field = array();
 							$translation_key_field = array();
 							foreach ($field['fields'] as $subfield) {
@@ -533,6 +534,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 							$field['subselect']['id_fieldname'] = $id_fieldname;
 							$field['subselect']['fieldindex'] = $fieldindex;
 							$subselects[] = $field['subselect'];
+							$subselect_init = true;
 						}
 						if (empty($line[$key_fieldname])) {
 							$zz_error[] = array(
@@ -660,7 +662,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				if ($zz_conf['modules']['debug']) zz_debug("table_query end ".$fieldindex.'-'.$field['type']);
 
 			}
-			$ids[$z] = $sub_id; // for subselects
+			if ($sub_id) $ids[$z] = $sub_id; // for subselects
 			if ($zz_conf_record['edit'] OR $zz_conf_record['view'] OR $zz_conf_record['delete']) {
 				$rows[$z]['modes'] = false;
 				if ($zz_conf_record['edit']) {
@@ -777,7 +779,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	}
 
 	//
-	// Table body
+	// List body, closing list
 	//
 	
 	if ($zz_conf['show_list'] && $zz_conf['list_display'] == 'table') {
@@ -831,6 +833,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		}
 		$ops['output'].= '</tbody>'."\n";
 		unset($rows);
+		$ops['output'].= '</table>'."\n";
 	} elseif ($zz_conf['show_list'] && $zz_conf['list_display'] == 'ul') {
 		$rowgroup = false;
 		foreach ($rows as $index => $row) {
@@ -860,17 +863,12 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				$ops['output'].= '<p class="editbutton">'.$row['details'].'</p>';
 			$ops['output'].= '</li>'."\n";
 		}
+		$ops['output'].= '</ul>'."\n".'<br clear="all">';
 	} elseif ($zz_conf['show_list'] && $zz_conf['list_display'] == 'csv') {
 		$ops['output'] .= zz_export_csv_body($rows, $zz_conf);
 	} elseif ($zz_conf['show_list'] && $zz_conf['list_display'] == 'pdf') {
 		$ops['output']['rows'] = $rows;
 	}
-
-	if ($zz_conf['show_list'])
-		if ($zz_conf['list_display'] == 'table')
-			$ops['output'].= '</table>'."\n";
-		elseif ($zz_conf['list_display'] == 'ul')
-			$ops['output'].= '</ul>'."\n".'<br clear="all">';
 
 	if ($zz_conf['show_list'] AND $zz_conf['select_multiple_records'] AND $ops['mode'] != 'export') {
 		$ops['output'].= '<input type="hidden" name="zz_action" value="Multiple action"><input type="submit" value="'
