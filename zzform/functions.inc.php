@@ -539,10 +539,13 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false)
 			if (!empty($fields[$no]['sql'])) // replace whitespace with space
 				$fields[$no]['sql'] = preg_replace("/\s+/", " ", $fields[$no]['sql']);
 		}
-		if ($fields[$no]['type'] == 'subtable') // for subtables, do this as well
+		if ($fields[$no]['type'] == 'subtable') {
+			// for subtables, do this as well
 			// here we still should have a different db_name in 'table' if using multiples dbs
 			// so it's no need to prepend the db name of this table
+			if (empty($fields[$no]['table_name'])) $fields[$no]['table_name'] = $fields[$no]['table'];
 			$fields[$no]['fields'] = zz_fill_out($fields[$no]['fields'], $fields[$no]['table'], $multiple_times, $mode);
+		}
 	}
 	return zz_return($fields);
 }
@@ -3298,6 +3301,10 @@ function zz_nice_selection($zz_fields) {
 				break;
 			}
 			if (!empty($field['display_field']) AND $field['display_field'] == $scope) {
+				$fieldname = $field['title'];
+				break;
+			}
+			if (!empty($field['table_name']) AND $field['table_name'] == $scope) {
 				$fieldname = $field['title'];
 				break;
 			}
