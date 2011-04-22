@@ -1369,14 +1369,16 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	static $calls;
+	$calls++;
 	$addscope = true;
 	// fields that won't be used for search
-	$unsearchable = array('image', 'calculated', 'timestamp', 'upload_image', 'option'); 
+	$unsearchable_fields = array('image', 'calculated', 'timestamp', 'upload_image', 'option'); 
 	if ($zz_conf['modules']['debug']) zz_debug("search query", $sql);
 
 	// there is something, process it.
 	$searchword = $_GET['q'];
-	$scope = (!empty($_GET['scope']) ? zz_db_escape($_GET['scope']) : '');
+	$scope = !empty($_GET['scope']) ? zz_db_escape($_GET['scope']) : '';
 	// search: look at first character to change search method
 	if (substr($searchword, 0, 1) == '>') {
 		$searchword = trim(substr($searchword, 1));
@@ -1417,46 +1419,49 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 
 	// Search with q and scope
 	// so look only at one field!
-	if (!empty($_GET['scope'])) {
+	if (!empty($_GET['scope']) AND $calls === 1) {
 		$scope = false;
 		$fieldtype = false;
 		foreach ($fields as $field) {
 		// todo: check whether scope is in_array($searchfields)
 			if (empty($field)) continue;
+			if (!empty($field['exclude_from_search'])) continue;
 			if (empty($field['type'])) $field['type'] = 'text';
+			if (in_array($field['type'], $unsearchable_fields)) continue;
 			if (empty($field['field_name'])) $field['field_name'] = '';
-			if (!in_array($field['type'], $unsearchable) && empty($field['exclude_from_search'])) {
-				if (!isset($field['sql']) && $_GET['scope'] == $field['field_name'] 
-					OR $_GET['scope'] == $table.'.'.$field['field_name']
-					OR (isset($field['display_field']) && $_GET['scope'] == $field['display_field'])) {
-					$scope = $_GET['scope'];
-					$fieldtype = $field['type'];
-					if (!empty($field['search'])) $scope = $field['search'];
-				}
+			if ($field['type'] == 'select' AND isset($field['sql'])) continue;
+			if ($_GET['scope'] == $field['field_name'] 
+				OR $_GET['scope'] == $table.'.'.$field['field_name']
+				OR (isset($field['display_field']) && $_GET['scope'] == $field['display_field'])) {
+				$scope = $_GET['scope'];
+				$fieldtype = $field['type'];
+				if (!empty($field['search'])) $scope = $field['search'];
+			} elseif (isset($field['table_name']) AND $_GET['scope'] == $field['table_name']) {
+				// search in subtable only
+				$subtable = $field;
+				$fieldtype = $field['type'];
 			}
 		}
-		// allow searching with strtotime, but do not convert years (2000)
-		// or year-month (2004-12)
-		if (!is_array($searchword) AND // no array
-			!preg_match('/^\d{1,4}-*\d{0,2}-*\d{0,2}$/', trim($searchword))) 
-			$timesearch = strtotime($searchword);
-		else $timesearch = false;
-		if ($addscope)
-			$sql_search_part = $scope.$searchstring; // default here
-		else
-			$sql_search_part = $searchstring; // default here
+		// default here
+		$sql_search_part = ($addscope ? $scope : '').$searchstring;
 		switch ($fieldtype) {
 		case 'datetime':
-			if ($timesearch)
+			if ($timesearch = zz_search_time($searchword))
 				$sql_search_part = $scope.' '.$searchop.' "'.date('Y-m-d', $timesearch).'%"';
 			break;
 		case 'time':
-			if ($timesearch)
+			if ($timesearch = zz_search_time($searchword))
 				$sql_search_part = $scope.' '.$searchop.' "'.date('H:i:s', $timesearch);
 			break;
 		case 'date':
-			if ($timesearch)
-			$sql_search_part = $scope.' '.$searchop.' "'.date('Y-m-d', $timesearch).'%"';
+			if ($timesearch = zz_search_time($searchword))
+				$sql_search_part = $scope.' '.$searchop.' "'.date('Y-m-d', $timesearch).'%"';
+			break;
+		case 'subtable':
+			if ($subsearch = zz_search_subtable($subtable, $table, $main_id_fieldname))
+				$sql_search_part = $subsearch;
+			else
+				$sql_search_part = 'NULL';
 			break;
 		case '': // scope is false, fieldtype is false
 			$sql_search_part = 'NULL';
@@ -1475,7 +1480,7 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 		if (empty($field)) continue;
 		if (!empty($field['exclude_from_search'])) continue;
 		if (empty($field['type'])) $field['type'] = 'text';
-		if (in_array($field['type'], $unsearchable)) continue;
+		if (in_array($field['type'], $unsearchable_fields)) continue;
 
 		// check what to search for
 		$fieldname = false;
@@ -1484,23 +1489,8 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 		} elseif (isset($field['display_field'])) {
 			$fieldname = $field['display_field'];
 		} elseif ($field['type'] == 'subtable') {
-			$foreign_key = '';
-			foreach ($field['fields'] as $f_index => $subfield) {
-				if (!empty($subfield['type']) AND $subfield['type'] == 'foreign_key') {
-					$foreign_key = $subfield['field_name'];
-					// do not search in foreign_key since this is the same
-					// as the main record
-					unset($field['fields'][$f_index]);
-				}
-			}
-			if (!$foreign_key) {
-				echo zz_text('Subtable definition is wrong. There must be a field which is defined as "foreign_key".');
-				exit;
-			}
-			$subsql = zz_search_sql($field['fields'], $field['sql'], $field['table'], $main_id_fieldname);
-			if ($ids = zz_db_fetch($subsql, $foreign_key, '', 'Search query for subtable.', E_USER_WARNING)) {
-				$q_search[] = $table.'.'.$main_id_fieldname.' IN ('.implode(',', array_keys($ids)).')';
-			}
+			$subsearch = zz_search_subtable($field, $table, $main_id_fieldname);
+			if ($subsearch) $q_search[] = $subsearch;
 		} elseif (!empty($field['field_name'])) {
 			// standard: use table- and field name
 			$fieldname = $table.'.'.$field['field_name'];
@@ -1517,6 +1507,48 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 
 	if ($zz_conf['modules']['debug']) zz_debug("end; search query", $sql);
 	return $sql;
+}
+
+/**
+ * checks if searchword is date, i. e. usable in searching for time/date 
+ *
+ * @param mixed $searchword
+ * @return int time
+ */
+function zz_search_time($searchword) {
+	// allow searching with strtotime, but do not convert years (2000)
+	// or year-month (2004-12)
+	if (is_array($searchword)) return false;
+	if (preg_match('/^\d{1,4}-*\d{0,2}-*\d{0,2}$/', trim($searchword))) return false;
+	return strtotime($searchword);
+}
+
+/**
+ * performs a search in a subtable and returns IDs of main record to include
+ * in search results
+ *
+ * @param array $field
+ * @param string $main_id_fieldname
+ * @return string part of SQL query
+ */
+function zz_search_subtable($field, $table, $main_id_fieldname) {
+	$foreign_key = '';
+	foreach ($field['fields'] as $f_index => $subfield) {
+		if (empty($subfield['type'])) continue;
+		if ($subfield['type'] != 'foreign_key') continue;
+		$foreign_key = $subfield['field_name'];
+		// do not search in foreign_key since this is the same
+		// as the main record
+		unset($field['fields'][$f_index]);
+	}
+	if (!$foreign_key) {
+		echo zz_text('Subtable definition is wrong. There must be a field which is defined as "foreign_key".');
+		exit;
+	}
+	$subsql = zz_search_sql($field['fields'], $field['sql'], $field['table'], $main_id_fieldname);
+	$ids = zz_db_fetch($subsql, $foreign_key, '', 'Search query for subtable.', E_USER_WARNING);
+	if (!$ids) return false;
+	return $table.'.'.$main_id_fieldname.' IN ('.implode(',', array_keys($ids)).')';
 }
 
 /** 
@@ -1536,45 +1568,50 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 	$search_form['bottom'] = false;
 	if (!$zz_conf['search']) return $search_form;
 
+	// show search form only if there are records as a result of this query; 
+	// q: show search form if empty search result occured as well
+	if (!$total_rows AND !isset($_GET['q'])) return $search_form;
+
 	$output = '';
-	if ($total_rows OR isset($_GET['q'])) {
-		// show search form only if there are records as a result of this query; 
-		// q: show search form if empty search result occured as well
-		$self = $zz_conf['int']['url']['self'];
-		// fields that won't be used for search
-		$unsearchable = array('image', 'calculated', 'subtable', 'timestamp', 'upload_image');
-		$output = "\n".'<form method="GET" action="'.$self
-			.'" id="zzsearch" accept-charset="'.$zz_conf['character_set'].'"><p>';
-		if ($qs = $zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']) { 
-			// do not show edited record, limit, ...
-			$unwanted_keys = array('q', 'scope', 'limit', 'mode', 'id', 'add', 'zzaction', 'zzhash'); 
-			$output .= zz_querystring_to_hidden(substr($qs, 1), $unwanted_keys);
-			// remove unwanted keys from link
-			$self .= zz_edit_query_string($qs, $unwanted_keys); 
-		}
-		$output.= '<input type="text" size="30" name="q"';
-		if (isset($_GET['q'])) $output.= ' value="'.htmlchars($_GET['q']).'"';
-		$output.= '>';
-		$output.= '<input type="submit" value="'.zz_text('search').'">';
-		$output.= ' '.zz_text('in').' ';	
-		$output.= '<select name="scope">';
-		$output.= '<option value="">'.zz_text('all fields').'</option>'."\n";
-		foreach ($fields as $field) {
-			if (in_array($field['type'], $unsearchable)) continue;
-			if (!empty($field['exclude_from_search'])) continue;
+	$self = $zz_conf['int']['url']['self'];
+	// fields that won't be used for search
+	$unsearchable_fields = array('image', 'calculated', 'timestamp', 'upload_image');
+	$output = "\n".'<form method="GET" action="'.$self
+		.'" id="zzsearch" accept-charset="'.$zz_conf['character_set'].'"><p>';
+	if ($qs = $zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']) { 
+		// do not show edited record, limit, ...
+		$unwanted_keys = array('q', 'scope', 'limit', 'mode', 'id', 'add', 'zzaction', 'zzhash'); 
+		$output .= zz_querystring_to_hidden(substr($qs, 1), $unwanted_keys);
+		// remove unwanted keys from link
+		$self .= zz_edit_query_string($qs, $unwanted_keys); 
+	}
+	$output.= '<input type="text" size="30" name="q"';
+	if (isset($_GET['q'])) $output.= ' value="'.htmlchars($_GET['q']).'"';
+	$output.= '>';
+	$output.= '<input type="submit" value="'.zz_text('search').'">';
+	$output.= ' '.zz_text('in').' ';	
+	$output.= '<select name="scope">';
+	$output.= '<option value="">'.zz_text('all fields').'</option>'."\n";
+	foreach ($fields as $field) {
+		if (in_array($field['type'], $unsearchable_fields)) continue;
+		if (!empty($field['exclude_from_search'])) continue;
+		if ($field['type'] === 'subtable') {
+			if (empty($field['subselect'])) continue;
+			$fieldname = $field['table_name'];
+		} else {
 			$fieldname = (isset($field['display_field']) && $field['display_field']) 
 				? $field['display_field'] : $table.'.'.$field['field_name'];
-			$output.= '<option value="'.$fieldname.'"';
-			if (isset($_GET['scope']) AND $_GET['scope'] == $fieldname) 
-				$output.= ' selected="selected"';
-			$output.= '>'.strip_tags($field['title']).'</option>'."\n";
 		}
-		$output.= '</select>';
-		if (!empty($_GET['q'])) {
-			$output.= ' &nbsp;<a href="'.$self.'">'.zz_text('Show all records').'</a>';
-		}
-		$output.= '</p></form>'."\n";
+		$output.= '<option value="'.$fieldname.'"';
+		if (isset($_GET['scope']) AND $_GET['scope'] == $fieldname) 
+			$output.= ' selected="selected"';
+		$output.= '>'.strip_tags($field['title']).'</option>'."\n";
 	}
+	$output.= '</select>';
+	if (!empty($_GET['q'])) {
+		$output.= ' &nbsp;<a href="'.$self.'">'.zz_text('Show all records').'</a>';
+	}
+	$output.= '</p></form>'."\n";
 
 	if ($zz_conf['search'] === true) $zz_conf['search'] = 'bottom'; // default!
 	switch ($zz_conf['search']) {
@@ -1592,35 +1629,42 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 	return $search_form;
 }
 
+/**
+ * Adds ORDER BY to query string, if set via URL
+ *
+ * @param array $fields
+ * @param string $sql
+ * @return string $sql
+ */
 function zz_sql_order($fields, $sql) {
+	if (empty($_GET['order']) AND empty($_GET['group'])) return $sql;
+
 	$order = false;
-	if (!empty($_GET['order']) OR !empty($_GET['group'])) {
-		$my_order = false;
-		if (!empty($_GET['dir']))
-			if ($_GET['dir'] == 'asc') $my_order = ' ASC';
-			elseif ($_GET['dir'] == 'desc') $my_order = ' DESC';
-		foreach ($fields as $field) {
-			if (!empty($_GET['order'])
-				AND ((isset($field['display_field']) && $field['display_field'] == $_GET['order'])
-				OR (isset($field['field_name']) && $field['field_name'] == $_GET['order']))
-			)
-				if (isset($field['order'])) $order[] = $field['order'].$my_order;
-				else $order[] = $_GET['order'].$my_order;
-			if (!empty($_GET['group'])
-				AND ((isset($field['display_field']) && $field['display_field'] == $_GET['group'])
-				OR (isset($field['field_name']) && $field['field_name'] == $_GET['group']))
-			)
-				if (isset($field['order'])) $order[] = $field['order'].$my_order;
-				else $order[] = $_GET['group'].$my_order;
-		}
-		if (!$order) return $sql;
-		if (strstr($sql, 'ORDER BY'))
-			// if there's already an order, put new orders in front of this
-			$sql = str_replace ('ORDER BY', ' ORDER BY '.implode(',', $order).', ', $sql);
-		else
-			// if not, just append the order
-			$sql.= ' ORDER BY '.implode(', ', $order);
-	} 
+	$my_order = false;
+	if (!empty($_GET['dir']))
+		if ($_GET['dir'] == 'asc') $my_order = ' ASC';
+		elseif ($_GET['dir'] == 'desc') $my_order = ' DESC';
+	foreach ($fields as $field) {
+		if (!empty($_GET['order'])
+			AND ((isset($field['display_field']) && $field['display_field'] == $_GET['order'])
+			OR (isset($field['field_name']) && $field['field_name'] == $_GET['order']))
+		)
+			if (isset($field['order'])) $order[] = $field['order'].$my_order;
+			else $order[] = $_GET['order'].$my_order;
+		if (!empty($_GET['group'])
+			AND ((isset($field['display_field']) && $field['display_field'] == $_GET['group'])
+			OR (isset($field['field_name']) && $field['field_name'] == $_GET['group']))
+		)
+			if (isset($field['order'])) $order[] = $field['order'].$my_order;
+			else $order[] = $_GET['group'].$my_order;
+	}
+	if (!$order) return $sql;
+	if (strstr($sql, 'ORDER BY'))
+		// if there's already an order, put new orders in front of this
+		$sql = str_replace ('ORDER BY', ' ORDER BY '.implode(',', $order).', ', $sql);
+	else
+		// if not, just append the order
+		$sql.= ' ORDER BY '.implode(', ', $order);
 	return $sql;
 }
 
@@ -1659,33 +1703,31 @@ function zz_count_rows($sql, $id_field) {
  */
 function zz_list_th($field) {
 	global $zz_conf;
-	$unsortable_fields = array('calculated', 'image', 'upload_image'); // 'subtable'?
-	$unwanted_keys = array('dir', 'zzaction', 'zzhash');
-	$link_open = '';
-	$link_close = '';
 
+	$out = !empty($field['title_tab']) ? $field['title_tab'] : $field['title'];
+	if (!empty($field['dont_sort'])) return $out;
+	if (!isset($field['field_name'])) return $out;
+	$unsortable_fields = array('calculated', 'image', 'upload_image'); // 'subtable'?
+	if (in_array($field['type'], $unsortable_fields)) return $out;
+	
 	// create a link to order this column if desired
-	if (!in_array($field['type'], $unsortable_fields) && isset($field['field_name'])
-		AND empty($field['dont_sort'])) { 
-		if (isset($field['display_field'])) $order_val = $field['display_field'];
-		else $order_val = $field['field_name'];
-		$new_keys = array('order' => $order_val);
-		$uri = $zz_conf['int']['url']['self'].zz_edit_query_string($zz_conf['int']['url']['qs']	
-			.$zz_conf['int']['url']['qs_zzform'], $unwanted_keys, $new_keys);
-		$order_dir = 'asc';
-		if (str_replace('&amp;', '&', $uri) == $_SERVER['REQUEST_URI']) {
-			$uri.= '&amp;dir=desc';
-			$order_dir = 'desc';
-		}
-		$link_open = '<a href="'.$uri.'" title="'.zz_text('order by').' '
-			.strip_tags($field['title']).' ('.zz_text($order_dir).')">';
-		$link_close = '</a>';
+	if (isset($field['display_field'])) $order_val = $field['display_field'];
+	else $order_val = $field['field_name'];
+	$unwanted_keys = array('dir', 'zzaction', 'zzhash');
+	$new_keys = array('order' => $order_val);
+	$uri = $zz_conf['int']['url']['self'].zz_edit_query_string($zz_conf['int']['url']['qs']	
+		.$zz_conf['int']['url']['qs_zzform'], $unwanted_keys, $new_keys);
+	$order_dir = 'asc';
+	if (str_replace('&amp;', '&', $uri) == $_SERVER['REQUEST_URI']) {
+		$uri.= '&amp;dir=desc';
+		$order_dir = 'desc';
 	}
+	$link_open = '<a href="'.$uri.'" title="'.zz_text('order by').' '
+		.strip_tags($field['title']).' ('.zz_text($order_dir).')">';
+	$link_close = '</a>';
 
 	// HTML output
-	$out = $link_open
-		.(!empty($field['title_tab']) ? $field['title_tab'] : $field['title'])
-		.$link_close;
+	$out = $link_open.$out.$link_close;
 	return $out;
 }
 
