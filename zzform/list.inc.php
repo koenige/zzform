@@ -332,6 +332,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		$ids = array();
 		//$group_hierarchy = false; // see below, hierarchical grouping
 		$lastline = false;
+		$subselect_init = array();
 	
 		foreach ($lines as $index => $line) {
 			// put lines in new array, rows.
@@ -384,7 +385,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			}
 
 			foreach ($table_query[$tq_index] as $fieldindex => $field) {
-				$subselect_init = false;
+				$subselect_index = $fieldindex;
 				if ($zz_conf['modules']['debug']) zz_debug("table_query foreach ".$fieldindex);
 				// conditions
 				if (!empty($zz_conf['modules']['conditions'])) {
@@ -503,7 +504,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				case 'subtable':
 					if (!empty($field['subselect']['sql'])) {
 						// fill array subselects, just in row 0, will always be the same!
-						if (!$subselect_init) {
+						if (empty($subselect_init[$subselect_index])) {
 							$foreign_key_field = array();
 							$translation_key_field = array();
 							foreach ($field['fields'] as $subfield) {
@@ -534,7 +535,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 							$field['subselect']['id_fieldname'] = $id_fieldname;
 							$field['subselect']['fieldindex'] = $fieldindex;
 							$subselects[] = $field['subselect'];
-							$subselect_init = true;
+							$subselect_init[$subselect_index] = true;
 						}
 						if (empty($line[$key_fieldname])) {
 							$zz_error[] = array(
@@ -719,9 +720,9 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		if (!empty($subselect['translation_key']))
 			$subselect['sql']  = zz_edit_sql($subselect['sql'], 'WHERE', 
 				'translationfield_id = '.$subselect['translation_key']);
-		$lines = zz_db_fetch($subselect['sql'], array($subselect['id_fieldname'], '_dummy_id_'), 'numeric', false, E_USER_WARNING);
 		// E_USER_WARNING might return message, we do not want to see this message
 		// but in the logs
+		$lines = zz_db_fetch($subselect['sql'], array($subselect['id_fieldname'], '_dummy_id_'), 'numeric', false, E_USER_WARNING);
 		if (!is_array($lines)) $lines = array();
 
 		foreach ($ids as $z_row => $id) {
