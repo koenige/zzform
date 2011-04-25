@@ -658,6 +658,8 @@ function zz_maintenance_logs() {
 		$line = str_replace('=', '=&#8203;', $line);
 		$line = str_replace('%', '&#8203;%', $line);
 		$line = str_replace('-at-', '&#8203;-at-', $line);
+		if (in_array($type, array('zzform', 'zzwrap')))
+			$line = str_replace('<', '&lt;', $line); // no HTML, but maybe mail/links
 		// htmlify links
 		if (strstr($line, 'http:/&#8203;/&#8203;') OR strstr($line, 'https:/&#8203;/&#8203;')) {
 			$line = preg_replace_callback('~(\S+):/&#8203;/&#8203;(\S+)~', 'zz_maintenance_make_url', $line);
