@@ -3773,6 +3773,8 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 	global $zz_error;
 	global $zz_conf;
 
+	// only for 'select'-fields with SQL query (not for enums neither for sets)
+	if (empty($my_rec['fields'][$f]['sql'])) return $my_rec;
 	// check if we have a value
 	// check only for 0, might be problem, but 0 should always be there
 	// if null -> accept it
