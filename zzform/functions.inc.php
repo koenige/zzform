@@ -3773,17 +3773,16 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 	global $zz_error;
 	global $zz_conf;
 
+	// check if we have a value
+	// check only for 0, might be problem, but 0 should always be there
+	// if null -> accept it
+	$field_name = $my_rec['fields'][$f]['field_name'];
+	if (!$my_rec['POST'][$field_name]) return $my_rec;
+
 	// check if we need to check
 	// with zzform_multi(), no form exists, so check always
 	if (!$zz_conf['multi']) {
 		if (empty($_POST['zz_check_select'])) return $my_rec;
-	
-		// check if we have a value
-		// check only for 0, might be problem, but 0 should always be there
-		// if null -> accept it
-		$field_name = $my_rec['fields'][$f]['field_name'];
-		if (!$my_rec['POST'][$field_name]) return $my_rec;
-	
 		$check = false;
 		if (in_array($field_name, $_POST['zz_check_select'])) $check = true;
 		elseif (in_array($long_field_name, $_POST['zz_check_select'])) $check = true;
@@ -3822,7 +3821,7 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 	}
 	$newfields = array_values($newfields);
 
-	$postvalues = explode(' | ', $my_rec['POST'][$my_rec['fields'][$f]['field_name']]);
+	$postvalues = explode(' | ', $my_rec['POST'][$field_name]);
 	$wheresql = '';
 	foreach ($postvalues as $value) {
 		foreach ($newfields as $index => $field) {
@@ -3839,7 +3838,7 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 				// reduces string with dots which come from values which have 
 				// been cut beforehands
 				$value = $short_value[1];
-			if (substr($value, -1) != ' ') 
+			if (substr($value, -1) != ' ' AND !$zz_conf['multi']) 
 				// if there is a space at the end of the string, don't do LIKE with %!
 				$wheresql.= $field.' LIKE "%'.zz_db_escape(trim($value)).'%"'; 
 			else
@@ -3857,8 +3856,8 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 		$my_rec['validation'] = false;
 	} elseif (count($possible_values) == 1) {
 		// exactly one record found, so this is the value we want
-		$my_rec['POST'][$my_rec['fields'][$f]['field_name']] = current($possible_values);
-		$my_rec['POST-notvalid'][$my_rec['fields'][$f]['field_name']] = current($possible_values);
+		$my_rec['POST'][$field_name] = current($possible_values);
+		$my_rec['POST-notvalid'][$field_name] = current($possible_values);
 		$my_rec['fields'][$f]['sql'] = $sql; // if other fields contain errors
 	} elseif (count($possible_values) <= $max_select) {
 		// let user reselect value from dropdown select
