@@ -1026,13 +1026,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			break;
 		case 'select':
 			//	check select /// workwork
-			if (isset($_POST['zz_check_select']) 
-				&& (in_array($field_name, $_POST['zz_check_select']) 
-					OR (in_array($table_name.'['.$rec.']['.$field_name.']', $_POST['zz_check_select'])))
-					// check only for 0, might be problem, but 0 should always be there
-				&& $my_rec['POST'][$field_name]) { // if null -> accept it
-				$my_rec = zz_check_select($my_rec, $f, $zz_conf['max_select']);
-			}
+			$my_rec = zz_check_select($my_rec, $f, $zz_conf['max_select'], $table_name.'['.$rec.']['.$field_name.']');
 			//	check for correct enum values
 			if (!$my_rec['POST'][$field_name]) break;
 			if (isset($my_rec['fields'][$f]['enum'])) {

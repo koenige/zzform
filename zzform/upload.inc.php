@@ -820,19 +820,20 @@ function zz_upload_prepare($zz_tab) {
 		$tab = $uf['tab'];
 		$rec = $uf['rec'];
 		$no = $uf['f'];
-		foreach ($zz_tab[$tab][$rec]['fields'][$no]['image'] as $img => $val) {
+		$my_rec = &$zz_tab[$tab][$rec];
+		foreach ($my_rec['fields'][$no]['image'] as $img => $val) {
 			if ($zz_conf['modules']['debug']) {
 				zz_debug('preparing ['.$tab.']['.$rec.'] - '.$img);
 			}
-			if (empty($zz_tab[$tab][$rec]['images'][$no][$img])) continue;
+			if (empty($my_rec['images'][$no][$img])) continue;
 
 			// reference on image data
-			$image = $zz_tab[$tab][$rec]['images'][$no][$img];
+			$image = $my_rec['images'][$no][$img];
 			if (!empty($image['unsupported_filetype'])) continue;
-			$image = zz_upload_merge_options($image, $zz_tab[$tab][$rec]);
+			$image = zz_upload_merge_options($image, $my_rec);
 
 			if (!empty($image['ignore'])) {
-				$zz_tab[$tab][$rec]['images'][$no][$img] = $image;
+				$my_rec['images'][$no][$img] = $image;
 				continue; // ignore image
 			}
 
@@ -851,7 +852,7 @@ function zz_upload_prepare($zz_tab) {
 				if ($zz_conf['modules']['debug']) zz_debug('source: '.$image['source']);
 
 				if (!$src_image) // might come from zz_upload_get_source_field()
-					$src_image = $zz_tab[$tab][$rec]['images'][$no][$image['source']];
+					$src_image = $my_rec['images'][$no][$image['source']];
 				if (!empty($src_image['unsupported_filetype'])) continue;
 				if (!empty($image['use_modified_source'])) {
 					// get filename from modified source, false if there was an error
@@ -877,21 +878,18 @@ function zz_upload_prepare($zz_tab) {
 				// test, whether it is an ID field with ... or not
 				unset($field_index);
 				// convert string in ID, if it's a checkselect
-				foreach ($zz_tab[$tab][$rec]['fields'] as $index => $field) {
+				foreach ($my_rec['fields'] as $index => $field) {
 					if ($field['field_name'] == $image['source_file']
-						AND $zz_tab[$tab][$rec]['POST'][$image['source_file']]) {
+						AND $my_rec['POST'][$image['source_file']]) {
 						$field_index = $index;
 					} 
 				}
-				if (isset($field_index)) { 
-					if (isset($_POST['zz_check_select']) 
-						&& $zz_tab[$tab][$rec]['fields'][$field_index]['type'] == 'select' 
-						&& (in_array($zz_tab[$tab][$rec]['fields'][$field_index]['field_name'], $_POST['zz_check_select']) 
-							OR (in_array($zz_tab[$tab]['table'].'['.$rec.']['.$zz_tab[$tab][$rec]['fields'][$field_index]['field_name'].']', $_POST['zz_check_select']))) // check only for 0, might be problem, but 0 should always be there
-						&& $zz_tab[$tab][$rec]['POST'][$zz_tab[$tab][$rec]['fields'][$field_index]['field_name']]) { // if null -> accept it
-						$zz_tab[$tab][$rec] = zz_check_select($zz_tab[$tab][$rec], $field_index, $zz_conf['max_select']);
+				if (isset($field_index)) {
+					if ($my_rec['fields'][$field_index]['type'] == 'select') {
+						$my_rec = zz_check_select($my_rec, $field_index, $zz_conf['max_select'], 
+							$zz_tab[$tab]['table'].'['.$rec.']['.$my_rec['fields'][$field_index]['field_name'].']');
 					}
-					$sql = $image['source_path_sql'].$zz_tab[$tab][$rec]['POST'][$image['source_file']];
+					$sql = $image['source_path_sql'].$my_rec['POST'][$image['source_file']];
 					if (!empty($image['update_from_source_field_name']) AND !empty($image['update_from_source_value'])
 						AND !empty($zz_tab[$tab]['existing'][$rec][$image['update_from_source_value']])) {
 						$sql = zz_edit_sql($sql, 'WHERE', $image['update_from_source_field_name'].' != "'.$zz_tab[$tab]['existing'][$rec][$image['update_from_source_value']].'"');
@@ -931,7 +929,7 @@ function zz_upload_prepare($zz_tab) {
 					// image operations only for images
 					// create temporary file, so that original file remains the same for further actions
 					$tmp_filename = tempnam(realpath($zz_conf['tmp_dir']), "UPLOAD_");
-					$dest_extension = zz_upload_extension($image['path'], $zz_tab[$tab][$rec]);
+					$dest_extension = zz_upload_extension($image['path'], $my_rec);
 					if (!$dest_extension) {
 						$dest_extension = $image['upload']['ext'];
 						// map files to extensions, e. g. TIFF to PNG
@@ -945,7 +943,7 @@ function zz_upload_prepare($zz_tab) {
 						if (filesize($tmp_filename) > 3) {
 							$filename = $tmp_filename;
 							$all_temp_filenames[] = $tmp_filename;
-							$zz_tab[$tab][$rec]['file_upload'] = true;
+							$my_rec['file_upload'] = true;
 							$image['modified'] = array();
 							$image['modified']['tmp_name'] = $tmp_filename;
 							$image['modified'] = zz_upload_fileinfo($image['modified'], $dest_extension);
@@ -955,7 +953,7 @@ function zz_upload_prepare($zz_tab) {
 							$filename = false; // do not upload anything
 							// TODO: mark existing image for deletion if there is one!							
 							$image['delete_thumbnail'] = true;
-							$zz_tab[$tab][$rec]['no_file_upload'] = true;
+							$my_rec['no_file_upload'] = true;
 							if (!$zz_conf['int']['no_image_action'])
 								$zz_error[] = array(
 									'msg_dev' => sprintf(zz_text('No real file was returned from function %s'), '<code>'.$image['action'].'()</code>'),
@@ -979,14 +977,14 @@ function zz_upload_prepare($zz_tab) {
 					);
 				}
 				$image['files']['tmp_files'][$img] = $filename;
-				if (!empty($zz_tab[$tab][$rec]['images'][$no]['all_temp']))
-					$zz_tab[$tab][$rec]['images'][$no]['all_temp'] = array_merge($zz_tab[$tab][$rec]['images'][$no]['all_temp'], $all_temp_filenames);
+				if (!empty($my_rec['images'][$no]['all_temp']))
+					$my_rec['images'][$no]['all_temp'] = array_merge($my_rec['images'][$no]['all_temp'], $all_temp_filenames);
 				else
-					$zz_tab[$tab][$rec]['images'][$no]['all_temp'] = $all_temp_filenames; // for later cleanup of leftover tmp files
+					$my_rec['images'][$no]['all_temp'] = $all_temp_filenames; // for later cleanup of leftover tmp files
 				$all_temp_filenames = array();
 			}
 			// write $image back to $zz_tab
-			$zz_tab[$tab][$rec]['images'][$no][$img] = $image;
+			$my_rec['images'][$no][$img] = $image;
 		}
 	}
 	// return true or false

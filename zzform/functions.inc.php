@@ -3762,16 +3762,35 @@ function zz_identifier_vars_db($sql, $id, $fieldname = false) {
  * @param int $f Key of current field
  * @param int $max_select = e. g. $zz_conf['max_select'], maximum entries in
  *		option-Field before we offer a blank text field to enter values
+ * @param string $long_field_name // $table_name.'['.$rec.']['.$field_name.']'
  * @global array $zz_error
  * @global array $zz_conf
  * @return array $my_rec changed keys:
  *		'fields'[$f], 'POST', 'POST-notvalid', 'validation'
  * @author Gustaf Mossakowski, <gustaf@koenige.org>
  */
-function zz_check_select($my_rec, $f, $max_select) {
+function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 	global $zz_error;
 	global $zz_conf;
+
+	// check if we need to check
+	// with zzform_multi(), no form exists, so check always
+	if (!$zz_conf['multi']) {
+		if (empty($_POST['zz_check_select'])) return $my_rec;
+	
+		// check if we have a value
+		// check only for 0, might be problem, but 0 should always be there
+		// if null -> accept it
+		$field_name = $my_rec['fields'][$f]['field_name'];
+		if (!$my_rec['POST'][$field_name]) return $my_rec;
+	
+		$check = false;
+		if (in_array($field_name, $_POST['zz_check_select'])) $check = true;
+		elseif (in_array($long_field_name, $_POST['zz_check_select'])) $check = true;
+		if (!$check) return $my_rec;
+	}
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	
 	$sql = $my_rec['fields'][$f]['sql'];
 	// preg_match, case insensitive, space after select, space around from 
 	// - might not be 100% perfect, but should work always
