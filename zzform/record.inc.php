@@ -964,7 +964,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 				if ($my_rec['record']) {
 					// format in case it's not editable and won't be saved in db
 					if ($row_display != 'form' AND isset($field['format']))
-						$memotext = $field['format']($memotext);
+						$memotext = $field['format'](htmlspecialchars($memotext));
 					else
 						$memotext = htmlspecialchars($memotext);
 					$outputf.= $memotext;
