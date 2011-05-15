@@ -143,7 +143,8 @@ function zz_get_url_self($url_self) {
 	$url['qs'] = ''; // no base query string which belongs url_self
 	$url['scheme'] = ((isset($_SERVER['HTTPS']) AND $_SERVER['HTTPS'] == "on") 
 		? 'https' : 'http');
-	$url['base'] = $url['scheme'].'://'.$_SERVER['SERVER_NAME'];
+	$host = $_SERVER['HTTP_HOST'] ? htmlspecialchars($_SERVER['HTTP_HOST']) : $_SERVER['SERVER_NAME'];
+	$url['base'] = $url['scheme'].'://'.$host;
 
 	// get own URI
 	$my_uri = parse_url($url['base'].$_SERVER['REQUEST_URI']);
