@@ -677,10 +677,35 @@ function zzform_exit($ops) {
 	// HTML head
 	$ops['meta'] = zz_meta_tags();
 
+	// check if request is valid
+	$zz_conf['valid_request'] = zz_valid_request();
+
 	// get rid of internal variables
 	unset($zz_conf['int']);
 
 	return $ops;
+}
+
+/**
+ * checks if request is valid while accessing a restricted table
+ *
+ * @param mixed $action check if this action is matching
+ * @global array $zz_conf ($zz_conf['int']['secret_key'])
+ * @return bool 
+ *		true: request is valid
+ *		false: request is invalid (or no restriction is in place)
+ */
+function zz_valid_request($action = false) {
+	if (empty($_GET['zzaction'])) return false;
+	if ($action) {
+		if (!is_array($action)) $action = array($action);
+		if (!in_array($_GET['zzaction'], $action)) return false;
+	}
+	if (empty($_GET['zzhash'])) return false;
+	
+	global $zz_conf;
+	if ($_GET['zzhash'] !== $zz_conf['int']['secret_key']) return false;
+	return true;
 }
 
 /**
