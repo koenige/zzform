@@ -499,6 +499,7 @@ function zzform($zz = array()) {
 						$zz_conf['redirect'][$ops['result']] = $zz_conf['int']['url']['base']
 							.$zz_conf['redirect'][$ops['result']];
 					}
+					zz_http_status_header(303);
 					header('Location: '.$zz_conf['redirect'][$ops['result']]);
 					exit;
 				} elseif (!$zz_conf['debug'] AND $zz_conf['redirect_on_change']) {
@@ -514,15 +515,19 @@ function zzform($zz = array()) {
 					}
 					switch ($ops['result']) {
 					case 'successful_delete':
+						zz_http_status_header(303);
 						header('Location: '.$self.'delete');
 						exit;
 					case 'successful_insert':
+						zz_http_status_header(303);
 						header('Location: '.$self.'insert&id='.$zz_var['id']['value'].$secure);
 						exit;
 					case 'successful_update':
+						zz_http_status_header(303);
 						header('Location: '.$self.'update&id='.$zz_var['id']['value'].$secure);
 						exit;
 					case 'no_update':
+						zz_http_status_header(303);
 						header('Location: '.$self.'noupdate&id='.$zz_var['id']['value'].$secure);
 						exit;
 					default:

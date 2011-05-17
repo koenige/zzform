@@ -2929,6 +2929,49 @@ function zz_text($string) {
  * --------------------------------------------------------------------
  */
 
+/**
+ * sends a HTTP status header corresponding to server settings and HTTP version
+ *
+ * @param int $code
+ * @return bool true if header was sent, false if not
+ * @see wrap_http_status_header() (duplicate function)
+ */
+function zz_http_status_header($code) {
+	// Set protocol
+	$protocol = $_SERVER['SERVER_PROTOCOL'];
+	if (!$protocol) $protocol = 'HTTP/1.0'; // default value
+	if (substr(php_sapi_name(), 0, 3) == 'cgi') $protocol = 'Status:';
+	
+	switch ($code) {
+	case '301':
+		header($protocol." 301 Moved Permanently");
+		return true;
+	case '302':
+		if ($protocol == 'HTTP/1.0')
+			header($protocol." 302 Moved Temporarily");
+		else
+			header($protocol." 302 Found");
+		return true;
+	case '303':
+		if ($protocol == 'HTTP/1.0')
+			header($protocol." 302 Moved Temporarily");
+		else
+			header($protocol." 303 See Other");
+		return true;
+	case '304':
+		header($protocol." 304 Not Modified");
+		return true;
+	case '307':
+		if ($protocol == 'HTTP/1.0')
+			header($protocol." 302 Moved Temporarily");
+		else
+			header($protocol." 307 Temporary Redirect");
+		return true;
+	}
+	return false;
+}
+
+
 function zz_form_heading($string) {
 	$string = str_replace('_', ' ', $string);
 	$string = ucfirst($string);
