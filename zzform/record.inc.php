@@ -1584,9 +1584,11 @@ function zz_form_select_sql($field, $db_table, $record, $row_display, $zz_conf_r
 			
 			foreach ($details as $id => $fields) {
 				array_shift($fields); // get rid of ID, is already in $id
-				if (!empty($field['sql_ignore'])) foreach (array_keys($fields) as $key) {
-					if (!in_array($key, $field['sql_ignore'])) continue;
-					unset($fields[$key]);
+				if (!empty($field['sql_ignore'])) {
+					if (!is_array($field['sql_ignore']))
+						$field['sql_ignore'] = array($field['sql_ignore']);
+					if ($keys = array_intersect(array_keys($fields), $field['sql_ignore']))
+						foreach ($keys as $key) unset($fields[$key]);
 				}
 				if ($row_display == 'form') {
 					$myi++;
@@ -1919,6 +1921,7 @@ function zz_draw_select($line, $id_field_name, $record, $field, $zz_conf_record,
 	$form = false, $level = 0, $hierarchy = false, $parent_field_name = false) {
 	// initialize variables
 	if (!isset($field['sql_ignore'])) $field['sql_ignore'] = array();
+	elseif (!is_array($field['sql_ignore'])) $field['sql_ignore'] = array($field['sql_ignore']);
 	$output = '';
 	$i = 1;
 	$details = array();
