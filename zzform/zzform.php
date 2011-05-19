@@ -873,6 +873,8 @@ function zz_initialize($mode = false) {
 		$zz_conf['int']['this_limit'] = $zz_conf['limit'];
 	if (isset($_GET['limit']) && is_numeric($_GET['limit']))	
 		$zz_conf['int']['this_limit'] = (int) $_GET['limit'];
+	if ($zz_conf['int']['this_limit'] AND $zz_conf['int']['this_limit'] < $zz_conf['limit'])
+		$zz_conf['int']['this_limit'] = $zz_conf['limit'];
 	
 	// don't show list in case 'nolist' parameter is set
 	if (isset($_GET['nolist'])) $zz_conf['show_list'] = false;
