@@ -1685,7 +1685,8 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
  * Creates link or HTML img from path
  * 
  * @param array $path
- *		'root', 'webroot', 'field1...fieldn', 'string1...stringn', 'mode1...n'
+ *		'root', 'webroot', 'field1...fieldn', 'string1...stringn', 'mode1...n',
+ *		'ignore_record' will cause record to be ignored
  * @param array $record current record
  * @param string $type (optional) link or image, image will be returned in
  *		<img src="" alt="">
@@ -1693,7 +1694,7 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_makelink($path, $record, $type = 'link') {
-	if (!$record) return false;
+	if (empty($path['ignore_record']) AND !$record) return false;
 	if (!$path) return false;
 
 	$url = '';
