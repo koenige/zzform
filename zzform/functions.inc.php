@@ -2908,6 +2908,8 @@ function zz_text($string) {
 	}
 
 	if (!isset($text[$string])) {
+		if (function_exists('wrap_text'))
+			return wrap_text($string);
 		// write missing translation to somewhere.
 		// TODO: check logfile for duplicates
 		// TODO: optional log directly in database
