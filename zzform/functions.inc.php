@@ -2887,10 +2887,12 @@ function zz_text($string) {
 		// text in other languages
 		if (isset($zz_conf['language']) && $zz_conf['language'] != 'en') {
 			$langfile = $zz_conf['dir_inc'].'/text-'.$zz_conf['language'].'.inc.php';
-			if (file_exists($langfile)) include $langfile;
-			else {
+			if (file_exists($langfile)) {
+				include $langfile;
+			} else {
+				// no zz_text() here, or script will recurse indefinitely!
 				$zz_error[] = array(
-					'msg_dev' => sprintf(zz_text('No language file for "%s" found. Using English instead.'), 
+					'msg_dev' => sprintf('No language file for "%s" found. Using English instead.', 
 						'<strong>'.$zz_conf['language'].'</strong>'),
 					'level' => E_USER_NOTICE
 				);
