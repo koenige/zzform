@@ -1736,6 +1736,7 @@ function zz_form_select_set($field, $row_display, $record = false) {
 	foreach ($field['set'] as $key => $set) {
 		$myi++;
 		$myid = 'check-'.$field['field_name'].'-'.$myi;
+		$set_display = !empty($field['set_title'][$key]) ? $field['set_title'][$key] : $set;
 		if ($row_display == 'form') {
 			$output.= ' <label for="'.$myid.'"><input type="checkbox" id="'
 				.$myid.'" name="'.$field['f_field_name'].'[]" value="'.$set.'"';
@@ -1765,21 +1766,23 @@ function zz_form_select_set($field, $row_display, $record = false) {
 				AND in_array($set, $field['disabled_ids'])) {
 				$output.= ' disabled="disabled"';
 			}
-			$output.= '>&nbsp;'.(!empty($field['set_title'][$key]) 
-				? $field['set_title'][$key] : $set).'</label>';
+			$output.= '>&nbsp;'.$set_display.'</label>';
 			if (count($field['set']) >= 4 OR !empty($field['show_values_as_list']))
 				$output.= '<br>';
 		} else {
 			if (in_array($set, explode(',', $record[$field['field_name']]))
 				AND empty($field['set_show_all_values'])) {
-				$myvalue[] = $set;
+				$myvalue[] = $set_display;
 			}
 		}
 	}
 	if ($row_display != 'form' AND !empty($field['set_show_all_values'])) {
+		// TODO: use set_title!
 		$myvalue = explode(',', $record[$field['field_name']]);
 	}
-	$output .= implode(' | ', $myvalue);
+	if ($myvalue) {
+		$output .= implode(' | ', $myvalue);
+	}
 	return $output;
 }
 
