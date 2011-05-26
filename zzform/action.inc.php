@@ -274,7 +274,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 						$post = $zz_tab[$tab][$rec]['POST'][$field['field_name']];
 						if ($field['type'] == 'select' AND !empty($field['set'])) {
 							// to compare it, make array into string
-							$post = implode(',', $post);
+							if (is_array($post)) $post = implode(',', $post);
 						}
 						if ($post != $zz_tab[$tab]['existing'][$rec][$field['field_name']]) {
 							$equal = false; // we have to sent this query
@@ -662,7 +662,8 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 				if (isset($my_rec['POST'][$field_name][0])
 					AND !($my_rec['POST'][$field_name][0]))
 					array_shift($my_rec['POST'][$field_name]);
-				$my_rec['POST_db'][$field_name] = implode(',', $my_rec['POST'][$field_name]);
+				if (is_array($my_rec['POST'][$field_name]))
+					$my_rec['POST_db'][$field_name] = implode(',', $my_rec['POST'][$field_name]);
 			} else
 				$my_rec['POST_db'][$field_name] = '';
 		}
