@@ -1234,17 +1234,20 @@ function zz_limit($limit_step, $this_limit, $total_rows, $scope = 'body') {
 	$links[] = array(
 		'link'	=> zz_limitlink(0, $this_limit, $limit_step, $uri),
 		'text'	=> '|&lt;',
-		'class' => 'first'
+		'class' => 'first',
+		'title' => zz_text('First page')
 	);
 	$links[] = array(
 		'link'	=> zz_limitlink($this_limit-$limit_step, $this_limit, 0, $uri),
 		'text'	=> '&lt;',
-		'class' => 'prev'
+		'class' => 'prev',
+		'title' => 	zz_text('Previous page')
 	);
 	$links[] = array(
 		'link'	=> zz_limitlink(-1, $this_limit, 0, $uri),
 		'text'	=> zz_text('all'),
-		'class' => 'all'
+		'class' => 'all',
+		'title' => 	zz_text('All records on one page')
 	);
 
 	// set links for each step
@@ -1308,12 +1311,14 @@ function zz_limit($limit_step, $this_limit, $total_rows, $scope = 'body') {
 	$links[] = array(
 		'link'	=> zz_limitlink($limit_next, $this_limit, 0, $uri),
 		'text'	=> '&gt;',
-		'class' => 'next'
+		'class' => 'next',
+		'title' => zz_text('Next page')
 	);
 	$links[] = array(
 		'link'	=> zz_limitlink($rec_last, $this_limit, 0, $uri),
 		'text'	=> '&gt;|',
-		'class' => 'last'
+		'class' => 'last',
+		'title' => zz_text('Last page')
 	);
 
 	// output links
@@ -1323,7 +1328,9 @@ function zz_limit($limit_step, $this_limit, $total_rows, $scope = 'body') {
 		// mark current page, but not ellipsis
 		$span = (in_array($link['text'], $no_pages) ? 'span' : 'strong');
 		$output .= '<li'.(!empty($link['class']) ? ' class="'.$link['class'].'"' : '').'>'
-			.($link['link'] ? '<a href="'.$link['link'].'">' : '<'.$span.'>')
+			.($link['link'] ? '<a href="'.$link['link'].'"'
+				.($link['title'] ? '  title="'.$link['title'].'"' : '')
+				.'>' : '<'.$span.'>')
 			.$link['text']
 			.($link['link'] ? '</a>' : '</'.$span.'>').'</li>'."\n";
 	}
