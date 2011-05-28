@@ -75,7 +75,7 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 		$formhead = '<span class="error">'.zz_text('There is no record under this ID:')
 			.' '.htmlspecialchars($zz_tab[0][0]['id']['value']).'</span>';	
 	} elseif (!empty($zz_var['integrity'])) {
-		$formhead = zz_text('warning').'!';
+		$formhead = zz_text('Warning!');
 		$tmp_error_msg = 
 			zz_text('This record could not be deleted because there are details about this record in other records.')
 			.' '.$zz_var['integrity']['text']."\n";
