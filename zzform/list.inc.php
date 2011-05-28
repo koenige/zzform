@@ -1329,7 +1329,7 @@ function zz_limit($limit_step, $this_limit, $total_rows, $scope = 'body') {
 		$span = (in_array($link['text'], $no_pages) ? 'span' : 'strong');
 		$output .= '<li'.(!empty($link['class']) ? ' class="'.$link['class'].'"' : '').'>'
 			.($link['link'] ? '<a href="'.$link['link'].'"'
-				.($link['title'] ? '  title="'.$link['title'].'"' : '')
+				.(!empty($link['title']) ? '  title="'.$link['title'].'"' : '')
 				.'>' : '<'.$span.'>')
 			.$link['text']
 			.($link['link'] ? '</a>' : '</'.$span.'>').'</li>'."\n";
