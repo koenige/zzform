@@ -1014,7 +1014,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 					$my_rec['POST'][$field_name.'_new_2'], $my_sql);
 			} else {
 				$zz_error[] = array(
-					'msg' => zz_text('Please enter your current password and twice your new password.'),
+					'msg' => 'Please enter your current password and twice your new password.',
 					'level' => E_USER_NOTICE
 				);
 			}
@@ -1455,7 +1455,7 @@ function zz_check_password($old, $new1, $new2, $sql) {
 	if (!$old_pwd) return false;
 	if ($zz_conf['password_encryption']($old.$zz_conf['password_salt']) == $old_pwd) {
 		$zz_error[] = array(
-			'msg' => zz_text('Your password has been changed!'),
+			'msg' => 'Your password has been changed!',
 			'level' => E_USER_NOTICE
 		);
 		return $zz_conf['password_encryption']($new1.$zz_conf['password_salt']); // new1 = new2, old = old, everything is ok
