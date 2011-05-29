@@ -2876,6 +2876,10 @@ function zz_text($string) {
 	static $text;				// $text will only be available to this function
 	global $zz_conf;
 
+	$language = isset($zz_conf['language']) ? $zz_conf['language'] : 'en';
+	if (isset($zz_conf['default_language_for'][$language]))
+		$language = $zz_conf['default_language_for'][$language];
+
 	if (empty($zz_conf['int']['text_included'])) {
 		if (!isset($zz_conf['lang_dir'])) {
 			$zz_conf['lang_dir'] = $zz_conf['dir_custom'];
@@ -2886,28 +2890,28 @@ function zz_text($string) {
 			include $langfile; // must not be include_once since $text is cleared beforehands
 
 		// text in other languages
-		if (isset($zz_conf['language']) && $zz_conf['language'] != 'en') {
-			$langfile = $zz_conf['dir_inc'].'/text-'.$zz_conf['language'].'.inc.php';
+		if ($language != 'en') {
+			$langfile = $zz_conf['dir_inc'].'/text-'.$language.'.inc.php';
 			if (file_exists($langfile)) {
 				include $langfile;
 			} else {
 				// no zz_text() here, or script will recurse indefinitely!
 				$zz_error[] = array(
 					'msg_dev' => sprintf('No language file for "%s" found. Using English instead.', 
-						'<strong>'.$zz_conf['language'].'</strong>'),
+						'<strong>'.$language.'</strong>'),
 					'level' => E_USER_NOTICE
 				);
 			}
 			if (!empty($zz_conf['additional_text']) AND file_exists($langfile = $zz_conf['lang_dir']
-				.'/text-'.$zz_conf['language'].'.inc.php')) {
+				.'/text-'.$language.'.inc.php')) {
 				include $langfile; // must not be include_once since $text is cleared beforehands
 			}
 		}
 		// todo: if file exists else lang = en
 		$zz_conf['int']['text_included'] = true;
 	}
-	if (!empty($zz_conf['text'][$zz_conf['language']])) {
-		$text = array_merge($text, $zz_conf['text'][$zz_conf['language']]);
+	if (!empty($zz_conf['text'][$language])) {
+		$text = array_merge($text, $zz_conf['text'][$language]);
 	}
 
 	if (!isset($text[$string])) {
@@ -2918,7 +2922,7 @@ function zz_text($string) {
 		// TODO: optional log directly in database
 		if (!empty($zz_conf['log_missing_text'])) {
 			$log_message = '$text["'.addslashes($string).'"] = "'.$string.'";'."\n";
-			$log_file = sprintf($zz_conf['log_missing_text'], $zz_conf['language']);
+			$log_file = sprintf($zz_conf['log_missing_text'], $language);
 			error_log($log_message, 3, $log_file);
 			chmod($log_file, 0664);
 		}
