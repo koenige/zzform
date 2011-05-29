@@ -1,7 +1,7 @@
 <?php
 
 // zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2005-2010
+// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2005-2011
 // Text and labels in German (de) us-ascii
 
 
@@ -227,7 +227,7 @@ $text['Maximum value for degrees is %s. The value you entered is too big: %s.'] 
 // ----------------------------------------------------------------------------
 
 // Development
-	$text['Script configuration error. No display field set.'] = 'Script configuration error. No display field set.';
+$text['Script configuration error. No display field set.'] = 'Script configuration error. No display field set.';
 $text['Field name'] = 'Feldname'; // introduces field name with wrong values
 $text['no-delete'] = 'Nicht l&ouml;schen'; // from table relations
 $text['Database error. This query has ambiguous values in ID field.'] = 'Datenbankfehler. Diese Abfrage hat kein eindeutiges ID-Feld.';
