@@ -3690,7 +3690,7 @@ function zz_identifier_vars(&$my_rec, $f, $main_post) {
 	$func_vars = false;
 	foreach ($my_rec['fields'][$f]['fields'] as $function => $var) {
 	//	check for substring parameter
-		$var_index = $var; // get full var as index
+		$index = $var; // get full var as index
 		preg_match('/{(.+)}$/', $var, $substr);
 		if ($substr) $var = preg_replace('/{.+}$/', '', $var);
 	//	check whether subtable or not
@@ -3698,50 +3698,51 @@ function zz_identifier_vars(&$my_rec, $f, $main_post) {
 			$vars = explode('.', $var);
 			if (isset($my_rec['POST'][$vars[0]]) && isset($my_rec['POST'][$vars[0]][0][$vars[1]])) {
 				// todo: problem: subrecords are being validated after main record, so we might get invalid results
-				$func_vars[$var_index] = $my_rec['POST'][$vars[0]][0][$vars[1]]; // this might not be correct, because it ignores the table_name
-				foreach ($my_rec['fields'] as $field) {
-					if (empty($field['table']) OR $field['table'] != $vars[0]
-						AND (empty($field['table_name']) OR $field['table_name'] != $vars[0])) continue;
-					foreach ($field['fields'] as $subfield)
+				$func_vars[$index] = $my_rec['POST'][$vars[0]][0][$vars[1]]; // this might not be correct, because it ignores the table_name
+				$field = zz_get_subtable_field($my_rec['fields'], $vars[0]);
+				if ($field) {
+					foreach ($field['fields'] as $subfield) {
 						if (empty($subfield['field_name']) OR $subfield['field_name'] != $vars[1]) continue;
 						if ($subfield['type'] != 'date') continue;
-						$func_vars[$var_index] = datum_int($func_vars[$var]); 
-						$func_vars[$var_index] = str_replace('-00', '', $func_vars[$var]); 
-						$func_vars[$var_index] = str_replace('-00', '', $func_vars[$var]); 
+						$func_vars[$index] = datum_int($func_vars[$index]); 
+						$func_vars[$index] = str_replace('-00', '', $func_vars[$index]); 
+						$func_vars[$index] = str_replace('-00', '', $func_vars[$index]); 
+					}
 				}
 			}
-			if (empty($func_vars[$var_index])) {
+			if (empty($func_vars[$index])) {
 				$field_names = zz_split_fieldname($vars[1]);
-				if ($field_names) foreach ($my_rec['fields'] as $field) {
-					if ((!empty($field['table']) && $field['table'] == $vars[0])
-						OR (!empty($field['table_name']) && $field['table_name'] == $vars[0])) 
+				if ($field_names) {
+					$field = zz_get_subtable_field($my_rec['fields'], $vars[0]);
+					if ($field) {
 						foreach ($field['fields'] as $subfield) {
 							if (empty($subfield['sql'])) continue;
 							if (empty($subfield['field_name'])) continue; // empty: == subtable
 							if (empty($my_rec['POST'][$vars[0]][0][$subfield['field_name']])) continue;
 							if ($subfield['field_name'] == $field_names[0]) {
-								$func_vars[$var_index] = zz_identifier_vars_db($subfield['sql'], 
+								$func_vars[$index] = zz_identifier_vars_db($subfield['sql'], 
 									$my_rec['POST'][$vars[0]][0][$subfield['field_name']], $field_names[1]);
 							}
 						}
+					}
 				}
 			}
 		} else {
 			if (isset($my_rec['POST'][$var]))
-				$func_vars[$var_index] = $my_rec['POST'][$var];
-			if (empty($func_vars[$var_index])) { // could be empty because it's an array
+				$func_vars[$index] = $my_rec['POST'][$var];
+			if (empty($func_vars[$index])) { // could be empty because it's an array
 				$field_names = zz_split_fieldname($var);
 				if (isset($field_names[0]) AND $field_names[0] == '0'
 					AND !empty($main_post[$field_names[1]]) AND !is_array($main_post[$field_names[1]])) {
-					$func_vars[$var_index] = $main_post[$field_names[1]];
-					if (substr($func_vars[$var_index], 0, 1)  == '"' AND substr($func_vars[$var_index], -1) == '"')
-						$func_vars[$var_index] = substr($func_vars[$var_index], 1, -1); // remove " "
+					$func_vars[$index] = $main_post[$field_names[1]];
+					if (substr($func_vars[$index], 0, 1)  == '"' AND substr($func_vars[$index], -1) == '"')
+						$func_vars[$index] = substr($func_vars[$index], 1, -1); // remove " "
 				} else {
 					foreach ($my_rec['fields'] as $field) {
 						if (!empty($field['sql']) && !empty($field['field_name']) // empty: == subtable
 							&& !empty($field_names[0]) && $field['field_name'] == $field_names[0]
 							&& !empty($my_rec['POST'][$field['field_name']])) {
-							$func_vars[$var_index] = zz_identifier_vars_db($field['sql'], 
+							$func_vars[$index] = zz_identifier_vars_db($field['sql'], 
 								$my_rec['POST'][$field['field_name']], $field_names[1]);
 						}
 					}
@@ -3749,8 +3750,8 @@ function zz_identifier_vars(&$my_rec, $f, $main_post) {
 			}
 		}
 		if ($substr)
-			eval ($line ='$func_vars[$var_index] = substr($func_vars[$var_index], '.$substr[1].');');
-		if (function_exists($function)) $func_vars[$var_index] = $function($func_vars[$var_index]);
+			eval ($line ='$func_vars[$index] = substr($func_vars[$index], '.$substr[1].');');
+		if (function_exists($function)) $func_vars[$index] = $function($func_vars[$index]);
 	}
 	return $func_vars;
 }
@@ -3769,6 +3770,22 @@ function zz_split_fieldname($field_name) {
 	preg_match('/^(.+)\[(.+)\]$/', $field_name, $field_names);
 	if (empty($field_names[1]) OR empty($field_names[2])) return false;
 	return array($field_names[1], $field_names[2]);
+}
+
+/**
+ * Returns the field definition for a given subtable from a list of 
+ * field definitions
+ *
+ * @param array $fields field definitions ($zz['fields'] etc.)
+ * @param string $table name of the table
+ * @return mixed false: nothing was found; array $field = definition of subtable
+ */
+function zz_get_subtable_field($fields, $table) {
+	foreach ($fields as $field) {
+		if (!empty($field['table']) AND $field['table'] == $table) return $field;
+		if (!empty($field['table_name']) AND $field['table_name'] == $table) return $field;
+	}
+	return false;
 }
 
 /** 
