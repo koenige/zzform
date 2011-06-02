@@ -3706,7 +3706,7 @@ function zz_identifier_vars(&$my_rec, $f, $main_post) {
 			if (isset($my_rec['POST'][$table]) && isset($my_rec['POST'][$table][0][$field_name])) {
 				// todo: problem: subrecords are being validated after main record, so we might get invalid results
 				$values[$index] = $my_rec['POST'][$table][0][$field_name]; // this might not be correct, because it ignores the table_name
-				$field = zz_get_subtable_field($my_rec['fields'], $table);
+				$field = zz_get_subtable_fielddef($my_rec['fields'], $table);
 				if ($field) {
 					foreach ($field['fields'] as $subfield) {
 						if (empty($subfield['field_name']) OR $subfield['field_name'] != $field_name) continue;
@@ -3720,16 +3720,11 @@ function zz_identifier_vars(&$my_rec, $f, $main_post) {
 			if (!$values[$index]) {
 				$field_names = zz_split_fieldname($field_name);
 				if ($field_names AND !empty($my_rec['POST'][$table][0][$field_names[0]])) {
-					$field = zz_get_subtable_field($my_rec['fields'], $table);
+					$field = zz_get_subtable_fielddef($my_rec['fields'], $table);
 					if ($field) {
-						foreach ($field['fields'] as $subfield) {
-							if (empty($subfield['sql'])) continue;
-							if (empty($subfield['field_name'])) continue; // empty: == subtable
-							if ($subfield['field_name'] == $field_names[0]) {
-								$values[$index] = zz_identifier_vars_db($subfield['sql'], 
-									$my_rec['POST'][$table][0][$subfield['field_name']], $field_names[1]);
-							}
-						}
+						id = $my_rec['POST'][$table][0][$field_names[0]];
+						$sql = zz_get_fielddef($field['fields'], $field_names[0], 'sql');
+						$values[$index] = zz_identifier_vars_db($sql, $id, $field_names[1]);
 					}
 				}
 			}
@@ -3741,14 +3736,10 @@ function zz_identifier_vars(&$my_rec, $f, $main_post) {
 				$values[$index] = $main_post[$field_names[1]];
 				if (substr($values[$index], 0, 1)  == '"' AND substr($values[$index], -1) == '"')
 					$values[$index] = substr($values[$index], 1, -1); // remove " "
-			} elseif (!empty($my_rec['POST'][$field_names[0]])) {
-				foreach ($my_rec['fields'] as $field) {
-					if (!empty($field['sql']) && !empty($field['field_name']) // empty: == subtable
-						&& !empty($field_names[0]) && $field['field_name'] == $field_names[0]) {
-						$values[$index] = zz_identifier_vars_db($field['sql'], 
-							$my_rec['POST'][$field['field_name']], $field_names[1]);
-					}
-				}
+			} elseif (!empty($field_names[0]) AND !empty($my_rec['POST'][$field_names[0]])) {
+				$id = $my_rec['POST'][$field_names[0]];
+				$sql = zz_get_fielddef($my_rec['fields'], $field_names[0], 'sql');
+				$values[$index] = zz_identifier_vars_db($sql, $id, $field_names[1]);
 			}
 		}
 		if ($substr)
@@ -3775,6 +3766,28 @@ function zz_split_fieldname($field_name) {
 }
 
 /**
+ * Returns the field definition for a given field name from a list of 
+ * field definitions, optionally checks if a key exists
+ *
+ * @param array $fields field definitions ($zz['fields'] etc.)
+ * @param string $field_name name of the field
+ * @param string $key (optional); if set, will return field definition
+ *		only if this key exists
+ * @return mixed false: nothing was found; array $field = definition of field
+ *		if $key is set: mixed value of this key
+ */
+function zz_get_fielddef($fields, $field_name, $key = false) {
+	foreach ($fields as $field) {
+		if (empty($field['field_name'])) continue;
+		if ($field['field_name'] != $field_name) continue;
+		if (!$key) return $field;
+		if (!in_array($key, array_keys($field))) return false;
+		return $field[$key];
+	}
+	return false;
+}
+
+/**
  * Returns the field definition for a given subtable from a list of 
  * field definitions
  *
@@ -3782,7 +3795,7 @@ function zz_split_fieldname($field_name) {
  * @param string $table name of the table
  * @return mixed false: nothing was found; array $field = definition of subtable
  */
-function zz_get_subtable_field($fields, $table) {
+function zz_get_subtable_fielddef($fields, $table) {
 	foreach ($fields as $field) {
 		if (!empty($field['table']) AND $field['table'] == $table) return $field;
 		if (!empty($field['table_name']) AND $field['table_name'] == $table) return $field;
