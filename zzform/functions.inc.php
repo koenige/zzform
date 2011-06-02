@@ -3676,6 +3676,9 @@ function zz_identifier_exists($idf, $i, $db_table, $field, $id_field, $id_value,
  * gets all variables for identifier field to use them in zz_identifier()
  *
  * @param array $my_rec = $zz_tab[$tab][$rec]
+ * 		$my_rec['fields'][$f]['fields']:
+ * 		possible syntax: fieldname[sql_fieldname] or tablename.fieldname or fieldname
+ *		index not numeric but string: name of function to call
  * @param int $f = $zz['fields'][n]
  * @param array $main_post POST values of $zz_tab[0][0]['POST']
  * @return array $values
@@ -3685,8 +3688,6 @@ function zz_identifier_exists($idf, $i, $db_table, $field, $id_field, $id_value,
  * 		geht wohl auch nicht)
  */ 
 function zz_identifier_vars($my_rec, $f, $main_post) {
-	// content of ['fields']
-	// possible syntax: fieldname[sql_fieldname] or tablename.fieldname or fieldname
 	$values = array();
 	foreach ($my_rec['fields'][$f]['fields'] as $function => $field_name) {
  		// get full field_name with {}, [] and . as index
@@ -3701,7 +3702,8 @@ function zz_identifier_vars($my_rec, $f, $main_post) {
 
 		if ($substr)
 			eval ($line ='$values[$index] = substr($values[$index], '.$substr[1].');');
-		if (function_exists($function)) $values[$index] = $function($values[$index]);
+		if (function_exists($function))
+			$values[$index] = $function($values[$index]);
 	}
 	return $values;
 }
@@ -3715,53 +3717,64 @@ function zz_identifier_vars($my_rec, $f, $main_post) {
  * @return string $value
  */
 function zz_identifier_var($field_name, $my_rec, $main_post) {
-	$value = '';
-	if (!empty($my_rec['POST'][$field_name])) {
-		// it's just a field name of the main record
+	// 1. it's just a field name of the main record
+	if (!empty($my_rec['POST'][$field_name]))
 		return $my_rec['POST'][$field_name];
-	} elseif (strstr($field_name, '.')) {
-		// it's a field name of a detail record
+
+	// 2. it's a field name of a detail record
+	$field_names = false;
+	if (strstr($field_name, '.')) {
 		list($table, $field_name) = explode('.', $field_name);
-		if (isset($my_rec['POST'][$table]) && isset($my_rec['POST'][$table][0][$field_name])) {
-			// todo: problem: subrecords are being validated after main record, so we might get invalid results
-			$value = $my_rec['POST'][$table][0][$field_name]; // this might not be correct, because it ignores the table_name
+		if (!isset($my_rec['POST'][$table])) return false;
+
+		if (!empty($my_rec['POST'][$table][0][$field_name])) {
+			// this might not be correct, because it ignores the table_name
+			$value = $my_rec['POST'][$table][0][$field_name]; 
+
+			// todo: problem: subrecords are being validated after main record, 
+			// so we might get invalid results
 			$field = zz_get_subtable_fielddef($my_rec['fields'], $table);
 			if ($field) {
-				foreach ($field['fields'] as $subfield) {
-					if (empty($subfield['field_name']) OR $subfield['field_name'] != $field_name) continue;
-					if ($subfield['type'] != 'date') continue;
+				$type = zz_get_fielddef($field['fields'], $field_name, 'type');
+				if ($type == 'date') {
 					$value = datum_int($value); 
 					$value = str_replace('-00', '', $value); 
 					$value = str_replace('-00', '', $value); 
 				}
 			}
+			return $value;
 		}
-		if (!$value) {
-			$field_names = zz_split_fieldname($field_name);
-			if ($field_names AND !empty($my_rec['POST'][$table][0][$field_names[0]])) {
-				$field = zz_get_subtable_fielddef($my_rec['fields'], $table);
-				if ($field) {
-					$id = $my_rec['POST'][$table][0][$field_names[0]];
-					$sql = zz_get_fielddef($field['fields'], $field_names[0], 'sql');
-					$value = zz_identifier_vars_db($sql, $id, $field_names[1]);
-				}
-			}
-		}
-	} else {
-		// it's a field name of a main or a detail record
 		$field_names = zz_split_fieldname($field_name);
-		if (isset($field_names[0]) AND $field_names[0] == '0'
-			AND !empty($main_post[$field_names[1]]) AND !is_array($main_post[$field_names[1]])) {
-			$value = $main_post[$field_names[1]];
-			if (substr($value, 0, 1)  == '"' AND substr($value, -1) == '"')
-				$value = substr($value, 1, -1); // remove " "
-		} elseif (!empty($field_names[0]) AND !empty($my_rec['POST'][$field_names[0]])) {
-			$id = $my_rec['POST'][$field_names[0]];
-			$sql = zz_get_fielddef($my_rec['fields'], $field_names[0], 'sql');
-			$value = zz_identifier_vars_db($sql, $id, $field_names[1]);
-		}
+		if (!$field_names) return false;
+		if (empty($my_rec['POST'][$table][0][$field_names[0]])) return false;
+		
+		$field = zz_get_subtable_fielddef($my_rec['fields'], $table);
+		if (!$field) return false;
+		
+		$id = $my_rec['POST'][$table][0][$field_names[0]];
+		$sql = zz_get_fielddef($field['fields'], $field_names[0], 'sql');
+		return zz_identifier_vars_db($sql, $id, $field_names[1]);
 	}
-	return $value;
+	
+	// 3. it's a field name of a main or a detail record
+	if (!$field_names)
+		$field_names = zz_split_fieldname($field_name);
+	if (!$field_names) return false;
+	
+	if ($field_names[0] == '0') {
+		if (empty($main_post[$field_names[1]])) return false;
+		if (is_array($main_post[$field_names[1]])) return false;
+		$value = $main_post[$field_names[1]];
+		// remove " "
+		if (substr($value, 0, 1)  == '"' AND substr($value, -1) == '"')
+			$value = substr($value, 1, -1);
+		return $value;
+	} 
+	if (empty($my_rec['POST'][$field_names[0]])) return false;
+
+	$id = $my_rec['POST'][$field_names[0]];
+	$sql = zz_get_fielddef($my_rec['fields'], $field_names[0], 'sql');
+	return zz_identifier_vars_db($sql, $id, $field_names[1]);
 }
 
 /**
