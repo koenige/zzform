@@ -3711,17 +3711,17 @@ function zz_identifier_vars(&$my_rec, $f, $main_post) {
 				}
 			}
 			if (empty($func_vars[$var_index])) {
-				preg_match('/^(.+)\[(.+)\]$/', $vars[1], $fieldvar); // split array in variable and key
-				if ($fieldvar) foreach ($my_rec['fields'] as $field) {
+				$field_names = zz_split_fieldname($vars[1]);
+				if ($field_names) foreach ($my_rec['fields'] as $field) {
 					if ((!empty($field['table']) && $field['table'] == $vars[0])
 						OR (!empty($field['table_name']) && $field['table_name'] == $vars[0])) 
 						foreach ($field['fields'] as $subfield) {
 							if (empty($subfield['sql'])) continue;
 							if (empty($subfield['field_name'])) continue; // empty: == subtable
 							if (empty($my_rec['POST'][$vars[0]][0][$subfield['field_name']])) continue;
-							if ($subfield['field_name'] == $fieldvar[1]) {
+							if ($subfield['field_name'] == $field_names[0]) {
 								$func_vars[$var_index] = zz_identifier_vars_db($subfield['sql'], 
-									$my_rec['POST'][$vars[0]][0][$subfield['field_name']], $fieldvar[2]);
+									$my_rec['POST'][$vars[0]][0][$subfield['field_name']], $field_names[1]);
 							}
 						}
 				}
@@ -3730,19 +3730,19 @@ function zz_identifier_vars(&$my_rec, $f, $main_post) {
 			if (isset($my_rec['POST'][$var]))
 				$func_vars[$var_index] = $my_rec['POST'][$var];
 			if (empty($func_vars[$var_index])) { // could be empty because it's an array
-				preg_match('/^(.+)\[(.+)\]$/', $var, $fieldvar); // split array in variable and key
-				if (isset($fieldvar[1]) AND $fieldvar[1] == '0'
-					AND !empty($main_post[$fieldvar[2]]) AND !is_array($main_post[$fieldvar[2]])) {
-					$func_vars[$var_index] = $main_post[$fieldvar[2]];
+				$field_names = zz_split_fieldname($var);
+				if (isset($field_names[0]) AND $field_names[0] == '0'
+					AND !empty($main_post[$field_names[1]]) AND !is_array($main_post[$field_names[1]])) {
+					$func_vars[$var_index] = $main_post[$field_names[1]];
 					if (substr($func_vars[$var_index], 0, 1)  == '"' AND substr($func_vars[$var_index], -1) == '"')
 						$func_vars[$var_index] = substr($func_vars[$var_index], 1, -1); // remove " "
 				} else {
 					foreach ($my_rec['fields'] as $field) {
 						if (!empty($field['sql']) && !empty($field['field_name']) // empty: == subtable
-							&& !empty($fieldvar[1]) && $field['field_name'] == $fieldvar[1]
+							&& !empty($field_names[0]) && $field['field_name'] == $field_names[0]
 							&& !empty($my_rec['POST'][$field['field_name']])) {
 							$func_vars[$var_index] = zz_identifier_vars_db($field['sql'], 
-								$my_rec['POST'][$field['field_name']], $fieldvar[2]);
+								$my_rec['POST'][$field['field_name']], $field_names[1]);
 						}
 					}
 				}
@@ -3753,6 +3753,22 @@ function zz_identifier_vars(&$my_rec, $f, $main_post) {
 		if (function_exists($function)) $func_vars[$var_index] = $function($func_vars[$var_index]);
 	}
 	return $func_vars;
+}
+
+/**
+ * splits a string some_id[some_field] into an array 
+ *
+ * @param string $field_name 'some_id[some_field]'
+ * @return	mixed false: splitting was impossible
+ *			array: (0 => some_id, 1 => some_field);
+ */
+function zz_split_fieldname($field_name) {
+	if (!strstr($field_name, '[')) return false;
+	if (substr($field_name, -1) != ']') return false;
+	// split array in variable and key
+	preg_match('/^(.+)\[(.+)\]$/', $field_name, $field_names);
+	if (empty($field_names[1]) OR empty($field_names[2])) return false;
+	return array($field_names[1], $field_names[2]);
 }
 
 /** 
