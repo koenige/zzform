@@ -3697,16 +3697,19 @@ function zz_identifier_vars(&$my_rec, $f, $main_post) {
 		preg_match('/{(.+)}$/', $field_name, $substr);
 		if ($substr) $field_name = preg_replace('/{.+}$/', '', $field_name);
 
-	//	check whether subtable or not
-		if (strstr($field_name, '.')) { // subtable
-			$vars = explode('.', $field_name);
-			if (isset($my_rec['POST'][$vars[0]]) && isset($my_rec['POST'][$vars[0]][0][$vars[1]])) {
+		if (!empty($my_rec['POST'][$field_name])) {
+			// it's just a field name of the main record
+			$values[$index] = $my_rec['POST'][$field_name];
+		} elseif (strstr($field_name, '.')) {
+			// it's a field name of a detail record
+			list($table, $field_name) = explode('.', $field_name);
+			if (isset($my_rec['POST'][$table]) && isset($my_rec['POST'][$table][0][$field_name])) {
 				// todo: problem: subrecords are being validated after main record, so we might get invalid results
-				$values[$index] = $my_rec['POST'][$vars[0]][0][$vars[1]]; // this might not be correct, because it ignores the table_name
-				$field = zz_get_subtable_field($my_rec['fields'], $vars[0]);
+				$values[$index] = $my_rec['POST'][$table][0][$field_name]; // this might not be correct, because it ignores the table_name
+				$field = zz_get_subtable_field($my_rec['fields'], $table);
 				if ($field) {
 					foreach ($field['fields'] as $subfield) {
-						if (empty($subfield['field_name']) OR $subfield['field_name'] != $vars[1]) continue;
+						if (empty($subfield['field_name']) OR $subfield['field_name'] != $field_name) continue;
 						if ($subfield['type'] != 'date') continue;
 						$values[$index] = datum_int($values[$index]); 
 						$values[$index] = str_replace('-00', '', $values[$index]); 
@@ -3715,36 +3718,33 @@ function zz_identifier_vars(&$my_rec, $f, $main_post) {
 				}
 			}
 			if (!$values[$index]) {
-				$field_names = zz_split_fieldname($vars[1]);
-				if ($field_names) {
-					$field = zz_get_subtable_field($my_rec['fields'], $vars[0]);
+				$field_names = zz_split_fieldname($field_name);
+				if ($field_names AND !empty($my_rec['POST'][$table][0][$field_names[0]])) {
+					$field = zz_get_subtable_field($my_rec['fields'], $table);
 					if ($field) {
 						foreach ($field['fields'] as $subfield) {
 							if (empty($subfield['sql'])) continue;
 							if (empty($subfield['field_name'])) continue; // empty: == subtable
-							if (empty($my_rec['POST'][$vars[0]][0][$subfield['field_name']])) continue;
 							if ($subfield['field_name'] == $field_names[0]) {
 								$values[$index] = zz_identifier_vars_db($subfield['sql'], 
-									$my_rec['POST'][$vars[0]][0][$subfield['field_name']], $field_names[1]);
+									$my_rec['POST'][$table][0][$subfield['field_name']], $field_names[1]);
 							}
 						}
 					}
 				}
 			}
-		} elseif (!empty($my_rec['POST'][$field_name])) {
-			$values[$index] = $my_rec['POST'][$field_name];
 		} else {
+			// it's a field name of a main or a detail record
 			$field_names = zz_split_fieldname($field_name);
 			if (isset($field_names[0]) AND $field_names[0] == '0'
 				AND !empty($main_post[$field_names[1]]) AND !is_array($main_post[$field_names[1]])) {
 				$values[$index] = $main_post[$field_names[1]];
 				if (substr($values[$index], 0, 1)  == '"' AND substr($values[$index], -1) == '"')
 					$values[$index] = substr($values[$index], 1, -1); // remove " "
-			} else {
+			} elseif (!empty($my_rec['POST'][$field_names[0]])) {
 				foreach ($my_rec['fields'] as $field) {
 					if (!empty($field['sql']) && !empty($field['field_name']) // empty: == subtable
-						&& !empty($field_names[0]) && $field['field_name'] == $field_names[0]
-						&& !empty($my_rec['POST'][$field['field_name']])) {
+						&& !empty($field_names[0]) && $field['field_name'] == $field_names[0]) {
 						$values[$index] = zz_identifier_vars_db($field['sql'], 
 							$my_rec['POST'][$field['field_name']], $field_names[1]);
 					}
