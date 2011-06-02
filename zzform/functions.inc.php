@@ -3741,7 +3741,7 @@ function zz_identifier_var($field_name, $my_rec, $main_post) {
 			if ($field_names AND !empty($my_rec['POST'][$table][0][$field_names[0]])) {
 				$field = zz_get_subtable_fielddef($my_rec['fields'], $table);
 				if ($field) {
-					id = $my_rec['POST'][$table][0][$field_names[0]];
+					$id = $my_rec['POST'][$table][0][$field_names[0]];
 					$sql = zz_get_fielddef($field['fields'], $field_names[0], 'sql');
 					$value = zz_identifier_vars_db($sql, $id, $field_names[1]);
 				}
