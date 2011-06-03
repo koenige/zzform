@@ -3614,28 +3614,8 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 		}
 	}
 	if (empty($idf_arr)) return false;
-	$idf = '';
-	if (!is_array($conf['concat'])) {
-		$idf = implode($conf['concat'], $idf_arr);
-	} else { // idf 0 con 0 idf 1 con 1 idf 2 con 1 ...
-		$last_concat = array_pop($conf['concat']);
-		foreach ($idf_arr as $key => $value) {
-			if ($idf) {
-				if ($key == count($idf_arr)-1) {
-					// last one
-					$idf .= $last_concat;
-				} else {
-					// normal order, take actual last one if no other is left
-					// add concat separator 0, 1, ...
-					if (!empty($conf['concat'][$key-1]))
-						$idf .= $conf['concat'][$key-1];
-					else
-						$idf .= $conf['concat'][count($conf['concat'])-1];
-				}
-			}
-			$idf .= $value;
-		}
-	}		
+
+	$idf = zz_identifier_concat($idf_arr, $conf['concat']);
 	if (!empty($conf['prefix'])) $idf = $conf['prefix'].$idf;
 	// start value, if idf already exists
 	$i = (!empty($conf['start']) ? $conf['start'] : 2);
@@ -3656,6 +3636,38 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 		$idf = zz_identifier_exists($idf, $i, $db_table, $my_rec['fields'][$field]['field_name'], 
 			$my_rec['id']['field_name'], $my_rec['POST'][$my_rec['id']['field_name']], 
 			$conf, $my_rec['fields'][$field]['maxlength']);
+	}
+	return $idf;
+}
+
+/**
+ * concatenates values for identifiers
+ *
+ * @param array $data values to concatencate
+ * @param mixed $concat (string or array)
+ * @return string
+ */
+function zz_identifier_concat($data, $concat) {
+	if (!is_array($concat)) return implode($concat, $data);
+	
+	// idf 0 con 0 idf 1 con 1 idf 2 con 1 ...
+	$idf = '';
+	$last_concat = array_pop($concat);
+	foreach ($data as $key => $value) {
+		if ($idf) {
+			if ($key > 1 AND $key == count($data)-1) {
+				// last one, but not first one
+				$idf .= $last_concat;
+			} else {
+				// normal order, take actual last one if no other is left
+				// add concat separator 0, 1, ...
+				if (!empty($concat[$key-1]))
+					$idf .= $concat[$key-1];
+				else
+					$idf .= $concat[count($concat)-1];
+			}
+		}
+		$idf .= $value;
 	}
 	return $idf;
 }
