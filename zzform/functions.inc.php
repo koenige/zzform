@@ -139,8 +139,11 @@ function zz_module_fieldcheck($zz, $key, $field_type) {
 function zz_get_url_self($url_self) {
 	// some basic settings
 	$url['self'] = $url_self;
-	$url['?&'] = '?'; // normal situation: there is no query string in the base url, so add query string starting ?
-	$url['qs'] = ''; // no base query string which belongs url_self
+	// normal situation: there is no query string in the base url, 
+	// so add query string starting ?
+	$url['?&'] = '?';
+	// no base query string which belongs url_self
+	$url['qs'] = '';
 	$url['scheme'] = ((isset($_SERVER['HTTPS']) AND $_SERVER['HTTPS'] == "on") 
 		? 'https' : 'http');
 	$host = $_SERVER['HTTP_HOST'] ? htmlspecialchars($_SERVER['HTTP_HOST']) : $_SERVER['SERVER_NAME'];
@@ -169,7 +172,8 @@ function zz_get_url_self($url_self) {
 		$url['full'] = $url['self'];
 	}
 	if (!empty($base_uri['query'])) {
-		$url['qs'] = '?'.$base_uri['query']; // no base query string which belongs url_self
+		// no base query string which belongs url_self
+		$url['qs'] = '?'.$base_uri['query'];
 		$url['?&'] = '&amp;';
 	}
 	if (!empty($my_uri['query']) AND !empty($base_uri['query'])) {
@@ -1090,7 +1094,8 @@ function zz_get_subrecords_mode($my_tab, $rec_tpl, $zz_var, $existing_ids) {
 	// function will be run twice from zzform(), therefore be careful, programmer!
 
 	for ($rec = 0; $rec < $my_tab['records']; $rec++) {
-		// do not change other values if they are already there (important for error messages etc.)
+		// do not change other values if they are already there 
+		// (important for error messages etc.)
 		$continue_fast = (isset($my_tab[$rec]) ? true: false);
 		if (!$continue_fast) // reset fields only if necessary
 			$my_tab[$rec] = $rec_tpl;
@@ -2765,8 +2770,8 @@ function zz_error() {
 	case 'mail':	
 		if (!$zz_conf['error_mail_to']) break;
 		if (!count($mail_output)) break;
-		$mailtext = implode("\n\n", $mail_output);
-		$mailtext = sprintf(zz_text('The following error(s) occured in project %s:'), $zz_conf['project'])."\n\n".$mailtext;
+		$mailtext = sprintf(zz_text('The following error(s) occured in project %s:'), $zz_conf['project'])."\n\n";
+		$mailtext .= implode("\n\n", $mail_output);
 		$mailtext = html_entity_decode($mailtext, ENT_QUOTES, $log_encoding);		
 		$mailtext .= "\n\n-- \nURL: ".$zz_conf['int']['url']['base']
 			.$_SERVER['REQUEST_URI']
@@ -2793,7 +2798,9 @@ From: '.$from);
 		break;
 	}
 
-	$zz_error = array(); // Went through all errors, so we do not need them anymore
+	// Went through all errors, so we do not need them anymore
+	$zz_error = array();
+	
 	$zz_error['error'] = ($return == 'exit') ? true : false;
 	$zz_error['output'] = array_merge($output, $user_output);
 
@@ -2836,7 +2843,8 @@ function zz_create_topfolders($my_dir) {
 		$my_dir = str_replace('//', '/', $my_dir);
 	if (substr($my_dir, -1) == '/')	//	removes / from the end
 		$my_dir = substr($my_dir, 0, -1);
-	if (!file_exists($my_dir)) { //	if dir does not exist, do a recursive check/makedir on parent director[y|ies]
+	//	if dir does not exist, do a recursive check/makedir on parent director[y|ies]
+	if (!file_exists($my_dir)) { 
 		$upper_dir = substr($my_dir, 0, strrpos($my_dir, '/'));
 		$success = zz_create_topfolders($upper_dir);
 		if ($success) {
@@ -3380,6 +3388,7 @@ function zz_nice_selection($zz_fields) {
  */
 function zz_querystring_to_hidden($query_string, $unwanted_keys = array(), $level = 0) {
 	$output = '';
+	$html_template = '<input type="hidden" name="%s" value="%s">'."\n";
 	// parse_str just for first call of this function, not for recursive calls
 	if (!$level) parse_str($query_string, $qp);
 	$qp = zz_print_multiarray($qp);
@@ -3389,7 +3398,7 @@ function zz_querystring_to_hidden($query_string, $unwanted_keys = array(), $leve
 		else
 			$top_key = $line['key'];
 		if (in_array($top_key, $unwanted_keys)) continue;
-		$output.= '<input type="hidden" name="'.$line['key'].'" value="'.$line['value'].'">'."\n";
+		$output.= sprintf($html_template, $line['key'], $line['value']);
 	}
 	return $output;
 }
@@ -3406,8 +3415,10 @@ function zz_querystring_to_hidden($query_string, $unwanted_keys = array(), $leve
  */
 function zz_field_class($field, $values, $html = false) {
 	$class = array();
-	if (isset($field['level'])) $class[] = 'level'.$field['level'];
-	if ($field['type'] == 'id' && empty($field['show_id'])) $class[] = 'recordid';
+	if (isset($field['level']))
+		$class[] = 'level'.$field['level'];
+	if ($field['type'] == 'id' && empty($field['show_id']))
+		$class[] = 'recordid';
 	elseif ($field['type'] == 'number' OR $field['type'] == 'calculated')
 		$class[] = 'number';
 	if (!empty($_GET['order'])) 
@@ -3480,14 +3491,15 @@ function zz_print_r($array, $color = false, $caption = 'Variables') {
 		echo 'Variable is empty.<br>';
 		return false;
 	}
-	echo '<table class="zzvariables" style="text-align: left;'.($color ? ' background: '.$color.';' : '').'">';
-	echo '<caption>'.$caption.'</caption>';
+	echo '<table class="zzvariables" style="text-align: left;',
+		($color ? ' background: ', $color, ';' : '').'">',
+		'<caption>', $caption, '</caption>';
 	$vars = zz_print_multiarray($array);
 	foreach ($vars as $var) {
-		echo '<tr><th' // style="padding-left: '
+		echo '<tr><th', // style="padding-left: '
 			//.((substr_count($var['key'], '[')-1)*1)
 			//.'em;"
-			.'>'.$var['key'].'</th><td>'.$var['value'].'</td></tr>'."\n";
+			'>',$var['key'], '</th><td>', $var['value'], '</td></tr>', "\n";
 	}
 	echo '</table>';
 }
@@ -3555,7 +3567,8 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 	if ($my_rec AND $field AND $db_table) {
 		if (in_array($my_rec['fields'][$field]['field_name'], array_keys($vars))) {
 			if ($vars[$my_rec['fields'][$field]['field_name']]) {
-				// do not change anything if there has been a value set once and identifier is in vars array
+				// do not change anything if there has been a value set once and 
+				// identifier is in vars array
 				return $vars[$my_rec['fields'][$field]['field_name']];
 			} else {
 				unset ($vars[$my_rec['fields'][$field]['field_name']]);
@@ -3575,7 +3588,9 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 		$i++;
 		if (!$var) continue;
 		if ((strstr($var, '/') AND $i != count($vars))
-			OR $conf['slashes']) { // last var will be treated normally, other vars may inherit slashes from dir names
+			OR $conf['slashes']) {
+			// last var will be treated normally, other vars may inherit 
+			// slashes from dir names
 			$dir_vars = explode('/', $var);
 			foreach ($dir_vars as $d_var) {
 				if (!$d_var) continue;
@@ -3613,7 +3628,8 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 		}
 	}		
 	if (!empty($conf['prefix'])) $idf = $conf['prefix'].$idf;
-	$i = (!empty($conf['start']) ? $conf['start'] : 2); // start value, if idf already exists
+	// start value, if idf already exists
+	$i = (!empty($conf['start']) ? $conf['start'] : 2);
 	// start always?
 	if (!empty($conf['start_always'])) $idf .= $conf['exists'].$i;
 	else $conf['start_always'] = false;
@@ -3624,7 +3640,8 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 	// ready, last checks
 	if ($my_rec AND $field AND $db_table) {
 		// check length
-		if ($my_rec AND !empty($my_rec['fields'][$field]['maxlength']) && ($my_rec['fields'][$field]['maxlength'] < strlen($idf)))
+		if ($my_rec AND !empty($my_rec['fields'][$field]['maxlength']) 
+			AND ($my_rec['fields'][$field]['maxlength'] < strlen($idf)))
 			$idf = substr($idf, 0, $my_rec['fields'][$field]['maxlength']);
 		// check whether identifier exists
 		$idf = zz_identifier_exists($idf, $i, $db_table, $my_rec['fields'][$field]['field_name'], 
@@ -3652,19 +3669,23 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 function zz_identifier_exists($idf, $i, $db_table, $field, $id_field, $id_value, $conf, $maxlength = false) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	$sql = 'SELECT '.$field.' FROM '.zz_db_table_backticks($db_table).' WHERE '.$field.' = "'.$idf.'"
-		AND '.$id_field.' != '.$id_value.(!empty($conf['where']) ? ' AND '.$conf['where'] : '');
+	$sql = 'SELECT '.$field.' FROM '.zz_db_table_backticks($db_table).'
+		WHERE '.$field.' = "'.$idf.'"
+		AND '.$id_field.' != '.$id_value
+		.(!empty($conf['where']) ? ' AND '.$conf['where'] : '');
 	$records = zz_db_fetch($sql, $field);
 	if ($records) {
 		if ($i > 2 OR $conf['start_always']) {
-			// with start_always, we can be sure, that a generated suffix exists so we can safely remove it. 
+			// with start_always, we can be sure, that a generated suffix exists
+			// so we can safely remove it. 
 			// for other cases, this is only true for $i > 2.
 			$idf = substr($idf, 0, strrpos($idf, $conf['exists']));
 		}
 		$suffix = $conf['exists'].$i;
+		// in case there is a value for maxlength, make sure that resulting
+		// string won't be longer
 		if ($maxlength && strlen($idf.$suffix) > $maxlength) 
 			$idf = substr($idf, 0, ($maxlength-strlen($suffix))); 
-			// in case there is a value for maxlength, make sure that resulting string won't be longer
 		$idf = $idf.$suffix;
 		$i++;
 		$idf = zz_identifier_exists($idf, $i, $db_table, $field, $id_field, $id_value, $conf, $maxlength);
@@ -3825,8 +3846,10 @@ function zz_get_fielddef($fields, $field_name, $key = false) {
  */
 function zz_get_subtable_fielddef($fields, $table) {
 	foreach ($fields as $field) {
-		if (!empty($field['table']) AND $field['table'] == $table) return $field;
-		if (!empty($field['table_name']) AND $field['table_name'] == $table) return $field;
+		if (!empty($field['table']) AND $field['table'] == $table)
+			return $field;
+		if (!empty($field['table_name']) AND $field['table_name'] == $table)
+			return $field;
 	}
 	return false;
 }
@@ -3905,8 +3928,10 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 	if (!$zz_conf['multi']) {
 		if (empty($_POST['zz_check_select'])) return $my_rec;
 		$check = false;
-		if (in_array($field_name, $_POST['zz_check_select'])) $check = true;
-		elseif (in_array($long_field_name, $_POST['zz_check_select'])) $check = true;
+		if (in_array($field_name, $_POST['zz_check_select']))
+			$check = true;
+		elseif (in_array($long_field_name, $_POST['zz_check_select']))
+			$check = true;
 		if (!$check) return $my_rec;
 	}
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
@@ -3949,8 +3974,8 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 			$field = trim($field);
 			if (!empty($my_rec['fields'][$f]['show_hierarchy'])
 				AND $field == $my_rec['fields'][$f]['show_hierarchy']) continue;
-			// do not search in show_hierarchy as this field is there for presentation only
-			// and might be removed below!
+			// do not search in show_hierarchy as this field is there for 
+			// presentation only and might be removed below!
 			if (!$wheresql) $wheresql.= '(';
 			elseif (!$index) $wheresql.= ' ) AND (';
 			else $wheresql.= ' OR ';
@@ -3960,7 +3985,8 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 				// been cut beforehands
 				$value = $short_value[1];
 			if (substr($value, -1) != ' ' AND !$zz_conf['multi']) 
-				// if there is a space at the end of the string, don't do LIKE with %!
+				// if there is a space at the end of the string, don't do LIKE 
+				// with %!
 				$wheresql.= $field.' LIKE "%'.zz_db_escape(trim($value)).'%"'; 
 			else
 				$wheresql.= $field.' LIKE "'.zz_db_escape(trim($value)).'"'; 
