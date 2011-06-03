@@ -3492,14 +3492,14 @@ function zz_print_r($array, $color = false, $caption = 'Variables') {
 		return false;
 	}
 	echo '<table class="zzvariables" style="text-align: left;',
-		($color ? ' background: ', $color, ';' : '').'">',
+		($color ? ' background: '.$color.';' : ''), '">',
 		'<caption>', $caption, '</caption>';
 	$vars = zz_print_multiarray($array);
 	foreach ($vars as $var) {
 		echo '<tr><th', // style="padding-left: '
 			//.((substr_count($var['key'], '[')-1)*1)
 			//.'em;"
-			'>',$var['key'], '</th><td>', $var['value'], '</td></tr>', "\n";
+			'>', $var['key'], '</th><td>', $var['value'], '</td></tr>', "\n";
 	}
 	echo '</table>';
 }
@@ -3576,17 +3576,19 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 		}
 	}
 	$conf['forceFilename'] = isset($conf['forceFilename']) ? substr($conf['forceFilename'], 0, 1) : '-';
-	$conf['concat'] = isset($conf['concat']) ? (is_array($conf['concat']) 
-		? $conf['concat'] : $conf['concat']) : '.';
+	$conf['concat'] = isset($conf['concat']) ? $conf['concat'] : '.';
 	$conf['exists'] = isset($conf['exists']) ? substr($conf['exists'], 0, 1) : '.';
 	$conf['lowercase'] = isset($conf['lowercase']) ? $conf['lowercase'] : true;
 	$conf['slashes'] = isset($conf['slashes']) ? $conf['slashes'] : false;
 	$conf['hash_md5'] = isset($conf['hash_md5']) ? $conf['hash_md5'] : false;
+	$conf['ignore'] = isset($conf['ignore']) ? (is_array($conf['ignore']) ? $conf['ignore'] : array($conf['ignore'])) : array();
 	$i = 0;
-
-	foreach ($vars as $var) {
+	
+	foreach ($vars as $key => $var) {
 		$i++;
 		if (!$var) continue;
+		if (in_array($key, $conf['ignore'])) continue;
+		if (!empty($conf['ignore_this_if'][$key]) AND !empty($vars[$conf['ignore_this_if'][$key]])) continue;
 		if ((strstr($var, '/') AND $i != count($vars))
 			OR $conf['slashes']) {
 			// last var will be treated normally, other vars may inherit 
@@ -3710,7 +3712,7 @@ function zz_identifier_exists($idf, $i, $db_table, $field, $id_field, $id_value,
  */ 
 function zz_identifier_vars($my_rec, $f, $main_post) {
 	$values = array();
-	foreach ($my_rec['fields'][$f]['fields'] as $function => $field_name) {
+	foreach ($my_rec['fields'][$f]['fields'] as $field_name) {
  		// get full field_name with {}, [] and . as index
  		$index = $field_name;
 
@@ -3723,8 +3725,11 @@ function zz_identifier_vars($my_rec, $f, $main_post) {
 
 		if ($substr)
 			eval ($line ='$values[$index] = substr($values[$index], '.$substr[1].');');
+	}
+	foreach ($my_rec['fields'][$f]['fields'] as $function => $field_name) {
+		if (is_numeric($function)) continue;
 		if (function_exists($function))
-			$values[$index] = $function($values[$index]);
+			$values[$field_name] = $function($values[$field_name], $values);
 	}
 	return $values;
 }
