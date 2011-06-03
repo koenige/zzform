@@ -397,6 +397,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		if (isset($detail_sql_edit))
 			foreach (array_keys($detail_sql_edit) as $tab)
 				foreach (array_keys($detail_sql_edit[$tab]) as $rec) {
+					$my_rec = $zz_tab[$tab][$rec];
 					$detail_sql = $detail_sql_edit[$tab][$rec];
 					$detail_sql = str_replace('[FOREIGN_KEY]', '"'.$zz_tab[0][0]['id']['value'].'"', $detail_sql);
 					if (!empty($zz_tab[$tab]['detail_key'])) {
@@ -410,11 +411,11 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 					}
 					// for deleted subtables, id value might not be set, so get it here.
 					// TODO: check why it's not available beforehands, might be unnecessary security risk.
-					if (empty($zz_tab[$tab][$rec]['id']['value'])
-						AND !empty($zz_tab[$tab][$rec]['POST'][$zz_tab[$tab][$rec]['id']['field_name']]))
-						$zz_tab[$tab][$rec]['id']['value'] = $zz_tab[$tab][$rec]['POST'][$zz_tab[$tab][$rec]['id']['field_name']];
+					if (empty($my_rec['id']['value'])
+						AND !empty($my_rec['POST'][$my_rec['id']['field_name']]))
+						$zz_tab[$tab][$rec]['id']['value'] = $my_rec['POST'][$my_rec['id']['field_name']];
 
-					$result = zz_db_change($detail_sql, $zz_tab[$tab][$rec]['id']['value']);
+					$result = zz_db_change($detail_sql, $my_rec['id']['value']);
 					if (!$result['action']) { 
 						// This should never occur, since all checks say that 
 						// this change is possible
@@ -426,7 +427,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 						$zz_var['record_action'] = false;
 						$validation = false; 
 						$zz_tab[0][0]['fields'][$zz_tab[$tab]['no']]['check_validation'] = false;
-					} elseif ($zz_tab[$tab][$rec]['action'] == 'insert') {
+					} elseif ($my_rec['action'] == 'insert') {
 						$zz_tab[$tab][$rec]['id']['value'] = $result['id_value']; // for requery
 					}
 					// save record values for use outside of zzform()
@@ -447,7 +448,8 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			if ($folders) $zz_tab[0]['folder'] = $folders;
 		}
 		if (!empty($zz_var['upload_form'])) {
-			$zz_tab = zz_upload_action($zz_tab); // upload images, delete images, as required
+			// upload images, delete images, as required
+			$zz_tab = zz_upload_action($zz_tab);
 			$ops['output'] .= zz_error();
 			if ($zz_error['error']) {
 				return zz_return(array($ops, $zz_tab, $validation, $zz_var));
@@ -510,19 +512,18 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 	// this is done to see what to do with subrecord (insert, update, delete)
 	foreach ($my_tab[$rec]['fields'] as $field) {
 		// depending on ID, set action
-		if ($field['type'] == 'id') {
-			if (($my_tab['tick_to_save'] AND $my_tab[$rec]['save_record'])
-				OR empty($my_tab['tick_to_save'])) {
-				if (!isset($my_tab[$rec]['POST'][$field['field_name']]))
-					$my_tab[$rec]['action'] = 'insert';
-				else
-					$my_tab[$rec]['action'] = 'update';
-			} elseif ($my_tab['tick_to_save'] AND !$my_tab[$rec]['save_record']) {
-				if (!isset($my_tab[$rec]['POST'][$field['field_name']]))
-					$my_tab[$rec]['action'] = 'ignore'; // ignore subrecord
-				else
-					$my_tab[$rec]['action'] = 'delete';
-			}
+		if ($field['type'] != 'id') continue;
+		if (($my_tab['tick_to_save'] AND $my_tab[$rec]['save_record'])
+			OR empty($my_tab['tick_to_save'])) {
+			if (!isset($my_tab[$rec]['POST'][$field['field_name']]))
+				$my_tab[$rec]['action'] = 'insert';
+			else
+				$my_tab[$rec]['action'] = 'update';
+		} elseif ($my_tab['tick_to_save'] AND !$my_tab[$rec]['save_record']) {
+			if (!isset($my_tab[$rec]['POST'][$field['field_name']]))
+				$my_tab[$rec]['action'] = 'ignore'; // ignore subrecord
+			else
+				$my_tab[$rec]['action'] = 'delete';
 		}
 	}
 
@@ -548,8 +549,8 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 		$fvalues = $my_tab[$rec]['POST'][$field['field_name']];
 		// timestamp, foreign_key and id will always be ignored
 		// since there is no user input
-		if ($field['type'] == 'timestamp' OR $field['type'] == 'id'
-			OR $field['type'] == 'foreign_key' OR $field['type'] == 'translation_key') continue;
+		$ignores = array('timestamp', 'id', 'foreign_key', 'translation_key');
+		if (in_array($field['type'], $ignores)) continue;
 		// check def_val_ignore, some auto values/values/default values will be ignored 
 		if (!empty($field['def_val_ignore'])) {
 			if (empty($field['value']) AND !empty($field['default'])
@@ -567,12 +568,15 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 		}
 	}
 
-	if (!empty($my_tab['records_depend_on_upload']) AND !empty($my_tab[$rec]['no_file_upload'])) {
+	if (!empty($my_tab['records_depend_on_upload']) 
+		AND !empty($my_tab[$rec]['no_file_upload'])) {
 		$values = false;
-	} elseif (!empty($my_tab['records_depend_on_upload']) AND $my_tab[$rec]['action'] == 'insert'
+	} elseif (!empty($my_tab['records_depend_on_upload']) 
+		AND $my_tab[$rec]['action'] == 'insert'
 		AND empty($my_tab[$rec]['file_upload'])) {
 		$values = false;
-	} elseif (!empty($my_tab['records_depend_on_upload_more_than_one']) AND $my_tab[$rec]['action'] == 'insert'
+	} elseif (!empty($my_tab['records_depend_on_upload_more_than_one']) 
+		AND $my_tab[$rec]['action'] == 'insert'
 		AND empty($my_tab[$rec]['file_upload']) AND $rec) {
 		$values = false;
 	}
@@ -586,8 +590,10 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 		if ($my_tab[$rec]['id']['value']) {
 			$my_tab[$rec]['action'] = 'delete';
  			// if main tab will be deleted, this record will be deleted anyways
- 			if ($zz_tab[0][0]['action'] != 'delete')
-				$my_tab['subtable_deleted'][] = $my_tab[$rec]['id']['value']; // only for requery record on error!
+ 			if ($zz_tab[0][0]['action'] != 'delete') {
+ 				// only for requery record on error!
+				$my_tab['subtable_deleted'][] = $my_tab[$rec]['id']['value'];
+			}
 		} else {
 			$my_tab[$rec]['action'] = 'ignore';
 		}
@@ -640,22 +646,22 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 	unset($my_rec['last_fields']);
 	
 	$my_rec['POST_db'] = $my_rec['POST'];
-	foreach (array_keys($my_rec['fields']) as $f) {
-		$field_name = (!empty($my_rec['fields'][$f]['field_name']) ? $my_rec['fields'][$f]['field_name'] : '');
+	foreach ($my_rec['fields'] as $f => $field) {
+		$field_name = (!empty($field['field_name']) ? $field['field_name'] : '');
 	//	numbers
 	//	factor for avoiding doubles
-		if ($my_rec['fields'][$f]['type'] == 'number' 
-			AND isset($my_rec['fields'][$f]['factor']) && $my_rec['POST'][$field_name]) {
+		if ($field['type'] == 'number' 
+			AND isset($field['factor']) && $my_rec['POST'][$field_name]) {
 			// we need factor and rounding in POST as well because otherwise
 			// we won't be able to check against existing record
-			$my_rec['POST'][$field_name] *= $my_rec['fields'][$f]['factor'];
+			$my_rec['POST'][$field_name] *= $field['factor'];
 			$my_rec['POST'][$field_name] = round($my_rec['POST'][$field_name], 0);
 			$my_rec['POST_db'][$field_name] = $my_rec['POST'][$field_name];
 		}
 	//	set
-		if ($my_rec['fields'][$f]['type'] == 'select' 
-			AND (isset($my_rec['fields'][$f]['set']) OR isset($my_rec['fields'][$f]['set_sql'])
-			OR isset($my_rec['fields'][$f]['set_folder']))) {
+		if ($field['type'] == 'select' 
+			AND (isset($field['set']) OR isset($field['set_sql'])
+			OR isset($field['set_folder']))) {
 			if (!empty($my_rec['POST'][$field_name])) {
 				// remove empty set values, we needed them to check whether 
 				// set is NULL or ""
@@ -668,40 +674,36 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 				$my_rec['POST_db'][$field_name] = '';
 		}
 	//	password: remove unencrypted password
-		if ($my_rec['fields'][$f]['type'] == 'password')
+		if ($field['type'] == 'password')
 			unset($my_rec['POST_db']['zz_unencrypted_'.$field_name]);
 	//	slashes, 0 and NULL
 		$unwanted = array('calculated', 'image', 'upload_image', 'id', 
 			'foreign', 'subtable', 'foreign_key', 'translation_key', 
 			'detail_key', 'display', 'option', 'write_once');
-		if (!in_array($my_rec['fields'][$f]['type'], $unwanted)) {
+		if (!in_array($field['type'], $unwanted)) {
 			if ($my_rec['POST_db'][$field_name]) {
 				$my_rec['POST_db'][$field_name] = '"'
 					.zz_db_escape($my_rec['POST_db'][$field_name]).'"';
 			} else {
-				if (isset($my_rec['fields'][$f]['number_type']) AND ($my_rec['POST'][$field_name] !== '') // type string, different from 0
-					AND $my_rec['fields'][$f]['number_type'] == 'latitude' 
-					|| $my_rec['fields'][$f]['number_type'] == 'longitude')
+				if (isset($field['number_type']) AND ($my_rec['POST'][$field_name] !== '') // type string, different from 0
+					AND $field['number_type'] == 'latitude' 
+					|| $field['number_type'] == 'longitude')
 					$my_rec['POST_db'][$field_name] = '0';
-				elseif (!empty($my_rec['fields'][$f]['null'])) 
+				elseif (!empty($field['null'])) 
 					$my_rec['POST_db'][$field_name] = '0';
-				elseif (!empty($my_rec['fields'][$f]['null_string'])) 
+				elseif (!empty($field['null_string'])) 
 					$my_rec['POST_db'][$field_name] = '""';
 				else 
 					$my_rec['POST_db'][$field_name] = 'NULL';
 			}
 		}
-	// foreign_key
-		if ($my_rec['fields'][$f]['type'] == 'foreign_key') 
+		if ($field['type'] == 'foreign_key') 
 			$my_rec['POST_db'][$field_name] = '[FOREIGN_KEY]';
-	// detail_key
-		if ($my_rec['fields'][$f]['type'] == 'detail_key') 
+		elseif ($field['type'] == 'detail_key') 
 			$my_rec['POST_db'][$field_name] = '[DETAIL_KEY]';
-	// translation_key
-		if ($my_rec['fields'][$f]['type'] == 'translation_key') 
-			$my_rec['POST_db'][$field_name] = $my_rec['fields'][$f]['translation_key'];
-	// timestamp
-		if ($my_rec['fields'][$f]['type'] == 'timestamp') 
+		elseif ($field['type'] == 'translation_key') 
+			$my_rec['POST_db'][$field_name] = $field['translation_key'];
+		elseif ($field['type'] == 'timestamp') 
 			$my_rec['POST_db'][$field_name] = 'NOW()';
 	}
 	return zz_return($my_rec);
@@ -849,7 +851,8 @@ function zz_foldercheck($zz_tab) {
  * @param int $rec
  * @param array $zz_tab = $zz_tab[0][0], keys ['POST'], ['images'] and ['extra']
  * @global array $zz_conf
- * @return array $my_rec with validated values and marker if validation was successful ($my_rec['validation'])
+ * @return array $my_rec with validated values and marker if validation was 
+ *		successful ($my_rec['validation'])
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
@@ -863,36 +866,35 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 	$my_rec['last_fields'] = array();
 	$my_rec['extra'] = array();
 
-	foreach (array_keys($my_rec['fields']) as $f) {
+	foreach ($my_rec['fields'] as $f => $field) {
 	// 	shorthand
-		if (isset($my_rec['fields'][$f]['field_name'])) 
-			$field_name = $my_rec['fields'][$f]['field_name'];
+		if (isset($field['field_name'])) $field_name = $field['field_name'];
 	//	check if some values are to be replaced internally
-		if (!empty($my_rec['fields'][$f]['replace_values']) 
+		if (!empty($field['replace_values']) 
 			AND !empty($my_rec['POST'][$field_name])) {
-			if (in_array($my_rec['POST'][$field_name],
-				array_keys($my_rec['fields'][$f]['replace_values'])))
-			$my_rec['POST'][$field_name]
-				= $my_rec['fields'][$f]['replace_values'][$my_rec['POST'][$field_name]];
+			if (in_array($my_rec['POST'][$field_name], array_keys($field['replace_values'])))
+				$my_rec['POST'][$field_name]
+					= $field['replace_values'][$my_rec['POST'][$field_name]];
 		}
 	
 	//	check if there are options-fields and put values into table definition
-		if (!empty($my_rec['fields'][$f]['read_options'])) {
-			$submitted_option = $my_rec['POST'][$my_rec['fields'][$my_rec['fields'][$f]['read_options']]['field_name']];
-			// if there's something submitted which fits in our scheme, replace values corresponding to options-field
-			if (!empty($my_rec['fields'][$my_rec['fields'][$f]['read_options']]['options'][$submitted_option])) {
-				$my_rec['fields'][$f] = array_merge($my_rec['fields'][$f], $my_rec['fields'][$my_rec['fields'][$f]['read_options']]['options'][$submitted_option]);
+		if (!empty($field['read_options'])) {
+			$submitted_option = $my_rec['POST'][$my_rec['fields'][$field['read_options']]['field_name']];
+			// if there's something submitted which fits in our scheme, replace 
+			// values corresponding to options-field
+			if (!empty($my_rec['fields'][$field['read_options']]['options'][$submitted_option])) {
+				$my_rec['fields'][$f] = $field = array_merge($field, $my_rec['fields'][$field['read_options']]['options'][$submitted_option]);
 			}
 		}
 	//	set detail types for write_once-Fields
-		if ($my_rec['fields'][$f]['type'] == 'write_once' 
+		if ($field['type'] == 'write_once' 
 			AND empty($my_rec['record'][$field_name])) {
-			if (!empty($my_rec['fields'][$f]['type_detail']))
-				$my_rec['fields'][$f]['type'] = $my_rec['fields'][$f]['type_detail'];
+			if (!empty($field['type_detail']))
+				$my_rec['fields'][$f]['type'] = $field['type'] = $field['type_detail'];
 		}
 
 		//	remove entries which are for display only
-		if (!empty($my_rec['fields'][$f]['display_only'])) {
+		if (!empty($field['display_only'])) {
 			$my_rec['fields'][$f]['in_sql_query'] = false;
 			$my_rec['fields'][$f]['class'] = 'hidden';
 			continue;
@@ -900,38 +902,37 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 
 		if (!$tab AND !$rec) {
 			//	copy value if field detail_value isset
-			if (!empty($my_rec['fields'][$f]['detail_value'])) {
+			if (!empty($field['detail_value'])) {
 				$value = zz_write_detail_values($zz_tab, $f);
 				if ($value) $my_rec['POST'][$field_name] = $value;
 			}
 	
 			// check if some values should be gotten from upload fields
 			// here: only for main record, since subrecords already were taken care for
-			if (!empty($my_rec['fields'][$f]['upload_field'])) {
+			if (!empty($field['upload_field'])) {
 				$value = zz_write_upload_fields($zz_tab, $f);
 				if ($value) $my_rec['POST'][$field_name] = $value;
 			}
 		}
 
 		//	call function
-		if (!empty($my_rec['fields'][$f]['function'])) { // $my_rec['fields'][$f]['type'] == 'hidden' AND 
-			foreach ($my_rec['fields'][$f]['fields'] as $var)
+		if (!empty($field['function'])) { // $field['type'] == 'hidden' AND 
+			foreach ($field['fields'] as $var)
 				if (strstr($var, '.')) {
 					$vars = explode('.', $var);
 					$func_vars[$var] = $my_rec['POST'][$vars[0]][0][$vars[1]];
 				} else
 					$func_vars[$var] = $my_rec['POST'][$var];
-			$my_rec['POST'][$field_name] = $my_rec['fields'][$f]['function']($func_vars, $field_name);
+			$my_rec['POST'][$field_name] = $field['function']($func_vars, $field_name);
 		}
 
 		// per default, all fields are becoming part of SQL query
 		$my_rec['fields'][$f]['in_sql_query'] = true;
 
 		// get field type, hidden fields with sub_type will be validated against subtype
-		$type = $my_rec['fields'][$f]['type'];
-		if ($my_rec['fields'][$f]['type'] == 'hidden' 
-			AND !empty($my_rec['fields'][$f]['sub_type'])) {
-				$type = $my_rec['fields'][$f]['sub_type'];
+		$type = $field['type'];
+		if ($field['type'] == 'hidden' AND !empty($field['sub_type'])) {
+			$type = $field['sub_type'];
 		}
 		
 	// 	walk through all fields by type
@@ -951,11 +952,11 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			break;
 		case 'number':
 			//	calculation and choosing of right values in case of coordinates
-			if (isset($my_rec['fields'][$f]['number_type']) 
-				AND in_array($my_rec['fields'][$f]['number_type'], array('latitude', 'longitude'))) {
+			if (isset($field['number_type']) 
+				AND in_array($field['number_type'], array('latitude', 'longitude'))) {
 				// geographical coordinates
 				
-				$coord = zz_geo_coord_in($my_rec['POST'][$field_name], $my_rec['fields'][$f]['number_type']);
+				$coord = zz_geo_coord_in($my_rec['POST'][$field_name], $field['number_type']);
 				if ($coord['error']) {
 					$zz_error['validation']['incorrect_values'][] = array(
 						'field_name' => $field_name,
@@ -985,8 +986,10 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 		case 'password':
 			if (!$my_rec['POST'][$field_name]) break;
 
-			//	encrypt passwords, only for changed passwords! therefore string is compared against old pwd
-			// action=update: here, we have to check whether submitted password is equal to password in db
+			//	encrypt passwords, only for changed passwords! therefore string 
+			// 		is compared against old pwd
+			// action=update: here, we have to check whether submitted password 
+			// 		is equal to password in db
 			// if so, password won't be touched
 			// if not, password will be encrypted
 			// action=insert: password will be encrypted
@@ -1008,7 +1011,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			if ($my_rec['POST'][$field_name] 
 				AND $my_rec['POST'][$field_name.'_new_1']
 				AND $my_rec['POST'][$field_name.'_new_2']) {
-				$my_sql = $my_rec['fields'][$f]['sql_password_check'].$my_rec['id']['value'];
+				$my_sql = $field['sql_password_check'].$my_rec['id']['value'];
 				$pwd = zz_check_password($my_rec['POST'][$field_name], 
 					$my_rec['POST'][$field_name.'_new_1'], 
 					$my_rec['POST'][$field_name.'_new_2'], $my_sql);
@@ -1030,9 +1033,8 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			$my_rec = zz_check_select($my_rec, $f, $zz_conf['max_select'], $table_name.'['.$rec.']['.$field_name.']');
 			//	check for correct enum values
 			if (!$my_rec['POST'][$field_name]) break;
-			if (isset($my_rec['fields'][$f]['enum'])) {
-				if (!$tempvar = zz_check_enumset($my_rec['POST'][$field_name], 
-						$my_rec['fields'][$f], $db_table)) {
+			if (isset($field['enum'])) {
+				if (!$tempvar = zz_check_enumset($my_rec['POST'][$field_name], $field, $db_table)) {
 					$my_rec['validation'] = false;
 					$my_rec['fields'][$f]['check_validation'] = false;
 				} else {
@@ -1140,8 +1142,8 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 
 		// types 'identifier' and 'display_only' are out
 		// check if $field['post_validation'] is set
-		if (!empty($my_rec['fields'][$f]['post_validation'])) {
-			$values = $my_rec['fields'][$f]['post_validation']($my_rec['POST'][$field_name]);
+		if (!empty($field['post_validation'])) {
+			$values = $field['post_validation']($my_rec['POST'][$field_name]);
 			if ($values == -1) {
 				// in this case, the function explicitly says:
 				// record is invalid, so delete values
@@ -1156,9 +1158,9 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 		}
 
 		//	remove entries which are for input only
-		if (!empty($my_rec['fields'][$f]['input_only'])) {
+		if (!empty($field['input_only'])) {
 			$my_rec['fields'][$f]['in_sql_query'] = false;
-			if (!empty($my_rec['fields'][$f]['required']) 
+			if (!empty($field['required']) 
 				AND empty($my_rec['POST'][$field_name])) {
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['validation'] = false;
@@ -1171,41 +1173,42 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 	//	check whether is false but must not be NULL
 		if (!isset($my_rec['POST'][$field_name])) {
 			// no set = must be error
-			if ($my_rec['fields'][$f]['type'] == 'foreign_key' 
-				OR $my_rec['fields'][$f]['type'] == 'translation_key'
-				OR $my_rec['fields'][$f]['type'] == 'detail_key') {
-				// foreign key will always be empty but most likely also be required.
-				// f. key will be added by script later on (because sometimes it is not known yet)
+			if ($field['type'] == 'foreign_key' 
+				OR $field['type'] == 'translation_key'
+				OR $field['type'] == 'detail_key') {
+				// foreign key will always be empty but most likely also be 
+				// required. f. key will be added by script later on (because 
+				// sometimes it is not known yet)
 				// do nothing, leave $my_rec['validation'] as it is
-			} elseif ($my_rec['fields'][$f]['type'] == 'timestamp') {
-				// timestamps will be set to current date, so no check is necessary
-				// do nothing, leave $my_rec['validation'] as it is
-			} elseif (!isset($my_rec['fields'][$f]['set']) AND !isset($my_rec['fields'][$f]['set_sql'])
-				 AND !isset($my_rec['fields'][$f]['set_folder']))
+			} elseif ($field['type'] == 'timestamp') {
+				// timestamps will be set to current date, so no check is 
+				// necessary. do nothing, leave $my_rec['validation'] as it is.
+			} elseif (!isset($field['set']) AND !isset($field['set_sql'])
+				 AND !isset($field['set_folder']))
 				$my_rec['validation'] = false;
 			elseif (!zz_db_field_null($field_name, $db_table)) {
 				$my_rec['validation'] = false;
 				$my_rec['fields'][$f]['check_validation'] = false;
-			} elseif (!empty($my_rec['fields'][$f]['required'])) {
+			} elseif (!empty($field['required'])) {
 				$my_rec['validation'] = false;
 				$my_rec['fields'][$f]['check_validation'] = false;
 			}
 		} elseif(!$my_rec['POST'][$field_name] 
-			AND empty($my_rec['fields'][$f]['null'])
-			AND empty($my_rec['fields'][$f]['null_string'])
-			AND $my_rec['fields'][$f]['type'] != 'timestamp')
+			AND empty($field['null'])
+			AND empty($field['null_string'])
+			AND $field['type'] != 'timestamp')
 			if (!zz_db_field_null($field_name, $db_table)) {
 				$my_rec['validation'] = false;
 				$my_rec['fields'][$f]['check_validation'] = false;
-			} elseif (!empty($my_rec['fields'][$f]['required'])) {
+			} elseif (!empty($field['required'])) {
 				$my_rec['validation'] = false;
 				$my_rec['fields'][$f]['check_validation'] = false;
 			}
 
 	//	check against forbidden strings
-		if (!empty($my_rec['fields'][$f]['validate'])
+		if (!empty($field['validate'])
 			AND !empty($my_rec['POST'][$field_name])) {
-			if ($msg = zz_check_validate($my_rec['POST'][$field_name], $my_rec['fields'][$f]['validate'])) {
+			if ($msg = zz_check_validate($my_rec['POST'][$field_name], $field['validate'])) {
 				$my_rec['validation'] = false;
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['fields'][$f]['validation_error'] = $msg;
