@@ -3565,8 +3565,15 @@ function zz_print_multiarray($array, $parent_key = '') {
 function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field = false) {
 	if (empty($vars)) return false;
 	if ($my_rec AND $field AND $db_table) {
+		// there's a record, check if identifier is in write_once mode
 		if (in_array($my_rec['fields'][$field]['field_name'], array_keys($vars))) {
-			if ($vars[$my_rec['fields'][$field]['field_name']]) {
+			$keep_idf = false;
+			if (!empty($conf['exists_function'])) {
+				$keep_idf = $conf['exists_function']($vars[$my_rec['fields'][$field]['field_name']], $vars);
+			} elseif ($vars[$my_rec['fields'][$field]['field_name']]) {
+				$keep_idf = true;
+			}
+			if ($keep_idf) {
 				// do not change anything if there has been a value set once and 
 				// identifier is in vars array
 				return $vars[$my_rec['fields'][$field]['field_name']];
@@ -3696,6 +3703,24 @@ function zz_identifier_exists($idf, $i, $db_table, $field, $id_field, $id_value,
 }
 
 /**
+ * extracts substring information from field_name
+ *
+ * @param string $field_name (e. g. test{0,4})
+ * @return array
+ *		string $field_name (e. g. test)
+ *		string $substr (e. g. 0,4)
+ */
+function zz_identifier_substr($field_name) {
+	if (!strstr($field_name, '}')) return array($field_name, '');
+	if (!strstr($field_name, '{')) return array($field_name, '');
+	preg_match('/{(.+)}$/', $field_name, $substr);
+	if (!$substr) return array($field_name, '');
+	$field_name = preg_replace('/{.+}$/', '', $field_name);
+	$substr = $substr[1];
+	return array($field_name, $substr);
+}
+
+/**
  * gets all variables for identifier field to use them in zz_identifier()
  *
  * @param array $my_rec = $zz_tab[$tab][$rec]
@@ -3717,14 +3742,12 @@ function zz_identifier_vars($my_rec, $f, $main_post) {
  		$index = $field_name;
 
 		// check for substring parameter
-		preg_match('/{(.+)}$/', $field_name, $substr);
-		if ($substr) $field_name = preg_replace('/{.+}$/', '', $field_name);
-
+		list($field_name, $substr) = zz_identifier_substr($field_name);
 		// get value
 		$values[$index] = zz_identifier_var($field_name, $my_rec, $main_post);
 
 		if ($substr)
-			eval ($line ='$values[$index] = substr($values[$index], '.$substr[1].');');
+			eval ($line ='$values[$index] = substr($values[$index], '.$substr.');');
 	}
 	foreach ($my_rec['fields'][$f]['fields'] as $function => $field_name) {
 		if (is_numeric($function)) continue;
