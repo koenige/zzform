@@ -761,7 +761,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 					} else $outputf.= '('.zz_text('will_be_added_automatically').')&nbsp;';
 				}
 				if ($mark_italics) $outputf .= '</em>';
-				$outputf .= sprintf($my_element, $db_value, $field['f_field_name'], 
+				$outputf .= sprintf($my_element, htmlspecialchars($db_value), $field['f_field_name'], 
 					make_id_fieldname($field['f_field_name']));
 				break;
 			case 'timestamp':
