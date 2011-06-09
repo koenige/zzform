@@ -732,7 +732,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
  *		array 'class'	= Array of class names for cell
  *		string 'text'	= HTML output for cell
  */
-function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $zz_conf_record) {
+function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $zz_conf_record) {
 	global $zz_conf;
 	// shortcuts
 	$row['value'] = $line[$field['field_name']];
