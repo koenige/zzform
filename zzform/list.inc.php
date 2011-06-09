@@ -408,245 +408,66 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				if ($zz_conf['modules']['debug']) zz_debug("table_query foreach cond set ".$fieldindex);
 				
 				// check all fields next to each other with list_append_next					
-				while (!empty($table_query[$tq_index][$fieldindex]['list_append_next'])) $fieldindex++;
-				
-			//	initialize variables
-				if (isset($line['zz_level'])) {
-					if (!empty($field['field_name'])  // occurs in case of subtables
-						AND $field['field_name'] == $zz_conf['hierarchy']['display_in']) {
-						$field['level'] = $line['zz_level'];
-					} elseif (!empty($field['table_name']) 
-						AND $field['table_name'] == $zz_conf['hierarchy']['display_in']) {
-						$field['level'] = $line['zz_level'];
-					}
+				while (!empty($table_query[$tq_index][$fieldindex]['list_append_next'])) {
+					$fieldindex++;
 				}
-				if (!isset($rows[$z][$fieldindex]['class']))
-					$rows[$z][$fieldindex]['class'] = array();
-				elseif (!is_array($rows[$z][$fieldindex]['class']))
-					$rows[$z][$fieldindex]['class'] = array($rows[$z][$fieldindex]['class']);
-				$rows[$z][$fieldindex]['class'] = array_merge($rows[$z][$fieldindex]['class'], zz_field_class($field, 
-					(!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : '')));
-				if (!empty($field['field_name']) AND !empty($lastline[$field['field_name']]) 
-					AND $line[$field['field_name']] == $lastline[$field['field_name']])
-					$rows[$z][$fieldindex]['class'][] = 'identical_value';
-				if (empty($rows[$z][$fieldindex]['text']))
-					$rows[$z][$fieldindex]['text'] = '';
-				
-				if (!empty($field['list_prefix'])) 
-					$rows[$z][$fieldindex]['text'] .= zz_text($field['list_prefix']);
-				if (!empty($field['list_abbr']) AND $ops['mode'] != 'export') 
-					$rows[$z][$fieldindex]['text'] .= '<abbr title="'.htmlspecialchars($line[$field['list_abbr']]).'">';
-				$stringlength = strlen($rows[$z][$fieldindex]['text']);
-			//	if there's a link, glue parts together
-				$link = false;
-				if ($ops['mode'] != 'export') $link = zz_set_link($field, $line);
-					
-				if ($zz_conf['modules']['debug']) zz_debug("table_query before switch ".$fieldindex.'-'.$field['type']);
 
-			//	go for type of field!
-				switch ($field['type']) {
-				case 'calculated':
-					if ($field['calculation'] == 'hours') {
-						$diff = 0;
-						foreach ($field['calculation_fields'] as $calc_field)
-							if (!$diff) $diff = strtotime($line[$calc_field]);
-							else $diff -= strtotime($line[$calc_field]);
-						if ($diff < 0) $rows[$z][$fieldindex]['text'] .= '<em class="negative">';
-						$rows[$z][$fieldindex]['text'].= hours($diff);
-						if ($diff < 0) $rows[$z][$fieldindex]['text'] .= '</em>';
-						if (isset($field['sum']) && $field['sum'] == true) {
-							if (!isset($sum[$field['title']])) $sum[$field['title']] = 0;
-							$sum[$field['title']] += $diff;
-							$sum_group = zz_list_group_sum($rows[$z]['group'], $sum_group, $field['title'], $diff);
-						}
-					} elseif ($field['calculation'] == 'sum') {
-						$my_sum = 0;
-						foreach ($field['calculation_fields'] as $calc_field)
-							$my_sum += $line[$calc_field];
-						$rows[$z][$fieldindex]['text'] .= $my_sum;
-						if (isset($field['sum']) && $field['sum'] == true) {
-							if (!isset($sum[$field['title']])) $sum[$field['title']] = 0;
-							$sum[$field['title']] .= $my_sum;
-							$sum_group = zz_list_group_sum($rows[$z]['group'], $sum_group, $field['title'], $my_sum);
-						}
-					} elseif ($field['calculation'] == 'sql')
-						$rows[$z][$fieldindex]['text'].= $line[$field['field_name']];
-					break;
-				case 'image':
-				case 'upload_image':
-					if (isset($field['path'])) {
-						if ($img = zz_makelink($field['path'], $line, 'image'))
-							$rows[$z][$fieldindex]['text'].= $link.$img.($link ? '</a>' : '');
-						elseif (isset($field['default_image'])) {
-							if (is_array($field['default_image'])) {
-								$default_image = zz_makelink($field['default_image'], $line);
-							} else {
-								$default_image = $field['default_image'];
-							}
-							$rows[$z][$fieldindex]['text'].= $link.'<img src="'
-								.$default_image.'"  alt="'.zz_text('no_image')
-								.'" class="thumb">'.($link ? '</a>' : '');
-						}
-						if (!empty($field['image'])) foreach ($field['image'] as $image)
-							if (!empty($image['show_link']) && $ops['mode'] != 'export')
-								if ($imglink = zz_makelink($image['path'], $line))
-									$rows[$z][$fieldindex]['text'] .= ' <a href="'.$imglink.'">'.$image['title'].'</a><br>' ;
-					} elseif (isset($field['path_json_request'])) {
-						$img = zz_makelink($field['path_json_request'], $line);
-						if ($img = brick_request_getjson($img)) {
-							$rows[$z][$fieldindex]['text'].= $link.'<img src="'
-								.(!empty($field['path_json_base']) ? $field['path_json_base'] : '')
-								.$img.'"  alt="" class="thumb">'
-								.($link ? '</a>' : '');
-						}
-					}
-					break;
-				case 'subtable':
-					if (!empty($field['subselect']['sql'])) {
-						// fill array subselects, just in row 0, will always be the same!
-						if (empty($subselect_init[$subselect_index])) {
-							$foreign_key_field = array();
-							$translation_key_field = array();
-							foreach ($field['fields'] as $subfield) {
-								if ($subfield['type'] == 'foreign_key') {
-									$foreign_key_field = $subfield;
-								} elseif ($subfield['type'] == 'translation_key') {
-									$translation_key_field = $subfield;
-								}
-							}
-							// get field name of foreign key
-							$id_fieldname = $foreign_key_field['field_name'];
-							if ($translation_key_field) {
-								$key_fieldname = $zz_var['id']['field_name'];
-								$field['subselect']['translation_key'] = $translation_key_field['translation_key'];
-							} else { // $foreign_key_field
-								// if main field name and foreign field name differ, use main ID for requests
-								if (!empty($foreign_key_field['key_field_name'])) // different fieldnames
-									$key_fieldname = $foreign_key_field['key_field_name'];
-								else
-									$key_fieldname = $foreign_key_field['field_name'];
-							}
-							// id_field = joined_table.field_name
-							if (empty($field['subselect']['table'])) {
-								$field['subselect']['table'] = $field['table'];
-							}
-							$field['subselect']['id_table_and_fieldname'] = $field['subselect']['table'].'.'.$id_fieldname;
-							// just field_name
-							$field['subselect']['id_fieldname'] = $id_fieldname;
-							$field['subselect']['fieldindex'] = $fieldindex;
-							$subselects[] = $field['subselect'];
-							$subselect_init[$subselect_index] = true;
-						}
-						if (empty($line[$key_fieldname])) {
-							$zz_error[] = array(
-								'msg_dev' => 'Wrong key_field_name. Please set $zz_sub["fields"]['
-								.'n]["key_field_name"] to something different: '.implode(', ', array_keys($line)));
-						}
-						$sub_id = $line[$key_fieldname]; // get correct ID
-					} elseif (!empty($field['display_field'])) {
-						$rows[$z][$fieldindex]['text'].= zz_mark_search_string($line[$field['display_field']], $field['display_field'], $field);
-					}
-					break;
-				case 'url':
-				case 'mail':
-				case 'mail+name':
-					if ($link) $rows[$z][$fieldindex]['text'].= $link;
-					if (!empty($field['display_field']))
-						$rows[$z][$fieldindex]['text'].= zz_mark_search_string(htmlchars($line[$field['display_field']]), $field['display_field'], $field);
-					elseif ($field['type'] == 'url' && strlen($line[$field['field_name']]) > $zz_conf_record['max_select_val_len'])
-						$rows[$z][$fieldindex]['text'].= zz_mark_search_string(
-							mb_substr(htmlchars($line[$field['field_name']]), 0, 
-							$zz_conf_record['max_select_val_len']).'...', $field['field_name'], $field);
-					else
-						$rows[$z][$fieldindex]['text'].= zz_mark_search_string(htmlspecialchars($line[$field['field_name']]), $field['field_name'], $field);
-					if ($link) $rows[$z][$fieldindex]['text'].= '</a>';
-					break;
-				case 'ipv4':
-					$rows[$z][$fieldindex]['text'].= zz_mark_search_string(long2ip($line[$field['field_name']]), $field['field_name'], $field);
-					break;
-				case 'id':
+				if ($zz_conf['modules']['debug']) zz_debug("table_query before switch ".$fieldindex.'-'.$field['type']);
+				$my_row = isset($rows[$z][$fieldindex]) ? $rows[$z][$fieldindex] : array();
+				$rows[$z][$fieldindex] = zz_list_field($my_row, $field, $line, $lastline, $zz_var, $zz['table'], $ops['mode'], $zz_conf_record);
+
+				// Sums
+				if (isset($field['sum']) AND $field['sum'] == true 
+					AND (empty($field['calculation']) OR $field['calculation'] != 'sql')) {
+					if (!isset($sum[$field['title']])) $sum[$field['title']] = 0;
+					$sum[$field['title']] += $rows[$z][$fieldindex]['value'];
+					$sum_group = zz_list_group_sum($rows[$z]['group'], $sum_group, $field['title'], $rows[$z][$fieldindex]['value']);
+				}
+				
+				if ($field['type'] == 'id') {
 					$id = $line[$field['field_name']];
 					if ($id == $zz_var['id']['value']) $current_record = $z;
-				default:
-					if ($link) $rows[$z][$fieldindex]['text'].= $link;
-					$val_to_insert = '';
-					if ($zz_conf['modules']['debug']) zz_debug("table_query switch default start ".$fieldindex.'-'.$field['type']);
-					if (!empty($field['display_field'])) {
-						$val_to_insert = $line[$field['display_field']];
-						if (!empty($field['translate_field_value']))
-							$val_to_insert = zz_text($val_to_insert);
-						$rows[$z][$fieldindex]['text'].= zz_mark_search_string(htmlchars($val_to_insert), $field['display_field'], $field);
-					} else {
-						if ($zz_conf['modules']['debug']) zz_debug("table_query switch default 1 ".$fieldindex.'-'.$field['type']);
-
-						// replace field content with display_title, if set.
-						if (!empty($field['display_title']) 
-							&& in_array($line[$field['field_name']], array_keys($field['display_title'])))
-							$line[$field['field_name']] = $field['display_title'][$line[$field['field_name']]];
-						if (isset($field['factor']) && $line[$field['field_name']]) 
-							$line[$field['field_name']] /= $field['factor'];
-						if ($field['type'] == 'unix_timestamp') {
-							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(date('Y-m-d H:i:s', $line[$field['field_name']]), $field['field_name'], $field);
-						} elseif ($field['type'] == 'timestamp') {
-							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(timestamp2date($line[$field['field_name']]), $field['field_name'], $field);
-						} elseif ($field['type'] == 'select' 
-							AND (!empty($field['set']) OR !empty($field['set_sql']) OR !empty($field['set_folder']))) {
-							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(str_replace(',', ', ', $line[$field['field_name']]), $field['field_name'], $field);
-						} elseif ($field['type'] == 'select' && !empty($field['enum']) && !empty($field['enum_title'])) { // show enum_title instead of enum
-							foreach ($field['enum'] as $mkey => $mvalue)
-								if ($mvalue == $line[$field['field_name']]) 
-									$rows[$z][$fieldindex]['text'] .= zz_mark_search_string($field['enum_title'][$mkey], $field['field_name'], $field);
-						} elseif ($field['type'] == 'select' && !empty($field['enum'])) {
-							$rows[$z][$fieldindex]['text'] .= zz_mark_search_string(zz_text($line[$field['field_name']]), $field['field_name'], $field); // translate field value
-						} elseif ($field['type'] == 'date') {
-							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(datum_de($line[$field['field_name']]), $field['field_name'], $field);
-						} elseif (isset($field['number_type']) && $field['number_type'] == 'currency') {
-							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(waehrung($line[$field['field_name']], ''), $field['field_name'], $field);
-						} elseif (isset($field['number_type']) && $field['number_type'] == 'latitude' && $line[$field['field_name']]) {
-							if (empty($field['geo_format'])) $field['geo_format'] = 'dms';
-							$deg = zz_geo_coord_out($line[$field['field_name']], 'latitude', $field['geo_format']);
-							$rows[$z][$fieldindex]['text'].= zz_mark_search_string($deg, $field['field_name'], $field);
-						} elseif (isset($field['number_type']) && $field['number_type'] == 'longitude' && $line[$field['field_name']]) {
-							if (empty($field['geo_format'])) $field['geo_format'] = 'dms';
-							$deg = zz_geo_coord_out($line[$field['field_name']], 'longitude', $field['geo_format']);
-							$rows[$z][$fieldindex]['text'].= zz_mark_search_string($deg, $field['field_name'], $field);
-						} elseif (!empty($field['display_value'])) {
-							// translations should be done in $zz-definition-file
-							$rows[$z][$fieldindex]['text'].= $field['display_value'];
-						} elseif ($ops['mode'] == 'export') {
-							$rows[$z][$fieldindex]['text'].= $line[$field['field_name']];
-						} elseif (!empty($field['list_format'])) {
-							if (!empty($zz_conf['modules']['debug'])) zz_debug('start', $field['list_format']);
-							$rows[$z][$fieldindex]['text'].= zz_mark_search_string($field['list_format']($line[$field['field_name']]), $field['field_name'], $field);
-							if (!empty($zz_conf['modules']['debug'])) zz_debug('end');
-						} elseif (empty($field['hide_zeros']) OR $line[$field['field_name']]) {
-							// show field, but not if hide_zeros is set
-							$val_to_insert = $line[$field['field_name']];
-							if (!empty($field['translate_field_value']))
-								$val_to_insert = zz_text($val_to_insert);
-							$rows[$z][$fieldindex]['text'].= zz_mark_search_string(nl2br(htmlchars($val_to_insert)), $field['field_name'], $field);
+				} elseif ($field['type'] == 'subtable' AND !empty($field['subselect']['sql'])) {
+					// fill array subselects, just in row 0, will always be the same!
+					if (empty($subselect_init[$subselect_index])) {
+						$foreign_key_field = array();
+						$translation_key_field = array();
+						foreach ($field['fields'] as $subfield) {
+							if ($subfield['type'] == 'foreign_key') {
+								$foreign_key_field = $subfield;
+							} elseif ($subfield['type'] == 'translation_key') {
+								$translation_key_field = $subfield;
+							}
 						}
+						// get field name of foreign key
+						$id_fieldname = $foreign_key_field['field_name'];
+						if ($translation_key_field) {
+							$key_fieldname = $zz_var['id']['field_name'];
+							$field['subselect']['translation_key'] = $translation_key_field['translation_key'];
+						} else { // $foreign_key_field
+							// if main field name and foreign field name differ, use main ID for requests
+							if (!empty($foreign_key_field['key_field_name'])) // different fieldnames
+								$key_fieldname = $foreign_key_field['key_field_name'];
+							else
+								$key_fieldname = $foreign_key_field['field_name'];
+						}
+						// id_field = joined_table.field_name
+						if (empty($field['subselect']['table'])) {
+							$field['subselect']['table'] = $field['table'];
+						}
+						$field['subselect']['id_table_and_fieldname'] = $field['subselect']['table'].'.'.$id_fieldname;
+						// just field_name
+						$field['subselect']['id_fieldname'] = $id_fieldname;
+						$field['subselect']['fieldindex'] = $fieldindex;
+						$subselects[] = $field['subselect'];
+						$subselect_init[$subselect_index] = true;
 					}
-					if ($link) $rows[$z][$fieldindex]['text'].= '</a>';
-					if (isset($field['sum']) && $field['sum'] == true) {
-						if (!isset($sum[$field['title']])) $sum[$field['title']] = 0;
-						$sum[$field['title']] += $line[$field['field_name']];
-						$sum_group = zz_list_group_sum($rows[$z]['group'], $sum_group, $field['title'], $line[$field['field_name']]);
+					if (empty($line[$key_fieldname])) {
+						$zz_error[] = array(
+							'msg_dev' => 'Wrong key_field_name. Please set $zz_sub["fields"]['
+							.'n]["key_field_name"] to something different: '.implode(', ', array_keys($line)));
 					}
-				}
-				if (isset($field['unit']) && $rows[$z][$fieldindex]['text']) 
-					$rows[$z][$fieldindex]['text'].= '&nbsp;'.$field['unit'];	
-				if (strlen($rows[$z][$fieldindex]['text']) == $stringlength) { // string empty or nothing appended
-					if (!empty($field['list_prefix'])) {
-						$rows[$z][$fieldindex]['text'] = substr($rows[$z][$fieldindex]['text'], 0, $stringlength - strlen(zz_text($field['list_prefix'])));
-					}
-				} else {
-					if (!empty($field['list_suffix'])) {
-						$rows[$z][$fieldindex]['text'] .= zz_text($field['list_suffix']);
-					}
-				}
-				if (!empty($field['list_abbr']) AND $ops['mode'] != 'export') {
-					$rows[$z][$fieldindex]['text'] .= '</abbr>';
+					$sub_id = $line[$key_fieldname]; // get correct ID
 				}
 
 				// group: go through everything but don't show it in list
@@ -659,11 +480,11 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 						ksort($grouptitles[$z]);
 					}
 				}
-
 				if ($zz_conf['modules']['debug']) zz_debug("table_query end ".$fieldindex.'-'.$field['type']);
-
 			}
 			if ($sub_id) $ids[$z] = $sub_id; // for subselects
+			$lastline = $line;
+
 			if ($zz_conf_record['edit'] OR $zz_conf_record['view'] OR $zz_conf_record['delete']) {
 				$rows[$z]['modes'] = false;
 				if ($zz_conf_record['edit']) {
@@ -700,58 +521,11 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				$details = true; // need a table row for this
 			}
 			$z++;
-			$lastline = $line;
 		}
 	}
 	unset($lines);
 		
-	// get values for "subselects" in detailrecords
-	
-	foreach ($subselects as $subselect) {
-		// default values
-		if (!isset($subselect['prefix'])) $subselect['prefix'] = '<p>';
-		if (!isset($subselect['concat_rows'])) $subselect['concat_rows'] = "</p>\n<p>";
-		if (!isset($subselect['suffix'])) $subselect['suffix'] = '</p>';
-		if (!isset($subselect['concat_fields'])) $subselect['concat_fields'] = ' ';
-		if (!isset($subselect['show_empty_cells'])) $subselect['show_empty_cells'] = false;
-		
-		$subselect['sql'] = zz_edit_sql($subselect['sql'], 'WHERE', $subselect['id_table_and_fieldname'].' 
-			IN ('.implode(', ', $ids).')');
-		if (!empty($subselect['translation_key']))
-			$subselect['sql']  = zz_edit_sql($subselect['sql'], 'WHERE', 
-				'translationfield_id = '.$subselect['translation_key']);
-		// E_USER_WARNING might return message, we do not want to see this message
-		// but in the logs
-		$lines = zz_db_fetch($subselect['sql'], array($subselect['id_fieldname'], '_dummy_id_'), 'numeric', false, E_USER_WARNING);
-		if (!is_array($lines)) $lines = array();
-
-		foreach ($ids as $z_row => $id) {
-			if (empty($lines[$id])) continue;
-			$linetext = false;
-			foreach ($lines[$id] as $linefields) {
-				unset($linefields[$subselect['id_fieldname']]); // ID field will not be shown
-				$fieldtext = false;
-				foreach ($linefields as $db_fields) {
-					if ($subselect['show_empty_cells'] AND !$db_fields) $db_fields = '&nbsp;';
-					if ($fieldtext AND $db_fields) $fieldtext .= $subselect['concat_fields'];
-					$fieldtext .= $db_fields;
-				}
-				$linetext[] = $fieldtext;
-			}
-			$subselect_text = implode($subselect['concat_rows'], $linetext);
-			$subselect_text = $subselect['prefix'].$subselect_text.$subselect['suffix'];
-			if (!empty($subselect['list_format'])) {
-				if (!empty($zz_conf['modules']['debug'])) zz_debug('start', $subselect['list_format']);
-				$subselect_text = $subselect['list_format']($subselect_text);
-				if (!empty($zz_conf['modules']['debug'])) zz_debug('end');
-			}
-			$rows[$z_row][$subselect['fieldindex']]['text'].= zz_mark_search_string($subselect_text, '', $field);
-			if (!empty($subselect['export_no_html'])) {
-				$rows[$z_row][$subselect['fieldindex']]['export_no_html'] = true;
-			}
-		}
-	}
-	
+	$rows = zz_list_get_subselects($rows, $subselects, $ids, $field);
 	
 	//
 	// Remaining table header
@@ -770,13 +544,14 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	// Table footer
 	//
 	
-	$my_footer_table = (!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : false);
-	if ($zz_conf['show_list'] && $zz_conf['tfoot'] && $zz_conf['list_display'] == 'table') {
-		$ops['output'].= '<tfoot>'."\n".'<tr>';
-		$ops['output'].= zz_field_sum($table_query[0], $z, $my_footer_table, $sum);
-		$ops['output'].= '<td class="editbutton">&nbsp;</td>';
-		$ops['output'].= '</tr>'."\n".'</tfoot>'."\n";
-		
+	if ($zz_conf['show_list']) {
+		$my_footer_table = (!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : false);
+		if ($zz_conf['tfoot'] && $zz_conf['list_display'] == 'table') {
+			$ops['output'].= '<tfoot>'."\n".'<tr>';
+			$ops['output'].= zz_field_sum($table_query[0], $z, $my_footer_table, $sum);
+			$ops['output'].= '<td class="editbutton">&nbsp;</td>';
+			$ops['output'].= '</tr>'."\n".'</tfoot>'."\n";
+		}
 	}
 
 	//
@@ -939,6 +714,230 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	// save total rows in zz_var for use in zz_nice_title()
 	$zz_var['limit_total_rows'] = $total_rows;
 	return zz_return(array($ops, $zz_var));
+}
+
+/**
+ * Output and formatting of a single table cell in list mode
+ *
+ * @param array $row
+ * @param array $field field definition
+ * @param array $line current record from database
+ * @param array $lastline previous record from database
+ * @param array $zz_var
+ * @param string $table
+ * @param array $zz_conf_record
+ * @global array $zz_conf
+ * @return array $row
+ *		string 'value'	= raw value in database, modified by factor/display if applicable
+ *		array 'class'	= Array of class names for cell
+ *		string 'text'	= HTML output for cell
+ */
+function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $zz_conf_record) {
+	global $zz_conf;
+	// shortcuts
+	$row['value'] = $line[$field['field_name']];
+
+	// set 'class'
+	if (!isset($row['class'])) $row['class'] = array();
+	elseif (!is_array($row['class'])) $row['class'] = array($row['class']);
+	// if table row is affected by where, mark this
+	$where_table = !empty($zz_var['where'][$table]) ? $zz_var['where'][$table] : '';
+	// set class depending on where and field info
+	$field['level'] = zz_list_field_level($field, $line);
+	$row['class'] = array_merge($row['class'], zz_field_class($field, $where_table));
+	if (!empty($field['field_name']) AND !empty($lastline[$field['field_name']]) 
+		AND $row['value'] == $lastline[$field['field_name']]) {
+		$row['class'][] = 'identical_value';
+	}
+				
+	// set 'text'
+	if (empty($row['text'])) $row['text'] = '';
+
+	// add prefixes etc. to 'text'		
+	if (!empty($field['list_prefix'])) {
+		$row['text'] .= zz_text($field['list_prefix']);
+	}
+	if (!empty($field['list_abbr']) AND $mode != 'export') {
+		$row['text'] .= '<abbr title="'.htmlspecialchars($line[$field['list_abbr']]).'">';
+ 	}
+	$stringlength = strlen($row['text']);
+
+	//	if there's a link, glue parts together
+	$link = false;
+	if ($mode != 'export') $link = zz_set_link($field, $line);
+
+	//	go for type of field!
+	switch ($field['type']) {
+	case 'calculated':
+		if ($field['calculation'] == 'hours') {
+			$row['value'] = 0;
+			foreach ($field['calculation_fields'] as $calc_field)
+				if (!$row['value']) $row['value'] = strtotime($line[$calc_field]);
+				else $row['value'] -= strtotime($line[$calc_field]);
+			if ($row['value'] < 0) $row['text'] .= '<em class="negative">';
+			$row['text'].= hours($row['value']);
+			if ($row['value'] < 0) $row['text'] .= '</em>';
+		} elseif ($field['calculation'] == 'sum') {
+			$row['value'] = 0;
+			foreach ($field['calculation_fields'] as $calc_field)
+				$row['value'] += $line[$calc_field];
+			$row['text'] .= $row['value'];
+		} elseif ($field['calculation'] == 'sql') {
+			$row['text'] .= $row['value'];
+		}
+		break;
+	case 'image':
+	case 'upload_image':
+		if (isset($field['path'])) {
+			if ($img = zz_makelink($field['path'], $line, 'image')) {
+				$row['text'] .= $link.$img.($link ? '</a>' : '');
+			} elseif (isset($field['default_image'])) {
+				if (is_array($field['default_image'])) {
+					$default_image = zz_makelink($field['default_image'], $line);
+				} else {
+					$default_image = $field['default_image'];
+				}
+				$row['text'] .= $link.'<img src="'.$default_image
+					.'"  alt="'.zz_text('no_image').'" class="thumb">'.($link ? '</a>' : '');
+			}
+			if (!empty($field['image']) AND $mode != 'export') {
+				foreach ($field['image'] as $image)
+					if (empty($image['show_link'])) continue;
+					if ($imglink = zz_makelink($image['path'], $line))
+						$row['text'] .= ' <a href="'.$imglink.'">'.$image['title'].'</a><br>' ;
+				}
+		} elseif (isset($field['path_json_request'])) {
+			$img = zz_makelink($field['path_json_request'], $line);
+			if ($img = brick_request_getjson($img)) {
+				$row['text'].= $link.'<img src="'
+					.(!empty($field['path_json_base']) ? $field['path_json_base'] : '')
+					.$img.'"  alt="" class="thumb">'
+					.($link ? '</a>' : '');
+			}
+		}
+		break;
+	case 'subtable':
+		if (empty($field['subselect']['sql']) AND !empty($field['display_field'])) {
+			$text = $line[$field['display_field']];
+			$row['text'].= zz_mark_search_string($text, $field['display_field'], $field);
+		}
+		break;
+	case 'url':
+	case 'mail':
+	case 'mail+name':
+		if ($link) $row['text'].= $link;
+		if (!empty($field['display_field']))
+			$row['text'].= zz_mark_search_string(htmlchars($line[$field['display_field']]), $field['display_field'], $field);
+		elseif ($field['type'] == 'url' && strlen($row['value']) > $zz_conf_record['max_select_val_len'])
+			$row['text'].= zz_mark_search_string(
+				mb_substr(htmlchars($row['value']), 0, 
+				$zz_conf_record['max_select_val_len']).'...', $field['field_name'], $field);
+		else
+			$row['text'].= zz_mark_search_string(htmlspecialchars($row['value']), $field['field_name'], $field);
+		if ($link) $row['text'].= '</a>';
+		break;
+	case 'ipv4':
+		$text = long2ip($row['value']);
+		$row['text'].= zz_mark_search_string($text, $field['field_name'], $field);
+		break;
+	default:
+		if ($link) $row['text'] .= $link;
+		if (!empty($field['display_field'])) {
+			$val_to_insert = $line[$field['display_field']];
+			if (!empty($field['translate_field_value']))
+				$val_to_insert = zz_text($val_to_insert);
+			$row['text'].= zz_mark_search_string(htmlchars($val_to_insert), $field['display_field'], $field);
+		} else {
+			// replace field content with display_title, if set.
+			if (!empty($field['display_title']) 
+				&& in_array($row['value'], array_keys($field['display_title'])))
+				$row['value'] = $field['display_title'][$line[$field['field_name']]];
+			if (isset($field['factor']) && $line[$field['field_name']]) 
+				$row['value'] /= $field['factor'];
+			$row['text'] .= zz_list_show_field($field, $row['value'], $mode);
+		}
+		if ($link) $row['text'].= '</a>';
+	}
+
+	if (isset($field['unit']) && $row['text']) 
+		$row['text'].= '&nbsp;'.$field['unit'];	
+	if (strlen($row['text']) == $stringlength) {
+		// string empty or nothing appended
+		if (!empty($field['list_prefix'])) {
+			$row['text'] = substr($row['text'], 0, $stringlength - strlen(zz_text($field['list_prefix'])));
+		}
+	} else {
+		if (!empty($field['list_suffix'])) {
+			$row['text'] .= zz_text($field['list_suffix']);
+		}
+	}
+	if (!empty($field['list_abbr']) AND $mode != 'export') {
+		$row['text'] .= '</abbr>';
+	}
+
+	return $row;
+}
+
+/**
+ * Shows field value in list view, depending on some settings
+ *
+ * @param array $field (field definition)
+ * @param string $value
+ * @return string $text HTML output
+ */
+function zz_list_show_field($field, $value, $mode) {
+	global $zz_conf;
+	$mark_search_string = 'field_name';
+	$text = false;
+
+	if ($field['type'] == 'unix_timestamp') {
+		$text = date('Y-m-d H:i:s', $value);
+	} elseif ($field['type'] == 'timestamp') {
+		$text = timestamp2date($value);
+	} elseif ($field['type'] == 'select' 
+		AND (!empty($field['set']) OR !empty($field['set_sql']) OR !empty($field['set_folder']))) {
+		$text = str_replace(',', ', ', $value);
+	} elseif ($field['type'] == 'select' && !empty($field['enum']) && !empty($field['enum_title'])) {
+		// show enum_title instead of enum
+		foreach ($field['enum'] as $mkey => $mvalue) {
+			if ($mvalue != $value) continue;
+			$text = $field['enum_title'][$mkey];
+		}
+	} elseif ($field['type'] == 'select' && !empty($field['enum'])) {
+		$text = zz_text($value); // translate field value
+	} elseif ($field['type'] == 'date') {
+		$text = datum_de($value);
+	} elseif (isset($field['number_type']) && $field['number_type'] == 'currency') {
+		$text = waehrung($value, '');
+	} elseif (isset($field['number_type']) && $field['number_type'] == 'latitude' && $value) {
+		if (empty($field['geo_format'])) $field['geo_format'] = 'dms';
+		$text = zz_geo_coord_out($value, 'latitude', $field['geo_format']);
+	} elseif (isset($field['number_type']) && $field['number_type'] == 'longitude' && $value) {
+		if (empty($field['geo_format'])) $field['geo_format'] = 'dms';
+		$text = zz_geo_coord_out($value, 'longitude', $field['geo_format']);
+
+	} elseif (!empty($field['display_value'])) {
+		// translations should be done in $zz-definition-file
+		$text = $field['display_value'];
+		$mark_search_string = false;
+	} elseif ($mode == 'export') {
+		$text = $value;
+		$mark_search_string = false;
+	} elseif (!empty($field['list_format'])) {
+		if (!empty($zz_conf['modules']['debug'])) zz_debug('start', $field['list_format']);
+		$text = $field['list_format']($value);
+		if (!empty($zz_conf['modules']['debug'])) zz_debug('end');
+	} elseif (empty($field['hide_zeros']) OR $value) {
+		// show field, but not if hide_zeros is set
+		$text = $value;
+		if (!empty($field['translate_field_value']))
+			$text = zz_text($text);
+		$text = nl2br(htmlchars($text));
+	}
+	if ($mark_search_string) {
+		$text = zz_mark_search_string($text, $field[$mark_search_string], $field);
+	}
+	return $text;
 }
 
 /**
@@ -1737,6 +1736,94 @@ function zz_list_th($field) {
 	// HTML output
 	$out = $link_open.$out.$link_close;
 	return $out;
+}
+
+/**
+ * get values for "subselects" in detailrecords
+ *
+ * @param array $rows
+ * @param array $subselects List of detail records with an SQL query
+ *		$zz['fields'][n]['subselect'] = ...;
+ *			required keys: 'sql', 'id_table_and_fieldname', 'id_fieldname'
+ *			optional keys: 'translation_key', 'list_format', 'export_no_html',
+ *			'prefix', 'concat_rows', 'suffix', 'concat_fields', 'show_empty_cells'
+ * @param array $ids
+ * @param array $field
+ * @return array $rows
+ */
+function zz_list_get_subselects($rows, $subselects, $ids, $field) {
+	global $zz_conf;
+	
+	if (!$subselects) return $rows;
+	
+	foreach ($subselects as $subselect) {
+		// default values
+		if (!isset($subselect['prefix'])) $subselect['prefix'] = '<p>';
+		if (!isset($subselect['concat_rows'])) $subselect['concat_rows'] = "</p>\n<p>";
+		if (!isset($subselect['suffix'])) $subselect['suffix'] = '</p>';
+		if (!isset($subselect['concat_fields'])) $subselect['concat_fields'] = ' ';
+		if (!isset($subselect['show_empty_cells'])) $subselect['show_empty_cells'] = false;
+		
+		$subselect['sql'] = zz_edit_sql($subselect['sql'], 'WHERE', 
+			$subselect['id_table_and_fieldname'].' IN ('.implode(', ', $ids).')');
+		if (!empty($subselect['translation_key']))
+			$subselect['sql']  = zz_edit_sql($subselect['sql'], 'WHERE', 
+				'translationfield_id = '.$subselect['translation_key']);
+		// E_USER_WARNING might return message, we do not want to see this message
+		// but in the logs
+		$lines = zz_db_fetch($subselect['sql'], array($subselect['id_fieldname'], '_dummy_id_'), 'numeric', false, E_USER_WARNING);
+		if (!is_array($lines)) $lines = array();
+
+		foreach ($ids as $z_row => $id) {
+			if (empty($lines[$id])) continue;
+			$linetext = false;
+			foreach ($lines[$id] as $linefields) {
+				unset($linefields[$subselect['id_fieldname']]); // ID field will not be shown
+				$fieldtext = false;
+				foreach ($linefields as $db_fields) {
+					if ($subselect['show_empty_cells'] AND !$db_fields) $db_fields = '&nbsp;';
+					if ($fieldtext AND $db_fields) $fieldtext .= $subselect['concat_fields'];
+					$fieldtext .= $db_fields;
+				}
+				$linetext[] = $fieldtext;
+			}
+			$subselect_text = implode($subselect['concat_rows'], $linetext);
+			$subselect_text = $subselect['prefix'].$subselect_text.$subselect['suffix'];
+			if (!empty($subselect['list_format'])) {
+				if (!empty($zz_conf['modules']['debug'])) zz_debug('start', $subselect['list_format']);
+				$subselect_text = $subselect['list_format']($subselect_text);
+				if (!empty($zz_conf['modules']['debug'])) zz_debug('end');
+			}
+			$rows[$z_row][$subselect['fieldindex']]['text'] .= zz_mark_search_string($subselect_text, '', $field);
+			if (!empty($subselect['export_no_html'])) {
+				$rows[$z_row][$subselect['fieldindex']]['export_no_html'] = true;
+			}
+		}
+	}
+	return $rows;
+}
+
+/**
+ * sets level for a field where a hierarchy of records shall be displayed in
+ *
+ * @param array $field
+ * @param array $line
+ * @global array $zz_conf
+ * @return string level or ''
+ */
+function zz_list_field_level($field, $line);
+	if (!isset($line['zz_level'])) return '';
+
+	global $zz_conf;
+
+	if (!empty($field['field_name']) // occurs in case of subtables
+		AND $field['field_name'] == $zz_conf['hierarchy']['display_in']) {
+		return $line['zz_level'];
+	} elseif (!empty($field['table_name']) 
+		AND $field['table_name'] == $zz_conf['hierarchy']['display_in']) {
+		return $line['zz_level'];
+	}
+	return '';
 }
 
 ?>
