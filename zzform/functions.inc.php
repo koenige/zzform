@@ -3415,7 +3415,7 @@ function zz_querystring_to_hidden($query_string, $unwanted_keys = array(), $leve
  */
 function zz_field_class($field, $values, $html = false) {
 	$class = array();
-	if (isset($field['level']))
+	if (!empty($field['level']))
 		$class[] = 'level'.$field['level'];
 	if ($field['type'] == 'id' && empty($field['show_id']))
 		$class[] = 'recordid';
