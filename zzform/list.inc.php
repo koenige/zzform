@@ -735,7 +735,10 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $zz_conf_record) {
 	global $zz_conf;
 	// shortcuts
-	$row['value'] = $line[$field['field_name']];
+	if (!empty($field['field_name']) AND !empty($line[$field['field_name']]))
+		$row['value'] = $line[$field['field_name']];
+	else
+		$row['value'] = '';
 
 	// set 'class'
 	if (!isset($row['class'])) $row['class'] = array();
