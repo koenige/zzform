@@ -804,11 +804,12 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 					.'"  alt="'.zz_text('no_image').'" class="thumb">'.($link ? '</a>' : '');
 			}
 			if (!empty($field['image']) AND $mode != 'export') {
-				foreach ($field['image'] as $image)
+				foreach ($field['image'] as $image) {
 					if (empty($image['show_link'])) continue;
 					if ($imglink = zz_makelink($image['path'], $line))
-						$row['text'] .= ' <a href="'.$imglink.'">'.$image['title'].'</a><br>' ;
+						$row['text'] .= ' <a href="'.$imglink.'">'.$image['title'].'</a><br>';
 				}
+			}
 		} elseif (isset($field['path_json_request'])) {
 			$img = zz_makelink($field['path_json_request'], $line);
 			if ($img = brick_request_getjson($img)) {
