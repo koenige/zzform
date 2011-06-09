@@ -485,34 +485,9 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			if ($sub_id) $ids[$z] = $sub_id; // for subselects
 			$lastline = $line;
 
-			if ($zz_conf_record['edit'] OR $zz_conf_record['view'] OR $zz_conf_record['delete']) {
-				$rows[$z]['modes'] = false;
-				if ($zz_conf_record['edit']) {
-					$rows[$z]['modes'] = '<a href="'.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
-						.$zz_conf['int']['url']['?&'].'mode=edit&amp;id='.$id
-						.$zz_var['extraGET'].'">'.zz_text('edit').'</a>';
-					$modes = true; // need a table row for this
-				} elseif ($zz_conf_record['view']) {
-					$rows[$z]['modes'] = '<a href="'.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
-						.$zz_conf['int']['url']['?&'].'mode=show&amp;id='.$id
-						.$zz_var['extraGET'].'">'.zz_text('show').'</a>';
-					$modes = true; // need a table row for this
-				}
-				if ($zz_conf_record['copy']) {
-					if ($rows[$z]['modes']) $rows[$z]['modes'] .= '&nbsp;| ';
-					$rows[$z]['modes'] .= '<a href="'
-						.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs'].$zz_conf['int']['url']['?&'].'mode=add&amp;source_id='
-						.$id.$zz_var['extraGET'].'">'.zz_text('Copy').'</a>';
-					$modes = true; // need a table row for this
-				}
-				if ($zz_conf_record['delete']) {
-					if ($rows[$z]['modes']) $rows[$z]['modes'] .= '&nbsp;| ';
-					$rows[$z]['modes'] .= '<a href="'
-						.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs'].$zz_conf['int']['url']['?&'].'mode=delete&amp;id='
-						.$id.$zz_var['extraGET'].'">'.zz_text('delete').'</a>';
-					$modes = true; // need a table row for this
-				}
-			}
+			$rows[$z]['modes'] = zz_list_modes($id, $zz_var, $zz_conf_record);
+			if ($rows[$z]['modes']) $modes = true; // need a table row for this
+
 			if (!empty($zz_conf_record['details'])) {
 				$rows[$z]['details'] = zz_show_more_actions($zz_conf_record['details'], 
 					$zz_conf_record['details_url'],  $zz_conf_record['details_base'], 
@@ -662,17 +637,16 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			AND in_array($zz_conf['filter_position'], array('bottom', 'both')))
 			$ops['output'] .= zz_filter_selection($zz_conf['filter']);
 		$toolsline = array();
+		$base_url = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
+			.$zz_conf['int']['url']['?&'];
+
 		// normal add button, only if list was shown beforehands
 		if ($ops['mode'] != 'add' && $zz_conf['add_link'] AND !is_array($zz_conf['add']) && $zz_conf['show_list']) {
-			$toolsline[] = '<a accesskey="n" href="'
-				.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
-				.$zz_conf['int']['url']['?&'].'mode=add'.$zz_var['extraGET'].'">'
-				.zz_text('Add new record').'</a>';
+			$toolsline[] = '<a accesskey="n" href="'.$base_url.'mode=add'
+				.$zz_var['extraGET'].'">'.zz_text('Add new record').'</a>';
 			if ($zz_conf['import']) {
-				$toolsline[] = '<a href="'
-					.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
-					.$zz_conf['int']['url']['?&'].'mode=import'.$zz_var['extraGET'].'">'
-					.zz_text('Import data').'</a>';
+				$toolsline[] = '<a href="'.$base_url.'mode=import'
+					.$zz_var['extraGET'].'">'.zz_text('Import data').'</a>';
 			}
 		}
 		// multi-add-button, also show if there was no list, because it will only be shown below records!
@@ -681,8 +655,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			ksort($zz_conf['add']); // if some 'add' was unset before, here we get new numerical keys
 			$ops['output'] .= '<p class="add-new">'.zz_text('Add new record').': ';
 			foreach ($zz_conf['add'] as $i => $add) {
-				$ops['output'] .= '<a href="'.$zz_conf['int']['url']['self']
-					.$zz_conf['int']['url']['qs'].$zz_conf['int']['url']['?&']
+				$ops['output'] .= '<a href="'.$base_url
 					.'mode=add'.$zz_var['extraGET'].'&amp;add['.$add['field_name'].']='
 					.$add['value'].'"'
 					.(!empty($add['title']) ? ' title="'.$add['title'].'"' : '')
@@ -694,8 +667,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		}
 
 		if ($zz_conf['export'] AND $total_rows) 
-			$toolsline = array_merge($toolsline, zz_export_links($zz_conf['int']['url']['self']
-				.$zz_conf['int']['url']['qs'].$zz_conf['int']['url']['?&'], $zz_var['extraGET']));
+			$toolsline = array_merge($toolsline, zz_export_links($base_url, $zz_var['extraGET']));
 		if ($toolsline)
 			$ops['output'] .= '<p class="add-new bottom-add-new">'.implode(' | ', $toolsline).'</p>';
 		// Total records
@@ -714,6 +686,39 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	// save total rows in zz_var for use in zz_nice_title()
 	$zz_var['limit_total_rows'] = $total_rows;
 	return zz_return(array($ops, $zz_var));
+}
+
+/**
+ * Create links to edit, show, delete or copy a record
+ *
+ * @param int $id ID of this record
+ * @param array $zz_var ('extraGET')
+ * @param array $zz_conf_record
+ *		'edit', 'view', 'copy', 'delete'
+ * @global array $zz_conf
+ * @return string
+ */
+function zz_list_modes($id, $zz_var, $zz_conf_record) {
+	global $zz_conf;
+	$link = '<a href="%smode=%s&amp;%s%s">%s</a>';
+	$base_url = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
+		.$zz_conf['int']['url']['?&'];
+	$suffix = $id.$zz_var['extraGET'];
+	$modes = array();
+
+	if ($zz_conf_record['edit']) {
+		$modes[] = sprintf($link, $base_url, 'edit', 'id', $suffix, zz_text('edit'));
+	} elseif ($zz_conf_record['view']) {
+		$modes[] = sprintf($link, $base_url, 'show', 'id', $suffix, zz_text('show'));
+	}
+	if ($zz_conf_record['copy']) {
+		$modes[] = sprintf($link, $base_url, 'add', 'source_id', $suffix, zz_text('Copy'));
+	}
+	if ($zz_conf_record['delete']) {
+		$modes[] = sprintf($link, $base_url, 'delete', 'id', $suffix, zz_text('delete'));
+	}
+	if ($modes) return implode('&nbsp;| ', $modes);
+	else return false;
 }
 
 /**
