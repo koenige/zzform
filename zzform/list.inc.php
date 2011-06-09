@@ -48,8 +48,6 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	if ($zz_conf['access'] == 'search_but_no_list' AND empty($_GET['q'])) 
 		$zz_conf['show_list'] = false;
 
-	$subselects = array();
-
 	// SQL query without limit and filter for conditions etc.!
 	$zz['sql_without_limit'] = $zz['sql'];
 
@@ -326,7 +324,9 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	$sum_group = array();
 	$modes = false;		// don't show a table head for link to modes until necessary
 	$details = false;	// don't show a table head for link to details until necessary
+	$rows = array();
 	if ($zz_conf['show_list']) {
+		$subselects = array();
 		$id_fieldname = false;
 		$z = 0;
 		$ids = array();
@@ -522,10 +522,10 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			}
 			$z++;
 		}
+		$rows = zz_list_get_subselects($rows, $subselects, $ids);
 	}
 	unset($lines);
-		
-	$rows = zz_list_get_subselects($rows, $subselects, $ids, $field);
+	
 	
 	//
 	// Remaining table header
@@ -769,28 +769,40 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 	$link = false;
 	if ($mode != 'export') $link = zz_set_link($field, $line);
 
-	//	go for type of field!
-	switch ($field['type']) {
+	$mark_search_string = 'field_name';
+	$text = false;
+
+	if (!empty($field['display_field'])) {
+		$text = $line[$field['display_field']];
+		if (!empty($field['translate_field_value'])) $text = zz_text($text);
+		$text = htmlchars($text);
+		$mark_search_string = 'display_field';
+	}
+
+	//	go for type of field if no display field is set
+	if (!$text) switch ($field['type']) {
 	case 'calculated':
 		if ($field['calculation'] == 'hours') {
 			$row['value'] = 0;
 			foreach ($field['calculation_fields'] as $calc_field)
 				if (!$row['value']) $row['value'] = strtotime($line[$calc_field]);
 				else $row['value'] -= strtotime($line[$calc_field]);
-			if ($row['value'] < 0) $row['text'] .= '<em class="negative">';
-			$row['text'].= hours($row['value']);
-			if ($row['value'] < 0) $row['text'] .= '</em>';
+			if ($row['value'] < 0) $text = '<em class="negative">';
+			$text .= hours($row['value']);
+			if ($row['value'] < 0) $text .= '</em>';
 		} elseif ($field['calculation'] == 'sum') {
 			$row['value'] = 0;
 			foreach ($field['calculation_fields'] as $calc_field)
 				$row['value'] += $line[$calc_field];
-			$row['text'] .= $row['value'];
+			$text = $row['value'];
 		} elseif ($field['calculation'] == 'sql') {
-			$row['text'] .= $row['value'];
+			$text = $row['value'];
 		}
+		$mark_search_string = false;
 		break;
 	case 'image':
 	case 'upload_image':
+		$mark_search_string = false;
 		if (isset($field['path'])) {
 			if ($img = zz_makelink($field['path'], $line, 'image')) {
 				$row['text'] .= $link.$img.($link ? '</a>' : '');
@@ -810,61 +822,119 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 						$row['text'] .= ' <a href="'.$imglink.'">'.$image['title'].'</a><br>';
 				}
 			}
+			$link = false;
 		} elseif (isset($field['path_json_request'])) {
 			$img = zz_makelink($field['path_json_request'], $line);
 			if ($img = brick_request_getjson($img)) {
-				$row['text'].= $link.'<img src="'
+				$text = '<img src="'
 					.(!empty($field['path_json_base']) ? $field['path_json_base'] : '')
-					.$img.'"  alt="" class="thumb">'
-					.($link ? '</a>' : '');
+					.$img.'"  alt="" class="thumb">';
 			}
 		}
 		break;
 	case 'subtable':
-		if (empty($field['subselect']['sql']) AND !empty($field['display_field'])) {
-			$text = $line[$field['display_field']];
-			$row['text'].= zz_mark_search_string($text, $field['display_field'], $field);
-		}
+		// main stuff will come from 'subselect', otherwise this field has no content
+		$link = false;
 		break;
 	case 'url':
 	case 'mail':
 	case 'mail+name':
-		if ($link) $row['text'].= $link;
-		if (!empty($field['display_field']))
-			$row['text'].= zz_mark_search_string(htmlchars($line[$field['display_field']]), $field['display_field'], $field);
-		elseif ($field['type'] == 'url' && strlen($row['value']) > $zz_conf_record['max_select_val_len'])
-			$row['text'].= zz_mark_search_string(
-				mb_substr(htmlchars($row['value']), 0, 
-				$zz_conf_record['max_select_val_len']).'...', $field['field_name'], $field);
-		else
-			$row['text'].= zz_mark_search_string(htmlspecialchars($row['value']), $field['field_name'], $field);
-		if ($link) $row['text'].= '</a>';
+		if ($field['type'] == 'url' && strlen($row['value']) > $zz_conf_record['max_select_val_len']) {
+			$text = mb_substr(htmlchars($row['value']), 0, $zz_conf_record['max_select_val_len']).'...';
+		} else {
+			$text = htmlspecialchars($row['value']);
+		}
 		break;
 	case 'ipv4':
 		$text = long2ip($row['value']);
-		$row['text'].= zz_mark_search_string($text, $field['field_name'], $field);
+		break;
+	case 'unix_timestamp':
+		$text = date('Y-m-d H:i:s', $row['value']);
+		break;
+	case 'timestamp':
+		$text = timestamp2date($row['value']);
+		break;
+	case 'date':
+		$text = datum_de($row['value']);
+		break;
+	case 'select':
+		if (!empty($field['set']) 
+			OR !empty($field['set_sql']) 
+			OR !empty($field['set_folder'])) {
+			$text = str_replace(',', ', ', $row['value']);
+		} elseif (!empty($field['enum']) AND !empty($field['enum_title'])) {
+			// show enum_title instead of enum
+			foreach ($field['enum'] as $mkey => $mvalue) {
+				if ($mvalue != $row['value']) continue;
+				$text = $field['enum_title'][$mkey];
+			}
+		} elseif (!empty($field['enum'])) {
+			$text = zz_text($row['value']); // translate field value
+		} else {
+			$text = $row['value'];
+		}
+		break;
+	case 'number':
+		if (isset($field['factor']) && $row['value']) {
+			$row['value'] /= $field['factor'];
+		}
+		if (isset($field['number_type'])) {
+			switch ($field['number_type']) {
+			case 'currency':
+				$text = waehrung($row['value'], '');
+				break;
+			case 'latitude':
+			case 'longitude':
+				if (!$row['value']) break;
+				if (empty($field['geo_format'])) $field['geo_format'] = 'dms';
+				$text = zz_geo_coord_out($row['value'], $field['number_type'], $field['geo_format']);
+				break;
+			default:
+				$text = $row['value'];
+			}
+		} else {
+			$text = $row['value'];
+		}
+		break;
+	case 'display':
+		if (!empty($field['display_title']) 
+			&& in_array($row['value'], array_keys($field['display_title']))) {
+			// replace field content with display_title, if set.
+			// display values depending on database value
+			$text = $field['display_title'][$row['value']];
+		} elseif (!empty($field['display_value'])) {
+			// translations should be done in $zz-definition-file
+			$text = $field['display_value'];
+		} else {
+			$text = $row['value'];
+			$text = nl2br(htmlchars($text));
+		}
 		break;
 	default:
-		if ($link) $row['text'] .= $link;
-		if (!empty($field['display_field'])) {
-			$val_to_insert = $line[$field['display_field']];
-			if (!empty($field['translate_field_value']))
-				$val_to_insert = zz_text($val_to_insert);
-			$row['text'].= zz_mark_search_string(htmlchars($val_to_insert), $field['display_field'], $field);
-		} else {
-			// replace field content with display_title, if set.
-			if (!empty($field['display_title']) 
-				&& in_array($row['value'], array_keys($field['display_title'])))
-				$row['value'] = $field['display_title'][$line[$field['field_name']]];
-			if (isset($field['factor']) && $line[$field['field_name']]) 
-				$row['value'] /= $field['factor'];
-			$row['text'] .= zz_list_show_field($field, $row['value'], $mode);
-		}
-		if ($link) $row['text'].= '</a>';
+		$text = $row['value'];
+		$text = nl2br(htmlchars($text));
+		break;
 	}
+	if (!empty($field['translate_field_value'])) {
+		$text = zz_text($text);
+	}
+	if (!empty($field['list_format'])) {
+		if (!empty($zz_conf['modules']['debug'])) zz_debug('start', $field['list_format']);
+		$text = $field['list_format']($text);
+		if (!empty($zz_conf['modules']['debug'])) zz_debug('end');
+	}
+	if (empty($field['hide_zeros']) AND !$text) {
+		$text = '';
+	}
+	if ($mark_search_string AND $text AND $mode != 'export') {
+		$text = zz_mark_search_string($text, $field[$mark_search_string], $field);
+	}
+	if ($link) $row['text'] .= $link;
+	$row['text'] .= $text;
+	if ($link) $row['text'] .= '</a>';
 
 	if (isset($field['unit']) && $row['text']) 
-		$row['text'].= '&nbsp;'.$field['unit'];	
+		$row['text'] .= '&nbsp;'.$field['unit'];	
 	if (strlen($row['text']) == $stringlength) {
 		// string empty or nothing appended
 		if (!empty($field['list_prefix'])) {
@@ -880,68 +950,6 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 	}
 
 	return $row;
-}
-
-/**
- * Shows field value in list view, depending on some settings
- *
- * @param array $field (field definition)
- * @param string $value
- * @return string $text HTML output
- */
-function zz_list_show_field($field, $value, $mode) {
-	global $zz_conf;
-	$mark_search_string = 'field_name';
-	$text = false;
-
-	if ($field['type'] == 'unix_timestamp') {
-		$text = date('Y-m-d H:i:s', $value);
-	} elseif ($field['type'] == 'timestamp') {
-		$text = timestamp2date($value);
-	} elseif ($field['type'] == 'select' 
-		AND (!empty($field['set']) OR !empty($field['set_sql']) OR !empty($field['set_folder']))) {
-		$text = str_replace(',', ', ', $value);
-	} elseif ($field['type'] == 'select' && !empty($field['enum']) && !empty($field['enum_title'])) {
-		// show enum_title instead of enum
-		foreach ($field['enum'] as $mkey => $mvalue) {
-			if ($mvalue != $value) continue;
-			$text = $field['enum_title'][$mkey];
-		}
-	} elseif ($field['type'] == 'select' && !empty($field['enum'])) {
-		$text = zz_text($value); // translate field value
-	} elseif ($field['type'] == 'date') {
-		$text = datum_de($value);
-	} elseif (isset($field['number_type']) && $field['number_type'] == 'currency') {
-		$text = waehrung($value, '');
-	} elseif (isset($field['number_type']) && $field['number_type'] == 'latitude' && $value) {
-		if (empty($field['geo_format'])) $field['geo_format'] = 'dms';
-		$text = zz_geo_coord_out($value, 'latitude', $field['geo_format']);
-	} elseif (isset($field['number_type']) && $field['number_type'] == 'longitude' && $value) {
-		if (empty($field['geo_format'])) $field['geo_format'] = 'dms';
-		$text = zz_geo_coord_out($value, 'longitude', $field['geo_format']);
-
-	} elseif (!empty($field['display_value'])) {
-		// translations should be done in $zz-definition-file
-		$text = $field['display_value'];
-		$mark_search_string = false;
-	} elseif ($mode == 'export') {
-		$text = $value;
-		$mark_search_string = false;
-	} elseif (!empty($field['list_format'])) {
-		if (!empty($zz_conf['modules']['debug'])) zz_debug('start', $field['list_format']);
-		$text = $field['list_format']($value);
-		if (!empty($zz_conf['modules']['debug'])) zz_debug('end');
-	} elseif (empty($field['hide_zeros']) OR $value) {
-		// show field, but not if hide_zeros is set
-		$text = $value;
-		if (!empty($field['translate_field_value']))
-			$text = zz_text($text);
-		$text = nl2br(htmlchars($text));
-	}
-	if ($mark_search_string) {
-		$text = zz_mark_search_string($text, $field[$mark_search_string], $field);
-	}
-	return $text;
 }
 
 /**
@@ -1097,7 +1105,7 @@ function zz_set_link($field, $line) {
  * @global array $zz_conf
  * @return string $value value with marks
  */
-function zz_mark_search_string($value, $field_name = false, $field) {
+function zz_mark_search_string($value, $field_name = false, $field = array()) {
 	global $zz_conf;
 	if (!$zz_conf['show_list']) return $value;
 	if (!empty($field['dont_mark_search_string'])) return $value;
@@ -1755,7 +1763,7 @@ function zz_list_th($field) {
  * @param array $field
  * @return array $rows
  */
-function zz_list_get_subselects($rows, $subselects, $ids, $field) {
+function zz_list_get_subselects($rows, $subselects, $ids) {
 	global $zz_conf;
 	
 	if (!$subselects) return $rows;
@@ -1798,7 +1806,7 @@ function zz_list_get_subselects($rows, $subselects, $ids, $field) {
 				$subselect_text = $subselect['list_format']($subselect_text);
 				if (!empty($zz_conf['modules']['debug'])) zz_debug('end');
 			}
-			$rows[$z_row][$subselect['fieldindex']]['text'] .= zz_mark_search_string($subselect_text, '', $field);
+			$rows[$z_row][$subselect['fieldindex']]['text'] .= zz_mark_search_string($subselect_text, '', $subselect);
 			if (!empty($subselect['export_no_html'])) {
 				$rows[$z_row][$subselect['fieldindex']]['export_no_html'] = true;
 			}
