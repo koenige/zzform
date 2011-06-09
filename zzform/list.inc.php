@@ -51,45 +51,8 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	// SQL query without limit and filter for conditions etc.!
 	$zz['sql_without_limit'] = $zz['sql'];
 
-	// list filter
-	if (!empty($zz_conf['filter']) AND isset($_GET['filter'])) {
-		foreach ($zz_conf['filter'] AS $filter) {
-			if (in_array($filter['identifier'], array_keys($_GET['filter']))
-				AND in_array($_GET['filter'][$filter['identifier']], array_keys($filter['selection']))
-				AND $filter['type'] == 'list'
-				AND !empty($filter['where']))
-			{	// it's a valid filter, so apply it.
-				if ($_GET['filter'][$filter['identifier']] == 'NULL') {
-					$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', 'ISNULL('.$filter['where'].')');
-				} elseif ($_GET['filter'][$filter['identifier']] == '!NULL') {
-					$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', '!ISNULL('.$filter['where'].')');
-				} else {
-					$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', $filter['where'].' = "'.$_GET['filter'][$filter['identifier']].'"');
-				}
-			} elseif (in_array($filter['identifier'], array_keys($_GET['filter']))
-				AND $filter['type'] == 'list'
-				AND !empty($filter['where'])
-				AND is_array($filter['where']))
-			{ // valid filter with several wheres
-				$wheres = array();
-				foreach ($filter['where'] AS $filter_where) {
-					if ($_GET['filter'][$filter['identifier']] == 'NULL') {
-						$wheres[] = 'ISNULL('.$filter_where.')';
-					} elseif ($_GET['filter'][$filter['identifier']] == '!NULL') {
-						$wheres[] = '!ISNULL('.$filter_where.')';
-					} else {
-						$wheres[] = $filter_where.' = "'.$_GET['filter'][$filter['identifier']].'"';
-					}
-				}
-				$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', implode(' OR ', $wheres));
-			} elseif (in_array($filter['identifier'], array_keys($_GET['filter']))
-				AND $filter['type'] == 'like'
-				AND !empty($filter['where'])
-			) { // valid filter with LIKE
-				$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', $filter['where'].' LIKE "%'.$_GET['filter'][$filter['identifier']].'%"');
-			}
-		}
-	}
+	$zz['sql'] = zz_list_filter_sql($zz['sql']);
+
 	// must be behind update, insert etc. or it will return the wrong number
 	$total_rows = zz_count_rows($zz['sql'], $zz['table'].'.'.$id_field);	
 	$zz['sql'].= (!empty($zz['sqlorder']) ? ' '.$zz['sqlorder'] : ''); 	// must be here because of where-clause
@@ -686,6 +649,53 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	// save total rows in zz_var for use in zz_nice_title()
 	$zz_var['limit_total_rows'] = $total_rows;
 	return zz_return(array($ops, $zz_var));
+}
+
+/**
+ * Apply filter to SQL query
+ *
+ * @param string $sql
+ * @global array $zz_conf
+ * @return string $sql
+ */
+function zz_list_filter_sql($sql) {
+	global $zz_conf;
+	if (empty($zz_conf['filter'])) return $sql;
+	if (!isset($_GET['filter'])) return $sql;
+
+	foreach ($zz_conf['filter'] AS $filter) {
+		if (!in_array($filter['identifier'], array_keys($_GET['filter']))) continue;
+		if (empty($filter['where'])) continue;
+
+		if (in_array($_GET['filter'][$filter['identifier']], array_keys($filter['selection']))
+			AND $filter['type'] == 'list') {
+			// it's a valid filter, so apply it.
+			if ($_GET['filter'][$filter['identifier']] == 'NULL') {
+				$sql = zz_edit_sql($sql, 'WHERE', 'ISNULL('.$filter['where'].')');
+			} elseif ($_GET['filter'][$filter['identifier']] == '!NULL') {
+				$sql = zz_edit_sql($sql, 'WHERE', '!ISNULL('.$filter['where'].')');
+			} else {
+				$sql = zz_edit_sql($sql, 'WHERE', $filter['where'].' = "'.$_GET['filter'][$filter['identifier']].'"');
+			}
+		} elseif ($filter['type'] == 'list' AND is_array($filter['where'])) {
+			// valid filter with several wheres
+			$wheres = array();
+			foreach ($filter['where'] AS $filter_where) {
+				if ($_GET['filter'][$filter['identifier']] == 'NULL') {
+					$wheres[] = 'ISNULL('.$filter_where.')';
+				} elseif ($_GET['filter'][$filter['identifier']] == '!NULL') {
+					$wheres[] = '!ISNULL('.$filter_where.')';
+				} else {
+					$wheres[] = $filter_where.' = "'.$_GET['filter'][$filter['identifier']].'"';
+				}
+			}
+			$sql = zz_edit_sql($sql, 'WHERE', implode(' OR ', $wheres));
+		} elseif ($filter['type'] == 'like') {
+			// valid filter with LIKE
+			$sql = zz_edit_sql($sql, 'WHERE', $filter['where'].' LIKE "%'.$_GET['filter'][$filter['identifier']].'%"');
+		}
+	}
+	return $sql;
 }
 
 /**
