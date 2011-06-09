@@ -1811,7 +1811,7 @@ function zz_list_get_subselects($rows, $subselects, $ids, $field) {
  * @global array $zz_conf
  * @return string level or ''
  */
-function zz_list_field_level($field, $line);
+function zz_list_field_level($field, $line) {
 	if (!isset($line['zz_level'])) return '';
 
 	global $zz_conf;
