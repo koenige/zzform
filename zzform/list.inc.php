@@ -700,7 +700,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
  */
 function zz_list_modes($id, $zz_var, $zz_conf_record) {
 	global $zz_conf;
-	$link = '<a href="%smode=%s&amp;%s%s">%s</a>';
+	$link = '<a href="%smode=%s&amp;%s=%s">%s</a>';
 	$base_url = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
 		.$zz_conf['int']['url']['?&'];
 	$suffix = $id.$zz_var['extraGET'];
