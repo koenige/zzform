@@ -229,21 +229,18 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	if (!is_array($zz_conf['group']) AND $zz_conf['group'])
 		$zz_conf['group'] = array($zz_conf['group']);
 
+	$table_query = zz_list_show_group_fields($table_query);
+
 	if ($zz_conf['show_list'] && $zz_conf['list_display'] == 'table') {
-		$ops['output'].= '<table class="data">';
-		$ops['output'].= '<thead>'."\n";
-		$ops['output'].= '<tr>';
+		$ops['output'] .= '<table class="data">';
+		$ops['output'] .= '<thead>'."\n";
+		$ops['output'] .= '<tr>';
 		if ($zz_conf['select_multiple_records']) $ops['output'].= '<th>[]</th>';
-		$show_field = true;
 		$thead = array();
 		$j = 0;
 		$where_values = (!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : '');
 		foreach ($table_query[0] as $index => $field) {
-			if ($zz_conf['group']) {
-				$show_field_group = zz_list_group_field_no($field, $index);
-				if ($show_field AND !$show_field_group) $show_field = false;
-			}
-			if ($show_field) {
+			if ($field['show_field']) {
 				$j++;
 				$thead[$j]['class'] = zz_field_class($field, $where_values);
 				$thead[$j]['th'] = zz_list_th($field);
@@ -251,13 +248,6 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				$thead[$j]['class'] = array_merge($thead[$j]['class'], zz_field_class($field, $where_values));
 				$thead[$j]['th'] .= ' / '.zz_list_th($field);
 			}
-			// show or hide field
-			foreach (array_keys($table_query) as $tq_index) { // each line seperately
-				if (!empty($table_query[$tq_index][$index])) // only if field exists
-					$table_query[$tq_index][$index]['show_field'] = $show_field;
-			}
-			if (!empty($field['list_append_next'])) $show_field = false;
-			else $show_field = true;
 		}
 		// Rest cannot be set yet because we do not now details/mode-links
 		// of individual records
@@ -271,7 +261,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			foreach ($table_query[0] as $index => $field)
 				zz_list_group_field_no($field, $index);
 		} else {
-			$ops['output'].= '<ul class="data">'."\n";
+			$ops['output'] .= '<ul class="data">'."\n";
 		}
 	} elseif ($zz_conf['show_list'] && $zz_conf['list_display'] == 'csv') {
 		$ops['output'] .= zz_export_csv_head($table_query[0], $zz_conf);
@@ -1851,6 +1841,36 @@ function zz_list_field_level($field, $line) {
 		return $line['zz_level'];
 	}
 	return '';
+}
+
+/**
+ * check depending on grouping whether a field will be shown or not
+ *
+ * @param array $table_query
+ * @global array $zz_conf
+ * @return array $table_query ('show_field' set for each field)
+ */
+function zz_list_show_group_fields($table_query) {
+	global $zz_conf;
+	if (!$zz_conf['show_list']) return $table_query;
+	// we will do this currently only for 'table'-display
+	if ($zz_conf['list_display'] !== 'table') return $table_query;
+
+	$show_field = true;
+	foreach ($table_query[0] as $index => $field) {
+		if ($zz_conf['group']) {
+			$show_field_group = zz_list_group_field_no($field, $index);
+			if ($show_field AND !$show_field_group) $show_field = false;
+		}
+		// show or hide field
+		foreach (array_keys($table_query) as $row) { // each line seperately
+			if (!empty($table_query[$row][$index])) // only if field exists
+				$table_query[$row][$index]['show_field'] = $show_field;
+		}
+		if (!empty($field['list_append_next'])) $show_field = false;
+		else $show_field = true;
+	}
+	return $table_query;
 }
 
 ?>
