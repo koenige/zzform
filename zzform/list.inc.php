@@ -26,6 +26,11 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	global $zz_error;
+
+	// allow $zz_conf['group'] to be a string
+	if (!is_array($zz_conf['group']) AND $zz_conf['group'])
+		$zz_conf['group'] = array($zz_conf['group']);
+	// initialize internal group_field_no
 	$zz_conf['int']['group_field_no'] = array();
 
 	// Turn off hierarchical sorting when using search
@@ -208,6 +213,8 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		$zz['fields_in_list'] = $line_query[0]; // for search form
 		unset($line_query);
 		unset($lines[0]); // remove first dummy array
+		// mark fields as 'show_field' corresponding to grouping
+		$table_query = zz_list_show_group_fields($table_query);
 	}
 
 	if ($zz_conf['modules']['debug']) zz_debug("table_query set");
@@ -225,12 +232,6 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	// Table head
 	//
 	
-	// allow $zz_conf['group'] to be a string
-	if (!is_array($zz_conf['group']) AND $zz_conf['group'])
-		$zz_conf['group'] = array($zz_conf['group']);
-
-	$table_query = zz_list_show_group_fields($table_query);
-
 	if ($zz_conf['show_list'] && $zz_conf['list_display'] == 'table') {
 		$ops['output'] .= '<table class="data">';
 		$ops['output'] .= '<thead>'."\n";
