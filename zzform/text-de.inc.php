@@ -273,6 +273,27 @@ $text['If main record will be deleted, what should happen with detail record?'] 
 
 
 // ----------------------------------------------------------------------------
+// Admin: Logging
+// ----------------------------------------------------------------------------
+
+$text['Query'] = 'Abfrage';
+$text['Record'] = 'ID';
+$text['Last update'] = 'Stand';
+
+
+// ----------------------------------------------------------------------------
+// Admin: Translations
+// ----------------------------------------------------------------------------
+
+$text['Translations'] = '&Uuml;bersetzungen';
+$text['Database'] = 'Datenbank';
+$text['Table'] = 'Tabelle';
+$text['Field'] = 'Feld';
+$text['Data type'] = 'Datentyp';
+$text['Data Type'] = 'Datentyp';
+
+
+// ----------------------------------------------------------------------------
 // Admin: Maintenance
 // ----------------------------------------------------------------------------
 
