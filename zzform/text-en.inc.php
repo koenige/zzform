@@ -204,5 +204,11 @@ $text['Database error. This database has ambiguous values in ID field.'] = 'Data
 $text['Error during database operation'] = 'Error from database operation';
 $text['The following error(s) occured in project %s:'] = 'The following error(s) occured in project %s:';
 
+// ----------------------------------------------------------------------------
+// Admin: Logging
+// ----------------------------------------------------------------------------
+
+$text['Last update'] = 'Updated';
+
 
 ?>
