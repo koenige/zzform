@@ -223,6 +223,18 @@ $text['Maximum value for degrees is %s. The value you entered is too big: %s.'] 
 
 
 // ----------------------------------------------------------------------------
+// Modules: Upload (Table filetypes)
+// ----------------------------------------------------------------------------
+
+$text['Filetypes'] = 'Dateitypen';
+$text['MIME Content Type'] = 'MIME Inhaltstyp';
+$text['MIME Subtype'] = 'MIME Untertyp';
+$text['Extension'] = 'Dateierweiterung';
+$text['Ext.'] = 'Ext.';
+$text['Count'] = 'Anzahl';
+
+
+// ----------------------------------------------------------------------------
 // Backend
 // ----------------------------------------------------------------------------
 
@@ -279,6 +291,7 @@ $text['If main record will be deleted, what should happen with detail record?'] 
 $text['Query'] = 'Abfrage';
 $text['Record'] = 'ID';
 $text['Last update'] = 'Stand';
+$text['Last Update'] = 'Stand';
 
 
 // ----------------------------------------------------------------------------
