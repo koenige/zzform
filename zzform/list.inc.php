@@ -609,9 +609,13 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			ksort($zz_conf['add']); // if some 'add' was unset before, here we get new numerical keys
 			$ops['output'] .= '<p class="add-new">'.zz_text('Add new record').': ';
 			foreach ($zz_conf['add'] as $i => $add) {
+				if ($add['value']) {
+					$value = '&amp;add['.$add['field_name'].']='.$add['value'];
+				} else {
+					$value = '';
+				}
 				$ops['output'] .= '<a href="'.$base_url
-					.'mode=add'.$zz_var['extraGET'].'&amp;add['.$add['field_name'].']='
-					.$add['value'].'"'
+					.'mode=add'.$zz_var['extraGET'].$value.'"'
 					.(!empty($add['title']) ? ' title="'.$add['title'].'"' : '')
 					.'>'.$add['type'].'</a>'.(!empty($add['explanation']) 
 						? ' ('.$add['explanation'].')' : '');
