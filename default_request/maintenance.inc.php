@@ -43,8 +43,6 @@ function zz_maintenance($params) {
 	$page['dont_show_h1'] = true;
 	$page['text'] = '';
 	
-	unset($_GET['no-cookie']);
-
 	$sql = '';
 	if (!empty($_POST['sql'])) {
 		$sql = $_POST['sql'];
