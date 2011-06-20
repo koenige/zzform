@@ -922,7 +922,6 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 		break;
 	default:
 		$text = $row['value'];
-		$text = nl2br(htmlchars($text));
 		break;
 	}
 	if (!empty($field['translate_field_value'])) {
@@ -932,6 +931,8 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 		if (!empty($zz_conf['modules']['debug'])) zz_debug('start', $field['list_format']);
 		$text = $field['list_format']($text);
 		if (!empty($zz_conf['modules']['debug'])) zz_debug('end');
+	} else {
+		$text = nl2br(htmlchars($text));
 	}
 	if (empty($field['hide_zeros']) AND !$text) {
 		$text = '';
