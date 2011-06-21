@@ -276,13 +276,23 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 							// to compare it, make array into string
 							if (is_array($post)) $post = implode(',', $post);
 						}
-						if ($post != $zz_tab[$tab]['existing'][$rec][$field['field_name']]) {
-							$equal = false; // we have to sent this query
+						if (!isset($zz_tab[$tab]['existing'][$rec][$field['field_name']])) {
+							if ($post != NULL) {
+								// there's no existing record, sent this query
+								$equal = false;
+							} else {
+								// existing and new value are both NULL or not there
+								$update = false;
+							}
+						} elseif ($post != $zz_tab[$tab]['existing'][$rec][$field['field_name']]) {
+							// there's a difference, so we have to sent this query
+							$equal = false;
 						} else {
-							$update = false; // we don't know yet from this one
+							// we don't know yet from this one
 							// whether to send the query or not, but we do not
 							// need to send the values for this field since they
 							// are equal
+							$update = false; 
 						}
 					}
 				}
