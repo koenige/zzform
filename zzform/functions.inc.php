@@ -3218,7 +3218,7 @@ function zz_show_more_actions($more_actions, $more_actions_url, $more_actions_ba
 			.'>'.($zz_conf['multilang_fieldnames'] ? zz_text($new_action) : $new_action).'</a>';
 		if (!empty($sql[$key])) {
 			$count = zz_db_fetch($sql[$key].$id, '', 'single value');
-			if ($count) $output .= ' ('.$count.')';
+			if ($count) $output .= '&nbsp;('.$count.')';
 		}
 		$act[] = $output;
 	}
