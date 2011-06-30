@@ -561,6 +561,7 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 		// since there is no user input
 		$ignores = array('timestamp', 'id', 'foreign_key', 'translation_key');
 		if (in_array($field['type'], $ignores)) continue;
+		if (!empty($field['for_action_ignore'])) continue;
 		// check def_val_ignore, some auto values/values/default values will be ignored 
 		if (!empty($field['def_val_ignore'])) {
 			if (empty($field['value']) AND !empty($field['default'])
