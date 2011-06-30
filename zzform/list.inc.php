@@ -983,13 +983,16 @@ function zz_field_sum($table_query, $z, $table, $sum) {
 			$tfoot_line .= '<td class="recordid">'.$z.'</td>';
 		} elseif (!empty($field['sum'])) {
 			$tfoot_line .= '<td'.zz_field_class($field, (!empty($table) ? $table : ''), true).'>';
+			$value = $sum[$field['title']];
 			if (isset($field['calculation']) AND $field['calculation'] == 'hours')
-				$sum[$field['title']] = hours($sum[$field['title']]);
+				$value = hours($value);
 			if (isset($field['number_type']) && $field['number_type'] == 'currency') 
-				$sum[$field['title']] = waehrung($sum[$field['title']], '');
+				$value = waehrung($value, '');
+			if (!empty($field['list_format']) AND $value)
+				$value = $field['list_format']($value);
 
-			$tfoot_line.= $sum[$field['title']];
-			if (isset($field['unit']) && $sum[$field['title']]) 
+			$tfoot_line.= $value;
+			if (isset($field['unit']) && $value) 
 				$tfoot_line .= '&nbsp;'.$field['unit'];	
 			$tfoot_line .= '</td>';
 		} else $tfoot_line .= '<td'.(!empty($field['class']) ? ' class="'
