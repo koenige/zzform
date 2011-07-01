@@ -1329,7 +1329,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 	}
 	$output = false;
 	if ($formdisplay == 'vertical') {
-		foreach ($matrix as $row) {
+		foreach ($matrix as $index => $row) {
 			$output .= '<tr'.zz_show_class($row['tr']['attr']).'>';
 			if ($row['th']['show']) {
 				$output .= '<th'.zz_show_class($row['th']['attr']).'>'
@@ -1338,7 +1338,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 			$output .=	"\t".'<td'.zz_show_class($row['td']['attr']).'>'
 				.$row['td']['content'].'</td></tr>'."\n";
 			if ($row['separator']) {
-				$output .= zz_show_separator($row['separator']);
+				$output .= zz_show_separator($row['separator'], $index);
 			}
 		}
 	} elseif ($formdisplay == 'horizontal') {
@@ -1360,7 +1360,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 		}
 		if ($extra_lastcol) $output .= '<td>'.$extra_lastcol.'</td>';
 		$output .= '</tr>'."\n";
-		if ($row['separator']) $output .= zz_show_separator($row['separator'], count($matrix));
+		if ($row['separator']) $output .= zz_show_separator($row['separator'], 1, count($matrix));
 	}
 	return zz_return($output);
 }
@@ -1806,11 +1806,12 @@ function zz_show_class($attr) {
  *		1 or true: simple HR line
  *		'column_begin', 'column', 'column_end': allows to put form into two columns
  *		'text '.*** like true, but with text printed behind HR
- * @param int colspan
+ * @param int $row index of row, first field will be 0
+ * @param int $span colspan
  * @return HTML string
  */
-function zz_show_separator($separator, $span = 2) {
-	if ($separator == 1)
+function zz_show_separator($separator, $row, $span = 2) {
+	if ($separator == 1 AND $row)
 		return '<tr><td colspan="'.$span.'" class="separator"><hr></td></tr>'."\n";
 	elseif ($separator == 'column_begin')
 		return '<tr><td><table><tbody>'."\n";
@@ -1819,7 +1820,8 @@ function zz_show_separator($separator, $span = 2) {
 	elseif ($separator == 'column_end')
 		return "</tbody></table>\n</td></tr>\n";
 	elseif (substr($separator, 0, 5) == 'text ')
-		return '<tr><td colspan="'.$span.'" class="separator"><hr>'.substr($separator, 4).'</td></tr>'."\n";
+		return '<tr><td colspan="'.$span.'" class="separator">'
+			.($row ? '<hr>' : '').substr($separator, 4).'</td></tr>'."\n";
 }
 
 /**
