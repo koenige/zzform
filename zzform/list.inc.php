@@ -294,7 +294,8 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			//$rows[$z][0]['class'] = array();
 			
 			$tq_index = (count($table_query) > 1 ? $index : 0);
-			$id = '';
+			$id = $line[$zz_var['id']['field_name']];
+			if ($id == $zz_var['id']['value']) $current_record = $z;
 			$sub_id = '';
 			if (empty($rows[$z]['group']))
 				$rows[$z]['group'] = array();
@@ -378,10 +379,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 					$sum_group = zz_list_group_sum($rows[$z]['group'], $sum_group, $field['title'], $rows[$z][$fieldindex]['value']);
 				}
 				
-				if ($field['type'] == 'id') {
-					$id = $line[$field['field_name']];
-					if ($id == $zz_var['id']['value']) $current_record = $z;
-				} elseif ($field['type'] == 'subtable' AND !empty($field['subselect']['sql'])) {
+				if ($field['type'] == 'subtable' AND !empty($field['subselect']['sql'])) {
 					// fill array subselects, just in row 0, will always be the same!
 					if (empty($subselect_init[$subselect_index])) {
 						$foreign_key_field = array();
