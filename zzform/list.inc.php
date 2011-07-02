@@ -1456,21 +1456,33 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 		foreach ($fields as $field) {
 		// todo: check whether scope is in_array($searchfields)
 			if (empty($field)) continue;
+			// this field is explicitly excluded from search
 			if (!empty($field['exclude_from_search'])) continue;
+			// this is a field which cannot be searched
 			if (empty($field['type'])) $field['type'] = 'text';
 			if (in_array($field['type'], $unsearchable_fields)) continue;
-			if (empty($field['field_name'])) $field['field_name'] = '';
-			if ($field['type'] == 'select' AND isset($field['sql'])) continue;
-			if ($_GET['scope'] == $field['field_name'] 
-				OR $_GET['scope'] == $table.'.'.$field['field_name']
-				OR (isset($field['display_field']) && $_GET['scope'] == $field['display_field'])) {
-				$scope = $_GET['scope'];
+			
+			// check if some field_name matches scope
+			$search_field = false;
+			if (!isset($field['sql']) AND !empty($field['field_name'])) {
+				// check if scope = field_name but don't search in IDs
+				// check if scope = table.field_name but don't search in IDs
+				if ($_GET['scope'] == $field['field_name']) {
+					$search_field = true;
+				} elseif ($_GET['scope'] == $table.'.'.$field['field_name']) {
+					$search_field = true;
+				}
+			} elseif (isset($field['display_field']) AND $_GET['scope'] == $field['display_field']) {
+				$search_field = true;
+			}
+
+			if ($search_field) {
 				$fieldtype = $field['type'];
-				if (!empty($field['search'])) $scope = $field['search'];
+				$scope = !empty($field['search']) ? $field['search'] : $_GET['scope'];
 			} elseif (isset($field['table_name']) AND $_GET['scope'] == $field['table_name']) {
+				$fieldtype = $field['type'];
 				// search in subtable only
 				$subtable = $field;
-				$fieldtype = $field['type'];
 			}
 		}
 		// default here
