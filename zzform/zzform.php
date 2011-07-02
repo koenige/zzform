@@ -835,8 +835,6 @@ function zz_initialize($mode = false) {
 	$zz_default['min_detail_records']	= 0;		// min 0 detail records, might be expanded later on
 	$zz_default['multi'] 				= false;		// zzform_multi
 	$zz_default['multilang_fieldnames'] = false;	// translate fieldnames via zz_text($fieldname)
-	$zz_default['password_salt']		= '';
-	$zz_default['password_encryption']	= 'md5';
 	$zz_default['prefix'] 				= false;	//	prefix for ALL tables like zz_
 	$zz_default['project']				= $_SERVER['HTTP_HOST'] ? htmlspecialchars($_SERVER['HTTP_HOST']) : $_SERVER['SERVER_NAME'];
 	$zz_default['redirect']['successful_delete'] = false;	// redirect to diff. page after delete
@@ -855,7 +853,6 @@ function zz_initialize($mode = false) {
 	$zz_default['title_separator']	= ' &#8211; ';
 	$zz_default['user']				= '';		//	username
 	$zz_default['view']				= false;	// 	show Action: View
-	$zz_default['password_encryption'] = 'md5';
 	$zz_default['translate_log_encodings'] = array(
 		'iso-8859-2' => 'iso-8859-1'
 	);

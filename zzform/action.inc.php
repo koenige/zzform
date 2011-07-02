@@ -1006,14 +1006,12 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			// action=insert: password will be encrypted
 			if ($my_rec['action'] == 'insert') {
 				$my_rec['POST']['zz_unencrypted_'.$field_name] = $my_rec['POST'][$field_name];
-				$my_rec['POST'][$field_name] 
-					= $zz_conf['password_encryption']($my_rec['POST'][$field_name].$zz_conf['password_salt']);
+				$my_rec['POST'][$field_name] = zz_password_hash($my_rec['POST'][$field_name]);
 			} elseif ($my_rec['action'] == 'update') {
 				$my_rec['POST']['zz_unencrypted_'.$field_name] = $my_rec['POST'][$field_name];
 				if (!isset($my_rec['POST'][$field_name.'--old'])
 				|| ($my_rec['POST'][$field_name] != $my_rec['POST'][$field_name.'--old']))
-					$my_rec['POST'][$field_name] 
-						= $zz_conf['password_encryption']($my_rec['POST'][$field_name].$zz_conf['password_salt']);
+					$my_rec['POST'][$field_name] = zz_password_hash($my_rec['POST'][$field_name]);
 			}
 			break;
 		case 'password_change':
@@ -1023,7 +1021,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				AND $my_rec['POST'][$field_name.'_new_1']
 				AND $my_rec['POST'][$field_name.'_new_2']) {
 				$my_sql = $field['sql_password_check'].$my_rec['id']['value'];
-				$pwd = zz_check_password($my_rec['POST'][$field_name], 
+				$pwd = zz_password_set($my_rec['POST'][$field_name], 
 					$my_rec['POST'][$field_name.'_new_1'], 
 					$my_rec['POST'][$field_name.'_new_2'], $my_sql);
 			} else {
@@ -1446,42 +1444,76 @@ function zz_check_validate($value, $validate) {
  * @return string false: an error occurred; string: new encrypted password 
  * @author Gustaf Mossakowski, <gustaf@koenige.org>
  */
-function zz_check_password($old, $new1, $new2, $sql) {
+function zz_password_set($old, $new1, $new2, $sql) {
 	global $zz_error;
 	global $zz_conf;
 	if ($new1 != $new2) {
+		// new passwords do not match
 		$zz_error[] = array(
 			'msg' => 'New passwords do not match. Please try again.',
 			'level' => E_USER_NOTICE
 		);
-		return false; // new passwords do not match
+		return false;
 	}
 	if ($old == $new1) {
+		// old password eq new password - this is against identity theft if 
+		// someone interferes a password mail
 		$zz_error[] = array(
 			'msg' => 'New and old password are identical. Please choose a different new password.',
 			'level' => E_USER_NOTICE
 		);
-		// old password eq new password - this is against identity theft if 
-		// someone interferes a password mail
 		return false; 
 	}
-	$old_pwd = zz_db_fetch($sql, '', 'single value', __FUNCTION__);
-	if (!$old_pwd) return false;
-	if ($zz_conf['password_encryption']($old.$zz_conf['password_salt']) == $old_pwd) {
+	$old_hash = zz_db_fetch($sql, '', 'single value', __FUNCTION__);
+	if (!$old_hash) return false;
+	if (zz_password_check($old, $old_hash)) {
+		// new1 = new2, old = old, everything is ok
 		$zz_error[] = array(
 			'msg' => 'Your password has been changed!',
 			'level' => E_USER_NOTICE
 		);
-		return $zz_conf['password_encryption']($new1.$zz_conf['password_salt']); // new1 = new2, old = old, everything is ok
+		return zz_password_hash($new1);
 	} else {
 		$zz_error[] = array(
 			'msg' => 'Your current password is different from what you entered. Please try again.',
 			'msg_dev' => '(Encryption: '.$zz_conf['password_encryption'].', existing hash: '
-				.$old_pwd.', entered hash: '.$zz_conf['password_encryption']($old.$zz_conf['password_salt']),
+				.$old_hash.', entered hash: '.zz_password_hash($old),
 			'level' => E_USER_NOTICE
 		);
 		return false;
 	}
+}
+
+/**
+ * check given password against database password hash
+ *
+ * @param string $pass password as entered by user
+ * @param string $hash hash as stored in database
+ * @return bool true: given credentials are correct, false: no access!
+ * @see wrap_passsword_check()
+ */
+function zz_password_check($pass, $hash) {
+	if ($hash === zz_password_hash($pass)) return true;
+	return false;
+}
+
+/**
+ * hash password
+ *
+ * @param string $pass password as entered by user
+ * @global array $zz_conf
+ *		'password_encryption', 'password_salt'
+ * @return string hash
+ * @see wrap_passsword_hash()
+ */
+function zz_password_hash($pass) {
+	global $zz_conf;
+	if (empty($zz_conf['password_encryption'])) 
+		$zz_conf['password_encryption'] = 'md5';
+	if (!isset($zz_conf['password_salt'])) 
+		$zz_conf['password_salt'] = '';
+
+	return $zz_conf['password_encryption']($pass.$zz_conf['password_salt']);
 }
 
 /**
