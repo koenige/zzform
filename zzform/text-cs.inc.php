@@ -75,6 +75,7 @@ $text['New and old password are identical. Please choose a different new passwor
 $text['Rules for secure passwords'] = 'Pravidla pro tvorbu bezpeèného hesla';
 $text['password-rules'] = 'Heslo musí obsahovat minimálnì osm znakù. Doporuèuje se pou¾ívat velká i malá písmena, èísla a speciální znaky jako ?=+; atd.'; 
 $text['hidden'] = 'schovat';
+// $text['Your new password could not be saved. Please try a different one.'] = '';
 
 // Record form: File upload
 $text['image_not_display'] = 'Nelze zobrazit';

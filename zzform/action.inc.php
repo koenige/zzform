@@ -1440,7 +1440,7 @@ function zz_check_validate($value, $validate) {
  * @param string $new2	New password, second time entered, to check if match
  * @param string $sql	SQL query to check whether passwords match
  * @global array $zz_error
- * @global array $zz_conf	Configuration variables, here: 'password_encryption'
+ * @global array $zz_conf	Configuration variables, here: 'hash_password'
  * @return string false: an error occurred; string: new encrypted password 
  * @author Gustaf Mossakowski, <gustaf@koenige.org>
  */
@@ -1468,15 +1468,23 @@ function zz_password_set($old, $new1, $new2, $sql) {
 	if (!$old_hash) return false;
 	if (zz_password_check($old, $old_hash)) {
 		// new1 = new2, old = old, everything is ok
-		$zz_error[] = array(
-			'msg' => 'Your password has been changed!',
-			'level' => E_USER_NOTICE
-		);
-		return zz_password_hash($new1);
+		$hash = zz_password_hash($new1);
+		if ($hash) {
+			$zz_error[] = array(
+				'msg' => 'Your password has been changed!',
+				'level' => E_USER_NOTICE
+			);
+		} else {
+			$zz_error[] = array(
+				'msg' => 'Your new password could not be saved. Please try a different one.',
+				'level' => E_USER_WARNING
+			);
+		}
+		return $hash;
 	} else {
 		$zz_error[] = array(
 			'msg' => 'Your current password is different from what you entered. Please try again.',
-			'msg_dev' => '(Encryption: '.$zz_conf['password_encryption'].', existing hash: '
+			'msg_dev' => '(Encryption: '.$zz_conf['hash_password'].', existing hash: '
 				.$old_hash.', entered hash: '.zz_password_hash($old),
 			'level' => E_USER_NOTICE
 		);
@@ -1489,12 +1497,25 @@ function zz_password_set($old, $new1, $new2, $sql) {
  *
  * @param string $pass password as entered by user
  * @param string $hash hash as stored in database
+ * @global array $zz_conf
+ *		'hash_password', 'hash_script'
  * @return bool true: given credentials are correct, false: no access!
  * @see wrap_passsword_check()
  */
 function zz_password_check($pass, $hash) {
-	if ($hash === zz_password_hash($pass)) return true;
-	return false;
+	global $zz_conf;
+	if (!empty($zz_conf['hash_script']))
+		require_once $zz_conf['hash_script'];
+
+	switch ($zz_conf['hash_password']) {
+	case 'phpass':
+		$hasher = new PasswordHash($zz_conf['hash_cost_log2'], $zz_conf['hash_portable']);
+		if ($hasher->CheckPassword($pass, $hash)) return true;
+		else return false;
+	default:
+		if ($hash === zz_password_hash($pass)) return true;
+		return false;
+	}
 }
 
 /**
@@ -1502,18 +1523,29 @@ function zz_password_check($pass, $hash) {
  *
  * @param string $pass password as entered by user
  * @global array $zz_conf
- *		'password_encryption', 'password_salt'
+ *		'hash_password', 'password_salt',
+ *		'hash_script', 'hash_cost_log2', 'hash_portable'
  * @return string hash
  * @see wrap_passsword_hash()
  */
 function zz_password_hash($pass) {
 	global $zz_conf;
-	if (empty($zz_conf['password_encryption'])) 
-		$zz_conf['password_encryption'] = 'md5';
-	if (!isset($zz_conf['password_salt'])) 
-		$zz_conf['password_salt'] = '';
+	if (!empty($zz_conf['hash_script']))
+		require_once $zz_conf['hash_script'];
 
-	return $zz_conf['password_encryption']($pass.$zz_conf['password_salt']);
+	switch ($zz_conf['hash_password']) {
+	case 'phpass':
+		$hasher = new PasswordHash($zz_conf['hash_cost_log2'], $zz_conf['hash_portable']);
+		$hash = $hasher->HashPassword($pass);
+		if (strlen($hash) < 20) return false;
+		return $hash;
+	default:
+		if (!isset($zz_conf['password_salt'])) 
+			$zz_conf['password_salt'] = '';
+		return $zz_conf['hash_password']($pass.$zz_conf['password_salt']);
+	}
+
+	return $zz_conf['hash_password']($pass.$zz_conf['password_salt']);
 }
 
 /**

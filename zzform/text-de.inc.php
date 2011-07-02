@@ -81,6 +81,7 @@ Beispiele f&uuml;r gute Pa&szlig;w&ouml;rter:
 * 1sPh&uuml;o&auml;o&Ouml;  (Merkregel: ein starkes Passwort hat &uuml; oder &auml; oder &ouml;)
 * 17Nbg03h (Merkregel: Ich telefoniere nicht besonders gern oder besonders h&auml;ufig, Buchstaben teilweise durch &auml;hnlich aussehende Zahlen ersetzt)'; 
 $text['hidden'] = 'versteckt';
+$text['Your new password could not be saved. Please try a different one.'] = 'Ihr neues Pa&szlig;wort konnte nicht gespeichert werden. Bitte versuchen Sie es mit einem anderen.';
 
 // Record form: File upload
 $text['image_not_display'] = 'Bild kann (noch) nicht angezeigt werden';

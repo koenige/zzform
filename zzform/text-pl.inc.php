@@ -74,6 +74,7 @@ Przyk³ady bezpiecznych hase³:
 * !1Pw=ig! (Zasada: !Has³o powinno byæ znane tylko Tobie!)
 * 1sPh&uuml;o&auml;o&Ouml;  (Zasada: bezpieczne has³o powinno zawieraæ &uuml; oder &auml; oder &ouml;)';
 $text['hidden'] = 'Ukryte';
+// $text['Your new password could not be saved. Please try a different one.'] = '';
 
 // Record form: File upload
 $text['image_not_display'] = 'Obraz nie mo¿e (jeszcze) zostaæ wy¶wietlony';
