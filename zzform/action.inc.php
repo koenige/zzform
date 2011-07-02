@@ -1506,6 +1506,7 @@ function zz_password_check($pass, $hash) {
 	global $zz_conf;
 	if (!empty($zz_conf['hash_script']))
 		require_once $zz_conf['hash_script'];
+	if (strlen($pass) > 72) return false;
 
 	switch ($zz_conf['hash_password']) {
 	case 'phpass':
@@ -1532,6 +1533,7 @@ function zz_password_hash($pass) {
 	global $zz_conf;
 	if (!empty($zz_conf['hash_script']))
 		require_once $zz_conf['hash_script'];
+	if (strlen($pass) > 72) return false;
 
 	switch ($zz_conf['hash_password']) {
 	case 'phpass':
