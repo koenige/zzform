@@ -1161,16 +1161,26 @@ function zz_query_subrecord($my_tab, $main_table, $main_id_value, $id_field_name
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	
+	if ($my_tab['sql_not_unique']) {
+		if (substr(trim($my_tab['sql_not_unique']), 0, 9) == 'LEFT JOIN') {
+			$sql = zz_edit_sql($my_tab['sql'], 'LEFT JOIN', $my_tab['sql_not_unique']);
+		} else {
+			// quick and dirty version
+			$sql = $my_tab['sql'].' '.$my_tab['sql_not_unique'];
+		}
+	} else {
+		$sql = $my_tab['sql'];
+	}
 	if (!empty($my_tab['translate_field_name'])) {
 		// translation subtable
-		$sql = zz_edit_sql($my_tab['sql'].' '.$my_tab['sql_not_unique'], 'WHERE', 
+		$sql = zz_edit_sql($sql, 'WHERE', 
 			$zz_conf['translations_table'].'.db_name = "'.$zz_conf['db_name'].'"
 			AND '.$zz_conf['translations_table'].'.table_name = "'.$main_table.'"
 			AND '.$zz_conf['translations_table'].'.field_name = "'.$my_tab['translate_field_name'].'"');
 		$sql = zz_edit_sql($sql, 'WHERE', $my_tab['foreign_key_field_name'].' = "'.$main_id_value.'"');
 	} else {
 		// 'normal' subtable
-		$sql = zz_edit_sql($my_tab['sql'].' '.$my_tab['sql_not_unique'], 'WHERE', 
+		$sql = zz_edit_sql($sql, 'WHERE', 
 			$my_tab['foreign_key_field_name'].' = "'.$main_id_value.'"');
 	}
 
@@ -2146,6 +2156,10 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 				// there may be several LEFT JOINs, remove them all
 				if (isset($o_parts['LEFT JOIN'])) $recursion = true;
 				unset($o_parts['LEFT JOIN']);
+			} elseif ($mode == 'add') {
+				$o_parts[$n_part][2] .= $values;
+			} elseif ($mode == 'replace') {
+				$o_parts[$n_part][2] = $values;
 			}
 			break;
 		case 'SELECT':
