@@ -892,6 +892,7 @@ function zz_initialize($mode = false) {
 	$zz_conf['referer'] = parse_url($zz_conf['referer']);
 	if (!empty($zz_conf['referer']['query'])) {
 		$zz_conf['referer']['query'] = zz_edit_query_string($zz_conf['referer']['query'], array('zzaction'));
+		$zz_conf['referer']['query'] = str_replace('&amp;', '&', $zz_conf['referer']['query']);
 	}
 	$zz_conf['referer'] = (
 		(!empty($zz_conf['referer']['scheme']) ? $zz_conf['referer']['scheme'].'://'
