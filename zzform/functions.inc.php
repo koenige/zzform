@@ -3864,7 +3864,7 @@ function zz_split_fieldname($field_name) {
 	if (substr($field_name, -1) != ']') return false;
 	// split array in variable and key
 	preg_match('/^(.+)\[(.+)\]$/', $field_name, $field_names);
-	if (empty($field_names[1]) OR empty($field_names[2])) return false;
+	if (!isset($field_names[1]) OR !isset($field_names[2])) return false;
 	return array($field_names[1], $field_names[2]);
 }
 
