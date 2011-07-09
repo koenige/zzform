@@ -939,9 +939,9 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 	if ($mark_search_string AND $text AND $mode != 'export') {
 		$text = zz_mark_search_string($text, $field[$mark_search_string], $field);
 	}
-	if ($link) $row['text'] .= $link;
+	if ($link AND $text) $row['text'] .= $link;
 	$row['text'] .= $text;
-	if ($link) $row['text'] .= '</a>';
+	if ($link AND $text) $row['text'] .= '</a>';
 
 	if (isset($field['unit']) && $row['text']) 
 		$row['text'] .= '&nbsp;'.$field['unit'];	
