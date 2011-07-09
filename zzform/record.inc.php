@@ -911,6 +911,9 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 						} elseif (isset($field['check_validation']) AND !$field['check_validation']) {
 							// validation was not passed, hand back invalid field
 							$my_value = htmlchars($my_rec['record'][$field['field_name']]);
+						} elseif (!empty($_POST['zz_subtables'])) {
+							// just a detail record was added, value is already formatted
+							$my_value = htmlchars($my_rec['record'][$field['field_name']]);
 						} else {
 							$my_value = zz_geo_coord_out($my_rec['record'][$field['field_name']], $field['number_type'], $field['geo_format']);
 							if (!empty($field['geo_display_behind'])) {
