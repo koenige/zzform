@@ -1214,6 +1214,7 @@ function zz_list_group_foot($rowgroup, $main_table_query, $z, $my_footer_table, 
 		if ($my_index) $my_index .= '['.$my_group.']';
 		else $my_index = $my_group;
 	}
+	if (empty($sum_group[$my_index])) return false;
 	return '<tr class="group_sum">'
 		.zz_field_sum($main_table_query, $z, $my_footer_table, $sum_group[$my_index])
 		.'</tr>'."\n";
