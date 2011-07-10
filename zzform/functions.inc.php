@@ -3551,6 +3551,35 @@ function zz_print_multiarray($array, $parent_key = '') {
 	return $vars;
 }
 
+/**
+ * formats an enum field
+ *
+ * @param array $field
+ * @param string $value
+ * @param string $type 'full', 'abbr'
+ * @param string $key (optional)
+ * @return string
+ */
+function zz_print_enum($field, $value, $type = 'abbr', $key = false) {
+	if (!$key) {
+		$key = array_search($value, $field['enum']);
+	}
+	if (!empty($field['enum_title'][$key])) {
+		$text = $field['enum_title'][$key];
+	} else {
+		$text = zz_text($value);
+	}
+	if (!empty($field['enum_abbr'][$key])) {
+		if ($type === 'full') {
+			$text .= ' &#8211; '.$field['enum_abbr'][$key];
+		} elseif ($type === 'abbr') {
+			$text = '<abbr title="'.htmlspecialchars($field['enum_abbr'][$key])
+				.'">'.$text.'</abbr>';
+		}
+	}
+	return $text;
+}
+
 /*
  * --------------------------------------------------------------------
  * R - Record functions used by several modules

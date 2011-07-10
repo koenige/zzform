@@ -1097,8 +1097,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 									.$myid.'" name="'.$field['f_field_name'].'" value="'.$set.'"';
 								if ($my_rec['record']) if ($set == $my_rec['record'][$field['field_name']]) 
 									$outputf.= ' checked="checked"';
-								$outputf.= '>&nbsp;'.(!empty($field['enum_title'][$key]) 
-									? $field['enum_title'][$key] : zz_text($set)).'</label>';
+								$outputf.= '>&nbsp;'.zz_print_enum($field, $set, 'full', $key).'</label>';
 								if (!empty($field['show_values_as_list'])) $outputf .= '</li>'."\n";
 							} else {
 								$outputf.= '<option value="'.$set.'"';
@@ -1110,14 +1109,12 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 									$output.= ' disabled="disabled"';
 								}
 								$outputf.= '>';
-								$outputf.= (!empty($field['enum_title'][$key]) 
-									? $field['enum_title'][$key] : zz_text($set));
+								$outputf.= zz_print_enum($field, $set, 'full', $key);
 								$outputf.= '</option>'."\n";
 							}
 						} else {
 							if ($set != $my_rec['record'][$field['field_name']]) continue;
-							$outputf.= (!empty($field['enum_title'][$key]) 
-								? $field['enum_title'][$key] : zz_text($set));
+							$outputf.= zz_print_enum($field, $set, 'full', $key);
 						}
 					}
 					if (!empty($field['show_values_as_list'])) {

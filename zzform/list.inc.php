@@ -315,10 +315,8 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 					if (!empty($field['display_field'])) {
 						$rows[$z]['group'][$pos] = $line[$field['display_field']];
 						// TODOgroup
-					} elseif (!empty($field['enum_title']) AND $field['type'] == 'select') {
-						foreach ($field['enum'] as $mkey => $mvalue)
-							if ($mvalue == $line[$field['field_name']]) 
-								$rows[$z]['group'][$pos] = $field['enum_title'][$mkey];
+					} elseif (!empty($field['enum']) AND $field['type'] == 'select') {
+						$rows[$z]['group'][$pos] = zz_print_enum($field, $line[$field['field_name']], 'full');
 					} elseif (!empty($field['field_name'])) {
 						$rows[$z]['group'][$pos] = $line[$field['field_name']];
 					}
@@ -427,7 +425,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				if ($zz_conf['group']) {
 					$pos = array_search($fieldindex, $zz_conf['int']['group_field_no']);
 					if ($pos !== false) {
-						$grouptitles[$z][$pos] = $rows[$z][$fieldindex]['text'];
+						$grouptitles[$z][$pos] = implode(' &#8211; ', $rows[$z]['group']);
 						unset ($rows[$z][$fieldindex]);
 						ksort($grouptitles[$z]);
 					}
@@ -870,14 +868,8 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 			OR !empty($field['set_sql']) 
 			OR !empty($field['set_folder'])) {
 			$text = str_replace(',', ', ', $row['value']);
-		} elseif (!empty($field['enum']) AND !empty($field['enum_title'])) {
-			// show enum_title instead of enum
-			foreach ($field['enum'] as $mkey => $mvalue) {
-				if ($mvalue != $row['value']) continue;
-				$text = $field['enum_title'][$mkey];
-			}
 		} elseif (!empty($field['enum'])) {
-			$text = zz_text($row['value']); // translate field value
+			$text = zz_print_enum($field, $row['value']);
 		} else {
 			$text = $row['value'];
 		}
