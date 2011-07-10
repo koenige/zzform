@@ -935,7 +935,7 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 	$row['text'] .= $text;
 	if ($link AND $text) $row['text'] .= '</a>';
 
-	if (isset($field['unit']) && $row['text']) 
+	if (isset($field['unit']) && $text) 
 		$row['text'] .= '&nbsp;'.$field['unit'];	
 	if (strlen($row['text']) == $stringlength) {
 		// string empty or nothing appended
