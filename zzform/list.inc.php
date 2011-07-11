@@ -66,10 +66,13 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	//
 	// Query records
 	//
-	if ($zz_conf['int']['this_limit'] && empty($zz_conf['show_hierarchy'])) { // limit, but not for hierarchical sets
-		if (!$zz_conf['limit']) $zz_conf['limit'] = 20; // set a standard value for limit
-			// this standard value will only be used on rare occasions, when NO limit is set
-			// but someone tries to set a limit via URL-parameter
+	if ($zz_conf['int']['this_limit'] && empty($zz_conf['show_hierarchy'])) { 
+		// limit, but not for hierarchical sets
+
+		// set a standard value for limit
+		// this standard value will only be used on rare occasions, when NO limit is set
+		// but someone tries to set a limit via URL-parameter
+		if (!$zz_conf['limit']) $zz_conf['limit'] = 20; 
 		$zz['sql'].= ' LIMIT '.($zz_conf['int']['this_limit']-$zz_conf['limit']).', '.($zz_conf['limit']);
 	}
 
@@ -218,8 +221,10 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	}
 
 	if ($zz_conf['modules']['debug']) zz_debug("table_query set");
-	$search_form = zz_search_form($zz['fields_in_list'], $zz['table'], $total_rows, $count_rows);
-	$ops['output'] .= $search_form['top'];
+	if ($ops['mode'] != 'export') {
+		$search_form = zz_search_form($zz['fields_in_list'], $zz['table'], $total_rows, $count_rows);
+		$ops['output'] .= $search_form['top'];
+	}
 	
 	if ($zz_conf['show_list'] AND $zz_conf['select_multiple_records'] AND $ops['mode'] != 'export') {
 		$ops['output'].= '<form action="'.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs'];
@@ -264,9 +269,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		} else {
 			$ops['output'] .= '<ul class="data">'."\n";
 		}
-	} elseif ($zz_conf['show_list'] && $zz_conf['list_display'] == 'csv') {
-		$ops['output'] .= zz_export_csv_head($table_query[0], $zz_conf);
-	} elseif ($zz_conf['show_list'] && $zz_conf['list_display'] == 'pdf') {
+	} elseif ($zz_conf['show_list'] AND $ops['mode'] === 'export') {
 		$ops['output']['head'] = $table_query[0];
 	}
 
@@ -565,9 +568,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			$ops['output'].= '</li>'."\n";
 		}
 		$ops['output'].= '</ul>'."\n".'<br clear="all">';
-	} elseif ($zz_conf['show_list'] && $zz_conf['list_display'] == 'csv') {
-		$ops['output'] .= zz_export_csv_body($rows, $zz_conf);
-	} elseif ($zz_conf['show_list'] && $zz_conf['list_display'] == 'pdf') {
+	} elseif ($zz_conf['show_list'] AND $ops['mode'] === 'export') {
 		$ops['output']['rows'] = $rows;
 	}
 
@@ -632,10 +633,9 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		// TODO: NEXT, PREV Links at the end of the page
 		// Search form
 		$ops['output'] .= $search_form['bottom'];
-	} elseif ($zz_conf['list_display'] == 'pdf') {
+	} elseif ($ops['mode'] === 'export') {
 		if ($zz_conf['modules']['debug']) zz_debug("end");
-		zz_pdf($ops);
-		exit;
+		$ops = zz_export($ops);
 	}
 	// save total rows in zz_var for use in zz_nice_title()
 	$zz_var['limit_total_rows'] = $total_rows;

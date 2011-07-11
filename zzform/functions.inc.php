@@ -1400,9 +1400,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		$zz_conf['view'] = false;			// don't show record (links)
 		$zz_conf['show_list'] = true;		// list
 		$zz_conf['show_record'] = false;	// don't show record
-		$zz_conf['int']['this_limit'] = false; 	// always export all records
 		$zz_conf['backlink'] = false; 		// don't show back to overview link
-		$zz_conf['search'] = false; 		// don't show search form
 		break;
 	case 'show_after_add';
 		$zz_conf['add'] = false;			// don't add record (form+links)
@@ -3273,11 +3271,12 @@ function zz_edit_query_string($query, $unwanted_keys = array(), $new_keys = arra
  * @param string $heading ($zz_conf['heading'])
  * @param array $zz['fields']
  * @param array $zz_var
+ *		'where_with_unique_id', 'limit_total_rows', 'id'
  * @param string $mode ($ops['mode'])
  * @global array $zz_conf
  * @return string $title
  */
-function zz_nice_title($heading, $fields, $zz_var, $mode) {
+function zz_nice_title($heading, $fields, $zz_var = array(), $mode = false) {
 	global $zz_conf;
 
 	// basic title

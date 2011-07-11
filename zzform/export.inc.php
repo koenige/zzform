@@ -10,10 +10,13 @@
  *		---------------------------------------------- */
 
 $zz_conf['int']['allowed_params']['mode'][] = 'export';
-$zz_conf['int']['allowed_params']['export'] = array('csv', 'pdf');
+$zz_conf['int']['allowed_params']['export'] = array('csv', 'pdf', 'kml');
 
-$zz_default['export']			= false;				// if sql result might be exported (link for export will appear at the end of the page)
-$zz_default['export_filetypes']	= array('csv', 'pdf');	// possible filetypes for export
+// whether sql result might be exported 
+// (link for export will appear at the end of the page)
+$zz_default['export']			= false;				
+// possible filetypes for export
+$zz_default['export_filetypes']	= array('csv', 'pdf', 'kml');	
 $zz_default['pdflib_path']		= false;
 
 // csv standards
@@ -71,6 +74,16 @@ function zz_export_init($ops) {
 	$ops['mode'] = 'export';
 	$zz_conf['list_display'] = $export;
 	$zz_conf['group'] = false; // no grouping in export files
+
+	switch ($export) {
+	case 'csv':
+		$zz_conf['int']['this_limit'] = false; 	// always export all records
+		break;
+	case 'pdf':
+		$zz_conf['int']['this_limit'] = false; 	// always export all records
+		break;
+	}
+
 	return $ops;
 }
 
@@ -94,12 +107,21 @@ function zz_make_headers($export, $charset) {
 		}
 		$headers[]['true'] = 'Content-Type: text/csv; charset='.$charset;
 		$filename = parse_url('http://www.example.org/'.$_SERVER['REQUEST_URI']);
-		$headers[]['true'] = 'Content-Disposition: attachment; filename='.basename($filename['path']).'.csv';
+		$filename = basename($filename['path']);
+		$headers[]['true'] = 'Content-Disposition: attachment; filename="'.$filename.'.csv"';
 		break;
 	case 'pdf':
 		$headers[]['true'] = 'Content-Type: application/pdf;';
 		$filename = parse_url('http://www.example.org/'.$_SERVER['REQUEST_URI']);
-		$headers[]['true'] = 'Content-Disposition: attachment; filename='.basename($filename['path']).'.pdf';
+		$filename = basename($filename['path']);
+		$headers[]['true'] = 'Content-Disposition: attachment; filename="'.$filename.'.pdf"';
+		break;
+	case 'kml':
+		$headers[]['true'] = 'Content-Type: application/vnd.google-earth.kml+xml; charset=utf8';
+		$filename = parse_url('http://www.example.org/'.$_SERVER['REQUEST_URI']);
+		$filename = basename($filename['path']);
+		if (!empty($_GET['q'])) $filename .= ' '.forceFilename($_GET['q']);
+		$headers[]['true'] = 'Content-Disposition: attachment; filename="'.$filename.'.kml"';
 		break;
 	}
 	return $headers;
@@ -128,6 +150,78 @@ function zz_export_links($url, $querystring) {
 }
 
 /**
+ * export data
+ *
+ * @param array $ops (from zzform())
+ * @global array $zz_conf
+ * @return mixed void (direct output) or array $ops
+ */
+function zz_export($ops) {
+	global $zz_conf;
+	// check if we have data
+	if (!$zz_conf['show_list']) return false;
+
+	switch ($zz_conf['list_display']) {
+	case 'csv':
+		$output = '';
+		$output .= zz_export_csv_head($ops['output']['head'], $zz_conf);
+		$output .= zz_export_csv_body($ops['output']['rows'], $zz_conf);
+		$ops['output'] = $output;
+		return $ops;
+	case 'pdf':
+		zz_export_pdf($ops);
+		exit;
+	case 'kml':
+		$ops['output'] = zz_export_kml($ops);
+		return $ops;
+	}
+}
+
+function zz_export_kml($ops) {
+	global $zz_conf;
+	$kml['title'] = zz_nice_title($zz_conf['heading'], $ops['output']['head']);
+	$kml['description'] = $zz_conf['heading_text'];
+	$kml['styles'] = array();
+	$kml['placemarks'] = array();
+	
+	$kml['styles'][] = array(
+		'id' => 'default',
+		'href' => '/_layout/map/blue-dot.png'
+	);
+	
+	foreach ($ops['output']['head'] as $no => $column) {
+		if (!empty($column['kml'])) {
+			$fields[$column['kml']] = $no;
+		}
+	}
+	
+	foreach ($ops['output']['rows'] as $line) {
+		$kml['placemarks'][] = array(
+			'title' => $line[$fields['title']]['text'],
+			'description' => zz_export_kml_description($ops['output']['head'], $line, $fields),
+			'longitude' => $line[$fields['longitude']]['value'],
+			'latitude' => $line[$fields['latitude']]['value'],
+			'altitude' => (isset($fields['altitude']) ? $line[$fields['altitude']]['value'] : ''),
+			'style' => 'default'
+		);
+	}
+	$output = wrap_template('zzform-kml', $kml);
+	return $output;
+}
+
+function zz_export_kml_description($head, $line, $fields) {
+	$set = array('title', 'longitude', 'latitutde', 'altitude');
+	foreach ($set as $field) unset($line[$field]);
+	$desc = array();
+	foreach ($line as $no => $values) {
+		if (empty($values['text'])) continue;
+		$desc[] = '<dt>'.(!empty($head[$no]['title_kml']) ? $head[$no]['title_kml'] : $head[$no]['title'])
+			.'</dt><dd>'.$values['text'].'</dd>';
+	}
+	return '<dl>'.implode("\n", $desc).'</dl>';
+}
+
+/**
  * Create PDF with table data
  * 
  * @param array $ops
@@ -139,7 +233,7 @@ function zz_export_links($url, $querystring) {
  * @global array $zz_conf
  *		$zz_conf['int']['export_script']
  */
-function zz_pdf($ops) {
+function zz_export_pdf($ops) {
 	global $zz_conf;
 
 	// check if a specific script should be called
