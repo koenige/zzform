@@ -250,11 +250,6 @@ function zzform($zz = array()) {
 	if ($zz_conf['show_record']) {
 		require_once $zz_conf['dir_inc'].'/record.inc.php';		// Form
 	}
-	if ($zz_conf['modules']['debug']) zz_debug('required files included');
-	
-
-//	Optional files
-
 	if ($zz_conf['modules']['debug']) zz_debug('files and database connection ok');
 
 
@@ -369,7 +364,7 @@ function zzform($zz = array()) {
 	$zz['fields'] = zz_fill_out($zz['fields'], $zz_tab[0]['db_name'].'.'.$zz['table'], false, $ops['mode']); 
 
 //	page output
-	if ($zz_conf['access'] != 'export') {
+	if ($zz_conf['generate_output'] AND ($zz_conf['show_record'] OR $zz_conf['show_list'])) {
 		// make nicer headings
 		$zz_conf['heading'] = zz_nice_headings($zz_conf['heading'], $zz['fields'], $zz_var['where_condition']);
 		// provisional title, in case errors occur
@@ -379,16 +374,18 @@ function zzform($zz = array()) {
 		if ($zz_conf['heading_text'] 
 			AND (!$zz_conf['heading_text_hidden_while_editing'] OR $ops['mode'] == 'list_only')) 
 			$ops['output'] .= $zz_conf['heading_text'];
-		if ($post_too_big) {
-			$zz_error[] = array(
-				'msg' => zz_text('Transfer failed. Probably you sent a file that was too large.').'<br>'
-					.zz_text('Maximum allowed filesize is').' '
-					.zz_format_bytes($zz_conf['upload_MAX_FILE_SIZE']).' &#8211; '
-					.sprintf(zz_text('You sent: %s data.'), zz_format_bytes($_SERVER['CONTENT_LENGTH'])),
-				'level' => E_USER_WARNING
-			);
-		}
-		zz_error();
+	}
+	if ($post_too_big) {
+		$zz_error[] = array(
+			'msg' => zz_text('Transfer failed. Probably you sent a file that was too large.').'<br>'
+				.zz_text('Maximum allowed filesize is').' '
+				.zz_format_bytes($zz_conf['upload_MAX_FILE_SIZE']).' &#8211; '
+				.sprintf(zz_text('You sent: %s data.'), zz_format_bytes($_SERVER['CONTENT_LENGTH'])),
+			'level' => E_USER_WARNING
+		);
+	}
+	zz_error();
+	if ($zz_conf['generate_output'] AND ($zz_conf['show_record'] OR $zz_conf['show_list'])) {
 		$ops['output'] .= zz_error_output();
 
 		$selection = zz_nice_selection($zz['fields']);
@@ -488,7 +485,10 @@ function zzform($zz = array()) {
 			// if an error occured in zz_action, exit
 			if ($zz_error['error']) return zzform_exit($ops); 
 			// was action successful?
-			if ($ops['result'] AND $zz_conf['generate_output']) {
+			if ($ops['result'] AND !$zz_conf['generate_output']) {
+				// zzform_multi: exit here, rest is for output only
+				return zzform_exit($ops);
+			} elseif ($ops['result']) {
 				// Redirect, if wanted.
 				if (!empty($zz_conf['redirect'][$ops['result']])) {
 					if ($zz_conf['modules']['debug'] AND $zz_conf['debug_time']) {
@@ -659,13 +659,13 @@ function zzform_exit($ops) {
 	// return to old database
 	if ($zz_conf['int']['db_current']) mysql_select_db($zz_conf['int']['db_current']);
 
-	// debug time only if there's a result and before leaving the page
-	if ($ops['result'] AND $zz_conf['modules']['debug'] AND $zz_conf['debug_time']) {
-		zz_debug_time($ops['return']);
-	}
 	// end debug mode
 	if ($zz_conf['modules']['debug']) {
 		zz_debug('end');
+		// debug time only if there's a result and before leaving the page
+		if ($ops['result'] AND $zz_conf['debug_time']) {
+			zz_debug_time($ops['return']);
+		}
 		if ($zz_conf['debug'] AND $zz_conf['access'] != 'export') {
 			$ops['output'] .= '<div class="debug">'.zz_debug_htmlout().'</div>'."\n";
 		}
