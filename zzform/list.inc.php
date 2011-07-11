@@ -762,15 +762,6 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 	// set 'text'
 	if (empty($row['text'])) $row['text'] = '';
 
-	// add prefixes etc. to 'text'		
-	if (!empty($field['list_prefix'])) {
-		$row['text'] .= zz_text($field['list_prefix']);
-	}
-	if (!empty($field['list_abbr']) AND $mode != 'export') {
-		$row['text'] .= '<abbr title="'.htmlspecialchars($line[$field['list_abbr']]).'">';
- 	}
-	$stringlength = strlen($row['text']);
-
 	//	if there's a link, glue parts together
 	$link = false;
 	if ($mode != 'export') $link = zz_set_link($field, $line);
@@ -811,21 +802,21 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 		$mark_search_string = false;
 		if (isset($field['path'])) {
 			if ($img = zz_makelink($field['path'], $line, 'image')) {
-				$row['text'] .= $link.$img.($link ? '</a>' : '');
+				$text .= $link.$img.($link ? '</a>' : '');
 			} elseif (isset($field['default_image'])) {
 				if (is_array($field['default_image'])) {
 					$default_image = zz_makelink($field['default_image'], $line);
 				} else {
 					$default_image = $field['default_image'];
 				}
-				$row['text'] .= $link.'<img src="'.$default_image
+				$text .= $link.'<img src="'.$default_image
 					.'"  alt="'.zz_text('no_image').'" class="thumb">'.($link ? '</a>' : '');
 			}
 			if (!empty($field['image']) AND $mode != 'export') {
 				foreach ($field['image'] as $image) {
 					if (empty($image['show_link'])) continue;
 					if ($imglink = zz_makelink($image['path'], $line))
-						$row['text'] .= ' <a href="'.$imglink.'">'.$image['title'].'</a><br>';
+						$text .= ' <a href="'.$imglink.'">'.$image['title'].'</a><br>';
 				}
 			}
 			$link = false;
@@ -920,7 +911,7 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 	if (!empty($field['translate_field_value'])) {
 		$text = zz_text($text);
 	}
-	if (!empty($field['list_format'])) {
+	if (!empty($field['list_format']) AND $text) {
 		if (!empty($zz_conf['modules']['debug'])) zz_debug('start', $field['list_format']);
 		$text = $field['list_format']($text);
 		if (!empty($zz_conf['modules']['debug'])) zz_debug('end');
@@ -928,24 +919,27 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 	if (empty($field['hide_zeros']) AND !$text) {
 		$text = '';
 	}
-	if ($mark_search_string AND $text AND $mode != 'export') {
+	if (!$text) return $row;
+
+	// add prefixes etc. to 'text'		
+	if (!empty($field['list_prefix'])) {
+		$row['text'] .= zz_text($field['list_prefix']);
+	}
+	if (!empty($field['list_abbr']) AND $mode != 'export') {
+		$row['text'] .= '<abbr title="'.htmlspecialchars($line[$field['list_abbr']]).'">';
+	}
+	if ($mark_search_string AND $mode != 'export') {
 		$text = zz_mark_search_string($text, $field[$mark_search_string], $field);
 	}
-	if ($link AND $text) $row['text'] .= $link;
-	$row['text'] .= $text;
-	if ($link AND $text) $row['text'] .= '</a>';
 
-	if (isset($field['unit']) && $text) 
+	if ($link) $row['text'] .= $link;
+	$row['text'] .= $text;
+	if ($link) $row['text'] .= '</a>';
+
+	if (isset($field['unit'])) 
 		$row['text'] .= '&nbsp;'.$field['unit'];	
-	if (strlen($row['text']) == $stringlength) {
-		// string empty or nothing appended
-		if (!empty($field['list_prefix'])) {
-			$row['text'] = substr($row['text'], 0, $stringlength - strlen(zz_text($field['list_prefix'])));
-		}
-	} else {
-		if (!empty($field['list_suffix'])) {
-			$row['text'] .= zz_text($field['list_suffix']);
-		}
+	if (!empty($field['list_suffix'])) {
+		$row['text'] .= zz_text($field['list_suffix']);
 	}
 	if (!empty($field['list_abbr']) AND $mode != 'export') {
 		$row['text'] .= '</abbr>';
