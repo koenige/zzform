@@ -156,10 +156,12 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 
 	if ($zz_conf['modules']['debug']) zz_debug("validation successful");
 
-	foreach ($zz_tab as $tab => $my_tab) {
-		foreach ($my_tab as $rec => $my_rec) {
-			if (!is_numeric($rec)) continue;
-			$ops = zz_record_info($ops, $zz_tab, $tab, $rec, 'planned');
+	if (!empty($zz_conf['action']['before_'.$zz_var['action']])) {
+		foreach ($zz_tab as $tab => $my_tab) {
+			foreach ($my_tab as $rec => $my_rec) {
+				if (!is_numeric($rec)) continue;
+				$ops = zz_record_info($ops, $zz_tab, $tab, $rec, 'planned');
+			}
 		}
 	}
 
@@ -185,10 +187,11 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	}
 
 	// if any other action before insertion/update/delete is required
-	if (!empty($zz_conf['action']['before_'.$zz_var['action']]))
+	if (!empty($zz_conf['action']['before_'.$zz_var['action']])) {
 		include $zz_conf['action_dir'].'/'.$zz_conf['action']['before_'.$zz_var['action']].'.inc.php';
-	// 'planned' is a variable just for custom 'action' scripts
-	unset($ops['planned']);
+		// 'planned' is a variable just for custom 'action' scripts
+		unset($ops['planned']);
+	}
 	unset($ops['record_old']);
 	unset($ops['record_new']);
 	unset($ops['record_diff']);
@@ -693,8 +696,8 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 			'detail_key', 'display', 'option', 'write_once');
 		if (!in_array($field['type'], $unwanted)) {
 			if ($my_rec['POST_db'][$field_name]) {
-				$my_rec['POST_db'][$field_name] = '"'
-					.zz_db_escape($my_rec['POST_db'][$field_name]).'"';
+				$my_rec['POST_db'][$field_name] 
+					= '"'.zz_db_escape($my_rec['POST_db'][$field_name]).'"';
 			} else {
 				if (isset($field['number_type']) AND ($my_rec['POST'][$field_name] !== '') // type string, different from 0
 					AND $field['number_type'] == 'latitude' 
@@ -1620,6 +1623,9 @@ function check_number($number) {
  * @return array $relations
  */
 function zz_integrity_relations($relation_table) {
+	static $relations;
+	if ($relations) return $relations;
+
 	$sql = 'SELECT * FROM '.$relation_table;
 	$relations = zz_db_fetch($sql, array('master_db', 'master_table', 'master_field', 'rel_id'));
 	return $relations;
