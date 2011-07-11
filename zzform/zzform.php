@@ -831,6 +831,7 @@ function zz_initialize($mode = false) {
 	$zz_default['limit']				= false;	// only n records are shown at once
 	$zz_default['limit_show_range'] 	= 800;		// range in which links to records around current selection will be shown
 	$zz_default['limit_display']		= 'pages';
+	$zz_default['limit_all_max']		= 1500;		// maximum records on one page
 	$zz_default['list_display']			= 'table';
 	$zz_default['logging'] 				= false;	//	if logging should occur, turned off by default 
 	$zz_default['logging_table'] 		= '_logging';	// name of table where INSERT, DELETE and UPDATE actions will be logged

@@ -1238,7 +1238,8 @@ function zz_limit($limit_step, $this_limit, $total_rows, $scope = 'body') {
 
 	// remove mode, id
 	$unwanted_keys = array('mode', 'id', 'limit', 'add', 'zzaction', 'zzhash');
-	$uri = $zz_conf['int']['url']['self'].zz_edit_query_string($zz_conf['int']['url']['qs']
+	$uri = $zz_conf['int']['url']['self']
+		.zz_edit_query_string($zz_conf['int']['url']['qs']
 		.$zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
 
 	// set standard links
@@ -1255,12 +1256,14 @@ function zz_limit($limit_step, $this_limit, $total_rows, $scope = 'body') {
 		'class' => 'prev',
 		'title' => 	zz_text('Previous page')
 	);
-	$links[] = array(
-		'link'	=> zz_limitlink(-1, $this_limit, 0, $uri),
-		'text'	=> zz_text('all'),
-		'class' => 'all',
-		'title' => 	zz_text('All records on one page')
-	);
+	if ($total_rows < $zz_conf['limit_all_max']) {
+		$links[] = array(
+			'link'	=> zz_limitlink(-1, $this_limit, 0, $uri),
+			'text'	=> zz_text('all'),
+			'class' => 'all',
+			'title' => 	zz_text('All records on one page')
+		);
+	}
 
 	// set links for each step
 	$ellipsis_min = false;
