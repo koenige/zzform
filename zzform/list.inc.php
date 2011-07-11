@@ -270,6 +270,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			$ops['output'] .= '<ul class="data">'."\n";
 		}
 	} elseif ($zz_conf['show_list'] AND $ops['mode'] === 'export') {
+		$ops['output'] = array();
 		$ops['output']['head'] = $table_query[0];
 	}
 
