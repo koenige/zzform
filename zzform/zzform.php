@@ -138,6 +138,12 @@ function zzform($zz = array()) {
 		$GLOBALS['zz_saved']['conf']['modules'] = $zz_conf['modules'];
 	}
 
+//	Optional files
+
+	if (!function_exists('datum_de')) include_once $zz_conf['dir_inc'].'/numbers.inc.php';
+	if (file_exists($zz_conf['dir_inc'].'/forcefilename-'.$zz_conf['character_set'].'.inc.php'))
+		include_once $zz_conf['dir_inc'].'/forcefilename-'.$zz_conf['character_set'].'.inc.php';
+
 	if ($zz_conf['zzform_calls'] > 1 AND empty($zz_conf['multi'])) { 
 		// show a warning only if zzform is not explicitly called via zzform_multi()
 		$zz_error[] = array(
@@ -248,10 +254,6 @@ function zzform($zz = array()) {
 	
 
 //	Optional files
-
-	if (!function_exists('datum_de')) include_once $zz_conf['dir_inc'].'/numbers.inc.php';
-	if (file_exists($zz_conf['dir_inc'].'/forcefilename-'.$zz_conf['character_set'].'.inc.php'))
-		include_once $zz_conf['dir_inc'].'/forcefilename-'.$zz_conf['character_set'].'.inc.php';
 
 	if ($zz_conf['modules']['debug']) zz_debug('files and database connection ok');
 
