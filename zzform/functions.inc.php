@@ -44,9 +44,15 @@ function zz_add_modules($modules, $path) {
 	$mod = array();
 	$zz_default = array();
 	$zz_conf = array();
+	$add = false;
 
 //	import modules
 	foreach ($modules as $module) {
+		if (!empty($GLOBALS['zz_conf']['modules'][$module])) {
+			// we got that already
+			$mod[$module] = true;
+			continue;
+		}
 		if ($module == 'debug' AND empty($GLOBALS['zz_conf']['debug'])) {
 			$mod[$module] = false;
 			continue;
@@ -54,37 +60,34 @@ function zz_add_modules($modules, $path) {
 		if (file_exists($path.'/'.$module.'.inc.php')) {
 			include_once $path.'/'.$module.'.inc.php';
 			$mod[$module] = true;
+			$add = true;
 		} elseif (file_exists($path.'/'.$module.'.php')) {
 			include_once $path.'/'.$module.'.php';
 			$mod[$module] = true;
+			$add = true;
 		} else {
 			$mod[$module] = false;
-			// int_modules/ext_modules have debug module at different place
-			if (!empty($mod['debug']) OR !empty($GLOBALS['zz_conf']['modules']['debug'])) {
-				if (!$debug_started) {
-					zz_debug('start', __FUNCTION__);
-					$debug_started = true;
-				}
-				zz_debug("optional module ".$path.'/'.$module.'(.inc).php not included');
-			}
 		}
 		if (!empty($mod['debug']) OR !empty($GLOBALS['zz_conf']['modules']['debug'])) {
 			if (!$debug_started) {
 				zz_debug('start', __FUNCTION__);
 				$debug_started = true;
 			}
-			zz_debug($module);
+			$debug_msg = 'Module '.$module.' '.($mod[$module] ? '' : 'not').' included';
+			zz_debug($debug_msg);
 		}
 	}
 
-	// import variables from internal modules
-	$GLOBALS['zz_conf'] = zz_array_merge($GLOBALS['zz_conf'], $zz_conf);
-	zz_write_defaults($zz_default, $GLOBALS['zz_conf']);
-	// zzform_multi: module might be added later, so add default variables
-	// for $zz_saved as well
-	if (!empty($GLOBALS['zz_saved']['conf'])) {
-		$GLOBALS['zz_saved']['conf'] = zz_array_merge($GLOBALS['zz_saved']['conf'], $zz_conf);
-		zz_write_defaults($zz_default, $GLOBALS['zz_saved']['conf']);
+	if ($add) {
+		// import variables from internal modules
+		$GLOBALS['zz_conf'] = zz_array_merge($GLOBALS['zz_conf'], $zz_conf);
+		zz_write_defaults($zz_default, $GLOBALS['zz_conf']);
+		// zzform_multi: module might be added later, so add default variables
+		// for $zz_saved as well
+		if (!empty($GLOBALS['zz_saved']['conf'])) {
+			$GLOBALS['zz_saved']['conf'] = zz_array_merge($GLOBALS['zz_saved']['conf'], $zz_conf);
+			zz_write_defaults($zz_default, $GLOBALS['zz_saved']['conf']);
+		}
 	}
 
 	// int_modules/ext_modules have debug module at different place
@@ -485,7 +488,10 @@ function zz_extra_get_params($mode, $zz_conf) {
  */
 function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false) {
 	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__.$multiple_times);
+	static $defs;
+	$hash = md5(serialize($fields).$db_table.$multiple_times.$mode);
+	if (!empty($defs[$hash])) return zz_return($defs[$hash]);
 
 	foreach (array_keys($fields) as $no) {
 		if (!empty($fields[$no]['conditions'])) {
@@ -536,10 +542,12 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false)
 		if (!isset($fields[$no]['explanation'])) $fields[$no]['explanation'] = false; // initialize
 		if (!$multiple_times) {
 			if (!isset($fields[$no]['maxlength']) && isset($fields[$no]['field_name'])
-				AND $mode != 'list_only') 
+				AND $mode !== 'list_only' AND $mode !== 'show') 
 			{
 				// no need to check maxlength in list view only 
 				$fields[$no]['maxlength'] = zz_db_field_maxlength($fields[$no]['field_name'], $fields[$no]['type'], $db_table);
+			} else {
+				$fields[$no]['maxlength'] = 32;
 			}
 			if (!empty($fields[$no]['sql'])) // replace whitespace with space
 				$fields[$no]['sql'] = preg_replace("/\s+/", " ", $fields[$no]['sql']);
@@ -552,6 +560,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false)
 			$fields[$no]['fields'] = zz_fill_out($fields[$no]['fields'], $fields[$no]['table'], $multiple_times, $mode);
 		}
 	}
+	$defs[$hash] = $fields;
 	return zz_return($fields);
 }
 
@@ -2573,15 +2582,38 @@ function zz_db_field_maxlength($field, $type, $db_table) {
 
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	$sql = 'SHOW COLUMNS FROM '.zz_db_table_backticks($db_table).' LIKE "'.$field.'"';
+
 	$maxlength = false;
-	$field_def = zz_db_fetch($sql);
+	$field_def = zz_db_columns($db_table, $field);
 	if ($field_def) {
 		preg_match('/\((\d+)\)/s', $field_def['Type'], $my_result);
 		if (isset($my_result[1])) $maxlength = $my_result[1];
 	}
 	if ($zz_conf['modules']['debug']) zz_debug($type.($maxlength ? '-'.$maxlength : ''));
 	return zz_return($maxlength);
+}
+
+/**
+ * gets table definition from database to do further checks
+ *
+ * @param string $db_table
+ * @param string $field (optional)
+ * @return array definition for whole table or just field
+ */
+function zz_db_columns($db_table, $field = false) {
+	static $columns;
+	if (empty($columns[$db_table])) {
+		$sql = 'SHOW COLUMNS FROM '.zz_db_table_backticks($db_table);
+		$columns[$db_table] = zz_db_fetch($sql, 'Field');
+	}
+	if ($field) {
+		if (!empty($columns[$db_table][$field])) {
+			return $columns[$db_table][$field];
+		} else {
+			return false;
+		}
+	}
+	return $field_defs[$db_table];
 }
 
 /**
@@ -2622,8 +2654,7 @@ function zz_mysql_error($errno) {
  * @return bool true: might be null, false: must not be null
  */
 function zz_db_field_null($field, $db_table) {
-	$sql = 'SHOW COLUMNS FROM '.zz_db_table_backticks($db_table).' LIKE "'.$field.'"';
-	$line = zz_db_fetch($sql);
+	$line = zz_db_columns($db_table, $field);
 	if ($line AND $line['Null'] == 'YES') return true;
 	else return false;
 }
@@ -2895,6 +2926,7 @@ function zz_create_topfolders($my_dir) {
 function zz_text($string) {
 	static $text;				// $text will only be available to this function
 	global $zz_conf;
+	if (!$zz_conf['generate_output']) return $string;
 
 	$language = isset($zz_conf['language']) ? $zz_conf['language'] : 'en';
 	if (isset($zz_conf['default_language_for'][$language]))

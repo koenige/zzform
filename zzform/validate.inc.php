@@ -126,8 +126,7 @@ function zz_check_enumset($enum_value, $field, $db_table) {
  */
 function zz_db_get_enumset($colum, $db_table) {
 	$values = array();
-	$sql = 'SHOW COLUMNS FROM '.zz_db_table_backticks($db_table).' LIKE "'.$colum.'"';
-	$column_definition = zz_db_fetch($sql, '', '', __FUNCTION__);
+	$column_definition = zz_db_columns($db_table, $colum);
 	if (!$column_definition) return false;
 	if (substr($column_definition['Type'], 0, 5) == "set('" 
 		AND substr($column_definition['Type'], -2) == "')") {
