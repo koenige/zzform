@@ -23,6 +23,7 @@ function zz_maintenance($params) {
 	global $zz_conf;
 	global $zz_setting;
 
+	$zz_conf['generate_output'] = true;
 	if (!isset($zz_conf['modules'])) {
 		$zz_conf['modules'] = array();
 		$zz_conf['modules']['debug'] = false;
