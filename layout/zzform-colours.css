@@ -41,6 +41,10 @@ body, #zzform .editbutton, #zzform td.recordid, #zzform th.recordid
 
 /* list view (page navigation below list) */
 #zzform ul.pages li	{ border-color: #666; }
+#zzform ul.pages li span
+					{ color: #CCC; }
+#zzform ul.pages li a:hover
+					{ background-color: #DDD; }
 
 
 /* separating borders */
