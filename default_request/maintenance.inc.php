@@ -75,7 +75,7 @@ function zz_maintenance($params) {
 			break;
 		case 'SELECT':
 		default:
-			$page['text'] .= sprintf(zz_text('Sorry, %s is not yet supported'), htmlentities($tokens[0]));
+			$page['text'] .= sprintf(zz_text('Sorry, %s is not yet supported'), htmlspecialchars($tokens[0]));
 		}
 	}
 
@@ -106,7 +106,7 @@ function zz_maintenance($params) {
 	
 		$page['text'] .= '<h2>'.zz_text('Custom SQL query').'</h2>'."\n";
 		$page['text'] .= '<form method="POST" action=""><textarea cols="60" rows="10" name="sql">'
-			.str_replace('%%%', '%&shy;%&shy;%', htmlentities($sql))
+			.str_replace('%%%', '%&shy;%&shy;%', htmlspecialchars($sql))
 			.'</textarea>
 			<br><input type="submit"></form>'."\n";
 	// 	- SQL query absetzen, Häkchen für zz_log_sql()
@@ -255,7 +255,7 @@ function zz_maintenance_sql($sql) {
 	$newline = array('LEFT', 'FROM', 'GROUP', 'WHERE', 'SET', 'VALUES', 'SELECT');
 	$newline_tab = array('ON', 'AND');
 	foreach ($tokens as $token) {
-		$out = htmlentities($token);
+		$out = htmlspecialchars($token);
 		if (in_array($token, $keywords)) $out = '<strong>'.$out.'</strong>';
 		if (in_array($token, $newline)) $out = "\n".$out;
 		if (in_array($token, $newline_tab)) $out = "\n\t".$out;
