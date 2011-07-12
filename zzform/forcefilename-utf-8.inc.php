@@ -25,19 +25,19 @@ function forceFilename($str, $spaceChar = '-') {
 			$_str .= 'ae'; break;
 		
 		case 'à':case 'á':	case 'â':case 'ã':	case 'å':
-		case 'ā':
+		case 'ā': case 'â':
 			$_str .= 'a'; break;	 
-		case 'À':case 'Á':	case 'Â':case 'Ã':	case 'Å':
-		case 'Ā':
-		 	$_str .= 'a'; break;	 
+		case 'À': case 'Á':	case 'Â':case 'Ã':	case 'Å':
+		case 'Ā': case 'Â':
+		 	$_str .= 'A'; break;	 
 		
 		case 'Ç':case 'ç':
 			$_str .= 'c'; break;
  
-		case 'è':case 'é':	case 'ê':case 'ë':
+		case 'è':case 'é':	case 'ê':case 'ë': case 'ē':
 			$_str .= 'e'; break;	 
 		
-		case 'È':case 'É':	case 'Ê':case 'Ë':
+		case 'È':case 'É':	case 'Ê':case 'Ë': case 'Ē':
 			$_str .= 'E'; break;	 
 		
 		case 'Ì':case 'Í':	case 'Î':case 'Ï':
