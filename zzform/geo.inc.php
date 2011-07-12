@@ -26,11 +26,12 @@
  *
  * @param string $value coordinate input
  * @param string $orientation ('lat', 'lon')
+ * @param int $precision precision of double, 0 means will be left as is
  * @return array
  *		'value' => decimal value of coordinate
  *		'error' => error code
  */
-function zz_geo_coord_in($value, $orientation = 'lat') {
+function zz_geo_coord_in($value, $orientation = 'lat', $precision = 0) {
 	$my['value'] = '';
 	$my['error'] = '';
 	if ($value == NULL) {
@@ -151,6 +152,7 @@ function zz_geo_coord_in($value, $orientation = 'lat') {
 			$decimal -= 360; // +210°E = -150°W
 		}
 	}
+	if ($precision) $decimal = round($decimal, $precision);
 	$my['value'] = $decimal;
 	return $my;
 }
