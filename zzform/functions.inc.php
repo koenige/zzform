@@ -4146,4 +4146,28 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 	return zz_return($my_rec);
 }
 
+/**
+ * check how many decimal places a number has and round it later accordingly
+ *
+ * @param string $db_table
+ * @param array $field
+ * @return int number of decimal places
+ * @todo support POINT as well
+ */
+function zz_db_decimal_places($db_table, $field) {
+	if (!empty($field['factor'])) {
+		$n = 0;
+		while(pow(10, $n) < $field['factor']) $n++;
+		return $n;
+	}
+	$field_def = zz_db_columns($db_table, $field['field_name']);
+	if (substr($field_def['Type'], 0, 7) == 'decimal') {
+		$length = substr($field_def['Type'], 8, -1);
+		$length = explode(',', $length);
+		if (count($length) === 2) return $length[1];
+	}
+	return false;
+}
+
+
 ?>

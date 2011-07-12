@@ -970,7 +970,8 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				AND in_array($field['number_type'], array('latitude', 'longitude'))) {
 				// geographical coordinates
 				
-				$coord = zz_geo_coord_in($my_rec['POST'][$field_name], $field['number_type']);
+				$precision = zz_db_decimal_places($db_table, $field);
+				$coord = zz_geo_coord_in($my_rec['POST'][$field_name], $field['number_type'], $precision);
 				if ($coord['error']) {
 					$zz_error['validation']['incorrect_values'][] = array(
 						'field_name' => $field_name,
