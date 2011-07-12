@@ -8,93 +8,98 @@
 // for e.g. "This[1].is.a.filename.ext" in the save as dialog.
 // ---------------------------------------------------------
 
-function forceFilename($str, $spaceChar = '.')
-{
- 
-  $str=trim(utf8_decode($str));
- 
-  $_str = '';
-  $i_max = strlen($str);
-  for ($i=0; $i<strlen($str); $i++)
-  {
-   $ch = $str[$i];
-   switch ($ch)
-   {
-     case 'Ä': case 'Æ':
-     $_str .= 'AE'; break;   
-    
-     case 'ä': case 'æ':
-     $_str .= 'ae'; break;
-    
-     case 'à': case 'á':  case 'â': case 'ã':  case 'å':
-     $_str .= 'a'; break;   
-     case 'À': case 'Á':  case 'Â': case 'Ã':  case 'Å':
-     $_str .= 'a'; break;   
-    
-     case 'Ç': case 'ç':
-     $_str .= 'c'; break;
- 
-     case 'è': case 'é':  case 'ê': case 'ë':
-     $_str .= 'e'; break;   
-    
-     case 'È': case 'É':  case 'Ê': case 'Ë':
-     $_str .= 'E'; break;   
-    
-     case 'Ì': case 'Í':  case 'Î': case 'Ï':
-     $_str .= 'I'; break;   
-     case 'ì': case 'í':  case 'î': case 'ï':
-     $_str .= 'i'; break;   
-    
-     case 'Ñ': case 'ñ':
-     $_str .= 'n'; break;
-    
-     case 'Ö': 
-     $_str .= 'OE'; break;
-    
-     case 'ö':
-     $_str .= 'oe'; break;
-    
-     case 'Ò': case 'Ó':  case 'Ô': case 'Õ':
-     $_str .= 'O'; break;   
-     case 'ò': case 'ó':  case 'ô': case 'õ':
-     $_str .= 'i'; break;   
-    
-     case 'ß':
-     $_str .= 'ss'; break;
-    
-     case 'Ù': case 'Ú':  case 'Û':
-     $_str .= 'U'; break;   
-     case 'ù': case 'ú':  case 'û':
-     $_str .= 'u'; break;   
-    
-     case 'Ü':
-       $_str .= 'UE'; break;
-      
-     case 'ü':
-     $_str .= 'ue'; break;
-    
-     case 'Ý':
-       $_str .= 'Y'; break;
-      
-     case 'ý': case 'ÿ':
-     $_str .= 'y'; break;
-    
-     case 'Ð':
-     $_str .= 'D'; break;
-    
-     case ' ': $_str .= $spaceChar; break;
+function forceFilename($str, $spaceChar = '-') {
+	mb_internal_encoding("UTF-8");
 
-     case '/': case '\'': case '-': case ':':
-     $_str .= '-'; break;
-    
-     default : if (preg_match('/[A-Za-z0-9\(\)\.]/', $ch)) { $_str .= $ch;  } break;
-   }
-  }   
-  
-  $_str = str_replace("{$spaceChar}{$spaceChar}", "{$spaceChar}", $_str);
-  $_str = str_replace("{$spaceChar}-", '-', $_str);
-  $_str = str_replace("-{$spaceChar}", '-', $_str);
+	$str = trim($str);
+
+	$_str = '';
+	$i_max = mb_strlen($str);
+	for ($i = 0; $i < mb_strlen($str); $i++) {
+		$ch = mb_substr($str, $i, 1);
+		switch ($ch) {
+		case 'Ã„':case 'Ã†':
+			$_str .= 'AE'; break;	 
+		
+		case 'Ã¤':case 'Ã¦':
+			$_str .= 'ae'; break;
+		
+		case 'Ã ':case 'Ã¡':	case 'Ã¢':case 'Ã£':	case 'Ã¥':
+		case 'Ä':
+			$_str .= 'a'; break;	 
+		case 'Ã€':case 'Ã':	case 'Ã‚':case 'Ãƒ':	case 'Ã…':
+		case 'Ä€':
+		 	$_str .= 'a'; break;	 
+		
+		case 'Ã‡':case 'Ã§':
+			$_str .= 'c'; break;
  
-  return $_str;
+		case 'Ã¨':case 'Ã©':	case 'Ãª':case 'Ã«':
+			$_str .= 'e'; break;	 
+		
+		case 'Ãˆ':case 'Ã‰':	case 'ÃŠ':case 'Ã‹':
+			$_str .= 'E'; break;	 
+		
+		case 'ÃŒ':case 'Ã':	case 'ÃŽ':case 'Ã':
+		case 'Äª':
+			$_str .= 'I'; break;	 
+		case 'Ã¬':case 'Ã­':	case 'Ã®':case 'Ã¯':
+		case 'Ä«':
+			$_str .= 'i'; break;	 
+		
+		case 'Ã‘':case 'Ã±':
+			$_str .= 'n'; break;
+		
+		case 'Ã–': 
+			$_str .= 'OE'; break;
+		
+		case 'Ã¶':
+			$_str .= 'oe'; break;
+		
+		case 'Ã’':case 'Ã“':	case 'Ã”':case 'Ã•':
+			$_str .= 'O'; break;	 
+		case 'Ã²':case 'Ã³':	case 'Ã´':case 'Ãµ':
+			$_str .= 'i'; break;	 
+		
+		case 'ÃŸ':
+			$_str .= 'ss'; break;
+		
+		case 'Ã™':case 'Ãš':	case 'Ã›':
+		case 'Åª':
+			$_str .= 'U'; break;	 
+		case 'Ã¹':case 'Ãº':	case 'Ã»':
+		case 'Å«':
+			$_str .= 'u'; break;	 
+		
+		case 'Ãœ':
+			$_str .= 'UE'; break;
+			
+		case 'Ã¼':
+			$_str .= 'ue'; break;
+		
+		case 'Ã':
+				$_str .= 'Y'; break;
+			
+		case 'Ã½':case 'Ã¿':
+			$_str .= 'y'; break;
+		
+		case 'Ã':
+			$_str .= 'D'; break;
+		
+		case ' ':	$_str .= $spaceChar; break;
+
+		case '/':case '\'':case '-':case ':':
+			$_str .= '-'; break;
+		
+		default : if (preg_match('/[A-Za-z0-9\(\)\.]/', $ch)) {	$_str .= $ch;	} break;
+		}
+	}	 
+	
+	$_str = str_replace("{$spaceChar}{$spaceChar}", "{$spaceChar}",	$_str);
+	$_str = str_replace("{$spaceChar}-", '-',	$_str);
+	$_str = str_replace("-{$spaceChar}", '-',	$_str);
+ 
+	return	$_str;
 }
+
 ?>
