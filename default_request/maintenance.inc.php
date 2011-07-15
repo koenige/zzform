@@ -258,7 +258,7 @@ function zz_maintenance_integrity() {
 	global $zz_conf;
 
 	$sql = 'SELECT * FROM '.$zz_conf['relations_table'];
-	$relations = wrap_db_fetch($sql, 'rel_id');
+	$relations = zz_db_fetch($sql, 'rel_id');
 
 	$results = array();
 	foreach ($relations as $relation) {
@@ -271,7 +271,7 @@ function zz_maintenance_integrity() {
 			WHERE ISNULL(master_table.`'.$relation['master_field'].'`)
 			AND !ISNULL(detail_table.`'.$relation['detail_field'].'`)
 		';
-		$ids = wrap_db_fetch($sql, '_dummy_', 'key/value');
+		$ids = zz_db_fetch($sql, '_dummy_', 'key/value', false, E_USER_NOTICE);
 		$detail_field = $relation['detail_db'].' . '.$relation['detail_table'].' . '.$relation['detail_field'];
 		if ($ids) {
 			$line = '<li class="error">'.wrap_text('Error').' &#8211; <code>'
