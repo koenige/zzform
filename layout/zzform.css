@@ -237,5 +237,10 @@ body #zzform .separator hr
 #zzform .zzvariables th	
 					{ white-space: nowrap; text-align: left; 
 					padding-right: .5em; vertical-align: top; }
+
 /* maintenance */
 #zzform .blocklabel	{ display: block; height: 100%; width: 100%; }
+.maintenance h2
+					{ margin-top: 2em; }
+.maintenance h2:first-child
+					{ margin-top: 0; }

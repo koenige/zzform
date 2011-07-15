@@ -49,7 +49,7 @@ function zz_maintenance($params) {
 		$sql = $_POST['sql'];
 
 		$page['text'] = '<h1><a href="./">'.zz_text('Maintenance scripts').'</a></h1>'."\n";
-		$page['text'] .= '<div id="zzform">'."\n";
+		$page['text'] .= '<div id="zzform" class="maintenance">'."\n";
 		$page['text'] .= '<h2>'.zz_text('SQL query').'</h2>'."\n";
 		$page['text'] .= '<pre style="font-size: 1.1em; white-space: pre-wrap;"><code>'.zz_maintenance_sql($sql).'</code></pre>';
 
@@ -82,7 +82,7 @@ function zz_maintenance($params) {
 	if (empty($_GET)) {	
 		if (!$sql) {
 			$page['text'] = '<h1>'.zz_text('Maintenance scripts').'</h1>'."\n";
-			$page['text'] .= '<div id="zzform">'."\n";
+			$page['text'] .= '<div id="zzform" class="maintenance">'."\n";
 
 			// 'relations'
 			// 'translations'
@@ -114,18 +114,23 @@ function zz_maintenance($params) {
 		if (!empty($_GET['folder'])) {
 			$page['text'] = '<h1><a href="./">'.zz_text('Maintenance scripts').'</a>: '
 				.zz_text('Backup folder').'</h1>'."\n";
-			$page['text'] .= '<div id="zzform">'."\n";
+			$page['text'] .= '<div id="zzform" class="maintenance">'."\n";
 			$page['text'] .= zz_maintenance_folders();
 		} elseif (!empty($_GET['log'])) {
 			$page['text'] = '<h1><a href="./">'.zz_text('Maintenance scripts').'</a>: '
 				.zz_text('Logs').'</h1>'."\n";
-			$page['text'] .= '<div id="zzform">'."\n";
+			$page['text'] .= '<div id="zzform" class="maintenance">'."\n";
 			$page['text'] .= zz_maintenance_logs();
+		} elseif (isset($_GET['integrity'])) {
+			$page['text'] = '<h1><a href="./">'.zz_text('Maintenance scripts').'</a>: '
+				.zz_text('Relational Integrity').'</h1>'."\n";
+			$page['text'] .= '<div id="zzform" class="maintenance">'."\n";
+			$page['text'] .= zz_maintenance_integrity();
 		} elseif (isset($_GET['phpinfo'])) {
 			phpinfo();
 			exit;
 		} else {
-			$page['text'] .= '<div id="zzform">'."\n";
+			$page['text'] .= '<div id="zzform" class="maintenance">'."\n";
 			$page['text'] .= zz_text('GET should be empty, please test that:').' <pre>';
 			foreach ($_GET as $key => $value) {
 				$page['text'] .= $key.' => '.$value."\n";
@@ -135,9 +140,7 @@ function zz_maintenance($params) {
 	}
 	$page['text'] .= '</div>'."\n";
 
-
 	return $page;
-
 }
 
 function zz_maintenance_tables() {
@@ -235,6 +238,60 @@ function zz_maintenance_tables() {
 		.'<input type="submit">';
 	$text .= '</form>';
 
+	if (!empty($zz_conf['relations_table'])) {
+		$text .= '<p><a href="?integrity">Check relational integrity</a></p>';
+	}
+
+	return $text;
+}
+
+/**
+ * checks all fields that have an entry in the relations_table if they
+ * contain invalid values (e. g. values that do not have a corresponding value
+ * in the master table
+ *
+ * @global array $zz_conf 'relations_table'
+ * @return string text output
+ * @todo add translations with wrap_text()
+ */
+function zz_maintenance_integrity() {
+	global $zz_conf;
+
+	$sql = 'SELECT * FROM '.$zz_conf['relations_table'];
+	$relations = wrap_db_fetch($sql, 'rel_id');
+
+	$results = array();
+	foreach ($relations as $relation) {
+		$sql = 'SELECT DISTINCT detail_table.`'.$relation['detail_id_field'].'`
+				, detail_table.`'.$relation['detail_field'].'`
+			FROM `'.$relation['detail_db'].'`.`'.$relation['detail_table'].'` detail_table
+			LEFT JOIN `'.$relation['master_db'].'`.`'.$relation['master_table'].'` master_table
+				ON detail_table.`'.$relation['detail_field'].'`
+					= master_table.`'.$relation['master_field'].'`
+			WHERE ISNULL(master_table.`'.$relation['master_field'].'`)
+			AND !ISNULL(detail_table.`'.$relation['detail_field'].'`)
+		';
+		$ids = wrap_db_fetch($sql, '_dummy_', 'key/value');
+		$detail_field = $relation['detail_db'].' . '.$relation['detail_table'].' . '.$relation['detail_field'];
+		if ($ids) {
+			$line = '<li class="error">'.wrap_text('Error').' &#8211; <code>'
+				.$detail_field.'</code> contains invalid values: ('
+				.$relation['detail_id_field'].' => '.$relation['detail_field'].')<br>';
+			foreach ($ids as $id => $foreign_id) {
+				$line .= $id.' => '.$foreign_id.'; ';
+			}
+			$line .= '</li>';
+			$results[] = $line;
+		} else {
+			$results[] = '<li class="ok">'.wrap_text('OK').' &#8211; Field <code>'
+				.$detail_field.'</code> contains only valid values</li>';
+		}
+	}
+	if ($results) {
+		$text = "<ul>".implode("\n", $results)."</ul>\n";
+	} else {
+		$text = wrap_text('Nothing to check.');
+	}
 	return $text;
 }
 
