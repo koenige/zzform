@@ -1603,7 +1603,8 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 	$search_form['bottom'] = false;
 	if (!$zz_conf['search']) return $search_form;
 	// don't show search form if all records are already shown
-	if ($total_rows <= $count_rows AND empty($zz_conf['search_form_always'])) {
+	if ($total_rows <= $count_rows AND empty($zz_conf['search_form_always'])
+		AND empty($_GET['q'])) {
 		return $search_form;
 	}
 
