@@ -318,6 +318,8 @@ function zz_apply_filter() {
 		if (!empty($filter['sql'])) {
 			$elements = zz_db_fetch($filter['sql'], '_dummy_id_', 'key/value');
 			if ($zz_error['error']) return false;
+			// don't show filter if we have only one element
+			if (count($elements) == 1) return false;
 			foreach ($elements as $key => $value) {
 				$zz_conf['filter'][$index]['selection'][$key] = $value;
 			}
@@ -3226,13 +3228,13 @@ function zz_filter_selection($filter) {
  * @return string HTML output of all detail links
  */
 function zz_show_more_actions($more_actions, $more_actions_url, $more_actions_base, $more_actions_target, $more_actions_referer, $sql, $id, $line = false) {
+	global $zz_conf;
 	if (!function_exists('forceFilename')) {
 		echo zz_text('Function forceFilename() required but not found! It is as well '
 			.'possible that <code>$zz_conf[\'character_set\']</code> is incorrectly set.');
 		exit;
 	}
-	global $zz_conf;
-	if (empty($zz_conf['details_url'])) $zz_conf['details_url'] = '.php?id=';
+ 	if (empty($more_actions_url)) $more_actions_url = '.php?id=';
 	$act = false;
 	foreach ($more_actions as $key => $new_action) {
 		$output = false;
