@@ -1602,6 +1602,10 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 	$search_form['top'] = false;
 	$search_form['bottom'] = false;
 	if (!$zz_conf['search']) return $search_form;
+	// don't show search form if all records are already shown
+	if ($total_rows <= $count_rows AND empty($zz_conf['search_form_always'])) {
+		return $search_form;
+	}
 
 	// show search form only if there are records as a result of this query; 
 	// q: show search form if empty search result occured as well
@@ -1610,7 +1614,7 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 	$output = '';
 	$self = $zz_conf['int']['url']['self'];
 	// fields that won't be used for search
-	$unsearchable_fields = array('image', 'calculated', 'timestamp', 'upload_image');
+	$unsearchable_fields = array('image', 'calculated', 'timestamp', 'upload_image', 'option');
 	$output = "\n".'<form method="GET" action="'.$self
 		.'" id="zzsearch" accept-charset="'.$zz_conf['character_set'].'"><p>';
 	if ($qs = $zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']) { 

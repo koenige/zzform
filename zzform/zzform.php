@@ -850,6 +850,7 @@ function zz_initialize($mode = false) {
 	$zz_default['redirect_on_change']	= true;
 	$zz_default['relations_table'] 		= '_relations';	//	name of relations table for referential integrity
 	$zz_default['search'] 				= false;	// search for records possible or not
+	$zz_default['search_form_always']	= false;
 	$zz_default['select_multiple_records'] = false;
 	$zz_default['show_hierarchy']	= false;
 	$zz_default['show_list_while_edit'] = true;	
