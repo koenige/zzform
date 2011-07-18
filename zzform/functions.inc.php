@@ -3694,7 +3694,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 	$idf = zz_identifier_concat($idf_arr, $conf['concat']);
 	if (!empty($conf['prefix'])) $idf = $conf['prefix'].$idf;
 	// start value, if idf already exists
-	$i = (!empty($conf['start']) ? $conf['start'] : 2);
+	$i = !empty($conf['start']) ? $conf['start'] : 2;
 	// start always?
 	if (!empty($conf['start_always'])) $idf .= $conf['exists'].$i;
 	else $conf['start_always'] = false;
@@ -3753,7 +3753,7 @@ function zz_identifier_concat($data, $concat) {
  * until an adequate identifier exists  (john-doe, john-doe-2, john-doe-3 ...)
  *
  * @param string $idf
- * @param int $i
+ * @param mixed $i (integer or letter)
  * @param string $db_table [dbname.table]
  * @param string $field
  * @param string $id_field
@@ -3776,7 +3776,14 @@ function zz_identifier_exists($idf, $i, $db_table, $field, $id_field, $id_value,
 			// with start_always, we can be sure, that a generated suffix exists
 			// so we can safely remove it. 
 			// for other cases, this is only true for $i > 2.
-			$idf = substr($idf, 0, strrpos($idf, $conf['exists']));
+			if ($conf['exists']) {
+				$idf = substr($idf, 0, strrpos($idf, $conf['exists']));
+			} else {
+				// remove last ending, might be 9 in case $i = 10 or
+				// 'z' in case $i = 'aa' so make sure not to remove too much
+				$j = $i - 1;
+				$idf = substr($idf, 0, strlen($j));
+			}
 		}
 		$suffix = $conf['exists'].$i;
 		// in case there is a value for maxlength, make sure that resulting
