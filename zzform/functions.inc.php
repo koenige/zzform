@@ -3772,7 +3772,7 @@ function zz_identifier_exists($idf, $i, $db_table, $field, $id_field, $id_value,
 		.(!empty($conf['where']) ? ' AND '.$conf['where'] : '');
 	$records = zz_db_fetch($sql, $field);
 	if ($records) {
-		if ($i > 2 OR $conf['start_always']) {
+		if ($i > 2 OR $i > 'b' OR $conf['start_always']) {
 			// with start_always, we can be sure, that a generated suffix exists
 			// so we can safely remove it. 
 			// for other cases, this is only true for $i > 2.
@@ -3781,8 +3781,15 @@ function zz_identifier_exists($idf, $i, $db_table, $field, $id_field, $id_value,
 			} else {
 				// remove last ending, might be 9 in case $i = 10 or
 				// 'z' in case $i = 'aa' so make sure not to remove too much
-				$j = $i - 1;
-				$idf = substr($idf, 0, strlen($j));
+				$j = $i;
+				$j--;
+				if ($j === $i) {
+					// -- does not work with alphabet
+					if (substr_count($j, 'a') == strlen($j)) {
+						$j = substr($j, 0, -1);
+					}
+				}
+				$idf = substr($idf, 0, -strlen($j));
 			}
 		}
 		$suffix = $conf['exists'].$i;
