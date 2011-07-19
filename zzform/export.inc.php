@@ -152,14 +152,34 @@ function zz_export_links($url, $querystring) {
 /**
  * export data
  *
- * @param array $ops (from zzform())
+ * @param array $ops
+ *		$ops['headers'] = HTTP headers which might be used for sending PDF to browser
+ *		$ops['output']['head'] = Table definition, each field has an index
+ *		$ops['output']['rows'] = Table data, lines 0...n, each line has fields
+ *			with numerical index corresponding to 'head', each field is array
+ *			made of 'class' (= HTML attribute values) and 'text' (= content)
  * @global array $zz_conf
+ *		$zz_conf['int']['export_script']
  * @return mixed void (direct output) or array $ops
  */
 function zz_export($ops) {
 	global $zz_conf;
 	// check if we have data
 	if (!$zz_conf['show_list']) return false;
+
+	// pdf?
+	if ($zz_conf['list_display'] === 'pdf') {
+		// include pdf library
+		if (!empty($zz_conf['pdflib_path']))
+			require_once $zz_conf['pdflib_path'];
+	}
+
+	// custom functions
+	$function = zz_export_script($zz_conf['list_display']);
+	if ($function) {
+		// execute and return function
+		return $function($ops);
+	}
 
 	switch ($zz_conf['list_display']) {
 	case 'csv':
@@ -169,7 +189,8 @@ function zz_export($ops) {
 		$ops['output'] = $output;
 		return $ops;
 	case 'pdf':
-		zz_export_pdf($ops);
+		// no script is defined: standard PDF output
+		echo 'Sorry, standard PDF support is not yet available. Please use a custom script.';
 		exit;
 	case 'kml':
 		$ops['output'] = zz_export_kml($ops);
@@ -177,16 +198,31 @@ function zz_export($ops) {
 	}
 }
 
+/**
+ * KML export
+ * works only in conjunction with zzwrap, if this is not available, use a
+ * custom function (see zz_export())
+ *
+ * @param array $ops
+ * @global array $zz_conf
+ * @global array $zz_setting
+ * @return array $ops
+ */
 function zz_export_kml($ops) {
 	global $zz_conf;
+	global $zz_setting;
+	
 	$kml['title'] = zz_nice_title($zz_conf['heading'], $ops['output']['head']);
 	$kml['description'] = $zz_conf['heading_text'];
 	$kml['styles'] = array();
 	$kml['placemarks'] = array();
 	
+	if (empty($zz_setting['kml_default_dot'])) {
+		$zz_setting['kml_default_dot'] = '/_layout/map/blue-dot.png';
+	}
 	$kml['styles'][] = array(
 		'id' => 'default',
-		'href' => '/_layout/map/blue-dot.png'
+		'href' => $zz_setting['kml_default_dot']
 	);
 	
 	foreach ($ops['output']['head'] as $no => $column) {
@@ -205,10 +241,18 @@ function zz_export_kml($ops) {
 			'style' => 'default'
 		);
 	}
-	$output = wrap_template('zzform-kml', $kml);
+	$output = wrap_template('kml-coordinates', $kml);
 	return $output;
 }
 
+/**
+ * put all fields that are not used for other purposes into DL list
+ *
+ * @param array $head = $ops['output']['head']
+ * @param array $line = record
+ * @param array $fields = fields definition
+ * @return string HTML output, definition list	
+ */
 function zz_export_kml_description($head, $line, $fields) {
 	$set = array('title', 'longitude', 'latitutde', 'altitude');
 	foreach ($set as $field) unset($line[$field]);
@@ -222,69 +266,32 @@ function zz_export_kml_description($head, $line, $fields) {
 }
 
 /**
- * Create PDF with table data
- * 
- * @param array $ops
- *		$ops['headers'] = HTTP headers which might be used for sending PDF to browser
- *		$ops['output']['head'] = Table definition, each field has an index
- *		$ops['output']['rows'] = Table data, lines 0...n, each line has fields
- *			with numerical index corresponding to 'head', each field is array
- *			made of 'class' (= HTML attribute values) and 'text' (= content)
+ * get custom function for export
+ *
+ * @param string $type
  * @global array $zz_conf
- *		$zz_conf['int']['export_script']
+ * @return string name of the function if there is one
  */
-function zz_export_pdf($ops) {
+function zz_export_script($type) {
 	global $zz_conf;
-
 	// check if a specific script should be called
-	if (!empty($zz_conf['int']['export_script'])) {
-		// script may reside in extra file
-		// if not, function has to exist already
-		$script_filename = $zz_conf['dir_custom'].'/export-pdf-'
-			.str_replace( ' ', '-', $zz_conf['int']['export_script']).'.inc.php';
-		if (file_exists($script_filename))
-			require_once $script_filename;
+	if (empty($zz_conf['int']['export_script'])) return false;
+	
+	// script may reside in extra file
+	// if not, function has to exist already
+	$script_filename = $zz_conf['dir_custom'].'/export-'.$type.'-'
+		.str_replace( ' ', '-', $zz_conf['int']['export_script']).'.inc.php';
+	if (file_exists($script_filename))
+		require_once $script_filename;
 
-		// check if custom function exists
-		$function = 'export_pdf_'.str_replace(' ', '_', $zz_conf['int']['export_script']);
-		if (!function_exists($function)) {
-			echo 'Sorry, the required custom PDF export function <code>'
-				.$function.'()</code> does not exist.';
-			exit;
-		}
-		// include pdf library
-		if (!empty($zz_conf['pdflib_path'])) require_once $zz_conf['pdflib_path'];
-		// execute and return function
-		return $function($ops);
+	// check if custom function exists
+	$function = 'export_'.$type.'_'.str_replace(' ', '_', $zz_conf['int']['export_script']);
+	if (!function_exists($function)) {
+		echo 'Sorry, the required custom '.strtoupper($type).' export function <code>'
+			.$function.'()</code> does not exist.';
+		exit;
 	}
-
-	// no script is defined: standard PDF output
-	echo 'Sorry, standard PDF support is not yet available. Please use a custom script.';
-	exit;
-/*
-	require_once $zz_conf['pdflib_path'];
-	$pdf = new FPDF();
-	foreach ($ops['output']['rows'] as $row) {
-		$pdf->AddPage();
-		// Logo
-		$pdf->Image($zz_conf['dir_custom'].'/img/gfps-logo.png',10,10,120);
-		$pdf->setY(130);
-		$pdf->SetFont('Arial','B',16);
-		$pdf->Cell(40,10,'ZERTIFIKAT', 0, 1, 'C');
-		$pdf->Ln();
-		$pdf->Cell(40,10,$row[2]['text']);	// Name
-		$pdf->Ln();
-		$pdf->Cell(40,10,'hat bei der Veranstaltung');
-		$pdf->Ln();
-		$pdf->Cell(40,10,$row[5]['text']);	// Termin
-		$pdf->Ln();
-		$pdf->Cell(40,10,'erfolgreich teilgenommen.');	
-		$pdf->Ln();
-		// Themen
-		// Unterschrift
-	}
-	$pdf->Output();
-*/
+	return $function;
 }
 
 /**
