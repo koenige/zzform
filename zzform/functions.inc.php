@@ -4129,12 +4129,14 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 	$wheresql .= ')';
 	$sql = zz_edit_sql($sql, 'WHERE', $wheresql);
 	$possible_values = zz_db_fetch($sql, 'dummy_id', 'single value');
+	$error = false;
 	if (!count($possible_values)) {
 		// no records, user must re-enter values
 		$my_rec['fields'][$f]['type'] = 'select';
 		$my_rec['fields'][$f]['class'] = 'reselect' ;
 		$my_rec['fields'][$f]['suffix'] = '<br>'.zz_text('No entry found. Try less characters.');
 		$my_rec['validation'] = false;
+		$error = true;
 	} elseif (count($possible_values) == 1) {
 		// exactly one record found, so this is the value we want
 		$my_rec['POST'][$field_name] = current($possible_values);
@@ -4151,6 +4153,7 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 			$my_rec['fields'][$f]['show_hierarchy'] = false;
 		}
 		$my_rec['validation'] = false;
+		$error = true;
 	} elseif (count($possible_values)) {
 		// still too many records, require more characters
 		$my_rec['fields'][$f]['default'] = 'reselect' ;
@@ -4158,10 +4161,16 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 		$my_rec['fields'][$f]['suffix'] = ' '.zz_text('Please enter more characters.');
 		$my_rec['fields'][$f]['check_validation'] = false;
 		$my_rec['validation'] = false;
+		$error = true;
 	} else {
 		$my_rec['fields'][$f]['class'] = 'error' ;
 		$my_rec['fields'][$f]['check_validation'] = false;
 		$my_rec['validation'] = false;
+		$error = true;
+	}
+	if ($error AND $zz_conf['multi']) {
+		$zz_error[] = array('msg_dev' 
+			=> sprintf('No entry found: value %s in field %s.', $my_rec['POST'][$field_name], $field_name));
 	}
 	return zz_return($my_rec);
 }
