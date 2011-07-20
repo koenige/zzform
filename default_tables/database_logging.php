@@ -20,6 +20,7 @@ $zz['fields'][2]['field_name'] = 'query';
 if (!empty($zz_conf['logging_id'])) {
 	$zz['fields'][3]['title'] = 'Record';
 	$zz['fields'][3]['field_name'] = 'record_id';
+	$zz['fields'][3]['type'] = 'number';
 }
 
 $zz['fields'][4]['field_name'] = 'user';
