@@ -401,7 +401,10 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 				$out['th']['content'] .= $field['title'];
 			if (!empty($field['title_desc']) && $st_display == 'form') 
 				$out['th']['content'].= '<p class="desc">'.$field['title_desc'].'</p>';
-			$out['td']['attr'][] = 'subtable';
+			if (empty($field['tick_to_save'])) {
+				// no formatting as a subtable if tick_to_save is used
+				$out['td']['attr'][] = 'subtable';
+			}
 			if ($st_display == 'form' && !empty($field['explanation_top']) && $show_explanation) 
 				$out['td']['content'].= '<p class="explanation">'.$field['explanation_top'].'</p>';
 			$subtables = array_keys($zz_tab[$sub_tab]);
@@ -480,7 +483,8 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 					$out['td']['content'].= '<p class="tick_to_save"><input type="checkbox"'
 						.($show_tick ? ' checked="checked"' : '')
 						.($my_st_display != 'form' ? ' disabled="disabled"' : '')
-						.' name="zz_save_record['.$sub_tab.']['.$sub_rec.']"></p>';
+						.' name="zz_save_record['.$sub_tab.']['.$sub_rec
+						.']" id="zz_tick_'.$sub_tab.'_'.$sub_rec.'"></p>';
 				}
 				
 				// HTML output depending on form display
@@ -1290,6 +1294,9 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 			}
 			if ($outputf && $outputf != ' ') {
 				if (isset($field['prefix'])) $out['td']['content'].= $field['prefix'];
+				if (!empty($field['use_as_label'])) {
+					$outputf = '<label for="zz_tick_'.$tab.'_'.$rec.'">'.$outputf.'</label>';
+				}
 				$out['td']['content'].= $outputf;
 				if (isset($field['suffix'])) $out['td']['content'].= $field['suffix'];
 				$out['td']['content'].= ' ';
