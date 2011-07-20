@@ -1384,8 +1384,10 @@ function zz_val_get_from_upload($field, $images, $post) {
 					? $images[$v] // take value from upload-array
 					: (!empty($images[0]['upload'][$v]) ? $images[0]['upload'][$v] : ''); // or take value from first sub-image
 			}
+			// remove empty values
+			if ($myval === '0/0') $myval = false; // e. g. GPS bearing
 			// we don't need whitespace (DateTime field may be set to "    ..."
-			if(!is_array($myval)) $myval = trim($myval);
+			if (!is_array($myval)) $myval = trim($myval);
 			if (!empty($field['upload_func'])) {
 				$myval = $field['upload_func']($myval);
 				if (is_array($myval)) $myval = $myval['value'];
