@@ -3671,7 +3671,14 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 		$i++;
 		if (!$var) continue;
 		if (in_array($key, $conf['ignore'])) continue;
-		if (!empty($conf['ignore_this_if'][$key]) AND !empty($vars[$conf['ignore_this_if'][$key]])) continue;
+		if (!empty($conf['ignore_this_if'][$key])) {
+			if (!is_array($conf['ignore_this_if'][$key])) {
+				$conf['ignore_this_if'][$key] = array($conf['ignore_this_if'][$key]);
+			}
+			foreach ($conf['ignore_this_if'][$key] as $field_name) {
+				if (!empty($vars[$field_name])) continue 2;
+			}
+		}
 		if ((strstr($var, '/') AND $i != count($vars))
 			OR $conf['slashes']) {
 			// last var will be treated normally, other vars may inherit 
