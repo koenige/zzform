@@ -230,19 +230,6 @@ function zzform($zz = array()) {
 	if ($zz_conf['show_record'])
 		$zz_tab[0][0]['action'] = $zz_var['action'];
 	
-	// check if we are in export mode
-	/* under development
-	if ($zz_conf['access'] == 'export') {
-		$zz['filetype'] = $zz_conf['export_filetypes'][0]; // default filetype for export
-		if (!empty($_GET['export'])) { // get filetype for export
-			if (in_array($_GET['export'], $zz_conf['export_filetypes']))
-				$zz['filetype'] = $_GET['export'];
-		} elseif (!empty($_GET['filetype'])) // get filetype for export
-			if (in_array($_GET['filetype'], $zz_conf['export_filetypes']))
-				$zz['filetype'] = $_GET['filetype'];
-	}
-	*/
-
 	if (!$zz_conf['show_record']) unset($zz_conf['upload']); // values are not needed
 
 //	Required files

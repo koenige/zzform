@@ -15,8 +15,7 @@ $zz_conf['int']['allowed_params']['export'] = array('csv', 'pdf', 'kml');
 // whether sql result might be exported 
 // (link for export will appear at the end of the page)
 $zz_default['export']			= false;				
-// possible filetypes for export
-$zz_default['export_filetypes']	= array('csv', 'pdf', 'kml');	
+// PDF library to include
 $zz_default['pdflib_path']		= false;
 
 // csv standards
