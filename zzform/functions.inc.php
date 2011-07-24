@@ -319,7 +319,10 @@ function zz_apply_filter() {
 			$elements = zz_db_fetch($filter['sql'], '_dummy_id_', 'key/value');
 			if ($zz_error['error']) continue;
 			// don't show filter if we have only one element
-			if (count($elements) == 1) continue;
+			if (count($elements) <= 1) {
+				unset($zz_conf['filter'][$index]);
+				continue;
+			}
 			foreach ($elements as $key => $value) {
 				$zz_conf['filter'][$index]['selection'][$key] = $value;
 			}
