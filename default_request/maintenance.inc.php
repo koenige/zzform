@@ -89,11 +89,9 @@ function zz_maintenance($params) {
 			$page['text'] .= '<h2>'.zz_text('Relation and Translation Tables').'</h2>'."\n";
 			$page['text'] .= zz_maintenance_tables();
 	
-		// 	- Backup/errors, insert, update, delete
 			$page['text'] .= '<h2>'.zz_text('Error Logging').'</h2>'."\n";
 			$page['text'] .= zz_maintenance_errors();
 		
-		// 	- Backup/errors, insert, update, delete
 			$page['text'] .= '<h2>'.zz_text('PHP & Server').'</h2>'."\n";
 			$page['text'] .= '<p><a href="?phpinfo">'.zz_text('Show PHP info on server').'</a></p>';
 
@@ -101,7 +99,7 @@ function zz_maintenance($params) {
 			$page['text'] .= '<h2>'.zz_text('Temp and Backup Files').'</h2>'."\n";
 			$page['text'] .= zz_maintenance_folders();
 
-
+			$page['text'] .= '<h2><a href="?filetree">'.zz_text('Filetree').'</a></h2>'."\n";
 		}
 	
 		$page['text'] .= '<h2>'.zz_text('Custom SQL query').'</h2>'."\n";
@@ -126,6 +124,11 @@ function zz_maintenance($params) {
 				.zz_text('Relational Integrity').'</h1>'."\n";
 			$page['text'] .= '<div id="zzform" class="maintenance">'."\n";
 			$page['text'] .= zz_maintenance_integrity();
+		} elseif (isset($_GET['filetree'])) {
+			$page['text'] = '<h1><a href="./">'.zz_text('Maintenance scripts').'</a>: '
+				.zz_text('Filetree').'</h1>'."\n";
+			$page['text'] .= '<div id="zzform" class="maintenance">'."\n";
+			$page['text'] .= zz_maintenance_filetree();
 		} elseif (isset($_GET['phpinfo'])) {
 			phpinfo();
 			exit;
@@ -295,6 +298,89 @@ function zz_maintenance_integrity() {
 	return $text;
 }
 
+function zz_maintenance_filetree() {
+	$topdir = $_SERVER['DOCUMENT_ROOT'].'/../';
+	$base = false;
+	if (!empty($_GET['filetree'])) {
+		$parts = explode('/', $_GET['filetree']);
+		$text = array_pop($parts);
+		$text = '<strong>'.htmlspecialchars($text).'</strong>';
+		while ($parts) {
+			$folder = implode('/', $parts);
+			$part = array_pop($parts);
+			$text = '<a href="?filetree='.$folder.'">'.htmlspecialchars($part).'</a> / '.$text;
+		}
+		$text = '<p><a href="?filetree">TOP</a> / '.$text.'</p>';
+		$base = $_GET['filetree'].'/';
+	} else {
+		$text = '<p><strong>TOP</strong></p>';
+	}
+	$text .= zz_maintenance_files($topdir.$base, $base);
+	return $text;
+}
+
+function zz_maintenance_files($dir, $base) {
+	if (!is_dir($dir)) return false;
+
+	$tbody = '';
+	$handle = opendir($dir);
+	$i = 0;
+	$total = 0;
+	$totalfiles = 0;
+	while ($file = readdir($handle)) {
+		if ($file == '.' OR $file == '..') continue;
+		$i++;
+		$files = 0;
+		if (is_dir($dir.'/'.$file)) {
+			list ($size, $files) = zz_maintenance_dirsize($dir.'/'.$file);
+			$link = '<strong><a href="?filetree='.$base.$file.'">';
+		} else {
+			$size = filesize($dir.'/'.$file);
+			$files = 1;
+			$link = false;
+		}
+		$tbody .= '<tr class="'.($i & 1 ? 'uneven' : 'even').'">'
+			.'<td>'.$link.$file.($link ? '</a></strong>' : '').'</td>'
+			.'<td class="number">'.number_format($size).' Bytes</td>'
+			.'<td class="number">'.number_format($files).'</td>'
+			.'</tr>'."\n";
+		$total += $size;
+		$totalfiles += $files;
+	}
+	closedir($handle);
+
+	$text = '<table class="data"><thead><tr>
+		<th>'.zz_text('Filename').'</th>
+		<th>'.zz_text('Filesize').'</th>
+		<th>'.zz_text('Files').'</th>
+		</thead>
+		<tfoot><tr><td></td><td class="number">'.number_format($total).' Bytes</td>
+		<td class="number">'.number_format($totalfiles).'</td></tr></tfoot>
+		<tbody>'."\n";
+	$text .= $tbody;
+	$text .= '</tbody></table>'."\n";
+	return $text;
+}
+
+function zz_maintenance_dirsize($dir) {
+	$handle = opendir($dir);
+	$size = 0;
+	$files = 0;
+	while ($file = readdir($handle)) {
+		if ($file == '.' OR $file == '..') continue;
+		if (is_dir($dir.'/'.$file)) {
+			list ($mysize, $myfiles) = zz_maintenance_dirsize($dir.'/'.$file);
+			$size += $mysize;
+			$files += $myfiles;
+		} else {
+			$size += filesize($dir.'/'.$file);
+			$files++;
+		}
+	}
+	closedir($handle);
+	return array($size, $files);
+}
+
 /**
  * reformats SQL query for better readability
  * 
@@ -328,38 +414,40 @@ function zz_maintenance_sql($sql) {
 
 function zz_maintenance_folders() {
 	global $zz_conf;
+	global $zz_setting;
 	$text = '';
 
 	if (!isset($zz_conf['backup'])) $zz_conf['backup'] = '';
 	if ((!$zz_conf['backup'] OR empty($zz_conf['backup_dir']))
-		AND empty($zz_conf['temp_dir'])) {
+		AND empty($zz_conf['tmp_dir']) AND empty($zz_setting['cache'])) {
 		$text .= '<p>'.zz_text('Backup of uploaded files is not active.').'</p>'."\n";
 		return $text;
 	}
 
 	$folders = array();
-	if (!empty($zz_conf['tmp_dir'])) {
-		if (is_dir($zz_conf['tmp_dir'])) {
-			$text .= '<p>'.zz_text('Current TEMP dir is:').' '.$zz_conf['tmp_dir'].'</p>'."\n";
-			$folders[] = 'TEMP';
-			if (substr($zz_conf['tmp_dir'], -1) == '/')
-				$zz_conf['tmp_dir'] = substr($zz_conf['tmp_dir'], 0, -1);
-			if (!empty($_GET['folder']) AND substr($_GET['folder'], 0, 4) == 'TEMP') {
-				$my_folder = $zz_conf['tmp_dir'].substr($_GET['folder'], 4);
+	$dirs = array(
+		'TEMP' => $zz_conf['tmp_dir'],
+		'BACKUP' => $zz_conf['backup_dir'],
+		'CACHE' => $zz_setting['cache']
+	);
+	foreach ($dirs as $key => $dir) {
+		$exists = file_exists($dir) ? true : false;
+		$text .= '<p>'.sprintf(zz_text('Current %s dir is: %s'), $key, $dir)
+			.(!$exists ? ' &#8211; <span class="error">but this directory does not exist</span>' : '')
+			.'</p>'."\n";
+		if (!$exists) continue;
+		if ($key === 'BACKUP') {
+			$handle = opendir($dir);
+			while ($folder = readdir($handle)) {
+				if (substr($folder, 0, 1) == '.') continue;
+				$folders[] = $folder;
 			}
 		} else {
-			$text .= '<p>'.zz_text('Current TEMP dir does not exist:').' '.$zz_conf['tmp_dir'].'</p>'."\n";
+			$folders[] = $key;
 		}
-	}
-	if (!empty($zz_conf['backup_dir'])) {
-		$exists = file_exists($zz_conf['backup_dir']) ? true : false;
-		$text .= '<p>'.zz_text('Current backup dir is:').' '.$zz_conf['backup_dir']
-			.(!$exists ? ' &#8211; <span class="error">but this directory does not exist</span>' : '').'</p>'."\n";
-		$backupdir = $zz_conf['backup_dir'];
-		if (substr($backupdir, -1) == '/')
-			$backupdir = substr($backupdir, 0, -1);
-		if (!empty($_GET['folder']) AND substr($_GET['folder'], 0, 4) != 'TEMP') {
-			$my_folder = $backupdir.'/'.$_GET['folder'];
+		if (substr($dir, -1) == '/') $dir = substr($dir, 0, -1);
+		if (!empty($_GET['folder']) AND substr($_GET['folder'], 0, strlen($key)) == $key) {
+			$my_folder = $dir.substr($_GET['folder'], strlen($key));
 		}
 	}
 
@@ -379,14 +467,6 @@ function zz_maintenance_folders() {
 				else
 					unlink($my_folder.'/'.$file);
 			}
-		}
-	}
-
-	if (file_exists($backupdir)) {
-		$handle = opendir($backupdir);
-		while ($folder = readdir($handle)) {
-			if (substr($folder, 0, 1) == '.') continue;
-			$folders[] = $folder;
 		}
 	}
 
@@ -441,7 +521,7 @@ function zz_maintenance_folders() {
 			}
 			$tbody .= '<tr class="'.($i & 1 ? 'uneven' : 'even').'">'
 				.'<td>'.($files_in_dir ? '' : '<input type="checkbox" name="files['.$file.']">').'</td>'
-				.'<td><a href="'.$link.'">'.$file.'</a></td>'
+				.'<td><a href="'.$link.'">'.str_replace('%', '%&shy;', urldecode($file)).'</a></td>'
 				.'<td>'.$ext.'</td>'
 				.'<td class="number">'.number_format($size).' Bytes</td>'
 				.'<td>'.$time.'</td>'
