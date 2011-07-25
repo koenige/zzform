@@ -145,6 +145,9 @@ function zz_maintenance($params) {
 		}
 	}
 	$page['text'] .= '</div>'."\n";
+	if (!empty($zz_conf['footer_text'])) {
+		$page['text'] .= $zz_conf['footer_text'];
+	}
 
 	return $page;
 }
@@ -542,7 +545,8 @@ function zz_maintenance_folders() {
 		} else {
 			// show submit button only if files are there
 			$text .= '<tbody>'.$tbody.'</tbody></table>'."\n"
-				.'<input type="submit" value="'.zz_text('Delete selected files').'">';
+				.'<input type="submit" value="'.zz_text('Delete selected files').'">'
+				.' <a onclick="zz_set_checkboxes(); return false;" href="#">Select all files</a>';
 		}
 		$text .= '</form>';
 		$text .= zz_list_total_records(count($files));

@@ -1,7 +1,7 @@
 /*
 
 // zzform
-// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2009
+// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2009-2011
 // javascript to be executed at end of document
 
 */
@@ -22,4 +22,18 @@ if (isSafari != -1) {
 			optionfields[i].text = level + optionfields[i].text;
 		}
 	}
+}
+
+var zzform = document.getElementById("zzform");
+/**
+ * sets all checkboxes inside #zzform to checked
+ */
+function zz_set_checkboxes() {
+	var zz_checkboxes = document.getElementsByTagName("input");
+	for (var i = 0 ; i < zz_checkboxes.length ; i++){
+		if (zz_checkboxes[i].type == "checkbox"){
+			zz_checkboxes[i].checked = true;
+		}
+	}
+	zz_checkboxes = null;
 }
