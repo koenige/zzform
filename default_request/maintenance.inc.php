@@ -496,11 +496,11 @@ function zz_maintenance_folders() {
 		sort($files);
 		$total_rows = 0;
 		foreach ($files as $file) {
-			if ($i < $zz_conf['int']['this_limit'] - $zz_conf['limit']) {
-				$i++;
+			if (!empty($_GET['q']) AND !strstr($file, $_GET['q'])) {
 				continue;
 			}
-			if (!empty($_GET['q']) AND !strstr($file, $_GET['q'])) {
+			if ($i < $zz_conf['int']['this_limit'] - $zz_conf['limit']) {
+				$i++;
 				continue;
 			}
 			$size = filesize($my_folder.'/'.$file);
