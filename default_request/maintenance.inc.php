@@ -724,11 +724,11 @@ function zz_maintenance_logs() {
 	$log = file($_GET['log']);
 	$text = '<h2>'.htmlspecialchars($_GET['log']).'</h2>';
 	if ($message) $text .= '<p class="error">'.$message.'</p>'."\n";
-	$my_uri = parse_url('http://www.example.org'.$_SERVER['REQUEST_URI']);
-	parse_str($my_uri['query'], $my_query);
+
+	parse_str($zz_conf['int']['url']['qs_zzform'], $my_query);
 	$filters_set = (!empty($my_query['filter']) ? $my_query['filter'] : array());
-	unset($my_query['filter']);
-	$my_uri = $my_uri['path'].'?'.http_build_query($my_query);
+	$unwanted_keys = array('filter');
+	$my_uri = $zz_conf['int']['url']['self'].zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
 	
 	foreach ($filters as $index => $filter) {
 		$filter_output[$index] = '<dt>'.zz_text('Selection').' '.ucfirst($index).':</dt>';

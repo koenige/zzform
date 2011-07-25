@@ -91,10 +91,14 @@ function zz_export_init($ops) {
  *
  * @param string $export type of export ('csv', 'pdf', ...)
  * @param string $charset character encoding ($zz_conf['character_set'])
+ * @global array $zz_onf 'int'['url']['self']
  * @return array $headers
  */
 function zz_make_headers($export, $charset) {
+	global $zz_conf;
 	$headers = array();
+	$filename = basename($zz_conf['int']['url']['self']);
+
 	switch ($export) {
 	case 'csv':
 		// correct download of csv files
@@ -105,20 +109,14 @@ function zz_make_headers($export, $charset) {
 			$headers[]['true'] = 'Pragma: public';
 		}
 		$headers[]['true'] = 'Content-Type: text/csv; charset='.$charset;
-		$filename = parse_url('http://www.example.org/'.$_SERVER['REQUEST_URI']);
-		$filename = basename($filename['path']);
 		$headers[]['true'] = 'Content-Disposition: attachment; filename="'.$filename.'.csv"';
 		break;
 	case 'pdf':
 		$headers[]['true'] = 'Content-Type: application/pdf;';
-		$filename = parse_url('http://www.example.org/'.$_SERVER['REQUEST_URI']);
-		$filename = basename($filename['path']);
 		$headers[]['true'] = 'Content-Disposition: attachment; filename="'.$filename.'.pdf"';
 		break;
 	case 'kml':
 		$headers[]['true'] = 'Content-Type: application/vnd.google-earth.kml+xml; charset=utf8';
-		$filename = parse_url('http://www.example.org/'.$_SERVER['REQUEST_URI']);
-		$filename = basename($filename['path']);
 		if (!empty($_GET['q'])) $filename .= ' '.forceFilename($_GET['q']);
 		$headers[]['true'] = 'Content-Disposition: attachment; filename="'.$filename.'.kml"';
 		break;
