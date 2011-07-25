@@ -489,9 +489,13 @@ function zz_maintenance_folders() {
 		$size_total = 0;
 		$tbody = '';
 		$files = array();
+		$total_files_q = 0;
 		while ($file = readdir($folder_handle)) {
 			if (substr($file, 0, 1) == '.') continue;
 			$files[] = $file;
+			if (!empty($_GET['q']) AND strstr($file, $_GET['q'])) {
+				$total_files_q++;
+			}
 		}
 		sort($files);
 		$total_rows = 0;
@@ -549,10 +553,12 @@ function zz_maintenance_folders() {
 				.' <a onclick="zz_set_checkboxes(); return false;" href="#">Select all files</a>';
 		}
 		$text .= '</form>';
-		$text .= zz_list_total_records(count($files));
-		$text .= zz_list_pages($zz_conf['limit'], $zz_conf['int']['this_limit'], count($files));
+		$shown_records = count($files);
+		if (!empty($_GET['q'])) $shown_records = $total_files_q;
+		$text .= zz_list_total_records($shown_records);
+		$text .= zz_list_pages($zz_conf['limit'], $zz_conf['int']['this_limit'], $shown_records);
 		$zz_conf['search_form_always'] = true;
-		$searchform = zz_search_form(array(), '', $total_rows, count($files));
+		$searchform = zz_search_form(array(), '', $total_rows, $shown_records);
 		$text .= $searchform['bottom'];
 	}
 	if (isset($handle)) closedir($handle);
