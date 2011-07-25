@@ -626,11 +626,8 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			$toolsline = array_merge($toolsline, zz_export_links($base_url, $zz_var['extraGET']));
 		if ($toolsline)
 			$ops['output'] .= '<p class="add-new bottom-add-new">'.implode(' | ', $toolsline).'</p>';
-		// Total records
-		if ($total_rows == 1) $ops['output'].= '<p class="totalrecords">'.$total_rows.' '.zz_text('record total').'</p>'; 
-		elseif ($total_rows) $ops['output'].= '<p class="totalrecords">'.$total_rows.' '.zz_text('records total').'</p>';
-		// Limit links
-		$ops['output'].= zz_limit($zz_conf['limit'], $zz_conf['int']['this_limit'], $total_rows);	
+		$ops['output'] .= zz_list_total_records($total_rows);
+		$ops['output'] .= zz_list_pages($zz_conf['limit'], $zz_conf['int']['this_limit'], $total_rows);	
 		// TODO: NEXT, PREV Links at the end of the page
 		// Search form
 		$ops['output'] .= $search_form['bottom'];
@@ -1208,19 +1205,32 @@ function zz_list_group_foot($rowgroup, $main_table_query, $z, $my_footer_table, 
 }
 
 /**
+ * outputs number of records in list
+ *
+ * @param int $total_rows
+ * @return string HTML code with text
+ */
+function zz_list_total_records($total_rows) {
+	// Total records
+	$text = '';
+	if ($total_rows == 1) $text = '<p class="totalrecords">'.$total_rows.' '.zz_text('record total').'</p>'; 
+	elseif ($total_rows) $text = '<p class="totalrecords">'.$total_rows.' '.zz_text('records total').'</p>';
+	return $text;
+}
+
+/**
  * if LIMIT is set, shows different pages for each $step records
  *
  * @param int $limit_step = $zz_conf['limit'] how many records shall be shown on each page
  * @param int $this_limit = $zz_conf['int']['this_limit'] last record no. on this page
  * @param int $total_rows	count of total records that might be shown
  * @param string $scope 'body', todo: 'head' (not yet implemented)
- * @global array $zz_conf
- *		url_self, url_self_qs_base, url_self_qs_zzform, limit_show_range
+ * @global array $zz_conf 'limit_show_range'
  * @return string HTML output
  * @todo
  * 	- <link rel="next">, <link rel="previous">
  */
-function zz_limit($limit_step, $this_limit, $total_rows, $scope = 'body') {
+function zz_list_pages($limit_step, $this_limit, $total_rows, $scope = 'body') {
 	global $zz_conf;
 
 	// check whether there are records
@@ -1236,29 +1246,25 @@ function zz_limit($limit_step, $this_limit, $total_rows, $scope = 'body') {
 	// check whether all records fit on one page
 	if ($limit_step >= $total_rows) return false;
 
-	// remove mode, id
-	$unwanted_keys = array('mode', 'id', 'limit', 'add', 'zzaction', 'zzhash');
-	$uri = $zz_conf['int']['url']['self']
-		.zz_edit_query_string($zz_conf['int']['url']['qs']
-		.$zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
+	$url = zz_list_pageurl();
 
 	// set standard links
 	$links = array();
 	$links[] = array(
-		'link'	=> zz_limitlink(0, $this_limit, $limit_step, $uri),
+		'link'	=> zz_list_pagelink(0, $this_limit, $limit_step, $url),
 		'text'	=> '|&lt;',
 		'class' => 'first',
 		'title' => zz_text('First page')
 	);
 	$links[] = array(
-		'link'	=> zz_limitlink($this_limit-$limit_step, $this_limit, 0, $uri),
+		'link'	=> zz_list_pagelink($this_limit-$limit_step, $this_limit, 0, $url),
 		'text'	=> '&lt;',
 		'class' => 'prev',
 		'title' => 	zz_text('Previous page')
 	);
 	if ($total_rows < $zz_conf['limit_all_max']) {
 		$links[] = array(
-			'link'	=> zz_limitlink(-1, $this_limit, 0, $uri),
+			'link'	=> zz_list_pagelink(-1, $this_limit, 0, $url),
 			'text'	=> zz_text('all'),
 			'class' => 'all',
 			'title' => 	zz_text('All records on one page')
@@ -1288,16 +1294,16 @@ function zz_limit($limit_step, $this_limit, $total_rows, $scope = 'body') {
 	}
 
 	for ($i = $rec_start; $i <= $rec_end; $i = $i+$limit_step) { 
-		$range_min = $i+1;
-		$range_max = $i+$limit_step;
-		if ($this_limit + ceil($zz_conf['limit_show_range']/2) < $range_min) {
+		$range_min = $i + 1;
+		$range_max = $i + $limit_step;
+		if ($this_limit + ceil($zz_conf['limit_show_range'] / 2) < $range_min) {
 			if (!$ellipsis_max) {
 				$links[] = array('text' => '&hellip;', 'link' => '');
 				$ellipsis_max = true;
 			}
 			continue;
 		}
-		if ($this_limit > $range_max + floor($zz_conf['limit_show_range']/2)) {
+		if ($this_limit > $range_max + floor($zz_conf['limit_show_range'] / 2)) {
 			if (!$ellipsis_min) {
 				$links[] = array('text' => '&hellip;', 'link' => '');
 				$ellipsis_min = true;
@@ -1308,29 +1314,29 @@ function zz_limit($limit_step, $this_limit, $total_rows, $scope = 'body') {
 		// if just one above the last limit show this number only once
 		switch ($zz_conf['limit_display']) {
 		case 'entries':
-			$text = ($range_min == $range_max ? $range_min: $range_min.'-'.$range_max);
+			$text = ($range_min == $range_max ? $range_min : $range_min.'-'.$range_max);
 		default:
 		case 'pages':
 			$text = $i/$zz_conf['limit']+1;
 		}
 		$links[] = array(
-			'link'	=> zz_limitlink($i, $this_limit, $limit_step, $uri),
+			'link'	=> zz_list_pagelink($i, $this_limit, $limit_step, $url),
 			'text'	=> $text
 		);
 	}
-	$limit_next = $this_limit+$limit_step;
+	$limit_next = $this_limit + $limit_step;
 	if ($limit_next > $range_max) $limit_next = $i;
 	if (!$rec_last) $rec_last = $i;
 
 	// set more standard links
 	$links[] = array(
-		'link'	=> zz_limitlink($limit_next, $this_limit, 0, $uri),
+		'link'	=> zz_list_pagelink($limit_next, $this_limit, 0, $url),
 		'text'	=> '&gt;',
 		'class' => 'next',
 		'title' => zz_text('Next page')
 	);
 	$links[] = array(
-		'link'	=> zz_limitlink($rec_last, $this_limit, 0, $uri),
+		'link'	=> zz_list_pagelink($rec_last, $this_limit, 0, $url),
 		'text'	=> '&gt;|',
 		'class' => 'last',
 		'title' => zz_text('Last page')
@@ -1354,23 +1360,61 @@ function zz_limit($limit_step, $this_limit, $total_rows, $scope = 'body') {
 	return $output;
 }
 
-function zz_limitlink($i, $limit, $limit_step, $uri) {
+/**
+ * creates the URLs for the limit links
+ *
+ * @global array $zz_conf
+ * 		'int'['url']['self'], 'int'['url']['qs'], 'int'['url']['qs_zzform']
+ * @return array $url
+ *		string 'base' => base URL, string 'query' => query string &?limit=
+ */
+function zz_list_pageurl() {
 	global $zz_conf;
-	if ($i == -1) {  // all records
+
+	// remove mode, id
+	$unwanted_keys = array('mode', 'id', 'limit', 'add', 'zzaction', 'zzhash');
+	$url['base'] = $zz_conf['int']['url']['self']
+		.zz_edit_query_string($zz_conf['int']['url']['qs']
+		.$zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
+	$parts = parse_url($url['base']);
+	if (isset($parts['query'])) $url['query'] = '&amp;';
+	else $url['query'] = '?';
+	$url['query'] .= 'limit=';
+	return $url;
+}
+
+/**
+ * creates URLs for links in page navigation
+ *
+ * @param int $start record no. whith which we start, -1 = show all records
+ * @param int $limit current limit
+ * @param int $limit_step 
+ * @param array $url string 'base' = bare URL without unwanted query strings,
+ *		string 'query' = querystring for limit
+ * @global array $zz_conf 'limit'
+ * @return string $url with limit=n
+ */
+function zz_list_pagelink($start, $limit, $limit_step, $url) {
+	global $zz_conf;
+	if ($start == -1) {
+		// all records
 		if (!$limit) return false;
 		else $limit_new = 0;
 	} else {
-		$limit_new = $i + $limit_step;
-		if ($limit_new == $limit) return false; // current page!
-		elseif (!$limit_new) return false; // 0 does not exist, means all records
+		$limit_new = $start + $limit_step;
+		if ($limit_new == $limit) {
+			// current page
+			return false;
+		} elseif (!$limit_new) {
+			// 0 does not exist, means all records
+			return false;
+		}
 	}
-	$uriparts = parse_url($uri);
+	$url_out = $url['base'];
 	if ($limit_new != $zz_conf['limit']) {
-		if (isset($uriparts['query'])) $uri.= '&amp;';
-		else $uri.= '?';
-		$uri .= 'limit='.$limit_new;
+		$url_out .= $url['query'].$limit_new;
 	}
-	return $uri;
+	return $url_out;
 }
 
 /**
