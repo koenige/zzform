@@ -1729,6 +1729,7 @@ function zz_sql_order($fields, $sql) {
 		if ($_GET['dir'] == 'asc') $my_order = ' ASC';
 		elseif ($_GET['dir'] == 'desc') $my_order = ' DESC';
 	foreach ($fields as $field) {
+		if (!empty($field['dont_sort'])) continue;
 		if (!empty($_GET['order'])
 			AND ((isset($field['display_field']) && $field['display_field'] == $_GET['order'])
 			OR (isset($field['field_name']) && $field['field_name'] == $_GET['order']))

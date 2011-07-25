@@ -512,6 +512,10 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false)
 		}
 		if (!isset($fields[$no]['type'])) // default type: text
 			$fields[$no]['type'] = 'text';
+		if ($fields[$no]['type'] == 'id' AND !isset($fields[$no]['dont_sort'])) {
+			// set dont_sort as a default for ID columns
+			$fields[$no]['dont_sort'] = true;
+		}
 		if (!isset($fields[$no]['title'])) { // create title
 			if (!isset($fields[$no]['field_name'])) {
 				global $zz_error;
@@ -3471,10 +3475,10 @@ function zz_field_class($field, $values, $html = false) {
 		$class[] = 'recordid';
 	elseif ($field['type'] == 'number' OR $field['type'] == 'calculated')
 		$class[] = 'number';
-	if (!empty($_GET['order'])) 
-		if (!empty($field['field_name']) && $field['field_name'] == $_GET['order'])
+	if (!empty($_GET['order']) AND empty($field['dont_sort'])) 
+		if (!empty($field['field_name']) AND $field['field_name'] == $_GET['order'])
 			$class[] = 'order';
-		elseif (!empty($field['display_field']) && $field['display_field'] == $_GET['order'])
+		elseif (!empty($field['display_field']) AND $field['display_field'] == $_GET['order']) 
 			$class[] = 'order';
 	if ($values)
 		if (isset($field['field_name'])) // does not apply for subtables!
