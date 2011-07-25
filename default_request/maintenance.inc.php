@@ -497,6 +497,9 @@ function zz_maintenance_folders() {
 				$i++;
 				continue;
 			}
+			if (!empty($_GET['q']) AND !strstr($file, $_GET['q'])) {
+				continue;
+			}
 			$size = filesize($my_folder.'/'.$file);
 			$size_total += $size;
 			if (is_dir($my_folder.'/'.$file)) 
@@ -521,7 +524,7 @@ function zz_maintenance_folders() {
 			}
 			$tbody .= '<tr class="'.($i & 1 ? 'uneven' : 'even').'">'
 				.'<td>'.($files_in_dir ? '' : '<input type="checkbox" name="files['.$file.']">').'</td>'
-				.'<td><a href="'.$link.'">'.str_replace('%', '%&shy;', urldecode($file)).'</a></td>'
+				.'<td><a href="'.$link.'">'.zz_mark_search_string(str_replace('%', '%&shy;', urldecode($file))).'</a></td>'
 				.'<td>'.$ext.'</td>'
 				.'<td class="number">'.number_format($size).' Bytes</td>'
 				.'<td>'.$time.'</td>'
@@ -544,6 +547,9 @@ function zz_maintenance_folders() {
 		$text .= '</form>';
 		$text .= zz_list_total_records(count($files));
 		$text .= zz_list_pages($zz_conf['limit'], $zz_conf['int']['this_limit'], count($files));
+		$zz_conf['search_form_always'] = true;
+		$searchform = zz_search_form(array(), '', $total_rows, count($files));
+		$text .= $searchform['bottom'];
 	}
 	if (isset($handle)) closedir($handle);
 
