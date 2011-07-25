@@ -23,17 +23,20 @@ function zz_maintenance($params) {
 	global $zz_conf;
 	global $zz_setting;
 
-	$zz_conf['generate_output'] = true;
 	if (!isset($zz_conf['modules'])) {
 		$zz_conf['modules'] = array();
 		$zz_conf['modules']['debug'] = false;
 	}
 
+	require_once $zz_conf['dir_inc'].'/zzform.php';
 	require_once $zz_conf['dir_inc'].'/functions.inc.php';
+	require_once $zz_conf['dir_inc'].'/list.inc.php';
 	if (file_exists($zz_setting['custom'].'/zzbrick_tables/_common.inc.php')) {
 		require_once($zz_setting['custom'].'/zzbrick_tables/_common.inc.php');
 		if (isset($brick['page'])) $page = $brick['page'];
 	}
+
+	zz_initialize();
 	
 	if (!empty($_SESSION) AND empty($zz_conf['user']) AND !empty($zz_setting['brick_username_in_session']))
 		$zz_conf['user'] = $_SESSION[$zz_setting['brick_username_in_session']];
@@ -496,7 +499,12 @@ function zz_maintenance_folders() {
 			$files[] = $file;
 		}
 		sort($files);
+		$total_rows = 0;
 		foreach ($files as $file) {
+			if ($i < $zz_conf['int']['this_limit'] - $zz_conf['limit']) {
+				$i++;
+				continue;
+			}
 			$size = filesize($my_folder.'/'.$file);
 			$size_total += $size;
 			if (is_dir($my_folder.'/'.$file)) 
@@ -527,10 +535,12 @@ function zz_maintenance_folders() {
 				.'<td>'.$time.'</td>'
 				.'</tr>'."\n";
 			$i++;
+			$total_rows++;
+			if ($i == $zz_conf['int']['this_limit']) break;
 		}
 		closedir($folder_handle);
 		$text .= '<tfoot><tr><td></td><td>'.zz_text('All Files').'</td><td>'
-			.$i.'</td><td>'.number_format($size_total).' Bytes</td><td></td></tr></tfoot>';
+			.$total_rows.'</td><td>'.number_format($size_total).' Bytes</td><td></td></tr></tfoot>';
 		if (!$tbody) {
 			$text .= '<tbody><tr class="even"><td>&nbsp;</td><td colspan="4">&#8211; '
 				.zz_text('Folder is empty').' &#8211;</td></tr></tbody></table>'."\n";
@@ -540,6 +550,8 @@ function zz_maintenance_folders() {
 				.'<input type="submit" value="'.zz_text('Delete selected files').'">';
 		}
 		$text .= '</form>';
+		$text .= zz_list_total_records(count($files));
+		$text .= zz_list_pages($zz_conf['limit'], $zz_conf['int']['this_limit'], count($files));
 	}
 	if (isset($handle)) closedir($handle);
 
