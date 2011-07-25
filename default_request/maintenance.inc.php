@@ -439,15 +439,7 @@ function zz_maintenance_folders() {
 			.(!$exists ? ' &#8211; <span class="error">but this directory does not exist</span>' : '')
 			.'</p>'."\n";
 		if (!$exists) continue;
-		if ($key === 'BACKUP') {
-			$handle = opendir($dir);
-			while ($folder = readdir($handle)) {
-				if (substr($folder, 0, 1) == '.') continue;
-				$folders[] = $folder;
-			}
-		} else {
-			$folders[] = $key;
-		}
+		$folders[] = $key;
 		if (substr($dir, -1) == '/') $dir = substr($dir, 0, -1);
 		if (!empty($_GET['folder']) AND substr($_GET['folder'], 0, strlen($key)) == $key) {
 			$my_folder = $dir.substr($_GET['folder'], strlen($key));
