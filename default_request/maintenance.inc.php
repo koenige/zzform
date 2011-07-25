@@ -342,7 +342,7 @@ function zz_maintenance_files($dir, $base) {
 	closedir($handle);
 	sort($files);
 
-	foreach ($files as $file)
+	foreach ($files as $file) {
 		$i++;
 		$files_in_folder = 0;
 		if (is_dir($dir.'/'.$file)) {
