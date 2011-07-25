@@ -502,7 +502,10 @@ function zz_maintenance_folders() {
 			$filter = '';
 			if (!empty($_GET['q']))
 				$filter = ' Search: '.htmlspecialchars($_GET['q']);
-			$text .= '<form action="" method="POST"><input type="submit" name="deleteall" value="Delete all files?'.$filter.'"></form>';
+			$unwanted_keys = array('deleteall');
+			$qs = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
+			$url = $zz_conf['int']['url']['full'].$qs;
+			$text .= '<form action="'.$url.'" method="POST"><input type="submit" name="deleteall" value="Delete all files?'.$filter.'"></form>';
 			return $text;
 		}
 
