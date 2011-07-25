@@ -436,11 +436,12 @@ function zz_maintenance_folders() {
 		'BACKUP' => $zz_conf['backup_dir'],
 		'CACHE' => $zz_setting['cache']
 	);
+	$text .= '<ul>';
 	foreach ($dirs as $key => $dir) {
 		$exists = file_exists($dir) ? true : false;
-		$text .= '<p>'.sprintf(zz_text('Current %s dir is: %s'), $key, $dir)
+		$text .= '<li>'.sprintf(zz_text('Current %s dir is: %s'), $key, $dir)
 			.(!$exists ? ' &#8211; <span class="error">but this directory does not exist</span>' : '')
-			.'</p>'."\n";
+			.'</li>'."\n";
 		if (!$exists) continue;
 		$folders[] = $key;
 		if (substr($dir, -1) == '/') $dir = substr($dir, 0, -1);
@@ -448,6 +449,7 @@ function zz_maintenance_folders() {
 			$my_folder = $dir.substr($_GET['folder'], strlen($key));
 		}
 	}
+	$text .= '</ul>';
 
 	if (!empty($_GET['folder']) AND !empty($_GET['file'])) {
 		$file['name'] = $my_folder.'/'.$_GET['file'];
@@ -477,6 +479,33 @@ function zz_maintenance_folders() {
 		}
 
 		$folder_handle = opendir($my_folder);
+
+		$files = array();
+		$total_files_q = 0;
+		$deleted = 0;
+		while ($file = readdir($folder_handle)) {
+			if (substr($file, 0, 1) == '.') continue;
+			if (!empty($_POST['deleteall'])) {
+				$deleted += zz_maintenance_folders_deleteall($my_folder, $file);
+				continue;
+			}
+			$files[] = $file;
+			if (!empty($_GET['q']) AND strstr($file, $_GET['q'])) {
+				$total_files_q++;
+			}
+		}
+		sort($files);
+
+		if (!empty($_POST['deleteall'])) {
+			$text .= '<p class="error">'.sprintf(wrap_text('%s files deleted'), $deleted).'</p>';
+		} elseif (isset($_GET['deleteall'])) {
+			$filter = '';
+			if (!empty($_GET['q']))
+				$filter = ' Search: '.htmlspecialchars($_GET['q']);
+			$text .= '<form action="" method="POST"><input type="submit" name="deleteall" value="Delete all files?'.$filter.'"></form>';
+			return $text;
+		}
+
 		$text .= '<form action="" method="POST">';
 		$text .= '<table class="data"><thead><tr>
 			<th>[]</th>
@@ -488,16 +517,6 @@ function zz_maintenance_folders() {
 		$i = 0;
 		$size_total = 0;
 		$tbody = '';
-		$files = array();
-		$total_files_q = 0;
-		while ($file = readdir($folder_handle)) {
-			if (substr($file, 0, 1) == '.') continue;
-			$files[] = $file;
-			if (!empty($_GET['q']) AND strstr($file, $_GET['q'])) {
-				$total_files_q++;
-			}
-		}
-		sort($files);
 		$total_rows = 0;
 		foreach ($files as $file) {
 			if (!empty($_GET['q']) AND !strstr($file, $_GET['q'])) {
@@ -549,8 +568,11 @@ function zz_maintenance_folders() {
 		} else {
 			// show submit button only if files are there
 			$text .= '<tbody>'.$tbody.'</tbody></table>'."\n"
-				.'<input type="submit" value="'.zz_text('Delete selected files').'">'
-				.' <a onclick="zz_set_checkboxes(); return false;" href="#">Select all files</a>';
+				.'<p style="float: right;"><a href="'.htmlspecialchars($_SERVER['REQUEST_URI'])
+				.'&amp;deleteall">Delete all files</a></p>
+				<p><input type="submit" value="'.zz_text('Delete selected files').'">'
+				.' &#8211; <a onclick="zz_set_checkboxes(); return false;" href="#">Select all files</a>
+				</p>';
 		}
 		$text .= '</form>';
 		$shown_records = count($files);
@@ -564,6 +586,18 @@ function zz_maintenance_folders() {
 	if (isset($handle)) closedir($handle);
 
 	return $text;
+}
+
+function zz_maintenance_folders_deleteall($my_folder, $file) {
+	if (!empty($_GET['q'])) {
+		if (strstr($file, $_GET['q'])) {
+			$success = unlink($my_folder.'/'.$file);
+			return $success;
+		}
+	} else {
+		$success = unlink($my_folder.'/'.$file);
+		return $success;
+	}
 }
 
 function zz_maintenance_errors() {
@@ -873,7 +907,7 @@ function zz_maintenance_logs() {
 		}
 	}
 	$text .= '</tbody></table>'."\n";
-	$text .= '<input type="submit" value="'.zz_text('Delete selected lines').'">';
+	$text .= '<p><input type="submit" value="'.zz_text('Delete selected lines').'"></p>';
 	$text .= '</form>';
 	return $text;
 }
