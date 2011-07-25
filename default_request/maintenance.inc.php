@@ -329,16 +329,24 @@ function zz_maintenance_files($dir, $base) {
 	if (!is_dir($dir)) return false;
 
 	$tbody = '';
-	$handle = opendir($dir);
 	$i = 0;
 	$total = 0;
 	$totalfiles = 0;
+	$files = array();
+
+	$handle = opendir($dir);
 	while ($file = readdir($handle)) {
 		if ($file == '.' OR $file == '..') continue;
+		$files[] = $file;
+	}
+	closedir($handle);
+	sort($files);
+
+	foreach ($files as $file)
 		$i++;
-		$files = 0;
+		$files_in_folder = 0;
 		if (is_dir($dir.'/'.$file)) {
-			list ($size, $files) = zz_maintenance_dirsize($dir.'/'.$file);
+			list ($size, $files_in_folder) = zz_maintenance_dirsize($dir.'/'.$file);
 			$link = '<strong><a href="?filetree='.$base.$file.'">';
 		} else {
 			$size = filesize($dir.'/'.$file);
@@ -348,12 +356,11 @@ function zz_maintenance_files($dir, $base) {
 		$tbody .= '<tr class="'.($i & 1 ? 'uneven' : 'even').'">'
 			.'<td>'.$link.$file.($link ? '</a></strong>' : '').'</td>'
 			.'<td class="number">'.number_format($size).' Bytes</td>'
-			.'<td class="number">'.number_format($files).'</td>'
+			.'<td class="number">'.number_format($files_in_folder).'</td>'
 			.'</tr>'."\n";
 		$total += $size;
-		$totalfiles += $files;
+		$totalfiles += $files_in_folder;
 	}
-	closedir($handle);
 
 	$text = '<table class="data"><thead><tr>
 		<th>'.zz_text('Filename').'</th>
@@ -369,9 +376,9 @@ function zz_maintenance_files($dir, $base) {
 }
 
 function zz_maintenance_dirsize($dir) {
-	$handle = opendir($dir);
 	$size = 0;
 	$files = 0;
+	$handle = opendir($dir);
 	while ($file = readdir($handle)) {
 		if ($file == '.' OR $file == '..') continue;
 		if (is_dir($dir.'/'.$file)) {
@@ -586,7 +593,6 @@ function zz_maintenance_folders() {
 		$searchform = zz_search_form(array(), '', $total_rows, $shown_records);
 		$text .= $searchform['bottom'];
 	}
-	if (isset($handle)) closedir($handle);
 
 	return $text;
 }
