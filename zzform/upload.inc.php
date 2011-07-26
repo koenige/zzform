@@ -1951,4 +1951,27 @@ function zz_upload_compat_error($upload) {
 	return $upload;
 }
 
+/**
+ * check if upload max file size is not bigger than ini-setting
+ *
+ * @global array $zz_conf;
+ * @global array $zz_error;
+ */
+function zz_upload_check_max_file_size() {
+	global $zz_conf;
+	global $zz_error;
+	
+	if ($zz_conf['upload_MAX_FILE_SIZE'] > ZZ_UPLOAD_INI_MAXFILESIZE) {
+		$zz_error[] = array(
+			'msg_dev' => 'Value for upload_max_filesize from php.ini is '
+				.'smaller than value which is set in the script. The '
+				.'value from php.ini will be used. To upload bigger files'
+				.', please adjust your configuration settings.',
+			'level' => E_USER_NOTICE
+		);
+		$zz_conf['upload_MAX_FILE_SIZE'] = ZZ_UPLOAD_INI_MAXFILESIZE;
+	}
+}
+
+
 ?>

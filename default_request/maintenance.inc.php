@@ -30,6 +30,7 @@ function zz_maintenance($params) {
 
 	require_once $zz_conf['dir_inc'].'/zzform.php';
 	require_once $zz_conf['dir_inc'].'/functions.inc.php';
+	require_once $zz_conf['dir_inc'].'/output.inc.php';
 	require_once $zz_conf['dir_inc'].'/list.inc.php';
 	if (file_exists($zz_setting['custom'].'/zzbrick_tables/_common.inc.php')) {
 		require_once($zz_setting['custom'].'/zzbrick_tables/_common.inc.php');

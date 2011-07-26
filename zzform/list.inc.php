@@ -27,6 +27,17 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	global $zz_error;
 
+	// check 'group'
+	if (!empty($_GET['group'])) {
+		foreach ($zz['fields_in_list'] as $field)
+			if ((isset($field['display_field']) && $field['display_field'] == $_GET['group'])
+				OR (isset($field['field_name']) && $field['field_name'] == $_GET['group'])
+			) {
+				if (isset($field['order'])) $zz_conf['group'] = $field['order'];
+				else $zz_conf['group'] = $_GET['group'];
+			}
+	}
+
 	// allow $zz_conf['group'] to be a string
 	if (!is_array($zz_conf['group']) AND $zz_conf['group'])
 		$zz_conf['group'] = array($zz_conf['group']);
@@ -638,6 +649,78 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	// save total rows in zz_var for use in zz_nice_title()
 	$zz_var['limit_total_rows'] = $total_rows;
 	return zz_return(array($ops, $zz_var));
+}
+
+/**
+ * prints out a list of filters to click
+ *
+ * @param array $filter
+ * @global array $zz_conf
+ * @return string HTML output, all filters
+ */
+function zz_filter_selection($filter) {
+	if (!is_array($filter)) return false;
+	global $zz_conf;
+	$self = $zz_conf['int']['url']['self'];
+	// remove unwanted keys from link
+	// do not show edited record, limit
+	$unwanted_keys = array('q', 'scope', 'limit', 'mode', 'id', 'add', 'filter', 'zzaction', 'zzhash');
+	$qs = zz_edit_query_string($zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
+	$filter_output = array();
+	foreach ($filter as $index => $f) {
+		$other_filters['filter'] = (!empty($_GET['filter']) ? $_GET['filter'] : array());
+		unset($other_filters['filter'][$f['identifier']]);
+		$qs = zz_edit_query_string($qs, array(), $other_filters);
+		$filter_output[$index] = '<dt>'.zz_text('Selection').' '.$f['title'].':</dt>';
+		// $f['selection'] might be empty if there's no record in the database
+		if (!empty($f['selection'])) { 
+			foreach ($f['selection'] as $id => $selection) {
+				$is_selected = ((isset($_GET['filter'][$f['identifier']]) 
+					AND $_GET['filter'][$f['identifier']] == $id))
+					? true : false;
+				if (!empty($f['default_selection']) 
+					AND ((is_array($f['default_selection']) AND key($f['default_selection']) == $id)
+					OR $f['default_selection'] == $id)) {
+					// default selection does not need parameter
+					$link = $self.$qs;
+				} else {
+					// ID might be string as well, so better urlencode it
+					$link = $self.($qs ? $qs.'&amp;' : '?').'filter['.$f['identifier'].']='.urlencode($id);
+				}
+				$filter_output[$index] .= '<dd>'
+					.(!$is_selected ? '<a href="'.$link.'">' : '<strong>')
+					.$selection
+					.(!$is_selected ? '</a>' : '</strong>')
+					.'</dd>'."\n";
+			}
+		} elseif (isset($_GET['filter'][$f['identifier']])) {
+			// no filter selections are shown, but there is a current filter, so show this
+			$filter_output[$index] .= '<dd><strong>'.htmlspecialchars($_GET['filter'][$f['identifier']]).'</strong></dd>'."\n";
+		} else {
+			// nothing to output: like-filter, so don't display anything
+			unset($filter_output[$index]);
+			continue;
+		}
+		if (empty($f['default_selection'])) {
+			$link = $self.$qs;
+		} else {
+			// there is a default selection, so we need a parameter = 0!
+			$link = $self.($qs ? $qs.'&amp;' : '?').'filter['.$f['identifier'].']=0';
+		}
+		if (!empty($filter[$index]['hide_all_link'])) continue;
+		$filter_output[$index] .= '<dd class="filter_all">&#8211;&nbsp;'
+			.(isset($_GET['filter'][$f['identifier']]) ? '<a href="'.$link.'">' : '<strong>')
+			.zz_text('all')
+			.(isset($_GET['filter'][$f['identifier']]) ? '</a>' : '</strong>')
+			.'&nbsp;&#8211;</dd>'."\n";
+	}
+	if (!$filter_output) return false;
+
+	$output = '<div class="zzfilter">'."\n";
+	$output .= '<dl>'."\n";
+	$output .= implode("", $filter_output);
+	$output .= '</dl><br clear="all"></div>'."\n";
+	return $output;
 }
 
 /**
