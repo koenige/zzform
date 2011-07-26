@@ -581,6 +581,13 @@ function zzform_exit($ops) {
 	
 	// HTML head
 	$ops['meta'] = zz_meta_tags();
+	
+	// HTTP status
+	if (!empty($zz_conf['int']['http_status'])) {
+		$ops['status'] = $zz_conf['int']['http_status'];
+	} else {
+		$ops['status'] = 200;
+	}
 
 	// check if request is valid
 	$zz_conf['valid_request'] = zz_valid_request();

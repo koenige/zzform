@@ -343,10 +343,21 @@ function zz_apply_filter() {
 		$filter['selection'] = $zz_conf['filter'][$index]['selection'];
 		if (!empty($_GET['filter'])) {
 			if (in_array($filter['identifier'], array_keys($_GET['filter']))
-				AND in_array($_GET['filter'][$filter['identifier']], array_keys($filter['selection']))
 				AND $filter['type'] == 'show_hierarchy') {
-			// it's a valid filter, so apply it.
-				$zz_conf['show_hierarchy'] = $_GET['filter'][$filter['identifier']];
+				$found = false;
+				foreach (array_keys($filter['selection']) AS $selection) {
+					if ($selection.'' != $_GET['filter'][$filter['identifier']]) continue;
+					$found = true;
+					$zz_conf['show_hierarchy'] = $selection;
+				}
+				if (!$found) {
+					$zz_error[] = array(
+						'msg_dev' => sprintf(zz_text('Invalid filter value: %s'), $_GET['filter'][$filter['identifier']]),
+						'level' => E_USER_NOTICE,
+						'status' => 404
+					);
+					$zz_error['error'] = true;
+				}
 			}
 		}
 	}
@@ -2707,6 +2718,12 @@ function zz_error() {
 		
 		// initialize error_level
 		if (empty($error['level'])) $error['level'] = '';
+		if (empty($error['status'])) $error['status'] = 200;
+		
+		// page http status
+		if ($error['status'] != 200) {
+			$zz_conf['int']['http_status'] = $error['status'];
+		}
 
 		// initialize and translate error messages
 		$error['msg'] = (!empty($error['msg']) ? zz_text(trim($error['msg'])) : '');
