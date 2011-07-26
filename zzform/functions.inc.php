@@ -352,7 +352,8 @@ function zz_apply_filter() {
 				}
 				if (!$found) {
 					$zz_error[] = array(
-						'msg_dev' => sprintf(zz_text('Invalid filter value: %s'), $_GET['filter'][$filter['identifier']]),
+						'msg' => sprintf(zz_text('This filter does not exist: %s'),
+							htmlspecialchars($_GET['filter'][$filter['identifier']])),
 						'level' => E_USER_NOTICE,
 						'status' => 404
 					);
