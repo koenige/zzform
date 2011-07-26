@@ -1481,12 +1481,14 @@ function zz_record_access($zz, $ops, $zz_var) {
 			$ops['mode'] = false;
 			$zz_error[] = array(
 				'msg_dev' => sprintf(zz_text('Configuration does not allow this mode: %s'), zz_text($mode)),
+				'status' => 403,
 				'level' => E_USER_NOTICE);
 		}
 		if (!$zz_conf[$mode] AND $zz_var['action'] == $action) {
 			$zz_var['action'] = false;
 			$zz_error[] = array(
 				'msg_dev' => sprintf(zz_text('Configuration does not allow this action: %s'), zz_text($action)),
+				'status' => 403,
 				'level' => E_USER_NOTICE);
 		}
 	}
