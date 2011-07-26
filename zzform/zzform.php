@@ -89,14 +89,6 @@ function zzform($zz = array()) {
 	// set and get URI
 	zz_initialize();
 
-	if ($zz_conf['generate_output']) {
-		zz_init_limit();
-		zz_init_referer();
-
-		// don't show list in case 'nolist' parameter is set
-		if (isset($_GET['nolist'])) $zz_conf['show_list'] = false;
-	}
-
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if ($zz_error['error']) return zzform_exit($ops); // exits script
 
@@ -782,6 +774,14 @@ function zz_initialize($mode = false) {
 	
 	zz_write_defaults($zz_default, $zz_conf);
 
+	if ($zz_conf['generate_output']) {
+		zz_init_limit();
+		zz_init_referer();
+
+		// don't show list in case 'nolist' parameter is set
+		if (isset($_GET['nolist'])) $zz_conf['show_list'] = false;
+	}
+
 	$zz_conf['int']['url'] = zz_get_url_self($zz_conf['url_self']);
 
 	//	URL parameter
@@ -875,6 +875,7 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 		// TODO: so far, we have no support for 'values' for subrecords
 		// TODO: zzform() and zzform_multi() called within an action-script
 		// causes not all zz_conf variables to be reset
+		$zz_conf['generate_output'] = false; // don't generate output
 		zz_initialize('overwrite');
 //		if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__)
 		$zz_conf['show_output'] = false; // do not show output as it will be included after page head
@@ -883,7 +884,6 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 		if (!empty($values['POST'])) $_POST = $values['POST'];
 		if (!empty($values['FILES'])) $_FILES = $values['FILES'];
 		else $_FILES = array();
-		$zz_conf['generate_output'] = false; // don't generate output
 		if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
 			$old_id = $zz_conf['id'];	
 			$zz_conf['id'] = $id;
