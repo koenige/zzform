@@ -548,6 +548,7 @@ function zzform_exit($ops) {
 	
 	// last time check for errors
 	zz_error();
+	if (!isset($ops['output'])) $ops['output'] = '';
 	$ops['output'] .= zz_error_output();
 	$ops['critical_error'] = $zz_error['error'] ? true : false;
 	$ops['error_mail'] = array();
