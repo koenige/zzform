@@ -877,6 +877,20 @@ function zz_maintenance_logs() {
 			}
 			if (!$data['user'] AND in_array($data['type'], array('zzform', 'zzwrap')))
 				$data['user'] = array_pop($tokens);
+
+			$data['status'] = false;
+			if (substr($tokens[0], 0, 1) == '[' AND substr($tokens[0], -1) == ']') {
+				$data['link'] = array_shift($tokens);
+				$data['link'] = substr($data['link'], 1, -1);
+			} elseif (substr($tokens[0], 0, 1) == '[' AND substr($tokens[1], -1) == ']'
+				AND strlen($tokens[0]) == 4) {
+				$data['status'] = array_shift($tokens);
+				$data['status'] = substr($data['status'], 1);
+				$data['link'] = array_shift($tokens);
+				$data['link'] = substr($data['link'], 0, -1);
+			} else {
+				$data['link'] = false;
+			}
 			$data['error'] = implode(' ', $tokens);
 			
 			if (!empty($_POST['deleteall'])) {
@@ -905,13 +919,18 @@ function zz_maintenance_logs() {
 						'error' => $data['error'],
 						'user' => array($data['user']),
 						'index' => array($index),
+						'link' => array($data['link']),
+						'status' => array($data['status'])
 					);
 					$total_rows++;
 				} else {
 					$log[$data['error']]['index'][] = $index;
 					$log[$data['error']]['date_end'] = $data['date'];
-					if (!in_array($data['user'], $log[$data['error']]['user']))
-						$log[$data['error']]['user'][] = $data['user'];
+					$fields = array('user', 'link', 'status');
+					foreach ($fields as $field) {
+						if (!in_array($data[$field], $log[$data['error']][$field]))
+							$log[$data['error']][$field][] = $data[$field];
+					}
 				}
 			}
 			$index++;
@@ -929,7 +948,7 @@ function zz_maintenance_logs() {
 	}
 
 	if ($message) $text .= '<p class="error">'.$message.'</p>'."\n";
-	
+
 	// output lines
 	foreach ($log as $index => $line) {
 		if ($line['level'] AND !in_array($line['level'], $dont_highlight_levels))
@@ -963,10 +982,25 @@ function zz_maintenance_logs() {
 				.'<td>'.$line['date'].'</td>'
 				.'<td>'.$line['type'].'</td>'
 				.'<td>'.$line['level'].'</td>'
-				.'<td>'.$line['error'].'</td>'
+				.'<td>'.($line['status'] ? '<strong>'.$line['status'].'</strong>' : '')
+					.' '.($line['link'] ? '[<a href="'.$line['link'].'">'
+					.htmlspecialchars($line['link']).'</a>]<br>' : '').$line['error'].'</td>'
 				.'<td>'.$line['user'].'</td>'
 				.'</tr>'."\n";
 		} else {
+			$links = '';
+			if ($line['status']) {
+				foreach ($line['status'] as $status) {
+					if (!$status) continue;
+					$links .= '<strong>'.$status.'</strong> ';
+				}
+			}
+			if ($line['link']) {
+				foreach ($line['link'] as $link) {
+					if (!$link) continue;
+					$links .= '[<a href="'.$link.'">'.htmlspecialchars($link).'</a>]<br>';
+				}
+			}
 			$tbody .= '<tr class="'.($j & 1 ? 'uneven' : 'even').'">'
 				.'<td><label for="line'.$j.'" class="blocklabel"><input type="checkbox" name="line['
 					.$j.']" value="'.implode(',', $line['index']).'" id="line'.$j.'"></label></td>'
@@ -975,7 +1009,7 @@ function zz_maintenance_logs() {
 					? $line['date_end']: '').'</td>'
 				.'<td>'.$line['type'].'</td>'
 				.'<td>'.$line['level'].'</td>'
-				.'<td>'.$line['error'].'</td>'
+				.'<td>'.$links.$line['error'].'</td>'
 				.'<td>'.implode(', ', $line['user']).'</td>'
 				.'<td>'.count($line['index']).'</td>'
 				.'</tr>'."\n";
