@@ -466,14 +466,18 @@ function zz_maintenance_folders() {
 	}
 
 	// delete
+	$deleted = 0;
 	if (!empty($_POST['files']) AND !empty($_GET['folder'])) {
 		foreach ($_POST['files'] as $file => $bool) {
 			if ($bool != 'on') continue;
 			if (file_exists($my_folder.'/'.$file)) {
-				if (is_dir($my_folder.'/'.$file))
+				if (is_dir($my_folder.'/'.$file)) {
 					rmdir($my_folder.'/'.$file);
-				else
+					$deleted++;
+				} else {
 					unlink($my_folder.'/'.$file);
+					$deleted++;
+				}
 			}
 		}
 	}
@@ -490,7 +494,6 @@ function zz_maintenance_folders() {
 
 		$files = array();
 		$total_files_q = 0;
-		$deleted = 0;
 		while ($file = readdir($folder_handle)) {
 			if (substr($file, 0, 1) == '.') continue;
 			if (!empty($_POST['deleteall'])) {
@@ -504,16 +507,12 @@ function zz_maintenance_folders() {
 		}
 		sort($files);
 
-		if (!empty($_POST['deleteall'])) {
+		if ($deleted) {
 			$text .= '<p class="error">'.sprintf(wrap_text('%s files deleted'), $deleted).'</p>';
-		} elseif (isset($_GET['deleteall'])) {
-			$filter = '';
-			if (!empty($_GET['q']))
-				$filter = ' Search: '.htmlspecialchars($_GET['q']);
-			$unwanted_keys = array('deleteall');
-			$qs = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
-			$url = $zz_conf['int']['url']['full'].$qs;
-			$text .= '<form action="'.$url.'" method="POST"><input type="submit" name="deleteall" value="Delete all files?'.$filter.'"></form>';
+		}
+		$form = zz_maintenance_deleteall_form('files');
+		if ($form) {
+			$text .= $form;
 			return $text;
 		}
 
@@ -595,6 +594,29 @@ function zz_maintenance_folders() {
 		$text .= $searchform['bottom'];
 	}
 
+	return $text;
+}
+
+/**
+ * HTML output of form with button to delete all lines, files etc. in list
+ * 'q'-search filter will be regarded
+ *
+ * @param string $type
+ * @global array $zz_conf
+ * @return string HTML output
+ */
+function zz_maintenance_deleteall_form($type) {
+	global $zz_conf;
+	if (!empty($_POST['deleteall'])) return false;
+	if (!isset($_GET['deleteall'])) return false;
+
+	$filter = '';
+	if (!empty($_GET['q']))
+		$filter = ' Search: '.htmlspecialchars($_GET['q']);
+	$unwanted_keys = array('deleteall');
+	$qs = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
+	$url = $zz_conf['int']['url']['full'].$qs;
+	$text = '<form action="'.$url.'" method="POST"><input type="submit" name="deleteall" value="Delete all '.$type.'?'.$filter.'"></form>';
 	return $text;
 }
 
@@ -691,6 +713,12 @@ function zz_maintenance_errors() {
 	return $text;
 }
 
+/**
+ * output of logfile per line or grouped with the possibility to delete lines
+ *
+ * @global array $zz_conf
+ * @return string HTML output
+ */
 function zz_maintenance_logs() {
 	global $zz_conf;
 	$levels = array('error', 'warning', 'notice');
@@ -722,13 +750,11 @@ function zz_maintenance_logs() {
 	$filters['group'] = array('Group entries');
 	$filter_output = '';
 	
-	$log = file($_GET['log']);
 	$text = '<h2>'.htmlspecialchars($_GET['log']).'</h2>';
-	if ($message) $text .= '<p class="error">'.$message.'</p>'."\n";
 
 	parse_str($zz_conf['int']['url']['qs_zzform'], $my_query);
 	$filters_set = (!empty($my_query['filter']) ? $my_query['filter'] : array());
-	$unwanted_keys = array('filter');
+	$unwanted_keys = array('filter', 'limit');
 	$my_uri = $zz_conf['int']['url']['self'].zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
 	
 	foreach ($filters as $index => $filter) {
@@ -776,9 +802,189 @@ function zz_maintenance_logs() {
 	} else 
 		$group = false;
 
+	$form = zz_maintenance_deleteall_form('lines');
+	if ($form) {
+		$text .= $form;
+		return $text;
+	}
+
+
+	// get lines
+	$j = 0;
+	$delete = array();
+	$content = '';
+	$dont_highlight_levels = array('Notice', 'Warning');
+	$tbody = '';
+	$log = array();
+	$handle = fopen($_GET['log'], 'r');
+	if ($handle) {
+		$total_rows = 0;
+		$index = 0;
+		$i = 0;
+		$write_log = true;
+		while (($line = fgets($handle, 4096)) !== false) {
+			$line = trim($line);
+
+			if (!empty($_GET['q']) AND !strstr($line, $_GET['q'])) {
+				$index++;
+				continue;
+			}
+
+			$data = array();
+			$data['type'] = '';
+			$data['user'] = '';
+			$data['date'] = '';
+			$data['level'] = '';
+
+			// get date
+			if (substr($line, 0, 1) == '[' AND substr($line, 21, 1) == ']') {
+				$data['date'] = substr($line, 1, 20);
+				$line = substr($line, 23);
+			}
+			// get user
+			if (substr($line, -1) == ']' AND strstr($line, '[')) {
+				$data['user'] = substr($line, strrpos($line, '[')+1, -1);
+				$data['user'] = explode(' ', $data['user']);
+				if (count($data['user']) > 1 AND substr($data['user'][0], -1) == ':') {
+					array_shift($data['user']); // get rid of User: or translations of it
+				}
+				$data['user'] = implode(' ', $data['user']);
+				$line = substr($line, 0, strrpos($line, '['));
+			}
+
+			$tokens = explode(' ', $line);
+			if ($tokens AND in_array($tokens[0], $filters['type'])) {
+				$data['type'] = array_shift($tokens);
+				$data['level'] = array_shift($tokens);
+				if (substr($data['level'], -1) == ':') $data['level'] = substr($data['level'], 0, -1);
+				else $data['level'] .= ' '.array_shift($tokens);
+				if (substr($data['level'], -1) == ':') $data['level'] = substr($data['level'], 0, -1);
+			}
+
+			if (!empty($_GET['filter'])) {
+				if (!empty($_GET['filter']['type'])) {
+					if ($data['type'] != $_GET['filter']['type']) {
+						$index++;
+						continue;
+					}
+				}
+				if (!empty($_GET['filter']['level'])) {
+					if ($data['level'] != $_GET['filter']['level']) {
+						$index++;
+						continue;
+					}
+				}
+			}
+			if (!$data['user'] AND in_array($data['type'], array('zzform', 'zzwrap')))
+				$data['user'] = array_pop($tokens);
+			$data['error'] = implode(' ', $tokens);
+			
+			if (!empty($_POST['deleteall'])) {
+				$delete[] = $index;
+			} elseif (!$group) {
+				if ($i < ($zz_conf['int']['this_limit'] - $zz_conf['limit'])) {
+					$index++;
+					$total_rows++;
+					$i++;
+					continue;
+				}
+				if ($write_log) {
+					$data['index'] = $index;
+					$log[$index] = $data;
+					$i++;
+				}
+				if ($zz_conf['int']['this_limit']
+					AND $i >= $zz_conf['int']['this_limit']) $write_log = false;
+				$total_rows++;
+			} else {
+				if (empty($log[$data['error']])) {
+					$log[$data['error']] = array(
+						'date_begin' => $data['date'],
+						'type' => $data['type'],
+						'level' => $data['level'],
+						'error' => $data['error'],
+						'user' => array($data['user']),
+						'index' => array($index),
+					);
+					$total_rows++;
+				} else {
+					$log[$data['error']]['index'][] = $index;
+					$log[$data['error']]['date_end'] = $data['date'];
+					if (!in_array($data['user'], $log[$data['error']]['user']))
+						$log[$data['error']]['user'][] = $data['user'];
+				}
+			}
+			$index++;
+		}
+		fclose($handle);
+	}
+	if ($group) {
+		if ($zz_conf['int']['this_limit']) {
+			$log = array_slice($log, $zz_conf['int']['this_limit'] - $zz_conf['limit'], $zz_conf['int']['this_limit']);
+		}
+	}
+
+	if (!empty($_POST['deleteall'])) {
+		$message .= zz_delete_line_from_file($_GET['log'], $delete);
+	}
+
+	if ($message) $text .= '<p class="error">'.$message.'</p>'."\n";
 	
-	$text .= '<form action="" method="POST">';
-	$text .= '<table class="data"><thead><tr>
+	// output lines
+	foreach ($log as $index => $line) {
+		if ($line['level'] AND !in_array($line['level'], $dont_highlight_levels))
+			$line['level'] = '<p class="error">'.$line['level'].'</p>';
+
+		if (substr($line['error'], 0, 5) == 'POST ') {
+			$line['error'] = 'POST '.wrap_print(unserialize(substr($line['error'], 5)));
+		} else {
+			// get rid of long lines with zero width space (&#8203;) - &shy; does
+			// not work at least in firefox 3.6 with slashes
+			$line['error'] = str_replace(';', ';&#8203;', $line['error']);
+			$line['error'] = str_replace('&', '&#8203;&', $line['error']);
+			$line['error'] = str_replace('/', '/&#8203;', $line['error']);
+			$line['error'] = str_replace('=', '=&#8203;', $line['error']);
+			$line['error'] = str_replace('%', '&#8203;%', $line['error']);
+			$line['error'] = str_replace('-at-', '&#8203;-at-', $line['error']);
+			if (in_array($line['type'], array('zzform', 'zzwrap')))
+				$line['error'] = str_replace('<', '&lt;', $line['error']); // no HTML, but maybe mail/links
+		}
+		// htmlify links
+		if (strstr($line['error'], 'http:/&#8203;/&#8203;') OR strstr($line['error'], 'https:/&#8203;/&#8203;')) {
+			$line['error'] = preg_replace_callback('~(\S+):/&#8203;/&#8203;(\S+)~', 'zz_maintenance_make_url', $line['error']);
+		}
+		$line['error'] = str_replace(',', ', ', $line['error']);
+		$line['error'] = zz_mark_search_string($line['error']);
+
+		if (!$group) {
+			$tbody .= '<tr class="'.($j & 1 ? 'uneven' : 'even').'">'
+				.'<td><label for="line'.$index.'" class="blocklabel"><input type="checkbox" name="line['
+					.$index.']" value="'.$index.'" id="line'.$index.'"></label></td>'
+				.'<td>'.$line['date'].'</td>'
+				.'<td>'.$line['type'].'</td>'
+				.'<td>'.$line['level'].'</td>'
+				.'<td>'.$line['error'].'</td>'
+				.'<td>'.$line['user'].'</td>'
+				.'</tr>'."\n";
+		} else {
+			$tbody .= '<tr class="'.($j & 1 ? 'uneven' : 'even').'">'
+				.'<td><label for="line'.$j.'" class="blocklabel"><input type="checkbox" name="line['
+					.$j.']" value="'.implode(',', $line['index']).'" id="line'.$j.'"></label></td>'
+				.'<td>'.$line['date_begin'].'</td>'
+				.'<td>'.((!empty($line['date_end']) AND $line['date_end'] != $line['date_begin'])
+					? $line['date_end']: '').'</td>'
+				.'<td>'.$line['type'].'</td>'
+				.'<td>'.$line['level'].'</td>'
+				.'<td>'.$line['error'].'</td>'
+				.'<td>'.implode(', ', $line['user']).'</td>'
+				.'<td>'.count($line['index']).'</td>'
+				.'</tr>'."\n";
+		}
+		$j++;
+	}
+
+	$text .= '<form action="" method="POST">'
+		.'<table class="data"><thead><tr>
 		<th>[]</th>
 		<th>'.zz_text('Date').'</th>
 		'.($group ? '<th>'.zz_text('Last Date').'</th>' : '').'
@@ -788,137 +994,23 @@ function zz_maintenance_logs() {
 		<th>'.zz_text('User').'</th>
 		'.($group ? '<th>'.zz_text('Frequency').'</th>' : '').'
 		</thead>'."\n"
-		.'<tbody>'."\n";
-	$i = 0;
-	$j = 0;
-	$dont_highlight_levels = array('Notice', 'Warning');
-	$content = false;
-	foreach ($log as $index => $line) {
-		$type = '';
-		$user = '';
-		$date = '';
-		$level = '';
-		
-		$line = trim($line);
-		// get date
-		if (substr($line, 0, 1) == '[' AND substr($line, 21, 1) == ']') {
-			$date = substr($line, 1, 20);
-			$line = substr($line, 23);
-		}
-
-		// get user
-		if (substr($line, -1) == ']' AND strstr($line, '[')) {
-			$user = substr($line, strrpos($line, '[')+1, -1);
-			$user = explode(' ', $user);
-			if (count($user) > 1 AND substr($user[0], -1) == ':') {
-				array_shift($user); // get rid of User: or translations of it
-			}
-			$user = implode(' ', $user);
-			$line = substr($line, 0, strrpos($line, '['));
-		}
-		
-		$tokens = explode(' ', $line);
-
-		if ($tokens AND in_array($tokens[0], $filters['type'])) {
-			$type = array_shift($tokens);
-			$level = array_shift($tokens);
-			if (substr($level, -1) == ':') $level = substr($level, 0, -1);
-			else $level .= ' '.array_shift($tokens);
-			if (substr($level, -1) == ':') $level = substr($level, 0, -1);
-		}
-		if (!empty($_GET['filter'])) {
-			if (!empty($_GET['filter']['type'])) {
-				if ($type != $_GET['filter']['type']) {
-					$i++;
-					unset($log[$index]);
-					continue;
-				}
-			}
-			if (!empty($_GET['filter']['level'])) {
-				if ($level != $_GET['filter']['level']) {
-					$i++;
-					unset($log[$index]);
-					continue;
-				}
-			}
-		}
-
-		if (!$user AND in_array($type, array('zzform', 'zzwrap')))
-			$user = array_pop($tokens);
-		
-		if ($level AND !in_array($level, $dont_highlight_levels))
-			$level = '<p class="error">'.$level.'</p>';
-		
-		$line = implode(' ', $tokens);
-		// get rid of long lines with zero width space (&#8203;) - &shy; does
-		// not work at least in firefox 3.6 with slashes
-		$line = str_replace(';', ';&#8203;', $line);
-		$line = str_replace('&', '&#8203;&', $line);
-		$line = str_replace('/', '/&#8203;', $line);
-		$line = str_replace('=', '=&#8203;', $line);
-		$line = str_replace('%', '&#8203;%', $line);
-		$line = str_replace('-at-', '&#8203;-at-', $line);
-		if (in_array($type, array('zzform', 'zzwrap')))
-			$line = str_replace('<', '&lt;', $line); // no HTML, but maybe mail/links
-		// htmlify links
-		if (strstr($line, 'http:/&#8203;/&#8203;') OR strstr($line, 'https:/&#8203;/&#8203;')) {
-			$line = preg_replace_callback('~(\S+):/&#8203;/&#8203;(\S+)~', 'zz_maintenance_make_url', $line);
-		}
-		$line = str_replace(',', ', ', $line);
-
-		if (!$group) {
-			$text .= '<tr class="'.($j & 1 ? 'uneven' : 'even').'">'
-				.'<td><label for="line'.$i.'" class="blocklabel"><input type="checkbox" name="line['
-					.$i.']" value="'.$i.'" id="line'.$i.'"></label></td>'
-				.'<td>'.$date.'</td>'
-				.'<td>'.$type.'</td>'
-				.'<td>'.$level.'</td>'
-				.'<td>'.$line.'</td>'
-				.'<td>'.$user.'</td>'
-				.'</tr>'."\n";
-		} else {
-			if (empty($output[$line])) {
-				$output[$line] = array(
-					'date_begin' => $date,
-					'line' => '<td>'.$type.'</td>'
-						.'<td>'.$level.'</td>'
-						.'<td>'.$line.'</td>',
-					'user' => array($user),
-					'i' => array($i)
-				);
-			} else {
-				$output[$line]['i'][] = $i;
-				$output[$line]['date_end'] = $date;
-				if (!in_array($user, $output[$line]['user']))
-					$output[$line]['user'][] = $user;
-			}
-		}
-		$content = true;
-		$i++;
-		$j++;
-		unset($log[$index]);
-	}
-	if (!$content)
+		.'<tbody>'."\n".$tbody;
+	if (!$tbody)
 		$text .= '<tr><td colspan="6">'.zz_text('No lines').'</td></tr>'."\n";
-	elseif ($group) {
-		$j = 0;
-		foreach ($output as $line) {
-			$text .= '<tr class="'.($j & 1 ? 'uneven' : 'even').'">'
-				.'<td><label for="line'.$j.'" class="blocklabel"><input type="checkbox" name="line['
-					.$j.']" value="'.implode(',', $line['i']).'" id="line'.$j.'"></label></td>'
-				.'<td>'.$line['date_begin'].'</td>'
-				.'<td>'.((!empty($line['date_end']) AND $line['date_end'] != $line['date_begin'])
-					? $line['date_end']: '').'</td>'
-				.$line['line']
-				.'<td>'.implode(', ', $line['user']).'</td>'
-				.'<td>'.count($line['i']).'</td>'
-				.'</tr>'."\n";
-			$j++;
-		}
-	}
-	$text .= '</tbody></table>'."\n";
-	$text .= '<p><input type="submit" value="'.zz_text('Delete selected lines').'"></p>';
+	$text .= '</tbody></table>'."\n"
+		.'<p style="float: right;"><a href="'.htmlspecialchars($_SERVER['REQUEST_URI'])
+		.'&amp;deleteall">Delete all lines</a></p>'
+		.'<p><input type="submit" value="'.zz_text('Delete selected lines').'">'
+		.' &#8211; <a onclick="zz_set_checkboxes(); return false;" href="#">Select all lines</a></p>';
 	$text .= '</form>';
+
+	$shown_records = $total_rows;
+	$text .= zz_list_total_records($shown_records);
+	$text .= zz_list_pages($zz_conf['limit'], $zz_conf['int']['this_limit'], $shown_records);
+	$zz_conf['search_form_always'] = true;
+	$searchform = zz_search_form(array(), '', $total_rows, $shown_records);
+	$text .= $searchform['bottom'];
+
 	return $text;
 }
 
@@ -927,9 +1019,15 @@ function zz_maintenance_make_url($array) {
 	return $link;
 }
 
+/**
+ * deletes lines from a file
+ *
+ * @param string $file path to file
+ * @param array $lines list of line numbers to be deleted
+ */
 function zz_delete_line_from_file($file, $lines) {
 
-	// check if file exists ans is writable
+	// check if file exists and is writable
 	if (!is_writable($file))
 		return sprintf(zz_text('File %s is not writable.'), $file);
 
