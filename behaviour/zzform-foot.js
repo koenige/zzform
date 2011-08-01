@@ -24,16 +24,44 @@ if (isSafari != -1) {
 	}
 }
 
-var zzform = document.getElementById("zzform");
 /**
  * sets all checkboxes inside #zzform to checked
  */
 function zz_set_checkboxes() {
-	var zz_checkboxes = document.getElementsByTagName("input");
-	for (var i = 0 ; i < zz_checkboxes.length ; i++){
-		if (zz_checkboxes[i].type == "checkbox"){
-			zz_checkboxes[i].checked = true;
+	var zzform = document.getElementById("zzform");
+	var checkboxes = zzform.getElementsByTagName("input");
+	for (var i = 0; i < checkboxes.length; i++) {
+		if (checkboxes[i].type == "checkbox") {
+			checkboxes[i].checked = true;
 		}
 	}
-	zz_checkboxes = null;
+	checkboxes = null;
 }
+
+function zz_toggle_elements() {
+	var zzform = document.getElementById("zzform");
+	var tr = zzform.getElementsByTagName("tr");
+	for (var i = 0; i < tr.length; i++) {
+		if (tr[i].className === "toggle_td") {
+			tr[i].className = "hide_td"
+			var td = tr[i].childNodes[0];
+			var button = document.createElement('p');
+			button.className = 'desc';
+			button.innerHTML = '<a href="#" onclick="zz_toggle_element(this); return false;">'
+				+ 'Show/Hide' + '</a>';
+			td.appendChild(button);
+		}
+	}
+}
+
+function zz_toggle_element(myelement) {
+	var parenttd = myelement.parentNode;
+	var parentth = parenttd.parentNode;
+	var parenttr = parentth.parentNode;
+	if (parenttr.className === "toggle_td")
+		parenttr.className = "hide_td";
+	else
+		parenttr.className = "toggle_td";
+}
+
+zz_toggle_elements();

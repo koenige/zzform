@@ -113,6 +113,10 @@ body #zzform .separator hr
 					{ width: auto; font-weight: bold; padding-right: .75em; }
 #zzform #record .subtable .horizontal td
 					{ width: auto; padding-right: .5em; }
+#zzform #record .hide_td table
+					{ display: none; }
+#zzform #record .toggle_td table 
+					{ display: table; }
 
 
 /* filter */

@@ -396,6 +396,15 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 //	Subtable
 			$st_display = (!empty($field['access']) ? $field['access'] : $display);
 			$out['tr']['attr'][] = (!empty($field['class']) ? $field['class'] : '');
+			if (!empty($field['class_add'])) {
+				$has_subrecords = false;
+				foreach (array_keys($zz_tab[$tab]) as $rec) {
+					if (!is_numeric($rec)) continue;
+					if (!empty($zz_tab[$sub_tab][$rec]['id']['value'])) $has_subrecords = true;
+				}
+				if (!$has_subrecords)
+					$out['tr']['attr'][] = $field['class_add'];
+			}
 			$out['th']['attr'][] = 'sub-add';
 			if (!(isset($field['show_title']) AND !$field['show_title']))
 				$out['th']['content'] .= $field['title'];
