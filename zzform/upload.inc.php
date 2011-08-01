@@ -159,6 +159,8 @@ $zz_default['upload_filetype_map']['tif'] = 'tiff';
 $zz_default['upload_filetype_map']['jpe'] = 'jpeg';
 $zz_default['upload_filetype_map']['jpg'] = 'jpeg';
 
+$zz_default['upload_no_thumbnails'] = array('doc', 'docx', 'wps', 'rtf', 'xls',
+	'dot');
 
 /*	----------------------------------------------	*
  *					MAIN FUNCTIONS					*
@@ -948,57 +950,18 @@ function zz_upload_prepare($zz_tab) {
 			if ($zz_conf['modules']['debug']) zz_debug('source_filename: '.$source_filename);
 			if ($source_filename && $source_filename != 'none') { // only if something new was uploaded!
 				$filename = (file_exists($source_filename) ? $source_filename : '');
-				$tmp_filename = false;
-				if (!empty($image['action']) AND $filename) { 
-					// image operations only for images
-					// create temporary file, so that original file remains the same for further actions
-					$tmp_filename = tempnam(realpath($zz_conf['tmp_dir']), "UPLOAD_");
-					$dest_extension = zz_upload_extension($image['path'], $my_rec);
-					if (!$dest_extension) {
-						$dest_extension = $image['upload']['ext'];
-						// map files to extensions, e. g. TIFF to PNG
-						if (!empty($zz_conf['upload_destination_filetype'][$dest_extension]))
-							$dest_extension = $zz_conf['upload_destination_filetype'][$dest_extension];
-					}
-					$zz_conf['int']['no_image_action'] = false;
-					$image['action'] = 'zz_image_'.$image['action'];
-					$image['action']($filename, $tmp_filename, $dest_extension, $image);
-					if (file_exists($tmp_filename))	{
-						if (filesize($tmp_filename) > 3) {
-							$filename = $tmp_filename;
-							$all_temp_filenames[] = $tmp_filename;
-							$my_rec['file_upload'] = true;
-							$image['modified'] = array();
-							$image['modified']['tmp_name'] = $tmp_filename;
-							$image['modified'] = zz_upload_fileinfo($image['modified'], $dest_extension);
-							// todo: ['modified']['name'] ?? necessary? so far, it's not.
-						}  else {
-							// ELSE: if image-action did not work out the way it should have.
-							$filename = false; // do not upload anything
-							// TODO: mark existing image for deletion if there is one!							
-							$image['delete_thumbnail'] = true;
-							$my_rec['no_file_upload'] = true;
-							if (!$zz_conf['int']['no_image_action'])
-								$zz_error[] = array(
-									'msg_dev' => sprintf(zz_text('No real file was returned from function %s'), '<code>'.$image['action'].'()</code>'),
-									'level' => E_USER_NOTICE
-								);
-						}
-					} else {
-						$zz_error[] = array(
-							'msg_dev' => sprintf(zz_text('Error: File %s does not exist. Temporary Directory: %s'), $tmp_filename, realpath($zz_conf['tmp_dir']))
-						);
-					}
-					$zz_conf['int']['no_image_action'] = false;
-					// set error_log_post to false because errors in file creation have nothing to do with POST
-					$error_log_post = $zz_conf['error_log_post'];
-					$zz_conf['error_log_post'] = false;
-					zz_error();
-					$zz_conf['error_log_post'] = $error_log_post;
-				} elseif (!empty($image['action'])) {
-					$zz_error[] = array(
-						'msg_dev' => sprintf(zz_text('Error: Source file %s does not exist. '), $filename)
-					);
+				$image['modified'] = zz_upload_create_thumbnails($filename, $image, $my_rec);
+				if ($image['modified'] === -1) {
+					$filename = false; // do not upload anything
+					// TODO: mark existing image for deletion if there is one!							
+					$image['delete_thumbnail'] = true;
+					$my_rec['no_file_upload'] = true;
+				} elseif ($image['modified']) {
+					$filename = $image['modified']['tmp_name'];
+					$all_temp_filenames[] = $image['modified']['tmp_name'];
+					$my_rec['file_upload'] = true;
+				} else {
+					unset($image['modified']);
 				}
 				$image['files']['tmp_files'][$img] = $filename;
 				if (!empty($my_rec['images'][$no]['all_temp']))
@@ -1014,6 +977,75 @@ function zz_upload_prepare($zz_tab) {
 	// return true or false
 	// output errors
 	return zz_return($zz_tab);
+}
+
+/**
+ * file operations (thumbnails etc.) for images
+ *
+ * @param string $filename
+ * @param array $image
+ * @param array $my_rec
+ * @global array $zz_conf
+ * @global array $zz_error
+ * @return mixed $modified (false: does not apply; -1: error; array: success)
+ */
+function zz_upload_create_thumbnails($filename, $image, $my_rec) {
+	global $zz_conf;
+	global $zz_error;
+	
+	if (empty($image['action'])) return false;
+
+	if (!$filename) {
+		$zz_error[] = array(
+			'msg_dev' => sprintf(zz_text('Error: Source file %s does not exist. '), $filename)
+		);
+		return false;
+	}
+	
+	// create temporary file, so that original file remains the same 
+	// for further actions
+	$tmp_filename = tempnam(realpath($zz_conf['tmp_dir']), "UPLOAD_");
+	$dest_extension = zz_upload_extension($image['path'], $my_rec);
+	if (!$dest_extension) {
+		$dest_extension = $image['upload']['ext'];
+		// map files to extensions, e. g. TIFF to PNG
+		if (!empty($zz_conf['upload_destination_filetype'][$dest_extension]))
+			$dest_extension = $zz_conf['upload_destination_filetype'][$dest_extension];
+	}
+	if (in_array($dest_extension, $zz_conf['upload_no_thumbnails'])) return false;
+
+	$zz_conf['int']['no_image_action'] = false;
+	$action = 'zz_image_'.$image['action'];
+	$action($filename, $tmp_filename, $dest_extension, $image);
+	if (!file_exists($tmp_filename)) {
+		$zz_error[] = array(
+			'msg_dev' => sprintf(zz_text('Error: File %s does not exist. Temporary Directory: %s'), 
+				$tmp_filename, realpath($zz_conf['tmp_dir']))
+		);
+		return false;
+	}
+	if (filesize($tmp_filename) > 3) {
+		$modified = array();
+		$modified['tmp_name'] = $tmp_filename;
+		$modified = zz_upload_fileinfo($modified, $dest_extension);
+		// todo: ['modified']['name'] ?? necessary? so far, it's not.
+	}  else {
+		// image action did not work out the way it should have.
+		$modified = -1;
+		if (!$zz_conf['int']['no_image_action']) {
+			$zz_error[] = array(
+				'msg_dev' => sprintf(zz_text('No real file was returned from function %s'), '<code>'.$action.'()</code>'),
+				'level' => E_USER_NOTICE
+			);
+		}
+	}
+	$zz_conf['int']['no_image_action'] = false;
+	// set error_log_post to false because errors in file creation have nothing to do with POST
+	$error_log_post = $zz_conf['error_log_post'];
+	$zz_conf['error_log_post'] = false;
+	zz_error();
+	$zz_conf['error_log_post'] = $error_log_post;
+	return $modified;
 }
 
 /**
