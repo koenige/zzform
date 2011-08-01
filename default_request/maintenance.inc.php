@@ -882,6 +882,12 @@ function zz_maintenance_logs() {
 			if (substr($tokens[0], 0, 1) == '[' AND substr($tokens[0], -1) == ']') {
 				$data['link'] = array_shift($tokens);
 				$data['link'] = substr($data['link'], 1, -1);
+				if (intval($data['link'])."" === $data['link']) {
+					// e. g. 404 has no link repeated as it's already in the
+					// error message	
+					$data['status'] = $data['link'];
+					$data['link'] = false;
+				}
 			} elseif (substr($tokens[0], 0, 1) == '[' AND substr($tokens[1], -1) == ']'
 				AND strlen($tokens[0]) == 4) {
 				$data['status'] = array_shift($tokens);
@@ -939,7 +945,7 @@ function zz_maintenance_logs() {
 	}
 	if ($group) {
 		if ($zz_conf['int']['this_limit']) {
-			$log = array_slice($log, $zz_conf['int']['this_limit'] - $zz_conf['limit'], $zz_conf['int']['this_limit']);
+			$log = array_slice($log, ($zz_conf['int']['this_limit'] - $zz_conf['limit']), $zz_conf['limit']);
 		}
 	}
 
@@ -954,19 +960,17 @@ function zz_maintenance_logs() {
 		if ($line['level'] AND !in_array($line['level'], $dont_highlight_levels))
 			$line['level'] = '<p class="error">'.$line['level'].'</p>';
 
+		$post = false;
 		if (substr($line['error'], 0, 5) == 'POST ') {
-			$line['error'] = 'POST '.wrap_print(unserialize(substr($line['error'], 5)));
-		} else {
-			// get rid of long lines with zero width space (&#8203;) - &shy; does
-			// not work at least in firefox 3.6 with slashes
-			$line['error'] = str_replace(';', ';&#8203;', $line['error']);
-			$line['error'] = str_replace('&', '&#8203;&', $line['error']);
-			$line['error'] = str_replace('/', '/&#8203;', $line['error']);
-			$line['error'] = str_replace('=', '=&#8203;', $line['error']);
-			$line['error'] = str_replace('%', '&#8203;%', $line['error']);
-			$line['error'] = str_replace('-at-', '&#8203;-at-', $line['error']);
+			$post = @unserialize(substr($line['error'], 5));
+			if ($post)
+				$line['error'] = 'POST '.wrap_print($post);
+		}
+		if (!$post) {
+			$no_html = false;
 			if (in_array($line['type'], array('zzform', 'zzwrap')))
-				$line['error'] = str_replace('<', '&lt;', $line['error']); // no HTML, but maybe mail/links
+				$no_html = true;
+			$line['error'] = zz_maintenance_splits($line['error'], $no_html);
 		}
 		// htmlify links
 		if (strstr($line['error'], 'http:/&#8203;/&#8203;') OR strstr($line['error'], 'https:/&#8203;/&#8203;')) {
@@ -998,15 +1002,15 @@ function zz_maintenance_logs() {
 			if ($line['link']) {
 				foreach ($line['link'] as $link) {
 					if (!$link) continue;
-					$links .= '[<a href="'.$link.'">'.htmlspecialchars($link).'</a>]<br>';
+					$links .= '[<a href="'.$link.'">'.zz_maintenance_splits($link, true).'</a>]<br>';
 				}
 			}
 			$tbody .= '<tr class="'.($j & 1 ? 'uneven' : 'even').'">'
 				.'<td><label for="line'.$j.'" class="blocklabel"><input type="checkbox" name="line['
 					.$j.']" value="'.implode(',', $line['index']).'" id="line'.$j.'"></label></td>'
-				.'<td>'.$line['date_begin'].'</td>'
-				.'<td>'.((!empty($line['date_end']) AND $line['date_end'] != $line['date_begin'])
-					? $line['date_end']: '').'</td>'
+				.'<td>'.$line['date_begin'].'</br>'
+				.((!empty($line['date_end']) AND $line['date_end'] != $line['date_begin'])
+					? '&#8211;'.$line['date_end']: '').'</td>'
 				.'<td>'.$line['type'].'</td>'
 				.'<td>'.$line['level'].'</td>'
 				.'<td>'.$links.$line['error'].'</td>'
@@ -1020,8 +1024,8 @@ function zz_maintenance_logs() {
 	$text .= '<form action="" method="POST">'
 		.'<table class="data"><thead><tr>
 		<th>[]</th>
-		<th>'.zz_text('Date').'</th>
-		'.($group ? '<th>'.zz_text('Last Date').'</th>' : '').'
+		<th>'.zz_text('Date').'
+		'.($group ? '<br>'.zz_text('Last Date').'' : '').'</th>
 		<th>'.zz_text('Type').'</th>
 		<th>'.zz_text('Level').'</th>
 		<th>'.zz_text('Message').'</th>
@@ -1046,6 +1050,27 @@ function zz_maintenance_logs() {
 	$text .= $searchform['bottom'];
 
 	return $text;
+}
+
+/**
+ * get rid of long lines with zero width space (&#8203;) - &shy; does
+ * not work at least in firefox 3.6 with slashes
+ *
+ * @param string $string
+ * @param bool $no_html
+ * @return string
+ */
+function zz_maintenance_splits($string, $no_html) {
+	$string = str_replace(';', ';&#8203;', $string);
+	$string = str_replace('&', '&#8203;&', $string);
+	$string = str_replace('/', '/&#8203;', $string);
+	$string = str_replace('=', '=&#8203;', $string);
+	$string = str_replace('%', '&#8203;%', $string);
+	$string = str_replace('-at-', '&#8203;-at-', $string);
+	if ($no_html) {
+		$string = str_replace('<', '&lt;', $string);
+	}
+	return $string;
 }
 
 function zz_maintenance_make_url($array) {
