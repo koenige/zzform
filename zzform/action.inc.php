@@ -149,8 +149,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	}
 	
 	if (!$validation) {
-		// delete temporary unused files
-		if (!empty($zz_var['upload_form'])) zz_upload_cleanup($zz_tab); 
+		if (!empty($zz_var['upload_form'])) zz_upload_cleanup($zz_tab, false); 
 		return zz_return(array($ops, $zz_tab, $validation, $zz_var));
 	}
 
@@ -465,6 +464,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			$zz_tab = zz_upload_action($zz_tab);
 			$ops['output'] .= zz_error();
 			if ($zz_error['error']) {
+				zz_upload_cleanup($zz_tab);
 				return zz_return(array($ops, $zz_tab, $validation, $zz_var));
 			}
 		}

@@ -229,6 +229,8 @@ function zz_upload_get_fields($zz_tab) {
  * @global array $zz_conf
  * @global array $zz_error
  * @return array multidimensional information about images
+ *		bool $zz_tab[tab][rec]['file_upload']
+ *		array $zz_tab[tab][rec]['images']
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_check_files(&$zz_tab) {
@@ -236,6 +238,8 @@ function zz_upload_check_files(&$zz_tab) {
 	global $zz_error;
 	
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	$id = $zz_conf['int']['secret_key'];
+	$session = (!empty($_SESSION['zz_files'][$id]) ? $_SESSION['zz_files'][$id] : array());
 
 	foreach ($zz_tab[0]['upload_fields'] as $uf) {
 		$tab = $uf['tab'];
@@ -275,29 +279,47 @@ function zz_upload_check_files(&$zz_tab) {
 			if (!isset($myfiles['error']))
 				$myfiles['error'] = $myfiles['name'];
 		}
-		foreach ($field['image'] as $img => $image) {
+		foreach (array_keys($field['image']) as $img) {
 			$images[$no][$img] = $field['image'][$img];
-			if (empty($image['field_name'])) continue; // don't do the rest if field_name is not set
-			// title, generated from local filename, to be used for 'upload_value'
-
-			$images[$no]['title'] = (!empty($images[$no]['title'])) 
-				// this and field_name will be '' if first image is false
-				? $images[$no]['title']
-				: zz_upload_make_title($myfiles['name'][$image['field_name']]);
-			// local filename, extension (up to 4 letters) removed, to be used for 'upload_value'
-			$images[$no]['filename'] = (!empty($images[$no]['filename']))
-				? $images[$no]['filename']
-				: zz_upload_make_name($myfiles['name'][$image['field_name']]); 
+			if (empty($images[$no][$img]['field_name'])) {
+				// don't do the rest if field_name is not set
+				continue;
+			}
+			$field_name = $images[$no][$img]['field_name'];
 			
-			$images[$no][$img]['upload']['name'] = $myfiles['name'][$image['field_name']];
-			$images[$no][$img]['upload']['type'] = $myfiles['type'][$image['field_name']];
-			if (!empty($myfiles['do_not_delete'][$image['field_name']]))
-				$images[$no][$img]['upload']['do_not_delete'] = $myfiles['do_not_delete'][$image['field_name']];
+			if (!empty($session[$tab][$rec]['images'][$no][$img]))
+				$images[$no]['all_temp'] = $session[$tab][$rec]['images'][$no]['all_temp'];
+			
+			if (empty($myfiles['name'][$field_name])
+				AND !empty($session[$tab][$rec]['images'][$no][$img])) {
+				$images[$no]['title'] = $session[$tab][$rec]['images'][$no]['title'];
+				$images[$no]['filename'] = $session[$tab][$rec]['images'][$no]['filename'];
+				$images[$no][$img] = $session[$tab][$rec]['images'][$no][$img];
+				$images[$no]['read_from_session'] = true;
+				$my_rec['file_upload'] = $session[$tab][$rec]['file_upload'];
+				continue;
+			}
+
+			// title, generated from local filename, to be used for 'upload_value'
+			if (empty($images[$no]['title'])) {
+				// this and field_name will be '' if first image is false
+				$images[$no]['title'] = zz_upload_make_title($myfiles['name'][$field_name]);
+			}
+
+			// local filename, extension (up to 4 letters) removed, to be used for 'upload_value'
+			if (empty($images[$no]['filename'])) {
+				$images[$no]['filename'] = zz_upload_make_name($myfiles['name'][$field_name]); 
+			}
+			
+			$images[$no][$img]['upload']['name'] = $myfiles['name'][$field_name];
+			$images[$no][$img]['upload']['type'] = $myfiles['type'][$field_name];
+			if (!empty($myfiles['do_not_delete'][$field_name]))
+				$images[$no][$img]['upload']['do_not_delete'] = $myfiles['do_not_delete'][$field_name];
 			
 			// add extension to temporary filename (important for image manipulations,
 			// e. g. imagemagick can only recognize .ico-files if they end in .ico)
 			// but only if there is not already a file extension
-			$oldfilename = $myfiles['tmp_name'][$image['field_name']];
+			$oldfilename = $myfiles['tmp_name'][$field_name];
 			$extension = zz_upload_file_extension($images[$no][$img]['upload']['name']);
 			if ($oldfilename AND strtolower(substr($oldfilename, -(strlen('.'.$extension)))) != strtolower('.'.$extension)) {
 				// uploaded file
@@ -311,12 +333,12 @@ function zz_upload_check_files(&$zz_tab) {
 				$myfilename = false;
 			$images[$no][$img]['upload']['tmp_name'] = $myfilename;
 			
-			if (!isset($myfiles['error'][$image['field_name']])) { // PHP 4.1 and prior
+			if (!isset($myfiles['error'][$field_name])) { // PHP 4.1 and prior
 				$images[$no][$img]['upload'] = zz_upload_compat_error($images[$no][$img]['upload']);
 			} else {
-				$images[$no][$img]['upload']['error'] = $myfiles['error'][$image['field_name']];
+				$images[$no][$img]['upload']['error'] = $myfiles['error'][$field_name];
 			}
-			if ($myfiles['size'][$image['field_name']] < 3 
+			if ($myfiles['size'][$field_name] < 3 
 				AND empty($images[$no][$img]['upload']['error'])) { 
 				// don't overwrite different error messages, filesize = 0 also might be the case
 				// if file which was uploaded is too big
@@ -330,7 +352,7 @@ function zz_upload_check_files(&$zz_tab) {
 				$images[$no][$img]['upload']['type'] = false;
 				$images[$no][$img]['upload']['name'] = false;
 			} else {
-				$images[$no][$img]['upload']['size'] = $myfiles['size'][$image['field_name']];
+				$images[$no][$img]['upload']['size'] = $myfiles['size'][$field_name];
 			}
 			switch ($images[$no][$img]['upload']['error']) {
 				case UPLOAD_ERR_NO_FILE: continue 2; // no file
@@ -821,6 +843,8 @@ function zz_upload_prepare($zz_tab) {
 		$rec = $uf['rec'];
 		$no = $uf['f'];
 		$my_rec = &$zz_tab[$tab][$rec];
+		if (!empty($my_rec['images'][$no]['read_from_session'])) continue;
+
 		foreach ($my_rec['fields'][$no]['image'] as $img => $val) {
 			if ($zz_conf['modules']['debug']) {
 				zz_debug('preparing ['.$tab.']['.$rec.'] - '.$img);
@@ -1598,9 +1622,23 @@ function zz_upload_path($dir, $action, $path) {
  * 
  * called form zz_action
  * @param array $zz_tab table data
+ * @param bool $validated (optional, true: validation was passed, false: not)
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_upload_cleanup($zz_tab) {
+function zz_upload_cleanup($zz_tab, $validated = true) {
+	global $zz_conf;
+	wrap_error('zz_upload_cleanup '.$validated);
+	
+	// files-ID = combination of script name and ID
+	$id = $zz_conf['int']['secret_key'];
+	if (!$validated) {
+		// this will only work with SESSIONs
+		if (empty($_SESSION)) $validated = false;
+	} else {
+		if (!empty($_SESSION['zz_files'][$id])) {
+			unset($_SESSION['zz_files'][$id]);
+		}
+	}
 	if (!$zz_tab[0]['upload_fields']) return false;
 	foreach ($zz_tab[0]['upload_fields'] as $uf) {
 		$tab = $uf['tab'];
@@ -1609,8 +1647,14 @@ function zz_upload_cleanup($zz_tab) {
 		if (empty($zz_tab[$tab][$rec]['images'][$no]['all_temp'])) continue;
 		foreach ($zz_tab[$tab][$rec]['images'][$no]['all_temp'] as $file) {
 			if (file_exists($file) && is_file($file)) {
+				if ($validated) {
 				// delete file and empty parent folders
-				zz_unlink_cleanup($file);
+					zz_unlink_cleanup($file);
+				} else {
+					$_SESSION['zz_files'][$id][$tab][$rec]['file_upload'] = $zz_tab[$tab][$rec]['file_upload'];
+					$_SESSION['zz_files'][$id][$tab][$rec]['images'] = $zz_tab[$tab][$rec]['images'];
+					$_SESSION['zz_files'][$id][$tab][$rec][$no]['filenames'][] = $file;
+				}
 			}
 		}
 	}
