@@ -822,7 +822,7 @@ function zz_maintenance_logs() {
 		$index = 0;
 		$i = 0;
 		$write_log = true;
-		while (($line = fgets($handle, 4096)) !== false) {
+		while (($line = fgets($handle, $zz_conf['log_errors_max_len']+2)) !== false) {
 			$line = trim($line);
 
 			if (!empty($_GET['q']) AND !strstr($line, $_GET['q'])) {
