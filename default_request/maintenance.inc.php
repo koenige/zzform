@@ -988,7 +988,7 @@ function zz_maintenance_logs() {
 				.'<td>'.$line['level'].'</td>'
 				.'<td>'.($line['status'] ? '<strong>'.$line['status'].'</strong>' : '')
 					.' '.($line['link'] ? '[<a href="'.$line['link'].'">'
-					.htmlspecialchars($line['link']).'</a>]<br>' : '').$line['error'].'</td>'
+					.zz_maintenance_splits($line['link']).'</a>]<br>' : '').$line['error'].'</td>'
 				.'<td>'.$line['user'].'</td>'
 				.'</tr>'."\n";
 		} else {
