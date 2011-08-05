@@ -671,7 +671,7 @@ function zz_initialize($mode = false) {
 	zz_write_defaults($zz_default, $zz_conf);
 	
 	// modules depending on settings
-	if ($zz_conf['generate_output']) $zz_default['int_modules'][] = 'output';
+	if ($zz_conf['generate_output']) $zz_conf['int_modules'][] = 'output';
 
 	// Configuration on project level: shorthand values
 	if (!is_array($zz_conf['error_mail_level'])) {
