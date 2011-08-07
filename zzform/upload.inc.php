@@ -1659,7 +1659,6 @@ function zz_upload_path($dir, $action, $path) {
  */
 function zz_upload_cleanup($zz_tab, $validated = true) {
 	global $zz_conf;
-	wrap_error('zz_upload_cleanup '.$validated);
 	
 	// files-ID = combination of script name and ID
 	$id = $zz_conf['int']['secret_key'];
