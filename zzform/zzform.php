@@ -517,7 +517,7 @@ function zzform($zz = array()) {
 	}
 
 	$ops['output'] .= zz_output_filter($zz_var);
-	if ($ops['mode'] != 'add') {
+	if ($ops['mode'] != 'add' AND empty($zz_conf['no_add_above'])) {
 		$ops['output'] .= zz_output_add_links($zz_var['extraGET']);
 	}
 	$ops['output'] .= zz_output_backlink($zz_tab, $zz_var['id']);
