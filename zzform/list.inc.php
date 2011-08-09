@@ -1291,10 +1291,13 @@ function zz_list_group_foot($rowgroup, $main_table_query, $z, $my_footer_table, 
  * outputs number of records in list
  *
  * @param int $total_rows
+ * @global array $zz_conf
  * @return string HTML code with text
  */
 function zz_list_total_records($total_rows) {
-	// Total records
+	global $zz_conf;
+	if (!empty($zz_conf['dont_show_total_records'])) return '';
+
 	$text = '';
 	if ($total_rows == 1) $text = '<p class="totalrecords">'.$total_rows.' '.zz_text('record total').'</p>'; 
 	elseif ($total_rows) $text = '<p class="totalrecords">'.$total_rows.' '.zz_text('records total').'</p>';
