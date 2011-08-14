@@ -351,7 +351,7 @@ function zz_maintenance_files($dir, $base) {
 			$link = '<strong><a href="?filetree='.$base.$file.'">';
 		} else {
 			$size = filesize($dir.'/'.$file);
-			$files = 1;
+			$files_in_folder = 1;
 			$link = false;
 		}
 		$tbody .= '<tr class="'.($i & 1 ? 'uneven' : 'even').'">'
@@ -1035,11 +1035,14 @@ function zz_maintenance_logs() {
 		.'<tbody>'."\n".$tbody;
 	if (!$tbody)
 		$text .= '<tr><td colspan="6">'.zz_text('No lines').'</td></tr>'."\n";
-	$text .= '</tbody></table>'."\n"
-		.'<p style="float: right;"><a href="'.htmlspecialchars($_SERVER['REQUEST_URI'])
-		.'&amp;deleteall">Delete all lines</a></p>'
-		.'<p><input type="submit" value="'.zz_text('Delete selected lines').'">'
-		.' &#8211; <a onclick="zz_set_checkboxes(); return false;" href="#">Select all lines</a></p>';
+	$text .= '</tbody></table>'."\n";
+	if ($total_rows) {
+		// show this only if there are deletable lines
+		$text .= '<p style="float: right;"><a href="'.htmlspecialchars($_SERVER['REQUEST_URI'])
+			.'&amp;deleteall">Delete all lines</a></p>'
+			.'<p><input type="submit" value="'.zz_text('Delete selected lines').'">'
+			.' &#8211; <a onclick="zz_set_checkboxes(); return false;" href="#">Select all lines</a></p>';
+	}
 	$text .= '</form>';
 
 	$shown_records = $total_rows;
