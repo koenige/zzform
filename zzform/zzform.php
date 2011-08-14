@@ -913,6 +913,7 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 		}
 		break;
 	case 'files':
+		// TODO: generate output?
 		require_once $zz_conf['dir_inc'].'/functions.inc.php';
 		require_once $zz_conf['dir_inc'].'/import.inc.php';
 		require_once $zz_conf['dir_inc'].'/forcefilename-'.$zz_conf['character_set'].'.inc.php';
