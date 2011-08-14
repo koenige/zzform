@@ -344,13 +344,10 @@ function zz_apply_filter() {
 		if (!empty($_GET['filter'])) {
 			if (in_array($filter['identifier'], array_keys($_GET['filter']))
 				AND $filter['type'] == 'show_hierarchy') {
-				$found = false;
-				foreach (array_keys($filter['selection']) AS $selection) {
-					if ($selection.'' != $_GET['filter'][$filter['identifier']]) continue;
-					$found = true;
+				$selection = zz_in_array_str($_GET['filter'][$filter['identifier']], array_keys($filter['selection']));
+				if ($selection) {
 					$zz_conf['show_hierarchy'] = $selection;
-				}
-				if (!$found) {
+				} else {
 					$zz_error[] = array(
 						'msg' => sprintf(zz_text('This filter does not exist: %s'),
 							htmlspecialchars($_GET['filter'][$filter['identifier']])),
@@ -362,6 +359,22 @@ function zz_apply_filter() {
 			}
 		}
 	}
+}
+
+/**
+ * compares if needle is in haystack by comparison as string
+ *
+ * @param string $needle
+ * @param array $haystack
+ * @return mixed string: needle was found in haystack, false: not found
+ */
+function zz_in_array_str($needle, $haystack) {
+	$found = false;
+	foreach ($haystack AS $a_needle) {
+		if ($a_needle.'' != $needle.'') continue;
+		return $a_needle;
+	}
+	return false;
 }
 
 /**
