@@ -146,6 +146,8 @@ $text['- unknown -'] = '- unbekannt -'; // group by unknown
 // List view: Filter
 $text['Selection'] = 'Auswahl';
 $text['all'] = 'Alle';
+$text['"%s" is not a valid value for the selection "%s". Please select a different filter.'] = '&#187;%s&#171; ist kein g&uuml;ltiger Wert f&uuml;r die Auswahl &#187;%s&#171;. Bitte treffen Sie eine andere Auswahl.';
+$text['A filter for the selection "%s" does not exist.'] = 'Es existiert kein Filter f&uuml;r die Auswahl &#187;%s&#171;.';
 
 // List view: Table head
 $text['order by'] = 'Sortiere nach';

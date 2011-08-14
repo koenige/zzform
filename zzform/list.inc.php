@@ -68,6 +68,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	$zz['sql_without_limit'] = $zz['sql'];
 
 	$zz['sql'] = zz_list_filter_sql($zz['sql']);
+	if (!$zz['sql']) return zz_return(array($ops, $zz_var));
 
 	// must be behind update, insert etc. or it will return the wrong number
 	$total_rows = zz_count_rows($zz['sql'], $zz['table'].'.'.$id_field);	
@@ -160,6 +161,8 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		if ($text = zz_text('table-empty')) {
 			$ops['output'].= '<p>'.$text.'</p>';
 		}
+		// 404 if limit is too large
+		if ($total_rows) $zz_conf['int']['http_status'] = 404;
 	}
 
 	// Check all conditions whether they are true;
@@ -725,21 +728,38 @@ function zz_filter_selection($filter) {
 
 /**
  * Apply filter to SQL query
+ * test if all filters are valid filters
  *
  * @param string $sql
  * @global array $zz_conf
+ * @global array $zz_error
  * @return string $sql
  */
 function zz_list_filter_sql($sql) {
 	global $zz_conf;
-	if (empty($zz_conf['filter'])) return $sql;
+	global $zz_error;
+
+	if (empty($zz_conf['filter'])) {
+		if (!empty($_GET['filter'])) {
+			$filter = array_keys($_GET['filter']);
+			$filter = htmlspecialchars(end($filter));
+			$zz_conf['int']['http_status'] = 404;
+			$zz_error[] = array(
+				'msg' => sprintf(zz_text('A filter for the selection "%s" does not exist.'), $filter),
+				'level' => E_USER_NOTICE
+			);
+		}
+		return $sql;
+	}
 	if (!isset($_GET['filter'])) return $sql;
 
+	$identifiers = array();
 	foreach ($zz_conf['filter'] AS $filter) {
+		$identifiers[] = $filter['identifier'];
 		if (!in_array($filter['identifier'], array_keys($_GET['filter']))) continue;
 		if (empty($filter['where'])) continue;
-
-		if (in_array($_GET['filter'][$filter['identifier']], array_keys($filter['selection']))
+		
+		if (zz_in_array_str($_GET['filter'][$filter['identifier']], array_keys($filter['selection']))
 			AND $filter['type'] == 'list') {
 			// it's a valid filter, so apply it.
 			if ($_GET['filter'][$filter['identifier']] == 'NULL') {
@@ -765,7 +785,27 @@ function zz_list_filter_sql($sql) {
 		} elseif ($filter['type'] == 'like') {
 			// valid filter with LIKE
 			$sql = zz_edit_sql($sql, 'WHERE', $filter['where'].' LIKE "%'.$_GET['filter'][$filter['identifier']].'%"');
+		} else {
+			// invalid filter value
+			$zz_conf['int']['http_status'] = 404;
+			$zz_error[] = array(
+				'msg' => sprintf(zz_text('"%s" is not a valid value for the selection "%s". Please select a different filter.'), 
+					htmlspecialchars($_GET['filter'][$filter['identifier']]), $filter['title']),
+				'level' => E_USER_NOTICE
+			);
+			$sql = false;
 		}
+	}
+	// test filter identifiers if they exist
+	foreach (array_keys($_GET['filter']) AS $identifier) {
+		if (in_array($identifier, $identifiers)) continue;
+		$filter = htmlspecialchars($identifier);
+		$zz_conf['int']['http_status'] = 404;
+		$zz_error[] = array(
+			'msg' => sprintf(zz_text('A filter for the selection "%s" does not exist.'), $filter),
+			'level' => E_USER_NOTICE
+		);
+		$sql = false;
 	}
 	return $sql;
 }
