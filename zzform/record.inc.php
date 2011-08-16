@@ -1492,7 +1492,7 @@ function zz_form_select_sql($field, $db_table, $record, $row_display, $zz_conf_r
 			if (substr($db_value, 0, 1) == '"' && substr($db_value, -1) == '"')
 				$db_value = substr($db_value, 1, -1);
 			$sql = zz_edit_sql($field['sql'], 'WHERE', $where_field_name
-				.' = "'.$db_value.'"');
+				.' = "'.mysql_real_escape_string($db_value).'"');
 			if (!$sql) $sql = $field['sql'];
 			$detail_records = zz_db_fetch($sql, $id_field_name, '', "record: "
 				.$field['field_name'].' (probably \'id_field_name\' needs to be set)');
