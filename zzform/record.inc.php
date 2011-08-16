@@ -652,8 +652,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 				if ($field['type'] == 'select') $field['type_detail'] = 'select';
 				elseif (!isset($field['type_detail'])) $field['type_detail'] = false;
 				$field['type'] = 'predefined';
-			} elseif (isset($values) && is_array($values) && isset($values[$field['field_name']]))
-				$field['default'] = $values[$field['field_name']];
+			}
 			// Check if filter is applied to this field, set filter value as default value
 			if (in_array($field['field_name'], $filter_field_name) AND empty($field['value'])) {
 				if (!empty($_GET['filter'][array_search($field['field_name'], $filter_field_name)])) {
