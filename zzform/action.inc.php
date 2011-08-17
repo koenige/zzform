@@ -983,6 +983,8 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				} else {
 					$my_rec['POST'][$field_name] = $coord['value'];
 				}
+				// coordinates may have 0 as value
+				$field['null'] = true;
 			} else {
 				// check if numbers are entered with .
 				if (!$my_rec['POST'][$field_name]) break;
@@ -1202,9 +1204,9 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				// timestamps will be set to current date, so no check is 
 				// necessary. do nothing, leave $my_rec['validation'] as it is.
 			} elseif (!isset($field['set']) AND !isset($field['set_sql'])
-				 AND !isset($field['set_folder']))
+				 AND !isset($field['set_folder'])) {
 				$my_rec['validation'] = false;
-			elseif (!zz_db_field_null($field_name, $db_table)) {
+			} elseif (!zz_db_field_null($field_name, $db_table)) {
 				$my_rec['validation'] = false;
 				$my_rec['fields'][$f]['check_validation'] = false;
 			} elseif (!empty($field['required'])) {
@@ -1214,7 +1216,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 		} elseif(!$my_rec['POST'][$field_name] 
 			AND empty($field['null'])
 			AND empty($field['null_string'])
-			AND $field['type'] != 'timestamp')
+			AND $field['type'] != 'timestamp') {
 			if (!zz_db_field_null($field_name, $db_table)) {
 				$my_rec['validation'] = false;
 				$my_rec['fields'][$f]['check_validation'] = false;
@@ -1222,6 +1224,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				$my_rec['validation'] = false;
 				$my_rec['fields'][$f]['check_validation'] = false;
 			}
+		}
 
 	//	check against forbidden strings
 		if (!empty($field['validate'])
