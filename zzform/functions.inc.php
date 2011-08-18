@@ -3645,7 +3645,8 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 	}
 	if ($error AND $zz_conf['multi']) {
 		$zz_error[] = array('msg_dev' 
-			=> sprintf('No entry found: value %s in field %s.', $my_rec['POST'][$field_name], $field_name));
+			=> sprintf('No entry found: value %s in field %s.', $my_rec['POST'][$field_name], $field_name)
+				.' <br>SQL: '.$sql);
 	}
 	return zz_return($my_rec);
 }
