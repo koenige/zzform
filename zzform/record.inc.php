@@ -105,24 +105,8 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 		$div_record_open = true;
 	}
 
-	// output error messages to the user
-	if (!empty($zz_error['validation']['msg']) AND is_array($zz_error['validation']['msg'])) {
-		// user error message, visible to everyone
-		// line breaks \n important for mailing errors
-		$this_error['msg'] = '<p>'.zz_text('Following_errors_occured').': </p>'."\n".'<ul><li>'
-			.implode(".</li>\n<li>", $zz_error['validation']['msg']).'.</li></ul>';
-		// if we got wrong values entered, put this into a developer message
-		if (!empty($zz_error['validation']['incorrect_values'])) {
-			foreach ($zz_error['validation']['incorrect_values'] as $incorrect_value) {
-				$this_dev_msg[] = zz_text('Field name').': '.$incorrect_value['field_name']
-					.' / '.htmlspecialchars($incorrect_value['msg']);
-			}
-			$this_error['msg_dev'] = "\n\n".implode("\n", $this_dev_msg);
-		}
-		$zz_error[] = $this_error;
-		unset($this_error);
-	}
-	unset ($zz_error['validation']);
+	// output validation error messages to the user
+	zz_error_validation();
 	$error = zz_error();
 	if ($error) {
 		if (!$div_record_open) {

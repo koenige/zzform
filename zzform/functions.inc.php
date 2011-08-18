@@ -2875,6 +2875,31 @@ function zz_error_output() {
 	return $output;
 }
 
+/**
+ * output and log validation error messages
+ *
+ * @global array $zz_error
+ */
+function zz_error_validation() {
+	global $zz_error;
+	if (empty($zz_error['validation']['msg'])) return false;
+	if (!is_array($zz_error['validation']['msg'])) return false;
+
+	// user error message, visible to everyone
+	// line breaks \n important for mailing errors
+	$this_error['msg'] = '<p>'.zz_text('Following_errors_occured').': </p>'."\n".'<ul><li>'
+		.implode(".</li>\n<li>", $zz_error['validation']['msg']).'.</li></ul>';
+	// if we got wrong values entered, put this into a developer message
+	if (!empty($zz_error['validation']['incorrect_values'])) {
+		foreach ($zz_error['validation']['incorrect_values'] as $incorrect_value) {
+			$this_dev_msg[] = zz_text('Field name').': '.$incorrect_value['field_name']
+				.' / '.htmlspecialchars($incorrect_value['msg']);
+		}
+		$this_error['msg_dev'] = "\n\n".implode("\n", $this_dev_msg);
+	}
+	$zz_error[] = $this_error;
+	unset($zz_error['validation']);
+}
 
 /*
  * --------------------------------------------------------------------

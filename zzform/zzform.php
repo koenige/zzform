@@ -512,6 +512,7 @@ function zzform($zz = array()) {
 		$ops['output'] .= zz_record($ops, $zz_tab, $zz_var, $zz_conditions);	
 	} else {
 		// call error function if there's anything
+		zz_error_validation();
 		zz_error();
 		$ops['output'] .= zz_error_output();
 	}
