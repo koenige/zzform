@@ -56,7 +56,8 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 
 	// get images from different locations than upload
 	// if any other action before insertion/update/delete is required
-	if (zz_action_function('upload', $ops)) {
+	if ($change = zz_action_function('upload', $ops)) {
+		list($ops, $zz_tab) = zz_action_change($ops, $zz_tab, $change);
 		unset($ops['not_validated']);
 		unset($ops['record_old']);
 		unset($ops['record_new']);
@@ -185,7 +186,8 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	}
 
 	// if any other action before insertion/update/delete is required
-	if (zz_action_function('before_'.$zz_var['action'], $ops)) {
+	if ($change = zz_action_function('before_'.$zz_var['action'], $ops)) {
+		list($ops, $zz_tab) = zz_action_change($ops, $zz_tab, $change);
 		// 'planned' is a variable just for custom 'action' scripts
 		unset($ops['planned']);
 	}
@@ -450,7 +452,8 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 					}
 				}
 		// if any other action after insertion/update/delete is required
-		zz_action_function('after_'.$zz_var['action'], $ops);
+		$change = zz_action_function('after_'.$zz_var['action'], $ops);
+		list($ops, $zz_tab) = zz_action_change($ops, $zz_tab, $change);
 
 		if (!empty($zz_conf['folder']) && $zz_tab[0][0]['action'] == 'update') {
 			// rename connected folder after record has been updated
@@ -496,21 +499,56 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
  *	'after_insert', 'after_update', 'after_delete', to be set in $zz_conf['action']
  * @param array $ops
  * @global array $zz_conf
- * @return bool true if some action was performed
+ * @return mixed bool true if some action was performed; 
+ *	array $change if some values need to be changed
  */
 function zz_action_function($type, $ops) {
 	global $zz_conf;
 	if (empty($zz_conf['action'][$type])) return false;
 
+	$change = array();
 	$file = $zz_conf['action_dir'].'/'.$zz_conf['action'][$type].'.inc.php';
 	if (file_exists($file)) {
 		// a file has to be included
 		include $file;
 	} else {
 		// it's a function
-		$zz_conf['action'][$type]($ops);
+		$change = $zz_conf['action'][$type]($ops);
 	}
-	return true;
+	if ($change) return $change;
+	else return true;
+}
+
+/**
+ * if the action function returned something, output or record for database
+ * will be changed
+ *
+ * @param array $ops
+ * @param array $zz_tab
+ * @param array $change string 'output', array 'record_replace'
+ * @return array array($ops, $zz_tab)
+ */
+function zz_action_change($ops, $zz_tab, $change) {
+	if (!$change) return array($ops, $zz_tab);
+	if ($change === true) return array($ops, $zz_tab);
+	
+	// output?
+	if (!empty($change['output'])) {
+		$ops['output'] .= $change['output'];
+	}
+	
+	// record? replace values as needed
+	if (!empty($change['record_replace'])) {
+		// get record definition from planned or not_validated
+		if (!empty($ops['planned'])) $planned = $ops['planned'];
+		else $planned = $ops['not_validated'];
+		// replace values
+		foreach ($change['record_replace'] as $index => $values) {
+			list($tab, $rec) = explode('-', $planned[$index]['tab-rec']);
+			$zz_tab[$tab][$rec]['POST'] = array_merge($zz_tab[$tab][$rec]['POST'], $values);
+		}
+	}
+	return array($ops, $zz_tab);
 }
 
 /**
