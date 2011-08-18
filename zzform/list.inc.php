@@ -982,7 +982,6 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 			$text = str_replace(',', ', ', $row['value']);
 		} elseif (!empty($field['enum'])) {
 			$text = zz_print_enum($field, $row['value']);
-			$mark_search_string = false;
 		} else {
 			$text = $row['value'];
 		}
@@ -1228,6 +1227,7 @@ function zz_set_link($field, $line) {
  */
 function zz_mark_search_string($value, $field_name = false, $field = array()) {
 	global $zz_conf;
+	// check if field should be marked
 	if (!$zz_conf['show_list']) return $value;
 	if (!empty($field['dont_mark_search_string'])) return $value;
 	if ($zz_conf['list_display'] != 'table' AND $zz_conf['list_display'] != 'ul') return $value;
@@ -1239,15 +1239,13 @@ function zz_mark_search_string($value, $field_name = false, $field = array()) {
 			$my_field_name = $_GET['scope'];
 		if ($my_field_name != $field_name) return $value;
 	}
+
 	// meta characters which must be escaped for preg_replace
-	// note: \ must be first in list
-	$preg_q = str_replace('\\', '\\\\', $_GET['q']);
-	$preg_q = str_replace('~', '\~', $preg_q);
-	$meta_characters = array('^', '$', '.', '[', ']', '|', '(', ')', '?', '*', '+', '{', '}');
-	foreach ($meta_characters as $char) {
-		$preg_q = str_replace($char, '\\'.$char, $preg_q);
-	}
-	$value = preg_replace('~('.$preg_q.')~i', '<span class="highlight">\1</span>', $value);
+	$needle = preg_quote($_GET['q']);
+	$highlight = '<span class="highlight">\1</span>';
+	$pattern = '#(?!<.*?)(%s)(?![^<>]*?>)#i';
+	$regex = sprintf($pattern, $needle);
+	$value = preg_replace($regex, $highlight, $value);
 	return $value;
 }
 
