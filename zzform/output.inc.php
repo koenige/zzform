@@ -533,7 +533,6 @@ function zz_print_enum($field, $value, $type = 'abbr', $key = false) {
 	} else {
 		$text = zz_text($value);
 	}
-	$text = zz_mark_search_string($text, $field['field_name'], $field);
 	if (!empty($field['enum_abbr'][$key])) {
 		if ($type === 'full') {
 			$text .= ' &#8211; '.$field['enum_abbr'][$key];
