@@ -450,7 +450,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 					}
 				}
 		// if any other action after insertion/update/delete is required
-		zz_action_function('after_'.$zz_var['action'], $ops));
+		zz_action_function('after_'.$zz_var['action'], $ops);
 
 		if (!empty($zz_conf['folder']) && $zz_tab[0][0]['action'] == 'update') {
 			// rename connected folder after record has been updated
