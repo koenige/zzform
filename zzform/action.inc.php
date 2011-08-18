@@ -56,8 +56,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 
 	// get images from different locations than upload
 	// if any other action before insertion/update/delete is required
-	if (!empty($zz_conf['action']['upload'])) {
-		include $zz_conf['action_dir'].'/'.$zz_conf['action']['upload'].'.inc.php';
+	if (zz_action_function('upload', $ops)) {
 		unset($ops['not_validated']);
 		unset($ops['record_old']);
 		unset($ops['record_new']);
@@ -186,8 +185,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	}
 
 	// if any other action before insertion/update/delete is required
-	if (!empty($zz_conf['action']['before_'.$zz_var['action']])) {
-		include $zz_conf['action_dir'].'/'.$zz_conf['action']['before_'.$zz_var['action']].'.inc.php';
+	if (zz_action_function('before_'.$zz_var['action'], $ops)) {
 		// 'planned' is a variable just for custom 'action' scripts
 		unset($ops['planned']);
 	}
@@ -451,9 +449,9 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 							.'zz_tab '.$tab.' '.$rec.': '.$detail_sql.'<br>';
 					}
 				}
-		if (!empty($zz_conf['action']['after_'.$zz_var['action']])) 
-			include $zz_conf['action_dir'].'/'.$zz_conf['action']['after_'.$zz_var['action']].'.inc.php'; 
-			// if any other action after insertion/update/delete is required
+		// if any other action after insertion/update/delete is required
+		zz_action_function('after_'.$zz_var['action'], $ops));
+
 		if (!empty($zz_conf['folder']) && $zz_tab[0][0]['action'] == 'update') {
 			// rename connected folder after record has been updated
 			$folders = zz_foldercheck($zz_tab);
@@ -489,6 +487,30 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	
 	if (!empty($zz_var['upload_form'])) zz_upload_cleanup($zz_tab); // delete temporary unused files
 	return zz_return(array($ops, $zz_tab, $validation, $zz_var));
+}
+
+/**
+ * calls a function or includes a file before or after an action takes place
+ *
+ * @param string $type (upload, before_insert, before_update, before_delete,
+ *	'after_insert', 'after_update', 'after_delete', to be set in $zz_conf['action']
+ * @param array $ops
+ * @global array $zz_conf
+ * @return bool true if some action was performed
+ */
+function zz_action_function($type, $ops) {
+	global $zz_conf;
+	if (empty($zz_conf['action'][$type])) return false;
+
+	$file = $zz_conf['action_dir'].'/'.$zz_conf['action'][$type].'.inc.php';
+	if (file_exists($file)) {
+		// a file has to be included
+		include $file;
+	} else {
+		// it's a function
+		$zz_conf['action'][$type]($ops);
+	}
+	return true;
 }
 
 /**
