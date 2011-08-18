@@ -982,6 +982,7 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 			$text = str_replace(',', ', ', $row['value']);
 		} elseif (!empty($field['enum'])) {
 			$text = zz_print_enum($field, $row['value']);
+			$mark_search_string = false;
 		} else {
 			$text = $row['value'];
 		}
@@ -1041,6 +1042,9 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 		$text = '';
 	}
 	if (!$text) return $row;
+	if ($mark_search_string AND $mode != 'export') {
+		$text = zz_mark_search_string($text, $field[$mark_search_string], $field);
+	}
 
 	// add prefixes etc. to 'text'		
 	if (!empty($field['list_prefix'])) {
@@ -1048,9 +1052,6 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 	}
 	if (!empty($field['list_abbr']) AND $mode != 'export') {
 		$row['text'] .= '<abbr title="'.htmlspecialchars($line[$field['list_abbr']]).'">';
-	}
-	if ($mark_search_string AND $mode != 'export') {
-		$text = zz_mark_search_string($text, $field[$mark_search_string], $field);
 	}
 
 	if ($link) $row['text'] .= $link;
