@@ -221,6 +221,10 @@ body #zzform .separator hr
 					{ margin-bottom: 0; }
 
 
+/* list view (maps) */
+#zzform .kml_description td, #zzform .kml_description th
+					{ padding: .2em .5em .2em 0; }
+
 /* highlighting */
 #zzform .negative	{ color: red; }
 /* current record */

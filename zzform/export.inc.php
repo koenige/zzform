@@ -229,11 +229,21 @@ function zz_export_kml($ops) {
 	}
 	
 	foreach ($ops['output']['rows'] as $line) {
+		if (!empty($fields['point'])) {
+			$point = $line[$fields['point']]['value'];
+			$point = zz_geo_coord_sql_out($point, 'dec', ' ');
+			$point = explode(' ', $point);
+			$latitude = $point[0];
+			$longitude = $point[1];
+		} else {
+			$latitude = $line[$fields['latitude']]['value'];
+			$longitude = $line[$fields['longitude']]['value'];
+		}
 		$kml['placemarks'][] = array(
 			'title' => $line[$fields['title']]['text'],
 			'description' => zz_export_kml_description($ops['output']['head'], $line, $fields),
-			'longitude' => $line[$fields['longitude']]['value'],
-			'latitude' => $line[$fields['latitude']]['value'],
+			'longitude' => $longitude,
+			'latitude' => $latitude,
 			'altitude' => (isset($fields['altitude']) ? $line[$fields['altitude']]['value'] : ''),
 			'style' => 'default'
 		);
@@ -251,15 +261,15 @@ function zz_export_kml($ops) {
  * @return string HTML output, definition list	
  */
 function zz_export_kml_description($head, $line, $fields) {
-	$set = array('title', 'longitude', 'latitutde', 'altitude');
-	foreach ($set as $field) unset($line[$field]);
+	$set = array('title', 'longitude', 'latitutde', 'altitude', 'point');
+	foreach ($set as $field) unset($line[$fields[$field]]);
 	$desc = array();
 	foreach ($line as $no => $values) {
 		if (empty($values['text'])) continue;
-		$desc[] = '<dt>'.(!empty($head[$no]['title_kml']) ? $head[$no]['title_kml'] : $head[$no]['title'])
-			.'</dt><dd>'.$values['text'].'</dd>';
+		$desc[] = '<tr><th>'.(!empty($head[$no]['title_kml']) ? $head[$no]['title_kml'] : $head[$no]['title'])
+			.'</th><td>'.$values['text'].'</td></tr>';
 	}
-	return '<dl>'.implode("\n", $desc).'</dl>';
+	return '<table class="kml_description">'.implode("\n", $desc).'</table>';
 }
 
 /**
