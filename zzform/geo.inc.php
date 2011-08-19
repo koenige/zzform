@@ -235,6 +235,26 @@ function zz_geo_coord_out($decimal, $orientation = 'lat', $out = false) {
 }
 
 /**
+ * output of a geographical coordinate from SQL
+ *
+ * @param string $point POINT(42.28 1.3)
+ * @param $out output, see zz_geo_coord_out()
+ * @param $delimiter separates latitude from longitude
+ * @return string $coord
+ * @see zz_geo_coord_out()
+ */
+function zz_geo_coord_sql_out($point, $out = false, $delimiter = ', ') {
+	if (substr($point, 0, 6) != 'POINT(') return false;
+	if (substr($point, -1) != ')') return false;
+	$point = substr($point, 6, -1);
+	$point = explode(' ', $point);
+	$text = zz_geo_coord_out($point[0], 'lat', $out);
+	$text .= $delimiter;
+	$text .= zz_geo_coord_out($point[1], 'lon', $out);
+	return $text;
+}
+
+/**
  * formats a number depending on language with . or ,
  *
  * @param string $number
