@@ -1008,6 +1008,15 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 			$text = $row['value'];
 		}
 		break;
+	case 'geo_point':
+		// don't display anything in binary format
+		if (empty($field['text_field'])) break;
+		$row['value'] = $line[$field['text_field']];
+		if (!$row['value']) break;
+		if (empty($field['geo_format'])) $field['geo_format'] = 'dms';
+		if (empty($field['delimiter'])) $field['delimiter'] = '<br>';
+		$text = zz_geo_coord_sql_out($row['value'], $field['geo_format'], $field['delimiter']);
+		break;
 	case 'display':
 		if (!empty($field['display_title']) 
 			&& in_array($row['value'], array_keys($field['display_title']))) {
