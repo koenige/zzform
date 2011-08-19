@@ -229,12 +229,16 @@ function zz_export_kml($ops) {
 	}
 	
 	foreach ($ops['output']['rows'] as $line) {
+		$latitude = '';
+		$longitude = '';
 		if (!empty($fields['point'])) {
 			$point = $line[$fields['point']]['value'];
 			$point = zz_geo_coord_sql_out($point, 'dec', ' ');
 			$point = explode(' ', $point);
-			$latitude = $point[0];
-			$longitude = $point[1];
+			if (count($point) == 2) {
+				$latitude = $point[0];
+				$longitude = $point[1];
+			}
 		} else {
 			$latitude = $line[$fields['latitude']]['value'];
 			$longitude = $line[$fields['longitude']]['value'];
@@ -261,8 +265,11 @@ function zz_export_kml($ops) {
  * @return string HTML output, definition list	
  */
 function zz_export_kml_description($head, $line, $fields) {
-	$set = array('title', 'longitude', 'latitutde', 'altitude', 'point');
-	foreach ($set as $field) unset($line[$fields[$field]]);
+	$set = array('title', 'longitude', 'latitude', 'altitude', 'point');
+	foreach ($set as $field) {
+		if (!isset($fields[$field])) continue;
+		unset($line[$fields[$field]]);
+	}
 	$desc = array();
 	foreach ($line as $no => $values) {
 		if (empty($values['text'])) continue;
