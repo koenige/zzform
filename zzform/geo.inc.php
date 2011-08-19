@@ -239,17 +239,17 @@ function zz_geo_coord_out($decimal, $orientation = 'lat', $out = false) {
  *
  * @param string $point POINT(42.28 1.3)
  * @param $out output, see zz_geo_coord_out()
- * @param $delimiter separates latitude from longitude
+ * @param $concat HTML code between output of latitude and longitude
  * @return string $coord
  * @see zz_geo_coord_out()
  */
-function zz_geo_coord_sql_out($point, $out = false, $delimiter = ', ') {
+function zz_geo_coord_sql_out($point, $out = false, $concat = ', ') {
 	if (substr($point, 0, 6) != 'POINT(') return false;
 	if (substr($point, -1) != ')') return false;
 	$point = substr($point, 6, -1);
 	$point = explode(' ', $point);
 	$text = zz_geo_coord_out($point[0], 'lat', $out);
-	$text .= $delimiter;
+	$text .= $concat;
 	$text .= zz_geo_coord_out($point[1], 'lon', $out);
 	return $text;
 }
