@@ -861,8 +861,8 @@ function zz_list_modes($id, $zz_var, $zz_conf_record) {
  */
 function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $zz_conf_record) {
 	global $zz_conf;
-	// shortcuts
-	if (!empty($field['field_name']) AND !empty($line[$field['field_name']]))
+	// shortcuts, isset: value might be 0
+	if (!empty($field['field_name']) AND isset($line[$field['field_name']]))
 		$row['value'] = $line[$field['field_name']];
 	else
 		$row['value'] = '';
@@ -1037,10 +1037,10 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 		$text = $field['list_format']($text);
 		if (!empty($zz_conf['modules']['debug'])) zz_debug('end');
 	}
-	if (empty($field['hide_zeros']) AND !$text) {
+	if (!empty($field['hide_zeros']) AND !$text) {
 		$text = '';
 	}
-	if (!$text) return $row;
+	if ($text === '') return $row;
 	if ($mark_search_string AND $mode != 'export') {
 		$text = zz_mark_search_string($text, $field[$mark_search_string], $field);
 	}
