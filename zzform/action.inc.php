@@ -750,18 +750,45 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 	//	password: remove unencrypted password
 		if ($field['type'] == 'password')
 			unset($my_rec['POST_db']['zz_unencrypted_'.$field_name]);
-	//	slashes, 0 and NULL
-		$unwanted = array('calculated', 'image', 'upload_image', 'id', 
-			'foreign', 'subtable', 'foreign_key', 'translation_key', 
-			'detail_key', 'display', 'option', 'write_once');
-		if (!in_array($field['type'], $unwanted)) {
+
+		switch ($field['type']) {
+		case 'foreign_key':
+			$my_rec['POST_db'][$field_name] = '[FOREIGN_KEY]';
+			break;
+		case 'detail_key':
+			$my_rec['POST_db'][$field_name] = '[DETAIL_KEY]';
+			break;
+		case 'translation_key':
+			$my_rec['POST_db'][$field_name] = $field['translation_key'];
+			break;
+		case 'timestamp':
+			$my_rec['POST_db'][$field_name] = 'NOW()';
+			break;
+		case 'calculated':
+		case 'image':
+		case 'upload_image':
+		case 'id':
+		case 'foreign':
+		case 'subtable':
+		case 'display':
+		case 'option':
+		case 'write_once':
+			// dont' do anything with these
+			break;
+		case 'geo_point':
+			$my_rec['POST_db'][$field_name] = 'GeomFromText("'
+				.zz_db_escape($my_rec['POST_db'][$field_name]).'")';
+			break;
+		default:
+			//	slashes, 0 and NULL
 			if ($my_rec['POST_db'][$field_name]) {
 				$my_rec['POST_db'][$field_name] 
 					= '"'.zz_db_escape($my_rec['POST_db'][$field_name]).'"';
 			} else {
-				if (isset($field['number_type']) AND ($my_rec['POST'][$field_name] !== '') // type string, different from 0
-					AND $field['number_type'] == 'latitude' 
-					|| $field['number_type'] == 'longitude')
+				// empty values = NULL, treat some special cases differently
+				// latitude/longitude: type string, different from 0
+				if (isset($field['number_type']) AND ($my_rec['POST'][$field_name] !== '')
+					AND in_array($field['number_type'], array('latitude', 'longitude')))
 					$my_rec['POST_db'][$field_name] = '0';
 				elseif (!empty($field['null'])) 
 					$my_rec['POST_db'][$field_name] = '0';
@@ -771,14 +798,6 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 					$my_rec['POST_db'][$field_name] = 'NULL';
 			}
 		}
-		if ($field['type'] == 'foreign_key') 
-			$my_rec['POST_db'][$field_name] = '[FOREIGN_KEY]';
-		elseif ($field['type'] == 'detail_key') 
-			$my_rec['POST_db'][$field_name] = '[DETAIL_KEY]';
-		elseif ($field['type'] == 'translation_key') 
-			$my_rec['POST_db'][$field_name] = $field['translation_key'];
-		elseif ($field['type'] == 'timestamp') 
-			$my_rec['POST_db'][$field_name] = 'NOW()';
 	}
 	return zz_return($my_rec);
 }
