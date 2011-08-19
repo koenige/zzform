@@ -1049,7 +1049,8 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 	if (!empty($field['hide_zeros']) AND !$text) {
 		$text = '';
 	}
-	if ($text === '') return $row;
+	if ($text === '' OR $text === false) return $row;
+
 	if ($mark_search_string AND $mode != 'export') {
 		$text = zz_mark_search_string($text, $field[$mark_search_string], $field);
 	}
