@@ -108,8 +108,11 @@ function zzform($zz = array()) {
 			if (empty($zz['conditions'])) unset($modules[$index]);
 			break;
 		case 'geo':
-			if (!zz_module_fieldcheck($zz, 'number_type', 'latitude')
-				AND !zz_module_fieldcheck($zz, 'number_type', 'longitude')) unset($modules[$index]);
+			$geo = false;
+			if (zz_module_fieldcheck($zz, 'number_type', 'latitude')) $geo = true;
+			elseif (zz_module_fieldcheck($zz, 'number_type', 'longitude')) $geo = true;
+			elseif (zz_module_fieldcheck($zz, 'type', 'geo_point')) $geo = true;
+			if (!$geo) unset($modules[$index]);
 			break;
 		case 'export':
 			if ($zz_conf['generate_output'] === false) {
