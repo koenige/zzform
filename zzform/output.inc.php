@@ -525,21 +525,27 @@ function zz_print_multiarray($array, $parent_key = '') {
  * @return string
  */
 function zz_print_enum($field, $value, $type = 'abbr', $key = false) {
-	if (!$key) {
-		$key = array_search($value, $field['enum']);
+	if (!empty($field['enum'])) {
+		$ft = 'enum';
+	} elseif (!empty($field['set'])) {
+		$ft = 'set';
 	}
+	if (!$key) $key = array_search($value, $field[$ft]);
 	// key 0 means first key, so rule out that key was simply not found
 	if ($key === '' OR $key === false) return '';
-	if (!empty($field['enum_title'][$key])) {
-		$text = $field['enum_title'][$key];
-	} else {
+
+	if (!empty($field[$ft.'_title'][$key])) {
+		$text = $field[$ft.'_title'][$key];
+	} elseif ($value !== 0) {
 		$text = zz_text($value);
+	} else {
+		$text = $value;
 	}
-	if (!empty($field['enum_abbr'][$key])) {
+	if (!empty($field[$ft.'_abbr'][$key])) {
 		if ($type === 'full') {
-			$text .= ' &#8211; '.$field['enum_abbr'][$key];
+			$text .= ' &#8211; '.$field[$ft.'_abbr'][$key];
 		} elseif ($type === 'abbr') {
-			$text = '<abbr title="'.htmlspecialchars($field['enum_abbr'][$key])
+			$text = '<abbr title="'.htmlspecialchars($field[$ft.'_abbr'][$key])
 				.'">'.$text.'</abbr>';
 		}
 	}

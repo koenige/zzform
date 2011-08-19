@@ -979,7 +979,12 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 		if (!empty($field['set']) 
 			OR !empty($field['set_sql']) 
 			OR !empty($field['set_folder'])) {
-			$text = str_replace(',', ', ', $row['value']);
+			$values_old = explode(',', $row['value']);
+			$values_new = array();
+			foreach ($values_old as $value) {
+				$values_new[] = zz_print_enum($field, $value);
+			}
+			$text = implode(', ', $values_new);
 		} elseif (!empty($field['enum'])) {
 			$text = zz_print_enum($field, $row['value']);
 		} else {

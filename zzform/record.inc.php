@@ -1735,7 +1735,7 @@ function zz_form_select_set($field, $row_display, $record = false) {
 	foreach ($field['set'] as $key => $set) {
 		$myi++;
 		$myid = 'check-'.$field['field_name'].'-'.$myi;
-		$set_display = !empty($field['set_title'][$key]) ? $field['set_title'][$key] : $set;
+		$set_display = zz_print_enum($field, $set, 'full');
 		if ($row_display == 'form') {
 			$output.= ' <label for="'.$myid.'"><input type="checkbox" id="'
 				.$myid.'" name="'.$field['f_field_name'].'[]" value="'.$set.'"';
