@@ -528,6 +528,8 @@ function zz_print_enum($field, $value, $type = 'abbr', $key = false) {
 	if (!$key) {
 		$key = array_search($value, $field['enum']);
 	}
+	// key 0 means first key, so rule out that key was simply not found
+	if ($key === '' OR $key === false) return '';
 	if (!empty($field['enum_title'][$key])) {
 		$text = $field['enum_title'][$key];
 	} else {
