@@ -2921,6 +2921,34 @@ function zz_error_validation() {
 	unset($zz_error['validation']);
 }
 
+/**
+ * log errors in $ops['error'] if zzform_multi() was called, because errors
+ * won't be shown on screen in this mode
+ *
+ * @param array $errors = $ops['error']
+ * @global array $zz_conf
+ * @global array $zz_error
+ * @return array $errors
+ */
+function zz_error_multi($errors) {
+	global $zz_conf;
+	if (!$zz_conf['multi']) return $errors;
+
+	global $zz_error;
+	foreach ($zz_error as $index => $error) {
+		if (!is_numeric($index)) {
+			if ($index === 'validation') {
+				if (!empty($zz_error[$index]['msg']))
+					$errors = array_merge($errors, $zz_error[$index]['msg']);
+			}
+			continue;
+		}
+		if (empty($error['msg_dev'])) continue;
+		$errors[] = $error['msg_dev'];
+	}
+	return $errors;
+}
+
 /*
  * --------------------------------------------------------------------
  * F - Filesystem functions

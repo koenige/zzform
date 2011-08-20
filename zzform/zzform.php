@@ -216,13 +216,7 @@ function zzform($zz = array()) {
 
 	// set $ops['mode'], $zz_var['action'], ['id']['value'] and $zz_conf for access
 	list($zz, $ops, $zz_var) = zz_record_access($zz, $ops, $zz_var);
-	if ($zz_conf['multi']) {
-		foreach ($zz_error as $index => $error) {
-			if (!is_numeric($index)) continue;
-			if (empty($error['msg_dev'])) continue;
-			$ops['error'][] = $error['msg_dev'];
-		}
-	}
+	$ops['error'] = zz_error_multi($ops['error']);
 
 	// mode won't be changed anymore before record operations
 
@@ -507,7 +501,10 @@ function zzform($zz = array()) {
 	}
 
 	if (!$zz_conf['generate_output']) {
-		if ($zz_conf['show_record']) zz_error_validation();
+		if ($zz_conf['show_record']) {
+			$ops['error'] = zz_error_multi($ops['error']);
+			zz_error_validation();
+		}
 		return zzform_exit($ops);
 	}
 	
