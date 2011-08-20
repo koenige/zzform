@@ -506,7 +506,10 @@ function zzform($zz = array()) {
 		}
 	}
 
-	if (!$zz_conf['generate_output']) return zzform_exit($ops);
+	if (!$zz_conf['generate_output']) {
+		if ($zz_conf['show_record']) zz_error_validation();
+		return zzform_exit($ops);
+	}
 	
 	$zz_var['extraGET'] = zz_extra_get_params($ops['mode'], $zz_conf);
 
@@ -515,7 +518,6 @@ function zzform($zz = array()) {
 		$ops['output'] .= zz_record($ops, $zz_tab, $zz_var, $zz_conditions);	
 	} else {
 		// call error function if there's anything
-		zz_error_validation();
 		zz_error();
 		$ops['output'] .= zz_error_output();
 	}
