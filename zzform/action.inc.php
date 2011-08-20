@@ -499,11 +499,13 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
  *	'after_insert', 'after_update', 'after_delete', to be set in $zz_conf['action']
  * @param array $ops
  * @global array $zz_conf
+ * @global array $zz_error (in case custom error message shall be logged)
  * @return mixed bool true if some action was performed; 
  *	array $change if some values need to be changed
  */
 function zz_action_function($type, $ops) {
 	global $zz_conf;
+	global $zz_error;
 	if (empty($zz_conf['action'][$type])) return false;
 
 	$change = array();
