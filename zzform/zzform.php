@@ -853,10 +853,10 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 	unset($_GET);
 	unset($_POST);
 	unset($_FILES);
+	$ops = array();
 
 	switch ($type) {
 	case 'form': // hand back form to user, just fill out values
-		$ops = array();
 		// causes not all zz_conf variables to be reset
 		zz_initialize('overwrite');
 		$zz_conf['show_output'] = false; // do not show output as it will be included after page head
@@ -883,12 +883,11 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 		$ops = zzform($zz);
 		break;
 	case 'record':  // one operation only
-		$ops = array();
 		// TODO: so far, we have no support for 'values' for subrecords
 		// TODO: zzform() and zzform_multi() called within an action-script
 		// causes not all zz_conf variables to be reset
-		$zz_conf['generate_output'] = false; // don't generate output
 		zz_initialize('overwrite');
+		$zz_conf['generate_output'] = false; // don't generate output
 //		if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__)
 		$zz_conf['show_output'] = false; // do not show output as it will be included after page head
 		$zz_conf['multi'] = true;		// so we know the operation mode for other scripts
