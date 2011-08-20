@@ -1619,7 +1619,6 @@ function zz_listandrecord_access($zz_conf) {
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_query_record($my_tab, $rec, $validation, $mode) {
-	global $zz_error;
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$my_rec = &$my_tab[$rec];
@@ -1675,7 +1674,6 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
 		$my_rec['action'] = 'review';
 
 	//	print out all records which were wrong, set class to error
-		$validate_errors = false;
 		foreach ($my_rec['fields'] as $no => $field) {
 			// just look for check_validation set but false
 			if (!isset($field['check_validation']) 
@@ -1686,26 +1684,49 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
 			} else {
 				$my_rec['fields'][$no]['class'] = 'error';
 			}
-			if ($field['type'] == 'password_change') continue;
-			if ($field['type'] == 'subtable') continue;
-			if ($my_rec['record'][$field['field_name']]) {
-				// there's a value, so this is an incorrect value
-				$zz_error['validation']['msg'][] = zz_text('Value_incorrect_in_field')
-					.' <strong>'.$field['title'].'</strong>'
-					.(!empty($field['validation_error']) ? ' ('
-					.$field['validation_error'].')' : '');
-				$zz_error['validation']['incorrect_values'][] = array(
-					'field_name' => $field['field_name'],
-					'msg' => zz_text('incorrect value').': '.$my_rec['record'][$field['field_name']]
-				);
-			} elseif (empty($field['dont_show_missing'])) {
-				// there's a value missing
-				$zz_error['validation']['msg'][] = zz_text('Value missing in field')
-					.' <strong>'.$field['title'].'</strong>';
-			}
 		}
 	}
+	zz_log_validation_errors($my_rec, $validation);
 	return zz_return($my_tab);
+}
+
+/**
+ * Log validation errors (incorrect or missing values)
+ *
+ * @param array $my_rec = $zz_tab[$tab][$rec]
+ * @param bool $validation
+ * @global array $zz_error
+ * @return bool true: some errors were logged; false no errors were logged
+ */
+function zz_log_validation_errors($my_rec, $validation) {
+	global $zz_error;
+	if ($my_rec['action'] == 'delete') return false;
+	if ($validation) return false;
+	if ($my_rec['access'] == 'show') return false;
+	
+	foreach ($my_rec['fields'] as $no => $field) {
+		// just look for check_validation set but false
+		if (!isset($field['check_validation'])) continue;
+		if ($field['check_validation']) continue;
+		if ($field['type'] == 'password_change') continue;
+		if ($field['type'] == 'subtable') continue;
+		if ($my_rec['record'][$field['field_name']]) {
+			// there's a value, so this is an incorrect value
+			$zz_error['validation']['msg'][] = zz_text('Value_incorrect_in_field')
+				.' <strong>'.$field['title'].'</strong>'
+				.(!empty($field['validation_error']) ? ' ('
+				.$field['validation_error'].')' : '');
+			$zz_error['validation']['incorrect_values'][] = array(
+				'field_name' => $field['field_name'],
+				'msg' => zz_text('incorrect value').': '.$my_rec['record'][$field['field_name']]
+			);
+		} elseif (empty($field['dont_show_missing'])) {
+			// there's a value missing
+			$zz_error['validation']['msg'][] = zz_text('Value missing in field')
+				.' <strong>'.$field['title'].'</strong>';
+		}
+	}
+	return true;
 }
 
 /** 
