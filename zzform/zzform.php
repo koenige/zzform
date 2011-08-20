@@ -854,6 +854,8 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 	unset($_POST);
 	unset($_FILES);
 	$ops = array();
+	// keep internal variables
+	$int = (!empty($zz_conf['int']) ? $zz_conf['int'] : array();
 
 	switch ($type) {
 	case 'form': // hand back form to user, just fill out values
@@ -937,6 +939,7 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 	// what to return:
 	// array whith all record_ids that were inserted, sorted by operation (so to include subrecords)
 
+	$zz_conf['int'] = $int;
 	if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
 		$zz_conf['id'] = $id;
 		zz_debug('end');
