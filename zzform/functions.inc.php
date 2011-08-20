@@ -2711,7 +2711,6 @@ function zz_error() {
 	$return = $zz_error['error'] ? 'exit' : 'html';
 	$output = $zz_error['output'];
 	unset($zz_error['error']); // we don't need this here
-	unset($zz_error['validation']); // this neither
 	unset($zz_error['output']); // this neither
 	
 	if (!$zz_error) {
