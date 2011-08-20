@@ -855,7 +855,7 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 	unset($_FILES);
 	$ops = array();
 	// keep internal variables
-	$int = (!empty($zz_conf['int']) ? $zz_conf['int'] : array();
+	$int = !empty($zz_conf['int']) ? $zz_conf['int'] : array();
 
 	switch ($type) {
 	case 'form': // hand back form to user, just fill out values
