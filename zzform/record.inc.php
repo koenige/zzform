@@ -1027,7 +1027,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 					}
 					
 					//$field['set_sql'] or key/value
-					if ($field['set_title'] === true) {
+					if (isset($field['set_title']) AND $field['set_title'] === true) {
 						$sets = zz_db_fetch($field['sql'], 'dummy_field_name', 'key/value');
 						foreach ($sets as $key => $value) {
 							$field['set'] = explode(',', $key);
