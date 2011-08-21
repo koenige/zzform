@@ -492,7 +492,8 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		if ($zz_conf['tfoot'] && $zz_conf['list_display'] == 'table' AND !empty($sum)) {
 			$ops['output'].= '<tfoot>'."\n".'<tr>';
 			$ops['output'].= zz_field_sum($table_query[0], $z, $my_footer_table, $sum);
-			$ops['output'].= '<td class="editbutton">&nbsp;</td>';
+			if ($modes OR $details)
+				$ops['output'].= '<td class="editbutton">&nbsp;</td>';
 			$ops['output'].= '</tr>'."\n".'</tfoot>'."\n";
 		}
 	}
