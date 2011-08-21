@@ -890,158 +890,158 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 	$mark_search_string = 'field_name';
 	$text = false;
 
-	if (!empty($field['display_field'])) {
+	if (isset($field['display_field'])) {
 		$text = $line[$field['display_field']];
 		if (!empty($field['translate_field_value'])) $text = zz_text($text);
 		$text = htmlchars($text);
 		$mark_search_string = 'display_field';
-	}
-
-	//	go for type of field if no display field is set
-	if (!$text) switch ($field['type']) {
-	case 'calculated':
-		if ($field['calculation'] == 'hours') {
-			$row['value'] = 0;
-			foreach ($field['calculation_fields'] as $calc_field)
-				if (!$row['value']) $row['value'] = strtotime($line[$calc_field]);
-				else $row['value'] -= strtotime($line[$calc_field]);
-			if ($row['value'] < 0) $text = '<em class="negative">';
-			$text .= hours($row['value']);
-			if ($row['value'] < 0) $text .= '</em>';
-		} elseif ($field['calculation'] == 'sum') {
-			$row['value'] = 0;
-			foreach ($field['calculation_fields'] as $calc_field)
-				$row['value'] += $line[$calc_field];
-			$text = $row['value'];
-		} elseif ($field['calculation'] == 'sql') {
-			$text = $row['value'];
-		}
-		$mark_search_string = false;
-		break;
-	case 'image':
-	case 'upload_image':
-		$mark_search_string = false;
-		if (isset($field['path'])) {
-			if ($img = zz_makelink($field['path'], $line, 'image')) {
-				$text .= $link.$img.($link ? '</a>' : '');
-			} elseif (isset($field['default_image'])) {
-				if (is_array($field['default_image'])) {
-					$default_image = zz_makelink($field['default_image'], $line);
-				} else {
-					$default_image = $field['default_image'];
-				}
-				$text .= $link.'<img src="'.$default_image
-					.'"  alt="'.zz_text('no_image').'" class="thumb">'.($link ? '</a>' : '');
-			}
-			if (!empty($field['image']) AND $mode != 'export') {
-				foreach ($field['image'] as $image) {
-					if (empty($image['show_link'])) continue;
-					if ($imglink = zz_makelink($image['path'], $line))
-						$text .= ' <a href="'.$imglink.'">'.$image['title'].'</a><br>';
-				}
-			}
-			$link = false;
-		} elseif (isset($field['path_json_request'])) {
-			$img = zz_makelink($field['path_json_request'], $line);
-			if ($img = brick_request_getjson($img)) {
-				$text = '<img src="'
-					.(!empty($field['path_json_base']) ? $field['path_json_base'] : '')
-					.$img.'"  alt="" class="thumb">';
-			}
-		}
-		break;
-	case 'subtable':
-		// main stuff will come from 'subselect', otherwise this field has no content
-		$link = false;
-		break;
-	case 'url':
-	case 'mail':
-	case 'mail+name':
-		if ($field['type'] == 'url' && strlen($row['value']) > $zz_conf_record['max_select_val_len']) {
-			$text = mb_substr(htmlchars($row['value']), 0, $zz_conf_record['max_select_val_len']).'...';
-		} else {
-			$text = htmlspecialchars($row['value']);
-		}
-		break;
-	case 'ipv4':
-		$text = long2ip($row['value']);
-		break;
-	case 'unix_timestamp':
-		$text = date('Y-m-d H:i:s', $row['value']);
-		break;
-	case 'timestamp':
-		$text = timestamp2date($row['value']);
-		break;
-	case 'date':
-		$text = datum_de($row['value']);
-		break;
-	case 'select':
-		if (!empty($field['set']) 
-			OR !empty($field['set_sql']) 
-			OR !empty($field['set_folder'])) {
-			$values_old = explode(',', $row['value']);
-			$values_new = array();
-			foreach ($values_old as $value) {
-				$values_new[] = zz_print_enum($field, $value);
-			}
-			$text = implode(', ', $values_new);
-		} elseif (!empty($field['enum'])) {
-			$text = zz_print_enum($field, $row['value']);
-		} else {
-			$text = $row['value'];
-		}
-		break;
-	case 'number':
-		if (isset($field['factor']) && $row['value']) {
-			$row['value'] /= $field['factor'];
-		}
-		if (isset($field['number_type'])) {
-			switch ($field['number_type']) {
-			case 'currency':
-				$text = waehrung($row['value'], '');
-				break;
-			case 'latitude':
-			case 'longitude':
-				if (!$row['value']) break;
-				if (empty($field['geo_format'])) $field['geo_format'] = 'dms';
-				$text = zz_geo_coord_out($row['value'], $field['number_type'], $field['geo_format']);
-				break;
-			default:
+	} else {
+		//	go for type of field if no display field is set
+		switch ($field['type']) {
+		case 'calculated':
+			if ($field['calculation'] == 'hours') {
+				$row['value'] = 0;
+				foreach ($field['calculation_fields'] as $calc_field)
+					if (!$row['value']) $row['value'] = strtotime($line[$calc_field]);
+					else $row['value'] -= strtotime($line[$calc_field]);
+				if ($row['value'] < 0) $text = '<em class="negative">';
+				$text .= hours($row['value']);
+				if ($row['value'] < 0) $text .= '</em>';
+			} elseif ($field['calculation'] == 'sum') {
+				$row['value'] = 0;
+				foreach ($field['calculation_fields'] as $calc_field)
+					$row['value'] += $line[$calc_field];
+				$text = $row['value'];
+			} elseif ($field['calculation'] == 'sql') {
 				$text = $row['value'];
 			}
-		} else {
+			$mark_search_string = false;
+			break;
+		case 'image':
+		case 'upload_image':
+			$mark_search_string = false;
+			if (isset($field['path'])) {
+				if ($img = zz_makelink($field['path'], $line, 'image')) {
+					$text .= $link.$img.($link ? '</a>' : '');
+				} elseif (isset($field['default_image'])) {
+					if (is_array($field['default_image'])) {
+						$default_image = zz_makelink($field['default_image'], $line);
+					} else {
+						$default_image = $field['default_image'];
+					}
+					$text .= $link.'<img src="'.$default_image
+						.'"  alt="'.zz_text('no_image').'" class="thumb">'.($link ? '</a>' : '');
+				}
+				if (!empty($field['image']) AND $mode != 'export') {
+					foreach ($field['image'] as $image) {
+						if (empty($image['show_link'])) continue;
+						if ($imglink = zz_makelink($image['path'], $line))
+							$text .= ' <a href="'.$imglink.'">'.$image['title'].'</a><br>';
+					}
+				}
+				$link = false;
+			} elseif (isset($field['path_json_request'])) {
+				$img = zz_makelink($field['path_json_request'], $line);
+				if ($img = brick_request_getjson($img)) {
+					$text = '<img src="'
+						.(!empty($field['path_json_base']) ? $field['path_json_base'] : '')
+						.$img.'"  alt="" class="thumb">';
+				}
+			}
+			break;
+		case 'subtable':
+			// main stuff will come from 'subselect', otherwise this field has no content
+			$link = false;
+			break;
+		case 'url':
+		case 'mail':
+		case 'mail+name':
+			if ($field['type'] == 'url' && strlen($row['value']) > $zz_conf_record['max_select_val_len']) {
+				$text = mb_substr(htmlchars($row['value']), 0, $zz_conf_record['max_select_val_len']).'...';
+			} else {
+				$text = htmlspecialchars($row['value']);
+			}
+			break;
+		case 'ipv4':
+			$text = long2ip($row['value']);
+			break;
+		case 'unix_timestamp':
+			$text = date('Y-m-d H:i:s', $row['value']);
+			break;
+		case 'timestamp':
+			$text = timestamp2date($row['value']);
+			break;
+		case 'date':
+			$text = datum_de($row['value']);
+			break;
+		case 'select':
+			if (!empty($field['set']) 
+				OR !empty($field['set_sql']) 
+				OR !empty($field['set_folder'])) {
+				$values_old = explode(',', $row['value']);
+				$values_new = array();
+				foreach ($values_old as $value) {
+					$values_new[] = zz_print_enum($field, $value);
+				}
+				$text = implode(', ', $values_new);
+			} elseif (!empty($field['enum'])) {
+				$text = zz_print_enum($field, $row['value']);
+			} else {
+				$text = $row['value'];
+			}
+			break;
+		case 'number':
+			if (isset($field['factor']) && $row['value']) {
+				$row['value'] /= $field['factor'];
+			}
+			if (isset($field['number_type'])) {
+				switch ($field['number_type']) {
+				case 'currency':
+					$text = waehrung($row['value'], '');
+					break;
+				case 'latitude':
+				case 'longitude':
+					if (!$row['value']) break;
+					if (empty($field['geo_format'])) $field['geo_format'] = 'dms';
+					$text = zz_geo_coord_out($row['value'], $field['number_type'], $field['geo_format']);
+					break;
+				default:
+					$text = $row['value'];
+				}
+			} else {
+				$text = $row['value'];
+			}
+			break;
+		case 'geo_point':
+			// don't display anything in binary format
+			if (empty($field['text_field'])) break;
+			$row['value'] = $line[$field['text_field']];
+			if (!$row['value']) break;
+			if (empty($field['geo_format'])) $field['geo_format'] = 'dms';
+			if (empty($field['list_concat_fields'])) $field['list_concat_fields'] = '<br>';
+			$text = zz_geo_coord_sql_out($row['value'], $field['geo_format'], $field['list_concat_fields']);
+			break;
+		case 'display':
+			if (!empty($field['display_title']) 
+				&& in_array($row['value'], array_keys($field['display_title']))) {
+				// replace field content with display_title, if set.
+				// display values depending on database value
+				$text = $field['display_title'][$row['value']];
+			} elseif (!empty($field['display_value'])) {
+				// translations should be done in $zz-definition-file
+				$text = $field['display_value'];
+			} else {
+				$text = $row['value'];
+				$text = nl2br(htmlchars($text));
+			}
+			break;
+		default:
 			$text = $row['value'];
+			if (empty($field['list_format'])) {
+				$text = nl2br(htmlchars($text));
+			}
+			break;
 		}
-		break;
-	case 'geo_point':
-		// don't display anything in binary format
-		if (empty($field['text_field'])) break;
-		$row['value'] = $line[$field['text_field']];
-		if (!$row['value']) break;
-		if (empty($field['geo_format'])) $field['geo_format'] = 'dms';
-		if (empty($field['list_concat_fields'])) $field['list_concat_fields'] = '<br>';
-		$text = zz_geo_coord_sql_out($row['value'], $field['geo_format'], $field['list_concat_fields']);
-		break;
-	case 'display':
-		if (!empty($field['display_title']) 
-			&& in_array($row['value'], array_keys($field['display_title']))) {
-			// replace field content with display_title, if set.
-			// display values depending on database value
-			$text = $field['display_title'][$row['value']];
-		} elseif (!empty($field['display_value'])) {
-			// translations should be done in $zz-definition-file
-			$text = $field['display_value'];
-		} else {
-			$text = $row['value'];
-			$text = nl2br(htmlchars($text));
-		}
-		break;
-	default:
-		$text = $row['value'];
-		if (empty($field['list_format'])) {
-			$text = nl2br(htmlchars($text));
-		}
-		break;
 	}
 	if (!empty($field['translate_field_value'])) {
 		$text = zz_text($text);
