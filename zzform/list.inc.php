@@ -1300,7 +1300,7 @@ function zz_mark_search_string($value, $field_name = false, $field = array()) {
 	}
 
 	// meta characters which must be escaped for preg_replace
-	$needle = preg_quote($_GET['q']);
+	$needle = preg_quote(trim($_GET['q']));
 	$highlight = '<span class="highlight">\1</span>';
 	$pattern = '#(?!<.*?)(%s)(?![^<>]*?>)#i';
 	$regex = sprintf($pattern, $needle);
