@@ -70,89 +70,8 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	$zz['sql'] = zz_list_filter_sql($zz['sql']);
 	if (!$zz['sql']) return zz_return(array($ops, $zz_var));
 
-	// must be behind update, insert etc. or it will return the wrong number
-	$total_rows = zz_count_rows($zz['sql'], $zz['table'].'.'.$id_field);	
-	$zz['sql'].= (!empty($zz['sqlorder']) ? ' '.$zz['sqlorder'] : ''); 	// must be here because of where-clause
-	$zz['sql'] = zz_sql_order($zz['fields_in_list'], $zz['sql']); // Alter SQL query if GET order (AND maybe GET dir) are set
-
-	//
-	// Query records
-	//
-	if ($zz_conf['int']['this_limit'] && empty($zz_conf['show_hierarchy'])) { 
-		// limit, but not for hierarchical sets
-
-		// set a standard value for limit
-		// this standard value will only be used on rare occasions, when NO limit is set
-		// but someone tries to set a limit via URL-parameter
-		if (!$zz_conf['limit']) $zz_conf['limit'] = 20; 
-		$zz['sql'].= ' LIMIT '.($zz_conf['int']['this_limit']-$zz_conf['limit']).', '.($zz_conf['limit']);
-	}
-
-	// read rows from database. depending on hierarchical or normal list view
-	// put rows in $lines or $h_lines.
-	$h_lines = false;
-	if (empty($zz_conf['show_hierarchy'])) {
-		$lines = zz_db_fetch($zz['sql'], $id_field);
-		if ($zz_error['error']) return zz_return(array($ops, $zz_var));
-	} else {
-		// for performance reasons, we only get the fields which are important
-		// for the hierarchy (we need to get all records)
-		$lines = zz_db_fetch($zz['sql'], array($id_field, $zz_conf['hierarchy']['mother_id_field_name']), 'key/value'); 
-		if ($zz_error['error']) return zz_return(array($ops, $zz_var));
-		foreach ($lines as $id => $mother_id) {
-			// sort lines by mother_id
-			if ($zz_conf['show_hierarchy'] === true) 
-				$zz_conf['show_hierarchy'] = 'NULL';
-			if ($id == $zz_conf['show_hierarchy']) {
-				// get uppermost line if show_hierarchy is not NULL!
-				$mother_id = 'TOP';
-			} elseif (empty($mother_id))
-				$mother_id = 'NULL';
-			$h_lines[$mother_id][$id] = $id;
-		}
-	}
-
-	if ($h_lines) {
-		$lines = array(); // unset and initialize
-		$level = 0; // level (hierarchy)
-		$i = 0; // number of record, for LIMIT
-		$my_lines = zz_list_hierarchy($h_lines, $zz_conf['show_hierarchy'], $id_field, $level, $i);
-		$total_rows = $i; // sometimes, more rows might be selected beforehands,
-		// but if show_hierarchy has ID value, not all rows are shown
-		if ($my_lines) {
-			if (!$zz_conf['int']['this_limit']) {
-				$start = 0;
-				$end = $total_rows -1;
-			} else {
-				$start = $zz_conf['int']['this_limit'] - $zz_conf['limit'];
-				$end = $zz_conf['int']['this_limit'] -1;
-			}
-			foreach (range($start, $end) as $index) {
-				if (!empty($my_lines[$index])) 
-					$lines[$my_lines[$index][$id_field]] = $my_lines[$index];
-			}
-			// for performance reasons, we didn't save the full result set,
-			// so we have to requery it again.
-			if ($zz_conf['int']['this_limit']) {
-				$sql = zz_edit_sql($zz['sql'], 'WHERE', '`'.$zz['table'].'`.'.$id_field
-					.' IN ('.implode(',', array_keys($lines)).')');
-			} else {
-				$sql = $zz['sql'];
-			}
-			$lines = zz_array_merge($lines, zz_db_fetch($sql, $id_field));
-		}
-		foreach ($lines as $line) {
-			if (empty($line['zz_hidden_line'])) continue;
-			// get record which is normally beyond our scope via ID
-			$sql = zz_edit_sql($zz['sql'], 'WHERE', 'nothing', 'delete');
-			$sql = zz_edit_sql($sql, 'WHERE', '`'.$zz['table'].'`.'.$id_field.' = '.$line[$id_field]);
-			$line = zz_db_fetch($sql);
-			if ($line) {
-				$lines[$line[$id_field]] = array_merge($lines[$line[$id_field]], $line);
-			}
-		}
-	}
-
+	list($lines, $total_rows) = zz_list_query($zz, $id_field);
+	if ($zz_error['error']) return zz_return(array($ops, $zz_var));
 	$count_rows = count($lines);
 
 	// don't show anything if there is nothing
@@ -809,6 +728,130 @@ function zz_list_filter_sql($sql) {
 		$sql = false;
 	}
 	return $sql;
+}
+
+/**
+ * Query records for list view
+ *
+ * @param array $zz
+ * 		string 'sql' SQL query ($zz['sql'])
+ *		string 'sqlorder'
+ * 		string 'table' name of database table ($zz['table'])
+ * 		array 'fields_in_list' list of fields ($zz['fields_in_list'])
+ * @param string $id_field ($zz_var['id']['field_name'])
+ * @global array $zz_conf
+ * @return array (array $lines, int $total_rows)
+ */
+function zz_list_query($zz, $id_field) {
+	global $zz_conf;
+
+	$total_rows = zz_count_rows($zz['sql'], $zz['table'].'.'.$id_field);
+	if (!$total_rows) return array(array(), 0);
+	
+	// ORDER must be here because of where-clause
+	$zz['sql'] .= (!empty($zz['sqlorder']) ? ' '.$zz['sqlorder'] : '');
+	// Alter SQL query if GET order (AND maybe GET dir) are set
+	$zz['sql'] = zz_sql_order($zz['fields_in_list'], $zz['sql']);
+
+	if (empty($zz_conf['show_hierarchy'])) {
+		return array(zz_list_query_flat($zz['sql'], $id_field), $total_rows);
+	} else {
+		return zz_list_query_hierarchy($zz['sql'], $id_field, $zz['table']);
+	}
+}
+
+/**
+ * Query records for list view, flat mode
+ *
+ * @param string $sql SQL query ($zz['sql'])
+ * @param string $id_field ($zz_var['id']['field_name'])
+ * @global array $zz_conf
+ * @return array $lines
+ */
+function zz_list_query_flat($sql, $id_field) {
+	global $zz_conf;
+
+	if ($zz_conf['int']['this_limit']) { 
+		// set a standard value for limit
+		// this standard value will only be used on rare occasions, when NO limit is set
+		// but someone tries to set a limit via URL-parameter
+		if (!$zz_conf['limit']) $zz_conf['limit'] = 20; 
+		$sql .= ' LIMIT '.($zz_conf['int']['this_limit']-$zz_conf['limit']).', '.($zz_conf['limit']);
+	}
+
+	// read rows from database
+	return zz_db_fetch($sql, $id_field);
+}
+
+/**
+ * Query records for list view, flat mode
+ *
+ * @param string $sql SQL query ($zz['sql'])
+ * @param string $id_field ($zz_var['id']['field_name'])
+ * @param string $table ($zz['table'])
+ * @global array $zz_conf
+ * @return array $lines
+ */
+function zz_list_query_hierarchy($sql, $id_field, $table) {
+	global $zz_conf;
+
+	// hierarchical list view
+	// for performance reasons, we only get the fields which are important
+	// for the hierarchy (we need to get all records)
+	$lines = zz_db_fetch($sql, array($id_field, $zz_conf['hierarchy']['mother_id_field_name']), 'key/value'); 
+	if (!$lines) return array(array(), 0);
+
+	$h_lines = array();
+	foreach ($lines as $id => $mother_id) {
+		// sort lines by mother_id
+		if ($zz_conf['show_hierarchy'] === true) 
+			$zz_conf['show_hierarchy'] = 'NULL';
+		if ($id == $zz_conf['show_hierarchy']) {
+			// get uppermost line if show_hierarchy is not NULL!
+			$mother_id = 'TOP';
+		} elseif (empty($mother_id))
+			$mother_id = 'NULL';
+		$h_lines[$mother_id][$id] = $id;
+	}
+	if (!$h_lines) return array(array(), 0);
+
+	$lines = array(); // unset and initialize
+	$level = 0; // level (hierarchy)
+	$i = 0; // number of record, for LIMIT
+	$my_lines = zz_list_hierarchy($h_lines, $zz_conf['show_hierarchy'], $id_field, $level, $i);
+	$total_rows = $i; // sometimes, more rows might be selected beforehands,
+	// but if show_hierarchy has ID value, not all rows are shown
+	if ($my_lines) {
+		if (!$zz_conf['int']['this_limit']) {
+			$start = 0;
+			$end = $total_rows -1;
+		} else {
+			$start = $zz_conf['int']['this_limit'] - $zz_conf['limit'];
+			$end = $zz_conf['int']['this_limit'] -1;
+		}
+		foreach (range($start, $end) as $index) {
+			if (!empty($my_lines[$index])) 
+				$lines[$my_lines[$index][$id_field]] = $my_lines[$index];
+		}
+		// for performance reasons, we didn't save the full result set,
+		// so we have to requery it again.
+		if ($zz_conf['int']['this_limit']) {
+			$sql = zz_edit_sql($sql, 'WHERE', '`'.$table.'`.'.$id_field
+				.' IN ('.implode(',', array_keys($lines)).')');
+		} // else sql remains same
+		$lines = zz_array_merge($lines, zz_db_fetch($sql, $id_field));
+	}
+	foreach ($lines as $line) {
+		if (empty($line['zz_hidden_line'])) continue;
+		// get record which is normally beyond our scope via ID
+		$sql = zz_edit_sql($sql, 'WHERE', 'nothing', 'delete');
+		$sql = zz_edit_sql($sql, 'WHERE', '`'.$table.'`.'.$id_field.' = '.$line[$id_field]);
+		$line = zz_db_fetch($sql);
+		if ($line) {
+			$lines[$line[$id_field]] = array_merge($lines[$line[$id_field]], $line);
+		}
+	}
+	return array($lines, $total_rows);
 }
 
 /**
