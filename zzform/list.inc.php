@@ -1620,156 +1620,221 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if ($zz_conf['modules']['debug']) zz_debug('search query', $sql);
 	static $calls;
 	$calls++;
-	$addscope = true;
-	// fields that won't be used for search
-	$unsearchable_fields = array('image', 'calculated', 'timestamp', 'upload_image', 'option'); 
-	if ($zz_conf['modules']['debug']) zz_debug("search query", $sql);
 
-	// there is something, process it.
+	// get scope
+	$scope = (!empty($_GET['scope']) AND $calls === 1) ? $_GET['scope'] : '';
+	
+	// get search operator, globally for all fields
 	$searchword = $_GET['q'];
-	$scope = !empty($_GET['scope']) ? zz_db_escape($_GET['scope']) : '';
-	// search: look at first character to change search method
-	if (substr($searchword, 0, 1) == '>') {
-		$searchword = trim(substr($searchword, 1));
+	if (substr($searchword, 0, 1) == ' ' AND substr($searchword, -1) == ' ') {
+		$searchop = '=';
+		$searchword = trim($searchword);
+	} elseif (substr($searchword, 0, 1) == ' ') {
+		$searchop = 'LIKE%';
+		$searchword = trim($searchword);
+	} elseif (substr($searchword, -1) == ' ') {
+		$searchop = '%LIKE';
+		$searchword = trim($searchword);
+	} elseif (substr($searchword, 0, 2) == '> ') {
 		$searchop = '>';
-		$searchstring = ' '.$searchop.' "'.zz_db_escape($searchword).'"';
-	} elseif (substr($searchword, 0, 1) == '<') {
 		$searchword = trim(substr($searchword, 1));
+	} elseif (substr($searchword, 0, 2) == '< ') {
 		$searchop = '<';
-		$searchstring = ' < "'.zz_db_escape(trim(substr($searchword, 1))).'"';
-	} elseif (substr($searchword, 0, 1) == '-' 
+		$searchword = trim(substr($searchword, 1));
+	} elseif (substr($searchword, 0, 3) == '<= ') {
+		$searchop = '<=';
+		$searchword = trim(substr($searchword, 2));
+	} elseif (substr($searchword, 0, 3) == '>= ') {
+		$searchop = '>=';
+		$searchword = trim(substr($searchword, 2));
+	} elseif (substr($searchword, 0, 2) == '= ') {
+		$searchop = '=';
+		$searchword = trim(substr($searchword, 1));
+	} elseif (substr($searchword, 0, 2) == '- ' 
 		AND strstr(trim(substr($searchword, 1)), ' ')) {
+		$searchop = 'BETWEEN';
 		$searchword = trim(substr($searchword, 1));
 		$searchword = explode(" ", $searchword);
-		$searchop = 'BETWEEN';
-		$searchstring = $scope.' >= "'.zz_db_escape(trim($searchword[0]))
-			.'" AND '.$scope.' <= "'.zz_db_escape(trim($searchword[1])).'"';
-		$addscope = false;
-	} elseif (preg_match('/q\d(.)[0-9]{4}/i', $searchword, $separator) AND !empty($_GET['scope'])) {
-		// search for quarter of year
-		$searchword = trim(substr($searchword, 1));
-		$searchword = explode($separator[1], $searchword);
-		$searchop = false;
-		$searchstring = ' QUARTER('.$scope.') = "'.trim($searchword[0])
-			.'" AND YEAR('.$scope.') = "'.trim($searchword[1]).'"';
-		$addscope = false;
-	} elseif ($searchword == '!NULL') {
-		$addscope = false;
-		$searchstring = ' !ISNULL('.$scope.')';
-	} elseif ($searchword == 'NULL') {
-		$addscope = false;
-		$searchstring = ' ISNULL('.$scope.')';
+	} elseif ($searchword === '!NULL' OR $searchword === 'NULL') {
+		$searchop = $searchword;
+		$searchword = false;
 	} else {
-		$searchop = 'LIKE';
+		$searchop = '%LIKE%';
 		// first slash will be ignored, this is used to escape reserved characters
 		if (substr($searchword, 0, 1) == '\\') $searchword = substr($searchword, 1);
-		$searchstring = ' '.$searchop.' "%'.zz_db_escape($searchword).'%"';
 	}
+	$searchword = zz_db_escape($searchword);
 
-	// Search with q and scope
-	// so look only at one field!
-	if (!empty($_GET['scope']) AND $calls === 1) {
-		$scope = false;
-		$fieldtype = false;
-		foreach ($fields as $field) {
-		// todo: check whether scope is in_array($searchfields)
-			if (empty($field)) continue;
-			// this field is explicitly excluded from search
-			if (!empty($field['exclude_from_search'])) continue;
-			// this is a field which cannot be searched
-			if (empty($field['type'])) $field['type'] = 'text';
-			if (in_array($field['type'], $unsearchable_fields)) continue;
-			
-			// check if some field_name matches scope
-			$search_field = false;
-			if (!isset($field['sql']) AND !empty($field['field_name'])) {
-				// check if scope = field_name but don't search in IDs
-				// check if scope = table.field_name but don't search in IDs
-				if ($_GET['scope'] == $field['field_name']) {
-					$search_field = true;
-				} elseif ($_GET['scope'] == $table.'.'.$field['field_name']) {
-					$search_field = true;
-				}
-			} elseif (isset($field['display_field']) AND $_GET['scope'] == $field['display_field']) {
-				$search_field = true;
-			}
-
-			if ($search_field) {
-				$fieldtype = $field['type'];
-				$scope = !empty($field['search']) ? $field['search'] : $_GET['scope'];
-			} elseif (isset($field['table_name']) AND $_GET['scope'] == $field['table_name']) {
-				$fieldtype = $field['type'];
-				// search in subtable only
-				$subtable = $field;
-			}
-		}
-		// default here
-		$sql_search_part = ($addscope ? $scope : '').$searchstring;
-		switch ($fieldtype) {
-		case 'datetime':
-			if ($timesearch = zz_search_time($searchword))
-				$sql_search_part = $scope.' '.$searchop.' "'.date('Y-m-d', $timesearch).'%"';
-			break;
-		case 'time':
-			if ($timesearch = zz_search_time($searchword))
-				$sql_search_part = $scope.' '.$searchop.' "'.date('H:i:s', $timesearch);
-			break;
-		case 'date':
-			if ($timesearch = zz_search_time($searchword))
-				$sql_search_part = $scope.' '.$searchop.' "'.date('Y-m-d', $timesearch).'%"';
-			break;
-		case 'subtable':
-			if ($subsearch = zz_search_subtable($subtable, $table, $main_id_fieldname))
-				$sql_search_part = $subsearch;
-			else
-				$sql_search_part = 'NULL';
-			break;
-		case '': // scope is false, fieldtype is false
-			$sql_search_part = 'NULL';
-			break;
-		}
-		$sql = zz_edit_sql($sql, 'WHERE', $sql_search_part);
-		if ($zz_conf['modules']['debug']) zz_debug("end; search query", $sql);
-		return $sql;
-	}
-	
-	// no scope is set, so search with q
-	// Look at _all_ fields
-	$q_search = '';
-	foreach ($fields as $index => $field) {
-		// skip certain fields
+	// get fields
+	$searchfields = array();
+	$q_search = array();
+	// fields that won't be used for search
+	$unsearchable_fields = array('image', 'calculated', 'timestamp', 'upload_image', 'option'); 
+	$search = false;
+	foreach ($fields as $field) {
 		if (empty($field)) continue;
+		// this field is explicitly excluded from search
 		if (!empty($field['exclude_from_search'])) continue;
+		// this is a field which cannot be searched
 		if (empty($field['type'])) $field['type'] = 'text';
 		if (in_array($field['type'], $unsearchable_fields)) continue;
-
-		// check what to search for
-		$fieldname = false;
-		if (isset($field['search'])) {
-			$fieldname = $field['search'];
-		} elseif (isset($field['display_field'])) {
-			$fieldname = $field['display_field'];
-		} elseif ($field['type'] == 'subtable') {
-			$subsearch = zz_search_subtable($field, $table, $main_id_fieldname);
-			if ($subsearch) $q_search[] = $subsearch;
-		} elseif (!empty($field['field_name'])) {
-			// standard: use table- and field name
-			$fieldname = $table.'.'.$field['field_name'];
-		}
-		if ($fieldname) $q_search[] = $fieldname.$searchstring;
 		
+		if ($scope) {
+			$search = zz_search_scope($field, $table, $scope);
+		} else {
+			if ($field['type'] === 'subtable') $search = 'subtable';
+			else $search = 'field';
+		}
+		$subsearch = false;
+		switch ($search) {
+		case 'field':
+			$subsearch = zz_search_field($field, $table, $searchop, $searchword);
+			break;
+		case 'subtable':
+			$subsearch = zz_search_subtable($field, $table, $main_id_fieldname);
+			break;
+		default:
+			continue;
+		}
+		if ($subsearch) $q_search[] = $subsearch;
 		// additional between search
 		if (isset($field['search_between'])) {
 			$q_search[] = sprintf($field['search_between'], '"'.$searchword.'"', '"'.$searchword.'"');
 		}
 	}
-	$q_search = '('.implode(' OR ', $q_search).')';
+
+	if ($scope AND !$search) 
+		$zz_conf['int']['http_status'] = 404;
+
+	if ($q_search) {
+		$q_search = '('.implode(' OR ', $q_search).')';
+	} else {
+		$q_search = 'NULL';
+	}
 	$sql = zz_edit_sql($sql, 'WHERE', $q_search);
 
 	if ($zz_conf['modules']['debug']) zz_debug("end; search query", $sql);
 	return $sql;
+}
+
+/**
+ * get part of SQL query for search in a field
+ *
+ * @param array $field field definition
+ * @param string $table
+ * @param string $searchop
+ * @param string $searchword
+ * @return string part of query
+ */
+function zz_search_field($field, $table, $searchop, $searchword) {
+	// get field name
+	if (isset($field['search'])) {
+		$fieldname = $field['search'];
+	} elseif (isset($field['display_field'])) {
+		// it makes more sense to search through values than IDs
+		$fieldname = $field['display_field'];
+	} elseif (!empty($field['field_name'])) {
+		// standard: use table- and field name
+		$fieldname = $table.'.'.$field['field_name'];
+		if ($searchword) {
+			$searchword = zz_search_checkfield($field['field_name'], $table, $searchword);
+			if (!$searchword) return '';
+		}
+	} else {
+		return '';
+	}
+
+	// get searchword/operator, per field type
+	$datetime = in_array($field['type'], array('date', 'datetime', 'time', 'timestamp')) ? true : false;
+	if ($datetime and $searchword AND !is_array($searchword)) {
+		$timesearch = zz_search_time($searchword);
+		if ($timesearch) {
+			switch ($field['type']) {
+			case 'datetime':
+				$searchword = date('Y-m-d', $timesearch).'%';
+				if ($searchop == '%LIKE%') $searchop = 'LIKE%';
+				break;
+			case 'time':
+				$searchword = date('H:i:s', $timesearch);
+				if ($searchop == '%LIKE%') $searchop = '=';
+				break;
+			case 'date':
+				$searchword = date('Y-m-d', $timesearch);
+				if ($searchop == '%LIKE%') $searchop = '=';
+				break;
+			}
+		} elseif (preg_match('/q\d(.)[0-9]{4}/i', $searchword, $separator)) {
+			$searchword = trim(substr($searchword, 1));
+			$searchword = explode($separator[1], $searchword);
+			$searchop = "QUARTER";
+		}
+	}
+
+	// build search query part
+	switch ($searchop) {
+	case 'NULL':
+		if (!zz_db_field_null($field['field_name'], $table)) return '';
+		return sprintf('ISNULL(%s)', $fieldname);
+	case '!NULL':
+		if (!zz_db_field_null($field['field_name'], $table)) return '';
+		return sprintf('!ISNULL(%s)', $fieldname);
+	case '<':
+		return sprintf('%s < "%s"', $fieldname, $searchword);
+	case '<=':
+		return sprintf('%s <= "%s"', $fieldname, $searchword);
+	case '>':
+		return sprintf('%s > "%s"', $fieldname, $searchword);
+	case '>=':
+		return sprintf('%s >= "%s"', $fieldname, $searchword);
+	case 'BETWEEN':
+		return sprintf('%s >= "%s" AND %s <= "%s"', $fieldname, $searchword[0],
+			$fieldname, $searchword[1]);
+	case 'QUARTER':
+		// todo: improve to use indices, BETWEEN year_begin and year_end ...
+		return sprintf('(YEAR(%s) = "%s" AND QUARTER(%s) = "%s")', $fieldname, 
+			$searchword[1], $fieldname, $searchword[0]);
+	case '=':
+		return sprintf('%s = "%s"', $fieldname, $searchword);
+	case '%LIKE':
+		return sprintf('%s LIKE "%%%s"', $fieldname, $searchword);
+	case 'LIKE%':
+		return sprintf('%s LIKE "%s%%"', $fieldname, $searchword);
+	case '%LIKE%':
+	default:
+		return sprintf('%s LIKE "%%%s%%"', $fieldname, $searchword);
+	}
+	return '';
+}
+
+/**
+ * check if field_name matches scope
+ *
+ * @param array $field field defintion
+ * @param string $scope
+ * @return string where to search: field | subtable
+ */
+function zz_search_scope($field, $table, $scope) {
+	$search_field = false;
+	if (!isset($field['sql']) AND !empty($field['field_name'])) {
+		// check if scope = field_name but don't search in IDs
+		// check if scope = table.field_name but don't search in IDs
+		if ($scope === $field['field_name']) {
+			$search_field = true;
+		} elseif ($scope === $table.'.'.$field['field_name']) {
+			$search_field = true;
+		}
+	} elseif (isset($field['display_field']) AND $scope === $field['display_field']) {
+		$search_field = true;
+	}
+
+	if ($search_field)
+		return 'field';
+	if (isset($field['table_name']) AND $scope === $field['table_name'])
+		return 'subtable';
+	return false;
 }
 
 /**
@@ -1784,6 +1849,74 @@ function zz_search_time($searchword) {
 	if (is_array($searchword)) return false;
 	if (preg_match('/^\d{1,4}-*\d{0,2}-*\d{0,2}$/', trim($searchword))) return false;
 	return strtotime($searchword);
+}
+
+/**
+ * checks whether search string will match field at all
+ * removes it from search query if not
+ *
+ * @param string $field_name
+ * @param string $table
+ * @param string $searchword
+ */
+function zz_search_checkfield($field_name, $table, $searchword) {
+	$column = zz_db_columns($table, $field_name);
+	$type = $column['Type'];
+	if ($pos = strpos($type, '('))
+		$type = substr($type, 0, $pos);
+	$unsigned = substr($column['Type'], -8) == 'unsigned' ? true: false;
+	
+	// check if numeric value
+	switch ($type) {
+	case 'int':
+	case 'tinyint':
+	case 'smallint':
+	case 'mediumint':
+	case 'bigint':
+	case 'decimal':
+	case 'float':
+	case 'double':
+	case 'real':
+		if (strstr($searchword, ',')) {
+			// oversimple solution for . or , as decimal separator
+			// now you won't be able to search for 1,000,000 etc.
+			$number = str_replace(',', '.', $searchword);
+			if (is_numeric($number)) {
+				$searchword = $number;
+			}
+		}
+		if (!is_numeric($searchword)) return false;
+		if ($unsigned AND substr($searchword, 0, 1) == '-') return false;
+		break;
+	case 'binary':
+	case 'varbinary':
+	case 'tinyblob':
+	case 'mediumblob':
+	case 'longblob':
+		// no search here
+		return false;
+
+	case 'enum':
+	case 'set':
+		break;
+	case 'geometry':
+	case 'point':
+	case 'linestring':
+	case 'polygon':
+	case 'multipoint':
+	case 'multilinestring':
+	case 'multipolygon':
+	case 'geometrycollection':
+		return false;
+	default:
+		break;
+	}
+
+	// BIT BOOLEAN SERIAL
+	// DATE DATETIME TIMESTAMP TIME YEAR
+	// CHAR VARCHAR TEXT TINYTEXT MEDIUMTEXT LONGTEXT
+
+	return $searchword;
 }
 
 /**
