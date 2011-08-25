@@ -64,65 +64,67 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 					if ($zz_error['error']) return zz_return($zz_conditions); // DB error
 				}
 			}
-			if ($mode != 'list_only' AND !empty($zz_var['id']['value'])) {
-				$sql = $zz['sql'];
-				if (!empty($condition['where']))
-					$sql = zz_edit_sql($sql, 'WHERE', $condition['where']);
-				if (!empty($condition['having']))
-					$sql = zz_edit_sql($sql, 'HAVING', $condition['having']);
-				// just get this single record
-				$sql = zz_edit_sql($sql, 'WHERE', '`'.$zz['table'].'`.`'
-					.$zz_var['id']['field_name'].'` = '.$zz_var['id']['value']);
-				$lines = zz_db_fetch($sql, $zz_var['id']['field_name'], 'id as key', 'record-list ['.$index.']');
-				if ($zz_error['error']) return zz_return($zz_conditions); // DB error
-				if (empty($zz_conditions['bool'][$index]))
-					$zz_conditions['bool'][$index] = $lines;
-				else
-					$zz_conditions['bool'][$index] = zz_array_merge($zz_conditions['bool'][$index], $lines);
-			}
+			if ($mode === 'list_only') break;
+			if (empty($zz_var['id']['value'])) break;
+
+			$sql = $zz['sql'];
+			if (!empty($condition['where']))
+				$sql = zz_edit_sql($sql, 'WHERE', $condition['where']);
+			if (!empty($condition['having']))
+				$sql = zz_edit_sql($sql, 'HAVING', $condition['having']);
+			// just get this single record
+			$sql = zz_edit_sql($sql, 'WHERE', '`'.$zz['table'].'`.`'
+				.$zz_var['id']['field_name'].'` = '.$zz_var['id']['value']);
+			$lines = zz_db_fetch($sql, $zz_var['id']['field_name'], 'id as key', 'record-list ['.$index.']');
+			if ($zz_error['error']) return zz_return($zz_conditions); // DB error
+			if (empty($zz_conditions['bool'][$index]))
+				$zz_conditions['bool'][$index] = $lines;
+			else
+				$zz_conditions['bool'][$index] = zz_array_merge($zz_conditions['bool'][$index], $lines);
 			break;
 		case 'query': // just for form view (of saved records), for list view will be later in zz_list()
 			$zz_conditions['bool'][$index] = array();
-			if ($mode != 'list_only' AND !empty($zz_var['id']['value'])) {
-				$sql = zz_edit_sql($condition['sql'], 'WHERE', $condition['key_field_name'].' = '.$zz_var['id']['value']);
-				$lines = zz_db_fetch($sql, $condition['key_field_name'], 'id as key', 'query ['.$index.']');
-				if ($zz_error['error']) return zz_return($zz_conditions); // DB error
-				if (empty($zz_conditions['bool'][$index]))
-					$zz_conditions['bool'][$index] = $lines;
-				else
-					$zz_conditions['bool'][$index] = zz_array_merge($zz_conditions['bool'][$index], $lines);
-			}
+			if ($mode === 'list_only') break;
+			if (empty($zz_var['id']['value'])) break;
+
+			$sql = zz_edit_sql($condition['sql'], 'WHERE', $condition['key_field_name'].' = '.$zz_var['id']['value']);
+			$lines = zz_db_fetch($sql, $condition['key_field_name'], 'id as key', 'query ['.$index.']');
+			if ($zz_error['error']) return zz_return($zz_conditions); // DB error
+			if (empty($zz_conditions['bool'][$index]))
+				$zz_conditions['bool'][$index] = $lines;
+			else
+				$zz_conditions['bool'][$index] = zz_array_merge($zz_conditions['bool'][$index], $lines);
 			break;
 		case 'value': // just for record view
 			$zz_conditions['values'][$index] = array();
-			if ($mode != 'list_only') {
-				// get value for $condition['field_name']
-				$value = false;
-				if (!empty($zz_var['zz_fields'][$condition['field_name']])) {
-					// Add, so get it from session
-					$value = $zz_var['zz_fields'][$condition['field_name']]['value'];
-				} elseif (!empty($zz_var['where'][$zz['table']][$condition['field_name']])) {
-					$value = $zz_var['where'][$zz['table']][$condition['field_name']];
-				} else {
-					$sql = zz_edit_sql($zz['sql'], 'WHERE', $zz['table'].'.'
-						.$zz_var['id']['field_name'].' = '.$zz_var['id']['value']);
-					$line = zz_db_fetch($sql, '', '', 'value/1 ['.$index.']');
-					if ($zz_error['error']) return zz_return($zz_conditions); // DB error
-					if ($line) {
-						$value = $line[$condition['field_name']];
-					} else {
-						// attempt to try to delete/edit a value that does not exist
-						break; 
-					}
-				}
-				$sql = sprintf($condition['sql'], $value);
-				$lines = zz_db_fetch($sql, 'dummy_id', 'numeric', 'value/2 ['.$index.']');
+			if ($mode === 'list_only') break;
+
+			// get value for $condition['field_name']
+			$value = false;
+			if (!empty($zz_var['zz_fields'][$condition['field_name']])) {
+				// Add, so get it from session
+				$value = $zz_var['zz_fields'][$condition['field_name']]['value'];
+			} elseif (!empty($zz_var['where'][$zz['table']][$condition['field_name']])) {
+				$value = $zz_var['where'][$zz['table']][$condition['field_name']];
+			} else {
+				$sql = zz_edit_sql($zz['sql'], 'WHERE', $zz['table'].'.'
+					.$zz_var['id']['field_name'].' = '.$zz_var['id']['value']);
+				$line = zz_db_fetch($sql, '', '', 'value/1 ['.$index.']');
 				if ($zz_error['error']) return zz_return($zz_conditions); // DB error
-				if (empty($zz_conditions['values'][$index]))
-					$zz_conditions['values'][$index] = $lines;
-				else
-					$zz_conditions['values'][$index] = array_merge($zz_conditions['values'][$index], $lines);
+				if ($line) {
+					$value = $line[$condition['field_name']];
+				} else {
+					// attempt to try to delete/edit a value that does not exist
+					break; 
+				}
 			}
+			$sql = sprintf($condition['sql'], $value);
+			$lines = zz_db_fetch($sql, 'dummy_id', 'numeric', 'value/2 ['.$index.']');
+			if ($zz_error['error']) return zz_return($zz_conditions); // DB error
+			if (empty($zz_conditions['values'][$index]))
+				$zz_conditions['values'][$index] = $lines;
+			else
+				$zz_conditions['values'][$index] = array_merge($zz_conditions['values'][$index], $lines);
 			break;
 		case 'upload': // just for form view
 			$zz_conditions['uploads'][$index] = array();
@@ -130,25 +132,21 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 			foreach ($zz['fields'] as $f => $field) {
 				if (!empty($field['type']) AND $field['type'] == 'upload_image') {
 					foreach ($subfield['image'] as $key => $upload_image) {
-						if (!empty($upload_image['save_as_record'])) {
-							$upload_image['table_no'] = 0;
-							$upload_image['field_no'] = $f;
-							$upload_image['image_no'] = $key;
-							$zz_conditions['fields'][$index][] = $upload_image;
-						}
+						if (empty($upload_image['save_as_record'])) continue;
+						$zz_conditions['fields'][$index][] = array(
+							'table_no' => 0, 'field_no' => $f, 'image_no' => $key
+						);
 					}
 				} elseif (!empty($field['type']) AND $field['type'] == 'subtable') {
 					$table++;
 					foreach ($field['fields'] as $subf => $subfield) {
-						if (!empty($subfield['type']) AND $subfield['type'] == 'upload_image') {
-							foreach ($subfield['image'] as $key => $upload_image) {
-								if (!empty($upload_image['save_as_record'])) {
-									$upload_image['table_no'] = $table;
-									$upload_image['field_no'] = $subf;
-									$upload_image['image_no'] = $key;
-									$zz_conditions['fields'][$index][] = $upload_image;
-								}
-							}
+						if (empty($subfield['type'])) continue;
+						if ($subfield['type'] !== 'upload_image') continue;
+						foreach ($subfield['image'] as $key => $upload_image) {
+							if (empty($upload_image['save_as_record'])) continue;
+							$zz_conditions['fields'][$index][] = array(
+								'table_no' => $table, 'field_no' => $subf, 'image_no' => $key
+							);
 						}
 					}
 				}
