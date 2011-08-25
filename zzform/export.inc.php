@@ -75,6 +75,9 @@ function zz_export_init($ops) {
 	$zz_conf['group'] = false; // no grouping in export files
 
 	switch ($export) {
+	case 'kml':
+		// always use UTF-8
+		mysql_query('SET NAMES UTF8');
 	case 'csv':
 		$zz_conf['int']['this_limit'] = false; 	// always export all records
 		break;
@@ -265,6 +268,7 @@ function zz_export_kml($ops) {
  * @return string HTML output, definition list	
  */
 function zz_export_kml_description($head, $line, $fields) {
+	global $zz_conf;
 	$set = array('title', 'longitude', 'latitude', 'altitude', 'point');
 	foreach ($set as $field) {
 		if (!isset($fields[$field])) continue;
@@ -272,9 +276,12 @@ function zz_export_kml_description($head, $line, $fields) {
 	}
 	$desc = array();
 	foreach ($line as $no => $values) {
+		if (!is_numeric($no)) continue;
 		if (empty($values['text'])) continue;
-		$desc[] = '<tr><th>'.(!empty($head[$no]['title_kml']) ? $head[$no]['title_kml'] : $head[$no]['title'])
-			.'</th><td>'.$values['text'].'</td></tr>';
+		$title = (!empty($head[$no]['title_kml']) ? $head[$no]['title_kml'] : $head[$no]['title']);
+		if ($zz_conf['character_set'] != 'utf-8')
+			$title = utf8_encode($title);
+		$desc[] = '<tr><th>'.$title.'</th><td>'.$values['text'].'</td></tr>';
 	}
 	return '<table class="kml_description">'.implode("\n", $desc).'</table>';
 }
