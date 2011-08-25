@@ -1674,6 +1674,7 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 	// fields that won't be used for search
 	$unsearchable_fields = array('image', 'calculated', 'timestamp', 'upload_image', 'option'); 
 	$search = false;
+	$found = false;
 	foreach ($fields as $field) {
 		if (empty($field)) continue;
 		// this field is explicitly excluded from search
@@ -1692,9 +1693,11 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 		switch ($search) {
 		case 'field':
 			$subsearch = zz_search_field($field, $table, $searchop, $searchword);
+			$found = true;
 			break;
 		case 'subtable':
 			$subsearch = zz_search_subtable($field, $table, $main_id_fieldname);
+			$found = true;
 			break;
 		default:
 			continue;
@@ -1706,7 +1709,7 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 		}
 	}
 
-	if ($scope AND !$search) 
+	if ($scope AND !$found) 
 		$zz_conf['int']['http_status'] = 404;
 
 	if ($q_search) {
