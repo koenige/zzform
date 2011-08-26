@@ -148,7 +148,7 @@ function zz_export_links($url, $querystring) {
 		$unwanted_querystrings[] = 'order';
 		$unwanted_querystrings[] = 'dir';
 	}
-	$querystring = zz_edit_query_string($query_string, $unwanted_querystrings);
+	$querystring = zz_edit_query_string($querystring, $unwanted_querystrings);
 	if (!is_array($zz_conf['export']))
 		$zz_conf['export'] = array($zz_conf['export']);
 	foreach ($zz_conf['export'] as $type => $exportmode) {
