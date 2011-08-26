@@ -53,13 +53,14 @@ function zz_export_init($ops) {
 		$zz_conf['export'] = array($zz_conf['export']);
 	}
 	foreach ($zz_conf['export'] as $type => $mode) {
-		if ($_GET['export'] != strtolower($mode)) continue;
+		$mode = strtolower($mode);
+		if ($_GET['export'] != $mode) continue;
 		if (is_numeric($type)) {
-			$export = strtolower($mode);
+			$export = $mode;
 			$zz_conf['int']['export_script'] = '';
 		} else {
 			$export = strtolower($type);
-			$zz_conf['int']['export_script'] = strtolower($mode);
+			$zz_conf['int']['export_script'] = $mode;
 		}
 	}
 	if (!in_array($export, $zz_conf['int']['allowed_params']['export'])) {
@@ -81,9 +82,8 @@ function zz_export_init($ops) {
 		mysql_query('SET NAMES UTF8');
 	case 'csv':
 	case 'pdf':
-		// always export all records, don't add query string to link (limit, order)
+		// always export all records
 		$zz_conf['int']['this_limit'] = false; 
-		$zz_conf['int']['link_remove_limit_order'] = true;
 		break;
 	}
 
@@ -143,18 +143,25 @@ function zz_export_links($url, $querystring) {
 	
 	// remove some querystrings which have no effect anyways
 	$unwanted_querystrings = array('nolist', 'debug', 'referer');
-	if (!empty($zz_conf['int']['link_remove_limit_order'])) {
-		$unwanted_querystrings[] = 'limit';
-		$unwanted_querystrings[] = 'order';
-		$unwanted_querystrings[] = 'dir';
-	}
 	$querystring = zz_edit_query_string($querystring, $unwanted_querystrings);
+
 	if (!is_array($zz_conf['export']))
 		$zz_conf['export'] = array($zz_conf['export']);
-	foreach ($zz_conf['export'] as $type => $exportmode) {
-		if (is_numeric($type)) $type = $exportmode;
-		else $type = $exportmode.', '.$type;
-		$links[] = sprintf($html, $url, strtolower($exportmode), $querystring, $type);
+	foreach ($zz_conf['export'] as $type => $mode) {
+		switch ($mode) {
+		case 'csv':
+		case 'pdf':
+			$unwanted_querystrings = array('limit', 'order', 'dir');
+			$qs = zz_edit_query_string($querystring, $unwanted_querystrings);
+			break;
+		default:
+			$qs = $querystring;
+			break;
+		}
+		$qs = '&amp;'.substr($qs, 1);
+		if (is_numeric($type)) $type = $mode;
+		else $type = $mode.', '.$type;
+		$links[] = sprintf($html, $url, strtolower($mode), $qs, $type);
 	}
 	return $links;
 }
