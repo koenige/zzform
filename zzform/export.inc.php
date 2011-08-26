@@ -80,6 +80,7 @@ function zz_export_init($ops) {
 	case 'kml':
 		// always use UTF-8
 		mysql_query('SET NAMES UTF8');
+		break;
 	case 'csv':
 	case 'pdf':
 		// always export all records
