@@ -143,23 +143,13 @@ function zz_export_links($url, $querystring) {
 	$html = '<a href="%sexport=%s%s">'.zz_text('Export').' (%s)</a>';
 	
 	// remove some querystrings which have no effect anyways
-	$unwanted_querystrings = array('nolist', 'debug', 'referer');
-	$querystring = zz_edit_query_string($querystring, $unwanted_querystrings);
+	$unwanted_querystrings = array('nolist', 'debug', 'referer', 'limit', 'order', 'dir');
+	$qs = zz_edit_query_string($querystring, $unwanted_querystrings);
+	$qs = '&amp;'.substr($qs, 1);
 
 	if (!is_array($zz_conf['export']))
 		$zz_conf['export'] = array($zz_conf['export']);
 	foreach ($zz_conf['export'] as $type => $mode) {
-		switch ($mode) {
-		case 'csv':
-		case 'pdf':
-			$unwanted_querystrings = array('limit', 'order', 'dir');
-			$qs = zz_edit_query_string($querystring, $unwanted_querystrings);
-			break;
-		default:
-			$qs = $querystring;
-			break;
-		}
-		$qs = '&amp;'.substr($qs, 1);
 		if (is_numeric($type)) $type = $mode;
 		else $type = $mode.', '.$type;
 		$links[] = sprintf($html, $url, strtolower($mode), $qs, $type);
