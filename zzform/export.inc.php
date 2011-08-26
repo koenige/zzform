@@ -64,7 +64,8 @@ function zz_export_init($ops) {
 	}
 	if (!in_array($export, $zz_conf['int']['allowed_params']['export'])) {
 		$zz_error[] = array(
-			'msg_dev' => 'Export parameter not allowed: <code>'.($export ? $export : $_GET['export']).'</code>',
+			'msg_dev' => 'Export parameter not allowed: <code>'
+				.($export ? $export : htmlspecialchars($_GET['export'])).'</code>',
 			'level' => E_USER_NOTICE
 		);
 		return $ops;
@@ -79,10 +80,10 @@ function zz_export_init($ops) {
 		// always use UTF-8
 		mysql_query('SET NAMES UTF8');
 	case 'csv':
-		$zz_conf['int']['this_limit'] = false; 	// always export all records
-		break;
 	case 'pdf':
-		$zz_conf['int']['this_limit'] = false; 	// always export all records
+		// always export all records, don't add query string to link (limit, order)
+		$zz_conf['int']['this_limit'] = false; 
+		$zz_conf['int']['link_remove_limit_order'] = true;
 		break;
 	}
 
@@ -138,9 +139,18 @@ function zz_make_headers($export, $charset) {
 function zz_export_links($url, $querystring) {
 	global $zz_conf;
 	$links = false;
+	$html = '<a href="%sexport=%s%s">'.zz_text('Export').' (%s)</a>';
+	
+	// remove some querystrings which have no effect anyways
+	$unwanted_querystrings = array('nolist', 'debug', 'referer');
+	if (!empty($zz_conf['int']['link_remove_limit_order'])) {
+		$unwanted_querystrings[] = 'limit';
+		$unwanted_querystrings[] = 'order';
+		$unwanted_querystrings[] = 'dir';
+	}
+	$querystring = zz_edit_query_string($query_string, $unwanted_querystrings);
 	if (!is_array($zz_conf['export']))
 		$zz_conf['export'] = array($zz_conf['export']);
-	$html = '<a href="%sexport=%s%s">'.zz_text('Export').' (%s)</a>';
 	foreach ($zz_conf['export'] as $type => $exportmode) {
 		if (is_numeric($type)) $type = $exportmode;
 		else $type = $exportmode.', '.$type;
