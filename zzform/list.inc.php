@@ -2213,6 +2213,7 @@ function zz_list_field_level($field, $line) {
 	if (!isset($line['zz_level'])) return '';
 
 	global $zz_conf;
+	if (!empty($field['decrease_level'])) $line['zz_level'] -= $field['decrease_level'];
 
 	if (!empty($field['field_name']) // occurs in case of subtables
 		AND $field['field_name'] == $zz_conf['hierarchy']['display_in']) {
