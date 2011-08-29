@@ -3010,7 +3010,7 @@ function zz_create_topfolders($my_dir) {
 function zz_text($string) {
 	static $text;				// $text will only be available to this function
 	global $zz_conf;
-	if (!$zz_conf['generate_output']) return $string;
+	if (empty($zz_conf['generate_output'])) return $string;
 
 	$language = isset($zz_conf['language']) ? $zz_conf['language'] : 'en';
 	if (isset($zz_conf['default_language_for'][$language]))
