@@ -224,8 +224,8 @@ function zz_output_redirect($result, $return, $id_value, $zz_tab) {
 		header('Location: '.$zz_conf['redirect'][$result]);
 		exit;
 	} elseif (!$zz_conf['debug'] AND $zz_conf['redirect_on_change']) {
-	// redirect to same URL, don't do so in case of debugging
-	// as to protect against reloading the POST variables
+	// redirect to same URL, as to protect against reloading the POST variables
+	// don't do so in case of debugging
 		$self = $zz_conf['int']['url']['full']
 			.$zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']
 			.($zz_conf['int']['url']['qs_zzform'] ? '&' : $zz_conf['int']['url']['?&'])
@@ -236,6 +236,26 @@ function zz_output_redirect($result, $return, $id_value, $zz_tab) {
 		}
 		switch ($result) {
 		case 'successful_delete':
+			if (!empty($zz_conf['redirect_to_referer_zero_records'])
+				AND !empty($zz_conf['int']['referer']['path'])) {
+				// redirect to referer if there are no records in list
+				$id_field_name = $zz_tab[0]['table'].'.'.$zz_tab[0][0]['id']['field_name'];
+				if (!zz_count_rows($zz_tab[0]['sql'], $id_field_name)) {
+					if (empty($zz_conf['int']['referer']['scheme'])) {
+						$self = $zz_conf['int']['url']['base'];
+					} else {
+						$self = $zz_conf['int']['referer']['scheme'].'://'
+							.$zz_conf['int']['referer']['host'];
+					}
+					$self .= $zz_conf['int']['referer']['path'];
+					if (empty($zz_conf['int']['referer']['query'])) {
+						$self .= '?';
+					} else {
+						$self .= $zz_conf['int']['referer']['query'].'&';
+					}
+					$self .= 'zzaction=';
+				}
+			}
 			zz_http_status_header(303);
 			header('Location: '.$self.'delete');
 			exit;
@@ -703,15 +723,15 @@ function zz_init_referer() {
 	elseif (isset($_SERVER['HTTP_REFERER']))
 		$zz_conf['referer'] = $_SERVER['HTTP_REFERER'];
 	// remove 'zzaction' from referer if set
-	$zz_conf['referer'] = parse_url($zz_conf['referer']);
-	if (!empty($zz_conf['referer']['query'])) {
-		$zz_conf['referer']['query'] = zz_edit_query_string($zz_conf['referer']['query'], array('zzaction'));
-		$zz_conf['referer']['query'] = str_replace('&amp;', '&', $zz_conf['referer']['query']);
+	$zz_conf['int']['referer'] = parse_url($zz_conf['referer']);
+	if (!empty($zz_conf['int']['referer']['query'])) {
+		$zz_conf['int']['referer']['query'] = zz_edit_query_string($zz_conf['int']['referer']['query'], array('zzaction'));
+		$zz_conf['int']['referer']['query'] = str_replace('&amp;', '&', $zz_conf['int']['referer']['query']);
 	}
 	$zz_conf['referer'] = (
-		(!empty($zz_conf['referer']['scheme']) ? $zz_conf['referer']['scheme'].'://'
-		.$zz_conf['referer']['host'] : '').$zz_conf['referer']['path']
-		.(!empty($zz_conf['referer']['query']) ? $zz_conf['referer']['query'] : ''));
+		(!empty($zz_conf['int']['referer']['scheme']) ? $zz_conf['int']['referer']['scheme'].'://'
+		.$zz_conf['int']['referer']['host'] : '').$zz_conf['int']['referer']['path']
+		.(!empty($zz_conf['int']['referer']['query']) ? $zz_conf['int']['referer']['query'] : ''));
 	$zz_conf['int']['referer_esc'] = str_replace('&', '&amp;', $zz_conf['referer']);
 }
 
