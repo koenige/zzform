@@ -46,6 +46,8 @@ div.text #zzform, #zzform div.text
 					{ border-top: none; }
 #zzform #record table table
 					{ margin: 0 0 .5em; border-collapse: collapse; }
+#zzform #record table .detailrecord table
+					{ float: left; }
 #zzform #record table table th
 					{ font-weight: normal; }
 #zzform #record tfoot th, #zzform #record tfoot td
