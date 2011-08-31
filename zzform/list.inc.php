@@ -2085,7 +2085,7 @@ function zz_count_rows($sql, $id_field) {
 	// if it's not a SELECT DISTINCT, we can use COUNT, that's faster
 	// GROUP BY also does not work with COUNT
 	if (substr($sql, 0, 15) != 'SELECT DISTINCT'
-		AND !stristr($sql, 'GROUP BY')) {
+		AND !stristr($sql, 'GROUP BY') AND !stristr($sql, 'HAVING')) {
 		$sql = zz_edit_sql($sql, 'ORDER BY', '_dummy_', 'delete');
 		$sql = zz_edit_sql($sql, 'SELECT', 'COUNT('.$id_field.')', 'replace');
 		// unnecessary LEFT JOINs may slow down query
