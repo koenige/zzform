@@ -40,10 +40,9 @@ $text['record_was_inserted'] = 'Wpis zosta³ dodany';
 
 // Record form: bottom
 $text['Cancel'] = 'Anuluj'; // Stop editing this record
-$text['update_to'] = 'Zmieñ na';
-$text['delete_from'] = 'Usuñ z';
-$text['add_to'] = 'Do³±cz do';
-$text['database'] = 'Bazy danych';
+$text['Update record'] = 'Zmieñ na bazy danych';
+$text['Delete record'] = 'Usuñ z bazy danych';
+$text['Add record'] = 'Do³±cz do bazy danych';
 
 // Record form: field output
 	$text['N/A'] = '<abbr title="Not available">N/A</abbr>'; // no value available for display, should be abbreviated

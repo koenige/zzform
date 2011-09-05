@@ -46,10 +46,9 @@ $text['record_was_inserted'] = 'Pøíspìvek byl ulo¾en';
 // Record form: bottom
 $text['Cancel'] = 'Storno'; // Stop editing this record
 //	$text['OK'] = 'OK';
-$text['update_to'] = 'Aktualizovat k';
-$text['delete_from'] = 'Vymazat z';
-$text['add_to'] = 'Pøidat k';
-$text['database'] = 'Databáze';
+$text['Update record'] = 'Aktualizovat k databáze';
+$text['Delete record'] = 'Vymazat z databáze';
+$text['Add record'] = 'Pøidat k databáze';
 
 // Record form: field output
 $text['N/A'] = '<abbr title="Not available">N/A</abbr>'; // no value available for display, should be abbreviated

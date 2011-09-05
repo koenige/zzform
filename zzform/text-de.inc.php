@@ -46,10 +46,9 @@ $text['record_was_inserted'] = 'Eintrag wurde eingef&uuml;gt';
 // Record form: bottom
 $text['Cancel'] = 'Abbrechen'; // Stop editing this record
 	$text['OK'] = 'OK';
-$text['update_to'] = 'Aktualisieren der';
-$text['delete_from'] = 'L&ouml;schen aus der';
-$text['add_to'] = 'Hinzuf&uuml;gen zur';
-$text['database'] = 'Datenbank';
+$text['Update record'] = 'Eintrag aktualisieren';
+$text['Delete record'] = 'Eintrag l&ouml;schen';
+$text['Add record'] = 'Eintrag hinzuf&uuml;gen';
 
 // Record form: field output
 $text['N/A'] = '<abbr title="keine Angabe">k.&nbsp;A.</abbr>'; // no value available for display, should be abbreviated

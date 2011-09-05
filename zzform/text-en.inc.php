@@ -42,10 +42,9 @@ $text['record_was_inserted'] = 'Record was inserted';
 
 // Record form: bottom
 $text['Cancel'] = 'Cancel'; // Stop editing this record
-$text['update_to'] = 'Update';
-$text['delete_from'] = 'Delete from';
-$text['add_to'] = 'Add to';
-$text['database'] = 'Database';
+$text['Update record'] = 'Update record';
+$text['Delete record'] = 'Delete record';
+$text['Add record'] = 'Add record';
 
 // Record form: field output
 $text['N/A'] = '<abbr title="Not available">N/A</abbr>'; // no value available for display, should be abbreviated
