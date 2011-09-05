@@ -1320,8 +1320,24 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 		}
 		if (!$append_next) $matrix[] = $out;
 	}
+	$output = zz_output_field_rows($matrix, $zz_var, $formdisplay, $extra_lastcol);
+	return zz_return($output);
+}
+
+/**
+ * HTML output of table rows for form
+ *
+ * @param array $matrix matrix of rows
+ * @param array $zz_var 'class_add', 'horizontal_table_head'
+ * @param string $formdisplay vertical | horizontal
+ * @param string $extra_lastcol (optional)
+ * @return string HTML output
+ */
+function zz_output_field_rows($matrix, &$zz_var, $formdisplay, $extra_lastcol) {
 	$output = false;
-	if ($formdisplay == 'vertical') {
+	
+	switch ($formdisplay) {
+	case 'vertical':
 		foreach ($matrix as $index => $row) {
 			$output .= '<tr'.zz_show_class($row['tr']['attr']).'>';
 			if ($row['th']['show']) {
@@ -1334,7 +1350,8 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 				$output .= zz_show_separator($row['separator'], $index);
 			}
 		}
-	} elseif ($formdisplay == 'horizontal') {
+		break;
+	case 'horizontal':
 		if (!$zz_var['class_add'] AND !$zz_var['horizontal_table_head']) { 
 			// just first detail record with values: show head
 			$output .= '<tr>'."\n";
@@ -1354,8 +1371,9 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 		if ($extra_lastcol) $output .= '<td>'.$extra_lastcol.'</td>';
 		$output .= '</tr>'."\n";
 		if ($row['separator']) $output .= zz_show_separator($row['separator'], 1, count($matrix));
+		break;
 	}
-	return zz_return($output);
+	return $output;
 }
 
 /**
