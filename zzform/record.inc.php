@@ -319,28 +319,17 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 		? $zz_var['where'][$zz_tab[$tab]['table_name']] : array());
 	$row_display = ($my_rec['access'] ? $my_rec['access'] : $display); // this is for 0 0 main record
 
-	// check if there's a filter with a field_name 
-	// this field will get the filter value as default value
-	$filter_field_name = array();
-	$unwanted_filter_values = array('NULL', '!NULL');
-	if (!empty($_GET['filter'])) {
-		foreach (array_keys($_GET['filter']) AS $filter_identifier) {
-			foreach ($zz_conf['filter'] as $filter) {
-				if ($filter['identifier'] == $filter_identifier
-					AND !empty($filter['field_name']) 
-					AND !in_array($_GET['filter'][$filter_identifier], $unwanted_filter_values))
-				{
-					$filter_field_name[$filter_identifier] = $filter['field_name'];
-				}
-			}
-		}
-	}
-	
 	if (!empty($my_rec['fields'])) foreach ($my_rec['fields'] as $fieldkey => $field) {
 		if (!$field) continue;
 		if (!empty($field['hide_in_form'])) continue;
 		if (!empty($field['hide_in_form_add']) 
 			AND empty($zz_tab[$sub_tab][$sub_rec]['id']['value'])) continue;
+		if ($field['type'] == 'foreign_key' 
+			OR $field['type'] == 'translation_key' 
+			OR $field['type'] == 'detail_key') {
+			// this must not be displayed, for internal link only
+			continue; 
+		}
 
 		// initialize variables
 		if (!$append_next) {
@@ -373,6 +362,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 				.(ucfirst($field['format']))
 				.(!empty($zz_conf['format'][$field['format']]['link']) ? '</a>' : '').']';
 		}
+
 		if ($field['type'] == 'subtable') {
 			$sub_tab = $field['subtable'];
 			if (empty($field['title_button'])) $field['title_button'] = strip_tags($field['title']); 
@@ -524,10 +514,6 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 				$out['td']['content'] .= '<p class="explanation">'.$field['explanation'].'</p>';
 			if (!empty($field['separator']))
 				$out['separator'] = $field['separator'];
-		} elseif ($field['type'] == 'foreign_key' 
-			OR $field['type'] == 'translation_key' 
-			OR $field['type'] == 'detail_key') {
-			continue; // this must not be displayed, for internal link only
 		} else {
 //	"Normal" field
 			// option fields must have type_detail set, these are normal fields in form view
@@ -631,12 +617,12 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 				elseif (!isset($field['type_detail'])) $field['type_detail'] = false;
 				$field['type'] = 'predefined';
 			}
-			// Check if filter is applied to this field, set filter value as default value
-			if (in_array($field['field_name'], $filter_field_name) AND empty($field['value'])) {
-				if (!empty($_GET['filter'][array_search($field['field_name'], $filter_field_name)])) {
-					$field['default'] = $_GET['filter'][array_search($field['field_name'], $filter_field_name)];
-				}
+			if (empty($field['value'])) {
+				// Check if filter is applied to this field, set filter value as default value
+				$default = zz_record_filter_as_default($field['field_name']);
+				if ($default) $field['default'] = $default;
 			}
+
 			if (!empty($field['default']) AND empty($field['value'])) {
 				// look at default only if no value is set - value overrides default
 				if (($mode == 'add' && !$my_rec['record']) OR !empty($is_option)
@@ -1397,6 +1383,34 @@ function zz_output_subtable_submit($mode, $title, $tab, $rec = 0) {
 		break;
 	}
 	return '';
+}
+
+/**
+ * returns filter value as default, if set
+ *
+ * @param string $field_name
+ * @global array $zz_conf
+ * @return string
+ */
+function zz_record_filter_as_default($field_name) {
+	if (empty($_GET['filter'])) return false;
+	global $zz_conf;
+	if (empty($zz_conf['filter'])) return false;
+
+	// check if there's a filter with a field_name 
+	// this field will get the filter value as default value
+	$filter_field_name = array();
+	$unwanted_filter_values = array('NULL', '!NULL');
+	foreach (array_keys($_GET['filter']) AS $filter_identifier) {
+		foreach ($zz_conf['filter'] as $filter) {
+			if ($filter_identifier !== $filter['identifier']) continue;
+			if (empty($filter['field_name'])) continue;
+			if ($filter['field_name'] !== $field_name) continue;
+			if (in_array($_GET['filter'][$filter_identifier], $unwanted_filter_values)) continue;
+			return $_GET['filter'][$filter_identifier];
+		}
+	}
+	return false;
 }
 
 /**
