@@ -203,7 +203,7 @@ function zz_display_records($mode, $zz_tab, $display, $zz_var, $zz_conditions) {
 		else 						$output.= zz_text('Add record').' ';
 		if ($mode == 'delete') $accesskey = 'd';
 		$output.= '" accesskey="'.$accesskey.'">';
-		if (($cancelurl != $_SERVER['REQUEST_URI'] OR ($zz_var['action']))
+		if (($cancelurl != $_SERVER['REQUEST_URI'] OR ($zz_var['action']) OR !empty($_POST))
 			AND $zz_conf_record['cancel_link']) 
 			// only show cancel link if it is possible to hide form 
 			// todo: expanded to action, not sure if this works on add only forms, 
@@ -393,13 +393,13 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 			if (!(isset($field['show_title']) AND !$field['show_title']))
 				$out['th']['content'] .= $field['title'];
 			if (!empty($field['title_desc']) && $st_display == 'form') 
-				$out['th']['content'].= '<p class="desc">'.$field['title_desc'].'</p>';
+				$out['th']['content'] .= '<p class="desc">'.$field['title_desc'].'</p>';
 			if (empty($field['tick_to_save'])) {
 				// no formatting as a subtable if tick_to_save is used
 				$out['td']['attr'][] = 'subtable';
 			}
 			if ($st_display == 'form' && !empty($field['explanation_top']) && $show_explanation) 
-				$out['td']['content'].= '<p class="explanation">'.$field['explanation_top'].'</p>';
+				$out['td']['content'] .= '<p class="explanation">'.$field['explanation_top'].'</p>';
 			$subtables = array_keys($zz_tab[$sub_tab]);
 			foreach ($subtables as $this_rec => $values)
 				if (!is_numeric($subtables[$this_rec])) unset($subtables[$this_rec]);
@@ -470,10 +470,10 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 				}
 
 				if ($field['form_display'] != 'horizontal' OR $sub_rec == $firstsubtable_no) {
-					$out['td']['content'].= '<div class="detailrecord">';
+					$out['td']['content'] .= '<div class="detailrecord">';
 				}
 				if (!empty($field['tick_to_save'])) {
-					$out['td']['content'].= '<p class="tick_to_save"><input type="checkbox"'
+					$out['td']['content'] .= '<p class="tick_to_save"><input type="checkbox"'
 						.($show_tick ? ' checked="checked"' : '')
 						.($my_st_display != 'form' ? ' disabled="disabled"' : '')
 						.' name="zz_save_record['.$sub_tab.']['.$sub_rec
@@ -482,7 +482,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 				
 				// HTML output depending on form display
 				if ($field['form_display'] != 'horizontal' OR $sub_rec == $firstsubtable_no) {
-					$out['td']['content'].= '<table class="'.$field['form_display']
+					$out['td']['content'] .= '<table class="'.$field['form_display']
 						.($field['form_display'] != 'horizontal' ? ' '.$zz_var['class_add'] : '')
 						.'">'; // show this for vertical display and for first horizontal record
 					$table_open = true;
@@ -492,19 +492,16 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 				else
 					$h_show_explanation = false;
 				if ($show_remove) {
-					$removebutton = '<input type="submit" value="'
-						.sprintf(zz_text('Remove %s'), $field['title_button'])
-						.'" class="sub-remove" name="zz_subtables[remove]['
-						.$sub_tab.']['.$sub_rec.']">';
+					$removebutton = zz_output_subtable_submit('remove', $field['title_button'], $sub_tab, $sub_rec);
 					if ($field['form_display'] == 'horizontal') {
 						$lastrow = $removebutton;	
 					}
 				}	
-				$out['td']['content'].= zz_show_field_rows($zz_tab, $sub_tab, 
+				$out['td']['content'] .= zz_show_field_rows($zz_tab, $sub_tab, 
 					$sub_rec, $subtable_mode, $my_st_display, $zz_var, $zz_conf_record, 
 					$field['form_display'], $lastrow, $sub_rec, $h_show_explanation);
 				if ($field['form_display'] != 'horizontal') {
-					$out['td']['content'].= '</table></div>'."\n";
+					$out['td']['content'] .= '</table></div>'."\n";
 					$table_open = false;
 				}
 				if ($show_remove) {
@@ -514,20 +511,17 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 				}
 			}
 			if ($table_open) {
-				$out['td']['content'].= '</table></div>'."\n";
+				$out['td']['content'] .= '</table></div>'."\n";
 			}
 			if (!$c_subtables AND !empty($field['msg_no_subtables'])) {
 				// There are no subtables, optional: show a message here
-				$out['td']['content'].= $field['msg_no_subtables'];
+				$out['td']['content'] .= $field['msg_no_subtables'];
 			}
 			if ($st_display == 'form' 
 				AND $zz_tab[$sub_tab]['max_records'] > $zz_tab[$sub_tab]['records'])
-				$out['td']['content'] .= '<input type="submit" value="'
-					.sprintf(zz_text('Add %s'), $field['title_button'])
-					.'" class="sub-add" name="zz_subtables[add]['
-					.$sub_tab.']">';
+				$out['td']['content'] .= zz_output_subtable_submit('add', $field['title_button'], $sub_tab);
 			if ($st_display == 'form' && $field['explanation'] && $show_explanation)
-				$out['td']['content'].= '<p class="explanation">'.$field['explanation'].'</p>';
+				$out['td']['content'] .= '<p class="explanation">'.$field['explanation'].'</p>';
 			if (!empty($field['separator']))
 				$out['separator'] = $field['separator'];
 		} elseif ($field['type'] == 'foreign_key' 
@@ -570,9 +564,9 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 					if (!empty($field['title_append'])) 
 						$out['th']['content'] .= $field['title_append']; // just for form, change title
 					else 
-						$out['th']['content'].= $field['title'];
+						$out['th']['content'] .= $field['title'];
 					if (!empty($field['title_desc']) && $row_display == 'form') 
-						$out['th']['content'].= '<p class="desc">'.$field['title_desc'].'</p>';
+						$out['th']['content'] .= '<p class="desc">'.$field['title_desc'].'</p>';
 				} elseif (!$tab) {
 					$out['th']['content'] = ''; // for main record, show empty cells
 				} else
@@ -583,7 +577,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 				// so error class does not get lost (but only error, no hidden classes)
 				if ($field['class'] == 'error')
 					$out['tr']['attr'][]  = $field['class']; 
-				$out['td']['content'].= '<span'.($field['class'] ? ' class="'.$field['class'].'"' : '').'>'; 
+				$out['td']['content'] .= '<span'.($field['class'] ? ' class="'.$field['class'].'"' : '').'>'; 
 			}
 			if (!empty($field['append_next'])) {
 				$append_next = true;
@@ -660,7 +654,7 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 			//
 			
 			if ($row_display == 'form' && !empty($field['explanation_top']))
-				$out['td']['content'].= '<p class="explanation">'.$field['explanation_top'].'</p>';
+				$out['td']['content'] .= '<p class="explanation">'.$field['explanation_top'].'</p>';
 			if ($field['type'] == 'write_once' AND ($mode == 'add' OR $zz_var['action'] == 'insert')) {
 				$field['type'] = $field['type_detail'];
 			}
@@ -1285,24 +1279,24 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 					.' id="zz_add_details_'.$tab.'_'.$rec.'_'.$fieldkey.'">['.zz_text('new').' &hellip;]</a>';
 			}
 			if ($outputf && $outputf != ' ') {
-				if (isset($field['prefix'])) $out['td']['content'].= $field['prefix'];
+				if (isset($field['prefix'])) $out['td']['content'] .= $field['prefix'];
 				if (!empty($field['use_as_label'])) {
 					$outputf = '<label for="zz_tick_'.$tab.'_'.$rec.'">'.$outputf.'</label>';
 				}
-				$out['td']['content'].= $outputf;
-				if (isset($field['suffix'])) $out['td']['content'].= $field['suffix'];
-				$out['td']['content'].= ' ';
+				$out['td']['content'] .= $outputf;
+				if (isset($field['suffix'])) $out['td']['content'] .= $field['suffix'];
+				$out['td']['content'] .= ' ';
 				if ($row_display == 'form') if (isset($field['suffix_function'])) {
 					$vars = '';
 					if (isset($field['suffix_function_var']))
 						foreach ($field['suffix_function_var'] as $var)
 							$vars .= $var; // todo: does this really make sense? 
 							// looks more like $vars[] = $var. maybe use implode.
-					$out['td']['content'].= $field['suffix_function']($vars);
+					$out['td']['content'] .= $field['suffix_function']($vars);
 				}
 			} else
-				$out['td']['content'].= $outputf;
-			if (!empty($close_span)) $out['td']['content'].= '</span>';
+				$out['td']['content'] .= $outputf;
+			if (!empty($close_span)) $out['td']['content'] .= '</span>';
 			if ($append_next_type == 'list' && $row_display == 'form') {
 				$out['td']['content'] .= '<li>';
 				$append_next_type = 'list_end';
@@ -1318,11 +1312,11 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 						$append_explanation = array();
 					}
 					if ($field['explanation'])
-						$out['td']['content'].= '<p class="explanation">'.$field['explanation'].'</p>';
+						$out['td']['content'] .= '<p class="explanation">'.$field['explanation'].'</p>';
 				}
 			}
 			if (!empty($field['separator']))
-				$out['separator'].= $field['separator'];
+				$out['separator'] .= $field['separator'];
 		}
 		if (!$append_next) $matrix[] = $out;
 	}
@@ -1362,6 +1356,29 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 		if ($row['separator']) $output .= zz_show_separator($row['separator'], 1, count($matrix));
 	}
 	return zz_return($output);
+}
+
+/**
+ * outputs input form element for subtable add/remove
+ *
+ * @param string $mode add | remove
+ * @param string $title
+ * @param int $tab
+ * @param int $rec (optional)
+ * @return string HTML
+ */
+function zz_output_subtable_submit($mode, $title, $tab, $rec = 0) {
+	switch ($mode) {
+	case 'add':
+		$html = '<input type="submit" value="%s" class="sub-add" name="zz_subtables[add][%s]">';
+		return sprintf($html, sprintf(zz_text('Add %s'), $title), $tab);
+		break;
+	case 'remove':
+		$html = '<input type="submit" value="%s" class="sub-remove" name="zz_subtables[remove][%s][%s]">';
+		return sprintf($html, sprintf(zz_text('Remove %s'), $title), $tab, $rec);
+		break;
+	}
+	return '';
 }
 
 /**
