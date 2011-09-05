@@ -202,7 +202,7 @@ function zz_display_records($mode, $zz_tab, $display, $zz_var, $zz_conditions) {
 		elseif	($mode == 'delete')	$output.= zz_text('Delete record').' ';
 		else 						$output.= zz_text('Add record').' ';
 		if ($mode == 'delete') $accesskey = 'd';
-		$output.= .'" accesskey="'.$accesskey.'">';
+		$output.= '" accesskey="'.$accesskey.'">';
 		if (($cancelurl != $_SERVER['REQUEST_URI'] OR ($zz_var['action']))
 			AND $zz_conf_record['cancel_link']) 
 			// only show cancel link if it is possible to hide form 
