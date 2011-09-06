@@ -2130,7 +2130,8 @@ function zz_form_element($name, $value, $type = 'text', $id = false, $fieldattr 
 	}
 
 	// autofocus?	
-	$focus = array('text', 'checkbox', 'radio', 'password', 'textarea', 'select');
+	$focus = array('text', 'checkbox', 'radio', 'password', 'textarea', 'select',
+		'date', 'datetime', 'mail', 'url', 'time');
 	if (in_array($type, $focus) AND zz_record_field_focus()) {
 		$fieldattr['autofocus'] = true;
 	}
