@@ -893,11 +893,16 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 						$outputf .= htmlspecialchars($fieldvalue);
 					}
 				} elseif ($row_display === 'form') {
+					$fieldtype = 'text';
+					if ($field['type'] === 'mail') $fieldtype = 'mail';
+					elseif ($field['type'] === 'url') $fieldtype = 'url';
+					elseif ($field['type'] === 'datetime') $fieldtype = 'datetime';
+					elseif ($field['type'] === 'time') $fieldtype = 'time';
 					$fieldattr = array();
 					$fieldattr['size'] = $field['size'];
 					if (!empty($field['maxlength']))
 						$fieldattr['maxlength'] = $field['maxlength'];					
-					$outputf .= zz_form_element($field['f_field_name'], htmlspecialchars($fieldvalue), 'text', true, $fieldattr);
+					$outputf .= zz_form_element($field['f_field_name'], htmlspecialchars($fieldvalue), $fieldtype, true, $fieldattr);
 				}
 				break;
 			case 'number':
@@ -942,7 +947,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				if ($row_display == 'form') {
 					$fieldattr = array();
 					$fieldattr['size'] = 12;
-					$outputf .= zz_form_element($field['f_field_name'], $my_value, 'text', true, $fieldattr);
+					$outputf .= zz_form_element($field['f_field_name'], $my_value, 'date', true, $fieldattr);
 				} else {
 					$outputf .= $my_value;
 				}
@@ -963,13 +968,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					if ($calculated_rows >= $field['rows']) $field['rows'] = $calculated_rows;
 					if (!empty($field['rows_max']) AND ($field['rows'] > $field['rows_max']))
 						$field['rows'] = $field['rows_max'];
-				}
-				if ($my_rec['record']) {
-					// format in case it's not editable and won't be saved in db
-					if ($row_display != 'form' AND isset($field['format']))
-						$memotext = $field['format'](htmlspecialchars($memotext));
-					else
-						$memotext = htmlspecialchars($memotext);
+
+					$memotext = htmlspecialchars($memotext);
 				}
 				if ($row_display === 'form') {
 					$fieldattr = array();
@@ -977,6 +977,9 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					$fieldattr['cols'] = $field['cols'];
 					$outputf .= zz_form_element($field['f_field_name'], $memotext, 'textarea', true, $fieldattr);
 				} else {
+					// format in case it's not editable and won't be saved in db
+					if (isset($field['format']))
+						$memotext = $field['format']($memotext);
 					$outputf .= $memotext;
 				}
 				break;

@@ -1989,7 +1989,7 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 		// remove unwanted keys from link
 		$self .= zz_edit_query_string($qs, $unwanted_keys); 
 	}
-	$output.= '<input type="text" size="30" name="q"';
+	$output.= '<input type="search" size="30" name="q"';
 	if (isset($_GET['q'])) $output.= ' value="'.htmlchars($_GET['q']).'"';
 	$output.= '>';
 	$output.= '<input type="submit" value="'.zz_text('search').'">';
