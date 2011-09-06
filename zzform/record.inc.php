@@ -144,7 +144,7 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 			$div_record_open = true;
 		}
 		// output form if necessary
-		$output .= zz_display_records($ops['mode'], $zz_tab, $display_form, $zz_var, $zz_conditions);
+		$output .= zz_display_records($zz_tab, $ops['mode'], $display_form, $zz_var, $zz_conditions);
 	}
 
 	// close HTML form element
@@ -158,8 +158,8 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 /**
  * Display form to edit a record
  * 
- * @param string $mode
  * @param array $zz_tab		
+ * @param string $mode
  * @param string $display	'review': show form with all values for
  *							review; 'form': show form for editing; 
  * @param array $zz_var
@@ -169,7 +169,7 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
  * @return string $string			HTML-Output with all form fields
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_display_records($mode, $zz_tab, $display, $zz_var, $zz_conditions) {
+function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 	global $zz_conf;
 	global $zz_error;
 	
@@ -254,7 +254,7 @@ function zz_display_records($mode, $zz_tab, $display, $zz_var, $zz_conditions) {
 			$output.= '</tfoot>'."\n";
 		}
 	}
-	$output.= zz_show_field_rows($zz_tab, 0, 0, $mode, $display, $zz_var, $zz_conf_record);
+	$output.= zz_show_field_rows($zz_tab, $mode, $display, $zz_var, $zz_conf_record);
 	if ($zz_error['error']) return zz_return(false);
 	$output.= '</table>'."\n";
 	if ($mode == 'delete') $output.= '<input type="hidden" name="'
@@ -288,42 +288,45 @@ function zz_display_records($mode, $zz_tab, $display, $zz_var, $zz_conditions) {
  * HTML output of all field rows
  *
  * @param array $zz_ab
- * @param int $tab
- * @param int $rec
  * @param string $mode
  * @param array $zz_var 
  *		function calls itself and uses 'horizontal_table_head', 'class_add'
  *		internally, therefore &$zz_var
  * @param array $zz_conf_record
+ * @param int $tab (optional, default = 0 = main table)
+ * @param int $rec (optional, default = 0 = main record)
  * @param string $formdisplay (optional)
  * @param string $extra_lastcol (optional)
  * @param int $table_count (optional)
  * @param bool $show_explanation (optional)
  * @return string HTML output
  */
-function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var, 
-	$zz_conf_record, $formdisplay = 'vertical', $extra_lastcol = false, 
+function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
+	$tab = 0, $rec = 0, $formdisplay = 'vertical', $extra_lastcol = false,
 	$table_count = 0, $show_explanation = true) {
 
 	global $zz_error;
 	global $zz_conf;	// Config variables
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	$output = '';
+	$my_rec = $zz_tab[$tab][$rec];
+	if (empty($my_rec['fields'])) zz_return(false);
+
 	$append_next = '';
 	$append_next_type = '';
 	$append_explanation = array();
 	$matrix = array();
-	$my_rec = $zz_tab[$tab][$rec];
+
 	$firstrow = true;
 	$my_where_fields = (isset($zz_var['where'][$zz_tab[$tab]['table_name']])
 		? $zz_var['where'][$zz_tab[$tab]['table_name']] : array());
 	$row_display = ($my_rec['access'] ? $my_rec['access'] : $display); // this is for 0 0 main record
 
-	if (!empty($my_rec['fields'])) foreach ($my_rec['fields'] as $fieldkey => $field) {
+	foreach ($my_rec['fields'] as $fieldkey => $field) {
 		if (!$field) continue;
 		if (!empty($field['hide_in_form'])) continue;
-		if (!empty($field['hide_in_form_add']) 
-			AND empty($zz_tab[$sub_tab][$sub_rec]['id']['value'])) continue;
+		if (!empty($field['hide_in_form_add']) AND empty($my_rec['id']['value'])) {
+			continue;
+		}
 		if ($field['type'] == 'foreign_key' 
 			OR $field['type'] == 'translation_key' 
 			OR $field['type'] == 'detail_key') {
@@ -364,10 +367,10 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 		}
 
 		if ($field['type'] == 'subtable') {
+			//	Subtable
 			$sub_tab = $field['subtable'];
 			if (empty($field['title_button'])) $field['title_button'] = strip_tags($field['title']); 
 			if (empty($field['form_display'])) $field['form_display'] = 'vertical';
-//	Subtable
 			$st_display = (!empty($field['access']) ? $field['access'] : $display);
 			$out['tr']['attr'][] = (!empty($field['class']) ? $field['class'] : '');
 			if (!empty($field['class_add'])) {
@@ -487,8 +490,8 @@ function zz_show_field_rows($zz_tab, $tab, $rec, $mode, $display, &$zz_var,
 						$lastrow = $removebutton;	
 					}
 				}	
-				$out['td']['content'] .= zz_show_field_rows($zz_tab, $sub_tab, 
-					$sub_rec, $subtable_mode, $my_st_display, $zz_var, $zz_conf_record, 
+				$out['td']['content'] .= zz_show_field_rows($zz_tab, $subtable_mode, 
+					$my_st_display, $zz_var, $zz_conf_record, $sub_tab, $sub_rec,
 					$field['form_display'], $lastrow, $sub_rec, $h_show_explanation);
 				if ($field['form_display'] != 'horizontal') {
 					$out['td']['content'] .= '</table></div>'."\n";
