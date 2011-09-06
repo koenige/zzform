@@ -1181,12 +1181,14 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 							if (empty($field['dont_show_file_link']) 
 								AND $link = zz_makelink($image['path'], (isset($my_rec['record_saved']) 
 									? $my_rec['record_saved'] : $my_rec['record'])))
+								$fieldattr = array();
+								$fieldattr['autofocus'] = false;
 								$outputf .= '<br><a href="'.$link.'">'.$link
 									.'</a>'
 									.(($image_uploads > 1 OR !empty($field['optional_image'])) ?
 									' (<small><label for="delete-file-'.$fieldkey.'-'.$imagekey
 									.'">'.zz_form_element('zz_delete_file['.$fieldkey.'-'.$imagekey.']', 
-										'', 'checkbox', 'delete-file-'.$fieldkey.'-'.$imagekey)
+										'', 'checkbox', 'delete-file-'.$fieldkey.'-'.$imagekey, $fieldattr)
 									.'&nbsp;'.zz_text('Delete this file').'</label></small>)'
 									: '');
 							if (!empty($my_rec['images'][$fieldkey][$imagekey]['error']))
@@ -2132,7 +2134,8 @@ function zz_form_element($name, $value, $type = 'text', $id = false, $fieldattr 
 	// autofocus?	
 	$focus = array('text', 'checkbox', 'radio', 'password', 'textarea', 'select',
 		'date', 'datetime', 'mail', 'url', 'time');
-	if (in_array($type, $focus) AND zz_record_field_focus()) {
+	if (!isset($fieldattr['autofocus']) AND in_array($type, $focus) 
+		AND zz_record_field_focus()) {
 		$fieldattr['autofocus'] = true;
 	}
 
