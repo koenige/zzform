@@ -25,6 +25,7 @@ div.text #zzform, #zzform div.text
 /* get rid of wrong ligatures in Firefox */
 #zzform input, #zzform textarea 
 					{ text-rendering:optimizeSpeed; } 
+#zzform textarea	{ font-family: monospace; }
 
 
 /* both record and list view */
