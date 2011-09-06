@@ -805,6 +805,7 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 		foreach (array_keys($my_tab['subtable_remove']) as $rec) {
 			if (empty($my_tab['subtable_remove'][$rec])) continue;
 			unset($my_tab['POST'][$rec]);
+			$my_tab['subtable_focus'] = $rec-1;
 		}
 		$my_tab['subtable_remove'] = array();
 	} else {
@@ -926,8 +927,9 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 		// check if user wants one record more (subtable_remove was already
 		// checked beforehands)
 		if ($my_tab['subtable_add']) {
-			$my_tab['records']++;
 			$my_tab['subtable_add'] = array();
+			$my_tab['subtable_focus'] = $my_tab['records'];
+			$my_tab['records']++;
 			$tempvar = array_keys($records);
 			$records[] = end($tempvar)+1;
 		}

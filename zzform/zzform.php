@@ -398,6 +398,10 @@ function zzform($zz = array()) {
 			if ($zz_error['error']) return zzform_exit($ops);
 			$zz_tab[$tab] = zz_get_subrecords($ops['mode'], $zz['fields'][$no], $zz_tab[$tab], $zz_tab[0], $zz_var, $tab);
 			if ($zz_error['error']) return zzform_exit($ops);
+			if (isset($zz_tab[$tab]['subtable_focus'])) {
+				// set autofocus on subrecord, not on main record
+				$zz_tab[0]['subtable_focus'] = 'set';
+			}
 		}
 
 		if ($zz_var['subtables'] && $zz_var['action'] != 'delete')
