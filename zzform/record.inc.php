@@ -896,7 +896,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					$fieldtype = 'text';
 					if ($field['type'] === 'mail') $fieldtype = 'mail';
 					elseif ($field['type'] === 'url') $fieldtype = 'url';
-					elseif ($field['type'] === 'datetime') $fieldtype = 'datetime';
+					// datetime in Safari is like 2011-09-06T20:50Z
+					// elseif ($field['type'] === 'datetime') $fieldtype = 'datetime';
 					elseif ($field['type'] === 'time') $fieldtype = 'time';
 					$fieldattr = array();
 					$fieldattr['size'] = $field['size'];
