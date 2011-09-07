@@ -532,6 +532,10 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				$out['separator'] = $field['separator'];
 		} else {
 			//	"Normal" field
+			
+			// support for required for subtable is too complicated so far, because
+			// the whole subtable record may be optional
+			if ($tab AND $field['required']) $field['required'] = false;
 
 			// option fields must have type_detail set, these are normal fields in form view
 			// but won't be saved to database
@@ -784,7 +788,9 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 							$fieldvalue = date('Y-m-d H:i:s', $my_rec['record'][$field['field_name']]);
 					}
 					if ($row_display == 'form') {
-						$outputf .= zz_form_element($field['f_field_name'], $fieldvalue, 'text', true);
+						$fieldattr = array();
+						if ($field['required']) $fieldattr['required'] = true;
+						$outputf .= zz_form_element($field['f_field_name'], $fieldvalue, 'text', true, $fieldattr);
 					} else {
 						$outputf .= $fieldvalue;
 					}
@@ -824,9 +830,10 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					$fieldattr['size'] = $field['size'];
 					if (!empty($field['maxlength']))
 						$fieldattr['maxlength'] = $field['maxlength'];
+					if ($field['required']) $fieldattr['required'] = true;
 					$outputf .= zz_form_element($field['f_field_name'], $fieldvalue, 'password', true, $fieldattr);
 					if ($my_rec['record'] AND $zz_var['action'] != 'insert') {
-						$fieldvalue = 	(!empty($my_rec['record'][$field['field_name'].'--old']) 
+						$fieldvalue = (!empty($my_rec['record'][$field['field_name'].'--old']) 
 						? $my_rec['record'][$field['field_name'].'--old'] 
 						: $my_rec['record'][$field['field_name']]);
 						$outputf .= zz_form_element($field['f_field_name'].'--old', $fieldvalue, 'hidden');
@@ -844,6 +851,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					$fieldattr['size'] = $field['size'];
 					if (!empty($field['maxlength']))
 						$fieldattr['maxlength'] = $field['maxlength'];
+					$fieldattr['required'] = true;
 					$outputf .= '<table class="subtable">'."\n"
 						.'<tr><th><label for="'.make_id_fieldname($field['f_field_name']).'">'
 						.zz_text('Old:').' </label></th><td>'
@@ -901,8 +909,9 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					elseif ($field['type'] === 'time') $fieldtype = 'time';
 					$fieldattr = array();
 					$fieldattr['size'] = $field['size'];
+					if ($field['required']) $fieldattr['required'] = true;
 					if (!empty($field['maxlength']))
-						$fieldattr['maxlength'] = $field['maxlength'];					
+						$fieldattr['maxlength'] = $field['maxlength'];
 					$outputf .= zz_form_element($field['f_field_name'], htmlspecialchars($fieldvalue), $fieldtype, true, $fieldattr);
 				}
 				break;
@@ -935,8 +944,9 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				if ($row_display == 'form') {
 					$fieldattr = array();
 					$fieldattr['size'] = $field['size'];
+					if ($field['required']) $fieldattr['required'] = true;
 					if (!empty($field['maxlength']))
-						$fieldattr['maxlength'] = $field['maxlength'];					
+						$fieldattr['maxlength'] = $field['maxlength'];
 					$outputf .= zz_form_element($field['f_field_name'], $my_value, 'text', true, $fieldattr);
 				} else {
 					$outputf .= $my_value;
@@ -948,6 +958,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				if ($row_display == 'form') {
 					$fieldattr = array();
 					$fieldattr['size'] = 12;
+					if ($field['required']) $fieldattr['required'] = true;
 					$outputf .= zz_form_element($field['f_field_name'], $my_value, 'date', true, $fieldattr);
 				} else {
 					$outputf .= $my_value;
@@ -976,6 +987,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					$fieldattr = array();
 					$fieldattr['rows'] = $field['rows'];
 					$fieldattr['cols'] = $field['cols'];
+					if ($field['required']) $fieldattr['required'] = true;
 					$outputf .= zz_form_element($field['f_field_name'], $memotext, 'textarea', true, $fieldattr);
 				} else {
 					// format in case it's not editable and won't be saved in db
@@ -1076,7 +1088,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 								// written in my record fieldname)
 								$fieldattr['checked'] = true;
 							}
-							
+							if ($field['required']) $fieldattr['required'] = true;
 							$outputf .= '<label for="'.$myid.'"'
 								.($field['hide_novalue'] ? ' class="hidden"' : '').'>'
 								.zz_form_element($field['f_field_name'], '', 'radio', $myid, $fieldattr)
@@ -1084,7 +1096,9 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 							if (!empty($field['show_values_as_list'])) 
 								$outputf .= "\n".'<ul class="zz_radio_list">'."\n";
 						} else {
-							$outputf .= zz_form_element($field['f_field_name'], '', 'select', true)."\n";
+							$fieldattr = array();
+							if ($field['required']) $fieldattr['required'] = true;
+							$outputf .= zz_form_element($field['f_field_name'], '', 'select', true, $fieldattr)."\n";
 							$fieldattr = array();
 							if ($my_rec['record']) { 
 								if (!$my_rec['record'][$field['field_name']])
@@ -1106,6 +1120,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 								$fieldattr = array();
 								if ($my_rec['record']) if ($set == $my_rec['record'][$field['field_name']]) 
 									$fieldattr['checked'] = true;
+								if ($field['required']) $fieldattr['required'] = true;
 								$outputf .= ' <label for="'.$myid.'">'
 									.zz_form_element($field['f_field_name'], $set, 'radio', $myid, $fieldattr)
 									.'&nbsp;'.zz_print_enum($field, $set, 'full', $key).'</label>';
@@ -1450,11 +1465,13 @@ function zz_output_subtable_submit($mode, $title, $tab, $rec = 0) {
 		$value = sprintf(zz_text('Add %s'), $title);
 		$name = sprintf('zz_subtables[add][%s]', $tab);
 		$fieldattr['class'] = 'sub-add';
+		$fieldattr['formnovalidate'] = true;
 		return zz_form_element($name, $value, 'submit', false, $fieldattr);
 	case 'remove':
 		$value = sprintf(zz_text('Remove %s'), $title);
 		$name = sprintf('zz_subtables[remove][%s][%s]', $tab, $rec);
 		$fieldattr['class'] = 'sub-remove';
+		$fieldattr['formnovalidate'] = true;
 		return zz_form_element($name, $value, 'submit', false, $fieldattr);
 	}
 	return '';
@@ -1680,6 +1697,7 @@ function zz_form_select_sql($field, $db_table, $record, $row_display, $zz_conf_r
 				// add new record
 				$fieldattr = array();
 				$fieldattr['size'] = !empty($field['size_select_too_long']) ? $field['size_select_too_long'] : 32;
+				if ($field['required']) $fieldattr['required'] = true;
 				$outputf .= zz_form_element($field['f_field_name'], $value, 'text', true, $fieldattr);
 			}
 			$outputf .= zz_form_element('zz_check_select[]', $field['f_field_name'], 'hidden');
@@ -1698,6 +1716,7 @@ function zz_form_select_sql($field, $db_table, $record, $row_display, $zz_conf_r
 					// (both would be written in my record fieldname)
 					$fieldattr['checked'] = true;
 				}
+				if ($field['required']) $fieldattr['required'] = true;
 
 				$outputf .= '<label for="'.$myid.'"'
 					.($field['hide_novalue'] ? ' class="hidden"' : '').'>'
@@ -1720,7 +1739,7 @@ function zz_form_select_sql($field, $db_table, $record, $row_display, $zz_conf_r
 					$fieldattr = array();
 					if ($record AND $id == $record[$field['field_name']]) 
 						$fieldattr['checked'] = true;
-					
+					if ($field['required']) $fieldattr['required'] = true;
 					$outputf .= '<li> <label for="'.$myid.'">'
 						.zz_form_element($field['f_field_name'], $id, 'radio', $my_id, $field_attr)
 						.'&nbsp;';
@@ -1742,7 +1761,9 @@ function zz_form_select_sql($field, $db_table, $record, $row_display, $zz_conf_r
 
 		// draw a SELECT element
 		} else {
-			$outputf .= zz_form_element($field['f_field_name'], '', 'select', true)."\n";
+			$fieldattr = array();
+			if ($field['required']) $fieldattr['required'] = true;
+			$outputf .= zz_form_element($field['f_field_name'], '', 'select', true, $fieldattr)."\n";
 			// normally don't show a value, unless we only look at a part of a hierarchy
 			
 			$fieldvalue = ((!empty($field['show_hierarchy_subtree']) 
@@ -1884,6 +1905,7 @@ function zz_form_select_set($field, $row_display, $record = false) {
 				AND in_array($set, $field['disabled_ids'])) {
 				$fieldattr['disabled'] = true;
 			}
+			$fieldattr = array();
 			$output .= ' <label for="'.$myid.'">'
 				.zz_form_element($field['f_field_name'].'[]', $set, 'checkbox', $myid, $fieldattr)
 				.'&nbsp;'.$set_display.'</label>';
@@ -2078,6 +2100,7 @@ function zz_draw_select($line, $id_field_name, $record, $field, $zz_conf_record,
 	if ($form == 'reselect') {
 		$fieldattr = array();
 		$fieldattr['size'] = !empty($field['size_select_too_long']) ? $field['size_select_too_long'] : 32;
+		if ($field['required']) $fieldattr['required'] = true;
 		// extra space, so that there won't be a LIKE operator that this value
 		// will be checked against!
 		$output = zz_form_element($field['f_field_name'], htmlspecialchars($fieldvalue).' ', 'text', false, $fieldattr);
@@ -2141,6 +2164,18 @@ function zz_form_element($name, $value, $type = 'text', $id = false, $fieldattr 
 		$fieldattr['autofocus'] = true;
 	}
 
+	// multiple?
+	$multiple = array('mail');
+	if (!isset($fieldattr['multiple']) AND in_array($type, $multiple)) {
+		$fieldattr['multiple'] = true;
+	}
+	
+	// value just sometimes? (e. g. tick_to_save does not work with empty value="")
+	$values = array('checkbox');
+	if ($value AND in_array($type, $values)) {
+		$fieldattr['value'] = $value;
+	}
+
 	// prepare attributes for HTML
 	$attr = '';
 	foreach ($fieldattr as $attr_name => $attr_value) {
@@ -2164,6 +2199,8 @@ function zz_form_element($name, $value, $type = 'text', $id = false, $fieldattr 
 		return sprintf('<select%s>', $attr);
 	case 'option':
 		return sprintf('<option value="%s"%s>%s</option>', $value, $attr, $name);
+	case 'checkbox':
+		return sprintf('<input type="%s"%s>', $type, $attr);
 	default:
 		return sprintf('<input type="%s" value="%s"%s>', $type, $value, $attr);
 	}

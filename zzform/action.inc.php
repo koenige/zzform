@@ -1261,7 +1261,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 		//	remove entries which are for input only
 		if (!empty($field['input_only'])) {
 			$my_rec['fields'][$f]['in_sql_query'] = false;
-			if (!empty($field['required']) 
+			if ($field['required']
 				AND empty($my_rec['POST'][$field_name])) {
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['validation'] = false;
@@ -1287,21 +1287,14 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			} elseif (!isset($field['set']) AND !isset($field['set_sql'])
 				 AND !isset($field['set_folder'])) {
 				$my_rec['validation'] = false;
-			} elseif (!zz_db_field_null($field_name, $db_table)) {
-				$my_rec['validation'] = false;
-				$my_rec['fields'][$f]['check_validation'] = false;
-			} elseif (!empty($field['required'])) {
+			} elseif ($field['required']) {
 				$my_rec['validation'] = false;
 				$my_rec['fields'][$f]['check_validation'] = false;
 			}
 		} elseif(!$my_rec['POST'][$field_name] 
 			AND empty($field['null'])
-			AND empty($field['null_string'])
 			AND $field['type'] != 'timestamp') {
-			if (!zz_db_field_null($field_name, $db_table)) {
-				$my_rec['validation'] = false;
-				$my_rec['fields'][$f]['check_validation'] = false;
-			} elseif (!empty($field['required'])) {
+			if ($field['required']) {
 				$my_rec['validation'] = false;
 				$my_rec['fields'][$f]['check_validation'] = false;
 			}

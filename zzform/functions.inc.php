@@ -563,9 +563,34 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false)
 			if (empty($fields[$no]['table_name'])) $fields[$no]['table_name'] = $fields[$no]['table'];
 			$fields[$no]['fields'] = zz_fill_out($fields[$no]['fields'], $fields[$no]['table'], $multiple_times, $mode);
 		}
+		$fields[$no]['required'] = zz_fill_out_required($fields[$no], $db_table);
 	}
 	$defs[$hash] = $fields;
 	return zz_return($fields);
+}
+
+/**
+ * sets attribute 'required' to fields which do not have one yet
+ * depending on field type, NULL and null_string
+ *
+ * @param array $field field definition from $zz['fields'][$no]
+ * @param string $db_table [i. e. db_name.table]
+ * @return bool true: field is required, false: field is optional
+ */
+function zz_fill_out_required($field, $db_table) {
+	if (!empty($field['required'])) return true;
+	// might be empty string
+	if (!empty($field['null_string'])) return false;
+	// no field name = not in database
+	if (empty($field['field_name'])) return false;
+	// might be NULL
+	if (zz_db_field_null($field['field_name'], $db_table)) return false;
+	// some field types never can be required
+	$never_required = array('calculated', 'display', 'option', 'image', 
+		'foreign', 'subtable');
+	if (in_array($field['type'], $never_required)) return false;
+
+	return true;
 }
 
 /**
@@ -2641,7 +2666,7 @@ function zz_db_columns($db_table, $field = false) {
 			return false;
 		}
 	}
-	return $field_defs[$db_table];
+	return $columns[$db_table];
 }
 
 /**
