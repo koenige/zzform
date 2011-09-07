@@ -909,7 +909,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				} elseif ($row_display === 'form') {
 					$fieldtype = 'text';
 					if ($field['type'] === 'mail') $fieldtype = 'mail';
-					elseif ($field['type'] === 'url') $fieldtype = 'url';
+					// 'url' in Opera does not support relative URLs
+					// elseif ($field['type'] === 'url') $fieldtype = 'url';
 					// datetime in Safari is like 2011-09-06T20:50Z
 					// elseif ($field['type'] === 'datetime') $fieldtype = 'datetime';
 					elseif ($field['type'] === 'time') $fieldtype = 'time';
@@ -965,7 +966,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					$fieldattr = array();
 					$fieldattr['size'] = 12;
 					if ($field['required']) $fieldattr['required'] = true;
-					$outputf .= zz_form_element($field['f_field_name'], $my_value, 'date', true, $fieldattr);
+					// HTML5 fieldtype date has bad usability in Opera (calendar only!)
+					$outputf .= zz_form_element($field['f_field_name'], $my_value, 'text', true, $fieldattr);
 				} else {
 					$outputf .= $my_value;
 				}
