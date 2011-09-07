@@ -533,9 +533,15 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 		} else {
 			//	"Normal" field
 			
-			// support for required for subtable is too complicated so far, because
-			// the whole subtable record may be optional
-			if ($tab AND $field['required']) $field['required'] = false;
+			if ($tab AND $field['required']) {
+				// support for required for subtable is too complicated so far, 
+				// because the whole subtable record may be optional
+				$field['required'] = false;
+			}
+			if ($field['required'] AND !empty($field['upload_value'])) {
+				// in case there is no value, it will come from an upload field
+				$field['required'] = false;
+			}
 
 			// option fields must have type_detail set, these are normal fields in form view
 			// but won't be saved to database
