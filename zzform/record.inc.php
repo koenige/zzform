@@ -1180,7 +1180,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 								'', 'file', false);
 							if (empty($field['dont_show_file_link']) 
 								AND $link = zz_makelink($image['path'], (isset($my_rec['record_saved']) 
-									? $my_rec['record_saved'] : $my_rec['record'])))
+									? $my_rec['record_saved'] : $my_rec['record']))) {
 								$fieldattr = array();
 								$fieldattr['autofocus'] = false;
 								$outputf .= '<br><a href="'.$link.'">'.$link
@@ -1191,12 +1191,14 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 										'', 'checkbox', 'delete-file-'.$fieldkey.'-'.$imagekey, $fieldattr)
 									.'&nbsp;'.zz_text('Delete this file').'</label></small>)'
 									: '');
-							if (!empty($my_rec['images'][$fieldkey][$imagekey]['error']))
+							}
+							if (!empty($my_rec['images'][$fieldkey][$imagekey]['error'])) {
 								$outputf .= '<br><small>'.implode('<br>', 
 									$my_rec['images'][$fieldkey][$imagekey]['error']).'</small>';
-							else
+							} else {
 								$outputf .= '<br><small>'.zz_text('Maximum allowed filesize is').' '
 									.zz_format_bytes($zz_conf['upload_MAX_FILE_SIZE']).'</small>';
+							}
 							if ($row_display == 'form' && !empty($image['explanation'])) 
 								$outputf .= '<p class="explanation">'.$image['explanation'].'</p>';
 							if ($image_uploads > 1) $outputf .= '</td></tr>'."\n";
