@@ -45,6 +45,7 @@ $zz['sqlorder'] = ' ORDER BY old_url, new_url';
 
 $zz_conf['heading'] = 'Redirects';
 $zz_conf['heading_text'] = '%%% text Information about redirects %%%';
+$zz_conf['multilang_fieldnames'] = true;
 $zz_conf['group'] = 'area';
 
 ?>

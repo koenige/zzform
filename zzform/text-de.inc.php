@@ -328,6 +328,7 @@ $text['Old URL'] = 'Alte URL';
 $text['New URL'] = 'Neue URL';
 $text['Code'] = 'Code';
 $text['Area'] = 'Bereich';
+$text['Redirects'] = 'Umleitungen';
 
 
 // ----------------------------------------------------------------------------
