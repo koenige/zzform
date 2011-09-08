@@ -1913,7 +1913,7 @@ function zz_form_select_set($field, $row_display, $record = false) {
 				AND in_array($set, $field['disabled_ids'])) {
 				$fieldattr['disabled'] = true;
 			}
-			$fieldattr = array();
+			if ($field['required']) $fieldattr['required'] = true;
 			$output .= ' <label for="'.$myid.'">'
 				.zz_form_element($field['f_field_name'].'[]', $set, 'checkbox', $myid, $fieldattr)
 				.'&nbsp;'.$set_display.'</label>';
