@@ -1134,10 +1134,11 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			$my_rec = zz_check_select($my_rec, $f, $zz_conf['max_select'], $table_name.'['.$rec.']['.$field_name.']');
 			//	check for correct enum values
 			if (!$my_rec['POST'][$field_name]) break;
-			if (isset($field['enum'])) {
+			if (isset($field['enum']) OR isset($field['set'])) {
 				if (!$tempvar = zz_check_enumset($my_rec['POST'][$field_name], $field, $db_table)) {
 					$my_rec['validation'] = false;
 					$my_rec['fields'][$f]['check_validation'] = false;
+					$my_rec['POST'][$field_name] = false;
 				} else {
 					$my_rec['POST'][$field_name] = $tempvar;
 				}
