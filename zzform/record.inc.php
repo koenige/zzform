@@ -2146,9 +2146,12 @@ function zz_draw_select($line, $id_field_name, $record, $field, $zz_conf_record,
  * @param string $type (default: text)
  * @param mixed $id (optional; bool: create from $name; string: use as id)
  * @param array $fieldattr (further attributes, indexed by name => value)
+ * @global array $zz_conf
  * @return string HTML code
  */
 function zz_form_element($name, $value, $type = 'text', $id = false, $fieldattr = array()) {
+	global $zz_conf;
+	
 	// name
 	if ($name AND $type !== 'option') $fieldattr['name'] = $name;
 
@@ -2165,11 +2168,15 @@ function zz_form_element($name, $value, $type = 'text', $id = false, $fieldattr 
 	}
 
 	// autofocus?	
-	$focus = array('text', 'checkbox', 'radio', 'password', 'textarea', 'select',
-		'date', 'datetime', 'mail', 'url', 'time');
-	if (!isset($fieldattr['autofocus']) AND in_array($type, $focus) 
-		AND zz_record_field_focus()) {
-		$fieldattr['autofocus'] = true;
+	if ($zz_conf['html_autofocus']) {
+		$focus = array('text', 'checkbox', 'radio', 'password', 'textarea', 'select',
+			'date', 'datetime', 'mail', 'url', 'time');
+		if (!isset($fieldattr['autofocus']) AND in_array($type, $focus) 
+			AND zz_record_field_focus()) {
+			$fieldattr['autofocus'] = true;
+		}
+	} else {
+		$fieldattr['autofocus'] = false;
 	}
 
 	// multiple?
