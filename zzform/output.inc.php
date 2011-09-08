@@ -758,4 +758,20 @@ function zzform_post_too_big() {
 	return false;
 }
 
+/**
+ * formats a string, currently only available: translate text from inside zzform
+ *
+ * @param string $text
+ * @return string
+ */
+function zz_format($text) {
+	if (substr($text, 0, 8) === '%%% text' AND substr($text, -3) === '%%%') {
+		$text = trim(substr($text, 8, -3));
+		if (substr($text, 0, 1) === '"' AND substr($text, -1) === '"')
+			$text = trim(substr($text, 1, -1));
+		return zz_text($text);
+	}
+	return $text;
+}
+
 ?>

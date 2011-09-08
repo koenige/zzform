@@ -221,7 +221,7 @@ function zz_export_kml($ops) {
 	global $zz_setting;
 	
 	$kml['title'] = zz_nice_title($zz_conf['heading'], $ops['output']['head']);
-	$kml['description'] = $zz_conf['heading_text'];
+	$kml['description'] = zz_format($zz_conf['heading_text']);
 	$kml['styles'] = array();
 	$kml['placemarks'] = array();
 	

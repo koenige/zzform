@@ -351,7 +351,7 @@ function zzform($zz = array()) {
 			$ops['output'].= "\n".'<h1>'.$zz_conf['heading'].'</h1>'."\n\n";
 		if ($zz_conf['heading_text'] 
 			AND (!$zz_conf['heading_text_hidden_while_editing'] OR $ops['mode'] == 'list_only')) 
-			$ops['output'] .= $zz_conf['heading_text'];
+			$ops['output'] .= zz_format($zz_conf['heading_text']);
 	}
 	if ($post_too_big) {
 		$zz_error[] = array(
