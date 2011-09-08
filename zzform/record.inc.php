@@ -1913,7 +1913,9 @@ function zz_form_select_set($field, $row_display, $record = false) {
 				AND in_array($set, $field['disabled_ids'])) {
 				$fieldattr['disabled'] = true;
 			}
-			if ($field['required']) $fieldattr['required'] = true;
+			// required does not work at least in Firefox with set
+			// because identical 'name'-attributes are not recognized
+			// if ($field['required']) $fieldattr['required'] = true;
 			$output .= ' <label for="'.$myid.'">'
 				.zz_form_element($field['f_field_name'].'[]', $set, 'checkbox', $myid, $fieldattr)
 				.'&nbsp;'.$set_display.'</label>';
