@@ -307,7 +307,7 @@ $text['Field'] = 'Feld';
 $text['Data type'] = 'Datentyp';
 $text['Data Type'] = 'Datentyp';
 
-ƒ
+
 // ----------------------------------------------------------------------------
 // Admin: Redirects
 // ----------------------------------------------------------------------------
@@ -324,6 +324,10 @@ Umleitungen</li>
 Achtung: es darf kein <code>/</code> vor dem Sternchen stehen.</li>
 </ul>
 ';
+$text['Old URL'] = 'Alte URL';
+$text['New URL'] = 'Neue URL';
+$text['Code'] = 'Code';
+$text['Area'] = 'Bereich';
 
 
 // ----------------------------------------------------------------------------
