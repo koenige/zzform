@@ -307,20 +307,20 @@ $text['Field'] = 'Feld';
 $text['Data type'] = 'Datentyp';
 $text['Data Type'] = 'Datentyp';
 
-
+ƒ
 // ----------------------------------------------------------------------------
 // Admin: Redirects
 // ----------------------------------------------------------------------------
 
-$text['Information about redirects'] = '<p>Hier können Webseiten auf andere Webseiten umgeleitet werden. 
-Dabei gibt es mehrere Möglichkeiten:</p>
+$text['Information about redirects'] = '<p>Hier k&ouml;nnen Webseiten auf andere Webseiten umgeleitet werden. 
+Dabei gibt es mehrere M&ouml;glichkeiten:</p>
 
 <ul>
-<li>Vorübergehende Umleitung, z. B. einer kurzen Adresse auf eine lange, permanent existierende Adresse,
-wie example.com/aktuell auf example.com/nachrichten/2010/04 mittels <code>302</code>-Code für temporäre Umleitungen</li>
-<li>Dauerhafte Umleitung von einer alten Adresse auf eine neue Adresse mittels <code>301</code>-Code für permanente
+<li>Vor&uuml;bergehende Umleitung, z. B. einer kurzen Adresse auf eine lange, permanent existierende Adresse,
+wie example.com/aktuell auf example.com/nachrichten/2010/04 mittels <code>302</code>-Code f&uuml;r tempor&auml;re Umleitungen</li>
+<li>Dauerhafte Umleitung von einer alten Adresse auf eine neue Adresse mittels <code>301</code>-Code f&uuml;r permanente
 Umleitungen</li>
-<li>Umleitung von mehreren alten Adressen auf eine neue Adresse, hier muß die alten Adresse auf <code>*</code> enden.
+<li>Umleitung von mehreren alten Adressen auf eine neue Adresse, hier mu&szlig; die alten Adresse auf <code>*</code> enden.
 Achtung: es darf kein <code>/</code> vor dem Sternchen stehen.</li>
 </ul>
 ';
