@@ -317,7 +317,7 @@ Dabei gibt es mehrere M&ouml;glichkeiten:</p>
 
 <ul>
 <li>Vor&uuml;bergehende Umleitung, z. B. einer kurzen Adresse auf eine lange, permanent existierende Adresse,
-wie example.com/aktuell auf example.com/nachrichten/2010/04 mittels <code>302</code>-Code f&uuml;r tempor&auml;re Umleitungen</li>
+wie example.com/aktuell auf example.com/nachrichten/2010/04 mittels <code>307</code>-Code f&uuml;r tempor&auml;re Umleitungen</li>
 <li>Dauerhafte Umleitung von einer alten Adresse auf eine neue Adresse mittels <code>301</code>-Code f&uuml;r permanente
 Umleitungen</li>
 <li>Umleitung von mehreren alten Adressen auf eine neue Adresse, hier mu&szlig; die alten Adresse auf <code>*</code> enden.

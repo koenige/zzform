@@ -219,7 +219,7 @@ You have several possibilities:</p>
 
 <ul>
 <li>Temporary redirect, e. g. from a shortcut to a permanent address like from
-example.com/current_news to example.com/news/2010/04 with a code <code>302</code></li>
+example.com/current_news to example.com/news/2010/04 with a code <code>307</code></li>
 <li>Permanent redirect from an old address to a new address with code <code>301</code></li>
 <li>Redirect from several old addresses to a new address, here, the old address 
 must end with the asterisk (<code>*</code>). There must not be a <code>/</code> before the asterisk.</li>
