@@ -120,6 +120,8 @@ $text['Value missing in field'] = 'Wert fehlt im Feld:';
 $text['Duplicate entry'] = 'Doppelter Eintrag in dieser Tabelle. Bitte &uuml;berpr&uuml;fen Sie, ob entweder der gew&uuml;nschte Eintrag bereits existiert oder ob Sie Ihren Eintrag &auml;ndern k&ouml;nnen.';
 $text['Detail record could not be handled'] = 'Teileintrag konnte nicht gespeichert werden.';
 	$text['String <em>"%s"</em> is not allowed'] = 'Die Zeichenfolge <em>"%s"</em> ist nicht erlaubt';
+	$text['Please check these values again'] = 'Bitte &uuml;berpr&uuml;fen Sie diese Werte nocheinmal';
+	$text['Please select one of the values for field %s'] = 'Bitte w&auml;hlen Sie aus einem der Werte f&uuml;r das Feld %s aus';
 
 // Record form: Validation of Database Integrity, displayed above form
 $text['No records in relation table'] = 'Keine Eintr&auml;ge in Tabelle %s. Bitte f&uuml;llen Sie diese Tabelle mit Werten.';

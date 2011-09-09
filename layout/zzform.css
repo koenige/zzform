@@ -237,6 +237,10 @@ body #zzform .separator hr
 /* make a choice again */
 #zzform #record .reselect th, #zzform #record .reselect td, #zzform #record .reselect
 					{ background-color: green; }
+#zzform div.reselect p, #zzform div.reselect ul
+					{ color: white; margin: .25em 0; }
+#zzform div.reselect
+					{ padding: .25em .5em; margin: 1em 0; }
 /* errors */
 #zzform .error, #zzform .subtable .horizontal td.error,
 #zzform #record tr.error td, #zzform #record tr.error th, 

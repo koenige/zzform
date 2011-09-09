@@ -1732,11 +1732,17 @@ function zz_log_validation_errors($my_rec, $validation) {
 	if ($my_rec['access'] == 'show') return false;
 	
 	foreach ($my_rec['fields'] as $no => $field) {
+		if ($field['type'] == 'password_change') continue;
+		if ($field['type'] == 'subtable') continue;
+		if (!empty($field['mark_reselect'])) {
+			// oh, it's a reselect, add some validation message
+			$zz_error['validation']['reselect'][] = sprintf(zz_text('Please select one of the values for field %s'),
+				'<strong>'.$field['title'].'</strong>');
+			continue;
+		}
 		// just look for check_validation set but false
 		if (!isset($field['check_validation'])) continue;
 		if ($field['check_validation']) continue;
-		if ($field['type'] == 'password_change') continue;
-		if ($field['type'] == 'subtable') continue;
 		if ($my_rec['record'][$field['field_name']]) {
 			// there's a value, so this is an incorrect value
 			$zz_error['validation']['msg'][] = zz_text('Value_incorrect_in_field')
@@ -2949,6 +2955,25 @@ function zz_error_validation() {
 }
 
 /**
+ * creates HTML output for 'reselect' errors which need to be checked again
+ *
+ * @global array $zz_error
+ * @return string
+ */
+function zz_error_recheck() {
+	global $zz_error;
+	if (empty($zz_error['validation']['reselect'])) return '';
+	if (!is_array($zz_error['validation']['reselect'])) return '';
+	$text = '<div class="reselect"><p>'.zz_text('Please check these values again')
+		.': </p>'."\n".'<ul><li>'
+		.implode(".</li>\n<li>", $zz_error['validation']['reselect']).'.</li></ul></div>';
+	unset ($zz_error['validation']['reselect']);
+	if (!$zz_error['validation']) unset($zz_error['validation']);
+	return $text;
+}
+
+
+/**
  * log errors in $ops['error'] if zzform_multi() was called, because errors
  * won't be shown on screen in this mode
  *
@@ -3685,6 +3710,7 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 		$my_rec['fields'][$f]['type'] = 'select';
 		$my_rec['fields'][$f]['class'] = 'reselect' ;
 		$my_rec['fields'][$f]['suffix'] = '<br>'.zz_text('No entry found. Try less characters.');
+		$my_rec['fields'][$f]['mark_reselect'] = true;
 		$my_rec['validation'] = false;
 		$error = true;
 	} elseif (count($possible_values) == 1) {
@@ -3702,6 +3728,7 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 			$my_rec['fields'][$f]['sql'] = preg_replace('/,*\s*'.$my_rec['fields'][$f]['show_hierarchy'].'/', '', $my_rec['fields'][$f]['sql']);
 			$my_rec['fields'][$f]['show_hierarchy'] = false;
 		}
+		$my_rec['fields'][$f]['mark_reselect'] = true;
 		$my_rec['validation'] = false;
 		$error = true;
 	} elseif (count($possible_values)) {

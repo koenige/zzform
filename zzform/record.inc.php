@@ -105,6 +105,16 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 		$div_record_open = true;
 	}
 
+	// output reselect warning messages to user
+	$error = zz_error_recheck();
+	if ($error) {
+		if (!$div_record_open) {
+			$output .= '<div id="record">';
+			$div_record_open = true;
+		}
+		$output .= $error;
+	}
+
 	// output validation error messages to the user
 	zz_error_validation();
 	$error = zz_error();
