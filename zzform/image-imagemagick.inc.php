@@ -62,33 +62,18 @@ function zz_imagick_identify($filename, $file) {
 
 	$command = zz_imagick_findpath('identify');
 	// always check only first page if it's a multipage file (document, movie etc.)
-	$command .= '"'.$filename.'[0]"';
+	$command .= ' -format "%m %w %h" "'.$filename.'[0]"';
 	exec($command, $output, $return_var);
 	if ($zz_conf['modules']['debug']) zz_debug("identify command", $command);
 	if (!$output) return zz_return($file);
 	if ($zz_conf['modules']['debug']) zz_debug("identify output", json_encode($output));
 
-	$tokens = array();
-	foreach ($output as $line) {
-		// just check first line without error message
-		// remove filename
-		if (substr($line, 0, strlen($filename)) != $filename) continue;
-		$line = substr($line, strlen($filename));
-		if (substr($line, 0, 3) == '[0]') $line = substr($line, 3); // multipage files
-		if (substr($line, 0, 2) == '=>') $line = substr($line, strpos($line, ' ')); // temporary files
-		if (substr($line, 0, 1) == ' ') $line = substr($line, 1); // space
-		$tokens = explode(' ', $line);
-		break;
-	}
-	if (empty($tokens[0])) return zz_return($file);
-
+	$tokens = explode(' ', $output[0]);
 	$file['filetype'] = strtolower($tokens[0]);
-	if (!empty($tokens[1])) {
-		$size = explode('x', $tokens[1]);
-		if (!empty($size[0]) AND !empty($size[1])) {
-			$file['width'] = $size[0];
-			$file['height'] = $size[1];
-		}
+
+	if (count($tokens) == 3) {
+		$file['width'] = $tokens[1];
+		$file['height'] = $tokens[2];
 	}
 	if (empty($file['ext'])) {
 		if (isset($file['name'])) {
