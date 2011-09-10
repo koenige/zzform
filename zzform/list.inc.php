@@ -929,7 +929,7 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 
 	//	if there's a link, glue parts together
 	$link = false;
-	if ($mode != 'export') $link = zz_set_link($field, $line);
+	if ($mode != 'export' OR $_GET['export'] == 'kml') $link = zz_set_link($field, $line);
 
 	$mark_search_string = 'field_name';
 	$text = false;
