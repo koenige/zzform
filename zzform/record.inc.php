@@ -1738,7 +1738,7 @@ function zz_form_select_sql($field, $db_table, $record, $row_display, $zz_conf_r
 
 				$outputf .= '<label for="'.$myid.'"'
 					.($field['hide_novalue'] ? ' class="hidden"' : '').'>'
-					.zz_form_element($field['f_field_name'], '', 'radio', $my_id, $fieldattr)
+					.zz_form_element($field['f_field_name'], '', 'radio', $myid, $fieldattr)
 					.'&nbsp;'.zz_text('no_selection').'</label>'
 					."\n".'<ul class="zz_radio_list">'."\n";
 			}
@@ -1759,7 +1759,7 @@ function zz_form_select_sql($field, $db_table, $record, $row_display, $zz_conf_r
 						$fieldattr['checked'] = true;
 					if ($field['required']) $fieldattr['required'] = true;
 					$outputf .= '<li> <label for="'.$myid.'">'
-						.zz_form_element($field['f_field_name'], $id, 'radio', $my_id, $field_attr)
+						.zz_form_element($field['f_field_name'], $id, 'radio', $myid, $fieldattr)
 						.'&nbsp;';
 					if (!empty($field['group'])) { // group display
 						if ($fields[$field['group']])
