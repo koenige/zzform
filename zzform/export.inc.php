@@ -145,7 +145,11 @@ function zz_export_links($url, $querystring) {
 	// remove some querystrings which have no effect anyways
 	$unwanted_querystrings = array('nolist', 'debug', 'referer', 'limit', 'order', 'dir');
 	$qs = zz_edit_query_string($querystring, $unwanted_querystrings);
-	$qs = '&amp;'.substr($qs, 1);
+	if (substr($qs, 1)) {
+		$qs = '&amp;'.substr($qs, 1);
+	} else {
+		$qs = '';
+	}
 
 	if (!is_array($zz_conf['export']))
 		$zz_conf['export'] = array($zz_conf['export']);
@@ -225,13 +229,17 @@ function zz_export_kml($ops) {
 	$kml['styles'] = array();
 	$kml['placemarks'] = array();
 	
-	if (empty($zz_setting['kml_default_dot'])) {
-		$zz_setting['kml_default_dot'] = '/_layout/map/blue-dot.png';
+	if (empty($zz_setting['kml_styles'])) {
+		if (empty($zz_setting['kml_default_dot'])) {
+			$zz_setting['kml_default_dot'] = '/_layout/map/blue-dot.png';
+		}
+		$kml['styles'][] = array(
+			'id' => 'default',
+			'href' => $zz_setting['kml_default_dot']
+		);
+	} else {
+		$kml['styles'] = $zz_setting['kml_styles'];
 	}
-	$kml['styles'][] = array(
-		'id' => 'default',
-		'href' => $zz_setting['kml_default_dot']
-	);
 	
 	foreach ($ops['output']['head'] as $no => $column) {
 		if (!empty($column['kml'])) {
@@ -260,7 +268,7 @@ function zz_export_kml($ops) {
 			'longitude' => $longitude,
 			'latitude' => $latitude,
 			'altitude' => (isset($fields['altitude']) ? $line[$fields['altitude']]['value'] : ''),
-			'style' => 'default'
+			'style' => (isset($fields['style']) ? $line[$fields['style']]['text'] : 'default')
 		);
 	}
 	$output = wrap_template('kml-coordinates', $kml);
@@ -277,9 +285,12 @@ function zz_export_kml($ops) {
  */
 function zz_export_kml_description($head, $line, $fields) {
 	global $zz_conf;
-	$set = array('title', 'longitude', 'latitude', 'altitude', 'point');
+	$set = array('title', 'longitude', 'latitude', 'altitude', 'point', 'style',
+		'description');
+	$description = '';
 	foreach ($set as $field) {
 		if (!isset($fields[$field])) continue;
+		if ($field === 'description') $description = $line[$fields[$field]]['text'];
 		unset($line[$fields[$field]]);
 	}
 	$desc = array();
@@ -291,7 +302,9 @@ function zz_export_kml_description($head, $line, $fields) {
 			$title = utf8_encode($title);
 		$desc[] = '<tr><th>'.$title.'</th><td>'.$values['text'].'</td></tr>';
 	}
-	return '<table class="kml_description">'.implode("\n", $desc).'</table>';
+	$text = '<table class="kml_description">'.implode("\n", $desc).'</table>'
+		.$description;
+	return $text;
 }
 
 /**
