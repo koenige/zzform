@@ -255,7 +255,7 @@ function zz_export_kml($ops) {
 			$longitude = $line[$fields['longitude']]['value'];
 		}
 		$kml['placemarks'][] = array(
-			'title' => $line[$fields['title']]['text'],
+			'title' => strip_tags($line[$fields['title']]['text']),
 			'description' => zz_export_kml_description($ops['output']['head'], $line, $fields),
 			'longitude' => $longitude,
 			'latitude' => $latitude,
