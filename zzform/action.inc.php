@@ -1396,7 +1396,8 @@ function zz_write_upload_fields($zz_tab, $f, $tab = 0, $rec = 0) {
 function zz_val_get_from_upload($field, $images, $post) {
 	global $zz_conf;
 
-	$possible_upload_fields = array('date', 'time', 'text', 'memo', 'hidden', 'number');
+	$possible_upload_fields = array('date', 'time', 'text', 'memo', 'hidden', 
+		'number', 'select');
 	if (!in_array($field['type'], $possible_upload_fields)) 
 		return $post;
 	// apart from hidden, set only values if no values have been set so far
