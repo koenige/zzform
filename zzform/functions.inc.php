@@ -3634,7 +3634,7 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 
 	// check if we need to check
 	// with zzform_multi(), no form exists, so check always
-	if (!$zz_conf['multi']) {
+	if (!$zz_conf['multi'] AND empty($my_rec['fields'][$f]['always_check_select'])) {
 		if (empty($_POST['zz_check_select'])) return $my_rec;
 		$check = false;
 		if (in_array($field_name, $_POST['zz_check_select']))
