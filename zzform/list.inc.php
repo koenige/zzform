@@ -346,6 +346,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 						// just field_name
 						$field['subselect']['id_fieldname'] = $id_fieldname;
 						$field['subselect']['fieldindex'] = $fieldindex;
+						$field['subselect']['table_name'] = $field['table_name'];
 						$subselects[] = $field['subselect'];
 						$subselect_init[$subselect_index] = true;
 					}
@@ -2192,7 +2193,7 @@ function zz_list_get_subselects($rows, $subselects, $ids) {
 				$subselect_text = $subselect['list_format']($subselect_text);
 				if (!empty($zz_conf['modules']['debug'])) zz_debug('end');
 			}
-			$rows[$z_row][$subselect['fieldindex']]['text'] .= zz_mark_search_string($subselect_text, '', $subselect);
+			$rows[$z_row][$subselect['fieldindex']]['text'] .= zz_mark_search_string($subselect_text, $subselect['table_name'], $subselect);
 			if (!empty($subselect['export_no_html'])) {
 				$rows[$z_row][$subselect['fieldindex']]['export_no_html'] = true;
 			}
