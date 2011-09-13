@@ -61,6 +61,10 @@ $text['no_selection'] = 'Keine Auswahl'; // radio buttons, first entry
 $text['no_source_defined'] = 'Keine Quelle angegeben';
 $text['no_selection_possible'] = 'Keine Auswahl m&ouml;glich.';
 	$text['(This entry is the highest entry in the hierarchy.)'] = '(Dieser Eintrag ist der oberste Eintrag in der Hierarchie.)';
+// select/deselect checkboxes
+$text['Select all'] = 'Alle ausw&auml;hlen';
+$text['Deselect all'] = 'Auswahl entfernen';
+
 
 // Record form: Change password
 $text['Old:'] = 'Alt:';

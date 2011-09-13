@@ -26,16 +26,24 @@ if (isSafari != -1) {
 
 /**
  * sets all checkboxes inside #zzform to checked
+ * @param bool state true: checked, false: unchecked
+ * @param string name: just select/deselect elements with this name
  */
-function zz_set_checkboxes() {
+function zz_set_checkboxes(state, name) {
 	var zzform = document.getElementById("zzform");
-	var checkboxes = zzform.getElementsByTagName("input");
-	for (var i = 0; i < checkboxes.length; i++) {
-		if (checkboxes[i].type == "checkbox") {
-			checkboxes[i].checked = true;
+	var inputs = zzform.getElementsByTagName("input");
+	for (var i = 0; i < inputs.length; i++) {
+		if (inputs[i].type == "checkbox") {
+			if (name) {
+				if (inputs[i].name == name) {
+					inputs[i].checked = state;
+				}
+			} else {
+				inputs[i].checked = state;
+			}
 		}
 	}
-	checkboxes = null;
+	inputs = null;
 }
 
 function zz_toggle_elements() {

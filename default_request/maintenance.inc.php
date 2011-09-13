@@ -581,7 +581,8 @@ function zz_maintenance_folders() {
 				.'<p style="float: right;"><a href="'.htmlspecialchars($_SERVER['REQUEST_URI'])
 				.'&amp;deleteall">Delete all files</a></p>
 				<p><input type="submit" value="'.zz_text('Delete selected files').'">'
-				.' &#8211; <a onclick="zz_set_checkboxes(); return false;" href="#">Select all files</a>
+				.' &#8211; <a onclick="zz_set_checkboxes(true); return false;" href="#">'.zz_text('Select all').'</a> |
+				<a onclick="zz_set_checkboxes(false); return false;" href="#">'.zz_text('Deselect all').'</a>
 				</p>';
 		}
 		$text .= '</form>';
@@ -1041,7 +1042,8 @@ function zz_maintenance_logs() {
 		$text .= '<p style="float: right;"><a href="'.htmlspecialchars($_SERVER['REQUEST_URI'])
 			.'&amp;deleteall">Delete all lines</a></p>'
 			.'<p><input type="submit" value="'.zz_text('Delete selected lines').'">'
-			.' &#8211; <a onclick="zz_set_checkboxes(); return false;" href="#">Select all lines</a></p>';
+			.' &#8211; <a onclick="zz_set_checkboxes(true); return false;" href="#">'.zz_text('Select all').'</a> |
+			<a onclick="zz_set_checkboxes(false); return false;" href="#">'.zz_text('Deselect all').'</a></p>';
 	}
 	$text .= '</form>';
 
