@@ -386,6 +386,9 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				.(ucfirst($field['format']))
 				.(!empty($zz_conf['format'][$field['format']]['link']) ? '</a>' : '').']';
 		}
+		if (!empty($field['js'])) {
+			$field['explanation'] .= zz_record_js($field);
+		}
 
 		if ($field['type'] == 'subtable') {
 			//	Subtable
@@ -2232,6 +2235,20 @@ function zz_form_element($name, $value, $type = 'text', $id = false, $fieldattr 
 		return sprintf('<input type="%s" value="%s"%s>', $type, $value, $attr);
 	}
 	return '';
+}
+
+function zz_record_js($field) {
+	switch ($field['js']) {
+	case 'select/deselect':
+		// works only on type select with set
+		if ($field['type'] != 'select' OR empty($field['set'])) return false;
+		$text = ' <a onclick="zz_set_checkboxes(true, \'%s[]\'); return false;" href="#">'.zz_text('Select all').'</a> |
+			<a onclick="zz_set_checkboxes(false, \'%s[]\'); return false;" href="#">'.zz_text('Deselect all').'</a>';
+		$text = sprintf($text, $field['f_field_name'], $field['f_field_name']);
+		return $text;
+	default:
+		return false;
+	}
 }
 
 ?>
