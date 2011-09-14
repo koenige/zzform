@@ -2237,6 +2237,12 @@ function zz_form_element($name, $value, $type = 'text', $id = false, $fieldattr 
 	return '';
 }
 
+/**
+ * outputs javascript snippets that improve the usability for records
+ *
+ * @param array $field
+ * @return string HTML code
+ */
 function zz_record_js($field) {
 	switch ($field['js']) {
 	case 'select/deselect':
