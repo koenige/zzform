@@ -1065,6 +1065,7 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec) {
 	}  else {
 		// image action did not work out the way it should have.
 		$modified = -1;
+		unlink($tmp_filename);
 		if (!$zz_conf['int']['no_image_action']) {
 			$zz_error[] = array(
 				'msg_dev' => sprintf(zz_text('No real file was returned from function %s'), '<code>'.$action.'()</code>'),
