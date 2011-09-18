@@ -58,7 +58,7 @@ function zz_imagick_identify($filename, $file) {
 	if ($zz_conf['graphics_library'] != 'imagemagick') return $file;
 	if (!$zz_conf['upload_tools']['identify']) return $file;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	if (!file_exists($filename)) return zzreturn(false);
+	if (!file_exists($filename)) return zz_return(false);
 
 	$command = zz_imagick_findpath('identify');
 	// always check only first page if it's a multipage file (document, movie etc.)
