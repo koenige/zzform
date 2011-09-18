@@ -614,7 +614,7 @@ function zz_hash($zz, $zz_conf) {
 		'heading_text', 'heading_text_hidden_while_editing', 'heading_var',
 		'heading_link_no_append', 'list_display', 'limit_display', 'logging',
 		'logging_id', 'logging_table', 'log_missing_text', 'mail_subject_prefix',
-		'title', 'title_separator'
+		'title', 'title_separator', 'referer', 'access'
 	);
 	foreach ($uninteresting_zzform_keys as $key) unset($zz_conf[$key]);
 	$my['zz'] = $zz;
