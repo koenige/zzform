@@ -270,16 +270,6 @@ function zz_upload_check_files(&$zz_tab) {
 			$myfiles['error'] = 4; // no file was uploaded
 		} else {
 			$myfiles = $_FILES[$field['f_field_name']];
-			if (!isset($myfiles['name']))
-				$myfiles['name'] = false;
-			if (!isset($myfiles['type']))
-				$myfiles['type'] = $myfiles['name'];
-			if (!isset($myfiles['tmp_name']))
-				$myfiles['tmp_name'] = $myfiles['name'];
-			if (!isset($myfiles['size']))
-				$myfiles['size'] = $myfiles['name'];
-			if (!isset($myfiles['error']))
-				$myfiles['error'] = $myfiles['name'];
 		}
 		foreach (array_keys($field['image']) as $img) {
 			$images[$no][$img] = $field['image'][$img];
@@ -301,7 +291,15 @@ function zz_upload_check_files(&$zz_tab) {
 				$my_rec['file_upload'] = $session[$tab][$rec]['file_upload'];
 				continue;
 			}
+			// we need at least a tmp_name from somewhere pointing to a file
+			// might be '' (file upload with no file)
+			if (!isset($myfiles['tmp_name'][$field_name])) {
+				$myfiles['tmp_name'][$field_name] = '';
+			}
 
+			if (!isset($myfiles['name'][$field_name])) {
+				$myfiles['name'][$field_name] = 'unknown';
+			}
 			// title, generated from local filename, to be used for 'upload_value'
 			if (empty($images[$no]['title'])) {
 				// this and field_name will be '' if first image is false
@@ -314,6 +312,9 @@ function zz_upload_check_files(&$zz_tab) {
 			}
 			
 			$images[$no][$img]['upload']['name'] = $myfiles['name'][$field_name];
+			if (!isset($myfiles['type'][$field_name])) {
+				$myfiles['type'][$field_name] = 'application/octet-stream';
+			}
 			$images[$no][$img]['upload']['type'] = $myfiles['type'][$field_name];
 			if (!empty($myfiles['do_not_delete'][$field_name]))
 				$images[$no][$img]['upload']['do_not_delete'] = $myfiles['do_not_delete'][$field_name];
@@ -321,7 +322,9 @@ function zz_upload_check_files(&$zz_tab) {
 			// add extension to temporary filename (important for image manipulations,
 			// e. g. imagemagick can only recognize .ico-files if they end in .ico)
 			// but only if there is not already a file extension
+			
 			$oldfilename = $myfiles['tmp_name'][$field_name];
+			$oldfilename = zz_upload_remote_file($oldfilename);
 			$extension = zz_upload_file_extension($images[$no][$img]['upload']['name']);
 			if ($oldfilename AND strtolower(substr($oldfilename, -(strlen('.'.$extension)))) != strtolower('.'.$extension)) {
 				// uploaded file
@@ -339,6 +342,9 @@ function zz_upload_check_files(&$zz_tab) {
 				$images[$no][$img]['upload'] = zz_upload_compat_error($images[$no][$img]['upload']);
 			} else {
 				$images[$no][$img]['upload']['error'] = $myfiles['error'][$field_name];
+			}
+			if (!isset($myfiles['size'][$field_name])) {
+				$myfiles['size'][$field_name] = filesize($images[$no][$img]['upload']['tmp_name']);
 			}
 			if ($myfiles['size'][$field_name] < 3 
 				AND empty($images[$no][$img]['upload']['error'])) { 
@@ -410,6 +416,32 @@ function zz_upload_check_files(&$zz_tab) {
 	}
 	if ($zz_conf['modules']['debug']) zz_debug("end");
 }
+
+/**
+ * downloads a file from a remote location as source for file upload
+ * only works with zzform_multi(), otherwise filename cannot be set to URL
+ *
+ * @param string $filename
+ * @global array $zz_conf 'tmp_dir'
+ * @return string temp filename on local server
+ * @todo add further registered streams if necessary
+ */
+function zz_upload_remote_file($filename) {
+	if (substr($filename, 0, 7) !== 'http://'
+		AND substr($filename, 0, 8) !== 'https://'
+		AND substr($filename, 0, 6) !== 'ftp://'
+	) {
+		return $filename;
+	}
+	global $zz_conf;
+	$tmp = $zz_conf['tmp_dir'];
+	if (!is_dir($tmp)) $tmp = sys_get_temp_dir();
+
+	// download file
+	$filename_new = tempnam($tmp, 'DL_');
+	copy($filename, $filename_new);
+	return $filename_new;
+}	
 
 /**
  * checks which files allow file upload
@@ -494,7 +526,7 @@ function zz_upload_fileinfo($file, $extension) {
 	// TODO: allow further file testing here, e. g. for PDF, DXF
 	// and others, go for Identifying Characters.
 	// maybe use magic_mime_type()
-	if (!$file['validated']) {
+	if (empty($file['validated'])) {
 		if (zz_upload_mimecheck($file['mime'], $extension)) {
 			// Error: this mimetype/extension combination was already checked
 			$file['ext'] = 'unknown-'.$extension;
@@ -508,7 +540,8 @@ function zz_upload_fileinfo($file, $extension) {
 				$file['filetype'] = $filetype['filetype'];
 			} else {
 				$file['ext'] = 'unknown-'.$extension;
-				$file['mime'] = 'unknown: '.$file['type']; // show user upload type
+				if (isset($file['type']))
+					$file['mime'] = 'unknown: '.$file['type']; // show user upload type
 				$file['filetype'] = 'unknown';
 			}
 		}
@@ -765,7 +798,7 @@ function zz_upload_unix_file($filename, $file) {
 //		$file['validated'] = true;
 //	} elseif ($file['filetype_file'] == 'data') {
 	// ...
-	if ($file['validated'] AND $imagetype) {
+	if (!empty($file['validated']) AND $imagetype) {
 		$file['ext'] = $zz_conf['file_types'][$imagetype][0]['ext'];
 		$file['mime'] = $zz_conf['file_types'][$imagetype][0]['mime'];
 		$file['filetype'] = $zz_conf['file_types'][$imagetype][0]['filetype'];
@@ -1120,7 +1153,7 @@ function zz_upload_get_source_field($image, $zz_tab) {
 		$get_image = $my_rec['images'][$tab['f']][$image['source']]; 
 		// check if no picture, no required, no id then false
 		$id_field_name = $my_rec['id']['field_name'];
-		if ($get_image['upload']['error'] AND !isset($my_rec['POST'][$id_field_name])) {
+		if (!empty($get_image['upload']['error']) AND !isset($my_rec['POST'][$id_field_name])) {
 			$get_image = false;
 		}
 		// if there's something, overwrite $src_image
@@ -1232,6 +1265,8 @@ function zz_upload_check(&$images, $action, $rec = 0) {
 			$images[$img]['required'] = false;
 		$images[$img]['error'] = array();
 		if (empty($images[$img]['field_name'])) continue;
+		if (!isset($images[$img]['upload']['error']))
+			$images[$img]['upload']['error'] = UPLOAD_ERR_NO_FILE;
 
 		switch ($images[$img]['upload']['error']) {
 			case UPLOAD_ERR_NO_FILE: // no file
@@ -2002,6 +2037,7 @@ function zz_rename($oldname, $newname, $context = false) {
 
 /**
  * set errors for upload, backwards compatiblity for PHP 4.1 and earlier
+ * will be used from zzform_multi() as well
  *
  * @param array $upload
  * @global array $zz_conf
