@@ -888,7 +888,13 @@ function zz_upload_prepare($zz_tab) {
 
 			// reference on image data
 			$image = $my_rec['images'][$no][$img];
-			if (!empty($image['unsupported_filetype'])) continue;
+			if (!empty($image['unsupported_filetype'])) {
+				// get rid of the file and go on
+				if (empty($image['upload']['do_not_delete'])) {
+					zz_unlink_cleanup($image['upload']['tmp_name']);
+				}
+				continue;
+			}
 			$image = zz_upload_merge_options($image, $my_rec);
 
 			if (!empty($image['ignore'])) {
@@ -1065,7 +1071,7 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec) {
 	}  else {
 		// image action did not work out the way it should have.
 		$modified = -1;
-		unlink($tmp_filename);
+		zz_unlink_cleanup($tmp_filename);
 		if (!$zz_conf['int']['no_image_action']) {
 			$zz_error[] = array(
 				'msg_dev' => sprintf(zz_text('No real file was returned from function %s'), '<code>'.$action.'()</code>'),
