@@ -262,13 +262,7 @@ function zz_upload_check_files(&$zz_tab) {
 		$field['f_field_name'] = make_id_fieldname($field['f_field_name']);
 
 		$myfiles = array();
-		if (empty($_FILES[$field['f_field_name']])) {
-			$myfiles['name'] = false;
-			$myfiles['type'] = false;
-			$myfiles['tmp_name'] = false;
-			$myfiles['size'] = 0;
-			$myfiles['error'] = 4; // no file was uploaded
-		} else {
+		if (!empty($_FILES[$field['f_field_name']])) {
 			$myfiles = $_FILES[$field['f_field_name']];
 		}
 		foreach (array_keys($field['image']) as $img) {
@@ -295,6 +289,10 @@ function zz_upload_check_files(&$zz_tab) {
 			// might be '' (file upload with no file)
 			if (!isset($myfiles['tmp_name'][$field_name])) {
 				$myfiles['tmp_name'][$field_name] = '';
+				$myfiles['name'][$field_name] = '';
+				$myfiles['type'][$field_name] = '';
+				$myfiles['size'][$field_name] = 0;
+				$myfiles['error'][$field_name] = 4; // no file was uploaded
 			}
 
 			if (!isset($myfiles['name'][$field_name])) {
