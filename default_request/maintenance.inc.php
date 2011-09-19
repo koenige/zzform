@@ -448,7 +448,7 @@ function zz_maintenance_folders() {
 	foreach ($dirs as $key => $dir) {
 		$exists = file_exists($dir) ? true : false;
 		$text .= '<li>'.sprintf(zz_text('Current %s dir is: %s'), $key, $dir)
-			.(!$exists ? ' &#8211; <span class="error">but this directory does not exist</span>' : '')
+			.(!$exists AND $dir ? ' &#8211; <span class="error">but this directory does not exist</span>' : '')
 			.'</li>'."\n";
 		if (!$exists) continue;
 		$folders[] = $key;
