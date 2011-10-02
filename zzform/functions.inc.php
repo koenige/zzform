@@ -3017,31 +3017,29 @@ function zz_error_multi($errors) {
 function zz_create_topfolders($my_dir) {
 	global $zz_error;
 	if (!$my_dir) return false;
-	// checks if directories above current_dir exist and creates them if necessary
+	// checks if directories above current exist and creates them if necessary
 	while (strpos($my_dir, '//'))
 		$my_dir = str_replace('//', '/', $my_dir);
 	if (substr($my_dir, -1) == '/')	//	removes / from the end
 		$my_dir = substr($my_dir, 0, -1);
-	//	if dir does not exist, do a recursive check/makedir on parent director[y|ies]
-	if (!file_exists($my_dir)) { 
-		$upper_dir = substr($my_dir, 0, strrpos($my_dir, '/'));
-		$success = zz_create_topfolders($upper_dir);
-		if ($success) {
-			$success = mkdir($my_dir, 0777);
-			if (!$success) {
-				$zz_error[] = array(
-					'msg_dev' => sprintf(zz_text('Creation of directory %s failed.'), $my_dir),
-					'level' => E_USER_ERROR
-				);
-				$zz_error['error'] = true;
-				return false;
-			
-			//else $success = chown($my_dir, getmyuid());
-			//if (!$success) echo 'Change of Ownership of '.$my_dir.' failed.<br>';
-			} else return true;
-		}
-		return false;
-	} else return true;
+	if (file_exists($my_dir)) return true;
+
+	// if dir does not exist, do a recursive check/makedir on parent directories
+	$upper_dir = substr($my_dir, 0, strrpos($my_dir, '/'));
+	$success = zz_create_topfolders($upper_dir);
+	if ($success) {
+		$success = mkdir($my_dir, 0777);
+		if ($success) return true;
+		//else $success = chown($my_dir, getmyuid());
+		//if (!$success) echo 'Change of Ownership of '.$my_dir.' failed.<br>';
+	}
+
+	$zz_error[] = array(
+		'msg_dev' => sprintf(zz_text('Creation of directory %s failed.'), $my_dir),
+		'level' => E_USER_ERROR
+	);
+	$zz_error['error'] = true;
+	return false;
 }
 
 
