@@ -2065,12 +2065,7 @@ function zz_sql_order($fields, $sql) {
 			else $order[] = $_GET['group'].$my_order;
 	}
 	if (!$order) return $sql;
-	if (strstr($sql, 'ORDER BY'))
-		// if there's already an order, put new orders in front of this
-		$sql = str_replace ('ORDER BY', ' ORDER BY '.implode(',', $order).', ', $sql);
-	else
-		// if not, just append the order
-		$sql.= ' ORDER BY '.implode(', ', $order);
+	$sql = zz_edit_sql($sql, 'ORDER BY', implode(',', $order), 'add');
 	return $sql;
 }
 
