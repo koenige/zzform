@@ -1741,17 +1741,14 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 	global $zz_conf;
 	global $zz_error;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	$outputf = '';
 
-	// we do not show all fields if query is bigger than $field['max_select']
-	// so no need to query them (only if show_hierarchy_subtree is empty)
-	if (empty($field['show_hierarchy_subtree'])) {
-		$sql = zz_edit_sql($field['sql'], 'LIMIT', '0, '.($field['max_select']+1));
-	} else {
-		$sql = $field['sql'];
+	$lines = zz_field_query($field);
+// #1.4 SELECT has no result
+	if (!$lines) {
+		$outputf = zz_form_element($field['f_field_name'], '', 'hidden', true)
+			.zz_text('no_selection_possible');
+		return zz_return($outputf);
 	}
-	$lines = zz_db_fetch($sql, '_dummy_id_', 'numeric');
-	unset($sql);
 
 // #1.2 SELECT has only one result in the array, and this will be pre-selected 
 // because FIELD must not be NULL
@@ -1762,278 +1759,251 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 		$id_field_name = array_keys($line);
 		$id_field_name = current($id_field_name);
 		if ($record && $line[$id_field_name] != $record[$field['field_name']]) 
-			$outputf .= 'Possible Values: '.$line[$id_field_name]
+			$outputf = 'Possible Values: '.$line[$id_field_name]
 				.' -- Current Value: '
 				.htmlspecialchars($record[$field['field_name']])
 				.' -- Error --<br>'.zz_text('no_selection_possible');
 		else {
-			$outputf .= zz_form_element($field['f_field_name'], $line[$id_field_name],
+			$outputf = zz_form_element($field['f_field_name'], $line[$id_field_name],
 				'hidden', true).zz_draw_select($field, $record, $line, $id_field_name);
 		}
-
-// #1.3 SELECT has one or several results, let user select something
-	} elseif ($lines) {
-		$details = array();
-		$detail_record = array();
-
-		$count_rows = count($lines);
-		// get ID field name, for convenience this may be simply the first
-		// field name in the SQL query; sometimes you need to set a field_name
-		// for WHERE separately depending on database design
-		$line = current($lines);
-		$line = array_keys($line);
-		$id_field_name = current($line);
-		unset($line);
-		if (!empty($field['id_field_name']))
-			$where_field_name = $field['id_field_name'];
-		else
-			$where_field_name = $id_field_name;
-
-		// get single record if there is already something in the database
-		if (!empty($record[$field['field_name']])) {
-			$db_value = $record[$field['field_name']];
-			if (substr($db_value, 0, 1) == '"' && substr($db_value, -1) == '"')
-				$db_value = substr($db_value, 1, -1);
-			$sql = zz_edit_sql($field['sql'], 'WHERE', $where_field_name
-				.' = "'.mysql_real_escape_string($db_value).'"');
-			if (!$sql) $sql = $field['sql'];
-			$detail_records = zz_db_fetch($sql, $id_field_name, '', "record: "
-				.$field['field_name'].' (probably \'id_field_name\' needs to be set)');
-			if (count($detail_records) == 1) 
-				$detail_record = reset($detail_records);
-			else {
-				// check for equal record values
-				foreach ($detail_records as $line) {
-					if ($line[$id_field_name] != $record[$field['field_name']]) continue;
-					$detail_record = $line;
-				}
-			}
-		}
-
-		// no form display = no selection, just display the values in the record
-		if ($display != 'form') {
-			if ($detail_record) {
-				$outputf .= zz_draw_select($field, $record, $detail_record, 
-					$id_field_name);
-			}
-			return zz_return($outputf);
-		}
-		
-		// fill $details (i. e. all records that will be presented in an
-		// SELECT/OPTION HTML element) only if needed, otherwise this will need 
-		// a lot of memory usage
-		if ($count_rows <= $field['max_select'] 
-			OR !empty($field['show_hierarchy_subtree'])) {
-			foreach ($lines as $line)
-				$details[$line[$id_field_name]] = $line;
-		}
-		unset($lines);
-
-		// ok, we display something!
-		
-		// do we have to display the results hierarchical in a SELECT?
-		if (!empty($field['show_hierarchy'])) {
-			$my_select = array();
-			$show_hierarchy_subtree = 'NULL';
-			foreach ($details as $line) {
-				// if hierarchy is hierarchy of same table, don't allow to set
-				// IDs in hierarchy or below to avoid recursion
-				if (!empty($record[$id_field_name])) {
-					if (!empty($field['show_hierarchy_same_table'])
-						AND $line[$id_field_name] == $record[$id_field_name]) continue;
-					if (!empty($field['show_hierarchy_same_table'])
-						AND $line[$field['show_hierarchy']] == $record[$id_field_name]) continue;
-				}
-				// fill in values, index NULL is for uppermost level
-				$my_select[(!empty($line[$field['show_hierarchy']]) 
-					? $line[$field['show_hierarchy']] : 'NULL')][$line[$id_field_name]] = $line;
-			}
-			if (!empty($field['show_hierarchy_subtree']) 
-				AND !empty($my_select[$field['show_hierarchy_subtree']])) {
-				$show_hierarchy_subtree = $field['show_hierarchy_subtree'];
-				// count fields in subhierarchy, should be less than existing $count_rows
-				$count_rows = zz_count_records($my_select, $show_hierarchy_subtree);
-			} else
-				$field['show_hierarchy_subtree'] = false;
-		}
-
-		// more records than we'd like to display		
-		if ($count_rows > $field['max_select']) {
-			// don't show select but text input instead
-			$textinput = true;
-			if ($detail_record) {
-				$outputf .= zz_draw_select($field, $record, $detail_record, 
-					$id_field_name, 'reselect');
-				$textinput = false;
-			}
-			// value will not be checked if one detail record is added because 
-			// in this case validation procedure will be skipped!
-			if (!empty($record[$field['field_name']])) 
-				$value = $record[$field['field_name']]; 
-			else
-				$value = '';
-			
-			if ($textinput) {
-				// add new record
-				$fieldattr = array();
-				$fieldattr['size'] = !empty($field['size_select_too_long']) ? $field['size_select_too_long'] : 32;
-				if ($field['required']) $fieldattr['required'] = true;
-				$outputf .= zz_form_element($field['f_field_name'], $value, 'text_noescape', true, $fieldattr);
-			}
-			$outputf .= zz_form_element('zz_check_select[]', $field['f_field_name'], 'hidden');
-
-		// draw RADIO buttons
-		} elseif (!empty($field['show_values_as_list'])) {
-			$myi = 0;
-			if ($display == 'form') {
-				if (!isset($field['hide_novalue'])) $field['hide_novalue'] = true;
-				$myid = make_id_fieldname($field['f_field_name']).'-'.$myi;
-				$fieldattr = array();
-				if ($record) {
-					if (!$record[$field['field_name']]) $fieldattr['checked'] = true;
-				} else {
-					// no value, no default value 
-					// (both would be written in my record fieldname)
-					$fieldattr['checked'] = true;
-				}
-				if ($field['required']) $fieldattr['required'] = true;
-
-				$outputf .= '<label for="'.$myid.'"'
-					.($field['hide_novalue'] ? ' class="hidden"' : '').'>'
-					.zz_form_element($field['f_field_name'], '', 'radio', $myid, $fieldattr)
-					.'&nbsp;'.zz_text('no_selection').'</label>'
-					."\n".'<ul class="zz_radio_list">'."\n";
-			}
-			
-			foreach ($details as $id => $fields) {
-				array_shift($fields); // get rid of ID, is already in $id
-				if (!empty($field['sql_ignore'])) {
-					if (!is_array($field['sql_ignore']))
-						$field['sql_ignore'] = array($field['sql_ignore']);
-					if ($keys = array_intersect(array_keys($fields), $field['sql_ignore']))
-						foreach ($keys as $key) unset($fields[$key]);
-				}
-				if ($display == 'form') {
-					$myi++;
-					$myid = make_id_fieldname($field['f_field_name']).'-'.$myi;
-					$fieldattr = array();
-					if ($record AND $id == $record[$field['field_name']]) 
-						$fieldattr['checked'] = true;
-					if ($field['required']) $fieldattr['required'] = true;
-					$outputf .= '<li> <label for="'.$myid.'">'
-						.zz_form_element($field['f_field_name'], $id, 'radio', $myid, $fieldattr)
-						.'&nbsp;';
-					if (!empty($field['group'])) { // group display
-						if ($fields[$field['group']])
-							$outputf .= '<em>'.$fields[$field['group']].':</em> ';
-						unset($fields[$field['group']]);
-					}
-					$outputf .= implode(' | ', $fields).'</label>';
-					$outputf .= '</li>'."\n";
-				} else {
-					if ($id == $record[$field['field_name']]) 
-						$outputf .= implode(' | ', $fields);
-				}
-			}
-			if (empty($field['append_next']) && $display == 'form')
-				$outputf .= '</ul>'."\n";
-			else 
-				$zz_conf['int']['append_next_type'] = 'list';
-
-		// draw a SELECT element
-		} else {
-			$fieldattr = array();
-			if ($field['required']) $fieldattr['required'] = true;
-			$outputf .= zz_form_element($field['f_field_name'], '', 'select', true, $fieldattr)."\n";
-			// normally don't show a value, unless we only look at a part of a hierarchy
-			
-			$fieldvalue = ((!empty($field['show_hierarchy_subtree']) 
-				AND !empty($field['show_hierarchy_use_top_value_instead_NULL'])) 
-				? $field['show_hierarchy_subtree'] : '');
-			$fieldattr = array();
-			if ($record) if (!$record[$field['field_name']]) $fieldattr['selected'] = true;
-			$outputf .= zz_form_element(zz_text('none_selected'), $fieldvalue, 'option', '', $fieldattr);
-
-			$close_select = true;
-			if (empty($field['show_hierarchy']) AND empty($field['group'])) {
-				foreach ($details as $line)
-					$outputf .= zz_draw_select($field, $record, $line, $id_field_name, 'form');
-			} elseif (!empty($field['show_hierarchy']) 
-				AND !empty($my_select[$show_hierarchy_subtree]) AND !empty($field['group'])) {
-				// optgroup
-				$optgroup = false;
-				foreach ($my_select[$show_hierarchy_subtree] as $line) {
-					if ($optgroup != $line[$field['group']]) {
-						if ($optgroup) $outputf .= '</optgroup>'."\n";
-						$optgroup = $line[$field['group']];
-						$outputf .= '<optgroup label="'.$optgroup.'">'."\n";
-					}
-					unset($line[$field['group']]); // not needed anymore
-					$outputf .= zz_draw_select($field, $record, $line, $id_field_name, 
-						'form', 1, $my_select, $field['show_hierarchy']);
-				}
-				$outputf .= '</optgroup>'."\n";
-			} elseif (!empty($field['show_hierarchy']) AND !empty($my_select[$show_hierarchy_subtree])) {
-				foreach ($my_select[$show_hierarchy_subtree] AS $line) {
-					$outputf .= zz_draw_select($field, $record, $line, $id_field_name, 
-						'form', 0, $my_select, $field['show_hierarchy']);
-				}
-			} elseif (!empty($field['show_hierarchy']) AND $count_rows == 1 AND $my_select) {
-				// just one line, change multidimensional array into simple array
-				$line = array_shift($my_select); // first hierarchy
-				$line = array_shift($line); // first record in hierarchy
-				$outputf .= zz_draw_select($field, $record, $line, $id_field_name, 
-					'form', 0, $my_select, $field['show_hierarchy']);
-			} elseif (!empty($field['show_hierarchy']) AND $count_rows == 1) {
-				// could only select itself, so treat as if no selection possible
-				$outputf = zz_form_element($field['f_field_name'], '', 'hidden', true)
-					.zz_text('no_selection_possible');
-				$close_select = false;
-			} elseif (!empty($field['group'])) {
-				// optgroup
-				$optgroup = false;
-				foreach ($details as $line) {
-					if ($optgroup != $line[$field['group']]) {
-						if ($optgroup) $outputf .= '</optgroup>'."\n";
-						$optgroup = $line[$field['group']];
-						$outputf .= '<optgroup label="'.$optgroup.'">'."\n";
-					}
-					unset($line[$field['group']]); // not needed anymore
-					$outputf .= zz_draw_select($field, $record, $line, $id_field_name, 
-						'form', 1);
-				}
-				$outputf .= '</optgroup>'."\n";
-			} elseif ($detail_record) {
-			// re-edit record, something was posted, ignore hierarchy because 
-			// there's only one record coming back
-				$outputf .= zz_draw_select($field, $record, $detail_record, $id_field_name, 
-					'form');
-			} elseif (!empty($field['show_hierarchy']) AND $show_hierarchy_subtree == 'NULL') {
-				// could only select itself, so treat as if no selection possible
-				$outputf = zz_form_element($field['f_field_name'], '', 'hidden', true)
-					.zz_text('no_selection_possible').' '
-					.zz_text('(This entry is the highest entry in the hierarchy.)');
-				$close_select = false;
-			} elseif (!empty($field['show_hierarchy'])) {
-				$zz_error[] = array(
-					'msg' => 'no_selection_possible',
-					'msg_dev' => 'Configuration error: "show_hierarchy" used but '
-						.'there is no highest level in the hierarchy.',
-					'level' => E_USER_WARNING
-				);
-			}
-			if ($close_select) $outputf .= '</select>'."\n";
-			zz_error();
-			$outputf .= zz_error_output();
-		}
-	
-	// #1.4 SELECT has no result
-	} else {
-		$outputf .= zz_form_element($field['f_field_name'], '', 'hidden', true)
-			.zz_text('no_selection_possible');
+		return zz_return($outputf);
 	}
 
+// #1.3 SELECT has one or several results, let user select something
+
+	$id_field_name = zz_field_get_id_field_name($lines);
+	$detail_record = zz_field_select_get_record($field, $record, $id_field_name);
+
+	// no form display = no selection, just display the values in the record
+	if ($display != 'form') {
+		if (!$detail_record) return '';
+		$outputf = zz_draw_select($field, $record, $detail_record, $id_field_name);
+		return zz_return($outputf);
+	}
+
+	// ok, we display something!
+	// re-index lines by id_field_name if it makes sense
+	$count_rows = count($lines);
+	$lines = zz_field_select_lines($field, $lines);
+
+	// do we have to display the results hierarchical in a SELECT?
+	if (!empty($field['show_hierarchy'])) {
+		$my_select = array();
+		$show_hierarchy_subtree = 'NULL';
+		foreach ($lines as $line) {
+			// if hierarchy is hierarchy of same table, don't allow to set
+			// IDs in hierarchy or below to avoid recursion
+			if (!empty($record[$id_field_name])) {
+				if (!empty($field['show_hierarchy_same_table'])
+					AND $line[$id_field_name] == $record[$id_field_name]) continue;
+				if (!empty($field['show_hierarchy_same_table'])
+					AND $line[$field['show_hierarchy']] == $record[$id_field_name]) continue;
+			}
+			// fill in values, index NULL is for uppermost level
+			$my_select[(!empty($line[$field['show_hierarchy']]) 
+				? $line[$field['show_hierarchy']] : 'NULL')][$line[$id_field_name]] = $line;
+		}
+		if (!empty($field['show_hierarchy_subtree']) 
+			AND !empty($my_select[$field['show_hierarchy_subtree']])) {
+			$show_hierarchy_subtree = $field['show_hierarchy_subtree'];
+			// count fields in subhierarchy, should be less than existing $count_rows
+			$count_rows = zz_count_records($my_select, $show_hierarchy_subtree);
+		} else {
+			$field['show_hierarchy_subtree'] = false;
+		}
+	}
+
+	// more records than we'd like to display		
+	if ($count_rows > $field['max_select']) {
+		$outputf = zz_form_element('zz_check_select[]', $field['f_field_name'], 'hidden');
+
+		// don't show select but text input instead
+		if ($detail_record) {
+			$outputf .= zz_draw_select($field, $record, $detail_record, 
+				$id_field_name, 'reselect');
+			return zz_return($outputf);
+		}
+		// value will not be checked if one detail record is added because 
+		// in this case validation procedure will be skipped!
+		if (!empty($record[$field['field_name']])) 
+			$value = $record[$field['field_name']]; 
+		else
+			$value = '';
+		
+		// add new record
+		$fieldattr = array();
+		$fieldattr['size'] = !empty($field['size_select_too_long']) ? $field['size_select_too_long'] : 32;
+		if ($field['required']) $fieldattr['required'] = true;
+		$outputf .= zz_form_element($field['f_field_name'], $value, 'text_noescape', true, $fieldattr);
+		return zz_return($outputf);
+	}
+
+	// draw RADIO buttons
+	if (!empty($field['show_values_as_list'])) {
+		$myi = 0;
+		$radios = array();
+		foreach ($lines as $id => $fields) {
+			array_shift($fields); // get rid of ID, is already in $id
+			if (!empty($field['sql_ignore'])) {
+				if (!is_array($field['sql_ignore']))
+					$field['sql_ignore'] = array($field['sql_ignore']);
+				if ($keys = array_intersect(array_keys($fields), $field['sql_ignore']))
+					foreach ($keys as $key) unset($fields[$key]);
+			}
+			$myi++;
+			$label = '';
+			if (!empty($field['group'])) { 
+				// group display
+				if ($fields[$field['group']])
+					$label .= '<em>'.$fields[$field['group']].':</em> ';
+				unset($fields[$field['group']]);
+			}
+			$label .= implode(' | ', $fields);
+			$radios[] = zz_field_select_radio_value($field, $record, $id, $label, $myi);
+		}
+		$outputf = zz_field_select_radio($field, $record, $radios);
+
+	// draw a SELECT element
+	} else {
+		$outputf = '';
+		$fieldattr = array();
+		if ($field['required']) $fieldattr['required'] = true;
+		$outputf .= zz_form_element($field['f_field_name'], '', 'select', true, $fieldattr)."\n";
+		// normally don't show a value, unless we only look at a part of a hierarchy
+		
+		$fieldvalue = ((!empty($field['show_hierarchy_subtree']) 
+			AND !empty($field['show_hierarchy_use_top_value_instead_NULL'])) 
+			? $field['show_hierarchy_subtree'] : '');
+		$fieldattr = array();
+		if ($record) if (!$record[$field['field_name']]) $fieldattr['selected'] = true;
+		$outputf .= zz_form_element(zz_text('none_selected'), $fieldvalue, 'option', '', $fieldattr);
+
+		$close_select = true;
+		if (empty($field['show_hierarchy']) AND empty($field['group'])) {
+			foreach ($lines as $line)
+				$outputf .= zz_draw_select($field, $record, $line, $id_field_name, 'form');
+		} elseif (!empty($field['show_hierarchy']) 
+			AND !empty($my_select[$show_hierarchy_subtree]) AND !empty($field['group'])) {
+			// optgroup
+			$optgroup = false;
+			foreach ($my_select[$show_hierarchy_subtree] as $line) {
+				if ($optgroup != $line[$field['group']]) {
+					if ($optgroup) $outputf .= '</optgroup>'."\n";
+					$optgroup = $line[$field['group']];
+					$outputf .= '<optgroup label="'.$optgroup.'">'."\n";
+				}
+				unset($line[$field['group']]); // not needed anymore
+				$outputf .= zz_draw_select($field, $record, $line, $id_field_name, 
+					'form', 1, $my_select, $field['show_hierarchy']);
+			}
+			$outputf .= '</optgroup>'."\n";
+		} elseif (!empty($field['show_hierarchy']) AND !empty($my_select[$show_hierarchy_subtree])) {
+			foreach ($my_select[$show_hierarchy_subtree] AS $line) {
+				$outputf .= zz_draw_select($field, $record, $line, $id_field_name, 
+					'form', 0, $my_select, $field['show_hierarchy']);
+			}
+		} elseif (!empty($field['show_hierarchy']) AND $count_rows == 1 AND $my_select) {
+			// just one line, change multidimensional array into simple array
+			$line = array_shift($my_select); // first hierarchy
+			$line = array_shift($line); // first record in hierarchy
+			$outputf .= zz_draw_select($field, $record, $line, $id_field_name, 
+				'form', 0, $my_select, $field['show_hierarchy']);
+		} elseif (!empty($field['show_hierarchy']) AND $count_rows == 1) {
+			// could only select itself, so treat as if no selection possible
+			$outputf = zz_form_element($field['f_field_name'], '', 'hidden', true)
+				.zz_text('no_selection_possible');
+			$close_select = false;
+		} elseif (!empty($field['group'])) {
+			// optgroup
+			$optgroup = false;
+			foreach ($lines as $line) {
+				if ($optgroup != $line[$field['group']]) {
+					if ($optgroup) $outputf .= '</optgroup>'."\n";
+					$optgroup = $line[$field['group']];
+					$outputf .= '<optgroup label="'.$optgroup.'">'."\n";
+				}
+				unset($line[$field['group']]); // not needed anymore
+				$outputf .= zz_draw_select($field, $record, $line, $id_field_name, 
+					'form', 1);
+			}
+			$outputf .= '</optgroup>'."\n";
+		} elseif ($detail_record) {
+		// re-edit record, something was posted, ignore hierarchy because 
+		// there's only one record coming back
+			$outputf .= zz_draw_select($field, $record, $detail_record, $id_field_name, 
+				'form');
+		} elseif (!empty($field['show_hierarchy']) AND $show_hierarchy_subtree == 'NULL') {
+			// could only select itself, so treat as if no selection possible
+			$outputf = zz_form_element($field['f_field_name'], '', 'hidden', true)
+				.zz_text('no_selection_possible').' '
+				.zz_text('(This entry is the highest entry in the hierarchy.)');
+			$close_select = false;
+		} elseif (!empty($field['show_hierarchy'])) {
+			$zz_error[] = array(
+				'msg' => 'no_selection_possible',
+				'msg_dev' => 'Configuration error: "show_hierarchy" used but '
+					.'there is no highest level in the hierarchy.',
+				'level' => E_USER_WARNING
+			);
+		}
+		if ($close_select) $outputf .= '</select>'."\n";
+		zz_error();
+		$outputf .= zz_error_output();
+	}
 	return zz_return($outputf);
+}
+
+/**
+ * Query records for select element
+ *
+ * @param array $field 'sql', 'show_hierarchy_subtree', 'max_select'
+ * @return array lines from database
+ */
+function zz_field_query($field) {
+	// we do not show all fields if query is bigger than $field['max_select']
+	// so no need to query them (only if show_hierarchy_subtree is empty)
+	if (empty($field['show_hierarchy_subtree'])) {
+		$sql = zz_edit_sql($field['sql'], 'LIMIT', '0, '.($field['max_select']+1));
+	} else {
+		$sql = $field['sql'];
+	}
+	return zz_db_fetch($sql, '_dummy_id_', 'numeric');
+}
+
+/**
+ * get ID field name, for convenience this may be simply the first
+ * field name in the SQL query; sometimes you need to set a field_name
+ * for WHERE separately depending on database design
+ *
+ * @param array $lines
+ * @return string
+ */
+function zz_field_get_id_field_name($lines) {
+	$line = current($lines);
+	$line = array_keys($line);
+	return current($line);
+}
+
+/**
+ * get $lines (i. e. all records that will be presented in an
+ * SELECT/OPTION HTML element) only if needed, otherwise this will need 
+ * a lot of memory usage
+ *
+ * @param array $field
+ * @param array $lines
+ * @return array
+ */
+function zz_field_select_lines($field, $lines) {
+	if (count($lines) <= $field['max_select'] 
+		OR !empty($field['show_hierarchy_subtree'])) {
+		$details = array();
+		// re-index $lines by value from id_field_name
+		foreach ($lines as $line)
+			$details[$line[$id_field_name]] = $line;
+		return $details;
+	}
+	return array();
 }
 
 /**
@@ -2094,6 +2064,125 @@ function zz_field_select_set_sql($field, $display, $record) {
 	}
 	$text = zz_field_select_set($field, $display, $record);
 	return $text;
+}
+
+/**
+ * get single record if there is already something in the database
+ *
+ * @param array $field field definition
+ * @param array $record
+ * @return array
+ */
+function zz_field_select_get_record($field, $record, $id_field_name) {
+	if (empty($record[$field['field_name']])) return array();
+	
+	// get value
+	$db_value = $record[$field['field_name']];
+	if (substr($db_value, 0, 1) == '"' && substr($db_value, -1) == '"')
+		$db_value = substr($db_value, 1, -1);
+
+	// get SQL query
+	if (!empty($field['id_field_name']))
+		$where_field_name = $field['id_field_name'];
+	else
+		$where_field_name = $id_field_name;
+	$sql = zz_edit_sql($field['sql'], 'WHERE', $where_field_name
+		.' = "'.mysql_real_escape_string($db_value).'"');
+	if (!$sql) $sql = $field['sql'];
+
+	// fetch query
+	$detail_records = zz_db_fetch($sql, $id_field_name, '', "record: "
+		.$field['field_name'].' (probably \'id_field_name\' needs to be set)');
+	
+	// only one record?
+	if (count($detail_records) === 1) {
+		$detail_record = reset($detail_records);
+		return $detail_record;
+	}
+	
+	// check for equal record values
+	foreach ($detail_records as $line) {
+		if ($line[$id_field_name] != $record[$field['field_name']]) continue;
+		return $line;
+	}
+	return array();
+}
+
+/**
+ * outputs radio button list
+ *
+ * @param array $field
+ * @param array $record
+ * @param array $radios (output of zz_field_select_radio_value())
+ * @global array $zz_conf
+ * @return string $text
+ * @see zz_field_select_radio_none(), zz_field_select_radio_value()
+ */
+function zz_field_select_radio($field, $record, $radios) {
+	$text = zz_field_select_radio_none($field, $record);
+
+	// variant: only two or three values next to each other
+	if (empty($field['show_values_as_list'])) {
+		$text .= implode("\n", $radios);
+		return $text;
+	}
+
+	// variant: more values as a list
+	$text .= "\n".'<ul class="zz_radio_list">'."\n<li>"
+		.implode("</li>\n<li>", $radios)."</li>\n";
+	if (empty($field['append_next'])) {
+		$text .= '</ul>'."\n";
+	} else {
+		global $zz_conf;
+		$zz_conf['int']['append_next_type'] = 'list';
+	}
+	return $text;
+}
+
+/**
+ * radio button list: display first radio button with no value
+ *
+ * @param array $field
+ * @param array $record
+ * @return string
+ */
+function zz_field_select_radio_none($field, $record) {
+	$fieldattr = array();
+	if ($record) {
+		if (!$record[$field['field_name']]) $fieldattr['checked'] = true;
+	} else {
+		// no value, no default value 
+		// (both would be written in my record fieldname)
+		$fieldattr['checked'] = true;
+	}
+	if ($field['required']) $fieldattr['required'] = true;
+
+	$id = make_id_fieldname($field['f_field_name']).'-0';
+	if (!isset($field['hide_novalue'])) $field['hide_novalue'] = true;
+	return '<label for="'.$id.'"'
+		.($field['hide_novalue'] ? ' class="hidden"' : '').'>'
+		.zz_form_element($field['f_field_name'], '', 'radio', $id, $fieldattr)
+		.'&nbsp;'.zz_text('no_selection').'</label>'."\n";
+}
+
+/**
+ * radio button list: display radio button with value
+ *
+ * @param array $field
+ * @param array $record
+ * @param mixed $value (int, string)
+ * @param string $label
+ * @param int $pos
+ * @return string
+ */
+function zz_field_select_radio_value($field, $record, $value, $label, $pos) {
+	$id = make_id_fieldname($field['f_field_name']).'-'.$pos;
+	$fieldattr = array();
+	if ($record AND $value == $record[$field['field_name']]) 
+		$fieldattr['checked'] = true;
+	if ($field['required']) $fieldattr['required'] = true;
+	$element = zz_form_element($field['f_field_name'], $value, 'radio', $id, $fieldattr);
+	return sprintf(' <label for="%s">%s&nbsp;%s</label>', $id, $element, $label);
 }
 
 /**
@@ -2183,83 +2272,58 @@ function zz_field_select_set($field, $display, $record) {
 function zz_field_select_enum($field, $display, $record) {
 	global $zz_conf;
 
-	$myi = 0;
-	$text = '';
-	$sel_option = (count($field['enum']) <= 2 ? true : 
-		(!empty($field['show_values_as_list']) ? true : false));
-	if ($display == 'form') {
-		if ($sel_option) {
-			if (!isset($field['hide_novalue'])) $field['hide_novalue'] = true;
-			$myid = make_id_fieldname($field['f_field_name']).'-'.$myi;
-			$fieldattr = array();
-			if ($record) { 
-				if (!$record[$field['field_name']]) 
-					$fieldattr['checked'] = true;
-			} else {
-				// no value, no default value (both would be 
-				// written in my record fieldname)
-				$fieldattr['checked'] = true;
-			}
-			if ($field['required']) $fieldattr['required'] = true;
-			$text .= '<label for="'.$myid.'"'
-				.($field['hide_novalue'] ? ' class="hidden"' : '').'>'
-				.zz_form_element($field['f_field_name'], '', 'radio', $myid, $fieldattr)
-				.'&nbsp;'.zz_text('no_selection').'</label>';
-			if (!empty($field['show_values_as_list'])) 
-				$text .= "\n".'<ul class="zz_radio_list">'."\n";
-		} else {
-			$fieldattr = array();
-			if ($field['required']) $fieldattr['required'] = true;
-			$text .= zz_form_element($field['f_field_name'], '', 'select', true, $fieldattr)."\n";
-			$fieldattr = array();
-			if ($record) { 
-				if (!$record[$field['field_name']])
-					$fieldattr['selected'] = true;
-			} else {
-				// no value, no default value (both would be 
-				// written in my record fieldname)
-				$fieldattr['selected'] = true;
-			}
-			$text .= zz_form_element(zz_text('none_selected'), '', 'option', false, $fieldattr)."\n";
-		} 
-	}
-	foreach ($field['enum'] as $key => $set) {
-		if ($display == 'form') {
-			if ($sel_option) {
-				$myi++;
-				$myid = make_id_fieldname($field['f_field_name']).'-'.$myi;
-				if (!empty($field['show_values_as_list'])) $text .= '<li>';
-				$fieldattr = array();
-				if ($record) if ($set == $record[$field['field_name']]) 
-					$fieldattr['checked'] = true;
-				if ($field['required']) $fieldattr['required'] = true;
-				$text .= ' <label for="'.$myid.'">'
-					.zz_form_element($field['f_field_name'], $set, 'radio', $myid, $fieldattr)
-					.'&nbsp;'.zz_print_enum($field, $set, 'full', $key).'</label>';
-				if (!empty($field['show_values_as_list'])) $text .= '</li>'."\n";
-			} else {
-				$fieldattr = array();
-				if ($record AND $set == $record[$field['field_name']]) {
-					$fieldattr['selected'] = true;
-				} elseif (!empty($field['disabled_ids']) 
-					AND is_array($field['disabled_ids'])
-					AND in_array($set, $field['disabled_ids'])) {
-					$fieldattr['disabled'] = true;
-				}
-				$text .= zz_form_element(zz_print_enum($field, $set, 'full', $key), $set, 'option', false, $fieldattr)."\n";
-			}
-		} else {
+	if ($display !== 'form') {
+		$text = '';
+		foreach ($field['enum'] as $key => $set) {
 			if ($set != $record[$field['field_name']]) continue;
 			$text .= zz_print_enum($field, $set, 'full', $key);
 		}
-	}
-	if (!empty($field['show_values_as_list'])) {
-		if (empty($field['append_next']) && $display == 'form')
-			$text .= '</ul>'."\n";
-		else 
+		if (!empty($field['show_values_as_list'])) {
 			$zz_conf['int']['append_next_type'] = 'list';
+		}
+		return $text;
 	}
-	if ($display == 'form' && !$sel_option) $text .= '</select>'."\n";
+
+	// check if should be shown as a list
+	// and if yes, return a list
+	$sel_option = (count($field['enum']) <= 2 ? true : 
+		(!empty($field['show_values_as_list']) ? true : false));
+	if ($sel_option) {
+		$myi = 0;
+		$radios = array();
+		foreach ($field['enum'] as $key => $set) {
+			$myi++;
+			$label = zz_print_enum($field, $set, 'full', $key);
+			$radios[] = zz_field_select_radio_value($field, $record, $set, $label, $myi);
+		}
+		return zz_field_select_radio($field, $record, $radios);
+	}
+
+	$fieldattr = array();
+	if ($field['required']) $fieldattr['required'] = true;
+	$text = zz_form_element($field['f_field_name'], '', 'select', true, $fieldattr)."\n";
+	$fieldattr = array();
+	if ($record) { 
+		if (!$record[$field['field_name']])
+			$fieldattr['selected'] = true;
+	} else {
+		// no value, no default value (both would be 
+		// written in my record fieldname)
+		$fieldattr['selected'] = true;
+	}
+	$text .= zz_form_element(zz_text('none_selected'), '', 'option', false, $fieldattr)."\n";
+	foreach ($field['enum'] as $key => $set) {
+		$fieldattr = array();
+		if ($record AND $set == $record[$field['field_name']]) {
+			$fieldattr['selected'] = true;
+		} elseif (!empty($field['disabled_ids']) 
+			AND is_array($field['disabled_ids'])
+			AND in_array($set, $field['disabled_ids'])) {
+			$fieldattr['disabled'] = true;
+		}
+		$text .= zz_form_element(zz_print_enum($field, $set, 'full', $key), $set, 'option', false, $fieldattr)."\n";
+	}
+	$text .= '</select>'."\n";
 	return $text;
 }
 
