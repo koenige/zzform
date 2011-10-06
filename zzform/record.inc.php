@@ -1984,6 +1984,9 @@ function zz_field_select_hierarchy($field, $lines, $record, $id_field_name) {
  * @return array
  */
 function zz_field_sethierarchy($field, $lines, $subtree, $level = 0) {
+	static $levels;
+	if (!$level) $levels = $level;
+
 	if ($subtree) $branches = $lines[$subtree];
 	else $branches = $lines['NULL'];
 
@@ -1992,6 +1995,12 @@ function zz_field_sethierarchy($field, $lines, $subtree, $level = 0) {
 		$tree[$id] = $line;
 		if (!empty($lines[$id])) {
 			$tree += zz_field_sethierarchy($field, $lines, $id, $level+1);
+		}
+	}
+	if (!$levels) {
+		// remove zz_level, it's only top level
+		foreach (array_keys($tree) as $id) {
+			unset($tree[$id]['zz_level']);
 		}
 	}
 	return $tree;
