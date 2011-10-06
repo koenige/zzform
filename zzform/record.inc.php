@@ -1820,27 +1820,8 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 
 	// 1.3.2: more records than we'd like to display		
 	if ($count_rows > $field['max_select']) {
-		$outputf = zz_form_element('zz_check_select[]', $field['f_field_name'], 'hidden');
-
-		// don't show select but text input instead
-		if ($detail_record) {
-			$outputf .= zz_draw_select($field, $record, $detail_record, 
-				$id_field_name, 'reselect');
-			return zz_return($outputf);
-		}
-		// value will not be checked if one detail record is added because 
-		// in this case validation procedure will be skipped!
-		if (!empty($record[$field['field_name']])) 
-			$value = $record[$field['field_name']]; 
-		else
-			$value = '';
-		
-		// add new record
-		$fieldattr = array();
-		$fieldattr['size'] = !empty($field['size_select_too_long']) ? $field['size_select_too_long'] : 32;
-		if ($field['required']) $fieldattr['required'] = true;
-		$outputf .= zz_form_element($field['f_field_name'], $value, 'text_noescape', true, $fieldattr);
-		return zz_return($outputf);
+		return zz_return(zz_field_select_sql_too_long($field, $record, 
+			$detail_record, $id_field_name));
 	}
 
 	// 1.3.3: draw RADIO buttons
@@ -1982,6 +1963,40 @@ function zz_field_get_id_field_name($lines) {
 	$line = current($lines);
 	$line = array_keys($line);
 	return current($line);
+}
+
+/**
+ * draws a single INPUT field instead of SELECT/OPTION
+ * in case there are too many values
+ *
+ * @param array $field
+ * @param array $record
+ * @param array $detail_record
+ * @param string $id_field_name
+ * @return string
+ * @todo AJAX typeaheadfind
+ */
+function zz_field_select_sql_too_long($field, $record, $detail_record, $id_field_name) {		
+	$outputf = zz_form_element('zz_check_select[]', $field['f_field_name'], 'hidden');
+
+	// don't show select but text input instead
+	if ($detail_record) {
+		$outputf .= zz_draw_select($field, $record, $detail_record, $id_field_name, 'reselect');
+		return $outputf;
+	}
+
+	// value will not be checked if one detail record is added because 
+	// in this case validation procedure will be skipped!
+	if (!empty($record[$field['field_name']])) 
+		$value = $record[$field['field_name']]; 
+	else
+		$value = '';
+	// add new record
+	$fieldattr = array();
+	$fieldattr['size'] = !empty($field['size_select_too_long']) ? $field['size_select_too_long'] : 32;
+	if ($field['required']) $fieldattr['required'] = true;
+	$outputf .= zz_form_element($field['f_field_name'], $value, 'text_noescape', true, $fieldattr);
+	return $outputf;
 }
 
 /**
