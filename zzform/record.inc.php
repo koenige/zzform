@@ -808,8 +808,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					// #5 SELECT without any source = that won't work ...
 					$outputf = zz_text('no_source_defined').'. '.zz_text('no_selection_possible');
 				}
-				zz_error();
-				$outputf .= zz_error_output();
 				break;
 
 			case 'image':
@@ -1749,6 +1747,8 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 	if (!$lines) {
 		$outputf = zz_form_element($field['f_field_name'], '', 'hidden', true)
 			.zz_text('no_selection_possible');
+		zz_error();
+		$outputf .= zz_error_output();
 		return zz_return($outputf);
 	}
 
