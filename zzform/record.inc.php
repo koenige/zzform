@@ -1775,7 +1775,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 	$id_field_name = zz_field_get_id_field_name($lines);
 	$detail_record = zz_field_select_get_record($field, $record, $id_field_name);
 
-	// no form display = no selection, just display the values in the record
+	// 1.3.1: no form display = no selection, just display the values in the record
 	if ($display != 'form') {
 		if (!$detail_record) return '';
 		$outputf = zz_draw_select($field, $record, $detail_record, $id_field_name);
@@ -1788,6 +1788,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 	$lines = zz_field_select_lines($field, $lines, $id_field_name);
 
 	// do we have to display the results hierarchical in a SELECT?
+	$my_select_lines = false;
 	if (!empty($field['show_hierarchy'])) {
 		$my_select = array();
 		$show_hierarchy_subtree = 'NULL';
@@ -1812,9 +1813,12 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 		} else {
 			$field['show_hierarchy_subtree'] = false;
 		}
+		if (!empty($my_select[$show_hierarchy_subtree])) {
+			$my_select_lines = $my_select[$show_hierarchy_subtree];
+		}
 	}
 
-	// more records than we'd like to display		
+	// 1.3.2: more records than we'd like to display		
 	if ($count_rows > $field['max_select']) {
 		$outputf = zz_form_element('zz_check_select[]', $field['f_field_name'], 'hidden');
 
@@ -1839,7 +1843,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 		return zz_return($outputf);
 	}
 
-	// draw RADIO buttons
+	// 1.3.3: draw RADIO buttons
 	if (!empty($field['show_values_as_list'])) {
 		$myi = 0;
 		$radios = array();
@@ -1857,95 +1861,95 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 			$label .= implode(' | ', $line);
 			$radios[] = zz_field_select_radio_value($field, $record, $id, $label, $myi);
 		}
-		$outputf = zz_field_select_radio($field, $record, $radios);
-
-	// draw a SELECT element
-	} else {
-		$outputf = '';
-		$fieldattr = array();
-		if ($field['required']) $fieldattr['required'] = true;
-		$outputf .= zz_form_element($field['f_field_name'], '', 'select', true, $fieldattr)."\n";
-		// normally don't show a value, unless we only look at a part of a hierarchy
+		return zz_return(zz_field_select_radio($field, $record, $radios));
+	}
 		
-		$fieldvalue = ((!empty($field['show_hierarchy_subtree']) 
-			AND !empty($field['show_hierarchy_use_top_value_instead_NULL'])) 
-			? $field['show_hierarchy_subtree'] : '');
-		$fieldattr = array();
-		if ($record) if (!$record[$field['field_name']]) $fieldattr['selected'] = true;
-		$outputf .= zz_form_element(zz_text('none_selected'), $fieldvalue, 'option', '', $fieldattr);
+	// 1.3.4: draw a SELECT element
+	$fieldattr = array();
+	if ($field['required']) $fieldattr['required'] = true;
+	$outputf = zz_form_element($field['f_field_name'], '', 'select', true, $fieldattr)."\n";
 
-		$close_select = true;
-		if (empty($field['show_hierarchy']) AND empty($field['group'])) {
-			foreach ($lines as $line)
-				$outputf .= zz_draw_select($field, $record, $line, $id_field_name, 'form');
-		} elseif (!empty($field['show_hierarchy']) 
-			AND !empty($my_select[$show_hierarchy_subtree]) AND !empty($field['group'])) {
-			// optgroup
-			$optgroup = false;
-			foreach ($my_select[$show_hierarchy_subtree] as $line) {
-				if ($optgroup != $line[$field['group']]) {
-					if ($optgroup) $outputf .= '</optgroup>'."\n";
-					$optgroup = $line[$field['group']];
-					$outputf .= '<optgroup label="'.$optgroup.'">'."\n";
-				}
-				unset($line[$field['group']]); // not needed anymore
-				$outputf .= zz_draw_select($field, $record, $line, $id_field_name, 
-					'form', 1, $my_select, $field['show_hierarchy']);
+	// first OPTION element
+	// normally don't show a value, unless we only look at a part of a hierarchy
+	$fieldvalue = ((!empty($field['show_hierarchy_subtree']) 
+		AND !empty($field['show_hierarchy_use_top_value_instead_NULL'])) 
+		? $field['show_hierarchy_subtree'] : '');
+	$fieldattr = array();
+	if ($record) if (!$record[$field['field_name']]) $fieldattr['selected'] = true;
+	$outputf .= zz_form_element(zz_text('none_selected'), $fieldvalue, 'option', '', $fieldattr);
+
+	// further OPTION elements
+	$close_select = true;
+	if (empty($field['show_hierarchy']) AND empty($field['group'])) {
+		foreach ($lines as $line)
+			$outputf .= zz_draw_select($field, $record, $line, $id_field_name, 'form');
+	} elseif (!empty($field['show_hierarchy']) 
+		AND $my_select_lines AND !empty($field['group'])) {
+		// optgroup
+		$optgroup = false;
+		foreach ($my_select_lines as $line) {
+			if ($optgroup != $line[$field['group']]) {
+				if ($optgroup) $outputf .= '</optgroup>'."\n";
+				$optgroup = $line[$field['group']];
+				$outputf .= '<optgroup label="'.$optgroup.'">'."\n";
 			}
-			$outputf .= '</optgroup>'."\n";
-		} elseif (!empty($field['show_hierarchy']) AND !empty($my_select[$show_hierarchy_subtree])) {
-			foreach ($my_select[$show_hierarchy_subtree] AS $line) {
-				$outputf .= zz_draw_select($field, $record, $line, $id_field_name, 
-					'form', 0, $my_select, $field['show_hierarchy']);
-			}
-		} elseif (!empty($field['show_hierarchy']) AND $count_rows == 1 AND $my_select) {
-			// just one line, change multidimensional array into simple array
-			$line = array_shift($my_select); // first hierarchy
-			$line = array_shift($line); // first record in hierarchy
+			unset($line[$field['group']]); // not needed anymore
+			$outputf .= zz_draw_select($field, $record, $line, $id_field_name, 
+				'form', 1, $my_select, $field['show_hierarchy']);
+		}
+		$outputf .= '</optgroup>'."\n";
+	} elseif (!empty($field['show_hierarchy']) AND $my_select_lines) {
+		foreach ($my_select_lines AS $line) {
 			$outputf .= zz_draw_select($field, $record, $line, $id_field_name, 
 				'form', 0, $my_select, $field['show_hierarchy']);
-		} elseif (!empty($field['show_hierarchy']) AND $count_rows == 1) {
-			// could only select itself, so treat as if no selection possible
-			$outputf = zz_form_element($field['f_field_name'], '', 'hidden', true)
-				.zz_text('no_selection_possible');
-			$close_select = false;
-		} elseif (!empty($field['group'])) {
-			// optgroup
-			$optgroup = false;
-			foreach ($lines as $line) {
-				if ($optgroup != $line[$field['group']]) {
-					if ($optgroup) $outputf .= '</optgroup>'."\n";
-					$optgroup = $line[$field['group']];
-					$outputf .= '<optgroup label="'.$optgroup.'">'."\n";
-				}
-				unset($line[$field['group']]); // not needed anymore
-				$outputf .= zz_draw_select($field, $record, $line, $id_field_name, 
-					'form', 1);
-			}
-			$outputf .= '</optgroup>'."\n";
-		} elseif ($detail_record) {
-		// re-edit record, something was posted, ignore hierarchy because 
-		// there's only one record coming back
-			$outputf .= zz_draw_select($field, $record, $detail_record, $id_field_name, 
-				'form');
-		} elseif (!empty($field['show_hierarchy']) AND $show_hierarchy_subtree == 'NULL') {
-			// could only select itself, so treat as if no selection possible
-			$outputf = zz_form_element($field['f_field_name'], '', 'hidden', true)
-				.zz_text('no_selection_possible').' '
-				.zz_text('(This entry is the highest entry in the hierarchy.)');
-			$close_select = false;
-		} elseif (!empty($field['show_hierarchy'])) {
-			$zz_error[] = array(
-				'msg' => 'no_selection_possible',
-				'msg_dev' => 'Configuration error: "show_hierarchy" used but '
-					.'there is no highest level in the hierarchy.',
-				'level' => E_USER_WARNING
-			);
 		}
-		if ($close_select) $outputf .= '</select>'."\n";
-		zz_error();
-		$outputf .= zz_error_output();
+	} elseif (!empty($field['show_hierarchy']) AND $count_rows == 1 AND $my_select) {
+		// just one line, change multidimensional array into simple array
+		$line = array_shift($my_select); // first hierarchy
+		$line = array_shift($line); // first record in hierarchy
+		$outputf .= zz_draw_select($field, $record, $line, $id_field_name, 
+			'form', 0, $my_select, $field['show_hierarchy']);
+	} elseif (!empty($field['show_hierarchy']) AND $count_rows == 1) {
+		// could only select itself, so treat as if no selection possible
+		$outputf = zz_form_element($field['f_field_name'], '', 'hidden', true)
+			.zz_text('no_selection_possible');
+		$close_select = false;
+	} elseif (!empty($field['group'])) {
+		// optgroup
+		$optgroup = false;
+		foreach ($lines as $line) {
+			if ($optgroup != $line[$field['group']]) {
+				if ($optgroup) $outputf .= '</optgroup>'."\n";
+				$optgroup = $line[$field['group']];
+				$outputf .= '<optgroup label="'.$optgroup.'">'."\n";
+			}
+			unset($line[$field['group']]); // not needed anymore
+			$outputf .= zz_draw_select($field, $record, $line, $id_field_name, 
+				'form', 1);
+		}
+		$outputf .= '</optgroup>'."\n";
+	} elseif ($detail_record) {
+	// re-edit record, something was posted, ignore hierarchy because 
+	// there's only one record coming back
+		$outputf .= zz_draw_select($field, $record, $detail_record, $id_field_name, 
+			'form');
+	} elseif (!empty($field['show_hierarchy']) AND $show_hierarchy_subtree == 'NULL') {
+		// could only select itself, so treat as if no selection possible
+		$outputf = zz_form_element($field['f_field_name'], '', 'hidden', true)
+			.zz_text('no_selection_possible').' '
+			.zz_text('(This entry is the highest entry in the hierarchy.)');
+		$close_select = false;
+	} elseif (!empty($field['show_hierarchy'])) {
+		$zz_error[] = array(
+			'msg' => 'no_selection_possible',
+			'msg_dev' => 'Configuration error: "show_hierarchy" used but '
+				.'there is no highest level in the hierarchy.',
+			'level' => E_USER_WARNING
+		);
 	}
+	if ($close_select) $outputf .= '</select>'."\n";
+	zz_error();
+	$outputf .= zz_error_output();
 	return zz_return($outputf);
 }
 
