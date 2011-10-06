@@ -1843,23 +1843,18 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 	if (!empty($field['show_values_as_list'])) {
 		$myi = 0;
 		$radios = array();
-		foreach ($lines as $id => $fields) {
-			array_shift($fields); // get rid of ID, is already in $id
-			if (!empty($field['sql_ignore'])) {
-				if (!is_array($field['sql_ignore']))
-					$field['sql_ignore'] = array($field['sql_ignore']);
-				if ($keys = array_intersect(array_keys($fields), $field['sql_ignore']))
-					foreach ($keys as $key) unset($fields[$key]);
-			}
+		foreach ($lines as $id => $line) {
 			$myi++;
 			$label = '';
+			array_shift($line); // get rid of ID, is already in $id
+			$line = zz_field_select_sql_ignore($line, $field);
 			if (!empty($field['group'])) { 
 				// group display
-				if ($fields[$field['group']])
-					$label .= '<em>'.$fields[$field['group']].':</em> ';
-				unset($fields[$field['group']]);
+				if ($line[$field['group']])
+					$label .= '<em>'.$line[$field['group']].':</em> ';
+				unset($line[$field['group']]);
 			}
-			$label .= implode(' | ', $fields);
+			$label .= implode(' | ', $line);
 			$radios[] = zz_field_select_radio_value($field, $record, $id, $label, $myi);
 		}
 		$outputf = zz_field_select_radio($field, $record, $radios);
@@ -2386,18 +2381,16 @@ function zz_form_select_sql_where($field, $where_fields) {
 function zz_draw_select($field, $record, $line, $id_field_name,
 	$form = false, $level = 0, $hierarchy = false, $parent_field_name = false) {
 	// initialize variables
-	if (!isset($field['sql_ignore'])) $field['sql_ignore'] = array();
-	elseif (!is_array($field['sql_ignore'])) $field['sql_ignore'] = array($field['sql_ignore']);
 	$i = 1;
 	$details = array();
 	if (!isset($field['show_hierarchy'])) $field['show_hierarchy'] = false;
 	if (empty($field['sql_index_only'])) {
+		$line = zz_field_select_sql_ignore($line, $field);
 		foreach (array_keys($line) as $key) {	
 			// $i = 1: field['type'] == 'id'!
 			if ($key == $parent_field_name) continue;
 			if (is_numeric($key)) continue;
 			if ($key == $field['show_hierarchy']) continue;
-			if (in_array($key, $field['sql_ignore'])) continue;
 			if ($i > 1 AND $line[$key]) 
 				$details[] = (strlen($line[$key]) > $field['max_select_val_len']) 
 					? (mb_substr($line[$key], 0, $field['max_select_val_len']).'...') 
@@ -2446,6 +2439,22 @@ function zz_draw_select($field, $record, $line, $id_field_name,
 		$output = $fieldvalue;
 	}
 	return $output;
+}
+
+/**
+ * remove fields from display which should be ignored
+ *
+ * @param array $line
+ * @param array $field
+ * @return array ($line, modified)
+ */
+function zz_field_select_sql_ignore($line, $field) {
+	if (empty($field['sql_ignore'])) return $line;
+	if (!is_array($field['sql_ignore']))
+		$field['sql_ignore'] = array($field['sql_ignore']);
+	if ($keys = array_intersect(array_keys($line), $field['sql_ignore']))
+		foreach ($keys as $key) unset($line[$key]);
+	return $line;
 }
 
 /**
