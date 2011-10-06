@@ -1826,23 +1826,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 
 	// 1.3.3: draw RADIO buttons
 	if (!empty($field['show_values_as_list'])) {
-		$myi = 0;
-		$radios = array();
-		foreach ($lines as $id => $line) {
-			$myi++;
-			$label = '';
-			array_shift($line); // get rid of ID, is already in $id
-			$line = zz_field_select_sql_ignore($line, $field);
-			if (!empty($field['group'])) { 
-				// group display
-				if ($line[$field['group']])
-					$label .= '<em>'.$line[$field['group']].':</em> ';
-				unset($line[$field['group']]);
-			}
-			$label .= implode(' | ', $line);
-			$radios[] = zz_field_select_radio_value($field, $record, $id, $label, $myi);
-		}
-		return zz_return(zz_field_select_radio($field, $record, $radios));
+		return zz_return(zz_field_select_sql_radio($field, $record, $lines));
 	}
 		
 	// 1.3.4: draw a SELECT element
@@ -1997,6 +1981,34 @@ function zz_field_select_sql_too_long($field, $record, $detail_record, $id_field
 	if ($field['required']) $fieldattr['required'] = true;
 	$outputf .= zz_form_element($field['f_field_name'], $value, 'text_noescape', true, $fieldattr);
 	return $outputf;
+}
+
+/**
+ * outputs RADIO buttons instead of OPTION/SELECT
+ *
+ * @param array $field
+ * @param array $record
+ * @param array $lines
+ * @return string
+ */
+function zz_field_select_sql_radio($field, $record, $lines) {
+	$myi = 0;
+	$radios = array();
+	foreach ($lines as $id => $line) {
+		$myi++;
+		$label = '';
+		array_shift($line); // get rid of ID, is already in $id
+		$line = zz_field_select_sql_ignore($line, $field);
+		if (!empty($field['group'])) { 
+			// group display
+			if ($line[$field['group']])
+				$label .= '<em>'.$line[$field['group']].':</em> ';
+			unset($line[$field['group']]);
+		}
+		$label .= implode(' | ', $line);
+		$radios[] = zz_field_select_radio_value($field, $record, $id, $label, $myi);
+	}
+	return zz_field_select_radio($field, $record, $radios);
 }
 
 /**
