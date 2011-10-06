@@ -808,6 +808,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					// #5 SELECT without any source = that won't work ...
 					$outputf = zz_text('no_source_defined').'. '.zz_text('no_selection_possible');
 				}
+				zz_error();
+				$outputf .= zz_error_output();
 				break;
 
 			case 'image':
@@ -1336,8 +1338,8 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 				}
 				// remove ID (= first field) for display
 				if (count($select_fields) > 1)
-					array_shift($select_fields); 
-				$text .= implode(' | ', $select_fields);
+					array_shift($select_fields);
+				$text .= zz_field_concat($field, $select_fields);
 			} else {
 				global $zz_error;
 				$zz_error[]['msg'] = sprintf(zz_text('Record for %s does not exist.')
@@ -1784,39 +1786,15 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 
 	// ok, we display something!
 	// re-index lines by id_field_name if it makes sense
-	$count_rows = count($lines);
 	$lines = zz_field_select_lines($field, $lines, $id_field_name);
 
-	// do we have to display the results hierarchical in a SELECT?
-	$my_select_lines = false;
+	// do we have to display the results hierarchical?
 	if (!empty($field['show_hierarchy'])) {
-		$my_select = array();
-		$show_hierarchy_subtree = 'NULL';
-		foreach ($lines as $line) {
-			// if hierarchy is hierarchy of same table, don't allow to set
-			// IDs in hierarchy or below to avoid recursion
-			if (!empty($record[$id_field_name])) {
-				if (!empty($field['show_hierarchy_same_table'])
-					AND $line[$id_field_name] == $record[$id_field_name]) continue;
-				if (!empty($field['show_hierarchy_same_table'])
-					AND $line[$field['show_hierarchy']] == $record[$id_field_name]) continue;
-			}
-			// fill in values, index NULL is for uppermost level
-			$my_select[(!empty($line[$field['show_hierarchy']]) 
-				? $line[$field['show_hierarchy']] : 'NULL')][$line[$id_field_name]] = $line;
-		}
-		if (!empty($field['show_hierarchy_subtree']) 
-			AND !empty($my_select[$field['show_hierarchy_subtree']])) {
-			$show_hierarchy_subtree = $field['show_hierarchy_subtree'];
-			// count fields in subhierarchy, should be less than existing $count_rows
-			$count_rows = zz_count_records($my_select, $show_hierarchy_subtree);
-		} else {
-			$field['show_hierarchy_subtree'] = false;
-		}
-		if (!empty($my_select[$show_hierarchy_subtree])) {
-			$my_select_lines = $my_select[$show_hierarchy_subtree];
-		}
+		$lines = zz_field_select_hierarchy($field, $lines, $record, $id_field_name);
+	} else {
+		$field['show_hierarchy'] = false;
 	}
+	$count_rows = count($lines);
 
 	// 1.3.2: more records than we'd like to display		
 	if ($count_rows > $field['max_select']) {
@@ -1845,73 +1823,38 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 
 	// further OPTION elements
 	$close_select = true;
-	if (empty($field['show_hierarchy']) AND empty($field['group'])) {
-		foreach ($lines as $line)
-			$outputf .= zz_draw_select($field, $record, $line, $id_field_name, 'form');
-	} elseif (!empty($field['show_hierarchy']) 
-		AND $my_select_lines AND !empty($field['group'])) {
-		// optgroup
-		$optgroup = false;
-		foreach ($my_select_lines as $line) {
-			if ($optgroup != $line[$field['group']]) {
-				if ($optgroup) $outputf .= '</optgroup>'."\n";
-				$optgroup = $line[$field['group']];
-				$outputf .= '<optgroup label="'.$optgroup.'">'."\n";
+	if ($count_rows OR !$field['show_hierarchy']) {
+		if (!empty($field['group'])) {
+			$optgroup = false;
+			foreach ($lines as $line) {
+				if ($optgroup != $line[$field['group']]) {
+					if ($optgroup) $outputf .= '</optgroup>'."\n";
+					$optgroup = $line[$field['group']];
+					$outputf .= '<optgroup label="'.$optgroup.'">'."\n";
+				}
+				unset($line[$field['group']]); // not needed anymore
+				$outputf .= zz_draw_select($field, $record, $line, $id_field_name, 'form', 1);
 			}
-			unset($line[$field['group']]); // not needed anymore
-			$outputf .= zz_draw_select($field, $record, $line, $id_field_name, 
-				'form', 1, $my_select, $field['show_hierarchy']);
+			$outputf .= '</optgroup>'."\n";
+		} else {
+			foreach ($lines as $line) {
+				$outputf .= zz_draw_select($field, $record, $line, $id_field_name, 'form');
+			}
 		}
-		$outputf .= '</optgroup>'."\n";
-	} elseif (!empty($field['show_hierarchy']) AND $my_select_lines) {
-		foreach ($my_select_lines AS $line) {
-			$outputf .= zz_draw_select($field, $record, $line, $id_field_name, 
-				'form', 0, $my_select, $field['show_hierarchy']);
-		}
-	} elseif (!empty($field['show_hierarchy']) AND $count_rows == 1 AND $my_select) {
-		// just one line, change multidimensional array into simple array
-		$line = array_shift($my_select); // first hierarchy
-		$line = array_shift($line); // first record in hierarchy
-		$outputf .= zz_draw_select($field, $record, $line, $id_field_name, 
-			'form', 0, $my_select, $field['show_hierarchy']);
-	} elseif (!empty($field['show_hierarchy']) AND $count_rows == 1) {
-		// could only select itself, so treat as if no selection possible
+	} elseif ($detail_record) {
+		// re-edit record, something was posted, ignore hierarchy because 
+		// there's only one record coming back
+		$outputf .= zz_draw_select($field, $record, $detail_record, $id_field_name, 'form');
+	} elseif ($field['show_hierarchy_subtree']) {
+		$outputf = zz_form_element($field['f_field_name'], '', 'hidden', true)
+			.zz_text('(This entry is the highest entry in the hierarchy.)');
+		$close_select = false;
+	} else {
 		$outputf = zz_form_element($field['f_field_name'], '', 'hidden', true)
 			.zz_text('no_selection_possible');
 		$close_select = false;
-	} elseif (!empty($field['group'])) {
-		// optgroup
-		$optgroup = false;
-		foreach ($lines as $line) {
-			if ($optgroup != $line[$field['group']]) {
-				if ($optgroup) $outputf .= '</optgroup>'."\n";
-				$optgroup = $line[$field['group']];
-				$outputf .= '<optgroup label="'.$optgroup.'">'."\n";
-			}
-			unset($line[$field['group']]); // not needed anymore
-			$outputf .= zz_draw_select($field, $record, $line, $id_field_name, 
-				'form', 1);
-		}
-		$outputf .= '</optgroup>'."\n";
-	} elseif ($detail_record) {
-	// re-edit record, something was posted, ignore hierarchy because 
-	// there's only one record coming back
-		$outputf .= zz_draw_select($field, $record, $detail_record, $id_field_name, 
-			'form');
-	} elseif (!empty($field['show_hierarchy']) AND $show_hierarchy_subtree == 'NULL') {
-		// could only select itself, so treat as if no selection possible
-		$outputf = zz_form_element($field['f_field_name'], '', 'hidden', true)
-			.zz_text('no_selection_possible').' '
-			.zz_text('(This entry is the highest entry in the hierarchy.)');
-		$close_select = false;
-	} elseif (!empty($field['show_hierarchy'])) {
-		$zz_error[] = array(
-			'msg' => 'no_selection_possible',
-			'msg_dev' => 'Configuration error: "show_hierarchy" used but '
-				.'there is no highest level in the hierarchy.',
-			'level' => E_USER_WARNING
-		);
 	}
+
 	if ($close_select) $outputf .= '</select>'."\n";
 	zz_error();
 	$outputf .= zz_error_output();
@@ -1932,7 +1875,8 @@ function zz_field_query($field) {
 	} else {
 		$sql = $field['sql'];
 	}
-	return zz_db_fetch($sql, '_dummy_id_', 'numeric');
+	// return with warning, don't exit here
+	return zz_db_fetch($sql, '_dummy_id_', 'numeric', '', E_USER_WARNING);
 }
 
 /**
@@ -1984,6 +1928,77 @@ function zz_field_select_sql_too_long($field, $record, $detail_record, $id_field
 }
 
 /**
+ * re-order $lines hierarchically, i. e. as $lines[$parent_id][$id] = $line
+ * to avoid infinite recursion, show_hierarchy_same_table will be cheked
+ *
+ * @param array $field
+ * @param array $lines
+ * @param array $record
+ * @param string $id_field_name
+ * @return array
+ */
+function zz_field_select_hierarchy($field, $lines, $record, $id_field_name) {
+	if (!$lines) return array();
+	foreach ($lines as $line) {
+		// if hierarchy is hierarchy of same table, don't allow to set
+		// IDs in hierarchy or below to avoid recursion
+		if (!empty($record[$id_field_name])) {
+			if (!empty($field['show_hierarchy_same_table'])
+				AND $line[$id_field_name] == $record[$id_field_name]) continue;
+			if (!empty($field['show_hierarchy_same_table'])
+				AND $line[$field['show_hierarchy']] == $record[$id_field_name]) continue;
+		}
+		// fill in values, index NULL is for uppermost level
+		$my_select[(!empty($line[$field['show_hierarchy']]) 
+			? $line[$field['show_hierarchy']] : 'NULL')][$line[$id_field_name]] = $line;
+	}
+
+	// initalize subtree
+	if (!isset($field['show_hierarchy_subtree'])) {
+		$field['show_hierarchy_subtree'] = false;
+	}
+	// if there are no values for subtree, set subtree to false
+	if (!empty($field['show_hierarchy_subtree'])
+		AND empty($my_select[$field['show_hierarchy_subtree']])) {
+		if (empty($lines[$field['show_hierarchy_subtree']])) {
+			global $zz_error;
+			$zz_error[] = array(
+				'msg_dev' => sprintf('Subtree with ID %s does not exist.',
+					$field['show_hierarchy_subtree']),
+				'error' => E_USER_WARNING
+			);
+		}
+		return array();
+	}
+	$lines = zz_field_sethierarchy($field, $my_select, $field['show_hierarchy_subtree']);
+	return $lines;
+}
+
+/**
+ * turn hierarchical list with [$parent_id][$id] = $line into
+ * [$id] = $line + 'zz_level', reorder values
+ *
+ * @param array $field
+ * @param array $lines
+ * @param int $level
+ * @return array
+ */
+function zz_field_sethierarchy($field, $lines, $subtree, $level = 0) {
+	if ($subtree) $branches = $lines[$subtree];
+	else $branches = $lines['NULL'];
+
+	foreach ($branches as $id => $line) {
+		$line['zz_level'] = $level;
+		$tree[$id] = $line;
+		if (!empty($lines[$id])) {
+			$tree += zz_field_sethierarchy($field, $lines, $id, $level+1);
+		}
+	}
+	return $tree;
+}	
+
+
+/**
  * outputs RADIO buttons instead of OPTION/SELECT
  *
  * @param array $field
@@ -1992,21 +2007,27 @@ function zz_field_select_sql_too_long($field, $record, $detail_record, $id_field
  * @return string
  */
 function zz_field_select_sql_radio($field, $record, $lines) {
-	$myi = 0;
+	$pos = 0;
 	$radios = array();
+	$level = 0;
 	foreach ($lines as $id => $line) {
-		$myi++;
+		$pos++;
 		$label = '';
 		array_shift($line); // get rid of ID, is already in $id
 		$line = zz_field_select_sql_ignore($line, $field);
+		if ($field['show_hierarchy']) unset($line[$field['show_hierarchy']]);
+		$oldlevel = $level;
+		$level = !empty($line['zz_level']) ? $line['zz_level'] : 0;
+		unset($line['zz_level']);
 		if (!empty($field['group'])) { 
 			// group display
 			if ($line[$field['group']])
 				$label .= '<em>'.$line[$field['group']].':</em> ';
 			unset($line[$field['group']]);
 		}
-		$label .= implode(' | ', $line);
-		$radios[] = zz_field_select_radio_value($field, $record, $id, $label, $myi);
+		$label .= zz_field_concat($field, $line);
+		$field['zz_level'] = $level - $oldlevel;
+		$radios[] = zz_field_select_radio_value($field, $record, $id, $label, $pos);
 	}
 	return zz_field_select_radio($field, $record, $radios);
 }
@@ -2030,7 +2051,7 @@ function zz_field_select_lines($field, $lines, $id_field_name) {
 			$details[$line[$id_field_name]] = $line;
 		return $details;
 	}
-	return array();
+	return $lines;
 }
 
 /**
@@ -2150,13 +2171,32 @@ function zz_field_select_radio($field, $record, $radios) {
 
 	// variant: only two or three values next to each other
 	if (empty($field['show_values_as_list'])) {
-		$text .= implode("\n", $radios);
+		foreach ($radios as $radio)
+			$text .= $radio[1]."\n";
 		return $text;
 	}
-
+	
 	// variant: more values as a list
-	$text .= "\n".'<ul class="zz_radio_list">'."\n<li>"
-		.implode("</li>\n<li>", $radios)."</li>\n";
+	$text .= "\n".'<ul class="zz_radio_list">'."\n";
+	foreach ($radios as $index => $radio) {
+		switch ($radio[0]) {
+		case 1:
+			$text .= "\n<ul><li>";
+			break;
+		case 0:
+			if ($index) $text .= "</li>\n<li>"; 
+			else $text .= "<li>";
+			break;
+		default:
+			for ($i = 0; $i > $radio[0]; $i--) {
+				$text .= "</li></ul><li>";
+			}
+			break;
+		}
+		$text .= $radio[1];
+	}
+	$text .= "</li>\n";
+
 	if (empty($field['append_next'])) {
 		$text .= '</ul>'."\n";
 	} else {
@@ -2209,7 +2249,9 @@ function zz_field_select_radio_value($field, $record, $value, $label, $pos) {
 		$fieldattr['checked'] = true;
 	if ($field['required']) $fieldattr['required'] = true;
 	$element = zz_form_element($field['f_field_name'], $value, 'radio', $id, $fieldattr);
-	return sprintf(' <label for="%s">%s&nbsp;%s</label>', $id, $element, $label);
+	$level = isset($field['zz_level']) ? $field['zz_level'] : 0;
+	return array($level, sprintf(' <label for="%s">%s&nbsp;%s</label>', $id, $element, $label));
+	return $text;
 }
 
 /**
@@ -2281,7 +2323,7 @@ function zz_field_select_set($field, $display, $record) {
 		$myvalue = explode(',', $record[$field['field_name']]);
 	}
 	if ($myvalue) {
-		$output .= implode(' | ', $myvalue);
+		$output .= zz_field_concat($field, $myvalue);
 	}
 	return $output;
 }
@@ -2403,23 +2445,26 @@ function zz_form_select_sql_where($field, $where_fields) {
  *		false => outputs just the selected and saved value
  *		'reselect' => outputs input element in case there are too many elements,
  *		'form' => outputs option fields
- * @param int $level
- * @param array $hierarchy (optional)
- * @param string $parent_field_name
+ * @param int $addlevel
  * @return string $output HTML output
  * @see zz_field_select_sql()
  */
-function zz_draw_select($field, $record, $line, $id_field_name,
-	$form = false, $level = 0, $hierarchy = false, $parent_field_name = false) {
+function zz_draw_select($field, $record, $line, $id_field_name, $form = false, $addlevel = 0) {
 	// initialize variables
 	$i = 1;
 	$details = array();
 	if (!isset($field['show_hierarchy'])) $field['show_hierarchy'] = false;
+	if (isset($line['zz_level'])) {
+		$level = $line['zz_level'];
+		unset($line['zz_level']);
+	} else {
+		$level= '';
+	}
+	if ($addlevel) $level++;
 	if (empty($field['sql_index_only'])) {
 		$line = zz_field_select_sql_ignore($line, $field);
 		foreach (array_keys($line) as $key) {	
 			// $i = 1: field['type'] == 'id'!
-			if ($key == $parent_field_name) continue;
 			if (is_numeric($key)) continue;
 			if ($key == $field['show_hierarchy']) continue;
 			if ($i > 1 AND $line[$key]) 
@@ -2436,9 +2481,8 @@ function zz_draw_select($field, $record, $line, $id_field_name,
 		if (!$value) unset ($details[$my_key]);
 	// if only the id key is in the query, eg. show databases:
 	if (!$details) $details = $line[$key]; 
-	if (is_array($details)) $details = implode(' | ', $details);
+	if (is_array($details)) $details = zz_field_concat($field, $details);
 	$fieldvalue = strip_tags($details); // remove tags, leave &#-Code as is
-	$level++;
 	if ($form == 'reselect') {
 		$fieldattr = array();
 		$fieldattr['size'] = !empty($field['size_select_too_long']) ? $field['size_select_too_long'] : 32;
@@ -2455,17 +2499,8 @@ function zz_draw_select($field, $record, $line, $id_field_name,
 			AND in_array($line[$id_field_name], $field['disabled_ids'])) {
 			$fieldattr['disabled'] = true;
 		}
-		if ($hierarchy) $fieldattr['class'] = 'level'.$level;
+		if ($level !== '') $fieldattr['class'] = 'level'.$level;
 		$output = zz_form_element($fieldvalue, $line[$id_field_name], 'option', false, $fieldattr)."\n";
-
-		if ($hierarchy && isset($hierarchy[$line[$id_field_name]]))
-			foreach ($hierarchy[$line[$id_field_name]] as $secondline) {
-				if (!empty($field['group'])) {
-					unset($secondline[$field['group']]); // not needed anymore
-				}
-				$output .= zz_draw_select($field, $record, $secondline, $id_field_name, 
-					$form, $level, $hierarchy, $parent_field_name);
-			}
 	} else {
 		$output = $fieldvalue;
 	}
@@ -2679,5 +2714,28 @@ function zz_field_calculated($field, $record, $mode) {
 	// type not supported
 	return '';
 }
+
+/**
+ * sets concat string for fields in select
+ *
+ * @param array $field
+ * @param array $values
+ * @return string
+ */
+function zz_field_concat($field, $values) {
+	if (!isset($field['concat_fields'])) $concat = ' | ';
+	else $concat = $field['concat_fields'];
+	// only concat existing values
+	$count = count($values);
+	$values = array_values($values);
+	for ($i = 0; $i < $count; $i++) {
+		if (isset($field['concat_'.$i]) AND !empty($values[$i])) {
+			$values[$i] = sprintf($field['concat_'.$i], $values[$i]);
+		}
+	}
+	$values = array_filter($values);
+	return implode($concat, $values);
+}
+
 
 ?>
