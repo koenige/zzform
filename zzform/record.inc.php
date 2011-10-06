@@ -1785,7 +1785,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 	// ok, we display something!
 	// re-index lines by id_field_name if it makes sense
 	$count_rows = count($lines);
-	$lines = zz_field_select_lines($field, $lines);
+	$lines = zz_field_select_lines($field, $lines, $id_field_name);
 
 	// do we have to display the results hierarchical in a SELECT?
 	if (!empty($field['show_hierarchy'])) {
@@ -1992,9 +1992,10 @@ function zz_field_get_id_field_name($lines) {
  *
  * @param array $field
  * @param array $lines
+ * @param string $id_field_name
  * @return array
  */
-function zz_field_select_lines($field, $lines) {
+function zz_field_select_lines($field, $lines, $id_field_name) {
 	if (count($lines) <= $field['max_select'] 
 		OR !empty($field['show_hierarchy_subtree'])) {
 		$details = array();
