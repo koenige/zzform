@@ -1985,7 +1985,7 @@ function zz_field_select_hierarchy($field, $lines, $record, $id_field_name) {
  */
 function zz_field_sethierarchy($field, $lines, $subtree, $level = 0) {
 	static $levels;
-	if (!$level) $levels = $level;
+	if ($level) $levels = $level;
 
 	if ($subtree) $branches = $lines[$subtree];
 	else $branches = $lines['NULL'];
