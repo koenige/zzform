@@ -172,12 +172,14 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	// Table data
 	//	
 
-	$current_record = NULL;
-	$sum_group = array();
-	$modes = false;		// don't show a table head for link to modes until necessary
-	$details = false;	// don't show a table head for link to details until necessary
-	$rows = array();
 	if ($zz_conf['show_list']) {
+		$rows = array();
+		$list['current_record'] = NULL;
+		$list['sum'] = array();
+		$list['sum_group'] = array();
+		$list['modes'] = false;		// don't show a table head for link to modes until necessary
+		$list['details'] = false;	// don't show a table head for link to details until necessary
+
 		$subselects = array();
 		$id_fieldname = false;
 		$z = 0;
@@ -193,7 +195,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			
 			$tq_index = (count($table_query) > 1 ? $index : 0);
 			$id = $line[$zz_var['id']['field_name']];
-			if ($id == $zz_var['id']['value']) $current_record = $z;
+			if ($id == $zz_var['id']['value']) $list['current_record'] = $z;
 			$sub_id = '';
 			if (empty($rows[$z]['group']))
 				$rows[$z]['group'] = array();
@@ -270,9 +272,9 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				// Sums
 				if (isset($field['sum']) AND $field['sum'] == true 
 					AND (empty($field['calculation']) OR $field['calculation'] != 'sql')) {
-					if (!isset($sum[$field['title']])) $sum[$field['title']] = 0;
-					$sum[$field['title']] += $rows[$z][$fieldindex]['value'];
-					$sum_group = zz_list_group_sum($rows[$z]['group'], $sum_group, $field['title'], $rows[$z][$fieldindex]['value']);
+					if (!isset($list['sum'][$field['title']])) $list['sum'][$field['title']] = 0;
+					$list['sum'][$field['title']] += $rows[$z][$fieldindex]['value'];
+					$list['sum_group'] = zz_list_group_sum($rows[$z]['group'], $list['sum_group'], $field['title'], $rows[$z][$fieldindex]['value']);
 				}
 				
 				if ($field['type'] == 'subtable' AND !empty($field['subselect']['sql'])) {
@@ -324,9 +326,9 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				if ($zz_conf['group']) {
 					$pos = array_search($fieldindex, $zz_conf['int']['group_field_no']);
 					if ($pos !== false) {
-						$grouptitles[$z][$pos] = implode(' &#8211; ', $rows[$z]['group']);
+						$list['group_titles'][$z][$pos] = implode(' &#8211; ', $rows[$z]['group']);
 						unset ($rows[$z][$fieldindex]);
-						ksort($grouptitles[$z]);
+						ksort($list['group_titles'][$z]);
 					}
 				}
 				if ($zz_conf['modules']['debug']) zz_debug("table_query end ".$fieldindex.'-'.$field['type']);
@@ -335,14 +337,14 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			$lastline = $line;
 
 			$rows[$z]['modes'] = zz_list_modes($id, $zz_var, $zz_conf_record);
-			if ($rows[$z]['modes']) $modes = true; // need a table row for this
+			if ($rows[$z]['modes']) $list['modes'] = true; // need a table row for this
 
 			if (!empty($zz_conf_record['details'])) {
 				$rows[$z]['details'] = zz_show_more_actions($zz_conf_record['details'], 
 					$zz_conf_record['details_url'],  $zz_conf_record['details_base'], 
 					$zz_conf_record['details_target'], $zz_conf_record['details_referer'], 
 					$zz_conf_record['details_sql'], $id, $line);
-				$details = true; // need a table row for this
+				$list['details'] = true; // need a table row for this
 			}
 			$z++;
 		}
@@ -373,144 +375,22 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	$ops['output'] .= $search_form['top'];
 	
 	if ($zz_conf['show_list'] AND $zz_conf['select_multiple_records']) {
-		$ops['output'] .= '<form action="'.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs'];
-		if ($zz_var['extraGET']) $ops['output'].= $zz_conf['int']['url']['?&'].substr($zz_var['extraGET'], 5); // without first &amp;!
-		$ops['output'] .= '" method="POST"'
-			.' accept-charset="'.$zz_conf['character_set'].'">'."\n";
+		$action_url = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs'];
+		if ($zz_var['extraGET']) {
+			// without first &amp;!
+			$action_url .= $zz_conf['int']['url']['?&'].substr($zz_var['extraGET'], 5);
+		}
+		$ops['output'] .= sprintf('<form action="%s" method="POST" accept-charset="%s">'."\n",
+			$action_url, $zz_conf['character_set']);
 	}
 	
 	if ($zz_conf['show_list'] && $zz_conf['list_display'] == 'table') {
+		$list['where_values'] = (!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : '');
+		$ops['output'] .= zz_list_table($list, $rows, $table_query[0]);
 
-		// Header
-		$ops['output'] .= '<table class="data">';
-		$ops['output'] .= '<thead>'."\n";
-		$ops['output'] .= '<tr>';
-		if ($zz_conf['select_multiple_records']) $ops['output'].= '<th>[]</th>';
-		$thead = array();
-		$j = 0;
-		$where_values = (!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : '');
-		foreach ($table_query[0] as $index => $field) {
-			if ($field['show_field']) {
-				$j++;
-				$thead[$j]['class'] = zz_field_class($field, $where_values);
-				$thead[$j]['th'] = zz_list_th($field);
-			} elseif (!empty($field['list_append_show_title'])) {
-				$thead[$j]['class'] = array_merge($thead[$j]['class'], zz_field_class($field, $where_values));
-				$thead[$j]['th'] .= ' / '.zz_list_th($field);
-			}
-		}
-		// Rest cannot be set yet because we do not now details/mode-links
-		// of individual records
-		foreach ($thead as $col) {
-			if ($col['class']) $col['class'] = ' class="'.implode(' ', $col['class']).'"';
-			else $col['class'] = '';
-			$ops['output'] .= '<th'.$col['class'].'>'.$col['th'].'</th>';
-		}
-		if ($modes)
-			$ops['output'].= ' <th class="editbutton">'.zz_text('action').'</th>';
-		if ($details) 
-			$ops['output'].= ' <th class="editbutton">'.zz_text('detail').'</th>';
-		$ops['output'].= '</tr>';
-		$ops['output'].= '</thead>'."\n";
-
-
-		$my_footer_table = (!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : false);
-
-		//
-		// Table footer
-		//
-		if ($zz_conf['tfoot'] AND !empty($sum)) {
-			$ops['output'].= '<tfoot>'."\n".'<tr>';
-			$ops['output'].= zz_field_sum($table_query[0], $z, $my_footer_table, $sum);
-			if ($modes OR $details)
-				$ops['output'].= '<td class="editbutton">&nbsp;</td>';
-			$ops['output'].= '</tr>'."\n".'</tfoot>'."\n";
-		}
-
-		$ops['output'].= '<tbody>'."\n";
-		$rowgroup = false;
-		foreach ($rows as $index => $row) {
-			if ($zz_conf['group'] AND $row['group'] != $rowgroup) {
-				foreach ($zz_conf['group'] as $pos => $my_group) {
-					if (empty($row['group'][$pos])) 
-						$grouptitles[$index][$pos] = zz_text('- unknown -');
-				}
-				if ($rowgroup) {
-					$my_groups = $rowgroup;
-					$my_old_groups = $row['group'];
-					while ($my_groups) {
-						if ($zz_conf['tfoot'])
-							$ops['output'] .= zz_list_group_foot($my_groups, $table_query[0], $z, $my_footer_table, $sum_group);
-						array_pop($my_groups);
-						array_pop($my_old_groups);
-						if ($my_groups == $my_old_groups) break;
-					}
-					$ops['output'] .= '</tbody><tbody>'."\n";
-				}
-				$ops['output'].= '<tr class="group"><td colspan="'.(count($row)-1)
-					.'">'.sprintf($zz_conf['group_html_table'], implode(' &#8211; ', $grouptitles[$index]))
-					.'</td></tr>'."\n";
-				$rowgroup = $row['group'];
-			}
-			$ops['output'].= '<tr class="'.($index & 1 ? 'uneven':'even')
-				.(($index+1) == $count_rows ? ' last' : '')
-				.((isset($current_record) AND $current_record == $index) ? ' current_record' : '')
-				.'">'; //onclick="Highlight();"
-			foreach ($row as $fieldindex => $field) {
-				if (is_numeric($fieldindex)) 
-					$ops['output'].= '<td'
-						.($field['class'] ? ' class="'.implode(' ', $field['class']).'"' : '')
-						.'>'.$field['text'].'</td>';
-			}
-			if (!empty($row['modes']))
-				$ops['output'].= '<td class="editbutton">'.$row['modes'].'</td>';
-			if (!empty($row['details']))
-				$ops['output'].= '<td class="editbutton">'.$row['details'].'</td>';
-			$ops['output'].= '</tr>'."\n";
-		}
-		if ($zz_conf['tfoot'] AND $rowgroup) {
-			$my_groups = $rowgroup;
-			while ($my_groups) {
-				$ops['output'] .= zz_list_group_foot($my_groups, $table_query[0], $z, $my_footer_table, $sum_group);
-				array_pop($my_groups);
-			}
-		}
-		$ops['output'].= '</tbody>'."\n";
-		unset($rows);
-		$ops['output'].= '</table>'."\n";
 	} elseif ($zz_conf['show_list'] && $zz_conf['list_display'] == 'ul') {
-		if (!$zz_conf['group']) {
-			$ops['output'] .= '<ul class="data">'."\n";
-		}
-		$rowgroup = false;
-		foreach ($rows as $index => $row) {
-			if ($zz_conf['group'] AND $row['group'] != $rowgroup) {
-				foreach ($zz_conf['group'] as $pos => $my_group) {
-					if (empty($row['group'][$pos])) 
-						$grouptitles[$index][$pos] = zz_text('- unknown -');
-				}
-				if ($rowgroup) {
-					$ops['output'] .= '</ul><br clear="all">'."\n";
-				}
-				$ops['output'].= "\n".'<h2>'.implode(' &#8211; ', $grouptitles[$index]).'</h2>'."\n"
-					.'<ul class="data">'."\n";
-				$rowgroup = $row['group'];
-			}
-			$ops['output'].= '<li class="'.($index & 1 ? 'uneven':'even')
-				.((isset($current_record) AND $current_record == $index) ? ' current_record' : '')
-				.(($index+1) == $count_rows ? ' last' : '').'">'; //onclick="Highlight();"
-			foreach ($row as $fieldindex => $field) {
-				if (is_numeric($fieldindex) && $field['text'])
-					$ops['output'].= '<p'.($field['class'] ? ' class="'.implode(' ', $field['class']).'"' : '')
-						.'>'.$field['text'].'</p>';
-			}
-			if (!empty($row['modes']))
-				$ops['output'].= '<p class="editbutton">'.$row['modes'].'</p>';
-			if (!empty($row['details']))
-				$ops['output'].= '<p class="editbutton">'.$row['details'].'</p>';
-			$ops['output'].= '</li>'."\n";
-		}
-		$ops['output'].= '</ul>'."\n".'<br clear="all">';
+		$ops['output'] .= zz_list_ul($list, $rows);
+
 	}
 
 	if ($zz_conf['show_list'] AND $zz_conf['select_multiple_records']) {
@@ -1370,12 +1250,12 @@ function zz_list_group_sum($row_group, $sum_group, $field_title, $sum) {
  * shows footer line for group with calculated sums
  * 
  * @param array $rowgroup
- * @param array $main_table_query ($table_query[0] from zz_list)
+ * @param array $main_table_query ($head from zz_list)
  * @param int $z
- * @param string $my_footer_table
+ * @param array $where_values
  * @param array $sum_group
  */
-function zz_list_group_foot($rowgroup, $main_table_query, $z, $my_footer_table, $sum_group) {
+function zz_list_group_foot($rowgroup, $main_table_query, $z, $where_values, $sum_group) {
 	$my_index = '';
 	foreach ($rowgroup as $my_group) {
 		if ($my_index) $my_index .= '['.$my_group.']';
@@ -1383,7 +1263,7 @@ function zz_list_group_foot($rowgroup, $main_table_query, $z, $my_footer_table, 
 	}
 	if (empty($sum_group[$my_index])) return false;
 	return '<tr class="group_sum">'
-		.zz_field_sum($main_table_query, $z, $my_footer_table, $sum_group[$my_index])
+		.zz_field_sum($main_table_query, $z, $where_values, $sum_group[$my_index])
 		.'</tr>'."\n";
 }
 
@@ -2250,6 +2130,167 @@ function zz_list_show_group_fields($table_query) {
 		else $show_field = true;
 	}
 	return $table_query;
+}
+
+/**
+ * outputs data in table format
+ *
+ * @param array $list
+ *		array 'where_values'
+ *		bool 'modes'
+ *		bool 'details'
+ *		string 'sum'
+ *		string 'sum_group'
+ *		array 'group_titles'
+ *		int 'current_record'
+ * @param array $rows
+ * @param array $head
+ * @global array $zz_conf
+ * @return string
+ */
+function zz_list_table($list, $rows, $head) {
+	global $zz_conf;
+	
+	// Header
+	$output = '<table class="data"><thead>'."\n".'<tr>';
+	if ($zz_conf['select_multiple_records']) $output .= '<th>[]</th>';
+	$thead = array();
+	$j = 0;
+	
+	foreach ($head as $index => $field) {
+		if ($field['show_field']) {
+			$j++;
+			$thead[$j]['class'] = zz_field_class($field, $list['where_values']);
+			$thead[$j]['th'] = zz_list_th($field);
+		} elseif (!empty($field['list_append_show_title'])) {
+			$thead[$j]['class'] = array_merge($thead[$j]['class'], zz_field_class($field, $list['where_values']));
+			$thead[$j]['th'] .= ' / '.zz_list_th($field);
+		}
+	}
+	// Rest cannot be set yet because we do not now details/mode-links
+	// of individual records
+	foreach ($thead as $col) {
+		if ($col['class']) $col['class'] = ' class="'.implode(' ', $col['class']).'"';
+		else $col['class'] = '';
+		$output .= '<th'.$col['class'].'>'.$col['th'].'</th>';
+	}
+	if ($list['modes'])
+		$output .= ' <th class="editbutton">'.zz_text('action').'</th>';
+	if ($list['details']) 
+		$output .= ' <th class="editbutton">'.zz_text('detail').'</th>';
+	$output .= '</tr></thead>'."\n";
+
+	//
+	// Table footer
+	//
+	if ($zz_conf['tfoot'] AND $list['sum']) {
+		$output .= '<tfoot>'."\n".'<tr>';
+		$output .= zz_field_sum($head, count($rows), $list['where_values'], $list['sum']);
+		if ($list['modes'] OR $list['details'])
+			$output .= '<td class="editbutton">&nbsp;</td>';
+		$output .= '</tr>'."\n".'</tfoot>'."\n";
+	}
+
+	$output .= '<tbody>'."\n";
+	$rowgroup = false;
+	foreach ($rows as $index => $row) {
+		if ($zz_conf['group'] AND $row['group'] != $rowgroup) {
+			foreach ($zz_conf['group'] as $pos => $my_group) {
+				if (empty($row['group'][$pos])) 
+					$list['group_titles'][$index][$pos] = zz_text('- unknown -');
+			}
+			if ($rowgroup) {
+				$my_groups = $rowgroup;
+				$my_old_groups = $row['group'];
+				while ($my_groups) {
+					if ($zz_conf['tfoot'])
+						$output .= zz_list_group_foot($my_groups, $head, count($rows), $list['where_values'], $list['sum_group']);
+					array_pop($my_groups);
+					array_pop($my_old_groups);
+					if ($my_groups == $my_old_groups) break;
+				}
+				$output .= '</tbody><tbody>'."\n";
+			}
+			$output .= '<tr class="group"><td colspan="'.(count($row)-1)
+				.'">'.sprintf($zz_conf['group_html_table'], implode(' &#8211; ', $list['group_titles'][$index]))
+				.'</td></tr>'."\n";
+			$rowgroup = $row['group'];
+		}
+		$output .= '<tr class="'.($index & 1 ? 'uneven':'even')
+			.(($index+1) == count($rows) ? ' last' : '')
+			.((isset($list['current_record']) AND $list['current_record'] == $index) ? ' current_record' : '')
+			.'">'; //onclick="Highlight();"
+		foreach ($row as $fieldindex => $field) {
+			if (is_numeric($fieldindex)) 
+				$output .= '<td'
+					.($field['class'] ? ' class="'.implode(' ', $field['class']).'"' : '')
+					.'>'.$field['text'].'</td>';
+		}
+		if (!empty($row['modes']))
+			$output .= '<td class="editbutton">'.$row['modes'].'</td>';
+		if (!empty($row['details']))
+			$output .= '<td class="editbutton">'.$row['details'].'</td>';
+		$output .= '</tr>'."\n";
+	}
+	if ($zz_conf['tfoot'] AND $rowgroup) {
+		$my_groups = $rowgroup;
+		while ($my_groups) {
+			$output .= zz_list_group_foot($my_groups, $head, count($rows), $list['where_values'], $list['sum_group']);
+			array_pop($my_groups);
+		}
+	}
+	$output .= "</tbody>\n</table>\n";
+	return $output;
+}
+
+/**
+ * outputs data in ul format
+ *
+ * @param array $list
+ *		bool 'modes'
+ *		bool 'details'
+ *		array 'group_titles'
+ *		int 'current_record'
+ * @param array $rows
+ * @global array $zz_conf
+ * @return string
+ */
+function zz_list_ul($list, $rows) {
+	global $zz_conf;
+	$output = '';
+	if (!$zz_conf['group']) {
+		$output .= '<ul class="data">'."\n";
+	}
+	$rowgroup = false;
+	foreach ($rows as $index => $row) {
+		if ($zz_conf['group'] AND $row['group'] != $rowgroup) {
+			foreach ($zz_conf['group'] as $pos => $my_group) {
+				if (empty($row['group'][$pos])) 
+					$list['group_titles'][$index][$pos] = zz_text('- unknown -');
+			}
+			if ($rowgroup) {
+				$output .= '</ul><br clear="all">'."\n";
+			}
+			$output .= "\n".'<h2>'.implode(' &#8211; ', $list['group_titles'][$index]).'</h2>'."\n"
+				.'<ul class="data">'."\n";
+			$rowgroup = $row['group'];
+		}
+		$output .= '<li class="'.($index & 1 ? 'uneven':'even')
+			.((isset($list['current_record']) AND $list['current_record'] == $index) ? ' current_record' : '')
+			.(($index+1) == count($rows) ? ' last' : '').'">'; //onclick="Highlight();"
+		foreach ($row as $fieldindex => $field) {
+			if (is_numeric($fieldindex) && $field['text'])
+				$output .= '<p'.($field['class'] ? ' class="'.implode(' ', $field['class']).'"' : '')
+					.'>'.$field['text'].'</p>';
+		}
+		if (!empty($row['modes']))
+			$output .= '<p class="editbutton">'.$row['modes'].'</p>';
+		if (!empty($row['details']))
+			$output .= '<p class="editbutton">'.$row['details'].'</p>';
+		$output .= '</li>'."\n";
+	}
+	$output .= "</ul>\n<br clear='all'>";
+	return $output;
 }
 
 ?>
