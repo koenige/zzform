@@ -1615,15 +1615,19 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
  * @return string part of query
  */
 function zz_search_field($field, $table, $searchop, $searchword) {
+	global $zz_conf;
 	// get field name
+	$collate_fieldname = '';
 	if (isset($field['search'])) {
 		$fieldname = $field['search'];
+		$collate_fieldname = $field['search'];
 	} elseif (isset($field['display_field'])) {
 		// it makes more sense to search through values than IDs
 		$fieldname = $field['display_field'];
 	} elseif (!empty($field['field_name'])) {
 		// standard: use table- and field name
 		$fieldname = $table.'.'.$field['field_name'];
+		$collate_fieldname = $field['field_name'];
 		if ($searchword) {
 			$searchword = zz_search_checkfield($field['field_name'], $table, $searchword);
 			if (!$searchword) return '';
@@ -1684,14 +1688,67 @@ function zz_search_field($field, $table, $searchop, $searchword) {
 	case '=':
 		return sprintf('%s = "%s"', $fieldname, $searchword);
 	case '%LIKE':
-		return sprintf('%s LIKE "%%%s"', $fieldname, $searchword);
+		$collation = zz_search_collation($table, $collate_fieldname, $field, $fieldname);
+		if ($collation === NULL) return '';
+		return sprintf('%s LIKE %s"%%%s"', $fieldname, $collation, $searchword);
 	case 'LIKE%':
-		return sprintf('%s LIKE "%s%%"', $fieldname, $searchword);
+		$collation = zz_search_collation($table, $collate_fieldname, $field, $fieldname);
+		if ($collation === NULL) return '';
+		return sprintf('%s LIKE %s"%s%%"', $fieldname, $collation, $searchword);
 	case '%LIKE%':
 	default:
-		return sprintf('%s LIKE "%%%s%%"', $fieldname, $searchword);
+		$collation = zz_search_collation($table, $collate_fieldname, $field, $fieldname);
+		if ($collation === NULL) return '';
+		return sprintf('%s LIKE %s"%%%s%%"', $fieldname, $collation, $searchword);
 	}
 	return '';
+}
+
+/**
+ * prefix different charset if necessary for LIKE
+ *
+ * @param string $db_table
+ * @param string $collate_fieldname
+ * @param array $field
+ * @param string $fieldname
+ * @return string
+ */
+function zz_search_collation($table, $collate_fieldname, $field, $fieldname) {
+	global $zz_conf;
+	if (!$collate_fieldname) return '';
+	if (!isset($zz_conf['int']['character_set_db'])) {
+		zz_db_get_charset();
+	}
+
+	// get db table
+	if (strstr($table, '.')) $db_table = $table;
+	else $db_table = $zz_conf['db_name'].'.'.$table;
+	
+	// check collate fieldname, might be unusable
+	if (strstr($collate_fieldname, '(')) return '';
+	if (strstr($collate_fieldname, '.'))
+		$collate_fieldname = substr($collate_fieldname, strpos($collate_fieldname, '.')+1);
+	
+	// check collation/charset
+	if (isset($field['character_set'])) {
+		$charset = $field['character_set'];
+	} else {
+		$cols = zz_db_columns($db_table, $collate_fieldname);
+		// column is not in db, we cannot check the collation, therefore we
+		// better exclude this field from search
+		if (!$cols OR !in_array('Collation', array_keys($cols))) {
+			if ($zz_conf['debug']) {
+				global $zz_error;
+				$zz_error[] = array('msg_dev' => sprintf('Cannot get character set information for %s. This field will be excluded from search.',
+					$fieldname));
+			}
+			return NULL;
+		}
+		$charset = substr($cols['Collation'], 0, strpos($cols['Collation'], '_'));
+	}
+	if (!$charset) return '';
+	if ($charset !== $zz_conf['int']['character_set_db']) return '_'.$charset;
+	return '';	
 }
 
 /**
@@ -1823,7 +1880,9 @@ function zz_search_subtable($field, $table, $main_id_fieldname) {
 		unset($field['fields'][$f_index]);
 	}
 	if (!$foreign_key) {
-		echo zz_text('Subtable definition is wrong. There must be a field which is defined as "foreign_key".');
+		global $zz_error;
+		$zz_error[]['msg_dev'] = zz_text('Subtable definition is wrong. There must be a field which is defined as "foreign_key".');
+		zz_error();
 		exit;
 	}
 	$subsql = zz_search_sql($field['fields'], $field['sql'], $field['table'], $main_id_fieldname);

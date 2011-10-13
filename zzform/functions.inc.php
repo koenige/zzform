@@ -2662,7 +2662,7 @@ function zz_db_field_maxlength($field, $type, $db_table) {
 function zz_db_columns($db_table, $field = false) {
 	static $columns;
 	if (empty($columns[$db_table])) {
-		$sql = 'SHOW COLUMNS FROM '.zz_db_table_backticks($db_table);
+		$sql = 'SHOW FULL COLUMNS FROM '.zz_db_table_backticks($db_table);
 		$columns[$db_table] = zz_db_fetch($sql, 'Field');
 	}
 	if ($field) {
@@ -2716,6 +2716,19 @@ function zz_db_field_null($field, $db_table) {
 	$line = zz_db_columns($db_table, $field);
 	if ($line AND $line['Null'] == 'YES') return true;
 	else return false;
+}
+
+/**
+ * gets character set which is used for current db connection
+ *
+ * @param array $zz_conf
+ *	function will write key 'character_set_db'
+ */
+function zz_db_get_charset() {
+	global $zz_conf;
+	$sql = 'SHOW VARIABLES LIKE "character_set_connection"';
+	$character_set = zz_db_fetch($sql);
+	$zz_conf['int']['character_set_db'] = $character_set['Value'];
 }
 
 /**
