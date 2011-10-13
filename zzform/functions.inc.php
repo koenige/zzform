@@ -2719,6 +2719,55 @@ function zz_db_field_null($field, $db_table) {
 }
 
 /**
+ * prefix different charset if necessary for LIKE
+ *
+ * @param string $db_table
+ * @param string $collate_fieldname
+ * @param array $field
+ *		'character_set'
+ * @param string $fieldname
+ * @return string
+ */
+function zz_db_field_collation($table, $collate_fieldname, $field, $fieldname = false) {
+	global $zz_conf;
+	if (!$collate_fieldname) return '';
+	if (!$fieldname) $fieldname = $collate_fieldname;
+	if (!isset($zz_conf['int']['character_set_db'])) {
+		zz_db_get_charset();
+	}
+
+	// get db table
+	if (strstr($table, '.')) $db_table = $table;
+	else $db_table = $zz_conf['db_name'].'.'.$table;
+	
+	// check collate fieldname, might be unusable
+	if (strstr($collate_fieldname, '(')) return '';
+	if (strstr($collate_fieldname, '.'))
+		$collate_fieldname = substr($collate_fieldname, strpos($collate_fieldname, '.')+1);
+	
+	// check collation/charset
+	if (isset($field['character_set'])) {
+		$charset = $field['character_set'];
+	} else {
+		$cols = zz_db_columns($db_table, $collate_fieldname);
+		// column is not in db, we cannot check the collation, therefore we
+		// better exclude this field from search
+		if (!$cols OR !in_array('Collation', array_keys($cols))) {
+			if ($zz_conf['debug']) {
+				global $zz_error;
+				$zz_error[] = array('msg_dev' => sprintf('Cannot get character set information for %s. This field will be excluded from search.',
+					$fieldname));
+			}
+			return NULL;
+		}
+		$charset = substr($cols['Collation'], 0, strpos($cols['Collation'], '_'));
+	}
+	if (!$charset) return '';
+	if ($charset !== $zz_conf['int']['character_set_db']) return '_'.$charset;
+	return '';	
+}
+
+/**
  * gets character set which is used for current db connection
  *
  * @param array $zz_conf
@@ -3625,13 +3674,14 @@ function zz_identifier_vars_db($sql, $id, $fieldname = false) {
  * @param int $max_select = e. g. $zz_conf['max_select'], maximum entries in
  *		option-Field before we offer a blank text field to enter values
  * @param string $long_field_name // $table_name.'['.$rec.']['.$field_name.']'
+ * @param string $db_table
  * @global array $zz_error
  * @global array $zz_conf
  * @return array $my_rec changed keys:
  *		'fields'[$f], 'POST', 'POST-notvalid', 'validation'
  * @author Gustaf Mossakowski, <gustaf@koenige.org>
  */
-function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
+function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) {
 	global $zz_error;
 	global $zz_conf;
 
@@ -3707,9 +3757,11 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 			if (substr($value, -1) != ' ' AND !$zz_conf['multi']) 
 				// if there is a space at the end of the string, don't do LIKE 
 				// with %!
-				$wheresql.= $field.' LIKE "%'.zz_db_escape(trim($value)).'%"'; 
+				$likestring = '%s LIKE %s"%%%s%%"';
 			else
-				$wheresql.= $field.' LIKE "'.zz_db_escape(trim($value)).'"'; 
+				$likestring = '%s LIKE %s"%s"';
+			$collation = zz_db_field_collation($db_table, $field, $my_rec['fields'][$f]);
+			$wheresql .= sprintf($likestring, $field, $collation, zz_db_escape(trim($value)));
 		}
 	}
 	$wheresql .= ')';

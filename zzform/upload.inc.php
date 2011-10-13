@@ -950,7 +950,8 @@ function zz_upload_prepare($zz_tab) {
 				if (isset($field_index)) {
 					if ($my_rec['fields'][$field_index]['type'] == 'select') {
 						$my_rec = zz_check_select($my_rec, $field_index, $zz_conf['max_select'], 
-							$zz_tab[$tab]['table'].'['.$rec.']['.$my_rec['fields'][$field_index]['field_name'].']');
+							$zz_tab[$tab]['table'].'['.$rec.']['.$my_rec['fields'][$field_index]['field_name'].']', 
+							$zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table']);
 					}
 					$sql = $image['source_path_sql'].$my_rec['POST'][$image['source_file']];
 					if (!empty($image['update_from_source_field_name']) AND !empty($image['update_from_source_value'])

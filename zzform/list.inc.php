@@ -1688,67 +1688,20 @@ function zz_search_field($field, $table, $searchop, $searchword) {
 	case '=':
 		return sprintf('%s = "%s"', $fieldname, $searchword);
 	case '%LIKE':
-		$collation = zz_search_collation($table, $collate_fieldname, $field, $fieldname);
+		$collation = zz_db_field_collation($table, $collate_fieldname, $field, $fieldname);
 		if ($collation === NULL) return '';
 		return sprintf('%s LIKE %s"%%%s"', $fieldname, $collation, $searchword);
 	case 'LIKE%':
-		$collation = zz_search_collation($table, $collate_fieldname, $field, $fieldname);
+		$collation = zz_db_field_collation($table, $collate_fieldname, $field, $fieldname);
 		if ($collation === NULL) return '';
 		return sprintf('%s LIKE %s"%s%%"', $fieldname, $collation, $searchword);
 	case '%LIKE%':
 	default:
-		$collation = zz_search_collation($table, $collate_fieldname, $field, $fieldname);
+		$collation = zz_db_field_collation($table, $collate_fieldname, $field, $fieldname);
 		if ($collation === NULL) return '';
 		return sprintf('%s LIKE %s"%%%s%%"', $fieldname, $collation, $searchword);
 	}
 	return '';
-}
-
-/**
- * prefix different charset if necessary for LIKE
- *
- * @param string $db_table
- * @param string $collate_fieldname
- * @param array $field
- * @param string $fieldname
- * @return string
- */
-function zz_search_collation($table, $collate_fieldname, $field, $fieldname) {
-	global $zz_conf;
-	if (!$collate_fieldname) return '';
-	if (!isset($zz_conf['int']['character_set_db'])) {
-		zz_db_get_charset();
-	}
-
-	// get db table
-	if (strstr($table, '.')) $db_table = $table;
-	else $db_table = $zz_conf['db_name'].'.'.$table;
-	
-	// check collate fieldname, might be unusable
-	if (strstr($collate_fieldname, '(')) return '';
-	if (strstr($collate_fieldname, '.'))
-		$collate_fieldname = substr($collate_fieldname, strpos($collate_fieldname, '.')+1);
-	
-	// check collation/charset
-	if (isset($field['character_set'])) {
-		$charset = $field['character_set'];
-	} else {
-		$cols = zz_db_columns($db_table, $collate_fieldname);
-		// column is not in db, we cannot check the collation, therefore we
-		// better exclude this field from search
-		if (!$cols OR !in_array('Collation', array_keys($cols))) {
-			if ($zz_conf['debug']) {
-				global $zz_error;
-				$zz_error[] = array('msg_dev' => sprintf('Cannot get character set information for %s. This field will be excluded from search.',
-					$fieldname));
-			}
-			return NULL;
-		}
-		$charset = substr($cols['Collation'], 0, strpos($cols['Collation'], '_'));
-	}
-	if (!$charset) return '';
-	if ($charset !== $zz_conf['int']['character_set_db']) return '_'.$charset;
-	return '';	
 }
 
 /**
