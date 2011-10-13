@@ -1787,6 +1787,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 	// ok, we display something!
 	// re-index lines by id_field_name if it makes sense
 	$lines = zz_field_select_lines($field, $lines, $id_field_name);
+	$count_rows = count($lines);
 
 	// do we have to display the results hierarchical?
 	if (!empty($field['show_hierarchy'])) {
@@ -1794,9 +1795,11 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 	} else {
 		$field['show_hierarchy'] = false;
 	}
-	$count_rows = count($lines);
+	// subtree might change the amount of lines
+	if (!empty($field['show_hierarchy_subtree']))
+		$count_rows = count($lines);
 
-	// 1.3.2: more records than we'd like to display		
+	// 1.3.2: more records than we'd like to display
 	if ($count_rows > $field['max_select']) {
 		return zz_return(zz_field_select_sql_too_long($field, $record, 
 			$detail_record, $id_field_name));
