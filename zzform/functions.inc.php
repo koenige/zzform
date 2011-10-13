@@ -2741,7 +2741,6 @@ function zz_db_field_collation($table, $collate_fieldname, $field, $fieldname = 
 	else $db_table = $zz_conf['db_name'].'.'.$table;
 	
 	// check collate fieldname, might be unusable
-	if (strstr($collate_fieldname, '(')) return '';
 	if (strstr($collate_fieldname, '.'))
 		$collate_fieldname = substr($collate_fieldname, strpos($collate_fieldname, '.')+1);
 	
