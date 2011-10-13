@@ -1624,6 +1624,7 @@ function zz_search_field($field, $table, $searchop, $searchword) {
 	} elseif (isset($field['display_field'])) {
 		// it makes more sense to search through values than IDs
 		$fieldname = $field['display_field'];
+		$collate_fieldname = $field['display_field'];
 	} elseif (!empty($field['field_name'])) {
 		// standard: use table- and field name
 		$fieldname = $table.'.'.$field['field_name'];
