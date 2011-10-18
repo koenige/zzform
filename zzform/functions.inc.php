@@ -2661,9 +2661,10 @@ function zz_db_field_maxlength($field, $type, $db_table) {
  */
 function zz_db_columns($db_table, $field = false) {
 	static $columns;
+	if (!$db_table) return array();
 	if (empty($columns[$db_table])) {
 		$sql = 'SHOW FULL COLUMNS FROM '.zz_db_table_backticks($db_table);
-		$columns[$db_table] = zz_db_fetch($sql, 'Field');
+		$columns[$db_table] = zz_db_fetch($sql, 'Field', false, false, E_USER_WARNING);
 	}
 	if ($field) {
 		if (!empty($columns[$db_table][$field])) {
@@ -2757,6 +2758,7 @@ function zz_db_field_collation($table, $collate_fieldname, $field, $fieldname = 
 			// more than four dots. this will appear as error below
 			break;
 		}
+		if (strstr($db_table, '(')) $db_table = false;
 	}
 	
 	// check collation/charset
@@ -2767,11 +2769,12 @@ function zz_db_field_collation($table, $collate_fieldname, $field, $fieldname = 
 		// column is not in db, we cannot check the collation, therefore we
 		// better exclude this field from search
 		if (!$cols OR !in_array('Collation', array_keys($cols))) {
-			if ($zz_conf['debug']) {
-				global $zz_error;
-				$zz_error[] = array('msg_dev' => sprintf('Cannot get character set information for %s. This field will be excluded from search.',
-					$fieldname));
-			}
+			global $zz_error;
+			$zz_error[] = array('msg_dev' => 
+				sprintf('Cannot get character set information for %s. This field will be excluded from search.',
+				$fieldname),
+				'level' => E_USER_NOTICE
+			);
 			return NULL;
 		}
 		$charset = substr($cols['Collation'], 0, strpos($cols['Collation'], '_'));
