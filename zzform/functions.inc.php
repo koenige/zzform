@@ -2741,8 +2741,23 @@ function zz_db_field_collation($table, $collate_fieldname, $field, $fieldname = 
 	else $db_table = $zz_conf['db_name'].'.'.$table;
 	
 	// check collate fieldname, might be unusable
-	if (strstr($collate_fieldname, '.'))
-		$collate_fieldname = substr($collate_fieldname, strpos($collate_fieldname, '.')+1);
+	if (strstr($collate_fieldname, '.')) {
+		$table_field = explode('.', $collate_fieldname);
+		switch (count($table_field)) {
+		case 2:
+			$db_table = $zz_conf['db_name'].'.'.$table_field[0];
+			$collate_fieldname = $table_field[1];
+			break;
+		case 3:
+			$db_table = $table_field[0].'.'.$table_field[1];
+			$collate_fieldname = $table_field[2];
+			break;
+		default:
+			// leave collate fieldname as is, we cannot do anything with 
+			// more than four dots. this will appear as error below
+			break;
+		}
+	}
 	
 	// check collation/charset
 	if (isset($field['character_set'])) {
