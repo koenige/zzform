@@ -59,7 +59,7 @@ function forceFilename($str, $spaceChar = '-') {
 		case 'Ò':case 'Ó':	case 'Ô':case 'Õ':
 			$_str .= 'O'; break;	 
 		case 'ò':case 'ó':	case 'ô':case 'õ':
-			$_str .= 'i'; break;	 
+			$_str .= 'o'; break;	 
 		
 		case 'ß':
 			$_str .= 'ss'; break;
