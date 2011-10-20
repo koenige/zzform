@@ -1493,6 +1493,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		$zz_conf['search'] = false;			// no search form
 		$zz_conf['show_list'] = false;		// no list
 		$zz_conf['no_ok'] = true;			// no OK button
+		$zz_conf['cancel_link'] = false; 	// no cancel link
 		$zz_conf['int']['hash_id'] = true;	// ID will be hashed so user cannot view all IDs
 		if (empty($_POST)) $ops['mode'] = 'edit';
 		break;
