@@ -515,7 +515,7 @@ function zz_filter_selection($filter) {
 		if (!empty($filter[$index]['hide_all_link'])) continue;
 		$link_all = false;
 		if (isset($_GET['filter'][$f['identifier']])
-			AND $_GET['filter'][$f['identifier']] != 0) $link_all = true;
+			AND $_GET['filter'][$f['identifier']] !== '0') $link_all = true;
 		$filter_output[$index] .= '<dd class="filter_all">&#8211;&nbsp;'
 			.($link_all ? '<a href="'.$link.'">' : '<strong>')
 			.zz_text('all')
@@ -564,7 +564,7 @@ function zz_list_filter_sql($sql) {
 		if (!in_array($filter['identifier'], array_keys($_GET['filter']))) continue;
 		if (empty($filter['where'])) continue;
 		
-		if ($_GET['filter'][$filter['identifier']] == 0 AND $filter['default_selection'] != 0) {
+		if ($_GET['filter'][$filter['identifier']] === '0' AND $filter['default_selection'] != 0) {
 			// do nothing
 		} elseif (zz_in_array_str($_GET['filter'][$filter['identifier']], array_keys($filter['selection']))
 			AND $filter['type'] == 'list') {
