@@ -232,6 +232,9 @@ function zz_output_redirect($result, $return, $id_value, $zz_tab) {
 			.'zzaction=';
 		$secure = false;
 		if (!empty($zz_conf['int']['hash_id'])) {
+			// secret key has to be recalculated for insert operations
+			// because there did not exist an id value before = hash was different
+			$zz_conf['int']['secret_key'] = sha1($zz_conf['int']['hash'].$id_value);
 			$secure = '&zzhash='.$zz_conf['int']['secret_key'];
 		}
 		switch ($result) {
