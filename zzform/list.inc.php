@@ -1617,18 +1617,14 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 function zz_search_field($field, $table, $searchop, $searchword) {
 	global $zz_conf;
 	// get field name
-	$collate_fieldname = '';
 	if (isset($field['search'])) {
 		$fieldname = $field['search'];
-		$collate_fieldname = $field['search'];
 	} elseif (isset($field['display_field'])) {
 		// it makes more sense to search through values than IDs
 		$fieldname = $field['display_field'];
-		$collate_fieldname = $field['display_field'];
 	} elseif (!empty($field['field_name'])) {
 		// standard: use table- and field name
 		$fieldname = $table.'.'.$field['field_name'];
-		$collate_fieldname = $field['field_name'];
 		if ($searchword) {
 			$searchword = zz_search_checkfield($field['field_name'], $table, $searchword);
 			if (!$searchword) return '';
@@ -1689,16 +1685,16 @@ function zz_search_field($field, $table, $searchop, $searchword) {
 	case '=':
 		return sprintf('%s = "%s"', $fieldname, $searchword);
 	case '%LIKE':
-		$collation = zz_db_field_collation($table, $collate_fieldname, $field, $fieldname);
+		$collation = zz_db_field_collation('search', $table, $field);
 		if ($collation === NULL) return '';
 		return sprintf('%s LIKE %s"%%%s"', $fieldname, $collation, $searchword);
 	case 'LIKE%':
-		$collation = zz_db_field_collation($table, $collate_fieldname, $field, $fieldname);
+		$collation = zz_db_field_collation('search', $table, $field);
 		if ($collation === NULL) return '';
 		return sprintf('%s LIKE %s"%s%%"', $fieldname, $collation, $searchword);
 	case '%LIKE%':
 	default:
-		$collation = zz_db_field_collation($table, $collate_fieldname, $field, $fieldname);
+		$collation = zz_db_field_collation('search', $table, $field);
 		if ($collation === NULL) return '';
 		return sprintf('%s LIKE %s"%%%s%%"', $fieldname, $collation, $searchword);
 	}

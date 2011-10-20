@@ -2094,7 +2094,8 @@ function zz_log_sql($sql, $user, $record_id = false) {
  * 		WHERE ... GROUP BY ... HAVING ... ORDER BY ... LIMIT ...
  * @param string $values new value for e. g. WHERE ...
  * @param string $mode Mode, 'add' adds new values while keeping the old ones, 
- *		'replace' replaces all old values
+ *		'replace' replaces all old values, 'list' returns existing values
+ *		'delete' deletes values
  * @return string $sql modified SQL query
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @see wrap_edit_sql()
@@ -2181,7 +2182,7 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 			}
 		}
 	}
-	if ($n_part && $values) {
+	if (($n_part && $values) OR $mode === 'list') {
 		$n_part = strtoupper($n_part);
 		switch ($n_part) {
 		case 'LIMIT':
@@ -2228,6 +2229,20 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 				$o_parts[$n_part][2] = $values;
 			}
 			break;
+		case 'FROM':
+			if ($mode === 'list') {
+				$tables = array();
+				$tables[] = $o_parts['FROM'][2];
+				if (strstr($o_parts['FROM'][2], 'JOIN')) {
+					$test = explode('JOIN', $o_parts['FROM'][2]);
+					unset($test[0]);
+					$tables = array_merge($tables, $test);
+				}
+				if (isset($o_parts['LEFT JOIN'][2])) {
+					$tables[] = $o_parts['LEFT JOIN'][2];
+				}
+			}
+			break;
 		case 'SELECT':
 			if (!empty($o_parts['SELECT DISTINCT'][2])) {
 				if ($mode == 'add')
@@ -2246,6 +2261,16 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 			exit;
 		}
 	}
+	if ($mode === 'list') {
+		if (!isset($tables)) return array();
+		foreach (array_keys($tables) as $index) {
+			$tables[$index] = trim($tables[$index]);
+			if (strstr($tables[$index], ' ')) {
+				$tables[$index] = trim(substr($tables[$index], 0, strpos($tables[$index], ' ')));
+			}
+		}
+		return $tables;
+	}
 	$statements_asc = array_reverse($statements_desc);
 	foreach ($statements_asc as $statement) {
 		if (!empty($o_parts[$statement][2])) 
@@ -2255,6 +2280,50 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 	return zz_return($sql);
 }
 
+/**
+ * gets fieldnames from SQL query
+ *
+ * @param string $sql SQL query
+ * @return array list of field names, e. g.
+ * Array
+ * (
+ *    [0] =>  object_id 
+ *    [1] =>  objects.identifier
+ *    [2] =>  categories.identifier
+ * )
+ */
+function zz_sql_fieldnames($sql) {
+	// preg_match, case insensitive, space after select, space around from 
+	// - might not be 100% perfect, but should work always
+	preg_match('/SELECT( DISTINCT|) *(.+) FROM /Ui', $sql, $fieldstring); 
+	$fields = explode(",", $fieldstring[2]);
+	unset($fieldstring);
+	$oldfield = false;
+	$newfields = false;
+	foreach ($fields as $myfield) {
+		// oldfield, so we are inside parentheses
+		if ($oldfield) $myfield = $oldfield.','.$myfield; 
+		// not enough brackets, so glue strings together until there are enough 
+		// - not 100% safe if bracket appears inside string
+		if (substr_count($myfield, '(') != substr_count($myfield, ')')) {
+			$oldfield = $myfield; 
+		} else {
+			$myfields = '';
+			// replace AS blah against nothing
+			if (stristr($myfield, ') AS')) 
+				preg_match('/(.+\)) AS [a-z0-9_]/i', $myfield, $myfields); 
+			if ($myfields) $myfield = $myfields[1];
+			$myfields = '';
+			if (stristr($myfield, ' AS ')) 
+				preg_match('/(.+) AS [a-z0-9_]/i', $myfield, $myfields); 
+			if ($myfields) $myfield = $myfields[1];
+			$newfields[$myfield] = $myfield; // eliminate duplicates
+			$oldfield = false; // now that we've written it to array, empty it
+		}
+	}
+	$newfields = array_values($newfields);
+	return $newfields;
+}
 
 /*
  * --------------------------------------------------------------------
@@ -2662,7 +2731,7 @@ function zz_db_field_maxlength($field, $type, $db_table) {
 function zz_db_columns($db_table, $field = false) {
 	static $columns;
 	if (!$db_table) return array();
-	if (empty($columns[$db_table])) {
+	if (!isset($columns[$db_table])) {
 		$sql = 'SHOW FULL COLUMNS FROM '.zz_db_table_backticks($db_table);
 		$columns[$db_table] = zz_db_fetch($sql, 'Field', false, false, E_USER_WARNING);
 	}
@@ -2722,57 +2791,95 @@ function zz_db_field_null($field, $db_table) {
 /**
  * prefix different charset if necessary for LIKE
  *
+ * @param string $type 'search', 'reselect'
  * @param string $db_table
- * @param string $collate_fieldname
  * @param array $field
  *		'character_set'
- * @param string $fieldname
+ * @param int $index (for 'reselect')
  * @return string
  */
-function zz_db_field_collation($table, $collate_fieldname, $field, $fieldname = false) {
+function zz_db_field_collation($type, $table, $field, $index = 0) {
 	global $zz_conf;
+	
+	$charset = '';
+	$collate_fieldname = '';
+	switch ($type) {
+	case 'search':
+		if (isset($field['search'])) {
+			$collate_fieldname = $field['search'];
+		} elseif (isset($field['display_field'])) {
+			$collate_fieldname = $field['display_field'];
+		} elseif (!empty($field['field_name'])) {
+			$collate_fieldname = $field['field_name'];
+		}
+		$error_msg = 'This field will be excluded from search.';
+		if (isset($field['character_set'])) $charset = $field['character_set'];
+		$tables[] = $table;
+		break;
+	case 'reselect':
+		$collate_fieldname = $field['sql_fieldnames'][$index];
+		$error_msg = '';
+		if (isset($field['sql_character_set']) AND
+			isset($field['sql_character_set'][$index])) {
+			$charset = $field['sql_character_set'][$index];
+			$tables = array();
+		} elseif (isset($field['sql_table']) AND
+			isset($field['sql_table'][$index])) {
+			$tables[] = $field['sql_table'][$index];
+		} else {
+			$tables = zz_edit_sql($field['sql'], 'FROM', '', 'list');
+		}
+		break;
+	}
 	if (!$collate_fieldname) return '';
-	if (!$fieldname) $fieldname = $collate_fieldname;
 	if (!isset($zz_conf['int']['character_set_db'])) {
 		zz_db_get_charset();
 	}
 
-	// get db table
-	if (strstr($table, '.')) $db_table = $table;
-	else $db_table = $zz_conf['db_name'].'.'.$table;
-	
-	// check collate fieldname, might be unusable
-	if (strstr($collate_fieldname, '.')) {
-		$table_field = explode('.', $collate_fieldname);
-		switch (count($table_field)) {
-		case 2:
-			$db_table = $zz_conf['db_name'].'.'.$table_field[0];
-			$collate_fieldname = $table_field[1];
-			break;
-		case 3:
-			$db_table = $table_field[0].'.'.$table_field[1];
-			$collate_fieldname = $table_field[2];
-			break;
-		default:
-			// leave collate fieldname as is, we cannot do anything with 
-			// more than four dots. this will appear as error below
-			break;
+	if (!$charset) {
+		$db_tables = array();
+		// get db table
+		// check collate fieldname, might be unusable
+		if (strstr($collate_fieldname, '.')) {
+			$table_field = explode('.', $collate_fieldname);
+			switch (count($table_field)) {
+			case 2:
+				$db_tables[0] = $zz_conf['db_name'].'.'.trim($table_field[0]);
+				$collate_fieldname = $table_field[1];
+				break;
+			case 3:
+				$db_tables[0] = $table_field[0].'.'.trim($table_field[1]);
+				$collate_fieldname = $table_field[2];
+				break;
+			default:
+				// leave collate fieldname as is, we cannot do anything with 
+				// more than four dots. this will appear as error below
+				break;
+			}
+			if (strstr($db_tables[0], '(')) $db_tables = array();
+		} else {
+			foreach ($tables as $index => $table) {
+				$table = trim($table);
+				if (strstr($table, '.')) $db_tables[] = $table;
+				else $db_tables[] = $zz_conf['db_name'].'.'.$table;
+			}
 		}
-		if (strstr($db_table, '(')) $db_table = false;
-	}
+		$cols = array();
+		$collate_fieldname = trim($collate_fieldname);
+		foreach ($db_tables as $db_table) {
+			$cols = zz_db_columns($db_table, $collate_fieldname);
+			// check all tables if field exists, write first match in $cols
+			if ($cols) break;
+		}
 	
-	// check collation/charset
-	if (isset($field['character_set'])) {
-		$charset = $field['character_set'];
-	} else {
-		$cols = zz_db_columns($db_table, $collate_fieldname);
 		// column is not in db, we cannot check the collation, therefore we
 		// better exclude this field from search
 		if (!$cols OR !in_array('Collation', array_keys($cols))) {
 			global $zz_error;
-			$zz_error[] = array('msg_dev' => 
-				sprintf('Cannot get character set information for %s. This field will be excluded from search.',
-				$fieldname),
+			$zz_error[] = array(
+				'msg_dev' => 
+					sprintf('Cannot get character set information for %s.', $collate_fieldname)
+					.$error_msg,
 				'level' => E_USER_NOTICE
 			);
 			return NULL;
@@ -2795,6 +2902,29 @@ function zz_db_get_charset() {
 	$sql = 'SHOW VARIABLES LIKE "character_set_connection"';
 	$character_set = zz_db_fetch($sql);
 	$zz_conf['int']['character_set_db'] = $character_set['Value'];
+}
+
+/**
+ * check how many decimal places a number has and round it later accordingly
+ *
+ * @param string $db_table
+ * @param array $field
+ * @return int number of decimal places
+ * @todo support POINT as well
+ */
+function zz_db_decimal_places($db_table, $field) {
+	if (!empty($field['factor'])) {
+		$n = 0;
+		while(pow(10, $n) < $field['factor']) $n++;
+		return $n;
+	}
+	$field_def = zz_db_columns($db_table, $field['field_name']);
+	if (substr($field_def['Type'], 0, 7) == 'decimal') {
+		$length = substr($field_def['Type'], 8, -1);
+		$length = explode(',', $length);
+		if (count($length) === 2) return $length[1];
+	}
+	return false;
 }
 
 /**
@@ -3724,40 +3854,15 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	
 	$sql = $my_rec['fields'][$f]['sql'];
-	// preg_match, case insensitive, space after select, space around from 
-	// - might not be 100% perfect, but should work always
-	preg_match('/SELECT( DISTINCT|) *(.+) FROM /Ui', $sql, $fieldstring); 
-	$fields = explode(",", $fieldstring[2]);
-	unset($fieldstring);
-	$oldfield = false;
-	$newfields = false;
-	foreach ($fields as $myfield) {
-		// oldfield, so we are inside parentheses
-		if ($oldfield) $myfield = $oldfield.','.$myfield; 
-		// not enough brackets, so glue strings together until there are enought 
-		// - not 100% safe if bracket appears inside string
-		if (substr_count($myfield, '(') != substr_count($myfield, ')')) {
-			$oldfield = $myfield; 
-		} else {
-			$myfields = '';
-			// replace AS blah against nothing
-			if (stristr($myfield, ') AS')) 
-				preg_match('/(.+\)) AS [a-z0-9_]/i', $myfield, $myfields); 
-			if ($myfields) $myfield = $myfields[1];
-			$myfields = '';
-			if (stristr($myfield, ' AS ')) 
-				preg_match('/(.+) AS [a-z0-9_]/i', $myfield, $myfields); 
-			if ($myfields) $myfield = $myfields[1];
-			$newfields[$myfield] = $myfield; // eliminate duplicates
-			$oldfield = false; // now that we've written it to array, empty it
-		}
-	}
-	$newfields = array_values($newfields);
+	$my_rec['fields'][$f]['sql_fieldnames'] = zz_sql_fieldnames($sql);
 
-	$postvalues = explode(' | ', $my_rec['POST'][$field_name]);
+	if (!isset($my_rec['fields'][$f]['concat_fields'])) $concat = ' | ';
+	else $concat = $my_rec['fields'][$f]['concat_fields'];
+
+	$postvalues = explode($concat, $my_rec['POST'][$field_name]);
 	$wheresql = '';
 	foreach ($postvalues as $value) {
-		foreach ($newfields as $index => $field) {
+		foreach ($my_rec['fields'][$f]['sql_fieldnames'] as $index => $field) {
 			$field = trim($field);
 			if (!empty($my_rec['fields'][$f]['show_hierarchy'])
 				AND $field == $my_rec['fields'][$f]['show_hierarchy']) continue;
@@ -3777,7 +3882,7 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
 				$likestring = '%s LIKE %s"%%%s%%"';
 			else
 				$likestring = '%s LIKE %s"%s"';
-			$collation = zz_db_field_collation($db_table, $field, $my_rec['fields'][$f]);
+			$collation = zz_db_field_collation('reselect', $db_table, $my_rec['fields'][$f], $index);
 			$wheresql .= sprintf($likestring, $field, $collation, zz_db_escape(trim($value)));
 		}
 	}
@@ -3788,7 +3893,7 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
 	if (!count($possible_values)) {
 		// no records, user must re-enter values
 		$my_rec['fields'][$f]['type'] = 'select';
-		$my_rec['fields'][$f]['class'] = 'reselect' ;
+		$my_rec['fields'][$f]['class'] = 'reselect';
 		$my_rec['fields'][$f]['suffix'] = '<br>'.zz_text('No entry found. Try less characters.');
 		$my_rec['fields'][$f]['mark_reselect'] = true;
 		$my_rec['validation'] = false;
@@ -3813,10 +3918,10 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
 		$error = true;
 	} elseif (count($possible_values)) {
 		// still too many records, require more characters
-		$my_rec['fields'][$f]['default'] = 'reselect' ;
-		$my_rec['fields'][$f]['class'] = 'reselect' ;
+		$my_rec['fields'][$f]['default'] = 'reselect';
+		$my_rec['fields'][$f]['class'] = 'reselect';
 		$my_rec['fields'][$f]['suffix'] = ' '.zz_text('Please enter more characters.');
-		$my_rec['fields'][$f]['check_validation'] = false;
+		$my_rec['fields'][$f]['mark_reselect'] = true;
 		$my_rec['validation'] = false;
 		$error = true;
 	} else {
@@ -3832,29 +3937,5 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
 	}
 	return zz_return($my_rec);
 }
-
-/**
- * check how many decimal places a number has and round it later accordingly
- *
- * @param string $db_table
- * @param array $field
- * @return int number of decimal places
- * @todo support POINT as well
- */
-function zz_db_decimal_places($db_table, $field) {
-	if (!empty($field['factor'])) {
-		$n = 0;
-		while(pow(10, $n) < $field['factor']) $n++;
-		return $n;
-	}
-	$field_def = zz_db_columns($db_table, $field['field_name']);
-	if (substr($field_def['Type'], 0, 7) == 'decimal') {
-		$length = substr($field_def['Type'], 8, -1);
-		$length = explode(',', $length);
-		if (count($length) === 2) return $length[1];
-	}
-	return false;
-}
-
 
 ?>
