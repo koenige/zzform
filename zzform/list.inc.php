@@ -513,10 +513,13 @@ function zz_filter_selection($filter) {
 			$link = $self.($qs ? $qs.'&amp;' : '?').'filter['.$f['identifier'].']=0';
 		}
 		if (!empty($filter[$index]['hide_all_link'])) continue;
+		$link_all = false;
+		if (isset($_GET['filter'][$f['identifier']])
+			AND $_GET['filter'][$f['identifier']] != 0) $link_all = true;
 		$filter_output[$index] .= '<dd class="filter_all">&#8211;&nbsp;'
-			.(isset($_GET['filter'][$f['identifier']]) ? '<a href="'.$link.'">' : '<strong>')
+			.($link_all ? '<a href="'.$link.'">' : '<strong>')
 			.zz_text('all')
-			.(isset($_GET['filter'][$f['identifier']]) ? '</a>' : '</strong>')
+			.($link_all ? '</a>' : '</strong>')
 			.'&nbsp;&#8211;</dd>'."\n";
 	}
 	if (!$filter_output) return false;
@@ -561,7 +564,9 @@ function zz_list_filter_sql($sql) {
 		if (!in_array($filter['identifier'], array_keys($_GET['filter']))) continue;
 		if (empty($filter['where'])) continue;
 		
-		if (zz_in_array_str($_GET['filter'][$filter['identifier']], array_keys($filter['selection']))
+		if ($_GET['filter'][$filter['identifier']] == 0 AND $filter['default_selection'] != 0) {
+			// do nothing
+		} elseif (zz_in_array_str($_GET['filter'][$filter['identifier']], array_keys($filter['selection']))
 			AND $filter['type'] == 'list') {
 			// it's a valid filter, so apply it.
 			if ($_GET['filter'][$filter['identifier']] == 'NULL') {
