@@ -2801,6 +2801,7 @@ function zz_db_field_null($field, $db_table) {
  */
 function zz_db_field_collation($type, $table, $field, $index = 0) {
 	global $zz_conf;
+	if (empty($zz_conf['character_set_db_multiple'])) return '';
 	
 	$charset = '';
 	$collate_fieldname = '';
