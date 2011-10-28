@@ -273,8 +273,13 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				if (isset($field['sum']) AND $field['sum'] == true 
 					AND (empty($field['calculation']) OR $field['calculation'] != 'sql')) {
 					if (!isset($list['sum'][$field['title']])) $list['sum'][$field['title']] = 0;
-					$list['sum'][$field['title']] += $rows[$z][$fieldindex]['value'];
-					$list['sum_group'] = zz_list_group_sum($rows[$z]['group'], $list['sum_group'], $field['title'], $rows[$z][$fieldindex]['value']);
+					$value = $rows[$z][$fieldindex]['value'];
+					if (strstr($value, ':')) {
+						$value = explode(':', $value);
+						$value = $value[0] + ($value[1]/60);
+					}
+					$list['sum'][$field['title']] += $value;
+					$list['sum_group'] = zz_list_group_sum($rows[$z]['group'], $list['sum_group'], $field['title'], $value);
 				}
 				
 				if ($field['type'] == 'subtable' AND !empty($field['subselect']['sql'])) {
