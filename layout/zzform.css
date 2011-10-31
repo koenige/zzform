@@ -142,17 +142,17 @@ body #zzform .separator hr
 #zzform .data thead td, #zzform .data thead th 
 					{ text-align: left; vertical-align: bottom; }
 #zzform table.data	{ margin: .5em 0; }
-#zzform table.data td
+#zzform .data td
 					{ padding: 0.25em .5em; }
-#zzform table.data thead td, #zzform table.data thead th
+#zzform .data thead td, #zzform .data thead th
 					{ padding-bottom: .25em; border-bottom: 1px solid; }
-#zzform table.data thead a
+#zzform .data thead a
 					{ text-decoration: none; }
 #zzform .editbutton	{ padding: 0 .5em; }
 #zzform th.where	{ padding-top: .5em; }
-#zzform table.data tr.group td
+#zzform .data tr.group td
 					{ border-top: 1px solid; padding-top: 1em; }
-#zzform table.data tr.group_sum td
+#zzform .data tr.group_sum td
 					{ padding-bottom: .5em; font-weight: bold; }
 #zzform td.last 	{ border-bottom: 1px solid; }
 
@@ -178,21 +178,21 @@ body #zzform .separator hr
 #zzform table td.level2, #zzform #record table .detailrecord tr.level2 td
 					{ padding-left: 5em; 
 					/* background: url line-vertical.gif  1em 0 repeat-y; */ }
-#zzform table td.level3, #zzform #record table .detailrecord tr.level3 td
+#zzform table td.level3, #zzform #record table .detailrecord .level3 td
 					{ padding-left: 7.5em; }
-#zzform table td.level4, #zzform #record table .detailrecord tr.level4 td
+#zzform table td.level4, #zzform #record table .detailrecord .level4 td
 					{ padding-left: 10em; }
-#zzform table td.level5, #zzform #record table .detailrecord tr.level5 td
+#zzform table td.level5, #zzform #record table .detailrecord .level5 td
 					{ padding-left: 12.5em; }
-#zzform table td.level6, #zzform #record table .detailrecord tr.level6 td
+#zzform table td.level6, #zzform #record table .detailrecord .level6 td
 					{ padding-left: 15em; }
-#zzform table td.level7, #zzform #record table .detailrecord tr.level7 td
+#zzform table td.level7, #zzform #record table .detailrecord .level7 td
 					{ padding-left: 17.5em; }
-#zzform table td.level8, #zzform #record table .detailrecord tr.level8 td
+#zzform table td.level8, #zzform #record table .detailrecord .level8 td
 					{ padding-left: 20em; }
-#zzform table td.level9, #zzform #record table .detailrecord tr.level9 td
+#zzform table td.level9, #zzform #record table .detailrecord .level9 td
 					{ padding-left: 22.5em; }
-#zzform table td.level10, #zzform #record table .detailrecord tr.level10 td
+#zzform table td.level10, #zzform #record table .detailrecord .level10 td
 					{ padding-left: 25em; }
 
 
@@ -209,18 +209,18 @@ body #zzform .separator hr
 /* list view (page navigation below list) */
 #zzform .pages .last
 					{ border-bottom: none; }
-#zzform ul.pages	{ margin: 0; padding: 0 0 1em 0; list-style: none; 
+#zzform .pages		{ margin: 0; padding: 0 0 1em 0; list-style: none; 
 					line-height: 1; }
-#zzform ul.pages li { margin: 0 0 .5em; float: left; padding: 0; 
+#zzform .pages li	{ margin: 0 0 .5em; float: left; padding: 0; 
 					border-left: 1px dotted; }
-#zzform ul.pages li a, #zzform ul.pages li span, #zzform ul.pages li strong 
+#zzform .pages li a, #zzform ul.pages li span, #zzform ul.pages li strong 
 					{ padding: 0 .5em; text-decoration: none; }
-#zzform ul.pages li.first
+#zzform .pages li.first
 					{ border-left: 0; }
-#zzform ul.pages li.first a, #zzform ul.pages li.first span,
-#zzform ul.pages li.first strong 
+#zzform .pages li.first a, #zzform .pages li.first span,
+#zzform .pages li.first strong 
 					{ padding-left: 0; }
-#zzform p.totalrecords
+#zzform .totalrecords
 					{ margin-bottom: 0; }
 
 
