@@ -3399,7 +3399,7 @@ function htmlchars($string) {
 /** 
  * Creates identifier field that is unique
  * 
- * @param array $vars
+ * @param array $vars pairs of field_name => value
  * @param array $conf	Configuration for how to handle the strings
  *		'forceFilename' ('-'); value which will be used for replacing spaces and unknown letters
  *		'concat' ('.'); string used for concatenation of variables. might be array, 
@@ -3442,6 +3442,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 	$conf['slashes'] = isset($conf['slashes']) ? $conf['slashes'] : false;
 	$conf['hash_md5'] = isset($conf['hash_md5']) ? $conf['hash_md5'] : false;
 	$conf['ignore'] = isset($conf['ignore']) ? (is_array($conf['ignore']) ? $conf['ignore'] : array($conf['ignore'])) : array();
+	$conf['max_length'] = isset($conf['max_length']) ? $conf['max_length'] : 36;
 	$i = 0;
 	
 	foreach ($vars as $key => $var) {
@@ -3454,6 +3455,24 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 			}
 			foreach ($conf['ignore_this_if'][$key] as $field_name) {
 				if (!empty($vars[$field_name])) continue 2;
+			}
+		}
+		// check for last element, if max_length is met
+		if ($conf['max_length'] AND strlen($var) > $conf['max_length'] 
+			AND $i === count($vars)) {
+			$vparts = explode(' ', $var);
+			if (count($vparts) > 1) {
+				// always use first part, even if it's too long
+				$var = array_shift($vparts);
+				// < and not <= because space is always added
+				while (strlen($var.reset($vparts)) < $conf['max_length']) {
+					$var .= ' '.array_shift($vparts);
+				}
+				// cut off if first word is too long
+				$var = substr($var, 0, $conf['max_length']);
+			} else {
+				// there are no words, cut off in the middle of the word
+				$var = substr($var, 0, $conf['max_length']);
 			}
 		}
 		if ((strstr($var, '/') AND $i != count($vars))
