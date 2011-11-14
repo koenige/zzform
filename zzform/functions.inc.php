@@ -3903,8 +3903,14 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
 				$likestring = '%s LIKE %s"%%%s%%"';
 			else
 				$likestring = '%s LIKE %s"%s"';
-			$collation = zz_db_field_collation('reselect', $db_table, $my_rec['fields'][$f], $index);
-			$wheresql .= sprintf($likestring, $field, $collation, zz_db_escape(trim($value)));
+			$value = trim($value);
+			if (is_numeric($value)) {
+				// no character set needed for numeric values
+				$collation = '';
+			} else {
+				$collation = zz_db_field_collation('reselect', $db_table, $my_rec['fields'][$f], $index);
+			}
+			$wheresql .= sprintf($likestring, $field, $collation, zz_db_escape($value));
 		}
 	}
 	$wheresql .= ')';
