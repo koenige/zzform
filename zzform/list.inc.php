@@ -2061,6 +2061,7 @@ function zz_list_get_subselects($rows, $subselects, $ids) {
 		if (!isset($subselect['suffix'])) $subselect['suffix'] = '</p>';
 		if (!isset($subselect['concat_fields'])) $subselect['concat_fields'] = ' ';
 		if (!isset($subselect['show_empty_cells'])) $subselect['show_empty_cells'] = false;
+		if (!isset($subselect['link'])) $subselect['link'] = array();
 		
 		$subselect['sql'] = zz_edit_sql($subselect['sql'], 'WHERE', 
 			$subselect['id_table_and_fieldname'].' IN ('.implode(', ', $ids).')');
@@ -2082,6 +2083,10 @@ function zz_list_get_subselects($rows, $subselects, $ids) {
 					if ($subselect['show_empty_cells'] AND !$db_fields) $db_fields = '&nbsp;';
 					if ($fieldtext AND $db_fields) $fieldtext .= $subselect['concat_fields'];
 					$fieldtext .= $db_fields;
+				}
+				if ($subselect['link']) {
+					$link = zz_makelink($subselect['link'], $linefields);
+					if ($link) $fieldtext = sprintf('<a href="%s">%s</a>', $link, $fieldtext);
 				}
 				$linetext[] = $fieldtext;
 			}
