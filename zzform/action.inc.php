@@ -1768,12 +1768,14 @@ function zz_integrity_check($deletable_ids, $relations) {
 				if ($remaining_ids) {
 					// there are still IDs which cannot be deleted
 					// check which record they belong to
-					$response['fields'][] = $field['detail_table'];
+					// only get unique values
+					$response['fields'][$field['detail_table']] = $field['detail_table'];
 				}
 			}
 		}
 	}
 	if ($response['fields']) {
+		$response['fields'] = array_values($response['fields']);
 		// we still have detail records
 		$response['text'] = zz_text('Detail records exist in the following tables:');
 		return $response;
