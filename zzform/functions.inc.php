@@ -1893,7 +1893,7 @@ function zz_makepath($path, $zz_tab, $record = 'new', $do = false, $tab = 0, $re
 			if ($record == 'new') {
 				$content = (!empty($zz_tab[$tab][$rec]['POST'][$pvalue])) 
 					? $zz_tab[$tab][$rec]['POST'][$pvalue]
-					: zz_upload_sqlval($pvalue, $zz_tab[$tab]['sql'], 
+					: zz_get_record($pvalue, $zz_tab[$tab]['sql'], 
 						$zz_tab[$tab][$rec]['id']['value'], 
 						$zz_tab[$tab]['table'].'.'.$zz_tab[$tab][$rec]['id']['field_name']);
 			} elseif ($record == 'old') {
@@ -1930,6 +1930,27 @@ function zz_makepath($path, $zz_tab, $record = 'new', $do = false, $tab = 0, $re
 
 	}
 	return $p;
+}
+
+/** 
+ * gets value from a single record
+ * 
+ * @param string $field_name
+ * @param string $sql
+ * @param string $idvalue (optional)
+ * @param string $idfield (optional)
+ * @global array $zz_error
+ * @return string
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function zz_get_record($field_name, $sql, $idvalue = false, $idfield = false) { 
+	global $zz_error;
+	// if idvalue is not set: note: all values should be the same! First value is taken
+	if ($idvalue) 
+		$sql = zz_edit_sql($sql, 'WHERE', $idfield.' = "'.$idvalue.'"');
+	$line = zz_db_fetch($sql, '', '', __FUNCTION__);
+	if (!empty($line[$field_name])) return $line[$field_name];
+	else return false;
 }
 
 /** 

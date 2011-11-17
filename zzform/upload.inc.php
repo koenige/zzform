@@ -28,7 +28,6 @@
 		zz_upload_extension()	gets extension
 	zz_upload_check()			validates file input (upload errors, requirements)
 	zz_upload_action()			writes/deletes files after successful sql insert/update
-		zz_upload_sqlval()	
 	zz_upload_cleanup()			cleanup after files have been moved or deleted
 
 	2. additional functions
@@ -1643,28 +1642,6 @@ function zz_upload_insert($source, $dest, $action = '-', $mode = 'copy') {
 	}
 	return true;
 }
-
-/** 
- * get value needed for upload from sql query
- * 
- * @param string $value
- * @param string $sql
- * @param string $idvalue (optional)
- * @param string $idfield (optional)
- * @global array $zz_error
- * @return string $value
- * @author Gustaf Mossakowski <gustaf@koenige.org>
- */
-function zz_upload_sqlval($value, $sql, $idvalue = false, $idfield = false) { 
-	global $zz_error;
-	// if idvalue is not set: note: all values should be the same! First value is taken
-	if ($idvalue) 
-		$sql = zz_edit_sql($sql, 'WHERE', $idfield.' = "'.$idvalue.'"');
-	$line = zz_db_fetch($sql, '', '', __FUNCTION__);
-	if (!empty($line[$value])) return $line[$value];
-	else return false;
-}
-
 
 /**
  * Creates unique filename from backup dir, action and file path
