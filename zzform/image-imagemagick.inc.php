@@ -252,6 +252,7 @@ function zz_imagick_convert($options, $files) {
 	if ($options) $command .= $options.' ';
 
 	$command .= ' '.$files.' ';
+	if ($zz_conf['modules']['debug']) zz_debug("convert command", $command);
 	$success = exec($command, $return, $return_var);
 	if ($return) {
 		$zz_error[] = array('msg_dev' => $command.': '.json_encode($return));
