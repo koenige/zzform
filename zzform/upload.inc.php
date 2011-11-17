@@ -1044,7 +1044,7 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec) {
 	$tmp_filename = tempnam(realpath($zz_conf['tmp_dir']), "UPLOAD_");
 	$dest_extension = zz_upload_extension($image['path'], $my_rec);
 	if (!$dest_extension) {
-		$dest_extension = $image['upload']['ext'];
+		$dest_extension = strtolower($image['upload']['ext']);
 		// map files to extensions, e. g. TIFF to PNG
 		if (!empty($zz_conf['upload_destination_filetype'][$dest_extension]))
 			$dest_extension = $zz_conf['upload_destination_filetype'][$dest_extension];
