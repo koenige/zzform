@@ -22,8 +22,12 @@ function zz_output_heading($table) {
 	} else {
 		$heading = $zz_conf['heading'];
 	}
-	if ($zz_conf['multilang_fieldnames'])
+	if ($zz_conf['multilang_fieldnames']) {
 		$heading = zz_text($heading);
+		$zz_conf['heading_prefix'] = zz_text($zz_conf['heading_prefix');
+	}
+	if ($zz_conf['heading_prefix'])
+		$heading = $zz_conf['heading_prefix'].' '.$heading;
 	return $heading;
 }
 

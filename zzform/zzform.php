@@ -750,6 +750,7 @@ function zz_initialize($mode = false) {
 	$zz_default['hash_password']		= 'md5';
 	$zz_default['heading_text'] 		= '';
 	$zz_default['heading_text_hidden_while_editing'] 	= false;
+	$zz_default['heading_prefix']		= false;
 	$zz_default['html_autofocus']		= true;
 	$zz_default['limit']				= false;	// only n records are shown at once
 	$zz_default['limit_show_range'] 	= 800;		// range in which links to records around current selection will be shown
