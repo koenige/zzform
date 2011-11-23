@@ -38,23 +38,22 @@ function zz_maintenance($params) {
 	}
 
 	zz_initialize();
+	$heading_prefix = '';
+	if ($zz_conf['heading_prefix']) $heading_prefix = ' ';
+	$heading_prefix .= '<a href="./">'.zz_text('Maintenance').'</a>:';
 	
 	if (!empty($_SESSION) AND empty($zz_conf['user']) AND !empty($zz_setting['brick_username_in_session']))
 		$zz_conf['user'] = $_SESSION[$zz_setting['brick_username_in_session']];
 	elseif (!isset($zz_conf['user']))
 		$zz_conf['user'] = 'Maintenance robot 812';
 
-	$page['title'] = zz_text('Maintenance');
-	$page['dont_show_h1'] = true;
-	$page['text'] = '';
+	$page['text'] = '<div id="zzform" class="maintenance">'."\n";
 	
 	$sql = '';
 	if (!empty($_POST['sql'])) {
 		$sql = $_POST['sql'];
 
-		$page['text'] = '<h1><a href="./">'.zz_text('Maintenance scripts').'</a></h1>'."\n";
-		$page['text'] .= '<div id="zzform" class="maintenance">'."\n";
-		$page['text'] .= '<h2>'.zz_text('SQL query').'</h2>'."\n";
+		$zz_conf['heading'] = 'SQL Query';
 		$page['text'] .= '<pre style="font-size: 1.1em; white-space: pre-wrap;"><code>'.zz_maintenance_sql($sql).'</code></pre>';
 
 		$tokens = explode(' ', $sql);
@@ -85,8 +84,8 @@ function zz_maintenance($params) {
 
 	if (empty($_GET)) {	
 		if (!$sql) {
-			$page['text'] = '<h1>'.zz_text('Maintenance scripts').'</h1>'."\n";
-			$page['text'] .= '<div id="zzform" class="maintenance">'."\n";
+			$zz_conf['heading'] = 'Maintenance';
+			$heading_prefix = '';
 
 			// 'relations'
 			// 'translations'
@@ -114,30 +113,22 @@ function zz_maintenance($params) {
 	// 	- SQL query absetzen, Häkchen für zz_log_sql()
 	} else {
 		if (!empty($_GET['folder'])) {
-			$page['text'] = '<h1><a href="./">'.zz_text('Maintenance scripts').'</a>: '
-				.zz_text('Backup folder').'</h1>'."\n";
-			$page['text'] .= '<div id="zzform" class="maintenance">'."\n";
+			$zz_conf['heading'] = 'Backup folder';
 			$page['text'] .= zz_maintenance_folders();
 		} elseif (!empty($_GET['log'])) {
-			$page['text'] = '<h1><a href="./">'.zz_text('Maintenance scripts').'</a>: '
-				.zz_text('Logs').'</h1>'."\n";
-			$page['text'] .= '<div id="zzform" class="maintenance">'."\n";
+			$zz_conf['heading'] = 'Logs';
 			$page['text'] .= zz_maintenance_logs();
 		} elseif (isset($_GET['integrity'])) {
-			$page['text'] = '<h1><a href="./">'.zz_text('Maintenance scripts').'</a>: '
-				.zz_text('Relational Integrity').'</h1>'."\n";
-			$page['text'] .= '<div id="zzform" class="maintenance">'."\n";
+			$zz_conf['heading'] = 'Relational Integrity';
 			$page['text'] .= zz_maintenance_integrity();
 		} elseif (isset($_GET['filetree'])) {
-			$page['text'] = '<h1><a href="./">'.zz_text('Maintenance scripts').'</a>: '
-				.zz_text('Filetree').'</h1>'."\n";
-			$page['text'] .= '<div id="zzform" class="maintenance">'."\n";
+			$zz_conf['heading'] = 'Filetree';
 			$page['text'] .= zz_maintenance_filetree();
 		} elseif (isset($_GET['phpinfo'])) {
 			phpinfo();
 			exit;
 		} else {
-			$page['text'] .= '<div id="zzform" class="maintenance">'."\n";
+			$zz_conf['heading'] = 'Error';
 			$page['text'] .= zz_text('GET should be empty, please test that:').' <pre>';
 			foreach ($_GET as $key => $value) {
 				$page['text'] .= $key.' => '.$value."\n";
@@ -150,6 +141,10 @@ function zz_maintenance($params) {
 		$page['text'] .= $zz_conf['footer_text'];
 	}
 
+	$zz_conf['heading_prefix'] .= $heading_prefix;
+	$page['title'] = zz_output_heading();
+	$page['dont_show_h1'] = true;
+	$page['text'] = '<h1>'.$page['title']."</h1>\n".$page['text'];
 	return $page;
 }
 
