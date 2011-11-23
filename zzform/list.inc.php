@@ -2079,10 +2079,18 @@ function zz_list_get_subselects($rows, $subselects, $ids) {
 			foreach ($lines[$id] as $linefields) {
 				unset($linefields[$subselect['id_fieldname']]); // ID field will not be shown
 				$fieldtext = false;
+				$index = 0;
 				foreach ($linefields as $db_fields) {
 					if ($subselect['show_empty_cells'] AND !$db_fields) $db_fields = '&nbsp;';
-					if ($fieldtext AND $db_fields) $fieldtext .= $subselect['concat_fields'];
+					if ($db_fields) {
+						if (!empty($subselect['field_prefix'][$index]))
+							$db_fields = $subselect['field_prefix'][$index].$db_fields;
+						if (!empty($subselect['field_suffix'][$index]))
+							$db_fields .= $subselect['field_suffix'][$index];
+						if ($fieldtext) $fieldtext .= $subselect['concat_fields'];
+					}
 					$fieldtext .= $db_fields;
+					$index++;
 				}
 				if ($subselect['link']) {
 					$link = zz_makelink($subselect['link'], $linefields);
