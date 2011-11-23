@@ -13,7 +13,7 @@
  * @global array $zz_conf 'heading'
  * @return string $heading
  */
-function zz_output_heading($table) {
+function zz_output_heading($table = '') {
 	global $zz_conf;
 	if (!isset($zz_conf['heading'])) {
 		$heading = $table;
@@ -24,7 +24,7 @@ function zz_output_heading($table) {
 	}
 	if ($zz_conf['multilang_fieldnames']) {
 		$heading = zz_text($heading);
-		$zz_conf['heading_prefix'] = zz_text($zz_conf['heading_prefix');
+		$zz_conf['heading_prefix'] = zz_text($zz_conf['heading_prefix']);
 	}
 	if ($zz_conf['heading_prefix'])
 		$heading = $zz_conf['heading_prefix'].' '.$heading;
