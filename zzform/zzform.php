@@ -313,23 +313,8 @@ function zzform($zz = array()) {
 		$zz['fields_in_list'] = $zz['fields']; 
 
 	if ($zz_conf['show_record']) {
-		if (!empty($zz_conf['modules']['conditions']) AND !empty($zz_conditions['values'])
-			AND !empty($zz['conditional_fields']))
-			$zz['fields'] = zz_conditions_record_fields($zz['fields'], $zz['conditional_fields'], $zz_conditions['values']);
-		
-		// check if there are any bool-conditions 
-		if (!empty($zz_conf['modules']['conditions']) AND !empty($zz_conditions['bool'])) {
-			foreach (array_keys($zz['fields']) as $no) {
-				if (!empty($zz['fields'][$no]['conditions'])) {
-					$zz['fields'][$no] = zz_conditions_merge($zz['fields'][$no], $zz_conditions['bool'], $zz_var['id']['value']);
-				}
-				if (!empty($zz['fields'][$no]['not_conditions'])) {
-					$zz['fields'][$no] = zz_conditions_merge($zz['fields'][$no], $zz_conditions['bool'], $zz_var['id']['value'], true);
-				}
-			}
-		} elseif (!empty($zz_conf['modules']['conditions']) AND !empty($zz_conditions['values'])
-			AND $zz_conf['modules']['debug']) {
-			zz_debug('Notice: `values`-condition was set, but there\'s no `conditional_field`! (Waste of ressources)');
+		if (!empty($zz_conf['modules']['conditions'])) {
+			$zz['fields'] = zz_conditions_record($zz, $zz_conditions, $zz_var['id']['value']);
 		}
 	 	// sets some $zz-definitions for records depending on existing definition for
 		// translations, subtabes, uploads, write_once-fields

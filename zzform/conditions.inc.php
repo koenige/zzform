@@ -12,12 +12,94 @@
 /*
 	main functions (in order in which they are called)
 
+	zz_conditions_record()
+	zz_conditions_record_values()	sets values for record
 	zz_conditions_record_check()	set conditions for record
 	zz_conditions_record_fields()	write new fields to $zz['fields'] based on conditions
 		zz_replace_conditional_values()
 	zz_conditions_merge()			merge conditional values with normal values ($zz['fields'], $zz_conf)
 	zz_conditions_list_check()		set conditions for list
 */
+
+/**
+ * applies 'values' and 'bool' conditions to record
+ *
+ * @param array $zz
+ * @param array $zz_conditions
+ * @param int $id_value
+ * @global array $zz_conf
+ * @return array $zz['fields']
+ */
+function zz_conditions_record($zz, $zz_conditions, $id_value) {
+	global $zz_conf;
+
+	// check for 'values'
+	if (!empty($zz_conditions['values'])) {
+		$found = false;
+		if (!empty($zz['conditional_fields'])) {
+			$zz['fields'] = zz_conditions_record_fields($zz['fields'],
+				$zz['conditional_fields'], $zz_conditions['values']);
+			$found = true;
+		} else {
+			foreach (array_keys($zz['fields']) as $no) {
+				if (empty($zz['fields'][$no]['conditions'])) continue;
+				$zz['fields'][$no] = zz_conditions_record_values($zz['fields'][$no], $zz_conditions['values']);
+				$found = true;
+			}
+		}
+		if (!$found AND $zz_conf['modules']['debug']) {
+			zz_debug('conditions', 'Notice: `values`-condition was set, but there\'s no `conditional_field`! (Waste of ressources)');
+		}
+	}
+	
+	// check if there are any bool-conditions 
+	if (!empty($zz_conditions['bool'])) {
+		foreach (array_keys($zz['fields']) as $no) {
+			if (!empty($zz['fields'][$no]['conditions'])) {
+				$zz['fields'][$no] = zz_conditions_merge($zz['fields'][$no], $zz_conditions['bool'], $id_value);
+			}
+			if (!empty($zz['fields'][$no]['not_conditions'])) {
+				$zz['fields'][$no] = zz_conditions_merge($zz['fields'][$no], $zz_conditions['bool'], $id_value, true);
+			}
+		}
+	}
+	return $zz['fields'];
+}
+
+/**
+ * replaces %field_name%-placeholders in conditional field definitions 
+ * with value/values from database, e. g. '3' or '3,4' ..
+ *
+ * @param array $field field definition
+ * @param array $values conditional values
+ * @return array field definition
+ */
+function zz_conditions_record_values($field, $values) {
+	foreach ($values as $condition => $records) {
+		if (empty($field['conditions'][$condition])) continue;
+		$all_values = array();
+		foreach ($records as $record) {
+			foreach ($record as $field_name => $value) {
+				$all_values[$field_name][] = $value;
+			}
+		}
+		if ($all_values) foreach ($field['conditions'][$condition] as $key => $definition) {
+			foreach ($all_values as $field_name => $field_values) {
+				if (!preg_match('~%'.$field_name.'%~', $definition)) continue;
+				$field_values = array_unique($field_values);
+				$field_values = implode(',', $field_values);
+				$definition = preg_replace('~%'.$field_name.'%~', $field_values, $definition);
+			}
+			unset($field['conditions'][$condition][$key]);
+			$field[$key] = $definition;
+		}
+		if (empty($field['conditions'][$condition]))
+			unset($field['conditions'][$condition]);
+		if (empty($field['conditions']))
+			unset($field['conditions']);
+	}
+	return $field;
+}
 
 /**
  * check conditions for form and list view
@@ -221,8 +303,9 @@ function zz_conditions_record_fields($fields, $conditional_fields, $values) {
 }
 
 function zz_replace_conditional_values(&$item, $key, $records) {
-	if (is_array($item)) array_walk($item, 'zz_replace_conditional_values', $records);
-	else {
+	if (is_array($item)) {
+		array_walk($item, 'zz_replace_conditional_values', $records);
+	} else {
 		foreach ($records as $field_name => $record) {
 			if (preg_match('~%'.$field_name.'%~', $item))
 				$item = preg_replace('~%'.$field_name.'%~', $record, $item);
