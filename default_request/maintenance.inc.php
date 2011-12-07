@@ -48,7 +48,7 @@ function zz_maintenance($params) {
 		$zz_conf['user'] = 'Maintenance robot 812';
 
 	$page['query_strings'] = array('folder', 'log', 'integrity', 'filetree', 
-		'phpinfo', 'file', 'q', 'deleteall', 'filter');
+		'phpinfo', 'file', 'q', 'deleteall', 'filter', 'limit');
 	$page['text'] = '<div id="zzform" class="maintenance">'."\n";
 	
 	$sql = '';
@@ -377,6 +377,7 @@ function zz_maintenance_dirsize($dir) {
 	$size = 0;
 	$files = 0;
 	$handle = opendir($dir);
+	if (!$handle) return array($size, $files);
 	while ($file = readdir($handle)) {
 		if ($file == '.' OR $file == '..') continue;
 		if (is_dir($dir.'/'.$file)) {
