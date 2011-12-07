@@ -725,7 +725,8 @@ function zz_maintenance_logs() {
 
 	$show_log = false;
 	foreach ($levels as $level)
-		if ($_GET['log'] == $zz_conf['error_log'][$level]) $show_log = true;
+		if ($_GET['log'] === $zz_conf['error_log'][$level]) $show_log = true;
+	if ($_GET['log'] === ini_get('error_log')) $show_log = true;
 	if (!$show_log) {
 		$text = '<p>'.sprintf(zz_text('This is not one of the used logfiles: %s'), htmlspecialchars($_GET['log'])).'</p>'."\n";
 		return $text;
