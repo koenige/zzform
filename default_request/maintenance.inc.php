@@ -48,7 +48,7 @@ function zz_maintenance($params) {
 		$zz_conf['user'] = 'Maintenance robot 812';
 
 	$page['query_strings'] = array('folder', 'log', 'integrity', 'filetree', 
-		'phpinfo', 'file', 'q', 'deleteall', 'filter', 'limit');
+		'phpinfo', 'file', 'q', 'deleteall', 'filter', 'limit', 'scope');
 	$page['text'] = '<div id="zzform" class="maintenance">'."\n";
 	
 	$sql = '';
