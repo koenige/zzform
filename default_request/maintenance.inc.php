@@ -86,7 +86,7 @@ function zz_maintenance($params) {
 
 	if (empty($_GET)) {	
 		if (!$sql) {
-			$zz_conf['heading'] = wrap_text('Maintenance');
+			$zz_conf['heading'] = zz_text('Maintenance');
 			$heading_prefix = '';
 
 			// 'relations'
