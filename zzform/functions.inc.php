@@ -3084,7 +3084,12 @@ function zz_error() {
 			$error_line = substr($error_line, 0, $zz_conf['log_errors_max_len'] -(strlen($user)+1)).$user."\n";
 			error_log($error_line, 3, $zz_conf['error_log'][$level]);
 			if (!empty($_POST) AND $zz_conf['error_log_post']) {
-				$error_line = '['.date('d-M-Y H:i:s').'] zzform Notice: POST '.serialize($_POST);
+				$error_line = '['.date('d-M-Y H:i:s').'] zzform Notice: POST';
+				if (function_exists('json_encode')) {
+					$error_line .= '[json] '.json_encode($_POST);
+				} else {
+					$error_line .= ' '.serialize($_POST);
+				}
 				$error_line = substr($error_line, 0, $zz_conf['log_errors_max_len'] 
 					- (strlen($user)+4)).' '.$user."\n";
 				error_log($error_line, 3, $zz_conf['error_log'][$level]);

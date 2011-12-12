@@ -965,6 +965,10 @@ function zz_maintenance_logs() {
 			$post = @unserialize(substr($line['error'], 5));
 			if ($post)
 				$line['error'] = 'POST '.wrap_print($post);
+		} elseif (substr($line['error'], 0, 11) === 'POST[json] ') {
+			$post = @json_decode(substr($line['error'], 11));
+			if ($post)
+				$line['error'] = 'POST '.wrap_print($post);
 		}
 		if (!$post) {
 			$no_html = false;
