@@ -1787,7 +1787,6 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 	// ok, we display something!
 	// re-index lines by id_field_name if it makes sense
 	$lines = zz_field_select_lines($field, $lines, $id_field_name);
-	$count_rows = count($lines);
 
 	// do we have to display the results hierarchical?
 	if (!empty($field['show_hierarchy'])) {
@@ -1796,8 +1795,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 		$field['show_hierarchy'] = false;
 	}
 	// subtree might change the amount of lines
-	if (!empty($field['show_hierarchy_subtree']))
-		$count_rows = count($lines);
+	$count_rows = count($lines);
 
 	// 1.3.2: more records than we'd like to display
 	if ($count_rows > $field['max_select']) {
@@ -1848,7 +1846,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 		// re-edit record, something was posted, ignore hierarchy because 
 		// there's only one record coming back
 		$outputf .= zz_draw_select($field, $record, $detail_record, $id_field_name, 'form');
-	} elseif ($field['show_hierarchy_subtree']) {
+	} elseif (!empty($field['show_hierarchy_subtree']) OR ($field['show_hierarchy'])) {
 		$outputf = zz_form_element($field['f_field_name'], '', 'hidden', true)
 			.zz_text('(This entry is the highest entry in the hierarchy.)');
 		$close_select = false;
@@ -1990,8 +1988,15 @@ function zz_field_sethierarchy($field, $lines, $subtree, $level = 0) {
 	static $levels;
 	if ($level) $levels = $level;
 
-	if ($subtree) $branches = $lines[$subtree];
-	else $branches = $lines['NULL'];
+	if ($subtree) {
+		$branches = $lines[$subtree];
+	} elseif (!empty($lines['NULL'])) {
+		$branches = $lines['NULL'];
+	} else {
+		// there are no NULL-values, so we either have the uppermost
+		// element in the hierarchy or simply no elements at all
+		return array();
+	}
 
 	foreach ($branches as $id => $line) {
 		$line['zz_level'] = $level;
