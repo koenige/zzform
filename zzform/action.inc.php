@@ -1075,7 +1075,6 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				if ($n_val !== NULL) {
 					$my_rec['POST'][$field_name] = $n_val;
 				} else {
-					$my_rec['POST'][$field_name] = false;
 					$my_rec['fields'][$f]['check_validation'] = false;
 					$my_rec['validation'] = false;
 				}
