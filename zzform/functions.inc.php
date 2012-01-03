@@ -3187,6 +3187,7 @@ function zz_error_validation() {
 		}
 		$this_error['msg_dev'] = "\n\n".implode("\n", $this_dev_msg);
 	}
+	$this_error['level'] = E_USER_NOTICE;
 	$zz_error[] = $this_error;
 	unset($zz_error['validation']);
 }
