@@ -3073,10 +3073,14 @@ function zz_error() {
 			$admin_output[$key] = $error['msg'];
 
 		// Log output
-		$log_output[$key] = trim(html_entity_decode($admin_output[$key], ENT_QUOTES, $log_encoding));
+		$log_output[$key] = $admin_output[$key];
+		// preserve &lt; for some reasons (Value incorrect in field: ... (String "<a href=" is not allowed).
+		$log_output[$key] = str_replace('&lt;', '&amp;lt;', $log_output[$key]);
+		$log_output[$key] = trim(html_entity_decode($log_output[$key], ENT_QUOTES, $log_encoding));
 		$log_output[$key] = str_replace('<br>', "\n\n", $log_output[$key]);
 		$log_output[$key] = str_replace('<br class="nonewline_in_mail">', "; ", $log_output[$key]);
 		$log_output[$key] = strip_tags($log_output[$key]);
+		$log_output[$key] = str_replace('&lt;', '<', $log_output[$key]);
 		// reformat log output
 		if (!empty($zz_conf['error_log'][$level]) AND $zz_conf['log_errors']) {
 			$error_line = '['.date('d-M-Y H:i:s').'] zzform '.ucfirst($level)
