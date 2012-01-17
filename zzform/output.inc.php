@@ -434,47 +434,6 @@ function zz_querystring_to_hidden($query_string, $unwanted_keys = array(), $leve
 	return $output;
 }
 
-/**
- * sets class attribute if necessary
- * 
- * @param array $field
- * @param array $values
- * @param bool $html (optional; true: output of HTML attribute)
- * @return mixed array $class list of strings with class names /
- *		string HTML output class="..."
- * @author Gustaf Mossakowski <gustaf@koenige.org>
- */
-function zz_field_class($field, $values, $html = false) {
-	$class = array();
-	if (!empty($field['level']))
-		$class[] = 'level'.$field['level'];
-	if ($field['type'] == 'id' && empty($field['show_id']))
-		$class[] = 'recordid';
-	elseif ($field['type'] == 'number' OR $field['type'] == 'calculated')
-		$class[] = 'number';
-	if (!empty($_GET['order']) AND empty($field['dont_sort'])) 
-		if (!empty($field['field_name']) AND $field['field_name'] == $_GET['order'])
-			$class[] = 'order';
-		elseif (!empty($field['display_field']) AND $field['display_field'] == $_GET['order']) 
-			$class[] = 'order';
-	if ($values)
-		if (isset($field['field_name'])) // does not apply for subtables!
-			if (zz_field_in_where($field['field_name'], $values)) 
-				$class[] = 'where';
-	if (!empty($field['class'])) $class[] = $field['class'];
-
-	if (!$html) return $class;
-	if (!$class) return false;
-	return ' class="'.implode(' ', $class).'"';
-}
-
-function zz_field_in_where($field, $values) {
-	$where = false;
-	foreach (array_keys($values) as $value)
-		if ($value == $field) $where = true;
-	return $where;
-}
-
 function hours($seconds) {
 	$hours = 0;
 	$minutes = 0;
