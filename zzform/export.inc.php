@@ -71,7 +71,7 @@ function zz_export_init($ops) {
 		);
 		return $ops;
 	}
-	$ops['headers'] = zz_make_headers($export, $zz_conf['character_set']);
+	$ops['headers'] = zz_export_headers($export, $zz_conf['character_set']);
 	$ops['mode'] = 'export';
 	$zz_conf['list_display'] = $export;
 	$zz_conf['group'] = false; // no grouping in export files
@@ -96,10 +96,10 @@ function zz_export_init($ops) {
  *
  * @param string $export type of export ('csv', 'pdf', ...)
  * @param string $charset character encoding ($zz_conf['character_set'])
- * @global array $zz_onf 'int'['url']['self']
+ * @global array $zz_conf 'int'['url']['self']
  * @return array $headers
  */
-function zz_make_headers($export, $charset) {
+function zz_export_headers($export, $charset) {
 	global $zz_conf;
 	$headers = array();
 	$filename = basename($zz_conf['int']['url']['self']);
@@ -297,7 +297,11 @@ function zz_export_kml_description($head, $line, $fields) {
 	foreach ($line as $no => $values) {
 		if (!is_numeric($no)) continue;
 		if (empty($values['text'])) continue;
-		$title = (!empty($head[$no]['title_kml']) ? $head[$no]['title_kml'] : $head[$no]['title']);
+		if (!empty($head[$no]['title_kml'])) {
+			$title = $head[$no]['title_kml'];
+		} else {
+			$title = $head[$no]['th_nohtml'];
+		}
 		if ($zz_conf['character_set'] != 'utf-8')
 			$title = utf8_encode($title);
 		$desc[] = '<tr><th>'.$title.'</th><td>'.$values['text'].'</td></tr>';
