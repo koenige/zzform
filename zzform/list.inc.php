@@ -350,9 +350,11 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	// Table head
 	//
 
-	$list['where_values'] = (!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : '');
-	$head = zz_list_head($table_query[0], $list['where_values']);
-	unset($table_query);
+	if ($zz_conf['show_list']) {
+		$list['where_values'] = (!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : '');
+		$head = zz_list_head($table_query[0], $list['where_values']);
+		unset($table_query);
+	}
 
 	//
 	// Export
