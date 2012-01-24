@@ -1332,7 +1332,6 @@ function zz_record_access($zz, $ops, $zz_var) {
 	// initialize variables
 	$zz_var['action'] = false;
 	$zz_conf['show_record'] = true; // show record somehow (edit, view, ...)
-	$zz_conf['int']['secret_key'] = sha1($zz_conf['int']['hash'].$zz_var['id']['value']);
 	
 	// set mode and action according to $_GET and $_POST variables
 	// do not care yet if actions are allowed
@@ -1392,6 +1391,9 @@ function zz_record_access($zz, $ops, $zz_var) {
 		$zz_var['id']['value'] = $id_value;
 	elseif (!isset($zz_var['id']['value']))
 		$zz_var['id']['value'] = '';
+
+	// now that we have the ID value, we can calculate the secret key
+	$zz_conf['int']['secret_key'] = sha1($zz_conf['int']['hash'].$zz_var['id']['value']);
 
 	// if $zz_conf['conditions'] -- check them
 	// get conditions if there are any, for access
