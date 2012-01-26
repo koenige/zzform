@@ -1871,7 +1871,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 function zz_field_query($field) {
 	// we do not show all fields if query is bigger than $field['max_select']
 	// so no need to query them (only if show_hierarchy_subtree is empty)
-	if (empty($field['show_hierarchy_subtree'])) {
+	if (empty($field['show_hierarchy_subtree']) AND empty($field['show_hierarchy'])) {
 		$sql = zz_edit_sql($field['sql'], 'LIMIT', '0, '.($field['max_select']+1));
 	} else {
 		$sql = $field['sql'];
