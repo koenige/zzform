@@ -123,7 +123,7 @@ body #zzform .separator hr
 
 
 /* filter */
-#zzform .zzfilter	{ margin: 1em 0 1.5em; line-height: 1; }
+#zzform .zzfilter	{ margin: 1em 0 1.5em; line-height: 1; overflow: hidden; }
 #zzform .zzfilter dl { margin: 0 0 .5em; padding: 0; }
 #zzform .zzfilter dt { float: left; clear: left; }
 #zzform .zzfilter dd { margin: 0 0 .5em; padding: 0 .5em; float: left;
