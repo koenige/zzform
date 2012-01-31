@@ -604,17 +604,28 @@ function zz_list_filter_sql($sql) {
 		if (!in_array($filter['identifier'], array_keys($_GET['filter']))) continue;
 		if (empty($filter['where'])) continue;
 		
-		if ($_GET['filter'][$filter['identifier']] === '0' AND $filter['default_selection'] != 0) {
+		if ($_GET['filter'][$filter['identifier']] === '0' AND $filter['default_selection'] !== '0'
+			AND $filter['default_selection'] !== 0) {
 			// do nothing
 		} elseif (zz_in_array_str($_GET['filter'][$filter['identifier']], array_keys($filter['selection']))
 			AND $filter['type'] == 'list') {
 			// it's a valid filter, so apply it.
-			if ($_GET['filter'][$filter['identifier']] == 'NULL') {
+			$filter_value = $_GET['filter'][$filter['identifier']];
+			// allow ! as a symbol (may be escaped by \)
+			// for !=
+			$equals = ' = ';
+			if (substr($filter_value, 0, 1) === '!') {
+				$filter_value = substr($filter_value, 1);
+				$equals = ' != ';
+			} elseif (substr($filter_value, 0, 1) === '\\') {
+				$filter_value = substr($filter_value, 1);
+			}
+			if ($filter_value == 'NULL') {
 				$sql = zz_edit_sql($sql, 'WHERE', 'ISNULL('.$filter['where'].')');
-			} elseif ($_GET['filter'][$filter['identifier']] == '!NULL') {
+			} elseif ($filter_value == '!NULL') {
 				$sql = zz_edit_sql($sql, 'WHERE', '!ISNULL('.$filter['where'].')');
 			} else {
-				$sql = zz_edit_sql($sql, 'WHERE', $filter['where'].' = "'.$_GET['filter'][$filter['identifier']].'"');
+				$sql = zz_edit_sql($sql, 'WHERE', $filter['where'].$equals.'"'.$filter_value.'"');
 			}
 		} elseif ($filter['type'] == 'list' AND is_array($filter['where'])) {
 			// valid filter with several wheres
