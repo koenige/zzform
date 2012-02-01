@@ -548,7 +548,7 @@ function zzform_exit($ops) {
 		$ops['error_mail'] = $zz_conf['int']['error'];
 
 	// return to old database
-	if ($zz_conf['int']['db_current']) mysql_select_db($zz_conf['int']['db_current']);
+	if ($zz_conf['int']['db_current']) zz_db_select($zz_conf['int']['db_current']);
 
 	// end debug mode
 	if ($zz_conf['modules']['debug']) {
@@ -676,6 +676,7 @@ function zz_initialize($mode = false) {
 	}
 	// include core functions
 	require_once $zz_conf['dir_inc'].'/functions.inc.php';
+	require_once $zz_conf['dir_inc'].'/database.inc.php';
 
 	// optional functions
 	if (!function_exists('datum_de')) include_once $zz_conf['dir_inc'].'/numbers.inc.php';
@@ -910,6 +911,7 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 	case 'files':
 		// TODO: generate output?
 		require_once $zz_conf['dir_inc'].'/functions.inc.php';
+		require_once $zz_conf['dir_inc'].'/database.inc.php';
 		require_once $zz_conf['dir_inc'].'/import.inc.php';
 		require_once $zz_conf['dir_inc'].'/forcefilename-'.$zz_conf['character_set'].'.inc.php';
 		$ops['output'] = zz_import_files($definition_file, $values, $params);

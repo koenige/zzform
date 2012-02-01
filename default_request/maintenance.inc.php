@@ -30,6 +30,7 @@ function zz_maintenance($params) {
 
 	require_once $zz_conf['dir_inc'].'/zzform.php';
 	require_once $zz_conf['dir_inc'].'/functions.inc.php';
+	require_once $zz_conf['dir_inc'].'/database.inc.php';
 	require_once $zz_conf['dir_inc'].'/output.inc.php';
 	require_once $zz_conf['dir_inc'].'/list.inc.php';
 	if (file_exists($zz_setting['custom'].'/zzbrick_tables/_common.inc.php')) {
@@ -67,8 +68,8 @@ function zz_maintenance($params) {
 			$page['text'] .= '<h2>'.zz_text('Result').'</h2>'."\n";
 			if (!$result['action']) {
 				$page['text'] .= '<div class="error">'
-					.'MySQL says: '.$result['error']['mysql'].' [Code '
-					.$result['error']['mysql_errno'].']'
+					.'Database says: '.$result['error']['db_msg'].' [Code '
+					.$result['error']['db_errno'].']'
 					.'</div>'."\n";
 			} elseif ($result['action'] == 'nothing') {
 				$page['text'] .= '<p>'.zz_text('No changes were done to database.').'</p>'."\n";

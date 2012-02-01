@@ -45,10 +45,10 @@ function datum_de($datum, $param = false, $language = 'de') {
 	$my_date_order = !empty($date_order[$language]) ? $date_order[$language] : $date_order['---'];
 
 	if (preg_match("/^([0-9]{4}-[0-9]{2}-[0-9]{2}) [0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/", $datum, $match)) {
-		// DATETIME
+		// DATETIME YYYY-MM-DD HH:ii:ss
 		$datum = $match[1]; // ignore time, it's a date function
 	} elseif (preg_match("/^([0-9]{4})([0-9]{2})([0-9]{2})[0-2][0-9][0-5][0-9][0-5][0-9]$/", $datum, $match)){
-		// old MySQL TIMESTAMP
+		// YYYYMMDD ...
 		$datum = $match[1].'-'.$match[2].'-'.$match[3]; // ignore time, it's a date function
 	} elseif (!preg_match("/^[0-9-]+$/", $datum)) 
 		return $datum; #wenn kein richtiges datum, einfach datum zurueckgeben.

@@ -18,6 +18,7 @@ function zzform_import($ops) {
 	zz_initialize('overwrite');
 
 	require_once $zz_conf['dir_inc'].'/functions.inc.php';	// include core functions
+	require_once $zz_conf['dir_inc'].'/database.inc.php';	// include db functions
 
 	$ops['output'] = '';
 	$ops['mode'] = 'import';
