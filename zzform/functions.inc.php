@@ -2628,7 +2628,7 @@ function zz_db_escape($value) {
 	if (is_array($value) OR is_object($value)) {
 		global $zz_error;
 		$zz_error[] = array(
-			'msg_dev' => 'zz_db_escape() - value is not a string: '.json_encode($value);
+			'msg_dev' => 'zz_db_escape() - value is not a string: '.json_encode($value)
 		);
 		return '';
 	}
