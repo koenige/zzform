@@ -2152,7 +2152,7 @@ function zz_field_select_get_record($field, $record, $id_field_name) {
 	else
 		$where_field_name = $id_field_name;
 	$sql = zz_edit_sql($field['sql'], 'WHERE', $where_field_name
-		.' = "'.mysql_real_escape_string($db_value).'"');
+		.' = "'.zz_db_escape($db_value).'"');
 	if (!$sql) $sql = $field['sql'];
 
 	// fetch query

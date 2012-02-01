@@ -2626,11 +2626,11 @@ function zz_db_escape($value) {
 	// should never happen, just during development
 	if (!$value) return '';
 	if (is_array($value) OR is_object($value)) {
-//		global $zz_conf;
-//		if (!empty($zz_conf['modules']['debug']) AND $zz_conf['debug']) {
-			echo 'Value is not string: ';
-			zz_print_r($value);
-//		}
+		global $zz_error;
+		$zz_error[] = array(
+			'msg_dev' => 'zz_db_escape() - value is not a string: '.json_encode($value);
+		);
+		return '';
 	}
 	if (function_exists('mysql_real_escape_string')) { 
 		// just from PHP 4.3.0 on
