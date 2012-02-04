@@ -838,9 +838,9 @@ function zz_maintenance_logs() {
 			$data['level'] = '';
 
 			// get date
-			if (substr($line, 0, 1) == '[' AND substr($line, 21, 1) == ']') {
-				$data['date'] = substr($line, 1, 20);
-				$line = substr($line, 23);
+			if (substr($line, 0, 1) == '[' AND $rightborder = strpos($line, ']')) {
+				$data['date'] = substr($line, 1, $rightborder - 1);
+				$line = substr($line, $rightborder + 2);
 			}
 			// get user
 			if (substr($line, -1) == ']' AND strstr($line, '[')) {
