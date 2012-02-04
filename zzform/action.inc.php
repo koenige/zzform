@@ -1,7 +1,7 @@
 <?php 
 
 // zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2004-2010
+// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2004-2012
 // scripts for action: update, delete, insert or review a record
 // functions for validation of user input
 // functions to maintain referential integrity
@@ -603,7 +603,7 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 	}
 
 	foreach ($my_tab[$rec]['fields'] as $f => $field) {
-		// check if some values should be gotten from upload fields
+		// check if some values should be gotten from detail_value/upload fields
 		// must be here before setting the action
 		if ($zz_tab[$tab][$rec]['access'] == 'show') continue;
 		if (!in_array($zz_tab[0][0]['action'], array('insert', 'update'))) continue;
@@ -1319,6 +1319,15 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 	return zz_return($my_rec);
 }
 
+/**
+ * copies value from other field (field name is value of 'detail_value')
+ *
+ * @param array $zz_tab
+ * @param int $f
+ * @param int $tab (optional, for detail record)
+ * @param int $rec (optional, for detail record)
+ * @return string $value
+ */
 function zz_write_detail_values($zz_tab, $f, $tab = 0, $rec = 0) {
 	global $zz_conf;
 	$my_field = $zz_tab[$tab][$rec]['fields'][$f]['detail_value'];
@@ -1337,7 +1346,7 @@ function zz_write_detail_values($zz_tab, $f, $tab = 0, $rec = 0) {
 		$value = $zz_tab[$tab][$rec]['POST'][$field_name];
 	}
 	if ($zz_conf['modules']['debug'])
-		zz_debug('zz_write_detail_values(): field '.$my_field.', value: '.$value);
+		zz_debug(__FUNCTION__.'(): field '.$my_field.', value: '.$value);
 	return $value;
 }
 
@@ -1360,9 +1369,13 @@ function zz_write_upload_fields($zz_tab, $f, $tab = 0, $rec = 0) {
 	$images = false;
 
 	if (!strstr($field['upload_field'], '[')) {
+		// file from main record
+		// check if something was uploaded
+		if (empty($zz_tab[$tab][$rec]['file_upload'])) return $posted;
 		//	insert data from file upload/convert
 		$images = $zz_tab[$tab][$rec]['images'][$field['upload_field']];
 	} else {
+		// file from detail record
 		preg_match('~(\d+)\[(\d+)\]\[(\d+)\]~', $field['upload_field'], $nos);
 		// check if definition is correct
 		if (count($nos) != 4) {
@@ -1371,6 +1384,9 @@ function zz_write_upload_fields($zz_tab, $f, $tab = 0, $rec = 0) {
 				'level' => E_USER_NOTICE
 			);
 		} elseif (!empty($zz_tab[$nos[1]][$nos[2]]['images'][$nos[3]])) {
+			// check if something was uploaded
+			if (empty($zz_tab[$nos[1]][$nos[2]]['file_upload'])) return $posted;
+			//	insert data from file upload/convert
 			$images = $zz_tab[$nos[1]][$nos[2]]['images'][$nos[3]];
 		}
 	}

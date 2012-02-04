@@ -1,7 +1,7 @@
 <?php 
 
 // zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2006-2010
+// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2006-2012
 // File upload
 
 
@@ -190,7 +190,7 @@ function zz_upload_get($zz_tab) {
 
 	//	read information of files, put into 'images'-array
 	if ($zz_tab[0][0]['action'] != 'delete')
-		zz_upload_check_files($zz_tab);
+		$zz_tab = zz_upload_check_files($zz_tab);
 	if ($zz_conf['modules']['debug']) zz_debug("end");
 	return $zz_tab;
 }
@@ -234,7 +234,7 @@ function zz_upload_get_fields($zz_tab) {
  *		array $zz_tab[tab][rec]['images']
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_upload_check_files(&$zz_tab) {
+function zz_upload_check_files($zz_tab) {
 	global $zz_conf;
 	global $zz_error;
 	
@@ -331,9 +331,11 @@ function zz_upload_check_files(&$zz_tab) {
 			} elseif ($oldfilename) {
 				// mass upload
 				$myfilename = $oldfilename;
-			} else
+			} else {
 				$myfilename = false;
+			}
 			$images[$no][$img]['upload']['tmp_name'] = $myfilename;
+			$myfilename = false;
 			
 			if (!isset($myfiles['error'][$field_name])) { // PHP 4.1 and prior
 				$images[$no][$img]['upload'] = zz_upload_compat_error($images[$no][$img]['upload']);
@@ -404,14 +406,15 @@ function zz_upload_check_files(&$zz_tab) {
 					.$filetype
 					.'<br class="nonewline_in_mail">'.zz_text('Supported filetypes are:').' '
 					.implode(', ', $images[$no][$img]['input_filetypes']);
+				$my_rec['file_upload'] = false;
+			} else {
+				$my_rec['file_upload'] = true;
 			}
-
-			$myfilename = false;
-			$my_rec['file_upload'] = true;
 		}
 		$my_rec['images'] = $images;
 	}
-	if ($zz_conf['modules']['debug']) zz_debug("end");
+	if ($zz_conf['modules']['debug']) zz_debug('end');
+	return $zz_tab;
 }
 
 /**
