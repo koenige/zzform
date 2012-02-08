@@ -335,7 +335,7 @@ function zz_db_connection($table) {
 		$db = zz_db_select($zz_conf['db_name']);
 		if (!$db) {
 			$zz_error[] = array(
-				'mysql' => mysql_error(),
+				'db_msg' => mysql_error(),
 				'query' => 'SELECT DATABASE("'.$zz_conf['db_name'].'")',
 				'level' => E_USER_ERROR
 			);
@@ -347,7 +347,7 @@ function zz_db_connection($table) {
 		$result = mysql_query('SELECT DATABASE()');
 		if (mysql_error()) {
 			$zz_error[] = array(
-				'mysql' => mysql_error(),
+				'db_msg' => mysql_error(),
 				'query' => 'SELECT DATABASE()',
 				'level' => E_USER_ERROR
 			);
@@ -368,7 +368,7 @@ function zz_db_connection($table) {
 			$dbname = zz_db_select($db_name[1]);
 			if (!$dbname) {
 				$zz_error[] = array(
-					'mysql' => mysql_error(),
+					'db_msg' => mysql_error(),
 					'query' => 'SELECT DATABASE("'.$db_name[1].'")',
 					'level' => E_USER_ERROR
 				);
@@ -530,7 +530,7 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 		global $zz_error;
 		$zz_error[] = array(
 			'msg_dev' => $msg_dev,
-			'mysql' => mysql_error(), 
+			'db_msg' => mysql_error(), 
 			'query' => $sql,
 			'level' => $errorcode
 		);
@@ -645,7 +645,7 @@ function zz_db_change($sql, $id = false) {
 		$db['action'] = '';
 		$db['error'] = array(
 			'query' => $sql,
-			'mysql' => mysql_error(),
+			'db_msg' => mysql_error(),
 			'db_errno' => mysql_errno()
 		);
 	}
