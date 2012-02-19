@@ -2376,7 +2376,7 @@ function zz_field_select_enum($field, $display, $record) {
 
 	// check if should be shown as a list
 	// and if yes, return a list
-	if (count($field['enum']) <= 2)) {
+	if (count($field['enum']) <= 2) {
 		$sel_option = true;
 	} elseif (!empty($field['show_values_as_list'])) {
 		$sel_option = true;
