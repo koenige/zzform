@@ -262,7 +262,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 					$zz_conf_record['details_url'], $zz_conf_record['details_base'], 
 					$zz_conf_record['details_target'], $zz_conf_record['details_referer'],
 					$zz_conf_record['details_sql'], $zz_var['id']['value'], 
-					(!empty($zz_tab[0][0]['POST']) ? $zz_tab[0][0]['POST'] : false))
+					(!empty($zz_tab[0][0]['POST']) ? $zz_tab[0][0]['POST'] : array()))
 					.'</td></tr>'."\n";
 			}
 			if (empty($zz_conf_record['details']) AND !$zz_conf_record['edit']
@@ -347,9 +347,10 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 	zz_record_field_focus($zz_tab, $tab, $rec);
 	
 	$firstrow = true;
-	$my_where_fields = (isset($zz_var['where'][$zz_tab[$tab]['table_name']])
-		? $zz_var['where'][$zz_tab[$tab]['table_name']] : array());
-	$row_display = ($my_rec['access'] ? $my_rec['access'] : $display); // this is for 0 0 main record
+	$my_where_fields = isset($zz_var['where'][$zz_tab[$tab]['table_name']])
+		? $zz_var['where'][$zz_tab[$tab]['table_name']] : array();
+	// this is for 0 0 main record:
+	$row_display = $my_rec['access'] ? $my_rec['access'] : $display;
 
 	foreach ($my_rec['fields'] as $fieldkey => $field) {
 		if (!$field) continue;
@@ -404,8 +405,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			$sub_tab = $field['subtable'];
 			if (empty($field['title_button'])) $field['title_button'] = strip_tags($field['title']); 
 			if (empty($field['form_display'])) $field['form_display'] = 'vertical';
-			$st_display = (!empty($field['access']) ? $field['access'] : $display);
-			$out['tr']['attr'][] = (!empty($field['class']) ? $field['class'] : '');
+			$st_display = !empty($field['access']) ? $field['access'] : $display;
+			$out['tr']['attr'][] = !empty($field['class']) ? $field['class'] : '';
 			if (!empty($field['class_add'])) {
 				$has_subrecords = false;
 				foreach (array_keys($zz_tab[$tab]) as $rec) {
@@ -460,8 +461,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				$lastrow = false;
 				$show_remove = false;
 
-				$dont_delete_records = (!empty($field['dont_delete_records'])
-					? $field['dont_delete_records'] : '');
+				$dont_delete_records = !empty($field['dont_delete_records'])
+					? $field['dont_delete_records'] : '';
 				if (!empty($field['values'][$sub_rec])) {
 					$dont_delete_records = true; // dont delete records with values set
 				}
@@ -473,9 +474,9 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 						&& !$dont_delete_records)
 						$show_remove = true;
 				}
-				$zz_var['class_add'] = ((!empty($field['class_add']) AND
+				$zz_var['class_add'] = (!empty($field['class_add']) AND
 					empty($zz_tab[$sub_tab][$sub_rec]['id']['value'])) 
-					? $field['class_add'] : '');
+					? $field['class_add'] : '';
 
 				// Mode
 				if (!empty($field['tick_to_save'])) $show_tick = true;
@@ -612,7 +613,9 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				// so error class does not get lost (but only error, no hidden classes)
 				if ($field['class'] == 'error')
 					$out['tr']['attr'][]  = $field['class']; 
-				$out['td']['content'] .= '<span'.($field['class'] ? ' class="'.$field['class'].'"' : '').'>'; 
+				$out['td']['content'] .= '<span'
+					.($field['class'] ? ' class="'.$field['class'].'"' : '')
+					.'>'; 
 			}
 			if (!empty($field['append_next'])) {
 				$append_next = true;
@@ -842,7 +845,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				unset($my_rec['record'][$field['field_name']]); 
 			if ($mode && $mode != 'delete' && $mode != 'show' && $mode != 'review'
 				AND isset($field['add_details'])) {
-				$add_details_sep = (strstr($field['add_details'], '?') ? '&amp;' : '?');
+				$add_details_sep = strstr($field['add_details'], '?') ? '&amp;' : '?';
 				$outputf .= ' <a href="'.$field['add_details'].$add_details_sep
 					.'mode=add&amp;referer='.urlencode($_SERVER['REQUEST_URI'])
 					.$zz_conf['int']['add_details_where'].'"'
@@ -1323,7 +1326,7 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 	} elseif ($value AND !empty($field['type_detail']) AND $field['type_detail'] == 'date') {
 		$text .= datum_de($display_value);
 	} elseif ($value AND !empty($field['type_detail']) AND $field['type_detail'] == 'select') {
-		$detail_key = ($display_value ? $display_value : $field['default']);
+		$detail_key = $display_value ? $display_value : $field['default'];
 		$my_fieldname = $field['field_name'];
 		if (isset($field['key_field_name'])) $my_fieldname = $field['key_field_name'];
 		if (isset($field['sql'])) {
@@ -1701,8 +1704,8 @@ function zz_field_memo($field, $display, $record) {
 
 	// return form element
 	$fieldattr = array();
-	$field['cols'] = (!empty($field['cols']) ? $field['cols'] : 60);
-	$field['rows'] = (!empty($field['rows']) ? $field['rows'] : 8);
+	$field['cols'] = !empty($field['cols']) ? $field['cols'] : 60;
+	$field['rows'] = !empty($field['rows']) ? $field['rows'] : 8;
 	if ($record) {
 		// always add two extra lines
 		$calculated_rows = 2;
@@ -1815,9 +1818,9 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 
 	// first OPTION element
 	// normally don't show a value, unless we only look at a part of a hierarchy
-	$fieldvalue = ((!empty($field['show_hierarchy_subtree']) 
+	$fieldvalue = (!empty($field['show_hierarchy_subtree']) 
 		AND !empty($field['show_hierarchy_use_top_value_instead_NULL'])) 
-		? $field['show_hierarchy_subtree'] : '');
+		? $field['show_hierarchy_subtree'] : '';
 	$fieldattr = array();
 	if ($record) if (!$record[$field['field_name']]) $fieldattr['selected'] = true;
 	$outputf .= zz_form_element(zz_text('none_selected'), $fieldvalue, 'option', '', $fieldattr);
@@ -2244,7 +2247,8 @@ function zz_field_select_radio_none($field, $record) {
 	$id = make_id_fieldname($field['f_field_name']).'-0';
 	if (!isset($field['hide_novalue'])) $field['hide_novalue'] = true;
 	return '<label for="'.$id.'"'
-		.($field['hide_novalue'] ? ' class="hidden"' : '').'>'
+		.($field['hide_novalue'] ? ' class="hidden"' : '')
+		.'>'
 		.zz_form_element($field['f_field_name'], '', 'radio', $id, $fieldattr)
 		.'&nbsp;'.zz_text('no_selection').'</label>'."\n";
 }
@@ -2372,8 +2376,13 @@ function zz_field_select_enum($field, $display, $record) {
 
 	// check if should be shown as a list
 	// and if yes, return a list
-	$sel_option = (count($field['enum']) <= 2 ? true : 
-		(!empty($field['show_values_as_list']) ? true : false));
+	if (count($field['enum']) <= 2)) {
+		$sel_option = true;
+	} elseif (!empty($field['show_values_as_list'])) {
+		$sel_option = true;
+	} else {
+		$sel_option = false;
+	}
 	if ($sel_option) {
 		$myi = 0;
 		$radios = array();

@@ -768,8 +768,7 @@ function zz_maintenance_logs() {
 		}
 		foreach ($filter as $value) {
 			$is_selected = ((isset($_GET['filter'][$index]) 
-				AND $_GET['filter'][$index] == $value))
-				? true : false;
+				AND $_GET['filter'][$index] == $value)) ? true : false;
 			$link = $my_link.'&amp;filter['.$index.']='.urlencode($value);
 			$filter_output[$index] .= '<dd>'
 				.(!$is_selected ? '<a href="'.$link.'">' : '<strong>')

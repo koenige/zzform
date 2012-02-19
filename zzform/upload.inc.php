@@ -210,7 +210,7 @@ function zz_upload_get_fields($zz_tab) {
 			if (!is_int($tab) OR !is_int($rec)) continue;
 			foreach ($zz_tab[$tab][$rec]['fields'] as $f => $field) {
 				if ($field['type'] != 'upload_image') continue;
-				$key = (!empty($zz_tab[$tab]['no']) ? $zz_tab[$tab]['no'] : $f);
+				$key = !empty($zz_tab[$tab]['no']) ? $zz_tab[$tab]['no'] : $f;
 				$upload_fields[] = array(
 					'tab' => $tab, 
 					'rec' => $rec,
@@ -240,7 +240,7 @@ function zz_upload_check_files($zz_tab) {
 	
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$id = $zz_conf['int']['secret_key'];
-	$session = (!empty($_SESSION['zz_files'][$id]) ? $_SESSION['zz_files'][$id] : array());
+	$session = !empty($_SESSION['zz_files'][$id]) ? $_SESSION['zz_files'][$id] : array();
 
 	foreach ($zz_tab[0]['upload_fields'] as $uf) {
 		$tab = $uf['tab'];
@@ -481,7 +481,7 @@ function zz_upload_fileinfo($file, $extension) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$file['validated'] = false;
 	$file['filetype'] = 'unknown';
-	$file['mime'] = (!empty($file['type']) ? $file['type'] : '');
+	$file['mime'] = !empty($file['type']) ? $file['type'] : '';
 	// check if there is a file
 	if (empty($file['tmp_name'])) return $file;
 	// rewrite some misspelled and misset filetypes
@@ -519,7 +519,7 @@ function zz_upload_fileinfo($file, $extension) {
 		}
 		if ($zz_conf['modules']['debug']) {
 			$function_name = substr($function_name, strpos('_', $function_name));
-			$type = (!empty($file['filetype_file']) ? $file['filetype_file'] : $file['filetype']);
+			$type = !empty($file['filetype_file']) ? $file['filetype_file'] : $file['filetype'];
 			zz_debug($function_name."()", $type.': '.json_encode($file));
 		}
 	}
@@ -905,7 +905,7 @@ function zz_upload_prepare($zz_tab) {
 			$dont_use_upload = false;
 			$src_image = false;
 			if (!empty($image['source_field'])) {
-				$image['source'] = (!empty($image['source']) ? $image['source'] : 0);
+				$image['source'] = !empty($image['source']) ? $image['source'] : 0;
 				$src_image = zz_upload_get_source_field($image, $zz_tab);
 				// nothing adequate found, so we can go on with source_file instead!
 				if (!$src_image) unset($image['source']); 
@@ -921,8 +921,8 @@ function zz_upload_prepare($zz_tab) {
 				if (!empty($src_image['unsupported_filetype'])) continue;
 				if (!empty($image['use_modified_source'])) {
 					// get filename from modified source, false if there was an error
-					$source_filename = (isset($src_image['files']) 
-						? $src_image['files']['tmp_files'][$image['source']] : false);
+					$source_filename = isset($src_image['files']) 
+						? $src_image['files']['tmp_files'][$image['source']] : false;
 					if (!$source_filename AND $zz_conf['modules']['debug']) 
 						zz_debug('use_modified_source: no source filename!');
 				} else
@@ -988,8 +988,9 @@ function zz_upload_prepare($zz_tab) {
 			}
 
 			if ($zz_conf['modules']['debug']) zz_debug('source_filename: '.$source_filename);
-			if ($source_filename && $source_filename != 'none') { // only if something new was uploaded!
-				$filename = (file_exists($source_filename) ? $source_filename : '');
+			if ($source_filename && $source_filename != 'none') {
+				// only if something new was uploaded!
+				$filename = file_exists($source_filename) ? $source_filename : '';
 				$image['modified'] = zz_upload_create_thumbnails($filename, $image, $my_rec);
 				if ($image['modified'] === -1) {
 					$filename = false; // do not upload anything
@@ -1214,7 +1215,7 @@ function zz_upload_extension($path, &$my_rec) {
 		else
 			return $path_value;
 	} elseif (substr($path_key, 0, 5) == 'field') {
-		$content = (isset($my_rec['POST'][$path_value])) ? $my_rec['POST'][$path_value] : '';
+		$content = isset($my_rec['POST'][$path_value]) ? $my_rec['POST'][$path_value] : '';
 		if (strstr($content, '.'))
 			$extension = substr($content, strrpos($content, '.')+1);
 		else
@@ -1439,8 +1440,8 @@ function zz_upload_action($zz_tab) {
 			}
 
 		//	check if some file was uploaded
-			$uploaded_file = (!empty($image['files']['tmp_files'][$img])
-				? $image['files']['tmp_files'][$img] : '');
+			$uploaded_file = !empty($image['files']['tmp_files'][$img])
+				? $image['files']['tmp_files'][$img] : '';
 
 		//	update, only if we have an old record (might sometimes not be the case!)
 			$old_path = ''; // initialize here, will be used later with delete_thumbnail
@@ -1730,7 +1731,7 @@ function zz_upload_cleanup($zz_tab, $validated = true) {
 function zz_image_auto_size($image) {
 	//	basics
 	// tolerance in px
-	$tolerance = (!empty($image['auto_size_tolerance']) ? $image['auto_size_tolerance'] : 15); 
+	$tolerance = !empty($image['auto_size_tolerance']) ? $image['auto_size_tolerance'] : 15; 
 	$width = $image['upload']['width'];
 	$height = $image['upload']['height'];
 	if (!$height) return $image;
@@ -1748,7 +1749,10 @@ function zz_image_auto_size($image) {
 		} elseif (($pair[0] + $tolerance) < $pair[1]) {
 			$pair[0] += $tolerance;
 			$pair[1] -= $tolerance;
-		} else $pair[0] = $pair[1]; // if == or in a range of $tolerance, ratio_tolerated will be 1
+		} else {
+			// if == or in a range of $tolerance, ratio_tolerated will be 1
+			$pair[0] = $pair[1];
+		}
 		$my['ratio_tolerated'] = $pair[0]/$pair[1];
 		$pairs[$key] = $my;
 		if (empty($smallest) OR $smallest['size'] > $my['size']) {
@@ -1809,8 +1813,8 @@ function is_better_ratio($ratio, $old_ratio, $new_ratio) {
 		if ($old_ratio < $ratio AND $new_ratio <= $ratio AND $new_ratio > $old_ratio) return true;
 		// = closer to ratio, better
 	} elseif ($ratio == 1) {
-		$distance_of_old = ($old_ratio >= 1 ? $old_ratio : 1/$old_ratio);
-		$distance_of_new = ($new_ratio >= 1 ? $new_ratio : 1/$new_ratio);
+		$distance_of_old = ($old_ratio >= 1) ? $old_ratio : 1/$old_ratio;
+		$distance_of_new = ($new_ratio >= 1) ? $new_ratio : 1/$new_ratio;
 		if ($distance_of_old > $distance_of_new) return true; // closer to 1
 	} else { // smaller than 1
 		if ($old_ratio < $ratio AND $new_ratio > $old_ratio) return true; 

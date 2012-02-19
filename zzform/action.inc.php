@@ -1482,10 +1482,14 @@ function zz_val_get_from_upload($field, $images, $post) {
 					}
 				}
 				$myval = ($myval_upload ? $myval_upload : $myval_altern);
+			} elseif (!empty($images[$v])) {
+				// take value from upload-array
+				$myval = $images[$v];
+			} elseif (!empty($images[0]['upload'][$v])) {
+				// or take value from first sub-image
+				$myval = $images[0]['upload'][$v];
 			} else {
-				$myval = (!empty($images[$v])) 
-					? $images[$v] // take value from upload-array
-					: (!empty($images[0]['upload'][$v]) ? $images[0]['upload'][$v] : ''); // or take value from first sub-image
+				$mval = '';
 			}
 			// remove empty values
 			if ($myval === '0/0') $myval = false; // e. g. GPS bearing

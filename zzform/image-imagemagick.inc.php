@@ -119,8 +119,8 @@ function zz_image_gray($source, $destination, $dest_extension = false, $image = 
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	$source = zz_imagick_check_multipage($source);
-	$convert = zz_imagick_convert('colorspace gray', '"'.$source.'" '.($dest_extension 
-		? $dest_extension.':' : '').'"'.$destination.'"');
+	$convert = zz_imagick_convert('colorspace gray', '"'.$source.'" '
+		.($dest_extension ? $dest_extension.':' : '').'"'.$destination.'"');
 
 	if ($zz_conf['modules']['debug']) zz_debug("end");
 	if ($convert) return true;
@@ -143,11 +143,11 @@ function zz_image_thumbnail($source, $destination, $dest_extension = false, $ima
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	
-	$geometry = (isset($image['width']) ? $image['width'] : '');
-	$geometry.= (isset($image['height']) ? 'x'.$image['height'] : '');
+	$geometry = isset($image['width']) ? $image['width'] : '';
+	$geometry .= isset($image['height']) ? 'x'.$image['height'] : '';
 	$source = zz_imagick_check_multipage($source);
-	$convert = zz_imagick_convert('thumbnail '.$geometry, '"'.$source.'" '.($dest_extension 
-		? $dest_extension.':' : '').'"'.$destination.'"');
+	$convert = zz_imagick_convert('thumbnail '.$geometry, '"'.$source.'" '
+		.($dest_extension ? $dest_extension.':' : '').'"'.$destination.'"');
 
 	if ($zz_conf['modules']['debug']) zz_debug('thumbnail creation '
 		.($convert ? '' : 'un').'successful:<br>'.$destination);
@@ -224,8 +224,8 @@ function zz_image_crop($source, $destination, $dest_extension = false, $image = 
 			.' -crop '.$image['width'].'x'.$image['height'].'+'.$pos_x.'+'.$pos_y;
 	}
 	$source = zz_imagick_check_multipage($source);
-	$convert = zz_imagick_convert($options, '"'.$source.'" '.($dest_extension 
-		? $dest_extension.':' : '').'"'.$destination.'"');
+	$convert = zz_imagick_convert($options, '"'.$source.'" '
+		.($dest_extension ? $dest_extension.':' : '').'"'.$destination.'"');
 
 	if ($convert) return zz_return(true);
 	else return zz_return(false);

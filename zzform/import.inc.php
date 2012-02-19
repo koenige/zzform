@@ -484,7 +484,11 @@ function zz_import_show_wheres($definition_file, $values = array()) {
 
 	$zz_conf['multi'] = true;
 	$zz_setting['testimport'] = true;
-	$_GET = (!empty($values['file']['GET']) ? $values['file']['GET'] : (isset($_GET) ? $_GET : array()));
+	if (!empty($values['file']['GET'])) {
+		$_GET = $values['file']['GET'];
+	} elseif (!isset($_GET)) {
+		$_GET = array();
+	}
 
 	// get $zz definitions
 	require $zz_conf['form_scripts'].'/'.$definition_file.'.php';
@@ -550,7 +554,7 @@ function zz_import_get_files($source, $files = array()) {
 			$files['folders'][$files['count_folders']] = $sub['path'];
 			$files['count_folders']++;
 			$files = array_merge($files, zz_import_get_files($sub, $files));
-			$files['count_files'] = (!empty($files['files']) ? count($files['files']) : 0);
+			$files['count_files'] = !empty($files['files']) ? count($files['files']) : 0;
 			$files['count_folders'] = count($files['folders']);
 		} else {
 			// File

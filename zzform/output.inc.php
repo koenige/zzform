@@ -145,7 +145,7 @@ function zz_show_more_actions($more_actions, $more_actions_url, $more_actions_ba
 		} else
 			$output.= $more_actions_url;
 		if (!isset($more_actions_url) OR !is_array($more_actions_url)) $output.= $id;
-		$output.= ($more_actions_referer ? '&amp;referer='.urlencode($_SERVER['REQUEST_URI']) : '')
+		$output .= ($more_actions_referer ? '&amp;referer='.urlencode($_SERVER['REQUEST_URI']) : '')
 			.'"'
 			.(!empty($more_actions_target) ? ' target="'.$more_actions_target.'"' : '')
 			.'>'.($zz_conf['multilang_fieldnames'] ? zz_text($new_action) : $new_action).'</a>';
@@ -696,7 +696,8 @@ function zz_init_referer() {
 	}
 	$zz_conf['referer'] = (
 		(!empty($zz_conf['int']['referer']['scheme']) ? $zz_conf['int']['referer']['scheme'].'://'
-		.$zz_conf['int']['referer']['host'] : '').$zz_conf['int']['referer']['path']
+			.$zz_conf['int']['referer']['host'] : '')
+		.$zz_conf['int']['referer']['path']
 		.(!empty($zz_conf['int']['referer']['query']) ? $zz_conf['int']['referer']['query'] : ''));
 	$zz_conf['int']['referer_esc'] = str_replace('&', '&amp;', $zz_conf['referer']);
 }

@@ -368,7 +368,7 @@ function zzform($zz = array()) {
 		$zz_tab[0][0]['fields'] = $zz['fields'];
 		$zz_tab[0][0]['validation'] = true;
 		$zz_tab[0][0]['record'] = false;
-		$zz_tab[0][0]['access'] = (!empty($zz['access']) ? $zz['access'] : false);
+		$zz_tab[0][0]['access'] = !empty($zz['access']) ? $zz['access'] : false;
 
 		// get ID field, unique fields, check for unchangeable fields
 		$zz_tab[0][0]['id'] = &$zz_var['id'];

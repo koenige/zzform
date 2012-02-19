@@ -182,7 +182,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			//$rows[$z][0]['text'] = '';
 			//$rows[$z][0]['class'] = array();
 			
-			$tq_index = (count($table_query) > 1 ? $index : 0);
+			$tq_index = (count($table_query) > 1) ? $index : 0;
 			$id = $line[$zz_var['id']['field_name']];
 			if ($id == $zz_var['id']['value']) $list['current_record'] = $z;
 			$sub_id = '';
@@ -242,7 +242,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 						$zz_conf_record = zz_listandrecord_access($zz_conf_record);
 						if (!isset($zz_conf_record['add_link']))
 							// Link Add new ...
-							$zz_conf_record['add_link'] = ($zz_conf_record['add'] ? true : false); 
+							$zz_conf_record['add_link'] = $zz_conf_record['add'] ? true : false; 
 						// $zz_conf is set regarding add, edit, delete
 						if (!$zz_conf['add']) $zz_conf['copy'] = false;			// don't copy record (form+links)
 					}
@@ -351,7 +351,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	//
 
 	if ($zz_conf['show_list']) {
-		$list['where_values'] = (!empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : '');
+		$list['where_values'] = !empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : '';
 		$head = zz_list_head($table_query[0], $list['where_values']);
 		unset($table_query);
 	}
@@ -440,9 +440,9 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				$ops['output'] .= '<a href="'.$base_url
 					.'mode=add'.$zz_var['extraGET'].$value.'"'
 					.(!empty($add['title']) ? ' title="'.$add['title'].'"' : '')
-					.'>'.$add['type'].'</a>'.(!empty($add['explanation']) 
-						? ' ('.$add['explanation'].')' : '');
-				if ($i != count($zz_conf['add']) -1) $ops['output'].= ' | ';
+					.'>'.$add['type'].'</a>'
+					.(!empty($add['explanation']) ? ' ('.$add['explanation'].')' : '');
+				if ($i != count($zz_conf['add']) -1) $ops['output'] .= ' | ';
 			}
 			$ops['output'] .= '</p>'."\n";
 		}
@@ -490,7 +490,7 @@ function zz_filter_selection($filter) {
 	$filter_output = false;
 	foreach ($filter as $index => $f) {
 		// remove this filter from query string
-		$other_filters['filter'] = (!empty($_GET['filter']) ? $_GET['filter'] : array());
+		$other_filters['filter'] = !empty($_GET['filter']) ? $_GET['filter'] : array();
 		unset($other_filters['filter'][$f['identifier']]);
 		$qs = zz_edit_query_string($qs, array(), $other_filters);
 		
@@ -687,7 +687,7 @@ function zz_list_query($zz, $id_field) {
 	if (!$total_rows) return array(array(), 0);
 	
 	// ORDER must be here because of where-clause
-	$zz['sql'] .= (!empty($zz['sqlorder']) ? ' '.$zz['sqlorder'] : '');
+	$zz['sql'] .= !empty($zz['sqlorder']) ? ' '.$zz['sqlorder'] : '';
 	// Alter SQL query if GET order (AND maybe GET dir) are set
 	$zz['sql'] = zz_sql_order($zz['fields_in_list'], $zz['sql']);
 
@@ -1098,8 +1098,11 @@ function zz_field_sum($table_query, $z, $table, $sum) {
 			if (isset($field['unit']) && $value) 
 				$tfoot_line .= '&nbsp;'.$field['unit'];	
 			$tfoot_line .= '</td>';
-		} else $tfoot_line .= '<td'.(!empty($field['class']) ? ' class="'
-			.$field['class'].'"' : '').'>&nbsp;</td>';
+		} else {
+			$tfoot_line .= '<td'
+				.(!empty($field['class']) ? ' class="'.$field['class'].'"' : '')
+				.'>&nbsp;</td>';
+		}
 	}
 	return $tfoot_line;
 }
@@ -1436,7 +1439,7 @@ function zz_list_pages($limit_step, $this_limit, $total_rows, $scope = 'body') {
 		// if just one above the last limit show this number only once
 		switch ($zz_conf['limit_display']) {
 		case 'entries':
-			$text = ($range_min == $range_max ? $range_min : $range_min.'-'.$range_max);
+			$text = ($range_min == $range_max) ? $range_min : $range_min.'-'.$range_max;
 		default:
 		case 'pages':
 			$text = $i/$zz_conf['limit']+1;
@@ -1469,7 +1472,7 @@ function zz_list_pages($limit_step, $this_limit, $total_rows, $scope = 'body') {
 	$no_pages = array('&hellip;', '&gt;', '&gt;|', '|&lt;', '&lt;');
 	foreach ($links as $link) {
 		// mark current page, but not ellipsis
-		$span = (in_array($link['text'], $no_pages) ? 'span' : 'strong');
+		$span = in_array($link['text'], $no_pages) ? 'span' : 'strong';
 		$output .= '<li'.(!empty($link['class']) ? ' class="'.$link['class'].'"' : '').'>'
 			.($link['link'] ? '<a href="'.$link['link'].'"'
 				.(!empty($link['title']) ? '  title="'.$link['title'].'"' : '')

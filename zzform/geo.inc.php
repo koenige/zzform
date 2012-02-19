@@ -109,19 +109,19 @@ function zz_geo_coord_in($value, $orientation = 'lat', $precision = 0) {
 
 		switch ($index) {
 		case 0: // degrees
-			$decimal = ($decimal == '-' ? -$part : $part);
+			$decimal = ($decimal == '-') ? -$part : $part;
 			break;
 		case 1: // minutes
 		case 2: // seconds
 			// test range, 0-59.9999 is allowed
 			if ($part < 0) {
 				$part = htmlspecialchars($part);
-				$type = ($index == 2 ? 'seconds' : 'minutes');
+				$type = ($index == 2) ? 'seconds' : 'minutes';
 				$my['error'] = sprintf(zz_text('%s is too small. Please enter for '.$type.' a positive value or 0.'), $part);
 				return $my;
 			} elseif ($part >= 60) {
 				$part = htmlspecialchars($part);
-				$type = ($index == 2 ? 'seconds' : 'minutes');
+				$type = ($index == 2) ? 'seconds' : 'minutes';
 				$my['error'] = sprintf(zz_text('%s is too big. Please enter for '.$type.' a value smaller than 60.'), $part);
 				return $my;
 			}			
@@ -176,8 +176,8 @@ function zz_geo_coord_out($decimal, $orientation = 'lat', $out = false) {
 	else $textfunc = 'zz_text';
 	global $zz_conf;
 	$coord = false;
-	$round = (isset($zz_conf['geo']['rounding']) ? $zz_conf['geo']['rounding'] : 2);
-	$spacer = (isset($zz_conf['geo']['spacer']) ? $zz_conf['geo']['spacer'] : '&#160;');
+	$round = isset($zz_conf['geo']['rounding']) ? $zz_conf['geo']['rounding'] : 2;
+	$spacer = isset($zz_conf['geo']['spacer']) ? $zz_conf['geo']['spacer'] : '&#160;';
 	if ($decimal === false) return false;
 	
 	// 1. Test orientation
@@ -185,14 +185,14 @@ function zz_geo_coord_out($decimal, $orientation = 'lat', $out = false) {
 	if (!$orientation) return false;
 	
 	// 2. get some information
-	$hemisphere = ($decimal >= 0 ? '+' : '-');
+	$hemisphere = ($decimal >= 0) ? '+' : '-';
 	if ($decimal < 0) $decimal = substr($decimal, 1); // get rid of - sign)
 	switch ($orientation) {
 		case 'lat':
-			$hemisphere_text = ($hemisphere == '+' ? strip_tags($textfunc('N')) : strip_tags($textfunc('S')));
+			$hemisphere_text = ($hemisphere == '+') ? strip_tags($textfunc('N')) : strip_tags($textfunc('S'));
 			break;
 		case 'lon':
-			$hemisphere_text = ($hemisphere == '+' ? strip_tags($textfunc('E')) : strip_tags($textfunc('W')));
+			$hemisphere_text = ($hemisphere == '+') ? strip_tags($textfunc('E')) : strip_tags($textfunc('W'));
 			break;
 	}
 	
