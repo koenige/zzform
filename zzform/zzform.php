@@ -92,60 +92,8 @@ function zzform($zz = array()) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if ($zz_error['error']) return zzform_exit($ops); // exits script
 
-	// check if POST is too big, then it will be empty
-	$post_too_big = $zz_conf['generate_output'] ? zzform_post_too_big() : false;
-
-	// Modules dependent on $zz-table definition
-	$modules = array('translations', 'conditions', 'geo', 'export', 'upload');
-	foreach ($modules as $index => $module) {
-		if (!empty($zz_conf['modules'][$module])) continue; // module already loaded
-		$zz_conf['modules'][$module] = false;
-		switch ($module) {
-		case 'translations':
-			if (empty($zz_conf['translations_of_fields'])) unset($modules[$index]);
-			break;
-		case 'conditions':
-			if (empty($zz['conditions'])) unset($modules[$index]);
-			break;
-		case 'geo':
-			$geo = false;
-			if (zz_module_fieldcheck($zz, 'number_type', 'latitude')) $geo = true;
-			elseif (zz_module_fieldcheck($zz, 'number_type', 'longitude')) $geo = true;
-			elseif (zz_module_fieldcheck($zz, 'type', 'geo_point')) $geo = true;
-			if (!$geo) unset($modules[$index]);
-			break;
-		case 'export':
-			if ($zz_conf['generate_output'] === false) {
-				$zz_conf['export'] = false;
-				unset($modules[$index]);
-				break;
-			}
-			$export = false;
-			if (!empty($zz_conf['export'])) {
-				$export = true;
-				break;
-			}
-			if (!empty($zz_conf['conditions'])) {
-				foreach ($zz_conf['conditions'] as $condition) {
-					if (!empty($condition['export'])) {
-						$export = true;
-						break;
-					}
-				}
-			}
-			if (!$export) unset($modules[$index]);
-			break;
-		case 'upload':
-			if ($post_too_big) break; // there was an upload, we need this module
-			if (!empty($_FILES)) break; // there was an upload, we need this module
-			if (!zz_module_fieldcheck($zz, 'type', 'upload_image')) unset($modules[$index]);
-			break;
-		}
-	}
-	$zz_conf['modules'] = array_merge($zz_conf['modules'], zz_add_modules($modules, $zz_conf['dir_inc']));
-	if (!empty($GLOBALS['zz_saved']['conf'])) {
-		$GLOBALS['zz_saved']['conf']['modules'] = $zz_conf['modules'];
-	}
+	// include dependent modules
+	$post_too_big = zz_dependent_modules($zz);
 
 	if ($zz_conf['zzform_calls'] > 1 AND empty($zz_conf['multi'])) { 
 		// show a warning only if zzform is not explicitly called via zzform_multi()

@@ -94,6 +94,76 @@ function zz_add_modules($modules, $path) {
 }
 
 /**
+ * includes modules which are dependent on $zz-table definition
+ *
+ * @param array $zz Table definition
+ *		checking 'conditions', 'fields'
+ * @global array $zz_conf
+ *		array $zz_conf['modules'] will be written, $zz_conf['export'] if
+ *		applicable
+ *		checking 'translations_of_fields', 'generate_output'
+ * @return bool $post_too_big
+ */
+function zz_dependent_modules($zz) {
+	global $zz_conf;
+
+	// check if POST is too big, then it will be empty
+	$post_too_big = $zz_conf['generate_output'] ? zzform_post_too_big() : false;
+
+	$modules = array('translations', 'conditions', 'geo', 'export', 'upload');
+	foreach ($modules as $index => $module) {
+		if (!empty($zz_conf['modules'][$module])) continue; // module already loaded
+		$zz_conf['modules'][$module] = false;
+		switch ($module) {
+		case 'translations':
+			if (empty($zz_conf['translations_of_fields'])) unset($modules[$index]);
+			break;
+		case 'conditions':
+			if (empty($zz['conditions'])) unset($modules[$index]);
+			break;
+		case 'geo':
+			$geo = false;
+			if (zz_module_fieldcheck($zz, 'number_type', 'latitude')) $geo = true;
+			elseif (zz_module_fieldcheck($zz, 'number_type', 'longitude')) $geo = true;
+			elseif (zz_module_fieldcheck($zz, 'type', 'geo_point')) $geo = true;
+			if (!$geo) unset($modules[$index]);
+			break;
+		case 'export':
+			if ($zz_conf['generate_output'] === false) {
+				$zz_conf['export'] = false;
+				unset($modules[$index]);
+				break;
+			}
+			$export = false;
+			if (!empty($zz_conf['export'])) {
+				$export = true;
+				break;
+			}
+			if (!empty($zz_conf['conditions'])) {
+				foreach ($zz_conf['conditions'] as $condition) {
+					if (!empty($condition['export'])) {
+						$export = true;
+						break;
+					}
+				}
+			}
+			if (!$export) unset($modules[$index]);
+			break;
+		case 'upload':
+			if ($post_too_big) break; // there was an upload, we need this module
+			if (!empty($_FILES)) break; // there was an upload, we need this module
+			if (!zz_module_fieldcheck($zz, 'type', 'upload_image')) unset($modules[$index]);
+			break;
+		}
+	}
+	$zz_conf['modules'] = array_merge($zz_conf['modules'], zz_add_modules($modules, $zz_conf['dir_inc']));
+	if (!empty($GLOBALS['zz_saved']['conf'])) {
+		$GLOBALS['zz_saved']['conf']['modules'] = $zz_conf['modules'];
+	}
+	return $post_too_big;
+}
+
+/**
  * checks whether fields contain a value for a certain key
  *
  * @param array @zz
@@ -470,6 +540,13 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = arr
 //			return zz_error(); // exit script
 		}
 		if (!$zz_var['id']['value']) $zz_var['where_with_unique_id'] = false;
+	}
+	
+	// where with unique ID: remove filters, they do not make sense here
+	// (single record will be shown)
+	if ($zz_var['where_with_unique_id']) {
+		unset($zz_conf['filter']);
+		unset($_GET['filter']);
 	}
 	
 	return zz_return(array($sql, $zz_var));
