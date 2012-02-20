@@ -1782,7 +1782,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 
 	// 1.3.1: no form display = no selection, just display the values in the record
 	if ($display != 'form') {
-		if (!$detail_record) return '';
+		if (!$detail_record) return zz_return('');
 		$outputf = zz_draw_select($field, $record, $detail_record, $id_field_name);
 		return zz_return($outputf);
 	}
