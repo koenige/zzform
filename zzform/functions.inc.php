@@ -3102,33 +3102,46 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
 	
 	$sql = $my_rec['fields'][$f]['sql'];
 	$my_rec['fields'][$f]['sql_fieldnames'] = zz_sql_fieldnames($sql);
+	foreach ($my_rec['fields'][$f]['sql_fieldnames'] as $index => $field) {
+		$field = trim($field);
+		if (!empty($my_rec['fields'][$f]['show_hierarchy'])
+			AND $field == $my_rec['fields'][$f]['show_hierarchy']) {
+			// do not search in show_hierarchy as this field is there for 
+			// presentation only and might be removed below!
+			unset($my_rec['fields'][$f]['sql_fieldnames'][$index]);	
+		}
+		$my_rec['fields'][$f]['sql_fieldnames'][$index] = $field;
+	}
 
 	if (!isset($my_rec['fields'][$f]['concat_fields'])) $concat = ' | ';
 	else $concat = $my_rec['fields'][$f]['concat_fields'];
 
 	$postvalues = explode($concat, $my_rec['POST'][$field_name]);
+	$use_single_comparison = false;
+
+	if (substr($my_rec['POST'][$field_name], -1) !== ' ' AND !$zz_conf['multi']) {
+		// if there is a space at the end of the string, don't do LIKE 
+		// with %!
+		$likestring = '%s LIKE %s"%%%s%%"';
+	} else {
+		$likestring = '%s = %s"%s"';
+		if (count($my_rec['fields'][$f]['sql_fieldnames']) -1 === count($postvalues)) {
+			// get rid of ID field name, it's first in list
+			array_shift($my_rec['fields'][$f]['sql_fieldnames']);
+			$use_single_comparison = true;
+		}
+	}
+
 	$wheresql = '';
+	$sql_fieldnames = $my_rec['fields'][$f]['sql_fieldnames'];
 	foreach ($postvalues as $value) {
-		foreach ($my_rec['fields'][$f]['sql_fieldnames'] as $index => $field) {
-			$field = trim($field);
-			if (!empty($my_rec['fields'][$f]['show_hierarchy'])
-				AND $field == $my_rec['fields'][$f]['show_hierarchy']) continue;
-			// do not search in show_hierarchy as this field is there for 
-			// presentation only and might be removed below!
-			if (!$wheresql) $wheresql.= '(';
-			elseif (!$index) $wheresql.= ' ) AND (';
-			else $wheresql.= ' OR ';
-			// preg_match: "... ", extra space will be added in zz_draw_select!
-			if (preg_match('/^(.+?) *\.\.\. *$/', $value, $short_value)) 
-				// reduces string with dots which come from values which have 
-				// been cut beforehands
-				$value = $short_value[1];
-			if (substr($value, -1) != ' ' AND !$zz_conf['multi']) 
-				// if there is a space at the end of the string, don't do LIKE 
-				// with %!
-				$likestring = '%s LIKE %s"%%%s%%"';
-			else
-				$likestring = '%s LIKE %s"%s"';
+		// preg_match: "... ", extra space will be added in zz_draw_select!
+		if (preg_match('/^(.+?) *\.\.\. *$/', $value, $short_value)) {
+			// reduces string with dots which come from values which have 
+			// been cut beforehands
+			$value = $short_value[1];
+		}
+		foreach ($sql_fieldnames as $index => $field) {
 			// don't trim value here permanently (or you'll have a problem with
 			// reselect)
 			if (is_numeric(trim($value))) {
@@ -3137,7 +3150,16 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
 			} else {
 				$collation = zz_db_field_collation('reselect', $db_table, $my_rec['fields'][$f], $index);
 			}
+			if (!$wheresql) $wheresql .= '(';
+			elseif (!$index) $wheresql .= ' ) AND (';
+			elseif ($use_single_comparison) $wheresql .= ' AND ';
+			else $wheresql .= ' OR ';
+
 			$wheresql .= sprintf($likestring, $field, $collation, zz_db_escape(trim($value)));
+			if ($use_single_comparison) {
+				unset ($sql_fieldnames[$index]);
+				continue 2;
+			}
 		}
 	}
 	$wheresql .= ')';
