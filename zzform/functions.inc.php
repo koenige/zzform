@@ -3127,7 +3127,8 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
 		$likestring = '%s = %s"%s"';
 		if (count($my_rec['fields'][$f]['sql_fieldnames']) -1 === count($postvalues)) {
 			// get rid of ID field name, it's first in list
-			array_shift($my_rec['fields'][$f]['sql_fieldnames']);
+			// do not use array_shift here because index is needed below
+			unset($my_rec['fields'][$f]['sql_fieldnames'][0]);
 			$use_single_comparison = true;
 		}
 	}
@@ -3141,6 +3142,8 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
 			// been cut beforehands
 			$value = $short_value[1];
 		}
+		// maybe there is no index 0, therefore we need a new variable $i
+		$i = 0;
 		foreach ($sql_fieldnames as $index => $field) {
 			// don't trim value here permanently (or you'll have a problem with
 			// reselect)
@@ -3151,7 +3154,7 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
 				$collation = zz_db_field_collation('reselect', $db_table, $my_rec['fields'][$f], $index);
 			}
 			if (!$wheresql) $wheresql .= '(';
-			elseif (!$index) $wheresql .= ' ) AND (';
+			elseif (!$i) $wheresql .= ' ) AND (';
 			elseif ($use_single_comparison) $wheresql .= ' AND ';
 			else $wheresql .= ' OR ';
 
@@ -3160,6 +3163,7 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
 				unset ($sql_fieldnames[$index]);
 				continue 2;
 			}
+			$i++;
 		}
 	}
 	$wheresql .= ')';
