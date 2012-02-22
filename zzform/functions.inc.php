@@ -3125,7 +3125,9 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
 		$likestring = '%s LIKE %s"%%%s%%"';
 	} else {
 		$likestring = '%s = %s"%s"';
-		if (count($my_rec['fields'][$f]['sql_fieldnames']) -1 === count($postvalues)) {
+		if (count($my_rec['fields'][$f]['sql_fieldnames']) -1 === count($postvalues)
+			AND !$zz_conf['multi']) {
+			// multi normally sends ID
 			// get rid of ID field name, it's first in list
 			// do not use array_shift here because index is needed below
 			unset($my_rec['fields'][$f]['sql_fieldnames'][0]);
