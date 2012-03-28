@@ -1369,7 +1369,9 @@ function zz_list_pages($limit_step, $this_limit, $total_rows, $scope = 'body') {
 	if (!$this_limit) return false;
 
 	// check whether all records fit on one page
-	if ($limit_step >= $total_rows) return false;
+	// and this limit is the current limit (if bigger, show page links to
+	// allow access to first page)
+	if ($limit_step >= $total_rows AND $this_limit === $limit_step) return false;
 
 	$url = zz_list_pageurl();
 
