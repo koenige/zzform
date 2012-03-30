@@ -2610,6 +2610,20 @@ function htmlchars($string) {
 	return $string;
 }
 
+/**
+ * checks string length, cuts string if too long
+ *
+ * @param string $string
+ * @param int $max_length maximum length of string that is allowed
+ * @return string
+ */
+function zz_cut_length($string, $max_length) {
+	if (mb_strlen($string) <= $max_length) return $string;
+	// cut long values
+	$string = mb_substr($string, 0, $max_length).'...'
+	return $string;
+}
+
 
 /*
  * --------------------------------------------------------------------

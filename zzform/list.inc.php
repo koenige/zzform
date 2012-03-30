@@ -938,8 +938,8 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 		case 'url':
 		case 'mail':
 		case 'mail+name':
-			if ($field['type'] == 'url' && strlen($row['value']) > $zz_conf_record['max_select_val_len']) {
-				$text = mb_substr(htmlchars($row['value']), 0, $zz_conf_record['max_select_val_len']).'...';
+			if ($field['type'] === 'url')
+				$text = zz_cut_length(htmlchars($row['value']), $zz_conf_record['max_select_val_len']);
 			} else {
 				$text = htmlspecialchars($row['value']);
 			}

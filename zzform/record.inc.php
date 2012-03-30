@@ -1570,11 +1570,7 @@ function zz_field_text($field, $display, $record) {
 	if ($display !== 'form') {
 		if (!$value) return '';	
 		if ($field['type'] == 'url') {
-			if (strlen($value) > $field['max_select_val_len']) {
-				$linktitle = mb_substr($value, 0, $field['max_select_val_len']).'...';
-			} else {
-				$linktitle = $value;
-			}
+			$linktitle = zz_cut_length($value, $field['max_select_val_len'])
 			$linktitle = str_replace('<', '&lt;', $linktitle);
 			return '<a href="'.htmlspecialchars($value).'">'.$linktitle.'</a>';
 		} elseif ($field['type'] == 'mail') {
@@ -2493,10 +2489,9 @@ function zz_draw_select($field, $record, $line, $id_field_name, $form = false, $
 			// $i = 1: field['type'] == 'id'!
 			if (is_numeric($key)) continue;
 			if ($key == $field['show_hierarchy']) continue;
-			if ($i > 1 AND $line[$key]) 
-				$details[] = (strlen($line[$key]) > $field['max_select_val_len']) 
-					? (mb_substr($line[$key], 0, $field['max_select_val_len']).'...') 
-					: $line[$key]; // cut long values
+			if ($i > 1 AND $line[$key]) {
+				$details[] = zz_cut_length($line[$key], $field['max_select_val_len']);
+			}
 			$i++;
 		}
 	} else {
