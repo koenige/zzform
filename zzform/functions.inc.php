@@ -3148,10 +3148,12 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
 	$sql_fieldnames = $my_rec['fields'][$f]['sql_fieldnames'];
 	foreach ($postvalues as $value) {
 		// preg_match: "... ", extra space will be added in zz_draw_select!
+		$my_likestring = $likestring;
 		if (preg_match('/^(.+?) *\.\.\. *$/', $value, $short_value)) {
 			// reduces string with dots which come from values which have 
-			// been cut beforehands
+			// been cut beforehands, use LIKE!
 			$value = $short_value[1];
+			$my_likestring = '%s LIKE %s"%s%%"';
 		}
 		// maybe there is no index 0, therefore we need a new variable $i
 		$i = 0;
@@ -3169,7 +3171,7 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
 			elseif ($use_single_comparison) $wheresql .= ' AND ';
 			else $wheresql .= ' OR ';
 
-			$wheresql .= sprintf($likestring, $field, $collation, zz_db_escape(trim($value)));
+			$wheresql .= sprintf($my_likestring, $field, $collation, zz_db_escape(trim($value)));
 			if ($use_single_comparison) {
 				unset ($sql_fieldnames[$index]);
 				continue 2;
