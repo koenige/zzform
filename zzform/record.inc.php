@@ -1570,7 +1570,7 @@ function zz_field_text($field, $display, $record) {
 	if ($display !== 'form') {
 		if (!$value) return '';	
 		if ($field['type'] == 'url') {
-			$linktitle = zz_cut_length($value, $field['max_select_val_len'])
+			$linktitle = zz_cut_length($value, $field['max_select_val_len']);
 			$linktitle = str_replace('<', '&lt;', $linktitle);
 			return '<a href="'.htmlspecialchars($value).'">'.$linktitle.'</a>';
 		} elseif ($field['type'] == 'mail') {
