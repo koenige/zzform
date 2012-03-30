@@ -307,10 +307,6 @@ function zz_get_where_conditions($zz) {
 		if ($filter['type'] != 'where') continue;
 		if (!empty($_GET['filter'][$filter['identifier']])) {
 			$zz_var['where_condition'][$filter['where']] = $_GET['filter'][$filter['identifier']];
-		} elseif (!empty($filter['default_selection'])) {
-			$default_selection = is_array($filter['default_selection'])
-				? key($filter['default_selection']) : $filter['default_selection'];
-			$zz_var['where_condition'][$filter['where']] = $default_selection;
 		}
 		// 'where'-filters are beyond that 'list'-filters
 		$zz_conf['filter'][$index]['type'] = 'list';
@@ -360,9 +356,8 @@ function zz_filter_defaults() {
 			$filter['identifier'] = $zz_conf['filter'][$index]['identifier'] = urlencode(strtolower($filter['title']));
 		// set default filter, default default filter is 'all'
 		if (!empty($filter['default_selection']) AND !isset($_GET['filter'][$filter['identifier']])) {
-			$default_selection = is_array($filter['default_selection'])
+			$_GET['filter'][$filter['identifier']] = is_array($filter['default_selection'])
 				? key($filter['default_selection']) : $filter['default_selection'];
-			$_GET['filter'][$filter['identifier']] = $default_selection;
 		}
 	}
 }
