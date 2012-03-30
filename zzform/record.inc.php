@@ -1627,6 +1627,9 @@ function zz_field_number($field, $display, $record) {
 			} elseif (!empty($_POST['zz_subtables'])) {
 				// just a detail record was added, value is already formatted
 			} else {
+				// calculate numeric value, hand back formatted value
+				$value = zz_geo_coord_in($value, $field['number_type']);
+				$value = $value['value'];
 				$value = zz_geo_coord_out($value, $field['number_type'], $field['geo_format']);
 				if (!empty($field['geo_display_behind'])) {
 					$suffix = zz_geo_coord_out($value, $field['number_type'], $field['geo_display_behind']);
