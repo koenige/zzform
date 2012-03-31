@@ -2176,6 +2176,7 @@ function zz_error() {
 	global $zz_conf;
 	global $zz_error;	// we need this global, because it's global everywhere, 
 						// so we can clear the variable here
+	static $post_errors_logged;
 	
 	if (empty($zz_conf['error_handling'])) $zz_conf['error_handling'] = 'output';
 	$user_output = array();
@@ -2275,7 +2276,7 @@ function zz_error() {
 				.': ['.$_SERVER['REQUEST_URI'].'] '.preg_replace("/\s+/", " ", $log_output[$key]);
 			$error_line = substr($error_line, 0, $zz_conf['log_errors_max_len'] -(strlen($user)+1)).$user."\n";
 			error_log($error_line, 3, $zz_conf['error_log'][$level]);
-			if (!empty($_POST) AND $zz_conf['error_log_post']) {
+			if (!empty($_POST) AND $zz_conf['error_log_post'] AND !$post_errors_logged) {
 				$error_line = '['.date('d-M-Y H:i:s').'] zzform Notice: POST';
 				if (function_exists('json_encode')) {
 					$error_line .= '[json] '.json_encode($_POST);
@@ -2285,6 +2286,7 @@ function zz_error() {
 				$error_line = substr($error_line, 0, $zz_conf['log_errors_max_len'] 
 					- (strlen($user)+4)).' '.$user."\n";
 				error_log($error_line, 3, $zz_conf['error_log'][$level]);
+				$post_errors_logged = true;
 			}
 		}
 		// Mail output
