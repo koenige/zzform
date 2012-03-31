@@ -500,7 +500,7 @@ function zz_maintenance_folders() {
 				continue;
 			}
 			$files[] = $file;
-			if (!empty($_GET['q']) AND strstr($file, $_GET['q'])) {
+			if (zz_maintenance_searched($file)) {
 				$total_files_q++;
 			}
 		}
@@ -528,7 +528,7 @@ function zz_maintenance_folders() {
 		$tbody = '';
 		$total_rows = 0;
 		foreach ($files as $file) {
-			if (!empty($_GET['q']) AND !strstr($file, $_GET['q'])) {
+			if (!empty($_GET['q']) AND !zz_maintenance_searched($file)) {
 				continue;
 			}
 			if ($i < $zz_conf['int']['this_limit'] - $zz_conf['limit']) {
@@ -598,6 +598,20 @@ function zz_maintenance_folders() {
 }
 
 /**
+ * checks if 'search' is active, then tests string against search string
+ *
+ * @param string $string
+ * @return bool false: no search active or string not found; true: search is
+ *		active and string was found
+ */
+function zz_maintenance_searched($string) {
+	if (empty($_GET['q'])) return false;
+	if (strstr($string, $_GET['q'])) return true;
+	if (strstr(urldecode($string), $_GET['q'])) return true;
+	return false;
+}
+
+/**
  * HTML output of form with button to delete all lines, files etc. in list
  * 'q'-search filter will be regarded
  *
@@ -622,7 +636,7 @@ function zz_maintenance_deleteall_form($type) {
 
 function zz_maintenance_folders_deleteall($my_folder, $file) {
 	if (!empty($_GET['q'])) {
-		if (strstr($file, $_GET['q'])) {
+		if (zz_maintenance_searched($file)) {
 			$success = unlink($my_folder.'/'.$file);
 			return $success;
 		}
@@ -825,7 +839,7 @@ function zz_maintenance_logs() {
 		while (($line = fgets($handle, $zz_conf['log_errors_max_len']+2)) !== false) {
 			$line = trim($line);
 
-			if (!empty($_GET['q']) AND !strstr($line, $_GET['q'])) {
+			if (!empty($_GET['q']) AND !zz_maintenance_searched($line)) {
 				$index++;
 				continue;
 			}
