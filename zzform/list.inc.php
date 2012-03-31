@@ -579,6 +579,7 @@ function zz_filter_selection($filter) {
  * @global array $zz_conf
  * @global array $zz_error
  * @return string $sql
+ * @see zz_filter_defaults() for check for invalid filters
  */
 function zz_list_filter_sql($sql) {
 	global $zz_conf;
@@ -598,9 +599,7 @@ function zz_list_filter_sql($sql) {
 	}
 	if (!isset($_GET['filter'])) return $sql;
 
-	$identifiers = array();
 	foreach ($zz_conf['filter'] AS $filter) {
-		$identifiers[] = $filter['identifier'];
 		if (!in_array($filter['identifier'], array_keys($_GET['filter']))) continue;
 		if (empty($filter['where'])) continue;
 		
@@ -654,11 +653,10 @@ function zz_list_filter_sql($sql) {
 			$sql = false;
 		}
 	}
+
 	// test filter identifiers if they exist
-	foreach (array_keys($_GET['filter']) AS $identifier) {
-		if (in_array($identifier, $identifiers)) continue;
+	foreach ($zz_conf['int']['invalid_filters'] AS $identifier) {
 		$filter = htmlspecialchars($identifier);
-		$zz_conf['int']['http_status'] = 404;
 		$zz_error[] = array(
 			'msg' => sprintf(zz_text('A filter for the selection "%s" does not exist.'), $filter),
 			'level' => E_USER_NOTICE

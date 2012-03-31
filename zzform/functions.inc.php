@@ -348,17 +348,31 @@ function zz_record_conf($zz_conf) {
 function zz_filter_defaults() {
 	global $zz_conf;
 	if (empty($zz_conf['filter'])) return false;
+	$identifiers = array();
 
 	// initialize filter, set defaults
 	foreach ($zz_conf['filter'] AS $index => $filter) {
 		// get identifier from title if not set
 		if (empty($filter['identifier'])) 
 			$filter['identifier'] = $zz_conf['filter'][$index]['identifier'] = urlencode(strtolower($filter['title']));
+		$identifiers[] = $filter['identifier'];
 		// set default filter, default default filter is 'all'
 		if (!empty($filter['default_selection']) AND !isset($_GET['filter'][$filter['identifier']])) {
 			$_GET['filter'][$filter['identifier']] = is_array($filter['default_selection'])
 				? key($filter['default_selection']) : $filter['default_selection'];
 		}
+	}
+
+	// check for invalid filters
+	$zz_conf['int']['invalid_filters'] = array();
+	foreach (array_keys($_GET['filter']) AS $identifier) {
+		if (in_array($identifier, $identifiers)) continue;
+		$zz_conf['int']['http_status'] = 404;
+		$zz_conf['int']['url']['qs_zzform'] 
+			= zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], array('filter['.$identifier.']'));
+		$zz_conf['int']['invalid_filters'][] = $identifier;
+		// get rid of filter
+		unset($_GET['filter'][$identifier]);
 	}
 }
 
@@ -2561,7 +2575,8 @@ function zz_text($string) {
  * Removes unwanted keys from QUERY_STRING
  * 
  * @param string $query			query-part of URI
- * @param array $unwanted_keys	keys that shall be removed
+ * @param array $unwanted_keys	keys that shall be removed, subkeys might be
+ *		removed writing key[subkey]
  * @param array $new_keys		keys and values in pairs that shall be added or overwritten
  * @return string $string		New query string without removed keys
  * @author Gustaf Mossakowski <gustaf@koenige.org>
@@ -2572,9 +2587,19 @@ function zz_edit_query_string($query, $unwanted_keys = array(), $new_keys = arra
 		$query = substr($query, 1);
 	parse_str($query, $queryparts);
 	// remove unwanted keys from URI
-	foreach (array_keys($queryparts) as $key) 
-		if (in_array($key, $unwanted_keys)) 
-			unset ($queryparts[$key]);
+	foreach (array_keys($queryparts) as $key) {
+		if (in_array($key, $unwanted_keys)) {
+			unset($queryparts[$key]);
+		} elseif (is_array($queryparts[$key])) {
+			foreach (array_keys($queryparts[$key]) as $subkey) {
+				foreach ($unwanted_keys as $unwanted) {
+					if ($unwanted === $key.'['.$subkey.']') {
+						unset($queryparts[$key][$subkey]);
+					}
+				}
+			}
+		}
+	}
 	// add new keys or overwrite existing keys
 	foreach ($new_keys as $new_key => $new_value)
 		$queryparts[$new_key] = $new_value; 
