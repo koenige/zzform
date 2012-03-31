@@ -365,6 +365,11 @@ function zz_filter_defaults() {
 
 	// check for invalid filters
 	$zz_conf['int']['invalid_filters'] = array();
+	if (empty($_GET['filter'])) {
+		// just in case it's a ?filter -request with no filter set
+		unset($_GET['filter']);
+		return true;
+	}
 	foreach (array_keys($_GET['filter']) AS $identifier) {
 		if (in_array($identifier, $identifiers)) continue;
 		$zz_conf['int']['http_status'] = 404;
@@ -374,6 +379,7 @@ function zz_filter_defaults() {
 		// get rid of filter
 		unset($_GET['filter'][$identifier]);
 	}
+	return true;
 }
 
 /**
