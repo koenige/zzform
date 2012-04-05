@@ -1,7 +1,7 @@
 <?php 
 
 // zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2004-2011
+// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2004-2012
 // Miscellaneous functions
 
 
@@ -347,9 +347,11 @@ function zz_record_conf($zz_conf) {
  */
 function zz_filter_defaults() {
 	global $zz_conf;
-	if (empty($zz_conf['filter'])) return false;
+	// initialize, don't return because we'll check for $_GET later
+	if (empty($zz_conf['filter'])) $zz_conf['filter'] = array();
 	$identifiers = array();
 
+	// if there are filters:
 	// initialize filter, set defaults
 	foreach ($zz_conf['filter'] AS $index => $filter) {
 		// get identifier from title if not set
@@ -375,7 +377,7 @@ function zz_filter_defaults() {
 		$zz_conf['int']['http_status'] = 404;
 		$zz_conf['int']['url']['qs_zzform'] 
 			= zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], array('filter['.$identifier.']'));
-		$zz_conf['int']['invalid_filters'][] = $identifier;
+		$zz_conf['int']['invalid_filters'][] = htmlspecialchars($identifier);
 		// get rid of filter
 		unset($_GET['filter'][$identifier]);
 	}

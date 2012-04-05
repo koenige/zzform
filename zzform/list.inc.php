@@ -1,7 +1,7 @@
 <?php
 
 // zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2004-2010
+// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2004-2012
 // Display all or a subset of all records in a list (e. g. table, ul)
 
 
@@ -585,18 +585,7 @@ function zz_list_filter_sql($sql) {
 	global $zz_conf;
 	global $zz_error;
 
-	if (empty($zz_conf['filter'])) {
-		if (!empty($_GET['filter'])) {
-			$filter = array_keys($_GET['filter']);
-			$filter = htmlspecialchars(end($filter));
-			$zz_conf['int']['http_status'] = 404;
-			$zz_error[] = array(
-				'msg' => sprintf(zz_text('A filter for the selection "%s" does not exist.'), $filter),
-				'level' => E_USER_NOTICE
-			);
-		}
-		return $sql;
-	}
+	// no filter was selected, no change
 	if (!isset($_GET['filter'])) return $sql;
 
 	foreach ($zz_conf['filter'] AS $filter) {
@@ -657,8 +646,11 @@ function zz_list_filter_sql($sql) {
 	// test filter identifiers if they exist
 	foreach ($zz_conf['int']['invalid_filters'] AS $identifier) {
 		$filter = htmlspecialchars($identifier);
+		$link = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
+			.$zz_conf['int']['url']['?&'].$zz_conf['int']['url']['qs_zzform'];
 		$zz_error[] = array(
-			'msg' => sprintf(zz_text('A filter for the selection "%s" does not exist.'), $filter),
+			'msg' => sprintf(zz_text('A filter for the selection "%s" does not exist.'), $filter)
+				.' <a href="'.$link.'">'.sprintf(zz_text('List without this filter')).'</a>',
 			'level' => E_USER_NOTICE
 		);
 		$sql = false;
