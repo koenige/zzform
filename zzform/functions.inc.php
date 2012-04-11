@@ -369,7 +369,7 @@ function zz_filter_defaults() {
 	$zz_conf['int']['invalid_filters'] = array();
 	if (empty($_GET['filter'])) {
 		// just in case it's a ?filter -request with no filter set
-		unset($_GET['filter']);
+		if (isset($_GET['filter'])) unset($_GET['filter']);
 		return true;
 	}
 	foreach (array_keys($_GET['filter']) AS $identifier) {
