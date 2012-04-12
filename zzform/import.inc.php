@@ -1,7 +1,7 @@
 <?php
 
 // zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2009-2010
+// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2009-2012
 // Import script
 
 
@@ -75,8 +75,8 @@ function zz_import_files($definition_file, $values, $params) {
 	global $zz_error;
 	global $zz_setting;
 	global $zz_import_error_msg;
-	global $zz_import_i;
-	
+
+	static $zz_import_i;
 	if (!$zz_import_i) $zz_import_i = 1;
 	else $zz_import_i++;
 
@@ -112,7 +112,7 @@ function zz_import_files($definition_file, $values, $params) {
 
 	// go on with files in folder
 	// open folder recursively
-	if (!empty($zz_conf['modules']['debug'])) zz_debug("read files start");
+	if (!empty($zz_conf['modules']['debug'])) zz_debug('read files start');
 	$handle = opendir($params['source_dir']['full']);
 	while ($filename = readdir($handle)) {
 		if (substr($filename, 0, 1) == '.') continue; // ignore filenames with dots
@@ -175,7 +175,7 @@ function zz_import_files($definition_file, $values, $params) {
 
 
 	$output .= '</ul>'."\n";
-	if (!$zz_import_i == 1) {
+	if ($zz_import_i !== 1) {
 		$output .= $zz_import_error_msg;
 		$zz_import_error_msg = '';
 		if (!empty($zz_conf['modules']['debug'])) zz_debug("end MT");
@@ -226,14 +226,14 @@ function zz_import_create_folder($definition_file, $values, &$params) {
 	if ($parent_destination_folder_id) {
 		// It's already in the database, get ID and return
 		$params['parent_destination_folder_id'] = $parent_destination_folder_id;
-		$output .= '<strong> &#8211; '.zz_text('Folder OK').'</strong>'."\n";
+		$output = '<strong> &#8211; '.zz_text('Folder OK').'</strong>'."\n";
 		return $output;
 	}
 	
 	// check if there is something for the parent folder, if not, return with error
 	// TODO: it's right now unclear for me when this happens
 	if (empty($params['parent_destination_folder_id'])) {
-		$output .= '<strong> &#8211; '.zz_text('Error: Invalid or no parent folder set.').'</strong>'."\n";
+		$output = '<strong> &#8211; '.zz_text('Error: Invalid or no parent folder set.').'</strong>'."\n";
 		return $output;
 	}
 	
@@ -346,6 +346,9 @@ function zz_import_check_matches($filename, $matches) {
  *
  * @param string $definition_file $zz-table script which defines db table(s)
  * @param array $values Values for import into database
+ *		array 'folder'
+ *		array 'file'
+ *		array 'local'
  * @param array $params
  *		'source_dir'['basedir'] (base path to directory where files reside),
  *		'source_dir'['short'] (optional, path from basedir to current directory),
@@ -353,6 +356,7 @@ function zz_import_check_matches($filename, $matches) {
  *		'destination_sql', 'destination_identifier', 'destination_conf_identifier'
  *		'parent_destination_folder_id'
  * @param array $files
+ *		indexed by basename, list of files per basename indexed by extension
  * @return string HTML output of what was imported/failed
  *		$params and $files will be changed
  * @author Gustaf Mossakowski, <gustaf@koenige.org>
@@ -375,7 +379,7 @@ function zz_import_create_files($definition_file, $values, &$params, &$files) {
 			break;
 		}
 		if (!is_writeable(dirname($params['source_dir']['full']))) {
-			$output .= zz_text('Warning! Insufficient access rights. Please make sure, that the source directory is writeable.')
+			$output .= zz_text('Warning! Insufficient access rights. Please make sure that the source directory is writable.')
 				.': '.$params['source_dir']['full']."\n"
 				.'</li>'."\n";
 			break;
@@ -428,13 +432,13 @@ function zz_import_create_files($definition_file, $values, &$params, &$files) {
 		
 		$i = 0;
 		foreach ($myfiles as $file) {
-			$image = getimagesize($file['full']);
-			if (!$image) $image['mime'] = 'application/octet-stream';
+			if (!is_readable($file['full'])) {
+				$output .= ' &#8211; '.zz_text('Warning! Insufficient access rights for this file.');
+				continue 2;
+			}
+			// TODO: 'short' kann evtl. auch wegfallen
 			$values['file']['FILES'][$values['file']['key'][$i]]['name']['file'] = $file['short'];
-			$values['file']['FILES'][$values['file']['key'][$i]]['type']['file'] = $image['mime'];
 			$values['file']['FILES'][$values['file']['key'][$i]]['tmp_name']['file'] = $file['full'];
-			$values['file']['FILES'][$values['file']['key'][$i]]['error']['file'] = 0; // everything ok
-			$values['file']['FILES'][$values['file']['key'][$i]]['size']['file'] = filesize($file['full']);
 			$values['file']['FILES'][$values['file']['key'][$i]]['do_not_delete']['file'] = true;
 			$i++;					
 		}
@@ -462,7 +466,7 @@ function zz_import_create_files($definition_file, $values, &$params, &$files) {
 			}
 //			$output .= 'Category_ID '.$_GET['where']['category_id'];
 		}
-		if (!empty($zz_conf['modules']['debug'])) zz_debug("file end");
+		if (!empty($zz_conf['modules']['debug'])) zz_debug('file end');
 		unset($files[$basename]);
 	}
 	if ($output == '<ul>') $output = false; // nothing was added, so avoid emtpy uls

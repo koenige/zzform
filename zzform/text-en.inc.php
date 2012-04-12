@@ -175,7 +175,7 @@ $text['Folder could not be imported.'] = 'Folder could not be imported.';
 $text['Import was successful.'] = 'Import was successful.';
 $text['Folder OK'] = 'Folder OK';
 $text['Folder "%s" does not exist.'] = 'Folder "%s" does not exist.';
-$text['Warning! Insufficient access rights. Please make sure, that the source directory is writeable.'] = 'Warning! Insufficient access rights. Please make sure, that the source directory is writeable.';
+$text['Warning! Insufficient access rights. Please make sure that the source directory is writable.'] = 'Warning! Insufficient access rights. Please make sure that the source directory is writable.';
 $text['%s files left for import. Please wait, the script will reload itself.'] = '%s files left for import. Please wait, the script will reload itself.';
 
 

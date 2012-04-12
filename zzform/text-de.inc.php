@@ -206,7 +206,7 @@ $text['Folder could not be imported.'] = 'Verzeichnis konnte nicht importiert we
 $text['Import was successful.'] = 'Import war erfolgreich.';
 $text['Folder OK'] = 'Verzeichnis OK';
 $text['Folder "%s" does not exist.'] = 'Das Verzeichnis "%s" existiert nicht.';
-$text['Warning! Insufficient access rights. Please make sure, that the source directory is writeable.'] = 'Warnung! Die Zugriffsrechte reichen nicht aus. Bitte stellen Sie sicher, dass das Quellverzeichnis schreibbar ist.';
+$text['Warning! Insufficient access rights. Please make sure that the source directory is writable.'] = 'Warnung! Die Zugriffsrechte reichen nicht aus. Bitte stellen Sie sicher, dass das Quellverzeichnis schreibbar ist.';
 $text['%s files left for import. Please wait, the script will reload itself.'] = '%s Dateien m&uuml;ssen noch importiert werden. Bitte warten Sie, das Skript ruft sich erneut auf.';
 
 
