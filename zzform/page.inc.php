@@ -18,13 +18,13 @@ global $zz;			// Table description
 /**
  * zzform shortcut, includes some page parameters
  *
- * deprecated, use zzbricks brick_forms() instead
  * @param array $glob_vals optional variables that must be declared globally
  * @global array $zz
  * @global array $zz_conf
  * @global array $zz_page
  * @global array $zz_setting
  * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @deprecated Use zzbricks brick_forms() instead.
  */
 function zzform_all($glob_vals = false) {
 //	Die folgenden globalen Definitionen der Variablen sind nur noetig, wenn man wie
