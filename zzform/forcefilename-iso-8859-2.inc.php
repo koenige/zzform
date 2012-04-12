@@ -93,7 +93,7 @@ function forceFilename($str, $spaceChar = '-') {
  
 		case 'Ú': case 'Û': case 'Ù':
 			$_str .= 'U'; break;
-		case 'ú': case 'û': case 'ù'
+		case 'ú': case 'û': case 'ù':
 			$_str .= 'u'; break;
  
 		case 'Ü':
