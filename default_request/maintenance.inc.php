@@ -605,9 +605,17 @@ function zz_maintenance_folders() {
  *		active and string was found
  */
 function zz_maintenance_searched($string) {
+	global $zz_conf;
 	if (empty($_GET['q'])) return false;
 	if (strstr($string, $_GET['q'])) return true;
 	if (strstr(urldecode($string), $_GET['q'])) return true;
+	if ($zz_conf['character_set'] === 'utf-8') {
+		// allow for searching ignoring replaced zero width space
+		// PHPs char does not support unicode
+		$char8203 = chr(hexdec('E2')).chr(hexdec('80')).chr(hexdec('8B'));
+		$q = str_replace($char8203, '', $_GET['q']);
+		if (strstr($string, $q)) return true;
+	}
 	return false;
 }
 
