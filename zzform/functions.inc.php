@@ -3153,8 +3153,10 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
 			// do not search in show_hierarchy as this field is there for 
 			// presentation only and might be removed below!
 			unset($my_rec['fields'][$f]['sql_fieldnames'][$index]);	
+		} else {
+			// write trimmed value back to sql_fieldnames
+			$my_rec['fields'][$f]['sql_fieldnames'][$index] = $field;
 		}
-		$my_rec['fields'][$f]['sql_fieldnames'][$index] = $field;
 	}
 
 	if (!isset($my_rec['fields'][$f]['concat_fields'])) $concat = ' | ';
@@ -3238,7 +3240,12 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
 		$my_rec['fields'][$f]['class'] = 'reselect';
 		if (!empty($my_rec['fields'][$f]['show_hierarchy'])) {
 			// since this is only a part of the list, hierarchy does not make sense
-			$my_rec['fields'][$f]['sql'] = preg_replace('/,*\s*'.$my_rec['fields'][$f]['show_hierarchy'].'/', '', $my_rec['fields'][$f]['sql']);
+			if (!isset($my_rec['fields'][$f]['sql_ignore'])) {
+				$my_rec['fields'][$f]['sql_ignore'] = array();
+			} elseif (!is_array($my_rec['fields'][$f]['sql_ignore'])) {
+				$my_rec['fields'][$f]['sql_ignore'] = array($my_rec['fields'][$f]['sql_ignore']);
+			}
+			$my_rec['fields'][$f]['sql_ignore'][] = $my_rec['fields'][$f]['show_hierarchy'];
 			$my_rec['fields'][$f]['show_hierarchy'] = false;
 		}
 		$my_rec['fields'][$f]['mark_reselect'] = true;
