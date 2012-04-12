@@ -2664,7 +2664,10 @@ function zz_field_display($field, $record, $record_saved) {
 	// internationalization has to be done in zz-fields-definition
 	if (isset($field['display_value'])) return $field['display_value']; 
 	// no record
-	if (!$record) return zz_text('N/A');
+	if (!$record) {
+		if (isset($field['display_empty'])) return $field['display_empty'];
+		else return zz_text('N/A');
+	}
 
 	// get value, return text
 	$value = '';
