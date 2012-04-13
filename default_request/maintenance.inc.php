@@ -609,13 +609,21 @@ function zz_maintenance_searched($string) {
 	if (empty($_GET['q'])) return false;
 	if (strstr($string, $_GET['q'])) return true;
 	if (strstr(urldecode($string), $_GET['q'])) return true;
+
+	// allow for searching ignoring replaced zero width space
+	// PHPs char does not support unicode
+	$q = urlencode($_GET['q']);
 	if ($zz_conf['character_set'] === 'utf-8') {
-		// allow for searching ignoring replaced zero width space
-		// PHPs char does not support unicode
-		$char8203 = chr(hexdec('E2')).chr(hexdec('80')).chr(hexdec('8B'));
-		$q = str_replace($char8203, '', $_GET['q']);
-		if (strstr($string, $q)) return true;
+		$char8203 = '%E2%80%8B';
+	} else {
+		// this does not work for all other character sets
+		// but it works for iso-8859-1 and -2
+		$char8203 = '%26%238203%3B';
 	}
+	$q = str_replace($char8203, '', $q);
+	$q = urldecode($q);
+	$_GET['q'] = $q;
+	if (strstr($string, $q)) return true;
 	return false;
 }
 
