@@ -159,7 +159,7 @@ $zz_default['upload_filetype_map']['jpe'] = 'jpeg';
 $zz_default['upload_filetype_map']['jpg'] = 'jpeg';
 
 $zz_default['upload_no_thumbnails'] = array('doc', 'docx', 'wps', 'rtf', 'xls',
-	'dot');
+	'dot', 'odt', 'ott', 'ods');
 
 /*	----------------------------------------------	*
  *					MAIN FUNCTIONS					*
