@@ -1373,8 +1373,12 @@ function zz_list_pages($limit_step, $this_limit, $total_rows, $scope = 'body') {
 		'class' => 'first',
 		'title' => zz_text('First page')
 	);
+	$prev = $this_limit - $limit_step;
+	if ($prev > $total_rows) {
+		$prev = ceil($total_rows/$limit_step)*$limit_step;
+	}
 	$links[] = array(
-		'link'	=> zz_list_pagelink($this_limit-$limit_step, $this_limit, 0, $url),
+		'link'	=> zz_list_pagelink($prev, $this_limit, 0, $url),
 		'text'	=> '&lt;',
 		'class' => 'prev',
 		'title' => 	zz_text('Previous page')
