@@ -2679,6 +2679,7 @@ function zz_cut_length($string, $max_length) {
  *		'slashes' (false); true = slashes will be preserved
  *		'where' (false) WHERE-condition to be appended to query that checks existence of identifier in database 
  *		'hash_md5' (false); true = hash will be created from field values and timestamp
+ *		array 'replace' (false); key => value; characters in key will be replaced by value
  * @param array $my_rec		$zz_tab[$tab][$rec]
  * @param string $db_table	Name of Table [dbname.table]
  * @param int $field		Number of field definition
@@ -2710,6 +2711,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 	$conf['exists'] = isset($conf['exists']) ? substr($conf['exists'], 0, 1) : '.';
 	$conf['lowercase'] = isset($conf['lowercase']) ? $conf['lowercase'] : true;
 	$conf['slashes'] = isset($conf['slashes']) ? $conf['slashes'] : false;
+	$conf['replace'] = isset($conf['replace']) ? $conf['replace'] : array();
 	$conf['hash_md5'] = isset($conf['hash_md5']) ? $conf['hash_md5'] : false;
 	$conf['ignore'] = isset($conf['ignore']) ? (is_array($conf['ignore']) ? $conf['ignore'] : array($conf['ignore'])) : array();
 	$conf['max_length'] = isset($conf['max_length']) ? $conf['max_length'] : 36;
@@ -2752,12 +2754,12 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 			$dir_vars = explode('/', $var);
 			foreach ($dir_vars as $d_var) {
 				if (!$d_var) continue;
-				$my_var = forceFilename($d_var, $conf['forceFilename']);
+				$my_var = forceFilename($d_var, $conf['forceFilename'], $conf['replace']);
 				if ($conf['lowercase']) $my_var = strtolower($my_var);
 				$idf_arr[] = $my_var;
 			}
 		} else {
-			$my_var = forceFilename($var, $conf['forceFilename']);
+			$my_var = forceFilename($var, $conf['forceFilename'], $conf['replace']);
 			if ($conf['lowercase']) $my_var = strtolower($my_var);
 			$idf_arr[] = $my_var;
 		}

@@ -8,7 +8,7 @@
 // for e.g. "This[1].is.a.filename.ext" in the save as dialog.
 // ---------------------------------------------------------
 
-function forceFilename($str, $spaceChar = '-') {
+function forceFilename($str, $spaceChar = '-', $replacements = array()) {
 	mb_internal_encoding("UTF-8");
 
 	// get rid of html entities
@@ -21,6 +21,10 @@ function forceFilename($str, $spaceChar = '-') {
 	$i_max = mb_strlen($str);
 	for ($i = 0; $i < mb_strlen($str); $i++) {
 		$ch = mb_substr($str, $i, 1);
+		if (in_array($ch, array_keys($replacements))) {
+			$_str .= $replacements[$ch];
+			continue;
+		}
 		switch ($ch) {
 		case 'À': case 'Á': case 'Â': case 'Ã': case 'Å':
 		case 'Ā': case 'Â': case 'Ą': case 'Ă':

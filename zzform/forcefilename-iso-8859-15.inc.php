@@ -8,18 +8,22 @@
 // for e.g. "This[1].is.a.filename.ext" in the save as dialog.
 // ---------------------------------------------------------
 
-function forceFilename($str, $spaceChar = '-') {
+function forceFilename($str, $spaceChar = '-', $replacements = array()) {
 
 	// get rid of html entities
 	$str = html_entity_decode($str);
 	$str = preg_replace('~&#x([0-9a-f]+);~ei', '', $str);
 	$str = preg_replace('~&#([0-9]+);~e', '', $str);
 	$str = trim($str);
- 
+
 	$_str = '';
 	$i_max = strlen($str);
 	for ($i = 0; $i < strlen($str); $i++) {
 		$ch = $str[$i];
+		if (in_array($ch, array_keys($replacements))) {
+			$_str .= $replacements[$ch];
+			continue;
+		}
 		switch ($ch) {
 		case '¤':
 			$_str .= 'EUR'; break;
