@@ -401,6 +401,15 @@ function zz_apply_filter() {
 	foreach ($zz_conf['filter'] AS $index => $filter) {
 		// get 'selection' if sql query is given
 		if (!empty($filter['sql'])) {
+			if (!empty($filter['depends_on'])) {
+				$depends_on = $zz_conf['filter'][$filter['depends_on']];
+				if (!empty($_GET['filter'][$depends_on['identifier']])) {
+					$where = $depends_on['where'].' = '
+						.zz_db_escape($_GET['filter'][$depends_on['identifier']]);
+					$filter['sql'] = zz_edit_sql($filter['sql'], 'WHERE', $where);
+					$zz_conf['filter'][$filter['depends_on']]['subfilter'][] = $index;
+				}
+			}
 			$elements = zz_db_fetch($filter['sql'], '_dummy_id_', 'key/value');
 			if ($zz_error['error']) continue;
 			// don't show filter if we have only one element

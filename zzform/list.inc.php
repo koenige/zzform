@@ -492,6 +492,14 @@ function zz_filter_selection($filter) {
 		// remove this filter from query string
 		$other_filters['filter'] = !empty($_GET['filter']) ? $_GET['filter'] : array();
 		unset($other_filters['filter'][$f['identifier']]);
+		if (!empty($f['subfilter'])) {
+			// this filter has a subfilter
+			// exclude subfilter from links as it will produce 404 errors
+			// since the combinations are not possible
+			foreach ($f['subfilter'] AS $subfilter) {
+				unset($other_filters['filter'][$filter[$subfilter]['identifier']]);
+			}
+		}
 		$qs = zz_edit_query_string($qs, array(), $other_filters);
 		
 		if (!empty($f['selection'])) {
