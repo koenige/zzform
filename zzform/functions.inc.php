@@ -407,8 +407,8 @@ function zz_apply_filter() {
 					$where = $depends_on['where'].' = '
 						.zz_db_escape($_GET['filter'][$depends_on['identifier']]);
 					$filter['sql'] = zz_edit_sql($filter['sql'], 'WHERE', $where);
-					$zz_conf['filter'][$filter['depends_on']]['subfilter'][] = $index;
 				}
+				$zz_conf['filter'][$filter['depends_on']]['subfilter'][] = $index;
 			}
 			$elements = zz_db_fetch($filter['sql'], '_dummy_id_', 'key/value');
 			if ($zz_error['error']) continue;

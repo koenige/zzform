@@ -497,6 +497,8 @@ function zz_filter_selection($filter) {
 			// exclude subfilter from links as it will produce 404 errors
 			// since the combinations are not possible
 			foreach ($f['subfilter'] AS $subfilter) {
+				// filter does exist?
+				if (!isset($filter[$subfilter])) continue;
 				unset($other_filters['filter'][$filter[$subfilter]['identifier']]);
 			}
 		}
