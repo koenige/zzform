@@ -557,7 +557,15 @@ function zz_valid_request($action = false) {
 	if (empty($_GET['zzhash'])) return false;
 	
 	global $zz_conf;
-	if ($_GET['zzhash'] !== $zz_conf['int']['secret_key']) return false;
+	if ($_GET['zzhash'] !== $zz_conf['int']['secret_key']) {
+		global $zz_error;
+		$zz_error[] = array(
+			'msg_dev' => sprintf('Hash of script and ID differs from secret key (hash %s, secret %s).'
+				, $_GET['zzhash'], $zz_conf['int']['secret_key']),
+			'level' => E_USER_NOTICE
+		);
+		return false;
+	}
 	return true;
 }
 
