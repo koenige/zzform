@@ -401,7 +401,8 @@ function zz_apply_filter() {
 	foreach ($zz_conf['filter'] AS $index => $filter) {
 		// get 'selection' if sql query is given
 		if (!empty($filter['sql'])) {
-			if (!empty($filter['depends_on'])) {
+			if (!empty($filter['depends_on']) 
+			AND isset($zz_conf['filter'][$filter['depends_on']])) {
 				$depends_on = $zz_conf['filter'][$filter['depends_on']];
 				if (!empty($_GET['filter'][$depends_on['identifier']])) {
 					$where = $depends_on['where'].' = '
