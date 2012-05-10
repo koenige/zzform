@@ -1274,7 +1274,8 @@ function zz_get_subrecords_mode($my_tab, $rec_tpl, $zz_var, $existing_ids) {
 			}
 		}
 	}
-	$my_tab['subtable_deleted'] = array_unique($my_tab['subtable_deleted']); // remove double entries
+	// array_keys(array_flip()) is reported to be faster than array_unique()
+	$my_tab['subtable_deleted'] = array_keys(array_flip($my_tab['subtable_deleted'])); // remove double entries
 	if (!empty($my_tab['values'])) unset($my_tab['values']);
 	// we need these two arrays in correct order (0, 1, 2, ...) to display the
 	// subtables correctly when requeried

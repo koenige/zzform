@@ -2279,7 +2279,8 @@ function zz_field_class($field, $values, $html = false) {
 		else
 			$class[] = $field['class'];
 	}
-	$class = array_unique($class);
+	// array_keys(array_flip()) is reported to be faster than array_unique()
+	$class = array_keys(array_flip($class));
 
 	if (!$html) return $class;
 	if (!$class) return false;

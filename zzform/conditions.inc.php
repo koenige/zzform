@@ -86,7 +86,8 @@ function zz_conditions_record_values($field, $values) {
 		if ($all_values) foreach ($field['conditions'][$condition] as $key => $definition) {
 			foreach ($all_values as $field_name => $field_values) {
 				if (!preg_match('~%'.$field_name.'%~', $definition)) continue;
-				$field_values = array_unique($field_values);
+				// array_keys(array_flip()) is reported to be faster than array_unique()
+				$field_values = array_keys(array_flip($field_values));
 				$field_values = implode(',', $field_values);
 				$definition = preg_replace('~%'.$field_name.'%~', $field_values, $definition);
 			}
