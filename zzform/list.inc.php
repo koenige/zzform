@@ -924,7 +924,9 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 				$link = false;
 			} elseif (isset($field['path_json_request'])) {
 				$img = zz_makelink($field['path_json_request'], $line);
-				if ($img = brick_request_getjson($img)) {
+				global $zz_setting;
+				require_once ($zz_setting['lib'].'/zzwrap/syndication.inc.php';
+				if ($img = wrap_syndication_get($img)) {
 					$text = '<img src="'
 						.(!empty($field['path_json_base']) ? $field['path_json_base'] : '')
 						.$img.'"  alt="" class="thumb">';
