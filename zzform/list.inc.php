@@ -783,7 +783,7 @@ function zz_list_query_hierarchy($sql, $id_field, $table) {
 		if (empty($line['zz_hidden_line'])) continue;
 		// get record which is normally beyond our scope via ID
 		$sql = zz_edit_sql($sql, 'WHERE', 'nothing', 'delete');
-		$sql = zz_edit_sql($sql, 'WHERE', '`'.$table.'`.'.$id_field.' = '.$line[$id_field]);
+		$sql = zz_edit_sql($sql, 'WHERE', '`'.$table.'`.'.$id_field.' = "'.$line[$id_field].'"');
 		$line = zz_db_fetch($sql);
 		if ($line) {
 			$lines[$line[$id_field]] = array_merge($lines[$line[$id_field]], $line);
