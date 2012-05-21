@@ -2232,8 +2232,8 @@ function zz_error() {
 	if (in_array($log_encoding, array_keys($zz_conf['translate_log_encodings'])))
 		$log_encoding = $zz_conf['translate_log_encodings'][$log_encoding];
 	
-	if (empty($zz_conf['user'])) $zz_conf['user'] = zz_text('No user');
-	$user = ' ['.zz_text('User').': '.$zz_conf['user'].']';
+	$user = ' ['.zz_text('User').': '
+		.($zz_conf['user'] ? $zz_conf['user'] : zz_text('No user')).']';
 
 	// browse through all errors
 	foreach ($zz_error as $key => $error) {
