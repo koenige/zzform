@@ -3196,6 +3196,9 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
 
 	$wheresql = '';
 	$sql_fieldnames = $my_rec['fields'][$f]['sql_fieldnames'];
+	if (!empty($my_rec['fields'][$f]['sql_fieldnames_ignore'])) {
+		$sql_fieldnames = array_diff($sql_fieldnames, $my_rec['fields'][$f]['sql_fieldnames_ignore']);
+	}
 	foreach ($postvalues as $value) {
 		// preg_match: "... ", extra space will be added in zz_draw_select!
 		$my_likestring = $likestring;
