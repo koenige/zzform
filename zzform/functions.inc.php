@@ -969,6 +969,12 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 		}
 	}
 
+	// check if we have a sync or so and there's a detail record with
+	// a unique field: get the existing detail record id if there's one
+	if (!empty($zz_conf['multi'])) {
+		$my_tab['POST'] = zz_subrecord_unique($my_tab, $field['fields']);
+	}
+
 	if ($my_tab['values']) {
 		// get field names for values
 		$values = zz_values_get_fields($my_tab['values'], $rec_tpl['fields']);
@@ -1089,6 +1095,72 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 	}
 
 	return $my_tab;
+}
+
+/**
+ * gets ID of subrecord if one of the fields in the subrecord definition
+ * is defined as unique
+ * 
+ * @param array $my_tab = $zz_tab[$tab]
+ * @param array $fields = $zz_tab[$tab]['fields'] for a subtable
+ * @global array $zz_error
+ * @return array $my_tab['POST']
+ */
+function zz_subrecord_unique($my_tab, $fields) {
+	global $zz_error;
+	// check if a GET is set on the foreign key
+	$foreign_key = $my_tab['foreign_key_field_name'];
+	if ($pos = strrpos($foreign_key, '.')) {
+		$foreign_key = substr($foreign_key, $pos + 1);
+	}
+	if (!empty($_GET['where'][$foreign_key])) {
+		$my_tab['sql'] = zz_edit_sql($my_tab['sql'], 
+			'WHERE', $foreign_key.' = '.intval($_GET['where'][$foreign_key]));
+	}
+	foreach ($fields as $f => $field) {
+		if (empty($field['unique'])) continue;
+		// look at fields that have to be unique, get id_field_value if
+		// record with a value like this exists
+		foreach ($my_tab['POST'] as $no => $record) {
+			if (empty($record[$field['field_name']])) continue;
+			if (!empty($record[$my_tab['id_field_name']])) continue;
+			if ($field['type'] === 'select') {
+				$db_table = $my_tab['db_name'].'.'.$my_tab['table'];
+				$field = zz_check_select_id($field, $record[$field['field_name']], $db_table);
+				if (count($field['possible_values']) === 1) {
+					$value = reset($field['possible_values']);
+				} elseif (count($field['possible_values']) === 0) {
+					$value = '';
+				} else {
+					$value = '';
+					$zz_error[] = array(
+						'msg_dev' => sprintf('Field marked as unique, but '
+							.'could not find corresponding value: %s', $field['field_name']),
+						'level' => E_USER_NOTICE
+					);
+				}
+				// we are not writing this value back to POST here
+				// because there's no way telling the script that this
+				// value was already replaced
+				// AND: we do not generate error messages here.
+				// $my_tab['POST'][$no][$field['field_name']] = $value;
+			} else {
+				$value = $record[$field['field_name']];
+			}
+			$sql = zz_edit_sql($my_tab['sql'], 'WHERE', $field['field_name'].' = '.$value);
+			$existing = zz_db_fetch($sql, $my_tab['id_field_name']);
+			if (count($existing) === 1) {
+				$my_tab['POST'][$no][$my_tab['id_field_name']] = key($existing); 
+			} elseif (count($existing)) {
+				$zz_error[] = array(
+					'msg_dev' => sprintf('Field marked as unique, but '
+						.'value appears more than once in record: %s (SQL %s)', $value, $sql),
+					'level' => E_USER_NOTICE
+				);
+			}
+		}
+	}
+	return $my_tab['POST'];
 }
 
 /**
@@ -1293,12 +1365,10 @@ function zz_get_subrecords_mode($my_tab, $rec_tpl, $zz_var, $existing_ids) {
  * @param string $id_field_name = ID field name of detail record
  * @param array $deleted_ids = IDs that were deleted by user
  * @global array $zz_conf
- * @global array $zz_error
  * @return array $records, indexed by ID
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_query_subrecord($my_tab, $main_table, $main_id_value, $id_field_name, $deleted_ids = array()) {
-	global $zz_error;
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	
@@ -1628,14 +1698,16 @@ function zz_record_access($zz, $ops, $zz_var) {
 			$zz_error[] = array(
 				'msg_dev' => sprintf(zz_text('Configuration does not allow this mode: %s'), zz_text($mode)),
 				'status' => 403,
-				'level' => E_USER_NOTICE);
+				'level' => E_USER_NOTICE
+			);
 		}
 		if (!$zz_conf[$mode] AND $zz_var['action'] == $action) {
 			$zz_var['action'] = false;
 			$zz_error[] = array(
 				'msg_dev' => sprintf(zz_text('Configuration does not allow this action: %s'), zz_text($action)),
 				'status' => 403,
-				'level' => E_USER_NOTICE);
+				'level' => E_USER_NOTICE
+			);
 		}
 	}
 
@@ -3157,84 +3229,10 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
 	}
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	
-	$sql = $my_rec['fields'][$f]['sql'];
-	$my_rec['fields'][$f]['sql_fieldnames'] = zz_sql_fieldnames($sql);
-	foreach ($my_rec['fields'][$f]['sql_fieldnames'] as $index => $field) {
-		$field = trim($field);
-		if (!empty($my_rec['fields'][$f]['show_hierarchy'])
-			AND $field == $my_rec['fields'][$f]['show_hierarchy']) {
-			// do not search in show_hierarchy as this field is there for 
-			// presentation only and might be removed below!
-			unset($my_rec['fields'][$f]['sql_fieldnames'][$index]);	
-		} else {
-			// write trimmed value back to sql_fieldnames
-			$my_rec['fields'][$f]['sql_fieldnames'][$index] = $field;
-		}
-	}
+	$my_rec['fields'][$f] = zz_check_select_id($my_rec['fields'][$f],
+		$my_rec['POST'][$field_name], $db_table);
+	$possible_values = $my_rec['fields'][$f]['possible_values'];
 
-	if (!isset($my_rec['fields'][$f]['concat_fields'])) $concat = ' | ';
-	else $concat = $my_rec['fields'][$f]['concat_fields'];
-
-	$postvalues = explode($concat, $my_rec['POST'][$field_name]);
-	$use_single_comparison = false;
-
-	if (substr($my_rec['POST'][$field_name], -1) !== ' ' AND !$zz_conf['multi']) {
-		// if there is a space at the end of the string, don't do LIKE 
-		// with %!
-		$likestring = '%s LIKE %s"%%%s%%"';
-	} else {
-		$likestring = '%s = %s"%s"';
-		if (count($my_rec['fields'][$f]['sql_fieldnames']) -1 === count($postvalues)
-			AND !$zz_conf['multi']) {
-			// multi normally sends ID
-			// get rid of ID field name, it's first in list
-			// do not use array_shift here because index is needed below
-			unset($my_rec['fields'][$f]['sql_fieldnames'][0]);
-			$use_single_comparison = true;
-		}
-	}
-
-	$wheresql = '';
-	$sql_fieldnames = $my_rec['fields'][$f]['sql_fieldnames'];
-	if (!empty($my_rec['fields'][$f]['sql_fieldnames_ignore'])) {
-		$sql_fieldnames = array_diff($sql_fieldnames, $my_rec['fields'][$f]['sql_fieldnames_ignore']);
-	}
-	foreach ($postvalues as $value) {
-		// preg_match: "... ", extra space will be added in zz_draw_select!
-		$my_likestring = $likestring;
-		if (preg_match('/^(.+?) *\.\.\. *$/', $value, $short_value)) {
-			// reduces string with dots which come from values which have 
-			// been cut beforehands, use LIKE!
-			$value = $short_value[1];
-			$my_likestring = '%s LIKE %s"%s%%"';
-		}
-		// maybe there is no index 0, therefore we need a new variable $i
-		$i = 0;
-		foreach ($sql_fieldnames as $index => $field) {
-			// don't trim value here permanently (or you'll have a problem with
-			// reselect)
-			if (is_numeric(trim($value))) {
-				// no character set needed for numeric values
-				$collation = '';
-			} else {
-				$collation = zz_db_field_collation('reselect', $db_table, $my_rec['fields'][$f], $index);
-			}
-			if (!$wheresql) $wheresql .= '(';
-			elseif (!$i) $wheresql .= ' ) AND (';
-			elseif ($use_single_comparison) $wheresql .= ' AND ';
-			else $wheresql .= ' OR ';
-
-			$wheresql .= sprintf($my_likestring, $field, $collation, zz_db_escape(trim($value)));
-			if ($use_single_comparison) {
-				unset ($sql_fieldnames[$index]);
-				continue 2;
-			}
-			$i++;
-		}
-	}
-	$wheresql .= ')';
-	$sql = zz_edit_sql($sql, 'WHERE', $wheresql);
-	$possible_values = zz_db_fetch($sql, 'dummy_id', 'single value');
 	$error = false;
 	if (!count($possible_values)) {
 		// no records, user must re-enter values
@@ -3248,11 +3246,12 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
 		// exactly one record found, so this is the value we want
 		$my_rec['POST'][$field_name] = current($possible_values);
 		$my_rec['POST-notvalid'][$field_name] = current($possible_values);
-		$my_rec['fields'][$f]['sql'] = $sql; // if other fields contain errors
+		// if other fields contain errors:
+		$my_rec['fields'][$f]['sql'] = $my_rec['fields'][$f]['sql_new'];
 	} elseif (count($possible_values) <= $max_select) {
 		// let user reselect value from dropdown select
 		$my_rec['fields'][$f]['type'] = 'select';
-		$my_rec['fields'][$f]['sql'] = $sql;
+		$my_rec['fields'][$f]['sql'] = $my_rec['fields'][$f]['sql_new'];
 		$my_rec['fields'][$f]['class'] = 'reselect';
 		if (!empty($my_rec['fields'][$f]['show_hierarchy'])) {
 			// since this is only a part of the list, hierarchy does not make sense
@@ -3284,9 +3283,102 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
 	if ($error AND $zz_conf['multi']) {
 		$zz_error[] = array('msg_dev' 
 			=> sprintf('No entry found: value %s in field %s.', $my_rec['POST'][$field_name], $field_name)
-				.' <br>SQL: '.$sql);
+				.' <br>SQL: '.$my_rec['fields'][$f]['sql_new']);
 	}
 	return zz_return($my_rec);
+}
+
+/**
+ * Query possible values from database for a given SQL query and a given value
+ *
+ * @param array $field
+ * @param string $postvalue
+ * @param string $db_table
+ * @global array $zz_conf bool 'multi'
+ * @return array $field
+ */
+function zz_check_select_id($field, $postvalue, $db_table) {
+	global $zz_conf;
+	
+	// 1. get field names from SQL query
+	$field['sql_fieldnames'] = zz_sql_fieldnames($field['sql']);
+	foreach ($field['sql_fieldnames'] as $index => $sql_fieldname) {
+		$sql_fieldname = trim($sql_fieldname);
+		if (!empty($field['show_hierarchy'])
+			AND $sql_fieldname == $field['show_hierarchy']) {
+			// do not search in show_hierarchy as this field is there for 
+			// presentation only and might be removed below!
+			unset($field['sql_fieldnames'][$index]);	
+		} else {
+			// write trimmed value back to sql_fieldnames
+			$field['sql_fieldnames'][$index] = $sql_fieldname;
+		}
+	}
+
+	// 2. get posted values, field by field
+	if (!isset($field['concat_fields'])) $concat = ' | ';
+	else $concat = $field['concat_fields'];
+	$postvalues = explode($concat, $postvalue);
+
+	$use_single_comparison = false;
+	if (substr($postvalue, -1) !== ' ' AND !$zz_conf['multi']) {
+		// if there is a space at the end of the string, don't do LIKE 
+		// with %!
+		$likestring = '%s LIKE %s"%%%s%%"';
+	} else {
+		$likestring = '%s = %s"%s"';
+		if (count($field['sql_fieldnames']) -1 === count($postvalues)
+			AND !$zz_conf['multi']) {
+			// multi normally sends ID
+			// get rid of ID field name, it's first in list
+			// do not use array_shift here because index is needed below
+			unset($field['sql_fieldnames'][0]);
+			$use_single_comparison = true;
+		}
+	}
+
+	$wheresql = '';
+	$sql_fieldnames = $field['sql_fieldnames'];
+	if (!empty($field['sql_fieldnames_ignore'])) {
+		$sql_fieldnames = array_diff($sql_fieldnames, $field['sql_fieldnames_ignore']);
+	}
+	foreach ($postvalues as $value) {
+		// preg_match: "... ", extra space will be added in zz_draw_select!
+		$my_likestring = $likestring;
+		if (preg_match('/^(.+?) *\.\.\. *$/', $value, $short_value)) {
+			// reduces string with dots which come from values which have 
+			// been cut beforehands, use LIKE!
+			$value = $short_value[1];
+			$my_likestring = '%s LIKE %s"%s%%"';
+		}
+		// maybe there is no index 0, therefore we need a new variable $i
+		$i = 0;
+		foreach ($sql_fieldnames as $index => $sql_fieldname) {
+			// don't trim value here permanently (or you'll have a problem with
+			// reselect)
+			if (is_numeric(trim($value))) {
+				// no character set needed for numeric values
+				$collation = '';
+			} else {
+				$collation = zz_db_field_collation('reselect', $db_table, $field, $index);
+			}
+			if (!$wheresql) $wheresql .= '(';
+			elseif (!$i) $wheresql .= ' ) AND (';
+			elseif ($use_single_comparison) $wheresql .= ' AND ';
+			else $wheresql .= ' OR ';
+
+			$wheresql .= sprintf($my_likestring, $sql_fieldname, $collation, zz_db_escape(trim($value)));
+			if ($use_single_comparison) {
+				unset ($sql_fieldnames[$index]);
+				continue 2;
+			}
+			$i++;
+		}
+	}
+	$wheresql .= ')';
+	$field['sql_new'] = zz_edit_sql($field['sql'], 'WHERE', $wheresql);
+	$field['possible_values'] = zz_db_fetch($field['sql_new'], 'dummy_id', 'single value');
+	return $field;
 }
 
 ?>
