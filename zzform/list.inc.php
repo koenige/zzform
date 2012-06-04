@@ -26,6 +26,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	global $zz_error;
+	$zz_conf['int']['no_add_button_so_far'] = true;
 
 	// check 'group'
 	if (!empty($_GET['group'])) {
@@ -419,6 +420,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 
 		// normal add button, only if list was shown beforehands
 		if ($ops['mode'] != 'add' && $zz_conf['add_link'] AND !is_array($zz_conf['add']) && $zz_conf['show_list']) {
+			$zz_conf['int']['no_add_button_so_far'] = false;
 			$toolsline[] = '<a accesskey="n" href="'.$base_url.'mode=add'
 				.$zz_var['extraGET'].'">'.zz_text('Add new record').'</a>';
 			if ($zz_conf['import']) {
@@ -431,6 +433,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		if ($ops['mode'] != 'add' && $zz_conf['add_link'] AND is_array($zz_conf['add'])) {
 			ksort($zz_conf['add']); // if some 'add' was unset before, here we get new numerical keys
 			$ops['output'] .= '<p class="add-new">'.zz_text('Add new record').': ';
+			$zz_conf['int']['no_add_button_so_far'] = false;
 			foreach ($zz_conf['add'] as $i => $add) {
 				if ($add['value']) {
 					$value = '&amp;add['.$add['field_name'].']='.$add['value'];
@@ -643,12 +646,14 @@ function zz_list_filter_sql($sql) {
 			$sql = zz_edit_sql($sql, 'WHERE', $filter['where'].' LIKE "%'.$_GET['filter'][$filter['identifier']].'%"');
 		} else {
 			// invalid filter value
-			$zz_conf['int']['http_status'] = 404;
-			$zz_error[] = array(
-				'msg' => sprintf(zz_text('"%s" is not a valid value for the selection "%s". Please select a different filter.'), 
-					htmlspecialchars($_GET['filter'][$filter['identifier']]), $filter['title']),
-				'level' => E_USER_NOTICE
-			);
+			if (empty($filter['ignore_invalid_filters'])) {
+				$zz_conf['int']['http_status'] = 404;
+				$zz_error[] = array(
+					'msg' => sprintf(zz_text('"%s" is not a valid value for the selection "%s". Please select a different filter.'), 
+						htmlspecialchars($_GET['filter'][$filter['identifier']]), $filter['title']),
+					'level' => E_USER_NOTICE
+				);
+			} 
 			$sql = false;
 		}
 	}
@@ -843,6 +848,9 @@ function zz_list_modes($id, $zz_var, $zz_conf_record) {
  */
 function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $zz_conf_record) {
 	global $zz_conf;
+	static $append_field;
+	static $append_string_first;
+	
 	// shortcuts, isset: value might be 0
 	if (!empty($field['field_name']) AND isset($line[$field['field_name']]))
 		$row['value'] = $line[$field['field_name']];
@@ -1044,7 +1052,19 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 		$text = zz_mark_search_string($text, $field[$mark_search_string], $field);
 	}
 
-	// add prefixes etc. to 'text'		
+	// add prefixes etc. to 'text'
+	if (!empty($field['list_append_if_first']) AND !$append_string_first) {
+		$row['text'] .= zz_text($field['list_append_if_first']);
+		$append_string_first = true;
+	} elseif (!empty($field['list_append_if_middle']) AND $append_string_first) {
+		$row['text'] .= zz_text($field['list_append_if_middle']);
+	}
+	if (!empty($field['list_append_next'])) {
+		$append_field = true;
+	} else {
+		$append_field = false;
+		$append_string_first = false;
+	}
 	if (!empty($field['list_prefix'])) {
 		$row['text'] .= zz_text($field['list_prefix']);
 	}
