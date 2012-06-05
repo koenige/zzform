@@ -2369,8 +2369,12 @@ function zz_error() {
 			$admin_output[$key] .= $error['msg_dev'].'<br>';
 		if (!empty($error['db_msg'])) 
 			$admin_output[$key] .= $error['db_msg'].':<br>';
-		if (!empty($error['query'])) 
+		if (!empty($error['query'])) {
+			// since we have an SQL query, we do not need roughly the same
+			// information from the POST data
+			$error['log_post_data'] = false;
 			$admin_output[$key] .= preg_replace("/\s+/", " ", $error['query']).'<br>';
+		}
 		if ($admin_output[$key] AND $error['msg'])
 			$admin_output[$key] = $error['msg'].'<br>'.$admin_output[$key];
 		elseif (!$admin_output[$key])
