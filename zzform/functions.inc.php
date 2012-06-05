@@ -2255,18 +2255,20 @@ function zz_check_def_vals($post, $fields, $existing_record = array(), $where = 
  * depending on settings, will log errors in logfile and/or send errors by mail
  *
  * @global array $zz_error
- * 		$zz_error[]['msg'] message that always will be sent back to browser
- * 		$zz_error[]['msg_dev'] message that will be sent to browser, log and mail, 
+ *		array for each error:
+ * 		string 'msg' message that always will be sent back to browser
+ * 		string 'msg_dev' message that will be sent to browser, log and mail, 
  * 			depending on settings
- * 		$zz_error[]['level'] for error level: currently implemented:
+ * 		int 'level' for error level: currently implemented:
  * 			- E_USER_ERROR: critical error, action could not be finished,
  *				unrecoverable error
  * 			- E_USER_WARNING: error, we need some extra user input
  * 			- E_USER_NOTICE: some default settings will be used because user 
  * 				input was not enough; e. g. date formats etc.
- * 		$zz_error[]['db_errno'] database: error number
- * 		$zz_error[]['db_msg'] database: error message
- * 		$zz_error[]['query'] SQL-Query
+ * 		int 'db_errno' database: error number
+ * 		string 'db_msg' database: error message
+ * 		string 'query' SQL-Query
+ * 		bool 'log_post_data': true (default); false: do not log POST
  * @global array $zz_conf
  *		$zz_conf['error_log']['notice'], $zz_conf['error_log']['warning'], 
  * 		$zz_conf['error_log']['error'] = path to error_log, default from php.ini
@@ -2315,6 +2317,14 @@ function zz_error() {
 		if (empty($error['level'])) $error['level'] = '';
 		if (empty($error['status'])) $error['status'] = 200;
 		
+		// log POST data?
+		if (!isset($error['log_post_data'])) {
+			$error['log_post_data'] = true;
+		}
+		if (!$zz_conf['error_log_post']) $error['log_post_data'] = false;
+		elseif (empty($_POST)) $error['log_post_data'] = false;
+		elseif ($post_errors_logged) $error['log_post_data'] = false;
+
 		// page http status
 		if ($error['status'] != 200) {
 			$zz_conf['int']['http_status'] = $error['status'];
@@ -2373,6 +2383,7 @@ function zz_error() {
 		$log_output[$key] = trim(html_entity_decode($log_output[$key], ENT_QUOTES, $log_encoding));
 		$log_output[$key] = str_replace('<br>', "\n\n", $log_output[$key]);
 		$log_output[$key] = str_replace('<br class="nonewline_in_mail">', "; ", $log_output[$key]);
+		$log_output[$key] = str_replace('&lt;br class="nonewline_in_mail"&gt;', "; ", $log_output[$key]);
 		$log_output[$key] = strip_tags($log_output[$key]);
 		$log_output[$key] = str_replace('&lt;', '<', $log_output[$key]);
 		// reformat log output
@@ -2381,7 +2392,7 @@ function zz_error() {
 				.': ['.$_SERVER['REQUEST_URI'].'] '.preg_replace("/\s+/", " ", $log_output[$key]);
 			$error_line = substr($error_line, 0, $zz_conf['log_errors_max_len'] -(strlen($user)+1)).$user."\n";
 			error_log($error_line, 3, $zz_conf['error_log'][$level]);
-			if (!empty($_POST) AND $zz_conf['error_log_post'] AND !$post_errors_logged) {
+			if ($error['log_post_data']) {
 				$error_line = '['.date('d-M-Y H:i:s').'] zzform Notice: POST';
 				if (function_exists('json_encode')) {
 					$error_line .= '[json] '.json_encode($_POST);

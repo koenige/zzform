@@ -841,6 +841,7 @@ function zz_upload_save_unknown_file($filename, $file) {
 		$msg_dev .= "\r\n".zz_text('The file was temporarily saved under: ').$error_filename;
 	$zz_error[] = array(
 		'msg_dev' => $msg_dev,
+		'log_post_data' => false,
 		'level' => E_USER_NOTICE
 	);
 	zz_error();
@@ -1038,7 +1039,8 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec) {
 
 	if (!$filename) {
 		$zz_error[] = array(
-			'msg_dev' => sprintf(zz_text('Error: Source file %s does not exist. '), $filename)
+			'msg_dev' => sprintf(zz_text('Error: Source file %s does not exist. '), $filename),
+			'log_post_data' => false
 		);
 		return false;
 	}
@@ -1061,7 +1063,8 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec) {
 	if (!file_exists($tmp_filename)) {
 		$zz_error[] = array(
 			'msg_dev' => sprintf(zz_text('Error: File %s does not exist. Temporary Directory: %s'), 
-				$tmp_filename, realpath($zz_conf['tmp_dir']))
+				$tmp_filename, realpath($zz_conf['tmp_dir'])),
+			'log_post_data' => false
 		);
 		return false;
 	}
@@ -1077,16 +1080,13 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec) {
 		if (!$zz_conf['int']['no_image_action']) {
 			$zz_error[] = array(
 				'msg_dev' => sprintf(zz_text('No real file was returned from function %s'), '<code>'.$action.'()</code>'),
+				'log_post_data' => false,
 				'level' => E_USER_NOTICE
 			);
 		}
 	}
 	$zz_conf['int']['no_image_action'] = false;
-	// set error_log_post to false because errors in file creation have nothing to do with POST
-	$error_log_post = $zz_conf['error_log_post'];
-	$zz_conf['error_log_post'] = false;
 	zz_error();
-	$zz_conf['error_log_post'] = $error_log_post;
 	return $modified;
 }
 
