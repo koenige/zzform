@@ -931,14 +931,7 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 				}
 				$link = false;
 			} elseif (isset($field['path_json_request'])) {
-				$img = zz_makelink($field['path_json_request'], $line);
-				global $zz_setting;
-				require_once $zz_setting['lib'].'/zzwrap/syndication.inc.php';
-				if ($img = wrap_syndication_get($img)) {
-					$text = '<img src="'
-						.(!empty($field['path_json_base']) ? $field['path_json_base'] : '')
-						.$img.'"  alt="" class="thumb">';
-				}
+				$text = zz_list_syndication_get($field, $line);
 			}
 			break;
 		case 'subtable':
@@ -2464,6 +2457,27 @@ function zz_list_ul($list, $rows) {
 	}
 	$output .= "</ul>\n<br clear='all'>";
 	return $output;
+}
+
+/**
+ * get image path via syndication 
+ * (from zzwrap module)
+ *
+ * @param array $field
+ * @param array $line
+ * @return string
+ */
+function zz_list_syndication_get($field, $line) {
+	global $zz_setting;
+	require_once $zz_setting['lib'].'/zzwrap/syndication.inc.php';
+
+	$img = zz_makelink($field['path_json_request'], $line);
+	$img = wrap_syndication_get($img);
+	if (!$img) return false;
+	$text = '<img src="'
+		.(!empty($field['path_json_base']) ? $field['path_json_base'] : '')
+		.$img.'"  alt="" class="thumb">';
+	return $text;
 }
 
 ?>
