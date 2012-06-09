@@ -41,6 +41,7 @@ function zz_log_sql($sql, $user, $record_id = false) {
 	if (!strstr($zz_conf['logging_table'], '.') AND !empty($zz_conf['int']['db_main'])) {
 		$zz_conf['logging_table'] = $zz_conf['int']['db_main'].'.'.$zz_conf['logging_table'];
 	}
+	if (is_array($record_id)) $record_id = NULL;
 	if (!empty($zz_conf['logging_id']) AND $record_id)
 		$sql = 'INSERT INTO '.$zz_conf['logging_table'].' 
 			(query, user, record_id) VALUES ("'.zz_db_escape($sql).'", "'.$user.'", '.$record_id.')';
