@@ -160,8 +160,13 @@ body #zzform .separator hr
 					{ margin-top: 0; }
 #zzform td p:last-child
 					{ margin-bottom: 0; }
-#zzform tfoot td	{ font-weight: bold; border-top: 1px solid; 
+#zzform tfoot tr.sum td
+					{ font-weight: bold; border-top: 1px solid; 
 					border-bottom: 3px double; }
+#zzform tfoot tr.multiple td
+					{ padding-top: .75em; }
+#zzform tfoot tr.multiple input
+					{ vertical-align: top; }
 
 /* list view (table): hierarchies */
 #zzform div.level1 { padding-left: 2.5em; 
