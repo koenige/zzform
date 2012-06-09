@@ -1,7 +1,7 @@
 <?php
 
 // zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2004-2010
+// Copyright (c) 2004-2012 Gustaf Mossakowski <gustaf@koenige.org>
 // display of single record as a html form+table or for review as a table
 
 
@@ -91,7 +91,11 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 	} elseif (in_array($ops['mode'], $record_form) OR 
 		($ops['mode'] == 'show' AND !$action_before_redirect)) {
 	//	mode = add | edit | delete: show form
-		$formhead = zz_text($ops['mode']).' '.zz_text('a_record');
+		if (isset($zz_var['id']['values'])) {
+			$formhead = zz_text($ops['mode'].' several records');
+		} else {
+			$formhead = zz_text($ops['mode']).' '.zz_text('a_record');
+		}
 	} elseif ($zz_var['action'] OR $action_before_redirect) {	
 	//	action = insert update review: show form with new values
 		if (!$formhead) {
@@ -204,21 +208,34 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 		$unwanted_keys = array('mode', 'id', 'add', 'zzaction', 'zzhash');
 		$cancelurl.= zz_edit_query_string($base_qs, $unwanted_keys);
 	}
+	$multiple = !empty($zz_var['id']['values']) ? true : false;
 	if ($mode && $mode != 'review' && $mode != 'show') {
 		$output .= '<tfoot>'."\n";
 		$output .= '<tr><th>&nbsp;</th> <td>'; 
 		$fieldattr = array();
 		switch ($mode) {
 		case 'edit':
-			$elementvalue = zz_text('Update record');
+			if (!$multiple) {
+				$elementvalue = zz_text('Update record');
+			} else {
+				$elementvalue = zz_text('Update records');
+			}
 			$fieldattr['accesskey'] = 's';
 			break;
 		case 'delete':
-			$elementvalue = zz_text('Delete record');
+			if (!$multiple) {
+				$elementvalue = zz_text('Delete record');
+			} else {
+				$elementvalue = zz_text('Delete records');
+			}
 			$fieldattr['accesskey'] = 'd';
 			break;
 		default:
-			$elementvalue = zz_text('Add record');
+			if (!$multiple) {
+				$elementvalue = zz_text('Add record');
+			} else {
+				$elementvalue = zz_text('Add records');
+			}
 			$fieldattr['accesskey'] = 's';
 			break;
 		}
@@ -277,8 +294,13 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 	$output .= zz_show_field_rows($zz_tab, $mode, $display, $zz_var, $zz_conf_record);
 	if ($zz_error['error']) return zz_return(false);
 	$output .= '</table>'."\n";
-	if ($mode == 'delete')
+	if ($multiple) {
+		foreach ($zz_var['id']['values'] as $id_value) {
+			$output .= zz_form_element($zz_var['id']['field_name'].'[]', $id_value, 'hidden')."\n";
+		}
+	} elseif ($mode == 'delete') {
 		$output .= zz_form_element($zz_var['id']['field_name'], $zz_var['id']['value'], 'hidden')."\n";
+	}
 	if ($mode && $mode != 'review' && $mode != 'show') {
 		switch ($mode) {
 			case 'add': $submit = 'insert'; break;

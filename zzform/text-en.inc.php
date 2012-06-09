@@ -34,6 +34,9 @@ $text['delete'] = 'Delete';
 $text['show'] = 'Show';
 $text['add'] = 'Add';
 $text['a_record'] = 'a Record';
+$text['add several records'] = 'Add several records';
+$text['delete several records'] = 'Delete several records';
+$text['update several records'] = 'Update several records';
 $text['failed'] = 'failed';
 $text['There is no record under this ID:'] = 'There is no record under this ID:';
 $text['record_was_updated'] = 'Record was updated';
@@ -43,8 +46,11 @@ $text['record_was_inserted'] = 'Record was inserted';
 // Record form: bottom
 $text['Cancel'] = 'Cancel'; // Stop editing this record
 $text['Update record'] = 'Update record';
+$text['Update records'] = 'Update records';
 $text['Delete record'] = 'Delete record';
+$text['Delete records'] = 'Delete records';
 $text['Add record'] = 'Add record';
+$text['Add records'] = 'Add records';
 
 // Record form: field output
 $text['N/A'] = '<abbr title="Not available">N/A</abbr>'; // no value available for display, should be abbreviated
