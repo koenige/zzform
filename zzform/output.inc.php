@@ -230,6 +230,12 @@ function zz_output_redirect($result, $return, $id_value, $zz_tab) {
 	} elseif (!$zz_conf['debug'] AND $zz_conf['redirect_on_change']) {
 	// redirect to same URL, as to protect against reloading the POST variables
 	// don't do so in case of debugging
+		// multiple edit?
+		$nos = '';
+		if (is_array($id_value)) {
+			$nos = '-'.count($id_value);
+			$id_value = implode(',', $id_value);
+		}
 		$self = $zz_conf['int']['url']['full']
 			.$zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']
 			.($zz_conf['int']['url']['qs_zzform'] ? '&' : $zz_conf['int']['url']['?&'])
@@ -264,7 +270,7 @@ function zz_output_redirect($result, $return, $id_value, $zz_tab) {
 				}
 			}
 			zz_http_status_header(303);
-			header('Location: '.$self.'delete');
+			header('Location: '.$self.'delete'.$nos);
 			exit;
 		case 'successful_insert':
 			zz_http_status_header(303);
