@@ -175,7 +175,8 @@ function zzform($zz = array()) {
 	if ($zz_conf['show_record'])
 		$zz_tab[0][0]['action'] = $zz_var['action'];
 	
-	if (!$zz_conf['show_record']) unset($zz_conf['upload']); // values are not needed
+	// upload values are only needed for record
+	if (!$zz_conf['show_record']) unset($zz_conf['upload']);
 
 //	Required files
 
@@ -183,7 +184,7 @@ function zzform($zz = array()) {
 		require_once $zz_conf['dir_inc'].'/record.inc.php';		// Form
 	}
 	if ($zz_conf['show_list']) {
-		require_once $zz_conf['dir_inc'].'/list.inc.php';		// Form
+		require_once $zz_conf['dir_inc'].'/list.inc.php';		// List
 	}
 	if ($zz_conf['modules']['debug']) zz_debug('files and database connection ok');
 
@@ -305,8 +306,7 @@ function zzform($zz = array()) {
 	}
 
 	if ($zz_conf['show_record']) {
-	//	Upload
-
+		//	Upload
 		if (in_array('upload', $zz_conf['modules']) && $zz_conf['modules']['upload'])
 			zz_upload_check_max_file_size();
 
@@ -349,8 +349,13 @@ function zzform($zz = array()) {
 				$sql = zz_edit_sql($zz_tab[0]['sql'], 'WHERE', $zz_tab[0]['table'].'.'
 					.$zz_var['id']['field_name']." = '".$zz_var['id']['value']."'");
 				$zz_tab[0]['existing'][0] = zz_db_fetch($sql);
-			} else
+			} elseif (!empty($zz_var['id']['values'])) {
+				$sql = zz_edit_sql($zz_tab[0]['sql'], 'WHERE', $zz_tab[0]['table'].'.'
+					.$zz_var['id']['field_name']." IN ('".implode("','", $zz_var['id']['values'])."')");
+				$zz_tab[0]['existing'] = zz_db_fetch($sql, $zz_var['id']['field_name'], 'numeric');
+			} else {
 				$zz_tab[0]['existing'][0] = array();
+			}
 
 			// Upload
 			// if there is a directory which has to be renamed, save old name in array
@@ -609,8 +614,13 @@ function zz_initialize($mode = false) {
 	// initialize internal variables
 	$zz_conf['int'] = array();
 	$zz_conf['int']['this_limit']		= false;	// current range which records are shown
-	$zz_conf['int']['allowed_params']['mode'] = array('edit', 'delete', 'show', 'add', 'review', 'list_only');
-	$zz_conf['int']['allowed_params']['action'] = array('insert', 'delete', 'update'); // review is for internal use only
+	$zz_conf['int']['allowed_params']['mode'] = array(
+		'edit', 'delete', 'show', 'add', 'review', 'list_only'
+	);
+	// action parameters, 'review' is for internal use only
+	$zz_conf['int']['allowed_params']['action'] = array(
+		'insert', 'delete', 'update', 'multiple'
+	); 
 	
 	// Configuration on project level: Core defaults and functions
 	$zz_default['character_set']	= 'utf-8';					// character set
