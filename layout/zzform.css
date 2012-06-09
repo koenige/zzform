@@ -120,6 +120,8 @@ body #zzform .separator hr
 					{ display: none; }
 #zzform #record .toggle_td table 
 					{ display: table; }
+#zzform #record tfoot td
+					{ font-weight: bold; }
 
 
 /* filter */
