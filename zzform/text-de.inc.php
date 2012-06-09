@@ -42,6 +42,7 @@ $text['There is no record under this ID:'] = 'Es existiert kein Eintrag unter di
 $text['record_was_updated'] = 'Eintrag wurde aktualisiert';
 	$text['Record was not updated (no changes were made)'] = 'Eintrag wurde nicht aktualisiert (es gab keine &Auml;nderungen)';
 $text['record_was_deleted'] = 'Eintrag wurde gel&ouml;scht';
+$text['%s records were deleted'] = '%s Eintr&auml;ge wurden gel&ouml;scht';
 $text['record_was_inserted'] = 'Eintrag wurde eingef&uuml;gt';
 	$text['Configuration does not allow this action: %s'] = 'Die Konfiguration erlaubt diese Aktion nicht: %s';
 	$text['Configuration does not allow this mode: %s'] = 'Die Konfiguration erlaubt diesen Modus nicht: %s';

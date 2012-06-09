@@ -41,6 +41,7 @@ $text['failed'] = 'failed';
 $text['There is no record under this ID:'] = 'There is no record under this ID:';
 $text['record_was_updated'] = 'Record was updated';
 $text['record_was_deleted'] = 'Record was deleted';
+$text['%s records were deleted'] = '%s records were deleted';
 $text['record_was_inserted'] = 'Record was inserted';
 
 // Record form: bottom

@@ -33,6 +33,14 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 	global $zz_error;
 
 	$formhead = false;
+	$records = false;
+	if (!empty($_GET['zzaction']) AND strstr($_GET['zzaction'], '-')) {
+		$records = explode('-', $_GET['zzaction']);
+		$_GET['zzaction'] = $records[0];
+		$records = $records[1];
+	} elseif (is_array($zz_var['id']['value'])) {
+		$records = count($zz_var['id']['value']);
+	}
 	$action_before_redirect = !empty($_GET['zzaction']) ? $_GET['zzaction'] : '';
 	if ($zz_var['record_action'] OR $action_before_redirect) {
 		if ($zz_var['action'] == 'insert' OR $action_before_redirect == 'insert') {
@@ -41,7 +49,15 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 			OR $action_before_redirect == 'update') {
 			$formhead = zz_text('record_was_updated');
 		} elseif ($zz_var['action'] == 'delete' OR $action_before_redirect == 'delete') {
-			$formhead = zz_text('record_was_deleted');
+			if ($records) {
+				if ($records === 1) {
+					$formhead = '1 '.zz_text('record_was_deleted');
+				} else {
+					$formhead = sprintf(zz_text('%s records were deleted'), $records);
+				}
+			} else {
+				$formhead = zz_text('record_was_deleted');
+			}
 		} elseif (($zz_var['action'] == 'update' AND $ops['result'] == 'no_update')
 			OR $action_before_redirect == 'noupdate') {
 			$formhead = zz_text('Record was not updated (no changes were made)');
