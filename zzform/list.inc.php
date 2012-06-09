@@ -1,7 +1,7 @@
 <?php
 
 // zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2004-2012
+// Copyright (c) 2004-2012 Gustaf Mossakowski <gustaf@koenige.org>
 // Display all or a subset of all records in a list (e. g. table, ul)
 
 
@@ -185,7 +185,13 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			
 			$tq_index = (count($table_query) > 1) ? $index : 0;
 			$id = $line[$zz_var['id']['field_name']];
-			if ($id == $zz_var['id']['value']) $list['current_record'] = $z;
+			if ($id == $zz_var['id']['value']) {
+				$list['current_record'] = $z;
+			} elseif (!empty($zz_var['id']['values'])) {
+				if (in_array($id, $zz_var['id']['values'])) {
+					$list['current_records'][] = $z; 
+				}
+			}
 			$sub_id = '';
 			if (empty($rows[$z]['group']))
 				$rows[$z]['group'] = array();
@@ -222,8 +228,14 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			$zz_conf_record = zz_record_conf($zz_conf); // configuration variables just for this line
 			if (!empty($line['zz_conf'])) // check whether there are different configuration variables e. g. for hierarchies
 				$zz_conf_record = array_merge($zz_conf_record, $line['zz_conf']);
-			if ($zz_conf['select_multiple_records']) { // checkbox for records
-				$rows[$z][-1]['text'] = '<input type="checkbox" name="zz_record_id[]" value="'.$line[$id_field].'">'; // $id
+			if ($zz_conf['select_multiple_records']) {
+				// checkbox for records
+				$checked = false;
+				if (!empty($zz_var['id']['values'])) {
+					if (in_array($id, $zz_var['id']['values'])) $checked = true;
+				}
+				$rows[$z][-1]['text'] = '<input type="checkbox" name="zz_record_id[]" value="'
+					.$line[$id_field].'"'.($checked ? ' checked="checked"' : '').'>'; // $id
 				$rows[$z][-1]['class'][] = 'select_multiple_records';
 			}
 
@@ -398,9 +410,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		}
 
 		if ($zz_conf['select_multiple_records']) {
-			$ops['output'] .= '<input type="hidden" name="zz_action" value="Multiple action"><input type="submit" value="'
-				.zz_text('Delete selected records').'" name="multiple_delete">'
-				.'</form>'."\n";
+			$ops['output'] .= '</form>'."\n";
 		}
 	}
 
@@ -2334,27 +2344,46 @@ function zz_list_table($list, $rows, $head) {
 
 	// Rest cannot be set yet because we do not now details/mode-links
 	// of individual records
+	$columns = 0;
 	foreach ($head as $col) {
 		if (!$col['show_field']) continue;
 		if ($col['class']) $col['class'] = ' class="'.implode(' ', $col['class']).'"';
 		else $col['class'] = '';
 		$output .= '<th'.$col['class'].'>'.$col['th'].'</th>';
+		$columns++;
 	}
-	if ($list['modes'])
+	if ($list['modes']) {
 		$output .= ' <th class="editbutton">'.zz_text('action').'</th>';
-	if ($list['details']) 
+		$columns++;
+	}
+	if ($list['details']) {
 		$output .= ' <th class="editbutton">'.zz_text('detail').'</th>';
+		$columns++;
+	}
 	$output .= '</tr></thead>'."\n";
 
 	//
 	// Table footer
 	//
-	if ($zz_conf['tfoot'] AND $list['sum']) {
-		$output .= '<tfoot>'."\n".'<tr>';
-		$output .= zz_field_sum($head, count($rows), $list['where_values'], $list['sum']);
-		if ($list['modes'] OR $list['details'])
-			$output .= '<td class="editbutton">&nbsp;</td>';
-		$output .= '</tr>'."\n".'</tfoot>'."\n";
+	if (($zz_conf['tfoot'] AND $list['sum'])
+		OR $zz_conf['select_multiple_records']) {
+		$output .= '<tfoot>'."\n";
+		if ($list['sum']) {
+			$output .= '<tr class="sum">';
+			$output .= zz_field_sum($head, count($rows), $list['where_values'], $list['sum']);
+			if ($list['modes'] OR $list['details'])
+				$output .= '<td class="editbutton">&nbsp;</td>';
+			$output .= '</tr>'."\n";
+		}
+		if ($zz_conf['select_multiple_records']) {
+			$output .= '<tr class="multiple"><td><input type="checkbox" onclick="zz_set_checkboxes(this.checked);"></td>'
+				.'<td colspan="'.$columns.'"><em>'.zz_text('Selection').':</em> '
+				.'<input type="hidden" name="zz_action" value="multiple">'
+				.'<input type="submit" value="'.zz_text('Edit').'" name="multiple_edit"> '
+				.'<input type="submit" value="'.zz_text('Delete').'" name="multiple_delete"> '
+				.'</td></tr>';
+		}
+		$output .= '</tfoot>'."\n";
 	}
 
 	$output .= '<tbody>'."\n";
@@ -2382,9 +2411,15 @@ function zz_list_table($list, $rows, $head) {
 				.'</td></tr>'."\n";
 			$rowgroup = $row['group'];
 		}
+		$current_field = false;
+		if (isset($list['current_record']) AND $list['current_record'] == $index) {
+			$current_field = true;
+		} elseif (isset($list['current_records']) AND in_array($index, $list['current_records'])) {
+			$current_field = true;
+		}
 		$output .= '<tr class="'.($index & 1 ? 'uneven':'even')
 			.(($index+1) == count($rows) ? ' last' : '')
-			.((isset($list['current_record']) AND $list['current_record'] == $index) ? ' current_record' : '')
+			.($current_field ? ' current_record' : '')
 			.'">'; //onclick="Highlight();"
 		foreach ($row as $fieldindex => $field) {
 			if (is_numeric($fieldindex)) 
