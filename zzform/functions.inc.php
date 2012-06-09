@@ -1500,11 +1500,17 @@ function zz_set_fielddefs(&$fielddefs, $fields) {
 function zz_record_access($zz, $ops, $zz_var) {
 	global $zz_conf;
 	global $zz_error;
-		
+
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	// initialize variables
 	$zz_var['action'] = false;
 	$zz_conf['show_record'] = true; // show record somehow (edit, view, ...)
+	
+	if (!empty($_POST['zz_action'])) {
+		if (!in_array($_POST['zz_action'], $zz_conf['int']['allowed_params']['action'])) {
+			unset($_POST['zz_action']);
+		}
+	}
 	
 	// set mode and action according to $_GET and $_POST variables
 	// do not care yet if actions are allowed
@@ -1542,13 +1548,20 @@ function zz_record_access($zz, $ops, $zz_var) {
 		// last record operation was successful
 		$ops['mode'] = 'show';
 		$id_value = $_GET['id'];
-	} elseif (!empty($_POST['zz_action']) 
-		AND in_array($_POST['zz_action'], $zz_conf['int']['allowed_params']['action'])) {
-		// triggers valid database action
-		$zz_var['action'] = $_POST['zz_action']; 
-		if (!empty($_POST[$zz_var['id']['field_name']]))
-			$id_value = $_POST[$zz_var['id']['field_name']];
-		$ops['mode'] = false;
+	} elseif (!empty($_POST['zz_action'])) {
+		if ($_POST['zz_action'] === 'multiple') {
+			if (!empty($_POST['zz_record_id'])) {
+				if (!empty($_POST['multiple_edit'])) $ops['mode'] = 'edit';
+				elseif (!empty($_POST['multiple_delete'])) $ops['mode'] = 'delete';
+				$zz_var['id']['values'] = $_POST['zz_record_id'];
+			}
+		} else {
+			// triggers valid database action
+			$zz_var['action'] = $_POST['zz_action']; 
+			if (!empty($_POST[$zz_var['id']['field_name']]))
+				$id_value = $_POST[$zz_var['id']['field_name']];
+			$ops['mode'] = false;
+		}
 	} elseif ($zz_var['where_with_unique_id']) {
 		// just review the record
 		$ops['mode'] = 'review'; 
@@ -1566,7 +1579,12 @@ function zz_record_access($zz, $ops, $zz_var) {
 		$zz_var['id']['value'] = '';
 
 	// now that we have the ID value, we can calculate the secret key
-	$zz_conf['int']['secret_key'] = sha1($zz_conf['int']['hash'].$zz_var['id']['value']);
+	if (!empty($zz_var['id']['values'])) {
+		$idval = implode(',', $zz_var['id']['values']);
+	} else {
+		$idval = $zz_var['id']['value'];
+	}
+	$zz_conf['int']['secret_key'] = sha1($zz_conf['int']['hash'].$idval);
 
 	// if $zz_conf['conditions'] -- check them
 	// get conditions if there are any, for access
@@ -1604,6 +1622,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		}
 	}
 
+	// @todo think about multiple_edit
 	switch ($zz_conf['access']) { // access overwrites individual settings
 	// first the record specific or overall settings
 	case 'export':
@@ -1846,6 +1865,8 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
 				$sql = zz_edit_sql($sql, 'WHERE', $table.'.'
 					.$my_rec['id']['field_name']." = '".$my_rec['id']['value']."'");
 				$my_rec['record'] = zz_db_fetch($sql, '', '', 'record exists?');
+			} elseif (!empty($my_rec['id']['values'])) {
+				$my_rec['record'] = zz_query_multiple_records($sql, $table, $my_rec['id']);
 			}
 		} elseif ($mode == 'add' AND !empty($my_rec['id']['source_value'])) {
 			if (!empty($my_rec['POST'])) {
@@ -1898,6 +1919,28 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
 	}
 	zz_log_validation_errors($my_rec, $validation);
 	return zz_return($my_tab);
+}
+
+/**
+ * Query multiple records, return identical values in all records
+ *
+ * @param string $sql
+ * @return array
+ */
+function zz_query_multiple_records($sql, $table, $id) {
+	$sql = zz_edit_sql($sql, 'WHERE', $table.'.'
+		.$id['field_name']." IN ('".implode("','", $id['values'])."')");
+	$records = wrap_db_fetch($sql, $id['field_name'], '', 'multiple records exist?');
+	// use first record as basis for checking identical values
+	$existing = array_shift($records);
+	foreach ($records as $record) {
+		foreach ($record as $field_name => $field_value) {
+			if ($existing[$field_name] !== $field_value) {
+				$existing[$field_name] = '';
+			}
+		}
+	}
+	return $existing;
 }
 
 /**
