@@ -1,7 +1,7 @@
 <?php 
 
 // zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2004-2012
+// Copyright (c) 2004-2012 Gustaf Mossakowski <gustaf@koenige.org>
 // scripts for action: update, delete, insert or review a record
 // functions for validation of user input
 // functions to maintain referential integrity
@@ -65,13 +65,17 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	}
 	
 	//	### Check for validity, do some operations ###
-	if (!empty($zz_var['upload_form'])) { // do only for zz_tab 0 0 etc. not zz_tab 0 sql etc.
-		$zz_tab = zz_upload_get($zz_tab); // read upload image information, as required
+	if (!empty($zz_var['upload_form'])) {
+		// do only for zz_tab 0 0 etc. not zz_tab 0 sql etc.
+		// read upload image information, as required
+		$zz_tab = zz_upload_get($zz_tab); 
 		if ($zz_var['action'] != 'delete') {
-			$zz_tab = zz_upload_prepare($zz_tab); // read upload image information, as required
+			// read upload image information, as required
+			$zz_tab = zz_upload_prepare($zz_tab);
 		}
 	}
-	if ($zz_error['error']) return zz_return(array($ops, $zz_tab, $validation, $zz_var));
+	if ($zz_error['error'])
+		return zz_return(array($ops, $zz_tab, $validation, $zz_var));
 
 	foreach (array_keys($zz_tab) as $tab) {
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
@@ -118,8 +122,10 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			$deletable_ids = zz_array_merge($record_ids, $dependent_ids);
 			$zz_var['integrity'] = zz_integrity_check($deletable_ids, $zz_var['relations']);
 			// return database errors
-			if ($zz_error['error']) return zz_return(array($ops, $zz_tab, $validation, $zz_var));
-			// if something was returned, validation failed because there probably are records
+			if ($zz_error['error'])
+				return zz_return(array($ops, $zz_tab, $validation, $zz_var));
+			// if something was returned, validation failed because there 
+			// probably are records
 			if ($zz_var['integrity']) $validation = false;
 		}
 	}
