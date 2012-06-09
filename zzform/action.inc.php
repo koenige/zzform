@@ -320,10 +320,17 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 
 		} elseif ($zz_tab[$tab][$rec]['action'] == 'delete') {
 			// no POST_db, because here, validation is not necessary
-			$me_sql = ' DELETE FROM '.$me_db.$zz_tab[$tab]['table']
-				.' WHERE '.$zz_tab[$tab][$rec]['id']['field_name']." = '"
-				.$zz_tab[$tab][$rec]['id']['value']."'"
-				.' LIMIT 1';
+			if (is_array($zz_tab[$tab][$rec]['id']['value'])) {
+				$me_sql = ' DELETE FROM '.$me_db.$zz_tab[$tab]['table']
+					.' WHERE '.$zz_tab[$tab][$rec]['id']['field_name']." IN ("
+					.implode(",", $zz_tab[$tab][$rec]['id']['value']).")"
+					.' LIMIT '.count($zz_tab[$tab][$rec]['id']['value']);
+			} else {
+				$me_sql = ' DELETE FROM '.$me_db.$zz_tab[$tab]['table']
+					.' WHERE '.$zz_tab[$tab][$rec]['id']['field_name']." = '"
+					.$zz_tab[$tab][$rec]['id']['value']."'"
+					.' LIMIT 1';
+			}
 
 	// ### Again, do nothing with the record, here: detail record
 
@@ -1839,9 +1846,16 @@ function zz_integrity_dependent_record_ids($zz_tab, $relations) {
 			foreach ($my_relations as $rel) {
 				// we care just about 'delete'-relations
 				if ($rel['delete'] != 'delete') continue;
-				$sql = 'SELECT `'.$rel['detail_id_field'].'`
-					FROM `'.$rel['detail_db'].'`.`'.$rel['detail_table'].'`
-					WHERE `'.$rel['detail_field'].'` = '.$zz_tab[$tab][$rec]['id']['value'];
+				if (is_array($zz_tab[$tab][$rec]['id']['value'])) {
+					$sql = 'SELECT `'.$rel['detail_id_field'].'`
+						FROM `'.$rel['detail_db'].'`.`'.$rel['detail_table'].'`
+						WHERE `'.$rel['detail_field'].'` IN ("'
+						.implode('","', $zz_tab[$tab][$rec]['id']['value']).'")';
+				} else {
+					$sql = 'SELECT `'.$rel['detail_id_field'].'`
+						FROM `'.$rel['detail_db'].'`.`'.$rel['detail_table'].'`
+						WHERE `'.$rel['detail_field'].'` = '.$zz_tab[$tab][$rec]['id']['value'];
+				}
 				$records = zz_db_fetch($sql, $rel['detail_id_field'], 'single value');
 				if (!$records) continue;
 				// check if detail records have other detail records
@@ -1872,13 +1886,20 @@ function zz_integrity_dependent_record_ids($zz_tab, $relations) {
  */
 function zz_integrity_record_ids($zz_tab) {
 	$records = array();
-	foreach (array_keys($zz_tab) as $tab) {
-		foreach (array_keys($zz_tab[$tab]) as $rec) {
+	foreach ($zz_tab as $my_tab) {
+		foreach ($my_tab as $rec => $my_rec) {
 			if (!is_numeric($rec)) continue;
-			if (!$zz_tab[$tab][$rec]['id']['value']) continue;
-			if ($zz_tab[$tab][$rec]['action'] != 'delete') continue;
-			$records[$zz_tab[$tab]['db_name']][$zz_tab[$tab]['table']][$zz_tab[$tab][$rec]['id']['field_name']][]
-				= $zz_tab[$tab][$rec]['id']['value'];
+			if (!$my_rec['id']['value']) continue;
+			if ($my_rec['action'] != 'delete') continue;
+			if (is_array($my_rec['id']['value'])) {
+				if (!isset($records[$my_tab['db_name']][$my_tab['table']][$my_rec['id']['field_name']]))
+					$records[$my_tab['db_name']][$my_tab['table']][$my_rec['id']['field_name']] = array();
+				$records[$my_tab['db_name']][$my_tab['table']][$my_rec['id']['field_name']]
+					= array_merge($records[$my_tab['db_name']][$my_tab['table']][$my_rec['id']['field_name']], $my_rec['id']['value']);
+			} else {
+				$records[$my_tab['db_name']][$my_tab['table']][$my_rec['id']['field_name']][]
+					= $my_rec['id']['value'];
+			}
 		}
 	}
 	return $records;
