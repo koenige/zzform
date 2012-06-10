@@ -788,7 +788,7 @@ function zz_db_field_collation($type, $table, $field, $index = 0) {
 		} elseif (!empty($field['field_name'])) {
 			$collate_fieldname = $field['field_name'];
 		}
-		$error_msg = 'This field will be excluded from search.';
+		$error_msg = ' This field will be excluded from search.';
 		if (isset($field['character_set'])) $charset = $field['character_set'];
 		$tables[] = $table;
 		break;
