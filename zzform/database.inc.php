@@ -815,8 +815,9 @@ function zz_db_field_collation($type, $table, $field, $index = 0) {
 	if (!$charset) {
 		$db_tables = array();
 		// get db table
-		// check collate fieldname, might be unusable
-		if (strstr($collate_fieldname, '.')) {
+		// check collate fieldname, might be unusable, but only if not some
+		// function (e. g. CONCAT()) is in the way
+		if (strstr($collate_fieldname, '.') AND !strstr($collate_fieldname, '(')) {
 			$table_field = explode('.', $collate_fieldname);
 			switch (count($table_field)) {
 			case 2:
