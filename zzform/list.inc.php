@@ -1845,7 +1845,7 @@ function zz_search_time($searchword) {
  */
 function zz_search_checkfield($field_name, $table, $searchword) {
 	global $zz_conf;
-	if (!strstr('.', $table)) $table = $zz_conf['db_name'].'.'.$table;
+	if (!strstr($table, '.')) $table = $zz_conf['db_name'].'.'.$table;
 	$column = zz_db_columns($table, $field_name);
 	$type = $column['Type'];
 	if ($pos = strpos($type, '('))
