@@ -1238,7 +1238,8 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				foreach ($image['error'] as $error) {
 					$zz_error['validation']['incorrect_values'][] = array(
 						'field_name' => $field_name,
-						'msg' => $error
+						'msg' => $error,
+						'log_post_data' => false
 					);
 				}
 			}
