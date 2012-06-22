@@ -1979,10 +1979,12 @@ function zz_log_validation_errors($my_rec, $validation) {
 				'field_name' => $field['field_name'],
 				'msg' => zz_text('incorrect value').': '.$my_rec['record'][$field['field_name']]
 			);
+			$zz_error['validation']['log_post_data'] = true;
 		} elseif (empty($field['dont_show_missing'])) {
 			// there's a value missing
 			$zz_error['validation']['msg'][] = zz_text('Value missing in field')
 				.' <strong>'.$field['title'].'</strong>';
+			$zz_error['validation']['log_post_data'] = true;
 		}
 	}
 	return true;
@@ -2543,6 +2545,12 @@ function zz_error_validation() {
 				.' / '.htmlspecialchars($incorrect_value['msg']);
 		}
 		$this_error['msg_dev'] = "\n\n".implode("\n", $this_dev_msg);
+	}
+	if (!empty($zz_error['validation']['log_post_data'])) {
+		// must be set explicitly, do not log $_POST for file upload errors
+		$this_error['log_post_data'] = true;
+	} else {
+		$this_error['log_post_data'] = false;
 	}
 	$this_error['level'] = E_USER_NOTICE;
 	$zz_error[] = $this_error;

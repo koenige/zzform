@@ -150,6 +150,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			// show error message
 			$zz_error['validation']['msg'][] = sprintf(zz_text('Minimum of records for table `%s` was not met (%d)'), 
 				zz_text($zz_tab[0][0]['fields'][$my_tab['no']]['title']), $my_tab['min_records_required']);
+			$zz_error['validation']['log_post_data'] = true;
 			$validation = false;
 		}
 	}
@@ -1071,6 +1072,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 						'field_name' => $field_name,
 						'msg' => $coord['error']
 					);
+					$zz_error['validation']['log_post_data'] = true;
 					$my_rec['fields'][$f]['explanation'] = $coord['error'];
 					$my_rec['fields'][$f]['check_validation'] = false;
 					$my_rec['validation'] = false;
@@ -1238,8 +1240,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				foreach ($image['error'] as $error) {
 					$zz_error['validation']['incorrect_values'][] = array(
 						'field_name' => $field_name,
-						'msg' => $error,
-						'log_post_data' => false
+						'msg' => $error
 					);
 				}
 			}
