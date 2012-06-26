@@ -320,7 +320,8 @@ function zz_sql_prefix_change(&$item, $key) {
 		$sql_fields = array(
 			'sql', 'having', 'where', 'path_sql', 'search', 'search_between',
 			'set_sql', 'sqlorder', 'sql_not_unique', 'sql_password_check',
-			'upload_sql', 'options_sql', 'source_path_sql', 'table'
+			'upload_sql', 'options_sql', 'source_path_sql', 'table',
+			'id_field_name'
 		);
 		break;
 	case 'zz_conf':
