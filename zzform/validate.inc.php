@@ -1,13 +1,20 @@
 <?php 
 
-// zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2005-2010
-// Functions for validation of user input
+/**
+ * zzform scripts
+ * Validation of user input
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzform
+ *
+ * all functions return false if requirements are not met
+ * otherwise they will return the value that was checked
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2005-2012 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
 
-/*
-	all functions return false if requirements are not met
-	else they will return the value that was checked against
-*/
 
 /**
  * checks whether a given string is a valid e-mail address
@@ -85,7 +92,8 @@ function zz_check_mail_single($e_mail) {
 	if (substr($e_mail, 0, 1) == '<' && substr($e_mail, -1) == '>') 
 		$e_mail = substr($e_mail, 1, -1); 
 	// check address
-	$e_mail_pm = '/^[a-z0-9!#$%&\'*+\/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&\'*+\\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i';
+	$e_mail_pm = '/^[a-z0-9!#$%&\'*+\/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&\'*+\\/=?^_`{|}~-]+)*'
+		.'@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i';
 	if (preg_match($e_mail_pm, $e_mail, $check))
 		return $e_mail;
 	return false;
@@ -149,30 +157,31 @@ function zz_db_get_enumset($colum, $db_table) {
  * checks whether an input is a URL
  * 
  * This function is also part of zzbrick, there it is called brick_check_url()
- * @param string $url	URL to be tested, may be a relative URL as well (starting with ../, /)
- *		might add http:// in front of it if this generates a valid URL
+ * @param string $url	URL to be tested, may be a relative URL as well 
+ *		(starting with ../, /) might add http:// in front of it if this  
+ *		generates a valid URL
  * @return string url if correct, or false
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_check_url($url) {
-	$url = trim($url); // remove invalid white space at the beginning and end of URL
-	$url = str_replace("\\", "/", $url); // not sure: is \ a legal part of a URL?
-	if (substr($url, 0, 1) == "/")
+	// remove invalid white space at the beginning and end of URL
+	$url = trim($url);
+	// not sure: is \ a legal part of a URL?
+	$url = str_replace("\\", "/", $url);
+	if (substr($url, 0, 1) == "/") {
 		if (zz_is_url('http://example.com'.$url)) return $url;
 		else return false;
-	elseif (substr($url, 0, 2) == "./") 
-		if (zz_is_url('http://example.com'.substr($url,1))) return $url;
+	} elseif (substr($url, 0, 2) == "./") {
+		if (zz_is_url('http://example.com'.substr($url, 1))) return $url;
 		else return false;
-	elseif (substr($url, 0, 3) == "../") 
-		if (zz_is_url('http://example.com'.substr($url,2))) return $url;
+	} elseif (substr($url, 0, 3) == "../") {
+		if (zz_is_url('http://example.com'.substr($url, 2))) return $url;
 		else return false;
-	else
-		if (!zz_is_url($url))  {
-			$url = "http://" . $url;
-			if (!zz_is_url($url))	return false;
-			else				return $url;
-		} else return $url;
-
+	}
+	if (zz_is_url($url)) return $url;
+	$url = "http://" . $url;
+	if (zz_is_url($url)) return $url;
+	return false;
 }
 
 /**
@@ -183,6 +192,8 @@ function zz_check_url($url) {
  * @return string url if correct, or false
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @todo return which part of URL is incorrect
+ * @todo support IPv6, new domain endings
+ * @todo rewrite diacritical marks to %-encoding
  */
 function zz_is_url($url) {
 	if (!$url) return false;
@@ -191,21 +202,21 @@ function zz_is_url($url) {
 	if (empty($parts['scheme'])) { // OR !in_array($parts['scheme'], $possible_schemes))
 		return false;
 	} elseif (!empty($parts['host']) 
-		AND (!preg_match("/^[0-9a-z]([-.]?[:0-9a-z])*\.[a-z]{2,6}$/i", $parts['host'], $regs)
-		AND !preg_match('/[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/', $parts['host']) // IP
+		AND (!preg_match("/^[0-9a-z]([-.]?[:0-9a-z])*\.[a-z]{2,6}$/i", $parts['host'])
+		AND !preg_match('/[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/', $parts['host']) // IPv4
 		AND !preg_match('/\[[0-9a-zA-Z:]*\]/', $parts['host']))) {	// LDAP
 		return false;
 	} elseif (!empty($parts['user']) 
-		AND !preg_match("/^([0-9a-z-]|[\_])*$/i", $parts['user'], $regs)) {
+		AND !preg_match("/^([0-9a-z-]|[\_])*$/i", $parts['user'])) {
 		return false;
 	} elseif (!empty($parts['pass']) 
-		AND !preg_match("/^([0-9a-z-]|[\_])*$/i", $parts['pass'], $regs)) {
+		AND !preg_match("/^([0-9a-z-]|[\_])*$/i", $parts['pass'])) {
 		return false;
 	} elseif (!empty($parts['path']) 
 		AND !preg_match("/^[0-9a-z\/_\.@~\-,=%;:+]*$/i", $parts['path'])) {
 		return false;
 	} elseif (!empty($parts['query']) 
-		AND !preg_match("/^[A-Za-z0-9\-\._~!$&'\(\)\*+,;=:@?\/%]*$/i", $parts['query'], $regs)) {
+		AND !preg_match("/^[A-Za-z0-9\-\._~!$&'\(\)\*+,;=:@?\/%]*$/i", $parts['query'])) {
 		// not 100% correct: % must only appear in front of HEXDIG, e. g. %2F
 		// here it may appear in front of any other sign
 		// see 
