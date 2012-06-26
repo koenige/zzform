@@ -1,8 +1,16 @@
 <?php
 
-// zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2011
-// Tests
+/**
+ * zzform scripts
+ * Tests
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzform
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2011-2012 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
 
 
 /**

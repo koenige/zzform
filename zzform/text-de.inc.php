@@ -1,8 +1,16 @@
 <?php
 
-// zzform scripts (Zugzwang Project)
-// Copyright (c) 2005-2011 Gustaf Mossakowski <gustaf@koenige.org>
-// Text and labels in German (de) us-ascii
+/**
+ * zzform scripts
+ * Text and labels in German (de) us-ascii
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzform
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2005-2012 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
 
 
 // ----------------------------------------------------------------------------

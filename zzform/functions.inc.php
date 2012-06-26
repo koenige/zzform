@@ -1,13 +1,13 @@
 <?php 
 
-// zzform scripts (Zugzwang Project)
-// Copyright (c) 2004-2012 Gustaf Mossakowski <gustaf@koenige.org>
-// Miscellaneous functions
-
-
 /**
- * Contents:
+ * zzform scripts
+ * Miscellaneous functions
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzform
  * 
+ * Contents:
  * C - Core functions
  * E - Error functions
  * F - Filesystem functions
@@ -16,6 +16,9 @@
  * R - Record functions used by several modules
  * V - Validation, preparation for database
  *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2004-2012 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
 
@@ -3286,7 +3289,7 @@ function zz_identifier_vars_db($sql, $id, $fieldname = false) {
  * @global array $zz_conf
  * @return array $my_rec changed keys:
  *		'fields'[$f], 'POST', 'POST-notvalid', 'validation'
- * @author Gustaf Mossakowski, <gustaf@koenige.org>
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) {
 	global $zz_error;

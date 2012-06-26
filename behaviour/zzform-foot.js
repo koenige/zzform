@@ -1,14 +1,20 @@
 /*
+ * zzform
+ * JavaScript to be executed at end of document
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzform
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2009-2011 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
 
-// zzform
-// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2009-2011
-// javascript to be executed at end of document
 
-*/
-
-/*	adds &nbsp; for hierarchical form options
-	Safari unfortunately does not support modifications to style of forms
-*/
+/**
+ *	adds &nbsp; for hierarchical form options
+ *	Safari unfortunately does not support modifications to style of forms
+ */
 var isSafari = navigator.userAgent.search(/Safari.+/);
 if (isSafari != -1) {
 	var optionfields = document.getElementsByTagName('option');

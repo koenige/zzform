@@ -1,9 +1,17 @@
 <?php 
 
-// zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2009-2010
-// Database table to set translation fields
-// DB-Tabelle zur Eingabe von Feldern, die übersetzt werden sollen
+/**
+ * zzform
+ * Database table to set translation fields
+ * DB-Tabelle zur Eingabe von Feldern, die übersetzt werden sollen
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzform
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2005-2010 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
 
 
 // access restriction has to be set in the file including this file

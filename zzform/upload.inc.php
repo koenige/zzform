@@ -1,76 +1,77 @@
 <?php 
 
-// zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2006-2012
-// File upload
+/**
+ * zzform scripts
+ * File upload
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzform
+ *
+ *	1. main functions (in order in which they are called)
+ *
+ *	zz_upload_get()				writes arrays upload_fields, images
+ *								i. e. checks which fields offer uploads,
+ *								collects and writes information about files
+ *		zz_check_def_files()
+ *		zz_upload_get_fields()	checks which fields allow upload
+ *		zz_upload_check_files()	checks files,  puts information to 'image' array
+ *			zz_upload_fileinfo()	read information (filesize, exif etc.)
+ *			zz_upload_make_title()	converts filename to title
+ *			zz_upload_make_name()	converts filename to better filename
+ *			zz_upload_mimecheck()	checks whether supposed mimetype was already checked for
+ *			zz_upload_filecheck()	gets filetype from list
+ *			...
+ *	zz_upload_prepare()			prepares files for upload (resize, rotate etc.)
+ *		zz_upload_extension()	gets extension
+ *	zz_upload_check()			validates file input (upload errors, requirements)
+ *	zz_upload_action()			writes/deletes files after successful sql insert/update
+ *	zz_upload_cleanup()			cleanup after files have been moved or deleted
+ *
+ *	2. additional functions
+ *
+ *	zz_upload_path()			creates unique name for file (?)
+ *	zz_upload_get_typelist()	reads filetypes from txt-file
+ *
+ *	3. zz_tab array
+ *	
+ *	global
+ *	$zz_tab[0]['upload_fields'][n]['tab']
+ *	$zz_tab[0]['upload_fields'][n]['rec']
+ *	$zz_tab[0]['upload_fields'][n]['f'] ...
+ *
+ *	subtable, currently only 0 0 supported
+ *	$zz_tab[0][0]['images']
+ *	$zz_tab[0][0]['images'][n]['title']
+ *	$zz_tab[0][0]['images'][n]['filename']
+ *	values from table definition + option
+ *	$zz_tab[0][0]['images'][n][0]['title']
+ *	$zz_tab[0][0]['images'][n][0]['field_name']
+ *	$zz_tab[0][0]['images'][n][0]['path']
+ *	$zz_tab[0][0]['images'][n][0][...]
+ *	upload values from PHP form
+ *	$zz_tab[0][0]['images'][n][0]['upload']['name']	local filename
+ *	$zz_tab[0][0]['images'][n][0]['upload']['type'] mimetype, as browser sends it
+ *	$zz_tab[0][0]['images'][n][0]['upload']['tmp_name'] temporary filename on server
+ *	$zz_tab[0][0]['images'][n][0]['upload']['error'] errorcode, 0 = no error
+ *	own upload values, read from image
+ *	$zz_tab[0][0]['images'][n][0]['upload']['size']		filesize
+ *	$zz_tab[0][0]['images'][n][0]['upload']['width']	width in px
+ *	$zz_tab[0][0]['images'][n][0]['upload']['height']	height in px
+ *	$zz_tab[0][0]['images'][n][0]['upload']['exif']		exif data
+ *
+ *	$zz_tab[0][0]['images'][n][0]['upload']['filetype']	Filetype
+ *	$zz_tab[0][0]['images'][n][0]['upload']['ext']		file extension
+ *	$zz_tab[0][0]['images'][n][0]['upload']['mime']		MimeType
+ *	$zz_tab[0][0]['images'][n][0]['upload']['imagick_format']	ImageMagick_Format
+ *	$zz_tab[0][0]['images'][n][0]['upload']['imagick_mode']		ImageMagick_Mode
+ *	$zz_tab[0][0]['images'][n][0]['upload']['imagick_desc']		ImageMagick_Description
+ *	$zz_tab[0][0]['images'][n][0]['upload']['validated']	validated (yes = tested, no = rely on fileupload i. e. user)
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2006-2012 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
 
-
-/*	----------------------------------------------	*
- *					DESCRIPTION						*
- *	----------------------------------------------	*/
-
-/*
-	1. main functions (in order in which they are called)
-
-	zz_upload_get()				writes arrays upload_fields, images
-								i. e. checks which fields offer uploads,
-								collects and writes information about files
-		zz_check_def_files()
-		zz_upload_get_fields()	checks which fields allow upload
-		zz_upload_check_files()	checks files,  puts information to 'image' array
-			zz_upload_fileinfo()	read information (filesize, exif etc.)
-			zz_upload_make_title()	converts filename to title
-			zz_upload_make_name()	converts filename to better filename
-			zz_upload_mimecheck()	checks whether supposed mimetype was already checked for
-			zz_upload_filecheck()	gets filetype from list
-			...
-	zz_upload_prepare()			prepares files for upload (resize, rotate etc.)
-		zz_upload_extension()	gets extension
-	zz_upload_check()			validates file input (upload errors, requirements)
-	zz_upload_action()			writes/deletes files after successful sql insert/update
-	zz_upload_cleanup()			cleanup after files have been moved or deleted
-
-	2. additional functions
-
-	zz_upload_path()			creates unique name for file (?)
-	zz_upload_get_typelist()	reads filetypes from txt-file
-
-	3. zz_tab array
-	
-	global
-	$zz_tab[0]['upload_fields'][n]['tab']
-	$zz_tab[0]['upload_fields'][n]['rec']
-	$zz_tab[0]['upload_fields'][n]['f'] ...
-
-	subtable, currently only 0 0 supported
-	$zz_tab[0][0]['images']
-	$zz_tab[0][0]['images'][n]['title']
-	$zz_tab[0][0]['images'][n]['filename']
-	values from table definition + option
-	$zz_tab[0][0]['images'][n][0]['title']
-	$zz_tab[0][0]['images'][n][0]['field_name']
-	$zz_tab[0][0]['images'][n][0]['path']
-	$zz_tab[0][0]['images'][n][0][...]
-	upload values from PHP form
-	$zz_tab[0][0]['images'][n][0]['upload']['name']	local filename
-	$zz_tab[0][0]['images'][n][0]['upload']['type'] mimetype, as browser sends it
-	$zz_tab[0][0]['images'][n][0]['upload']['tmp_name'] temporary filename on server
-	$zz_tab[0][0]['images'][n][0]['upload']['error'] errorcode, 0 = no error
-	own upload values, read from image
-	$zz_tab[0][0]['images'][n][0]['upload']['size']		filesize
-	$zz_tab[0][0]['images'][n][0]['upload']['width']	width in px
-	$zz_tab[0][0]['images'][n][0]['upload']['height']	height in px
-	$zz_tab[0][0]['images'][n][0]['upload']['exif']		exif data
-
-	$zz_tab[0][0]['images'][n][0]['upload']['filetype']	Filetype
-	$zz_tab[0][0]['images'][n][0]['upload']['ext']		file extension
-	$zz_tab[0][0]['images'][n][0]['upload']['mime']		MimeType
-	$zz_tab[0][0]['images'][n][0]['upload']['imagick_format']	ImageMagick_Format
-	$zz_tab[0][0]['images'][n][0]['upload']['imagick_mode']		ImageMagick_Mode
-	$zz_tab[0][0]['images'][n][0]['upload']['imagick_desc']		ImageMagick_Description
-	$zz_tab[0][0]['images'][n][0]['upload']['validated']	validated (yes = tested, no = rely on fileupload i. e. user)
-	
-*/
 
 /*	----------------------------------------------	*
  *					VARIABLES						*

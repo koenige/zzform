@@ -1,24 +1,18 @@
 <?php
 
-// zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2004-2011
-// Module geo: handling of geographic coordinates 
-// (input, output, transformation DMS - DD and vice versa)
+/**
+ * zzform scripts
+ * Module geo: handling of geographic coordinates
+ * (input, output, transformation DMS - DD and vice versa)
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzform
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2004-2011 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
 
-
-/*
-	Functions in this file
-	
-	- zz_geo_coord_in()
-	- zz_geo_coord_out()
-	- zz_decimal()
-	- zz_geo_orientation()
-	- zz_geo_coords_gps_in()
-	- zz_geo_latitude_in()
-	- zz_geo_longitude_in()
-	- zz_geo_altitude_in()
-	- zz_geo_timestamp_in()
-*/
 
 /**
  * checks whether a given input is a valid geo coordinate

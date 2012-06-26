@@ -1,9 +1,17 @@
 <?php
 
-// zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2004-2011
-// Output functions
-// will only be included if $zz_conf['generate_output'] = true
+/**
+ * zzform scripts
+ * Output functions
+ * will only be included if $zz_conf['generate_output'] = true
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzform
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2004-2011 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
 
 
 /**
@@ -40,7 +48,7 @@ function zz_output_heading($table = '') {
  * @global array $zz_conf
  * @global array $zz_error
  * @return string $heading
- * @author Gustaf Mossakowski, <gustaf@koenige.org>
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_nice_headings($heading, $zz_fields, $where_condition = array()) {
 	global $zz_conf;
@@ -368,7 +376,7 @@ function zz_nice_title($heading, $fields, $zz_var = array(), $mode = false) {
  * @param array $zz_fields
  * @global array $zz_conf
  * @return string $selection
- * @author Gustaf Mossakowski, <gustaf@koenige.org>
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_nice_selection($zz_fields) {
 	if (empty($_GET['q'])) return false;

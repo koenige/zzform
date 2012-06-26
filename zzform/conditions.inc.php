@@ -1,25 +1,32 @@
 <?php 
 
-// zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2009-2010
-// conditions
+/**
+ * zzform scripts
+ * Conditions, conditional fields
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzform
+ *
+ * Contents:
+ * D - Database functions (common functions)
+ * D - Database functions (MySQL-specific functions)
+ *		zz_db_*()
+ *
+ *	main functions (in order in which they are called)
+ *
+ *	zz_conditions_record()
+ *	zz_conditions_record_values()	sets values for record
+ *	zz_conditions_record_check()	set conditions for record
+ *	zz_conditions_record_fields()	write new fields to $zz['fields'] based on conditions
+ *		zz_replace_conditional_values()
+ *	zz_conditions_merge()			merge conditional values with normal values ($zz['fields'], $zz_conf)
+ *	zz_conditions_list_check()		set conditions for list
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2009-2010 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
 
-
-/*	----------------------------------------------	*
- *					DESCRIPTION						*
- *	----------------------------------------------	*/
-
-/*
-	main functions (in order in which they are called)
-
-	zz_conditions_record()
-	zz_conditions_record_values()	sets values for record
-	zz_conditions_record_check()	set conditions for record
-	zz_conditions_record_fields()	write new fields to $zz['fields'] based on conditions
-		zz_replace_conditional_values()
-	zz_conditions_merge()			merge conditional values with normal values ($zz['fields'], $zz_conf)
-	zz_conditions_list_check()		set conditions for list
-*/
 
 /**
  * applies 'values' and 'bool' conditions to record

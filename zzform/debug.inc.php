@@ -1,17 +1,17 @@
 <?php 
 
-// zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2009-2010
-// Module debug for debugging
+/**
+ * zzform scripts
+ * Debugging module
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzform
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2009-2010 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
 
-
-/*	About this file
-
-	- default variables
-	- list of functions in this file
-		- zz_debug
-		- zz_debug_htmlout
-*/
 
 // Default variables for debug module
 $zz_default['debug']			= false;	// turn on/off debugging mode

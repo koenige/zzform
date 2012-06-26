@@ -1,15 +1,23 @@
 <?php
 
-// zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2009-2012
-// Import script
+/**
+ * zzform scripts
+ * Import of data
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzform
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2009-2012 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
 
 
 /**
  * Import function
  *
  * @return ...
- * @author Gustaf Mossakowski, <gustaf@koenige.org>
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @todo This function is not working yet. Do not use!
  */
 function zzform_import($ops) {
@@ -68,7 +76,7 @@ function zzform_import($ops) {
  *		'destination_sql', 'destination_identifier', 'destination_conf_identifier'
  *		'parent_destination_folder_id'
  * @return string HTML output of what was imported/failed
- * @author Gustaf Mossakowski, <gustaf@koenige.org>
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_import_files($definition_file, $values, $params) {
 	global $zz_conf;
@@ -204,7 +212,7 @@ function zz_import_files($definition_file, $values, $params) {
  * @return string HTML output of what was imported/failed
  *		$params['destination_folder_id'] and $params['destination_identifier']
  *		will be changed
- * @author Gustaf Mossakowski, <gustaf@koenige.org>
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_import_create_folder($definition_file, $values, &$params) {
 	global $zz_conf;
@@ -359,7 +367,7 @@ function zz_import_check_matches($filename, $matches) {
  *		indexed by basename, list of files per basename indexed by extension
  * @return string HTML output of what was imported/failed
  *		$params and $files will be changed
- * @author Gustaf Mossakowski, <gustaf@koenige.org>
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_import_create_files($definition_file, $values, &$params, &$files) {
 	global $zz_conf;
@@ -480,7 +488,7 @@ function zz_import_create_files($definition_file, $values, &$params, &$files) {
  * @param string $definition_file
  * @param array $values
  * @return string HTML output
- * @author Gustaf Mossakowski, <gustaf@koenige.org>
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_import_show_wheres($definition_file, $values = array()) {
 	global $zz_conf;
@@ -527,7 +535,7 @@ function zz_import_show_wheres($definition_file, $values = array()) {
  *		'folders' array {int key => string foldername}; 'files' array {int key
  *		=> array 'filename', 'extension', 'path' (relative to source path)
  *		'folder' (int Key of folder), 'folder_is_writable' (bool)
- * @author Gustaf Mossakowski, <gustaf@koenige.org>
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @todo: save folders as well, with main_folder_id
  */
 function zz_import_get_files($source, $files = array()) {

@@ -1,8 +1,12 @@
 <?php 
 
-// zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2009-2010
-// for zzform backwards compatibility, to be removed ASAP
+/**
+ * zzform scripts
+ * for zzform backwards compatibility, to be removed ASAP
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzform
+ */
 
 
 if (!empty($zz_conf['edit_only'])) $zz_conf['access'] = 'edit_only';

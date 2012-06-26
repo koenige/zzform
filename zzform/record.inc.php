@@ -1,17 +1,17 @@
 <?php
 
-// zzform scripts (Zugzwang Project)
-// Copyright (c) 2004-2012 Gustaf Mossakowski <gustaf@koenige.org>
-// display of single record as a html form+table or for review as a table
+/**
+ * zzform scripts
+ * Display of single record as a html form+table or for review as a table
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzform
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2004-2012 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
 
-
-/*
-	function zz_display_records
-		add, edit, delete, review a record
-	function zz_show_field_rows
-		will be called from zz_display_records
-		shows all table rows for given record
-*/
 
 /**
  * HTML output of a single record and its detail recors, inside of a FORM with
@@ -193,9 +193,8 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 	return $output;
 }
 
-
 /**
- * Display form to edit a record
+ * Display form to add, edit, delete, review a record
  * 
  * @param array $zz_tab		
  * @param string $mode
@@ -1167,7 +1166,7 @@ function zz_count_records($select, $subtree) {
  * @param array $id_field 'value', 'field_name' of main table
  * @param string $table name of main table
  * @return int value for default field
- * @author Gustaf Mossakowski, <gustaf@koenige.org>
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_set_auto_value($field, $sql, $table, $tab, $rec, $id_field, $main_table) {
 

@@ -1,10 +1,17 @@
 <?php 
 
-// zzform scripts (Zugzwang Project)
-// Copyright (c) 2004-2012 Gustaf Mossakowski <gustaf@koenige.org>
-// scripts for action: update, delete, insert or review a record
-// functions for validation of user input
-// functions to maintain referential integrity
+/**
+ * zzform scripts
+ * Action: update, delete, insert or review a record,
+ * validation of user input, maintaining referential integrity
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzform
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2004-2012 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
 
 
 /**
@@ -1574,7 +1581,7 @@ function zz_check_validate($value, $validate) {
  * @global array $zz_error
  * @global array $zz_conf	Configuration variables, here: 'hash_password'
  * @return string false: an error occurred; string: new encrypted password 
- * @author Gustaf Mossakowski, <gustaf@koenige.org>
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_password_set($old, $new1, $new2, $sql) {
 	global $zz_error;
@@ -1766,7 +1773,7 @@ function zz_integrity_relations($relation_table) {
  * @return mixed bool false: deletion of record possible, integrity will remain
  *		array: 'text' (error message), 'fields' (optional, names of tables
  *		which have a relation to the current record)
- * @author Gustaf Mossakowski, <gustaf@koenige.org>
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_integrity_check($deletable_ids, $relations) {
 	if (!$relations) {

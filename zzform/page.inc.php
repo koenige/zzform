@@ -1,19 +1,24 @@
 <?php
 
-// zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2004-2010
-// page wrap function
+/**
+ * zzform scripts
+ * Page wrap function
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzform
+ *
+ *	zzform_all()	(optional call, if page['head'] and ['foot'] shall
+ *					be incorporated)
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2004-2010 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ * @deprecated
+ */
 
-/*
-	List of functions in this file
-
-	zzform_all()		(optional call, if page['head'] and ['foot'] shall
-						be incorporated)
-*/
 
 global $zz_page;	// Page (Layout) variables
 global $zz;			// Table description
-
 
 /**
  * zzform shortcut, includes some page parameters

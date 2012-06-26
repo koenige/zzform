@@ -1,8 +1,16 @@
 <?php
 
-// zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2006-2010
-// Text and labels in Polish (pl) iso-8859-2
+/**
+ * zzform scripts
+ * Text and labels in Polish (pl) iso-8859-2
+ *
+ * Part of Zugzwang Project
+ * http://www.zugzwang.org/projects/zzform
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright (c) 2006-2012 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
 
 
 // ----------------------------------------------------------------------------

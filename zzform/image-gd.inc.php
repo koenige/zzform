@@ -1,20 +1,25 @@
 <?php 
 
-// zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2007-2010
-// image manipulation with GD library
-
-/*
-	work in progress, not to be seen as a replacment for ImageMagick
-
-	- thumbnail: support for jpeg, gif, png
-	
-	Functions:
-	zz_imagegd()	Main image function for GD library, not to be
-					called directly, just through:
-	-	zz_image_thumbnail()
-	-	zz_image_crop()
-*/
+/**
+ * zzform scripts
+ * Image manipulation with GD library
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzform
+ *
+ *	work in progress, not to be seen as a replacment for ImageMagick
+ *	- thumbnail: support for jpeg, gif, png
+ *	
+ *	Functions:
+ *	zz_imagegd()	Main image function for GD library, not to be
+ *					called directly, just through:
+ *	-	zz_image_thumbnail()
+ *	-	zz_image_crop()
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2007-2010 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
 
 
 /**

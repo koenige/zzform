@@ -1,20 +1,20 @@
 <?php 
 
-// zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2009-2010
-// Translations
+/**
+ * zzform scripts
+ * Translations
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzform
+ *
+ *	main functions (in order in which they are called)
+ *	zz_translations_init()		checks whether fields should be translated
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2009-2010 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
 
-
-/*	----------------------------------------------	*
- *					DESCRIPTION						*
- *	----------------------------------------------	*/
-
-/*
-	main functions (in order in which they are called)
-
-	zz_translations_init()		checks whether fields should be translated
-	
-*/
 
 // Default settings
 $zz_default['translations_of_fields'] = false;

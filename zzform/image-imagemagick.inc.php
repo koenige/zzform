@@ -1,32 +1,36 @@
 <?php 
 
-// zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2006-2010
-// image manipulation with imageMagick
+/**
+ * zzform scripts
+ * Image manipulation with ImageMagick
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzform
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2006-2012 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ * @todo
+ *	identify -list Format
+ *	      XMP*  rw-  Adobe XML metadata
+ *
+ *	type			Filetype
+ *	ext				Extension
+ *	imagick_format	ImageMagick_Format
+ *	imagick_mode	ImageMagick_Mode
+ *	imagick_desc	ImageMagick_Description
+ *	mime			MimeType
+ *
+ *	$bla = array(
+ *	1 => array('type' => 'gif', 'ext' => 'gif', 'mime' => 'image/gif', 
+ *		'imagick_format' => 'GIF', 'imagick_mode' = 'rw+', 
+ *		'imagick_desc' => 'CompuServe graphics interchange format (LZW disabled)')
+ *	2 => array('type' => 'gif', 'ext' => 'gif', 'mime' => 'image/gif', 
+ *		'imagick_format' => 'GIF', 'imagick_mode' = 'rw+', 
+ *		'imagick_desc' => 'CompuServe graphics interchange format (LZW disabled)')
+ *	);
+ */
 
-
-/*
-
-// TODO
-	identify -list Format
-	      XMP*  rw-  Adobe XML metadata
-
-	type			Filetype
-	ext				Extension
-	imagick_format	ImageMagick_Format
-	imagick_mode	ImageMagick_Mode
-	imagick_desc	ImageMagick_Description
-	mime			MimeType
-
-$bla = array(
-	1 => array('type' => 'gif', 'ext' => 'gif', 'mime' => 'image/gif', 
-	'imagick_format' => 'GIF', 'imagick_mode' = 'rw+', 
-	'imagick_desc' => 'CompuServe graphics interchange format (LZW disabled)')
-	2 => array('type' => 'gif', 'ext' => 'gif', 'mime' => 'image/gif', 
-	'imagick_format' => 'GIF', 'imagick_mode' = 'rw+', 
-	'imagick_desc' => 'CompuServe graphics interchange format (LZW disabled)')
-);
-*/
 
 /**
  * get information about file via ImageMagick's identify
@@ -112,7 +116,7 @@ function zz_imagick_check_multipage($source) {
  * @param array $image further information about the image
  * @global array $zz_conf
  * @return bool (false: no image was created; true: image was created)
- * @author Gustaf Mossakowski, <gustaf@koenige.org>
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_image_gray($source, $destination, $dest_extension = false, $image = false) {
 	global $zz_conf;
@@ -137,7 +141,7 @@ function zz_image_gray($source, $destination, $dest_extension = false, $image = 
  *		width, height
  * @global array $zz_conf
  * @return bool (false: no image was created; true: image was created)
- * @author Gustaf Mossakowski, <gustaf@koenige.org>
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_image_thumbnail($source, $destination, $dest_extension = false, $image = false) {
 	global $zz_conf;
@@ -170,7 +174,7 @@ function zz_image_thumbnail($source, $destination, $dest_extension = false, $ima
  *		action (string) name of function, source (int)
  * @global array $zz_conf
  * @return bool (false: no image was created; true: image was created)
- * @author Gustaf Mossakowski, <gustaf@koenige.org>
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_image_webimage($source, $destination, $dest_extension = false, $image = false) {
 	global $zz_conf;
@@ -186,7 +190,8 @@ function zz_image_webimage($source, $destination, $dest_extension = false, $imag
 	} elseif ($source_extension == 'pdf' OR $source_extension == 'eps') {
 		if ($zz_conf['upload_tools']['ghostscript']) {
 			$dest_extension = $zz_conf['upload_destination_filetype'][$source_extension];
-			$convert = zz_imagick_convert('density '.$zz_conf['upload_pdf_density'], ' "'.$source.'" '.$dest_extension.':'.'"'.$destination.'"');
+			$convert = zz_imagick_convert('density '.$zz_conf['upload_pdf_density'], 
+				' "'.$source.'" '.$dest_extension.':'.'"'.$destination.'"');
 		}
 	} elseif (!empty($zz_conf['upload_destination_filetype'][$source_extension])) {
 		$dest_extension = $zz_conf['upload_destination_filetype'][$source_extension];

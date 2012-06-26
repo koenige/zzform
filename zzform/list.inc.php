@@ -1,8 +1,16 @@
 <?php
 
-// zzform scripts (Zugzwang Project)
-// Copyright (c) 2004-2012 Gustaf Mossakowski <gustaf@koenige.org>
-// Display all or a subset of all records in a list (e. g. table, ul)
+/**
+ * zzform scripts
+ * Display all or a subset of all records in a list (e. g. table, ul)
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzform
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2004-2012 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
 
 
 /**

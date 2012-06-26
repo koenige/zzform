@@ -247,7 +247,7 @@ ai		ai		ai		application/pdf					Adobe Illustrator graphics file
 #
 #
 # zzform scripts (Zugzwang Project)
-# (c) Gustaf Mossakowski <gustaf@koenige.org>, 2007-2010
+# Copyright (c) 2007-2010 Gustaf Mossakowski <gustaf@koenige.org>
 # zzform File Types
 #
 # Syntax of this file:

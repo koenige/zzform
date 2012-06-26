@@ -1,9 +1,17 @@
 <?php 
 
-// zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2005-2010
-// Database table to set relations for upholding referential integrity
-// DB-Tabelle zur Eingabe von Beziehungen fuer die referentielle Integritaet
+/**
+ * zzform
+ * Database table to set relations for upholding referential integrity
+ * DB-Tabelle zur Eingabe von Beziehungen fuer die referentielle Integritaet
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzform
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2005-2010 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
 
 
 // access restriction has to be set in the file including this file

@@ -1,15 +1,23 @@
 <?php 
 
-// zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2006-2011
-// Database table for redirects of URLs
-// DB-Tabelle zur Eingabe von Umleitungen von URLs
+/**
+ * zzform
+ * Database table for redirects of URLs
+ * DB-Tabelle zur Eingabe von Umleitungen von URLs
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzform
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2006-2012 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
 
 
 // access restriction has to be set in the file including this file
 // Bitte Zugriffsbeschränkungen in der Datei, die diese einbindet, definieren!
 
-$zz['table'] = $zz_conf['prefix'].'redirects';
+$zz['table'] = '/*_PREFIX_*/redirects';
 
 $zz['fields'][1]['title'] = 'ID';
 $zz['fields'][1]['field_name'] = 'redirect_id';
@@ -39,7 +47,7 @@ $zz['fields'][20]['hide_in_list'] = true;
 
 
 $zz['sql'] = 'SELECT * 
-	FROM '.$zz_conf['prefix'].'redirects';
+	FROM /*_PREFIX_*/redirects';
 $zz['sqlorder'] = ' ORDER BY old_url, new_url';
 
 
