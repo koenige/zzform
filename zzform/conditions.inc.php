@@ -1,7 +1,7 @@
 <?php 
 
 /**
- * zzform scripts
+ * zzform
  * Conditions, conditional fields
  *
  * Part of »Zugzwang Project«

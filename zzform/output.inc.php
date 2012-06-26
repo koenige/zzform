@@ -1,7 +1,7 @@
 <?php
 
 /**
- * zzform scripts
+ * zzform
  * Output functions
  * will only be included if $zz_conf['generate_output'] = true
  *

@@ -1,7 +1,7 @@
 <?php 
 
 /**
- * zzform scripts
+ * zzform
  * Image manipulation with GD library
  *
  * Part of »Zugzwang Project«

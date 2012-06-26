@@ -1,7 +1,7 @@
 <?php
 
 /**
- * zzform scripts
+ * zzform
  * Number/date functions
  *
  * Part of »Zugzwang Project«

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * zzform scripts
+ * zzform
  * Import of data
  *
  * Part of »Zugzwang Project«

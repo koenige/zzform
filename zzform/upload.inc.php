@@ -1,7 +1,7 @@
 <?php 
 
 /**
- * zzform scripts
+ * zzform
  * File upload
  *
  * Part of »Zugzwang Project«

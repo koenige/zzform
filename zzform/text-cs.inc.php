@@ -1,7 +1,7 @@
 <?php
 
 /**
- * zzform scripts
+ * zzform
  * Text and labels in Czech (cs) iso-8859-2
  *
  * Part of "Zugzwang Project"

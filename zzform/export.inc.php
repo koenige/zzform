@@ -1,7 +1,7 @@
 <?php
 
 /**
- * zzform scripts
+ * zzform
  * Export module
  *
  * Part of »Zugzwang Project«

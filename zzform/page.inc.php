@@ -1,7 +1,7 @@
 <?php
 
 /**
- * zzform scripts
+ * zzform
  * Page wrap function
  *
  * Part of »Zugzwang Project«

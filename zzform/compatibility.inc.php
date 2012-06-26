@@ -1,7 +1,7 @@
 <?php 
 
 /**
- * zzform scripts
+ * zzform
  * for zzform backwards compatibility, to be removed ASAP
  *
  * Part of »Zugzwang Project«

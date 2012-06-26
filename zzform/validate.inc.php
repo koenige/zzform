@@ -1,7 +1,7 @@
 <?php 
 
 /**
- * zzform scripts
+ * zzform
  * Validation of user input
  *
  * Part of »Zugzwang Project«

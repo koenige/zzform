@@ -1,7 +1,7 @@
 <?php
 
 /**
- * zzform scripts
+ * zzform
  * Text and labels in English (en) us-ascii
  *
  * Part of »Zugzwang Project«

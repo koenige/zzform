@@ -1,7 +1,7 @@
 <?php
 
 /**
- * zzform scripts
+ * zzform
  * Module geo: handling of geographic coordinates
  * (input, output, transformation DMS - DD and vice versa)
  *

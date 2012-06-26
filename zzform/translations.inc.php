@@ -1,7 +1,7 @@
 <?php 
 
 /**
- * zzform scripts
+ * zzform
  * Translations
  *
  * Part of »Zugzwang Project«

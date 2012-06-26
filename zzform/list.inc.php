@@ -1,7 +1,7 @@
 <?php
 
 /**
- * zzform scripts
+ * zzform
  * Display all or a subset of all records in a list (e. g. table, ul)
  *
  * Part of »Zugzwang Project«

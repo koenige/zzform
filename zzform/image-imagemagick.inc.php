@@ -1,7 +1,7 @@
 <?php 
 
 /**
- * zzform scripts
+ * zzform
  * Image manipulation with ImageMagick
  *
  * Part of »Zugzwang Project«

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * zzform scripts
+ * zzform
  * Display of single record as a html form+table or for review as a table
  *
  * Part of »Zugzwang Project«

@@ -1,7 +1,7 @@
 <?php 
 
 /**
- * zzform scripts
+ * zzform
  * Debugging module
  *
  * Part of »Zugzwang Project«

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * zzform scripts
+ * zzform
  * Tests
  *
  * Part of »Zugzwang Project«

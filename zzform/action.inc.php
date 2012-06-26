@@ -1,7 +1,7 @@
 <?php 
 
 /**
- * zzform scripts
+ * zzform
  * Action: update, delete, insert or review a record,
  * validation of user input, maintaining referential integrity
  *
