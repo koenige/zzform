@@ -1,7 +1,7 @@
 <?php
 
 // zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2005-2011
+// Copyright (c) 2005-2011 Gustaf Mossakowski <gustaf@koenige.org>
 // Text and labels in German (de) us-ascii
 
 
@@ -128,6 +128,7 @@ $text['No entry found. Try less characters.'] = 'Keinen Eintrag gefunden. Versuc
 $text['Following_errors_occured'] = 'Die folgenden Fehler sind aufgetreten';
 $text['Value_incorrect_in_field'] = 'Wert ist falsch im Feld:';
 $text['Value missing in field'] = 'Wert fehlt im Feld:';
+$text['Nothing was uploaded in field %s'] = 'Es wurde nichts im Feld %s hochgeladen';
 $text['Duplicate entry'] = 'Doppelter Eintrag in dieser Tabelle. Bitte &uuml;berpr&uuml;fen Sie, ob entweder der gew&uuml;nschte Eintrag bereits existiert oder ob Sie Ihren Eintrag &auml;ndern k&ouml;nnen.';
 $text['Detail record could not be handled'] = 'Teileintrag konnte nicht gespeichert werden.';
 	$text['String <em>"%s"</em> is not allowed'] = 'Die Zeichenfolge <em>"%s"</em> ist nicht erlaubt';

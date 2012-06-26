@@ -1,7 +1,7 @@
 <?php 
 
 // zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2004-2012
+// Copyright (c) 2004-2012 Gustaf Mossakowski <gustaf@koenige.org>
 // Miscellaneous functions
 
 
@@ -1981,10 +1981,15 @@ function zz_log_validation_errors($my_rec, $validation) {
 			);
 			$zz_error['validation']['log_post_data'] = true;
 		} elseif (empty($field['dont_show_missing'])) {
-			// there's a value missing
-			$zz_error['validation']['msg'][] = zz_text('Value missing in field')
-				.' <strong>'.$field['title'].'</strong>';
-			$zz_error['validation']['log_post_data'] = true;
+			if ($field['type'] === 'upload_image') {
+				$zz_error['validation']['msg'][] = sprintf(zz_text('Nothing was uploaded in field %s'),
+					'<strong>'.$field['title'].'</strong>');
+			} else {
+				// there's a value missing
+				$zz_error['validation']['msg'][] = zz_text('Value missing in field')
+					.' <strong>'.$field['title'].'</strong>';
+				$zz_error['validation']['log_post_data'] = true;
+			}
 		}
 	}
 	return true;
@@ -2060,14 +2065,27 @@ function zz_makelink($path, $record, $type = 'link') {
 		}
 	}
 
-	if ($check_against_root) { // check whether file exists
-		if (!file_exists($path_full.$url)) { // file does not exist = false
+	// get filetype from extension
+	if (strstr($url, '.')) {
+		$ext = strtoupper(substr($url, strrpos($url, '.') + 1));
+	} else {
+		$ext = zz_text('- unknown -');
+	}
+	
+	if ($check_against_root) {
+		// check whether file exists
+		if (!file_exists($path_full.$url)) {
+			// file does not exist = false
 			return false;
 		}
-		if ($type == 'image'
-			AND (!filesize($path_full.$url) 	// filesize is 0 = looks like error
-			OR !getimagesize($path_full.$url))) { // getimagesize test whether it's an image
-			return false;
+		if ($type == 'image') {
+			// filesize is 0 = looks like error
+			if (!$size = filesize($path_full.$url)) return false;
+			// getimagesize tests whether it's a web image
+			if (!getimagesize($path_full.$url)) {
+				// if not, return EXT (4.4 MB)
+				return $ext.' ('.zz_format_bytes($size).')';
+			}
 		}
 	}
 	$url = $path_web.$url;
