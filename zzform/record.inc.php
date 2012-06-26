@@ -181,6 +181,15 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 
 	if ($div_record_open) $output .= "</div>\n";
 	if ($form_open) $output .= "</form>\n";
+
+	if (!empty($zz_conf['footer_record']['insert']) AND zz_valid_request('insert')) {
+		$output .= $zz_conf['footer_record']['insert'];
+	} elseif (!empty($zz_conf['footer_record']['update']) AND zz_valid_request(array('update', 'noupdate'))) {
+		$output .= $zz_conf['footer_record']['update'];
+	} elseif (!empty($zz_conf['footer_record']['delete']) AND zz_valid_request('delete')) {
+		$output .= $zz_conf['footer_record']['delete'];
+	}	
+	
 	return $output;
 }
 
@@ -2613,14 +2622,15 @@ function zz_field_image($field, $display, $record, $record_saved, $images, $mode
 		if (!$img AND !empty($record_saved)) {
 			$text .= $img = zz_makelink($field['path'], $record_saved, 'image');
 		}
-		if (!$img)
+		if (!$img) {
 			$text .= '('.zz_text('image_not_display').')';
+		}
 		$text .= '</p>';
 	}
 	if (($mode == 'add' OR $mode == 'edit') && $field['type'] == 'upload_image') {
 		if (!isset($field['image'])) {
 			$zz_error[] = array(
-				'msg' => 'Image upload is currently not possible. '
+				'msg' => 'File upload is currently impossible. '
 					.zz_text('An error occured. We are working on the '
 					.'solution of this problem. Sorry for your '
 					.'inconvenience. Please try again later.'),
