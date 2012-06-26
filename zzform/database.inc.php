@@ -326,9 +326,9 @@ function zz_sql_prefix_change(&$item, $key) {
 	case 'zz_conf':
 		// $zz_conf['filter'][n]['sql']
 		// $zz_conf['filter'][n]['where']
-		// $zz_conf['heading_sql']
+		// $zz_conf['heading_sub'][field]['sql']
 		$sql_fields = array(
-			'sql', 'where', 'heading_sql', 'logging_table', 'relations_table',
+			'sql', 'where', 'logging_table', 'relations_table',
 			'text_table', 'translations_table'
 		);
 		break;

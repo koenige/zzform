@@ -715,9 +715,8 @@ function zz_hash($zz, $zz_conf) {
 	$uninteresting_zzform_keys = array('zzform_calls', 'int', 'id', 'heading',
 		'heading_text', 'footer_text', 'additional_text', 'breadcrumbs',
 		'dont_show_title_as_breadcrumb', 'error_handling', 'error_log', 'format',
-		'group_html_table', 'heading_enum', 'heading_link', 'heading_sql',
-		'heading_text', 'heading_text_hidden_while_editing', 'heading_var',
-		'heading_link_no_append', 'list_display', 'limit_display', 'logging',
+		'group_html_table', 'heading_sub', 'heading_text_hidden_while_editing', 
+		'list_display', 'limit_display', 'logging',
 		'logging_id', 'logging_table', 'log_missing_text', 'mail_subject_prefix',
 		'title', 'title_separator', 'referer', 'access', 'heading_prefix'
 	);
