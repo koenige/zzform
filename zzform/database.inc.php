@@ -328,7 +328,8 @@ function zz_sql_prefix_change(&$item, $key) {
 		// $zz_conf['filter'][n]['where']
 		// $zz_conf['heading_sql']
 		$sql_fields = array(
-			'sql', 'where', 'heading_sql', 'logging_table'
+			'sql', 'where', 'heading_sql', 'logging_table', 'relations_table',
+			'text_table', 'translations_table'
 		);
 		break;
 	}
