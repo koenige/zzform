@@ -1,7 +1,7 @@
 <?php 
 
 // zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2004-2010
+// Copyright (c) 2004-2012 Gustaf Mossakowski <gustaf@koenige.org>
 // Core
 
 /*
@@ -567,13 +567,17 @@ function zz_valid_request($action = false) {
 	if (empty($_GET['zzhash'])) return false;
 	
 	global $zz_conf;
+	static $dont_log_error;
 	if ($_GET['zzhash'] !== $zz_conf['int']['secret_key']) {
 		global $zz_error;
-		$zz_error[] = array(
-			'msg_dev' => sprintf('Hash of script and ID differs from secret key (hash %s, secret %s).'
-				, $_GET['zzhash'], $zz_conf['int']['secret_key']),
-			'level' => E_USER_NOTICE
-		);
+		if (!$dont_log_error) {
+			$zz_error[] = array(
+				'msg_dev' => sprintf('Hash of script and ID differs from secret key (hash %s, secret %s).'
+					, $_GET['zzhash'], $zz_conf['int']['secret_key']),
+				'level' => E_USER_NOTICE
+			);
+			$dont_log_error = true;
+		}
 		return false;
 	}
 	return true;
