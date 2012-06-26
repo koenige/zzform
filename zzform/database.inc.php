@@ -339,11 +339,11 @@ function zz_sql_prefix_change(&$item, $key) {
 		}
 	} else {
 		// still do the same until we are sure enough what to think of
-		if (strstr($item, $prefix)) {
+		if (is_string($item) AND strstr($item, $prefix)) {
 			$item = str_replace($prefix, $zz_conf['prefix'], $item);
 			if (function_exists('wrap_error')) {
-				wrap_error(sprintf('Table prefix for item %s (value %s) replaced'
-				.' which was not anticipated', $item, $value), E_USER_NOTICE);
+				wrap_error(sprintf('Table prefix for key %s (item %s) replaced'
+				.' which was not anticipated', $key, $item), E_USER_NOTICE);
 			}
 		}
 	}
