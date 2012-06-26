@@ -101,6 +101,8 @@ function zzform($zz = array()) {
 		zz_error();
 		$ops['output'] .= zz_error_output();
 	}
+
+	$zz_conf = zz_backwards($zz_conf);
 	
 	// get hash from $zz and $zz_conf to get a unique identification of
 	// the settings, e. g. to save time for zzform_multi() or to get a
@@ -976,6 +978,25 @@ function zz_meta_tags() {
 		$meta[] = array('name' => 'robots', 'content' => 'noindex, follow');
 	}
 	return $meta;
+}
+
+/**
+ * change some values, just for backwards compatibility
+ *
+ * @param array $zz_conf
+ * @return array
+ */
+function zz_backwards($zz_conf) {
+	$headings = array('var', 'sql', 'enum', 'link', 'link_no_append');
+	foreach ($headings as $suffix) {
+		if (isset($zz_conf['heading_'.$suffix])) {
+			foreach ($zz_conf['heading_'.$suffix] as $field => $value) {
+				$zz_conf['heading_sub'][$field][$suffix] = $value;
+				unset ($zz_conf['heading_'.$suffix][$field]);
+			}
+		}
+	}
+	return $zz_conf;
 }
 
 ?>

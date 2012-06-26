@@ -62,15 +62,18 @@ function zz_nice_headings($heading, $zz_fields, $where_condition = array()) {
 		$wh = explode('.', $mywh);
 		if (!isset($wh[1])) $index = 0; // without .
 		else $index = 1;
+		if (!isset($zz_conf['heading_sub'][$wh[$index]]['var'])) continue;
 		$heading_addition[$i] = false;
-		if (isset($zz_conf['heading_sql'][$wh[$index]]) && 
-			isset($zz_conf['heading_var'][$wh[$index]]) AND
-			$where_condition[$mywh]) { // only if there is a value! (might not be the case if write_once-fields come into play)
-		//	create sql query, with $mywh instead of $wh[$index] because first might be ambiguous
-			$wh_sql = zz_edit_sql($zz_conf['heading_sql'][$wh[$index]], 'WHERE', 
+		$subheading = $zz_conf['heading_sub'][$wh[$index]];
+		if (isset($subheading['sql']) AND $where_condition[$mywh]) {
+			// only if there is a value! (might not be the case if 
+			// write_once-fields come into play)
+			// create sql query, with $mywh instead of $wh[$index] because first 
+			// might be ambiguous
+			$wh_sql = zz_edit_sql($subheading['sql'], 'WHERE', 
 				$mywh.' = '.zz_db_escape($where_condition[$mywh]));
 			$wh_sql .= ' LIMIT 1';
-		//	if key_field_name is set
+			//	if key_field_name is set
 			foreach ($zz_fields as $field)
 				if (isset($field['field_name']) && $field['field_name'] == $wh[$index])
 					if (isset($field['key_field_name']))
@@ -78,23 +81,21 @@ function zz_nice_headings($heading, $zz_fields, $where_condition = array()) {
 			// just send a notice if this doesn't work as it's not crucial
 			$heading_values = zz_db_fetch($wh_sql, '', '', '', E_USER_NOTICE);
 			if ($heading_values) {
-				foreach ($zz_conf['heading_var'][$wh[$index]] as $myfield)
+				foreach ($subheading['var'] as $myfield)
 					$heading_addition[$i] .= ' '.$heading_values[$myfield];
 			}
-		} elseif (isset($zz_conf['heading_enum'][$wh[$index]]) && 
-			isset($zz_conf['heading_var'][$wh[$index]])) {
-				$heading_addition[$i] .= ' '.htmlspecialchars($where_condition[$mywh]);
-				// todo: insert corresponding value in enum_title
+		} elseif (isset($subheading['enum'])) {
+			$heading_addition[$i] .= ' '.htmlspecialchars($where_condition[$mywh]);
+			// todo: insert corresponding value in enum_title
 		}
-		if ($heading_addition[$i] AND !empty($zz_conf['heading_link'][$wh[$index]])) {
+		if ($heading_addition[$i] AND !empty($subheading['link'])) {
 			$append = '';
-			if (empty($zz_conf['heading_link_no_append'][$wh[$index]])) {
-				if (strstr($zz_conf['heading_link'][$wh[$index]], '?')) $sep = '&amp;';
+			if (empty($subheading['link_no_append'])) {
+				if (strstr($subheading['link'], '?')) $sep = '&amp;';
 				else $sep = '?';
 				$append = $sep.'mode=show&amp;id='.urlencode($where_condition[$mywh]);
 			}
-			$heading_addition[$i] = '<a href="'.$zz_conf['heading_link'][$wh[$index]]
-				.$append.'">'
+			$heading_addition[$i] = '<a href="'.$subheading['link'].$append.'">'
 				.$heading_addition[$i].'</a>';
 		}
 		if (empty($heading_addition[$i])) unset($heading_addition[$i]);
