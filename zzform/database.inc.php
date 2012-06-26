@@ -1,16 +1,20 @@
 <?php 
 
-// zzform scripts (Zugzwang Project)
-// (c) Gustaf Mossakowski <gustaf@koenige.org>, 2004-2012
-// Database functions
-
-
 /**
+ * zzform scripts
+ * Database functions
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzform
+ *
  * Contents:
- * 
  * D - Database functions (common functions)
  * D - Database functions (MySQL-specific functions)
  *		zz_db_*()
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2004-2012 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
 
@@ -253,6 +257,96 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 	}
 	if ($recursion) $sql = zz_edit_sql($sql, $n_part, $values, $mode);
 	return zz_return($sql);
+}
+
+/**
+ * checks if SQL queries use table prefixes and replace them with current
+ * table prefix from configuration
+ * syntax for prefixes is SQL comment / *PREFIX* /
+ *
+ * @param array $zz definition of table
+ * @return array $zz (definition with replacements for table prefixes)
+ */
+function zz_sql_prefix($zz) {
+	global $zz_conf;
+
+	$zz_conf['int']['prefix_change'] = 'zz';
+	array_walk_recursive($zz, 'zz_sql_prefix_change');
+	$zz_conf['int']['prefix_change'] = 'zz_conf';
+	array_walk_recursive($zz_conf, 'zz_sql_prefix_change');
+	unset($zz_conf['int']['prefix_change']);
+
+	return $zz;
+}
+
+/**
+ * checks each key if it might potentially have a table prefix
+ * and replaces all prefixes of its value
+ *
+ * @param mixed $item
+ * @param string $key
+ * @global array $zz_conf
+ * @return void
+ * @todo remove this function and do the replacement in zz_db_fetch() instead
+ * for this to happen, all functions getting database names from table etc.
+ * must be rewritten
+ */
+function zz_sql_prefix_change(&$item, $key) {
+	global $zz_conf;
+	$prefix = '/*_PREFIX_*/';
+	switch ($zz_conf['int']['prefix_change']) {
+	case 'zz':
+		// $zz['conditional_fields'][n]['sql']
+		// $zz['conditions'][n]['add']['sql']
+		// $zz['conditions'][n]['having']
+		// $zz['conditions'][n]['sql']
+		// $zz['conditions'][n]['where']
+		// $zz['fields'][n]['conf_identifier']['where'] 
+		// $zz['fields'][n]['path_sql']
+		// $zz['fields'][n]['search']
+		// $zz['fields'][n]['search_between']
+		// $zz['fields'][n]['set_sql']
+		// $zz['fields'][n]['sql']
+		// $zz['fields'][n]['sqlorder']
+		// $zz['fields'][n]['sql_not_unique']
+		// $zz['fields'][n]['sql_password_check']
+		// $zz['fields'][n]['subselect']['sql']
+		// $zz['fields'][n]['upload_sql']
+		// $zz['fields'][n]['image'][n]['options_sql']
+		// $zz['fields'][n]['image'][n]['source_path_sql']
+		// $zz['sql'] 
+		// $zz['sqlorder']
+		// $zz['table']
+		$sql_fields = array(
+			'sql', 'having', 'where', 'path_sql', 'search', 'search_between',
+			'set_sql', 'sqlorder', 'sql_not_unique', 'sql_password_check',
+			'upload_sql', 'options_sql', 'source_path_sql', 'table'
+		);
+		break;
+	case 'zz_conf':
+		// $zz_conf['filter'][n]['sql']
+		// $zz_conf['filter'][n]['where']
+		// $zz_conf['heading_sql']
+		$sql_fields = array(
+			'sql', 'where', 'heading_sql', 'logging_table'
+		);
+		break;
+	}
+
+	if (in_array($key, $sql_fields)) {
+		if (strstr($item, $prefix)) {
+			$item = str_replace($prefix, $zz_conf['prefix'], $item);
+		}
+	} else {
+		// still do the same until we are sure enough what to think of
+		if (strstr($item, $prefix)) {
+			$item = str_replace($prefix, $zz_conf['prefix'], $item);
+			if (function_exists('wrap_error')) {
+				wrap_error(sprintf('Table prefix for item %s (value %s) replaced'
+				.' which was not anticipated', $item, $value), E_USER_NOTICE);
+			}
+		}
+	}
 }
 
 /**

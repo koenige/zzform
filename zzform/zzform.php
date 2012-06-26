@@ -1,40 +1,37 @@
 <?php 
 
-// zzform scripts (Zugzwang Project)
-// Copyright (c) 2004-2012 Gustaf Mossakowski <gustaf@koenige.org>
-// Core
+/**
+ * zzform
+ * Core script
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzform
+ *
+ * required: at least PHP 4.1.2 
+ * lower PHP versions have not been tested
+ * - mysql_real_escape_string: above 4.3 (addslashes will be used in PHP versions prior)
+ * - exif_read_info: above 4.2 (no exif data will be read in PHP versions prior)
+ *
+ * List of functions in this file
+ *	zzform()				main zzform function
+ *		zz_initialize()		sets defaults, imports modules, reads URI
+ *	zzform_multi()			multi edit for zzform, e. g. import
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2004-2012 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
 
-/*
-
-zzform
-
-This script (c) Copyright 2004-2010 Gustaf Mossakowski, gustaf@koenige.org
-No use without permission. The use of this product is restricted
-to what has been agreed on in written or spoken form beforehands. If nothing 
-has been explicitly said about the use, these scripts may not be used for a
-different database than originally intended.
-
-required: at least PHP 4.1.2 
-lower PHP versions have not been tested
-- mysql_real_escape_string: above 4.3 (addslashes will be used in PHP versions prior)
-- exif_read_info: above 4.2 (no exif data will be read in PHP versions prior)
-
-
-List of functions in this file
-
-	zzform()				main zzform function
-		zz_initialize()		sets defaults, imports modules, reads URI
-
-	zzform_multi()			multi edit for zzform, e. g. import
-
-*/
 
 //	Required Variables, global so they can be used by the including script after
 //	processing as well
 
 global $zz_conf;	// Config variables
 
-//	include deprecated page function, it's recommended to use zzbrick instead
+/**
+ * include deprecated page function, it's recommended to use zzbrick instead
+ * @deprecated
+ */
 if (file_exists($zz_conf['dir'].'/page.inc.php'))
 	require_once $zz_conf['dir'].'/page.inc.php';
 elseif (file_exists($zz_conf['dir'].'/inc/page.inc.php'))
@@ -116,6 +113,7 @@ function zzform($zz = array()) {
 
 	list($zz_tab[0]['db_name'], $zz['table']) = zz_db_connection($zz['table']);
 	if (!$zz_tab[0]['db_name']) return zzform_exit($ops); // exits script
+	$zz = zz_sql_prefix($zz);
 
 //
 //	Filter, WHERE, ID
