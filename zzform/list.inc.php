@@ -622,20 +622,20 @@ function zz_list_filter_sql($sql) {
 			AND $filter['type'] == 'list') {
 			// it's a valid filter, so apply it.
 			$filter_value = $_GET['filter'][$filter['identifier']];
-			// allow ! as a symbol (may be escaped by \)
-			// for !=
-			$equals = ' = ';
-			if (substr($filter_value, 0, 1) === '!') {
-				$filter_value = substr($filter_value, 1);
-				$equals = ' != ';
-			} elseif (substr($filter_value, 0, 1) === '\\') {
-				$filter_value = substr($filter_value, 1);
-			}
 			if ($filter_value == 'NULL') {
 				$sql = zz_edit_sql($sql, 'WHERE', 'ISNULL('.$filter['where'].')');
 			} elseif ($filter_value == '!NULL') {
 				$sql = zz_edit_sql($sql, 'WHERE', '!ISNULL('.$filter['where'].')');
 			} else {
+				// allow ! as a symbol (may be escaped by \)
+				// for !=
+				$equals = ' = ';
+				if (substr($filter_value, 0, 1) === '!') {
+					$filter_value = substr($filter_value, 1);
+					$equals = ' != ';
+				} elseif (substr($filter_value, 0, 1) === '\\') {
+					$filter_value = substr($filter_value, 1);
+				}
 				$sql = zz_edit_sql($sql, 'WHERE', $filter['where'].$equals.'"'.$filter_value.'"');
 			}
 		} elseif ($filter['type'] == 'list' AND is_array($filter['where'])) {
