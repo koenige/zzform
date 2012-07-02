@@ -300,7 +300,9 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 								// existing and new value are both NULL or not there
 								$update = false;
 							}
-						} elseif ($post !== $zz_tab[$tab]['existing'][$rec][$field['field_name']]) {
+						} elseif ($post != $zz_tab[$tab]['existing'][$rec][$field['field_name']]) {
+							// DONT'T CHANGE THIS TO !== because integers come
+							// to this place as strings
 							// there's a difference, so we have to sent this query
 							$equal = false;
 						} else {
