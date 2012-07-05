@@ -70,10 +70,13 @@ function zzform_import($ops) {
  * @param string $definition_file $zz-table script which defines db table(s)
  * @param array $values Values for import into database
  * @param array $params
- *		'base_dir' (base path to directory where files reside),
- *		'source_dir', 'destination_dir'
- *		'destination_sql', 'destination_identifier', 'destination_conf_identifier'
- *		'parent_destination_folder_id'
+ *		string 'base_dir' (base path to directory where files reside)
+ *		string 'source_dir'
+ *		string 'destination_dir'
+ *		string 'destination_sql'
+ *		string 'destination_identifier'
+ *		array 'destination_conf_identifier'
+ *		int 'parent_destination_folder_id'
  * @return string HTML output of what was imported/failed
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -126,7 +129,7 @@ function zz_import_files($definition_file, $values, $params) {
 		$file['short'] = $filename;
 		$file['extension'] = '';
 		$file['basename'] = $filename;
-		if (is_dir($params['source_dir'].'/'.$filename)) {
+		if (is_dir($file['full'])) {
 			$file['type'] = 'folder';
 			$folders[] = $file;		
 		} else {
@@ -200,10 +203,13 @@ function zz_import_files($definition_file, $values, $params) {
  * @param string $definition_file $zz-table script which defines db table(s)
  * @param array $values Values for import into database
  * @param array $params
- *		'base_dir' (base path to directory where files reside),
- *		'source_dir', 'destination_dir'
- *		'destination_sql', 'destination_identifier', 'destination_conf_identifier'
- *		'parent_destination_folder_id'
+ *		string 'base_dir' (base path to directory where files reside)
+ *		string 'source_dir'
+ *		string 'destination_dir'
+ *		string 'destination_sql'
+ *		string 'destination_identifier'
+ *		array 'destination_conf_identifier'
+ *		int 'parent_destination_folder_id'
  * @return string HTML output of what was imported/failed
  *		$params['destination_folder_id'] and $params['destination_identifier']
  *		will be changed
@@ -353,10 +359,13 @@ function zz_import_check_matches($filename, $matches) {
  *		array 'file'
  *		array 'local'
  * @param array $params
- *		'base_dir' (base path to directory where files reside),
- *		'source_dir', 'destination_dir'
- *		'destination_sql', 'destination_identifier', 'destination_conf_identifier'
- *		'parent_destination_folder_id'
+ *		string 'base_dir' (base path to directory where files reside)
+ *		string 'source_dir'
+ *		string 'destination_dir'
+ *		string 'destination_sql'
+ *		string 'destination_identifier'
+ *		array 'destination_conf_identifier'
+ *		int 'parent_destination_folder_id'
  * @param array $files
  *		indexed by basename, list of files per basename indexed by extension
  * @return string HTML output of what was imported/failed
