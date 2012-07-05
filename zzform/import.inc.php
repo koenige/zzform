@@ -71,7 +71,6 @@ function zzform_import($ops) {
  * @param array $values Values for import into database
  * @param array $params
  *		'source_dir'['basedir'] (base path to directory where files reside),
- *		'source_dir'['short'] (optional, path from basedir to current directory),
  *		'source_dir'['full'] (optional, basedir . short), 'destination_dir'
  *		'destination_sql', 'destination_identifier', 'destination_conf_identifier'
  *		'parent_destination_folder_id'
@@ -96,10 +95,8 @@ function zz_import_files($definition_file, $values, $params) {
 	if (!empty($zz_conf['modules']['debug'])) zz_debug('start', __FUNCTION__);
 
 	// set parameters if not set to defaults
-	if (empty($params['source_dir']['short'])) 
-		$params['source_dir']['short'] = '';
-	if (empty($params['source_dir']['full'])) 
-		$params['source_dir']['full'] = $params['source_dir']['basedir'].$params['source_dir']['short'];
+	if (empty($params['source_dir']['full']))
+		$params['source_dir']['full'] = $params['source_dir']['basedir'];
 
 	// check if directory exists, just a security precaution
 	if (!file_exists($params['source_dir']['full']) || !is_dir($params['source_dir']['full'])) {
@@ -174,7 +171,6 @@ function zz_import_files($definition_file, $values, $params) {
 		// if time's almost up, exit function
 		if (microtime(true) > $params['time']['start']+$params['time']['max_execution_time'])
 			break;
-		$params['source_dir']['short'] .= '/'.$folder['short'];
 		$params['source_dir']['full'] = $folder['full'];
 		$params['destination_dir'] = $params['destination_identifier'].'/'.$folder['short'];
 		$output .= zz_import_files($definition_file, $values, $params);
@@ -205,7 +201,6 @@ function zz_import_files($definition_file, $values, $params) {
  * @param array $values Values for import into database
  * @param array $params
  *		'source_dir'['basedir'] (base path to directory where files reside),
- *		'source_dir'['short'] (optional, path from basedir to current directory),
  *		'source_dir'['full'] (optional, basedir . short), 'destination_dir'
  *		'destination_sql', 'destination_identifier', 'destination_conf_identifier'
  *		'parent_destination_folder_id'
@@ -359,7 +354,6 @@ function zz_import_check_matches($filename, $matches) {
  *		array 'local'
  * @param array $params
  *		'source_dir'['basedir'] (base path to directory where files reside),
- *		'source_dir'['short'] (optional, path from basedir to current directory),
  *		'source_dir'['full'] (optional, basedir . short), 'destination_dir'
  *		'destination_sql', 'destination_identifier', 'destination_conf_identifier'
  *		'parent_destination_folder_id'
