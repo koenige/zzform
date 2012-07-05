@@ -22,11 +22,10 @@
  */
 function zzform_import($ops) {
 	global $zz_conf;
-
-	zz_initialize('overwrite');
-
 	require_once $zz_conf['dir_inc'].'/functions.inc.php';	// include core functions
 	require_once $zz_conf['dir_inc'].'/database.inc.php';	// include db functions
+
+	zz_initialize('overwrite');
 
 	$ops['output'] = '';
 	$ops['mode'] = 'import';
@@ -83,7 +82,6 @@ function zzform_import($ops) {
 function zz_import_files($definition_file, $values, $params) {
 	global $zz_conf;
 	global $zz_error;
-	global $zz_setting;
 	global $zz_import_error_msg;
 
 	static $zz_import_i;
@@ -218,7 +216,6 @@ function zz_import_files($definition_file, $values, $params) {
 function zz_import_create_folder($definition_file, $values, &$params) {
 	global $zz_conf;
 	global $zz_error;
-	global $zz_setting;
 
 	// initalize variables
 	$output = '';
@@ -226,10 +223,20 @@ function zz_import_create_folder($definition_file, $values, &$params) {
 	// 1. Check whether destination folder is already in database?
 	// TODO: problem that identifier will be different after it was inserted
 	// TODO: this gets most of it, but will not check for max_length
-	if (!empty($params['destination_conf_identifier']))
-	 	$params['destination_identifier'] = zz_identifier(array($params['destination_dir']), $params['destination_conf_identifier']);
-	else
+	if (!empty($params['destination_conf_identifier'])) {
+		if (!empty($params['destination_identifier'])) {
+			// existing elements
+			$fields[] = $params['destination_identifier'];
+			// new element, restricted to max_length; remove leading slash
+			$fields[] = substr(str_replace($params['destination_identifier'],
+				'', $params['destination_dir']), 1);
+		} else {
+			$fields[] = $params['destination_dir'];
+		}
+	 	$params['destination_identifier'] = zz_identifier($fields, $params['destination_conf_identifier']);
+	} else {
 		$params['destination_identifier'] = $params['destination_dir'];
+	}
 	$sql = sprintf($params['destination_sql'], zz_db_escape($params['destination_identifier']));
 	$parent_destination_folder_id = zz_db_fetch($sql, '', 'single value');
 	if ($parent_destination_folder_id) {
@@ -375,7 +382,6 @@ function zz_import_check_matches($filename, $matches) {
 function zz_import_create_files($definition_file, $values, &$params, &$files) {
 	global $zz_conf;
 	global $zz_error;
-	global $zz_setting;
 	global $zz_import_error_msg;
 
 	if (!empty($zz_conf['modules']['debug'])) zz_debug('start', __FUNCTION__);
@@ -495,10 +501,9 @@ function zz_import_create_files($definition_file, $values, &$params, &$files) {
  */
 function zz_import_show_wheres($definition_file, $values = array()) {
 	global $zz_conf;
-	global $zz_setting;
 
 	$zz_conf['multi'] = true;
-	$zz_setting['testimport'] = true;
+	$zz_conf['testimport'] = true;
 	if (!empty($values['file']['GET'])) {
 		$_GET = $values['file']['GET'];
 	} elseif (!isset($_GET)) {
@@ -506,24 +511,26 @@ function zz_import_show_wheres($definition_file, $values = array()) {
 	}
 
 	// get $zz definitions
+	global $zz_setting;
 	require $zz_conf['form_scripts'].'/'.$definition_file.'.php';
+
 	$output = '';
 	$text = array();
 	
 	foreach ($_GET['where'] AS $fieldname => $value) {
 		$zz['fields'] = zz_fill_out($zz['fields'], $zz_conf['db_name'].'.'.$zz['table']);
 		foreach ($zz['fields'] AS $field)
-			if (!empty($field['field_name']) AND $field['field_name'] == $fieldname) {
-				if (!empty($field['sql'])) {
-					$sql = zz_edit_sql($field['sql'], 'WHERE', $field['field_name'].'="'.$value.'"');
-					$line = zz_db_fetch($sql, '', '', __FUNCTION__);
-					if ($line) {
-						array_shift($line); // first field MUST be ID
-						$value = implode(' | ', $line);
-					}
+			if (empty($field['field_name'])) continue;
+			if ($field['field_name'] != $fieldname) continue;
+			if (!empty($field['sql'])) {
+				$sql = zz_edit_sql($field['sql'], 'WHERE', $field['field_name'].'="'.$value.'"');
+				$line = zz_db_fetch($sql, '', '', __FUNCTION__);
+				if ($line) {
+					array_shift($line); // first field MUST be ID
+					$value = implode(' | ', $line);
 				}
-				$text[] = $field['title'].': '.$value;
 			}
+			$text[] = $field['title'].': '.$value;
 	}
 	$output .= ' &#8211; '.implode(' / ', $text);
 	return $output;
