@@ -519,7 +519,7 @@ function zz_import_show_wheres($definition_file, $values = array()) {
 	
 	foreach ($_GET['where'] AS $fieldname => $value) {
 		$zz['fields'] = zz_fill_out($zz['fields'], $zz_conf['db_name'].'.'.$zz['table']);
-		foreach ($zz['fields'] AS $field)
+		foreach ($zz['fields'] AS $field) {
 			if (empty($field['field_name'])) continue;
 			if ($field['field_name'] != $fieldname) continue;
 			if (!empty($field['sql'])) {
@@ -531,6 +531,7 @@ function zz_import_show_wheres($definition_file, $values = array()) {
 				}
 			}
 			$text[] = $field['title'].': '.$value;
+		}
 	}
 	$output .= ' &#8211; '.implode(' / ', $text);
 	return $output;
