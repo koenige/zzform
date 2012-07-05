@@ -70,8 +70,8 @@ function zzform_import($ops) {
  * @param string $definition_file $zz-table script which defines db table(s)
  * @param array $values Values for import into database
  * @param array $params
- *		'source_dir'['basedir'] (base path to directory where files reside),
- *		'source_dir'['full'] (optional, basedir . short), 'destination_dir'
+ *		'base_dir' (base path to directory where files reside),
+ *		'source_dir', 'destination_dir'
  *		'destination_sql', 'destination_identifier', 'destination_conf_identifier'
  *		'parent_destination_folder_id'
  * @return string HTML output of what was imported/failed
@@ -95,12 +95,12 @@ function zz_import_files($definition_file, $values, $params) {
 	if (!empty($zz_conf['modules']['debug'])) zz_debug('start', __FUNCTION__);
 
 	// set parameters if not set to defaults
-	if (empty($params['source_dir']['full']))
-		$params['source_dir']['full'] = $params['source_dir']['basedir'];
+	if (empty($params['source_dir']))
+		$params['source_dir'] = $params['base_dir'];
 
 	// check if directory exists, just a security precaution
-	if (!file_exists($params['source_dir']['full']) || !is_dir($params['source_dir']['full'])) {
-		$output = '<p>'.sprintf(zz_text('Folder "%s" does not exist.'), $params['source_dir']['full']).'</p>'."\n";
+	if (!file_exists($params['source_dir']) || !is_dir($params['source_dir'])) {
+		$output = '<p>'.sprintf(zz_text('Folder "%s" does not exist.'), $params['source_dir']).'</p>'."\n";
 		return zz_return($output);
 	}
 
@@ -118,15 +118,15 @@ function zz_import_files($definition_file, $values, $params) {
 	// go on with files in folder
 	// open folder recursively
 	if (!empty($zz_conf['modules']['debug'])) zz_debug('read files start');
-	$handle = opendir($params['source_dir']['full']);
+	$handle = opendir($params['source_dir']);
 	while ($filename = readdir($handle)) {
 		if (substr($filename, 0, 1) == '.') continue; // ignore filenames with dots
 		$file = array();
-		$file['full'] = $params['source_dir']['full'].'/'.$filename;
+		$file['full'] = $params['source_dir'].'/'.$filename;
 		$file['short'] = $filename;
 		$file['extension'] = '';
 		$file['basename'] = $filename;
-		if (is_dir($params['source_dir']['full'].'/'.$filename)) {
+		if (is_dir($params['source_dir'].'/'.$filename)) {
 			$file['type'] = 'folder';
 			$folders[] = $file;		
 		} else {
@@ -171,7 +171,7 @@ function zz_import_files($definition_file, $values, $params) {
 		// if time's almost up, exit function
 		if (microtime(true) > $params['time']['start']+$params['time']['max_execution_time'])
 			break;
-		$params['source_dir']['full'] = $folder['full'];
+		$params['source_dir'] = $folder['full'];
 		$params['destination_dir'] = $params['destination_identifier'].'/'.$folder['short'];
 		$output .= zz_import_files($definition_file, $values, $params);
 		if (!empty($zz_conf['modules']['debug'])) zz_debug("folder end");
@@ -200,8 +200,8 @@ function zz_import_files($definition_file, $values, $params) {
  * @param string $definition_file $zz-table script which defines db table(s)
  * @param array $values Values for import into database
  * @param array $params
- *		'source_dir'['basedir'] (base path to directory where files reside),
- *		'source_dir'['full'] (optional, basedir . short), 'destination_dir'
+ *		'base_dir' (base path to directory where files reside),
+ *		'source_dir', 'destination_dir'
  *		'destination_sql', 'destination_identifier', 'destination_conf_identifier'
  *		'parent_destination_folder_id'
  * @return string HTML output of what was imported/failed
@@ -242,7 +242,7 @@ function zz_import_create_folder($definition_file, $values, &$params) {
 	
 	// 2. If not, create new folder, but this will not be possible for top level folders
 	// TODO: set values dependent on $destination_folder_id!!
-	$source_dir = str_replace($params['source_dir']['basedir'], '', $params['source_dir']['full']);
+	$source_dir = str_replace($params['base_dir'], '', $params['source_dir']);
 	
 	if (!empty($values['folder']['placeholder'])) {
 		foreach ($values['folder']['placeholder'] as $index => $vals) {
@@ -353,8 +353,8 @@ function zz_import_check_matches($filename, $matches) {
  *		array 'file'
  *		array 'local'
  * @param array $params
- *		'source_dir'['basedir'] (base path to directory where files reside),
- *		'source_dir'['full'] (optional, basedir . short), 'destination_dir'
+ *		'base_dir' (base path to directory where files reside),
+ *		'source_dir', 'destination_dir'
  *		'destination_sql', 'destination_identifier', 'destination_conf_identifier'
  *		'parent_destination_folder_id'
  * @param array $files
@@ -380,9 +380,9 @@ function zz_import_create_files($definition_file, $values, &$params, &$files) {
 				.sprintf(zz_text('%s files left for import. Please wait, the script will reload itself.'), count($files)).'</p>'."\n";
 			break;
 		}
-		if (!is_writeable(dirname($params['source_dir']['full']))) {
+		if (!is_writeable(dirname($params['source_dir']))) {
 			$output .= zz_text('Warning! Insufficient access rights. Please make sure that the source directory is writable.')
-				.': '.$params['source_dir']['full']."\n"
+				.': '.$params['source_dir']."\n"
 				.'</li>'."\n";
 			break;
 		}
@@ -405,7 +405,7 @@ function zz_import_create_files($definition_file, $values, &$params, &$files) {
 				}
 				if (!empty($vals['matches'])) {
 					foreach ($myfiles as $type => $myfile) {
-						$filename = str_replace($params['source_dir']['basedir'], '', $myfile['full']);
+						$filename = str_replace($params['base_dir'], '', $myfile['full']);
 						$val = zz_import_check_matches($filename, $vals['matches']);
 						if (is_null($val)) 
 							// don't change anything, go on to next value
