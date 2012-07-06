@@ -160,7 +160,7 @@ $zz_default['upload_filetype_map']['jpe'] = 'jpeg';
 $zz_default['upload_filetype_map']['jpg'] = 'jpeg';
 
 $zz_default['upload_no_thumbnails'] = array('doc', 'docx', 'wps', 'rtf', 'xls',
-	'dot', 'odt', 'ott', 'ods', 'indd');
+	'dot', 'odt', 'ott', 'ods', 'indd', 'txt', 'csv');
 
 /*	----------------------------------------------	*
  *					MAIN FUNCTIONS					*
@@ -697,6 +697,8 @@ function zz_upload_filecheck($mimetype, $extension) {
 function zz_upload_getimagesize($filename, $file) {
 	global $zz_conf;
 	if (!function_exists('getimagesize')) return $file;
+	if (!file_exists($filename)) return $file;
+	if (is_dir($filename)) return $file;
 	$sizes = getimagesize($filename);
 	if (!$sizes) return $file;
 	if (empty($zz_conf['image_types'][$sizes[2]])) return $file;
