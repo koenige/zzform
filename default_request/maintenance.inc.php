@@ -200,22 +200,22 @@ function zz_maintenance_tables() {
 	if (!empty($zz_conf['relations_table'])) {
 	// Master database
 		$sql = 'SELECT DISTINCT master_db FROM '.$zz_conf['relations_table'];
-		$dbs['master'] = zz_db_fetch($sql, 'master_db', 'single value');
+		$dbs['master'] = wrap_db_fetch($sql, 'master_db', 'single value');
 
 	// Detail database	
 		$sql = 'SELECT DISTINCT detail_db FROM '.$zz_conf['relations_table'];
-		$dbs['detail'] = zz_db_fetch($sql, 'detail_db', 'single value');
+		$dbs['detail'] = wrap_db_fetch($sql, 'detail_db', 'single value');
 	}
 
 	if (!empty($zz_conf['translations_table'])) {
 	// Translations database	
 		$sql = 'SELECT DISTINCT db_name FROM '.$zz_conf['translations_table'];
-		$dbs['translation'] = zz_db_fetch($sql, 'db_name', 'single value');
+		$dbs['translation'] = wrap_db_fetch($sql, 'db_name', 'single value');
 	}
 	
 	// All available databases
 	$sql = 'SHOW DATABASES';
-	$databases = zz_db_fetch($sql, 'Databases', 'single value');
+	$databases = wrap_db_fetch($sql, 'Databases', 'single value');
 	$db_select = '';
 	foreach ($databases as $db) {
 		$db_select .= '<option value="'.$db.'">'.$db.'</option>'."\n";
@@ -274,7 +274,7 @@ function zz_maintenance_integrity() {
 	global $zz_conf;
 
 	$sql = 'SELECT * FROM '.$zz_conf['relations_table'];
-	$relations = zz_db_fetch($sql, 'rel_id');
+	$relations = wrap_db_fetch($sql, 'rel_id');
 
 	$results = array();
 	foreach ($relations as $relation) {
@@ -287,7 +287,7 @@ function zz_maintenance_integrity() {
 			WHERE ISNULL(master_table.`'.$relation['master_field'].'`)
 			AND !ISNULL(detail_table.`'.$relation['detail_field'].'`)
 		';
-		$ids = zz_db_fetch($sql, '_dummy_', 'key/value', false, E_USER_NOTICE);
+		$ids = wrap_db_fetch($sql, '_dummy_', 'key/value', false, E_USER_NOTICE);
 		$detail_field = $relation['detail_db'].' . '.$relation['detail_table'].' . '.$relation['detail_field'];
 		if ($ids) {
 			$line = '<li class="error">'.wrap_text('Error').' &#8211; <code>'
