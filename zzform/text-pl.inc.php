@@ -113,8 +113,8 @@ $text['No entry found. Try less characters.'] = 'Nie odnaleziono. Prosze spróbow
 
 // Record form: Validation, displayed above form
 $text['Following_errors_occured'] = 'Wyst±pi³y nastêpuj±ce b³êdy';
-$text['Value_incorrect_in_field'] = 'B³±d danych';
-$text['Value missing in field'] = 'Brak danych';
+$text['Value incorrect in field %s'] = 'B³±d danych %s';
+$text['Value missing in field %s'] = 'Brak danych %s';
 	$text['Duplicate entry'] = 'Duplicate entry in this table. Please check whether the record you were about to enter already exists or you\'ll have to change the values you entered.';
 $text['Duplicate entry'] = 'Podwójny wpis.';
 $text['Detail record could not be handled'] = 'Wpis nie mo¿e byæ zapisany.';

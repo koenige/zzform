@@ -117,8 +117,8 @@ $text['No entry found. Try less characters.'] = 'Hledání bylo neúspì¹né, zkuste 
 
 // Record form: Validation, displayed above form
 $text['Following_errors_occured'] = 'Do¹lo k následujícím chybám';
-$text['Value_incorrect_in_field'] = '©patná hodnota';
-$text['Value missing in field'] = 'Chybìjící hodnota';
+$text['Value incorrect in field %s'] = '©patná hodnota %s';
+$text['Value missing in field %s'] = 'Chybìjící hodnota %s';
 	$text['Duplicate entry'] = 'Duplicate entry in this table. Please check whether the record you were about to enter already exists or you\'ll have to change the values you entered.';
 	$text['Duplicate entry'] = 'Duplikovaný záznam v této tabulce.';
 //	$text['Detail record could not be handled'] = '';
