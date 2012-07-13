@@ -480,7 +480,6 @@ function zz_upload_remote_file($filename) {
  */
 function zz_upload_fileinfo($file, $extension) {
 	global $zz_conf;
-	global $zz_error;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$file['validated'] = false;
 	$file['filetype'] = 'unknown';
@@ -1258,14 +1257,12 @@ function zz_upload_extension($path, &$my_rec) {
  * @param array $images $zz_tab[$tab][$rec]['images']
  * @param string $action sql action (insert|delete|update)
  * @global array $zz_conf configuration variables
- * @global array $zz_error
  * @return bool true/false
  * @return $images might change as well (?)
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_check(&$images, $action, $rec = 0) {
 	global $zz_conf;
-	global $zz_error;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if ($zz_conf['modules']['debug']) zz_debug();
 	$error = false;
@@ -1344,7 +1341,6 @@ function zz_upload_check(&$images, $action, $rec = 0) {
  * 
  * called from within function zz_upload_action
  * @param array $zz_tab complete table data
- * @global array $zz_error
  * @global array $zz_conf
  *		modules[debug], backup, backup_dir
  * @return array $zz_tab with changed values
@@ -1355,7 +1351,6 @@ function zz_upload_delete_file($zz_tab) {
 	if (empty($_POST['zz_delete_file'])) return $zz_tab;
 
 	global $zz_conf;
-	global $zz_error;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$action = $zz_tab[0][0]['action'];
 
@@ -1392,13 +1387,11 @@ function zz_upload_delete_file($zz_tab) {
  * called from within function zz_action
  * @param array $zz_tab complete table data
  * @global array $zz_conf configuration variables
- * @global array $zz_error
  * @return array $zz_tab
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_action($zz_tab) {
 	global $zz_conf;
-	global $zz_error;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	// delete files, if necessary
