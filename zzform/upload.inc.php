@@ -377,6 +377,7 @@ function zz_upload_check_files($zz_tab) {
 				// if not set, inherit from $zz['fields'][n]['input_filetypes']
 				// or initialize it
 				if (isset($field['input_filetypes'])) {
+					// @deprecated code starts, to be removed asap
 					if (is_array($field['input_filetypes'])
 						AND isset($field['input_filetypes'][0]) 
 						AND (strstr($field['input_filetypes'][0], 'image/') 
@@ -387,6 +388,7 @@ function zz_upload_check_files($zz_tab) {
 							'level' => E_USER_NOTICE
 						);
 					}
+					// @deprecated code ends
 					$images[$no][$img]['input_filetypes'] = $field['input_filetypes'];
 				} else {
 					$images[$no][$img]['input_filetypes'] = array();
@@ -1404,29 +1406,37 @@ function zz_upload_action($zz_tab) {
 
 	// create path
 	// check if path exists, if not, create it
-	// check if file_exists, if true, move file to backup-directory, if zz_conf says so
-	// no changes: move_uploaded_file to destination directory, write new filename to 
-	//		array in case this image will be needed later on 
+	// check if file_exists, if true, move file to backup-directory,
+	//		if zz_conf says so
+	// no changes: move_uploaded_file to destination directory, write new 
+	//		filename to array in case this image will be needed later on 
 	// changes: move changed file to dest. directory
-	// on error: return error_message - critical error, because record has already been saved!
+	// on error: return error_message - critical error, because record has 
+	// already been saved!
 
 	foreach ($zz_tab[0]['upload_fields'] as $index => $uf) {
 		$tab = $uf['tab'];
 		$rec = $uf['rec'];
 		$no = $uf['f'];
 		if (empty($zz_tab[$tab][$rec])) {
+			// no file, might arise if there's an exif_upload without a 
+			// resulting file
 			unset ($zz_tab[0]['upload_fields'][$index]);
-			continue;  // no file, might arise if there's an exif_upload without a resulting file
+			continue;
 		}
 		$my_rec = &$zz_tab[$tab][$rec];
-		$my_rec['POST'][$my_rec['id']['field_name']] = $my_rec['id']['value']; // to catch inserted id
+		// to catch inserted id:
+		$my_rec['POST'][$my_rec['id']['field_name']] = $my_rec['id']['value'];
 		foreach ($my_rec['fields'][$no]['image'] as $img => $val) {
 			$image = &$my_rec['images'][$no][$img]; // reference on image data
 			$mode = false;
 			$action = $zz_tab[$tab][$rec]['action'];
+			// no thumbnails were made, it's a detail record that 
+			// will be ignored
+			if ($action === 'ignore') continue;
 
 		// 	delete
-			if ($action == 'delete') {
+			if ($action === 'delete') {
 				$filename = zz_makepath($val['path'], $zz_tab, 'old', 'file', $tab, $rec);
 				$show_filename = true;
 				// optional files: don't show error message!
@@ -1448,7 +1458,7 @@ function zz_upload_action($zz_tab) {
 
 		//	update, only if we have an old record (might sometimes not be the case!)
 			$old_path = ''; // initialize here, will be used later with delete_thumbnail
-			if ($action == 'update' AND !empty($zz_tab[$tab]['existing'][$rec])) {
+			if ($action === 'update' AND !empty($zz_tab[$tab]['existing'][$rec])) {
 				$path = zz_makepath($val['path'], $zz_tab, 'new', 'file', $tab, $rec);
 				$old_path = zz_makepath($val['path'], $zz_tab, 'old', 'file', $tab, $rec);
 				if (!empty($zz_tab[0]['folder']))
@@ -1460,8 +1470,9 @@ function zz_upload_action($zz_tab) {
 							$old_path = preg_replace('/^('.$folder['old_e'].')/', $folder['new'], $old_path);
 					}
 				if ($path != $old_path) {
-					$image['files']['update']['path'] = $path; // not necessary maybe, but in case ...
-					$image['files']['update']['old_path'] = $old_path; // too
+					// save paths: not necessary maybe, but in case ...
+					$image['files']['update']['path'] = $path;
+					$image['files']['update']['old_path'] = $old_path;
 					$success = zz_upload_update($old_path, $path, $uploaded_file);
 					if (!$success) return zz_return($zz_tab);
 				}
@@ -1485,7 +1496,7 @@ function zz_upload_action($zz_tab) {
 				}
 			}
 
-		// TODO: EXIF or ICPT write operations go here!
+		// @todo: EXIF or ICPT write operations go here!
 		}
 	}
 	if ($zz_conf['modules']['debug']) zz_debug("end");
