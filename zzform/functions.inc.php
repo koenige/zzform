@@ -1973,8 +1973,8 @@ function zz_log_validation_errors($my_rec, $validation) {
 		if ($field['check_validation']) continue;
 		if ($my_rec['record'][$field['field_name']]) {
 			// there's a value, so this is an incorrect value
-			$zz_error['validation']['msg'][] = zz_text('Value_incorrect_in_field')
-				.' <strong>'.$field['title'].'</strong>'
+			$zz_error['validation']['msg'][] = sprintf(zz_text('Value incorrect in field %s'), 
+				'<strong>'.$field['title'].'</strong>')
 				.(!empty($field['validation_error'])
 					? ' ('.$field['validation_error'].')' : '');
 			$zz_error['validation']['incorrect_values'][] = array(
@@ -1988,8 +1988,8 @@ function zz_log_validation_errors($my_rec, $validation) {
 					'<strong>'.$field['title'].'</strong>');
 			} else {
 				// there's a value missing
-				$zz_error['validation']['msg'][] = zz_text('Value missing in field')
-					.' <strong>'.$field['title'].'</strong>';
+				$zz_error['validation']['msg'][] = sprintf(zz_text('Value missing in field %s'),
+					'<strong>'.$field['title'].'</strong>');
 				$zz_error['validation']['log_post_data'] = true;
 			}
 		}
@@ -2451,8 +2451,7 @@ function zz_error() {
 		$log_output[$key] = str_replace('&lt;', '&amp;lt;', $log_output[$key]);
 		$log_output[$key] = trim(html_entity_decode($log_output[$key], ENT_QUOTES, $log_encoding));
 		$log_output[$key] = str_replace('<br>', "\n\n", $log_output[$key]);
-		$log_output[$key] = str_replace('<br class="nonewline_in_mail">', "; ", $log_output[$key]);
-		$log_output[$key] = str_replace('&lt;br class="nonewline_in_mail"&gt;', "; ", $log_output[$key]);
+		$log_output[$key] = str_replace('&lt;br class="nonewline_in_mail">', "; ", $log_output[$key]);
 		$log_output[$key] = strip_tags($log_output[$key]);
 		$log_output[$key] = str_replace('&lt;', '<', $log_output[$key]);
 		// reformat log output

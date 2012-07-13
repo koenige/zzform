@@ -134,8 +134,8 @@ $text['No entry found. Try less characters.'] = 'Keinen Eintrag gefunden. Versuc
 
 // Record form: Validation, displayed above form
 $text['Following_errors_occured'] = 'Die folgenden Fehler sind aufgetreten';
-$text['Value_incorrect_in_field'] = 'Wert ist falsch im Feld:';
-$text['Value missing in field'] = 'Wert fehlt im Feld:';
+$text['Value incorrect in field %s'] = 'Wert ist falsch im Feld %s';
+$text['Value missing in field %s'] = 'Wert fehlt im Feld %s';
 $text['Nothing was uploaded in field %s'] = 'Es wurde nichts im Feld %s hochgeladen';
 $text['Duplicate entry'] = 'Doppelter Eintrag in dieser Tabelle. Bitte &uuml;berpr&uuml;fen Sie, ob entweder der gew&uuml;nschte Eintrag bereits existiert oder ob Sie Ihren Eintrag &auml;ndern k&ouml;nnen.';
 $text['Detail record could not be handled'] = 'Teileintrag konnte nicht gespeichert werden.';
