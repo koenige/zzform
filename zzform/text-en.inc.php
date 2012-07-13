@@ -121,8 +121,8 @@ $text['No entry found. Try less characters.'] = 'No entry found. Try less charac
 
 // Record form: Validation, displayed above form
 $text['Following_errors_occured'] = 'The following errors occured';
-$text['Value_incorrect_in_field'] = 'Value incorrect in field:';
-$text['Value missing in field'] = 'Value missing in field:';
+$text['Value incorrect in field %s'] = 'Value incorrect in field %s';
+$text['Value missing in field %s'] = 'Value missing in field %s';
 $text['Duplicate entry'] = 'Duplicate entry in this table. Please check whether the record you were about to enter already exists or you\'ll have to change the values you entered.';
 
 // Record form: Validation of Database Integrity, displayed above form
