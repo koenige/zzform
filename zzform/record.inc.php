@@ -2615,16 +2615,15 @@ function zz_field_image($field, $display, $record, $record_saved, $images, $mode
 	if (($mode != 'add' OR $field['type'] != 'upload_image')
 		AND (empty($field['dont_show_image'])) || !$field['dont_show_image']) {
 		$img = false;
-		$text .= '<p>';
 		if (isset($field['path']))
-			$text .= $img = zz_makelink($field['path'], $record, 'image');
+			$text = $img = zz_makelink($field['path'], $record, 'image');
 		if (!$img AND !empty($record_saved)) {
-			$text .= $img = zz_makelink($field['path'], $record_saved, 'image');
+			$text = $img = zz_makelink($field['path'], $record_saved, 'image');
 		}
-		if (!$img) {
-			$text .= '('.zz_text('image_not_display').')';
+		if (!$img AND (!isset($field['dont_show_missing']) OR !$field['dont_show_missing'])) {
+			$text = '('.zz_text('image_not_display').')';
 		}
-		$text .= '</p>';
+		if ($text) $text = '<p>'.$text.'</p>';
 	}
 	if (($mode == 'add' OR $mode == 'edit') && $field['type'] == 'upload_image') {
 		if (!isset($field['image'])) {
@@ -2640,8 +2639,11 @@ function zz_field_image($field, $display, $record, $record_saved, $images, $mode
 		}
 
 		$image_uploads = 0;
-		foreach ($field['image'] as $imagekey => $image)
-			if (!isset($image['source']) AND !isset($image['source_field'])) $image_uploads++;
+		foreach ($field['image'] as $imagekey => $image) {
+			if (!isset($image['source']) AND !isset($image['source_field'])) {
+				$image_uploads++;
+			}
+		}
 		if ($image_uploads > 1) $text .= '<table class="upload">';
 		foreach ($field['image'] as $imagekey => $image) {
 			if (isset($image['source'])) continue;
