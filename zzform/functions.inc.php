@@ -3103,8 +3103,8 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 		if (!$var) continue;
 		if (in_array($key, $conf['ignore'])) continue;
 		if (!empty($conf['ignore_this_if'][$key])) {
-			foreach ($conf['ignore_this_if'][$key] as $field_name) {
-				if (!empty($vars[$field_name])) continue 2;
+			foreach ($conf['ignore_this_if'][$key] as $my_field_name) {
+				if (!empty($vars[$my_field_name])) continue 2;
 			}
 		}
 		// check for last element, if max_length is met
