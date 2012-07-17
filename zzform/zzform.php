@@ -116,7 +116,7 @@ function zzform($zz = array()) {
 	list($zz_tab[0]['db_name'], $zz['table']) = zz_db_connection($zz['table']);
 	if (!$zz_tab[0]['db_name']) return zzform_exit($ops); // exits script
 	$zz = zz_sql_prefix($zz);
-	$zz = zz_sql_prefix($zz, 'zz_conf');
+	$zz_conf = zz_sql_prefix($zz_conf, 'zz_conf');
 
 //
 //	Filter, WHERE, ID
