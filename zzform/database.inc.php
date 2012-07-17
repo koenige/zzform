@@ -264,19 +264,18 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
  * table prefix from configuration
  * syntax for prefixes is SQL comment / *PREFIX* /
  *
- * @param array $zz definition of table
- * @return array $zz (definition with replacements for table prefixes)
+ * @param array $vars definition of table/configuration
+ * @param string $type 'zz' or 'zz_conf'
+ * @return array $vars (definition with replacements for table prefixes)
  */
-function zz_sql_prefix($zz) {
+function zz_sql_prefix($vars, $type = 'zz') {
 	global $zz_conf;
 
-	$zz_conf['int']['prefix_change'] = 'zz';
-	array_walk_recursive($zz, 'zz_sql_prefix_change');
-	$zz_conf['int']['prefix_change'] = 'zz_conf';
-	array_walk_recursive($zz_conf, 'zz_sql_prefix_change');
+	$zz_conf['int']['prefix_change'] = $type;
+	array_walk_recursive($vars, 'zz_sql_prefix_change');
 	unset($zz_conf['int']['prefix_change']);
 
-	return $zz;
+	return $vars;
 }
 
 /**
