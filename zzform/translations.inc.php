@@ -11,7 +11,7 @@
  *	zz_translations_init()		checks whether fields should be translated
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2010 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2012 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -77,6 +77,7 @@ function zz_translations_init($table, $fields) {
 
 		// include and read translation script
 		require $zz_conf['dir_custom'].'/'.$zz_conf['translations_script'][$translationfields[$field_name]['field_type']].'.inc.php';
+		$zz_sub = zz_sql_prefix($zz_sub);
 		
 		// split fields-array
 		// glue together fields-array
