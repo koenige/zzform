@@ -1033,14 +1033,14 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 		);
 		if (!empty($zz_error['error'])) return $my_tab;
 		// get rid of foreign_keys and ids
-		foreach ($my_tab['POST'] as $post_id => &$field) {
+		foreach ($my_tab['POST'] as $post_id => &$post_field) {
 			foreach ($rec_tpl['fields'] AS $my_field) {
 				if (empty($my_field['type'])) continue;
 				if ($my_field['type'] == 'id') {
-					$source_values[$post_id] = $field[$my_field['field_name']];
-					$field[$my_field['field_name']] = '';
+					$source_values[$post_id] = $post_field[$my_field['field_name']];
+					$post_field[$my_field['field_name']] = '';
 				} elseif ($my_field['type'] == 'foreign_key') {
-					$field[$my_field['field_name']] = '';
+					$post_field[$my_field['field_name']] = '';
 				}
 			}
 		}
