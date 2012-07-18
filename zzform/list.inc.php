@@ -54,7 +54,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	$zz_conf['int']['group_field_no'] = array();
 
 	// Turn off hierarchical sorting when using search
-	// TODO: implement hierarchical view even when using search
+	// @todo: implement hierarchical view even when using search
 	if (!empty($_GET['q']) AND $zz_conf['search'] AND $zz_conf['show_hierarchy']) {
 		$zz_conf['show_hierarchy'] = false;
 	}
@@ -210,7 +210,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 					$pos = array_search($fieldindex, $zz_conf['int']['group_field_no']);
 					if ($pos === false) continue;
 					/*	
-						TODO: hierarchical grouping!
+						@todo: hierarchical grouping!
 						if (!empty($field['show_hierarchy'])) {
 							if (!$group_hierarchy) $group_hierarchy = zz_list_get_group_hierarchy($field);
 							$rows[$z]['group'][$pos] = zz_list_show_group_hierarchy($line[$field['field_name']], $group_hierarchy);
@@ -218,7 +218,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 					*/
 					if (!empty($field['display_field'])) {
 						$rows[$z]['group'][$pos] = $line[$field['display_field']];
-						// TODOgroup
+						// @todo group
 					} elseif (!empty($field['enum']) AND $field['type'] == 'select') {
 						$rows[$z]['group'][$pos] = zz_print_enum($field, $line[$field['field_name']], 'full');
 					} elseif (!empty($field['field_name'])) {
@@ -337,7 +337,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				}
 
 				// group: go through everything but don't show it in list
-				// TODO: check that it does not collide with append_next
+				// @todo: check that it does not collide with append_next
 				if ($zz_conf['group']) {
 					$pos = array_search($fieldindex, $zz_conf['int']['group_field_no']);
 					if ($pos !== false) {
@@ -474,7 +474,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			$ops['output'] .= '<p class="add-new bottom-add-new">'.implode(' | ', $toolsline).'</p>';
 		$ops['output'] .= zz_list_total_records($total_rows);
 		$ops['output'] .= zz_list_pages($zz_conf['limit'], $zz_conf['int']['this_limit'], $total_rows);	
-		// TODO: NEXT, PREV Links at the end of the page
+		// @todo: NEXT, PREV Links at the end of the page
 		// Search form
 		$ops['output'] .= $search_form['bottom'];
 	}
@@ -1382,7 +1382,7 @@ function zz_list_total_records($total_rows) {
  * @param int $limit_step = $zz_conf['limit'] how many records shall be shown on each page
  * @param int $this_limit = $zz_conf['int']['this_limit'] last record no. on this page
  * @param int $total_rows	count of total records that might be shown
- * @param string $scope 'body', todo: 'head' (not yet implemented)
+ * @param string $scope 'body', @todo: 'head' (not yet implemented)
  * @global array $zz_conf 'limit_show_range'
  * @return string HTML output
  * @todo
@@ -1777,7 +1777,7 @@ function zz_search_field($field, $table, $searchop, $searchword) {
 		return sprintf('%s >= "%s" AND %s <= "%s"', $fieldname, $searchword[0],
 			$fieldname, $searchword[1]);
 	case 'QUARTER':
-		// todo: improve to use indices, BETWEEN year_begin and year_end ...
+		// @todo: improve to use indices, BETWEEN year_begin and year_end ...
 		return sprintf('(YEAR(%s) = "%s" AND QUARTER(%s) = "%s")', $fieldname, 
 			$searchword[1], $fieldname, $searchword[0]);
 	case '=':

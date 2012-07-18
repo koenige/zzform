@@ -33,7 +33,7 @@ function zzform_import($ops) {
 	if (!empty($_FILES['zz_import']['name'])) {
 		// get file, open it and transform values into array which can directly
 		// be saved into database
-		// TODO: check files, check errors
+		// @todo: check files, check errors
 		if (substr($_FILES['zz_import']['name'], strrpos($_FILES['zz_import']['name'], '.')) != '.txt') {
 			$ops['output'] .= zz_text('Wrong filetype. Only textfiles are allowed');
 			return false;
@@ -221,8 +221,8 @@ function zz_import_create_folder($definition_file, $values, &$params) {
 	$output = '';
 
 	// 1. Check whether destination folder is already in database?
-	// TODO: problem that identifier will be different after it was inserted
-	// TODO: this gets most of it, but will not check for max_length
+	// @todo: problem that identifier will be different after it was inserted
+	// @todo: this gets most of it, but will not check for max_length
 	if (!empty($params['destination_conf_identifier'])) {
 		if (!empty($params['destination_identifier'])) {
 			// existing elements
@@ -247,14 +247,14 @@ function zz_import_create_folder($definition_file, $values, &$params) {
 	}
 	
 	// check if there is something for the parent folder, if not, return with error
-	// TODO: it's right now unclear for me when this happens
+	// @todo: it's right now unclear for me when this happens
 	if (empty($params['parent_destination_folder_id'])) {
 		$output = '<strong> &#8211; '.zz_text('Error: Invalid or no parent folder set.').'</strong>'."\n";
 		return $output;
 	}
 	
 	// 2. If not, create new folder, but this will not be possible for top level folders
-	// TODO: set values dependent on $destination_folder_id!!
+	// @todo: set values dependent on $destination_folder_id!!
 	$source_dir = str_replace($params['base_dir'], '', $params['source_dir']);
 	
 	if (!empty($values['folder']['placeholder'])) {
@@ -427,7 +427,7 @@ function zz_import_create_files($definition_file, $values, &$params, &$files) {
 							continue; 
 						elseif ($val)
 							// overwrite default value with new value
-							// TODO: separate possibilities for each filetype!
+							// @todo: separate possibilities for each filetype!
 							$values['file']['placeholder'][$index]['value'] = $val;
 						else {
 							// ignore this file/folder in import process
@@ -444,7 +444,7 @@ function zz_import_create_files($definition_file, $values, &$params, &$files) {
 		// e. g.: .CR2 / .JPG
 //		if (count($myfiles) > 1) {
 //			$output .= ' &#8211; '.zz_text('Import of two files at the same time is a to do.');
-//			continue; // TODO: later!
+//			continue; // @todo: later!
 //		}
 		
 		$i = 0;
@@ -453,7 +453,7 @@ function zz_import_create_files($definition_file, $values, &$params, &$files) {
 				$output .= ' &#8211; '.zz_text('Warning! Insufficient access rights for this file.');
 				continue 2;
 			}
-			// TODO: 'short' kann evtl. auch wegfallen
+			// @todo: 'short' might be removed, as it may be not neccessary
 			$values['file']['FILES'][$values['file']['key'][$i]]['name']['file'] = $file['short'];
 			$values['file']['FILES'][$values['file']['key'][$i]]['tmp_name']['file'] = $file['full'];
 			$values['file']['FILES'][$values['file']['key'][$i]]['do_not_delete']['file'] = true;

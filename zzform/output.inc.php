@@ -86,7 +86,7 @@ function zz_nice_headings($heading, $zz_fields, $where_condition = array()) {
 			}
 		} elseif (isset($subheading['enum'])) {
 			$heading_addition[$i] .= ' '.htmlspecialchars($where_condition[$mywh]);
-			// todo: insert corresponding value in enum_title
+			// @todo: insert corresponding value in enum_title
 		}
 		if ($heading_addition[$i] AND !empty($subheading['link'])) {
 			$append = '';
@@ -694,7 +694,7 @@ function zz_init_limit() {
 
 function zz_init_referer() {
 	global $zz_conf;
-	// get referer // TODO: add support for SESSIONs as well
+	// get referer // @todo: add support for SESSIONs as well
 	if (!isset($zz_conf['referer'])) {
 		$zz_conf['referer'] = false;
 		if (isset($_GET['referer'])) $zz_conf['referer'] = $_GET['referer'];

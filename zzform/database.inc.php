@@ -93,7 +93,7 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 	if (substr(trim($sql), 0, 14) == 'SHOW DATABASES' AND $n_part == 'WHERE') {
 		// this is impossible and will automatically trigger an error
 		return zz_return(false); 
-		// TODO: implement LIKE here.
+		// @todo: implement LIKE here.
 	}
 
 	// remove whitespace
@@ -827,7 +827,7 @@ function zz_db_error($errno) {
 	case 1062:
 		$msg = zz_text('Duplicate entry');
 		/*
-			TODO:
+			@todo:
 			1. get table_name
 			2. parse: Duplicate entry '1-21' for key 2: (e.g. with preg_match)
 			$indices = false;

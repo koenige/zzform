@@ -461,7 +461,7 @@ function zz_upload_remote_file($filename) {
  *		value that getimagesize() returns in index 2 but exif_imagetype() is much
  *		faster.
  *
- *	1c. todo: finfo_file, see: http://www.php.net/manual/en/function.finfo-file.php
+ *	1c. @todo: finfo_file, see: http://www.php.net/manual/en/function.finfo-file.php
  *			(c. relies on magic.mime file)
  *	1d. use identify in imagemagick
  *	2. if this is impossible, check for file extension
@@ -525,7 +525,7 @@ function zz_upload_fileinfo($file, $extension) {
 			zz_debug($function_name."()", $type.': '.json_encode($file));
 		}
 	}
-	// TODO: allow further file testing here, e. g. for PDF, DXF
+	// @todo: allow further file testing here, e. g. for PDF, DXF
 	// and others, go for Identifying Characters.
 	// maybe use magic_mime_type()
 	if (empty($file['validated'])) {
@@ -570,9 +570,9 @@ function zz_upload_fileinfo($file, $extension) {
 		// is kept
 		$file['exif'] = exif_read_data($filename);
 	}
-	// TODO: further functions, e. g. zz_pdf_read_data if filetype == pdf ...
-	// TODO: or read AutoCAD Version from DXF, DWG, ...
-	// TODO: or read IPCT data.
+	// @todo: further functions, e. g. zz_pdf_read_data if filetype == pdf ...
+	// @todo: or read AutoCAD Version from DXF, DWG, ...
+	// @todo: or read IPCT data.
 	
 	return zz_return($file);
 }
@@ -796,7 +796,7 @@ function zz_upload_unix_file($filename, $file) {
 		$imagetype = 'dwg';
 		$file['validated'] = true;
 	}
-	// TODO: check this, these are not only DOCs but also MPPs.
+	// @todo: check this, these are not only DOCs but also MPPs.
 //	} elseif ($file['filetype_file'] == 'Microsoft Office Document') {
 //		$imagetype = 'doc';
 //		$file['validated'] = true;
@@ -999,7 +999,7 @@ function zz_upload_prepare($zz_tab) {
 				$image['modified'] = zz_upload_create_thumbnails($filename, $image, $my_rec);
 				if ($image['modified'] === -1) {
 					$filename = false; // do not upload anything
-					// TODO: mark existing image for deletion if there is one!							
+					// @todo: mark existing image for deletion if there is one!							
 					$image['delete_thumbnail'] = true;
 					$my_rec['no_file_upload'] = true;
 				} elseif ($image['modified']) {
@@ -1076,7 +1076,7 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec) {
 		$modified = array();
 		$modified['tmp_name'] = $tmp_filename;
 		$modified = zz_upload_fileinfo($modified, $dest_extension);
-		// todo: ['modified']['name'] ?? necessary? so far, it's not.
+		// @todo: ['modified']['name'] ?? necessary? so far, it's not.
 	}  else {
 		// image action did not work out the way it should have.
 		$modified = -1;
@@ -1209,7 +1209,7 @@ function zz_upload_auto_image($image) {
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_extension($path, &$my_rec) {
-	// todo: implement mode!
+	// @todo: implement mode!
 	$path_value = end($path);
 	$path_key = key($path);
 

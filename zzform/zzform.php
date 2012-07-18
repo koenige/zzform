@@ -837,8 +837,8 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 		$ops = zzform($zz);
 		break;
 	case 'record':  // one operation only
-		// TODO: so far, we have no support for 'values' for subrecords
-		// TODO: zzform() and zzform_multi() called within an action-script
+		// @todo: so far, we have no support for 'values' for subrecords
+		// @todo: zzform() and zzform_multi() called within an action-script
 		// causes not all zz_conf variables to be reset
 		zz_initialize('overwrite');
 		$zz_conf['generate_output'] = false; // don't generate output
@@ -870,7 +870,7 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 		}
 		break;
 	case 'files':
-		// TODO: generate output?
+		// @todo: generate output?
 		require_once $zz_conf['dir_inc'].'/functions.inc.php';
 		require_once $zz_conf['dir_inc'].'/database.inc.php';
 		require_once $zz_conf['dir_inc'].'/import.inc.php';
@@ -887,7 +887,7 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 	// on success: remove entry in csv file
 	// on success: delete files, move files ...
 	// on failure: output record, output error ?
-	// TODO: export, might go into extra file?
+	// @todo: export, might go into extra file?
 
 	// what to return:
 	// array whith all record_ids that were inserted, sorted by operation (so to include subrecords)

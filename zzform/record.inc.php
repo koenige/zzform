@@ -267,7 +267,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 		if (($cancelurl != $_SERVER['REQUEST_URI'] OR ($zz_var['action']) OR !empty($_POST))
 			AND $zz_conf_record['cancel_link']) 
 			// only show cancel link if it is possible to hide form 
-			// todo: expanded to action, not sure if this works on add only forms, 
+			// @todo: expanded to action, not sure if this works on add only forms, 
 			// this is for re-edit a record in case of missing field values etc.
 			$output .= ' <a href="'.$cancelurl.'">'.zz_text('Cancel').'</a>';
 		$output .= '</td></tr>'."\n";
@@ -909,9 +909,11 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				if ($row_display == 'form') if (isset($field['suffix_function'])) {
 					$vars = '';
 					if (isset($field['suffix_function_var']))
-						foreach ($field['suffix_function_var'] as $var)
-							$vars .= $var; // todo: does this really make sense? 
+						foreach ($field['suffix_function_var'] as $var) {
+							$vars .= $var; 
+							// @todo: does this really make sense? 
 							// looks more like $vars[] = $var. maybe use implode.
+						}
 					$out['td']['content'] .= $field['suffix_function']($vars);
 				}
 			} else
@@ -2385,7 +2387,7 @@ function zz_field_select_set($field, $display, $record) {
 		}
 	}
 	if ($display != 'form' AND !empty($field['set_show_all_values'])) {
-		// TODO: use set_title!
+		// @todo: use set_title!
 		$myvalue = explode(',', $record[$field['field_name']]);
 	}
 	if ($myvalue) {
@@ -2648,7 +2650,7 @@ function zz_field_image($field, $display, $record, $record_saved, $images, $mode
 		foreach ($field['image'] as $imagekey => $image) {
 			if (isset($image['source'])) continue;
 			if (isset($image['source_field'])) continue;
-			// todo: if only one image, table is unnecessary
+			// @todo: if only one image, table is unnecessary
 			// title and field_name of image might be empty
 			if ($image_uploads > 1) $text .= '<tr><th>'.$image['title'].'</th> <td>';
 			$elementname = make_id_fieldname($field['f_field_name']).'['.$image['field_name'].']';
@@ -2754,7 +2756,7 @@ function zz_field_display($field, $record, $record_saved) {
 		return $value;
 	}
 
-	// ToDo: debug!
+	// @todo: debug!
 	return '<span class="error">'
 		.zz_text('Script configuration error. No display field set.').'</span>';
 }
