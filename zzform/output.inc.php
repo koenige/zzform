@@ -733,4 +733,24 @@ function zz_format($text) {
 	return $text;
 }
 
+/**
+ * converts number into currency
+ * 
+ * @param int $int amount of money
+ * @param string $unit currency unit (optional)
+ * @return string formatted combination of amount and unit
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function zz_money_format($int, $unit = '') {
+	global $zz_conf;
+	if (!$int) return false;
+	$int = number_format($int, 2, $zz_conf['decimal_point'], $zz_conf['thousands_separator']);
+	if (!strstr($int, $zz_conf['decimal_point'])) {
+		$int .= $zz_conf['decimal_point'].'00';
+	}
+	//$int = str_replace (',00', ',&#8211;', $int);
+	if ($unit) $int .= '&nbsp;'.$unit;
+	return $int;
+}
+
 ?>
