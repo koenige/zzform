@@ -23,21 +23,6 @@
  */
 
 
-//	Required Variables, global so they can be used by the including script after
-//	processing as well
-
-global $zz_conf;	// Config variables
-
-/**
- * include deprecated page function, it's recommended to use zzbrick instead
- * @deprecated
- */
-if (file_exists($zz_conf['dir'].'/page.inc.php'))
-	require_once $zz_conf['dir'].'/page.inc.php';
-elseif (file_exists($zz_conf['dir'].'/inc/page.inc.php'))
-	require_once $zz_conf['dir'].'/inc/page.inc.php';
-
-
 /**
  * zzform generates forms for editing single records, list views with several
  * records and does insert, update and delete database operations
@@ -991,6 +976,9 @@ function zz_backwards($zz_conf) {
 	$headings = array('var', 'sql', 'enum', 'link', 'link_no_append');
 	foreach ($headings as $suffix) {
 		if (isset($zz_conf['heading_'.$suffix])) {
+			if (function_exists('wrap_error')) {
+				wrap_error(sprintf('Use of deprecated variable $zz_conf["heading_'.$suffix.'"] (URL: %s)', $_SERVER['REQUEST_URI']);
+			}
 			foreach ($zz_conf['heading_'.$suffix] as $field => $value) {
 				$zz_conf['heading_sub'][$field][$suffix] = $value;
 				unset ($zz_conf['heading_'.$suffix][$field]);

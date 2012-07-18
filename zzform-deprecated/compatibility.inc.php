@@ -9,14 +9,6 @@
  */
 
 
-if (!empty($zz_conf['edit_only'])) $zz_conf['access'] = 'edit_only';
-if (!empty($zz_conf['add_only'])) $zz_conf['access'] = 'add_only';
-if (!empty($zz_conf['show'])) $zz_conf['access'] = 'show';
-
-if (isset($zz_conf['list']) && $zz_conf['list'] == false)
-	$zz_conf['access'] = 'add_only';
-
-
 // PHP 4:
 // Source: http://de.php.net/http_build_query
 // mqchen at gmail dot com
