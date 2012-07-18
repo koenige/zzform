@@ -227,4 +227,44 @@ function zz_is_url($url) {
 	return true;
 }
 
+/**
+ * converts user input time into HH:MM:SS or returns false if given time is illegal
+ * 
+ * @param string $time time in several possible formats
+ * @return mixed false if input is illegal, time-string if input is correct
+ */
+function zz_check_time($time) {
+	if (strlen($time) == 19 AND strstr($time, ' ')) {
+		// might be a date
+		$time = substr($time, strrpos($time, ' ') + 1);
+	}
+	$time = str_replace('.',':', $time);
+	if (strlen($time) > 8) return false;
+	if (preg_match("/^[0-9]+$/", $time)) {
+		if (strlen($time) > 4) return false;
+		elseif (strlen($time) == 1)    {$time = $time . ":00:00";}
+		elseif (strlen($time) == 2)
+			if ($time < 25) $time = $time . ":00:00";
+			else return false;
+		else {
+			$tmin = substr($time, -2);
+			$th   = substr($time, -4, -2);
+			if ($tmin > 60) return false;
+			if ($th > 24)   return false;
+			$time = $th . ":" . $tmin . ":00";
+		}
+	} elseif (preg_match("/^[0-9:]+$/",$time)) {
+		$timex = explode(":",$time);
+		if (count($timex) > 3) return false;
+		elseif ($timex[0] > 24 OR $timex[1] > 59) return false;
+		elseif (isset($timex[2])) if($timex[2] > 60)  return false;
+		elseif (isset($timex[0]) AND $timex[0] != '') {
+			if ($timex[1] == '' OR !isset($timex[1])) $timex[1] = "00";
+			if ($timex[2] == '' OR !isset($timex[2])) $timex[2] = "00";
+			$time = $timex[0] . ":" . $timex[1] . ":" . $timex[2];
+		} else return false;
+	} else $time = false;
+	return $time;
+}
+
 ?>

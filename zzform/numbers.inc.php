@@ -198,65 +198,35 @@ function datum_int($datum) {
 }
 
 /**
- * converts user input time into HH:MM:SS or returns false if given time is illegal
- * 
- * @param string $time time in several possible formats
- * @return mixed false if input is illegal, time-string if input is correct
- */
-function validate_time($time) {
-	if (strlen($time) == 19 AND strstr($time, ' ')) {
-		// might be a date
-		$time = substr($time, strrpos($time, ' ')+1);
-	}
-	$time = str_replace('.',':',$time);
-	if (strlen($time) > 8) return false;
-	if (preg_match("/^[0-9]+$/",$time)) {
-		if (strlen($time) > 4) return false;
-		elseif (strlen($time) == 1)    {$time = $time . ":00:00";}
-		elseif (strlen($time) == 2)
-			if ($time < 25) $time = $time . ":00:00";
-			else return false;
-		else {
-			$tmin = substr($time, -2);
-			$th   = substr($time, -4, -2);
-			if ($tmin > 60) return false;
-			if ($th > 24)   return false;
-			$time = $th . ":" . $tmin . ":00";
-		}
-	} elseif (preg_match("/^[0-9:]+$/",$time)) {
-		$timex = explode(":",$time);
-		if (count($timex) > 3) return false;
-		elseif ($timex[0] > 24 OR $timex[1] > 59) return false;
-		elseif (isset($timex[2])) if($timex[2] > 60)  return false;
-		elseif (isset($timex[0]) AND $timex[0] != '') {
-			if ($timex[1] == '' OR !isset($timex[1])) $timex[1] = "00";
-			if ($timex[2] == '' OR !isset($timex[2])) $timex[2] = "00";
-			$time = $timex[0] . ":" . $timex[1] . ":" . $timex[2];
-		} else return false;
-	} else $time = false;
-	return $time;
-}
-
-/**
  * converts number into currency
  * 
  * @param int $int amount of money
- * @param string $unit currency unit
+ * @param string $unit currency unit (optional)
  * @return string formatted combination of amount and unit
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function waehrung($int, $unit) {
+function zz_money_format($int, $unit = '') {
+	global $zz_conf;
 	if (!$int) return false;
-	$int = number_format($int, 2, ',', '.');
-	if (!strstr($int, ',')) $int .= ',00';
+	$int = number_format($int, 2, $zz_conf['decimal_point'], $zz_conf['thousands_separator']);
+	if (!strstr($int, $zz_conf['decimal_point'])) {
+		$int .= $zz_conf['decimal_point'].'00';
+	}
 	//$int = str_replace (',00', ',&#8211;', $int);
 	if ($unit) $int .= '&nbsp;'.$unit;
 	return $int;
 }
 
+/**
+ * formats an integer into a readable byte representation
+ *
+ * @param int $byts
+ * @param int $precision
+ * @return string
+ */
 function zz_format_bytes($bytes, $precision = 1) { 
 	global $zz_conf;
-    $units = array('B', 'KB', 'MB', 'GB', 'TB'); 
+    $units = array('B', 'KB', 'MB', 'GB', 'TB', 'PB'); 
 
     $bytes = max($bytes, 0); 
     $pow = floor(($bytes ? log($bytes) : 0) / log(1024)); 
@@ -267,8 +237,8 @@ function zz_format_bytes($bytes, $precision = 1) {
     $bytes /= (1 << (10 * $pow)); 
 
     $text = round($bytes, $precision) . '&nbsp;' . $units[$pow]; 
-    if ($zz_conf['language'] == 'de')
-    	$text = str_replace('.', ',', $text);
+    if ($zz_conf['decimal_point'] !== '.')
+    	$text = str_replace('.', $zz_conf['decimal_point'], $text);
     return $text;
 }
 

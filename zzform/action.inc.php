@@ -1186,7 +1186,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 		case 'time':
 			//	validate time
 			if (!$my_rec['POST'][$field_name]) break;
-			if ($my_time = validate_time($my_rec['POST'][$field_name]))
+			if ($my_time = zz_check_time($my_rec['POST'][$field_name]))
 				$my_rec['POST'][$field_name] = $my_time;
 			else {
 				$my_rec['fields'][$f]['check_validation'] = false;

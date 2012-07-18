@@ -1000,7 +1000,7 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 			if (isset($field['number_type'])) {
 				switch ($field['number_type']) {
 				case 'currency':
-					$text = waehrung($row['value'], '');
+					$text = zz_money_format($row['value']);
 					break;
 				case 'latitude':
 				case 'longitude':
@@ -1123,7 +1123,7 @@ function zz_field_sum($table_query, $z, $table, $sum) {
 			if (isset($field['calculation']) AND $field['calculation'] == 'hours')
 				$value = hours($value);
 			if (isset($field['number_type']) && $field['number_type'] == 'currency') 
-				$value = waehrung($value, '');
+				$value = zz_money_format($value);
 			if (!empty($field['list_format']) AND $value)
 				$value = $field['list_format']($value);
 
