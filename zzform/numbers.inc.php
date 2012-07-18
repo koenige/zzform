@@ -90,20 +90,6 @@ function datum_de($datum, $param = false, $language = 'de') {
 }
 
 /**
- * returns year of given iso date, removes trailing 0 if necessary
- * 
- * @param string $datum date in international date format YYYY-MM-DD
- * @return string year
- * @author Gustaf Mossakowski <gustaf@koenige.org>
- */
-function jahr($datum) {
-	$datum_arr = explode ("-", $datum);
-	$jahr = $datum_arr[0];
-	if (substr($jahr, 0, 1) == 0) $jahr = substr($jahr, 1, 3);
-	return $jahr;
-}
-
-/**
  * converts user input date into international date string
  * 
  * @param string $datum date in several possible formats
