@@ -718,29 +718,6 @@ function zz_init_referer() {
 }
 
 /**
- * checks whether an error occured because too much was POSTed
- * will try to get GET-Variables from HTTP_REFERER
- *
- * @return bool true: error, false: everything ok
- */
-function zzform_post_too_big() {	
-	if ($_SERVER['REQUEST_METHOD'] == 'POST' AND empty($_POST)
-		AND $_SERVER['CONTENT_LENGTH'] > zz_return_bytes(ini_get('post_max_size'))) {
-		// without sessions, we can't find out where the user has come from
-		// just if we have a REFERER
-		if (!empty($_SERVER['HTTP_REFERER'])) {
-			$url = parse_url($_SERVER['HTTP_REFERER']);
-			if (!empty($url['query'])) {
-				parse_str($url['query'], $query);
-				$_GET = array_merge($_GET, $query);
-			}
-		}
-		return true;
-	}
-	return false;
-}
-
-/**
  * formats a string, currently only available: translate text from inside zzform
  *
  * @param string $text
