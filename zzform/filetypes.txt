@@ -37,9 +37,9 @@ cgm		cgm		cgm		image/cgm						Computer Graphics Metafile
 
 class	class	class	application/octet-stream
 
-cmx		cmx		cmx		image/x-cmx					
+cmx		cmx		cmx		image/x-cmx
 
-cod		cod		cod		image/cis-cod			
+cod		cod		cod		image/cis-cod
 
 cpio	cpio	cpio	application/x-cpio
 
@@ -190,20 +190,20 @@ ico		ico		ico		image/x-icon					Microsoft icon
 
 ics		ics		ics		text/calendar					vCalendar calendar file
 
-ief		ief		ief		image/ief						Image Exchange Format		
+ief		ief		ief		image/ief						Image Exchange Format
 
 ifb		ifb		ifb		text/calendar
 
 iges	iges	iges	model/iges
 igs		igs		iges	model/iges
 
-jfif	jfif	jfif	image/pipeg				
+jfif	jfif	jfif	image/pipeg
 
 jpeg	jpeg	jpeg	image/jpeg
 jpeg	jpe		jpeg	image/jpeg
 jpeg	jpg		jpeg	image/jpeg
 
-jps		jps		jps		image/x-jps				
+jps		jps		jps		image/x-jps
 
 js		js		js		application/x-javascript		JavaScript
 
@@ -276,7 +276,7 @@ mpp		mpp		mpp		zz-application/zz-winassoc-mpp	Microsoft Project File
 
 ms		ms		ms		application/x-troff-ms
 
-msh		msh		msh		model/mesh		
+msh		msh		msh		model/mesh
 
 mxu		mxu		mxu		video/vnd.mpegurl
 
@@ -333,12 +333,12 @@ plt		plt		plt		drawing/plt						HPGL Plotfile
 
 png		png		png		image/png						Portable Network Graphic
 
-pnm		pnm		pnm		image/x-portable-anymap	
+pnm		pnm		pnm		image/x-portable-anymap
 
 pot		pot		pot		application/vnd.ms-powerpoint	MS Powerpoint Presentation Template
 pot		pot		pot		application/mspowerpoint		MS Powerpoint Presentation Template
 
-ppm		ppm		ppm		image/x-portable-pixmap	
+ppm		ppm		ppm		image/x-portable-pixmap
 
 pps		pps		pps		application/vnd.ms-powerpoint	MS PowerPoint Slideshow
 pps		pps		pps		application/mspowerpoint		MS PowerPoint Slideshow
@@ -512,7 +512,7 @@ xls		xls		xls		zz-application/zz-winassoc-xls	MS Excel Worksheet
 
 xml		xml		xml		application/xml
 
-xmp		xmp		xmp		text/plain						Adobe Extensible Metadata Platform 
+xmp		xmp		xmp		text/plain						Adobe Extensible Metadata Platform
 
 xpm		xpm		xpm		image/x-xpixmap
 
