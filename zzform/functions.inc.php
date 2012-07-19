@@ -3073,11 +3073,13 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 			}
 		}
 	}
+	
+	// set defaults, correct types
 	$default_configuration = array(
 		'forceFilename' => '-', 'concat' => '.', 'exists' => '.',
 		'lowercase' => true, 'slashes' => false, 'replace' => array(),
 		'hash_md5' => false, 'ignore' => array(), 'max_length' => 36,
-		'ignore_this_if' => array()
+		'ignore_this_if' => array(), 'empty' => array()
 	);
 	foreach ($default_configuration as $key => $value) {
 		if (!isset($conf[$key])) $conf[$key] = $value;
@@ -3100,11 +3102,17 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 	$i = 0;
 	foreach ($vars as $key => $var) {
 		$i++;
-		if (!$var) continue;
 		if (in_array($key, $conf['ignore'])) continue;
 		if (!empty($conf['ignore_this_if'][$key])) {
 			foreach ($conf['ignore_this_if'][$key] as $my_field_name) {
 				if (!empty($vars[$my_field_name])) continue 2;
+			}
+		}
+		if (!$var) {
+			if (!empty($conf['empty'][$key])) {
+				$var = $conf['empty'][$key];
+			} else {
+				continue;
 			}
 		}
 		// check for last element, if max_length is met
