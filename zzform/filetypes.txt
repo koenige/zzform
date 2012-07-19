@@ -443,7 +443,7 @@ tga		tga		tga		image/x-tga						Truevision Targa Graphic
 
 tgz		tgz		tgz		application/x-tar
 
-tiff	tiff	tiff	image/tiff				 		Tag Image File Format
+tiff	tiff	tiff	image/tiff						Tag Image File Format
 tiff	tif		tiff	image/tiff						Tag Image File Format
 
 tr		tr		tr		application/x-troff
