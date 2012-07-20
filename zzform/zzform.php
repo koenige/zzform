@@ -640,7 +640,6 @@ function zz_initialize($mode = false) {
 	require_once $zz_conf['dir_inc'].'/database.inc.php';
 
 	// optional functions
-	require_once $zz_conf['dir_inc'].'/numbers.inc.php';
 	if (file_exists($zz_conf['dir_inc'].'/forcefilename-'.$zz_conf['character_set'].'.inc.php'))
 		include_once $zz_conf['dir_inc'].'/forcefilename-'.$zz_conf['character_set'].'.inc.php';
 
