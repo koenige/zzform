@@ -358,8 +358,7 @@ function zz_check_date($date) {
 	if ($new['year'] < 100)
 		$new['year'] = ($new['year'] > 70) ? '19'.$new['year'] : '20'.$new['year'];
 
-	$iso_date = sprintf("%04d-%02d-%02d", $new['year'], $new['month'], $new['day']);
-	return $isodate;
+	return sprintf("%04d-%02d-%02d", $new['year'], $new['month'], $new['day']);
 }
 
 ?>
