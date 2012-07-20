@@ -16,14 +16,14 @@
 /**
  * converts given iso date to d.m.Y or returns date as is if incomplete
  * 
- * @param string $datum date to be converted, international date or output of this function
- * @param string $param without-year: cuts year from date; short: returns short year
+ * @param string $date date to be converted, international date or output of this function
  * @param string $language 2-letter-languagecode ISO 639-1 or 3-letter-code ISO 639-2T
  * @return string formatted date
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function datum_de($datum, $param = false, $language = 'de') {
-	if (!$datum) return false;
+function zz_date_format($date, $language = 'de') {
+	global $zz_conf;
+	if (!$date) return '';
 
 	// convert ISO 639-1 codes to ISO 639-2T
 	if ($language == 'de') $language = 'deu';
@@ -52,41 +52,33 @@ function datum_de($datum, $param = false, $language = 'de') {
 	$my_months = !empty($months[$language]) ? $months[$language] : $months['---'];
 	$my_date_order = !empty($date_order[$language]) ? $date_order[$language] : $date_order['---'];
 
-	if (preg_match("/^([0-9]{4}-[0-9]{2}-[0-9]{2}) [0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/", $datum, $match)) {
+	if (preg_match("/^([0-9]{4}-[0-9]{2}-[0-9]{2}) [0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/", $date, $match)) {
 		// DATETIME YYYY-MM-DD HH:ii:ss
-		$datum = $match[1]; // ignore time, it's a date function
-	} elseif (preg_match("/^([0-9]{4})([0-9]{2})([0-9]{2})[0-2][0-9][0-5][0-9][0-5][0-9]$/", $datum, $match)){
+		$date = $match[1]; // ignore time, it's a date function
+	} elseif (preg_match("/^([0-9]{4})([0-9]{2})([0-9]{2})[0-2][0-9][0-5][0-9][0-5][0-9]$/", $date, $match)){
 		// YYYYMMDD ...
-		$datum = $match[1].'-'.$match[2].'-'.$match[3]; // ignore time, it's a date function
-	} elseif (!preg_match("/^[0-9-]+$/", $datum)) 
-		return $datum; #wenn kein richtiges datum, einfach datum zurueckgeben.
-	elseif (preg_match("/^[0-9]{1,4}$/", $datum)) 
-		return $datum; #wenn nur ein bis vier ziffern, d. h. jahr, einfach jahr zurueckgeben
+		$date = $match[1].'-'.$match[2].'-'.$match[3]; // ignore time, it's a date function
+	} elseif (!preg_match("/^[0-9-]+$/", $date)) 
+		return $date; #wenn kein richtiges datum, einfach datum zurueckgeben.
+	elseif (preg_match("/^[0-9]{1,4}$/", $date)) 
+		return $date; #wenn nur ein bis vier ziffern, d. h. jahr, einfach jahr zurueckgeben
 
-	$date_parts = explode("-", $datum);
-	$datum = '';
+	$date_parts = explode("-", $date);
+	$date = '';
 	$date_parts['day'] = (!empty($date_parts[2]) AND $date_parts[2] != '00') ? $date_parts[2] : false;
 	$date_parts['month'] = (!empty($date_parts[1]) AND $date_parts[1] != '00'
 		AND $date_parts[1] > 0 AND  $date_parts[1] < 13) ? $my_months[$date_parts[1]] : false;
 	
-	if (substr($date_parts[0], 0, 1) == "0" AND substr($date_parts[0], 0, 2) != "00")
+	if (substr($date_parts[0], 0, 1) == "0" AND substr($date_parts[0], 0, 2) != "00") {
 		$date_parts['year'] = substr($date_parts[0], 1, 4);
-	else
-		switch ($param) {
-		case 'without-year':
-			$date_parts['year'] = false;
-			break;
-		case 'short':
-			$date_parts['year'] = substr($date_parts[0],2);
-			break;
-		default:
-			$date_parts['year'] = $date_parts[0];
-		}
-	foreach ($my_date_order as $part) {
-		if ($datum) $datum .= $my_date_separator;
-		$datum .= $date_parts[$part];
+	} else {
+		$date_parts['year'] = $date_parts[0];
 	}
-	return $datum;
+	foreach ($my_date_order as $part) {
+		if ($date) $date .= $my_date_separator;
+		$date .= $date_parts[$part];
+	}
+	return $date;
 }
 
 /**
@@ -96,7 +88,7 @@ function datum_de($datum, $param = false, $language = 'de') {
  * @param int $precision
  * @return string
  */
-function zz_format_bytes($bytes, $precision = 1) { 
+function zz_byte_format($bytes, $precision = 1) { 
 	global $zz_conf;
     $units = array('B', 'KB', 'MB', 'GB', 'TB', 'PB'); 
 

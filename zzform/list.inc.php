@@ -975,7 +975,7 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 			$text = timestamp2date($row['value']);
 			break;
 		case 'date':
-			$text = datum_de($row['value']);
+			$text = zz_date_format($row['value']);
 			break;
 		case 'select':
 			if (!empty($field['set']) 

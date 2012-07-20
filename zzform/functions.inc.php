@@ -2229,7 +2229,7 @@ function zz_makelink($path, $record, $type = 'link') {
 			// getimagesize tests whether it's a web image
 			if (!getimagesize($path_full.$url)) {
 				// if not, return EXT (4.4 MB)
-				return $ext.' ('.zz_format_bytes($size).')';
+				return $ext.' ('.zz_byte_format($size).')';
 			}
 		}
 	}

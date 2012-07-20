@@ -1372,7 +1372,7 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 	if ($value AND !empty($field['type_detail']) AND $field['type_detail'] == 'ipv4') {
 		$text .= long2ip($display_value);
 	} elseif ($value AND !empty($field['type_detail']) AND $field['type_detail'] == 'date') {
-		$text .= datum_de($display_value);
+		$text .= zz_date_format($display_value);
 	} elseif ($value AND !empty($field['type_detail']) AND $field['type_detail'] == 'select') {
 		$detail_key = $display_value ? $display_value : $field['default'];
 		$my_fieldname = $field['field_name'];
@@ -1712,7 +1712,7 @@ function zz_field_number($field, $display, $record) {
  */
 function zz_field_date($field, $display, $record) {
 	// get value
-	$value = $record ? datum_de($record[$field['field_name']]) : '';
+	$value = $record ? zz_date_format($record[$field['field_name']]) : '';
 
 	// return text
 	if ($display !== 'form') return $value;
@@ -2147,7 +2147,7 @@ function zz_field_select_set_folder($field, $display, $record) {
 		$field['set_title'] = array();
 		foreach ($files as $file) {
 			$size = filesize($field['set_folder'].'/'.$file);
-			$size = zz_format_bytes($size);
+			$size = zz_byte_format($size);
 			$field['set'][] = $file;
 			$field['set_title'][] = $file.' ['.$size.']';
 		}
@@ -2674,7 +2674,7 @@ function zz_field_image($field, $display, $record, $record_saved, $images, $mode
 					$images[$fieldkey][$imagekey]['error']).'</small>';
 			} else {
 				$text .= '<br><small>'.zz_text('Maximum allowed filesize is').' '
-					.zz_format_bytes($zz_conf['upload_MAX_FILE_SIZE']).'</small>';
+					.zz_byte_format($zz_conf['upload_MAX_FILE_SIZE']).'</small>';
 			}
 			if ($display == 'form' && !empty($image['explanation'])) 
 				$text .= '<p class="explanation">'.$image['explanation'].'</p>';
