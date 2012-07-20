@@ -3363,7 +3363,7 @@ function zz_identifier_var($field_name, $my_rec, $main_post) {
 			if ($field) {
 				$type = zz_get_fielddef($field['fields'], $field_name, 'type');
 				if ($type == 'date') {
-					$value = datum_int($value); 
+					$value = zz_check_date($value); 
 					$value = str_replace('-00', '', $value); 
 					$value = str_replace('-00', '', $value); 
 				}

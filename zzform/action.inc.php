@@ -1174,9 +1174,9 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 		case 'date':
 			//	internationalize date!
 			if (!$my_rec['POST'][$field_name]) break;
-			// submit to datum_int only if there is a value, else return 
+			// submit to zz_check_date only if there is a value, else return 
 			// would be false and validation true!
-			if ($my_date = datum_int($my_rec['POST'][$field_name]))
+			if ($my_date = zz_check_date($my_rec['POST'][$field_name]))
 				$my_rec['POST'][$field_name] = $my_date;
 			else {
 				$my_rec['fields'][$f]['check_validation'] = false;
