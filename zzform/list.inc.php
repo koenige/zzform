@@ -1104,6 +1104,7 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
  */
 function zz_number_format($value, $field) {
 	if (empty($field['number_type'])) return $value;
+	if (!$value AND !empty($field['hide_zeros'])) return '';
 	
 	switch ($field['number_type']) {
 	case 'currency':
