@@ -1002,22 +1002,7 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 				$row['value'] /= $field['factor'];
 			}
 			if (isset($field['number_type'])) {
-				switch ($field['number_type']) {
-				case 'currency':
-					$text = zz_money_format($row['value']);
-					break;
-				case 'latitude':
-				case 'longitude':
-					if (!$row['value']) break;
-					if (empty($field['geo_format'])) $field['geo_format'] = 'dms';
-					$text = zz_geo_coord_out($row['value'], $field['number_type'], $field['geo_format']);
-					break;
-				case 'bytes':
-					$text = zz_byte_format($row['value']);
-					break;
-				default:
-					$text = $row['value'];
-				}
+				$text = zz_number_format($row['value'], $field);
 			} else {
 				$text = $row['value'];
 			}
@@ -1040,6 +1025,8 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 			} elseif (!empty($field['display_value'])) {
 				// translations should be done in $zz-definition-file
 				$text = $field['display_value'];
+			} elseif (isset($field['number_type'])) {
+				$text = zz_number_format($row['value'], $field);
 			} else {
 				$text = $row['value'];
 				$text = nl2br(htmlchars($text));
@@ -1104,6 +1091,37 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 	}
 
 	return $row;
+}
+
+/**
+ * format a value according to number_type
+ *
+ * @param string $value
+ * @param array $field
+ *		string 'number_type'
+ *		string 'geo_format'
+ * @return string
+ */
+function zz_number_format($value, $field) {
+	if (empty($field['number_type'])) return $value;
+	
+	switch ($field['number_type']) {
+	case 'currency':
+		$text = zz_money_format($value);
+		break;
+	case 'latitude':
+	case 'longitude':
+		if (!$value) break;
+		if (empty($field['geo_format'])) $field['geo_format'] = 'dms';
+		$text = zz_geo_coord_out($value, $field['number_type'], $field['geo_format']);
+		break;
+	case 'bytes':
+		$text = zz_byte_format($value);
+		break;
+	default:
+		$text = $value;
+	}
+	return $text;
 }
 
 /**
