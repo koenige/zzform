@@ -749,7 +749,8 @@ function zz_money_format($int, $unit = '') {
 		$int .= $zz_conf['decimal_point'].'00';
 	}
 	//$int = str_replace (',00', ',&#8211;', $int);
-	if ($unit) $int .= '&nbsp;'.$unit;
+	if ($unit) $int .= ' '.$unit;
+	$int = str_replace(' ', '&nbsp;', $int);
 	return $int;
 }
 
