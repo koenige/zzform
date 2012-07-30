@@ -280,13 +280,17 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				$rows[$z][$fieldindex] = zz_list_field($my_row, $field, $line, $lastline, $zz_var, $zz['table'], $ops['mode'], $zz_conf_record);
 
 				// Sums
-				if (isset($field['sum']) AND $field['sum'] == true 
-					AND (empty($field['calculation']) OR $field['calculation'] != 'sql')) {
-					if (!isset($list['sum'][$field['title']])) $list['sum'][$field['title']] = 0;
+				if (empty($field['calculation'])) $field['calculation'] = '';
+				if (!empty($field['sum']) AND $field['calculation'] != 'sql') {
+					if (!isset($list['sum'][$field['title']])) {
+						$list['sum'][$field['title']] = 0;
+					}
 					$value = $rows[$z][$fieldindex]['value'];
-					if (strstr($value, ':')) {
+					if ($field['calculation'] === 'hours' AND strstr($value, ':')) {
 						$value = explode(':', $value);
-						$value = $value[0] + ($value[1]/60);
+						if (!isset($value[1])) $value[1] = 0;
+						if (!isset($value[2])) $value[2] = 0;
+						$value = 3600 * $value[0] + 60 * $value[1] + $value[2];
 					}
 					$list['sum'][$field['title']] += $value;
 					$list['sum_group'] = zz_list_group_sum($rows[$z]['group'], $list['sum_group'], $field['title'], $value);
