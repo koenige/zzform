@@ -1012,6 +1012,9 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 					if (empty($field['geo_format'])) $field['geo_format'] = 'dms';
 					$text = zz_geo_coord_out($row['value'], $field['number_type'], $field['geo_format']);
 					break;
+				case 'bytes':
+					$text = zz_byte_format($row['value']);
+					break;
 				default:
 					$text = $row['value'];
 				}
@@ -1126,8 +1129,16 @@ function zz_field_sum($table_query, $z, $table, $sum) {
 			$value = $sum[$field['title']];
 			if (isset($field['calculation']) AND $field['calculation'] == 'hours')
 				$value = hours($value);
-			if (isset($field['number_type']) && $field['number_type'] == 'currency') 
-				$value = zz_money_format($value);
+			if (isset($field['number_type'])) {
+				switch ($field['number_type']) {
+				case 'currency':
+					$value = zz_money_format($value);
+					break;
+				case 'bytes':
+					$value = zz_byte_format($value);
+					break;
+				}
+			}
 			if (!empty($field['list_format']) AND $value)
 				$value = $field['list_format']($value);
 
