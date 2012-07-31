@@ -1167,7 +1167,7 @@ function zz_field_sum($table_query, $z, $table, $sum) {
 			$tfoot_line .= '</td>';
 		} else {
 			$tfoot_line .= '<td'
-				.(!empty($field['class']) ? ' class="'.$field['class'].'"' : '')
+				.zz_field_class($field, (!empty($table) ? $table : ''), true)
 				.'>&nbsp;</td>';
 		}
 	}
