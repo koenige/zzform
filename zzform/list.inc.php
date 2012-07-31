@@ -346,11 +346,15 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 					$pos = array_search($fieldindex, $zz_conf['int']['group_field_no']);
 					if ($pos !== false) {
 						$list['group_titles'][$z][$pos] = implode(' &#8211; ', $rows[$z]['group']);
+						// just show every title only once
+						$list['group_titles'][$z] = array_unique($list['group_titles'][$z]);
 						unset ($rows[$z][$fieldindex]);
 						ksort($list['group_titles'][$z]);
 					}
 				}
-				if ($zz_conf['modules']['debug']) zz_debug('table_query end '.$fieldindex.'-'.$field['type']);
+				if ($zz_conf['modules']['debug']) {
+					zz_debug('table_query end '.$fieldindex.'-'.$field['type']);
+				}
 			}
 			if ($sub_id) $ids[$z] = $sub_id; // for subselects
 			$lastline = $line;
@@ -2433,8 +2437,8 @@ function zz_list_table($list, $rows, $head) {
 	foreach ($rows as $index => $row) {
 		if ($zz_conf['group'] AND $row['group'] != $rowgroup) {
 			foreach ($zz_conf['group'] as $pos => $my_group) {
-				if (empty($row['group'][$pos])) 
-					$list['group_titles'][$index][$pos] = zz_text('- unknown -');
+				if (!empty($row['group'][$pos])) continue;
+				$list['group_titles'][$index][$pos] = zz_text('- unknown -');
 			}
 			if ($rowgroup) {
 				$my_groups = $rowgroup;
