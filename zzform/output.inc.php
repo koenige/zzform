@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2011 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2012 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -123,7 +123,10 @@ function zz_nice_headings($heading, $zz_fields, $where_condition = array()) {
  * @global array $zz_conf
  * @return string HTML output of all detail links
  */
-function zz_show_more_actions($more_actions, $more_actions_url, $more_actions_base, $more_actions_target, $more_actions_referer, $sql, $id, $line = false) {
+function zz_show_more_actions($more_actions, $more_actions_url,
+	$more_actions_base, $more_actions_target, $more_actions_referer, $sql, $id,
+	$line = false)
+{
 	global $zz_conf;
 	if (!function_exists('forceFilename')) {
 		echo zz_text('Function forceFilename() required but not found! It is as well '
@@ -449,22 +452,31 @@ function zz_querystring_to_hidden($query_string, $unwanted_keys = array(), $leve
 	return $output;
 }
 
-function hours($seconds) {
-	$hours = 0;
-	$minutes = 0;
-	while ($seconds >= 60) {
-		$seconds -= 60;
-		$minutes++;
-	}
-	while ($minutes >= 60) {
-		$minutes -= 60;
-		$hours++;
-	}
-	if (strlen($minutes) == 1) $minutes = '0'.$minutes;
-	$time = $hours.':'.$minutes;
+/**
+ * prints out seconds as hours:minutes
+ *
+ * @param int $seconds
+ * @return string
+ */
+function zz_hour_format($seconds) {
+	$minutes = floor($seconds / 60);
+	$seconds = $seconds % 60;
+	$hours = floor($minutes / 60);
+	$minutes = $minutes % 60;
+
+	$time = sprintf('%01d:%02d', $hours, $minutes);
+	if ($seconds) $time .= sprintf(':%02d', $seconds);
 	return $time;
 }
 
+/**
+ * displays array data in a more readable way in a table
+ *
+ * @param array $array
+ * @param string $color CSS color
+ * @param string $caption
+ * @return string HTML output
+ */
 function zz_print_r($array, $color = false, $caption = 'Variables') {
 	if (!$array) {
 		echo 'Variable is empty.<br>';
@@ -553,20 +565,25 @@ function zz_print_enum($field, $value, $type = 'abbr', $key = false) {
 	return $text;
 }
 
+/**
+ * applies filter and returns selection of filters
+ *
+ * @return string HTML output for filter, @see zz_filter_selection()
+ */
 function zz_output_filter() {
 	global $zz_conf;
-	if (!$zz_conf['show_list']) return false;
+	if (!$zz_conf['show_list']) return '';
 
 	// set 'selection', $zz_conf['show_hierarchy']
 	zz_apply_filter();
 
 	// filter
-	if (empty($zz_conf['filter'])) return false;
-	if ($zz_conf['access'] == 'export') return false;
+	if (empty($zz_conf['filter'])) return '';
+	if ($zz_conf['access'] == 'export') return '';
 	if (in_array($zz_conf['filter_position'], array('top', 'both'))) {
 		return zz_filter_selection($zz_conf['filter']);
 	}
-	return false;
+	return '';
 }
 
 /**
@@ -678,6 +695,12 @@ function zz_extra_get_params($mode, $zz_conf) {
 	return $extra_get;
 }
 
+/**
+ * initializes 'limit' for display of records
+ *
+ * @global array $zz_conf
+ * @return void
+ */
 function zz_init_limit() {
 	global $zz_conf;
 	// set default limit in case 'show_hierarchy' is used because hierarchies need more memory
@@ -692,6 +715,12 @@ function zz_init_limit() {
 		$zz_conf['int']['this_limit'] = $zz_conf['limit'];
 }	
 
+/**
+ * creates link target for 'referer'
+ *
+ * @global array $zz_conf
+ * @return void
+ */
 function zz_init_referer() {
 	global $zz_conf;
 	// get referer // @todo: add support for SESSIONs as well
@@ -739,7 +768,6 @@ function zz_format($text) {
  * @param int $int amount of money
  * @param string $unit currency unit (optional)
  * @return string formatted combination of amount and unit
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_money_format($int, $unit = '') {
 	global $zz_conf;

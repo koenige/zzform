@@ -917,7 +917,7 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 					if (!$row['value']) $row['value'] = strtotime($line[$calc_field]);
 					else $row['value'] -= strtotime($line[$calc_field]);
 				if ($row['value'] < 0) $text = '<em class="negative">';
-				$text .= hours($row['value']);
+				$text .= zz_hour_format($row['value']);
 				if ($row['value'] < 0) $text .= '</em>';
 			} elseif ($field['calculation'] == 'sum') {
 				$row['value'] = 0;
@@ -1147,7 +1147,7 @@ function zz_field_sum($table_query, $z, $table, $sum) {
 			$tfoot_line .= '<td'.zz_field_class($field, (!empty($table) ? $table : ''), true).'>';
 			$value = $sum[$field['title']];
 			if (isset($field['calculation']) AND $field['calculation'] == 'hours')
-				$value = hours($value);
+				$value = zz_hour_format($value);
 			if (isset($field['number_type'])) {
 				switch ($field['number_type']) {
 				case 'currency':
