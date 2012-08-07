@@ -453,23 +453,6 @@ function zz_querystring_to_hidden($query_string, $unwanted_keys = array(), $leve
 }
 
 /**
- * prints out seconds as hours:minutes
- *
- * @param int $seconds
- * @return string
- */
-function zz_hour_format($seconds) {
-	$minutes = floor($seconds / 60);
-	$seconds = $seconds % 60;
-	$hours = floor($minutes / 60);
-	$minutes = $minutes % 60;
-
-	$time = sprintf('%01d:%02d', $hours, $minutes);
-	if ($seconds) $time .= sprintf(':%02d', $seconds);
-	return $time;
-}
-
-/**
  * displays array data in a more readable way in a table
  *
  * @param array $array
@@ -851,6 +834,55 @@ function zz_date_format($date) {
 		$date .= $date_parts[$part];
 	}
 	return $date;
+}
+
+/**
+ * prints out seconds as hours:minutes
+ *
+ * @param int $seconds
+ * @return string
+ */
+function zz_hour_format($seconds) {
+	$minutes = floor($seconds / 60);
+	$seconds = $seconds % 60;
+	$hours = floor($minutes / 60);
+	$minutes = $minutes % 60;
+
+	$time = sprintf('%01d:%02d', $hours, $minutes);
+	if ($seconds) $time .= sprintf(':%02d', $seconds);
+	return $time;
+}
+
+/**
+ * format a value according to number_type
+ *
+ * @param string $value
+ * @param array $field
+ *		string 'number_type'
+ *		string 'geo_format'
+ * @return string
+ */
+function zz_number_format($value, $field) {
+	if (empty($field['number_type'])) return $value;
+	if (!$value AND !empty($field['hide_zeros'])) return '';
+	
+	switch ($field['number_type']) {
+	case 'currency':
+		$text = zz_money_format($value);
+		break;
+	case 'latitude':
+	case 'longitude':
+		if ($value === NULL) return '';
+		if (empty($field['geo_format'])) $field['geo_format'] = 'dms';
+		$text = zz_geo_coord_out($value, $field['number_type'], $field['geo_format']);
+		break;
+	case 'bytes':
+		$text = zz_byte_format($value);
+		break;
+	default:
+		$text = $value;
+	}
+	return $text;
 }
 
 ?>

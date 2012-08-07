@@ -1099,38 +1099,6 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 }
 
 /**
- * format a value according to number_type
- *
- * @param string $value
- * @param array $field
- *		string 'number_type'
- *		string 'geo_format'
- * @return string
- */
-function zz_number_format($value, $field) {
-	if (empty($field['number_type'])) return $value;
-	if (!$value AND !empty($field['hide_zeros'])) return '';
-	
-	switch ($field['number_type']) {
-	case 'currency':
-		$text = zz_money_format($value);
-		break;
-	case 'latitude':
-	case 'longitude':
-		if ($value === NULL) return '';
-		if (empty($field['geo_format'])) $field['geo_format'] = 'dms';
-		$text = zz_geo_coord_out($value, $field['number_type'], $field['geo_format']);
-		break;
-	case 'bytes':
-		$text = zz_byte_format($value);
-		break;
-	default:
-		$text = $value;
-	}
-	return $text;
-}
-
-/**
  * adds values, outputs HTML table foot
  *
  * @param array $table_query
