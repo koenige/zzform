@@ -34,8 +34,9 @@ if (!empty($zz_conf['logging_id'])) {
 $zz['fields'][4]['field_name'] = 'user';
 
 $zz['fields'][99]['field_name'] = 'last_update';
-$zz['fields'][99]['type'] = 'timestamp';
-	
+$zz['fields'][99]['type'] = 'display';
+$zz['fields'][99]['type_detail'] = 'timestamp';
+
 $zz['sql'] = 'SELECT * FROM '.$zz_conf['logging_table'];
 $zz['sqlorder'] = ' ORDER BY log_id DESC';
 
