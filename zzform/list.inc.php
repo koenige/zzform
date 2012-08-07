@@ -877,6 +877,10 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 	static $append_field;
 	static $append_string_first;
 	
+	// check if a display field has a type_detail
+	if ($field['type'] === 'display' AND !empty($field['type_detail']))
+		$field['type'] = $field['type_detail'];
+	
 	// shortcuts, isset: value might be 0
 	if (!empty($field['field_name']) AND isset($line[$field['field_name']]))
 		$row['value'] = $line[$field['field_name']];
@@ -908,7 +912,6 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 
 	if (isset($field['display_field'])) {
 		$text = $line[$field['display_field']];
-		if (!empty($field['translate_field_value'])) $text = zz_text($text);
 		$text = htmlchars($text);
 		$mark_search_string = 'display_field';
 	} else {
@@ -1029,8 +1032,6 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 			} elseif (!empty($field['display_value'])) {
 				// translations should be done in $zz-definition-file
 				$text = $field['display_value'];
-			} elseif (isset($field['number_type'])) {
-				$text = zz_number_format($row['value'], $field);
 			} else {
 				$text = $row['value'];
 				$text = nl2br(htmlchars($text));
@@ -1116,7 +1117,7 @@ function zz_number_format($value, $field) {
 		break;
 	case 'latitude':
 	case 'longitude':
-		if (!$value) break;
+		if ($value === NULL) return '';
 		if (empty($field['geo_format'])) $field['geo_format'] = 'dms';
 		$text = zz_geo_coord_out($value, $field['number_type'], $field['geo_format']);
 		break;
@@ -1150,17 +1151,10 @@ function zz_field_sum($table_query, $z, $table, $sum) {
 		} elseif (!empty($field['sum'])) {
 			$tfoot_line .= '<td'.zz_field_class($field, (!empty($table) ? $table : ''), true).'>';
 			$value = $sum[$field['title']];
-			if (isset($field['calculation']) AND $field['calculation'] == 'hours')
+			if (isset($field['calculation']) AND $field['calculation'] == 'hours') {
 				$value = zz_hour_format($value);
-			if (isset($field['number_type'])) {
-				switch ($field['number_type']) {
-				case 'currency':
-					$value = zz_money_format($value);
-					break;
-				case 'bytes':
-					$value = zz_byte_format($value);
-					break;
-				}
+			} elseif (isset($field['number_type'])) {
+				$value = zz_number_format($value, $field);
 			}
 			if (!empty($field['list_format']) AND $value)
 				$value = $field['list_format']($value);

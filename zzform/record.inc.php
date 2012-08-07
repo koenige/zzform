@@ -1664,29 +1664,36 @@ function zz_field_number($field, $display, $record) {
 	$suffix = false;
 	$formtype = 'text';
 
-	if (isset($field['number_type']) 
-		AND $field['number_type'] == 'latitude' || $field['number_type'] == 'longitude') {
-		if (!isset($field['geo_format'])) $field['geo_format'] = 'dms';
-		if ($record) {
-			if ($value === NULL) {
-				$value = '';
-			} elseif (isset($field['check_validation']) AND !$field['check_validation']) {
-				// validation was not passed, hand back invalid field
-			} elseif (!empty($_POST['zz_subtables'])) {
-				// just a detail record was added, value is already formatted
-			} else {
-				// calculate numeric value, hand back formatted value
-				$value = zz_geo_coord_in($value, $field['number_type']);
-				$value = $value['value'];
-				$value = zz_geo_coord_out($value, $field['number_type'], $field['geo_format']);
-				if (!empty($field['geo_display_behind'])) {
-					$suffix = zz_geo_coord_out($value, $field['number_type'], $field['geo_display_behind']);
-					if ($suffix) $suffix = ' <small>( = '.$suffix.')</small>';
-				}
-				// no escaping please
-				$formtype = 'text_noescape';
-			}
+	if (!isset($field['number_type'])) $field['number_type'] = false;
+	switch ($field['number_type']) {
+	case 'bytes':
+		// do not reformat bytes as it will result in a loss of information
+		break;
+	case 'latitude':
+	case 'longitude':
+		if (!$record) break;
+		if ($value === NULL) {
+			$value = '';
+			break;
+		} elseif (isset($field['check_validation']) AND !$field['check_validation']) {
+			// validation was not passed, hand back invalid field
+			break;
+		} elseif (!empty($_POST['zz_subtables'])) {
+			// just a detail record was added, value is already formatted
+			break;
 		}
+		// calculate numeric value, hand back formatted value
+		$value = zz_geo_coord_in($value, $field['number_type']);
+		$value = $value['value'];
+		if (!empty($field['geo_display_behind'])) {
+			$suffix = zz_geo_coord_out($value, $field['number_type'], $field['geo_display_behind']);
+			if ($suffix) $suffix = ' <small>( = '.$suffix.')</small>';
+		}
+		// no escaping please
+		$formtype = 'text_noescape';
+	default: // this is for latitude and longitude as well!
+		$value = zz_number_format($value, $field);
+		break;
 	}
 	
 	// return text
@@ -2751,8 +2758,18 @@ function zz_field_display($field, $record, $record_saved) {
 			$value = zz_text($value);
 
 		$value = htmlspecialchars($value);
-		if (isset($field['format']))
+		if (isset($field['format'])) {
 			$value = $field['format']($value);
+		} elseif (isset($field['type_detail'])) {
+			switch ($field['type_detail']) {
+			case 'date':
+				$value = zz_date_format($value);
+				break;
+			case 'number':
+				$value = zz_number_format($value, $field);
+				break;
+			}	
+		}
 		return $value;
 	}
 
