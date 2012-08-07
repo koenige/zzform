@@ -1784,7 +1784,7 @@ function zz_image_auto_size($image) {
 
 	// check for best ratio
 	foreach ($pairs as $key => $pair) {
-		if (empty($best_pair) || is_better_ratio($ratio, $best_pair['ratio'], $pair['ratio'])) {
+		if (empty($best_pair) || zz_image_is_better_ratio($ratio, $best_pair['ratio'], $pair['ratio'])) {
 			$best_pair['key'] = $key;
 			$best_pair['ratio'] = $pair['ratio'];
 			$best_pair['size'] = $pair['size'];
@@ -1813,7 +1813,7 @@ function zz_image_auto_size($image) {
  * @return bool true if ratio is better, false if ratio is not better
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function is_better_ratio($ratio, $old_ratio, $new_ratio) {
+function zz_image_is_better_ratio($ratio, $old_ratio, $new_ratio) {
 	if ($ratio > 1) {
 		if ($old_ratio > $ratio AND $new_ratio < $old_ratio) return true; 
 		// = ratio too big, small always better
