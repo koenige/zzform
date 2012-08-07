@@ -34,7 +34,7 @@
  * @global array $zz_conf
  * @return array ($ops, $zz_tab, $validation, $zz_var)
  * @see zz_upload_get(), zz_upload_prepare(), zz_set_subrecord_action(),
- *		zz_validate(), zz_check_integrity(), zz_upload_cleanup(), 
+ *		zz_validate(), zz_integrity_check(), zz_upload_cleanup(), 
  *		zz_prepare_for_db(), zz_log_sql(), zz_foldercheck(), zz_upload_action()
  */
 function zz_action($ops, $zz_tab, $validation, $zz_var) {
@@ -1091,11 +1091,11 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				// coordinates may have 0 as value
 				$field['null'] = true;
 			} else {
-				// check if numbers are entered with .
+				// only check if there is a value, NULL values are checked later on
 				if (!$my_rec['POST'][$field_name]) break;
 
-				// only check if there is a value, NULL values are checked later on
-				$n_val = check_number($my_rec['POST'][$field_name]);
+				// check if numbers are entered with .
+				$n_val = zz_check_number($my_rec['POST'][$field_name]);
 				if ($n_val !== NULL) {
 					$my_rec['POST'][$field_name] = $n_val;
 				} else {
@@ -1331,7 +1331,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 	//	check against forbidden strings
 		if (!empty($field['validate'])
 			AND !empty($my_rec['POST'][$field_name])) {
-			if ($msg = zz_check_validate($my_rec['POST'][$field_name], $field['validate'])) {
+			if ($msg = zz_check_rules($my_rec['POST'][$field_name], $field['validate'])) {
 				$my_rec['validation'] = false;
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['fields'][$f]['validation_error'] = $msg;
@@ -1558,7 +1558,7 @@ function zz_val_get_from_upload($field, $images, $post) {
  * @return mixed false: everything is okay, string: error message
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_check_validate($value, $validate) {
+function zz_check_rules($value, $validate) {
 	foreach ($validate as $type => $needles) {
 		switch ($type) {
 		case 'forbidden_strings':
@@ -1689,52 +1689,6 @@ function zz_password_hash($pass) {
 	}
 
 	return $zz_conf['hash_password']($pass.$zz_conf['password_salt']);
-}
-
-/**
- * checks whether an input is a number or a simple calculation
- * 
- * @param string $number	number or calculation, may contain +-/* 0123456789 ,.
- * @return string number, with calculation performed / false if incorrect format
- * @author Gustaf Mossakowski <gustaf@koenige.org>
- */
-function check_number($number) {
-	// remove whitespace, it's nice to not have to care about this
-	$number = trim($number);
-	$number = str_replace(' ', '', $number);
-	// first charater must not be / or *
-	// NULL: possible feature: return doubleval $number to get at least something
-	if (!preg_match('~^[0-9.,+-][0-9.,\+\*\/-]*$~', $number)) return NULL;
-	// put a + at the beginning, so all parts with real numbers start with 
-	// arithmetic symbols
-	if (substr($number, 0, 1) != '-') $number = '+'.$number;
-	preg_match_all('~[-+/*]+[0-9.,]+~', $number, $parts);
-	$parts = $parts[0];
-	// go through all parts and solve the '.' and ',' problem
-	foreach ($parts as $index => $part) {
-		if ($dot = strpos($part, '.') AND $comma = strpos($part, ','))
-			if ($dot > $comma) $parts[$index] = str_replace(',', '', $part);
-			else {
-				$parts[$index] = str_replace('.', '', $part);
-				$parts[$index] = str_replace(',', '.', $parts[$index]);
-			}
-		// must not: enter values like 1,000 and mean 1000!
-		elseif (strstr($part, ',')) $parts[$index] = str_replace(',', '.', $part);
-	}
-	$calculation = implode('', $parts);
-	// GPS EXIF data sometimes is written like +0/0
-	if (substr($calculation, -2) == '/0') return NULL; 
-	eval('$sum = '.$calculation.';');
-	// in case some error occured, check what it is
-	if (!$sum) {
-		global $zz_error;
-		$zz_error[] = array(
-			'msg_dev' => 'check_number(): calculation did not work. ['.implode('', $parts).']',
-			'level' => E_USER_NOTICE
-		);
-		$sum = false;
-	}
-	return $sum;
 }
 
 /**

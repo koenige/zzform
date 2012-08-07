@@ -361,4 +361,50 @@ function zz_check_date($date) {
 	return sprintf("%04d-%02d-%02d", $new['year'], $new['month'], $new['day']);
 }
 
+/**
+ * checks whether an input is a number or a simple calculation
+ * 
+ * @param string $number	number or calculation, may contain +-/* 0123456789 ,.
+ * @return string number, with calculation performed / false if incorrect format
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function zz_check_number($number) {
+	// remove whitespace, it's nice to not have to care about this
+	$number = trim($number);
+	$number = str_replace(' ', '', $number);
+	// first charater must not be / or *
+	// NULL: possible feature: return doubleval $number to get at least something
+	if (!preg_match('~^[0-9.,+-][0-9.,\+\*\/-]*$~', $number)) return NULL;
+	// put a + at the beginning, so all parts with real numbers start with 
+	// arithmetic symbols
+	if (substr($number, 0, 1) != '-') $number = '+'.$number;
+	preg_match_all('~[-+/*]+[0-9.,]+~', $number, $parts);
+	$parts = $parts[0];
+	// go through all parts and solve the '.' and ',' problem
+	foreach ($parts as $index => $part) {
+		if ($dot = strpos($part, '.') AND $comma = strpos($part, ','))
+			if ($dot > $comma) $parts[$index] = str_replace(',', '', $part);
+			else {
+				$parts[$index] = str_replace('.', '', $part);
+				$parts[$index] = str_replace(',', '.', $parts[$index]);
+			}
+		// must not: enter values like 1,000 and mean 1000!
+		elseif (strstr($part, ',')) $parts[$index] = str_replace(',', '.', $part);
+	}
+	$calculation = implode('', $parts);
+	// GPS EXIF data sometimes is written like +0/0
+	if (substr($calculation, -2) == '/0') return NULL; 
+	eval('$sum = '.$calculation.';');
+	// in case some error occured, check what it is
+	if (!$sum) {
+		global $zz_error;
+		$zz_error[] = array(
+			'msg_dev' => __FUNCTION__.'(): calculation did not work. ['.implode('', $parts).']',
+			'level' => E_USER_NOTICE
+		);
+		$sum = false;
+	}
+	return $sum;
+}
+
 ?>
