@@ -377,7 +377,9 @@ function zz_check_number($number) {
 	if (!preg_match('~^[0-9.,+-][0-9.,\+\*\/-]*$~', $number)) return NULL;
 	// put a + at the beginning, so all parts with real numbers start with 
 	// arithmetic symbols
-	if (substr($number, 0, 1) != '-') $number = '+'.$number;
+	if (!in_array(substr($number, 0, 1), array('-', '+'))) {
+		$number = '+'.$number;
+	}
 	preg_match_all('~[-+/*]+[0-9.,]+~', $number, $parts);
 	$parts = $parts[0];
 	// go through all parts and solve the '.' and ',' problem
