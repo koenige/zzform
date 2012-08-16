@@ -3122,6 +3122,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 	}
 
 	$i = 0;
+	$idf_arr = array();
 	foreach ($vars as $key => $var) {
 		$i++;
 		if (in_array($key, $conf['ignore'])) continue;
@@ -3134,6 +3135,9 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 			if (!empty($conf['empty'][$key])) {
 				$var = $conf['empty'][$key];
 			} else {
+				if (is_array($conf['concat'])) {
+					$idf_arr[] = ''; // in case concat is an array
+				}
 				continue;
 			}
 		}
@@ -3220,6 +3224,7 @@ function zz_identifier_concat($data, $concat) {
 	$idf = '';
 	$last_concat = array_pop($concat);
 	foreach ($data as $key => $value) {
+		if (!$value) continue;
 		if ($idf) {
 			if ($key > 1 AND $key == count($data)-1) {
 				// last one, but not first one
