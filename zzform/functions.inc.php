@@ -439,6 +439,7 @@ function zz_apply_filter() {
 
 	// set filter for complete form
 	foreach ($zz_conf['filter'] AS $index => &$filter) {
+		if (!isset($filter['selection'])) $filter['selection'] = array();
 		// get 'selection' if sql query is given
 		if (!empty($filter['sql'])) {
 			if (!empty($filter['depends_on']) 
@@ -463,17 +464,13 @@ function zz_apply_filter() {
 				$filter['selection'][$key] = $value;
 			}
 		}
-		if (empty($filter['selection'])) {
-			if (!empty($filter['default_selection'])) {
-				if (is_array($filter['default_selection'])) {
-					$filter['selection'] = $filter['default_selection'];
-				} else {
-					$filter['selection'] = array(
-						$filter['default_selection'] => $filter['default_selection']
-					);
-				}
+		if (!$filter['selection'] AND !empty($filter['default_selection'])) {
+			if (is_array($filter['default_selection'])) {
+				$filter['selection'] = $filter['default_selection'];
 			} else {
-				$filter['selection'] = array();
+				$filter['selection'] = array(
+					$filter['default_selection'] => $filter['default_selection']
+				);
 			}
 		}
 		if (empty($_GET['filter'])) continue;
