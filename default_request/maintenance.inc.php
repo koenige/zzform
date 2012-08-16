@@ -1028,7 +1028,7 @@ function zz_maintenance_logs() {
 				.'<td>'.$line['type'].'</td>'
 				.'<td>'.$line['level'].'</td>'
 				.'<td>'.($line['status'] ? '<strong>'.$line['status'].'</strong>' : '')
-					.' '.($line['link'] ? '[<a href="'.$line['link'].'">'
+					.' '.($line['link'] ? '[<a href="'.str_replace('&', '&amp;', $line['link']).'">'
 					.zz_maintenance_splits($line['link'], true).'</a>]<br>' : '').$line['error'].'</td>'
 				.'<td>'.$line['user'].'</td>'
 				.'</tr>'."\n";
@@ -1043,7 +1043,7 @@ function zz_maintenance_logs() {
 			if ($line['link']) {
 				foreach ($line['link'] as $link) {
 					if (!$link) continue;
-					$links .= '[<a href="'.$link.'">'.zz_maintenance_splits($link, true).'</a>]<br>';
+					$links .= '[<a href="'.str_replace('&', '&amp;', $link).'">'.zz_maintenance_splits($link, true).'</a>]<br>';
 				}
 			}
 			$tbody .= '<tr class="'.($j & 1 ? 'uneven' : 'even').'">'
