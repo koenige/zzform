@@ -2951,8 +2951,11 @@ function zz_text($string) {
  */
 function zz_edit_query_string($query, $unwanted_keys = array(), $new_keys = array()) {
 	$query = str_replace('&amp;', '&', $query);
-	if (substr($query, 0, 1) == '?' OR substr($query, 0, 5) == '&')
+	if (in_array(substr($query, 0, 1), array('?', '&'))) {
 		$query = substr($query, 1);
+	}
+	if (!is_array($unwanted_keys)) $unwanted_keys = array($unwanted_keys);
+	if (!is_array($new_keys)) $new_keys = array($new_keys);
 	parse_str($query, $queryparts);
 	// remove unwanted keys from URI
 	foreach (array_keys($queryparts) as $key) {

@@ -447,16 +447,12 @@ function zzform($zz = array()) {
 		$ops['output'] .= zz_error_output();
 	}
 
-	$ops['output'] .= zz_output_filter($zz_var);
-	if ($ops['mode'] != 'add' AND empty($zz_conf['no_add_above'])) {
-		$ops['output'] .= zz_output_add_links($zz_var['extraGET']);
-	}
-	$ops['output'] .= zz_output_backlink($zz_tab, $zz_var['id']);
 	if ($zz_conf['show_list']) {
 		// shows table with all records (limited by zz_conf['limit'])
 		// and add/nav if limit/search buttons
 		list($ops, $zz_var) = zz_list($zz, $ops, $zz_var, $zz_conditions); 
 	}
+	$ops['output'] .= zz_output_backlink($zz_tab, $zz_var['id']);
 	// if there was no add button in list, add it here
 	if (!empty($zz_conf['int']['no_add_button_so_far']) AND !empty($zz_conf['no_add_above'])
 		AND $ops['mode'] != 'add') {

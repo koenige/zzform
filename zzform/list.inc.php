@@ -76,7 +76,15 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	// SQL query without limit and filter for conditions etc.!
 	$zz['sql_without_limit'] = $zz['sql'];
 
+	// Filters
+	// set 'selection', $zz_conf['show_hierarchy']
+	zz_apply_filter();
+	// modify SQL query depending on filter
 	$zz['sql'] = zz_list_filter_sql($zz['sql']);
+	$ops['output'] .= zz_filter_selection($zz_conf['filter'], 'top');
+	if ($ops['mode'] != 'add' AND empty($zz_conf['no_add_above'])) {
+		$ops['output'] .= zz_output_add_links($zz_var['extraGET']);
+	}
 	if (!$zz['sql']) return zz_return(array($ops, $zz_var));
 
 	list($lines, $total_rows) = zz_list_query($zz, $id_field);
@@ -437,9 +445,9 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	// Add new record
 	if (!($zz_conf['access'] == 'search_but_no_list' AND empty($_GET['q']))) {
 		// filter, if there was a list
-		if ($zz_conf['filter'] AND $zz_conf['show_list'] 
-			AND in_array($zz_conf['filter_position'], array('bottom', 'both')))
-			$ops['output'] .= zz_filter_selection($zz_conf['filter']);
+		if ($zz_conf['show_list']) {
+			$ops['output'] .= zz_filter_selection($zz_conf['filter'], 'bottom');
+		}
 		$toolsline = array();
 		$base_url = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
 			.$zz_conf['int']['url']['?&'];
@@ -499,13 +507,19 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
  *		string 'where'
  *		array 'selection'
  *			id => title
+ * @param string $pos = 'top', 'bottom', or 'both'
  * @global array $zz_conf
  *		$zz_conf['int']['url']
  * @return string HTML output, all filters
  */
-function zz_filter_selection($filter) {
-	if (!is_array($filter)) return false;
+function zz_filter_selection($filter, $pos) {
 	global $zz_conf;
+
+	if (!$filter) return '';
+	if (!is_array($filter)) return '';
+	if (!$zz_conf['show_list']) return '';
+	if ($zz_conf['access'] === 'export') return '';
+	if (!in_array($zz_conf['filter_position'], array($pos, 'both'))) return '';
 	
 	// create base URL for links
 	$self = $zz_conf['int']['url']['self'];
@@ -671,7 +685,7 @@ function zz_list_filter_sql($sql) {
 			// valid filter with LIKE
 			$sql = zz_edit_sql($sql, 'WHERE', $filter['where'].' LIKE "%'.$_GET['filter'][$filter['identifier']].'%"');
 		} else {
-			// invalid filter value
+			// invalid filter value, show list without filter
 			if (empty($filter['ignore_invalid_filters'])) {
 				$zz_conf['int']['http_status'] = 404;
 				$zz_error[] = array(
@@ -679,8 +693,9 @@ function zz_list_filter_sql($sql) {
 						htmlspecialchars($_GET['filter'][$filter['identifier']]), $filter['title']),
 					'level' => E_USER_NOTICE
 				);
-			} 
-			$sql = false;
+			}
+			// remove invalid filter from query string
+			unset($_GET['filter'][$filter['identifier']]);
 		}
 	}
 

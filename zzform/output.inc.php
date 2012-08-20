@@ -549,27 +549,6 @@ function zz_print_enum($field, $value, $type = 'abbr', $key = false) {
 }
 
 /**
- * applies filter and returns selection of filters
- *
- * @return string HTML output for filter, @see zz_filter_selection()
- */
-function zz_output_filter() {
-	global $zz_conf;
-	if (!$zz_conf['show_list']) return '';
-
-	// set 'selection', $zz_conf['show_hierarchy']
-	zz_apply_filter();
-
-	// filter
-	if (empty($zz_conf['filter'])) return '';
-	if ($zz_conf['access'] == 'export') return '';
-	if (in_array($zz_conf['filter_position'], array('top', 'both'))) {
-		return zz_filter_selection($zz_conf['filter']);
-	}
-	return '';
-}
-
-/**
  * HTML output of Add-New-Link at the top of the list
  *
  * @param string $extra_get = $zz_var['extraGET']
