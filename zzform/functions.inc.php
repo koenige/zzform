@@ -504,7 +504,7 @@ function zz_apply_filter() {
 function zz_in_array_str($needle, $haystack) {
 	$found = false;
 	foreach ($haystack AS $a_needle) {
-		if ($a_needle.'' != $needle.'') continue;
+		if ($a_needle.'' !== $needle.'') continue;
 		return $a_needle;
 	}
 	return false;
