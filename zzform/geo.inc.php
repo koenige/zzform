@@ -165,10 +165,11 @@ function zz_geo_coord_in($value, $orientation = 'lat', $precision = 0) {
  * @return string $coord
  */
 function zz_geo_coord_out($decimal, $orientation = 'lat', $out = false) {
+	global $zz_conf;
+
 	if ($decimal == NULL) return false;
 	if (function_exists('wrap_text')) $textfunc = 'wrap_text';
 	else $textfunc = 'zz_text';
-	global $zz_conf;
 	$coord = false;
 	$round = isset($zz_conf['geo']['rounding']) ? $zz_conf['geo']['rounding'] : 2;
 	$spacer = isset($zz_conf['geo']['spacer']) ? $zz_conf['geo']['spacer'] : '&#160;';
@@ -209,12 +210,12 @@ function zz_geo_coord_out($decimal, $orientation = 'lat', $out = false) {
 			break;
 		case 'dms':	// 98°50'38"W
 		default:
-			$min = floor(round(($decimal-floor($decimal))*60, $round));
-			$sec = zz_decimal(round(($decimal-floor($decimal)-($min/60))*3600, $round));
-			if ($sec == '-0') $sec = 0;
-			$coord[] = floor($decimal).'&#176;'.$spacer
+			$deg = floor($decimal);
+			$min = floor(($decimal - $deg) * 60);
+			$sec = round($decimal * 3600 - $deg * 3600 - $min * 60, $round);
+			$coord[] = $deg.'&#176;'.$spacer
 				.(($min OR $sec) ? $min.'&#8242;'.$spacer : '')
-				.($sec ? $sec.'&#8243;'.$spacer : '')
+				.($sec ? zz_decimal($sec).'&#8243;'.$spacer : '')
 				.$hemisphere_text;
 			break;
 		}
@@ -258,8 +259,7 @@ function zz_geo_coord_sql_out($point, $out = false, $concat = ', ') {
 function zz_decimal($number) {
 	global $zz_conf;
 	// replace . with , where appropriate
-	if ($zz_conf['language'] == 'de')
-		$number = str_replace('.', ',', $number);
+	$number = str_replace('.', $zz_conf['decimal_point'], $number);
 	return $number;
 }
 
