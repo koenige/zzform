@@ -595,7 +595,8 @@ function zz_filter_selection($filter, $pos) {
 		}
 		$link_all = false;
 		if (isset($_GET['filter'][$f['identifier']])
-			AND $_GET['filter'][$f['identifier']] !== '0') $link_all = true;
+			AND ($_GET['filter'][$f['identifier']] !== '0'
+				OR $_GET['filter'][$f['identifier']] !== 0)) $link_all = true;
 		if (!$link_all) $link = false;
 
 		$filter[$index]['output'][] = array(
@@ -644,12 +645,10 @@ function zz_list_filter_sql($sql) {
 	foreach ($zz_conf['filter'] AS $filter) {
 		if (!in_array($filter['identifier'], array_keys($_GET['filter']))) continue;
 		if (empty($filter['where'])) continue;
+		if (!isset($filter['default_selection'])) $filter['default_selection'] = '';
 		
-		if ($_GET['filter'][$filter['identifier']] === '0' AND $filter['default_selection'] !== '0'
-			AND $filter['default_selection'] !== 0) {
-			// do nothing
-		} elseif (zz_in_array_str($_GET['filter'][$filter['identifier']], array_keys($filter['selection']))
-			AND $filter['type'] == 'list') {
+		if (false !== zz_in_array_str($_GET['filter'][$filter['identifier']], array_keys($filter['selection']))
+			AND $filter['type'] === 'list') {
 			// it's a valid filter, so apply it.
 			$filter_value = $_GET['filter'][$filter['identifier']];
 			if ($filter_value == 'NULL') {
@@ -668,6 +667,9 @@ function zz_list_filter_sql($sql) {
 				}
 				$sql = zz_edit_sql($sql, 'WHERE', $filter['where'].$equals.'"'.$filter_value.'"');
 			}
+		} elseif ($_GET['filter'][$filter['identifier']] === '0' AND $filter['default_selection'] !== '0'
+			AND $filter['default_selection'] !== 0) {
+			// do nothing
 		} elseif ($filter['type'] == 'list' AND is_array($filter['where'])) {
 			// valid filter with several wheres
 			$wheres = array();
