@@ -1017,7 +1017,7 @@ function zz_db_select($db_name) {
  * @return bool
  */
 function zz_db_charset($character_set) {
-	return mysql_query('SET NAMES '.$character_set);
+	return mysql_set_charset($character_set);
 }
 
 ?>
