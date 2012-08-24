@@ -1,5 +1,5 @@
 # 
-# Tabellenstruktur fÃ¼r Tabelle `zzform_translationfields`
+# Tabellenstruktur für Tabelle `zzform_translationfields`
 # 
 
 CREATE TABLE `zzform_translationfields` (

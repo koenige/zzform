@@ -4,7 +4,7 @@
  * zzform
  * Conditions, conditional fields
  *
- * Part of Â»Zugzwang ProjectÂ«
+ * Part of »Zugzwang Project«
  * http://www.zugzwang.org/projects/zzform
  *
  * Contents:
@@ -23,7 +23,7 @@
  *	zz_conditions_list_check()		set conditions for list
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright Â© 2009-2010 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2010 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 

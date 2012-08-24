@@ -4,14 +4,14 @@
  * zzform
  * Page wrap function
  *
- * Part of Â»Zugzwang ProjectÂ«
+ * Part of »Zugzwang Project«
  * http://www.zugzwang.org/projects/zzform
  *
  *	zzform_all()	(optional call, if page['head'] and ['foot'] shall
  *					be incorporated)
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright Â© 2004-2010 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2010 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  * @deprecated
  */

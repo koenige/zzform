@@ -5,17 +5,17 @@
  * Logging of the database operations via zzform, function zzlog()
  * Protokoll der Datenbankeingaben mittels zzform, Funktion zz_log
  *
- * Part of Â»Zugzwang ProjectÂ«
+ * Part of »Zugzwang Project«
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright Â© 2007-2010 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2010 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
 
 // access restriction has to be set in the file including this file
-// Bitte ZugriffsbeschrÃ¤nkungen in der Datei, die diese einbindet, definieren!
+// Bitte Zugriffsbeschränkungen in der Datei, die diese einbindet, definieren!
 
 $zz['table'] = $zz_conf['logging_table'];
 

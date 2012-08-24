@@ -1,5 +1,5 @@
 #
-#  Tabellenstruktur fÃ¼r Tabelle `_logging`
+#  Tabellenstruktur für Tabelle `_logging`
 # 
 
 CREATE TABLE `_logging` (

@@ -4,11 +4,11 @@
  * zzform
  * Display all or a subset of all records in a list (e. g. table, ul)
  *
- * Part of Â»Zugzwang ProjectÂ«
+ * Part of »Zugzwang Project«
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright Â© 2004-2012 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2012 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 

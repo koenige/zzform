@@ -4,7 +4,7 @@
  * zzform
  * Core script
  *
- * Part of Â»Zugzwang ProjectÂ«
+ * Part of »Zugzwang Project«
  * http://www.zugzwang.org/projects/zzform
  *
  * required: at least PHP 4.1.2 
@@ -18,7 +18,7 @@
  *	zzform_multi()			multi edit for zzform, e. g. import
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright Â© 2004-2012 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2012 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 

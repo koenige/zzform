@@ -1,5 +1,5 @@
 #
-# Tabellenstruktur fÃ¼r Tabelle `zzform_translations_varchar`
+# Tabellenstruktur für Tabelle `zzform_translations_varchar`
 # 
 
 CREATE TABLE `zzform_translations_varchar` (
