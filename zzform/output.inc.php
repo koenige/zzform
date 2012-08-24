@@ -541,6 +541,7 @@ function zz_print_enum($field, $value, $type = 'abbr', $key = false) {
 		if ($type === 'full') {
 			$text .= ' &#8211; '.$field[$ft.'_abbr'][$key];
 		} elseif ($type === 'abbr') {
+			if (strstr($text, '<abbr')) $text = strip_tags($text);
 			$text = '<abbr title="'.htmlspecialchars($field[$ft.'_abbr'][$key])
 				.'">'.$text.'</abbr>';
 		}
