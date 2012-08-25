@@ -2273,13 +2273,21 @@ function zz_list_show_group_fields($table_query) {
 	return $table_query;
 }
 
+/**
+ * sets attributes class, th and th_nohtml for table head
+ *
+ * @param array $head
+ * @param array $where_values
+ * @return array
+ */
 function zz_list_head($head, $where_values) {
 	$thead = array();
 	$j = 0;
 
 	foreach ($head as $index => $field) {
 		if ($field['show_field']) {
-			$j++;
+			$j = $index;
+			$thead[$j] = $field;
 			$thead[$j]['class'] = zz_field_class($field, $where_values);
 			$thead[$j]['th'] = zz_list_th($field);
 			$thead[$j]['th_nohtml'] = zz_list_th($field, 'nohtml');
@@ -2288,11 +2296,8 @@ function zz_list_head($head, $where_values) {
 			$thead[$j]['th'] .= ' / '.zz_list_th($field);
 			$thead[$j]['th_nohtml'] .= ' / '.zz_list_th($field, 'nohtml');
 		}
-		$head[$index]['th'] = $thead[$j]['th'];
-		$head[$index]['th_nohtml'] = $thead[$j]['th_nohtml'];
-		$head[$index]['class'] = $thead[$j]['class'];
 	}
-	return $head;
+	return $thead;
 }
 
 /**
