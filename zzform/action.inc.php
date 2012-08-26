@@ -76,7 +76,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		// do only for zz_tab 0 0 etc. not zz_tab 0 sql etc.
 		// read upload image information, as required
 		$zz_tab = zz_upload_get($zz_tab); 
-		if ($zz_var['action'] != 'delete') {
+		if ($zz_var['action'] !== 'delete') {
 			// read upload image information, as required
 			$zz_tab = zz_upload_prepare($zz_tab);
 		}
@@ -91,12 +91,12 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 				// only if $tab and $rec != 0, i. e. only for subtables!
 				// set action field in zz_tab-array, 
 				$zz_tab[$tab] = zz_set_subrecord_action($zz_tab, $tab, $rec);
-				if ($zz_tab[$tab][$rec]['action'] == 'ignore') continue;
+				if ($zz_tab[$tab][$rec]['action'] === 'ignore') continue;
 			}
-			if ($zz_tab[$tab][$rec]['action'] == 'insert' 
-				OR $zz_tab[$tab][$rec]['action'] == 'update') {
+			if ($zz_tab[$tab][$rec]['action'] === 'insert' 
+				OR $zz_tab[$tab][$rec]['action'] === 'update') {
 				// don't validate record which only will be shown!!
-				if ($zz_tab[$tab][$rec]['access'] == 'show') continue;
+				if ($zz_tab[$tab][$rec]['access'] === 'show') continue;
 			
 				// first part of validation where field values are independent
 				// from other field values
@@ -141,17 +141,17 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		$my_recs = 0;
 		foreach (array_keys($my_tab) as $rec) {
 			if (!is_numeric($rec)) continue;
-			if ($my_tab[$rec]['action'] == 'ignore') continue;
+			if ($my_tab[$rec]['action'] === 'ignore') continue;
 			if ($tab AND $my_tab['min_records_required']) {
 				// add record count to check if we got enough of them
-				if ($my_tab[$rec]['action'] != 'delete') $my_recs++;
+				if ($my_tab[$rec]['action'] !== 'delete') $my_recs++;
 			}
 			if ($my_tab[$rec]['validation']) continue;
 			$validation = false;
 		}
 		// check if enough records, just for subtables ($tab = 1...n)
 		if ($tab AND $my_recs < $my_tab['min_records_required']
-			AND $zz_var['action'] != 'delete') {
+			AND $zz_var['action'] !== 'delete') {
 			// mark it!
 			$zz_tab[0][0]['fields'][$my_tab['no']]['check_validation'] = false;
 			// show error message
@@ -221,9 +221,9 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	foreach (array_keys($zz_tab) as $tab) {
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
 			if (!is_numeric($rec)) continue;
-			if ($zz_tab[$tab][$rec]['action'] != 'insert' 
-				AND $zz_tab[$tab][$rec]['action'] != 'update') continue;
-			if ($zz_tab[$tab][$rec]['access'] == 'show') continue;
+			if ($zz_tab[$tab][$rec]['action'] !== 'insert' 
+				AND $zz_tab[$tab][$rec]['action'] !== 'update') continue;
+			if ($zz_tab[$tab][$rec]['access'] === 'show') continue;
 			// do something with the POST array before proceeding
 			$zz_tab[$tab][$rec] = zz_prepare_for_db($zz_tab[$tab][$rec], '`'
 				.$zz_tab[$tab]['db_name'].'`'.'.'.$zz_tab[$tab]['table'], $zz_tab[0][0]['POST']); 
@@ -233,31 +233,31 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	foreach (array_keys($zz_tab) as $tab)
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
 		if (!is_numeric($rec)) continue;
-		if ($zz_tab[$tab][$rec]['action'] == 'ignore') continue;
+		if ($zz_tab[$tab][$rec]['action'] === 'ignore') continue;
 		
 		// get database name for query
 		$me_db = false;
 		if ($zz_conf['int']['db_main']) {
 			// the 'main' zzform() database is different from the database for 
 			// the main record, so check against db_main
-			if ($zz_tab[$tab]['db_name'] != $zz_conf['int']['db_main']) 
+			if ($zz_tab[$tab]['db_name'] !== $zz_conf['int']['db_main']) 
 				$me_db = $zz_tab[$tab]['db_name'].'.';
 		} else {
 			// the 'main' zzform() database is equal to the database for the 
 			// main record, so check against db_name
-			if ($zz_tab[$tab]['db_name'] != $zz_conf['db_name']) 
+			if ($zz_tab[$tab]['db_name'] !== $zz_conf['db_name']) 
 				$me_db = $zz_tab[$tab]['db_name'].'.';
 		}
 		$me_sql = false;
 		
 	//	### Do nothing with the record, here: main record ###
 
-		if ($zz_tab[$tab][$rec]['access'] == 'show') {
+		if ($zz_tab[$tab][$rec]['access'] === 'show') {
 			$me_sql = 'SELECT 1';
 		
 	//	### Insert a record ###
 	
-		} elseif ($zz_tab[$tab][$rec]['action'] == 'insert') {
+		} elseif ($zz_tab[$tab][$rec]['action'] === 'insert') {
 			$field_values = array();
 			$field_list = array();
 			foreach ($zz_tab[$tab][$rec]['fields'] as $field) {
@@ -271,7 +271,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			
 	// ### Update a record ###
 
-		} elseif ($zz_tab[$tab][$rec]['action'] == 'update') {
+		} elseif ($zz_tab[$tab][$rec]['action'] === 'update') {
 			$update_values = array();
 			$fields = array();
 			$equal = true; // old and new record are said to be equal
@@ -328,7 +328,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 
 	// ### Delete a record ###
 
-		} elseif ($zz_tab[$tab][$rec]['action'] == 'delete') {
+		} elseif ($zz_tab[$tab][$rec]['action'] === 'delete') {
 			// no POST_db, because here, validation is not necessary
 			if (is_array($zz_tab[$tab][$rec]['id']['value'])) {
 				$me_sql = ' DELETE FROM '.$me_db.$zz_tab[$tab]['table']
@@ -349,7 +349,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		}
 		
 		if (!$sql_edit) $sql_edit = $me_sql;
-		else 			$detail_sql_edit[$tab][$rec] = $me_sql;
+		else 			$detail_sqls[$tab][$rec] = $me_sql;
 	}
 	// ### Perform database query and additional actions ###
 	
@@ -391,14 +391,14 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		}
 	}
 	// 2. detail records in form
-	if ($zz_tab[0][0]['action'] == 'delete' AND isset($detail_sql_edit)) { 
-		foreach (array_keys($detail_sql_edit) as $tab)
-			foreach (array_keys($detail_sql_edit[$tab]) as $rec) {
+	if ($zz_tab[0][0]['action'] === 'delete' AND isset($detail_sqls)) { 
+		foreach (array_keys($detail_sqls) as $tab)
+			foreach (array_keys($detail_sqls[$tab]) as $rec) {
 				// might already deleted if in dependent IDs but that does not matter
-				$result = zz_db_change($detail_sql_edit[$tab][$rec], $zz_tab[$tab][$rec]['id']['value']);
+				$result = zz_db_change($detail_sqls[$tab][$rec], $zz_tab[$tab][$rec]['id']['value']);
 				if ($result['action']) {
-					$del_msg[] = 'zz_tab '.$tab.' '.$rec.': '.$detail_sql_edit[$tab][$rec].'<br>';
-					unset($detail_sql_edit[$tab][$rec]);
+					$del_msg[] = 'zz_tab '.$tab.' '.$rec.': '.$detail_sqls[$tab][$rec].'<br>';
+					unset($detail_sqls[$tab][$rec]);
 					// save record values for use outside of zzform()
 					$ops = zz_record_info($ops, $zz_tab, $tab, $rec);
 				} else { // something went wrong, but why?
@@ -422,23 +422,25 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 
 	$result = zz_db_change($sql_edit, $zz_tab[0][0]['id']['value']);
 	if ($result['action']) {
-		if ($zz_tab[0][0]['action'] == 'insert') {
+		if ($zz_tab[0][0]['action'] === 'insert') {
 			$zz_tab[0][0]['id']['value'] = $result['id_value']; // for requery
 		}
 		// save record values for use outside of zzform()
-		if ($result['action'] == 'nothing') $zz_tab[0][0]['actual_action'] = 'nothing';
+		if ($result['action'] === 'nothing') {
+			$zz_tab[0][0]['actual_action'] = 'nothing';
+		}
 		$ops = zz_record_info($ops, $zz_tab);
 		$zz_var['record_action'] = true;
-		if (isset($detail_sql_edit)) {
+		if (isset($detail_sqls)) {
 			list($zz_tab, $zz_var, $validation, $ops) 
-				= zz_action_details($detail_sql_edit, $zz_tab, $zz_var, $validation, $ops);
+				= zz_action_details($detail_sqls, $zz_tab, $zz_var, $validation, $ops);
 		}
 	
 		// if any other action after insertion/update/delete is required
 		$change = zz_action_function('after_'.$zz_var['action'], $ops);
 		list($ops, $zz_tab) = zz_action_change($ops, $zz_tab, $change);
 
-		if (!empty($zz_conf['folder']) && $zz_tab[0][0]['action'] == 'update') {
+		if (!empty($zz_conf['folder']) && $zz_tab[0][0]['action'] === 'update') {
 			// rename connected folder after record has been updated
 			$folders = zz_foldercheck($zz_tab);
 			if ($folders) $zz_tab[0]['folder'] = $folders;
@@ -455,7 +457,10 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		if ($zz_var['record_action']) $ops['result'] = 'successful_'.$zz_tab[0][0]['action'];
 	} else {
 		// Output Error Message
-		if ($zz_var['action'] == 'insert') $zz_tab[0][0]['id']['value'] = false; // for requery
+		if ($zz_var['action'] === 'insert') {
+			// for requery
+			$zz_tab[0][0]['id']['value'] = false;
+		}
 		$result['error']['level'] = E_USER_WARNING;
 		$zz_error[] = $result['error'];
 		$zz_tab[0][0]['error'] = $result['error'];
@@ -466,19 +471,20 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		$update = false;
 		foreach ($ops['return'] as $my_table) {
 			// check for action in main record and detail records
-			if ($my_table['action'] != 'nothing') $update = true;
+			if ($my_table['action'] !== 'nothing') $update = true;
 		}
 		if (!$update) $ops['result'] = 'no_update';
 	}
 	
-	if (!empty($zz_var['upload_form'])) zz_upload_cleanup($zz_tab); // delete temporary unused files
+	// delete temporary unused files
+	if (!empty($zz_var['upload_form'])) zz_upload_cleanup($zz_tab);
 	return zz_return(array($ops, $zz_tab, $validation, $zz_var));
 }
 
 /**
- * updates, writes or deletes detail records belonging to the main record
+ * updates or inserts detail records belonging to the main record
  *
- * @param string $detail_sql_edit
+ * @param string $detail_sqls
  * @param array $zz_tab
  * @param array $zz_var
  * @param bool $validation
@@ -487,30 +493,33 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
  * @return array
  *		$zz_tab, $zz_var, $validation, $ops
  */
-function zz_action_details($detail_sql_edit, $zz_tab, $zz_var, $validation, $ops) {
+function zz_action_details($detail_sqls, $zz_tab, $zz_var, $validation, $ops) {
 	global $zz_error;
 	
-	foreach (array_keys($detail_sql_edit) as $tab) {
-		foreach (array_keys($detail_sql_edit[$tab]) as $rec) {
+	foreach (array_keys($detail_sqls) as $tab) {
+		foreach (array_keys($detail_sqls[$tab]) as $rec) {
 			$my_rec = $zz_tab[$tab][$rec];
-			$detail_sql = $detail_sql_edit[$tab][$rec];
-			$detail_sql = str_replace('[FOREIGN_KEY]', '"'.$zz_tab[0][0]['id']['value'].'"', $detail_sql);
+			$sql = $detail_sqls[$tab][$rec];
+			$sql = str_replace('[FOREIGN_KEY]', '"'.$zz_tab[0][0]['id']['value'].'"', $sql);
 			if (!empty($zz_tab[$tab]['detail_key'])) {
 				// @todo: allow further detail keys
 				// if not all files where uploaded, go up one detail record until
 				// we got an uploaded file
-				while (empty($zz_tab[$zz_tab[$tab]['detail_key'][0]['tab']][$zz_tab[$tab]['detail_key'][0]['rec']]['id']['value'])) {
+				$detail_tab = $zz_tab[$tab]['detail_key'][0]['tab'];
+				$detail_rec = $zz_tab[$tab]['detail_key'][0]['rec'];
+				while (empty($zz_tab[$detail_tab][$detail_rec]['id']['value'])) {
 					$zz_tab[$tab]['detail_key'][0]['rec']--;
 				}
-				$detail_sql = str_replace('[DETAIL_KEY]', '"'.$zz_tab[$zz_tab[$tab]['detail_key'][0]['tab']][$zz_tab[$tab]['detail_key'][0]['rec']]['id']['value'].'"', $detail_sql);
+				$sql = str_replace('[DETAIL_KEY]', '"'.$zz_tab[$detail_tab][$detail_rec]['id']['value'].'"', $sql);
 			}
 			// for deleted subtables, id value might not be set, so get it here.
-			// @todo: check why it's not available beforehands, might be unnecessary security risk.
+			// @todo: check why it's not available beforehands, might be 
+			// unnecessary security risk.
 			if (empty($my_rec['id']['value'])
 				AND !empty($my_rec['POST'][$my_rec['id']['field_name']]))
 				$zz_tab[$tab][$rec]['id']['value'] = $my_rec['POST'][$my_rec['id']['field_name']];
 
-			$result = zz_db_change($detail_sql, $my_rec['id']['value']);
+			$result = zz_db_change($sql, $my_rec['id']['value']);
 			if (!$result['action']) { 
 				// This should never occur, since all checks say that 
 				// this change is possible
@@ -522,16 +531,17 @@ function zz_action_details($detail_sql_edit, $zz_tab, $zz_var, $validation, $ops
 				$zz_var['record_action'] = false;
 				$validation = false; 
 				$zz_tab[0][0]['fields'][$zz_tab[$tab]['no']]['check_validation'] = false;
-			} elseif ($my_rec['action'] == 'insert') {
-				$zz_tab[$tab][$rec]['id']['value'] = $result['id_value']; // for requery
+			} elseif ($my_rec['action'] === 'insert') {
+				// for requery
+				$zz_tab[$tab][$rec]['id']['value'] = $result['id_value'];
 			}
 			// save record values for use outside of zzform()
-			if ($result['action'] == 'nothing')
+			if ($result['action'] === 'nothing')
 				$zz_tab[$tab][$rec]['actual_action'] = 'nothing';
 			$ops = zz_record_info($ops, $zz_tab, $tab, $rec);
 			if ($zz_conf['modules']['debug'] AND $zz_conf['debug']) {
 				$ops['output'].= 'Further SQL queries:<br>'
-					.'zz_tab '.$tab.' '.$rec.': '.$detail_sql.'<br>';
+					.'zz_tab '.$tab.' '.$rec.': '.$sql.'<br>';
 			}
 		}
 	}
@@ -651,7 +661,7 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 	foreach ($my_tab[$rec]['fields'] as $f => $field) {
 		// check if some values should be gotten from detail_value/upload fields
 		// must be here before setting the action
-		if ($zz_tab[$tab][$rec]['access'] == 'show') continue;
+		if ($zz_tab[$tab][$rec]['access'] === 'show') continue;
 		if (!in_array($zz_tab[0][0]['action'], array('insert', 'update'))) continue;
 		if (!empty($field['detail_value'])) {
 			$value = zz_write_detail_values($zz_tab, $f, $tab, $rec);
@@ -694,17 +704,17 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 		AND !empty($my_tab[$rec]['no_file_upload'])) {
 		$values = false;
 	} elseif (!empty($my_tab['records_depend_on_upload']) 
-		AND $my_tab[$rec]['action'] == 'insert'
+		AND $my_tab[$rec]['action'] === 'insert'
 		AND empty($my_tab[$rec]['file_upload'])) {
 		$values = false;
 	} elseif (!empty($my_tab['records_depend_on_upload_more_than_one']) 
-		AND $my_tab[$rec]['action'] == 'insert'
+		AND $my_tab[$rec]['action'] === 'insert'
 		AND empty($my_tab[$rec]['file_upload']) AND $rec) {
 		$values = false;
 	}
 
 	// @todo: seems to be twice the same operation since $tab and $rec are !0
-	if ($my_tab['access'] == 'show') {
+	if ($my_tab['access'] === 'show') {
 		$values = true; // only display subrecords, no deletion, no change!
 		$my_tab[$rec]['action'] = false; // no action insert or update, values are only shown!
 	}
@@ -712,7 +722,7 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 		if ($my_tab[$rec]['id']['value']) {
 			$my_tab[$rec]['action'] = 'delete';
  			// if main tab will be deleted, this record will be deleted anyways
- 			if ($zz_tab[0][0]['action'] != 'delete') {
+ 			if ($zz_tab[0][0]['action'] !== 'delete') {
  				// only for requery record on error!
 				$my_tab['subtable_deleted'][] = $my_tab[$rec]['id']['value'];
 			}
@@ -721,7 +731,7 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 		}
 	}
 	
-	if ($zz_tab[0][0]['action'] == 'delete') {
+	if ($zz_tab[0][0]['action'] === 'delete') {
 		if ($my_tab[$rec]['id']['value'] 			// is there a record?
 			&& empty($my_tab['keep_detailrecord_shown']))		
 			$my_tab[$rec]['action'] = 'delete';
@@ -863,7 +873,7 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
  *		'record_new', 'record_old'
  */
 function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
-	if ($zz_tab[$tab][$rec]['action'] == 'ignore') return $ops;
+	if ($zz_tab[$tab][$rec]['action'] === 'ignore') return $ops;
 	
 	if (!isset($ops['record_new'])) $ops['record_new'] = array();
 	if (!isset($ops['record_old'])) $ops['record_old'] = array();
@@ -891,7 +901,7 @@ function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
 
 	// set new record (no new record if record was deleted)
 	if (!empty($zz_tab[$tab][$rec]['POST']) 
-		AND $zz_tab[$tab][$rec]['action'] != 'delete') {
+		AND $zz_tab[$tab][$rec]['action'] !== 'delete') {
 		$rn = $zz_tab[$tab][$rec]['POST'];
 		// write ID
 		$rn[$zz_tab[$tab][$rec]['id']['field_name']] = $zz_tab[$tab][$rec]['id']['value'];
@@ -1079,7 +1089,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 	// 	walk through all fields by type
 		switch ($type) {
 		case 'id':
-			if ($my_rec['action'] == 'update') {
+			if ($my_rec['action'] === 'update') {
 				$my_rec['id']['field_name'] = $field_name;
 				// for display of updated record:
 				$my_rec['id']['value'] = $my_rec['POST'][$my_rec['id']['field_name']];
@@ -1137,10 +1147,10 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			// if so, password won't be touched
 			// if not, password will be encrypted
 			// action=insert: password will be encrypted
-			if ($my_rec['action'] == 'insert') {
+			if ($my_rec['action'] === 'insert') {
 				$my_rec['POST']['zz_unencrypted_'.$field_name] = $my_rec['POST'][$field_name];
 				$my_rec['POST'][$field_name] = zz_password_hash($my_rec['POST'][$field_name]);
-			} elseif ($my_rec['action'] == 'update') {
+			} elseif ($my_rec['action'] === 'update') {
 				$my_rec['POST']['zz_unencrypted_'.$field_name] = $my_rec['POST'][$field_name];
 				if (!isset($my_rec['POST'][$field_name.'--old'])
 				|| ($my_rec['POST'][$field_name] != $my_rec['POST'][$field_name.'--old']))
@@ -1825,7 +1835,7 @@ function zz_integrity_dependent_record_ids($zz_tab, $relations) {
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
 			if (!is_numeric($rec)) continue;
 			if (!$zz_tab[$tab][$rec]['id']['value']) continue;
-			if ($zz_tab[$tab][$rec]['action'] != 'delete') continue;
+			if ($zz_tab[$tab][$rec]['action'] !== 'delete') continue;
 			if (empty($relations[$zz_tab[$tab]['db_name']])) continue;
 			if (empty($relations[$zz_tab[$tab]['db_name']][$zz_tab[$tab]['table']])) continue;
 			if (empty($relations[$zz_tab[$tab]['db_name']][$zz_tab[$tab]['table']][$zz_tab[$tab][$rec]['id']['field_name']])) continue;
@@ -1878,7 +1888,7 @@ function zz_integrity_record_ids($zz_tab) {
 		foreach ($my_tab as $rec => $my_rec) {
 			if (!is_numeric($rec)) continue;
 			if (!$my_rec['id']['value']) continue;
-			if ($my_rec['action'] != 'delete') continue;
+			if ($my_rec['action'] !== 'delete') continue;
 			if (is_array($my_rec['id']['value'])) {
 				if (!isset($records[$my_tab['db_name']][$my_tab['table']][$my_rec['id']['field_name']]))
 					$records[$my_tab['db_name']][$my_tab['table']][$my_rec['id']['field_name']] = array();
