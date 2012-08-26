@@ -367,7 +367,9 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 				.'WHERE `'.$null_update['field']['detail_id_field'].'` IN ('.implode(',', $null_update['ids']).') '
 				.'LIMIT '.count($null_update['ids']);
 			$id = false;
-			if (count($ids) === 1) $id = array_shift($ids);
+			if (count($null_update['ids']) === 1) {
+				$id = array_shift($null_update['ids']);
+			}
 			$result = zz_db_change($me_sql, $id);
 			if ($result['action']) {
 				$del_msg[] = 'integrity update: '.$me_sql.'<br>';
