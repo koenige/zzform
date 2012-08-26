@@ -185,7 +185,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			foreach ($my_tab as $rec => $my_rec) {
 				if (!is_numeric($rec)) continue;
 				// ignore IDs which are already deleted
-				if ($my_rec['id']['value'] === $del_id) continue 2;
+				if ($my_rec['id']['value'] == $del_id) continue 2;
 			}
 			unset($my_rec);
 			$my_rec['action'] = 'delete';
@@ -293,7 +293,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 							if (is_array($post)) $post = implode(',', $post);
 						}
 						if (!isset($zz_tab[$tab]['existing'][$rec][$field['field_name']])) {
-							if ($post !== NULL) {
+							if ($post != NULL) {
 								// there's no existing record, sent this query
 								$equal = false;
 							} else {
@@ -489,7 +489,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		$ops = zz_record_info($ops, $zz_tab);
 		$validation = false; // show record again!
 	}
-	if ($zz_var['record_action'] === 'successful_update') {
+	if ($ops['result'] === 'successful_update') {
 		$update = false;
 		foreach ($ops['return'] as $my_table) {
 			// check for action in main record and detail records
@@ -517,6 +517,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
  */
 function zz_action_details($detail_sqls, $zz_tab, $zz_var, $validation, $ops) {
 	global $zz_error;
+	global $zz_conf;
 	
 	foreach (array_keys($detail_sqls) as $tab) {
 		foreach (array_keys($detail_sqls[$tab]) as $rec) {
@@ -528,11 +529,10 @@ function zz_action_details($detail_sqls, $zz_tab, $zz_var, $validation, $ops) {
 				// if not all files where uploaded, go up one detail record until
 				// we got an uploaded file
 				$detail_tab = $zz_tab[$tab]['detail_key'][0]['tab'];
-				$detail_rec = $zz_tab[$tab]['detail_key'][0]['rec'];
-				while (empty($zz_tab[$detail_tab][$detail_rec]['id']['value'])) {
+				while (empty($zz_tab[$detail_tab][$zz_tab[$tab]['detail_key'][0]['rec']]['id']['value'])) {
 					$zz_tab[$tab]['detail_key'][0]['rec']--;
 				}
-				$sql = str_replace('[DETAIL_KEY]', '"'.$zz_tab[$detail_tab][$detail_rec]['id']['value'].'"', $sql);
+				$sql = str_replace('[DETAIL_KEY]', '"'.$zz_tab[$detail_tab][$zz_tab[$tab]['detail_key'][0]['rec']]['id']['value'].'"', $sql);
 			}
 			// for deleted subtables, id value might not be set, so get it here.
 			// @todo: check why it's not available beforehands, might be 
@@ -610,7 +610,7 @@ function zz_action_function($type, $ops) {
  */
 function zz_action_change($ops, $zz_tab, $change) {
 	if (!$change) return array($ops, $zz_tab);
-	if ($change === true) return array($ops, $zz_tab);
+	if ($change == true) return array($ops, $zz_tab);
 	
 	// output?
 	if (!empty($change['output'])) {
@@ -1543,7 +1543,7 @@ function zz_val_get_from_upload($field, $images, $post) {
 						foreach ($arrays as $array) {
 							if (!$array) continue;
 							foreach ($array as $key => $value) {
-								if (substr($key, 0, strlen($v_var)) === $v_var) {
+								if (substr($key, 0, strlen($v_var)) == $v_var) {
 									$subkeys[$key] = $value;
 								}
 							}
