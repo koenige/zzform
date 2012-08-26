@@ -133,7 +133,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 				return zz_return(array($ops, $zz_tab, $validation, $zz_var));
 			// if something was returned, validation failed because there 
 			// probably are records
-			if ($zz_var['integrity']) $validation = false;
+			if ($zz_var['integrity']['fields']) $validation = false;
 		}
 	}
 
@@ -357,7 +357,28 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 
 	// if delete a record, first delete detail records so that in case of an 
 	// error there are no orphans
-	// 1. detail records from relations-table
+	// 1. detail records from relations-table which need update
+	// (foreign_id = NULL)
+	if (!empty($zz_var['integrity']['updates'])) {
+		foreach ($zz_var['integrity']['updates'] as $null_update) {
+			$me_sql = 'UPDATE `'.$null_update['field']['detail_db'].'`.`'
+				.$null_update['field']['detail_table'].'` '
+				.'SET `'.$null_update['field']['detail_field'].'` = NULL '
+				.'WHERE `'.$null_update['field']['detail_id_field'].'` IN ('.implode(',', $null_update['ids']).') '
+				.'LIMIT '.count($null_update['ids']);
+			$id = false;
+			if (count($ids) === 1) $id = array_shift($ids);
+			$result = zz_db_change($me_sql, $id);
+			if ($result['action']) {
+				$del_msg[] = 'integrity update: '.$me_sql.'<br>';
+			} else {
+				$result['error']['msg'] = 'Detail record could not be updated';
+				$zz_error[] = $result['error'];
+			}
+		}
+	}
+
+	// 2. detail records from relations-table which have to be deleted
 	if (isset($dependent_ids)) {
 		foreach ($dependent_ids as $db_name => $tables) {
 			$me_db = '';
@@ -390,7 +411,8 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			}
 		}
 	}
-	// 2. detail records in form
+
+	// 3. detail records in form
 	if ($zz_tab[0][0]['action'] === 'delete' AND isset($detail_sqls)) { 
 		foreach (array_keys($detail_sqls) as $tab)
 			foreach (array_keys($detail_sqls[$tab]) as $rec) {
@@ -1774,6 +1796,7 @@ function zz_integrity_check($deletable_ids, $relations) {
 
 	$response = array();
 	$response['fields'] = array();
+	$response['updates'] = array();
 	foreach ($deletable_ids as $master_db => $tables) {
 		foreach ($tables as $master_table => $fields) {
 			if (!isset($relations[$master_db][$master_table])) {
@@ -1798,18 +1821,27 @@ function zz_integrity_check($deletable_ids, $relations) {
 					$remaining_ids = $detail_ids;
 				}
 				if ($remaining_ids) {
-					// there are still IDs which cannot be deleted
-					// check which record they belong to
-					// only get unique values
-					$response['fields'][$field['detail_table']] = $field['detail_table'];
+					if ($field['delete'] === 'update') {
+						$response['updates'][] = array(
+							'ids' => $remaining_ids,
+							'field' => $field
+						);
+					} else {
+						// there are still IDs which cannot be deleted
+						// check which record they belong to
+						// only get unique values
+						$response['fields'][$field['detail_table']] = $field['detail_table'];
+					}
 				}
 			}
 		}
 	}
-	if ($response['fields']) {
-		$response['fields'] = array_values($response['fields']);
-		// we still have detail records
-		$response['text'] = zz_text('Detail records exist in the following tables:');
+	if ($response) {
+		if ($response['fields']) {
+			// we still have detail records
+			$response['fields'] = array_values($response['fields']);
+			$response['text'] = zz_text('Detail records exist in the following tables:');
+		}
 		return $response;
 	} else {
 		// everything is okay

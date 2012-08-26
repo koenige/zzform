@@ -94,8 +94,9 @@ if (!empty($_POST['detail_db']) AND !empty($_POST['detail_table'])){
 
 $zz['fields'][10]['field_name'] = 'delete';
 $zz['fields'][10]['type'] = 'select';
-$zz['fields'][10]['enum'] = array('delete', 'no-delete');
+$zz['fields'][10]['enum'] = array('delete', 'no-delete', 'update');
 $zz['fields'][10]['default'] = 'no-delete';
+$zz['fields'][10]['show_values_as_list'] = true;
 $zz['fields'][10]['explanation'] = 'If main record will be deleted, what should happen with detail record?';
 
 /*	
