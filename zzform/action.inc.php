@@ -429,51 +429,11 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		if ($result['action'] == 'nothing') $zz_tab[0][0]['actual_action'] = 'nothing';
 		$ops = zz_record_info($ops, $zz_tab);
 		$zz_var['record_action'] = true;
-		if (isset($detail_sql_edit))
-			foreach (array_keys($detail_sql_edit) as $tab)
-				foreach (array_keys($detail_sql_edit[$tab]) as $rec) {
-					$my_rec = $zz_tab[$tab][$rec];
-					$detail_sql = $detail_sql_edit[$tab][$rec];
-					$detail_sql = str_replace('[FOREIGN_KEY]', '"'.$zz_tab[0][0]['id']['value'].'"', $detail_sql);
-					if (!empty($zz_tab[$tab]['detail_key'])) {
-						// @todo: allow further detail keys
-						// if not all files where uploaded, go up one detail record until
-						// we got an uploaded file
-						while (empty($zz_tab[$zz_tab[$tab]['detail_key'][0]['tab']][$zz_tab[$tab]['detail_key'][0]['rec']]['id']['value'])) {
-							$zz_tab[$tab]['detail_key'][0]['rec']--;
-						}
-						$detail_sql = str_replace('[DETAIL_KEY]', '"'.$zz_tab[$zz_tab[$tab]['detail_key'][0]['tab']][$zz_tab[$tab]['detail_key'][0]['rec']]['id']['value'].'"', $detail_sql);
-					}
-					// for deleted subtables, id value might not be set, so get it here.
-					// @todo: check why it's not available beforehands, might be unnecessary security risk.
-					if (empty($my_rec['id']['value'])
-						AND !empty($my_rec['POST'][$my_rec['id']['field_name']]))
-						$zz_tab[$tab][$rec]['id']['value'] = $my_rec['POST'][$my_rec['id']['field_name']];
-
-					$result = zz_db_change($detail_sql, $my_rec['id']['value']);
-					if (!$result['action']) { 
-						// This should never occur, since all checks say that 
-						// this change is possible
-						// only if duplicate entry
-						$result['error']['msg'] = 'Detail record could not be handled';
-						$result['error']['level'] = E_USER_WARNING;
-						$zz_error[] = $result['error'];
-						$zz_tab[$tab][$rec]['error'] = $result['error'];
-						$zz_var['record_action'] = false;
-						$validation = false; 
-						$zz_tab[0][0]['fields'][$zz_tab[$tab]['no']]['check_validation'] = false;
-					} elseif ($my_rec['action'] == 'insert') {
-						$zz_tab[$tab][$rec]['id']['value'] = $result['id_value']; // for requery
-					}
-					// save record values for use outside of zzform()
-					if ($result['action'] == 'nothing')
-						$zz_tab[$tab][$rec]['actual_action'] = 'nothing';
-					$ops = zz_record_info($ops, $zz_tab, $tab, $rec);
-					if ($zz_conf['modules']['debug'] AND $zz_conf['debug']) {
-						$ops['output'].= 'Further SQL queries:<br>'
-							.'zz_tab '.$tab.' '.$rec.': '.$detail_sql.'<br>';
-					}
-				}
+		if (isset($detail_sql_edit)) {
+			list($zz_tab, $zz_var, $validation, $ops) 
+				= zz_action_details($detail_sql_edit, $zz_tab, $zz_var, $validation, $ops);
+		}
+	
 		// if any other action after insertion/update/delete is required
 		$change = zz_action_function('after_'.$zz_var['action'], $ops);
 		list($ops, $zz_tab) = zz_action_change($ops, $zz_tab, $change);
@@ -513,6 +473,69 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	
 	if (!empty($zz_var['upload_form'])) zz_upload_cleanup($zz_tab); // delete temporary unused files
 	return zz_return(array($ops, $zz_tab, $validation, $zz_var));
+}
+
+/**
+ * updates, writes or deletes detail records belonging to the main record
+ *
+ * @param string $detail_sql_edit
+ * @param array $zz_tab
+ * @param array $zz_var
+ * @param bool $validation
+ * @param array $ops
+ * @global array $zz_error
+ * @return array
+ *		$zz_tab, $zz_var, $validation, $ops
+ */
+function zz_action_details($detail_sql_edit, $zz_tab, $zz_var, $validation, $ops) {
+	global $zz_error;
+	
+	foreach (array_keys($detail_sql_edit) as $tab) {
+		foreach (array_keys($detail_sql_edit[$tab]) as $rec) {
+			$my_rec = $zz_tab[$tab][$rec];
+			$detail_sql = $detail_sql_edit[$tab][$rec];
+			$detail_sql = str_replace('[FOREIGN_KEY]', '"'.$zz_tab[0][0]['id']['value'].'"', $detail_sql);
+			if (!empty($zz_tab[$tab]['detail_key'])) {
+				// @todo: allow further detail keys
+				// if not all files where uploaded, go up one detail record until
+				// we got an uploaded file
+				while (empty($zz_tab[$zz_tab[$tab]['detail_key'][0]['tab']][$zz_tab[$tab]['detail_key'][0]['rec']]['id']['value'])) {
+					$zz_tab[$tab]['detail_key'][0]['rec']--;
+				}
+				$detail_sql = str_replace('[DETAIL_KEY]', '"'.$zz_tab[$zz_tab[$tab]['detail_key'][0]['tab']][$zz_tab[$tab]['detail_key'][0]['rec']]['id']['value'].'"', $detail_sql);
+			}
+			// for deleted subtables, id value might not be set, so get it here.
+			// @todo: check why it's not available beforehands, might be unnecessary security risk.
+			if (empty($my_rec['id']['value'])
+				AND !empty($my_rec['POST'][$my_rec['id']['field_name']]))
+				$zz_tab[$tab][$rec]['id']['value'] = $my_rec['POST'][$my_rec['id']['field_name']];
+
+			$result = zz_db_change($detail_sql, $my_rec['id']['value']);
+			if (!$result['action']) { 
+				// This should never occur, since all checks say that 
+				// this change is possible
+				// only if duplicate entry
+				$result['error']['msg'] = 'Detail record could not be handled';
+				$result['error']['level'] = E_USER_WARNING;
+				$zz_error[] = $result['error'];
+				$zz_tab[$tab][$rec]['error'] = $result['error'];
+				$zz_var['record_action'] = false;
+				$validation = false; 
+				$zz_tab[0][0]['fields'][$zz_tab[$tab]['no']]['check_validation'] = false;
+			} elseif ($my_rec['action'] == 'insert') {
+				$zz_tab[$tab][$rec]['id']['value'] = $result['id_value']; // for requery
+			}
+			// save record values for use outside of zzform()
+			if ($result['action'] == 'nothing')
+				$zz_tab[$tab][$rec]['actual_action'] = 'nothing';
+			$ops = zz_record_info($ops, $zz_tab, $tab, $rec);
+			if ($zz_conf['modules']['debug'] AND $zz_conf['debug']) {
+				$ops['output'].= 'Further SQL queries:<br>'
+					.'zz_tab '.$tab.' '.$rec.': '.$detail_sql.'<br>';
+			}
+		}
+	}
+	return array($zz_tab, $zz_var, $validation, $ops);
 }
 
 /**
