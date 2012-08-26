@@ -1836,35 +1836,62 @@ function zz_integrity_dependent_record_ids($zz_tab, $relations) {
 			if (!is_numeric($rec)) continue;
 			if (!$zz_tab[$tab][$rec]['id']['value']) continue;
 			if ($zz_tab[$tab][$rec]['action'] !== 'delete') continue;
-			if (empty($relations[$zz_tab[$tab]['db_name']])) continue;
-			if (empty($relations[$zz_tab[$tab]['db_name']][$zz_tab[$tab]['table']])) continue;
-			if (empty($relations[$zz_tab[$tab]['db_name']][$zz_tab[$tab]['table']][$zz_tab[$tab][$rec]['id']['field_name']])) continue;
-
-			foreach ($relations[$zz_tab[$tab]['db_name']][$zz_tab[$tab]['table']][$zz_tab[$tab][$rec]['id']['field_name']] as $rel) {
-				// we care just about 'delete'-relations
-				if ($rel['delete'] !== 'delete') continue;
-				if (is_array($zz_tab[$tab][$rec]['id']['value'])) {
-					$sql = 'SELECT `'.$rel['detail_id_field'].'`
-						FROM `'.$rel['detail_db'].'`.`'.$rel['detail_table'].'`
-						WHERE `'.$rel['detail_field'].'` IN ("'
-						.implode('","', $zz_tab[$tab][$rec]['id']['value']).'")';
-				} else {
-					$sql = 'SELECT `'.$rel['detail_id_field'].'`
-						FROM `'.$rel['detail_db'].'`.`'.$rel['detail_table'].'`
-						WHERE `'.$rel['detail_field'].'` = '.$zz_tab[$tab][$rec]['id']['value'];
-				}
-				$records = zz_db_fetch($sql, $rel['detail_id_field'], 'single value');
-				if (!$records) continue;
-				// check if detail records have other detail records
-				// if no entry in relations table exists, make no changes
-				if (empty($details[$rel['detail_db']][$rel['detail_table']][$rel['detail_id_field']]))
-					$details[$rel['detail_db']][$rel['detail_table']][$rel['detail_id_field']] = array();
-				$details[$rel['detail_db']][$rel['detail_table']][$rel['detail_id_field']] 
-					= array_merge($records, $details[$rel['detail_db']][$rel['detail_table']][$rel['detail_id_field']]);
-			}
+			$details = zz_integrity_deletable(
+				$zz_tab[$tab]['db_name'], $zz_tab[$tab]['table'], 
+				$zz_tab[$tab][$rec]['id']['field_name'], $zz_tab[$tab][$rec]['id']['value'],
+				$relations, $details
+			);
 		}
 	}
-	if (!$details) return array();
+	return $details;
+}
+
+/**
+ * recursive function to get deletable records, n levels deep
+ *
+ * @param string $db_name
+ * @param string $table
+ * @param string $id_field_name
+ * @param mixed $id_value (integer or list of integers)
+ * @param array $relations
+ * @param array $details
+ * @param int $level
+ * @return array ($details)
+ */
+function zz_integrity_deletable($db_name, $table, $id_field_name, $id_value, $relations, $details, $level = 0) {
+	// check level to avoid indefinite recursion
+	if ($level > 3) return $details;
+	if (empty($relations[$db_name])) return $details;
+	if (empty($relations[$db_name][$table])) return $details;
+	if (empty($relations[$db_name][$table][$id_field_name])) return $details;
+
+	foreach ($relations[$db_name][$table][$id_field_name] as $rel) {
+		// we care just about 'delete'-relations
+		if ($rel['delete'] !== 'delete') continue;
+		if (is_array($id_value)) {
+			$sql = 'SELECT `'.$rel['detail_id_field'].'`
+				FROM `'.$rel['detail_db'].'`.`'.$rel['detail_table'].'`
+				WHERE `'.$rel['detail_field'].'` IN ("'
+				.implode('","', $id_value).'")';
+		} else {
+			$sql = 'SELECT `'.$rel['detail_id_field'].'`
+				FROM `'.$rel['detail_db'].'`.`'.$rel['detail_table'].'`
+				WHERE `'.$rel['detail_field'].'` = '.$id_value;
+		}
+		$records = zz_db_fetch($sql, $rel['detail_id_field'], 'single value');
+		if (!$records) continue;
+
+		if (empty($details[$rel['detail_db']][$rel['detail_table']][$rel['detail_id_field']]))
+			$details[$rel['detail_db']][$rel['detail_table']][$rel['detail_id_field']] = array();
+		$details[$rel['detail_db']][$rel['detail_table']][$rel['detail_id_field']] 
+			= array_merge($records, $details[$rel['detail_db']][$rel['detail_table']][$rel['detail_id_field']]);
+
+		// check if detail records have other detail records
+		$details = zz_integrity_deletable(
+			$rel['detail_db'], $rel['detail_table'], $rel['detail_id_field'],
+			$records, $relations, $details, $level + 1
+		);
+	}
 	return $details;
 }
 
