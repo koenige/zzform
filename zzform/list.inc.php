@@ -113,7 +113,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 
 	// check conditions, these might lead to different field definitions for every
 	// line in the list output!
-	// that means, $table_query cannot be used for the rest but $line_query instead
+	// that means, $table_defs cannot be used for the rest but $line_defs instead
 	// zz_fill_out must be outside if show_list, because it is necessary for
 	// search results with no resulting records
 	// fill_out, but do not unset conditions
@@ -122,54 +122,54 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		$conditions_applied = array(); // check if there are any conditions
 		array_unshift($lines, '0'); // 0 as a dummy record for which no conditions will be set
 		foreach ($lines as $index => $line) {
-			$line_query[$index] = $zz['fields_in_list'];
-			if ($index) foreach ($line_query[$index] as $fieldindex => $field) {
+			$line_defs[$index] = $zz['fields_in_list'];
+			if ($index) foreach ($line_defs[$index] as $fieldindex => $field) {
 				// conditions
 				if (empty($zz_conf['modules']['conditions'])) continue;
 				if (!empty($field['conditions'])) {
-					$line_query[$index][$fieldindex] = zz_conditions_merge($field, $zz_conditions['bool'], $line[$id_field]);
+					$line_defs[$index][$fieldindex] = zz_conditions_merge($field, $zz_conditions['bool'], $line[$id_field]);
 					$conditions_applied[$index] = true;
 				}
 				if (!empty($field['not_conditions'])) {
-					$line_query[$index][$fieldindex] = zz_conditions_merge($line_query[$index][$fieldindex], $zz_conditions['bool'], $line[$id_field], true);
+					$line_defs[$index][$fieldindex] = zz_conditions_merge($line_defs[$index][$fieldindex], $zz_conditions['bool'], $line[$id_field], true);
 					$conditions_applied[$index] = true;
 				}
 			}
 		}
 		if (empty($conditions_applied)) {
 			// if there is no condition, remove all the identical stuff
-			unset($line_query);
-			$line_query[0] = $zz['fields_in_list'];	
+			unset($line_defs);
+			$line_defs[0] = $zz['fields_in_list'];	
 		}
 		// table definition is complete
 		// so now we need to check which fields are shown in list mode
 		foreach (array_keys($lines) as $index) {
-			if (empty($line_query[$index])) continue;
+			if (empty($line_defs[$index])) continue;
 			if ($zz_conf['modules']['debug']) zz_debug('fill_out start');
-			$line_query[$index] = zz_fill_out($line_query[$index], $zz_conf['db_name'].'.'.$zz['table'], 2);
+			$line_defs[$index] = zz_fill_out($line_defs[$index], $zz_conf['db_name'].'.'.$zz['table'], 2);
 			if ($zz_conf['modules']['debug']) zz_debug('fill_out end');
-			foreach ($line_query[$index] as $fieldindex => $field) {
+			foreach ($line_defs[$index] as $fieldindex => $field) {
 				// remove elements from table which shall not be shown
 				if ($ops['mode'] == 'export') {
 					if (!isset($field['export']) || $field['export']) {
-						$table_query[$index][] = $field;
+						$table_defs[$index][] = $field;
 					}
 				} else {
 					if (empty($field['hide_in_list'])) {
-						$table_query[$index][] = $field;
+						$table_defs[$index][] = $field;
 					}
 				}
 			}
 			if ($zz_conf['modules']['debug']) zz_debug('table_query end');
 		}
-		// now we have the basic stuff in $table_query[0] and $line_query[0]
-		// if there are conditions, $table_query[1], [2], [3]... and
-		// $line_query[1], [2], [3] ... are set
-		$zz['fields_in_list'] = $line_query[0]; // for search form
-		unset($line_query);
+		// now we have the basic stuff in $table_defs[0] and $line_defs[0]
+		// if there are conditions, $table_defs[1], [2], [3]... and
+		// $line_defs[1], [2], [3] ... are set
+		$zz['fields_in_list'] = $line_defs[0]; // for search form
+		unset($line_defs);
 		unset($lines[0]); // remove first dummy array
 		// mark fields as 'show_field' corresponding to grouping
-		$table_query = zz_list_show_group_fields($table_query);
+		$table_defs = zz_list_show_group_fields($table_defs);
 	}
 
 	if ($zz_conf['modules']['debug']) zz_debug('table_query set');
@@ -197,7 +197,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			//$rows[$z][0]['text'] = '';
 			//$rows[$z][0]['class'] = array();
 			
-			$tq_index = (count($table_query) > 1) ? $index : 0;
+			$def_index = (count($table_defs) > 1) ? $index : 0;
 			$id = $line[$zz_var['id']['field_name']];
 			if ($id == $zz_var['id']['value']) {
 				$list['current_record'] = $z;
@@ -207,7 +207,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				}
 			}
 			$sub_id = '';
-			$rows[$z]['group'] = zz_list_group_titles($table_query[$tq_index], $line);
+			$rows[$z]['group'] = zz_list_group_titles($table_defs[$def_index], $line);
 			// configuration variables just for this line
 			$zz_conf_record = zz_record_conf($zz_conf);
 			if (!empty($line['zz_conf'])) {
@@ -226,7 +226,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				$rows[$z][-1]['class'][] = 'select_multiple_records';
 			}
 
-			foreach ($table_query[$tq_index] as $fieldindex => $field) {
+			foreach ($table_defs[$def_index] as $fieldindex => $field) {
 				$subselect_index = $fieldindex;
 				if ($zz_conf['modules']['debug']) zz_debug("table_query foreach ".$fieldindex);
 				// conditions
@@ -250,7 +250,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				if ($zz_conf['modules']['debug']) zz_debug("table_query foreach cond set ".$fieldindex);
 				
 				// check all fields next to each other with list_append_next					
-				while (!empty($table_query[$tq_index][$fieldindex]['list_append_next'])) {
+				while (!empty($table_defs[$def_index][$fieldindex]['list_append_next'])) {
 					$fieldindex++;
 				}
 
@@ -326,8 +326,8 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 
 	if ($zz_conf['show_list']) {
 		$list['where_values'] = !empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : '';
-		$head = zz_list_head($table_query[0], $list['where_values']);
-		unset($table_query);
+		$head = zz_list_head($table_defs[0], $list['where_values']);
+		unset($table_defs);
 	}
 
 	//
@@ -1099,17 +1099,17 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 /**
  * adds values, outputs HTML table foot
  *
- * @param array $table_query
+ * @param array $table_defs
  * @param int $z
  * @param array $table (foreign_key_field_name => value)
  * @param array $sum (field_name => value)
  * @global array $zz_conf ($zz_conf['int']['group_field_no'])
  * @return string HTML output of table foot
  */
-function zz_field_sum($table_query, $z, $table, $sum) {
+function zz_field_sum($table_defs, $z, $table, $sum) {
 	global $zz_conf;
 	$tfoot_line = '';
-	foreach ($table_query as $index => $field) {
+	foreach ($table_defs as $index => $field) {
 		if (!$field['show_field']) continue;
 		if (in_array($index, $zz_conf['int']['group_field_no'])) continue;
 		if ($field['type'] == 'id' && empty($field['show_id'])) {
@@ -2289,29 +2289,29 @@ function zz_list_field_level($field, $line) {
 /**
  * check depending on grouping whether a field will be shown or not
  *
- * @param array $table_query
+ * @param array $table_defs
  * @global array $zz_conf
- * @return array $table_query ('show_field' set for each field)
+ * @return array $table_defs ('show_field' set for each field)
  */
-function zz_list_show_group_fields($table_query) {
+function zz_list_show_group_fields($table_defs) {
 	global $zz_conf;
-	if (!$zz_conf['show_list']) return $table_query;
+	if (!$zz_conf['show_list']) return $table_defs;
 
 	$show_field = true;
-	foreach ($table_query[0] as $index => $field) {
+	foreach ($table_defs[0] as $index => $field) {
 		if ($zz_conf['group']) {
 			$show_field_group = zz_list_group_field_no($field, $index);
 			if ($show_field AND !$show_field_group) $show_field = false;
 		}
 		// show or hide field
-		foreach (array_keys($table_query) as $row) { // each line seperately
-			if (!empty($table_query[$row][$index])) // only if field exists
-				$table_query[$row][$index]['show_field'] = $show_field;
+		foreach (array_keys($table_defs) as $row) { // each line seperately
+			if (!empty($table_defs[$row][$index])) // only if field exists
+				$table_defs[$row][$index]['show_field'] = $show_field;
 		}
 		if (!empty($field['list_append_next'])) $show_field = false;
 		else $show_field = true;
 	}
-	return $table_query;
+	return $table_defs;
 }
 
 /**
