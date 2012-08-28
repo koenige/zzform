@@ -175,21 +175,15 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	if ($zz_conf['modules']['debug']) zz_debug('table_query set');
 
 	//
-	// Table data
-	//	
+	// Table data and head
+	//
 
 	if ($zz_conf['show_list']) {
 		list($rows, $list) = zz_list_data(
 			$lines, $table_defs, $zz_var, $zz_conditions, $zz['table'], $ops['mode']
 		);
 		unset($lines);
-	}
-	
-	//
-	// Table head
-	//
 
-	if ($zz_conf['show_list']) {
 		$list['where_values'] = !empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : '';
 		$head = zz_list_head($table_defs[0], $list['where_values']);
 		unset($table_defs);
@@ -405,23 +399,8 @@ function zz_list_data($lines, $table_defs, $zz_var, $zz_conditions, $table, $mod
 			);
 
 			// Sums
-			// @todo refactor $list = zz_list_calculation($field, $list, $value, $group)
-			if (empty($field['calculation'])) $field['calculation'] = '';
-			if (!empty($field['sum']) AND $field['calculation'] != 'sql') {
-				if (!isset($list['sum'][$field['title']])) {
-					$list['sum'][$field['title']] = 0;
-				}
-				$value = $rows[$z][$fieldindex]['value'];
-				if ($field['calculation'] === 'hours' AND strstr($value, ':')) {
-					$value = explode(':', $value);
-					if (!isset($value[1])) $value[1] = 0;
-					if (!isset($value[2])) $value[2] = 0;
-					$value = 3600 * $value[0] + 60 * $value[1] + $value[2];
-				}
-				$list['sum'][$field['title']] += $value;
-				$list['sum_group'] = zz_list_group_sum($rows[$z]['group'], $list['sum_group'], $field['title'], $value);
-			}
-			
+			$list = zz_list_sum($field, $list, $rows[$z][$fieldindex]['value'], $rows[$z]['group']);
+
 			if ($field['type'] == 'subtable' AND !empty($field['subselect']['sql'])) {
 				list ($key_fieldname, $subselect) = zz_list_init_subselects(
 					$field, $line, $subselect_index, $fieldindex, $zz_var['id']['field_name']
@@ -1344,6 +1323,34 @@ function zz_list_group_field_no($field, $index) {
 		}
 	}
 	return true;
+}
+
+/**
+ * adds values for sums if 'sum' is set for a field
+ *
+ * @param array $field
+ * @param array $list
+ * @param mixed $value
+ * @param array $group ($rows[$z]['group'])
+ * @return array ($list)
+ */
+function zz_list_sum($field, $list, $value, $group) {
+	if (empty($field['sum'])) return $list;
+	if (empty($field['calculation'])) $field['calculation'] = '';
+	if ($field['calculation'] === 'sql') return $list;
+
+	if (!isset($list['sum'][$field['title']])) {
+		$list['sum'][$field['title']] = 0;
+	}
+	if ($field['calculation'] === 'hours' AND strstr($value, ':')) {
+		$value = explode(':', $value);
+		if (!isset($value[1])) $value[1] = 0;
+		if (!isset($value[2])) $value[2] = 0;
+		$value = 3600 * $value[0] + 60 * $value[1] + $value[2];
+	}
+	$list['sum'][$field['title']] += $value;
+	$list['sum_group'] = zz_list_group_sum($group, $list['sum_group'], $field['title'], $value);
+	return $list;
 }
 
 /**
