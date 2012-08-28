@@ -110,59 +110,57 @@ function zz_nice_headings($heading, $zz_fields, $where_condition = array()) {
 /**
  * HTML output of detail-links for list view
  *
- * @param array $more_actions			$zz_conf['details']
- * @param mixed $more_actions_url		$zz_conf['details_url']
- * @param array $more_actions_base		$zz_conf['details_base']
+ * @param array $conf = $zz_conf_record
+ * 	- array 'details'
+ * 	- mixed 'details_url'
+ * 	- array 'details_base'
  *		optional; must be set for each key in 'details', if unset, the link base
  *		will be created from 'details'
- * @param string $more_actions_target	$zz_conf['details_target']
- * @param bool $more_actions_referer	$zz_conf['details_referer']
- * @param array $sql	$zz_conf['details_sql']
+ * 	- string 'details_target'
+ * 	- bool 'details_referer'
+ *  - array 'details_sql'
  * @param int $id
  * @param array $line
  * @global array $zz_conf
  * @return string HTML output of all detail links
  */
-function zz_show_more_actions($more_actions, $more_actions_url,
-	$more_actions_base, $more_actions_target, $more_actions_referer, $sql, $id,
-	$line = false)
-{
+function zz_show_more_actions($conf, $id, $line = false) {
 	global $zz_conf;
 	if (!function_exists('forceFilename')) {
 		echo zz_text('Function forceFilename() required but not found! It is as well '
 			.'possible that <code>$zz_conf[\'character_set\']</code> is incorrectly set.');
 		exit;
 	}
- 	if (empty($more_actions_url)) $more_actions_url = '.php?id=';
+ 	if (empty($conf['details_url'])) $conf['details_url'] = '.php?id=';
 	$act = false;
-	foreach ($more_actions as $key => $new_action) {
+	foreach ($conf['details'] as $key => $new_action) {
 		$output = false;
-		if ($more_actions_base) $new_action_url = $more_actions_base[$key];
+		if ($conf['details_base']) $new_action_url = $conf['details_base'][$key];
 		else $new_action_url = strtolower(forceFilename($new_action));
-		$output.= '<a href="'.$new_action_url;
-		if (isset($more_actions_url[$key]) && is_array($more_actions_url[$key])) {
+		$output .= '<a href="'.$new_action_url;
+		if (isset($conf['details_url'][$key]) && is_array($conf['details_url'][$key])) {
 		// values are different for each key
-			foreach ($more_actions_url[$key] as $part_key => $value)
+			foreach ($conf['details_url'][$key] as $part_key => $value)
 				if (substr($part_key, 0, 5) == 'field')
-					$output.= $line[$value];
+					$output .= $line[$value];
 				else
-					$output.= $value;
-		} elseif (is_array($more_actions_url)) {
+					$output .= $value;
+		} elseif (is_array($conf['details_url'])) {
 		// all values are the same
-			foreach ($more_actions_url as $part_key => $value)
+			foreach ($conf['details_url'] as $part_key => $value)
 				if (substr($part_key, 0, 5) == 'field')
-					$output.= $line[$value];
+					$output .= $line[$value];
 				else
-					$output.= $value;
+					$output .= $value;
 		} else
-			$output.= $more_actions_url;
-		if (!isset($more_actions_url) OR !is_array($more_actions_url)) $output.= $id;
-		$output .= ($more_actions_referer ? '&amp;referer='.urlencode($_SERVER['REQUEST_URI']) : '')
+			$output .= $conf['details_url'];
+		if (!isset($conf['details_url']) OR !is_array($conf['details_url'])) $output .= $id;
+		$output .= ($conf['details_referer'] ? '&amp;referer='.urlencode($_SERVER['REQUEST_URI']) : '')
 			.'"'
-			.(!empty($more_actions_target) ? ' target="'.$more_actions_target.'"' : '')
+			.(!empty($conf['details_target']) ? ' target="'.$conf['details_target'].'"' : '')
 			.'>'.($zz_conf['multilang_fieldnames'] ? zz_text($new_action) : $new_action).'</a>';
-		if (!empty($sql[$key])) {
-			$count = zz_db_fetch($sql[$key].$id, '', 'single value');
+		if (!empty($conf['details_sql'][$key])) {
+			$count = zz_db_fetch($conf['details_sql'][$key].$id, '', 'single value');
 			if ($count) $output .= '&nbsp;('.$count.')';
 		}
 		$act[] = $output;

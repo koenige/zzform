@@ -299,10 +299,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 			}
 			if (!empty($zz_conf_record['details'])) {
 				$output .= '<tr><th>&nbsp;</th><td class="editbutton">'
-					.zz_show_more_actions($zz_conf_record['details'], 
-					$zz_conf_record['details_url'], $zz_conf_record['details_base'], 
-					$zz_conf_record['details_target'], $zz_conf_record['details_referer'],
-					$zz_conf_record['details_sql'], $zz_var['id']['value'], 
+					.zz_show_more_actions($zz_conf_record, $zz_var['id']['value'], 
 					(!empty($zz_tab[0][0]['POST']) ? $zz_tab[0][0]['POST'] : array()))
 					.'</td></tr>'."\n";
 			}

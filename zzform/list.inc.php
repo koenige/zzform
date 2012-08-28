@@ -344,10 +344,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			if ($rows[$z]['modes']) $list['modes'] = true; // need a table row for this
 
 			if (!empty($zz_conf_record['details'])) {
-				$rows[$z]['details'] = zz_show_more_actions($zz_conf_record['details'], 
-					$zz_conf_record['details_url'],  $zz_conf_record['details_base'], 
-					$zz_conf_record['details_target'], $zz_conf_record['details_referer'], 
-					$zz_conf_record['details_sql'], $id, $line);
+				$rows[$z]['details'] = zz_show_more_actions($zz_conf_record, $id, $line);
 				$list['details'] = true; // need a table row for this
 			}
 			$z++;
