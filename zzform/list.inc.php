@@ -179,146 +179,11 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	//	
 
 	if ($zz_conf['show_list']) {
-		$rows = array();
-		$list['current_record'] = NULL;
-		$list['sum'] = array();
-		$list['sum_group'] = array();
-		$list['modes'] = false;		// don't show a table head for link to modes until necessary
-		$list['details'] = false;	// don't show a table head for link to details until necessary
-
-		$subselects = array();
-		$z = 0;
-		$ids = array();
-		//$group_hierarchy = false; // see below, hierarchical grouping
-		$lastline = false;
-	
-		foreach ($lines as $index => $line) {
-			// put lines in new array, rows.
-			//$rows[$z][0]['text'] = '';
-			//$rows[$z][0]['class'] = array();
-			
-			$def_index = (count($table_defs) > 1) ? $index : 0;
-			$id = $line[$zz_var['id']['field_name']];
-			if ($id == $zz_var['id']['value']) {
-				$list['current_record'] = $z;
-			} elseif (!empty($zz_var['id']['values'])) {
-				if (in_array($id, $zz_var['id']['values'])) {
-					$list['current_records'][] = $z; 
-				}
-			}
-			$sub_id = '';
-			$rows[$z]['group'] = zz_list_group_titles($table_defs[$def_index], $line);
-			// configuration variables just for this line
-			$zz_conf_record = zz_record_conf($zz_conf);
-			if (!empty($line['zz_conf'])) {
-				// check whether there are different configuration variables 
-				// e. g. for hierarchies
-				$zz_conf_record = array_merge($zz_conf_record, $line['zz_conf']);
-			}
-			if ($zz_conf['select_multiple_records']) {
-				// checkbox for records
-				$checked = false;
-				if (!empty($zz_var['id']['values'])) {
-					if (in_array($id, $zz_var['id']['values'])) $checked = true;
-				}
-				$rows[$z][-1]['text'] = '<input type="checkbox" name="zz_record_id[]" value="'
-					.$line[$id_field].'"'.($checked ? ' checked="checked"' : '').'>'; // $id
-				$rows[$z][-1]['class'][] = 'select_multiple_records';
-			}
-
-			foreach ($table_defs[$def_index] as $fieldindex => $field) {
-				$subselect_index = $fieldindex;
-				if ($zz_conf['modules']['debug']) zz_debug("table_query foreach ".$fieldindex);
-				// conditions
-				if (!empty($zz_conf['modules']['conditions'])) {
-					if (!empty($field['conditions'])) {
-						$field = zz_conditions_merge($field, $zz_conditions['bool'], $line[$id_field]);
-					}
-					if (!empty($field['not_conditions'])) {
-						$field = zz_conditions_merge($field, $zz_conditions['bool'], $line[$id_field], true);
-					}
-					if (!empty($zz_conf_record['conditions'])) {
-						$zz_conf_record = zz_conditions_merge($zz_conf_record, $zz_conditions['bool'], $line[$id_field], false, 'conf');
-						$zz_conf_record = zz_listandrecord_access($zz_conf_record);
-						if (!isset($zz_conf_record['add_link']))
-							// Link Add new ...
-							$zz_conf_record['add_link'] = $zz_conf_record['add'] ? true : false; 
-						// $zz_conf is set regarding add, edit, delete
-						if (!$zz_conf['add']) $zz_conf['copy'] = false;			// don't copy record (form+links)
-					}
-				}
-				if ($zz_conf['modules']['debug']) zz_debug("table_query foreach cond set ".$fieldindex);
-				
-				// check all fields next to each other with list_append_next					
-				while (!empty($table_defs[$def_index][$fieldindex]['list_append_next'])) {
-					$fieldindex++;
-				}
-
-				if ($zz_conf['modules']['debug']) zz_debug("table_query before switch ".$fieldindex.'-'.$field['type']);
-				$my_row = isset($rows[$z][$fieldindex]) ? $rows[$z][$fieldindex] : array();
-				$rows[$z][$fieldindex] = zz_list_field($my_row, $field, $line, $lastline, $zz_var, $zz['table'], $ops['mode'], $zz_conf_record);
-
-				// Sums
-				if (empty($field['calculation'])) $field['calculation'] = '';
-				if (!empty($field['sum']) AND $field['calculation'] != 'sql') {
-					if (!isset($list['sum'][$field['title']])) {
-						$list['sum'][$field['title']] = 0;
-					}
-					$value = $rows[$z][$fieldindex]['value'];
-					if ($field['calculation'] === 'hours' AND strstr($value, ':')) {
-						$value = explode(':', $value);
-						if (!isset($value[1])) $value[1] = 0;
-						if (!isset($value[2])) $value[2] = 0;
-						$value = 3600 * $value[0] + 60 * $value[1] + $value[2];
-					}
-					$list['sum'][$field['title']] += $value;
-					$list['sum_group'] = zz_list_group_sum($rows[$z]['group'], $list['sum_group'], $field['title'], $value);
-				}
-				
-				if ($field['type'] == 'subtable' AND !empty($field['subselect']['sql'])) {
-					list ($key_fieldname, $subselect) = zz_list_init_subselects(
-						$field, $line, $subselect_index, $fieldindex, $zz_var['id']['field_name']
-					);
-					if ($subselect) $subselects[] = $subselect;
-					if (empty($line[$key_fieldname])) {
-						$zz_error[] = array(
-							'msg_dev' => 'Wrong key_field_name. Please set $zz_sub["fields"]['
-							.'n]["key_field_name"] to something different: '.implode(', ', array_keys($line)));
-					}
-					$sub_id = $line[$key_fieldname]; // get correct ID
-				}
-
-				// group: go through everything but don't show it in list
-				// @todo: check that it does not collide with append_next
-				if ($zz_conf['group']) {
-					$pos = array_search($fieldindex, $zz_conf['int']['group_field_no']);
-					if ($pos !== false) {
-						$list['group_titles'][$z][$pos] = implode(' &#8211; ', $rows[$z]['group']);
-						// just show every title only once
-						$list['group_titles'][$z] = array_unique($list['group_titles'][$z]);
-						unset ($rows[$z][$fieldindex]);
-						ksort($list['group_titles'][$z]);
-					}
-				}
-				if ($zz_conf['modules']['debug']) {
-					zz_debug('table_query end '.$fieldindex.'-'.$field['type']);
-				}
-			}
-			if ($sub_id) $ids[$z] = $sub_id; // for subselects
-			$lastline = $line;
-
-			$rows[$z]['modes'] = zz_list_modes($id, $zz_var, $zz_conf_record);
-			if ($rows[$z]['modes']) $list['modes'] = true; // need a table row for this
-
-			if (!empty($zz_conf_record['details'])) {
-				$rows[$z]['details'] = zz_show_more_actions($zz_conf_record, $id, $line);
-				$list['details'] = true; // need a table row for this
-			}
-			$z++;
-		}
-		$rows = zz_list_get_subselects($rows, $subselects, $ids);
+		list($rows, $list) = zz_list_data(
+			$lines, $table_defs, $zz_var, $zz_conditions, $zz['table'], $ops['mode']
+		);
+		unset($lines);
 	}
-	unset($lines);
 	
 	//
 	// Table head
@@ -432,6 +297,175 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		$ops['output'] .= $search_form['bottom'];
 	}
 	return zz_return(array($ops, $zz_var));
+}
+
+/**
+ * prepare data for list view
+ *
+ * @param array $lines
+ * @param array $table_defs
+ * @param array $zz_var
+ * @param array $zz_conditions
+ * @param string $table ($zz['table'])
+ * @param string $mode ($ops['mode'])
+ * @global array $zz_conf
+ * @global array $zz_error
+ * @return array
+ *		- array $rows data organized in rows
+ *		- array $list with some additional information on how to output list
+ */
+function zz_list_data($lines, $table_defs, $zz_var, $zz_conditions, $table, $mode) {
+	global $zz_conf;
+	global $zz_error;
+	
+	$rows = array();
+	$list = array(
+		'current_record' => NULL,
+		'sum' => array(),
+		'sum_group' => array(),
+		'modes' => false, // don't show a table head for link to modes until necessary
+		'details' => false // don't show a table head for link to details until necessary
+	);
+	$subselects = array();
+	$ids = array();
+	$z = 0;
+	//$group_hierarchy = false; // see below, hierarchical grouping
+	$lastline = false;
+
+	foreach ($lines as $index => $line) {
+		// put lines in new array, rows.
+		//$rows[$z][0]['text'] = '';
+		//$rows[$z][0]['class'] = array();
+		
+		$def_index = (count($table_defs) > 1) ? $index : 0;
+		$id = $line[$zz_var['id']['field_name']];
+		if ($id == $zz_var['id']['value']) {
+			$list['current_record'] = $z;
+		} elseif (!empty($zz_var['id']['values'])) {
+			if (in_array($id, $zz_var['id']['values'])) {
+				$list['current_records'][] = $z; 
+			}
+		}
+		$sub_id = '';
+		$rows[$z]['group'] = zz_list_group_titles($table_defs[$def_index], $line);
+		// configuration variables just for this line
+		$zz_conf_record = zz_record_conf($zz_conf);
+		if (!empty($line['zz_conf'])) {
+			// check whether there are different configuration variables 
+			// e. g. for hierarchies
+			$zz_conf_record = array_merge($zz_conf_record, $line['zz_conf']);
+		}
+		if ($zz_conf['select_multiple_records']) {
+			// checkbox for records
+			$checked = false;
+			if (!empty($zz_var['id']['values'])) {
+				if (in_array($id, $zz_var['id']['values'])) $checked = true;
+			}
+			$rows[$z][-1]['text'] = '<input type="checkbox" name="zz_record_id[]" value="'
+				.$line[$id_field].'"'.($checked ? ' checked="checked"' : '').'>'; // $id
+			$rows[$z][-1]['class'][] = 'select_multiple_records';
+		}
+
+		foreach ($table_defs[$def_index] as $fieldindex => $field) {
+			$subselect_index = $fieldindex;
+			if ($zz_conf['modules']['debug']) zz_debug("table_query foreach ".$fieldindex);
+			// conditions
+			if (!empty($zz_conf['modules']['conditions'])) {
+				if (!empty($field['conditions'])) {
+					$field = zz_conditions_merge($field, $zz_conditions['bool'], $line[$id_field]);
+				}
+				if (!empty($field['not_conditions'])) {
+					$field = zz_conditions_merge($field, $zz_conditions['bool'], $line[$id_field], true);
+				}
+				if (!empty($zz_conf_record['conditions'])) {
+					$zz_conf_record = zz_conditions_merge($zz_conf_record, $zz_conditions['bool'], $line[$id_field], false, 'conf');
+					$zz_conf_record = zz_listandrecord_access($zz_conf_record);
+					if (!isset($zz_conf_record['add_link']))
+						// Link Add new ...
+						$zz_conf_record['add_link'] = $zz_conf_record['add'] ? true : false; 
+					// $zz_conf is set regarding add, edit, delete
+					if (!$zz_conf['add']) $zz_conf['copy'] = false;			// don't copy record (form+links)
+				}
+			}
+			if ($zz_conf['modules']['debug']) {
+				zz_debug("table_query foreach cond set ".$fieldindex);
+			}
+			
+			// check all fields next to each other with list_append_next					
+			while (!empty($table_defs[$def_index][$fieldindex]['list_append_next'])) {
+				$fieldindex++;
+			}
+
+			if ($zz_conf['modules']['debug']) {
+				zz_debug("table_query before switch ".$fieldindex.'-'.$field['type']);
+			}
+			$my_row = isset($rows[$z][$fieldindex]) ? $rows[$z][$fieldindex] : array();
+			$rows[$z][$fieldindex] = zz_list_field(
+				$my_row, $field, $line, $lastline, $zz_var, $table, $mode, $zz_conf_record
+			);
+
+			// Sums
+			// @todo refactor $list = zz_list_calculation($field, $list, $value, $group)
+			if (empty($field['calculation'])) $field['calculation'] = '';
+			if (!empty($field['sum']) AND $field['calculation'] != 'sql') {
+				if (!isset($list['sum'][$field['title']])) {
+					$list['sum'][$field['title']] = 0;
+				}
+				$value = $rows[$z][$fieldindex]['value'];
+				if ($field['calculation'] === 'hours' AND strstr($value, ':')) {
+					$value = explode(':', $value);
+					if (!isset($value[1])) $value[1] = 0;
+					if (!isset($value[2])) $value[2] = 0;
+					$value = 3600 * $value[0] + 60 * $value[1] + $value[2];
+				}
+				$list['sum'][$field['title']] += $value;
+				$list['sum_group'] = zz_list_group_sum($rows[$z]['group'], $list['sum_group'], $field['title'], $value);
+			}
+			
+			if ($field['type'] == 'subtable' AND !empty($field['subselect']['sql'])) {
+				list ($key_fieldname, $subselect) = zz_list_init_subselects(
+					$field, $line, $subselect_index, $fieldindex, $zz_var['id']['field_name']
+				);
+				if ($subselect) $subselects[] = $subselect;
+				if (empty($line[$key_fieldname])) {
+					$zz_error[] = array(
+						'msg_dev' => 'Wrong key_field_name. Please set $zz_sub["fields"]['
+						.'n]["key_field_name"] to something different: '.implode(', ', array_keys($line)));
+				}
+				$sub_id = $line[$key_fieldname]; // get correct ID
+			}
+
+			// group: go through everything but don't show it in list
+			// @todo: check that it does not collide with append_next
+			if ($zz_conf['group']) {
+				$pos = array_search($fieldindex, $zz_conf['int']['group_field_no']);
+				if ($pos !== false) {
+					$list['group_titles'][$z][$pos] = implode(' &#8211; ', $rows[$z]['group']);
+					// just show every title only once
+					$list['group_titles'][$z] = array_unique($list['group_titles'][$z]);
+					unset ($rows[$z][$fieldindex]);
+					ksort($list['group_titles'][$z]);
+				}
+			}
+			if ($zz_conf['modules']['debug']) {
+				zz_debug('table_query end '.$fieldindex.'-'.$field['type']);
+			}
+		}
+		if ($sub_id) $ids[$z] = $sub_id; // for subselects
+		$lastline = $line;
+
+		$rows[$z]['modes'] = zz_list_modes($id, $zz_var, $zz_conf_record);
+		if ($rows[$z]['modes']) $list['modes'] = true; // need a table row for this
+
+		if (!empty($zz_conf_record['details'])) {
+			$rows[$z]['details'] = zz_show_more_actions($zz_conf_record, $id, $line);
+			$list['details'] = true; // need a table row for this
+		}
+		$z++;
+	}
+	$rows = zz_list_get_subselects($rows, $subselects, $ids);
+	
+	return array($rows, $list);
 }
 
 /**
