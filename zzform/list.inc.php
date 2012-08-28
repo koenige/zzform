@@ -2396,29 +2396,28 @@ function zz_list_show_group_fields($table_defs) {
 
 /**
  * sets attributes class, th and th_nohtml for table head
+ * note: for export, all columns have to be returned
  *
  * @param array $head
  * @param array $where_values
  * @return array
  */
 function zz_list_head($head, $where_values) {
-	$thead = array();
 	$j = 0;
 
 	foreach ($head as $index => $field) {
 		if ($field['show_field']) {
 			$j = $index;
-			$thead[$j] = $field;
-			$thead[$j]['class'] = zz_field_class($field, $where_values);
-			$thead[$j]['th'] = zz_list_th($field);
-			$thead[$j]['th_nohtml'] = zz_list_th($field, 'nohtml');
+			$head[$j]['class'] = zz_field_class($field, $where_values);
+			$head[$j]['th'] = zz_list_th($field);
+			$head[$j]['th_nohtml'] = zz_list_th($field, 'nohtml');
 		} elseif (!empty($field['list_append_show_title'])) {
-			$thead[$j]['class'] = array_merge($thead[$j]['class'], zz_field_class($field, $where_values));
-			$thead[$j]['th'] .= ' / '.zz_list_th($field);
-			$thead[$j]['th_nohtml'] .= ' / '.zz_list_th($field, 'nohtml');
+			$head[$j]['class'] = array_merge($thead[$j]['class'], zz_field_class($field, $where_values));
+			$head[$j]['th'] .= ' / '.zz_list_th($field);
+			$head[$j]['th_nohtml'] .= ' / '.zz_list_th($field, 'nohtml');
 		}
 	}
-	return $thead;
+	return $head;
 }
 
 /**
