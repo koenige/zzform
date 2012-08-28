@@ -131,7 +131,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		}
 
 		list($table_defs, $zz['fields_in_list']) = zz_list_defs(
-			$lines, $zz_conditions, $zz['fields_in_list'], $zz['table'], $ops['mode']
+			$lines, $zz_conditions, $zz['fields_in_list'], $zz['table'], $id_field, $ops['mode']
 		);
 		if ($zz_conf['modules']['debug']) zz_debug('list definitions set');
 
@@ -264,12 +264,13 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
  * @param array $zz_conditions
  * @param array $fields_in_list ($zz['fields'])
  * @param string $table ($zz['table'])
+ * @param string $id_field ($zz_var['id']['field_name'])
  * @param string $mode ($ops['mode'])
  * @return array
  *		- array $table_defs
  *		- array $fields_in_list
  */
-function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $mode) {
+function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $id_field, $mode) {
 	global $zz_conf;
 
 	$conditions_applied = array(); // check if there are any conditions
