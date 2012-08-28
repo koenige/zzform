@@ -99,17 +99,20 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		if ($text = zz_text('table-empty')) {
 			$ops['output'].= '<p>'.$text.'</p>';
 		}
-		// 404 if limit is too large
-		if ($total_rows) $zz_conf['int']['http_status'] = 404;
+		if ($ops['mode'] === 'export') {
+			// return 404 not found page (HTML, no export format)
+			// because there is no content
+			// @todo: output the same page with links, filters etc.
+			// as if no export were selected
+			$zz_conf['int']['http_status'] = 404;
+			$ops['mode'] = false;
+			unset($ops['headers']);
+			return zz_return(array($ops, $zz_var));
+		} elseif ($total_rows) {
+			// 404 if limit is too large
+			$zz_conf['int']['http_status'] = 404;
+		}
 	}
-
-	// Check all conditions whether they are true;
-	if (!empty($zz_conf['modules']['conditions'])) {
-		$zz_conditions = zz_conditions_list_check($zz, $zz_conditions, $id_field, array_keys($lines));
-	}
-	if ($zz_error['error']) return zz_return(array($ops, $zz_var));
-	zz_error();
-	$ops['output'] .= zz_error_output();
 
 	// zz_fill_out must be outside if show_list, because it is necessary for
 	// search results with no resulting records
@@ -121,6 +124,12 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	//
 
 	if ($zz_conf['show_list']) {
+		// Check all conditions whether they are true;
+		if (!empty($zz_conf['modules']['conditions'])) {
+			$zz_conditions = zz_conditions_list_check($zz, $zz_conditions, $id_field, array_keys($lines));
+			if ($zz_error['error']) return zz_return(array($ops, $zz_var));
+		}
+
 		list($table_defs, $zz['fields_in_list']) = zz_list_defs(
 			$lines, $zz_conditions, $zz['fields_in_list'], $zz['table'], $ops['mode']
 		);
@@ -155,6 +164,9 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	//
 	// Table head, table foot, list body, closing list
 	//
+
+	zz_error();
+	$ops['output'] .= zz_error_output();
 
 	$search_form = zz_search_form($zz['fields_in_list'], $zz['table'], $total_rows, $count_rows);
 	$ops['output'] .= $search_form['top'];
