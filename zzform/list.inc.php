@@ -276,8 +276,8 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				}
 				
 				if ($field['type'] == 'subtable' AND !empty($field['subselect']['sql'])) {
-					list ($key_field_name, $subselect) = zz_list_init_subselects(
-						$field, $line, $subselect_index, $zz_var['id']['field_name']
+					list ($key_fieldname, $subselect) = zz_list_init_subselects(
+						$field, $line, $subselect_index, $fieldindex, $zz_var['id']['field_name']
 					);
 					if ($subselect) $subselects[] = $subselect;
 					if (empty($line[$key_fieldname])) {
@@ -2129,20 +2129,21 @@ function zz_list_th($field, $mode = 'html') {
  *
  * @param array $field
  * @param array $line
- * @param int $no no. of field
+ * @param int $no no. of field where content is from
+ * @param int $fieldindex no. of field where content appears in list
  * @param string $table_id_field_name
  * @return array
  *	- string key_field_name
  *	- array subselect definition
  */
-function zz_list_init_subselects($field, $line, $no, $table_id_field_name) {
+function zz_list_init_subselects($field, $line, $no, $fieldindex, $table_id_field_name) {
 	static $init;
-	static $key_field_name;
+	static $key_fieldname;
 	if (empty($init)) $init = array();
 
 	// fill array subselects, just in row 0, will always be the same!
 	if (!empty($init[$no])) {
-		return array($key_field_name, array());
+		return array($key_fieldname, array());
 	}
 
 	$foreign_key_field = array();
@@ -2180,7 +2181,7 @@ function zz_list_init_subselects($field, $line, $no, $table_id_field_name) {
 	$field['subselect']['table_name'] = $field['table_name'];
 	$init[$no] = true;
 
-	return array($key_field_name, $field['subselect']);
+	return array($key_fieldname, $field['subselect']);
 }
 
 /**
