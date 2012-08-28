@@ -187,12 +187,10 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		$list['details'] = false;	// don't show a table head for link to details until necessary
 
 		$subselects = array();
-		$id_fieldname = false;
 		$z = 0;
 		$ids = array();
 		//$group_hierarchy = false; // see below, hierarchical grouping
 		$lastline = false;
-		$subselect_init = array();
 	
 		foreach ($lines as $index => $line) {
 			// put lines in new array, rows.
@@ -278,41 +276,10 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				}
 				
 				if ($field['type'] == 'subtable' AND !empty($field['subselect']['sql'])) {
-					// fill array subselects, just in row 0, will always be the same!
-					if (empty($subselect_init[$subselect_index])) {
-						$foreign_key_field = array();
-						$translation_key_field = array();
-						foreach ($field['fields'] as $subfield) {
-							if ($subfield['type'] == 'foreign_key') {
-								$foreign_key_field = $subfield;
-							} elseif ($subfield['type'] == 'translation_key') {
-								$translation_key_field = $subfield;
-							}
-						}
-						// get field name of foreign key
-						$id_fieldname = $foreign_key_field['field_name'];
-						if ($translation_key_field) {
-							$key_fieldname = $zz_var['id']['field_name'];
-							$field['subselect']['translation_key'] = $translation_key_field['translation_key'];
-						} else { // $foreign_key_field
-							// if main field name and foreign field name differ, use main ID for requests
-							if (!empty($foreign_key_field['key_field_name'])) // different fieldnames
-								$key_fieldname = $foreign_key_field['key_field_name'];
-							else
-								$key_fieldname = $foreign_key_field['field_name'];
-						}
-						// id_field = joined_table.field_name
-						if (empty($field['subselect']['table'])) {
-							$field['subselect']['table'] = $field['table'];
-						}
-						$field['subselect']['id_table_and_fieldname'] = $field['subselect']['table'].'.'.$id_fieldname;
-						// just field_name
-						$field['subselect']['id_fieldname'] = $id_fieldname;
-						$field['subselect']['fieldindex'] = $fieldindex;
-						$field['subselect']['table_name'] = $field['table_name'];
-						$subselects[] = $field['subselect'];
-						$subselect_init[$subselect_index] = true;
-					}
+					list ($key_field_name, $subselect) = zz_list_init_subselects(
+						$field, $line, $subselect_index, $zz_var['id']['field_name']
+					);
+					if ($subselect) $subselects[] = $subselect;
 					if (empty($line[$key_fieldname])) {
 						$zz_error[] = array(
 							'msg_dev' => 'Wrong key_field_name. Please set $zz_sub["fields"]['
@@ -470,18 +437,18 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 /**
  * gets values for titles for grouping
  *
- * @param array $line_defintion zzform definition for fields of this line
+ * @param array $fields zzform definition for fields of this line
  * @param array $line = current database record
  * @global array $zz_conf
  * @return array ($group)
  */
-function zz_list_group_titles($line_definition, $line) {
+function zz_list_group_titles($fields, $line) {
 	global $zz_conf;
 	$group = array();
 	if (empty($zz_conf['group'])) return $group;
 
 	$group_count = count($zz_conf['group']);
-	foreach ($line_definition as $no => $field) {
+	foreach ($fields as $no => $field) {
 	//	check for group function
 		$pos = array_search($no, $zz_conf['int']['group_field_no']);
 		if ($pos === false) continue;
@@ -2155,6 +2122,65 @@ function zz_list_th($field, $mode = 'html') {
 	// HTML output
 	$out = $link_open.$out.$link_close;
 	return $out;
+}
+
+/**
+ * init "subselects" in detailrecords
+ *
+ * @param array $field
+ * @param array $line
+ * @param int $no no. of field
+ * @param string $table_id_field_name
+ * @return array
+ *	- string key_field_name
+ *	- array subselect definition
+ */
+function zz_list_init_subselects($field, $line, $no, $table_id_field_name) {
+	static $init;
+	static $key_field_name;
+	if (empty($init)) $init = array();
+
+	// fill array subselects, just in row 0, will always be the same!
+	if (!empty($init[$no])) {
+		return array($key_field_name, array());
+	}
+
+	$foreign_key_field = array();
+	$translation_key_field = array();
+	foreach ($field['fields'] as $subfield) {
+		if ($subfield['type'] == 'foreign_key') {
+			$foreign_key_field = $subfield;
+		} elseif ($subfield['type'] == 'translation_key') {
+			$translation_key_field = $subfield;
+		}
+	}
+	// get field name of foreign key
+	$id_fieldname = $foreign_key_field['field_name'];
+	if ($translation_key_field) {
+		$key_fieldname = $table_id_field_name;
+		$field['subselect']['translation_key'] = $translation_key_field['translation_key'];
+	} else { // $foreign_key_field
+		// if main field name and foreign field name differ, use main ID
+		// for requests
+		if (!empty($foreign_key_field['key_field_name'])) {
+			// different fieldnames
+			$key_fieldname = $foreign_key_field['key_field_name'];
+		} else {
+			$key_fieldname = $foreign_key_field['field_name'];
+		}
+	}
+	// id_field = joined_table.field_name
+	if (empty($field['subselect']['table'])) {
+		$field['subselect']['table'] = $field['table'];
+	}
+	$field['subselect']['id_table_and_fieldname'] = $field['subselect']['table'].'.'.$id_fieldname;
+	// just field_name
+	$field['subselect']['id_fieldname'] = $id_fieldname;
+	$field['subselect']['fieldindex'] = $fieldindex;
+	$field['subselect']['table_name'] = $field['table_name'];
+	$init[$no] = true;
+
+	return array($key_field_name, $field['subselect']);
 }
 
 /**
