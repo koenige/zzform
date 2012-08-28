@@ -111,74 +111,21 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	zz_error();
 	$ops['output'] .= zz_error_output();
 
-	// check conditions, these might lead to different field definitions for every
-	// line in the list output!
-	// that means, $table_defs cannot be used for the rest but $line_defs instead
 	// zz_fill_out must be outside if show_list, because it is necessary for
 	// search results with no resulting records
 	// fill_out, but do not unset conditions
 	$zz['fields_in_list'] = zz_fill_out($zz['fields_in_list'], $zz_conf['db_name'].'.'.$zz['table'], 1); 
-	if ($zz_conf['show_list']) {
-		$conditions_applied = array(); // check if there are any conditions
-		array_unshift($lines, '0'); // 0 as a dummy record for which no conditions will be set
-		foreach ($lines as $index => $line) {
-			$line_defs[$index] = $zz['fields_in_list'];
-			if ($index) foreach ($line_defs[$index] as $fieldindex => $field) {
-				// conditions
-				if (empty($zz_conf['modules']['conditions'])) continue;
-				if (!empty($field['conditions'])) {
-					$line_defs[$index][$fieldindex] = zz_conditions_merge($field, $zz_conditions['bool'], $line[$id_field]);
-					$conditions_applied[$index] = true;
-				}
-				if (!empty($field['not_conditions'])) {
-					$line_defs[$index][$fieldindex] = zz_conditions_merge($line_defs[$index][$fieldindex], $zz_conditions['bool'], $line[$id_field], true);
-					$conditions_applied[$index] = true;
-				}
-			}
-		}
-		if (empty($conditions_applied)) {
-			// if there is no condition, remove all the identical stuff
-			unset($line_defs);
-			$line_defs[0] = $zz['fields_in_list'];	
-		}
-		// table definition is complete
-		// so now we need to check which fields are shown in list mode
-		foreach (array_keys($lines) as $index) {
-			if (empty($line_defs[$index])) continue;
-			if ($zz_conf['modules']['debug']) zz_debug('fill_out start');
-			$line_defs[$index] = zz_fill_out($line_defs[$index], $zz_conf['db_name'].'.'.$zz['table'], 2);
-			if ($zz_conf['modules']['debug']) zz_debug('fill_out end');
-			foreach ($line_defs[$index] as $fieldindex => $field) {
-				// remove elements from table which shall not be shown
-				if ($ops['mode'] == 'export') {
-					if (!isset($field['export']) || $field['export']) {
-						$table_defs[$index][] = $field;
-					}
-				} else {
-					if (empty($field['hide_in_list'])) {
-						$table_defs[$index][] = $field;
-					}
-				}
-			}
-			if ($zz_conf['modules']['debug']) zz_debug('table_query end');
-		}
-		// now we have the basic stuff in $table_defs[0] and $line_defs[0]
-		// if there are conditions, $table_defs[1], [2], [3]... and
-		// $line_defs[1], [2], [3] ... are set
-		$zz['fields_in_list'] = $line_defs[0]; // for search form
-		unset($line_defs);
-		unset($lines[0]); // remove first dummy array
-		// mark fields as 'show_field' corresponding to grouping
-		$table_defs = zz_list_show_group_fields($table_defs);
-	}
-
-	if ($zz_conf['modules']['debug']) zz_debug('table_query set');
 
 	//
-	// Table data and head
+	// Table definition, data and head
 	//
 
 	if ($zz_conf['show_list']) {
+		list($table_defs, $zz['fields_in_list']) = zz_list_defs(
+			$lines, $zz_conditions, $zz['fields_in_list'], $zz['table'], $ops['mode']
+		);
+		if ($zz_conf['modules']['debug']) zz_debug('list definitions set');
+
 		list($rows, $list) = zz_list_data(
 			$lines, $table_defs, $zz_var, $zz_conditions, $zz['table'], $ops['mode']
 		);
@@ -291,6 +238,84 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		$ops['output'] .= $search_form['bottom'];
 	}
 	return zz_return(array($ops, $zz_var));
+}
+
+/**
+ * set table definitions (applies conditions and fill_out function)
+ *
+ * check conditions, these might lead to different field definitions for every
+ * line in the list output!
+ * that means, $table_defs cannot be used for the rest but $line_defs instead
+ *
+ * @param array $lines
+ * @param array $zz
+ * @param array $zz_conditions
+ * @param array $fields_in_list ($zz['fields'])
+ * @param string $table ($zz['table'])
+ * @param string $mode ($ops['mode'])
+ * @return array
+ *		- array $table_defs
+ *		- array $fields_in_list
+ */
+function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $mode) {
+	global $zz_conf;
+
+	$conditions_applied = array(); // check if there are any conditions
+	array_unshift($lines, '0'); // 0 as a dummy record for which no conditions will be set
+	foreach ($lines as $index => $line) {
+		$line_defs[$index] = $fields_in_list;
+		if ($index) foreach ($line_defs[$index] as $fieldindex => $field) {
+			// conditions
+			if (empty($zz_conf['modules']['conditions'])) continue;
+			if (!empty($field['conditions'])) {
+				$line_defs[$index][$fieldindex] = zz_conditions_merge(
+					$field, $zz_conditions['bool'], $line[$id_field]
+				);
+				$conditions_applied[$index] = true;
+			}
+			if (!empty($field['not_conditions'])) {
+				$line_defs[$index][$fieldindex] = zz_conditions_merge(
+					$line_defs[$index][$fieldindex], $zz_conditions['bool'], $line[$id_field], true
+				);
+				$conditions_applied[$index] = true;
+			}
+		}
+	}
+	if (empty($conditions_applied)) {
+		// if there is no condition, remove all the identical stuff
+		unset($line_defs);
+		$line_defs[0] = $fields_in_list;	
+	}
+	// table definition is complete
+	// so now we need to check which fields are shown in list mode
+	foreach (array_keys($lines) as $index) {
+		if (empty($line_defs[$index])) continue;
+		if ($zz_conf['modules']['debug']) zz_debug('fill_out start');
+		$line_defs[$index] = zz_fill_out($line_defs[$index], $zz_conf['db_name'].'.'.$table, 2);
+		if ($zz_conf['modules']['debug']) zz_debug('fill_out end');
+		foreach ($line_defs[$index] as $fieldindex => $field) {
+			// remove elements from table which shall not be shown
+			if ($mode == 'export') {
+				if (!isset($field['export']) || $field['export']) {
+					$table_defs[$index][] = $field;
+				}
+			} else {
+				if (empty($field['hide_in_list'])) {
+					$table_defs[$index][] = $field;
+				}
+			}
+		}
+		if ($zz_conf['modules']['debug']) zz_debug('table_query end');
+	}
+	// now we have the basic stuff in $table_defs[0] and $line_defs[0]
+	// if there are conditions, $table_defs[1], [2], [3]... and
+	// $line_defs[1], [2], [3] ... are set
+	$fields_in_list = $line_defs[0]; // for search form
+	unset($line_defs);
+	unset($lines[0]); // remove first dummy array
+	// mark fields as 'show_field' corresponding to grouping
+	$table_defs = zz_list_show_group_fields($table_defs);
+	return array($table_defs, $fields_in_list);
 }
 
 /**
