@@ -209,41 +209,14 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				}
 			}
 			$sub_id = '';
-			if (empty($rows[$z]['group']))
-				$rows[$z]['group'] = array();
-			if ($zz_conf['group']) {
-				$group_count = count($zz_conf['group']);
-				foreach ($table_query[$tq_index] as $fieldindex => $field) {
-				//	check for group function
-					$pos = array_search($fieldindex, $zz_conf['int']['group_field_no']);
-					if ($pos === false) continue;
-					/*	
-						@todo: hierarchical grouping!
-						if (!empty($field['show_hierarchy'])) {
-							if (!$group_hierarchy) $group_hierarchy = zz_list_get_group_hierarchy($field);
-							$rows[$z]['group'][$pos] = zz_list_show_group_hierarchy($line[$field['field_name']], $group_hierarchy);
-						} else
-					*/
-					if (!empty($field['display_field'])) {
-						$rows[$z]['group'][$pos] = $line[$field['display_field']];
-						// @todo group
-					} elseif (!empty($field['enum']) AND $field['type'] == 'select') {
-						$rows[$z]['group'][$pos] = zz_print_enum($field, $line[$field['field_name']], 'full');
-					} elseif (!empty($field['field_name'])) {
-						$rows[$z]['group'][$pos] = $line[$field['field_name']];
-					}
-					$group_count--;
-					// we don't need to go throug all records if we found all
-					// group records already
-					if (!$group_count) {
-						ksort($rows[$z]['group']);
-						break;
-					}
-				}
-			}
-			$zz_conf_record = zz_record_conf($zz_conf); // configuration variables just for this line
-			if (!empty($line['zz_conf'])) // check whether there are different configuration variables e. g. for hierarchies
+			$rows[$z]['group'] = zz_list_group_titles($table_query[$tq_index], $line);
+			// configuration variables just for this line
+			$zz_conf_record = zz_record_conf($zz_conf);
+			if (!empty($line['zz_conf'])) {
+				// check whether there are different configuration variables 
+				// e. g. for hierarchies
 				$zz_conf_record = array_merge($zz_conf_record, $line['zz_conf']);
+			}
 			if ($zz_conf['select_multiple_records']) {
 				// checkbox for records
 				$checked = false;
@@ -495,6 +468,50 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		$ops['output'] .= $search_form['bottom'];
 	}
 	return zz_return(array($ops, $zz_var));
+}
+
+/**
+ * gets values for titles for grouping
+ *
+ * @param array $line_defintion zzform definition for fields of this line
+ * @param array $line = current database record
+ * @global array $zz_conf
+ * @return array ($group)
+ */
+function zz_list_group_titles($line_definition, $line) {
+	global $zz_conf;
+	$group = array();
+	if (empty($zz_conf['group'])) return $group;
+
+	$group_count = count($zz_conf['group']);
+	foreach ($line_definition as $no => $field) {
+	//	check for group function
+		$pos = array_search($no, $zz_conf['int']['group_field_no']);
+		if ($pos === false) continue;
+		/*	
+			@todo: hierarchical grouping!
+			if (!empty($field['show_hierarchy'])) {
+				if (!$group_hierarchy) $group_hierarchy = zz_list_get_group_hierarchy($field);
+				$group[$pos] = zz_list_show_group_hierarchy($line[$field['field_name']], $group_hierarchy);
+			} else
+		*/
+		if (!empty($field['display_field'])) {
+			$group[$pos] = $line[$field['display_field']];
+			// @todo group
+		} elseif (!empty($field['enum']) AND $field['type'] == 'select') {
+			$group[$pos] = zz_print_enum($field, $line[$field['field_name']], 'full');
+		} elseif (!empty($field['field_name'])) {
+			$group[$pos] = $line[$field['field_name']];
+		}
+		$group_count--;
+		// we don't need to go throug all records if we found all
+		// group records already
+		if (!$group_count) {
+			ksort($group);
+			break;
+		}
+	}
+	return $group;
 }
 
 /**
