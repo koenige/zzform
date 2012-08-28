@@ -363,6 +363,7 @@ function zz_list_data($lines, $table_defs, $zz_var, $zz_conditions, $table, $mod
 	$z = 0;
 	//$group_hierarchy = false; // see below, hierarchical grouping
 	$lastline = false;
+	$id_field = $zz_var['id']['field_name'];
 
 	foreach ($lines as $index => $line) {
 		// put lines in new array, rows.
