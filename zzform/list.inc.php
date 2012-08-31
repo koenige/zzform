@@ -130,9 +130,14 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			if ($zz_error['error']) return zz_return(array($ops, $zz_var));
 		}
 
+		// add 0 as a dummy record for which no conditions will be set
+		// reindex $linex from 1 ... n
+		array_unshift($lines, '0');
 		list($table_defs, $zz['fields_in_list']) = zz_list_defs(
 			$lines, $zz_conditions, $zz['fields_in_list'], $zz['table'], $id_field, $ops['mode']
 		);
+		// remove first dummy array
+		unset($lines[0]);
 		if ($zz_conf['modules']['debug']) zz_debug('list definitions set');
 
 		list($rows, $list) = zz_list_data(
@@ -274,7 +279,6 @@ function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $id_field
 	global $zz_conf;
 
 	$conditions_applied = array(); // check if there are any conditions
-	array_unshift($lines, '0'); // 0 as a dummy record for which no conditions will be set
 	foreach ($lines as $index => $line) {
 		$line_defs[$index] = $fields_in_list;
 		if ($index) foreach ($line_defs[$index] as $fieldindex => $field) {
@@ -325,7 +329,6 @@ function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $id_field
 	// $line_defs[1], [2], [3] ... are set
 	$fields_in_list = $line_defs[0]; // for search form
 	unset($line_defs);
-	unset($lines[0]); // remove first dummy array
 	// mark fields as 'show_field' corresponding to grouping
 	$table_defs = zz_list_show_group_fields($table_defs);
 	return array($table_defs, $fields_in_list);
