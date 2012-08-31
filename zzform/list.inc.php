@@ -2409,12 +2409,13 @@ function zz_list_head($head, $where_values) {
 	$j = 0;
 
 	foreach ($head as $index => $field) {
+		$head[$index]['th_nohtml'] = zz_list_th($field, 'nohtml');
 		if ($field['show_field']) {
 			$j = $index;
 			$head[$j]['class'] = zz_field_class($field, $where_values);
 			$head[$j]['th'] = zz_list_th($field);
-			$head[$j]['th_nohtml'] = zz_list_th($field, 'nohtml');
 		} elseif (!empty($field['list_append_show_title'])) {
+			// Add to previous field
 			$head[$j]['class'] = array_merge($thead[$j]['class'], zz_field_class($field, $where_values));
 			$head[$j]['th'] .= ' / '.zz_list_th($field);
 			$head[$j]['th_nohtml'] .= ' / '.zz_list_th($field, 'nohtml');
