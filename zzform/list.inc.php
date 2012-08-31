@@ -2416,7 +2416,7 @@ function zz_list_head($head, $where_values) {
 			$head[$j]['th'] = zz_list_th($field);
 		} elseif (!empty($field['list_append_show_title'])) {
 			// Add to previous field
-			$head[$j]['class'] = array_merge($thead[$j]['class'], zz_field_class($field, $where_values));
+			$head[$j]['class'] = array_merge($head[$j]['class'], zz_field_class($field, $where_values));
 			$head[$j]['th'] .= ' / '.zz_list_th($field);
 			$head[$j]['th_nohtml'] .= ' / '.zz_list_th($field, 'nohtml');
 		}
