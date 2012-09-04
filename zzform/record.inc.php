@@ -1687,9 +1687,14 @@ function zz_field_number($field, $display, $record) {
 			if ($suffix) $suffix = ' <small>( = '.$suffix.')</small>';
 		}
 		// no escaping please
-		$formtype = 'text_noescape';
 	default: // this is for latitude and longitude as well!
-		$value = zz_number_format($value, $field);
+		$formtype = 'text_noescape';
+		// reformat 1 434,00 EUR and similar values
+		$num = zz_check_number($value);
+		if ($num !== NULL) {
+			// only apply number_format if it's a valid number
+			$value = zz_number_format($num, $field);
+		}
 		break;
 	}
 	
