@@ -272,52 +272,10 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	// ### Update a record ###
 
 		} elseif ($zz_tab[$tab][$rec]['action'] === 'update') {
-			$update_values = array();
-			$fields = array();
-			$equal = true; // old and new record are said to be equal
-			foreach ($zz_tab[$tab][$rec]['fields'] as $field) {
-				if ($field['type'] === 'subtable') continue;
-				if ($field['type'] === 'id') continue;
-				if (!$field['in_sql_query']) continue;
-				$update = true;
-				// check if field values are different to existing record
-				if (isset($zz_tab[$tab][$rec]['POST'][$field['field_name']])
-					AND isset($zz_tab[$tab]['existing'][$rec])) {
-					// ok, we have values which might be compared
-					if ($field['type'] !== 'timestamp' 
-						AND empty($field['dont_check_on_update'])) {
-						// check difference to existing record
-						$post = $zz_tab[$tab][$rec]['POST'][$field['field_name']];
-						if ($field['type'] === 'select' AND !empty($field['set'])) {
-							// to compare it, make array into string
-							if (is_array($post)) $post = implode(',', $post);
-						}
-						if (!isset($zz_tab[$tab]['existing'][$rec][$field['field_name']])) {
-							if ($post != NULL) {
-								// there's no existing record, sent this query
-								$equal = false;
-							} else {
-								// existing and new value are both NULL or not there
-								$update = false;
-							}
-						} elseif ($post.'' !== $zz_tab[$tab]['existing'][$rec][$field['field_name']].'') {
-							// we need to append '' here to compare strings and
-							// not numbers (004 !== 4)
-							// there's a difference, so we have to sent this query
-							$equal = false;
-						} else {
-							// we don't know yet from this one
-							// whether to send the query or not, but we do not
-							// need to send the values for this field since they
-							// are equal
-							$update = false; 
-						}
-					}
-				}
-				if (!$update) continue;
-				$update_values[] = '`'.$field['field_name'].'` = '.$zz_tab[$tab][$rec]['POST_db'][$field['field_name']];
-			}
-			if ($update_values AND !$equal) {
+			$update_values = zz_action_equals(
+				$zz_tab[$tab][$rec], isset($zz_tab[$tab]['existing'][$rec]) ? $zz_tab[$tab]['existing'][$rec] : array()
+			);
+			if ($update_values) {
 				$me_sql = ' UPDATE '.$me_db.$zz_tab[$tab]['table']
 					.' SET '.implode(', ', $update_values)
 					.' WHERE '.$zz_tab[$tab][$rec]['id']['field_name']
@@ -503,6 +461,78 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	// delete temporary unused files
 	if (!empty($zz_var['upload_form'])) zz_upload_cleanup($zz_tab);
 	return zz_return(array($ops, $zz_tab, $validation, $zz_var));
+}
+
+/**
+ * checks updates if existing values are equal to sent values
+ * if yes, no update is necessary
+ *
+ * @param array $my_rec ($zz_tab[$tab][$rec])
+ * @param array $existing ($zz_tab[$tab]['existing'][$rec])
+ * @return array $update_values
+ */
+function zz_action_equals($my_rec, $existing) {
+	$update_values = array();
+	$equal = true; // old and new record are said to be equal
+
+	foreach ($my_rec['fields'] as $field) {
+		if ($field['type'] === 'subtable') continue;
+		if ($field['type'] === 'id') continue;
+		if (!$field['in_sql_query']) continue;
+
+		// check if field values are different to existing record
+		if ($field['type'] === 'timestamp') {
+			$update = true;
+		} elseif (!empty($field['dont_check_on_update'])) {
+			$update = true;
+		} elseif (isset($my_rec['POST'][$field['field_name']]) AND $existing) {
+			// ok, we have values which might be compared
+			$update = true;
+			// check difference to existing record
+			$post = $my_rec['POST'][$field['field_name']];
+			if ($field['type'] === 'select' AND !empty($field['set'])) {
+				// to compare it, make array into string
+				if (is_array($post)) $post = implode(',', $post);
+			}
+			if (!isset($existing[$field['field_name']])) {
+				if ($post != NULL) {
+					// there's no existing record, sent this query
+					$equal = false;
+				} else {
+					// existing and new value are both NULL or not there
+					$update = false;
+				}
+			} elseif ($field['type'] === 'number') {
+				// values of type 'number' have to be numeric
+				// check if they are, and then, check if they are equal
+				// for numbers: 004 = 4, 28.00 = 28
+				if (!is_numeric($post)) {
+					$equal = false;
+				} elseif (!is_numeric($existing[$field['field_name']])) {
+					$equal = false;
+				} elseif ($post != $existing[$field['field_name']]) {
+					$equal = false;
+				} else {
+					$update = false;
+				}
+			} elseif ($post.'' !== $existing[$field['field_name']].'') {
+				// we need to append '' here to compare strings and
+				// not numbers (004 != 4)
+				// there's a difference, so we have to send this query
+				$equal = false;
+			} else {
+				// we don't know yet from this one
+				// whether to send the query or not, but we do not
+				// need to send the values for this field since they
+				// are equal
+				$update = false;
+			}
+		}
+		if (!$update) continue;
+		$update_values[] = '`'.$field['field_name'].'` = '.$my_rec['POST_db'][$field['field_name']];
+	}
+	if ($update_values AND !$equal) return $update_values;
+	else return array();
 }
 
 /**
