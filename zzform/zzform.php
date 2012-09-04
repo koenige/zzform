@@ -177,7 +177,7 @@ function zzform($zz = array()) {
 
 //	Variables
 
-	if ($zz_conf['access'] != 'export') {
+	if ($zz_conf['access'] !== 'export') {
 		zz_error();
 		$ops['output'] .= zz_error_output(); // initialise zz_error
 	}	
@@ -452,11 +452,13 @@ function zzform($zz = array()) {
 		// and add/nav if limit/search buttons
 		list($ops, $zz_var) = zz_list($zz, $ops, $zz_var, $zz_conditions); 
 	}
-	$ops['output'] .= zz_output_backlink($zz_tab, $zz_var['id']);
-	// if there was no add button in list, add it here
-	if (!empty($zz_conf['int']['no_add_button_so_far']) AND !empty($zz_conf['no_add_above'])
-		AND $ops['mode'] != 'add') {
-		$ops['output'] .= zz_output_add_links($zz_var['extraGET']);
+	if ($ops['mode'] !== 'export') {
+		$ops['output'] .= zz_output_backlink($zz_tab, $zz_var['id']);
+		// if there was no add button in list, add it here
+		if (!empty($zz_conf['int']['no_add_button_so_far']) AND !empty($zz_conf['no_add_above'])
+			AND $ops['mode'] != 'add') {
+			$ops['output'] .= zz_output_add_links($zz_var['extraGET']);
+		}
 	}
 	if ($zz_error['error']) return zzform_exit($ops); // critical error: exit;
 
@@ -481,7 +483,9 @@ function zzform_exit($ops) {
 	// last time check for errors
 	zz_error();
 	if (!isset($ops['output'])) $ops['output'] = '';
-	$ops['output'] .= zz_error_output();
+	if ($ops['mode'] !== 'export') {
+		$ops['output'] .= zz_error_output();
+	}
 	$ops['critical_error'] = $zz_error['error'] ? true : false;
 	$ops['error_mail'] = array();
 	if (!empty($zz_conf['int']['error']))
@@ -497,18 +501,18 @@ function zzform_exit($ops) {
 		if ($ops['result'] AND $zz_conf['debug_time']) {
 			zz_debug_time($ops['return']);
 		}
-		if ($zz_conf['debug'] AND $zz_conf['access'] != 'export') {
+		if ($zz_conf['debug'] AND $ops['mode'] !== 'export') {
 			$ops['output'] .= '<div class="debug">'.zz_debug_htmlout().'</div>'."\n";
 		}
 		zz_debug_unset();
 	}
 	// output footer text
-	if ($zz_conf['access'] != 'export') {
-		if ($zz_conf['footer_text']) $ops['output'].= $zz_conf['footer_text'];
+	if ($ops['mode'] !== 'export') {
+		if ($zz_conf['footer_text']) $ops['output'] .= $zz_conf['footer_text'];
 	}
 
 	// prepare HTML output, not for export
-	if ($zz_conf['access'] != 'export')
+	if ($ops['mode'] !== 'export')
 		$ops['output'] = '<div id="zzform">'."\n".$ops['output'].'</div>'."\n";
 	if ($zz_conf['show_output']) echo $ops['output'];
 	
