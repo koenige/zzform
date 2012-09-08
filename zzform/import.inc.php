@@ -117,6 +117,8 @@ function zz_import_files($definition_file, $values, $params) {
 	$folders = array();
 	$files = array();
 
+	if (empty($params['setting'])) $params['setting'] = '';
+
 	// go on with files in folder
 	// open folder recursively
 	if (!empty($zz_conf['modules']['debug'])) zz_debug('read files start');
@@ -137,7 +139,15 @@ function zz_import_files($definition_file, $values, $params) {
 				$file['basename'] = substr($filename, 0, $dot);
 			}
 			$file['type'] = 'file';
-			$files[$file['basename']][$file['extension']] = $file;		
+			switch ($params['setting']) {
+			case 'same':
+				$files[$file['basename']][$file['extension']] = $file;
+				break;
+			case 'single':
+			default:
+				$files[$file['basename'].'.'.$file['extension']][$file['extension']] = $file;		
+				break;
+			}
 		}
 	}
 
