@@ -223,9 +223,12 @@ $text['Import was successful.'] = 'Import war erfolgreich.';
 $text['Folder OK'] = 'Verzeichnis OK';
 $text['Folder "%s" does not exist.'] = 'Das Verzeichnis "%s" existiert nicht.';
 $text['Warning! Insufficient access rights. Please make sure that the source directory is writable.'] = 'Warnung! Die Zugriffsrechte reichen nicht aus. Bitte stellen Sie sicher, dass das Quellverzeichnis schreibbar ist.';
-$text['%s files left for import. Please wait, the script will reload itself.'] = '%s Dateien m&uuml;ssen noch importiert werden. Bitte warten Sie, das Skript ruft sich erneut auf.';
+$text['%s files left for import.'] = '%s Dateien m&uuml;ssen noch importiert werden.';
+$text['1 file left for import.'] = 'Eine Datei muss noch importiert werden.';
+$text['Please wait, the script will reload itself.'] = 'Bitte warten Sie, das Skript ruft sich erneut auf.';
 $text['Import possible'] = 'Import m&ouml;glich';
-
+$text['single'] = 'einzeln';
+$text['same'] = 'gleich';
 
 // ----------------------------------------------------------------------------
 // Modules: Geo

@@ -362,7 +362,11 @@ function zz_import_create_files($definition_file, $values, &$params, &$files) {
 		// if time's almost up, exit function
 		if (microtime(true) > ($params['time']['start'] + $params['time']['max_execution_time'])) {
 			$zz_import_error_msg .= '<p class="error">'
-				.sprintf(zz_text('%s files left for import. Please wait, the script will reload itself.'), count($files)).'</p>'."\n";
+				.(count($files) === 1 
+					? zz_text('1 file left for import.')
+					: sprintf(zz_text('%s files left for import.'), count($files))
+				)
+				.zz_text('Please wait, the script will reload itself.').'</p>'."\n";
 			break;
 		}
 		if (!is_writable(dirname($params['source_dir']))) {
