@@ -3,6 +3,7 @@
 /**
  * zzform
  * Import of data
+ * Experimental! Use with care.
  *
  * Part of »Zugzwang Project«
  * http://www.zugzwang.org/projects/zzform
@@ -83,17 +84,17 @@ function zz_import_files($definition_file, $values, $params) {
 	global $zz_conf;
 	global $zz_error;
 	global $zz_import_error_msg;
+	if (!empty($zz_conf['modules']['debug'])) zz_debug('start', __FUNCTION__);
 
 	static $zz_import_i;
 	if (!$zz_import_i) $zz_import_i = 1;
 	else $zz_import_i++;
 
-	// stop a little ahead max_execution_time (75%)
+	// stop a little ahead max_execution_time (85%)
 	if (empty($params['time'])) {
-		$params['time']['max_execution_time'] = (.75*ini_get('max_execution_time'));
+		$params['time']['max_execution_time'] = (.85*ini_get('max_execution_time'));
 		$params['time']['start'] = microtime(true);
 	}
-	if (!empty($zz_conf['modules']['debug'])) zz_debug('start', __FUNCTION__);
 
 	// set parameters if not set to defaults
 	if (empty($params['source_dir']))
@@ -132,7 +133,7 @@ function zz_import_files($definition_file, $values, $params) {
 			$folders[] = $file;		
 		} else {
 			if ($dot = strrpos($filename, '.')) {
-				$file['extension'] = strtolower(substr($filename, $dot +1)); // +1: without dot
+				$file['extension'] = strtolower(substr($filename, $dot + 1)); // +1: without dot
 				$file['basename'] = substr($filename, 0, $dot);
 			}
 			$file['type'] = 'file';
@@ -178,7 +179,6 @@ function zz_import_files($definition_file, $values, $params) {
 		if (!empty($zz_conf['modules']['debug'])) zz_debug("folder end");
 	}
 
-
 	$output .= '</ul>'."\n";
 	if ($zz_import_i !== 1) {
 		$output .= $zz_import_error_msg;
@@ -186,13 +186,6 @@ function zz_import_files($definition_file, $values, $params) {
 		if (!empty($zz_conf['modules']['debug'])) zz_debug("end MT");
 	}
 	return $output;
-
-	// $files['/root/incoming/CAAD'][0]['full'] = '/root/incoming/CAAD.jpeg';
-	// $files['/root/incoming/CAAD'][0]['short'] = 'CAAD.jpeg';
-	// $files['/root/incoming/CAAD'][0]['extension'] = 'jpeg';
-	// $files['/root/incoming/CAAD'][0]['basename'] = 'CAAD';
-	// $files['/root/incoming/CAAD'][0]['type'] = 'file'; // folder
-	
 }
 
 /**
@@ -319,8 +312,10 @@ function zz_import_create_folder($definition_file, $values, &$params) {
  * Checks filenames against wildcards and returns values if match was successful
  * 
  * @param string $filename Filename for import, without DOCUMENT_ROOT
- * @param array $matches Key: wildcards with or without asterisk, Value: value that will be returned if match was successful
- * @return mixed value (string = overwrite old value;  false: ignore file/folder ;NULL (= do not change value)
+ * @param array $matches Key: wildcards with or without asterisk, Value: value 
+ *		that will be returned if match was successful
+ * @return mixed value (string = overwrite old value;  
+ *		false: ignore file/folder; NULL (= do not change value)
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_import_check_matches($filename, $matches) {
@@ -467,7 +462,7 @@ function zz_import_create_files($definition_file, $values, &$params, &$files) {
 			$ops = zzform_multi($definition_file, $values_zzform, 'record');
 			if (empty($ops['return'][0]['table']) OR $ops['return'][0]['table'] != 'objects') {
 				$zz_error[] = array(
-					'msg' => 'File could not be imported.',
+					'msg' => 'Could not import file.',
 					'level' => E_USER_NOTICE
 				);
 				zz_error();
