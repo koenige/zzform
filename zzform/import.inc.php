@@ -111,7 +111,7 @@ function zz_import_files($definition_file, $values, $params) {
 	// If there is a database entry for the destination folder
 	// get the value from database or create it
 	if (!empty($params['destination_sql']))
-		$output .= zz_import_create_folder($definition_file, $values, $params);
+		$output .= zz_import_create_folder($definition_file, $values['folder'], $params);
 
 	// Walk through files and folders in this folder and insert them into database
 	$folders = array();
@@ -164,9 +164,8 @@ function zz_import_files($definition_file, $values, $params) {
 	// import
 	if (empty($params['destination_identifier']))
 		$params['destination_identifier'] = $params['destination_dir'];
-	$values['local']['parameters'] = $params['destination_identifier'];
 
-	$output .= zz_import_create_files($definition_file, $values, $params, $files);
+	$output .= zz_import_create_files($definition_file, $values['file'], $params, $files);
 	
 	foreach ($folders as $folder) {
 		if (!empty($zz_conf['modules']['debug'])) zz_debug("folder start");
@@ -250,8 +249,8 @@ function zz_import_create_folder($definition_file, $values, &$params) {
 	// @todo: set values dependent on $destination_folder_id!!
 	$source_dir = str_replace($params['base_dir'], '', $params['source_dir']);
 	
-	if (!empty($values['folder']['placeholder'])) {
-		foreach ($values['folder']['placeholder'] as $index => $vals) {
+	if (!empty($values['placeholder'])) {
+		foreach ($values['placeholder'] as $index => $vals) {
 			if (!empty($vals['source'])) {
 				switch ($vals['source']) {
 				case 'parent_destination_folder_id':
@@ -266,7 +265,7 @@ function zz_import_create_folder($definition_file, $values, &$params) {
 				default:
 					$val = false;
 				}
-				$values['folder']['placeholder'][$index]['value'] = $val;
+				$values['placeholder'][$index]['value'] = $val;
 			}
 			if (!empty($vals['matches'])) {
 				$val = zz_import_check_matches($source_dir, $vals['matches']);
@@ -275,7 +274,7 @@ function zz_import_create_folder($definition_file, $values, &$params) {
 					continue; 
 				elseif ($val)
 					// overwrite default value with new value - this will last during this import process!
-					$values['folder']['placeholder'][$index]['value'] = $val;
+					$values['placeholder'][$index]['value'] = $val;
 				else {
 					// ignore this file/folder in import process
 					// exit this function
@@ -286,11 +285,9 @@ function zz_import_create_folder($definition_file, $values, &$params) {
 		}
 	}
 	
-	if ($values['folder']['POST']['zz_action'] == 'insert') {
+	if ($values['POST']['zz_action'] == 'insert') {
 		// here, we need file and local values put together
-		$values_zzform = $values['folder'];
-		$values_zzform['local'] = $values['local'];
-		$ops = zzform_multi($definition_file, $values_zzform, 'record');
+		$ops = zzform_multi($definition_file, $values, 'record');
 		if (empty($ops['return'][0]['table']) OR $ops['return'][0]['table'] != 'objects') {
 			$zz_error[] = array(
 				'msg' => 'Folder could not be imported.',
@@ -303,7 +300,7 @@ function zz_import_create_folder($definition_file, $values, &$params) {
 			$output .= ' &#8211; '.zz_text('Import was successful.');
 		}
 	} else {
-		$output .= ' &#8211; '.zz_text('Would be imported.');
+		$output .= ' &#8211; '.zz_text('Import possible');
 	}
 	return $output;
 }
@@ -357,9 +354,6 @@ function zz_import_check_matches($filename, $matches) {
  *
  * @param string $definition_file $zz-table script which defines db table(s)
  * @param array $values Values for import into database
- *		array 'folder'
- *		array 'file'
- *		array 'local'
  * @param array $params
  *		string 'base_dir' (base path to directory where files reside)
  *		string 'source_dir'
@@ -390,20 +384,23 @@ function zz_import_create_files($definition_file, $values, &$params, &$files) {
 				.sprintf(zz_text('%s files left for import. Please wait, the script will reload itself.'), count($files)).'</p>'."\n";
 			break;
 		}
-		if (!is_writeable(dirname($params['source_dir']))) {
+		if (!is_writable(dirname($params['source_dir']))) {
 			$output .= zz_text('Warning! Insufficient access rights. Please make sure that the source directory is writable.')
-				.': '.$params['source_dir']."\n"
+				.': '.dirname($params['source_dir'])."\n"
 				.'</li>'."\n";
 			break;
 		}
 		
 		$output .= '<li>'.$basename.' ('.strtoupper(implode(', ', array_keys($myfiles))).') ';
-		if (!empty($values['file']['placeholder'])) {
-			foreach ($values['file']['placeholder'] as $index => $vals) {
+		if (!empty($values['placeholder'])) {
+			foreach ($values['placeholder'] as $index => $vals) {
 				if (!empty($vals['source'])) {
 					switch ($vals['source']) {
 					case 'parent_destination_folder_id':
 						$val = $params['parent_destination_folder_id'];
+						break;
+					case 'destination_identifier':
+						$val = $params['destination_identifier'];
 						break;
 					case 'basename':
 						$val = $basename;
@@ -411,7 +408,7 @@ function zz_import_create_files($definition_file, $values, &$params, &$files) {
 					default:
 						$val = false;
 					}
-					$values['file']['placeholder'][$index]['value'] = $val;
+					$values['placeholder'][$index]['value'] = $val;
 				}
 				if (!empty($vals['matches'])) {
 					foreach ($myfiles as $type => $myfile) {
@@ -423,7 +420,7 @@ function zz_import_create_files($definition_file, $values, &$params, &$files) {
 						elseif ($val)
 							// overwrite default value with new value
 							// @todo: separate possibilities for each filetype!
-							$values['file']['placeholder'][$index]['value'] = $val;
+							$values['placeholder'][$index]['value'] = $val;
 						else {
 							// ignore this file/folder in import process
 							// exit this function
@@ -449,17 +446,15 @@ function zz_import_create_files($definition_file, $values, &$params, &$files) {
 				continue 2;
 			}
 			// @todo: 'short' might be removed, as it may be not neccessary
-			$values['file']['FILES'][$values['file']['key'][$i]]['name']['file'] = $file['short'];
-			$values['file']['FILES'][$values['file']['key'][$i]]['tmp_name']['file'] = $file['full'];
-			$values['file']['FILES'][$values['file']['key'][$i]]['do_not_delete']['file'] = true;
+			$values['FILES'][$values['key'][$i]]['name']['file'] = $file['short'];
+			$values['FILES'][$values['key'][$i]]['tmp_name']['file'] = $file['full'];
+			$values['FILES'][$values['key'][$i]]['do_not_delete']['file'] = true;
 			$i++;					
 		}
 
-		if ($values['file']['POST']['zz_action'] == 'insert') {
+		if ($values['POST']['zz_action'] == 'insert') {
 			// here, we need file and local values put together
-			$values_zzform = $values['file'];
-			$values_zzform['local'] = $values['local'];
-			$ops = zzform_multi($definition_file, $values_zzform, 'record');
+			$ops = zzform_multi($definition_file, $values, 'record');
 			if (empty($ops['return'][0]['table']) OR $ops['return'][0]['table'] != 'objects') {
 				$zz_error[] = array(
 					'msg' => 'Could not import file.',
@@ -472,8 +467,8 @@ function zz_import_create_files($definition_file, $values, &$params, &$files) {
 				$output .= ' &#8211; '.zz_text('Import was successful.');
 			}
 		} else {
-			$output .= ' &#8211; '.zz_text('Would be imported.');
-			if (!empty($values['file']['GET']['where'])) {
+			$output .= ' &#8211; '.zz_text('Import possible');
+			if (!empty($values['GET']['where'])) {
 				$output .= zz_import_show_wheres($definition_file, $values);
 			}
 //			$output .= 'Category_ID '.$_GET['where']['category_id'];
@@ -499,8 +494,8 @@ function zz_import_show_wheres($definition_file, $values = array()) {
 
 	$zz_conf['multi'] = true;
 	$zz_conf['testimport'] = true;
-	if (!empty($values['file']['GET'])) {
-		$_GET = $values['file']['GET'];
+	if (!empty($values['GET'])) {
+		$_GET = $values['GET'];
 	} elseif (!isset($_GET)) {
 		$_GET = array();
 	}
