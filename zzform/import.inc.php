@@ -145,7 +145,11 @@ function zz_import_files($definition_file, $values, $params) {
 				break;
 			case 'single':
 			default:
-				$files[$file['basename'].'.'.$file['extension']][$file['extension']] = $file;		
+				if (isset($files[$file['basename']])) {
+					$files[$file['basename'].' '.strtoupper($file['extension'])][$file['extension']] = $file;
+				} else {
+					$files[$file['basename']][$file['extension']] = $file;
+				}
 				break;
 			}
 		}
