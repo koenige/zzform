@@ -170,7 +170,7 @@ function zz_import_files($definition_file, $values, $params) {
 	foreach ($folders as $folder) {
 		if (!empty($zz_conf['modules']['debug'])) zz_debug("folder start");
 		// if time's almost up, exit function
-		if (microtime(true) > $params['time']['start']+$params['time']['max_execution_time'])
+		if (microtime(true) > $params['time']['start'] + $params['time']['max_execution_time'])
 			break;
 		$params['source_dir'] = $folder['full'];
 		$params['destination_dir'] = $params['destination_identifier'].'/'.$folder['short'];
@@ -249,42 +249,13 @@ function zz_import_create_folder($definition_file, $values, &$params) {
 	// @todo: set values dependent on $destination_folder_id!!
 	$source_dir = str_replace($params['base_dir'], '', $params['source_dir']);
 	
-	if (!empty($values['placeholder'])) {
-		foreach ($values['placeholder'] as $index => $vals) {
-			if (!empty($vals['source'])) {
-				switch ($vals['source']) {
-				case 'parent_destination_folder_id':
-					$val = $params['parent_destination_folder_id'];
-					break;
-				case 'destination_dirname':
-					$val = substr($params['destination_dir'], strrpos($params['destination_dir'], '/')+1);
-					break;
-				case 'destination_path':
-					$val = substr($params['destination_dir'], 0, strrpos($params['destination_dir'], '/'));
-					break;
-				default:
-					$val = false;
-				}
-				$values['placeholder'][$index]['value'] = $val;
-			}
-			if (!empty($vals['matches'])) {
-				$val = zz_import_check_matches($source_dir, $vals['matches']);
-				if (is_null($val)) 
-					// don't change anything, go on to next value
-					continue; 
-				elseif ($val)
-					// overwrite default value with new value - this will last during this import process!
-					$values['placeholder'][$index]['value'] = $val;
-				else {
-					// ignore this file/folder in import process
-					// exit this function
-					$output .= ' &#8211; '.zz_text('Folder will not be imported due to restrictions from your import settings.');
-					return $output;
-				}
-			}
-		}
+	$placeholder = zz_import_placeholder($values, $params, array($source_dir));
+	if ($placeholder === -1) {
+		$output .= ' &#8211; '.zz_text('Folder will not be imported due to restrictions from your import settings.');
+		continue;
 	}
-	
+	$values['placeholder'] = $placeholder;
+
 	if ($values['POST']['zz_action'] == 'insert') {
 		// here, we need file and local values put together
 		$ops = zzform_multi($definition_file, $values, 'record');
@@ -392,45 +363,18 @@ function zz_import_create_files($definition_file, $values, &$params, &$files) {
 		}
 		
 		$output .= '<li>'.$basename.' ('.strtoupper(implode(', ', array_keys($myfiles))).') ';
-		if (!empty($values['placeholder'])) {
-			foreach ($values['placeholder'] as $index => $vals) {
-				if (!empty($vals['source'])) {
-					switch ($vals['source']) {
-					case 'parent_destination_folder_id':
-						$val = $params['parent_destination_folder_id'];
-						break;
-					case 'destination_identifier':
-						$val = $params['destination_identifier'];
-						break;
-					case 'basename':
-						$val = $basename;
-						break;
-					default:
-						$val = false;
-					}
-					$values['placeholder'][$index]['value'] = $val;
-				}
-				if (!empty($vals['matches'])) {
-					foreach ($myfiles as $type => $myfile) {
-						$filename = str_replace($params['base_dir'], '', $myfile['full']);
-						$val = zz_import_check_matches($filename, $vals['matches']);
-						if (is_null($val)) 
-							// don't change anything, go on to next value
-							continue; 
-						elseif ($val)
-							// overwrite default value with new value
-							// @todo: separate possibilities for each filetype!
-							$values['placeholder'][$index]['value'] = $val;
-						else {
-							// ignore this file/folder in import process
-							// exit this function
-							$output .= ' &#8211; '.zz_text('File will not be imported due to restrictions from your import settings.');
-							continue 3;
-						}
-					}
-				}
-			}
+
+		// placeholder for files?
+		foreach ($myfiles as $myfile) {
+			$filelist[] = str_replace($params['base_dir'], '', $myfile['full']);
 		}
+		$placeholder = zz_import_placeholder($values, $params, $filelist, $basename);
+		if ($placeholder === -1) {
+			$output .= ' &#8211; '.zz_text('File will not be imported due to restrictions from your import settings.');
+			continue;
+		}
+		$values['placeholder'] = $placeholder;
+
 		// ok, here we go, import our files
 		// read data from files, look for second file with the same name but different ending
 		// e. g.: .CR2 / .JPG
@@ -479,6 +423,64 @@ function zz_import_create_files($definition_file, $values, &$params, &$files) {
 	if ($output == '<ul>') $output = false; // nothing was added, so avoid emtpy uls
 	else $output .= '</ul>'."\n";
 	return zz_return($output);
+}
+
+/**
+ * check for placeholder and write values if applicable; check if matches apply
+ *
+ * @param array $values
+ * @param array $params
+ * @param array $filelist list of files to check against matches
+ * @param string $basename
+ * @return mixed
+ *		array ($values['placeholder'])
+ *		int = -1 ignore file/folder for import
+ */
+function zz_import_placeholder($values, $params, $filelist, $basename = '') {
+	if (empty($values['placeholder'])) return array();
+	
+	foreach ($values['placeholder'] as $index => $vals) {
+		if (!empty($vals['source'])) {
+			switch ($vals['source']) {
+			case 'parent_destination_folder_id':
+				$val = $params['parent_destination_folder_id'];
+				break;
+			case 'destination_identifier':
+				$val = $params['destination_identifier'];
+				break;
+			case 'destination_dirname':
+				$val = substr($params['destination_dir'], strrpos($params['destination_dir'], '/')+1);
+				break;
+			case 'destination_path':
+				$val = substr($params['destination_dir'], 0, strrpos($params['destination_dir'], '/'));
+				break;
+			case 'basename':
+				$val = $basename;
+				break;
+			default:
+				$val = false;
+			}
+			$values['placeholder'][$index]['value'] = $val;
+		} elseif (!empty($vals['matches'])) {
+			foreach ($filelist as $filename) {
+				$val = zz_import_check_matches($filename, $vals['matches']);
+
+				if (is_null($val)) {
+					// don't change anything, go on to next value
+					continue; 
+				} elseif ($val) {
+					// overwrite default value with new value
+					// @todo: separate possibilities for each filetype!
+					$values['placeholder'][$index]['value'] = $val;
+				} else {
+					// ignore this file/folder in import process
+					// exit this function
+					return -1;
+				}
+			}
+		}
+	}
+	return $values['placeholder'];
 }
 
 /**
