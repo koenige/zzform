@@ -511,6 +511,7 @@ function zz_import_placeholder($values, $params, $filelist, $basename = '') {
  */
 function zz_import_show_wheres($definition_file, $values = array()) {
 	global $zz_conf;
+	global $zz_setting;
 
 	$zz_conf['multi'] = true;
 	$zz_conf['testimport'] = true;
@@ -521,10 +522,10 @@ function zz_import_show_wheres($definition_file, $values = array()) {
 	}
 
 	// get $zz definitions
-	global $zz_setting;
 	require $zz_conf['form_scripts'].'/'.$definition_file.'.php';
+	$zz = zz_sql_prefix($zz);
+	$zz_conf = zz_sql_prefix($zz_conf, 'zz_conf');
 
-	$output = '';
 	$text = array();
 	
 	foreach ($_GET['where'] AS $fieldname => $value) {
@@ -543,7 +544,7 @@ function zz_import_show_wheres($definition_file, $values = array()) {
 			$text[] = $field['title'].': '.$value;
 		}
 	}
-	$output .= ' &#8211; '.implode(' / ', $text);
+	$output = ' &#8211; '.implode(' / ', $text);
 	return $output;
 }
 
