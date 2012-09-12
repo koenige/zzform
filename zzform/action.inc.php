@@ -939,7 +939,8 @@ function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
 	// set index to make sure that main record is always 0
 	if (!$tab AND !$rec) $index = 0;
 	elseif (!isset($ops[$type])) $index = 1;
-	else $index = count($ops[$type]);
+	else $index = count($ops[$type]) + 1; 
+	// + 1 because main record will/might be last one that's handled
 
 	// set information on successful record operation
 	$ops[$type][$index] = array(
@@ -1868,7 +1869,7 @@ function zz_integrity_check($deletable_ids, $relations) {
 			}
 		}
 	}
-	if ($response) {
+	if ($response['fields'] OR $response['updates']) {
 		if ($response['fields']) {
 			// we still have detail records
 			$response['fields'] = array_values($response['fields']);
