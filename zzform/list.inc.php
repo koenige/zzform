@@ -1090,6 +1090,9 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 				$text = nl2br(htmlchars($text));
 			}
 			break;
+		case 'function':
+			$text = $field['function']($field, $row['value'], $line);
+			break;
 		default:
 			$text = $row['value'];
 			if (empty($field['list_format'])) {
@@ -2330,7 +2333,9 @@ function zz_list_get_subselects($rows, $subselects, $ids) {
 				$linetext[] = $fieldtext;
 			}
 			$subselect_text = implode($subselect['concat_rows'], $linetext);
-			$subselect_text = $subselect['prefix'].$subselect_text.$subselect['suffix'];
+			if ($subselect_text) {
+				$subselect_text = $subselect['prefix'].$subselect_text.$subselect['suffix'];
+			}
 			if (!empty($subselect['list_format'])) {
 				if (!empty($zz_conf['modules']['debug'])) zz_debug('start', $subselect['list_format']);
 				$subselect_text = $subselect['list_format']($subselect_text);
