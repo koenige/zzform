@@ -1091,7 +1091,7 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 			}
 			break;
 		case 'list_function':
-			$text = $field['function']($field, $row['value'], $line);
+			$text = $field['list_function']($field, $row['value'], $line);
 			break;
 		default:
 			$text = $row['value'];
