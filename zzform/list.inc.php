@@ -1090,7 +1090,7 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 				$text = nl2br(htmlchars($text));
 			}
 			break;
-		case 'function':
+		case 'list_function':
 			$text = $field['function']($field, $row['value'], $line);
 			break;
 		default:
