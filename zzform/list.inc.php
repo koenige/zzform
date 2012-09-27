@@ -480,7 +480,13 @@ function zz_list_data($lines, $table_defs, $zz_var, $zz_conditions, $table, $mod
 
 		if (!empty($zz_conf_record['details'])) {
 			$rows[$z]['details'] = zz_show_more_actions($zz_conf_record, $id, $line);
-			$list['details'] = true; // need a table row for this
+			if ($rows[$z]['modes']) {
+				// we need a table row for this
+				$list['details'] = true;
+			} else {
+				// if there's nothing in 'modes', put it in here as well
+				$list['modes'] = true;
+			}
 		}
 		$z++;
 	}
@@ -2309,6 +2315,8 @@ function zz_list_get_subselects($rows, $subselects, $ids) {
 
 		foreach ($ids as $z_row => $id) {
 			if (empty($lines[$id])) continue;
+			// go on if field is not visible, e. g. for grouping
+			if (empty($rows[$z_row][$subselect['fieldindex']])) continue;
 			$linetext = false;
 			foreach ($lines[$id] as $linefields) {
 				unset($linefields[$subselect['id_fieldname']]); // ID field will not be shown
