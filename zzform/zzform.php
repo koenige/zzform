@@ -498,7 +498,7 @@ function zzform_exit($ops) {
 	if ($zz_conf['modules']['debug']) {
 		zz_debug('end');
 		// debug time only if there's a result and before leaving the page
-		if ($ops['result'] AND $zz_conf['debug_time']) {
+		if ($ops['result'] AND !empty($zz_conf['debug_time'])) {
 			zz_debug_time($ops['return']);
 		}
 		if ($zz_conf['debug'] AND $ops['mode'] !== 'export') {
