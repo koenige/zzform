@@ -321,7 +321,7 @@ function zz_sql_prefix_change(&$item, $key) {
 			'set_sql', 'sqlorder', 'sql_not_unique', 'sql_password_check',
 			'upload_sql', 'options_sql', 'source_path_sql', 'table',
 			'id_field_name', 'display_field', 'key_field_name',
-			'foreign_key_field_name', 'sqlcount'
+			'foreign_key_field_name', 'sqlcount', 'sqlextra'
 		);
 		break;
 	case 'zz_conf':
@@ -335,7 +335,9 @@ function zz_sql_prefix_change(&$item, $key) {
 		break;
 	}
 
-	if (in_array($key, $sql_fields)) {
+	if (is_numeric($key) OR in_array($key, $sql_fields)) {
+		// numeric keys are okay as well
+		// @todo check if we can exclude them (sqlextra)
 		if (strstr($item, $prefix)) {
 			$item = str_replace($prefix, $zz_conf['prefix'], $item);
 		}

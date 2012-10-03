@@ -202,11 +202,35 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 				$line = zz_db_fetch($sql, '', '', 'value/1 ['.$index.']');
 				if ($zz_error['error']) return zz_return($zz_conditions); // DB error
 				if ($line) {
-					$value = $line[$condition['field_name']];
+					if (isset($line[$condition['field_name']])) {
+						$value = $line[$condition['field_name']];
+					} elseif (isset($zz['sqlextra'])) {
+						foreach ($zz['sqlextra'] as $sql) {
+							$sql = sprintf($sql, $zz_var['id']['value']);
+							$line = zz_db_fetch($sql, '', '', 'value/1b ['.$index.']');
+							if (isset($line[$condition['field_name']])) {
+								$value = $line[$condition['field_name']];
+								break;
+							}
+						}
+					} else {
+						$zz_error[] = array('msg_dev' =>
+							sprintf('Value condition can\'t get corresponding value from database (field %s)', 
+							$condition['field_name'])
+						);
+						return zz_return($zz_conditions);
+					}
 				} else {
 					// attempt to try to delete/edit a value that does not exist
 					break; 
 				}
+			}
+			if (!$value) {
+				$zz_error[] = array('msg_dev' =>
+					sprintf('Value condition has empty value in database (field %s)', 
+					$condition['field_name'])
+				);
+				return zz_return($zz_conditions);
 			}
 			$sql = sprintf($condition['sql'], $value);
 			$lines = zz_db_fetch($sql, 'dummy_id', 'numeric', 'value/2 ['.$index.']');

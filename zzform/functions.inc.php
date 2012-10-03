@@ -1978,8 +1978,9 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$my_rec = &$my_tab[$rec];
-	$sql = $my_tab['sql'];
 	$table = $my_tab['table'];
+	// detail records don't have 'extra'
+	if (!isset($my_tab['sqlextra'])) $my_tab['sqlextra'] = array();
 
 	// in case, record was deleted, query record is not necessary
 	if ($my_rec['action'] == 'delete') {
@@ -1995,13 +1996,14 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
 		// for adding a record!)
 		if ($mode != 'add' OR $my_rec['action']) {
 			if ($my_rec['id']['value']) {
-				$sql = zz_edit_sql($sql, 'WHERE', $table.'.'
-					.$my_rec['id']['field_name']." = '".$my_rec['id']['value']."'");
-				$my_rec['record'] = zz_db_fetch($sql, '', '', 'record exists?');
+				$my_rec['record'] = zz_query_single_record(
+					$my_tab['sql'], $table, $my_rec['id'], $my_tab['sqlextra']
+				);
 			} elseif (!empty($my_rec['id']['values'])) {
 				$my_rec['record'] = zz_query_multiple_records(
-					$sql, $table, $my_rec['id']
+					$my_tab['sql'], $table, $my_rec['id']
 				);
+				// @todo: think about sqlextra
 			}
 		} elseif ($mode == 'add' AND !empty($my_rec['id']['source_value'])) {
 			if (!empty($my_rec['POST'])) {
@@ -2009,11 +2011,9 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
 				// as a template
 				$my_rec['record'] = $my_rec['POST'];
 			} else {
-				$sql = zz_edit_sql(
-					$sql, 'WHERE', $table.'.'.$my_rec['id']['field_name']." = '"
-					.$my_rec['id']['source_value']."'"
+				$my_rec['record'] = zz_query_single_record(
+					$my_tab['sql'], $table, $my_rec['id'], $my_tab['sqlextra'], 'source_value'
 				);
-				$my_rec['record'] = zz_db_fetch($sql, '', '', 'source record');
 				$my_rec['record'][$my_rec['id']['field_name']] = false;
 			}
 			// remove some values which cannot be copied
@@ -2035,11 +2035,9 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
 		}
 		
 	//	get record for display fields and maybe others
-		$sql = zz_edit_sql(
-			$sql, 'WHERE', $table.'.'.$my_rec['id']['field_name']." = '"
-			.$my_rec['id']['value']."'"
+		$my_rec['record_saved'] = zz_query_single_record(
+			$my_tab['sql'], $table, $my_rec['id'], $my_tab['sqlextra']
 		);
-		$my_rec['record_saved'] = zz_db_fetch($sql);
 
 	//	display form again			
 		$my_rec['action'] = 'review';
@@ -2059,6 +2057,27 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
 	}
 	zz_log_validation_errors($my_rec, $validation);
 	return zz_return($my_tab);
+}
+
+/**
+ * Query single record
+ *
+ * @param string $sql $zz['sql']
+ * @param string $table $zz['table']
+ * @param array $id	$zz_var['id']
+ * @param array $sqlextra $zz['sqlextra']
+ * @param string $type
+ * @return array
+ */
+function zz_query_single_record($sql, $table, $id, $sqlextra, $type = 'value') {		
+	$sql = zz_edit_sql($sql, 'WHERE', $table.'.'
+		.$id['field_name']." = '".$id[$type]."'");
+	$record = zz_db_fetch($sql, '', '', 'record exists? ('.$type.')');
+	foreach ($sqlextra as $sql) {
+		$sql = sprintf($sql, $id['value']);
+		$record = array_merge($record, zz_db_fetch($sql));
+	}
+	return $record;
 }
 
 /**

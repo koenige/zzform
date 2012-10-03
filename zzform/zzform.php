@@ -230,7 +230,8 @@ function zzform($zz = array()) {
 		// ### variables for main table will be saved in zz_tab[0]
 		$zz_tab[0]['table'] = $zz['table'];
 		$zz_tab[0]['table_name'] = $zz['table'];
-		$zz_tab[0]['sql'] = $zz['sql'].(!empty($zz['sqlorder']) ? ' '.$zz['sqlorder'] : '');
+		$zz_tab[0]['sql'] = $zz['sql'];
+		$zz_tab[0]['sqlextra'] = !empty($zz['sqlextra']) ? $zz['sqlextra'] : array();
 	}
 	
 //	Add, Update or Delete
@@ -332,13 +333,14 @@ function zzform($zz = array()) {
 			// POST because $zz_var may be set to '' in case of add/delete subrecord
 			// get existing record
 			if (!empty($zz_var['id']['value'])) {
-				$sql = zz_edit_sql($zz_tab[0]['sql'], 'WHERE', $zz_tab[0]['table'].'.'
-					.$zz_var['id']['field_name']." = '".$zz_var['id']['value']."'");
-				$zz_tab[0]['existing'][0] = zz_db_fetch($sql);
+				$zz_tab[0]['existing'][0] = zz_query_single_record(
+					$zz_tab[0]['sql'], $zz_tab[0]['table'], $zz_var['id'], $zz_tab[0]['sqlextra']
+				);
 			} elseif (!empty($zz_var['id']['values'])) {
 				$sql = zz_edit_sql($zz_tab[0]['sql'], 'WHERE', $zz_tab[0]['table'].'.'
 					.$zz_var['id']['field_name']." IN ('".implode("','", $zz_var['id']['values'])."')");
 				$zz_tab[0]['existing'] = zz_db_fetch($sql, $zz_var['id']['field_name'], 'numeric');
+				// @todo: think about sqlextra
 			} else {
 				$zz_tab[0]['existing'][0] = array();
 			}

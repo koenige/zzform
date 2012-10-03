@@ -778,6 +778,7 @@ function zz_list_filter_sql($sql) {
 function zz_list_query($zz, $id_field) {
 	global $zz_conf;
 
+	if (!isset($zz['sqlextra'])) $zz['sqlextra'] = array();
 	if (!empty($zz['sqlcount'])) {
 		$total_rows = zz_count_rows($zz['sqlcount']);
 	} else {
@@ -791,9 +792,9 @@ function zz_list_query($zz, $id_field) {
 	$zz['sql'] = zz_sql_order($zz['fields_in_list'], $zz['sql']);
 
 	if (empty($zz_conf['show_hierarchy'])) {
-		return array(zz_list_query_flat($zz['sql'], $id_field), $total_rows);
+		return array(zz_list_query_flat($zz['sql'], $id_field, $zz['sqlextra']), $total_rows);
 	} else {
-		return zz_list_query_hierarchy($zz['sql'], $id_field, $zz['table']);
+		return zz_list_query_hierarchy($zz['sql'], $id_field, $zz['table'], $zz['sqlextra']);
 	}
 }
 
@@ -805,7 +806,7 @@ function zz_list_query($zz, $id_field) {
  * @global array $zz_conf
  * @return array $lines
  */
-function zz_list_query_flat($sql, $id_field) {
+function zz_list_query_flat($sql, $id_field, $extra_sqls) {
 	global $zz_conf;
 
 	if ($zz_conf['int']['this_limit']) { 
@@ -817,7 +818,29 @@ function zz_list_query_flat($sql, $id_field) {
 	}
 
 	// read rows from database
-	return zz_db_fetch($sql, $id_field);
+	$lines = zz_db_fetch($sql, $id_field);
+	$lines = zz_list_query_extras($lines, $id_field, $extra_sqls);
+	return $lines;
+}
+
+/**
+ * Query extra fields
+ *
+ * @param array $lines
+ * @param string $id_field
+ * @param array $extra_sqls
+ * @return array $lines
+ */
+function zz_list_query_extras($lines, $id_field, $extra_sqls) {
+	if (!$extra_sqls) return $lines;
+	foreach ($extra_sqls as $sql) {
+		$sql = sprintf($sql, implode(',', array_keys($lines)));
+		$extras = zz_db_fetch($sql, $id_field);
+		foreach ($extras as $id => $fields) {
+			$lines[$id] = array_merge($lines[$id], $fields);
+		}
+	}
+	return $lines;
 }
 
 /**
@@ -826,10 +849,11 @@ function zz_list_query_flat($sql, $id_field) {
  * @param string $sql SQL query ($zz['sql'])
  * @param string $id_field ($zz_var['id']['field_name'])
  * @param string $table ($zz['table'])
+ * @param array $extra_sqls additional SQL queries
  * @global array $zz_conf
  * @return array $lines
  */
-function zz_list_query_hierarchy($sql, $id_field, $table) {
+function zz_list_query_hierarchy($sql, $id_field, $table, $extra_sqls) {
 	global $zz_conf;
 
 	// hierarchical list view
@@ -888,6 +912,7 @@ function zz_list_query_hierarchy($sql, $id_field, $table) {
 			$lines[$line[$id_field]] = array_merge($lines[$line[$id_field]], $line);
 		}
 	}
+	$lines = zz_list_query_extras($lines, $id_field, $extra_sqls);
 	return array($lines, $total_rows);
 }
 
