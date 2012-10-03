@@ -3225,20 +3225,25 @@ function zz_identifier_concat($data, $concat) {
 	
 	// idf 0 con 0 idf 1 con 1 idf 2 con 1 ...
 	$idf = '';
-	$last_concat = array_pop($concat);
+	if (isset($concat['last'])) {
+		$last_concat = $concat['last'];
+		unset($concat['last']);
+	}
 	foreach ($data as $key => $value) {
 		if (!$value) continue;
 		if ($idf) {
-			if ($key > 1 AND $key == count($data)-1) {
+			if ($key > 1 AND $key == count($data) - 1 AND isset($last_concat)) {
 				// last one, but not first one
 				$idf .= $last_concat;
 			} else {
 				// normal order, take actual last one if no other is left
 				// add concat separator 0, 1, ...
-				if (!empty($concat[$key-1]))
+				// might be '', therefore we use isset
+				if (isset($concat[$key-1])) {
 					$idf .= $concat[$key-1];
-				else
+				} else {
 					$idf .= $concat[count($concat)-1];
+				}
 			}
 		}
 		$idf .= $value;
