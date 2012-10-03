@@ -61,8 +61,11 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 
 	// only if search is allowed and there is something
 	// if q modify $zz['sql']: add search query
-	if (!empty($_GET['q']) AND $zz_conf['search']) 
-		$zz['sql'] = zz_search_sql($zz['fields_in_list'], $zz['sql'], $zz['table'], $zz_var['id']['field_name']);	
+	if (!empty($_GET['q']) AND $zz_conf['search']) {
+		$old_sql = $zz['sql'];
+		$zz['sql'] = zz_search_sql($zz['fields_in_list'], $zz['sql'], $zz['table'], $zz_var['id']['field_name']);
+		if ($old_sql !== $zz['sql']) $zz['sqlcount'] = '';
+	}
 
 	$id_field = $zz_var['id']['field_name'];
 
@@ -80,7 +83,9 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	// set 'selection', $zz_conf['show_hierarchy']
 	zz_apply_filter();
 	// modify SQL query depending on filter
+	$old_sql = $zz['sql'];
 	$zz['sql'] = zz_list_filter_sql($zz['sql']);
+	if ($old_sql !== $zz['sql']) $zz['sqlcount'] = '';
 	$ops['output'] .= zz_filter_selection($zz_conf['filter'], 'top');
 	if ($ops['mode'] != 'add' AND empty($zz_conf['no_add_above'])) {
 		$ops['output'] .= zz_output_add_links($zz_var['extraGET']);
@@ -773,7 +778,11 @@ function zz_list_filter_sql($sql) {
 function zz_list_query($zz, $id_field) {
 	global $zz_conf;
 
-	$total_rows = zz_count_rows($zz['sql'], $zz['table'].'.'.$id_field);
+	if (!empty($zz['sqlcount'])) {
+		$total_rows = zz_count_rows($zz['sqlcount']);
+	} else {
+		$total_rows = zz_count_rows($zz['sql'], $zz['table'].'.'.$id_field);
+	}
 	if (!$total_rows) return array(array(), 0);
 	
 	// ORDER must be here because of where-clause
@@ -2158,12 +2167,14 @@ function zz_sql_order($fields, $sql) {
  * @param string $id_field
  * @return int $lines
  */
-function zz_count_rows($sql, $id_field) {
+function zz_count_rows($sql, $id_field = '') {
 	$sql = trim($sql);
-	// if it's not a SELECT DISTINCT, we can use COUNT, that's faster
-	// GROUP BY also does not work with COUNT
-	if (substr($sql, 0, 15) != 'SELECT DISTINCT'
+	if (!$id_field) {
+		$lines = zz_db_fetch($sql, '', 'single value');
+	} elseif (substr($sql, 0, 15) != 'SELECT DISTINCT'
 		AND !stristr($sql, 'GROUP BY') AND !stristr($sql, 'HAVING')) {
+		// if it's not a SELECT DISTINCT, we can use COUNT, that's faster
+		// GROUP BY also does not work with COUNT
 		$sql = zz_edit_sql($sql, 'ORDER BY', '_dummy_', 'delete');
 		$sql = zz_edit_sql($sql, 'SELECT', 'COUNT('.$id_field.')', 'replace');
 		// unnecessary LEFT JOINs may slow down query
