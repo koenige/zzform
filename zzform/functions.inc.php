@@ -2070,11 +2070,17 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
  * @return array
  */
 function zz_query_single_record($sql, $table, $id, $sqlextra, $type = 'value') {		
+	global $zz_error;
+	
 	$sql = zz_edit_sql($sql, 'WHERE', $table.'.'
 		.$id['field_name']." = '".$id[$type]."'");
 	$record = zz_db_fetch($sql, '', '', 'record exists? ('.$type.')');
 	foreach ($sqlextra as $sql) {
-		$sql = sprintf($sql, $id['value']);
+		if (empty($id[$type])) {
+			$zz_error[]['msg_dev'] = sprintf('No ID %s found (Query: %s).', $type, $sql)
+			continue;
+		}
+		$sql = sprintf($sql, $id[$type]);
 		$record = array_merge($record, zz_db_fetch($sql));
 	}
 	return $record;
