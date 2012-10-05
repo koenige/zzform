@@ -2077,7 +2077,7 @@ function zz_query_single_record($sql, $table, $id, $sqlextra, $type = 'value') {
 	$record = zz_db_fetch($sql, '', '', 'record exists? ('.$type.')');
 	foreach ($sqlextra as $sql) {
 		if (empty($id[$type])) {
-			$zz_error[]['msg_dev'] = sprintf('No ID %s found (Query: %s).', $type, $sql)
+			$zz_error[]['msg_dev'] = sprintf('No ID %s found (Query: %s).', $type, $sql);
 			continue;
 		}
 		$sql = sprintf($sql, $id[$type]);

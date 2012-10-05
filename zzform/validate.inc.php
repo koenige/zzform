@@ -399,7 +399,7 @@ function zz_check_number($number) {
 	if (substr($calculation, -2) == '/0') return NULL; 
 	eval('$sum = '.$calculation.';');
 	// in case some error occured, check what it is
-	if (!$sum) {
+	if (!$sum AND $sum !== 0) {
 		global $zz_error;
 		$zz_error[] = array(
 			'msg_dev' => __FUNCTION__.'(): calculation did not work. ['.implode('', $parts).']',
