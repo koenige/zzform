@@ -1032,10 +1032,11 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 		case 'image':
 		case 'upload_image':
 			$mark_search_string = false;
+			$type = $mode === 'export' ? 'link' : 'image';
 			if (isset($field['path'])) {
-				if ($img = zz_makelink($field['path'], $line, 'image')) {
+				if ($img = zz_makelink($field['path'], $line, $type)) {
 					$text .= $link.$img.($link ? '</a>' : '');
-				} elseif (isset($field['default_image'])) {
+				} elseif (isset($field['default_image']) AND $type === 'image') {
 					if (is_array($field['default_image'])) {
 						$default_image = zz_makelink($field['default_image'], $line);
 					} else {
