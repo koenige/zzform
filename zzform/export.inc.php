@@ -362,16 +362,6 @@ function zz_export_csv_head($main_rows, $zz_conf) {
 	$tablerow = false;
 	$continue_next = false;
 	foreach ($main_rows as $field) {
-		if ($continue_next) {
-			$continue_next = false;
-			continue;
-		}
-		if (!empty($field['list_append_next'])) {
-			$continue_next = true;
-			if (!empty($field['title_append'])) {
-				$field['title'] = $field['title_append'];
-			}
-		}
 		$tablerow[] = $zz_conf['export_csv_enclosure']
 			.str_replace($zz_conf['export_csv_enclosure'], $zz_conf['export_csv_enclosure']
 				.$zz_conf['export_csv_enclosure'], $field['title'])
