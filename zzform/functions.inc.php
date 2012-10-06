@@ -686,12 +686,13 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false)
 			$fields[$no]['translated'] = true;
 		}
 		if ($fields[$no]['type'] == 'option') {
-			// do not show option-fiels in tab
+			// do not show option-fields in tab
 			$fields[$no]['hide_in_list'] = true;
 			// makes no sense to export a form field
 			$fields[$no]['export'] = false;
 			// format option-fields with CSS
-			if (!empty($fields[$no]['class'])) {
+			if (!empty($fields[$no]['class'])
+				AND $fields[$no]['class'] !== 'option') {
 				$fields[$no]['class'] .= ' option';
 			} else {
 				$fields[$no]['class'] = 'option';
@@ -717,6 +718,12 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false)
 				$fields[$no]['sql'] = preg_replace("/\s+/", " ", $fields[$no]['sql']);
 		}
 		if ($fields[$no]['type'] == 'subtable') {
+			if (empty($fields[$no]['subselect']) AND !isset($fields[$no]['export'])) {
+				// subtables have no output by default unless there is a subselect
+				// definition; however in rare cases (e. g. with a condition set)
+				// you might want to overwrite this manually
+				$fields[$no]['export'] = false;
+			}
 			// for subtables, do this as well; here we still should have a
 			// different db_name in 'table' if using multiples dbs so it's no
 			// need to prepend the db name of this table
