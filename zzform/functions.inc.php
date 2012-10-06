@@ -688,6 +688,8 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false)
 		if ($fields[$no]['type'] == 'option') {
 			// do not show option-fiels in tab
 			$fields[$no]['hide_in_list'] = true;
+			// makes no sense to export a form field
+			$fields[$no]['export'] = false;
 			// format option-fields with CSS
 			if (!empty($fields[$no]['class'])) {
 				$fields[$no]['class'] .= ' option';
