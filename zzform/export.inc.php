@@ -386,7 +386,10 @@ function zz_export_csv_body($rows, $zz_conf) {
 		$tablerow = false;
 		foreach ($row as $fieldindex => $field) {
 			if ($fieldindex AND !is_numeric($fieldindex)) continue; // 0 or 1 or 2 ...
-			$myfield = str_replace('"', '""', $field['text']);
+			$myfield = str_replace($zz_conf['export_csv_enclosure'], 
+				$zz_conf['export_csv_enclosure'].$zz_conf['export_csv_enclosure'],
+				$field['text']
+			);
 			if (!empty($field['export_no_html'])) {
 				$myfield = str_replace("&nbsp;", " ", $myfield);
 				$myfield = str_replace("<\p>", "\n\n", $myfield);
