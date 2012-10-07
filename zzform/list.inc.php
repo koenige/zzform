@@ -830,6 +830,7 @@ function zz_list_query($zz, $id_field) {
  */
 function zz_list_query_flat($sql, $id_field, $extra_sqls) {
 	global $zz_conf;
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	if ($zz_conf['int']['this_limit']) { 
 		// set a standard value for limit
@@ -842,7 +843,7 @@ function zz_list_query_flat($sql, $id_field, $extra_sqls) {
 	// read rows from database
 	$lines = zz_db_fetch($sql, $id_field);
 	$lines = zz_list_query_extras($lines, $id_field, $extra_sqls);
-	return $lines;
+	return zz_return($lines);
 }
 
 /**
@@ -854,6 +855,9 @@ function zz_list_query_flat($sql, $id_field, $extra_sqls) {
  * @return array $lines
  */
 function zz_list_query_extras($lines, $id_field, $extra_sqls) {
+	global $zz_conf;
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+
 	if (!$extra_sqls) return $lines;
 	foreach ($extra_sqls as $sql) {
 		$sql = sprintf($sql, implode(',', array_keys($lines)));
@@ -862,7 +866,7 @@ function zz_list_query_extras($lines, $id_field, $extra_sqls) {
 			$lines[$id] = array_merge($lines[$id], $fields);
 		}
 	}
-	return $lines;
+	return zz_return($lines);
 }
 
 /**
@@ -877,12 +881,13 @@ function zz_list_query_extras($lines, $id_field, $extra_sqls) {
  */
 function zz_list_query_hierarchy($sql, $id_field, $table, $extra_sqls) {
 	global $zz_conf;
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	// hierarchical list view
 	// for performance reasons, we only get the fields which are important
 	// for the hierarchy (we need to get all records)
 	$lines = zz_db_fetch($sql, array($id_field, $zz_conf['hierarchy']['mother_id_field_name']), 'key/value'); 
-	if (!$lines) return array(array(), 0);
+	if (!$lines) return zz_return(array(array(), 0));
 
 	$h_lines = array();
 	foreach ($lines as $id => $mother_id) {
@@ -896,7 +901,7 @@ function zz_list_query_hierarchy($sql, $id_field, $table, $extra_sqls) {
 			$mother_id = 'NULL';
 		$h_lines[$mother_id][$id] = $id;
 	}
-	if (!$h_lines) return array(array(), 0);
+	if (!$h_lines) return zz_return(array(array(), 0));
 
 	$lines = array(); // unset and initialize
 	$level = 0; // level (hierarchy)
@@ -935,7 +940,7 @@ function zz_list_query_hierarchy($sql, $id_field, $table, $extra_sqls) {
 		}
 	}
 	$lines = zz_list_query_extras($lines, $id_field, $extra_sqls);
-	return array($lines, $total_rows);
+	return zz_return(array($lines, $total_rows));
 }
 
 /**
@@ -2216,6 +2221,9 @@ function zz_sql_order($fields, $sql) {
  * @return int $lines
  */
 function zz_count_rows($sql, $id_field = '') {
+	global $zz_conf;
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+
 	$sql = trim($sql);
 	if (!$id_field) {
 		$lines = zz_db_fetch($sql, '', 'single value');
@@ -2233,7 +2241,7 @@ function zz_count_rows($sql, $id_field = '') {
 		$lines = zz_db_fetch($sql, $id_field, 'count');
 	}
 	if (!$lines) $lines = 0;
-	return $lines;
+	return zz_return($lines);
 }
 
 /**
@@ -2350,8 +2358,9 @@ function zz_list_init_subselects($field, $line, $no, $fieldindex, $table_id_fiel
  */
 function zz_list_get_subselects($rows, $subselects, $ids) {
 	global $zz_conf;
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	
-	if (!$subselects) return $rows;
+	if (!$subselects) return zz_return($rows);
 	
 	foreach ($subselects as $subselect) {
 		// default values
@@ -2414,7 +2423,7 @@ function zz_list_get_subselects($rows, $subselects, $ids) {
 			}
 		}
 	}
-	return $rows;
+	return zz_return($rows);
 }
 
 /**
