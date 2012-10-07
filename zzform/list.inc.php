@@ -925,7 +925,7 @@ function zz_list_query_hierarchy($sql, $id_field, $table, $extra_sqls) {
 		// so we have to requery it again.
 		if ($zz_conf['int']['this_limit']) {
 			$sql = zz_edit_sql($sql, 'WHERE', '`'.$table.'`.'.$id_field
-				.' IN ("'.implode('","', array_keys($lines)).'")');
+				.' IN ('.implode(',', array_keys($lines)).')');
 		} // else sql remains same
 		$lines = zz_array_merge($lines, zz_db_fetch($sql, $id_field));
 	}
