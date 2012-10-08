@@ -885,6 +885,7 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 		case 'display':
 		case 'option':
 		case 'write_once':
+		case 'list_function':
 			// dont' do anything with these
 			break;
 		case 'geo_point':
@@ -1349,6 +1350,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 		case 'image':
 		case 'foreign':
 		case 'subtable':
+		case 'list_function':
 			//	remove entries which are for display only
 			// 	or will be processed somewhere else
 			$my_rec['fields'][$f]['in_sql_query'] = false;
