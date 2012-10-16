@@ -1912,10 +1912,10 @@ function zz_search_field($field, $table, $searchop, $searchword) {
 	// build search query part
 	switch ($searchop) {
 	case 'NULL':
-		if (!zz_db_field_null($field['field_name'], $table)) return '';
+		if (!zz_db_field_null($field['field_name'], $zz_conf['db_name'].'.'.$table)) return '';
 		return sprintf('ISNULL(%s)', $fieldname);
 	case '!NULL':
-		if (!zz_db_field_null($field['field_name'], $table)) return '';
+		if (!zz_db_field_null($field['field_name'], $zz_conf['db_name'].'.'.$table)) return '';
 		return sprintf('!ISNULL(%s)', $fieldname);
 	case '<':
 		return sprintf('%s < "%s"', $fieldname, $searchword);
