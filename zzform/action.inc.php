@@ -642,7 +642,7 @@ function zz_action_function($type, $ops) {
  */
 function zz_action_change($ops, $zz_tab, $change) {
 	if (!$change) return array($ops, $zz_tab);
-	if ($change == true) return array($ops, $zz_tab);
+	if ($change === true) return array($ops, $zz_tab);
 	
 	// output?
 	if (!empty($change['output'])) {
