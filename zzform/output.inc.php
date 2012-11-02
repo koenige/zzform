@@ -132,7 +132,7 @@ function zz_show_more_actions($conf, $id, $line = false) {
 		exit;
 	}
  	if (empty($conf['details_url'])) $conf['details_url'] = '.php?id=';
-	$act = false;
+	$act = array();
 	foreach ($conf['details'] as $key => $new_action) {
 		$output = false;
 		if ($conf['details_base']) $new_action_url = $conf['details_base'][$key];
@@ -140,18 +140,24 @@ function zz_show_more_actions($conf, $id, $line = false) {
 		$output .= '<a href="'.$new_action_url;
 		if (isset($conf['details_url'][$key]) && is_array($conf['details_url'][$key])) {
 		// values are different for each key
-			foreach ($conf['details_url'][$key] as $part_key => $value)
-				if (substr($part_key, 0, 5) == 'field')
+			foreach ($conf['details_url'][$key] as $part_key => $value) {
+				if (substr($part_key, 0, 5) == 'field') {
+					if (empty($line)) continue 2;
 					$output .= $line[$value];
-				else
+				} else {
 					$output .= $value;
+				}
+			}
 		} elseif (is_array($conf['details_url'])) {
 		// all values are the same
-			foreach ($conf['details_url'] as $part_key => $value)
-				if (substr($part_key, 0, 5) == 'field')
+			foreach ($conf['details_url'] as $part_key => $value) {
+				if (substr($part_key, 0, 5) == 'field') {
+					if (empty($line)) continue 2;
 					$output .= $line[$value];
-				else
+				} else {
 					$output .= $value;
+				}
+			}
 		} else
 			$output .= $conf['details_url'];
 		if (!isset($conf['details_url']) OR !is_array($conf['details_url'])) $output .= $id;
