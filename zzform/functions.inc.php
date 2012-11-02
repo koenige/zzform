@@ -1735,15 +1735,15 @@ function zz_record_access($zz, $ops, $zz_var) {
 	// set (and overwrite if necessary) access variables, i. e.
 	// $zz_conf['add'], $zz_conf['edit'], $zz_conf['delete']
 
-	if ($zz_conf['access'] == 'add_only' AND zz_valid_request('insert')) {
+	if ($zz_conf['access'] === 'add_only' AND zz_valid_request('insert')) {
 		$zz_conf['access'] = 'show_after_add';
 	}
-	if ($zz_conf['access'] == 'edit_only' AND zz_valid_request(
+	if ($zz_conf['access'] === 'edit_only' AND zz_valid_request(
 		array('update', 'noupdate'))
 	) {
 		$zz_conf['access'] = 'show_after_edit';
 	}
-	if ($zz_conf['access'] == 'add_then_edit') {
+	if ($zz_conf['access'] === 'add_then_edit') {
 		if ($zz_var['id']['value'] AND zz_valid_request()) {
 			$zz_conf['access'] = 'show+edit';
 		} elseif ($zz_var['id']['value']) {
