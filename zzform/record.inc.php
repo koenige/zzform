@@ -831,7 +831,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 
 				} elseif (isset($field['set_folder'])) {
 					// #2a SELECT with set_folder
-					$outputf = zz_field_select_set_folder($field, $row_display, $my_rec['record']);
+					$outputf = zz_field_select_set_folder($field, $row_display, $my_rec['record'], $rec);
 
 				} elseif (isset($field['set_sql'])) {
 					// #2 SELECT with set_sql
@@ -840,11 +840,11 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					if ($my_where_fields) {
 						$field['sql'] = zz_form_select_sql_where($field, $my_where_fields);
 					}
-					$outputf = zz_field_select_set_sql($field, $row_display, $my_rec['record']);
+					$outputf = zz_field_select_set_sql($field, $row_display, $my_rec['record'], $rec);
 
 				} elseif (isset($field['set'])) {
 					// #3 SELECT with set
-					$outputf = zz_field_select_set($field, $row_display, $my_rec['record']);
+					$outputf = zz_field_select_set($field, $row_display, $my_rec['record'], $rec);
 
 				} elseif (isset($field['enum'])) {
 					// #4 SELECT with enum
@@ -2136,9 +2136,10 @@ function zz_field_select_lines($field, $lines, $id_field_name) {
  * @param array $field
  * @param string $display
  * @param array $record
+ * @param int $rec
  * @return string
  */
-function zz_field_select_set_folder($field, $display, $record) {
+function zz_field_select_set_folder($field, $display, $record, $rec) {
 // #2a SELECT with set_folder
 	if (!is_dir($field['set_folder'])) {
 		echo '`'.$field['set_folder'].'` is not a folder. Check `["set_folder"]` definition.';
@@ -2163,7 +2164,7 @@ function zz_field_select_set_folder($field, $display, $record) {
 	} else {
 		$field['set'][] = $files;
 	}
-	return zz_field_select_set($field, $display, $record);
+	return zz_field_select_set($field, $display, $record, $rec);
 }
 
 /**
@@ -2172,9 +2173,10 @@ function zz_field_select_set_folder($field, $display, $record) {
  * @param array $field
  * @param string $display
  * @param array $record
+ * @param int $rec
  * @return string $text
  */
-function zz_field_select_set_sql($field, $display, $record) {
+function zz_field_select_set_sql($field, $display, $record, $rec) {
 	//$field['set_sql'] or key/value
 	if (isset($field['set_title']) AND $field['set_title'] === true) {
 		$sets = zz_db_fetch($field['sql'], 'dummy_field_name', 'key/value');
@@ -2186,7 +2188,7 @@ function zz_field_select_set_sql($field, $display, $record) {
 		$sets = zz_db_fetch($field['sql'], '', 'single value');
 		$field['set'] = explode(',', $sets);
 	}
-	$text = zz_field_select_set($field, $display, $record);
+	$text = zz_field_select_set($field, $display, $record, $rec);
 	return $text;
 }
 
@@ -2338,21 +2340,22 @@ function zz_field_select_radio_value($field, $record, $value, $label, $pos) {
  *		'set', 'field_name', 'f_field_name'
  * @param string $display
  * @param array $record
+ * @param int $rec
  * @return string $output HTML output for form
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_field_select_set($field, $display, $record) {
+function zz_field_select_set($field, $display, $record, $rec) {
 	$myvalue = array();
 	$output = '';
 	$myi = 0;
 	if ($display == 'form') {
 		// send dummy field to get a response if field content should be deleted
-		$myid = 'check-'.$field['field_name'].'-'.$myi;
+		$myid = 'check-'.$field['field_name'].'-'.$myi.'-'.$rec;
 		$output .= zz_form_element($field['f_field_name'].'[]', '', 'hidden', $myid);
 	}
 	foreach ($field['set'] as $key => $set) {
 		$myi++;
-		$myid = 'check-'.$field['field_name'].'-'.$myi;
+		$myid = 'check-'.$field['field_name'].'-'.$myi.'-'.$rec;
 		$set_display = zz_print_enum($field, $set, 'full');
 		if ($display == 'form') {
 			$fieldattr = array();
