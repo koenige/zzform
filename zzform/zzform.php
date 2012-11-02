@@ -310,6 +310,7 @@ function zzform($zz = array()) {
 	
 		//	### put each table (if more than one) into one array of its own ###
 		foreach ($zz_var['subtables'] as $tab => $no) {
+			if (!empty($zz['fields'][$no]['hide_in_form'])) continue;
 			$zz_tab[$tab] = zz_get_subtable($zz['fields'][$no], $zz_tab[0], $tab, $no);
 			if ($ops['mode'] == 'show' AND $zz_tab[$tab]['values']) {
 				// don't show values which are not saved in show-record mode
