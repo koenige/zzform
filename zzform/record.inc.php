@@ -2206,6 +2206,9 @@ function zz_field_select_get_record($field, $record, $id_field_name) {
 	$db_value = $record[$field['field_name']];
 	if (substr($db_value, 0, 1) == '"' && substr($db_value, -1) == '"')
 		$db_value = substr($db_value, 1, -1);
+	// only check numeric values, others won't give a valid result
+	// for these, just display the given values again
+	if (!is_numeric($db_value)) return array();
 
 	// get SQL query
 	if (!empty($field['id_field_name']))
@@ -2213,7 +2216,7 @@ function zz_field_select_get_record($field, $record, $id_field_name) {
 	else
 		$where_field_name = $id_field_name;
 	$sql = zz_edit_sql($field['sql'], 'WHERE', $where_field_name
-		.' = "'.zz_db_escape($db_value).'"');
+		.sprintf(' = %d', $db_value));
 	if (!$sql) $sql = $field['sql'];
 
 	// fetch query
