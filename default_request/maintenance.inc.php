@@ -46,16 +46,16 @@ function zz_maintenance($params) {
 		if (isset($brick['page'])) $page = $brick['page'];
 	}
 
-	zz_initialize();
-	$heading_prefix = '';
-	if ($zz_conf['heading_prefix']) $heading_prefix = ' ';
-	$heading_prefix .= '<a href="./">'.zz_text('Maintenance').'</a>:';
-	
 	if (!empty($_SESSION) AND empty($zz_conf['user']) AND !empty($zz_setting['brick_username_in_session']))
 		$zz_conf['user'] = $_SESSION[$zz_setting['brick_username_in_session']];
 	elseif (!isset($zz_conf['user']))
 		$zz_conf['user'] = 'Maintenance robot 812';
 
+	zz_initialize();
+	$heading_prefix = '';
+	if ($zz_conf['heading_prefix']) $heading_prefix = ' ';
+	$heading_prefix .= '<a href="./">'.zz_text('Maintenance').'</a>:';
+	
 	$page['query_strings'] = array('folder', 'log', 'integrity', 'filetree', 
 		'phpinfo', 'file', 'q', 'deleteall', 'filter', 'limit', 'scope');
 	$page['text'] = '<div id="zzform" class="maintenance">'."\n";
