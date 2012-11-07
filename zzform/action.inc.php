@@ -1157,6 +1157,15 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			if ($my_rec['POST'][$field_name])
 				$my_rec['POST'][$field_name] = ip2long($my_rec['POST'][$field_name]);
 			break;
+		case 'ip':
+			if ($my_rec['POST'][$field_name]) {
+				$my_rec['POST'][$field_name] = @inet_pton($my_rec['POST'][$field_name]);
+				if (!$my_rec['POST'][$field_name]) {
+					$my_rec['fields'][$f]['check_validation'] = false;
+					$my_rec['validation'] = false;
+				}
+			}
+			break;			
 		case 'number':
 			//	calculation and choosing of right values in case of coordinates
 			if (isset($field['number_type']) 

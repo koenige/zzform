@@ -676,10 +676,10 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 		 			$field['size'] = 32;
 		 		}
 			}
-		 	if ($field['type'] == 'ipv4') {
+		 	if ($field['type'] === 'ipv4') {
 		 		$field['size'] = 16;
 		 		$field['maxlength'] = 16;
-			} elseif ($field['type'] == 'time') {
+			} elseif ($field['type'] === 'time') {
 				$field['size'] = 8;
 			}
 			if ($field['maxlength'] && $field['maxlength'] < $field['size']
@@ -791,6 +791,10 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			case 'datetime':
 			case 'ipv4':
 				$outputf = zz_field_text($field, $row_display, $my_rec['record']);
+				break;
+
+			case 'ip':
+				$outputf = zz_field_ip($field, $row_display, $my_rec['record']);
 				break;
 
 			case 'number':
@@ -1709,6 +1713,32 @@ function zz_field_number($field, $display, $record) {
 		$fieldattr['maxlength'] = $field['maxlength'];
 	$text = zz_form_element($field['f_field_name'], $value, $formtype, true, $fieldattr);
 	return $text.$suffix;
+}
+
+/**
+ * record output of field type 'ip'
+ *
+ * @param array $field
+ * @param string $display
+ * @param array $record
+ * @return string
+ */
+function zz_field_ip($field, $display, $record) {
+	// get value
+	$value = $record ? @inet_ntop($record[$field['field_name']]) : '';
+	if (!empty($record[$field['field_name']]) AND !$value) {
+		// reselect, value does not need to be converted
+		$value = $record[$field['field_name']];
+	}
+
+	// return text
+	if ($display !== 'form') return $value;
+
+	// return form element
+	$fieldattr = array();
+	$fieldattr['size'] = 39;
+	if ($field['required']) $fieldattr['required'] = true;
+	return zz_form_element($field['f_field_name'], $value, 'text', true, $fieldattr);
 }
 
 /**

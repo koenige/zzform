@@ -1100,6 +1100,9 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 		case 'ipv4':
 			$text = long2ip($row['value']);
 			break;
+		case 'ip':
+			$text = @inet_ntop($row['value']);
+			break;
 		case 'unix_timestamp':
 			$text = date('Y-m-d H:i:s', $row['value']);
 			break;
@@ -2407,6 +2410,11 @@ function zz_list_get_subselects($rows, $subselects, $ids) {
 					if ($link) $fieldtext = sprintf('<a href="%s">%s</a>', $link, $fieldtext);
 				}
 				$linetext[] = $fieldtext;
+			}
+			if (!empty($subselect['list_field_format'])) {
+				foreach ($linetext as $id => $val) {
+					$linetext[$id] = $subselect['list_field_format']($val);
+				}
 			}
 			$subselect_text = implode($subselect['concat_rows'], $linetext);
 			if ($subselect_text) {
