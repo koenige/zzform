@@ -1107,7 +1107,8 @@ function zz_maintenance_logs() {
  */
 function zz_maintenance_splits($string, $no_html) {
 	$string = str_replace(';', ';&#8203;', $string);
-	$string = str_replace('&', '&#8203;&', $string);
+	$string = str_replace('&', '&#8203;&amp;', $string);
+	$string = str_replace('&amp;#8203;', '&#8203;', $string);
 	$string = str_replace('/', '/&#8203;', $string);
 	$string = str_replace('=', '=&#8203;', $string);
 	$string = str_replace('%', '&#8203;%', $string);
@@ -1119,7 +1120,9 @@ function zz_maintenance_splits($string, $no_html) {
 }
 
 function zz_maintenance_make_url($array) {
-	$link = '<a href="'.str_replace('&#8203;', '', $array[0]).'">'.$array[0].'</a>'; 
+	$href = str_replace('&#8203;', '', $array[0]);
+	$linktext = $array[0];
+	$link = '<a href="'.$href.'">'.$linktext.'</a>'; 
 	return $link;
 }
 
