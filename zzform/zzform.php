@@ -64,6 +64,8 @@ function zzform($zz = array()) {
 	$ops['headers'] = false;
 	$ops['output'] = false;
 	$ops['error'] = array();
+	$ops['result'] = '';
+	$ops['id'] = 0;
 	$zz_tab = array();
 
 	// set default configuration variables
@@ -781,9 +783,15 @@ function zz_initialize($mode = false) {
  *
  * @param string $definition_file - script filename
  * @param array $values - values sent to script (instead of $_GET, $_POST and $_FILES)
+ *		array	'POST'
+ *		array	'GET'
+ *		array	'FILES'
+ *		string	'action' => 'POST'['zz_action']: insert, delete, update
+ *		array	'ids' => List of select-field names that get direct input of an id 
  * @param string $type - what to do
  * @return array $ops
  * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @todo do not unset superglobals
  */
 function zzform_multi($definition_file, $values, $type = 'record', $params = false) {
 	// unset all variables that are not needed
@@ -810,6 +818,8 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 	unset($_POST);
 	unset($_FILES);
 	$ops = array();
+	$ops['result'] = '';
+	$ops['id'] = 0;
 	// keep internal variables
 	$int = !empty($zz_conf['int']) ? $zz_conf['int'] : array();
 
@@ -817,9 +827,12 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 	case 'form': // hand back form to user, just fill out values
 		// causes not all zz_conf variables to be reset
 		zz_initialize('overwrite');
-		$zz_conf['show_output'] = false; // do not show output as it will be included after page head
-		$zz_conf['show_list'] = false;	// no output, so list view is not necessary
-		$zz_conf['multi'] = true;		// so we know the operation mode for other scripts
+		// do not show output as it will be included after page head
+		$zz_conf['show_output'] = false;
+		// no output, so list view is not necessary
+		$zz_conf['show_list'] = false;
+		// set 'multi' we know the operation mode for other scripts
+		$zz_conf['multi'] = true;
 		if (!empty($values['GET'])) $_GET = $values['GET'];
 		if (!empty($values['POST'])) $_POST = $values['POST'];
 		if (!empty($values['FILES'])) $_FILES = $values['FILES'];
@@ -845,12 +858,22 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 		// @todo: zzform() and zzform_multi() called within an action-script
 		// causes not all zz_conf variables to be reset
 		zz_initialize('overwrite');
-		$zz_conf['generate_output'] = false; // don't generate output
-//		if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__)
-		$zz_conf['show_output'] = false; // do not show output as it will be included after page head
-		$zz_conf['multi'] = true;		// so we know the operation mode for other scripts
+		$zz_conf['generate_output'] = false;
+		// do not show output as it will be included after page head
+		$zz_conf['show_output'] = false;
+		// set 'multi' we know the operation mode for other scripts
+		$zz_conf['multi'] = true;
 		if (!empty($values['GET'])) $_GET = $values['GET'];
 		if (!empty($values['POST'])) $_POST = $values['POST'];
+		// add some shortcuts easier to remember
+		if (!empty($values['action'])) {
+			$_POST['zz_action'] = $values['action'];
+		}
+		if (!empty($values['ids'])) {
+			foreach ($values['ids'] as $field_name) {
+				$_POST['zz_check_select'][$field_name] = true;
+			}
+		}
 		if (!empty($values['FILES'])) $_FILES = $values['FILES'];
 		else $_FILES = array();
 		if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {

@@ -457,6 +457,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		}
 		if (!$update) $ops['result'] = 'no_update';
 	}
+	if (empty($ops['result'])) $ops['id'] = 0;
 	
 	// delete temporary unused files
 	if (!empty($zz_var['upload_form'])) zz_upload_cleanup($zz_tab);
@@ -954,6 +955,10 @@ function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
 		'error' => !empty($zz_tab[$tab][$rec]['error'])
 			? $zz_tab[$tab][$rec]['error'] : false
 	);
+	if ($type === 'return' AND $index === 0) {
+		// shortcut for ID
+		$ops['id'] = $ops['return'][0]['id_value'];
+	}
 
 	// set new record (no new record if record was deleted)
 	if (!empty($zz_tab[$tab][$rec]['POST']) 
