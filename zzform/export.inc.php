@@ -26,8 +26,11 @@ $zz_default['export']			= false;
 // PDF library to include
 $zz_default['pdflib_path']		= false;
 
-// csv standards
-$zz_default['export_csv_delimiter'] = ',';
+// CSV defaults
+// Excel requires
+// - tabulator when opening via double-click and Unicode text
+// - semicolon when opening via double-click and ANSI text
+$zz_default['export_csv_delimiter'] = "\t";
 $zz_default['export_csv_enclosure'] = '"';
 
 
