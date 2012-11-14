@@ -899,7 +899,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					.(!empty($field['add_details_target']) ? ' target="'.$field['add_details_target'].'"' : '')
 					.' id="zz_add_details_'.$tab.'_'.$rec.'_'.$fieldkey.'">['.zz_text('new').' &hellip;]</a>';
 			}
-			if ($outputf && $outputf != ' ') {
+			if (($outputf OR $outputf === '0') AND $outputf != ' ') {
 				if (isset($field['prefix'])) $out['td']['content'] .= $field['prefix'];
 				if (!empty($field['use_as_label'])) {
 					$outputf = '<label for="zz_tick_'.$tab.'_'.$rec.'">'.$outputf.'</label>';
@@ -917,8 +917,9 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 						}
 					$out['td']['content'] .= $field['suffix_function']($vars);
 				}
-			} else
+			} else {
 				$out['td']['content'] .= $outputf;
+			}
 			if (!empty($close_span)) $out['td']['content'] .= '</span>';
 			if ($zz_conf['int']['append_next_type'] == 'list' && $row_display == 'form') {
 				$out['td']['content'] .= '<li>';
@@ -1698,6 +1699,9 @@ function zz_field_number($field, $display, $record) {
 		if ($num !== NULL) {
 			// only apply number_format if it's a valid number
 			$value = zz_number_format($num, $field);
+		}
+		if ($value === '' AND !empty($field['null'])) {
+			$value = 0;
 		}
 		break;
 	}
