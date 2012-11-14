@@ -906,7 +906,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				}
 				$out['td']['content'] .= $outputf;
 				if (isset($field['suffix'])) $out['td']['content'] .= $field['suffix'];
-				$out['td']['content'] .= ' ';
+				else $out['td']['content'] .= ' ';
 				if ($row_display == 'form') if (isset($field['suffix_function'])) {
 					$vars = '';
 					if (isset($field['suffix_function_var']))
