@@ -396,7 +396,8 @@ function zz_check_number($number) {
 	}
 	$calculation = implode('', $parts);
 	// GPS EXIF data sometimes is written like +0/0
-	if (substr($calculation, -2) == '/0') return NULL; 
+	if (substr($calculation, -2) == '/0') return NULL;
+	if ($calculation === '+0') return '';
 	eval('$sum = '.$calculation.';');
 	// in case some error occured, check what it is
 	if (!$sum) {
