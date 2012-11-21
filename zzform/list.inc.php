@@ -997,8 +997,9 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 	static $append_field;
 	static $append_string_first;
 	
-	// check if a display field has a type_detail
-	if ($field['type'] === 'display' AND !empty($field['type_detail']))
+	// check if one of these fields has a type_detail
+	$display_fields = array('hidden', 'write_once', 'display');
+	if (in_array($field['type'], $display_fields) AND !empty($field['type_detail']))
 		$field['type'] = $field['type_detail'];
 	
 	// shortcuts, isset: value might be 0
