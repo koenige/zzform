@@ -8,10 +8,6 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * Contents:
- * D - Database functions (common functions)
- * D - Database functions (MySQL-specific functions)
- *		zz_db_*()
- *
  *	main functions (in order in which they are called)
  *
  *	zz_conditions_record()
@@ -129,12 +125,18 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	$zz_conditions = array();
-	foreach($zz['conditions'] AS $index => $condition) {
+	foreach ($zz['conditions'] AS $index => $condition) {
 		switch ($condition['scope']) {
 		case 'record': // for form view (of saved records), list view comes later in zz_list() because requery of record 
 			$zz_conditions['bool'][$index] = array();
 			if (($mode == 'add' OR $zz_var['action'] == 'insert') AND !empty($condition['add'])) {
-				if (!empty($condition['add']['always'])) {
+				if (!empty($condition['add']['where'])) {
+					// check directly if where-condition equals where for record
+					foreach ($zz_var['where'][$zz['table']] as $field => $id) {
+						if ($condition['where'] !== $field.' = '.$id) continue;
+						$zz_conditions['bool'][$index][0] = true;
+					}
+				} elseif (!empty($condition['add']['always'])) {
 					// mode = 'add': this condition is always true
 					// (because condition is true for this record after being 
 					// inserted and it's not yet possible to check that)
