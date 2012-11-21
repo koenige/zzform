@@ -1847,13 +1847,15 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 
 // #1.2 SELECT has only one result in the array, and this will be pre-selected 
 // because FIELD must not be NULL
-	if ($display == 'form' && count($lines) == 1 
-		&& !zz_db_field_null($field['field_name'], $db_table)) {
+	if ($display == 'form' AND count($lines) == 1 
+		AND (!zz_db_field_null($field['field_name'], $db_table)
+			OR !empty($field['required']))
+	) {
 		$line = array_shift($lines);
 		// get ID field_name which must be 1st field in SQL query
 		$id_field_name = array_keys($line);
 		$id_field_name = current($id_field_name);
-		if ($record && $line[$id_field_name] != $record[$field['field_name']]) 
+		if ($record AND $line[$id_field_name] != $record[$field['field_name']]) 
 			$outputf = 'Possible Values: '.$line[$id_field_name]
 				.' -- Current Value: '
 				.htmlspecialchars($record[$field['field_name']])
