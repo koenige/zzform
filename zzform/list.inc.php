@@ -488,11 +488,8 @@ function zz_list_data($lines, $table_defs, $zz_var, $zz_conditions, $table, $mod
 			if ($zz_conf['group']) {
 				$pos = array_search($fieldindex, $zz_conf['int']['group_field_no']);
 				if ($pos !== false) {
+					unset($rows[$z][$fieldindex]);
 					$list['group_titles'][$z][$pos] = implode(' &#8211; ', $rows[$z]['group']);
-					// just show every title only once
-					$list['group_titles'][$z] = array_unique($list['group_titles'][$z]);
-					unset ($rows[$z][$fieldindex]);
-					ksort($list['group_titles'][$z]);
 				}
 			}
 			if ($zz_conf['modules']['debug']) {
@@ -555,6 +552,12 @@ function zz_list_group_titles($fields, $line) {
 		} elseif (!empty($field['field_name'])) {
 			$group[$pos] = $line[$field['field_name']];
 		}
+		if (!empty($field['link'])) {
+			$link = zz_makelink($field['link'], $line);
+			if ($link) {
+				$group[$pos] = sprintf('<a href="%s">%s</a>', $link, $group[$pos]);
+			}
+		}
 		$group_count--;
 		// we don't need to go throug all records if we found all
 		// group records already
@@ -564,6 +567,14 @@ function zz_list_group_titles($fields, $line) {
 		}
 	}
 	return $group;
+}
+
+function zz_list_group_titles_out($group_titles, $concat = ' &#8211; ') {
+	// just show every title only once
+	$group_titles = array_unique($group_titles);
+	ksort($group_titles);
+	$output = implode($concat, $group_titles);
+	return $output;
 }
 
 /**
@@ -1423,21 +1434,15 @@ function zz_list_group_field_no($field, $index) {
 	global $zz_conf;
 	if (!isset($zz_conf['int']['group_field_no'])) 
 		$zz_conf['int']['group_field_no'] = array();
-	if (!empty($field['display_field'])) {
-		$pos = array_search($field['display_field'], $zz_conf['group']);
-		if ($pos !== false) {
-			$zz_conf['int']['group_field_no'][$pos] = $index;
-			ksort($zz_conf['int']['group_field_no']);
-			return false;
-		}
-	}
-	if (!empty($field['field_name'])) {
-		$pos = array_search($field['field_name'], $zz_conf['group']);
-		if ($pos !== false) {
-			$zz_conf['int']['group_field_no'][$pos] = $index;
-			ksort($zz_conf['int']['group_field_no']);
-			return false;
-		}
+	$keys = array('display_field', 'field_name');
+	// field_name will overwrite display_field!
+	foreach ($keys as $key) {
+		if (empty($field[$key])) continue;
+		$pos = array_search($field[$key], $zz_conf['group']);
+		if ($pos === false) continue;
+		$zz_conf['int']['group_field_no'][$pos] = $index;
+		ksort($zz_conf['int']['group_field_no']);
+		return false;
 	}
 	return true;
 }
@@ -2659,7 +2664,7 @@ function zz_list_table($list, $rows, $head) {
 				$output .= '</tbody><tbody>'."\n";
 			}
 			$output .= '<tr class="group"><td colspan="'.(count($row)-1)
-				.'">'.sprintf($zz_conf['group_html_table'], implode(' &#8211; ', $list['group_titles'][$index]))
+				.'">'.sprintf($zz_conf['group_html_table'], zz_list_group_titles_out($list['group_titles'][$index]))
 				.'</td></tr>'."\n";
 			$rowgroup = $row['group'];
 		}
@@ -2724,8 +2729,10 @@ function zz_list_ul($list, $rows) {
 			if ($rowgroup) {
 				$output .= '</ul><br clear="all">'."\n";
 			}
-			$output .= "\n".'<h2>'.implode(' &#8211; ', $list['group_titles'][$index]).'</h2>'."\n"
-				.'<ul class="data">'."\n";
+			$output .= sprintf(
+				"\n<h2>%s</h2>\ns<ul class='data'>\n",
+				zz_list_group_titles_out($list['group_titles'][$index])
+			);
 			$rowgroup = $row['group'];
 		}
 		$output .= '<li class="'.($index & 1 ? 'uneven':'even')
