@@ -210,12 +210,15 @@ function zz_geo_coord_out($decimal, $orientation = 'lat', $out = false) {
 			break;
 		case 'dms':	// 98°50'38"W
 		default:
-			// transform decimal value to secons and round first!
+			// transform decimal value to seconds and round first!
 			$sec = round($decimal * 3600, $round);
 			$remaining_sec = $sec % 3600;
-			$deg = ($sec - $remaining_sec) / 3600;
+			$deg = $sec - $remaining_sec;
+			$remaining_sec_parts = round($deg - floor($deg), $round);
+			$deg = floor($deg / 3600);
 			$sec = $remaining_sec % 60;
 			$min = ($remaining_sec - $sec) / 60;
+			$sec += $remaining_sec_parts;
 			$coord[] = $deg.'&#176;'.$spacer
 				.(($min OR $sec) ? $min.'&#8242;'.$spacer : '')
 				.($sec ? zz_decimal($sec).'&#8243;'.$spacer : '')
