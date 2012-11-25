@@ -337,6 +337,14 @@ function zz_get_where_conditions($zz) {
 	// FILTER: check if there's a 'where'-filter
 	if (empty($zz_conf['filter'])) $zz_conf['filter'] = array();
 	foreach ($zz_conf['filter'] AS $index => $filter) {
+		if (!empty($filter['where'])
+			AND !empty($zz_var['where_condition'])
+			AND in_array($filter['where'], array_keys($zz_var['where_condition']))
+		) {
+			// where-filter makes no sense since already one of the values
+			// is filtered by WHERE filter
+			unset($zz_conf['filter'][$index]);
+		}
 		if ($filter['type'] != 'where') continue;
 		if (!empty($_GET['filter'][$filter['identifier']])) {
 			$zz_var['where_condition'][$filter['where']] 
