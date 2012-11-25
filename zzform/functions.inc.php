@@ -2205,6 +2205,7 @@ function zz_makelink($path, $record, $type = 'link') {
 	if ($type == 'image') {
 		$alt = zz_text('no_image');
 	}
+	if (!is_array($path)) $path = array('string' => $path);
 	foreach ($path as $part => $value) {
 		if (!$value) continue;
 		if (substr($part, 0, 4) == 'root') {
