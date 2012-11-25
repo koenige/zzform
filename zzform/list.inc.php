@@ -555,6 +555,7 @@ function zz_list_group_titles($fields, $line) {
 		if (!empty($field['link'])) {
 			$link = zz_makelink($field['link'], $line);
 			if ($link) {
+				$link .= empty($field['link_no_append']) ? $line[$field['field_name']] : '';
 				$group[$pos] = sprintf('<a href="%s">%s</a>', $link, $group[$pos]);
 			}
 		}
@@ -2399,9 +2400,18 @@ function zz_list_get_subselects($rows, $subselects, $ids) {
 				unset($linefields[$subselect['id_fieldname']]); // ID field will not be shown
 				$fieldtext = false;
 				$index = 0;
-				foreach ($linefields as $db_fields) {
+				foreach ($linefields as $field_name => $db_fields) {
 					if ($subselect['show_empty_cells'] AND !$db_fields) $db_fields = '&nbsp;';
 					if ($db_fields) {
+						if (!empty($subselect['list_field_format'])) {
+							if (is_array($subselect['list_field_format'])) {
+								if (!empty($subselect['list_field_format'][$field_name])) {
+									$db_fields = $subselect['list_field_format'][$field_name]($db_fields);
+								}
+							} else {
+								$db_fields = $subselect['list_field_format']($db_fields);
+							}
+						}
 						if (!empty($subselect['field_prefix'][$index]))
 							$db_fields = $subselect['field_prefix'][$index].$db_fields;
 						if (!empty($subselect['field_suffix'][$index]))
@@ -2416,11 +2426,6 @@ function zz_list_get_subselects($rows, $subselects, $ids) {
 					if ($link) $fieldtext = sprintf('<a href="%s">%s</a>', $link, $fieldtext);
 				}
 				$linetext[] = $fieldtext;
-			}
-			if (!empty($subselect['list_field_format'])) {
-				foreach ($linetext as $id => $val) {
-					$linetext[$id] = $subselect['list_field_format']($val);
-				}
 			}
 			$subselect_text = implode($subselect['concat_rows'], $linetext);
 			if ($subselect_text) {
