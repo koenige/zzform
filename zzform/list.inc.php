@@ -2602,7 +2602,7 @@ function zz_list_table($list, $rows, $head) {
 	
 	// Header
 	$output = '<table class="data"><thead>'."\n".'<tr>';
-	if ($zz_conf['select_multiple_records']) $output .= '<th>[]</th>';
+	if ($zz_conf['select_multiple_records']) $output .= '<th></th>';
 
 	// Rest cannot be set yet because we do not now details/mode-links
 	// of individual records
@@ -2638,12 +2638,18 @@ function zz_list_table($list, $rows, $head) {
 			$output .= '</tr>'."\n";
 		}
 		if ($zz_conf['select_multiple_records']) {
-			$output .= '<tr class="multiple"><td><input type="checkbox" onclick="zz_set_checkboxes(this.checked);"></td>'
+			$buttons = array();
+			if ($zz_conf['edit'])
+				$buttons[] = '<input type="submit" value="'.zz_text('Edit records').'" name="multiple_edit">';
+			if ($zz_conf['delete'])
+				$buttons[] = '<input type="submit" value="'.zz_text('Delete records').'" name="multiple_delete">';
+			if ($buttons) {
+				$output .= '<tr class="multiple"><td><input type="checkbox" onclick="zz_set_checkboxes(this.checked);"></td>'
 				.'<td colspan="'.$columns.'"><em>'.zz_text('Selection').':</em> '
 				.'<input type="hidden" name="zz_action" value="multiple">'
-				.'<input type="submit" value="'.zz_text('Edit').'" name="multiple_edit"> '
-				.'<input type="submit" value="'.zz_text('Delete').'" name="multiple_delete"> '
+				.implode(' ', $buttons)
 				.'</td></tr>';
+			}
 		}
 		$output .= '</tfoot>'."\n";
 	}
