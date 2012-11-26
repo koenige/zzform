@@ -73,6 +73,7 @@ function zzform($zz = array()) {
 	// import modules
 	// set and get URI
 	zz_initialize();
+	$zz = zz_defaults($zz);
 
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if ($zz_error['error']) return zzform_exit($ops); // exits script
@@ -185,10 +186,8 @@ function zzform($zz = array()) {
 		$ops['output'] .= zz_error_output(); // initialise zz_error
 	}	
 	
-	if ($zz_conf['generate_output']) {
-		if (!isset($zz['title'])) $zz['title'] = NULL;
+	if ($zz_conf['generate_output'])
 		$ops['heading'] = zz_output_heading($zz['title'], $zz['table']);
-	}
 
 	//	Translation module
 	//	check whether or not to include default translation subtables
@@ -275,9 +274,9 @@ function zzform($zz = array()) {
 		$ops['title'] = strip_tags($ops['heading']);
 		if (trim($ops['heading']))
 			$ops['output'].= "\n".'<h1>'.$ops['heading'].'</h1>'."\n\n";
-		if ($zz_conf['heading_text'] 
+		if ($zz['explanation'] 
 			AND (!$zz_conf['heading_text_hidden_while_editing'] OR $ops['mode'] == 'list_only')) 
-			$ops['output'] .= zz_format($zz_conf['heading_text']);
+			$ops['output'] .= zz_format($zz['explanation']);
 	}
 	if ($post_too_big) {
 		$zz_error[] = array(
@@ -578,6 +577,18 @@ function zz_valid_request($action = false) {
 }
 
 /**
+ * set default values for $zz
+ *
+ * @param array $zz
+ * @return array
+ */
+function zz_defaults($zz) {
+	if (!isset($zz['title'])) $zz['title'] = NULL;
+	if (!isset($zz['explanation'])) $zz['explanation'] = '';
+	return $zz;
+}
+
+/**
  * initalize zzform, sets default configuration variables if not set by user
  * includes modules
  *
@@ -703,7 +714,6 @@ function zz_initialize($mode = false) {
 	$zz_default['hash_cost_log2']		= 8;
 	$zz_default['hash_portable']		= false;
 	$zz_default['hash_password']		= 'md5';
-	$zz_default['heading_text'] 		= '';
 	$zz_default['heading_text_hidden_while_editing'] 	= false;
 	$zz_default['heading_prefix']		= false;
 	$zz_default['html_autofocus']		= true;
@@ -1016,10 +1026,19 @@ function zz_backwards($zz_conf, $zz) {
 			}
 		}
 	}
-	if (isset($zz_conf['heading'])) {
-		$zz['title'] = $zz_conf['heading'];
-		unset($zz_conf['heading']);
-		wrap_error(sprintf('Use of deprecated variable $zz_conf["heading"], use $zz["title"] instead. (URL: %s)', $_SERVER['REQUEST_URI']));
+	$moved_to_zz = array(
+		'heading' => 'title',
+		'heading_text' => 'explanation'
+	);
+	foreach ($moved_to_zz as $old => $new) {
+		if (isset($zz_conf[$old])) {
+			$zz[$new] = $zz_conf[$old];
+			unset($zz_conf[$old]);
+			wrap_error(sprintf(
+				'Use of deprecated variable $zz_conf["%s"], use $zz["%s"] instead. (URL: %s)',
+				$old, $new, $_SERVER['REQUEST_URI']
+			));
+		}
 	}
 	return array($zz_conf, $zz);
 }
