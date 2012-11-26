@@ -2774,7 +2774,7 @@ function zz_list_ul($list, $rows) {
 				$output .= '</ul><br clear="all">'."\n";
 			}
 			$output .= sprintf(
-				"\n<h2>%s</h2>\ns<ul class='data'>\n",
+				"\n<h2>%s</h2>\n<ul class='data'>\n",
 				zz_list_group_titles_out($list['group_titles'][$index])
 			);
 			$rowgroup = $row['group'];
