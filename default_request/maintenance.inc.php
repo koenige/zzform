@@ -64,7 +64,7 @@ function zz_maintenance($params) {
 	if (!empty($_POST['sql'])) {
 		$sql = $_POST['sql'];
 
-		$zz_conf['heading'] = 'SQL Query';
+		$heading = 'SQL Query';
 		$page['text'] .= '<pre style="font-size: 1.1em; white-space: pre-wrap;"><code>'.zz_maintenance_sql($sql).'</code></pre>';
 
 		$tokens = explode(' ', $sql);
@@ -95,7 +95,7 @@ function zz_maintenance($params) {
 
 	if (empty($_GET)) {	
 		if (!$sql) {
-			$zz_conf['heading'] = zz_text('Maintenance');
+			$heading = zz_text('Maintenance');
 			$heading_prefix = '';
 
 			// 'relations'
@@ -124,22 +124,22 @@ function zz_maintenance($params) {
 	// 	- SQL query absetzen, Häkchen für zz_log_sql()
 	} else {
 		if (!empty($_GET['folder'])) {
-			$zz_conf['heading'] = 'Backup folder';
+			$heading = 'Backup folder';
 			$page['text'] .= zz_maintenance_folders();
 		} elseif (!empty($_GET['log'])) {
-			$zz_conf['heading'] = 'Logs';
+			$heading = 'Logs';
 			$page['text'] .= zz_maintenance_logs();
 		} elseif (isset($_GET['integrity'])) {
-			$zz_conf['heading'] = 'Relational Integrity';
+			$heading = 'Relational Integrity';
 			$page['text'] .= zz_maintenance_integrity();
 		} elseif (isset($_GET['filetree'])) {
-			$zz_conf['heading'] = 'Filetree';
+			$heading = 'Filetree';
 			$page['text'] .= zz_maintenance_filetree();
 		} elseif (isset($_GET['phpinfo'])) {
 			phpinfo();
 			exit;
 		} else {
-			$zz_conf['heading'] = 'Error';
+			$heading = 'Error';
 			$page['text'] .= zz_text('GET should be empty, please test that:').' <pre>';
 			foreach ($_GET as $key => $value) {
 				$page['text'] .= $key.' => '.$value."\n";
@@ -153,7 +153,7 @@ function zz_maintenance($params) {
 	}
 
 	$zz_conf['heading_prefix'] .= $heading_prefix;
-	$page['title'] = zz_output_heading();
+	$page['title'] = zz_output_heading($heading);
 	$page['dont_show_h1'] = true;
 	$page['text'] = '<h1>'.$page['title']."</h1>\n".$page['text'];
 	return $page;

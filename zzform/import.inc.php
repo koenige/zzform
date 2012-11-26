@@ -50,7 +50,7 @@ function zzform_import($ops) {
 	
 	} else {
 		$ops['output'].= '<div id="zzform">'."\n"
-			.'<h1>'.zz_text('Import').' '.$zz_conf['heading'].'</h1>'."\n\n"
+			.'<h1>'.zz_text('Import').' '.$ops['title'].'</h1>'."\n\n"
 			.'<form action="'.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs'];
 		$ops['output'] .= $zz_conf['int']['url']['?&'].'mode=import';
 		$ops['output'].= '" method="POST" enctype="multipart/form-data"'

@@ -45,6 +45,7 @@ function zzform($zz = array()) {
 		if (empty($zz_conf['dir_inc'])) 
 			$zz_conf['dir_inc'] = $zz_conf['dir'].'/inc';
 		require_once $zz_conf['dir_inc'].'/import.inc.php';
+		$ops['title'] = $zz['title'];
 		return zzform_exit(zzform_import($ops));
 	}
 
@@ -89,7 +90,7 @@ function zzform($zz = array()) {
 		$ops['output'] .= zz_error_output();
 	}
 
-	$zz_conf = zz_backwards($zz_conf);
+	list($zz_conf, $zz) = zz_backwards($zz_conf, $zz);
 	
 	// get hash from $zz and $zz_conf to get a unique identification of
 	// the settings, e. g. to save time for zzform_multi() or to get a
@@ -184,8 +185,10 @@ function zzform($zz = array()) {
 		$ops['output'] .= zz_error_output(); // initialise zz_error
 	}	
 	
-	if ($zz_conf['generate_output'])
-		$zz_conf['heading'] = zz_output_heading($zz['table']);
+	if ($zz_conf['generate_output']) {
+		if (!isset($zz['title'])) $zz['title'] = NULL;
+		$ops['heading'] = zz_output_heading($zz['title'], $zz['table']);
+	}
 
 	//	Translation module
 	//	check whether or not to include default translation subtables
@@ -267,11 +270,11 @@ function zzform($zz = array()) {
 //	page output
 	if ($zz_conf['generate_output'] AND ($zz_conf['show_record'] OR $zz_conf['show_list'])) {
 		// make nicer headings
-		$zz_conf['heading'] = zz_nice_headings($zz_conf['heading'], $zz['fields'], $zz_var['where_condition']);
+		$ops['heading'] = zz_nice_headings($ops['heading'], $zz['fields'], $zz_var['where_condition']);
 		// provisional title, in case errors occur
-		$ops['title'] = strip_tags($zz_conf['heading']);
-		if (trim($zz_conf['heading']))
-			$ops['output'].= "\n".'<h1>'.$zz_conf['heading'].'</h1>'."\n\n";
+		$ops['title'] = strip_tags($ops['heading']);
+		if (trim($ops['heading']))
+			$ops['output'].= "\n".'<h1>'.$ops['heading'].'</h1>'."\n\n";
 		if ($zz_conf['heading_text'] 
 			AND (!$zz_conf['heading_text_hidden_while_editing'] OR $ops['mode'] == 'list_only')) 
 			$ops['output'] .= zz_format($zz_conf['heading_text']);
@@ -468,8 +471,8 @@ function zzform($zz = array()) {
 	if ($zz_error['error']) return zzform_exit($ops); // critical error: exit;
 
 	// set title
-	if ($zz_conf['heading']) {
-		$ops['title'] = zz_nice_title($zz_conf['heading'], $zz['fields'], $zz_var, $ops['mode']);
+	if ($ops['heading']) {
+		$ops['title'] = zz_nice_title($ops['heading'], $zz['fields'], $zz_var, $ops['mode']);
 	}
 	return zzform_exit($ops);
 }
@@ -997,9 +1000,10 @@ function zz_meta_tags() {
  * change some values, just for backwards compatibility
  *
  * @param array $zz_conf
+ * @param array $zz
  * @return array
  */
-function zz_backwards($zz_conf) {
+function zz_backwards($zz_conf, $zz) {
 	$headings = array('var', 'sql', 'enum', 'link', 'link_no_append');
 	foreach ($headings as $suffix) {
 		if (isset($zz_conf['heading_'.$suffix])) {
@@ -1012,7 +1016,12 @@ function zz_backwards($zz_conf) {
 			}
 		}
 	}
-	return $zz_conf;
+	if (isset($zz_conf['heading'])) {
+		$zz['title'] = $zz_conf['heading'];
+		unset($zz_conf['heading']);
+		wrap_error(sprintf('Use of deprecated variable $zz_conf["heading"], use $zz["title"] instead. (URL: %s)', $_SERVER['REQUEST_URI']));
+	}
+	return array($zz_conf, $zz);
 }
 
 /**

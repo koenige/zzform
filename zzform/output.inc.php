@@ -17,18 +17,17 @@
 /**
  * format a provisional heading if errors occur
  *
+ * @param string $heading ($ops['heading'], from $zz['title'])
  * @param string $table table name as set in $zz['table']
  * @global array $zz_conf 'heading'
  * @return string $heading
  */
-function zz_output_heading($table = '') {
+function zz_output_heading($heading, $table = '') {
 	global $zz_conf;
-	if (!isset($zz_conf['heading'])) {
+	if (!isset($heading)) {
 		$heading = $table;
 		$heading = str_replace('_', ' ', $heading);
 		$heading = ucfirst($heading);
-	} else {
-		$heading = $zz_conf['heading'];
 	}
 	if ($zz_conf['multilang_fieldnames']) {
 		$heading = zz_text($heading);
@@ -42,7 +41,7 @@ function zz_output_heading($table = '') {
 /** 
  * Formats a heading for WHERE-conditions
  *
- * @param string $heading ($zz_conf['heading'])
+ * @param string $heading ($ops['heading'])
  * @param array $zz_fields
  * @param array $where_condition, optional
  * @global array $zz_conf
@@ -308,7 +307,7 @@ function zz_output_redirect($result, $return, $id_value, $zz_tab) {
 /**
  * Output for HTML title element
  *
- * @param string $heading ($zz_conf['heading'])
+ * @param string $heading ($ops['heading'])
  * @param array $zz['fields']
  * @param array $zz_var
  *		'where_with_unique_id', 'limit_total_rows', 'id'
