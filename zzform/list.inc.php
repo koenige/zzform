@@ -36,24 +36,6 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	global $zz_error;
 	$zz_conf['int']['no_add_button_so_far'] = true;
 
-	// check 'group'
-	if (!empty($_GET['group'])) {
-		foreach ($zz['fields_in_list'] as $field) {
-			if ((isset($field['display_field']) && $field['display_field'] === $_GET['group'])
-				OR (isset($field['field_name']) && $field['field_name'] === $_GET['group'])
-			) {
-				if (isset($field['order'])) $zz_conf['group'] = $field['order'];
-				else $zz_conf['group'] = $_GET['group'];
-			}
-		}
-	}
-
-	// allow $zz_conf['group'] to be a string
-	if (!is_array($zz_conf['group']) AND $zz_conf['group'])
-		$zz_conf['group'] = array($zz_conf['group']);
-	// initialize internal group_field_no
-	$zz_conf['int']['group_field_no'] = array();
-
 	// Turn off hierarchical sorting when using search
 	// @todo: implement hierarchical view even when using search
 	if (!empty($_GET['q']) AND $zz_conf['search'] AND $zz_conf['show_hierarchy']) {
@@ -146,8 +128,13 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		unset($lines[0]);
 		if ($zz_conf['modules']['debug']) zz_debug('list definitions set');
 
+		$list = zz_list_set($zz);
+
+		// mark fields as 'show_field' corresponding to grouping
+		$table_defs = zz_list_show_group_fields($table_defs);
+
 		list($rows, $list) = zz_list_data(
-			$zz, $lines, $table_defs, $zz_var, $zz_conditions, $ops['mode']
+			$list, $lines, $table_defs, $zz_var, $zz_conditions, $zz['table'], $ops['mode']
 		);
 		unset($lines);
 
@@ -357,31 +344,24 @@ function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $id_field
 	// $line_defs[1], [2], [3] ... are set
 	$fields_in_list = $line_defs[0]; // for search form
 	unset($line_defs);
-	// mark fields as 'show_field' corresponding to grouping
-	$table_defs = zz_list_show_group_fields($table_defs);
 	return array($table_defs, $fields_in_list);
 }
 
 /**
- * prepare data for list view
+ * set default values for $list with some data
  *
- * @param array $zz
- * @param array $lines
- * @param array $table_defs
- * @param array $zz_var
- * @param array $zz_conditions
- * @param string $mode ($ops['mode'])
- * @global array $zz_conf
- * @global array $zz_error
+ * @param array $zz => $zz['list'] will be used as default
  * @return array
- *		- array $rows data organized in rows
- *		- array $list with some additional information on how to output list
+ *		int 'current_record'
+ *		array 'sum'
+ *		array 'sum_group'
+ *		bool 'modes'
+ *		bool 'details'
+ *		bool 'tfoot'
  */
-function zz_list_data($zz, $lines, $table_defs, $zz_var, $zz_conditions, $mode) {
+function zz_list_set($zz) {
 	global $zz_conf;
-	global $zz_error;
-	
-	$rows = array();
+
 	$list = !empty($zz['list']) ? $zz['list'] : array();
 	// defaults, might be overwritten by $zz['list']
 	$list = array_merge(array(
@@ -392,6 +372,49 @@ function zz_list_data($zz, $lines, $table_defs, $zz_var, $zz_conditions, $mode) 
 		'details' => false, // don't show a table head for link to details until necessary
 		'tfoot' => false // shows table foot, e. g. for sums of individual values
 	), $list);
+
+	// check 'group'
+	if (!empty($_GET['group'])) {
+		foreach ($zz['fields_in_list'] as $field) {
+			if ((isset($field['display_field']) && $field['display_field'] === $_GET['group'])
+				OR (isset($field['field_name']) && $field['field_name'] === $_GET['group'])
+			) {
+				if (isset($field['order'])) $zz_conf['group'] = $field['order'];
+				else $zz_conf['group'] = $_GET['group'];
+			}
+		}
+	}
+	
+	// allow $zz_conf['group'] to be a string
+	if (!is_array($zz_conf['group']) AND $zz_conf['group'])
+		$zz_conf['group'] = array($zz_conf['group']);
+	// initialize internal group_field_no
+	$zz_conf['int']['group_field_no'] = array();
+
+	return $list;
+}
+
+/**
+ * prepare data for list view
+ *
+ * @param array $list
+ * @param array $lines
+ * @param array $table_defs
+ * @param array $zz_var
+ * @param array $zz_conditions
+ * @param string $table ($zz['table'])
+ * @param string $mode ($ops['mode'])
+ * @global array $zz_conf
+ * @global array $zz_error
+ * @return array
+ *	- array $rows data organized in rows
+ *	- array $list with some additional information on how to output list
+ */
+function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $table, $mode) {
+	global $zz_conf;
+	global $zz_error;
+	
+	$rows = array();
 	$subselects = array();
 	$ids = array();
 	$z = 0;
@@ -467,7 +490,7 @@ function zz_list_data($zz, $lines, $table_defs, $zz_var, $zz_conditions, $mode) 
 			}
 			$my_row = isset($rows[$z][$fieldindex]) ? $rows[$z][$fieldindex] : array();
 			$rows[$z][$fieldindex] = zz_list_field(
-				$my_row, $field, $line, $lastline, $zz_var, $zz['table'], $mode, $zz_conf_record
+				$my_row, $field, $line, $lastline, $zz_var, $table, $mode, $zz_conf_record
 			);
 
 			// Sums
