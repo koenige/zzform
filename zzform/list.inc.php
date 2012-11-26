@@ -759,7 +759,12 @@ function zz_list_filter_sql($sql) {
 		if (empty($filter['where'])) continue;
 		if (!isset($filter['default_selection'])) $filter['default_selection'] = '';
 		
-		if (false !== zz_in_array_str($_GET['filter'][$filter['identifier']], array_keys($filter['selection']))
+		if ($filter['type'] === 'show_hierarchy'
+			AND false !== zz_in_array_str($_GET['filter'][$filter['identifier']], array_keys($filter['selection']))
+		) {
+			$filter_value = $_GET['filter'][$filter['identifier']];
+			$sql = zz_edit_sql($sql, 'WHERE', $filter['where'].' = "'.$filter_value.'"');
+		} elseif (false !== zz_in_array_str($_GET['filter'][$filter['identifier']], array_keys($filter['selection']))
 			AND $filter['type'] === 'list') {
 			// it's a valid filter, so apply it.
 			$filter_value = $_GET['filter'][$filter['identifier']];
