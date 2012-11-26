@@ -395,9 +395,12 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 	// this is for 0 0 main record:
 	$row_display = $my_rec['access'] ? $my_rec['access'] : $display;
 
+	$multiple = !empty($zz_var['id']['values']) ? true : false;
 	foreach ($my_rec['fields'] as $fieldkey => $field) {
 		if (!$field) continue;
 		if (!empty($field['hide_in_form'])) continue;
+		if (isset($field['multiple_edit']) AND !$field['multiple_edit']
+			AND $multiple) continue;
 		if (!empty($field['hide_in_form_add']) AND empty($my_rec['id']['value'])) {
 			continue;
 		}
