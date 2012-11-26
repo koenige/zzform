@@ -17,6 +17,7 @@
 // access restriction has to be set in the file including this file
 // Bitte Zugriffsbeschränkungen in der Datei, die diese einbindet, definieren!
 
+$zz['title'] = 'Database Table Relations';
 $zz['table'] = $zz_conf['relations_table'];
 
 $zz['fields'][1]['title'] = 'ID';
@@ -109,7 +110,6 @@ $zz['fields'][9]['hide_in_list'] = true;
 $zz['sql'] = 'SELECT * FROM '.$zz_conf['relations_table'];
 $zz['sqlorder'] = ' ORDER BY rel_id';
 
-$zz_conf['heading'] = 'Database Table Relations';
 $zz_conf['multilang_fieldnames'] = true;
 $zz_conf['max_select'] = 200;
 $zz_conf['limit'] = 20;

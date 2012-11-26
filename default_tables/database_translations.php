@@ -17,6 +17,7 @@
 // access restriction has to be set in the file including this file
 // Bitte Zugriffsbeschränkungen in der Datei, die diese einbindet, definieren!
 
+$zz['title'] = 'Translations';
 $zz['table'] = $zz_conf['translations_table'];
 
 $zz['fields'][1]['title'] = 'ID';
@@ -56,7 +57,6 @@ $zz['fields'][9]['enum'] = array('varchar', 'text');
 $zz['sql'] = 'SELECT * FROM '.$zz_conf['translations_table'].'
 	ORDER BY db_name, table_name, field_name';
 
-$zz_conf['heading'] = 'Translations';
 $zz_conf['max_select'] = 100;
 $zz_conf['delete'] = true;
 

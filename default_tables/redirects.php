@@ -17,6 +17,7 @@
 // access restriction has to be set in the file including this file
 // Bitte Zugriffsbeschränkungen in der Datei, die diese einbindet, definieren!
 
+$zz['title'] = 'Redirects';
 $zz['table'] = '/*_PREFIX_*/redirects';
 
 $zz['fields'][1]['title'] = 'ID';
@@ -51,7 +52,6 @@ $zz['sql'] = 'SELECT *
 $zz['sqlorder'] = ' ORDER BY old_url, new_url';
 
 
-$zz_conf['heading'] = 'Redirects';
 $zz_conf['heading_text'] = '%%% text Information about redirects %%%';
 $zz_conf['multilang_fieldnames'] = true;
 $zz_conf['group'] = 'area';

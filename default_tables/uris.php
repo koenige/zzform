@@ -17,6 +17,7 @@
 // access restriction has to be set in the file including this file
 // Bitte Zugriffsbeschränkungen in der Datei, die diese einbindet, definieren!
 
+$zz['title'] = 'URIs';
 $zz['table'] = '/*_PREFIX_*/_uris';
 
 $zz['fields'][1]['title'] = 'ID';
@@ -104,7 +105,6 @@ $zz['sql'] = 'SELECT *
 $zz['sqlorder'] = ' ORDER BY uri_host, uri_path, uri_query';
 
 
-$zz_conf['heading'] = 'URIs';
 $zz_conf['multilang_fieldnames'] = true;
 $zz_conf['group'] = 'uri_host';
 

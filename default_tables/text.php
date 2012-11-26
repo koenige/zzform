@@ -17,6 +17,7 @@
 // access restriction has to be set in the file including this file
 // Bitte Zugriffsbeschränkungen in der Datei, die diese einbindet, definieren!
 
+$zz['title'] = 'Text';
 $zz['table'] = $zz_conf['text_table'];
 
 $zz['fields'][1]['title'] = 'ID';
@@ -43,7 +44,6 @@ $zz['fields'][20]['hide_in_list'] = true;
 $zz['sql'] = 'SELECT * FROM '.$zz_conf['text_table'].'
 	ORDER BY area, text';
 
-$zz_conf['heading'] = 'Text';
 $zz_conf['delete'] = true;
 $zz_conf['group'] = 'area';
 
