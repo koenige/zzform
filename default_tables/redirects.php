@@ -18,6 +18,7 @@
 // Bitte Zugriffsbeschränkungen in der Datei, die diese einbindet, definieren!
 
 $zz['title'] = 'Redirects';
+$zz['explanation'] = '%%% text Information about redirects %%%';
 $zz['table'] = '/*_PREFIX_*/redirects';
 
 $zz['fields'][1]['title'] = 'ID';
@@ -46,13 +47,11 @@ $zz['fields'][20]['field_name'] = 'last_update';
 $zz['fields'][20]['type'] = 'timestamp';
 $zz['fields'][20]['hide_in_list'] = true;
 
-
 $zz['sql'] = 'SELECT * 
 	FROM /*_PREFIX_*/redirects';
 $zz['sqlorder'] = ' ORDER BY old_url, new_url';
 
 
-$zz_conf['heading_text'] = '%%% text Information about redirects %%%';
 $zz_conf['multilang_fieldnames'] = true;
 $zz_conf['group'] = 'area';
 

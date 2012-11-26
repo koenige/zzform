@@ -181,11 +181,12 @@ function zz_export_links($url, $querystring) {
  *		$ops['output']['rows'] = Table data, lines 0...n, each line has fields
  *			with numerical index corresponding to 'head', each field is array
  *			made of 'class' (= HTML attribute values) and 'text' (= content)
+ * @param array $zz
  * @global array $zz_conf
  *		$zz_conf['int']['export_script']
  * @return mixed void (direct output) or array $ops
  */
-function zz_export($ops) {
+function zz_export($ops, $zz) {
 	global $zz_conf;
 	// check if we have data
 	if (!$zz_conf['show_list']) return false;
@@ -216,7 +217,7 @@ function zz_export($ops) {
 		echo 'Sorry, standard PDF support is not yet available. Please use a custom script.';
 		exit;
 	case 'kml':
-		$ops['output'] = zz_export_kml($ops);
+		$ops['output'] = zz_export_kml($ops, $zz);
 		return $ops;
 	}
 }
@@ -227,16 +228,16 @@ function zz_export($ops) {
  * custom function (see zz_export())
  *
  * @param array $ops
+ * @param array $zz
  * @global array $zz_conf
  * @global array $zz_setting
  * @return array $ops
  */
-function zz_export_kml($ops) {
-	global $zz_conf;
+function zz_export_kml($ops, $zz) {
 	global $zz_setting;
 	
 	$kml['title'] = utf8_encode(zz_nice_title($ops['heading'], $ops['output']['head']));
-	$kml['description'] = zz_format($zz_conf['heading_text']);
+	$kml['description'] = zz_format($zz['explanation']);
 	$kml['styles'] = array();
 	$kml['placemarks'] = array();
 	
