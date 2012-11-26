@@ -269,7 +269,7 @@ function zzform($zz = array()) {
 		// make nicer headings
 		$zz_conf['heading'] = zz_nice_headings($zz_conf['heading'], $zz['fields'], $zz_var['where_condition']);
 		// provisional title, in case errors occur
-		$zz_conf['title'] = strip_tags($zz_conf['heading']);
+		$ops['title'] = strip_tags($zz_conf['heading']);
 		if (trim($zz_conf['heading']))
 			$ops['output'].= "\n".'<h1>'.$zz_conf['heading'].'</h1>'."\n\n";
 		if ($zz_conf['heading_text'] 
@@ -469,7 +469,7 @@ function zzform($zz = array()) {
 
 	// set title
 	if ($zz_conf['heading']) {
-		$zz_conf['title'] = zz_nice_title($zz_conf['heading'], $zz['fields'], $zz_var, $ops['mode']);
+		$ops['title'] = zz_nice_title($zz_conf['heading'], $zz['fields'], $zz_var, $ops['mode']);
 	}
 	return zzform_exit($ops);
 }
