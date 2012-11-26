@@ -269,13 +269,13 @@ function zzform($zz = array()) {
 //	page output
 	if ($zz_conf['generate_output'] AND ($zz_conf['show_record'] OR $zz_conf['show_list'])) {
 		// make nicer headings
-		$ops['heading'] = zz_nice_headings($ops['heading'], $zz['fields'], $zz_var['where_condition']);
+		$ops['heading'] = zz_nice_headings($ops['heading'], $zz, $zz_var['where_condition']);
 		// provisional title, in case errors occur
 		$ops['title'] = strip_tags($ops['heading']);
 		if (trim($ops['heading']))
 			$ops['output'].= "\n".'<h1>'.$ops['heading'].'</h1>'."\n\n";
 		if ($zz['explanation'] 
-			AND (!$zz_conf['heading_text_hidden_while_editing'] OR $ops['mode'] == 'list_only')) 
+			AND (!$zz['explanation_hidden_while_editing'] OR $ops['mode'] == 'list_only')) 
 			$ops['output'] .= zz_format($zz['explanation']);
 	}
 	if ($post_too_big) {
@@ -583,8 +583,12 @@ function zz_valid_request($action = false) {
  * @return array
  */
 function zz_defaults($zz) {
-	if (!isset($zz['title'])) $zz['title'] = NULL;
-	if (!isset($zz['explanation'])) $zz['explanation'] = '';
+	if (!isset($zz['title']))
+		$zz['title'] = NULL;
+	if (!isset($zz['explanation']))
+		$zz['explanation'] = '';
+	if (!isset($zz['explanation_hidden_while_editing']))
+		$zz['explanation_hidden_while_editing'] = false;
 	return $zz;
 }
 
@@ -714,7 +718,6 @@ function zz_initialize($mode = false) {
 	$zz_default['hash_cost_log2']		= 8;
 	$zz_default['hash_portable']		= false;
 	$zz_default['hash_password']		= 'md5';
-	$zz_default['heading_text_hidden_while_editing'] 	= false;
 	$zz_default['heading_prefix']		= false;
 	$zz_default['html_autofocus']		= true;
 	$zz_default['limit']				= false;	// only n records are shown at once
@@ -1018,17 +1021,21 @@ function zz_backwards($zz_conf, $zz) {
 	foreach ($headings as $suffix) {
 		if (isset($zz_conf['heading_'.$suffix])) {
 			if (function_exists('wrap_error')) {
-				wrap_error(sprintf('Use of deprecated variable $zz_conf["heading_'.$suffix.'"] (URL: %s)', $_SERVER['REQUEST_URI']));
+				wrap_error(sprintf(
+					'Use of deprecated variable $zz_conf["heading_%s"], use $zz["subtitle"][$key][%s] instead. (URL: %s)',
+					$suffix, $suffix, $_SERVER['REQUEST_URI']));
 			}
 			foreach ($zz_conf['heading_'.$suffix] as $field => $value) {
-				$zz_conf['heading_sub'][$field][$suffix] = $value;
+				$zz['subtitle'][$field][$suffix] = $value;
 				unset ($zz_conf['heading_'.$suffix][$field]);
 			}
 		}
 	}
 	$moved_to_zz = array(
 		'heading' => 'title',
-		'heading_text' => 'explanation'
+		'heading_text' => 'explanation',
+		'heading_text_hidden_while_editing', 'explanation_hidden_while_editing',
+		'heading_sub' => 'subtitle'
 	);
 	foreach ($moved_to_zz as $old => $new) {
 		if (isset($zz_conf[$old])) {

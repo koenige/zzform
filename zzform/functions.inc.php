@@ -787,16 +787,19 @@ function zz_hash($zz, $zz_conf) {
 	// get rid of varying and internal settings
 	// get rid of configuration settings which are not important for
 	// the definition of the database table(s)
-	$uninteresting_zzform_keys = array(
-		'zzform_calls', 'int', 'id', 'footer_text',
-		'additional_text', 'breadcrumbs', 'dont_show_title_as_breadcrumb',
-		'error_handling', 'error_log', 'format', 'group_html_table',
-		'heading_sub', 'heading_text_hidden_while_editing', 'list_display',
+	$uninteresting_zz_conf_keys = array(
+		'zzform_calls', 'int', 'id', 'footer_text', 'additional_text', 
+		'breadcrumbs', 'dont_show_title_as_breadcrumb', 'error_handling',
+		 'error_log', 'format', 'group_html_table', 'list_display',
 		'limit_display', 'logging', 'logging_id', 'logging_table',
-		'log_missing_text', 'mail_subject_prefix', 'title', 'title_separator',
+		'log_missing_text', 'mail_subject_prefix', 'title_separator',
 		'referer', 'access', 'heading_prefix'
 	);
-	foreach ($uninteresting_zzform_keys as $key) unset($zz_conf[$key]);
+	foreach ($uninteresting_zz_conf_keys as $key) unset($zz_conf[$key]);
+	$uninteresting_zz_keys = array(
+		'title', 'explanation', 'subtitle', 'explanation_hidden_while_editing'
+	);
+	foreach ($uninteresting_zz_keys as $key) unset($zz[$key]);
 	$my['zz'] = $zz;
 	$my['zz_conf'] = $zz_conf;
 	$hash = sha1(serialize($my));

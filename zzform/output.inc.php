@@ -42,14 +42,14 @@ function zz_output_heading($heading, $table = '') {
  * Formats a heading for WHERE-conditions
  *
  * @param string $heading ($ops['heading'])
- * @param array $zz_fields
+ * @param array $zz
  * @param array $where_condition, optional
  * @global array $zz_conf
  * @global array $zz_error
  * @return string $heading
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_nice_headings($heading, $zz_fields, $where_condition = array()) {
+function zz_nice_headings($heading, $zz, $where_condition = array()) {
 	global $zz_conf;
 	global $zz_error;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
@@ -61,9 +61,9 @@ function zz_nice_headings($heading, $zz_fields, $where_condition = array()) {
 		$wh = explode('.', $mywh);
 		if (!isset($wh[1])) $index = 0; // without .
 		else $index = 1;
-		if (!isset($zz_conf['heading_sub'][$wh[$index]]['var'])) continue;
+		if (!isset($zz['subtitle'][$wh[$index]]['var'])) continue;
 		$heading_addition[$i] = false;
-		$subheading = $zz_conf['heading_sub'][$wh[$index]];
+		$subheading = $zz['subtitle'][$wh[$index]];
 		if (isset($subheading['sql']) AND $where_condition[$mywh]) {
 			// only if there is a value! (might not be the case if 
 			// write_once-fields come into play)
@@ -73,7 +73,7 @@ function zz_nice_headings($heading, $zz_fields, $where_condition = array()) {
 				$mywh.' = '.zz_db_escape($where_condition[$mywh]));
 			$wh_sql .= ' LIMIT 1';
 			//	if key_field_name is set
-			foreach ($zz_fields as $field)
+			foreach ($zz['fields'] as $field)
 				if (isset($field['field_name']) && $field['field_name'] == $wh[$index])
 					if (isset($field['key_field_name']))
 						$wh_sql = str_replace($wh[$index], $field['key_field_name'], $wh_sql);
