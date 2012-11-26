@@ -749,7 +749,6 @@ function zz_initialize($mode = false) {
 	$zz_default['show_list_while_edit'] = true;	
 	$zz_default['show_list']		= true;		// display list of records in database				
 	$zz_default['show_output']		= true;		// ECHO output or keep it in $ops['output']
-	$zz_default['tfoot']			= false;  	// shows table foot, e. g. for sums of individual values
 	$zz_default['title_separator']	= ' &#8211; ';
 	$zz_default['thousands_separator']	= ' ';
 	$zz_default['user']				= (isset($_SERVER['PHP_AUTH_USER'])) ? $_SERVER['PHP_AUTH_USER'] : '';
@@ -1037,11 +1036,17 @@ function zz_backwards($zz_conf, $zz) {
 		'heading_text' => 'explanation',
 		'heading_text_hidden_while_editing', 'explanation_hidden_while_editing',
 		'heading_sub' => 'subtitle',
-		'action' => 'extra_action'
+		'action' => 'extra_action',
+		'tfoot' => array('list', 'tfoot')
 	);
 	foreach ($moved_to_zz as $old => $new) {
 		if (isset($zz_conf[$old])) {
-			$zz[$new] = $zz_conf[$old];
+			if (is_array($new) AND count($new === 2)) {
+				$zz[$new[0]][$new[1]] = $zz_conf[$old];
+				$new = implode('"]["', $new);
+			} else {
+				$zz[$new] = $zz_conf[$old];
+			}
 			unset($zz_conf[$old]);
 			wrap_error(sprintf(
 				'Use of deprecated variable $zz_conf["%s"], use $zz["%s"] instead. (URL: %s)',

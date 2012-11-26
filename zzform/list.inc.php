@@ -147,7 +147,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		if ($zz_conf['modules']['debug']) zz_debug('list definitions set');
 
 		list($rows, $list) = zz_list_data(
-			$lines, $table_defs, $zz_var, $zz_conditions, $zz['table'], $ops['mode']
+			$zz, $lines, $table_defs, $zz_var, $zz_conditions, $ops['mode']
 		);
 		unset($lines);
 
@@ -365,11 +365,11 @@ function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $id_field
 /**
  * prepare data for list view
  *
+ * @param array $zz
  * @param array $lines
  * @param array $table_defs
  * @param array $zz_var
  * @param array $zz_conditions
- * @param string $table ($zz['table'])
  * @param string $mode ($ops['mode'])
  * @global array $zz_conf
  * @global array $zz_error
@@ -377,18 +377,21 @@ function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $id_field
  *		- array $rows data organized in rows
  *		- array $list with some additional information on how to output list
  */
-function zz_list_data($lines, $table_defs, $zz_var, $zz_conditions, $table, $mode) {
+function zz_list_data($zz, $lines, $table_defs, $zz_var, $zz_conditions, $mode) {
 	global $zz_conf;
 	global $zz_error;
 	
 	$rows = array();
-	$list = array(
+	$list = !empty($zz['list']) ? $zz['list'] : array();
+	// defaults, might be overwritten by $zz['list']
+	$list = array_merge(array(
 		'current_record' => NULL,
 		'sum' => array(),
 		'sum_group' => array(),
 		'modes' => false, // don't show a table head for link to modes until necessary
-		'details' => false // don't show a table head for link to details until necessary
-	);
+		'details' => false, // don't show a table head for link to details until necessary
+		'tfoot' => false // shows table foot, e. g. for sums of individual values
+	), $list);
 	$subselects = array();
 	$ids = array();
 	$z = 0;
@@ -464,7 +467,7 @@ function zz_list_data($lines, $table_defs, $zz_var, $zz_conditions, $table, $mod
 			}
 			$my_row = isset($rows[$z][$fieldindex]) ? $rows[$z][$fieldindex] : array();
 			$rows[$z][$fieldindex] = zz_list_field(
-				$my_row, $field, $line, $lastline, $zz_var, $table, $mode, $zz_conf_record
+				$my_row, $field, $line, $lastline, $zz_var, $zz['table'], $mode, $zz_conf_record
 			);
 
 			// Sums
@@ -2627,7 +2630,7 @@ function zz_list_table($list, $rows, $head) {
 	//
 	// Table footer
 	//
-	if (($zz_conf['tfoot'] AND $list['sum'])
+	if (($list['tfoot'] AND $list['sum'])
 		OR $zz_conf['select_multiple_records']) {
 		$output .= '<tfoot>'."\n";
 		if ($list['sum']) {
@@ -2666,7 +2669,7 @@ function zz_list_table($list, $rows, $head) {
 				$my_groups = $rowgroup;
 				$my_old_groups = $row['group'];
 				while ($my_groups) {
-					if ($zz_conf['tfoot'])
+					if ($list['tfoot'])
 						$output .= zz_list_group_foot($my_groups, $head, count($rows), $list['where_values'], $list['sum_group']);
 					array_pop($my_groups);
 					array_pop($my_old_groups);
@@ -2701,7 +2704,7 @@ function zz_list_table($list, $rows, $head) {
 			$output .= '<td class="editbutton">'.$row['details'].'</td>';
 		$output .= '</tr>'."\n";
 	}
-	if ($zz_conf['tfoot'] AND $rowgroup) {
+	if ($list['tfoot'] AND $rowgroup) {
 		$my_groups = $rowgroup;
 		while ($my_groups) {
 			$output .= zz_list_group_foot($my_groups, $head, count($rows), $list['where_values'], $list['sum_group']);
