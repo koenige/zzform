@@ -72,7 +72,7 @@ function zzform($zz = array()) {
 	// set default configuration variables
 	// import modules
 	// set and get URI
-	zz_initialize();
+	zz_initialize(false, $zz);
 	$zz = zz_defaults($zz);
 
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
@@ -599,13 +599,14 @@ function zz_defaults($zz) {
  *
  * @param string $mode (default: false; others: 'overwrite' overwrites $zz_conf
  *		array with $zz_saved)
+ * @param array $zz (optional)
  * @global array $zz_conf
  * @global array $zz_error
  * @global array $zz_saved
  * @global array $zz_debug see zz_debug()
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_initialize($mode = false) {
+function zz_initialize($mode = false, $zz = array()) {
 	global $zz_conf;
 	global $zz_error;
 	global $zz_saved;
@@ -744,7 +745,6 @@ function zz_initialize($mode = false) {
 	$zz_default['search'] 				= false;	// search for records possible or not
 	$zz_default['search_form_always']	= false;
 	$zz_default['select_multiple_records'] = false;
-	$zz_default['show_hierarchy']	= false;
 	$zz_default['show_list_while_edit'] = true;	
 	$zz_default['show_list']		= true;		// display list of records in database				
 	$zz_default['show_output']		= true;		// ECHO output or keep it in $ops['output']
@@ -760,7 +760,7 @@ function zz_initialize($mode = false) {
 	zz_write_defaults($zz_default, $zz_conf);
 
 	if ($zz_conf['generate_output']) {
-		zz_init_limit();
+		zz_init_limit($zz);
 		zz_init_referer();
 
 		// don't show list in case 'nolist' parameter is set
@@ -1053,6 +1053,18 @@ function zz_backwards($zz_conf, $zz) {
 				$old, $new, $_SERVER['REQUEST_URI']
 			));
 		}
+	}
+	if (!empty($zz_conf['show_hierarchy'])) {
+		$zz['list']['hierarchy'] = $zz_conf['hierarchy'];
+		if (is_numeric($zz_conf['show_hierarchy'])) {
+			$zz['list']['hierarchy']['id'] = $zz_conf['show_hierarchy'];
+		}
+		unset($zz_conf['show_hierarchy']);
+		unset($zz_conf['hierarchy']);
+		wrap_error(sprintf(
+			'Use of deprecated variable $zz_conf["show_hierarchy"], use $zz["list"]["hierarchy"] instead. (URL: %s)',
+			$_SERVER['REQUEST_URI']
+		));
 	}
 	return array($zz_conf, $zz);
 }

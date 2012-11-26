@@ -38,8 +38,10 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 
 	// Turn off hierarchical sorting when using search
 	// @todo: implement hierarchical view even when using search
-	if (!empty($_GET['q']) AND $zz_conf['search'] AND $zz_conf['show_hierarchy']) {
-		$zz_conf['show_hierarchy'] = false;
+	if (!isset($zz['list']['hierarchy'])) {
+		$zz['list']['hierarchy'] = array();
+	} elseif (!empty($_GET['q']) AND $zz_conf['search'] AND $zz['list']['hierarchy']) {
+		$zz['list']['hierarchy'] = array();
 	}
 
 	// only if search is allowed and there is something
@@ -63,8 +65,8 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	$zz['sql_without_limit'] = $zz['sql'];
 
 	// Filters
-	// set 'selection', $zz_conf['show_hierarchy']
-	zz_apply_filter();
+	// set 'selection', $zz['list']['hierarchy']
+	$zz = zz_apply_filter($zz);
 	// modify SQL query depending on filter
 	$old_sql = $zz['sql'];
 	$zz['sql'] = zz_list_filter_sql($zz['sql']);
@@ -371,7 +373,8 @@ function zz_list_set($zz) {
 		'modes' => false, // don't show a table head for link to modes until necessary
 		'details' => false, // don't show a table head for link to details until necessary
 		'tfoot' => false, // shows table foot, e. g. for sums of individual values
-		'group' => array()
+		'group' => array(),
+		'hierarchy' => array('display_in' => '')
 	), $list);
 
 	// check 'group'
@@ -491,7 +494,7 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 			}
 			$my_row = isset($rows[$z][$fieldindex]) ? $rows[$z][$fieldindex] : array();
 			$rows[$z][$fieldindex] = zz_list_field(
-				$my_row, $field, $line, $lastline, $zz_var, $table, $mode, $zz_conf_record
+				$list, $my_row, $field, $line, $lastline, $zz_var, $table, $mode, $zz_conf_record
 			);
 
 			// Sums
@@ -853,10 +856,10 @@ function zz_list_query($zz, $id_field) {
 	// Alter SQL query if GET order (AND maybe GET dir) are set
 	$zz['sql'] = zz_sql_order($zz['fields_in_list'], $zz['sql']);
 
-	if (empty($zz_conf['show_hierarchy'])) {
+	if (empty($zz['list']['hierarchy'])) {
 		return array(zz_list_query_flat($zz['sql'], $id_field, $zz['sqlextra']), $total_rows);
 	} else {
-		return zz_list_query_hierarchy($zz['sql'], $id_field, $zz['table'], $zz['sqlextra']);
+		return zz_list_query_hierarchy($zz, $id_field);
 	}
 }
 
@@ -912,30 +915,28 @@ function zz_list_query_extras($lines, $id_field, $extra_sqls) {
 /**
  * Query records for list view, flat mode
  *
- * @param string $sql SQL query ($zz['sql'])
+ * @param array $zz
  * @param string $id_field ($zz_var['id']['field_name'])
- * @param string $table ($zz['table'])
- * @param array $extra_sqls additional SQL queries
  * @global array $zz_conf
  * @return array $lines
  */
-function zz_list_query_hierarchy($sql, $id_field, $table, $extra_sqls) {
+function zz_list_query_hierarchy($zz, $id_field) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	// hierarchical list view
 	// for performance reasons, we only get the fields which are important
 	// for the hierarchy (we need to get all records)
-	$lines = zz_db_fetch($sql, array($id_field, $zz_conf['hierarchy']['mother_id_field_name']), 'key/value'); 
+	$lines = zz_db_fetch($zz['sql'], array($id_field, $zz['list']['hierarchy']['mother_id_field_name']), 'key/value'); 
 	if (!$lines) return zz_return(array(array(), 0));
 
 	$h_lines = array();
 	foreach ($lines as $id => $mother_id) {
 		// sort lines by mother_id
-		if ($zz_conf['show_hierarchy'] === true) 
-			$zz_conf['show_hierarchy'] = 'NULL';
-		if ($id == $zz_conf['show_hierarchy']) {
-			// get uppermost line if show_hierarchy is not NULL!
+		if (empty($zz['list']['hierarchy']['id'])) 
+			$zz['list']['hierarchy']['id'] = 'NULL';
+		if ($id == $zz['list']['hierarchy']['id']) {
+			// get uppermost line if hierarchy id is not NULL!
 			$mother_id = 'TOP';
 		} elseif (empty($mother_id))
 			$mother_id = 'NULL';
@@ -946,9 +947,9 @@ function zz_list_query_hierarchy($sql, $id_field, $table, $extra_sqls) {
 	$lines = array(); // unset and initialize
 	$level = 0; // level (hierarchy)
 	$i = 0; // number of record, for LIMIT
-	$my_lines = zz_list_hierarchy($h_lines, $zz_conf['show_hierarchy'], $id_field, $level, $i);
+	$my_lines = zz_list_hierarchy($h_lines, $zz['list']['hierarchy']['id'], $id_field, $level, $i);
 	$total_rows = $i; // sometimes, more rows might be selected beforehands,
-	// but if show_hierarchy has ID value, not all rows are shown
+	// but if hierarchy has ID value, not all rows are shown
 	if ($my_lines) {
 		if (!$zz_conf['int']['this_limit']) {
 			$start = 0;
@@ -964,22 +965,22 @@ function zz_list_query_hierarchy($sql, $id_field, $table, $extra_sqls) {
 		// for performance reasons, we didn't save the full result set,
 		// so we have to requery it again.
 		if ($zz_conf['int']['this_limit']) {
-			$sql = zz_edit_sql($sql, 'WHERE', '`'.$table.'`.'.$id_field
+			$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', '`'.$zz['table'].'`.'.$id_field
 				.' IN ('.implode(',', array_keys($lines)).')');
 		} // else sql remains same
-		$lines = zz_array_merge($lines, zz_db_fetch($sql, $id_field));
+		$lines = zz_array_merge($lines, zz_db_fetch($zz['sql'], $id_field));
 	}
 	foreach ($lines as $line) {
 		if (empty($line['zz_hidden_line'])) continue;
 		// get record which is normally beyond our scope via ID
-		$sql = zz_edit_sql($sql, 'WHERE', 'nothing', 'delete');
-		$sql = zz_edit_sql($sql, 'WHERE', '`'.$table.'`.'.$id_field.' = "'.$line[$id_field].'"');
-		$line = zz_db_fetch($sql);
+		$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', 'nothing', 'delete');
+		$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', '`'.$zz['table'].'`.'.$id_field.' = "'.$line[$id_field].'"');
+		$line = zz_db_fetch($zz['sql']);
 		if ($line) {
 			$lines[$line[$id_field]] = array_merge($lines[$line[$id_field]], $line);
 		}
 	}
-	$lines = zz_list_query_extras($lines, $id_field, $extra_sqls);
+	$lines = zz_list_query_extras($lines, $id_field, $zz['sqlextra']);
 	return zz_return(array($lines, $total_rows));
 }
 
@@ -1019,6 +1020,7 @@ function zz_list_modes($id, $zz_var, $zz_conf_record) {
 /**
  * Output and formatting of a single table cell in list mode
  *
+ * @param array $list
  * @param array $row
  * @param array $field field definition
  * @param array $line current record from database
@@ -1032,7 +1034,7 @@ function zz_list_modes($id, $zz_var, $zz_conf_record) {
  *		array 'class'	= Array of class names for cell
  *		string 'text'	= HTML output for cell
  */
-function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $zz_conf_record) {
+function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $mode, $zz_conf_record) {
 	global $zz_conf;
 	static $append_field;
 	static $append_string_first;
@@ -1054,7 +1056,7 @@ function zz_list_field($row, $field, $line, $lastline, $zz_var, $table, $mode, $
 	// if table row is affected by where, mark this
 	$where_table = !empty($zz_var['where'][$table]) ? $zz_var['where'][$table] : '';
 	// set class depending on where and field info
-	$field['level'] = zz_list_field_level($field, $line);
+	$field['level'] = zz_list_field_level($list, $field, $line);
 	$row['class'] = array_merge($row['class'], zz_field_class($field, $where_table));
 	if (!empty($field['field_name']) AND !empty($lastline[$field['field_name']]) 
 		AND $row['value'] == $lastline[$field['field_name']]) {
@@ -1312,25 +1314,25 @@ function zz_field_sum($table_defs, $z, $table, $sum) {
  * sorts $lines hierarchically
  *
  * @param array $h_lines
- * @param string $show_hierarchy
+ * @param string $hierarchy ($zz['list']['hierarchy']['id'])
  * @param string $id_field
  * @param int $level
  * @param int $i
  * @return array $my_lines
  */
-function zz_list_hierarchy($h_lines, $show_hierarchy, $id_field, $level, &$i) {
+function zz_list_hierarchy($h_lines, $hierarchy, $id_field, $level, &$i) {
 	$my_lines = array();
 	$show_only = array();
-	if (!$level AND $show_hierarchy != 'NULL' AND !empty($h_lines['TOP'])) {
+	if (!$level AND $hierarchy != 'NULL' AND !empty($h_lines['TOP'])) {
 		// show uppermost line
 		$h_lines['TOP'][0]['zz_level'] = $level;
-		$my_lines[$i][$id_field] = $h_lines['TOP'][$show_hierarchy];
+		$my_lines[$i][$id_field] = $h_lines['TOP'][$hierarchy];
 		// this page has child pages, don't allow deletion
 		$my_lines[$i]['zz_conf']['delete'] = false; 
 		$i++;
 	}
-	if ($show_hierarchy != 'NULL') $level++; // don't indent uppermost level if top category is NULL
-	if ($show_hierarchy == 'NULL' AND empty($h_lines[$show_hierarchy])) {
+	if ($hierarchy != 'NULL') $level++; // don't indent uppermost level if top category is NULL
+	if ($hierarchy == 'NULL' AND empty($h_lines[$hierarchy])) {
 		// Looks like a WHERE condition took some vital records from our hierarchy
 		// at least for the top level, get them back somehow.
 		foreach (array_keys($h_lines) as $main_id) {
@@ -1346,8 +1348,8 @@ function zz_list_hierarchy($h_lines, $show_hierarchy, $id_field, $level, &$i) {
 			$show_only[] = $id;
 		}
 	}
-	if (!empty($h_lines[$show_hierarchy])) {
-		foreach ($h_lines[$show_hierarchy] as $h_line) {
+	if (!empty($h_lines[$hierarchy])) {
+		foreach ($h_lines[$hierarchy] as $h_line) {
 			$my_lines[$i] = array(
 				$id_field => $h_line,
 				'zz_level' => $level
@@ -2477,22 +2479,23 @@ function zz_list_get_subselects($rows, $subselects, $ids) {
 /**
  * sets level for a field where a hierarchy of records shall be displayed in
  *
+ * @param array $list
  * @param array $field
  * @param array $line
  * @global array $zz_conf
  * @return string level or ''
  */
-function zz_list_field_level($field, $line) {
+function zz_list_field_level($list, $field, $line) {
 	if (!isset($line['zz_level'])) return '';
 
 	global $zz_conf;
 	if (!empty($field['decrease_level'])) $line['zz_level'] -= $field['decrease_level'];
 
 	if (!empty($field['field_name']) // occurs in case of subtables
-		AND $field['field_name'] == $zz_conf['hierarchy']['display_in']) {
+		AND $field['field_name'] == $list['hierarchy']['display_in']) {
 		return $line['zz_level'];
 	} elseif (!empty($field['table_name']) 
-		AND $field['table_name'] == $zz_conf['hierarchy']['display_in']) {
+		AND $field['table_name'] == $list['hierarchy']['display_in']) {
 		return $line['zz_level'];
 	}
 	return '';

@@ -435,15 +435,16 @@ function zz_filter_defaults() {
 /**
  * checks filter, gets selection, sets hierarchy values
  *
- * @global array $zz_conf
- *		'filter', 'show_hierarchy' (will be changed if corresponding filter)
+ * @param array $zz
+ * @global array $zz_conf ('filter', might be changed)
  * @global array $zz_error
+ * @return array ($zz, 'hierarchy' will be changed if corresponding filter)
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_apply_filter() {
+function zz_apply_filter($zz) {
 	global $zz_conf;
 	global $zz_error;
-	if (empty($zz_conf['filter'])) return false;
+	if (empty($zz_conf['filter'])) return $zz;
 
 	// set filter for complete form
 	foreach ($zz_conf['filter'] AS $index => &$filter) {
@@ -489,7 +490,7 @@ function zz_apply_filter() {
 			$_GET['filter'][$filter['identifier']], array_keys($filter['selection'])
 		);
 		if ($selection) {
-			$zz_conf['show_hierarchy'] = $selection;
+			$zz['list']['hierarchy']['id'] = $selection;
 		} else {
 			$zz_error[] = array(
 				'msg' => sprintf(zz_text('This filter does not exist: %s'),
@@ -500,6 +501,7 @@ function zz_apply_filter() {
 			$zz_error['error'] = true;
 		}
 	}
+	return $zz;
 }
 
 /**

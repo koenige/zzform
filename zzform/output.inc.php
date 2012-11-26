@@ -664,13 +664,15 @@ function zz_extra_get_params($mode, $zz_conf) {
 /**
  * initializes 'limit' for display of records
  *
+ * @param array $zz (might be empty)
  * @global array $zz_conf
  * @return void
  */
-function zz_init_limit() {
+function zz_init_limit($zz) {
 	global $zz_conf;
-	// set default limit in case 'show_hierarchy' is used because hierarchies need more memory
-	if (!$zz_conf['limit'] AND $zz_conf['show_hierarchy']) $zz_conf['limit'] = 40;
+	// set default limit in case 'hierarchy' is used because hierarchies need more memory
+	if (!$zz_conf['limit'] AND !empty($zz['list']['hierarchy']))
+		$zz_conf['limit'] = 40;
 
 	// get LIMIT from URI
 	if (!$zz_conf['int']['this_limit'] && $zz_conf['limit']) 
