@@ -44,7 +44,7 @@ $text['add'] = 'Hinzuf&uuml;gen';
 $text['a_record'] = 'eines Eintrags';
 $text['add several records'] = 'Mehrere Eintr&auml;ge hinzuf&uuml;gen';
 $text['delete several records'] = 'Mehrere Eintr&auml;ge l&ouml;schen';
-$text['update several records'] = 'Mehrere Eintr&auml;ge bearbeiten';
+$text['edit several records'] = 'Mehrere Eintr&auml;ge bearbeiten';
 $text['failed'] = 'fehlgeschlagen';
 $text['There is no record under this ID:'] = 'Es existiert kein Eintrag unter dieser ID:';
 $text['record_was_updated'] = 'Eintrag wurde aktualisiert';
@@ -64,6 +64,8 @@ $text['Delete record'] = 'Eintrag l&ouml;schen';
 $text['Delete records'] = 'Eintr&auml;ge l&ouml;schen';
 $text['Add record'] = 'Eintrag hinzuf&uuml;gen';
 $text['Add records'] = 'Eintr&auml;ge hinzuf&uuml;gen';
+$text['Edit record'] = 'Eintrag bearbeiten';
+$text['Edit records'] = 'Eintr&auml;ge bearbeiten';
 
 // Record form: field output
 $text['N/A'] = '<abbr title="keine Angabe">k.&nbsp;A.</abbr>'; // no value available for display, should be abbreviated
