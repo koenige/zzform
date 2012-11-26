@@ -49,13 +49,13 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
 			if (!is_numeric($rec)) continue;
 			if (!$tab) {  // main record already assigned
-				if (!empty($zz_conf['action']['upload'])) {
+				if (!empty($zz_tab[0]['extra_action']['upload'])) {
 					$ops = zz_record_info($ops, $zz_tab, $tab, $rec, 'not_validated');
 				}
 				continue;
 			}
 			$zz_tab[$tab][$rec]['POST'] = $zz_tab[$tab]['POST'][$rec];
-			if (!empty($zz_conf['action']['upload'])) {
+			if (!empty($zz_tab[0]['extra_action']['upload'])) {
 				$ops = zz_record_info($ops, $zz_tab, $tab, $rec, 'not_validated');
 			}
 		}
@@ -63,7 +63,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 
 	// get images from different locations than upload
 	// if any other action before insertion/update/delete is required
-	if ($change = zz_action_function('upload', $ops)) {
+	if ($change = zz_action_function('upload', $ops, $zz_tab[0])) {
 		list($ops, $zz_tab) = zz_action_change($ops, $zz_tab, $change);
 		unset($ops['not_validated']);
 		unset($ops['record_old']);
@@ -169,7 +169,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 
 	if ($zz_conf['modules']['debug']) zz_debug("validation successful");
 
-	if (!empty($zz_conf['action']['before_'.$zz_var['action']])) {
+	if (!empty($zz_tab[0]['extra_action']['before_'.$zz_var['action']])) {
 		foreach ($zz_tab as $tab => $my_tab) {
 			foreach ($my_tab as $rec => $my_rec) {
 				if (!is_numeric($rec)) continue;
@@ -200,7 +200,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	}
 
 	// if any other action before insertion/update/delete is required
-	if ($change = zz_action_function('before_'.$zz_var['action'], $ops)) {
+	if ($change = zz_action_function('before_'.$zz_var['action'], $ops, $zz_tab[0])) {
 		list($ops, $zz_tab) = zz_action_change($ops, $zz_tab, $change);
 		// 'planned' is a variable just for custom 'action' scripts
 		unset($ops['planned']);
@@ -419,7 +419,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		}
 	
 		// if any other action after insertion/update/delete is required
-		$change = zz_action_function('after_'.$zz_var['action'], $ops);
+		$change = zz_action_function('after_'.$zz_var['action'], $ops, $zz_tab[0]);
 		list($ops, $zz_tab) = zz_action_change($ops, $zz_tab, $change);
 
 		if (!empty($zz_conf['folder']) && $zz_tab[0][0]['action'] === 'update') {
@@ -607,26 +607,27 @@ function zz_action_details($detail_sqls, $zz_tab, $zz_var, $validation, $ops) {
  * calls a function or includes a file before or after an action takes place
  *
  * @param string $type (upload, before_insert, before_update, before_delete,
- *	'after_insert', 'after_update', 'after_delete', to be set in $zz_conf['action']
+ *	'after_insert', 'after_update', 'after_delete', to be set in $zz['extra_action']
  * @param array $ops
+ * @param array $main_tab = $zz_tab[0]
  * @global array $zz_conf
  * @global array $zz_error (in case custom error message shall be logged)
  * @return mixed bool true if some action was performed; 
  *	array $change if some values need to be changed
  */
-function zz_action_function($type, $ops) {
+function zz_action_function($type, $ops, $main_tab) {
 	global $zz_conf;
 	global $zz_error;
-	if (empty($zz_conf['action'][$type])) return false;
+	if (empty($main_tab['extra_action'][$type])) return false;
 
 	$change = array();
-	$file = $zz_conf['action_dir'].'/'.$zz_conf['action'][$type].'.inc.php';
+	$file = $zz_conf['action_dir'].'/'.$main_tab['extra_action'][$type].'.inc.php';
 	if (file_exists($file)) {
 		// a file has to be included
 		include $file;
 	} else {
 		// it's a function
-		$change = $zz_conf['action'][$type]($ops);
+		$change = $main_tab['extra_action'][$type]($ops);
 	}
 	if ($change) return $change;
 	else return true;

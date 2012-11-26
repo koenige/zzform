@@ -236,6 +236,7 @@ function zzform($zz = array()) {
 		$zz_tab[0]['table_name'] = $zz['table'];
 		$zz_tab[0]['sql'] = $zz['sql'];
 		$zz_tab[0]['sqlextra'] = !empty($zz['sqlextra']) ? $zz['sqlextra'] : array();
+		$zz_tab[0]['extra_action'] = !empty($zz['extra_action']) ? $zz['extra_action'] : array();
 	}
 	
 //	Add, Update or Delete
@@ -1035,7 +1036,8 @@ function zz_backwards($zz_conf, $zz) {
 		'heading' => 'title',
 		'heading_text' => 'explanation',
 		'heading_text_hidden_while_editing', 'explanation_hidden_while_editing',
-		'heading_sub' => 'subtitle'
+		'heading_sub' => 'subtitle',
+		'action' => 'extra_action'
 	);
 	foreach ($moved_to_zz as $old => $new) {
 		if (isset($zz_conf[$old])) {
