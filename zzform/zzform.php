@@ -150,7 +150,7 @@ function zzform($zz = array()) {
 
 	// initalize export module
 	// might set mode to export
-	if (!empty($zz_conf['export'])) $ops = zz_export_init($ops);
+	if (!empty($zz_conf['export'])) list($zz, $ops) = zz_export_init($zz, $ops);
 
 	// set $ops['mode'], $zz_var['action'], ['id']['value'] and $zz_conf for access
 	list($zz, $ops, $zz_var) = zz_record_access($zz, $ops, $zz_var);
@@ -698,7 +698,6 @@ function zz_initialize($mode = false) {
 	$zz_default['details_sql']		= array();
 	$zz_default['details_target']	= false;	// target-window for details link
 	$zz_default['edit']				= true;		// show Action: Edit
-	$zz_default['group']			= false;
 	$zz_default['import']			= false;	// import files
 
 	$zz_default['error_handling']		= 'output';
@@ -1037,7 +1036,8 @@ function zz_backwards($zz_conf, $zz) {
 		'heading_text_hidden_while_editing', 'explanation_hidden_while_editing',
 		'heading_sub' => 'subtitle',
 		'action' => 'extra_action',
-		'tfoot' => array('list', 'tfoot')
+		'tfoot' => array('list', 'tfoot'),
+		'group' => array('list', 'group')
 	);
 	foreach ($moved_to_zz as $old => $new) {
 		if (isset($zz_conf[$old])) {

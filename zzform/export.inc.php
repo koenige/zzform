@@ -42,21 +42,22 @@ $zz_default['export_csv_enclosure'] = '"';
  * initializes export, sets a few variables
  *
  * @param array $ops
+ * @param array $zz
  * @global array $zz_conf
  * @global array $zz_error
- * @return array $ops
+ * @return array $zz, $ops
  */
-function zz_export_init($ops) {
+function zz_export_init($zz, $ops) {
 	global $zz_conf;
 	global $zz_error;
-	if (empty($zz_conf['export'])) return $ops;
+	if (empty($zz_conf['export'])) return array($zz, $ops);
 	
 	//	export
 	if (!empty($_GET['mode']) AND $_GET['mode'] == 'export') {
 		// should not happen, but just in case
 		if (empty($_GET['export'])) $_GET['export'] = 'csv';
 	}
-	if (empty($_GET['export'])) return $ops;
+	if (empty($_GET['export'])) return array($zz, $ops);
 
 	// get type and (optional) script name
 	$export = false;
@@ -80,12 +81,12 @@ function zz_export_init($ops) {
 				.($export ? $export : htmlspecialchars($_GET['export'])).'</code>',
 			'level' => E_USER_NOTICE
 		);
-		return $ops;
+		return array($zz, $ops);
 	}
 	$ops['headers'] = zz_export_headers($export, $zz_conf['character_set']);
 	$ops['mode'] = 'export';
 	$zz_conf['list_display'] = $export;
-	$zz_conf['group'] = false; // no grouping in export files
+	$zz['list']['group'] = array(); // no grouping in export files
 
 	switch ($export) {
 	case 'kml':
@@ -99,7 +100,7 @@ function zz_export_init($ops) {
 		break;
 	}
 
-	return $ops;
+	return array($zz, $ops);
 }
 
 /**

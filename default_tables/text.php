@@ -44,7 +44,8 @@ $zz['fields'][20]['hide_in_list'] = true;
 $zz['sql'] = 'SELECT * FROM '.$zz_conf['text_table'].'
 	ORDER BY area, text';
 
+$zz['list']['group'] = 'area';
+
 $zz_conf['delete'] = true;
-$zz_conf['group'] = 'area';
 
 ?>

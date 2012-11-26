@@ -790,14 +790,15 @@ function zz_hash($zz, $zz_conf) {
 	$uninteresting_zz_conf_keys = array(
 		'zzform_calls', 'int', 'id', 'footer_text', 'additional_text', 
 		'breadcrumbs', 'dont_show_title_as_breadcrumb', 'error_handling',
-		 'error_log', 'format', 'group_html_table', 'list_display',
+		'error_log', 'format', 'group_html_table', 'list_display',
 		'limit_display', 'logging', 'logging_id', 'logging_table',
 		'log_missing_text', 'mail_subject_prefix', 'title_separator',
 		'referer', 'access', 'heading_prefix'
 	);
 	foreach ($uninteresting_zz_conf_keys as $key) unset($zz_conf[$key]);
 	$uninteresting_zz_keys = array(
-		'title', 'explanation', 'subtitle', 'explanation_hidden_while_editing'
+		'title', 'explanation', 'subtitle', 'explanation_hidden_while_editing',
+		'list'
 	);
 	foreach ($uninteresting_zz_keys as $key) unset($zz[$key]);
 	$my['zz'] = $zz;

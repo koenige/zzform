@@ -51,8 +51,8 @@ $zz['sql'] = 'SELECT *
 	FROM /*_PREFIX_*/redirects';
 $zz['sqlorder'] = ' ORDER BY old_url, new_url';
 
+$zz['list']['group'] = 'area';
 
 $zz_conf['multilang_fieldnames'] = true;
-$zz_conf['group'] = 'area';
 
 ?>

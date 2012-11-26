@@ -104,8 +104,9 @@ $zz['sql'] = 'SELECT *
 	FROM /*_PREFIX_*/_uris';
 $zz['sqlorder'] = ' ORDER BY uri_host, uri_path, uri_query';
 
+$zz['list']['group'] = 'uri_host';
+
 
 $zz_conf['multilang_fieldnames'] = true;
-$zz_conf['group'] = 'uri_host';
 
 ?>

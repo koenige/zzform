@@ -131,7 +131,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		$list = zz_list_set($zz);
 
 		// mark fields as 'show_field' corresponding to grouping
-		$table_defs = zz_list_show_group_fields($table_defs);
+		$table_defs = zz_list_show_group_fields($table_defs, $list);
 
 		list($rows, $list) = zz_list_data(
 			$list, $lines, $table_defs, $zz_var, $zz_conditions, $zz['table'], $ops['mode']
@@ -370,7 +370,8 @@ function zz_list_set($zz) {
 		'sum_group' => array(),
 		'modes' => false, // don't show a table head for link to modes until necessary
 		'details' => false, // don't show a table head for link to details until necessary
-		'tfoot' => false // shows table foot, e. g. for sums of individual values
+		'tfoot' => false, // shows table foot, e. g. for sums of individual values
+		'group' => array()
 	), $list);
 
 	// check 'group'
@@ -379,15 +380,15 @@ function zz_list_set($zz) {
 			if ((isset($field['display_field']) && $field['display_field'] === $_GET['group'])
 				OR (isset($field['field_name']) && $field['field_name'] === $_GET['group'])
 			) {
-				if (isset($field['order'])) $zz_conf['group'] = $field['order'];
-				else $zz_conf['group'] = $_GET['group'];
+				if (isset($field['order'])) $list['group'] = $field['order'];
+				else $list['group'] = $_GET['group'];
 			}
 		}
 	}
 	
-	// allow $zz_conf['group'] to be a string
-	if (!is_array($zz_conf['group']) AND $zz_conf['group'])
-		$zz_conf['group'] = array($zz_conf['group']);
+	// allow $list['group'] to be a string
+	if (!is_array($list['group']) AND $list['group'])
+		$list['group'] = array($list['group']);
 	// initialize internal group_field_no
 	$zz_conf['int']['group_field_no'] = array();
 
@@ -435,7 +436,7 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 			}
 		}
 		$def_index = (count($table_defs) > 1) ? $index : 0;
-		$rows[$z]['group'] = zz_list_group_titles($table_defs[$def_index], $line);
+		$rows[$z]['group'] = zz_list_group_titles($list, $table_defs[$def_index], $line);
 		// configuration variables just for this line
 		$zz_conf_record = zz_record_conf($zz_conf);
 		if (!empty($line['zz_conf'])) {
@@ -511,7 +512,7 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 
 			// group: go through everything but don't show it in list
 			// @todo: check that it does not collide with append_next
-			if ($zz_conf['group']) {
+			if ($list['group']) {
 				$pos = array_search($fieldindex, $zz_conf['int']['group_field_no']);
 				if ($pos !== false) {
 					unset($rows[$z][$fieldindex]);
@@ -548,17 +549,18 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 /**
  * gets values for titles for grouping
  *
+ * @param array $list
  * @param array $fields zzform definition for fields of this line
  * @param array $line = current database record
  * @global array $zz_conf
  * @return array ($group)
  */
-function zz_list_group_titles($fields, $line) {
+function zz_list_group_titles($list, $fields, $line) {
 	global $zz_conf;
 	$group = array();
-	if (empty($zz_conf['group'])) return $group;
+	if (!$list['group']) return $group;
 
-	$group_count = count($zz_conf['group']);
+	$group_count = count($list['group']);
 	foreach ($fields as $no => $field) {
 	//	check for group function
 		$pos = array_search($no, $zz_conf['int']['group_field_no']);
@@ -1451,13 +1453,14 @@ function zz_mark_search_string($value, $field_name = false, $field = array()) {
 /**
  * checks field indices of fields which will be grouped
  *
+ * @param array $list
  * @param array $field $zz['fields'][n]-field definition
  * @param int $index index 'n' of $zz['fields']
  * @global array $zz_conf
  *		string 'group', array 'int'['group_field_no'] (will be set to 'n') 
  * @return bool true/false if field will be shown (group: false, otherwise true)
  */
-function zz_list_group_field_no($field, $index) {
+function zz_list_group_field_no($list, $field, $index) {
 	global $zz_conf;
 	if (!isset($zz_conf['int']['group_field_no'])) 
 		$zz_conf['int']['group_field_no'] = array();
@@ -1465,7 +1468,7 @@ function zz_list_group_field_no($field, $index) {
 	// field_name will overwrite display_field!
 	foreach ($keys as $key) {
 		if (empty($field[$key])) continue;
-		$pos = array_search($field[$key], $zz_conf['group']);
+		$pos = array_search($field[$key], $list['group']);
 		if ($pos === false) continue;
 		$zz_conf['int']['group_field_no'][$pos] = $index;
 		ksort($zz_conf['int']['group_field_no']);
@@ -2499,17 +2502,18 @@ function zz_list_field_level($field, $line) {
  * check depending on grouping whether a field will be shown or not
  *
  * @param array $table_defs
+ * @param array $list
  * @global array $zz_conf
  * @return array $table_defs ('show_field' set for each field)
  */
-function zz_list_show_group_fields($table_defs) {
+function zz_list_show_group_fields($table_defs, $list) {
 	global $zz_conf;
 	if (!$zz_conf['show_list']) return $table_defs;
 
 	$show_field = true;
 	foreach ($table_defs[0] as $index => $field) {
-		if ($zz_conf['group']) {
-			$show_field_group = zz_list_group_field_no($field, $index);
+		if ($list['group']) {
+			$show_field_group = zz_list_group_field_no($list, $field, $index);
 			if ($show_field AND !$show_field_group) $show_field = false;
 		}
 		// show or hide field
@@ -2683,8 +2687,8 @@ function zz_list_table($list, $rows, $head) {
 	$output .= '<tbody>'."\n";
 	$rowgroup = false;
 	foreach ($rows as $index => $row) {
-		if ($zz_conf['group'] AND $row['group'] != $rowgroup) {
-			foreach ($zz_conf['group'] as $pos => $my_group) {
+		if ($list['group'] AND $row['group'] != $rowgroup) {
+			foreach ($list['group'] as $pos => $my_group) {
 				if (!empty($row['group'][$pos])) continue;
 				$list['group_titles'][$index][$pos] = zz_text('- unknown -');
 			}
@@ -2753,13 +2757,13 @@ function zz_list_table($list, $rows, $head) {
 function zz_list_ul($list, $rows) {
 	global $zz_conf;
 	$output = '';
-	if (!$zz_conf['group']) {
+	if (!$list['group']) {
 		$output .= '<ul class="data">'."\n";
 	}
 	$rowgroup = false;
 	foreach ($rows as $index => $row) {
-		if ($zz_conf['group'] AND $row['group'] != $rowgroup) {
-			foreach ($zz_conf['group'] as $pos => $my_group) {
+		if ($list['group'] AND $row['group'] != $rowgroup) {
+			foreach ($list['group'] as $pos => $my_group) {
 				if (empty($row['group'][$pos])) 
 					$list['group_titles'][$index][$pos] = zz_text('- unknown -');
 			}
