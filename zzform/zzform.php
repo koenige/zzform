@@ -839,44 +839,21 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 	$int = !empty($zz_conf['int']) ? $zz_conf['int'] : array();
 
 	switch ($type) {
-	case 'form': // hand back form to user, just fill out values
-		// causes not all zz_conf variables to be reset
-		zz_initialize('overwrite');
-		// do not show output as it will be included after page head
-		$zz_conf['show_output'] = false;
-		// no output, so list view is not necessary
-		$zz_conf['show_list'] = false;
-		// set 'multi' we know the operation mode for other scripts
-		$zz_conf['multi'] = true;
-		if (!empty($values['GET'])) $_GET = $values['GET'];
-		if (!empty($values['POST'])) $_POST = $values['POST'];
-		if (!empty($values['FILES'])) $_FILES = $values['FILES'];
-		else $_FILES = array();
-		// set action to form view
-		$_POST['zz_review'] = true;
-		if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
-			$old_id = $zz_conf['id'];	
-			$zz_conf['id'] = $id;
-			zz_debug('before including definition file');
-		}
-		require $zz_conf['form_scripts'].'/'.$definition_file.'.php';
-		if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
-			zz_debug('definition file included');
-			$zz_conf['id'] = $old_id;
-		}
-		// return on error in form script
-		if (!empty($ops['error'])) return $ops;
-		$ops = zzform($zz);
-		break;
 	case 'record':  // one operation only
 		// @todo: so far, we have no support for 'values' for subrecords
 		// @todo: zzform() and zzform_multi() called within an action-script
 		// causes not all zz_conf variables to be reset
+	case 'form': // hand back form to user, just fill out values
 		zz_initialize('overwrite');
-		$zz_conf['generate_output'] = false;
+		if ($type === 'record') {
+			$zz_conf['generate_output'] = false;
+		} else {
+			// no output, so list view is not necessary
+			$zz_conf['show_list'] = false;
+		}
 		// do not show output as it will be included after page head
 		$zz_conf['show_output'] = false;
-		// set 'multi' we know the operation mode for other scripts
+		// set 'multi' so we know the operation mode for other scripts
 		$zz_conf['multi'] = true;
 		if (!empty($values['GET'])) $_GET = $values['GET'];
 		if (!empty($values['POST'])) $_POST = $values['POST'];
@@ -889,8 +866,13 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 				$_POST['zz_check_select'][$field_name] = true;
 			}
 		}
+		if ($type === 'form') {
+			// set action to form view
+			$_POST['zz_review'] = true;
+		}
 		if (!empty($values['FILES'])) $_FILES = $values['FILES'];
 		else $_FILES = array();
+
 		if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
 			$old_id = $zz_conf['id'];	
 			$zz_conf['id'] = $id;
@@ -903,12 +885,27 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 		}
 		// return on error in form script
 		if (!empty($ops['error'])) return $ops;
-		$ops = zzform($zz);
-		// in case zzform was called from within zzform, get the old conf back
-		if ($zz_conf['zzform_calls'] > 1) {
-			$zz_conf = $zz_saved['old_conf'];
+		if (empty($zz) AND !empty($zz_sub)) {
+			$ops = zzform($zz_sub);
+		} elseif (!empty($zz)) {
+			$ops = zzform($zz);
 		} else {
-			$zz_conf['generate_output'] = true;
+			if (function_exists('wrap_error')) {
+				wrap_error(sprintf('No table definition found. Please check file %s.',
+					$definition_file), E_USER_ERROR);
+			} else {
+				// @todo: throw zzform error
+				echo 'No table definition found.';
+				exit;
+			}
+		}
+		if ($type === 'record') {
+			// in case zzform was called from within zzform, get the old conf back
+			if ($zz_conf['zzform_calls'] > 1) {
+				$zz_conf = $zz_saved['old_conf'];
+			} else {
+				$zz_conf['generate_output'] = true;
+			}
 		}
 		break;
 	case 'files':
