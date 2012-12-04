@@ -127,6 +127,10 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 	$zz_conditions = array();
 	foreach ($zz['conditions'] AS $index => $condition) {
 		switch ($condition['scope']) {
+		case 'where':
+			if (!empty($zz_var['where_condition'][$condition['field_name']]))
+				$zz_conditions['bool'][$index] = true;
+			break;
 		case 'record': // for form view (of saved records), list view comes later in zz_list() because requery of record 
 			$zz_conditions['bool'][$index] = array();
 			if (($mode == 'add' OR $zz_var['action'] == 'insert') AND !empty($condition['add'])) {
@@ -382,7 +386,9 @@ function zz_conditions_merge($array, $bool_conditions, $record_id, $reverse = fa
 
 		// if reverse check ('not-condition'), bring all keys to reverse
 		if ($reverse) {
-			if (empty($bool_conditions[$condition][$record_id])) 
+			if ($bool_conditions[$condition] === true)
+				$bool_conditions[$condition] = false;
+			elseif (empty($bool_conditions[$condition][$record_id])) 
 				$bool_conditions[$condition][$record_id] = true;
 			else 
 				$bool_conditions[$condition][$record_id] = false;
@@ -391,7 +397,8 @@ function zz_conditions_merge($array, $bool_conditions, $record_id, $reverse = fa
 			if (empty($bool_conditions[$condition])) continue;
 		}
 		// else check it and if it's true, do something
-		if (!empty($bool_conditions[$condition][$record_id])) {
+		if (!empty($bool_conditions[$condition][$record_id])
+			OR $bool_conditions[$condition] === true) {
 			if ($new_values) {
 				// if normally there is no field like this, you can't show it in list view
 				// it's not necessarily there, this field

@@ -287,19 +287,29 @@ function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $id_field
 	$conditions_applied = array(); // check if there are any conditions
 	foreach ($lines as $index => $line) {
 		$line_defs[$index] = $fields_in_list;
-		if (!$index) continue;
+		// conditions
+		if (empty($zz_conf['modules']['conditions'])) continue;
+		if (!$index) {
+			// only apply conditions to list head if condition
+			// is valid for all records (true instead of array of ids)
+			$my_bool_conditions = array();
+			foreach ($zz_conditions['bool'] as $condition => $ids) {
+				if ($ids === true) $my_bool_conditions[$condition] = true;
+			}
+			if (!$my_bool_conditions) continue;
+		} else {
+			$my_bool_conditions = $zz_conditions['bool'];
+		}
 		foreach ($line_defs[$index] as $fieldindex => $field) {
-			// conditions
-			if (empty($zz_conf['modules']['conditions'])) continue;
 			if (!empty($field['conditions'])) {
 				$line_defs[$index][$fieldindex] = zz_conditions_merge(
-					$field, $zz_conditions['bool'], $line[$id_field]
+					$field, $my_bool_conditions, $line[$id_field]
 				);
 				$conditions_applied[$index] = true;
 			}
 			if (!empty($field['not_conditions'])) {
 				$line_defs[$index][$fieldindex] = zz_conditions_merge(
-					$line_defs[$index][$fieldindex], $zz_conditions['bool'], $line[$id_field], true
+					$line_defs[$index][$fieldindex], $my_bool_conditions, $line[$id_field], true
 				);
 				$conditions_applied[$index] = true;
 			}
