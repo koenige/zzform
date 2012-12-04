@@ -128,7 +128,12 @@ function zz_dependent_modules($zz) {
 			}
 			break;
 		case 'conditions':
-			if (empty($zz['conditions'])) unset($modules[$index]);
+			foreach ($zz['fields'] as $field) {
+				// Look for shortcuts for conditions
+				if (isset($field['conditions']['where'])) break 2;
+			}
+			if (!empty($zz['conditions'])) break;
+			unset($modules[$index]);
 			break;
 		case 'geo':
 			$geo = false;

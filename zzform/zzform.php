@@ -242,7 +242,8 @@ function zzform($zz = array()) {
 //	Add, Update or Delete
 
 	// Module 'conditions': evaluate conditions
-	if (!empty($zz_conf['modules']['conditions']) AND !empty($zz['conditions'])) {
+	if (!empty($zz_conf['modules']['conditions'])) {
+		$zz = zz_conditions_set($zz);
 		if ($zz_conf['modules']['debug']) zz_debug("conditions start");
 		$zz_conditions = zz_conditions_record_check($zz, $ops['mode'], $zz_var);
 	} else {

@@ -10,6 +10,7 @@
  * Contents:
  *	main functions (in order in which they are called)
  *
+ *  zz_conditions_set()
  *	zz_conditions_record()
  *	zz_conditions_record_values()	sets values for record
  *	zz_conditions_record_check()	set conditions for record
@@ -23,6 +24,33 @@
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
+
+/**
+ * set conditions to allow for shortcut conditions
+ *
+ * @param array $zz
+ * @return array
+ *		replace $zz['fields'][n]['conditions']['where'] with index; add $zz['conditions']
+ */
+function zz_conditions_set($zz) {
+	if (!isset($zz['conditions'])) $zz['conditions'] = array();
+	$max_index = 0;
+	foreach (array_keys($zz['conditions']) as $index) {
+		if ($index > $max_index) $max_index = $index;
+	}
+	foreach ($zz['fields'] as $no => $field) {
+		if (isset($field['conditions']['where'])) {
+			$max_index++;
+			$zz['conditions'][$max_index] = array(
+				'scope' => 'where',
+				'field_name' => $field['field_name']
+			);
+			$zz['fields'][$no]['conditions'][$max_index] = $zz['fields'][$no]['conditions']['where'];
+			unset($zz['fields']['conditions']['where']);
+		}
+	}
+	return $zz;
+}
 
 /**
  * applies 'values' and 'bool' conditions to record
