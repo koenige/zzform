@@ -498,7 +498,12 @@ function zz_apply_filter($zz) {
 			$_GET['filter'][$filter['identifier']], array_keys($filter['selection'])
 		);
 		if ($selection) {
-			$zz['list']['hierarchy']['id'] = $selection;
+			if (!empty($zz['list']['hierarchy'])) {
+				$zz['list']['hierarchy']['id'] = $selection;
+			}
+			// @todo: if user searches something, the hierarchical view
+			// will be ignored and therefore this hierarchical filter does
+			// not work. think about a better solution.
 		} else {
 			$zz_error[] = array(
 				'msg' => sprintf(zz_text('This filter does not exist: %s'),
