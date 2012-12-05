@@ -34,19 +34,55 @@
  */
 function zz_conditions_set($zz) {
 	if (!isset($zz['conditions'])) $zz['conditions'] = array();
-	$max_index = 0;
+	
+	// get maximum value for existing index
+	$new_index = 0;
 	foreach (array_keys($zz['conditions']) as $index) {
-		if ($index > $max_index) $max_index = $index;
+		if ($index > $new_index) $new_index = $index;
 	}
-	foreach ($zz['fields'] as $no => $field) {
-		if (isset($field['if']['where'])) {
-			$max_index++;
-			$zz['conditions'][$max_index] = array(
-				'scope' => 'where',
-				'field_name' => $field['field_name']
-			);
-			$zz['fields'][$no]['if'][$max_index] = $zz['fields'][$no]['if']['where'];
-			unset($zz['fields']['if']['where']);
+	$new_index++;
+
+	// All supported shortcuts
+	$shortcuts = array('list_empty', 'record_mode', 'export_mode', 'where');
+	// Some shortcuts depend on a field, get field_name as extra definition
+	$shortcuts_depending_on_fields = array('where');
+
+	$conditions = array('if', 'unless');
+	foreach ($shortcuts as $shortcut) {
+		$has_condition = false;
+		foreach ($conditions as $cn) {
+			// check $zz
+			if (!in_array($shortcut, $shortcuts_depending_on_fields)) {
+				if (isset($zz[$cn][$shortcut])) {
+					$zz[$cn][$new_index] = $zz[$cn][$shortcut];
+					unset($zz[$cn][$shortcut]);
+					$has_condition = true;
+				}
+				// check $zz_conf
+				if (isset($zz_conf[$cn][$shortcut])) {
+					$zz_conf[$cn][$new_index] = $zz_conf[$cn][$shortcut];
+					unset($zz_conf[$cn][$shortcut]);
+					$has_condition = true;
+				}
+			}
+			// check $zz['fields'] individually
+			foreach ($zz['fields'] as $no => $field) {
+				if (isset($field[$cn][$shortcut])) {
+					$zz['fields'][$no][$cn][$new_index] = $field[$cn][$shortcut];
+					unset($zz['fields'][$no][$cn][$shortcut]);
+					if (!in_array($shortcut, $shortcuts_depending_on_fields)) {
+						$has_condition = true;
+					} else {
+						$zz['conditions'][$new_index]['scope'] = $shortcut;
+						$zz['conditions'][$new_index]['field_name'] = $field['field_name'];
+						$new_index++;
+					}
+				}
+			}
+		}
+		if ($has_condition) {
+			$zz['conditions'][$new_index]['scope'] = $shortcut;
+			$new_index++;
 		}
 	}
 	return $zz;
@@ -155,6 +191,24 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 	$zz_conditions = array();
 	foreach ($zz['conditions'] AS $index => $condition) {
 		switch ($condition['scope']) {
+		case 'list_empty':
+			// @todo: not yet implemented
+			// @todo: problem: when this function is called, we do not know
+			// anything about the number of records in list view
+			break;
+		case 'record_mode':
+			if ($mode AND $mode !== 'list_only') {
+				$zz_conditions['bool'][$index] = true;
+			} elseif ($zz_var['action']) {
+				$zz_conditions['bool'][$index] = true;
+			}
+			break;
+		case 'export_mode':
+			// @todo: not yet implemented
+			break;
+		case 'order_by':
+			// @todo: not yet implemented
+			break;
 		case 'where':
 			if (!empty($zz_var['where_condition'][$condition['field_name']]))
 				$zz_conditions['bool'][$index] = true;
