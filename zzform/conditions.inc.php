@@ -30,7 +30,7 @@
  *
  * @param array $zz
  * @return array
- *		replace $zz['fields'][n]['conditions']['where'] with index; add $zz['conditions']
+ *		replace $zz['fields'][n]['if']['where'] with index; add $zz['conditions']
  */
 function zz_conditions_set($zz) {
 	if (!isset($zz['conditions'])) $zz['conditions'] = array();
@@ -39,14 +39,14 @@ function zz_conditions_set($zz) {
 		if ($index > $max_index) $max_index = $index;
 	}
 	foreach ($zz['fields'] as $no => $field) {
-		if (isset($field['conditions']['where'])) {
+		if (isset($field['if']['where'])) {
 			$max_index++;
 			$zz['conditions'][$max_index] = array(
 				'scope' => 'where',
 				'field_name' => $field['field_name']
 			);
-			$zz['fields'][$no]['conditions'][$max_index] = $zz['fields'][$no]['conditions']['where'];
-			unset($zz['fields']['conditions']['where']);
+			$zz['fields'][$no]['if'][$max_index] = $zz['fields'][$no]['if']['where'];
+			unset($zz['fields']['if']['where']);
 		}
 	}
 	return $zz;
@@ -73,7 +73,7 @@ function zz_conditions_record($zz, $zz_conditions, $id_value) {
 			$found = true;
 		} else {
 			foreach (array_keys($zz['fields']) as $no) {
-				if (empty($zz['fields'][$no]['conditions'])) continue;
+				if (empty($zz['fields'][$no]['if'])) continue;
 				$zz['fields'][$no] = zz_conditions_record_values($zz['fields'][$no], $zz_conditions['values']);
 				$found = true;
 			}
@@ -86,10 +86,10 @@ function zz_conditions_record($zz, $zz_conditions, $id_value) {
 	// check if there are any bool-conditions 
 	if (!empty($zz_conditions['bool'])) {
 		foreach (array_keys($zz['fields']) as $no) {
-			if (!empty($zz['fields'][$no]['conditions'])) {
+			if (!empty($zz['fields'][$no]['if'])) {
 				$zz['fields'][$no] = zz_conditions_merge($zz['fields'][$no], $zz_conditions['bool'], $id_value);
 			}
-			if (!empty($zz['fields'][$no]['not_conditions'])) {
+			if (!empty($zz['fields'][$no]['unless'])) {
 				$zz['fields'][$no] = zz_conditions_merge($zz['fields'][$no], $zz_conditions['bool'], $id_value, true);
 			}
 		}
@@ -107,14 +107,14 @@ function zz_conditions_record($zz, $zz_conditions, $id_value) {
  */
 function zz_conditions_record_values($field, $values) {
 	foreach ($values as $condition => $records) {
-		if (empty($field['conditions'][$condition])) continue;
+		if (empty($field['if'][$condition])) continue;
 		$all_values = array();
 		foreach ($records as $record) {
 			foreach ($record as $field_name => $value) {
 				$all_values[$field_name][] = $value;
 			}
 		}
-		if ($all_values) foreach ($field['conditions'][$condition] as $key => $definition) {
+		if ($all_values) foreach ($field['if'][$condition] as $key => $definition) {
 			foreach ($all_values as $field_name => $field_values) {
 				if (!preg_match('~%'.$field_name.'%~', $definition)) continue;
 				// array_keys(array_flip()) is reported to be faster than array_unique()
@@ -122,13 +122,13 @@ function zz_conditions_record_values($field, $values) {
 				$field_values = implode(',', $field_values);
 				$definition = preg_replace('~%'.$field_name.'%~', $field_values, $definition);
 			}
-			unset($field['conditions'][$condition][$key]);
+			unset($field['if'][$condition][$key]);
 			$field[$key] = $definition;
 		}
-		if (empty($field['conditions'][$condition]))
-			unset($field['conditions'][$condition]);
-		if (empty($field['conditions']))
-			unset($field['conditions']);
+		if (empty($field['if'][$condition]))
+			unset($field['if'][$condition]);
+		if (empty($field['if']))
+			unset($field['if']);
 	}
 	return $field;
 }
@@ -385,7 +385,7 @@ function zz_replace_conditional_values(&$item, $key, $records) {
  * @param array $array = $field or $zz_conf
  * @param array $bool_conditions	checked conditions
  * @param int $record_id		ID of record
- * @param bool $reverse optional; false: conditions (default), true: not_conditions
+ * @param bool $reverse optional; false: if (default), true: unless
  * @param string $type 'field' => field definition will be changed, 'conf' =>
  *			$zz_conf or $zz_conf_record will be changed
  * @global array $zz_conf
@@ -397,9 +397,9 @@ function zz_conditions_merge($array, $bool_conditions, $record_id, $reverse = fa
 	if ($zz_conf['modules']['debug']) zz_debug('start ID'.$record_id, __FUNCTION__);
 
 	if (!$reverse) {
-		$conditions = $array['conditions'];
+		$conditions = $array['if'];
 	} else {
-		$conditions = $array['not_conditions'];
+		$conditions = $array['unless'];
 	}
 
 	foreach ($conditions as $condition => $new_values) {

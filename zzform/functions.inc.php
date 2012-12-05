@@ -128,11 +128,14 @@ function zz_dependent_modules($zz) {
 			}
 			break;
 		case 'conditions':
+			if (!empty($zz['conditions'])) break;
+			if (!empty($zz['if'])) break;
+			if (!empty($zz['unless'])) break;
 			foreach ($zz['fields'] as $field) {
 				// Look for shortcuts for conditions
-				if (isset($field['conditions']['where'])) break 2;
+				if (isset($field['if'])) break 2;
+				if (isset($field['unless'])) break 2;
 			}
-			if (!empty($zz['conditions'])) break;
 			unset($modules[$index]);
 			break;
 		case 'geo':
@@ -157,8 +160,8 @@ function zz_dependent_modules($zz) {
 				$export = true;
 				break;
 			}
-			if (!empty($zz_conf['conditions'])) {
-				foreach ($zz_conf['conditions'] as $condition) {
+			if (!empty($zz_conf['if'])) {
+				foreach ($zz_conf['if'] as $condition) {
 					if (!empty($condition['export'])) {
 						$export = true;
 						break;
@@ -202,8 +205,8 @@ function zz_module_fieldcheck($zz, $key, $type) {
 			if (!empty($field[$key]) AND $field[$key] == $type) {
 				return true;
 			}
-			if (!empty($field['conditions'])) {
-				foreach ($field['conditions'] as $condfield) {
+			if (!empty($field['if'])) {
+				foreach ($field['if'] as $condfield) {
 					if (!empty($condfield[$key]) AND $condfield[$key] == $type) {
 						return true;
 					}
@@ -215,8 +218,8 @@ function zz_module_fieldcheck($zz, $key, $type) {
 				if (!empty($subfield[$key]) AND $subfield[$key] == $type) {
 					return true;
 				}
-				if (empty($subfield['conditions'])) continue;
-				foreach ($subfield['conditions'] as $condfield) {
+				if (empty($subfield['if'])) continue;
+				foreach ($subfield['if'] as $condfield) {
 					if (!empty($condfield[$key]) AND $condfield[$key] == $type) {
 						return true;
 					}
@@ -372,7 +375,7 @@ function zz_get_where_conditions($zz) {
  */
 function zz_record_conf($zz_conf) {
 	$wanted_keys = array(
-		'access', 'edit', 'delete', 'add', 'view', 'conditions', 'details', 
+		'access', 'edit', 'delete', 'add', 'view', 'if', 'details', 
 		'details_url', 'details_base', 'details_target', 'details_referer',
 		'details_sql', 'max_select', 'max_select_val_len', 'copy', 'no_ok',
 		'cancel_link'
@@ -654,10 +657,10 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false)
 	if (!empty($defs[$hash])) return zz_return($defs[$hash]);
 
 	foreach (array_keys($fields) as $no) {
-		if (!empty($fields[$no]['conditions'])) {
+		if (!empty($fields[$no]['if'])) {
 			if (!$multiple_times) {
 				// we don't need these anymore
-				unset($fields[$no]['conditions']);
+				unset($fields[$no]['if']);
 			} elseif ($multiple_times == 1) {
 				 // if there are only conditions, go on
 				if (count($fields[$no]) == 1) continue;
@@ -1729,12 +1732,12 @@ function zz_record_access($zz, $ops, $zz_var) {
 	}
 	$zz_conf['int']['secret_key'] = sha1($zz_conf['int']['hash'].$idval);
 
-	// if $zz_conf['conditions'] -- check them
+	// if conditions in $zz_conf['if'] -- check them
 	// get conditions if there are any, for access
 	$zz_conf['list_access'] = array(); // for old variables
 
-	if (!empty($zz_conf['modules']['conditions']) AND !empty($zz['conditions'])
-		AND !empty($zz_conf['conditions']) AND $zz_var['id']['value']) {
+	if (!empty($zz_conf['modules']['conditions'])
+		AND !empty($zz_conf['if']) AND $zz_var['id']['value']) {
 		$zz_conditions = zz_conditions_record_check($zz, $ops['mode'], $zz_var);
 		// save old variables for list view
 		$saved_variables = array(

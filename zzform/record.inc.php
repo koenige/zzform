@@ -219,7 +219,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 	// there is a form to display
 	$zz_conf_record = zz_record_conf($zz_conf);
 	// check conditions
-	if (!empty($zz_conf_record['conditions']) AND !empty($zz_conditions['bool']))
+	if (!empty($zz_conf_record['if']) AND !empty($zz_conditions['bool']))
 		$zz_conf_record = zz_conditions_merge($zz_conf_record, $zz_conditions['bool'], $zz_var['id']['value'], false, 'conf');
 
 	if (($mode == 'add' OR $mode == 'edit') && !empty($zz_conf['upload_MAX_FILE_SIZE'])
