@@ -243,8 +243,8 @@ function zzform($zz = array()) {
 
 	// Module 'conditions': evaluate conditions
 	if (!empty($zz_conf['modules']['conditions'])) {
+		if ($zz_conf['modules']['debug']) zz_debug('conditions start');
 		$zz = zz_conditions_set($zz);
-		if ($zz_conf['modules']['debug']) zz_debug("conditions start");
 		$zz_conditions = zz_conditions_record_check($zz, $ops['mode'], $zz_var);
 	} else {
 		$zz_conditions = array();
