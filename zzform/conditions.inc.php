@@ -67,7 +67,7 @@ function zz_conditions_set($zz) {
 			}
 			// check $zz['fields'] individually
 			foreach ($zz['fields'] as $no => $field) {
-				if (isset($field[$cn][$shortcut])) {
+				if (isset($field[$cn]) AND isset($field[$cn][$shortcut])) {
 					$zz['fields'][$no][$cn][$new_index] = $field[$cn][$shortcut];
 					unset($zz['fields'][$no][$cn][$shortcut]);
 					if (!in_array($shortcut, $shortcuts_depending_on_fields)) {
