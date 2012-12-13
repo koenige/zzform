@@ -607,7 +607,7 @@ function zz_action_details($detail_sqls, $zz_tab, $zz_var, $validation, $ops) {
  * calls a function or includes a file before or after an action takes place
  *
  * @param string $type (upload, before_insert, before_update, before_delete,
- *	'after_insert', 'after_update', 'after_delete', to be set in $zz['extra_action']
+ *	after_insert, after_update, after_delete, to be set in $zz['extra_action']
  * @param array $ops
  * @param array $main_tab = $zz_tab[0]
  * @global array $zz_conf
@@ -629,8 +629,22 @@ function zz_action_function($type, $ops, $main_tab) {
 		// it's a function
 		$change = $main_tab['extra_action'][$type]($ops);
 	}
-	if ($change) return $change;
-	else return true;
+	if ($change) {
+		$record_replace = array('upload', 'before_insert', 'before_update');
+		if (!in_array($type, $record_replace)) {
+			if (array_key_exists('record_replace', $change)
+				AND !empty($change['record_replace'])) {
+				unset($change['record_replace']);
+				$zz_error[] = array('msg_dev' => sprintf(
+					'Function for extra action (%s) tries to set record_replace. Will not be evaluated at this point.',
+					$type)
+				);
+			}
+		}
+		return $change;
+	} else {
+		return true;
+	}
 }
 
 /**
