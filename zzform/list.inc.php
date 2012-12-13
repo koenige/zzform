@@ -496,7 +496,11 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 			
 			// check all fields next to each other with list_append_next					
 			while (!empty($table_defs[$def_index][$fieldindex]['list_append_next'])) {
-				$fieldindex++;
+				$keys = array_keys($table_defs[$def_index]);
+				$current_key_index = array_search($fieldindex, $keys);
+				$next_key_index = $current_key_index + 1;
+				if (isset($keys[$next_key_index])) $fieldindex = $keys[$next_key_index];
+				else break;
 			}
 
 			if ($zz_conf['modules']['debug']) {
