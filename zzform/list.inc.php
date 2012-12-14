@@ -721,8 +721,8 @@ function zz_filter_selection($filter, $pos) {
 		}
 		$link_all = false;
 		if (isset($_GET['filter'][$f['identifier']])
-			AND ($_GET['filter'][$f['identifier']] !== '0'
-				OR $_GET['filter'][$f['identifier']] !== 0)) $link_all = true;
+			AND $_GET['filter'][$f['identifier']] !== '0'
+			AND $_GET['filter'][$f['identifier']] !== 0) $link_all = true;
 		if (!$link_all) $link = false;
 
 		$filter[$index]['output'][] = array(
