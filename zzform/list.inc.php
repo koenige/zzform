@@ -829,6 +829,10 @@ function zz_list_filter_sql($sql) {
 			}
 			// remove invalid filter from query string
 			unset($_GET['filter'][$filter['identifier']]);
+			// remove invalid filter from internal query string
+			$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string(
+				$zz_conf['int']['url']['qs_zzform'], sprintf('filter[%s]', $filter['identifier'])
+			);
 		}
 	}
 
