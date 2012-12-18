@@ -218,8 +218,23 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 			if (($mode == 'add' OR $zz_var['action'] == 'insert') AND !empty($condition['add'])) {
 				if (!empty($condition['add']['where'])) {
 					// check directly if where-condition equals where for record
+					$cond_fields = explode(' ', $condition['where']);
+					// 0: table.field_name or field_name
+					$cond_fields[0] = trim($cond_fields[0]);
+					if (strstr($cond_fields[0], '.')) {
+						$cond_fields[0] = substr($cond_fields[0], strlen($zz['table'])+1);
+					}
+					// 1: only = supported
+					if (empty($cond_fields[1]) OR trim($cond_fields[1]) !== '=') break;
+					// 2: value may be enclosed in ""
+					if (empty($cond_fields[2])) break;
+					$cond_fields[2] = trim($cond_fields[2]);
+					if (substr($cond_fields[2], 0, 1) === '"' AND substr($cond_fields[2], -1) === '"') {
+						$cond_fields[2] = substr($cond_fields[2], 1, -1);
+					}
 					foreach ($zz_var['where'][$zz['table']] as $field => $id) {
-						if ($condition['where'] !== $field.' = '.$id) continue;
+						if ($field !== $cond_fields[0]) continue;
+						if ($id !== $cond_fields[2]) continue;
 						$zz_conditions['bool'][$index][0] = true;
 					}
 				} elseif (!empty($condition['add']['always'])) {
