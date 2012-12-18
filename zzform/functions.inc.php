@@ -849,8 +849,10 @@ function zz_get_unique_fields($zz_var, $fields) {
 			}
 			$zz_var['id']['field_name'] = $field['field_name'];
 		}
-		if (!empty($field['unique']))
+		if (!empty($field['unique']) AND !is_array($field['unique'])) {
+			// 'unique' might be array for subtables
 			$zz_var['unique_fields'][$field['field_name']] = true;
+		}
 	}
 	return $zz_var;
 }
@@ -921,12 +923,13 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 		isset($field['records_depend_on_upload_more_than_one'])
 		? $field['records_depend_on_upload_more_than_one'] : false;
 	
-	// foreign keys, translation keys
+	// foreign keys, translation keys, unique keys
 	$my_tab['foreign_key_field_name'] = (!empty($field['foreign_key_field_name']) 
 		? $field['foreign_key_field_name'] 
 		: $main_tab['table'].'.'.$main_tab[0]['id']['field_name']);
 	$my_tab['translate_field_name'] = !empty($field['translate_field_name']) 
 		? $field['translate_field_name'] : false;
+	$my_tab['unique'] = !empty($field['unique']) ? $field['unique'] : false;
 
 	// get detail key, if there is a field definition with it.
 	// get id field name
@@ -1229,10 +1232,12 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
  * 
  * @param array $my_tab = $zz_tab[$tab]
  * @param array $fields = $zz_tab[$tab]['fields'] for a subtable
+ * @global array $zz_conf
  * @global array $zz_error
  * @return array $my_tab['POST']
  */
 function zz_subrecord_unique($my_tab, $fields) {
+	global $zz_conf;
 	global $zz_error;
 	// check if a GET is set on the foreign key
 	$foreign_key = $my_tab['foreign_key_field_name'];
@@ -1242,6 +1247,42 @@ function zz_subrecord_unique($my_tab, $fields) {
 	if (!empty($_GET['where'][$foreign_key])) {
 		$my_tab['sql'] = zz_edit_sql($my_tab['sql'], 
 			'WHERE', $foreign_key.' = '.intval($_GET['where'][$foreign_key]));
+	}
+	if (!empty($my_tab['unique']) AND $zz_conf['multi']) {
+		// this is only important for UPDATEs of the main record
+		// @todo: 'unique' on a subtable level will currently only work
+		// with IDs sent via zzform_multi()
+		// @todo: merge with code for 'unique' on a field level
+
+		foreach ($my_tab['unique'] AS $unique) {
+			if (empty($my_tab['existing'])) continue;
+			// check if there's a foreign key and remove it from unique key
+			foreach ($fields as $field) {
+				if ($field['type'] !== 'foreign_key') continue;
+				$key = array_search($field['field_name'], $unique);
+				if ($key === false) continue;
+				unset($unique[$key]);
+			}
+			$values = array();
+			foreach ($my_tab['POST'] as $no => $record) {
+				foreach ($unique as $field_name) {
+					if (!isset($record[$field_name])) {
+						$zz_error[] = array('msg_dev' => 'UNIQUE was set but field %s is not in POST');
+						continue;
+					}
+					$values[$field_name] = $record[$field_name];
+				}
+				foreach ($my_tab['existing'] as $id => $record_in_db) {
+					$found = true;
+					foreach ($values as $field_name => $value) {
+						if ($record_in_db[$field_name] != $value) $found = false;
+					}
+					if ($found) {
+						$my_tab['POST'][$no][$my_tab['id_field_name']] = $id;
+					}
+				}
+			}
+		}
 	}
 	foreach ($fields as $f => $field) {
 		if (empty($field['unique'])) continue;
