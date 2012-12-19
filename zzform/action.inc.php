@@ -916,10 +916,10 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 			} else {
 				// empty values = NULL, treat some special cases differently
 				// latitude/longitude: type string, different from 0
-				if (isset($field['number_type']) AND ($my_rec['POST'][$field_name] !== '')
+				if (isset($field['number_type']) AND $my_rec['POST'][$field_name] !== ''
 					AND in_array($field['number_type'], array('latitude', 'longitude')))
 					$my_rec['POST_db'][$field_name] = '0';
-				elseif (!empty($field['null'])) 
+				elseif (!empty($field['null']) AND $my_rec['POST'][$field_name] !== '') 
 					$my_rec['POST_db'][$field_name] = '0';
 				elseif (!empty($field['null_string'])) 
 					$my_rec['POST_db'][$field_name] = '""';
@@ -1438,7 +1438,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				$my_rec['validation'] = false;
 				$my_rec['fields'][$f]['check_validation'] = false;
 			}
-		} elseif(!$my_rec['POST'][$field_name] 
+		} elseif (!$my_rec['POST'][$field_name] 
 			AND empty($field['null'])
 			AND $field['type'] !== 'timestamp') {
 			if ($field['required']) {
