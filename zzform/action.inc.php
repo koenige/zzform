@@ -496,8 +496,11 @@ function zz_action_equals($my_rec, $existing) {
 				if (is_array($post)) $post = implode(',', $post);
 			}
 			if (!isset($existing[$field['field_name']])) {
-				if ($post != NULL) {
-					// there's no existing record, sent this query
+				// it's important to test against the prepared string value
+				// of 'NULL' here, because allowed 0 and '' are already
+				// checked for this
+				if ($my_rec['POST_db'][$field['field_name']] != 'NULL') {
+					// there's no existing record, send this query
 					$equal = false;
 				} else {
 					// existing and new value are both NULL or not there
