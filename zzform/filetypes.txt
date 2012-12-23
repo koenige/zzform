@@ -422,6 +422,8 @@ svg		svg		svg		image/svg+xml					Scalable Vector Graphics
 
 swf		swf		swf		application/x-shockwave-flash
 
+swt		swt		swt		application/octet-stream		Swiss-Chess tournament data
+
 t		t		t		application/x-troff
 
 tar		tar		tar		application/x-tar
