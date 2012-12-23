@@ -232,10 +232,12 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 					if (substr($cond_fields[2], 0, 1) === '"' AND substr($cond_fields[2], -1) === '"') {
 						$cond_fields[2] = substr($cond_fields[2], 1, -1);
 					}
-					foreach ($zz_var['where'][$zz['table']] as $field => $id) {
-						if ($field !== $cond_fields[0]) continue;
-						if ($id !== $cond_fields[2]) continue;
-						$zz_conditions['bool'][$index][0] = true;
+					if (!empty($zz_var['where'][$zz['table']])) {
+						foreach ($zz_var['where'][$zz['table']] as $field => $id) {
+							if ($field !== $cond_fields[0]) continue;
+							if ($id !== $cond_fields[2]) continue;
+							$zz_conditions['bool'][$index][0] = true;
+						}
 					}
 				} elseif (!empty($condition['add']['always'])) {
 					// mode = 'add': this condition is always true
