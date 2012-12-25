@@ -774,6 +774,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false)
  */
 function zz_fill_out_required($field, $db_table) {
 	if (!empty($field['required'])) return true;
+	if (isset($field['required'])) return false;
 	// might be empty string
 	if (!empty($field['null_string'])) return false;
 	// no field name = not in database
