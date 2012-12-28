@@ -2277,19 +2277,24 @@ function zz_makelink($path, $record, $type = 'link') {
 	if (!is_array($path)) $path = array('string' => $path);
 	foreach ($path as $part => $value) {
 		if (!$value) continue;
-		if (substr($part, 0, 4) == 'root') {
+		// remove numbers at the end of the part type
+		while (is_numeric(substr($part, -1))) $part = substr($part, 0, -1);
+		switch ($part) {
+		case 'root':
 			$check_against_root = true;
 			// root has to be first element, everything before will be ignored
 			$path_full = $value;
 			if (substr($path_full, -1) != '/')
 				$path_full .= '/';
-		} elseif (substr($part, 0, 7) == 'webroot') {
+			break;
+		case 'webroot':
 			// web might come later, ignore parts before for web and add them
 			// to full path
 			$path_web = $value;
 			$path_full .= $url;
 			$url = '';
-		} elseif (substr($part, 0, 5) == 'field') {
+			break;
+		case 'field':
 			// we don't have that field or it is NULL, so we can't build the
 			// path and return with nothing
 			// if you need an empty field, use IFNULL(field_name, "")
@@ -2301,13 +2306,21 @@ function zz_makelink($path, $record, $type = 'link') {
 				$modes = array();
 			}
 			$url .= $content;
+			$path_web .= $content;
 			if ($type == 'image') {
 				$alt = zz_text('File: ').$record[$value];
 			}
-		} elseif (substr($part, 0, 6) == 'string') {
+			break;
+		case 'string':
 			$url .= $value;
-		} elseif (substr($part, 0, 4) == 'mode') {
+			$path_web .= $value;
+			break;
+		case 'webstring':
+			$path_web .= $value;
+			break;
+		case 'mode':
 			$modes[] = $value;
+			break;
 		}
 	}
 
@@ -2334,10 +2347,9 @@ function zz_makelink($path, $record, $type = 'link') {
 			}
 		}
 	}
-	$url = $path_web.$url;
-	if ($type != 'image') return $url;
-	if (!$url) return false;
-	$img = '<img src="'.$url.'" alt="'.$alt.'" class="thumb">';
+	if ($type != 'image') return $path_web;
+	if (!$path_web) return false;
+	$img = '<img src="'.$path_web.'" alt="'.$alt.'" class="thumb">';
 	return $img;
 }
 
