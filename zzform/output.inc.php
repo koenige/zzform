@@ -64,7 +64,7 @@ function zz_nice_headings($heading, $zz, $where_condition = array()) {
 		if (!isset($zz['subtitle'][$wh[$index]])) continue;
 		$subheading = $zz['subtitle'][$wh[$index]];
 		if (!isset($subheading['var']) AND !isset($subheading['value'])) continue;
-		$heading_addition[$i] = false;
+		$heading_addition[$i] = array();
 		if (isset($subheading['sql']) AND $where_condition[$mywh]) {
 			// only if there is a value! (might not be the case if 
 			// write_once-fields come into play)
@@ -82,13 +82,27 @@ function zz_nice_headings($heading, $zz, $where_condition = array()) {
 			$heading_values = zz_db_fetch($wh_sql, '', '', '', E_USER_NOTICE);
 			if ($heading_values) {
 				foreach ($subheading['var'] as $myfield)
-					$heading_addition[$i] .= ' '.$heading_values[$myfield];
+					$heading_addition[$i][] = $heading_values[$myfield];
 			}
 		} elseif (isset($subheading['enum'])) {
-			$heading_addition[$i] .= ' '.htmlspecialchars($where_condition[$mywh]);
+			$heading_addition[$i][] = htmlspecialchars($where_condition[$mywh]);
 			// @todo: insert corresponding value in enum_title
 		} elseif (isset($subheading['value'])) {
-			$heading_addition[$i] .= ' '.htmlspecialchars($where_condition[$mywh]);
+			$heading_addition[$i][] = htmlspecialchars($where_condition[$mywh]);
+		}
+		if (empty($subheading['concat'])) $subheading['concat'] = ' ';
+		if (is_array($subheading['concat'])) {
+			$addition = '';
+			foreach ($heading_addition[$i] AS $index => $text) {
+				if (!isset($subheading['concat'][$index-1])) {
+					$subheading['concat'][$index-1] = end($subheading['concat']);
+				}
+				if ($index) $addition .= $subheading['concat'][$index-1];
+				$addition .= $text;
+			}
+			$heading_addition[$i] = $addition;
+		} else {
+			$heading_addition[$i] = implode($subheading['concat'], $heading_addition[$i]);
 		}
 		if ($heading_addition[$i] AND !empty($subheading['link'])) {
 			$append = '';
