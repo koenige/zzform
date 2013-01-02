@@ -61,9 +61,10 @@ function zz_nice_headings($heading, $zz, $where_condition = array()) {
 		$wh = explode('.', $mywh);
 		if (!isset($wh[1])) $index = 0; // without .
 		else $index = 1;
-		if (!isset($zz['subtitle'][$wh[$index]]['var'])) continue;
-		$heading_addition[$i] = false;
+		if (!isset($zz['subtitle'][$wh[$index]])) continue;
 		$subheading = $zz['subtitle'][$wh[$index]];
+		if (!isset($subheading['var']) AND !isset($subheading['value'])) continue;
+		$heading_addition[$i] = false;
 		if (isset($subheading['sql']) AND $where_condition[$mywh]) {
 			// only if there is a value! (might not be the case if 
 			// write_once-fields come into play)
@@ -86,6 +87,8 @@ function zz_nice_headings($heading, $zz, $where_condition = array()) {
 		} elseif (isset($subheading['enum'])) {
 			$heading_addition[$i] .= ' '.htmlspecialchars($where_condition[$mywh]);
 			// @todo: insert corresponding value in enum_title
+		} elseif (isset($subheading['value'])) {
+			$heading_addition[$i] .= ' '.htmlspecialchars($where_condition[$mywh]);
 		}
 		if ($heading_addition[$i] AND !empty($subheading['link'])) {
 			$append = '';
@@ -98,6 +101,12 @@ function zz_nice_headings($heading, $zz, $where_condition = array()) {
 				.$heading_addition[$i].'</a>';
 		}
 		if (empty($heading_addition[$i])) unset($heading_addition[$i]);
+		else {
+			if (!empty($subheading['prefix']))
+				$heading_addition[$i] = ' '.$subheading['prefix'].$heading_addition[$i];
+			if (!empty($subheading['suffix']))
+				$heading_addition[$i] .= $subheading['suffix'];
+		}
 		$i++;
 	}
 	if ($heading_addition) {
