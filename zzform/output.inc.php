@@ -124,7 +124,7 @@ function zz_nice_headings($heading, $zz, $where_condition = array()) {
 		$i++;
 	}
 	if ($heading_addition) {
-		$heading .= ':<br>'.implode(' &#8211; ', $heading_addition); 
+		$heading .= ': <br>'.implode(' &#8211; ', $heading_addition); 
 	}
 	return zz_return($heading);
 }
