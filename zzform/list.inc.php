@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2012 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2013 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -480,8 +480,13 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 				if (!empty($field['unless'])) {
 					$field = zz_conditions_merge($field, $zz_conditions['bool'], $line[$id_field], true);
 				}
-				if (!empty($zz_conf_record['if'])) {
-					$zz_conf_record = zz_conditions_merge($zz_conf_record, $zz_conditions['bool'], $line[$id_field], false, 'conf');
+				if (!empty($zz_conf_record['if']) OR !empty($zz_conf_record['unless'])) {
+					if (!empty($zz_conf_record['if'])) {
+						$zz_conf_record = zz_conditions_merge($zz_conf_record, $zz_conditions['bool'], $line[$id_field], false, 'conf');
+					}
+					if (!empty($zz_conf_record['unless'])) {
+						$zz_conf_record = zz_conditions_merge($zz_conf_record, $zz_conditions['bool'], $line[$id_field], true, 'conf');
+					}
 					$zz_conf_record = zz_listandrecord_access($zz_conf_record);
 					if (!isset($zz_conf_record['add_link']))
 						// Link Add new ...

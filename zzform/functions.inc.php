@@ -17,7 +17,7 @@
  * V - Validation, preparation for database
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2012 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2013 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -160,8 +160,10 @@ function zz_dependent_modules($zz) {
 				$export = true;
 				break;
 			}
-			if (!empty($zz_conf['if'])) {
-				foreach ($zz_conf['if'] as $condition) {
+			$conditionals = array('if', 'unless');
+			foreach ($conditionals as $conditional) {
+				if (empty($zz_conf[$conditional])) continue;
+				foreach ($zz_conf[$conditional] as $condition) {
 					if (!empty($condition['export'])) {
 						$export = true;
 						break;
@@ -378,7 +380,7 @@ function zz_record_conf($zz_conf) {
 		'access', 'edit', 'delete', 'add', 'view', 'if', 'details', 
 		'details_url', 'details_base', 'details_target', 'details_referer',
 		'details_sql', 'max_select', 'max_select_val_len', 'copy', 'no_ok',
-		'cancel_link'
+		'cancel_link', 'unless'
 	);
 	$zz_conf_record = array();
 	foreach ($wanted_keys as $key) {
@@ -1784,7 +1786,8 @@ function zz_record_access($zz, $ops, $zz_var) {
 	$zz_conf['list_access'] = array(); // for old variables
 
 	if (!empty($zz_conf['modules']['conditions'])
-		AND !empty($zz_conf['if']) AND $zz_var['id']['value']) {
+		AND (!empty($zz_conf['if']) OR !empty($zz_conf['unless']))
+		AND $zz_var['id']['value']) {
 		$zz_conditions = zz_conditions_record_check($zz, $ops['mode'], $zz_var);
 		// save old variables for list view
 		$saved_variables = array(
