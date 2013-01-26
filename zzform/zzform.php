@@ -18,7 +18,7 @@
  *	zzform_multi()			multi edit for zzform, e. g. import
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2012 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2013 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -237,6 +237,14 @@ function zzform($zz = array()) {
 		$zz_tab[0]['sql'] = $zz['sql'];
 		$zz_tab[0]['sqlextra'] = !empty($zz['sqlextra']) ? $zz['sqlextra'] : array();
 		$zz_tab[0]['extra_action'] = !empty($zz['extra_action']) ? $zz['extra_action'] : array();
+		if (!empty($zz['redirect'])) {
+			// update/insert redirects after_delete and after_update
+			$zz_tab[0]['redirect'] = $zz['redirect'];
+			if (!isset($zz_tab[0]['extra_action']['after_delete']))
+				$zz_tab[0]['extra_action']['after_delete'] = true;
+			if (!isset($zz_tab[0]['extra_action']['after_update']))
+				$zz_tab[0]['extra_action']['after_update'] = true;
+		}
 	}
 	
 //	Add, Update or Delete
@@ -879,7 +887,25 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 			$zz_conf['id'] = $id;
 			zz_debug('before including definition file');
 		}
-		require $zz_conf['form_scripts'].'/'.$definition_file.'.php';
+		$tables = false;
+		if (file_exists($zz_conf['form_scripts'].'/'.$definition_file.'.php')) {
+			$tables = $zz_conf['form_scripts'].'/'.$definition_file.'.php';
+		} elseif ($zz_setting['brick_default_tables'] === true
+			OR in_array($definition_file, $zz_setting['brick_default_tables'])) {
+			$tables = $zz_conf['dir'].'/default_tables/database_'.$definition_file.'.php';
+			if (!file_exists($tables)) {
+				$tables = $zz_conf['dir'].'/default_tables/'.$definition_file.'.php';
+				if (!file_exists($tables)) {
+					$tables = false;
+				}
+			}
+		}
+		if ($tables) {
+			require $tables;
+		} else {
+			echo sprintf('Table definition for %s file missing.', $definition_file);
+			exit;
+		}
 		if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
 			zz_debug('definition file included');
 			$zz_conf['id'] = $old_id;

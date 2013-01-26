@@ -3558,6 +3558,57 @@ function zz_identifier_var($field_name, $my_rec, $main_post) {
 }
 
 /**
+ * update redirects table after identifier update or deletion of record
+ *
+ * @param string $type
+ * @param array $ops
+ * @param array $main_tab
+ * @return void
+ */
+function zz_identifier_redirect($type, $ops, $main_tab) {
+	foreach ($main_tab['redirect'] as $redirect) {
+		if (!is_array($redirect)) {
+			$old = $redirect;
+			$new = $redirect;
+		} else {
+			$old = $redirect['old'];
+			$new = $redirect['new'];
+			if (isset($redirect['field_name'])) {
+				$field_name = $redirect['field_name'];
+			}
+		}
+		if (empty($field_name)) {
+			foreach ($main_tab[0]['fields'] as $field) {
+				if ($field['type'] !== 'identifier') continue;
+				$field_name = $field['field_name'];
+				break;
+			}
+		}
+		if ($type === 'after_update') {
+			if (empty($ops['record_diff'][0][$field_name])) continue;
+			if ($ops['record_diff'][0][$field_name] != 'diff') continue;
+		}
+
+		$values = array();
+		$values['action'] = 'insert';
+		$values['POST']['old_url'] = sprintf($old, $ops['record_old'][0][$field_name]);
+		switch ($type) {
+		case 'after_update':
+			$values['POST']['new_url'] = sprintf($new, $ops['record_new'][0][$field_name]);
+			$values['POST']['code'] = 301;
+			break;
+		case 'after_delete':
+			$values['POST']['new_url'] = '-';
+			$values['POST']['code'] = 410;
+			break;
+		default:
+			return false;
+		}
+		zzform_multi('redirects', $values, 'record');
+	}
+}
+
+/**
  * splits a string some_id[some_field] into an array 
  *
  * @param string $field_name 'some_id[some_field]'

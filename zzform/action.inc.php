@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2012 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2013 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -623,14 +623,20 @@ function zz_action_function($type, $ops, $main_tab) {
 	global $zz_error;
 	if (empty($main_tab['extra_action'][$type])) return false;
 
+	if (!empty($main_tab['redirect'])) {
+		zz_identifier_redirect($type, $ops, $main_tab);
+	}
+
 	$change = array();
-	$file = $zz_conf['action_dir'].'/'.$main_tab['extra_action'][$type].'.inc.php';
-	if (file_exists($file)) {
-		// a file has to be included
-		include $file;
-	} else {
-		// it's a function
-		$change = $main_tab['extra_action'][$type]($ops);
+	if ($main_tab['extra_action'][$type] !== true) {
+		$file = $zz_conf['action_dir'].'/'.$main_tab['extra_action'][$type].'.inc.php';
+		if (file_exists($file)) {
+			// a file has to be included
+			include $file;
+		} else {
+			// it's a function
+			$change = $main_tab['extra_action'][$type]($ops);
+		}
 	}
 	if ($change) {
 		$record_replace = array('upload', 'before_insert', 'before_update');
