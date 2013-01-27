@@ -237,9 +237,9 @@ function zzform($zz = array()) {
 		$zz_tab[0]['sql'] = $zz['sql'];
 		$zz_tab[0]['sqlextra'] = !empty($zz['sqlextra']) ? $zz['sqlextra'] : array();
 		$zz_tab[0]['extra_action'] = !empty($zz['extra_action']) ? $zz['extra_action'] : array();
-		if (!empty($zz['redirect'])) {
+		if (!empty($zz['set_redirect'])) {
 			// update/insert redirects after_delete and after_update
-			$zz_tab[0]['redirect'] = $zz['redirect'];
+			$zz_tab[0]['set_redirect'] = $zz['set_redirect'];
 			if (!isset($zz_tab[0]['extra_action']['after_delete']))
 				$zz_tab[0]['extra_action']['after_delete'] = true;
 			if (!isset($zz_tab[0]['extra_action']['after_update']))

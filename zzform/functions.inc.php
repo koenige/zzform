@@ -3566,7 +3566,8 @@ function zz_identifier_var($field_name, $my_rec, $main_post) {
  * @return void
  */
 function zz_identifier_redirect($type, $ops, $main_tab) {
-	foreach ($main_tab['redirect'] as $redirect) {
+	global $zz_error;
+	foreach ($main_tab['set_redirect'] as $redirect) {
 		if (!is_array($redirect)) {
 			$old = $redirect;
 			$new = $redirect;
@@ -3583,6 +3584,10 @@ function zz_identifier_redirect($type, $ops, $main_tab) {
 				$field_name = $field['field_name'];
 				break;
 			}
+		}
+		if (empty($field_name)) {
+			$zz_error[] = array('msg_dev' => 'Missing field name for redirect');
+			continue;
 		}
 		if ($type === 'after_update') {
 			if (empty($ops['record_diff'][0][$field_name])) continue;

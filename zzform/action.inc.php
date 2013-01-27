@@ -623,7 +623,7 @@ function zz_action_function($type, $ops, $main_tab) {
 	global $zz_error;
 	if (empty($main_tab['extra_action'][$type])) return false;
 
-	if (!empty($main_tab['redirect'])) {
+	if (!empty($main_tab['set_redirect'])) {
 		zz_identifier_redirect($type, $ops, $main_tab);
 	}
 
