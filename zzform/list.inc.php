@@ -2617,7 +2617,8 @@ function zz_field_class($field, $values, $html = false) {
 		elseif (!empty($field['display_field']) AND $field['display_field'] == $_GET['order']) 
 			$class[] = 'order';
 	if ($values)
-		if (isset($field['field_name'])) // does not apply for subtables!
+		if (isset($field['field_name']) AND empty($field['dont_show_where_class'])) 
+		// does not apply for subtables!
 			if (zz_field_in_where($field['field_name'], $values)) 
 				$class[] = 'where';
 	if (!empty($field['class'])) {
