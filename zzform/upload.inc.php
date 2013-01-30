@@ -1403,6 +1403,21 @@ function zz_val_get_from_upload($field, $images, $post) {
 	
 	foreach ($possible_values AS $v) {
 		switch ($v) {
+		case 'increment_on_change':
+			// @todo: think about incrementing only if new file is different
+			// from existing file; on the other hand, why should you upload the
+			// same file twice? and maybe some depending files will change
+			if (empty($images[0])) break;
+			$increment = false;
+			if (!empty($images[0]['modified']['tmp_name'])) {
+				$increment = true;
+			} elseif (!empty($images[0]['upload']['tmp_name'])) {
+				$increment = true;
+			}
+			if (!$increment) break;
+			if (!$post) $myval = 1;
+			else $myval = $post + 1;
+			break;
 		case 'md5':
 			if (empty($images[0])) break;
 			if (!empty($images[0]['modified']['tmp_name']))
