@@ -274,6 +274,7 @@ function zz_check_time($time) {
  * @return string international date (ISO 8601) YYYY-MM-DD
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @todo return ambiguous dates with a warning
+ * @todo check if date is a valid calendar date (e. g. 2011-02-29 is invalid)
  */
 function zz_check_date($date) {
 	// remove unnecessary whitespace
@@ -336,6 +337,7 @@ function zz_check_date($date) {
 			$new['day'] = $matches[1];
 		}
 	} elseif (preg_match('/^([0-9]{1,4})$/', $date)) {
+		// year only
 		$new['year'] = $date;
 		while (strlen($new['year']) < 4)
 			$new['year'] = '0'.$new['year'];
@@ -350,13 +352,27 @@ function zz_check_date($date) {
 			$new['month'] = $matches[1];
 			$new['year'] = $matches[2];
 		}
+	} elseif (in_array($date, array('yesterday', 'hier', 'gestern'))) {
+		return date('Y-m-d', strtotime('yesterday'));
+	} elseif (in_array($date, array('today', 'aujourd\'hui', 'heute'))) {
+		return date('Y-m-d', strtotime('today'));
+	} elseif (in_array($date, array('tomorrow', 'demain', 'morgen'))) {
+		return date('Y-m-d', strtotime('tomorrow'));
 	}
 	if (empty($new)) return false;
-
-	// @todo: this is for convenience, allow to enter historic dates with only
-	// two year digits as well
-	if ($new['year'] < 100)
-		$new['year'] = ($new['year'] > 70) ? '19'.$new['year'] : '20'.$new['year'];
+	if ($new['year'] < 100 AND strlen($new['year']) < 3) {
+		// this is for convenience, historic dates must be entered with at least
+		// three digits for the year (leading zeros)
+		$barrier = substr(date('Y'), 2) + 10;
+		$current_century = substr(date('Y'), 0, 2);
+		if ($new['year'] > $barrier) $century = $current_century - 1;
+		else $century = $current_century;
+		$new['year'] = sprintf('%d%02d', $century, $new['year']);
+	}
+	if ($new['month'] > 12) return false;
+	if ($new['day'] > 31) return false;
+	if ($new['day'] > 30 AND in_array($new['month'], array(4, 6, 9, 11))) return false;
+	if ($new['day'] > 29 AND in_array($new['month'] === 2)) return false;
 
 	return sprintf("%04d-%02d-%02d", $new['year'], $new['month'], $new['day']);
 }
