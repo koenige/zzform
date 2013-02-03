@@ -270,109 +270,17 @@ function zzform($zz = array()) {
 
 	if ($zz_conf['show_record']) {
 		require_once $zz_conf['dir_inc'].'/preparation.inc.php';
-		//	Upload
+
+	//	Prepare $zz_tab
+
 		if (in_array('upload', $zz_conf['modules']) && $zz_conf['modules']['upload'])
 			zz_upload_check_max_file_size();
-
-		$zz_tab = array();
-		// ### variables for main table will be saved in zz_tab[0]
-		$zz_tab[0]['db_name'] = $zz_conf['db_name'];
-		$zz_tab[0]['table'] = $zz['table'];
-		$zz_tab[0]['table_name'] = $zz['table'];
-		$zz_tab[0]['sql'] = $zz['sql'];
-		$zz_tab[0]['sqlextra'] = !empty($zz['sqlextra']) ? $zz['sqlextra'] : array();
-		$zz_tab[0]['extra_action'] = !empty($zz['extra_action']) ? $zz['extra_action'] : array();
-		if (!empty($zz['set_redirect'])) {
-			// update/insert redirects after_delete and after_update
-			$zz_tab[0]['set_redirect'] = $zz['set_redirect'];
-			if (!isset($zz_tab[0]['extra_action']['after_delete']))
-				$zz_tab[0]['extra_action']['after_delete'] = true;
-			if (!isset($zz_tab[0]['extra_action']['after_update']))
-				$zz_tab[0]['extra_action']['after_update'] = true;
-		}
-		$zz_tab[0][0]['action'] = $zz_var['action'];
-		$zz_tab[0][0]['fields'] = $zz['fields'];
-		$zz_tab[0][0]['validation'] = true;
-		$zz_tab[0][0]['record'] = false;
-		$zz_tab[0][0]['access'] = !empty($zz['access']) ? $zz['access'] : false;
-
-		// get ID field, unique fields, check for unchangeable fields
-		$zz_tab[0][0]['id'] = &$zz_var['id'];
-	
-		//	### put each table (if more than one) into one array of its own ###
-		foreach ($zz_var['subtables'] as $tab => $no) {
-			if (!empty($zz['fields'][$no]['hide_in_form'])) continue;
-			$zz_tab[$tab] = zz_get_subtable($zz['fields'][$no], $zz_tab[0], $tab, $no);
-			if ($ops['mode'] == 'show' AND $zz_tab[$tab]['values']) {
-				// don't show values which are not saved in show-record mode
-				$zz_tab[$tab]['values'] = array();
-			}
-			if ($zz_error['error']) return zzform_exit($ops);
-			$zz_tab[$tab] = zz_get_subrecords(
-				$ops['mode'], $zz['fields'][$no], $zz_tab[$tab], $zz_tab[0], $zz_var, $tab
-			);
-			if ($zz_error['error']) return zzform_exit($ops);
-			if (isset($zz_tab[$tab]['subtable_focus'])) {
-				// set autofocus on subrecord, not on main record
-				$zz_tab[0]['subtable_focus'] = 'set';
-			}
-		}
-
-		if (!empty($_POST['zz_action'])) {		
-			// POST because $zz_var may be set to '' in case of add/delete subrecord
-			// get existing record
-			if (!empty($zz_var['id']['value'])) {
-				$zz_tab[0]['existing'][0] = zz_query_single_record(
-					$zz_tab[0]['sql'], $zz_tab[0]['table'], $zz_var['id'], $zz_tab[0]['sqlextra']
-				);
-			} elseif (!empty($zz_var['id']['values'])) {
-				$sql = zz_edit_sql($zz_tab[0]['sql'], 'WHERE', $zz_tab[0]['table'].'.'
-					.$zz_var['id']['field_name']." IN ('".implode("','", $zz_var['id']['values'])."')");
-				$zz_tab[0]['existing'] = zz_db_fetch($sql, $zz_var['id']['field_name'], 'numeric');
-				// @todo: think about sqlextra
-			} else {
-				$zz_tab[0]['existing'][0] = array();
-			}
-
-			// Upload
-			// if there is a directory which has to be renamed, save old name in array
-			// do the same if a file might be renamed, deleted ... via upload
-			// or if there is a display or write_once field (so that it can be used
-			// e. g. for identifiers):
-			if ($zz_var['action'] === 'update' OR $zz_var['action'] === 'delete') {
-				if (count($zz_var['save_old_record']) && !empty($zz_tab[0]['existing'][0])) {
-					foreach ($zz_var['save_old_record'] as $no) {
-						if (empty($zz_tab[0]['existing'][0][$zz['fields'][$no]['field_name']])) continue;
-						$_POST[$zz['fields'][$no]['field_name']] 
-							= $zz_tab[0]['existing'][0][$zz['fields'][$no]['field_name']];
-					}
-				}
-			}
-
-			// get rid of some POST values that are used at another place
-			$internal_fields = array('MAX_FILE_SIZE', 'zz_check_select', 'zz_action',
-				'zz_subtables', 'zz_subtable_deleted', 'zz_delete_file',
-				'zz_referer', 'zz_save_record');
-			$zz_tab[0][0]['POST'] = array();
-			foreach (array_keys($_POST) AS $key) {
-				if (in_array($key, $internal_fields)) continue;
-				$zz_tab[0][0]['POST'][$key] = $_POST[$key];
-			}
-			//  POST is secured, now get rid of password fields in case of error_log_post
-			foreach ($zz['fields'] AS $field) {
-				if (empty($field['type'])) continue;
-				if ($field['type'] === 'password') unset($_POST[$field['field_name']]);
-				if ($field['type'] === 'password_change') unset($_POST[$field['field_name']]);
-			}
-
-			// set defaults and values, clean up POST
-			$zz_tab[0][0]['POST'] = zz_check_def_vals(
-				$zz_tab[0][0]['POST'], $zz_tab[0][0]['fields'], $zz_tab[0]['existing'][0],
-				(!empty($zz_var['where'][$zz_tab[0]['table']]) ? $zz_var['where'][$zz_tab[0]['table']] : '')
-			);
-		}
+		
+		$zz_tab = zz_prepare_tables($zz, $zz_var, $ops);
+		if (!$zz_tab) return zzform_exit($ops);
 
 	//	Start action
+
 		$validation = true;
 
 		if ($zz_var['subtables'] && $zz_var['action'] != 'delete')
@@ -380,7 +288,6 @@ function zzform($zz = array()) {
 		// just handing over form with values
 		if (isset($_POST['zz_review'])) $validation = false;
 
-		$zz_tab[0]['record_action'] = false;
 		if (in_array($zz_var['action'], array('insert', 'update', 'delete'))) {
 			// check for validity, insert/update/delete record
 			require_once $zz_conf['dir_inc'].'/action.inc.php';
@@ -1130,6 +1037,122 @@ function zzform_post_too_big() {
 		return true;
 	}
 	return false;
+}
+
+/**
+ * Prepares table definitions, database content and posted data
+ *  for 'action' and 'record'-modules
+ *
+ * @param array $zz
+ * @param array $zz_var
+ * @param array $ops
+ * @return array $zz_tab
+ */
+function zz_prepare_tables($zz, $zz_var, $ops) {
+	global $zz_conf;
+	global $zz_error;
+
+	$zz_tab = array();
+	// ### variables for main table will be saved in zz_tab[0]
+	$zz_tab[0]['db_name'] = $zz_conf['db_name'];
+	$zz_tab[0]['table'] = $zz['table'];
+	$zz_tab[0]['table_name'] = $zz['table'];
+	$zz_tab[0]['sql'] = $zz['sql'];
+	$zz_tab[0]['sqlextra'] = !empty($zz['sqlextra']) ? $zz['sqlextra'] : array();
+	$zz_tab[0]['extra_action'] = !empty($zz['extra_action']) ? $zz['extra_action'] : array();
+	if (!empty($zz['set_redirect'])) {
+		// update/insert redirects after_delete and after_update
+		$zz_tab[0]['set_redirect'] = $zz['set_redirect'];
+		if (!isset($zz_tab[0]['extra_action']['after_delete']))
+			$zz_tab[0]['extra_action']['after_delete'] = true;
+		if (!isset($zz_tab[0]['extra_action']['after_update']))
+			$zz_tab[0]['extra_action']['after_update'] = true;
+	}
+	$zz_tab[0]['record_action'] = false;
+	
+	$zz_tab[0][0]['action'] = $zz_var['action'];
+	$zz_tab[0][0]['fields'] = $zz['fields'];
+	$zz_tab[0][0]['validation'] = true;
+	$zz_tab[0][0]['record'] = false;
+	$zz_tab[0][0]['access'] = !empty($zz['access']) ? $zz['access'] : false;
+
+	// get ID field, unique fields, check for unchangeable fields
+	$zz_tab[0][0]['id'] = &$zz_var['id'];
+	
+	//	### put each table (if more than one) into one array of its own ###
+	foreach ($zz_var['subtables'] as $tab => $no) {
+		if (!empty($zz['fields'][$no]['hide_in_form'])) continue;
+		$zz_tab[$tab] = zz_get_subtable($zz['fields'][$no], $zz_tab[0], $tab, $no);
+		if ($ops['mode'] == 'show' AND $zz_tab[$tab]['values']) {
+			// don't show values which are not saved in show-record mode
+			$zz_tab[$tab]['values'] = array();
+		}
+		if ($zz_error['error']) return array();
+		$zz_tab[$tab] = zz_get_subrecords(
+			$ops['mode'], $zz['fields'][$no], $zz_tab[$tab], $zz_tab[0], $zz_var, $tab
+		);
+		if ($zz_error['error']) return array();
+		if (isset($zz_tab[$tab]['subtable_focus'])) {
+			// set autofocus on subrecord, not on main record
+			$zz_tab[0]['subtable_focus'] = 'set';
+		}
+	}
+
+	// check POST because $zz_var may be set to '' in case of add/delete subrecord
+	// get existing record
+	if (empty($_POST['zz_action'])) return $zz_tab;
+
+
+	if (!empty($zz_var['id']['value'])) {
+		$zz_tab[0]['existing'][0] = zz_query_single_record(
+			$zz_tab[0]['sql'], $zz_tab[0]['table'], $zz_var['id'], $zz_tab[0]['sqlextra']
+		);
+	} elseif (!empty($zz_var['id']['values'])) {
+		$sql = zz_edit_sql($zz_tab[0]['sql'], 'WHERE', $zz_tab[0]['table'].'.'
+			.$zz_var['id']['field_name']." IN ('".implode("','", $zz_var['id']['values'])."')");
+		$zz_tab[0]['existing'] = zz_db_fetch($sql, $zz_var['id']['field_name'], 'numeric');
+		// @todo: think about sqlextra
+	} else {
+		$zz_tab[0]['existing'][0] = array();
+	}
+
+	// Upload
+	// if there is a directory which has to be renamed, save old name in array
+	// do the same if a file might be renamed, deleted ... via upload
+	// or if there is a display or write_once field (so that it can be used
+	// e. g. for identifiers):
+	if ($zz_var['action'] === 'update' OR $zz_var['action'] === 'delete') {
+		if (count($zz_var['save_old_record']) && !empty($zz_tab[0]['existing'][0])) {
+			foreach ($zz_var['save_old_record'] as $no) {
+				if (empty($zz_tab[0]['existing'][0][$zz['fields'][$no]['field_name']])) continue;
+				$_POST[$zz['fields'][$no]['field_name']] 
+					= $zz_tab[0]['existing'][0][$zz['fields'][$no]['field_name']];
+			}
+		}
+	}
+
+	// get rid of some POST values that are used at another place
+	$internal_fields = array('MAX_FILE_SIZE', 'zz_check_select', 'zz_action',
+		'zz_subtables', 'zz_subtable_deleted', 'zz_delete_file',
+		'zz_referer', 'zz_save_record');
+	$zz_tab[0][0]['POST'] = array();
+	foreach (array_keys($_POST) AS $key) {
+		if (in_array($key, $internal_fields)) continue;
+		$zz_tab[0][0]['POST'][$key] = $_POST[$key];
+	}
+	//  POST is secured, now get rid of password fields in case of error_log_post
+	foreach ($zz['fields'] AS $field) {
+		if (empty($field['type'])) continue;
+		if ($field['type'] === 'password') unset($_POST[$field['field_name']]);
+		if ($field['type'] === 'password_change') unset($_POST[$field['field_name']]);
+	}
+
+	// set defaults and values, clean up POST
+	$zz_tab[0][0]['POST'] = zz_check_def_vals(
+		$zz_tab[0][0]['POST'], $zz_tab[0][0]['fields'], $zz_tab[0]['existing'][0],
+		(!empty($zz_var['where'][$zz_tab[0]['table']]) ? $zz_var['where'][$zz_tab[0]['table']] : '')
+	);
+	return $zz_tab;
 }
 
 ?>
