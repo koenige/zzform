@@ -19,10 +19,10 @@
  *
  * @param array $zz
  * @param array $zz_var
- * @param array $ops
+ * @param string $mode ($ops['mode'])
  * @return array $zz_tab
  */
-function zz_prepare_tables($zz, $zz_var, $ops) {
+function zz_prepare_tables($zz, $zz_var, $mode) {
 	global $zz_conf;
 	global $zz_error;
 
@@ -57,13 +57,13 @@ function zz_prepare_tables($zz, $zz_var, $ops) {
 	foreach ($zz_var['subtables'] as $tab => $no) {
 		if (!empty($zz['fields'][$no]['hide_in_form'])) continue;
 		$zz_tab[$tab] = zz_get_subtable($zz['fields'][$no], $zz_tab[0], $tab, $no);
-		if ($ops['mode'] == 'show' AND $zz_tab[$tab]['values']) {
+		if ($mode === 'show' AND $zz_tab[$tab]['values']) {
 			// don't show values which are not saved in show-record mode
 			$zz_tab[$tab]['values'] = array();
 		}
 		if ($zz_error['error']) return array();
 		$zz_tab[$tab] = zz_get_subrecords(
-			$ops['mode'], $zz['fields'][$no], $zz_tab[$tab], $zz_tab[0], $zz_var, $tab
+			$mode, $zz['fields'][$no], $zz_tab[$tab], $zz_tab[0], $zz_var, $tab
 		);
 		if ($zz_error['error']) return array();
 		if (isset($zz_tab[$tab]['subtable_focus'])) {

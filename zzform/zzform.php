@@ -276,7 +276,7 @@ function zzform($zz = array()) {
 		if (in_array('upload', $zz_conf['modules']) && $zz_conf['modules']['upload'])
 			zz_upload_check_max_file_size();
 		
-		$zz_tab = zz_prepare_tables($zz, $zz_var, $ops);
+		$zz_tab = zz_prepare_tables($zz, $zz_var, $ops['mode']);
 		if (!$zz_tab) return zzform_exit($ops);
 
 	//	Start action
