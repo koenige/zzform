@@ -398,6 +398,37 @@ function zz_sql_fieldnames($sql) {
 	return $newfields;
 }
 
+/**
+ * counts number of records that will be caught by current SQL query
+ *
+ * @param string $sql
+ * @param string $id_field
+ * @return int $lines
+ */
+function zz_sql_count_rows($sql, $id_field = '') {
+	global $zz_conf;
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+
+	$sql = trim($sql);
+	if (!$id_field) {
+		$lines = zz_db_fetch($sql, '', 'single value');
+	} elseif (substr($sql, 0, 15) != 'SELECT DISTINCT'
+		AND !stristr($sql, 'GROUP BY') AND !stristr($sql, 'HAVING')) {
+		// if it's not a SELECT DISTINCT, we can use COUNT, that's faster
+		// GROUP BY also does not work with COUNT
+		$sql = zz_edit_sql($sql, 'ORDER BY', '_dummy_', 'delete');
+		$sql = zz_edit_sql($sql, 'SELECT', 'COUNT('.$id_field.')', 'replace');
+		// unnecessary LEFT JOINs may slow down query
+		// remove them in case no WHERE, HAVING or GROUP BY is set
+		$sql = zz_edit_sql($sql, 'LEFT JOIN', '_dummy_', 'delete');
+		$lines = zz_db_fetch($sql, '', 'single value');
+	} else {
+		$lines = zz_db_fetch($sql, $id_field, 'count');
+	}
+	if (!$lines) $lines = 0;
+	return zz_return($lines);
+}
+
 /*
  * --------------------------------------------------------------------
  * D - Database functions (MySQL-specific functions)

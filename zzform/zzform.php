@@ -156,16 +156,7 @@ function zzform($zz = array()) {
 	// upload values are only needed for record
 	if (!$zz_conf['show_record']) unset($zz_conf['upload']);
 
-//	Required files
-
-	if ($zz_conf['show_record']) {
-		require_once $zz_conf['dir_inc'].'/record.inc.php';
-	}
-	if ($zz_conf['show_list']) {
-		require_once $zz_conf['dir_inc'].'/list.inc.php';
-	}
-	if ($zz_conf['modules']['debug']) zz_debug('files and database connection ok');
-
+	if ($zz_conf['modules']['debug']) zz_debug('database connection ok');
 
 //	Variables
 
@@ -449,6 +440,7 @@ function zzform($zz = array()) {
 			}
 		}
 		// display updated, added or editable Record
+		require_once $zz_conf['dir_inc'].'/record.inc.php';
 		$ops['output'] .= zz_record($ops, $zz_tab, $zz_var, $zz_conditions);	
 	} else {
 		// call error function if there's anything
@@ -459,6 +451,7 @@ function zzform($zz = array()) {
 	if ($zz_conf['show_list']) {
 		// shows table with all records (limited by zz_conf['limit'])
 		// and add/nav if limit/search buttons
+		require_once $zz_conf['dir_inc'].'/list.inc.php';
 		list($ops, $zz_var) = zz_list($zz, $ops, $zz_var, $zz_conditions); 
 	}
 	if ($ops['mode'] !== 'export') {

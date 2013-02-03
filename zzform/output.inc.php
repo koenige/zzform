@@ -291,7 +291,7 @@ function zz_output_redirect($result, $return, $id_value, $zz_tab) {
 				AND !empty($zz_conf['int']['referer']['path'])) {
 				// redirect to referer if there are no records in list
 				$id_field_name = $zz_tab[0]['table'].'.'.$zz_tab[0][0]['id']['field_name'];
-				if (!zz_count_rows($zz_tab[0]['sql'], $id_field_name)) {
+				if (!zz_sql_count_rows($zz_tab[0]['sql'], $id_field_name)) {
 					if (empty($zz_conf['int']['referer']['scheme'])) {
 						$self = $zz_conf['int']['url']['base'];
 					} else {
