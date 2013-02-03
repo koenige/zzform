@@ -278,6 +278,8 @@ function zzform($zz = array()) {
 		
 		$zz_tab = zz_prepare_tables($zz, $zz_var, $ops['mode']);
 		if (!$zz_tab) return zzform_exit($ops);
+		// @todo keep track of current values for ID separately
+		$zz_tab[0][0]['id'] = &$zz_var['id'];
 
 	//	Start action
 
