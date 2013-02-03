@@ -41,6 +41,7 @@ function zz_maintenance($params) {
 	require_once $zz_conf['dir_inc'].'/database.inc.php';
 	require_once $zz_conf['dir_inc'].'/output.inc.php';
 	require_once $zz_conf['dir_inc'].'/list.inc.php';
+	require_once $zz_conf['dir_inc'].'/search.inc.php';
 	if (file_exists($zz_setting['custom'].'/zzbrick_tables/_common.inc.php')) {
 		require_once($zz_setting['custom'].'/zzbrick_tables/_common.inc.php');
 		if (isset($brick['page'])) $page = $brick['page'];
