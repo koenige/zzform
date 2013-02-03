@@ -273,8 +273,6 @@ function zzform($zz = array()) {
 		if (in_array('upload', $zz_conf['modules']) && $zz_conf['modules']['upload'])
 			zz_upload_check_max_file_size();
 
-		$validation = true;
-
 		$zz_tab = array();
 		// ### variables for main table will be saved in zz_tab[0]
 		$zz_tab[0]['db_name'] = $zz_conf['db_name'];
@@ -319,11 +317,6 @@ function zzform($zz = array()) {
 			}
 		}
 
-		if ($zz_var['subtables'] && $zz_var['action'] != 'delete')
-			if (isset($_POST['zz_subtables'])) $validation = false;
-		// just handing over form with values
-		if (isset($_POST['zz_review'])) $validation = false;
-		
 		if (!empty($_POST['zz_action'])) {		
 			// POST because $zz_var may be set to '' in case of add/delete subrecord
 			// get existing record
@@ -379,6 +372,13 @@ function zzform($zz = array()) {
 		}
 
 	//	Start action
+		$validation = true;
+
+		if ($zz_var['subtables'] && $zz_var['action'] != 'delete')
+			if (isset($_POST['zz_subtables'])) $validation = false;
+		// just handing over form with values
+		if (isset($_POST['zz_review'])) $validation = false;
+
 		$zz_tab[0]['record_action'] = false;
 		if (in_array($zz_var['action'], array('insert', 'update', 'delete'))) {
 			// check for validity, insert/update/delete record
