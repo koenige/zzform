@@ -1598,7 +1598,7 @@ function zz_query_subrecord($my_tab, $main_table, $main_id_value,
  * sets some $zz-definitions for records depending on existing definition for
  * translations, subtabes, uploads, write_once-fields
  *
- * @param array $zz
+ * @param array $fields = $zz['fields']
  * @param array $zz_var
  * @return array 
  *		array $zz
@@ -1607,39 +1607,39 @@ function zz_query_subrecord($my_tab, $main_table, $main_id_value,
  *		array $zz_var
  *			'upload_form'
  */
-function zz_set_fielddefs_for_record($zz, $zz_var) {
+function zz_set_fielddefs_for_record($fields, $zz_var) {
 	$rec = 1;
 	$zz_var['subtables'] = array();			// key: $rec, value: $no
 	$zz_var['save_old_record'] = array();	// key: int, value: $no
 	$zz_var['upload_form'] = false;			// false: no upload, true: upload possible
 
-	foreach (array_keys($zz['fields']) as $no) {
+	foreach (array_keys($fields) as $no) {
 		// translations
-		if (!empty($zz['fields'][$no]['translate_field_index'])) {
-			$t_index = $zz['fields'][$no]['translate_field_index'];
-			if (isset($zz['fields'][$t_index]['translation'])
-				AND !$zz['fields'][$t_index]['translation']) {
-				unset ($zz['fields'][$no]);
+		if (!empty($fields[$no]['translate_field_index'])) {
+			$t_index = $fields[$no]['translate_field_index'];
+			if (isset($fields[$t_index]['translation'])
+				AND !$fields[$t_index]['translation']) {
+				unset ($fields[$no]);
 				continue;
 			}
 		}
-		if (!isset($zz['fields'][$no]['type'])) continue;
-		switch ($zz['fields'][$no]['type']) {
+		if (!isset($fields[$no]['type'])) continue;
+		switch ($fields[$no]['type']) {
 		case 'subtable':
 			// save number of subtable, get table_name and check whether sql
 			// is unique, look for upload form as well
 			$zz_var['subtables'][$rec] = $no;
-			if (!isset($zz['fields'][$no]['table_name']))
-				$zz['fields'][$no]['table_name'] = $zz['fields'][$no]['table'];
-			$zz['fields'][$no]['subtable'] = $rec;
+			if (!isset($fields[$no]['table_name']))
+				$fields[$no]['table_name'] = $fields[$no]['table'];
+			$fields[$no]['subtable'] = $rec;
 			$rec++;
-			if (!empty($zz['fields'][$no]['sql_not_unique'])) {
+			if (!empty($fields[$no]['sql_not_unique'])) {
 				// must not change record where main record is not directly 
 				// superior to detail record 
 				// - foreign ID would be changed to main record's id
-				$zz['fields'][$no]['access'] = 'show';
+				$fields[$no]['access'] = 'show';
 			}
-			foreach ($zz['fields'][$no]['fields'] as $subfield) {
+			foreach ($fields[$no]['fields'] as $subfield) {
 				if (empty($subfield['type'])) continue;
 				if ($subfield['type'] != 'upload_image') continue;
 				$zz_var['upload_form'] = true;
@@ -1654,7 +1654,7 @@ function zz_set_fielddefs_for_record($zz, $zz_var) {
 			break;
 		}
 	}
-	return array($zz, $zz_var);
+	return array($fields, $zz_var);
 }
 
 function zz_set_fielddefs(&$fielddefs, $fields) {
@@ -2412,25 +2412,25 @@ function zz_makepath($path, $zz_tab, $record = 'new', $do = false, $tab = 0, $re
 	// put path together
 	foreach ($path as $pkey => $pvalue) {
 		if (!$pvalue) continue;
-		if ($pkey == 'root') {
+		if ($pkey === 'root') {
 			$root = $pvalue;
-		} elseif ($pkey == 'webroot') {
+		} elseif ($pkey === 'webroot') {
 			$webroot = $pvalue;
 			$rootp = $p;
 			$p = '';
-		} elseif (substr($pkey, 0, 4) == 'mode') {
+		} elseif (substr($pkey, 0, 4) === 'mode') {
 			$modes[] = $pvalue;
-		} elseif (substr($pkey, 0, 6) == 'string') {
+		} elseif (substr($pkey, 0, 6) === 'string') {
 			$p .= $pvalue;
-		} elseif (substr($pkey, 0, 5) == 'field') {
+		} elseif (substr($pkey, 0, 5) === 'field') {
 			$my_tab = $zz_tab[$tab];
-			if ($record == 'new') {
+			if ($record === 'new') {
 				$content = (!empty($my_tab[$rec]['POST'][$pvalue])) 
 					? $my_tab[$rec]['POST'][$pvalue]
 					: zz_get_record($pvalue, $my_tab['sql'], 
 						$my_tab[$rec]['id']['value'], 
 						$my_tab['table'].'.'.$my_tab[$rec]['id']['field_name']);
-			} elseif ($record == 'old') {
+			} elseif ($record === 'old') {
 				$content = (!empty($my_tab['existing'][$rec]) 
 					? $my_tab['existing'][$rec][$pvalue] : '');
 			}

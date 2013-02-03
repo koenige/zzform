@@ -40,15 +40,6 @@ function zzform($zz = array()) {
 	if (empty($zz_conf['zzform_calls'])) $zz_conf['zzform_calls'] = 1;
 	else $zz_conf['zzform_calls']++;
 
-	// divert to import if set
-	if (!empty($_GET['mode']) AND $_GET['mode'] == 'import' AND !empty($zz_conf['import'])) {
-		if (empty($zz_conf['dir_inc'])) 
-			$zz_conf['dir_inc'] = $zz_conf['dir'].'/inc';
-		require_once $zz_conf['dir_inc'].'/import.inc.php';
-		$ops['title'] = $zz['title'];
-		return zzform_exit(zzform_import($ops));
-	}
-
 //	Variables which are required by several functions
 	global $zz_error;
 	$zz_error = array();
@@ -67,7 +58,6 @@ function zzform($zz = array()) {
 	$ops['error'] = array();
 	$ops['result'] = '';
 	$ops['id'] = 0;
-	$zz_tab = array();
 
 	// set default configuration variables
 	// import modules
@@ -84,7 +74,8 @@ function zzform($zz = array()) {
 	if ($zz_conf['zzform_calls'] > 1 AND empty($zz_conf['multi'])) { 
 		// show a warning only if zzform is not explicitly called via zzform_multi()
 		$zz_error[] = array(
-			'msg_dev' => 'zzform has been called as a function more than once. You might want to check if this is correct.',
+			'msg_dev' => 'zzform has been called as a function more than once. '
+				.'You might want to check if this is correct.',
 			'level' => E_USER_NOTICE
 		);
 		zz_error();
@@ -102,8 +93,8 @@ function zzform($zz = array()) {
 //	Database connection, set db_name
 //
 
-	list($zz_tab[0]['db_name'], $zz['table']) = zz_db_connection($zz['table']);
-	if (!$zz_tab[0]['db_name']) return zzform_exit($ops); // exits script
+	$zz['table'] = zz_db_connection($zz['table']);
+	if (!$zz_conf['db_name']) return zzform_exit($ops); // exits script
 	$zz = zz_sql_prefix($zz);
 	$zz_conf = zz_sql_prefix($zz_conf, 'zz_conf');
 
@@ -160,21 +151,17 @@ function zzform($zz = array()) {
 
 	// action won't be changed before record operations
 	// (there it will be changed depending on outcome of db operations)
-	// so we can set it to $zz_tab
 
-	if ($zz_conf['show_record'])
-		$zz_tab[0][0]['action'] = $zz_var['action'];
-	
 	// upload values are only needed for record
 	if (!$zz_conf['show_record']) unset($zz_conf['upload']);
 
 //	Required files
 
 	if ($zz_conf['show_record']) {
-		require_once $zz_conf['dir_inc'].'/record.inc.php';		// Form
+		require_once $zz_conf['dir_inc'].'/record.inc.php';
 	}
 	if ($zz_conf['show_list']) {
-		require_once $zz_conf['dir_inc'].'/list.inc.php';		// List
+		require_once $zz_conf['dir_inc'].'/list.inc.php';
 	}
 	if ($zz_conf['modules']['debug']) zz_debug('files and database connection ok');
 
@@ -230,23 +217,6 @@ function zzform($zz = array()) {
 	if (!$zz_var['action'] AND (!$ops['mode'] OR $ops['mode'] == 'list_only'))
 		unset($zz_var['zz_fields']);
 
-	if ($zz_conf['show_record']) {
-		// ### variables for main table will be saved in zz_tab[0]
-		$zz_tab[0]['table'] = $zz['table'];
-		$zz_tab[0]['table_name'] = $zz['table'];
-		$zz_tab[0]['sql'] = $zz['sql'];
-		$zz_tab[0]['sqlextra'] = !empty($zz['sqlextra']) ? $zz['sqlextra'] : array();
-		$zz_tab[0]['extra_action'] = !empty($zz['extra_action']) ? $zz['extra_action'] : array();
-		if (!empty($zz['set_redirect'])) {
-			// update/insert redirects after_delete and after_update
-			$zz_tab[0]['set_redirect'] = $zz['set_redirect'];
-			if (!isset($zz_tab[0]['extra_action']['after_delete']))
-				$zz_tab[0]['extra_action']['after_delete'] = true;
-			if (!isset($zz_tab[0]['extra_action']['after_update']))
-				$zz_tab[0]['extra_action']['after_update'] = true;
-		}
-	}
-	
 //	Add, Update or Delete
 
 	// Module 'conditions': evaluate conditions
@@ -268,13 +238,13 @@ function zzform($zz = array()) {
 		}
 	 	// sets some $zz-definitions for records depending on existing definition for
 		// translations, subtabes, uploads, write_once-fields
-		list($zz, $zz_var) = zz_set_fielddefs_for_record($zz, $zz_var);
+		list($zz['fields'], $zz_var) = zz_set_fielddefs_for_record($zz['fields'], $zz_var);
 		if (empty($zz_var['upload_form'])) unset($zz_conf['upload']); // values are not needed
 	}
 
 	// now we have the correct field definitions	
 	// set type, title etc. where unset
-	$zz['fields'] = zz_fill_out($zz['fields'], $zz_tab[0]['db_name'].'.'.$zz['table'], false, $ops['mode']); 
+	$zz['fields'] = zz_fill_out($zz['fields'], $zz_conf['db_name'].'.'.$zz['table'], false, $ops['mode']); 
 
 //	page output
 	if ($zz_conf['generate_output'] AND ($zz_conf['show_record'] OR $zz_conf['show_list'])) {
@@ -312,6 +282,24 @@ function zzform($zz = array()) {
 			zz_upload_check_max_file_size();
 
 		$validation = true;
+
+		$zz_tab = array();
+		// ### variables for main table will be saved in zz_tab[0]
+		$zz_tab[0]['db_name'] = $zz_conf['db_name'];
+		$zz_tab[0]['table'] = $zz['table'];
+		$zz_tab[0]['table_name'] = $zz['table'];
+		$zz_tab[0]['sql'] = $zz['sql'];
+		$zz_tab[0]['sqlextra'] = !empty($zz['sqlextra']) ? $zz['sqlextra'] : array();
+		$zz_tab[0]['extra_action'] = !empty($zz['extra_action']) ? $zz['extra_action'] : array();
+		if (!empty($zz['set_redirect'])) {
+			// update/insert redirects after_delete and after_update
+			$zz_tab[0]['set_redirect'] = $zz['set_redirect'];
+			if (!isset($zz_tab[0]['extra_action']['after_delete']))
+				$zz_tab[0]['extra_action']['after_delete'] = true;
+			if (!isset($zz_tab[0]['extra_action']['after_update']))
+				$zz_tab[0]['extra_action']['after_update'] = true;
+		}
+		$zz_tab[0][0]['action'] = $zz_var['action'];
 
 		// ### variables for main table will be saved in zz_tab[0]
 		$zz_tab[0][0]['fields'] = $zz['fields'];
@@ -470,6 +458,7 @@ function zzform($zz = array()) {
 		list($ops, $zz_var) = zz_list($zz, $ops, $zz_var, $zz_conditions); 
 	}
 	if ($ops['mode'] !== 'export') {
+		if (!isset($zz_tab)) $zz_tab = array();
 		$ops['output'] .= zz_output_backlink($zz_tab, $zz_var['id']);
 		// if there was no add button in list, add it here
 		if (!empty($zz_conf['int']['no_add_button_so_far']) AND !empty($zz_conf['no_add_above'])
@@ -523,14 +512,12 @@ function zzform_exit($ops) {
 		}
 		zz_debug_unset();
 	}
-	// output footer text
+	// prepare HTML output, not for export
 	if ($ops['mode'] !== 'export') {
 		if ($zz_conf['footer_text']) $ops['output'] .= $zz_conf['footer_text'];
+		$ops['output'] = '<div id="zzform">'."\n".$ops['output'].'</div>'."\n";
 	}
 
-	// prepare HTML output, not for export
-	if ($ops['mode'] !== 'export')
-		$ops['output'] = '<div id="zzform">'."\n".$ops['output'].'</div>'."\n";
 	if ($zz_conf['show_output']) echo $ops['output'];
 	
 	// HTML head
@@ -708,7 +695,6 @@ function zz_initialize($mode = false, $zz = array()) {
 	$zz_default['details_sql']		= array();
 	$zz_default['details_target']	= false;	// target-window for details link
 	$zz_default['edit']				= true;		// show Action: Edit
-	$zz_default['import']			= false;	// import files
 
 	$zz_default['error_handling']		= 'output';
 	$zz_default['error_log']['error']	= ini_get('error_log');

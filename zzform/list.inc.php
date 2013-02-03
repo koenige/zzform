@@ -223,10 +223,6 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			$zz_conf['int']['no_add_button_so_far'] = false;
 			$toolsline[] = '<a accesskey="n" href="'.$base_url.'mode=add'
 				.$zz_var['extraGET'].'">'.zz_text('Add new record').'</a>';
-			if ($zz_conf['import']) {
-				$toolsline[] = '<a href="'.$base_url.'mode=import'
-					.$zz_var['extraGET'].'">'.zz_text('Import data').'</a>';
-			}
 		}
 		// multi-add-button, also show if there was no list, because it will only be shown below records!
 		

@@ -13,7 +13,7 @@
  *		zz_db_*()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2012 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2013 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -405,10 +405,13 @@ function zz_sql_fieldnames($sql) {
  */
 
 /**
- * sets database name and checks if a database by that name exists
+ * sets database name (globally) and checks if a database by that name exists
+ * in case database name is glued to table name, returns table name without db
  *
  * @param string $table table name, might include database name
- * @return array $dbname, $table - names of main database and main table
+ * @global array $zz_conf - 'db_name' might be changed or set
+ * @global array $zz_error
+ * @return string $table - name of main table
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_db_connection($table) {
@@ -427,7 +430,9 @@ function zz_db_connection($table) {
 	// name is specified
 	$zz_conf['int']['db_main'] = false;
 
-	if (!isset($zz_conf['db_connection'])) include_once $zz_conf['dir_custom'].'/db.inc.php';
+	if (!isset($zz_conf['db_connection'])) {
+		include_once $zz_conf['dir_custom'].'/db.inc.php';
+	}
 	// get db_name.
 	// 1. best way: put it in zz_conf['db_name']
 	if (!empty($zz_conf['db_name'])) {
@@ -438,9 +443,9 @@ function zz_db_connection($table) {
 				'query' => 'SELECT DATABASE("'.$zz_conf['db_name'].'")',
 				'level' => E_USER_ERROR
 			);
+			$zz_conf['db_name'] = '';
 			return false;
 		}
-		$dbname = $zz_conf['db_name'];
 	// 2. alternative: use current database
 	} else {
 		$result = mysql_query('SELECT DATABASE()');
@@ -453,7 +458,6 @@ function zz_db_connection($table) {
 			return false;
 		}
 		$zz_conf['db_name'] = mysql_result($result, 0, 0);
-		$dbname = $zz_conf['db_name'];
 	}
 
 	// 3. alternative plus foreign db: put it in zz['table']
@@ -471,11 +475,11 @@ function zz_db_connection($table) {
 					'query' => 'SELECT DATABASE("'.$db_name[1].'")',
 					'level' => E_USER_ERROR
 				);
+				$zz_conf['db_name'] = '';
 				return false;
 			}
 		}
 		$zz_conf['db_name'] = $db_name[1];
-		$dbname = $db_name[1];
 		$table = $db_name[2];
 	}
 
@@ -487,7 +491,7 @@ function zz_db_connection($table) {
 		);
 		return false;
 	}
-	return array($dbname, $table);
+	return $table;
 }
 
 /**

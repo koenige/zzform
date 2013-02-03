@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2012 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2013 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -592,12 +592,6 @@ function zz_output_add_links($extra_get) {
 	$toolsline[] = '<a accesskey="n" href="'.$zz_conf['int']['url']['self']
 		.$zz_conf['int']['url']['qs'].$zz_conf['int']['url']['?&'].'mode=add'
 		.$extra_get.'">'.zz_text('Add new record').'</a>';
-	if ($zz_conf['import']) {
-		$toolsline[] = '<a href="'
-			.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
-			.$zz_conf['int']['url']['?&'].'mode=import'.$extra_get.'">'
-			.zz_text('Import data').'</a>';
-	}
 	return '<p class="add-new">'.implode(' | ', $toolsline).'</p>'."\n";
 }
 
@@ -617,9 +611,10 @@ function zz_output_backlink($zz_tab, $id) {
 		return '<p id="back-overview"><a href="'
 			.zz_makepath($zz_conf['dynamic_referer'], $zz_tab, 'new', 'local')
 			.'">'.zz_text('back-to-overview').'</a></p>'."\n";
-	} elseif ($zz_conf['referer'])
+	} elseif ($zz_conf['referer']) {
 		return '<p id="back-overview"><a href="'.$zz_conf['int']['referer_esc'].'">'
 			.zz_text('back-to-overview').'</a></p>'."\n";
+	}
 	return false;
 }
 

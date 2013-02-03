@@ -13,56 +13,6 @@
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
-
-/**
- * Import function
- *
- * @return ...
- * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @todo This function is not working yet. Do not use!
- */
-function zzform_import($ops) {
-	global $zz_conf;
-	require_once $zz_conf['dir_inc'].'/functions.inc.php';	// include core functions
-	require_once $zz_conf['dir_inc'].'/database.inc.php';	// include db functions
-
-	zz_initialize('overwrite');
-
-	$ops['output'] = '';
-	$ops['mode'] = 'import';
-
-	if (!empty($_FILES['zz_import']['name'])) {
-		// get file, open it and transform values into array which can directly
-		// be saved into database
-		// @todo: check files, check errors
-		if (substr($_FILES['zz_import']['name'], strrpos($_FILES['zz_import']['name'], '.')) != '.txt') {
-			$ops['output'] .= zz_text('Wrong filetype. Only textfiles are allowed');
-			return false;
-		}
-		
-//		if (substr($_FILES['zz_import']['name'], strrpos('.', $_FILES['zz_import']['name']
-		$file = readfile($_FILES['zz_import']['tmp_name']);
-		
-		zz_print_r($_FILES['zz_import']);
-		// save file somewhere to temporary database or disk
-		
-		// show records which might be imported
-	
-	} else {
-		$ops['output'].= '<div id="zzform">'."\n"
-			.'<h1>'.zz_text('Import').' '.$ops['title'].'</h1>'."\n\n"
-			.'<form action="'.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs'];
-		$ops['output'] .= $zz_conf['int']['url']['?&'].'mode=import';
-		$ops['output'].= '" method="POST" enctype="multipart/form-data"'
-			.' accept-charset="'.$zz_conf['character_set'].'">'."\n"
-			.'<p><input type="file" name="zz_import"></p>'
-			.'<p><input type="submit" value="'.zz_text('Import data').'"></p>'
-			.'</form>'."\n\n";
-		$ops['output'].= '</div>'."\n";
-	}
-	return $ops;
-}
-
 /**
  * Imports files
  *
@@ -227,8 +177,8 @@ function zz_import_create_folder($definition_file, $values, &$params) {
 	$output = '';
 
 	// 1. Check whether destination folder is already in database?
-	// @todo: problem that identifier will be different after it was inserted
-	// @todo: this gets most of it, but will not check for max_length
+	// @todo problem that identifier will be different after it was inserted
+	// @todo this gets most of it, but will not check for max_length
 	if (!empty($params['destination_conf_identifier'])) {
 		if (!empty($params['destination_identifier'])) {
 			// existing elements
@@ -253,14 +203,14 @@ function zz_import_create_folder($definition_file, $values, &$params) {
 	}
 	
 	// check if there is something for the parent folder, if not, return with error
-	// @todo: it's right now unclear for me when this happens
+	// @todo it's right now unclear for me when this happens
 	if (empty($params['parent_destination_folder_id'])) {
 		$output = '<strong> &#8211; '.zz_text('Error: Invalid or no parent folder set.').'</strong>'."\n";
 		return $output;
 	}
 	
 	// 2. If not, create new folder, but this will not be possible for top level folders
-	// @todo: set values dependent on $destination_folder_id!!
+	// @todo set values dependent on $destination_folder_id!!
 	$source_dir = str_replace($params['base_dir'], '', $params['source_dir']);
 	
 	$placeholder = zz_import_placeholder($values, $params, array($source_dir));
@@ -398,7 +348,7 @@ function zz_import_create_files($definition_file, $values, &$params, &$files) {
 		// e. g.: .CR2 / .JPG
 //		if (count($myfiles) > 1) {
 //			$output .= ' &#8211; '.zz_text('Import of two files at the same time is a to do.');
-//			continue; // @todo: later!
+//			continue; // @todo later!
 //		}
 		
 		$i = 0;
@@ -407,7 +357,7 @@ function zz_import_create_files($definition_file, $values, &$params, &$files) {
 				$output .= ' &#8211; '.zz_text('Warning! Insufficient access rights for this file.');
 				continue 2;
 			}
-			// @todo: 'short' might be removed, as it may be not neccessary
+			// @todo 'short' might be removed, as it may be not neccessary
 			$values['FILES'][$values['key'][$i]]['name']['file'] = $file['short'];
 			$values['FILES'][$values['key'][$i]]['tmp_name']['file'] = $file['full'];
 			$values['FILES'][$values['key'][$i]]['do_not_delete']['file'] = true;
@@ -488,7 +438,7 @@ function zz_import_placeholder($values, $params, $filelist, $basename = '') {
 					continue; 
 				} elseif ($val) {
 					// overwrite default value with new value
-					// @todo: separate possibilities for each filetype!
+					// @todo separate possibilities for each filetype!
 					$values['placeholder'][$index]['value'] = $val;
 				} else {
 					// ignore this file/folder in import process
@@ -558,7 +508,7 @@ function zz_import_show_wheres($definition_file, $values = array()) {
  *		=> array 'filename', 'extension', 'path' (relative to source path)
  *		'folder' (int Key of folder), 'folder_is_writable' (bool)
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @todo: save folders as well, with main_folder_id
+ * @todo save folders as well, with main_folder_id
  */
 function zz_import_get_files($source, $files = array()) {
 	// this function will be called recursively
