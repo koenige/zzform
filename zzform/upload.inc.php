@@ -1545,14 +1545,14 @@ function zz_upload_delete_file($zz_tab) {
 		}
 		$val = &$zz_tab[0][0]['images'][$no][$image];
 		// new path is not interesting, old picture shall be deleted
-		$old_path = zz_makepath($val['path'], $zz_tab, 'old', 'file', 0, 0);
+		$old_path = zz_makepath($val['path'], $zz_tab, 'old', 'file');
 		$success = zz_upload_delete($old_path, false, $action);
 		if (!$success) return zz_return($zz_tab);
 		foreach ($zz_tab[0][0]['images'][$no] as $img => $other_image) {
 			if (!is_numeric($img)) continue;
 			if (!isset($other_image['source'])) continue;
 			if ($other_image['source'] != $image) continue;
-			$old_path = zz_makepath($other_image['path'], $zz_tab, 'old', 'file', 0, 0);
+			$old_path = zz_makepath($other_image['path'], $zz_tab, 'old', 'file');
 			$success = zz_upload_delete($old_path, false, $action);
 			if (!$success) return zz_return($zz_tab);
 		}
