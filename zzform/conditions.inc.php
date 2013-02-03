@@ -92,6 +92,8 @@ function zz_conditions_set($zz) {
  * applies 'values' and 'bool' conditions to record
  *
  * @param array $zz
+ *		array 'fields'
+ *		array 'conditional_fields'
  * @param array $zz_conditions
  * @param int $id_value
  * @global array $zz_conf
