@@ -188,7 +188,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	zz_error();
 	$ops['output'] .= zz_error_output();
 
-	if ($zz_conf['search']) [
+	if ($zz_conf['search']) {
 		$search_form = zz_search_form($zz['fields_in_list'], $zz['table'], $total_rows, $count_rows);
 		$ops['output'] .= $search_form['top'];
 	}
