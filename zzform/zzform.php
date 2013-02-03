@@ -269,6 +269,7 @@ function zzform($zz = array()) {
 	}
 
 	if ($zz_conf['show_record']) {
+		require_once $zz_conf['dir_inc'].'/preparation.inc.php';
 		//	Upload
 		if (in_array('upload', $zz_conf['modules']) && $zz_conf['modules']['upload'])
 			zz_upload_check_max_file_size();
@@ -382,7 +383,7 @@ function zzform($zz = array()) {
 		$zz_tab[0]['record_action'] = false;
 		if (in_array($zz_var['action'], array('insert', 'update', 'delete'))) {
 			// check for validity, insert/update/delete record
-			require_once $zz_conf['dir_inc'].'/action.inc.php';		// update/delete/insert
+			require_once $zz_conf['dir_inc'].'/action.inc.php';
 			list($ops, $zz_tab, $validation) = zz_action($ops, $zz_tab, $validation, $zz_var); 
 			// if an error occured in zz_action, exit
 			if ($zz_error['error']) return zzform_exit($ops); 
