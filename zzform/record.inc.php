@@ -14,14 +14,14 @@
 
 
 /**
- * HTML output of a single record and its detail recors, inside of a FORM with
+ * HTML output of a single record and its detail records, inside of a FORM with
  * input elements or only for display
  *
  * @param array $ops
  *		'output', 'mode', 'result'
  * @param array $zz_tab
  * @param array $zz_var
- *		'upload_form', 'integrity', 'action'
+ *		'upload_form', 'action'
  * @param array $zz_conditions
  * @global array $zz_conf
  *		'url_self', 'url_self_qs_base', 'url_append', 'character_set'
@@ -42,7 +42,7 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 		$records = count($zz_var['id']['value']);
 	}
 	$action_before_redirect = !empty($_GET['zzaction']) ? $_GET['zzaction'] : '';
-	if ($zz_var['record_action'] OR $action_before_redirect) {
+	if ($zz_tab[0]['record_action'] OR $action_before_redirect) {
 		if ($zz_var['action'] == 'insert' OR $action_before_redirect == 'insert') {
 			$formhead = zz_text('record_was_inserted');
 		} elseif (($zz_var['action'] == 'update' AND $ops['result'] == 'successful_update')
@@ -90,15 +90,15 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 		AND ($action_before_redirect != 'delete')) {
 		$formhead = '<span class="error">'.zz_text('There is no record under this ID:')
 			.' '.htmlspecialchars($zz_tab[0][0]['id']['value']).'</span>';	
-	} elseif (!empty($zz_var['integrity'])) {
+	} elseif (!empty($zz_tab[0]['integrity'])) {
 		$formhead = zz_text('Warning!');
 		$tmp_error_msg = 
 			zz_text('This record could not be deleted because there are details about this record in other records.')
-			.' '.$zz_var['integrity']['text']."\n";
+			.' '.$zz_tab[0]['integrity']['text']."\n";
 
-		if (isset($zz_var['integrity']['fields'])) {
+		if (isset($zz_tab[0]['integrity']['fields'])) {
 			$tmp_error_msg .= '<ul>'."\n";
-			foreach ($zz_var['integrity']['fields'] as $del_tab) {
+			foreach ($zz_tab[0]['integrity']['fields'] as $del_tab) {
 				$tmp_error_msg .= '<li>'.zz_nice_tablenames($del_tab).'</li>'."\n";
 			}
 			$tmp_error_msg .= '</ul>'."\n";

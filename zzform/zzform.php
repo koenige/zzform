@@ -124,10 +124,11 @@ function zzform($zz = array()) {
 	// definition
 	foreach (array_keys($zz['fields']) as $no) {
 		if (!empty($zz['fields'][$no]['field_name']) AND
-			!empty($zz_var['zz_fields'][$zz['fields'][$no]['field_name']])) {
-				$zz['fields'][$no] = array_merge($zz['fields'][$no], 
-					$zz_var['zz_fields'][$zz['fields'][$no]['field_name']]);
-			}
+			!empty($zz_var['zz_fields'][$zz['fields'][$no]['field_name']])
+		) {
+			$zz['fields'][$no] = array_merge($zz['fields'][$no], 
+				$zz_var['zz_fields'][$zz['fields'][$no]['field_name']]);
+		}
 	}
 
 //
@@ -300,8 +301,6 @@ function zzform($zz = array()) {
 				$zz_tab[0]['extra_action']['after_update'] = true;
 		}
 		$zz_tab[0][0]['action'] = $zz_var['action'];
-
-		// ### variables for main table will be saved in zz_tab[0]
 		$zz_tab[0][0]['fields'] = $zz['fields'];
 		$zz_tab[0][0]['validation'] = true;
 		$zz_tab[0][0]['record'] = false;
@@ -319,7 +318,9 @@ function zzform($zz = array()) {
 				$zz_tab[$tab]['values'] = array();
 			}
 			if ($zz_error['error']) return zzform_exit($ops);
-			$zz_tab[$tab] = zz_get_subrecords($ops['mode'], $zz['fields'][$no], $zz_tab[$tab], $zz_tab[0], $zz_var, $tab);
+			$zz_tab[$tab] = zz_get_subrecords(
+				$ops['mode'], $zz['fields'][$no], $zz_tab[$tab], $zz_tab[0], $zz_var, $tab
+			);
 			if ($zz_error['error']) return zzform_exit($ops);
 			if (isset($zz_tab[$tab]['subtable_focus'])) {
 				// set autofocus on subrecord, not on main record
@@ -353,11 +354,12 @@ function zzform($zz = array()) {
 			// do the same if a file might be renamed, deleted ... via upload
 			// or if there is a display or write_once field (so that it can be used
 			// e. g. for identifiers):
-			if ($zz_var['action'] == 'update' OR $zz_var['action'] == 'delete') {
+			if ($zz_var['action'] === 'update' OR $zz_var['action'] === 'delete') {
 				if (count($zz_var['save_old_record']) && !empty($zz_tab[0]['existing'][0])) {
 					foreach ($zz_var['save_old_record'] as $no) {
 						if (empty($zz_tab[0]['existing'][0][$zz['fields'][$no]['field_name']])) continue;
-						$_POST[$zz['fields'][$no]['field_name']] = $zz_tab[0]['existing'][0][$zz['fields'][$no]['field_name']];
+						$_POST[$zz['fields'][$no]['field_name']] 
+							= $zz_tab[0]['existing'][0][$zz['fields'][$no]['field_name']];
 					}
 				}
 			}
@@ -374,21 +376,23 @@ function zzform($zz = array()) {
 			//  POST is secured, now get rid of password fields in case of error_log_post
 			foreach ($zz['fields'] AS $field) {
 				if (empty($field['type'])) continue;
-				if ($field['type'] == 'password') unset($_POST[$field['field_name']]);
-				if ($field['type'] == 'password_change') unset($_POST[$field['field_name']]);
+				if ($field['type'] === 'password') unset($_POST[$field['field_name']]);
+				if ($field['type'] === 'password_change') unset($_POST[$field['field_name']]);
 			}
 
 			// set defaults and values, clean up POST
-			$zz_tab[0][0]['POST'] = zz_check_def_vals($zz_tab[0][0]['POST'], $zz_tab[0][0]['fields'], $zz_tab[0]['existing'][0],
-				(!empty($zz_var['where'][$zz_tab[0]['table']]) ? $zz_var['where'][$zz_tab[0]['table']] : ''));
+			$zz_tab[0][0]['POST'] = zz_check_def_vals(
+				$zz_tab[0][0]['POST'], $zz_tab[0][0]['fields'], $zz_tab[0]['existing'][0],
+				(!empty($zz_var['where'][$zz_tab[0]['table']]) ? $zz_var['where'][$zz_tab[0]['table']] : '')
+			);
 		}
-	
+
 	//	Start action
-		$zz_var['record_action'] = false;
+		$zz_tab[0]['record_action'] = false;
 		if (in_array($zz_var['action'], array('insert', 'update', 'delete'))) {
 			// check for validity, insert/update/delete record
 			require_once $zz_conf['dir_inc'].'/action.inc.php';		// update/delete/insert
-			list($ops, $zz_tab, $validation, $zz_var) = zz_action($ops, $zz_tab, $validation, $zz_var); 
+			list($ops, $zz_tab, $validation) = zz_action($ops, $zz_tab, $validation, $zz_var); 
 			// if an error occured in zz_action, exit
 			if ($zz_error['error']) return zzform_exit($ops); 
 			// was action successful?
@@ -423,6 +427,19 @@ function zzform($zz = array()) {
 		}
 		if ($zz_error['error']) return zzform_exit($ops);
 
+		if (!$zz_conf['generate_output']) {
+			$ops['error'] = zz_error_multi($ops['error']);
+			zz_error_validation();
+		}
+	}
+
+	if (!$zz_conf['generate_output']) {
+		return zzform_exit($ops);
+	}
+	
+	$zz_var['extraGET'] = zz_extra_get_params($ops['mode'], $zz_conf);
+
+	if ($zz_conf['show_record']) {
 		// there might be now a where value for this record
 		if (!empty($zz_var['where'][$zz['table']])) {
 			foreach ($zz_var['where'][$zz['table']] as $field_name => $value) {
@@ -431,19 +448,6 @@ function zzform($zz = array()) {
 				$zz_var['where'][$zz['table']][$field_name] = $zz_tab[0][0]['record'][$field_name];
 			}
 		}
-	}
-
-	if (!$zz_conf['generate_output']) {
-		if ($zz_conf['show_record']) {
-			$ops['error'] = zz_error_multi($ops['error']);
-			zz_error_validation();
-		}
-		return zzform_exit($ops);
-	}
-	
-	$zz_var['extraGET'] = zz_extra_get_params($ops['mode'], $zz_conf);
-
-	if ($zz_conf['show_record']) {
 		// display updated, added or editable Record
 		$ops['output'] .= zz_record($ops, $zz_tab, $zz_var, $zz_conditions);	
 	} else {

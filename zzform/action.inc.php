@@ -32,7 +32,7 @@
  * @param array $zz_var
  * @global array $zz_error
  * @global array $zz_conf
- * @return array ($ops, $zz_tab, $validation, $zz_var)
+ * @return array ($ops, $zz_tab, $validation)
  * @see zz_upload_get(), zz_upload_prepare(), zz_set_subrecord_action(),
  *		zz_validate(), zz_integrity_check(), zz_upload_cleanup(), 
  *		zz_prepare_for_db(), zz_log_sql(), zz_foldercheck(), zz_upload_action()
@@ -42,7 +42,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	global $zz_error;
 
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	$zz_var['record_action'] = false;
+	$zz_tab[0]['record_action'] = false;
 
 	// assign POST values to each subrecord
 	foreach (array_keys($zz_tab) as $tab) {
@@ -82,7 +82,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		}
 	}
 	if ($zz_error['error'])
-		return zz_return(array($ops, $zz_tab, $validation, $zz_var));
+		return zz_return(array($ops, $zz_tab, $validation));
 
 	foreach (array_keys($zz_tab) as $tab) {
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
@@ -117,23 +117,23 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	// check referential integrity
 	if ($zz_conf['check_referential_integrity']) {
 		// get table relations
-		$zz_var['relations'] = zz_integrity_relations($zz_conf['relations_table']);
+		$relations = zz_integrity_relations($zz_conf['relations_table']);
 		// get record IDs of all records in table definition (1 main, n sub records)
 		$record_ids = zz_integrity_record_ids($zz_tab);
 		// if no record IDs = no deletion is possible
 		if ($record_ids) {
 			// get record IDs of dependent records which have 'delete' set
 			// in table relations
-			$dependent_ids = zz_integrity_dependent_record_ids($zz_tab, $zz_var['relations']);
+			$dependent_ids = zz_integrity_dependent_record_ids($zz_tab, $relations);
 			// merge arrays for later
 			$deletable_ids = zz_array_merge($record_ids, $dependent_ids);
-			$zz_var['integrity'] = zz_integrity_check($deletable_ids, $zz_var['relations']);
+			$zz_tab[0]['integrity'] = zz_integrity_check($deletable_ids, $relations);
 			// return database errors
 			if ($zz_error['error'])
-				return zz_return(array($ops, $zz_tab, $validation, $zz_var));
+				return zz_return(array($ops, $zz_tab, $validation));
 			// if something was returned, validation failed because there 
 			// probably are records
-			if ($zz_var['integrity']['fields']) $validation = false;
+			if ($zz_tab[0]['integrity']['fields']) $validation = false;
 		}
 	}
 
@@ -164,7 +164,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	
 	if (!$validation) {
 		if (!empty($zz_var['upload_form'])) zz_upload_cleanup($zz_tab, false); 
-		return zz_return(array($ops, $zz_tab, $validation, $zz_var));
+		return zz_return(array($ops, $zz_tab, $validation));
 	}
 
 	if ($zz_conf['modules']['debug']) zz_debug("validation successful");
@@ -214,7 +214,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		$validation = false;
 		// delete temporary unused files
 		if (!empty($zz_var['upload_form'])) zz_upload_cleanup($zz_tab); 
-		return zz_return(array($ops, $zz_tab, $validation, $zz_var));
+		return zz_return(array($ops, $zz_tab, $validation));
 	}
 
 	$sql_edit = '';
@@ -317,8 +317,8 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	// error there are no orphans
 	// 1. detail records from relations-table which need update
 	// (foreign_id = NULL)
-	if (!empty($zz_var['integrity']['updates'])) {
-		foreach ($zz_var['integrity']['updates'] as $null_update) {
+	if (!empty($zz_tab[0]['integrity']['updates'])) {
+		foreach ($zz_tab[0]['integrity']['updates'] as $null_update) {
 			$me_sql = 'UPDATE `'.$null_update['field']['detail_db'].'`.`'
 				.$null_update['field']['detail_table'].'` '
 				.'SET `'.$null_update['field']['detail_field'].'` = NULL '
@@ -412,10 +412,10 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			$zz_tab[0][0]['actual_action'] = 'nothing';
 		}
 		$ops = zz_record_info($ops, $zz_tab);
-		$zz_var['record_action'] = true;
+		$zz_tab[0]['record_action'] = true;
 		if (isset($detail_sqls)) {
-			list($zz_tab, $zz_var, $validation, $ops) 
-				= zz_action_details($detail_sqls, $zz_tab, $zz_var, $validation, $ops);
+			list($zz_tab, $validation, $ops) 
+				= zz_action_details($detail_sqls, $zz_tab, $validation, $ops);
 		}
 	
 		// if any other action after insertion/update/delete is required
@@ -433,10 +433,12 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			$ops['output'] .= zz_error();
 			if ($zz_error['error']) {
 				zz_upload_cleanup($zz_tab);
-				return zz_return(array($ops, $zz_tab, $validation, $zz_var));
+				return zz_return(array($ops, $zz_tab, $validation));
 			}
 		}
-		if ($zz_var['record_action']) $ops['result'] = 'successful_'.$zz_tab[0][0]['action'];
+		if ($zz_tab[0]['record_action']) {
+			$ops['result'] = 'successful_'.$zz_tab[0][0]['action'];
+		}
 	} else {
 		// Output Error Message
 		if ($zz_var['action'] === 'insert') {
@@ -461,7 +463,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	
 	// delete temporary unused files
 	if (!empty($zz_var['upload_form'])) zz_upload_cleanup($zz_tab);
-	return zz_return(array($ops, $zz_tab, $validation, $zz_var));
+	return zz_return(array($ops, $zz_tab, $validation));
 }
 
 /**
@@ -544,14 +546,13 @@ function zz_action_equals($my_rec, $existing) {
  *
  * @param string $detail_sqls
  * @param array $zz_tab
- * @param array $zz_var
  * @param bool $validation
  * @param array $ops
  * @global array $zz_error
  * @return array
- *		$zz_tab, $zz_var, $validation, $ops
+ *		$zz_tab, $validation, $ops
  */
-function zz_action_details($detail_sqls, $zz_tab, $zz_var, $validation, $ops) {
+function zz_action_details($detail_sqls, $zz_tab, $validation, $ops) {
 	global $zz_error;
 	global $zz_conf;
 	
@@ -586,7 +587,7 @@ function zz_action_details($detail_sqls, $zz_tab, $zz_var, $validation, $ops) {
 				$result['error']['level'] = E_USER_WARNING;
 				$zz_error[] = $result['error'];
 				$zz_tab[$tab][$rec]['error'] = $result['error'];
-				$zz_var['record_action'] = false;
+				$zz_tab[0]['record_action'] = false;
 				$validation = false; 
 				$zz_tab[0][0]['fields'][$zz_tab[$tab]['no']]['check_validation'] = false;
 			} elseif ($my_rec['action'] === 'insert') {
@@ -603,7 +604,7 @@ function zz_action_details($detail_sqls, $zz_tab, $zz_var, $validation, $ops) {
 			}
 		}
 	}
-	return array($zz_tab, $zz_var, $validation, $ops);
+	return array($zz_tab, $validation, $ops);
 }
 
 /**
