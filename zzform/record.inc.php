@@ -1700,12 +1700,11 @@ function zz_field_number($field, $display, $record) {
 		$formtype = 'text_noescape';
 		// reformat 1 434,00 EUR and similar values
 		$num = zz_check_number($value);
-		if ($num !== NULL) {
+		if ($num === 0) {
+			$value = 0;
+		} elseif ($num !== NULL) {
 			// only apply number_format if it's a valid number
 			$value = zz_number_format($num, $field);
-		}
-		if ($value === '' AND !empty($field['null'])) {
-			$value = 0;
 		}
 		break;
 	}
