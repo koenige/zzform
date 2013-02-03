@@ -831,6 +831,7 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 		require_once $zz_conf['dir_inc'].'/functions.inc.php';
 		require_once $zz_conf['dir_inc'].'/database.inc.php';
 		require_once $zz_conf['dir_inc'].'/import.inc.php';
+		require_once $zz_conf['dir_inc'].'/identifier.inc.php';
 		require_once $zz_conf['dir_inc'].'/forcefilename-'.$zz_conf['character_set'].'.inc.php';
 		$ops['output'] = zz_import_files($definition_file, $values, $params);
 		return $ops['output'];

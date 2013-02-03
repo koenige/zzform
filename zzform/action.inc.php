@@ -625,6 +625,7 @@ function zz_action_function($type, $ops, $main_tab) {
 	if (empty($main_tab['extra_action'][$type])) return false;
 
 	if (!empty($main_tab['set_redirect'])) {
+		require_once $zz_conf['dir_inc'].'/identifier.inc.php';
 		zz_identifier_redirect($type, $ops, $main_tab);
 	}
 
@@ -848,6 +849,7 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 		foreach ($my_rec['last_fields'] as $f)
 			//	call function: generate ID
 			if ($my_rec['fields'][$f]['type'] === 'identifier') {
+				require_once $zz_conf['dir_inc'].'/identifier.inc.php';
 				$func_vars = zz_identifier_vars($my_rec, $f, $main_post);
 				$conf = (!empty($my_rec['fields'][$f]['conf_identifier']) 
 					? $my_rec['fields'][$f]['conf_identifier'] : false);
