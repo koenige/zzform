@@ -1918,7 +1918,12 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 		? $field['show_hierarchy_subtree'] : '';
 	$fieldattr = array();
 	if ($record) if (!$record[$field['field_name']]) $fieldattr['selected'] = true;
-	$outputf .= zz_form_element(zz_text('none_selected'), $fieldvalue, 'option', '', $fieldattr);
+	if (!empty($field['text_none_selected'])) {
+		$display = zz_text($field['text_none_selected');
+	} else {
+		$display = zz_text('none_selected');
+	}
+	$outputf .= zz_form_element($display, $fieldvalue, 'option', '', $fieldattr);
 
 	// further OPTION elements
 	$close_select = true;
@@ -2507,7 +2512,12 @@ function zz_field_select_enum($field, $display, $record) {
 		// written in my record fieldname)
 		$fieldattr['selected'] = true;
 	}
-	$text .= zz_form_element(zz_text('none_selected'), '', 'option', false, $fieldattr)."\n";
+	if (!empty($field['text_none_selected'])) {
+		$display = zz_text($field['text_none_selected');
+	} else {
+		$display = zz_text('none_selected');
+	}
+	$text .= zz_form_element($display, '', 'option', false, $fieldattr)."\n";
 	foreach ($field['enum'] as $key => $set) {
 		$fieldattr = array();
 		if ($record AND $set == $record[$field['field_name']]) {
