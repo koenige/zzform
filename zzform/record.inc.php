@@ -1918,7 +1918,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 		? $field['show_hierarchy_subtree'] : '';
 	$fieldattr = array();
 	if ($record) if (!$record[$field['field_name']]) $fieldattr['selected'] = true;
-	if (!empty($field['text_none_selected'])) {
+	if (isset($field['text_none_selected'])) {
 		$display = zz_text($field['text_none_selected']);
 	} else {
 		$display = zz_text('none_selected');
@@ -2512,7 +2512,7 @@ function zz_field_select_enum($field, $display, $record) {
 		// written in my record fieldname)
 		$fieldattr['selected'] = true;
 	}
-	if (!empty($field['text_none_selected'])) {
+	if (isset($field['text_none_selected'])) {
 		$display = zz_text($field['text_none_selected']);
 	} else {
 		$display = zz_text('none_selected');
