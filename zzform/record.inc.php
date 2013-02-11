@@ -1919,7 +1919,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 	$fieldattr = array();
 	if ($record) if (!$record[$field['field_name']]) $fieldattr['selected'] = true;
 	if (!empty($field['text_none_selected'])) {
-		$display = zz_text($field['text_none_selected');
+		$display = zz_text($field['text_none_selected']);
 	} else {
 		$display = zz_text('none_selected');
 	}
@@ -2513,7 +2513,7 @@ function zz_field_select_enum($field, $display, $record) {
 		$fieldattr['selected'] = true;
 	}
 	if (!empty($field['text_none_selected'])) {
-		$display = zz_text($field['text_none_selected');
+		$display = zz_text($field['text_none_selected']);
 	} else {
 		$display = zz_text('none_selected');
 	}
