@@ -92,6 +92,11 @@ function zz_export_init($zz, $ops) {
 	case 'kml':
 		// always use UTF-8
 		zz_db_charset('UTF8');
+		// if kml file is called without limit parameter, it does not default
+		// to limit=20 but to no limit instead
+		if (empty($_GET['limit'])) {
+			$zz_conf['int']['this_limit'] = false; 
+		}
 		break;
 	case 'csv':
 	case 'pdf':
@@ -263,6 +268,7 @@ function zz_export_kml($ops, $zz) {
 	foreach ($ops['output']['rows'] as $line) {
 		$latitude = '';
 		$longitude = '';
+		$extended_data = array();
 		if (!empty($fields['point'])) {
 			$point = $line[$fields['point']]['value'];
 			$point = zz_geo_coord_sql_out($point, 'dec', ' ');
@@ -275,13 +281,22 @@ function zz_export_kml($ops, $zz) {
 			$latitude = $line[$fields['latitude']]['value'];
 			$longitude = $line[$fields['longitude']]['value'];
 		}
+		foreach ($ops['output']['head'] as $index => $field) {
+			if (empty($field['kml_extendeddata'])) continue;
+			$extended_data[] = array(
+				'field_name' => $field['field_name'],
+				'title' => $field['title'],
+				'value' => $line[$index]['text']
+			);
+		}
 		$kml['placemarks'][] = array(
 			'title' => strip_tags($line[$fields['title']]['text']),
 			'description' => zz_export_kml_description($ops['output']['head'], $line, $fields),
 			'longitude' => $longitude,
 			'latitude' => $latitude,
 			'altitude' => (isset($fields['altitude']) ? $line[$fields['altitude']]['value'] : ''),
-			'style' => (isset($fields['style']) ? $line[$fields['style']]['text'] : 'default')
+			'style' => (isset($fields['style']) ? $line[$fields['style']]['text'] : 'default'),
+			'extended_data' => $extended_data ? $extended_data : NULL
 		);
 	}
 	$output = wrap_template('kml-coordinates', $kml);
