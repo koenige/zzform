@@ -290,14 +290,17 @@ oda		oda		oda		application/oda
 
 ods		ods		ods		application/vnd.oasis.opendocument.spreadsheet		Open Document Spreadsheet
 ods		ods		ods		application/x-vnd.oasis.opendocument.spreadsheet	Open Document Spreadsheet
+ods		ods		ods		application/x-zip									Open Document Spreadsheet
 
 odt		odt		odt		application/vnd.oasis.opendocument.text		Open Document Text Document
 odt		odt		odt		application/x-vnd.oasis.opendocument.text	Open Document Text Document
+odt		odt		odt		application/x-zip							Open Document Text Document
 
 ogg		ogg		ogg		application/ogg
 
 ott		ott		ott		application/vnd.oasis.opendocument.text-template	OpenDocument Text Document Template
 ott		ott		ott		application/x-vnd.oasis.opendocument.text-template	OpenDocument Text Document Template
+ott		ott		ott		application/x-zip									OpenDocument Text Document Template
 
 pbm		pbm		pbm		image/x-portable-bitmap
 
