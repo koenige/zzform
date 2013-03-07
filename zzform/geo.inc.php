@@ -436,25 +436,28 @@ function zz_geo_timestamp_in($value) {
  * @param string $type ('after_insert' or 'after_update')
  * @param array $ops
  * @param array $zz_tab
+ * @return array $change
  */
 function zz_geo_geocode($type, $ops, $zz_tab) {
 	global $zz_error;
-	if (!in_array($type, array('after_insert', 'after_update'))) {
+	global $zz_conf;
+	
+	if (!in_array($type, array('before_insert', 'before_update'))) {
 		$zz_error[]['msg_dev'] = sprintf(
 			'Calling %s with wrong type %s', __FUNCTION__, $type
 		);
 		return array();
 	}
-	return array();
-/*
-	// get fields with latitude and longitude
-	// get input fields
-	foreach () {
+
+	$change = array();
+	foreach ($ops['planned'] as $index => $planned) {
+		$tabrec = explode('-', $planned['tab-rec']);
 		$geocoding = array();
 		$latlon = array();
-		foreach ($zz_tab[0]['fields'] as $no => $field) {
-			// street, street_number, locality, postal_code, country
-			// each with _id
+		// get fields with latitude and longitude
+		// get input fields
+		$my_fields = $zz_tab[$tabrec[0]][$tabrec[1]]['fields'];
+		foreach ($my_fields as $no => $field) {
 			if (empty($field['field_name'])) continue;
 			if (empty($field['geocode'])) continue;
 			if (in_array($field['geocode'], array('latitude', 'longitude'))) {
@@ -463,20 +466,132 @@ function zz_geo_geocode($type, $ops, $zz_tab) {
 				$geocoding[$field['geocode']] = $no;
 			}
 		}
+		if (!$latlon) continue;
 		if (count($latlon) !== 2) {
-			// @todo Error
-			return array();
+			$zz_error[]['msg_dev'] = 'Record definition incorrect, only one of latitude/longitude present.';
+			continue;
+		}
+		// update coordinates:
+		$update = false;
+
+		// - if either latitude or longitude are NULL
+		foreach ($latlon as $type => $no) {
+			$field = $ops['record_new'][$index][$my_fields[$no]['field_name']];
+			if (!$field AND $field !== 0 AND $field !== '0') $update = true;
+		}
+
+		// - if address fields have changed
+		if (!$update) {
+			foreach ($geocoding as $type => $no) {
+				$field = $ops['record_diff'][$index][$my_fields[$no]['field_name']];
+				if ($field !== 'same') $update = true;
+			}
+		}
+		if ($update) {
+			$address = array();
+			foreach ($geocoding as $type => $no) {
+			// street, street_number, locality, postal_code, country
+			// each with _id
+				$value = $ops['record_new'][$index][$my_fields[$no]['field_name']];
+				if (substr($type, -3) === '_id') {
+					$type = substr($type, 0, -3);
+					if (!isset($my_fields[$no]['geocode_sql'])) {
+						$zz_error[]['msg_dev'] = sprintf('Error: geocode_sql not defined for field no %d', $no);
+						continue 2;
+					}
+					$sql = sprintf($my_fields[$no]['geocode_sql'], $value);
+					$value = zz_db_fetch($sql, '', 'single value');
+				}
+				if ($zz_conf['character_set'] !== 'utf-8') {
+					// @todo: support more encodings than iso-8859-1 and utf-8
+					$value = utf8_encode($value);
+				}
+				$address[$type] = $value;
+			}
+			$result = zz_geo_geocode_syndication($address);
+			if ($result) {
+				if ($result['longitude'])
+					$change['record_replace'][$index][$my_fields[$latlon['longitude']]['field_name']] = $result['longitude'];
+				if ($result['latitude'])
+					$change['record_replace'][$index][$my_fields[$latlon['latitude']]['field_name']] = $result['latitude'];
+				if ($result['postal_code'] AND isset($geocoding['postal_code']))
+					$change['record_replace'][$index][$my_fields[$geocoding['postal_code']]['field_name']] = $result['postal_code'];
+			}
 		}
 	}
-	// check fields used for geocoding if they have changed
-	// if no, do not do anything
-	foreach ($geocoding as $field_no) {
-		
-	}
-	
-	// if yes or if new, get data from geocoding API
-*/
+	return $change;
 }
 
+/**
+ * Get geographic coordinates and postal code from address or parts of an
+ * address
+ *
+ * This function requires the zzwrap library!
+ *
+ * @param array $address address data, utf8 encoded
+ *	string 'country'
+ *	string 'locality'
+ *	string 'postal_code' (optional)
+ *	string 'street_name' (optional)
+ *	string 'street_number' (optional)
+ * @return array
+ *		double 'longitude'
+ *		double 'latitude'
+ *		string 'postal_code'
+ */
+function zz_geo_geocode_syndication($address) {
+	global $zz_setting;
+	global $zz_error;
+	
+	require_once $zz_setting['lib'].'/zzwrap/syndication.inc.php';
+	if (!isset($zz_setting['geocoder'])) {
+		$zz_setting['geocoder'] = 'Google Maps';
+	}
+	switch ($zz_setting['geocoder']) {
+	case 'Google Maps':
+		$url = 'https://maps.googleapis.com/maps/api/geocode/json?address=%s&region=%s&sensor=false';
+		$add = '';
+		if (isset($address['locality'])) {
+			$add = $address['locality'];
+		}
+		if (isset($address['postal_code'])) {
+			$add = $address['postal_code'].($add ? ' ' : '').$add;
+		}
+		$add = urlencode($add);
+		if (isset($address['street_name'])) {
+			$add = urlencode($address['street_name']
+				.(isset($address['street_number']) ? ' '.$address['street_number'] : ''))
+				.($add ? ',' : '').$add;
+		}
+		$region = isset($address['country']) ? $address['country'] : '';
+		$url = sprintf($url, $add, $region);
+		break;
+	default:
+		$zz_error[]['msg_dev'] = sprintf('Geocoder %s not supported.', $zz_setting['geocoder']);
+		break;
+	}
+
+	$cache_age_syndication = (isset($zz_setting['cache_age_syndication']) ? $zz_setting['cache_age_syndication'] : 0);
+	$zz_setting['cache_age_syndication'] = -1;
+	$coords = wrap_syndication_get($url);	
+	$zz_setting['cache_age_syndication'] = $cache_age_syndication;
+	if ($coords['status'] !== 'OK') {
+//		wrap_cache_delete(404, $url);
+		return false;
+	}
+	
+	if (empty($coords['results'][0]['geometry']['location']['lng'])) return false;
+	$postal_code = '';
+	foreach ($coords['results'][0]['address_components'] as $component) {
+		if (in_array('postal_code', $component['types']))
+			$postal_code = $component['long_name'];
+	}
+	$result = array(
+		'longitude' => $coords['results'][0]['geometry']['location']['lng'], 
+		'latitude' => $coords['results'][0]['geometry']['location']['lat'],
+		'postal_code' => $postal_code
+	);
+	return $result;
+}
 
 ?>
