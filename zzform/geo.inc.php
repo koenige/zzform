@@ -430,4 +430,53 @@ function zz_geo_timestamp_in($value) {
 	return $time;
 }
 
+/**
+ * get latitude and longitude from a geocoding API depending on some fields
+ *
+ * @param string $type ('after_insert' or 'after_update')
+ * @param array $ops
+ * @param array $zz_tab
+ */
+function zz_geo_geocode($type, $ops, $zz_tab) {
+	global $zz_error;
+	if (!in_array($type, array('after_insert', 'after_update'))) {
+		$zz_error[]['msg_dev'] = sprintf(
+			'Calling %s with wrong type %s', __FUNCTION__, $type
+		);
+		return array();
+	}
+	return array();
+/*
+	// get fields with latitude and longitude
+	// get input fields
+	foreach () {
+		$geocoding = array();
+		$latlon = array();
+		foreach ($zz_tab[0]['fields'] as $no => $field) {
+			// street, street_number, locality, postal_code, country
+			// each with _id
+			if (empty($field['field_name'])) continue;
+			if (empty($field['geocode'])) continue;
+			if (in_array($field['geocode'], array('latitude', 'longitude'))) {
+				$latlon[$field['geocode']] = $no;
+			} else {
+				$geocoding[$field['geocode']] = $no;
+			}
+		}
+		if (count($latlon) !== 2) {
+			// @todo Error
+			return array();
+		}
+	}
+	// check fields used for geocoding if they have changed
+	// if no, do not do anything
+	foreach ($geocoding as $field_no) {
+		
+	}
+	
+	// if yes or if new, get data from geocoding API
+*/
+}
+
+
 ?>

@@ -63,7 +63,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 
 	// get images from different locations than upload
 	// if any other action before insertion/update/delete is required
-	if ($change = zz_action_function('upload', $ops, $zz_tab[0])) {
+	if ($change = zz_action_function('upload', $ops, $zz_tab)) {
 		list($ops, $zz_tab) = zz_action_change($ops, $zz_tab, $change);
 		unset($ops['not_validated']);
 		unset($ops['record_old']);
@@ -200,7 +200,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	}
 
 	// if any other action before insertion/update/delete is required
-	if ($change = zz_action_function('before_'.$zz_var['action'], $ops, $zz_tab[0])) {
+	if ($change = zz_action_function('before_'.$zz_var['action'], $ops, $zz_tab)) {
 		list($ops, $zz_tab) = zz_action_change($ops, $zz_tab, $change);
 		// 'planned' is a variable just for custom 'action' scripts
 		unset($ops['planned']);
@@ -419,7 +419,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		}
 	
 		// if any other action after insertion/update/delete is required
-		$change = zz_action_function('after_'.$zz_var['action'], $ops, $zz_tab[0]);
+		$change = zz_action_function('after_'.$zz_var['action'], $ops, $zz_tab);
 		list($ops, $zz_tab) = zz_action_change($ops, $zz_tab, $change);
 
 		if (!empty($zz_conf['folder']) && $zz_tab[0][0]['action'] === 'update') {
@@ -613,31 +613,34 @@ function zz_action_details($detail_sqls, $zz_tab, $validation, $ops) {
  * @param string $type (upload, before_insert, before_update, before_delete,
  *	after_insert, after_update, after_delete, to be set in $zz['extra_action']
  * @param array $ops
- * @param array $main_tab = $zz_tab[0]
+ * @param array $zz_tab
  * @global array $zz_conf
  * @global array $zz_error (in case custom error message shall be logged)
  * @return mixed bool true if some action was performed; 
  *	array $change if some values need to be changed
  */
-function zz_action_function($type, $ops, $main_tab) {
+function zz_action_function($type, $ops, $zz_tab) {
 	global $zz_conf;
 	global $zz_error;
-	if (empty($main_tab['extra_action'][$type])) return false;
+	if (empty($zz_tab[0]['extra_action'][$type])) return false;
 
-	if (!empty($main_tab['set_redirect'])) {
+	if (!empty($zz_tab[0]['set_redirect'])) {
 		require_once $zz_conf['dir_inc'].'/identifier.inc.php';
-		zz_identifier_redirect($type, $ops, $main_tab);
+		zz_identifier_redirect($type, $ops, $zz_tab[0]);
 	}
 
 	$change = array();
-	if ($main_tab['extra_action'][$type] !== true) {
-		$file = $zz_conf['action_dir'].'/'.$main_tab['extra_action'][$type].'.inc.php';
+	if (!empty($zz_tab[0]['geocode'])) {
+		$change = zz_geo_geocode($type, $ops, $zz_tab);
+	}
+	if ($zz_tab[0]['extra_action'][$type] !== true) {
+		$file = $zz_conf['action_dir'].'/'.$zz_tab[0]['extra_action'][$type].'.inc.php';
 		if (file_exists($file)) {
 			// a file has to be included
 			include $file;
 		} else {
 			// it's a function
-			$change = $main_tab['extra_action'][$type]($ops);
+			$change = array_merge($change, $zz_tab[0]['extra_action'][$type]($ops));
 		}
 	}
 	if ($change) {

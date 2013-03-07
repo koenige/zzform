@@ -42,6 +42,28 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 		if (!isset($zz_tab[0]['extra_action']['after_update']))
 			$zz_tab[0]['extra_action']['after_update'] = true;
 	}
+	foreach ($zz['fields'] as $field) {
+		// geocoding?
+		if (empty($field['type'])) continue;
+		if ($field['type'] === 'subtable') {
+			$continue = true;
+			foreach ($field['fields'] as $subfield) {
+				if (!empty($subfield['geocode'])) {
+					$continue = false;
+					break;
+				}
+			}
+			if ($continue) continue;
+		} elseif (empty($field['geocode'])) {
+			continue;
+		}
+		$zz_tab[0]['geocode'] = true;
+		if (!isset($zz_tab[0]['extra_action']['after_insert']))
+			$zz_tab[0]['extra_action']['after_insert'] = true;
+		if (!isset($zz_tab[0]['extra_action']['after_update']))
+			$zz_tab[0]['extra_action']['after_update'] = true;
+		break;
+	}
 	$zz_tab[0]['record_action'] = false;
 	
 	$zz_tab[0][0]['action'] = $zz_var['action'];
