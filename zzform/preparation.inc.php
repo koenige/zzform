@@ -58,10 +58,10 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 			continue;
 		}
 		$zz_tab[0]['geocode'] = true;
-		if (!isset($zz_tab[0]['extra_action']['after_insert']))
-			$zz_tab[0]['extra_action']['after_insert'] = true;
-		if (!isset($zz_tab[0]['extra_action']['after_update']))
-			$zz_tab[0]['extra_action']['after_update'] = true;
+		if (!isset($zz_tab[0]['extra_action']['before_insert']))
+			$zz_tab[0]['extra_action']['before_insert'] = true;
+		if (!isset($zz_tab[0]['extra_action']['before_update']))
+			$zz_tab[0]['extra_action']['before_update'] = true;
 		break;
 	}
 	$zz_tab[0]['record_action'] = false;
