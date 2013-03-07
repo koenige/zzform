@@ -140,6 +140,11 @@ function zz_dependent_modules($zz) {
 			break;
 		case 'geo':
 			$geo = false;
+			foreach ($zz['fields'] as $field) {
+				if (!isset($field['geocode'])) continue;
+				$geo = true;
+				break;
+			}
 			if (zz_module_fieldcheck($zz, 'number_type', 'latitude')) {
 				$geo = true;
 			} elseif (zz_module_fieldcheck($zz, 'number_type', 'longitude')) {
