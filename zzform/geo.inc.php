@@ -576,7 +576,8 @@ function zz_geo_geocode_syndication($address) {
 	$coords = wrap_syndication_get($url);	
 	$zz_setting['cache_age_syndication'] = $cache_age_syndication;
 	if ($coords['status'] !== 'OK') {
-//		wrap_cache_delete(404, $url);
+		// e. g. when gettin OVER_QUERY_LIMIT, we must not cache this.
+		wrap_cache_delete(404, $url);
 		return false;
 	}
 	
