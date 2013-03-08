@@ -545,12 +545,16 @@ function zz_maintenance_folders() {
 			}
 			$size = filesize($my_folder.'/'.$file);
 			$size_total += $size;
-			if (is_dir($my_folder.'/'.$file)) 
+			if (is_dir($my_folder.'/'.$file)) {
 				$ext = zz_text('Folder');
-			elseif (strstr($file, '.'))
+			} elseif (strrpos($file, '.') > strlen($file) - 10) {
+				// treat part behind last dot as file extension
+				// normally, file extensions won't be longer than 10 characters
+				// not 100% correct of course
 				$ext = substr($file, strrpos($file, '.')+1);
-			else
+			} else {
 				$ext = zz_text('unknown');
+			}
 			$time = date('Y-m-d H:i:s', filemtime($my_folder.'/'.$file));
 			$files_in_dir = 0;
 			if (is_dir($my_folder.'/'.$file)) {
@@ -567,7 +571,7 @@ function zz_maintenance_folders() {
 			}
 			$tbody .= '<tr class="'.($i & 1 ? 'uneven' : 'even').'">'
 				.'<td>'.($files_in_dir ? '' : '<input type="checkbox" name="files['.$file.']">').'</td>'
-				.'<td><a href="'.$link.'">'.zz_mark_search_string(str_replace('%', '%&shy;', urldecode($file))).'</a></td>'
+				.'<td><a href="'.$link.'">'.zz_mark_search_string(str_replace('%', '%&shy;', htmlspecialchars(urldecode($file)))).'</a></td>'
 				.'<td>'.$ext.'</td>'
 				.'<td class="number">'.number_format($size).' Bytes</td>'
 				.'<td>'.$time.'</td>'
