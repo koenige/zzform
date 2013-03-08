@@ -372,7 +372,7 @@ function zz_check_date($date) {
 	if ($new['month'] > 12) return false;
 	if ($new['day'] > 31) return false;
 	if ($new['day'] > 30 AND in_array($new['month'], array(4, 6, 9, 11))) return false;
-	if ($new['day'] > 29 AND in_array($new['month'] === 2)) return false;
+	if ($new['day'] > 29 AND $new['month'] === 2) return false;
 
 	return sprintf("%04d-%02d-%02d", $new['year'], $new['month'], $new['day']);
 }
