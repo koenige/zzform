@@ -512,7 +512,7 @@ function zz_geo_geocode($type, $ops, $zz_tab) {
 				}
 				if ($zz_conf['character_set'] !== 'utf-8') {
 					// @todo: support more encodings than iso-8859-1 and utf-8
-					$value = utf8_encode($value);
+					$value = iconv(strtoupper($zz_conf['character_set']), 'UTF-8', $value);
 				}
 				$address[$type] = $value;
 			}
