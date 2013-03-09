@@ -449,6 +449,13 @@ function zz_geo_geocode($type, $ops, $zz_tab) {
 		return array();
 	}
 
+	if (empty($zz_conf['geocoding_function'])) {
+		// you'll need a function that returns from Array $address
+		// an Array with latitude, longitude and postal_code (optional)
+		require_once $zz_setting['lib'].'/zzwrap/syndication.inc.php';
+		$zz_conf['geocoding_function'] = 'wrap_syndication_geocode';
+	}
+
 	$change = array();
 	foreach ($ops['planned'] as $index => $planned) {
 		$tabrec = explode('-', $planned['tab-rec']);
@@ -508,7 +515,7 @@ function zz_geo_geocode($type, $ops, $zz_tab) {
 				}
 				$address[$type] = $value;
 			}
-			$result = zz_geo_geocode_syndication($address);
+			$result = $zz_conf['geocoding_function']($address);
 			if ($result) {
 				if ($result['longitude'])
 					$change['record_replace'][$index][$my_fields[$latlon['longitude']]['field_name']] = $result['longitude'];
@@ -520,79 +527,6 @@ function zz_geo_geocode($type, $ops, $zz_tab) {
 		}
 	}
 	return $change;
-}
-
-/**
- * Get geographic coordinates and postal code from address or parts of an
- * address
- *
- * This function requires the zzwrap library!
- *
- * @param array $address address data, utf8 encoded
- *	string 'country'
- *	string 'locality'
- *	string 'postal_code' (optional)
- *	string 'street_name' (optional)
- *	string 'street_number' (optional)
- * @return array
- *		double 'longitude'
- *		double 'latitude'
- *		string 'postal_code'
- */
-function zz_geo_geocode_syndication($address) {
-	global $zz_setting;
-	global $zz_error;
-	
-	require_once $zz_setting['lib'].'/zzwrap/syndication.inc.php';
-	if (!isset($zz_setting['geocoder'])) {
-		$zz_setting['geocoder'] = 'Google Maps';
-	}
-	switch ($zz_setting['geocoder']) {
-	case 'Google Maps':
-		$url = 'https://maps.googleapis.com/maps/api/geocode/json?address=%s&region=%s&sensor=false';
-		$add = '';
-		if (isset($address['locality'])) {
-			$add = $address['locality'];
-		}
-		if (isset($address['postal_code'])) {
-			$add = $address['postal_code'].($add ? ' ' : '').$add;
-		}
-		$add = urlencode($add);
-		if (isset($address['street_name'])) {
-			$add = urlencode($address['street_name']
-				.(isset($address['street_number']) ? ' '.$address['street_number'] : ''))
-				.($add ? ',' : '').$add;
-		}
-		$region = isset($address['country']) ? $address['country'] : '';
-		$url = sprintf($url, $add, $region);
-		break;
-	default:
-		$zz_error[]['msg_dev'] = sprintf('Geocoder %s not supported.', $zz_setting['geocoder']);
-		break;
-	}
-
-	$cache_age_syndication = (isset($zz_setting['cache_age_syndication']) ? $zz_setting['cache_age_syndication'] : 0);
-	$zz_setting['cache_age_syndication'] = -1;
-	$coords = wrap_syndication_get($url);	
-	$zz_setting['cache_age_syndication'] = $cache_age_syndication;
-	if ($coords['status'] !== 'OK') {
-		// e. g. when gettin OVER_QUERY_LIMIT, we must not cache this.
-		wrap_cache_delete(404, $url);
-		return false;
-	}
-	
-	if (empty($coords['results'][0]['geometry']['location']['lng'])) return false;
-	$postal_code = '';
-	foreach ($coords['results'][0]['address_components'] as $component) {
-		if (in_array('postal_code', $component['types']))
-			$postal_code = $component['long_name'];
-	}
-	$result = array(
-		'longitude' => $coords['results'][0]['geometry']['location']['lng'], 
-		'latitude' => $coords['results'][0]['geometry']['location']['lat'],
-		'postal_code' => $postal_code
-	);
-	return $result;
 }
 
 ?>
