@@ -219,6 +219,15 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 			$zz_conditions['bool'][$index] = array();
 			if (($mode == 'add' OR $zz_var['action'] == 'insert') AND !empty($condition['add'])) {
 				if (!empty($condition['add']['where'])) {
+					// WHERE with ISNULL and $_GET['where']
+					if (preg_match('/^!ISNULL\((.+)\)$/', $condition['where'], $matches)) {
+						if (isset($matches[1])) {
+							if (!empty($zz_var['where'][$zz['table']][$matches[1]])) {
+								$zz_conditions['bool'][$index][0] = true;
+								break;
+							}
+						}
+					}
 					// check directly if where-condition equals where for record
 					$cond_fields = explode(' ', $condition['where']);
 					// 0: table.field_name or field_name
@@ -246,6 +255,7 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 					// (because condition is true for this record after being 
 					// inserted and it's not yet possible to check that)
 					$zz_conditions['bool'][$index][0] = true;
+					break;
 				} elseif (!empty($zz_var['where'][$zz['table']][$condition['add']['key_field_name']])) {
 					$sql = $condition['add']['sql']
 						.'"'.$zz_var['where'][$zz['table']][$condition['add']['key_field_name']].'"';
