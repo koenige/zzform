@@ -452,6 +452,7 @@ function zz_geo_geocode($type, $ops, $zz_tab) {
 	if (empty($zz_conf['geocoding_function'])) {
 		// you'll need a function that returns from Array $address
 		// an Array with latitude, longitude and postal_code (optional)
+		global $zz_setting;
 		require_once $zz_setting['lib'].'/zzwrap/syndication.inc.php';
 		$zz_conf['geocoding_function'] = 'wrap_syndication_geocode';
 	}
