@@ -142,6 +142,12 @@ function zz_debug_time($return = array()) {
 	zz_error();
 }
 
+/**
+ * Return current Unix timestamp with microseconds as float
+ * = microtime(true) in PHP 5
+ *
+ * @return float
+ */
 function microtime_float() {
     list($usec, $sec) = explode(" ", microtime());
     return ((float)$usec + (float)$sec);
