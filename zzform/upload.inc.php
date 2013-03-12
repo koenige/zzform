@@ -89,7 +89,7 @@ if (ini_get('upload_tmp_dir'))
 else
 	$zz_default['tmp_dir'] 		= false;
 $zz_default['graphics_library'] = 'imagemagick';
-$zz_default['imagemagick_paths'] = array('/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/phpbin', '/opt/local/bin/'); 
+$zz_default['imagemagick_paths'] = array('/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/phpbin', '/opt/local/bin'); 
 $zz_default['upload_tools']['fileinfo'] = false;
 $zz_default['upload_tools']['fileinfo_whereis'] = 'file';
 $zz_default['upload_tools']['exiftools'] = false;
@@ -2287,7 +2287,7 @@ function zz_upload_exec($command, $log_description, &$output = array(), &$return
 	if ($zz_conf['upload_log']) {
 		$time = microtime(true) - $time;
 		$user = $zz_conf['user'] ? $zz_conf['user'] : zz_text('No user');
-		$log = '[%s] zzform Upload: [%s] %s %s {%s} [User: %s]';
+		$log = "[%s] zzform Upload: [%s] %s %s {%s} [User: %s]\n";
 		$log = sprintf($log, date('d-M-Y H:i:s'), $_SERVER['REQUEST_URI'],
 			$log_description, $command, $time, $user);
 		error_log($log, 3, $zz_conf['upload_log']);
