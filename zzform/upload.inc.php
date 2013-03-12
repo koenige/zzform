@@ -95,6 +95,7 @@ $zz_default['upload_tools']['fileinfo_whereis'] = 'file';
 $zz_default['upload_tools']['exiftools'] = false;
 $zz_default['upload_tools']['identify'] = true; // might be turned off for performance reasons while handling raw data
 $zz_default['upload_tools']['ghostscript'] = false; // whether we can use gs library
+$zz_default['upload_log']		= '';
 
 $max_filesize = ini_get('upload_max_filesize');
 define('ZZ_UPLOAD_INI_MAXFILESIZE', zz_return_bytes($max_filesize));
@@ -195,7 +196,7 @@ function zz_upload_get($zz_tab) {
 	//	read information of files, put into 'images'-array
 	if ($zz_tab[0][0]['action'] != 'delete')
 		$zz_tab = zz_upload_check_files($zz_tab);
-	if ($zz_conf['modules']['debug']) zz_debug("end");
+	if ($zz_conf['modules']['debug']) zz_debug('end');
 	return $zz_tab;
 }
 
@@ -419,6 +420,7 @@ function zz_upload_check_files($zz_tab) {
  * @global array $zz_conf 'tmp_dir'
  * @return string temp filename on local server
  * @todo add further registered streams if necessary
+ * @todo preserve timestamp (parse http headers?)
  */
 function zz_upload_remote_file($filename) {
 	if (substr($filename, 0, 7) !== 'http://'
@@ -490,7 +492,7 @@ function zz_upload_fileinfo($file, $extension) {
 	if (!$extension) $extension = substr($filename, strrpos($filename, '.') +1);
 
 	// check filetype by several means
-	if ($zz_conf['modules']['debug']) zz_debug("file", json_encode($file));
+	if ($zz_conf['modules']['debug']) zz_debug('file', json_encode($file));
 	$functions = array(
 		'upload_getimagesize',		// getimagesize(), PHP
 		'upload_exif_imagetype',	// exif_imagetype(), PHP > 4.3.0
@@ -546,7 +548,7 @@ function zz_upload_fileinfo($file, $extension) {
 		$file['filetype'] = 'ai';
 		$file['mime'] = 'application/postscript';
 	}
-	if ($zz_conf['modules']['debug']) zz_debug("finish", json_encode($file));
+	if ($zz_conf['modules']['debug']) zz_debug('finish', json_encode($file));
 
 	// save unknown files for debugging
 	zz_upload_save_unknown_file($filename, $file);
@@ -612,7 +614,7 @@ function zz_upload_mimecheck($mimetype, $extension) {
 	foreach ($zz_conf['image_types'] as $imagetype)
 		if ($imagetype['mime'] == $mimetype AND $imagetype['ext'] == $extension)
 			return zz_return(true);
-	if ($zz_conf['modules']['debug']) zz_debug("combination not yet checked");
+	if ($zz_conf['modules']['debug']) zz_debug('combination not yet checked');
 	return zz_return(false);
 }
 
@@ -746,23 +748,23 @@ function zz_upload_unix_file($filename, $file) {
 	if (!$zz_conf['upload_tools']['fileinfo']) return $file;
 
 	$fileinfo = $zz_conf['upload_tools']['fileinfo_whereis'];
-	exec($fileinfo.' --brief "'.$filename.'"', $return_var);
-	if (!$return_var) return $file;
+	zz_upload_exec($fileinfo.' --brief "'.$filename.'"', 'Fileinfo', $output);
+	if (!$output) return $file;
 	if ($zz_conf['modules']['debug']) {
-		zz_debug("file brief", json_encode($return_var));
+		zz_debug('file brief', json_encode($output));
 	}
-	$file['filetype_file'] = $return_var[0];
-	unset($return_var);
+	$file['filetype_file'] = $output[0];
+	unset($output);
 
 	// get mime type
 	// attention, -I changed to -i in file, don't use shorthand here
-	exec($fileinfo.' --mime --brief "'.$filename.'"', $return_var);
+	zz_upload_exec($fileinfo.' --mime --brief "'.$filename.'"', 'Fileinfo with MIME', $output);
 	if ($zz_conf['modules']['debug']) {
-		zz_debug("file mime", json_encode($return_var));
+		zz_debug('file mime', json_encode($output));
 	}
-	if (empty($return_var[0])) return $file;
+	if (empty($output[0])) return $file;
 
-	$file['mime'] = $return_var[0];
+	$file['mime'] = $output[0];
 	// save charset somewhere else
 	// application/pdf; charset=binary or text/plain; charset=utf-8
 	if (strstr($file['mime'], ';')) {
@@ -1042,7 +1044,7 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec) {
 	
 	// create temporary file, so that original file remains the same 
 	// for further actions
-	$tmp_filename = tempnam(realpath($zz_conf['tmp_dir']), "UPLOAD_");
+	$tmp_filename = tempnam(realpath($zz_conf['tmp_dir']), 'UPLOAD_');
 	$dest_extension = zz_upload_extension($image['path'], $my_rec);
 	if (!$dest_extension) {
 		$dest_extension = strtolower($image['upload']['ext']);
@@ -1673,7 +1675,7 @@ function zz_upload_action($zz_tab) {
 		// @todo: EXIF or ICPT write operations go here!
 		}
 	}
-	if ($zz_conf['modules']['debug']) zz_debug("end");
+	if ($zz_conf['modules']['debug']) zz_debug('end');
 	return $zz_tab;
 }
 
@@ -2262,5 +2264,34 @@ function zz_upload_check_max_file_size() {
 	}
 }
 
+/**
+ * Adds logging capability to exec()-function call
+ *
+ * @param string $command
+ * @param string $log_description will appear in logfile(s)
+ * @param array $output (optional, exec() $output)
+ * @param array $return_var (optional, exec() $return_var)
+ * @global array $zz_conf
+ * @return bool
+ */
+function zz_upload_exec($command, $log_description, &$output = array(), &$return_var = 0) {
+	global $zz_conf;
+	
+	if ($zz_conf['upload_log']) {
+		$time = microtime(true);
+	}
+	if ($zz_conf['modules']['debug']) {
+		zz_debug('identify command', $command);
+	}
+	exec($command, $output, $return_var);
+	if ($zz_conf['upload_log']) {
+		$time = microtime(true) - $time;
+		$log = '[%s] zzform Upload: [%s] %s %s {%s} [%s]';
+		$log = sprintf($log, date('d-M-Y H:i:s'), $_SERVER['REQUEST_URI'],
+			$log_description, $command, $time, $zz_conf['username']);
+		error_log($log, 3, $zz_conf['upload_log']);
+	}
+	return true;
+}
 
 ?>

@@ -67,10 +67,9 @@ function zz_imagick_identify($filename, $file) {
 	$command = zz_imagick_findpath('identify');
 	// always check only first page if it's a multipage file (document, movie etc.)
 	$command .= ' -format "%m %w %h" "'.$filename.'[0]"';
-	exec($command, $output, $return_var);
-	if ($zz_conf['modules']['debug']) zz_debug("identify command", $command);
+	zz_upload_exec($command, 'ImageMagick identify', $output, $return_var);
 	if (!$output) return zz_return($file);
-	if ($zz_conf['modules']['debug']) zz_debug("identify output", json_encode($output));
+	if ($zz_conf['modules']['debug']) zz_debug('identify output', json_encode($output));
 
 	$tokens = explode(' ', $output[0]);
 	$file['filetype'] = strtolower($tokens[0]);
@@ -126,7 +125,7 @@ function zz_image_gray($source, $destination, $dest_extension = false, $image = 
 	$convert = zz_imagick_convert('colorspace gray', '"'.$source.'" '
 		.($dest_extension ? $dest_extension.':' : '').'"'.$destination.'"');
 
-	if ($zz_conf['modules']['debug']) zz_debug("end");
+	if ($zz_conf['modules']['debug']) zz_debug('end');
 	if ($convert) return true;
 	else return false;
 }
@@ -257,10 +256,9 @@ function zz_imagick_convert($options, $files) {
 	if ($options) $command .= $options.' ';
 
 	$command .= ' '.$files.' ';
-	if ($zz_conf['modules']['debug']) zz_debug("convert command", $command);
-	$success = exec($command, $return, $return_var);
-	if ($return) {
-		$zz_error[] = array('msg_dev' => $command.': '.json_encode($return));
+	zz_upload_exec($command, 'ImageMagick convert', $output, $return_var);
+	if ($output) {
+		$zz_error[] = array('msg_dev' => $command.': '.json_encode($output));
 	}
 	if ($return_var) {
 		$zz_error[] = array('msg_dev' => $command.': '.json_encode($return_var));
