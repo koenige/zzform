@@ -2287,9 +2287,8 @@ function zz_upload_exec($command, $log_description, &$output = array(), &$return
 	if ($zz_conf['upload_log']) {
 		$time = microtime(true) - $time;
 		$user = $zz_conf['user'] ? $zz_conf['user'] : zz_text('No user');
-		$log = "[%s] zzform Upload: [%s] %s %s {%s} [User: %s]\n";
-		$log = sprintf($log, date('d-M-Y H:i:s'), $_SERVER['REQUEST_URI'],
-			$log_description, $command, $time, $user);
+		$log = "[%s] zzform Upload: %s %s {%s} [User: %s]\n";
+		$log = sprintf($log, date('d-M-Y H:i:s'), $log_description, $command, $time, $user);
 		error_log($log, 3, $zz_conf['upload_log']);
 	}
 	return true;
