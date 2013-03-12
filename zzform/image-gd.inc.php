@@ -41,7 +41,7 @@
  * @return bool true/false true: image creation was successful, false: unsuccessful
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_imagegd($source, $destination, $params, $dest_extension = false, $image = false) {
+function zz_imagegd($source, $destination, $params, $dest_extension, $image) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
@@ -142,7 +142,7 @@ function zz_imagegd($source, $destination, $params, $dest_extension = false, $im
  * @return bool true/false true: image creation was successful, false: unsuccessful
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_image_thumbnail($source, $destination, $dest_extension = false, $image = false) {
+function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
 	// get new width and height, keep ratio
 	$ratio = $image['upload']['width']/$image['upload']['height'];
 	// ratio greater than 1: landscape, == 1 square, less than 1: portrait
@@ -189,7 +189,7 @@ function zz_image_thumbnail($source, $destination, $dest_extension = false, $ima
  * @return bool true/false true: image creation was successful, false: unsuccessful
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
- function zz_image_crop($source, $destination, $dest_extension = false, $image = false) {
+ function zz_image_crop($source, $destination, $dest_extension, $image) {
  	// Image will be resized exactly to the size as wanted
 	$params['dst_w'] = $image['width'];
 	$params['dst_h'] = $image['height'];
