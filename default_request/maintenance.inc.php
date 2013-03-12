@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2010 Gustaf Mossakowski
+ * @copyright Copyright © 2010, 2013 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -740,6 +740,10 @@ function zz_maintenance_errors() {
 
 	}
 
+	$lines[23]['th'] = zz_text('Logging (Upload)');
+	$lines[23]['td'] = isset($zz_conf['upload_log']) ? '<a href="?log='.urlencode($zz_conf['upload_log'])
+				.'">'.$zz_conf['upload_log'].'</a>' : zz_text('disabled');
+
 	$text = '<table class="data"><thead><tr><th>'.zz_text('Setting').'</th>'
 		.'<th>'.zz_text('Value').'</th>'
 		.'</tr></thead><tbody>'."\n";
@@ -770,9 +774,17 @@ function zz_maintenance_logs() {
 	}
 
 	$show_log = false;
-	foreach ($levels as $level)
-		if ($_GET['log'] === $zz_conf['error_log'][$level]) $show_log = true;
-	if ($_GET['log'] === ini_get('error_log')) $show_log = true;
+	foreach ($levels as $level) {
+		if ($_GET['log'] === $zz_conf['error_log'][$level]) {
+			$show_log = true;
+		}
+	}
+	if ($_GET['log'] === ini_get('error_log')) {
+		$show_log = true;
+	}
+	if (isset($zz_conf['upload_log']) AND $_GET['log'] === $zz_conf['upload_log']) {
+		$show_log = true;
+	}
 	if (!$show_log) {
 		$text = '<p>'.sprintf(zz_text('This is not one of the used logfiles: %s'), htmlspecialchars($_GET['log'])).'</p>'."\n";
 		return $text;
@@ -855,7 +867,7 @@ function zz_maintenance_logs() {
 	$j = 0;
 	$delete = array();
 	$content = '';
-	$dont_highlight_levels = array('Notice', 'Warning');
+	$dont_highlight_levels = array('Notice', 'Warning', 'Upload');
 	$tbody = '';
 	$log = array();
 	$handle = fopen($_GET['log'], 'r');
@@ -877,6 +889,7 @@ function zz_maintenance_logs() {
 			$data['user'] = '';
 			$data['date'] = '';
 			$data['level'] = '';
+			$data['time'] = '';
 
 			// get date
 			if (substr($line, 0, 1) == '[' AND $rightborder = strpos($line, ']')) {
@@ -917,8 +930,25 @@ function zz_maintenance_logs() {
 					}
 				}
 			}
-			if (!$data['user'] AND in_array($data['type'], array('zzform', 'zzwrap')))
-				$data['user'] = array_pop($tokens);
+			if (in_array($data['type'], array('zzform', 'zzwrap'))) {
+				if (!$data['user'])
+					$data['user'] = array_pop($tokens);
+				$time = '';
+				while (!$time) {
+					// ignore empty tokens
+					$time = trim(end($tokens));
+					if (!$time) array_pop($tokens);
+				}
+				if (substr($time, 0, 1) === '{'
+					AND substr($time, -1) === '}'
+					AND is_numeric(substr($time, 1, -1))
+				) {
+					array_pop($tokens);
+					$data['time'] = substr($time, 1, -1);
+					// shorten time to make it more readable
+					$data['time'] = substr($data['time'], 0, 6);
+				}
+			}
 
 			$data['status'] = false;
 			if (substr($tokens[0], 0, 1) == '[' AND substr($tokens[0], -1) == ']') {
@@ -968,7 +998,8 @@ function zz_maintenance_logs() {
 						'user' => array($data['user']),
 						'index' => array($index),
 						'link' => array($data['link']),
-						'status' => array($data['status'])
+						'status' => array($data['status']),
+						'time' => array($data['time'])
 					);
 					$total_rows++;
 				} else {
@@ -1035,7 +1066,7 @@ function zz_maintenance_logs() {
 				.'<td>'.($line['status'] ? '<strong>'.$line['status'].'</strong>' : '')
 					.' '.($line['link'] ? '[<a href="'.str_replace('&', '&amp;', $line['link']).'">'
 					.zz_maintenance_splits($line['link'], true).'</a>]<br>' : '').$line['error'].'</td>'
-				.'<td>'.$line['user'].'</td>'
+				.'<td>'.$line['user'].($line['time'] ? '<br>'.$line['time'] : '').'</td>'
 				.'</tr>'."\n";
 		} else {
 			$links = '';
@@ -1060,7 +1091,8 @@ function zz_maintenance_logs() {
 				.'<td>'.$line['type'].'</td>'
 				.'<td>'.$line['level'].'</td>'
 				.'<td>'.$links.$line['error'].'</td>'
-				.'<td>'.implode(', ', $line['user']).'</td>'
+				.'<td>'.implode(', ', $line['user'])
+					.($line['time'] ? '<br>'.implode(', ', $line['time']) : '').'</td>'
 				.'<td>'.count($line['index']).'</td>'
 				.'</tr>'."\n";
 		}
