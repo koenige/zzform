@@ -640,7 +640,10 @@ function zz_action_function($type, $ops, $zz_tab) {
 			include $file;
 		} else {
 			// it's a function
-			$change = array_merge($change, $zz_tab[0]['extra_action'][$type]($ops));
+			$custom_result = $zz_tab[0]['extra_action'][$type]($ops);
+			if (is_array($custom_result)) {
+				$change = array_merge($change, $custom_result);
+			}
 		}
 	}
 	if ($change) {
