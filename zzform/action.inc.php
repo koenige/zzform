@@ -751,7 +751,7 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 			$value = zz_write_detail_values($zz_tab, $f, $tab, $rec);
 			if ($value) $my_tab[$rec]['POST'][$field['field_name']] = $value;
 		}
-		if (!empty($field['upload_field'])) {
+		if (!empty($field['upload_field']) AND !empty($zz_conf['modules']['upload'])) {
 			$value = zz_write_upload_fields($zz_tab, $f, $tab, $rec);
 			if ($value) $my_tab[$rec]['POST'][$field['field_name']] = $value;
 		}
