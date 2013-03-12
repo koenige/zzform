@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2006-2012 Gustaf Mossakowski
+ * @copyright Copyright © 2006-2013 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  * @todo
  *	identify -list Format
@@ -107,7 +107,7 @@ function zz_imagick_check_multipage($source) {
 }
 
 /**
- * Creates image in grayscale
+ * Create image in grayscale
  *
  * @param string $source (temporary) name of source file with extension
  * @param string $destination (temporary) name of destination file without extension
@@ -115,15 +115,17 @@ function zz_imagick_check_multipage($source) {
  * @param array $image further information about the image
  * @global array $zz_conf
  * @return bool (false: no image was created; true: image was created)
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_image_gray($source, $destination, $dest_extension = false, $image = false) {
+function zz_image_gray($source, $destination, $dest_extension, $image) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	$source = zz_imagick_check_multipage($source);
-	$convert = zz_imagick_convert('colorspace gray', '"'.$source.'" '
-		.($dest_extension ? $dest_extension.':' : '').'"'.$destination.'"');
+	$convert = zz_imagick_convert(
+		'colorspace gray',
+		sprintf('"%s" %s:"%s"', $source, $dest_extension, $destination),
+		$image['upload']['ext']
+	);
 
 	if ($zz_conf['modules']['debug']) zz_debug('end');
 	if ($convert) return true;
@@ -131,7 +133,7 @@ function zz_image_gray($source, $destination, $dest_extension = false, $image = 
 }
 
 /**
- * Creates thumbnail image
+ * Create thumbnail image
  *
  * @param string $source (temporary) name of source file with extension
  * @param string $destination (temporary) name of destination file without extension
@@ -140,17 +142,19 @@ function zz_image_gray($source, $destination, $dest_extension = false, $image = 
  *		width, height
  * @global array $zz_conf
  * @return bool (false: no image was created; true: image was created)
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_image_thumbnail($source, $destination, $dest_extension = false, $image = false) {
+function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	
 	$geometry = isset($image['width']) ? $image['width'] : '';
 	$geometry .= isset($image['height']) ? 'x'.$image['height'] : '';
 	$source = zz_imagick_check_multipage($source);
-	$convert = zz_imagick_convert('thumbnail '.$geometry, '"'.$source.'" '
-		.($dest_extension ? $dest_extension.':' : '').'"'.$destination.'"');
+	$convert = zz_imagick_convert(
+		sprintf('thumbnail %s', $geometry),
+		sprintf('"%s" %s:"%s"', $source, $dest_extension, $destination),
+		$image['upload']['ext']
+	);
 
 	if ($zz_conf['modules']['debug']) zz_debug('thumbnail creation '
 		.($convert ? '' : 'un').'successful:<br>'.$destination);
@@ -159,7 +163,7 @@ function zz_image_thumbnail($source, $destination, $dest_extension = false, $ima
 }
 
 /**
- * Creates 1:1 preview image in a web accessible format
+ * Create 1:1 preview image in a web accessible format
  *
  * @param string $source (temporary) name of source file with extension
  * @param string $destination (temporary) name of destination file without extension
@@ -173,28 +177,35 @@ function zz_image_thumbnail($source, $destination, $dest_extension = false, $ima
  *		action (string) name of function, source (int)
  * @global array $zz_conf
  * @return bool (false: no image was created; true: image was created)
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_image_webimage($source, $destination, $dest_extension = false, $image = false) {
+function zz_image_webimage($source, $destination, $dest_extension, $image) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	$convert = false;
 	$source = zz_imagick_check_multipage($source);
-	$source_extension = substr($source, strrpos($source, '.') +1);
+	$source_extension = $image['upload']['ext'];
 
 	if (!$source_extension OR !empty($zz_conf['webimages_by_extension'][$source_extension])) {
+		// do not create an identical webimage of already existing webimage
 		$zz_conf['int']['no_image_action'] = true;
-		return zz_return(false); // do not create an identical webimage of already existing webimage
-	} elseif ($source_extension == 'pdf' OR $source_extension == 'eps') {
+		return zz_return(false);
+	} elseif ($source_extension === 'pdf' OR $source_extension === 'eps') {
 		if ($zz_conf['upload_tools']['ghostscript']) {
 			$dest_extension = $zz_conf['upload_destination_filetype'][$source_extension];
-			$convert = zz_imagick_convert('density '.$zz_conf['upload_pdf_density'], 
-				' "'.$source.'" '.$dest_extension.':'.'"'.$destination.'"');
+			$convert = zz_imagick_convert(
+				sprintf('density %s', $zz_conf['upload_pdf_density']), 
+				sprintf('"%s" %s:"%s"', $source, $dest_extension, $destination),
+				$source_extension
+			);
 		}
 	} elseif (!empty($zz_conf['upload_destination_filetype'][$source_extension])) {
 		$dest_extension = $zz_conf['upload_destination_filetype'][$source_extension];
-		$convert = zz_imagick_convert(false, ' "'.$source.'" '.$dest_extension.':'.'"'.$destination.'"');
+		$convert = zz_imagick_convert(
+			false,
+			sprintf('"%s" %s:"%s"', $source, $dest_extension, $destination),
+			$source_extension
+		);
 	} else {
 		$zz_conf['int']['no_image_action'] = true;
 		return zz_return(false);
@@ -202,7 +213,18 @@ function zz_image_webimage($source, $destination, $dest_extension = false, $imag
 	return zz_return($convert);
 }
 
-function zz_image_crop($source, $destination, $dest_extension = false, $image = false) {
+/**
+ * Create cropped image
+ *
+ * @param string $source (temporary) name of source file with extension
+ * @param string $destination (temporary) name of destination file without extension
+ * @param string $dest_extension file extension for destination image
+ * @param array $image further information about the image
+ *		width, height etc.
+ * @global array $zz_conf
+ * @return bool (false: no image was created; true: image was created)
+ */
+function zz_image_crop($source, $destination, $dest_extension, $image) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 // example: convert -thumbnail x240 -crop 240x240+140x0 reiff-pic09b.jpg test.jpg
@@ -212,47 +234,62 @@ function zz_image_crop($source, $destination, $dest_extension = false, $image = 
 		return zz_return(false); // no height means no picture or error
 	}
 	$source_ratio = $source_image[0] / $source_image[1]; // 0 = width, 1 = height
-	if ($dest_ratio == $source_ratio)
-		$options = 'thumbnail '.$image['width'].'x'.$image['height'];
-	elseif ($dest_ratio < $source_ratio) {
+	if ($dest_ratio == $source_ratio) {
+		$options = 'thumbnail %dx%d';
+		$options = sprintf($options, $image['width'], $image['height']);
+	} elseif ($dest_ratio < $source_ratio) {
 		$new_width = floor($image['height']*$source_ratio);
-		$pos_x = floor(($new_width - $image['width'])/2);
+		$pos_x = floor(($new_width - $image['width']) / 2);
 		$pos_y = 0;
-		$options = 'thumbnail '.$new_width.'x'.$image['height']
-			.' -crop '.$image['width'].'x'.$image['height'].'+'.$pos_x.'+'.$pos_y;
+		$options = 'thumbnail %dx%d -crop %dx%d+%d+%d';
+		$options = sprintf(
+			$options, $new_width, $image['height'], $image['width'],
+			$image['height'], $pos_x, $pos_y
+		);
 	} else {
 		$new_height = floor($image['width']/$source_ratio);
 		$pos_x = 0;
-		$pos_y = floor(($new_height - $image['height'])/2);
-		$options = 'thumbnail '.$image['width'].'x'.$new_height
-			.' -crop '.$image['width'].'x'.$image['height'].'+'.$pos_x.'+'.$pos_y;
+		$pos_y = floor(($new_height - $image['height']) / 2);
+		$options = 'thumbnail %dx%d -crop %dx%d+%d+%d';
+		$options = sprintf(
+			$options, $image['width'], $new_height, $image['width'],
+			$image['height'], $pos_x, $pos_y
+		);
 	}
 	$source = zz_imagick_check_multipage($source);
-	$convert = zz_imagick_convert($options, '"'.$source.'" '
-		.($dest_extension ? $dest_extension.':' : '').'"'.$destination.'"');
-
+	$convert = zz_imagick_convert(
+		$options,
+		sprintf('"%s" %s:"%s"', $source, $dest_extension, $destination),
+		$image['upload']['ext']
+	);
 	if ($convert) return zz_return(true);
 	else return zz_return(false);
 }
 
 /**
- * converts a file with ImageMagick
+ * convert a file with ImageMagick
  *
  * @param string $options
  * @param string $files
+ * @param string $source_extension
  * @global array $zz_conf
- *		string 'upload_imagick_options', bool 'modules'['debug'], bool 'debug'
+ *		string 'upload_imagick_options', bool 'modules'['debug'], bool 'debug',
+ *		array 'upload_imagick_options_for'
  * @global array $zz_error
  * @return bool
  */
-function zz_imagick_convert($options, $files) {
+function zz_imagick_convert($options, $files, $source_extension) {
 	global $zz_conf;
 	global $zz_error;
 
 	$command = zz_imagick_findpath('convert');
 
 	if ($options) $options = '-'.$options;
-	if (!empty($zz_conf['upload_imagick_options'])) $options .= ' '.$zz_conf['upload_imagick_options'];
+	if (!empty($zz_conf['upload_imagick_options_for'][$source_extension])) {
+		$options .= ' '.$zz_conf['upload_imagick_options_for'][$source_extension];
+	} elseif (!empty($zz_conf['upload_imagick_options'])) {
+		$options .= ' '.$zz_conf['upload_imagick_options'];
+	}
 	if ($options) $command .= $options.' ';
 
 	$command .= ' '.$files.' ';
