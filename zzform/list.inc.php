@@ -611,6 +611,11 @@ function zz_list_group_titles($list, $fields, $line) {
 		} elseif (!empty($field['field_name'])) {
 			$group[$pos] = $line[$field['field_name']];
 		}
+		// Formatting of fields
+		// @todo use practically the same as in list display
+		switch ($field['type']) {
+			case 'date': $group[$pos] = zz_date_format($group[$pos]); break;
+		}
 		if (!empty($field['link'])) {
 			$link = zz_makelink($field['link'], $line);
 			if ($link) {
