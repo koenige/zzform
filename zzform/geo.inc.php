@@ -500,7 +500,11 @@ function zz_geo_geocode($type, $ops, $zz_tab) {
 			foreach ($geocoding as $type => $no) {
 			// street, street_number, locality, postal_code, country
 			// each with _id
-				$value = $ops['record_new'][$index][$my_fields[$no]['field_name']];
+				if (isset($ops['record_new'][$index][$my_fields[$no]['field_name']])) {
+					$value = $ops['record_new'][$index][$my_fields[$no]['field_name']];
+				} elseif (isset($my_fields[$no]['geocode_default'])) {
+					$value = $my_fields[$no]['geocode_default'];
+				}
 				if (substr($type, -3) === '_id') {
 					$type = substr($type, 0, -3);
 					if (!isset($my_fields[$no]['geocode_sql'])) {
