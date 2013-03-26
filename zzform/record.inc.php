@@ -421,6 +421,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			$out['td']['attr'] = array();
 			$out['td']['content'] = '';
 			$out['separator'] = '';
+			$out['separator_before'] = '';
 		}
 		
 		// write values into record, if detail record entry shall be preset
@@ -600,6 +601,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				$out['td']['content'] .= '<p class="explanation">'.$field['explanation'].'</p>';
 			if (!empty($field['separator']))
 				$out['separator'] = $field['separator'];
+			if (!empty($field['separator_before']))
+				$out['separator_before'] = $field['separator_before'];
 		} else {
 			//	"Normal" field
 			
@@ -945,6 +948,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			}
 			if (!empty($field['separator']))
 				$out['separator'] .= $field['separator'];
+			if (!empty($field['separator_before']))
+				$out['separator_before'] .= $field['separator_before'];
 		}
 		if (!$append_next) $matrix[] = $out;
 	}
@@ -1005,6 +1010,9 @@ function zz_output_field_rows($matrix, &$zz_var, $formdisplay, $extra_lastcol) {
 	switch ($formdisplay) {
 	case 'vertical':
 		foreach ($matrix as $index => $row) {
+			if ($row['separator_before']) {
+				$output .= zz_show_separator($row['separator_before'], $index);
+			}
 			$output .= '<tr'.zz_show_class($row['tr']['attr']).'>';
 			if ($row['th']['show']) {
 				$output .= '<th'.zz_show_class($row['th']['attr']).'>'
@@ -1018,6 +1026,9 @@ function zz_output_field_rows($matrix, &$zz_var, $formdisplay, $extra_lastcol) {
 		}
 		break;
 	case 'horizontal':
+		if ($row['separator_before']) {
+			$output .= zz_show_separator($row['separator_before'], 1, count($matrix));
+		}
 		if (!$zz_var['class_add'] AND !$zz_var['horizontal_table_head']) { 
 			// just first detail record with values: show head
 			$output .= '<tr>'."\n";
@@ -1036,7 +1047,9 @@ function zz_output_field_rows($matrix, &$zz_var, $formdisplay, $extra_lastcol) {
 		}
 		if ($extra_lastcol) $output .= '<td>'.$extra_lastcol.'</td>';
 		$output .= '</tr>'."\n";
-		if ($row['separator']) $output .= zz_show_separator($row['separator'], 1, count($matrix));
+		if ($row['separator']) {
+			$output .= zz_show_separator($row['separator'], 1, count($matrix));
+		}
 		break;
 	}
 	return $output;
