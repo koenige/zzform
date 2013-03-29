@@ -541,10 +541,12 @@ function zz_print_multiarray($array, $parent_key = '') {
  * formats an enum field
  *
  * @param array $field
+ *		enum_abbr, set_abbr, enum_title, set_title, ...
  * @param string $value
  * @param string $type 'full', 'abbr'
  * @param string $key (optional)
  * @return string
+ * @todo rename this function
  */
 function zz_print_enum($field, $value, $type = 'abbr', $key = false) {
 	if (!empty($field['enum'])) {
@@ -568,7 +570,7 @@ function zz_print_enum($field, $value, $type = 'abbr', $key = false) {
 			$text .= ' &#8211; '.$field[$ft.'_abbr'][$key];
 		} elseif ($type === 'abbr') {
 			if (strstr($text, '<abbr')) $text = strip_tags($text);
-			$text = '<abbr title="'.htmlspecialchars($field[$ft.'_abbr'][$key])
+			$text = '<abbr title="'.htmlchars($field[$ft.'_abbr'][$key])
 				.'">'.$text.'</abbr>';
 		}
 	}
