@@ -1818,34 +1818,68 @@ function zz_list_pagelink($start, $limit, $limit_step, $url) {
 
 /**
  * Adds ORDER BY to SQL string, if set via URL
+ * checks URL parameter for vaildity as well
  *
  * @param array $fields
  * @param string $sql
+ * @global array $zz_conf
  * @return string $sql
  */
 function zz_sql_order($fields, $sql) {
-	if (empty($_GET['order']) AND empty($_GET['group'])) return $sql;
+	global $zz_conf;
 
-	$order = false;
-	$my_order = false;
-	if (!empty($_GET['dir']))
-		if ($_GET['dir'] == 'asc') $my_order = ' ASC';
-		elseif ($_GET['dir'] == 'desc') $my_order = ' DESC';
+	// direction
+	$my_order = '';
+	if (!empty($_GET['dir'])) {
+		if ($_GET['dir'] === 'asc') {
+			$my_order = ' ASC';
+		} elseif ($_GET['dir'] === 'desc') {
+			$my_order = ' DESC';
+		} else {
+			$zz_conf['int']['http_status'] = 404;
+			$unwanted_keys = array('dir');
+			$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string(
+				$zz_conf['int']['url']['qs_zzform'], $unwanted_keys
+			);
+		}
+	}
+	
+	if (!isset($_GET['order']) AND !isset($_GET['group'])) return $sql;
+
+	$order = array();
+	$get_order_used = false;
+	$get_group_used = false;
 	foreach ($fields as $field) {
 		if (!empty($field['dont_sort'])) continue;
 		if (!empty($_GET['order'])
-			AND ((isset($field['display_field']) && $field['display_field'] == $_GET['order'])
-			OR (isset($field['field_name']) && $field['field_name'] == $_GET['order']))
-		)
+			AND ((isset($field['display_field']) && $field['display_field'] === $_GET['order'])
+			OR (isset($field['field_name']) && $field['field_name'] === $_GET['order']))
+		) {
 			if (isset($field['order'])) $order[] = $field['order'].$my_order;
 			else $order[] = $_GET['order'].$my_order;
+			$get_order_used = true;
+		}
 		if (!empty($_GET['group'])
-			AND ((isset($field['display_field']) && $field['display_field'] == $_GET['group'])
-			OR (isset($field['field_name']) && $field['field_name'] == $_GET['group']))
-		)
+			AND ((isset($field['display_field']) && $field['display_field'] === $_GET['group'])
+			OR (isset($field['field_name']) && $field['field_name'] === $_GET['group']))
+		) {
 			if (isset($field['order'])) $order[] = $field['order'].$my_order;
 			else $order[] = $_GET['group'].$my_order;
+			$get_group_used = true;
+		}
 	}
+	
+	// check variables if valid
+	$unwanted_keys = array();
+	if (isset($_GET['order']) AND !$get_order_used) $unwanted_keys[] = 'order';
+	if (isset($_GET['group']) AND !$get_group_used) $unwanted_keys[] = 'group';
+	if ($unwanted_keys) {
+		$zz_conf['int']['http_status'] = 404;
+		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string(
+			$zz_conf['int']['url']['qs_zzform'], $unwanted_keys
+		);
+	}
+	
 	if (!$order) return $sql;
 	$sql = zz_edit_sql($sql, 'ORDER BY', implode(',', $order), 'add');
 	return $sql;
