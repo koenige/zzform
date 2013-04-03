@@ -26,8 +26,12 @@ menu, #menu, .noprint
 #zzform .where, #zzform .pages
 					{ display: none; }
 #zzform #zzsearch	{ display: none; }
+#zzform .zzfilter dd
+					{ border: none; margin: 0; padding: 0; }
 #zzform .zzfilter dd a
 					{ display: none; }
+#zzform .zzfilter dd strong
+					{ margin: 0 .5em; }
 
 
 /* white background */
