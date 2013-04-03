@@ -440,6 +440,12 @@ function zzform_exit($ops) {
 	// check if request is valid
 	$zz_conf['valid_request'] = zz_valid_request();
 
+	// save correct URL
+	$ops['url'] = $zz_conf['int']['url']['full'].$zz_conf['int']['url']['qs'];
+	if ($zz_conf['int']['url']['qs_zzform']) {
+		$ops['url'] .= $zz_conf['int']['url']['?&'].$zz_conf['int']['url']['qs_zzform'];
+	}
+
 	// get rid of internal variables
 	unset($zz_conf['int']);
 
