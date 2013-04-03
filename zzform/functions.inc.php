@@ -1006,6 +1006,9 @@ function zz_record_access($zz, $ops, $zz_var) {
 			}
 		} else {
 			// illegal parameter, don't set a mode at all
+			$zz_conf['int']['http_status'] = 404;
+			$unwanted_keys = array('id', 'mode');
+			$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
 			$ops['mode'] = false;
 		}
 	} elseif (!empty($_GET['zzaction']) AND !empty($_GET['id'])) {
