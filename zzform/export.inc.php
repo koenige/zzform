@@ -51,6 +51,20 @@ function zz_export_init($zz, $ops) {
 	global $zz_conf;
 	global $zz_error;
 	if (empty($zz_conf['export'])) return array($zz, $ops);
+
+	// no edit modes allowed
+	$unwanted_keys = array('mode', 'id', 'source_id');
+	foreach ($unwanted_keys as $key) {
+		if (!isset($_GET[$key])) continue;
+		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
+		$zz_conf['int']['http_status'] = 404;
+		$zz_error[]['msg'] = sprintf(
+			zz_text('Please don\'t mess with the URL parameters. <code>%s</code> is not allowed here.'),
+			$key
+		);
+		$ops['mode'] = false;
+		return array($zz, $ops);
+	}
 	
 	//	export
 	if (!empty($_GET['mode']) AND $_GET['mode'] == 'export') {
