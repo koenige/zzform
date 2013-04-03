@@ -667,6 +667,8 @@ function zz_initialize($mode = false, $zz = array()) {
 	
 	zz_write_defaults($zz_default, $zz_conf);
 
+	$zz_conf['int']['url'] = zz_get_url_self($zz_conf['url_self']);
+
 	if ($zz_conf['generate_output']) {
 		zz_init_limit($zz);
 		zz_init_referer();
@@ -674,8 +676,6 @@ function zz_initialize($mode = false, $zz = array()) {
 		// don't show list in case 'nolist' parameter is set
 		if (isset($_GET['nolist'])) $zz_conf['show_list'] = false;
 	}
-
-	$zz_conf['int']['url'] = zz_get_url_self($zz_conf['url_self']);
 
 	//	URL parameter
 	if (get_magic_quotes_gpc()) { // sometimes unwanted standard config
