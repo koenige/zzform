@@ -413,8 +413,12 @@ function zz_filter_defaults() {
 		$zz_conf['int']['filter'] = $_GET['filter'];
 	} else {
 		// just in case it's a ?filter -request with no filter set
-		unset($_GET['filter']);
 		$zz_conf['int']['filter'] = array();
+		if (isset($_GET['filter'])) {
+			$zz_conf['int']['http_status'] = 404;
+			$unwanted_keys = array('filter');
+			$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
+		}
 	}
 	$identifiers = array();
 
