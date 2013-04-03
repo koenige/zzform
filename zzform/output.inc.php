@@ -363,8 +363,8 @@ function zz_nice_title($heading, $fields, $zz_var = array(), $mode = false) {
 
 	// addition: page
 	if (!empty($zz_conf['limit'])) {
-		if (isset($_GET['limit'])) 
-			$page = $_GET['limit'] / $zz_conf['limit'];
+		if ($zz_conf['int']['this_limit']) 
+			$page = $zz_conf['int']['this_limit'] / $zz_conf['limit'];
 		else
 			$page = 1;
 		// in case someone writes manually limit=85 where conf['limit'] = 20
@@ -697,8 +697,16 @@ function zz_init_limit($zz) {
 	// get LIMIT from URI
 	if (!$zz_conf['int']['this_limit'] && $zz_conf['limit']) 
 		$zz_conf['int']['this_limit'] = $zz_conf['limit'];
-	if (isset($_GET['limit']) && is_numeric($_GET['limit']))	
-		$zz_conf['int']['this_limit'] = (int) $_GET['limit'];
+	if (isset($_GET['limit'])) {
+		if (is_numeric($_GET['limit'])) {
+			$zz_conf['int']['this_limit'] = (int) $_GET['limit'];
+		} else {
+			$zz_conf['int']['http_status'] = 404;
+			$unwanted_keys = array('limit');
+			$zz_conf['int']['url']['qs_zzform'] 
+				= zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
+		}
+	}
 	if ($zz_conf['int']['this_limit'] AND $zz_conf['int']['this_limit'] < $zz_conf['limit'])
 		$zz_conf['int']['this_limit'] = $zz_conf['limit'];
 }	
