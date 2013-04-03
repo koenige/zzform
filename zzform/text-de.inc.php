@@ -212,6 +212,8 @@ $text['database-error'] = 'Datenbankfehler';
 // ----------------------------------------------------------------------------
 
 $text['Export'] = 'Export'; // Export-Link
+$text['Please don\'t mess with the URL parameters. <code>%s</code> is not allowed here.']
+	= 'Bitte ändern Sie nicht eigenhändig die URL-Parameter. <code>%s</code> ist hier nicht erlaubt.';
 
 
 // ----------------------------------------------------------------------------
