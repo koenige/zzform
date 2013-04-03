@@ -1091,21 +1091,20 @@ function zz_output_subtable_submit($mode, $title, $tab, $rec = 0) {
  * @return string
  */
 function zz_record_filter_as_default($field_name) {
-	if (empty($_GET['filter'])) return false;
 	global $zz_conf;
-	if (empty($zz_conf['filter'])) return false;
+	if (!$zz_conf['int']['filter']) return false;
 
 	// check if there's a filter with a field_name 
 	// this field will get the filter value as default value
 	$filter_field_name = array();
 	$unwanted_filter_values = array('NULL', '!NULL');
-	foreach (array_keys($_GET['filter']) AS $filter_identifier) {
+	foreach (array_keys($zz_conf['int']['filter']) AS $filter_identifier) {
 		foreach ($zz_conf['filter'] as $filter) {
 			if ($filter_identifier !== $filter['identifier']) continue;
 			if (empty($filter['field_name'])) continue;
 			if ($filter['field_name'] !== $field_name) continue;
-			if (in_array($_GET['filter'][$filter_identifier], $unwanted_filter_values)) continue;
-			return $_GET['filter'][$filter_identifier];
+			if (in_array($zz_conf['int']['filter'][$filter_identifier], $unwanted_filter_values)) continue;
+			return $zz_conf['int']['filter'][$filter_identifier];
 		}
 	}
 	return false;

@@ -345,14 +345,14 @@ function zz_nice_title($heading, $fields, $zz_var = array(), $mode = false) {
 	$title = strip_tags($heading);
 
 	// addition: filters
-	if (!empty($_GET['filter']) AND !empty($zz_conf['filter'])) {
+	if ($zz_conf['int']['filter'] AND $zz_conf['filter']) {
 		foreach ($zz_conf['filter'] as $index => $f) {
-			if (empty($_GET['filter'][$f['identifier']])) continue;
+			if (empty($zz_conf['int']['filter'][$f['identifier']])) continue;
 			$title .= $zz_conf['title_separator'].$f['title'].': ';
-			if (!empty($f['selection']) AND !empty($f['selection'][$_GET['filter'][$f['identifier']]])) {
-				$title .= $f['selection'][$_GET['filter'][$f['identifier']]];
+			if (!empty($f['selection']) AND !empty($f['selection'][$zz_conf['int']['filter'][$f['identifier']]])) {
+				$title .= $f['selection'][$zz_conf['int']['filter'][$f['identifier']]];
 			} else {
-				$title .= htmlspecialchars($_GET['filter'][$f['identifier']]);
+				$title .= htmlspecialchars($zz_conf['int']['filter'][$f['identifier']]);
 			}
 		}
 	}
