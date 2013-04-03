@@ -51,6 +51,13 @@ function zz_export_init($zz, $ops) {
 	global $zz_conf;
 	global $zz_error;
 	if (empty($zz_conf['export'])) return array($zz, $ops);
+	
+	//	export
+	if (!empty($_GET['mode']) AND $_GET['mode'] == 'export') {
+		// should not happen, but just in case
+		if (empty($_GET['export'])) $_GET['export'] = 'csv';
+	}
+	if (empty($_GET['export'])) return array($zz, $ops);
 
 	// no edit modes allowed
 	$unwanted_keys = array('mode', 'id', 'source_id');
@@ -65,13 +72,6 @@ function zz_export_init($zz, $ops) {
 		$ops['mode'] = false;
 		return array($zz, $ops);
 	}
-	
-	//	export
-	if (!empty($_GET['mode']) AND $_GET['mode'] == 'export') {
-		// should not happen, but just in case
-		if (empty($_GET['export'])) $_GET['export'] = 'csv';
-	}
-	if (empty($_GET['export'])) return array($zz, $ops);
 
 	// get type and (optional) script name
 	$export = false;
