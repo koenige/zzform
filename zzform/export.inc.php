@@ -64,10 +64,13 @@ function zz_export_init($zz, $ops) {
 	foreach ($unwanted_keys as $key) {
 		if (!isset($_GET[$key])) continue;
 		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
-		$zz_conf['int']['http_status'] = 404;
-		$zz_error[]['msg'] = sprintf(
-			zz_text('Please don\'t mess with the URL parameters. <code>%s</code> is not allowed here.'),
-			$key
+		$zz_error[] = array(
+			'msg' => sprintf(
+				zz_text('Please don\'t mess with the URL parameters. <code>%s</code> is not allowed here.'),
+				$key
+			),
+			'level' => E_USER_NOTICE,
+			'status' => 404
 		);
 		$ops['mode'] = false;
 		return array($zz, $ops);
