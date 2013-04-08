@@ -1026,8 +1026,8 @@ function zz_output_field_rows($matrix, &$zz_var, $formdisplay, $extra_lastcol) {
 		}
 		break;
 	case 'horizontal':
-		if ($row['separator_before']) {
-			$output .= zz_show_separator($row['separator_before'], 1, count($matrix));
+		if (!empty($matrix) AND $matrix[0]['separator_before']) {
+			$output .= zz_show_separator($matrix[0]['separator_before'], 1, count($matrix));
 		}
 		if (!$zz_var['class_add'] AND !$zz_var['horizontal_table_head']) { 
 			// just first detail record with values: show head
