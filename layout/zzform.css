@@ -134,13 +134,14 @@ body #zzform .separator hr
 #zzform .zzfilter	{ margin: 1em 0 1.5em; line-height: 1; overflow: hidden; }
 #zzform .zzfilter dl { margin: 0 0 .5em; padding: 0; }
 #zzform .zzfilter dt { float: left; clear: left; }
-#zzform .zzfilter dd { margin: 0 0 .5em; padding: 0 .5em; float: left;
+#zzform .zzfilter dd { margin: 0 0 .5em; padding: 0; float: left;
 					border-right: 1px dotted black; white-space: nowrap; }
 #zzform .zzfilter dd.filter_all
 					{ border-right: none; /* for old browsers */ }
 #zzform .zzfilter dd:last-child
 					{ border-right: none; }
-#zzform .zzfilter a { text-decoration: none; }
+#zzform .zzfilter a, #zzform .zzfilter strong
+					{ padding: 0 .5em; text-decoration: none; }
 
 
 /* list view (table) */
