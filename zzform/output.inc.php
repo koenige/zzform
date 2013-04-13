@@ -78,7 +78,7 @@ function zz_nice_headings($heading, $zz, $where_condition = array()) {
 				if (!isset($field['field_name'])) continue;
 				if ($field['field_name'] !== $wh[$index]) continue;
 				if (!isset($field['key_field_name'])) continue;
-				$wh_sql = str_replace($wh[$index], ' '.$field['key_field_name'].' ', ' '.$wh_sql.' ');
+				$wh_sql = str_replace(' '.$wh[$index].' ', ' '.$field['key_field_name'].' ', $wh_sql);
 			}
 			// just send a notice if this doesn't work as it's not crucial
 			$heading_values = zz_db_fetch($wh_sql, '', '', '', E_USER_NOTICE);
