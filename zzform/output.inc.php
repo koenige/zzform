@@ -74,10 +74,12 @@ function zz_nice_headings($heading, $zz, $where_condition = array()) {
 				$mywh.' = '.zz_db_escape($where_condition[$mywh]));
 			$wh_sql .= ' LIMIT 1';
 			//	if key_field_name is set
-			foreach ($zz['fields'] as $field)
-				if (isset($field['field_name']) && $field['field_name'] == $wh[$index])
-					if (isset($field['key_field_name']))
-						$wh_sql = str_replace($wh[$index], $field['key_field_name'], $wh_sql);
+			foreach ($zz['fields'] as $field) {
+				if (!isset($field['field_name'])) continue;
+				if ($field['field_name'] !== $wh[$index]) continue;
+				if (!isset($field['key_field_name'])) continue;
+				$wh_sql = str_replace($wh[$index], ' '.$field['key_field_name'].' ', ' '.$wh_sql.' ');
+			}
 			// just send a notice if this doesn't work as it's not crucial
 			$heading_values = zz_db_fetch($wh_sql, '', '', '', E_USER_NOTICE);
 			if ($heading_values) {
