@@ -506,14 +506,7 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 				? $my_tab['POST'][$rec][$rec_tpl['id']['field_name']]
 				: '';
 			// set values, rewrite POST-Array
-			if (!empty($my_tab['values'])) {
-				$my_tab = zz_set_values($my_tab, $rec, $zz_var);
-				if (!empty($my_tab['fielddefs'])) {
-					$my_tab[$rec]['fields'] = zz_set_fielddefs(
-						$my_tab['fielddefs'], $my_tab[$rec]['fields']
-					);
-				}
-			}
+			$my_tab = zz_set_values($my_tab, $rec, $zz_var);
 		}
 	}
 
@@ -752,14 +745,7 @@ function zz_get_subrecords_mode($my_tab, $rec_tpl, $zz_var, $existing_ids) {
 		$continue_fast = (isset($my_tab[$rec]) ? true: false);
 		if (!$continue_fast) // reset fields only if necessary
 			$my_tab[$rec] = $rec_tpl;
-		if (isset($my_tab['values'])) {	// isset because might be empty
-			$my_tab = zz_set_values($my_tab, $rec, $zz_var);
-			if (!empty($my_tab['fielddefs'])) {
-				$my_tab[$rec]['fields'] = zz_set_fielddefs(
-					$my_tab['fielddefs'], $my_tab[$rec]['fields']
-				);
-			}
-		}
+		$my_tab = zz_set_values($my_tab, $rec, $zz_var);
 		// ok, after we got the values, continue, rest already exists.
 		if ($continue_fast) continue;
 
@@ -802,6 +788,13 @@ function zz_get_subrecords_mode($my_tab, $rec_tpl, $zz_var, $existing_ids) {
 	return $my_tab;
 }
 
+/**
+ * copys values from fielddefs-Array to fields where appropriate
+ *
+ * @param array $fielddefs = $zz_tab[$tab]['fielddefs']
+ * @param array $fields = $zz_tab[$tab][$rec]['fields']
+ * @return array $fields
+ */
 function zz_set_fielddefs(&$fielddefs, $fields) {
 	$my_field_def = array_shift($fielddefs);
 	foreach ($my_field_def as $f => $field) {
@@ -823,6 +816,9 @@ function zz_set_fielddefs(&$fielddefs, $fields) {
  * @return array $my_tab
  */
 function zz_set_values($my_tab, $rec, $zz_var) {
+	// isset because might be empty
+	if (!isset($my_tab['values'])) return $my_tab;
+	
 	$my_values = array_shift($my_tab['values']);
 	$table = $my_tab['table_name'];
 	foreach ($my_tab[$rec]['fields'] AS $f => &$field) {
@@ -839,6 +835,11 @@ function zz_set_values($my_tab, $rec, $zz_var) {
 		$my_tab['POST'][$rec] = zz_check_def_vals(
 			$my_tab['POST'][$rec], $my_tab[$rec]['fields'], array(),
 			(!empty($zz_var['where'][$table]) ? $zz_var['where'][$table] : '')
+		);
+	}
+	if (!empty($my_tab['fielddefs'])) {
+		$my_tab[$rec]['fields'] = zz_set_fielddefs(
+			$my_tab['fielddefs'], $my_tab[$rec]['fields']
 		);
 	}
 	return $my_tab;
