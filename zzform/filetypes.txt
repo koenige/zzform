@@ -92,7 +92,7 @@ doc		doc		doc		application/force-download		MS Word Document
 doc		doc		doc		application/octet-stream		MS Word Document
 doc		doc		doc		application/vnd.ms-office		MS Word Document
 
-docx	docx	docx	application/vnd.openxmlformats-officedocument.wordprocessingml.document	Microsoft Word Open XML Document
+docx	docx	docx	application/vnd.openxmlformats-officedocument.wordprocessingml.document	MS Word Open XML Document
 
 dot		dot		dot		application/msword				MS Word Document Template
 dot		dot		dot		application/dot					MS Word Document Template
@@ -103,6 +103,8 @@ dot		dot		dot		application/mswor2c sc2			MS Word Document Template
 dot		dot		dot		application/x-msword			MS Word Document Template
 dot		dot		dot		zz-application/zz-winassoc-dot	MS Word Document Template
 dot		dot		dot		application/vnd.ms-office		MS Word Document Template
+
+dotx	dotx	dotx	application/vnd.openxmlformats-officedocument.wordprocessingml.template	MS Word Open XML Document Template
 
 dtd		dtd		dtd		application/xml-dtd				XML Document Type Definition
 
@@ -341,10 +343,14 @@ pnm		pnm		pnm		image/x-portable-anymap
 pot		pot		pot		application/vnd.ms-powerpoint	MS Powerpoint Presentation Template
 pot		pot		pot		application/mspowerpoint		MS Powerpoint Presentation Template
 
+potx	potx	potx	application/vnd.openxmlformats-officedocument.presentationml.template	MS PowerPoint Open XML Presentation Template
+
 ppm		ppm		ppm		image/x-portable-pixmap
 
 pps		pps		pps		application/vnd.ms-powerpoint	MS PowerPoint Slideshow
 pps		pps		pps		application/mspowerpoint		MS PowerPoint Slideshow
+
+ppsx	ppsx	ppsx	application/vnd.openxmlformats-officedocument.presentationml.slideshow	MS PowerPoint Open XML Slideshow
 
 ppt		ppt		ppt		application/vnd.ms-powerpoint	MS PowerPoint Presentation
 ppt		ppt		ppt		application/ms-powerpoint		MS PowerPoint Presentation
@@ -354,6 +360,8 @@ ppt		ppt		ppt		application/powerpoint			MS PowerPoint Presentation
 ppt		ppt		ppt		application/vnd-mspowerpoint	MS PowerPoint Presentation
 ppt		ppt		ppt		application/x-mspowerpoint		MS PowerPoint Presentation
 ppt		ppt		ppt		application/x-powerpoint		MS PowerPoint Presentation
+
+pptx	pptx	pptx	application/vnd.openxmlformats-officedocument.presentationml.presentation	MS PowerPoint Open XML Presentation
 
 ppz		ppz		ppz		application/vnd.ms-powerpoint	MS PowerPoint Packaged Presentation
 ppz		ppz		ppz		application/mspowerpoint		MS PowerPoint Packaged Presentation
@@ -514,6 +522,10 @@ xls		xls		xls		application/x-msexcel			MS Excel Worksheet
 xls		xls		xls		application/x-xls				MS Excel Worksheet
 xls		xls		xls		application/xls					MS Excel Worksheet
 xls		xls		xls		zz-application/zz-winassoc-xls	MS Excel Worksheet
+
+xlsx	xlsx	xlsx	application/vnd.openxmlformats-officedocument.spreadsheetml.sheet	MS Excel Open XML Spreadsheet
+
+xltx	xltx	xltx	application/vnd.openxmlformats-officedocument.spreadsheetml.template	MS Excel Open XML Spreadsheet Template
 
 xml		xml		xml		application/xml
 
