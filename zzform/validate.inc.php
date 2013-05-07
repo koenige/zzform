@@ -190,7 +190,6 @@ function zz_check_url($url) {
  * This function is also part of zzbrick, there it is called brick_is_url()
  * @param string $url	URL to be tested, only absolute URLs
  * @return string url if correct, or false
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @todo return which part of URL is incorrect
  * @todo support IPv6, new domain endings
  * @todo rewrite diacritical marks to %-encoding
@@ -199,11 +198,13 @@ function zz_is_url($url) {
 	if (!$url) return false;
 	$parts = parse_url($url);
 	if (!$parts) return false;
+	$valid_ip = "/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/";
+	$valid_host = "/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/";
 	if (empty($parts['scheme'])) { // OR !in_array($parts['scheme'], $possible_schemes))
 		return false;
 	} elseif (!empty($parts['host']) 
-		AND (!preg_match("/^[0-9a-z]([-.]?[:0-9a-z])*\.[a-z]{2,6}$/i", $parts['host'])
-		AND !preg_match('/[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/', $parts['host']) // IPv4
+		AND (!preg_match($valid_host, $parts['host'])
+		AND !preg_match($valid_ip, $parts['host'])
 		AND !preg_match('/\[[0-9a-zA-Z:]*\]/', $parts['host']))) {	// LDAP
 		return false;
 	} elseif (!empty($parts['user']) 
