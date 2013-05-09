@@ -248,7 +248,10 @@ function zzform($zz = array()) {
 			$ops['output'].= "\n".'<h1>'.$ops['heading'].'</h1>'."\n\n";
 		if ($zz['explanation'] 
 			AND (!$zz['explanation_hidden_while_editing'] OR $ops['mode'] == 'list_only')) 
-			$ops['output'] .= zz_format($zz['explanation']);
+			$ops['output'] .= sprintf(
+				"%s\n<div class='explanation_dynamic'></div>\n",
+				zz_format($zz['explanation'])
+			);
 	}
 	if ($post_too_big) {
 		$zz_error[] = array(
