@@ -86,9 +86,9 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	}
 	if (!$zz['sql']) return zz_return(array($ops, $zz_var));
 
-	list($lines, $total_rows) = zz_list_query($zz, $id_field);
+	list($lines, $ops['records_total']) = zz_list_query($zz, $id_field);
 	// save total rows in zz_var for use in zz_nice_title()
-	$zz_var['limit_total_rows'] = $total_rows;
+	$zz_var['limit_total_rows'] = $ops['records_total'];
 	if ($zz_error['error']) return zz_return(array($ops, $zz_var));
 	$count_rows = count($lines);
 
@@ -107,7 +107,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			$ops['mode'] = false;
 			unset($ops['headers']);
 			return zz_return(array($ops, $zz_var));
-		} elseif ($total_rows) {
+		} elseif ($ops['records_total']) {
 			// 404 if limit is too large
 			$zz_conf['int']['http_status'] = 404;
 		}
@@ -189,7 +189,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	$ops['output'] .= zz_error_output();
 
 	if ($zz_conf['search']) {
-		$search_form = zz_search_form($zz['fields_in_list'], $zz['table'], $total_rows, $count_rows);
+		$search_form = zz_search_form($zz['fields_in_list'], $zz['table'], $ops['records_total'], $count_rows);
 		$ops['output'] .= $search_form['top'];
 	}
 	
@@ -257,12 +257,12 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			$ops['output'] .= '</p>'."\n";
 		}
 
-		if ($zz_conf['export'] AND $total_rows) 
+		if ($zz_conf['export'] AND $ops['records_total']) 
 			$toolsline = array_merge($toolsline, zz_export_links($base_url, $zz_var['extraGET']));
 		if ($toolsline)
 			$ops['output'] .= '<p class="add-new bottom-add-new">'.implode(' | ', $toolsline).'</p>';
-		$ops['output'] .= zz_list_total_records($total_rows);
-		$ops['output'] .= zz_list_pages($zz_conf['limit'], $zz_conf['int']['this_limit'], $total_rows);	
+		$ops['output'] .= zz_list_total_records($ops['records_total']);
+		$ops['output'] .= zz_list_pages($zz_conf['limit'], $zz_conf['int']['this_limit'], $ops['records_total']);	
 		// @todo: NEXT, PREV Links at the end of the page
 		// Search form
 		if ($zz_conf['search']) {
