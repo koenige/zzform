@@ -220,7 +220,7 @@ function zz_import_create_folder($definition_file, $values, &$params) {
 	}
 	$values['placeholder'] = $placeholder;
 
-	if ($values['POST']['zz_action'] == 'insert') {
+	if ($values['action'] == 'insert') {
 		// here, we need file and local values put together
 		$ops = zzform_multi($definition_file, $values, 'record');
 		if (empty($ops['return'][0]['table']) OR $ops['return'][0]['table'] != 'objects') {
@@ -364,7 +364,7 @@ function zz_import_create_files($definition_file, $values, &$params, &$files) {
 			$i++;					
 		}
 
-		if ($values['POST']['zz_action'] == 'insert') {
+		if ($values['action'] == 'insert') {
 			// here, we need file and local values put together
 			$ops = zzform_multi($definition_file, $values, 'record');
 			if (empty($ops['return'][0]['table']) OR $ops['return'][0]['table'] != 'objects') {
