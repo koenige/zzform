@@ -85,15 +85,15 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 	
 	$recursion = false; // in case of LEFT JOIN
 	
-	if (substr(trim($sql), 0, 4) == 'SHOW' AND $n_part == 'LIMIT') {
+	if (substr(trim($sql), 0, 4) === 'SHOW' AND $n_part === 'LIMIT') {
 	// LIMIT, WHERE etc. is only allowed with SHOW
 	// not allowed e. g. for SHOW DATABASES(), SHOW TABLES FROM ...
 		return zz_return($sql);
 	}
-	if (substr(trim($sql), 0, 14) == 'SHOW DATABASES' AND $n_part == 'WHERE') {
+	if (substr(trim($sql), 0, 14) === 'SHOW DATABASES' AND $n_part === 'WHERE') {
 		// this is impossible and will automatically trigger an error
 		return zz_return(false); 
-		// @todo: implement LIKE here.
+		// @todo implement LIKE here.
 	}
 
 	// remove whitespace
