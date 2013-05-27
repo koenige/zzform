@@ -1862,7 +1862,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 
 // #1.2 SELECT has only one result in the array, and this will be pre-selected 
 // because FIELD must not be NULL
-	if ($display == 'form' AND count($lines) == 1 
+	if ($display === 'form' AND count($lines) === 1 
 		AND (!zz_db_field_null($field['field_name'], $db_table)
 			OR !empty($field['required']))
 	) {
@@ -1870,12 +1870,12 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 		// get ID field_name which must be 1st field in SQL query
 		$id_field_name = array_keys($line);
 		$id_field_name = current($id_field_name);
-		if ($record AND $line[$id_field_name] != $record[$field['field_name']]) 
+		if ($record AND $line[$id_field_name] != $record[$field['field_name']]) {
 			$outputf = 'Possible Values: '.$line[$id_field_name]
 				.' -- Current Value: '
 				.htmlspecialchars($record[$field['field_name']])
 				.' -- Error --<br>'.zz_text('no_selection_possible');
-		else {
+		} else {
 			$outputf = zz_form_element($field['f_field_name'], $line[$id_field_name],
 				'hidden', true).zz_draw_select($field, $record, $line, $id_field_name);
 		}
@@ -2262,17 +2262,25 @@ function zz_field_select_get_record($field, $record, $id_field_name) {
 	$db_value = $record[$field['field_name']];
 	if (substr($db_value, 0, 1) == '"' && substr($db_value, -1) == '"')
 		$db_value = substr($db_value, 1, -1);
-	// only check numeric values, others won't give a valid result
-	// for these, just display the given values again
-	if (!is_numeric($db_value)) return array();
 
-	// get SQL query
+	// allow to set id_field_name
 	if (!empty($field['id_field_name']))
 		$where_field_name = $field['id_field_name'];
 	else
 		$where_field_name = $id_field_name;
-	$sql = zz_edit_sql($field['sql'], 'WHERE', $where_field_name
-		.sprintf(' = %d', $db_value));
+
+	if (substr($field['sql'], 0, 4) === 'SHOW') {
+		$sql = zz_edit_sql($field['sql'], 'WHERE', $where_field_name
+			.sprintf(' LIKE "%s"', $db_value));
+	} else {
+		// only check numeric values, others won't give a valid result
+		// for these, just display the given values again
+		if (!is_numeric($db_value)) return array();
+		// get SQL query
+		$sql = zz_edit_sql($field['sql'], 'WHERE', $where_field_name
+			.sprintf(' = %d', $db_value));
+	}
+
 	if (!$sql) $sql = $field['sql'];
 
 	// fetch query
