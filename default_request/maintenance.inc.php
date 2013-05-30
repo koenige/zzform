@@ -109,6 +109,9 @@ function zz_maintenance($params) {
 		
 			$page['text'] .= '<h2>'.zz_text('PHP & Server').'</h2>'."\n";
 			$page['text'] .= '<p><a href="?phpinfo">'.zz_text('Show PHP info on server').'</a></p>';
+			if ($zz_conf['graphics_library'] === 'imagemagick') {
+				$page['text'] .= '<p>ImageMagick Version:</p>'.markdown(zz_imagick_version());
+			}
 
 		// 	- Backup/errors, insert, update, delete
 			$page['text'] .= '<h2>'.zz_text('Temp and Backup Files').'</h2>'."\n";
