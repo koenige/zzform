@@ -87,16 +87,29 @@ function zz_check_mail($e_mail, $type = 'mail') {
 	return false;
 }
 
+/**
+ * check a single e-mail address test@example.org
+ *
+ * @param string $e_mail
+ * @return mixed (string $e_mail if correct, bool false if not)
+ */
 function zz_check_mail_single($e_mail) {
 	// remove <>-brackets around address
 	if (substr($e_mail, 0, 1) == '<' && substr($e_mail, -1) == '>') 
 		$e_mail = substr($e_mail, 1, -1); 
-	// check address
+
+	// check address if syntactically correct
 	$e_mail_pm = '/^[a-z0-9!#$%&\'*+\/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&\'*+\\/=?^_`{|}~-]+)*'
 		.'@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i';
-	if (preg_match($e_mail_pm, $e_mail, $check))
-		return $e_mail;
-	return false;
+	if (!preg_match($e_mail_pm, $e_mail, $check)) return false;
+
+	// check if hostname has MX record
+	$host = explode('@', $e_mail);
+	if (count($host) !== 2) return false;
+	$exists = checkdnsrr($host[1]);
+	if (!$exists) return false;
+
+	return $e_mail;
 }
 
 /**
