@@ -355,9 +355,9 @@ function zz_imagick_version() {
 	global $zz_conf;
 	$command = zz_imagick_findpath();
 	$command .= ' --version';
-	zz_upload_exec($command, 'ImageMagick convert', $output, $return_var);
+	exec($command, $output, $return_var);
 	if (!$output) return '';
-	return implode("  \n\r", $output);
+	return implode("  \n", $output);
 }
 
 ?>
