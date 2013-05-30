@@ -52,6 +52,7 @@ function zz_maintenance($params) {
 	elseif (!isset($zz_conf['user']))
 		$zz_conf['user'] = 'Maintenance robot 812';
 
+	$zz_conf['int_modules'] = array('debug', 'compatibility', 'validate', 'upload');
 	zz_initialize();
 	$heading_prefix = '';
 	if ($zz_conf['heading_prefix']) $heading_prefix = ' ';
@@ -110,7 +111,8 @@ function zz_maintenance($params) {
 			$page['text'] .= '<h2>'.zz_text('PHP & Server').'</h2>'."\n";
 			$page['text'] .= '<p><a href="?phpinfo">'.zz_text('Show PHP info on server').'</a></p>';
 			if ($zz_conf['graphics_library'] === 'imagemagick') {
-				$page['text'] .= '<p>ImageMagick Version:</p>'.markdown(zz_imagick_version());
+				require_once $zz_conf['dir'].'/image-imagemagick.inc.php';
+				$page['text'] .= '<p>ImageMagick:</p>'.markdown(zz_imagick_version());
 			}
 
 		// 	- Backup/errors, insert, update, delete
