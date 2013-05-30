@@ -70,6 +70,9 @@ function zz_imagick_identify($filename, $file) {
 	zz_upload_exec($command, 'ImageMagick identify', $output, $return_var);
 	if (!$output) return zz_return($file);
 	if ($zz_conf['modules']['debug']) zz_debug('identify output', json_encode($output));
+	
+	// Error?
+	if (substr($output[0], 0, 6) === 'Error:') return zz_return($file);
 
 	$tokens = explode(' ', $output[0]);
 	$file['filetype'] = strtolower($tokens[0]);
