@@ -1676,10 +1676,18 @@ function zz_list_pages($limit_step, $this_limit, $total_rows, $scope = 'body') {
 	// last step, = next integer from total_rows which can be divided by limit_step
 	$rec_last = 0; 
 
-	if ($zz_conf['limit_show_range'] AND $total_rows >= $zz_conf['limit_show_range']) {
-		$rec_start = $this_limit - ($zz_conf['limit_show_range']/2 + 2*$limit_step);
-		if ($rec_start < 0) $rec_start = 0;
-		elseif ($rec_start > 0) {
+	// missing lines on last page to make it a full page
+	$offset = $limit_step - ($total_rows % $limit_step);
+	$max_limit = $total_rows + $offset;
+
+	if ($zz_conf['limit_show_range']
+		AND $total_rows >= $zz_conf['limit_show_range']
+		AND $this_limit <= $max_limit)
+	{
+		$rec_start = $this_limit - ($zz_conf['limit_show_range']/2 + 2 * $limit_step);
+		if ($rec_start < 0) {
+			$rec_start = 0;
+		} elseif ($rec_start > 0) {
 			// set rec start to something which can be divided through step
 			$rec_start = ceil($rec_start/$limit_step)*$limit_step;
 		}
@@ -1692,7 +1700,7 @@ function zz_list_pages($limit_step, $this_limit, $total_rows, $scope = 'body') {
 		$rec_end = $total_rows -1; // total_rows -1 because min is + 1 later on
 	}
 
-	for ($i = $rec_start; $i <= $rec_end; $i = $i+$limit_step) { 
+	for ($i = $rec_start; $i <= $rec_end; $i = $i + $limit_step) { 
 		$range_min = $i + 1;
 		$range_max = $i + $limit_step;
 		if ($this_limit + ceil($zz_conf['limit_show_range'] / 2) < $range_min) {
@@ -2382,7 +2390,7 @@ function zz_list_ul($list, $rows) {
 		}
 		$output .= '<li class="'.($index & 1 ? 'uneven':'even')
 			.((isset($list['current_record']) AND $list['current_record'] == $index) ? ' current_record' : '')
-			.(($index+1) == count($rows) ? ' last' : '').'">'; //onclick="Highlight();"
+			.(($index + 1) == count($rows) ? ' last' : '').'">'; //onclick="Highlight();"
 		foreach ($row as $fieldindex => $field) {
 			if (is_numeric($fieldindex) && $field['text'])
 				$output .= '<p'.($field['class'] ? ' class="'.implode(' ', $field['class']).'"' : '')
