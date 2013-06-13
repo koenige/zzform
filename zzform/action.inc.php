@@ -533,6 +533,14 @@ function zz_action_equals($my_rec, $existing) {
 				// are equal
 				$update = false;
 			}
+		} else {
+			// we have an update but no existing record
+			global $zz_error;
+			$zz_error[] = array(
+				'msg_dev' => 'Update without existing record? '
+					.'Record: '.serialize($my_rec).' <br>Existing: '.serialize($existing)
+			);
+			$update = true;
 		}
 		if (!$update) continue;
 		$update_values[] = '`'.$field['field_name'].'` = '.$my_rec['POST_db'][$field['field_name']];
