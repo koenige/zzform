@@ -257,7 +257,7 @@ function zzform($zz = array()) {
 				.zz_text('Maximum allowed filesize is').' '
 				.zz_byte_format($zz_conf['upload_MAX_FILE_SIZE']).' &#8211; '
 				.sprintf(zz_text('You sent: %s data.'), zz_byte_format($_SERVER['CONTENT_LENGTH'])),
-			'level' => E_USER_WARNING
+			'level' => E_USER_NOTICE
 		);
 	}
 	zz_error();
