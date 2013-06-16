@@ -1255,7 +1255,7 @@ function zz_form_element($name, $value, $type = 'text', $id = false, $fieldattr 
 
 	// prepare ID
 	if ($id) {
-		if ($id === true) $id = make_id_fieldname($name);
+		if ($id === true) $id = zz_make_id_fieldname($name);
 		$fieldattr['id'] = $id;
 	}
 
@@ -1606,15 +1606,15 @@ function zz_field_password_change($field, $display) {
 		$fieldattr['maxlength'] = $field['maxlength'];
 	$fieldattr['required'] = true;
 	return '<table class="subtable">'."\n"
-		.'<tr><th><label for="'.make_id_fieldname($field['f_field_name']).'">'
+		.'<tr><th><label for="'.zz_make_id_fieldname($field['f_field_name']).'">'
 		.zz_text('Old:').' </label></th><td>'
 		.zz_form_element($field['f_field_name'], '', 'password', true, $fieldattr)
 		.'</td></tr>'."\n"
-		.'<tr><th><label for="'.make_id_fieldname($field['f_field_name'].'_new_1').'">'
+		.'<tr><th><label for="'.zz_make_id_fieldname($field['f_field_name'].'_new_1').'">'
 		.zz_text('New:').' </label></th><td>'
 		.zz_form_element($field['f_field_name'].'_new_1', '', 'password', true, $fieldattr)
 		.'</td></tr>'."\n"
-		.'<tr><th><label for="'.make_id_fieldname($field['f_field_name'].'_new_2').'">'
+		.'<tr><th><label for="'.zz_make_id_fieldname($field['f_field_name'].'_new_2').'">'
 		.zz_text('New:').' </label></th><td>'
 		.zz_form_element($field['f_field_name'].'_new_2', '', 'password', true, $fieldattr)
 		.'<p>'.zz_text('(Please confirm your new password twice)').'</td></tr>'."\n"
@@ -2374,7 +2374,7 @@ function zz_field_select_radio_none($field, $record) {
 	}
 	if ($field['required']) $fieldattr['required'] = true;
 
-	$id = make_id_fieldname($field['f_field_name']).'-0';
+	$id = zz_make_id_fieldname($field['f_field_name']).'-0';
 	if (!isset($field['hide_novalue'])) $field['hide_novalue'] = true;
 	return '<label for="'.$id.'"'
 		.($field['hide_novalue'] ? ' class="hidden"' : '')
@@ -2394,7 +2394,7 @@ function zz_field_select_radio_none($field, $record) {
  * @return string
  */
 function zz_field_select_radio_value($field, $record, $value, $label, $pos) {
-	$id = make_id_fieldname($field['f_field_name']).'-'.$pos;
+	$id = zz_make_id_fieldname($field['f_field_name']).'-'.$pos;
 	$fieldattr = array();
 	if ($record AND $value == $record[$field['field_name']]) 
 		$fieldattr['checked'] = true;
@@ -2742,7 +2742,7 @@ function zz_field_image($field, $display, $record, $record_saved, $images, $mode
 			// @todo: if only one image, table is unnecessary
 			// title and field_name of image might be empty
 			if ($image_uploads > 1) $text .= '<tr><th>'.$image['title'].'</th> <td>';
-			$elementname = make_id_fieldname($field['f_field_name']).'['.$image['field_name'].']';
+			$elementname = zz_make_id_fieldname($field['f_field_name']).'['.$image['field_name'].']';
 			$text .= zz_form_element($elementname, '', 'file', false);
 			if (empty($field['dont_show_file_link'])
 				AND $link = zz_makelink($image['path'], (!empty($record_saved) 

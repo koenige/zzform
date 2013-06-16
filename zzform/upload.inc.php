@@ -263,7 +263,7 @@ function zz_upload_check_files($zz_tab) {
 		} elseif (isset($field['field_name'])) {
 			$field['f_field_name'] = $field['field_name'];
 		}
-		$field['f_field_name'] = make_id_fieldname($field['f_field_name']);
+		$field['f_field_name'] = zz_make_id_fieldname($field['f_field_name']);
 
 		$myfiles = array();
 		if (!empty($_FILES[$field['f_field_name']])) {

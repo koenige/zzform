@@ -1611,9 +1611,8 @@ function zz_return($return = false) {
  * @param string $fieldname field name with []-brackets
  * @param string $prefix prepends 'field_' as default or other prefix
  * @return string valid HTML id value
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function make_id_fieldname($fieldname, $prefix = 'field') {
+function zz_make_id_fieldname($fieldname, $prefix = 'field') {
 	$fieldname = str_replace('][', '_', $fieldname);
 	$fieldname = str_replace('[', '_', $fieldname);
 	$fieldname = str_replace(']', '', $fieldname);
@@ -1626,11 +1625,10 @@ function make_id_fieldname($fieldname, $prefix = 'field') {
  * 
  * @param array $mixed Array with magic_quotes
  * @return array Array without magic_quotes
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function magic_quotes_strip($mixed) {
+function zz_magic_quotes_strip($mixed) {
    if(is_array($mixed))
-       return array_map('magic_quotes_strip', $mixed);
+       return array_map('zz_magic_quotes_strip', $mixed);
    return stripslashes($mixed);
 }
 

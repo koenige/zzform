@@ -682,9 +682,9 @@ function zz_initialize($mode = false, $zz = array()) {
 
 	//	URL parameter
 	if (get_magic_quotes_gpc()) { // sometimes unwanted standard config
-		if (!empty($_POST)) $_POST = magic_quotes_strip($_POST);
-		if (!empty($_GET)) $_GET = magic_quotes_strip($_GET);
-		if (!empty($_FILES)) $_FILES = magic_quotes_strip($_FILES);
+		if (!empty($_POST)) $_POST = zz_magic_quotes_strip($_POST);
+		if (!empty($_GET)) $_GET = zz_magic_quotes_strip($_GET);
+		if (!empty($_FILES)) $_FILES = zz_magic_quotes_strip($_FILES);
 		// _COOKIE and _REQUEST are not being used
 	}
 
