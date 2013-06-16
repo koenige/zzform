@@ -404,8 +404,8 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 	$self = $zz_conf['int']['url']['self'];
 	// fields that won't be used for search
 	$unsearchable_fields = array('image', 'calculated', 'timestamp', 'upload_image', 'option');
-	$output = "\n".'<form method="GET" action="'.$self
-		.'" id="zzsearch" accept-charset="'.$zz_conf['character_set'].'"><p>';
+	$output = "\n".'<form method="GET" action="%s" class="zzsearch" accept-charset="%s"><p>';
+	$output = sprintf($output, $self, $zz_conf['character_set']);
 	if ($qs = $zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']) { 
 		// do not show edited record, limit, ...
 		$unwanted_keys = array('q', 'scope', 'limit', 'mode', 'id', 'add', 'zzaction', 'zzhash'); 
