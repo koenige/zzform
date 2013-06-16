@@ -566,16 +566,16 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 		if (!$id_field_name) {
 			// only one record
 			if (mysql_num_rows($result) == 1) {
-	 			if ($format == 'single value') {
+	 			if ($format === 'single value') {
 					$lines = mysql_result($result, 0, 0);
-	 			} elseif ($format == 'object') {
+	 			} elseif ($format === 'object') {
 					$lines = mysql_fetch_object($result);
 				} else {
 					$lines = mysql_fetch_assoc($result);
 				}
 			}
  		} elseif (is_array($id_field_name) AND mysql_num_rows($result)) {
-			if ($format == 'object') {
+			if ($format === 'object') {
 				while ($line = mysql_fetch_object($result)) {
 					if (count($id_field_name) == 3) {
 						if ($error = zz_db_field_in_query($line, $id_field_name, 3)) break;
@@ -588,7 +588,7 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
  			} else {
  				// default or unknown format
 				while ($line = mysql_fetch_assoc($result)) {
-		 			if ($format == 'single value') {
+		 			if ($format === 'single value') {
 						// just get last field, make sure that it's not one of the id_field_names!
 		 				$values = array_pop($line);
 		 			} else {
@@ -601,10 +601,10 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 						if ($error = zz_db_field_in_query($line, $id_field_name, 3)) break;
 						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]] = $values;
 					} else {
-						if ($format == 'key/value') {
+						if ($format === 'key/value') {
 							if ($error = zz_db_field_in_query($line, $id_field_name, 2)) break;
 							$lines[$line[$id_field_name[0]]] = $line[$id_field_name[1]];
-						} elseif ($format == 'numeric') {
+						} elseif ($format === 'numeric') {
 							if ($error = zz_db_field_in_query($line, $id_field_name, 1)) break;
 							$lines[$line[$id_field_name[0]]][] = $values;
 						} else {
@@ -615,30 +615,30 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 				}
 			}
  		} elseif (mysql_num_rows($result)) {
- 			if ($format == 'count') {
+ 			if ($format === 'count') {
  				$lines = mysql_num_rows($result);
- 			} elseif ($format == 'single value') {
+ 			} elseif ($format === 'single value') {
  				// you can reach this part here with a dummy id_field_name
  				// because no $id_field_name is needed!
 				while ($line = mysql_fetch_array($result)) {
 					$lines[$line[0]] = $line[0];
 				}
- 			} elseif ($format == 'id as key') {
+ 			} elseif ($format === 'id as key') {
 				while ($line = mysql_fetch_array($result)) {
 					if ($error = zz_db_field_in_query($line, $id_field_name)) break;
 					$lines[$line[$id_field_name]] = true;
 				}
- 			} elseif ($format == 'key/value') {
+ 			} elseif ($format === 'key/value') {
  				// return array in pairs
 				while ($line = mysql_fetch_array($result)) {
 					$lines[$line[0]] = $line[1];
 				}
-			} elseif ($format == 'object') {
+			} elseif ($format === 'object') {
 				while ($line = mysql_fetch_object($result)) {
 					if ($error = zz_db_field_in_query($line, $id_field_name)) break;
 					$lines[$line->$id_field_name] = $line;
 				}
-			} elseif ($format == 'numeric') {
+			} elseif ($format === 'numeric') {
 				while ($line = mysql_fetch_assoc($result))
 					$lines[] = $line;
  			} else {
@@ -744,6 +744,7 @@ function zz_db_escape($value) {
  */
 function zz_db_change($sql, $id = false) {
 	global $zz_conf;
+	global $zz_error;
 	if (!empty($zz_conf['debug'])) {
 		$time = microtime_float();
 	}
@@ -784,6 +785,15 @@ function zz_db_change($sql, $id = false) {
 			// Logs SQL Query, must be after insert_id was checked
 			if (!empty($zz_conf['logging']))
 				zz_log_sql($sql, $zz_conf['user'], $db['id_value']);
+		}
+		$warnings = zz_db_fetch('SHOW WARNINGS', '_dummy_', 'numeric');
+		foreach ($warnings as $warning) {
+			$zz_error[] = array(
+				'msg_dev' => 'MySQL reports a problem.',
+				'query' => $sql,
+				'db_msg' => $warning['Level'].': '.$warning['Message'],
+				'level' => E_USER_WARNING
+			);
 		}
 	} else { 
 		// something went wrong, but why?

@@ -294,7 +294,9 @@ function zzform($zz = array()) {
 		if (in_array($zz_var['action'], array('insert', 'update', 'delete'))) {
 			// check for validity, insert/update/delete record
 			require_once $zz_conf['dir_inc'].'/action.inc.php';
-			list($ops, $zz_tab, $validation) = zz_action($ops, $zz_tab, $validation, $zz_var); 
+			list($ops, $zz_tab, $validation) = zz_action($ops, $zz_tab, $validation, $zz_var);
+			// some minor errors?
+			zz_error();
 			// if an error occured in zz_action, exit
 			if ($zz_error['error']) return zzform_exit($ops); 
 			// was action successful?
