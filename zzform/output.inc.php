@@ -71,7 +71,7 @@ function zz_nice_headings($heading, $zz, $where_condition = array()) {
 			// create sql query, with $mywh instead of $wh[$index] because first 
 			// might be ambiguous
 			$wh_sql = zz_edit_sql($subheading['sql'], 'WHERE', 
-				$mywh.' = '.zz_db_escape($where_condition[$mywh]));
+				$mywh.' = "'.zz_db_escape($where_condition[$mywh])).'"';
 			$wh_sql .= ' LIMIT 1';
 			//	if key_field_name is set
 			foreach ($zz['fields'] as $field) {
@@ -88,7 +88,7 @@ function zz_nice_headings($heading, $zz, $where_condition = array()) {
 			}
 		} elseif (isset($subheading['enum'])) {
 			$heading_addition[$i][] = htmlspecialchars($where_condition[$mywh]);
-			// @todo: insert corresponding value in enum_title
+			// @todo insert corresponding value in enum_title
 		} elseif (isset($subheading['value'])) {
 			$heading_addition[$i][] = htmlspecialchars($where_condition[$mywh]);
 		}
@@ -699,16 +699,8 @@ function zz_init_limit($zz) {
 	// get LIMIT from URI
 	if (!$zz_conf['int']['this_limit'] && $zz_conf['limit']) 
 		$zz_conf['int']['this_limit'] = $zz_conf['limit'];
-	if (isset($_GET['limit'])) {
-		if (is_numeric($_GET['limit'])) {
-			$zz_conf['int']['this_limit'] = (int) $_GET['limit'];
-		} else {
-			$zz_conf['int']['http_status'] = 404;
-			$unwanted_keys = array('limit');
-			$zz_conf['int']['url']['qs_zzform'] 
-				= zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
-		}
-	}
+	$limit = zz_check_get_array('limit', 'is_numeric');
+	if ($limit) $zz_conf['int']['this_limit'] = $limit;
 	if ($zz_conf['int']['this_limit'] AND $zz_conf['int']['this_limit'] < $zz_conf['limit'])
 		$zz_conf['int']['this_limit'] = $zz_conf['limit'];
 }	
@@ -721,7 +713,7 @@ function zz_init_limit($zz) {
  */
 function zz_init_referer() {
 	global $zz_conf;
-	// get referer // @todo: add support for SESSIONs as well
+	// get referer // @todo add support for SESSIONs as well
 	if (!isset($zz_conf['referer'])) {
 		$zz_conf['referer'] = false;
 		if (isset($_GET['referer'])) $zz_conf['referer'] = $_GET['referer'];

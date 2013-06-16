@@ -326,10 +326,7 @@ function zz_get_where_conditions($zz) {
 
 	$zz_var = array();
 	// WHERE: Add with suggested values
-	$zz_var['where_condition'] = array();
-	if (!empty($_GET['where'])) {
-		$zz_var['where_condition'] = $_GET['where'];
-	}
+	$zz_var['where_condition'] = zz_check_get_array('where', 'field_name');
 	if (!empty($zz['where'])) {
 		// $zz['where'] will be merged to $_GET['where'], identical keys
 		// will be overwritten
@@ -339,11 +336,12 @@ function zz_get_where_conditions($zz) {
 	}
 
 	// ADD: overwrite write_once with values, in case there are identical fields
-	if (!empty($_GET['add'])) {
+	$add = zz_check_get_array('add', 'field_name');
+	if ($add) {
 		$zz_var['where_condition'] = array_merge(
-			$zz_var['where_condition'], $_GET['add']
+			$zz_var['where_condition'], $add
 		);
-		foreach ($_GET['add'] as $key => $value) {
+		foreach ($add as $key => $value) {
 			$zz_var['zz_fields'][$key]['value'] = $value;
 			$zz_var['zz_fields'][$key]['type'] = 'hidden';
 		}
@@ -369,6 +367,61 @@ function zz_get_where_conditions($zz) {
 	}
 
 	return $zz_var;
+}
+
+/**
+ * check $_GET array if user input is valid
+ *
+ * @param string $key
+ * @param string $type
+ *		'field_name': check if there's something like a field_name as subkey
+ *		'values': check against $values if value is valid
+ *		'is_numeric': checks if value is numeric
+ * @param array $values (optional) list of possible values
+ * @return array
+ * @todo use this function in more places
+ */
+function zz_check_get_array($key, $type, $values = array()) {
+	global $zz_conf;
+	if (!isset($_GET[$key])) return array();
+
+	$error_in = array();
+	switch ($type) {
+	case 'field_name':
+		foreach ($_GET[$key] AS $name => $value) {
+			$correct = true;
+			if (strstr($name, ' ')) $correct = false;
+			elseif (strstr($name, ';')) $correct = false;
+			if (!$correct) $error_in[$key][$name] = true;
+		}
+		break;
+	case 'values':
+		if (!in_array($_GET[$key], $values)) $error_in[$key] = true;
+		break;
+	case 'is_numeric':
+		if (!is_numeric($_GET[$key])) $error_in[$key] = true;
+		break;
+	}
+	if (!$error_in) return $_GET[$key];
+
+	$zz_conf['int']['http_status'] = 404;
+	$unwanted_keys = array();
+	foreach ($error_in as $key => $values) {
+		if (is_array($values)) {
+			foreach (array_keys($values) as $subkey) {
+				$unwanted_keys = $key.'['.$subkey.']';
+				unset($_GET[$key][$subkey]);
+			}
+		} else {
+			$unwanted_keys[] = $key;
+			unset($_GET[$key]);
+		}
+	}
+	$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string(
+		$zz_conf['int']['url']['qs_zzform'], $unwanted_keys
+	);
+	if (!isset($_GET[$key])) return array();
+	return $_GET[$key];
 }
 
 /** 
@@ -576,11 +629,6 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = arr
 	if (!$zz_var['where_condition']) return zz_return(array($sql, $zz_var));
 
 	foreach ($zz_var['where_condition'] as $field_name => $value) {
-		// check for illegal characters
-		if (strstr($field_name, ' ') OR strstr($field_name, ';')) {
-			unset($zz_var['where_condition'][$field_name]);
-			continue;
-		}
 		$submitted_field_name = $field_name;
 		// check if field_name comprises table_name
 		if (strstr($field_name, '.')) {
@@ -614,7 +662,7 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = arr
 				continue; // don't use !NULL as where variable!
 			} else {
 				$sql = zz_edit_sql($sql, 'WHERE', 
-					$field_reference." = '".zz_db_escape($value)."'");
+					$field_reference.' = "'.zz_db_escape($value).'"');
 			}
 		}
 

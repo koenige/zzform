@@ -1837,21 +1837,20 @@ function zz_sql_order($fields, $sql) {
 	global $zz_conf;
 
 	// direction
-	$my_order = '';
-	if (!empty($_GET['dir'])) {
-		if ($_GET['dir'] === 'asc') {
-			$my_order = ' ASC';
-		} elseif ($_GET['dir'] === 'desc') {
-			$my_order = ' DESC';
-		} else {
-			$zz_conf['int']['http_status'] = 404;
-			$unwanted_keys = array('dir');
-			$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string(
-				$zz_conf['int']['url']['qs_zzform'], $unwanted_keys
-			);
-		}
+	if (!isset($_GET['order']) AND !isset($_GET['group'])) {
+		// accept 'dir' only in combination with order or group
+		$possible_values = array();
+	} else {
+		$possible_values = array('desc', 'asc');
+		$my_order = '';
 	}
-	
+	$dir = zz_check_get_array('dir', 'values', $possible_values);
+	if ($dir === 'asc') {
+		$my_order = ' ASC';
+	} elseif ($dir === 'desc') {
+		$my_order = ' DESC';
+	}
+
 	if (!isset($_GET['order']) AND !isset($_GET['group'])) return $sql;
 
 	$order = array();
