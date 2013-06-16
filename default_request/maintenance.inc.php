@@ -287,10 +287,11 @@ function zz_maintenance_integrity() {
 		$sql = 'SELECT DISTINCT detail_table.`'.$relation['detail_id_field'].'`
 				, detail_table.`'.$relation['detail_field'].'`
 			FROM `'.$relation['detail_db'].'`.`'.$relation['detail_table'].'` detail_table
-			JOIN `'.$relation['master_db'].'`.`'.$relation['master_table'].'` master_table
+			LEFT JOIN `'.$relation['master_db'].'`.`'.$relation['master_table'].'` master_table
 				ON detail_table.`'.$relation['detail_field'].'`
 					= master_table.`'.$relation['master_field'].'`
 			WHERE ISNULL(master_table.`'.$relation['master_field'].'`)
+			AND !ISNULL(detail_table.`'.$relation['detail_field'].'`)
 		';
 		$ids = wrap_db_fetch($sql, '_dummy_', 'key/value', false, E_USER_NOTICE);
 		$detail_field = $relation['detail_db'].' . '.$relation['detail_table'].' . '.$relation['detail_field'];
