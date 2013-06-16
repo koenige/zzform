@@ -625,8 +625,8 @@ function zz_maintenance_folders() {
 function zz_maintenance_searched($string) {
 	global $zz_conf;
 	if (empty($_GET['q'])) return false;
-	if (strstr($string, $_GET['q'])) return true;
-	if (strstr(urldecode($string), $_GET['q'])) return true;
+	if (stristr($string, $_GET['q'])) return true;
+	if (stristr(urldecode($string), $_GET['q'])) return true;
 
 	// allow for searching ignoring replaced zero width space
 	// PHPs char does not support unicode
@@ -641,7 +641,7 @@ function zz_maintenance_searched($string) {
 	$q = str_replace($char8203, '', $q);
 	$q = urldecode($q);
 	$_GET['q'] = $q;
-	if (strstr($string, $q)) return true;
+	if (stristr($string, $q)) return true;
 	return false;
 }
 
@@ -1056,7 +1056,7 @@ function zz_maintenance_logs() {
 			$line['error'] = zz_maintenance_splits($line['error'], $no_html);
 		}
 		// htmlify links
-		if (strstr($line['error'], 'http:/&#8203;/&#8203;') OR strstr($line['error'], 'https:/&#8203;/&#8203;')) {
+		if (stristr($line['error'], 'http:/&#8203;/&#8203;') OR stristr($line['error'], 'https:/&#8203;/&#8203;')) {
 			$line['error'] = preg_replace_callback('~(\S+):/&#8203;/&#8203;(\S+)~', 'zz_maintenance_make_url', $line['error']);
 		}
 		$line['error'] = str_replace(',', ', ', $line['error']);
