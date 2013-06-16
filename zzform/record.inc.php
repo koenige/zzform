@@ -1268,7 +1268,7 @@ function zz_form_element($name, $value, $type = 'text', $id = false, $fieldattr 
 	// autofocus?	
 	if ($zz_conf['html_autofocus']) {
 		$focus = array('text', 'checkbox', 'radio', 'password', 'textarea', 'select',
-			'date', 'datetime', 'mail', 'url', 'time');
+			'date', 'datetime', 'email', 'url', 'time');
 		if (!isset($fieldattr['autofocus']) AND in_array($type, $focus) 
 			AND zz_record_field_focus()) {
 			$fieldattr['autofocus'] = true;
@@ -1278,7 +1278,7 @@ function zz_form_element($name, $value, $type = 'text', $id = false, $fieldattr 
 	}
 
 	// multiple?
-	$multiple = array('mail');
+	$multiple = array('email');
 	if (!isset($fieldattr['multiple']) AND in_array($type, $multiple)) {
 		$fieldattr['multiple'] = true;
 	}
@@ -1304,9 +1304,6 @@ function zz_form_element($name, $value, $type = 'text', $id = false, $fieldattr 
 			$attr .= ' '.$attr_name.'="'.$attr_value.'"';
 		}
 	}
-	
-	// mail is in HTML5 email
-	if ($type === 'mail') $type = 'email';
 	
 	// return HTML depending on type
 	switch ($type) {
@@ -1662,7 +1659,7 @@ function zz_field_text($field, $display, $record) {
 
 	// return form element
 	$fieldtype = 'text';
-	if ($field['type'] === 'mail') $fieldtype = 'mail';
+	if ($field['type'] === 'mail') $fieldtype = 'email';
 	// 'url' in Opera does not support relative URLs
 	// elseif ($field['type'] === 'url') $fieldtype = 'url';
 	// datetime in Safari is like 2011-09-06T20:50Z
