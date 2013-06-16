@@ -1318,6 +1318,8 @@ function zz_form_element($name, $value, $type = 'text', $id = false, $fieldattr 
 		$value = str_replace('"', '&quot;', $value);
 		return sprintf('<option value="%s"%s>%s</option>', $value, $attr, $name);
 	case 'checkbox':
+	case 'file':
+		// no value attribute (file) or just sometimes (checkbox)
 		return sprintf('<input type="%s"%s>', $type, $attr);
 	default:
 		$value = str_replace('"', '&quot;', $value);
