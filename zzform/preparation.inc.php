@@ -1067,9 +1067,13 @@ function zz_log_validation_errors($my_rec, $validation) {
 function zz_query_single_record($sql, $table, $id, $sqlextra, $type = 'value') {		
 	global $zz_error;
 	
+	if (!$id[$type]) return array();
 	$sql = zz_edit_sql($sql, 'WHERE', $table.'.'
 		.$id['field_name']." = '".$id[$type]."'");
 	$record = zz_db_fetch($sql, '', '', 'record exists? ('.$type.')');
+	// if record is not yet in database, we will not get extra data because
+	// no ID exists yet
+	if (!$record) return array();
 	foreach ($sqlextra as $sql) {
 		if (empty($id[$type])) {
 			$zz_error[]['msg_dev'] = sprintf('No ID %s found (Query: %s).', $type, $sql);
