@@ -147,6 +147,8 @@ function zz_debug_time($return = array()) {
  * = microtime(true) in PHP 5
  *
  * @return float
+ * @deprecated
+ * @todo move into compatiblity.inc.php
  */
 function microtime_float() {
     list($usec, $sec) = explode(" ", microtime());
