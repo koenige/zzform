@@ -574,6 +574,18 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 	}
 	$rows = zz_list_get_subselects($rows, $subselects, $ids);
 	
+	// mark identical fields
+	$previous_row = array();
+	foreach ($rows as $row_index => $row) {
+		foreach ($row as $field_index => $field) {
+			if (!is_numeric($field_index)) continue;
+			if (!$previous_row) continue;
+			if ($previous_row[$field_index]['text'] !== $row[$field_index]['text']) continue;
+			$rows[$row_index][$field_index]['class'][] = 'identical_value';
+		}
+		$previous_row = $row;
+	}
+
 	return array($rows, $list);
 }
 
@@ -1100,10 +1112,6 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 	// set class depending on where and field info
 	$field['level'] = zz_list_field_level($list, $field, $line);
 	$row['class'] = array_merge($row['class'], zz_field_class($field, $where_table));
-	if (!empty($field['field_name']) AND !empty($lastline[$field['field_name']]) 
-		AND $row['value'] == $lastline[$field['field_name']]) {
-		$row['class'][] = 'identical_value';
-	}
 				
 	// set 'text'
 	if (empty($row['text'])) $row['text'] = '';
