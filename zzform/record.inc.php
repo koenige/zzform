@@ -1305,6 +1305,9 @@ function zz_form_element($name, $value, $type = 'text', $id = false, $fieldattr 
 		}
 	}
 	
+	// mail is in HTML5 email
+	if ($type === 'mail') $type === 'email';
+	
 	// return HTML depending on type
 	switch ($type) {
 	case 'textarea':
