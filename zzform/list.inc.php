@@ -580,7 +580,11 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 		foreach ($row as $field_index => $field) {
 			if (!is_numeric($field_index)) continue;
 			if (!$previous_row) continue;
-			if ($previous_row[$field_index]['text'] !== $row[$field_index]['text']) continue;
+			// following line for gallery mode, where you can have
+			// different numbers of fields per record
+			if (!isset($previous_row[$field_index])) continue;
+			if ($previous_row[$field_index]['text'] 
+				!== $row[$field_index]['text']) continue;
 			$rows[$row_index][$field_index]['class'][] = 'identical_value';
 		}
 		$previous_row = $row;
