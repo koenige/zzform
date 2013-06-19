@@ -13,9 +13,14 @@
  */
 
 
-// Default variables for debug module
-$zz_default['debug']			= false;	// turn on/off debugging mode
-$zz_default['debug_time'] 		= false;
+/**
+ * Default settings for debug module
+ */
+function zz_debug_config() {
+	$default['debug']			= false;	// turn on/off debugging mode
+	$default['debug_time'] 		= false;
+	zz_write_conf($default);
+}
 
 /**
  * HTML output of debugging information 

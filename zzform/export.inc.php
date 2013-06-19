@@ -17,22 +17,28 @@
  *					VARIABLES
  *		---------------------------------------------- */
 
-$zz_conf['int']['allowed_params']['mode'][] = 'export';
-$zz_conf['int']['allowed_params']['export'] = array('csv', 'pdf', 'kml');
+/**
+ * Default settings for export module
+ */
+function zz_export_config() {
+	$conf['int']['allowed_params']['mode'][] = 'export';
+	$conf['int']['allowed_params']['export'] = array('csv', 'pdf', 'kml');
+	zz_write_conf($conf, true);
 
-// whether sql result might be exported 
-// (link for export will appear at the end of the page)
-$zz_default['export']			= false;				
-// PDF library to include
-$zz_default['pdflib_path']		= false;
+	// whether sql result might be exported 
+	// (link for export will appear at the end of the page)
+	$default['export']			= false;				
+	// PDF library to include
+	$default['pdflib_path']		= false;
 
-// CSV defaults
-// Excel requires
-// - tabulator when opening via double-click and Unicode text
-// - semicolon when opening via double-click and ANSI text
-$zz_default['export_csv_delimiter'] = "\t";
-$zz_default['export_csv_enclosure'] = '"';
-
+	// CSV defaults
+	// Excel requires
+	// - tabulator when opening via double-click and Unicode text
+	// - semicolon when opening via double-click and ANSI text
+	$default['export_csv_delimiter'] = "\t";
+	$default['export_csv_enclosure'] = '"';
+	zz_write_conf($default);
+}
 
 /*		----------------------------------------------
  *					FUNCTIONS

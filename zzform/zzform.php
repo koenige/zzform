@@ -550,15 +550,15 @@ function zz_initialize($mode = false, $zz = array()) {
 	); 
 	
 	// Configuration on project level: Core defaults and functions
-	$zz_default['character_set']	= 'utf-8';					// character set
-	$zz_default['dir_ext']			= $zz_conf['dir'].'/ext';	// directory for extensions
-	$zz_default['dir_custom']		= $zz_conf['dir'].'/local';
-	$zz_default['dir_inc']			= $zz_conf['dir'].'/inc';
-	$zz_default['generate_output']	= true;
-	$zz_default['error_mail_level']	= array('error', 'warning', 'notice');
-	$zz_default['ext_modules']		= array('markdown', 'textile');
-	$zz_default['int_modules'] 		= array('debug', 'compatibility', 'validate');
-	zz_write_defaults($zz_default, $zz_conf);
+	$default['character_set']	= 'utf-8';					// character set
+	$default['dir_ext']			= $zz_conf['dir'].'/ext';	// directory for extensions
+	$default['dir_custom']		= $zz_conf['dir'].'/local';
+	$default['dir_inc']			= $zz_conf['dir'].'/inc';
+	$default['generate_output']	= true;
+	$default['error_mail_level']	= array('error', 'warning', 'notice');
+	$default['ext_modules']		= array('markdown', 'textile');
+	$default['int_modules'] 		= array('debug', 'compatibility', 'validate');
+	zz_write_conf($default);
 	
 	// modules depending on settings
 	if ($zz_conf['generate_output']) $zz_conf['int_modules'][] = 'output';
@@ -591,84 +591,84 @@ function zz_initialize($mode = false, $zz = array()) {
 	// stop if there were errors while adding modules
 	if ($zz_error['error']) zz_return(false);
 
-	$zz_default['action_dir']		= $zz_conf['dir_custom'];	// directory for included scripts after action has been taken
-	$zz_default['lang_dir']			= $zz_conf['dir_custom'];	// directory for additional text
+	$default['action_dir']		= $zz_conf['dir_custom'];	// directory for included scripts after action has been taken
+	$default['lang_dir']			= $zz_conf['dir_custom'];	// directory for additional text
 
-	$zz_default['always_show_empty_detail_record'] = false;
-	$zz_default['additional_text']	= false;
-	$zz_default['backlink']			= true;		// show back-to-overview link
-	$zz_default['access']			= '';		// nothing, does not need to be set, might be set individually
-	$zz_default['add']				= true;		// add or do not add data.
-	$zz_default['cancel_link']		= true;
-	$zz_default['check_referential_integrity'] = true;
-	$zz_default['copy']				= false;	// show action: copy
-	$zz_default['decimal_point']	= '.';
-	$zz_default['delete']			= false;	// show action: delete
-	$zz_default['details']			= false;	// column details; links to detail records with foreign key
-	$zz_default['details_base']		= false;
-	$zz_default['details_referer']	= true;		// add referer to details link
-	$zz_default['details_url']		= array(); // might be array, therefore no $zz_default
-	$zz_default['details_sql']		= array();
-	$zz_default['details_target']	= false;	// target-window for details link
-	$zz_default['edit']				= true;		// show Action: Edit
+	$default['always_show_empty_detail_record'] = false;
+	$default['additional_text']	= false;
+	$default['backlink']			= true;		// show back-to-overview link
+	$default['access']			= '';		// nothing, does not need to be set, might be set individually
+	$default['add']				= true;		// add or do not add data.
+	$default['cancel_link']		= true;
+	$default['check_referential_integrity'] = true;
+	$default['copy']				= false;	// show action: copy
+	$default['decimal_point']	= '.';
+	$default['delete']			= false;	// show action: delete
+	$default['details']			= false;	// column details; links to detail records with foreign key
+	$default['details_base']		= false;
+	$default['details_referer']	= true;		// add referer to details link
+	$default['details_url']		= array(); // might be array, therefore no $default
+	$default['details_sql']		= array();
+	$default['details_target']	= false;	// target-window for details link
+	$default['edit']				= true;		// show Action: Edit
 
-	$zz_default['error_handling']		= 'output';
-	$zz_default['error_log']['error']	= ini_get('error_log');
-	$zz_default['error_log']['notice']	= ini_get('error_log');
-	$zz_default['error_log']['warning']	= ini_get('error_log');
-	$zz_default['error_mail_from']		= false;
-	$zz_default['error_mail_to']		= false;
-	$zz_default['log_errors_max_len'] 	= ini_get('log_errors_max_len');
-	$zz_default['log_errors'] 			= ini_get('log_errors');
-	$zz_default['error_log_post']		= false;
+	$default['error_handling']		= 'output';
+	$default['error_log']['error']	= ini_get('error_log');
+	$default['error_log']['notice']	= ini_get('error_log');
+	$default['error_log']['warning']	= ini_get('error_log');
+	$default['error_mail_from']		= false;
+	$default['error_mail_to']		= false;
+	$default['log_errors_max_len'] 	= ini_get('log_errors_max_len');
+	$default['log_errors'] 			= ini_get('log_errors');
+	$default['error_log_post']		= false;
 
-	$zz_default['export']				= false;
-	$zz_default['filter_position'] 		= 'top';
-	$zz_default['filter'] 				= array();
-	$zz_default['footer_text']			= false;		// text at the end of all
-	$zz_default['group_html_table']		= '<strong>%s</strong>';
-	$zz_default['hash_cost_log2']		= 8;
-	$zz_default['hash_portable']		= false;
-	$zz_default['hash_password']		= 'md5';
-	$zz_default['heading_prefix']		= false;
-	$zz_default['html_autofocus']		= true;
-	$zz_default['limit']				= false;	// only n records are shown at once
-	$zz_default['limit_show_range'] 	= 800;		// range in which links to records around current selection will be shown
-	$zz_default['limit_display']		= 'pages';
-	$zz_default['limit_all_max']		= 1500;		// maximum records on one page
-	$zz_default['list_display']			= 'table';
-	$zz_default['logging'] 				= false;	//	if logging should occur, turned off by default 
-	$zz_default['logging_table'] 		= '_logging';	// name of table where INSERT, DELETE and UPDATE actions will be logged
-	$zz_default['max_detail_records']	= 20;		// max 20 detail records, might be expanded later on
-	$zz_default['max_select_val_len']	= 60;		// maximum length of values in select
-	$zz_default['max_select'] 			= 60;		// maximum entries in select/option, if bigger than sub-select
-	$zz_default['min_detail_records']	= 0;		// min 0 detail records, might be expanded later on
-	$zz_default['multi'] 				= false;		// zzform_multi
-	$zz_default['multilang_fieldnames'] = false;	// translate fieldnames via zz_text($fieldname)
-	$zz_default['prefix'] 				= false;	//	prefix for ALL tables like zz_
-	$zz_default['project']				= $_SERVER['HTTP_HOST'] ? htmlspecialchars($_SERVER['HTTP_HOST']) : $_SERVER['SERVER_NAME'];
-	$zz_default['redirect']['successful_delete'] = false;	// redirect to diff. page after delete
-	$zz_default['redirect']['successful_insert'] = false;	// redirect to diff. page after insert
-	$zz_default['redirect']['successful_update'] = false;	// redirect to diff. page after update
-	$zz_default['redirect']['no_update'] = false;	// redirect to diff. page after update without changes
-	$zz_default['redirect_on_change']	= true;
-	$zz_default['relations_table'] 		= '_relations';	//	name of relations table for referential integrity
-	$zz_default['search'] 				= false;	// search for records possible or not
-	$zz_default['search_form_always']	= false;
-	$zz_default['select_multiple_records'] = false;
-	$zz_default['show_list_while_edit'] = true;	
-	$zz_default['show_list']		= true;		// display list of records in database				
-	$zz_default['show_output']		= true;		// ECHO output or keep it in $ops['output']
-	$zz_default['title_separator']	= ' &#8211; ';
-	$zz_default['thousands_separator']	= ' ';
-	$zz_default['user']				= (isset($_SERVER['PHP_AUTH_USER'])) ? $_SERVER['PHP_AUTH_USER'] : '';
-	$zz_default['view']				= false;	// 	show Action: View
-	$zz_default['translate_log_encodings'] = array(
+	$default['export']				= false;
+	$default['filter_position'] 		= 'top';
+	$default['filter'] 				= array();
+	$default['footer_text']			= false;		// text at the end of all
+	$default['group_html_table']		= '<strong>%s</strong>';
+	$default['hash_cost_log2']		= 8;
+	$default['hash_portable']		= false;
+	$default['hash_password']		= 'md5';
+	$default['heading_prefix']		= false;
+	$default['html_autofocus']		= true;
+	$default['limit']				= false;	// only n records are shown at once
+	$default['limit_show_range'] 	= 800;		// range in which links to records around current selection will be shown
+	$default['limit_display']		= 'pages';
+	$default['limit_all_max']		= 1500;		// maximum records on one page
+	$default['list_display']			= 'table';
+	$default['logging'] 				= false;	//	if logging should occur, turned off by default 
+	$default['logging_table'] 		= '_logging';	// name of table where INSERT, DELETE and UPDATE actions will be logged
+	$default['max_detail_records']	= 20;		// max 20 detail records, might be expanded later on
+	$default['max_select_val_len']	= 60;		// maximum length of values in select
+	$default['max_select'] 			= 60;		// maximum entries in select/option, if bigger than sub-select
+	$default['min_detail_records']	= 0;		// min 0 detail records, might be expanded later on
+	$default['multi'] 				= false;		// zzform_multi
+	$default['multilang_fieldnames'] = false;	// translate fieldnames via zz_text($fieldname)
+	$default['prefix'] 				= false;	//	prefix for ALL tables like zz_
+	$default['project']				= $_SERVER['HTTP_HOST'] ? htmlspecialchars($_SERVER['HTTP_HOST']) : $_SERVER['SERVER_NAME'];
+	$default['redirect']['successful_delete'] = false;	// redirect to diff. page after delete
+	$default['redirect']['successful_insert'] = false;	// redirect to diff. page after insert
+	$default['redirect']['successful_update'] = false;	// redirect to diff. page after update
+	$default['redirect']['no_update'] = false;	// redirect to diff. page after update without changes
+	$default['redirect_on_change']	= true;
+	$default['relations_table'] 		= '_relations';	//	name of relations table for referential integrity
+	$default['search'] 				= false;	// search for records possible or not
+	$default['search_form_always']	= false;
+	$default['select_multiple_records'] = false;
+	$default['show_list_while_edit'] = true;	
+	$default['show_list']		= true;		// display list of records in database				
+	$default['show_output']		= true;		// ECHO output or keep it in $ops['output']
+	$default['title_separator']	= ' &#8211; ';
+	$default['thousands_separator']	= ' ';
+	$default['user']				= (isset($_SERVER['PHP_AUTH_USER'])) ? $_SERVER['PHP_AUTH_USER'] : '';
+	$default['view']				= false;	// 	show Action: View
+	$default['translate_log_encodings'] = array(
 		'iso-8859-2' => 'iso-8859-1'
 	);
-	$zz_default['url_self']			= false;
+	$default['url_self']			= false;
 	
-	zz_write_defaults($zz_default, $zz_conf);
+	zz_write_conf($default);
 
 	$zz_conf['int']['url'] = zz_get_url_self($zz_conf['url_self']);
 
@@ -869,29 +869,44 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 	return $ops;
 }
 
-/* Create config variables from defaults
+/**
+ * Create config variables from defaults
  *
- * @param array $zz_default	default configuration variables
- * @param array $zz_conf	definitive configuration variables
- * @return - writes directly to $zz_conf
- * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @param array $variables	default configuration variables
+ * @param bool $overwrite	overwrite existing variables? default = no
+ * @global $zz_conf
+ * @return bool
  */
-function zz_write_defaults($zz_default, &$zz_conf) {
-	foreach (array_keys($zz_default) as $key) {
-		// no key set, so write default values in configuration
-		if (!isset($zz_conf[$key])) {
-			$zz_conf[$key] = $zz_default[$key];
-		} elseif (is_array($zz_default[$key])) {
+function zz_write_conf($variables, $overwrite = false) {
+	global $zz_conf;
+	zz_write_conf_vars($variables, $zz_conf, $overwrite);
+	if (!empty($GLOBALS['zz_saved']['conf'])) {
+		zz_write_conf_vars($variables, $GLOBALS['zz_saved']['conf'], $overwrite);
+	}
+	return true;
+}
+
+function zz_write_conf_vars($variables, &$conf, $overwrite) {
+	if ($overwrite) {
+		$conf = zz_array_merge($conf, $variables);
+		return true;
+	}
+	foreach (array_keys($variables) as $key) {
+		if (!isset($conf[$key])) {
+			// no key set, so write default values in configuration
+			$conf[$key] = $variables[$key];
+		} elseif (is_array($variables[$key])) {
 			// check if it's an array, it might be that some of the subkeys
 			// are already set, others not
-			foreach (array_keys($zz_default[$key]) as $subkey) {
+			foreach (array_keys($variables[$key]) as $subkey) {
 				if (is_numeric($subkey)) continue;
-				if (!isset($zz_conf[$key][$subkey])) {
-					$zz_conf[$key][$subkey] = $zz_default[$key][$subkey];
+				if (!isset($conf[$key][$subkey])) {
+					$conf[$key][$subkey] = $variables[$key][$subkey];
 				}
 			}
 		}
 	}
+	return true;
 }
 
 /**

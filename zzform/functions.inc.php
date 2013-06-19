@@ -36,25 +36,24 @@
  * @return array $mod
  */
 function zz_add_modules($modules, $path) {
+	global $zz_conf;
 	$debug_started = false;
-	if (!empty($GLOBALS['zz_conf']['modules']['debug'])) {
+	if (!empty($zz_conf['modules']['debug'])) {
 		zz_debug('start', __FUNCTION__);
 		$debug_started = true;
 	}
 //	initialize variables
 	$mod = array();
-	$zz_default = array();
-	$zz_conf = array();
 	$add = false;
 
 //	import modules
 	foreach ($modules as $module) {
-		if (!empty($GLOBALS['zz_conf']['modules'][$module])) {
+		if (!empty($zz_conf['modules'][$module])) {
 			// we got that already
 			$mod[$module] = true;
 			continue;
 		}
-		if ($module == 'debug' AND empty($GLOBALS['zz_conf']['debug'])) {
+		if ($module === 'debug' AND empty($zz_conf['debug'])) {
 			$mod[$module] = false;
 			continue;
 		}
@@ -69,7 +68,7 @@ function zz_add_modules($modules, $path) {
 		} else {
 			$mod[$module] = false;
 		}
-		if (!empty($mod['debug']) OR !empty($GLOBALS['zz_conf']['modules']['debug'])) {
+		if (!empty($mod['debug']) OR !empty($zz_conf['modules']['debug'])) {
 			if (!$debug_started) {
 				zz_debug('start', __FUNCTION__);
 				$debug_started = true;
@@ -78,19 +77,9 @@ function zz_add_modules($modules, $path) {
 			else $debug_msg = 'Module %s not included';
 			zz_debug(sprintf($debug_msg, $module));
 		}
-	}
-
-	if ($add) {
-		// import variables from internal modules
-		$GLOBALS['zz_conf'] = zz_array_merge($GLOBALS['zz_conf'], $zz_conf);
-		zz_write_defaults($zz_default, $GLOBALS['zz_conf']);
-		// zzform_multi: module might be added later, so add default variables
-		// for $zz_saved as well
-		if (!empty($GLOBALS['zz_saved']['conf'])) {
-			$GLOBALS['zz_saved']['conf'] = zz_array_merge(
-				$GLOBALS['zz_saved']['conf'], $zz_conf
-			);
-			zz_write_defaults($zz_default, $GLOBALS['zz_saved']['conf']);
+		$config_function = sprintf('zz_%s_config', $module);
+		if ($add AND function_exists($config_function)) {
+			$config_function();
 		}
 	}
 

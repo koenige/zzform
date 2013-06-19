@@ -80,91 +80,98 @@
  *					VARIABLES						*
  *	----------------------------------------------	*/
 
-global $zz_error;
+/**
+ * Default settings for upload module
+ */
+function zz_upload_config() {
+	global $zz_error;
+	global $zz_conf;
 
-$zz_default['backup'] 			= false;	//	backup uploaded files?
-$zz_default['backup_dir'] 		= $GLOBALS['zz_conf']['dir'].'/backup';	//	directory where backup will be put into
-if (ini_get('upload_tmp_dir'))
-	$zz_default['tmp_dir']		= ini_get('upload_tmp_dir');
-else
-	$zz_default['tmp_dir'] 		= false;
-$zz_default['graphics_library'] = 'imagemagick';
-$zz_default['imagemagick_paths'] = array('/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/phpbin', '/opt/local/bin'); 
-$zz_default['upload_tools']['fileinfo'] = false;
-$zz_default['upload_tools']['fileinfo_whereis'] = 'file';
-$zz_default['upload_tools']['exiftools'] = false;
-$zz_default['upload_tools']['identify'] = true; // might be turned off for performance reasons while handling raw data
-$zz_default['upload_tools']['ghostscript'] = false; // whether we can use gs library
-$zz_default['upload_log']		= '';
+	$default['backup'] 			= false;	//	backup uploaded files?
+	$default['backup_dir'] 		= $zz_conf['dir'].'/backup';	//	directory where backup will be put into
+	if (ini_get('upload_tmp_dir'))
+		$default['tmp_dir']		= ini_get('upload_tmp_dir');
+	else
+		$default['tmp_dir'] 		= false;
+	$default['graphics_library'] = 'imagemagick';
+	$default['imagemagick_paths'] = array('/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/phpbin', '/opt/local/bin'); 
+	$default['upload_tools']['fileinfo'] = false;
+	$default['upload_tools']['fileinfo_whereis'] = 'file';
+	$default['upload_tools']['exiftools'] = false;
+	$default['upload_tools']['identify'] = true; // might be turned off for performance reasons while handling raw data
+	$default['upload_tools']['ghostscript'] = false; // whether we can use gs library
+	$default['upload_log']		= '';
 
-$max_filesize = ini_get('upload_max_filesize');
-define('ZZ_UPLOAD_INI_MAXFILESIZE', zz_return_bytes($max_filesize));
-$zz_default['upload_MAX_FILE_SIZE']	= ZZ_UPLOAD_INI_MAXFILESIZE;
+	$max_filesize = ini_get('upload_max_filesize');
+	define('ZZ_UPLOAD_INI_MAXFILESIZE', zz_return_bytes($max_filesize));
+	$default['upload_MAX_FILE_SIZE']	= ZZ_UPLOAD_INI_MAXFILESIZE;
 
-// mimetypes, hardcoded in php
+	// mimetypes, hardcoded in php
 
-$zz_default['image_types'] = array(
-	1 =>  array('mime' => 'image/gif', 'ext' => 'gif'),				// 1	IMAGETYPE_GIF
-	2 =>  array('mime' => 'image/jpeg', 'ext' => 'jpeg'),			// 2	IMAGETYPE_JPEG
-	3 =>  array('mime' => 'image/png', 'ext' => 'png'),				// 3	IMAGETYPE_PNG
-	4 =>  array('mime' => 'application/x-shockwave-flash', 'ext' => 'swf'),	// 4	IMAGETYPE_SWF
-	5 =>  array('mime' => 'image/psd', 'ext' => 'psd'),				// 5	IMAGETYPE_PSD
-	6 =>  array('mime' => 'image/bmp', 'ext' => 'bmp'),				// 6	IMAGETYPE_BMP
-	7 =>  array('mime' => 'image/tiff', 'ext' => 'tiff'),			// 7	IMAGETYPE_TIFF_II (intel byte order)
-	8 =>  array('mime' => 'image/tiff', 'ext' => 'tiff'),			// 8	IMAGETYPE_TIFF_MM (motorola byte order)
-	9 =>  array('mime' => 'application/octet-stream', 'ext' => 'jpc'),		// 9	IMAGETYPE_JPC	>= PHP 4.3.2
-	10 => array('mime' => 'image/jp2', 'ext' => 'jp2'),				// 10	IMAGETYPE_JP2	>= PHP 4.3.2
-	11 => array('mime' => 'application/octet-stream', 'ext' => 'jpf'),		// 11	IMAGETYPE_JPX	>= PHP 4.3.2
-	12 => array('mime' => 'application/octet-stream', 'ext' => 'jb2'),		// 12	IMAGETYPE_JB2	>= PHP 4.3.2
-	13 => array('mime' => 'application/x-shockwave-flash', 'ext' => 'swc'),	// 13	IMAGETYPE_SWC	>= PHP 4.3.0
-	14 => array('mime' => 'image/iff', 'ext' => 'aiff'),			// 14	IMAGETYPE_IFF
-	15 => array('mime' => 'image/vnd.wap.wbmp', 'ext' => 'wbmp'),	// 15	IMAGETYPE_WBMP	>= PHP 4.3.2
-	16 => array('mime' => 'image/xbm', 'ext' => 'xbm')				// 16	IMAGETYPE_XBM	>= PHP 4.3.2
-);
-foreach (array_keys($zz_default['image_types']) as $key)
-	$zz_default['image_types'][$key]['filetype'] = $zz_default['image_types'][$key]['ext'];
+	$default['image_types'] = array(
+		1 =>  array('mime' => 'image/gif', 'ext' => 'gif'),				// 1	IMAGETYPE_GIF
+		2 =>  array('mime' => 'image/jpeg', 'ext' => 'jpeg'),			// 2	IMAGETYPE_JPEG
+		3 =>  array('mime' => 'image/png', 'ext' => 'png'),				// 3	IMAGETYPE_PNG
+		4 =>  array('mime' => 'application/x-shockwave-flash', 'ext' => 'swf'),	// 4	IMAGETYPE_SWF
+		5 =>  array('mime' => 'image/psd', 'ext' => 'psd'),				// 5	IMAGETYPE_PSD
+		6 =>  array('mime' => 'image/bmp', 'ext' => 'bmp'),				// 6	IMAGETYPE_BMP
+		7 =>  array('mime' => 'image/tiff', 'ext' => 'tiff'),			// 7	IMAGETYPE_TIFF_II (intel byte order)
+		8 =>  array('mime' => 'image/tiff', 'ext' => 'tiff'),			// 8	IMAGETYPE_TIFF_MM (motorola byte order)
+		9 =>  array('mime' => 'application/octet-stream', 'ext' => 'jpc'),		// 9	IMAGETYPE_JPC	>= PHP 4.3.2
+		10 => array('mime' => 'image/jp2', 'ext' => 'jp2'),				// 10	IMAGETYPE_JP2	>= PHP 4.3.2
+		11 => array('mime' => 'application/octet-stream', 'ext' => 'jpf'),		// 11	IMAGETYPE_JPX	>= PHP 4.3.2
+		12 => array('mime' => 'application/octet-stream', 'ext' => 'jb2'),		// 12	IMAGETYPE_JB2	>= PHP 4.3.2
+		13 => array('mime' => 'application/x-shockwave-flash', 'ext' => 'swc'),	// 13	IMAGETYPE_SWC	>= PHP 4.3.0
+		14 => array('mime' => 'image/iff', 'ext' => 'aiff'),			// 14	IMAGETYPE_IFF
+		15 => array('mime' => 'image/vnd.wap.wbmp', 'ext' => 'wbmp'),	// 15	IMAGETYPE_WBMP	>= PHP 4.3.2
+		16 => array('mime' => 'image/xbm', 'ext' => 'xbm')				// 16	IMAGETYPE_XBM	>= PHP 4.3.2
+	);
+	foreach (array_keys($default['image_types']) as $key)
+		$default['image_types'][$key]['filetype'] = $default['image_types'][$key]['ext'];
 
-$zz_default['file_types'] = zz_upload_get_typelist($GLOBALS['zz_conf']['dir_inc'].'/filetypes.txt');
-if ($zz_error['error']) return false;
-$zz_default['upload_iptc_fields'] = zz_upload_get_typelist($GLOBALS['zz_conf']['dir_inc'].'/iptc-iimv4-1.txt', 'IPTC', true);
+	$default['file_types'] = zz_upload_get_typelist($zz_conf['dir_inc'].'/filetypes.txt');
+	if ($zz_error['error']) return false;
+	$default['upload_iptc_fields'] = zz_upload_get_typelist($zz_conf['dir_inc'].'/iptc-iimv4-1.txt', 'IPTC', true);
 
-// unwanted mimetypes and their replacements
-$zz_default['mime_types_rewritten'] = array(
-	'image/pjpeg' => 'image/jpeg', 	// Internet Explorer knows progressive JPEG instead of JPEG
-	'image/x-png' => 'image/png',	// Internet Explorer
-	'application/octet_stream' => 'application/octet-stream'
-); 
+	// unwanted mimetypes and their replacements
+	$default['mime_types_rewritten'] = array(
+		'image/pjpeg' => 'image/jpeg', 	// Internet Explorer knows progressive JPEG instead of JPEG
+		'image/x-png' => 'image/png',	// Internet Explorer
+		'application/octet_stream' => 'application/octet-stream'
+	); 
 
-// extensions for images that can be natively displayed in browser
-$zz_default['webimages_by_extension'] = array('jpg', 'jpeg', 'gif', 'png');
+	// extensions for images that can be natively displayed in browser
+	$default['webimages_by_extension'] = array('jpg', 'jpeg', 'gif', 'png');
 
-$zz_default['exif_supported'] = array('jpeg', 'tiff', 'dng', 'cr2', 'nef');
-$zz_default['upload_destination_filetype']['tiff'] = 'png';
-$zz_default['upload_destination_filetype']['tif'] = 'png';
-$zz_default['upload_destination_filetype']['tga'] = 'png';
-$zz_default['upload_destination_filetype']['pdf'] = 'png';
-$zz_default['upload_destination_filetype']['ai'] = 'png';
-$zz_default['upload_destination_filetype']['eps'] = 'png';
-$zz_default['upload_destination_filetype']['cr2'] = 'jpeg';
-$zz_default['upload_destination_filetype']['dng'] = 'jpeg';
-$zz_default['upload_destination_filetype']['psd'] = 'jpeg';
-$zz_default['upload_destination_filetype']['mp4'] = 'jpeg';
-$zz_default['upload_destination_filetype']['mov'] = 'jpeg';
-$zz_default['upload_destination_filetype']['mpg'] = 'jpeg';
-$zz_default['upload_destination_filetype']['flv'] = 'jpeg';
-$zz_default['upload_destination_filetype']['avi'] = 'jpeg';
+	$default['exif_supported'] = array('jpeg', 'tiff', 'dng', 'cr2', 'nef');
+	$default['upload_destination_filetype']['tiff'] = 'png';
+	$default['upload_destination_filetype']['tif'] = 'png';
+	$default['upload_destination_filetype']['tga'] = 'png';
+	$default['upload_destination_filetype']['pdf'] = 'png';
+	$default['upload_destination_filetype']['ai'] = 'png';
+	$default['upload_destination_filetype']['eps'] = 'png';
+	$default['upload_destination_filetype']['cr2'] = 'jpeg';
+	$default['upload_destination_filetype']['dng'] = 'jpeg';
+	$default['upload_destination_filetype']['psd'] = 'jpeg';
+	$default['upload_destination_filetype']['mp4'] = 'jpeg';
+	$default['upload_destination_filetype']['mov'] = 'jpeg';
+	$default['upload_destination_filetype']['mpg'] = 'jpeg';
+	$default['upload_destination_filetype']['flv'] = 'jpeg';
+	$default['upload_destination_filetype']['avi'] = 'jpeg';
 
-$zz_default['upload_pdf_density'] = '300x300'; // dpi in which pdf will be rasterized
+	$default['upload_pdf_density'] = '300x300'; // dpi in which pdf will be rasterized
 
-$zz_default['upload_multipage_images'] = array('pdf', 'psd', 'mp4', 'mov', 'mpg', 'flv', 'avi');
-$zz_default['upload_multipage_which']['mp4'] = 5; // don't take first frame, might be black
+	$default['upload_multipage_images'] = array('pdf', 'psd', 'mp4', 'mov', 'mpg', 'flv', 'avi');
+	$default['upload_multipage_which']['mp4'] = 5; // don't take first frame, might be black
 
-$zz_default['upload_filetype_map']['tif'] = 'tiff';
-$zz_default['upload_filetype_map']['jpe'] = 'jpeg';
-$zz_default['upload_filetype_map']['jpg'] = 'jpeg';
+	$default['upload_filetype_map']['tif'] = 'tiff';
+	$default['upload_filetype_map']['jpe'] = 'jpeg';
+	$default['upload_filetype_map']['jpg'] = 'jpeg';
 
-$zz_default['upload_no_thumbnails'] = array('doc', 'docx', 'wps', 'rtf', 'xls',
-	'dot', 'odt', 'ott', 'ods', 'indd', 'txt', 'csv');
+	$default['upload_no_thumbnails'] = array('doc', 'docx', 'wps', 'rtf', 'xls',
+		'dot', 'odt', 'ott', 'ods', 'indd', 'txt', 'csv');
+	zz_write_conf($default);
+}
 
 /*	----------------------------------------------	*
  *					MAIN FUNCTIONS					*
@@ -462,16 +469,14 @@ function zz_upload_remote_file($filename) {
  *		(upload:) string 'tmp_name',
  *		(upload, optional:): int 'size', string 'name', string 'type', int 'error',
  *		(optional:) bool 'do_not_delete'
- * @param string $extension
+ * @param string $extension (optional)
  * @return array $file, multidimensional information about images
  *		(existing +) bool 'validated', string 'filetype'
  *		(all optional:) string 'filetype_file', string 'ext', string 'mime', 
  *		string 'charset', int 'width', int 'height', string 'bits', 
  *		string 'channels', array 'exif'
- * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @todo: get rid of parameter $extension, get extension inside function
  */
-function zz_upload_fileinfo($file, $extension) {
+function zz_upload_fileinfo($file, $extension = false) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$file['validated'] = false;
@@ -489,7 +494,7 @@ function zz_upload_fileinfo($file, $extension) {
 	if ($file['size'] <= 3) return zz_return($file);
 
 	$filename = $file['tmp_name'];
-	if (!$extension) $extension = substr($filename, strrpos($filename, '.') +1);
+	if (!$extension) $extension = zz_upload_file_extension($filename);
 
 	// check filetype by several means
 	if ($zz_conf['modules']['debug']) zz_debug('file', json_encode($file));
@@ -964,11 +969,10 @@ function zz_upload_prepare($zz_tab) {
 						$source_filename = zz_makepath($image['source_path'], $source_tab, 'old', 'file', $tab, $rec);
 						unset($source_tab);
 						if (file_exists($source_filename)) {
-							$extension = zz_upload_file_extension($source_filename);
 							$image['upload']['name'] = basename($source_filename);
 							$image['upload']['tmp_name'] = $source_filename; // same because it's no upload
 							$image['upload']['error'] = 0;
-							$image['upload'] = zz_upload_fileinfo($image['upload'], $extension);
+							$image['upload'] = zz_upload_fileinfo($image['upload']);
 						}
 					}
 					$dont_use_upload = true;

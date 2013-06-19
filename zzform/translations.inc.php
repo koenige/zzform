@@ -16,11 +16,15 @@
  */
 
 
-// Default settings
-$zz_default['translations_of_fields'] = false;
-$zz_default['translations_table'] = '';
-$zz_default['translations_script'] = array();
-
+/**
+ * Default settings for translation module
+ */
+function zz_translations_config() {
+	$default['translations_of_fields'] = false;
+	$default['translations_table'] = '';
+	$default['translations_script'] = array();
+	zz_write_conf($default);
+}
 
 /**
  * initalizes zzform for translation subtables
