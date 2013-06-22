@@ -87,7 +87,7 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 	// Heading inside HTML form element
 	if (($ops['mode'] === 'edit' OR $ops['mode'] === 'delete' OR $ops['mode'] === 'review'
 		OR $ops['mode'] === 'show') AND !$zz_tab[0][0]['record']
-		AND ($action_before_redirect != 'delete')) {
+		AND ($action_before_redirect !== 'delete')) {
 		$formhead = '<span class="error">'.zz_text('There is no record under this ID:')
 			.' '.htmlspecialchars($zz_tab[0][0]['id']['value']).'</span>';	
 	} elseif (!empty($zz_tab[0]['integrity'])) {
@@ -234,7 +234,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 		$cancelurl.= zz_edit_query_string($base_qs, $unwanted_keys);
 	}
 	$multiple = !empty($zz_var['id']['values']) ? true : false;
-	if ($mode && $mode != 'review' && $mode != 'show') {
+	if ($mode && $mode !== 'review' && $mode !== 'show') {
 		$output .= '<tfoot>'."\n";
 		$output .= '<tr><th>&nbsp;</th> <td>'; 
 		$fieldattr = array();
@@ -265,7 +265,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 			break;
 		}
 		$output .= zz_form_element('', $elementvalue, 'submit', false, $fieldattr);
-		if (($cancelurl != $_SERVER['REQUEST_URI'] OR ($zz_var['action']) OR !empty($_POST))
+		if (($cancelurl !== $_SERVER['REQUEST_URI'] OR ($zz_var['action']) OR !empty($_POST))
 			AND $zz_conf_record['cancel_link']) 
 			// only show cancel link if it is possible to hide form 
 			// @todo: expanded to action, not sure if this works on add only forms, 
@@ -274,7 +274,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 		$output .= '</td></tr>'."\n";
 		$output .= '</tfoot>'."\n";
 	} else {
-		if ($zz_conf_record['access'] != 'add_only') {
+		if ($zz_conf_record['access'] !== 'add_only') {
 			$output .= '<tfoot>'."\n";
 			if ($zz_conf_record['edit']) {
 				$output .= '<tr><th>&nbsp;</th> <td class="reedit">';
@@ -323,7 +323,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 	} elseif ($mode === 'delete') {
 		$output .= zz_form_element($zz_var['id']['field_name'], $zz_var['id']['value'], 'hidden')."\n";
 	}
-	if ($mode && $mode != 'review' && $mode != 'show') {
+	if ($mode && $mode !== 'review' && $mode !== 'show') {
 		switch ($mode) {
 			case 'add': $submit = 'insert'; break;
 			case 'edit': $submit = 'update'; break;
@@ -480,19 +480,18 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				// show all subtables which are not deleted but 1 record as a minimum
 				if ($zz_tab[$sub_tab][$sub_rec]['action'] === 'delete'
 					AND (empty($zz_tab[$sub_tab]['records'])
-						AND ($sub_rec + 1) != $zz_tab[$sub_tab]['min_records'])) continue;
+						AND ($sub_rec + 1) !== $zz_tab[$sub_tab]['min_records'])) continue;
 				// don't show records which are being ignored
 				if ($zz_tab[$sub_tab][$sub_rec]['action'] === 'ignore'
-					AND $st_display != 'form') continue;
+					AND $st_display !== 'form') continue;
 				// don't show records which are deleted with tick_to_save
 				if ($zz_tab[$sub_tab][$sub_rec]['action'] === 'delete'
-					AND $st_display != 'form'
+					AND $st_display !== 'form'
 					AND !empty($field['tick_to_save'])) continue;
 				if ($zz_tab[$sub_tab][$sub_rec]['action'] === 'delete'
-					AND $st_display != 'form' AND $zz_var['action']) continue;
+					AND $st_display !== 'form' AND $zz_var['action']) continue;
 
 				$c_subtables++;
-				$my_st_display = $st_display;
 
 				// get first subtable that will be displayed
 				// in order to be able to say whether horizontal table shall be openend		
@@ -508,7 +507,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				// just for optical reasons, in case one row allows removing of record
 				if ($display === 'form') $lastrow = '&nbsp;'; 
 				
-				if ($my_st_display === 'form') {
+				if ($st_display === 'form') {
 					if ($zz_tab[$sub_tab]['min_records'] < $zz_tab[$sub_tab]['records']
 						&& !$dont_delete_records)
 						$show_remove = true;
@@ -523,11 +522,11 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				if ($subtable_mode === 'edit' AND empty($zz_tab[$sub_tab][$sub_rec]['id']['value'])) {
 					// no saved record exists, so it's add a new record
 					$subtable_mode = 'add';
-					if ($field['form_display'] != 'horizontal' AND !empty($field['tick_to_save'])) {
+					if ($field['form_display'] !== 'horizontal' AND !empty($field['tick_to_save'])) {
 						$show_tick = false;
 					}
 				} elseif (empty($zz_tab[$sub_tab][$sub_rec]['id']['value'])) {
-					if ($field['form_display'] != 'horizontal' AND !empty($field['tick_to_save'])) {
+					if ($field['form_display'] !== 'horizontal' AND !empty($field['tick_to_save'])) {
 						$show_tick = false;
 					}
 				}
@@ -535,13 +534,13 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					$show_tick = true;
 				}
 
-				if ($field['form_display'] != 'horizontal' OR $sub_rec == $firstsubtable_no) {
+				if ($field['form_display'] !== 'horizontal' OR $sub_rec == $firstsubtable_no) {
 					$out['td']['content'] .= '<div class="detailrecord">';
 				}
 				if (!empty($field['tick_to_save'])) {
 					$fieldattr = array();
 					if ($show_tick) $fieldattr['checked'] = true;
-					if ($my_st_display !== 'form') $fieldattr['disabled'] = true;
+					if ($st_display !== 'form') $fieldattr['disabled'] = true;
 					
 					$out['td']['content'] .= '<p class="tick_to_save">'
 						.zz_form_element('zz_save_record['.$sub_tab.']['.$sub_rec.']',
@@ -549,13 +548,13 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				}
 				
 				// HTML output depending on form display
-				if ($field['form_display'] != 'horizontal' OR $sub_rec == $firstsubtable_no) {
+				if ($field['form_display'] !== 'horizontal' OR $sub_rec == $firstsubtable_no) {
 					$out['td']['content'] .= '<table class="'.$field['form_display']
-						.($field['form_display'] != 'horizontal' ? ' '.$zz_var['class_add'] : '')
+						.($field['form_display'] !== 'horizontal' ? ' '.$zz_var['class_add'] : '')
 						.'">'; // show this for vertical display and for first horizontal record
 					$table_open = true;
 				}
-				if ($field['form_display'] != 'horizontal' OR $sub_rec === count($subtables)-1)
+				if ($field['form_display'] !== 'horizontal' OR $sub_rec === count($subtables)-1)
 					$h_show_explanation = true;
 				else
 					$h_show_explanation = false;
@@ -566,14 +565,14 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					}
 				}	
 				$out['td']['content'] .= zz_show_field_rows($zz_tab, $subtable_mode, 
-					$my_st_display, $zz_var, $zz_conf_record, $sub_tab, $sub_rec,
+					$st_display, $zz_var, $zz_conf_record, $sub_tab, $sub_rec,
 					$field['form_display'], $lastrow, $sub_rec, $h_show_explanation);
-				if ($field['form_display'] != 'horizontal') {
+				if ($field['form_display'] !== 'horizontal') {
 					$out['td']['content'] .= '</table></div>'."\n";
 					$table_open = false;
 				}
 				if ($show_remove) {
-					if ($field['form_display'] != 'horizontal') {
+					if ($field['form_display'] !== 'horizontal') {
 						$out['td']['content'] .= $removebutton;
 					}
 				}
@@ -618,7 +617,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			// but won't be saved to database
 			if ($field['type'] === 'option') {
 				// options will only be shown in edit mode
-				if ($mode != 'edit' AND $mode != 'add') continue; 
+				if ($mode !== 'edit' AND $mode !== 'add') continue; 
 				// option as normal field, set to type_detail for display form
 				$field['type'] = $field['type_detail'];
 				$is_option = true;
@@ -696,7 +695,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			// don't apply it if it's a re-edit
 			if ($my_rec['record'] && isset($field['factor']) && $my_rec['record'][$field['field_name']]) {
 				if (!is_array($my_rec['record'][$field['field_name']]) 
-					&& ($zz_tab[0][0]['action'] != 'review')) { //  OR )
+					&& ($zz_tab[0][0]['action'] !== 'review')) { //  OR )
 					
 					// for incorrect values; !action means only divide once
 					// for review, e. g. if record has been updated, division 
@@ -895,7 +894,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			}
 			if (!empty($default_value)) // unset $my_rec['record'] so following fields are empty
 				unset($my_rec['record'][$field['field_name']]); 
-			if ($mode && $mode != 'delete' && $mode != 'show' && $mode != 'review'
+			if ($mode && $mode !== 'delete' && $mode !== 'show' && $mode !== 'review'
 				AND isset($field['add_details'])) {
 				$add_details_sep = strstr($field['add_details'], '?') ? '&amp;' : '?';
 				$outputf .= ' <a href="'.$field['add_details'].$add_details_sep
@@ -904,7 +903,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					.(!empty($field['add_details_target']) ? ' target="'.$field['add_details_target'].'"' : '')
 					.' id="zz_add_details_'.$tab.'_'.$rec.'_'.$fieldkey.'">['.zz_text('new').' &hellip;]</a>';
 			}
-			if (($outputf OR $outputf === '0') AND $outputf != ' ') {
+			if (($outputf OR $outputf === '0') AND $outputf !== ' ') {
 				if (isset($field['prefix'])) $out['td']['content'] .= $field['prefix'];
 				if (!empty($field['use_as_label'])) {
 					$outputf = '<label for="zz_tick_'.$tab.'_'.$rec.'">'.$outputf.'</label>';
@@ -1189,7 +1188,7 @@ function zz_count_records($select, $subtree) {
 function zz_set_auto_value($field, $sql, $table, $tab, $rec, $id_field, $main_table) {
 
 	// currently, only 'increment' is supported for auto values
-	if ($field['auto_value'] != 'increment') return $field['default'];
+	if ($field['auto_value'] !== 'increment') return $field['default'];
 	
 	$field['default'] = 1;
 	
@@ -1334,7 +1333,7 @@ function zz_record_js($field) {
 	switch ($field['js']) {
 	case 'select/deselect':
 		// works only on type select with set
-		if ($field['type'] != 'select' OR empty($field['set'])) return false;
+		if ($field['type'] !== 'select' OR empty($field['set'])) return false;
 		$text = ' <a onclick="zz_set_checkboxes(true, \'%s[]\'); return false;" href="#">'.zz_text('Select all').'</a> |
 			<a onclick="zz_set_checkboxes(false, \'%s[]\'); return false;" href="#">'.zz_text('Deselect all').'</a>';
 		$text = sprintf($text, $field['f_field_name'], $field['f_field_name']);
@@ -1376,10 +1375,10 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 	$display_value = '';
 	$mark_italics = false;
 	if (!empty($field['value'])) {
-		if ($record AND $field['value'] != $record[$field['field_name']])
+		if ($record AND $field['value'] !== $record[$field['field_name']])
 		$display_value = $record[$field['field_name']];
 		$value = $field['value'];
-		if ($mode != 'delete') $mark_italics = true;
+		if ($mode !== 'delete') $mark_italics = true;
 	} elseif ($record) {
 		$value = $record[$field['field_name']];
 	}
@@ -1473,9 +1472,9 @@ function zz_field_timestamp($field, $record, $mode) {
 	$text = zz_form_element($field['f_field_name'], $value, 'hidden', true);
 	// + return text
 	if (!empty($record[$field['field_name']])) {
-		$text .= ($mode != 'delete' ? '<em title="'.zz_text('Would be changed on update').'">' : '')
+		$text .= ($mode !== 'delete' ? '<em title="'.zz_text('Would be changed on update').'">' : '')
 			.timestamp2date($record[$field['field_name']])
-			.($mode != 'delete' ? '</em>' : '');
+			.($mode !== 'delete' ? '</em>' : '');
 	} else {
 		$text .= '('.zz_text('will_be_added_automatically').')&nbsp;';
 	}
@@ -1505,7 +1504,7 @@ function zz_field_unix_timestamp($field, $display, $record) {
 	$value = '';
 	if ($record AND !empty($record[$field['field_name']])) {
 		$timestamp = strtotime($record[$field['field_name']]);
-		if ($timestamp AND $timestamp != -1)
+		if ($timestamp AND $timestamp !== -1)
 			$record[$field['field_name']] = $timestamp;
 		if ($record[$field['field_name']] 
 			AND is_numeric($record[$field['field_name']]))
@@ -1570,7 +1569,7 @@ function zz_field_password($field, $display, $record, $action) {
 		$fieldattr['maxlength'] = $field['maxlength'];
 	if ($field['required']) $fieldattr['required'] = true;
 	$text = zz_form_element($field['f_field_name'], $value, 'password', true, $fieldattr);
-	if ($record AND $action != 'insert') {
+	if ($record AND $action !== 'insert') {
 		$value = (!empty($record[$field['field_name'].'--old']) 
 		? $record[$field['field_name'].'--old'] 
 		: $record[$field['field_name']]);
@@ -1871,7 +1870,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 		// get ID field_name which must be 1st field in SQL query
 		$id_field_name = array_keys($line);
 		$id_field_name = current($id_field_name);
-		if ($record AND $line[$id_field_name] != $record[$field['field_name']]) {
+		if ($record AND $line[$id_field_name] !== $record[$field['field_name']]) {
 			$outputf = 'Possible Values: '.$line[$id_field_name]
 				.' -- Current Value: '
 				.htmlspecialchars($record[$field['field_name']])
@@ -1889,7 +1888,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 	$detail_record = zz_field_select_get_record($field, $record, $id_field_name);
 
 	// 1.3.1: no form display = no selection, just display the values in the record
-	if ($display != 'form') {
+	if ($display !== 'form') {
 		if (!$detail_record) return zz_return('');
 		$outputf = zz_draw_select($field, $record, $detail_record, $id_field_name);
 		return zz_return($outputf);
@@ -1944,7 +1943,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 		if (!empty($field['group'])) {
 			$optgroup = false;
 			foreach ($lines as $line) {
-				if ($optgroup != $line[$field['group']]) {
+				if ($optgroup !== $line[$field['group']]) {
 					if ($optgroup) $outputf .= '</optgroup>'."\n";
 					$optgroup = $line[$field['group']];
 					$outputf .= '<optgroup label="'.$optgroup.'">'."\n";
@@ -2296,7 +2295,7 @@ function zz_field_select_get_record($field, $record, $id_field_name) {
 	
 	// check for equal record values
 	foreach ($detail_records as $line) {
-		if ($line[$id_field_name] != $record[$field['field_name']]) continue;
+		if ($line[$id_field_name] !== $record[$field['field_name']]) continue;
 		return $line;
 	}
 	return array();
@@ -2466,7 +2465,7 @@ function zz_field_select_set($field, $display, $record, $rec) {
 			}
 		}
 	}
-	if ($display != 'form' AND !empty($field['set_show_all_values'])) {
+	if ($display !== 'form' AND !empty($field['set_show_all_values'])) {
 		// @todo: use set_title!
 		$myvalue = explode(',', $record[$field['field_name']]);
 	}
@@ -2492,7 +2491,7 @@ function zz_field_select_enum($field, $display, $record) {
 	if ($display !== 'form') {
 		$text = '';
 		foreach ($field['enum'] as $key => $set) {
-			if ($set != $record[$field['field_name']]) continue;
+			if ($set !== $record[$field['field_name']]) continue;
 			$text .= zz_print_enum($field, $set, 'full', $key);
 		}
 		if (!empty($field['show_values_as_list'])) {
@@ -2699,7 +2698,7 @@ function zz_field_image($field, $display, $record, $record_saved, $images, $mode
 	global $zz_error;
 	$text = '';
 
-	if (($mode != 'add' OR $field['type'] != 'upload_image')
+	if (($mode !== 'add' OR $field['type'] !== 'upload_image')
 		AND (empty($field['dont_show_image'])) || !$field['dont_show_image']) {
 		$img = false;
 		if (isset($field['path']))
@@ -2865,7 +2864,7 @@ function zz_field_display($field, $record, $record_saved) {
  * @return string
  */
 function zz_field_calculated($field, $record, $mode) {
-	if ($mode AND $mode != 'show') {
+	if ($mode AND $mode !== 'show') {
 		return '('.zz_text('calculated_field').')';
 	}
 	switch ($field['calculation']) {
