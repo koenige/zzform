@@ -446,6 +446,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 
 		if ($field['type'] === 'subtable') {
 			$field_display = !empty($field['access']) ? $field['access'] : $display;
+			if (empty($field['form_display'])) $field['form_display'] = 'vertical';
 		} else {
 			$field_display = $row_display;
 		}
@@ -496,11 +497,14 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				$out['tr']['attr'][] = 'error'; 
 		}
 
-		if ($field['type'] === 'subtable') {
+		if ($field['type'] === 'subtable' AND $field['form_display'] === 'set') {
+			$sub_tab = $field['subtable'];
+			$fields = $zz_tab[$sub_tab][0]['fields'];
+			$out['td']['content'] .= zz_field_set($field, $fields, $field_display, $zz_tab[$sub_tab]['existing']);
+		} elseif ($field['type'] === 'subtable') {
 			//	Subtable
 			$sub_tab = $field['subtable'];
 			if (empty($field['title_button'])) $field['title_button'] = strip_tags($field['title']); 
-			if (empty($field['form_display'])) $field['form_display'] = 'vertical';
 			if (!empty($field['class_add'])) {
 				$has_subrecords = false;
 				foreach (array_keys($zz_tab[$tab]) as $rec) {
@@ -515,16 +519,15 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				// no formatting as a subtable if tick_to_save is used
 				$out['td']['attr'][] = 'subtable';
 			}
-			$subtables = array_keys($zz_tab[$sub_tab]);
-			foreach (array_keys($subtables) as $this_rec)
-				if (!is_numeric($subtables[$this_rec])) unset($subtables[$this_rec]);
 			$zz_var['horizontal_table_head'] = false;
 			// go through all detail records
 			$table_open = false;
-			
 			$firstsubtable_no = NULL;
-			
 			$c_subtables = 0;
+
+			$subtables = array_keys($zz_tab[$sub_tab]);
+			foreach (array_keys($subtables) as $this_rec)
+				if (!is_numeric($subtables[$this_rec])) unset($subtables[$this_rec]);
 			foreach ($subtables as $sub_rec) {
 				// show all subtables which are not deleted but 1 record as a minimum
 				if ($zz_tab[$sub_tab][$sub_rec]['action'] === 'delete'
@@ -1844,6 +1847,77 @@ function zz_field_memo($field, $display, $record) {
 }
 
 /**
+ * record output of field type 'set', but as a subtable
+ *
+ * @param array $fields
+ * @param string $display
+ * @param array $existing
+ * @return string
+ */
+function zz_field_set($field, $fields, $display, $existing) {
+	foreach ($fields as $index => $my_field) {
+		$field_names[$my_field['type']] = $my_field['field_name'];
+		if ($my_field['type'] === 'select') {
+			$sql = $field['sql'];
+			$sets = zz_field_query($my_field);
+		}
+	}
+	$exemplary_set = reset($sets);
+	$set_id_field_name = '';
+	$set_field_names = array();
+	foreach (array_keys($exemplary_set) as $key) {
+		if (!$set_id_field_name) $set_id_field_name = $key;
+		else $set_field_names[] = $key;
+	}
+	foreach ($sets as $set) {
+		$title = array();
+		foreach ($set_field_names as $set_field_name) {
+			$title[] = $set[$set_field_name];
+		}
+		$sets_indexed[$set[$set_id_field_name]]['id'] = $set[$set_id_field_name];
+		$sets_indexed[$set[$set_id_field_name]]['title'] = implode(' | ', $title);
+	}
+	$rec_max = 0;
+	foreach ($existing as $rec_no => $rec) {
+		$sets_indexed[$rec[$field_names['select']]]['rec_id'] = $rec[$field_names['id']];
+		$sets_indexed[$rec[$field_names['select']]]['rec_no'] = $rec_no;
+		if ($rec_no > $rec_max) $rec_max = $rec_no;
+	}
+	foreach ($sets_indexed as $index => $set) {
+		if (isset($set['rec_no'])) continue;
+		$sets_indexed[$index]['rec_no'] = ++$rec_max;
+	}
+	$outputf = '';
+	foreach ($sets_indexed as $set) {
+		if ($display === 'form') {
+			if (!empty($set['rec_id'])) {
+				$outputf .= sprintf(
+					'<input type="hidden" name="%s[%d][%s]" value="%d">'
+					, $field['table_name'], $set['rec_no'], $field_names['id']
+					, $set['rec_id']
+				);
+				$outputf .= sprintf(
+					'<input type="hidden" name="%s[%d][%s]" value="">'
+					, $field['table_name'], $set['rec_no'], $field_names['select']
+				);
+			}
+			$outputf .= sprintf(
+				'<label for="check-%s-%d">'
+				.'<input type="checkbox" name="%s[%d][%s]" id="check-%s-%d" value="%d"%s>&nbsp;%s'
+				.'</label><br>'."\n"
+				, $field['table_name'], $set['rec_no']
+				, $field['table_name'], $set['rec_no'], $field_names['select']
+				, $field['table_name'], $set['rec_no'], $set['id']
+				, (!empty($set['rec_id']) ? ' checked="checked"' : ''), $set['title']
+			);
+		} elseif (!empty($set['rec_id'])) {
+			$outputf .= $set['title'].'<br>';
+		}
+	}
+	return $outputf;
+}
+
+/**
  * Output form element type="select", foreign_key with sql query
  * 
  * @param array $field field that will be checked
@@ -1997,7 +2071,8 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 function zz_field_query($field) {
 	// we do not show all fields if query is bigger than $field['max_select']
 	// so no need to query them (only if show_hierarchy_subtree is empty)
-	if (empty($field['show_hierarchy_subtree']) AND empty($field['show_hierarchy'])) {
+	if (empty($field['show_hierarchy_subtree']) AND empty($field['show_hierarchy'])
+		AND isset($field['max_select'])) {
 		$sql = zz_edit_sql($field['sql'], 'LIMIT', '0, '.($field['max_select']+1));
 	} else {
 		$sql = $field['sql'];
