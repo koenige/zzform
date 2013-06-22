@@ -411,6 +411,11 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			// this must not be displayed, for internal link only
 			continue; 
 		}
+		if ($field['type'] === 'option'
+			AND $mode !== 'edit' AND $mode !== 'add') {
+			// options will only be shown in edit mode
+			continue;
+		}
 
 		// initialize variables
 		if (!$append_next) {
@@ -440,11 +445,22 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 		}
 
 		if ($field['type'] === 'subtable') {
+			$field_display = !empty($field['access']) ? $field['access'] : $display;
+		} else {
+			$field_display = $row_display;
+		}
+		if ($field_display !== 'form' OR !$show_explanation) {
+			$field['explanation'] = '';
+			$field['explanation_top'] = '';
+		}
+		if (!empty($field['explanation_top']))
+			$out['td']['content'] .= '<p class="explanation">'.$field['explanation_top'].'</p>';
+
+		if ($field['type'] === 'subtable') {
 			//	Subtable
 			$sub_tab = $field['subtable'];
 			if (empty($field['title_button'])) $field['title_button'] = strip_tags($field['title']); 
 			if (empty($field['form_display'])) $field['form_display'] = 'vertical';
-			$st_display = !empty($field['access']) ? $field['access'] : $display;
 			$out['tr']['attr'][] = !empty($field['class']) ? $field['class'] : '';
 			if (!empty($field['class_add'])) {
 				$has_subrecords = false;
@@ -458,16 +474,14 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			$out['th']['attr'][] = 'sub-add';
 			if (!(isset($field['show_title']) AND !$field['show_title']))
 				$out['th']['content'] .= $field['title'];
-			if (!empty($field['title_desc']) && $st_display === 'form') 
+			if (!empty($field['title_desc']) && $field_display === 'form') 
 				$out['th']['content'] .= '<p class="desc">'.$field['title_desc'].'</p>';
 			if (empty($field['tick_to_save'])) {
 				// no formatting as a subtable if tick_to_save is used
 				$out['td']['attr'][] = 'subtable';
 			}
-			if ($st_display === 'form' && !empty($field['explanation_top']) && $show_explanation) 
-				$out['td']['content'] .= '<p class="explanation">'.$field['explanation_top'].'</p>';
 			$subtables = array_keys($zz_tab[$sub_tab]);
-			foreach ($subtables as $this_rec => $values)
+			foreach (array_keys($subtables) as $this_rec)
 				if (!is_numeric($subtables[$this_rec])) unset($subtables[$this_rec]);
 			$zz_var['horizontal_table_head'] = false;
 			// go through all detail records
@@ -483,13 +497,13 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 						AND ($sub_rec + 1) !== $zz_tab[$sub_tab]['min_records'])) continue;
 				// don't show records which are being ignored
 				if ($zz_tab[$sub_tab][$sub_rec]['action'] === 'ignore'
-					AND $st_display !== 'form') continue;
+					AND $field_display !== 'form') continue;
 				// don't show records which are deleted with tick_to_save
 				if ($zz_tab[$sub_tab][$sub_rec]['action'] === 'delete'
-					AND $st_display !== 'form'
+					AND $field_display !== 'form'
 					AND !empty($field['tick_to_save'])) continue;
 				if ($zz_tab[$sub_tab][$sub_rec]['action'] === 'delete'
-					AND $st_display !== 'form' AND $zz_var['action']) continue;
+					AND $field_display !== 'form' AND $zz_var['action']) continue;
 
 				$c_subtables++;
 
@@ -507,7 +521,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				// just for optical reasons, in case one row allows removing of record
 				if ($display === 'form') $lastrow = '&nbsp;'; 
 				
-				if ($st_display === 'form') {
+				if ($field_display === 'form') {
 					if ($zz_tab[$sub_tab]['min_records'] < $zz_tab[$sub_tab]['records']
 						&& !$dont_delete_records)
 						$show_remove = true;
@@ -540,7 +554,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				if (!empty($field['tick_to_save'])) {
 					$fieldattr = array();
 					if ($show_tick) $fieldattr['checked'] = true;
-					if ($st_display !== 'form') $fieldattr['disabled'] = true;
+					if ($field_display !== 'form') $fieldattr['disabled'] = true;
 					
 					$out['td']['content'] .= '<p class="tick_to_save">'
 						.zz_form_element('zz_save_record['.$sub_tab.']['.$sub_rec.']',
@@ -565,7 +579,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					}
 				}	
 				$out['td']['content'] .= zz_show_field_rows($zz_tab, $subtable_mode, 
-					$st_display, $zz_var, $zz_conf_record, $sub_tab, $sub_rec,
+					$field_display, $zz_var, $zz_conf_record, $sub_tab, $sub_rec,
 					$field['form_display'], $lastrow, $sub_rec, $h_show_explanation);
 				if ($field['form_display'] !== 'horizontal') {
 					$out['td']['content'] .= '</table></div>'."\n";
@@ -584,11 +598,9 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				// There are no subtables, optional: show a message here
 				$out['td']['content'] .= $field['msg_no_subtables'];
 			}
-			if ($st_display === 'form' 
+			if ($field_display === 'form' 
 				AND $zz_tab[$sub_tab]['max_records'] > $zz_tab[$sub_tab]['records'])
 				$out['td']['content'] .= zz_output_subtable_submit('add', $field['title_button'], $sub_tab);
-			if ($st_display === 'form' && $field['explanation'] && $show_explanation)
-				$out['td']['content'] .= '<p class="explanation">'.$field['explanation'].'</p>';
 		} else {
 			//	"Normal" field
 
@@ -616,12 +628,12 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			// option fields must have type_detail set, these are normal fields in form view
 			// but won't be saved to database
 			if ($field['type'] === 'option') {
-				// options will only be shown in edit mode
-				if ($mode !== 'edit' AND $mode !== 'add') continue; 
 				// option as normal field, set to type_detail for display form
 				$field['type'] = $field['type_detail'];
 				$is_option = true;
-			} else $is_option = false;
+			} else {
+				$is_option = false;
+			}
 
 			// initalize class values
 			if (!isset($field['class'])) $field['class'] = array();
@@ -648,7 +660,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 						$out['th']['content'] .= $field['title_append']; // just for form, change title
 					else 
 						$out['th']['content'] .= $field['title'];
-					if (!empty($field['title_desc']) && $row_display === 'form') 
+					if (!empty($field['title_desc']) && $field_display === 'form') 
 						$out['th']['content'] .= '<p class="desc">'.$field['title_desc'].'</p>';
 				} elseif (!$tab) {
 					$out['th']['content'] = ''; // for main record, show empty cells
@@ -659,15 +671,17 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				$close_span = true;
 				// so error class does not get lost (but only error, no hidden classes)
 				if ($field['class'] === 'error')
-					$out['tr']['attr'][]  = $field['class']; 
+					$out['tr']['attr'][] = $field['class']; 
 				$out['td']['content'] .= '<span'
 					.($field['class'] ? ' class="'.$field['class'].'"' : '')
 					.'>'; 
 			}
 			if (!empty($field['append_next'])) {
 				$append_next = true;
-				if (!empty($field['explanation']))
+				if (!empty($field['explanation'])) {
 					$append_explanation[] = $field['explanation'];
+					$field['explanation'] = '';
+				}
 			} else {
 				$append_next = false;
 			}
@@ -738,8 +752,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			// output all records
 			//
 			
-			if ($row_display === 'form' && !empty($field['explanation_top']))
-				$out['td']['content'] .= '<p class="explanation">'.$field['explanation_top'].'</p>';
 			if ($field['type'] === 'write_once' AND ($mode === 'add' OR $zz_var['action'] === 'insert')) {
 				$field['type'] = $field['type_detail'];
 			}
@@ -770,7 +782,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				break;
 
 			case 'unix_timestamp':
-				$outputf = zz_field_unix_timestamp($field, $row_display, $my_rec['record']);
+				$outputf = zz_field_unix_timestamp($field, $field_display, $my_rec['record']);
 				break;
 
 			case 'foreign':
@@ -778,11 +790,11 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				break;
 
 			case 'password':
-				$outputf = zz_field_password($field, $row_display, $my_rec['record'], $zz_var['action']);
+				$outputf = zz_field_password($field, $field_display, $my_rec['record'], $zz_var['action']);
 				break;
 
 			case 'password_change':
-				$outputf = zz_field_password_change($field, $row_display);
+				$outputf = zz_field_password_change($field, $field_display);
 				break;
 
 			case 'url':
@@ -794,23 +806,23 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			case 'mail+name':
 			case 'datetime':
 			case 'ipv4':
-				$outputf = zz_field_text($field, $row_display, $my_rec['record']);
+				$outputf = zz_field_text($field, $field_display, $my_rec['record']);
 				break;
 
 			case 'ip':
-				$outputf = zz_field_ip($field, $row_display, $my_rec['record']);
+				$outputf = zz_field_ip($field, $field_display, $my_rec['record']);
 				break;
 
 			case 'number':
-				$outputf = zz_field_number($field, $row_display, $my_rec['record']);
+				$outputf = zz_field_number($field, $field_display, $my_rec['record']);
 				break;
 
 			case 'date':
-				$outputf = zz_field_date($field, $row_display, $my_rec['record']);
+				$outputf = zz_field_date($field, $field_display, $my_rec['record']);
 				break;
 
 			case 'memo':
-				$outputf = zz_field_memo($field, $row_display, $my_rec['record']);
+				$outputf = zz_field_memo($field, $field_display, $my_rec['record']);
 				break;
 
 			case 'select':
@@ -839,7 +851,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 
 				} elseif (isset($field['set_folder'])) {
 					// #2a SELECT with set_folder
-					$outputf = zz_field_select_set_folder($field, $row_display, $my_rec['record'], $rec);
+					$outputf = zz_field_select_set_folder($field, $field_display, $my_rec['record'], $rec);
 
 				} elseif (isset($field['set_sql'])) {
 					// #2 SELECT with set_sql
@@ -848,15 +860,15 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					if ($my_where_fields) {
 						$field['sql'] = zz_form_select_sql_where($field, $my_where_fields);
 					}
-					$outputf = zz_field_select_set_sql($field, $row_display, $my_rec['record'], $rec);
+					$outputf = zz_field_select_set_sql($field, $field_display, $my_rec['record'], $rec);
 
 				} elseif (isset($field['set'])) {
 					// #3 SELECT with set
-					$outputf = zz_field_select_set($field, $row_display, $my_rec['record'], $rec);
+					$outputf = zz_field_select_set($field, $field_display, $my_rec['record'], $rec);
 
 				} elseif (isset($field['enum'])) {
 					// #4 SELECT with enum
-					$outputf = zz_field_select_enum($field, $row_display, $my_rec['record']);
+					$outputf = zz_field_select_enum($field, $field_display, $my_rec['record']);
 
 				} else {
 					// #5 SELECT without any source = that won't work ...
@@ -866,7 +878,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 
 			case 'image':
 			case 'upload_image':
-				$outputf = zz_field_image($field, $row_display, $my_rec['record'], 
+				$outputf = zz_field_image($field, $field_display, $my_rec['record'], 
 					$my_rec['record_saved'], $my_rec['images'], $mode, $fieldkey);
 				zz_error();
 				$outputf .= zz_error_output();
@@ -911,7 +923,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				$out['td']['content'] .= $outputf;
 				if (isset($field['suffix'])) $out['td']['content'] .= $field['suffix'];
 				else $out['td']['content'] .= ' ';
-				if ($row_display === 'form') if (isset($field['suffix_function'])) {
+				if ($field_display === 'form') if (isset($field['suffix_function'])) {
 					$vars = '';
 					if (isset($field['suffix_function_var']))
 						foreach ($field['suffix_function_var'] as $var) {
@@ -925,25 +937,21 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				$out['td']['content'] .= $outputf;
 			}
 			if (!empty($close_span)) $out['td']['content'] .= '</span>';
-			if ($zz_conf['int']['append_next_type'] === 'list' && $row_display === 'form') {
+			if ($zz_conf['int']['append_next_type'] === 'list' && $field_display === 'form') {
 				$out['td']['content'] .= '<li>';
 				$zz_conf['int']['append_next_type'] = 'list_end';
-			} elseif ($zz_conf['int']['append_next_type'] === 'list_end' && $row_display === 'form') {
+			} elseif ($zz_conf['int']['append_next_type'] === 'list_end' && $field_display === 'form') {
 				$out['td']['content'] .= '</li>'."\n".'</ul>'."\n";
 				$zz_conf['int']['append_next_type'] = false;
 			}
-			if (!$append_next) {
-				if ($row_display === 'form' && $show_explanation) {
-					if (!empty($append_explanation)) {
-						$field['explanation'] = implode('<br>', $append_explanation)
-							.($field['explanation'] ? '<br>'.$field['explanation'] : '');
-						$append_explanation = array();
-					}
-					if ($field['explanation'])
-						$out['td']['content'] .= '<p class="explanation">'.$field['explanation'].'</p>';
-				}
+			if (!$append_next AND !empty($append_explanation)) {
+				$field['explanation'] = implode('<br>', $append_explanation)
+					.($field['explanation'] ? '<br>'.$field['explanation'] : '');
+				$append_explanation = array();
 			}
 		}
+		if ($field['explanation'])
+			$out['td']['content'] .= '<p class="explanation">'.$field['explanation'].'</p>';
 		if (!empty($field['separator']))
 			$out['separator'] .= $field['separator'];
 		if (!empty($field['separator_before']))
