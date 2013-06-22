@@ -1901,17 +1901,19 @@ function zz_field_set($field, $fields, $display, $existing) {
 					, $field['table_name'], $set['rec_no'], $field_names['select']
 				);
 			}
+			if (!empty($outputf)) $outputf .= "<br>\n";
 			$outputf .= sprintf(
 				'<label for="check-%s-%d">'
 				.'<input type="checkbox" name="%s[%d][%s]" id="check-%s-%d" value="%d"%s>&nbsp;%s'
-				.'</label><br>'."\n"
+				.'</label>'
 				, $field['table_name'], $set['rec_no']
 				, $field['table_name'], $set['rec_no'], $field_names['select']
 				, $field['table_name'], $set['rec_no'], $set['id']
 				, (!empty($set['rec_id']) ? ' checked="checked"' : ''), $set['title']
 			);
 		} elseif (!empty($set['rec_id'])) {
-			$outputf .= $set['title'].'<br>';
+			if (!empty($outputf)) $outputf .= "<br>\n";
+			$outputf .= $set['title'];
 		}
 	}
 	return $outputf;
