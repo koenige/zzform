@@ -456,12 +456,51 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 		if (!empty($field['explanation_top']))
 			$out['td']['content'] .= '<p class="explanation">'.$field['explanation_top'].'</p>';
 
+		// initalize class values
+		if (!isset($field['class'])) $field['class'] = array();
+		elseif (!is_array($field['class'])) $field['class'] = array($field['class']);
+
+		// add classes
+		if ($field['type'] === 'id') {
+			if (empty($field['show_id']))
+				$field['class'][] = 'idrow';
+		} elseif ($firstrow) {
+			$field['class'][] = 'firstrow';
+			$firstrow = false;
+		}
+		if ($tab AND in_array($field['type'], array('id', 'timestamp'))) {
+			$field['class'][] = 'hidden';
+		}
+
+		if (!$append_next) {
+			$out['tr']['attr'][] = implode(' ', $field['class']);
+			if (!(isset($field['show_title']) && !$field['show_title'])) {
+				if (!empty($field['title_append'])) {
+					// just for form, change title for all appended fields
+					$out['th']['content'] .= $field['title_append'];
+				} else { 
+					$out['th']['content'] .= $field['title'];
+				}
+				if (!empty($field['title_desc']) && $field_display === 'form') {
+					$out['th']['content'] .= '<p class="desc">'.$field['title_desc'].'</p>';
+				}
+			} elseif (!$tab) {
+				// for main record, show empty cells
+				$out['th']['content'] = '';
+			} else {
+				$out['th']['show'] = false;
+			}
+		} else {
+			// check that error class does not get lost (but only error, no hidden classes)
+			if (in_array('error', $field['class']))
+				$out['tr']['attr'][] = 'error'; 
+		}
+
 		if ($field['type'] === 'subtable') {
 			//	Subtable
 			$sub_tab = $field['subtable'];
 			if (empty($field['title_button'])) $field['title_button'] = strip_tags($field['title']); 
 			if (empty($field['form_display'])) $field['form_display'] = 'vertical';
-			$out['tr']['attr'][] = !empty($field['class']) ? $field['class'] : '';
 			if (!empty($field['class_add'])) {
 				$has_subrecords = false;
 				foreach (array_keys($zz_tab[$tab]) as $rec) {
@@ -472,10 +511,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					$out['tr']['attr'][] = $field['class_add'];
 			}
 			$out['th']['attr'][] = 'sub-add';
-			if (!(isset($field['show_title']) AND !$field['show_title']))
-				$out['th']['content'] .= $field['title'];
-			if (!empty($field['title_desc']) && $field_display === 'form') 
-				$out['th']['content'] .= '<p class="desc">'.$field['title_desc'].'</p>';
 			if (empty($field['tick_to_save'])) {
 				// no formatting as a subtable if tick_to_save is used
 				$out['td']['attr'][] = 'subtable';
@@ -635,45 +670,13 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				$is_option = false;
 			}
 
-			// initalize class values
-			if (!isset($field['class'])) $field['class'] = array();
-			elseif (!is_array($field['class'])) $field['class'] = array($field['class']);
-
-			// add classes
-			if ($field['type'] === 'id') {
-				if (empty($field['show_id']))
-					$field['class'][] = 'idrow';
-			} elseif ($firstrow) {
-				$field['class'][] = 'firstrow';
-				$firstrow = false;
-			}
-			if ($tab AND ($field['type'] === 'id' OR $field['type'] === 'timestamp')) {
-				$field['class'][] = 'hidden';
-			}
-			$field['class'] = implode(" ", $field['class']);
-
 			// append
 			if (!$append_next) {
-				$out['tr']['attr'][] = $field['class'];
-				if (!(isset($field['show_title']) && !$field['show_title'])) {
-					if (!empty($field['title_append'])) 
-						$out['th']['content'] .= $field['title_append']; // just for form, change title
-					else 
-						$out['th']['content'] .= $field['title'];
-					if (!empty($field['title_desc']) && $field_display === 'form') 
-						$out['th']['content'] .= '<p class="desc">'.$field['title_desc'].'</p>';
-				} elseif (!$tab) {
-					$out['th']['content'] = ''; // for main record, show empty cells
-				} else
-					$out['th']['show'] = false;
 				$close_span = false;
 			} else {
 				$close_span = true;
-				// so error class does not get lost (but only error, no hidden classes)
-				if ($field['class'] === 'error')
-					$out['tr']['attr'][] = $field['class']; 
 				$out['td']['content'] .= '<span'
-					.($field['class'] ? ' class="'.$field['class'].'"' : '')
+					.($field['class'] ? ' class="'.implode(' ', $field['class']).'"' : '')
 					.'>'; 
 			}
 			if (!empty($field['append_next'])) {
