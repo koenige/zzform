@@ -43,7 +43,9 @@ function zz_conditions_set($zz) {
 	$new_index++;
 
 	// All supported shortcuts
-	$shortcuts = array('list_empty', 'record_mode', 'export_mode', 'where');
+	$shortcuts = array(
+		'list_empty', 'record_mode', 'export_mode', 'where', 'multi'
+	);
 	// Some shortcuts depend on a field, get field_name as extra definition
 	$shortcuts_depending_on_fields = array('where');
 
@@ -193,6 +195,11 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 	$zz_conditions = array();
 	foreach ($zz['conditions'] AS $index => $condition) {
 		switch ($condition['scope']) {
+		case 'multi':
+			if (!empty($zz_conf['multi'])) {
+				$zz_conditions['bool'][$index] = true;
+			}
+			break;
 		case 'list_empty':
 			// @todo: not yet implemented
 			// @todo: problem: when this function is called, we do not know
@@ -555,6 +562,11 @@ function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids) {
 		switch ($condition['scope']) {
 		// case record remains the same as in form view
 		// case query covers more ids
+		case 'multi':
+			if (!empty($zz_conf['multi'])) {
+				$zz_conditions['bool'][$index] = true;
+			}
+			break;
 		case 'record':
 			$sql = $zz['sql_without_limit'];
 			if (!empty($condition['where']))
