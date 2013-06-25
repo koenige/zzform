@@ -364,7 +364,7 @@ function zz_nice_title($heading, $fields, $zz_var = array(), $mode = false) {
 		$title .= $zz_conf['title_separator'].$selection;
 
 	// addition: page
-	if (!empty($zz_conf['limit'])) {
+	if (!empty($zz_conf['limit']) AND $zz_conf['int']['this_limit'] !== '0') {
 		if ($zz_conf['int']['this_limit']) 
 			$page = $zz_conf['int']['this_limit'] / $zz_conf['limit'];
 		else
@@ -374,7 +374,7 @@ function zz_nice_title($heading, $fields, $zz_var = array(), $mode = false) {
 		if (is_int($page) AND $page AND !empty($zz_var['limit_total_rows'])) {
 			$max_page = ceil($zz_var['limit_total_rows'] / $zz_conf['limit']);
 			if ($max_page != 1) {
-				if ($zz_conf['limit_display'] == 'entries') {
+				if ($zz_conf['limit_display'] === 'entries') {
 					$title .= $zz_conf['title_separator'].zz_text('records').' '
 						.(($page-1)*$zz_conf['limit']).'-'
 						.($page*$zz_conf['limit'] > $zz_var['limit_total_rows']
