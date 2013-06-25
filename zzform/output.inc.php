@@ -700,7 +700,7 @@ function zz_init_limit($zz) {
 	if (!$zz_conf['int']['this_limit'] && $zz_conf['limit']) 
 		$zz_conf['int']['this_limit'] = $zz_conf['limit'];
 	$limit = zz_check_get_array('limit', 'is_numeric');
-	if ($limit) $zz_conf['int']['this_limit'] = $limit;
+	if ($limit !== '') $zz_conf['int']['this_limit'] = $limit;
 	if ($zz_conf['int']['this_limit'] AND $zz_conf['int']['this_limit'] < $zz_conf['limit'])
 		$zz_conf['int']['this_limit'] = $zz_conf['limit'];
 }	
