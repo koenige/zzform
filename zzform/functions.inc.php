@@ -367,12 +367,13 @@ function zz_get_where_conditions($zz) {
  *		'values': check against $values if value is valid
  *		'is_numeric': checks if value is numeric
  * @param array $values (optional) list of possible values
- * @return array
+ * @return mixed
  * @todo use this function in more places
  */
 function zz_check_get_array($key, $type, $values = array()) {
 	global $zz_conf;
-	if (!isset($_GET[$key])) return array();
+	$return = $type === 'field_name' ? array() : '';
+	if (!isset($_GET[$key])) return $return;
 
 	$error_in = array();
 	switch ($type) {
@@ -409,7 +410,7 @@ function zz_check_get_array($key, $type, $values = array()) {
 	$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string(
 		$zz_conf['int']['url']['qs_zzform'], $unwanted_keys
 	);
-	if (!isset($_GET[$key])) return array();
+	if (!isset($_GET[$key])) return $return;
 	return $_GET[$key];
 }
 
