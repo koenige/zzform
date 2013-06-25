@@ -2479,7 +2479,8 @@ function zz_field_select_radio_none($field, $record) {
 function zz_field_select_radio_value($field, $record, $value, $label, $pos) {
 	$id = zz_make_id_fieldname($field['f_field_name']).'-'.$pos;
 	$fieldattr = array();
-	if ($record AND $value === $record[$field['field_name']]) 
+	// no === comparison here!
+	if ($record AND $value == $record[$field['field_name']]) 
 		$fieldattr['checked'] = true;
 	if ($field['required']) $fieldattr['required'] = true;
 	$element = zz_form_element($field['f_field_name'], $value, 'radio', $id, $fieldattr);
