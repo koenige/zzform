@@ -1022,7 +1022,7 @@ function zz_list_query_hierarchy($zz, $id_field) {
 		}
 		// for performance reasons, we didn't save the full result set,
 		// so we have to requery it again.
-		if ($zz_conf['int']['this_limit']) {
+		if ($zz_conf['int']['this_limit'] !== '') {
 			$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', '`'.$zz['table'].'`.'.$id_field
 				.' IN ('.implode(',', array_keys($lines)).')');
 		} // else sql remains same
