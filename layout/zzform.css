@@ -267,7 +267,7 @@ body #zzform .separator hr
 
 /* debug */
 #zzform .debug		{ background: white; border: 1px solid black; 
-					overflow: auto; font-size: 75%; }
+					overflow: auto; font-size: 75%; color: black; }
 #zzform .debug h1	{ padding-left: .5em; }
 #zzform .debugtable dl { padding: 0; margin: 0; line-height: 1.5; }
 #zzform .debugtable dt { font-weight: bold; }
