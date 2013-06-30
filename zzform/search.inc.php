@@ -240,7 +240,9 @@ function zz_search_field($field, $table, $searchop, $searchword) {
  */
 function zz_search_scope($field, $table, $scope) {
 	$search_field = false;
-	if (!isset($field['sql']) AND !empty($field['field_name'])) {
+	if (isset($field['display_field']) AND $scope === $field['display_field']) {
+		$search_field = true;
+	} elseif (!isset($field['sql']) AND !empty($field['field_name'])) {
 		// check if scope = field_name but don't search in IDs
 		// check if scope = table.field_name but don't search in IDs
 		if ($scope === $field['field_name']) {
@@ -248,8 +250,6 @@ function zz_search_scope($field, $table, $scope) {
 		} elseif ($scope === $table.'.'.$field['field_name']) {
 			$search_field = true;
 		}
-	} elseif (isset($field['display_field']) AND $scope === $field['display_field']) {
-		$search_field = true;
 	}
 
 	if ($search_field)
