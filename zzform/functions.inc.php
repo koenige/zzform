@@ -620,8 +620,12 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = arr
 
 	foreach ($zz_var['where_condition'] as $field_name => $value) {
 		$submitted_field_name = $field_name;
-		// check if field_name comprises table_name
-		if (strstr($field_name, '.')) {
+		if (preg_match('/[a-z_]+\(.+\)/i', trim($field_name))) {
+			// check if field_name comprises some function
+			// CONCAT(bla, blubb), do not change this
+			$table_name = '';
+		} elseif (strstr($field_name, '.')) {
+			// check if field_name comprises table_name
 			$field_tab = explode('.', $field_name);
 			$table_name = zz_db_escape($field_tab[0]);
 			$field_name = zz_db_escape($field_tab[1]);
