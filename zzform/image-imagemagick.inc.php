@@ -360,4 +360,19 @@ function zz_imagick_version() {
 	return implode("  \n", $output);
 }
 
+/**
+ * GhostScript version
+ *
+ * @param void
+ * @return string
+ */
+function zz_ghostscript_version() {
+	global $zz_conf;
+	$command = zz_imagick_findpath('gs');
+	$command .= ' --help';
+	exec($command, $output, $return_var);
+	if (!$output) return '';
+	return implode("  \n", $output);
+}
+
 ?>
