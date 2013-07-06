@@ -232,11 +232,19 @@ function zz_image_crop($source, $destination, $dest_extension, $image) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 // example: convert -thumbnail x240 -crop 240x240+140x0 reiff-pic09b.jpg test.jpg
 	$dest_ratio = $image['width'] / $image['height'];
-	$source_image = getimagesize($source);
-	if (empty($source_image[0])) {
-		return zz_return(false); // no height means no picture or error
+	if (!empty($image['upload']['height']) AND !empty($image['upload']['width'])) {
+		$source_width = $image['upload']['width'];
+		$source_height = $image['upload']['height'];
+	} else {
+		// this won't work with PDF etc.
+		$source_image = getimagesize($source);
+		if (empty($source_image[0])) {
+			return zz_return(false); // no height means no picture or error
+		}
+		$source_width = $source_image[0];
+		$source_height = $source_image[1];
 	}
-	$source_ratio = $source_image[0] / $source_image[1]; // 0 = width, 1 = height
+	$source_ratio = $source_width / $source_height;
 	if ($dest_ratio == $source_ratio) {
 		$options = 'thumbnail %dx%d';
 		$options = sprintf($options, $image['width'], $image['height']);
