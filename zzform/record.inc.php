@@ -2737,7 +2737,8 @@ function zz_draw_select($field, $record, $line, $id_field_name, $form = false, $
 		$output = zz_form_element($field['f_field_name'], $fieldvalue.' ', 'text_noescape', false, $fieldattr);
 	} elseif ($form) {
 		$fieldattr = array();
-		if ($record AND $line[$id_field_name] === $record[$field['field_name']]) {
+		// check == to compare strings with numbers as well
+		if ($record AND $line[$id_field_name] == $record[$field['field_name']]) {
 			$fieldattr['selected'] = true;
 		} elseif (!empty($field['disabled_ids']) 
 			AND is_array($field['disabled_ids'])
