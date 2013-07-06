@@ -112,7 +112,8 @@ function zz_maintenance($params) {
 			$page['text'] .= '<p><a href="?phpinfo">'.zz_text('Show PHP info on server').'</a></p>';
 			if ($zz_conf['graphics_library'] === 'imagemagick') {
 				require_once $zz_conf['dir'].'/image-imagemagick.inc.php';
-				$page['text'] .= '<p>ImageMagick:</p>'.markdown(zz_imagick_version());
+				$page['text'] .= '<p>ImageMagick:</p><blockquote><pre>'.zz_imagick_version().'</pre></blockquote>';
+				$page['text'] .= '<p>GhostScript:</p><blockquote><pre>'.zz_ghostscript_version().'</pre></blockquote>';
 			}
 
 		// 	- Backup/errors, insert, update, delete
