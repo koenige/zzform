@@ -970,7 +970,11 @@ function zz_upload_prepare($zz_tab) {
 						foreach ($image['update_from_source_field_name'] as $index => $field_name) {
 							if (!array_key_exists($image['update_from_source_value'][$index], $zz_tab[$tab]['existing'][$rec])) continue;
 							$field_value = $zz_tab[$tab]['existing'][$rec][$image['update_from_source_value'][$index]];
-							$where[] = sprintf('%s != "%s"', $field_name, $field_value);
+							if ($field_value) {
+								$where[] = sprintf('(%s != "%s" OR ISNULL(%s))', $field_name, $field_value, $field_name);
+							} else {
+								$where[] = sprintf('!ISNULL(%s)', $field_name);
+							}
 						}
 						if ($where) {
 							$sql = zz_edit_sql($sql, 'WHERE', implode(' OR ', $where));
