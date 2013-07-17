@@ -1405,6 +1405,7 @@ function zz_makelink($path, $record, $type = 'link') {
 			break;
 		case 'extension':
 		case 'field':
+		case 'webfield':
 			// we don't have that field or it is NULL, so we can't build the
 			// path and return with nothing
 			// if you need an empty field, use IFNULL(field_name, "")
@@ -1415,7 +1416,9 @@ function zz_makelink($path, $record, $type = 'link') {
 				if (!$content) return false;
 				$modes = array();
 			}
-			$url .= $content;
+			if ($part !== 'webfield') {
+				$url .= $content;
+			}
 			$path_web .= $content;
 			if ($type === 'image' AND !$alt_locked) {
 				$alt = zz_text('File: ').$record[$value];
