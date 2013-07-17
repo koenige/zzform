@@ -1117,6 +1117,8 @@ function zz_upload_merge_options($image, $my_rec, $my_tab, $rec) {
 		$image['options_sql'] = array($image['options_sql']); 
 	// go through all options
 	foreach ($image['options'] as $index => $no) {
+		// check if we have the corresponding field, if not, simply ignore it!
+		if (empty($my_rec['fields'][$no])) continue;
 		// field_name of field where options reside
 		$field_name = $my_rec['fields'][$no]['field_name']; 
 		// this is the selected option
