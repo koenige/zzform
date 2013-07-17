@@ -488,7 +488,7 @@ function zz_action_equals($my_rec, $existing) {
 			$update = true;
 		} elseif (!empty($field['dont_check_on_update'])) {
 			$update = true;
-		} elseif (isset($my_rec['POST'][$field['field_name']]) AND $existing) {
+		} elseif (in_array($field['field_name'], array_keys($my_rec['POST'])) AND $existing) {
 			// ok, we have values which might be compared
 			$update = true;
 			// check difference to existing record
@@ -538,7 +538,7 @@ function zz_action_equals($my_rec, $existing) {
 			global $zz_error;
 			$zz_error[] = array(
 				'msg_dev' => 'Update without existing record? '
-					.'Record: '.serialize($my_rec).' <br>Existing: '.serialize($existing)
+					.'Record: '.json_encode($my_rec).' <br>Existing: '.json_encode($existing)
 			);
 			$update = true;
 		}
