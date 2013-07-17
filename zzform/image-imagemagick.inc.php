@@ -189,7 +189,9 @@ function zz_image_webimage($source, $destination, $dest_extension, $image) {
 	$source = zz_imagick_check_multipage($source);
 	$source_extension = $image['upload']['ext'];
 
-	if (!$source_extension OR !empty($zz_conf['webimages_by_extension'][$source_extension])) {
+	if (empty($image['convert_options']) 
+		AND (!$source_extension OR !empty($zz_conf['webimages_by_extension'][$source_extension]))
+	) {
 		// do not create an identical webimage of already existing webimage
 		$zz_conf['int']['no_image_action'] = true;
 		return zz_return(false);
@@ -207,6 +209,13 @@ function zz_image_webimage($source, $destination, $dest_extension, $image) {
 		$convert = zz_imagick_convert(
 			$image['convert_options'],
 			sprintf('"%s" %s:"%s"', $source, $dest_extension, $destination),
+			$source_extension
+		);
+	} elseif (!empty($image['convert_options'])) {
+		// keep original image, create a new modified image
+		$convert = zz_imagick_convert(
+			$image['convert_options'],
+			sprintf('"%s" %s:"%s"', $source, $source_extension, $destination),
 			$source_extension
 		);
 	} else {
