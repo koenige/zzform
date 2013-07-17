@@ -642,15 +642,20 @@ function zz_action_function($type, $ops, $zz_tab) {
 		$change = zz_geo_geocode($type, $ops, $zz_tab);
 	}
 	if ($zz_tab[0]['extra_action'][$type] !== true) {
-		$file = $zz_conf['action_dir'].'/'.$zz_tab[0]['extra_action'][$type].'.inc.php';
-		if (file_exists($file)) {
-			// a file has to be included
-			include $file;
-		} else {
-			// it's a function
-			$custom_result = $zz_tab[0]['extra_action'][$type]($ops);
-			if (is_array($custom_result)) {
-				$change = array_merge($change, $custom_result);
+		if (!is_array($zz_tab[0]['extra_action'][$type])) {
+			$zz_tab[0]['extra_action'][$type] = array($zz_tab[0]['extra_action'][$type]);
+		}
+		foreach ($zz_tab[0]['extra_action'][$type] as $extra_action) {
+			$file = $zz_conf['action_dir'].'/'.$extra_action.'.inc.php';
+			if (file_exists($file)) {
+				// a file has to be included
+				include $file;
+			} else {
+				// it's a function
+				$custom_result = $extra_action($ops);
+				if (is_array($custom_result)) {
+					$change = array_merge($change, $custom_result);
+				}
 			}
 		}
 	}
