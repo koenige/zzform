@@ -965,9 +965,16 @@ function zz_upload_prepare($zz_tab) {
 							$zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table']);
 					}
 					$sql = sprintf($image['source_path_sql'], $my_rec['POST'][$image['source_file']]);
-					if (!empty($image['update_from_source_field_name']) AND !empty($image['update_from_source_value'])
-						AND !empty($zz_tab[$tab]['existing'][$rec][$image['update_from_source_value']])) {
-						$sql = zz_edit_sql($sql, 'WHERE', $image['update_from_source_field_name'].' != "'.$zz_tab[$tab]['existing'][$rec][$image['update_from_source_value']].'"');
+					if (!empty($image['update_from_source_field_name']) AND !empty($image['update_from_source_value'])) {
+						$where = array();
+						foreach ($image['update_from_source_field_name'] as $index => $field_name) {
+							if (!array_key_exists($image['update_from_source_value'][$index], $zz_tab[$tab]['existing'][$rec])) continue;
+							$field_value = $zz_tab[$tab]['existing'][$rec][$image['update_from_source_value'][$index]];
+							$where[] = sprintf('%s != "%s"', $field_name, $field_value);
+						}
+						if ($where) {
+							$sql = zz_edit_sql($sql, 'WHERE', implode(' OR ', $where));
+						}
 					}
 					$old_record = zz_db_fetch($sql);
 					if ($old_record) {
