@@ -1490,6 +1490,7 @@ function zz_val_get_from_upload($field, $images, $post) {
 			}
 			// remove empty values
 			if ($myval === '0/0') $myval = false; // e. g. GPS bearing
+			if (trim($myval) === ':  :     :  :') $myval = ''; // empty DateTime
 			// we don't need whitespace (DateTime field may be set to "    ..."
 			if (!is_array($myval)) $myval = trim($myval);
 			if (!empty($field['upload_func'])) {
