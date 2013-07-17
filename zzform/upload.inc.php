@@ -904,7 +904,7 @@ function zz_upload_prepare($zz_tab) {
 				}
 				continue;
 			}
-			$image = zz_upload_merge_options($image, $my_rec);
+			$image = zz_upload_merge_options($image, $my_rec, $zz_tab[$tab], $rec);
 
 			if (!empty($image['ignore'])) {
 				$my_rec['images'][$no][$img] = $image;
@@ -1102,22 +1102,34 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec) {
  *
  * @param array $image
  * @param array $my_rec ($zz_tab[$tab][$rec])
+ * @param array $my_tab ($zz_tab[$tab])
+ * @param int $rec
  * @return array $image
  */
-function zz_upload_merge_options($image, $my_rec) {
+function zz_upload_merge_options($image, $my_rec, $my_tab, $rec) {
+	global $zz_conf;
+	
 	if (empty($image['options'])) return $image;
 	// to make it easier, allow input without array construct as well
 	if (!is_array($image['options'])) 
 		$image['options'] = array($image['options']); 
+	if (isset($image['options_sql']) AND !is_array($image['options_sql'])) 
+		$image['options_sql'] = array($image['options_sql']); 
 	// go through all options
-	foreach ($image['options'] as $no) {
+	foreach ($image['options'] as $index => $no) {
 		// field_name of field where options reside
 		$field_name = $my_rec['fields'][$no]['field_name']; 
 		// this is the selected option
+		if ($my_rec['fields'][$no]['type'] === 'select') {
+			// @todo do this in action module beforehands
+			$my_rec = zz_check_select($my_rec, $no, $zz_conf['max_select'], 
+				$my_tab['table'].'['.$rec.']['.$my_rec['fields'][$no]['field_name'].']', 
+				$my_tab['db_name'].'.'.$my_tab['table']);
+		}
 		$option_value = $my_rec['POST'][$field_name];
-		if (!empty($image['options_sql']) AND $option_value) {
+		if (!empty($image['options_sql'][$index]) AND $option_value) {
 			// get options from database
-			$sql = sprintf($image['options_sql'], zz_db_escape($option_value));
+			$sql = sprintf($image['options_sql'][$index], zz_db_escape($option_value));
 			$option_record = zz_db_fetch($sql, '', 'single value');
 			if ($option_record) {
 				parse_str($option_record, $options[$option_value]);
