@@ -1380,6 +1380,8 @@ function zz_makelink($path, $record, $type = 'link') {
 
 	if ($type == 'image') {
 		$alt = zz_text('no_image');
+		// lock if there is something definitely called extension
+		$alt_locked = false; 
 	}
 	if (!is_array($path)) $path = array('string' => $path);
 	foreach ($path as $part => $value) {
@@ -1401,6 +1403,7 @@ function zz_makelink($path, $record, $type = 'link') {
 			$path_full .= $url;
 			$url = '';
 			break;
+		case 'extension':
 		case 'field':
 			// we don't have that field or it is NULL, so we can't build the
 			// path and return with nothing
@@ -1414,8 +1417,9 @@ function zz_makelink($path, $record, $type = 'link') {
 			}
 			$url .= $content;
 			$path_web .= $content;
-			if ($type == 'image') {
+			if ($type === 'image' AND !$alt_locked) {
 				$alt = zz_text('File: ').$record[$value];
+				if ($part === 'extension') $alt_locked = true;
 			}
 			break;
 		case 'string':
@@ -1511,6 +1515,7 @@ function zz_makepath($path, $zz_tab, $record = 'new', $do = false, $tab = 0, $re
 	$webroot = false;	// web root
 
 	// put path together
+	$alt_locked = false;
 	foreach ($path as $pkey => $pvalue) {
 		if (!$pvalue) continue;
 		if ($pkey === 'root') {
@@ -1523,7 +1528,7 @@ function zz_makepath($path, $zz_tab, $record = 'new', $do = false, $tab = 0, $re
 			$modes[] = $pvalue;
 		} elseif (substr($pkey, 0, 6) === 'string') {
 			$p .= $pvalue;
-		} elseif (substr($pkey, 0, 5) === 'field') {
+		} elseif (substr($pkey, 0, 5) === 'field' OR $pkey === 'extension') {
 			$my_tab = $zz_tab[$tab];
 			if ($record === 'new') {
 				$content = (!empty($my_tab[$rec]['POST'][$pvalue])) 
@@ -1540,7 +1545,10 @@ function zz_makepath($path, $zz_tab, $record = 'new', $do = false, $tab = 0, $re
 				if (!$content) return false;
 			}
 			$p .= $content;
-			$alt = zz_text('File: ').$content;
+			if (!$alt_locked) {
+				$alt = zz_text('File: ').$content;
+				if ($pkey === 'extension') $alt_locked = true;
+			}
 			$modes = false;
 		}
 	}
