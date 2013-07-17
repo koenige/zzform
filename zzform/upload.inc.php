@@ -259,7 +259,7 @@ function zz_upload_check_files($zz_tab) {
 		$rec = $uf['rec'];
 		$no = $uf['f'];
 		$my_rec = &$zz_tab[$tab][$rec];
-		$images = false;
+		$images = array();
 		$field = $my_rec['fields'][$no];
 
 		// get unique fieldname for subtables and file uploads as set in editform.inc
@@ -309,6 +309,12 @@ function zz_upload_check_files($zz_tab) {
 			if (!isset($myfiles['name'][$field_name])) {
 				$myfiles['name'][$field_name] = 'unknown';
 			}
+
+			// initialize convert_options
+			if (!isset($images[$no][$img]['convert_options'])) {
+				$images[$no][$img]['convert_options'] = '';
+			}
+
 			// title, generated from local filename, to be used for 'upload_value'
 			if (empty($images[$no]['title'])) {
 				// this and field_name will be '' if first image is false
@@ -958,7 +964,7 @@ function zz_upload_prepare($zz_tab) {
 							$zz_tab[$tab]['table'].'['.$rec.']['.$my_rec['fields'][$field_index]['field_name'].']', 
 							$zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table']);
 					}
-					$sql = $image['source_path_sql'].$my_rec['POST'][$image['source_file']];
+					$sql = sprintf($image['source_path_sql'], $my_rec['POST'][$image['source_file']]);
 					if (!empty($image['update_from_source_field_name']) AND !empty($image['update_from_source_value'])
 						AND !empty($zz_tab[$tab]['existing'][$rec][$image['update_from_source_value']])) {
 						$sql = zz_edit_sql($sql, 'WHERE', $image['update_from_source_field_name'].' != "'.$zz_tab[$tab]['existing'][$rec][$image['update_from_source_value']].'"');
@@ -1111,7 +1117,7 @@ function zz_upload_merge_options($image, $my_rec) {
 		$option_value = $my_rec['POST'][$field_name];
 		if (!empty($image['options_sql']) AND $option_value) {
 			// get options from database
-			$sql = $image['options_sql'].' '.zz_db_escape($option_value);
+			$sql = sprintf($image['options_sql'], zz_db_escape($option_value));
 			$option_record = zz_db_fetch($sql, '', 'single value');
 			if ($option_record) {
 				parse_str($option_record, $options[$option_value]);

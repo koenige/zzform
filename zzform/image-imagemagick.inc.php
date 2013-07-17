@@ -125,7 +125,7 @@ function zz_image_gray($source, $destination, $dest_extension, $image) {
 
 	$source = zz_imagick_check_multipage($source);
 	$convert = zz_imagick_convert(
-		'colorspace gray',
+		'-colorspace gray '.$image['convert_options'],
 		sprintf('"%s" %s:"%s"', $source, $dest_extension, $destination),
 		$image['upload']['ext']
 	);
@@ -154,7 +154,7 @@ function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
 	$geometry .= isset($image['height']) ? 'x'.$image['height'] : '';
 	$source = zz_imagick_check_multipage($source);
 	$convert = zz_imagick_convert(
-		sprintf('thumbnail %s', $geometry),
+		sprintf('-thumbnail %s ', $geometry).$image['convert_options'],
 		sprintf('"%s" %s:"%s"', $source, $dest_extension, $destination),
 		$image['upload']['ext']
 	);
@@ -197,7 +197,7 @@ function zz_image_webimage($source, $destination, $dest_extension, $image) {
 		if ($zz_conf['upload_tools']['ghostscript']) {
 			$dest_extension = $zz_conf['upload_destination_filetype'][$source_extension];
 			$convert = zz_imagick_convert(
-				sprintf('density %s', $zz_conf['upload_pdf_density']), 
+				sprintf('-density %s ', $zz_conf['upload_pdf_density']).$image['convert_options'], 
 				sprintf('"%s" %s:"%s"', $source, $dest_extension, $destination),
 				$source_extension
 			);
@@ -205,7 +205,7 @@ function zz_image_webimage($source, $destination, $dest_extension, $image) {
 	} elseif (!empty($zz_conf['upload_destination_filetype'][$source_extension])) {
 		$dest_extension = $zz_conf['upload_destination_filetype'][$source_extension];
 		$convert = zz_imagick_convert(
-			false,
+			$image['convert_options'],
 			sprintf('"%s" %s:"%s"', $source, $dest_extension, $destination),
 			$source_extension
 		);
@@ -246,13 +246,13 @@ function zz_image_crop($source, $destination, $dest_extension, $image) {
 	}
 	$source_ratio = $source_width / $source_height;
 	if ($dest_ratio == $source_ratio) {
-		$options = 'thumbnail %dx%d';
+		$options = '-thumbnail %dx%d';
 		$options = sprintf($options, $image['width'], $image['height']);
 	} elseif ($dest_ratio < $source_ratio) {
 		$new_width = floor($image['height']*$source_ratio);
 		$pos_x = floor(($new_width - $image['width']) / 2);
 		$pos_y = 0;
-		$options = 'thumbnail %dx%d -crop %dx%d+%d+%d';
+		$options = '-thumbnail %dx%d -crop %dx%d+%d+%d';
 		$options = sprintf(
 			$options, $new_width, $image['height'], $image['width'],
 			$image['height'], $pos_x, $pos_y
@@ -261,7 +261,7 @@ function zz_image_crop($source, $destination, $dest_extension, $image) {
 		$new_height = floor($image['width']/$source_ratio);
 		$pos_x = 0;
 		$pos_y = floor(($new_height - $image['height']) / 2);
-		$options = 'thumbnail %dx%d -crop %dx%d+%d+%d';
+		$options = '-thumbnail %dx%d -crop %dx%d+%d+%d';
 		$options = sprintf(
 			$options, $image['width'], $new_height, $image['width'],
 			$image['height'], $pos_x, $pos_y
@@ -269,7 +269,7 @@ function zz_image_crop($source, $destination, $dest_extension, $image) {
 	}
 	$source = zz_imagick_check_multipage($source);
 	$convert = zz_imagick_convert(
-		$options,
+		$options.' '.$image['convert_options'],
 		sprintf('"%s" %s:"%s"', $source, $dest_extension, $destination),
 		$image['upload']['ext']
 	);
@@ -295,7 +295,6 @@ function zz_imagick_convert($options, $files, $source_extension) {
 
 	$command = zz_imagick_findpath('convert');
 
-	if ($options) $options = '-'.$options;
 	if (!empty($zz_conf['upload_imagick_options_for'][$source_extension])) {
 		$options .= ' '.$zz_conf['upload_imagick_options_for'][$source_extension];
 	} elseif (!empty($zz_conf['upload_imagick_options'])) {
