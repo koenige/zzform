@@ -1273,9 +1273,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 		$text = zz_text($text);
 	}
 	if (!empty($field['list_format']) AND $text) {
-		if (!empty($zz_conf['modules']['debug'])) zz_debug('start', $field['list_format']);
-		$text = $field['list_format']($text);
-		if (!empty($zz_conf['modules']['debug'])) zz_debug('end');
+		$text = zz_list_format($text, $field['list_format']);
 	}
 	if (!empty($field['hide_zeros']) AND !$text) {
 		$text = '';
@@ -1348,8 +1346,9 @@ function zz_field_sum($table_defs, $z, $table, $sum) {
 			} elseif (isset($field['number_type'])) {
 				$value = zz_number_format($value, $field);
 			}
-			if (!empty($field['list_format']) AND $value)
-				$value = $field['list_format']($value);
+			if (!empty($field['list_format']) AND $value) {
+				$value = zz_list_format($value, $field['list_format']);
+			}
 
 			$tfoot_line.= $value;
 			if (isset($field['unit']) && $value) 
@@ -1362,6 +1361,23 @@ function zz_field_sum($table_defs, $z, $table, $sum) {
 		}
 	}
 	return $tfoot_line;
+}
+
+/**
+ * formats a field's content with one or more functions
+ *
+ * @param string $text
+ * @param mixed $list_format (array = list of formatting functions)
+ */
+function zz_list_format($text, $list_format) {
+	global $zz_conf;
+	if (!is_array($list_format)) $list_format = array($list_format);
+	foreach ($list_format as $format) {
+		if (!empty($zz_conf['modules']['debug'])) zz_debug('start', $format);
+		$text = $format($text);
+		if (!empty($zz_conf['modules']['debug'])) zz_debug('end');
+	}
+	return $text;
 }
 
 /**
@@ -2082,9 +2098,7 @@ function zz_list_get_subselects($rows, $subselects, $ids) {
 				$subselect_text = $subselect['prefix'].$subselect_text.$subselect['suffix'];
 			}
 			if (!empty($subselect['list_format'])) {
-				if (!empty($zz_conf['modules']['debug'])) zz_debug('start', $subselect['list_format']);
-				$subselect_text = $subselect['list_format']($subselect_text);
-				if (!empty($zz_conf['modules']['debug'])) zz_debug('end');
+				$subselect_text = zz_list_format($subselect_text, $subselect['list_format']);
 			}
 			$rows[$z_row][$subselect['fieldindex']]['text'] .= zz_mark_search_string($subselect_text, $subselect['table_name'], $subselect);
 			if (!empty($subselect['export_no_html'])) {
