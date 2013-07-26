@@ -294,6 +294,8 @@ function zz_check_date($date) {
 	// remove unnecessary whitespace
 	$date = trim($date);
 	if (!$date) return false;
+	// replace non breaking space with space
+	$date = str_replace("\xc2\xa0", ' ', $date);
 
 	// @todo: allow addition of months in different languages via config
 	$months = array(
@@ -431,7 +433,7 @@ function zz_check_number($number) {
 	if (preg_match('/^\+0\.*0*$/', $calculation)) return 0;
 	eval('$sum = '.$calculation.';');
 	// in case some error occured, check what it is
-	if (!$sum) {
+	if (!$sum AND $sum !== 0) {
 		global $zz_error;
 		$zz_error[] = array(
 			'msg_dev' => __FUNCTION__.'(): calculation did not work. ['.implode('', $parts).']',

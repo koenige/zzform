@@ -1794,7 +1794,7 @@ function zz_field_date($field, $display, $record) {
 	$fieldattr['size'] = 12;
 	if ($field['required']) $fieldattr['required'] = true;
 	// HTML5 fieldtype date has bad usability in Opera (calendar only!)
-	return zz_form_element($field['f_field_name'], $value, 'text', true, $fieldattr);
+	return zz_form_element($field['f_field_name'], $value, 'text_noescape', true, $fieldattr);
 }
 
 /**
