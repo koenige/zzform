@@ -632,6 +632,10 @@ function zz_action_function($type, $ops, $zz_tab) {
 	global $zz_error;
 	if (empty($zz_tab[0]['extra_action'][$type])) return false;
 
+	if (file_exists($zz_conf['action_dir'].'/extra_action.inc.php')) {
+		require_once $zz_conf['action_dir'].'/extra_action.inc.php';
+	}
+
 	if (!empty($zz_tab[0]['set_redirect'])) {
 		require_once $zz_conf['dir_inc'].'/identifier.inc.php';
 		zz_identifier_redirect($type, $ops, $zz_tab[0]);
