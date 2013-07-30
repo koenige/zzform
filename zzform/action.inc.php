@@ -1415,6 +1415,11 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			// 	or will be processed somewhere else
 			$my_rec['fields'][$f]['in_sql_query'] = false;
 			break;
+		case 'text':
+			if (empty($field['dont_trim'])) {
+				$my_rec['POST'][$field_name] = trim($my_rec['POST'][$field_name]);
+			}
+			break;
 		default:
 			break;
 		}
