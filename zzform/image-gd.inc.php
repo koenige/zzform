@@ -48,7 +48,7 @@ function zz_imagegd($source, $destination, $params, $dest_extension, $image) {
 	$possible_filetypes = array('xpm', 'xbm', 'wbmp', 'png', 'jpeg', 'gif');
 	$source_filetype = $image['upload']['filetype'];
 	if (!in_array($source_filetype, $possible_filetypes)) {
-		echo 'Not allowed filetype "'.$source_filetype.'". Allowed Types are: '.implode(', ', $possible_filetypes);
+		echo 'Not allowed filetype "'.$source_filetype.'". Allowed Types are: '.implode(', ', $possible_filetypes).'<br>';
 		if ($zz_conf['modules']['debug']) zz_debug("end");
 		return false;
 	}
@@ -143,6 +143,10 @@ function zz_imagegd($source, $destination, $params, $dest_extension, $image) {
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
+	if (empty($image['upload']['width']) OR empty($image['upload']['height'])) {
+		// no image width nor height, not an image
+		return false;
+	}
 	// get new width and height, keep ratio
 	$ratio = $image['upload']['width']/$image['upload']['height'];
 	// ratio greater than 1: landscape, == 1 square, less than 1: portrait
@@ -200,11 +204,20 @@ function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
 	$params['dst_y'] = 0;
 
 	// define cropping area, basics
-	$source_image = getimagesize($source);
+	if (empty($image['upload']['width']) OR empty($image['upload']['height'])) {
+		$source_image = getimagesize($source);
+		if (!$source_image) {
+			// no dimensions: no cropping is possible
+			return false;
+		}
+		$params['src_w'] = $source_image[0];
+		$params['src_h'] = $source_image[1];
+	} else {
+		$params['src_w'] = $image['upload']['width'];
+		$params['src_h'] = $image['upload']['height'];
+	}
 	$params['src_x'] = 0;	// full image
 	$params['src_y'] = 0;
-	$params['src_w'] = $source_image[0];
-	$params['src_h'] = $source_image[1];
 
 	// get ratio of source image
 	$source_ratio = $params['src_w']/$params['src_h'];
