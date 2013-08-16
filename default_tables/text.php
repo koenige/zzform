@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2010 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2010, 2013 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -34,6 +34,9 @@ $zz['fields'][3]['field_name'] = 'more_text';
 $zz['fields'][3]['type'] = 'memo';
 
 $zz['fields'][4]['field_name'] = 'area';
+if (!empty($_GET['filter']['area'])) {
+	$zz['fields'][4]['hide_in_list'] = true;
+}
 
 $zz['fields'][20]['title'] = 'Last Update';
 $zz['fields'][20]['field_name'] = 'last_update';
@@ -44,8 +47,18 @@ $zz['fields'][20]['hide_in_list'] = true;
 $zz['sql'] = 'SELECT * FROM '.$zz_conf['text_table'].'
 	ORDER BY area, text';
 
-$zz['list']['group'] = 'area';
+if (empty($_GET['filter']['area'])) {
+	$zz['list']['group'] = 'area';
+}
 
 $zz_conf['delete'] = true;
+
+$zz_conf['filter'][1]['title'] = wrap_text('Area');
+$zz_conf['filter'][1]['identifier'] = 'area';
+$zz_conf['filter'][1]['type'] = 'list';
+$zz_conf['filter'][1]['where'] = 'area';
+$zz_conf['filter'][1]['field_name'] = 'area';
+$zz_conf['filter'][1]['sql'] = 'SELECT DISTINCT area, area
+	FROM '.$zz_conf['text_table'];
 
 ?>
