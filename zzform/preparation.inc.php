@@ -203,10 +203,18 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 	$my_tab['fielddefs'] = !empty($field['fielddefs']) ? $field['fielddefs'] : array();
 
 	// records
-	$my_tab['max_records'] = isset($field['max_records'])
-		? $field['max_records'] : $zz_conf['max_detail_records'];
-	$my_tab['min_records'] = isset($field['min_records'])
-		? $field['min_records'] : $zz_conf['min_detail_records'];
+	$settings = array('max', 'min');
+	foreach ($settings as $set) {
+		// max_detail_records, max_records, max_records_sql
+		// min_detail_records, min_records, min_records_sql
+		if (isset($field[$set.'_records'])) {
+			$my_tab[$set.'_records'] = $field[$set.'_records'];
+		} elseif (isset($field[$set.'_records_sql'])) {
+			$my_tab[$set.'_records'] = zz_db_fetch($field[$set.'_records_sql'], '', 'single value');
+		} else {
+			$my_tab[$set.'_records'] = $zz_conf[$set.'_detail_records'];
+		}
+	}
 	$my_tab['min_records_required'] = isset($field['min_records_required'])
 		? $field['min_records_required'] : 0;
 	if ($my_tab['min_records'] < $my_tab['min_records_required'])
