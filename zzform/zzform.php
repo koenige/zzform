@@ -118,6 +118,9 @@ function zzform($zz = array()) {
 	if (!isset($zz['table_for_where'])) $zz['table_for_where'] = array();
 	list($zz['sql'], $zz_var) = zz_apply_where_conditions($zz_var, $zz['sql'], 
 		$zz['table'], $zz['table_for_where']);
+	if (!empty($zz_var['where'])) {
+		unset($zz['sqlcount']);
+	}
 	unset($zz['table_for_where']);
 	
 	// if GET add already set some values, merge them to field
