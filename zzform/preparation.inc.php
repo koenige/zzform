@@ -390,8 +390,9 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 		$my_tab['POST'] = zz_subrecord_unique($my_tab, $field['fields']);
 	}
 
-	if ($my_tab['values']) {
+	if ($my_tab['values'] AND $state !== 'delete') {
 		// get field names for values
+		// but not for records which will be deleted anyways
 		$values = zz_values_get_fields($my_tab['values'], $rec_tpl['fields']);
 		// look for matches between values and existing records
 		list($records, $existing_ids, $my_tab['existing'], $values) 
