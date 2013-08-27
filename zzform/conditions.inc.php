@@ -287,8 +287,9 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 			if (!empty($condition['having']))
 				$sql = zz_edit_sql($sql, 'HAVING', $condition['having']);
 			// just get this single record
-			$sql = zz_edit_sql($sql, 'WHERE', '`'.$zz['table'].'`.`'
-				.$zz_var['id']['field_name'].'` = '.$zz_var['id']['value']);
+			$sql = zz_edit_sql($sql, 'WHERE', sprintf(
+				'`%s`.`%s` = %d', $zz['table'], $zz_var['id']['field_name'], $zz_var['id']['value']
+			));
 			$lines = zz_db_fetch($sql, $zz_var['id']['field_name'], 'id as key', 'record-list ['.$index.']');
 			if ($zz_error['error']) return zz_return($zz_conditions); // DB error
 			if (empty($zz_conditions['bool'][$index]))
@@ -301,7 +302,9 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 			if ($mode === 'list_only') break;
 			if (empty($zz_var['id']['value'])) break;
 
-			$sql = zz_edit_sql($condition['sql'], 'WHERE', $condition['key_field_name'].' = '.$zz_var['id']['value']);
+			$sql = zz_edit_sql($condition['sql'], 'WHERE', sprintf(
+				'%s = %d', $condition['key_field_name'], $zz_var['id']['value']
+			));
 			$lines = zz_db_fetch($sql, $condition['key_field_name'], 'id as key', 'query ['.$index.']');
 			if ($zz_error['error']) return zz_return($zz_conditions); // DB error
 			if (empty($zz_conditions['bool'][$index]))
@@ -321,8 +324,9 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 			} elseif (!empty($zz_var['where'][$zz['table']][$condition['field_name']])) {
 				$value = $zz_var['where'][$zz['table']][$condition['field_name']];
 			} else {
-				$sql = zz_edit_sql($zz['sql'], 'WHERE', $zz['table'].'.'
-					.$zz_var['id']['field_name'].' = '.$zz_var['id']['value']);
+				$sql = zz_edit_sql($zz['sql'], 'WHERE', sprintf(
+					'%s.%s = %d', $zz['table'], $zz_var['id']['field_name'], $zz_var['id']['value']
+				));
 				$line = zz_db_fetch($sql, '', '', 'value/1 ['.$index.']');
 				if ($zz_error['error']) return zz_return($zz_conditions); // DB error
 				if ($line) {

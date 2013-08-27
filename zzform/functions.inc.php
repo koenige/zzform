@@ -663,9 +663,13 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = arr
 // hier auch fuer write_once
 		$zz_var['where'][$table_name][$field_name] = $value;
 
-		if ($field_name == $zz_var['id']['field_name']) {
-			$zz_var['where_with_unique_id'] = true;
-			$zz_var['id']['value'] = $value;
+		if ($field_name === $zz_var['id']['field_name']) {
+			if (intval($value).'' === $value.'') {
+				$zz_var['where_with_unique_id'] = true;
+				$zz_var['id']['value'] = $value;
+			} else {
+				$zz_var['id']['invalid_value'] = $value;
+			}
 		} elseif (in_array($field_name, array_keys($zz_var['unique_fields']))) {
 			$zz_var['where_with_unique_id'] = true;
 		}
@@ -1085,10 +1089,15 @@ function zz_record_access($zz, $ops, $zz_var) {
 
 	// write main id value, might have been written by a more trustful instance
 	// beforehands ($_GET['where'] etc.)
-	if (empty($zz_var['id']['value']) AND !empty($id_value))
-		$zz_var['id']['value'] = $id_value;
-	elseif (!isset($zz_var['id']['value']))
+	if (empty($zz_var['id']['value']) AND !empty($id_value)) {
+		if (!is_numeric($id_value)) {
+			$zz_var['id']['invalid_value'] = $id_value;
+		} else {
+			$zz_var['id']['value'] = $id_value;
+		}
+	} elseif (!isset($zz_var['id']['value'])) {
 		$zz_var['id']['value'] = '';
+	}
 
 	// now that we have the ID value, we can calculate the secret key
 	if (!empty($zz_var['id']['values'])) {

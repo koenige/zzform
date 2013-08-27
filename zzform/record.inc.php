@@ -85,11 +85,13 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 	}
 
 	// Heading inside HTML form element
-	if (($ops['mode'] === 'edit' OR $ops['mode'] === 'delete' OR $ops['mode'] === 'review'
-		OR $ops['mode'] === 'show') AND !$zz_tab[0][0]['record']
-		AND ($action_before_redirect !== 'delete')) {
-		$formhead = '<span class="error">'.zz_text('There is no record under this ID:')
-			.' '.htmlspecialchars($zz_tab[0][0]['id']['value']).'</span>';	
+	if (!empty($zz_var['id']['invalid_value'])) {
+		$formhead = '<span class="error">'.sprintf(zz_text('Invalid ID for a record (must be an integer): %s'),
+			htmlspecialchars($zz_var['id']['invalid_value'])).'</span>';
+	} elseif (in_array($ops['mode'], array('edit', 'delete', 'review', 'show'))
+		AND !$zz_tab[0][0]['record'] AND $action_before_redirect !== 'delete') {
+		$formhead = '<span class="error">'.sprintf(zz_text('There is no record under this ID: %s'),
+			htmlspecialchars($zz_tab[0][0]['id']['value'])).'</span>';
 	} elseif (!empty($zz_tab[0]['integrity'])) {
 		$formhead = zz_text('Warning!');
 		$tmp_error_msg = 
@@ -280,7 +282,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 				$output .= '<tr><th>&nbsp;</th> <td class="reedit">';
 				if (empty($zz_conf_record['no_ok']))
 					$output .= '<a href="'.$cancelurl.'">'.zz_text('OK').'</a> | ';
-				$id_link = '&amp;id='.$zz_var['id']['value'];
+				$id_link = sprintf('&amp;id=%d', $zz_var['id']['value']);
 				if (!empty($zz_var['where_with_unique_id'])) $id_link = '';
 				$edit_link = 'mode=edit'.$id_link.$zz_var['extraGET'];
 				if ($zz_conf['access'] === 'show_after_edit')
@@ -291,11 +293,14 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 					.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
 					.$zz_conf['int']['url']['?&'].'mode=delete'.$id_link
 					.$zz_var['extraGET'].'">'.zz_text('delete').'</a>';
-				if ($zz_conf_record['copy']) $output .= ' | <a href="'
-					.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
-					.$zz_conf['int']['url']['?&'].'mode=add&amp;source_id='
-					.$zz_var['id']['value'].$zz_var['extraGET'].'">'
-					.zz_text('Copy').'</a>';
+				if ($zz_conf_record['copy']) {
+					$output .= sprintf(
+						' | <a href="%s%s%smode=add&amp;source_id=%d%s">'.zz_text('Copy').'</a>'
+						, $zz_conf['int']['url']['self'], $zz_conf['int']['url']['qs']
+						, $zz_conf['int']['url']['?&'], $zz_var['id']['value']
+						, $zz_var['extraGET']
+					);
+				}
 				$output .= '</td></tr>'."\n";
 			}
 			if (!empty($zz_conf_record['details'])) {
@@ -845,7 +850,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					// check for 'sql_where_with_id'
 					if (!empty($field['sql_where_with_id']) AND !empty($zz_var['id']['value'])) {
 						$field['sql'] = zz_edit_sql($field['sql'], 'WHERE', 
-							$zz_var['id']['field_name'].' = "'.$zz_var['id']['value'].'"');
+							sprintf("%s = %d", $zz_var['id']['field_name'], $zz_var['id']['value'])
+						);
 					}
 
 					// write some values into $fields
