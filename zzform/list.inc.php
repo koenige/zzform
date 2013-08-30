@@ -635,7 +635,6 @@ function zz_list_group_titles($list, $fields, $line) {
 		if (!empty($field['link'])) {
 			$link = zz_makelink($field['link'], $line);
 			if ($link) {
-				$link .= empty($field['link_no_append']) ? $line[$field['field_name']] : '';
 				$group[$pos] = sprintf('<a href="%s">%s</a>', $link, $group[$pos]);
 			}
 		}
@@ -1446,7 +1445,7 @@ function zz_list_hierarchy($h_lines, $hierarchy, $id_field, $level, &$i) {
  * set link depending on $field['type'] or $field['link']
  *
  * @param array $field definition of field
- *		'type', 'field_name', 'link', 'link_no_append', 'link_referer',
+ *		'type', 'field_name', 'link', 'link_referer',
  *		'link_title', 'link_target', 'link_attributes'
  * @param array $line values of current record
  * @return string $link opening A tag HTML code for link (false if there is no link)
@@ -1463,8 +1462,7 @@ function zz_set_link($field, $line) {
 		// mailto-Link only if there is an address in that field
 		$link = 'mailto:'.rawurlencode($line[$field['field_name']]);
 	} elseif (isset($field['link']) AND is_array($field['link'])) {
-		$link = zz_makelink($field['link'], $line)
-			.(empty($field['link_no_append']) ? $line[$field['field_name']] : '');
+		$link = zz_makelink($field['link'], $line);
 	} elseif (!empty($field['link'])) {
 		$link = $field['link'].$line[$field['field_name']];
 	}
