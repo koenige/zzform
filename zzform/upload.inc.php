@@ -851,7 +851,7 @@ function zz_upload_error_with_file($filename, $file, $type = 'unknown') {
 		$msg_dev = 'While converting the following file, an error occured.';
 		break;
 	}
-	$msg_dev .= zz_text($msg_dev)."\n\n".var_export($file, true);
+	$msg_dev = zz_text($msg_dev)."\n\n".var_export($file, true);
 	if ($error_filename)
 		$msg_dev .= "\r\n".zz_text('The file was temporarily saved under: ').$error_filename;
 	$zz_error[] = array(
