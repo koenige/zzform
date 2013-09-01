@@ -44,7 +44,8 @@ function zz_conditions_set($zz) {
 
 	// All supported shortcuts
 	$shortcuts = array(
-		'list_empty', 'record_mode', 'export_mode', 'where', 'multi'
+		'list_empty', 'record_mode', 'export_mode', 'where', 'multi',
+		'add', 'edit', 'delete', 'upload'
 	);
 	// Some shortcuts depend on a field, get field_name as extra definition
 	$shortcuts_depending_on_fields = array('where');
@@ -195,6 +196,28 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 	$zz_conditions = array();
 	foreach ($zz['conditions'] AS $index => $condition) {
 		switch ($condition['scope']) {
+		case 'add':
+			if ($mode === 'add' OR $zz_var['action'] === 'insert') {
+				$zz_conditions['bool'][$index] = true;
+			}
+			break;
+		case 'edit':
+			if ($mode === 'edit' OR $zz_var['action'] === 'update') {
+				$zz_conditions['bool'][$index] = true;
+			}
+			break;
+		case 'delete':
+			if ($mode === 'delete' OR $zz_var['action'] === 'delete') {
+				$zz_conditions['bool'][$index] = true;
+			}
+			break;
+		case 'upload':
+			// if actually a file was uploaded
+			// @todo not 100% perfect, but should be enough
+			if (!empty($_FILES)) {
+				$zz_conditions['bool'][$index] = true;
+			}
+			break;
 		case 'multi':
 			if (!empty($zz_conf['multi'])) {
 				$zz_conditions['bool'][$index] = true;
