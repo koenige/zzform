@@ -562,7 +562,7 @@ function zz_upload_fileinfo($file, $extension = false) {
 	if ($zz_conf['modules']['debug']) zz_debug('finish', json_encode($file));
 
 	// save unknown files for debugging
-	zz_upload_save_unknown_file($filename, $file);
+	zz_upload_error_with_file($filename, $file);
 
 	// read metadata
 	if (function_exists('exif_read_data') 
@@ -815,20 +815,22 @@ function zz_upload_unix_file($filename, $file) {
 }
 
 /**
- * saves files with an unknown filetype in the backup directory for
- * further inspection, sends mail to admin
+ * saves files with an unknown filetype or with an error while converting
+ * in the backup directory for further inspection, sends mail to admin
  *
  * @param string $filename
  * @param array $file
+ * @param string $type type of error: 'unknown' = unknown file; 'convert' = 
+ *		error while converting a file
  * @global array $zz_conf
  *		'debug_upload', 'backup', 'backup_dir'
  * @global array $zz_error
  * @return bool false: nothing was found, true: unknown file was found
  */
-function zz_upload_save_unknown_file($filename, $file) {
+function zz_upload_error_with_file($filename, $file, $type = 'unknown') {
 	global $zz_conf;
 	global $zz_error;
-	if ($file['filetype'] != 'unknown') return false;
+	if ($type === 'unknown' AND $file['filetype'] != 'unknown') return false;
 	if (empty($zz_conf['debug_upload'])) return false;
 
 	$error_filename = false;
@@ -841,10 +843,15 @@ function zz_upload_save_unknown_file($filename, $file) {
 			copy($filename, $error_filename);
 		$zz_error['error'] = $my_error;
 	}
-	$msg_dev = zz_text(
-		'There was an attempt to upload the following file but it resulted with'."\n"
-		.'an unknown filetype. You might want to check this.'."\n\n")
-		.var_export($file, true);
+	switch ($type) {
+	case 'unknown':
+		$msg_dev = 'There was an attempt to upload the following file but the filetype is unknown.';
+		break;
+	case 'convert':
+		$msg_dev = 'While converting the following file, an error occured.';
+		break;
+	}
+	$msg_dev .= zz_text($msg_dev)."\n\n".var_export($file, true);
 	if ($error_filename)
 		$msg_dev .= "\r\n".zz_text('The file was temporarily saved under: ').$error_filename;
 	$zz_error[] = array(
@@ -1094,7 +1101,6 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec) {
 	}  else {
 		// image action did not work out the way it should have.
 		$modified = -1;
-		zz_unlink_cleanup($tmp_filename);
 		if (!$zz_conf['int']['no_image_action']) {
 			$zz_error[] = array(
 				'msg_dev' => sprintf(zz_text('No real file was returned from function %s'), '<code>'.$action.'()</code>'),
@@ -1102,6 +1108,8 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec) {
 				'level' => E_USER_NOTICE
 			);
 		}
+		zz_upload_error_with_file($tmp_filename, $image, 'convert');
+		zz_unlink_cleanup($tmp_filename);
 	}
 	$zz_conf['int']['no_image_action'] = false;
 	zz_error();
@@ -2173,8 +2181,9 @@ function zz_cleanup_dirs($dir) {
  */
 function zz_image_exif_thumbnail($source, $destination, $dest_ext = false, $image = false) {
 	global $zz_conf;
+	// don't regard it as an error if no Exif thumbnail was found nor created
+	$zz_conf['int']['no_image_action'] = true;
 	if (!in_array($image['upload']['filetype'], $zz_conf['exif_supported'])) {
-		$zz_conf['int']['no_image_action'] = true;
 		return false;
 	}
 	$exif_thumb = exif_thumbnail($source);
