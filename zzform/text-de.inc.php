@@ -127,7 +127,7 @@ $text['Maximum height %s has been exceeded.'] = 'Maximale H&ouml;he %s wurde &uu
 	$text['You sent: %s data.'] = 'Sie haben %s Daten gesendet.';
 
 // Record form: Detail record
-$text['Add %s'] = '%s hinzuf&uuml;gen'; // e. g. Add Address, Add Phone Number ...
+$text['Add %s'] = '%s erg&uuml;nzen'; // e. g. Add Address, Add Phone Number ...
 $text['Remove %s'] = '%s entfernen';
 	$text['Minimum of records for table `%s` was not met (%d)'] = 'Im Feld `%s` sind mehr Daten erforderlich (min. Anzahl: %d)';
 
