@@ -811,6 +811,9 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 			echo sprintf('Table definition for %s file missing.', $definition_file);
 			exit;
 		}
+		if (empty($zz_conf['user'])) {
+			$zz_conf['user'] = $_SERVER['REQUEST_URI'];
+		}
 		if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
 			zz_debug('definition file included');
 			$zz_conf['id'] = $old_id;
