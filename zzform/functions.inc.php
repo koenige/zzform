@@ -768,9 +768,6 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false)
 			}
 			$fields[$no]['translated'] = true;
 		}
-		if (!empty($fields[$no]['default_if_add']) AND $mode === 'add') {
-			$fields[$no]['default'] = $fields[$no]['default_if_add'];
-		}
 		if ($fields[$no]['type'] === 'option') {
 			// do not show option-fields in tab
 			$fields[$no]['hide_in_list'] = true;
