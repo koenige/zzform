@@ -17,10 +17,12 @@
  *	zz_conditions_record_fields()	write new fields to $zz['fields'] based on conditions
  *		zz_replace_conditional_values()
  *	zz_conditions_merge()			merge conditional values with normal values ($zz['fields'], $zz_conf)
+ *		zz_conditions_merge_field()		apply to field
+ *		zz_conditions_merge_conf()		apply to config
  *	zz_conditions_list_check()		set conditions for list
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2010 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2010, 2013 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -569,6 +571,28 @@ function zz_conditions_merge_field(&$field, $bool_conditions, $record_id) {
 	}
 	if (!empty($field['unless'])) {
 		$field = zz_conditions_merge($field, $bool_conditions, $record_id, true);
+		$merged = true;
+	}
+	return $merged;
+}
+
+/**
+ * merge $zz_conf with if and unless conditions
+ *
+ * @param array $conf (e. g. $zz_conf, $zz_conf_record: will change if 
+ *		there are conditions)
+ * @param array $bool_conditions	checked conditions
+ * @param int $record_id		ID of record
+ * @return bool true: configuration was changed; false: nothing was changed
+ */
+function zz_conditions_merge_conf(&$conf, $bool_conditions, $record_id) {
+	$merged = false;
+	if (!empty($conf['if'])) {
+		$conf = zz_conditions_merge($conf, $bool_conditions, $record_id, false, 'conf');
+		$merged = true;
+	}
+	if (!empty($conf['unless'])) {
+		$conf = zz_conditions_merge($conf, $bool_conditions, $record_id, true, 'conf');
 		$merged = true;
 	}
 	return $merged;

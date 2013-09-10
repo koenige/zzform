@@ -1121,9 +1121,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 			$zz_conf['list_access'][$var] = $zz_conf[$var];
 		}
 		// overwrite new variables
-		$zz_conf = zz_conditions_merge(
-			$zz_conf, $zz_conditions['bool'], $zz_var['id']['value'], false, 'conf'
-		);
+		zz_conditions_merge_conf($zz_conf, $zz_conditions['bool'], $zz_var['id']['value']);
 	}
 
 
