@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2012 Gustaf Mossakowski
+ * @copyright Copyright © 2012-2013 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -106,7 +106,14 @@ $zz['sqlorder'] = ' ORDER BY uri_host, uri_path, uri_query';
 
 $zz['list']['group'] = 'uri_host';
 
-
 $zz_conf['multilang_fieldnames'] = true;
+
+$zz_conf['filter'][1]['title'] = wrap_text('Status');
+$zz_conf['filter'][1]['identifier'] = 'status';
+$zz_conf['filter'][1]['type'] = 'list';
+$zz_conf['filter'][1]['where'] = 'status_code';
+$zz_conf['filter'][1]['field_name'] = 'status_code';
+$zz_conf['filter'][1]['sql'] = 'SELECT DISTINCT status_code, status_code
+	FROM /*_PREFIX_*/_uris';
 
 ?>
