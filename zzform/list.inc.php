@@ -475,7 +475,7 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 			if ($zz_conf['modules']['debug']) zz_debug("table_query foreach ".$fieldindex);
 			// conditions
 			if (!empty($zz_conf['modules']['conditions'])) {
-				$field = zz_conditions_merge_field($field, $zz_conditions['bool'], $line[$id_field]);
+				zz_conditions_merge_field($field, $zz_conditions['bool'], $line[$id_field]);
 				if (!empty($zz_conf_record['if']) OR !empty($zz_conf_record['unless'])) {
 					zz_conditions_merge_conf($zz_conf_record, $zz_conditions['bool'], $line[$id_field]);
 					$zz_conf_record = zz_listandrecord_access($zz_conf_record);
