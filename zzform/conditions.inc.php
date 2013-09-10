@@ -127,12 +127,7 @@ function zz_conditions_record($zz, $zz_conditions, $id_value) {
 	// check if there are any bool-conditions 
 	if (!empty($zz_conditions['bool'])) {
 		foreach (array_keys($zz['fields']) as $no) {
-			if (!empty($zz['fields'][$no]['if'])) {
-				$zz['fields'][$no] = zz_conditions_merge($zz['fields'][$no], $zz_conditions['bool'], $id_value);
-			}
-			if (!empty($zz['fields'][$no]['unless'])) {
-				$zz['fields'][$no] = zz_conditions_merge($zz['fields'][$no], $zz_conditions['bool'], $id_value, true);
-			}
+			zz_conditions_merge_field($zz['fields'][$no], $zz_conditions['bool'], $id_value);
 		}
 	}
 	return $zz['fields'];
@@ -556,6 +551,27 @@ function zz_conditions_merge($array, $bool_conditions, $record_id, $reverse = fa
 		}
 	}
 	return zz_return($array);
+}
+
+/**
+ * merge $field with if and unless conditions
+ *
+ * @param array $field (will change if there are conditions)
+ * @param array $bool_conditions	checked conditions
+ * @param int $record_id		ID of record
+ * @return bool true: field definition was changed; false: nothing was changed
+ */
+function zz_conditions_merge_field(&$field, $bool_conditions, $record_id) {
+	$merged = false;
+	if (!empty($field['if'])) {
+		$field = zz_conditions_merge($field, $bool_conditions, $record_id);
+		$merged = true;
+	}
+	if (!empty($field['unless'])) {
+		$field = zz_conditions_merge($field, $bool_conditions, $record_id, true);
+		$merged = true;
+	}
+	return $merged;
 }
 
 /**
