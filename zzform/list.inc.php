@@ -293,7 +293,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $id_field, $mode) {
 	global $zz_conf;
 
-	$conditions_applied = array(); // check if there are any conditions
+	$conditions_applied = false; // check if there are any conditions
 	foreach ($lines as $index => $line) {
 		$line_defs[$index] = $fields_in_list;
 		// conditions
@@ -309,22 +309,14 @@ function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $id_field
 		} else {
 			$my_bool_conditions = $zz_conditions['bool'];
 		}
-		foreach ($line_defs[$index] as $fieldindex => $field) {
-			if (!empty($field['if'])) {
-				$line_defs[$index][$fieldindex] = zz_conditions_merge(
-					$field, $my_bool_conditions, $line[$id_field]
-				);
-				$conditions_applied[$index] = true;
-			}
-			if (!empty($field['unless'])) {
-				$line_defs[$index][$fieldindex] = zz_conditions_merge(
-					$line_defs[$index][$fieldindex], $my_bool_conditions, $line[$id_field], true
-				);
-				$conditions_applied[$index] = true;
-			}
+		foreach (array_keys($line_defs[$index]) as $fieldindex) {
+			$applied = zz_conditions_merge_field(
+				$line_defs[$index][$fieldindex], $my_bool_conditions, $line[$id_field]
+			);
+			if ($applied) $conditions_applied = true;
 		}
 	}
-	if (empty($conditions_applied)) {
+	if (!$conditions_applied) {
 		// if there is no condition, remove all the identical stuff
 		unset($line_defs);
 		$line_defs[0] = $fields_in_list;	
@@ -483,12 +475,7 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 			if ($zz_conf['modules']['debug']) zz_debug("table_query foreach ".$fieldindex);
 			// conditions
 			if (!empty($zz_conf['modules']['conditions'])) {
-				if (!empty($field['if'])) {
-					$field = zz_conditions_merge($field, $zz_conditions['bool'], $line[$id_field]);
-				}
-				if (!empty($field['unless'])) {
-					$field = zz_conditions_merge($field, $zz_conditions['bool'], $line[$id_field], true);
-				}
+				$field = zz_conditions_merge_field($field, $zz_conditions['bool'], $line[$id_field]);
 				if (!empty($zz_conf_record['if']) OR !empty($zz_conf_record['unless'])) {
 					if (!empty($zz_conf_record['if'])) {
 						$zz_conf_record = zz_conditions_merge($zz_conf_record, $zz_conditions['bool'], $line[$id_field], false, 'conf');
