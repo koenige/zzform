@@ -249,8 +249,7 @@ function zzform($zz = array()) {
 		$ops['title'] = strip_tags($ops['heading']);
 		if (trim($ops['heading']))
 			$ops['output'].= "\n".'<h1>'.$ops['heading'].'</h1>'."\n\n";
-		if ($zz['explanation'] 
-			AND (!$zz['explanation_hidden_while_editing'] OR $ops['mode'] == 'list_only')) 
+		if ($zz['explanation']) 
 			$ops['output'] .= zz_format($zz['explanation']);
 		$ops['output'] .= "\n<div class='explanation_dynamic'></div>\n";
 	}
@@ -503,8 +502,6 @@ function zz_defaults($zz) {
 		$zz['title'] = NULL;
 	if (!isset($zz['explanation']))
 		$zz['explanation'] = '';
-	if (!isset($zz['explanation_hidden_while_editing']))
-		$zz['explanation_hidden_while_editing'] = false;
 	return $zz;
 }
 
@@ -981,7 +978,7 @@ function zz_backwards($zz_conf, $zz) {
 	$moved_to_zz = array(
 		'heading' => 'title',
 		'heading_text' => 'explanation',
-		'heading_text_hidden_while_editing', 'explanation_hidden_while_editing',
+		'heading_text_hidden_while_editing', array('if', 'record_mode', 'explanation'),
 		'heading_sub' => 'subtitle',
 		'action' => 'extra_action',
 		'tfoot' => array('list', 'tfoot'),

@@ -873,8 +873,7 @@ function zz_hash($zz, $zz_conf) {
 	);
 	foreach ($uninteresting_zz_conf_keys as $key) unset($zz_conf[$key]);
 	$uninteresting_zz_keys = array(
-		'title', 'explanation', 'subtitle', 'explanation_hidden_while_editing',
-		'list'
+		'title', 'explanation', 'subtitle', 'list'
 	);
 	foreach ($uninteresting_zz_keys as $key) unset($zz[$key]);
 	$my['zz'] = $zz;
