@@ -229,7 +229,7 @@ function zzform($zz = array()) {
 
 	if ($zz_conf['show_record']) {
 		if (!empty($zz_conf['modules']['conditions'])) {
-			$zz['fields'] = zz_conditions_record($zz, $zz_conditions, $zz_var['id']['value']);
+			$zz = zz_conditions_record($zz, $zz_conditions, $zz_var['id']['value']);
 		}
 	 	// sets some $zz-definitions for records depending on existing definition for
 		// translations, subtabes, uploads, write_once-fields

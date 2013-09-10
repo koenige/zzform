@@ -102,7 +102,7 @@ function zz_conditions_set($zz) {
  * @param array $zz_conditions
  * @param int $id_value
  * @global array $zz_conf
- * @return array $zz['fields']
+ * @return array $zz
  */
 function zz_conditions_record($zz, $zz_conditions, $id_value) {
 	global $zz_conf;
@@ -128,11 +128,12 @@ function zz_conditions_record($zz, $zz_conditions, $id_value) {
 	
 	// check if there are any bool-conditions 
 	if (!empty($zz_conditions['bool'])) {
+		zz_conditions_merge_conf($zz, $zz_conditions['bool'], $id_value);
 		foreach (array_keys($zz['fields']) as $no) {
 			zz_conditions_merge_field($zz['fields'][$no], $zz_conditions['bool'], $id_value);
 		}
 	}
-	return $zz['fields'];
+	return $zz;
 }
 
 /**
