@@ -437,9 +437,37 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 	$lastline = false;
 	$id_field = $zz_var['id']['field_name'];
 
+	// prepare content of subrecords ahead, because they have to be
+	// queried together from the database
+	$first_row = reset($table_defs);
+	$line = reset($lines);
+	// use first line only
+	// @todo note: this does not allow to make a subselect conditional
+	// because if it does not appear in the first line, it won't appear at all
+	// we would have to go through all lines to fix this, but so far it's not
+	// good to have conditional fields which do not display in list view anyways
+	foreach ($first_row as $fieldindex => $field) {
+		// Apply conditions
+		if (!empty($zz_conf['modules']['conditions'])) {
+			zz_conditions_merge_field($field, $zz_conditions['bool'], $line[$id_field]);
+		}
+		if ($field['type'] !== 'subtable') continue;
+		if (empty($field['subselect']['sql'])) continue;
+
+		$subselect = zz_list_init_subselects($field, $fieldindex, $id_field);
+		if ($subselect) $subselects[] = $subselect;
+		if (empty($line[$subselect['key_fieldname']])) {
+			$zz_error[] = array(
+				'msg_dev' => 'Wrong key_field_name. Please set $zz_sub["fields"]['
+				.'n]["key_field_name"] to something different: '.implode(', ', array_keys($line)));
+		}
+	}
+	
+	$lines = zz_list_get_subselects($lines, $subselects);
+	
 	// put lines in new array, rows.
-	//$rows[$z][0]['text'] = '';
-	//$rows[$z][0]['class'] = array();
+	// $rows[$z][0]['text'] = '';
+	// $rows[$z][0]['class'] = array();
 	foreach ($lines as $index => $line) {
 		$id = $line[$id_field];
 		if ($id == $zz_var['id']['value']) {
@@ -469,9 +497,7 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 			$rows[$z][-1]['class'][] = 'select_multiple_records';
 		}
 
-		$sub_id = '';
 		foreach ($table_defs[$def_index] as $fieldindex => $field) {
-			$subselect_index = $fieldindex;
 			if ($zz_conf['modules']['debug']) zz_debug("table_query foreach ".$fieldindex);
 			// conditions
 			if (!empty($zz_conf['modules']['conditions'])) {
@@ -510,19 +536,6 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 			// Sums
 			$list = zz_list_sum($field, $list, $rows[$z][$fieldindex]['value'], $rows[$z]['group']);
 
-			if ($field['type'] == 'subtable' AND !empty($field['subselect']['sql'])) {
-				list ($key_fieldname, $subselect) = zz_list_init_subselects(
-					$field, $line, $subselect_index, $fieldindex, $id_field
-				);
-				if ($subselect) $subselects[] = $subselect;
-				if (empty($line[$key_fieldname])) {
-					$zz_error[] = array(
-						'msg_dev' => 'Wrong key_field_name. Please set $zz_sub["fields"]['
-						.'n]["key_field_name"] to something different: '.implode(', ', array_keys($line)));
-				}
-				$sub_id = $line[$key_fieldname]; // get correct ID
-			}
-
 			// group: go through everything but don't show it in list
 			// @todo: check that it does not collide with append_next
 			if ($list['group']) {
@@ -536,7 +549,6 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 				zz_debug('table_query end '.$fieldindex.'-'.$field['type']);
 			}
 		}
-		if ($sub_id) $ids[$z] = $sub_id; // for subselects
 		$lastline = $line;
 
 		$rows[$z]['modes'] = zz_list_modes($id, $zz_var, $zz_conf_record);
@@ -554,7 +566,6 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 		}
 		$z++;
 	}
-	$rows = zz_list_get_subselects($rows, $subselects, $ids);
 	
 	// mark identical fields
 	$previous_row = array();
@@ -1078,6 +1089,10 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 	static $append_field;
 	static $append_string_first;
 	
+	if (!empty($field['export_no_html'])) {
+		$row['export_no_html'] = true;
+	}
+	
 	// check if one of these fields has a type_detail
 	$display_fields = array('hidden', 'write_once', 'display');
 	if (in_array($field['type'], $display_fields) AND !empty($field['type_detail']))
@@ -1163,7 +1178,8 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 			}
 			break;
 		case 'subtable':
-			// main stuff will come from 'subselect', otherwise this field has no content
+			$text = $row['value']; // field was already formatted etc. in subselect
+			$mark_search_string = false;
 			$link = false;
 			break;
 		case 'url':
@@ -1943,24 +1959,14 @@ function zz_list_th($field, $mode = 'html') {
  * init "subselects" in detailrecords
  *
  * @param array $field
- * @param array $line
- * @param int $no no. of field where content is from
  * @param int $fieldindex no. of field where content appears in list
  * @param string $table_id_field_name
  * @return array
  *	- string key_field_name
  *	- array subselect definition
  */
-function zz_list_init_subselects($field, $line, $no, $fieldindex, $table_id_field_name) {
-	static $init;
-	static $key_fieldname;
-	if (empty($init)) $init = array();
-
-	// fill array subselects, just in row 0, will always be the same!
-	if (!empty($init[$no])) {
-		return array($key_fieldname, array());
-	}
-
+function zz_list_init_subselects($field, $fieldindex, $table_id_field_name) {
+	$subselect = $field['subselect'];
 	$foreign_key_field = array();
 	$translation_key_field = array();
 	foreach ($field['fields'] as $subfield) {
@@ -1971,32 +1977,30 @@ function zz_list_init_subselects($field, $line, $no, $fieldindex, $table_id_fiel
 		}
 	}
 	// get field name of foreign key
-	$id_fieldname = $foreign_key_field['field_name'];
+	$subselect['id_fieldname'] = $foreign_key_field['field_name'];
 	if ($translation_key_field) {
-		$key_fieldname = $table_id_field_name;
-		$field['subselect']['translation_key'] = $translation_key_field['translation_key'];
+		$subselect['key_fieldname'] = $table_id_field_name;
+		$subselect['translation_key'] = $translation_key_field['translation_key'];
 	} else { // $foreign_key_field
 		// if main field name and foreign field name differ, use main ID
 		// for requests
 		if (!empty($foreign_key_field['key_field_name'])) {
 			// different fieldnames
-			$key_fieldname = $foreign_key_field['key_field_name'];
+			$subselect['key_fieldname'] = $foreign_key_field['key_field_name'];
 		} else {
-			$key_fieldname = $foreign_key_field['field_name'];
+			$subselect['key_fieldname'] = $foreign_key_field['field_name'];
 		}
 	}
 	// id_field = joined_table.field_name
-	if (empty($field['subselect']['table'])) {
-		$field['subselect']['table'] = $field['table'];
+	if (empty($subselect['table'])) {
+		$subselect['table'] = $field['table'];
 	}
-	$field['subselect']['id_table_and_fieldname'] = $field['subselect']['table'].'.'.$id_fieldname;
-	// just field_name
-	$field['subselect']['id_fieldname'] = $id_fieldname;
-	$field['subselect']['fieldindex'] = $fieldindex;
-	$field['subselect']['table_name'] = $field['table_name'];
-	$init[$no] = true;
+	$subselect['id_table_and_fieldname'] = $subselect['table'].'.'.$subselect['id_fieldname'];
+	$subselect['fieldindex'] = $fieldindex;
+	$subselect['table_name'] = $field['table_name'];
+	$subselect['field_name'] = $field['field_name'];
 
-	return array($key_fieldname, $field['subselect']);
+	return $subselect;
 }
 
 /**
@@ -2012,13 +2016,19 @@ function zz_list_init_subselects($field, $line, $no, $fieldindex, $table_id_fiel
  * @param array $field
  * @return array $rows
  */
-function zz_list_get_subselects($rows, $subselects, $ids) {
+function zz_list_get_subselects($lines, $subselects) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	
-	if (!$subselects) return zz_return($rows);
+	if (!$subselects) return zz_return($lines);
 	
 	foreach ($subselects as $subselect) {
+		// IDs
+		$ids = array();
+		foreach ($lines as $no => $line) {
+			$ids[$no] = $line[$subselect['key_fieldname']];
+		}
+	
 		// default values
 		if (!isset($subselect['prefix'])) $subselect['prefix'] = '<p>';
 		if (!isset($subselect['concat_rows'])) $subselect['concat_rows'] = "</p>\n<p>";
@@ -2030,19 +2040,17 @@ function zz_list_get_subselects($rows, $subselects, $ids) {
 		$subselect['sql'] = zz_edit_sql($subselect['sql'], 'WHERE', 
 			$subselect['id_table_and_fieldname'].' IN ('.implode(', ', $ids).')');
 		if (!empty($subselect['translation_key']))
-			$subselect['sql']  = zz_edit_sql($subselect['sql'], 'WHERE', 
+			$subselect['sql'] = zz_edit_sql($subselect['sql'], 'WHERE', 
 				'translationfield_id = '.$subselect['translation_key']);
 		// E_USER_WARNING might return message, we do not want to see this message
 		// but in the logs
-		$lines = zz_db_fetch($subselect['sql'], array($subselect['id_fieldname'], '_dummy_id_'), 'numeric', false, E_USER_WARNING);
-		if (!is_array($lines)) $lines = array();
+		$sub_lines = zz_db_fetch($subselect['sql'], array($subselect['id_fieldname'], '_dummy_id_'), 'numeric', false, E_USER_WARNING);
+		if (!is_array($sub_lines)) $sub_lines = array();
 
-		foreach ($ids as $z_row => $id) {
-			if (empty($lines[$id])) continue;
-			// go on if field is not visible, e. g. for grouping
-			if (empty($rows[$z_row][$subselect['fieldindex']])) continue;
-			$linetext = false;
-			foreach ($lines[$id] as $linefields) {
+		foreach ($ids as $no => $id) {
+			if (empty($sub_lines[$id])) continue;
+			$linetext = array();
+			foreach ($sub_lines[$id] as $linefields) {
 				unset($linefields[$subselect['id_fieldname']]); // ID field will not be shown
 				$fieldtext = false;
 				$index = 0;
@@ -2080,13 +2088,12 @@ function zz_list_get_subselects($rows, $subselects, $ids) {
 			if (!empty($subselect['list_format'])) {
 				$subselect_text = zz_list_format($subselect_text, $subselect['list_format']);
 			}
-			$rows[$z_row][$subselect['fieldindex']]['text'] .= zz_mark_search_string($subselect_text, $subselect['table_name'], $subselect);
-			if (!empty($subselect['export_no_html'])) {
-				$rows[$z_row][$subselect['fieldindex']]['export_no_html'] = true;
-			}
+			$lines[$no][$subselect['field_name']] = zz_mark_search_string(
+				$subselect_text, $subselect['table_name'], $subselect
+			);
 		}
 	}
-	return zz_return($rows);
+	return zz_return($lines);
 }
 
 /**
