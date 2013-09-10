@@ -1099,7 +1099,9 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 		$field['type'] = $field['type_detail'];
 	
 	// shortcuts, isset: value might be 0
-	if (!empty($field['field_name']) AND isset($line[$field['field_name']]))
+	if (!empty($field['table_name']) AND isset($line[$field['table_name']]))
+		$row['value'] = $line[$field['table_name']];
+	elseif (!empty($field['field_name']) AND isset($line[$field['field_name']]))
 		$row['value'] = $line[$field['field_name']];
 	else
 		$row['value'] = '';
@@ -1998,7 +2000,6 @@ function zz_list_init_subselects($field, $fieldindex, $table_id_field_name) {
 	$subselect['id_table_and_fieldname'] = $subselect['table'].'.'.$subselect['id_fieldname'];
 	$subselect['fieldindex'] = $fieldindex;
 	$subselect['table_name'] = $field['table_name'];
-	$subselect['field_name'] = $field['field_name'];
 
 	return $subselect;
 }
@@ -2088,7 +2089,7 @@ function zz_list_get_subselects($lines, $subselects) {
 			if (!empty($subselect['list_format'])) {
 				$subselect_text = zz_list_format($subselect_text, $subselect['list_format']);
 			}
-			$lines[$no][$subselect['field_name']] = zz_mark_search_string(
+			$lines[$no][$subselect['table_name']] = zz_mark_search_string(
 				$subselect_text, $subselect['table_name'], $subselect
 			);
 		}
