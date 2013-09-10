@@ -2586,7 +2586,9 @@ function zz_field_select_enum($field, $display, $record) {
 	if ($display !== 'form') {
 		$text = '';
 		foreach ($field['enum'] as $key => $set) {
-			if ($set !== $record[$field['field_name']]) continue;
+			// instead of !== because of numeric values which might be
+			// represented by a string
+			if ($set != $record[$field['field_name']]) continue;
 			$text .= zz_print_enum($field, $set, 'full', $key);
 		}
 		if (!empty($field['show_values_as_list'])) {
