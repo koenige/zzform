@@ -31,7 +31,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	$zz_tab[0]['db_name'] = $zz_conf['db_name'];
 	$zz_tab[0]['table'] = $zz['table'];
 	$zz_tab[0]['table_name'] = $zz['table'];
-	$zz_tab[0]['sql'] = $zz['sql'];
+	$zz_tab[0]['sql'] = isset($zz['sqlrecord']) ? $zz['sqlrecord'] : $zz['sql'];
 	$zz_tab[0]['sqlextra'] = !empty($zz['sqlextra']) ? $zz['sqlextra'] : array();
 	$zz_tab[0]['extra_action'] = !empty($zz['extra_action']) ? $zz['extra_action'] : array();
 	if (!empty($zz['set_redirect'])) {
@@ -1066,7 +1066,7 @@ function zz_log_validation_errors($my_rec, $validation) {
 /**
  * Query single record
  *
- * @param string $sql $zz['sql']
+ * @param string $sql $zz_tab[tab]['sql']
  * @param string $table $zz['table']
  * @param array $id	$zz_var['id']
  * @param array $sqlextra $zz['sqlextra']

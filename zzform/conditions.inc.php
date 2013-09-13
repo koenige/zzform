@@ -302,7 +302,7 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 			if ($mode === 'list_only') break;
 			if (empty($zz_var['id']['value'])) break;
 
-			$sql = $zz['sql'];
+			$sql = isset($zz['sqlrecord']) ? $zz['sqlrecord'] : $zz['sql'];
 			if (!empty($condition['where']))
 				$sql = zz_edit_sql($sql, 'WHERE', $condition['where']);
 			if (!empty($condition['having']))
@@ -345,7 +345,8 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 			} elseif (!empty($zz_var['where'][$zz['table']][$condition['field_name']])) {
 				$value = $zz_var['where'][$zz['table']][$condition['field_name']];
 			} else {
-				$sql = zz_edit_sql($zz['sql'], 'WHERE', sprintf(
+				$sql = isset($zz['sqlrecord']) ? $zz['sqlrecord'] : $zz['sql'];
+				$sql = zz_edit_sql($sql, 'WHERE', sprintf(
 					'%s.%s = %d', $zz['table'], $zz_var['id']['field_name'], $zz_var['id']['value']
 				));
 				$line = zz_db_fetch($sql, '', '', 'value/1 ['.$index.']');
