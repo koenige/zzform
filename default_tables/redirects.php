@@ -28,10 +28,12 @@ $zz['fields'][1]['type'] = 'id';
 $zz['fields'][2]['title'] = 'Old URL';
 $zz['fields'][2]['field_name'] = 'old_url';
 $zz['fields'][2]['type'] = 'text';
+$zz['fields'][2]['class'] = 'block480a';
 
 $zz['fields'][3]['title'] = 'New URL';
 $zz['fields'][3]['field_name'] = 'new_url';
 $zz['fields'][3]['type'] = 'text';
+$zz['fields'][3]['class'] = 'block480';
 
 $zz['fields'][4]['field_name'] = 'code';
 $zz['fields'][4]['type'] = 'select';
