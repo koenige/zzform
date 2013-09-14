@@ -2348,8 +2348,10 @@ function zz_list_table($list, $rows, $head) {
 		}
 		if (!empty($row['modes']) OR !empty($row['details'])) {
 			$output .= '<td class="editbutton">';
-			if (!empty($row['modes']))
+			if (!empty($row['modes'])) {
 				$output .= $row['modes'];
+				if (!empty($row['details'])) $output .= '&nbsp;| ';
+			}
 			if (!empty($row['details']))
 				$output .= $row['details'];
 			$output .= '</td>';
