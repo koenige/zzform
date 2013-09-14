@@ -358,7 +358,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
  * @param array $zz_ab
  * @param string $mode
  * @param array $zz_var 
- *		function calls itself and uses 'horizontal_table_head', 'class_add'
+ *		function calls itself and uses 'horizontal_table_head'
  *		internally, therefore &$zz_var
  * @param array $zz_conf_record
  * @param int $tab (optional, default = 0 = main table)
@@ -511,15 +511,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			//	Subtable
 			$sub_tab = $field['subtable'];
 			if (empty($field['title_button'])) $field['title_button'] = strip_tags($field['title']); 
-			if (!empty($field['class_add'])) {
-				$has_subrecords = false;
-				foreach (array_keys($zz_tab[$tab]) as $rec) {
-					if (!is_numeric($rec)) continue;
-					if (!empty($zz_tab[$sub_tab][$rec]['id']['value'])) $has_subrecords = true;
-				}
-				if (!$has_subrecords)
-					$out['tr']['attr'][] = $field['class_add'];
-			}
 			$out['th']['attr'][] = 'sub-add';
 			if (empty($field['tick_to_save'])) {
 				// no formatting as a subtable if tick_to_save is used
@@ -570,9 +561,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 						&& !$dont_delete_records)
 						$show_remove = true;
 				}
-				$zz_var['class_add'] = (!empty($field['class_add']) AND
-					empty($zz_tab[$sub_tab][$sub_rec]['id']['value'])) 
-					? $field['class_add'] : '';
 
 				// Mode
 				if (!empty($field['tick_to_save'])) $show_tick = true;
@@ -607,9 +595,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				
 				// HTML output depending on form display
 				if ($field['form_display'] !== 'horizontal' OR $sub_rec == $firstsubtable_no) {
-					$out['td']['content'] .= '<table class="'.$field['form_display']
-						.($field['form_display'] !== 'horizontal' ? ' '.$zz_var['class_add'] : '')
-						.'">'; // show this for vertical display and for first horizontal record
+					// show this for vertical display and for first horizontal record
+					$out['td']['content'] .= '<table class="'.$field['form_display'].'">';
 					$table_open = true;
 				}
 				if ($field['form_display'] !== 'horizontal' OR $sub_rec === count($subtables)-1)
@@ -1017,7 +1004,7 @@ function zz_record_field_focus($zz_tab = false, $tab = 0, $rec = 0) {
  * HTML output of table rows for form
  *
  * @param array $matrix matrix of rows
- * @param array $zz_var 'class_add', 'horizontal_table_head'
+ * @param array $zz_var 'horizontal_table_head'
  * @param string $formdisplay vertical | horizontal
  * @param string $extra_lastcol (optional)
  * @return string HTML output
@@ -1047,7 +1034,7 @@ function zz_output_field_rows($matrix, &$zz_var, $formdisplay, $extra_lastcol) {
 		if (!empty($matrix) AND $matrix[0]['separator_before']) {
 			$output .= zz_show_separator($matrix[0]['separator_before'], 1, count($matrix));
 		}
-		if (!$zz_var['class_add'] AND !$zz_var['horizontal_table_head']) { 
+		if (!$zz_var['horizontal_table_head']) { 
 			// just first detail record with values: show head
 			$output .= '<tr>'."\n";
 			foreach ($matrix as $row) { 
@@ -1058,7 +1045,7 @@ function zz_output_field_rows($matrix, &$zz_var, $formdisplay, $extra_lastcol) {
 			$output .= '</tr>'."\n";
 			$zz_var['horizontal_table_head'] = true;
 		}
-		$output .= '<tr'.($zz_var['class_add'] ? ' class="'.$zz_var['class_add'].'"' : '').'>';
+		$output .= '<tr>';
 		foreach ($matrix as $row) {
 			$output .= '<td'.zz_show_class(array_merge($row['td']['attr'], $row['tr']['attr']))
 				.'>'.$row['td']['content'].'</td>'."\n";
