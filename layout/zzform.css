@@ -6,7 +6,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2012 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2013 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -28,11 +28,72 @@ div.text #zzform, #zzform div.text
 #zzform td h1, #zzform td h2, #zzform td h3, #zzform td h4, #zzform td h5,
 	#zzform td h6	{ margin: 0 0 .5em; }
 #zzform .hidden 	{ display: none; }
+@media screen and (max-width: 640px) {
+	#zzform .data .hidden640
+						{ display: none; }
+	#zzform .data .block640, #zzform .data .block480a
+						{ display: block; }
+	#zzform .data thead th.block640a
+						{ display: inline; border: none; }
+	#zzform .data thead th.block640a:after
+						{ content: " / " }
+}
+@media screen and (max-width: 480px) {
+	#zzform .data .hidden480
+						{ display: none; }
+	#zzform .data .block480, #zzform .data .block480a
+						{ display: block; }
+	#zzform .data thead th.block480a
+						{ display: inline; border: none; }
+	#zzform .data thead th.block480a:after
+						{ content: " / " }
+}
+@media screen and (max-width: 320px) {
+	#zzform .data .hidden320
+						{ display: none; }
+	#zzform .data .block320, #zzform .data .block320a
+						{ display: block; }
+	#zzform .data thead th.block320a
+						{ display: inline; border: none; }
+	#zzform .data thead th.block320a:after
+						{ content: " / " }
+}	
 /* get rid of wrong ligatures in Firefox */
 #zzform input, #zzform textarea 
 					{ text-rendering:optimizeSpeed; } 
 #zzform textarea	{ font-family: monospace; }
-
+@media screen and (max-width: 640px) {
+	#zzform #record textarea, #zzform #record select, #zzform #record input
+					{ max-width: 520px; }
+}
+@media screen and (max-width: 600px) {
+	#zzform #record textarea, #zzform #record select, #zzform #record input
+					{ max-width: 480px; }
+}
+@media screen and (max-width: 560px) {
+	#zzform #record textarea, #zzform #record select, #zzform #record input
+					{ max-width: 440px; }
+}
+@media screen and (max-width: 520px) {
+	#zzform #record textarea, #zzform #record select, #zzform #record input
+					{ max-width: 400px; }
+}
+@media screen and (max-width: 480px) {
+	#zzform #record textarea, #zzform #record select, #zzform #record input
+					{ max-width: 360px; }
+}
+@media screen and (max-width: 440px) {
+	#zzform #record textarea, #zzform #record select, #zzform #record input
+					{ max-width: 320px; }
+}
+@media screen and (max-width: 400px) {
+	#zzform #record textarea, #zzform #record select, #zzform #record input
+					{ max-width: 280px; }
+}
+@media screen and (max-width: 360px) {
+	#zzform #record textarea, #zzform #record select, #zzform #record input
+					{ max-width: 240px; }
+}
 
 /* both record and list view */
 #zzform td.number, #zzform #record .subtable td.number 
@@ -77,6 +138,24 @@ div.text #zzform, #zzform div.text
 #zzform form .hidden_in_form
 					{ display: none; }
 
+@media screen and (max-width: 640px) {
+	#zzform p.desc, #zzform .explanation 
+					{ font-style: italic; }
+	#zzform #record th, #zzform #record td
+					{ display: block; }
+	#zzform #record .horizontal th
+					{ display: none; }
+	#zzform #record th.hidden, #zzform #record td.hidden,
+	#zzform #record .horizontal th.hidden, #zzform #record .horizontal td.hidden
+					{ display: none; }
+	#zzform #record th
+					{ font-weight: bold; padding-bottom: 0; }
+	#zzform #record td
+					{ padding-top: 0; }
+	#zzform #record tfoot th
+					{ display: none; }
+}
+
 /* options */
 #zzform optgroup	{ font-style: normal; font-weight: bold; }
 /* hierarchical options */
@@ -87,10 +166,21 @@ div.text #zzform, #zzform div.text
 #zzform option.level4 { padding-left: 8em; }
 #zzform option.level5 { padding-left: 10em; }
 #zzform option.level6 { padding-left: 12em; }
+@media screen and (max-width: 640px) {
+	#zzform option.level1 { padding-left: 1.5em; }
+	#zzform option.level2 { padding-left: 3em; }
+	#zzform option.level3 { padding-left: 4.5em; }
+	#zzform option.level4 { padding-left: 6em; }
+	#zzform option.level5 { padding-left: 7.5em; }
+	#zzform option.level6 { padding-left: 9em; }
+}
 
 #zzform input.sub-add { float: left; clear: left; margin-top: 0; }
 #zzform input.sub-remove { float: left; margin: 0 0 .5em; }
 #zzform .option th	{ font-weight: normal; text-align: right; }
+@media screen and (max-width: 480px) {
+	#zzform .option th	{ text-align: left; }
+}
 #zzform .zz_radio_list
 					{ list-style: none; padding: 0; margin: 0; }
 #zzform .zz_radio_list li
@@ -129,6 +219,12 @@ body #zzform .separator hr
 #zzform #record tfoot td
 					{ font-weight: bold; }
 
+@media screen and (max-width: 480px) {
+	#zzform #record .subtable th
+						{ width: auto; padding-bottom: 0; }
+	#zzform #record .subtable td
+						{ padding-top: 0; }
+}
 
 /* filter */
 #zzform .zzfilter	{ margin: 1em 0 1.5em; line-height: 1; overflow: hidden; }
@@ -208,7 +304,28 @@ body #zzform .separator hr
 					{ padding-left: 22.5em; }
 #zzform table td.level10, #zzform #record table .detailrecord .level10 td
 					{ padding-left: 25em; }
-
+@media screen and (max-width: 640px) {
+	#zzform table td.level1
+						{ padding-left: 1.5em; }
+	#zzform table td.level2, #zzform #record table .detailrecord tr.level2 td
+						{ padding-left: 3em; }
+	#zzform table td.level3, #zzform #record table .detailrecord .level3 td
+						{ padding-left: 4.5em; }
+	#zzform table td.level4, #zzform #record table .detailrecord .level4 td
+						{ padding-left: 6em; }
+	#zzform table td.level5, #zzform #record table .detailrecord .level5 td
+						{ padding-left: 7.5em; }
+	#zzform table td.level6, #zzform #record table .detailrecord .level6 td
+						{ padding-left: 9em; }
+	#zzform table td.level7, #zzform #record table .detailrecord .level7 td
+						{ padding-left: 10.5em; }
+	#zzform table td.level8, #zzform #record table .detailrecord .level8 td
+						{ padding-left: 12em; }
+	#zzform table td.level9, #zzform #record table .detailrecord .level9 td
+						{ padding-left: 13.5em; }
+	#zzform table td.level10, #zzform #record table .detailrecord .level10 td
+						{ padding-left: 15em; }
+}
 
 /* list view (ul) */
 #zzform ul.data		{ padding: 0; margin: 1em 0; }
