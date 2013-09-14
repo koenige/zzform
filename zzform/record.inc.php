@@ -407,7 +407,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 		if (!empty($field['hide_in_form'])) continue;
 		if (isset($field['multiple_edit']) AND !$field['multiple_edit']
 			AND $multiple) continue;
-		if (!empty($field['hide_in_form_add']) AND empty($my_rec['id']['value'])) {
+		if ($field['type'] === 'timestamp') AND empty($my_rec['id']['value'])) {
+			// don't show timestamp in add mode
 			continue;
 		}
 		if ($field['type'] === 'foreign_key' 
