@@ -2269,12 +2269,8 @@ function zz_list_table($list, $rows, $head) {
 		$output .= '<th'.$col['class'].'>'.$col['th'].'</th>';
 		$columns++;
 	}
-	if ($list['modes']) {
+	if ($list['modes'] OR $list['details']) {
 		$output .= ' <th class="editbutton">'.zz_text('action').'</th>';
-		$columns++;
-	}
-	if ($list['details']) {
-		$output .= ' <th class="editbutton">'.zz_text('detail').'</th>';
 		$columns++;
 	}
 	$output .= '</tr></thead>'."\n";
@@ -2350,10 +2346,14 @@ function zz_list_table($list, $rows, $head) {
 					.($field['class'] ? ' class="'.implode(' ', $field['class']).'"' : '')
 					.'>'.$field['text'].'</td>';
 		}
-		if (!empty($row['modes']))
-			$output .= '<td class="editbutton">'.$row['modes'].'</td>';
-		if (!empty($row['details']))
-			$output .= '<td class="editbutton">'.$row['details'].'</td>';
+		if (!empty($row['modes']) OR !empty($row['details'])) {
+			$output .= '<td class="editbutton">';
+			if (!empty($row['modes']))
+				$output .= $row['modes'];
+			if (!empty($row['details']))
+				$output .= $row['details'];
+			$output .= '</td>';
+		}
 		$output .= '</tr>'."\n";
 	}
 	if ($list['tfoot'] AND $rowgroup) {
