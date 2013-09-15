@@ -1063,7 +1063,7 @@ function zz_list_modes($id, $zz_var, $zz_conf_record) {
 	if ($zz_conf_record['delete']) {
 		$modes[] = sprintf($link, $base_url, 'delete', 'id', $suffix, zz_text('delete'));
 	}
-	if ($modes) return implode('&nbsp;| ', $modes);
+	if ($modes) return implode('&nbsp;&middot; ', $modes);
 	else return false;
 }
 
@@ -2350,7 +2350,7 @@ function zz_list_table($list, $rows, $head) {
 			$output .= '<td class="editbutton">';
 			if (!empty($row['modes'])) {
 				$output .= $row['modes'];
-				if (!empty($row['details'])) $output .= '&nbsp;| ';
+				if (!empty($row['details'])) $output .= '&nbsp;<span class="br">||</span> ';
 			}
 			if (!empty($row['details']))
 				$output .= $row['details'];

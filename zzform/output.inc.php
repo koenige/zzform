@@ -195,7 +195,7 @@ function zz_show_more_actions($conf, $id, $line = false) {
 		}
 		$act[] = $output;
 	}
-	$output = implode('&nbsp;| ', $act);
+	$output = implode('&nbsp;&middot; ', $act);
 	return $output;
 }
 
