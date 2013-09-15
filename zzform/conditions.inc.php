@@ -74,32 +74,12 @@ function zz_conditions_set($zz) {
 				}
 			}
 			// check $zz['fields'] individually
-			foreach ($zz['fields'] as $no => $field) {
-				if ($field['type'] === 'subtable') {
-					foreach ($zz['fields'][$no]['fields'] as $detail_no => $detail_field) {
-						if (!isset($detail_field[$cn])) continue;
-						if (!isset($detail_field[$cn][$sc['shortcut']])) continue;
-						$zz['fields'][$no]['fields'][$detail_no][$cn][$new_index] = $detail_field[$cn][$sc['shortcut']];
-						unset($zz['fields'][$no]['fields'][$detail_no][$cn][$sc['shortcut']]);
-						if (!$sc['depending_on_fields']) {
-							$sc['has_condition'] = true;
-						} else {
-							$zz['conditions'][$new_index]['scope'] = $sc['shortcut'];
-							$zz['conditions'][$new_index]['field_name'] = $detail_field['field_name'];
-							$new_index++;
-						}
+			foreach (array_keys($zz['fields']) as $no) {
+				$zz['conditions'] += zz_conditions_set_field($zz['fields'][$no], $new_index, $sc, $cn);
+				if ($zz['fields'][$no]['type'] === 'subtable') {
+					foreach (array_keys($zz['fields'][$no]['fields']) as $detail_no) {
+						$zz['conditions'] += zz_conditions_set_field($zz['fields'][$no]['fields'][$detail_no], $new_index, $sc, $cn);
 					}
-				}
-				if (!isset($field[$cn])) continue;
-				if (!isset($field[$cn][$sc['shortcut']])) continue;
-				$zz['fields'][$no][$cn][$new_index] = $field[$cn][$sc['shortcut']];
-				unset($zz['fields'][$no][$cn][$sc['shortcut']]);
-				if (!$sc['depending_on_fields']) {
-					$sc['has_condition'] = true;
-				} else {
-					$zz['conditions'][$new_index]['scope'] = $sc['shortcut'];
-					$zz['conditions'][$new_index]['field_name'] = $field['field_name'];
-					$new_index++;
 				}
 			}
 		}
@@ -109,6 +89,31 @@ function zz_conditions_set($zz) {
 		}
 	}
 	return $zz;
+}
+
+/**
+ * set conditions for 'field' array (main and detail records)
+ *
+ * @param array $field (will be changed)
+ * @param int $new_index (will be changed)
+ * @param array $sc (will be changed)
+ * @param string $cn
+ * @return array $conditions
+ */
+function zz_conditions_set_field(&$field, &$new_index, &$sc, $cn) {
+	$conditions = array();
+	if (!isset($field[$cn])) return array();
+	if (!isset($field[$cn][$sc['shortcut']])) return array();
+	$field[$cn][$new_index] = $field[$cn][$sc['shortcut']];
+	unset($field[$cn][$sc['shortcut']]);
+	if (!$sc['depending_on_fields']) {
+		$sc['has_condition'] = true;
+		return array();
+	}
+	$conditions[$new_index]['scope'] = $sc['shortcut'];
+	$conditions[$new_index]['field_name'] = $field['field_name'];
+	$new_index++;
+	return $conditions;
 }
 
 /**
