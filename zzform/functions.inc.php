@@ -723,10 +723,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false)
 
 	foreach (array_keys($fields) as $no) {
 		if (!empty($fields[$no]['if'])) {
-			if (!$multiple_times) {
-				// we don't need these anymore
-				unset($fields[$no]['if']);
-			} elseif ($multiple_times == 1) {
+			if ($multiple_times == 1) {
 				 // if there are only conditions, go on
 				if (count($fields[$no]) == 1) continue;
 			}
