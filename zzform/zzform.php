@@ -290,6 +290,22 @@ function zzform($zz = array()) {
 		// @todo keep track of current values for ID separately
 		$zz_tab[0][0]['id'] = &$zz_var['id'];
 
+		// set conditions for detail records
+		// id is available just now
+		foreach (array_keys($zz_tab) as $tab) {
+			if (!$tab) continue;
+			foreach (array_keys($zz_tab[$tab]) as $rec) {
+				if (!is_numeric($rec)) continue;
+				foreach (array_keys($zz_tab[$tab][$rec]['fields']) as $sub_no) {
+					zz_conditions_merge_field(
+						$zz_tab[$tab][$rec]['fields'][$sub_no],
+						$zz_conditions['bool'],
+						$zz_tab[$tab][$rec]['id']['value'], 'detail'
+					);
+				}
+			}
+		}
+
 	//	Start action
 
 		$validation = true;
