@@ -238,16 +238,16 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 	$password_fields = array();
 	foreach ($field['fields'] AS $subfield) {
 		if (!isset($subfield['type'])) continue;
-		if ($subfield['type'] == 'password') {
+		if ($subfield['type'] === 'password') {
 			$password_fields[] = $subfield['field_name'];
 		}
-		if ($subfield['type'] == 'password_change') {
+		if ($subfield['type'] === 'password_change') {
 			$password_fields[] = $subfield['field_name'];
 		}
-		if ($subfield['type'] == 'id') {
+		if ($subfield['type'] === 'id') {
 			$my_tab['id_field_name'] = $subfield['field_name'];
 		}
-		if ($subfield['type'] != 'detail_key') continue;
+		if ($subfield['type'] !== 'detail_key') continue;
 		if (empty($main_tab[0]['fields'][$subfield['detail_key']])) continue;
 		$detail_key_index = isset($subfield['detail_key_index']) 
 			? $subfield['detail_key_index'] : 0;
@@ -273,10 +273,10 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 		foreach ($_POST['zz_subtable_deleted'][$my_tab['table_name']] as $deleted)
 			$my_tab['subtable_deleted'][] = $deleted[$my_tab['id_field_name']];
 	$my_tab['subtable_add'] = (!empty($_POST['zz_subtables']['add'][$tab]) 
-		AND $my_tab['access'] != 'show')
+		AND $my_tab['access'] !== 'show')
 		? $_POST['zz_subtables']['add'][$tab] : false;
 	$my_tab['subtable_remove'] = (!empty($_POST['zz_subtables']['remove'][$tab]) 
-		AND $my_tab['access'] != 'show')
+		AND $my_tab['access'] !== 'show')
 		? $_POST['zz_subtables']['remove'][$tab] : array();
 
 	// tick for save
@@ -325,18 +325,18 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 	$rec_tpl['action'] = false;
 
 	// get state
-	if ($mode == 'add' OR $zz_var['action'] == 'insert')
+	if ($mode === 'add' OR $zz_var['action'] === 'insert')
 		$state = 'add';
-	elseif ($mode == 'edit' OR $zz_var['action'] == 'update')
+	elseif ($mode === 'edit' OR $zz_var['action'] === 'update')
 		$state = 'edit';
-	elseif ($mode == 'delete' OR $zz_var['action'] == 'delete')
+	elseif ($mode === 'delete' OR $zz_var['action'] === 'delete')
 		$state = 'delete';
 	else
 		$state = 'show';
 
 	// records may only be removed in state 'edit' or 'add'
 	// but not with access = show
-	if (($state == 'add' OR $state == 'edit') AND $rec_tpl['access'] != 'show') {
+	if (($state === 'add' OR $state === 'edit') AND $rec_tpl['access'] !== 'show') {
 		// remove deleted subtables
 		foreach (array_keys($my_tab['subtable_remove']) as $rec) {
 			if (empty($my_tab['subtable_remove'][$rec])) continue;
@@ -364,7 +364,7 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 	if (!empty($zz_error['error'])) return $my_tab;
 	// get detail records for source_id
 	$source_values = array();
-	if ($mode == 'add' AND !empty($main_tab[0]['id']['source_value'])) {
+	if ($mode === 'add' AND !empty($main_tab[0]['id']['source_value'])) {
 		$my_tab['POST'] = zz_query_subrecord(
 			$my_tab, $main_tab['table'], $main_tab[0]['id']['source_value'],
 			$rec_tpl['id']['field_name'], $my_tab['subtable_deleted']
@@ -374,10 +374,10 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 		foreach ($my_tab['POST'] as $post_id => &$post_field) {
 			foreach ($rec_tpl['fields'] AS $my_field) {
 				if (empty($my_field['type'])) continue;
-				if ($my_field['type'] == 'id') {
+				if ($my_field['type'] === 'id') {
 					$source_values[$post_id] = $post_field[$my_field['field_name']];
 					$post_field[$my_field['field_name']] = '';
-				} elseif ($my_field['type'] == 'foreign_key') {
+				} elseif ($my_field['type'] === 'foreign_key') {
 					$post_field[$my_field['field_name']] = '';
 				}
 			}
@@ -431,17 +431,17 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 				continue;
 			}
 		} elseif (in_array($state, array('add', 'edit')) 
-			AND $rec_tpl['access'] != 'show' AND $values 
+			AND $rec_tpl['access'] !== 'show' AND $values 
 			AND false !== $my_key = zz_values_get_equal_key($values, $my_tab['POST'][$rec])) {
 			$key = $my_key;
 		} elseif (in_array($state, array('add', 'edit')) 
-			AND $rec_tpl['access'] != 'show'
+			AND $rec_tpl['access'] !== 'show'
 			AND $start_new_recs >= 0) {
 			// this is a new record, append it
 			$key = $start_new_recs;
 			$my_tab['existing'][$key] = array(); // no existing record exists
 			// get source_value key
-			if ($mode == 'add' AND !empty($main_tab[0]['id']['source_value'])) {
+			if ($mode === 'add' AND !empty($main_tab[0]['id']['source_value'])) {
 				$my_tab['source_values'][$key] = $source_values[$rec];
 			}
 			$start_new_recs++;
@@ -480,7 +480,7 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 
 	// first check for review or access, 
 	// first if must be here because access might override mode here!
-	if (in_array($state, array('add', 'edit')) AND $rec_tpl['access'] != 'show') {
+	if (in_array($state, array('add', 'edit')) AND $rec_tpl['access'] !== 'show') {
 		// check if user wants one record more (subtable_remove was already
 		// checked beforehands)
 		if ($my_tab['subtable_add']) {
@@ -832,7 +832,7 @@ function zz_set_values($my_tab, $rec, $zz_var) {
 	$table = $my_tab['table_name'];
 	foreach ($my_tab[$rec]['fields'] AS $f => &$field) {
 		if (!empty($my_values[$f])) {
-			if ($field['type'] != 'hidden')
+			if ($field['type'] !== 'hidden')
 				$field['type_detail'] = $field['type'];
 			$field['type'] = 'hidden';
 			$field['value'] = $my_values[$f];
@@ -924,18 +924,18 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
 	if (!isset($my_tab['sqlextra'])) $my_tab['sqlextra'] = array();
 
 	// in case, record was deleted, query record is not necessary
-	if ($my_rec['action'] == 'delete') {
+	if ($my_rec['action'] === 'delete') {
 		unset($my_rec);
 		return zz_return($my_tab);
 	}
 	// in case validation was passed or access is 'show'
 	// everything's okay.
-	if ($validation OR $my_rec['access'] == 'show') {
+	if ($validation OR $my_rec['access'] === 'show') {
 		// initialize 'record'
 		$my_rec['record'] = false;
 		// check whether record already exists (this is of course impossible 
 		// for adding a record!)
-		if ($mode != 'add' OR $my_rec['action']) {
+		if ($mode !== 'add' OR $my_rec['action']) {
 			if ($my_rec['id']['value']) {
 				$my_rec['record'] = zz_query_single_record(
 					$my_tab['sql'], $table, $my_rec['id'], $my_tab['sqlextra']
@@ -946,7 +946,7 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
 				);
 				// @todo: think about sqlextra
 			}
-		} elseif ($mode == 'add' AND !empty($my_rec['id']['source_value'])) {
+		} elseif ($mode === 'add' AND !empty($my_rec['id']['source_value'])) {
 			if (!empty($my_rec['POST'])) {
 				// no need to requery, we already did query a fresh record
 				// as a template
@@ -961,7 +961,7 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
 			foreach ($my_rec['fields'] as $my_field) {
 				if (empty($my_field['type'])) continue;
 				// identifier must be created from scratch
-				if ($my_field['type'] == 'identifier')
+				if ($my_field['type'] === 'identifier')
 					$my_rec['record'][$my_field['field_name']] = false;
 			}
 		}
@@ -1010,13 +1010,13 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
  */
 function zz_log_validation_errors($my_rec, $validation) {
 	global $zz_error;
-	if ($my_rec['action'] == 'delete') return false;
+	if ($my_rec['action'] === 'delete') return false;
 	if ($validation) return false;
-	if ($my_rec['access'] == 'show') return false;
+	if ($my_rec['access'] === 'show') return false;
 	
 	foreach ($my_rec['fields'] as $no => $field) {
-		if ($field['type'] == 'password_change') continue;
-		if ($field['type'] == 'subtable') continue;
+		if ($field['type'] === 'password_change') continue;
+		if ($field['type'] === 'subtable') continue;
 		if (!empty($field['mark_reselect'])) {
 			// oh, it's a reselect, add some validation message
 			$zz_error['validation']['reselect'][] = sprintf(
@@ -1134,7 +1134,7 @@ function zz_query_subrecord($my_tab, $main_table, $main_id_value,
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	
 	if ($my_tab['sql_not_unique']) {
-		if (substr(trim($my_tab['sql_not_unique']), 0, 9) == 'LEFT JOIN') {
+		if (substr(trim($my_tab['sql_not_unique']), 0, 9) === 'LEFT JOIN') {
 			$sql = zz_edit_sql(
 				$my_tab['sql'], 'LEFT JOIN', $my_tab['sql_not_unique']
 			);
