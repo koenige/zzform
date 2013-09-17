@@ -16,6 +16,7 @@
  *	zz_conditions_record_check()	set conditions for record
  *	zz_conditions_record_fields()	write new fields to $zz['fields'] based on conditions
  *		zz_replace_conditional_values()
+ *	zz_conditions_subrecord()
  *	zz_conditions_merge()			merge conditional values with normal values ($zz['fields'], $zz_conf)
  *		zz_conditions_merge_field()		apply to field
  *		zz_conditions_merge_conf()		apply to config
@@ -76,7 +77,7 @@ function zz_conditions_set($zz) {
 			// check $zz['fields'] individually
 			foreach (array_keys($zz['fields']) as $no) {
 				$zz['conditions'] += zz_conditions_set_field($zz['fields'][$no], $new_index, $sc, $cn);
-				if ($zz['fields'][$no]['type'] === 'subtable') {
+				if (!empty($zz['fields'][$no]['type']) AND $zz['fields'][$no]['type'] === 'subtable') {
 					foreach (array_keys($zz['fields'][$no]['fields']) as $detail_no) {
 						$zz['conditions'] += zz_conditions_set_field($zz['fields'][$no]['fields'][$detail_no], $new_index, $sc, $cn);
 					}
@@ -519,6 +520,31 @@ function zz_replace_conditional_values(&$item, $key, $records) {
 				$item = preg_replace('~%'.$field_name.'%~', $record, $item);
 		}
 	}
+}
+
+/**
+ * merges conditions for detail records into $zz_tab
+ *
+ * @param array $zz_tab
+ * @param array $zz_conditions
+ * @return array $zz_tab
+ */
+function zz_conditions_subrecord($zz_tab, $zz_conditions) {
+	if (empty($zz_conditions['bool'])) return $zz_tab;
+	foreach (array_keys($zz_tab) as $tab) {
+		if (!$tab) continue;
+		foreach (array_keys($zz_tab[$tab]) as $rec) {
+			if (!is_numeric($rec)) continue;
+			foreach (array_keys($zz_tab[$tab][$rec]['fields']) as $sub_no) {
+				zz_conditions_merge_field(
+					$zz_tab[$tab][$rec]['fields'][$sub_no],
+					$zz_conditions['bool'],
+					$zz_tab[$tab][$rec]['id']['value'], 'detail'
+				);
+			}
+		}
+	}
+	return $zz_tab;
 }
 
 /**

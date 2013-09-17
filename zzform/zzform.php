@@ -292,18 +292,8 @@ function zzform($zz = array()) {
 
 		// set conditions for detail records
 		// id is available just now
-		foreach (array_keys($zz_tab) as $tab) {
-			if (!$tab) continue;
-			foreach (array_keys($zz_tab[$tab]) as $rec) {
-				if (!is_numeric($rec)) continue;
-				foreach (array_keys($zz_tab[$tab][$rec]['fields']) as $sub_no) {
-					zz_conditions_merge_field(
-						$zz_tab[$tab][$rec]['fields'][$sub_no],
-						$zz_conditions['bool'],
-						$zz_tab[$tab][$rec]['id']['value'], 'detail'
-					);
-				}
-			}
+		if (!empty($zz_conf['modules']['conditions'])) {
+			$zz_tab = zz_conditions_subrecord($zz_tab, $zz_conditions);
 		}
 
 	//	Start action
