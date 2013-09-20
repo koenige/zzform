@@ -1108,7 +1108,7 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec) {
 				'level' => E_USER_NOTICE
 			);
 		}
-		zz_upload_error_with_file($tmp_filename, $image, 'convert');
+		zz_upload_error_with_file($filename, $image, 'convert');
 		zz_unlink_cleanup($tmp_filename);
 	}
 	$zz_conf['int']['no_image_action'] = false;
