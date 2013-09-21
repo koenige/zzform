@@ -324,7 +324,7 @@ function zz_sql_prefix_change(&$item, $key) {
 			'upload_sql', 'options_sql', 'source_path_sql', 'table',
 			'id_field_name', 'display_field', 'key_field_name', 'order',
 			'foreign_key_field_name', 'sqlcount', 'sqlextra', 'geocode_sql',
-			'min_records_sql', 'max_records_sql', 'sqlrecord', 'sql_join'
+			'min_records_sql', 'max_records_sql', 'sqlrecord'
 		);
 		break;
 	case 'zz_conf':
@@ -332,7 +332,7 @@ function zz_sql_prefix_change(&$item, $key) {
 		// $zz_conf['filter'][n]['where']
 		$sql_fields = array(
 			'sql', 'where', 'logging_table', 'relations_table',
-			'text_table', 'translations_table'
+			'text_table', 'translations_table', 'sql_join'
 		);
 		break;
 	}
