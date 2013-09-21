@@ -34,6 +34,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	$zz_tab[0]['sql'] = isset($zz['sqlrecord']) ? $zz['sqlrecord'] : $zz['sql'];
 	$zz_tab[0]['sqlextra'] = !empty($zz['sqlextra']) ? $zz['sqlextra'] : array();
 	$zz_tab[0]['extra_action'] = !empty($zz['extra_action']) ? $zz['extra_action'] : array();
+	$zz_tab[0]['folder'] = !empty($zz['folder']) ? $zz['folder'] : array();
 	if (!empty($zz['set_redirect'])) {
 		// update/insert redirects after_delete and after_update
 		$zz_tab[0]['set_redirect'] = $zz['set_redirect'];

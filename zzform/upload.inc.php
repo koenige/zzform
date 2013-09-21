@@ -1681,7 +1681,7 @@ function zz_upload_action($zz_tab) {
 			if ($action === 'update' AND !empty($zz_tab[$tab]['existing'][$rec])) {
 				$path = zz_makepath($val['path'], $zz_tab, 'new', 'file', $tab, $rec);
 				$old_path = zz_makepath($val['path'], $zz_tab, 'old', 'file', $tab, $rec);
-				if (!empty($zz_tab[0]['folder']))
+				if ($zz_tab[0]['folder']) {
 					foreach ($zz_tab[0]['folder'] as $folder) {
 						// escape foldername, preg_match delimiters will
 						// be replaced with \/
@@ -1689,6 +1689,7 @@ function zz_upload_action($zz_tab) {
 						if (preg_match('/^'.$folder['old_e'].'/', $old_path))
 							$old_path = preg_replace('/^('.$folder['old_e'].')/', $folder['new'], $old_path);
 					}
+				}
 				if ($path != $old_path) {
 					// save paths: not necessary maybe, but in case ...
 					$image['files']['update']['path'] = $path;

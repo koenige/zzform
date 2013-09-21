@@ -422,11 +422,8 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		$change = zz_action_function('after_'.$zz_var['action'], $ops, $zz_tab);
 		list($ops, $zz_tab) = zz_action_change($ops, $zz_tab, $change);
 
-		if (!empty($zz_conf['folder']) && $zz_tab[0][0]['action'] === 'update') {
-			// rename connected folder after record has been updated
-			$folders = zz_foldercheck($zz_tab);
-			if ($folders) $zz_tab[0]['folder'] = $folders;
-		}
+		$zz_tab[0]['folder'] = zz_foldercheck($zz_tab);
+
 		if (!empty($zz_var['upload_form'])) {
 			// upload images, delete images, as required
 			$zz_tab = zz_upload_action($zz_tab);
@@ -1060,16 +1057,17 @@ function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
  * Create, move or delete folders which are connected to records
  * 
  * @param array $zz_tab complete zz_tab array
- * @global array $zz_conf
  * @global array $zz_error
  * @return array $folders => $zz_tab[0]['folder'][] will be set
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_foldercheck($zz_tab) {
-	global $zz_conf;
 	global $zz_error;
 	$folders = array();
-	foreach ($zz_conf['folder'] as $folder) {
+	if (empty($zz_tab[0]['folder'])) return $folders;
+	if ($zz_tab[0][0]['action'] !== 'update') return $folders;
+
+	foreach ($zz_tab[0]['folder'] as $folder) {
 		$path = zz_makepath($folder, $zz_tab, 'new', 'file');
 		$old_path = zz_makepath($folder, $zz_tab, 'old', 'file');
 		if ($old_path === $path) continue;

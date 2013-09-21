@@ -994,7 +994,8 @@ function zz_backwards($zz_conf, $zz) {
 		'heading_sub' => 'subtitle',
 		'action' => 'extra_action',
 		'tfoot' => array('list', 'tfoot'),
-		'group' => array('list', 'group')
+		'group' => array('list', 'group'),
+		'folder' => 'folder'
 	);
 	foreach ($moved_to_zz as $old => $new) {
 		if (isset($zz_conf[$old])) {
