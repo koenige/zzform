@@ -799,6 +799,10 @@ function zz_list_filter_sql($sql) {
 		if (!in_array($filter['identifier'], array_keys($zz_conf['int']['filter']))) continue;
 		if (empty($filter['where'])) continue;
 		if (!isset($filter['default_selection'])) $filter['default_selection'] = '';
+		$old_sql = $sql;
+		if (isset($filter['sql_join'])) {
+			$sql = zz_edit_sql($sql, 'LEFT JOIN', $filter['sql_join']);
+		}
 		
 		if ($filter['type'] === 'show_hierarchy'
 			AND false !== zz_in_array_str($zz_conf['int']['filter'][$filter['identifier']], array_keys($filter['selection']))
@@ -846,6 +850,7 @@ function zz_list_filter_sql($sql) {
 			$sql = zz_edit_sql($sql, 'WHERE', $filter['where'].' LIKE "%'.$zz_conf['int']['filter'][$filter['identifier']].'%"');
 		} else {
 			// invalid filter value, show list without filter
+			$sql = $old_sql;
 			if (empty($filter['ignore_invalid_filters'])) {
 				$zz_conf['int']['http_status'] = 404;
 				$zz_error[] = array(
