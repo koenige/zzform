@@ -64,6 +64,10 @@ ctb		ctb		ctb		application/octet-stream		AutoCAD Color-dependent Plot Style Tabl
 dcr		dcr		dcr		application/x-director
 dir		dir		dir		application/x-director
 
+dmg		dmg		dmg		application/x-apple-diskimage	Apple Disk Image
+dmg		smi		dmg		application/x-apple-diskimage	Apple Disk Image
+dmg		img		dmg		application/x-apple-diskimage	Apple Disk Image
+
 djv		djv		djv		image/vnd.djvu
 
 djvu	djvu	djvu	image/vnd.djvu
@@ -454,7 +458,9 @@ tga		tga		tga		image/tga						Truevision Targa Graphic
 tga		tga		tga		image/x-targa					Truevision Targa Graphic
 tga		tga		tga		image/x-tga						Truevision Targa Graphic
 
-tgz		tgz		tgz		application/x-tar
+tgz		tgz		tgz		application/x-compressed		Gzipped Tar file
+tgz		tgz		tgz		application/x-tar				Gzipped Tar file
+tgz		tgz		tgz		application/x-tgz				Gzipped Tar file
 
 tiff	tiff	tiff	image/tiff						Tag Image File Format
 tiff	tif		tiff	image/tiff						Tag Image File Format
