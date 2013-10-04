@@ -40,6 +40,7 @@ if (!empty($_POST['master_db'])) {
 	$zz['fields'][3]['type'] = 'text';	
 $zz['fields'][3]['list_append_next'] = true;
 $zz['fields'][3]['list_suffix'] = ' . ';
+$zz['fields'][3]['class'] = 'block480a';
 
 $zz['fields'][4]['title'] = 'Primary Key of Master Table';
 $zz['fields'][4]['title_tab'] = 'Primary Key';
@@ -70,7 +71,8 @@ if (!empty($_POST['detail_db'])) {
 }
 $zz['fields'][6]['list_append_next'] = true;
 $zz['fields'][6]['list_suffix'] = ' . ';
-	
+$zz['fields'][6]['class'] = 'block480a';
+
 $zz['fields'][8]['title'] = 'Primary Key of Detail Table';
 $zz['fields'][8]['title_tab'] = 'Detail Primary Key';
 $zz['fields'][8]['field_name'] = 'detail_id_field';	
@@ -92,6 +94,7 @@ if (!empty($_POST['detail_db']) AND !empty($_POST['detail_table'])){
 } else {
 	$zz['fields'][7]['type'] = 'text';
 }
+$zz['fields'][7]['class'] = 'block480';
 
 $zz['fields'][10]['field_name'] = 'delete';
 $zz['fields'][10]['type'] = 'select';
