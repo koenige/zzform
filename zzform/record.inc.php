@@ -1667,7 +1667,9 @@ function zz_field_text($field, $display, $record) {
 	// elseif ($field['type'] === 'url') $fieldtype = 'url';
 	// datetime in Safari is like 2011-09-06T20:50Z
 	// elseif ($field['type'] === 'datetime') $fieldtype = 'datetime';
-	elseif ($field['type'] === 'time') $fieldtype = 'time';
+	// time is not supported correctly by Google Chrome (adds AM, PM to time
+	// and then complains that there's an AM, PM. Great programming, guys!)
+//	elseif ($field['type'] === 'time') $fieldtype = 'time';
 	$fieldattr = array();
 	$fieldattr['size'] = $field['size'];
 	if ($field['required']) $fieldattr['required'] = true;
