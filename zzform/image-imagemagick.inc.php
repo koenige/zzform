@@ -313,11 +313,11 @@ function zz_imagick_convert($options, $files, $source_extension) {
 
 	$command .= ' '.$files.' ';
 	zz_upload_exec($command, 'ImageMagick convert', $output, $return_var);
-	if ($output) {
-		$zz_error[] = array('msg_dev' => $command.': '.json_encode($output));
-	}
-	if ($return_var) {
-		$zz_error[] = array('msg_dev' => $command.': '.json_encode($return_var));
+	if ($output OR $return_var) {
+		$zz_error[] = array('msg_dev' => $command.':'
+			.($output ? ' '.json_encode($output) : '')
+			.($return_var ? ' '.json_encode($return_var) : '')
+		);
 	}
 	if (!$return_var) return true;
 	else return false;
@@ -371,7 +371,7 @@ function zz_imagick_version() {
 	global $zz_conf;
 	$command = zz_imagick_findpath();
 	$command .= ' --version';
-	exec($command, $output, $return_var);
+	exec($command, $output);
 	if (!$output) return '';
 	return implode("  \n", $output);
 }
@@ -386,7 +386,7 @@ function zz_ghostscript_version() {
 	global $zz_conf;
 	$command = zz_imagick_findpath('gs');
 	$command .= ' --help';
-	exec($command, $output, $return_var);
+	exec($command, $output);
 	if (!$output) return '';
 	return implode("  \n", $output);
 }
