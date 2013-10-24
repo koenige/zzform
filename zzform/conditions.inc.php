@@ -38,12 +38,8 @@
 function zz_conditions_set($zz) {
 	if (!isset($zz['conditions'])) $zz['conditions'] = array();
 	
-	// get maximum value for existing index
-	$new_index = 0;
-	foreach (array_keys($zz['conditions']) as $index) {
-		if ($index > $new_index) $new_index = $index;
-	}
-	$new_index++;
+	// use negative values for indices
+	$new_index = -1;
 
 	// All supported shortcuts
 	$shortcuts = array(
@@ -86,7 +82,7 @@ function zz_conditions_set($zz) {
 		}
 		if ($sc['has_condition']) {
 			$zz['conditions'][$new_index]['scope'] = $sc['shortcut'];
-			$new_index++;
+			$new_index--;
 		}
 	}
 	return $zz;
