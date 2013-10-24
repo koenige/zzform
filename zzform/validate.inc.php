@@ -106,7 +106,8 @@ function zz_check_mail_single($e_mail) {
 	// check if hostname has MX record
 	$host = explode('@', $e_mail);
 	if (count($host) !== 2) return false;
-	$exists = checkdnsrr($host[1]);
+	// checkdnsrr() does not always work so use slower dns_get_record() instead
+	$exists = dns_get_record($host[1]);
 	if (!$exists) return false;
 
 	return $e_mail;
