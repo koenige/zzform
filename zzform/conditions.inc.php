@@ -88,6 +88,7 @@ function zz_conditions_set($zz) {
 	return $zz;
 }
 
+
 /**
  * set conditions for 'field' array (main and detail records)
  *
