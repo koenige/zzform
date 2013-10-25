@@ -2310,7 +2310,7 @@ function zz_get_subtable_fielddef($fields, $table) {
  * @param int $f Key of current field
  * @param int $max_select = e. g. $zz_conf['max_select'], maximum entries in
  *		option-Field before we offer a blank text field to enter values
- * @param string $long_field_name // $table_name.'['.$rec.']['.$field_name.']'
+ * @param string $long_field_name // $table_name.'[]['.$field_name.']'
  * @param string $db_table
  * @global array $zz_error
  * @global array $zz_conf

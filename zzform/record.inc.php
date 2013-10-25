@@ -436,8 +436,13 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 		}
 		
 		// $tab means subtable, since main table has $tab = 0
-		if ($tab) $field['f_field_name'] = $zz_tab[$tab]['table_name'].'['.$rec.']['.$field['field_name'].']';
-		elseif (isset($field['field_name'])) $field['f_field_name'] = $field['field_name'];
+		if ($tab) {
+			$field['f_field_name'] = $zz_tab[$tab]['table_name'].'['.$rec.']['.$field['field_name'].']';
+			$field['select_field_name'] = $zz_tab[$tab]['table_name'].'[]['.$field['field_name'].']';
+		} elseif (isset($field['field_name'])) {
+			$field['f_field_name'] = $field['field_name'];
+			$field['select_field_name'] = $field['field_name'];
+		}
 		if (!empty($field['format']) AND empty($field['hide_format_in_title_desc'])) { 
 			// formatted fields: show that they are being formatted!
 			if (!isset($field['title_desc'])) $field['title_desc'] = '';
@@ -2105,7 +2110,7 @@ function zz_field_get_id_field_name($lines) {
  * @todo AJAX typeaheadfind
  */
 function zz_field_select_sql_too_long($field, $record, $detail_record, $id_field_name) {		
-	$outputf = zz_form_element('zz_check_select[]', $field['f_field_name'], 'hidden');
+	$outputf = zz_form_element('zz_check_select[]', $field['select_field_name'], 'hidden');
 
 	// don't show select but text input instead
 	if ($detail_record) {

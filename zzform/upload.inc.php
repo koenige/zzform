@@ -265,10 +265,13 @@ function zz_upload_check_files($zz_tab) {
 		// get unique fieldname for subtables and file uploads as set in editform.inc
 		// $tab means subtable, since main table has $tab = 0
 		$field['f_field_name'] = '';
+		$field['select_field_name'] = '';
 		if ($tab) {
 			$field['f_field_name'] = $zz_tab[$tab]['table_name'].'['.$rec.']['.$field['field_name'].']';
+			$field['select_field_name'] = $zz_tab[$tab]['table_name'].'[]['.$field['field_name'].']';
 		} elseif (isset($field['field_name'])) {
 			$field['f_field_name'] = $field['field_name'];
+			$field['select_field_name'] = $field['field_name'];
 		}
 		$field['f_field_name'] = zz_make_id_fieldname($field['f_field_name']);
 
@@ -968,7 +971,7 @@ function zz_upload_prepare($zz_tab) {
 				if (isset($field_index)) {
 					if ($my_rec['fields'][$field_index]['type'] == 'select') {
 						$my_rec = zz_check_select($my_rec, $field_index, $zz_conf['max_select'], 
-							$zz_tab[$tab]['table'].'['.$rec.']['.$my_rec['fields'][$field_index]['field_name'].']', 
+							$zz_tab[$tab]['table'].'[]['.$my_rec['fields'][$field_index]['field_name'].']', 
 							$zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table']);
 					}
 					$sql = sprintf($image['source_path_sql'], $my_rec['POST'][$image['source_file']]);
@@ -1144,7 +1147,7 @@ function zz_upload_merge_options($image, $my_rec, $my_tab, $rec) {
 		if ($my_rec['fields'][$no]['type'] === 'select') {
 			// @todo do this in action module beforehands
 			$my_rec = zz_check_select($my_rec, $no, $zz_conf['max_select'], 
-				$my_tab['table'].'['.$rec.']['.$my_rec['fields'][$no]['field_name'].']', 
+				$my_tab['table'].'[]['.$my_rec['fields'][$no]['field_name'].']', 
 				$my_tab['db_name'].'.'.$my_tab['table']);
 		}
 		$option_value = $my_rec['POST'][$field_name];
