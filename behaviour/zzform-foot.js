@@ -79,3 +79,16 @@ function zz_toggle_element(myelement) {
 }
 
 zz_toggle_elements();
+
+/**
+ * remove subrecords without an HTTP request
+ */
+Array.prototype.forEach.call(document.querySelectorAll('input.sub-remove'), function(el) {
+	el.onclick = function(ev) {
+		ev.preventDefault();
+		this.previousSibling.previousSibling.remove();
+		this.remove();
+		return false;
+	};
+});
+
