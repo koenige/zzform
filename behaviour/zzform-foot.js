@@ -91,4 +91,12 @@ Array.prototype.forEach.call(document.querySelectorAll('input.sub-remove-vertica
 		return false;
 	};
 });
+Array.prototype.forEach.call(document.querySelectorAll('input.sub-remove-horizontal'), function(el) {
+	el.onclick = function(ev) {
+		ev.preventDefault();
+		this.parentNode.parentNode.remove();
+		this.remove();
+		return false;
+	};
+});
 
