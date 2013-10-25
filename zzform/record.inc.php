@@ -609,7 +609,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				else
 					$h_show_explanation = false;
 				if ($show_remove) {
-					$removebutton = zz_output_subtable_submit('remove', $field['title_button'], $sub_tab, $sub_rec);
+					$removebutton = zz_output_subtable_submit('remove', $field, $sub_tab, $sub_rec);
 					if ($field['form_display'] === 'horizontal') {
 						$lastrow = $removebutton;	
 					}
@@ -636,7 +636,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			}
 			if ($field_display === 'form' 
 				AND $zz_tab[$sub_tab]['max_records'] > $zz_tab[$sub_tab]['records'])
-				$out['td']['content'] .= zz_output_subtable_submit('add', $field['title_button'], $sub_tab);
+				$out['td']['content'] .= zz_output_subtable_submit('add', $field, $sub_tab);
 		} else {
 			//	"Normal" field
 
@@ -1069,24 +1069,24 @@ function zz_output_field_rows($matrix, &$zz_var, $formdisplay, $extra_lastcol) {
  * outputs input form element for subtable add/remove
  *
  * @param string $mode add | remove
- * @param string $title
+ * @param array $field
  * @param int $tab
  * @param int $rec (optional)
  * @return string HTML
  */
-function zz_output_subtable_submit($mode, $title, $tab, $rec = 0) {
+function zz_output_subtable_submit($mode, $field, $tab, $rec = 0) {
 	$fieldattr = array();
 	switch ($mode) {
 	case 'add':
-		$value = sprintf(zz_text('Add %s'), $title);
+		$value = sprintf(zz_text('Add %s'), $field['title_button']);
 		$name = sprintf('zz_subtables[add][%s]', $tab);
 		$fieldattr['class'] = 'sub-add';
 		$fieldattr['formnovalidate'] = true;
 		return zz_form_element($name, $value, 'submit', false, $fieldattr);
 	case 'remove':
-		$value = sprintf(zz_text('Remove %s'), $title);
+		$value = sprintf(zz_text('Remove %s'), $field['title_button']);
 		$name = sprintf('zz_subtables[remove][%s][%s]', $tab, $rec);
-		$fieldattr['class'] = 'sub-remove';
+		$fieldattr['class'] = 'sub-remove-'.$field['form_display'];
 		$fieldattr['formnovalidate'] = true;
 		return zz_form_element($name, $value, 'submit', false, $fieldattr);
 	}

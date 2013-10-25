@@ -176,7 +176,8 @@ div.text #zzform, #zzform div.text
 }
 
 #zzform input.sub-add { float: left; clear: left; margin-top: 0; }
-#zzform input.sub-remove { float: left; margin: 0 0 .5em; }
+#zzform input.sub-remove-horizontal, #zzform input.sub-remove-vertical
+					{ float: left; margin: 0 0 .5em; }
 #zzform .option th	{ font-weight: normal; text-align: right; }
 @media screen and (max-width: 480px) {
 	#zzform .option th	{ text-align: left; }
