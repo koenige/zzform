@@ -1418,6 +1418,12 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 				// remove ID (= first field) for display
 				if (count($select_fields) > 1)
 					array_shift($select_fields);
+				if (!empty($field['sql_ignore'])) {
+					if (!is_array($field['sql_ignore'])) $field['sql_ignore'] = array($field['sql_ignore']);
+					foreach ($field['sql_ignore'] as $ignored) {
+						unset($select_fields[$ignored]);
+					}
+				}
 				$text .= zz_field_concat($field, $select_fields);
 			} else {
 				global $zz_error;
