@@ -1964,7 +1964,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 		// get ID field_name which must be 1st field in SQL query
 		$id_field_name = array_keys($line);
 		$id_field_name = current($id_field_name);
-		if ($record AND $line[$id_field_name] !== $record[$field['field_name']]) {
+		if ($record AND $record[$field['field_name']] AND $line[$id_field_name] !== $record[$field['field_name']]) {
 			$outputf = 'Possible Values: '.$line[$id_field_name]
 				.' -- Current Value: '
 				.htmlspecialchars($record[$field['field_name']])
