@@ -73,6 +73,7 @@ function zz_imagick_identify($filename, $file) {
 	
 	// Error?
 	if (substr($output[0], 0, 6) === 'Error:') return zz_return($file);
+	if (substr($output[0], 0, 9) === 'identify:') return zz_return($file);
 
 	$tokens = explode(' ', $output[0]);
 	$file['filetype'] = strtolower($tokens[0]);
