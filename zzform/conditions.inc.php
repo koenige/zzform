@@ -110,7 +110,7 @@ function zz_conditions_set_field(&$field, &$new_index, &$sc, $cn) {
 	}
 	$conditions[$new_index]['scope'] = $sc['shortcut'];
 	$conditions[$new_index]['field_name'] = $field['field_name'];
-	$new_index++;
+	$new_index--;
 	return $conditions;
 }
 
