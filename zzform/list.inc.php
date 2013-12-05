@@ -578,6 +578,7 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 			if (!isset($previous_row[$field_index])) continue;
 			if ($previous_row[$field_index]['text'] 
 				!== $row[$field_index]['text']) continue;
+			if (!$row[$field_index]['text']) continue;
 			$rows[$row_index][$field_index]['class'][] = 'identical_value';
 		}
 		$previous_row = $row;
