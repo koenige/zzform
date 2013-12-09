@@ -135,6 +135,10 @@ function zzform($zz = array()) {
 		if (!empty($zz['fields'][$no]['field_name']) AND
 			!empty($zz_var['zz_fields'][$zz['fields'][$no]['field_name']])
 		) {
+			// get old type definition and use it as type_detail if not set
+			if (empty($zz['fields'][$no]['type_detail'])) {
+				$zz['fields'][$no]['type_detail'] = $zz['fields'][$no]['type'];
+			}
 			$zz['fields'][$no] = array_merge($zz['fields'][$no], 
 				$zz_var['zz_fields'][$zz['fields'][$no]['field_name']]);
 		}
