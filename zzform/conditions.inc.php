@@ -270,7 +270,11 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 		case 'record': // for form view (of saved records), list view comes later in zz_list() because requery of record 
 			$zz_conditions['bool'][$index] = array();
 			if (($mode == 'add' OR $zz_var['action'] == 'insert') AND !empty($condition['add'])) {
-				if (!empty($condition['add']['where'])) {
+				if (!empty($condition['add']['where']) AND !$condition['where']) {
+					// where = '' is a means to make a condition always valid,
+					// this also works for add
+					$zz_conditions['bool'][$index][0] = true;
+				} elseif (!empty($condition['add']['where'])) {
 					// WHERE with ISNULL and $_GET['where']
 					if (preg_match('/^!ISNULL\((.+)\)$/', $condition['where'], $matches)) {
 						if (isset($matches[1])) {
