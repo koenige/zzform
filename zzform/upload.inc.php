@@ -924,7 +924,7 @@ function zz_upload_prepare($zz_tab) {
 			$dont_use_upload = false;
 			$src_image = false;
 			if (!empty($image['source_field'])) {
-				$image['source'] = !empty($image['source']) ? $image['source'] : 0;
+				!empty($image['source']) OR $image['source'] = 0;
 				$src_image = zz_upload_get_source_field($image, $zz_tab);
 				// nothing adequate found, so we can go on with source_file instead!
 				if (!$src_image) unset($image['source']); 

@@ -1830,8 +1830,8 @@ function zz_field_memo($field, $display, $record) {
 
 	// return form element
 	$fieldattr = array();
-	$field['cols'] = !empty($field['cols']) ? $field['cols'] : 60;
-	$field['rows'] = !empty($field['rows']) ? $field['rows'] : 8;
+	!empty($field['cols']) OR $field['cols'] = 60;
+	!empty($field['rows']) OR $field['rows'] = 8;
 	if ($record) {
 		// always add two extra lines
 		$calculated_rows = 2;
