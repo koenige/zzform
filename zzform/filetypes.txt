@@ -163,6 +163,8 @@ flv		flv		flv		video/x-flv						Flash Video File
 
 gif		gif		gif		image/gif						CompuServe graphics interchange format
 
+gpx		gpx		gpx		application/gpx+xml				GPS eXchange Format
+
 gram	gram	gram	application/srgs
 
 grxml	grxml	grxml	application/srgs+xml
