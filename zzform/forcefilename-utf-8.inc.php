@@ -13,8 +13,8 @@ function forceFilename($str, $spaceChar = '-', $replacements = array()) {
 
 	// get rid of html entities
 	$str = html_entity_decode($str);
-	$str = preg_replace('~&#x([0-9a-f]+);~ei', '', $str);
-	$str = preg_replace('~&#([0-9]+);~e', '', $str);
+	$str = preg_replace('~&#x([0-9a-f]+);~i', '', $str);
+	$str = preg_replace('~&#([0-9]+);~', '', $str);
 	$str = trim($str);
 
 	$_str = '';
