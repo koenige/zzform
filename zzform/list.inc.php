@@ -310,6 +310,7 @@ function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $id_field
 			$my_bool_conditions = $zz_conditions['bool'];
 		}
 		foreach (array_keys($line_defs[$index]) as $fieldindex) {
+			if (!isset($line[$id_field])) continue;
 			$applied = zz_conditions_merge_field(
 				$line_defs[$index][$fieldindex], $my_bool_conditions, $line[$id_field]
 			);
