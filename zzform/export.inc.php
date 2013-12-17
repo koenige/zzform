@@ -101,7 +101,7 @@ function zz_export_init($zz, $ops) {
 	if (!in_array($export, $zz_conf['int']['allowed_params']['export'])) {
 		$zz_error[] = array(
 			'msg_dev' => 'Export parameter not allowed: <code>'
-				.($export ? $export : htmlspecialchars($_GET['export'])).'</code>',
+				.($export ? $export : zz_htmltag_escape($_GET['export'])).'</code>',
 			'level' => E_USER_NOTICE
 		);
 		return array($zz, $ops);

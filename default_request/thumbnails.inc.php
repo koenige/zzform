@@ -56,7 +56,7 @@ function zz_thumbnails($params) {
 	$script = $zz_conf['form_scripts'].'/'.$params[0].'.php';
 	if (!file_exists($script)) {
 		$page['text'] .= '<p>'.sprintf(wrap_text('Sorry, but the table script %s could not be found.')
-			, htmlspecialchars($params[0])).'</p>';
+			, zz_htmltag_escape($params[0])).'</p>';
 		return $page;
 	}
 	include $script;
@@ -109,7 +109,7 @@ function zz_thumbnails($params) {
 			$tn = false;
 			if (!function_exists($func)) {
 				$output[] = $title.': <span class="error">'.sprintf(
-					wrap_text('The function %s does not exist.'), htmlspecialchars($func))
+					wrap_text('The function %s does not exist.'), zz_htmltag_escape($func))
 					.'</span>';
 				continue;
 			}

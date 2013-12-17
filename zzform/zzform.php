@@ -662,7 +662,7 @@ function zz_initialize($mode = false, $zz = array()) {
 	$default['multi'] 				= false;		// zzform_multi
 	$default['multilang_fieldnames'] = false;	// translate fieldnames via zz_text($fieldname)
 	$default['prefix'] 				= false;	//	prefix for ALL tables like zz_
-	$default['project']				= $_SERVER['HTTP_HOST'] ? htmlspecialchars($_SERVER['HTTP_HOST']) : $_SERVER['SERVER_NAME'];
+	$default['project']				= preg_match('/^[a-zA-Z0-9-\.]+$/', $_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'];
 	$default['redirect']['successful_delete'] = false;	// redirect to diff. page after delete
 	$default['redirect']['successful_insert'] = false;	// redirect to diff. page after insert
 	$default['redirect']['successful_update'] = false;	// redirect to diff. page after update
@@ -752,7 +752,7 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 	// Allowed:
 	$allowed_types = array('csv', 'xml', 'files', 'record', 'form');
 	if (!in_array($type, $allowed_types)) {
-		echo 'Illegal type set for function zzform_multi(): '.htmlspecialchars($type);
+		echo 'Illegal type set for function zzform_multi(): '.zz_htmltag_escape($type);
 		return false;
 	}
 	

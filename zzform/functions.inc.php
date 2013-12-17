@@ -248,8 +248,8 @@ function zz_get_url_self($url_self) {
 	$url['scheme'] = (isset($_SERVER['HTTPS']) AND $_SERVER['HTTPS'] == 'on') 
 		? 'https'
 		: 'http';
-	$host = $_SERVER['HTTP_HOST']
-		? htmlspecialchars($_SERVER['HTTP_HOST'])
+	$host = preg_match('/^[a-zA-Z0-9-\.]+$/', $_SERVER['HTTP_HOST'])
+		? $_SERVER['HTTP_HOST']
 		: $_SERVER['SERVER_NAME'];
 	$url['base'] = $url['scheme'].'://'.$host;
 
@@ -490,7 +490,7 @@ function zz_filter_defaults() {
 		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string(
 			$zz_conf['int']['url']['qs_zzform'], array('filter['.$identifier.']')
 		);
-		$zz_conf['int']['invalid_filters'][] = htmlspecialchars($identifier);
+		$zz_conf['int']['invalid_filters'][] = zz_htmltag_escape($identifier);
 		// get rid of filter
 		unset($zz_conf['int']['filter'][$identifier]);
 	}
@@ -564,7 +564,7 @@ function zz_apply_filter($zz) {
 		} else {
 			$zz_error[] = array(
 				'msg' => sprintf(zz_text('This filter does not exist: %s'),
-					htmlspecialchars($zz_conf['int']['filter'][$filter['identifier']])),
+					zz_htmltag_escape($zz_conf['int']['filter'][$filter['identifier']])),
 				'level' => E_USER_NOTICE,
 				'status' => 404
 			);
@@ -1930,7 +1930,7 @@ function zz_error_validation() {
 	if (!empty($zz_error['validation']['incorrect_values'])) {
 		foreach ($zz_error['validation']['incorrect_values'] as $incorrect_value) {
 			$this_dev_msg[] = zz_text('Field name').': '.$incorrect_value['field_name']
-				.' / '.htmlspecialchars($incorrect_value['msg']);
+				.' / '.zz_htmltag_escape($incorrect_value['msg']);
 		}
 		$this_error['msg_dev'] = "\n\n".implode("\n", $this_dev_msg);
 	}
@@ -2188,9 +2188,44 @@ function timestamp2date($timestamp) {
 	return $date;
 }
 
-function htmlchars($string) {
-	$string = str_replace('&amp;', '&', htmlspecialchars($string));
-	//$string = str_replace('&quot;', '"', $string); // does not work 
+/**
+ * Escapes unvalidated strings for HTML values (< > & " ')
+ *
+ * @param string $string
+ * @return string $string
+ * @global array $zz_conf
+ */
+function zz_html_escape($string) {
+	global $zz_conf;
+	$string = htmlspecialchars($string, ENT_QUOTES, $zz_conf['character_set']);
+	return $string;
+}
+
+/**
+ * Escapes strings for HTML text (< >)
+ *
+ * @param string $string
+ * @return string $string
+ * @global array $zz_conf
+ */
+function zz_htmltag_escape($string) {
+	global $zz_conf;
+	$string = htmlspecialchars($string, ENT_NOQUOTES, $zz_conf['character_set']);
+	$string = str_replace('&amp;', '&', $string);
+	return $string;
+}
+
+/**
+ * Escapes validated or custom set strings for HTML values (< > " ')
+ *
+ * @param string $string
+ * @return string $string
+ * @global array $zz_conf
+ */
+function zz_htmlnoand_escape($string) {
+	global $zz_conf;
+	$string = htmlspecialchars($string, ENT_QUOTES, $zz_conf['character_set']);
+	$string = str_replace('&amp;', '&', $string);
 	return $string;
 }
 

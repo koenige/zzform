@@ -33,7 +33,7 @@ function zz_geo_coord_in($value, $orientation = 'lat', $precision = 0) {
 	}
 	$orientation = zz_geo_orientation($orientation);
 	if (!$orientation) {
-		$my['error'] = 'Development error. Orientation '.htmlspecialchars($orientation).' is not valid.';
+		$my['error'] = 'Development error. Orientation '.zz_htmltag_escape($orientation).' is not valid.';
 		return $my;
 	}
 
@@ -74,7 +74,7 @@ function zz_geo_coord_in($value, $orientation = 'lat', $precision = 0) {
 		if ($hemisphere AND substr($value, 0, 1) != $hemisphere) {
 			// mismatch
 			$my['error'] = sprintf(zz_text('Mismatch: %s signals different hemisphere than %s.'),
-				$hemisphere_letter, htmlspecialchars(substr($value, 0, 1)));
+				$hemisphere_letter, zz_htmltag_escape(substr($value, 0, 1)));
 			return $my;
 		} elseif (!$hemisphere) {
 			$hemisphere = substr($value, 0, 1);
@@ -109,12 +109,12 @@ function zz_geo_coord_in($value, $orientation = 'lat', $precision = 0) {
 		case 2: // seconds
 			// test range, 0-59.9999 is allowed
 			if ($part < 0) {
-				$part = htmlspecialchars($part);
+				$part = zz_html_escape($part);
 				$type = ($index == 2) ? 'seconds' : 'minutes';
 				$my['error'] = sprintf(zz_text('%s is too small. Please enter for '.$type.' a positive value or 0.'), $part);
 				return $my;
 			} elseif ($part >= 60) {
-				$part = htmlspecialchars($part);
+				$part = zz_html_escape($part);
 				$type = ($index == 2) ? 'seconds' : 'minutes';
 				$my['error'] = sprintf(zz_text('%s is too big. Please enter for '.$type.' a value smaller than 60.'), $part);
 				return $my;

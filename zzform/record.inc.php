@@ -87,11 +87,11 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 	// Heading inside HTML form element
 	if (!empty($zz_var['id']['invalid_value'])) {
 		$formhead = '<span class="error">'.sprintf(zz_text('Invalid ID for a record (must be an integer): %s'),
-			htmlspecialchars($zz_var['id']['invalid_value'])).'</span>';
+			zz_html_escape($zz_var['id']['invalid_value'])).'</span>';
 	} elseif (in_array($ops['mode'], array('edit', 'delete', 'review', 'show'))
 		AND !$zz_tab[0][0]['record'] AND $action_before_redirect !== 'delete') {
 		$formhead = '<span class="error">'.sprintf(zz_text('There is no record under this ID: %s'),
-			htmlspecialchars($zz_tab[0][0]['id']['value'])).'</span>';
+			zz_html_escape($zz_tab[0][0]['id']['value'])).'</span>';
 	} elseif (!empty($zz_tab[0]['integrity'])) {
 		$formhead = zz_text('Warning!');
 		$tmp_error_msg = 
@@ -338,7 +338,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 		if ($zz_conf['referer'])
 			$output .= zz_form_element('zz_referer', $zz_conf['referer'], 'hidden');
 		if (isset($_GET['file']) && $_GET['file']) 
-			$output .= zz_form_element('file', htmlspecialchars($_GET['file']), 'hidden');
+			$output .= zz_form_element('file', zz_html_escape($_GET['file']), 'hidden');
 	}
 	if ($display === 'form') {
 		foreach ($zz_tab as $tab => $my_tab) {
@@ -1429,7 +1429,7 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 				global $zz_error;
 				$zz_error[]['msg'] = sprintf(zz_text('Record for %s does not exist.')
 					, '<strong>'.$field['title'].'</strong>')
-					.' (ID: '.htmlspecialchars($value).')';
+					.' (ID: '.zz_html_escape($value).')';
 				$zz_error['error'] = true;
 				return false;
 			}
@@ -1441,9 +1441,9 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 			$text .= timestamp2date($display_value);
 		} elseif (isset($field['display_field'])) {
 			if (!empty($record[$field['display_field']]))
-				$text .= htmlspecialchars($record[$field['display_field']]);
+				$text .= zz_htmltag_escape($record[$field['display_field']]);
 			elseif (!empty($record_saved[$field['display_field']]))
-				$text .= htmlspecialchars($record_saved[$field['display_field']]);
+				$text .= zz_htmltag_escape($record_saved[$field['display_field']]);
 			else {
 				if (empty($field['append_next']))
 					if (!empty($field['value'])) $text .= $field['value'];
@@ -1451,9 +1451,9 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 			}
 		} else {
 			if (!empty($display_value)) {
-				$text .= htmlspecialchars($display_value);
+				$text .= zz_htmltag_escape($display_value);
 			} elseif (!empty($record_saved[$field['field_name']])) {
-				$text .= htmlspecialchars($record_saved[$field['field_name']]);
+				$text .= zz_htmltag_escape($record_saved[$field['field_name']]);
 			} else {
 				if (empty($field['append_next']))
 					if (!empty($field['value'])) $text .= $field['value'];
@@ -1657,7 +1657,7 @@ function zz_field_text($field, $display, $record) {
 		if ($field['type'] === 'url') {
 			$linktitle = zz_cut_length($value, $field['max_select_val_len']);
 			$linktitle = str_replace('<', '&lt;', $linktitle);
-			return '<a href="'.htmlspecialchars($value).'">'.$linktitle.'</a>';
+			return '<a href="'.zz_html_escape($value).'">'.$linktitle.'</a>';
 		} elseif ($field['type'] === 'mail') {
 			$value = str_replace('<', '&lt;', $value);
 			return '<a href="mailto:'.$value.'">'.$value.'</a>';
@@ -1743,7 +1743,7 @@ function zz_field_number($field, $display, $record) {
 	}
 	
 	// return text
-	if ($display !== 'form') return htmlchars($value).$suffix;
+	if ($display !== 'form') return zz_htmlnoand_escape($value).$suffix;
 
 	// return form element
 	$fieldattr = array();
@@ -1967,7 +1967,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 		if ($record AND $record[$field['field_name']] AND $line[$id_field_name] !== $record[$field['field_name']]) {
 			$outputf = 'Possible Values: '.$line[$id_field_name]
 				.' -- Current Value: '
-				.htmlspecialchars($record[$field['field_name']])
+				.zz_html_escape($record[$field['field_name']])
 				.' -- Error --<br>'.zz_text('no_selection_possible');
 		} else {
 			$outputf = zz_form_element($field['f_field_name'], $line[$id_field_name],
@@ -2933,7 +2933,7 @@ function zz_field_display($field, $record, $record_saved) {
 		if (!empty($field['translate_field_value']))
 			$value = zz_text($value);
 
-		$value = htmlspecialchars($value);
+		$value = zz_html_escape($value);
 		if (isset($field['format'])) {
 			$value = $field['format']($value);
 		} elseif (isset($field['type_detail'])) {

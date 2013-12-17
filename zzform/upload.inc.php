@@ -411,7 +411,7 @@ function zz_upload_check_files($zz_tab) {
 			if (!in_array($images[$no][$img]['upload']['filetype'], $images[$no][$img]['input_filetypes'])) {
 				$filetype = $images[$no][$img]['upload']['filetype'];
 				if ($filetype == 'unknown') // give more information
-					$filetype .= ' ('.htmlspecialchars($images[$no][$img]['upload']['type']).')';
+					$filetype .= ' ('.zz_htmltag_escape($images[$no][$img]['upload']['type']).')';
 				$images[$no][$img]['unsupported_filetype'] = zz_text('Error: ')
 					.zz_text('Unsupported filetype:').' '
 					.$filetype

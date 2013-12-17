@@ -91,7 +91,7 @@ function zz_maintenance($params) {
 			break;
 		case 'SELECT':
 		default:
-			$page['text'] .= sprintf(zz_text('Sorry, %s is not yet supported'), htmlspecialchars($tokens[0]));
+			$page['text'] .= sprintf(zz_text('Sorry, %s is not yet supported'), zz_htmltag_escape($tokens[0]));
 		}
 	}
 
@@ -125,7 +125,7 @@ function zz_maintenance($params) {
 	
 		$page['text'] .= '<h2>'.zz_text('Custom SQL query').'</h2>'."\n";
 		$page['text'] .= '<form method="POST" action=""><textarea cols="60" rows="10" name="sql">'
-			.str_replace('%%%', '%&shy;%&shy;%', htmlspecialchars($sql))
+			.str_replace('%%%', '%&shy;%&shy;%', zz_html_escape($sql))
 			.'</textarea>
 			<br><input type="submit"></form>'."\n";
 	// 	- SQL query absetzen, Häkchen für zz_log_sql()
@@ -324,11 +324,11 @@ function zz_maintenance_filetree() {
 	if (!empty($_GET['filetree'])) {
 		$parts = explode('/', $_GET['filetree']);
 		$text = array_pop($parts);
-		$text = '<strong>'.htmlspecialchars($text).'</strong>';
+		$text = '<strong>'.zz_htmltag_escape($text).'</strong>';
 		while ($parts) {
 			$folder = implode('/', $parts);
 			$part = array_pop($parts);
-			$text = '<a href="?filetree='.$folder.'">'.htmlspecialchars($part).'</a> / '.$text;
+			$text = '<a href="?filetree='.$folder.'">'.zz_htmltag_escape($part).'</a> / '.$text;
 		}
 		$text = '<p><a href="?filetree">TOP</a> / '.$text.'</p>';
 		$base = $_GET['filetree'].'/';
@@ -426,7 +426,7 @@ function zz_maintenance_sql($sql) {
 	$newline = array('LEFT', 'FROM', 'GROUP', 'WHERE', 'SET', 'VALUES', 'SELECT');
 	$newline_tab = array('ON', 'AND');
 	foreach ($tokens as $token) {
-		$out = htmlspecialchars($token);
+		$out = zz_html_escape($token);
 		if (in_array($token, $keywords)) $out = '<strong>'.$out.'</strong>';
 		if (in_array($token, $newline)) $out = "\n".$out;
 		if (in_array($token, $newline_tab)) $out = "\n\t".$out;
@@ -501,7 +501,7 @@ function zz_maintenance_folders() {
 		if (empty($_GET['folder'])) continue;
 		if (substr($_GET['folder'], 0, strlen($folder)) != $folder) continue;
 		if ($folder != $_GET['folder']) {
-			$text .= '<h4>'.htmlspecialchars($_GET['folder']).'</h4>'."\n";
+			$text .= '<h4>'.zz_htmltag_escape($_GET['folder']).'</h4>'."\n";
 		}
 
 		$folder_handle = opendir($my_folder);
@@ -578,7 +578,7 @@ function zz_maintenance_folders() {
 			}
 			$tbody .= '<tr class="'.($i & 1 ? 'uneven' : 'even').'">'
 				.'<td>'.($files_in_dir ? '' : '<input type="checkbox" name="files['.$file.']">').'</td>'
-				.'<td><a href="'.$link.'">'.zz_mark_search_string(str_replace('%', '%&shy;', htmlspecialchars(urldecode($file)))).'</a></td>'
+				.'<td><a href="'.$link.'">'.zz_mark_search_string(str_replace('%', '%&shy;', zz_html_escape(urldecode($file)))).'</a></td>'
 				.'<td>'.$ext.'</td>'
 				.'<td class="number">'.number_format($size).' Bytes</td>'
 				.'<td>'.$time.'</td>'
@@ -596,7 +596,7 @@ function zz_maintenance_folders() {
 		} else {
 			// show submit button only if files are there
 			$text .= '<tbody>'.$tbody.'</tbody></table>'."\n"
-				.'<p style="float: right;"><a href="'.htmlspecialchars($_SERVER['REQUEST_URI'])
+				.'<p style="float: right;"><a href="'.zz_html_escape($_SERVER['REQUEST_URI'])
 				.'&amp;deleteall">Delete all files</a></p>
 				<p><input type="submit" value="'.zz_text('Delete selected files').'">'
 				.' &#8211; <a onclick="zz_set_checkboxes(true); return false;" href="#">'.zz_text('Select all').'</a> |
@@ -661,7 +661,7 @@ function zz_maintenance_deleteall_form($type) {
 
 	$filter = '';
 	if (!empty($_GET['q']))
-		$filter = ' Search: '.htmlspecialchars($_GET['q']);
+		$filter = ' Search: '.zz_html_escape($_GET['q']);
 	$unwanted_keys = array('deleteall');
 	$qs = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
 	$url = $zz_conf['int']['url']['full'].$qs;
@@ -793,11 +793,11 @@ function zz_maintenance_logs() {
 		$show_log = true;
 	}
 	if (!$show_log) {
-		$text = '<p>'.sprintf(zz_text('This is not one of the used logfiles: %s'), htmlspecialchars($_GET['log'])).'</p>'."\n";
+		$text = '<p>'.sprintf(zz_text('This is not one of the used logfiles: %s'), zz_html_escape($_GET['log'])).'</p>'."\n";
 		return $text;
 	}
 	if (!file_exists($_GET['log'])) {
-		$text = '<p>'.sprintf(zz_text('Logfile does not exist: %s'), htmlspecialchars($_GET['log'])).'</p>'."\n";
+		$text = '<p>'.sprintf(zz_text('Logfile does not exist: %s'), zz_html_escape($_GET['log'])).'</p>'."\n";
 		return $text;
 	}
 
@@ -812,7 +812,7 @@ function zz_maintenance_logs() {
 	$filters['group'] = array('Group entries');
 	$filter_output = '';
 	
-	$text = '<h2>'.htmlspecialchars($_GET['log']).'</h2>';
+	$text = '<h2>'.zz_html_escape($_GET['log']).'</h2>';
 
 	parse_str($zz_conf['int']['url']['qs_zzform'], $my_query);
 	$filters_set = (!empty($my_query['filter']) ? $my_query['filter'] : array());
@@ -1123,7 +1123,7 @@ function zz_maintenance_logs() {
 	$text .= '</tbody></table>'."\n";
 	if ($total_rows) {
 		// show this only if there are deletable lines
-		$text .= '<p style="float: right;"><a href="'.htmlspecialchars($_SERVER['REQUEST_URI'])
+		$text .= '<p style="float: right;"><a href="'.zz_html_escape($_SERVER['REQUEST_URI'])
 			.'&amp;deleteall">Delete all lines</a></p>'
 			.'<p><input type="submit" value="'.zz_text('Delete selected lines').'">'
 			.' &#8211; <a onclick="zz_set_checkboxes(true); return false;" href="#">'.zz_text('Select all').'</a> |

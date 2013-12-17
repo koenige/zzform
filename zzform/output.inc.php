@@ -87,10 +87,10 @@ function zz_nice_headings($heading, $zz, $where_condition = array()) {
 					$heading_addition[$i][] = $heading_values[$myfield];
 			}
 		} elseif (isset($subheading['enum'])) {
-			$heading_addition[$i][] = htmlspecialchars($where_condition[$mywh]);
+			$heading_addition[$i][] = zz_htmltag_escape($where_condition[$mywh]);
 			// @todo insert corresponding value in enum_title
 		} elseif (isset($subheading['value'])) {
-			$heading_addition[$i][] = htmlspecialchars($where_condition[$mywh]);
+			$heading_addition[$i][] = zz_htmltag_escape($where_condition[$mywh]);
 		}
 		if (empty($subheading['concat'])) $subheading['concat'] = ' ';
 		if (is_array($subheading['concat'])) {
@@ -354,7 +354,7 @@ function zz_nice_title($heading, $fields, $zz_var = array(), $mode = false) {
 			if (!empty($f['selection']) AND !empty($f['selection'][$zz_conf['int']['filter'][$f['identifier']]])) {
 				$title .= $f['selection'][$zz_conf['int']['filter'][$f['identifier']]];
 			} else {
-				$title .= htmlspecialchars($zz_conf['int']['filter'][$f['identifier']]);
+				$title .= zz_htmltag_escape($zz_conf['int']['filter'][$f['identifier']]);
 			}
 		}
 	}
@@ -440,16 +440,16 @@ function zz_nice_selection($zz_fields) {
 		$add_equal_sign = true;
 	}
 	if (substr($_GET['q'], 0, 1) == '<')
-		$selection .= '<strong>&lt;</strong> '.htmlspecialchars(substr($_GET['q'], 1));
+		$selection .= '<strong>&lt;</strong> '.zz_html_escape(substr($_GET['q'], 1));
 	elseif (substr($_GET['q'], 0, 1) == '>')
-		$selection .= '<strong>&gt;</strong> '.htmlspecialchars(substr($_GET['q'], 1));
+		$selection .= '<strong>&gt;</strong> '.zz_html_escape(substr($_GET['q'], 1));
 	else {
 		$q = $_GET['q'];
 		if (substr($q, 0, 2) == '\\')
 			$q = substr($q, 1);
 		if ($add_equal_sign)
 			$selection .= $fieldname.' <strong>=</strong> ';
-		$selection .= '*'.htmlspecialchars($q).'*';
+		$selection .= '*'.zz_html_escape($q).'*';
 	}
 	return zz_return($selection);
 }
@@ -532,7 +532,7 @@ function zz_print_multiarray($array, $parent_key = '') {
 		} else {
 			$vars[] = array(
 				'key' => $mykey,
-				'value' => htmlspecialchars($value)
+				'value' => zz_html_escape($value)
 			);
 		}
 	}
@@ -572,8 +572,10 @@ function zz_print_enum($field, $value, $type = 'abbr', $key = false) {
 			$text .= ' &#8211; '.$field[$ft.'_abbr'][$key];
 		} elseif ($type === 'abbr') {
 			if (stristr($text, '<abbr')) $text = strip_tags($text);
-			$text = '<abbr title="'.htmlchars($field[$ft.'_abbr'][$key])
-				.'">'.$text.'</abbr>';
+			$text = sprintf(
+				'<abbr title="%s">%s</abbr>',
+				zz_htmlnoand_escape($field[$ft.'_abbr'][$key]), $text 
+			);
 		}
 	}
 	return $text;

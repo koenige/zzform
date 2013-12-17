@@ -729,7 +729,7 @@ function zz_filter_selection($filter, $pos) {
 			// no filter selections are shown, but there is a current filter, 
 			// so show this
 			$filter[$index]['output'][] = array(
-				'title' => htmlspecialchars($zz_conf['int']['filter'][$f['identifier']]),
+				'title' => zz_htmltag_escape($zz_conf['int']['filter'][$f['identifier']]),
 				'link' => false
 			);
 			$filter_output = false;
@@ -856,7 +856,7 @@ function zz_list_filter_sql($sql) {
 				$zz_conf['int']['http_status'] = 404;
 				$zz_error[] = array(
 					'msg' => sprintf(zz_text('"%s" is not a valid value for the selection "%s". Please select a different filter.'), 
-						htmlspecialchars($zz_conf['int']['filter'][$filter['identifier']]), $filter['title']),
+						zz_htmltag_escape($zz_conf['int']['filter'][$filter['identifier']]), $filter['title']),
 					'level' => E_USER_NOTICE
 				);
 			}
@@ -871,7 +871,7 @@ function zz_list_filter_sql($sql) {
 
 	// test filter identifiers if they exist
 	foreach ($zz_conf['int']['invalid_filters'] AS $identifier) {
-		$filter = htmlspecialchars($identifier);
+		$filter = zz_htmltag_escape($identifier);
 		$link = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
 			.$zz_conf['int']['url']['?&'].$zz_conf['int']['url']['qs_zzform'];
 		$zz_error[] = array(
@@ -1129,11 +1129,11 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 	if ($mode != 'export' OR $_GET['export'] == 'kml') $link = zz_set_link($field, $line);
 
 	$mark_search_string = 'field_name';
-	$text = false;
+	$text = '';
 
 	if (isset($field['display_field'])) {
 		$text = $line[$field['display_field']];
-		$text = htmlchars($text);
+		$text = zz_htmltag_escape($text);
 		$mark_search_string = 'display_field';
 	} else {
 		//	go for type of field if no display field is set
@@ -1194,9 +1194,9 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 		case 'mail':
 		case 'mail+name':
 			if ($field['type'] === 'url') {
-				$text = zz_cut_length(htmlchars($row['value']), $zz_conf_record['max_select_val_len']);
+				$text = zz_cut_length(zz_htmltag_escape($row['value']), $zz_conf_record['max_select_val_len']);
 			} else {
-				$text = htmlspecialchars($row['value']);
+				$text = zz_htmltag_escape($row['value']);
 			}
 			break;
 		case 'ipv4':
@@ -1260,7 +1260,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 				$text = $field['display_value'];
 			} else {
 				$text = $row['value'];
-				$text = nl2br(htmlchars($text));
+				$text = nl2br(zz_htmltag_escape($text));
 			}
 			break;
 		case 'list_function':
@@ -1269,7 +1269,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 		default:
 			$text = $row['value'];
 			if (empty($field['list_format'])) {
-				$text = nl2br(htmlchars($text));
+				$text = nl2br(zz_htmltag_escape($text));
 			}
 			break;
 		}
@@ -1306,7 +1306,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 		$row['text'] .= zz_text($field['list_prefix']);
 	}
 	if (!empty($field['list_abbr']) AND $mode != 'export') {
-		$row['text'] .= '<abbr title="'.htmlspecialchars($line[$field['list_abbr']]).'">';
+		$row['text'] .= '<abbr title="'.zz_html_escape($line[$field['list_abbr']]).'">';
 	}
 
 	if ($link) $row['text'] .= $link;

@@ -1545,7 +1545,7 @@ function zz_check_rules($value, $validate) {
 		case 'forbidden_strings':
 			foreach ($needles as $needle) {
 				if (stripos($value, $needle) !== false) // might be 0
-					return sprintf(zz_text('String <em>"%s"</em> is not allowed'), htmlspecialchars($needle));
+					return sprintf(zz_text('String <em>"%s"</em> is not allowed'), zz_htmltag_escape($needle));
 			}
 			break;
 		}
