@@ -402,10 +402,16 @@ function zz_check_date($date) {
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_check_number($number) {
+	global $zz_conf;
+
 	// remove whitespace, it's nice to not have to care about this
 	$number = trim($number);
 	$number = str_replace(' ', '', $number);
-	$number = str_replace(chr(160), '', $number); // non-breaking space
+	if ($zz_conf['character_set'] === 'utf-8') {
+		$number = str_replace(chr(194).chr(160), '', $number); // non-breaking space
+	} else {
+		$number = str_replace(chr(160), '', $number); // non-breaking space
+	}
 	// first charater must not be / or *
 	// NULL: possible feature: return doubleval $number to get at least something
 	if (!preg_match('~^[0-9.,+-][0-9.,\+\*\/-]*$~', $number)) return NULL;
