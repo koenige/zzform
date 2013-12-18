@@ -797,7 +797,8 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 				$values .= '';
 			}
 		} else {
-			$values .= $fvalues;
+			if (is_array($fvalues)) $values .= serialize($fvalues);
+			else $values .= $fvalues;
 		}
 	}
 
