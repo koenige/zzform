@@ -170,6 +170,12 @@ function zz_upload_config() {
 
 	$default['upload_no_thumbnails'] = array('doc', 'docx', 'wps', 'rtf', 'xls',
 		'dot', 'odt', 'ott', 'ods', 'indd', 'txt', 'csv');
+	
+	// XML documents will be recognized as SVG (which is XML, too)
+	$default['upload_remap_type_if_extension']['gpx'] = 'svg';
+	// AI documents can be real PDF documents
+	$default['upload_remap_type_if_extension']['ai'] = 'pdf';
+	
 	zz_write_conf($default);
 }
 
@@ -555,12 +561,11 @@ function zz_upload_fileinfo($file, $extension = false) {
 			}
 		}
 	}
-	// some filetypes are identical to others, so we have to check the
-	// extension
-	if ($extension == 'ai' AND $file['filetype'] == 'pdf') {
-		// it's a valid PDF, so it might be an AI file
-		$file['filetype'] = 'ai';
-		$file['mime'] = 'application/postscript';
+	// some filetypes are identical to others, so we have to check the extension
+	if (array_key_exists($extension, $zz_conf['upload_remap_type_if_extension'])
+		AND $file['filetype'] === $zz_conf['upload_remap_type_if_extension'][$extension]) {
+		$file['filetype'] = $extension;
+		$file['mime'] = $zz_conf['file_types'][$file['filetype']][0]['mime'];
 	}
 	if ($zz_conf['modules']['debug']) zz_debug('finish', json_encode($file));
 

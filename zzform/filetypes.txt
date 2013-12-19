@@ -164,6 +164,7 @@ flv		flv		flv		video/x-flv						Flash Video File
 gif		gif		gif		image/gif						CompuServe graphics interchange format
 
 gpx		gpx		gpx		application/gpx+xml				GPS eXchange Format
+gpx		gpx		gpx		application/xml					GPS eXchange Format
 
 gram	gram	gram	application/srgs
 
@@ -216,6 +217,10 @@ jps		jps		jps		image/x-jps
 js		js		js		application/x-javascript		JavaScript
 
 kar		kar		kar		audio/midi
+
+kml		kml		kml		application/vnd.google-earth.kml+xml	Keyhole Markup Language
+
+kmz		kmz		kmz		application/vnd.google-earth.kmz		Keyhole Markup Language Archive
 
 latex	latex	latex	application/x-latex
 
