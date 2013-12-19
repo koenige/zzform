@@ -2197,7 +2197,11 @@ function timestamp2date($timestamp) {
  */
 function zz_html_escape($string) {
 	global $zz_conf;
-	$string = htmlspecialchars($string, ENT_QUOTES, $zz_conf['character_set']);
+	switch ($zz_conf['character_set']) {
+		case 'iso-8859-2': $character_set = 'ISO-8859-1'; break;
+		default: $character_set = $zz_conf['character_set']; break;
+	}
+	$string = htmlspecialchars($string, ENT_QUOTES, $character_set);
 	return $string;
 }
 
@@ -2210,7 +2214,11 @@ function zz_html_escape($string) {
  */
 function zz_htmltag_escape($string) {
 	global $zz_conf;
-	$string = htmlspecialchars($string, ENT_NOQUOTES, $zz_conf['character_set']);
+	switch ($zz_conf['character_set']) {
+		case 'iso-8859-2': $character_set = 'ISO-8859-1'; break;
+		default: $character_set = $zz_conf['character_set']; break;
+	}
+	$string = htmlspecialchars($string, ENT_NOQUOTES, $character_set);
 	$string = str_replace('&amp;', '&', $string);
 	return $string;
 }
@@ -2224,7 +2232,11 @@ function zz_htmltag_escape($string) {
  */
 function zz_htmlnoand_escape($string) {
 	global $zz_conf;
-	$string = htmlspecialchars($string, ENT_QUOTES, $zz_conf['character_set']);
+	switch ($zz_conf['character_set']) {
+		case 'iso-8859-2': $character_set = 'ISO-8859-1'; break;
+		default: $character_set = $zz_conf['character_set']; break;
+	}
+	$string = htmlspecialchars($string, ENT_QUOTES, $character_set);
 	$string = str_replace('&amp;', '&', $string);
 	return $string;
 }
