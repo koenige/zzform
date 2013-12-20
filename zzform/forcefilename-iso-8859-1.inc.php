@@ -31,7 +31,7 @@ function forceFilename($str, $spaceChar = '-', $replacements = array()) {
 			$_str .= 'a'; break;
 
 		case 'Ä': case 'Æ':
-			$_str .= 'AE'; break;
+			$_str .= 'Ae'; break;
 		case 'ä': case 'æ':
 			$_str .= 'ae'; break;
 
@@ -66,7 +66,7 @@ function forceFilename($str, $spaceChar = '-', $replacements = array()) {
 			$_str .= 'o'; break;
 
 		case 'Ö':
-			$_str .= 'OE'; break;
+			$_str .= 'Oe'; break;
 		case 'ö':
 			$_str .= 'oe'; break;
 
@@ -79,7 +79,7 @@ function forceFilename($str, $spaceChar = '-', $replacements = array()) {
 			$_str .= 'u'; break;
 
 		case 'Ü':
-			$_str .= 'UE'; break;
+			$_str .= 'Ue'; break;
 		case 'ü':
 			$_str .= 'ue'; break;
 
