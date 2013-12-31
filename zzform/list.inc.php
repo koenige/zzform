@@ -150,7 +150,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		unset($lines);
 
 		$list['where_values'] = !empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : '';
-		$head = zz_list_head($table_defs[0], $list['where_values']);
+		$head = zz_list_head($table_defs[0], $list['where_values'], $list['columns']);
 		unset($table_defs);
 	}
 
@@ -519,6 +519,7 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 			
 			// check all fields next to each other with list_append_next					
 			while (!empty($table_defs[$def_index][$fieldindex]['list_append_next'])) {
+				$list['columns'][$fieldindex] = true;
 				$keys = array_keys($table_defs[$def_index]);
 				$current_key_index = array_search($fieldindex, $keys);
 				$next_key_index = $current_key_index + 1;
@@ -533,6 +534,7 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 			$rows[$z][$fieldindex] = zz_list_field(
 				$list, $my_row, $field, $line, $lastline, $zz_var, $table, $mode, $zz_conf_record
 			);
+			$list['columns'][$fieldindex] = true;
 
 			// Sums
 			$list = zz_list_sum($field, $list, $rows[$z][$fieldindex]['value'], $rows[$z]['group']);
@@ -2164,14 +2166,17 @@ function zz_list_show_group_fields($table_defs, $list) {
  *
  * @param array $head
  * @param array $where_values
+ * @param array $columns (list of columns that should appear)
  * @return array
  */
-function zz_list_head($old_head, $where_values) {
+function zz_list_head($old_head, $where_values, $columns) {
 	$j = 0;
 
 	$continue_next = false;
 	$head = array();
 	foreach ($old_head as $index => $field) {
+		// ignore empty columns (e. g. empty through conditional where)
+		if (empty($columns[$index])) continue;
 		$col_index = $index;
 		// analogous to zz_list_data():
 		while (!empty($old_head[$col_index]['list_append_next'])) {
