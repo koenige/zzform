@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2013 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -129,9 +129,10 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	}
 
 	// get rid of some POST values that are used at another place
-	$internal_fields = array('MAX_FILE_SIZE', 'zz_check_select', 'zz_action',
-		'zz_subtables', 'zz_subtable_deleted', 'zz_delete_file',
-		'zz_referer', 'zz_save_record');
+	$internal_fields = array(
+		'MAX_FILE_SIZE', 'zz_check_select', 'zz_action', 'zz_subtables',
+		'zz_delete_file', 'zz_referer', 'zz_save_record', 'zz_subtable_ids'
+	);
 	$zz_tab[0][0]['POST'] = array();
 	foreach (array_keys($_POST) AS $key) {
 		if (in_array($key, $internal_fields)) continue;
@@ -269,10 +270,9 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 	// POST array
 	// buttons: add, remove subrecord
 	$my_tab['subtable_deleted'] = array();
-	if (isset($_POST['zz_subtable_deleted'][$my_tab['table_name']]))
-	//	fill existing zz_subtable_deleted ids in $my_tab['subtable_deleted']
-		foreach ($_POST['zz_subtable_deleted'][$my_tab['table_name']] as $deleted)
-			$my_tab['subtable_deleted'][] = $deleted[$my_tab['id_field_name']];
+	$my_tab['subtable_ids'] = array();
+	if (isset($_POST['zz_subtable_ids'][$my_tab['table_name']]))
+		$my_tab['subtable_ids'] = explode(',', $_POST['zz_subtable_ids'][$my_tab['table_name']]);
 	$my_tab['subtable_add'] = (!empty($_POST['zz_subtables']['add'][$tab]) 
 		AND $my_tab['access'] !== 'show')
 		? $_POST['zz_subtables']['add'][$tab] : false;
@@ -316,6 +316,20 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 	global $zz_error;
 	global $zz_conf;
 	
+	if ($my_tab['subtable_ids']) {
+		$existing_ids = array_flip($my_tab['subtable_ids']);
+		foreach ($my_tab['POST'] as $rec => $my_rec) {
+			if (!array_key_exists($my_tab['id_field_name'], $my_rec)) continue;
+			if (in_array($my_rec[$my_tab['id_field_name']], array_keys($existing_ids))) {
+				unset($existing_ids[$my_rec[$my_tab['id_field_name']]]);
+			}
+		}
+		foreach (array_keys($existing_ids) as $id) {
+			// add to existing deleted IDs (may come from somewhere else!)
+			$my_tab['subtable_deleted'][] = $id;
+		}
+	}
+	
 	// set general definition for all $my_tab[$rec] (kind of a record template)
 	$rec_tpl = array();
 	$rec_tpl['fields'] = $field['fields'];
@@ -358,7 +372,7 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 		$my_tab['existing'] = zz_query_subrecord(
 			$my_tab, $main_tab['table'], $main_tab[0]['id']['value'],
 			$rec_tpl['id']['field_name'], $my_tab['subtable_deleted']
-		); 
+		);
 	} else {
 		$my_tab['existing'] = array();
 	}
@@ -518,6 +532,14 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 			// set values, rewrite POST-Array
 			$my_tab = zz_set_values($my_tab, $rec, $zz_var);
 		}
+	}
+	// get all IDs from detail records when record was first sent to user
+	// and add IDs which where added from different user in the meantime as well
+	// so as to be able to remove these again
+	foreach (array_keys($records) as $rec) {
+		if (empty($my_tab[$rec]['id']['value'])) continue;
+		if (in_array($my_tab[$rec]['id']['value'], $my_tab['subtable_ids'])) continue;
+		$my_tab['subtable_ids'][] = $my_tab[$rec]['id']['value'];
 	}
 
 	return $my_tab;

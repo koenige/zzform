@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2013 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -342,11 +342,12 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 	}
 	if ($display === 'form') {
 		foreach ($zz_tab as $tab => $my_tab) {
-			if (empty($my_tab['subtable_deleted'])) continue;
-			foreach ($my_tab['subtable_deleted'] as $deleted_id)
-				$output .= zz_form_element('zz_subtable_deleted['
-					.$my_tab['table_name'].'][]['.$my_tab['id_field_name']
-					.']', $deleted_id, 'hidden');
+			if (empty($my_tab['subtable_ids'])) continue;
+			$output .= zz_form_element(
+				sprintf('zz_subtable_ids[%s]', $my_tab['table_name']),
+				implode(',', $my_tab['subtable_ids']),
+				'hidden'
+			);
 		}
 	}
 	return zz_return($output);
