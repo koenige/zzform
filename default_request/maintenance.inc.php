@@ -750,7 +750,7 @@ function zz_maintenance_errors() {
 	}
 
 	$lines[23]['th'] = zz_text('Logging (Upload)');
-	$lines[23]['td'] = isset($zz_conf['upload_log']) ? '<a href="?log='.urlencode(realpath($zz_conf['upload_log']))
+	$lines[23]['td'] = !empty($zz_conf['upload_log']) ? '<a href="?log='.urlencode(realpath($zz_conf['upload_log']))
 				.'">'.realpath($zz_conf['upload_log']).'</a>' : zz_text('disabled');
 
 	$text = '<table class="data"><thead><tr><th>'.zz_text('Setting').'</th>'
@@ -791,7 +791,7 @@ function zz_maintenance_logs() {
 	if ($_GET['log'] === realpath(ini_get('error_log'))) {
 		$show_log = true;
 	}
-	if (isset($zz_conf['upload_log']) AND $_GET['log'] === realpath($zz_conf['upload_log'])) {
+	if (!empty($zz_conf['upload_log']) AND $_GET['log'] === realpath($zz_conf['upload_log'])) {
 		$show_log = true;
 	}
 	if (!$show_log) {
