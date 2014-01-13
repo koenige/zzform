@@ -728,7 +728,7 @@ function zz_action_change($ops, $zz_tab, $change) {
  * @param int $rec
  * @global array $zz_conf
  * @return array $my_tab ($zz_tab[$tab])
- *		changed: $zz_tab[$tab][$rec]['action'], $zz_tab[$tab]['zz_subtable_deleted']
+ *		changed: $zz_tab[$tab][$rec]['action'], $zz_tab[$tab]['subtable_deleted']
  *		may unset($zz_tab[$tab][$rec])
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
