@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2010, 2013 Gustaf Mossakowski
+ * @copyright Copyright © 2010, 2013-2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -461,7 +461,7 @@ function zz_maintenance_folders() {
 	$text .= '<ul>';
 	foreach ($dirs as $key => $dir) {
 		$exists = file_exists($dir) ? true : false;
-		$text .= '<li>'.sprintf(zz_text('Current %s dir is: %s'), $key, $dir)
+		$text .= '<li>'.sprintf(zz_text('Current %s dir is: %s'), $key, realpath($dir))
 			.(!$exists AND $dir ? ' &#8211; <span class="error">but this directory does not exist</span>' : '')
 			.'</li>'."\n";
 		if (!$exists) continue;
@@ -716,11 +716,13 @@ function zz_maintenance_errors() {
 
 		// get logfiles
 		if ($php_log = ini_get('error_log'))
-			$logfiles[$php_log][] = 'PHP';
+			$logfiles[realpath($php_log)][] = 'PHP';
 		$levels = array('error', 'warning', 'notice');
 		foreach ($levels as $level) {
 			if ($zz_conf['error_log'][$level]) {
-				$logfiles[$zz_conf['error_log'][$level]][] = ucfirst($level);
+				$logfile = realpath($zz_conf['error_log'][$level]);
+				if (!$logfile) continue;
+				$logfiles[$logfile][] = ucfirst($level);
 			}
 		}
 		$no = 8;
@@ -748,8 +750,8 @@ function zz_maintenance_errors() {
 	}
 
 	$lines[23]['th'] = zz_text('Logging (Upload)');
-	$lines[23]['td'] = isset($zz_conf['upload_log']) ? '<a href="?log='.urlencode($zz_conf['upload_log'])
-				.'">'.$zz_conf['upload_log'].'</a>' : zz_text('disabled');
+	$lines[23]['td'] = isset($zz_conf['upload_log']) ? '<a href="?log='.urlencode(realpath($zz_conf['upload_log']))
+				.'">'.realpath($zz_conf['upload_log']).'</a>' : zz_text('disabled');
 
 	$text = '<table class="data"><thead><tr><th>'.zz_text('Setting').'</th>'
 		.'<th>'.zz_text('Value').'</th>'
@@ -782,14 +784,14 @@ function zz_maintenance_logs() {
 
 	$show_log = false;
 	foreach ($levels as $level) {
-		if ($_GET['log'] === $zz_conf['error_log'][$level]) {
+		if ($_GET['log'] === realpath($zz_conf['error_log'][$level])) {
 			$show_log = true;
 		}
 	}
-	if ($_GET['log'] === ini_get('error_log')) {
+	if ($_GET['log'] === realpath(ini_get('error_log'))) {
 		$show_log = true;
 	}
-	if (isset($zz_conf['upload_log']) AND $_GET['log'] === $zz_conf['upload_log']) {
+	if (isset($zz_conf['upload_log']) AND $_GET['log'] === realpath($zz_conf['upload_log'])) {
 		$show_log = true;
 	}
 	if (!$show_log) {
