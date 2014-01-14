@@ -122,7 +122,7 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 	} elseif ($ops['mode'] === 'review') {
 		$formhead = zz_text('show_record');
 	}
-	if ($formhead) {
+	if (trim($formhead)) {
 		$output .= '<div id="record">'."\n<h2>".ucfirst($formhead)."</h2>\n\n";
 		$div_record_open = true;
 	}
