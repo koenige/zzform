@@ -17,7 +17,7 @@
  * V - Validation, preparation for database
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2013 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -866,13 +866,19 @@ function zz_hash($zz, $zz_conf) {
 		'error_log', 'format', 'group_html_table', 'list_display',
 		'limit_display', 'logging', 'logging_id', 'logging_table',
 		'log_missing_text', 'mail_subject_prefix', 'title_separator',
-		'referer', 'access', 'heading_prefix'
+		'referer', 'access', 'heading_prefix', 'redirect', 'search_form_always',
+		'redirect_on_change', 'filter', 'filter_position', 'text', 'file_types',
+		'translate_log_encodings'
 	);
 	foreach ($uninteresting_zz_conf_keys as $key) unset($zz_conf[$key]);
 	$uninteresting_zz_keys = array(
 		'title', 'explanation', 'subtitle', 'list'
 	);
 	foreach ($uninteresting_zz_keys as $key) unset($zz[$key]);
+	foreach ($zz['fields'] as $no => $field) {
+		// defaults might change, e. g. dates
+		if (isset($field['default'])) unset($zz['fields'][$no]);
+	}
 	$my['zz'] = $zz;
 	$my['zz_conf'] = $zz_conf;
 	$hash = sha1(serialize($my));
