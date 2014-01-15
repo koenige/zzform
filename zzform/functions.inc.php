@@ -468,6 +468,10 @@ function zz_filter_defaults() {
 	// if there are filters:
 	// initialize filter, set defaults
 	foreach ($zz_conf['filter'] AS $index => $filter) {
+		if (!$filter) {
+			unset($zz_conf['filter'][$index]);
+			continue;
+		}
 		// get identifier from title if not set
 		if (empty($filter['identifier'])) {
 			$filter['identifier'] = urlencode(strtolower($filter['title']));
