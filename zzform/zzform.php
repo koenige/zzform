@@ -18,7 +18,7 @@
  *	zzform_multi()			multi edit for zzform, e. g. import
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2013 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -819,7 +819,7 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 			}
 		}
 		if ($tables) {
-			require $tables;
+			$zz = zzform_include_table($tables, $values);
 		} else {
 			echo sprintf('Table definition for %s file missing.', $definition_file);
 			exit;
@@ -833,20 +833,7 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 		}
 		// return on error in form script
 		if (!empty($ops['error'])) return $ops;
-		if (empty($zz) AND !empty($zz_sub)) {
-			$ops = zzform($zz_sub);
-		} elseif (!empty($zz)) {
-			$ops = zzform($zz);
-		} else {
-			if (function_exists('wrap_error')) {
-				wrap_error(sprintf('No table definition found. Please check file %s.',
-					$definition_file), E_USER_ERROR);
-			} else {
-				// @todo: throw zzform error
-				echo 'No table definition found.';
-				exit;
-			}
-		}
+		$ops = zzform($zz);
 		if ($type === 'record') {
 			// in case zzform was called from within zzform, get the old conf back
 			if ($zz_conf['zzform_calls'] > 1) {
@@ -888,6 +875,34 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 	return $ops;
 }
 
+/**
+ * include $zz- or $zz_sub-table definition and accept changes for $zz_conf
+ * all other local variables will be ignored
+ *
+ * @param string $tables filename of table definition
+ * @param array $values
+ * @global array $zz_conf
+ * @global array $zz_setting
+ * @return array $zz
+ */
+function zzform_include_table($tables, $values) {
+	global $zz_conf;
+	global $zz_setting;
+
+	require $tables;
+	if (empty($zz) AND !empty($zz_sub))
+		return $zz_sub;
+	if (!empty($zz))
+		return $zz;
+	if (function_exists('wrap_error')) {
+		wrap_error(sprintf('No table definition found. Please check file %s.',
+			$definition_file), E_USER_ERROR);
+	} else {
+		// @todo: throw zzform error
+		echo 'No table definition found.';
+		exit;
+	}
+}
 /**
  * Create config variables from defaults
  *
