@@ -810,7 +810,7 @@ function zz_maintenance_logs() {
 	}
 
 	$filters['type'] = array('PHP', 'zzform', 'zzwrap');
-	$filters['level'] = array('Notice', 'Warning', 'Error', 'Parse error', 'Strict error', 'Fatal error');
+	$filters['level'] = array('Notice', 'Deprecated', 'Warning', 'Error', 'Parse error', 'Strict error', 'Fatal error');
 	$filters['group'] = array('Group entries');
 	$filter_output = '';
 	
@@ -876,7 +876,7 @@ function zz_maintenance_logs() {
 	$j = 0;
 	$delete = array();
 	$content = '';
-	$dont_highlight_levels = array('Notice', 'Warning', 'Upload');
+	$dont_highlight_levels = array('Notice', 'Deprecated', 'Warning', 'Upload');
 	$tbody = '';
 	$log = array();
 	$handle = fopen($_GET['log'], 'r');
