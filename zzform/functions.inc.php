@@ -2220,6 +2220,7 @@ function zz_html_escape($string) {
 		default: $character_set = $zz_conf['character_set']; break;
 	}
 	$string = htmlspecialchars($string, ENT_QUOTES, $character_set);
+	if (!$string) $string = htmlspecialchars($string, ENT_QUOTES, 'ISO-8859-1');
 	return $string;
 }
 
@@ -2237,6 +2238,7 @@ function zz_htmltag_escape($string) {
 		default: $character_set = $zz_conf['character_set']; break;
 	}
 	$string = htmlspecialchars($string, ENT_NOQUOTES, $character_set);
+	if (!$string) $string = htmlspecialchars($string, ENT_NOQUOTES, 'ISO-8859-1');
 	$string = str_replace('&amp;', '&', $string);
 	return $string;
 }
@@ -2255,6 +2257,7 @@ function zz_htmlnoand_escape($string) {
 		default: $character_set = $zz_conf['character_set']; break;
 	}
 	$string = htmlspecialchars($string, ENT_QUOTES, $character_set);
+	if (!$string) $string = htmlspecialchars($string, ENT_QUOTES, 'ISO-8859-1');
 	$string = str_replace('&amp;', '&', $string);
 	return $string;
 }
