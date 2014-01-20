@@ -125,7 +125,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	if ($zz_conf['show_list']) {
 		// Check all conditions whether they are true;
 		if (!empty($zz_conf['modules']['conditions'])) {
-			$zz_conditions = zz_conditions_list_check($zz, $zz_conditions, $id_field, array_keys($lines));
+			$zz_conditions = zz_conditions_list_check($zz, $zz_conditions, $id_field, array_keys($lines), $ops['mode']);
 			if ($zz_error['error']) return zz_return(array($ops, $zz_var));
 		}
 
@@ -300,20 +300,28 @@ function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $id_field
 		if (empty($zz_conf['modules']['conditions'])) continue;
 		if (!$index) {
 			// only apply conditions to list head if condition
-			// is valid for all records (true instead of array of ids)
+			// is valid for all records (true or false/empty array instead of array of ids)
 			$my_bool_conditions = array();
 			foreach ($zz_conditions['bool'] as $condition => $ids) {
 				if ($ids === true) $my_bool_conditions[$condition] = true;
+				elseif (!$ids) $my_bool_conditions[$condition] = false;
 			}
 			if (!$my_bool_conditions) continue;
 		} else {
 			$my_bool_conditions = $zz_conditions['bool'];
 		}
 		foreach (array_keys($line_defs[$index]) as $fieldindex) {
-			if (!isset($line[$id_field])) continue;
-			$applied = zz_conditions_merge_field(
-				$line_defs[$index][$fieldindex], $my_bool_conditions, $line[$id_field]
-			);
+			if (!isset($line[$id_field])) {
+				if ($index !== 0) continue;
+				// header
+				$applied = zz_conditions_merge_field(
+					$line_defs[$index][$fieldindex], $my_bool_conditions, 0
+				);
+			} else {
+				$applied = zz_conditions_merge_field(
+					$line_defs[$index][$fieldindex], $my_bool_conditions, $line[$id_field]
+				);
+			}
 			if ($applied) $conditions_applied = true;
 		}
 	}
@@ -1129,7 +1137,9 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 
 	//	if there's a link, glue parts together
 	$link = false;
-	if ($mode != 'export' OR $_GET['export'] == 'kml') $link = zz_set_link($field, $line);
+	if ($mode !== 'export' OR $zz_conf['list_display'] === 'kml') {
+		$link = zz_set_link($field, $line);
+	}
 
 	$mark_search_string = 'field_name';
 	$text = '';

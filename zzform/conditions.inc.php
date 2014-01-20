@@ -258,7 +258,9 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 			}
 			break;
 		case 'export_mode':
-			// @todo: not yet implemented
+			if ($mode === 'export') {
+				$zz_conditions['bool'][$index] = true;
+			}
 			break;
 		case 'order_by':
 			// @todo: not yet implemented
@@ -667,15 +669,16 @@ function zz_conditions_merge_conf(&$conf, $bool_conditions, $record_id) {
  * @param array $zz_conditions (existing conditions from zz_conditions_record_check)
  * @param string $id_field (record ID field name)
  * @param array $ids (record IDs)
+ * @param string $mode ($ops['mode'])
  * @global array $zz_conf
  * @global array $zz_error
  * @return array $zz_conditions 
  *		['bool'][$index of condition] = array($record ID1 => true, $record ID2 
- *		=> true, ..., $record IDn => true)
+ *		=> true, ..., $record IDn => true) or true = all true // false = fall false
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @see zz_conditions_record_check()
  */
-function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids) {
+function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids, $mode) {
 	global $zz_conf;
 	global $zz_error;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
@@ -694,6 +697,8 @@ function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids) {
 		case 'multi':
 			if (!empty($zz_conf['multi'])) {
 				$zz_conditions['bool'][$index] = true;
+			} else {
+				$zz_conditions['bool'][$index] = false;
 			}
 			break;
 		case 'record':
@@ -711,25 +716,30 @@ function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids) {
 			}
 			$lines = zz_db_fetch($sql, $id_field, 'id as key', 'list-record ['.$index.']');
 			if ($zz_error['error']) return zz_return($zz_conditions); // DB error
+			$zz_conditions['bool'][$index] = $lines;
 			break;
 		case 'query':
 			$sql = $condition['sql'];
 			$sql = zz_edit_sql($sql, 'WHERE', $condition['key_field_name'].' IN ('.implode(', ', $ids).')');
 			$lines = zz_db_fetch($sql, $condition['key_field_name'], 'id as key', 'list-query ['.$index.']');
 			if ($zz_error['error']) return zz_return($zz_conditions); // DB error
+			$zz_conditions['bool'][$index] = $lines;
 			break;
 		case 'access':
 			// get access rights for each ID with user function
-			$lines = $condition['function']($ids, $condition);
+			$zz_conditions['bool'][$index] = $condition['function']($ids, $condition);
+			break;
+		case 'export_mode':
+			if ($mode === 'export') {
+				$zz_conditions['bool'][$index] = true;
+			} else {
+				$zz_conditions['bool'][$index] = false;
+			}
 			break;
 		default:
-			$lines = array();
+			$zz_conditions['bool'][$index] = array();
 			break;
 		}
-		if (empty($zz_conditions['bool'][$index]))
-			$zz_conditions['bool'][$index] = $lines;
-		else
-			$zz_conditions['bool'][$index] = zz_array_merge($zz_conditions['bool'][$index], $lines);
 	}
 	return zz_return($zz_conditions);
 }
