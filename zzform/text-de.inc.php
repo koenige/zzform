@@ -145,6 +145,9 @@ $text['Detail record could not be handled'] = 'Teileintrag konnte nicht gespeich
 	$text['String <em>"%s"</em> is not allowed'] = 'Die Zeichenfolge <em>"%s"</em> ist nicht erlaubt';
 	$text['Please check these values again'] = 'Bitte &uuml;berpr&uuml;fen Sie diese Werte nocheinmal';
 	$text['Please select one of the values for field %s'] = 'Bitte w&auml;hlen Sie aus einem der Werte f&uuml;r das Feld %s aus';
+$text['Creation of directory %s failed: Parent directory is not writable.'] = 'Erstellung des Verzeichnisses %s ist fehlgeschlagen: Hauptverzeichnis ist nicht schreibbar.';
+$text['Creation of directory %s failed.'] = 'Erstellung des Verzeichnisses %s ist fehlgeschlagen.';
+
 
 // Record form: Validation of Database Integrity, displayed above form
 $text['No records in relation table'] = 'Keine Eintr&auml;ge in Tabelle %s. Bitte f&uuml;llen Sie diese Tabelle mit Werten.';

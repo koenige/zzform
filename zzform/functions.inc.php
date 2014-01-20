@@ -2030,6 +2030,14 @@ function zz_create_topfolders($dir) {
 	$upper_dir = substr($dir, 0, strrpos($dir, '/'));
 	$success = zz_create_topfolders($upper_dir);
 	if ($success) {
+		if (!is_writable($upper_dir)) {
+			$zz_error[] = array(
+				'msg_dev' => sprintf(zz_text('Creation of directory %s failed: Parent directory is not writable.'), $dir),
+				'level' => E_USER_ERROR
+			);
+			$zz_error['error'] = true;
+			return false;
+		}
 		$success = mkdir($dir, 0777);
 		if ($success) return true;
 		//else $success = chown($dir, getmyuid());
