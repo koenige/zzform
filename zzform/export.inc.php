@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2010 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -59,7 +59,7 @@ function zz_export_init($zz, $ops) {
 	if (empty($zz_conf['export'])) return array($zz, $ops);
 	
 	//	export
-	if (!empty($_GET['mode']) AND $_GET['mode'] == 'export') {
+	if (!empty($_GET['mode']) AND $_GET['mode'] === 'export') {
 		// should not happen, but just in case
 		if (empty($_GET['export'])) $_GET['export'] = 'csv';
 	}
@@ -89,7 +89,7 @@ function zz_export_init($zz, $ops) {
 	}
 	foreach ($zz_conf['export'] as $type => $mode) {
 		$mode = strtolower($mode);
-		if ($_GET['export'] != $mode) continue;
+		if ($_GET['export'] !== $mode) continue;
 		if (is_numeric($type)) {
 			$export = $mode;
 			$zz_conf['int']['export_script'] = '';
@@ -102,8 +102,11 @@ function zz_export_init($zz, $ops) {
 		$zz_error[] = array(
 			'msg_dev' => 'Export parameter not allowed: <code>'
 				.($export ? $export : zz_htmltag_escape($_GET['export'])).'</code>',
-			'level' => E_USER_NOTICE
+			'level' => E_USER_NOTICE,
+			'status' => 404
 		);
+		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], array('export'));
+		$ops['mode'] = false;
 		return array($zz, $ops);
 	}
 	$ops['headers'] = zz_export_headers($export, $zz_conf['character_set']);
@@ -296,7 +299,7 @@ function zz_export_kml($ops, $zz) {
 			$point = $line[$fields['point']]['value'];
 			$point = zz_geo_coord_sql_out($point, 'dec', ' ');
 			$point = explode(' ', $point);
-			if (count($point) == 2) {
+			if (count($point) === 2) {
 				$latitude = $point[0];
 				$longitude = $point[1];
 			}
@@ -353,7 +356,7 @@ function zz_export_kml_description($head, $line, $fields) {
 		} else {
 			$title = $head[$no]['th_nohtml'];
 		}
-		if ($zz_conf['character_set'] != 'utf-8')
+		if ($zz_conf['character_set'] !== 'utf-8')
 			$title = utf8_encode($title);
 		$desc[] = '<tr><th>'.$title.'</th><td>'.$values['text'].'</td></tr>';
 	}
