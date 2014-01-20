@@ -71,7 +71,7 @@
  *	$zz_tab[0][0]['images'][n][0]['upload']['validated']	validated (yes = tested, no = rely on fileupload i. e. user)
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2006-2013 Gustaf Mossakowski
+ * @copyright Copyright © 2006-2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -287,6 +287,12 @@ function zz_upload_check_files($zz_tab) {
 		}
 		foreach (array_keys($field['image']) as $img) {
 			$images[$no][$img] = $field['image'][$img];
+
+			// initialize convert_options
+			if (!isset($images[$no][$img]['convert_options'])) {
+				$images[$no][$img]['convert_options'] = '';
+			}
+
 			if (empty($images[$no][$img]['field_name'])) {
 				// don't do the rest if field_name is not set
 				continue;
@@ -317,11 +323,6 @@ function zz_upload_check_files($zz_tab) {
 
 			if (!isset($myfiles['name'][$field_name])) {
 				$myfiles['name'][$field_name] = 'unknown';
-			}
-
-			// initialize convert_options
-			if (!isset($images[$no][$img]['convert_options'])) {
-				$images[$no][$img]['convert_options'] = '';
 			}
 
 			// title, generated from local filename, to be used for 'upload_value'
