@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2013 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -702,7 +702,7 @@ function zz_init_limit($zz) {
 	// get LIMIT from URI
 	if (!$zz_conf['int']['this_limit'] && $zz_conf['limit']) 
 		$zz_conf['int']['this_limit'] = $zz_conf['limit'];
-	$limit = zz_check_get_array('limit', 'is_numeric');
+	$limit = zz_check_get_array('limit', 'is_int');
 	if ($limit !== '') $zz_conf['int']['this_limit'] = $limit;
 	if ($zz_conf['int']['this_limit'] AND $zz_conf['int']['this_limit'] < $zz_conf['limit'])
 		$zz_conf['int']['this_limit'] = $zz_conf['limit'];
