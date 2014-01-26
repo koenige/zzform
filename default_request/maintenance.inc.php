@@ -74,7 +74,7 @@ function zz_maintenance($params) {
 		case 'INSERT':
 		case 'UPDATE':
 		case 'DELETE':
-			$result = zz_db_change($sql);
+			$result = wrap_db_query($sql);
 			$page['text'] .= '<h2>'.zz_text('Result').'</h2>'."\n";
 			if (!$result['action']) {
 				$page['text'] .= '<div class="error">'
@@ -199,7 +199,7 @@ function zz_maintenance_tables() {
 					$sql = 'UPDATE '.$table
 						.' SET '.$field_name.' = "'.zz_db_escape($new)
 						.'" WHERE '.$field_name.' = "'.zz_db_escape($old).'"';
-					zz_db_change($sql);
+					wrap_db_query($sql);
 				}
 			}
 		}
@@ -947,6 +947,7 @@ function zz_maintenance_logs() {
 					// ignore empty tokens
 					$time = trim(end($tokens));
 					if (!$time) array_pop($tokens);
+					if (!$tokens) break;
 				}
 				if (substr($time, 0, 1) === '{'
 					AND substr($time, -1) === '}'
@@ -960,7 +961,7 @@ function zz_maintenance_logs() {
 			}
 
 			$data['status'] = false;
-			if (substr($tokens[0], 0, 1) == '[' AND substr($tokens[0], -1) == ']') {
+			if ($tokens AND substr($tokens[0], 0, 1) == '[' AND substr($tokens[0], -1) == ']') {
 				$data['link'] = array_shift($tokens);
 				$data['link'] = substr($data['link'], 1, -1);
 				if (intval($data['link'])."" === $data['link']) {
@@ -969,7 +970,7 @@ function zz_maintenance_logs() {
 					$data['status'] = $data['link'];
 					$data['link'] = false;
 				}
-			} elseif (substr($tokens[0], 0, 1) == '[' AND substr($tokens[1], -1) == ']'
+			} elseif ($tokens AND substr($tokens[0], 0, 1) == '[' AND substr($tokens[1], -1) == ']'
 				AND strlen($tokens[0]) == 4) {
 				$data['status'] = array_shift($tokens);
 				$data['status'] = substr($data['status'], 1);
