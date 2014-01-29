@@ -6,7 +6,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2013 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -124,7 +124,7 @@ div.text #zzform, #zzform div.text
 					{ border-top: none; }
 #zzform p.desc, #zzform .explanation 
 					{ margin: 0; padding: 0; font-weight: normal; 
-					font-size: 90%; clear: both; }
+					font-size: 90%; clear: both; max-width: 40em; }
 #zzform p.explanation 
 					{ line-height: 1.2; }
 #zzform #record .upload td, #zzform #record .upload th
