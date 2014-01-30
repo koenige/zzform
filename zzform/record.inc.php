@@ -531,6 +531,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			$subtables = array_keys($zz_tab[$sub_tab]);
 			foreach (array_keys($subtables) as $this_rec)
 				if (!is_numeric($subtables[$this_rec])) unset($subtables[$this_rec]);
+			$details = array();
+			$d_index = 0;
 			foreach ($subtables as $sub_rec) {
 				// show all subtables which are not deleted but 1 record as a minimum
 				if ($zz_tab[$sub_tab][$sub_rec]['action'] === 'delete'
@@ -545,6 +547,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					AND !empty($field['tick_to_save'])) continue;
 				if ($zz_tab[$sub_tab][$sub_rec]['action'] === 'delete'
 					AND $field_display !== 'form' AND $zz_var['action']) continue;
+				$details[$d_index] = '';
 
 				$c_subtables++;
 
@@ -587,14 +590,14 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				}
 
 				if ($field['form_display'] !== 'horizontal' OR $sub_rec == $firstsubtable_no) {
-					$out['td']['content'] .= '<div class="detailrecord">';
+					$details[$d_index] .= '<div class="detailrecord">';
 				}
 				if (!empty($field['tick_to_save'])) {
 					$fieldattr = array();
 					if ($show_tick) $fieldattr['checked'] = true;
 					if ($field_display !== 'form') $fieldattr['disabled'] = true;
 					
-					$out['td']['content'] .= '<p class="tick_to_save">'
+					$details[$d_index] .= '<p class="tick_to_save">'
 						.zz_form_element('zz_save_record['.$sub_tab.']['.$sub_rec.']',
 							'', 'checkbox', 'zz_tick_'.$sub_tab.'_'.$sub_rec, $fieldattr).'</p>';
 				}
@@ -602,7 +605,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				// HTML output depending on form display
 				if ($field['form_display'] !== 'horizontal' OR $sub_rec == $firstsubtable_no) {
 					// show this for vertical display and for first horizontal record
-					$out['td']['content'] .= '<table class="'.$field['form_display'].'">';
+					$details[$d_index] .= '<table class="'.$field['form_display'].'">';
 					$table_open = true;
 				}
 				if ($field['form_display'] !== 'horizontal' OR $sub_rec === count($subtables)-1)
@@ -615,19 +618,21 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 						$lastrow = $removebutton;	
 					}
 				}	
-				$out['td']['content'] .= zz_show_field_rows($zz_tab, $subtable_mode, 
+				$details[$d_index] .= zz_show_field_rows($zz_tab, $subtable_mode, 
 					$field_display, $zz_var, $zz_conf_record, $sub_tab, $sub_rec,
 					$field['form_display'], $lastrow, $sub_rec, $h_show_explanation);
 				if ($field['form_display'] !== 'horizontal') {
-					$out['td']['content'] .= '</table></div>'."\n";
+					$details[$d_index] .= '</table></div>'."\n";
 					$table_open = false;
 				}
 				if ($show_remove) {
 					if ($field['form_display'] !== 'horizontal') {
-						$out['td']['content'] .= $removebutton;
+						$details[$d_index] .= $removebutton;
 					}
 				}
+				$d_index++;
 			}
+			$out['td']['content'] .= implode('', $details);
 			if ($table_open) {
 				$out['td']['content'] .= '</table></div>'."\n";
 			}
@@ -1047,7 +1052,7 @@ function zz_output_field_rows($matrix, &$zz_var, $formdisplay, $extra_lastcol) {
 				$output .= '<th'.zz_show_class(array_merge($row['th']['attr'], $row['tr']['attr']))
 					.'>'.$row['th']['content'].'</th>'."\n";
 			}
-			if ($extra_lastcol) $output .= '<th>&nbsp;</th>';
+			if ($extra_lastcol) $output .= '<th class="dummy_column">&nbsp;</th>';
 			$output .= '</tr>'."\n";
 			$zz_var['horizontal_table_head'] = true;
 		}
@@ -1056,7 +1061,13 @@ function zz_output_field_rows($matrix, &$zz_var, $formdisplay, $extra_lastcol) {
 			$output .= '<td'.zz_show_class(array_merge($row['td']['attr'], $row['tr']['attr']))
 				.'>'.$row['td']['content'].'</td>'."\n";
 		}
-		if ($extra_lastcol) $output .= '<td>'.$extra_lastcol.'</td>';
+		if ($extra_lastcol) {
+			if ($extra_lastcol === '&nbsp;') {
+				$output .= '<td class="dummy_column">'.$extra_lastcol.'</td>';			
+			} else {
+				$output .= '<td>'.$extra_lastcol.'</td>';
+			}
+		}
 		$output .= '</tr>'."\n";
 		if ($row['separator']) {
 			$output .= zz_show_separator($row['separator'], 1, count($matrix));

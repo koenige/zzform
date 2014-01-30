@@ -31,7 +31,7 @@ div.text #zzform, #zzform div.text
 @media screen and (max-width: 640px) {
 	#zzform .data .hidden640
 						{ display: none; }
-	#zzform .data .block640, #zzform .data .block480a
+	#zzform .data .block640, #zzform .data .block640a
 						{ display: block; }
 	#zzform .data thead th.block640a
 						{ display: inline; border: none; }
@@ -153,6 +153,8 @@ div.text #zzform, #zzform div.text
 	#zzform #record td
 					{ padding-top: 0; }
 	#zzform #record tfoot th
+					{ display: none; }
+	#zzform #record .dummy_column
 					{ display: none; }
 }
 
