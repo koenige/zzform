@@ -860,7 +860,9 @@ function zz_upload_error_with_file($filename, $file, $type = 'unknown') {
 		$msg_dev = 'While converting the following file, an error occured.';
 		break;
 	}
-	$msg_dev = zz_text($msg_dev)."\n\n".var_export($file, true);
+	$msg_dev = zz_text($msg_dev);
+	$msg_dev .= "\n\nAction: ".var_export($file['action'], true);
+	$msg_dev .= "\n\n".var_export($file['upload'], true);
 	if ($error_filename)
 		$msg_dev .= "\r\n".zz_text('The file was temporarily saved under: ').$error_filename;
 	$zz_error[] = array(
@@ -1116,8 +1118,8 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec) {
 				'log_post_data' => false,
 				'level' => E_USER_NOTICE
 			);
+			zz_upload_error_with_file($filename, $image, 'convert');
 		}
-		zz_upload_error_with_file($filename, $image, 'convert');
 		zz_unlink_cleanup($tmp_filename);
 	}
 	$zz_conf['int']['no_image_action'] = false;
