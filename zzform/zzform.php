@@ -874,18 +874,21 @@ function zzform_file($definition_file) {
 	global $zz_conf;
 	global $zz_setting;
 
-	$tables = '';
 	if (file_exists($zz_conf['form_scripts'].'/'.$definition_file.'.php')) {
 		$tables = $zz_conf['form_scripts'].'/'.$definition_file.'.php';
-	} elseif ($zz_setting['brick_default_tables'] === true
-		OR in_array($definition_file, $zz_setting['brick_default_tables'])) {
-		$tables = $zz_conf['dir'].'/default_tables/database_'.$definition_file.'.php';
-		if (!file_exists($tables)) {
-			$tables = $zz_conf['dir'].'/default_tables/'.$definition_file.'.php';
-			if (!file_exists($tables)) {
-				$tables = '';
-			}
-		}
+	} else {
+		require_once $zz_setting['lib'].'/zzbrick/forms.inc.php';
+		$brick['setting'] = &$zz_setting;
+		if (empty($brick['setting']['brick_custom_dir']))
+			$brick['setting']['brick_custom_dir'] = $zz_setting['custom'].'/zzbrick_';
+		if (empty($brick['setting']['brick_module_dir']))
+			$brick['setting']['brick_module_dir'] = '/zzbrick_';
+
+		$brick['path'] = $brick['setting']['brick_custom_dir'].'tables';
+		$brick['module_path'] = $brick['setting']['brick_module_dir'].'tables';
+		$brick['vars'] = array($definition_file);
+		$brick = brick_forms_file($brick);
+		$tables = $brick['form_script_path'];
 	}
 	return $tables;
 }
