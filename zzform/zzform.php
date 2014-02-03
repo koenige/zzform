@@ -739,7 +739,6 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 	// unset all variables that are not needed
 	// important because there may be multiple zzform calls
 	global $zz_conf;
-	global $zz_setting;
 	global $zz_saved;
 	
 	// debug, note: this will only start from the second time, zzform_multi()
@@ -805,19 +804,7 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 			$zz_conf['id'] = $id;
 			zz_debug('before including definition file');
 		}
-		$tables = false;
-		if (file_exists($zz_conf['form_scripts'].'/'.$definition_file.'.php')) {
-			$tables = $zz_conf['form_scripts'].'/'.$definition_file.'.php';
-		} elseif ($zz_setting['brick_default_tables'] === true
-			OR in_array($definition_file, $zz_setting['brick_default_tables'])) {
-			$tables = $zz_conf['dir'].'/default_tables/database_'.$definition_file.'.php';
-			if (!file_exists($tables)) {
-				$tables = $zz_conf['dir'].'/default_tables/'.$definition_file.'.php';
-				if (!file_exists($tables)) {
-					$tables = false;
-				}
-			}
-		}
+		$tables = zzform_file($definition_file);
 		if ($tables) {
 			$zz = zzform_include_table($tables, $values);
 		} else {
@@ -873,6 +860,34 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 		zz_debug('end');
 	}
 	return $ops;
+}
+
+/**
+ * get filename of table definition file
+ *
+ * @param string $definition_file
+ * @global array $zz_conf
+ * @global array $zz_setting
+ * @return string
+ */
+function zzform_file($definition_file) {
+	global $zz_conf;
+	global $zz_setting;
+
+	$tables = '';
+	if (file_exists($zz_conf['form_scripts'].'/'.$definition_file.'.php')) {
+		$tables = $zz_conf['form_scripts'].'/'.$definition_file.'.php';
+	} elseif ($zz_setting['brick_default_tables'] === true
+		OR in_array($definition_file, $zz_setting['brick_default_tables'])) {
+		$tables = $zz_conf['dir'].'/default_tables/database_'.$definition_file.'.php';
+		if (!file_exists($tables)) {
+			$tables = $zz_conf['dir'].'/default_tables/'.$definition_file.'.php';
+			if (!file_exists($tables)) {
+				$tables = '';
+			}
+		}
+	}
+	return $tables;
 }
 
 /**
