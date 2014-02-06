@@ -29,34 +29,49 @@ div.text #zzform, #zzform div.text
 	#zzform td h6	{ margin: 0 0 .5em; }
 #zzform .hidden 	{ display: none; }
 @media screen and (max-width: 640px) {
+	#zzform .data td	{ max-width: 510px; overflow: hidden; }
 	#zzform .data .hidden640
 						{ display: none; }
-	#zzform .data .block640, #zzform .data .block640a
+	#zzform .data tbody .block640, #zzform .data tbody .block640a
+						{ display: block; }
+	#zzform .data thead th.block640
 						{ display: block; }
 	#zzform .data thead th.block640a
 						{ display: inline; border: none; }
 	#zzform .data thead th.block640a:after
-						{ content: " / " }
+						{ content: " " }
+	#zzform .data tfoot tr.sum td.block640a
+					{ border-bottom: none; display: none; }
 }
 @media screen and (max-width: 480px) {
+	#zzform .data td	{ max-width: 350px; }
 	#zzform .data .hidden480
 						{ display: none; }
-	#zzform .data .block480, #zzform .data .block480a
+	#zzform .data tbody .block480, #zzform .data tbody .block480a
+						{ display: block; }
+	#zzform .data thead th.block480
 						{ display: block; }
 	#zzform .data thead th.block480a
 						{ display: inline; border: none; }
 	#zzform .data thead th.block480a:after
-						{ content: " / " }
+						{ content: " " }
+	#zzform .data tfoot tr.sum td.block480a
+					{ border-bottom: none; display: none; }
 }
 @media screen and (max-width: 320px) {
+	#zzform .data td	{ max-width: 190px; }
 	#zzform .data .hidden320
 						{ display: none; }
-	#zzform .data .block320, #zzform .data .block320a
+	#zzform .data tbody .block320, #zzform .data tbody .block320a
+						{ display: block; }
+	#zzform .data thead th.block320
 						{ display: block; }
 	#zzform .data thead th.block320a
 						{ display: inline; border: none; }
 	#zzform .data thead th.block320a:after
-						{ content: " / " }
+						{ content: " " }
+	#zzform .data tfoot tr.sum td.block320a
+					{ border-bottom: none; display: none; }
 }	
 /* get rid of wrong ligatures in Firefox */
 #zzform input, #zzform textarea 
@@ -227,6 +242,11 @@ body #zzform .separator hr
 						{ width: auto; padding-bottom: 0; }
 	#zzform #record .subtable td
 						{ padding-top: 0; }
+
+	#zzform #record .subtable .horizontal th
+					{ float: left; font-weight: normal; padding-right: .25em; }
+	#zzform #record .subtable .horizontal th:before { content: " / "; }
+	#zzform #record .subtable .horizontal th.firstrow:before { content: ""; }
 }
 
 /* filter */
