@@ -737,7 +737,10 @@ function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids, $mode) {
 			}
 			break;
 		default:
-			$zz_conditions['bool'][$index] = array();
+			if (!isset($zz_conditions['bool'][$index])) {
+				// condition might be set by zz_conditions_record_check(), e. g. 'where'
+				$zz_conditions['bool'][$index] = array();
+			}
 			break;
 		}
 	}
