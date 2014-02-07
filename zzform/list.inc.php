@@ -991,7 +991,7 @@ function zz_list_query_hierarchy($zz, $id_field) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
-	$zz['list']['hierarchy']['id_fieldname'] = $id_field;
+	$zz['list']['hierarchy']['id_field_name'] = $id_field;
 	list($my_lines, $total_rows) = zz_hierarchy($zz['sql'], $zz['list']['hierarchy']);
 
 	$lines = array(); // unset and initialize
@@ -1916,7 +1916,7 @@ function zz_list_init_subselects($field, $fieldindex, $table_id_field_name) {
 		}
 	}
 	// get field name of foreign key
-	$subselect['id_fieldname'] = $foreign_key_field['field_name'];
+	$subselect['id_field_name'] = $foreign_key_field['field_name'];
 	if ($translation_key_field) {
 		$subselect['key_fieldname'] = $table_id_field_name;
 		$subselect['translation_key'] = $translation_key_field['translation_key'];
@@ -1934,7 +1934,7 @@ function zz_list_init_subselects($field, $fieldindex, $table_id_field_name) {
 	if (empty($subselect['table'])) {
 		$subselect['table'] = $field['table'];
 	}
-	$subselect['id_table_and_fieldname'] = $subselect['table'].'.'.$subselect['id_fieldname'];
+	$subselect['id_table_and_fieldname'] = $subselect['table'].'.'.$subselect['id_field_name'];
 	$subselect['fieldindex'] = $fieldindex;
 	$subselect['table_name'] = $field['table_name'];
 
@@ -1947,7 +1947,7 @@ function zz_list_init_subselects($field, $fieldindex, $table_id_field_name) {
  * @param array $rows
  * @param array $subselects List of detail records with an SQL query
  *		$zz['fields'][n]['subselect'] = ...;
- *			required keys: 'sql', 'id_table_and_fieldname', 'id_fieldname'
+ *			required keys: 'sql', 'id_table_and_fieldname', 'id_field_name'
  *			optional keys: 'translation_key', 'list_format', 'export_no_html',
  *			'prefix', 'concat_rows', 'suffix', 'concat_fields', 'show_empty_cells'
  * @param array $ids
@@ -1982,14 +1982,14 @@ function zz_list_get_subselects($lines, $subselects) {
 				'translationfield_id = '.$subselect['translation_key']);
 		// E_USER_WARNING might return message, we do not want to see this message
 		// but in the logs
-		$sub_lines = zz_db_fetch($subselect['sql'], array($subselect['id_fieldname'], '_dummy_id_'), 'numeric', false, E_USER_WARNING);
+		$sub_lines = zz_db_fetch($subselect['sql'], array($subselect['id_field_name'], '_dummy_id_'), 'numeric', false, E_USER_WARNING);
 		if (!is_array($sub_lines)) $sub_lines = array();
 
 		foreach ($ids as $no => $id) {
 			if (empty($sub_lines[$id])) continue;
 			$linetext = array();
 			foreach ($sub_lines[$id] as $linefields) {
-				unset($linefields[$subselect['id_fieldname']]); // ID field will not be shown
+				unset($linefields[$subselect['id_field_name']]); // ID field will not be shown
 				$fieldtext = false;
 				$index = 0;
 				foreach ($linefields as $field_name => $db_fields) {
