@@ -2076,7 +2076,7 @@ function zz_create_topfolders($dir) {
 function zz_hierarchy($sql, $hierarchy) {
 	// for performance reasons, we only get the fields which are important
 	// for the hierarchy (we need to get all records)
-	$lines = zz_db_fetch($sql, array($hierarchy['id_fieldname'], $hierarchy['mother_id_field_name']), 'key/value'); 
+	$lines = zz_db_fetch($sql, array($hierarchy['id_field_name'], $hierarchy['mother_id_field_name']), 'key/value'); 
 	if (!$lines) return zz_return(array(array(), 0));
 
 	$h_lines = array();
@@ -2092,7 +2092,7 @@ function zz_hierarchy($sql, $hierarchy) {
 		$h_lines[$mother_id][$id] = $id;
 	}
 	if (!$h_lines) return zz_return(array(array(), 0));
-	$my_lines = zz_hierarchy_sort($h_lines, $hierarchy['id'], $hierarchy['id_fieldname']);
+	$my_lines = zz_hierarchy_sort($h_lines, $hierarchy['id'], $hierarchy['id_field_name']);
 	$total_rows = count($my_lines); // sometimes, more rows might be selected beforehands,
 	return array($my_lines, $total_rows);
 }
