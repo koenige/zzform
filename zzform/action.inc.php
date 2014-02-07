@@ -1178,12 +1178,18 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 
 		//	call function
 		if (!empty($field['function'])) { // $field['type'] === 'hidden' AND 
-			foreach ($field['fields'] as $var)
-				if (strstr($var, '.')) {
-					$vars = explode('.', $var);
-					$func_vars[$var] = $my_rec['POST'][$vars[0]][0][$vars[1]];
-				} else
-					$func_vars[$var] = $my_rec['POST'][$var];
+			if (!empty($field['fields'])) {
+				foreach ($field['fields'] as $var) {
+					if (strstr($var, '.')) {
+						$vars = explode('.', $var);
+						$func_vars[$var] = $my_rec['POST'][$vars[0]][0][$vars[1]];
+					} else {
+						$func_vars[$var] = $my_rec['POST'][$var];
+					}
+				}
+			} else {
+				$func_vars = array();
+			}
 			$my_rec['POST'][$field_name] = $field['function']($func_vars, $field_name);
 		}
 
