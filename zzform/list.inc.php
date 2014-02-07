@@ -1031,39 +1031,6 @@ function zz_list_query_hierarchy($zz, $id_field) {
 }
 
 /**
- * Sort SQL query for hierarchical view
- *
- * @param string $sql
- * @param array $hierarchy
- * @return array
- *		array $my_lines
- *		int $total_rows
- */
-function zz_hierarchy($sql, $hierarchy) {
-	// for performance reasons, we only get the fields which are important
-	// for the hierarchy (we need to get all records)
-	$lines = zz_db_fetch($sql, array($hierarchy['id_fieldname'], $hierarchy['mother_id_field_name']), 'key/value'); 
-	if (!$lines) return zz_return(array(array(), 0));
-
-	$h_lines = array();
-	foreach ($lines as $id => $mother_id) {
-		// sort lines by mother_id
-		if (empty($hierarchy['id'])) 
-			$hierarchy['id'] = 'NULL';
-		if ($id == $hierarchy['id']) {
-			// get uppermost line if hierarchy id is not NULL!
-			$mother_id = 'TOP';
-		} elseif (empty($mother_id))
-			$mother_id = 'NULL';
-		$h_lines[$mother_id][$id] = $id;
-	}
-	if (!$h_lines) return zz_return(array(array(), 0));
-	$my_lines = zz_hierarchy_sort($h_lines, $hierarchy['id'], $hierarchy['id_fieldname']);
-	$total_rows = count($my_lines); // sometimes, more rows might be selected beforehands,
-	return array($my_lines, $total_rows);
-}
-
-/**
  * Create links to edit, show, delete or copy a record
  *
  * @param int $id ID of this record
@@ -1408,67 +1375,6 @@ function zz_list_format($text, $list_format) {
 		if (!empty($zz_conf['modules']['debug'])) zz_debug('end');
 	}
 	return $text;
-}
-
-/**
- * sorts $lines hierarchically
- *
- * @param array $h_lines
- * @param string $hierarchy ($zz['list']['hierarchy']['id'])
- * @param string $id_field
- * @param int $level
- * @param int $i
- * @return array $my_lines
- */
-function zz_hierarchy_sort($h_lines, $hierarchy, $id_field, $level = 0, &$i = 0) {
-	$my_lines = array();
-	$show_only = array();
-	if (!$level AND $hierarchy != 'NULL' AND !empty($h_lines['TOP'])) {
-		// show uppermost line
-		$h_lines['TOP'][0]['zz_level'] = $level;
-		$my_lines[$i][$id_field] = $h_lines['TOP'][$hierarchy];
-		// this page has child pages, don't allow deletion
-		$my_lines[$i]['zz_conf']['delete'] = false; 
-		$i++;
-	}
-	if ($hierarchy != 'NULL') $level++; // don't indent uppermost level if top category is NULL
-	if ($hierarchy == 'NULL' AND empty($h_lines[$hierarchy])) {
-		// Looks like a WHERE condition took some vital records from our hierarchy
-		// at least for the top level, get them back somehow.
-		foreach (array_keys($h_lines) as $main_id) {
-			$nulls[$main_id] = $main_id; // put all main_ids in Array
-			foreach ($h_lines[$main_id] as $id) {
-				// remove from Array if id has already a from NULL different main_id
-				unset($nulls[$id]); 
-			}
-		}
-		foreach ($nulls as $id) {
-			// put all ids with missing main_ids into NULL-Array
-			$h_lines['NULL'] = array($id => $id);
-			$show_only[] = $id;
-		}
-	}
-	if (!empty($h_lines[$hierarchy])) {
-		foreach ($h_lines[$hierarchy] as $h_line) {
-			$my_lines[$i] = array(
-				$id_field => $h_line,
-				'zz_level' => $level
-			);
-			if (in_array($h_line, $show_only)) {
-				// added nulls are not editable, won't be shown
-				$my_lines[$i]['zz_conf']['access'] = 'none';
-				$my_lines[$i]['zz_hidden_line'] = true;
-			}
-			$i++;
-			if (!empty($h_lines[$h_line])) {
-				// this page has child pages, don't allow deletion
-				$my_lines[($i-1)]['zz_conf']['delete'] = false; 
-				$my_lines = array_merge($my_lines, 
-					zz_hierarchy_sort($h_lines, $h_line, $id_field, $level, $i));
-			}
-		}
-	}
-	return $my_lines;
 }
 
 /**
