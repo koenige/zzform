@@ -1012,10 +1012,8 @@ function zz_list_query_hierarchy($zz, $id_field) {
 	if (!$h_lines) return zz_return(array(array(), 0));
 
 	$lines = array(); // unset and initialize
-	$level = 0; // level (hierarchy)
-	$i = 0; // number of record, for LIMIT
-	$my_lines = zz_list_hierarchy($h_lines, $zz['list']['hierarchy']['id'], $id_field, $level, $i);
-	$total_rows = $i; // sometimes, more rows might be selected beforehands,
+	$my_lines = zz_list_hierarchy($h_lines, $zz['list']['hierarchy']['id'], $id_field);
+	$total_rows = count($my_lines); // sometimes, more rows might be selected beforehands,
 	// but if hierarchy has ID value, not all rows are shown
 	if ($my_lines) {
 		if (!$zz_conf['int']['this_limit']) {
@@ -1408,7 +1406,7 @@ function zz_list_format($text, $list_format) {
  * @param int $i
  * @return array $my_lines
  */
-function zz_list_hierarchy($h_lines, $hierarchy, $id_field, $level, &$i) {
+function zz_list_hierarchy($h_lines, $hierarchy, $id_field, $level = 0, &$i = 0) {
 	$my_lines = array();
 	$show_only = array();
 	if (!$level AND $hierarchy != 'NULL' AND !empty($h_lines['TOP'])) {
