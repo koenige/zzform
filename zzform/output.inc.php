@@ -873,6 +873,8 @@ function zz_hour_format($seconds) {
  * @return string
  */
 function zz_number_format($value, $field) {
+	global $zz_conf;
+
 	if (empty($field['number_type'])) return $value;
 	if (!$value AND !empty($field['hide_zeros'])) return '';
 	
@@ -889,8 +891,20 @@ function zz_number_format($value, $field) {
 	case 'bytes':
 		$text = zz_byte_format($value);
 		break;
+	case 'number':
+		if ($value === '') return $value;
+		if (strstr($value, '.')) {
+			$number = explode('.', $value);
+			$decimals = strlen($number[1]);
+		} else {
+			$decimals = 0;
+		}
+		$text = number_format($value, $decimals, $zz_conf['decimal_point'], $zz_conf['thousands_separator']);
+		$text = str_replace(' ', '&nbsp;', $text);
+		break;
 	default:
 		$text = $value;
+		break;
 	}
 	return $text;
 }
