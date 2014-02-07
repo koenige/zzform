@@ -229,16 +229,67 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 		AND !empty($zz_var['upload_form'])) 
 		$output .= zz_form_element('MAX_FILE_SIZE', $zz_conf['upload_MAX_FILE_SIZE'], 'hidden')."\n";
 	$output .= '<table>'."\n";
+	$multiple = !empty($zz_var['id']['values']) ? true : false;
+	$tbody = zz_show_field_rows($zz_tab, $mode, $display, $zz_var, $zz_conf_record);
+	$tfoot = zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple);
+	$output .= $tfoot.$tbody;
+	if ($zz_error['error']) return zz_return(false);
+	$output .= '</table>'."\n";
+	if ($multiple) {
+		foreach ($zz_var['id']['values'] as $id_value) {
+			$output .= zz_form_element($zz_var['id']['field_name'].'[]', $id_value, 'hidden')."\n";
+		}
+	} elseif ($mode === 'delete') {
+		$output .= zz_form_element($zz_var['id']['field_name'], $zz_var['id']['value'], 'hidden')."\n";
+	}
+	if ($mode && $mode !== 'review' && $mode !== 'show') {
+		switch ($mode) {
+			case 'add': $submit = 'insert'; break;
+			case 'edit': $submit = 'update'; break;
+			case 'delete': $submit = 'delete'; break;
+		}
+		$output .= zz_form_element('zz_action', $submit, 'hidden');
+		if ($zz_conf['referer'])
+			$output .= zz_form_element('zz_referer', $zz_conf['referer'], 'hidden');
+		if (isset($_GET['file']) && $_GET['file']) 
+			$output .= zz_form_element('file', zz_html_escape($_GET['file']), 'hidden');
+	}
+	if ($display === 'form') {
+		foreach ($zz_tab as $tab => $my_tab) {
+			if (empty($my_tab['subtable_ids'])) continue;
+			$output .= zz_form_element(
+				sprintf('zz_subtable_ids[%s]', $my_tab['table_name']),
+				implode(',', $my_tab['subtable_ids']),
+				'hidden'
+			);
+		}
+	}
+	return zz_return($output);
+}
 
+/**
+ * show table foot for record
+ *
+ * @param string $mode
+ * @param array $zz_var
+ * @param array $zz_conf_record
+ * @param array $zz_tab
+ * @param bool $multiple
+ * @return string
+ */
+function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
+	global $zz_conf;
+	
+	$th = !empty($zz_conf['int']['hide_tfoot_th']) ? '' : '<th>&nbsp;</th> ';
+	
+	$output = '';
 	$cancelurl = $zz_conf['int']['url']['self'];
 	if ($base_qs = $zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']) {
 		$unwanted_keys = array('mode', 'id', 'add', 'zzaction', 'zzhash');
 		$cancelurl.= zz_edit_query_string($base_qs, $unwanted_keys);
 	}
-	$multiple = !empty($zz_var['id']['values']) ? true : false;
 	if ($mode && $mode !== 'review' && $mode !== 'show') {
-		$output .= '<tfoot>'."\n";
-		$output .= '<tr><th>&nbsp;</th> <td>'; 
+		$output .= '<tr>'.$th.'<td>'; 
 		$fieldattr = array();
 		switch ($mode) {
 		case 'edit':
@@ -274,83 +325,48 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 			// this is for re-edit a record in case of missing field values etc.
 			$output .= ' <a href="'.$cancelurl.'">'.zz_text('Cancel').'</a>';
 		$output .= '</td></tr>'."\n";
-		$output .= '</tfoot>'."\n";
 	} else {
-		if ($zz_conf_record['access'] !== 'add_only') {
-			$output .= '<tfoot>'."\n";
-			if ($zz_conf_record['edit']) {
-				$output .= '<tr><th>&nbsp;</th> <td class="reedit">';
-				if (empty($zz_conf_record['no_ok']))
-					$output .= '<a href="'.$cancelurl.'">'.zz_text('OK').'</a> | ';
-				$id_link = sprintf('&amp;id=%d', $zz_var['id']['value']);
-				if (!empty($zz_var['where_with_unique_id'])) $id_link = '';
-				$edit_link = 'mode=edit'.$id_link.$zz_var['extraGET'];
-				if ($zz_conf['access'] === 'show_after_edit')
-					$edit_link = substr($zz_var['extraGET'], 5); // remove &amp;
-				$output .= '<a href="'.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
-					.$zz_conf['int']['url']['?&'].$edit_link.'">'.zz_text('edit').'</a>';
-				if ($zz_conf_record['delete']) $output .= ' | <a href="'
-					.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
-					.$zz_conf['int']['url']['?&'].'mode=delete'.$id_link
-					.$zz_var['extraGET'].'">'.zz_text('delete').'</a>';
-				if ($zz_conf_record['copy']) {
-					$output .= sprintf(
-						' | <a href="%s%s%smode=add&amp;source_id=%d%s">'.zz_text('Copy').'</a>'
-						, $zz_conf['int']['url']['self'], $zz_conf['int']['url']['qs']
-						, $zz_conf['int']['url']['?&'], $zz_var['id']['value']
-						, $zz_var['extraGET']
-					);
-				}
-				$output .= '</td></tr>'."\n";
+		if ($zz_conf_record['access'] == 'add_only') return '';
+		if ($zz_conf_record['edit']) {
+			$output .= '<tr>'.$th.'<td class="reedit">';
+			if (empty($zz_conf_record['no_ok']))
+				$output .= '<a href="'.$cancelurl.'">'.zz_text('OK').'</a> | ';
+			$id_link = sprintf('&amp;id=%d', $zz_var['id']['value']);
+			if (!empty($zz_var['where_with_unique_id'])) $id_link = '';
+			$edit_link = 'mode=edit'.$id_link.$zz_var['extraGET'];
+			if ($zz_conf['access'] === 'show_after_edit')
+				$edit_link = substr($zz_var['extraGET'], 5); // remove &amp;
+			$output .= '<a href="'.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
+				.$zz_conf['int']['url']['?&'].$edit_link.'">'.zz_text('edit').'</a>';
+			if ($zz_conf_record['delete']) $output .= ' | <a href="'
+				.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
+				.$zz_conf['int']['url']['?&'].'mode=delete'.$id_link
+				.$zz_var['extraGET'].'">'.zz_text('delete').'</a>';
+			if ($zz_conf_record['copy']) {
+				$output .= sprintf(
+					' | <a href="%s%s%smode=add&amp;source_id=%d%s">'.zz_text('Copy').'</a>'
+					, $zz_conf['int']['url']['self'], $zz_conf['int']['url']['qs']
+					, $zz_conf['int']['url']['?&'], $zz_var['id']['value']
+					, $zz_var['extraGET']
+				);
 			}
-			if (!empty($zz_conf_record['details'])) {
-				$output .= '<tr><th>&nbsp;</th><td class="editbutton">'
-					.zz_show_more_actions($zz_conf_record, $zz_var['id']['value'], 
-					(!empty($zz_tab[0][0]['POST']) ? $zz_tab[0][0]['POST'] : array()))
-					.'</td></tr>'."\n";
-			}
-			if (empty($zz_conf_record['details']) AND !$zz_conf_record['edit']
-				AND $zz_conf_record['cancel_link']) {
-				$output .= '<tr><th>&nbsp;</th><td class="editbutton">'
-					.' <a href="'.$cancelurl.'">'.zz_text('Cancel').'</a>'
-					.'</td></tr>'."\n";
-			}			
-			$output .= '</tfoot>'."\n";
+			$output .= '</td></tr>'."\n";
 		}
-	}
-	$output .= zz_show_field_rows($zz_tab, $mode, $display, $zz_var, $zz_conf_record);
-	if ($zz_error['error']) return zz_return(false);
-	$output .= '</table>'."\n";
-	if ($multiple) {
-		foreach ($zz_var['id']['values'] as $id_value) {
-			$output .= zz_form_element($zz_var['id']['field_name'].'[]', $id_value, 'hidden')."\n";
+		if (!empty($zz_conf_record['details'])) {
+			$output .= '<tr>'.$th.'<td class="editbutton">'
+				.zz_show_more_actions($zz_conf_record, $zz_var['id']['value'], 
+				(!empty($zz_tab[0][0]['POST']) ? $zz_tab[0][0]['POST'] : array()))
+				.'</td></tr>'."\n";
 		}
-	} elseif ($mode === 'delete') {
-		$output .= zz_form_element($zz_var['id']['field_name'], $zz_var['id']['value'], 'hidden')."\n";
+		if (empty($zz_conf_record['details']) AND !$zz_conf_record['edit']
+			AND $zz_conf_record['cancel_link']) {
+			$output .= '<tr>'.$th.'<td class="editbutton">'
+				.' <a href="'.$cancelurl.'">'.zz_text('Cancel').'</a>'
+				.'</td></tr>'."\n";
+		}			
 	}
-	if ($mode && $mode !== 'review' && $mode !== 'show') {
-		switch ($mode) {
-			case 'add': $submit = 'insert'; break;
-			case 'edit': $submit = 'update'; break;
-			case 'delete': $submit = 'delete'; break;
-		}
-		$output .= zz_form_element('zz_action', $submit, 'hidden');
-		if ($zz_conf['referer'])
-			$output .= zz_form_element('zz_referer', $zz_conf['referer'], 'hidden');
-		if (isset($_GET['file']) && $_GET['file']) 
-			$output .= zz_form_element('file', zz_html_escape($_GET['file']), 'hidden');
-	}
-	if ($display === 'form') {
-		foreach ($zz_tab as $tab => $my_tab) {
-			if (empty($my_tab['subtable_ids'])) continue;
-			$output .= zz_form_element(
-				sprintf('zz_subtable_ids[%s]', $my_tab['table_name']),
-				implode(',', $my_tab['subtable_ids']),
-				'hidden'
-			);
-		}
-	}
-	return zz_return($output);
+	$output = '<tfoot>'."\n".$output.'</tfoot>'."\n";
+	return $output;
 }
 
 /**
@@ -969,7 +985,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			$out['separator_before'] .= $field['separator_before'];
 		if (!$append_next) $matrix[] = $out;
 	}
-	$output = zz_output_field_rows($matrix, $zz_var, $formdisplay, $extra_lastcol);
+	$output = zz_output_field_rows($matrix, $zz_var, $formdisplay, $extra_lastcol, $tab);
 	// append_next_type is only valid for single table
 	$zz_conf['int']['append_next_type'] = $old_append_next_type;
 	$zz_conf['int']['add_details_where'] = $old_add_details_where;
@@ -1018,11 +1034,18 @@ function zz_record_field_focus($zz_tab = false, $tab = 0, $rec = 0) {
  * @param array $zz_var 'horizontal_table_head'
  * @param string $formdisplay vertical | horizontal
  * @param string $extra_lastcol (optional)
+ * @param int $tab
  * @return string HTML output
  */
-function zz_output_field_rows($matrix, &$zz_var, $formdisplay, $extra_lastcol) {
+function zz_output_field_rows($matrix, &$zz_var, $formdisplay, $extra_lastcol, $tab) {
+	global $zz_conf;
 	$output = false;
 	
+	$th_content = false;
+	foreach ($matrix as $index => $row) {
+		if ($row['th']['content'] AND $row['th']['show']) $th_content = true;
+	}
+	if (!$tab AND !$th_content) $zz_conf['int']['hide_tfoot_th'] = true;
 	switch ($formdisplay) {
 	case 'vertical':
 		foreach ($matrix as $index => $row) {
@@ -1030,7 +1053,7 @@ function zz_output_field_rows($matrix, &$zz_var, $formdisplay, $extra_lastcol) {
 				$output .= zz_show_separator($row['separator_before'], $index);
 			}
 			$output .= '<tr'.zz_show_class($row['tr']['attr']).'>';
-			if ($row['th']['show']) {
+			if ($row['th']['show'] AND $th_content) {
 				$output .= '<th'.zz_show_class($row['th']['attr']).'>'
 					.$row['th']['content'].'</th>'."\n";
 			}
