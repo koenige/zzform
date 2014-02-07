@@ -991,29 +991,10 @@ function zz_list_query_hierarchy($zz, $id_field) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
-	// hierarchical list view
-	// for performance reasons, we only get the fields which are important
-	// for the hierarchy (we need to get all records)
-	$lines = zz_db_fetch($zz['sql'], array($id_field, $zz['list']['hierarchy']['mother_id_field_name']), 'key/value'); 
-	if (!$lines) return zz_return(array(array(), 0));
-
-	$h_lines = array();
-	foreach ($lines as $id => $mother_id) {
-		// sort lines by mother_id
-		if (empty($zz['list']['hierarchy']['id'])) 
-			$zz['list']['hierarchy']['id'] = 'NULL';
-		if ($id == $zz['list']['hierarchy']['id']) {
-			// get uppermost line if hierarchy id is not NULL!
-			$mother_id = 'TOP';
-		} elseif (empty($mother_id))
-			$mother_id = 'NULL';
-		$h_lines[$mother_id][$id] = $id;
-	}
-	if (!$h_lines) return zz_return(array(array(), 0));
+	$zz['list']['hierarchy']['id_fieldname'] = $id_field;
+	list($my_lines, $total_rows) = zz_hierarchy($zz['sql'], $zz['list']['hierarchy']);
 
 	$lines = array(); // unset and initialize
-	$my_lines = zz_list_hierarchy($h_lines, $zz['list']['hierarchy']['id'], $id_field);
-	$total_rows = count($my_lines); // sometimes, more rows might be selected beforehands,
 	// but if hierarchy has ID value, not all rows are shown
 	if ($my_lines) {
 		if (!$zz_conf['int']['this_limit']) {
@@ -1047,6 +1028,39 @@ function zz_list_query_hierarchy($zz, $id_field) {
 	}
 	$lines = zz_list_query_extras($lines, $id_field, $zz['sqlextra']);
 	return zz_return(array($lines, $total_rows));
+}
+
+/**
+ * Sort SQL query for hierarchical view
+ *
+ * @param string $sql
+ * @param array $hierarchy
+ * @return array
+ *		array $my_lines
+ *		int $total_rows
+ */
+function zz_hierarchy($sql, $hierarchy) {
+	// for performance reasons, we only get the fields which are important
+	// for the hierarchy (we need to get all records)
+	$lines = zz_db_fetch($sql, array($hierarchy['id_fieldname'], $hierarchy['mother_id_field_name']), 'key/value'); 
+	if (!$lines) return zz_return(array(array(), 0));
+
+	$h_lines = array();
+	foreach ($lines as $id => $mother_id) {
+		// sort lines by mother_id
+		if (empty($hierarchy['id'])) 
+			$hierarchy['id'] = 'NULL';
+		if ($id == $hierarchy['id']) {
+			// get uppermost line if hierarchy id is not NULL!
+			$mother_id = 'TOP';
+		} elseif (empty($mother_id))
+			$mother_id = 'NULL';
+		$h_lines[$mother_id][$id] = $id;
+	}
+	if (!$h_lines) return zz_return(array(array(), 0));
+	$my_lines = zz_hierarchy_sort($h_lines, $hierarchy['id'], $hierarchy['id_fieldname']);
+	$total_rows = count($my_lines); // sometimes, more rows might be selected beforehands,
+	return array($my_lines, $total_rows);
 }
 
 /**
@@ -1406,7 +1420,7 @@ function zz_list_format($text, $list_format) {
  * @param int $i
  * @return array $my_lines
  */
-function zz_list_hierarchy($h_lines, $hierarchy, $id_field, $level = 0, &$i = 0) {
+function zz_hierarchy_sort($h_lines, $hierarchy, $id_field, $level = 0, &$i = 0) {
 	$my_lines = array();
 	$show_only = array();
 	if (!$level AND $hierarchy != 'NULL' AND !empty($h_lines['TOP'])) {
@@ -1450,7 +1464,7 @@ function zz_list_hierarchy($h_lines, $hierarchy, $id_field, $level = 0, &$i = 0)
 				// this page has child pages, don't allow deletion
 				$my_lines[($i-1)]['zz_conf']['delete'] = false; 
 				$my_lines = array_merge($my_lines, 
-					zz_list_hierarchy($h_lines, $h_line, $id_field, $level, $i));
+					zz_hierarchy_sort($h_lines, $h_line, $id_field, $level, $i));
 			}
 		}
 	}
