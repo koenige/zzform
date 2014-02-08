@@ -301,52 +301,70 @@ body #zzform .separator hr
 					/* background: url line-vertical.gif .5em 0 repeat-y; */
 					margin-bottom: -.25em; padding-bottom: .25em; 
 					/* overwrite padding of td */ }
-#zzform table td.level1
+#zzform table td.level1, #zzform #record table td.level1
 					{ padding-left: 2.5em;
 					/*background: url line-vertical.gif  1em 0 repeat-y; */ }
 /*
 #zzform table td.last
 					{ background-position: 1em 50%; }
 */
-#zzform table td.level2, #zzform #record table .detailrecord tr.level2 td
+#zzform table td.level2, #zzform #record table td.level2,
+#zzform #record table .detailrecord tr.level2 td
 					{ padding-left: 5em; 
 					/* background: url line-vertical.gif  1em 0 repeat-y; */ }
-#zzform table td.level3, #zzform #record table .detailrecord .level3 td
+#zzform table td.level3, #zzform #record table td.level3,
+#zzform #record table .detailrecord .level3 td
 					{ padding-left: 7.5em; }
-#zzform table td.level4, #zzform #record table .detailrecord .level4 td
+#zzform table td.level4, #zzform #record table td.level4,
+#zzform #record table .detailrecord .level4 td
 					{ padding-left: 10em; }
-#zzform table td.level5, #zzform #record table .detailrecord .level5 td
+#zzform table td.level5, #zzform #record table td.level5,
+#zzform #record table .detailrecord .level5 td
 					{ padding-left: 12.5em; }
-#zzform table td.level6, #zzform #record table .detailrecord .level6 td
+#zzform table td.level6, #zzform #record table td.level6,
+#zzform #record table .detailrecord .level6 td
 					{ padding-left: 15em; }
-#zzform table td.level7, #zzform #record table .detailrecord .level7 td
+#zzform table td.level7, #zzform #record table td.level7,
+#zzform #record table .detailrecord .level7 td
 					{ padding-left: 17.5em; }
-#zzform table td.level8, #zzform #record table .detailrecord .level8 td
+#zzform table td.level8, #zzform #record table td.level8,
+#zzform #record table .detailrecord .level8 td
 					{ padding-left: 20em; }
-#zzform table td.level9, #zzform #record table .detailrecord .level9 td
+#zzform table td.level9, #zzform #record table td.level9,
+#zzform #record table .detailrecord .level9 td
 					{ padding-left: 22.5em; }
-#zzform table td.level10, #zzform #record table .detailrecord .level10 td
+#zzform table td.level10, #zzform #record table td.level10,
+#zzform #record table .detailrecord .level10 td
 					{ padding-left: 25em; }
 @media screen and (max-width: 640px) {
-	#zzform table td.level1
+	#zzform table td.level1, #zzform #record table td.level1
 						{ padding-left: 1.5em; }
-	#zzform table td.level2, #zzform #record table .detailrecord tr.level2 td
+	#zzform table td.level2, #zzform #record table td.level2,
+	#zzform #record table .detailrecord tr.level2 td
 						{ padding-left: 3em; }
-	#zzform table td.level3, #zzform #record table .detailrecord .level3 td
+	#zzform table td.level3, #zzform #record table td.level3,
+	#zzform #record table .detailrecord .level3 td
 						{ padding-left: 4.5em; }
-	#zzform table td.level4, #zzform #record table .detailrecord .level4 td
+	#zzform table td.level4, #zzform #record table td.level4,
+	#zzform #record table .detailrecord .level4 td
 						{ padding-left: 6em; }
-	#zzform table td.level5, #zzform #record table .detailrecord .level5 td
+	#zzform table td.level5, #zzform #record table td.level5,
+	#zzform #record table .detailrecord .level5 td
 						{ padding-left: 7.5em; }
-	#zzform table td.level6, #zzform #record table .detailrecord .level6 td
+	#zzform table td.level6, #zzform #record table td.level6,
+	#zzform #record table .detailrecord .level6 td
 						{ padding-left: 9em; }
-	#zzform table td.level7, #zzform #record table .detailrecord .level7 td
+	#zzform table td.level7, #zzform #record table td.level7,
+	#zzform #record table .detailrecord .level7 td
 						{ padding-left: 10.5em; }
-	#zzform table td.level8, #zzform #record table .detailrecord .level8 td
+	#zzform table td.level8, #zzform #record table td.level8,
+	#zzform #record table .detailrecord .level8 td
 						{ padding-left: 12em; }
-	#zzform table td.level9, #zzform #record table .detailrecord .level9 td
+	#zzform table td.level9, #zzform #record table td.level9,
+	#zzform #record table .detailrecord .level9 td
 						{ padding-left: 13.5em; }
-	#zzform table td.level10, #zzform #record table .detailrecord .level10 td
+	#zzform table td.level10, #zzform #record table td.level10,
+	#zzform #record table .detailrecord .level10 td
 						{ padding-left: 15em; }
 }
 
