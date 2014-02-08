@@ -694,13 +694,11 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			}
 
 			// append
-			if (!$append_next) {
+			if (!$append_next OR !$field['class']) {
 				$close_span = false;
 			} else {
 				$close_span = true;
-				$out['td']['content'] .= '<span'
-					.($field['class'] ? ' class="'.implode(' ', $field['class']).'"' : '')
-					.'>'; 
+				$out['td']['content'] .= '<span class="'.implode(' ', $field['class']).'">'; 
 			}
 			if (!empty($field['append_next'])) {
 				$append_next = true;
