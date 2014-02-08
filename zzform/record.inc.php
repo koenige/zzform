@@ -475,6 +475,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 		if ($field['type'] === 'subtable') {
 			$field_display = !empty($field['access']) ? $field['access'] : $display;
 			if (empty($field['form_display'])) $field['form_display'] = 'vertical';
+			if (!empty($field['hierarchy'])) $field['form_display'] = 'horizontal';
 		} else {
 			$field_display = $row_display;
 		}
@@ -575,11 +576,18 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 
 				$dont_delete_records = !empty($field['dont_delete_records'])
 					? $field['dont_delete_records'] : '';
+				if (!empty($field['hierarchy'])) {
+					// hierarchy never allows adding/removing of records
+					$dont_delete_records = true;
+				}
 				if (!empty($field['values'][$sub_rec])) {
 					$dont_delete_records = true; // dont delete records with values set
 				}
 				// just for optical reasons, in case one row allows removing of record
-				if ($display === 'form') $lastrow = '&nbsp;'; 
+				// @todo check if this last row is needed dynamically
+				if ($display === 'form' AND !$dont_delete_records) {
+					$lastrow = '&nbsp;';
+				}
 				
 				if ($field_display === 'form') {
 					if ($zz_tab[$sub_tab]['min_records'] < $zz_tab[$sub_tab]['records']
