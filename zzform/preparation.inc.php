@@ -188,6 +188,8 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 		$my_tab['sql_not_unique'] = $field['sql_not_unique'];
 		$my_tab['keep_detailrecord_shown'] = true;
 	}
+	// Hierachy?
+	$my_tab['hierarchy'] = !empty($field['hierarchy']) ? $field['hierarchy'] : '';
 
 	// database and table name
 	if (strstr($field['table'], '.')) {
@@ -209,6 +211,10 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 	foreach ($settings as $set) {
 		// max_detail_records, max_records, max_records_sql
 		// min_detail_records, min_records, min_records_sql
+		if ($my_tab['hierarchy']) {
+			$my_tab[$set.'_records'] = 0;
+			continue;
+		}
 		if (isset($field[$set.'_records'])) {
 			$my_tab[$set.'_records'] = $field[$set.'_records'];
 		} elseif (isset($field[$set.'_records_sql'])) {
@@ -412,13 +418,35 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 		// look for matches between values and existing records
 		list($records, $existing_ids, $my_tab['existing'], $values) 
 			= zz_subrecord_values_existing($values, $my_tab['existing']);
+	} elseif ($my_tab['hierarchy']) {
+		list($my_lines, $total_rows) = zz_hierarchy($my_tab['sql'], $my_tab['hierarchy']);
+		$values = array();
+		$existing_ids = array();
+		$ids = array();
+		foreach ($my_lines as $line) {
+			$ids[] = $line[$my_tab['hierarchy']['id_field_name']];
+		}
+		$sql = $my_tab['sql'];
+		$sql = zz_edit_sql($sql, 'WHERE', $my_tab['hierarchy']['id_field_name']
+			.' IN ('.implode(',', $ids).')');
+		$sql = zz_edit_sql($sql, 'WHERE', $main_tab[0]['id']['field_name']
+			.' = '.$main_tab[0]['id']['value'].' OR ISNULL('.$main_tab[0]['id']['field_name'].')');
+		$records = zz_db_fetch($sql, $my_tab['hierarchy']['id_field_name']);
+		$my_tab['existing'] = array();
+		foreach ($ids as $id) {
+			// sort, could probably done easier by one of PHPs sort functions
+			$my_tab['existing'][$id] = $records[$id];
+		}
+		$records = $my_tab['existing'] = array_values($my_tab['existing']);
+		foreach ($my_tab['existing'] as $record) {
+			$existing_ids[] = $record[$my_tab['id_field_name']];
+		}
 	} else {
 		$values = array();
-		$records = array_values($my_tab['existing']);
 		// saved ids separately for later use
 		$existing_ids = array_keys($my_tab['existing']);
 		// save existing records without IDs as key but numeric
-		$my_tab['existing'] = array_values($my_tab['existing']);
+		$my_tab['existing'] = $records = array_values($my_tab['existing']);
 	}
 	
 	$start_new_recs = count($records);
@@ -533,6 +561,26 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 			$my_tab = zz_set_values($my_tab, $rec, $zz_var);
 		}
 	}
+	if ($my_tab['hierarchy']) {
+		foreach ($my_lines as $line) {
+			foreach ($my_tab as $rec => $my_rec) {
+				if (!is_numeric($rec)) continue;
+				// != because POST is string
+				if ($my_rec['POST'][$my_tab['hierarchy']['id_field_name']] != $line[$my_tab['hierarchy']['id_field_name']]) {
+					continue;
+				}
+				foreach ($my_rec['fields'] as $index => $field) {
+					if ($field['field_name'] !== $my_tab['hierarchy']['display_in']) continue;
+					if (empty($my_rec['fields'][$index]['class']))	
+						$my_tab[$rec]['fields'][$index]['class'] = '';
+					else
+						$my_tab[$rec]['fields'][$index]['class'] .= ' ';
+					$my_tab[$rec]['fields'][$index]['class'] .= 'level'.(!empty($line['zz_level']) ? $line['zz_level'] : '0');
+				}
+			}
+		}
+	}
+
 	// get all IDs from detail records when record was first sent to user
 	// and add IDs which where added from different user in the meantime as well
 	// so as to be able to remove these again
