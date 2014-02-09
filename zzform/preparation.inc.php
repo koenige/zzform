@@ -339,6 +339,8 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 	// set general definition for all $my_tab[$rec] (kind of a record template)
 	$rec_tpl = array();
 	$rec_tpl['fields'] = $field['fields'];
+	$rec_tpl['if'] = !empty($field['if']) ? $field['if'] : array();
+	$rec_tpl['unless'] = !empty($field['unless']) ? $field['unless'] : array();
 	$rec_tpl['access'] = $my_tab['access'];
 	$rec_tpl['id']['field_name'] = $my_tab['id_field_name'];
 	$rec_tpl['validation'] = true;
@@ -566,7 +568,8 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 			foreach ($my_tab as $rec => $my_rec) {
 				if (!is_numeric($rec)) continue;
 				// != because POST is string
-				if ($my_rec['POST'][$my_tab['hierarchy']['id_field_name']] != $line[$my_tab['hierarchy']['id_field_name']]) {
+				if (!empty($my_rec['POST'])
+					AND $my_rec['POST'][$my_tab['hierarchy']['id_field_name']] != $line[$my_tab['hierarchy']['id_field_name']]) {
 					continue;
 				}
 				foreach ($my_rec['fields'] as $index => $field) {
