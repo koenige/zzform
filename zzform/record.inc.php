@@ -489,6 +489,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 		// initalize class values
 		if (!isset($field['class'])) $field['class'] = array();
 		elseif (!is_array($field['class'])) $field['class'] = array($field['class']);
+		if (isset($my_rec['class'])) $field['class'][] = $my_rec['class'];
 
 		// add classes
 		if ($field['type'] === 'id') {
