@@ -297,6 +297,7 @@ function zzform($zz = array()) {
 		// set conditions for detail records
 		// id is available just now
 		if (!empty($zz_conf['modules']['conditions'])) {
+			$zz_conditions = zz_conditions_subrecord_check($zz, $zz_tab, $zz_conditions);
 			$zz_tab = zz_conditions_subrecord($zz_tab, $zz_conditions);
 		}
 

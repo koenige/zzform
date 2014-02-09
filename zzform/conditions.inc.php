@@ -14,6 +14,7 @@
  *	zz_conditions_record()
  *	zz_conditions_record_values()	sets values for record
  *	zz_conditions_record_check()	set conditions for record
+ *  zz_conditions_subrecord_check()	set conditions for detail record
  *	zz_conditions_record_fields()	write new fields to $zz['fields'] based on conditions
  *		zz_replace_conditional_values()
  *	zz_conditions_subrecord()
@@ -446,12 +447,50 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 				}
 			}
 			break;
+		case 'subrecord': // ignore here
 		default:
 		}
 	}
 	return zz_return($zz_conditions);
 }
 
+/**
+ * check conditions for subrecords
+ * (experimental)
+ *
+ * @param array $zz
+ * @param array $zz_tab
+ * @param array $zz_conditions
+ * @return array zz_conditions
+ *		$zz_conditions['bool']['subrecord'][$index][id] = 1
+ */
+function zz_conditions_subrecord_check($zz, $zz_tab, $zz_conditions) {
+	global $zz_conf;
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+
+	foreach ($zz['conditions'] AS $index => $condition) {
+		switch ($condition['scope']) {
+		case 'subrecord':
+			foreach ($zz_tab as $tab) {
+				if (!$tab) continue;
+				if (empty($tab['no'])) continue;
+				if ($tab['no'] !== $condition['subrecord']) continue;
+				
+				if (!empty($condition['where'])) {
+					$sql = zz_edit_sql($tab['sql'], 'WHERE', $condition['where']);
+					if (!empty($tab['hierarchy']['id_field_name'])) {
+						$id_field_name = $tab['hierarchy']['id_field_name'];
+					} else {
+						$id_field_name = $tab['id_field_name'];
+					}
+					$zz_conditions['bool']['subrecord-'.$tab['no']][$index] = zz_db_fetch($sql, $id_field_name, 'id as key', 'subrecord');
+				}
+			}
+			break;
+		}
+	}
+	return zz_return($zz_conditions);
+}
 
 /**
  * treat values-conditions separately from bool-conditions since here 
@@ -538,6 +577,24 @@ function zz_conditions_subrecord($zz_tab, $zz_conditions) {
 		if (!$tab) continue;
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
 			if (!is_numeric($rec)) continue;
+			if (!empty($zz_conditions['bool']['subrecord-'.$zz_tab[$tab]['no']])) {
+				if ($zz_tab[$tab]['hierarchy']) {
+					if (!empty($zz_tab[$tab][$rec]['POST'])) {
+						$id_value = $zz_tab[$tab][$rec]['POST'][$zz_tab[$tab]['hierarchy']['id_field_name']];
+						zz_conditions_merge_field(
+							$zz_tab[$tab][$rec],
+							$zz_conditions['bool']['subrecord-'.$zz_tab[$tab]['no']],
+							$id_value, 'detail'
+						);
+					}
+				} else {
+					zz_conditions_merge_field(
+						$zz_tab[$tab][$rec],
+						$zz_conditions['bool']['subrecord-'.$zz_tab[$tab]['no']],
+						$zz_tab[$tab][$rec]['id']['value'], 'detail'
+					);
+				}
+			}
 			foreach (array_keys($zz_tab[$tab][$rec]['fields']) as $sub_no) {
 				zz_conditions_merge_field(
 					$zz_tab[$tab][$rec]['fields'][$sub_no],
