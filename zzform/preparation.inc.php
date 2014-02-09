@@ -1006,7 +1006,7 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
 	// everything's okay.
 	if ($validation OR $my_rec['access'] === 'show') {
 		// initialize 'record'
-		$my_rec['record'] = false;
+		$my_rec['record'] = array();
 		// check whether record already exists (this is of course impossible 
 		// for adding a record!)
 		if ($mode !== 'add' OR $my_rec['action']) {
@@ -1019,6 +1019,8 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
 					$my_tab['sql'], $table, $my_rec['id']
 				);
 				// @todo: think about sqlextra
+			} elseif ($my_rec['access'] === 'show' AND !empty($my_rec['POST'])) {
+				$my_rec['record'] = $my_rec['POST'];
 			}
 		} elseif ($mode === 'add' AND !empty($my_rec['id']['source_value'])) {
 			if (!empty($my_rec['POST'])) {
