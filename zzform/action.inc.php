@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2013 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -104,7 +104,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 					.'.'.$zz_tab[$tab]['table'], $zz_tab[$tab]['table_name'], $tab, $rec, $zz_tab); 
 				if ($tab) {
 					// write changed POST values back to main POST array
-					// @todo: let the next functions access the main POST array 
+					// @todo let the next functions access the main POST array 
 					// differently
 					$zz_tab[0][0]['POST'][$zz_tab[$tab]['table_name']][$rec] = $zz_tab[$tab][$rec]['POST'];
 					foreach ($zz_tab[$tab][$rec]['extra'] AS $key => $value)
@@ -387,7 +387,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 					$result['error']['msg'] = 'Detail record could not be deleted';
 					$zz_error[] = $result['error'];
 					$zz_tab[$tab][$rec]['error'] = $result['error'];
-					// @todo: not sure whether to cancel any further operations here
+					// @todo not sure whether to cancel any further operations here
 				}
 			}
 	}
@@ -567,7 +567,7 @@ function zz_action_details($detail_sqls, $zz_tab, $validation, $ops) {
 			$sql = $detail_sqls[$tab][$rec];
 			$sql = str_replace('[FOREIGN_KEY]', '"'.$zz_tab[0][0]['id']['value'].'"', $sql);
 			if (!empty($zz_tab[$tab]['detail_key'])) {
-				// @todo: allow further detail keys
+				// @todo allow further detail keys
 				// if not all files where uploaded, go up one detail record until
 				// we got an uploaded file
 				$detail_tab = $zz_tab[$tab]['detail_key'][0]['tab'];
@@ -577,7 +577,7 @@ function zz_action_details($detail_sqls, $zz_tab, $validation, $ops) {
 				$sql = str_replace('[DETAIL_KEY]', '"'.$zz_tab[$detail_tab][$zz_tab[$tab]['detail_key'][0]['rec']]['id']['value'].'"', $sql);
 			}
 			// for deleted subtables, id value might not be set, so get it here.
-			// @todo: check why it's not available beforehands, might be 
+			// @todo check why it's not available beforehands, might be 
 			// unnecessary security risk.
 			if (empty($my_rec['id']['value'])
 				AND !empty($my_rec['POST'][$my_rec['id']['field_name']]))
@@ -797,8 +797,12 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 				$values .= '';
 			}
 		} else {
-			if (is_array($fvalues)) $values .= serialize($fvalues);
-			else $values .= $fvalues;
+			if (is_array($fvalues)) {
+				$values .= serialize($fvalues);
+			} else {
+				if ($field['null'] AND $fvalues === '0') $fvalues .= 'null';
+				$values .= $fvalues;
+			}
 		}
 	}
 
@@ -815,8 +819,9 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 		$values = false;
 	}
 
-	// @todo: seems to be twice the same operation since $tab and $rec are !0
-	if ($my_tab['access'] === 'show') {
+	// @todo seems to be twice the same operation since $tab and $rec are !0
+	if ($my_tab['access'] === 'show' OR
+		(!empty($my_tab[$rec]['access']) AND $my_tab[$rec]['access'] === 'show')) {
 		$values = true; // only display subrecords, no deletion, no change!
 		$my_tab[$rec]['action'] = false; // no action insert or update, values are only shown!
 	}
