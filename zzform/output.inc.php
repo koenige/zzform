@@ -593,7 +593,7 @@ function zz_output_add_links($extra_get) {
 	global $zz_conf;
 	if (!$zz_conf['add_link']) return false;
 	if (is_array($zz_conf['add'])) return false;
-	if ($zz_conf['access'] == 'export') return false;
+	if ($zz_conf['int']['access'] === 'export') return false;
 	
 	$toolsline = array();
 	$toolsline[] = '<a accesskey="n" href="'.$zz_conf['int']['url']['self']

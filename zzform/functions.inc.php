@@ -1033,7 +1033,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 	// do not care yet if actions are allowed
 	if ($ops['mode'] == 'export') {
 		// Export overwrites all
-		$zz_conf['access'] = 'export'; 	
+		$zz_conf['int']['access'] = 'export'; 	
 		$zz_conf['show_record'] = false;
 	} elseif (isset($_POST['zz_subtables'])) {
 		// ok, no submit button was hit but only add/remove form fields for
@@ -1140,26 +1140,26 @@ function zz_record_access($zz, $ops, $zz_var) {
 	// set (and overwrite if necessary) access variables, i. e.
 	// $zz_conf['add'], $zz_conf['edit'], $zz_conf['delete']
 
-	if ($zz_conf['access'] === 'add_only' AND zz_valid_request('insert')) {
-		$zz_conf['access'] = 'show_after_add';
+	if ($zz_conf['int']['access'] === 'add_only' AND zz_valid_request('insert')) {
+		$zz_conf['int']['access'] = 'show_after_add';
 	}
-	if ($zz_conf['access'] === 'edit_only' AND zz_valid_request(
+	if ($zz_conf['int']['access'] === 'edit_only' AND zz_valid_request(
 		array('update', 'noupdate'))
 	) {
-		$zz_conf['access'] = 'show_after_edit';
+		$zz_conf['int']['access'] = 'show_after_edit';
 	}
-	if ($zz_conf['access'] === 'add_then_edit') {
+	if ($zz_conf['int']['access'] === 'add_then_edit') {
 		if ($zz_var['id']['value'] AND zz_valid_request()) {
-			$zz_conf['access'] = 'show+edit';
+			$zz_conf['int']['access'] = 'show+edit';
 		} elseif ($zz_var['id']['value']) {
-			$zz_conf['access'] = 'edit_only';
+			$zz_conf['int']['access'] = 'edit_only';
 		} else {
-			$zz_conf['access'] = 'add_only';
+			$zz_conf['int']['access'] = 'add_only';
 		}
 	}
 
 	// @todo think about multiple_edit
-	switch ($zz_conf['access']) { // access overwrites individual settings
+	switch ($zz_conf['int']['access']) { // access overwrites individual settings
 	// first the record specific or overall settings
 	case 'export':
 		$zz_conf['add'] = false;			// don't add record (form+links)
@@ -1276,8 +1276,8 @@ function zz_record_access($zz, $ops, $zz_var) {
 		}
 	}
 
-	if ($zz_conf['access'] == 'edit_details_only') $zz['access'] = 'show';
-	if ($zz_conf['access'] == 'edit_details_and_add' 
+	if ($zz_conf['int']['access'] == 'edit_details_only') $zz['access'] = 'show';
+	if ($zz_conf['int']['access'] == 'edit_details_and_add' 
 		AND $ops['mode'] != 'add' AND $zz_var['action'] != 'insert')
 		$zz['access'] = 'show';
 
@@ -1302,7 +1302,7 @@ function zz_record_access($zz, $ops, $zz_var) {
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_listandrecord_access($zz_conf) {
-	switch ($zz_conf['access']) {
+	switch ($zz_conf['int']['access']) {
 	case 'show':
 		$zz_conf['add'] = false;			// don't add record (form+links)
 		$zz_conf['edit'] = false;			// don't edit record (form+links)

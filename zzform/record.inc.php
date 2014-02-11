@@ -334,7 +334,7 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 			$id_link = sprintf('&amp;id=%d', $zz_var['id']['value']);
 			if (!empty($zz_var['where_with_unique_id'])) $id_link = '';
 			$edit_link = 'mode=edit'.$id_link.$zz_var['extraGET'];
-			if ($zz_conf['access'] === 'show_after_edit')
+			if ($zz_conf['int']['access'] === 'show_after_edit')
 				$edit_link = substr($zz_var['extraGET'], 5); // remove &amp;
 			$output .= '<a href="'.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
 				.$zz_conf['int']['url']['?&'].$edit_link.'">'.zz_text('edit').'</a>';

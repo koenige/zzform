@@ -67,7 +67,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		$zz_conf = array_merge($zz_conf, $zz_conf['list_access']);
 		unset($zz_conf['list_access']);
 	}
-	if ($zz_conf['access'] == 'search_but_no_list' AND empty($_GET['q'])) 
+	if ($zz_conf['int']['access'] === 'search_but_no_list' AND empty($_GET['q'])) 
 		$zz_conf['show_list'] = false;
 
 	// SQL query without limit and filter for conditions etc.!
@@ -220,7 +220,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	//
 
 	// Add new record
-	if (!($zz_conf['access'] == 'search_but_no_list' AND empty($_GET['q']))) {
+	if (!($zz_conf['int']['access'] === 'search_but_no_list' AND empty($_GET['q']))) {
 		// filter, if there was a list
 		if ($zz_conf['show_list']) {
 			$ops['output'] .= zz_filter_selection($zz_conf['filter'], 'bottom');
@@ -683,7 +683,7 @@ function zz_filter_selection($filter, $pos) {
 	if (!$filter) return '';
 	if (!is_array($filter)) return '';
 	if (!$zz_conf['show_list']) return '';
-	if ($zz_conf['access'] === 'export') return '';
+	if ($zz_conf['int']['access'] === 'export') return '';
 	if (!in_array($zz_conf['filter_position'], array($pos, 'both'))) return '';
 	
 	// create base URL for links

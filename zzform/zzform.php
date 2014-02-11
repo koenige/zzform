@@ -64,6 +64,7 @@ function zzform($zz = array()) {
 	// set and get URI
 	zz_initialize(false, $zz);
 	$zz = zz_defaults($zz);
+	$zz_conf['int']['access'] = isset($zz['access']) ? $zz['access'] : $zz_conf['access'];
 
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if ($zz_error['error']) return zzform_exit($ops); // exits script
@@ -173,7 +174,7 @@ function zzform($zz = array()) {
 
 //	Variables
 
-	if ($zz_conf['access'] !== 'export') {
+	if ($zz_conf['int']['access'] !== 'export') {
 		zz_error();
 		$ops['output'] .= zz_error_output(); // initialise zz_error
 	}	
