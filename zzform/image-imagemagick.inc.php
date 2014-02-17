@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2006-2013 Gustaf Mossakowski
+ * @copyright Copyright © 2006-2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  * @todo
  *	identify -list Format
@@ -52,6 +52,7 @@
  * @param string $filename filename of file which needs to be identified
  * @param array $file
  * @global array $zz_conf
+ * @global array $zz_error
  * @return array $file
  *		string 'filetype', int 'width', int 'height', bool 'validated',
  *		string 'ext'
@@ -59,6 +60,8 @@
  */
 function zz_imagick_identify($filename, $file) {
 	global $zz_conf;
+	global $zz_error;
+
 	if ($zz_conf['graphics_library'] != 'imagemagick') return $file;
 	if (!$zz_conf['upload_tools']['identify']) return $file;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
@@ -74,8 +77,17 @@ function zz_imagick_identify($filename, $file) {
 	// Error?
 	if (substr($output[0], 0, 6) === 'Error:') return zz_return($file);
 	if (substr($output[0], 0, 9) === 'identify:') return zz_return($file);
+	if (substr($output[0], 0, 16) === '   **** Warning:') {
+		$result = array_pop($output);
+		$file['warnings'] = $output;
+		$zz_error[] = array(
+			'msg_dev' => implode('<br>', $file['warnings'])
+		);
+	} else {
+		$result = $output[0];
+	}
 
-	$tokens = explode(' ', $output[0]);
+	$tokens = explode(' ', $result);
 	$file['filetype'] = strtolower($tokens[0]);
 
 	if (count($tokens) == 3) {
