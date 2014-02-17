@@ -369,7 +369,7 @@ body #zzform .separator hr
 }
 
 /* list view (ul) */
-#zzform ul.data		{ padding: 0; margin: 1em 0; }
+#zzform ul.data		{ padding: 0; margin: 1em 0; overflow: hidden; }
 #zzform ul.data li	{ float: left; overflow: hidden; list-style: none;
 					margin: 0 1em 1em 0; padding: 0; } 
 #zzform ul.data img	{ vertical-align: middle; margin: 0; border: 0; padding: 0; }
@@ -382,7 +382,7 @@ body #zzform .separator hr
 #zzform .pages .last
 					{ border-bottom: none; }
 #zzform .pages		{ margin: 0; padding: 0 0 1em 0; list-style: none; 
-					line-height: 1; }
+					line-height: 1; overflow: hidden; }
 #zzform .pages li	{ margin: 0 0 .5em; float: left; padding: 0; 
 					border-left: 1px dotted; }
 #zzform .pages li a, #zzform ul.pages li span, #zzform ul.pages li strong 

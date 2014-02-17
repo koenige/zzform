@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2013 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1725,8 +1725,7 @@ function zz_list_pages($limit_step, $this_limit, $total_rows, $scope = 'body') {
 			.$link['text']
 			.($link['link'] ? '</a>' : '</'.$span.'>').'</li>'."\n";
 	}
-	$output .= '</ul>'."\n";
-	$output .= '<br clear="all">'."\n";
+	$output .= "</ul>\n";
 	return $output;
 }
 
@@ -2335,7 +2334,7 @@ function zz_list_ul($list, $rows) {
 					$list['group_titles'][$index][$pos] = zz_text('- unknown -');
 			}
 			if ($rowgroup) {
-				$output .= '</ul><br clear="all">'."\n";
+				$output .= "</ul>\n";
 			}
 			$output .= sprintf(
 				"\n<h2>%s</h2>\n<ul class='data'>\n",
@@ -2357,7 +2356,7 @@ function zz_list_ul($list, $rows) {
 			$output .= '<p class="editbutton">'.$row['details'].'</p>';
 		$output .= '</li>'."\n";
 	}
-	$output .= "</ul>\n<br clear='all'>";
+	$output .= "</ul>\n";
 	return $output;
 }
 
