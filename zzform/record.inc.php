@@ -326,7 +326,7 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 			$output .= ' <a href="'.$cancelurl.'">'.zz_text('Cancel').'</a>';
 		$output .= '</td></tr>'."\n";
 	} else {
-		if ($zz_conf_record['access'] == 'add_only') return '';
+		if ($zz_conf_record['int']['access'] == 'add_only') return '';
 		if ($zz_conf_record['edit']) {
 			$output .= '<tr>'.$th.'<td class="reedit">';
 			if (empty($zz_conf_record['no_ok']))
