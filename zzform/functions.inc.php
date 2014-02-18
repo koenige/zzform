@@ -430,17 +430,19 @@ function zz_check_get_array($key, $type, $values = array()) {
  */
 function zz_record_conf($zz_conf) {
 	$wanted_keys = array(
-		'access', 'edit', 'delete', 'add', 'view', 'if', 'details', 
+		'int[access]', 'edit', 'delete', 'add', 'view', 'if', 'details', 
 		'details_url', 'details_base', 'details_target', 'details_referer',
 		'details_sql', 'max_select', 'max_select_val_len', 'copy', 'no_ok',
 		'cancel_link', 'unless'
 	);
 	$zz_conf_record = array();
 	foreach ($wanted_keys as $key) {
-		if (isset($zz_conf[$key])) {
+		if (substr($key, 0, 4) === 'int[' AND substr($key, -1) === ']') {
+			$key = substr($key, 4, -1);
+			$zz_conf_record['int'][$key] = isset($zz_conf['int'][$key])
+				? $zz_conf['int'][$key] : ''; 
+		} elseif (isset($zz_conf[$key])) {
 			$zz_conf_record[$key] = $zz_conf[$key];
-		} elseif ($key == 'access') {
-			$zz_conf_record['access'] = '';
 		}
 	}
 	return $zz_conf_record;
