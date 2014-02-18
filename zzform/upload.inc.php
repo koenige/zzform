@@ -1561,6 +1561,13 @@ function zz_val_get_from_upload($field, $images, $post) {
 					}
 				}
 			}
+			if (strstr($myval, '/')) {
+				$vals = explode('/', $myval);
+				$myval = array_shift($vals);
+				foreach ($vals as $val) {
+					$myval /= $val;
+				}
+			}
 		}
 		// go through this foreach until you have a value
 		if ($myval) break;
