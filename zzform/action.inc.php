@@ -800,7 +800,7 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 			if (is_array($fvalues)) {
 				$values .= serialize($fvalues);
 			} else {
-				if ($field['null'] AND $fvalues === '0') $fvalues .= 'null';
+				if (!empty($field['null']) AND $fvalues === '0') $fvalues .= 'null';
 				$values .= $fvalues;
 			}
 		}
