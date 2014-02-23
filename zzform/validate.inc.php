@@ -192,10 +192,22 @@ function zz_check_url($url) {
 		if (zz_is_url('http://example.com'.substr($url, 2))) return $url;
 		else return false;
 	}
-	if (zz_is_url($url)) return $url;
-	$url = "http://" . $url;
-	if (zz_is_url($url)) return $url;
-	return false;
+	$parts = zz_is_url($url);
+	if (!$parts) {
+		$url = 'http://'.$url;
+		$parts = zz_is_url($url);
+		if (!$parts) return false;
+	}
+	$url = $parts['scheme'].':'
+		.(!empty($parts['host']) ? '//' : '')
+		.(!empty($parts['user']) ? $parts['user']
+			.(!empty($parts['pass']) ? ':'.$parts['pass'] : '').'@' : '')
+		.(!empty($parts['host']) ? $parts['host'] : '')
+		.(!empty($parts['port']) ? ':'.$parts['port'] : '')
+		.(!empty($parts['path']) ? $parts['path'] : '')
+		.(!empty($parts['query']) ? '?'.$parts['query'] : '')
+		.(!empty($parts['fragment']) ? '#'.$parts['fragment'] : '');
+	return $url;
 }
 
 /**
@@ -203,43 +215,82 @@ function zz_check_url($url) {
  * 
  * This function is also part of zzbrick, there it is called brick_is_url()
  * @param string $url	URL to be tested, only absolute URLs
- * @return string url if correct, or false
+ * @return mixed array url if correct, or bool false
  * @todo return which part of URL is incorrect
  * @todo support IPv6, new domain endings
  * @todo rewrite diacritical marks to %-encoding
  */
 function zz_is_url($url) {
+	global $zz_conf;
+
 	if (!$url) return false;
 	$parts = parse_url($url);
 	if (!$parts) return false;
-	$valid_ip = "/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/";
-	$valid_host = "/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/";
-	if (empty($parts['scheme'])) { // OR !in_array($parts['scheme'], $possible_schemes))
-		return false;
-	} elseif (!empty($parts['host']) 
-		AND (!preg_match($valid_host, $parts['host'])
-		AND !preg_match($valid_ip, $parts['host'])
-		AND !preg_match('/\[[0-9a-zA-Z:]*\]/', $parts['host']))) {	// LDAP
-		return false;
-	} elseif (!empty($parts['user']) 
-		AND !preg_match("/^([0-9a-z-]|[\_])*$/i", $parts['user'])) {
-		return false;
-	} elseif (!empty($parts['pass']) 
-		AND !preg_match("/^([0-9a-z-]|[\_])*$/i", $parts['pass'])) {
-		return false;
-	} elseif (!empty($parts['path']) 
-		AND !preg_match("/^[0-9a-z\/_\.@~\-,=%;:+]*$/i", $parts['path'])) {
-		return false;
-	} elseif (!empty($parts['query']) 
-		AND !preg_match("/^[A-Za-z0-9\-\._~!$&'\(\)\*+,;=:@?\/%]*$/i", $parts['query'])) {
-		// not 100% correct: % must only appear in front of HEXDIG, e. g. %2F
-		// here it may appear in front of any other sign
-		// see 
-		// http://www.ietf.org/rfc/rfc3986.txt and 
-		// http://www.ietf.org/rfc/rfc2234.txt
-		return false;
+
+	$tested_parts = array('scheme', 'host', 'port', 'user', 'pass', 'path', 'query');
+	foreach ($tested_parts as $key) {
+		$part = !empty($parts[$key]) ? $parts[$key] : '';
+		switch ($key) {
+		case 'scheme':
+			if (!$part) return false;
+			break;
+
+		case 'host':
+			if (!$part) break;
+			$hostname = "/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/";
+			if (preg_match($hostname, $part)) break;
+			$ip_v4 = "/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/";
+			if (preg_match($ip_v4, $part)) break;
+			$ldap = '/\[[0-9a-zA-Z:]*\]/';
+			if (preg_match($ldap, $part)) break;
+			// punycode domain name?
+			// @todo better integration of this library or at least the path
+			$punycode_lib = $zz_conf['dir'].'/../idna_convert/idna_convert.class.php';
+			if (file_exists($punycode_lib)) {
+				require_once $punycode_lib;
+				$IDN = new idna_convert();
+				if ($zz_conf['character_set'] !== 'utf-8') {
+					$part = iconv($zz_conf['character_set'], 'utf-8', $part);
+				}
+				$parts['host'] = $IDN->encode($part);
+				// here, we'll check if this is not only a wrong entry
+				// for all records, checkdnsrr would take too long
+				if (checkdnsrr($parts['host'], 'ANY')) break;
+			}
+			return false;
+
+		case 'port':
+			if (!$part) break;
+			if (intval($part).'' !== $part) return false;
+			break;
+
+		case 'user':
+			if (!$part) break;
+			if (!preg_match("/^([0-9a-z-]|[\_])*$/i", $part)) return false;
+			break;
+
+		case 'pass':
+			if (!$part) break;
+			if (!preg_match("/^([0-9a-z-]|[\_])*$/i", $part)) return false;
+			break;
+
+		case 'path':
+			if (!$part) break;
+			if (!preg_match("/^[0-9a-z\/_\.@~\-,=%;:+]*$/i", $part)) return false;
+			break;
+
+		case 'query':
+			if (!$part) break;
+			// not 100% correct: % must only appear in front of HEXDIG, e. g. %2F
+			// here it may appear in front of any other sign
+			// see 
+			// http://www.ietf.org/rfc/rfc3986.txt and 
+			// http://www.ietf.org/rfc/rfc2234.txt
+			if (!preg_match("/^[A-Za-z0-9\-\._~!$&'\(\)\*+,;=:@?\/%]*$/i", $part)) return false;
+			break;
+		}
 	}
-	return true;
+	return $parts;
 }
 
 /**
