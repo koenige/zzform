@@ -1381,7 +1381,7 @@ function zz_listandrecord_access($zz_conf) {
  *		'root', 'webroot', 'field1...fieldn', 'string1...stringn', 'mode1...n',
  *		'ignore_record' will cause record to be ignored
  * @param array $record current record
- * @param string $type (optional) link or image, image will be returned in
+ * @param string $type (optional) link, path or image, image will be returned in
  *		<img src="" alt="">
  * @return string URL or HTML-code for image
  * @author Gustaf Mossakowski <gustaf@koenige.org>
@@ -1479,10 +1479,18 @@ function zz_makelink($path, $record, $type = 'link') {
 			}
 		}
 	}
-	if ($type !== 'image') return $path_web;
-	if (!$path_web) return false;
-	$img = '<img src="'.$path_web.'" alt="'.$alt.'" class="thumb">';
-	return $img;
+
+	switch ($type) {
+	case 'path':
+		return $path_full.$url;
+	case 'image':
+		if (!$path_web) return false;
+		$img = '<img src="'.$path_web.'" alt="'.$alt.'" class="thumb">';
+		return $img;
+	default:
+	case 'link':
+		return $path_web;
+	}
 }
 
 /**
