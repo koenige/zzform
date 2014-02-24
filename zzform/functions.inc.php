@@ -199,12 +199,12 @@ function zz_module_fieldcheck($zz, $key, $type) {
 	foreach ($domains as $domain) {
 		if (empty($zz[$domain])) continue;
 		foreach ($zz[$domain] as $field) {
-			if (!empty($field[$key]) AND $field[$key] == $type) {
+			if (!empty($field[$key]) AND $field[$key] === $type) {
 				return true;
 			}
 			if (!empty($field['if'])) {
 				foreach ($field['if'] as $condfield) {
-					if (!empty($condfield[$key]) AND $condfield[$key] == $type) {
+					if (!empty($condfield[$key]) AND $condfield[$key] === $type) {
 						return true;
 					}
 				}
@@ -212,12 +212,12 @@ function zz_module_fieldcheck($zz, $key, $type) {
 			if (empty($field['fields'])) continue;
 			foreach ($field['fields'] as $index => $subfield) {
 				if (!is_array($subfield)) continue;
-				if (!empty($subfield[$key]) AND $subfield[$key] == $type) {
+				if (!empty($subfield[$key]) AND $subfield[$key] === $type) {
 					return true;
 				}
 				if (empty($subfield['if'])) continue;
 				foreach ($subfield['if'] as $condfield) {
-					if (!empty($condfield[$key]) AND $condfield[$key] == $type) {
+					if (!empty($condfield[$key]) AND $condfield[$key] === $type) {
 						return true;
 					}
 				}
@@ -246,7 +246,7 @@ function zz_get_url_self($url_self) {
 	$url['?&'] = '?';
 	// no base query string which belongs url_self
 	$url['qs'] = '';
-	$url['scheme'] = (isset($_SERVER['HTTPS']) AND $_SERVER['HTTPS'] == 'on') 
+	$url['scheme'] = (isset($_SERVER['HTTPS']) AND $_SERVER['HTTPS'] === 'on') 
 		? 'https'
 		: 'http';
 	$host = preg_match('/^[a-zA-Z0-9-\.]+$/', $_SERVER['HTTP_HOST'])
@@ -267,7 +267,7 @@ function zz_get_url_self($url_self) {
 	}
 
 	// it's possible to use url_self without http://hostname, so check for that
-	$examplebase = (substr($url_self, 0, 1) == '/') ? $url['base'] : '';
+	$examplebase = (substr($url_self, 0, 1) === '/') ? $url['base'] : '';
 	$base_uri = parse_url($examplebase.$url_self);
 	if ($examplebase) {
 		$url['self'] = $base_uri['path'];
@@ -285,7 +285,7 @@ function zz_get_url_self($url_self) {
 		parse_str($my_uri['query'], $my_uri_query);
 		parse_str($base_uri['query'], $base_uri_query);
 		foreach ($my_uri_query AS $key => $value) {
-			if (!empty($base_uri_query[$key]) AND $base_uri_query[$key] == $value) {
+			if (!empty($base_uri_query[$key]) AND $base_uri_query[$key] === $value) {
 				unset($my_uri_query[$key]);
 			}
 		}
@@ -347,7 +347,7 @@ function zz_get_where_conditions($zz) {
 			// is filtered by WHERE filter
 			unset($zz_conf['filter'][$index]);
 		}
-		if ($filter['type'] != 'where') continue;
+		if ($filter['type'] !== 'where') continue;
 		if (!empty($zz_conf['int']['filter'][$filter['identifier']])) {
 			$zz_var['where_condition'][$filter['where']] 
 				= $zz_conf['int']['filter'][$filter['identifier']];
@@ -655,13 +655,13 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = arr
 		// restrict list view to where, but not to add
 		if (empty($_GET['add'][$submitted_field_name])) {
 			if (!empty($zz_var['where_condition'][$field_name])
-				AND $zz_var['where_condition'][$field_name] == 'NULL')
+				AND $zz_var['where_condition'][$field_name] === 'NULL')
 			{
 				$sql = zz_edit_sql($sql, 'WHERE', 
 					'ISNULL('.$field_reference.')');
 				continue; // don't use NULL as where variable!
 			} elseif (!empty($zz_var['where_condition'][$field_name])
-				AND $zz_var['where_condition'][$field_name] == '!NULL')
+				AND $zz_var['where_condition'][$field_name] === '!NULL')
 			{
 				$sql = zz_edit_sql($sql, 'WHERE', 
 					'!ISNULL('.$field_reference.')');
@@ -735,9 +735,9 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false)
 
 	foreach (array_keys($fields) as $no) {
 		if (!empty($fields[$no]['if'])) {
-			if ($multiple_times == 1) {
+			if ($multiple_times === 1) {
 				 // if there are only conditions, go on
-				if (count($fields[$no]) == 1) continue;
+				if (count($fields[$no]) === 1) continue;
 			}
 		}
 		if (!$fields[$no]) {
@@ -747,7 +747,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false)
 		}
 		if (!isset($fields[$no]['type'])) // default type: text
 			$fields[$no]['type'] = 'text';
-		if ($fields[$no]['type'] == 'id' AND !isset($fields[$no]['dont_sort'])) {
+		if ($fields[$no]['type'] === 'id' AND !isset($fields[$no]['dont_sort'])) {
 			// set dont_sort as a default for ID columns
 			$fields[$no]['dont_sort'] = true;
 		}
@@ -809,7 +809,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false)
 			if (!empty($fields[$no]['sql'])) // replace whitespace with space
 				$fields[$no]['sql'] = preg_replace("/\s+/", " ", $fields[$no]['sql']);
 		}
-		if ($fields[$no]['type'] == 'subtable') {
+		if ($fields[$no]['type'] === 'subtable') {
 			if (empty($fields[$no]['subselect']) AND !isset($fields[$no]['export'])) {
 				// subtables have no output by default unless there is a subselect
 				// definition; however in rare cases (e. g. with a condition set)
@@ -917,7 +917,7 @@ function zz_get_unique_fields($zz_var, $fields) {
 
 	foreach ($fields AS $field) {
 		// set ID fieldname
-		if (!empty($field['type']) AND $field['type'] == 'id') {
+		if (!empty($field['type']) AND $field['type'] === 'id') {
 			if ($zz_var['id']['field_name']) {
 				$zz_error['msg'] = 'Only one field may be defined as "id"!';
 				return false;
@@ -979,7 +979,7 @@ function zz_set_fielddefs_for_record($fields, $zz_var) {
 			}
 			foreach ($fields[$no]['fields'] as $subfield) {
 				if (empty($subfield['type'])) continue;
-				if ($subfield['type'] != 'upload_image') continue;
+				if ($subfield['type'] !== 'upload_image') continue;
 				$zz_var['upload_form'] = true;
 			}
 			break;
@@ -1033,16 +1033,16 @@ function zz_record_access($zz, $ops, $zz_var) {
 	
 	// set mode and action according to $_GET and $_POST variables
 	// do not care yet if actions are allowed
-	if ($ops['mode'] == 'export') {
+	if ($ops['mode'] === 'export') {
 		// Export overwrites all
 		$zz_conf['int']['access'] = 'export'; 	
 		$zz_conf['show_record'] = false;
 	} elseif (isset($_POST['zz_subtables'])) {
 		// ok, no submit button was hit but only add/remove form fields for
 		// detail records in subtable, so set mode accordingly (no action!)
-		if (!empty($_POST['zz_action']) AND $_POST['zz_action'] == 'insert') {
+		if (!empty($_POST['zz_action']) AND $_POST['zz_action'] === 'insert') {
 			$ops['mode'] = 'add';
-		} elseif (!empty($_POST['zz_action']) AND $_POST['zz_action'] == 'update'
+		} elseif (!empty($_POST['zz_action']) AND $_POST['zz_action'] === 'update'
 			AND !empty($_POST[$zz_var['id']['field_name']])) {
 			$ops['mode'] = 'edit';
 			$id_value = $_POST[$zz_var['id']['field_name']];
@@ -1057,7 +1057,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 			if (in_array($ops['mode'], array('edit', 'delete', 'show'))
 				AND !empty($_GET['id'])) {
 				$id_value = $_GET['id'];
-			} elseif ($ops['mode'] == 'add' AND $zz_conf['copy']
+			} elseif ($ops['mode'] === 'add' AND $zz_conf['copy']
 				AND !empty($_GET['source_id'])) {
 				$zz_var['id']['source_value'] = $_GET['source_id'];
 			}
@@ -1254,7 +1254,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 	// check unallowed modes and actions
 	$modes = array('add' => 'insert', 'edit' => 'update', 'delete' => 'delete');
 	foreach ($modes as $mode => $action) {
-		if (!$zz_conf[$mode] AND $ops['mode'] == $mode) {
+		if (!$zz_conf[$mode] AND $ops['mode'] === $mode) {
 			$ops['mode'] = false;
 			$zz_error[] = array(
 				'msg_dev' => sprintf(
@@ -1265,7 +1265,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 				'level' => E_USER_NOTICE
 			);
 		}
-		if (!$zz_conf[$mode] AND $zz_var['action'] == $action) {
+		if (!$zz_conf[$mode] AND $zz_var['action'] === $action) {
 			$zz_var['action'] = false;
 			$zz_error[] = array(
 				'msg_dev' => sprintf(
@@ -1278,9 +1278,9 @@ function zz_record_access($zz, $ops, $zz_var) {
 		}
 	}
 
-	if ($zz_conf['int']['access'] == 'edit_details_only') $zz['access'] = 'show';
-	if ($zz_conf['int']['access'] == 'edit_details_and_add' 
-		AND $ops['mode'] != 'add' AND $zz_var['action'] != 'insert')
+	if ($zz_conf['int']['access'] === 'edit_details_only') $zz['access'] = 'show';
+	if ($zz_conf['int']['access'] === 'edit_details_and_add' 
+		AND $ops['mode'] !== 'add' AND $zz_var['action'] !== 'insert')
 		$zz['access'] = 'show';
 
 	// now, mode is set, do something depending on mode
@@ -1289,7 +1289,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		AND !$zz_conf['show_list_while_edit']) $zz_conf['show_list'] = false;
 	if (!$zz_conf['generate_output']) $zz_conf['show_list'] = false;
 
-	if ($ops['mode'] == 'list_only' AND empty($_GET['zzaction'])) {
+	if ($ops['mode'] === 'list_only' AND empty($_GET['zzaction'])) {
 		$zz_conf['show_record'] = false;	// don't show record
 	}
 	return zz_return(array($zz, $ops, $zz_var));
@@ -1396,7 +1396,7 @@ function zz_makelink($path, $record, $type = 'link') {
 	$path_web = '';			// relative path on website
 	$check_against_root = false;
 
-	if ($type == 'image') {
+	if ($type === 'image') {
 		$alt = zz_text('no_image');
 		// lock if there is something definitely called extension
 		$alt_locked = false; 
@@ -1411,7 +1411,7 @@ function zz_makelink($path, $record, $type = 'link') {
 			$check_against_root = true;
 			// root has to be first element, everything before will be ignored
 			$path_full = $value;
-			if (substr($path_full, -1) != '/')
+			if (substr($path_full, -1) !== '/')
 				$path_full .= '/';
 			break;
 		case 'webroot':
@@ -1469,7 +1469,7 @@ function zz_makelink($path, $record, $type = 'link') {
 			// file does not exist = false
 			return false;
 		}
-		if ($type == 'image') {
+		if ($type === 'image') {
 			// filesize is 0 = looks like error
 			if (!$size = filesize($path_full.$url)) return false;
 			// getimagesize tests whether it's a web image
@@ -1479,7 +1479,7 @@ function zz_makelink($path, $record, $type = 'link') {
 			}
 		}
 	}
-	if ($type != 'image') return $path_web;
+	if ($type !== 'image') return $path_web;
 	if (!$path_web) return false;
 	$img = '<img src="'.$path_web.'" alt="'.$alt.'" class="thumb">';
 	return $img;
@@ -1738,7 +1738,7 @@ function zz_error() {
 	unset($zz_error['output']); // this neither
 	
 	if (!$zz_error) {
-		$zz_error['error'] = ($return == 'exit') ? true : false;
+		$zz_error['error'] = ($return === 'exit') ? true : false;
 		$zz_error['output'] = $output;
 		return false;
 	}
@@ -1768,7 +1768,7 @@ function zz_error() {
 		elseif ($post_errors_logged) $error['log_post_data'] = false;
 
 		// page http status
-		if ($error['status'] != 200) {
+		if ($error['status'] !== 200) {
 			$zz_conf['int']['http_status'] = $error['status'];
 		}
 
@@ -1863,10 +1863,10 @@ function zz_error() {
 		// Heading
 		if (!$user[$key]) {
 			unset($user[$key]); // there is nothing, so nothing will be shown
-		} elseif ($level == 'error' OR $level == 'warning') {
+		} elseif ($level === 'error' OR $level === 'warning') {
 			$user[$key] = '<strong>'.zz_text('Warning!').'</strong> '.$user[$key];
 		}
-		if ($admin[$key] AND ($level == 'error' OR $level == 'warning')) {
+		if ($admin[$key] AND ($level === 'error' OR $level === 'warning')) {
 			$admin[$key] = '<strong>'.zz_text('Warning!').'</strong> '.$admin[$key];
 		}
 	}
@@ -1909,7 +1909,7 @@ From: '.$from);
 	// Went through all errors, so we do not need them anymore
 	$zz_error = array();
 	
-	$zz_error['error'] = ($return == 'exit') ? true : false;
+	$zz_error['error'] = ($return === 'exit') ? true : false;
 	$zz_error['output'] = array_merge($output, $user);
 
 	return true;
@@ -2030,7 +2030,7 @@ function zz_create_topfolders($dir) {
 	// checks if directories above current exist and creates them if necessary
 	while (strpos($dir, '//'))
 		$dir = str_replace('//', '/', $dir);
-	if (substr($dir, -1) == '/')	//	removes / from the end
+	if (substr($dir, -1) === '/')	//	removes / from the end
 		$dir = substr($dir, 0, -1);
 	if (file_exists($dir)) return true;
 
@@ -2112,7 +2112,7 @@ function zz_hierarchy($sql, $hierarchy) {
 function zz_hierarchy_sort($h_lines, $hierarchy, $id_field, $level = 0, &$i = 0) {
 	$my_lines = array();
 	$show_only = array();
-	if (!$level AND $hierarchy != 'NULL' AND !empty($h_lines['TOP'])) {
+	if (!$level AND $hierarchy !== 'NULL' AND !empty($h_lines['TOP'])) {
 		// show uppermost line
 		$h_lines['TOP'][0]['zz_level'] = $level;
 		$my_lines[$i][$id_field] = $h_lines['TOP'][$hierarchy];
@@ -2120,8 +2120,8 @@ function zz_hierarchy_sort($h_lines, $hierarchy, $id_field, $level = 0, &$i = 0)
 		$my_lines[$i]['zz_conf']['delete'] = false; 
 		$i++;
 	}
-	if ($hierarchy != 'NULL') $level++; // don't indent uppermost level if top category is NULL
-	if ($hierarchy == 'NULL' AND empty($h_lines[$hierarchy])) {
+	if ($hierarchy !== 'NULL') $level++; // don't indent uppermost level if top category is NULL
+	if ($hierarchy === 'NULL' AND empty($h_lines[$hierarchy])) {
 		// Looks like a WHERE condition took some vital records from our hierarchy
 		// at least for the top level, get them back somehow.
 		foreach (array_keys($h_lines) as $main_id) {
@@ -2197,7 +2197,7 @@ function zz_text($string) {
 		}
 
 		// text in other languages
-		if ($language != 'en') {
+		if ($language !== 'en') {
 			$langfile = $zz_conf['dir_inc'].'/text-'.$language.'.inc.php';
 			if (file_exists($langfile)) {
 				include $langfile;
@@ -2424,7 +2424,7 @@ function zz_byte_format($bytes, $precision = 1) {
  */
 function zz_split_fieldname($field_name) {
 	if (!strstr($field_name, '[')) return false;
-	if (substr($field_name, -1) != ']') return false;
+	if (substr($field_name, -1) !== ']') return false;
 	// split array in variable and key
 	preg_match('/^(.+)\[(.+)\]$/', $field_name, $field_names);
 	if (!isset($field_names[1]) OR !isset($field_names[2])) return false;
@@ -2445,7 +2445,7 @@ function zz_split_fieldname($field_name) {
 function zz_get_fielddef($fields, $field_name, $key = false) {
 	foreach ($fields as $field) {
 		if (empty($field['field_name'])) continue;
-		if ($field['field_name'] != $field_name) continue;
+		if ($field['field_name'] !== $field_name) continue;
 		if (!$key) return $field;
 		if (!in_array($key, array_keys($field))) return false;
 		return $field[$key];
@@ -2463,9 +2463,9 @@ function zz_get_fielddef($fields, $field_name, $key = false) {
  */
 function zz_get_subtable_fielddef($fields, $table) {
 	foreach ($fields as $field) {
-		if (!empty($field['table']) AND $field['table'] == $table)
+		if (!empty($field['table']) AND $field['table'] === $table)
 			return $field;
-		if (!empty($field['table_name']) AND $field['table_name'] == $table)
+		if (!empty($field['table_name']) AND $field['table_name'] === $table)
 			return $field;
 	}
 	return false;
@@ -2543,7 +2543,7 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
 		$my_rec['fields'][$f]['mark_reselect'] = true;
 		$my_rec['validation'] = false;
 		$error = true;
-	} elseif (count($possible_values) == 1) {
+	} elseif (count($possible_values) === 1) {
 		// exactly one record found, so this is the value we want
 		$my_rec['POST'][$field_name] = current($possible_values);
 		$my_rec['POST-notvalid'][$field_name] = current($possible_values);
@@ -2608,7 +2608,7 @@ function zz_check_select_id($field, $postvalue, $db_table) {
 	foreach ($field['sql_fieldnames'] as $index => $sql_fieldname) {
 		$sql_fieldname = trim($sql_fieldname);
 		if (!empty($field['show_hierarchy'])
-			AND $sql_fieldname == $field['show_hierarchy']) {
+			AND $sql_fieldname === $field['show_hierarchy']) {
 			// do not search in show_hierarchy as this field is there for 
 			// presentation only and might be removed below!
 			unset($field['sql_fieldnames'][$index]);	
