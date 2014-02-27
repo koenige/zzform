@@ -676,6 +676,7 @@ function zz_conditions_merge($array, $bool_conditions, $record_id, $reverse = fa
 				$array = zz_array_merge($array, $new_values);
 			} else {
 				$array = false; // no new values, so unset this field or zz_conf-value
+				break; // don't add values from other ifs
 			}
 		}
 	}
