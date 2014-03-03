@@ -2234,16 +2234,8 @@ function zz_text($string) {
 	}
 
 	if (!isset($text[$string])) {
-		if (function_exists('wrap_text'))
+		if (function_exists('wrap_text')) {
 			return wrap_text($string);
-		// write missing translation to somewhere.
-		// TODO: check logfile for duplicates
-		// TODO: optional log directly in database
-		if (!empty($zz_conf['log_missing_text'])) {
-			$log_message = '$text["'.addslashes($string).'"] = "'.$string.'";'."\n";
-			$log_file = sprintf($zz_conf['log_missing_text'], $language);
-			error_log($log_message, 3, $log_file);
-			chmod($log_file, 0664);
 		}
 		return $string;
 	}
