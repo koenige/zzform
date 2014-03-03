@@ -228,5 +228,3 @@ $text['Database error. This query has ambiguous values in ID field.'] = 'B³±d ba
 $text['Error during database operation'] = 'B³±d bazy danych';
 $text['The following error(s) occured in project %s:'] = 'Projekt wyst±pi³ w projekcie %s:';
 
-
-?>

@@ -154,11 +154,6 @@ $text['desc'] = 'descending';
 $text['action'] = 'Action';
 $text['detail'] = 'Details';
 
-// List view: bottom
-$text['Add new record'] = 'Add new record';
-$text['records total'] = 'records total';		// %s records total
-$text['record total'] = 'record total';			// 1 record total
-
 // List view: Search form
 $text['Show all records'] = 'Show all records (without search filter)';
 $text['all fields'] = 'all fields';
@@ -173,26 +168,6 @@ $text['search'] = 'search'; // Button
 $text['Warning!'] = 'Attention!';
 $text['incorrect value'] = 'incorrect value';
 $text['database-error'] = 'Database error';
-
-
-// ----------------------------------------------------------------------------
-// Modules: Export
-// ----------------------------------------------------------------------------
-
-$text['Export'] = 'Export'; // Export-Link
-
-
-// ----------------------------------------------------------------------------
-// Modules: Import
-// ----------------------------------------------------------------------------
-
-$text['File could not be imported.'] = 'File could not be imported.';
-$text['Folder could not be imported.'] = 'Folder could not be imported.';
-$text['Import was successful.'] = 'Import was successful.';
-$text['Folder OK'] = 'Folder OK';
-$text['Folder "%s" does not exist.'] = 'Folder "%s" does not exist.';
-$text['Warning! Insufficient access rights. Please make sure that the source directory is writable.'] = 'Warning! Insufficient access rights. Please make sure that the source directory is writable.';
-$text['%s files left for import. Please wait, the script will reload itself.'] = '%s files left for import. Please wait, the script will reload itself.';
 
 
 // ----------------------------------------------------------------------------
@@ -217,28 +192,3 @@ $text['Database error. This database has ambiguous values in ID field.'] = 'Data
 
 // Development, Error mail
 $text['Error during database operation'] = 'Error from database operation';
-$text['The following error(s) occured in project %s:'] = 'The following error(s) occured in project %s:';
-
-// ----------------------------------------------------------------------------
-// Admin: Logging
-// ----------------------------------------------------------------------------
-
-$text['Last update'] = 'Updated';
-
-
-// ----------------------------------------------------------------------------
-// Admin: Redirects
-// ----------------------------------------------------------------------------
-
-$text['Information about redirects'] = '<p>You can redirect URLs to different addresses. 
-You have several possibilities:</p>
-
-<ul>
-<li>Temporary redirect, e. g. from a shortcut to a permanent address like from
-example.com/current_news to example.com/news/2010/04 with a code <code>307</code></li>
-<li>Permanent redirect from an old address to a new address with code <code>301</code></li>
-<li>Redirect from several old addresses to a new address, here, the old address 
-must end with the asterisk (<code>*</code>). There must not be a <code>/</code> before the asterisk.</li>
-</ul>';
-
-?>
