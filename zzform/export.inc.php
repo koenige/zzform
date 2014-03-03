@@ -315,8 +315,11 @@ function zz_export_kml($ops, $zz) {
 				'value' => $line[$index]['text']
 			);
 		}
+		$title = $line[$fields['title']]['text'];
+		$title = strip_tags($title);
+		$title = str_replace('&', '&amp;', $title);
 		$kml['placemarks'][] = array(
-			'title' => strip_tags($line[$fields['title']]['text']),
+			'title' => $title,
 			'description' => zz_export_kml_description($ops['output']['head'], $line, $fields),
 			'longitude' => $longitude,
 			'latitude' => $latitude,
