@@ -311,6 +311,7 @@ function zz_upload_check_files($zz_tab) {
 				$my_rec['file_upload'] = $session[$tab][$rec]['file_upload'];
 				continue;
 			}
+
 			// we need at least a tmp_name from somewhere pointing to a file
 			// might be '' (file upload with no file)
 			if (!isset($myfiles['tmp_name'][$field_name])) {
@@ -952,8 +953,9 @@ function zz_upload_prepare($zz_tab) {
 						? $src_image['files']['tmp_files'][$image['source']] : false;
 					if (!$source_filename AND $zz_conf['modules']['debug']) 
 						zz_debug('use_modified_source: no source filename!');
-				} else
+				} else {
 					$source_filename = $src_image['upload']['tmp_name'];
+				}
 				// get some variables from source image as well
 				$image['upload'] = $src_image['upload']; 
 				// check if it's not a form that allows upload of different filetypes at once
@@ -1256,16 +1258,30 @@ function zz_upload_auto_image($image) {
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_extension($path, &$my_rec) {
-	// @todo: implement mode!
-	$path_value = end($path);
-	$path_key = key($path);
+	// @todo implement mode!
+	$path_value = '';
+	foreach ($path as $key => $value) {
+		if ($key === 'root') continue;
+		if (substr($key, 0, 3) === 'web') continue;
+		if ($key === 'extension') {
+			// definite field
+			$path_key = 'field';
+			$path_value = $value;
+			break;
+		} else {
+			// just use last field, overwrite until last
+			$path_key = $key;
+			$path_value = $value;
+		}
+	}
+	if (!$path_value) return false;
 
-	if (substr($path_key, 0, 6) == 'string') {
+	if (substr($path_key, 0, 6) === 'string') {
 		if (strstr($path_value, '.'))
 			return substr($path_value, strrpos($path_value, '.')+1);
 		else
 			return $path_value;
-	} elseif (substr($path_key, 0, 5) == 'field') {
+	} elseif (substr($path_key, 0, 5) === 'field') {
 		$content = isset($my_rec['POST'][$path_value]) ? $my_rec['POST'][$path_value] : '';
 		if (strstr($content, '.'))
 			$extension = substr($content, strrpos($content, '.')+1);
