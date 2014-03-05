@@ -2089,17 +2089,25 @@ function zz_hierarchy($sql, $hierarchy) {
 	$lines = zz_db_fetch($sql, array($hierarchy['id_field_name'], $hierarchy['mother_id_field_name']), 'key/value'); 
 	if (!$lines) return zz_return(array(array(), 0));
 
+	if (empty($hierarchy['id'])) 
+		$hierarchy['id'] = 'NULL';
+
 	$h_lines = array();
 	foreach ($lines as $id => $mother_id) {
 		// sort lines by mother_id
-		if (empty($hierarchy['id'])) 
-			$hierarchy['id'] = 'NULL';
 		if ($id == $hierarchy['id']) {
 			// get uppermost line if hierarchy id is not NULL!
 			$mother_id = 'TOP';
-		} elseif (empty($mother_id))
+		} elseif (empty($mother_id)) {
 			$mother_id = 'NULL';
+		}
 		$h_lines[$mother_id][$id] = $id;
+	}
+	if (!empty($hierarchy['hide_top_value']) AND !empty($h_lines[$hierarchy['id']])) {
+		$h_lines['NULL'] = $h_lines[$hierarchy['id']];
+		unset($h_lines[$hierarchy['id']]);
+		$hierarchy['id'] = 'NULL';
+		unset($h_lines['TOP']);
 	}
 	if (!$h_lines) return zz_return(array(array(), 0));
 	$my_lines = zz_hierarchy_sort($h_lines, $hierarchy['id'], $hierarchy['id_field_name']);
