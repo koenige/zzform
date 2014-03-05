@@ -21,8 +21,10 @@
  *			zz_upload_mimecheck()	checks whether supposed mimetype was already checked for
  *			zz_upload_filecheck()	gets filetype from list
  *			...
+ *		zz_upload_check_recreate()
  *	zz_upload_prepare()			prepares files for upload (resize, rotate etc.)
  *		zz_upload_extension()	gets extension
+ *		zz_upload_recreate_source()
  *	zz_upload_check()			validates file input (upload errors, requirements)
  *		not directly called but from zz_action() instead:
  *		zz_write_upload_fields()
@@ -207,7 +209,7 @@ function zz_upload_get($zz_tab) {
 	$zz_tab[0]['upload_fields'] = zz_upload_get_fields($zz_tab);
 
 	//	read information of files, put into 'images'-array
-	if ($zz_tab[0][0]['action'] != 'delete')
+	if ($zz_tab[0][0]['action'] !== 'delete')
 		$zz_tab = zz_upload_check_files($zz_tab);
 	if ($zz_conf['modules']['debug']) zz_debug('end');
 	return $zz_tab;
@@ -291,6 +293,13 @@ function zz_upload_check_files($zz_tab) {
 			// initialize convert_options
 			if (!isset($images[$no][$img]['convert_options'])) {
 				$images[$no][$img]['convert_options'] = '';
+			}
+
+			// check if thumbnail image might have to be recreated
+			if (!empty($images[$no][$img]['recreate_on_change'])) {
+				$images[$no][$img]['recreate'] = zz_upload_check_recreate($images[$no][$img], $zz_tab);
+			} else {
+				$images[$no][$img]['recreate'] = false;
 			}
 
 			if (empty($images[$no][$img]['field_name'])) {
@@ -876,6 +885,35 @@ function zz_upload_error_with_file($filename, $file, $type = 'unknown') {
 }
 
 /**
+ * checks if thumbnail files have to be recreated because a field value has
+ * changed (e. g. thumb_filetype_id)
+ *
+ * @param array $image
+ * @param array $zz_tab
+ * @return bool
+ */
+function zz_upload_check_recreate($image, $zz_tab) {
+	if (empty($zz_tab[0]['existing'][0])) return false;
+	if (empty($zz_tab[0][0]['POST'])) return false;
+
+	$fields = array();
+	foreach ($image['recreate_on_change'] as $no) {
+		if (!isset($zz_tab[0][0]['fields'][$no]['field_name'])) continue;
+		$fields[] = $zz_tab[0][0]['fields'][$no]['field_name'];
+	}
+	if (!$fields) return false;
+	$recreate = false;
+	foreach ($fields as $field) {
+		if (!array_key_exists($field, $zz_tab[0][0]['POST'])) continue;
+		if (!array_key_exists($field, $zz_tab[0]['existing'][0])) continue;
+		if ($zz_tab[0][0]['POST'][$field] != $zz_tab[0]['existing'][0][$field]) {
+			$recreate = true;
+		}
+	}
+	return $recreate;
+}
+
+/**
  * prepares files for upload (resize, rotate etc.)
  * 
  * 1- checks user input via option fields
@@ -955,6 +993,9 @@ function zz_upload_prepare($zz_tab) {
 						zz_debug('use_modified_source: no source filename!');
 				} else {
 					$source_filename = $src_image['upload']['tmp_name'];
+					if (!$source_filename AND $image['recreate']) {
+						list($image, $source_filename) = zz_upload_recreate_source($image, $src_image, $zz_tab);
+					}
 				}
 				// get some variables from source image as well
 				$image['upload'] = $src_image['upload']; 
@@ -1057,6 +1098,25 @@ function zz_upload_prepare($zz_tab) {
 	// return true or false
 	// output errors
 	return zz_return($zz_tab);
+}
+
+/**
+ * get original filename for recreating a thumbnail file
+ *
+ * @param array $image
+ * @param array $src_image
+ * @param array $zz_tab
+ * @return array
+ */
+function zz_upload_recreate_source($image, $src_image, $zz_tab) {
+	$source_filename = zz_makepath($src_image['path'], $zz_tab, 'old', 'file');
+	if (file_exists($source_filename)) {
+		$image['upload']['name'] = basename($source_filename);
+		$image['upload']['tmp_name'] = $source_filename; // same because it's no upload
+		$image['upload']['error'] = 0;
+		$image['upload'] = zz_upload_fileinfo($image['upload']);
+	}
+	return array($image, $source_filename);
 }
 
 /**
