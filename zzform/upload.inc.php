@@ -160,6 +160,7 @@ function zz_upload_config() {
 	$default['upload_destination_filetype']['mpg'] = 'jpeg';
 	$default['upload_destination_filetype']['flv'] = 'jpeg';
 	$default['upload_destination_filetype']['avi'] = 'jpeg';
+	$default['upload_destination_filetype']['bmp'] = 'png';
 
 	$default['upload_pdf_density'] = '300x300'; // dpi in which pdf will be rasterized
 
