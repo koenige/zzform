@@ -203,7 +203,7 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 				if (isset($o_parts['LEFT JOIN'])) $recursion = true;
 				unset($o_parts['LEFT JOIN']);
 			} elseif ($mode == 'add') {
-				$o_parts[$n_part][2] .= $values;
+				$o_parts[$n_part][2] .= ' '.$values;
 			} elseif ($mode == 'replace') {
 				$o_parts[$n_part][2] = $values;
 			}
