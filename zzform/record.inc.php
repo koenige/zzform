@@ -1987,6 +1987,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	$lines = zz_field_query($field);
+	$too_many_records = array_key_exists('too_many_records', $lines) ? true : false;
 // #1.4 SELECT has no result
 	if (!$lines) {
 		$outputf = zz_form_element($field['f_field_name'], '', 'hidden', true)
@@ -2021,7 +2022,11 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 // #1.3 SELECT has one or several results, let user select something
 
 	$id_field_name = zz_field_get_id_field_name($lines);
-	$detail_record = zz_field_select_get_record($field, $record, $id_field_name);
+	if (!$too_many_records) {
+		$detail_record = zz_field_select_get_record($field, $record, $id_field_name);
+	} else {
+		$detail_record = array();
+	}
 
 	// 1.3.1: no form display = no selection, just display the values in the record
 	if ($display !== 'form') {
@@ -2032,16 +2037,21 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 
 	// ok, we display something!
 	// re-index lines by id_field_name if it makes sense
-	$lines = zz_field_select_lines($field, $lines, $id_field_name);
+	if (!$too_many_records) {
+		$lines = zz_field_select_lines($field, $lines, $id_field_name);
+		
 
-	// do we have to display the results hierarchical?
-	if (!empty($field['show_hierarchy'])) {
-		$lines = zz_field_select_hierarchy($field, $lines, $record, $id_field_name);
+		// do we have to display the results hierarchical?
+		if (!empty($field['show_hierarchy'])) {
+			$lines = zz_field_select_hierarchy($field, $lines, $record, $id_field_name);
+		} else {
+			$field['show_hierarchy'] = false;
+		}
+		// subtree might change the amount of lines
+		$count_rows = count($lines);
 	} else {
-		$field['show_hierarchy'] = false;
+		$count_rows = $lines[0];
 	}
-	// subtree might change the amount of lines
-	$count_rows = count($lines);
 
 	// 1.3.2: more records than we'd like to display
 	if ($count_rows > $field['max_select']) {
@@ -2117,14 +2127,22 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
  * Query records for select element
  *
  * @param array $field 'sql', 'show_hierarchy_subtree', 'max_select'
- * @return array lines from database
+ * @return array lines from database or 'too_many_records' count is too high
  */
 function zz_field_query($field) {
 	// we do not show all fields if query is bigger than $field['max_select']
 	// so no need to query them (only if show_hierarchy_subtree is empty)
 	if (empty($field['show_hierarchy_subtree']) AND empty($field['show_hierarchy'])
 		AND isset($field['max_select'])) {
-		$sql = zz_edit_sql($field['sql'], 'LIMIT', '0, '.($field['max_select']+1));
+		if (isset($field['sqlcount'])) {
+			$count_records = zz_db_fetch($field['sqlcount']);
+			if (reset($count_records) > $field['max_select']) {
+				$lines[] = $count_records;
+				$lines['too_many_records'] = true;
+				return $lines;
+			}
+		}
+		$sql = zz_edit_sql($field['sql'], 'LIMIT', '0, '.($field['max_select'] + 1));
 	} else {
 		$sql = $field['sql'];
 	}
