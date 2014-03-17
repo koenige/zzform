@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2010 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2010, 2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -56,20 +56,20 @@ function zz_debug($marker = false, $text = false, $id = false) {
 
 	$time = microtime_float();
 	// initialize function parameters
-	if (substr($marker, 0, 5) == 'start') {
+	if (substr($marker, 0, 5) === 'start') {
 		$current = array(
 			'function' => $text,
 			'time_start' => $time
 		);
 		$zz_debug[$id]['function'][] = $current;
-	} elseif (substr($marker, 0, 3) == 'end') {
+	} elseif (substr($marker, 0, 3) === 'end') {
 		// set current function to last element and remove it
 		$current = array_pop($zz_debug[$id]['function']);
 	} else {
 		// set current function to last element and keep it
 		$current = end($zz_debug[$id]['function']);
 	}
-	if ($marker == 'start') return true; // no output, just initialize
+	if ($marker === 'start') return true; // no output, just initialize
 
 	$debug = array();
 	$debug['time'] = $time - $zz_debug[$id]['timer'];
@@ -110,11 +110,18 @@ function zz_debug_htmlout($id = false) {
 	foreach ($zz_debug[$id]['output'] as $row) {
 		$output .= '<tr class="'.($i & 1 ? 'even': 'uneven').'">';
 		foreach ($row as $key => $val) {
-			if ($key == 'time') $val = '<dl><dt>'.$val.'</dt>';
-			elseif ($key == 'time_used') $val = '<dd>'.$val.'</dd></dl>';
-			if ($key != 'time_used') $output .= '<td>';
+			if ($key === 'time') {
+				$val = '<dl><dt>'.$val.'</dt>';
+			} elseif ($key === 'time_used') {
+				if ($val > 0.1) $class = 'error';
+				elseif ($val > 0.01) $class = 'warning';
+				else $class = '';
+				if ($class) $val = '<span class="'.$class.'">'.$val.'</span>';
+				$val = '<dd>'.$val.'</dd></dl>';
+			}
+			if ($key !== 'time_used') $output .= '<td>';
 			$output .= $val;
-			if ($key != 'time') $output .= '</td>';
+			if ($key !== 'time') $output .= '</td>';
 		}
 		$output .= '</tr>'."\n";
 		$i++;
