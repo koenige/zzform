@@ -315,6 +315,13 @@ function zz_imagick_convert($options, $files, $source_extension) {
 	global $zz_conf;
 	global $zz_error;
 
+	// avoid errors like
+	// libgomp: Thread creation failed: Resource temporarily unavailable
+	// some ImageMagick versions have OpenMP support compiled into
+	// it looks as it does not work with multiple cores correctly, so disable this.
+	putenv("MAGICK_THREAD_LIMIT=1");
+	putenv("OMP_NUM_THREADS=1");
+
 	$command = zz_imagick_findpath('convert');
 
 	if (!empty($zz_conf['upload_imagick_options_for'][$source_extension])) {
