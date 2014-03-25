@@ -873,6 +873,8 @@ function zz_upload_error_with_file($filename, $file, $type = 'unknown') {
 	}
 	$msg_dev = zz_text($msg_dev);
 	$msg_dev .= "\n\nAction: ".var_export($file['action'], true);
+	$err_upload = $file['upload'];
+	unset($err_upload['exif']); // too much information for log
 	$msg_dev .= "\n\n".var_export($file['upload'], true);
 	if ($error_filename)
 		$msg_dev .= "\r\n".zz_text('The file was temporarily saved under: ').$error_filename;
@@ -2440,5 +2442,3 @@ function zz_upload_exec($command, $log_description, &$output = array(), &$return
 	}
 	return true;
 }
-
-?>
