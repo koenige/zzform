@@ -1480,7 +1480,7 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 		}
 	} elseif ($record) {
 		if (isset($field['timestamp']) && $field['timestamp']) {
-			$text .= timestamp2date($display_value);
+			$text .= zz_timestamp_format($display_value);
 		} elseif (isset($field['display_field'])) {
 			if (!empty($record[$field['display_field']]))
 				$text .= zz_htmltag_escape($record[$field['display_field']]);
@@ -1534,7 +1534,7 @@ function zz_field_timestamp($field, $record, $mode) {
 	// + return text
 	if (!empty($record[$field['field_name']])) {
 		$text .= ($mode !== 'delete' ? '<em title="'.zz_text('Would be changed on update').'">' : '')
-			.timestamp2date($record[$field['field_name']])
+			.zz_timestamp_format($record[$field['field_name']])
 			.($mode !== 'delete' ? '</em>' : '');
 	} else {
 		$text .= '('.zz_text('will_be_added_automatically').')&nbsp;';
@@ -3067,6 +3067,3 @@ function zz_field_concat($field, $values) {
 	$values = array_filter($values);
 	return implode($concat, $values);
 }
-
-
-?>

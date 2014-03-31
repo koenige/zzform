@@ -846,6 +846,27 @@ function zz_date_format($date) {
 	return $date;
 }
 
+/** 
+ * formats timestamp to readable date
+ * 
+ * @param string $timestamp
+ * @return string reformatted date
+ * @todo use date functions instead
+ */
+function zz_timestamp_format($timestamp) {
+	if (!$timestamp) return false;
+	if (strstr($timestamp, '-')) {
+		// SQL DATETIME format, YYYY-MM-DD HH:ii:ss
+		$date = substr($timestamp, 8, 2).'.'.substr($timestamp, 5, 2).'.'.substr($timestamp, 0, 4).' ';
+		$date.= substr($timestamp, 11, 2).':'.substr($timestamp, 14, 2).':'.substr($timestamp, 17, 2);
+	} else {
+		// YYYYMMDDHHiiss format
+		$date = substr($timestamp, 6, 2).'.'.substr($timestamp, 4, 2).'.'.substr($timestamp, 0, 4).' ';
+		$date.= substr($timestamp, 8, 2).':'.substr($timestamp, 10, 2).':'.substr($timestamp, 12, 2);
+	}
+	return $date;
+}
+
 /**
  * prints out seconds as hours:minutes
  *
@@ -908,5 +929,3 @@ function zz_number_format($value, $field) {
 	}
 	return $text;
 }
-
-?>

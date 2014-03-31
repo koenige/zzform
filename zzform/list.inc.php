@@ -1201,7 +1201,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 			$text = date('Y-m-d H:i:s', $row['value']);
 			break;
 		case 'timestamp':
-			$text = timestamp2date($row['value']);
+			$text = zz_timestamp_format($row['value']);
 			break;
 		case 'date':
 			$text = zz_date_format($row['value']);
@@ -2380,5 +2380,3 @@ function zz_list_syndication_get($field, $line) {
 		.$img.'"  alt="" class="thumb">';
 	return $text;
 }
-
-?>
