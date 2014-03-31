@@ -100,3 +100,19 @@ Array.prototype.forEach.call(document.querySelectorAll('input.sub-remove-horizon
 	};
 });
 
+/**
+ * show only a part of a very long text in list view
+ */
+var moretexts = document.getElementsByClassName("moretext");
+if (moretexts.length) {
+	for (var i = 0; i < moretexts.length; i++) {
+		moretexts[i].className = "moretext moretext_hidden";
+		moretexts[i].onclick = function() {
+			if (this.className == "moretext moretext_hidden") {
+				this.className = "moretext";
+			} else {
+				this.className = "moretext moretext_hidden";
+			}
+		};
+	}
+}

@@ -440,3 +440,8 @@ body #zzform .separator hr
 					{ margin-top: 2em; }
 .maintenance h2:first-child
 					{ margin-top: 0; }
+
+/* moretext for lists */
+
+#zzform .moretext_hidden
+					{ max-height: 10em; overflow: hidden; text-overflow: ellipsis; }
