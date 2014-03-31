@@ -222,9 +222,13 @@ kml		kml		kml		application/vnd.google-earth.kml+xml	Keyhole Markup Language
 
 kmz		kmz		kmz		application/vnd.google-earth.kmz		Keyhole Markup Language Archive
 
-latex	latex	latex	application/x-latex
+latex	latex	latex	application/x-latex				LaTeX source
+latex	latex	latex	text/x-latex
+latex	ltx		latex	application/x-latex
 
 lha		lha		lha		application/octet-stream
+lha		lha		lha		application/lha
+lha		lha		lha		application/x-lha
 
 lzh		lzh		lzh		application/octet-stream		LZH compressed data
 
@@ -235,6 +239,11 @@ m4u		m4u		m4u		video/vnd.mpegurl
 man		man		man		application/x-troff-man
 
 mathml	mathml	mathml	application/mathml+xml
+
+matlab	m		m		application/mfile				MatLab
+matlab	m		m		application/x-mfile				MatLab
+matlab	m		m		application/matlab				MatLab
+matlab	m		m		application/x-matlab			MatLab
 
 me		me		me		application/x-troff-me
 
@@ -290,6 +299,8 @@ mpp		mpp		mpp		zz-application/zz-winassoc-mpp	Microsoft Project File
 ms		ms		ms		application/x-troff-ms
 
 msh		msh		msh		model/mesh
+
+mx		mx		mx		application/octet-stream		MaXQDA
 
 mxu		mxu		mxu		video/vnd.mpegurl
 
@@ -450,9 +461,13 @@ t		t		t		application/x-troff
 
 tar		tar		tar		application/x-tar
 
+tc		tc		tc		application/octet-stream		True Crypt (Virtual Encrypted Disk (Container))
+
 tcl		tcl		tcl		application/x-tcl
 
-tex		tex		tex		application/x-tex
+tex		tex		tex		application/x-tex				TeX source
+tex		tex		tex		application/x-latex				LaTeX source
+tex		tex		tex		text/plain
 
 texinfo	texinfo	texinfo	application/x-texinfo
 texi	texi	texinfo	application/x-texinfo
@@ -515,6 +530,8 @@ wmlc	wmlc	wmlc	application/vnd.wap.wmlc
 wmls	wmls	wmls	text/vnd.wap.wmlscript
 
 wmlsc	wmlsc	wmlsc	application/vnd.wap.wmlscriptc
+
+wmv		wmv		wmv		video/x-ms-wmv					Windows Media File
 
 wps		wps		wps		application/vnd.ms-works		Microsoft Works Document
 
