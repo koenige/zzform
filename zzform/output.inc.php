@@ -855,15 +855,16 @@ function zz_date_format($date) {
  */
 function zz_timestamp_format($timestamp) {
 	if (!$timestamp) return false;
-	if (strstr($timestamp, '-')) {
-		// SQL DATETIME format, YYYY-MM-DD HH:ii:ss
-		$date = substr($timestamp, 8, 2).'.'.substr($timestamp, 5, 2).'.'.substr($timestamp, 0, 4).' ';
-		$date.= substr($timestamp, 11, 2).':'.substr($timestamp, 14, 2).':'.substr($timestamp, 17, 2);
-	} else {
+	if (!strstr($timestamp, '-')) {
 		// YYYYMMDDHHiiss format
-		$date = substr($timestamp, 6, 2).'.'.substr($timestamp, 4, 2).'.'.substr($timestamp, 0, 4).' ';
-		$date.= substr($timestamp, 8, 2).':'.substr($timestamp, 10, 2).':'.substr($timestamp, 12, 2);
+		$date = substr($timestamp, 0, 4).'-'.substr($timestamp, 4, 2).'-'.substr($timestamp, 6, 2).' '
+			.substr($timestamp, 8, 2).':'.substr($timestamp, 10, 2).':'.substr($timestamp, 12, 2);
+	} else {
+		$date = $timestamp;
 	}
+	$date = explode(' ', $date);
+	$date[0] = zz_date_format($date[0]);
+	$date = implode(' ', $date);
 	return $date;
 }
 
