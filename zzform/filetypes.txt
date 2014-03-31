@@ -234,7 +234,24 @@ lzh		lzh		lzh		application/octet-stream		LZH compressed data
 
 m3u		m3u		m3u		audio/x-mpegurl
 
+m4a		m4a		m4a		audio/mp4						MPEG-4 Audio
+m4a		m4a		m4a		audio/mp4a-latm					MPEG-4 Audio
+
+m4b		m4b		m4b		audio/mp4						MPEG-4 Audio Books
+m4b		m4b		m4b		audio/mp4a-latm					MPEG-4 Audio Books
+
+m4p		m4p		m4p		audio/mp4						MPEG-4 Audio Protected
+m4p		m4p		m4p		audio/mp4a-latm					MPEG-4 Audio Protected
+
+m4r		m4r		m4r		audio/mp4						MPEG-4 Audio Ringtones
+m4r		m4r		m4r		audio/mp4a-latm					MPEG-4 Audio Ringtones
+
 m4u		m4u		m4u		video/vnd.mpegurl
+
+m4v		mp4		mp4		video/mp4						MPEG-4 Video File
+m4v		mp4v	mp4		video/mp4						MPEG-4 Video File
+m4v		m4v		mp4		video/mp4
+m4v		m4v		mp4		video/x-m4v
 
 man		man		man		application/x-troff-man
 
@@ -277,8 +294,6 @@ mp3		mp3		mp3		audio/x-mpeg					MPEG Audio Stream, Layer III
 mp3		mp3		mp3		audio/x-mpeg3					MPEG Audio Stream, Layer III
 mp3		mp3		mp3		audio/x-mpegaudio				MPEG Audio Stream, Layer III
 mp3		mp3		mp3		audio/x-mpg						MPEG Audio Stream, Layer III
-
-mp4		mp4		mp4		video/mp4						MPEG-4 Video File
 
 mpeg	mpeg	mpeg	video/mpeg
 mpeg	mpe		mpe		video/mpeg
