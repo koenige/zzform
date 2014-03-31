@@ -236,15 +236,19 @@ m3u		m3u		m3u		audio/x-mpegurl
 
 m4a		m4a		m4a		audio/mp4						MPEG-4 Audio
 m4a		m4a		m4a		audio/mp4a-latm					MPEG-4 Audio
+m4a		m4a		m4a		audio/x-m4a						MPEG-4 Audio
 
 m4b		m4b		m4b		audio/mp4						MPEG-4 Audio Books
 m4b		m4b		m4b		audio/mp4a-latm					MPEG-4 Audio Books
+m4b		m4b		m4b		audio/x-m4b						MPEG-4 Audio
 
 m4p		m4p		m4p		audio/mp4						MPEG-4 Audio Protected
 m4p		m4p		m4p		audio/mp4a-latm					MPEG-4 Audio Protected
+m4p		m4p		m4p		audio/x-m4p						MPEG-4 Audio
 
 m4r		m4r		m4r		audio/mp4						MPEG-4 Audio Ringtones
 m4r		m4r		m4r		audio/mp4a-latm					MPEG-4 Audio Ringtones
+m4r		m4r		m4r		audio/x-m4r						MPEG-4 Audio
 
 m4u		m4u		m4u		video/vnd.mpegurl
 
