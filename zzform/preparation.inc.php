@@ -626,9 +626,7 @@ function zz_subrecord_unique($my_tab, $fields) {
 	}
 	if (!empty($my_tab['unique']) AND $zz_conf['multi']) {
 		// this is only important for UPDATEs of the main record
-		// @todo: 'unique' on a subtable level will currently only work
-		// with IDs sent via zzform_multi()
-		// @todo: merge with code for 'unique' on a field level
+		// @todo merge with code for 'unique' on a field level
 
 		foreach ($my_tab['unique'] AS $unique) {
 			if (empty($my_tab['existing'])) continue;
@@ -647,6 +645,29 @@ function zz_subrecord_unique($my_tab, $fields) {
 						continue;
 					}
 					$values[$field_name] = $record[$field_name];
+					// check if we have to get the corresponding ID for a string
+					if (intval($values[$field_name]).'' === $values[$field_name].'') continue;
+					foreach ($fields as $field) {
+						if ($field['field_name'] !== $field_name) continue;
+						if ($field['type'] !== 'select') break;
+						if (empty($field['sql'])) break;
+
+						$check = true;
+						$long_field_name = $my_tab['table'].'[]['.$field_name.']';
+						$db_table = $my_tab['db_name'].'.'.$my_tab['table'];
+						if (isset($_POST['zz_check_select'])) {
+							// ... unless explicitly said not to check
+							if (in_array($field_name, $_POST['zz_check_select']))
+								$check = false;
+							elseif (in_array($long_field_name, $_POST['zz_check_select']))
+								$check = false;
+						}
+						if (!$check) break;
+						
+						$field = zz_check_select_id($field, $values[$field_name].' ', $db_table);
+						if (count($field['possible_values']) !== 1) continue;
+						$values[$field_name] = reset($field['possible_values']);
+					}
 				}
 				foreach ($my_tab['existing'] as $id => $record_in_db) {
 					$found = true;
@@ -1247,5 +1268,3 @@ function zz_query_subrecord($my_tab, $main_table, $main_id_value,
 	}
 	return zz_return($records);
 }
-
-?>
