@@ -144,8 +144,7 @@ function zz_image_gray($source, $destination, $dest_extension, $image) {
 	);
 
 	if ($zz_conf['modules']['debug']) zz_debug('end');
-	if ($convert) return true;
-	else return false;
+	return $convert;
 }
 
 /**
@@ -173,9 +172,8 @@ function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
 	);
 
 	if ($zz_conf['modules']['debug']) zz_debug('thumbnail creation '
-		.($convert ? '' : 'un').'successful:<br>'.$destination);
-	if ($convert) return zz_return(true);
-	else return zz_return(false);
+		.($convert === true ? '' : 'un').'successful:<br>'.$destination);
+	return zz_return($convert);
 }
 
 /**
@@ -206,7 +204,6 @@ function zz_image_webimage($source, $destination, $dest_extension, $image) {
 		AND (!$source_extension OR !empty($zz_conf['webimages_by_extension'][$source_extension]))
 	) {
 		// do not create an identical webimage of already existing webimage
-		$zz_conf['int']['no_image_action'] = true;
 		return zz_return(false);
 	} elseif ($source_extension === 'pdf' OR $source_extension === 'eps') {
 		if ($zz_conf['upload_tools']['ghostscript']) {
@@ -232,7 +229,6 @@ function zz_image_webimage($source, $destination, $dest_extension, $image) {
 			$source_extension
 		);
 	} else {
-		$zz_conf['int']['no_image_action'] = true;
 		return zz_return(false);
 	}
 	return zz_return($convert);
@@ -258,10 +254,15 @@ function zz_image_crop($source, $destination, $dest_extension, $image) {
 		$source_width = $image['upload']['width'];
 		$source_height = $image['upload']['height'];
 	} else {
-		// this won't work with PDF etc.
+		// @todo this won't work with PDF etc.
 		$source_image = getimagesize($source);
 		if (empty($source_image[0])) {
-			return zz_return(false); // no height means no picture or error
+			$return = array(
+				'error' => true,
+				'error_msg' => 'ImageMagick: cropped image was not created.',
+				'command' => sprintf('getimagesize(%s)', $source)
+			);
+			return zz_return($return); // no height means no picture or error
 		}
 		$source_width = $source_image[0];
 		$source_height = $source_image[1];
@@ -295,8 +296,7 @@ function zz_image_crop($source, $destination, $dest_extension, $image) {
 		sprintf('"%s" %s:"%s"', $source, $dest_extension, $destination),
 		$image['upload']['ext']
 	);
-	if ($convert) return zz_return(true);
-	else return zz_return(false);
+	return zz_return($convert);
 }
 
 /**
@@ -333,14 +333,17 @@ function zz_imagick_convert($options, $files, $source_extension) {
 
 	$command .= ' '.$files.' ';
 	zz_upload_exec($command, 'ImageMagick convert', $output, $return_var);
+	$return = true;
 	if ($output OR $return_var) {
-		$zz_error[] = array('msg_dev' => $command.':'
-			.($output ? ' '.json_encode($output) : '')
-			.($return_var ? ' '.json_encode($return_var) : '')
+		$return = array(
+			'error' => true,
+			'error_msg' => 'ImageMagick: surrogate image was not created.',
+			'exit_status' => $return_var,
+			'output' => $output,
+			'command' => $command
 		);
 	}
-	if (!$return_var) return true;
-	else return false;
+	return $return;
 }
 
 /**
@@ -410,5 +413,3 @@ function zz_ghostscript_version() {
 	if (!$output) return '';
 	return implode("  \n", $output);
 }
-
-?>

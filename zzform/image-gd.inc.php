@@ -17,7 +17,7 @@
  *	-	zz_image_crop()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2010 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -38,7 +38,7 @@
  *	src_h = Source height. 
  * @param string $dest_extension extension of destination file
  * @param array $image upload image array
- * @return bool true/false true: image creation was successful, false: unsuccessful
+ * @return mixed bool true: image creation was successful, array: error message
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_imagegd($source, $destination, $params, $dest_extension, $image) {
@@ -48,9 +48,13 @@ function zz_imagegd($source, $destination, $params, $dest_extension, $image) {
 	$possible_filetypes = array('xpm', 'xbm', 'wbmp', 'png', 'jpeg', 'gif');
 	$source_filetype = $image['upload']['filetype'];
 	if (!in_array($source_filetype, $possible_filetypes)) {
-		echo 'Not allowed filetype "'.$source_filetype.'". Allowed Types are: '.implode(', ', $possible_filetypes).'<br>';
-		if ($zz_conf['modules']['debug']) zz_debug("end");
-		return false;
+		$return = array(
+			'error' => true,
+			'error_msg' => sprintf(
+				'GD Library: filetype not allowed (%s). Allowed filetypes are: %s',
+				$source_filetype, implode(', ', $possible_filetypes))
+		);
+		return zz_return($return);
 	}
 	$imagecreatefromfunction = 'ImageCreateFrom'.$source_filetype;
 	$destination_image = ImageCreateTrueColor($params['dst_w'], $params['dst_h']);
@@ -72,10 +76,13 @@ function zz_imagegd($source, $destination, $params, $dest_extension, $image) {
 		// we are finished!
 		ImageDestroy($source_image);
 		ImageDestroy($destination_image);
-		if ($zz_conf['modules']['debug']) zz_debug("end");
-		if (file_exists($destination)) return true;
-		else return false;
-	break;
+		if (file_exists($destination)) return zz_return(true);
+		$return = array(
+			'error' => true,
+			'error_msg' => 'GD Library: no JPEG image was created.',
+			'command' => sprintf('ImageJPEG(%s, %s, %s)', $destination_image, $destination, $jpeg_quality)
+		);
+		return zz_return($return);
 	case 'gif':
 		// Create Image
 		$source_image = $imagecreatefromfunction($source);
@@ -83,7 +90,9 @@ function zz_imagegd($source, $destination, $params, $dest_extension, $image) {
 		$transparent_index = imagecolortransparent($source_image);
 		if ($transparent_index >= 0) { //it is transparent
 			$transparent_color = imagecolorsforindex($source_image, $transparent_index);
-			$transparent_index = imagecolorallocate($destination_image, $transparent_color['red'], $transparent_color['green'], $transparent_color['blue']);
+			$transparent_index = imagecolorallocate($destination_image,
+				$transparent_color['red'], $transparent_color['green'], $transparent_color['blue']
+			);
 			imagefill($destination_image, 0, 0, $transparent_index);
 			imagecolortransparent($destination_image, $transparent_index);
 		}
@@ -96,10 +105,13 @@ function zz_imagegd($source, $destination, $params, $dest_extension, $image) {
 		// we are finished!
 		ImageDestroy($source_image);
 		ImageDestroy($destination_image);
-		if ($zz_conf['modules']['debug']) zz_debug("end");
-		if (file_exists($destination)) return true;
-		else return false;
-	break;
+		if (file_exists($destination)) return zz_return(true);
+		$return = array(
+			'error' => true,
+			'error_msg' => 'GD Library: no GIF image was created.',
+			'command' => sprintf('ImageGIF(%s, %s)', $destination_image, $destination)
+		);
+		return zz_return($return);
 	case 'png':
 		// Create Image
 		$source_image = $imagecreatefromfunction($source);
@@ -117,18 +129,20 @@ function zz_imagegd($source, $destination, $params, $dest_extension, $image) {
 		// we are finished!
 		ImageDestroy($destination_image);
 		ImageDestroy($source_image);
-		if ($zz_conf['modules']['debug']) zz_debug("end");
-		if (file_exists($destination)) return true;
-		else return false;
-	break;
-	default:
-//		echo 'Filetype is not supported';
-		if ($zz_conf['modules']['debug']) zz_debug("end");
-		return false;
+		if (file_exists($destination)) return zz_return(true);
+		$return = array(
+			'error' => true,
+			'error_msg' => 'GD Library: no PNG image was created.',
+			'command' => sprintf('ImagePNG(%s, %s)', $destination_image, $destination)
+		);
+		return zz_return($return);
 	}
 	ImageDestroy($destination_image);
-	if ($zz_conf['modules']['debug']) zz_debug("end");
-	return false;
+	$return = array(
+		'error' => true,
+		'error_msg' => sprintf('GD Library: filetype not yet supported (%s).', $filetype)
+	);
+	return zz_return($return);
 }
 
 
@@ -236,5 +250,3 @@ function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
 	
 	return zz_imagegd($source, $destination, $params, $dest_extension, $image);
 }
-
-?>
