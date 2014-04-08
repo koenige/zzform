@@ -850,17 +850,20 @@ function zz_upload_unix_file($filename, $file) {
 function zz_upload_error_with_file($filename, $file, $type = 'unknown') {
 	global $zz_conf;
 	global $zz_error;
+	static $copied_files;
 	if ($type === 'unknown' AND $file['filetype'] != 'unknown') return false;
 	if (empty($zz_conf['debug_upload'])) return false;
+	if (empty($copied_files)) $copied_files = array();
 
 	$error_filename = false;
-	if ($zz_conf['backup']) {
+	if ($zz_conf['backup'] AND !in_array($filename, $copied_files)) {
 		// don't return here in case of error - 
 		// it's not so important to break the whole process
 		$my_error = $zz_error['error'];
 		$error_filename = zz_upload_path($zz_conf['backup_dir'], 'error', $filename);
 		if (!$zz_error['error'])
 			copy($filename, $error_filename);
+		$copied_files[] = $filename; // just copy a file once
 		$zz_error['error'] = $my_error;
 	}
 	switch ($type) {
