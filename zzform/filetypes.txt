@@ -4,6 +4,8 @@
 3gp		3gp		3gp		audio/3gpp 						3GPP Multimedia File
 3gp		3gp		3gp		video/3gpp 						3GPP Multimedia File
 
+7z		7z		7z		application/x-7z-compressed		7zip archive
+
 ai		ai		ai		application/postscript			Adobe Illustrator graphics file
 ai		ai		ai		application/pdf					Adobe Illustrator graphics file
 
