@@ -1857,7 +1857,7 @@ function zz_upload_delete($filename, $show_filename = false, $action = 'delete')
 		if ($show_filename) {
 			$zz_error[] = array(
 				'msg' => sprintf(zz_text('Could not delete %s, file did not exist.'), $show_filename),
-				'log_post_data' = false,
+				'log_post_data' => false,
 				'level' => E_USER_NOTICE
 			);
 		}
