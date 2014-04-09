@@ -334,6 +334,12 @@ function zz_imagick_convert($options, $files, $source_extension) {
 	$command .= ' '.$files.' ';
 	zz_upload_exec($command, 'ImageMagick convert', $output, $return_var);
 	$return = true;
+	if ($return_var === -1) {
+		// function not found, or [function.exec]: Unable to fork ...
+		// try again once, one second later
+		sleep 1;
+		zz_upload_exec($command, 'ImageMagick convert', $output, $return_var);
+	}
 	if ($output OR $return_var) {
 		$return = array(
 			'error' => true,
