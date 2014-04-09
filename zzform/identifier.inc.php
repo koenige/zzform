@@ -25,6 +25,7 @@
  *			array, values are used in the same order they appear in the array
  *		'exists' ('.'); string used for concatenation if identifier exists
  *		'lowercase' (true); false will not transform all letters to lowercase
+ *		'uppercase' (false); true will transform all letters to uppercase
  *		'slashes' (false); true = slashes will be preserved
  *		'where' (false) WHERE-condition to be appended to query that checks 
  *			existence of identifier in database 
@@ -65,7 +66,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 		'forceFilename' => '-', 'concat' => '.', 'exists' => '.',
 		'lowercase' => true, 'slashes' => false, 'replace' => array(),
 		'hash_md5' => false, 'ignore' => array(), 'max_length' => 36,
-		'ignore_this_if' => array(), 'empty' => array()
+		'ignore_this_if' => array(), 'empty' => array(), 'uppercase' => false
 	);
 	foreach ($default_configuration as $key => $value) {
 		if (!isset($conf[$key])) $conf[$key] = $value;
@@ -134,6 +135,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 					$d_var, $conf['forceFilename'], $conf['replace']
 				);
 				if ($conf['lowercase']) $my_var = strtolower($my_var);
+				elseif ($conf['uppercase']) $my_var = strtoupper($my_var);
 				$idf_arr[] = $my_var;
 			}
 		} else {
@@ -141,6 +143,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 				$var, $conf['forceFilename'], $conf['replace']
 			);
 			if ($conf['lowercase']) $my_var = strtolower($my_var);
+			elseif ($conf['uppercase']) $my_var = strtoupper($my_var);
 			$idf_arr[] = $my_var;
 		}
 	}
