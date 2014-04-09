@@ -135,7 +135,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 					$d_var, $conf['forceFilename'], $conf['replace']
 				);
 				if ($conf['lowercase']) $my_var = strtolower($my_var);
-				elseif ($conf['uppercase']) $my_var = strtoupper($my_var);
+				if ($conf['uppercase']) $my_var = strtoupper($my_var);
 				$idf_arr[] = $my_var;
 			}
 		} else {
@@ -143,7 +143,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 				$var, $conf['forceFilename'], $conf['replace']
 			);
 			if ($conf['lowercase']) $my_var = strtolower($my_var);
-			elseif ($conf['uppercase']) $my_var = strtoupper($my_var);
+			if ($conf['uppercase']) $my_var = strtoupper($my_var);
 			$idf_arr[] = $my_var;
 		}
 	}
