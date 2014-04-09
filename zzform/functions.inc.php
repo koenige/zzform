@@ -2376,6 +2376,7 @@ function zz_cut_length($string, $max_length) {
  * @param int $byts
  * @param int $precision
  * @return string
+ * @see wrap_bytes
  */
 function zz_byte_format($bytes, $precision = 1) { 
 	global $zz_conf;
