@@ -2313,9 +2313,9 @@ function zz_html_escape($string) {
 		case 'iso-8859-2': $character_set = 'ISO-8859-1'; break;
 		default: $character_set = $zz_conf['character_set']; break;
 	}
-	$string = htmlspecialchars($string, ENT_QUOTES, $character_set);
-	if (!$string) $string = htmlspecialchars($string, ENT_QUOTES, 'ISO-8859-1');
-	return $string;
+	$new_string = @htmlspecialchars($string, ENT_QUOTES, $character_set);
+	if (!$new_string) $new_string = htmlspecialchars($string, ENT_QUOTES, 'ISO-8859-1');
+	return $new_string;
 }
 
 /**
@@ -2331,10 +2331,10 @@ function zz_htmltag_escape($string) {
 		case 'iso-8859-2': $character_set = 'ISO-8859-1'; break;
 		default: $character_set = $zz_conf['character_set']; break;
 	}
-	$string = htmlspecialchars($string, ENT_NOQUOTES, $character_set);
-	if (!$string) $string = htmlspecialchars($string, ENT_NOQUOTES, 'ISO-8859-1');
-	$string = str_replace('&amp;', '&', $string);
-	return $string;
+	$new_string = @htmlspecialchars($string, ENT_NOQUOTES, $character_set);
+	if (!$new_string) $new_string = htmlspecialchars($string, ENT_NOQUOTES, 'ISO-8859-1');
+	$new_string = str_replace('&amp;', '&', $new_string);
+	return $new_string;
 }
 
 /**
@@ -2350,10 +2350,10 @@ function zz_htmlnoand_escape($string) {
 		case 'iso-8859-2': $character_set = 'ISO-8859-1'; break;
 		default: $character_set = $zz_conf['character_set']; break;
 	}
-	$string = htmlspecialchars($string, ENT_QUOTES, $character_set);
-	if (!$string) $string = htmlspecialchars($string, ENT_QUOTES, 'ISO-8859-1');
-	$string = str_replace('&amp;', '&', $string);
-	return $string;
+	$new_string = @htmlspecialchars($string, ENT_QUOTES, $character_set);
+	if (!$new_string) $string = htmlspecialchars($string, ENT_QUOTES, 'ISO-8859-1');
+	$new_string = str_replace('&amp;', '&', $new_string);
+	return $new_string;
 }
 
 /**
