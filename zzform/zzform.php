@@ -69,6 +69,8 @@ function zzform($zz = array()) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if ($zz_error['error']) return zzform_exit($ops); // exits script
 
+	zz_set_encoding($zz_conf['character_set']);
+
 	// include dependent modules
 	$post_too_big = zz_dependent_modules($zz);
 
@@ -706,10 +708,6 @@ function zz_initialize($mode = false, $zz = array()) {
 		// _COOKIE and _REQUEST are not being used
 	}
 
-	if ($zz_conf['character_set'] == 'utf-8') {
-		mb_internal_encoding("UTF-8");
-	}
-
 	$zz_conf['zzform_init'] = true;
 	$zz_saved['conf'] = $zz_conf;
 	zz_return(true);
@@ -1120,5 +1118,3 @@ function zzform_post_too_big() {
 	}
 	return false;
 }
-
-?>

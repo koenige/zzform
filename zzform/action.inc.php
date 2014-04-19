@@ -888,6 +888,13 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 	$my_rec['POST_db'] = $my_rec['POST'];
 	foreach ($my_rec['fields'] as $f => $field) {
 		$field_name = (!empty($field['field_name']) ? $field['field_name'] : '');
+	// text: convert encoding for some field types
+		if (in_array($field['type'], array('text', 'memo'))) {
+			$my_rec['POST'][$field_name]
+				= $my_rec['POST_db'][$field_name] 
+				= zz_convert_string($my_rec['POST_db'][$field_name]);
+		}
+
 	//	numbers
 	//	factor for avoiding doubles
 		if ($field['type'] === 'number' 
@@ -1898,5 +1905,3 @@ function zz_integrity_record_ids($zz_tab) {
 	}
 	return $records;
 }
-
-?>
