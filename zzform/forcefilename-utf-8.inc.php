@@ -9,7 +9,7 @@
 // ---------------------------------------------------------
 
 function forceFilename($str, $spaceChar = '-', $replacements = array()) {
-	mb_internal_encoding("UTF-8");
+	$str = zz_convert_string($str);
 
 	// get rid of html entities
 	$str = html_entity_decode($str);
@@ -129,7 +129,7 @@ function forceFilename($str, $spaceChar = '-', $replacements = array()) {
 			$_str .= '-'; break;
 
 		default:
-			if (preg_match('/[A-Za-z0-9\(\)]/', $ch)) {	$_str .= $ch;	} break;
+			if (preg_match('/[A-Za-z0-9\(\)]/u', $ch)) {	$_str .= $ch;	} break;
 		}
 	}	 
 
