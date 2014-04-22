@@ -52,15 +52,13 @@
  * @param string $filename filename of file which needs to be identified
  * @param array $file
  * @global array $zz_conf
- * @global array $zz_error
  * @return array $file
  *		string 'filetype', int 'width', int 'height', bool 'validated',
- *		string 'ext'
+ *		string 'ext', array 'warnings'
  * @todo always fill out $file['ext']
  */
 function zz_imagick_identify($filename, $file) {
 	global $zz_conf;
-	global $zz_error;
 
 	if ($zz_conf['graphics_library'] != 'imagemagick') return $file;
 	if (!$zz_conf['upload_tools']['identify']) return $file;
@@ -79,10 +77,7 @@ function zz_imagick_identify($filename, $file) {
 	if (substr($output[0], 0, 9) === 'identify:') return zz_return($file);
 	if (substr($output[0], 0, 16) === '   **** Warning:') {
 		$result = array_pop($output);
-		$file['warnings'] = $output;
-		$zz_error[] = array(
-			'msg_dev' => implode('<br>', $file['warnings'])
-		);
+		$file['warnings']['ImageMagick identify'] = $output;
 	} else {
 		$result = $output[0];
 	}
@@ -308,12 +303,10 @@ function zz_image_crop($source, $destination, $dest_extension, $image) {
  * @global array $zz_conf
  *		string 'upload_imagick_options', bool 'modules'['debug'], bool 'debug',
  *		array 'upload_imagick_options_for'
- * @global array $zz_error
  * @return bool
  */
 function zz_imagick_convert($options, $files, $source_extension) {
 	global $zz_conf;
-	global $zz_error;
 
 	// avoid errors like
 	// libgomp: Thread creation failed: Resource temporarily unavailable

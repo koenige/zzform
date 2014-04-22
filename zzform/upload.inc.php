@@ -249,7 +249,6 @@ function zz_upload_get_fields($zz_tab) {
  *
  * @param array $my = $zz_tab[$tab][$rec]
  * @global array $zz_conf
- * @global array $zz_error
  * @return array multidimensional information about images
  *		bool $zz_tab[tab][rec]['file_upload']
  *		array $zz_tab[tab][rec]['images']
@@ -257,7 +256,6 @@ function zz_upload_get_fields($zz_tab) {
  */
 function zz_upload_check_files($zz_tab) {
 	global $zz_conf;
-	global $zz_error;
 	
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$id = $zz_conf['int']['secret_key'];
@@ -488,7 +486,7 @@ function zz_upload_remote_file($filename) {
  *		value that getimagesize() returns in index 2 but exif_imagetype() is much
  *		faster.
  *
- *	1c. @todo: finfo_file, see: http://www.php.net/manual/en/function.finfo-file.php
+ *	1c. @todo finfo_file, see: http://www.php.net/manual/en/function.finfo-file.php
  *			(c. relies on magic.mime file)
  *	1d. use identify in imagemagick
  *	2. if this is impossible, check for file extension
@@ -505,7 +503,9 @@ function zz_upload_remote_file($filename) {
  */
 function zz_upload_fileinfo($file, $extension = false) {
 	global $zz_conf;
+	global $zz_error;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+
 	$file['validated'] = false;
 	$file['filetype'] = 'unknown';
 	$file['mime'] = !empty($file['type']) ? $file['type'] : '';
@@ -550,7 +550,16 @@ function zz_upload_fileinfo($file, $extension = false) {
 			zz_debug($function_name."()", $type.': '.json_encode($file));
 		}
 	}
-	// @todo: allow further file testing here, e. g. for PDF, DXF
+	if (!empty($file['warnings'])) {
+		foreach ($file['warnings'] as $function => $warnings) {
+			$zz_error[] = array(
+				'msg_dev' => $function." returns with a warning:\n\n".implode("\n", $warnings),
+				'log_post_data' => false,
+				'level' => E_USER_NOTICE
+			);
+		}
+	}
+	// @todo allow further file testing here, e. g. for PDF, DXF
 	// and others, go for Identifying Characters.
 	// maybe use magic_mime_type()
 	if (empty($file['validated'])) {
@@ -600,9 +609,9 @@ function zz_upload_fileinfo($file, $extension = false) {
 		// is kept
 		$file['exif'] = exif_read_data($filename);
 	}
-	// @todo: further functions, e. g. zz_pdf_read_data if filetype == pdf ...
-	// @todo: or read AutoCAD Version from DXF, DWG, ...
-	// @todo: or read IPCT data.
+	// @todo further functions, e. g. zz_pdf_read_data if filetype == pdf ...
+	// @todo or read AutoCAD Version from DXF, DWG, ...
+	// @todo or read IPCT data.
 	
 	return zz_return($file);
 }
@@ -826,7 +835,7 @@ function zz_upload_unix_file($filename, $file) {
 		$imagetype = 'dwg';
 		$file['validated'] = true;
 	}
-	// @todo: check this, these are not only DOCs but also MPPs.
+	// @todo check this, these are not only DOCs but also MPPs.
 //	} elseif ($file['filetype_file'] == 'Microsoft Office Document') {
 //		$imagetype = 'doc';
 //		$file['validated'] = true;
@@ -952,7 +961,6 @@ function zz_upload_check_recreate($image, $zz_tab) {
  *
  * @param array $zz_tab complete table data
  * @global array $zz_conf configuration variables
- * @global array $zz_error
  * @return array $zz_tab changed
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -961,7 +969,6 @@ function zz_upload_prepare($zz_tab) {
 	if (empty($zz_tab[0]['upload_fields'])) return $zz_tab;
 
 	global $zz_conf;
-	global $zz_error;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$all_temp_filenames = array();
 	
@@ -1100,7 +1107,7 @@ function zz_upload_prepare($zz_tab) {
 				$image['modified'] = zz_upload_create_thumbnails($filename, $image, $my_rec);
 				if ($image['modified'] === -1) {
 					$filename = false; // do not upload anything
-					// @todo: mark existing image for deletion if there is one!							
+					// @todo mark existing image for deletion if there is one!							
 					$image['delete_thumbnail'] = true;
 					$my_rec['no_file_upload'] = true;
 				} elseif ($image['modified']) {
@@ -1195,7 +1202,7 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec) {
 		$modified = array();
 		$modified['tmp_name'] = $tmp_filename;
 		$modified = zz_upload_fileinfo($modified, $dest_extension);
-		// @todo: ['modified']['name'] ?? necessary? so far, it's not.
+		// @todo ['modified']['name'] ?? necessary? so far, it's not.
 	}  else {
 		// image action did not work out the way it should have.
 		$modified = -1;
@@ -1319,6 +1326,7 @@ function zz_upload_auto_image($image) {
 		global $zz_error;
 		$zz_error[] = array(
 			'msg_dev' => sprintf(zz_text('Configuration error: function %s for image upload does not exist.'), '<code>'.$autofunc.'()</code>'),
+			'log_post_data' => false,
 			'level' => E_USER_ERROR
 		);
 		zz_error();
@@ -1337,6 +1345,7 @@ function zz_upload_auto_image($image) {
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_extension($path, &$my_rec) {
+	global $zz_error;
 	// @todo implement mode!
 	$path_value = '';
 	foreach ($path as $key => $value) {
@@ -1388,6 +1397,7 @@ function zz_upload_extension($path, &$my_rec) {
 	}
 	$zz_error[] = array(
 		'msg_dev' => zz_text('Error. Could not determine file ending'),
+		'log_post_data' => false,
 		'level' => E_USER_ERROR
 	);
 	return false;	
@@ -1508,6 +1518,7 @@ function zz_write_upload_fields($zz_tab, $f, $tab = 0, $rec = 0) {
 		if (count($nos) !== 4) {
 			$zz_error[] = array(
 				'msg_dev' => 'Error in $zz definition for upload_field: ['.$f.']',
+				'log_post_data' => false,
 				'level' => E_USER_NOTICE
 			);
 		} elseif (!empty($zz_tab[$nos[1]][$nos[2]]['images'][$nos[3]])) {
@@ -1555,7 +1566,7 @@ function zz_val_get_from_upload($field, $images, $post) {
 	foreach ($possible_values AS $v) {
 		switch ($v) {
 		case 'increment_on_change':
-			// @todo: think about incrementing only if new file is different
+			// @todo think about incrementing only if new file is different
 			// from existing file; on the other hand, why should you upload the
 			// same file twice? and maybe some depending files will change
 			if (empty($images[0])) break;
@@ -1830,7 +1841,7 @@ function zz_upload_action($zz_tab) {
 				}
 			}
 
-		// @todo: EXIF or ICPT write operations go here!
+		// @todo EXIF or ICPT write operations go here!
 		}
 	}
 	if ($zz_conf['modules']['debug']) zz_debug('end');
@@ -1866,6 +1877,7 @@ function zz_upload_delete($filename, $show_filename = false, $action = 'delete')
 	if (!is_file($filename)) {
 		$zz_error[] = array(
 			'msg_dev' => sprintf(zz_text('File %s exists, but is not a file.', $filename)),
+			'log_post_data' => false,
 			'level' => E_USER_ERROR
 		);
 		zz_error();
@@ -1882,6 +1894,7 @@ function zz_upload_delete($filename, $show_filename = false, $action = 'delete')
 	if (!$success) {
 		$zz_error[] = array(
 			'msg' => sprintf(zz_text('Could not delete %s.'), $filename),
+			'log_post_data' => false,
 			'level' => E_USER_NOTICE
 		);
 		return true;
@@ -1980,6 +1993,7 @@ function zz_upload_insert($source, $dest, $action = '-', $mode = 'copy') {
 			'msg' => zz_text('File could not be saved. There is a problem with '
 				.'the user rights. We are working on it.'),
 			'msg_dev' => $msg_dev,
+			'log_post_data' => false,
 			'level' => E_USER_ERROR
 		);
 		return false;
@@ -2191,6 +2205,7 @@ function zz_upload_get_typelist($filename, $type = 'Filetype', $optional = false
 		global $zz_error;
 		$zz_error[] = array(
 			'msg_dev' => sprintf(zz_text($type.' definitions in %s are not available!'), '"'.$filename.'"'),
+			'log_post_data' => false,
 			'level' => E_USER_ERROR
 		);
 		return zz_error();
@@ -2421,6 +2436,7 @@ function zz_upload_check_max_file_size() {
 				.'smaller than value which is set in the script. The '
 				.'value from php.ini will be used. To upload bigger files'
 				.', please adjust your configuration settings.',
+			'log_post_data' => false,
 			'level' => E_USER_NOTICE
 		);
 		$zz_conf['upload_MAX_FILE_SIZE'] = ZZ_UPLOAD_INI_MAXFILESIZE;
