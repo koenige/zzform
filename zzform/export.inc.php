@@ -435,9 +435,11 @@ function zz_export_csv_body($rows, $zz_conf) {
 		$tablerow = false;
 		foreach ($row as $fieldindex => $field) {
 			if ($fieldindex AND !is_numeric($fieldindex)) continue; // 0 or 1 or 2 ...
+			$myfield = $field['text'];
+			$myfield = html_entity_decode($myfield, ENT_QUOTES | ENT_HTML5, $zz_conf['character_set']);
 			$myfield = str_replace($zz_conf['export_csv_enclosure'], 
 				$zz_conf['export_csv_enclosure'].$zz_conf['export_csv_enclosure'],
-				$field['text']
+				$myfield
 			);
 			if (!empty($field['export_no_html'])) {
 				$myfield = str_replace("&nbsp;", " ", $myfield);
@@ -455,5 +457,3 @@ function zz_export_csv_body($rows, $zz_conf) {
 	}
 	return $output;
 }
-
-?>
