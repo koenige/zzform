@@ -22,7 +22,7 @@
  */
 function zz_export_config() {
 	$conf['int']['allowed_params']['mode'][] = 'export';
-	$conf['int']['allowed_params']['export'] = array('csv', 'pdf', 'kml');
+	$conf['int']['allowed_params']['export'] = array('csv', 'csv-excel', 'pdf', 'kml');
 	zz_write_conf($conf, true);
 
 	// whether sql result might be exported 
@@ -109,7 +109,7 @@ function zz_export_init($zz, $ops) {
 		$ops['mode'] = false;
 		return array($zz, $ops);
 	}
-	$ops['headers'] = zz_export_headers($export, $zz_conf['character_set']);
+	$character_encoding = $zz_conf['character_set'];
 	$ops['mode'] = 'export';
 	$zz_conf['list_display'] = $export;
 	$zz['list']['group'] = array(); // no grouping in export files
@@ -124,12 +124,15 @@ function zz_export_init($zz, $ops) {
 			$zz_conf['int']['this_limit'] = false; 
 		}
 		break;
+	case 'csv-excel':
+		$character_encoding = 'utf-16le'; // Excel for Win and Mac platforms
 	case 'csv':
 	case 'pdf':
 		// always export all records
-		$zz_conf['int']['this_limit'] = false; 
+		$zz_conf['int']['this_limit'] = false;
 		break;
 	}
+	$ops['headers'] = zz_export_headers($export, $character_encoding);
 
 	return array($zz, $ops);
 }
@@ -149,6 +152,7 @@ function zz_export_headers($export, $charset) {
 
 	switch ($export) {
 	case 'csv':
+	case 'csv-excel':
 		// correct download of csv files
 		if (!empty($_SERVER['HTTP_USER_AGENT']) 
 			AND strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE'))
@@ -239,9 +243,17 @@ function zz_export($ops, $zz) {
 
 	switch ($zz_conf['list_display']) {
 	case 'csv':
+	case 'csv-excel':
 		$output = '';
 		$output .= zz_export_csv_head($ops['output']['head'], $zz_conf);
 		$output .= zz_export_csv_body($ops['output']['rows'], $zz_conf);
+		if ($zz_conf['list_display'] === 'csv-excel') {
+			// @todo check with mb_list_encodings() if available
+			$output = mb_convert_encoding($output, 'UTF-16LE', $zz_conf['character_set']);
+			// Add BOM, @todo if later zzwrap is used to send out zzform exports
+			// the BOM has to be added separately (does not count to Content-Length)
+			$output = chr(255).chr(254).$output;
+		}
 		$ops['output'] = $output;
 		return $ops;
 	case 'pdf':
