@@ -88,13 +88,13 @@ function zz_export_init($zz, $ops) {
 		$zz_conf['export'] = array($zz_conf['export']);
 	}
 	foreach ($zz_conf['export'] as $type => $mode) {
-		$mode = strtolower($mode);
+		$mode = zz_export_identifier($mode);
 		if ($_GET['export'] !== $mode) continue;
 		if (is_numeric($type)) {
 			$export = $mode;
 			$zz_conf['int']['export_script'] = '';
 		} else {
-			$export = strtolower($type);
+			$export = zz_export_identifier($type);
 			$zz_conf['int']['export_script'] = $mode;
 		}
 	}
@@ -135,6 +135,18 @@ function zz_export_init($zz, $ops) {
 	$ops['headers'] = zz_export_headers($export, $character_encoding);
 
 	return array($zz, $ops);
+}
+
+/**
+ * Create identifier for export from mode
+ *
+ * @param string
+ * @return string
+ */
+function zz_export_identifier($mode) {
+	$mode = strtolower($mode);
+	$mode = str_replace(' ', '-', $mode);
+	return $mode;
 }
 
 /**
@@ -203,7 +215,7 @@ function zz_export_links($url, $querystring) {
 	foreach ($zz_conf['export'] as $type => $mode) {
 		if (is_numeric($type)) $type = $mode;
 		else $type = $mode.', '.$type;
-		$links[] = sprintf($html, $url, strtolower($mode), $qs, $type);
+		$links[] = sprintf($html, $url, zz_export_identifier($mode), $qs, $type);
 	}
 	return $links;
 }
