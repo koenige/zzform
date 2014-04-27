@@ -463,7 +463,7 @@ function zz_export_csv_body($rows, $zz_conf) {
 			$character_encoding = $zz_conf['character_set'];
 			if (substr($character_encoding, 0, 9) === 'iso-8859-')
 				$character_encoding = 'iso-8859-1'; // others are not recognized
-			$myfield = html_entity_decode($myfield, ENT_QUOTES | ENT_HTML5, $character_encoding);
+			$myfield = html_entity_decode($myfield, ENT_QUOTES, $character_encoding);
 			$myfield = str_replace($zz_conf['export_csv_enclosure'], 
 				$zz_conf['export_csv_enclosure'].$zz_conf['export_csv_enclosure'],
 				$myfield
