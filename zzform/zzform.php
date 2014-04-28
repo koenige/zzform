@@ -260,7 +260,7 @@ function zzform($zz = array()) {
 		$ops['heading'] = zz_nice_headings($ops['heading'], $zz, $zz_var['where_condition']);
 		// provisional title, in case errors occur
 		$ops['title'] = strip_tags($ops['heading']);
-		if (trim($ops['heading']))
+		if (trim($ops['heading']) AND empty($zz['dont_show_h1']))
 			$ops['output'].= "\n".'<h1>'.$ops['heading'].'</h1>'."\n\n";
 		if ($zz['explanation']) 
 			$ops['output'] .= zz_format($zz['explanation']);
