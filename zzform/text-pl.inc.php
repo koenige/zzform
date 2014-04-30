@@ -31,7 +31,7 @@ $text['Search'] = 'Wyszukiwanie';
 $text['new'] = 'Nowy'; // Link to add a new value for detail record via dropdown
 
 // Record form: Heading
-$text['show_record'] = 'Poka¿ wpisy';
+// @todo check if deprecated
 $text['review'] = 'Poka¿';
 $text['insert'] = 'Wstaw';
 $text['update'] = 'Aktualizacja';
@@ -39,8 +39,20 @@ $text['edit'] = 'Zmieniæ';
 $text['delete'] = 'Usun±æ';
 $text['show'] = 'Pokazaæ';
 $text['add'] = 'Dodaj';
-$text['a_record'] = 'Wpisu';
-$text['failed'] = 'Nie powiod³o siê';
+
+//	$text['Copy'] = 'Copy';
+
+$text['Add a record'] = 'Dodaj wpisy';
+$text['Delete a record'] = 'Usun±æ wpisu';
+$text['Edit a record'] = 'Zmieniæ wpisu';
+$text['Show a record'] = 'Poka¿ wpisy';
+//	$text['Add several records'] = '';
+//	$text['Delete several records'] = '';
+//	$text['Edit several records'] = '';
+$text['Insert failed'] = 'Nie powiod³o siê wstaw';
+$text['Delete failed'] = 'Nie powiod³o siê usun±æ';
+$text['Update failed'] = 'Nie powiod³o siê aktualizacja';
+
 $text['There is no record under this ID: %s'] = 'Istnieje plik danych o tym ID: %s';
 //	$text['Invalid ID for a record (must be an integer): %s'] = 'Invalid ID for a record (must be an integer): %s';
 $text['record_was_updated'] = 'Wpis zaktualizowany';

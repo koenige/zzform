@@ -32,17 +32,28 @@ $text['Search'] = 'Hledat';
 $text['new'] = 'Nový'; // Link to add a new value for detail record via dropdown
 
 // Record form: Heading
-$text['show_record'] = 'Zobrazit záznam';
+// @todo check if deprecated
 $text['review'] = 'Prohlédnout';
 $text['insert'] = 'Pøidat';
 $text['update'] = 'Aktualizovat';
 $text['edit'] = 'Editovat';
 $text['delete'] = 'Vymazat';
 $text['show'] = 'Zobrazit';
-//	$text['Copy'] = 'Kopieren';
 $text['add'] = 'Pøidat';
-$text['a_record'] = 'záznam';
-$text['failed'] = 'neúspì¹né';
+
+//	$text['Copy'] = 'Copy';
+
+$text['Add a record'] = 'Pøidat záznam';
+$text['Delete a record'] = 'Vymazat záznam';
+$text['Edit a record'] = 'Editovat záznam';
+$text['Show a record'] = 'Zobrazit záznam';
+$text['Add several records'] = 'Mehrere Eintr&auml;ge hinzuf&uuml;gen';
+$text['Delete several records'] = 'Mehrere Eintr&auml;ge l&ouml;schen';
+$text['Edit several records'] = 'Mehrere Eintr&auml;ge bearbeiten';
+$text['Insert failed'] = 'Pøidat neúspì¹né';
+$text['Delete failed'] = 'Vymazat neúspì¹né';
+$text['Update failed'] = 'Aktualizovat neúspì¹né';
+
 $text['There is no record under this ID: %s'] = 'V poli ID není ¾ádný záznam: %s';
 //	$text['Invalid ID for a record (must be an integer): %s'] = 'Invalid ID for a record (must be an integer): %s';
 $text['record_was_updated'] = 'Záznam byl aktualizován';

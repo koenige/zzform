@@ -110,17 +110,17 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 		($ops['mode'] === 'show' AND !$action_before_redirect)) {
 	//	mode = add | edit | delete: show form
 		if (isset($zz_var['id']['values'])) {
-			$formhead = zz_text($ops['mode'].' several records');
+			$formhead = zz_text(ucfirst($ops['mode']).' several records');
 		} else {
-			$formhead = zz_text($ops['mode']).' '.zz_text('a_record');
+			$formhead = zz_text(ucfirst($ops['mode']) .' a record');
 		}
 	} elseif ($zz_var['action'] OR $action_before_redirect) {	
 	//	action = insert update review: show form with new values
 		if (!$formhead) {
-			$formhead = ucfirst(zz_text($zz_var['action']).' '.zz_text('failed'));
+			$formhead = zz_text(ucfirst($zz_var['action']).' failed');
 		}
 	} elseif ($ops['mode'] === 'review') {
-		$formhead = zz_text('show_record');
+		$formhead = zz_text('Show a record');
 	}
 	if (trim($formhead)) {
 		$output .= '<div id="record">'."\n<h2>".ucfirst($formhead)."</h2>\n\n";

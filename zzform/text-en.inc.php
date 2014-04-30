@@ -33,7 +33,7 @@ $text['Search'] = 'Search';
 $text['new'] = 'New'; // Link to add a new value for detail record via dropdown
 
 // Record form: Heading
-$text['show_record'] = 'Show record';
+// @todo check if deprecated
 $text['review'] = 'Review';
 $text['insert'] = 'Insert';
 $text['update'] = 'Update';
@@ -41,11 +41,18 @@ $text['edit'] = 'Edit';
 $text['delete'] = 'Delete';
 $text['show'] = 'Show';
 $text['add'] = 'Add';
-$text['a_record'] = 'a Record';
-$text['add several records'] = 'Add several records';
-$text['delete several records'] = 'Delete several records';
-$text['update several records'] = 'Update several records';
-$text['failed'] = 'failed';
+
+$text['Add a record'] = 'Add a record';
+$text['Delete a record'] = 'Delete a record';
+$text['Edit a record'] = 'Edit a record';
+$text['Show a record'] = 'Show a record';
+$text['Add several records'] = 'Add several records';
+$text['Delete several records'] = 'Delete several records';
+$text['Edit several records'] = 'Edit several records';
+$text['Insert failed'] = 'Insert failed';
+$text['Delete failed'] = 'Delete failed';
+$text['Update failed'] = 'Update failed';
+
 $text['There is no record under this ID: %s'] = 'There is no record under this ID: %s';
 $text['Invalid ID for a record (must be an integer): %s'] = 'Invalid ID for a record (must be an integer): %s';
 $text['record_was_updated'] = 'Record was updated';

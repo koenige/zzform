@@ -32,20 +32,28 @@ $text['Search'] = 'Suche';
 $text['new'] = 'Neu'; // Link to add a new value for detail record via dropdown
 
 // Record form: Heading
-$text['show_record'] = 'Eintrag anzeigen';
+// @todo check if deprecated
 $text['review'] = 'Anzeigen';
 $text['insert'] = 'Einf&uuml;gen';
 $text['update'] = 'Aktualisieren';
 $text['edit'] = 'Bearbeiten';
 $text['delete'] = 'L&ouml;schen';
 $text['show'] = 'Anzeigen';
-	$text['Copy'] = 'Kopieren';
 $text['add'] = 'Hinzuf&uuml;gen';
-$text['a_record'] = 'eines Eintrags';
-$text['add several records'] = 'Mehrere Eintr&auml;ge hinzuf&uuml;gen';
-$text['delete several records'] = 'Mehrere Eintr&auml;ge l&ouml;schen';
-$text['edit several records'] = 'Mehrere Eintr&auml;ge bearbeiten';
-$text['failed'] = 'fehlgeschlagen';
+
+	$text['Copy'] = 'Kopieren';
+
+$text['Add a record'] = 'Eintrag hinzuf&uuml;gen';
+$text['Delete a record'] = 'Eintrag l&ouml;schen';
+$text['Edit a record'] = 'Eintrag bearbeiten';
+$text['Show a record'] = 'Eintrag anzeigen';
+$text['Add several records'] = 'Mehrere Eintr&auml;ge hinzuf&uuml;gen';
+$text['Delete several records'] = 'Mehrere Eintr&auml;ge l&ouml;schen';
+$text['Edit several records'] = 'Mehrere Eintr&auml;ge bearbeiten';
+$text['Insert failed'] = 'Einf&uuml;gen fehlgeschlagen';
+$text['Delete failed'] = 'L&ouml;schen fehlgeschlagen';
+$text['Update failed'] = 'Aktualisieren fehlgeschlagen';
+
 $text['There is no record under this ID: %s'] = 'Es existiert kein Eintrag unter dieser ID: %s';
 $text['Invalid ID for a record (must be an integer): %s'] = 'Ung&uuml;ltige ID f&uuml;r einen Eintrag (mu&szlig; Zahl sein): %s';
 $text['record_was_updated'] = 'Eintrag wurde aktualisiert';
