@@ -775,8 +775,6 @@ function zzform_multi($definition_file, $values) {
 			$_POST['zz_check_select'][$field_name] = true;
 		}
 	}
-	// set action to form view
-	$_POST['zz_review'] = true;
 
 	if (!empty($values['FILES'])) $_FILES = $values['FILES'];
 	else $_FILES = array();
