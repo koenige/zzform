@@ -730,12 +730,13 @@ function zz_initialize($mode = false, $zz = array()) {
  *		array	'FILES'
  *		string	'action' => 'POST'['zz_action']: insert, delete, update
  *		array	'ids' => List of select-field names that get direct input of an id 
- * @param string $type - what to do
  * @return array $ops
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @todo do not unset superglobals
+ * @todo so far, we have no support for 'values' for subrecords
+ * @todo zzform() and zzform_multi() called within an action-script
+ * causes not all zz_conf variables to be reset
  */
-function zzform_multi($definition_file, $values, $type = 'record', $params = false) {
+function zzform_multi($definition_file, $values) {
 	// unset all variables that are not needed
 	// important because there may be multiple zzform calls
 	global $zz_conf;
@@ -748,13 +749,6 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 		zz_debug('start', __FUNCTION__);
 	}
 
-	// Allowed:
-	$allowed_types = array('csv', 'xml', 'files', 'record', 'form');
-	if (!in_array($type, $allowed_types)) {
-		echo 'Illegal type set for function zzform_multi(): '.zz_htmltag_escape($type);
-		return false;
-	}
-	
 	unset($_GET);
 	unset($_POST);
 	unset($_FILES);
@@ -764,89 +758,56 @@ function zzform_multi($definition_file, $values, $type = 'record', $params = fal
 	// keep internal variables
 	$int = !empty($zz_conf['int']) ? $zz_conf['int'] : array();
 
-	switch ($type) {
-	case 'record':  // one operation only
-		// @todo: so far, we have no support for 'values' for subrecords
-		// @todo: zzform() and zzform_multi() called within an action-script
-		// causes not all zz_conf variables to be reset
-	case 'form': // hand back form to user, just fill out values
-		zz_initialize('overwrite');
-		if ($type === 'record') {
-			$zz_conf['generate_output'] = false;
-		} else {
-			// no output, so list view is not necessary
-			$zz_conf['show_list'] = false;
+	zz_initialize('overwrite');
+	$zz_conf['generate_output'] = false;
+	// do not show output as it will be included after page head
+	$zz_conf['show_output'] = false;
+	// set 'multi' so we know the operation mode for other scripts
+	$zz_conf['multi'] = true;
+	if (!empty($values['GET'])) $_GET = $values['GET'];
+	if (!empty($values['POST'])) $_POST = $values['POST'];
+	// add some shortcuts easier to remember
+	if (!empty($values['action'])) {
+		$_POST['zz_action'] = $values['action'];
+	}
+	if (!empty($values['ids'])) {
+		foreach ($values['ids'] as $field_name) {
+			$_POST['zz_check_select'][$field_name] = true;
 		}
-		// do not show output as it will be included after page head
-		$zz_conf['show_output'] = false;
-		// set 'multi' so we know the operation mode for other scripts
-		$zz_conf['multi'] = true;
-		if (!empty($values['GET'])) $_GET = $values['GET'];
-		if (!empty($values['POST'])) $_POST = $values['POST'];
-		// add some shortcuts easier to remember
-		if (!empty($values['action'])) {
-			$_POST['zz_action'] = $values['action'];
-		}
-		if (!empty($values['ids'])) {
-			foreach ($values['ids'] as $field_name) {
-				$_POST['zz_check_select'][$field_name] = true;
-			}
-		}
-		if ($type === 'form') {
-			// set action to form view
-			$_POST['zz_review'] = true;
-		}
-		if (!empty($values['FILES'])) $_FILES = $values['FILES'];
-		else $_FILES = array();
+	}
+	// set action to form view
+	$_POST['zz_review'] = true;
 
-		if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
-			$old_id = $zz_conf['id'];	
-			$zz_conf['id'] = $id;
-			zz_debug('before including definition file');
-		}
-		$zz = zzform_include_table($definition_file, $values);
-		if (empty($zz_conf['user'])) {
-			$zz_conf['user'] = $_SERVER['REQUEST_URI'];
-		}
-		if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
-			zz_debug('definition file included');
-			$zz_conf['id'] = $old_id;
-		}
-		// return on error in form script
-		if (!empty($ops['error'])) return $ops;
-		$ops = zzform($zz);
-		if ($type === 'record') {
-			// in case zzform was called from within zzform, get the old conf back
-			if ($zz_conf['zzform_calls'] > 1) {
-				$zz_conf = $zz_saved['old_conf'];
-			} else {
-				$zz_conf['generate_output'] = true;
-			}
-		}
-		break;
-	case 'files':
-		// @todo: generate output?
-		require_once $zz_conf['dir_inc'].'/functions.inc.php';
-		require_once $zz_conf['dir_inc'].'/database.inc.php';
-		require_once $zz_conf['dir_inc'].'/import.inc.php';
-		require_once $zz_conf['dir_inc'].'/identifier.inc.php';
-		require_once $zz_conf['dir_inc'].'/forcefilename-'.$zz_conf['character_set'].'.inc.php';
-		$ops['output'] = zz_import_files($definition_file, $values, $params);
-		return $ops['output'];
+	if (!empty($values['FILES'])) $_FILES = $values['FILES'];
+	else $_FILES = array();
+
+	if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
+		$old_id = $zz_conf['id'];	
+		$zz_conf['id'] = $id;
+		zz_debug('before including definition file');
+	}
+	$zz = zzform_include_table($definition_file, $values);
+	if (empty($zz_conf['user'])) {
+		$zz_conf['user'] = $_SERVER['REQUEST_URI'];
+	}
+	if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
+		zz_debug('definition file included');
+		$zz_conf['id'] = $old_id;
+	}
+	// return on error in form script
+	if (!empty($ops['error'])) return $ops;
+	$ops = zzform($zz);
+	// in case zzform was called from within zzform, get the old conf back
+	if ($zz_conf['zzform_calls'] > 1) {
+		$zz_conf = $zz_saved['old_conf'];
+	} else {
+		$zz_conf['generate_output'] = true;
 	}
 	
 	// clean up
 	unset($_GET);
 	unset($_POST);
 	unset($_FILES);
-
-	// on success: remove entry in csv file
-	// on success: delete files, move files ...
-	// on failure: output record, output error ?
-	// @todo: export, might go into extra file?
-
-	// what to return:
-	// array whith all record_ids that were inserted, sorted by operation (so to include subrecords)
 
 	$zz_conf['int'] = $int;
 	if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
@@ -915,7 +876,7 @@ function zzform_include_table($definition_file, $values) {
 	if (function_exists('wrap_error')) {
 		wrap_error($error, E_USER_ERROR);
 	} else {
-		// @todo: throw zzform error
+		// @todo throw zzform error
 		echo $error;
 	}
 	exit;

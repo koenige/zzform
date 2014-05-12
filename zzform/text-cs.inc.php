@@ -204,20 +204,6 @@ $text['Export'] = 'Export'; // Export-Link
 
 
 // ----------------------------------------------------------------------------
-// Modules: Import
-// ----------------------------------------------------------------------------
-
-//	$text['Import data'] = 'Import Daten';
-//	$text['File could not be imported.'] = 'File could not be imported.';
-//	$text['Folder could not be imported.'] = 'Folder could not be imported.';
-//	$text['Import was successful.'] = 'Import was successful.';
-//	$text['Folder OK'] = 'Folder OK';
-//	$text['Folder "%s" does not exist.'] = 'Folder "%s" does not exist.';
-//	$text['Warning! Insufficient access rights. Please make sure, that the source directory is writeable.'] = 'Warning! Insufficient access rights. Please make sure, that the source directory is writeable.';
-//	$text['%s files left for import. Please wait, the script will reload itself.'] = '%s files left for import. Please wait, the script will reload itself.';
-
-
-// ----------------------------------------------------------------------------
 // Modules: Geo
 // ----------------------------------------------------------------------------
 
