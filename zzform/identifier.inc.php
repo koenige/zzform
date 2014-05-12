@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2013 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -454,7 +454,7 @@ function zz_identifier_redirect($type, $ops, $main_tab) {
 		default:
 			return false;
 		}
-		zzform_multi('redirects', $values, 'record');
+		zzform_multi('redirects', $values);
 	}
 }
 
@@ -492,5 +492,3 @@ function zz_identifier_vars_db($sql, $id, $fieldname = false) {
 		zz_return(false);
 	}
 }
-
-?>
