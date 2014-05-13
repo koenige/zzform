@@ -41,6 +41,10 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	global $zz_conf;
 	global $zz_error;
 
+	if (file_exists($path = $zz_conf['dir_custom'].'/editing.inc.php')) {
+		include_once $path;
+	}
+
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$zz_tab[0]['record_action'] = false;
 
