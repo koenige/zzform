@@ -851,12 +851,12 @@ function zzform_file($definition_file) {
  * all other local variables will be ignored
  *
  * @param string $definition_file filename of table definition
- * @param array $values values which might be used in table definition
+ * @param array $values (optional) values which might be used in table definition
  * @global array $zz_conf
  * @global array $zz_setting
  * @return array $zz
  */
-function zzform_include_table($definition_file, $values) {
+function zzform_include_table($definition_file, $values = array()) {
 	global $zz_conf;
 	global $zz_setting;
 	
