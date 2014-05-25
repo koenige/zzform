@@ -102,18 +102,20 @@ function zz_imagick_identify($filename, $file) {
  * checks whether filetype has multiple pages
  *
  * @param string $source
+ * @param strinf $filetype
  * @param global $zz_conf
  * @param return $source
  */
-function zz_imagick_check_multipage($source) {
+function zz_imagick_check_multipage($source, $filetype) {
 	global $zz_conf;
-	$source_extension = substr($source, strrpos($source, '.') +1);
-	if (in_array($source_extension, $zz_conf['upload_multipage_images'])) {
-		$source .= '['.(!empty($zz_conf['upload_multipage_which'][$source_extension])
-			? $zz_conf['upload_multipage_which'][$source_extension] : '0')
+	if (!$filetype) {
+		$filetype = substr($source, strrpos($source, '.') +1);
+	}
+	if (in_array($filetype, $zz_conf['upload_multipage_images'])) {
+		$source .= '['.(!empty($zz_conf['upload_multipage_which'][$filetype])
+			? $zz_conf['upload_multipage_which'][$filetype] : '0')
 			.']'; // convert only first page or top layer
 	}
-
 	return $source;
 }
 
@@ -131,7 +133,8 @@ function zz_image_gray($source, $destination, $dest_extension, $image) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
-	$source = zz_imagick_check_multipage($source);
+	$filetype = !empty($image['upload']['filetype']) ? $image['upload']['filetype'] : '';
+	$source = zz_imagick_check_multipage($source, $filetype);
 	$convert = zz_imagick_convert(
 		'-colorspace gray '.$image['convert_options'],
 		sprintf('"%s" %s:"%s"', $source, $dest_extension, $destination),
@@ -159,7 +162,8 @@ function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
 	
 	$geometry = isset($image['width']) ? $image['width'] : '';
 	$geometry .= isset($image['height']) ? 'x'.$image['height'] : '';
-	$source = zz_imagick_check_multipage($source);
+	$filetype = !empty($image['upload']['filetype']) ? $image['upload']['filetype'] : '';
+	$source = zz_imagick_check_multipage($source, $filetype);
 	$convert = zz_imagick_convert(
 		sprintf('-thumbnail %s ', $geometry).$image['convert_options'],
 		sprintf('"%s" %s:"%s"', $source, $dest_extension, $destination),
@@ -192,7 +196,8 @@ function zz_image_webimage($source, $destination, $dest_extension, $image) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	$convert = false;
-	$source = zz_imagick_check_multipage($source);
+	$filetype = !empty($image['upload']['filetype']) ? $image['upload']['filetype'] : '';
+	$source = zz_imagick_check_multipage($source, $filetype);
 	$source_extension = $image['upload']['ext'];
 
 	if (empty($image['convert_options']) 
@@ -285,7 +290,8 @@ function zz_image_crop($source, $destination, $dest_extension, $image) {
 			$image['height'], $pos_x, $pos_y
 		);
 	}
-	$source = zz_imagick_check_multipage($source);
+	$filetype = !empty($image['upload']['filetype']) ? $image['upload']['filetype'] : '';
+	$source = zz_imagick_check_multipage($source, $filetype);
 	$convert = zz_imagick_convert(
 		$options.' '.$image['convert_options'],
 		sprintf('"%s" %s:"%s"', $source, $dest_extension, $destination),

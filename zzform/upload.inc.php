@@ -131,7 +131,8 @@ function zz_upload_config() {
 	foreach (array_keys($default['image_types']) as $key)
 		$default['image_types'][$key]['filetype'] = $default['image_types'][$key]['ext'];
 
-	$default['file_types'] = zz_upload_get_filetypes($zz_conf['dir_inc'].'/filetypes.cfg');
+	$default['file_types'] = parse_ini_file($zz_conf['dir_inc'].'/filetypes.cfg', true);
+	$default['file_types'] = zz_upload_set_filetypes($default['file_types']);
 	if ($zz_error['error']) return false;
 	$default['upload_iptc_fields'] = zz_upload_get_typelist($zz_conf['dir_inc'].'/iptc-iimv4-1.txt', 'IPTC', true);
 
@@ -145,41 +146,37 @@ function zz_upload_config() {
 	// extensions for images that can be natively displayed in browser
 	$default['webimages_by_extension'] = array('jpg', 'jpeg', 'gif', 'png');
 
-	$default['exif_supported'] = array('jpeg', 'tiff', 'dng', 'cr2', 'nef');
-	$default['upload_destination_filetype']['tiff'] = 'png';
-	$default['upload_destination_filetype']['tif'] = 'png';
-	$default['upload_destination_filetype']['tga'] = 'png';
-	$default['upload_destination_filetype']['pdf'] = 'png';
-	$default['upload_destination_filetype']['ai'] = 'png';
-	$default['upload_destination_filetype']['eps'] = 'png';
-	$default['upload_destination_filetype']['cr2'] = 'jpeg';
-	$default['upload_destination_filetype']['dng'] = 'jpeg';
-	$default['upload_destination_filetype']['psd'] = 'jpeg';
-	$default['upload_destination_filetype']['mp4'] = 'jpeg';
-	$default['upload_destination_filetype']['mov'] = 'jpeg';
-	$default['upload_destination_filetype']['mpg'] = 'jpeg';
-	$default['upload_destination_filetype']['flv'] = 'jpeg';
-	$default['upload_destination_filetype']['avi'] = 'jpeg';
-	$default['upload_destination_filetype']['bmp'] = 'png';
-
 	$default['upload_pdf_density'] = '300x300'; // dpi in which pdf will be rasterized
 
-	$default['upload_multipage_images'] = array('pdf', 'psd', 'mp4', 'mov', 'mpg', 'flv', 'avi');
-	$default['upload_multipage_which']['mp4'] = 5; // don't take first frame, might be black
+	$default['upload_no_thumbnails'] = array();
+	$default['upload_multipage_images'] = array();
+	$default['exif_supported'] = array();
+	$default['upload_destination_filetype'] = array();
+	foreach ($default['file_types'] as $filetype => $def) {
+		if (empty($def['thumbnail'])) $default['upload_no_thumbnails'][] = $filetype;
+		if (!empty($def['multipage'])) $default['upload_multipage_images'][] = $filetype;
+		if (!empty($def['exif_supported'])) $default['exif_supported'][] = $filetype;
+		if (!empty($def['destination_filetype'])) {
+			foreach ($def['extension'] as $extension) {
+				$default['upload_destination_filetype'][$extension] = $def['destination_filetype'];
+			}
+		}
+	}
+	$default['upload_multipage_which']['m4v'] = 5; // don't take first frame, might be black
 
 	$default['upload_filetype_map']['tif'] = 'tiff';
 	$default['upload_filetype_map']['jpe'] = 'jpeg';
 	$default['upload_filetype_map']['jpg'] = 'jpeg';
 
-	$default['upload_no_thumbnails'] = array('doc', 'docx', 'wps', 'rtf', 'xls',
-		'dot', 'odt', 'ott', 'ods', 'indd', 'txt', 'csv');
-	
 	// XML documents will be recognized as SVG (which is XML, too)
 	$default['upload_remap_type_if_extension']['gpx'] = 'svg';
 	// AI documents can be real PDF documents
 	$default['upload_remap_type_if_extension']['ai'] = 'pdf';
 	
 	zz_write_conf($default);
+	
+	// allow shortcuts for file_types
+	$zz_conf['file_types'] = zz_upload_set_filetypes($zz_conf['file_types']);
 }
 
 /*	----------------------------------------------	*
@@ -609,7 +606,7 @@ function zz_upload_fileinfo($file, $extension = false) {
 	// @todo further functions, e. g. zz_pdf_read_data if filetype == pdf ...
 	// @todo or read AutoCAD Version from DXF, DWG, ...
 	// @todo or read IPCT data.
-	
+
 	return zz_return($file);
 }
 
@@ -1166,6 +1163,9 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec) {
 		);
 		return false;
 	}
+	if (in_array($image['upload']['filetype'], $zz_conf['upload_no_thumbnails'])) {
+		return false;
+	}
 	
 	// create temporary file, so that original file remains the same 
 	// for further actions
@@ -1177,7 +1177,6 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec) {
 		if (!empty($zz_conf['upload_destination_filetype'][$dest_extension]))
 			$dest_extension = $zz_conf['upload_destination_filetype'][$dest_extension];
 	}
-	if (in_array($dest_extension, $zz_conf['upload_no_thumbnails'])) return false;
 
 	$action = 'zz_image_'.$image['action'];
 	$return = $action($filename, $tmp_filename, $dest_extension, $image);
@@ -2460,7 +2459,7 @@ function zz_upload_exec($command, $log_description, &$output = array(), &$return
 /**
  * get default values for $zz_conf['file_types']
  *
- * @param string $filename
+ * @param array $filetypes = $zz_conf['file_types']
  * @return array $filetypes
  *		indexed by string type
  *		string 'description'
@@ -2469,8 +2468,7 @@ function zz_upload_exec($command, $log_description, &$output = array(), &$return
  *		bool 'thumbnail'
  *		bool 'multipage'
  */
-function zz_upload_get_filetypes($filename) {
-	$filetypes = parse_ini_file($filename, true);
+function zz_upload_set_filetypes($filetypes) {
 	foreach ($filetypes as $type => $values) {
 		$filetypes[$type]['filetype'] = $type;
 		if (empty($values['mime'])) {
