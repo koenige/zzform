@@ -174,9 +174,6 @@ function zz_upload_config() {
 	$default['upload_remap_type_if_extension']['ai'] = 'pdf';
 	
 	zz_write_conf($default);
-	
-	// allow shortcuts for file_types
-	$zz_conf['file_types'] = zz_upload_set_filetypes($zz_conf['file_types']);
 }
 
 /*	----------------------------------------------	*
@@ -201,6 +198,9 @@ function zz_upload_get($zz_tab) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if ($zz_conf['graphics_library'])
 		include_once $zz_conf['dir_inc'].'/image-'.$zz_conf['graphics_library'].'.inc.php';
+
+	// allow shortcuts for file_types
+	$zz_conf['file_types'] = zz_upload_set_filetypes($zz_conf['file_types']);
 
 	// create array upload_fields in $zz_tab[0] for easy access to upload fields
 	$zz_tab[0]['upload_fields'] = zz_upload_get_fields($zz_tab);
