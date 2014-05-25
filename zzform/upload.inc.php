@@ -432,7 +432,11 @@ function zz_upload_check_files($zz_tab) {
 				$my_rec['file_upload'] = true;
 			}
 		}
-		$my_rec['images'] = $images;
+		if (!empty($my_rec['images'])) {
+			$my_rec['images'] += $images;
+		} else {
+			$my_rec['images'] = $images;
+		}
 	}
 	if ($zz_conf['modules']['debug']) zz_debug('end');
 	return $zz_tab;
