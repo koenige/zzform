@@ -131,7 +131,7 @@ function zz_upload_config() {
 	foreach (array_keys($default['image_types']) as $key)
 		$default['image_types'][$key]['filetype'] = $default['image_types'][$key]['ext'];
 
-	$default['file_types'] = zz_upload_get_typelist($zz_conf['dir_inc'].'/filetypes.txt');
+	$default['file_types'] = zz_upload_get_filetypes($zz_conf['dir_inc'].'/filetypes.cfg');
 	if ($zz_error['error']) return false;
 	$default['upload_iptc_fields'] = zz_upload_get_typelist($zz_conf['dir_inc'].'/iptc-iimv4-1.txt', 'IPTC', true);
 
@@ -198,7 +198,6 @@ function zz_upload_config() {
  * @return array $zz_tab
  *		$zz_tab[0]['upload_fields']
  * 		$zz_tab[0][0]['images']
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_get($zz_tab) {
 	global $zz_conf;
@@ -222,7 +221,6 @@ function zz_upload_get($zz_tab) {
  * @param array $zz_tab complete table data
  * @return array $upload_fields with tab, rec, and f in 
  *		$zz_tab[$tab][$rec]['fields'][$f]
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_get_fields($zz_tab) {
 	$upload_fields = array();
@@ -252,7 +250,6 @@ function zz_upload_get_fields($zz_tab) {
  * @return array multidimensional information about images
  *		bool $zz_tab[tab][rec]['file_upload']
  *		array $zz_tab[tab][rec]['images']
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_check_files($zz_tab) {
 	global $zz_conf;
@@ -426,13 +423,13 @@ function zz_upload_check_files($zz_tab) {
 			//	check if filetype is allowed
 			if (!in_array($images[$no][$img]['upload']['filetype'], $images[$no][$img]['input_filetypes'])) {
 				$filetype = $images[$no][$img]['upload']['filetype'];
-				if ($filetype == 'unknown') // give more information
-					$filetype .= ' ('.zz_htmltag_escape($images[$no][$img]['upload']['type']).')';
+				if ($filetype === 'unknown') // give more information
+					$filetype = zz_text('unknown').' ('.zz_htmltag_escape($images[$no][$img]['upload']['type']).')';
 				$images[$no][$img]['unsupported_filetype'] = zz_text('Error: ')
 					.zz_text('Unsupported filetype:').' '
 					.$filetype
 					.'<br class="nonewline_in_mail">'.zz_text('Supported filetypes are:').' '
-					.implode(', ', $images[$no][$img]['input_filetypes']);
+					.strtoupper(implode(', ', $images[$no][$img]['input_filetypes']));
 				$my_rec['file_upload'] = false;
 			} else {
 				$my_rec['file_upload'] = true;
@@ -571,8 +568,8 @@ function zz_upload_fileinfo($file, $extension = false) {
 		} else {
 			$filetype = zz_upload_filecheck($file['mime'], $extension);
 			if ($filetype) {
-				$file['ext'] = $filetype['ext'];
-				$file['mime'] = $filetype['mime'];
+				$file['ext'] = $filetype['extension'][0];
+				$file['mime'] = $filetype['mime'][0];
 				$file['filetype'] = $filetype['filetype'];
 			} else {
 				$file['ext'] = 'unknown-'.$extension;
@@ -586,7 +583,7 @@ function zz_upload_fileinfo($file, $extension = false) {
 	if (array_key_exists($extension, $zz_conf['upload_remap_type_if_extension'])
 		AND $file['filetype'] === $zz_conf['upload_remap_type_if_extension'][$extension]) {
 		$file['filetype'] = $extension;
-		$file['mime'] = $zz_conf['file_types'][$file['filetype']][0]['mime'];
+		$file['mime'] = $zz_conf['file_types'][$file['filetype']]['mime'][0];
 	}
 	if ($zz_conf['modules']['debug']) zz_debug('finish', json_encode($file));
 
@@ -621,7 +618,6 @@ function zz_upload_fileinfo($file, $extension = false) {
  * 
  * @param string $filename filename
  * @return string title
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_make_title($filename) {
 	// remove file extension up to 4 letters
@@ -637,7 +633,6 @@ function zz_upload_make_title($filename) {
  * 
  * @param string $filename filename
  * @return string filename
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_make_name($filename) {
 	// remove file extension up to 4 letters
@@ -652,13 +647,12 @@ function zz_upload_make_name($filename) {
  * @param string $mimetype mime type
  * @param string $extension file extension
  * @return boolean
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_mimecheck($mimetype, $extension) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	foreach ($zz_conf['image_types'] as $imagetype)
-		if ($imagetype['mime'] == $mimetype AND $imagetype['ext'] == $extension)
+		if ($imagetype['mime'] === $mimetype AND $imagetype['ext'] === $extension)
 			return zz_return(true);
 	if ($zz_conf['modules']['debug']) zz_debug('combination not yet checked');
 	return zz_return(false);
@@ -686,8 +680,7 @@ function zz_upload_extension_matches_type($extension, $type) {
  * @param string $mimetype mime type
  * @param string $extension file extension
  * @global array $zz_conf 'file_types'
- * @return string $type or false
- * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @return array $type or false
  */
 function zz_upload_filecheck($mimetype, $extension) {
 	global $zz_conf;
@@ -701,17 +694,16 @@ function zz_upload_filecheck($mimetype, $extension) {
 	$type2unique = true;
 	$type3 = false;
 	$type3unique = true;
-	foreach ($zz_conf['file_types'] as $filetypelist) {
-		foreach ($filetypelist as $filetype) {
-			if ($filetype['ext_old'] == $extension AND $filetype['mime'] == $mimetype) {
-				$type1 = $filetype;
-			} elseif ($filetype['ext_old'] == $extension) {
-				if ($type2) $type2unique = false;
-				else $type2 = $filetype;
-			} elseif ($filetype['mime'] == $mimetype) {
-				if ($type3) $type3unique = false;
-				else $type3 = $filetype;
-			}
+	foreach ($zz_conf['file_types'] as $filetype) {
+		if (in_array($extension, $filetype['extension'])
+			AND in_array($mimetype, $filetype['mime'])) {
+			$type1 = $filetype;	
+		} elseif (in_array($extension, $filetype['extension'])) {
+			if ($type2) $type2unique = false;
+			else $type2 = $filetype;
+		} elseif (in_array($mimetype, $filetype['mime'])) {
+			if ($type3) $type3unique = false;
+			else $type3 = $filetype;
 		}
 	}
 	if ($type1) 
@@ -842,9 +834,9 @@ function zz_upload_unix_file($filename, $file) {
 //	} elseif ($file['filetype_file'] == 'data') {
 	// ...
 	if (!empty($file['validated']) AND $imagetype) {
-		$file['ext'] = $zz_conf['file_types'][$imagetype][0]['ext'];
-		$file['mime'] = $zz_conf['file_types'][$imagetype][0]['mime'];
-		$file['filetype'] = $zz_conf['file_types'][$imagetype][0]['filetype'];
+		$file['ext'] = $zz_conf['file_types'][$imagetype]['extension'][0];
+		$file['mime'] = $zz_conf['file_types'][$imagetype]['mime'][0];
+		$file['filetype'] = $zz_conf['file_types'][$imagetype]['filetype'];
 	}
 	return $file;
 }
@@ -962,7 +954,6 @@ function zz_upload_check_recreate($image, $zz_tab) {
  * @param array $zz_tab complete table data
  * @global array $zz_conf configuration variables
  * @return array $zz_tab changed
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_prepare($zz_tab) {
 	// do only something if there are upload_fields
@@ -1342,7 +1333,6 @@ function zz_upload_auto_image($image) {
  * @param array $path
  * @param array $my_rec = $zz_tab[$tab][$rec]
  * @return string $extension
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_extension($path, &$my_rec) {
 	global $zz_error;
@@ -1411,7 +1401,6 @@ function zz_upload_extension($path, &$my_rec) {
  * @global array $zz_conf configuration variables
  * @return bool true/false
  * @return $images might change as well (?)
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_check(&$images, $action, $rec = 0) {
 	global $zz_conf;
@@ -1695,7 +1684,6 @@ function zz_val_get_from_upload($field, $images, $post) {
  * @global array $zz_conf
  *		modules[debug], backup, backup_dir
  * @return array $zz_tab with changed values
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @see zz_upload_action()
  */
 function zz_upload_delete_file($zz_tab) {
@@ -1739,7 +1727,6 @@ function zz_upload_delete_file($zz_tab) {
  * @param array $zz_tab complete table data
  * @global array $zz_conf configuration variables
  * @return array $zz_tab
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_action($zz_tab) {
 	global $zz_conf;
@@ -2019,7 +2006,6 @@ function zz_upload_insert($source, $dest, $action = '-', $mode = 'copy') {
  * @param string $path file path
  * @global array $zz_error
  * @return string unique filename ? path?
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_path($dir, $action, $path) {
 	global $zz_error;
@@ -2040,7 +2026,6 @@ function zz_upload_path($dir, $action, $path) {
  * called form zz_action
  * @param array $zz_tab table data
  * @param bool $validated (optional, true: validation was passed, false: not)
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_cleanup($zz_tab, $validated = true) {
 	global $zz_conf;
@@ -2089,7 +2074,6 @@ function zz_upload_cleanup($zz_tab, $validated = true) {
  * will be called via 'auto_size'
  * @param array $image
  * @return array $image
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_image_auto_size($image) {
 	//	basics
@@ -2167,7 +2151,6 @@ function zz_image_auto_size($image) {
  * @param double $old_ratio		old ratio, which will be checked if its better
  * @param double $new_ratio		new ratio to compare with
  * @return bool true if ratio is better, false if ratio is not better
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_image_is_better_ratio($ratio, $old_ratio, $new_ratio) {
 	if ($ratio > 1) {
@@ -2196,7 +2179,6 @@ function zz_image_is_better_ratio($ratio, $old_ratio, $new_ratio) {
  * @param string $optional
  * @global array $zz_error 
  * @return array $defaults
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @todo $mode = file, sql; read values from database table
  */
 function zz_upload_get_typelist($filename, $type = 'Filetype', $optional = false) {
@@ -2249,7 +2231,6 @@ function zz_upload_get_typelist($filename, $type = 'Filetype', $optional = false
  *
  * @param string $file filename
  * @return bool 
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_unlink_cleanup($file) {
 	$full_path = realpath($file);
@@ -2268,7 +2249,6 @@ function zz_unlink_cleanup($file) {
  * @param string $dir name of directory
  * @global array $zz_conf
  * @return bool true
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_cleanup_dirs($dir) {
 	// first check if it's a directory that shall always be there
@@ -2331,7 +2311,6 @@ function zz_image_exif_thumbnail($source, $destination, $dest_ext = false, $imag
  *
  * @param string $filename
  * @return string $extension (part behind last dot or 'unknown')
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_upload_file_extension($filename) {
 	if (strstr($filename, '.'))
@@ -2351,7 +2330,6 @@ function zz_upload_file_extension($filename) {
  * @param ressource $context
  * @global array $zz_conf -> bool 'upload_copy_for_rename'
  * @return bool true if rename was successful, false if not
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_rename($oldname, $newname, $context = false) {
 	global $zz_conf;
@@ -2477,4 +2455,40 @@ function zz_upload_exec($command, $log_description, &$output = array(), &$return
 		error_log($log, 3, $zz_conf['upload_log']);
 	}
 	return true;
+}
+
+/**
+ * get default values for $zz_conf['file_types']
+ *
+ * @param string $filename
+ * @return array $filetypes
+ *		indexed by string type
+ *		string 'description'
+ *		array 'mime'
+ *		array 'extension'
+ *		bool 'thumbnail'
+ *		bool 'multipage'
+ */
+function zz_upload_get_filetypes($filename) {
+	$filetypes = parse_ini_file($filename, true);
+	foreach ($filetypes as $type => $values) {
+		$filetypes[$type]['filetype'] = $type;
+		if (empty($values['mime'])) {
+			$filetypes[$type]['mime'][0] = 'application/octet-stream';
+		} elseif (!is_array($values['mime'])) {
+			$filetypes[$type]['mime'] = array(0 => $values['mime']);
+		}
+		if (empty($values['extension'])) {
+			$filetypes[$type]['extension'][0] = $type;
+		} elseif (!is_array($values['extension'])) {
+			$filetypes[$type]['extension'] = array(0 => $values['extension']);
+		}
+		if (!array_key_exists('thumbnail', $values)) {
+			 $filetypes[$type]['thumbnail'] = 0;
+		}
+		if (!array_key_exists('multipage', $values)) {
+			 $filetypes[$type]['multipage'] = 0;
+		}
+	}
+	return $filetypes;
 }
