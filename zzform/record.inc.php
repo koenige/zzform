@@ -2906,10 +2906,10 @@ function zz_field_image($field, $display, $record, $record_saved, $images, $mode
 				$text .= '<br><a href="'.$link.'">'.$link
 					.'</a>'
 					.(($image_uploads > 1 OR !empty($field['optional_image'])) ?
-					' (<small><label for="delete-file-'.$fieldkey.'-'.$imagekey
+					' <small>(<label for="delete-file-'.$fieldkey.'-'.$imagekey
 					.'">'.zz_form_element('zz_delete_file['.$fieldkey.'-'.$imagekey.']', 
 						'', 'checkbox', 'delete-file-'.$fieldkey.'-'.$imagekey, $fieldattr)
-					.'&nbsp;'.zz_text('Delete this file').'</label></small>)'
+					.'&nbsp;'.zz_text('Delete this file').'</label>)</small>'
 					: '');
 			}
 			if (!empty($images[$fieldkey][$imagekey]['error'])) {
