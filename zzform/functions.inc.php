@@ -2550,9 +2550,10 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
 		if (!$check) return $my_rec;
 	}
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	
-	$my_rec['fields'][$f] = zz_check_select_id($my_rec['fields'][$f],
-		$my_rec['POST'][$field_name], $db_table);
+
+	$my_rec['fields'][$f] = zz_check_select_id(
+		$my_rec['fields'][$f], $my_rec['POST'][$field_name], $db_table, $my_rec['id']
+	);
 	$possible_values = $my_rec['fields'][$f]['possible_values'];
 
 	$error = false;
@@ -2619,10 +2620,11 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
  * @param array $field
  * @param string $postvalue
  * @param string $db_table
+ * @param array $id = $zz_tab[$tab][$rec]['id']
  * @global array $zz_conf bool 'multi'
  * @return array $field
  */
-function zz_check_select_id($field, $postvalue, $db_table) {
+function zz_check_select_id($field, $postvalue, $db_table, $id) {
 	global $zz_conf;
 	
 	// 1. get field names from SQL query
@@ -2704,6 +2706,9 @@ function zz_check_select_id($field, $postvalue, $db_table) {
 		}
 	}
 	$wheresql .= ')';
+	if (!empty($field['show_hierarchy_same_table']) AND !empty($id['value'])) {
+		$wheresql .= sprintf(' AND `%s` != %d', $id['field_name'], $id['value']);
+	}
 	$field['sql_new'] = zz_edit_sql($field['sql'], 'WHERE', $wheresql);
 	$field['possible_values'] = zz_db_fetch(
 		$field['sql_new'], 'dummy_id', 'single value'

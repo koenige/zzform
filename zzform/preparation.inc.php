@@ -604,16 +604,14 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 
 /**
  * gets ID of subrecord if one of the fields in the subrecord definition
- * is defined as unique
+ * is defined as unique (only for multi-operations)
  * 
  * @param array $my_tab = $zz_tab[$tab]
  * @param array $fields = $zz_tab[$tab]['fields'] for a subtable
- * @global array $zz_conf
  * @global array $zz_error
  * @return array $my_tab['POST']
  */
 function zz_subrecord_unique($my_tab, $fields) {
-	global $zz_conf;
 	global $zz_error;
 	// check if a GET is set on the foreign key
 	$foreign_key = $my_tab['foreign_key_field_name'];
@@ -624,7 +622,8 @@ function zz_subrecord_unique($my_tab, $fields) {
 		$my_tab['sql'] = zz_edit_sql($my_tab['sql'], 
 			'WHERE', $foreign_key.' = '.intval($_GET['where'][$foreign_key]));
 	}
-	if (!empty($my_tab['unique']) AND $zz_conf['multi']) {
+	$id_field = array('id_field_name' => $my_tab['id_field_name'], 'value' => '');
+	if (!empty($my_tab['unique'])) {
 		// this is only important for UPDATEs of the main record
 		// @todo merge with code for 'unique' on a field level
 
@@ -664,7 +663,9 @@ function zz_subrecord_unique($my_tab, $fields) {
 						}
 						if (!$check) break;
 						
-						$field = zz_check_select_id($field, $values[$field_name].' ', $db_table);
+						$my_id_field = $id_field;
+						$my_id_field['value'] = isset($record[$id_field['field_name']]) ? $record[$id_field['field_name']] : '';
+						$field = zz_check_select_id($field, $values[$field_name].' ', $db_table, $my_id_field);
 						if (count($field['possible_values']) !== 1) continue;
 						$values[$field_name] = reset($field['possible_values']);
 					}
@@ -690,8 +691,10 @@ function zz_subrecord_unique($my_tab, $fields) {
 			if (!empty($record[$my_tab['id_field_name']])) continue;
 			if ($field['type'] === 'select') {
 				$db_table = $my_tab['db_name'].'.'.$my_tab['table'];
+				$my_id_field = $id_field;
+				$my_id_field['value'] = isset($record[$id_field['field_name']]) ? $record[$id_field['field_name']] : '';
 				$field = zz_check_select_id(
-					$field, $record[$field['field_name']], $db_table
+					$field, $record[$field['field_name']], $db_table, $my_id_field
 				);
 				if (count($field['possible_values']) === 1) {
 					$value = reset($field['possible_values']);
