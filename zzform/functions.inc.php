@@ -2281,6 +2281,12 @@ function zz_convert_string($string) {
 	if (!function_exists('mb_internal_encoding')) return $string;
 	$detected_encoding = mb_detect_encoding($string);
 	if ($detected_encoding === mb_internal_encoding()) return $string;
+	if (substr($detected_encoding, 0, 9) === 'ISO-8859-' AND 
+		substr(mb_internal_encoding(), 0, 9) === 'ISO-8859-') {
+		// all ISO character encodings will be seen as ISO-8859-1
+		// @see http://www.php.net/manual/en/function.mb-detect-order.php
+		return $string;
+	}
 	return mb_convert_encoding($string, mb_internal_encoding(), $detected_encoding);
 }
 
