@@ -2279,7 +2279,11 @@ function zz_set_encoding($character_encoding) {
  */
 function zz_convert_string($string) {
 	if (!function_exists('mb_internal_encoding')) return $string;
-	$detected_encoding = mb_detect_encoding($string);
+	$test_string = $string;
+	if (substr($test_string, -1) === chr(241)) {
+		$test_string .= 'a'; // PHP bug? Latin1 string ending with n tilde returns UTF-8
+	}
+	$detected_encoding = mb_detect_encoding($test_string);
 	if ($detected_encoding === mb_internal_encoding()) return $string;
 	if (substr($detected_encoding, 0, 9) === 'ISO-8859-' AND 
 		substr(mb_internal_encoding(), 0, 9) === 'ISO-8859-') {
