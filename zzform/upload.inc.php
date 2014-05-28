@@ -2294,8 +2294,12 @@ function zz_cleanup_dirs($dir) {
  */
 function zz_image_exif_thumbnail($source, $destination, $dest_ext = false, $image = false) {
 	global $zz_conf;
-	// don't regard it as an error if no Exif thumbnail was found nor created
 	if (!in_array($image['upload']['filetype'], $zz_conf['exif_supported'])) {
+		// this filetype does not support EXIF thumbnails
+		return false;
+	}
+	if (!array_key_exists('THUMBNAIL', $image['upload']['exif'])) {
+		// don't regard it as an error if no EXIF thumbnail was found
 		return false;
 	}
 	$exif_thumb = exif_thumbnail($source);
