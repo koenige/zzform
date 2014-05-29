@@ -380,6 +380,10 @@ function zz_check_get_array($key, $type, $values = array()) {
 	$error_in = array();
 	switch ($type) {
 	case 'field_name':
+		if (!is_array($_GET[$key])) {
+			$error_in[$key] = true;
+			break;
+		}
 		foreach ($_GET[$key] AS $name => $value) {
 			$correct = true;
 			if (strstr($name, ' ')) $correct = false;
