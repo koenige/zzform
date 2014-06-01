@@ -27,13 +27,13 @@
  * zzform generates forms for editing single records, list views with several
  * records and does insert, update and delete database operations
  *
- * @param array $zz (if empty, will be taken from global namespace)
+ * @param array $zz (@deprecated if empty, will be taken from global namespace)
  * @global array $zz_conf
  * @global array $zz_error
  * @todo think of zzform($zz, $zz_conf) to get rid of global variables
  */
 function zzform($zz = array()) {
-	if (!$zz) $zz = $GLOBALS['zz'];	// Table description
+	if (!$zz) $zz = $GLOBALS['zz'];	// @deprecated Table description
 	global $zz_conf;				// Config variables
 
 	// This variable signals that zzform is included
@@ -51,13 +51,13 @@ function zzform($zz = array()) {
 //
 
 //	initialize variables
-	$ops = array();
-	$ops['result'] = false;
-	$ops['headers'] = false;
-	$ops['output'] = false;
-	$ops['error'] = array();
-	$ops['result'] = '';
-	$ops['id'] = 0;
+	$ops = array(
+		'result' => '',
+		'headers' => false,
+		'output' => false,
+		'error' => array(),
+		'id' => 0
+	);
 
 	// set default configuration variables
 	// import modules
@@ -284,10 +284,17 @@ function zzform($zz = array()) {
 			$ops['output'].= "\n".'<h2>'.$selection.'</h2>'."\n\n";
 	}
 
+	if (isset($_POST['zz_merge'])) {
+		require_once $zz_conf['dir_inc'].'/merge.inc.php';
+		$msg = zz_merge_records($zz);
+		if ($msg) {
+			$ops['output'] .= '<h2>'.zz_text('Merge').'</h2>'."\n";
+			$ops['output'] .= implode('<br>', $msg);
+		}
+	}
+
 	if ($zz_conf['show_record']) {
 		require_once $zz_conf['dir_inc'].'/preparation.inc.php';
-
-	//	Prepare $zz_tab
 
 		if (in_array('upload', $zz_conf['modules']) && $zz_conf['modules']['upload'])
 			zz_upload_check_max_file_size();
@@ -577,7 +584,7 @@ function zz_initialize($mode = false, $zz = array()) {
 	$default['generate_output']	= true;
 	$default['error_mail_level']	= array('error', 'warning', 'notice');
 	$default['ext_modules']		= array('markdown', 'textile');
-	$default['int_modules'] 		= array('debug', 'compatibility', 'validate');
+	$default['int_modules'] 	= array('debug', 'compatibility', 'validate');
 	zz_write_conf($default);
 	
 	// modules depending on settings
@@ -585,11 +592,11 @@ function zz_initialize($mode = false, $zz = array()) {
 
 	// Configuration on project level: shorthand values
 	if (!is_array($zz_conf['error_mail_level'])) {
-		if ($zz_conf['error_mail_level'] == 'error')
+		if ($zz_conf['error_mail_level'] === 'error')
 			$zz_conf['error_mail_level'] = array('error');
-		elseif ($zz_conf['error_mail_level'] == 'warning')
+		elseif ($zz_conf['error_mail_level'] === 'warning')
 			$zz_conf['error_mail_level'] = array('error', 'warning');
-		elseif ($zz_conf['error_mail_level'] == 'notice')
+		elseif ($zz_conf['error_mail_level'] === 'notice')
 			$zz_conf['error_mail_level'] = array('error', 'warning', 'notice');
 	}
 	// include core functions
@@ -612,25 +619,25 @@ function zz_initialize($mode = false, $zz = array()) {
 	if ($zz_error['error']) zz_return(false);
 
 	$default['action_dir']		= $zz_conf['dir_custom'];	// directory for included scripts after action has been taken
-	$default['lang_dir']			= $zz_conf['dir_custom'];	// directory for additional text
+	$default['lang_dir']		= $zz_conf['dir_custom'];	// directory for additional text
 
 	$default['always_show_empty_detail_record'] = false;
 	$default['additional_text']	= false;
-	$default['backlink']			= true;		// show back-to-overview link
+	$default['backlink']		= true;		// show back-to-overview link
 	$default['access']			= '';		// nothing, does not need to be set, might be set individually
 	$default['add']				= true;		// add or do not add data.
 	$default['cancel_link']		= true;
 	$default['check_referential_integrity'] = true;
-	$default['copy']				= false;	// show action: copy
+	$default['copy']			= false;	// show action: copy
 	$default['decimal_point']	= '.';
 	$default['delete']			= false;	// show action: delete
 	$default['details']			= false;	// column details; links to detail records with foreign key
-	$default['details_base']		= false;
+	$default['details_base']	= false;
 	$default['details_referer']	= true;		// add referer to details link
 	$default['details_url']		= array(); // might be array, therefore no $default
 	$default['details_sql']		= array();
 	$default['details_target']	= false;	// target-window for details link
-	$default['edit']				= true;		// show Action: Edit
+	$default['edit']			= true;		// show Action: Edit
 
 	$default['error_handling']		= 'output';
 	$default['error_log']['error']	= ini_get('error_log');
@@ -662,8 +669,11 @@ function zz_initialize($mode = false, $zz = array()) {
 	$default['max_detail_records']	= 20;		// max 20 detail records, might be expanded later on
 	$default['max_select_val_len']	= 60;		// maximum length of values in select
 	$default['max_select'] 			= 60;		// maximum entries in select/option, if bigger than sub-select
+	$default['merge']				= false;
 	$default['min_detail_records']	= 0;		// min 0 detail records, might be expanded later on
 	$default['multi'] 				= false;		// zzform_multi
+	$default['multi_delete']		= false;
+	$default['multi_edit']			= false;
 	$default['multilang_fieldnames'] = false;	// translate fieldnames via zz_text($fieldname)
 	$default['prefix'] 				= false;	//	prefix for ALL tables like zz_
 	$default['project']				= preg_match('/^[a-zA-Z0-9-\.]+$/', $_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'];
