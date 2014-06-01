@@ -22,6 +22,10 @@ function zz_merge_records($zz) {
 	if (!is_array($_POST['zz_record_id'])) return false;
 	if (count($_POST['zz_record_id']) < 2) return false;
 
+	$msg = array();
+	$uncheck = false;
+	$title = '';
+
 	$ids = array();
 	foreach ($_POST['zz_record_id'] as $id) {
 		$ids[] = intval($id);
@@ -31,10 +35,39 @@ function zz_merge_records($zz) {
 	$old_ids = $ids;
 	
 	$field_name = '';
+	$equal_fields = array();
+	$equal_fields_titles = array();
 	foreach ($zz['fields'] as $field) {
-		if ($field['type'] !== 'id') continue;
-		$field_name = $field['field_name'];
-		break;
+		if ($field['type'] === 'id') $field_name = $field['field_name'];
+		if (!empty($field['merge_equal'])) {
+			$equal_fields[] = $field['field_name'];
+			$equal_fields_titles[] = $field['title'];
+		}
+	}
+	if ($equal_fields) {
+		$sql = sprintf('SELECT DISTINCT %s FROM %s.%s WHERE %s IN (%d,%s)',
+			implode(', ', $equal_fields), $zz_conf['db_name'],
+			$zz['table'], $field_name, $new_id, implode(', ', $ids)
+		);
+		$distinct_records = zz_db_fetch($sql, '_dummy_', 'count');
+		if ($distinct_records !== 1) {
+			if (count($equal_fields_titles) === 1) {
+				$msg[] = '<p class="error">'.
+					sprintf(zz_text('For merging, the field %s has to be equal in all records.'),
+					'<em>'.$equal_fields_titles[0].'</em>'
+				).'</p>';
+			} else {
+				$last_title = array_pop($equal_fields_titles);
+				$msg[] = '<p class="error">'.
+					sprintf(zz_text('For merging, the fields %s and %s have to be equal in all records.'),
+					'<em>'.implode('</em>, <em>', $equal_fields_titles).'</em>',
+					'<em>'.$last_title.'</em>'
+				).'</p>';
+			}
+			return array(
+				'msg' => $msg, 'uncheck' => $uncheck, 'title' => $title
+			);
+		}
 	}
 
 	$sql = 'SELECT rel_id, detail_db, detail_table, detail_field, `delete`, detail_id_field
@@ -47,10 +80,7 @@ function zz_merge_records($zz) {
 	
 	$dependent_sql = 'SELECT %s, %s FROM %s.%s WHERE %s IN (%s)';
 	$record_sql = 'UPDATE %s SET %s = %%d WHERE %s = %%d';
-	$msg = array();
 	$error = false;
-	$uncheck = false;
-	$title = '';
 	foreach ($dependent_records as $record) {
 		$sql = sprintf($dependent_sql,
 			$record['detail_id_field'], $record['detail_field'],

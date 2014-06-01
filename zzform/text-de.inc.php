@@ -173,6 +173,8 @@ $text['no-data-available'] = 'Keine Daten vorhanden';
 
 // Record form: Merge
 $text['%d records merged successfully'] = '%d Eintr&auml;ge erfolgreich vereinigt';
+$text['For merging, the field %s has to be equal in all records.'] = 'F&uuml;r die Zusammenfassung der Eintr&auml;ge muﬂ das Feld %s in allen Eintr&auml;gen gleich sein.';
+$text['For merging, the fields %s and %s have to be equal in all records.'] = 'F&uuml;r die Zusammenfassung der Eintr&auml;ge m&uuml;ssen die Felder %s und %s in allen Eintr&auml;gen gleich sein.';
 
 
 // ----------------------------------------------------------------------------
