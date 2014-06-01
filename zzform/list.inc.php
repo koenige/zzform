@@ -194,7 +194,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	}
 	
 	if ($zz_conf['show_list']) {
-		if ($zz_conf['select_multiple_records']) {
+		if ($zz['list']['select_multiple_records']) {
 			$action_url = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs'];
 			if ($zz_var['extraGET']) {
 				// without first &amp;!
@@ -204,13 +204,13 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				$action_url, $zz_conf['character_set']);
 		}
 	
-		if ($zz_conf['list_display'] == 'table') {
+		if ($zz_conf['list_display'] === 'table') {
 			$ops['output'] .= zz_list_table($list, $rows, $head);
-		} elseif ($zz_conf['list_display'] == 'ul') {
+		} elseif ($zz_conf['list_display'] === 'ul') {
 			$ops['output'] .= zz_list_ul($list, $rows);
 		}
 
-		if ($zz_conf['select_multiple_records']) {
+		if ($zz['list']['select_multiple_records']) {
 			$ops['output'] .= '</form>'."\n";
 		}
 	}
@@ -348,7 +348,7 @@ function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $id_field
 				$old_to_new_index[$fieldindex] = $fi;
 			}
 			// remove elements from table which shall not be shown
-			if ($mode == 'export') {
+			if ($mode === 'export') {
 				if (!isset($field['export']) || $field['export']) {
 					$table_defs[$index][$fi] = $field;
 				}
@@ -394,7 +394,8 @@ function zz_list_set($zz) {
 		'details' => false, // don't show a table head for link to details until necessary
 		'tfoot' => false, // shows table foot, e. g. for sums of individual values
 		'group' => array(),
-		'hierarchy' => array('display_in' => '')
+		'hierarchy' => array('display_in' => ''),
+		'select_multiple_records' => false
 	), $list);
 
 	// check 'group'
@@ -495,7 +496,7 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 			// e. g. for hierarchies
 			$zz_conf_record = array_merge($zz_conf_record, $line['zz_conf']);
 		}
-		if ($zz_conf['select_multiple_records']) {
+		if ($list['select_multiple_records']) {
 			// checkbox for records
 			$checked = false;
 			if (!empty($zz_var['id']['values'])) {
@@ -627,7 +628,7 @@ function zz_list_group_titles($list, $fields, $line) {
 		if (!empty($field['display_field'])) {
 			$group[$pos] = $line[$field['display_field']];
 			// @todo group
-		} elseif (!empty($field['enum']) AND $field['type'] == 'select') {
+		} elseif (!empty($field['enum']) AND $field['type'] === 'select') {
 			$group[$pos] = zz_print_enum($field, $line[$field['field_name']], 'full');
 		} elseif (!empty($field['field_name'])) {
 			$group[$pos] = $line[$field['field_name']];
@@ -825,9 +826,9 @@ function zz_list_filter_sql($sql) {
 			AND $filter['type'] === 'list') {
 			// it's a valid filter, so apply it.
 			$filter_value = $zz_conf['int']['filter'][$filter['identifier']];
-			if ($filter_value == 'NULL') {
+			if ($filter_value === 'NULL') {
 				$sql = zz_edit_sql($sql, 'WHERE', 'ISNULL('.$filter['where'].')');
-			} elseif ($filter_value == '!NULL') {
+			} elseif ($filter_value === '!NULL') {
 				$sql = zz_edit_sql($sql, 'WHERE', '!ISNULL('.$filter['where'].')');
 			} else {
 				// allow ! as a symbol (may be escaped by \)
@@ -844,20 +845,20 @@ function zz_list_filter_sql($sql) {
 		} elseif ($zz_conf['int']['filter'][$filter['identifier']] === '0' AND $filter['default_selection'] !== '0'
 			AND $filter['default_selection'] !== 0) {
 			// do nothing
-		} elseif ($filter['type'] == 'list' AND is_array($filter['where'])) {
+		} elseif ($filter['type'] === 'list' AND is_array($filter['where'])) {
 			// valid filter with several wheres
 			$wheres = array();
 			foreach ($filter['where'] AS $filter_where) {
-				if ($zz_conf['int']['filter'][$filter['identifier']] == 'NULL') {
+				if ($zz_conf['int']['filter'][$filter['identifier']] === 'NULL') {
 					$wheres[] = 'ISNULL('.$filter_where.')';
-				} elseif ($zz_conf['int']['filter'][$filter['identifier']] == '!NULL') {
+				} elseif ($zz_conf['int']['filter'][$filter['identifier']] === '!NULL') {
 					$wheres[] = '!ISNULL('.$filter_where.')';
 				} else {
 					$wheres[] = $filter_where.' = "'.$zz_conf['int']['filter'][$filter['identifier']].'"';
 				}
 			}
 			$sql = zz_edit_sql($sql, 'WHERE', implode(' OR ', $wheres));
-		} elseif ($filter['type'] == 'like') {
+		} elseif ($filter['type'] === 'like') {
 			// valid filter with LIKE
 			$sql = zz_edit_sql($sql, 'WHERE', $filter['where'].' LIKE "%'.$zz_conf['int']['filter'][$filter['identifier']].'%"');
 		} else {
@@ -1131,7 +1132,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 		//	go for type of field if no display field is set
 		switch ($field['type']) {
 		case 'calculated':
-			if ($field['calculation'] == 'hours') {
+			if ($field['calculation'] === 'hours') {
 				$row['value'] = 0;
 				foreach ($field['calculation_fields'] as $calc_field)
 					if (!$row['value']) $row['value'] = strtotime($line[$calc_field]);
@@ -1139,12 +1140,12 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 				if ($row['value'] < 0) $text = '<em class="negative">';
 				$text .= zz_hour_format($row['value']);
 				if ($row['value'] < 0) $text .= '</em>';
-			} elseif ($field['calculation'] == 'sum') {
+			} elseif ($field['calculation'] === 'sum') {
 				$row['value'] = 0;
 				foreach ($field['calculation_fields'] as $calc_field)
 					$row['value'] += $line[$calc_field];
 				$text = $row['value'];
-			} elseif ($field['calculation'] == 'sql') {
+			} elseif ($field['calculation'] === 'sql') {
 				$text = $row['value'];
 			}
 			$mark_search_string = false;
@@ -1333,12 +1334,12 @@ function zz_field_sum($table_defs, $z, $table, $sum) {
 	foreach ($table_defs as $index => $field) {
 		if (!$field['show_field']) continue;
 		if (in_array($index, $zz_conf['int']['group_field_no'])) continue;
-		if ($field['type'] == 'id' && empty($field['show_id'])) {
+		if ($field['type'] === 'id' && empty($field['show_id'])) {
 			$tfoot_line .= '<td class="recordid">'.$z.'</td>';
 		} elseif (!empty($field['sum'])) {
 			$tfoot_line .= '<td'.zz_field_class($field, (!empty($table) ? $table : ''), true).'>';
 			$value = $sum[$field['title']];
-			if (isset($field['calculation']) AND $field['calculation'] == 'hours') {
+			if (isset($field['calculation']) AND $field['calculation'] === 'hours') {
 				$value = zz_hour_format($value);
 			} elseif (isset($field['number_type'])) {
 				$value = zz_number_format($value, $field);
@@ -1390,12 +1391,12 @@ function zz_list_format($text, $list_format) {
  */
 function zz_set_link($field, $line) {
 	$link = false;
-	if ($field['type'] == 'url') {
+	if ($field['type'] === 'url') {
 		$link = $line[$field['field_name']];
-	} elseif ($field['type'] == 'mail' AND $line[$field['field_name']]) {
+	} elseif ($field['type'] === 'mail' AND $line[$field['field_name']]) {
 		// mailto-Link only if there is an address in that field
 		$link = 'mailto:'.$line[$field['field_name']];
-	} elseif ($field['type'] == 'mail+name' AND $line[$field['field_name']]) {
+	} elseif ($field['type'] === 'mail+name' AND $line[$field['field_name']]) {
 		// mailto-Link only if there is an address in that field
 		$link = 'mailto:'.rawurlencode($line[$field['field_name']]);
 	} elseif (isset($field['link']) AND is_array($field['link'])) {
@@ -1569,7 +1570,7 @@ function zz_list_total_records($total_rows) {
 	if (!empty($zz_conf['dont_show_total_records'])) return '';
 
 	$text = '';
-	if ($total_rows == 1) $text = '<p class="totalrecords">'.$total_rows.' '.zz_text('record total').'</p>'; 
+	if ($total_rows === 1) $text = '<p class="totalrecords">'.$total_rows.' '.zz_text('record total').'</p>'; 
 	elseif ($total_rows) $text = '<p class="totalrecords">'.$total_rows.' '.zz_text('records total').'</p>';
 	return $text;
 }
@@ -1684,7 +1685,7 @@ function zz_list_pages($limit_step, $this_limit, $total_rows, $scope = 'body') {
 		// if just one above the last limit show this number only once
 		switch ($zz_conf['limit_display']) {
 		case 'entries':
-			$text = ($range_min == $range_max) ? $range_min : $range_min.'-'.$range_max;
+			$text = ($range_min === $range_max) ? $range_min : $range_min.'-'.$range_max;
 		default:
 		case 'pages':
 			$text = $i/$zz_conf['limit']+1;
@@ -1765,13 +1766,13 @@ function zz_list_pageurl() {
  */
 function zz_list_pagelink($start, $limit, $limit_step, $url) {
 	global $zz_conf;
-	if ($start == -1) {
+	if ($start === -1) {
 		// all records
 		if (!$limit) return false;
 		else $limit_new = 0;
 	} else {
 		$limit_new = $start + $limit_step;
-		if ($limit_new == $limit) {
+		if ($limit_new === $limit) {
 			// current page
 			return false;
 		} elseif (!$limit_new) {
@@ -1880,7 +1881,7 @@ function zz_list_th($field, $mode = 'html') {
 	$uri = $zz_conf['int']['url']['self'].zz_edit_query_string($zz_conf['int']['url']['qs']	
 		.$zz_conf['int']['url']['qs_zzform'], $unwanted_keys, $new_keys);
 	$order_dir = 'asc';
-	if (str_replace('&amp;', '&', $uri) == $_SERVER['REQUEST_URI']) {
+	if (str_replace('&amp;', '&', $uri) === $_SERVER['REQUEST_URI']) {
 		$uri.= '&amp;dir=desc';
 		$order_dir = 'desc';
 	}
@@ -1908,9 +1909,9 @@ function zz_list_init_subselects($field, $fieldindex, $table_id_field_name) {
 	$foreign_key_field = array();
 	$translation_key_field = array();
 	foreach ($field['fields'] as $subfield) {
-		if ($subfield['type'] == 'foreign_key') {
+		if ($subfield['type'] === 'foreign_key') {
 			$foreign_key_field = $subfield;
-		} elseif ($subfield['type'] == 'translation_key') {
+		} elseif ($subfield['type'] === 'translation_key') {
 			$translation_key_field = $subfield;
 		}
 	}
@@ -2049,10 +2050,10 @@ function zz_list_field_level($list, $field, $line) {
 	if (!empty($field['decrease_level'])) $line['zz_level'] -= $field['decrease_level'];
 
 	if (!empty($field['field_name']) // occurs in case of subtables
-		AND $field['field_name'] == $list['hierarchy']['display_in']) {
+		AND $field['field_name'] === $list['hierarchy']['display_in']) {
 		return $line['zz_level'];
 	} elseif (!empty($field['table_name']) 
-		AND $field['table_name'] == $list['hierarchy']['display_in']) {
+		AND $field['table_name'] === $list['hierarchy']['display_in']) {
 		return $line['zz_level'];
 	}
 	return '';
@@ -2139,14 +2140,14 @@ function zz_field_class($field, $values, $html = false) {
 	$class = array();
 	if (!empty($field['level']))
 		$class[] = 'level'.$field['level'];
-	if ($field['type'] == 'id' && empty($field['show_id']))
+	if ($field['type'] === 'id' && empty($field['show_id']))
 		$class[] = 'recordid';
-	elseif ($field['type'] == 'number' OR $field['type'] == 'calculated')
+	elseif ($field['type'] === 'number' OR $field['type'] === 'calculated')
 		$class[] = 'number';
 	if (!empty($_GET['order']) AND empty($field['dont_sort'])) 
-		if (!empty($field['field_name']) AND $field['field_name'] == $_GET['order'])
+		if (!empty($field['field_name']) AND $field['field_name'] === $_GET['order'])
 			$class[] = 'order';
-		elseif (!empty($field['display_field']) AND $field['display_field'] == $_GET['order']) 
+		elseif (!empty($field['display_field']) AND $field['display_field'] === $_GET['order']) 
 			$class[] = 'order';
 	if ($values)
 		if (isset($field['field_name']) AND empty($field['dont_show_where_class'])) 
@@ -2196,7 +2197,7 @@ function zz_list_table($list, $rows, $head) {
 	
 	// Header
 	$output = '<table class="data"><thead>'."\n".'<tr>';
-	if ($zz_conf['select_multiple_records']) $output .= '<th></th>';
+	if ($list['select_multiple_records']) $output .= '<th></th>';
 
 	// Rest cannot be set yet because we do not now details/mode-links
 	// of individual records
@@ -2218,7 +2219,7 @@ function zz_list_table($list, $rows, $head) {
 	// Table footer
 	//
 	if (($list['tfoot'] AND $list['sum'])
-		OR $zz_conf['select_multiple_records']) {
+		OR $list['select_multiple_records']) {
 		$output .= '<tfoot>'."\n";
 		if ($list['sum']) {
 			$output .= '<tr class="sum">';
@@ -2227,7 +2228,7 @@ function zz_list_table($list, $rows, $head) {
 				$output .= '<td class="editbutton">&nbsp;</td>';
 			$output .= '</tr>'."\n";
 		}
-		if ($zz_conf['select_multiple_records']) {
+		if ($list['select_multiple_records']) {
 			$buttons = array();
 			if ($zz_conf['edit'])
 				$buttons[] = '<input type="submit" value="'.zz_text('Edit records').'" name="multiple_edit">';
@@ -2276,7 +2277,7 @@ function zz_list_table($list, $rows, $head) {
 			$current_field = true;
 		}
 		$output .= '<tr class="'.($index & 1 ? 'uneven':'even')
-			.(($index+1) == count($rows) ? ' last' : '')
+			.(($index + 1) === count($rows) ? ' last' : '')
 			.($current_field ? ' current_record' : '')
 			.'">'; //onclick="Highlight();"
 		foreach ($row as $fieldindex => $field) {
@@ -2344,7 +2345,7 @@ function zz_list_ul($list, $rows) {
 		}
 		$output .= '<li class="'.($index & 1 ? 'uneven':'even')
 			.((isset($list['current_record']) AND $list['current_record'] == $index) ? ' current_record' : '')
-			.(($index + 1) == count($rows) ? ' last' : '').'">'; //onclick="Highlight();"
+			.(($index + 1) === count($rows) ? ' last' : '').'">'; //onclick="Highlight();"
 		foreach ($row as $fieldindex => $field) {
 			if (is_numeric($fieldindex) && $field['text'])
 				$output .= '<p'.($field['class'] ? ' class="'.implode(' ', $field['class']).'"' : '')

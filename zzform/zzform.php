@@ -675,7 +675,6 @@ function zz_initialize($mode = false, $zz = array()) {
 	$default['relations_table'] 		= '_relations';	//	name of relations table for referential integrity
 	$default['search'] 				= false;	// search for records possible or not
 	$default['search_form_always']	= false;
-	$default['select_multiple_records'] = false;
 	$default['show_list_while_edit'] = true;	
 	$default['show_list']		= true;		// display list of records in database				
 	$default['show_output']		= true;		// ECHO output or keep it in $ops['output']
