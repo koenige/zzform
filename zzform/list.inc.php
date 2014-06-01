@@ -194,7 +194,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	}
 	
 	if ($zz_conf['show_list']) {
-		if ($zz['list']['select_multiple_records']) {
+		if ($list['select_multiple_records']) {
 			$action_url = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs'];
 			if ($zz_var['extraGET']) {
 				// without first &amp;!
@@ -210,7 +210,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			$ops['output'] .= zz_list_ul($list, $rows);
 		}
 
-		if ($zz['list']['select_multiple_records']) {
+		if ($list['select_multiple_records']) {
 			$ops['output'] .= '</form>'."\n";
 		}
 	}
@@ -397,6 +397,10 @@ function zz_list_set($zz) {
 		'hierarchy' => array('display_in' => ''),
 		'select_multiple_records' => false
 	), $list);
+	
+	if ($zz_conf['multi_edit'] OR $zz_conf['multi_delete'] OR $zz_conf['merge']) {
+		$list['select_multiple_records'] = true;
+	}
 
 	// check 'group'
 	if (!empty($_GET['group'])) {
@@ -502,8 +506,10 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 			if (!empty($zz_var['id']['values'])) {
 				if (in_array($id, $zz_var['id']['values'])) $checked = true;
 			}
-			$rows[$z][-1]['text'] = '<input type="checkbox" name="zz_record_id[]" value="'
-				.$line[$id_field].'"'.($checked ? ' checked="checked"' : '').'>'; // $id
+			$rows[$z][-1]['text'] = sprintf(
+				'<input type="checkbox" name="zz_record_id[]" value="%s"%s>',
+				$line[$id_field], ($checked ? ' checked="checked"' : '')
+			);
 			$rows[$z][-1]['class'][] = 'select_multiple_records';
 		}
 
@@ -2230,10 +2236,12 @@ function zz_list_table($list, $rows, $head) {
 		}
 		if ($list['select_multiple_records']) {
 			$buttons = array();
-			if ($zz_conf['edit'])
-				$buttons[] = '<input type="submit" value="'.zz_text('Edit records').'" name="multiple_edit">';
-			if ($zz_conf['delete'])
-				$buttons[] = '<input type="submit" value="'.zz_text('Delete records').'" name="multiple_delete">';
+			if ($zz_conf['multi_edit'])
+				$buttons[] = '<input type="submit" value="'.zz_text('edit').'" name="zz_multiple_edit">';
+			if ($zz_conf['multi_delete'])
+				$buttons[] = '<input type="submit" value="'.zz_text('delete').'" name="zz_multiple_delete">';
+			if ($zz_conf['merge'])
+				$buttons[] = '<input type="submit" value="'.zz_text('Merge').'" name="zz_merge">';
 			if ($buttons) {
 				$output .= '<tr class="multiple"><td><input type="checkbox" onclick="zz_set_checkboxes(this.checked);"></td>'
 				.'<td colspan="'.$columns.'"><em>'.zz_text('Selection').':</em> '

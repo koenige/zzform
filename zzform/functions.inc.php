@@ -1079,9 +1079,9 @@ function zz_record_access($zz, $ops, $zz_var) {
 	} elseif (!empty($_POST['zz_action'])) {
 		if ($_POST['zz_action'] === 'multiple') {
 			if (!empty($_POST['zz_record_id'])) {
-				if (!empty($_POST['multiple_edit'])) {
+				if (!empty($_POST['zz_multiple_edit'])) {
 					$ops['mode'] = 'edit';
-				} elseif (!empty($_POST['multiple_delete'])) {
+				} elseif (!empty($_POST['zz_multiple_delete'])) {
 					$ops['mode'] = 'delete';
 				}
 				$zz_var['id']['values'] = $_POST['zz_record_id'];

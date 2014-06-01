@@ -42,6 +42,7 @@ $text['show'] = 'Anzeigen';
 $text['add'] = 'Hinzuf&uuml;gen';
 
 	$text['Copy'] = 'Kopieren';
+	$text['Merge'] = 'Vereinigen';
 
 $text['Add a record'] = 'Eintrag hinzuf&uuml;gen';
 $text['Delete a record'] = 'Eintrag l&ouml;schen';
