@@ -47,6 +47,7 @@ function zz_merge_records($zz) {
 	$dependent_sql = 'SELECT %s, %s FROM %s.%s WHERE %s IN (%s)';
 	$record_sql = 'UPDATE %s SET %s = %%d WHERE %s = %%d';
 	$msg = array();
+	$error = false;
 	foreach ($dependent_records as $record) {
 		$sql = sprintf($dependent_sql,
 			$record['detail_id_field'], $record['detail_field'],
@@ -74,12 +75,55 @@ function zz_merge_records($zz) {
 				$msg[] = sprintf(zz_text('Merging entry in table %s failed with an error (ID: %d): %s'),
 					'<code>'.$record['detail_table'].'</code>', $record_id, $result['error']['db_msg']
 				);
+				$error = true;
 			}
 			// @todo catch errors, e. g. if UNIQUE key hinders update
 		}
-	}	
+	}
 
-	// @todo show main records
-	// @todo remove main records
+	if (!$error) {
+		$merge_ignore_fields = array();
+		foreach ($zz['fields'] as $field) {
+			if ($field['type'] === 'id') {
+				$merge_ignore_fields[] = $field['field_name'];
+			} elseif ($field['type'] === 'timestamp') {
+				$merge_ignore_fields[] = $field['field_name'];
+			} elseif (!empty($field['merge_ignore'])) {
+				$merge_ignore_fields[] = $field['field_name'];
+			}
+		}
+	
+		// no detail records exist anymore
+		$old_sql = sprintf('SELECT * FROM %s WHERE %s = %%d', $zz['table'], $field_name);
+		$delete_sql = sprintf('DELETE FROM %s WHERE %s = %%d LIMIT 1', $zz['table'], $field_name); 
+		$sql = sprintf($old_sql, $new_id);
+		$new_record = zz_db_fetch($sql);
+		foreach ($merge_ignore_fields as $field) {
+			if (array_key_exists($field, $new_record)) unset($new_record[$field]);
+		}
+		foreach ($old_ids as $old_id) {
+			$sql = sprintf($old_sql, $old_id);
+			$old_record = zz_db_fetch($sql);
+			foreach ($merge_ignore_fields as $field) {
+				if (array_key_exists($field, $old_record)) unset($old_record[$field]);
+			}
+			if ($old_record === $new_record) {
+				$sql = sprintf($delete_sql, $old_id);
+				$result = zz_db_change($sql, $old_id);
+				if ($result['action']) {
+					$msg[] = sprintf(zz_text('Deleted entry in table %s (ID: %d)'),
+						'<code>'.$zz['table'].'</code>', $old_id
+					);
+				} else {
+					$msg[] = sprintf(zz_text('Deletion of entry in table %s failed with an error (ID: %d): %s'),
+						'<code>'.$zz['table'].'</code>', $old_id, $result['error']['db_msg']
+					);
+					$error = true;
+				}
+			}
+		}
+	}
+
+	// @todo show main records on error to compare manually
 	return $msg;
 }
