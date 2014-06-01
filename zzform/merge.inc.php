@@ -34,11 +34,11 @@ function zz_merge_records($zz) {
 	$new_id = array_shift($ids);
 	$old_ids = $ids;
 	
-	$field_name = '';
+	$id_field_name = '';
 	$equal_fields = array();
 	$equal_fields_titles = array();
 	foreach ($zz['fields'] as $field) {
-		if ($field['type'] === 'id') $field_name = $field['field_name'];
+		if ($field['type'] === 'id') $id_field_name = $field['field_name'];
 		if (!empty($field['merge_equal'])) {
 			$equal_fields[] = $field['field_name'];
 			$equal_fields_titles[] = $field['title'];
@@ -47,7 +47,7 @@ function zz_merge_records($zz) {
 	if ($equal_fields) {
 		$sql = sprintf('SELECT DISTINCT %s FROM %s.%s WHERE %s IN (%d,%s)',
 			implode(', ', $equal_fields), $zz_conf['db_name'],
-			$zz['table'], $field_name, $new_id, implode(', ', $ids)
+			$zz['table'], $id_field_name, $new_id, implode(', ', $ids)
 		);
 		$distinct_records = zz_db_fetch($sql, '_dummy_', 'count');
 		if ($distinct_records !== 1) {
@@ -75,7 +75,7 @@ function zz_merge_records($zz) {
 		WHERE master_db = "%s"
 		AND master_table = "%s"
 		AND master_field = "%s"';
-	$sql = sprintf($sql, $zz_conf['db_name'], $zz['table'], $field_name);
+	$sql = sprintf($sql, $zz_conf['db_name'], $zz['table'], $id_field_name);
 	$dependent_records = zz_db_fetch($sql, 'rel_id');
 	
 	$dependent_sql = 'SELECT %s, %s FROM %s.%s WHERE %s IN (%s)';
@@ -100,7 +100,7 @@ function zz_merge_records($zz) {
 			$record_id = $entry[$record['detail_id_field']];
 			$sql = sprintf($this_record_sql, $new_id, $record_id);
 			$result = zz_db_change($sql, $record_id);
-			if ($result['action']) {
+			if ($result['action'] === 'update') {
 				$msg[] = sprintf(zz_text('Merging entry in table %s merged (ID: %d)'),
 					'<code>'.$record['detail_table'].'</code>', $record_id
 				);
@@ -115,6 +115,9 @@ function zz_merge_records($zz) {
 		}
 	}
 
+	$update = true;
+	$new_values = array();
+	$delete_old_records = false;
 	if (!$error) {
 		$merge_ignore_fields = array();
 		foreach ($zz['fields'] as $field) {
@@ -128,8 +131,8 @@ function zz_merge_records($zz) {
 		}
 	
 		// no detail records exist anymore
-		$old_sql = sprintf('SELECT * FROM %s WHERE %s = %%d', $zz['table'], $field_name);
-		$delete_sql = sprintf('DELETE FROM %s WHERE %s = %%d LIMIT 1', $zz['table'], $field_name); 
+		$old_sql = sprintf('SELECT * FROM %s WHERE %s = %%d', $zz['table'], $id_field_name);
+		$delete_sql = sprintf('DELETE FROM %s WHERE %s = %%d LIMIT 1', $zz['table'], $id_field_name); 
 		$sql = sprintf($old_sql, $new_id);
 		$new_record = zz_db_fetch($sql);
 		foreach ($merge_ignore_fields as $field) {
@@ -142,9 +145,60 @@ function zz_merge_records($zz) {
 				if (array_key_exists($field, $old_record)) unset($old_record[$field]);
 			}
 			if ($old_record === $new_record) {
+				$delete_old_records = true;
+			} else {
+				foreach ($old_record as $field_name => $value) {
+					if (!$value) continue;
+					if ($value === $new_record[$field_name]) continue; // everything ok
+					if (!$new_record[$field_name]) {
+						// existing field is empty, we can overwrite it
+						if (array_key_exists($field_name, $new_values)) {
+							// overwrite with different values is impossible
+							if ($value !== $new_values[$field_name]) $update = false;
+						} else {
+							$new_values[$field_name] = $value;
+						}
+					} else {
+						// values differ, no overwriting
+						$update = false;
+					}
+				}
+				if (!$update) {
+					$msg[] = zz_text('Merge not complete, main records are different.');
+					$error = true;
+				} elseif (!$new_values) {
+					// No changes in new record, so delete it
+					$delete_old_records = true;
+				}
+			}
+		}
+		if ($update AND $new_values) {
+			$update_values = array();
+			foreach ($new_values as $field_name => $value) {
+				$update_values[] = sprintf('`%s` = "%s"', $field_name, $value);
+			}
+			$sql = 'UPDATE %s SET %s WHERE %s = %d';
+			$sql = sprintf($sql, $zz['table'],
+				implode(', ', $update_values), $id_field_name, $new_id
+			);
+			$result = zz_db_change($sql, $new_id);
+			if ($result['action'] === 'update') {
+				$msg[] = sprintf(zz_text('Update entry in table %s (ID: %d)'),
+					'<code>'.$zz['table'].'</code>', $old_id
+				);
+				$delete_old_records = true;
+			} else {
+				$msg[] = sprintf(zz_text('Update of entry in table %s failed with an error (ID: %d): %s'),
+					'<code>'.$zz['table'].'</code>', $old_id, $result['error']['db_msg']
+				);
+				$error = true;
+			}
+		}
+		if ($delete_old_records AND !$error) {
+			foreach ($old_ids as $old_id) {
 				$sql = sprintf($delete_sql, $old_id);
 				$result = zz_db_change($sql, $old_id);
-				if ($result['action']) {
+				if ($result['action'] === 'delete') {
 					$msg[] = sprintf(zz_text('Deleted entry in table %s (ID: %d)'),
 						'<code>'.$zz['table'].'</code>', $old_id
 					);
@@ -155,10 +209,6 @@ function zz_merge_records($zz) {
 					);
 					$error = true;
 				}
-			} else {
-				// @todo
-				$msg[] = zz_text('Merge not complete, main records are different.');
-				$error = true;
 			}
 		}
 	}
