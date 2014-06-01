@@ -20,6 +20,7 @@ function zz_merge_records($zz) {
 	if ($_POST['zz_action'] !== 'multiple') return false;
 	if (empty($_POST['zz_record_id'])) return false;
 	if (!is_array($_POST['zz_record_id'])) return false;
+	if (count($_POST['zz_record_id']) < 2) return false;
 
 	$ids = array();
 	foreach ($_POST['zz_record_id'] as $id) {
@@ -49,6 +50,7 @@ function zz_merge_records($zz) {
 	$msg = array();
 	$error = false;
 	$uncheck = false;
+	$title = '';
 	foreach ($dependent_records as $record) {
 		$sql = sprintf($dependent_sql,
 			$record['detail_id_field'], $record['detail_field'],
@@ -123,12 +125,22 @@ function zz_merge_records($zz) {
 					);
 					$error = true;
 				}
+			} else {
+				// @todo
+				$msg[] = zz_text('Merge not complete, main records are different.');
+				$error = true;
 			}
 		}
 	}
+	if (!$error) {
+		// everything okay, so don't output all the details
+		$title = sprintf(zz_text('%d records merged successfully'), count($old_ids) + 1);
+		$msg = array();
+	}
 
+	// @todo redirect on change
 	// @todo show main records on error to compare manually
 	return array(
-		'msg' => $msg, 'uncheck' => $uncheck
+		'msg' => $msg, 'uncheck' => $uncheck, 'title' => $title
 	);
 }

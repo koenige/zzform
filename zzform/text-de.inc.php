@@ -171,6 +171,9 @@ $text['no-data-available'] = 'Keine Daten vorhanden';
 	$text['Record for %s does not exist.'] = 'Eintrag f&uuml;r %s existiert nicht.';
 	$text['Would be changed on update'] = 'W&uuml;rde bei Aktualisierung ge&auml;ndert.';
 
+// Record form: Merge
+$text['%d records merged successfully'] = '%d Eintr&auml;ge erfolgreich vereinigt';
+
 
 // ----------------------------------------------------------------------------
 // List view

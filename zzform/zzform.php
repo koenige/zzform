@@ -287,11 +287,16 @@ function zzform($zz = array()) {
 	if (isset($_POST['zz_merge'])) {
 		require_once $zz_conf['dir_inc'].'/merge.inc.php';
 		$merge = zz_merge_records($zz);
-		if ($merge['msg']) {
-			$ops['output'] .= '<h2>'.zz_text('Merge').'</h2>'."\n";
-			$ops['output'] .= implode('<br>', $merge['msg']);
+		if ($merge['msg'] OR $merge['title']) {
+			$ops['output'] .= '<div id="record">'."\n";
+			$ops['output'] .= '<h2>'.($merge['title'] ? $merge['title'] : zz_text('Merge')).'</h2>'."\n";
+			if ($merge['msg']) {
+				$ops['output'] .= implode('<br>', $merge['msg']);
+			}
+			$ops['output'] .= '</div>'."\n";
 		}
 		if ($merge['uncheck']) $zz['list']['dont_check_records'] = true;
+		$zz_conf['show_record'] = false;
 	}
 
 	if ($zz_conf['show_record']) {
