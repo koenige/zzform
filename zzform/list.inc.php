@@ -1772,13 +1772,13 @@ function zz_list_pageurl() {
  */
 function zz_list_pagelink($start, $limit, $limit_step, $url) {
 	global $zz_conf;
-	if ($start === -1) {
+	if ($start == -1) {
 		// all records
 		if (!$limit) return false;
 		else $limit_new = 0;
 	} else {
 		$limit_new = $start + $limit_step;
-		if ($limit_new === $limit) {
+		if ($limit_new == $limit) { // no === possible!
 			// current page
 			return false;
 		} elseif (!$limit_new) {
