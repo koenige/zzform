@@ -48,6 +48,7 @@ function zz_merge_records($zz) {
 	$record_sql = 'UPDATE %s SET %s = %%d WHERE %s = %%d';
 	$msg = array();
 	$error = false;
+	$uncheck = false;
 	foreach ($dependent_records as $record) {
 		$sql = sprintf($dependent_sql,
 			$record['detail_id_field'], $record['detail_field'],
@@ -71,6 +72,7 @@ function zz_merge_records($zz) {
 				$msg[] = sprintf(zz_text('Merging entry in table %s merged (ID: %d)'),
 					'<code>'.$record['detail_table'].'</code>', $record_id
 				);
+				$uncheck = true;
 			} else {
 				$msg[] = sprintf(zz_text('Merging entry in table %s failed with an error (ID: %d): %s'),
 					'<code>'.$record['detail_table'].'</code>', $record_id, $result['error']['db_msg']
@@ -114,6 +116,7 @@ function zz_merge_records($zz) {
 					$msg[] = sprintf(zz_text('Deleted entry in table %s (ID: %d)'),
 						'<code>'.$zz['table'].'</code>', $old_id
 					);
+					$uncheck = true;
 				} else {
 					$msg[] = sprintf(zz_text('Deletion of entry in table %s failed with an error (ID: %d): %s'),
 						'<code>'.$zz['table'].'</code>', $old_id, $result['error']['db_msg']
@@ -125,5 +128,7 @@ function zz_merge_records($zz) {
 	}
 
 	// @todo show main records on error to compare manually
-	return $msg;
+	return array(
+		'msg' => $msg, 'uncheck' => $uncheck
+	);
 }

@@ -503,7 +503,7 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 		if ($list['select_multiple_records']) {
 			// checkbox for records
 			$checked = false;
-			if (!empty($zz_var['id']['values'])) {
+			if (!empty($zz_var['id']['values']) AND empty($list['dont_check_records'])) {
 				if (in_array($id, $zz_var['id']['values'])) $checked = true;
 			}
 			$rows[$z][-1]['text'] = sprintf(
