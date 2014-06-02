@@ -1464,12 +1464,8 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 				// remove ID (= first field) for display
 				if (count($select_fields) > 1)
 					array_shift($select_fields);
-				if (!empty($field['sql_ignore'])) {
-					if (!is_array($field['sql_ignore'])) $field['sql_ignore'] = array($field['sql_ignore']);
-					foreach ($field['sql_ignore'] as $ignored) {
-						unset($select_fields[$ignored]);
-					}
-				}
+				$select_fields = zz_field_select_ignore($select_fields, $field, 'sql');
+				$select_fields = zz_field_select_ignore($select_fields, $field, 'unique');
 				$text .= zz_field_concat($field, $select_fields);
 			} else {
 				global $zz_error;
@@ -1991,6 +1987,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	$lines = zz_field_query($field);
+	$lines = zz_field_unique_ignore($lines, $field);
 	$too_many_records = array_key_exists('too_many_records', $lines) ? true : false;
 // #1.4 SELECT has no result
 	if (!$lines) {
@@ -2125,6 +2122,48 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 	zz_error();
 	$outputf .= zz_error_output();
 	return zz_return($outputf);
+}
+
+/**
+ * remove fields which are not required if values are already unique
+ *
+ * @param array $lines
+ * @param array $field
+ * @return array $lines
+ */
+function zz_field_unique_ignore($lines, $field) {
+	if (empty($field['unique_ignore'])) return $lines;
+	if (!is_array($field['unique_ignore'])) {
+		$field['unique_ignore'] = array($field['unique_ignore']);
+	}
+	$keep_next = array();
+	foreach ($lines as $index => $line) {
+		array_shift($line); // get rid of index
+		$unique = false;
+		$last_field_name = '';
+		foreach ($line as $field_name => $value) {
+			if ($unique AND in_array($field_name, $field['unique_ignore'])) {
+				if (empty($keep_next[$index][$field_name])) {
+					unset($lines[$index][$field_name]);
+				}
+				continue;
+			}
+			if (!array_key_exists($index + 1, $lines)) {
+				$unique = true;
+				continue;
+			}
+			if ($lines[$index + 1][$field_name] !== $value) {
+				$unique = true;
+				if ($last_field_name) {
+					$keep_next[$index + 1][$last_field_name] = true;
+					$keep_next[$index + 1][$field_name] = true;
+				}
+				continue;
+			}
+			$last_field_name = $field_name;
+		}
+	}
+	return $lines;
 }
 
 /**
@@ -2301,11 +2340,12 @@ function zz_field_select_sql_radio($field, $record, $lines) {
 	$pos = 0;
 	$radios = array();
 	$level = 0;
+	$lines = zz_field_unique_ignore($lines, $field);
 	foreach ($lines as $id => $line) {
 		$pos++;
 		$label = '';
 		array_shift($line); // get rid of ID, is already in $id
-		$line = zz_field_select_sql_ignore($line, $field);
+		$line = zz_field_select_ignore($line, $field, 'sql');
 		if ($field['show_hierarchy']) unset($line[$field['show_hierarchy']]);
 		$oldlevel = $level;
 		$level = !empty($line['zz_level']) ? $line['zz_level'] : 0;
@@ -2781,7 +2821,7 @@ function zz_draw_select($field, $record, $line, $id_field_name, $form = false, $
 	}
 	if ($addlevel) $level++;
 	if (empty($field['sql_index_only'])) {
-		$line = zz_field_select_sql_ignore($line, $field);
+		$line = zz_field_select_ignore($line, $field, 'sql');
 		foreach (array_keys($line) as $key) {	
 			// $i = 1: field['type'] === 'id'!
 			if (is_numeric($key)) continue;
@@ -2831,13 +2871,15 @@ function zz_draw_select($field, $record, $line, $id_field_name, $form = false, $
  *
  * @param array $line
  * @param array $field
+ * @param string $type ('sql' for 'sql_ignore' or 'unique' for 'unique_ignore') 
  * @return array ($line, modified)
  */
-function zz_field_select_sql_ignore($line, $field) {
-	if (empty($field['sql_ignore'])) return $line;
-	if (!is_array($field['sql_ignore']))
-		$field['sql_ignore'] = array($field['sql_ignore']);
-	if ($keys = array_intersect(array_keys($line), $field['sql_ignore']))
+function zz_field_select_ignore($line, $field, $type) {
+	$ignore = $type.'_ignore';
+	if (empty($field[$ignore])) return $line;
+	if (!is_array($field[$ignore]))
+		$field[$ignore] = array($field[$ignore]);
+	if ($keys = array_intersect(array_keys($line), $field[$ignore]))
 		foreach ($keys as $key) unset($line[$key]);
 	return $line;
 }
