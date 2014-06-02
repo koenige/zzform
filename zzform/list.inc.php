@@ -139,7 +139,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		unset($lines[0]);
 		if ($zz_conf['modules']['debug']) zz_debug('list definitions set');
 
-		$list = zz_list_set($zz);
+		$list = zz_list_set($zz, count($lines));
 
 		// mark fields as 'show_field' corresponding to grouping
 		$table_defs = zz_list_show_group_fields($table_defs, $list);
@@ -373,6 +373,7 @@ function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $id_field
  * set default values for $list with some data
  *
  * @param array $zz => $zz['list'] will be used as default
+ * @param int $count_rows (number of records)
  * @return array
  *		int 'current_record'
  *		array 'sum'
@@ -381,7 +382,7 @@ function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $id_field
  *		bool 'details'
  *		bool 'tfoot'
  */
-function zz_list_set($zz) {
+function zz_list_set($zz, $count_rows) {
 	global $zz_conf;
 
 	$list = !empty($zz['list']) ? $zz['list'] : array();
@@ -399,7 +400,9 @@ function zz_list_set($zz) {
 	), $list);
 	
 	if ($zz_conf['multi_edit'] OR $zz_conf['multi_delete'] OR $zz_conf['merge']) {
-		$list['select_multiple_records'] = true;
+		if ($count_rows > 1) {
+			$list['select_multiple_records'] = true;
+		}
 	}
 
 	// check 'group'
