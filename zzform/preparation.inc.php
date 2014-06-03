@@ -1061,7 +1061,12 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
 				$my_rec['record'] = zz_query_single_record(
 					$my_tab['sql'], $table, $my_rec['id'], $my_tab['sqlextra'], 'source_value'
 				);
-				$my_rec['record'][$my_rec['id']['field_name']] = false;
+				if (empty($my_rec['record'])) {
+					$my_tab['id']['source_value'] = false;
+					// source record does not exist
+				} else {
+					$my_rec['record'][$my_rec['id']['field_name']] = false;
+				}
 			}
 			// remove some values which cannot be copied
 			foreach ($my_rec['fields'] as $my_field) {
