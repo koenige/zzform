@@ -32,9 +32,11 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	$zz_tab[0]['table'] = $zz['table'];
 	$zz_tab[0]['table_name'] = $zz['table'];
 	$zz_tab[0]['sql'] = isset($zz['sqlrecord']) ? $zz['sqlrecord'] : $zz['sql'];
+	$zz_tab[0]['sql_without_where'] = $zz['sql_without_where'];
 	$zz_tab[0]['sqlextra'] = !empty($zz['sqlextra']) ? $zz['sqlextra'] : array();
 	$zz_tab[0]['extra_action'] = !empty($zz['extra_action']) ? $zz['extra_action'] : array();
 	$zz_tab[0]['folder'] = !empty($zz['folder']) ? $zz['folder'] : array();
+	$zz_tab[0]['add_from_source_id'] = !empty($zz['add_from_source_id']) ? true : false;
 	if (!empty($zz['set_redirect'])) {
 		// update/insert redirects after_delete and after_update
 		$zz_tab[0]['set_redirect'] = $zz['set_redirect'];
@@ -1058,8 +1060,9 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
 				// as a template
 				$my_rec['record'] = $my_rec['POST'];
 			} else {
+				$sql = $my_tab['add_from_source_id'] ? $my_tab['sql_without_where'] : $my_tab['sql'];
 				$my_rec['record'] = zz_query_single_record(
-					$my_tab['sql'], $table, $my_rec['id'], $my_tab['sqlextra'], 'source_value'
+					$sql, $table, $my_rec['id'], $my_tab['sqlextra'], 'source_value'
 				);
 				if (empty($my_rec['record'])) {
 					$my_tab['id']['source_value'] = false;

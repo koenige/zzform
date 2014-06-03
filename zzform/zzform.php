@@ -119,6 +119,7 @@ function zzform($zz = array()) {
 
 	// apply where conditions to SQL query
 	if (!isset($zz['table_for_where'])) $zz['table_for_where'] = array();
+	$zz['sql_without_where'] = $zz['sql'];
 	list($zz['sql'], $zz_var) = zz_apply_where_conditions(
 		$zz_var, $zz['sql'], $zz['table'], $zz['table_for_where']
 	);
