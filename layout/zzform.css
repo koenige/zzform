@@ -28,6 +28,36 @@ div.text #zzform, #zzform div.text
 #zzform td h1, #zzform td h2, #zzform td h3, #zzform td h4, #zzform td h5,
 	#zzform td h6	{ margin: 0 0 .5em; }
 #zzform .hidden 	{ display: none; }
+@media screen and (max-width: 960px) {
+	#zzform .data td	{ max-width: 840px; overflow: hidden; }
+	#zzform .data .hidden960
+						{ display: none; }
+	#zzform .data tbody .block960, #zzform .data tbody .block960a
+						{ display: block; }
+	#zzform .data thead th.block960
+						{ display: block; }
+	#zzform .data thead th.block960a
+						{ display: inline; border: none; }
+	#zzform .data thead th.block960a:after
+						{ content: " " }
+	#zzform .data tfoot tr.sum td.block960a
+					{ border-bottom: none; display: none; }
+}
+@media screen and (max-width: 800px) {
+	#zzform .data td	{ max-width: 670px; overflow: hidden; }
+	#zzform .data .hidden800
+						{ display: none; }
+	#zzform .data tbody .block800, #zzform .data tbody .block800a
+						{ display: block; }
+	#zzform .data thead th.block800
+						{ display: block; }
+	#zzform .data thead th.block800a
+						{ display: inline; border: none; }
+	#zzform .data thead th.block800a:after
+						{ content: " " }
+	#zzform .data tfoot tr.sum td.block800a
+					{ border-bottom: none; display: none; }
+}
 @media screen and (max-width: 640px) {
 	#zzform .data td	{ max-width: 510px; overflow: hidden; }
 	#zzform .data .hidden640
