@@ -666,7 +666,11 @@ function zz_subrecord_unique($my_tab, $fields) {
 						if (!$check) break;
 						
 						$my_id_field = $id_field;
-						$my_id_field['value'] = isset($record[$id_field['field_name']]) ? $record[$id_field['field_name']] : '';
+						if (array_key_exists('field_name', $id_field) AND isset($record[$id_field['field_name']])) {
+							$my_id_field['value'] = $record[$id_field['field_name']];
+						} else {
+							$my_id_field['value'] = '';
+						}
 						$field = zz_check_select_id($field, $values[$field_name].' ', $db_table, $my_id_field);
 						if (count($field['possible_values']) !== 1) continue;
 						$values[$field_name] = reset($field['possible_values']);
