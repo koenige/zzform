@@ -1968,8 +1968,7 @@ function zz_upload_insert($source, $dest, $action = '-', $mode = 'copy') {
 	// create path if it does not exist or if cleanup removed it.
 	zz_create_topfolders(dirname($dest));
 	if ($zz_error['error']) return false;
-	// copy file, this also works in older php versions between partitions.
-	$success = copy($source, $dest);
+	$success = zz_rename($source, $dest);
 	if (!$success) {
 		if (!is_writeable(dirname($dest))) {
 			$msg_dev = sprintf(zz_text('Insufficient rights. Directory %s is not writable.'), 
@@ -2356,6 +2355,7 @@ function zz_rename($oldname, $newname, $context = false) {
 		return false;
 	}
 	if (!empty($zz_conf['upload_copy_for_rename'])) {
+		// copy file, this also works in older php versions between partitions.
 		$success = copy($oldname, $newname);
 		if ($success) {
 			$success = unlink($oldname);
