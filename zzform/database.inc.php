@@ -676,7 +676,8 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 			'msg_dev' => $msg_dev,
 			'db_msg' => mysql_error(), 
 			'query' => $sql,
-			'level' => $errorcode
+			'level' => $errorcode,
+			'status' => 503
 		);
 		zz_error();
 		return array();
