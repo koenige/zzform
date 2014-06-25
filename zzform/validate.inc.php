@@ -11,7 +11,7 @@
  * otherwise they will return the value that was checked
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2005-2012 Gustaf Mossakowski
+ * @copyright Copyright © 2005-2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -303,6 +303,8 @@ function zz_check_time($time) {
 	if (strlen($time) === 19 AND strstr($time, ' ')) {
 		// might be a date
 		$time = substr($time, strrpos($time, ' ') + 1);
+	} elseif (preg_match('~^\d{1,2}$~', $time)) {
+		$time .= ':00:00';
 	}
 	$timestamp = strtotime($time);
 	if (!$timestamp) return false;
@@ -478,5 +480,3 @@ function zz_check_number($number) {
 	}
 	return $sum;
 }
-
-?>
