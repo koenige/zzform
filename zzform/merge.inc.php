@@ -71,11 +71,11 @@ function zz_merge_records($zz) {
 	}
 
 	$sql = 'SELECT rel_id, detail_db, detail_table, detail_field, `delete`, detail_id_field
-		FROM _relations
+		FROM %s
 		WHERE master_db = "%s"
 		AND master_table = "%s"
 		AND master_field = "%s"';
-	$sql = sprintf($sql, $zz_conf['db_name'], $zz['table'], $id_field_name);
+	$sql = sprintf($sql, $zz_conf['relations_table'], $zz_conf['db_name'], $zz['table'], $id_field_name);
 	$dependent_records = zz_db_fetch($sql, 'rel_id');
 	
 	$dependent_sql = 'SELECT %s, %s FROM %s.%s WHERE %s IN (%s)';
