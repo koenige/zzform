@@ -930,3 +930,16 @@ function zz_number_format($value, $field) {
 	}
 	return $text;
 }
+
+/**
+ * format a time according to time_format
+ *
+ * @param string $value
+ * @param array $field
+ * @return string
+ */
+function zz_time_format($value, $field) {
+	if (!$value) return $value;
+	$value = date($field['time_format'], strtotime($value));
+	return $value;
+}

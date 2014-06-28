@@ -793,6 +793,10 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false)
 			} else {
 				$fields[$no]['class'] = 'option';
 			}
+		} elseif ($fields[$no]['type'] === 'time') {
+			if (empty($fields[$no]['time_format'])) {
+				$fields[$no]['time_format'] = 'H:i';
+			}
 		}
 		// initialize
 		if (!isset($fields[$no]['explanation'])) {
