@@ -75,11 +75,10 @@ function zz_imagick_identify($filename, $file) {
 	// Error?
 	if (substr($output[0], 0, 6) === 'Error:') return zz_return($file);
 	if (substr($output[0], 0, 9) === 'identify:') return zz_return($file);
-	if (substr($output[0], 0, 16) === '   **** Warning:') {
-		$result = array_pop($output);
+	$result = array_pop($output);
+	if (count($output)) {
+		// e. g.  '   **** Warning:', 'GPL Ghostscript:'
 		$file['warnings']['ImageMagick identify'] = $output;
-	} else {
-		$result = $output[0];
 	}
 
 	$tokens = explode(' ', $result);
