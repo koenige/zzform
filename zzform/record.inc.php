@@ -662,14 +662,14 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				}
 				$d_index++;
 			}
-			if ($field['form_display'] === 'lines') {
+			if ($field['form_display'] === 'lines' AND $details) {
 				$out['td']['content'] .= '<div class="subrecord_lines">';
 			}
 
 			$out['td']['content'] .= implode('', $details);
 			if ($table_open) {
 				$out['td']['content'] .= '</table></div>'."\n";
-			} elseif ($field['form_display'] === 'lines') {
+			} elseif ($field['form_display'] === 'lines' AND $details) {
 				$out['td']['content'] .= '</div></div>'."\n";
 			}
 			if (!$c_subtables AND !empty($field['msg_no_subtables'])) {
