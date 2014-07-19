@@ -138,6 +138,7 @@ $text['Maximum height %s has been exceeded.'] = 'Maximale H&ouml;he %s wurde &uu
 // Record form: Detail record
 $text['Add %s'] = '%s erg&auml;nzen'; // e. g. Add Address, Add Phone Number ...
 $text['Remove %s'] = '%s entfernen';
+$text['Remove'] = 'Entfernen';
 	$text['Minimum of records for table `%s` was not met (%d)'] = 'Im Feld `%s` sind mehr Daten erforderlich (min. Anzahl: %d)';
 
 // Record form: Validation, displayed inside form

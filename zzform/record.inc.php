@@ -1130,10 +1130,11 @@ function zz_output_subtable_submit($mode, $field, $tab, $rec = 0) {
 		$fieldattr['formnovalidate'] = true;
 		return zz_form_element($name, $value, 'submit', false, $fieldattr);
 	case 'remove':
-		$value = sprintf(zz_text('Remove %s'), $field['title_button']);
+		$value = zz_text('Remove');
 		$name = sprintf('zz_subtables[remove][%s][%s]', $tab, $rec);
 		$fieldattr['class'] = 'sub-remove-'.$field['form_display'];
 		$fieldattr['formnovalidate'] = true;
+		$fieldattr['title'] = sprintf(zz_text('Remove %s'), $field['title_button']);
 		return zz_form_element($name, $value, 'submit', false, $fieldattr);
 	}
 	return '';
