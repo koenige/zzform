@@ -99,6 +99,14 @@ Array.prototype.forEach.call(document.querySelectorAll('input.sub-remove-horizon
 		return false;
 	};
 });
+Array.prototype.forEach.call(document.querySelectorAll('input.sub-remove-lines'), function(el) {
+	el.onclick = function(ev) {
+		ev.preventDefault();
+		this.parentNode.remove();
+		this.remove();
+		return false;
+	};
+});
 
 /**
  * show only a part of a very long text in list view

@@ -321,7 +321,7 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 		if (($cancelurl !== $_SERVER['REQUEST_URI'] OR ($zz_var['action']) OR !empty($_POST))
 			AND $zz_conf_record['cancel_link']) 
 			// only show cancel link if it is possible to hide form 
-			// @todo: expanded to action, not sure if this works on add only forms, 
+			// @todo expanded to action, not sure if this works on add only forms, 
 			// this is for re-edit a record in case of missing field values etc.
 			$output .= ' <a href="'.$cancelurl.'">'.zz_text('Cancel').'</a>';
 		$output .= '</td></tr>'."\n";
@@ -606,11 +606,11 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				if ($subtable_mode === 'edit' AND empty($zz_tab[$sub_tab][$sub_rec]['id']['value'])) {
 					// no saved record exists, so it's add a new record
 					$subtable_mode = 'add';
-					if ($field['form_display'] !== 'horizontal' AND !empty($field['tick_to_save'])) {
+					if ($field['form_display'] === 'vertical' AND !empty($field['tick_to_save'])) {
 						$show_tick = false;
 					}
 				} elseif (empty($zz_tab[$sub_tab][$sub_rec]['id']['value'])) {
-					if ($field['form_display'] !== 'horizontal' AND !empty($field['tick_to_save'])) {
+					if ($field['form_display'] === 'vertical' AND !empty($field['tick_to_save'])) {
 						$show_tick = false;
 					}
 				}
@@ -618,7 +618,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					$show_tick = true;
 				}
 
-				if ($field['form_display'] !== 'horizontal' OR $sub_rec == $firstsubtable_no) {
+				if ($field['form_display'] === 'vertical' OR $sub_rec == $firstsubtable_no) {
 					$details[$d_index] .= '<div class="detailrecord">';
 				}
 				if (!empty($field['tick_to_save'])) {
@@ -632,46 +632,54 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				}
 				
 				// HTML output depending on form display
-				if ($field['form_display'] !== 'horizontal' OR $sub_rec == $firstsubtable_no) {
+				if ($field['form_display'] === 'vertical'
+					OR ($field['form_display'] === 'horizontal' AND $sub_rec == $firstsubtable_no)) {
 					// show this for vertical display and for first horizontal record
 					$details[$d_index] .= '<table class="'.$field['form_display'].'">';
 					$table_open = true;
 				}
-				if ($field['form_display'] !== 'horizontal' OR $sub_rec === count($subtables)-1)
+				if ($field['form_display'] === 'vertical' OR $sub_rec === count($subtables)-1)
 					$h_show_explanation = true;
 				else
 					$h_show_explanation = false;
 				if ($show_remove) {
 					$removebutton = zz_output_subtable_submit('remove', $field, $sub_tab, $sub_rec);
-					if ($field['form_display'] === 'horizontal') {
+					if (in_array($field['form_display'], array('lines', 'horizontal'))) {
 						$lastrow = $removebutton;	
 					}
 				}	
 				$details[$d_index] .= zz_show_field_rows($zz_tab, $subtable_mode, 
 					$field_display, $zz_var, $zz_conf_record, $sub_tab, $sub_rec,
 					$field['form_display'], $lastrow, $sub_rec, $h_show_explanation);
-				if ($field['form_display'] !== 'horizontal') {
+				if ($field['form_display'] === 'vertical') {
 					$details[$d_index] .= '</table></div>'."\n";
 					$table_open = false;
 				}
 				if ($show_remove) {
-					if ($field['form_display'] !== 'horizontal') {
+					if ($field['form_display'] === 'vertical') {
 						$details[$d_index] .= $removebutton;
 					}
 				}
 				$d_index++;
 			}
+			if ($field['form_display'] === 'lines') {
+				$out['td']['content'] .= '<div class="subrecord_lines">';
+			}
+
 			$out['td']['content'] .= implode('', $details);
 			if ($table_open) {
 				$out['td']['content'] .= '</table></div>'."\n";
+			} elseif ($field['form_display'] === 'lines') {
+				$out['td']['content'] .= '</div></div>'."\n";
 			}
 			if (!$c_subtables AND !empty($field['msg_no_subtables'])) {
 				// There are no subtables, optional: show a message here
 				$out['td']['content'] .= $field['msg_no_subtables'];
 			}
 			if ($field_display === 'form' 
-				AND $zz_tab[$sub_tab]['max_records'] > $zz_tab[$sub_tab]['records'])
+				AND $zz_tab[$sub_tab]['max_records'] > $zz_tab[$sub_tab]['records']) {
 				$out['td']['content'] .= zz_output_subtable_submit('add', $field, $sub_tab);
+			}
 		} else {
 			//	"Normal" field
 
@@ -966,7 +974,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					if (isset($field['suffix_function_var']))
 						foreach ($field['suffix_function_var'] as $var) {
 							$vars .= $var; 
-							// @todo: does this really make sense? 
+							// @todo does this really make sense? 
 							// looks more like $vars[] = $var. maybe use implode.
 						}
 					$out['td']['content'] .= $field['suffix_function']($vars);
@@ -1058,6 +1066,20 @@ function zz_output_field_rows($matrix, &$zz_var, $formdisplay, $extra_lastcol, $
 	}
 	if (!$tab AND !$th_content) $zz_conf['int']['hide_tfoot_th'] = true;
 	switch ($formdisplay) {
+	case 'lines':
+		$output .= '<div>'; // important for JS!
+		foreach ($matrix as $index => $row) {
+			$output .= '<span'.zz_show_class($row['tr']['attr']).'>';
+			$output .=	"\t".'<span'.zz_show_class($row['td']['attr'])
+				.' title="'.$row['th']['content'].'">'
+				.$row['td']['content'].'</span>'."\n";
+			$output .= '</span>'."\n";
+		}
+		if ($extra_lastcol) {
+			$output .= ' '.$extra_lastcol;
+		}
+		$output .= '</div>'."\n";
+		break;
 	case 'vertical':
 		foreach ($matrix as $index => $row) {
 			if ($row['separator_before']) {
@@ -2669,7 +2691,7 @@ function zz_field_select_set($field, $display, $record, $rec) {
 		}
 	}
 	if ($display !== 'form' AND !empty($field['set_show_all_values'])) {
-		// @todo: use set_title!
+		// @todo use set_title!
 		$myvalue = explode(',', $record[$field['field_name']]);
 	}
 	if ($myvalue) {
@@ -2942,7 +2964,7 @@ function zz_field_image($field, $display, $record, $record_saved, $images, $mode
 		foreach ($field['image'] as $imagekey => $image) {
 			if (isset($image['source'])) continue;
 			if (isset($image['source_field'])) continue;
-			// @todo: if only one image, table is unnecessary
+			// @todo if only one image, table is unnecessary
 			// title and field_name of image might be empty
 			if ($image_uploads > 1) $text .= '<tr><th>'.$image['title'].'</th> <td>';
 			$elementname = zz_make_id_fieldname($field['f_field_name']).'['.$image['field_name'].']';
@@ -3058,7 +3080,7 @@ function zz_field_display($field, $record, $record_saved) {
 		return $value;
 	}
 
-	// @todo: debug!
+	// @todo debug!
 	return '<span class="error">'
 		.zz_text('Script configuration error. No display field set.').'</span>';
 }

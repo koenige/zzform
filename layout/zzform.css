@@ -266,6 +266,8 @@ body #zzform .separator hr
 					{ display: table; }
 #zzform #record tfoot td
 					{ font-weight: bold; }
+#zzform #record .subrecord_lines
+					{ margin: 0 0 .5em 0; }
 
 @media screen and (max-width: 480px) {
 	#zzform #record .subtable th
