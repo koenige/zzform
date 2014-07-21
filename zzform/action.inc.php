@@ -173,15 +173,6 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 
 	if ($zz_conf['modules']['debug']) zz_debug("validation successful");
 
-	if (!empty($zz_tab[0]['extra_action']['before_'.$zz_var['action']])) {
-		foreach ($zz_tab as $tab => $my_tab) {
-			foreach ($my_tab as $rec => $my_rec) {
-				if (!is_numeric($rec)) continue;
-				$ops = zz_record_info($ops, $zz_tab, $tab, $rec, 'planned');
-			}
-		}
-	}
-
 	// put delete_ids into zz_tab-array to delete them
 	foreach ($zz_tab as $tab => $my_tab) {
 		if (!$tab) continue; // only subtables
@@ -200,6 +191,15 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			$my_rec['POST'][$my_rec['id']['field_name']] = $del_id;
 			$zz_tab[$tab][] = $my_rec;
 			unset($my_rec);
+		}
+	}
+
+	if (!empty($zz_tab[0]['extra_action']['before_'.$zz_var['action']])) {
+		foreach ($zz_tab as $tab => $my_tab) {
+			foreach ($my_tab as $rec => $my_rec) {
+				if (!is_numeric($rec)) continue;
+				$ops = zz_record_info($ops, $zz_tab, $tab, $rec, 'planned');
+			}
 		}
 	}
 
@@ -1038,19 +1038,33 @@ function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
 			}
 		}
 		$ops['record_new'][$index] = $rn;
-	} else $ops['record_new'][$index] = array();
+	} else {
+		$ops['record_new'][$index] = array();
+	}
 	
 	// set old record
 	if (!empty($zz_tab[$tab]['existing'][$rec])) {
 		$ops['record_old'][$index] = $zz_tab[$tab]['existing'][$rec];
 		$ro = $zz_tab[$tab]['existing'][$rec];
-	} else
+	} elseif (!empty($zz_tab[$tab][$rec]['id']['value'])) {
+		// get a record that was deleted with JavaScript
+		$ops['record_old'][$index] = zz_query_single_record(
+			$zz_tab[$tab]['sql'], $zz_tab[$tab]['table'], $zz_tab[$tab][$rec]['id'],
+			isset($zz_tab[$tab]['sqlextra']) ? $zz_tab[$tab]['sqlextra'] : array()
+		);
+	} else {
 		$ops['record_old'][$index] = array();
+	}
 	
 	// diff old record and new record
 	$rd = array();
 	if (!$rn) {
-		foreach ($zz_tab[$tab][$rec]['fields'] as $field) {
+		$fields = $zz_tab[$tab][$rec]['fields'];
+		if (!$fields AND isset($zz_tab[0][0]['fields'][$zz_tab[$tab]['no']]['fields'])) {
+			// get a record that was deleted with JavaScript
+			$fields = $zz_tab[0][0]['fields'][$zz_tab[$tab]['no']]['fields'];
+		}
+		foreach ($fields as $field) {
 			if (empty($field['field_name'])) continue;
 			$rd[$field['field_name']] = 'delete';
 		}
