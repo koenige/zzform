@@ -2048,11 +2048,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 // #1.3 SELECT has one or several results, let user select something
 
 	$id_field_name = zz_field_get_id_field_name($lines);
-	if (!$too_many_records) {
-		$detail_record = zz_field_select_get_record($field, $record, $id_field_name);
-	} else {
-		$detail_record = array();
-	}
+	$detail_record = zz_field_select_get_record($field, $record, $id_field_name);
 
 	// 1.3.1: no form display = no selection, just display the values in the record
 	if ($display !== 'form') {
