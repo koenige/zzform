@@ -793,7 +793,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false)
 			} else {
 				$fields[$no]['class'] = 'option';
 			}
-		} elseif ($fields[$no]['type'] === 'time') {
+		} elseif (in_array($fields[$no]['type'], array('time', 'datetime'))) {
 			if (empty($fields[$no]['time_format'])) {
 				$fields[$no]['time_format'] = 'H:i';
 			}
