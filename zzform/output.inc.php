@@ -943,3 +943,18 @@ function zz_time_format($value, $field) {
 	$value = date($field['time_format'], strtotime($value));
 	return $value;
 }
+
+/**
+ * format a datetime according to time_format
+ *
+ * @param string $value
+ * @param array $field
+ * @return string
+ */
+function zz_datetime_format($value, $field) {
+	if (!$value) return $value;
+	if (!strstr($value, ' ')) return $value;
+	$text = explode(' ', $value);
+	$text = zz_date_format($text[0]).' '.zz_time_format($text[1], $field);
+	return $text;
+}

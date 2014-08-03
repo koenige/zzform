@@ -1219,6 +1219,9 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 		case 'time':
 			$text = zz_time_format($row['value'], $field);
 			break;
+		case 'datetime':
+			$text = zz_datetime_format($row['value'], $field);
+			break;
 		case 'select':
 			if (!empty($field['set']) 
 				OR !empty($field['set_sql']) 
