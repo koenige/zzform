@@ -1360,22 +1360,11 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			}
 			break;
 		case 'date':
-			//	internationalize date!
-			if (!$my_rec['POST'][$field_name]) break;
-			// submit to zz_check_date only if there is a value, else return 
-			// would be false and validation true!
-			if ($my_date = zz_check_date($my_rec['POST'][$field_name]))
-				$my_rec['POST'][$field_name] = $my_date;
-			else {
-				$my_rec['fields'][$f]['check_validation'] = false;
-				$my_rec['validation'] = false;
-			}
-			break;
 		case 'time':
-			//	validate time
 			if (!$my_rec['POST'][$field_name]) break;
-			if ($my_time = zz_check_time($my_rec['POST'][$field_name]))
-				$my_rec['POST'][$field_name] = $my_time;
+			$check_function = sprintf('zz_check_%s', $type);
+			if ($my_val = $check_function($my_rec['POST'][$field_name]))
+				$my_rec['POST'][$field_name] = $my_val;
 			else {
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['validation'] = false;
