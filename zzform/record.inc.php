@@ -1715,6 +1715,8 @@ function zz_field_text($field, $display, $record) {
 		$value = long2ip($value);
 	} elseif ($field['type'] === 'time') {
 		$value = zz_time_format($value, $field);
+	} elseif ($field['type'] === 'datetime') {
+		$value = zz_datetime_format($value, $field);
 	}
 
 	// return text

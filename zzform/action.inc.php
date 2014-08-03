@@ -1361,7 +1361,9 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			break;
 		case 'date':
 		case 'time':
+		case 'datetime':
 			if (!$my_rec['POST'][$field_name]) break;
+			// zz_check_date, zz_check_time, zz_check_datetime
 			$check_function = sprintf('zz_check_%s', $type);
 			if ($my_val = $check_function($my_rec['POST'][$field_name]))
 				$my_rec['POST'][$field_name] = $my_val;

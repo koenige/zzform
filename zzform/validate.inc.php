@@ -425,6 +425,33 @@ function zz_check_date($date) {
 }
 
 /**
+ * converts user input date and time into datetime format (Y-m-d H:i:s)
+ * 
+ * @param string $datetime
+ * @return string
+ */
+function zz_check_datetime($datetime) {
+	if (strstr($datetime, ' ')) {
+		$datetime = explode(' ', $datetime);
+		if (count($datetime) === 2) {
+			$date = $datetime[0];
+			$time = $datetime[1];
+		} else {
+			$time = array_pop($datetime);
+			$date = implode(' ', $datetime);
+		}
+	} else {
+		$date = $datetime;
+		$time = '00:00:00';
+	}
+	$date = zz_check_date($date);
+	if (!$date) return false;
+	$time = zz_check_time($time);
+	if (!$time) return false;
+	return $date.' '.$time;
+}
+
+/**
  * checks whether an input is a number or a simple calculation
  * 
  * @param string $number	number or calculation, may contain +-/* 0123456789 ,.
