@@ -325,6 +325,8 @@ function zz_check_date($date) {
 	// remove unnecessary whitespace
 	$date = trim($date);
 	if (!$date) return false;
+	if ($date === '0000-00-00') return false;
+	if ($date === '0000/00/00') return false;
 	// replace non breaking space with space
 	$date = str_replace("\xc2\xa0", ' ', $date);
 
