@@ -2236,6 +2236,7 @@ function zz_upload_get_typelist($filename, $type = 'Filetype', $optional = false
  */
 function zz_unlink_cleanup($file) {
 	$full_path = realpath($file);
+	if (!$full_path) return true;
 	$dir = dirname($full_path);
 	$success = unlink($full_path);
 	
