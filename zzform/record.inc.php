@@ -826,10 +826,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				$outputf = zz_field_timestamp($field, $my_rec['record'], $mode);
 				break;
 
-			case 'unix_timestamp':
-				$outputf = zz_field_unix_timestamp($field, $field_display, $my_rec['record']);
-				break;
-
 			case 'foreign':
 				$outputf = zz_field_foreign($field, $my_rec['id']['value']);
 				break;
@@ -854,20 +850,13 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				$outputf = zz_field_text($field, $field_display, $my_rec['record']);
 				break;
 
-			case 'ip':
-				$outputf = zz_field_ip($field, $field_display, $my_rec['record']);
-				break;
-
-			case 'number':
-				$outputf = zz_field_number($field, $field_display, $my_rec['record']);
-				break;
-
-			case 'date':
-				$outputf = zz_field_date($field, $field_display, $my_rec['record']);
-				break;
-
-			case 'memo':
-				$outputf = zz_field_memo($field, $field_display, $my_rec['record']);
+			case 'unix_timestamp': // zz_field_unix_timestamp
+			case 'ip': // zz_field_ip
+			case 'number': // zz_field_number
+			case 'date': // zz_field_date
+			case 'memo': // zz_field_memo
+				$function_name = sprintf('zz_field_%s', $field['type']);
+				$outputf = $function_name($field, $field_display, $my_rec['record']);
 				break;
 
 			case 'select':
