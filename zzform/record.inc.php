@@ -845,7 +845,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			case 'enum':
 			case 'mail':
 			case 'mail+name':
-			case 'datetime':
 			case 'ipv4':
 				$outputf = zz_field_text($field, $field_display, $my_rec['record']);
 				break;
@@ -854,6 +853,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			case 'ip': // zz_field_ip
 			case 'number': // zz_field_number
 			case 'date': // zz_field_date
+			case 'datetime': // zz_field_datetime
 			case 'memo': // zz_field_memo
 				$function_name = sprintf('zz_field_%s', $field['type']);
 				$outputf = $function_name($field, $field_display, $my_rec['record']);
@@ -1706,8 +1706,6 @@ function zz_field_text($field, $display, $record) {
 		$value = long2ip($value);
 	} elseif ($field['type'] === 'time') {
 		$value = zz_time_format($value, $field);
-	} elseif ($field['type'] === 'datetime') {
-		$value = zz_datetime_format($value, $field);
 	}
 
 	// return text
@@ -1736,8 +1734,6 @@ function zz_field_text($field, $display, $record) {
 	if ($field['type'] === 'mail') $fieldtype = 'email';
 	// 'url' in Opera does not support relative URLs
 	// elseif ($field['type'] === 'url') $fieldtype = 'url';
-	// datetime in Safari is like 2011-09-06T20:50Z
-	// elseif ($field['type'] === 'datetime') $fieldtype = 'datetime';
 	// time is not supported correctly by Google Chrome (adds AM, PM to time
 	// and then complains that there's an AM, PM. Great programming, guys!)
 //	elseif ($field['type'] === 'time') $fieldtype = 'time';
@@ -1861,6 +1857,31 @@ function zz_field_date($field, $display, $record) {
 	$fieldattr['size'] = 12;
 	if ($field['required']) $fieldattr['required'] = true;
 	// HTML5 fieldtype date has bad usability in Opera (calendar only!)
+	return zz_form_element($field['f_field_name'], $value, 'text_noescape', true, $fieldattr);
+}
+
+/**
+ * record output of field type 'datetime'
+ *
+ * @param array $field
+ * @param string $display
+ * @param array $record
+ * @return string
+ */
+function zz_field_datetime($field, $display, $record) {
+	// get value
+	$value = $record ? zz_datetime_format($record[$field['field_name']], $field) : '';
+
+	// return text
+	if ($display !== 'form') return $value;
+
+
+	// return form element
+	$fieldattr = array();
+	$fieldattr['size'] = $field['size'];
+	if ($field['required']) $fieldattr['required'] = true;
+	// datetime in Safari is like 2011-09-06T20:50Z
+	// $fieldtype = 'datetime';
 	return zz_form_element($field['f_field_name'], $value, 'text_noescape', true, $fieldattr);
 }
 
