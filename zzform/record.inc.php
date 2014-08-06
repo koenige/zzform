@@ -1472,6 +1472,8 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 		$text .= long2ip($display_value);
 	} elseif ($value AND !empty($field['type_detail']) AND $field['type_detail'] === 'date') {
 		$text .= zz_date_format($display_value);
+	} elseif ($value AND !empty($field['type_detail']) AND $field['type_detail'] === 'datetime') {
+		$text .= zz_datetime_format($display_value, $field);
 	} elseif ($value AND !empty($field['type_detail']) AND $field['type_detail'] === 'select') {
 		$detail_key = $display_value ? $display_value : $field['default'];
 		$my_fieldname = $field['field_name'];
