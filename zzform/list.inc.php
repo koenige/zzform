@@ -53,6 +53,11 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		$zz['list']['hierarchy'] = array();
 	}
 
+	// zz_fill_out must be outside if show_list, because it is necessary for
+	// search results with no resulting records
+	// fill_out, but do not unset conditions
+	$zz['fields_in_list'] = zz_fill_out($zz['fields_in_list'], $zz_conf['db_name'].'.'.$zz['table'], 1); 
+
 	// only if search is allowed and there is something
 	// if q modify $zz['sql']: add search query
 	if (!empty($_GET['q']) AND $zz_conf['search']) {
@@ -112,11 +117,6 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			$zz_conf['int']['http_status'] = 404;
 		}
 	}
-
-	// zz_fill_out must be outside if show_list, because it is necessary for
-	// search results with no resulting records
-	// fill_out, but do not unset conditions
-	$zz['fields_in_list'] = zz_fill_out($zz['fields_in_list'], $zz_conf['db_name'].'.'.$zz['table'], 1); 
 
 	//
 	// Table definition, data and head
