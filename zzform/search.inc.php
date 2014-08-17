@@ -89,10 +89,9 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 	$found = false;
 	foreach ($fields as $field) {
 		if (empty($field)) continue;
-		// this field is explicitly excluded from search
+		// is it a field explicitly excluded from search?
 		if (!empty($field['exclude_from_search'])) continue;
-		// this is a field which cannot be searched
-		if (empty($field['type'])) $field['type'] = 'text';
+		// is it a field which cannot be searched?
 		if (in_array($field['type'], $unsearchable_fields)) continue;
 		
 		if ($scope) {
@@ -355,13 +354,17 @@ function zz_search_checkfield($field_name, $table, $searchword) {
  */
 function zz_search_subtable($field, $table, $main_id_fieldname) {
 	$foreign_key = '';
+	$sub_id_fieldname = '';
 	foreach ($field['fields'] as $f_index => $subfield) {
 		if (empty($subfield['type'])) continue;
-		if ($subfield['type'] != 'foreign_key') continue;
-		$foreign_key = $subfield['field_name'];
-		// do not search in foreign_key since this is the same
-		// as the main record
-		unset($field['fields'][$f_index]);
+		if ($subfield['type'] === 'foreign_key') {
+			$foreign_key = $subfield['field_name'];
+			// do not search in foreign_key since this is the same
+			// as the main record
+			unset($field['fields'][$f_index]);
+		} elseif ($subfield['type'] === 'id') {
+			$sub_id_fieldname = $subfield['field_name'];
+		}
 	}
 	if (!$foreign_key) {
 		global $zz_error;
@@ -369,7 +372,30 @@ function zz_search_subtable($field, $table, $main_id_fieldname) {
 		zz_error();
 		exit;
 	}
-	$subsql = zz_search_sql($field['fields'], $field['sql'], $field['table'], $main_id_fieldname);
+
+	switch ($_GET['q']) {
+	case 'NULL':
+	case '!NULL':
+		$subsql = 'SELECT %s.%s FROM %s
+			LEFT JOIN %s
+				ON %s.%s = %s.%s
+			WHERE %%s(%s)';
+		$subsql = sprintf($subsql,
+			$table, $main_id_fieldname, $table,
+			$field['table'],
+			$table, $main_id_fieldname, $field['table'], $foreign_key,
+			$sub_id_fieldname
+		);
+		if ($_GET['q'] === 'NULL') {
+			$subsql = sprintf($subsql, 'ISNULL');
+		} else {
+			$subsql = sprintf($subsql, '!ISNULL');
+		}
+		break;
+	default:
+		$subsql = zz_search_sql($field['fields'], $field['sql'], $field['table'], $main_id_fieldname);
+		break;
+	}
 	$ids = zz_db_fetch($subsql, $foreign_key, '', 'Search query for subtable.', E_USER_WARNING);
 	if (!$ids) return false;
 	return $table.'.'.$main_id_fieldname.' IN ('.implode(',', array_keys($ids)).')';
