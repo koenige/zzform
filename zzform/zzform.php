@@ -637,7 +637,7 @@ function zz_initialize($mode = false, $zz = array()) {
 	$default['check_referential_integrity'] = true;
 	$default['copy']			= false;	// show action: copy
 	$default['decimal_point']	= '.';
-	$default['delete']			= false;	// show action: delete
+	$default['delete']			= true;	// show action: delete
 	$default['details']			= false;	// column details; links to detail records with foreign key
 	$default['details_base']	= false;
 	$default['details_referer']	= true;		// add referer to details link
@@ -690,7 +690,7 @@ function zz_initialize($mode = false, $zz = array()) {
 	$default['redirect']['no_update'] = false;	// redirect to diff. page after update without changes
 	$default['redirect_on_change']	= true;
 	$default['relations_table'] 		= '_relations';	//	name of relations table for referential integrity
-	$default['search'] 				= false;	// search for records possible or not
+	$default['search'] 				= true;	// search for records possible or not
 	$default['search_form_always']	= false;
 	$default['show_list_while_edit'] = true;	
 	$default['show_list']		= true;		// display list of records in database				
