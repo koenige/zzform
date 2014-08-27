@@ -163,11 +163,12 @@ function zz_search_field($field, $table, $searchop, $searchword) {
 	}
 
 	// get searchword/operator, per field type
-	$datetime = in_array($field['type'], array('date', 'datetime', 'time', 'timestamp')) ? true : false;
+	$field_type = zz_get_fieldtype($field);
+	$datetime = in_array($field_type, array('date', 'datetime', 'time', 'timestamp')) ? true : false;
 	if ($datetime and $searchword AND !is_array($searchword)) {
 		$timesearch = zz_search_time($searchword);
 		if ($timesearch) {
-			switch ($field['type']) {
+			switch ($field_type) {
 			case 'datetime':
 				$searchword = date('Y-m-d', $timesearch).'%';
 				if ($searchop == '%LIKE%') $searchop = 'LIKE%';

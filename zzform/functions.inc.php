@@ -798,9 +798,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false)
 			} else {
 				$fields[$no]['class'] = 'option';
 			}
-		} elseif (in_array($fields[$no]['type'], array('time', 'datetime'))
-			OR (isset($fields[$no]['type_detail'])) 
-				AND in_array($fields[$no]['type_detail'], array('time', 'datetime'))) {
+		} elseif (in_array(zz_get_fieldtype($fields[$no]), array('time', 'datetime')) {
 			if (empty($fields[$no]['time_format'])) {
 				$fields[$no]['time_format'] = 'H:i';
 			}
@@ -1704,6 +1702,21 @@ function zz_array_merge($old, $new) {
 		}
 	}
 	return $old;
+}
+
+/**
+ * get type of field
+ *
+ * @param array $field
+ * @return string $field_type
+ */
+function zz_get_fieldtype($field) {
+	if (in_array($field['type'], array('hidden', 'predefined', 'write_once', 'display'))) {
+		if (isset($field['type_detail'])) {
+			return $field['type_detail'];
+		}
+	}
+	return $field['type'];
 }
 
 /**

@@ -1457,13 +1457,14 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 
 	$text = '';
 	if ($mark_italics) $text .= '<em title="'.zz_text('Would be changed on update').'">';
-	if ($value AND !empty($field['type_detail']) AND $field['type_detail'] === 'ipv4') {
+	$field_type = zz_get_fieldtype($field);
+	if ($value AND $field_type === 'ipv4') {
 		$text .= long2ip($display_value);
-	} elseif ($value AND !empty($field['type_detail']) AND $field['type_detail'] === 'date') {
+	} elseif ($value AND $field_type === 'date') {
 		$text .= zz_date_format($display_value);
-	} elseif ($value AND !empty($field['type_detail']) AND $field['type_detail'] === 'datetime') {
+	} elseif ($value AND $field_type === 'datetime') {
 		$text .= zz_datetime_format($display_value, $field);
-	} elseif ($value AND !empty($field['type_detail']) AND $field['type_detail'] === 'select') {
+	} elseif ($value AND $field_type === 'select') {
 		$detail_key = $display_value ? $display_value : $field['default'];
 		$my_fieldname = $field['field_name'];
 		if (isset($field['key_field_name'])) $my_fieldname = $field['key_field_name'];
@@ -1518,7 +1519,7 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 		}
 	} else {
 		if ($display_value) {
-			if (!empty($field['type_detail']) && $field['type_detail'] === 'select')
+			if ($field_type === 'select')
 				$text .= '('.zz_text('will_be_added_automatically').')&nbsp;';
 			else
 				$text .= $display_value;

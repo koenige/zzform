@@ -1101,9 +1101,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 	}
 	
 	// check if one of these fields has a type_detail
-	$display_fields = array('hidden', 'write_once', 'display');
-	if (in_array($field['type'], $display_fields) AND !empty($field['type_detail']))
-		$field['type'] = $field['type_detail'];
+	$field['type'] = zz_get_fieldtype($field);
 	
 	// shortcuts, isset: value might be 0
 	if (!empty($field['table_name']) AND isset($line[$field['table_name']]))
