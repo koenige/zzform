@@ -798,7 +798,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false)
 			} else {
 				$fields[$no]['class'] = 'option';
 			}
-		} elseif (in_array(zz_get_fieldtype($fields[$no]), array('time', 'datetime')) {
+		} elseif (in_array(zz_get_fieldtype($fields[$no]), array('time', 'datetime'))) {
 			if (empty($fields[$no]['time_format'])) {
 				$fields[$no]['time_format'] = 'H:i';
 			}
