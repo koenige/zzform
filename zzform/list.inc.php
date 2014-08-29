@@ -239,7 +239,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		
 		if ($ops['mode'] != 'add' && $zz_conf['add_link'] AND is_array($zz_conf['add'])) {
 			ksort($zz_conf['add']); // if some 'add' was unset before, here we get new numerical keys
-			$ops['output'] .= '<p class="add-new">'.zz_text('Add new record').': ';
+			$ops['output'] .= '<div class="add-new"><p>'.zz_text('Add new record').":</p>\n<ul>";
 			$zz_conf['int']['no_add_button_so_far'] = false;
 			foreach ($zz_conf['add'] as $i => $add) {
 				if ($add['value']) {
@@ -247,14 +247,14 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				} else {
 					$value = '';
 				}
-				$ops['output'] .= '<a href="'.$base_url
+				$ops['output'] .= '<li><a href="'.$base_url
 					.'mode=add'.$zz_var['extraGET'].$value.'"'
 					.(!empty($add['title']) ? ' title="'.$add['title'].'"' : '')
 					.'>'.$add['type'].'</a>'
-					.(!empty($add['explanation']) ? ' ('.$add['explanation'].')' : '');
-				if ($i != count($zz_conf['add']) -1) $ops['output'] .= ' | ';
+					.(!empty($add['explanation']) ? ' ('.$add['explanation'].')' : '')
+					.'</li>'."\n";
 			}
-			$ops['output'] .= '</p>'."\n";
+			$ops['output'] .= '</ul></div>'."\n";
 		}
 
 		if ($zz_conf['export'] AND $ops['records_total']) 

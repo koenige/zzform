@@ -410,6 +410,18 @@ body #zzform .separator hr
 					{ padding: 0; }
 
 
+/* list view (add new below list) */
+#zzform .add-new	{ overflow: hidden; }
+#zzform .add-new p, #zzform .add-new ul, #zzform .add-new li
+					{ display: inline; }
+#zzform .add-new ul	{ margin: 0; padding: 0; }
+#zzform .add-new li	{ list-style: none; border-left: 1px dotted;
+					padding: 0; margin: 0; }
+#zzform .add-new li:first-child
+					{ border-left: none; }
+#zzform .add-new li a
+					{ padding: 0 0 0 .5em ; }
+
 /* list view (page navigation below list) */
 #zzform .pages .last
 					{ border-bottom: none; }
