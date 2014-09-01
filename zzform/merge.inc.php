@@ -120,7 +120,10 @@ function zz_merge_records($zz) {
 	$delete_old_records = false;
 	if (!$error) {
 		$merge_ignore_fields = array();
-		foreach ($zz['fields'] as $field) {
+		$fields_by_fieldname = array();
+		foreach ($zz['fields'] as $no => $field) {
+			if (empty($field['field_name'])) continue;
+			$fields_by_fieldname[$field['field_name']] = $no;
 			if ($field['type'] === 'id') {
 				$merge_ignore_fields[] = $field['field_name'];
 			} elseif ($field['type'] === 'timestamp') {
@@ -160,7 +163,16 @@ function zz_merge_records($zz) {
 						}
 					} else {
 						// values differ, no overwriting
-						$update = false;
+						$update = zz_merge_updateable(
+							$old_record[$field_name], $new_record[$field_name],
+							$zz['fields'][$fields_by_fieldname[$field_name]]
+						);
+						if ($update) {
+							if ($update !== $new_record[$field_name]) {
+								$new_values[$field_name] = $update;
+							}
+							$update = true;
+						}
 					}
 				}
 				if (!$update) {
@@ -223,4 +235,52 @@ function zz_merge_records($zz) {
 	return array(
 		'msg' => $msg, 'uncheck' => $uncheck, 'title' => $title
 	);
+}
+
+/**
+ * Check if different values might still get an update, because information
+ * is missing in one of the records
+ *
+ * @param string $old_value
+ * @param string $new_value
+ * @param array $field
+ * @return mixed false if no update is possible, string on update to that value
+ */
+function zz_merge_updateable($old_value, $new_value, $field) {
+	switch ($field['type']) {
+	case 'date': // ignore 00
+		$old_date = zz_merge_get_date($old_value);
+		$new_date = zz_merge_get_date($new_value);
+		$updated_date = array();
+		for ($i = 0; $i < 3; $i++) {
+			if (empty($old_date[$i]) AND empty($new_date[$i])) {
+				$updated_date[$i] = '00';
+			} elseif (empty($old_date[$i])) {
+				$updated_date[$i] = $new_date[$i];
+			} elseif (empty($new_date[$i])) {
+				$updated_date[$i] = $old_date[$i];
+			} elseif ($old_date[$i] !== $new_date[$i]) {
+				return false;
+			} else { // equal, doesn't matter which value we take
+				$updated_date[$i] = $old_date[$i];
+			}
+		}
+		return implode('-', $updated_date);
+	default:
+		return false;
+	}
+}
+
+/**
+ * explodes a date in its parts, (year, month, day), ignores 00 fields
+ * 
+ * @param string $date
+ * @return array
+ */
+function zz_merge_get_date($date) {
+	$date = explode('-', $date);
+	foreach ($date as $pos => $values) {
+		if ($values === '00') unset($date[$pos]);
+	}
+	return $date;
 }
