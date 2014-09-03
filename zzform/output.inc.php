@@ -756,6 +756,31 @@ function zz_format($text) {
 }
 
 /**
+ * format a field with a corresponding formatting function
+ *
+ * @param string $value
+ * @param array $field
+ * @return string
+ */
+function zz_field_format($value, $field) {
+	$field_type = zz_get_fieldtype($field);
+	switch ($field_type) {
+		case 'number':
+			return zz_number_format($value, $field);
+		case 'ipv4':
+			return long2ip($value);
+		case 'date':
+			return zz_date_format($value);
+		case 'datetime':
+			return zz_datetime_format($value);
+		case 'time':
+			return zz_time_format($value, $field);
+		default:
+			return $value;
+	}
+}
+
+/**
  * converts number into currency
  * 
  * @param int $int amount of money

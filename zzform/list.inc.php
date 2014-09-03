@@ -643,11 +643,7 @@ function zz_list_group_titles($list, $fields, $line) {
 			$group[$pos] = $line[$field['field_name']];
 		}
 		// Formatting of fields
-		// @todo use practically the same as in list display
-		switch ($field['type']) {
-			case 'date': $group[$pos] = zz_date_format($group[$pos]); break;
-			case 'datetime': $group[$pos] = zz_datetime_format($group[$pos], $field); break;
-		}
+		$group[$pos] = zz_field_format($group[$pos], $field);
 		if (!empty($field['link'])) {
 			$link = zz_makelink($field['link'], $line);
 			if ($link) {
@@ -1201,7 +1197,10 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 			}
 			break;
 		case 'ipv4':
-			$text = long2ip($row['value']);
+		case 'date':
+		case 'time':
+		case 'datetime':
+			$text = zz_field_format($row['value'], $field);
 			break;
 		case 'ip':
 			$text = @inet_ntop($row['value']);
@@ -1211,15 +1210,6 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 			break;
 		case 'timestamp':
 			$text = zz_timestamp_format($row['value']);
-			break;
-		case 'date':
-			$text = zz_date_format($row['value']);
-			break;
-		case 'time':
-			$text = zz_time_format($row['value'], $field);
-			break;
-		case 'datetime':
-			$text = zz_datetime_format($row['value'], $field);
 			break;
 		case 'select':
 			if (!empty($field['set']) 
@@ -1241,11 +1231,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 			if (isset($field['factor']) && $row['value']) {
 				$row['value'] /= $field['factor'];
 			}
-			if (isset($field['number_type'])) {
-				$text = zz_number_format($row['value'], $field);
-			} else {
-				$text = $row['value'];
-			}
+			$text = zz_number_format($row['value'], $field);
 			break;
 		case 'geo_point':
 			// don't display anything in binary format

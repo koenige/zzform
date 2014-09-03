@@ -1458,12 +1458,8 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 	$text = '';
 	if ($mark_italics) $text .= '<em title="'.zz_text('Would be changed on update').'">';
 	$field_type = zz_get_fieldtype($field);
-	if ($value AND $field_type === 'ipv4') {
-		$text .= long2ip($display_value);
-	} elseif ($value AND $field_type === 'date') {
-		$text .= zz_date_format($display_value);
-	} elseif ($value AND $field_type === 'datetime') {
-		$text .= zz_datetime_format($display_value, $field);
+	if ($value AND in_array($field_type, array('number', 'ipv4', 'date', 'datetime', 'time'))) {
+		$text .= zz_field_format($display_value, $field);
 	} elseif ($value AND $field_type === 'select') {
 		$detail_key = $display_value ? $display_value : $field['default'];
 		$my_fieldname = $field['field_name'];
@@ -1703,11 +1699,7 @@ function zz_field_password_change($field, $display) {
 function zz_field_text($field, $display, $record) {
 	// get value
 	$value = $record ? $record[$field['field_name']] : '';
-	if ($field['type'] === 'ipv4') {
-		$value = long2ip($value);
-	} elseif ($field['type'] === 'time') {
-		$value = zz_time_format($value, $field);
-	}
+	$value = zz_field_format($value, $field);
 
 	// return text
 	if ($display !== 'form') {
@@ -3078,15 +3070,8 @@ function zz_field_display($field, $record, $record_saved) {
 		$value = zz_html_escape($value);
 		if (isset($field['format'])) {
 			$value = $field['format']($value);
-		} elseif (isset($field['type_detail'])) {
-			switch ($field['type_detail']) {
-			case 'date':
-				$value = zz_date_format($value);
-				break;
-			case 'number':
-				$value = zz_number_format($value, $field);
-				break;
-			}	
+		} else {
+			$value = zz_field_format($value, $field);
 		}
 		return $value;
 	}
