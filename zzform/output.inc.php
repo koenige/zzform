@@ -772,7 +772,7 @@ function zz_field_format($value, $field) {
 		case 'date':
 			return zz_date_format($value);
 		case 'datetime':
-			return zz_datetime_format($value);
+			return zz_datetime_format($value, $field);
 		case 'time':
 			return zz_time_format($value, $field);
 		default:
