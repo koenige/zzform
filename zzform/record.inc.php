@@ -2546,28 +2546,33 @@ function zz_field_select_radio($field, $record, $radios) {
 			$text .= $radio[1]."\n";
 		return $text;
 	}
-	
-	// variant: more values as a list
-	$text = "\n".'<ul class="zz_radio_list">'."\n"
-		.'<li>'.zz_field_select_radio_none($field, $record)."</li>\n";
-	foreach ($radios as $index => $radio) {
-		switch ($radio[0]) {
-		case 1:
-			$text .= "\n<ul><li>";
-			break;
-		case 0:
-			if ($index) $text .= "</li>\n<li>"; 
-			else $text .= "<li>";
-			break;
-		default:
-			for ($i = 0; $i > $radio[0]; $i--) {
-				$text .= "</li></ul><li>";
+
+	$text = "\n".'<ul class="zz_radio_list">'."\n";
+	if (count($radios) === 1) {
+		$checkbox = str_replace('<input type="radio"', '<input type="checkbox"', $radios[0][1]);
+		$text .= '<li>'.$checkbox.'</li>';
+	} else {
+		// variant: more values as a list
+		$text .= '<li>'.zz_field_select_radio_none($field, $record)."</li>\n";
+		foreach ($radios as $index => $radio) {
+			switch ($radio[0]) {
+			case 1:
+				$text .= "\n<ul><li>";
+				break;
+			case 0:
+				if ($index) $text .= "</li>\n<li>"; 
+				else $text .= "<li>";
+				break;
+			default:
+				for ($i = 0; $i > $radio[0]; $i--) {
+					$text .= "</li></ul><li>";
+				}
+				break;
 			}
-			break;
+			$text .= $radio[1];
 		}
-		$text .= $radio[1];
+		$text .= "</li>\n";
 	}
-	$text .= "</li>\n";
 
 	if (empty($field['append_next'])) {
 		$text .= '</ul>'."\n";
