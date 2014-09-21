@@ -2540,7 +2540,7 @@ function zz_field_select_get_record($field, $record, $id_field_name) {
  */
 function zz_field_select_radio($field, $record, $radios) {
 	// variant: only two or three values next to each other
-	if (empty($field['show_values_as_list'])) {
+	if (empty($field['show_values_as_list']) AND count($radios) > 1) {
 		$text = zz_field_select_radio_none($field, $record);
 		foreach ($radios as $radio)
 			$text .= $radio[1]."\n";
