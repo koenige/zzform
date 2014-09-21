@@ -2539,40 +2539,40 @@ function zz_field_select_get_record($field, $record, $id_field_name) {
  * @see zz_field_select_radio_none(), zz_field_select_radio_value()
  */
 function zz_field_select_radio($field, $record, $radios) {
+	// variant: only one value with a possible NULL value
+	if (count($radios) === 1) {
+		$text = str_replace('<input type="radio"', '<input type="checkbox"', $radios[0][1]);
+		return $text;
+	}
 	// variant: only two or three values next to each other
-	if (empty($field['show_values_as_list']) AND count($radios) > 1) {
+	if (empty($field['show_values_as_list'])) {
 		$text = zz_field_select_radio_none($field, $record);
 		foreach ($radios as $radio)
 			$text .= $radio[1]."\n";
 		return $text;
 	}
 
+	// variant: more values as a list
 	$text = "\n".'<ul class="zz_radio_list">'."\n";
-	if (count($radios) === 1) {
-		$checkbox = str_replace('<input type="radio"', '<input type="checkbox"', $radios[0][1]);
-		$text .= '<li>'.$checkbox.'</li>';
-	} else {
-		// variant: more values as a list
-		$text .= '<li>'.zz_field_select_radio_none($field, $record)."</li>\n";
-		foreach ($radios as $index => $radio) {
-			switch ($radio[0]) {
-			case 1:
-				$text .= "\n<ul><li>";
-				break;
-			case 0:
-				if ($index) $text .= "</li>\n<li>"; 
-				else $text .= "<li>";
-				break;
-			default:
-				for ($i = 0; $i > $radio[0]; $i--) {
-					$text .= "</li></ul><li>";
-				}
-				break;
+	$text .= '<li>'.zz_field_select_radio_none($field, $record)."</li>\n";
+	foreach ($radios as $index => $radio) {
+		switch ($radio[0]) {
+		case 1:
+			$text .= "\n<ul><li>";
+			break;
+		case 0:
+			if ($index) $text .= "</li>\n<li>"; 
+			else $text .= "<li>";
+			break;
+		default:
+			for ($i = 0; $i > $radio[0]; $i--) {
+				$text .= "</li></ul><li>";
 			}
-			$text .= $radio[1];
+			break;
 		}
-		$text .= "</li>\n";
+		$text .= $radio[1];
 	}
+	$text .= "</li>\n";
 
 	if (empty($field['append_next'])) {
 		$text .= '</ul>'."\n";
