@@ -266,9 +266,18 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			$field_list = array();
 			foreach ($zz_tab[$tab][$rec]['fields'] as $field) {
 				if (!$field['in_sql_query']) continue;
-				if ($field['type'] === 'id') continue; // ID is empty anyways
-				$field_list[] = '`'.$field['field_name'].'`';
-				$field_values[] = $zz_tab[$tab][$rec]['POST_db'][$field['field_name']];
+				if ($field['type'] === 'id') {
+					// ID is empty anyways and will be set via auto_increment
+					// unless 'import_id_value' is set
+					if (empty($field['import_id_value'])) continue;
+					if (empty($zz_conf['multi'])) continue;
+					if (empty($zz_tab[$tab][$rec]['id']['value'])) continue;
+					$field_list[] = '`'.$field['field_name'].'`';
+					$field_values[] = $zz_tab[$tab][$rec]['id']['value'];
+				} else {
+					$field_list[] = '`'.$field['field_name'].'`';
+					$field_values[] = $zz_tab[$tab][$rec]['POST_db'][$field['field_name']];
+				}
 			}
 			$me_sql = ' INSERT INTO '.$me_db.$zz_tab[$tab]['table'].' ('
 				.implode(', ', $field_list).') VALUES ('.implode(', ', $field_values).')';
