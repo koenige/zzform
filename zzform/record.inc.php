@@ -2541,9 +2541,11 @@ function zz_field_select_get_record($field, $record, $id_field_name) {
 function zz_field_select_radio($field, $record, $radios) {
 	// variant: only one value with a possible NULL value
 	if (count($radios) === 1) {
-		$text = str_replace('<input type="radio"', '<input type="checkbox"', $radios[0][1]);
+		$text = sprintf('<input type="hidden" name="%s">', $field['f_field_name']);
+		$text .= str_replace('<input type="radio"', '<input type="checkbox"', $radios[0][1]);
 		return $text;
 	}
+
 	// variant: only two or three values next to each other
 	if (empty($field['show_values_as_list'])) {
 		$text = zz_field_select_radio_none($field, $record);
