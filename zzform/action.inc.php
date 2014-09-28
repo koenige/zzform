@@ -1669,6 +1669,7 @@ function zz_password_check($pass, $hash) {
 
 	switch ($zz_conf['hash_password']) {
 	case 'phpass':
+	case 'phpass-md5':
 		$hasher = new PasswordHash($zz_conf['hash_cost_log2'], $zz_conf['hash_portable']);
 		if ($hasher->CheckPassword($pass, $hash)) return true;
 		else return false;
@@ -1696,6 +1697,7 @@ function zz_password_hash($pass) {
 
 	switch ($zz_conf['hash_password']) {
 	case 'phpass':
+	case 'phpass-md5':
 		$hasher = new PasswordHash($zz_conf['hash_cost_log2'], $zz_conf['hash_portable']);
 		$hash = $hasher->HashPassword($pass);
 		if (strlen($hash) < 20) return false;
