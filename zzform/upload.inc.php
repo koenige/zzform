@@ -1811,6 +1811,7 @@ function zz_upload_action($zz_tab) {
 					$image['files']['update']['old_path'] = $old_path;
 					$success = zz_upload_update($old_path, $path, $uploaded_file);
 					if (!$success) return zz_return($zz_tab);
+					$zz_tab['file_upload'] = true;
 				}
 			}
 
@@ -1824,6 +1825,7 @@ function zz_upload_action($zz_tab) {
 				}
 				$success = zz_upload_insert($uploaded_file, $image['files']['destination'], $action, $mode);
 				if (!$success) zz_return($zz_tab);
+				$zz_tab['file_upload'] = true;
 			} else {
 				// ok, no thumbnail image, so in this case delete existing thumbnails
 				// if there are any
