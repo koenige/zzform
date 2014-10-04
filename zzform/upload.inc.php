@@ -254,6 +254,7 @@ function zz_upload_check_files($zz_tab) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$id = $zz_conf['int']['secret_key'];
 	$session = !empty($_SESSION['zz_files'][$id]) ? $_SESSION['zz_files'][$id] : array();
+	$zz_tab[0]['file_upload'] = false;
 
 	foreach ($zz_tab[0]['upload_fields'] as $uf) {
 		$tab = $uf['tab'];
@@ -311,6 +312,9 @@ function zz_upload_check_files($zz_tab) {
 				$images[$no][$img] = $session[$tab][$rec]['images'][$no][$img];
 				$images[$no]['read_from_session'] = true;
 				$my_rec['file_upload'] = $session[$tab][$rec]['file_upload'];
+				if ($my_rec['file_upload']) {
+					$zz_tab[0]['file_upload'] = true;
+				}
 				continue;
 			}
 
@@ -429,7 +433,7 @@ function zz_upload_check_files($zz_tab) {
 					.strtoupper(implode(', ', $images[$no][$img]['input_filetypes']));
 				$my_rec['file_upload'] = false;
 			} else {
-				$my_rec['file_upload'] = true;
+				$zz_tab[0]['file_upload'] = $my_rec['file_upload'] = true;
 			}
 		}
 		if (!empty($my_rec['images'])) {
@@ -1811,7 +1815,6 @@ function zz_upload_action($zz_tab) {
 					$image['files']['update']['old_path'] = $old_path;
 					$success = zz_upload_update($old_path, $path, $uploaded_file);
 					if (!$success) return zz_return($zz_tab);
-					$zz_tab['file_upload'] = true;
 				}
 			}
 
@@ -1825,7 +1828,6 @@ function zz_upload_action($zz_tab) {
 				}
 				$success = zz_upload_insert($uploaded_file, $image['files']['destination'], $action, $mode);
 				if (!$success) zz_return($zz_tab);
-				$zz_tab['file_upload'] = true;
 			} else {
 				// ok, no thumbnail image, so in this case delete existing thumbnails
 				// if there are any

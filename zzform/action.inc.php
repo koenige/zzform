@@ -79,7 +79,8 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	if (!empty($zz_var['upload_form'])) {
 		// do only for zz_tab 0 0 etc. not zz_tab 0 sql etc.
 		// read upload image information, as required
-		$zz_tab = zz_upload_get($zz_tab); 
+		$zz_tab = zz_upload_get($zz_tab);
+		$ops['file_upload'] =  $zz_tab[0]['file_upload'];
 		if ($zz_var['action'] !== 'delete') {
 			// read upload image information, as required
 			$zz_tab = zz_upload_prepare($zz_tab);
@@ -440,7 +441,6 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		if (!empty($zz_var['upload_form'])) {
 			// upload images, delete images, as required
 			$zz_tab = zz_upload_action($zz_tab);
-			if (!empty($zz_tab['file_upload'])) $ops['file_upload'] = true;
 			$ops['output'] .= zz_error();
 			if ($zz_error['error']) {
 				zz_upload_cleanup($zz_tab);
