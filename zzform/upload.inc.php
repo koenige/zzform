@@ -14,7 +14,7 @@
  *								collects and writes information about files
  *		zz_check_def_files()
  *		zz_upload_get_fields()	checks which fields allow upload
- *		zz_upload_check_files()	checks files,  puts information to 'image' array
+ *		zz_upload_check_files()	checks files, puts information to 'image' array
  *			zz_upload_fileinfo()	read information (filesize, exif etc.)
  *			zz_upload_make_title()	converts filename to title
  *			zz_upload_make_name()	converts filename to better filename
@@ -1979,7 +1979,7 @@ function zz_upload_insert($source, $dest, $action = '-', $mode = 'copy') {
 			$msg_dev = sprintf(zz_text('Insufficient rights. Directory %s is not writable.'), 
 				'<code>'.dirname($dest).'</code>');
 		} else { 
-			$msg_dev = zz_text('Unknown error.').zz_text('Copying not successful.')
+			$msg_dev = zz_text('Unknown error.').' '.zz_text('Copying not successful.')
 				.'<br>'.zz_text('from:').' '.$source
 				.'<br>'.zz_text('to:').' '.$dest.'<br>';
 		}
