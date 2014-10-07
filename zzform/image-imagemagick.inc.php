@@ -60,7 +60,7 @@
 function zz_imagick_identify($filename, $file) {
 	global $zz_conf;
 
-	if ($zz_conf['graphics_library'] != 'imagemagick') return $file;
+	if ($zz_conf['graphics_library'] !== 'imagemagick') return $file;
 	if (!$zz_conf['upload_tools']['identify']) return $file;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if (!file_exists($filename)) return zz_return(false);
@@ -72,9 +72,10 @@ function zz_imagick_identify($filename, $file) {
 	if (!$output) return zz_return($file);
 	if ($zz_conf['modules']['debug']) zz_debug('identify output', json_encode($output));
 	
-	// Error?
-	if (substr($output[0], 0, 6) === 'Error:') return zz_return($file);
-	if (substr($output[0], 0, 9) === 'identify:') return zz_return($file);
+	// Error? Then first token ends with colon
+	// e. g. Error: identify: mv:
+	$tokens = explode(' ', $output[0]);
+	if (substr($tokens[0], -1) === ':') return zz_return($file);
 	$result = array_pop($output);
 	if (count($output)) {
 		// e. g.  '   **** Warning:', 'GPL Ghostscript:'
