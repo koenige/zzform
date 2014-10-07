@@ -1111,6 +1111,10 @@ function zz_upload_prepare($zz_tab) {
 					$all_temp_filenames[] = $image['modified']['tmp_name'];
 					$my_rec['file_upload'] = true;
 				} else {
+					// no thumbnail was created, just keep original file
+					if (isset($image['source'])) {
+						$filename = '';
+					}
 					unset($image['modified']);
 				}
 				$image['files']['tmp_files'][$img] = $filename;
