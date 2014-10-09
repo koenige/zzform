@@ -80,10 +80,12 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		// do only for zz_tab 0 0 etc. not zz_tab 0 sql etc.
 		// read upload image information, as required
 		$zz_tab = zz_upload_get($zz_tab);
-		$ops['file_upload'] =  $zz_tab[0]['file_upload'];
 		if ($zz_var['action'] !== 'delete') {
+			$ops['file_upload'] = $zz_tab[0]['file_upload'];
 			// read upload image information, as required
 			$zz_tab = zz_upload_prepare($zz_tab);
+		} else {
+			$ops['file_upload'] = false;
 		}
 	}
 	if ($zz_error['error'])
