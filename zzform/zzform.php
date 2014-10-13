@@ -241,7 +241,7 @@ function zzform($zz = array()) {
 	}
 
 	// conditions for list view will be set later
-	if ($zz_conf['show_list'])
+	if ($zz_conf['int']['show_list'])
 		$zz['fields_in_list'] = $zz['fields']; 
 
 	if ($zz_conf['show_record']) {
@@ -259,7 +259,7 @@ function zzform($zz = array()) {
 	$zz['fields'] = zz_fill_out($zz['fields'], $zz_conf['db_name'].'.'.$zz['table'], false, $ops['mode']); 
 
 //	page output
-	if ($zz_conf['generate_output'] AND ($zz_conf['show_record'] OR $zz_conf['show_list'])) {
+	if ($zz_conf['generate_output'] AND ($zz_conf['show_record'] OR $zz_conf['int']['show_list'])) {
 		// make nicer headings
 		$ops['heading'] = zz_nice_headings($ops['heading'], $zz, $zz_var['where_condition']);
 		// provisional title, in case errors occur
@@ -280,7 +280,7 @@ function zzform($zz = array()) {
 		);
 	}
 	zz_error();
-	if ($zz_conf['generate_output'] AND ($zz_conf['show_record'] OR $zz_conf['show_list'])) {
+	if ($zz_conf['generate_output'] AND ($zz_conf['show_record'] OR $zz_conf['int']['show_list'])) {
 		$ops['output'] .= zz_error_output();
 
 		$selection = zz_nice_selection($zz['fields']);
@@ -356,7 +356,7 @@ function zzform($zz = array()) {
 			// this is from zz_access() but since mode has set, has to be
 			// checked against again
 			if (in_array($ops['mode'], array('edit', 'add')) 
-				AND !$zz_conf['show_list_while_edit']) $zz_conf['show_list'] = false;
+				AND !$zz_conf['show_list_while_edit']) $zz_conf['int']['show_list'] = false;
 		}
 	
 		if ($zz_conf['modules']['debug']) zz_debug('subtables end');
@@ -400,7 +400,7 @@ function zzform($zz = array()) {
 		$ops['output'] .= zz_error_output();
 	}
 
-	if ($zz_conf['show_list']) {
+	if ($zz_conf['int']['show_list']) {
 		// shows table with all records (limited by zz_conf['limit'])
 		// and add/nav if limit/search buttons
 		require_once $zz_conf['dir_inc'].'/list.inc.php';
@@ -681,8 +681,7 @@ function zz_initialize($mode = false) {
 	$default['relations_table'] 		= '_relations';	//	name of relations table for referential integrity
 	$default['search'] 				= true;	// search for records possible or not
 	$default['search_form_always']	= false;
-	$default['show_list_while_edit'] = true;	
-	$default['show_list']		= true;		// display list of records in database				
+	$default['show_list_while_edit'] = true;
 	$default['show_output']		= true;		// ECHO output or keep it in $ops['output']
 	$default['title_separator']	= ' &#8211; ';
 	$default['thousands_separator']	= ' ';
@@ -696,11 +695,6 @@ function zz_initialize($mode = false) {
 	zz_write_conf($default);
 	
 	zz_initialize_int();
-
-	if ($zz_conf['generate_output']) {
-		// don't show list in case 'nolist' parameter is set
-		if (isset($_GET['nolist'])) $zz_conf['show_list'] = false;
-	}
 
 	//	URL parameter
 	if (get_magic_quotes_gpc()) { // sometimes unwanted standard config
@@ -738,6 +732,11 @@ function zz_initialize_int() {
 	$zz_conf['int']['url'] = zz_get_url_self($zz_conf['url_self']);
 
 	if ($zz_conf['generate_output']) {
+		// display list of records in database
+		$zz_conf['int']['show_list'] = true;
+		// don't show list in case 'nolist' parameter is set
+		if (isset($_GET['nolist'])) $zz_conf['int']['show_list'] = false;
+
 		zz_init_referer();
 	}
 }
