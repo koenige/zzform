@@ -771,6 +771,7 @@ function zzform_multi($definition_file, $values) {
 	global $zz_conf;
 	global $zz_saved;
 	
+	$old_conf = $zz_conf;
 	// debug, note: this will only start from the second time, zzform_multi()
 	// has been called! (modules debug is not set beforehands)
 	if (!empty($zz_conf['modules']['debug']) AND !empty($zz_conf['id'])) {
@@ -828,7 +829,12 @@ function zzform_multi($definition_file, $values) {
 	if ($zz_conf['zzform_calls'] > 1) {
 		$zz_conf = $zz_saved['old_conf'];
 	} else {
-		$zz_conf['generate_output'] = true;
+		$zz_conf['generate_output'] = isset($old_conf['generate_output']) ? $old_conf['generate_output'] : true;
+		$zz_conf['show_output'] = isset($old_conf['show_output']) ? $old_conf['show_output'] : true;
+		$zz_conf['multi'] = false;
+		// zzform_multi was called before zzform from some other script
+		// this is of no interest to us
+		$zz_conf['zzform_calls'] = 0;
 	}
 	
 	// clean up
