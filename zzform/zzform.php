@@ -560,28 +560,18 @@ function zz_initialize($mode = false) {
 
 	if (!empty($zz_conf['zzform_init'])) {
 		// get clean $zz_conf without changes from different zzform calls or included scripts
-		if (!empty($zz_conf['zzform_calls']) AND !empty($zz_saved) AND $mode == 'overwrite') {
+		if (!empty($zz_conf['zzform_calls']) AND !empty($zz_saved) AND $mode === 'overwrite') {
 			$calls = $zz_conf['zzform_calls'];
 			$zz_saved['old_conf'] = $zz_conf;
 			$zz_conf = $zz_saved['conf'];
 			$zz_conf['zzform_calls'] = $calls;
 		}
+		zz_initialize_int();
 		$zz_conf['id'] = mt_rand();
 		return true;
 	}
 	$zz_conf['id'] = mt_rand();
 
-	//	allowed parameters
-	// initialize internal variables
-	$zz_conf['int'] = array();
-	$zz_conf['int']['allowed_params']['mode'] = array(
-		'edit', 'delete', 'show', 'add', 'review', 'list_only'
-	);
-	// action parameters, 'review' is for internal use only
-	$zz_conf['int']['allowed_params']['action'] = array(
-		'insert', 'delete', 'update', 'multiple'
-	); 
-	
 	// Configuration on project level: Core defaults and functions
 	$default['character_set']	= 'utf-8';					// character set
 	$default['dir_ext']			= $zz_conf['dir'].'/ext';	// directory for extensions
@@ -704,12 +694,10 @@ function zz_initialize($mode = false) {
 	$default['url_self']			= false;
 	
 	zz_write_conf($default);
-
-	$zz_conf['int']['url'] = zz_get_url_self($zz_conf['url_self']);
+	
+	zz_initialize_int();
 
 	if ($zz_conf['generate_output']) {
-		zz_init_referer();
-
 		// don't show list in case 'nolist' parameter is set
 		if (isset($_GET['nolist'])) $zz_conf['show_list'] = false;
 	}
@@ -725,6 +713,33 @@ function zz_initialize($mode = false) {
 	$zz_conf['zzform_init'] = true;
 	$zz_saved['conf'] = $zz_conf;
 	zz_return(true);
+}
+
+/**
+ * initalize internal variables
+ * will be created new for each call, are not visible to the outside
+ *
+ * @global array $zz_conf
+ */
+function zz_initialize_int() {
+	global $zz_conf;
+
+	//	allowed parameters
+	// initialize internal variables
+	$zz_conf['int'] = array();
+	$zz_conf['int']['allowed_params']['mode'] = array(
+		'edit', 'delete', 'show', 'add', 'review', 'list_only'
+	);
+	// action parameters, 'review' is for internal use only
+	$zz_conf['int']['allowed_params']['action'] = array(
+		'insert', 'delete', 'update', 'multiple'
+	); 
+
+	$zz_conf['int']['url'] = zz_get_url_self($zz_conf['url_self']);
+
+	if ($zz_conf['generate_output']) {
+		zz_init_referer();
+	}
 }
 
 /**
