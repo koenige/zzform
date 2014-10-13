@@ -166,7 +166,7 @@ function zz_show_more_actions($conf, $id, $line = false) {
 		if (isset($conf['details_url'][$key]) && is_array($conf['details_url'][$key])) {
 		// values are different for each key
 			foreach ($conf['details_url'][$key] as $part_key => $value) {
-				if (substr($part_key, 0, 5) == 'field') {
+				if (substr($part_key, 0, 5) === 'field') {
 					if (empty($line)) continue 2;
 					$output .= $line[$value];
 				} else {
@@ -176,7 +176,7 @@ function zz_show_more_actions($conf, $id, $line = false) {
 		} elseif (is_array($conf['details_url'])) {
 		// all values are the same
 			foreach ($conf['details_url'] as $part_key => $value) {
-				if (substr($part_key, 0, 5) == 'field') {
+				if (substr($part_key, 0, 5) === 'field') {
 					if (empty($line)) continue 2;
 					$output .= $line[$value];
 				} else {
@@ -211,20 +211,20 @@ function zz_http_status_header($code) {
 	// Set protocol
 	$protocol = $_SERVER['SERVER_PROTOCOL'];
 	if (!$protocol) $protocol = 'HTTP/1.0'; // default value
-	if (substr(php_sapi_name(), 0, 3) == 'cgi') $protocol = 'Status:';
+	if (substr(php_sapi_name(), 0, 3) === 'cgi') $protocol = 'Status:';
 	
 	switch ($code) {
 	case '301':
 		header($protocol." 301 Moved Permanently");
 		return true;
 	case '302':
-		if ($protocol == 'HTTP/1.0')
+		if ($protocol === 'HTTP/1.0')
 			header($protocol." 302 Moved Temporarily");
 		else
 			header($protocol." 302 Found");
 		return true;
 	case '303':
-		if ($protocol == 'HTTP/1.0')
+		if ($protocol === 'HTTP/1.0')
 			header($protocol." 302 Moved Temporarily");
 		else
 			header($protocol." 303 See Other");
@@ -233,7 +233,7 @@ function zz_http_status_header($code) {
 		header($protocol." 304 Not Modified");
 		return true;
 	case '307':
-		if ($protocol == 'HTTP/1.0')
+		if ($protocol === 'HTTP/1.0')
 			header($protocol." 302 Moved Temporarily");
 		else
 			header($protocol." 307 Temporary Redirect");
@@ -261,7 +261,7 @@ function zz_output_redirect($result, $return, $id_value, $zz_tab) {
 		if (is_array($zz_conf['redirect'][$result])) {
 			$zz_conf['redirect'][$result] = zz_makepath($zz_conf['redirect'][$result], $zz_tab);
 		}
-		if (substr($zz_conf['redirect'][$result], 0, 1) == '/') {
+		if (substr($zz_conf['redirect'][$result], 0, 1) === '/') {
 			$zz_conf['redirect'][$result] = $zz_conf['int']['url']['base']
 				.$zz_conf['redirect'][$result];
 		}
@@ -374,7 +374,7 @@ function zz_nice_title($heading, $fields, $zz_var = array(), $mode = false) {
 		// don't add limit to page title
 		if (is_int($page) AND $page AND !empty($zz_var['limit_total_rows'])) {
 			$max_page = ceil($zz_var['limit_total_rows'] / $zz_conf['limit']);
-			if ($max_page != 1) {
+			if ($max_page !== 1) {
 				if ($zz_conf['limit_display'] === 'entries') {
 					$title .= $zz_conf['title_separator'].zz_text('records').' '
 						.(($page-1)*$zz_conf['limit']).'-'
@@ -392,7 +392,7 @@ function zz_nice_title($heading, $fields, $zz_var = array(), $mode = false) {
 	// don't show if zzhash is set (add_only, edit_only: too much information)
 	$show_id = true;
 	if (!$mode) $show_id = false;
-	if ($mode == 'list_only') $show_id = false;
+	if ($mode === 'list_only') $show_id = false;
 	if (!empty($_GET['zzhash'])) $show_id = false;
 	if (!empty($zz_var['where_with_unique_id'])) $show_id = false;
 	if ($show_id) {
@@ -425,28 +425,28 @@ function zz_nice_selection($zz_fields) {
 		if (strstr($scope, '.')) 
 			$scope = substr($scope, strrpos($scope, '.') + 1);
 		foreach ($zz_fields as $field) {
-			if (!empty($field['field_name']) AND $field['field_name'] == $scope) {
+			if (!empty($field['field_name']) AND $field['field_name'] === $scope) {
 				$fieldname = $field['title'];
 				break;
 			}
-			if (!empty($field['display_field']) AND $field['display_field'] == $scope) {
+			if (!empty($field['display_field']) AND $field['display_field'] === $scope) {
 				$fieldname = $field['title'];
 				break;
 			}
-			if (!empty($field['table_name']) AND $field['table_name'] == $scope) {
+			if (!empty($field['table_name']) AND $field['table_name'] === $scope) {
 				$fieldname = $field['title'];
 				break;
 			}
 		}
 		$add_equal_sign = true;
 	}
-	if (substr($_GET['q'], 0, 1) == '<')
+	if (substr($_GET['q'], 0, 1) === '<')
 		$selection .= '<strong>&lt;</strong> '.zz_html_escape(substr($_GET['q'], 1));
-	elseif (substr($_GET['q'], 0, 1) == '>')
+	elseif (substr($_GET['q'], 0, 1) === '>')
 		$selection .= '<strong>&gt;</strong> '.zz_html_escape(substr($_GET['q'], 1));
 	else {
 		$q = $_GET['q'];
-		if (substr($q, 0, 2) == '\\')
+		if (substr($q, 0, 2) === '\\')
 			$q = substr($q, 1);
 		if ($add_equal_sign)
 			$selection .= $fieldname.' <strong>=</strong> ';
@@ -640,7 +640,7 @@ function zz_nice_tablenames($table) {
 	}
 	// or format it here
 	if ($zz_conf['prefix']) { // makes the response look nicer
-		if (strtolower(substr($table, 0, strlen($zz_conf['prefix']))) == strtolower($zz_conf['prefix']))
+		if (strtolower(substr($table, 0, strlen($zz_conf['prefix']))) === strtolower($zz_conf['prefix']))
 			$table = substr($table, strlen($zz_conf['prefix']));
 		else {
 			$zz_error[] = array(
@@ -668,7 +668,7 @@ function zz_extra_get_params($mode, $zz_conf) {
 	$keep_query = array();
 	$keep_fields = array('where', 'var', 'order', 'group', 'q', 'scope', 'dir', 
 		'referer', 'url', 'nolist', 'filter', 'debug');
-	if ($mode == 'add') {
+	if ($mode === 'add') {
 		$keep_fields[] = 'add';
 	}
 	foreach ($keep_fields AS $key) {
@@ -693,14 +693,17 @@ function zz_extra_get_params($mode, $zz_conf) {
  * @global array $zz_conf
  * @return void
  */
-function zz_init_limit($zz) {
+function zz_init_limit($zz = array()) {
 	global $zz_conf;
+
 	// set default limit in case 'hierarchy' is used because hierarchies need more memory
 	if (!$zz_conf['limit'] AND !empty($zz['list']['hierarchy']))
 		$zz_conf['limit'] = 40;
 
+	// current range which records are shown
+	$zz_conf['int']['this_limit']		= false;
 	// get LIMIT from URI
-	if (!$zz_conf['int']['this_limit'] && $zz_conf['limit']) 
+	if ($zz_conf['limit']) 
 		$zz_conf['int']['this_limit'] = $zz_conf['limit'];
 	$limit = zz_check_get_array('limit', 'is_int');
 	if ($limit !== '') $zz_conf['int']['this_limit'] = $limit;
@@ -814,8 +817,8 @@ function zz_date_format($date) {
 	if (!$date) return '';
 
 	// convert ISO 639-1 codes to ISO 639-2T
-	if ($zz_conf['language'] == 'de') $language = 'deu';
-	elseif ($zz_conf['language'] == 'en') $language = 'eng';
+	if ($zz_conf['language'] === 'de') $language = 'deu';
+	elseif ($zz_conf['language'] === 'en') $language = 'eng';
 	else $language = '---';
 
 	// international format, ISO 8601
@@ -855,11 +858,11 @@ function zz_date_format($date) {
 
 	$date_parts = explode("-", $date);
 	$date = '';
-	$date_parts['day'] = (!empty($date_parts[2]) AND $date_parts[2] != '00') ? $date_parts[2] : false;
-	$date_parts['month'] = (!empty($date_parts[1]) AND $date_parts[1] != '00'
+	$date_parts['day'] = (!empty($date_parts[2]) AND $date_parts[2] !== '00') ? $date_parts[2] : false;
+	$date_parts['month'] = (!empty($date_parts[1]) AND $date_parts[1] !== '00'
 		AND $date_parts[1] > 0 AND  $date_parts[1] < 13) ? $my_months[$date_parts[1]] : false;
 	
-	if (substr($date_parts[0], 0, 1) == "0" AND substr($date_parts[0], 0, 2) != "00") {
+	if (substr($date_parts[0], 0, 1) === "0" AND substr($date_parts[0], 0, 2) !== "00") {
 		$date_parts['year'] = substr($date_parts[0], 1, 4);
 	} else {
 		$date_parts['year'] = $date_parts[0];
