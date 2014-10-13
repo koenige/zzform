@@ -73,7 +73,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		unset($zz_conf['list_access']);
 	}
 	if ($zz_conf['int']['access'] === 'search_but_no_list' AND empty($_GET['q'])) 
-		$zz_conf['show_list'] = false;
+		$zz_conf['int']['show_list'] = false;
 
 	// SQL query without limit and filter for conditions etc.!
 	$zz['sql_without_limit'] = $zz['sql'];
@@ -99,7 +99,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 
 	// don't show anything if there is nothing
 	if (!$count_rows) {
-		$zz_conf['show_list'] = false;
+		$zz_conf['int']['show_list'] = false;
 		if ($text = zz_text('table-empty')) {
 			$ops['output'].= '<p>'.$text.'</p>';
 		}
@@ -122,7 +122,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	// Table definition, data and head
 	//
 
-	if ($zz_conf['show_list']) {
+	if ($zz_conf['int']['show_list']) {
 		// Check all conditions whether they are true;
 		if (!empty($zz_conf['modules']['conditions'])) {
 			$zz_conditions = zz_conditions_list_check($zz, $zz_conditions, $id_field, array_keys($lines), $ops['mode']);
@@ -159,7 +159,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	//
 
 	if ($ops['mode'] === 'export') {
-		if ($zz_conf['show_list']) {
+		if ($zz_conf['int']['show_list']) {
 			// add empty column from heads in rows as well (for export)
 			foreach ($rows as $row_index => $row) {
 				foreach (array_keys($head) as $col_index) {
@@ -193,7 +193,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		$ops['output'] .= $search_form['top'];
 	}
 	
-	if ($zz_conf['show_list']) {
+	if ($zz_conf['int']['show_list']) {
 		if ($list['select_multiple_records']) {
 			$action_url = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs'];
 			if ($zz_var['extraGET']) {
@@ -222,7 +222,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	// Add new record
 	if (!($zz_conf['int']['access'] === 'search_but_no_list' AND empty($_GET['q']))) {
 		// filter, if there was a list
-		if ($zz_conf['show_list']) {
+		if ($zz_conf['int']['show_list']) {
 			$ops['output'] .= zz_filter_selection($zz_conf['filter'], 'bottom');
 		}
 		$toolsline = array();
@@ -230,7 +230,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			.$zz_conf['int']['url']['?&'];
 
 		// normal add button, only if list was shown beforehands
-		if ($ops['mode'] != 'add' && $zz_conf['add_link'] AND !is_array($zz_conf['add']) && $zz_conf['show_list']) {
+		if ($ops['mode'] != 'add' && $zz_conf['add_link'] AND !is_array($zz_conf['add']) && $zz_conf['int']['show_list']) {
 			$zz_conf['int']['no_add_button_so_far'] = false;
 			$toolsline[] = '<a accesskey="n" href="'.$base_url.'mode=add'
 				.$zz_var['extraGET'].'">'.zz_text('Add new record').'</a>';
@@ -689,7 +689,7 @@ function zz_filter_selection($filter, $pos) {
 
 	if (!$filter) return '';
 	if (!is_array($filter)) return '';
-	if (!$zz_conf['show_list']) return '';
+	if (!$zz_conf['int']['show_list']) return '';
 	if ($zz_conf['int']['access'] === 'export') return '';
 	if (!in_array($zz_conf['filter_position'], array($pos, 'both'))) return '';
 	
@@ -1437,7 +1437,7 @@ function zz_set_link($field, $line) {
 function zz_mark_search_string($value, $field_name = false, $field = array()) {
 	global $zz_conf;
 	// check if field should be marked
-	if (!$zz_conf['show_list']) return $value;
+	if (!$zz_conf['int']['show_list']) return $value;
 	if (!empty($field['dont_mark_search_string'])) return $value;
 	if ($zz_conf['list_display'] != 'table' AND $zz_conf['list_display'] != 'ul') return $value;
 	if (empty($_GET['q'])) return $value;
@@ -2069,7 +2069,7 @@ function zz_list_field_level($list, $field, $line) {
  */
 function zz_list_show_group_fields($table_defs, $list) {
 	global $zz_conf;
-	if (!$zz_conf['show_list']) return $table_defs;
+	if (!$zz_conf['int']['show_list']) return $table_defs;
 
 	$show_field = true;
 	foreach ($table_defs[0] as $index => $field) {

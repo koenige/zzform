@@ -237,7 +237,7 @@ function zz_export_links($url, $querystring) {
 function zz_export($ops, $zz) {
 	global $zz_conf;
 	// check if we have data
-	if (!$zz_conf['show_list']) return false;
+	if (!$zz_conf['int']['show_list']) return false;
 
 	// pdf?
 	if ($zz_conf['list_display'] === 'pdf') {

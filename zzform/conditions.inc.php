@@ -24,7 +24,7 @@
  *	zz_conditions_list_check()		set conditions for list
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2010, 2013 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2010, 2013-2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -746,7 +746,7 @@ function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids, $mode) {
 	global $zz_conf;
 	global $zz_error;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	if (!$zz_conf['show_list']) return zz_return($zz_conditions);
+	if (!$zz_conf['int']['show_list']) return zz_return($zz_conditions);
 	if (empty($zz['conditions'])) return zz_return($zz_conditions);
 
 	// improve database performace, for this query we only need ID field
@@ -810,5 +810,3 @@ function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids, $mode) {
 	}
 	return zz_return($zz_conditions);
 }
-
-?>
