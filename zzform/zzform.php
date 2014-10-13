@@ -62,8 +62,11 @@ function zzform($zz = array()) {
 	// set default configuration variables
 	// import modules
 	// set and get URI
-	zz_initialize(false, $zz);
+	zz_initialize();
 	$zz = zz_defaults($zz);
+	if ($zz_conf['generate_output']) {
+		zz_init_limit($zz);
+	}
 	$zz_conf['int']['access'] = isset($zz['access']) ? $zz['access'] : $zz_conf['access'];
 
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
@@ -545,18 +548,15 @@ function zz_defaults($zz) {
  *
  * @param string $mode (default: false; others: 'overwrite' overwrites $zz_conf
  *		array with $zz_saved)
- * @param array $zz (optional)
  * @global array $zz_conf
  * @global array $zz_error
  * @global array $zz_saved
- * @global array $zz_debug see zz_debug()
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_initialize($mode = false, $zz = array()) {
+function zz_initialize($mode = false) {
 	global $zz_conf;
 	global $zz_error;
 	global $zz_saved;
-	global $zz_debug;	// debug module
 
 	if (!empty($zz_conf['zzform_init'])) {
 		// get clean $zz_conf without changes from different zzform calls or included scripts
@@ -574,7 +574,6 @@ function zz_initialize($mode = false, $zz = array()) {
 	//	allowed parameters
 	// initialize internal variables
 	$zz_conf['int'] = array();
-	$zz_conf['int']['this_limit']		= false;	// current range which records are shown
 	$zz_conf['int']['allowed_params']['mode'] = array(
 		'edit', 'delete', 'show', 'add', 'review', 'list_only'
 	);
@@ -620,7 +619,7 @@ function zz_initialize($mode = false, $zz = array()) {
 	// debug module must come first because of debugging reasons!
 	$zz_conf['modules'] = zz_add_modules($zz_conf['int_modules'], $zz_conf['dir_inc']);
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	$zz_conf['ext_modules'] = zz_add_modules($zz_conf['ext_modules'], $zz_conf['dir_ext']);
+	zz_add_modules($zz_conf['ext_modules'], $zz_conf['dir_ext']);
 
 	// stop if there were errors while adding modules
 	if ($zz_error['error']) zz_return(false);
@@ -709,7 +708,6 @@ function zz_initialize($mode = false, $zz = array()) {
 	$zz_conf['int']['url'] = zz_get_url_self($zz_conf['url_self']);
 
 	if ($zz_conf['generate_output']) {
-		zz_init_limit($zz);
 		zz_init_referer();
 
 		// don't show list in case 'nolist' parameter is set
