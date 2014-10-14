@@ -53,11 +53,15 @@ body, #zzform .editbutton, #zzform td.recordid, #zzform th.recordid
 tr					{ page-break-inside: avoid; }
 #zzform table.data	{ border-collapse: separate; border-spacing: 0; }
 #zzform table.data thead td, #zzform table.data thead th  
-					{ border-bottom: 1.5pt black solid; }
+					{ border-bottom: 1pt black solid; }
 #zzform table.data thead
 					{ display: table-header-group; }
 #zzform table.data tr.group td
-					{ border-top: 1.5pt black solid; }
+					{ border-top: 1pt black solid; }
 #zzform tfoot td 
-					{ border-top: 1.5pt black solid; 
+					{ border-top: 1pt black solid; 
 					border-bottom: 3pt black double; }
+
+/* below table */
+#zzform .totalrecords
+					{ margin-top: 0; clear: left; }
