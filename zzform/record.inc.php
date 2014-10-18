@@ -1887,6 +1887,8 @@ function zz_field_datetime($field, $display, $record) {
  * @return string
  */
 function zz_field_memo($field, $display, $record) {
+	global $zz_conf;
+
 	// get value
 	$value = $record ? $record[$field['field_name']] : '';
 
@@ -1924,7 +1926,20 @@ function zz_field_memo($field, $display, $record) {
 	$fieldattr['rows'] = $field['rows'];
 	$fieldattr['cols'] = $field['cols'];
 	if ($field['required']) $fieldattr['required'] = true;
-	return zz_form_element($field['f_field_name'], $value, 'textarea', true, $fieldattr);
+	if (!empty($field['format']) AND $field['format'] === 'markdown'
+		AND !empty($zz_conf['wmd_editor'])) {
+		$fieldattr['class'] = 'wmd-input';
+		$fieldattr['id'] = 'wmd-input-'.$zz_conf['wmd_editor'];
+	}
+	$text = zz_form_element($field['f_field_name'], $value, 'textarea', true, $fieldattr);
+	if (!empty($field['format']) AND $field['format'] === 'markdown'
+		AND !empty($zz_conf['wmd_editor'])) {
+		$text = sprintf('<div class="wmd-panel"><div id="wmd-button-bar-%s"></div>', $zz_conf['wmd_editor'])
+			.$text.'</div>'."\n";
+		if ($zz_conf['wmd_editor'] === true) $zz_conf['wmd_editor'] = 1;
+		$zz_conf['wmd_editor']++;
+	}
+	return $text;
 }
 
 /**

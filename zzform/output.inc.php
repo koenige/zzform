@@ -986,3 +986,35 @@ function zz_datetime_format($value, $field) {
 	$text = zz_date_format($text[0]).' '.zz_time_format($text[1], $field);
 	return $text;
 }
+
+/**
+ * Output WMD Editor
+ *
+ * @global array $zz_conf
+ * @return string HTML code for JavaScript
+ */
+function zz_output_wmd_editor() {
+	global $zz_conf;
+	
+	if (empty($zz_conf['wmd_editor'])) return '';
+	if ($zz_conf['wmd_editor'] === 1) return '';
+	
+	$options = array();
+	if (!empty($zz_conf['wmd_editor_languages'])) {
+		if (in_array($zz_conf['language'], $zz_conf['wmd_editor_languages'])) {
+			$options[] = 'strings: Markdown.local.'.$zz_conf['language'];
+		}
+	}
+	if ($options) $options = ', { '.implode(', ', $options).' }';
+
+	$output = '<script type="text/javascript">'."\n";
+	$output .= '(function () {'."\n";
+	for ($i = 1; $i < $zz_conf['wmd_editor']; $i++) {
+		$output .= 'var converter'.$i.' = new Markdown.Converter();'."\n";
+		$output .= 'var editor'.$i.' = new Markdown.Editor(converter'.$i.', "-'.$i.'"'.$options.');'."\n";
+		$output .= 'editor'.$i.'.run()'."\n";
+	}
+	$output .= '})();'."\n";
+	$output .= '</script>'."\n";
+	return $output;	
+}

@@ -421,6 +421,7 @@ function zzform($zz = array()) {
 	if ($ops['heading']) {
 		$ops['title'] = zz_nice_title($ops['heading'], $zz['fields'], $zz_var, $ops['mode']);
 	}
+	$ops['output'] .= zz_output_wmd_editor();
 	return zzform_exit($ops);
 }
 
