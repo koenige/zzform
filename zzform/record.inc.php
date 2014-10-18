@@ -1320,7 +1320,7 @@ function zz_form_element($name, $value, $type = 'text', $id = false, $fieldattr 
 	if ($name AND $type !== 'option') $fieldattr['name'] = $name;
 
 	// prepare ID
-	if ($id) {
+	if ($id AND empty($fieldattr['id'])) {
 		if ($id === true) $id = zz_make_id_fieldname($name);
 		$fieldattr['id'] = $id;
 	}
