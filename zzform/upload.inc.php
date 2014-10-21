@@ -143,10 +143,11 @@ function zz_upload_config() {
 		'application/octet_stream' => 'application/octet-stream'
 	); 
 
-	// extensions for images that can be natively displayed in browser
+	// extensions for images that the browser can display natively
 	$default['webimages_by_extension'] = array('jpg', 'jpeg', 'gif', 'png');
 
-	$default['upload_pdf_density'] = '300x300'; // dpi in which pdf will be rasterized
+	// dpi in which pdf will be rasterized
+	$default['upload_pdf_density'] = '300x300';
 
 	$default['upload_no_thumbnails'] = array();
 	$default['upload_multipage_images'] = array();
@@ -162,7 +163,8 @@ function zz_upload_config() {
 			}
 		}
 	}
-	$default['upload_multipage_which']['m4v'] = 5; // don't take first frame, might be black
+	// don't take first frame from mp4 movie, might be black
+	$default['upload_multipage_which']['m4v'] = 5;
 
 	$default['upload_filetype_map']['tif'] = 'tiff';
 	$default['upload_filetype_map']['jpe'] = 'jpeg';
@@ -1179,9 +1181,7 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec) {
 		return false;
 	}
 	
-	// create temporary file, so that original file remains the same 
-	// for further actions
-	$tmp_filename = tempnam(realpath($zz_conf['tmp_dir']), 'UPLOAD_');
+	// set destination filetype
 	$dest_extension = zz_upload_extension($image['path'], $my_rec);
 	if (!$dest_extension) {
 		$dest_extension = strtolower($image['upload']['ext']);
@@ -1189,6 +1189,10 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec) {
 		if (!empty($zz_conf['upload_destination_filetype'][$dest_extension]))
 			$dest_extension = $zz_conf['upload_destination_filetype'][$dest_extension];
 	}
+
+	// create temporary file, so that original file remains the same 
+	// for further actions
+	$tmp_filename = tempnam(realpath($zz_conf['tmp_dir']), 'UPLOAD_');
 
 	$action = 'zz_image_'.$image['action'];
 	$return = $action($filename, $tmp_filename, $dest_extension, $image);
