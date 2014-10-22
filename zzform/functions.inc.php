@@ -1046,11 +1046,14 @@ function zz_record_access($zz, $ops, $zz_var) {
 	
 	// set mode and action according to $_GET and $_POST variables
 	// do not care yet if actions are allowed
-	if ($ops['mode'] === 'export') {
+	switch (true) {
+	case $ops['mode'] === 'export':
 		// Export overwrites all
 		$zz_conf['int']['access'] = 'export'; 	
 		$zz_conf['show_record'] = false;
-	} elseif (isset($_POST['zz_subtables'])) {
+		break;
+
+	case isset($_POST['zz_subtables']):
 		// ok, no submit button was hit but only add/remove form fields for
 		// detail records in subtable, so set mode accordingly (no action!)
 		if (!empty($_POST['zz_action']) AND $_POST['zz_action'] === 'insert') {
@@ -1063,7 +1066,9 @@ function zz_record_access($zz, $ops, $zz_var) {
 			// this should not occur if form is used legally
 			$ops['mode'] = false;
 		}
-	} elseif (!empty($_GET['mode'])) {
+		break;
+
+	case !empty($_GET['mode']):
 		// standard case, get mode from URL
 		if (in_array($_GET['mode'], $zz_conf['int']['allowed_params']['mode'])) {
 			$ops['mode'] = $_GET['mode']; // set mode from URL
@@ -1081,19 +1086,29 @@ function zz_record_access($zz, $ops, $zz_var) {
 			$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
 			$ops['mode'] = false;
 		}
-	} elseif (isset($_GET['delete'])) {
+		break;
+
+	case isset($_GET['delete']):
 		// last record operation was successful
 		$ops['mode'] = 'show';
-	} elseif (isset($_GET['insert'])) {
+		break;
+
+	case isset($_GET['insert']):
 		$ops['mode'] = 'show';
 		$id_value = $_GET['insert'];
-	} elseif (isset($_GET['update'])) {
+		break;
+
+	case isset($_GET['update']):
 		$ops['mode'] = 'show';
 		$id_value = $_GET['update'];
-	} elseif (isset($_GET['noupdate'])) {
+		break;
+
+	case isset($_GET['noupdate']):
 		$ops['mode'] = 'show';
 		$id_value = $_GET['noupdate'];
-	} elseif (!empty($_POST['zz_action'])) {
+		break;
+	
+	case !empty($_POST['zz_action']):
 		if ($_POST['zz_action'] === 'multiple') {
 			if (!empty($_POST['zz_record_id'])) {
 				if (!empty($_POST['zz_multiple_edit'])) {
@@ -1110,13 +1125,18 @@ function zz_record_access($zz, $ops, $zz_var) {
 				$id_value = $_POST[$zz_var['id']['field_name']];
 			$ops['mode'] = false;
 		}
-	} elseif ($zz_var['where_with_unique_id']) {
+		break;
+	
+	case $zz_var['where_with_unique_id']:
 		// just review the record
 		$ops['mode'] = 'review'; 
-	} else {
+		break;
+
+	default:
 		// no record is selected, basic view when starting to edit data
 		// list mode only
 		$ops['mode'] = 'list_only';
+		break;
 	}
 
 	// write main id value, might have been written by a more trustful instance
