@@ -986,10 +986,14 @@ function zz_return_bytes($val) {
 function zz_meta_tags() {
 	$meta = array();
 	$noindex = false;
-	if (!empty($_GET['order'])) $noindex = true;
-	if (!empty($_GET['group'])) $noindex = true;
-	if (!empty($_GET['mode'])) $noindex = true;
-	if (!empty($_GET['q'])) $noindex = true;
+	$querystrings = array(
+		'order', 'group', 'mode', 'q'
+	);
+	foreach ($querystrings as $string) {
+		if (empty($_GET[$string])) continue;
+		$noindex = true;
+		break;
+	}
 	if ($noindex) {
 		$meta[] = array('name' => 'robots', 'content' => 'noindex, follow');
 	}
