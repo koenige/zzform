@@ -697,8 +697,10 @@ function zz_filter_selection($filter, $pos) {
 	$self = $zz_conf['int']['url']['self'];
 	// remove unwanted keys from link
 	// do not show edited record, limit
-	$unwanted_keys = array('q', 'scope', 'limit', 'mode', 'id', 'add', 'filter',
-		'zzaction', 'zzhash');
+	$unwanted_keys = array(
+		'q', 'scope', 'limit', 'mode', 'id', 'add', 'filter', 'delete',
+		'insert', 'update', 'noupdate', 'zzhash'
+	);
 	$qs = zz_edit_query_string($zz_conf['int']['url']['qs']
 		.$zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
 
@@ -1742,7 +1744,10 @@ function zz_list_pageurl() {
 	global $zz_conf;
 
 	// remove mode, id
-	$unwanted_keys = array('mode', 'id', 'limit', 'add', 'zzaction', 'zzhash');
+	$unwanted_keys = array(
+		'mode', 'id', 'limit', 'add', 'delete', 'insert', 'update', 'noupdate',
+		'zzhash'
+	);
 	$url['base'] = $zz_conf['int']['url']['self']
 		.zz_edit_query_string($zz_conf['int']['url']['qs']
 		.$zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
@@ -1876,7 +1881,9 @@ function zz_list_th($field, $mode = 'html') {
 	// create a link to order this column if desired
 	if (isset($field['display_field'])) $order_val = $field['display_field'];
 	else $order_val = $field['field_name'];
-	$unwanted_keys = array('dir', 'zzaction', 'zzhash');
+	$unwanted_keys = array(
+		'dir', 'delete', 'insert', 'update', 'noupdate', 'zzhash'
+	);
 	$new_keys = array('order' => $order_val);
 	$uri = $zz_conf['int']['url']['self'].zz_edit_query_string($zz_conf['int']['url']['qs']	
 		.$zz_conf['int']['url']['qs_zzform'], $unwanted_keys, $new_keys);

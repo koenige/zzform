@@ -1081,10 +1081,18 @@ function zz_record_access($zz, $ops, $zz_var) {
 			$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
 			$ops['mode'] = false;
 		}
-	} elseif (!empty($_GET['zzaction']) AND !empty($_GET['id'])) {
+	} elseif (isset($_GET['delete'])) {
 		// last record operation was successful
 		$ops['mode'] = 'show';
-		$id_value = $_GET['id'];
+	} elseif (isset($_GET['insert'])) {
+		$ops['mode'] = 'show';
+		$id_value = $_GET['insert'];
+	} elseif (isset($_GET['update'])) {
+		$ops['mode'] = 'show';
+		$id_value = $_GET['update'];
+	} elseif (isset($_GET['noupdate'])) {
+		$ops['mode'] = 'show';
+		$id_value = $_GET['noupdate'];
 	} elseif (!empty($_POST['zz_action'])) {
 		if ($_POST['zz_action'] === 'multiple') {
 			if (!empty($_POST['zz_record_id'])) {
@@ -1302,7 +1310,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		AND !$zz_conf['show_list_while_edit']) $zz_conf['int']['show_list'] = false;
 	if (!$zz_conf['generate_output']) $zz_conf['int']['show_list'] = false;
 
-	if ($ops['mode'] === 'list_only' AND empty($_GET['zzaction'])) {
+	if ($ops['mode'] === 'list_only') {
 		$zz_conf['show_record'] = false;	// don't show record
 	}
 	return zz_return(array($zz, $ops, $zz_var));

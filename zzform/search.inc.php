@@ -435,7 +435,10 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 	$output = sprintf($output, $self, $zz_conf['character_set']);
 	if ($qs = $zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']) { 
 		// do not show edited record, limit, ...
-		$unwanted_keys = array('q', 'scope', 'limit', 'mode', 'id', 'add', 'zzaction', 'zzhash'); 
+		$unwanted_keys = array(
+			'q', 'scope', 'limit', 'mode', 'id', 'add', 'delete', 'insert',
+			'update', 'noupdate', 'zzhash'
+		); 
 		$output .= zz_querystring_to_hidden(substr($qs, 1), $unwanted_keys);
 		// remove unwanted keys from link
 		$self .= zz_edit_query_string($qs, $unwanted_keys); 

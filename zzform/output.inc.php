@@ -279,8 +279,7 @@ function zz_output_redirect($result, $return, $id_value, $zz_tab) {
 		}
 		$self = $zz_conf['int']['url']['full']
 			.$zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']
-			.($zz_conf['int']['url']['qs_zzform'] ? '&' : $zz_conf['int']['url']['?&'])
-			.'zzaction=';
+			.($zz_conf['int']['url']['qs_zzform'] ? '&' : $zz_conf['int']['url']['?&']);
 		$secure = false;
 		if (!empty($zz_conf['int']['hash_id'])) {
 			// secret key has to be recalculated for insert operations
@@ -307,23 +306,23 @@ function zz_output_redirect($result, $return, $id_value, $zz_tab) {
 					} else {
 						$self .= $zz_conf['int']['referer']['query'].'&';
 					}
-					$self .= 'zzaction=';
 				}
 			}
 			zz_http_status_header(303);
+			if ($nos) $nos = '='.$nos;
 			header('Location: '.$self.'delete'.$nos);
 			exit;
 		case 'successful_insert':
 			zz_http_status_header(303);
-			header('Location: '.$self.'insert&id='.$id_value.$secure);
+			header('Location: '.$self.'insert='.$id_value.$secure);
 			exit;
 		case 'successful_update':
 			zz_http_status_header(303);
-			header('Location: '.$self.'update&id='.$id_value.$secure);
+			header('Location: '.$self.'update='.$id_value.$secure);
 			exit;
 		case 'no_update':
 			zz_http_status_header(303);
-			header('Location: '.$self.'noupdate&id='.$id_value.$secure);
+			header('Location: '.$self.'noupdate='.$id_value.$secure);
 			exit;
 		}
 	}
@@ -728,10 +727,11 @@ function zz_init_referer() {
 		$zz_conf['referer'] = $_POST['zz_referer'];
 	elseif (isset($_SERVER['HTTP_REFERER']))
 		$zz_conf['referer'] = $_SERVER['HTTP_REFERER'];
-	// remove 'zzaction' from referer if set
+	// remove actions from referer if set
 	$zz_conf['int']['referer'] = parse_url($zz_conf['referer']);
 	if (!empty($zz_conf['int']['referer']['query'])) {
-		$zz_conf['int']['referer']['query'] = zz_edit_query_string($zz_conf['int']['referer']['query'], array('zzaction'));
+		$removes = array('delete', 'insert', 'update', 'noupdate');
+		$zz_conf['int']['referer']['query'] = zz_edit_query_string($zz_conf['int']['referer']['query'], $removes);
 		$zz_conf['int']['referer']['query'] = str_replace('&amp;', '&', $zz_conf['int']['referer']['query']);
 	}
 	$zz_conf['referer'] = (

@@ -34,14 +34,22 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 
 	$formhead = false;
 	$records = false;
-	if (!empty($_GET['zzaction']) AND strstr($_GET['zzaction'], '-')) {
-		$records = explode('-', $_GET['zzaction']);
-		$_GET['zzaction'] = $records[0];
-		$records = $records[1];
+	if (!empty($_GET['delete'])) {
+		$records = $_GET['delete'];
 	} elseif (is_array($zz_var['id']['value'])) {
 		$records = count($zz_var['id']['value']);
 	}
-	$action_before_redirect = !empty($_GET['zzaction']) ? $_GET['zzaction'] : '';
+	if (isset($_GET['delete'])) {
+		$action_before_redirect = 'delete';
+	} elseif (isset($_GET['insert'])) {
+		$action_before_redirect = 'insert';
+	} elseif (isset($_GET['update'])) {
+		$action_before_redirect = 'update';
+	} elseif (isset($_GET['noupdate'])) {
+		$action_before_redirect = 'noupdate';
+	} else {
+		$action_before_redirect = '';
+	}
 	if ($zz_tab[0]['record_action'] OR $action_before_redirect) {
 		if ($zz_var['action'] === 'insert' OR $action_before_redirect === 'insert') {
 			$formhead = zz_text('record_was_inserted');
@@ -285,7 +293,9 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 	$output = '';
 	$cancelurl = $zz_conf['int']['url']['self'];
 	if ($base_qs = $zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']) {
-		$unwanted_keys = array('mode', 'id', 'add', 'zzaction', 'zzhash');
+		$unwanted_keys = array(
+			'mode', 'id', 'add', 'delete', 'insert', 'update', 'noupdate', 'zzhash'
+		);
 		$cancelurl.= zz_edit_query_string($base_qs, $unwanted_keys);
 	}
 	if ($mode && $mode !== 'review' && $mode !== 'show') {

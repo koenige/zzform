@@ -505,10 +505,17 @@ function zzform_exit($ops) {
  *		false: request is invalid (or no restriction is in place)
  */
 function zz_valid_request($action = false) {
-	if (empty($_GET['zzaction'])) return false;
+	$action_requests = array('delete', 'insert', 'update', 'noupdate');
+	$request_found = false;
+	foreach ($action_requests as $request) {
+		if (!isset($_GET[$request])) continue;
+		$request_found = $request;
+		break;
+	}
+	if (!$request_found) return false;
 	if ($action) {
 		if (!is_array($action)) $action = array($action);
-		if (!in_array($_GET['zzaction'], $action)) return false;
+		if (!in_array($request_found, $action)) return false;
 	}
 	if (empty($_GET['zzhash'])) return false;
 	
