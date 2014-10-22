@@ -1089,25 +1089,26 @@ function zz_record_access($zz, $ops, $zz_var) {
 		break;
 
 	case isset($_GET['delete']):
+	case isset($_GET['insert']):
+	case isset($_GET['update']):
+	case isset($_GET['noupdate']):
 		// last record operation was successful
 		$ops['mode'] = 'show';
+		$action_strings = array('delete', 'insert', 'update', 'noupdate');
+		$found = 0;
+		foreach ($action_strings as $string) {
+			if (!isset($_GET[$string])) continue;
+			if ($string !== 'delete') $id_value = $_GET[$string];
+			$found++;
+		}
+		if ($found > 1) {
+			$id_value = false;
+			$zz_conf['int']['http_status'] = 404;
+			$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $action_strings);
+			$ops['mode'] = false;
+		}
 		break;
 
-	case isset($_GET['insert']):
-		$ops['mode'] = 'show';
-		$id_value = $_GET['insert'];
-		break;
-
-	case isset($_GET['update']):
-		$ops['mode'] = 'show';
-		$id_value = $_GET['update'];
-		break;
-
-	case isset($_GET['noupdate']):
-		$ops['mode'] = 'show';
-		$id_value = $_GET['noupdate'];
-		break;
-	
 	case !empty($_POST['zz_action']):
 		if ($_POST['zz_action'] === 'multiple') {
 			if (!empty($_POST['zz_record_id'])) {
