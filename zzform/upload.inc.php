@@ -968,7 +968,6 @@ function zz_upload_prepare($zz_tab) {
 
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	$all_temp_filenames = array();
 	
 	foreach ($zz_tab[0]['upload_fields'] as $uf) {
 		$tab = $uf['tab'];
@@ -1090,8 +1089,6 @@ function zz_upload_prepare($zz_tab) {
 			if (!$dont_use_upload) {
 				// it's the original file we upload to the server
 				$source_filename = $image['upload']['tmp_name'];
-				if (file_exists($source_filename) AND empty($image['upload']['do_not_delete']))
-					$all_temp_filenames[] = $source_filename;
 			}
 			if ($source_filename) {
 				$image = zz_upload_auto_image($image);
@@ -1100,6 +1097,12 @@ function zz_upload_prepare($zz_tab) {
 
 			if ($zz_conf['modules']['debug']) zz_debug('source_filename: '.$source_filename);
 			if ($source_filename && $source_filename != 'none') {
+				// for later cleanup of leftover tmp files
+				if (empty($my_rec['images'][$no]['all_temp']))
+					$my_rec['images'][$no]['all_temp'] = array();
+				if (!$dont_use_upload AND file_exists($source_filename) AND empty($image['upload']['do_not_delete'])) {
+					$my_rec['images'][$no]['all_temp'][] = $source_filename;
+				
 				// only if something new was uploaded!
 				$filename = file_exists($source_filename) ? $source_filename : '';
 				$image['modified'] = zz_upload_create_thumbnails($filename, $image, $my_rec);
@@ -1110,7 +1113,7 @@ function zz_upload_prepare($zz_tab) {
 					$my_rec['no_file_upload'] = true;
 				} elseif ($image['modified']) {
 					$filename = $image['modified']['tmp_name'];
-					$all_temp_filenames[] = $image['modified']['tmp_name'];
+					$my_rec['images'][$no]['all_temp'][] = $image['modified']['tmp_name'];
 					$my_rec['file_upload'] = true;
 				} else {
 					// no thumbnail was created, just keep original file
@@ -1120,11 +1123,6 @@ function zz_upload_prepare($zz_tab) {
 					unset($image['modified']);
 				}
 				$image['files']['tmp_files'][$img] = $filename;
-				if (!empty($my_rec['images'][$no]['all_temp']))
-					$my_rec['images'][$no]['all_temp'] = array_merge($my_rec['images'][$no]['all_temp'], $all_temp_filenames);
-				else
-					$my_rec['images'][$no]['all_temp'] = $all_temp_filenames; // for later cleanup of leftover tmp files
-				$all_temp_filenames = array();
 			}
 			// write $image back to $zz_tab
 			$my_rec['images'][$no][$img] = $image;
