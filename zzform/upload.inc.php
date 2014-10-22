@@ -1090,13 +1090,12 @@ function zz_upload_prepare($zz_tab) {
 				// it's the original file we upload to the server
 				$source_filename = $image['upload']['tmp_name'];
 			}
-			if ($source_filename) {
+			if ($zz_conf['modules']['debug']) zz_debug('source_filename: '.$source_filename);
+
+			if ($source_filename && $source_filename != 'none') {
 				$image = zz_upload_auto_image($image);
 				if (!$image) zz_return($zz_tab);
-			}
 
-			if ($zz_conf['modules']['debug']) zz_debug('source_filename: '.$source_filename);
-			if ($source_filename && $source_filename != 'none') {
 				// for later cleanup of leftover tmp files
 				if (empty($my_rec['images'][$no]['all_temp']))
 					$my_rec['images'][$no]['all_temp'] = array();
@@ -1104,25 +1103,25 @@ function zz_upload_prepare($zz_tab) {
 					$my_rec['images'][$no]['all_temp'][] = $source_filename;
 				
 				// only if something new was uploaded!
-				$filename = file_exists($source_filename) ? $source_filename : '';
-				$image['modified'] = zz_upload_create_thumbnails($filename, $image, $my_rec);
+				$image['modified'] = zz_upload_create_thumbnails($source_filename, $image, $my_rec);
 				if ($image['modified'] === -1) {
-					$filename = false; // do not upload anything
+					$image['files']['tmp_files'][$img] = false; // do not upload anything
 					// @todo mark existing image for deletion if there is one!							
 					$image['delete_thumbnail'] = true;
 					$my_rec['no_file_upload'] = true;
 				} elseif ($image['modified']) {
-					$filename = $image['modified']['tmp_name'];
+					$image['files']['tmp_files'][$img] = $image['modified']['tmp_name'];
 					$my_rec['images'][$no]['all_temp'][] = $image['modified']['tmp_name'];
 					$my_rec['file_upload'] = true;
 				} else {
 					// no thumbnail was created, just keep original file
 					if (isset($image['source'])) {
-						$filename = '';
+						$image['files']['tmp_files'][$img] = false;
+					} else {
+						$image['files']['tmp_files'][$img] = file_exists($source_filename) ? $source_filename : '';
 					}
 					unset($image['modified']);
 				}
-				$image['files']['tmp_files'][$img] = $filename;
 			}
 			// write $image back to $zz_tab
 			$my_rec['images'][$no][$img] = $image;
@@ -1168,7 +1167,7 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec) {
 	
 	if (empty($image['action'])) return false;
 
-	if (!$filename) {
+	if (!file_exists($filename)) {
 		$zz_error[] = array(
 			'msg_dev' => sprintf(zz_text('Error: Source file %s does not exist. '), $filename),
 			'log_post_data' => false
