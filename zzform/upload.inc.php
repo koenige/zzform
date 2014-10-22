@@ -1097,10 +1097,12 @@ function zz_upload_prepare($zz_tab) {
 				if (!$image) zz_return($zz_tab);
 
 				// for later cleanup of leftover tmp files
-				if (empty($my_rec['images'][$no]['all_temp']))
+				if (empty($my_rec['images'][$no]['all_temp'])) {
 					$my_rec['images'][$no]['all_temp'] = array();
+				}
 				if (!$dont_use_upload AND file_exists($source_filename) AND empty($image['upload']['do_not_delete'])) {
 					$my_rec['images'][$no]['all_temp'][] = $source_filename;
+				}
 				
 				// only if something new was uploaded!
 				$image['modified'] = zz_upload_create_thumbnails($source_filename, $image, $my_rec);
