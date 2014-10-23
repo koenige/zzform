@@ -57,12 +57,6 @@ function zz_export_init($zz, $ops) {
 	global $zz_conf;
 	global $zz_error;
 	if (empty($zz_conf['export'])) return array($zz, $ops);
-	
-	//	export
-	if (!empty($_GET['mode']) AND $_GET['mode'] === 'export') {
-		// should not happen, but just in case
-		if (empty($_GET['export'])) $_GET['export'] = 'csv';
-	}
 	if (empty($_GET['export'])) return array($zz, $ops);
 
 	// no edit modes allowed
