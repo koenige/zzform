@@ -419,7 +419,7 @@ function zz_sql_count_rows($sql, $id_field = '') {
 		// if it's not a SELECT DISTINCT, we can use COUNT, that's faster
 		// GROUP BY also does not work with COUNT
 		$sql = zz_edit_sql($sql, 'ORDER BY', '_dummy_', 'delete');
-		$sql = zz_edit_sql($sql, 'SELECT', 'COUNT('.$id_field.')', 'replace');
+		$sql = zz_edit_sql($sql, 'SELECT', 'COUNT(*)', 'replace');
 		// unnecessary LEFT JOINs may slow down query
 		// remove them in case no WHERE, HAVING or GROUP BY is set
 		$sql = zz_edit_sql($sql, 'LEFT JOIN', '_dummy_', 'delete');
