@@ -486,13 +486,17 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 	// $rows[$z][0]['text'] = '';
 	// $rows[$z][0]['class'] = array();
 	foreach ($lines as $index => $line) {
-		$id = $line[$id_field];
-		if ($id == $zz_var['id']['value']) {
-			$list['current_record'] = $z;
-		} elseif (!empty($zz_var['id']['values'])) {
-			if (in_array($id, $zz_var['id']['values'])) {
-				$list['current_records'][] = $z; 
+		if ($id_field) {
+			$id = $line[$id_field];
+			if ($id == $zz_var['id']['value']) {
+				$list['current_record'] = $z;
+			} elseif (!empty($zz_var['id']['values'])) {
+				if (in_array($id, $zz_var['id']['values'])) {
+					$list['current_records'][] = $z; 
+				}
 			}
+		} else {
+			$id = false;
 		}
 		$def_index = (count($table_defs) > 1) ? $index : 0;
 		$rows[$z]['group'] = zz_list_group_titles($list, $table_defs[$def_index], $line);
@@ -960,7 +964,11 @@ function zz_list_query_flat($sql, $id_field, $extra_sqls) {
 	}
 
 	// read rows from database
-	$lines = zz_db_fetch($sql, $id_field);
+	if ($id_field) {
+		$lines = zz_db_fetch($sql, $id_field);
+	} else {
+		$lines = zz_db_fetch($sql, '_dummy_', 'numeric');
+	}
 	$lines = zz_list_query_extras($lines, $id_field, $extra_sqls);
 	return zz_return($lines);
 }
