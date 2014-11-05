@@ -98,13 +98,13 @@ function zz_add_modules($modules, $path) {
  *		array $zz_conf['modules'] will be written, $zz_conf['export'] if
  *		applicable
  *		checking 'translations_of_fields', 'generate_output'
- * @return bool $post_too_big
+ * @return void
  */
 function zz_dependent_modules($zz) {
 	global $zz_conf;
 
 	// check if POST is too big, then it will be empty
-	$post_too_big = $zz_conf['generate_output'] ? zzform_post_too_big() : false;
+	$zz_conf['int']['post_too_big'] = $zz_conf['generate_output'] ? zzform_post_too_big() : false;
 
 	$modules = array('translations', 'conditions', 'geo', 'export', 'upload');
 	foreach ($modules as $index => $module) {
@@ -169,7 +169,7 @@ function zz_dependent_modules($zz) {
 			break;
 		case 'upload':
 			// check if there was an upload, so we need this module
-			if ($post_too_big) break;
+			if ($zz_conf['int']['post_too_big']) break;
 			if (!empty($_FILES)) break;
 			if (!zz_module_fieldcheck($zz, 'type', 'upload_image')) {
 				unset($modules[$index]);
@@ -183,7 +183,7 @@ function zz_dependent_modules($zz) {
 	if (!empty($GLOBALS['zz_saved']['conf'])) {
 		$GLOBALS['zz_saved']['conf']['modules'] = $zz_conf['modules'];
 	}
-	return $post_too_big;
+	return true;
 }
 
 /**

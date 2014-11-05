@@ -23,29 +23,26 @@
  * records and does insert, update and delete database operations
  *
  * @param array $zz (@deprecated if empty, will be taken from global namespace)
- * @global array $zz_conf
- * @global array $zz_error
+ * @global array $zz_conf	configuration variables
+ * @global array $zz_error	error handling
  * @todo think of zzform($zz, $zz_conf) to get rid of global variables
  */
 function zzform($zz = array()) {
-	if (!$zz) $zz = $GLOBALS['zz'];	// @deprecated Table description
-	global $zz_conf;				// Config variables
+	global $zz_conf;
+	global $zz_error;
+
+	// @deprecated Table description
+	if (!$zz) $zz = $GLOBALS['zz'];
 
 	// This variable signals that zzform is included
 	if (empty($zz_conf['zzform_calls'])) $zz_conf['zzform_calls'] = 1;
 	else $zz_conf['zzform_calls']++;
 
-//	Variables which are required by several functions
-	global $zz_error;
-	$zz_error = array();
-	$zz_error['error'] = false;	// if true, exit script immediately
-	$zz_error['output'] = array();
-	
-//
-//	Default Configuration
-//
-
-//	initialize variables
+	//	initialize variables
+	$zz_error = array(
+		'error' => false,		// if true, exit script immediately
+		'output' => array()
+	);
 	$ops = array(
 		'result' => '',
 		'headers' => false,
@@ -53,15 +50,11 @@ function zzform($zz = array()) {
 		'error' => array(),
 		'id' => 0
 	);
-
 	// set default configuration variables
-	// import modules
-	// set and get URI
+	// import modules, set and get URI
 	zz_initialize();
 	$zz = zz_defaults($zz);
-	if ($zz_conf['generate_output']) {
-		zz_init_limit($zz);
-	}
+
 	$zz_conf['int']['access'] = isset($zz['access']) ? $zz['access'] : $zz_conf['access'];
 
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
@@ -70,7 +63,7 @@ function zzform($zz = array()) {
 	zz_set_encoding($zz_conf['character_set']);
 
 	// include dependent modules
-	$post_too_big = zz_dependent_modules($zz);
+	zz_dependent_modules($zz);
 
 	if ($zz_conf['zzform_calls'] > 1 AND empty($zz_conf['multi'])) { 
 		// show a warning only if zzform is not explicitly called via zzform_multi()
@@ -154,6 +147,10 @@ function zzform($zz = array()) {
 	// internal variables, mode and action
 	$ops['mode'] = false;		// mode: what form/view is presented to the user
 	$zz_var['action'] = false;	// action: what database operations are to be done
+
+	if ($zz_conf['generate_output']) {
+		zz_init_limit($zz);
+	}
 
 	// initalize export module
 	// might set mode to export
@@ -265,7 +262,7 @@ function zzform($zz = array()) {
 			$ops['output'] .= zz_format($zz['explanation']);
 		$ops['output'] .= "\n<div class='explanation_dynamic'></div>\n";
 	}
-	if ($post_too_big) {
+	if ($zz_conf['int']['post_too_big']) {
 		$zz_error[] = array(
 			'msg' => zz_text('Transfer failed. Probably you sent a file that was too large.').'<br>'
 				.zz_text('Maximum allowed filesize is').' '
@@ -1100,19 +1097,18 @@ function zz_backwards($zz_conf, $zz) {
  *
  * @return bool true: error, false: everything ok
  */
-function zzform_post_too_big() {	
-	if ($_SERVER['REQUEST_METHOD'] == 'POST' AND empty($_POST)
-		AND $_SERVER['CONTENT_LENGTH'] > zz_return_bytes(ini_get('post_max_size'))) {
-		// without sessions, we can't find out where the user has come from
-		// just if we have a REFERER
-		if (!empty($_SERVER['HTTP_REFERER'])) {
-			$url = parse_url($_SERVER['HTTP_REFERER']);
-			if (!empty($url['query'])) {
-				parse_str($url['query'], $query);
-				$_GET = array_merge($_GET, $query);
-			}
-		}
-		return true;
+function zzform_post_too_big() {
+	if ($_SERVER['REQUEST_METHOD'] !== 'POST') return false;
+	if (!empty($_POST)) return false;
+	if ($_SERVER['CONTENT_LENGTH'] <= zz_return_bytes(ini_get('post_max_size'))) return false;
+
+	// without sessions, we can't find out where the user has come from
+	// just if we have a REFERER
+	if (empty($_SERVER['HTTP_REFERER'])) return true;
+	$url = parse_url($_SERVER['HTTP_REFERER']);
+	if (!empty($url['query'])) {
+		parse_str($url['query'], $query);
+		$_GET = array_merge($_GET, $query);
 	}
-	return false;
+	return true;
 }
