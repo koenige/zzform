@@ -15,6 +15,33 @@
 
 
 /**
+ * Create HTML output and page title
+ * 
+ * @param array $ops
+ * @param array $zz
+ * @param array $where_condition = $zz_var['where_condition']
+ * @return array $ops
+ *		string 'heading', string 'title', string 'output'
+ */
+function zz_output_html_top($ops, $zz, $where_condition) {
+	// make nicer headings
+	$ops['heading'] = zz_nice_headings($ops['heading'], $zz, $where_condition);
+	// provisional title, in case errors occur
+	$ops['title'] = strip_tags($ops['heading']);
+	if (trim($ops['heading']) AND empty($zz['dont_show_h1']))
+		$ops['output'].= "\n".'<h1>'.$ops['heading'].'</h1>'."\n\n";
+	if ($zz['explanation']) 
+		$ops['output'] .= zz_format($zz['explanation']);
+	$ops['output'] .= "\n<div class='explanation_dynamic'></div>\n";
+	$ops['output'] .= zz_error_output();
+
+	$selection = zz_nice_selection($zz['fields']);
+	if ($selection)
+		$ops['output'].= "\n".'<h2>'.$selection.'</h2>'."\n\n";
+	return $ops;
+}
+
+/**
  * format a provisional heading if errors occur
  *
  * @param string $heading ($ops['heading'], from $zz['title'])

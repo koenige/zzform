@@ -204,20 +204,7 @@ function zzform($zz = array()) {
 
 //	page output
 	if ($zz_conf['generate_output'] AND ($zz_conf['int']['record'] OR $zz_conf['int']['show_list'])) {
-		// make nicer headings
-		$ops['heading'] = zz_nice_headings($ops['heading'], $zz, $zz_var['where_condition']);
-		// provisional title, in case errors occur
-		$ops['title'] = strip_tags($ops['heading']);
-		if (trim($ops['heading']) AND empty($zz['dont_show_h1']))
-			$ops['output'].= "\n".'<h1>'.$ops['heading'].'</h1>'."\n\n";
-		if ($zz['explanation']) 
-			$ops['output'] .= zz_format($zz['explanation']);
-		$ops['output'] .= "\n<div class='explanation_dynamic'></div>\n";
-		$ops['output'] .= zz_error_output();
-
-		$selection = zz_nice_selection($zz['fields']);
-		if ($selection)
-			$ops['output'].= "\n".'<h2>'.$selection.'</h2>'."\n\n";
+		$ops = zz_output_html_top($ops, $zz, $zz_var['where_condition']);
 	}
 
 	if (isset($_POST['zz_merge'])) {
