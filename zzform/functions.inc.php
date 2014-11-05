@@ -1820,6 +1820,101 @@ function zz_get_fieldtype($field) {
 }
 
 /**
+ * change some values, just for backwards compatibility
+ *
+ * @param array $zz_conf
+ * @param array $zz
+ * @return array
+ */
+function zz_backwards($zz_conf, $zz) {
+	$headings = array('var', 'sql', 'enum', 'link', 'link_no_append');
+	foreach ($headings as $suffix) {
+		if (isset($zz_conf['heading_'.$suffix])) {
+			if (function_exists('wrap_error')) {
+				wrap_error(sprintf(
+					'Use of deprecated variable $zz_conf["heading_%s"], use $zz["subtitle"][$key][%s] instead. (URL: %s)',
+					$suffix, $suffix, $_SERVER['REQUEST_URI']));
+			}
+			foreach ($zz_conf['heading_'.$suffix] as $field => $value) {
+				$zz['subtitle'][$field][$suffix] = $value;
+				unset ($zz_conf['heading_'.$suffix][$field]);
+			}
+		}
+	}
+	$moved_to_zz = array(
+		'heading' => 'title',
+		'heading_text' => 'explanation',
+		'heading_text_hidden_while_editing', array('if', 'record_mode', 'explanation'),
+		'heading_sub' => 'subtitle',
+		'action' => 'extra_action',
+		'tfoot' => array('list', 'tfoot'),
+		'group' => array('list', 'group'),
+		'folder' => 'folder'
+	);
+	foreach ($moved_to_zz as $old => $new) {
+		if (isset($zz_conf[$old])) {
+			if (is_array($new) AND count($new === 2)) {
+				$zz[$new[0]][$new[1]] = $zz_conf[$old];
+				$new = implode('"]["', $new);
+			} else {
+				$zz[$new] = $zz_conf[$old];
+			}
+			unset($zz_conf[$old]);
+			wrap_error(sprintf(
+				'Use of deprecated variable $zz_conf["%s"], use $zz["%s"] instead. (URL: %s)',
+				$old, $new, $_SERVER['REQUEST_URI']
+			));
+		}
+	}
+	if (!empty($zz_conf['show_hierarchy'])) {
+		$zz['list']['hierarchy'] = $zz_conf['hierarchy'];
+		if (is_numeric($zz_conf['show_hierarchy'])) {
+			$zz['list']['hierarchy']['id'] = $zz_conf['show_hierarchy'];
+		}
+		unset($zz_conf['show_hierarchy']);
+		unset($zz_conf['hierarchy']);
+		wrap_error(sprintf(
+			'Use of deprecated variable $zz_conf["show_hierarchy"], use $zz["list"]["hierarchy"] instead. (URL: %s)',
+			$_SERVER['REQUEST_URI']
+		));
+	}
+	// conditions applied = if
+	$cond_renamed = array('conditions' => 'if', 'not_conditions' => 'unless');
+	foreach ($cond_renamed as $old => $new) {
+		if (isset($zz_conf[$old])) {
+			$zz_conf[$new] = $zz_conf[$old];
+			unset($zz_conf[$old]);
+			wrap_error(sprintf(
+				'Use of deprecated variable $zz_conf["%s"], use $zz_conf["%s"] instead. (URL: %s)',
+				$old, $new, $_SERVER['REQUEST_URI']
+			));
+		}
+		foreach ($zz['fields'] as $no => $field) {
+			if (!empty($field['type']) AND $field['type'] === 'subtable' AND !empty($field['fields'])) {
+				foreach ($field['fields'] as $sub_no => $sub_field) {
+					if (!isset($sub_field[$old])) continue;
+					$zz['fields'][$no]['fields'][$sub_no][$new] = $sub_field[$old];
+					unset($zz['fields'][$no]['fields'][$sub_no][$old]);
+					wrap_error(sprintf(
+						'Use of deprecated variable $zz["fields"][%d]["fields"][%d]["%s"], use $zz["fields"][%d]["fields"][%d]["%s"] instead. (URL: %s)',
+						$no, $sub_no, $old, $no, $sub_no, $new, $_SERVER['REQUEST_URI']
+					));
+				}
+			}
+			if (!isset($field[$old])) continue;
+			$zz['fields'][$no][$new] = $field[$old];
+			unset($zz['fields'][$no][$old]);
+			wrap_error(sprintf(
+				'Use of deprecated variable $zz["fields"][%d]["%s"], use $zz["fields"][%d]["%s"] instead. (URL: %s)',
+				$no, $old, $no, $new, $_SERVER['REQUEST_URI']
+			));
+		}
+	}
+	return array($zz_conf, $zz);
+}
+
+
+/**
  * --------------------------------------------------------------------
  * E - Error functions
  * --------------------------------------------------------------------
