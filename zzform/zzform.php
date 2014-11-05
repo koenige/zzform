@@ -627,7 +627,6 @@ function zz_initialize($mode = false) {
 
 	$default['always_show_empty_detail_record'] = false;
 	$default['additional_text']	= false;
-	$default['backlink']		= true;		// show back-to-overview link
 	$default['access']			= '';		// nothing, does not need to be set, might be set individually
 	$default['add']				= true;		// add or do not add data.
 	$default['cancel_link']		= true;

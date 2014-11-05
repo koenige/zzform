@@ -1212,7 +1212,6 @@ function zz_record_access($zz, $ops, $zz_var) {
 		$zz_conf['view'] = false;			// don't show record (links)
 		$zz_conf['int']['show_list'] = true;		// list
 		$zz_conf['show_record'] = false;	// don't show record
-		$zz_conf['backlink'] = false; 		// don't show back to overview link
 		break;
 	case 'show_after_add';
 		$zz_conf['add'] = false;			// don't add record (form+links)

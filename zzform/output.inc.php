@@ -611,7 +611,6 @@ function zz_output_add_links($extra_get) {
  */
 function zz_output_backlink($zz_tab, $id) {
 	global $zz_conf;
-	if (!$zz_conf['backlink']) return false;
 	if (!empty($zz_conf['dynamic_referer'])) {
 		if (empty($zz_tab[0][0]['id'])) $zz_tab[0][0]['id'] = $id;
 		return '<p id="back-overview"><a href="'
