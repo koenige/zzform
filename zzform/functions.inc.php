@@ -615,7 +615,7 @@ function zz_in_array_str($needle, $haystack) {
  *		array $zz
  *		array $zz_var
  */
-function zz_where_conditions($zz, $zz_var);
+function zz_where_conditions($zz, $zz_var) {
 	$zz['sql_without_where'] = $zz['sql'];
 	$table_for_where = isset($zz['table_for_where']) ? $zz['table_for_where'] : array();
 	list($zz['sql'], $zz_var) = zz_apply_where_conditions(
