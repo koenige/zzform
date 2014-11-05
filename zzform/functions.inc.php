@@ -1116,6 +1116,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 	
 	// set mode and action according to $_GET and $_POST variables
 	// do not care yet if actions are allowed
+	$keys = array();
 	switch (true) {
 	case $ops['mode'] === 'export':
 		// Export overwrites all
@@ -1152,9 +1153,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		} else {
 			// illegal parameter, don't set a mode at all
 			$zz_conf['int']['http_status'] = 404;
-			$unwanted_keys = array('id', 'mode');
-			$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
-			$ops['mode'] = false;
+			$keys = array('id', 'mode');
 		}
 		break;
 
@@ -1164,18 +1163,15 @@ function zz_record_access($zz, $ops, $zz_var) {
 	case isset($_GET['noupdate']):
 		// last record operation was successful
 		$ops['mode'] = 'show';
-		$action_strings = array('delete', 'insert', 'update', 'noupdate');
+		$keys = array('delete', 'insert', 'update', 'noupdate');
 		$found = 0;
-		foreach ($action_strings as $string) {
-			if (!isset($_GET[$string])) continue;
-			if ($string !== 'delete') $id_value = $_GET[$string];
+		foreach ($keys as $key) {
+			if (!isset($_GET[$key])) continue;
+			if ($key !== 'delete') $id_value = $_GET[$key];
 			$found++;
 		}
 		if ($found > 1) {
-			$id_value = false;
 			$zz_conf['int']['http_status'] = 404;
-			$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $action_strings);
-			$ops['mode'] = false;
 		}
 		break;
 
@@ -1208,6 +1204,12 @@ function zz_record_access($zz, $ops, $zz_var) {
 		// list mode only
 		$ops['mode'] = 'list_only';
 		break;
+	}
+	
+	if (!empty($zz_conf['int']['http_status']) AND $zz_conf['int']['http_status'] === 404) {
+		$id_value = false;
+		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $keys);
+		$ops['mode'] = false;
 	}
 
 	// write main id value, might have been written by a more trustful instance
