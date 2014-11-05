@@ -284,3 +284,19 @@ function zz_merge_get_date($date) {
 	}
 	return $date;
 }
+
+/**
+ * output merge message
+ *
+ * @param array $merge
+ * @return string
+ */
+function zz_merge_message($merge) {
+	$output = '<div id="record">'."\n";
+	$output .= '<h2>'.($merge['title'] ? $merge['title'] : zz_text('Merge')).'</h2>'."\n";
+	if ($merge['msg']) {
+		$output .= implode('<br>', $merge['msg']);
+	}
+	$output .= '</div>'."\n";
+	return $output;
+}
