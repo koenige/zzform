@@ -200,7 +200,7 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 		$output .= $zz_conf['footer_record']['delete'];
 	}
 
-	$output .= zz_output_backlink($zz_tab, $zz_var['id']);
+	$output .= zz_output_backlink($zz_tab);
 
 	return $output;
 }

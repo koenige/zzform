@@ -605,20 +605,18 @@ function zz_output_add_links($extra_get) {
  * HTML output of a backlink
  *
  * @param array $zz_tab
- * @param array $id = $zz_var['id']
  * @global array $zz_conf
  * @return string HTML output Back to overview
  */
-function zz_output_backlink($zz_tab = array(), $id = array()) {
+function zz_output_backlink($zz_tab = array()) {
 	global $zz_conf;
 	$link = false;	
 
 	if (!empty($zz_tab)) {
 		// backlink below record form, just dynamic_referer
 		if (empty($zz_conf['dynamic_referer'])) return '';
-		if (empty($zz_tab[0][0]['id'])) $zz_tab[0][0]['id'] = $id;
-		// don't show second referer below list/form
 		$link = zz_makepath($zz_conf['dynamic_referer'], $zz_tab, 'new', 'local');
+		// don't show second referer below list/form
 		$zz_conf['referer'] = false;
 	} elseif ($zz_conf['referer']) {
 		$link = $zz_conf['int']['referer_esc'];
