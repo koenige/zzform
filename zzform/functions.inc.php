@@ -607,7 +607,7 @@ function zz_in_array_str($needle, $haystack) {
 }
 
 /**
- * apply where conditions to SQL query
+ * get and apply where conditions to SQL query and fields
  *
  * @param array $zz
  * @param array $zz_var
@@ -616,6 +616,11 @@ function zz_in_array_str($needle, $haystack) {
  *		array $zz_var
  */
 function zz_where_conditions($zz, $zz_var) {
+	// get 'where_conditions' for SQL query from GET add, filter oder where
+	// get 'zz_fields' from GET add
+	$zz_var = zz_get_where_conditions($zz, $zz_var);
+
+	// apply where conditions to SQL query
 	$zz['sql_without_where'] = $zz['sql'];
 	$table_for_where = isset($zz['table_for_where']) ? $zz['table_for_where'] : array();
 	list($zz['sql'], $zz_var) = zz_apply_where_conditions(
