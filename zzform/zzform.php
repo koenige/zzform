@@ -132,7 +132,7 @@ function zzform($zz = array()) {
 	// (there it will be changed depending on outcome of db operations)
 
 	// upload values are only needed for record
-	if (!$zz_conf['show_record']) unset($zz_conf['upload']);
+	if (!$zz_conf['int']['record']) unset($zz_conf['upload']);
 
 //
 //	Errors? Initaliziation of output
@@ -185,7 +185,7 @@ function zzform($zz = array()) {
 //	Add, Update or Delete
 //
 
-	if ($zz_conf['show_record']) {
+	if ($zz_conf['int']['record']) {
 		if (!empty($zz_conf['modules']['conditions'])) {
 			$zz = zz_conditions_record($zz, $zz_conditions, $zz_var['id']['value']);
 		}
@@ -200,7 +200,7 @@ function zzform($zz = array()) {
 	$zz['fields'] = zz_fill_out($zz['fields'], $zz_conf['db_name'].'.'.$zz['table'], false, $ops['mode']); 
 
 //	page output
-	if ($zz_conf['generate_output'] AND ($zz_conf['show_record'] OR $zz_conf['int']['show_list'])) {
+	if ($zz_conf['generate_output'] AND ($zz_conf['int']['record'] OR $zz_conf['int']['show_list'])) {
 		// make nicer headings
 		$ops['heading'] = zz_nice_headings($ops['heading'], $zz, $zz_var['where_condition']);
 		// provisional title, in case errors occur
@@ -221,7 +221,7 @@ function zzform($zz = array()) {
 		);
 	}
 	zz_error();
-	if ($zz_conf['generate_output'] AND ($zz_conf['show_record'] OR $zz_conf['int']['show_list'])) {
+	if ($zz_conf['generate_output'] AND ($zz_conf['int']['record'] OR $zz_conf['int']['show_list'])) {
 		$ops['output'] .= zz_error_output();
 
 		$selection = zz_nice_selection($zz['fields']);
@@ -236,10 +236,10 @@ function zzform($zz = array()) {
 			$ops['output'] .= zz_merge_message($merge);
 		}
 		if ($merge['uncheck']) $zz['list']['dont_check_records'] = true;
-		$zz_conf['show_record'] = false;
+		$zz_conf['int']['record'] = false;
 	}
 
-	if ($zz_conf['show_record']) {
+	if ($zz_conf['int']['record']) {
 		require_once $zz_conf['dir_inc'].'/preparation.inc.php';
 
 		if (in_array('upload', $zz_conf['modules']) && $zz_conf['modules']['upload'])
@@ -318,7 +318,7 @@ function zzform($zz = array()) {
 	
 	$zz_var['extraGET'] = zz_extra_get_params($ops['mode'], $zz_conf);
 
-	if ($zz_conf['show_record']) {
+	if ($zz_conf['int']['record']) {
 		// there might be now a where value for this record
 		if (!empty($zz_var['where'][$zz['table']])) {
 			foreach ($zz_var['where'][$zz['table']] as $field_name => $value) {
