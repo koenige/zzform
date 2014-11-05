@@ -607,6 +607,47 @@ function zz_in_array_str($needle, $haystack) {
 }
 
 /**
+ * apply where conditions to SQL query
+ *
+ * @param array $zz
+ * @param array $zz_var
+ * @return array
+ *		array $zz
+ *		array $zz_var
+ */
+function zz_where_conditions($zz, $zz_var);
+	$zz['sql_without_where'] = $zz['sql'];
+	$table_for_where = isset($zz['table_for_where']) ? $zz['table_for_where'] : array();
+	list($zz['sql'], $zz_var) = zz_apply_where_conditions(
+		$zz_var, $zz['sql'], $zz['table'], $table_for_where
+	);
+	if (isset($zz['sqlrecord'])) {
+		list($zz['sqlrecord'], $zz_var) = zz_apply_where_conditions(
+			$zz_var, $zz['sqlrecord'], $zz['table'], $table_for_where
+		);
+	}
+	if (!empty($zz_var['where'])) {
+		// shortcout sqlcount is no longer possible
+		unset($zz['sqlcount']);
+	}
+
+	// if GET add already set some values, merge them to field
+	// definition
+	foreach (array_keys($zz['fields']) as $no) {
+		if (empty($zz['fields'][$no]['field_name'])) continue;
+		if (empty($zz_var['zz_fields'][$zz['fields'][$no]['field_name']])) continue;
+		// get old type definition and use it as type_detail if not set
+		if (empty($zz['fields'][$no]['type_detail'])) {
+			$zz['fields'][$no]['type_detail'] = $zz['fields'][$no]['type'];
+		}
+		$zz['fields'][$no] = array_merge($zz['fields'][$no], 
+			$zz_var['zz_fields'][$zz['fields'][$no]['field_name']]);
+	}
+
+	return array($zz, $zz_var);
+}
+
+/**
  * applies where conditions to get different sql query, id values and some
  * further variables for nice headings etc.
  *

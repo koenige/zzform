@@ -31,6 +31,10 @@ function zzform($zz = array()) {
 	global $zz_conf;
 	global $zz_error;
 
+//
+//	Initialize variables & modules
+//
+
 	// @deprecated Table description
 	if (!$zz) $zz = $GLOBALS['zz'];
 
@@ -108,36 +112,8 @@ function zzform($zz = array()) {
 	// exit if there's something wrong with the table definition
 	if (!$zz_var) return zzform_exit($ops);
 
-	// apply where conditions to SQL query
-	if (!isset($zz['table_for_where'])) $zz['table_for_where'] = array();
-	$zz['sql_without_where'] = $zz['sql'];
-	list($zz['sql'], $zz_var) = zz_apply_where_conditions(
-		$zz_var, $zz['sql'], $zz['table'], $zz['table_for_where']
-	);
-	if (isset($zz['sqlrecord'])) {
-		list($zz['sqlrecord'], $zz_var) = zz_apply_where_conditions(
-			$zz_var, $zz['sqlrecord'], $zz['table'], $zz['table_for_where']
-		);
-	}
-	if (!empty($zz_var['where'])) {
-		unset($zz['sqlcount']);
-	}
-	unset($zz['table_for_where']);
-	
-	// if GET add already set some values, merge them to field
-	// definition
-	foreach (array_keys($zz['fields']) as $no) {
-		if (!empty($zz['fields'][$no]['field_name']) AND
-			!empty($zz_var['zz_fields'][$zz['fields'][$no]['field_name']])
-		) {
-			// get old type definition and use it as type_detail if not set
-			if (empty($zz['fields'][$no]['type_detail'])) {
-				$zz['fields'][$no]['type_detail'] = $zz['fields'][$no]['type'];
-			}
-			$zz['fields'][$no] = array_merge($zz['fields'][$no], 
-				$zz_var['zz_fields'][$zz['fields'][$no]['field_name']]);
-		}
-	}
+	// apply where conditions to SQL query and fields
+	list ($zz, $zz_var) = zz_where_conditions($zz, $zz_var);
 
 //
 //	Check mode, action, access for record;
