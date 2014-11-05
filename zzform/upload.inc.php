@@ -2060,30 +2060,30 @@ function zz_upload_cleanup($zz_tab, $validated = true) {
 	
 	// files-ID = combination of script name and ID
 	$id = $zz_conf['int']['secret_key'];
-	if (!$validated) {
-		// this will only work with SESSIONs
-		if (empty($_SESSION)) $validated = false;
-	} else {
+	if ($validated) {
 		if (!empty($_SESSION['zz_files'][$id])) {
 			unset($_SESSION['zz_files'][$id]);
 		}
 	}
 	if (!$zz_tab[0]['upload_fields']) return false;
-	foreach ($zz_tab[0]['upload_fields'] as $uf) {
-		$tab = $uf['tab'];
-		$rec = $uf['rec'];
-		$no = $uf['f'];
-		if (empty($zz_tab[$tab][$rec]['images'][$no]['all_temp'])) continue;
-		foreach ($zz_tab[$tab][$rec]['images'][$no]['all_temp'] as $file) {
-			if (file_exists($file) && is_file($file)) {
-				if ($validated) {
-				// delete file and empty parent folders
-					zz_unlink_cleanup($file);
-				} else {
-					$_SESSION['zz_files'][$id][$tab][$rec]['file_upload'] = $zz_tab[$tab][$rec]['file_upload'];
-					$_SESSION['zz_files'][$id][$tab][$rec]['images'] = $zz_tab[$tab][$rec]['images'];
-					$_SESSION['zz_files'][$id][$tab][$rec][$no]['filenames'][] = $file;
-				}
+
+	if ($validated) {
+		foreach ($zz_tab[0]['upload_fields'] as $uf) {
+			$tab = $uf['tab'];
+			$rec = $uf['rec'];
+			$no = $uf['f'];
+			if (empty($zz_tab[$tab][$rec]['images'][$no]['all_temp'])) continue;
+			if (!file_exists($file)) continue;
+			if (!is_file($file)) continue;
+			zz_unlink_cleanup($file);
+		}
+	} else {
+		foreach ($zz_tab[0]['upload_fields'] as $uf) {
+			$tab = $uf['tab'];
+			$rec = $uf['rec'];
+			if (!empty($zz_tab[$tab][$rec]['images'])) {
+				$_SESSION['zz_files'][$id][$tab][$rec]['file_upload'] = $zz_tab[$tab][$rec]['file_upload'];
+				$_SESSION['zz_files'][$id][$tab][$rec]['images'] = $zz_tab[$tab][$rec]['images'];
 			}
 		}
 	}
