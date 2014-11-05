@@ -614,8 +614,8 @@ function zz_output_backlink($zz_tab = array()) {
 
 	if (!empty($zz_tab)) {
 		// backlink below record form, just dynamic_referer
-		if (empty($zz_conf['dynamic_referer'])) return '';
-		$link = zz_makepath($zz_conf['dynamic_referer'], $zz_tab, 'new', 'local');
+		if (empty($zz_tab[0]['dynamic_referer'])) return '';
+		$link = zz_makepath($zz_tab[0]['dynamic_referer'], $zz_tab, 'new', 'local');
 		// don't show second referer below list/form
 		$zz_conf['referer'] = false;
 	} elseif ($zz_conf['referer']) {

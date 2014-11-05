@@ -36,6 +36,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	$zz_tab[0]['sqlextra'] = !empty($zz['sqlextra']) ? $zz['sqlextra'] : array();
 	$zz_tab[0]['extra_action'] = !empty($zz['extra_action']) ? $zz['extra_action'] : array();
 	$zz_tab[0]['folder'] = !empty($zz['folder']) ? $zz['folder'] : array();
+	$zz_tab[0]['dynamic_referer'] = !empty($zz['dynamic_referer']) ? $zz['dynamic_referer'] : false;
 	$zz_tab[0]['add_from_source_id'] = !empty($zz['add_from_source_id']) ? true : false;
 	if (!empty($zz['set_redirect'])) {
 		// update/insert redirects after_delete and after_update
