@@ -976,10 +976,21 @@ function zz_upload_prepare($zz_tab) {
 		$tab = $uf['tab'];
 		$rec = $uf['rec'];
 		$no = $uf['f'];
-		if (!empty($zz_tab[$tab][$rec]['images'][$no]['read_from_session'])) continue;
+		$my_rec = &$zz_tab[$tab][$rec];
+		if (!empty($my_rec['images'][$no]['read_from_session'])) continue;
 
-		foreach (array_keys($zz_tab[$tab][$rec]['fields'][$no]['image']) as $img) {
-			$zz_tab = zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img);
+		foreach (array_keys($my_rec['fields'][$no]['image']) as $img) {
+			if (empty($my_rec['images'][$no][$img])) continue;
+			$prepared_img = zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img);
+			if ($prepared_img) {
+				$my_rec['images'][$no][$img] = $prepared_img;
+				if (!empty($prepared_img['no_file_upload'])) {
+					$my_rec['no_file_upload'] = true;
+				}
+				if (!empty($prepared_img['file_upload'])) {
+					$my_rec['file_upload'] = true;
+				}
+			}
 		}
 	}
 	return zz_return($zz_tab);
@@ -993,7 +1004,7 @@ function zz_upload_prepare($zz_tab) {
  * @param int $rec
  * @param int $no
  * @param int $img
- * @return array $zz_tab
+ * @return array $image = $zz_tab[tab][rec]['images'][no][img]
  */
 function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 	global $zz_conf;
@@ -1001,24 +1012,20 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 		zz_debug('preparing ['.$tab.']['.$rec.'] - '.$img);
 	}
 
-	$my_rec = &$zz_tab[$tab][$rec];
-	if (empty($my_rec['images'][$no][$img])) return $zz_tab;
-
 	// reference on image data
+	$my_rec = &$zz_tab[$tab][$rec];
 	$image = $my_rec['images'][$no][$img];
+
 	if (!empty($image['unsupported_filetype'])) {
 		// get rid of the file and go on
 		if (empty($image['upload']['do_not_delete'])) {
 			zz_unlink_cleanup($image['upload']['tmp_name']);
 		}
-		return $zz_tab;
+		return array();
 	}
 	$image = zz_upload_merge_options($image, $zz_tab[$tab], $rec);
 
-	if (!empty($image['ignore'])) {
-		$my_rec['images'][$no][$img] = $image;
-		return $zz_tab; // ignore image
-	}
+	if (!empty($image['ignore'])) return $image;
 
 	$dont_use_upload = false;
 	$src_image = false;
@@ -1030,17 +1037,18 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 	}
 
 	// check which source file shall be used
-	if (isset($image['source'])) { // must be isset, because 'source' might be 0
+	if (isset($image['source'])) {
+		// must be isset, because 'source' might be 0
 		// it's a thumbnail or some other derivate from the original file
 		if ($zz_conf['modules']['debug']) zz_debug('source: '.$image['source']);
 
 		if (!$src_image) // might come from zz_upload_get_source_field()
 			$src_image = $my_rec['images'][$no][$image['source']];
-		if (!empty($src_image['unsupported_filetype'])) return $zz_tab;
+		if (!empty($src_image['unsupported_filetype'])) return $image;
 		if (!empty($image['use_modified_source'])) {
 			// get filename from modified source, false if there was an error
 			$source_filename = isset($src_image['files']) 
-				? $src_image['files']['tmp_files'] : false;
+				? $src_image['files']['tmp_file'] : false;
 			if (!$source_filename AND $zz_conf['modules']['debug']) 
 				zz_debug('use_modified_source: no source filename!');
 		} else {
@@ -1055,7 +1063,7 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 		// cross check input filetypes
 		if (!empty($image['input_filetypes']) AND !empty($src_image['upload']['filetype'])) {
 			// continue if this file shall not be touched.
-			if (!in_array($src_image['upload']['filetype'], $image['input_filetypes'])) return $zz_tab;
+			if (!in_array($src_image['upload']['filetype'], $image['input_filetypes'])) return $image;
 		}
 		unset($src_image);
 		$dont_use_upload = true;
@@ -1111,42 +1119,40 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 	if (!$dont_use_upload) {
 		// it's the original file we upload to the server
 		$source_filename = $image['upload']['tmp_name'];
+		// for later cleanup of leftover tmp files
+		if (empty($image['upload']['do_not_delete'])) {
+			$zz_conf['int']['upload_cleanup_files'][] = $source_filename;
+		}
 	}
 	if ($zz_conf['modules']['debug']) zz_debug('source_filename: '.$source_filename);
 
-	if ($source_filename && $source_filename != 'none') {
+	if ($source_filename && $source_filename !== 'none') {
+		// get e. g. width and height from a list of widths and heights which fit best
 		$image = zz_upload_auto_image($image);
-		if (!$image) zz_return($zz_tab);
-
-		// for later cleanup of leftover tmp files
-		if (!$dont_use_upload AND file_exists($source_filename) AND empty($image['upload']['do_not_delete'])) {
-			$zz_conf['int']['upload_cleanup_files'][] = $source_filename;
-		}
+		if (!$image) return array();
 		
 		// only if something new was uploaded!
 		$image['modified'] = zz_upload_create_thumbnails($source_filename, $image, $my_rec);
 		if ($image['modified'] === -1) {
-			$image['files']['tmp_files'] = false; // do not upload anything
+			$image['files']['tmp_file'] = false; // do not upload anything
 			// @todo mark existing image for deletion if there is one!							
 			$image['delete_thumbnail'] = true;
-			$my_rec['no_file_upload'] = true;
+			$image['no_file_upload'] = true;
 		} elseif ($image['modified']) {
-			$image['files']['tmp_files'] = $image['modified']['tmp_name'];
+			$image['files']['tmp_file'] = $image['modified']['tmp_name'];
 			$zz_conf['int']['upload_cleanup_files'][] = $image['modified']['tmp_name'];
-			$my_rec['file_upload'] = true;
+			$image['file_upload'] = true;
 		} else {
 			// no thumbnail was created, just keep original file
 			if (isset($image['source'])) {
-				$image['files']['tmp_files'] = false;
+				$image['files']['tmp_file'] = false;
 			} else {
-				$image['files']['tmp_files'] = file_exists($source_filename) ? $source_filename : '';
+				$image['files']['tmp_file'] = file_exists($source_filename) ? $source_filename : '';
 			}
 			unset($image['modified']);
 		}
 	}
-	// write $image back to $zz_tab
-	$my_rec['images'][$no][$img] = $image;
-	return $zz_tab;
+	return $image;
 }
 
 /**
@@ -1813,8 +1819,8 @@ function zz_upload_action($zz_tab) {
 			}
 
 		//	check if some file was uploaded
-			$uploaded_file = !empty($image['files']['tmp_files'])
-				? $image['files']['tmp_files'] : '';
+			$uploaded_file = !empty($image['files']['tmp_file'])
+				? $image['files']['tmp_file'] : '';
 
 		//	update, only if we have an old record (might sometimes not be the case!)
 			$old_path = ''; // initialize here, will be used later with delete_thumbnail
@@ -2099,6 +2105,7 @@ function zz_upload_cleanup($zz_tab, $validated = true) {
  * will be called via 'auto_size'
  * @param array $image
  * @return array $image
+ *		added: int 'width', int 'height'
  */
 function zz_image_auto_size($image) {
 	//	basics
