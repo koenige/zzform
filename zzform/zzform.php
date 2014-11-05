@@ -7,11 +7,6 @@
  * Part of »Zugzwang Project«
  * http://www.zugzwang.org/projects/zzform
  *
- * required: at least PHP 4.1.2 
- * lower PHP versions have not been tested
- * - mysql_real_escape_string: above 4.3 (addslashes will be used in PHP versions prior)
- * - exif_read_info: above 4.2 (no exif data will be read in PHP versions prior)
- *
  * List of functions in this file
  *	zzform()				main zzform function
  *		zz_initialize()		sets defaults, imports modules, reads URI
