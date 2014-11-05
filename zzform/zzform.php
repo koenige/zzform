@@ -103,15 +103,14 @@ function zzform($zz = array()) {
 	// check GET 'filter'
 	zz_filter_defaults();
 
-	// get 'where_conditions' for SQL query from GET add, filter oder where
-	// get 'zz_fields' from GET add
-	$zz_var = zz_get_where_conditions($zz);
-
 	// get 'unique_fields', especially 'id' = PRIMARY KEY
-	$zz_var = zz_get_unique_fields($zz_var, $zz['fields']);
+	$zz_var = zz_get_unique_fields($zz['fields']);
 	// exit if there's something wrong with the table definition
 	if (!$zz_var) return zzform_exit($ops);
 
+	// get 'where_conditions' for SQL query from GET add, filter oder where
+	// get 'zz_fields' from GET add
+	$zz_var = zz_get_where_conditions($zz, $zz_var);
 	// apply where conditions to SQL query and fields
 	list ($zz, $zz_var) = zz_where_conditions($zz, $zz_var);
 

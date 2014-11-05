@@ -304,6 +304,7 @@ function zz_get_url_self($url_self) {
  * results in a WHERE condition applied to the main SQL query
  *
  * @param array $zz ('where', like in $_GET)
+ * @param array $zz_var
  * @global array $zz_conf
  *		'filter' will be checked for 'where'-filter and set if there is one
  * @return array $zz_var
@@ -311,10 +312,9 @@ function zz_get_url_self($url_self) {
  *		(values for fields depending on where conditions)
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_get_where_conditions($zz) {
+function zz_get_where_conditions($zz, $zz_var) {
 	global $zz_conf;
 
-	$zz_var = array();
 	// WHERE: Add with suggested values
 	$zz_var['where_condition'] = zz_check_get_array('where', 'field_name');
 	if (!empty($zz['where'])) {
@@ -954,17 +954,16 @@ function zz_hash($zz, $zz_conf) {
 /**
  * gets unique and id fields for further processing
  *
- * @param array $zz_var
  * @param array $fields
  * @global array $zz_error
  * @return array $zz_var
  *		'id'[value], 'id'[field_name], 'unique_fields'
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_get_unique_fields($zz_var, $fields) {
+function zz_get_unique_fields($fields) {
 	global $zz_error;
 
-	// set id to false
+	$zz_var = array();
 	$zz_var['id']['value'] = false;
 	$zz_var['id']['field_name'] = false;
 	$zz_var['unique_fields'] = array(); // for WHERE
