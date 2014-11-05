@@ -199,6 +199,9 @@ function zzform($zz = array()) {
 	// set type, title etc. where unset
 	$zz['fields'] = zz_fill_out($zz['fields'], $zz_conf['db_name'].'.'.$zz['table'], false, $ops['mode']); 
 
+	zz_trigger_error_too_big();
+	zz_error();	// @todo check if this can go into zz_trigger_error_too_big()
+
 //	page output
 	if ($zz_conf['generate_output'] AND ($zz_conf['int']['record'] OR $zz_conf['int']['show_list'])) {
 		// make nicer headings
@@ -210,18 +213,6 @@ function zzform($zz = array()) {
 		if ($zz['explanation']) 
 			$ops['output'] .= zz_format($zz['explanation']);
 		$ops['output'] .= "\n<div class='explanation_dynamic'></div>\n";
-	}
-	if ($zz_conf['int']['post_too_big']) {
-		$zz_error[] = array(
-			'msg' => zz_text('Transfer failed. Probably you sent a file that was too large.').'<br>'
-				.zz_text('Maximum allowed filesize is').' '
-				.zz_byte_format($zz_conf['upload_MAX_FILE_SIZE']).' &#8211; '
-				.sprintf(zz_text('You sent: %s data.'), zz_byte_format($_SERVER['CONTENT_LENGTH'])),
-			'level' => E_USER_NOTICE
-		);
-	}
-	zz_error();
-	if ($zz_conf['generate_output'] AND ($zz_conf['int']['record'] OR $zz_conf['int']['show_list'])) {
 		$ops['output'] .= zz_error_output();
 
 		$selection = zz_nice_selection($zz['fields']);

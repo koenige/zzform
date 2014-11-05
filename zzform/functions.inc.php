@@ -2242,6 +2242,26 @@ function zz_error_multi($errors) {
 	return $errors;
 }
 
+/**
+ * Generate error message if POST is too big
+ *
+ * @return bookl
+ */
+function zz_trigger_error_too_big() {
+	global $zz_conf;
+	global $zz_error;
+	
+	if (empty($zz_conf['int']['post_too_big'])) return true;
+	$zz_error[] = array(
+		'msg' => zz_text('Transfer failed. Probably you sent a file that was too large.').'<br>'
+			.zz_text('Maximum allowed filesize is').' '
+			.zz_byte_format($zz_conf['upload_MAX_FILE_SIZE']).' &#8211; '
+			.sprintf(zz_text('You sent: %s data.'), zz_byte_format($_SERVER['CONTENT_LENGTH'])),
+		'level' => E_USER_NOTICE
+	);
+	return false;
+}
+
 /*
  * --------------------------------------------------------------------
  * F - Filesystem functions
