@@ -1103,7 +1103,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	// initialize variables
-	$zz_var['action'] = false;
+	$zz_var['action'] = false;		// action: what database operations are to be done
 	$zz_conf['show_record'] = true; // show record somehow (edit, view, ...)
 	
 	if (!empty($_POST['zz_action'])) {

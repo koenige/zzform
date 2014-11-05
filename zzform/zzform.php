@@ -113,9 +113,7 @@ function zzform($zz = array()) {
 //	Check mode, action, access for record;
 //	access for list will be checked later
 //
-	// internal variables, mode and action
 	$ops['mode'] = false;		// mode: what form/view is presented to the user
-	$zz_var['action'] = false;	// action: what database operations are to be done
 
 	if ($zz_conf['generate_output']) {
 		zz_init_limit($zz);
