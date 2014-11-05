@@ -407,8 +407,7 @@ function zzform($zz = array()) {
 		list($ops, $zz_var) = zz_list($zz, $ops, $zz_var, $zz_conditions); 
 	}
 	if ($ops['mode'] !== 'export') {
-		if (!isset($zz_tab)) $zz_tab = array();
-		$ops['output'] .= zz_output_backlink($zz_tab, $zz_var['id']);
+		$ops['output'] .= zz_output_backlink();
 		// if there was no add button in list, add it here
 		if (!empty($zz_conf['int']['no_add_button_so_far']) AND !empty($zz_conf['no_add_above'])
 			AND $ops['mode'] != 'add') {

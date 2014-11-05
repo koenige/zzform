@@ -198,8 +198,10 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 		$output .= $zz_conf['footer_record']['update'];
 	} elseif (!empty($zz_conf['footer_record']['delete']) AND zz_valid_request('delete')) {
 		$output .= $zz_conf['footer_record']['delete'];
-	}	
-	
+	}
+
+	$output .= zz_output_backlink($zz_tab, $zz_var['id']);
+
 	return $output;
 }
 

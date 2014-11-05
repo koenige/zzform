@@ -609,18 +609,26 @@ function zz_output_add_links($extra_get) {
  * @global array $zz_conf
  * @return string HTML output Back to overview
  */
-function zz_output_backlink($zz_tab, $id) {
+function zz_output_backlink($zz_tab = array(), $id = array()) {
 	global $zz_conf;
-	if (!empty($zz_conf['dynamic_referer'])) {
+	$link = false;	
+
+	if (!empty($zz_tab)) {
+		// backlink below record form, just dynamic_referer
+		if (empty($zz_conf['dynamic_referer'])) return '';
 		if (empty($zz_tab[0][0]['id'])) $zz_tab[0][0]['id'] = $id;
-		return '<p id="back-overview"><a href="'
-			.zz_makepath($zz_conf['dynamic_referer'], $zz_tab, 'new', 'local')
-			.'">'.zz_text('back-to-overview').'</a></p>'."\n";
+		// don't show second referer below list/form
+		$link = zz_makepath($zz_conf['dynamic_referer'], $zz_tab, 'new', 'local');
+		$zz_conf['referer'] = false;
 	} elseif ($zz_conf['referer']) {
-		return '<p id="back-overview"><a href="'.$zz_conf['int']['referer_esc'].'">'
-			.zz_text('back-to-overview').'</a></p>'."\n";
+		$link = $zz_conf['int']['referer_esc'];
 	}
-	return false;
+	if (!$link) return false;
+
+	return sprintf(
+		'<p id="back-overview"><a href="%s">%s</a></p>'."\n",
+		$link, zz_text('back-to-overview')
+	);
 }
 
 /**
