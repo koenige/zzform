@@ -202,9 +202,8 @@ function zzform($zz = array()) {
 	zz_trigger_error_too_big();
 	zz_error();	// @todo check if this can go into zz_trigger_error_too_big()
 
-//	page output
 	if ($zz_conf['generate_output'] AND ($zz_conf['int']['record'] OR $zz_conf['int']['show_list'])) {
-		$ops = zz_output_html_top($ops, $zz, $zz_var['where_condition']);
+		$ops = zz_output_page($ops, $zz, $zz_var['where_condition']);
 	}
 
 	if (isset($_POST['zz_merge'])) {

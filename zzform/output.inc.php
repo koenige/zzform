@@ -23,7 +23,7 @@
  * @return array $ops
  *		string 'heading', string 'title', string 'output'
  */
-function zz_output_html_top($ops, $zz, $where_condition) {
+function zz_output_page($ops, $zz, $where_condition) {
 	// make nicer headings
 	$ops['heading'] = zz_nice_headings($ops['heading'], $zz, $where_condition);
 	// provisional title, in case errors occur
