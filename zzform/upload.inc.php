@@ -203,6 +203,7 @@ function zz_upload_get($zz_tab) {
 
 	// allow shortcuts for file_types
 	$zz_conf['file_types'] = zz_upload_set_filetypes($zz_conf['file_types']);
+	$zz_conf['int']['upload_cleanup_files'] = array();
 
 	// create array upload_fields in $zz_tab[0] for easy access to upload fields
 	$zz_tab[0]['upload_fields'] = zz_upload_get_fields($zz_tab);
@@ -256,6 +257,11 @@ function zz_upload_check_files($zz_tab) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$id = $zz_conf['int']['secret_key'];
 	$session = !empty($_SESSION['zz_files'][$id]) ? $_SESSION['zz_files'][$id] : array();
+	if (!empty($session['upload_cleanup_files'])) {
+		$zz_conf['int']['upload_cleanup_files'] = array_merge(
+			$zz_conf['int']['upload_cleanup_files'], $session['upload_cleanup_files']
+		);
+	}
 	$zz_tab[0]['file_upload'] = false;
 
 	foreach ($zz_tab[0]['upload_fields'] as $uf) {
@@ -303,9 +309,6 @@ function zz_upload_check_files($zz_tab) {
 				continue;
 			}
 			$field_name = $images[$no][$img]['field_name'];
-			
-			if (!empty($session[$tab][$rec]['images'][$no][$img]))
-				$images[$no]['all_temp'] = $session[$tab][$rec]['images'][$no]['all_temp'];
 			
 			if (empty($myfiles['name'][$field_name])
 				AND !empty($session[$tab][$rec]['images'][$no][$img])) {
@@ -1116,11 +1119,8 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 		if (!$image) zz_return($zz_tab);
 
 		// for later cleanup of leftover tmp files
-		if (empty($my_rec['images'][$no]['all_temp'])) {
-			$my_rec['images'][$no]['all_temp'] = array();
-		}
 		if (!$dont_use_upload AND file_exists($source_filename) AND empty($image['upload']['do_not_delete'])) {
-			$my_rec['images'][$no]['all_temp'][] = $source_filename;
+			$zz_conf['int']['upload_cleanup_files'][] = $source_filename;
 		}
 		
 		// only if something new was uploaded!
@@ -1132,7 +1132,7 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 			$my_rec['no_file_upload'] = true;
 		} elseif ($image['modified']) {
 			$image['files']['tmp_files'] = $image['modified']['tmp_name'];
-			$my_rec['images'][$no]['all_temp'][] = $image['modified']['tmp_name'];
+			$zz_conf['int']['upload_cleanup_files'][] = $image['modified']['tmp_name'];
 			$my_rec['file_upload'] = true;
 		} else {
 			// no thumbnail was created, just keep original file
@@ -2068,16 +2068,13 @@ function zz_upload_cleanup($zz_tab, $validated = true) {
 	if (!$zz_tab[0]['upload_fields']) return false;
 
 	if ($validated) {
-		foreach ($zz_tab[0]['upload_fields'] as $uf) {
-			$tab = $uf['tab'];
-			$rec = $uf['rec'];
-			$no = $uf['f'];
-			if (empty($zz_tab[$tab][$rec]['images'][$no]['all_temp'])) continue;
+		foreach ($zz_conf['int']['upload_cleanup_files'] as $file) {
 			if (!file_exists($file)) continue;
 			if (!is_file($file)) continue;
 			zz_unlink_cleanup($file);
 		}
 	} else {
+		$_SESSION['zz_files'][$id]['upload_cleanup_files'] = $zz_conf['int']['upload_cleanup_files'];
 		foreach ($zz_tab[0]['upload_fields'] as $uf) {
 			$tab = $uf['tab'];
 			$rec = $uf['rec'];
