@@ -976,7 +976,7 @@ function zz_upload_prepare($zz_tab) {
 		$my_rec = &$zz_tab[$tab][$rec];
 		if (!empty($my_rec['images'][$no]['read_from_session'])) continue;
 
-		foreach ($my_rec['fields'][$no]['image'] as $img => $val) {
+		foreach (array_keys($my_rec['fields'][$no]['image']) as $img) {
 			if ($zz_conf['modules']['debug']) {
 				zz_debug('preparing ['.$tab.']['.$rec.'] - '.$img);
 			}
@@ -991,7 +991,7 @@ function zz_upload_prepare($zz_tab) {
 				}
 				continue;
 			}
-			$image = zz_upload_merge_options($image, $my_rec, $zz_tab[$tab], $rec);
+			$image = zz_upload_merge_options($image, $zz_tab[$tab], $rec);
 
 			if (!empty($image['ignore'])) {
 				$my_rec['images'][$no][$img] = $image;
@@ -1229,7 +1229,7 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec) {
  * @param int $rec
  * @return array $image
  */
-function zz_upload_merge_options($image, $my_rec, $my_tab, $rec) {
+function zz_upload_merge_options($image, $my_tab, $rec = 0) {
 	global $zz_conf;
 	
 	if (empty($image['options'])) return $image;
@@ -1241,17 +1241,17 @@ function zz_upload_merge_options($image, $my_rec, $my_tab, $rec) {
 	// go through all options
 	foreach ($image['options'] as $index => $no) {
 		// check if we have the corresponding field, if not, simply ignore it!
-		if (empty($my_rec['fields'][$no])) continue;
+		if (empty($my_tab[$rec]['fields'][$no])) continue;
 		// field_name of field where options reside
-		$field_name = $my_rec['fields'][$no]['field_name']; 
+		$field_name = $my_tab[$rec]['fields'][$no]['field_name']; 
 		// this is the selected option
-		if ($my_rec['fields'][$no]['type'] === 'select') {
+		if ($my_tab[$rec]['fields'][$no]['type'] === 'select') {
 			// @todo do this in action module beforehands
-			$my_rec = zz_check_select($my_rec, $no, $zz_conf['max_select'], 
-				$my_tab['table'].'[]['.$my_rec['fields'][$no]['field_name'].']', 
+			$my_tab[$rec] = zz_check_select($my_tab[$rec], $no, $zz_conf['max_select'], 
+				$my_tab['table'].'[]['.$my_tab[$rec]['fields'][$no]['field_name'].']', 
 				$my_tab['db_name'].'.'.$my_tab['table']);
 		}
-		$option_value = $my_rec['POST'][$field_name];
+		$option_value = $my_tab[$rec]['POST'][$field_name];
 		if (!empty($image['options_sql'][$index]) AND $option_value) {
 			// get options from database
 			$sql = sprintf($image['options_sql'][$index], zz_db_escape($option_value));
@@ -1263,7 +1263,7 @@ function zz_upload_merge_options($image, $my_rec, $my_tab, $rec) {
 			}
 		} else {
 			// get options from field
-			$options = $my_rec['fields'][$no]['options'];
+			$options = $my_tab[$rec]['fields'][$no]['options'];
 		}
 		// overwrite values in script with selected option
 		$image = array_merge($image, $options[$option_value]); 
