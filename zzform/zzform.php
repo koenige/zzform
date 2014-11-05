@@ -34,7 +34,6 @@ function zzform($zz = array()) {
 //
 //	Initialize variables & modules
 //
-
 	// @deprecated Table description
 	if (!$zz) $zz = $GLOBALS['zz'];
 
@@ -90,16 +89,15 @@ function zzform($zz = array()) {
 //
 //	Database connection, set db_name
 //
-
 	$zz['table'] = zz_db_connection($zz['table']);
 	if (!$zz_conf['db_name']) return zzform_exit($ops); // exits script
 	$zz = zz_sql_prefix($zz);
 	$zz_conf = zz_sql_prefix($zz_conf, 'zz_conf');
+	if ($zz_conf['modules']['debug']) zz_debug('database connection ok');
 
 //
-//	Filter, WHERE, ID
+//	Filter, ID, WHERE
 //
-
 	// check GET 'filter'
 	zz_filter_defaults();
 
@@ -115,7 +113,6 @@ function zzform($zz = array()) {
 //	Check mode, action, access for record;
 //	access for list will be checked later
 //
-
 	// internal variables, mode and action
 	$ops['mode'] = false;		// mode: what form/view is presented to the user
 	$zz_var['action'] = false;	// action: what database operations are to be done
@@ -133,17 +130,15 @@ function zzform($zz = array()) {
 	$ops['error'] = zz_error_multi($ops['error']);
 
 	// mode won't be changed anymore before record operations
-
 	// action won't be changed before record operations
 	// (there it will be changed depending on outcome of db operations)
 
 	// upload values are only needed for record
 	if (!$zz_conf['show_record']) unset($zz_conf['upload']);
 
-	if ($zz_conf['modules']['debug']) zz_debug('database connection ok');
-
-//	Variables
-
+//
+//	Errors? Initaliziation of output
+//
 	if ($zz_conf['int']['access'] !== 'export') {
 		zz_error();
 		$ops['output'] .= zz_error_output(); // initialise zz_error
@@ -164,36 +159,16 @@ function zzform($zz = array()) {
 		}
 	}
 
-	foreach ($zz['fields'] as $field) {
-		// get write once fields so we can base conditions (scope=values) on them
-		if (!empty($field['type']) AND $field['type'] == 'write_once' 
-			AND ($ops['mode'] != 'add' AND $zz_var['action'] != 'insert')) { 
-			$zz_var['write_once'][$field['field_name']] = '';
-		}
+//
+//	Fields, 2nd check after definitions are complete
+//
+	if ($ops['mode'] !== 'add' AND $zz_var['action'] !== 'insert') {
+		$zz_var = zz_write_onces($zz, $zz_var);
 	}
-
-// 	WHERE, 2nd part, write_once without values
-
-	// write_once will be checked as well, without values
-	// where is more important than write_once, so remove it from array if
-	// there is a where equal to write_once
-	if (!empty($zz_var['write_once'])) {
-		foreach (array_keys($zz_var['write_once']) as $field_name) {
-			if (empty($zz_var['where_condition'][$field_name])) {
-				$zz_var['where_condition'][$field_name] = '';
-				$zz_var['where'][$zz['table']][$field_name] = '';
-			} else
-				unset($zz_var['write_once'][$field_name]);
-		}
-	}
-
-//	process table description zz['fields']
 
 	// if no operations with the record are done, remove zz_fields
-	if (!$zz_var['action'] AND (!$ops['mode'] OR $ops['mode'] == 'list_only'))
+	if (!$zz_var['action'] AND (!$ops['mode'] OR $ops['mode'] === 'list_only'))
 		unset($zz_var['zz_fields']);
-
-//	Add, Update or Delete
 
 	// Module 'conditions': evaluate conditions
 	if (!empty($zz_conf['modules']['conditions'])) {
@@ -207,6 +182,10 @@ function zzform($zz = array()) {
 	// conditions for list view will be set later
 	if ($zz_conf['int']['show_list'])
 		$zz['fields_in_list'] = $zz['fields']; 
+
+//
+//	Add, Update or Delete
+//
 
 	if ($zz_conf['show_record']) {
 		if (!empty($zz_conf['modules']['conditions'])) {

@@ -765,6 +765,31 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = arr
 	return zz_return(array($sql, $zz_var));
 }
 
+/**
+ * WHERE, 2nd part, write_once without values
+ * 
+ * write_once will be checked as well, without values
+ * where is more important than write_once, so remove it from array if
+ * there is a where equal to write_once
+ * @param array $zz
+ * @param array $zz_var
+ * @return array $zz_var
+ */
+function zz_write_onces($zz, $zz_var) {
+	foreach ($zz['fields'] as $field) {
+		// get write once fields so we can base conditions (scope=values) on them
+		if (empty($field['type'])) continue;
+		if ($field['type'] !== 'write_once') continue;
+		$field_name = $field['field_name'];
+		if (!empty($zz_var['where_condition'][$field_name])) continue;
+
+		$zz_var['write_once'][$field_name] = '';
+		$zz_var['where_condition'][$field_name] = '';
+		$zz_var['where'][$zz['table']][$field_name] = '';
+	}
+	return $zz_var;
+}
+
 /** 
  * Fills field definitions with default definitions and infos from database
  * 
