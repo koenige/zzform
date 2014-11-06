@@ -272,7 +272,7 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 			break;
 		case 'record': // for form view (of saved records), list view comes later in zz_list() because requery of record 
 			$zz_conditions['bool'][$index] = array();
-			if (($mode == 'add' OR $zz_var['action'] == 'insert') AND !empty($condition['add'])) {
+			if (($mode === 'add' OR $zz_var['action'] === 'insert') AND !empty($condition['add'])) {
 				if (!empty($condition['add']['where']) AND !$condition['where']) {
 					// where = '' is a means to make a condition always valid,
 					// this also works for add
@@ -425,14 +425,14 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 			$zz_conditions['uploads'][$index] = array();
 			$table = 0;
 			foreach ($zz['fields'] as $f => $field) {
-				if (!empty($field['type']) AND $field['type'] == 'upload_image') {
+				if (!empty($field['type']) AND $field['type'] === 'upload_image') {
 					foreach ($subfield['image'] as $key => $upload_image) {
 						if (empty($upload_image['save_as_record'])) continue;
 						$zz_conditions['fields'][$index][] = array(
 							'table_no' => 0, 'field_no' => $f, 'image_no' => $key
 						);
 					}
-				} elseif (!empty($field['type']) AND $field['type'] == 'subtable') {
+				} elseif (!empty($field['type']) AND $field['type'] === 'subtable') {
 					$table++;
 					foreach ($field['fields'] as $subf => $subfield) {
 						if (empty($subfield['type'])) continue;
