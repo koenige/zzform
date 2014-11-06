@@ -24,7 +24,7 @@
  *		zz_upload_check_recreate()
  *	zz_upload_prepare()			prepares files for upload (resize, rotate etc.)
  *		zz_upload_extension()	gets extension
- *		zz_upload_recreate_source()
+ *		zz_upload_create_source()
  *	zz_upload_check()			validates file input (upload errors, requirements)
  *		not directly called but from zz_action() instead:
  *		zz_write_upload_fields()
@@ -1054,7 +1054,7 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 		} else {
 			$source_filename = $src_image['upload']['tmp_name'];
 			if (!$source_filename AND $image['recreate']) {
-				list($image, $source_filename) = zz_upload_recreate_source($image, $src_image, $zz_tab);
+				list($image, $source_filename) = zz_upload_create_source($image, $src_image['path'], $zz_tab);
 			}
 		}
 		// get some variables from source image as well
@@ -1073,7 +1073,7 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 		unset($field_index);
 		// convert string in ID, if it's a checkselect
 		foreach ($my_rec['fields'] as $index => $field) {
-			if ($field['field_name'] == $image['source_file']
+			if ($field['field_name'] === $image['source_file']
 				AND $my_rec['POST'][$image['source_file']]) {
 				$field_index = $index;
 			} 
@@ -1103,14 +1103,8 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 			$old_record = zz_db_fetch($sql);
 			if ($old_record) {
 				$source_tab[$tab]['existing'][$rec] = $old_record;
-				$source_filename = zz_makepath($image['source_path'], $source_tab, 'old', 'file', $tab, $rec);
+				list($image, $source_filename) = zz_upload_create_source($image, $image['source_path'], $source_tab, $tab, $rec);
 				unset($source_tab);
-				if (file_exists($source_filename)) {
-					$image['upload']['name'] = basename($source_filename);
-					$image['upload']['tmp_name'] = $source_filename; // same because it's no upload
-					$image['upload']['error'] = 0;
-					$image['upload'] = zz_upload_fileinfo($image['upload']);
-				}
 			}
 			$use_uploaded_file = false;
 		}
@@ -1163,15 +1157,18 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 }
 
 /**
- * get original filename for recreating a thumbnail file
+ * get original filename for creating a thumbnail file from an existing
+ * file in database
  *
  * @param array $image
- * @param array $src_image
+ * @param string $path
  * @param array $zz_tab
+ * @param int $tab (optional)
+ * @param int $rec (optional)
  * @return array
  */
-function zz_upload_recreate_source($image, $src_image, $zz_tab) {
-	$source_filename = zz_makepath($src_image['path'], $zz_tab, 'old', 'file');
+function zz_upload_create_source($image, $path, $zz_tab, $tab = 0, $rec = 0;) {
+	$source_filename = zz_makepath($path, $zz_tab, 'old', 'file', $tab, $rec);
 	if (file_exists($source_filename)) {
 		$image['upload']['name'] = basename($source_filename);
 		$image['upload']['tmp_name'] = $source_filename; // same because it's no upload
