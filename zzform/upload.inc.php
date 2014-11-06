@@ -1044,7 +1044,7 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 
 		if (!$src_image) // might come from zz_upload_get_source_field()
 			$src_image = $my_rec['images'][$no][$image['source']];
-		if (!empty($src_image['unsupported_filetype'])) return $image;
+		if (!empty($src_image['unsupported_filetype'])) return array();
 		if (!empty($image['use_modified_source'])) {
 			// get filename from modified source, false if there was an error
 			$source_filename = isset($src_image['files']) 
@@ -1063,7 +1063,7 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 		// cross check input filetypes
 		if (!empty($image['input_filetypes']) AND !empty($src_image['upload']['filetype'])) {
 			// continue if this file shall not be touched.
-			if (!in_array($src_image['upload']['filetype'], $image['input_filetypes'])) return $image;
+			if (!in_array($src_image['upload']['filetype'], $image['input_filetypes'])) return array();
 		}
 		$use_uploaded_file = false;
 	} elseif (!empty($image['source_file'])) {
@@ -1115,6 +1115,7 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 			$use_uploaded_file = false;
 		}
 	}
+
 	if ($use_uploaded_file) {
 		// it's the original file we upload to the server
 		$source_filename = $image['upload']['tmp_name'];
@@ -1123,33 +1124,33 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 			$zz_conf['int']['upload_cleanup_files'][] = $source_filename;
 		}
 	}
-	if ($zz_conf['modules']['debug']) zz_debug('source_filename: '.$source_filename);
 
-	if ($source_filename && $source_filename !== 'none') {
-		// get e. g. width and height from a list of widths and heights which fit best
-		$image = zz_upload_auto_image($image);
-		if (!$image) return array();
-		
-		// only if something new was uploaded!
-		$image['modified'] = zz_upload_create_thumbnails($source_filename, $image, $my_rec);
-		if ($image['modified'] === -1) {
-			$image['files']['tmp_file'] = false; // do not upload anything
-			// @todo mark existing image for deletion if there is one!							
-			$image['delete_thumbnail'] = true;
-			$image['no_file_upload'] = true;
-		} elseif ($image['modified']) {
-			$image['files']['tmp_file'] = $image['modified']['tmp_name'];
-			$zz_conf['int']['upload_cleanup_files'][] = $image['modified']['tmp_name'];
-			$image['file_upload'] = true;
+	if ($zz_conf['modules']['debug']) zz_debug('source_filename: '.$source_filename);
+	if (!$source_filename) return array();
+	if ($source_filename === 'none') return array();
+
+	// get e. g. width and height from a list of widths and heights which fit best
+	$image = zz_upload_auto_image($image);
+	if (!$image) return array();
+
+	$image['modified'] = zz_upload_create_thumbnails($source_filename, $image, $my_rec);
+	if ($image['modified'] === -1) {
+		$image['no_file_upload'] = true;
+		$image['files']['tmp_file'] = false; // do not upload anything
+		// @todo mark existing image for deletion if there is one!							
+		$image['delete_thumbnail'] = true;
+	} elseif ($image['modified']) {
+		$image['file_upload'] = true;
+		$image['files']['tmp_file'] = $image['modified']['tmp_name'];
+		$zz_conf['int']['upload_cleanup_files'][] = $image['modified']['tmp_name'];
+	} else {
+		// no thumbnail was created, just keep original file
+		if (isset($image['source'])) {
+			$image['files']['tmp_file'] = false;
 		} else {
-			// no thumbnail was created, just keep original file
-			if (isset($image['source'])) {
-				$image['files']['tmp_file'] = false;
-			} else {
-				$image['files']['tmp_file'] = file_exists($source_filename) ? $source_filename : '';
-			}
-			unset($image['modified']);
+			$image['files']['tmp_file'] = file_exists($source_filename) ? $source_filename : '';
 		}
+		unset($image['modified']);
 	}
 	return $image;
 }
