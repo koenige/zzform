@@ -1023,11 +1023,11 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 		}
 		return array();
 	}
-	$image = zz_upload_merge_options($image, $zz_tab[$tab], $rec);
 
+	$image = zz_upload_merge_options($image, $zz_tab[$tab], $rec);
 	if (!empty($image['ignore'])) return $image;
 
-	$dont_use_upload = false;
+	$use_uploaded_file = true;
 	$src_image = false;
 	if (!empty($image['source_field'])) {
 		!empty($image['source']) OR $image['source'] = 0;
@@ -1065,8 +1065,7 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 			// continue if this file shall not be touched.
 			if (!in_array($src_image['upload']['filetype'], $image['input_filetypes'])) return $image;
 		}
-		unset($src_image);
-		$dont_use_upload = true;
+		$use_uploaded_file = false;
 	} elseif (!empty($image['source_file'])) {
 		$source_filename = false;
 		// get source file
@@ -1113,10 +1112,10 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 					$image['upload'] = zz_upload_fileinfo($image['upload']);
 				}
 			}
-			$dont_use_upload = true;
+			$use_uploaded_file = false;
 		}
 	}
-	if (!$dont_use_upload) {
+	if ($use_uploaded_file) {
 		// it's the original file we upload to the server
 		$source_filename = $image['upload']['tmp_name'];
 		// for later cleanup of leftover tmp files
