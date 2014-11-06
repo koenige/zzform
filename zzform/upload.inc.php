@@ -2013,6 +2013,7 @@ function zz_upload_background($id, $no, $img) {
 		$zz_conf['int']['url']['full'], $id, $no, $img
 	);
 	$headers[] = 'X-Request-WWW-Authentication: 1';
+	$headers[] = 'X-Timeout-Ignore: 1';
 	$method = 'POST';
 	$data['thumbnails'] = 1;
 	$pwd = sprintf('%s:%s', $zz_conf['user'], wrap_password_token());
@@ -2226,8 +2227,6 @@ function zz_upload_cleanup($zz_tab, $validated = true) {
 
 	if ($validated) {
 		foreach ($zz_conf['int']['upload_cleanup_files'] as $file) {
-			if (!file_exists($file)) continue;
-			if (!is_file($file)) continue;
 			zz_unlink_cleanup($file);
 		}
 	} else {
