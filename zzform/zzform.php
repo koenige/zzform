@@ -260,7 +260,7 @@ function zzform($zz = array()) {
 				zz_output_redirect($ops['result'], $ops['return'], $zz_var['id']['value'], $zz_tab);
 			}
 		} elseif ($zz_var['action'] === 'thumbnails') {
-			zz_upload_thumbnail($zz_tab, $zz_var);
+			$ops = zz_upload_thumbnail($ops, $zz_tab, $zz_var);
 		}
 
 	//	Query updated, added or editable record

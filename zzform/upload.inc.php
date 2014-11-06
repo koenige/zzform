@@ -185,16 +185,38 @@ function zz_upload_config() {
 /**
  * direct creation of a single thumbnail
  *
+ * @param array $ops
  * @param array $zz_tab
  * @param array $zz_var
- * @return void
+ * @return array $ops
  */
-function zz_upload_thumbnail($zz_tab, $zz_var) {
+function zz_upload_thumbnail($ops, $zz_tab, $zz_var) {
+	global $zz_conf;
+
+	if (empty($zz_tab[0]['existing'][0])) {
+		$ops['error'][] = sprintf('ID %s not found', $zz_var['id']['value']);
+		$zz_conf['int']['http_status'] = 404;
+		return $ops;
+	}
 	$zz_tab = zz_upload_get($zz_tab);
 	$zz_tab = zz_upload_prepare_tn($zz_tab, $zz_var);
 	$zz_tab = zz_upload_action($zz_tab);
 	zz_upload_cleanup($zz_tab);
-	return;
+	
+	$ops['thumb_field'] = $zz_var['thumb_field'];
+	if (!empty($zz_tab[0][0]['file_upload'])) {
+		$ops['id'] = $zz_var['id']['value'];
+		$ops['result'] = 'thumbnail created';
+	} elseif (!empty($zz_tab[0][0]['no_file_upload'])) {
+		$ops['id'] = $zz_var['id']['value'];
+		$ops['result'] = 'thumbnail not created';
+	} else {
+		$ops['error'] = sprintf('Thumbnail information for field %d (No. %d) not found',
+			$zz_var['thumb_field'][0], $zz_var['thumb_field'][1]
+		);
+		$zz_conf['int']['http_status'] = 404;
+	}
+	return $ops;
 }
 
 /**
@@ -1198,7 +1220,7 @@ function zz_upload_create_source($image, $path, $zz_tab, $tab = 0, $rec = 0) {
 	if (!file_exists($source_filename)) {
 		$image['upload'] = array();
 		$zz_error[] = array(
-			'msg_dev' => sprintf(zz_text('Error: Source file %s does not exist. '), $filename),
+			'msg_dev' => sprintf(zz_text('Error: Source file %s does not exist. '), $source_filename),
 			'log_post_data' => false
 		);
 	} else {
