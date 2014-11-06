@@ -149,6 +149,9 @@ function zz_upload_config() {
 	// dpi in which pdf will be rasterized
 	$default['upload_pdf_density'] = '300x300';
 
+	// generate thumbnails in a background process?
+	$default['upload_background_thumbnails'] = false;
+
 	$default['upload_no_thumbnails'] = array();
 	$default['upload_multipage_images'] = array();
 	$default['exif_supported'] = array();
@@ -1174,7 +1177,7 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 	$image = zz_upload_auto_image($image);
 	if (!$image) return array();
 
-	$tn = zz_upload_create_thumbnails($source_filename, $image, $my_rec);
+	$tn = zz_upload_create_thumbnails($source_filename, $image, $my_rec, $no, $img);
 	if ($tn === -1) {
 		// an error occured
 		$image['no_file_upload'] = true;
@@ -1290,11 +1293,13 @@ function zz_upload_prepare_source_file($image, $my_rec, $zz_tab, $tab, $rec) {
  * @param string $filename
  * @param array $image
  * @param array $my_rec
+ * @param int $no
+ * @param int $img
  * @global array $zz_conf
  * @global array $zz_error
  * @return mixed $modified (false: does not apply; -1: error; array: success)
  */
-function zz_upload_create_thumbnails($filename, $image, $my_rec) {
+function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 	global $zz_conf;
 	global $zz_error;
 	
@@ -1308,6 +1313,12 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec) {
 		return false;
 	}
 	if (in_array($image['upload']['filetype'], $zz_conf['upload_no_thumbnails'])) {
+		return false;
+	}
+	if ($zz_conf['upload_background_thumbnails'] AND empty($image['create_in_background'])) {
+		$zz_conf['int']['upload_background_thumbnails'][] = array(
+			'no' => $no, 'img' => $img
+		);
 		return false;
 	}
 	
@@ -1976,8 +1987,38 @@ function zz_upload_action($zz_tab) {
 		// @todo EXIF or ICPT write operations go here!
 		}
 	}
+
+	// background thumbnails will be triggered now
+	if (!empty($zz_conf['int']['upload_background_thumbnails'])) {
+		foreach ($zz_conf['int']['upload_background_thumbnails'] as $tn) {
+			zz_upload_background($zz_tab[0][0]['id']['value'], $tn['no'], $tn['img']);
+		}
+		sleep (1); // just wait, maybe they are already created
+	}
+
 	if ($zz_conf['modules']['debug']) zz_debug('end');
 	return $zz_tab;
+}
+
+/**
+ * create thumbnails in background
+ * this only works with zzwrap library
+ *
+ */
+function zz_upload_background($id, $no, $img) {
+	global $zz_conf;
+	global $zz_setting;
+
+	$url = sprintf('%s?thumbs=%d&field=%d-%d',
+		$zz_conf['int']['url']['full'], $id, $no, $img
+	);
+	$headers[] = 'X-Request-WWW-Authentication: 1';
+	$method = 'POST';
+	$data['thumbnails'] = 1;
+	$pwd = sprintf('%s:%s', $zz_conf['user'], wrap_password_token());
+	
+	require_once $zz_setting['lib'].'/zzwrap/syndication.inc.php';
+	$result = wrap_syndication_retrieve_via_http($url, $headers, $method, $data, $pwd);
 }
 
 /**
