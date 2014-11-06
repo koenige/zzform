@@ -238,7 +238,7 @@ function zzform($zz = array()) {
 
 		$validation = true;
 
-		if ($zz_var['subtables'] && $zz_var['action'] != 'delete')
+		if ($zz_var['subtables'] && $zz_var['action'] !== 'delete')
 			if (isset($_POST['zz_subtables'])) $validation = false;
 		// just handing over form with values
 		if (isset($_POST['zz_review'])) $validation = false;
@@ -259,6 +259,8 @@ function zzform($zz = array()) {
 				// Redirect, if wanted.
 				zz_output_redirect($ops['result'], $ops['return'], $zz_var['id']['value'], $zz_tab);
 			}
+		} elseif ($zz_var['action'] === 'thumbnails') {
+			zz_upload_thumbnail($zz_tab, $zz_var);
 		}
 
 	//	Query updated, added or editable record
@@ -645,7 +647,7 @@ function zz_initialize_int() {
 	);
 	// action parameters, 'review' is for internal use only
 	$zz_conf['int']['allowed_params']['action'] = array(
-		'insert', 'delete', 'update', 'multiple'
+		'insert', 'delete', 'update', 'multiple', 'thumbnails'
 	); 
 
 	$zz_conf['int']['url'] = zz_get_url_self($zz_conf['url_self']);

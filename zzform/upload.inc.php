@@ -183,6 +183,21 @@ function zz_upload_config() {
  *	----------------------------------------------	*/
 
 /**
+ * direct creation of a single thumbnail
+ *
+ * @param array $zz_tab
+ * @param array $zz_var
+ * @return void
+ */
+function zz_upload_thumbnail($zz_tab, $zz_var) {
+	$zz_tab = zz_upload_get($zz_tab);
+	$zz_tab = zz_upload_prepare_tn($zz_tab, $zz_var);
+	$zz_tab = zz_upload_action($zz_tab);
+	zz_upload_cleanup($zz_tab);
+	return;
+}
+
+/**
  * writes arrays upload_fields, images
  *
  * i. e. checks which fields offer uploads, 
@@ -997,6 +1012,43 @@ function zz_upload_prepare($zz_tab) {
 }
 
 /**
+ * prepares single file for thumbnail generation
+ *
+ * @param array $zz_tab
+ * @param array $zz_var
+ *		array 'thumb_field' with number and image
+ * @return array $zz_tab
+ */
+function zz_upload_prepare_tn($zz_tab, $zz_var) {
+	// do only something if there are upload_fields
+	if (empty($zz_tab[0]['upload_fields'])) return $zz_tab;
+
+	global $zz_conf;
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+
+	$no = $zz_var['thumb_field'][0];
+	$img = $zz_var['thumb_field'][1];
+
+	foreach ($zz_tab[0]['upload_fields'] as $uf) {
+		if ($uf['tab']) continue; // just main record
+		if ($uf['rec']) continue; // just main record
+		if ($uf['f'] !== intval($no)) continue;
+		$zz_tab[0][0]['images'][$no][$img]['create_in_background'] = true;
+		$prepared_img = zz_upload_prepare_file($zz_tab, 0, 0, $no, $img);
+		if ($prepared_img) {
+			$zz_tab[0][0]['images'][$no][$img] = $prepared_img;
+			if (!empty($prepared_img['no_file_upload'])) {
+				$zz_tab[0][0]['no_file_upload'] = true;
+			}
+			if (!empty($prepared_img['file_upload'])) {
+				$zz_tab[0][0]['file_upload'] = true;
+			}
+		}
+	}
+	return zz_return($zz_tab);
+}
+
+/**
  * prepare files
  *
  * @param array $zz_tab
@@ -1037,7 +1089,15 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 	}
 
 	// check which source file shall be used
-	if (isset($image['source'])) {
+	if (!empty($image['create_in_background'])) {
+		if (!$src_image) // might come from zz_upload_get_source_field()
+			$src_image = $my_rec['images'][$no][$image['source']];
+		if (!empty($src_image['unsupported_filetype'])) return array();
+		list($image, $source_filename) = zz_upload_create_source($image, $src_image['path'], $zz_tab);
+		$image['upload']['do_not_delete'] = true; // don't delete source!
+		$use_uploaded_file = false;
+
+	} elseif (isset($image['source'])) {
 		// must be isset, because 'source' might be 0
 		// it's a thumbnail or some other derivate from the original file
 		if ($zz_conf['modules']['debug']) zz_debug('source: '.$image['source']);
@@ -1126,15 +1186,22 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
  * file in database
  *
  * @param array $image
- * @param string $path
+ * @param array $path
  * @param array $zz_tab
  * @param int $tab (optional)
  * @param int $rec (optional)
  * @return array
  */
 function zz_upload_create_source($image, $path, $zz_tab, $tab = 0, $rec = 0) {
+	global $zz_error;
 	$source_filename = zz_makepath($path, $zz_tab, 'old', 'file', $tab, $rec);
-	if (file_exists($source_filename)) {
+	if (!file_exists($source_filename)) {
+		$image['upload'] = array();
+		$zz_error[] = array(
+			'msg_dev' => sprintf(zz_text('Error: Source file %s does not exist. '), $filename),
+			'log_post_data' => false
+		);
+	} else {
 		$image['upload']['name'] = basename($source_filename);
 		$image['upload']['tmp_name'] = $source_filename; // same because it's no upload
 		$image['upload']['error'] = 0;

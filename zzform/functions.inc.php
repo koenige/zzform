@@ -1202,6 +1202,25 @@ function zz_record_access($zz, $ops, $zz_var) {
 		$ops['mode'] = 'review'; 
 		break;
 
+	case !empty($_GET['thumbs']):
+		$keys = array('thumbs', 'field');
+		$ops['mode'] = 'thumbs';
+		$id_value = $_GET['thumbs'];
+		if (empty($_GET['field'])) {
+			$zz_conf['int']['http_status'] = 404;
+			break;
+		}
+		$zz_var['thumb_field'] = explode('-', $_GET['field']);
+		if (count($zz_var['thumb_field']) !== 2) {
+			$zz_conf['int']['http_status'] = 404;
+		}
+		$zz_conf['int']['access'] = 'thumbnails';
+		break;
+
+	case !empty($_GET['field']):
+		$keys = array('thumbs', 'field');
+		$zz_conf['int']['http_status'] = 404;
+
 	default:
 		// no record is selected, basic view when starting to edit data
 		// list mode only
@@ -1344,6 +1363,17 @@ function zz_record_access($zz, $ops, $zz_var) {
 		$zz_conf['cancel_link'] = false; 	// no cancel link
 		$zz_conf['int']['hash_id'] = true;	// user cannot view all IDs
 		if (empty($_POST)) $ops['mode'] = 'edit';
+		break;
+	case 'thumbnails':
+		$zz_conf['add'] = false;
+		$zz_conf['edit'] = false;
+		$zz_conf['delete'] = false;
+		$zz_conf['view'] = false;
+		$zz_conf['int']['show_list'] = false;
+		$zz_conf['generate_output'] = false;
+		$zz_conf['int']['record'] = true;
+		$zz_var['action'] = 'thumbnails';
+		$zz_var['query_records'] = true;
 		break;
 	default:
 		// now the settings which apply to both record and list
