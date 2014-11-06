@@ -1112,6 +1112,9 @@ function zz_record_access($zz, $ops, $zz_var) {
 		) {
 			unset($_POST['zz_action']);
 		}
+		$zz_var['query_records'] = true;
+	} else {
+		$zz_var['query_records'] = false;
 	}
 	
 	// set mode and action according to $_GET and $_POST variables

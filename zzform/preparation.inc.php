@@ -98,10 +98,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 		}
 	}
 
-	// check POST because $zz_var may be set to '' in case of add/delete subrecord
-	// get existing record
-	if (empty($_POST['zz_action'])) return $zz_tab;
-
+	if (!$zz_var['query_records']) return $zz_tab;
 
 	if (!empty($zz_var['id']['value'])) {
 		$zz_tab[0]['existing'][0] = zz_query_single_record(
