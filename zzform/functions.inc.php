@@ -1208,7 +1208,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 			break;
 		}
 		$keys = array('thumbs', 'field');
-		$ops['mode'] = 'thumbs';
+		$ops['mode'] = 'thumbnails';
 		$id_value = $_GET['thumbs'];
 		if (empty($_GET['field'])) {
 			$zz_conf['int']['http_status'] = 404;
@@ -1223,6 +1223,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 	case !empty($_GET['field']):
 		$keys = array('thumbs', 'field');
 		$zz_conf['int']['http_status'] = 404;
+		break;
 
 	default:
 		// no record is selected, basic view when starting to edit data
