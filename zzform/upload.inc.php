@@ -1133,25 +1133,32 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 	$image = zz_upload_auto_image($image);
 	if (!$image) return array();
 
-	$image['modified'] = zz_upload_create_thumbnails($source_filename, $image, $my_rec);
-	if ($image['modified'] === -1) {
+	$tn = zz_upload_create_thumbnails($source_filename, $image, $my_rec);
+	if ($tn === -1) {
+		// an error occured
 		$image['no_file_upload'] = true;
 		$image['files']['tmp_file'] = false; // do not upload anything
 		// @todo mark existing image for deletion if there is one!							
 		$image['delete_thumbnail'] = true;
-	} elseif ($image['modified']) {
+
+	} elseif ($tn) {
+		// a thumbnail was created
+		$image['modified'] = $tn;
 		$image['file_upload'] = true;
 		$image['files']['tmp_file'] = $image['modified']['tmp_name'];
 		$zz_conf['int']['upload_cleanup_files'][] = $image['modified']['tmp_name'];
+
+	} elseif (!isset($image['source'])) {
+		// save original file, no thumbnail was created
+		$image['files']['tmp_file'] = file_exists($source_filename) ? $source_filename : '';
+
 	} else {
-		// no thumbnail was created, just keep original file
-		if (isset($image['source'])) {
-			$image['files']['tmp_file'] = false;
-		} else {
-			$image['files']['tmp_file'] = file_exists($source_filename) ? $source_filename : '';
-		}
-		unset($image['modified']);
+		// thumbnail could have been created, but was not, probably
+		// because it is impossible to create one (due to filetype) or there was
+		// some error
+		$image['files']['tmp_file'] = false;
 	}
+
 	return $image;
 }
 
