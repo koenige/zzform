@@ -1203,6 +1203,10 @@ function zz_record_access($zz, $ops, $zz_var) {
 		break;
 
 	case !empty($_GET['thumbs']):
+		if (empty($_POST)) {
+			$zz_conf['int']['http_status'] = 404;
+			break;
+		}
 		$keys = array('thumbs', 'field');
 		$ops['mode'] = 'thumbs';
 		$id_value = $_GET['thumbs'];
@@ -1214,7 +1218,6 @@ function zz_record_access($zz, $ops, $zz_var) {
 		if (count($zz_var['thumb_field']) !== 2) {
 			$zz_conf['int']['http_status'] = 404;
 		}
-		$zz_conf['int']['access'] = 'thumbnails';
 		break;
 
 	case !empty($_GET['field']):
@@ -1293,6 +1296,24 @@ function zz_record_access($zz, $ops, $zz_var) {
 			$zz_conf['int']['access'] = 'edit_only';
 		} else {
 			$zz_conf['int']['access'] = 'add_only';
+		}
+	}
+	
+	if ($ops['mode'] === 'thumbnails') {
+		$not_allowed = array(
+			'show', 'show_and_delete', 'edit_details_only', 'edit_details_and_add',
+			'none', 'search_but_no_list', 'add_only', 'edit_only', 'add_then_edit',
+			'show_after_add', 'show_after_edit', 'show+edit'
+		);
+		// @todo check for valid ID in case of add_only, edit_only, add_then_edit
+		// and allow these, too.
+		if (!in_array($zz_conf['int']['access']), $not_allowed) {
+			$zz_conf['int']['access'] = 'thumbnails';
+		} else {
+			$zz_conf['int']['access'] = 'none';
+			$zz_conf['int']['http_status'] = 403;
+			$ops['mode'] = false;
+			$zz_var['action'] = false;
 		}
 	}
 
