@@ -1993,7 +1993,6 @@ function zz_upload_action($zz_tab) {
 		foreach ($zz_conf['int']['upload_background_thumbnails'] as $tn) {
 			zz_upload_background($zz_tab[0][0]['id']['value'], $tn['no'], $tn['img']);
 		}
-		sleep (1); // just wait, maybe they are already created
 	}
 
 	if ($zz_conf['modules']['debug']) zz_debug('end');
