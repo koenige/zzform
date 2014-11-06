@@ -1132,7 +1132,7 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
  * @param int $rec (optional)
  * @return array
  */
-function zz_upload_create_source($image, $path, $zz_tab, $tab = 0, $rec = 0;) {
+function zz_upload_create_source($image, $path, $zz_tab, $tab = 0, $rec = 0) {
 	$source_filename = zz_makepath($path, $zz_tab, 'old', 'file', $tab, $rec);
 	if (file_exists($source_filename)) {
 		$image['upload']['name'] = basename($source_filename);
