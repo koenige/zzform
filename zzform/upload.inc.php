@@ -1066,48 +1066,13 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 			if (!in_array($src_image['upload']['filetype'], $image['input_filetypes'])) return array();
 		}
 		$use_uploaded_file = false;
+
 	} elseif (!empty($image['source_file'])) {
-		$source_filename = false;
-		// get source file
-		// test, whether it is an ID field with ... or not
-		unset($field_index);
-		// convert string in ID, if it's a checkselect
-		foreach ($my_rec['fields'] as $index => $field) {
-			if ($field['field_name'] === $image['source_file']
-				AND $my_rec['POST'][$image['source_file']]) {
-				$field_index = $index;
-			} 
-		}
-		if (isset($field_index)) {
-			if ($my_rec['fields'][$field_index]['type'] === 'select') {
-				$my_rec = zz_check_select($my_rec, $field_index, $zz_conf['max_select'], 
-					$zz_tab[$tab]['table'].'[]['.$my_rec['fields'][$field_index]['field_name'].']', 
-					$zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table']);
-			}
-			$sql = sprintf($image['source_path_sql'], $my_rec['POST'][$image['source_file']]);
-			if (!empty($image['update_from_source_field_name']) AND !empty($image['update_from_source_value'])) {
-				$where = array();
-				foreach ($image['update_from_source_field_name'] as $index => $field_name) {
-					if (!array_key_exists($image['update_from_source_value'][$index], $zz_tab[$tab]['existing'][$rec])) continue;
-					$field_value = $zz_tab[$tab]['existing'][$rec][$image['update_from_source_value'][$index]];
-					if ($field_value) {
-						$where[] = sprintf('(%s != "%s" OR ISNULL(%s))', $field_name, $field_value, $field_name);
-					} else {
-						$where[] = sprintf('!ISNULL(%s)', $field_name);
-					}
-				}
-				if ($where) {
-					$sql = zz_edit_sql($sql, 'WHERE', implode(' OR ', $where));
-				}
-			}
-			$old_record = zz_db_fetch($sql);
-			if ($old_record) {
-				$source_tab[$tab]['existing'][$rec] = $old_record;
-				list($image, $source_filename) = zz_upload_create_source($image, $image['source_path'], $source_tab, $tab, $rec);
-				unset($source_tab);
-			}
-			$use_uploaded_file = false;
-		}
+		// use existing file in database, on error use nothing
+		$result = zz_upload_prepare_source_file($image, $my_rec, $zz_tab, $tab, $rec);
+		if ($result) list($image, $source_filename) = $result;
+		else $source_filename = false;
+		$use_uploaded_file = false;
 	}
 
 	if ($use_uploaded_file) {
@@ -1175,6 +1140,58 @@ function zz_upload_create_source($image, $path, $zz_tab, $tab = 0, $rec = 0;) {
 		$image['upload']['error'] = 0;
 		$image['upload'] = zz_upload_fileinfo($image['upload']);
 	}
+	return array($image, $source_filename);
+}
+
+/**
+ * get an existing file from the database as a source for the thumbnail
+ *
+ * @param array $image
+ * @param array $my_rec
+ * @param array $zz_tab
+ * @param int $tab
+ * @param int $rec
+ * @return mixed; bool false if nothing was found,
+ *		array array $image, string $filename on success
+ */
+function zz_upload_prepare_source_file($image, $my_rec, $zz_tab, $tab, $rec) {
+	global $zz_conf;
+	$source_filename = false;
+
+	// check if field is there, convert string in ID, if it's a checkselect
+	$found = false;
+	foreach ($my_rec['fields'] as $index => $field) {
+		if ($field['field_name'] !== $image['source_file']) continue;
+		if (!$my_rec['POST'][$image['source_file']]) continue;
+		$found = true;
+		if ($field['type'] !== 'select') break;
+		$my_rec = zz_check_select($my_rec, $index, $zz_conf['max_select'], 
+			$zz_tab[$tab]['table'].'[]['.$my_rec['fields'][$index]['field_name'].']', 
+			$zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table']);
+	}
+	if (!$found) return false;
+
+	$sql = sprintf($image['source_path_sql'], $my_rec['POST'][$image['source_file']]);
+	if (!empty($image['update_from_source_field_name']) AND !empty($image['update_from_source_value'])) {
+		$where = array();
+		foreach ($image['update_from_source_field_name'] as $index => $field_name) {
+			if (!array_key_exists($image['update_from_source_value'][$index], $zz_tab[$tab]['existing'][$rec])) continue;
+			$field_value = $zz_tab[$tab]['existing'][$rec][$image['update_from_source_value'][$index]];
+			if ($field_value) {
+				$where[] = sprintf('(%s != "%s" OR ISNULL(%s))', $field_name, $field_value, $field_name);
+			} else {
+				$where[] = sprintf('!ISNULL(%s)', $field_name);
+			}
+		}
+		if ($where) {
+			$sql = zz_edit_sql($sql, 'WHERE', implode(' OR ', $where));
+		}
+	}
+	$old_record = zz_db_fetch($sql);
+	if (!$old_record) return false;
+
+	$source_tab[$tab]['existing'][$rec] = $old_record;
+	list($image, $source_filename) = zz_upload_create_source($image, $image['source_path'], $source_tab, $tab, $rec);
 	return array($image, $source_filename);
 }
 
