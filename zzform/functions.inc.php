@@ -1307,7 +1307,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		);
 		// @todo check for valid ID in case of add_only, edit_only, add_then_edit
 		// and allow these, too.
-		if (!in_array($zz_conf['int']['access']), $not_allowed) {
+		if (!in_array($zz_conf['int']['access'], $not_allowed)) {
 			$zz_conf['int']['access'] = 'thumbnails';
 		} else {
 			$zz_conf['int']['access'] = 'none';
