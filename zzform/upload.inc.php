@@ -2446,13 +2446,15 @@ function zz_cleanup_dirs($dir) {
 	$success = false;
 	if (is_dir($dir)) {
 		$dir_handle = opendir($dir);
-		$i = 0;
-		// check if directory is empty
-		while ($filename = readdir($dir_handle)) {
-			if ($filename != '.' AND $filename != '..') $i++;
+		if ($dir_handle) {
+			$i = 0;
+			// check if directory is empty
+			while ($filename = readdir($dir_handle)) {
+				if ($filename != '.' AND $filename != '..') $i++;
+			}
+			closedir($dir_handle);
+			if ($i == 0) $success = rmdir($dir);
 		}
-		closedir($dir_handle);
-		if ($i == 0) $success = rmdir($dir);
 	}
 	if ($success) {
 		// walk through dirs recursively
