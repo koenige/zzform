@@ -650,7 +650,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					$details[$d_index] .= '<table class="'.$field['form_display'].'">';
 					$table_open = true;
 				}
-				if ($field['form_display'] === 'vertical' OR $sub_rec === count($subtables)-1)
+				if ($field['form_display'] === 'vertical' OR $sub_rec === count($subtables) - 1)
 					$h_show_explanation = true;
 				else
 					$h_show_explanation = false;
@@ -996,6 +996,10 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					.($field['explanation'] ? '<br>'.$field['explanation'] : '');
 				$append_explanation = array();
 			}
+		}
+		if ($field['explanation'] AND $formdisplay === 'lines') {
+			$extra_lastcol .= '<p class="explanation">'.$field['explanation'].'</p>';
+			$field['explanation'] = '';
 		}
 		if ($field['explanation'])
 			$out['td']['content'] .= '<p class="explanation">'.$field['explanation'].'</p>';
