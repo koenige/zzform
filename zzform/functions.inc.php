@@ -551,7 +551,11 @@ function zz_apply_filter($zz) {
 				continue;
 			}
 			foreach ($elements as $key => $value) {
-				$filter['selection'][$key] = $value;
+				if (is_null($value)) {
+					$filter['selection']['NULL'] = zz_text('(no value)');
+				} else {
+					$filter['selection'][$key] = $value;
+				}
 			}
 		}
 		if (!$filter['selection'] AND !empty($filter['default_selection'])) {
