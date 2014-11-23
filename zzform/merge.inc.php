@@ -150,6 +150,7 @@ function zz_merge_records($zz) {
 			if ($old_record === $new_record) {
 				$delete_old_records = true;
 			} else {
+				$update_errors = array();
 				foreach ($old_record as $field_name => $value) {
 					if (!$value) continue;
 					if ($value === $new_record[$field_name]) continue; // everything ok
@@ -157,26 +158,57 @@ function zz_merge_records($zz) {
 						// existing field is empty, we can overwrite it
 						if (array_key_exists($field_name, $new_values)) {
 							// overwrite with different values is impossible
-							if ($value !== $new_values[$field_name]) $update = false;
+							if ($value !== $new_values[$field_name]) {
+								$update = false;
+								$update_errors[] = array(
+									'field_name' => $field_name,
+									'old' => $old_record[$field_name],
+									'new' => $new_record[$field_name]
+								);
+							}
 						} else {
 							$new_values[$field_name] = $value;
 						}
 					} else {
 						// values differ, no overwriting
-						$update = zz_merge_updateable(
+						$newval = zz_merge_updateable(
 							$old_record[$field_name], $new_record[$field_name],
 							$zz['fields'][$fields_by_fieldname[$field_name]]
 						);
-						if ($update) {
+						if ($newval) {
 							if ($update !== $new_record[$field_name]) {
 								$new_values[$field_name] = $update;
 							}
-							$update = true;
+						} else {
+							$update = false;
+							$update_errors[] = array(
+								'field_name' => $field_name,
+								'old' => $old_record[$field_name],
+								'new' => $new_record[$field_name]
+							);
 						}
 					}
 				}
 				if (!$update) {
-					$msg[] = zz_text('Merge not complete, main records are different.');
+					foreach ($update_errors as $index => $error) {
+						foreach ($zz['fields'] as $no => $field) {
+							if (empty($field['field_name'])) continue;
+							if ($field['field_name'] !== $error['field_name']) continue;
+							if (empty($field['title'])) {
+								$update_errors[$index]['title'] = $field['field_name'];
+							} else {
+								$update_errors[$index]['title'] = $field['title'];
+							}
+						}
+					}
+					$error_text = '';
+					foreach ($update_errors as $error) {
+						$error_text .= sprintf('<li><strong>%s</strong>: %s &#8211; %s</li>', 
+							$error['title'], $error['old'], $error['new']
+						)."\n";
+					}
+					$msg[] = '<p class="error">'.zz_text('Merge not complete, records are different:').'</p>'
+						.'<ul>'.$error_text.'</ul>';
 					$error = true;
 				} elseif (!$new_values) {
 					// No changes in new record, so delete it
