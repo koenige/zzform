@@ -1164,7 +1164,7 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 		// it's the original file we upload to the server
 		$source_filename = $image['upload']['tmp_name'];
 		// for later cleanup of leftover tmp files
-		if (empty($image['upload']['do_not_delete'])) {
+		if (empty($image['upload']['do_not_delete']) AND $source_filename) {
 			$zz_conf['int']['upload_cleanup_files'][] = $source_filename;
 		}
 	}
@@ -2414,6 +2414,7 @@ function zz_upload_get_typelist($filename, $type = 'Filetype', $optional = false
  * @return bool 
  */
 function zz_unlink_cleanup($file) {
+	if (!$file) return false;
 	$full_path = realpath($file);
 	if (!$full_path) return true;
 	$dir = dirname($full_path);
