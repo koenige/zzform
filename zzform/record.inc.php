@@ -96,10 +96,12 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 	if (!empty($zz_var['id']['invalid_value'])) {
 		$formhead = '<span class="error">'.sprintf(zz_text('Invalid ID for a record (must be an integer): %s'),
 			zz_html_escape($zz_var['id']['invalid_value'])).'</span>';
+		$zz_conf['int']['http_status'] = 404;
 	} elseif (in_array($ops['mode'], array('edit', 'delete', 'review', 'show'))
 		AND !$zz_tab[0][0]['record'] AND $action_before_redirect !== 'delete') {
 		$formhead = '<span class="error">'.sprintf(zz_text('There is no record under this ID: %s'),
 			zz_html_escape($zz_tab[0][0]['id']['value'])).'</span>';
+		$zz_conf['int']['http_status'] = 404;
 	} elseif (!empty($zz_tab[0]['integrity'])) {
 		$formhead = zz_text('Warning!');
 		$tmp_error_msg = 
