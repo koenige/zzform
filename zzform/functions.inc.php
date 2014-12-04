@@ -2502,6 +2502,7 @@ function zz_text($string) {
 		$language = $zz_conf['default_language_for'][$language];
 
 	if (empty($zz_conf['int']['text_included'])) {
+		$text = array();
 		if (!isset($zz_conf['lang_dir'])) {
 			$zz_conf['lang_dir'] = $zz_conf['dir_custom'];
 		}
@@ -2511,14 +2512,14 @@ function zz_text($string) {
 			AND file_exists($langfile = $zz_conf['lang_dir'].'/text-en.inc.php')) {
 			// translated text must not be include_once since $text is cleared
 			// beforehands
-			include $langfile;
+			$text = array_merge($text, zz_text_include($langfile));
 		}
 
 		// text in other languages
 		if ($language !== 'en') {
 			$langfile = $zz_conf['dir_inc'].'/text-'.$language.'.inc.php';
 			if (file_exists($langfile)) {
-				include $langfile;
+				$text = array_merge($text, zz_text_include($langfile));
 			} else {
 				// no zz_text() here, or script will recurse indefinitely!
 				$zz_error[] = array(
@@ -2533,7 +2534,7 @@ function zz_text($string) {
 				$langfile = $zz_conf['lang_dir'].'/text-'.$language.'.inc.php'
 			)) {
 				// must not be include_once since $text is cleared beforehands
-				include $langfile;
+				$text = array_merge($text, zz_text_include($langfile));
 			}
 		}
 		// todo: if file exists else lang = en
@@ -2550,6 +2551,17 @@ function zz_text($string) {
 		return $string;
 	}
 	return $text[$string];
+}
+
+/**
+ * includes translations from simple text file
+ *
+ * @param string $filename filename with path
+ * @return array $text
+ */
+function zz_text_include($filename) {
+	include $filename;
+	return $text;
 }
 
 /**
