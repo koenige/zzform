@@ -1052,6 +1052,7 @@ function zz_output_wmd_editor() {
 		}
 	}
 	if ($options) $options = ', { '.implode(', ', $options).' }';
+	else $options = '';
 
 	$output = '<script type="text/javascript">'."\n";
 	$output .= '(function () {'."\n";
