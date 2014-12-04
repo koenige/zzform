@@ -2563,7 +2563,6 @@ function zz_text($string) {
 function zz_text_include($filename) {
 	global $zz_conf;
 	include $filename;
-	$zz_conf['character_set'] = 'latin1';
 	if ($zz_conf['character_set'] !== 'utf-8') {
 		foreach ($text as $key => $value) {
 			$text[$key] = htmlentities($value, ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8');
