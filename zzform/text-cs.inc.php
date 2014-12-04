@@ -2,7 +2,7 @@
 
 /**
  * zzform
- * Text and labels in Czech (cs) iso-8859-2
+ * Text and labels in Czech (cs) in utf-8 encoding
  *
  * Part of "Zugzwang Project"
  * http://www.zugzwang.org/projects/zzform
@@ -17,8 +17,8 @@
 // Page elements
 // ----------------------------------------------------------------------------
 
-$text['records'] = 'záznamù'; // Number of records as shown in page TITLE
-$text['back-to-overview'] = 'Zpìt na pøehled';
+$text['records'] = 'zÃ¡znamÅ¯'; // Number of records as shown in page TITLE
+$text['back-to-overview'] = 'ZpÄ›t na pÅ™ehled';
 //	$text['page'] = 'Seite';
 
 // Heading
@@ -29,120 +29,120 @@ $text['Search'] = 'Hledat';
 // Record form
 // ----------------------------------------------------------------------------
 
-$text['new'] = 'Novı'; // Link to add a new value for detail record via dropdown
+$text['new'] = 'NovÃ½'; // Link to add a new value for detail record via dropdown
 
 // Record form: Heading
 // @todo check if deprecated
-$text['review'] = 'Prohlédnout';
-$text['insert'] = 'Pøidat';
+$text['review'] = 'ProhlÃ©dnout';
+$text['insert'] = 'PÅ™idat';
 $text['update'] = 'Aktualizovat';
 $text['edit'] = 'Editovat';
 $text['delete'] = 'Vymazat';
 $text['show'] = 'Zobrazit';
-$text['add'] = 'Pøidat';
+$text['add'] = 'PÅ™idat';
 
 //	$text['Copy'] = 'Copy';
 
-$text['Add a record'] = 'Pøidat záznam';
-$text['Delete a record'] = 'Vymazat záznam';
-$text['Edit a record'] = 'Editovat záznam';
-$text['Show a record'] = 'Zobrazit záznam';
+$text['Add a record'] = 'PÅ™idat zÃ¡znam';
+$text['Delete a record'] = 'Vymazat zÃ¡znam';
+$text['Edit a record'] = 'Editovat zÃ¡znam';
+$text['Show a record'] = 'Zobrazit zÃ¡znam';
 $text['Add several records'] = 'Mehrere Eintr&auml;ge hinzuf&uuml;gen';
 $text['Delete several records'] = 'Mehrere Eintr&auml;ge l&ouml;schen';
 $text['Edit several records'] = 'Mehrere Eintr&auml;ge bearbeiten';
-$text['Insert failed'] = 'Pøidat neúspì¹né';
-$text['Delete failed'] = 'Vymazat neúspì¹né';
-$text['Update failed'] = 'Aktualizovat neúspì¹né';
+$text['Insert failed'] = 'PÅ™idat neÃºspÄ›Å¡nÃ©';
+$text['Delete failed'] = 'Vymazat neÃºspÄ›Å¡nÃ©';
+$text['Update failed'] = 'Aktualizovat neÃºspÄ›Å¡nÃ©';
 
-$text['There is no record under this ID: %s'] = 'V poli ID není ¾ádnı záznam: %s';
+$text['There is no record under this ID: %s'] = 'V poli ID nenÃ­ Å¾Ã¡dnÃ½ zÃ¡znam: %s';
 //	$text['Invalid ID for a record (must be an integer): %s'] = 'Invalid ID for a record (must be an integer): %s';
-$text['record_was_updated'] = 'Záznam byl aktualizován';
+$text['record_was_updated'] = 'ZÃ¡znam byl aktualizovÃ¡n';
 //	$text['Record was not updated (no changes were made)'] = 'Eintrag wurde nicht aktualisiert (es gab keine &Auml;nderungen)';
-$text['record_was_deleted'] = 'Záznam byl vymazán';
-$text['record_was_inserted'] = 'Pøíspìvek byl ulo¾en';
+$text['record_was_deleted'] = 'ZÃ¡znam byl vymazÃ¡n';
+$text['record_was_inserted'] = 'PÅ™Ã­spÄ›vek byl uloÅ¾en';
 //	$text['Configuration does not allow this action: %s'] = 'Die Konfiguration erlaubt diese Aktion nicht: %s';
 //	$text['Configuration does not allow this mode: %s'] = 'Die Konfiguration erlaubt diesen Modus nicht: %s';
 
 // Record form: bottom
 $text['Cancel'] = 'Storno'; // Stop editing this record
 //	$text['OK'] = 'OK';
-$text['Update record'] = 'Aktualizovat k databáze';
-$text['Delete record'] = 'Vymazat z databáze';
-$text['Add record'] = 'Pøidat k databáze';
+$text['Update record'] = 'Aktualizovat k databÃ¡ze';
+$text['Delete record'] = 'Vymazat z databÃ¡ze';
+$text['Add record'] = 'PÅ™idat k databÃ¡ze';
 
 // Record form: field output
 $text['N/A'] = '<abbr title="Not available">N/A</abbr>'; // no value available for display, should be abbreviated
-$text['will_be_added_automatically'] = 'bude pøidáno automaticky';
-$text['calculated_field'] = 'Generované políèko';
+$text['will_be_added_automatically'] = 'bude pÅ™idÃ¡no automaticky';
+$text['calculated_field'] = 'GenerovanÃ© polÃ­Äko';
 
 // Record form: Select
-$text['none_selected'] = '®ádnı nevybrán'; // dropdown, first entry
-$text['no_selection'] = '®ádnı vıbìr'; // radio buttons, first entry
-$text['no_source_defined'] = '®ádnı zdroj nebyl definován';
-$text['no_selection_possible'] = '®ádnı vıbìr není mo¾nı.';
+$text['none_selected'] = 'Å½Ã¡dnÃ½ nevybrÃ¡n'; // dropdown, first entry
+$text['no_selection'] = 'Å½Ã¡dnÃ½ vÃ½bÄ›r'; // radio buttons, first entry
+$text['no_source_defined'] = 'Å½Ã¡dnÃ½ zdroj nebyl definovÃ¡n';
+$text['no_selection_possible'] = 'Å½Ã¡dnÃ½ vÃ½bÄ›r nenÃ­ moÅ¾nÃ½.';
 //	$text['(This entry is the highest entry in the hierarchy.)'] = '(Dieser Eintrag ist der oberste Eintrag in der Hierarchie.)';
 
 // Record form: Change password
-$text['Old:'] = 'Staré:';
-$text['New:'] = 'Nové:';
-$text['(Please confirm your new password twice)'] = '(Zadejte va¹e heslo dvakrát)';
-$text['Your password has been changed!'] = 'Va¹e heslo bylo zmìnìno!';
-$text['Your current password is different from what you entered. Please try again.'] = 'Va¹e heslo je odli¹né od toho, které jste právì zadali. Zkuste to je¹tì jednou.';
-$text['New passwords do not match. Please try again.'] = 'Novì zadaná hesla nesedí. Zkuste je¹tì jednou.';
-$text['Please enter your current password and twice your new password.'] = 'Zadejte va¹e souèasné heslo a zároveò dvakrát potvrïte nové.';
-$text['New and old password are identical. Please choose a different new password.'] = 'Nové a staré heslo je stejné. Zadejte jiné nové heslo.';
-$text['Rules for secure passwords'] = 'Pravidla pro tvorbu bezpeèného hesla';
-$text['password-rules'] = 'Heslo musí obsahovat minimálnì osm znakù. Doporuèuje se pou¾ívat velká i malá písmena, èísla a speciální znaky jako ?=+; atd.'; 
+$text['Old:'] = 'StarÃ©:';
+$text['New:'] = 'NovÃ©:';
+$text['(Please confirm your new password twice)'] = '(Zadejte vaÅ¡e heslo dvakrÃ¡t)';
+$text['Your password has been changed!'] = 'VaÅ¡e heslo bylo zmÄ›nÄ›no!';
+$text['Your current password is different from what you entered. Please try again.'] = 'VaÅ¡e heslo je odliÅ¡nÃ© od toho, kterÃ© jste prÃ¡vÄ› zadali. Zkuste to jeÅ¡tÄ› jednou.';
+$text['New passwords do not match. Please try again.'] = 'NovÄ› zadanÃ¡ hesla nesedÃ­. Zkuste jeÅ¡tÄ› jednou.';
+$text['Please enter your current password and twice your new password.'] = 'Zadejte vaÅ¡e souÄasnÃ© heslo a zÃ¡roveÅˆ dvakrÃ¡t potvrÄte novÃ©.';
+$text['New and old password are identical. Please choose a different new password.'] = 'NovÃ© a starÃ© heslo je stejnÃ©. Zadejte jinÃ© novÃ© heslo.';
+$text['Rules for secure passwords'] = 'Pravidla pro tvorbu bezpeÄnÃ©ho hesla';
+$text['password-rules'] = 'Heslo musÃ­ obsahovat minimÃ¡lnÄ› osm znakÅ¯. DoporuÄuje se pouÅ¾Ã­vat velkÃ¡ i malÃ¡ pÃ­smena, ÄÃ­sla a speciÃ¡lnÃ­ znaky jako ?=+; atd.'; 
 $text['hidden'] = 'schovat';
 // $text['Your new password could not be saved. Please try a different one.'] = '';
 
 // Record form: File upload
 $text['image_not_display'] = 'Nelze zobrazit';
 $text['Error: '] = 'Chyba: ';
-$text['No file was uploaded.'] = '®ádnı soubor nebyl nahrán.';
-$text['File was only partially uploaded.'] = 'Soubor byl nahrán pouze èásteènì.';
-$text['File is too big.'] = 'Soubor je pøíli¹ velkı.';
-$text['Maximum allowed filesize is'] = 'Maximálnì povolená velikost souboru je';
-$text['Unsupported filetype:'] = 'Nepovolenı formát souboru:';
-$text['Supported filetypes are:'] = 'Povolené formáty souborù jsou:';
+$text['No file was uploaded.'] = 'Å½Ã¡dnÃ½ soubor nebyl nahrÃ¡n.';
+$text['File was only partially uploaded.'] = 'Soubor byl nahrÃ¡n pouze ÄÃ¡steÄnÄ›.';
+$text['File is too big.'] = 'Soubor je pÅ™Ã­liÅ¡ velkÃ½.';
+$text['Maximum allowed filesize is'] = 'MaximÃ¡lnÄ› povolenÃ¡ velikost souboru je';
+$text['Unsupported filetype:'] = 'NepovolenÃ½ formÃ¡t souboru:';
+$text['Supported filetypes are:'] = 'PovolenÃ© formÃ¡ty souborÅ¯ jsou:';
 $text['Could not delete %s.'] = 'Soubor %s nelze vymazat.';
-$text['Could not delete %s, file did not exist.'] = 'Soubor %s nelze vymazat, proto¾e neexistuje :-).';
+$text['Could not delete %s, file did not exist.'] = 'Soubor %s nelze vymazat, protoÅ¾e neexistuje :-).';
 $text['File: '] = 'Soubor: '; // prefix for alt-attribute
-$text['no_image'] = '®ádnı obrázek'; // alt-attribute if there's no image
+$text['no_image'] = 'Å½Ã¡dnÃ½ obrÃ¡zek'; // alt-attribute if there's no image
 $text['Delete this file'] = 'Smazat tento soubor';
 //	$text['File could not be saved. There is a problem with the user rights. We are working on it.'] = 'File could not be saved. There is a problem with the user rights. We are working on it.';
-$text['Minimum width %s was not reached.'] = 'Minimální ¹íøka %s nebyla dosa¾ena.';
-$text['Minimum height %s was not reached.'] = 'Minimální vı¹ka %s nebyla dosa¾ena.';
-$text['Maximum width %s has been exceeded.'] = 'Maximální ¹íøka %s byla pøekroèena.';
-$text['Maximum height %s has been exceeded.'] = 'Maximální vı¹ka %s byla pøekroèena.';
+$text['Minimum width %s was not reached.'] = 'MinimÃ¡lnÃ­ Å¡Ã­Å™ka %s nebyla dosaÅ¾ena.';
+$text['Minimum height %s was not reached.'] = 'MinimÃ¡lnÃ­ vÃ½Å¡ka %s nebyla dosaÅ¾ena.';
+$text['Maximum width %s has been exceeded.'] = 'MaximÃ¡lnÃ­ Å¡Ã­Å™ka %s byla pÅ™ekroÄena.';
+$text['Maximum height %s has been exceeded.'] = 'MaximÃ¡lnÃ­ vÃ½Å¡ka %s byla pÅ™ekroÄena.';
 //	$text['Transfer failed. Probably you sent a file that was too large.'] = '&Uuml;bertragung fehlgeschlagen. Vermutlich haben Sie eine Datei gesendet, die zu gro&szlig; war.';
 //	$text['You sent: %s data.'] = 'Sie haben %s Daten gesendet.';
 
 // Record form: Detail record
-$text['Add %s'] = 'Pøidat %s'; // e. g. Add Address, Add Phone Number ...
+$text['Add %s'] = 'PÅ™idat %s'; // e. g. Add Address, Add Phone Number ...
 $text['Remove %s'] = 'Odebrat %s';
 //	$text['Minimum of records for table `%s` was not met (%d)'] = 'Im Feld `%s` sind mehr Daten erforderlich (min. Anzahl: %d)';
 
 // Record form: Validation, displayed inside form
-$text['Please enter more characters.'] = 'Prosím, zadejte více znakù.';
-$text['No entry found. Try less characters.'] = 'Hledání bylo neúspì¹né, zkuste zadat ménì znakù.';
+$text['Please enter more characters.'] = 'ProsÃ­m, zadejte vÃ­ce znakÅ¯.';
+$text['No entry found. Try less characters.'] = 'HledÃ¡nÃ­ bylo neÃºspÄ›Å¡nÃ©, zkuste zadat mÃ©nÄ› znakÅ¯.';
 
 // Record form: Validation, displayed above form
-$text['Following_errors_occured'] = 'Do¹lo k následujícím chybám';
-$text['Value incorrect in field %s'] = '©patná hodnota %s';
-$text['Value missing in field %s'] = 'Chybìjící hodnota %s';
+$text['Following_errors_occured'] = 'DoÅ¡lo k nÃ¡sledujÃ­cÃ­m chybÃ¡m';
+$text['Value incorrect in field %s'] = 'Å patnÃ¡ hodnota %s';
+$text['Value missing in field %s'] = 'ChybÄ›jÃ­cÃ­ hodnota %s';
 	$text['Duplicate entry'] = 'Duplicate entry in this table. Please check whether the record you were about to enter already exists or you\'ll have to change the values you entered.';
-	$text['Duplicate entry'] = 'Duplikovanı záznam v této tabulce.';
+	$text['Duplicate entry'] = 'DuplikovanÃ½ zÃ¡znam v tÃ©to tabulce.';
 //	$text['Detail record could not be handled'] = '';
 
 // Record form: Validation of Database Integrity, displayed above form
-$text['No records in relation table'] = '®ádné záznamy v související tabulce %s. Prosím, doplòte.';
-$text['Detail records exist in the following tables:'] = 'Detailní záznamy jsou v tìchto tabulkách:';
-$text['This record could not be deleted because there are details about this record in other records.'] = 'Tento pøíspìvek nemù¾e bıt vymazán, proto¾e je vázán na ostatní záznamy.';
+$text['No records in relation table'] = 'Å½Ã¡dnÃ© zÃ¡znamy v souvisejÃ­cÃ­ tabulce %s. ProsÃ­m, doplÅˆte.';
+$text['Detail records exist in the following tables:'] = 'DetailnÃ­ zÃ¡znamy jsou v tÄ›chto tabulkÃ¡ch:';
+$text['This record could not be deleted because there are details about this record in other records.'] = 'Tento pÅ™Ã­spÄ›vek nemÅ¯Å¾e bÃ½t vymazÃ¡n, protoÅ¾e je vÃ¡zÃ¡n na ostatnÃ­ zÃ¡znamy.';
 
 // Record form: foreign record
-$text['edit-after-save'] = 'Nelze pøidat záznam - je tøeba ulo¾it aktuálnì otevøenı pøíspìvek.';
-$text['no-data-available'] = '®ádná data k dispozici.';
+$text['edit-after-save'] = 'Nelze pÅ™idat zÃ¡znam - je tÅ™eba uloÅ¾it aktuÃ¡lnÄ› otevÅ™enÃ½ pÅ™Ã­spÄ›vek.';
+$text['no-data-available'] = 'Å½Ã¡dnÃ¡ data k dispozici.';
 
 // Record form: identifier, hidden etc.
 //	$text['Record for %s does not exist.'] = 'Eintrag f&uuml;r %s existiert nicht.';
@@ -152,27 +152,27 @@ $text['no-data-available'] = '®ádná data k dispozici.';
 // List view
 // ----------------------------------------------------------------------------
 
-$text['table-empty'] = '®ádné záznamy k dispozici';
-$text['- unknown -'] = '- neznámı -'; // group by unknown
+$text['table-empty'] = 'Å½Ã¡dnÃ© zÃ¡znamy k dispozici';
+$text['- unknown -'] = '- neznÃ¡mÃ½ -'; // group by unknown
 
 // List view: Filter
-$text['Selection'] = 'Vıbìr';
-$text['all'] = 'v¹echny';
+$text['Selection'] = 'VÃ½bÄ›r';
+$text['all'] = 'vÅ¡echny';
 //	$text['"%s" is not a valid value for the selection "%s". Please select a different filter.'] = '&#187;%s&#171; ist kein g&uuml;ltiger Wert f&uuml;r die Auswahl &#187;%s&#171;. Bitte treffen Sie eine andere Auswahl.';
 //	$text['A filter for the selection "%s" does not exist.'] = 'Es existiert kein Filter f&uuml;r die Auswahl &#187;%s&#171;.';
 //	$text['List without this filter'] = 'Die Liste ohne diesen Filter';
 
 // List view: Table head
-$text['order by'] = 'Seøadit';
-$text['asc'] = 'Vzestupnì';
-$text['desc'] = 'Sestupnì';
+$text['order by'] = 'SeÅ™adit';
+$text['asc'] = 'VzestupnÄ›';
+$text['desc'] = 'SestupnÄ›';
 $text['action'] = 'Akce';
 $text['detail'] = 'Detaily';
 
 // List view: bottom
-$text['Add new record'] = 'Pøidat novı záznam';
-$text['records total'] = 'záznamù celkovì';
-$text['record total'] = 'celkovı záznam';
+$text['Add new record'] = 'PÅ™idat novÃ½ zÃ¡znam';
+$text['records total'] = 'zÃ¡znamÅ¯ celkovÄ›';
+$text['record total'] = 'celkovÃ½ zÃ¡znam';
 //	$text['All records on one page'] = 'Alle Eintr&auml;ge auf einer Seite';
 //	$text['First page'] = 'Erste Seite';
 //	$text['Previous page'] = 'Vorige Seite';
@@ -182,7 +182,7 @@ $text['record total'] = 'celkovı záznam';
 // List view: Search form
 //	$text['Show all records'] = 'Show all records (without search filter)';
 $text['in'] = 've';
-$text['all fields'] = 'v¹ech polích';
+$text['all fields'] = 'vÅ¡ech polÃ­ch';
 $text['search'] = 'hledat'; // Button
 
 
@@ -190,9 +190,9 @@ $text['search'] = 'hledat'; // Button
 // Error handling
 // ----------------------------------------------------------------------------
 
-$text['Warning!'] = 'Varování!';
+$text['Warning!'] = 'VarovÃ¡nÃ­!';
 //	$text['incorrect value'] = 'incorrect value';
-$text['database-error'] = 'Chyba databáze';
+$text['database-error'] = 'Chyba databÃ¡ze';
 //	$text['An error occured. We are working on the solution of this problem. Sorry for your inconvenience. Please try again later.'] = 'Ein Fehler ist aufgetreten. Wir arbeiten an der L&ouml;sung des Problems. Bitte entschuldigen Sie die Unannehmlichkeiten. Versuchen Sie es bitte sp&auml;ter nocheinmal.';
 
 
@@ -232,8 +232,8 @@ $text['Export'] = 'Export'; // Export-Link
 $text['Script configuration error. No display field set.'] = 'Chyba konfigurace skriptu.';
 	$text['Field name'] = 'Field name'; // introduces field name with wrong values
 	$text['no-delete'] = "Don't delete"; // from table relations
-$text['Database error. This database has ambiguous values in ID field.'] ='Chyba databáze. Nelze pøeèíst záznamy ze sloupce ID databázové tabulky.';
+$text['Database error. This database has ambiguous values in ID field.'] ='Chyba databÃ¡ze. Nelze pÅ™eÄÃ­st zÃ¡znamy ze sloupce ID databÃ¡zovÃ© tabulky.';
 
 // Development, Error mail
-$text['Error during database operation'] = 'Chyba zpracování dat';
-$text['The following error(s) occured in project %s:'] = 'Následující chyby se vyskytují v projektu %s:';
+$text['Error during database operation'] = 'Chyba zpracovÃ¡nÃ­ dat';
+$text['The following error(s) occured in project %s:'] = 'NÃ¡sledujÃ­cÃ­ chyby se vyskytujÃ­ v projektu %s:';

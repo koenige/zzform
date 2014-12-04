@@ -2557,10 +2557,18 @@ function zz_text($string) {
  * includes translations from simple text file
  *
  * @param string $filename filename with path
+ * @global array $zz_conf
  * @return array $text
  */
 function zz_text_include($filename) {
+	global $zz_conf;
 	include $filename;
+	$zz_conf['character_set'] = 'latin1';
+	if ($zz_conf['character_set'] !== 'utf-8') {
+		foreach ($text as $key => $value) {
+			$text[$key] = htmlentities($value, ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8');
+		}
+	}
 	return $text;
 }
 

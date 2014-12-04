@@ -2,7 +2,7 @@
 
 /**
  * zzform
- * Text and labels in Polish (pl) iso-8859-2
+ * Text and labels in Polish (pl) in utf-8 encoding
  *
  * Part of Zugzwang Project
  * http://www.zugzwang.org/projects/zzform
@@ -18,7 +18,7 @@
 // ----------------------------------------------------------------------------
 
 $text['records'] = 'Wpisy'; // Number of records as shown in page TITLE
-$text['back-to-overview'] = 'Z powrotem do podgl±du';
+$text['back-to-overview'] = 'Z powrotem do podglÄ…du';
 
 // Heading
 $text['Search'] = 'Wyszukiwanie';
@@ -32,114 +32,114 @@ $text['new'] = 'Nowy'; // Link to add a new value for detail record via dropdown
 
 // Record form: Heading
 // @todo check if deprecated
-$text['review'] = 'Poka¿';
+$text['review'] = 'PokaÅ¼';
 $text['insert'] = 'Wstaw';
 $text['update'] = 'Aktualizacja';
-$text['edit'] = 'Zmieniæ';
-$text['delete'] = 'Usun±æ';
-$text['show'] = 'Pokazaæ';
+$text['edit'] = 'ZmieniÄ‡';
+$text['delete'] = 'UsunÄ…Ä‡';
+$text['show'] = 'PokazaÄ‡';
 $text['add'] = 'Dodaj';
 
 //	$text['Copy'] = 'Copy';
 
 $text['Add a record'] = 'Dodaj wpisy';
-$text['Delete a record'] = 'Usun±æ wpisu';
-$text['Edit a record'] = 'Zmieniæ wpisu';
-$text['Show a record'] = 'Poka¿ wpisy';
+$text['Delete a record'] = 'UsunÄ…Ä‡ wpisu';
+$text['Edit a record'] = 'ZmieniÄ‡ wpisu';
+$text['Show a record'] = 'PokaÅ¼ wpisy';
 //	$text['Add several records'] = '';
 //	$text['Delete several records'] = '';
 //	$text['Edit several records'] = '';
-$text['Insert failed'] = 'Nie powiod³o siê wstaw';
-$text['Delete failed'] = 'Nie powiod³o siê usun±æ';
-$text['Update failed'] = 'Nie powiod³o siê aktualizacja';
+$text['Insert failed'] = 'Nie powiodÅ‚o siÄ™ wstaw';
+$text['Delete failed'] = 'Nie powiodÅ‚o siÄ™ usunÄ…Ä‡';
+$text['Update failed'] = 'Nie powiodÅ‚o siÄ™ aktualizacja';
 
 $text['There is no record under this ID: %s'] = 'Istnieje plik danych o tym ID: %s';
 //	$text['Invalid ID for a record (must be an integer): %s'] = 'Invalid ID for a record (must be an integer): %s';
 $text['record_was_updated'] = 'Wpis zaktualizowany';
-$text['record_was_deleted'] = 'Wpis usuniêty';
-$text['record_was_inserted'] = 'Wpis zosta³ dodany';
+$text['record_was_deleted'] = 'Wpis usuniÄ™ty';
+$text['record_was_inserted'] = 'Wpis zostaÅ‚ dodany';
 
 // Record form: bottom
 $text['Cancel'] = 'Anuluj'; // Stop editing this record
-$text['Update record'] = 'Zmieñ na bazy danych';
-$text['Delete record'] = 'Usuñ z bazy danych';
-$text['Add record'] = 'Do³±cz do bazy danych';
+$text['Update record'] = 'ZmieÅ„ na bazy danych';
+$text['Delete record'] = 'UsuÅ„ z bazy danych';
+$text['Add record'] = 'DoÅ‚Ä…cz do bazy danych';
 
 // Record form: field output
 	$text['N/A'] = '<abbr title="Not available">N/A</abbr>'; // no value available for display, should be abbreviated
-$text['N/A'] = 'Niedostêpne';
+$text['N/A'] = 'NiedostÄ™pne';
 $text['will_be_added_automatically'] = 'zostanie automatycznie dodane';
 $text['calculated_field'] = 'Pole wyliczone';
 
 // Record form: Select
 $text['none_selected'] = 'Nie wybrano'; // dropdown, first entry
 $text['no_selection'] = 'brak wyboru'; // radio buttons, first entry
-$text['no_source_defined'] = 'Brak podanego ¼ród³a';
-$text['no_selection_possible'] = 'Wybór niemo¿liwy';
+$text['no_source_defined'] = 'Brak podanego ÅºrÃ³dÅ‚a';
+$text['no_selection_possible'] = 'WybÃ³r niemoÅ¼liwy';
 
 // Record form: Change password
 $text['Old:'] = 'Stary:';
 $text['New:'] = 'Nowy:';
-$text['(Please confirm your new password twice)'] = '(Proszê potwierdziæ swoje has³o dwa razy)';
-$text['Your password has been changed!'] = 'Twoje has³o zosta³o zmienione';
-$text['Your current password is different from what you entered. Please try again.'] = 'Twoje aktualne has³o nie jest tym, które poda³e¶. Spróbuj jeszcze raz.';
-$text['New passwords do not match. Please try again.'] = 'Wprowadzone dane do nowego has³a ró¿ni± siê. Spróbuj jeszcze raz.';
-$text['Please enter your current password and twice your new password.'] = 'Proszê wprowadziæ aktualne has³o i dwa razy nowe has³o.';
-$text['New and old password are identical. Please choose a different new password.'] = 'Nowe i stare has³o s± identyczne. Prosze wybraæ inne has³o.';
-$text['Rules for secure passwords'] = 'Zasady bezpiecznego has³a';
-$text['password-rules'] = 'Has³o musi sk³adaæ siê z min. 8 znaków i zawieraæ du¿e i ma³e litery, cyfry oraz znaki specjalne.
+$text['(Please confirm your new password twice)'] = '(ProszÄ™ potwierdziÄ‡ swoje hasÅ‚o dwa razy)';
+$text['Your password has been changed!'] = 'Twoje hasÅ‚o zostaÅ‚o zmienione';
+$text['Your current password is different from what you entered. Please try again.'] = 'Twoje aktualne hasÅ‚o nie jest tym, ktÃ³re podaÅ‚eÅ›. SprÃ³buj jeszcze raz.';
+$text['New passwords do not match. Please try again.'] = 'Wprowadzone dane do nowego hasÅ‚a rÃ³Å¼niÄ… siÄ™. SprÃ³buj jeszcze raz.';
+$text['Please enter your current password and twice your new password.'] = 'ProszÄ™ wprowadziÄ‡ aktualne hasÅ‚o i dwa razy nowe hasÅ‚o.';
+$text['New and old password are identical. Please choose a different new password.'] = 'Nowe i stare hasÅ‚o sÄ… identyczne. Prosze wybraÄ‡ inne hasÅ‚o.';
+$text['Rules for secure passwords'] = 'Zasady bezpiecznego hasÅ‚a';
+$text['password-rules'] = 'HasÅ‚o musi skÅ‚adaÄ‡ siÄ™ z min. 8 znakÃ³w i zawieraÄ‡ duÅ¼e i maÅ‚e litery, cyfry oraz znaki specjalne.
 
-Przyk³ady bezpiecznych hase³:
+PrzykÅ‚ady bezpiecznych haseÅ‚:
 
-* !1Pw=ig! (Zasada: !Has³o powinno byæ znane tylko Tobie!)
-* 1sPh&uuml;o&auml;o&Ouml;  (Zasada: bezpieczne has³o powinno zawieraæ &uuml; oder &auml; oder &ouml;)';
+* !1Pw=ig! (Zasada: !HasÅ‚o powinno byÄ‡ znane tylko Tobie!)
+* 1sPh&uuml;o&auml;o&Ouml;  (Zasada: bezpieczne hasÅ‚o powinno zawieraÄ‡ &uuml; oder &auml; oder &ouml;)';
 $text['hidden'] = 'Ukryte';
 // $text['Your new password could not be saved. Please try a different one.'] = '';
 
 // Record form: File upload
-$text['image_not_display'] = 'Obraz nie mo¿e (jeszcze) zostaæ wy¶wietlony';
-$text['Error: '] = 'B³±d: ';
-$text['No file was uploaded.'] = 'Nie za³adowano ¿adnego pliku.';
-$text['File was only partially uploaded.'] = 'Plik zosta³ za³adowany czê¶ciowo.';
-$text['File is too big.'] = 'Plik jest zbyt du¿y.';
-$text['Maximum allowed filesize is'] = 'Maksymalna wielko¶æ pliku wynosi';
-$text['Unsupported filetype:'] = 'Nieobs³ugiwany typ pliku:';
-$text['Supported filetypes are:'] = 'Obs³ugiwane typy plików to:';
-$text['Could not delete %s.'] = 'Nie mo¿na by³o usun±æ %s.';
-$text['Could not delete %s, file did not exist.'] = 'Nie mo¿na by³o usun±æ %s. Plik nie istnieje.';
+$text['image_not_display'] = 'Obraz nie moÅ¼e (jeszcze) zostaÄ‡ wyÅ›wietlony';
+$text['Error: '] = 'BÅ‚Ä…d: ';
+$text['No file was uploaded.'] = 'Nie zaÅ‚adowano Å¼adnego pliku.';
+$text['File was only partially uploaded.'] = 'Plik zostaÅ‚ zaÅ‚adowany czÄ™Å›ciowo.';
+$text['File is too big.'] = 'Plik jest zbyt duÅ¼y.';
+$text['Maximum allowed filesize is'] = 'Maksymalna wielkoÅ›Ä‡ pliku wynosi';
+$text['Unsupported filetype:'] = 'NieobsÅ‚ugiwany typ pliku:';
+$text['Supported filetypes are:'] = 'ObsÅ‚ugiwane typy plikÃ³w to:';
+$text['Could not delete %s.'] = 'Nie moÅ¼na byÅ‚o usunÄ…Ä‡ %s.';
+$text['Could not delete %s, file did not exist.'] = 'Nie moÅ¼na byÅ‚o usunÄ…Ä‡ %s. Plik nie istnieje.';
 $text['File: '] = 'Plik: '; // prefix for alt-attribute
 $text['no_image'] = 'Brak obrazu'; // alt-attribute if there's no image
 $text['Delete this file'] = 'Skazuj ten plik';
 	$text['File could not be saved. There is a problem with the user rights. We are working on it.'] = 'File could not be saved. There is a problem with the user rights. We are working on it.';
-$text['Minimum width %s was not reached.'] = 'Minimalna szeroko¶æ %s nie zosta³a osi±gniêta.';
-$text['Minimum height %s was not reached.'] = 'Minimalna wysoko¶æ %s nie zosta³a osi±gniêta.';
-$text['Maximum width %s has been exceeded.'] = 'Maksymalna szeroko¶æ %s zosta³a przekroczona.';
-$text['Maximum height %s has been exceeded.'] = 'Maksymalna wysoko¶æ %s zosta³a przekroczona.';
+$text['Minimum width %s was not reached.'] = 'Minimalna szerokoÅ›Ä‡ %s nie zostaÅ‚a osiÄ…gniÄ™ta.';
+$text['Minimum height %s was not reached.'] = 'Minimalna wysokoÅ›Ä‡ %s nie zostaÅ‚a osiÄ…gniÄ™ta.';
+$text['Maximum width %s has been exceeded.'] = 'Maksymalna szerokoÅ›Ä‡ %s zostaÅ‚a przekroczona.';
+$text['Maximum height %s has been exceeded.'] = 'Maksymalna wysokoÅ›Ä‡ %s zostaÅ‚a przekroczona.';
 
 // Record form: Detail record
 $text['Add %s'] = 'Dodaj %s'; // e. g. Add Address, Add Phone Number ...
-$text['Remove %s'] = 'Usun±æ %s';
+$text['Remove %s'] = 'UsunÄ…Ä‡ %s';
 
 // Record form: Validation, displayed inside form
-$text['Please enter more characters.'] = 'Prosze podaæ wiêcej liter.';
-$text['No entry found. Try less characters.'] = 'Nie odnaleziono. Prosze spróbowaæ z wiêksz± ilo¶ci± znaków.';
+$text['Please enter more characters.'] = 'Prosze podaÄ‡ wiÄ™cej liter.';
+$text['No entry found. Try less characters.'] = 'Nie odnaleziono. Prosze sprÃ³bowaÄ‡ z wiÄ™kszÄ… iloÅ›ciÄ… znakÃ³w.';
 
 // Record form: Validation, displayed above form
-$text['Following_errors_occured'] = 'Wyst±pi³y nastêpuj±ce b³êdy';
-$text['Value incorrect in field %s'] = 'B³±d danych %s';
+$text['Following_errors_occured'] = 'WystÄ…piÅ‚y nastÄ™pujÄ…ce bÅ‚Ä™dy';
+$text['Value incorrect in field %s'] = 'BÅ‚Ä…d danych %s';
 $text['Value missing in field %s'] = 'Brak danych %s';
 	$text['Duplicate entry'] = 'Duplicate entry in this table. Please check whether the record you were about to enter already exists or you\'ll have to change the values you entered.';
-$text['Duplicate entry'] = 'Podwójny wpis.';
-$text['Detail record could not be handled'] = 'Wpis nie mo¿e byæ zapisany.';
+$text['Duplicate entry'] = 'PodwÃ³jny wpis.';
+$text['Detail record could not be handled'] = 'Wpis nie moÅ¼e byÄ‡ zapisany.';
 
 // Record form: Validation of Database Integrity, displayed above form
 	$text['No records in relation table'] = 'No records in relation table %s. Please fill in records.';
-$text['No records in relation table'] = 'Brak wpisów w tabeli. Uzupe³nij';
-$text['Detail records exist in the following tables:'] = 'Szczegó³pwe wpisy wystêpuj± w nastêpuj±cych tabelach:';
-$text['This record could not be deleted because there are details about this record in other records.'] = 'Nie mo¿na usun±æ wpisu, poniewa¿ jego elementy wystêpuj± w innych wpisach.';
+$text['No records in relation table'] = 'Brak wpisÃ³w w tabeli. UzupeÅ‚nij';
+$text['Detail records exist in the following tables:'] = 'SzczegÃ³Å‚pwe wpisy wystÄ™pujÄ… w nastÄ™pujÄ…cych tabelach:';
+$text['This record could not be deleted because there are details about this record in other records.'] = 'Nie moÅ¼na usunÄ…Ä‡ wpisu, poniewaÅ¼ jego elementy wystÄ™pujÄ… w innych wpisach.';
 
 // Record form: foreign record
-$text['edit-after-save'] = 'Zapisz przed edycj±.';
+$text['edit-after-save'] = 'Zapisz przed edycjÄ….';
 $text['no-data-available'] = 'Brak danych';
 
 
@@ -147,27 +147,27 @@ $text['no-data-available'] = 'Brak danych';
 // List view
 // ----------------------------------------------------------------------------
 
-$text['table-empty'] = 'Brak zapisów.';
+$text['table-empty'] = 'Brak zapisÃ³w.';
 $text['- unknown -'] = '- nieznany -'; // group by unknown
 
 // List view: Filter
-$text['Selection'] = 'Wybór';
+$text['Selection'] = 'WybÃ³r';
 $text['all'] = 'Wszystkie';
 //	$text['"%s" is not a valid value for the selection "%s". Please select a different filter.'] = '&#187;%s&#171; ist kein g&uuml;ltiger Wert f&uuml;r die Auswahl &#187;%s&#171;. Bitte treffen Sie eine andere Auswahl.';
 //	$text['A filter for the selection "%s" does not exist.'] = 'Es existiert kein Filter f&uuml;r die Auswahl &#187;%s&#171;.';
 //	$text['List without this filter'] = 'Die Liste ohne diesen Filter';
 
 // List view: Table head
-$text['order by'] = 'Sortuj wed³ug';
-$text['asc'] = 'Rosn±co';
-$text['desc'] = 'Malej±co';
+$text['order by'] = 'Sortuj wedÅ‚ug';
+$text['asc'] = 'RosnÄ…co';
+$text['desc'] = 'MalejÄ…co';
 $text['action'] = 'Akcja';
-$text['detail'] = 'Szczegó³y';
+$text['detail'] = 'SzczegÃ³Å‚y';
 
 // List view: bottom
 $text['Add new record'] = 'Nowy wpis';
 $text['records total'] = 'Wszystkie wpisy';
-$text['record total'] = 'Ca³y wpis';
+$text['record total'] = 'CaÅ‚y wpis';
 
 // List view: Search form
 	$text['Show all records'] = 'Show all records (without search filter)';
@@ -180,9 +180,9 @@ $text['search'] = 'Szukaj'; // Button
 // Error handling
 // ----------------------------------------------------------------------------
 
-$text['Warning!'] = 'Ostrze¿enie!';
+$text['Warning!'] = 'OstrzeÅ¼enie!';
 	$text['incorrect value'] = 'incorrect value';
-$text['database-error'] = 'B³±d bazy danych';
+$text['database-error'] = 'BÅ‚Ä…d bazy danych';
 
 
 // ----------------------------------------------------------------------------
@@ -196,10 +196,10 @@ $text['Export'] = 'Eksport'; // Export-Link
 // Modules: Geo
 // ----------------------------------------------------------------------------
 
-	$text['N'] = '<abbr title="na pó³noc">N</abbr>';
-	$text['E'] = '<abbr title="wschód">E</abbr>';
-	$text['S'] = '<abbr title="po³udnie">S</abbr>';
-	$text['W'] = '<abbr title="zachód">W</abbr>';
+	$text['N'] = '<abbr title="na pÃ³Å‚noc">N</abbr>';
+	$text['E'] = '<abbr title="wschÃ³d">E</abbr>';
+	$text['S'] = '<abbr title="poÅ‚udnie">S</abbr>';
+	$text['W'] = '<abbr title="zachÃ³d">W</abbr>';
 // $text['It looks like this coordinate has a different orientation. Maybe latitude and longitude were interchanged?'] = 'Es sieht aus, als ob diese Koordinate eine andere Orientierung hat. Wurden L&auml;nge und Breite vertauscht?';
 // $text['Mismatch: %s signals different hemisphere than %s.'] = 'Nicht eindeutig: %s zeigt eine andere Hemisph&auml;re an als %s.';
 // $text['There are too many decimal points (or commas) in this value.'] = 'In diesem Wert sind zuviele Kommas oder Punkte.';
@@ -221,9 +221,9 @@ $text['Export'] = 'Eksport'; // Export-Link
 	$text['Script configuration error. No display field set.'] = 'Script configuration error. No display field set.';
 	$text['Field name'] = 'Field name'; // introduces field name with wrong values
 	$text['no-delete'] = "Don't delete"; // from table relations
-$text['Database error. This query has ambiguous values in ID field.'] = 'B³±d bazy. Zapytanie zawiera niejednoznaczne warto¶ci';
+$text['Database error. This query has ambiguous values in ID field.'] = 'BÅ‚Ä…d bazy. Zapytanie zawiera niejednoznaczne wartoÅ›ci';
 
 // Development, Error mail
-$text['Error during database operation'] = 'B³±d bazy danych';
-$text['The following error(s) occured in project %s:'] = 'Projekt wyst±pi³ w projekcie %s:';
+$text['Error during database operation'] = 'BÅ‚Ä…d bazy danych';
+$text['The following error(s) occured in project %s:'] = 'Projekt wystÄ…piÅ‚ w projekcie %s:';
 
