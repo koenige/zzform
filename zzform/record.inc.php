@@ -1082,7 +1082,7 @@ function zz_output_field_rows($matrix, &$zz_var, $formdisplay, $extra_lastcol, $
 				.$row['td']['content'].'</span>'."\n";
 			$output .= '</span>'."\n";
 		}
-		if ($extra_lastcol) {
+		if ($extra_lastcol AND $extra_lastcol !== '&nbsp;') {
 			$output .= ' '.$extra_lastcol;
 		}
 		$output .= '</div>'."\n";
