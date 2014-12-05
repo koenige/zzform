@@ -2169,6 +2169,9 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 		// re-edit record, something was posted, ignore hierarchy because 
 		// there's only one record coming back
 		$outputf .= zz_draw_select($field, $record, $detail_record, $id_field_name, 'form');
+	} elseif (!empty($field['show_hierarchy_use_top_value_instead_NULL'])) {
+		$outputf = zz_form_element($field['f_field_name'], $field['show_hierarchy_subtree'], 'hidden', true);
+		$close_select = false;
 	} elseif (!empty($field['show_hierarchy_subtree']) OR ($field['show_hierarchy'])) {
 		$outputf = zz_form_element($field['f_field_name'], '', 'hidden', true)
 			.zz_text('(This entry is the highest entry in the hierarchy.)');
