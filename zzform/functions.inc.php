@@ -812,6 +812,10 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false)
 	$hash = md5(serialize($fields).$db_table.$multiple_times.$mode);
 	if (!empty($defs[$hash])) return zz_return($defs[$hash]);
 
+	$to_translates = array(
+		'title', 'explanation', 'explanation_top', 'title_append', 'title_tab'
+	);
+
 	foreach (array_keys($fields) as $no) {
 		if (!empty($fields[$no]['if'])) {
 			if ($multiple_times === 1) {
@@ -852,9 +856,6 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false)
 
 		if ($zz_conf['multilang_fieldnames'] AND empty($fields[$no]['translated'])) {
 			// translate fieldnames, if set
-			$to_translates = array(
-				'title', 'explanation', 'title_append', 'title_tab'
-			);
 			foreach ($to_translates as $to_translate) {
 				if (empty($fields[$no][$to_translate])) continue;
 				$fields[$no][$to_translate] = zz_text($fields[$no][$to_translate]);
@@ -972,7 +973,7 @@ function zz_hash($zz, $zz_conf) {
 	);
 	foreach ($uninteresting_zz_conf_keys as $key) unset($zz_conf[$key]);
 	$uninteresting_zz_keys = array(
-		'title', 'explanation', 'subtitle', 'list'
+		'title', 'explanation', 'explanation_top', 'subtitle', 'list'
 	);
 	foreach ($uninteresting_zz_keys as $key) unset($zz[$key]);
 	foreach ($zz['fields'] as $no => $field) {
