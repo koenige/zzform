@@ -543,8 +543,11 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 
 		if ($field['type'] === 'subtable' AND $field['form_display'] === 'set') {
 			$sub_tab = $field['subtable'];
-			$fields = $zz_tab[$sub_tab][0]['fields'];
-			$out['td']['content'] .= zz_field_set($field, $fields, $field_display, $zz_tab[$sub_tab]['existing']);
+			// don't print out anything if record is empty
+			if (array_key_exists(0, $zz_tab[$sub_tab])) {
+				$fields = $zz_tab[$sub_tab][0]['fields'];
+				$out['td']['content'] .= zz_field_set($field, $fields, $field_display, $zz_tab[$sub_tab]['existing']);
+			}
 		} elseif ($field['type'] === 'subtable') {
 			//	Subtable
 			$sub_tab = $field['subtable'];
