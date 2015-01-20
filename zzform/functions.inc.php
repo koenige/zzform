@@ -2566,7 +2566,11 @@ function zz_text_include($filename) {
 	include $filename;
 	if ($zz_conf['character_set'] !== 'utf-8') {
 		foreach ($text as $key => $value) {
-			$text[$key] = htmlentities($value, ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8');
+			if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
+				$text[$key] = htmlentities($value, ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8');
+			} else {
+				$text[$key] = htmlentities($value, ENT_NOQUOTES, 'UTF-8');
+			}
 		}
 	}
 	return $text;
