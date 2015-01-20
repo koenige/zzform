@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2014 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2015 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -162,7 +162,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			// mark it!
 			$zz_tab[0][0]['fields'][$my_tab['no']]['check_validation'] = false;
 			// show error message
-			$zz_error['validation']['msg'][] = sprintf(zz_text('Minimum of records for table `%s` was not met (%d)'), 
+			$zz_error['validation']['msg'][] = sprintf(zz_text('Minimum of records for table `%s` was not met (%d).'), 
 				zz_text($zz_tab[0][0]['fields'][$my_tab['no']]['title']), $my_tab['min_records_required']);
 			$zz_error['validation']['log_post_data'] = true;
 			$validation = false;

@@ -4,7 +4,7 @@
  * zzform
  * File upload
  *
- * Part of ªZugzwang Project´
+ * Part of ¬ªZugzwang Project¬´
  * http://www.zugzwang.org/projects/zzform
  *
  *	1. main functions (in order in which they are called)
@@ -73,7 +73,7 @@
  *	$zz_tab[0][0]['images'][n][0]['upload']['validated']	validated (yes = tested, no = rely on fileupload i. e. user)
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2006-2014 Gustaf Mossakowski
+ * @copyright Copyright ¬© 2006-2015 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -429,8 +429,13 @@ function zz_upload_check_files($zz_tab) {
 				AND empty($images[$no][$img]['upload']['error'])) { 
 				// don't overwrite different error messages, filesize = 0 also might be the case
 				// if file which was uploaded is too big
-				// file is to small or 0, might occur while incorrect refresh of browser
+				// file is too small or 0, might occur while incorrect refresh of browser
 				$images[$no][$img]['upload']['error'] = UPLOAD_ERR_NO_FILE; // no file
+				if ($images[$no][$img]['upload']['name'] AND $images[$no][$img]['upload']['type']) {
+					$images[$no][$img]['upload']['error_msg'] = sprintf(zz_text(
+						'The file %s is empty. If you are uploading from a Mac, please check if the data is not only available in the so-called ‚Äúresource fork‚Äù of the file.'
+					), zz_html_escape($images[$no][$img]['upload']['name']));
+				}
 				if (file_exists($images[$no][$img]['upload']['tmp_name'])) {
 					// get rid of max 3 byte large file
 					zz_unlink_cleanup($images[$no][$img]['upload']['tmp_name']);
@@ -2234,7 +2239,11 @@ function zz_upload_cleanup($zz_tab, $validated = true) {
 			$tab = $uf['tab'];
 			$rec = $uf['rec'];
 			if (!empty($zz_tab[$tab][$rec]['images'])) {
-				$_SESSION['zz_files'][$id][$tab][$rec]['file_upload'] = $zz_tab[$tab][$rec]['file_upload'];
+				if (isset($zz_tab[$tab][$rec]['file_upload'])) {
+					$_SESSION['zz_files'][$id][$tab][$rec]['file_upload'] = $zz_tab[$tab][$rec]['file_upload'];
+				} else {
+					$_SESSION['zz_files'][$id][$tab][$rec]['file_upload'] = false;
+				} 
 				$_SESSION['zz_files'][$id][$tab][$rec]['images'] = $zz_tab[$tab][$rec]['images'];
 			}
 		}

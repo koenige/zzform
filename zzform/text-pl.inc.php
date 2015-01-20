@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright (c) 2006-2012 Gustaf Mossakowski
+ * @copyright Copyright (c) 2006-2012, 2015 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -126,8 +126,8 @@ $text['No entry found. Try less characters.'] = 'Nie odnaleziono. Prosze spróbo
 
 // Record form: Validation, displayed above form
 $text['Following_errors_occured'] = 'Wystąpiły następujące błędy';
-$text['Value incorrect in field %s'] = 'Błąd danych %s';
-$text['Value missing in field %s'] = 'Brak danych %s';
+$text['Value incorrect in field %s.'] = 'Błąd danych %s.';
+$text['Value missing in field %s.'] = 'Brak danych %s.';
 	$text['Duplicate entry'] = 'Duplicate entry in this table. Please check whether the record you were about to enter already exists or you\'ll have to change the values you entered.';
 $text['Duplicate entry'] = 'Podwójny wpis.';
 $text['Detail record could not be handled'] = 'Wpis nie może być zapisany.';

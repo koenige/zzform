@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2005-2012 Gustaf Mossakowski
+ * @copyright Copyright © 2005-2012, 2015 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -129,8 +129,8 @@ $text['No entry found. Try less characters.'] = 'No entry found. Try less charac
 
 // Record form: Validation, displayed above form
 $text['Following_errors_occured'] = 'The following errors occured';
-$text['Value incorrect in field %s'] = 'Value incorrect in field %s';
-$text['Value missing in field %s'] = 'Value missing in field %s';
+$text['Value incorrect in field %s.'] = 'Value incorrect in field %s.';
+$text['Value missing in field %s.'] = 'Value missing in field %s.';
 $text['Duplicate entry'] = 'Duplicate entry in this table. Please check whether the record you were about to enter already exists or you\'ll have to change the values you entered.';
 
 // Record form: Validation of Database Integrity, displayed above form

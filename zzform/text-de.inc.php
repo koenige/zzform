@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2005-2014 Gustaf Mossakowski
+ * @copyright Copyright © 2005-2015 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -134,12 +134,13 @@ $text['Maximum width %s has been exceeded.'] = 'Maximale Breite %s wurde übersc
 $text['Maximum height %s has been exceeded.'] = 'Maximale Höhe %s wurde überschritten.';
 	$text['Transfer failed. Probably you sent a file that was too large.'] = 'Übertragung fehlgeschlagen. Vermutlich haben Sie eine Datei gesendet, die zu groß war.';
 	$text['You sent: %s data.'] = 'Sie haben %s Daten gesendet.';
+	$text['The file %s is empty. If you are uploading from a Mac, please check if the data is not only available in the so-called “resource fork” of the file.'] = 'Die Datei %s ist leer. Falls Sie von einem Mac hochladen, prüfen Sie bitte, ob die Daten nicht ausschließlich im sog. »Resource Fork« liegen.';
 
 // Record form: Detail record
 $text['Add %s'] = '%s ergänzen'; // e. g. Add Address, Add Phone Number ...
 $text['Remove %s'] = '%s entfernen';
 $text['Remove'] = 'Entfernen';
-	$text['Minimum of records for table `%s` was not met (%d)'] = 'Im Feld `%s` sind mehr Daten erforderlich (min. Anzahl: %d)';
+	$text['Minimum of records for table `%s` was not met (%d).'] = 'Im Feld `%s` sind mehr Daten erforderlich (min. Anzahl: %d).';
 
 // Record form: Validation, displayed inside form
 $text['Please enter more characters.'] = 'Bitte geben Sie mehr Buchstaben ein.';
@@ -147,9 +148,9 @@ $text['No entry found. Try less characters.'] = 'Keinen Eintrag gefunden. Versuc
 
 // Record form: Validation, displayed above form
 $text['Following_errors_occured'] = 'Die folgenden Fehler sind aufgetreten';
-$text['Value incorrect in field %s'] = 'Angabe im Feld %s erscheint falsch';
-$text['Value missing in field %s'] = 'Angabe im Feld %s fehlt';
-$text['Nothing was uploaded in field %s'] = 'Es wurde nichts im Feld %s hochgeladen';
+$text['Value incorrect in field %s.'] = 'Angabe im Feld %s erscheint falsch.';
+$text['Value missing in field %s.'] = 'Angabe im Feld %s fehlt.';
+$text['Nothing was uploaded in field %s.'] = 'Es wurde nichts im Feld %s hochgeladen.';
 $text['Duplicate entry'] = 'Doppelter Eintrag in dieser Tabelle. Bitte überprüfen Sie, ob entweder der gewünschte Eintrag bereits existiert oder ob Sie Ihren Eintrag ändern können.';
 $text['Detail record could not be handled'] = 'Teileintrag konnte nicht gespeichert werden.';
 	$text['String <em>"%s"</em> is not allowed'] = 'Die Zeichenfolge <em>"%s"</em> ist nicht erlaubt';

@@ -18,7 +18,7 @@
  * V - Validation, preparation for database
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2014 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2015 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -2233,8 +2233,8 @@ function zz_error_validation() {
 	// user error message, visible to everyone
 	// line breaks \n important for mailing errors
 	$this_error['msg'] = '<p>'.zz_text('Following_errors_occured').': </p>'
-		."\n".'<ul><li>'.implode(".</li>\n<li>", $zz_error['validation']['msg'])
-		.'.</li></ul>';
+		."\n".'<ul><li>'.implode("</li>\n<li>", $zz_error['validation']['msg'])
+		.'</li></ul>';
 	// if we got wrong values entered, put this into a developer message
 	if (!empty($zz_error['validation']['incorrect_values'])) {
 		foreach ($zz_error['validation']['incorrect_values'] as $incorrect_value) {
@@ -2567,7 +2567,7 @@ function zz_text_include($filename) {
 	if ($zz_conf['character_set'] !== 'utf-8') {
 		foreach ($text as $key => $value) {
 			if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
-				$text[$key] = htmlentities($value, ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8');
+				$text[$key] = htmlentities($value, ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8');
 			} else {
 				$text[$key] = htmlentities($value, ENT_NOQUOTES, 'UTF-8');
 			}

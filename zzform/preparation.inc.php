@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2014 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2015 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1147,7 +1147,7 @@ function zz_log_validation_errors($my_rec, $validation) {
 		if ($my_rec['record'][$field['field_name']]) {
 			// there's a value, so this is an incorrect value
 			$zz_error['validation']['msg'][] = sprintf(
-				zz_text('Value incorrect in field %s'), 
+				zz_text('Value incorrect in field %s.'), 
 				'<strong>'.$field['title'].'</strong>'
 			).(
 				!empty($field['validation_error'])
@@ -1163,13 +1163,14 @@ function zz_log_validation_errors($my_rec, $validation) {
 		} elseif (empty($field['dont_show_missing'])) {
 			if ($field['type'] === 'upload_image') {
 				$zz_error['validation']['msg'][] = sprintf(
-					zz_text('Nothing was uploaded in field %s'),
+					zz_text('Nothing was uploaded in field %s.'),
 					'<strong>'.$field['title'].'</strong>'
-				);
+				).(!empty($my_rec['images'][$no][0]['upload']['error_msg'])
+					? ' '.$my_rec['images'][$no][0]['upload']['error_msg'] : '');
 			} else {
 				// there's a value missing
 				$zz_error['validation']['msg'][] = sprintf(
-					zz_text('Value missing in field %s'),
+					zz_text('Value missing in field %s.'),
 					'<strong>'.$field['title'].'</strong>'
 				);
 				$zz_error['validation']['log_post_data'] = true;

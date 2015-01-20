@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright (c) 2006-2012 Gustaf Mossakowski
+ * @copyright Copyright (c) 2006-2012, 2015 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -121,7 +121,7 @@ $text['Maximum height %s has been exceeded.'] = 'Maximální výška %s byla př
 // Record form: Detail record
 $text['Add %s'] = 'Přidat %s'; // e. g. Add Address, Add Phone Number ...
 $text['Remove %s'] = 'Odebrat %s';
-//	$text['Minimum of records for table `%s` was not met (%d)'] = 'Im Feld `%s` sind mehr Daten erforderlich (min. Anzahl: %d)';
+//	$text['Minimum of records for table `%s` was not met (%d).'] = 'Im Feld `%s` sind mehr Daten erforderlich (min. Anzahl: %d).';
 
 // Record form: Validation, displayed inside form
 $text['Please enter more characters.'] = 'Prosím, zadejte více znaků.';
@@ -129,8 +129,8 @@ $text['No entry found. Try less characters.'] = 'Hledání bylo neúspěšné, z
 
 // Record form: Validation, displayed above form
 $text['Following_errors_occured'] = 'Došlo k následujícím chybám';
-$text['Value incorrect in field %s'] = 'Špatná hodnota %s';
-$text['Value missing in field %s'] = 'Chybějící hodnota %s';
+$text['Value incorrect in field %s.'] = 'Špatná hodnota %s.';
+$text['Value missing in field %s.'] = 'Chybějící hodnota %s.';
 	$text['Duplicate entry'] = 'Duplicate entry in this table. Please check whether the record you were about to enter already exists or you\'ll have to change the values you entered.';
 	$text['Duplicate entry'] = 'Duplikovaný záznam v této tabulce.';
 //	$text['Detail record could not be handled'] = '';
