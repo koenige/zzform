@@ -53,24 +53,27 @@
  *	$zz_tab[0][0]['images'][n][0]['field_name']
  *	$zz_tab[0][0]['images'][n][0]['path']
  *	$zz_tab[0][0]['images'][n][0][...]
- *	upload values from PHP form
- *	$zz_tab[0][0]['images'][n][0]['upload']['name']	local filename
- *	$zz_tab[0][0]['images'][n][0]['upload']['type'] mimetype, as browser sends it
- *	$zz_tab[0][0]['images'][n][0]['upload']['tmp_name'] temporary filename on server
- *	$zz_tab[0][0]['images'][n][0]['upload']['error'] errorcode, 0 = no error
- *	own upload values, read from image
- *	$zz_tab[0][0]['images'][n][0]['upload']['size']		filesize
- *	$zz_tab[0][0]['images'][n][0]['upload']['width']	width in px
- *	$zz_tab[0][0]['images'][n][0]['upload']['height']	height in px
- *	$zz_tab[0][0]['images'][n][0]['upload']['exif']		exif data
  *
- *	$zz_tab[0][0]['images'][n][0]['upload']['filetype']	Filetype
- *	$zz_tab[0][0]['images'][n][0]['upload']['ext']		file extension
- *	$zz_tab[0][0]['images'][n][0]['upload']['mime']		MimeType
- *	$zz_tab[0][0]['images'][n][0]['upload']['imagick_format']	ImageMagick_Format
- *	$zz_tab[0][0]['images'][n][0]['upload']['imagick_mode']		ImageMagick_Mode
- *	$zz_tab[0][0]['images'][n][0]['upload']['imagick_desc']		ImageMagick_Description
- *	$zz_tab[0][0]['images'][n][0]['upload']['validated']	validated (yes = tested, no = rely on fileupload i. e. user)
+ *	upload values from PHP form
+ *	$zz_tab[0][0]['images'][n][0]['upload']
+ *		['name']			local filename
+ *		['type']			mimetype, as browser sends it
+ *		['tmp_name']		temporary filename on server
+ *		['error'] 			errorcode, 0 = no error
+ *
+ *	own upload values, read from image
+ *	$zz_tab[0][0]['images'][n][0]['upload']
+ *		['size']			filesize
+ *		['width']			width in px
+ *		['height']			height in px
+ *		['exif']			exif data
+ *		['filetype']		Filetype
+ *		['ext']				file extension
+ *		['mime']			MimeType
+ *		['imagick_format']	ImageMagick_Format
+ *		['imagick_mode']	ImageMagick_Mode
+ *		['imagick_desc']	ImageMagick_Description
+ *		['validated']		validated (yes = tested, no = rely on fileupload i. e. user)
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2006-2015 Gustaf Mossakowski
@@ -1141,14 +1144,17 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 				? $src_image['files']['tmp_file'] : false;
 			if (!$source_filename AND $zz_conf['modules']['debug']) 
 				zz_debug('use_modified_source: no source filename!');
+			// get some variables from source image as well
+			$image['upload'] = $src_image['upload']; 
 		} else {
 			$source_filename = $src_image['upload']['tmp_name'];
 			if (!$source_filename AND $image['recreate']) {
 				list($image, $source_filename) = zz_upload_create_source($image, $src_image['path'], $zz_tab);
+			} else {
+				// get some variables from source image as well
+				$image['upload'] = $src_image['upload']; 
 			}
 		}
-		// get some variables from source image as well
-		$image['upload'] = $src_image['upload']; 
 		// check if it's not a form that allows upload of different filetypes at once
 		// cross check input filetypes
 		if (!empty($image['input_filetypes']) AND !empty($src_image['upload']['filetype'])) {
