@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2014 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2015 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -224,11 +224,12 @@ function zz_export_links($url, $querystring) {
  *			with numerical index corresponding to 'head', each field is array
  *			made of 'class' (= HTML attribute values) and 'text' (= content)
  * @param array $zz
+ * @param array $zz_var
  * @global array $zz_conf
  *		$zz_conf['int']['export_script']
  * @return mixed void (direct output) or array $ops
  */
-function zz_export($ops, $zz) {
+function zz_export($ops, $zz, $zz_var) {
 	global $zz_conf;
 	// check if we have data
 	if (!$zz_conf['int']['show_list']) return false;
@@ -267,7 +268,7 @@ function zz_export($ops, $zz) {
 		echo 'Sorry, standard PDF support is not yet available. Please use a custom script.';
 		exit;
 	case 'kml':
-		$ops['output'] = zz_export_kml($ops, $zz);
+		$ops['output'] = zz_export_kml($ops, $zz, $zz_var);
 		return $ops;
 	}
 }
@@ -279,14 +280,15 @@ function zz_export($ops, $zz) {
  *
  * @param array $ops
  * @param array $zz
+ * @param array $zz_var
  * @global array $zz_conf
  * @global array $zz_setting
  * @return array $ops
  */
-function zz_export_kml($ops, $zz) {
+function zz_export_kml($ops, $zz, $zz_var) {
 	global $zz_setting;
 	
-	$kml['title'] = utf8_encode(zz_nice_title($ops['heading'], $ops['output']['head']));
+	$kml['title'] = utf8_encode(zz_nice_title($ops['heading'], $ops['output']['head'], $zz_var));
 	$kml['description'] = zz_format($zz['explanation']);
 	$kml['styles'] = array();
 	$kml['placemarks'] = array();

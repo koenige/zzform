@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2014 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2015 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -362,26 +362,26 @@ function zz_output_redirect($result, $return, $id_value, $zz_tab) {
  * @param string $heading ($ops['heading'])
  * @param array $zz['fields']
  * @param array $zz_var
- *		'where_with_unique_id', 'limit_total_rows', 'id'
+ *		'where_with_unique_id', 'limit_total_rows', 'id', 'filters'
  * @param string $mode ($ops['mode'])
  * @global array $zz_conf
  * @return string $title
  */
-function zz_nice_title($heading, $fields, $zz_var = array(), $mode = false) {
+function zz_nice_title($heading, $fields, $zz_var, $mode = false) {
 	global $zz_conf;
 
 	// basic title
 	$title = strip_tags($heading);
 
 	// addition: filters
-	if ($zz_conf['int']['filter'] AND $zz_conf['filter']) {
+	if ($zz_var['filters'] AND $zz_conf['filter']) {
 		foreach ($zz_conf['filter'] as $index => $f) {
-			if (empty($zz_conf['int']['filter'][$f['identifier']])) continue;
+			if (empty($zz_var['filters'][$f['identifier']])) continue;
 			$title .= $zz_conf['title_separator'].$f['title'].': ';
-			if (!empty($f['selection']) AND !empty($f['selection'][$zz_conf['int']['filter'][$f['identifier']]])) {
-				$title .= $f['selection'][$zz_conf['int']['filter'][$f['identifier']]];
+			if (!empty($f['selection']) AND !empty($f['selection'][$zz_var['filters'][$f['identifier']]])) {
+				$title .= $f['selection'][$zz_var['filters'][$f['identifier']]];
 			} else {
-				$title .= zz_htmltag_escape($zz_conf['int']['filter'][$f['identifier']]);
+				$title .= zz_htmltag_escape($zz_var['filters'][$f['identifier']]);
 			}
 		}
 	}

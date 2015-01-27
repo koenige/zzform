@@ -104,7 +104,7 @@ function zzform($zz = array()) {
 	if (!$zz_var) return zzform_exit($ops);
 
 	// check GET 'filter'
-	$zz_conf['int']['filter'] = zz_filter_defaults();
+	$zz_var['filters'] = zz_filter_defaults();
 
 	// get and apply where conditions to SQL query and fields
 	list ($zz, $zz_var) = zz_where_conditions($zz, $zz_var);

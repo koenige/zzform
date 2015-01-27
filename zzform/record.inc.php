@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2014 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2015 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -794,7 +794,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			}
 			if (empty($field['value'])) {
 				// Check if filter is applied to this field, set filter value as default value
-				$default = zz_record_filter_as_default($field['field_name']);
+				$default = zz_record_filter_as_default($field['field_name'], $zz_var['filters']);
 				if ($default) $field['default'] = $default;
 			}
 
@@ -1176,24 +1176,25 @@ function zz_output_subtable_submit($mode, $field, $tab, $rec = 0) {
  * returns filter value as default, if set
  *
  * @param string $field_name
+ * @param array $filter_params = $zz_var['filters']
  * @global array $zz_conf
  * @return string
  */
-function zz_record_filter_as_default($field_name) {
+function zz_record_filter_as_default($field_name, $filter_params) {
 	global $zz_conf;
-	if (!$zz_conf['int']['filter']) return false;
+	if (!$filter_params) return false;
 
 	// check if there's a filter with a field_name 
 	// this field will get the filter value as default value
 	$filter_field_name = array();
 	$unwanted_filter_values = array('NULL', '!NULL');
-	foreach (array_keys($zz_conf['int']['filter']) AS $filter_identifier) {
+	foreach (array_keys($filter_params) AS $filter_identifier) {
 		foreach ($zz_conf['filter'] as $filter) {
 			if ($filter_identifier !== $filter['identifier']) continue;
 			if (empty($filter['field_name'])) continue;
 			if ($filter['field_name'] !== $field_name) continue;
-			if (in_array($zz_conf['int']['filter'][$filter_identifier], $unwanted_filter_values)) continue;
-			return $zz_conf['int']['filter'][$filter_identifier];
+			if (in_array($filter_params[$filter_identifier], $unwanted_filter_values)) continue;
+			return $filter_params[$filter_identifier];
 		}
 	}
 	return false;

@@ -348,9 +348,9 @@ function zz_get_where_conditions($zz, $zz_var) {
 			unset($zz_conf['filter'][$index]);
 		}
 		if ($filter['type'] !== 'where') continue;
-		if (!empty($zz_conf['int']['filter'][$filter['identifier']])) {
+		if (!empty($zz_var['filters'][$filter['identifier']])) {
 			$zz_var['where_condition'][$filter['where']] 
-				= $zz_conf['int']['filter'][$filter['identifier']];
+				= $zz_var['filters'][$filter['identifier']];
 		}
 		// 'where'-filters are beyond that 'list'-filters
 		$zz_conf['filter'][$index]['type'] = 'list';
@@ -518,12 +518,13 @@ function zz_filter_defaults() {
  * checks filter, gets selection, sets hierarchy values
  *
  * @param array $zz
+ * @param array $filter_params = $zz_var['filters']
  * @global array $zz_conf ('filter', might be changed)
  * @global array $zz_error
  * @return array ($zz, 'hierarchy' will be changed if corresponding filter)
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_apply_filter($zz) {
+function zz_apply_filter($zz, $filter_params) {
 	global $zz_conf;
 	global $zz_error;
 	if (!$zz_conf['filter']) return $zz;
@@ -536,9 +537,9 @@ function zz_apply_filter($zz) {
 			if (!empty($filter['depends_on']) 
 			AND isset($zz_conf['filter'][$filter['depends_on']])) {
 				$depends_on = $zz_conf['filter'][$filter['depends_on']];
-				if (!empty($zz_conf['int']['filter'][$depends_on['identifier']])) {
+				if (!empty($filter_params[$depends_on['identifier']])) {
 					$where = $depends_on['where'].' = '.zz_db_escape(
-						$zz_conf['int']['filter'][$depends_on['identifier']]
+						$filter_params[$depends_on['identifier']]
 					);
 					$filter['sql'] = zz_edit_sql($filter['sql'], 'WHERE', $where);
 				}
@@ -568,12 +569,12 @@ function zz_apply_filter($zz) {
 				);
 			}
 		}
-		if (!$zz_conf['int']['filter']) continue;
-		if (!in_array($filter['identifier'], array_keys($zz_conf['int']['filter']))) continue;
+		if (!$filter_params) continue;
+		if (!in_array($filter['identifier'], array_keys($filter_params))) continue;
 		if ($filter['type'] !== 'show_hierarchy') continue;
 
 		$selection = zz_in_array_str(
-			$zz_conf['int']['filter'][$filter['identifier']], array_keys($filter['selection'])
+			$filter_params[$filter['identifier']], array_keys($filter['selection'])
 		);
 		if ($selection) {
 			if (!empty($zz['list']['hierarchy'])) {
@@ -585,7 +586,7 @@ function zz_apply_filter($zz) {
 		} else {
 			$zz_error[] = array(
 				'msg' => sprintf(zz_text('This filter does not exist: %s'),
-					zz_htmltag_escape($zz_conf['int']['filter'][$filter['identifier']])),
+					zz_htmltag_escape($filter_params[$filter['identifier']])),
 				'level' => E_USER_NOTICE,
 				'status' => 404
 			);
@@ -764,7 +765,7 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = arr
 	// (single record will be shown)
 	if ($zz_var['where_with_unique_id']) {
 		$zz_conf['filter'] = array();
-		$zz_conf['int']['filter'] = array();
+		$zz_var['filters'] = array();
 	}
 	
 	return zz_return(array($sql, $zz_var));

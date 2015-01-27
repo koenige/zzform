@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2014 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2015 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -80,12 +80,12 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 
 	// Filters
 	// set 'selection', $zz['list']['hierarchy']
-	$zz = zz_apply_filter($zz);
+	$zz = zz_apply_filter($zz, $zz_var['filters']);
 	// modify SQL query depending on filter
 	$old_sql = $zz['sql'];
-	$zz['sql'] = zz_list_filter_sql($zz['sql']);
+	$zz['sql'] = zz_list_filter_sql($zz['sql'], $zz_var['filters']);
 	if ($old_sql !== $zz['sql']) $zz['sqlcount'] = '';
-	$ops['output'] .= zz_filter_selection($zz_conf['filter'], 'top');
+	$ops['output'] .= zz_filter_selection($zz_conf['filter'], $zz_var['filters'], 'top');
 	if ($ops['mode'] != 'add' AND empty($zz_conf['no_add_above'])) {
 		$ops['output'] .= zz_output_add_links($zz_var['extraGET']);
 	}
@@ -177,7 +177,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			);
 		}
 		if ($zz_conf['modules']['debug']) zz_debug('end');
-		$ops = zz_export($ops, $zz);
+		$ops = zz_export($ops, $zz, $zz_var);
 		return zz_return(array($ops, $zz_var));
 	}
 	
@@ -223,7 +223,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	if (!($zz_conf['int']['access'] === 'search_but_no_list' AND empty($_GET['q']))) {
 		// filter, if there was a list
 		if ($zz_conf['int']['show_list']) {
-			$ops['output'] .= zz_filter_selection($zz_conf['filter'], 'bottom');
+			$ops['output'] .= zz_filter_selection($zz_conf['filter'], $zz_var['filters'], 'bottom');
 		}
 		$toolsline = array();
 		$base_url = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
@@ -683,12 +683,13 @@ function zz_list_group_titles_out($group_titles, $concat = ' &#8211; ') {
  *		string 'where'
  *		array 'selection'
  *			id => title
+ * @param array $filter_params = $zz_var['filters']
  * @param string $pos = 'top', 'bottom', or 'both'
  * @global array $zz_conf
  *		$zz_conf['int']['url']
  * @return string HTML output, all filters
  */
-function zz_filter_selection($filter, $pos) {
+function zz_filter_selection($filter, $filter_params, $pos) {
 	global $zz_conf;
 
 	if (!$filter) return '';
@@ -711,7 +712,7 @@ function zz_filter_selection($filter, $pos) {
 	$filter_output = false;
 	foreach ($filter as $index => $f) {
 		// remove this filter from query string
-		$other_filters['filter'] = $zz_conf['int']['filter'];
+		$other_filters['filter'] = $filter_params;
 		unset($other_filters['filter'][$f['identifier']]);
 		if (!empty($f['subfilter'])) {
 			// this filter has a subfilter
@@ -728,8 +729,8 @@ function zz_filter_selection($filter, $pos) {
 		if (!empty($f['selection'])) {
 			// $f['selection'] might be empty if there's no record in the database
 			foreach ($f['selection'] as $id => $selection) {
-				$is_selected = ((isset($zz_conf['int']['filter'][$f['identifier']]) 
-					AND $zz_conf['int']['filter'][$f['identifier']] == $id))
+				$is_selected = ((isset($filter_params[$f['identifier']]) 
+					AND $filter_params[$f['identifier']] == $id))
 					? true : false;
 				if ($is_selected) {
 					// active filter: don't show a link
@@ -749,11 +750,11 @@ function zz_filter_selection($filter, $pos) {
 				);
 				$filter_output = true;
 			}
-		} elseif (isset($zz_conf['int']['filter'][$f['identifier']])) {
+		} elseif (isset($filter_params[$f['identifier']])) {
 			// no filter selections are shown, but there is a current filter, 
 			// so show this
 			$filter[$index]['output'][] = array(
-				'title' => zz_htmltag_escape($zz_conf['int']['filter'][$f['identifier']]),
+				'title' => zz_htmltag_escape($filter_params[$f['identifier']]),
 				'link' => false
 			);
 			$filter_output = false;
@@ -772,9 +773,9 @@ function zz_filter_selection($filter, $pos) {
 			$link = $self.($qs ? $qs.'&amp;' : '?').'filter['.$f['identifier'].']=0';
 		}
 		$link_all = false;
-		if (isset($zz_conf['int']['filter'][$f['identifier']])
-			AND $zz_conf['int']['filter'][$f['identifier']] !== '0'
-			AND $zz_conf['int']['filter'][$f['identifier']] !== 0) $link_all = true;
+		if (isset($filter_params[$f['identifier']])
+			AND $filter_params[$f['identifier']] !== '0'
+			AND $filter_params[$f['identifier']] !== 0) $link_all = true;
 		if (!$link_all) $link = false;
 
 		$filter[$index]['output'][] = array(
@@ -808,20 +809,22 @@ function zz_filter_selection($filter, $pos) {
  * test if all filters are valid filters
  *
  * @param string $sql
+ * @param array $filter_params = $zz_var['filters']
+ *		wrong filters may be unset
  * @global array $zz_conf
  * @global array $zz_error
  * @return string $sql
  * @see zz_filter_defaults() for check for invalid filters
  */
-function zz_list_filter_sql($sql) {
+function zz_list_filter_sql($sql, &$filter_params) {
 	global $zz_conf;
 	global $zz_error;
 
 	// no filter was selected, no change
-	if (!$zz_conf['int']['filter']) return $sql;
+	if (!$filter_params) return $sql;
 
 	foreach ($zz_conf['filter'] AS $filter) {
-		if (!in_array($filter['identifier'], array_keys($zz_conf['int']['filter']))) continue;
+		if (!in_array($filter['identifier'], array_keys($filter_params))) continue;
 		if (empty($filter['where'])) continue;
 		if (!isset($filter['default_selection'])) $filter['default_selection'] = '';
 		$old_sql = $sql;
@@ -830,14 +833,14 @@ function zz_list_filter_sql($sql) {
 		}
 		
 		if ($filter['type'] === 'show_hierarchy'
-			AND false !== zz_in_array_str($zz_conf['int']['filter'][$filter['identifier']], array_keys($filter['selection']))
+			AND false !== zz_in_array_str($filter_params[$filter['identifier']], array_keys($filter['selection']))
 		) {
-			$filter_value = $zz_conf['int']['filter'][$filter['identifier']];
+			$filter_value = $filter_params[$filter['identifier']];
 			$sql = zz_edit_sql($sql, 'WHERE', $filter['where'].' = "'.$filter_value.'"');
-		} elseif (false !== zz_in_array_str($zz_conf['int']['filter'][$filter['identifier']], array_keys($filter['selection']))
+		} elseif (false !== zz_in_array_str($filter_params[$filter['identifier']], array_keys($filter['selection']))
 			AND $filter['type'] === 'list') {
 			// it's a valid filter, so apply it.
-			$filter_value = $zz_conf['int']['filter'][$filter['identifier']];
+			$filter_value = $filter_params[$filter['identifier']];
 			if ($filter_value === 'NULL') {
 				$sql = zz_edit_sql($sql, 'WHERE', 'ISNULL('.$filter['where'].')');
 			} elseif ($filter_value === '!NULL') {
@@ -854,25 +857,25 @@ function zz_list_filter_sql($sql) {
 				}
 				$sql = zz_edit_sql($sql, 'WHERE', $filter['where'].$equals.'"'.$filter_value.'"');
 			}
-		} elseif ($zz_conf['int']['filter'][$filter['identifier']] === '0' AND $filter['default_selection'] !== '0'
+		} elseif ($filter_params[$filter['identifier']] === '0' AND $filter['default_selection'] !== '0'
 			AND $filter['default_selection'] !== 0) {
 			// do nothing
 		} elseif ($filter['type'] === 'list' AND is_array($filter['where'])) {
 			// valid filter with several wheres
 			$wheres = array();
 			foreach ($filter['where'] AS $filter_where) {
-				if ($zz_conf['int']['filter'][$filter['identifier']] === 'NULL') {
+				if ($filter_params[$filter['identifier']] === 'NULL') {
 					$wheres[] = 'ISNULL('.$filter_where.')';
-				} elseif ($zz_conf['int']['filter'][$filter['identifier']] === '!NULL') {
+				} elseif ($filter_params[$filter['identifier']] === '!NULL') {
 					$wheres[] = '!ISNULL('.$filter_where.')';
 				} else {
-					$wheres[] = $filter_where.' = "'.$zz_conf['int']['filter'][$filter['identifier']].'"';
+					$wheres[] = $filter_where.' = "'.$filter_params[$filter['identifier']].'"';
 				}
 			}
 			$sql = zz_edit_sql($sql, 'WHERE', implode(' OR ', $wheres));
 		} elseif ($filter['type'] === 'like') {
 			// valid filter with LIKE
-			$sql = zz_edit_sql($sql, 'WHERE', $filter['where'].' LIKE "%'.$zz_conf['int']['filter'][$filter['identifier']].'%"');
+			$sql = zz_edit_sql($sql, 'WHERE', $filter['where'].' LIKE "%'.$filter_params[$filter['identifier']].'%"');
 		} else {
 			// invalid filter value, show list without filter
 			$sql = $old_sql;
@@ -880,12 +883,12 @@ function zz_list_filter_sql($sql) {
 				$zz_conf['int']['http_status'] = 404;
 				$zz_error[] = array(
 					'msg' => sprintf(zz_text('"%s" is not a valid value for the selection "%s". Please select a different filter.'), 
-						zz_htmltag_escape($zz_conf['int']['filter'][$filter['identifier']]), $filter['title']),
+						zz_htmltag_escape($filter_params[$filter['identifier']]), $filter['title']),
 					'level' => E_USER_NOTICE
 				);
 			}
 			// remove invalid filter from query string
-			unset($zz_conf['int']['filter'][$filter['identifier']]);
+			unset($filter_params[$filter['identifier']]);
 			// remove invalid filter from internal query string
 			$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string(
 				$zz_conf['int']['url']['qs_zzform'], sprintf('filter[%s]', $filter['identifier'])
