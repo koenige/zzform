@@ -271,13 +271,35 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 function zz_sql_prefix($vars, $type = 'zz') {
 	global $zz_conf;
 
-	$zz_conf['int']['prefix_change'] = $type;
-	array_walk_recursive($vars, 'zz_sql_prefix_change');
-	unset($zz_conf['int']['prefix_change']);
+	if ($type === 'zz') {
+		array_walk_recursive($vars, 'zz_sql_prefix_change_zz');
+	} else {
+		$sql_fields = array(
+			'logging_table', 'relations_table', 'text_table', 'translations_table'
+		);
+		foreach ($sql_fields as $config) {
+			if (empty($zz_conf[$config])) continue;
+			zz_sql_prefix_change($zz_conf[$config]);
+		}
+	}
 
 	return $vars;
 }
 
+/**
+ * checks each key if it might potentially have a table prefix
+ * and replaces all prefixes of its value
+ */
+function zz_sql_prefix_change(&$item) {
+	global $zz_conf;
+
+	if (!is_string($item)) return false;
+	$prefix = '/*_PREFIX_*/';
+	if (!strstr($item, $prefix)) return false;
+	$item = str_replace($prefix, $zz_conf['prefix'], $item);
+	return true;
+}
+ 
 /**
  * checks each key if it might potentially have a table prefix
  * and replaces all prefixes of its value
@@ -290,60 +312,48 @@ function zz_sql_prefix($vars, $type = 'zz') {
  * for this to happen, all functions getting database names from table etc.
  * must be rewritten
  */
-function zz_sql_prefix_change(&$item, $key) {
-	global $zz_conf;
-	if (!is_string($item)) return false;
-	$prefix = '/*_PREFIX_*/';
-	if (!strstr($item, $prefix)) return false;
+function zz_sql_prefix_change_zz(&$item, $key) {
+	$success = zz_sql_prefix_change($item);
+	if (!$success) return false;
 	
-	switch ($zz_conf['int']['prefix_change']) {
-	case 'zz':
-		// $zz['conditional_fields'][n]['sql']
-		// $zz['conditions'][n]['add']['sql']
-		// $zz['conditions'][n]['having']
-		// $zz['conditions'][n]['sql']
-		// $zz['conditions'][n]['where']
-		// $zz['fields'][n]['conf_identifier']['where'] 
-		// $zz['fields'][n]['path_sql']
-		// $zz['fields'][n]['search']
-		// $zz['fields'][n]['search_between']
-		// $zz['fields'][n]['set_sql']
-		// $zz['fields'][n]['sql']
-		// $zz['fields'][n]['sqlorder']
-		// $zz['fields'][n]['sql_not_unique']
-		// $zz['fields'][n]['sql_password_check']
-		// $zz['fields'][n]['subselect']['sql']
-		// $zz['fields'][n]['upload_sql']
-		// $zz['fields'][n]['image'][n]['options_sql']
-		// $zz['fields'][n]['image'][n]['source_path_sql']
-		// $zz['sql']
-		// $zz['sqlrecord']
-		// $zz['sqlorder']
-		// $zz['table']
-		// $zz['subtitle'][field]['sql']
-		// $zz['filter'][n]['sql']
-		// $zz['filter'][n]['where']
-		// $zz['filter'][n]['sql_join']
-		$sql_fields = array(
-			'sql', 'having', 'where', 'path_sql', 'search', 'search_between',
-			'set_sql', 'sqlorder', 'sql_not_unique', 'sql_password_check',
-			'upload_sql', 'options_sql', 'source_path_sql', 'table',
-			'id_field_name', 'display_field', 'key_field_name', 'order',
-			'foreign_key_field_name', 'sqlcount', 'sqlextra', 'geocode_sql',
-			'min_records_sql', 'max_records_sql', 'sqlrecord', 'sql_join'
-		);
-		break;
-	case 'zz_conf':
-		$sql_fields = array(
-			'logging_table', 'relations_table', 'text_table', 'translations_table'
-		);
-		break;
-	}
-
-	$item = str_replace($prefix, $zz_conf['prefix'], $item);
 	// numeric keys are okay as well
 	// @todo check if we can exclude them (sqlextra)
 	if (is_numeric($key)) return false;
+
+	// $zz['conditional_fields'][n]['sql']
+	// $zz['conditions'][n]['add']['sql']
+	// $zz['conditions'][n]['having']
+	// $zz['conditions'][n]['sql']
+	// $zz['conditions'][n]['where']
+	// $zz['fields'][n]['conf_identifier']['where'] 
+	// $zz['fields'][n]['path_sql']
+	// $zz['fields'][n]['search']
+	// $zz['fields'][n]['search_between']
+	// $zz['fields'][n]['set_sql']
+	// $zz['fields'][n]['sql']
+	// $zz['fields'][n]['sqlorder']
+	// $zz['fields'][n]['sql_not_unique']
+	// $zz['fields'][n]['sql_password_check']
+	// $zz['fields'][n]['subselect']['sql']
+	// $zz['fields'][n]['upload_sql']
+	// $zz['fields'][n]['image'][n]['options_sql']
+	// $zz['fields'][n]['image'][n]['source_path_sql']
+	// $zz['sql']
+	// $zz['sqlrecord']
+	// $zz['sqlorder']
+	// $zz['table']
+	// $zz['subtitle'][field]['sql']
+	// $zz['filter'][n]['sql']
+	// $zz['filter'][n]['where']
+	// $zz['filter'][n]['sql_join']
+	$sql_fields = array(
+		'sql', 'having', 'where', 'path_sql', 'search', 'search_between',
+		'set_sql', 'sqlorder', 'sql_not_unique', 'sql_password_check',
+		'upload_sql', 'options_sql', 'source_path_sql', 'table',
+		'id_field_name', 'display_field', 'key_field_name', 'order',
+		'foreign_key_field_name', 'sqlcount', 'sqlextra', 'geocode_sql',
+		'min_records_sql', 'max_records_sql', 'sqlrecord', 'sql_join'
+	);
 	if (in_array($key, $sql_fields)) return false;
 	if (function_exists('wrap_error')) {
 		wrap_error(sprintf('Table prefix for key %s (item %s) replaced'
