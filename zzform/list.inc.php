@@ -84,6 +84,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	// modify SQL query depending on filter
 	$old_sql = $zz['sql'];
 	$zz['sql'] = zz_list_filter_sql($zz['sql'], $zz_var['filters']);
+	if (zz_list_filter_invalid()) $zz['sql'] = false;
 	if ($old_sql !== $zz['sql']) $zz['sqlcount'] = '';
 	$ops['output'] .= zz_filter_selection($zz_conf['filter'], $zz_var['filters'], 'top');
 	if ($ops['mode'] != 'add' AND empty($zz_conf['no_add_above'])) {
@@ -895,8 +896,18 @@ function zz_list_filter_sql($sql, &$filter_params) {
 			);
 		}
 	}
+	return $sql;
+}
 
-	// test filter identifiers if they exist
+/**
+ * test filter identifiers if they exist
+ * @return bool true if there are invalid filters
+ */
+function zz_list_filter_invalid() {
+	global $zz_conf;
+	global $zz_error;
+
+	$error = false;
 	foreach ($zz_conf['int']['invalid_filters'] AS $identifier) {
 		$filter = zz_htmltag_escape($identifier);
 		$link = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
@@ -906,9 +917,9 @@ function zz_list_filter_sql($sql, &$filter_params) {
 				.' <a href="'.$link.'">'.sprintf(zz_text('List without this filter')).'</a>',
 			'level' => E_USER_NOTICE
 		);
-		$sql = false;
+		$error = true;
 	}
-	return $sql;
+	return $error;
 }
 
 /**
