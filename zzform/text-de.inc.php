@@ -190,8 +190,8 @@ $text['- unknown -'] = '- unbekannt -'; // group by unknown
 // List view: Filter
 $text['Selection'] = 'Auswahl';
 $text['all'] = 'Alle';
-$text['"%s" is not a valid value for the selection "%s". Please select a different filter.'] = '&#187;%s&#171; ist kein gültiger Wert für die Auswahl &#187;%s&#171;. Bitte treffen Sie eine andere Auswahl.';
-$text['A filter for the selection "%s" does not exist.'] = 'Es existiert kein Filter für die Auswahl &#187;%s&#171;.';
+$text['"%s" is not a valid value for the selection "%s". Please select a different filter.'] = '»%s« ist kein gültiger Wert für die Auswahl »%s«. Bitte treffen Sie eine andere Auswahl.';
+$text['A filter for the selection "%s" does not exist.'] = 'Es existiert kein Filter für die Auswahl »%s«.';
 $text['List without this filter'] = 'Die Liste ohne diesen Filter';
 $text['(no value)'] = '(kein Wert)';
 
