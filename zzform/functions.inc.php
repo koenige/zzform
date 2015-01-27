@@ -622,6 +622,8 @@ function zz_in_array_str($needle, $haystack) {
  *		array $zz_var
  */
 function zz_where_conditions($zz, $zz_var) {
+	global $zz_conf;
+
 	// get 'where_conditions' for SQL query from GET add, filter oder where
 	// get 'zz_fields' from GET add
 	$zz_var = zz_get_where_conditions($zz, $zz_var);
@@ -632,6 +634,12 @@ function zz_where_conditions($zz, $zz_var) {
 	list($zz['sql'], $zz_var) = zz_apply_where_conditions(
 		$zz_var, $zz['sql'], $zz['table'], $table_for_where
 	);
+	// where with unique ID: remove filters, they do not make sense here
+	// (single record will be shown)
+	if ($zz_var['where_with_unique_id']) {
+		$zz_conf['filter'] = array();
+		$zz_var['filters'] = array();
+	}
 	if (isset($zz['sqlrecord'])) {
 		list($zz['sqlrecord'], $zz_var) = zz_apply_where_conditions(
 			$zz_var, $zz['sqlrecord'], $zz['table'], $table_for_where
@@ -759,13 +767,6 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = arr
 //			return zz_error(); // exit script
 		}
 		if (!$zz_var['id']['value']) $zz_var['where_with_unique_id'] = false;
-	}
-	
-	// where with unique ID: remove filters, they do not make sense here
-	// (single record will be shown)
-	if ($zz_var['where_with_unique_id']) {
-		$zz_conf['filter'] = array();
-		$zz_var['filters'] = array();
 	}
 	
 	return zz_return(array($sql, $zz_var));
