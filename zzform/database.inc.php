@@ -321,21 +321,21 @@ function zz_sql_prefix_change(&$item, $key) {
 		// $zz['sqlorder']
 		// $zz['table']
 		// $zz['subtitle'][field]['sql']
+		// $zz['filter'][n]['sql']
+		// $zz['filter'][n]['where']
+		// $zz['filter'][n]['sql_join']
 		$sql_fields = array(
 			'sql', 'having', 'where', 'path_sql', 'search', 'search_between',
 			'set_sql', 'sqlorder', 'sql_not_unique', 'sql_password_check',
 			'upload_sql', 'options_sql', 'source_path_sql', 'table',
 			'id_field_name', 'display_field', 'key_field_name', 'order',
 			'foreign_key_field_name', 'sqlcount', 'sqlextra', 'geocode_sql',
-			'min_records_sql', 'max_records_sql', 'sqlrecord'
+			'min_records_sql', 'max_records_sql', 'sqlrecord', 'sql_join'
 		);
 		break;
 	case 'zz_conf':
-		// $zz_conf['filter'][n]['sql']
-		// $zz_conf['filter'][n]['where']
 		$sql_fields = array(
-			'sql', 'where', 'logging_table', 'relations_table',
-			'text_table', 'translations_table', 'sql_join'
+			'logging_table', 'relations_table', 'text_table', 'translations_table'
 		);
 		break;
 	}

@@ -360,22 +360,23 @@ function zz_output_redirect($result, $return, $id_value, $zz_tab) {
  * Output for HTML title element
  *
  * @param string $heading ($ops['heading'])
- * @param array $zz['fields']
+ * @param array $fields = $zz['fields']
+ * @param array $filters = $zz['filter']
  * @param array $zz_var
  *		'where_with_unique_id', 'limit_total_rows', 'id', 'filters'
  * @param string $mode ($ops['mode'])
  * @global array $zz_conf
  * @return string $title
  */
-function zz_nice_title($heading, $fields, $zz_var, $mode = false) {
+function zz_nice_title($heading, $fields, $filters, $zz_var, $mode = false) {
 	global $zz_conf;
 
 	// basic title
 	$title = strip_tags($heading);
 
 	// addition: filters
-	if ($zz_var['filters'] AND $zz_conf['filter']) {
-		foreach ($zz_conf['filter'] as $index => $f) {
+	if ($zz_var['filters'] AND $filters) {
+		foreach ($filters as $index => $f) {
 			if (empty($zz_var['filters'][$f['identifier']])) continue;
 			$title .= $zz_conf['title_separator'].$f['title'].': ';
 			if (!empty($f['selection']) AND !empty($f['selection'][$zz_var['filters'][$f['identifier']]])) {

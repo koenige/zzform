@@ -794,7 +794,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			}
 			if (empty($field['value'])) {
 				// Check if filter is applied to this field, set filter value as default value
-				$default = zz_record_filter_as_default($field['field_name'], $zz_var['filters']);
+				$default = zz_record_filter_as_default($field['field_name'], $zz_tab[0]['filter'], $zz_var['filters']);
 				if ($default) $field['default'] = $default;
 			}
 
@@ -1176,20 +1176,20 @@ function zz_output_subtable_submit($mode, $field, $tab, $rec = 0) {
  * returns filter value as default, if set
  *
  * @param string $field_name
+ * @param array $filters = $zz['filter']
  * @param array $filter_params = $zz_var['filters']
- * @global array $zz_conf
  * @return string
  */
-function zz_record_filter_as_default($field_name, $filter_params) {
-	global $zz_conf;
+function zz_record_filter_as_default($field_name, $filters, $filter_params) {
 	if (!$filter_params) return false;
+	if (!$filters) return false;
 
 	// check if there's a filter with a field_name 
 	// this field will get the filter value as default value
 	$filter_field_name = array();
 	$unwanted_filter_values = array('NULL', '!NULL');
 	foreach (array_keys($filter_params) AS $filter_identifier) {
-		foreach ($zz_conf['filter'] as $filter) {
+		foreach ($filters as $filter) {
 			if ($filter_identifier !== $filter['identifier']) continue;
 			if (empty($filter['field_name'])) continue;
 			if ($filter['field_name'] !== $field_name) continue;

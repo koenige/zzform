@@ -104,7 +104,7 @@ function zzform($zz = array()) {
 	if (!$zz_var) return zzform_exit($ops);
 
 	// check GET 'filter'
-	$zz_var['filters'] = zz_filter_defaults();
+	list($zz['filter'], $zz_var['filters']) = zz_filter_defaults($zz);
 
 	// get and apply where conditions to SQL query and fields
 	list ($zz, $zz_var) = zz_where_conditions($zz, $zz_var);
@@ -333,7 +333,7 @@ function zzform($zz = array()) {
 
 	// set title
 	if ($ops['heading']) {
-		$ops['title'] = zz_nice_title($ops['heading'], $zz['fields'], $zz_var, $ops['mode']);
+		$ops['title'] = zz_nice_title($ops['heading'], $zz['fields'], $zz['filter'], $zz_var, $ops['mode']);
 	}
 	if ($ops['mode'] !== 'export') {
 		$ops['output'] .= zz_output_wmd_editor();

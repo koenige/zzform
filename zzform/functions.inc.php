@@ -307,7 +307,7 @@ function zz_get_url_self($url_self) {
  * @param array $zz_var
  * @global array $zz_conf
  *		'filter' will be checked for 'where'-filter and set if there is one
- * @return array $zz_var
+ * @return array array $zz, $zz_var
  *		'where_condition' (conditions set by where, add and filter), 'zz_fields'
  *		(values for fields depending on where conditions)
  * @author Gustaf Mossakowski <gustaf@koenige.org>
@@ -338,14 +338,14 @@ function zz_get_where_conditions($zz, $zz_var) {
 	}
 
 	// FILTER: check if there's a 'where'-filter
-	foreach ($zz_conf['filter'] AS $index => $filter) {
+	foreach ($zz['filter'] AS $index => $filter) {
 		if (!empty($filter['where'])
 			AND !empty($zz_var['where_condition'])
 			AND in_array($filter['where'], array_keys($zz_var['where_condition']))
 		) {
 			// where-filter makes no sense since already one of the values
 			// is filtered by WHERE filter
-			unset($zz_conf['filter'][$index]);
+			unset($zz['filter'][$index]);
 		}
 		if ($filter['type'] !== 'where') continue;
 		if (!empty($zz_var['filters'][$filter['identifier']])) {
@@ -353,10 +353,10 @@ function zz_get_where_conditions($zz, $zz_var) {
 				= $zz_var['filters'][$filter['identifier']];
 		}
 		// 'where'-filters are beyond that 'list'-filters
-		$zz_conf['filter'][$index]['type'] = 'list';
+		$zz['filter'][$index]['type'] = 'list';
 	}
 
-	return $zz_var;
+	return array($zz, $zz_var);
 }
 
 /**
@@ -455,17 +455,17 @@ function zz_record_conf($zz_conf) {
 /**
  * checks filter, sets default values and identifier
  *
- * @return array $filter = $zz_conf['int']['filter]
- * @global array $zz_conf 'filter'
- * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @param array $zz
+ * @return array array $zz['filter'], $filter = $zz_var['filters']
+ * @global array $zz_conf
  */
-function zz_filter_defaults() {
+function zz_filter_defaults($zz) {
 	global $zz_conf;
 	// initialize, don't return because we'll check for $_GET later
-	if (empty($zz_conf['filter'])) {
-		$zz_conf['filter'] = array();
+	if (empty($zz['filter'])) {
+		$zz['filter'] = array();
 	}
-	if ($zz_conf['filter'] AND !empty($_GET['filter']) AND is_array($_GET['filter'])) {
+	if ($zz['filter'] AND !empty($_GET['filter']) AND is_array($_GET['filter'])) {
 		$filter_params = $_GET['filter'];
 	} else {
 		// just in case it's a ?filter -request with no filter set
@@ -480,15 +480,15 @@ function zz_filter_defaults() {
 
 	// if there are filters:
 	// initialize filter, set defaults
-	foreach ($zz_conf['filter'] AS $index => $filter) {
+	foreach ($zz['filter'] AS $index => $filter) {
 		if (!$filter) {
-			unset($zz_conf['filter'][$index]);
+			unset($zz['filter'][$index]);
 			continue;
 		}
 		// get identifier from title if not set
 		if (empty($filter['identifier'])) {
 			$filter['identifier'] = urlencode(strtolower($filter['title']));
-			$zz_conf['filter'][$index]['identifier'] = $filter['identifier'];
+			$zz['filter'][$index]['identifier'] = $filter['identifier'];
 		}
 		$identifiers[] = $filter['identifier'];
 		// set default filter, default default filter is 'all'
@@ -511,7 +511,7 @@ function zz_filter_defaults() {
 		// get rid of filter
 		unset($filter_params[$identifier]);
 	}
-	return $filter_params;
+	return array($zz['filter'], $filter_params);
 }
 
 /**
@@ -519,31 +519,30 @@ function zz_filter_defaults() {
  *
  * @param array $zz
  * @param array $filter_params = $zz_var['filters']
- * @global array $zz_conf ('filter', might be changed)
  * @global array $zz_error
- * @return array ($zz, 'hierarchy' will be changed if corresponding filter)
+ * @return array ($zz, 'hierarchy' will be changed if corresponding filter,
+ *	'filter', might be changed)
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_apply_filter($zz, $filter_params) {
-	global $zz_conf;
 	global $zz_error;
-	if (!$zz_conf['filter']) return $zz;
+	if (!$zz['filter']) return $zz;
 
 	// set filter for complete form
-	foreach ($zz_conf['filter'] AS $index => &$filter) {
+	foreach ($zz['filter'] AS $index => &$filter) {
 		if (!isset($filter['selection'])) $filter['selection'] = array();
 		// get 'selection' if sql query is given
 		if (!empty($filter['sql'])) {
 			if (!empty($filter['depends_on']) 
-			AND isset($zz_conf['filter'][$filter['depends_on']])) {
-				$depends_on = $zz_conf['filter'][$filter['depends_on']];
+			AND isset($zz['filter'][$filter['depends_on']])) {
+				$depends_on = $zz['filter'][$filter['depends_on']];
 				if (!empty($filter_params[$depends_on['identifier']])) {
 					$where = $depends_on['where'].' = '.zz_db_escape(
 						$filter_params[$depends_on['identifier']]
 					);
 					$filter['sql'] = zz_edit_sql($filter['sql'], 'WHERE', $where);
 				}
-				$zz_conf['filter'][$filter['depends_on']]['subfilter'][] = $index;
+				$zz['filter'][$filter['depends_on']]['subfilter'][] = $index;
 			}
 			$elements = zz_db_fetch($filter['sql'], '_dummy_id_', 'key/value');
 			if ($zz_error['error']) continue;
@@ -626,7 +625,7 @@ function zz_where_conditions($zz, $zz_var) {
 
 	// get 'where_conditions' for SQL query from GET add, filter oder where
 	// get 'zz_fields' from GET add
-	$zz_var = zz_get_where_conditions($zz, $zz_var);
+	list($zz, $zz_var) = zz_get_where_conditions($zz, $zz_var);
 
 	// apply where conditions to SQL query
 	$zz['sql_without_where'] = $zz['sql'];
@@ -637,7 +636,7 @@ function zz_where_conditions($zz, $zz_var) {
 	// where with unique ID: remove filters, they do not make sense here
 	// (single record will be shown)
 	if ($zz_var['where_with_unique_id']) {
-		$zz_conf['filter'] = array();
+		$zz['filter'] = array();
 		$zz_var['filters'] = array();
 	}
 	if (isset($zz['sqlrecord'])) {
@@ -1912,7 +1911,8 @@ function zz_backwards($zz_conf, $zz) {
 		'action' => 'extra_action',
 		'tfoot' => array('list', 'tfoot'),
 		'group' => array('list', 'group'),
-		'folder' => 'folder'
+		'folder' => 'folder',
+		'filter' => 'filter'
 	);
 	foreach ($moved_to_zz as $old => $new) {
 		if (isset($zz_conf[$old])) {

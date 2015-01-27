@@ -83,10 +83,10 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	$zz = zz_apply_filter($zz, $zz_var['filters']);
 	// modify SQL query depending on filter
 	$old_sql = $zz['sql'];
-	$zz['sql'] = zz_list_filter_sql($zz['sql'], $zz_var['filters']);
+	$zz['sql'] = zz_list_filter_sql($zz['filter'], $zz['sql'], $zz_var['filters']);
 	if (zz_list_filter_invalid()) $zz['sql'] = false;
 	if ($old_sql !== $zz['sql']) $zz['sqlcount'] = '';
-	$ops['output'] .= zz_filter_selection($zz_conf['filter'], $zz_var['filters'], 'top');
+	$ops['output'] .= zz_filter_selection($zz['filter'], $zz_var['filters'], 'top');
 	if ($ops['mode'] != 'add' AND empty($zz_conf['no_add_above'])) {
 		$ops['output'] .= zz_output_add_links($zz_var['extraGET']);
 	}
@@ -224,7 +224,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	if (!($zz_conf['int']['access'] === 'search_but_no_list' AND empty($_GET['q']))) {
 		// filter, if there was a list
 		if ($zz_conf['int']['show_list']) {
-			$ops['output'] .= zz_filter_selection($zz_conf['filter'], $zz_var['filters'], 'bottom');
+			$ops['output'] .= zz_filter_selection($zz['filter'], $zz_var['filters'], 'bottom');
 		}
 		$toolsline = array();
 		$base_url = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
@@ -809,6 +809,7 @@ function zz_filter_selection($filter, $filter_params, $pos) {
  * Apply filter to SQL query
  * test if all filters are valid filters
  *
+ * @param array $filters
  * @param string $sql
  * @param array $filter_params = $zz_var['filters']
  *		wrong filters may be unset
@@ -817,14 +818,14 @@ function zz_filter_selection($filter, $filter_params, $pos) {
  * @return string $sql
  * @see zz_filter_defaults() for check for invalid filters
  */
-function zz_list_filter_sql($sql, &$filter_params) {
+function zz_list_filter_sql($filters, $sql, &$filter_params) {
 	global $zz_conf;
 	global $zz_error;
 
 	// no filter was selected, no change
 	if (!$filter_params) return $sql;
 
-	foreach ($zz_conf['filter'] AS $filter) {
+	foreach ($filters AS $filter) {
 		if (!in_array($filter['identifier'], array_keys($filter_params))) continue;
 		if (empty($filter['where'])) continue;
 		if (!isset($filter['default_selection'])) $filter['default_selection'] = '';
