@@ -455,6 +455,7 @@ function zz_record_conf($zz_conf) {
 /**
  * checks filter, sets default values and identifier
  *
+ * @return array $filter = $zz_conf['int']['filter]
  * @global array $zz_conf 'filter'
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -465,10 +466,10 @@ function zz_filter_defaults() {
 		$zz_conf['filter'] = array();
 	}
 	if ($zz_conf['filter'] AND !empty($_GET['filter']) AND is_array($_GET['filter'])) {
-		$zz_conf['int']['filter'] = $_GET['filter'];
+		$filter_params = $_GET['filter'];
 	} else {
 		// just in case it's a ?filter -request with no filter set
-		$zz_conf['int']['filter'] = array();
+		$filter_params = array();
 		if (isset($_GET['filter'])) {
 			$zz_conf['int']['http_status'] = 404;
 			$unwanted_keys = array('filter');
@@ -492,15 +493,15 @@ function zz_filter_defaults() {
 		$identifiers[] = $filter['identifier'];
 		// set default filter, default default filter is 'all'
 		if (empty($filter['default_selection'])) continue;
-		if (isset($zz_conf['int']['filter'][$filter['identifier']])) continue;
-		$zz_conf['int']['filter'][$filter['identifier']] = is_array($filter['default_selection'])
+		if (isset($filter_params[$filter['identifier']])) continue;
+		$filter_params[$filter['identifier']] = is_array($filter['default_selection'])
 			? key($filter['default_selection'])
 			: $filter['default_selection'];
 	}
 
 	// check for invalid filters
 	$zz_conf['int']['invalid_filters'] = array();
-	foreach (array_keys($zz_conf['int']['filter']) AS $identifier) {
+	foreach (array_keys($filter_params) AS $identifier) {
 		if (in_array($identifier, $identifiers)) continue;
 		$zz_conf['int']['http_status'] = 404;
 		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string(
@@ -508,9 +509,9 @@ function zz_filter_defaults() {
 		);
 		$zz_conf['int']['invalid_filters'][] = zz_htmltag_escape($identifier);
 		// get rid of filter
-		unset($zz_conf['int']['filter'][$identifier]);
+		unset($filter_params[$identifier]);
 	}
-	return true;
+	return $filter_params;
 }
 
 /**

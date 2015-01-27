@@ -13,7 +13,7 @@
  *	zzform_multi()			multi edit for zzform, e. g. import
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2014 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2015 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -98,13 +98,13 @@ function zzform($zz = array()) {
 //
 //	Filter, ID, WHERE
 //
-	// check GET 'filter'
-	zz_filter_defaults();
-
 	// get 'unique_fields', especially 'id' = PRIMARY KEY
 	$zz_var = zz_get_unique_fields($zz['fields']);
 	// exit if there's something wrong with the table definition
 	if (!$zz_var) return zzform_exit($ops);
+
+	// check GET 'filter'
+	$zz_conf['int']['filter'] = zz_filter_defaults();
 
 	// get and apply where conditions to SQL query and fields
 	list ($zz, $zz_var) = zz_where_conditions($zz, $zz_var);
