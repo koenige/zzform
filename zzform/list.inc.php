@@ -81,6 +81,8 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	// Filters
 	// set 'selection', $zz['list']['hierarchy']
 	$zz = zz_apply_filter($zz, $zz_var['filters']);
+	$zz_var['filter_titles'] = zz_output_filter_title($zz['filter'], $zz_var['filters']);
+
 	// modify SQL query depending on filter
 	$old_sql = $zz['sql'];
 	$zz['sql'] = zz_list_filter_sql($zz['filter'], $zz['sql'], $zz_var['filters']);

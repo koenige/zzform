@@ -375,16 +375,8 @@ function zz_nice_title($heading, $fields, $filters, $zz_var, $mode = false) {
 	$title = strip_tags($heading);
 
 	// addition: filters
-	if ($zz_var['filters'] AND $filters) {
-		foreach ($filters as $index => $f) {
-			if (empty($zz_var['filters'][$f['identifier']])) continue;
-			$title .= $zz_conf['title_separator'].$f['title'].': ';
-			if (!empty($f['selection']) AND !empty($f['selection'][$zz_var['filters'][$f['identifier']]])) {
-				$title .= $f['selection'][$zz_var['filters'][$f['identifier']]];
-			} else {
-				$title .= zz_htmltag_escape($zz_var['filters'][$f['identifier']]);
-			}
-		}
+	if ($zz_var['filter_titles']) {
+		$title .= $zz_conf['title_separator'].implode($zz_conf['title_separator'], $zz_var['filter_titles']);
 	}
 	
 	// addition: search
@@ -480,6 +472,28 @@ function zz_nice_selection($zz_fields) {
 		$selection .= '*'.zz_html_escape($q).'*';
 	}
 	return zz_return($selection);
+}
+
+/**
+ * Show filters with selection in title
+ *
+ * @param array $filters = $zz['filter']
+ * @param array $filter_params = $zz_var['filters']
+ * @return array
+ */
+function zz_output_filter_title($filters, $filter_params) {
+	$titles = array();
+	if (!$filters) return $titles;
+	if (!$filter_params) return $titles;
+	foreach ($filters as $index => $f) {
+		if (empty($filter_params[$f['identifier']])) continue;
+		if (!empty($f['selection']) AND !empty($f['selection'][$filter_params[$f['identifier']]])) {
+			$titles[] = $f['title'].': '.$f['selection'][$filter_params[$f['identifier']]];
+		} else {
+			$titles[] = $f['title'].': '.zz_htmltag_escape($filter_params[$f['identifier']]);
+		}
+	}
+	return $titles;
 }
 
 /**
