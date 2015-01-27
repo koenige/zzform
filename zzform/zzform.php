@@ -570,7 +570,6 @@ function zz_initialize($mode = false) {
 
 	$default['export']				= false;
 	$default['filter_position'] 		= 'top';
-	$default['filter'] 				= array();
 	$default['footer_text']			= false;		// text at the end of all
 	$default['group_html_table']		= '<strong>%s</strong>';
 	$default['hash_cost_log2']		= 8;
