@@ -13,7 +13,7 @@
  *		zz_db_*()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2013 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2015 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -292,7 +292,10 @@ function zz_sql_prefix($vars, $type = 'zz') {
  */
 function zz_sql_prefix_change(&$item, $key) {
 	global $zz_conf;
+	if (!is_string($item)) return false;
 	$prefix = '/*_PREFIX_*/';
+	if (!strstr($item, $prefix)) return false;
+	
 	switch ($zz_conf['int']['prefix_change']) {
 	case 'zz':
 		// $zz['conditional_fields'][n]['sql']
@@ -337,21 +340,14 @@ function zz_sql_prefix_change(&$item, $key) {
 		break;
 	}
 
-	if (is_numeric($key) OR in_array($key, $sql_fields)) {
-		// numeric keys are okay as well
-		// @todo check if we can exclude them (sqlextra)
-		if (strstr($item, $prefix)) {
-			$item = str_replace($prefix, $zz_conf['prefix'], $item);
-		}
-	} else {
-		// still do the same until we are sure enough what to think of
-		if (is_string($item) AND strstr($item, $prefix)) {
-			$item = str_replace($prefix, $zz_conf['prefix'], $item);
-			if (function_exists('wrap_error')) {
-				wrap_error(sprintf('Table prefix for key %s (item %s) replaced'
-				.' which was not anticipated', $key, $item), E_USER_NOTICE);
-			}
-		}
+	$item = str_replace($prefix, $zz_conf['prefix'], $item);
+	// numeric keys are okay as well
+	// @todo check if we can exclude them (sqlextra)
+	if (is_numeric($key)) return false;
+	if (in_array($key, $sql_fields)) return false;
+	if (function_exists('wrap_error')) {
+		wrap_error(sprintf('Table prefix for key %s (item %s) replaced'
+		.' which was not anticipated', $key, $item), E_USER_NOTICE);
 	}
 }
 
@@ -1085,5 +1081,3 @@ function zz_db_select($db_name) {
 function zz_db_charset($character_set) {
 	return mysql_set_charset($character_set);
 }
-
-?>
