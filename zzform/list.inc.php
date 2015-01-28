@@ -1027,6 +1027,10 @@ function zz_list_query_hierarchy($zz, $id_field) {
 
 	$zz['list']['hierarchy']['id_field_name'] = $id_field;
 	list($my_lines, $total_rows) = zz_hierarchy($zz['sql'], $zz['list']['hierarchy']);
+	if ($zz_conf['int']['this_limit'] - $zz_conf['limit'] > $total_rows) {
+		$zz_conf['int']['http_status'] = 404;
+		return false;
+	}
 
 	$lines = array(); // unset and initialize
 	// but if hierarchy has ID value, not all rows are shown
