@@ -1019,7 +1019,7 @@ function zz_list_query_extras($lines, $id_field, $extra_sqls) {
  * @param array $zz
  * @param string $id_field ($zz_var['id']['field_name'])
  * @global array $zz_conf
- * @return array $lines
+ * @return array array $lines, $total_rows
  */
 function zz_list_query_hierarchy($zz, $id_field) {
 	global $zz_conf;
@@ -1029,7 +1029,7 @@ function zz_list_query_hierarchy($zz, $id_field) {
 	list($my_lines, $total_rows) = zz_hierarchy($zz['sql'], $zz['list']['hierarchy']);
 	if ($zz_conf['int']['this_limit'] - $zz_conf['limit'] >= $total_rows) {
 		$zz_conf['int']['http_status'] = 404;
-		return false;
+		return array(array(), $total_rows);
 	}
 
 	$lines = array(); // unset and initialize
