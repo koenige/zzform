@@ -374,7 +374,7 @@ function zz_nice_title($heading, $fields, $zz_var, $mode = false) {
 	$title = strip_tags($heading);
 
 	// addition: filters
-	if ($zz_var['filter_titles']) {
+	if (!empty($zz_var['filter_titles'])) {
 		$title .= $zz_conf['title_separator'].implode($zz_conf['title_separator'], $zz_var['filter_titles']);
 	}
 	
