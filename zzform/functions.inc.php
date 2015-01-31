@@ -2574,6 +2574,7 @@ function zz_text_include($filename) {
 			} else {
 				$text[$key] = htmlentities($value, ENT_NOQUOTES, 'UTF-8');
 			}
+			$text[$key] = str_replace('&amp;', '&', $text[$key]);
 		}
 	}
 	return $text;
