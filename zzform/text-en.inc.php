@@ -55,6 +55,7 @@ $text['Update failed'] = 'Update failed';
 
 $text['The record with the ID %d was already deleted.'] = 'The record with the ID %d was already deleted.';
 $text['A record with the ID %d does not exist.'] = 'A record with the ID %d does not exist.';
+$text['Sorry, it is not possible to access the ID %d from here.'] = 'Sorry, it is not possible to access the ID %d from here.';
 $text['Invalid ID for a record (must be an integer): %s'] = 'Invalid ID for a record (must be an integer): %s';
 $text['record_was_updated'] = 'Record was updated';
 $text['record_was_deleted'] = 'Record was deleted';
