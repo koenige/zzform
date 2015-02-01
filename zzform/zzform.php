@@ -51,12 +51,23 @@ function zzform($zz = array()) {
 		'headers' => false,
 		'output' => false,
 		'error' => array(),
-		'id' => 0
+		'id' => 0,
+		'mode' => false
 	);
 	// set default configuration variables
 	// import modules, set and get URI
 	zz_initialize();
 	$zz = zz_defaults($zz);
+
+	if (empty($zz['fields'])) {
+		$zz_error[] = array(
+			'msg_dev' => 'There is no table definition available (\'fields\'). Please check.',
+			'level' => E_USER_NOTICE
+		);
+		zz_error();
+		$ops['output'] .= zz_error_output();
+		return zzform_exit($ops);
+	}
 
 	$zz_conf['int']['access'] = isset($zz['access']) ? $zz['access'] : $zz_conf['access'];
 
@@ -364,7 +375,7 @@ function zzform_exit($ops) {
 		$ops['error_mail'] = $zz_conf['int']['error'];
 
 	// return to old database
-	if ($zz_conf['int']['db_current']) zz_db_select($zz_conf['int']['db_current']);
+	if (!empty($zz_conf['int']['db_current'])) zz_db_select($zz_conf['int']['db_current']);
 
 	// end debug mode
 	if ($zz_conf['modules']['debug']) {
