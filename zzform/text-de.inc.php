@@ -55,7 +55,8 @@ $text['Insert failed'] = 'Einfügen fehlgeschlagen';
 $text['Delete failed'] = 'Löschen fehlgeschlagen';
 $text['Update failed'] = 'Aktualisieren fehlgeschlagen';
 
-$text['There is no record under this ID: %s'] = 'Es existiert kein Eintrag unter dieser ID: %s';
+$text['The record with the ID %d was already deleted.'] = 'Der Eintrag mit der ID %d wurde bereits gelöscht.';
+$text['A record with the ID %d does not exist.'] = 'Es existiert kein Eintrag unter der ID %d.';
 $text['Invalid ID for a record (must be an integer): %s'] = 'Ungültige ID für einen Eintrag (muß Zahl sein): %s';
 $text['record_was_updated'] = 'Eintrag wurde aktualisiert';
 	$text['Record was not updated (no changes were made)'] = 'Eintrag wurde nicht aktualisiert (es gab keine Änderungen)';

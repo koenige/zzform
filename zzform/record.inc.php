@@ -99,9 +99,19 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 		$zz_conf['int']['http_status'] = 404;
 	} elseif (in_array($ops['mode'], array('edit', 'delete', 'review', 'show'))
 		AND !$zz_tab[0][0]['record'] AND $action_before_redirect !== 'delete') {
-		$formhead = '<span class="error">'.sprintf(zz_text('There is no record under this ID: %s'),
-			zz_html_escape($zz_tab[0][0]['id']['value'])).'</span>';
-		$zz_conf['int']['http_status'] = 404;
+		$sql = 'SELECT MAX(%s) FROM %s';
+		$sql = sprintf($sql, $zz_var['id']['field_name'], $zz_tab[0]['table']);
+		$max_id = zz_db_fetch($sql, '', 'single value');
+		if ($max_id > $zz_tab[0][0]['id']['value']) {
+			// This of course is only 100% correct if it is an incremental ID
+			$formhead = '<span class="error">'.sprintf(zz_text('The record with the ID %d was already deleted.'),
+				zz_html_escape($zz_tab[0][0]['id']['value'])).'</span>';
+			$zz_conf['int']['http_status'] = 410;
+		} else {
+			$formhead = '<span class="error">'.sprintf(zz_text('A record with the ID %d does not exist.'),
+				zz_html_escape($zz_tab[0][0]['id']['value'])).'</span>';
+			$zz_conf['int']['http_status'] = 404;
+		}
 	} elseif (!empty($zz_tab[0]['integrity'])) {
 		$formhead = zz_text('Warning!');
 		$tmp_error_msg = 

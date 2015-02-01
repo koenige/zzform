@@ -53,7 +53,8 @@ $text['Insert failed'] = 'Nie powiodło się wstaw';
 $text['Delete failed'] = 'Nie powiodło się usunąć';
 $text['Update failed'] = 'Nie powiodło się aktualizacja';
 
-$text['There is no record under this ID: %s'] = 'Istnieje plik danych o tym ID: %s';
+$text['The record with the ID %d was already deleted.'] = 'Istnieje plik danych o tym ID: %d';
+$text['A record with the ID %d does not exist.'] = 'Istnieje plik danych o tym ID: %d.';
 //	$text['Invalid ID for a record (must be an integer): %s'] = 'Invalid ID for a record (must be an integer): %s';
 $text['record_was_updated'] = 'Wpis zaktualizowany';
 $text['record_was_deleted'] = 'Wpis usunięty';

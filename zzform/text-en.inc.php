@@ -53,7 +53,8 @@ $text['Insert failed'] = 'Insert failed';
 $text['Delete failed'] = 'Delete failed';
 $text['Update failed'] = 'Update failed';
 
-$text['There is no record under this ID: %s'] = 'There is no record under this ID: %s';
+$text['The record with the ID %d was already deleted.'] = 'The record with the ID %d was already deleted.';
+$text['A record with the ID %d does not exist.'] = 'A record with the ID %d does not exist.';
 $text['Invalid ID for a record (must be an integer): %s'] = 'Invalid ID for a record (must be an integer): %s';
 $text['record_was_updated'] = 'Record was updated';
 $text['record_was_deleted'] = 'Record was deleted';

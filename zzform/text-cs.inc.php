@@ -54,7 +54,8 @@ $text['Insert failed'] = 'Přidat neúspěšné';
 $text['Delete failed'] = 'Vymazat neúspěšné';
 $text['Update failed'] = 'Aktualizovat neúspěšné';
 
-$text['There is no record under this ID: %s'] = 'V poli ID není žádný záznam: %s';
+$text['The record with the ID %d was already deleted.'] = 'V poli ID není žádný záznam: %d.';
+$text['A record with the ID %d does not exist.'] = 'V poli ID není žádný záznam: %d.';
 //	$text['Invalid ID for a record (must be an integer): %s'] = 'Invalid ID for a record (must be an integer): %s';
 $text['record_was_updated'] = 'Záznam byl aktualizován';
 //	$text['Record was not updated (no changes were made)'] = 'Eintrag wurde nicht aktualisiert (es gab keine &Auml;nderungen)';
