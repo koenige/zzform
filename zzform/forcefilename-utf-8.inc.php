@@ -10,16 +10,20 @@
 
 function forceFilename($str, $spaceChar = '-', $replacements = array()) {
 	$str = zz_convert_string($str);
+	$str = trim($str);
 
 	// get rid of html entities
 	$str = html_entity_decode($str);
-	$str = preg_replace('~&#x([0-9a-f]+);~i', '', $str);
-	$str = preg_replace('~&#([0-9]+);~', '', $str);
-	$str = trim($str);
+	if (strstr($str, '&#')) {
+		if (strstr($str, '&#x')) {
+			$str = preg_replace('~&#x([0-9a-f]+);~i', '', $str);
+		}
+		$str = preg_replace('~&#([0-9]+);~', '', $str);
+	}
 
 	$_str = '';
 	$i_max = mb_strlen($str);
-	for ($i = 0; $i < mb_strlen($str); $i++) {
+	for ($i = 0; $i < $i_max; $i++) {
 		$ch = mb_substr($str, $i, 1);
 		if (in_array($ch, array_keys($replacements))) {
 			$_str .= $replacements[$ch];
@@ -139,5 +143,3 @@ function forceFilename($str, $spaceChar = '-', $replacements = array()) {
 
 	return $_str;
 }
-
-?>
