@@ -882,7 +882,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			case 'mail':
 			case 'mail+name':
 			case 'ipv4':
-				$outputf = zz_field_text($field, $field_display, $my_rec['record']);
+				$outputf = zz_field_text($field, $field_display, $my_rec['record'], $zz_tab[0]['dont_reformat']);
 				break;
 
 			case 'unix_timestamp': // zz_field_unix_timestamp
@@ -892,7 +892,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			case 'datetime': // zz_field_datetime
 			case 'memo': // zz_field_memo
 				$function_name = sprintf('zz_field_%s', $field['type']);
-				$outputf = $function_name($field, $field_display, $my_rec['record']);
+				$outputf = $function_name($field, $field_display, $my_rec['record'], $zz_tab[0]['dont_reformat']);
 				break;
 
 			case 'select':
@@ -1735,12 +1735,15 @@ function zz_field_password_change($field, $display) {
  * @param array $field
  * @param string $display
  * @param array $record
+ * @param bool $dont_reformat
  * @return string
  */
-function zz_field_text($field, $display, $record) {
+function zz_field_text($field, $display, $record, $dont_reformat = false) {
 	// get value
 	$value = $record ? $record[$field['field_name']] : '';
-	$value = zz_field_format($value, $field);
+	if (!$dont_reformat) {
+		$value = zz_field_format($value, $field);
+	}
 
 	// return text
 	if ($display !== 'form') {
@@ -1785,9 +1788,10 @@ function zz_field_text($field, $display, $record) {
  * @param array $field
  * @param string $display
  * @param array $record
+ * @param bool $dont_reformat
  * @return string
  */
-function zz_field_number($field, $display, $record) {
+function zz_field_number($field, $display, $record, $dont_reformat) {
 	// get value
 	$value = $record ? $record[$field['field_name']] : '';
 	$suffix = false;
@@ -1807,7 +1811,7 @@ function zz_field_number($field, $display, $record) {
 		} elseif (isset($field['check_validation']) AND !$field['check_validation']) {
 			// validation was not passed, hand back invalid field
 			break;
-		} elseif (!empty($_POST['zz_subtables'])) {
+		} elseif ($dont_reformat) {
 			// just a detail record was added, value is already formatted
 			break;
 		}

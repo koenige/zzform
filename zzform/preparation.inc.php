@@ -47,6 +47,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 		if (!isset($zz_tab[0]['extra_action']['after_update']))
 			$zz_tab[0]['extra_action']['after_update'] = true;
 	}
+	$zz_tab[0]['dont_reformat'] = !empty($_POST['zz_subtables']) ? true : false;
 	foreach ($zz['fields'] as $field) {
 		// geocoding?
 		if (empty($field['type'])) continue;
