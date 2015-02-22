@@ -1062,7 +1062,8 @@ function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
 		// get a record that was deleted with JavaScript
 		$ops['record_old'][$index] = zz_query_single_record(
 			$zz_tab[$tab]['sql'], $zz_tab[$tab]['table'], $zz_tab[$tab][$rec]['id'],
-			isset($zz_tab[$tab]['sqlextra']) ? $zz_tab[$tab]['sqlextra'] : array()
+			isset($zz_tab[$tab]['sqlextra']) ? $zz_tab[$tab]['sqlextra'] : array(),
+			$zz_tab[$tab]['sql_translate']
 		);
 	} else {
 		$ops['record_old'][$index] = array();
@@ -1662,7 +1663,7 @@ function zz_password_set($old, $new1, $new2, $sql) {
  * @global array $zz_conf
  *		'hash_password', 'hash_script'
  * @return bool true: given credentials are correct, false: no access!
- * @see wrap_passsword_check()
+ * @see wrap_password_check()
  */
 function zz_password_check($pass, $hash) {
 	global $zz_conf;
