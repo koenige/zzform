@@ -2624,6 +2624,35 @@ function zz_convert_string($string) {
 	return mb_convert_encoding($string, mb_internal_encoding(), $detected_encoding);
 }
 
+/**
+ * Translate values with wrap_translate() from zzwrap library
+ *
+ * @param array $def ($field or $zz)
+ * @param array $values
+ * @return array $values (translated)
+ */
+function zz_translate($def, $values) {
+	if (empty($def['sql_translate'])) return $values;
+	if (!is_array($def['sql_translate'])) {
+		$def['sql_translate'] = array($def['sql_translate']);
+	}
+	foreach ($def['sql_translate'] as $id_field_name => $table) {
+		if (is_numeric($id_field_name)) {
+			$values = wrap_translate($values, $table);
+		} else {
+			$values = wrap_translate($values, $table, $id_field_name);
+		}
+	}
+	foreach (array_keys($values) as $index) {
+		if (!is_numeric($index)) {
+			unset($values['wrap_source_language']);
+			break;
+		}
+		unset($values[$index]['wrap_source_language']);
+	}
+	return $values;
+}
+
 
 /*
  * --------------------------------------------------------------------
