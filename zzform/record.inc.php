@@ -1508,6 +1508,7 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 		if (isset($field['sql'])) {
 			$sql = zz_edit_sql($field['sql'], 'WHERE', '('.$my_fieldname.' = '.$detail_key.')');
 			$select_fields = zz_db_fetch($sql);
+			$select_fields = zz_translate($field, $select_fields);
 			if ($select_fields) {
 				// remove hierarchy field for display
 				if (!empty($field['show_hierarchy'])) {
@@ -2344,6 +2345,7 @@ function zz_field_select_sql_too_long($field, $record, $detail_record, $id_field
  */
 function zz_field_select_hierarchy($field, $lines, $record, $id_field_name) {
 	if (!$lines) return array();
+	$my_select = array();
 	foreach ($lines as $line) {
 		// if hierarchy is hierarchy of same table, don't allow to set
 		// IDs in hierarchy or below to avoid recursion
