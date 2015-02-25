@@ -140,6 +140,9 @@ function forceFilename($str, $spaceChar = '-', $replacements = array()) {
 	$_str = str_replace("{$spaceChar}{$spaceChar}", "{$spaceChar}",	$_str);
 	$_str = str_replace("{$spaceChar}-", '-',	$_str);
 	$_str = str_replace("-{$spaceChar}", '-',	$_str);
+	if (substr($_str, -1) === $spaceChar) {
+		$_str = substr($_str, 0, -1);
+	}
 
 	return $_str;
 }
