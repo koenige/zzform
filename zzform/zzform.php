@@ -788,14 +788,19 @@ function zzform_multi($definition_file, $values) {
  * @param string $definition_file
  * @global array $zz_conf
  * @global array $zz_setting
- * @return string
+ * @return array list of scripts
  */
 function zzform_file($definition_file) {
 	global $zz_conf;
 	global $zz_setting;
+	
+	$scripts = array();
 
 	if (file_exists($zz_conf['form_scripts'].'/'.$definition_file.'.php')) {
-		$tables = $zz_conf['form_scripts'].'/'.$definition_file.'.php';
+		if (file_exists($zz_conf['form_scripts'].'/_common.inc.php')) {
+			$scripts['common'] = $zz_conf['form_scripts'].'/_common.inc.php';
+		}
+		$scripts['tables'] = $zz_conf['form_scripts'].'/'.$definition_file.'.php';
 	} else {
 		require_once $zz_setting['lib'].'/zzbrick/forms.inc.php';
 		$brick['setting'] = &$zz_setting;
@@ -808,9 +813,10 @@ function zzform_file($definition_file) {
 		$brick['module_path'] = $brick['setting']['brick_module_dir'].'tables';
 		$brick['vars'] = array($definition_file);
 		$brick = brick_forms_file($brick);
-		$tables = $brick['form_script_path']; // might be empty
+		$scripts['common'] = $brick['common_script_path']; // might be empty
+		$scripts['tables'] = $brick['form_script_path']; // might be empty
 	}
-	return $tables;
+	return $scripts;
 }
 
 /**
@@ -827,9 +833,10 @@ function zzform_include_table($definition_file, $values = array()) {
 	global $zz_conf;
 	global $zz_setting;
 	
-	$tables = zzform_file($definition_file);
-	if ($tables) {
-		require $tables;
+	$scripts = zzform_file($definition_file);
+	if ($scripts) {
+		if ($scripts['common']) require_once $scripts['common'];
+		require $scripts['tables'];
 		if (!empty($zz)) return $zz;
 		if (!empty($zz_sub)) return $zz_sub;
 		$error = 'No table definition in file %s found.';
