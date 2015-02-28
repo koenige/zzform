@@ -2569,12 +2569,7 @@ function zz_text_include($filename) {
 	include $filename;
 	if ($zz_conf['character_set'] !== 'utf-8') {
 		foreach ($text as $key => $value) {
-			if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
-				$text[$key] = htmlentities($value, ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8');
-			} else {
-				$text[$key] = htmlentities($value, ENT_NOQUOTES, 'UTF-8');
-			}
-			$text[$key] = str_replace('&amp;', '&', $text[$key]);
+			$text[$key] = mb_convert_encoding($value, 'HTML-ENTITIES', 'UTF-8'); 
 		}
 	}
 	return $text;
