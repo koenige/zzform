@@ -836,9 +836,16 @@ function zzform_include_table($definition_file, $values = array()) {
 	$scripts = zzform_file($definition_file);
 	if ($scripts) {
 		if ($scripts['common']) require_once $scripts['common'];
+		$zz_view = !empty($values['view']) ? $values['view'] : false;		
 		require $scripts['tables'];
-		if (!empty($zz)) return $zz;
-		if (!empty($zz_sub)) return $zz_sub;
+		if (!empty($zz)) {
+			$zz['view'] = $zz_view;
+			return $zz;
+		}
+		if (!empty($zz_sub)) {
+			$zz_sub['view'] = $zz_view;
+			return $zz_sub;
+		}
 		$error = 'No table definition in file %s found.';
 	} else {
 		$error = 'Table definition for %s: file is missing.';
