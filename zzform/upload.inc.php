@@ -102,7 +102,7 @@ function zz_upload_config() {
 	$default['imagemagick_paths'] = array('/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/phpbin', '/opt/local/bin'); 
 	$default['upload_tools']['fileinfo'] = false;
 	$default['upload_tools']['fileinfo_whereis'] = 'file';
-	$default['upload_tools']['exiftools'] = false;
+	$default['upload_tools']['exiftool'] = false;
 	$default['upload_tools']['identify'] = true; // might be turned off for performance reasons while handling raw data
 	$default['upload_tools']['ghostscript'] = false; // whether we can use gs library
 	$default['upload_log']		= '';
