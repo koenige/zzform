@@ -30,6 +30,9 @@ function forceFilename($str, $spaceChar = '-', $replacements = array()) {
 			continue;
 		}
 		switch ($ch) {
+		case '€':
+		 	$_str .= 'EUR'; break;	 
+			
 		case 'À': case 'Á': case 'Â': case 'Ã': case 'Å':
 		case 'Ā': case 'Â': case 'Ą': case 'Ă':
 		 	$_str .= 'A'; break;	 
