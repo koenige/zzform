@@ -76,6 +76,7 @@ function zz_imagick_identify($filename, $file) {
 	// e. g. Error: identify: mv:
 	$tokens = explode(' ', $output[0]);
 	if (substr($tokens[0], -1) === ':') return zz_return($file);
+	if (substr(($tokens[0], 0, 11) === 'aborting...') return zz_return($file);
 	$result = array_pop($output);
 	if (count($output)) {
 		// e. g.  '   **** Warning:', 'GPL Ghostscript:'
