@@ -1221,6 +1221,8 @@ function zz_query_single_record($sql, $table, $id, $sqlextra, $sql_translate, $t
  * Query multiple records, return identical values in all records
  *
  * @param string $sql
+ * @param string $table
+ * @param array $id
  * @return array
  */
 function zz_query_multiple_records($sql, $table, $id) {
