@@ -104,7 +104,7 @@ $text['Your current password is different from what you entered. Please try agai
 $text['New passwords do not match. Please try again.'] = 'Die Eingaben für das neue Passwort unterscheiden sich. Bitte versuchen Sie es nocheinmal.';
 $text['Please enter your current password and twice your new password.'] = 'Bitte geben Sie Ihr aktuelles Passwort und zweimal das neue Passwort ein.';
 $text['New and old password are identical. Please choose a different new password.'] = 'Neues und altes Passwort sind identisch. Bitte wählen Sie ein anderes, neues Passwort aus.';
-$text['Rules for secure passwords'] = 'Tipps für sichere Paßwörter';
+$text['Rules for secure passwords'] = 'Tipps für sichere Passwörter';
 $text['password-rules'] = '
 * Passwörter sollten wenigstens acht Zeichen lang sein.
 * Statt eines einzelnen Wortes können auch mehrere Wörter oder komplette Sätze benutzt werden.
@@ -113,7 +113,7 @@ $text['password-rules'] = '
 * Dasselbe Passwort sollte nicht auf anderen Websites genutzt werden.
 '; 
 $text['hidden'] = 'versteckt';
-$text['Your new password could not be saved. Please try a different one.'] = 'Ihr neues Paßwort konnte nicht gespeichert werden. Bitte versuchen Sie es mit einem anderen.';
+$text['Your new password could not be saved. Please try a different one.'] = 'Ihr neues Passwort konnte nicht gespeichert werden. Bitte versuchen Sie es mit einem anderen.';
 
 // Record form: File upload
 $text['image_not_display'] = 'Bild kann (noch) nicht angezeigt werden';
