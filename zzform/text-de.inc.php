@@ -104,14 +104,14 @@ $text['Your current password is different from what you entered. Please try agai
 $text['New passwords do not match. Please try again.'] = 'Die Eingaben für das neue Passwort unterscheiden sich. Bitte versuchen Sie es nocheinmal.';
 $text['Please enter your current password and twice your new password.'] = 'Bitte geben Sie Ihr aktuelles Passwort und zweimal das neue Passwort ein.';
 $text['New and old password are identical. Please choose a different new password.'] = 'Neues und altes Passwort sind identisch. Bitte wählen Sie ein anderes, neues Passwort aus.';
-$text['Rules for secure passwords'] = 'Regeln für sichere Paßwörter';
-$text['password-rules'] = 'Paßwörter sollten aus mindestens acht Zeichen bestehen. Dabei sollten Groß- und Kleinbuchstaben, Ziffern und Sonderzeichen (?=+; etc.) enthalten sein. Damit man ein Paßwort sich auch merken kann, sind Eselsbrücken hilfreich.
-
-Beispiele für gute Paßwörter:
-
-* !1Pw=ig! (Merkregel: !Ein Passwort ist immer geheim!)
-* 1sPhüoäoÖ  (Merkregel: ein starkes Passwort hat ü oder ä oder ö)
-* 17Nbg03h (Merkregel: Ich telefoniere nicht besonders gern oder besonders häufig, Buchstaben teilweise durch ähnlich aussehende Zahlen ersetzt)'; 
+$text['Rules for secure passwords'] = 'Tipps für sichere Paßwörter';
+$text['password-rules'] = '
+* Passwörter sollten wenigstens acht Zeichen lang sein.
+* Statt eines einzelnen Wortes können auch mehrere Wörter oder komplette Sätze benutzt werden.
+* Je länger das Passwort (oder der gewählte Satz) ist, desto besser ist der Zugang zu der Website gesichert.
+* Für kurze Passwörter wird empfohlen, dass sie aus Groß- und Kleinbuchstaben, Ziffern und Sonderzeichen (? = + ; etc.) bestehen.
+* Dasselbe Passwort sollte nicht auf anderen Websites genutzt werden.
+'; 
 $text['hidden'] = 'versteckt';
 $text['Your new password could not be saved. Please try a different one.'] = 'Ihr neues Paßwort konnte nicht gespeichert werden. Bitte versuchen Sie es mit einem anderen.';
 

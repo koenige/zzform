@@ -91,14 +91,14 @@ $text['Your current password is different from what you entered. Please try agai
 $text['New passwords do not match. Please try again.'] = 'New passwords do not match. Please try again.';
 $text['Please enter your current password and twice your new password.'] = 'Please enter your current password and twice your new password.';
 $text['New and old password are identical. Please choose a different new password.'] = 'New and old password are identical. Please choose a different new password.';
-$text['Rules for secure passwords'] = 'Rules for secure passwords';
-$text['password-rules'] = 'Passwords should consist of a minimum of eight characters. You should use upper- and lowercase letters, numbers and special characters (?=+; etc.). It is good to use a mnemonic trick to remember your password.
-
-Examples for good passwords:
-
-* M\'sCMh8196wii! (Rule: Marx\'s Communist Manifesto has 8196 words in it!)
-* nuit+Pog=tWi.  (Rule: these are artificial words that could be remembered)
-* NYtgPw4n (Rule: generic password part that you could always use: gPw4 = good password for; NYt for New York Times, final n for news)'; 
+$text['Rules for secure passwords'] = 'Tips for secure passwords';
+$text['password-rules'] = '
+* Passwords should be at least eight characters long.
+* Instead of a single word, several words or even complete sentences can be used.
+* The longer the password (or the selected sentence), the better the access to the site is secured.
+* For short passwords, it is recommended that they consist of uppercase and lowercase letters, numbers and special characters (? = + ; etc.).
+* The same password should not be used on other sites.
+'; 
 $text['hidden'] = 'hidden';
 
 // Record form: File upload
