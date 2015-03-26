@@ -714,8 +714,10 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			}
 			if ($field_display === 'form' 
 				AND $zz_tab[$sub_tab]['max_records'] > $zz_tab[$sub_tab]['records']) {
-				if ($field['form_display'] === 'lines')
+				if ($field['form_display'] === 'lines' AND $details) {
+					// add spacer only if there's something above and below spacer
 					$out['td']['content'] .= '<div class="subrecord_spacer"></div>';
+				}
 				$out['td']['content'] .= zz_output_subtable_submit('add', $field, $sub_tab);
 			}
 		} else {
