@@ -110,7 +110,8 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 			$sql = 'SELECT MAX(%s) FROM %s';
 			$sql = sprintf($sql, $zz_var['id']['field_name'], $zz_tab[0]['table']);
 			$max_id = zz_db_fetch($sql, '', 'single value');
-			if ($max_id > $zz_tab[0][0]['id']['value']) {
+			if ($max_id > $zz_tab[0][0]['id']['value']
+				AND $zz_tab[0][0]['id']['value'] > 0) {
 				// This of course is only 100% correct if it is an incremental ID
 				$formhead = '<span class="error">'.sprintf(zz_text('The record with the ID %d was already deleted.'),
 					zz_html_escape($zz_tab[0][0]['id']['value'])).'</span>';
