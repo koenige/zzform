@@ -2231,6 +2231,17 @@ function zz_field_in_where($field, $values) {
 function zz_list_table($list, $rows, $head) {
 	global $zz_conf;
 	
+	// Check for empty columns
+	$column_content = array();
+	$hidden_columns = array();
+	foreach ($rows as $index => $row) {
+		foreach ($row as $no => $col) {
+			if (!is_numeric($no)) continue;
+			if (!array_key_exists($no, $column_content)) $column_content[$no] = false;
+			if ($col['text']) $column_content[$no] = true;
+		}
+	}
+	
 	// Header
 	$output = '<table class="data"><thead>'."\n".'<tr>';
 	if ($list['select_multiple_records']) $output .= '<th></th>';
@@ -2238,7 +2249,12 @@ function zz_list_table($list, $rows, $head) {
 	// Rest cannot be set yet because we do not now details/mode-links
 	// of individual records
 	$columns = 0;
-	foreach ($head as $col) {
+	foreach ($head as $no => $col) {
+		if (empty($column_content[$no]) AND !empty($col['hide_in_list_if_empty'])) {
+			unset($head[$no]); // for zz_field_sum()
+			$hidden_columns[$no] = true;
+			continue;
+		}
 		if (!$col['show_field']) continue;
 		if ($col['class']) $col['class'] = ' class="'.implode(' ', $col['class']).'"';
 		else $col['class'] = '';
@@ -2319,10 +2335,11 @@ function zz_list_table($list, $rows, $head) {
 			.($current_field ? ' current_record' : '')
 			.'">'; //onclick="Highlight();"
 		foreach ($row as $fieldindex => $field) {
-			if (is_numeric($fieldindex)) 
-				$output .= '<td'
-					.($field['class'] ? ' class="'.implode(' ', $field['class']).'"' : '')
-					.'>'.$field['text'].'</td>';
+			if (!is_numeric($fieldindex)) continue;
+			if (!empty($hidden_columns[$fieldindex])) continue;
+			$output .= '<td'
+				.($field['class'] ? ' class="'.implode(' ', $field['class']).'"' : '')
+				.'>'.$field['text'].'</td>';
 		}
 		if (!empty($row['modes']) OR !empty($row['details'])) {
 			$output .= '<td class="editbutton">';
