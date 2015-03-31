@@ -1755,6 +1755,7 @@ function zz_field_text($field, $display, $record, $dont_reformat = false) {
 	if ($display !== 'form') {
 		// show zeros
 		if ($value === '') return '';
+		if ($value === NULL) return '';
 		if ($field['type'] === 'url') {
 			$linktitle = zz_cut_length($value, $field['max_select_val_len']);
 			$linktitle = str_replace('<', '&lt;', $linktitle);
