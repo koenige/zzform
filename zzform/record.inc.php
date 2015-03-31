@@ -450,7 +450,12 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 	$my_where_fields = isset($zz_var['where'][$zz_tab[$tab]['table_name']])
 		? $zz_var['where'][$zz_tab[$tab]['table_name']] : array();
 	// this is for 0 0 main record:
-	$row_display = $my_rec['access'] ? $my_rec['access'] : $display;
+	// @todo check if this is correct, if there are other 'access' modes
+	if (in_array($my_rec['access'], array('show', 'none'))) {
+		$row_display = 'show';
+	} else {
+		$row_display = $display;
+	}
 
 	$multiple = !empty($zz_var['id']['values']) ? true : false;
 	foreach ($my_rec['fields'] as $fieldkey => $field) {
