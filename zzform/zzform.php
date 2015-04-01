@@ -69,7 +69,7 @@ function zzform($zz = array()) {
 		return zzform_exit($ops);
 	}
 
-	$zz_conf['int']['access'] = isset($zz['access']) ? $zz['access'] : $zz_conf['access'];
+	$zz_conf['int']['access'] = isset($zz['access']) ? $zz['access'] : (isset($zz_conf['access']) ? $zz_conf['access'] : '');
 
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if ($zz_error['error']) return zzform_exit($ops); // exits script
