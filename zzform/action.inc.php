@@ -413,7 +413,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		$ops['output'].= 'Main ID value: '.$zz_tab[0][0]['id']['value'].'<br>';
 		$ops['output'].= 'Main SQL query: '.$sql_edit.'<br>';
 		if ($del_msg) {
-			$ops['output'].= 'Further SQL queries:<br>'.(implode('', $del_msg));
+			$ops['output'].= 'SQL deletion queries:<br>'.(implode('', $del_msg));
 			unset($del_msg);
 		}
 	}
@@ -620,8 +620,7 @@ function zz_action_details($detail_sqls, $zz_tab, $validation, $ops) {
 				$zz_tab[$tab][$rec]['actual_action'] = 'nothing';
 			$ops = zz_record_info($ops, $zz_tab, $tab, $rec);
 			if ($zz_conf['modules']['debug'] AND $zz_conf['debug']) {
-				$ops['output'] .= 'Further SQL queries:<br>'
-					.'zz_tab '.$tab.' '.$rec.': '.$sql.'<br>';
+				$ops['output'] .= 'SQL query for record '.$tab.'/'.$rec.': '.$sql.'<br>';
 			}
 		}
 	}
@@ -795,9 +794,10 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 		// so we know later, if this record should be added
 		if (!isset($my_tab[$rec]['POST'][$field['field_name']])) continue;
 		$fvalues = $my_tab[$rec]['POST'][$field['field_name']];
-		// timestamp, foreign_key and id will always be ignored
-		// since there is no user input
-		$ignores = array('timestamp', 'id', 'foreign_key', 'translation_key', 'display', 'image');
+		// some fields will always be ignored since there is no user input
+		$ignores = array(
+			'timestamp', 'id', 'foreign_key', 'translation_key', 'display', 'image'
+		);
 		if (in_array($field['type'], $ignores)) continue;
 		if (!empty($field['for_action_ignore'])) continue;
 		// check def_val_ignore, some auto values/values/default values will be ignored 
