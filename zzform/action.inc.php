@@ -433,7 +433,8 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			list($zz_tab, $validation, $ops) 
 				= zz_action_details($detail_sqls, $zz_tab, $validation, $ops);
 		}
-	
+		zz_action_last_update($zz_tab, $result['action']);
+
 		// if any other action after insertion/update/delete is required
 		$change = zz_action_function('after_'.$zz_var['action'], $ops, $zz_tab);
 		list($ops, $zz_tab) = zz_action_change($ops, $zz_tab, $change);
@@ -477,6 +478,40 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	// delete temporary unused files
 	if (!empty($zz_var['upload_form'])) zz_upload_cleanup($zz_tab);
 	return zz_return(array($ops, $zz_tab, $validation));
+}
+
+/**
+ * change timestamp if wanted after an update of detail records
+ * if main record was not changed
+ *
+ * @param array $zz_tab
+ * @param string $action
+ * @return bool
+ */
+function zz_action_last_update($zz_tab, $action) {
+	if ($action !== 'nothing') return false;
+	if (empty($zz_tab[0]['subrecord_action'])) return false;
+	foreach ($zz_tab[0][0]['fields'] as $field) {
+		if ($field['type'] !== 'timestamp') continue;
+		if (empty($field['update_on_detail_update'])) continue;
+		$sql = 'UPDATE %s SET %s = NOW() WHERE %s = %d';
+		$sql = sprintf($sql,
+			$zz_tab[0]['table'],
+			$field['field_name'],
+			$zz_tab[0][0]['id']['field_name'],
+			$zz_tab[0][0]['id']['value']
+		);
+		$result = zz_db_change($sql, $zz_tab[0][0]['id']['value']);
+		if ($result['action'] !== 'update') {
+			global $zz_error;
+			$zz_error[]['msg_dev'] = sprintf(
+				'Update of timestamp failed (ID %d), query: %s', 
+				$zz_tab[0][0]['id']['value'], $sql
+			);
+		}
+	}
+	if (!empty($result)) return true;
+	return false;
 }
 
 /**
@@ -616,8 +651,11 @@ function zz_action_details($detail_sqls, $zz_tab, $validation, $ops) {
 				$zz_tab[$tab][$rec]['id']['value'] = $result['id_value'];
 			}
 			// save record values for use outside of zzform()
-			if ($result['action'] === 'nothing')
+			if ($result['action'] === 'nothing') {
 				$zz_tab[$tab][$rec]['actual_action'] = 'nothing';
+			} elseif ($result['action']) {
+				$zz_tab[0]['subrecord_action'] = true;
+			}
 			$ops = zz_record_info($ops, $zz_tab, $tab, $rec);
 			if ($zz_conf['modules']['debug'] AND $zz_conf['debug']) {
 				$ops['output'] .= 'SQL query for record '.$tab.'/'.$rec.': '.$sql.'<br>';
