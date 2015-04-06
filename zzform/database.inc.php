@@ -223,13 +223,13 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 			if ($mode === 'list') {
 				$tables = array();
 				$tables[] = $o_parts['FROM'][2];
-				if (stristr($o_parts['FROM'][2], 'JOIN')) {
-					$test = explode('JOIN', $o_parts['FROM'][2]);
-					unset($test[0]);
-					$tables = array_merge($tables, $test);
-				}
-				if (isset($o_parts['JOIN'][2])) {
-					$tables[] = $o_parts['JOIN'][2];
+				if (isset($o_parts['JOIN']) AND stristr($o_parts['JOIN'][2], 'JOIN')) {
+					$test = explode('JOIN', $o_parts['JOIN'][2]);
+					for ($i = 0; $i < count($test); $i++) {
+						if (!$i & 1) continue;
+						$table = explode(' ', trim($test[$i]));
+						$tables[] = $table[0];
+					}
 				}
 			}
 			break;
