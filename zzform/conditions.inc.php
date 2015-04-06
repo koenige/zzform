@@ -24,7 +24,7 @@
  *	zz_conditions_list_check()		set conditions for list
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2010, 2013-2014 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2010, 2013-2015 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -334,6 +334,8 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 			if (empty($zz_var['id']['value'])) break;
 
 			$sql = isset($zz['sqlrecord']) ? $zz['sqlrecord'] : $zz['sql'];
+			// for performance, remove force index
+			$sql = zz_edit_sql($sql, 'FORCE INDEX', ' ', 'delete');
 			if (!empty($condition['where']))
 				$sql = zz_edit_sql($sql, 'WHERE', $condition['where']);
 			if (!empty($condition['having']))
@@ -753,6 +755,7 @@ function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids, $mode) {
 	$zz['sql_without_limit'] = zz_edit_sql($zz['sql_without_limit'], 'SELECT', $zz['table'].'.'.$id_field, 'replace');
 	// get rid of ORDER BY because we don't have the fields and we don't need it
 	$zz['sql_without_limit'] = zz_edit_sql($zz['sql_without_limit'], 'ORDER BY', ' ', 'delete');
+	$zz['sql_without_limit'] = zz_edit_sql($zz['sql_without_limit'], 'FORCE INDEX', ' ', 'delete');
 
 	foreach ($zz['conditions'] AS $index => $condition) {
 		switch ($condition['scope']) {
