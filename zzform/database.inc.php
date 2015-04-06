@@ -212,11 +212,11 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 				if (isset($o_parts['GROUP BY'])) break;
 				unset($o_parts['JOIN']);
 			} elseif ($mode === 'add') {
-				// add is only possible with LEFT JOIN
-				$o_parts[$n_part][2] .= ' LEFT JOIN '.$values;
+				// add is only possible with correct JOIN statement in $values
+				$o_parts[$n_part][2] .= $values;
 			} elseif ($mode === 'replace') {
-				// replace is only possible with LEFT JOIN
-				$o_parts[$n_part][2] = ' LEFT JOIN '.$values;
+				// replace is only possible with correct JOIN statement in $values
+				$o_parts[$n_part][2] = $values;
 			}
 			break;
 		case 'FROM':
