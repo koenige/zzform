@@ -833,7 +833,7 @@ function zz_list_filter_sql($filters, $sql, &$filter_params) {
 		if (!isset($filter['default_selection'])) $filter['default_selection'] = '';
 		$old_sql = $sql;
 		if (isset($filter['sql_join'])) {
-			$sql = zz_edit_sql($sql, 'LEFT JOIN', $filter['sql_join']);
+			$sql = zz_edit_sql($sql, 'JOIN', $filter['sql_join']);
 		}
 		
 		if ($filter['type'] === 'show_hierarchy'

@@ -83,8 +83,6 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 	global $zz_conf; // for debug only
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	
-	$recursion = false; // in case of LEFT JOIN
-	
 	if (substr(trim($sql), 0, 4) === 'SHOW' AND $n_part === 'LIMIT') {
 	// LIMIT, WHERE etc. is only allowed with SHOW
 	// not allowed e. g. for SHOW DATABASES(), SHOW TABLES FROM ...
@@ -100,7 +98,7 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 	$sql = ' '.preg_replace("/\s+/", " ", $sql); // first blank needed for SELECT
 	// SQL statements in descending order
 	$statements_desc = array(
-		'LIMIT', 'ORDER BY', 'HAVING', 'GROUP BY', 'WHERE', 'LEFT JOIN',
+		'LIMIT', 'ORDER BY', 'HAVING', 'GROUP BY', 'WHERE', 'JOIN',
 		'FORCE INDEX', 'FROM', 'SELECT DISTINCT', 'SELECT'
 	);
 	foreach ($statements_desc as $statement) {
@@ -111,11 +109,22 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 		// check for statements
 		$explodes = explode(' '.$statement.' ', $sql);
 		if (count($explodes) > 1) {
-			// = look only for last statement
-			// and put remaining query in [1] and cut off part in [2]
-			$o_parts[$statement][2] = array_pop($explodes);
-			// last blank needed for exploding SELECT from DISTINCT
-			$o_parts[$statement][1] = implode(' '.$statement.' ', $explodes).' '; 
+			if ($statement === 'JOIN') {
+				$o_parts[$statement][1] = array_shift($explodes);
+				$last_keyword = explode(' ', $o_parts[$statement][1]);
+				$last_keyword = array_pop($last_keyword);
+				$o_parts[$statement][2] = $statement.' '.implode(' '.$statement.' ', $explodes);
+				if (in_array($last_keyword, array('LEFT', 'RIGHT', 'OUTER', 'INNER'))) {
+					$o_parts[$statement][2] = $last_keyword.' '.$o_parts[$statement][2];
+					$o_parts[$statement][1] = substr($o_parts[$statement][1], 0, -strlen($last_keyword) - 1);
+				}
+			} else {
+				// = look only for last statement
+				// and put remaining query in [1] and cut off part in [2]
+				$o_parts[$statement][2] = array_pop($explodes);
+				// last blank needed for exploding SELECT from DISTINCT
+				$o_parts[$statement][1] = implode(' '.$statement.' ', $explodes).' '; 
+			}
 		}
 		$search = '/(.+) '.$statement.' (.+?)$/i'; 
 //		preg_match removed because it takes way too long if nothing is found
@@ -193,21 +202,21 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 				unset($o_parts[$n_part]);
 			}
 			break;
-		case 'LEFT JOIN':
+		case 'JOIN':
 			if ($mode === 'delete') {
-				// don't remove LEFT JOIN in case of WHERE, HAVING OR GROUP BY
+				// don't remove JOIN in case of WHERE, HAVING OR GROUP BY
 				// SELECT and ORDER BY should be removed beforehands!
 				// use at your own risk
 				if (isset($o_parts['WHERE'])) break;
 				if (isset($o_parts['HAVING'])) break;
 				if (isset($o_parts['GROUP BY'])) break;
-				// there may be several LEFT JOINs, remove them all
-				if (isset($o_parts['LEFT JOIN'])) $recursion = true;
-				unset($o_parts['LEFT JOIN']);
+				unset($o_parts['JOIN']);
 			} elseif ($mode === 'add') {
-				$o_parts[$n_part][2] .= ' '.$values;
+				// add is only possible with LEFT JOIN
+				$o_parts[$n_part][2] .= ' LEFT JOIN '.$values;
 			} elseif ($mode === 'replace') {
-				$o_parts[$n_part][2] = $values;
+				// replace is only possible with LEFT JOIN
+				$o_parts[$n_part][2] = ' LEFT JOIN '.$values;
 			}
 			break;
 		case 'FROM':
@@ -219,8 +228,8 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 					unset($test[0]);
 					$tables = array_merge($tables, $test);
 				}
-				if (isset($o_parts['LEFT JOIN'][2])) {
-					$tables[] = $o_parts['LEFT JOIN'][2];
+				if (isset($o_parts['JOIN'][2])) {
+					$tables[] = $o_parts['JOIN'][2];
 				}
 			}
 			break;
@@ -257,10 +266,11 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 	}
 	$statements_asc = array_reverse($statements_desc);
 	foreach ($statements_asc as $statement) {
-		if (!empty($o_parts[$statement][2])) 
-			$sql.= ' '.$statement.' '.$o_parts[$statement][2];
+		if (!empty($o_parts[$statement][2])) {
+			$keyword = $statement === 'JOIN' ? '' : $statement;
+			$sql .= ' '.$keyword.' '.$o_parts[$statement][2];
+		}
 	}
-	if ($recursion) $sql = zz_edit_sql($sql, $n_part, $values, $mode);
 	return zz_return($sql);
 }
 
@@ -432,9 +442,9 @@ function zz_sql_count_rows($sql, $id_field = '') {
 		$sql = zz_edit_sql($sql, 'ORDER BY', '_dummy_', 'delete');
 		$sql = zz_edit_sql($sql, 'FORCE INDEX', '_dummy_', 'delete');
 		$sql = zz_edit_sql($sql, 'SELECT', 'COUNT(*)', 'replace');
-		// unnecessary LEFT JOINs may slow down query
+		// unnecessary JOINs may slow down query
 		// remove them in case no WHERE, HAVING or GROUP BY is set
-		$sql = zz_edit_sql($sql, 'LEFT JOIN', '_dummy_', 'delete');
+		$sql = zz_edit_sql($sql, 'JOIN', '_dummy_', 'delete');
 		$lines = zz_db_fetch($sql, '', 'single value');
 	} else {
 		$lines = zz_db_fetch($sql, $id_field, 'count');

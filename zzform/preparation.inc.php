@@ -1199,8 +1199,10 @@ function zz_query_single_record($sql, $table, $id, $sqlextra, $sql_translate, $t
 	global $zz_error;
 	
 	if (!$id[$type]) return array();
-	$sql = zz_edit_sql($sql, 'WHERE', $table.'.'
-		.$id['field_name']." = '".$id[$type]."'");
+	$sql = zz_edit_sql($sql,
+		'WHERE', $table.'.'.$id['field_name']." = '".$id[$type]."'"
+	);
+	$sql = zz_edit_sql($sql, 'FORCE INDEX', ' ', 'delete');
 	$record = zz_db_fetch($sql, '', '', 'record exists? ('.$type.')');
 	// if record is not yet in database, we will not get extra data because
 	// no ID exists yet
@@ -1261,7 +1263,7 @@ function zz_query_subrecord($my_tab, $main_table, $main_id_value,
 	if ($my_tab['sql_not_unique']) {
 		if (substr(trim($my_tab['sql_not_unique']), 0, 9) === 'LEFT JOIN') {
 			$sql = zz_edit_sql(
-				$my_tab['sql'], 'LEFT JOIN', $my_tab['sql_not_unique']
+				$my_tab['sql'], 'JOIN', $my_tab['sql_not_unique']
 			);
 		} else {
 			// quick and dirty version
