@@ -39,7 +39,7 @@ function zz_log_sql($sql, $user, $record_id = false) {
 	// with record_id
 	if (!mysql_affected_rows()) return false;
 	$sql = trim($sql);
-	if ($sql == 'SELECT 1') return false;
+	if ($sql === 'SELECT 1') return false;
 	// check if zzform() set db_main, test against !empty because need not be set
 	// (zz_log_sql() might be called from outside zzform())
 	if (!strstr($zz_conf['logging_table'], '.') AND !empty($zz_conf['int']['db_main'])) {
@@ -99,8 +99,10 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 	// remove whitespace
 	$sql = ' '.preg_replace("/\s+/", " ", $sql); // first blank needed for SELECT
 	// SQL statements in descending order
-	$statements_desc = array('LIMIT', 'ORDER BY', 'HAVING', 'GROUP BY', 'WHERE', 
-		'LEFT JOIN', 'FROM', 'SELECT DISTINCT', 'SELECT');
+	$statements_desc = array(
+		'LIMIT', 'ORDER BY', 'HAVING', 'GROUP BY', 'WHERE', 'LEFT JOIN',
+		'FORCE INDEX', 'FROM', 'SELECT DISTINCT', 'SELECT'
+	);
 	foreach ($statements_desc as $statement) {
 		// add whitespace in between brackets and statements to make life easier
 		$sql = str_replace(')'.$statement.' ', ') '.$statement.' ', $sql);
@@ -139,7 +141,7 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 			// 2. count opening and closing ()
 			//  if equal ok, if not, it's a statement in a subselect
 			// assumption: there must not be brackets outside " or '
-			if (substr_count($temp_sql, '(') == substr_count($temp_sql, ')')) {
+			if (substr_count($temp_sql, '(') === substr_count($temp_sql, ')')) {
 				$sql = $o_parts[$statement][1]; // looks correct, so go on.
 				$found = true;
 			} else {
@@ -169,30 +171,30 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 			$o_parts['LIMIT'][2] = $values;
 			break;
 		case 'ORDER BY':
-			if ($mode == 'add') {
+			if ($mode === 'add') {
 				// append old ORDER BY to new ORDER BY
 				if (!empty($o_parts['ORDER BY'][2])) 
 					$o_parts['ORDER BY'][2] = $values.', '.$o_parts['ORDER BY'][2];
 				else
 					$o_parts['ORDER BY'][2] = $values;
-			} elseif ($mode == 'delete') {
+			} elseif ($mode === 'delete') {
 				unset($o_parts['ORDER BY']);
 			}
 			break;
 		case 'WHERE':
 		case 'GROUP BY':
 		case 'HAVING':
-			if ($mode == 'add') {
+			if ($mode === 'add') {
 				if (!empty($o_parts[$n_part][2])) 
 					$o_parts[$n_part][2] = '('.$o_parts[$n_part][2].') AND ('.$values.')';
 				else 
 					$o_parts[$n_part][2] = $values;
-			}  elseif ($mode == 'delete') {
+			}  elseif ($mode === 'delete') {
 				unset($o_parts[$n_part]);
 			}
 			break;
 		case 'LEFT JOIN':
-			if ($mode == 'delete') {
+			if ($mode === 'delete') {
 				// don't remove LEFT JOIN in case of WHERE, HAVING OR GROUP BY
 				// SELECT and ORDER BY should be removed beforehands!
 				// use at your own risk
@@ -202,9 +204,9 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 				// there may be several LEFT JOINs, remove them all
 				if (isset($o_parts['LEFT JOIN'])) $recursion = true;
 				unset($o_parts['LEFT JOIN']);
-			} elseif ($mode == 'add') {
+			} elseif ($mode === 'add') {
 				$o_parts[$n_part][2] .= ' '.$values;
-			} elseif ($mode == 'replace') {
+			} elseif ($mode === 'replace') {
 				$o_parts[$n_part][2] = $values;
 			}
 			break;
@@ -224,16 +226,19 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 			break;
 		case 'SELECT':
 			if (!empty($o_parts['SELECT DISTINCT'][2])) {
-				if ($mode == 'add')
+				if ($mode === 'add')
 					$o_parts['SELECT DISTINCT'][2] .= ','.$values;
-				elseif ($mode == 'replace')
+				elseif ($mode === 'replace')
 					$o_parts['SELECT DISTINCT'][2] = $values;
 			} else {
-				if ($mode == 'add')
+				if ($mode === 'add')
 					$o_parts['SELECT'][2] = ','.$values;
-				elseif ($mode == 'replace')
+				elseif ($mode === 'replace')
 					$o_parts['SELECT'][2] = $values;
 			}
+			break;
+		case 'FORCE INDEX':
+			if ($mode === 'delete') unset($o_parts[$n_part]);
 			break;
 		default:
 			echo 'The variable <code>'.$n_part.'</code> is not supported by zz_edit_sql().';
@@ -386,7 +391,7 @@ function zz_sql_fieldnames($sql) {
 		if ($oldfield) $myfield = $oldfield.','.$myfield; 
 		// not enough brackets, so glue strings together until there are enough 
 		// - not 100% safe if bracket appears inside string
-		if (substr_count($myfield, '(') != substr_count($myfield, ')')) {
+		if (substr_count($myfield, '(') !== substr_count($myfield, ')')) {
 			$oldfield = $myfield; 
 		} else {
 			$myfields = '';
@@ -420,7 +425,7 @@ function zz_sql_count_rows($sql, $id_field = '') {
 	$sql = trim($sql);
 	if (!$id_field) {
 		$lines = zz_db_fetch($sql, '', 'single value');
-	} elseif (substr($sql, 0, 15) != 'SELECT DISTINCT'
+	} elseif (substr($sql, 0, 15) !== 'SELECT DISTINCT'
 		AND !stristr($sql, 'GROUP BY') AND !stristr($sql, 'HAVING')) {
 		// if it's not a SELECT DISTINCT, we can use COUNT, that's faster
 		// GROUP BY also does not work with COUNT
@@ -501,7 +506,7 @@ function zz_db_connection($table) {
 
 	// 3. alternative plus foreign db: put it in zz['table']
 	if (preg_match('~(.+)\.(.+)~', $table, $db_name)) { // db_name is already in zz['table']
-		if ($zz_conf['db_name'] AND $zz_conf['db_name'] != $db_name[1]) {
+		if ($zz_conf['db_name'] AND $zz_conf['db_name'] !== $db_name[1]) {
 			// this database is different from main database, so save it here
 			// for later
 			$zz_conf['int']['db_main'] = $zz_conf['db_name'];
@@ -573,7 +578,7 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 	if ($result) {
 		if (!$id_field_name) {
 			// only one record
-			if (mysql_num_rows($result) == 1) {
+			if (mysql_num_rows($result) === 1) {
 	 			if ($format === 'single value') {
 					$lines = mysql_result($result, 0, 0);
 	 			} elseif ($format === 'object') {
@@ -585,7 +590,7 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
  		} elseif (is_array($id_field_name) AND mysql_num_rows($result)) {
 			if ($format === 'object') {
 				while ($line = mysql_fetch_object($result)) {
-					if (count($id_field_name) == 3) {
+					if (count($id_field_name) === 3) {
 						if ($error = zz_db_field_in_query($line, $id_field_name, 3)) break;
 						$lines[$line->$id_field_name[0]][$line->$id_field_name[1]][$line->$id_field_name[2]] = $line;
 					} else {
@@ -602,10 +607,10 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 		 			} else {
 		 				$values = $line;
 		 			}
-					if (count($id_field_name) == 4) {
+					if (count($id_field_name) === 4) {
 						if ($error = zz_db_field_in_query($line, $id_field_name, 4)) break;
 						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]][$line[$id_field_name[3]]] = $values;
-					} elseif (count($id_field_name) == 3) {
+					} elseif (count($id_field_name) === 3) {
 						if ($error = zz_db_field_in_query($line, $id_field_name, 3)) break;
 						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]] = $values;
 					} else {
@@ -765,7 +770,7 @@ function zz_db_change($sql, $id = false) {
 	// write back ID value if it's there
 	$db['id_value'] = $id;
 	// dummy SQL means nothing will be done
-	if ($sql == 'SELECT 1') return $db;
+	if ($sql === 'SELECT 1') return $db;
 	
 	// get rid of extra whitespace, just to check statements
 	$sql_ws = preg_replace('~\s~', ' ', trim($sql));
@@ -789,7 +794,7 @@ function zz_db_change($sql, $id = false) {
 		} else {
 			$db['rows'] = mysql_affected_rows();
 			$db['action'] = strtolower($tokens[0]);
-			if ($db['action'] == 'insert') // get ID value
+			if ($db['action'] === 'insert') // get ID value
 				$db['id_value'] = mysql_insert_id();
 			// Logs SQL Query, must be after insert_id was checked
 			if (!empty($zz_conf['logging']))
@@ -829,7 +834,7 @@ function zz_db_change($sql, $id = false) {
  * @return string $db_table `database`.`table` or `database` or `table`
  */
 function zz_db_table_backticks($db_table) {
-	if (substr($db_table, 0, 1) != '`' AND substr($db_table, -1) != '`') {
+	if (substr($db_table, 0, 1) !== '`' AND substr($db_table, -1) !== '`') {
 		$db_table = '`'.str_replace('.', '`.`', $db_table).'`';
 	}
 	return $db_table;
@@ -847,8 +852,10 @@ function zz_db_field_maxlength($field, $type, $db_table) {
 	if (!$field) return false;
 	// just if it's a field with a field_name
 	// for some field types it makes no sense to check for maxlength
-	$dont_check = array('image', 'display', 'timestamp', 'hidden', 'foreign_key',
-		'select', 'id', 'date', 'time', 'option');
+	$dont_check = array(
+		'image', 'display', 'timestamp', 'hidden', 'foreign_key', 'select',
+		'id', 'date', 'time', 'option'
+	);
 	if (in_array($type, $dont_check)) return false;
 
 	global $zz_conf;
@@ -927,7 +934,7 @@ function zz_db_error($errno) {
  */
 function zz_db_field_null($field, $db_table) {
 	$line = zz_db_columns($db_table, $field);
-	if ($line AND $line['Null'] == 'YES') return true;
+	if ($line AND $line['Null'] === 'YES') return true;
 	else return false;
 }
 
@@ -1064,7 +1071,7 @@ function zz_db_decimal_places($db_table, $field) {
 		return $n;
 	}
 	$field_def = zz_db_columns($db_table, $field['field_name']);
-	if (substr($field_def['Type'], 0, 7) == 'decimal') {
+	if (substr($field_def['Type'], 0, 7) === 'decimal') {
 		$length = substr($field_def['Type'], 8, -1);
 		$length = explode(',', $length);
 		if (count($length) === 2) return $length[1];
