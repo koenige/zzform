@@ -428,8 +428,9 @@ function zz_sql_count_rows($sql, $id_field = '') {
 	} elseif (substr($sql, 0, 15) !== 'SELECT DISTINCT'
 		AND !stristr($sql, 'GROUP BY') AND !stristr($sql, 'HAVING')) {
 		// if it's not a SELECT DISTINCT, we can use COUNT, that's faster
-		// GROUP BY also does not work with COUNT
+		// GROUP BY, FORCE INDEX also do not work with COUNT
 		$sql = zz_edit_sql($sql, 'ORDER BY', '_dummy_', 'delete');
+		$sql = zz_edit_sql($sql, 'FORCE INDEX', '_dummy_', 'delete');
 		$sql = zz_edit_sql($sql, 'SELECT', 'COUNT(*)', 'replace');
 		// unnecessary LEFT JOINs may slow down query
 		// remove them in case no WHERE, HAVING or GROUP BY is set
