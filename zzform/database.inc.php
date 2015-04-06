@@ -213,7 +213,7 @@ function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 				unset($o_parts['JOIN']);
 			} elseif ($mode === 'add') {
 				// add is only possible with correct JOIN statement in $values
-				$o_parts[$n_part][2] .= $values;
+				$o_parts[$n_part][2] .= ' '.$values;
 			} elseif ($mode === 'replace') {
 				// replace is only possible with correct JOIN statement in $values
 				$o_parts[$n_part][2] = $values;
