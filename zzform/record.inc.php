@@ -1497,10 +1497,11 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 	$display_value = '';
 	$mark_italics = false;
 	if (!empty($field['value'])) {
-		if ($record AND $field['value'] !== $record[$field['field_name']])
-		$display_value = $record[$field['field_name']];
+		if ($record AND $field['value'] !== $record[$field['field_name']]) {
+			$display_value = $record[$field['field_name']];
+			if ($mode !== 'delete') $mark_italics = true;
+		}
 		$value = $field['value'];
-		if ($mode !== 'delete') $mark_italics = true;
 	} elseif ($record) {
 		$value = $record[$field['field_name']];
 	}
