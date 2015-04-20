@@ -3026,7 +3026,7 @@ function zz_field_image($field, $display, $record, $record_saved, $images, $mode
 		if (!$img AND (!isset($field['dont_show_missing']) OR !$field['dont_show_missing'])) {
 			$text = '('.zz_text('image_not_display').')';
 		}
-		if ($text) $text = '<p>'.$text.'</p>';
+		if ($text) $text = '<p class="preview">'.$text.'</p>';
 	}
 	if (($mode === 'add' OR $mode === 'edit') && $field['type'] === 'upload_image') {
 		if (!isset($field['image'])) {

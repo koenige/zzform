@@ -145,6 +145,8 @@ div.text #zzform, #zzform div.text
 					{ text-align: right; }
 #zzform #record .subtable td p, #zzform #record .subtable th p,
 #zzform table td	{ padding: .2em; }
+#zzform #record .subtable td p.preview, #zzform #record .subtable th p.preview
+					{ padding: 0; }
 #zzform table td small { font-size: 90%; }
 
 
