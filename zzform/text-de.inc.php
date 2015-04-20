@@ -116,7 +116,7 @@ $text['hidden'] = 'versteckt';
 $text['Your new password could not be saved. Please try a different one.'] = 'Ihr neues Passwort konnte nicht gespeichert werden. Bitte versuchen Sie es mit einem anderen.';
 
 // Record form: File upload
-$text['image_not_display'] = 'Bild kann (noch) nicht angezeigt werden';
+$text['image_not_display'] = 'Kein Bild';
 $text['Error: '] = 'Fehler: ';
 $text['No file was uploaded.'] = 'Es wurde keine Datei hochgeladen.';
 $text['File was only partially uploaded.'] = 'Die Datei wurde nur teilweise hochgeladen.';

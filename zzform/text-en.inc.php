@@ -102,7 +102,7 @@ $text['password-rules'] = '
 $text['hidden'] = 'hidden';
 
 // Record form: File upload
-$text['image_not_display'] = 'Image cannot yet be displayed';
+$text['image_not_display'] = 'No image';
 $text['Error: '] = 'Error: ';
 $text['No file was uploaded.'] = 'No file was uploaded.';
 $text['File was only partially uploaded.'] = 'File was only partially uploaded.';
