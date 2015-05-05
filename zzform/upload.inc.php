@@ -662,7 +662,7 @@ function zz_upload_fileinfo($file, $extension = false) {
 		// saved as metadata. exif_read_data() cannot read only the array keys
 		// or you could exclude key ImageSourceData where the original image
 		// is kept
-		$file['exif'] = exif_read_data($filename);
+		$file['exif'] = @exif_read_data($filename);
 	}
 	// @todo further functions, e. g. zz_pdf_read_data if filetype == pdf ...
 	// @todo or read AutoCAD Version from DXF, DWG, ...
