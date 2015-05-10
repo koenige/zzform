@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2014 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2015 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -88,6 +88,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 
 	$i = 0;
 	$idf_arr = array();
+	$len = 0;
 	foreach ($vars as $key => $var) {
 		$i++;
 		if (in_array($key, $conf['ignore'])) continue;
@@ -107,6 +108,14 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 			}
 		}
 		// check for last element, if max_length is met
+		if ($my_rec AND !empty($my_rec['fields'][$field]['maxlength'])) {
+			$remaining_len = $my_rec['fields'][$field]['maxlength'] - $len;
+			if (!$conf['max_length']) {
+				$conf['max_length'] = $remaining_len;
+			} elseif ($conf['max_length'] > $remaining_len) {
+				$conf['max_length'] = $remaining_len;
+			}
+		}
 		if ($conf['max_length'] AND strlen($var) > $conf['max_length'] 
 			AND $i === count($vars)) {
 			$vparts = explode(' ', $var);
@@ -146,6 +155,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 			if ($conf['uppercase']) $my_var = strtoupper($my_var);
 			$idf_arr[] = $my_var;
 		}
+		$len += strlen($my_var);
 	}
 	if (empty($idf_arr)) return false;
 
@@ -162,11 +172,6 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 	}
 	// ready, last checks
 	if ($my_rec AND $field AND $db_table) {
-		// check length
-		if ($my_rec AND !empty($my_rec['fields'][$field]['maxlength']) 
-			AND ($my_rec['fields'][$field]['maxlength'] < strlen($idf))) {
-			$idf = substr($idf, 0, $my_rec['fields'][$field]['maxlength']);
-		}
 		// check whether identifier exists
 		$idf = zz_identifier_exists(
 			$idf, $i, $db_table, $field_name, $my_rec['id']['field_name'],
