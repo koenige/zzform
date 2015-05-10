@@ -541,6 +541,10 @@ function zz_action_equals($my_rec, $existing) {
 			$update = true;
 			// check difference to existing record
 			$post = $my_rec['POST'][$field['field_name']];
+			if ($field['type'] === 'time' AND strlen($existing[$field['field_name']]) === 5) {
+				// time might be written as 08:00 instead of 08:00:00
+				$existing[$field['field_name']] .= ':00';
+			}
 			if ($field['type'] === 'select' AND !empty($field['set'])) {
 				// to compare it, make array into string
 				if (is_array($post)) $post = implode(',', $post);
