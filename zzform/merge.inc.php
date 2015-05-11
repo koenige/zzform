@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2014 Gustaf Mossakowski
+ * @copyright Copyright © 2014-2015 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -176,8 +176,8 @@ function zz_merge_records($zz) {
 							$zz['fields'][$fields_by_fieldname[$field_name]]
 						);
 						if ($newval) {
-							if ($update !== $new_record[$field_name]) {
-								$new_values[$field_name] = $update;
+							if ($newval !== $new_record[$field_name]) {
+								$new_values[$field_name] = $newval;
 							}
 						} else {
 							$update = false;
