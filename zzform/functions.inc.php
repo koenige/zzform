@@ -345,7 +345,10 @@ function zz_get_where_conditions($zz, $zz_var) {
 		) {
 			// where-filter makes no sense since already one of the values
 			// is filtered by WHERE filter
-			unset($zz['filter'][$index]);
+			// unless it is an add where_condition
+			if (!in_array($filter['where'], array_keys($add))) {
+				unset($zz['filter'][$index]);
+			}
 		}
 		if ($filter['type'] !== 'where') continue;
 		if (!empty($zz_var['filters'][$filter['identifier']])) {
