@@ -183,7 +183,7 @@ function zzform($zz = array()) {
 	if (!empty($zz_conf['modules']['conditions'])) {
 		if ($zz_conf['modules']['debug']) zz_debug('conditions start');
 		$zz = zz_conditions_set($zz);
-		$zz_conditions = zz_conditions_record_check($zz, $ops['mode'], $zz_var);
+		$zz_conditions = zz_conditions_check($zz, $ops['mode'], $zz_var);
 	} else {
 		$zz_conditions = array();
 	}
@@ -198,6 +198,7 @@ function zzform($zz = array()) {
 
 	if ($zz_conf['int']['record']) {
 		if (!empty($zz_conf['modules']['conditions'])) {
+			$zz_conditions = zz_conditions_record_check($zz, $ops['mode'], $zz_var, $zz_conditions);
 			$zz = zz_conditions_record($zz, $zz_conditions, $zz_var['id']['value']);
 		}
 	 	// sets some $zz-definitions for records depending on existing definition for

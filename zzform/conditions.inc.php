@@ -11,6 +11,8 @@
  *	main functions (in order in which they are called)
  *
  *  zz_conditions_set()
+ *		zz_conditions_set_field()
+ *	zz_conditions_check()			set conditions for both list and record
  *	zz_conditions_record()
  *	zz_conditions_record_values()	sets values for record
  *	zz_conditions_record_check()	set conditions for record
@@ -116,6 +118,88 @@ function zz_conditions_set_field(&$field, &$new_index, &$sc, $cn) {
 }
 
 /**
+ * check conditions for form and list view
+ * Check all conditions whether they are true;
+ *
+ * @param array $zz
+ *		'conditions', 'table', 'sql', 'fields'
+ * @param string $mode
+ * @param array $zz_var
+ *		'id' array ('value', 'name'), 'where', 'zz_fields'
+ * @global array $zz_error
+ * @global array $zz_conf
+ * @return array $zz_conditions
+ */
+function zz_conditions_check($zz, $mode, $zz_var) {
+	global $zz_error;
+	global $zz_conf;
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+
+	$zz_conditions = array();
+	foreach ($zz['conditions'] AS $index => $condition) {
+		switch ($condition['scope']) {
+		case 'add':
+			if ($mode === 'add' OR $zz_var['action'] === 'insert') {
+				$zz_conditions['bool'][$index] = true;
+			} elseif ($mode === 'edit' OR $zz_var['action'] === 'update') {
+				// and it is a detail record
+				$zz_conditions['bool'][$index]['add_detail'] = true;
+			}
+			break;
+		case 'edit':
+			if ($mode === 'edit' OR $zz_var['action'] === 'update') {
+				$zz_conditions['bool'][$index] = true;
+			}
+			break;
+		case 'delete':
+			if ($mode === 'delete' OR $zz_var['action'] === 'delete') {
+				$zz_conditions['bool'][$index] = true;
+			}
+			break;
+		case 'upload':
+			// if actually a file was uploaded
+			// @todo not 100% perfect, but should be enough
+			if (!empty($_FILES)) {
+				$zz_conditions['bool'][$index] = true;
+			}
+			break;
+		case 'multi':
+			if (!empty($zz_conf['multi'])) {
+				$zz_conditions['bool'][$index] = true;
+			}
+			break;
+		case 'list_empty':
+			// @todo: not yet implemented
+			// @todo: problem: when this function is called, we do not know
+			// anything about the number of records in list view
+			break;
+		case 'record_mode':
+			if ($mode AND $mode !== 'list_only') {
+				$zz_conditions['bool'][$index] = true;
+			} elseif ($zz_var['action']) {
+				$zz_conditions['bool'][$index] = true;
+			}
+			break;
+		case 'export_mode':
+			if ($mode === 'export') {
+				$zz_conditions['bool'][$index] = true;
+			}
+			break;
+		case 'order_by':
+			// @todo: not yet implemented
+			break;
+		case 'where':
+			if (!empty($zz_var['where_condition'][$condition['field_name']]))
+				$zz_conditions['bool'][$index] = true;
+			break;
+		default:
+			break;
+		}
+	}
+	return zz_return($zz_conditions);
+}
+
+/**
  * applies 'values' and 'bool' conditions to record
  *
  * @param array $zz
@@ -203,73 +287,18 @@ function zz_conditions_record_values($field, $values) {
  * @param string $mode
  * @param array $zz_var
  *		'id' array ('value', 'name'), 'where', 'zz_fields'
+ * @param array $zz_conditions values from zz_conditions_check()
  * @global array $zz_error
  * @global array $zz_conf
  * @return array $zz_conditions
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_conditions_record_check($zz, $mode, $zz_var) {
+function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 	global $zz_error;
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
-	$zz_conditions = array();
 	foreach ($zz['conditions'] AS $index => $condition) {
 		switch ($condition['scope']) {
-		case 'add':
-			if ($mode === 'add' OR $zz_var['action'] === 'insert') {
-				$zz_conditions['bool'][$index] = true;
-			} elseif ($mode === 'edit' OR $zz_var['action'] === 'update') {
-				// and it is a detail record
-				$zz_conditions['bool'][$index]['add_detail'] = true;
-			}
-			break;
-		case 'edit':
-			if ($mode === 'edit' OR $zz_var['action'] === 'update') {
-				$zz_conditions['bool'][$index] = true;
-			}
-			break;
-		case 'delete':
-			if ($mode === 'delete' OR $zz_var['action'] === 'delete') {
-				$zz_conditions['bool'][$index] = true;
-			}
-			break;
-		case 'upload':
-			// if actually a file was uploaded
-			// @todo not 100% perfect, but should be enough
-			if (!empty($_FILES)) {
-				$zz_conditions['bool'][$index] = true;
-			}
-			break;
-		case 'multi':
-			if (!empty($zz_conf['multi'])) {
-				$zz_conditions['bool'][$index] = true;
-			}
-			break;
-		case 'list_empty':
-			// @todo: not yet implemented
-			// @todo: problem: when this function is called, we do not know
-			// anything about the number of records in list view
-			break;
-		case 'record_mode':
-			if ($mode AND $mode !== 'list_only') {
-				$zz_conditions['bool'][$index] = true;
-			} elseif ($zz_var['action']) {
-				$zz_conditions['bool'][$index] = true;
-			}
-			break;
-		case 'export_mode':
-			if ($mode === 'export') {
-				$zz_conditions['bool'][$index] = true;
-			}
-			break;
-		case 'order_by':
-			// @todo: not yet implemented
-			break;
-		case 'where':
-			if (!empty($zz_var['where_condition'][$condition['field_name']]))
-				$zz_conditions['bool'][$index] = true;
-			break;
 		case 'record': // for form view (of saved records), list view comes later in zz_list() because requery of record 
 			$zz_conditions['bool'][$index] = array();
 			if (($mode === 'add' OR $zz_var['action'] === 'insert') AND !empty($condition['add'])) {
@@ -451,6 +480,7 @@ function zz_conditions_record_check($zz, $mode, $zz_var) {
 			break;
 		case 'subrecord': // ignore here
 		default:
+			break;
 		}
 	}
 	return zz_return($zz_conditions);
@@ -503,7 +533,6 @@ function zz_conditions_subrecord_check($zz, $zz_tab, $zz_conditions) {
  * @param array $values
  * @global array $zz_conf
  * @return array $fields
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_conditions_record_fields($fields, $conditional_fields, $values) {
 	global $zz_conf;
@@ -626,7 +655,6 @@ function zz_conditions_subrecord($zz_tab, $zz_conditions) {
  *			$zz_conf or $zz_conf_record will be changed
  * @global array $zz_conf
  * @return array $array			modified $field- or $zz_conf-Array
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_conditions_merge($array, $bool_conditions, $record_id, $reverse = false, $type = 'field') {
 	global $zz_conf;
@@ -741,7 +769,6 @@ function zz_conditions_merge_conf(&$conf, $bool_conditions, $record_id) {
  * @return array $zz_conditions 
  *		['bool'][$index of condition] = array($record ID1 => true, $record ID2 
  *		=> true, ..., $record IDn => true) or true = all true // false = fall false
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @see zz_conditions_record_check()
  */
 function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids, $mode) {
