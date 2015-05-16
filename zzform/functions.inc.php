@@ -802,7 +802,7 @@ function zz_write_onces($zz, $zz_var) {
  * @param string $db_table [i. e. db_name.table]
  * @param bool $multiple_times marker for conditions
  * @param string $mode (optional, $ops['mode'])
- * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @return array $fields
  */
 function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false) {
 	global $zz_conf;
