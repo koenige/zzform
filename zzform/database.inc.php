@@ -335,7 +335,6 @@ function zz_sql_prefix_change_zz(&$item, $key) {
 	// @todo check if we can exclude them (sqlextra)
 	if (is_numeric($key)) return false;
 
-	// $zz['conditional_fields'][n]['sql']
 	// $zz['conditions'][n]['add']['sql']
 	// $zz['conditions'][n]['having']
 	// $zz['conditions'][n]['sql']

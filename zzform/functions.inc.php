@@ -195,31 +195,27 @@ function zz_dependent_modules($zz) {
  * @return
  */
 function zz_module_fieldcheck($zz, $key, $type) {
-	$domains = array('fields', 'conditional_fields');
-	foreach ($domains as $domain) {
-		if (empty($zz[$domain])) continue;
-		foreach ($zz[$domain] as $field) {
-			if (!empty($field[$key]) AND $field[$key] === $type) {
-				return true;
-			}
-			if (!empty($field['if'])) {
-				foreach ($field['if'] as $condfield) {
-					if (!empty($condfield[$key]) AND $condfield[$key] === $type) {
-						return true;
-					}
-				}
-			}
-			if (empty($field['fields'])) continue;
-			foreach ($field['fields'] as $index => $subfield) {
-				if (!is_array($subfield)) continue;
-				if (!empty($subfield[$key]) AND $subfield[$key] === $type) {
+	foreach ($zz['fields'] as $field) {
+		if (!empty($field[$key]) AND $field[$key] === $type) {
+			return true;
+		}
+		if (!empty($field['if'])) {
+			foreach ($field['if'] as $condfield) {
+				if (!empty($condfield[$key]) AND $condfield[$key] === $type) {
 					return true;
 				}
-				if (empty($subfield['if'])) continue;
-				foreach ($subfield['if'] as $condfield) {
-					if (!empty($condfield[$key]) AND $condfield[$key] === $type) {
-						return true;
-					}
+			}
+		}
+		if (empty($field['fields'])) continue;
+		foreach ($field['fields'] as $index => $subfield) {
+			if (!is_array($subfield)) continue;
+			if (!empty($subfield[$key]) AND $subfield[$key] === $type) {
+				return true;
+			}
+			if (empty($subfield['if'])) continue;
+			foreach ($subfield['if'] as $condfield) {
+				if (!empty($condfield[$key]) AND $condfield[$key] === $type) {
+					return true;
 				}
 			}
 		}

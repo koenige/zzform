@@ -17,8 +17,6 @@
  *	zz_conditions_record_values()	sets values for record
  *	zz_conditions_record_check()	set conditions for record
  *  zz_conditions_subrecord_check()	set conditions for detail record
- *	zz_conditions_record_fields()	write new fields to $zz['fields'] based on conditions
- *		zz_replace_conditional_values()
  *	zz_conditions_subrecord()
  *	zz_conditions_merge()			merge conditional values with normal values ($zz['fields'], $zz_conf)
  *		zz_conditions_merge_field()		apply to field
@@ -204,7 +202,6 @@ function zz_conditions_check($zz, $mode, $zz_var) {
  *
  * @param array $zz
  *		array 'fields'
- *		array 'conditional_fields'
  * @param array $zz_conditions
  * @param int $id_value
  * @global array $zz_conf
@@ -216,19 +213,13 @@ function zz_conditions_record($zz, $zz_conditions, $id_value) {
 	// check for 'values'
 	if (!empty($zz_conditions['values'])) {
 		$found = false;
-		if (!empty($zz['conditional_fields'])) {
-			$zz['fields'] = zz_conditions_record_fields($zz['fields'],
-				$zz['conditional_fields'], $zz_conditions['values']);
+		foreach (array_keys($zz['fields']) as $no) {
+			if (empty($zz['fields'][$no]['if'])) continue;
+			$zz['fields'][$no] = zz_conditions_record_values($zz['fields'][$no], $zz_conditions['values']);
 			$found = true;
-		} else {
-			foreach (array_keys($zz['fields']) as $no) {
-				if (empty($zz['fields'][$no]['if'])) continue;
-				$zz['fields'][$no] = zz_conditions_record_values($zz['fields'][$no], $zz_conditions['values']);
-				$found = true;
-			}
 		}
 		if (!$found AND $zz_conf['modules']['debug']) {
-			zz_debug('conditions', 'Notice: `values`-condition was set, but there\'s no `conditional_field`! (Waste of ressources)');
+			zz_debug('conditions', 'Notice: `values`-condition was set, but there\'s no field using it! (Waste of ressources)');
 		}
 	}
 	
@@ -359,7 +350,6 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 					if ($zz_error['error']) return zz_return($zz_conditions); // DB error
 				}
 			}
-			if ($mode === 'list_only') break;
 			if (empty($zz_var['id']['value'])) break;
 
 			$sql = isset($zz['sqlrecord']) ? $zz['sqlrecord'] : $zz['sql'];
@@ -382,7 +372,6 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 			break;
 		case 'query': // just for form view (of saved records), for list view will be later in zz_list()
 			$zz_conditions['bool'][$index] = array();
-			if ($mode === 'list_only') break;
 			if (empty($zz_var['id']['value'])) break;
 
 			$sql = zz_edit_sql($condition['sql'], 'WHERE', sprintf(
@@ -397,7 +386,6 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 			break;
 		case 'value': // just for record view
 			$zz_conditions['values'][$index] = array();
-			if ($mode === 'list_only') break;
 
 			// get value for $condition['field_name']
 			$value = false;
@@ -522,77 +510,6 @@ function zz_conditions_subrecord_check($zz, $zz_tab, $zz_conditions) {
 		}
 	}
 	return zz_return($zz_conditions);
-}
-
-/**
- * treat values-conditions separately from bool-conditions since here 
- * we get new field definitions; get last index to add extra fields
- *
- * @param array $fields
- * @param array $conditional_fields
- * @param array $values
- * @global array $zz_conf
- * @return array $fields
- */
-function zz_conditions_record_fields($fields, $conditional_fields, $values) {
-	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-
-	$all_indices = array_keys($fields);
-	asort($all_indices);
-	$last_index = array_pop($all_indices);
-	$index = $last_index + 1; // last index, increment 1
-	// initialize variables
-	$remove_fields = array();
-	$new_fields = array();
-	// create new field definitions
-	foreach ($conditional_fields as $condition => $definitions) {
-		$template = $definitions['template_field'];
-		if (!empty($definitions['remove_template'])) $remove_fields[$template] = true;
-		if (empty($values[$condition])) continue;
-		foreach ($values[$condition] as $placeholder_record) {
-			$thisrecord = $definitions;
-			$placeholder_record['index'] = $index;
-			// get counter of array index for $template for glueing and cutting array
-			$new_fields[$template][$index] = false;
-			$new_fields[$template][$index] = $fields[$template];
-			array_walk($thisrecord, 'zz_replace_conditional_values', $placeholder_record);
-			$new_fields[$template][$index] = zz_array_merge($new_fields[$template][$index], $thisrecord);
-			$index++;
-		}
-	}
-	$all_indices = array_flip($all_indices);
-	// glue into right position
-	foreach ($new_fields as $fieldindex => $fields_to_add) {
-		$zz_fields = array_merge(array_slice($fields, 0, $all_indices[$fieldindex]), $fields_to_add, 
-			array_slice($fields, $all_indices[$fieldindex]));
-		// old PHP 4 support
-		$zz_fields_keys = array_merge(array_slice(array_keys($fields), 0, $all_indices[$fieldindex]), 
-			array_keys($fields_to_add), array_slice(array_keys($fields), $all_indices[$fieldindex]));
-		unset($fields);
-		foreach($zz_fields_keys as $f_index => $real_index) {
-			$fields[$real_index] = $zz_fields[$f_index];
-		}
-		unset ($zz_fields);
-		// old PHP 4 support end, might be replaced by variables in array_slice
-	}
-	// remove unnecessary definitions
-	unset($all_indices);
-	foreach (array_keys($remove_fields) as $fieldkey) {
-		unset($fields[$fieldkey]);
-	}
-	return zz_return($fields);
-}
-
-function zz_replace_conditional_values(&$item, $key, $records) {
-	if (is_array($item)) {
-		array_walk($item, 'zz_replace_conditional_values', $records);
-	} else {
-		foreach ($records as $field_name => $record) {
-			if (preg_match('~%'.$field_name.'%~', $item))
-				$item = preg_replace('~%'.$field_name.'%~', $record, $item);
-		}
-	}
 }
 
 /**
