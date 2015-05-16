@@ -70,6 +70,7 @@ function zz_output_heading($heading, $table = '') {
  *
  * @param string $heading ($ops['heading'])
  * @param array $zz
+ *		array 'subtitle', 'fields'[n]'field_name' / 'key_field_name'
  * @param array $where_condition, optional
  * @global array $zz_conf
  * @global array $zz_error
