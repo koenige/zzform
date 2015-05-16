@@ -22,21 +22,18 @@
  * zzform generates forms for editing single records, list views with several
  * records and does insert, update and delete database operations
  *
- * @param array $zz (@deprecated if empty, will be taken from global namespace)
+ * @param array $zz
  * @global array $zz_conf	configuration variables
  * @global array $zz_error	error handling
  * @todo think of zzform($zz, $zz_conf) to get rid of global variables
  */
-function zzform($zz = array()) {
+function zzform($zz) {
 	global $zz_conf;
 	global $zz_error;
 
 //
 //	Initialize variables & modules
 //
-	// @deprecated Table description
-	if (!$zz) $zz = $GLOBALS['zz'];
-
 	// This variable signals that zzform is included
 	if (empty($zz_conf['zzform_calls'])) $zz_conf['zzform_calls'] = 1;
 	else $zz_conf['zzform_calls']++;
