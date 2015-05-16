@@ -1271,7 +1271,9 @@ function zz_record_access($zz, $ops, $zz_var) {
 	if (!empty($zz_conf['modules']['conditions'])
 		AND (!empty($zz_conf['if']) OR !empty($zz_conf['unless']))
 		AND $zz_var['id']['value']) {
-		$zz_conditions = zz_conditions_record_check($zz, $ops['mode'], $zz_var);
+		$zz_conditions = zz_conditions_check($zz, $ops['mode'], $zz_var);
+		// @todo do we need to check record conditions here?
+		$zz_conditions = zz_conditions_record_check($zz, $ops['mode'], $zz_var, $zz_conditions);
 		// save old variables for list view
 		$saved_variables = array(
 			'access', 'add', 'edit', 'delete', 'view', 'details'
