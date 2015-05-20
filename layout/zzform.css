@@ -492,6 +492,46 @@ body #zzform .separator hr
 #zzform .moretext_hidden
 					{ max-height: 10em; overflow: hidden; text-overflow: ellipsis; }
 
+/* textarea */
+
+@media screen and (max-height: 1500px ) {
+	#zzform textarea	{ max-height: 1340px; }
+}
+@media screen and (max-height: 1400px ) {
+	#zzform textarea	{ max-height: 1240px; }
+}
+@media screen and (max-height: 1300px ) {
+	#zzform textarea	{ max-height: 1140px; }
+}
+@media screen and (max-height: 1200px ) {
+	#zzform textarea	{ max-height: 1040px; }
+}
+@media screen and (max-height: 1100px ) {
+	#zzform textarea	{ max-height: 940px; }
+}
+@media screen and (max-height: 1000px ) {
+	#zzform textarea	{ max-height: 840px; }
+}
+@media screen and (max-height: 900px ) {
+	#zzform textarea	{ max-height: 740px; }
+}
+@media screen and (max-height: 800px ) {
+	#zzform textarea	{ max-height: 640px; }
+}
+@media screen and (max-height: 700px ) {
+	#zzform textarea	{ max-height: 540px; }
+}
+@media screen and (max-height: 600px ) {
+	#zzform textarea	{ max-height: 440px; }
+}
+@media screen and (max-height: 500px ) {
+	#zzform textarea	{ max-height: 340px; }
+}
+@media screen and (max-height: 400px ) {
+	#zzform textarea	{ max-height: 240px; }
+}
+
+
 /* WMD Editor */
 
 .wmd-panel li	{ margin: 3px 0 0; }
