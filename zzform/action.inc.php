@@ -449,6 +449,8 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 				zz_upload_cleanup($zz_tab);
 				return zz_return(array($ops, $zz_tab, $validation));
 			}
+			$change = zz_action_function('after_upload', $ops, $zz_tab);
+			list($ops, $zz_tab) = zz_action_change($ops, $zz_tab, $change);
 		}
 		if ($zz_tab[0]['record_action']) {
 			$ops['result'] = 'successful_'.$zz_tab[0][0]['action'];
