@@ -720,7 +720,7 @@ function zz_action_function($type, $ops, $zz_tab) {
 		}
 	}
 	if ($change) {
-		$record_replace = array('upload', 'before_insert', 'before_update');
+		$record_replace = array('before_upload', 'before_insert', 'before_update');
 		if (!in_array($type, $record_replace)) {
 			if (array_key_exists('record_replace', $change)
 				AND !empty($change['record_replace'])) {
