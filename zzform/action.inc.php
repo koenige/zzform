@@ -53,13 +53,13 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
 			if (!is_numeric($rec)) continue;
 			if (!$tab) {  // main record already assigned
-				if (!empty($zz_tab[0]['extra_action']['upload'])) {
+				if (!empty($zz_tab[0]['extra_action']['before_upload'])) {
 					$ops = zz_record_info($ops, $zz_tab, $tab, $rec, 'not_validated');
 				}
 				continue;
 			}
 			$zz_tab[$tab][$rec]['POST'] = $zz_tab[$tab]['POST'][$rec];
-			if (!empty($zz_tab[0]['extra_action']['upload'])) {
+			if (!empty($zz_tab[0]['extra_action']['before_upload'])) {
 				$ops = zz_record_info($ops, $zz_tab, $tab, $rec, 'not_validated');
 			}
 		}
@@ -67,7 +67,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 
 	// get images from different locations than upload
 	// if any other action before insertion/update/delete is required
-	if ($change = zz_action_function('upload', $ops, $zz_tab)) {
+	if ($change = zz_action_function('before_upload', $ops, $zz_tab)) {
 		list($ops, $zz_tab) = zz_action_change($ops, $zz_tab, $change);
 		unset($ops['not_validated']);
 		unset($ops['record_old']);
