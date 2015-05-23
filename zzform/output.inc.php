@@ -1058,7 +1058,7 @@ function zz_output_wmd_editor() {
 	global $zz_conf;
 	
 	if (empty($zz_conf['wmd_editor'])) return '';
-	if ($zz_conf['wmd_editor'] === 1) return '';
+	if ($zz_conf['wmd_editor'] === true) return '';
 	
 	$options = array();
 	if (!empty($zz_conf['wmd_editor_languages'])) {
