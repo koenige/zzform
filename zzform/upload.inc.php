@@ -180,6 +180,9 @@ function zz_upload_config() {
 	$default['upload_remap_type_if_extension']['gpx'] = 'svg';
 	// AI documents can be real PDF documents
 	$default['upload_remap_type_if_extension']['ai'] = 'pdf';
+	// EPS documents are PS documents, they are different
+	// this is a workaround, 'file' will make a differences
+	$default['upload_remap_type_if_extension']['eps'] = 'ps';
 	
 	zz_write_conf($default);
 }
