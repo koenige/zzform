@@ -1209,7 +1209,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	// in case validation fails, these values will be send back to user
-	$my_rec['POST-notvalid'] = $my_rec['POST']; 
+	$my_rec['POST-notvalid'] = $my_rec['POST'];
 	$my_rec['validation'] = true;
 	$my_rec['last_fields'] = array();
 	$my_rec['extra'] = array();
@@ -1285,9 +1285,6 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 
 		// get field type, hidden fields with sub_type will be validated against subtype
 		$type = $field['type'];
-		if ($field['type'] === 'hidden' AND !empty($field['sub_type'])) {
-			$type = $field['sub_type'];
-		}
 		
 	// 	walk through all fields by type
 		switch ($type) {
@@ -1304,6 +1301,10 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			if ($my_rec['POST'][$field_name])
 				$my_rec['POST'][$field_name] = ip2long($my_rec['POST'][$field_name]);
 			break;
+		case 'hidden':
+			// IP fields are transformed because they are binary
+			if (empty($field['type_detail'])) break;
+			if ($field['type_detail'] !== 'ip') break;
 		case 'ip':
 			if ($my_rec['POST'][$field_name]) {
 				$my_rec['POST'][$field_name] = @inet_pton($my_rec['POST'][$field_name]);

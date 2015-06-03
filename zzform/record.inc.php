@@ -1507,11 +1507,16 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 	} elseif ($record) {
 		$value = $record[$field['field_name']];
 	}
-	if (!$display_value) $display_value = $value;
 
 	$text = '';
 	if ($mark_italics) $text .= '<em title="'.zz_text('Would be changed on update').'">';
 	$field_type = zz_get_fieldtype($field);
+	if ($field_type === 'ip') {
+		// binary display will get mangled while transfering
+		$value = @inet_ntop($value);
+	}
+	if (!$display_value) $display_value = $value;
+
 	if ($value AND in_array($field_type, array('number', 'ipv4', 'date', 'datetime', 'time'))) {
 		$text .= zz_field_format($display_value, $field);
 	} elseif ($value AND $field_type === 'select') {
