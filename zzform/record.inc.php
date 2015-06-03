@@ -2046,6 +2046,7 @@ function zz_field_set($field, $fields, $display, $existing) {
 	$outputf = '';
 	foreach ($sets_indexed as $set) {
 		if ($display === 'form') {
+			if (!empty($outputf)) $outputf .= "<br>\n";
 			if (!empty($set['rec_id'])) {
 				$outputf .= sprintf(
 					'<input type="hidden" name="%s[%d][%s]" value="%d">'
@@ -2057,7 +2058,6 @@ function zz_field_set($field, $fields, $display, $existing) {
 					, $field['table_name'], $set['rec_no'], $field_names['select']
 				);
 			}
-			if (!empty($outputf)) $outputf .= "<br>\n";
 			$outputf .= sprintf(
 				'<label for="check-%s-%d">'
 				.'<input type="checkbox" name="%s[%d][%s]" id="check-%s-%d" value="%d"%s>&nbsp;%s'
