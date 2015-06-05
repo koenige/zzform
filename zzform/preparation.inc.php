@@ -104,16 +104,19 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	if (!$zz_var['query_records']) return $zz_tab;
 
 	if (!empty($zz_var['id']['value'])) {
-		$zz_tab[0]['existing'][0] = zz_query_single_record(
+		$zz_tab[0][0]['existing'] = zz_query_single_record(
 			$zz_tab[0]['sql'], $zz_tab[0]['table'], $zz_var['id'], $zz_tab[0]['sqlextra'], $zz_tab[0]['sql_translate']
 		);
 	} elseif (!empty($zz_var['id']['values'])) {
 		$sql = zz_edit_sql($zz_tab[0]['sql'], 'WHERE', $zz_tab[0]['table'].'.'
 			.$zz_var['id']['field_name']." IN ('".implode("','", $zz_var['id']['values'])."')");
-		$zz_tab[0]['existing'] = zz_db_fetch($sql, $zz_var['id']['field_name'], 'numeric');
+		$existing = zz_db_fetch($sql, $zz_var['id']['field_name'], 'numeric');
+		foreach ($existing as $index => $existing_rec) {
+			$zz_tab[0][$index]['existing'] = $existing_rec;
+		}
 		// @todo: think about sqlextra
 	} else {
-		$zz_tab[0]['existing'][0] = array();
+		$zz_tab[0][0]['existing'] = array();
 	}
 
 	// Upload
@@ -122,11 +125,11 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	// or if there is a display or write_once field (so that it can be used
 	// e. g. for identifiers):
 	if ($zz_var['action'] === 'update' OR $zz_var['action'] === 'delete') {
-		if (count($zz_var['save_old_record']) && !empty($zz_tab[0]['existing'][0])) {
+		if (count($zz_var['save_old_record']) && !empty($zz_tab[0][0]['existing'])) {
 			foreach ($zz_var['save_old_record'] as $no) {
-				if (empty($zz_tab[0]['existing'][0][$zz['fields'][$no]['field_name']])) continue;
+				if (empty($zz_tab[0][0]['existing'][$zz['fields'][$no]['field_name']])) continue;
 				$_POST[$zz['fields'][$no]['field_name']] 
-					= $zz_tab[0]['existing'][0][$zz['fields'][$no]['field_name']];
+					= $zz_tab[0][0]['existing'][$zz['fields'][$no]['field_name']];
 			}
 		}
 	}
@@ -150,7 +153,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 
 	// set defaults and values, clean up POST
 	$zz_tab[0][0]['POST'] = zz_check_def_vals(
-		$zz_tab[0][0]['POST'], $zz_tab[0][0]['fields'], $zz_tab[0]['existing'][0],
+		$zz_tab[0][0]['POST'], $zz_tab[0][0]['fields'], $zz_tab[0][0]['existing'],
 		(!empty($zz_var['where'][$zz_tab[0]['table']]) ? $zz_var['where'][$zz_tab[0]['table']] : '')
 	);
 	return $zz_tab;
@@ -381,12 +384,12 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 	// remove records which have been deleted by user interaction
 	if (in_array($state, array('edit', 'delete', 'show'))) {
 		// add: no record exists so far
-		$my_tab['existing'] = zz_query_subrecord(
+		$existing = zz_query_subrecord(
 			$my_tab, $main_tab['table'], $main_tab[0]['id']['value'],
 			$rec_tpl['id']['field_name'], $my_tab['subtable_deleted']
 		);
 	} else {
-		$my_tab['existing'] = array();
+		$existing = array();
 	}
 	if (!empty($zz_error['error'])) return $my_tab;
 	// get detail records for source_id
@@ -414,7 +417,7 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 	// check if we have a sync or so and there's a detail record with
 	// a unique field: get the existing detail record id if there's one
 	if (!empty($zz_conf['multi'])) {
-		$my_tab['POST'] = zz_subrecord_unique($my_tab, $field['fields']);
+		$my_tab['POST'] = zz_subrecord_unique($my_tab, $existing, $field['fields']);
 	}
 
 	if ($my_tab['values'] AND $state !== 'delete') {
@@ -422,8 +425,8 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 		// but not for records which will be deleted anyways
 		$values = zz_values_get_fields($my_tab['values'], $rec_tpl['fields']);
 		// look for matches between values and existing records
-		list($records, $existing_ids, $my_tab['existing'], $values) 
-			= zz_subrecord_values_existing($values, $my_tab['existing']);
+		list($records, $existing_ids, $existing, $values) 
+			= zz_subrecord_values_existing($values, $existing);
 	} elseif ($my_tab['hierarchy']) {
 		list($my_lines, $total_rows) = zz_hierarchy($my_tab['sql'], $my_tab['hierarchy']);
 		$values = array();
@@ -438,21 +441,21 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 		$sql = zz_edit_sql($sql, 'WHERE', $main_tab[0]['id']['field_name']
 			.' = '.$main_tab[0]['id']['value'].' OR ISNULL('.$main_tab[0]['id']['field_name'].')');
 		$records = zz_db_fetch($sql, $my_tab['hierarchy']['id_field_name']);
-		$my_tab['existing'] = array();
+		$existing = array();
 		foreach ($ids as $id) {
 			// sort, could probably done easier by one of PHPs sort functions
-			$my_tab['existing'][$id] = $records[$id];
+			$existing[$id] = $records[$id];
 		}
-		$records = $my_tab['existing'] = array_values($my_tab['existing']);
-		foreach ($my_tab['existing'] as $record) {
+		$records = $existing = array_values($existing);
+		foreach ($existing as $record) {
 			$existing_ids[] = $record[$my_tab['id_field_name']];
 		}
 	} else {
 		$values = array();
 		// saved ids separately for later use
-		$existing_ids = array_keys($my_tab['existing']);
+		$existing_ids = array_keys($existing);
 		// save existing records without IDs as key but numeric
-		$my_tab['existing'] = $records = array_values($my_tab['existing']);
+		$existing = $records = array_values($existing);
 	}
 	
 	$start_new_recs = count($records);
@@ -488,7 +491,7 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 			AND $start_new_recs >= 0) {
 			// this is a new record, append it
 			$key = $start_new_recs;
-			$my_tab['existing'][$key] = array(); // no existing record exists
+			$existing[$key] = array(); // no existing record exists
 			// get source_value key
 			if ($mode === 'add' AND !empty($main_tab[0]['id']['source_value'])) {
 				$my_tab['source_values'][$key] = $source_values[$rec];
@@ -512,14 +515,14 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 	$my_tab['records'] = count($records);
 
 	foreach (array_keys($records) AS $rec) {
-		if (empty($my_tab['POST'][$rec]) AND !empty($my_tab['existing'][$rec])) {
-			$my_tab['POST'][$rec] = $my_tab['existing'][$rec];
+		if (empty($my_tab['POST'][$rec]) AND !empty($existing[$rec])) {
+			$my_tab['POST'][$rec] = $existing[$rec];
 		} elseif (empty($my_tab['POST'][$rec]) AND !empty($records[$rec])) {
 			$my_tab['POST'][$rec] = $records[$rec];
 		}
 		// set values, defaults if forgotten or overwritten
 		$my_tab['POST'][$rec] = zz_check_def_vals(
-			$my_tab['POST'][$rec], $field['fields'], $my_tab['existing'][$rec],
+			$my_tab['POST'][$rec], $field['fields'], $existing[$rec],
 			(!empty($zz_var['where'][$my_tab['table_name']]) 
 				? $zz_var['where'][$my_tab['table_name']] 
 				: ''
@@ -603,6 +606,11 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 		$my_tab['subtable_ids'][] = $my_tab[$rec]['id']['value'];
 	}
 
+	// put $existing into $my_tab
+	foreach ($existing as $index => $existing_rec) {
+		$my_tab[$index]['existing'] = $existing_rec;
+	}
+
 	return $my_tab;
 }
 
@@ -611,11 +619,12 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
  * is defined as unique (only for multi-operations)
  * 
  * @param array $my_tab = $zz_tab[$tab]
+ * @param array $existing
  * @param array $fields = $zz_tab[$tab]['fields'] for a subtable
  * @global array $zz_error
  * @return array $my_tab['POST']
  */
-function zz_subrecord_unique($my_tab, $fields) {
+function zz_subrecord_unique($my_tab, $existing, $fields) {
 	global $zz_error;
 	// check if a GET is set on the foreign key
 	$foreign_key = $my_tab['foreign_key_field_name'];
@@ -632,7 +641,7 @@ function zz_subrecord_unique($my_tab, $fields) {
 		// @todo merge with code for 'unique' on a field level
 
 		foreach ($my_tab['unique'] AS $unique) {
-			if (empty($my_tab['existing'])) continue;
+			if (empty($existing)) continue;
 			// check if there's a foreign key and remove it from unique key
 			foreach ($fields as $field) {
 				if ($field['type'] !== 'foreign_key') continue;
@@ -678,7 +687,7 @@ function zz_subrecord_unique($my_tab, $fields) {
 						$values[$field_name] = reset($field['possible_values']);
 					}
 				}
-				foreach ($my_tab['existing'] as $id => $record_in_db) {
+				foreach ($existing as $id => $record_in_db) {
 					$found = true;
 					foreach ($values as $field_name => $value) {
 						if ($record_in_db[$field_name] != $value) $found = false;
@@ -728,10 +737,10 @@ function zz_subrecord_unique($my_tab, $fields) {
 			$sql = zz_edit_sql(
 				$my_tab['sql'], 'WHERE', $field['field_name'].' = '.$value
 			);
-			$existing = zz_db_fetch($sql, $my_tab['id_field_name']);
-			if (count($existing) === 1) {
-				$my_tab['POST'][$no][$my_tab['id_field_name']] = key($existing); 
-			} elseif (count($existing)) {
+			$existing_recs = zz_db_fetch($sql, $my_tab['id_field_name']);
+			if (count($existing_recs) === 1) {
+				$my_tab['POST'][$no][$my_tab['id_field_name']] = key($existing_recs); 
+			} elseif (count($existing_recs)) {
 				$zz_error[] = array(
 					'msg_dev' => sprintf('Field marked as unique, but '
 						.'value appears more than once in record: %s (SQL %s)',

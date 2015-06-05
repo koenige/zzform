@@ -202,7 +202,7 @@ function zz_upload_config() {
 function zz_upload_thumbnail($ops, $zz_tab, $zz_var) {
 	global $zz_conf;
 
-	if (empty($zz_tab[0]['existing'][0])) {
+	if (empty($zz_tab[0][0]['existing'])) {
 		$ops['error'][] = sprintf('ID %s not found', $zz_var['id']['value']);
 		$zz_conf['int']['http_status'] = 404;
 		return $ops;
@@ -981,7 +981,7 @@ function zz_upload_error_with_file($filename, $file, $return = array()) {
  * @return bool
  */
 function zz_upload_check_recreate($image, $zz_tab) {
-	if (empty($zz_tab[0]['existing'][0])) return false;
+	if (empty($zz_tab[0][0]['existing'])) return false;
 	if (empty($zz_tab[0][0]['POST'])) return false;
 
 	$fields = array();
@@ -993,8 +993,8 @@ function zz_upload_check_recreate($image, $zz_tab) {
 	$recreate = false;
 	foreach ($fields as $field) {
 		if (!array_key_exists($field, $zz_tab[0][0]['POST'])) continue;
-		if (!array_key_exists($field, $zz_tab[0]['existing'][0])) continue;
-		if ($zz_tab[0][0]['POST'][$field] != $zz_tab[0]['existing'][0][$field]) {
+		if (!array_key_exists($field, $zz_tab[0][0]['existing'])) continue;
+		if ($zz_tab[0][0]['POST'][$field] != $zz_tab[0][0]['existing'][$field]) {
 			$recreate = true;
 		}
 	}
@@ -1281,8 +1281,8 @@ function zz_upload_prepare_source_file($image, $my_rec, $zz_tab, $tab, $rec) {
 	if (!empty($image['update_from_source_field_name']) AND !empty($image['update_from_source_value'])) {
 		$where = array();
 		foreach ($image['update_from_source_field_name'] as $index => $field_name) {
-			if (!array_key_exists($image['update_from_source_value'][$index], $zz_tab[$tab]['existing'][$rec])) continue;
-			$field_value = $zz_tab[$tab]['existing'][$rec][$image['update_from_source_value'][$index]];
+			if (!array_key_exists($image['update_from_source_value'][$index], $zz_tab[$tab][$rec]['existing'])) continue;
+			$field_value = $zz_tab[$tab][$rec]['existing'][$image['update_from_source_value'][$index]];
 			if ($field_value) {
 				$where[] = sprintf('(%s != "%s" OR ISNULL(%s))', $field_name, $field_value, $field_name);
 			} else {
@@ -1296,7 +1296,7 @@ function zz_upload_prepare_source_file($image, $my_rec, $zz_tab, $tab, $rec) {
 	$old_record = zz_db_fetch($sql);
 	if (!$old_record) return false;
 
-	$source_tab[$tab]['existing'][$rec] = $old_record;
+	$source_tab[$tab][$rec]['existing'] = $old_record;
 	list($image, $source_filename) = zz_upload_create_source($image, $image['source_path'], $source_tab, $tab, $rec);
 	return array($image, $source_filename);
 }
@@ -1959,7 +1959,7 @@ function zz_upload_action($zz_tab) {
 
 		//	update, only if we have an old record (might sometimes not be the case!)
 			$old_path = ''; // initialize here, will be used later with delete_thumbnail
-			if ($action === 'update' AND !empty($zz_tab[$tab]['existing'][$rec])) {
+			if ($action === 'update' AND !empty($zz_tab[$tab][$rec]['existing'])) {
 				$path = zz_makepath($val['path'], $zz_tab, 'new', 'file', $tab, $rec);
 				$old_path = zz_makepath($val['path'], $zz_tab, 'old', 'file', $tab, $rec);
 				if ($zz_tab[0]['folder']) {

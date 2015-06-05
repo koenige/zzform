@@ -1743,8 +1743,8 @@ function zz_makepath($path, $zz_tab, $record = 'new', $do = false, $tab = 0, $re
 						$my_tab[$rec]['id']['value'], 
 						$my_tab['table'].'.'.$my_tab[$rec]['id']['field_name']);
 			} elseif ($record === 'old') {
-				$content = (!empty($my_tab['existing'][$rec]) 
-					? $my_tab['existing'][$rec][$pvalue] : '');
+				$content = (!empty($my_tab[$rec]['existing']) 
+					? $my_tab[$rec]['existing'][$pvalue] : '');
 			}
 			if ($modes) {
 				$content = zz_make_mode($modes, $content);

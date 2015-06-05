@@ -289,7 +289,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 
 		} elseif ($zz_tab[$tab][$rec]['action'] === 'update') {
 			$update_values = zz_action_equals(
-				$zz_tab[$tab][$rec], isset($zz_tab[$tab]['existing'][$rec]) ? $zz_tab[$tab]['existing'][$rec] : array()
+				$zz_tab[$tab][$rec], isset($zz_tab[$tab][$rec]['existing']) ? $zz_tab[$tab][$rec]['existing'] : array()
 			);
 			if ($update_values) {
 				$me_sql = ' UPDATE '.$me_db.$zz_tab[$tab]['table']
@@ -521,7 +521,7 @@ function zz_action_last_update($zz_tab, $action) {
  * if yes, no update is necessary
  *
  * @param array $my_rec ($zz_tab[$tab][$rec])
- * @param array $existing ($zz_tab[$tab]['existing'][$rec])
+ * @param array $existing ($zz_tab[$tab][$rec]['existing'])
  * @return array $update_values
  */
 function zz_action_equals($my_rec, $existing) {
@@ -1099,9 +1099,9 @@ function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
 	}
 	
 	// set old record
-	if (!empty($zz_tab[$tab]['existing'][$rec])) {
-		$ops['record_old'][$index] = $zz_tab[$tab]['existing'][$rec];
-		$ro = $zz_tab[$tab]['existing'][$rec];
+	if (!empty($zz_tab[$tab][$rec]['existing'])) {
+		$ops['record_old'][$index] = $zz_tab[$tab][$rec]['existing'];
+		$ro = $zz_tab[$tab][$rec]['existing'];
 	} elseif (!empty($zz_tab[$tab][$rec]['id']['value'])) {
 		// get a record that was deleted with JavaScript
 		$ops['record_old'][$index] = zz_query_single_record(
@@ -1395,8 +1395,8 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			break;
 		case 'select':
 			//	check select /// workwork
-			if (!empty($zz_tab[$tab]['existing'][$rec][$field_name])
-				AND $zz_tab[$tab]['existing'][$rec][$field_name] == $my_rec['POST'][$field_name]) {
+			if (!empty($zz_tab[$tab][$rec]['existing'][$field_name])
+				AND $zz_tab[$tab][$rec]['existing'][$field_name] == $my_rec['POST'][$field_name]) {
 				// record did not change, so we do not need to check the select value
 				break;
 			}

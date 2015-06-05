@@ -573,7 +573,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			// don't print out anything if record is empty
 			if (array_key_exists(0, $zz_tab[$sub_tab])) {
 				$fields = $zz_tab[$sub_tab][0]['fields'];
-				$out['td']['content'] .= zz_field_set($field, $fields, $field_display, $zz_tab[$sub_tab]['existing']);
+				$out['td']['content'] .= zz_field_set($field, $fields, $field_display, $zz_tab[$sub_tab]);
 			}
 		} elseif ($field['type'] === 'subtable') {
 			//	Subtable
@@ -2012,10 +2012,10 @@ function zz_field_memo($field, $display, $record) {
  *
  * @param array $fields
  * @param string $display
- * @param array $existing
+ * @param array $my_tab
  * @return string
  */
-function zz_field_set($field, $fields, $display, $existing) {
+function zz_field_set($field, $fields, $display, $my_tab) {
 	foreach ($fields as $index => $my_field) {
 		$field_names[$my_field['type']] = $my_field['field_name'];
 		if ($my_field['type'] === 'select') {
@@ -2039,7 +2039,8 @@ function zz_field_set($field, $fields, $display, $existing) {
 		$sets_indexed[$set[$set_id_field_name]]['title'] = implode(' | ', $title);
 	}
 	$rec_max = 0;
-	foreach ($existing as $rec_no => $rec) {
+	foreach ($my_tab as $rec_no => $rec) {
+		$rec = $rec['existing'];
 		$sets_indexed[$rec[$field_names['select']]]['rec_id'] = $rec[$field_names['id']];
 		$sets_indexed[$rec[$field_names['select']]]['rec_no'] = $rec_no;
 		if ($rec_no > $rec_max) $rec_max = $rec_no;
