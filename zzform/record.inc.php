@@ -146,7 +146,7 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 		}
 	} elseif ($zz_var['action'] OR $action_before_redirect) {	
 	//	action = insert update review: show form with new values
-		if (!$formhead) {
+		if (!$formhead AND $zz_var['action']) {
 			$formhead = zz_text(ucfirst($zz_var['action']).' failed');
 		}
 	} elseif ($ops['mode'] === 'review') {
