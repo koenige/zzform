@@ -1281,8 +1281,8 @@ function zz_upload_prepare_source_file($image, $my_rec, $zz_tab, $tab, $rec) {
 	if (!empty($image['update_from_source_field_name']) AND !empty($image['update_from_source_value'])) {
 		$where = array();
 		foreach ($image['update_from_source_field_name'] as $index => $field_name) {
-			if (!array_key_exists($image['update_from_source_value'][$index], $zz_tab[$tab][$rec]['existing'])) continue;
-			$field_value = $zz_tab[$tab][$rec]['existing'][$image['update_from_source_value'][$index]];
+			if (!array_key_exists($image['update_from_source_value'][$index], $my_rec['existing'])) continue;
+			$field_value = $my_rec['existing'][$image['update_from_source_value'][$index]];
 			if ($field_value) {
 				$where[] = sprintf('(%s != "%s" OR ISNULL(%s))', $field_name, $field_value, $field_name);
 			} else {
@@ -1959,7 +1959,7 @@ function zz_upload_action($zz_tab) {
 
 		//	update, only if we have an old record (might sometimes not be the case!)
 			$old_path = ''; // initialize here, will be used later with delete_thumbnail
-			if ($action === 'update' AND !empty($zz_tab[$tab][$rec]['existing'])) {
+			if ($action === 'update' AND !empty($my_rec['existing'])) {
 				$path = zz_makepath($val['path'], $zz_tab, 'new', 'file', $tab, $rec);
 				$old_path = zz_makepath($val['path'], $zz_tab, 'old', 'file', $tab, $rec);
 				if ($zz_tab[0]['folder']) {
