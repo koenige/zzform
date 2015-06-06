@@ -2041,6 +2041,7 @@ function zz_field_set($field, $fields, $display, $my_tab) {
 	$rec_max = 0;
 	foreach ($my_tab as $rec_no => $rec) {
 		if (!is_numeric($rec_no)) continue;
+		if (empty($rec['existing'])) continue;
 		$rec = $rec['existing'];
 		$sets_indexed[$rec[$field_names['select']]]['rec_id'] = $rec[$field_names['id']];
 		$sets_indexed[$rec[$field_names['select']]]['rec_no'] = $rec_no;
