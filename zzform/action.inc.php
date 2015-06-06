@@ -1306,12 +1306,15 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			if (empty($field['type_detail'])) break;
 			if ($field['type_detail'] !== 'ip') break;
 		case 'ip':
-			if ($my_rec['POST'][$field_name]) {
-				$my_rec['POST'][$field_name] = @inet_pton($my_rec['POST'][$field_name]);
-				if (!$my_rec['POST'][$field_name]) {
-					$my_rec['fields'][$f]['check_validation'] = false;
-					$my_rec['validation'] = false;
-				}
+			if (!$my_rec['POST'][$field_name]) break;
+			if (!empty($my_rec['existing'][$field_name])) {
+				// if it's the same value as in database, ok. it's already in binary form
+				if ($my_rec['existing'][$field_name] === $my_rec['POST'][$field_name]) break;
+			}
+			$my_rec['POST'][$field_name] = @inet_pton($my_rec['POST'][$field_name]);
+			if (!$my_rec['POST'][$field_name]) {
+				$my_rec['fields'][$f]['check_validation'] = false;
+				$my_rec['validation'] = false;
 			}
 			break;			
 		case 'number':
