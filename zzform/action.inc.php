@@ -288,9 +288,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	// ### Update a record ###
 
 		} elseif ($zz_tab[$tab][$rec]['action'] === 'update') {
-			$update_values = zz_action_equals(
-				$zz_tab[$tab][$rec], isset($zz_tab[$tab][$rec]['existing']) ? $zz_tab[$tab][$rec]['existing'] : array()
-			);
+			$update_values = zz_action_equals($zz_tab[$tab][$rec]);
 			if ($update_values) {
 				$me_sql = ' UPDATE '.$me_db.$zz_tab[$tab]['table']
 					.' SET '.implode(', ', $update_values)
@@ -521,10 +519,9 @@ function zz_action_last_update($zz_tab, $action) {
  * if yes, no update is necessary
  *
  * @param array $my_rec ($zz_tab[$tab][$rec])
- * @param array $existing ($zz_tab[$tab][$rec]['existing'])
  * @return array $update_values
  */
-function zz_action_equals($my_rec, $existing) {
+function zz_action_equals($my_rec) {
 	$update_values = array();
 	$equal = true; // old and new record are said to be equal
 
@@ -538,20 +535,20 @@ function zz_action_equals($my_rec, $existing) {
 			$update = true;
 		} elseif (!empty($field['dont_check_on_update'])) {
 			$update = true;
-		} elseif (in_array($field['field_name'], array_keys($my_rec['POST'])) AND $existing) {
+		} elseif (in_array($field['field_name'], array_keys($my_rec['POST'])) AND !empty($my_rec['existing'])) {
 			// ok, we have values which might be compared
 			$update = true;
 			// check difference to existing record
 			$post = $my_rec['POST'][$field['field_name']];
-			if ($field['type'] === 'time' AND strlen($existing[$field['field_name']]) === 5) {
+			if ($field['type'] === 'time' AND strlen($my_rec['existing'][$field['field_name']]) === 5) {
 				// time might be written as 08:00 instead of 08:00:00
-				$existing[$field['field_name']] .= ':00';
+				$my_rec['existing'][$field['field_name']] .= ':00';
 			}
 			if ($field['type'] === 'select' AND !empty($field['set'])) {
 				// to compare it, make array into string
 				if (is_array($post)) $post = implode(',', $post);
 			}
-			if (!isset($existing[$field['field_name']])) {
+			if (!isset($my_rec['existing'][$field['field_name']])) {
 				// it's important to test against the prepared string value
 				// of 'NULL' here, because allowed 0 and '' are already
 				// checked for this
@@ -568,14 +565,14 @@ function zz_action_equals($my_rec, $existing) {
 				// for numbers: 004 = 4, 28.00 = 28
 				if (!is_numeric($post)) {
 					$equal = false;
-				} elseif (!is_numeric($existing[$field['field_name']])) {
+				} elseif (!is_numeric($my_rec['existing'][$field['field_name']])) {
 					$equal = false;
-				} elseif ($post != $existing[$field['field_name']]) {
+				} elseif ($post != $my_rec['existing'][$field['field_name']]) {
 					$equal = false;
 				} else {
 					$update = false;
 				}
-			} elseif ($post.'' !== $existing[$field['field_name']].'') {
+			} elseif ($post.'' !== $my_rec['existing'][$field['field_name']].'') {
 				// we need to append '' here to compare strings and
 				// not numbers (004 != 4)
 				// there's a difference, so we have to send this query
@@ -591,8 +588,7 @@ function zz_action_equals($my_rec, $existing) {
 			// we have an update but no existing record
 			global $zz_error;
 			$zz_error[] = array(
-				'msg_dev' => 'Update without existing record? '
-					.'Record: '.json_encode($my_rec).' <br>Existing: '.json_encode($existing)
+				'msg_dev' => 'Update without existing record? '.'Record: '.json_encode($my_rec)
 			);
 			$update = true;
 		}
