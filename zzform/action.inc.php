@@ -1394,8 +1394,8 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			break;
 		case 'select':
 			//	check select /// workwork
-			if (!empty($zz_tab[$tab][$rec]['existing'][$field_name])
-				AND $zz_tab[$tab][$rec]['existing'][$field_name] == $my_rec['POST'][$field_name]) {
+			if (!empty($my_rec['existing'][$field_name])
+				AND $my_rec['existing'][$field_name] == $my_rec['POST'][$field_name]) {
 				// record did not change, so we do not need to check the select value
 				break;
 			}
