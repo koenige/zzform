@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2013 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2013, 2015 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -217,15 +217,21 @@ function zz_search_field($field, $table, $searchop, $searchword) {
 	case '%LIKE':
 		$collation = zz_db_field_collation('search', $table, $field);
 		if ($collation === NULL) return '';
+		if ($field['type'] === 'datetime') // bug in MySQL 
+			$fieldname = sprintf('DATE_FORMAT(%s, "%%Y-%%m-%%d %%H:%%i:%%s")', $fieldname);
 		return sprintf('%s LIKE %s"%%%s"', $fieldname, $collation, $searchword);
 	case 'LIKE%':
 		$collation = zz_db_field_collation('search', $table, $field);
 		if ($collation === NULL) return '';
+		if ($field['type'] === 'datetime') // bug in MySQL
+			$fieldname = sprintf('DATE_FORMAT(%s, "%%Y-%%m-%%d %%H:%%i:%%s")', $fieldname);
 		return sprintf('%s LIKE %s"%s%%"', $fieldname, $collation, $searchword);
 	case '%LIKE%':
 	default:
 		$collation = zz_db_field_collation('search', $table, $field);
 		if ($collation === NULL) return '';
+		if ($field['type'] === 'datetime') // bug in MySQL
+			$fieldname = sprintf('DATE_FORMAT(%s, "%%Y-%%m-%%d %%H:%%i:%%s")', $fieldname);
 		return sprintf('%s LIKE %s"%%%s%%"', $fieldname, $collation, $searchword);
 	}
 	return '';
