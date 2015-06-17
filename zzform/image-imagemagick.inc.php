@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2006-2014 Gustaf Mossakowski
+ * @copyright Copyright © 2006-2015 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  * @todo
  *	identify -list Format
@@ -107,16 +107,28 @@ function zz_imagick_identify($filename, $file) {
  * @param global $zz_conf
  * @param return $source
  */
-function zz_imagick_check_multipage($source, $filetype) {
+function zz_imagick_check_multipage($source, $filetype, $image) {
 	global $zz_conf;
+
+	if (!in_array($filetype, $zz_conf['upload_multipage_images'])) {
+		return $source;
+	}
+	
 	if (!$filetype) {
 		$filetype = substr($source, strrpos($source, '.') +1);
 	}
-	if (in_array($filetype, $zz_conf['upload_multipage_images'])) {
-		$source .= '['.(!empty($zz_conf['upload_multipage_which'][$filetype])
-			? $zz_conf['upload_multipage_which'][$filetype] : '0')
-			.']'; // convert only first page or top layer
+
+	if (isset($image['source_frame'])) {
+		// here we start with page 1 as 1 not as 0, therefore remove 1
+		$source_frame = $image['source_frame'] - 1;
+	} elseif (!empty($zz_conf['upload_multipage_which'][$filetype])) {
+		$source_frame = $zz_conf['upload_multipage_which'][$filetype];
+	} else {
+		// convert only first page or top layer
+		$source_frame = 0;
 	}
+	
+	$source .= '['.$source_frame.']';
 	return $source;
 }
 
@@ -135,7 +147,7 @@ function zz_image_gray($source, $destination, $dest_extension, $image) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	$filetype = !empty($image['upload']['filetype']) ? $image['upload']['filetype'] : '';
-	$source = zz_imagick_check_multipage($source, $filetype);
+	$source = zz_imagick_check_multipage($source, $filetype, $image);
 	$convert = zz_imagick_convert(
 		'-colorspace gray '.$image['convert_options'],
 		sprintf('"%s" %s:"%s"', $source, $dest_extension, $destination),
@@ -164,7 +176,7 @@ function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
 	$geometry = isset($image['width']) ? $image['width'] : '';
 	$geometry .= isset($image['height']) ? 'x'.$image['height'] : '';
 	$filetype = !empty($image['upload']['filetype']) ? $image['upload']['filetype'] : '';
-	$source = zz_imagick_check_multipage($source, $filetype);
+	$source = zz_imagick_check_multipage($source, $filetype, $image);
 	$convert = zz_imagick_convert(
 		sprintf('-thumbnail %s ', $geometry).$image['convert_options'],
 		sprintf('"%s" %s:"%s"', $source, $dest_extension, $destination),
@@ -198,7 +210,7 @@ function zz_image_webimage($source, $destination, $dest_extension, $image) {
 
 	$convert = false;
 	$filetype = !empty($image['upload']['filetype']) ? $image['upload']['filetype'] : '';
-	$source = zz_imagick_check_multipage($source, $filetype);
+	$source = zz_imagick_check_multipage($source, $filetype, $image);
 	$source_extension = $image['upload']['ext'];
 
 	if (empty($image['convert_options']) 
@@ -292,7 +304,7 @@ function zz_image_crop($source, $destination, $dest_extension, $image) {
 		);
 	}
 	$filetype = !empty($image['upload']['filetype']) ? $image['upload']['filetype'] : '';
-	$source = zz_imagick_check_multipage($source, $filetype);
+	$source = zz_imagick_check_multipage($source, $filetype, $image);
 	$convert = zz_imagick_convert(
 		$options.' '.$image['convert_options'],
 		sprintf('"%s" %s:"%s"', $source, $dest_extension, $destination),
