@@ -91,6 +91,8 @@
 function zz_upload_config() {
 	global $zz_error;
 	global $zz_conf;
+	static $calls;
+	if (!empty($calls)) return; // dont' call this twice;
 
 	$default['backup'] 			= false;	//	backup uploaded files?
 	$default['backup_dir'] 		= $zz_conf['dir'].'/backup';	//	directory where backup will be put into
@@ -185,6 +187,7 @@ function zz_upload_config() {
 	$default['upload_remap_type_if_extension']['eps'] = 'ps';
 	
 	zz_write_conf($default);
+	$calls = 1;
 }
 
 /*	----------------------------------------------	*
