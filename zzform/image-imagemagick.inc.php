@@ -113,21 +113,22 @@ function zz_imagick_check_multipage($source, $filetype, $image) {
 	if (!in_array($filetype, $zz_conf['upload_multipage_images'])) {
 		return $source;
 	}
-	
 	if (!$filetype) {
 		$filetype = substr($source, strrpos($source, '.') +1);
 	}
-
 	if (isset($image['source_frame'])) {
 		// here we start with page 1 as 1 not as 0, therefore remove 1
-		$source_frame = $image['source_frame'] - 1;
+		if (!$image['source_frame']) {
+			$source_frame = 0;
+		} else {
+			$source_frame = $image['source_frame'] - 1;
+		}
 	} elseif (!empty($zz_conf['upload_multipage_which'][$filetype])) {
 		$source_frame = $zz_conf['upload_multipage_which'][$filetype];
 	} else {
 		// convert only first page or top layer
 		$source_frame = 0;
 	}
-	
 	$source .= '['.$source_frame.']';
 	return $source;
 }
