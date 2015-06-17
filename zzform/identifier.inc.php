@@ -198,6 +198,11 @@ function zz_identifier_concat($data, $concat) {
 		$last_concat = $concat['last'];
 		unset($concat['last']);
 	}
+	if (isset($concat['repeat'])) {
+		while (count($data) > count($concat)) {
+			array_unshift($concat, $concat['repeat']);
+		}
+	}
 	foreach ($data as $key => $value) {
 		if (!$value) continue;
 		if ($idf) {
