@@ -1416,6 +1416,11 @@ function zz_upload_merge_options($image, $my_tab, $rec = 0) {
 			} else {
 				$options[$option_value] = array();
 			}
+		} elseif (!empty($image['options_key'][$index])) {
+			// use value of field as option value
+			$options[$option_value] = array(
+				$image['options_key'][$index] => $option_value
+			);
 		} else {
 			// get options from field
 			$options = $my_tab[$rec]['fields'][$no]['options'];
