@@ -222,8 +222,7 @@ function zz_image_webimage($source, $destination, $dest_extension, $image) {
 	} elseif ($source_extension === 'pdf' OR $source_extension === 'eps') {
 		if ($zz_conf['upload_tools']['ghostscript']) {
 			$dest_extension = $zz_conf['upload_destination_filetype'][$source_extension];
-			$convert = zz_imagick_convert(
-				sprintf('-density %s ', $zz_conf['upload_pdf_density']).$image['convert_options'], 
+			$convert = zz_imagick_convert($image['convert_options'], 
 				sprintf('"%s" %s:"%s"', $source, $dest_extension, $destination),
 				$source_extension
 			);
@@ -341,6 +340,10 @@ function zz_imagick_convert($options, $files, $source_extension) {
 		$options .= ' '.$zz_conf['upload_imagick_options_for'][$source_extension];
 	} elseif (!empty($zz_conf['upload_imagick_options'])) {
 		$options .= ' '.$zz_conf['upload_imagick_options'];
+	}
+	if (in_array($source_extension, array('pdf', 'eps', 'ps', 'ai'))
+		AND !strstr($options, ' -density ')) {
+		$options .= sprintf(' -density %s', $zz_conf['upload_pdf_density']);
 	}
 	if ($options) $command .= $options.' ';
 
