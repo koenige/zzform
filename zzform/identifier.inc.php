@@ -69,7 +69,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 		'lowercase' => true, 'slashes' => false, 'replace' => array(),
 		'hash_md5' => false, 'ignore' => array(), 'max_length' => 36,
 		'ignore_this_if' => array(), 'empty' => array(), 'uppercase' => false,
-		'function' => false, 'function_params' => array()
+		'function' => false, 'function_parameter' => false
 	);
 	foreach ($default_configuration as $key => $value) {
 		if (!isset($conf[$key])) $conf[$key] = $value;
@@ -174,10 +174,10 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 		$idf = md5($idf.date('Ymdhis'));
 	}
 	if (!empty($conf['function'])) {
-		if (!empty($conf['function_params'])) {
-			$idf = $conf['function']($idf);
+		if (!empty($conf['function_parameter'])) {
+			$idf = $conf['function']($conf['function_parameter']);
 		} else {
-			$idf = $conf['function']($idf, $conf['function_parameter']);
+			$idf = $conf['function']($idf);
 		}
 	}
 	// ready, last checks
