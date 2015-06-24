@@ -33,6 +33,8 @@
  *			timestamp
  *		array 'replace' (false); key => value; characters in key will be
  *			replaced by value
+ *		'function' (false); name of function that identifier will go through finally
+ *		'function_parameter' (false); single function parameter to pass to function
  * @param array $my_rec		$zz_tab[$tab][$rec]
  * @param string $db_table	Name of Table [dbname.table]
  * @param int $field		Number of field definition
@@ -66,7 +68,8 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 		'forceFilename' => '-', 'concat' => '.', 'exists' => '.',
 		'lowercase' => true, 'slashes' => false, 'replace' => array(),
 		'hash_md5' => false, 'ignore' => array(), 'max_length' => 36,
-		'ignore_this_if' => array(), 'empty' => array(), 'uppercase' => false
+		'ignore_this_if' => array(), 'empty' => array(), 'uppercase' => false,
+		'function' => false, 'function_params' => array()
 	);
 	foreach ($default_configuration as $key => $value) {
 		if (!isset($conf[$key])) $conf[$key] = $value;
@@ -169,6 +172,13 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 	// hash md5?
 	if (!empty($conf['hash_md5'])) {
 		$idf = md5($idf.date('Ymdhis'));
+	}
+	if (!empty($conf['function'])) {
+		if (!empty($conf['function_params'])) {
+			$idf = $conf['function']($idf);
+		} else {
+			$idf = $conf['function']($idf, $conf['function_parameter']);
+		}
 	}
 	// ready, last checks
 	if ($my_rec AND $field AND $db_table) {
