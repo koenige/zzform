@@ -2414,6 +2414,11 @@ function zz_list_ul($list, $rows) {
 		$output .= '</li>'."\n";
 	}
 	$output .= "</ul>\n";
+
+	if ($list['buttons']) {
+		$output .= '<p class="multiple">'.$list['checkbox_all']
+		.'<em>'.zz_text('Selection').':</em> '.$list['buttons'].'</p>';
+	}
 	return $output;
 }
 
