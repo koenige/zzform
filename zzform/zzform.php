@@ -600,6 +600,7 @@ function zz_initialize($mode = false) {
 	$default['multi'] 				= false;		// zzform_multi
 	$default['multi_delete']		= false;
 	$default['multi_edit']			= false;
+	$default['multi_function']		= array();
 	$default['multilang_fieldnames'] = false;	// translate fieldnames via zz_text($fieldname)
 	$default['prefix'] 				= false;	//	prefix for ALL tables like zz_
 	$default['project']				= preg_match('/^[a-zA-Z0-9-\.]+$/', $_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'];

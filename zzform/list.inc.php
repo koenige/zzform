@@ -212,6 +212,9 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				$list['buttons'][] = '<input type="submit" value="'.zz_text('delete').'" name="zz_multiple_delete">';
 			if ($zz_conf['merge'])
 				$list['buttons'][] = '<input type="submit" value="'.zz_text('Merge').'" name="zz_merge">';
+			foreach ($zz_conf['multi_function'] as $index => $mfunction) {
+				$list['buttons'][] = '<input type="submit" value="'.zz_text($mfunction['title']).'" name="zz_multifunction_'.$index.'">';
+			}
 			if ($list['buttons']) {
 				$list['buttons'] = '<input type="hidden" name="zz_action" value="multiple">'.implode(' ', $list['buttons']);
 				$list['checkbox_all'] = '<input type="checkbox" onclick="zz_set_checkboxes(this.checked);">';
@@ -415,7 +418,7 @@ function zz_list_set($zz, $count_rows) {
 		'select_multiple_records' => false
 	), $list);
 	
-	if ($zz_conf['multi_edit'] OR $zz_conf['multi_delete'] OR $zz_conf['merge']) {
+	if ($zz_conf['multi_edit'] OR $zz_conf['multi_delete'] OR $zz_conf['merge'] OR $zz_conf['multi_function']) {
 		if ($count_rows > 1) {
 			$list['select_multiple_records'] = true;
 		}
