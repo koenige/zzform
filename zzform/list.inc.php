@@ -213,7 +213,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			if ($zz_conf['merge'])
 				$list['buttons'][] = '<input type="submit" value="'.zz_text('Merge').'" name="zz_merge">';
 			if ($list['buttons']) {
-				$list['buttons'] = '<input type="hidden" name="zz_action" value="multiple">'.implode(' ', $list['buttons'])
+				$list['buttons'] = '<input type="hidden" name="zz_action" value="multiple">'.implode(' ', $list['buttons']);
 				$list['checkbox_all'] = '<input type="checkbox" onclick="zz_set_checkboxes(this.checked);">';
 			}
 		}
