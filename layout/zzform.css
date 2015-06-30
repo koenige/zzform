@@ -446,6 +446,11 @@ body #zzform .separator hr
 #zzform .kml_description td, #zzform .kml_description th
 					{ padding: .2em .5em .2em 0; }
 
+/* list view (multiple records) */
+
+#zzform ul.data .select_multiple_records
+				{ position: absolute; }
+
 /* highlighting */
 #zzform .negative	{ color: red; }
 /* current record */
