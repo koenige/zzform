@@ -216,6 +216,8 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				$list['buttons'] = '<input type="hidden" name="zz_action" value="multiple">'.implode(' ', $list['buttons']);
 				$list['checkbox_all'] = '<input type="checkbox" onclick="zz_set_checkboxes(this.checked);">';
 			}
+		} else {
+			$list['buttons'] = '';
 		}
 	
 		if ($zz_conf['list_display'] === 'table') {
