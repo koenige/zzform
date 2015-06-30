@@ -2417,7 +2417,7 @@ function zz_list_ul($list, $rows) {
 
 	if ($list['buttons']) {
 		$output .= '<p class="multiple">'.$list['checkbox_all']
-		.'<em>'.zz_text('Selection').':</em> '.$list['buttons'].'</p>';
+		.' <em>'.zz_text('Selection').':</em> '.$list['buttons'].'</p>';
 	}
 	return $output;
 }
