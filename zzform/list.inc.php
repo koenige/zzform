@@ -212,6 +212,10 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				$list['buttons'][] = '<input type="submit" value="'.zz_text('delete').'" name="zz_multiple_delete">';
 			if ($zz_conf['merge'])
 				$list['buttons'][] = '<input type="submit" value="'.zz_text('Merge').'" name="zz_merge">';
+			if ($list['buttons']) {
+				$list['buttons'] = '<input type="hidden" name="zz_action" value="multiple">'.implode(' ', $list['buttons'])
+				$list['checkbox_all'] = '<input type="checkbox" onclick="zz_set_checkboxes(this.checked);">';
+			}
 		}
 	
 		if ($zz_conf['list_display'] === 'table') {
@@ -2288,10 +2292,9 @@ function zz_list_table($list, $rows, $head) {
 			$output .= '</tr>'."\n";
 		}
 		if ($list['buttons']) {
-			$output .= '<tr class="multiple"><td><input type="checkbox" onclick="zz_set_checkboxes(this.checked);"></td>'
+			$output .= '<tr class="multiple"><td>'.$list['checkbox_all'].'</td>'
 			.'<td colspan="'.$columns.'"><em>'.zz_text('Selection').':</em> '
-			.'<input type="hidden" name="zz_action" value="multiple">'
-			.implode(' ', $list['buttons'])
+			.$list['buttons']
 			.'</td></tr>';
 		}
 		$output .= '</tfoot>'."\n";
