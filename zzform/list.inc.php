@@ -205,6 +205,13 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			}
 			$ops['output'] .= sprintf('<form action="%s" method="POST" accept-charset="%s">'."\n",
 				$action_url, $zz_conf['character_set']);
+			$list['buttons'] = array();
+			if ($zz_conf['multi_edit'])
+				$list['buttons'][] = '<input type="submit" value="'.zz_text('edit').'" name="zz_multiple_edit">';
+			if ($zz_conf['multi_delete'])
+				$list['buttons'][] = '<input type="submit" value="'.zz_text('delete').'" name="zz_multiple_delete">';
+			if ($zz_conf['merge'])
+				$list['buttons'][] = '<input type="submit" value="'.zz_text('Merge').'" name="zz_merge">';
 		}
 	
 		if ($zz_conf['list_display'] === 'table') {
@@ -2280,21 +2287,12 @@ function zz_list_table($list, $rows, $head) {
 				$output .= '<td class="editbutton">&nbsp;</td>';
 			$output .= '</tr>'."\n";
 		}
-		if ($list['select_multiple_records']) {
-			$buttons = array();
-			if ($zz_conf['multi_edit'])
-				$buttons[] = '<input type="submit" value="'.zz_text('edit').'" name="zz_multiple_edit">';
-			if ($zz_conf['multi_delete'])
-				$buttons[] = '<input type="submit" value="'.zz_text('delete').'" name="zz_multiple_delete">';
-			if ($zz_conf['merge'])
-				$buttons[] = '<input type="submit" value="'.zz_text('Merge').'" name="zz_merge">';
-			if ($buttons) {
-				$output .= '<tr class="multiple"><td><input type="checkbox" onclick="zz_set_checkboxes(this.checked);"></td>'
-				.'<td colspan="'.$columns.'"><em>'.zz_text('Selection').':</em> '
-				.'<input type="hidden" name="zz_action" value="multiple">'
-				.implode(' ', $buttons)
-				.'</td></tr>';
-			}
+		if ($list['buttons']) {
+			$output .= '<tr class="multiple"><td><input type="checkbox" onclick="zz_set_checkboxes(this.checked);"></td>'
+			.'<td colspan="'.$columns.'"><em>'.zz_text('Selection').':</em> '
+			.'<input type="hidden" name="zz_action" value="multiple">'
+			.implode(' ', $list['buttons'])
+			.'</td></tr>';
 		}
 		$output .= '</tfoot>'."\n";
 	}
