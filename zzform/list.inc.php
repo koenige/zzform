@@ -213,7 +213,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			if ($zz_conf['merge'])
 				$list['buttons'][] = '<input type="submit" value="'.zz_text('Merge').'" name="zz_merge">';
 			foreach ($zz_conf['multi_function'] as $index => $mfunction) {
-				$list['buttons'][] = '<input type="submit" value="'.zz_text($mfunction['title']).'" name="zz_multifunction_'.$index.'">';
+				$list['buttons'][] = '<input type="submit" value="'.zz_text($mfunction['title']).'" name="zz_multifunction['.$index.']">';
 			}
 			if ($list['buttons']) {
 				$list['buttons'] = '<input type="hidden" name="zz_action" value="multiple">'.implode(' ', $list['buttons']);

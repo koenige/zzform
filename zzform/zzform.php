@@ -215,6 +215,14 @@ function zzform($zz) {
 		$ops = zz_output_page($ops, $zz, $zz_var['where_condition']);
 	}
 
+	if (isset($_POST['zz_multifunction'])) {
+		if (file_exists($file = $zz_conf['action_dir'].'/multi.inc.php')) {
+			require_once $file;
+		}
+		$index = key($_POST['zz_multifunction']);
+		$function = $zz_conf['multi_function'][$index]['function'];
+		return $function($_POST['zz_record_id']);
+	}
 	if (isset($_POST['zz_merge'])) {
 		require_once $zz_conf['dir_inc'].'/merge.inc.php';
 		$merge = zz_merge_records($zz);
