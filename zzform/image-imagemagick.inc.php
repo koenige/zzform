@@ -67,7 +67,7 @@ function zz_imagick_identify($filename, $file) {
 
 	$command = zz_imagick_findpath('identify');
 	// always check only first page if it's a multipage file (document, movie etc.)
-	$command .= ' -format "%m %w %h" "'.$filename.'[0]"';
+	$command = sprintf('%s -format "%%m %%w %%h %%[colorspace]" "%s[0]"', $command, $filename);
 	zz_upload_exec($command, 'ImageMagick identify', $output, $return_var);
 	if (!$output) return zz_return($file);
 	if ($zz_conf['modules']['debug']) zz_debug('identify output', json_encode($output));
@@ -86,9 +86,12 @@ function zz_imagick_identify($filename, $file) {
 	$tokens = explode(' ', $result);
 	$file['filetype'] = strtolower($tokens[0]);
 
-	if (count($tokens) == 3) {
+	if (count($tokens) >= 3) {
 		$file['width'] = $tokens[1];
 		$file['height'] = $tokens[2];
+		if (count($tokens) === 4) {
+			$file['colorspace'] = $tokens[3];
+		}
 	}
 	if (empty($file['ext'])) {
 		if (isset($file['name'])) {
