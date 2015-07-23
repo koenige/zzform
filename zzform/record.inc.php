@@ -730,6 +730,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			}
 		} else {
 			//	"Normal" field
+			$hidden_element = '';
 
 			// write values into record, if detail record entry shall be preset
 			if (!empty($zz_tab[$tab]['values'][$table_count][$fieldkey])) {
@@ -863,7 +864,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					$field['value'] = $my_where_fields[$field['field_name']];
 				}
 
-				$outputf = zz_field_hidden($field, $my_rec['record'], $my_rec['record_saved'], $mode);
+				list($outputf, $hidden_element) = zz_field_hidden($field, $my_rec['record'], $my_rec['record_saved'], $mode);
 				if (!empty($zz_error['error'])) {
 					zz_error();
 					return zz_return(false);
@@ -998,12 +999,12 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					.(!empty($field['add_details_target']) ? ' target="'.$field['add_details_target'].'"' : '')
 					.' id="zz_add_details_'.$tab.'_'.$rec.'_'.$fieldkey.'">['.zz_text('new').' &hellip;]</a>';
 			}
-			if (($outputf OR $outputf === '0') AND $outputf !== ' ') {
+			if (trim($outputf) OR $outputf === '0') {
 				if (isset($field['prefix'])) $out['td']['content'] .= $field['prefix'];
 				if (!empty($field['use_as_label'])) {
 					$outputf = '<label for="zz_tick_'.$tab.'_'.$rec.'">'.$outputf.'</label>';
 				}
-				$out['td']['content'] .= $outputf;
+				$out['td']['content'] .= $outputf.$hidden_element;
 				if (isset($field['suffix'])) $out['td']['content'] .= $field['suffix'];
 				else $out['td']['content'] .= ' ';
 				if ($field_display === 'form') if (isset($field['suffix_function'])) {
@@ -1017,7 +1018,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					$out['td']['content'] .= $field['suffix_function']($vars);
 				}
 			} else {
-				$out['td']['content'] .= $outputf;
+				$out['td']['content'] .= $outputf.$hidden_element;
 			}
 			if (!empty($close_span)) $out['td']['content'] .= '</span>';
 			if ($zz_conf['int']['append_next_type'] === 'list' && $field_display === 'form') {
@@ -1474,6 +1475,17 @@ function zz_record_js($field) {
  */
 
 /**
+ * show text 'add automatically' or not
+ *
+ * @param array $field
+ * @return string
+ */
+function zz_field_will_add_auto($field) {
+	if (!empty($field['hide_auto_add_msg'])) return '';
+	return '('.zz_text('will_be_added_automatically').')&nbsp;';
+}
+
+/**
  * record output of field type 'id'
  *
  * @param array $field
@@ -1481,7 +1493,7 @@ function zz_record_js($field) {
  * @return string
  */
 function zz_field_id($field, $id_value) {
-	if (!$id_value) return '('.zz_text('will_be_added_automatically').')&nbsp;';
+	if (!$id_value) return zz_field_will_add_auto($field);
 	return zz_form_element($field['f_field_name'], $id_value, 'hidden', true).$id_value;
 }
 
@@ -1492,7 +1504,9 @@ function zz_field_id($field, $id_value) {
  * @param array $record
  * @param array $record_saved
  * @param string $mode
- * @return string
+ * @return array
+ *		string some value if any
+ *		string hidden element
  */
 function zz_field_hidden($field, $record, $record_saved, $mode) {
 	$value = '';
@@ -1544,7 +1558,7 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 					, '<strong>'.$field['title'].'</strong>')
 					.' (ID: '.zz_html_escape($value).')';
 				$zz_error['error'] = true;
-				return false;
+				return array('', '');
 			}
 		} elseif (isset($field['enum'])) {
 			$text .= $display_value;
@@ -1560,7 +1574,7 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 			else {
 				if (empty($field['append_next']))
 					if (!empty($field['value'])) $text .= $field['value'];
-					else $text .= '('.zz_text('will_be_added_automatically').')';
+					else $text .= zz_field_will_add_auto($field);
 			}
 		} else {
 			if (!empty($display_value)) {
@@ -1570,20 +1584,20 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 			} else {
 				if (empty($field['append_next']))
 					if (!empty($field['value'])) $text .= $field['value'];
-					else $text .= '('.zz_text('will_be_added_automatically').')';
+					else $text .= zz_field_will_add_auto($field);
 			}
 		}
 	} else {
 		if ($display_value) {
 			if ($field_type === 'select')
-				$text .= '('.zz_text('will_be_added_automatically').')&nbsp;';
+				$text .= zz_field_will_add_auto($field);
 			else
 				$text .= $display_value;
-		} else $text .= '('.zz_text('will_be_added_automatically').')&nbsp;';
+		} else $text .= zz_field_will_add_auto($field);
 	}
 	if ($mark_italics) $text .= '</em>';
-	$text .= zz_form_element($field['f_field_name'], $value, 'hidden', true);
-	return $text;
+	$hidden = zz_form_element($field['f_field_name'], $value, 'hidden', true);
+	return array($text, $hidden);
 }
 
 /**
@@ -1608,7 +1622,7 @@ function zz_field_timestamp($field, $record, $mode) {
 			.zz_timestamp_format($record[$field['field_name']])
 			.($mode !== 'delete' ? '</em>' : '');
 	} else {
-		$text .= '('.zz_text('will_be_added_automatically').')&nbsp;';
+		$text .= zz_field_will_add_auto($field);
 	}
 	return $text;
 }
@@ -1629,7 +1643,7 @@ function zz_field_unix_timestamp($field, $display, $record) {
 			$text = $field['value'];
 		}
 		if (!$record) 
-			$text .= '('.zz_text('will_be_added_automatically').')&nbsp;';
+			$text .= zz_field_will_add_auto($field);
 		return $text;
 	}
 
