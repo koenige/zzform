@@ -329,14 +329,15 @@ function zz_imagick_convert($options, $files, $source_extension) {
 
 	$command = zz_imagick_findpath('convert');
 
+	if (empty($zz_conf['upload_imagick_options_no_defaults'][$source_extension])) {
+		if (!empty($zz_conf['file_types'][$source_extension]['convert'])) {
+			$options .= ' '.implode(' ', $zz_conf['file_types'][$source_extension]['convert']);
+		}
+	}
 	if (!empty($zz_conf['upload_imagick_options_for'][$source_extension])) {
 		$options .= ' '.$zz_conf['upload_imagick_options_for'][$source_extension];
 	} elseif (!empty($zz_conf['upload_imagick_options'])) {
 		$options .= ' '.$zz_conf['upload_imagick_options'];
-	}
-	if (in_array($source_extension, array('pdf', 'eps', 'ps', 'ai'))
-		AND !strstr($options, ' -density ')) {
-		$options .= sprintf(' -density %s', $zz_conf['upload_pdf_density']);
 	}
 	if ($options) $command .= $options.' ';
 

@@ -151,9 +151,6 @@ function zz_upload_config() {
 	// extensions for images that the browser can display natively
 	$default['webimages_by_extension'] = array('jpg', 'jpeg', 'gif', 'png');
 
-	// dpi in which pdf will be rasterized
-	$default['upload_pdf_density'] = '300x300';
-
 	// generate thumbnails in a background process?
 	$default['upload_background_thumbnails'] = false;
 
