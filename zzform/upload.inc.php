@@ -1833,9 +1833,11 @@ function zz_val_get_from_upload($field, $images, $post) {
 			if (substr_count($myval, '/') === 1) {
 				// count: dates might also be written 2004/12/31
 				$vals = explode('/', $myval);
-				$myval = array_shift($vals);
-				foreach ($vals as $val) {
-					$myval /= $val;
+				if (is_numeric($vals[0]) AND is_numeric($vals[1])) {
+					$myval = array_shift($vals);
+					foreach ($vals as $val) {
+						$myval /= $val;
+					}
 				}
 			}
 		}
