@@ -2127,6 +2127,9 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 		return zz_return($outputf);
 	}
 
+	// translate values?
+	$lines = zz_translate($field, $lines);
+
 // #1.2 SELECT has only one result in the array, and this will be pre-selected 
 // because FIELD must not be NULL
 	if ($display === 'form' AND count($lines) === 1 
