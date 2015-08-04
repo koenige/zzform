@@ -2156,6 +2156,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 
 	$id_field_name = zz_field_get_id_field_name($lines);
 	$detail_record = zz_field_select_get_record($field, $record, $id_field_name);
+	$detail_record = zz_translate($field, $detail_record);
 
 	// 1.3.1: no form display = no selection, just display the values in the record
 	if ($display !== 'form') {
