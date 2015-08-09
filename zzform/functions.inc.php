@@ -906,7 +906,6 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 				$mode
 			);
 		}
-		$fields[$no]['required'] = zz_fill_out_required($fields[$no], $db_table);
 
 		if (in_array($mode, array('add', 'edit')) OR in_array($mode, array('insert', 'update'))) {
 			if (!isset($fields[$no]['maxlength']) && isset($fields[$no]['field_name'])) {
@@ -917,6 +916,9 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			} else {
 				$fields[$no]['maxlength'] = 32;
 			}
+			$fields[$no]['required'] = zz_fill_out_required($fields[$no], $db_table);
+		} else {
+			if (!isset($fields[$no]['required'])) $fields[$no]['required'] = false;
 		}
 	}
 	$defs[$hash] = $fields;
