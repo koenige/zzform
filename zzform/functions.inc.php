@@ -804,7 +804,7 @@ function zz_write_onces($zz, $zz_var) {
  * @param string $mode (optional, $ops['mode'])
  * @return array $fields
  */
-function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false) {
+function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false, $action = false) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) {
 		zz_debug('start', __FUNCTION__.$multiple_times);
@@ -885,17 +885,6 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false)
 			$fields[$no]['explanation'] = false;
 		}
 		if (!$multiple_times) {
-			if (!isset($fields[$no]['maxlength']) 
-				&& isset($fields[$no]['field_name'])
-				AND $mode !== 'list_only' AND $mode !== 'show') 
-			{
-				// no need to check maxlength in list view only 
-				$fields[$no]['maxlength'] = zz_db_field_maxlength(
-					$fields[$no]['field_name'], $fields[$no]['type'], $db_table
-				);
-			} else {
-				$fields[$no]['maxlength'] = 32;
-			}
 			if (!empty($fields[$no]['sql'])) // replace whitespace with space
 				$fields[$no]['sql'] = preg_replace("/\s+/", " ", $fields[$no]['sql']);
 		}
@@ -918,6 +907,17 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false)
 			);
 		}
 		$fields[$no]['required'] = zz_fill_out_required($fields[$no], $db_table);
+
+		if (in_array($mode, array('add', 'edit')) OR in_array($mode, array('insert', 'update'))) {
+			if (!isset($fields[$no]['maxlength']) && isset($fields[$no]['field_name'])) {
+				// no need to check maxlength in list view only 
+				$fields[$no]['maxlength'] = zz_db_field_maxlength(
+					$fields[$no]['field_name'], $fields[$no]['type'], $db_table
+				);
+			} else {
+				$fields[$no]['maxlength'] = 32;
+			}
+		}
 	}
 	$defs[$hash] = $fields;
 	return zz_return($fields);

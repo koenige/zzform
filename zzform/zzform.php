@@ -206,7 +206,7 @@ function zzform($zz) {
 
 	// now we have the correct field definitions	
 	// set type, title etc. where unset
-	$zz['fields'] = zz_fill_out($zz['fields'], $zz_conf['db_name'].'.'.$zz['table'], false, $ops['mode']); 
+	$zz['fields'] = zz_fill_out($zz['fields'], $zz_conf['db_name'].'.'.$zz['table'], false, $ops['mode'], $zz_var['action']); 
 
 	zz_trigger_error_too_big();
 	zz_error();	// @todo check if this can go into zz_trigger_error_too_big()
