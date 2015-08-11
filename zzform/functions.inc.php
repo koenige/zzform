@@ -918,6 +918,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			}
 			$fields[$no]['required'] = zz_fill_out_required($fields[$no], $db_table);
 		} else {
+			if (!isset($fields[$no]['maxlength'])) $fields[$no]['maxlength'] = 0;
 			if (!isset($fields[$no]['required'])) $fields[$no]['required'] = false;
 		}
 	}
