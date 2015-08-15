@@ -403,6 +403,10 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 		// get rid of foreign_keys and ids
 		foreach ($my_tab['POST'] as $post_id => &$post_field) {
 			foreach ($rec_tpl['fields'] AS $my_field) {
+				if (!empty($my_field['dont_copy'])) {
+					$post_field[$my_field['field_name']] = '';
+					continue;
+				}
 				if (empty($my_field['type'])) continue;
 				if ($my_field['type'] === 'id') {
 					$source_values[$post_id] = $post_field[$my_field['field_name']];
