@@ -1092,6 +1092,10 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
 			}
 			// remove some values which cannot be copied
 			foreach ($my_rec['fields'] as $my_field) {
+				if (!empty($my_field['dont_copy'])) {
+					$my_rec['record'][$my_field['field_name']] = false;
+					continue;
+				}
 				if (empty($my_field['type'])) continue;
 				// identifier must be created from scratch
 				if ($my_field['type'] === 'identifier')
