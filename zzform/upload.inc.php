@@ -608,6 +608,9 @@ function zz_upload_fileinfo($file, $extension = false) {
 			zz_debug($function_name."()", $type.': '.json_encode($file));
 		}
 	}
+	// change extension to default extension of filetype
+	$file['ext'] = $zz_conf['file_types'][$file['filetype']]['extension'][0];
+
 	if (!empty($file['warnings'])) {
 		foreach ($file['warnings'] as $function => $warnings) {
 			$zz_error[] = array(
