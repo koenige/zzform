@@ -549,6 +549,14 @@ function zz_conditions_subrecord($zz_tab, $zz_conditions) {
 					);
 				}
 			}
+			if (empty($zz_tab[$tab][$rec]['fields'])) {
+				if (empty($zz_tab[$tab][$rec]['existing']) AND isset($zz_tab[$tab][$rec]['existing'])) {
+					// leftovers, @todo make them not appear in first case
+					unset($zz_tab[$tab][$rec]['existing']);
+				}
+				if (empty($zz_tab[$tab][$rec])) unset($zz_tab[$tab][$rec]);
+				continue;
+			}
 			foreach (array_keys($zz_tab[$tab][$rec]['fields']) as $sub_no) {
 				zz_conditions_merge_field(
 					$zz_tab[$tab][$rec]['fields'][$sub_no],
