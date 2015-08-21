@@ -329,16 +329,19 @@ function zz_imagick_convert($options, $files, $source_extension) {
 
 	$command = zz_imagick_findpath('convert');
 
+	$ext_options = '';
 	if (empty($zz_conf['upload_imagick_options_no_defaults'][$source_extension])) {
 		if (!empty($zz_conf['file_types'][$source_extension]['convert'])) {
-			$options .= ' '.implode(' ', $zz_conf['file_types'][$source_extension]['convert']);
+			$ext_options .= ' '.implode(' ', $zz_conf['file_types'][$source_extension]['convert']);
 		}
 	}
 	if (!empty($zz_conf['upload_imagick_options_for'][$source_extension])) {
-		$options .= ' '.$zz_conf['upload_imagick_options_for'][$source_extension];
+		$ext_options .= ' '.$zz_conf['upload_imagick_options_for'][$source_extension];
 	} elseif (!empty($zz_conf['upload_imagick_options'])) {
-		$options .= ' '.$zz_conf['upload_imagick_options'];
+		$ext_options .= ' '.$zz_conf['upload_imagick_options'];
 	}
+	// first extra options like auto-orient, then other options by script
+	if ($ext_options) $command .= $ext_options.' ';
 	if ($options) $command .= $options.' ';
 
 	$command .= ' '.$files.' ';
