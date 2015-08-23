@@ -930,7 +930,7 @@ function zz_db_error($errno) {
 		*/
 		break;
 	default:
-		$msg = zz_text('database-error');
+		$msg = zz_text('Database error');
 	}
 	return $msg;
 }

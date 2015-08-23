@@ -227,7 +227,7 @@ $text['search'] = 'suche';// Button
 
 $text['Warning!'] = 'Achtung!';
 $text['incorrect value'] = 'falscher Wert';
-$text['database-error'] = 'Datenbankfehler';
+$text['Database error'] = 'Datenbankfehler';
 	$text['An error occured. We are working on the solution of this problem. Sorry for your inconvenience. Please try again later.'] = 'Ein Fehler ist aufgetreten. Wir arbeiten an der Lösung des Problems. Bitte entschuldigen Sie die Unannehmlichkeiten. Versuchen Sie es bitte später nocheinmal.';
 
 

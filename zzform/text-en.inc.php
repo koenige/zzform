@@ -176,7 +176,7 @@ $text['search'] = 'search'; // Button
 
 $text['Warning!'] = 'Attention!';
 $text['incorrect value'] = 'incorrect value';
-$text['database-error'] = 'Database error';
+$text['Database error'] = 'Database error';
 
 
 // ----------------------------------------------------------------------------

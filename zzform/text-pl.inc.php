@@ -183,7 +183,7 @@ $text['search'] = 'Szukaj'; // Button
 
 $text['Warning!'] = 'Ostrzeżenie!';
 	$text['incorrect value'] = 'incorrect value';
-$text['database-error'] = 'Błąd bazy danych';
+$text['Database error'] = 'Błąd bazy danych';
 
 
 // ----------------------------------------------------------------------------

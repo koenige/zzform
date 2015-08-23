@@ -193,7 +193,7 @@ $text['search'] = 'hledat'; // Button
 
 $text['Warning!'] = 'Varování!';
 //	$text['incorrect value'] = 'incorrect value';
-$text['database-error'] = 'Chyba databáze';
+$text['Database error'] = 'Chyba databáze';
 //	$text['An error occured. We are working on the solution of this problem. Sorry for your inconvenience. Please try again later.'] = 'Ein Fehler ist aufgetreten. Wir arbeiten an der L&ouml;sung des Problems. Bitte entschuldigen Sie die Unannehmlichkeiten. Versuchen Sie es bitte sp&auml;ter nocheinmal.';
 
 
