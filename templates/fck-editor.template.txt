@@ -33,7 +33,7 @@
 		statusbar: false,
 		menubar: false,
 
-		content_css : "%%% page layout_path %%%/markdown/markdown.css",
+		content_css : "%%% page layout_path %%%/zzform/fck-editor.css",
 		init_instance_callback : function(editor) {
 		},
 		setup: function(editor) {
@@ -53,6 +53,43 @@
 	$('#markdown-%%% item no %%%').on('keyup', function() {
 		tinyMCE.get('wysiwyg-%%% item no %%%').setContent(marked($('#markdown-%%% item no %%%').val()));
 	});
+	
+	// Toggle
+	// <p class="explanation">WYSIWYG view | HTML + Markdown view</p>
+	var my_markdown_%%% item no %%% = document.getElementById('markdown-%%% item no %%%');
+	my_markdown_%%% item no %%%.parentNode.style = 'display: none';
+	var my_wysiwyg_%%% item no %%% = document.getElementById('wysiwyg-%%% item no %%%');
+
+	var para = document.createElement('p');
+	para.className = "explanation";
+	var link = document.createElement('a');
+	link.href = "#";
+	link.onclick = function() { 
+		this.parentNode.parentNode.style = 'display: none;';
+		my_markdown_%%% item no %%%.parentNode.style = 'display: block';
+		return false;
+	};
+	para.appendChild(link);
+	var node = document.createTextNode('WYSIWYG view. Toggle for Markdown view.');
+	link.appendChild(node);
+
+	my_wysiwyg_%%% item no %%%.parentNode.appendChild(para);
+
+	para = document.createElement('p');
+	para.className = "explanation";
+	link = document.createElement('a');
+	link.href = "#";
+	link.onclick = function() { 
+		this.parentNode.parentNode.style = 'display: none;';
+		my_wysiwyg_%%% item no %%%.parentNode.style = 'display: block';
+		return false;
+	};
+	para.appendChild(link);
+	var node = document.createTextNode('Markdown view. Toggle for WYSIWYG view.');
+	link.appendChild(node);
+
+	my_markdown_%%% item no %%%.parentNode.appendChild(para);
+
 
 %%% loop end %%%
 </script>

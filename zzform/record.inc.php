@@ -2027,9 +2027,9 @@ function zz_field_memo($field, $display, $record) {
 		AND !empty($zz_conf['fck_editor'])) {
 		if ($zz_conf['fck_editor'] === true) $zz_conf['fck_editor'] = 1;
 		$text = sprintf(
-			'<textarea id="wysiwyg-%d" rows="%d" class="fck-wysiwyg" cols="%d"></textarea>',
-			$zz_conf['fck_editor'], $fieldattr['rows'], $fieldattr['cols']
-		)."\n".$text;
+			'<div id="fck-wysiwyg-%d"><textarea id="wysiwyg-%d" rows="%d" class="fck-wysiwyg" cols="%d"></textarea></div>',
+			$zz_conf['fck_editor'], $zz_conf['fck_editor'], $fieldattr['rows'], $fieldattr['cols']
+		)."\n".'<div id="fck-markdown-%d">'.$text.'</div>';
 		$zz_conf['fck_editor']++;
 	}
 	return $text;
