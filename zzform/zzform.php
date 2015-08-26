@@ -354,7 +354,7 @@ function zzform($zz) {
 	}
 	if ($ops['mode'] !== 'export') {
 		$ops['output'] .= zz_output_wmd_editor();
-		$ops['output'] .= zz_output_fck_editor();
+		$ops['output'] .= zz_output_upndown_editor();
 	}
 	return zzform_exit($ops);
 }

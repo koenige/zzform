@@ -1,5 +1,5 @@
 # Zugzwang Project
-# FCK Editor with upndown support
+# TinyMCE Editor with upndown support
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
 # @copyright Copyright © 2015 Gustaf Mossakowski
@@ -33,7 +33,7 @@
 		statusbar: false,
 		menubar: false,
 
-		content_css : "%%% page layout_path %%%/zzform/fck-editor.css",
+		content_css : "%%% page layout_path %%%/zzform/upndown-editor.css",
 		init_instance_callback : function(editor) {
 		},
 		setup: function(editor) {

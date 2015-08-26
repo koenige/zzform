@@ -1082,22 +1082,22 @@ function zz_output_wmd_editor() {
 }
 
 /**
- * Output upndown with fck editor
+ * Output upndown with TinyMCE editor
  *
  * @global array $zz_conf
  * @return string HTML code for JavaScript
  */
-function zz_output_fck_editor() {
+function zz_output_upndown_editor() {
 	global $zz_conf;
 	global $zz_setting;
 
-	if (empty($zz_conf['fck_editor'])) return '';
-	if ($zz_conf['fck_editor'] === true) return '';
+	if (empty($zz_conf['upndown_editor'])) return '';
+	if ($zz_conf['upndown_editor'] === true) return '';
 
-	for ($i = 1; $i <= $zz_conf['fck_editor']; $i++) {
+	for ($i = 1; $i <= $zz_conf['upndown_editor']; $i++) {
 		$data[$i]['no'] = $i;
 	}
 
-	$output = wrap_template('fck-editor', $data);
+	$output = wrap_template('upndown-editor', $data);
 	return $output;
 }
