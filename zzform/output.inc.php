@@ -1080,3 +1080,24 @@ function zz_output_wmd_editor() {
 	$output .= '</script>'."\n";
 	return $output;	
 }
+
+/**
+ * Output upndown with fck editor
+ *
+ * @global array $zz_conf
+ * @return string HTML code for JavaScript
+ */
+function zz_output_fck_editor() {
+	global $zz_conf;
+	global $zz_setting;
+
+	if (empty($zz_conf['fck_editor'])) return '';
+	if ($zz_conf['fck_editor'] === true) return '';
+
+	for ($i = 1; $i <= $zz_conf['fck_editor']; $i++) {
+		$data[$i]['no'] = $i;
+	}
+
+	$output = wrap_template('fck-editor', $data);
+	return $output;
+}

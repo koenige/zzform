@@ -1,0 +1,58 @@
+# Zugzwang Project
+# FCK Editor with upndown support
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2015 Gustaf Mossakowski
+#
+#
+<script src="%%% page behaviour_path %%%/jquery/jquery-1.10.2.js"></script>
+<script src="%%% page behaviour_path %%%/htmlparser/htmlparser.js"></script>
+<script src="%%% page behaviour_path %%%/upndown/upndown.bundle.min.js"></script>
+<script src="%%% page behaviour_path %%%/marked/marked.js"></script>
+<script src="%%% page behaviour_path %%%/tinymce/tinymce.min.js"></script>
+<script type="text/javascript">
+
+%%% loop start %%%
+	// Intialize wysiwig editor with converted markdown source
+	$('#wysiwyg-%%% item no %%%').val(marked($('#markdown-%%% item no %%%').val()));
+
+	var und%%% item no %%% = new upndown();
+
+	// Initialize wysiwyg editor
+	var editor%%% item no %%% = tinymce.init({
+		selector: '#wysiwyg-%%% item no %%%',
+		resize: false,
+		schema: "html5-strict",
+		fix_list_elements : true,
+		keep_styles: false, // always use "default" style when creating a new paragraph
+		plugins: "lists,paste,link,searchreplace,hr",
+
+		toolbar: "undo redo | formatselect | bold italic | bullist numlist outdent indent | link hr blockquote",
+
+		invalid_elements : "span",
+		statusbar: false,
+		menubar: false,
+
+		content_css : "%%% page layout_path %%%/markdown/markdown.css",
+		init_instance_callback : function(editor) {
+		},
+		setup: function(editor) {
+
+			var onChange = function() {
+				und%%% item no %%%.convert(editor.getContent(), function(err, markdown) {
+					$('#markdown-%%% item no %%%').val(markdown);
+				}, { keepHtml: false });
+			};
+
+			editor.on('keyup', onChange);
+			editor.on('change', onChange);
+		}
+	});
+
+	// Initialize markdown source editor
+	$('#markdown-%%% item no %%%').on('keyup', function() {
+		tinyMCE.get('wysiwyg-%%% item no %%%').setContent(marked($('#markdown-%%% item no %%%').val()));
+	});
+
+%%% loop end %%%
+</script>

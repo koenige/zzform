@@ -2010,6 +2010,11 @@ function zz_field_memo($field, $display, $record) {
 		$fieldattr['class'] = 'wmd-input';
 		$fieldattr['id'] = 'wmd-input-'.$zz_conf['wmd_editor'];
 	}
+	if (!empty($field['format']) AND $field['format'] === 'markdown'
+		AND !empty($zz_conf['fck_editor'])) {
+		$fieldattr['class'] = 'markdown';
+		$fieldattr['id'] = 'markdown-'.$zz_conf['fck_editor'];
+	}
 	$text = zz_form_element($field['f_field_name'], $value, 'textarea', true, $fieldattr);
 	if (!empty($field['format']) AND $field['format'] === 'markdown'
 		AND !empty($zz_conf['wmd_editor'])) {
@@ -2017,6 +2022,15 @@ function zz_field_memo($field, $display, $record) {
 			.$text.'</div>'."\n";
 		if ($zz_conf['wmd_editor'] === true) $zz_conf['wmd_editor'] = 1;
 		$zz_conf['wmd_editor']++;
+	}
+	if (!empty($field['format']) AND $field['format'] === 'markdown'
+		AND !empty($zz_conf['fck_editor'])) {
+		if ($zz_conf['fck_editor'] === true) $zz_conf['fck_editor'] = 1;
+		$text = sprintf(
+			'<textarea id="wysiwyg-%d" rows="%d" class="fck-wysiwyg" cols="%d"></textarea>',
+			$zz_conf['fck_editor'], $fieldattr['rows'], $fieldattr['cols']
+		)."\n".$text;
+		$zz_conf['fck_editor']++;
 	}
 	return $text;
 }
