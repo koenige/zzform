@@ -1353,8 +1353,11 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 	$row['text'] .= $text;
 	if ($link) $row['text'] .= '</a>';
 
-	if (isset($field['unit'])) 
-		$row['text'] .= '&nbsp;'.$field['unit'];	
+	if (isset($field['list_unit'])) {
+		$row['text'] .= '&nbsp;'.$field['list_unit'];
+	} elseif (isset($field['unit'])) {
+		$row['text'] .= '&nbsp;'.$field['unit'];
+	}
 	if (!empty($field['list_suffix'])) {
 		$row['text'] .= zz_text($field['list_suffix']);
 	}
