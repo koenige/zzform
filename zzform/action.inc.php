@@ -290,10 +290,13 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		} elseif ($zz_tab[$tab][$rec]['action'] === 'update') {
 			$update_values = zz_action_equals($zz_tab[$tab][$rec]);
 			if ($update_values) {
-				$me_sql = ' UPDATE '.$me_db.$zz_tab[$tab]['table']
-					.' SET '.implode(', ', $update_values)
-					.' WHERE '.$zz_tab[$tab][$rec]['id']['field_name']
-					.' = "'.$zz_tab[$tab][$rec]['id']['value'].'"';
+				$me_sql = sprintf(
+					' UPDATE %s SET %s WHERE %s = %d'
+					, $me_db.$zz_tab[$tab]['table']
+					, implode(', ', $update_values)
+					, $zz_tab[$tab][$rec]['id']['field_name']
+					, $zz_tab[$tab][$rec]['id']['value']
+				);
 			} else {
 				$me_sql = 'SELECT 1'; // nothing to update, just detail records
 			}
@@ -303,15 +306,20 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		} elseif ($zz_tab[$tab][$rec]['action'] === 'delete') {
 			// no POST_db, because here, validation is not necessary
 			if (is_array($zz_tab[$tab][$rec]['id']['value'])) {
-				$me_sql = ' DELETE FROM '.$me_db.$zz_tab[$tab]['table']
-					.' WHERE '.$zz_tab[$tab][$rec]['id']['field_name']." IN ("
-					.implode(",", $zz_tab[$tab][$rec]['id']['value']).")"
-					.' LIMIT '.count($zz_tab[$tab][$rec]['id']['value']);
+				$me_sql = sprintf(
+					' DELETE FROM %s WHERE %s IN (%s) LIMIT %d'
+					, $me_db.$zz_tab[$tab]['table']
+					, $zz_tab[$tab][$rec]['id']['field_name']
+					, implode(',', $zz_tab[$tab][$rec]['id']['value'])
+					, count($zz_tab[$tab][$rec]['id']['value'])
+				);
 			} else {
-				$me_sql = ' DELETE FROM '.$me_db.$zz_tab[$tab]['table']
-					.' WHERE '.$zz_tab[$tab][$rec]['id']['field_name']." = '"
-					.$zz_tab[$tab][$rec]['id']['value']."'"
-					.' LIMIT 1';
+				$me_sql = sprintf(
+					' DELETE FROM %s WHERE %s = %d LIMIT 1'
+					, $me_db.$zz_tab[$tab]['table']
+					, $zz_tab[$tab][$rec]['id']['field_name']
+					, $zz_tab[$tab][$rec]['id']['value']
+				);
 			}
 
 	// ### Again, do nothing with the record, here: detail record
@@ -618,7 +626,7 @@ function zz_action_details($detail_sqls, $zz_tab, $validation, $ops) {
 		foreach (array_keys($detail_sqls[$tab]) as $rec) {
 			$my_rec = $zz_tab[$tab][$rec];
 			$sql = $detail_sqls[$tab][$rec];
-			$sql = str_replace('[FOREIGN_KEY]', '"'.$zz_tab[0][0]['id']['value'].'"', $sql);
+			$sql = str_replace('[FOREIGN_KEY]', sprintf('%d', $zz_tab[0][0]['id']['value']), $sql);
 			if (!empty($zz_tab[$tab]['detail_key'])) {
 				// @todo allow further detail keys
 				// if not all files where uploaded, go up one detail record until
@@ -627,7 +635,10 @@ function zz_action_details($detail_sqls, $zz_tab, $validation, $ops) {
 				while (empty($zz_tab[$detail_tab][$zz_tab[$tab]['detail_key'][0]['rec']]['id']['value'])) {
 					$zz_tab[$tab]['detail_key'][0]['rec']--;
 				}
-				$sql = str_replace('[DETAIL_KEY]', '"'.$zz_tab[$detail_tab][$zz_tab[$tab]['detail_key'][0]['rec']]['id']['value'].'"', $sql);
+				$sql = str_replace('[DETAIL_KEY]'
+					, sprintf('%d', $zz_tab[$detail_tab][$zz_tab[$tab]['detail_key'][0]['rec']]['id']['value'])
+					, $sql
+				);
 			}
 			// for deleted subtables, id value might not be set, so get it here.
 			// @todo check why it's not available beforehands, might be 
