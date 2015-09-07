@@ -282,8 +282,12 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 					$field_values[] = $zz_tab[$tab][$rec]['POST_db'][$field['field_name']];
 				}
 			}
-			$me_sql = ' INSERT INTO '.$me_db.$zz_tab[$tab]['table'].' ('
-				.implode(', ', $field_list).') VALUES ('.implode(', ', $field_values).')';
+			$me_sql = sprintf(
+				' INSERT INTO %s (%s) VALUES (%s)'
+				, $me_db.$zz_tab[$tab]['table']
+				, implode(', ', $field_list)
+				, implode(', ', $field_values)
+			); 
 			
 	// ### Update a record ###
 
