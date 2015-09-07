@@ -1027,8 +1027,10 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 		default:
 			//	slashes, 0 and NULL
 			if ($my_rec['POST_db'][$field_name]) {
-				$my_rec['POST_db'][$field_name] 
-					= '"'.zz_db_escape($my_rec['POST_db'][$field_name]).'"';
+				if ($field['type'] !== 'number') {
+					$my_rec['POST_db'][$field_name] 
+						= '"'.zz_db_escape($my_rec['POST_db'][$field_name]).'"';
+				}
 			} else {
 				// empty values = NULL, treat some special cases differently
 				// latitude/longitude: type string, different from 0
