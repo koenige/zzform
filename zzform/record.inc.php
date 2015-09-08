@@ -2720,7 +2720,9 @@ function zz_field_select_radio_none($field, $record) {
 		// (both would be written in my record fieldname)
 		$fieldattr['checked'] = true;
 	}
-	if ($field['required']) $fieldattr['required'] = true;
+	// if it is required to select one of the radio button values,
+	// the empty value is illegal so it will not be shown
+	if ($field['required']) return '';
 
 	$id = zz_make_id_fieldname($field['f_field_name']).'-0';
 	if (!isset($field['hide_novalue'])) $field['hide_novalue'] = true;
