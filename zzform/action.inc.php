@@ -345,11 +345,12 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	// (foreign_id = NULL)
 	if (!empty($zz_tab[0]['integrity']['updates'])) {
 		foreach ($zz_tab[0]['integrity']['updates'] as $null_update) {
-			$me_sql = 'UPDATE `'.$null_update['field']['detail_db'].'`.`'
-				.$null_update['field']['detail_table'].'` '
-				.'SET `'.$null_update['field']['detail_field'].'` = NULL '
-				.'WHERE `'.$null_update['field']['detail_id_field'].'` IN ('.implode(',', $null_update['ids']).') '
-				.'LIMIT '.count($null_update['ids']);
+			$me_sql = 'UPDATE `%s`.`%s` SET `%s` = NULL WHERE `%s` IN (%s) LIMIT %d';
+			$me_sql = sprintf($me_sql,
+				$null_update['field']['detail_db'], $null_update['field']['detail_table'],
+				$null_update['field']['detail_field'], $null_update['field']['detail_id_field'],
+				implode(',', $null_update['ids']), count($null_update['ids'])
+			);
 			$id = false;
 			if (count($null_update['ids']) === 1) {
 				$id = array_shift($null_update['ids']);
@@ -1839,9 +1840,11 @@ function zz_integrity_check($deletable_ids, $relations) {
 			$master_field = key($fields);
 			$ids = array_shift($fields);
 			foreach ($relations[$master_db][$master_table][$master_field] as $key => $field) {
-				$sql = 'SELECT `'.$field['detail_id_field'].'`
-					FROM `'.$field['detail_db'].'`.`'.$field['detail_table'].'`
-					WHERE `'.$field['detail_field'].'` IN ('.implode(',', $ids).')';
+				$sql = 'SELECT `%s` FROM `%s`.`%s` WHERE `%s` IN (%s)';
+				$sql = sprintf($sql,
+					$field['detail_id_field'], $field['detail_db'],
+					$field['detail_table'], $field['detail_field'], implode(',', $ids)
+				);
 				$detail_ids = zz_db_fetch($sql, $field['detail_id_field'], 'single value');
 				if (!$detail_ids) continue;
 				
