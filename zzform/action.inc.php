@@ -382,9 +382,10 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			foreach ($tables as $table => $fields) {
 				$id_field = key($fields);
 				$ids = array_shift($fields);
-				$me_sql = ' DELETE FROM '.$me_db.$table
-					.' WHERE `'.$id_field.'` IN ('.implode(',', $ids).')'
-					.' LIMIT '.count($ids);
+				$me_sql = 'DELETE FROM %s%s WHERE `%s` IN (%s) LIMIT %d';
+				$me_sql = sprintf($me_sql,
+					$me_db, $table, $id_field, implode(',', $ids), count($ids)
+				);
 				$id = false;
 				if (count($ids) === 1) $id = array_shift($ids);
 				$result = zz_db_change($me_sql, $id);
