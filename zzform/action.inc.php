@@ -1931,14 +1931,19 @@ function zz_integrity_deletable($db_name, $table, $id_field_name, $id_value, $re
 		// we care just about 'delete'-relations
 		if ($rel['delete'] !== 'delete') continue;
 		if (is_array($id_value)) {
-			$sql = 'SELECT `'.$rel['detail_id_field'].'`
-				FROM `'.$rel['detail_db'].'`.`'.$rel['detail_table'].'`
-				WHERE `'.$rel['detail_field'].'` IN ("'
-				.implode('","', $id_value).'")';
+			$sql = 'SELECT `%s` FROM `%s`.`%s` WHERE `%s` IN (%s)';
+			$sql = sprintf($sql,
+				$rel['detail_id_field'], $rel['detail_db'], 
+				$rel['detail_table'], $rel['detail_field'],
+				implode(',', $id_value)
+			);
 		} else {
-			$sql = 'SELECT `'.$rel['detail_id_field'].'`
-				FROM `'.$rel['detail_db'].'`.`'.$rel['detail_table'].'`
-				WHERE `'.$rel['detail_field'].'` = '.$id_value;
+			$sql = 'SELECT `%s` FROM `%s`.`%s` WHERE `%s` = %d';
+			$sql = sprintf($sql,
+				$rel['detail_id_field'], $rel['detail_db'], 
+				$rel['detail_table'], $rel['detail_field'],
+				$id_value
+			);
 		}
 		$records = zz_db_fetch($sql, $rel['detail_id_field'], 'single value');
 		if (!$records) continue;
