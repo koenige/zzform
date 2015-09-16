@@ -162,8 +162,11 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			// mark it!
 			$zz_tab[0][0]['fields'][$my_tab['no']]['check_validation'] = false;
 			// show error message
-			$zz_error['validation']['msg'][] = sprintf(zz_text('Minimum of records for table `%s` was not met (%d).'), 
-				zz_text($zz_tab[0][0]['fields'][$my_tab['no']]['title']), $my_tab['min_records_required']);
+			$zz_error['validation']['msg'][] = sprintf(
+				zz_text('Minimum of records for table `%s` was not met (%d).'), 
+				zz_text($zz_tab[0][0]['fields'][$my_tab['no']]['title']),
+				$my_tab['min_records_required']
+			);
 			$zz_error['validation']['log_post_data'] = true;
 			$validation = false;
 		}
@@ -232,8 +235,11 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 				AND $zz_tab[$tab][$rec]['action'] !== 'update') continue;
 			if ($zz_tab[$tab][$rec]['access'] === 'show') continue;
 			// do something with the POST array before proceeding
-			$zz_tab[$tab][$rec] = zz_prepare_for_db($zz_tab[$tab][$rec], '`'
-				.$zz_tab[$tab]['db_name'].'`'.'.'.$zz_tab[$tab]['table'], $zz_tab[0][0]['POST']); 
+			$zz_tab[$tab][$rec] = zz_prepare_for_db(
+				$zz_tab[$tab][$rec],
+				'`'.$zz_tab[$tab]['db_name'].'`'.'.'.$zz_tab[$tab]['table'],
+				$zz_tab[0][0]['POST']
+			); 
 		}
 	}
 
@@ -347,8 +353,10 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		foreach ($zz_tab[0]['integrity']['updates'] as $null_update) {
 			$me_sql = 'UPDATE `%s`.`%s` SET `%s` = NULL WHERE `%s` IN (%s) LIMIT %d';
 			$me_sql = sprintf($me_sql,
-				$null_update['field']['detail_db'], $null_update['field']['detail_table'],
-				$null_update['field']['detail_field'], $null_update['field']['detail_id_field'],
+				$null_update['field']['detail_db'],
+				$null_update['field']['detail_table'],
+				$null_update['field']['detail_field'],
+				$null_update['field']['detail_id_field'],
 				implode(',', $null_update['ids']), count($null_update['ids'])
 			);
 			$id = false;
@@ -405,7 +413,9 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		foreach (array_keys($detail_sqls) as $tab)
 			foreach (array_keys($detail_sqls[$tab]) as $rec) {
 				// might already deleted if in dependent IDs but that does not matter
-				$result = zz_db_change($detail_sqls[$tab][$rec], $zz_tab[$tab][$rec]['id']['value']);
+				$result = zz_db_change(
+					$detail_sqls[$tab][$rec], $zz_tab[$tab][$rec]['id']['value']
+				);
 				if ($result['action']) {
 					$del_msg[] = 'zz_tab '.$tab.' '.$rec.': '.$detail_sqls[$tab][$rec].'<br>';
 					unset($detail_sqls[$tab][$rec]);
@@ -549,12 +559,14 @@ function zz_action_equals($my_rec) {
 			$update = true;
 		} elseif (!empty($field['dont_check_on_update'])) {
 			$update = true;
-		} elseif (in_array($field['field_name'], array_keys($my_rec['POST'])) AND !empty($my_rec['existing'])) {
+		} elseif (in_array($field['field_name'], array_keys($my_rec['POST']))
+		AND !empty($my_rec['existing'])) {
 			// ok, we have values which might be compared
 			$update = true;
 			// check difference to existing record
 			$post = $my_rec['POST'][$field['field_name']];
-			if ($field['type'] === 'time' AND strlen($my_rec['existing'][$field['field_name']]) === 5) {
+			if ($field['type'] === 'time'
+			AND strlen($my_rec['existing'][$field['field_name']]) === 5) {
 				// time might be written as 08:00 instead of 08:00:00
 				$my_rec['existing'][$field['field_name']] .= ':00';
 			}
@@ -1246,7 +1258,9 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			// if there's something submitted which fits in our scheme, replace 
 			// values corresponding to options-field
 			if (!empty($my_rec['fields'][$field['read_options']]['options'][$submitted_option])) {
-				$my_rec['fields'][$f] = $field = array_merge($field, $my_rec['fields'][$field['read_options']]['options'][$submitted_option]);
+				$my_rec['fields'][$f] = $field = array_merge(
+					$field, $my_rec['fields'][$field['read_options']]['options'][$submitted_option]
+				);
 			}
 		}
 	//	set detail types for write_once-Fields
@@ -1339,7 +1353,9 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				// geographical coordinates
 				
 				$precision = zz_db_decimal_places($db_table, $field);
-				$coord = zz_geo_coord_in($my_rec['POST'][$field_name], $field['number_type'], $precision);
+				$coord = zz_geo_coord_in(
+					$my_rec['POST'][$field_name], $field['number_type'], $precision
+				);
 				if ($coord['error']) {
 					$zz_error['validation']['incorrect_values'][] = array(
 						'field_name' => $field_name,
@@ -1648,8 +1664,8 @@ function zz_check_rules($value, $validate) {
 		switch ($type) {
 		case 'forbidden_strings':
 			foreach ($needles as $needle) {
-				if (stripos($value, $needle) !== false) // might be 0
-					return sprintf(zz_text('String <em>"%s"</em> is not allowed'), zz_htmltag_escape($needle));
+				if (stripos($value, $needle) === false) continue; // might be 0
+				return sprintf(zz_text('String <em>"%s"</em> is not allowed'), zz_htmltag_escape($needle));
 			}
 			break;
 		}
