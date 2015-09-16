@@ -2238,34 +2238,34 @@ function zz_upload_path($dir, $action, $path) {
  */
 function zz_upload_cleanup($zz_tab, $validated = true) {
 	global $zz_conf;
-	
 	// files-ID = combination of script name and ID
 	$id = $zz_conf['int']['secret_key'];
+
+	// valid request = destroy session and delete files
 	if ($validated) {
 		if (!empty($_SESSION['zz_files'][$id])) {
 			unset($_SESSION['zz_files'][$id]);
 		}
-	}
-	if (!$zz_tab[0]['upload_fields']) return false;
-
-	if ($validated) {
 		foreach ($zz_conf['int']['upload_cleanup_files'] as $file) {
 			zz_unlink_cleanup($file);
 		}
-	} else {
-		$_SESSION['zz_files'][$id]['upload_cleanup_files'] = $zz_conf['int']['upload_cleanup_files'];
-		foreach ($zz_tab[0]['upload_fields'] as $uf) {
-			$tab = $uf['tab'];
-			$rec = $uf['rec'];
-			if (!empty($zz_tab[$tab][$rec]['images'])) {
-				if (isset($zz_tab[$tab][$rec]['file_upload'])) {
-					$_SESSION['zz_files'][$id][$tab][$rec]['file_upload'] = $zz_tab[$tab][$rec]['file_upload'];
-				} else {
-					$_SESSION['zz_files'][$id][$tab][$rec]['file_upload'] = false;
-				} 
-				$_SESSION['zz_files'][$id][$tab][$rec]['images'] = $zz_tab[$tab][$rec]['images'];
-			}
-		}
+		return true;
+	}
+
+	if (!$zz_tab[0]['upload_fields']) return false;
+
+	// unfinished request: put files into session, do not delete
+	$_SESSION['zz_files'][$id]['upload_cleanup_files'] = $zz_conf['int']['upload_cleanup_files'];
+	foreach ($zz_tab[0]['upload_fields'] as $uf) {
+		$tab = $uf['tab'];
+		$rec = $uf['rec'];
+		if (empty($zz_tab[$tab][$rec]['images'])) continue;
+		if (isset($zz_tab[$tab][$rec]['file_upload'])) {
+			$_SESSION['zz_files'][$id][$tab][$rec]['file_upload'] = $zz_tab[$tab][$rec]['file_upload'];
+		} else {
+			$_SESSION['zz_files'][$id][$tab][$rec]['file_upload'] = false;
+		} 
+		$_SESSION['zz_files'][$id][$tab][$rec]['images'] = $zz_tab[$tab][$rec]['images'];
 	}
 	return true;
 }
