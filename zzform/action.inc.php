@@ -140,7 +140,14 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 				return zz_return(array($ops, $zz_tab, $validation));
 			// if something was returned, validation failed because there 
 			// probably are records
-			if ($zz_tab[0]['integrity']['fields']) $validation = false;
+			if ($zz_tab[0]['integrity']['fields']) {
+				$validation = false;
+			} elseif ($zz_var['upload_form']) {
+				zz_integrity_check_files($dependent_ids);
+				// @todo allow deletion of files as well
+				// if there's no upload form in main record
+				// this needs to be checked earlier on to include upload module
+			}
 		}
 	}
 
@@ -2014,4 +2021,88 @@ function zz_integrity_record_ids($zz_tab) {
 		}
 	}
 	return $records;
+}
+
+/**
+ * check detail records which can be deleted if there are any files
+ * attached to them that need to be deleted as well
+ *
+ * @param array $dependent_ids
+ * @global array $zz_conf
+ *		change $zz_conf['int']['upload_cleanup_files']
+ * @return bool true: files were added, false: nothing was changed
+ */
+function zz_integrity_check_files($dependent_ids) {
+	global $zz_conf;
+	if (empty($dependent_ids)) return false;
+	$return = false;
+	
+	foreach ($dependent_ids as $db_name => $tables) {
+		foreach ($tables as $table => $ids) {
+			$table = str_replace('_', '-', $table);
+			$definition_file = zzform_file($table);
+			if (!$definition_file) continue;
+			$zz = zz_integrity_include_definition($definition_file['tables']);
+			if (!$zz) continue;
+
+			// check if this script fits the table and database name
+			zz_sql_prefix_change($zz['table']);
+			if (strstr($zz['table'], '.')) {
+				list($script_db, $script_table) = explode('.', $zz['table']);
+			} else {
+				$script_db = $zz_conf['db_name'];
+				$script_table = $zz['table'];
+			}
+			if ($table !== $script_table) continue;
+			if ($db_name !== $script_db) continue;
+
+			foreach ($zz['fields'] as $no => $field) {
+				if (empty($field['type'])) continue;
+				if ($field['type'] !== 'upload_image') continue;
+				if (empty($field['image'])) continue;
+				
+				$id_field_name = key($ids);
+				$ids = $ids[$id_field_name];
+				$sql = zz_edit_sql($zz['sql'], 'WHERE', $id_field_name.' IN ('.implode(',', $ids).')');
+				$data = zz_db_fetch($sql, $id_field_name);
+				
+				foreach ($field['image'] as $image) {
+					foreach ($data as $line) {
+						$path = zz_makepath($image['path'], $line, 'line', 'file');
+						if (!$path) continue;
+						$zz_conf['int']['upload_cleanup_files'][] = $path;
+						$return = true;
+					}
+				}
+			}
+		}
+	}
+	return $return;
+}
+
+/**
+ * include zzform table definition file, just $zz without $zz_conf
+ *
+ * @param string $filename
+ * @return array
+ */
+function zz_integrity_include_definition($filename) {
+	$zz_setting = zz_integrity_include_conf('zz_setting');
+	$zz_conf = zz_integrity_include_conf('zz_conf');
+	require $filename;
+	if (!empty($zz)) return $zz;
+	if (!empty($zz_sub)) return $zz_sub;
+	// @todo error handling?
+	return array();
+}
+
+/**
+ * return configuration variables read only
+ *
+ * @param string $config name of configuration variable
+ * @return array
+ */
+function zz_integrity_include_conf($config) {
+	global $$config;
+	return $$config;
 }
