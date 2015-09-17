@@ -1707,21 +1707,36 @@ function zz_make_mode($modes, $content, $error = E_USER_WARNING) {
  *		to do something with strings from now on), 'string1...n' (string, number
  *		has no meaning, no sorting will take place, will be shown 1:1),
  *		'field1...n' (field value from record)
- * @param array $zz_tab
+ * @param array $data (= $zz_tab or simple line)
  * @param string $record (optional) default 'new', other: 'old' (use updated
- *		record or old record)
+ *		record or old record), 'line': use the input data as a complete record
  * @param bool $do (optional)
  * @param int $tab (optional)
  * @param int $rec (optional)
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_makepath($path, $zz_tab, $record = 'new', $do = false, $tab = 0, $rec = 0) {
+function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec = 0) {
 	// set variables
 	$p = false;
 	$modes = false;
 	$root = false;		// root
 	$rootp = false;		// path just for root
 	$webroot = false;	// web root
+
+	// record data
+	switch ($record) {
+	case 'old':
+		$my_tab = $data[$tab];
+		$line = !empty($my_tab[$rec]['existing']) ? $my_tab[$rec]['existing'] : array();
+		break;
+	case 'new':
+		$my_tab = $data[$tab];
+		$line = !empty($my_tab[$rec]['POST']) ? $my_tab[$rec]['POST'] : array();
+		break;
+	case 'line':
+		$line = $data;
+		break;
+	}
 
 	// put path together
 	$alt_locked = false;
@@ -1738,16 +1753,12 @@ function zz_makepath($path, $zz_tab, $record = 'new', $do = false, $tab = 0, $re
 		} elseif (substr($pkey, 0, 6) === 'string') {
 			$p .= $pvalue;
 		} elseif (substr($pkey, 0, 5) === 'field' OR $pkey === 'extension') {
-			$my_tab = $zz_tab[$tab];
-			if ($record === 'new') {
-				$content = (!empty($my_tab[$rec]['POST'][$pvalue])) 
-					? $my_tab[$rec]['POST'][$pvalue]
-					: zz_get_record($pvalue, $my_tab['sql'], 
-						$my_tab[$rec]['id']['value'], 
-						$my_tab['table'].'.'.$my_tab[$rec]['id']['field_name']);
-			} elseif ($record === 'old') {
-				$content = (!empty($my_tab[$rec]['existing']) 
-					? $my_tab[$rec]['existing'][$pvalue] : '');
+			$content = !empty($line[$pvalue]) ? $line[$pvalue] : '';
+			if (!$content AND $record === 'new') {
+				$content = zz_get_record(
+					$pvalue, $my_tab['sql'], $my_tab[$rec]['id']['value'], 
+					$my_tab['table'].'.'.$my_tab[$rec]['id']['field_name']
+				);
 			}
 			if ($modes) {
 				$content = zz_make_mode($modes, $content);
