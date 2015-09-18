@@ -352,6 +352,10 @@ function zz_upload_check_files($zz_tab) {
 
 			if (empty($images[$no][$img]['field_name'])) {
 				// don't do the rest if field_name is not set
+				// just read values from session
+				if (!empty($images[$no]['read_from_session'])) {
+					$images[$no][$img] = $session[$tab][$rec]['images'][$no][$img];
+				}
 				continue;
 			}
 			$field_name = $images[$no][$img]['field_name'];
