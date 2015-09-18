@@ -301,8 +301,7 @@ function zz_upload_check_files($zz_tab) {
 	global $zz_conf;
 	
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	$id = $zz_conf['int']['secret_key'];
-	$session = !empty($_SESSION['zz_files'][$id]) ? $_SESSION['zz_files'][$id] : array();
+	$session = zz_session_read('files');
 	if (!empty($session['upload_cleanup_files'])) {
 		$zz_conf['int']['upload_cleanup_files'] = array_merge(
 			$zz_conf['int']['upload_cleanup_files'], $session['upload_cleanup_files']
@@ -2242,14 +2241,10 @@ function zz_upload_path($dir, $action, $path) {
  */
 function zz_upload_cleanup($zz_tab, $validated = true) {
 	global $zz_conf;
-	// files-ID = combination of script name and ID
-	$id = $zz_conf['int']['secret_key'];
 
 	// valid request = destroy session and delete files
 	if ($validated) {
-		if (!empty($_SESSION['zz_files'][$id])) {
-			unset($_SESSION['zz_files'][$id]);
-		}
+		zz_session_delete('files');
 		foreach ($zz_conf['int']['upload_cleanup_files'] as $file) {
 			zz_unlink_cleanup($file);
 		}
@@ -2259,19 +2254,79 @@ function zz_upload_cleanup($zz_tab, $validated = true) {
 	if (!$zz_tab[0]['upload_fields']) return false;
 
 	// unfinished request: put files into session, do not delete
-	$_SESSION['zz_files'][$id]['upload_cleanup_files'] = $zz_conf['int']['upload_cleanup_files'];
+	$session['upload_cleanup_files'] = $zz_conf['int']['upload_cleanup_files'];
 	foreach ($zz_tab[0]['upload_fields'] as $uf) {
 		$tab = $uf['tab'];
 		$rec = $uf['rec'];
 		if (empty($zz_tab[$tab][$rec]['images'])) continue;
 		if (isset($zz_tab[$tab][$rec]['file_upload'])) {
-			$_SESSION['zz_files'][$id][$tab][$rec]['file_upload'] = $zz_tab[$tab][$rec]['file_upload'];
+			$session[$tab][$rec]['file_upload'] = $zz_tab[$tab][$rec]['file_upload'];
 		} else {
-			$_SESSION['zz_files'][$id][$tab][$rec]['file_upload'] = false;
+			$session[$tab][$rec]['file_upload'] = false;
 		} 
-		$_SESSION['zz_files'][$id][$tab][$rec]['images'] = $zz_tab[$tab][$rec]['images'];
+		$session[$tab][$rec]['images'] = $zz_tab[$tab][$rec]['images'];
 	}
+	zz_session_write('files', $session);
+}
+
+/**
+ * write a session for a part of the program to disk
+ * php session is not locked, so race conditions might occur
+ *
+ * @param string $type name of the part of the program
+ * @param array $session data to write
+ * @return bool
+ */
+function zz_session_write($type, $session) {
+	$fp = fopen(zz_session_filename($type), 'w');
+	fwrite($fp, serialize($session));
+	fclose($fp);
 	return true;
+}
+
+/**
+ * read a session for a part of the program from disk
+ *
+ * @param string $type name of the part of the program
+ * @return array
+ */
+function zz_session_read($type) {
+	$filename = zz_session_filename($type);
+	if (!file_exists($filename)) return array();
+	$session = file_get_contents($filename);
+	$session = unserialize($session);
+	if (!$session) return array();
+	return $session;
+}
+
+/**
+ * delete a session for a part of the program from disk
+ *
+ * @param string $type name of the part of the program
+ * @return array
+ */
+function zz_session_delete($type) {
+	$filename = zz_session_filename($type);
+	if (!file_exists($filename)) return false;
+	unlink($filename);
+	return true;
+}
+
+/**
+ * generate a session filename made out of
+ * current session ID and script ID
+ *
+ * @param string $type name of the part of the program
+ * @return string
+ */
+function zz_session_filename($type) {
+	global $zz_conf;
+	$filename = $zz_conf['tmp_dir'].sprintf('/%s-%s-%s.txt',
+		session_id(),
+		$zz_conf['int']['secret_key'],
+		$type
+	);
+	return $filename;
 }
 
 
