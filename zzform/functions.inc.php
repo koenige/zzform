@@ -1808,7 +1808,7 @@ function zz_get_record($field_name, $sql, $idvalue = false, $idfield = false) {
 	// if idvalue is not set: note: all values should be the same!
 	// First value is taken
 	if ($idvalue) 
-		$sql = zz_edit_sql($sql, 'WHERE', $idfield.' = "'.$idvalue.'"');
+		$sql = zz_edit_sql($sql, 'WHERE', sprintf('%s = %d', $idfield, $idvalue));
 	$line = zz_db_fetch($sql, '', '', __FUNCTION__);
 	if (!empty($line[$field_name])) return $line[$field_name];
 	else return false;
