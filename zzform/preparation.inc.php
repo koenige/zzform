@@ -1298,7 +1298,7 @@ function zz_query_subrecord($my_tab, $main_table, $main_id_value,
 				.$my_tab['translate_field_name'].'"');
 	}
 	$sql = zz_edit_sql(
-		$sql, 'WHERE', $my_tab['foreign_key_field_name'].' = "'.$main_id_value.'"'
+		$sql, 'WHERE', sprintf('%s = %d', $my_tab['foreign_key_field_name'], $main_id_value)
 	);
 
 	$records = zz_db_fetch($sql, $id_field_name, '', '', E_USER_WARNING);
