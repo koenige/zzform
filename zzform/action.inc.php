@@ -2041,7 +2041,7 @@ function zz_integrity_check_files($dependent_ids) {
 		foreach ($tables as $table => $ids) {
 			$table = str_replace('_', '-', $table);
 			$definition_file = zzform_file($table);
-			if (!$definition_file) continue;
+			if (!$definition_file OR !$definition_file['tables']) continue;
 			$zz = zz_integrity_include_definition($definition_file['tables']);
 			if (!$zz) continue;
 
