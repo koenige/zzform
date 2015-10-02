@@ -3158,7 +3158,12 @@ function zz_field_display($field, $record, $record_saved) {
 	// return text
 	// display_value ?
 	// internationalization has to be done in zz-fields-definition
-	if (isset($field['display_value'])) return $field['display_value']; 
+	if (isset($field['display_value'])) {
+		if (!empty($field['type_detail']) AND $field['type_detail'] === 'number') {
+			$field['display_value'] = zz_number_format($field['display_value'], $field);
+		}
+		return $field['display_value']; 
+	}
 	// no record
 	if (!$record) {
 		if (isset($field['display_empty'])) return $field['display_empty'];

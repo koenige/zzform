@@ -1298,6 +1298,9 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 			} elseif (!empty($field['display_value'])) {
 				// translations should be done in $zz-definition-file
 				$text = $field['display_value'];
+				if (!empty($field['type_detail']) AND $field['type_detail'] === 'number') {
+					$text = zz_number_format($text, $field);
+				}
 			} else {
 				$text = $row['value'];
 				$text = nl2br(zz_htmltag_escape($text));
