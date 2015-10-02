@@ -546,6 +546,10 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 
 		if (!$append_next) {
 			$out['tr']['attr'][] = implode(' ', $field['class']);
+			if ($formdisplay === 'horizontal' AND ($field['type'] === 'number'
+				OR (!empty($field['type_detail']) AND $field['type_detail'] === 'number'))) {
+				$out['td']['attr'][] = 'number';
+			}
 			if (!(isset($field['show_title']) && !$field['show_title'])) {
 				if (!empty($field['title_append'])) {
 					// just for form, change title for all appended fields
