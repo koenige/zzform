@@ -1167,10 +1167,15 @@ function zz_log_validation_errors($my_rec, $validation) {
 		if ($field['check_validation']) continue;
 		if ($my_rec['record'][$field['field_name']]) {
 			// there's a value, so this is an incorrect value
-			$zz_error['validation']['msg'][] = sprintf(
-				zz_text('Value incorrect in field %s.'), 
-				'<strong>'.$field['title'].'</strong>'
-			).(
+			if (!empty($field['error_msg'])) {
+				$error = $field['error_msg'];
+			} else {
+				$error = sprintf(
+					zz_text('Value incorrect in field %s.'), 
+					'<strong>'.$field['title'].'</strong>'
+				);
+			}
+			$zz_error['validation']['msg'][] = $error.(
 				!empty($field['validation_error'])
 				? ' ('.$field['validation_error'].')'
 				: ''
