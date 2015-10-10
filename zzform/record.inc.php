@@ -989,7 +989,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				//	if ($my_rec['record'][$field['field_name']]) // display unit if record not null
 				//		$outputf .= ' '.$field['unit']; 
 				//} else {
-					$outputf .= ' '.$field['unit']; 
+					$outputf .= '&nbsp;'.$field['unit']; 
 				//}
 			}
 			if (!empty($default_value)) // unset $my_rec['record'] so following fields are empty
