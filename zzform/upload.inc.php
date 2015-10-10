@@ -612,7 +612,9 @@ function zz_upload_fileinfo($file, $extension = false) {
 		}
 	}
 	// change extension to default extension of filetype
-	$file['ext'] = $zz_conf['file_types'][$file['filetype']]['extension'][0];
+	if (isset($zz_conf['file_types'][$file['filetype']])) {
+		$file['ext'] = $zz_conf['file_types'][$file['filetype']]['extension'][0];
+	}
 
 	if (!empty($file['warnings'])) {
 		foreach ($file['warnings'] as $function => $warnings) {
