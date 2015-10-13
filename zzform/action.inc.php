@@ -730,7 +730,7 @@ function zz_action_function($type, $ops, $zz_tab) {
 	}
 
 	$change = array();
-	if (!empty($zz_tab[0]['geocode'])) {
+	if (!empty($zz_tab[0]['geocode']) AND (in_array($type, array('before_insert', 'before_update')))) {
 		$change = zz_geo_geocode($type, $ops, $zz_tab);
 	}
 	if ($zz_tab[0]['extra_action'][$type] !== true) {
