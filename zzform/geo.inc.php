@@ -433,7 +433,7 @@ function zz_geo_timestamp_in($value) {
 /**
  * get latitude and longitude from a geocoding API depending on some fields
  *
- * @param string $type ('after_insert' or 'after_update')
+ * @param string $type ('before_insert' or 'before_update')
  * @param array $ops
  * @param array $zz_tab
  * @return array $change
