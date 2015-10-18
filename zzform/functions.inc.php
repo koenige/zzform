@@ -1991,17 +1991,30 @@ function zz_backwards($zz_conf, $zz) {
 	}
 	// renamed $zz variables
 	$zz_renamed = array('extra_action' => 'hooks');
-	foreach ($zz_renamed as $old => $new) {
-		if (isset($zz[$old])) {
-			$zz[$new] = $zz[$old];
-			unset($zz[$old]);
-			wrap_error(sprintf(
-				'Use of deprecated variable $zz["%s"], use $zz["%s"] instead. (URL: %s)',
-				$old, $new, $_SERVER['REQUEST_URI']
-			));
-		}
-	}
+	$zz = zz_backwards_rename($zz, $zz_renamed, 'zz');
 	return array($zz_conf, $zz);
+}
+
+/**
+ * rename old variables to keep backwards compatibility
+ * but send an error message
+ *
+ * @param array $var
+ * @param array $var_renamed (list of old => new)
+ * @param array $var_name for error logging
+ * @return array updated $var
+ */
+function zz_backwards_rename($var, $var_renamed, $var_name) {
+	foreach ($var_renamed as $old => $new) {
+		if (!isset($var[$old])) continue;
+		$var[$new] = $var[$old];
+		unset($var[$old]);
+		wrap_error(sprintf(
+			'Use of deprecated variable $%s["%s"], use $%s["%s"] instead. (URL: %s)',
+			$var_name, $old, $var_name, $new, $_SERVER['REQUEST_URI']
+		));
+	}
+	return $var;
 }
 
 
