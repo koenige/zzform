@@ -720,8 +720,8 @@ function zz_action_function($type, $ops, $zz_tab) {
 	global $zz_error;
 	if (empty($zz_tab[0]['hooks'][$type])) return false;
 
-	if (file_exists($zz_conf['action_dir'].'/hooks.inc.php')) {
-		require_once $zz_conf['action_dir'].'/hooks.inc.php';
+	if (file_exists($zz_conf['hooks_dir'].'/hooks.inc.php')) {
+		require_once $zz_conf['hooks_dir'].'/hooks.inc.php';
 	}
 
 	if (!empty($zz_tab[0]['set_redirect'])) {
@@ -738,7 +738,7 @@ function zz_action_function($type, $ops, $zz_tab) {
 			$zz_tab[0]['hooks'][$type] = array($zz_tab[0]['hooks'][$type]);
 		}
 		foreach ($zz_tab[0]['hooks'][$type] as $hook) {
-			$file = $zz_conf['action_dir'].'/'.$hook.'.inc.php';
+			$file = $zz_conf['hooks_dir'].'/'.$hook.'.inc.php';
 			if (file_exists($file)) {
 				// a file has to be included
 				include $file;

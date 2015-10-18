@@ -216,7 +216,7 @@ function zzform($zz) {
 	}
 
 	if (isset($_POST['zz_multifunction'])) {
-		if (file_exists($file = $zz_conf['action_dir'].'/multi.inc.php')) {
+		if (file_exists($file = $zz_conf['hooks_dir'].'/multi.inc.php')) {
 			require_once $file;
 		}
 		$index = key($_POST['zz_multifunction']);
@@ -556,7 +556,7 @@ function zz_initialize($mode = false) {
 	// stop if there were errors while adding modules
 	if ($zz_error['error']) zz_return(false);
 
-	$default['action_dir']		= $zz_conf['dir_custom'];	// directory for included scripts after action has been taken
+	$default['hooks_dir']		= $zz_conf['dir_custom'];	// directory for included scripts after action has been taken
 	$default['lang_dir']		= $zz_conf['dir_custom'];	// directory for additional text
 
 	$default['always_show_empty_detail_record'] = false;

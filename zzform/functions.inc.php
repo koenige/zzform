@@ -1992,6 +1992,9 @@ function zz_backwards($zz_conf, $zz) {
 	// renamed $zz variables
 	$zz_renamed = array('extra_action' => 'hooks');
 	$zz = zz_backwards_rename($zz, $zz_renamed, 'zz');
+	// renamed $zz_conf variables
+	$zz_conf_renamed = array('action_dir' => 'hooks_dir');
+	$zz_conf = zz_backwards_rename($zz_conf, $zz_conf_renamed, 'zz_conf');
 	return array($zz_conf, $zz);
 }
 
