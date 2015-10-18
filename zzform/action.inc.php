@@ -53,13 +53,13 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
 			if (!is_numeric($rec)) continue;
 			if (!$tab) {  // main record already assigned
-				if (!empty($zz_tab[0]['extra_action']['before_upload'])) {
+				if (!empty($zz_tab[0]['hooks']['before_upload'])) {
 					$ops = zz_record_info($ops, $zz_tab, $tab, $rec, 'not_validated');
 				}
 				continue;
 			}
 			$zz_tab[$tab][$rec]['POST'] = $zz_tab[$tab]['POST'][$rec];
-			if (!empty($zz_tab[0]['extra_action']['before_upload'])) {
+			if (!empty($zz_tab[0]['hooks']['before_upload'])) {
 				$ops = zz_record_info($ops, $zz_tab, $tab, $rec, 'not_validated');
 			}
 		}
@@ -207,7 +207,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		}
 	}
 
-	if (!empty($zz_tab[0]['extra_action']['before_'.$zz_var['action']])) {
+	if (!empty($zz_tab[0]['hooks']['before_'.$zz_var['action']])) {
 		foreach ($zz_tab as $tab => $my_tab) {
 			foreach ($my_tab as $rec => $my_rec) {
 				if (!is_numeric($rec)) continue;
@@ -707,7 +707,7 @@ function zz_action_details($detail_sqls, $zz_tab, $validation, $ops) {
  * calls a function or includes a file before or after an action takes place
  *
  * @param string $type (upload, before_insert, before_update, before_delete,
- *	after_insert, after_update, after_delete, to be set in $zz['extra_action']
+ *	after_insert, after_update, after_delete, to be set in $zz['hooks']
  * @param array $ops
  * @param array $zz_tab
  * @global array $zz_conf
@@ -718,7 +718,7 @@ function zz_action_details($detail_sqls, $zz_tab, $validation, $ops) {
 function zz_action_function($type, $ops, $zz_tab) {
 	global $zz_conf;
 	global $zz_error;
-	if (empty($zz_tab[0]['extra_action'][$type])) return false;
+	if (empty($zz_tab[0]['hooks'][$type])) return false;
 
 	if (file_exists($zz_conf['action_dir'].'/hooks.inc.php')) {
 		require_once $zz_conf['action_dir'].'/hooks.inc.php';
@@ -733,18 +733,18 @@ function zz_action_function($type, $ops, $zz_tab) {
 	if (!empty($zz_tab[0]['geocode']) AND (in_array($type, array('before_insert', 'before_update')))) {
 		$change = zz_geo_geocode($type, $ops, $zz_tab);
 	}
-	if ($zz_tab[0]['extra_action'][$type] !== true) {
-		if (!is_array($zz_tab[0]['extra_action'][$type])) {
-			$zz_tab[0]['extra_action'][$type] = array($zz_tab[0]['extra_action'][$type]);
+	if ($zz_tab[0]['hooks'][$type] !== true) {
+		if (!is_array($zz_tab[0]['hooks'][$type])) {
+			$zz_tab[0]['hooks'][$type] = array($zz_tab[0]['hooks'][$type]);
 		}
-		foreach ($zz_tab[0]['extra_action'][$type] as $extra_action) {
-			$file = $zz_conf['action_dir'].'/'.$extra_action.'.inc.php';
+		foreach ($zz_tab[0]['hooks'][$type] as $hook) {
+			$file = $zz_conf['action_dir'].'/'.$hook.'.inc.php';
 			if (file_exists($file)) {
 				// a file has to be included
 				include $file;
 			} else {
 				// it's a function
-				$custom_result = $extra_action($ops);
+				$custom_result = $hook($ops);
 				if (is_array($custom_result)) {
 					$change = array_merge($change, $custom_result);
 				}

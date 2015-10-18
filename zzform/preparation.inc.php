@@ -35,7 +35,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	$zz_tab[0]['sql_without_where'] = $zz['sql_without_where'];
 	$zz_tab[0]['sqlextra'] = !empty($zz['sqlextra']) ? $zz['sqlextra'] : array();
 	$zz_tab[0]['sql_translate'] = !empty($zz['sql_translate']) ? $zz['sql_translate'] : array();
-	$zz_tab[0]['extra_action'] = !empty($zz['extra_action']) ? $zz['extra_action'] : array();
+	$zz_tab[0]['hooks'] = !empty($zz['hooks']) ? $zz['hooks'] : array();
 	$zz_tab[0]['folder'] = !empty($zz['folder']) ? $zz['folder'] : array();
 	$zz_tab[0]['dynamic_referer'] = !empty($zz['dynamic_referer']) ? $zz['dynamic_referer'] : false;
 	$zz_tab[0]['add_from_source_id'] = !empty($zz['add_from_source_id']) ? true : false;
@@ -43,10 +43,10 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	if (!empty($zz['set_redirect'])) {
 		// update/insert redirects after_delete and after_update
 		$zz_tab[0]['set_redirect'] = $zz['set_redirect'];
-		if (!isset($zz_tab[0]['extra_action']['after_delete']))
-			$zz_tab[0]['extra_action']['after_delete'] = true;
-		if (!isset($zz_tab[0]['extra_action']['after_update']))
-			$zz_tab[0]['extra_action']['after_update'] = true;
+		if (!isset($zz_tab[0]['hooks']['after_delete']))
+			$zz_tab[0]['hooks']['after_delete'] = true;
+		if (!isset($zz_tab[0]['hooks']['after_update']))
+			$zz_tab[0]['hooks']['after_update'] = true;
 	}
 	$zz_tab[0]['dont_reformat'] = !empty($_POST['zz_subtables']) ? true : false;
 	foreach ($zz['fields'] as $field) {
@@ -65,10 +65,10 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 			continue;
 		}
 		$zz_tab[0]['geocode'] = true;
-		if (!isset($zz_tab[0]['extra_action']['before_insert']))
-			$zz_tab[0]['extra_action']['before_insert'] = true;
-		if (!isset($zz_tab[0]['extra_action']['before_update']))
-			$zz_tab[0]['extra_action']['before_update'] = true;
+		if (!isset($zz_tab[0]['hooks']['before_insert']))
+			$zz_tab[0]['hooks']['before_insert'] = true;
+		if (!isset($zz_tab[0]['hooks']['before_update']))
+			$zz_tab[0]['hooks']['before_update'] = true;
 		break;
 	}
 	$zz_tab[0]['record_action'] = false;

@@ -1924,7 +1924,7 @@ function zz_backwards($zz_conf, $zz) {
 		'heading_text' => 'explanation',
 		'heading_text_hidden_while_editing', array('if', 'record_mode', 'explanation'),
 		'heading_sub' => 'subtitle',
-		'action' => 'extra_action',
+		'action' => 'hooks',
 		'tfoot' => array('list', 'tfoot'),
 		'group' => array('list', 'group'),
 		'folder' => 'folder',
@@ -1986,6 +1986,18 @@ function zz_backwards($zz_conf, $zz) {
 			wrap_error(sprintf(
 				'Use of deprecated variable $zz["fields"][%d]["%s"], use $zz["fields"][%d]["%s"] instead. (URL: %s)',
 				$no, $old, $no, $new, $_SERVER['REQUEST_URI']
+			));
+		}
+	}
+	// renamed $zz variables
+	$zz_renamed = array('extra_action' => 'hooks');
+	foreach ($zz_renamed as $old => $new) {
+		if (isset($zz[$old])) {
+			$zz[$new] = $zz[$old];
+			unset($zz[$old]);
+			wrap_error(sprintf(
+				'Use of deprecated variable $zz["%s"], use $zz["%s"] instead. (URL: %s)',
+				$old, $new, $_SERVER['REQUEST_URI']
 			));
 		}
 	}
