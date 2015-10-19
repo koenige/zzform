@@ -1750,20 +1750,23 @@ function zz_field_password_change($field, $display) {
 	if (!empty($field['maxlength']))
 		$fieldattr['maxlength'] = $field['maxlength'];
 	$fieldattr['required'] = true;
-	return '<table class="subtable">'."\n"
-		.'<tr><th><label for="'.zz_make_id_fieldname($field['f_field_name']).'">'
-		.zz_text('Old:').' </label></th><td>'
-		.zz_form_element($field['f_field_name'], '', 'password', true, $fieldattr)
-		.'</td></tr>'."\n"
-		.'<tr><th><label for="'.zz_make_id_fieldname($field['f_field_name'].'_new_1').'">'
+	$out = '<table class="subtable">'."\n";
+	if (empty($field['dont_require_old_password'])) {
+		$out .= '<tr><th><label for="'.zz_make_id_fieldname($field['f_field_name']).'">'
+			.zz_text('Old:').' </label></th><td>'
+			.zz_form_element($field['f_field_name'], '', 'password', true, $fieldattr)
+			.'</td></tr>'."\n";
+	}
+	$out .= '<tr><th><label for="'.zz_make_id_fieldname($field['f_field_name'].'_new_1').'">'
 		.zz_text('New:').' </label></th><td>'
 		.zz_form_element($field['f_field_name'].'_new_1', '', 'password', true, $fieldattr)
 		.'</td></tr>'."\n"
 		.'<tr><th><label for="'.zz_make_id_fieldname($field['f_field_name'].'_new_2').'">'
 		.zz_text('New:').' </label></th><td>'
 		.zz_form_element($field['f_field_name'].'_new_2', '', 'password', true, $fieldattr)
-		.'<p>'.zz_text('(Please confirm your new password twice)').'</td></tr>'."\n"
+		.'<p class="explanation">'.zz_text('(Please confirm your new password twice)').'</td></tr>'."\n"
 		.'</table>'."\n";
+	return $out;
 }
 
 /**

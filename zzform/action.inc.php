@@ -1420,7 +1420,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				$my_sql = $field['sql_password_check'].$my_rec['id']['value'];
 				$pwd = zz_password_set($my_rec['POST'][$field_name], 
 					$my_rec['POST'][$field_name.'_new_1'], 
-					$my_rec['POST'][$field_name.'_new_2'], $my_sql);
+					$my_rec['POST'][$field_name.'_new_2'], $my_sql, $field);
 			} else {
 				$zz_error[] = array(
 					'msg' => 'Please enter your current password and twice your new password.',
@@ -1688,12 +1688,13 @@ function zz_check_rules($value, $validate) {
  * @param string $new1	New password, first time entered
  * @param string $new2	New password, second time entered, to check if match
  * @param string $sql	SQL query to check whether passwords match
+ * @param array $field
  * @global array $zz_error
  * @global array $zz_conf	Configuration variables, here: 'hash_password'
  * @return string false: an error occurred; string: new encrypted password 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_password_set($old, $new1, $new2, $sql) {
+function zz_password_set($old, $new1, $new2, $sql, $field) {
 	global $zz_error;
 	global $zz_conf;
 	if ($new1 !== $new2) {
@@ -1715,7 +1716,8 @@ function zz_password_set($old, $new1, $new2, $sql) {
 	}
 	$old_hash = zz_db_fetch($sql, '', 'single value', __FUNCTION__);
 	if (!$old_hash) return false;
-	if (zz_password_check($old, $old_hash)) {
+	if (!empty($field['dont_require_old_password'])
+		OR zz_password_check($old, $old_hash)) {
 		// new1 = new2, old = old, everything is ok
 		$hash = zz_password_hash($new1);
 		if ($hash) {
