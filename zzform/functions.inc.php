@@ -1297,8 +1297,9 @@ function zz_record_access($zz, $ops, $zz_var) {
 	if ($zz_conf['int']['access'] === 'add_only' AND zz_valid_request('insert')) {
 		$zz_conf['int']['access'] = 'show_after_add';
 	}
-	if ($zz_conf['int']['access'] === 'edit_only' AND zz_valid_request(
-		array('update', 'noupdate'))
+	if ($zz_conf['int']['access'] === 'edit_only'
+		AND ((!empty($zz_var['where_with_unique_id']) AND !empty($_GET['update']))
+			OR zz_valid_request(array('update', 'noupdate')))
 	) {
 		$zz_conf['int']['access'] = 'show_after_edit';
 	}
@@ -1395,7 +1396,9 @@ function zz_record_access($zz, $ops, $zz_var) {
 		$zz_conf['int']['show_list'] = false;		// no list
 		$zz_conf['no_ok'] = true;			// no OK button
 		$zz_conf['cancel_link'] = false; 	// no cancel link
-		$zz_conf['int']['hash_id'] = true;	// user cannot view all IDs
+		if (empty($zz_var['where_with_unique_id'])) {
+			$zz_conf['int']['hash_id'] = true;	// user cannot view all IDs
+		}
 		if (empty($_POST)) $ops['mode'] = 'edit';
 		break;
 	case 'thumbnails':
