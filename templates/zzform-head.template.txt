@@ -7,6 +7,6 @@
 # @copyright Copyright © 2015 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
-	<link rel="stylesheet" type="text/css" href="%%% item layout_path %%%/zzform/zzform.css">
-	<link rel="stylesheet" type="text/css" href="%%% item layout_path %%%/zzform-colours.css">
-	<link rel="stylesheet" type="text/css" href="%%% item layout_path %%%/zzform/zzform-print.css" media="print">
+	<link rel="stylesheet" type="text/css" href="%%% page layout_path %%%/zzform/zzform.css">
+	<link rel="stylesheet" type="text/css" href="%%% page layout_path %%%/zzform-colours.css">
+	<link rel="stylesheet" type="text/css" href="%%% page layout_path %%%/zzform/zzform-print.css" media="print">
