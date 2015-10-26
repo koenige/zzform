@@ -488,17 +488,24 @@ function zz_defaults($zz) {
  * initalize zzform, sets default configuration variables if not set by user
  * includes modules
  *
- * @param string $mode (default: false; others: 'overwrite' overwrites $zz_conf
- *		array with $zz_saved)
+ * @param string $mode
+ *		default: false; 
+ *		'overwrite': overwrites $zz_conf array with $zz_saved
+ *		'old_conf': writes $zz_saved['old_conf'] back to $zz_conf
  * @global array $zz_conf
  * @global array $zz_error
- * @global array $zz_saved
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_initialize($mode = false) {
 	global $zz_conf;
 	global $zz_error;
-	global $zz_saved;
+	static $zz_saved;
+	
+	if ($mode === 'old_conf') {
+		// in case zzform was called from within zzform, get the old conf back
+		$zz_conf = $zz_saved['old_conf'];
+		return true;
+	}
 
 	if (!empty($zz_conf['zzform_init'])) {
 		// get clean $zz_conf without changes from different zzform calls or included scripts
@@ -708,7 +715,6 @@ function zzform_multi($definition_file, $values) {
 	// unset all variables that are not needed
 	// important because there may be multiple zzform calls
 	global $zz_conf;
-	global $zz_saved;
 	
 	$old_conf = $zz_conf;
 	// debug, note: this will only start from the second time, zzform_multi()
@@ -764,9 +770,8 @@ function zzform_multi($definition_file, $values) {
 	// return on error in form script
 	if (!empty($ops['error'])) return $ops;
 	$ops = zzform($zz);
-	// in case zzform was called from within zzform, get the old conf back
 	if ($zz_conf['zzform_calls'] > 1) {
-		$zz_conf = $zz_saved['old_conf'];
+		zz_initialize('old_conf');
 	} else {
 		$zz_conf['generate_output'] = isset($old_conf['generate_output']) ? $old_conf['generate_output'] : true;
 		$zz_conf['show_output'] = isset($old_conf['show_output']) ? $old_conf['show_output'] : true;
