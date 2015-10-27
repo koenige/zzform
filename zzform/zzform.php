@@ -811,6 +811,8 @@ function zzform_file($definition_file) {
 	if (file_exists($zz_conf['form_scripts'].'/'.$definition_file.'.php')) {
 		if (file_exists($zz_conf['form_scripts'].'/_common.inc.php')) {
 			$scripts['common'] = $zz_conf['form_scripts'].'/_common.inc.php';
+		} else {
+			$scripts['common'] = false;
 		}
 		$scripts['tables'] = $zz_conf['form_scripts'].'/'.$definition_file.'.php';
 	} else {
