@@ -1599,14 +1599,14 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			} elseif (!isset($field['set']) AND !isset($field['set_sql'])
 				 AND !isset($field['set_folder'])) {
 				$my_rec['validation'] = false;
-			} elseif ($field['required']) {
+			} elseif ($field['required_in_db']) {
 				$my_rec['validation'] = false;
 				$my_rec['fields'][$f]['check_validation'] = false;
 			}
 		} elseif (!$my_rec['POST'][$field_name] 
 			AND empty($field['null'])
 			AND $field['type'] !== 'timestamp') {
-			if ($field['required']) {
+			if ($field['required_in_db']) {
 				$my_rec['validation'] = false;
 				$my_rec['fields'][$f]['check_validation'] = false;
 			}
