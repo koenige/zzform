@@ -802,6 +802,7 @@ function zz_write_onces($zz, $zz_var) {
  * @param string $db_table [i. e. db_name.table]
  * @param bool $multiple_times marker for conditions
  * @param string $mode (optional, $ops['mode'])
+ * @param string $action (optional, $zz_var['action'])
  * @return array $fields
  */
 function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false, $action = false) {
@@ -903,11 +904,11 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			}
 			$fields[$no]['fields'] = zz_fill_out(
 				$fields[$no]['fields'], $fields[$no]['table'], $multiple_times,
-				$mode
+				$mode, $action
 			);
 		}
 
-		if (in_array($mode, array('add', 'edit')) OR in_array($mode, array('insert', 'update'))) {
+		if (in_array($mode, array('add', 'edit')) OR in_array($action, array('insert', 'update'))) {
 			if (!isset($fields[$no]['maxlength']) && isset($fields[$no]['field_name'])) {
 				// no need to check maxlength in list view only 
 				$fields[$no]['maxlength'] = zz_db_field_maxlength(
@@ -921,6 +922,9 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			if (!isset($fields[$no]['maxlength'])) $fields[$no]['maxlength'] = 0;
 			if (!isset($fields[$no]['required'])) $fields[$no]['required'] = false;
 		}
+		// save 'required' status for validation of subrecords as well,
+		// where required attribute might be set to false
+		$fields[$no]['required_in_db'] = $fields[$no]['required'];
 	}
 	$defs[$hash] = $fields;
 	return zz_return($fields);
@@ -944,8 +948,9 @@ function zz_fill_out_required($field, $db_table) {
 	// might be NULL
 	if (zz_db_field_null($field['field_name'], $db_table)) return false;
 	// some field types never can be required
-	$never_required = array('calculated', 'display', 'option', 'image', 
-		'foreign', 'subtable');
+	$never_required = array(
+		'calculated', 'display', 'option', 'image', 'foreign', 'subtable'
+	);
 	if (in_array($field['type'], $never_required)) return false;
 
 	return true;
