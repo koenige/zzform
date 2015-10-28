@@ -370,8 +370,9 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 			$edit_link = 'mode=edit'.$id_link.$zz_var['extraGET'];
 			if ($zz_conf['int']['access'] === 'show_after_edit')
 				$edit_link = substr($zz_var['extraGET'], 5); // remove &amp;
+			$edit_link = $edit_link ? $zz_conf['int']['url']['?&'].$edit_link : '';
 			$output .= '<a href="'.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
-				.$zz_conf['int']['url']['?&'].$edit_link.'">'.zz_text('edit').'</a>';
+				.$edit_link.'">'.zz_text('edit').'</a>';
 			if ($zz_conf_record['delete']) $output .= ' | <a href="'
 				.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
 				.$zz_conf['int']['url']['?&'].'mode=delete'.$id_link
