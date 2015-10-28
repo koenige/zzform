@@ -509,11 +509,16 @@ function zz_initialize($mode = false) {
 
 	if (!empty($zz_conf['zzform_init'])) {
 		// get clean $zz_conf without changes from different zzform calls or included scripts
-		if (!empty($zz_conf['zzform_calls']) AND !empty($zz_saved) AND $mode === 'overwrite') {
-			$calls = $zz_conf['zzform_calls'];
-			$zz_saved['old_conf'] = $zz_conf;
-			$zz_conf = $zz_saved['conf'];
-			$zz_conf['zzform_calls'] = $calls;
+		if ($mode === 'overwrite') {
+			if (!empty($zz_conf['zzform_calls'])) {
+				// zzform was called first (zzform_calls >= 1), zzform_multi() inside
+				$zz_saved['old_conf'] = $zz_conf;
+			}
+			if (!empty($zz_saved)) {
+				$calls = $zz_conf['zzform_calls'];
+				$zz_conf = $zz_saved['conf'];
+				$zz_conf['zzform_calls'] = $calls;
+			}
 		}
 		zz_initialize_int();
 		$zz_conf['id'] = mt_rand();
@@ -632,7 +637,7 @@ function zz_initialize($mode = false) {
 	$default['show_output']		= true;		// ECHO output or keep it in $ops['output']
 	$default['title_separator']	= ' &#8211; ';
 	$default['thousands_separator']	= ' ';
-	$default['user']				= (isset($_SERVER['PHP_AUTH_USER'])) ? $_SERVER['PHP_AUTH_USER'] : '';
+	$default['user']				= isset($_SERVER['PHP_AUTH_USER']) ? $_SERVER['PHP_AUTH_USER'] : '';
 	$default['view']				= false;	// 	show Action: View
 	$default['translate_log_encodings'] = array(
 		'iso-8859-2' => 'iso-8859-1'
@@ -644,7 +649,9 @@ function zz_initialize($mode = false) {
 	zz_initialize_int();
 
 	//	URL parameter
-	if (get_magic_quotes_gpc()) { // sometimes unwanted standard config
+	if (get_magic_quotes_gpc()) {
+		// sometimes unwanted standard config
+		// @deprecated removed from PHP 5.4.0 on
 		if (!empty($_POST)) $_POST = zz_magic_quotes_strip($_POST);
 		if (!empty($_GET)) $_GET = zz_magic_quotes_strip($_GET);
 		if (!empty($_FILES)) $_FILES = zz_magic_quotes_strip($_FILES);
