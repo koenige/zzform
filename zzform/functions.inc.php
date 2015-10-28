@@ -1098,7 +1098,7 @@ function zz_set_fielddefs_for_record($fields, $zz_var) {
  * 
  * @param array $zz
  * @param array $zz_conf
- *		int['record'], 'access', 'list_access' etc. pp.
+ *		int['record'], 'access', int['list_access'] etc. pp.
  *		'modules'[debug]
  * @param array $zz_var --> will be changed as well
  *		'where_with_unique_id' bool if it's just one record to be shown (true)
@@ -1275,7 +1275,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 
 	// if conditions in $zz_conf['if'] -- check them
 	// get conditions if there are any, for access
-	$zz_conf['list_access'] = array(); // for old variables
+	$zz_conf['int']['list_access'] = array(); // for old variables
 
 	if (!empty($zz_conf['modules']['conditions'])
 		AND (!empty($zz_conf['if']) OR !empty($zz_conf['unless']))
@@ -1289,7 +1289,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		);
 		foreach ($saved_variables as $var) {
 			if (!isset($zz_conf[$var])) continue;
-			$zz_conf['list_access'][$var] = $zz_conf[$var];
+			$zz_conf['int']['list_access'][$var] = $zz_conf[$var];
 		}
 		// overwrite new variables
 		zz_conditions_merge_conf($zz_conf, $zz_conditions['bool'], $zz_var['id']['value']);

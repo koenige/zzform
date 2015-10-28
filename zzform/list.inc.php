@@ -68,9 +68,9 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 
 	$id_field = $zz_var['id']['field_name'];
 
-	if ($zz_conf['list_access']) {
-		$zz_conf = array_merge($zz_conf, $zz_conf['list_access']);
-		unset($zz_conf['list_access']);
+	if ($zz_conf['int']['list_access']) {
+		$zz_conf = array_merge($zz_conf, $zz_conf['int']['list_access']);
+		unset($zz_conf['int']['list_access']);
 	}
 	if ($zz_conf['int']['access'] === 'search_but_no_list' AND empty($_GET['q'])) 
 		$zz_conf['int']['show_list'] = false;
