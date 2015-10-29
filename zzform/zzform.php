@@ -494,12 +494,13 @@ function zz_defaults($zz) {
  *		'old_conf': writes $zz_saved['old_conf'] back to $zz_conf
  * @global array $zz_conf
  * @global array $zz_error
+ * @global array $zz_saved (needs global status, access as well from zz_write_conf())
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_initialize($mode = false) {
 	global $zz_conf;
 	global $zz_error;
-	static $zz_saved;
+	global $zz_saved;
 	
 	if ($mode === 'old_conf') {
 		// in case zzform was called from within zzform, get the old conf back
