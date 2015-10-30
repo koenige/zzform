@@ -763,7 +763,7 @@ function zz_filter_selection($filter, $filter_params, $pos) {
 					// ID might be string as well, so better urlencode it
 					$link = $self.($qs ? $qs.'&amp;' : '?').'filter['.$f['identifier'].']='.urlencode($id);
 				}
-				$filter[$index]['output'][] = array(
+				$filter[$index]['values'][] = array(
 					'title' => $selection,
 					'link' => $link
 				);
@@ -772,7 +772,7 @@ function zz_filter_selection($filter, $filter_params, $pos) {
 		} elseif (isset($filter_params[$f['identifier']])) {
 			// no filter selections are shown, but there is a current filter, 
 			// so show this
-			$filter[$index]['output'][] = array(
+			$filter[$index]['values'][] = array(
 				'title' => zz_htmltag_escape($filter_params[$f['identifier']]),
 				'link' => false
 			);
@@ -797,10 +797,9 @@ function zz_filter_selection($filter, $filter_params, $pos) {
 			AND $filter_params[$f['identifier']] !== 0) $link_all = true;
 		if (!$link_all) $link = false;
 
-		$filter[$index]['output'][] = array(
-			'title' => '&#8211;&nbsp;'.zz_text('all').'&nbsp;&#8211;',
+		$filter[$index]['values'][] = array(
 			'link' => $link,
-			'class' => 'filter_all'
+			'all' => true
 		);
 	}
 	if (!$filter_output) return false;

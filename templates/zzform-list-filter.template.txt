@@ -11,10 +11,10 @@
 	<dl>
 %%% loop start %%%
 		<dt>%%% text Selection %%% %%% item title %%%:</dt>
-%%% loop output %%%
-		<dd%%% item class " class='%s'" %%%>
+%%% loop values %%%
+		<dd%%% item all " class='filter_all'" %%%>
 %%% condition if link %%%<a href="%%% item link %%%">%%% condition else %%%<strong>%%% condition endif %%%
-%%% item title %%%
+%%% condition if all %%%&#8211;&nbsp;%%% text all %%%&nbsp;&#8211;%%% condition else %%%%%% item title %%%%%% condition endif %%%
 %%% condition if link %%%</a>%%% condition else %%%</strong>%%% condition endif %%%
 		</dd>
 %%% loop end %%%
