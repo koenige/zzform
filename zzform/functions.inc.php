@@ -2544,74 +2544,13 @@ function zz_hierarchy_sort($h_lines, $hierarchy, $id_field, $level = 0, &$i = 0)
  * Translate text if possible or write back text string to be translated
  * 
  * @param string $string		Text string to be translated
- * @global array $zz_conf
  * @return string $string		Translation of text
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_text($string) {
 	global $zz_conf;
 	if (empty($zz_conf['generate_output'])) return $string;
-
-	static $text;				// $text will only be available to this function
-	static $text_included;
-
-	$language = $zz_conf['language'];
-	if (isset($zz_conf['default_language_for'][$language]))
-		$language = $zz_conf['default_language_for'][$language];
-
-	if (empty($text_included)) {
-		$text = array();
-		// base: include english text
-		require $zz_conf['dir_inc'].'/text-en.inc.php';
-
-		// text in other languages
-		if ($language !== 'en') {
-			$langfile = $zz_conf['dir_inc'].'/text-'.$language.'.inc.php';
-			if (file_exists($langfile)) {
-				$text = array_merge($text, zz_text_include($langfile));
-			} else {
-				// no zz_text() here, or script will recurse indefinitely!
-				$zz_error[] = array(
-					'msg_dev' => sprintf(
-						'No language file for "%s" found. Using English instead.', 
-						'<strong>'.$language.'</strong>'
-					),
-					'level' => E_USER_NOTICE
-				);
-			}
-		}
-		// todo: if file exists else lang = en
-		$text_included = true;
-	}
-	if (!empty($zz_conf['text'][$language])) {
-		$text = array_merge($text, $zz_conf['text'][$language]);
-	}
-
-	if (!isset($text[$string])) {
-		if (function_exists('wrap_text')) {
-			return wrap_text($string);
-		}
-		return $string;
-	}
-	return $text[$string];
-}
-
-/**
- * includes translations from simple text file
- *
- * @param string $filename filename with path
- * @global array $zz_conf
- * @return array $text
- */
-function zz_text_include($filename) {
-	global $zz_conf;
-	include $filename;
-	if ($zz_conf['character_set'] !== 'utf-8') {
-		foreach ($text as $key => $value) {
-			$text[$key] = mb_convert_encoding($value, 'HTML-ENTITIES', 'UTF-8'); 
-		}
-	}
-	return $text;
+	return wrap_text($string);
 }
 
 /**
