@@ -1,0 +1,770 @@
+# zzform
+# Translations, template
+#
+# Part of »Zugzwang Project«
+# http://www.zugzwang.org/projects/zzform
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2005-2015 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Zugzwang Project -- zzform\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
+"|| n%100>=20) ? 1 : 2);\n"
+"X-Generator: Poedit 1.8.6\n"
+"Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
+"Language: pl\n"
+
+# Number of records as shown in page TITLE
+#: Page elements
+msgid "records"
+msgstr "Wpisy"
+
+#: Page elements
+msgid "back-to-overview"
+msgstr "Z powrotem do podglądu"
+
+#: Page elements
+msgid "page"
+msgstr ""
+
+#: Page elements: Heading
+msgid "Search"
+msgstr "Wyszukiwanie"
+
+# Link to add a new value for detail record via dropdown
+#: Record form
+msgid "new"
+msgstr "Nowy"
+
+# @todo check if deprecated
+#: Record form: Heading
+msgid "review"
+msgstr "Pokaż"
+
+# @todo check if deprecated
+#: Record form: Heading
+msgid "insert"
+msgstr "Wstaw"
+
+# @todo check if deprecated
+#: Record form: Heading
+msgid "update"
+msgstr "Aktualizacja"
+
+# @todo check if deprecated
+#: Record form: Heading
+msgid "edit"
+msgstr "Zmienić"
+
+# @todo check if deprecated
+#: Record form: Heading
+msgid "delete"
+msgstr "Usunąć"
+
+# @todo check if deprecated
+#: Record form: Heading
+msgid "show"
+msgstr "Pokazać"
+
+# @todo check if deprecated
+#: Record form: Heading
+msgid "add"
+msgstr "Dodaj"
+
+#: Record form: Heading
+msgid "Copy"
+msgstr ""
+
+#: Record form: Heading
+msgid "Merge"
+msgstr ""
+
+#: Record form: Heading
+msgid "Add a record"
+msgstr "Dodaj wpisy"
+
+#: Record form: Heading
+msgid "Delete a record"
+msgstr "Usunąć wpisu"
+
+#: Record form: Heading
+msgid "Edit a record"
+msgstr "Zmienić wpisu"
+
+#: Record form: Heading
+msgid "Show a record"
+msgstr "Pokaż wpisy"
+
+#: Record form: Heading
+msgid "Add several records"
+msgstr ""
+
+#: Record form: Heading
+msgid "Delete several records"
+msgstr ""
+
+#: Record form: Heading
+msgid "Edit several records"
+msgstr ""
+
+#: Record form: Heading
+msgid "Insert failed"
+msgstr "Nie powiodło się wstaw"
+
+#: Record form: Heading
+msgid "Delete failed"
+msgstr "Nie powiodło się usunąć"
+
+#: Record form: Heading
+msgid "Update failed"
+msgstr "Nie powiodło się aktualizacja"
+
+#: Record form: Heading
+msgid "The record with the ID %d was already deleted."
+msgstr "Istnieje plik danych o tym ID: %d"
+
+#: Record form: Heading
+msgid "A record with the ID %d does not exist."
+msgstr "Istnieje plik danych o tym ID: %d"
+
+#: Record form: Heading
+msgid "Sorry, it is not possible to access the ID %d from here."
+msgstr ""
+
+#: Record form: Heading
+msgid "Invalid ID for a record (must be an integer): %s"
+msgstr ""
+
+#: Record form: Heading
+msgid "record_was_updated"
+msgstr "Wpis zaktualizowany"
+
+#: Record form: Heading
+msgid "Record was not updated (no changes were made)"
+msgstr ""
+
+#: Record form: Heading
+msgid "record_was_deleted"
+msgstr "Wpis usunięty"
+
+#: Record form: Heading
+msgid "%s records were deleted"
+msgstr ""
+
+#: Record form: Heading
+msgid "record_was_inserted"
+msgstr "Wpis został dodany"
+
+#: Record form: Heading
+msgid "Configuration does not allow this action: %s"
+msgstr ""
+
+#: Record form: Heading
+msgid "Configuration does not allow this mode: %s"
+msgstr ""
+
+# Stop editing this record
+#: Record form: bottom
+msgid "Cancel"
+msgstr "Anuluj"
+
+#: Record form: bottom
+msgid "OK"
+msgstr ""
+
+#: Record form: bottom
+msgid "Update record"
+msgstr "Zmień na bazy danych"
+
+#: Record form: bottom
+msgid "Update records"
+msgstr ""
+
+#: Record form: bottom
+msgid "Delete record"
+msgstr "Usuń z bazy danych"
+
+#: Record form: bottom
+msgid "Delete records"
+msgstr ""
+
+#: Record form: bottom
+msgid "Add record"
+msgstr "Dołącz do bazy danych"
+
+#: Record form: bottom
+msgid "Add records"
+msgstr ""
+
+#: Record form: bottom
+msgid "Edit record"
+msgstr ""
+
+#: Record form: bottom
+msgid "Edit records"
+msgstr ""
+
+# no value available for display, should be abbreviated
+#: Record form: field output
+msgid "N/A"
+msgstr "Niedostępne"
+
+#: Record form: field output
+msgid "will_be_added_automatically"
+msgstr "zostanie automatycznie dodane"
+
+#: Record form: field output
+msgid "calculated_field"
+msgstr "Pole wyliczone"
+
+# dropdown, first entry
+#: Record form: Select
+msgid "none_selected"
+msgstr "Nie wybrano"
+
+# radio buttons, first entry
+#: Record form: Select
+msgid "no_selection"
+msgstr "brak wyboru"
+
+#: Record form: Select
+msgid "no_source_defined"
+msgstr "Brak podanego źródła"
+
+#: Record form: Select
+msgid "no_selection_possible"
+msgstr "Wybór niemożliwy"
+
+#: Record form: Select
+msgid "(This entry is the highest entry in the hierarchy.)"
+msgstr ""
+
+# select/deselect checkboxes
+#: Record form: Select
+msgid "Select all"
+msgstr ""
+
+# select/deselect checkboxes
+#: Record form: Select
+msgid "Deselect all"
+msgstr ""
+
+#: Record form: Change password
+msgid "Old:"
+msgstr "Stary:"
+
+#: Record form: Change password
+msgid "New:"
+msgstr "Nowy:"
+
+#: Record form: Change password
+msgid "(Please confirm your new password twice)"
+msgstr "(Proszę potwierdzić swoje hasło dwa razy)"
+
+#: Record form: Change password
+msgid "Your password has been changed!"
+msgstr "Twoje hasło zostało zmienione"
+
+#: Record form: Change password
+msgid ""
+"Your current password is different from what you entered. Please try again."
+msgstr "Twoje aktualne hasło nie jest tym, które podałeś. Spróbuj jeszcze raz."
+
+#: Record form: Change password
+msgid "New passwords do not match. Please try again."
+msgstr "Wprowadzone dane do nowego hasła różnią się. Spróbuj jeszcze raz."
+
+#: Record form: Change password
+msgid "Please enter your current password and twice your new password."
+msgstr "Proszę wprowadzić aktualne hasło i dwa razy nowe hasło."
+
+#: Record form: Change password
+msgid ""
+"New and old password are identical. Please choose a different new password."
+msgstr "Nowe i stare hasło są identyczne. Prosze wybrać inne hasło"
+
+#: Record form: Change password
+msgid "Rules for secure passwords"
+msgstr "Zasady bezpiecznego hasła"
+
+#: Record form: Change password
+msgid "password-rules"
+msgstr ""
+"Hasło musi składać się z min. 8 znaków i zawierać duże i małe litery, cyfry "
+"oraz znaki specjalne.\n"
+"\n"
+"Przykłady bezpiecznych haseł:\n"
+"\n"
+"* !1Pw=ig! (Zasada: !Hasło powinno być znane tylko Tobie!)\n"
+"* 1sPh&uuml;o&auml;o&Ouml;  (Zasada: bezpieczne hasło powinno zawierać "
+"&uuml; oder &auml; oder &ouml;)"
+
+#: Record form: Change password
+msgid "hidden"
+msgstr "Ukryte"
+
+#: Record form: Change password
+msgid "Your new password could not be saved. Please try a different one."
+msgstr ""
+
+#: Record form: File upload
+msgid "image_not_display"
+msgstr "Nie ma obrazu"
+
+#: Record form: File upload
+msgid "Error: "
+msgstr "Błąd: "
+
+#: Record form: File upload
+msgid "No file was uploaded."
+msgstr "Nie załadowano żadnego pliku."
+
+#: Record form: File upload
+msgid "File was only partially uploaded."
+msgstr "Plik został załadowany częściowo."
+
+#: Record form: File upload
+msgid "File is too big."
+msgstr "Plik jest zbyt duży."
+
+#: Record form: File upload
+msgid "Maximum allowed filesize is"
+msgstr "Maksymalna wielkość pliku wynosi"
+
+#: Record form: File upload
+msgid "Unsupported filetype:"
+msgstr "Nieobsługiwany typ pliku:"
+
+#: Record form: File upload
+msgid "Supported filetypes are:"
+msgstr "Obsługiwane typy plików to:"
+
+#: Record form: File upload
+msgid "Could not delete %s."
+msgstr "Nie można było usunąć %s."
+
+#: Record form: File upload
+msgid "Could not delete %s, file did not exist."
+msgstr "Nie można było usunąć %s. Plik nie istnieje."
+
+# prefix for alt-attribute
+#: Record form: File upload
+msgid "File: "
+msgstr "Plik: "
+
+# alt-attribute if there's no image
+#: Record form: File upload
+msgid "no_image"
+msgstr "Brak obrazu"
+
+#: Record form: File upload
+msgid "Delete this file"
+msgstr "Skazuj ten plik"
+
+#: Record form: File upload
+msgid ""
+"File could not be saved. There is a problem with the user rights. We are "
+"working on it."
+msgstr ""
+
+#: Record form: File upload
+msgid "Minimum width %s was not reached."
+msgstr "Minimalna szerokość %s nie została osiągnięta."
+
+#: Record form: File upload
+msgid "Minimum height %s was not reached."
+msgstr "Minimalna wysokość %s nie została osiągnięta."
+
+#: Record form: File upload
+msgid "Maximum width %s has been exceeded."
+msgstr "Maksymalna szerokość %s została przekroczona."
+
+#: Record form: File upload
+msgid "Maximum height %s has been exceeded."
+msgstr "Maksymalna wysokość %s została przekroczona."
+
+#: Record form: File upload
+msgid "Transfer failed. Probably you sent a file that was too large."
+msgstr ""
+
+#: Record form: File upload
+msgid "You sent: %s data."
+msgstr ""
+
+#: Record form: File upload
+msgid ""
+"The file %s is empty. If you are uploading from a Mac, please check if the "
+"data is not only available in the so-called “resource fork” of the file."
+msgstr ""
+
+# e. g. Add Address, Add Phone Number ...
+#: Record form: Detail record
+msgid "Add %s"
+msgstr "Dodaj %s"
+
+#: Record form: Detail record
+msgid "Remove %s"
+msgstr "Usunąć %s"
+
+#: Record form: Detail record
+msgid "Remove"
+msgstr ""
+
+#: Record form: Detail record
+msgid "Minimum of records for table `%s` was not met (%d)."
+msgstr ""
+
+#: Record form: Validation, displayed inside form
+msgid "Please enter more characters."
+msgstr "Prosze podać więcej liter."
+
+#: Record form: Validation, displayed inside form
+msgid "No entry found. Try less characters."
+msgstr "Nie odnaleziono. Prosze spróbować z większą ilością znaków."
+
+#: Record form: Validation, displayed above form
+msgid "Following_errors_occured"
+msgstr "Wystąpiły następujące błędy"
+
+#: Record form: Validation, displayed above form
+msgid "Value incorrect in field %s."
+msgstr "Błąd danych %s."
+
+#: Record form: Validation, displayed above form
+msgid "Value missing in field %s."
+msgstr "Brak danych %s."
+
+#: Record form: Validation, displayed above form
+msgid "Nothing was uploaded in field %s."
+msgstr ""
+
+#: Record form: Validation, displayed above form
+msgid "Duplicate entry"
+msgstr "Podwójny wpis."
+
+#: Record form: Validation, displayed above form
+msgid "Detail record could not be handled"
+msgstr "Wpis nie może być zapisany."
+
+#: Record form: Validation, displayed above form
+msgid "String <em>\"%s\"</em> is not allowed"
+msgstr ""
+
+#: Record form: Validation, displayed above form
+msgid "Please check these values again"
+msgstr ""
+
+#: Record form: Validation, displayed above form
+msgid "Please select one of the values for field %s"
+msgstr ""
+
+#: Record form: Validation, displayed above form
+msgid "Creation of directory %s failed: Parent directory is not writable."
+msgstr ""
+
+#: Record form: Validation, displayed above form
+msgid "Creation of directory %s failed."
+msgstr ""
+
+#: Record form: Validation of Database Integrity, displayed above form
+msgid "No records in relation table"
+msgstr "Brak wpisów w tabeli. Uzupełnij"
+
+#: Record form: Validation of Database Integrity, displayed above form
+msgid "Detail records exist in the following tables:"
+msgstr "Szczegółpwe wpisy występują w następujących tabelach:"
+
+#: Record form: Validation of Database Integrity, displayed above form
+msgid ""
+"This record could not be deleted because there are details about this record "
+"in other records."
+msgstr ""
+"Nie można usunąć wpisu, ponieważ jego elementy występują w innych wpisach."
+
+#: Record form: foreign record
+msgid "edit-after-save"
+msgstr "Zapisz przed edycją."
+
+#: Record form: foreign record
+msgid "no-data-available"
+msgstr "Brak danych"
+
+#: Record form: identifier, hidden etc.
+msgid "Record for %s does not exist."
+msgstr ""
+
+#: Record form: identifier, hidden etc.
+msgid "Would be changed on update"
+msgstr ""
+
+#: Record form: Merge
+msgid "%d records merged successfully"
+msgstr ""
+
+#: Record form: Merge
+msgid "For merging, the field %s has to be equal in all records."
+msgstr ""
+
+#: Record form: Merge
+msgid "For merging, the fields %s and %s have to be equal in all records."
+msgstr ""
+
+#: Record form: Merge
+msgid "Merge not complete, records are different:"
+msgstr ""
+
+#: List view
+msgid "table-empty"
+msgstr "Brak zapisów."
+
+# group by unknown
+#: List view
+msgid "- unknown -"
+msgstr "- nieznany -"
+
+#: List view: Filter
+msgid "Selection"
+msgstr "Wybór"
+
+#: List view: Filter
+msgid "all"
+msgstr "Wszystkie"
+
+#: List view: Filter
+msgid ""
+"\"%s\" is not a valid value for the selection \"%s\". Please select a "
+"different filter."
+msgstr ""
+
+#: List view: Filter
+msgid "A filter for the selection \"%s\" does not exist."
+msgstr ""
+
+#: List view: Filter
+msgid "List without this filter"
+msgstr ""
+
+#: List view: Filter
+msgid "(no value)"
+msgstr ""
+
+#: List view: Table head
+msgid "order by"
+msgstr "Sortuj według"
+
+#: List view: Table head
+msgid "asc"
+msgstr "Rosnąco"
+
+#: List view: Table head
+msgid "desc"
+msgstr "Malejąco"
+
+#: List view: Table head
+msgid "action"
+msgstr "Akcja"
+
+#: List view: Table head
+msgid "detail"
+msgstr "Szczegóły"
+
+#: List view: bottom
+msgid "Add new record"
+msgstr "Nowy wpis"
+
+#: List view: bottom
+msgid "records total"
+msgstr "Wszystkie wpisy"
+
+#: List view: bottom
+msgid "record total"
+msgstr "Cały wpis"
+
+#: List view: bottom
+msgid "All records on one page"
+msgstr ""
+
+#: List view: bottom
+msgid "First page"
+msgstr ""
+
+#: List view: bottom
+msgid "Previous page"
+msgstr ""
+
+#: List view: bottom
+msgid "Next page"
+msgstr ""
+
+#: List view: bottom
+msgid "Last page"
+msgstr ""
+
+#: List view: Search form
+msgid "Show all records"
+msgstr ""
+
+#: List view: Search form
+msgid "in"
+msgstr "w"
+
+#: List view: Search form
+msgid "all fields"
+msgstr "wszystkich polach"
+
+# Button
+#: List view: Search form
+msgid "search"
+msgstr "Szukaj"
+
+#: Error handling
+msgid "Warning!"
+msgstr "Ostrzeżenie!"
+
+#: Error handling
+msgid "incorrect value"
+msgstr ""
+
+#: Error handling
+msgid "Database error"
+msgstr "Błąd bazy danych"
+
+#: Error handling
+msgid ""
+"An error occured. We are working on the solution of this problem. Sorry for "
+"your inconvenience. Please try again later."
+msgstr ""
+
+# Export-Link
+#: Modules: Export
+msgid "Export"
+msgstr "Eksport"
+
+#: Modules: Export
+msgid ""
+"Please don't mess with the URL parameters. <code>%s</code> is not allowed "
+"here."
+msgstr ""
+
+#: Modules: Geo
+msgid "N"
+msgstr "<abbr title=\"na północ\">N</abbr>"
+
+#: Modules: Geo
+msgid "E"
+msgstr "<abbr title=\"wschód\">E</abbr>"
+
+#: Modules: Geo
+msgid "S"
+msgstr "<abbr title=\"południe\">S</abbr>"
+
+#: Modules: Geo
+msgid "W"
+msgstr "<abbr title=\"zachód\">W</abbr>"
+
+#: Modules: Geo
+msgid ""
+"It looks like this coordinate has a different orientation. Maybe latitude "
+"and longitude were interchanged?"
+msgstr ""
+
+#: Modules: Geo
+msgid "Mismatch: %s signals different hemisphere than %s."
+msgstr ""
+
+#: Modules: Geo
+msgid "There are too many decimal points (or commas) in this value."
+msgstr ""
+
+#: Modules: Geo
+msgid "Only the last number might have a decimal point (or comma)."
+msgstr ""
+
+#: Modules: Geo
+msgid "%s is too small. Please enter for minutes a positive value or 0."
+msgstr ""
+
+#: Modules: Geo
+msgid "%s is too small. Please enter for seconds a positive value or 0."
+msgstr ""
+
+#: Modules: Geo
+msgid "%s is too big. Please enter for minutes a value smaller than 60."
+msgstr ""
+
+#: Modules: Geo
+msgid "%s is too big. Please enter for seconds a value smaller than 60."
+msgstr ""
+
+#: Modules: Geo
+msgid ""
+"Sorry, there are too many numbers. We cannot interpret what you entered."
+msgstr ""
+
+#: Modules: Geo
+msgid ""
+"Minimum value for degrees is %s. The value you entered is too small: %s."
+msgstr ""
+
+#: Modules: Geo
+msgid "Maximum value for degrees is %s. The value you entered is too big: %s."
+msgstr ""
+
+#: Modules: Upload (Table filetypes)
+msgid "Filetypes"
+msgstr ""
+
+#: Modules: Upload (Table filetypes)
+msgid "MIME Content Type"
+msgstr ""
+
+#: Modules: Upload (Table filetypes)
+msgid "MIME Subtype"
+msgstr ""
+
+#: Modules: Upload (Table filetypes)
+msgid "Extension"
+msgstr ""
+
+#: Modules: Upload (Table filetypes)
+msgid "Ext."
+msgstr ""
+
+#: Modules: Upload (Table filetypes)
+msgid "Count"
+msgstr ""
+
+#: Backend: Development
+msgid "Script configuration error. No display field set."
+msgstr ""
+
+# introduces field name with wrong values
+#: Backend: Development
+msgid "Field name"
+msgstr ""
+
+# from table relations
+#: Backend: Development
+msgid "no-delete"
+msgstr ""
+
+#: Backend: Development
+msgid "Database error. This query has ambiguous values in ID field."
+msgstr "Błąd bazy. Zapytanie zawiera niejednoznaczne wartości"
+
+#: Backend: Development, Error mail
+msgid "Error during database operation"
+msgstr "Błąd bazy danych"
+
+#: Backend: Development, Error mail
+msgid "The following error(s) occured in project %s:"
+msgstr "Projekt wystąpił w projekcie %s:"
