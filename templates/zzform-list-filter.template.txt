@@ -1,0 +1,23 @@
+# Zugzwang Project
+# HTML output: zzform list filter
+#
+# http://www.zugzwang.org/projects/zzform
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2015 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+<div class="zzfilter">
+	<dl>
+%%% loop start %%%
+		<dt>%%% text Selection %%% %%% item title %%%:</dt>
+%%% loop output %%%
+		<dd%%% item class " class='%s'" %%%>
+%%% condition if link %%%<a href="%%% item link %%%">%%% condition else %%%<strong>%%% condition endif %%%
+%%% item title %%%
+%%% condition if link %%%</a>%%% condition else %%%</strong>%%% condition endif %%%
+		</dd>
+%%% loop end %%%
+%%% loop end %%%
+	</dl>
+</div>

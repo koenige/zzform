@@ -805,22 +805,7 @@ function zz_filter_selection($filter, $filter_params, $pos) {
 	}
 	if (!$filter_output) return false;
 
-	// HTML output
-	$output = '<div class="zzfilter">'."\n<dl>\n";
-	foreach ($filter as $f) {
-		$output .= '<dt>'.zz_text('Selection').' '.$f['title'].':</dt>';
-		foreach ($f['output'] as $item) {
-			$output .= '<dd'
-				.(!empty($item['class']) ? ' class="'.$item['class'].'"' : '')
-				.'>'
-				.($item['link'] ? '<a href="'.$item['link'].'">' : '<strong>')
-				.$item['title']
-				.($item['link'] ? '</a>' : '</strong>')
-				."</dd>\n";
-		}
-	}
-	$output .= '</dl></div>'."\n";
-	return $output;
+	return wrap_template('zzform-list-filter', $filter);
 }
 
 /**
