@@ -2549,15 +2549,16 @@ function zz_hierarchy_sort($h_lines, $hierarchy, $id_field, $level = 0, &$i = 0)
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_text($string) {
-	static $text;				// $text will only be available to this function
 	global $zz_conf;
+	static $text;				// $text will only be available to this function
+	static $text_included;
 	if (empty($zz_conf['generate_output'])) return $string;
 
 	$language = isset($zz_conf['language']) ? $zz_conf['language'] : 'en';
 	if (isset($zz_conf['default_language_for'][$language]))
 		$language = $zz_conf['default_language_for'][$language];
 
-	if (empty($zz_conf['int']['text_included'])) {
+	if (empty($text_included)) {
 		$text = array();
 		if (!isset($zz_conf['lang_dir'])) {
 			$zz_conf['lang_dir'] = $zz_conf['dir_custom'];
@@ -2594,7 +2595,7 @@ function zz_text($string) {
 			}
 		}
 		// todo: if file exists else lang = en
-		$zz_conf['int']['text_included'] = true;
+		$text_included = true;
 	}
 	if (!empty($zz_conf['text'][$language])) {
 		$text = array_merge($text, $zz_conf['text'][$language]);
