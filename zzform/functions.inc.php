@@ -2550,23 +2550,21 @@ function zz_hierarchy_sort($h_lines, $hierarchy, $id_field, $level = 0, &$i = 0)
  */
 function zz_text($string) {
 	global $zz_conf;
-	static $text;				// $text will only be available to this function
-	static $text_included;
 	if (empty($zz_conf['generate_output'])) return $string;
 
-	$language = isset($zz_conf['language']) ? $zz_conf['language'] : 'en';
+	static $text;				// $text will only be available to this function
+	static $text_included;
+
+	$language = $zz_conf['language'];
 	if (isset($zz_conf['default_language_for'][$language]))
 		$language = $zz_conf['default_language_for'][$language];
 
 	if (empty($text_included)) {
 		$text = array();
-		if (!isset($zz_conf['lang_dir'])) {
-			$zz_conf['lang_dir'] = $zz_conf['dir_custom'];
-		}
 		// base: include english text
 		require $zz_conf['dir_inc'].'/text-en.inc.php';
 		if (!empty($zz_conf['additional_text']) 
-			AND file_exists($langfile = $zz_conf['lang_dir'].'/text-en.inc.php')) {
+			AND file_exists($langfile = $zz_conf['dir_custom'].'/text-en.inc.php')) {
 			// translated text must not be include_once since $text is cleared
 			// beforehands
 			$text = array_merge($text, zz_text_include($langfile));
@@ -2588,7 +2586,7 @@ function zz_text($string) {
 				);
 			}
 			if (!empty($zz_conf['additional_text']) AND file_exists(
-				$langfile = $zz_conf['lang_dir'].'/text-'.$language.'.inc.php'
+				$langfile = $zz_conf['dir_custom'].'/text-'.$language.'.inc.php'
 			)) {
 				// must not be include_once since $text is cleared beforehands
 				$text = array_merge($text, zz_text_include($langfile));

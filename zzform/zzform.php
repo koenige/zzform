@@ -570,7 +570,6 @@ function zz_initialize($mode = false) {
 	if ($zz_error['error']) zz_return(false);
 
 	$default['hooks_dir']		= $zz_conf['dir_custom'];	// directory for included scripts after action has been taken
-	$default['lang_dir']		= $zz_conf['dir_custom'];	// directory for additional text
 
 	$default['always_show_empty_detail_record'] = false;
 	$default['additional_text']	= false;
@@ -607,6 +606,7 @@ function zz_initialize($mode = false) {
 	$default['hash_password']		= 'md5';
 	$default['heading_prefix']		= false;
 	$default['html_autofocus']		= true;
+	$default['language']			= 'en';
 	$default['limit']				= false;	// only n records are shown at once
 	$default['limit_show_range'] 	= 800;		// range in which links to records around current selection will be shown
 	$default['limit_display']		= 'pages';
