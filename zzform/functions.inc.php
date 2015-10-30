@@ -971,7 +971,7 @@ function zz_hash($zz, $zz_conf) {
 	// get rid of configuration settings which are not important for
 	// the definition of the database table(s)
 	$uninteresting_zz_conf_keys = array(
-		'zzform_calls', 'int', 'id', 'footer_text', 'additional_text', 
+		'zzform_calls', 'int', 'id', 'footer_text', 
 		'breadcrumbs', 'dont_show_title_as_breadcrumb', 'error_handling',
 		'error_log', 'format', 'group_html_table', 'list_display',
 		'limit_display', 'logging', 'logging_id', 'logging_table',
@@ -2563,12 +2563,6 @@ function zz_text($string) {
 		$text = array();
 		// base: include english text
 		require $zz_conf['dir_inc'].'/text-en.inc.php';
-		if (!empty($zz_conf['additional_text']) 
-			AND file_exists($langfile = $zz_conf['dir_custom'].'/text-en.inc.php')) {
-			// translated text must not be include_once since $text is cleared
-			// beforehands
-			$text = array_merge($text, zz_text_include($langfile));
-		}
 
 		// text in other languages
 		if ($language !== 'en') {
@@ -2584,12 +2578,6 @@ function zz_text($string) {
 					),
 					'level' => E_USER_NOTICE
 				);
-			}
-			if (!empty($zz_conf['additional_text']) AND file_exists(
-				$langfile = $zz_conf['dir_custom'].'/text-'.$language.'.inc.php'
-			)) {
-				// must not be include_once since $text is cleared beforehands
-				$text = array_merge($text, zz_text_include($langfile));
 			}
 		}
 		// todo: if file exists else lang = en

@@ -572,7 +572,6 @@ function zz_initialize($mode = false) {
 	$default['hooks_dir']		= $zz_conf['dir_custom'];	// directory for included scripts after action has been taken
 
 	$default['always_show_empty_detail_record'] = false;
-	$default['additional_text']	= false;
 	$default['add']				= true;		// add or do not add data.
 	$default['cancel_link']		= true;
 	$default['check_referential_integrity'] = true;
