@@ -82,11 +82,11 @@ msgstr "Dodaj"
 
 #: Record form: Heading
 msgid "Copy"
-msgstr ""
+msgstr "Kopiuj"
 
 #: Record form: Heading
 msgid "Merge"
-msgstr ""
+msgstr "Połącz"
 
 #: Record form: Heading
 msgid "Add a record"
@@ -106,15 +106,15 @@ msgstr "Pokaż wpisy"
 
 #: Record form: Heading
 msgid "Add several records"
-msgstr ""
+msgstr "Dodać kilka rekordów"
 
 #: Record form: Heading
 msgid "Delete several records"
-msgstr ""
+msgstr "Usuwanie wielu rekordów"
 
 #: Record form: Heading
 msgid "Edit several records"
-msgstr ""
+msgstr "Edytować kilka rekordów"
 
 #: Record form: Heading
 msgid "Insert failed"
@@ -150,7 +150,7 @@ msgstr "Wpis zaktualizowany"
 
 #: Record form: Heading
 msgid "Record was not updated (no changes were made)"
-msgstr ""
+msgstr "Rekord nie został zaktualizowany (nie zmian)"
 
 #: Record form: Heading
 msgid "record_was_deleted"
@@ -158,7 +158,7 @@ msgstr "Wpis usunięty"
 
 #: Record form: Heading
 msgid "%s records were deleted"
-msgstr ""
+msgstr "Usunięto %s rekordów"
 
 #: Record form: Heading
 msgid "record_was_inserted"
@@ -179,7 +179,7 @@ msgstr "Anuluj"
 
 #: Record form: bottom
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: Record form: bottom
 msgid "Update record"
@@ -187,7 +187,7 @@ msgstr "Zmień na bazy danych"
 
 #: Record form: bottom
 msgid "Update records"
-msgstr ""
+msgstr "Aktualizacja rekordów"
 
 #: Record form: bottom
 msgid "Delete record"
@@ -229,7 +229,7 @@ msgstr "Pole wyliczone"
 # dropdown, first entry
 #: Record form: Select
 msgid "none_selected"
-msgstr "Nie wybrano"
+msgstr "nie wybrano"
 
 # radio buttons, first entry
 #: Record form: Select
@@ -251,12 +251,12 @@ msgstr ""
 # select/deselect checkboxes
 #: Record form: Select
 msgid "Select all"
-msgstr ""
+msgstr "Wybierz wszystkie"
 
 # select/deselect checkboxes
 #: Record form: Select
 msgid "Deselect all"
-msgstr ""
+msgstr "Usuń zaznaczenie wszystkich"
 
 #: Record form: Change password
 msgid "Old:"
@@ -314,11 +314,11 @@ msgstr "Ukryte"
 
 #: Record form: Change password
 msgid "Your new password could not be saved. Please try a different one."
-msgstr ""
+msgstr "Nie można zapisać ponownie nowe hasło. Spróbuj inną."
 
 #: Record form: File upload
 msgid "image_not_display"
-msgstr "Nie ma obrazu"
+msgstr "nie ma obrazu"
 
 #: Record form: File upload
 msgid "Error: "
@@ -375,6 +375,8 @@ msgid ""
 "File could not be saved. There is a problem with the user rights. We are "
 "working on it."
 msgstr ""
+"Nie można zapisać pliku. Istnieje problem z prawami użytkownika. Pracujemy "
+"nad nim."
 
 #: Record form: File upload
 msgid "Minimum width %s was not reached."
@@ -394,17 +396,19 @@ msgstr "Maksymalna wysokość %s została przekroczona."
 
 #: Record form: File upload
 msgid "Transfer failed. Probably you sent a file that was too large."
-msgstr ""
+msgstr "Transfer nieudany. Prawdopodobnie wysłany plik, który był zbyt duży."
 
 #: Record form: File upload
 msgid "You sent: %s data."
-msgstr ""
+msgstr "Wysłałeś: %s danych."
 
 #: Record form: File upload
 msgid ""
 "The file %s is empty. If you are uploading from a Mac, please check if the "
 "data is not only available in the so-called “resource fork” of the file."
 msgstr ""
+"Plik %s jest pusty. Jeśli wysyłasz z Mac, proszę sprawdzić, jeśli dane nie "
+"są tylko dostępne w tak zwanych \"Rozwidlenie zasobów\" pliku."
 
 # e. g. Add Address, Add Phone Number ...
 #: Record form: Detail record
@@ -417,11 +421,11 @@ msgstr "Usunąć %s"
 
 #: Record form: Detail record
 msgid "Remove"
-msgstr ""
+msgstr "Usuń"
 
 #: Record form: Detail record
 msgid "Minimum of records for table `%s` was not met (%d)."
-msgstr ""
+msgstr "Minimalne rekordów w tabela '%s' nie było spełnione (%d)."
 
 #: Record form: Validation, displayed inside form
 msgid "Please enter more characters."
@@ -445,7 +449,7 @@ msgstr "Brak danych %s."
 
 #: Record form: Validation, displayed above form
 msgid "Nothing was uploaded in field %s."
-msgstr ""
+msgstr "Nic nie zostało przesłane w polu %s."
 
 #: Record form: Validation, displayed above form
 msgid "Duplicate entry"
@@ -457,15 +461,15 @@ msgstr "Wpis nie może być zapisany."
 
 #: Record form: Validation, displayed above form
 msgid "String <em>\"%s\"</em> is not allowed"
-msgstr ""
+msgstr "Ciąg znaków <em>\"%s\"</em> nie jest dozwolone"
 
 #: Record form: Validation, displayed above form
 msgid "Please check these values again"
-msgstr ""
+msgstr "Proszę ponownie sprawdzić te wartości"
 
 #: Record form: Validation, displayed above form
 msgid "Please select one of the values for field %s"
-msgstr ""
+msgstr "Wybierz jedną z wartości dla pola %s"
 
 #: Record form: Validation, displayed above form
 msgid "Creation of directory %s failed: Parent directory is not writable."
@@ -500,11 +504,11 @@ msgstr "Brak danych"
 
 #: Record form: identifier, hidden etc.
 msgid "Record for %s does not exist."
-msgstr ""
+msgstr "Rekord dla %s nie istnieje."
 
 #: Record form: identifier, hidden etc.
 msgid "Would be changed on update"
-msgstr ""
+msgstr "Zmiany na aktualizację"
 
 #: Record form: Merge
 msgid "%d records merged successfully"
@@ -555,7 +559,7 @@ msgstr ""
 
 #: List view: Filter
 msgid "(no value)"
-msgstr ""
+msgstr "(brak wartości)"
 
 #: List view: Table head
 msgid "order by"
@@ -591,27 +595,27 @@ msgstr "Cały wpis"
 
 #: List view: bottom
 msgid "All records on one page"
-msgstr ""
+msgstr "Wszystkie rekordy na jednej stronie"
 
 #: List view: bottom
 msgid "First page"
-msgstr ""
+msgstr "Pierwsza strona"
 
 #: List view: bottom
 msgid "Previous page"
-msgstr ""
+msgstr "Poprzednia strona"
 
 #: List view: bottom
 msgid "Next page"
-msgstr ""
+msgstr "Następna strona"
 
 #: List view: bottom
 msgid "Last page"
-msgstr ""
+msgstr "Ostatnia strona"
 
 #: List view: Search form
 msgid "Show all records"
-msgstr ""
+msgstr "Wszystkie rekordy"
 
 #: List view: Search form
 msgid "in"
@@ -632,7 +636,7 @@ msgstr "Ostrzeżenie!"
 
 #: Error handling
 msgid "incorrect value"
-msgstr ""
+msgstr "nieprawidłowa wartość"
 
 #: Error handling
 msgid "Database error"
@@ -721,19 +725,19 @@ msgstr ""
 
 #: Modules: Upload (Table filetypes)
 msgid "Filetypes"
-msgstr ""
+msgstr "Typy plików"
 
 #: Modules: Upload (Table filetypes)
 msgid "MIME Content Type"
-msgstr ""
+msgstr "Typ danych MIME"
 
 #: Modules: Upload (Table filetypes)
 msgid "MIME Subtype"
-msgstr ""
+msgstr "Podtyp MIME"
 
 #: Modules: Upload (Table filetypes)
 msgid "Extension"
-msgstr ""
+msgstr "Rozszerzenie"
 
 #: Modules: Upload (Table filetypes)
 msgid "Ext."
@@ -745,12 +749,12 @@ msgstr ""
 
 #: Backend: Development
 msgid "Script configuration error. No display field set."
-msgstr ""
+msgstr "Błąd konfiguracji skryptu. Nie zestaw pole wyświetlacza."
 
 # introduces field name with wrong values
 #: Backend: Development
 msgid "Field name"
-msgstr ""
+msgstr "Nazwa pola"
 
 # from table relations
 #: Backend: Development
