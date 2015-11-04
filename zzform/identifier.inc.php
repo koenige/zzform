@@ -460,7 +460,7 @@ function zz_identifier_redirect($type, $ops, $main_tab) {
 		}
 
 		$sql = 'SELECT redirect_id FROM /*_PREFIX_*/redirects WHERE old_url = "%s"';
-		$sql = sprintf(zz_db_escape($ops['record_old'][0][$field_name]));
+		$sql = sprintf($sql, zz_db_escape($ops['record_old'][0][$field_name]));
 		$redirect_id = zz_db_fetch($sql, '', 'single value');
 
 		$values = array();
