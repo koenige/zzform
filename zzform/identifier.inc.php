@@ -459,9 +459,18 @@ function zz_identifier_redirect($type, $ops, $main_tab) {
 			if ($ops['record_diff'][0][$field_name] != 'diff') continue;
 		}
 
+		$sql = 'SELECT redirect_id FROM /*_PREFIX_*/redirects WHERE old_url = "%s"';
+		$sql = sprintf(zz_db_escape($ops['record_old'][0][$field_name]));
+		$redirect_id = zz_db_fetch($sql, '', 'single value');
+
 		$values = array();
-		$values['action'] = 'insert';
-		$values['POST']['old_url'] = sprintf($old, $ops['record_old'][0][$field_name]);
+		if ($redirect_id) {
+			$values['action'] = 'update';
+			$values['POST']['redirect_id'] = $redirect_id;
+		} else {
+			$values['action'] = 'insert';
+			$values['POST']['old_url'] = sprintf($old, $ops['record_old'][0][$field_name]);
+		}
 		switch ($type) {
 		case 'after_update':
 			$values['POST']['new_url'] = sprintf($new, $ops['record_new'][0][$field_name]);
