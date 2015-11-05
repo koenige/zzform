@@ -182,7 +182,7 @@ function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
 	$convert = zz_imagick_convert(
 		sprintf('-thumbnail %s ', $geometry).$image['convert_options'],
 		sprintf('"%s" %s:"%s"', $source, $dest_extension, $destination),
-		$image['upload']['ext']
+		$image['upload']['ext'], $image
 	);
 
 	if ($zz_conf['modules']['debug']) zz_debug('thumbnail creation '
@@ -233,9 +233,57 @@ function zz_image_webimage($source, $destination, $dest_extension, $image) {
 	$convert = zz_imagick_convert(
 		$image['convert_options'],
 		sprintf('"%s" %s:"%s"', $source, $dest_extension, $destination),
-		$source_extension
+		$source_extension, $image
 	);
 	return zz_return($convert);
+}
+
+/**
+ * Add options for ImageMagick depending on source extension
+ *
+ * @param string $source_extension
+ * @param array $image (optional)
+ * @return string options
+ */
+function zz_imagick_add_options($source_extension, $image = array()) {
+	global $zz_conf;
+	global $zz_error;
+
+	$convert_options = !empty($zz_conf['file_types'][$source_extension]['convert'])
+		? $zz_conf['file_types'][$source_extension]['convert'] : array();
+
+	$ext_options = '';
+	if (empty($zz_conf['upload_imagick_options_no_defaults'][$source_extension])) {
+		foreach ($convert_options as $index => $option) {
+			// look for e. g. -colorspace sRGB and replace it with profiles
+			if (substr($option, 0, 16) !== '-colorspace sRGB') continue;
+			$colorspace = explode(' ', $option);
+			if (empty($image['upload']['colorspace'])) continue;
+			if ($image['upload']['colorspace'] === $option[1]) continue;
+			if (empty($image['upload']['icc_profile'])) continue;
+			if (!array_key_exists($image['upload']['icc_profile'], $zz_conf['icc_profiles']['in'])) {
+				$zz_error[]['msg_dev'] = sprintf('No ICC profile found for %s', $image['upload']['icc_profile']);
+				continue;
+			}
+			// use profiles!
+			$ext_options .= sprintf('-profile "%s" -profile "%s"',
+				$zz_conf['icc_profiles'][$image['upload']['icc_profile']],
+				$zz_conf['icc_profiles']['sRGB']
+			);
+			unset($convert_options[$index]);
+		}
+	}
+	if (empty($zz_conf['upload_imagick_options_no_defaults'][$source_extension])) {
+		if (!empty($zz_conf['file_types'][$source_extension]['convert'])) {
+			$ext_options .= ' '.implode(' ', $zz_conf['file_types'][$source_extension]['convert']);
+		}
+	}
+	if (!empty($zz_conf['upload_imagick_options_for'][$source_extension])) {
+		$ext_options .= ' '.$zz_conf['upload_imagick_options_for'][$source_extension];
+	} elseif (!empty($zz_conf['upload_imagick_options'])) {
+		$ext_options .= ' '.$zz_conf['upload_imagick_options'];
+	}
+	return $ext_options;
 }
 
 /**
@@ -310,12 +358,13 @@ function zz_image_crop($source, $destination, $dest_extension, $image) {
  * @param string $options
  * @param string $files
  * @param string $source_extension
+ * @param array $image (optional)
  * @global array $zz_conf
  *		string 'upload_imagick_options', bool 'modules'['debug'], bool 'debug',
  *		array 'upload_imagick_options_for'
  * @return bool
  */
-function zz_imagick_convert($options, $files, $source_extension) {
+function zz_imagick_convert($options, $files, $source_extension, $image = array()) {
 	global $zz_conf;
 	
 	$source_extension = zz_upload_extension_normalize($source_extension);
@@ -329,17 +378,7 @@ function zz_imagick_convert($options, $files, $source_extension) {
 
 	$command = zz_imagick_findpath('convert');
 
-	$ext_options = '';
-	if (empty($zz_conf['upload_imagick_options_no_defaults'][$source_extension])) {
-		if (!empty($zz_conf['file_types'][$source_extension]['convert'])) {
-			$ext_options .= ' '.implode(' ', $zz_conf['file_types'][$source_extension]['convert']);
-		}
-	}
-	if (!empty($zz_conf['upload_imagick_options_for'][$source_extension])) {
-		$ext_options .= ' '.$zz_conf['upload_imagick_options_for'][$source_extension];
-	} elseif (!empty($zz_conf['upload_imagick_options'])) {
-		$ext_options .= ' '.$zz_conf['upload_imagick_options'];
-	}
+	$ext_options = zz_imagick_add_options($source_extension, $image);
 	// first extra options like auto-orient, then other options by script
 	if ($ext_options) $command .= $ext_options.' ';
 	if ($options) $command .= $options.' ';
