@@ -81,6 +81,7 @@ function zz_imagick_identify($filename, $file) {
 		$file['warnings']['ImageMagick identify'] = $output;
 	}
 
+	if (substr($result, -1) !== ' ') $result .= ' '; // for explode
 	$tokens = explode(' ~ ', $result);
 	$file['filetype'] = strtolower($tokens[0]);
 
