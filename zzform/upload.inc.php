@@ -736,10 +736,24 @@ function zz_upload_mimecheck($mimetype, $extension) {
  * @return bool
  */
 function zz_upload_extension_matches_type($extension, $type) {
-	if ($extension == $type) return true;
+	global $zz_conf;
+	if ($extension === $type) return true;
 	if (empty($zz_conf['upload_filetype_map'][$type])) return false;
-	if ($extension == $zz_conf['upload_filetype_map'][$type]) return true;
+	if ($extension === $zz_conf['upload_filetype_map'][$type]) return true;
 	return false;
+}
+
+/**
+ * return normalized extension
+ *
+ * @param string $extension
+ * @global array $zz_conf
+ * @return string
+ */
+function zz_upload_extension_normalize($extension) {
+	global $zz_conf;
+	if (empty($zz_conf['upload_filetype_map'][$extension])) return $extension;
+	return $zz_conf['upload_filetype_map'][$extension];
 }
 
 /**
