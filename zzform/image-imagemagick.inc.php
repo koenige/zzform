@@ -67,15 +67,13 @@ function zz_imagick_identify($filename, $file) {
 
 	$command = zz_imagick_findpath('identify');
 	// always check only first page if it's a multipage file (document, movie etc.)
-	$command = sprintf('%s -format "%%m %%w %%h %%[colorspace]" "%s[0]"', $command, $filename);
+	$command = sprintf('%s -format "%%m ~ %%w ~ %%h ~ %%[colorspace] ~ %%[profile:icc]" "%s[0]"', $command, $filename);
 	zz_upload_exec($command, 'ImageMagick identify', $output, $return_var);
 	if (!$output) return zz_return($file);
 	if ($zz_conf['modules']['debug']) zz_debug('identify output', json_encode($output));
 	
 	// Error? Then first token ends with colon
 	// e. g. Error: identify: mv:
-	$tokens = explode(' ', $output[0]);
-	if (substr($tokens[0], -1) === ':') return zz_return($file);
 	$result = array_pop($output);
 	if ($result === 'aborting...') return zz_return($file);
 	if (count($output)) {
@@ -83,15 +81,14 @@ function zz_imagick_identify($filename, $file) {
 		$file['warnings']['ImageMagick identify'] = $output;
 	}
 
-	$tokens = explode(' ', $result);
+	$tokens = explode(' ~ ', $result);
 	$file['filetype'] = strtolower($tokens[0]);
 
 	if (count($tokens) >= 3) {
 		$file['width'] = $tokens[1];
 		$file['height'] = $tokens[2];
-		if (count($tokens) === 4) {
-			$file['colorspace'] = $tokens[3];
-		}
+		$file['colorspace'] = isset($tokens[3]) ? $tokens[3] : '';
+		$file['icc_profile'] = isset($tokens[4]) ? $tokens[4] : '';
 	}
 	if (empty($file['ext'])) {
 		if (isset($file['name'])) {
