@@ -319,6 +319,8 @@ function zz_image_crop($source, $destination, $dest_extension, $image) {
  */
 function zz_imagick_convert($options, $files, $source_extension) {
 	global $zz_conf;
+	
+	$source_extension = zz_upload_extension_normalize($source_extension);
 
 	// avoid errors like
 	// libgomp: Thread creation failed: Resource temporarily unavailable
