@@ -115,21 +115,26 @@ function zz_merge_records($zz) {
 		}
 	}
 
+	$types_case_insensitive = array('mail');
+	$types_ignored = array('id', 'timestamp');
+
 	$update = true;
 	$new_values = array();
 	$delete_old_records = false;
 	if (!$error) {
 		$merge_ignore_fields = array();
+		$case_insensitive_fields = array();
 		$fields_by_fieldname = array();
 		foreach ($zz['fields'] as $no => $field) {
 			if (empty($field['field_name'])) continue;
 			$fields_by_fieldname[$field['field_name']] = $no;
-			if ($field['type'] === 'id') {
-				$merge_ignore_fields[] = $field['field_name'];
-			} elseif ($field['type'] === 'timestamp') {
+			if (in_array($field['type'], $types_ignored)) {
 				$merge_ignore_fields[] = $field['field_name'];
 			} elseif (!empty($field['merge_ignore'])) {
 				$merge_ignore_fields[] = $field['field_name'];
+			}
+			if (in_array($field['type'], $types_case_insensitive)) {
+				$case_insensitive_fields[] = $field['field_name'];		
 			}
 		}
 	
@@ -154,6 +159,9 @@ function zz_merge_records($zz) {
 				foreach ($old_record as $field_name => $value) {
 					if (!$value) continue;
 					if ($value === $new_record[$field_name]) continue; // everything ok
+					if (in_array($field_name, $case_insensitive_fields)) {
+						if (strtolower($value) === strtolower($new_record[$field_name])) continue;
+					}
 					if (!$new_record[$field_name]) {
 						// existing field is empty, we can overwrite it
 						if (array_key_exists($field_name, $new_values)) {
