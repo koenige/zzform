@@ -1549,6 +1549,11 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				$my_rec['POST'][$field_name] = trim($my_rec['POST'][$field_name]);
 			}
 			break;
+		case 'memo':
+			if (!empty($field['trim'])) {
+				$my_rec['POST'][$field_name] = trim($my_rec['POST'][$field_name]);
+			}
+			break;
 		default:
 			break;
 		}
