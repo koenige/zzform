@@ -75,11 +75,16 @@ function zz_imagick_identify($filename, $file) {
 	// Error? Then first token ends with colon
 	// e. g. Error: identify: mv:
 	$result = array_pop($output);
+	if (preg_match('~[a-z]+:~', substr($result, 0, strpos($result, ' ')))) {
+		array_push($output, $result);
+		$result = false;
+	}
 	if ($result === 'aborting...') return zz_return($file);
 	if (count($output)) {
 		// e. g.  '   **** Warning:', 'GPL Ghostscript:'
 		$file['warnings']['ImageMagick identify'] = $output;
 	}
+	if (!$result) return zz_return($file);
 
 	if (substr($result, -1) !== ' ') $result .= ' '; // for explode
 	$tokens = explode(' ~ ', $result);
