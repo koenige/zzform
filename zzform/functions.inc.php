@@ -856,7 +856,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			$fields[$no]['title'] = rtrim($fields[$no]['title']);
 		}
 
-		if ($zz_conf['multilang_fieldnames'] AND empty($fields[$no]['translated'])) {
+		if (empty($fields[$no]['translated'])) {
 			// translate fieldnames, if set
 			foreach ($to_translates as $to_translate) {
 				if (empty($fields[$no][$to_translate])) continue;

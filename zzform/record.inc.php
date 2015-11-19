@@ -585,7 +585,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			$sub_tab = $field['subtable'];
 			if (empty($field['title_button'])) {
 				$field['title_button'] = strip_tags($field['title']); 
-			} elseif ($zz_conf['multilang_fieldnames']) {
+			} else {
 				$field['title_button'] = zz_text($field['title_button']);
 			}
 			$out['th']['attr'][] = 'sub-add';

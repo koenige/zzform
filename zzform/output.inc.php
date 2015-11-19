@@ -56,12 +56,11 @@ function zz_output_heading($heading, $table = '') {
 		$heading = str_replace('_', ' ', $heading);
 		$heading = ucfirst($heading);
 	}
-	if ($zz_conf['multilang_fieldnames']) {
-		$heading = zz_text($heading);
+	$heading = zz_text($heading);
+	if ($zz_conf['heading_prefix']) {
 		$zz_conf['heading_prefix'] = zz_text($zz_conf['heading_prefix']);
-	}
-	if ($zz_conf['heading_prefix'])
 		$heading = $zz_conf['heading_prefix'].' '.$heading;
+		}
 	return $heading;
 }
 
@@ -217,7 +216,7 @@ function zz_show_more_actions($conf, $id, $line = false) {
 		$output .= ($conf['details_referer'] ? '&amp;referer='.urlencode($_SERVER['REQUEST_URI']) : '')
 			.'"'
 			.(!empty($conf['details_target']) ? ' target="'.$conf['details_target'].'"' : '')
-			.'>'.($zz_conf['multilang_fieldnames'] ? zz_text($new_action) : $new_action).'</a>';
+			.'>'.zz_text($new_action).'</a>';
 		if (!empty($conf['details_sql'][$key])) {
 			$count = zz_db_fetch($conf['details_sql'][$key].$id, '', 'single value');
 			if ($count) $output .= '&nbsp;('.$count.')';
