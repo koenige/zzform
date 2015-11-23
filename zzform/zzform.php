@@ -516,7 +516,7 @@ function zz_initialize($mode = false) {
 				$zz_saved['old_conf'] = $zz_conf;
 			}
 			if (!empty($zz_saved)) {
-				$calls = $zz_conf['zzform_calls'];
+				$calls = isset($zz_conf['zzform_calls']) ? $zz_conf['zzform_calls'] : 0;
 				$zz_conf = $zz_saved['conf'];
 				$zz_conf['zzform_calls'] = $calls;
 			}
