@@ -1175,6 +1175,17 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 			$source_filename = $src_image['upload']['tmp_name'];
 			if (!$source_filename AND $image['recreate']) {
 				list($image, $source_filename) = zz_upload_create_source($image, $src_image['path'], $zz_tab);
+			} elseif (!$source_filename) {
+				// no new file was uploaded, nothing to do
+				// but: check if all thumbnails already exist (due to errors or
+				// change in thumbnail definition!)
+				$thumb_filename = zz_makepath($image['path'], $zz_tab, 'old', 'file', $tab, $rec);
+				if (!file_exists($thumb_filename)) {
+					list($image, $source_filename) = zz_upload_create_source($image, $src_image['path'], $zz_tab);
+				} else {
+					// else: exists, everything okay
+					$image['upload'] = $src_image['upload']; 
+				}
 			} else {
 				// get some variables from source image as well
 				$image['upload'] = $src_image['upload']; 
@@ -2027,7 +2038,7 @@ function zz_upload_action($zz_tab) {
 				}
 			}
 
-		// @todo EXIF or ICPT write operations go here!
+		// @todo EXIF or IPTC write operations go here!
 		}
 	}
 
