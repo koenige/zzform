@@ -398,6 +398,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			foreach ($tables as $table => $fields) {
 				$id_field = key($fields);
 				$ids = array_shift($fields);
+				$ids = array_unique($ids); // cross-relations
 				$me_sql = 'DELETE FROM %s%s WHERE `%s` IN (%s) LIMIT %d';
 				$me_sql = sprintf($me_sql,
 					$me_db, $table, $id_field, implode(',', $ids), count($ids)
