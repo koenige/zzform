@@ -180,8 +180,22 @@ function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	
-	$geometry = isset($image['width']) ? $image['width'] : '';
-	$geometry .= isset($image['height']) ? 'x'.$image['height'] : '';
+	$rotate = false;
+	if (strstr($image['convert_options'], '-rotate ')) {
+		preg_match_all('~-rotate ([0-9.]+)~', $image['convert_options'], $rotation);
+		$rotation = end($rotation); // get only matches
+		$rotation = end($rotation); // last occurence counts
+		if ($rotation < 0) $rotation = 360 - $rotation;
+		if ($rotation > 45 AND $rotation < 135) $rotate = true;
+		elseif ($rotation > 225 AND $rotation < 315) $rotate = true;
+	}
+	if ($rotate) {
+		$geometry = isset($image['height']) ? $image['height'] : '';
+		$geometry .= isset($image['width']) ? 'x'.$image['width'] : '';
+	} else {
+		$geometry = isset($image['width']) ? $image['width'] : '';
+		$geometry .= isset($image['height']) ? 'x'.$image['height'] : '';
+	}
 	$filetype = !empty($image['upload']['filetype']) ? $image['upload']['filetype'] : '';
 	$source = zz_imagick_check_multipage($source, $filetype, $image);
 	$convert = zz_imagick_convert(
