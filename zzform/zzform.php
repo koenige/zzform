@@ -439,6 +439,10 @@ function zzform_exit($ops) {
  *		false: request is invalid (or no restriction is in place)
  */
 function zz_valid_request($action = false) {
+	global $zz_conf;
+	global $zz_error;
+	static $dont_log_error;
+
 	$action_requests = array('delete', 'insert', 'update', 'noupdate');
 	$request_found = false;
 	foreach ($action_requests as $request) {
@@ -454,10 +458,7 @@ function zz_valid_request($action = false) {
 	if (!empty($zz_conf['int']['where_with_unique_id'])) return true;
 	if (empty($_GET['zzhash'])) return false;
 	
-	global $zz_conf;
-	static $dont_log_error;
 	if ($_GET['zzhash'] !== $zz_conf['int']['secret_key']) {
-		global $zz_error;
 		if (!$dont_log_error) {
 			$zz_error[] = array(
 				'msg_dev' => sprintf('Hash of script and ID differs from secret key (hash %s, secret %s).'
