@@ -362,9 +362,10 @@ function zz_output_redirect($result, $return, $id_value, $zz_tab) {
  * @param string $heading ($ops['heading'])
  * @param array $fields = $zz['fields']
  * @param array $zz_var
- *		'where_with_unique_id', 'limit_total_rows', 'id', 'filters'
+ *		'limit_total_rows', 'id', 'filters'
  * @param string $mode ($ops['mode'])
  * @global array $zz_conf
+ *		'int['where_with_unique_id]' and others
  * @return string $title
  */
 function zz_nice_title($heading, $fields, $zz_var, $mode = false) {
@@ -412,7 +413,7 @@ function zz_nice_title($heading, $fields, $zz_var, $mode = false) {
 	if (!$mode) $show_id = false;
 	if ($mode === 'list_only') $show_id = false;
 	if (!empty($_GET['zzhash'])) $show_id = false;
-	if (!empty($zz_var['where_with_unique_id'])) $show_id = false;
+	if (!empty($zz_conf['int']['where_with_unique_id'])) $show_id = false;
 	if ($show_id) {
 		$title .= $zz_conf['title_separator'].zz_text($mode)
 			.($zz_var['id']['value'] ? ': ID '.$zz_var['id']['value'] : '');

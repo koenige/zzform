@@ -634,7 +634,7 @@ function zz_where_conditions($zz, $zz_var) {
 	);
 	// where with unique ID: remove filters, they do not make sense here
 	// (single record will be shown)
-	if ($zz_var['where_with_unique_id']) {
+	if ($zz_conf['int']['where_with_unique_id']) {
 		$zz['filter'] = array();
 		$zz_var['filters'] = array();
 	}
@@ -674,10 +674,11 @@ function zz_where_conditions($zz, $zz_var) {
  * @param string $table Name of main table
  * @param array $table_for_where (optional)
  * @global array $zz_conf checks for 'modules'['debug']
+ *		change: 'where_with_unique_id'
  * @return array
  *		string $sql = modified main query (if applicable)
  *		array $zz_var
- *			'where', 'where_with_unique_id', 'where_condition', 'id', 
+ *			'where', 'where_condition', 'id', 
  *			'unique_fields'
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @see zz_get_where_conditions(), zz_get_unique_fields()
@@ -688,7 +689,7 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = arr
 
 	// set some keys
 	$zz_var['where'] = false;
-	$zz_var['where_with_unique_id'] = false;
+	$zz_conf['int']['where_with_unique_id'] = false;
 	
 	if (!$zz_var['where_condition']) return zz_return(array($sql, $zz_var));
 
@@ -739,19 +740,19 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = arr
 
 		if ($field_name === $zz_var['id']['field_name']) {
 			if (intval($value).'' === $value.'') {
-				$zz_var['where_with_unique_id'] = true;
+				$zz_conf['int']['where_with_unique_id'] = true;
 				$zz_var['id']['value'] = $value;
 			} else {
 				$zz_var['id']['invalid_value'] = $value;
 			}
 		} elseif (in_array($field_name, array_keys($zz_var['unique_fields']))) {
-			$zz_var['where_with_unique_id'] = true;
+			$zz_conf['int']['where_with_unique_id'] = true;
 		}
 	}
 	// in case where is not combined with ID field but UNIQUE field
 	// (e. g. identifier with UNIQUE KEY) retrieve value for ID field from 
 	// database
-	if (!$zz_var['id']['value'] AND $zz_var['where_with_unique_id']) {
+	if (!$zz_var['id']['value'] AND $zz_conf['int']['where_with_unique_id']) {
 		if ($zz_conf['modules']['debug']) zz_debug("where_conditions", $sql);
 		$line = zz_db_fetch($sql, '', '', 'WHERE; ambiguous values in ID?');
 		if ($line) {
@@ -764,7 +765,7 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = arr
 //			);
 //			return zz_error(); // exit script
 		}
-		if (!$zz_var['id']['value']) $zz_var['where_with_unique_id'] = false;
+		if (!$zz_var['id']['value']) $zz_conf['int']['where_with_unique_id'] = false;
 	}
 	
 	return zz_return(array($sql, $zz_var));
@@ -1100,8 +1101,8 @@ function zz_set_fielddefs_for_record($fields, $zz_var) {
  * @param array $zz_conf
  *		int['record'], 'access', int['list_access'] etc. pp.
  *		'modules'[debug]
- * @param array $zz_var --> will be changed as well
  *		'where_with_unique_id' bool if it's just one record to be shown (true)
+ * @param array $zz_var --> will be changed as well
  * @global array $zz_conf
  * @global array $zz_error
  * @global array $_POST
@@ -1212,7 +1213,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		}
 		break;
 	
-	case $zz_var['where_with_unique_id']:
+	case $zz_conf['int']['where_with_unique_id']:
 		// just review the record
 		$ops['mode'] = 'review'; 
 		break;
@@ -1303,7 +1304,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		$zz_conf['int']['access'] = 'show_after_add';
 	}
 	if ($zz_conf['int']['access'] === 'edit_only'
-		AND ((!empty($zz_var['where_with_unique_id']) AND (!empty($_GET['update']) OR !empty($_GET['noupdate'])))
+		AND ((!empty($zz_conf['int']['where_with_unique_id']) AND (!empty($_GET['update']) OR !empty($_GET['noupdate'])))
 			OR zz_valid_request(array('update', 'noupdate')))
 	) {
 		$zz_conf['int']['access'] = 'show_after_edit';
@@ -1401,7 +1402,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		$zz_conf['int']['show_list'] = false;		// no list
 		$zz_conf['no_ok'] = true;			// no OK button
 		$zz_conf['cancel_link'] = false; 	// no cancel link
-		if (empty($zz_var['where_with_unique_id'])) {
+		if (empty($zz_conf['int']['where_with_unique_id'])) {
 			$zz_conf['int']['hash_id'] = true;	// user cannot view all IDs
 		}
 		if (empty($_POST)) $ops['mode'] = 'edit';
@@ -1423,7 +1424,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		break;
 	}
 
-	if ($zz_var['where_with_unique_id']) { // just for record, not for list
+	if ($zz_conf['int']['where_with_unique_id']) { // just for record, not for list
 		// in case of where and not unique, ie. only one record in table, 
 		// don't do this.
 		$zz_conf['int']['show_list'] = false;		// don't show table

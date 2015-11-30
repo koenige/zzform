@@ -307,6 +307,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
  * @param array $zz_conf_record
  * @param array $zz_tab
  * @param bool $multiple
+ * @global array $zz_conf
  * @return string
  */
 function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
@@ -366,7 +367,7 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 			if (empty($zz_conf_record['no_ok']))
 				$output .= '<a href="'.$cancelurl.'">'.zz_text('OK').'</a> | ';
 			$id_link = sprintf('&amp;id=%d', $zz_var['id']['value']);
-			if (!empty($zz_var['where_with_unique_id'])) $id_link = '';
+			if (!empty($zz_conf['int']['where_with_unique_id'])) $id_link = '';
 			$edit_link = 'mode=edit'.$id_link.$zz_var['extraGET'];
 			if ($zz_conf['int']['access'] === 'show_after_edit')
 				$edit_link = substr($zz_var['extraGET'], 5); // remove &amp;
