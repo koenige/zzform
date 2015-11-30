@@ -451,6 +451,7 @@ function zz_valid_request($action = false) {
 		if (!is_array($action)) $action = array($action);
 		if (!in_array($request_found, $action)) return false;
 	}
+	if (!empty($zz_conf['int']['where_with_unique_id'])) return true;
 	if (empty($_GET['zzhash'])) return false;
 	
 	global $zz_conf;

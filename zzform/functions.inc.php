@@ -1304,9 +1304,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		$zz_conf['int']['access'] = 'show_after_add';
 	}
 	if ($zz_conf['int']['access'] === 'edit_only'
-		AND ((!empty($zz_conf['int']['where_with_unique_id']) AND (!empty($_GET['update']) OR !empty($_GET['noupdate'])))
-			OR zz_valid_request(array('update', 'noupdate')))
-	) {
+		AND zz_valid_request(array('update', 'noupdate'))) {
 		$zz_conf['int']['access'] = 'show_after_edit';
 	}
 	if ($zz_conf['int']['access'] === 'add_then_edit') {
