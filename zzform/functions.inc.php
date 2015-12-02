@@ -3032,11 +3032,18 @@ function zz_check_select_id($field, $postvalue, $db_table, $id) {
 			$i++;
 		}
 	}
-	$wheresql .= ')';
+	if ($wheresql) $wheresql .= ')';
 	if (!empty($field['show_hierarchy_same_table']) AND !empty($id['value'])) {
 		$wheresql .= sprintf(' AND `%s` != %d', $id['field_name'], $id['value']);
 	}
-	$field['sql_new'] = zz_edit_sql($field['sql'], 'WHERE', $wheresql);
+	if ($wheresql) {
+		$field['sql_new'] = zz_edit_sql($field['sql'], 'WHERE', $wheresql);
+	} elseif ($field['sql'] === 'SHOW DATABASES') {
+		$likestring = str_replace('=', 'LIKE', $likestring);
+		$field['sql_new'] = sprintf($likestring, 'SHOW DATABASES', '', trim($value));
+	} else {
+		$field['sql_new'] = $field['sql'];
+	}
 	$field['possible_values'] = zz_db_fetch(
 		$field['sql_new'], 'dummy_id', 'single value'
 	);
