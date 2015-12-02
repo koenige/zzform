@@ -391,6 +391,7 @@ function zz_sql_fieldnames($sql) {
 	// preg_match, case insensitive, space after select, space around from 
 	// - might not be 100% perfect, but should work always
 	preg_match('/SELECT( DISTINCT|) *(.+) FROM /Ui', $sql, $fieldstring); 
+	if (empty($fieldstring)) return array();
 	$fields = explode(",", $fieldstring[2]);
 	unset($fieldstring);
 	$oldfield = false;
