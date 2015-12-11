@@ -340,6 +340,8 @@ function zz_geo_coords_gps_in($type, $ref, $values) {
  *		'error' => error code
  */
 function zz_geo_coords_from_exif($value, $which) {
+	global $zz_conf;
+
 	// string: use function zz_geo_coord_in()
 	if (!is_array($value)) return zz_geo_coord_in($value, substr($which, 0, 3));
 
@@ -350,6 +352,12 @@ function zz_geo_coords_from_exif($value, $which) {
 	// array: import from EXIF GPS
 	if (!in_array($field, array_keys($value))) return $my;
 	if (!in_array($field_ref, array_keys($value))) return $my;
+
+	if (!empty($zz_conf['upload_tools']['exiftool'])) {
+		$value[$field] = zz_exiftool_normalize($value[$field]);
+		if ($value[$field] === false) return $my;
+		$value[$field_ref] = zz_exiftool_normalize($value[$field_ref]);
+	}
 
 	switch ($which) {
 	case 'longitude':
@@ -368,10 +376,30 @@ function zz_geo_coords_from_exif($value, $which) {
 
 	// check if values are valid
 	if (!in_array($value[$field_ref], array_keys($orientation))) return $my;
-	if (count($value[$field]) !== $array_count) return $my;
-
-	$my['value'] = zz_geo_coords_gps_in($which, $value[$field_ref], $value[$field]);
+	if (!is_array($value[$field])) {
+		$my['value'] = $orientation[$value[$field_ref]].$value[$field];
+	} else {
+		if (count($value[$field]) !== $array_count) return $my;
+		$my['value'] = zz_geo_coords_gps_in($which, $value[$field_ref], $value[$field]);
+	}
 	return $my;
+}
+
+/**
+ * normalize EXIF values from ExifTool
+ * which come in 'num', 'val', and 'desc' if run with -l
+ *
+ * @param mixed $value
+ * @return string $value
+ */
+function zz_exiftool_normalize($value) {
+	if (!is_array($value)) return $value;
+	if (isset($value['num'])) return $value['num'];
+	if (isset($value['val'])) {
+		if ($value['val'] === 'undef') return false;
+		return $value['val'];
+	}
+	return $value;
 }
 
 /**
