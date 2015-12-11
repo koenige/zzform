@@ -19,13 +19,15 @@
  * and transforms it into a decimal number
  *
  * @param string $value coordinate input
- * @param string $orientation ('lat', 'lon')
+ * @param string $orientation ('lat', 'lon', 'alt')
  * @param int $precision precision of double, 0 means will be left as is
  * @return array
  *		'value' => decimal value of coordinate
  *		'error' => error code
  */
 function zz_geo_coord_in($value, $orientation = 'lat', $precision = 0) {
+	if ($orientation === 'alt') return $value;
+
 	$my['value'] = '';
 	$my['error'] = '';
 	if ($value == NULL) {
@@ -328,31 +330,59 @@ function zz_geo_coords_gps_in($type, $ref, $values) {
 }
 
 /**
+ * checks whether a given input is a valid value for a part of a coordinate
+ * and transforms it into a decimal number
+ *
+ * @param mixed $value coordinate input
+ * @param string $which
+ * @return array
+ *		'value' => decimal value of coordinate
+ *		'error' => error code
+ */
+function zz_geo_coords_from_exif($value, $which) {
+	// string: use function zz_geo_coord_in()
+	if (!is_array($value)) return zz_geo_coord_in($value, substr($which, 0, 3));
+
+	$my = array('value' => false, 'error' => false);
+	$field = sprintf('GPS%s', ucfirst($which));
+	$field_ref = sprintf('GPS%sRef', ucfirst($which));
+
+	// array: import from EXIF GPS
+	if (!in_array($field, array_keys($value))) return $my;
+	if (!in_array($field_ref, array_keys($value))) return $my;
+
+	switch ($which) {
+	case 'longitude':
+		$orientation = array('E' => '+', 'W' => '-');
+		$array_count = 3;
+		break;
+	case 'latitude':
+		$orientation = array('N' => '+', 'S' => '-');
+		$array_count = 3;
+		break;
+	case 'altitude':
+		$orientation = array('0' => '+', '1' => '-');
+		$array_count = 1;
+		break;
+	}
+
+	// check if values are valid
+	if (!in_array($value[$field_ref], array_keys($orientation))) return $my;
+	if (count($value[$field]) !== $array_count) return $my;
+
+	$my['value'] = zz_geo_coords_gps_in($which, $value[$field_ref], $value[$field]);
+	return $my;
+}
+
+/**
  * checks whether a given input is a valid latitude coordinate
  * and transforms it into a decimal number
  *
  * @param mixed $value coordinate input
- * @return array
- *		'value' => decimal value of coordinate
- *		'error' => error code
  * @see zz_geo_coord_in()
  */
 function zz_geo_latitude_in($value) {
-	// string: use function zz_geo_coord_in()
-	if (!is_array($value)) return zz_geo_coord_in($value, 'lat');
-	$my = array('value' => false, 'error' => false);
-
-	// array: import from EXIF GPS
-	if (!in_array('GPSLatitudeRef', array_keys($value))) return $my;
-	if (!in_array('GPSLatitude', array_keys($value))) return $my;
-
-	// check if values are valid
-	$orientation = array('N' => '+', 'S' => '-');
-	if (!in_array($value['GPSLatitudeRef'], array_keys($orientation))) return $my;
-	if (count($value['GPSLatitude']) != 3) return $my;
-	
-	$my['value'] = zz_geo_coords_gps_in('latitude', $value['GPSLatitudeRef'], $value['GPSLatitude']);
-	return $my;
+	return zz_geo_coords_from_exif($value, 'latitude');
 }
 
 /**
@@ -366,22 +396,7 @@ function zz_geo_latitude_in($value) {
  * @see zz_geo_coord_in()
  */
 function zz_geo_longitude_in($value) {
-	// string: use function zz_geo_coord_in()
-	if (!is_array($value)) return zz_geo_coord_in($value, 'lon');
-	
-	$my = array('value' => false, 'error' => false);
-
-	// array: import from EXIF GPS
-	if (!in_array('GPSLongitudeRef', array_keys($value))) return $my;
-	if (!in_array('GPSLongitude', array_keys($value))) return $my;
-
-	// check if values are valid
-	$orientation = array('E' => '+', 'W' => '-');
-	if (!in_array($value['GPSLongitudeRef'], array_keys($orientation))) return $my;
-	if (count($value['GPSLongitude']) != 3) return $my;
-	
-	$my['value'] = zz_geo_coords_gps_in('longitude', $value['GPSLongitudeRef'], $value['GPSLongitude']);
-	return $my;
+	return zz_geo_coords_from_exif($value, 'longitude');
 }
 
 /**
@@ -394,21 +409,7 @@ function zz_geo_longitude_in($value) {
  *		'error' => error code
  */
 function zz_geo_altitude_in($value) {
-	// string: use function zz_geo_coord_in()
-	if (!is_array($value)) return $value;
-
-	$my = array('value' => false, 'error' => false);
-
-	// array: import from EXIF GPS
-	if (!in_array('GPSAltitudeRef', array_keys($value))) return $my;
-	if (!in_array('GPSAltitude', array_keys($value))) return $my;
-
-	$orientation = array('0' => '+', '1' => '-');
-	if (!in_array($value['GPSAltitudeRef'], array_keys($orientation))) return $my;
-	if (count($value['GPSAltitude']) != 1) return $my;
-	
-	$my['value'] = zz_geo_coords_gps_in('altitude', $value['GPSAltitudeRef'], $value['GPSAltitude']);
-	return $my;
+	return zz_geo_coords_from_exif($value, 'altitude');
 }
 
 /**
