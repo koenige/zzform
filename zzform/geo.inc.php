@@ -289,44 +289,31 @@ function zz_geo_orientation($orientation) {
 }
 
 /**
- * transforms GPS coordinate information into decimal value
+ * transforms GPS coordinate array or string into decimal value
  *
- * @param string $type
- * @param string $ref
- * @param array $values
+ * @param mixed $values
  * @return double
  */
-function zz_geo_coords_gps_in($type, $ref, $values) {
-	switch ($type) {
-		case 'latitude':
-		case 'longitude':
-			foreach ($values as $key => $val) {
-				$val = explode('/', $val);
-				if (!$val[1]) continue;
-				if (!$key) {
-					$num = $val[0]/$val[1];
-				} elseif ($key == 1) {
-					$num += $val[0]/$val[1]/60;
-				} elseif ($key == 2) {
-					$num += $val[0]/$val[1]/3600;
-				}
+function zz_geo_calculate_fraction($values) {
+	$num = false;
+	if (is_array($values)) {
+		if (count($values) !== 3) return $num;
+		foreach ($values as $key => $val) {
+			$val = explode('/', $val);
+			if (!$val[1]) continue;
+			if (!$key) {
+				$num = $val[0] / $val[1];
+			} elseif ($key == 1) {
+				$num += $val[0] / $val[1] / 60;
+			} elseif ($key == 2) {
+				$num += $val[0] / $val[1] / 3600;
 			}
-			if (!isset($num)) return NULL;
-			// western and southern hemisphere have negative values
-			if ($ref == 'S' OR $ref == 'W') $num = -$num;
-			return $num;
-			break;
-		case 'altitude':
-			$val = explode('/', $values);
-			if ($val[1])
-				$num = $val[0]/$val[1];
-			else return false;
-			if ($ref == 1) $num = -$num;
-			return $num;
-			break;
-		default:
-			return false;
+		}
+	} else {
+		$val = explode('/', $values);
+		if ($val[1]) $num = $val[0] / $val[1];
 	}
+	return $num;
 }
 
 /**
@@ -360,27 +347,20 @@ function zz_geo_coords_from_exif($value, $which) {
 	}
 
 	switch ($which) {
-	case 'longitude':
-		$orientation = array('E' => '+', 'W' => '-');
-		$array_count = 3;
-		break;
-	case 'latitude':
-		$orientation = array('N' => '+', 'S' => '-');
-		$array_count = 3;
-		break;
-	case 'altitude':
-		$orientation = array('0' => '+', '1' => '-');
-		$array_count = 1;
-		break;
+		case 'longitude': $orientation = array('E' => '+', 'W' => '-'); break;
+		case 'latitude':  $orientation = array('N' => '+', 'S' => '-'); break;
+		case 'altitude':  $orientation = array('0' => '+', '1' => '-'); break;
 	}
 
 	// check if values are valid
 	if (!in_array($value[$field_ref], array_keys($orientation))) return $my;
-	if (!is_array($value[$field])) {
-		$my['value'] = $orientation[$value[$field_ref]].$value[$field];
-	} else {
-		if (count($value[$field]) !== $array_count) return $my;
-		$my['value'] = zz_geo_coords_gps_in($which, $value[$field_ref], $value[$field]);
+
+	$my['value'] = $value[$field];
+	if (is_array($value[$field]) OR strstr($value[$field], '/')) {
+		$my['value'] = zz_geo_calculate_fraction($value[$field]);
+	}
+	if ($my['value']) {
+		$my['value'] = $orientation[$value[$field_ref]].$my['value'];
 	}
 	return $my;
 }
