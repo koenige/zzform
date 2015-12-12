@@ -674,16 +674,7 @@ function zz_upload_fileinfo($file, $extension = false) {
 		// or you could exclude key ImageSourceData where the original image
 		// is kept
 		if ($zz_conf['upload_tools']['exiftool']) {
-			$cmd = '/usr/local/bin/exiftool -b -j -struct -c "%%d %%d %%.8f" -l -lang %s -g1 "%s"';
-			$cmd = sprintf($cmd, $zz_conf['language'], $filename);
-			//$cmd = '/usr/local/bin/exiftool -b -j -struct -c "%%d %%d %%.8f" -g1 "%s"';
-			//$cmd = sprintf($cmd, $filename);
-			exec($cmd, $file_meta);
-			if ($file_meta) {
-				$file_meta = json_decode(implode('', $file_meta), true);
-				$file_meta = $file_meta[0];
-				$file['exiftool'] = $file_meta;
-			}
+			$file['exiftool'] = zz_upload_exiftool_read($filename);
 			$file['exif'] = array();
 		} else {
 			$file['exif'] = exif_read_data($filename);
@@ -694,6 +685,27 @@ function zz_upload_fileinfo($file, $extension = false) {
 	// @todo or read IPCT data.
 
 	return zz_return($file);
+}
+
+/**
+ * read EXIF metadata with ExifTool
+ * better than exif_read_data() because this function will crash if it cannot
+ * read the EXIF data
+ *
+ * @param string $filename
+ * @global array $zz_conf
+ * @return array
+ */
+function zz_upload_exiftool_read($filename) {
+	global $zz_conf;
+	// @todo use similar mechanism for finding ExifTool path as in imagemagick
+	$cmd = '/usr/local/bin/exiftool -b -j -struct -c "%%d %%d %%.8f" -l -lang %s -g1 "%s"';
+	$cmd = sprintf($cmd, $zz_conf['language'], $filename);
+	exec($cmd, $file_meta);
+	if (!$file_meta) return array();
+	$file_meta = json_decode(implode('', $file_meta), true);
+	$file_meta = $file_meta[0];
+	return $file_meta;
 }
 
 /**
