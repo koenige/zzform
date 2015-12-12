@@ -673,7 +673,21 @@ function zz_upload_fileinfo($file, $extension = false) {
 		// saved as metadata. exif_read_data() cannot read only the array keys
 		// or you could exclude key ImageSourceData where the original image
 		// is kept
-		$file['exif'] = @exif_read_data($filename);
+		if ($zz_conf['upload_tools']['exiftool']) {
+			$cmd = '/usr/local/bin/exiftool -b -j -struct -c "%%d %%d %%.8f" -l -lang %s -g1 "%s"';
+			$cmd = sprintf($cmd, $zz_conf['language'], $filename);
+			//$cmd = '/usr/local/bin/exiftool -b -j -struct -c "%%d %%d %%.8f" -g1 "%s"';
+			//$cmd = sprintf($cmd, $filename);
+			exec($cmd, $file_meta);
+			if ($file_meta) {
+				$file_meta = json_decode(implode('', $file_meta), true);
+				$file_meta = $file_meta[0];
+				$file['exiftool'] = $file_meta;
+			}
+			$file['exif'] = array();
+		} else {
+			$file['exif'] = exif_read_data($filename);
+		}
 	}
 	// @todo further functions, e. g. zz_pdf_read_data if filetype == pdf ...
 	// @todo or read AutoCAD Version from DXF, DWG, ...
@@ -981,6 +995,7 @@ function zz_upload_error_with_file($filename, $file, $return = array()) {
 	}
 	$err_upload = $file['upload'];
 	unset($err_upload['exif']); // too much information for log
+	unset($err_upload['exiftool']); // too much information for log
 	$return['error_msg'] .= "\r\n".var_export($err_upload, true);
 	if ($error_filename)
 		$return['error_msg'] .= "\r\n".zz_text('The source file was temporarily saved under: ').$error_filename;
@@ -1745,8 +1760,9 @@ function zz_write_upload_fields($zz_tab, $f, $tab = 0, $rec = 0) {
 function zz_val_get_from_upload($field, $images, $post) {
 	global $zz_conf;
 
-	$possible_upload_fields = array('date', 'time', 'text', 'memo', 'hidden', 
-		'number', 'select');
+	$possible_upload_fields = array(
+		'date', 'time', 'text', 'memo', 'hidden', 'number', 'select'
+	);
 	if (!in_array($field['type'], $possible_upload_fields)) 
 		return $post;
 	// apart from hidden, set only values if no values have been set so far
@@ -1758,6 +1774,9 @@ function zz_val_get_from_upload($field, $images, $post) {
 	$g = $field['upload_field'];
 	$possible_values = $field['upload_value'];
 	if (!is_array($possible_values)) $possible_values = array($possible_values);
+	// empty values, e. g. GPS bearing = 0/0, ExifTool GPSImgDirectionRef = 'Unknown ()'
+	// ExifTool undef
+	$empty_values = array('0/0', 'Unknown ()', 'undef');
 	
 	foreach ($possible_values AS $v) {
 		switch ($v) {
@@ -1841,7 +1860,7 @@ function zz_val_get_from_upload($field, $images, $post) {
 				$mval = '';
 			}
 			// remove empty values
-			if ($myval === '0/0') $myval = false; // e. g. GPS bearing
+			if (in_array($myval, $empty_values)) $myval = false;
 			// we don't need whitespace (DateTime field may be set to "    ..."
 			if (!is_array($myval)) $myval = trim($myval);
 			if ($myval === ':  :     :  :') $myval = ''; // empty DateTime
@@ -2594,7 +2613,9 @@ function zz_image_exif_thumbnail($source, $destination, $dest_ext = false, $imag
 		// this filetype does not support EXIF thumbnails
 		return false;
 	}
-	if (!array_key_exists('THUMBNAIL', $image['upload']['exif'])) {
+	if (!array_key_exists('THUMBNAIL', $image['upload']['exif'])
+		AND empty($image['upload']['exiftool']['Composite']['PreviewImage'])
+		AND empty($image['upload']['exiftool']['Composite']['JpgFromRaw'])) {
 		// don't regard it as an error if no EXIF thumbnail was found
 		return false;
 	}
