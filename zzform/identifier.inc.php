@@ -69,7 +69,8 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 		'lowercase' => true, 'slashes' => false, 'replace' => array(),
 		'hash_md5' => false, 'ignore' => array(), 'max_length' => 36,
 		'ignore_this_if' => array(), 'empty' => array(), 'uppercase' => false,
-		'function' => false, 'function_parameter' => false
+		'function' => false, 'function_parameter' => false,
+		'unique_with' => array(), 'where' => ''
 	);
 	foreach ($default_configuration as $key => $value) {
 		if (!isset($conf[$key])) $conf[$key] = $value;
@@ -78,7 +79,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 	foreach ($conf_max_length_1 as $key) {
 		$conf[$key] = substr($conf[$key], 0, 1);
 	}
-	$conf_arrays = array('ignore');
+	$conf_arrays = array('ignore', 'unique_with');
 	foreach ($conf_arrays as $key) {
 		if (!is_array($conf[$key])) $conf[$key] = array($conf[$key]);
 	}
@@ -87,6 +88,15 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 		foreach ($conf[$key] as $subkey => $value) {
 			if (!is_array($value)) $conf[$key][$subkey] = array($value);
 		}
+	}
+	$wheres = array();
+	foreach ($conf['unique_with'] as $field) {
+		// identifier does not have to be unique, add where from other keys
+		$wheres[] = sprintf('%s = "%s"', $field, zz_identifier_var('filetype_id', $my_rec, $my_rec['POST']));
+	}
+	if ($wheres) {
+		if ($conf['where']) $conf['where'] .= ' AND ';
+		$conf['where'] .= implode(' AND ', $wheres);
 	}
 
 	$i = 0;
@@ -254,10 +264,15 @@ function zz_identifier_exists($idf, $i, $db_table, $field, $id_field, $id_value,
 	$conf, $maxlen = false) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	$sql = 'SELECT '.$field.' FROM '.zz_db_table_backticks($db_table).'
-		WHERE '.$field.' = "'.$idf.'"
-		AND '.$id_field.' != '.$id_value
-		.(!empty($conf['where']) ? ' AND '.$conf['where'] : '');
+	$sql = 'SELECT %s FROM %s
+		WHERE %s = "%s"
+		AND %s != %d
+		%s';
+	$sql = sprintf($sql,
+		$field, zz_db_table_backticks($db_table),
+		$field, $idf, $id_field, $id_value,
+		$conf['where'] ? ' AND '.$conf['where'] : ''
+	);
 	$records = zz_db_fetch($sql, $field, 'single value');
 	if ($records) {
 		$start = false;
