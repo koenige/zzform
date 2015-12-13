@@ -927,10 +927,13 @@ function zz_get_subrecords_mode($my_tab, $rec_tpl, $zz_var, $existing_ids) {
  *
  * @param array $fielddefs = $zz_tab[$tab]['fielddefs']
  * @param array $fields = $zz_tab[$tab][$rec]['fields']
+ * @param int $rec number of detail record
  * @return array $fields
  */
-function zz_set_fielddefs(&$fielddefs, $fields) {
-	$my_field_def = array_shift($fielddefs);
+function zz_set_fielddefs(&$fielddefs, $fields, $rec) {
+	if (!array_key_exists($rec, $fielddefs)) return $fields;
+	$my_field_def = $fielddefs[$rec];
+	unset($fielddefs[$rec]);
 	foreach ($my_field_def as $f => $field) {
 		if (!$field) {
 			unset($fields[$f]);
@@ -973,7 +976,7 @@ function zz_set_values($my_tab, $rec, $zz_var) {
 	}
 	if (!empty($my_tab['fielddefs'])) {
 		$my_tab[$rec]['fields'] = zz_set_fielddefs(
-			$my_tab['fielddefs'], $my_tab[$rec]['fields']
+			$my_tab['fielddefs'], $my_tab[$rec]['fields'], $rec
 		);
 	}
 	return $my_tab;
