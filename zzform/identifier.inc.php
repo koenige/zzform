@@ -90,9 +90,9 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 		}
 	}
 	$wheres = array();
-	foreach ($conf['unique_with'] as $field) {
+	foreach ($conf['unique_with'] as $unique_field) {
 		// identifier does not have to be unique, add where from other keys
-		$wheres[] = sprintf('%s = "%s"', $field, zz_identifier_var('filetype_id', $my_rec, $my_rec['POST']));
+		$wheres[] = sprintf('%s = "%s"', $unique_field, zz_identifier_var('filetype_id', $my_rec, $my_rec['POST']));
 	}
 	if ($wheres) {
 		if ($conf['where']) $conf['where'] .= ' AND ';
