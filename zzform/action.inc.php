@@ -555,6 +555,7 @@ function zz_action_last_update($zz_tab, $action) {
  */
 function zz_action_equals($my_rec) {
 	$update_values = array();
+	$extra_update_values = array();
 	$equal = true; // old and new record are said to be equal
 
 	foreach ($my_rec['fields'] as $field) {
@@ -564,8 +565,6 @@ function zz_action_equals($my_rec) {
 
 		// check if field values are different to existing record
 		if ($field['type'] === 'timestamp') {
-			$update = true;
-		} elseif (!empty($field['dont_check_on_update'])) {
 			$update = true;
 		} elseif (in_array($field['field_name'], array_keys($my_rec['POST']))
 		AND !empty($my_rec['existing'])) {
@@ -626,11 +625,18 @@ function zz_action_equals($my_rec) {
 			);
 			$update = true;
 		}
+		$query = '`'.$field['field_name'].'` = '.$my_rec['POST_db'][$field['field_name']];
+		if (!empty($field['dont_check_on_update']) AND !$equal) {
+			$extra_update_values[] = $query;
+		}
 		if (!$update) continue;
-		$update_values[] = '`'.$field['field_name'].'` = '.$my_rec['POST_db'][$field['field_name']];
+		$update_values[] = $query;
 	}
-	if ($update_values AND !$equal) return $update_values;
-	else return array();
+	if ($update_values AND !$equal) {
+		$update_values += $extra_update_values;
+		return $update_values;
+	}
+	return array();
 }
 
 /**
