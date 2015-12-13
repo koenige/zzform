@@ -1109,3 +1109,23 @@ function zz_db_select($db_name) {
 function zz_db_charset($character_set) {
 	return mysql_set_charset($character_set);
 }
+
+/**
+ * check if a field is numeric
+ *
+ * @param string $db_table
+ * @param string $field_name
+ * @return bool, true: it is numeric
+ */
+function zz_db_numeric_field($db_table, $field_name) {
+	$fielddef = zz_db_columns($db_table, $field_name);
+	$numeric_types = array(
+		'int', 'tinyint', 'smallint', 'mediumint', 'bigint', 'decimal', 'float'
+	);
+	foreach ($numeric_types as $type) {
+		if (substr($fielddef['Type'], 0, strlen($type) + 1) === $type.'(') {
+			return true;
+		}
+	}
+	return false;
+}
