@@ -157,8 +157,7 @@ function zz_image_gray($source, $destination, $dest_extension, $image) {
 	$source = zz_imagick_check_multipage($source, $filetype, $image);
 	$convert = zz_imagick_convert(
 		'-colorspace gray '.$image['convert_options'],
-		sprintf('"%s" %s:"%s"', $source, $dest_extension, $destination),
-		$image['upload']['ext']
+		$source, $image['upload']['ext'], $destination, $dest_extension
 	);
 
 	if ($zz_conf['modules']['debug']) zz_debug('end');
@@ -200,8 +199,7 @@ function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
 	$source = zz_imagick_check_multipage($source, $filetype, $image);
 	$convert = zz_imagick_convert(
 		sprintf('-thumbnail %s ', $geometry).$image['convert_options'],
-		sprintf('"%s" %s:"%s"', $source, $dest_extension, $destination),
-		$image['upload']['ext'], $image
+		$source, $image['upload']['ext'], $destination, $dest_extension, $image
 	);
 
 	if ($zz_conf['modules']['debug']) zz_debug('thumbnail creation '
@@ -251,8 +249,7 @@ function zz_image_webimage($source, $destination, $dest_extension, $image) {
 	}
 	$convert = zz_imagick_convert(
 		$image['convert_options'],
-		sprintf('"%s" %s:"%s"', $source, $dest_extension, $destination),
-		$source_extension, $image
+		$source, $source_extension, $destination, $dest_extension, $image
 	);
 	return zz_return($convert);
 }
@@ -365,8 +362,7 @@ function zz_image_crop($source, $destination, $dest_extension, $image) {
 	$source = zz_imagick_check_multipage($source, $filetype, $image);
 	$convert = zz_imagick_convert(
 		$options.' '.$image['convert_options'],
-		sprintf('"%s" %s:"%s"', $source, $dest_extension, $destination),
-		$image['upload']['ext']
+		$source, $image['upload']['ext'], $destination, $dest_extension
 	);
 	return zz_return($convert);
 }
@@ -375,18 +371,20 @@ function zz_image_crop($source, $destination, $dest_extension, $image) {
  * convert a file with ImageMagick
  *
  * @param string $options
- * @param string $files
- * @param string $source_extension
+ * @param string $source
+ * @param string $source_ext
+ * @param string $dest
+ * @param string $dest_ext
  * @param array $image (optional)
  * @global array $zz_conf
  *		string 'upload_imagick_options', bool 'modules'['debug'], bool 'debug',
  *		array 'upload_imagick_options_for'
  * @return bool
  */
-function zz_imagick_convert($options, $files, $source_extension, $image = array()) {
+function zz_imagick_convert($options, $source, $source_ext, $dest, $dest_ext, $image = array()) {
 	global $zz_conf;
 	
-	$source_extension = zz_upload_extension_normalize($source_extension);
+	$source_ext = zz_upload_extension_normalize($source_ext);
 
 	// avoid errors like
 	// libgomp: Thread creation failed: Resource temporarily unavailable
@@ -397,12 +395,12 @@ function zz_imagick_convert($options, $files, $source_extension, $image = array(
 
 	$command = zz_imagick_findpath('convert');
 
-	$ext_options = zz_imagick_add_options($source_extension, $image);
+	$ext_options = zz_imagick_add_options($source_ext, $image);
 	// first extra options like auto-orient, then other options by script
 	if ($ext_options) $command .= $ext_options.' ';
 	if ($options) $command .= $options.' ';
 
-	$command .= ' '.$files.' ';
+	$command .= sprintf(' "%s" %s:"%s" ', $source, $dest_ext, $dest);
 	zz_upload_exec($command, 'ImageMagick convert', $output, $return_var);
 	$return = true;
 	if ($return_var === -1) {
