@@ -143,13 +143,13 @@ function zz_imagick_check_multipage($source, $filetype, $image) {
  * Create image in grayscale
  *
  * @param string $source (temporary) name of source file with extension
- * @param string $destination (temporary) name of destination file without extension
- * @param string $dest_extension file extension for destination image
+ * @param string $dest (temporary) name of destination file without extension
+ * @param string $dest_ext file extension for destination image
  * @param array $image further information about the image
  * @global array $zz_conf
  * @return bool (false: no image was created; true: image was created)
  */
-function zz_image_gray($source, $destination, $dest_extension, $image) {
+function zz_image_gray($source, $dest, $dest_ext, $image) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
@@ -157,7 +157,7 @@ function zz_image_gray($source, $destination, $dest_extension, $image) {
 	$source = zz_imagick_check_multipage($source, $filetype, $image);
 	$convert = zz_imagick_convert(
 		'-colorspace gray '.$image['convert_options'],
-		$source, $image['upload']['ext'], $destination, $dest_extension
+		$source, $image['upload']['ext'], $dest, $dest_ext
 	);
 
 	if ($zz_conf['modules']['debug']) zz_debug('end');
@@ -168,14 +168,14 @@ function zz_image_gray($source, $destination, $dest_extension, $image) {
  * Create thumbnail image
  *
  * @param string $source (temporary) name of source file with extension
- * @param string $destination (temporary) name of destination file without extension
- * @param string $dest_extension file extension for destination image
+ * @param string $dest (temporary) name of destination file without extension
+ * @param string $dest_ext file extension for destination image
  * @param array $image further information about the image
  *		width, height
  * @global array $zz_conf
  * @return bool (false: no image was created; true: image was created)
  */
-function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
+function zz_image_thumbnail($source, $dest, $dest_ext, $image) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	
@@ -199,11 +199,11 @@ function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
 	$source = zz_imagick_check_multipage($source, $filetype, $image);
 	$convert = zz_imagick_convert(
 		sprintf('-thumbnail %s ', $geometry).$image['convert_options'],
-		$source, $image['upload']['ext'], $destination, $dest_extension, $image
+		$source, $image['upload']['ext'], $dest, $dest_ext, $image
 	);
 
 	if ($zz_conf['modules']['debug']) zz_debug('thumbnail creation '
-		.($convert === true ? '' : 'un').'successful:<br>'.$destination);
+		.($convert === true ? '' : 'un').'successful:<br>'.$dest);
 	return zz_return($convert);
 }
 
@@ -211,8 +211,8 @@ function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
  * Create 1:1 preview image in a web accessible format
  *
  * @param string $source (temporary) name of source file with extension
- * @param string $destination (temporary) name of destination file without extension
- * @param string $dest_extension file extension for destination image
+ * @param string $dest (temporary) name of destination file without extension
+ * @param string $dest_ext file extension for destination image
  * @param array $image further information about the image
  *		source_file (string, field name of source path), source_path (array,
  *		path-array ...), source_path_sql (string, SQL query ...), 
@@ -223,33 +223,33 @@ function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
  * @global array $zz_conf
  * @return bool (false: no image was created; true: image was created)
  */
-function zz_image_webimage($source, $destination, $dest_extension, $image) {
+function zz_image_webimage($source, $dest, $dest_ext, $image) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	$filetype = !empty($image['upload']['filetype']) ? $image['upload']['filetype'] : '';
 	$source = zz_imagick_check_multipage($source, $filetype, $image);
-	$source_extension = $image['upload']['ext'];
-	if (in_array($source_extension, array('pdf', 'eps'))) {
+	$source_ext = $image['upload']['ext'];
+	if (in_array($source_ext, array('pdf', 'eps'))) {
 		if (!$zz_conf['upload_tools']['ghostscript']) return zz_return(false);
 	}
 
 	if (empty($image['convert_options']) 
-		AND (!$source_extension OR !empty($zz_conf['webimages_by_extension'][$source_extension]))
+		AND (!$source_ext OR !empty($zz_conf['webimages_by_extension'][$source_ext]))
 	) {
 		// do not create an identical webimage of already existing webimage
 		return zz_return(false);
-	} elseif (!empty($zz_conf['upload_destination_filetype'][$source_extension])) {
-		$dest_extension = $zz_conf['upload_destination_filetype'][$source_extension];
+	} elseif (!empty($zz_conf['upload_destination_filetype'][$source_ext])) {
+		$dest_ext = $zz_conf['upload_destination_filetype'][$source_ext];
 	} elseif (!empty($image['convert_options'])) {
 		// keep original image, create a new modified image
-		$dest_extension = $source_extension;
+		$dest_ext = $source_ext;
 	} else {
 		return zz_return(false);
 	}
 	$convert = zz_imagick_convert(
 		$image['convert_options'],
-		$source, $source_extension, $destination, $dest_extension, $image
+		$source, $source_ext, $dest, $dest_ext, $image
 	);
 	return zz_return($convert);
 }
@@ -257,19 +257,19 @@ function zz_image_webimage($source, $destination, $dest_extension, $image) {
 /**
  * Add options for ImageMagick depending on source extension
  *
- * @param string $source_extension
+ * @param string $source_ext
  * @param array $image (optional)
  * @return string options
  */
-function zz_imagick_add_options($source_extension, $image = array()) {
+function zz_imagick_add_options($source_ext, $image = array()) {
 	global $zz_conf;
 	global $zz_error;
 
-	$convert_options = !empty($zz_conf['file_types'][$source_extension]['convert'])
-		? $zz_conf['file_types'][$source_extension]['convert'] : array();
+	$convert_options = !empty($zz_conf['file_types'][$source_ext]['convert'])
+		? $zz_conf['file_types'][$source_ext]['convert'] : array();
 
 	$ext_options = '';
-	if (empty($zz_conf['upload_imagick_options_no_defaults'][$source_extension])) {
+	if (empty($zz_conf['upload_imagick_options_no_defaults'][$source_ext])) {
 		foreach ($convert_options as $index => $option) {
 			// look for e. g. -colorspace sRGB and replace it with profiles
 			if (substr($option, 0, 16) !== '-colorspace sRGB') continue;
@@ -289,13 +289,13 @@ function zz_imagick_add_options($source_extension, $image = array()) {
 			unset($convert_options[$index]);
 		}
 	}
-	if (empty($zz_conf['upload_imagick_options_no_defaults'][$source_extension])) {
-		if (!empty($zz_conf['file_types'][$source_extension]['convert'])) {
-			$ext_options .= ' '.implode(' ', $zz_conf['file_types'][$source_extension]['convert']);
+	if (empty($zz_conf['upload_imagick_options_no_defaults'][$source_ext])) {
+		if (!empty($zz_conf['file_types'][$source_ext]['convert'])) {
+			$ext_options .= ' '.implode(' ', $zz_conf['file_types'][$source_ext]['convert']);
 		}
 	}
-	if (!empty($zz_conf['upload_imagick_options_for'][$source_extension])) {
-		$ext_options .= ' '.$zz_conf['upload_imagick_options_for'][$source_extension];
+	if (!empty($zz_conf['upload_imagick_options_for'][$source_ext])) {
+		$ext_options .= ' '.$zz_conf['upload_imagick_options_for'][$source_ext];
 	} elseif (!empty($zz_conf['upload_imagick_options'])) {
 		$ext_options .= ' '.$zz_conf['upload_imagick_options'];
 	}
@@ -306,14 +306,14 @@ function zz_imagick_add_options($source_extension, $image = array()) {
  * Create cropped image
  *
  * @param string $source (temporary) name of source file with extension
- * @param string $destination (temporary) name of destination file without extension
- * @param string $dest_extension file extension for destination image
+ * @param string $dest (temporary) name of destination file without extension
+ * @param string $dest_ext file extension for destination image
  * @param array $image further information about the image
  *		width, height etc.
  * @global array $zz_conf
  * @return bool (false: no image was created; true: image was created)
  */
-function zz_image_crop($source, $destination, $dest_extension, $image) {
+function zz_image_crop($source, $dest, $dest_ext, $image) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 // example: convert -thumbnail x240 -crop 240x240+140x0 reiff-pic09b.jpg test.jpg
@@ -362,7 +362,7 @@ function zz_image_crop($source, $destination, $dest_extension, $image) {
 	$source = zz_imagick_check_multipage($source, $filetype, $image);
 	$convert = zz_imagick_convert(
 		$options.' '.$image['convert_options'],
-		$source, $image['upload']['ext'], $destination, $dest_extension
+		$source, $image['upload']['ext'], $dest, $dest_ext
 	);
 	return zz_return($convert);
 }
