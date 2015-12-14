@@ -280,7 +280,7 @@ function zz_imagick_add_options($source_extension, $image = array()) {
 			if (empty($image['upload']['colorspace'])) continue;
 			if ($image['upload']['colorspace'] === $option[1]) continue;
 			if (empty($image['upload']['icc_profile'])) continue;
-			if (!array_key_exists($image['upload']['icc_profile'], $zz_conf['icc_profiles']['in'])) {
+			if (!array_key_exists($image['upload']['icc_profile'], $zz_conf['icc_profiles'])) {
 				$zz_error[]['msg_dev'] = sprintf('No ICC profile found for %s', $image['upload']['icc_profile']);
 				continue;
 			}
