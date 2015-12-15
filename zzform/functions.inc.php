@@ -2585,7 +2585,9 @@ function zz_convert_string($string) {
 	if (substr($test_string, -1) === chr(241)) {
 		$test_string .= 'a'; // PHP bug? Latin1 string ending with n tilde returns UTF-8
 	}
-	$detected_encoding = mb_detect_encoding($test_string);
+	// strict mode (last parameter) set to true because function is probably
+	// useless without (see http://php.net/mb_detect_encoding)
+	$detected_encoding = mb_detect_encoding($test_string, mb_detect_order(), true);
 	if ($detected_encoding === mb_internal_encoding()) return $string;
 	if (substr($detected_encoding, 0, 9) === 'ISO-8859-' AND 
 		substr(mb_internal_encoding(), 0, 9) === 'ISO-8859-') {
