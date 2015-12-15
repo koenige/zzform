@@ -1227,7 +1227,7 @@ function zz_query_single_record($sql, $table, $id, $sqlextra, $sql_translate, $t
 	
 	if (!$id[$type]) return array();
 	$sql = zz_edit_sql($sql,
-		'WHERE', $table.'.'.$id['field_name']." = '".$id[$type]."'"
+		'WHERE', sprintf('%s.%s = %d', $table, $id['field_name'], $id[$type])
 	);
 	$sql = zz_edit_sql($sql, 'FORCE INDEX', ' ', 'delete');
 	$record = zz_db_fetch($sql, '', '', 'record exists? ('.$type.')');
@@ -1255,8 +1255,9 @@ function zz_query_single_record($sql, $table, $id, $sqlextra, $sql_translate, $t
  * @return array
  */
 function zz_query_multiple_records($sql, $table, $id) {
-	$sql = zz_edit_sql($sql, 'WHERE', $table.'.'
-		.$id['field_name']." IN ('".implode("','", $id['values'])."')");
+	$sql = zz_edit_sql($sql, 'WHERE', '%s.%s IN ("%s")',
+		$table, $id['field_name'], implode('","', $id['values'])
+	);
 	$records = wrap_db_fetch($sql, $id['field_name'], '', 'multiple records exist?');
 	// use first record as basis for checking identical values
 	$existing = array_shift($records);
