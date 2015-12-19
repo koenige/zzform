@@ -649,10 +649,17 @@ function zz_upload_fileinfo($file, $extension = false) {
 		}
 	}
 	// some filetypes are identical to others, so we have to check the extension
-	if (array_key_exists($extension, $zz_conf['upload_remap_type_if_extension'])
-		AND $file['filetype'] === $zz_conf['upload_remap_type_if_extension'][$extension]) {
-		$file['filetype'] = $extension;
-		$file['mime'] = $zz_conf['file_types'][$file['filetype']]['mime'][0];
+	if (array_key_exists($extension, $zz_conf['upload_remap_type_if_extension'])) {
+		if (!is_array($zz_conf['upload_remap_type_if_extension'][$extension])) {
+			$zz_conf['upload_remap_type_if_extension'][$extension]
+				= array($zz_conf['upload_remap_type_if_extension'][$extension]);
+		}
+		foreach ($zz_conf['upload_remap_type_if_extension'][$extension] as $ftype) {
+			if ($file['filetype'] !== $ftype) continue;
+			$file['filetype'] = $extension;
+			$file['mime'] = $zz_conf['file_types'][$file['filetype']]['mime'][0];
+			break;
+		}
 	}
 	if ($zz_conf['modules']['debug']) zz_debug('finish', json_encode($file));
 
