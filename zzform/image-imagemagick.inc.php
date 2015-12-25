@@ -67,8 +67,13 @@ function zz_imagick_identify($filename, $file) {
 
 	$command = zz_imagick_findpath('identify');
 	// always check only first page if it's a multipage file (document, movie etc.)
+	$time = filemtime($filename);
 	$command = sprintf('%s -format "%%m ~ %%w ~ %%h ~ %%[colorspace] ~ %%[profile:icc]" "%s[0]"', $command, $filename);
 	zz_upload_exec($command, 'ImageMagick identify', $output, $return_var);
+	// identify has a bug at least with NEF images delegated to ufraw
+	// where it changes the file modification date and time to the current time
+	// note: filemtime() here would return the old time, so it's not possible to check that
+	touch($filename, $time);
 	if (!$output) return zz_return($file);
 	if ($zz_conf['modules']['debug']) zz_debug('identify output', json_encode($output));
 	
