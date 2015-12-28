@@ -9,7 +9,7 @@
 // ---------------------------------------------------------
 
 function forceFilename($str, $spaceChar = '-', $replacements = array()) {
-	$str = zz_convert_string($str);
+	$str = wrap_convert_string($str);
 	$str = trim($str);
 
 	// get rid of html entities

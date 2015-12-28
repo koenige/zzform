@@ -991,7 +991,7 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 		if (in_array($field['type'], array('text', 'memo'))) {
 			$my_rec['POST'][$field_name]
 				= $my_rec['POST_db'][$field_name] 
-				= zz_convert_string($my_rec['POST_db'][$field_name]);
+				= wrap_convert_string($my_rec['POST_db'][$field_name]);
 		}
 
 	//	numbers
