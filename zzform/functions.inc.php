@@ -2544,58 +2544,11 @@ function zz_hierarchy_sort($h_lines, $hierarchy, $id_field, $level = 0, &$i = 0)
  * 
  * @param string $string		Text string to be translated
  * @return string $string		Translation of text
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_text($string) {
 	global $zz_conf;
 	if (empty($zz_conf['generate_output'])) return $string;
 	return wrap_text($string);
-}
-
-/**
- * set internal character encoding for mulitbyte functions
- *
- * @param string $character_encoding ($zz_conf['character_set'])
- * @return bool
- */
-function zz_set_encoding($character_encoding) {
-	if (!function_exists('mb_internal_encoding')) return false;
-	// note: mb_-functions obiously cannot tell Latin1 from other Latin encodings!
-	mb_detect_order('UTF-8, ISO-8859-1, UTF-7, EUC-JP, SJIS, eucJP-win, SJIS-win, JIS, ISO-2022-JP');
-	switch ($character_encoding) {
-	case 'utf-8':
-		mb_internal_encoding('UTF-8');
-		break;
-	case 'iso-8859-1':
-		mb_internal_encoding('ISO-8859-1');
-		break;
-	case 'iso-8859-2':
-		mb_internal_encoding('ISO-8859-2');
-		break;
-	}
-	return true;
-}
-
-/**
- * convert a string into a different character encoding if necessary
- */
-function zz_convert_string($string) {
-	if (!function_exists('mb_internal_encoding')) return $string;
-	$test_string = $string;
-	if (substr($test_string, -1) === chr(241)) {
-		$test_string .= 'a'; // PHP bug? Latin1 string ending with n tilde returns UTF-8
-	}
-	// strict mode (last parameter) set to true because function is probably
-	// useless without (see http://php.net/mb_detect_encoding)
-	$detected_encoding = mb_detect_encoding($test_string, mb_detect_order(), true);
-	if ($detected_encoding === mb_internal_encoding()) return $string;
-	if (substr($detected_encoding, 0, 9) === 'ISO-8859-' AND 
-		substr(mb_internal_encoding(), 0, 9) === 'ISO-8859-') {
-		// all ISO character encodings will be seen as ISO-8859-1
-		// @see http://www.php.net/manual/en/function.mb-detect-order.php
-		return $string;
-	}
-	return mb_convert_encoding($string, mb_internal_encoding(), $detected_encoding);
 }
 
 /**

@@ -71,8 +71,6 @@ function zzform($zz) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if ($zz_error['error']) return zzform_exit($ops); // exits script
 
-	zz_set_encoding($zz_conf['character_set']);
-
 	// include dependent modules
 	zz_dependent_modules($zz);
 
