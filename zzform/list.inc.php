@@ -2016,6 +2016,10 @@ function zz_list_get_subselects($lines, $subselects) {
 		if (!isset($subselect['concat_fields'])) $subselect['concat_fields'] = ' ';
 		if (!isset($subselect['show_empty_cells'])) $subselect['show_empty_cells'] = false;
 		if (!isset($subselect['link'])) $subselect['link'] = array();
+		if (!isset($subselect['sql_ignore'])) $subselect['sql_ignore'] = array();
+		if (!is_array($subselect['sql_ignore'])) $subselect['sql_ignore'] = array($subselect['sql_ignore']);
+		// ID field will not be shown
+		$subselect['sql_ignore'][] = $subselect['id_field_name'];
 		
 		$subselect['sql'] = zz_edit_sql($subselect['sql'], 'WHERE', 
 			$subselect['id_table_and_fieldname'].' IN ('.implode(', ', $ids).')');
@@ -2031,7 +2035,9 @@ function zz_list_get_subselects($lines, $subselects) {
 			if (empty($sub_lines[$id])) continue;
 			$linetext = array();
 			foreach ($sub_lines[$id] as $linefields) {
-				unset($linefields[$subselect['id_field_name']]); // ID field will not be shown
+				foreach ($subselect['sql_ignore'] as $ignored_fieldname) {
+					unset($linefields[$ignored_fieldname]); 
+				}
 				$fieldtext = false;
 				$index = 0;
 				foreach ($linefields as $field_name => $db_fields) {
