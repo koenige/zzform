@@ -18,7 +18,7 @@
  * V - Validation, preparation for database
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2015 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -2990,6 +2990,19 @@ function zz_check_select_id($field, $postvalue, $db_table, $id) {
 	if ($wheresql) $wheresql .= ')';
 	if (!empty($field['show_hierarchy_same_table']) AND !empty($id['value'])) {
 		$wheresql .= sprintf(' AND `%s` != %d', $id['field_name'], $id['value']);
+	}
+	if (!empty($field['show_hierarchy_subtree'])) {
+		// just allow chosing of records under the ID set in 'show_hierarchy_subtree'
+		$h_sql = 'SELECT %s FROM %s WHERE %s IN (%%s)';
+		$h_table = zz_edit_sql($field['sql'], 'FROM', false, 'list');
+		$h_sql = sprintf($h_sql,
+			$field['sql_fieldnames'][0], $h_table[0], $field['show_hierarchy']
+		);
+		$children = wrap_db_children($field['show_hierarchy_subtree'], $h_sql);
+		unset($children[0]); // top hierarchy ID
+		$wheresql .= sprintf(' AND `%s` IN (%s)',
+			$field['sql_fieldnames'][0], implode(',', $children)
+		);
 	}
 	if ($wheresql) {
 		$field['sql_new'] = zz_edit_sql($field['sql'], 'WHERE', $wheresql);
