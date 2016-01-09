@@ -3000,7 +3000,7 @@ function zz_check_select_id($field, $postvalue, $db_table, $id) {
 		);
 		$children = wrap_db_children($field['show_hierarchy_subtree'], $h_sql);
 		unset($children[0]); // top hierarchy ID
-		$wheresql .= sprintf(' AND `%s` IN (%s)',
+		$wheresql .= sprintf(' AND %s IN (%s)',
 			$field['sql_fieldnames'][0], implode(',', $children)
 		);
 	}
