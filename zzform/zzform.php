@@ -529,12 +529,10 @@ function zz_initialize($mode = false) {
 
 	// Configuration on project level: Core defaults and functions
 	$default['character_set']	= 'utf-8';					// character set
-	$default['dir_ext']			= $zz_conf['dir'].'/ext';	// directory for extensions
 	$default['dir_custom']		= $zz_conf['dir'].'/local';
 	$default['dir_inc']			= $zz_conf['dir'].'/inc';
 	$default['generate_output']	= true;
 	$default['error_mail_level']	= array('error', 'warning', 'notice');
-	$default['ext_modules']		= array('markdown', 'textile');
 	$default['int_modules'] 	= array('debug', 'validate');
 	zz_write_conf($default);
 	
@@ -564,7 +562,6 @@ function zz_initialize($mode = false) {
 	// debug module must come first because of debugging reasons!
 	$zz_conf['modules'] = zz_add_modules($zz_conf['int_modules'], $zz_conf['dir_inc']);
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	zz_add_modules($zz_conf['ext_modules'], $zz_conf['dir_ext']);
 
 	// stop if there were errors while adding modules
 	if ($zz_error['error']) zz_return(false);
