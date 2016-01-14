@@ -13,7 +13,7 @@
  *	zzform_multi()			multi edit for zzform, e. g. import
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2015 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -535,7 +535,7 @@ function zz_initialize($mode = false) {
 	$default['generate_output']	= true;
 	$default['error_mail_level']	= array('error', 'warning', 'notice');
 	$default['ext_modules']		= array('markdown', 'textile');
-	$default['int_modules'] 	= array('debug', 'compatibility', 'validate');
+	$default['int_modules'] 	= array('debug', 'validate');
 	zz_write_conf($default);
 	
 	// modules depending on settings
