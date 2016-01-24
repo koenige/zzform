@@ -76,7 +76,7 @@
  *		['validated']		validated (yes = tested, no = rely on fileupload i. e. user)
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2006-2015 Gustaf Mossakowski
+ * @copyright Copyright © 2006-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -2583,35 +2583,49 @@ function zz_unlink_cleanup($file) {
  *
  * @param string $dir name of directory
  * @global array $zz_conf
- * @return bool true
+ * @return bool
  */
 function zz_cleanup_dirs($dir) {
 	// first check if it's a directory that shall always be there
 	global $zz_conf;
 	$dir = realpath($dir);
 	if (!$dir) return false;
-	$indelible = array(realpath($zz_conf['backup_dir']), realpath($zz_conf['tmp_dir']),
-		realpath($zz_conf['root']), '/tmp');
+	$indelible = array(
+		realpath($zz_conf['backup_dir']),
+		realpath($zz_conf['tmp_dir']),
+		realpath($zz_conf['root']),
+		'/tmp'
+	);
 	if (in_array($dir, $indelible)) return false;
 
-	$success = false;
-	if (is_dir($dir)) {
-		$dir_handle = opendir($dir);
-		if ($dir_handle) {
-			$i = 0;
-			// check if directory is empty
-			while ($filename = readdir($dir_handle)) {
-				if ($filename != '.' AND $filename != '..') $i++;
-			}
-			closedir($dir_handle);
-			if ($i == 0) $success = rmdir($dir);
+	if (!is_dir($dir)) return false;
+	$dir_handle = opendir($dir);
+	if (!$dir_handle) return false;
+
+	$ignores = array('.', '..');
+	$delete_if_empty = array('.DS_Store', 'Thumbs.db');
+	$to_delete = array();
+	$i = 0;
+	// check if directory is empty
+	while ($filename = readdir($dir_handle)) {
+		if (in_array($filename, $ignores)) continue;
+		if (in_array($filename, $delete_if_empty)) {
+			$to_delete[] = $dir.'/'.$filename;
+			continue;
 		}
+		$i++;
 	}
-	if ($success) {
-		// walk through dirs recursively
-		$upper_dir = dirname($dir);
-		zz_cleanup_dirs($upper_dir);
+	closedir($dir_handle);
+	if ($i !== 0) return false;
+	foreach ($to_delete as $delete_filename) {
+		unlink($delete_filename);
 	}
+	$success = rmdir($dir);
+	if (!$success) return false;
+
+	// walk through dirs recursively
+	$upper_dir = dirname($dir);
+	zz_cleanup_dirs($upper_dir);
 	return true;
 }
 
