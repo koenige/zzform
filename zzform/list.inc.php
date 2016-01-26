@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2015 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -2246,14 +2246,23 @@ function zz_list_table($list, $rows, $head) {
 	// Check for empty columns
 	$column_content = array();
 	$hidden_columns = array();
-	foreach ($rows as $index => $row) {
+	foreach ($rows as $row) {
 		foreach ($row as $no => $col) {
 			if (!is_numeric($no)) continue;
 			if (!array_key_exists($no, $column_content)) $column_content[$no] = false;
 			if ($col['text']) $column_content[$no] = true;
 		}
 	}
-	
+	// in case of list_append_next, say that all involved rows have content
+	foreach ($head as $no => $col) {
+		if (isset($lastcol) AND array_key_exists($no, $column_content)) {
+			$column_content[$lastcol] = $column_content[$no];
+			unset($lastcol);
+		}
+		if (empty($col['list_append_next'])) continue;
+		$lastcol = $no;
+	}
+
 	// Header
 	$output = '<table class="data"><thead>'."\n".'<tr>';
 	if ($list['select_multiple_records']) $output .= '<th></th>';
@@ -2261,8 +2270,12 @@ function zz_list_table($list, $rows, $head) {
 	// Rest cannot be set yet because we do not now details/mode-links
 	// of individual records
 	$columns = 0;
+	$hide_next = false;
 	foreach ($head as $no => $col) {
-		if (empty($column_content[$no]) AND !empty($col['hide_in_list_if_empty'])) {
+		if ((empty($column_content[$no]) AND !empty($col['hide_in_list_if_empty'])) OR $hide_next) {
+			// hide next if list_append_next is set
+			if (!empty($col['list_append_next'])) $hide_next = true;
+			else $hide_next = false;
 			unset($head[$no]); // for zz_field_sum()
 			$hidden_columns[$no] = true;
 			continue;
