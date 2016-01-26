@@ -2373,7 +2373,9 @@ function zz_list_remove_empty_cols($rows, $head) {
 	// in case of list_append_next, say that all involved rows have content
 	foreach ($head as $no => $col) {
 		if (isset($lastcol) AND array_key_exists($no, $column_content)) {
-			$column_content[$lastcol] = $column_content[$no];
+			if (empty($column_content[$lastcol])) {
+				$column_content[$lastcol] = $column_content[$no];
+			}
 			unset($lastcol);
 		}
 		if (empty($col['list_append_next'])) continue;
