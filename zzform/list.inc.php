@@ -157,7 +157,9 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		unset($table_defs);
 
 		// merge common $zz settings for all records
-		zz_conditions_merge_conf($zz, $zz_conditions['bool'], 0);
+		if (!empty($zz_conf['modules']['conditions'])) {
+			zz_conditions_merge_conf($zz, $zz_conditions['bool'], 0);
+		}
 		list($rows, $head) = zz_list_remove_empty_cols($rows, $head, $zz);
 	}
 
