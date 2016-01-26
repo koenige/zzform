@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2015 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -523,32 +523,6 @@ function zz_querystring_to_hidden($query_string, $unwanted_keys = array(), $leve
 }
 
 /**
- * displays array data in a more readable way in a table
- *
- * @param array $array
- * @param string $color CSS color
- * @param string $caption
- * @return string HTML output
- */
-function zz_print_r($array, $color = false, $caption = 'Variables') {
-	if (!$array) {
-		echo 'Variable is empty.<br>';
-		return false;
-	}
-	echo '<table class="zzvariables" style="text-align: left;',
-		($color ? ' background: '.$color.';' : ''), '">',
-		'<caption>', $caption, '</caption>';
-	$vars = zz_print_multiarray($array);
-	foreach ($vars as $var) {
-		echo '<tr><th', // style="padding-left: '
-			//.((substr_count($var['key'], '[')-1)*1)
-			//.'em;"
-			'>', $var['key'], '</th><td>', $var['value'], '</td></tr>', "\n";
-	}
-	echo '</table>';
-}
-
-/**
  * transforms a multidimensional array into an array with key => value 
  * where key includes not only the key but also all parent keys in []
  *
@@ -556,7 +530,7 @@ function zz_print_r($array, $color = false, $caption = 'Variables') {
  * @param string $parent_key (optional, internal value, hierarchy of parent keys)
  * @return array $vars
  *		'key' => full key, 'value' => html'escaped value
- * @see zz_print_r(), zz_querystring_to_hidden()
+ * @see zz_querystring_to_hidden()
  */
 function zz_print_multiarray($array, $parent_key = '') {
 	$vars = array();
