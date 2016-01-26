@@ -2242,26 +2242,8 @@ function zz_field_in_where($field, $values) {
  */
 function zz_list_table($list, $rows, $head) {
 	global $zz_conf;
-	
-	// Check for empty columns
-	$column_content = array();
-	$hidden_columns = array();
-	foreach ($rows as $row) {
-		foreach ($row as $no => $col) {
-			if (!is_numeric($no)) continue;
-			if (!array_key_exists($no, $column_content)) $column_content[$no] = false;
-			if ($col['text']) $column_content[$no] = true;
-		}
-	}
-	// in case of list_append_next, say that all involved rows have content
-	foreach ($head as $no => $col) {
-		if (isset($lastcol) AND array_key_exists($no, $column_content)) {
-			$column_content[$lastcol] = $column_content[$no];
-			unset($lastcol);
-		}
-		if (empty($col['list_append_next'])) continue;
-		$lastcol = $no;
-	}
+
+	list($rows, $head) = zz_list_remove_empty_cols($rows, $head);
 
 	// Header
 	$output = '<table class="data"><thead>'."\n".'<tr>';
@@ -2270,16 +2252,7 @@ function zz_list_table($list, $rows, $head) {
 	// Rest cannot be set yet because we do not now details/mode-links
 	// of individual records
 	$columns = 0;
-	$hide_next = false;
 	foreach ($head as $no => $col) {
-		if ((empty($column_content[$no]) AND !empty($col['hide_in_list_if_empty'])) OR $hide_next) {
-			// hide next if list_append_next is set
-			if (!empty($col['list_append_next'])) $hide_next = true;
-			else $hide_next = false;
-			unset($head[$no]); // for zz_field_sum()
-			$hidden_columns[$no] = true;
-			continue;
-		}
 		if (!$col['show_field']) continue;
 		if ($col['class']) $col['class'] = ' class="'.implode(' ', $col['class']).'"';
 		else $col['class'] = '';
@@ -2351,7 +2324,6 @@ function zz_list_table($list, $rows, $head) {
 			.'">'; //onclick="Highlight();"
 		foreach ($row as $fieldindex => $field) {
 			if (!is_numeric($fieldindex)) continue;
-			if (!empty($hidden_columns[$fieldindex])) continue;
 			$output .= '<td'
 				.($field['class'] ? ' class="'.implode(' ', $field['class']).'"' : '')
 				.'>'.$field['text'].'</td>';
@@ -2377,6 +2349,53 @@ function zz_list_table($list, $rows, $head) {
 	}
 	$output .= "</tbody>\n</table>\n";
 	return $output;
+}
+
+/**
+ * remove empty columns from head and rows
+ *
+ * @param array $rows
+ * @param array $head
+ * @return array
+ */
+function zz_list_remove_empty_cols($rows, $head) {
+	// Check for empty columns
+	$column_content = array();
+	$hidden_columns = array();
+	foreach ($rows as $row) {
+		foreach ($row as $no => $col) {
+			if (!is_numeric($no)) continue;
+			if (!array_key_exists($no, $column_content)) $column_content[$no] = false;
+			if ($col['text']) $column_content[$no] = true;
+		}
+	}
+
+	// in case of list_append_next, say that all involved rows have content
+	foreach ($head as $no => $col) {
+		if (isset($lastcol) AND array_key_exists($no, $column_content)) {
+			$column_content[$lastcol] = $column_content[$no];
+			unset($lastcol);
+		}
+		if (empty($col['list_append_next'])) continue;
+		$lastcol = $no;
+	}
+	$hide_next = false;
+	foreach ($head as $no => $col) {
+		if ((empty($column_content[$no]) AND !empty($col['hide_in_list_if_empty'])) OR $hide_next) {
+			// hide next if list_append_next is set
+			if (!empty($col['list_append_next'])) $hide_next = true;
+			else $hide_next = false;
+			unset($head[$no]); // for zz_field_sum()
+			$hidden_columns[$no] = true;
+			continue;
+		}
+	}
+	foreach ($rows as $index => $row) {
+		foreach ($row as $fieldindex => $field) {
+			if (!empty($hidden_columns[$fieldindex])) unset($rows[$index][$fieldindex]);
+		}
+	}
+	return array($rows, $head);
 }
 
 /**
