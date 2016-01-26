@@ -155,6 +155,10 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		$list['where_values'] = !empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : '';
 		$head = zz_list_head($table_defs[0], $list['where_values'], $list['columns']);
 		unset($table_defs);
+
+		// merge common $zz settings for all records
+		zz_conditions_merge_conf($zz, $zz_conditions['bool'], 0);
+		list($rows, $head) = zz_list_remove_empty_cols($rows, $head, $zz);
 	}
 
 	//
@@ -2243,8 +2247,6 @@ function zz_field_in_where($field, $values) {
 function zz_list_table($list, $rows, $head) {
 	global $zz_conf;
 
-	list($rows, $head) = zz_list_remove_empty_cols($rows, $head);
-
 	// Header
 	$output = '<table class="data"><thead>'."\n".'<tr>';
 	if ($list['select_multiple_records']) $output .= '<th></th>';
@@ -2356,9 +2358,10 @@ function zz_list_table($list, $rows, $head) {
  *
  * @param array $rows
  * @param array $head
+ * @param array $zz
  * @return array
  */
-function zz_list_remove_empty_cols($rows, $head) {
+function zz_list_remove_empty_cols($rows, $head, $zz) {
 	// Check for empty columns
 	$column_content = array();
 	$hidden_columns = array();
@@ -2383,6 +2386,7 @@ function zz_list_remove_empty_cols($rows, $head) {
 	}
 	$hide_next = false;
 	foreach ($head as $no => $col) {
+		if (!empty($zz['list']['hide_columns_if_empty'])) $col['hide_in_list_if_empty'] = true;
 		if ((empty($column_content[$no]) AND !empty($col['hide_in_list_if_empty'])) OR $hide_next) {
 			// hide next if list_append_next is set
 			if (!empty($col['list_append_next'])) $hide_next = true;
