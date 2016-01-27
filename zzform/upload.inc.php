@@ -907,7 +907,8 @@ function zz_upload_unix_file($filename, $file) {
 	if ($zz_conf['modules']['debug']) {
 		zz_debug('file brief', json_encode($output));
 	}
-	$file['filetype_file'] = $output[0];
+	// output might contain characters in a different character encoding
+	$file['filetype_file'] = wrap_convert_string($output[0]);
 	unset($output);
 
 	// get mime type
