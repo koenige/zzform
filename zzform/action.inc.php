@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2015 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1410,12 +1410,12 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			// action=insert: password will be encrypted
 			if ($my_rec['action'] === 'insert') {
 				$my_rec['POST']['zz_unencrypted_'.$field_name] = $my_rec['POST'][$field_name];
-				$my_rec['POST'][$field_name] = zz_password_hash($my_rec['POST'][$field_name]);
+				$my_rec['POST'][$field_name] = wrap_password_hash($my_rec['POST'][$field_name]);
 			} elseif ($my_rec['action'] === 'update') {
 				$my_rec['POST']['zz_unencrypted_'.$field_name] = $my_rec['POST'][$field_name];
 				if (!isset($my_rec['POST'][$field_name.'--old'])
 				|| ($my_rec['POST'][$field_name] !== $my_rec['POST'][$field_name.'--old']))
-					$my_rec['POST'][$field_name] = zz_password_hash($my_rec['POST'][$field_name]);
+					$my_rec['POST'][$field_name] = wrap_password_hash($my_rec['POST'][$field_name]);
 			}
 			break;
 		case 'password_change':
@@ -1729,9 +1729,9 @@ function zz_password_set($old, $new1, $new2, $sql, $field) {
 	$old_hash = zz_db_fetch($sql, '', 'single value', __FUNCTION__);
 	if (!$old_hash) return false;
 	if (!empty($field['dont_require_old_password'])
-		OR zz_password_check($old, $old_hash)) {
+		OR wrap_password_check($old, $old_hash)) {
 		// new1 = new2, old = old, everything is ok
-		$hash = zz_password_hash($new1);
+		$hash = wrap_password_hash($new1);
 		if ($hash) {
 			$zz_error[] = array(
 				'msg' => 'Your password has been changed!',
@@ -1748,71 +1748,11 @@ function zz_password_set($old, $new1, $new2, $sql, $field) {
 		$zz_error[] = array(
 			'msg' => 'Your current password is different from what you entered. Please try again.',
 			'msg_dev' => '(Encryption: '.$zz_conf['hash_password'].', existing hash: '
-				.$old_hash.', entered hash: '.zz_password_hash($old),
+				.$old_hash.', entered hash: '.wrap_password_hash($old),
 			'level' => E_USER_NOTICE
 		);
 		return false;
 	}
-}
-
-/**
- * check given password against database password hash
- *
- * @param string $pass password as entered by user
- * @param string $hash hash as stored in database
- * @global array $zz_conf
- *		'hash_password', 'hash_script'
- * @return bool true: given credentials are correct, false: no access!
- * @see wrap_password_check()
- */
-function zz_password_check($pass, $hash) {
-	global $zz_conf;
-	if (!empty($zz_conf['hash_script']))
-		require_once $zz_conf['hash_script'];
-	if (strlen($pass) > 72) return false;
-
-	switch ($zz_conf['hash_password']) {
-	case 'phpass':
-	case 'phpass-md5':
-		$hasher = new PasswordHash($zz_conf['hash_cost_log2'], $zz_conf['hash_portable']);
-		if ($hasher->CheckPassword($pass, $hash)) return true;
-		else return false;
-	default:
-		if ($hash === zz_password_hash($pass)) return true;
-		return false;
-	}
-}
-
-/**
- * hash password
- *
- * @param string $pass password as entered by user
- * @global array $zz_conf
- *		'hash_password', 'password_salt',
- *		'hash_script', 'hash_cost_log2', 'hash_portable'
- * @return string hash
- * @see wrap_passsword_hash()
- */
-function zz_password_hash($pass) {
-	global $zz_conf;
-	if (!empty($zz_conf['hash_script']))
-		require_once $zz_conf['hash_script'];
-	if (strlen($pass) > 72) return false;
-
-	switch ($zz_conf['hash_password']) {
-	case 'phpass':
-	case 'phpass-md5':
-		$hasher = new PasswordHash($zz_conf['hash_cost_log2'], $zz_conf['hash_portable']);
-		$hash = $hasher->HashPassword($pass);
-		if (strlen($hash) < 20) return false;
-		return $hash;
-	default:
-		if (!isset($zz_conf['password_salt'])) 
-			$zz_conf['password_salt'] = '';
-		return $zz_conf['hash_password']($pass.$zz_conf['password_salt']);
-	}
-
-	return $zz_conf['hash_password']($pass.$zz_conf['password_salt']);
 }
 
 /**
