@@ -932,7 +932,7 @@ function zz_number_format($value, $field) {
 		$text = zz_geo_coord_out($value, $field['number_type'], $field['geo_format']);
 		break;
 	case 'bytes':
-		$text = zz_byte_format($value);
+		$text = wrap_bytes($value);
 		break;
 	case 'number':
 		if ($value === '') return $value;

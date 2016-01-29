@@ -1675,7 +1675,7 @@ function zz_upload_check(&$images, $action, $rec = 0) {
 			case UPLOAD_ERR_INI_SIZE: // file is too big
 				$images[$img]['error'][] = zz_text('Error: ').zz_text('File is too big.').' '
 					.zz_text('Maximum allowed filesize is').' '
-					.zz_byte_format($zz_conf['upload_MAX_FILE_SIZE']); // Max allowed
+					.wrap_bytes($zz_conf['upload_MAX_FILE_SIZE']); // Max allowed
 				break; 
 			case UPLOAD_ERR_OK: // everything ok.
 				break; 

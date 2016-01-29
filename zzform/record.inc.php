@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2015 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -2573,7 +2573,7 @@ function zz_field_select_set_folder($field, $display, $record, $rec) {
 		$field['set_title'] = array();
 		foreach ($files as $file) {
 			$size = filesize($field['set_folder'].'/'.$file);
-			$size = zz_byte_format($size);
+			$size = wrap_bytes($size);
 			$field['set'][] = $file;
 			$field['set_title'][] = $file.' ['.$size.']';
 		}
@@ -3133,7 +3133,7 @@ function zz_field_image($field, $display, $record, $record_saved, $images, $mode
 					$images[$fieldkey][$imagekey]['error']).'</small>';
 			} else {
 				$text .= '<br><small>'.zz_text('Maximum allowed filesize is').' '
-					.zz_byte_format($zz_conf['upload_MAX_FILE_SIZE']).'</small>';
+					.wrap_bytes($zz_conf['upload_MAX_FILE_SIZE']).'</small>';
 			}
 			if ($display === 'form' && !empty($image['explanation'])) 
 				$text .= '<p class="explanation">'.$image['explanation'].'</p>';

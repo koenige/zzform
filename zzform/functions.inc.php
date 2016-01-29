@@ -1662,7 +1662,7 @@ function zz_makelink($path, $record, $type = 'link') {
 			// getimagesize tests whether it's a web image
 			if (!getimagesize($path_full.$url)) {
 				// if not, return EXT (4.4 MB)
-				return $ext.' ('.zz_byte_format($size).')';
+				return $ext.' ('.wrap_bytes($size).')';
 			}
 		}
 	}
@@ -2369,8 +2369,8 @@ function zz_trigger_error_too_big() {
 	$zz_error[] = array(
 		'msg' => zz_text('Transfer failed. Probably you sent a file that was too large.').'<br>'
 			.zz_text('Maximum allowed filesize is').' '
-			.zz_byte_format($zz_conf['upload_MAX_FILE_SIZE']).' &#8211; '
-			.sprintf(zz_text('You sent: %s data.'), zz_byte_format($_SERVER['CONTENT_LENGTH'])),
+			.wrap_bytes($zz_conf['upload_MAX_FILE_SIZE']).' &#8211; '
+			.sprintf(zz_text('You sent: %s data.'), wrap_bytes($_SERVER['CONTENT_LENGTH'])),
 		'level' => E_USER_NOTICE
 	);
 	return false;
@@ -2684,32 +2684,6 @@ function zz_htmlnoand_escape($string) {
 	if (!$new_string) $string = htmlspecialchars($string, ENT_QUOTES, 'ISO-8859-1');
 	$new_string = str_replace('&amp;', '&', $new_string);
 	return $new_string;
-}
-
-/**
- * formats an integer into a readable byte representation
- *
- * @param int $byts
- * @param int $precision
- * @return string
- * @see wrap_bytes
- */
-function zz_byte_format($bytes, $precision = 1) { 
-	global $zz_conf;
-    $units = array('B', 'KB', 'MB', 'GB', 'TB', 'PB'); 
-
-    $bytes = max($bytes, 0); 
-    $pow = floor(($bytes ? log($bytes) : 0) / log(1024)); 
-    $pow = min($pow, count($units) - 1); 
-
-    // Uncomment one of the following alternatives
-    // $bytes /= pow(1024, $pow);
-    $bytes /= (1 << (10 * $pow)); 
-
-    $text = round($bytes, $precision) . '&nbsp;' . $units[$pow]; 
-    if ($zz_conf['decimal_point'] !== '.')
-    	$text = str_replace('.', $zz_conf['decimal_point'], $text);
-    return $text;
 }
 
 
