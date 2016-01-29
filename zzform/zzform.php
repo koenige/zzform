@@ -919,29 +919,6 @@ function zz_write_conf_vars($variables, &$conf, $overwrite) {
 }
 
 /**
- * returns integer byte value from PHP shorthand byte notation
- *
- * @param string $val
- * @return int
- * @see wrap_return_bytes(), identical
- */
-function zz_return_bytes($val) {
-    $val = trim($val);
-    $last = strtolower($val[strlen($val)-1]);
-    switch($last) {
-        // The 'G' modifier is available since PHP 5.1.0
-        case 'g':
-            $val *= 1024;
-        case 'm':
-            $val *= 1024;
-        case 'k':
-            $val *= 1024;
-    }
-
-    return $val;
-}
-
-/**
  * Gives information which meta tags should be added to HTML head
  *
  * @return array
@@ -972,7 +949,7 @@ function zz_meta_tags() {
 function zzform_post_too_big() {
 	if ($_SERVER['REQUEST_METHOD'] !== 'POST') return false;
 	if (!empty($_POST)) return false;
-	if ($_SERVER['CONTENT_LENGTH'] <= zz_return_bytes(ini_get('post_max_size'))) return false;
+	if ($_SERVER['CONTENT_LENGTH'] <= wrap_return_bytes(ini_get('post_max_size'))) return false;
 
 	// without sessions, we can't find out where the user has come from
 	// just if we have a REFERER

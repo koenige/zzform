@@ -110,7 +110,7 @@ function zz_upload_config() {
 	$default['upload_log']		= '';
 
 	$max_filesize = ini_get('upload_max_filesize');
-	define('ZZ_UPLOAD_INI_MAXFILESIZE', zz_return_bytes($max_filesize));
+	define('ZZ_UPLOAD_INI_MAXFILESIZE', wrap_return_bytes($max_filesize));
 	$default['upload_MAX_FILE_SIZE']	= ZZ_UPLOAD_INI_MAXFILESIZE;
 
 	// mimetypes, hardcoded in php
