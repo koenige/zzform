@@ -734,7 +734,7 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = arr
 				continue; // don't use !NULL as where variable!
 			} else {
 				$sql = zz_edit_sql($sql, 'WHERE', 
-					sprintf('%s = "%s"', $field_reference, wrap_db_escape($value)
+					sprintf('%s = "%s"', $field_reference, wrap_db_escape($value))
 				);
 			}
 		}
