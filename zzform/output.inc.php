@@ -84,7 +84,7 @@ function zz_nice_headings($heading, $zz, $where_condition = array()) {
 	$heading_addition = array();
 	// depending on WHERE-Condition
 	foreach (array_keys($where_condition) as $mywh) {
-		$mywh = zz_db_escape($mywh);
+		$mywh = wrap_db_escape($mywh);
 		$wh = explode('.', $mywh);
 		if (!isset($wh[1])) $index = 0; // without .
 		else $index = 1;
@@ -98,8 +98,9 @@ function zz_nice_headings($heading, $zz, $where_condition = array()) {
 			// create sql query, with $mywh instead of $wh[$index] because first 
 			// might be ambiguous
 			// extra space before mywh for replacement with key_field_name
-			$wh_sql = zz_edit_sql($subheading['sql'], 'WHERE', 
-				' '.$mywh.' = "'.zz_db_escape($where_condition[$mywh]).'"');
+			$wh_sql = zz_edit_sql($subheading['sql'], 'WHERE',
+				sprintf(' %s = "%s"', $mywh, wrap_db_escape($where_condition[$mywh]))
+			);
 			$wh_sql .= ' LIMIT 1';
 			//	if key_field_name is set
 			foreach ($zz['fields'] as $field) {

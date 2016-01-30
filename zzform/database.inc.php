@@ -13,7 +13,7 @@
  *		zz_db_*()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2015 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -31,7 +31,6 @@
  * @param string $user = Active user
  * @param int $record_id = record ID, optional, if ID shall be logged
  * @return bool = operation successful or not
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_log_sql($sql, $user, $record_id = false) {
 	global $zz_conf;
@@ -46,13 +45,18 @@ function zz_log_sql($sql, $user, $record_id = false) {
 		$zz_conf['logging_table'] = $zz_conf['int']['db_main'].'.'.$zz_conf['logging_table'];
 	}
 	if (is_array($record_id)) $record_id = NULL;
-	if (!empty($zz_conf['logging_id']) AND $record_id)
-		$sql = 'INSERT INTO '.$zz_conf['logging_table'].' 
-			(query, user, record_id) VALUES ("'.zz_db_escape($sql).'", "'.$user.'", '.$record_id.')';
-	// without record_id, only for backwards compatibility
-	else
-		$sql = 'INSERT INTO '.$zz_conf['logging_table'].' 
-			(query, user) VALUES ("'.zz_db_escape($sql).'", "'.$user.'")';
+	if (!empty($zz_conf['logging_id']) AND $record_id) {
+		$sql = sprintf(
+			'INSERT INTO %s (query, user, record_id) VALUES ("%s", "%s", %d)',
+			$zz_conf['logging_table'], wrap_db_escape($sql), $user, $record_id
+		);
+	} else {
+		// without record_id, only for backwards compatibility
+		$sql = sprintf(
+			'INSERT INTO %s (query, user) VALUES ("%s", "%s")',
+			$zz_conf['logging_table'], wrap_db_escape($sql), $user
+		);
+	}
 	$result = mysql_query($sql);
 	if (!$result) return false;
 	else return true;
@@ -76,7 +80,6 @@ function zz_log_sql($sql, $user, $record_id = false) {
  *		'replace' replaces all old values, 'list' returns existing values
  *		'delete' deletes values
  * @return string $sql modified SQL query
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @see wrap_edit_sql()
  */
 function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
@@ -467,7 +470,6 @@ function zz_sql_count_rows($sql, $id_field = '') {
  * @global array $zz_conf - 'db_name' might be changed or set
  * @global array $zz_error
  * @return string $table - name of main table
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_db_connection($table) {
 	global $zz_error;
@@ -575,7 +577,6 @@ function zz_db_connection($table) {
  * @param string $info (optional) information about where this query was called
  * @param int $errorcode let's you set error level, default = E_USER_ERROR
  * @return array with queried database content
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @todo give a more detailed explanation of how function works
  */
 function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = false, $errorcode = E_USER_ERROR) {
@@ -734,30 +735,6 @@ function zz_db_field_in_query($line, $id_field_name, $count = 0) {
 }
 
 /**
- * Escapes values for database input
- *
- * @param string $value
- * @return string escaped $value
- */
-function zz_db_escape($value) {
-	// should never happen, just during development
-	if (!$value) return '';
-	if (is_array($value) OR is_object($value)) {
-		global $zz_error;
-		$zz_error[] = array(
-			'msg_dev' => 'zz_db_escape() - value is not a string: '.json_encode($value)
-		);
-		return '';
-	}
-	if (function_exists('mysql_real_escape_string')) { 
-		// just from PHP 4.3.0 on
-		return mysql_real_escape_string($value);
-	} else {
-		return addslashes($value);
-	}
-}
-
-/**
  * Change database content via INSERT, DELETE or UPDATE
  *
  * @param string $sql
@@ -857,7 +834,6 @@ function zz_db_table_backticks($db_table) {
  * @param string $field	field name
  * @param string $db_table	table name [i. e. db_name.table]
  * @return maximum length of field or false if no field length is set
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_db_field_maxlength($field, $type, $db_table) {
 	if (!$field) return false;

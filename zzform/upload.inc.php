@@ -1477,7 +1477,7 @@ function zz_upload_merge_options($image, $my_tab, $rec = 0) {
 		$option_value = $my_tab[$rec]['POST'][$field_name];
 		if (!empty($image['options_sql'][$index]) AND $option_value) {
 			// get options from database
-			$sql = sprintf($image['options_sql'][$index], zz_db_escape($option_value));
+			$sql = sprintf($image['options_sql'][$index], wrap_db_escape($option_value));
 			$option_record = zz_db_fetch($sql, '', 'single value');
 			if ($option_record) {
 				parse_str($option_record, $options[$option_value]);

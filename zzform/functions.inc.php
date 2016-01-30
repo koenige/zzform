@@ -536,8 +536,9 @@ function zz_apply_filter($zz, $filter_params) {
 			AND isset($zz['filter'][$filter['depends_on']])) {
 				$depends_on = $zz['filter'][$filter['depends_on']];
 				if (!empty($filter_params[$depends_on['identifier']])) {
-					$where = $depends_on['where'].' = '.zz_db_escape(
-						$filter_params[$depends_on['identifier']]
+					$where = sprinf('%s = %s'
+						$depends_on['where'],
+						wrap_db_escape($filter_params[$depends_on['identifier']])
 					);
 					$filter['sql'] = zz_edit_sql($filter['sql'], 'WHERE', $where);
 				}
@@ -702,8 +703,8 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = arr
 		} elseif (strstr($field_name, '.')) {
 			// check if field_name comprises table_name
 			$field_tab = explode('.', $field_name);
-			$table_name = zz_db_escape($field_tab[0]);
-			$field_name = zz_db_escape($field_tab[1]);
+			$table_name = wrap_db_escape($field_tab[0]);
+			$field_name = wrap_db_escape($field_tab[1]);
 			unset($field_tab);
 		} else {
 			// allows you to set a different (or none at all) table name 
@@ -712,7 +713,7 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = arr
 				$table_name = $table_for_where[$field_name];
 			else
 				$table_name = $table;
-			$field_name = zz_db_escape($field_name);
+			$field_name = wrap_db_escape($field_name);
 		}
 		$field_reference = $table_name ? $table_name.'.'.$field_name : $field_name;
 		// restrict list view to where, but not to add
@@ -721,17 +722,20 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = arr
 				AND $zz_var['where_condition'][$field_name] === 'NULL')
 			{
 				$sql = zz_edit_sql($sql, 'WHERE', 
-					'ISNULL('.$field_reference.')');
+					sprintf('ISNULL(%s)', $field_reference)
+				);
 				continue; // don't use NULL as where variable!
 			} elseif (!empty($zz_var['where_condition'][$field_name])
 				AND $zz_var['where_condition'][$field_name] === '!NULL')
 			{
 				$sql = zz_edit_sql($sql, 'WHERE', 
-					'!ISNULL('.$field_reference.')');
+					sprintf('!ISNULL(%s)', $field_reference)
+				);
 				continue; // don't use !NULL as where variable!
 			} else {
 				$sql = zz_edit_sql($sql, 'WHERE', 
-					$field_reference.' = "'.zz_db_escape($value).'"');
+					sprintf('%s = "%s"', $field_reference, wrap_db_escape($value)
+				);
 			}
 		}
 
@@ -2953,7 +2957,7 @@ function zz_check_select_id($field, $postvalue, $db_table, $id) {
 			else $wheresql .= ' OR ';
 
 			$wheresql .= sprintf($my_likestring, $sql_fieldname, $collation,
-				zz_db_escape(trim($value)));
+				wrap_db_escape(trim($value)));
 			if ($use_single_comparison) {
 				unset ($sql_fieldnames[$index]);
 				continue 2;

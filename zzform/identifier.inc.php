@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2015 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -476,7 +476,7 @@ function zz_identifier_redirect($type, $ops, $main_tab) {
 
 		$old = sprintf($old, $ops['record_old'][0][$field_name]);
 		$sql = 'SELECT redirect_id FROM /*_PREFIX_*/redirects WHERE old_url = "%s"';
-		$sql = sprintf($sql, zz_db_escape($old));
+		$sql = sprintf($sql, wrap_db_escape($old));
 		$redirect_id = zz_db_fetch($sql, '', 'single value');
 
 		$values = array();

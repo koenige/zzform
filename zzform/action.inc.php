@@ -1049,15 +1049,18 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 			// dont' do anything with these
 			break;
 		case 'geo_point':
-			$my_rec['POST_db'][$field_name] = 'GeomFromText("'
-				.zz_db_escape($my_rec['POST_db'][$field_name]).'")';
+			$my_rec['POST_db'][$field_name] = sprintf(
+				'GeomFromText("%s")', 
+				wrap_db_escape($my_rec['POST_db'][$field_name])
+			);
 			break;
 		default:
 			//	slashes, 0 and NULL
 			if ($my_rec['POST_db'][$field_name]) {
 				if (!zz_db_numeric_field($db_table, $field_name)) {
-					$my_rec['POST_db'][$field_name] 
-						= '"'.zz_db_escape($my_rec['POST_db'][$field_name]).'"';
+					$my_rec['POST_db'][$field_name] = sprintf(
+						'"%s"', wrap_db_escape($my_rec['POST_db'][$field_name])
+					);
 				}
 			} else {
 				// empty values = NULL, treat some special cases differently

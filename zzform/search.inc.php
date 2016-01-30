@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2013, 2015 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2013, 2015-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -78,7 +78,7 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 		// first slash will be ignored, this is used to escape reserved characters
 		if (substr($searchword, 0, 1) == '\\') $searchword = substr($searchword, 1);
 	}
-	$searchword = zz_db_escape($searchword);
+	$searchword = wrap_db_escape($searchword);
 
 	// get fields
 	$searchfields = array();
