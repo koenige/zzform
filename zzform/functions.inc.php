@@ -536,7 +536,7 @@ function zz_apply_filter($zz, $filter_params) {
 			AND isset($zz['filter'][$filter['depends_on']])) {
 				$depends_on = $zz['filter'][$filter['depends_on']];
 				if (!empty($filter_params[$depends_on['identifier']])) {
-					$where = sprinf('%s = %s'
+					$where = sprinf('%s = %s',
 						$depends_on['where'],
 						wrap_db_escape($filter_params[$depends_on['identifier']])
 					);
