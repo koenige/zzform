@@ -11,7 +11,7 @@
  * otherwise they will return the value that was checked
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2005-2014 Gustaf Mossakowski
+ * @copyright Copyright © 2005-2014, 2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -338,10 +338,17 @@ function zz_check_date($date) {
 			$new['year'] = substr($date, 0, 2);
 			$new['day'] = substr($date, 4, 2);
 		}
-	} elseif (preg_match('/^[0-9]{8}$/', $date)) { // 25031976
-		$new['day'] = substr($date, 0, 2);
-		$new['month'] = substr($date, 2, 2);
-		$new['year'] = substr($date, 4, 4);
+	} elseif (preg_match('/^[0-9]{8}$/', $date)) { // 25031976 or 19760325
+		if (substr($date, 4, 2) > 12) {
+			// 25031976, on from year 1300
+			$new['day'] = substr($date, 0, 2);
+			$new['month'] = substr($date, 2, 2);
+			$new['year'] = substr($date, 4, 4);
+		} else {
+			$new['year'] = substr($date, 0, 4);
+			$new['month'] = substr($date, 4, 2);
+			$new['day'] = substr($date, 6, 2);
+		}
 	} elseif (preg_match('/^([0-9]{1,4})[^0-9][ ]*([0-9]{1,2})[^0-9][ ]*([0-9]{1,5})/', $date, $matches)) {
 		// number 
 		if (strlen($matches[3]) > 4) return false; // error, should be a re-entry
