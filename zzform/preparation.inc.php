@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2015 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -142,7 +142,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	$zz_tab[0][0]['POST'] = array();
 	foreach (array_keys($_POST) AS $key) {
 		if (in_array($key, $internal_fields)) continue;
-		$zz_tab[0][0]['POST'][$key] = $_POST[$key];
+		$zz_tab[0][0]['POST'][$key] = wrap_normalize($_POST[$key]);
 	}
 	//  POST is secured, now get rid of password fields in case of error_log_post
 	foreach ($zz['fields'] AS $field) {
@@ -300,6 +300,11 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 	$my_tab['POST'] = (!empty($_POST) AND !empty($_POST[$my_tab['table_name']]) 
 		AND is_array($_POST[$my_tab['table_name']]))
 		? $_POST[$my_tab['table_name']] : array();
+	foreach ($my_tab['POST'] as $rec => $fields) {
+		foreach ($fields as $key => $value) {
+			$my_tab['POST'][$rec][$key] = wrap_normalize($value);
+		}
+	}
 	// POST is secured, now get rid of password fields in case of error_log_post
 	foreach ($password_fields AS $password_field)
 		unset($_POST[$my_tab['table_name']][$password_field]);
