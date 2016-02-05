@@ -1119,7 +1119,7 @@ function zz_output_field_rows($matrix, &$zz_var, $formdisplay, $extra_lastcol, $
 		foreach ($matrix as $index => $row) {
 			$output .= '<span'.zz_show_class($row['tr']['attr']).'>';
 			$output .=	"\t".'<span'.zz_show_class($row['td']['attr'])
-				.' title="'.$row['th']['content'].'">'
+				.' title="'.strip_tags($row['th']['content']).'">'
 				.$row['td']['content'].'</span>'."\n";
 			$output .= '</span>'."\n";
 		}
