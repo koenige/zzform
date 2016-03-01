@@ -480,7 +480,9 @@ function zz_sync_list($testing, $import) {
 		}
 	}
 
+	$j = intval($import['limit']);
 	foreach ($testing as $index => $line) {
+		$j++;
 		foreach (array_keys($head) as $num) {
 			if (substr($num, 0, 1) === '_') continue;
 			$testing[$index]['fields'][$num]['value'] = ''; 
@@ -514,6 +516,7 @@ function zz_sync_list($testing, $import) {
 			}
 			unset($testing[$index][$key]);
 		}
+		$testing[$index]['no'] = $j;
 		$testing[$index]['index'] = $index;
 		$testing[$index]['script_url'] = isset($import['script_url']) ? $import['script_url'] : '';
 	}

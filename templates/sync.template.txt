@@ -13,6 +13,7 @@
 <table class="data">
 <thead>
 <tr>
+<th>No.</th>
 <th>ID</th>
 <th>%%% text action %%%</th>
 %%% loop head %%%
@@ -23,7 +24,8 @@
 <tbody>
 %%% loop start %%%
 <tr class='%%% loopposition uneven "un" %%%even'>
-<td>
+<td class="number">%%% item no %%%</td>
+<td class="number">
 %%% condition if _id & script_url %%%<a href="%%% item script_url %%%?mode=edit&amp;id=%%% item _id %%%">%%% item _id %%%</a>
 %%% condition elseif _id %%%%%% item _id %%%
 %%% condition endif %%%
