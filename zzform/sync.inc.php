@@ -134,7 +134,7 @@ function zz_sync($import) {
 		}
 	}
 	if ($testing) {
-		$lines[] = wrap_print($testing);
+		$lines[] = zz_sync_list($testing, $import);
 	}
 	if ($refresh)
 		$lines[] = wrap_text('Please wait for reload &hellip;');
@@ -146,6 +146,9 @@ function zz_sync($import) {
 		return $page;
 	}
 
+	if ($testing) {
+		$page['head'] = wrap_template('zzform-head', $zz_setting);
+	}
 	$page['query_strings'] = array('limit');
 	$page['text'] = implode('<br>', $lines);
 	if ($refresh) {
@@ -316,21 +319,25 @@ function zz_sync_zzform($raw, $import) {
 				AND empty($line[$pos]) AND $line[$pos] !== 0 AND $line[$pos] !== '0') continue;
 			// do nothing if value is NULL
 			if (!isset($line[$pos])) continue;
+			$head[$field_name] = $field_name;
+			$testing[$identifier][$field_name] = trim($line[$pos]);
 			$values['POST'] = zz_sync_values($values['POST'], $field_name, trim($line[$pos]));
 		}
 		// static values to import
 		foreach ($import['static'] as $field_name => $value) {
+			$head[$field_name] = $field_name;
+			$testing[$identifier][$field_name] = $value;
 			$values['POST'] = zz_sync_values($values['POST'], $field_name, $value);
 		}
 		if (!empty($ids[$identifier])) {
-			$values['action'] = 'update';
+			$testing[$identifier]['_action'] = $values['action'] = 'update';
 			$values['GET']['where'][$import['id_field_name']] = $ids[$identifier];
+			$testing[$identifier]['_id'] = $ids[$identifier];
 		} else {
-			$values['action'] = 'insert';
+			$testing[$identifier]['_action'] = $values['action'] = 'insert';
 		}
 		if (!empty($import['testing'])) {
 			$nothing++;
-			$testing[] = $values;
 			continue;
 		}
 		$ops = zzform_multi($import['form_script'], $values);
@@ -353,6 +360,7 @@ function zz_sync_zzform($raw, $import) {
 			$nothing++;
 		}
 	}
+	$testing['head'] = $head;
 	return array($updated, $inserted, $nothing, $errors, $testing);
 }
 
@@ -379,4 +387,97 @@ function zz_sync_values($post, $field_name, $value) {
 		$post[$field_name] = $value;
 	}
 	return $post;
+}
+
+/**
+ * display records to import
+ *
+ * @param array $testing
+ * @param array $import
+ * @return string
+ */
+function zz_sync_list($testing, $import) {
+	global $zz_setting;
+	global $zz_conf;
+
+	// get head
+	$fields = zz_sync_form_fields($import['form_script'], $zz_setting, $zz_conf);
+	$head = zz_sync_fields($fields, $testing['head']);
+	unset($testing['head']);
+
+	// get values
+	foreach ($testing as $index => $line) {
+		foreach (array_keys($head) as $num) {
+			if (substr($num, 0, 1) === '_') continue;
+			$testing[$index]['fields'][$num]['value'] = ''; 
+		}
+		foreach ($line as $key => $value) {
+			if (substr($key, 0, 1) === '_') continue;
+			$num = $head['_mapping'][$key];
+			$testing[$index]['fields'][$num]['value'] = $value;
+			unset($testing[$index][$key]);
+		}
+	}
+	$testing = array_values($testing);
+	foreach ($head as $num => $field) {
+		if (substr($num, 0, 1) === '_') continue;
+		$testing['head'][$num]['field_name'] = '';
+		if (isset($field['table'])) {
+			$testing['head'][$num]['field_name'] .= $field['table'].'<br>';
+		}
+		$testing['head'][$num]['field_name'] .= isset($field['title']) ? $field['title'] : $field['field_name'];
+	}
+
+	$text = wrap_template('sync', $testing);
+	return $text;
+}
+
+/**
+ * get list of fields from zzform definition
+ *
+ * @param string $form_script
+ * @param array $zz_setting (not to be changed, therefore not global here)
+ * @param array $zz_conf (not to be changed, therefore not global here)
+ * @return array $zz['fields']
+ */
+function zz_sync_form_fields($form_script, $zz_setting, $zz_conf) {
+	$file = zzform_file($form_script);
+	require $file['tables'];
+	if (empty($zz)) {
+		return $zz_sub['fields'];
+	} else {
+		return $zz['fields'];
+	}
+}
+
+/**
+ * get fields out of zzform definition that are displayed in sync table
+ *
+ * @param array $fields = $zz['fields']
+ * @param array $old_head = $testing['head'], list of field names
+ * 		or subtable + index + field_name
+ * @return array $head
+ */
+function zz_sync_fields($fields, $old_head) {
+	$head = array();
+	foreach ($fields as $no => $field) {
+		if (!empty($field['field_name']) AND in_array($field['field_name'], $old_head)) {
+			$head[$no] = $field;
+			$head['_mapping'][$field['field_name']] = $no;
+		} elseif (!empty($field['type']) AND $field['type'] === 'subtable') {
+			// @todo write zzform function that puts all definitions in table
+			// like fill out
+			$table_name = isset($field['table_name']) ? $field['table_name'] : $field['table'];
+			foreach ($field['fields'] as $subno => $subfield) {
+				$field_name = sprintf('%s[%%d][%s]', $table_name, $subfield['field_name']);
+				$first_row = sprintf($field_name, 0);
+				if (!in_array($first_row, $old_head)) continue;
+				$head[$no.'-'.$subno] = $subfield;
+				$head[$no.'-'.$subno]['table'] = isset($field['title']) ? $field['title'] : ucfirst($field['table']);
+				$head['_mapping'][$first_row] = $no.'-'.$subno;
+				// @todo support more than one subtable row
+			}
+		}
+	}
+	return $head;
 }

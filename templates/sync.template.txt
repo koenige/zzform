@@ -1,0 +1,36 @@
+# sync module
+# Template for sync list
+#
+# Part of »Zugzwang Project«
+# http://www.zugzwang.org/modules/sync
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2016 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+<div id="zzform">
+<table class="data">
+<thead>
+<tr>
+<th>ID</th>
+<th>%%% text action %%%</th>
+%%% loop head %%%
+<th>%%% item field_name %%%</th>
+%%% loop end %%%
+</tr>
+</thead>
+<tbody>
+%%% loop start %%%
+<tr class='%%% loopposition uneven "un" %%%even'>
+<td>%%% item _id %%%</td>
+<td>%%% item _action %%%</td>
+%%% loop fields %%%
+<td>
+%%% item value %%%
+</td>
+%%% loop end %%%
+</tr>
+%%% loop end %%%
+</tbody>
+</table>
+</div>
