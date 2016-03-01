@@ -1,0 +1,38 @@
+# sync module
+# Template for sync list, deletable records
+#
+# Part of »Zugzwang Project«
+# http://www.zugzwang.org/modules/sync
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2016 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+<div id="zzform">
+<table class="data">
+<thead>
+<tr>
+<th>No.</th>
+<th>ID</th>
+%%% loop head %%%
+<th>%%% item field_name %%%</th>
+%%% loop end %%%
+</tr>
+</thead>
+<tbody>
+%%% loop start %%%
+<tr class='%%% loopposition uneven "un" %%%even'>
+<td class='number'>%%% item no %%%</td>
+<td class='number'>
+%%% condition if _id & script_url %%%<a href="%%% item script_url %%%?mode=edit&amp;id=%%% item _id %%%">%%% item _id %%%</a>
+%%% condition elseif _id %%%%%% item _id %%%
+%%% condition endif %%%
+</td>
+%%% loop fields %%%
+<td>%%% item value %%%</td>
+%%% loop end %%%
+</tr>
+%%% loop end %%%
+</tbody>
+</table>
+</div>

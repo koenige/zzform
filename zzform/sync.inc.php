@@ -87,12 +87,14 @@ function zz_sync($import) {
 			$import['static'] = array();
 		if (!isset($import['key_concat']))
 			$import['key_concat'] = false;
+		if (isset($_GET['deletable'])) break;
 		list($raw, $i) = zz_sync_csv($import);
 		if ($i === $import['end']) {
 			$refresh = true;
 		}
 		break;
 	case 'sql':
+		if (isset($_GET['deletable'])) break;
 		$raw = wrap_db_fetch($import['import_sql'], $import['import_id_field_name']);
 		foreach ($raw as $id => $line) {
 			// we need fields as numeric values
@@ -104,6 +106,10 @@ function zz_sync($import) {
 		break;
 	default:
 		wrap_error('Please set an import type via <code>$import["type"]</code>.', E_USER_ERROR);
+	}
+
+	if (isset($_GET['deletable'])) {
+		return zz_sync_deletable($import);
 	}
 
 	// sync data
@@ -146,6 +152,8 @@ function zz_sync($import) {
 			$lines[] = zz_sync_list($testing, $import);
 		} elseif ($refresh) {
 			$lines[] = sprintf('<a href="?limit=%s">Go on to next page</a>', $import['end']);
+		} else {
+			$lines[] = '<a href="?deletable">Possibly deletable records</a>';
 		}
 		$refresh = false;
 	} elseif ($refresh) {
@@ -619,4 +627,52 @@ function zz_sync_fields($fields, $old_head) {
 		}
 	}
 	return $head;
+}
+
+/**
+ * show deletable records
+ *
+ * @param array $import
+ * @return array
+ */
+function zz_sync_deletable($import) {
+	global $zz_setting;
+
+	if (empty($import['deletable_sql'])) {
+		wrap_error('Please set an SQL query which reads all deletable records from the database in $import["deletable_sql"].', E_USER_ERROR);	
+	}
+
+	switch ($import['type']) {
+	case 'csv':
+		list($raw, $i) = zz_sync_csv($import);
+		break;
+	case 'sql':
+		$raw = wrap_db_fetch($import['import_sql'], $import['import_id_field_name']);
+		$sql = sprintf($import['deletable_sql'], '"'.implode('","', array_keys($raw)).'"');
+		$existing = wrap_db_fetch($sql, '_dummy_', 'numeric');
+		break;
+	}
+	$j = 0;
+	foreach ($existing as $index => $record) {
+		$i = 0;
+		$j++;
+		foreach ($record as $field_name => $value) {
+			if ($field_name === $import['id_field_name']) {
+				$data[$index]['_id'] = $value;
+			} else {
+				$data['head'][$field_name]['field_name'] = $field_name;
+				$data[$index]['fields'][$i]['value'] = $value;
+				$i++;
+			}
+		}
+		$data[$index]['no'] = $j;
+		$data[$index]['script_url'] = isset($import['script_url']) ? $import['script_url'] : '';
+	}
+	$data['head'] = array_values($data['head']);
+
+	$page['query_strings'] = array('deletable');
+	$page['text'] = wrap_template('sync-deletable', $data);
+	$page['head'] = wrap_template('zzform-head', $zz_setting);
+	$page['title'] = 'Deletable records';
+	return $page;
 }
