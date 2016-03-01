@@ -80,6 +80,8 @@ function zz_sync($import) {
 			$import['delimiter'] = ',';
 		if (!isset($import['first_line_headers']))
 			$import['first_line_headers'] = true;
+		if (!isset($import['ignore_head_lines']))
+			$import['ignore_head_lines'] = 0;
 		if (!isset($import['static']))
 			$import['static'] = array();
 		if (!isset($import['key_concat']))
@@ -192,6 +194,10 @@ function zz_sync_csv($import) {
 		if (!$line) continue;
 		if (!trim(implode('', $line))) continue;
 		// ignore comments
+		if ($import['ignore_head_lines']) {
+			$import['ignore_head_lines']--;
+			continue;
+		}
 		if ($import['comments']) {
 			if (substr($line[0], 0, 1) == $import['comments']) continue;
 		}
