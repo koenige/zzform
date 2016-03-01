@@ -34,8 +34,13 @@ function zz_sync($import) {
 	$refresh = false;
 	
 	// set defaults global
-	if (!isset($zz_setting['sync_records_per_run']))
-		$zz_setting['sync_records_per_run'] = 1000;
+	if (!isset($zz_setting['sync_records_per_run'])) {
+		if (!empty($import['testing'])) {
+			$zz_setting['sync_records_per_run'] = 200;
+		} else {
+			$zz_setting['sync_records_per_run'] = 1000;
+		}
+	}
 	if (!isset($zz_setting['sync_page_refresh']))
 		$zz_setting['sync_page_refresh'] = 2;
 	if (!isset($zz_setting['sync_lists_dir']))
@@ -151,7 +156,7 @@ function zz_sync($import) {
 	}
 	$page['query_strings'] = array('limit');
 	$page['text'] = implode('<br>', $lines);
-	if ($refresh) {
+	if ($refresh AND !$testing) {
 		$page['head'] = sprintf("\t".'<meta http-equiv="refresh" content="%s; URL=%s?limit=%s">'."\n",
 			$zz_setting['sync_page_refresh'], 
 			$zz_setting['host_base'].$zz_page['url']['full']['path'], $import['end']);
