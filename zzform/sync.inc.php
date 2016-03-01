@@ -346,9 +346,21 @@ function zz_sync_zzform($raw, $import) {
 				AND empty($line[$pos]) AND $line[$pos] !== 0 AND $line[$pos] !== '0') continue;
 			// do nothing if value is NULL
 			if (!isset($line[$pos])) continue;
-			$head[$field_name] = $field_name;
-			$testing[$identifier][$field_name] = trim($line[$pos]);
-			$values['POST'] = zz_sync_values($values['POST'], $field_name, trim($line[$pos]));
+			if (strstr($field_name, '+') AND !empty($import['split_function'][$pos])) {
+				// @todo error handling
+				$field_names = explode('+', $field_name);
+				$my_values = $import['split_function'][$pos](trim($line[$pos]));
+				foreach ($field_names as $field_name) {
+					$fields[$field_name] = array_shift($my_values);
+				}
+			} else {
+				$fields[$field_name] = trim($line[$pos]);
+			}
+			foreach ($fields as $field_name => $value) {
+				$head[$field_name] = $field_name;
+				$testing[$identifier][$field_name] = $value;
+				$values['POST'] = zz_sync_values($values['POST'], $field_name, $value);
+			}
 		}
 		// static values to import
 		foreach ($import['static'] as $field_name => $value) {
