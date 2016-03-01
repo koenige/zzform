@@ -498,6 +498,7 @@ function zz_sync_list($testing, $import) {
 			}
 			unset($testing[$index][$key]);
 		}
+		$testing[$index]['script_url'] = isset($import['script_url']) ? $import['script_url'] : '';
 	}
 	
 	$testing = array_values($testing);
