@@ -170,8 +170,6 @@ function zz_geo_coord_out($decimal, $orientation = 'lat', $out = false) {
 	global $zz_conf;
 
 	if ($decimal == NULL) return false;
-	if (function_exists('wrap_text')) $textfunc = 'wrap_text';
-	else $textfunc = 'zz_text';
 	$coord = false;
 	$round = isset($zz_conf['geo']['rounding']) ? $zz_conf['geo']['rounding'] : 2;
 	$spacer = isset($zz_conf['geo']['spacer']) ? $zz_conf['geo']['spacer'] : '&#160;';
@@ -186,10 +184,10 @@ function zz_geo_coord_out($decimal, $orientation = 'lat', $out = false) {
 	if ($decimal < 0) $decimal = substr($decimal, 1); // get rid of - sign)
 	switch ($orientation) {
 		case 'lat':
-			$hemisphere_text = ($hemisphere == '+') ? strip_tags($textfunc('N')) : strip_tags($textfunc('S'));
+			$hemisphere_text = ($hemisphere == '+') ? strip_tags(wrap_text('N')) : strip_tags(wrap_text('S'));
 			break;
 		case 'lon':
-			$hemisphere_text = ($hemisphere == '+') ? strip_tags($textfunc('E')) : strip_tags($textfunc('W'));
+			$hemisphere_text = ($hemisphere == '+') ? strip_tags(wrap_text('E')) : strip_tags(wrap_text('W'));
 			break;
 	}
 	
