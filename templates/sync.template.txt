@@ -26,7 +26,21 @@
 <td>%%% item _action %%%</td>
 %%% loop fields %%%
 <td>
-%%% item value %%%
+%%% condition if values %%%
+%%% loop values %%%
+<p>%%% item value %%%
+%%% item identical "<span class='identical_value'>" %%%
+%%% item existing "<br>%s" %%%
+%%% item identical "</span>" %%%
+</p>
+%%% loop end %%%
+%%% condition else %%%
+<p>%%% item value %%%
+%%% item identical "<span class='identical_value'>" %%%
+%%% item existing "<br>%s" %%%
+%%% item identical "</span>" %%%
+</p>
+%%% condition endif %%%
 </td>
 %%% loop end %%%
 </tr>
