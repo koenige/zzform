@@ -95,7 +95,13 @@ function zz_sync($import) {
 		break;
 	case 'sql':
 		if (isset($_GET['deletable'])) break;
-		$raw = wrap_db_fetch($import['import_sql'], $import['import_id_field_name']);
+		$limit = $import['end'] - $import['limit'];
+		$sql = $import['import_sql'];
+		$sql .= sprintf(' LIMIT %d, %d', $import['limit'], $limit);
+		$raw = wrap_db_fetch($sql, $import['import_id_field_name']);
+		if (count($raw) === $limit) {
+			$refresh = true;
+		}
 		foreach ($raw as $id => $line) {
 			// we need fields as numeric values
 			unset($raw[$id]);
