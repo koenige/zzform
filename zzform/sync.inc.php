@@ -346,6 +346,7 @@ function zz_sync_zzform($raw, $import) {
 				AND empty($line[$pos]) AND $line[$pos] !== 0 AND $line[$pos] !== '0') continue;
 			// do nothing if value is NULL
 			if (!isset($line[$pos])) continue;
+			$fields = array();
 			if (strstr($field_name, '+') AND !empty($import['split_function'][$pos])) {
 				// @todo error handling
 				$field_names = explode('+', $field_name);
