@@ -27,7 +27,7 @@
  * @global array $zz_page		'url'['full']['path']
  * @return array $page
  */
-function wrap_sync($import) {
+function zz_sync($import) {
 	global $zz_setting;
 	global $zz_page;
 	
@@ -79,7 +79,7 @@ function wrap_sync($import) {
 			$import['static'] = array();
 		if (!isset($import['key_concat']))
 			$import['key_concat'] = false;
-		$raw = wrap_sync_csv($import);
+		$raw = zz_sync_csv($import);
 		if (count($raw) === $zz_setting['sync_records_per_run']) {
 			$refresh = true;
 		}
@@ -99,7 +99,7 @@ function wrap_sync($import) {
 	}
 
 	// sync data
-	list($updated, $inserted, $nothing, $errors, $testing) = wrap_sync_zzform($raw, $import);
+	list($updated, $inserted, $nothing, $errors, $testing) = zz_sync_zzform($raw, $import);
 
 	// output results
 	$lines = array();
@@ -167,7 +167,7 @@ function wrap_sync($import) {
  *		string	'comments' = character that marks commenting lines
  * @return array $raw
  */
-function wrap_sync_csv($import) {
+function zz_sync_csv($import) {
 	// open CSV file
 	$i = 0;
 	$first = false;
@@ -249,7 +249,7 @@ function wrap_sync_csv($import) {
  * @return array $updated, $inserted, $nothing = count of records, $errors,
  *		$testing
  */
-function wrap_sync_zzform($raw, $import) {
+function zz_sync_zzform($raw, $import) {
 	global $zz_conf;
 	// include form scripts
 	require_once $zz_conf['dir'].'/zzform.php';
@@ -316,11 +316,11 @@ function wrap_sync_zzform($raw, $import) {
 				AND empty($line[$pos]) AND $line[$pos] !== 0 AND $line[$pos] !== '0') continue;
 			// do nothing if value is NULL
 			if (!isset($line[$pos])) continue;
-			$values['POST'] = wrap_sync_values($values['POST'], $field_name, trim($line[$pos]));
+			$values['POST'] = zz_sync_values($values['POST'], $field_name, trim($line[$pos]));
 		}
 		// static values to import
 		foreach ($import['static'] as $field_name => $value) {
-			$values['POST'] = wrap_sync_values($values['POST'], $field_name, $value);
+			$values['POST'] = zz_sync_values($values['POST'], $field_name, $value);
 		}
 		if (!empty($ids[$identifier])) {
 			$values['action'] = 'update';
@@ -365,7 +365,7 @@ function wrap_sync_zzform($raw, $import) {
  * @param string $value
  * @return array
  */
-function wrap_sync_values($post, $field_name, $value) {
+function zz_sync_values($post, $field_name, $value) {
 	if (strstr($field_name, '[')) {
 		$fields = explode('[', $field_name);
 		foreach ($fields as $index => $field) {
