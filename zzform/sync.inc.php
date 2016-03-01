@@ -87,8 +87,8 @@ function zz_sync($import) {
 			$import['static'] = array();
 		if (!isset($import['key_concat']))
 			$import['key_concat'] = false;
-		$raw = zz_sync_csv($import);
-		if (count($raw) === $zz_setting['sync_records_per_run']) {
+		list($raw, $i) = zz_sync_csv($import);
+		if ($i === $import['end']) {
 			$refresh = true;
 		}
 		break;
@@ -249,8 +249,8 @@ function zz_sync_csv($import) {
 		if ($processed === ($import['end'] - $import['limit'])) break;
 	}
 	fclose($handle);
-	if (empty($raw)) return array();
-	return $raw;
+	if (empty($raw)) return array(array(), $i);
+	return array($raw, $i);
 }
 
 
