@@ -24,13 +24,13 @@
 <tbody>
 %%% loop start %%%
 <tr class='%%% loopposition uneven "un" %%%even'>
-<td class="number">%%% item no %%%</td>
-<td class="number">
+<td class='number%%% item _insert " highlight"%%%'>%%% item no %%%</td>
+<td class='number%%% item _insert " highlight"%%%'>
 %%% condition if _id & script_url %%%<a href="%%% item script_url %%%?mode=edit&amp;id=%%% item _id %%%">%%% item _id %%%</a>
 %%% condition elseif _id %%%%%% item _id %%%
 %%% condition endif %%%
 </td>
-<td>
+<td%%% item _insert " class='highlight'"%%%>
 <input type="checkbox" checked="checked" name="action[%%% item index %%%]">
 %%% item _action %%%</td>
 %%% loop fields %%%

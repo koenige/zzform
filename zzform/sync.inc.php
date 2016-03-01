@@ -362,6 +362,7 @@ function zz_sync_zzform($raw, $import) {
 			$testing[$identifier]['_id'] = $ids[$identifier];
 		} else {
 			$testing[$identifier]['_action'] = $values['action'] = 'insert';
+			$testing[$identifier]['_insert'] = true;
 		}
 		if (!empty($import['testing'])) {
 			if (false === array_search($identifier, $action_ids)) {
