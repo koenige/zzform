@@ -114,7 +114,7 @@ function zz_sync($import) {
 		wrap_error('Please set an import type via <code>$import["type"]</code>.', E_USER_ERROR);
 	}
 
-	if (isset($_GET['deletable'])) {
+	if (isset($_GET['deletable']) AND !empty($import['deletable_sql'])) {
 		return zz_sync_deletable($import);
 	}
 
@@ -643,10 +643,6 @@ function zz_sync_fields($fields, $old_head) {
  */
 function zz_sync_deletable($import) {
 	global $zz_setting;
-
-	if (empty($import['deletable_sql'])) {
-		wrap_error('Please set an SQL query which reads all deletable records from the database in $import["deletable_sql"].', E_USER_ERROR);	
-	}
 
 	switch ($import['type']) {
 	case 'csv':
