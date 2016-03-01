@@ -142,11 +142,12 @@ function zz_sync($import) {
 	}
 	if ($testing) {
 		$lines[] = zz_sync_list($testing, $import);
-	}
-	if ($refresh)
+		$refresh = false;
+	} elseif ($refresh) {
 		$lines[] = wrap_text('Please wait for reload &hellip;');
-	else
+	} else {
 		$lines[] = wrap_text('Finished!');
+	}
 
 	if (!$lines) {
 		$page['text'] = wrap_text('No updates/inserts were made.');
@@ -158,7 +159,7 @@ function zz_sync($import) {
 	}
 	$page['query_strings'] = array('limit');
 	$page['text'] = implode('<br>', $lines);
-	if ($refresh AND !$testing) {
+	if ($refresh) {
 		$page['head'] = sprintf("\t".'<meta http-equiv="refresh" content="%s; URL=%s?limit=%s">'."\n",
 			$zz_setting['sync_page_refresh'], 
 			$zz_setting['host_base'].$zz_page['url']['full']['path'], $import['end']);
