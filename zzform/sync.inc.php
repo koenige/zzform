@@ -646,14 +646,16 @@ function zz_sync_deletable($import) {
 
 	switch ($import['type']) {
 	case 'csv':
+		$import['end'] = 0;
 		list($raw, $i) = zz_sync_csv($import);
 		break;
 	case 'sql':
 		$raw = wrap_db_fetch($import['import_sql'], $import['import_id_field_name']);
-		$sql = sprintf($import['deletable_sql'], '"'.implode('","', array_keys($raw)).'"');
-		$existing = wrap_db_fetch($sql, '_dummy_', 'numeric');
 		break;
 	}
+	$sql = sprintf($import['deletable_sql'], '"'.implode('","', array_keys($raw)).'"');
+	$existing = wrap_db_fetch($sql, '_dummy_', 'numeric');
+
 	$j = 0;
 	foreach ($existing as $index => $record) {
 		$i = 0;
