@@ -30,13 +30,14 @@
 function zz_sync($import) {
 	global $zz_setting;
 	global $zz_page;
-	
+
+	$post = isset($_POST['action']) ? true : false;	// will be overwritten
 	$refresh = false;
 	
 	// set defaults global
 	if (!isset($zz_setting['sync_records_per_run'])) {
 		if (!empty($import['testing'])) {
-			$zz_setting['sync_records_per_run'] = 200;
+			$zz_setting['sync_records_per_run'] = 100;
 		} else {
 			$zz_setting['sync_records_per_run'] = 1000;
 		}
@@ -125,7 +126,7 @@ function zz_sync($import) {
 			$lines[] = sprintf(wrap_text('%s inserts were made.'), $inserted);
 		}
 	}
-	if ($nothing) {
+	if ($nothing AND (!$testing OR $post)) {
 		if ($nothing === 1) {
 			$lines[] = wrap_text('1 record was left as is.');
 		} else {
@@ -141,7 +142,11 @@ function zz_sync($import) {
 		}
 	}
 	if ($testing) {
-		$lines[] = zz_sync_list($testing, $import);
+		if (!$post) {
+			$lines[] = zz_sync_list($testing, $import);
+		} elseif ($refresh) {
+			$lines[] = sprintf('<a href="?limit=%s">Go on to next page</a>', $import['end']);
+		}
 		$refresh = false;
 	} elseif ($refresh) {
 		$lines[] = wrap_text('Please wait for reload &hellip;');
@@ -297,6 +302,14 @@ function zz_sync_zzform($raw, $import) {
 	$sql = sprintf($import['existing_sql'], $keys);
 	$ids = wrap_db_fetch($sql, '_dummy_', 'key/value');
 
+	$action_ids[] = array();
+	if (!empty($import['testing']) AND !empty($_POST['action'])) {
+		foreach ($_POST['action'] as $index => $value) {
+			if ($value !== 'on') continue;
+			$action_ids[] = $index;
+		}
+	}
+
 	foreach ($raw as $identifier => $line) {
 		$values = array();
 		$values['POST'] = array();
@@ -349,8 +362,10 @@ function zz_sync_zzform($raw, $import) {
 			$testing[$identifier]['_action'] = $values['action'] = 'insert';
 		}
 		if (!empty($import['testing'])) {
-			$nothing++;
-			continue;
+			if (false === array_search($identifier, $action_ids)) {
+				$nothing++;
+				continue;
+			}
 		}
 		$ops = zzform_multi($import['form_script'], $values);
 		if ($ops['id']) {
@@ -499,6 +514,7 @@ function zz_sync_list($testing, $import) {
 			}
 			unset($testing[$index][$key]);
 		}
+		$testing[$index]['index'] = $index;
 		$testing[$index]['script_url'] = isset($import['script_url']) ? $import['script_url'] : '';
 	}
 	
