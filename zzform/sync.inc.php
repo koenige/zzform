@@ -193,6 +193,7 @@ function zz_sync_csv($import) {
 		wrap_error('Please set one or more fields as key fields in $import["key"].', E_USER_ERROR);
 	}
 
+	$processed = 0;
 	while (!feof($handle)) {
 		$line = fgetcsv($handle, 8192, $import['delimiter'], $import['enclosure']);
 		$line_complete = $line;
@@ -244,7 +245,8 @@ function zz_sync_csv($import) {
 		}
 		$key = trim($key);
 		$raw[$key] = $line;
-		if (count($raw) === ($import['end'] - $import['limit'])) break;
+		$processed++; // does not necessarily correspond with count($raw)
+		if ($processed === ($import['end'] - $import['limit'])) break;
 	}
 	fclose($handle);
 	if (empty($raw)) return array();
