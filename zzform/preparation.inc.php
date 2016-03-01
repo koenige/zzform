@@ -644,7 +644,7 @@ function zz_subrecord_unique($my_tab, $existing, $fields) {
 		$my_tab['sql'] = zz_edit_sql($my_tab['sql'], 
 			'WHERE', $foreign_key.' = '.intval($_GET['where'][$foreign_key]));
 	}
-	$id_field = array('id_field_name' => $my_tab['id_field_name'], 'value' => '');
+	$id_field = array('field_name' => $my_tab['id_field_name'], 'value' => '');
 	if (!empty($my_tab['unique'])) {
 		// this is only important for UPDATEs of the main record
 		// @todo merge with code for 'unique' on a field level
