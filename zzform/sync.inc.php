@@ -665,7 +665,11 @@ function zz_sync_deletable($import) {
 		$raw = wrap_db_fetch($import['import_sql'], $import['import_id_field_name']);
 		break;
 	}
-	$sql = sprintf($import['deletable_sql'], '"'.implode('","', array_keys($raw)).'"');
+	$keys = array_keys($raw);
+	foreach ($keys as $index => $key) {
+		$keys[$index] = wrap_db_escape($key);
+	}
+	$sql = sprintf($import['deletable_sql'], '"'.implode('","', $keys).'"');
 	$existing = wrap_db_fetch($sql, '_dummy_', 'numeric');
 
 	$j = 0;
