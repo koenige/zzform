@@ -120,6 +120,13 @@ function zz_sync($import) {
 	if (isset($_GET['deletable']) AND !empty($import['deletable_sql'])) {
 		return zz_sync_deletable($import);
 	}
+	
+	if (empty($raw)) {
+		$page['query_string'] = 'limit';
+		$page['status'] = 404;
+		$page['text'] = '';
+		return $page;
+	}
 
 	// sync data
 	list($updated, $inserted, $nothing, $errors, $testing) = zz_sync_zzform($raw, $import);
