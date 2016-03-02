@@ -682,6 +682,9 @@ function zz_sync_deletable($import) {
 			} else {
 				$data['head'][$field_name]['field_name'] = $field_name;
 				$data[$index]['fields'][$i]['value'] = $value;
+				if (in_array($field_name, array_keys($import['deletable_script_url']))) {
+					$data[$index]['fields'][$i]['my_script_url'] = $import['deletable_script_url'][$field_name];
+				}
 				$i++;
 			}
 		}
