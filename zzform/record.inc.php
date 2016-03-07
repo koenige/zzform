@@ -3278,6 +3278,9 @@ function zz_field_concat($field, $values) {
 		if (isset($field['concat_'.$i]) AND !empty($values[$i])) {
 			$values[$i] = sprintf($field['concat_'.$i], $values[$i]);
 		}
+		if (isset($field['format_'.$i]) AND !empty($values[$i]) AND function_exists($field['format_'.$i])) {
+			$values[$i] = $field['format_'.$i]($values[$i]);
+		}
 	}
 	$values = array_filter($values);
 	return implode($concat, $values);
