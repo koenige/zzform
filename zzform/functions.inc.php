@@ -808,9 +808,10 @@ function zz_write_onces($zz, $zz_var) {
  * @param bool $multiple_times marker for conditions
  * @param string $mode (optional, $ops['mode'])
  * @param string $action (optional, $zz_var['action'])
+ * @param int $subtable_no number of subtable in definition
  * @return array $fields
  */
-function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false, $action = false) {
+function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false, $action = false, $subtable_no = false) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) {
 		zz_debug('start', __FUNCTION__.$multiple_times);
@@ -835,6 +836,8 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			unset($fields[$no]);
 			continue;
 		}
+		$fields[$no]['field_no'] = $no;
+		$fields[$no]['subtable_no'] = $subtable_no;
 		if (!isset($fields[$no]['type'])) {
 			// default type: text
 			$fields[$no]['type'] = 'text';
@@ -909,7 +912,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			}
 			$fields[$no]['fields'] = zz_fill_out(
 				$fields[$no]['fields'], $fields[$no]['table'], $multiple_times,
-				$mode, $action
+				$mode, $action, $no
 			);
 		}
 
