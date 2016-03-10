@@ -1,8 +1,7 @@
-# sync module
+# Zugzwang Project
 # Template for sync list
 #
-# Part of »Zugzwang Project«
-# http://www.zugzwang.org/modules/sync
+# http://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
 # @copyright Copyright © 2016 Gustaf Mossakowski
