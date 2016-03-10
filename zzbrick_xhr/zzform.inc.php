@@ -100,14 +100,16 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 		return $data;
 	}
 	
+	// remove ID field	
+	array_shift($sql_fields);
+
 	foreach ($sql_fields as $index => $sql_field) {
-		$sql_fieldnames[$index] = $sql_field['field']; 
+		$sql_fieldnames[$index] = $sql_field['as']; 
 		if (!strstr($sql_field['as'], '.')) continue;
 		$sql_field['as'] = explode('.', $sql_field['as']);
 		$sql_fields[$index]['as'] = $sql_field['as'][1];
 	}
 	
-	array_shift($sql_fields);
 	if (!empty($field['show_hierarchy'])) {
 		$index = array_search($field['show_hierarchy'], $sql_fieldnames);
 		if ($index !== false) {
