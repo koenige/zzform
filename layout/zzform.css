@@ -6,7 +6,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2014 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -568,3 +568,25 @@ body #zzform .separator hr
 				{ border: 1px solid #999999; color: black; }
 .wmd-prompt-dialog > form > input[type="button"]
 				{ border: 1px solid #888888; font-size: 0.8em; font-weight: bold; }
+
+/* vxJS */
+.vxJS_xhrThrobber	{ width: 21px; height: 21px; background: url(/_layout/zzform/xhr_activity.gif) no-repeat 50% 50%; z-index: 100; }
+
+/* vxJS autoSuggest */
+.vxJS_autoSuggest				{ color: #fff; position: absolute; z-index: 3; }
+.vxJS_autoSuggest ul			{ background: #404040; border: 1px solid #808080; margin: 2px 0; padding: 0; 
+								list-style-type: none; font-size: 90%; }
+.vxJS_autoSuggest li			{ cursor: pointer; margin: 0; padding: 0.25em 0.5em; font-size: 100%; }
+.vxJS_autoSuggest li span		{ padding: 0 0.5em; }
+.vxJS_autoSuggest li span.hiLite{ padding: 0; }
+
+/* vxJS list */
+ul.vxJS_list					{ margin: 0; padding: 0;  list-style-type: none; }
+.vxJS_list li					{ cursor: pointer; }
+.vxJS_list .selected			{ background: #2c4; color: #fff; }
+.vxJS_list .current				{ background: #A3536D; color: #fff; }
+
+.xhr_record		{ line-height: 1.3; }
+.xhr_foot		{ font-size: 80%; color: #CCC; margin: 0; line-height: 1.3; }
+
+.vxJS_list .hiLite	{ background: yellow; color: black; }
