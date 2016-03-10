@@ -110,10 +110,16 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 		$sql_fields[$index]['as'] = $sql_field['as'][1];
 	}
 	
-	if (!empty($field['show_hierarchy'])) {
-		$index = array_search($field['show_hierarchy'], $sql_fieldnames);
-		if ($index !== false) {
-			unset($sql_fields[$index]);
+	$removable = array('sql_ignore', 'show_hierarchy');
+	foreach ($removable as $remove_key) {
+		if (!array_key_exists($remove_key, $field)) continue;
+		$remove_fields = $field[$remove_key];
+		if (!is_array($remove_fields)) $remove_fields = array($remove_fields);
+		foreach ($remove_fields as $remove_field) {
+			$index = array_search($remove_field, $sql_fieldnames);
+			if ($index !== false) {
+				unset($sql_fields[$index]);
+			}
 		}
 	}
 	
