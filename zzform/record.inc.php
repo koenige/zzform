@@ -223,6 +223,9 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 	}
 
 	$output .= zz_output_backlink($zz_tab);
+	if (!empty($zz_conf['int']['selects']) AND $zz_conf['xhr_vxjs']) {
+		$output .= wrap_template('xhr-selects', $zz_conf['int']['selects']);
+	}
 
 	return $output;
 }
@@ -2214,8 +2217,9 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 
 	// 1.3.2: more records than we'd like to display
 	if ($count_rows > $field['max_select']) {
-		return zz_return(zz_field_select_sql_too_long($field, $record, 
-			$detail_record, $id_field_name));
+		return zz_return(zz_field_select_sql_too_long(
+			$field, $record, $detail_record, $id_field_name
+		));
 	}
 
 	// 1.3.3: draw RADIO buttons
@@ -2379,7 +2383,9 @@ function zz_field_get_id_field_name($lines) {
  * @return string
  * @todo AJAX typeaheadfind
  */
-function zz_field_select_sql_too_long($field, $record, $detail_record, $id_field_name) {		
+function zz_field_select_sql_too_long($field, $record, $detail_record, $id_field_name) {
+	global $zz_conf;	
+
 	$outputf = zz_form_element('zz_check_select[]', $field['select_field_name'], 'hidden');
 
 	// don't show select but text input instead
@@ -2399,6 +2405,21 @@ function zz_field_select_sql_too_long($field, $record, $detail_record, $id_field
 	$fieldattr['size'] = !empty($field['size_select_too_long']) ? $field['size_select_too_long'] : 32;
 	if ($field['required']) $fieldattr['required'] = true;
 	$outputf .= zz_form_element($field['f_field_name'], $value, 'text_noescape', true, $fieldattr);
+	// for XHR request
+	if (empty($zz_conf['int']['selects']['url_self'])) {
+		$zz_conf['int']['selects']['url_self'] = $zz_conf['int']['url']['self']
+			.($zz_conf['int']['url']['qs_zzform']
+				? $zz_conf['int']['url']['qs_zzform'].'&'
+				: $zz_conf['int']['url']['?&']
+			);
+	}
+
+	$zz_conf['int']['selects'][] = array(
+		'field_no' => $field['field_no'],
+		'subtable_no' => $field['subtable_no'],
+		'field_id' => !empty($fieldattr['id']) ? $fieldattr['id'] : zz_make_id_fieldname($field['f_field_name']),
+		'url_self' => $zz_conf['int']['selects']['url_self']
+	);
 	return $outputf;
 }
 

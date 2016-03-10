@@ -639,6 +639,7 @@ function zz_initialize($mode = false) {
 		'iso-8859-2' => 'iso-8859-1'
 	);
 	$default['url_self']			= false;
+	$default['xhr_vxjs']			= false;
 	
 	zz_write_conf($default);
 	
