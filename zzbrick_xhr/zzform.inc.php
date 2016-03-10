@@ -40,6 +40,13 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	} else {
 		$field = $zz['fields'][$field_no];
 	}
+	// @todo use common concat function for all occurences!
+	$concat = isset($field['concat_fields']) ? $field['concat_fields'] : ' | ';
+	if (strstr($text, $concat)) {
+		$text = explode($concat, $text);
+	} else {
+		$text = array($text);
+	}
 
 	// @todo modify SQL query according to zzform()
 	
@@ -47,9 +54,15 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	$sql_fields = wrap_edit_sql($sql, 'SELECT', false, 'list');
 	$where = array();
 	foreach ($sql_fields as $sql_field) {
-		$where[] = sprintf('%s LIKE "%%%s%%"', $sql_field['field'], wrap_db_escape($text));
+		foreach ($text as $index => $value) {
+			$where[$index][] = sprintf('%s LIKE "%%%s%%"', $sql_field['field'], wrap_db_escape($value));
+		}
 	}
-	$sql = wrap_edit_sql($sql, 'WHERE', implode(' OR ', $where));
+	$conditions = array();
+	foreach ($where as $condition) {
+		$conditions[] = sprintf('(%s)', implode(' OR ', $condition));
+	}
+	$sql = wrap_edit_sql($sql, 'WHERE', implode(' AND ', $conditions));
 	$records = wrap_db_fetch($sql, '_dummy_', 'numeric');
 	if (count($records) > $limit) {
 		// more records than we might show
@@ -103,8 +116,6 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	}
 	
 	$i = 0;
-	// @todo use common concat function for all occurences!
-	$concat = isset($field['concat_fields']) ? $field['concat_fields'] : ' | ';
 	foreach ($records as $record) {
 		$j = 0;
 		$text = array();
