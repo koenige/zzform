@@ -98,7 +98,7 @@ function zz_nice_headings($heading, $zz, $where_condition = array()) {
 			// create sql query, with $mywh instead of $wh[$index] because first 
 			// might be ambiguous
 			// extra space before mywh for replacement with key_field_name
-			$wh_sql = zz_edit_sql($subheading['sql'], 'WHERE',
+			$wh_sql = wrap_edit_sql($subheading['sql'], 'WHERE',
 				sprintf(' %s = "%s"', $mywh, wrap_db_escape($where_condition[$mywh]))
 			);
 			$wh_sql .= ' LIMIT 1';

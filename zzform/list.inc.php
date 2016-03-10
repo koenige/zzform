@@ -839,22 +839,22 @@ function zz_list_filter_sql($filters, $sql, &$filter_params) {
 		if (!isset($filter['default_selection'])) $filter['default_selection'] = '';
 		$old_sql = $sql;
 		if (isset($filter['sql_join'])) {
-			$sql = zz_edit_sql($sql, 'JOIN', $filter['sql_join']);
+			$sql = wrap_edit_sql($sql, 'JOIN', $filter['sql_join']);
 		}
 		
 		if ($filter['type'] === 'show_hierarchy'
 			AND false !== zz_in_array_str($filter_params[$filter['identifier']], array_keys($filter['selection']))
 		) {
 			$filter_value = $filter_params[$filter['identifier']];
-			$sql = zz_edit_sql($sql, 'WHERE', $filter['where'].' = "'.$filter_value.'"');
+			$sql = wrap_edit_sql($sql, 'WHERE', $filter['where'].' = "'.$filter_value.'"');
 		} elseif (false !== zz_in_array_str($filter_params[$filter['identifier']], array_keys($filter['selection']))
 			AND $filter['type'] === 'list') {
 			// it's a valid filter, so apply it.
 			$filter_value = $filter_params[$filter['identifier']];
 			if ($filter_value === 'NULL') {
-				$sql = zz_edit_sql($sql, 'WHERE', 'ISNULL('.$filter['where'].')');
+				$sql = wrap_edit_sql($sql, 'WHERE', 'ISNULL('.$filter['where'].')');
 			} elseif ($filter_value === '!NULL') {
-				$sql = zz_edit_sql($sql, 'WHERE', '!ISNULL('.$filter['where'].')');
+				$sql = wrap_edit_sql($sql, 'WHERE', '!ISNULL('.$filter['where'].')');
 			} else {
 				// allow ! as a symbol (may be escaped by \)
 				// for !=
@@ -865,7 +865,7 @@ function zz_list_filter_sql($filters, $sql, &$filter_params) {
 				} elseif (substr($filter_value, 0, 1) === '\\') {
 					$filter_value = substr($filter_value, 1);
 				}
-				$sql = zz_edit_sql($sql, 'WHERE', $filter['where'].$equals.'"'.$filter_value.'"');
+				$sql = wrap_edit_sql($sql, 'WHERE', $filter['where'].$equals.'"'.$filter_value.'"');
 			}
 		} elseif ($filter_params[$filter['identifier']] === '0' AND $filter['default_selection'] !== '0'
 			AND $filter['default_selection'] !== 0) {
@@ -882,10 +882,10 @@ function zz_list_filter_sql($filters, $sql, &$filter_params) {
 					$wheres[] = $filter_where.' = "'.$filter_params[$filter['identifier']].'"';
 				}
 			}
-			$sql = zz_edit_sql($sql, 'WHERE', implode(' OR ', $wheres));
+			$sql = wrap_edit_sql($sql, 'WHERE', implode(' OR ', $wheres));
 		} elseif ($filter['type'] === 'like') {
 			// valid filter with LIKE
-			$sql = zz_edit_sql($sql, 'WHERE', $filter['where'].' LIKE "%'.$filter_params[$filter['identifier']].'%"');
+			$sql = wrap_edit_sql($sql, 'WHERE', $filter['where'].' LIKE "%'.$filter_params[$filter['identifier']].'%"');
 		} else {
 			// invalid filter value, show list without filter
 			$sql = $old_sql;
@@ -1055,7 +1055,7 @@ function zz_list_query_hierarchy($zz, $id_field) {
 		// for performance reasons, we didn't save the full result set,
 		// so we have to requery it again.
 		if ($zz_conf['int']['this_limit'] !== '') {
-			$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', '`'.$zz['table'].'`.'.$id_field
+			$zz['sql'] = wrap_edit_sql($zz['sql'], 'WHERE', '`'.$zz['table'].'`.'.$id_field
 				.' IN ('.implode(',', array_keys($lines)).')');
 		} // else sql remains same
 		$lines = zz_array_merge($lines, zz_db_fetch($zz['sql'], $id_field));
@@ -1063,8 +1063,8 @@ function zz_list_query_hierarchy($zz, $id_field) {
 	foreach ($lines as $line) {
 		if (empty($line['zz_hidden_line'])) continue;
 		// get record which is normally beyond our scope via ID
-		$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', 'nothing', 'delete');
-		$zz['sql'] = zz_edit_sql($zz['sql'], 'WHERE', '`'.$zz['table'].'`.'.$id_field.' = "'.$line[$id_field].'"');
+		$zz['sql'] = wrap_edit_sql($zz['sql'], 'WHERE', 'nothing', 'delete');
+		$zz['sql'] = wrap_edit_sql($zz['sql'], 'WHERE', '`'.$zz['table'].'`.'.$id_field.' = "'.$line[$id_field].'"');
 		$line = zz_db_fetch($zz['sql']);
 		if ($line) {
 			$lines[$line[$id_field]] = array_merge($lines[$line[$id_field]], $line);
@@ -1897,7 +1897,7 @@ function zz_sql_order($fields, $sql) {
 	}
 	
 	if (!$order) return $sql;
-	$sql = zz_edit_sql($sql, 'ORDER BY', implode(',', $order), 'add');
+	$sql = wrap_edit_sql($sql, 'ORDER BY', implode(',', $order), 'add');
 	return $sql;
 }
 
@@ -2027,10 +2027,10 @@ function zz_list_get_subselects($lines, $subselects) {
 		// ID field will not be shown
 		$subselect['sql_ignore'][] = $subselect['id_field_name'];
 		
-		$subselect['sql'] = zz_edit_sql($subselect['sql'], 'WHERE', 
+		$subselect['sql'] = wrap_edit_sql($subselect['sql'], 'WHERE', 
 			$subselect['id_table_and_fieldname'].' IN ('.implode(', ', $ids).')');
 		if (!empty($subselect['translation_key']))
-			$subselect['sql'] = zz_edit_sql($subselect['sql'], 'WHERE', 
+			$subselect['sql'] = wrap_edit_sql($subselect['sql'], 'WHERE', 
 				'translationfield_id = '.$subselect['translation_key']);
 		// E_USER_WARNING might return message, we do not want to see this message
 		// but in the logs

@@ -1358,7 +1358,7 @@ function zz_upload_prepare_source_file($image, $my_rec, $zz_tab, $tab, $rec) {
 			}
 		}
 		if ($where) {
-			$sql = zz_edit_sql($sql, 'WHERE', implode(' OR ', $where));
+			$sql = wrap_edit_sql($sql, 'WHERE', implode(' OR ', $where));
 		}
 	}
 	$old_record = zz_db_fetch($sql);

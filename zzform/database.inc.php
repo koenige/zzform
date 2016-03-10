@@ -64,220 +64,6 @@ function zz_log_sql($sql, $user, $record_id = false) {
 }
 
 /**
- * puts parts of SQL query in correct order when they have to be added
- *
- * this function works only for sql queries without UNION:
- * might get problems with backticks that mark fieldname that is equal with SQL 
- * keyword
- * mode = add until now default, mode = replace is only implemented for SELECT
- * identical to wrap_edit_sql()!
- * @param string $sql original SQL query
- * @param string $n_part SQL keyword for part shall be edited or replaced
- *		SELECT ... FROM ... JOIN ...
- * 		WHERE ... GROUP BY ... HAVING ... ORDER BY ... LIMIT ...
- * @param string $values new value for e. g. WHERE ...
- * @param string $mode Mode, 'add' adds new values while keeping the old ones, 
- *		'replace' replaces all old values, 'list' returns existing values
- *		'delete' deletes values
- * @return string $sql modified SQL query
- * @see wrap_edit_sql()
- */
-function zz_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
-	global $zz_conf; // for debug only
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	
-	if (substr(trim($sql), 0, 4) === 'SHOW' AND $n_part === 'LIMIT') {
-	// LIMIT, WHERE etc. is only allowed with SHOW
-	// not allowed e. g. for SHOW DATABASES(), SHOW TABLES FROM ...
-		return zz_return($sql);
-	}
-	if (substr(trim($sql), 0, 14) === 'SHOW DATABASES' AND $n_part === 'WHERE') {
-		// this is impossible and will automatically trigger an error
-		return zz_return(false); 
-		// @todo implement LIKE here.
-	}
-
-	// remove whitespace
-	$sql = ' '.preg_replace("/\s+/", " ", $sql); // first blank needed for SELECT
-	// SQL statements in descending order
-	$statements_desc = array(
-		'LIMIT', 'ORDER BY', 'HAVING', 'GROUP BY', 'WHERE', 'JOIN',
-		'FORCE INDEX', 'FROM', 'SELECT DISTINCT', 'SELECT'
-	);
-	foreach ($statements_desc as $statement) {
-		// add whitespace in between brackets and statements to make life easier
-		$sql = str_replace(')'.$statement.' ', ') '.$statement.' ', $sql);
-		$sql = str_replace(')'.$statement.'(', ') '.$statement.' (', $sql);
-		$sql = str_replace(' '.$statement.'(', ' '.$statement.' (', $sql);
-		// check for statements
-		$explodes = explode(' '.$statement.' ', $sql);
-		if (count($explodes) > 1) {
-			if ($statement === 'JOIN') {
-				$o_parts[$statement][1] = array_shift($explodes);
-				$last_keyword = explode(' ', $o_parts[$statement][1]);
-				$last_keyword = array_pop($last_keyword);
-				$o_parts[$statement][2] = $statement.' '.implode(' '.$statement.' ', $explodes);
-				if (in_array($last_keyword, array('LEFT', 'RIGHT', 'OUTER', 'INNER'))) {
-					$o_parts[$statement][2] = $last_keyword.' '.$o_parts[$statement][2];
-					$o_parts[$statement][1] = substr($o_parts[$statement][1], 0, -strlen($last_keyword) - 1);
-				}
-			} else {
-				// = look only for last statement
-				// and put remaining query in [1] and cut off part in [2]
-				$o_parts[$statement][2] = array_pop($explodes);
-				// last blank needed for exploding SELECT from DISTINCT
-				$o_parts[$statement][1] = implode(' '.$statement.' ', $explodes).' '; 
-			}
-		}
-		$search = '/(.+) '.$statement.' (.+?)$/i'; 
-//		preg_match removed because it takes way too long if nothing is found
-//		if (preg_match($search, $sql, $o_parts[$statement])) {
-		if (empty($o_parts[$statement])) continue;
-		$found = false;
-		$lastpart = false;
-		while (!$found) {
-			// check if there are () outside '' or "" and count them to check
-			// whether we are inside a subselect
-			$temp_sql = $o_parts[$statement][1]; // look at first part of query
-
-			// 1. remove everything in '' and "" which are not escaped
-			// replace \" character sequences which escape "
-			$temp_sql = preg_replace('/\\\\"/', '', $temp_sql);
-			// replace "strings" without " inbetween, empty "" as well
-			$temp_sql = preg_replace('/"[^"]*"/', "away", $temp_sql);
-			// replace \" character sequences which escape '
-			$temp_sql = preg_replace("/\\\\'/", '', $temp_sql);
-			// replace "strings" without " inbetween, empty '' as well
-			$temp_sql = preg_replace("/'[^']*'/", "away", $temp_sql);
-
-			// 2. count opening and closing ()
-			//  if equal ok, if not, it's a statement in a subselect
-			// assumption: there must not be brackets outside " or '
-			if (substr_count($temp_sql, '(') === substr_count($temp_sql, ')')) {
-				$sql = $o_parts[$statement][1]; // looks correct, so go on.
-				$found = true;
-			} else {
-				// remove next last statement, and go on until you found 
-				// either something with correct bracket count
-				// or no match anymore at all
-				$lastpart = ' '.$statement.' '.$o_parts[$statement][2];
-				// check first with strstr if $statement (LIMIT, WHERE etc.)
-				// is still part of the remaining sql query, because
-				// preg_match will take 2000 times longer if there is no match
-				// at all (bug in php?)
-				if (stristr($o_parts[$statement][1], $statement) 
-					AND preg_match($search, $o_parts[$statement][1], $o_parts[$statement])) {
-					$o_parts[$statement][2] = $o_parts[$statement][2].' '.$lastpart;
-				} else {
-					unset($o_parts[$statement]); // ignore all this.
-					$found = true;
-				}
-			}
-		}
-	}
-	if (($n_part && $values) OR $mode === 'list') {
-		$n_part = strtoupper($n_part);
-		switch ($n_part) {
-		case 'LIMIT':
-			// replace complete old LIMIT with new LIMIT
-			$o_parts['LIMIT'][2] = $values;
-			break;
-		case 'ORDER BY':
-			if ($mode === 'add') {
-				// append old ORDER BY to new ORDER BY
-				if (!empty($o_parts['ORDER BY'][2])) 
-					$o_parts['ORDER BY'][2] = $values.', '.$o_parts['ORDER BY'][2];
-				else
-					$o_parts['ORDER BY'][2] = $values;
-			} elseif ($mode === 'delete') {
-				unset($o_parts['ORDER BY']);
-			}
-			break;
-		case 'WHERE':
-		case 'GROUP BY':
-		case 'HAVING':
-			if ($mode === 'add') {
-				if (!empty($o_parts[$n_part][2])) 
-					$o_parts[$n_part][2] = '('.$o_parts[$n_part][2].') AND ('.$values.')';
-				else 
-					$o_parts[$n_part][2] = $values;
-			}  elseif ($mode === 'delete') {
-				unset($o_parts[$n_part]);
-			}
-			break;
-		case 'JOIN':
-			if ($mode === 'delete') {
-				// don't remove JOIN in case of WHERE, HAVING OR GROUP BY
-				// SELECT and ORDER BY should be removed beforehands!
-				// use at your own risk
-				if (isset($o_parts['WHERE'])) break;
-				if (isset($o_parts['HAVING'])) break;
-				if (isset($o_parts['GROUP BY'])) break;
-				unset($o_parts['JOIN']);
-			} elseif ($mode === 'add') {
-				// add is only possible with correct JOIN statement in $values
-				$o_parts[$n_part][2] .= ' '.$values;
-			} elseif ($mode === 'replace') {
-				// replace is only possible with correct JOIN statement in $values
-				$o_parts[$n_part][2] = $values;
-			}
-			break;
-		case 'FROM':
-			if ($mode === 'list') {
-				$tables = array();
-				$tables[] = $o_parts['FROM'][2];
-				if (isset($o_parts['JOIN']) AND stristr($o_parts['JOIN'][2], 'JOIN')) {
-					$test = explode('JOIN', $o_parts['JOIN'][2]);
-					for ($i = 0; $i < count($test); $i++) {
-						if (!$i & 1) continue;
-						$table = explode(' ', trim($test[$i]));
-						$tables[] = $table[0];
-					}
-				}
-			}
-			break;
-		case 'SELECT':
-			if (!empty($o_parts['SELECT DISTINCT'][2])) {
-				if ($mode === 'add')
-					$o_parts['SELECT DISTINCT'][2] .= ','.$values;
-				elseif ($mode === 'replace')
-					$o_parts['SELECT DISTINCT'][2] = $values;
-			} else {
-				if ($mode === 'add')
-					$o_parts['SELECT'][2] = ','.$values;
-				elseif ($mode === 'replace')
-					$o_parts['SELECT'][2] = $values;
-			}
-			break;
-		case 'FORCE INDEX':
-			if ($mode === 'delete') unset($o_parts[$n_part]);
-			break;
-		default:
-			echo 'The variable <code>'.$n_part.'</code> is not supported by zz_edit_sql().';
-			exit;
-		}
-	}
-	if ($mode === 'list') {
-		if (!isset($tables)) return zz_return(array());
-		foreach (array_keys($tables) as $index) {
-			$tables[$index] = trim($tables[$index]);
-			if (strstr($tables[$index], ' ')) {
-				$tables[$index] = trim(substr($tables[$index], 0, strpos($tables[$index], ' ')));
-			}
-		}
-		return zz_return($tables);
-	}
-	$statements_asc = array_reverse($statements_desc);
-	foreach ($statements_asc as $statement) {
-		if (!empty($o_parts[$statement][2])) {
-			$keyword = $statement === 'JOIN' ? '' : $statement;
-			$sql .= ' '.$keyword.' '.$o_parts[$statement][2];
-		}
-	}
-	return zz_return($sql);
-}
-
-/**
  * checks if SQL queries use table prefixes and replace them with current
  * table prefix from configuration
  * syntax for prefixes is SQL comment / *PREFIX* /
@@ -442,12 +228,12 @@ function zz_sql_count_rows($sql, $id_field = '') {
 		AND !stristr($sql, 'GROUP BY') AND !stristr($sql, 'HAVING')) {
 		// if it's not a SELECT DISTINCT, we can use COUNT, that's faster
 		// GROUP BY, FORCE INDEX also do not work with COUNT
-		$sql = zz_edit_sql($sql, 'ORDER BY', '_dummy_', 'delete');
-		$sql = zz_edit_sql($sql, 'FORCE INDEX', '_dummy_', 'delete');
-		$sql = zz_edit_sql($sql, 'SELECT', 'COUNT(*)', 'replace');
+		$sql = wrap_edit_sql($sql, 'ORDER BY', '_dummy_', 'delete');
+		$sql = wrap_edit_sql($sql, 'FORCE INDEX', '_dummy_', 'delete');
+		$sql = wrap_edit_sql($sql, 'SELECT', 'COUNT(*)', 'replace');
 		// unnecessary JOINs may slow down query
 		// remove them in case no WHERE, HAVING or GROUP BY is set
-		$sql = zz_edit_sql($sql, 'JOIN', '_dummy_', 'delete');
+		$sql = wrap_edit_sql($sql, 'JOIN', '_dummy_', 'delete');
 		$lines = zz_db_fetch($sql, '', 'single value');
 	} else {
 		$lines = zz_db_fetch($sql, $id_field, 'count');
@@ -965,7 +751,7 @@ function zz_db_field_collation($type, $table, $field, $index = 0) {
 			isset($field['sql_table'][$index])) {
 			$tables[] = $field['sql_table'][$index];
 		} else {
-			$tables = zz_edit_sql($field['sql'], 'FROM', '', 'list');
+			$tables = wrap_edit_sql($field['sql'], 'FROM', '', 'list');
 		}
 		break;
 	}

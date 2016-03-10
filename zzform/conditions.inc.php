@@ -24,7 +24,7 @@
  *	zz_conditions_list_check()		set conditions for list
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2010, 2013-2015 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2010, 2013-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -339,9 +339,9 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 					$sql = $condition['add']['sql']
 						.'"'.$zz_var['where'][$zz['table']][$condition['add']['key_field_name']].'"';
 					if (!empty($condition['where']))
-						$sql = zz_edit_sql($sql, 'WHERE', $condition['where']);
+						$sql = wrap_edit_sql($sql, 'WHERE', $condition['where']);
 					if (!empty($condition['having']))
-						$sql = zz_edit_sql($sql, 'HAVING', $condition['having']);
+						$sql = wrap_edit_sql($sql, 'HAVING', $condition['having']);
 					if (zz_db_fetch($sql, '', '', 'record-new ['.$index.']')) {
 						$zz_conditions['bool'][$index][0] = true;
 					} else {
@@ -354,13 +354,13 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 
 			$sql = isset($zz['sqlrecord']) ? $zz['sqlrecord'] : $zz['sql'];
 			// for performance, remove force index
-			$sql = zz_edit_sql($sql, 'FORCE INDEX', ' ', 'delete');
+			$sql = wrap_edit_sql($sql, 'FORCE INDEX', ' ', 'delete');
 			if (!empty($condition['where']))
-				$sql = zz_edit_sql($sql, 'WHERE', $condition['where']);
+				$sql = wrap_edit_sql($sql, 'WHERE', $condition['where']);
 			if (!empty($condition['having']))
-				$sql = zz_edit_sql($sql, 'HAVING', $condition['having']);
+				$sql = wrap_edit_sql($sql, 'HAVING', $condition['having']);
 			// just get this single record
-			$sql = zz_edit_sql($sql, 'WHERE', sprintf(
+			$sql = wrap_edit_sql($sql, 'WHERE', sprintf(
 				'`%s`.`%s` = %d', $zz['table'], $zz_var['id']['field_name'], $zz_var['id']['value']
 			));
 			$lines = zz_db_fetch($sql, $zz_var['id']['field_name'], 'id as key', 'record-list ['.$index.']');
@@ -374,7 +374,7 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 			$zz_conditions['bool'][$index] = array();
 			if (empty($zz_var['id']['value'])) break;
 
-			$sql = zz_edit_sql($condition['sql'], 'WHERE', sprintf(
+			$sql = wrap_edit_sql($condition['sql'], 'WHERE', sprintf(
 				'%s = %d', $condition['key_field_name'], $zz_var['id']['value']
 			));
 			$lines = zz_db_fetch($sql, $condition['key_field_name'], 'id as key', 'query ['.$index.']');
@@ -396,7 +396,7 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 				$value = $zz_var['where'][$zz['table']][$condition['field_name']];
 			} else {
 				$sql = isset($zz['sqlrecord']) ? $zz['sqlrecord'] : $zz['sql'];
-				$sql = zz_edit_sql($sql, 'WHERE', sprintf(
+				$sql = wrap_edit_sql($sql, 'WHERE', sprintf(
 					'%s.%s = %d', $zz['table'], $zz_var['id']['field_name'], $zz_var['id']['value']
 				));
 				$line = zz_db_fetch($sql, '', '', 'value/1 ['.$index.']');
@@ -497,7 +497,7 @@ function zz_conditions_subrecord_check($zz, $zz_tab, $zz_conditions) {
 				if ($tab['no'] !== $condition['subrecord']) continue;
 				
 				if (!empty($condition['where'])) {
-					$sql = zz_edit_sql($tab['sql'], 'WHERE', $condition['where']);
+					$sql = wrap_edit_sql($tab['sql'], 'WHERE', $condition['where']);
 					if (!empty($tab['hierarchy']['id_field_name'])) {
 						$id_field_name = $tab['hierarchy']['id_field_name'];
 					} else {
@@ -704,10 +704,10 @@ function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids, $mode) {
 	if (empty($zz['conditions'])) return zz_return($zz_conditions);
 
 	// improve database performace, for this query we only need ID field
-	$zz['sql_without_limit'] = zz_edit_sql($zz['sql_without_limit'], 'SELECT', $zz['table'].'.'.$id_field, 'replace');
+	$zz['sql_without_limit'] = wrap_edit_sql($zz['sql_without_limit'], 'SELECT', $zz['table'].'.'.$id_field, 'replace');
 	// get rid of ORDER BY because we don't have the fields and we don't need it
-	$zz['sql_without_limit'] = zz_edit_sql($zz['sql_without_limit'], 'ORDER BY', ' ', 'delete');
-	$zz['sql_without_limit'] = zz_edit_sql($zz['sql_without_limit'], 'FORCE INDEX', ' ', 'delete');
+	$zz['sql_without_limit'] = wrap_edit_sql($zz['sql_without_limit'], 'ORDER BY', ' ', 'delete');
+	$zz['sql_without_limit'] = wrap_edit_sql($zz['sql_without_limit'], 'FORCE INDEX', ' ', 'delete');
 
 	foreach ($zz['conditions'] AS $index => $condition) {
 		switch ($condition['scope']) {
@@ -723,15 +723,15 @@ function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids, $mode) {
 		case 'record':
 			$sql = $zz['sql_without_limit'];
 			if (!empty($condition['where']))
-				$sql = zz_edit_sql($sql, 'WHERE', $condition['where']);
+				$sql = wrap_edit_sql($sql, 'WHERE', $condition['where']);
 			if (!empty($condition['having']))
-				$sql = zz_edit_sql($sql, 'HAVING', $condition['having']);
+				$sql = wrap_edit_sql($sql, 'HAVING', $condition['having']);
 			if (count($ids) < 200) {
 				// using IDs is faster than getting the full query
 				// not sure if WHERE .. IN () is slowing things down with
 				// a big number of IDs
 				// this restriction might be removed in later versions of zzform
-				$sql = zz_edit_sql($sql, 'WHERE', '`'.$zz['table'].'`.'.$id_field.' IN ('.implode(',', $ids).')');
+				$sql = wrap_edit_sql($sql, 'WHERE', '`'.$zz['table'].'`.'.$id_field.' IN ('.implode(',', $ids).')');
 			}
 			$lines = zz_db_fetch($sql, $id_field, 'id as key', 'list-record ['.$index.']');
 			if ($zz_error['error']) return zz_return($zz_conditions); // DB error
@@ -739,7 +739,7 @@ function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids, $mode) {
 			break;
 		case 'query':
 			$sql = $condition['sql'];
-			$sql = zz_edit_sql($sql, 'WHERE', $condition['key_field_name'].' IN ('.implode(', ', $ids).')');
+			$sql = wrap_edit_sql($sql, 'WHERE', $condition['key_field_name'].' IN ('.implode(', ', $ids).')');
 			$lines = zz_db_fetch($sql, $condition['key_field_name'], 'id as key', 'list-query ['.$index.']');
 			if ($zz_error['error']) return zz_return($zz_conditions); // DB error
 			$zz_conditions['bool'][$index] = $lines;

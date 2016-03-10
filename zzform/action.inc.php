@@ -2020,7 +2020,7 @@ function zz_integrity_check_files($dependent_ids) {
 				
 				$id_field_name = key($ids);
 				$ids = $ids[$id_field_name];
-				$sql = zz_edit_sql($zz['sql'], 'WHERE', $id_field_name.' IN ('.implode(',', $ids).')');
+				$sql = wrap_edit_sql($zz['sql'], 'WHERE', $id_field_name.' IN ('.implode(',', $ids).')');
 				$data = zz_db_fetch($sql, $id_field_name);
 				
 				foreach ($field['image'] as $image) {

@@ -540,7 +540,7 @@ function zz_apply_filter($zz, $filter_params) {
 						$depends_on['where'],
 						wrap_db_escape($filter_params[$depends_on['identifier']])
 					);
-					$filter['sql'] = zz_edit_sql($filter['sql'], 'WHERE', $where);
+					$filter['sql'] = wrap_edit_sql($filter['sql'], 'WHERE', $where);
 				}
 				$zz['filter'][$filter['depends_on']]['subfilter'][] = $index;
 			}
@@ -721,19 +721,19 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = arr
 			if (!empty($zz_var['where_condition'][$field_name])
 				AND $zz_var['where_condition'][$field_name] === 'NULL')
 			{
-				$sql = zz_edit_sql($sql, 'WHERE', 
+				$sql = wrap_edit_sql($sql, 'WHERE', 
 					sprintf('ISNULL(%s)', $field_reference)
 				);
 				continue; // don't use NULL as where variable!
 			} elseif (!empty($zz_var['where_condition'][$field_name])
 				AND $zz_var['where_condition'][$field_name] === '!NULL')
 			{
-				$sql = zz_edit_sql($sql, 'WHERE', 
+				$sql = wrap_edit_sql($sql, 'WHERE', 
 					sprintf('!ISNULL(%s)', $field_reference)
 				);
 				continue; // don't use !NULL as where variable!
 			} else {
-				$sql = zz_edit_sql($sql, 'WHERE', 
+				$sql = wrap_edit_sql($sql, 'WHERE', 
 					sprintf('%s = "%s"', $field_reference, wrap_db_escape($value))
 				);
 			}
@@ -1822,7 +1822,7 @@ function zz_get_record($field_name, $sql, $idvalue = false, $idfield = false) {
 	// if idvalue is not set: note: all values should be the same!
 	// First value is taken
 	if ($idvalue) 
-		$sql = zz_edit_sql($sql, 'WHERE', sprintf('%s = %d', $idfield, $idvalue));
+		$sql = wrap_edit_sql($sql, 'WHERE', sprintf('%s = %d', $idfield, $idvalue));
 	$line = zz_db_fetch($sql, '', '', __FUNCTION__);
 	if (!empty($line[$field_name])) return $line[$field_name];
 	else return false;
@@ -2975,7 +2975,7 @@ function zz_check_select_id($field, $postvalue, $db_table, $id) {
 	if (!empty($field['show_hierarchy_subtree'])) {
 		// just allow chosing of records under the ID set in 'show_hierarchy_subtree'
 		$h_sql = 'SELECT %s FROM %s WHERE %s IN (%%s)';
-		$h_table = zz_edit_sql($field['sql'], 'FROM', false, 'list');
+		$h_table = wrap_edit_sql($field['sql'], 'FROM', false, 'list');
 		$h_sql = sprintf($h_sql,
 			$field['sql_fieldnames'][0], $h_table[0], $field['show_hierarchy']
 		);
@@ -2986,7 +2986,7 @@ function zz_check_select_id($field, $postvalue, $db_table, $id) {
 		);
 	}
 	if ($wheresql) {
-		$field['sql_new'] = zz_edit_sql($field['sql'], 'WHERE', $wheresql);
+		$field['sql_new'] = wrap_edit_sql($field['sql'], 'WHERE', $wheresql);
 	} elseif ($field['sql'] === 'SHOW DATABASES') {
 		$likestring = str_replace('=', 'LIKE', $likestring);
 		$field['sql_new'] = sprintf($likestring, 'SHOW DATABASES', '', trim($value));

@@ -927,7 +927,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					}
 					// check for 'sql_where_with_id'
 					if (!empty($field['sql_where_with_id']) AND !empty($zz_var['id']['value'])) {
-						$field['sql'] = zz_edit_sql($field['sql'], 'WHERE', 
+						$field['sql'] = wrap_edit_sql($field['sql'], 'WHERE', 
 							sprintf("%s = %d", $zz_var['id']['field_name'], $zz_var['id']['value'])
 						);
 					}
@@ -1324,16 +1324,16 @@ function zz_set_auto_value($field, $sql, $table, $tab, $rec, $id_field, $main_ta
 	$field['default'] = 1;
 	
 	// get main (sub-)table query, change field order
-	$sql = zz_edit_sql($sql, 'ORDER BY', $field['field_name'].' DESC');
+	$sql = wrap_edit_sql($sql, 'ORDER BY', $field['field_name'].' DESC');
 	// we just need the field increment is based on
-	$sql = zz_edit_sql($sql, 'SELECT', $table.'.'.$field['field_name'], 'replace');
+	$sql = wrap_edit_sql($sql, 'SELECT', $table.'.'.$field['field_name'], 'replace');
 	// we just need the field with the highest value
-	$sql = zz_edit_sql($sql, 'LIMIT', '1');
+	$sql = wrap_edit_sql($sql, 'LIMIT', '1');
 
 	if ($tab) { 
 		// subtable
 		if (!empty($id_field['field_name']) AND !empty($id_field['value'])) {
-			$sql = zz_edit_sql($sql, 'WHERE', '('.$main_table.'.'
+			$sql = wrap_edit_sql($sql, 'WHERE', '('.$main_table.'.'
 				.$id_field['field_name'].' = '.$id_field['value'].')');
 			$last_record = zz_db_fetch($sql, '', 'single value');
 			if ($last_record) {
@@ -1544,7 +1544,7 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 		$my_fieldname = $field['field_name'];
 		if (isset($field['key_field_name'])) $my_fieldname = $field['key_field_name'];
 		if (isset($field['sql'])) {
-			$sql = zz_edit_sql($field['sql'], 'WHERE', '('.$my_fieldname.' = '.$detail_key.')');
+			$sql = wrap_edit_sql($field['sql'], 'WHERE', '('.$my_fieldname.' = '.$detail_key.')');
 			$select_fields = zz_db_fetch($sql);
 			$select_fields = zz_translate($field, $select_fields);
 			if ($select_fields) {
@@ -2346,7 +2346,7 @@ function zz_field_query($field) {
 				return $lines;
 			}
 		}
-		$sql = zz_edit_sql($field['sql'], 'LIMIT', '0, '.($field['max_select'] + 1));
+		$sql = wrap_edit_sql($field['sql'], 'LIMIT', '0, '.($field['max_select'] + 1));
 	} else {
 		$sql = $field['sql'];
 	}
@@ -2631,14 +2631,14 @@ function zz_field_select_get_record($field, $record, $id_field_name) {
 		$where_field_name = $id_field_name;
 
 	if (substr($field['sql'], 0, 4) === 'SHOW') {
-		$sql = zz_edit_sql($field['sql'], 'WHERE', $where_field_name
+		$sql = wrap_edit_sql($field['sql'], 'WHERE', $where_field_name
 			.sprintf(' LIKE "%s"', $db_value));
 	} else {
 		// only check numeric values, others won't give a valid result
 		// for these, just display the given values again
 		if (!is_numeric($db_value)) return array();
 		// get SQL query
-		$sql = zz_edit_sql($field['sql'], 'WHERE', $where_field_name
+		$sql = wrap_edit_sql($field['sql'], 'WHERE', $where_field_name
 			.sprintf(' = %d', $db_value));
 	}
 
@@ -2958,7 +2958,7 @@ function zz_form_select_sql_where($field, $where_fields) {
 			$where_conditions[] = sprintf($sql_where['where'], $where_fields[$sql_where['field_name']]);
 		}
 	}
-	$field['sql'] = zz_edit_sql($field['sql'], 'WHERE', implode(' AND ', $where_conditions));
+	$field['sql'] = wrap_edit_sql($field['sql'], 'WHERE', implode(' AND ', $where_conditions));
 
 	return zz_return($field['sql']);
 }

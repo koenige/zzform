@@ -128,7 +128,7 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 	} else {
 		$q_search = 'NULL';
 	}
-	$sql = zz_edit_sql($sql, 'WHERE', $q_search);
+	$sql = wrap_edit_sql($sql, 'WHERE', $q_search);
 
 	if ($zz_conf['modules']['debug']) zz_debug("end; search query", $sql);
 	return $sql;
@@ -492,5 +492,3 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 	}
 	return $search_form;
 }
-
-?>

@@ -108,7 +108,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 			$zz_tab[0]['sql'], $zz_tab[0]['table'], $zz_var['id'], $zz_tab[0]['sqlextra'], $zz_tab[0]['sql_translate']
 		);
 	} elseif (!empty($zz_var['id']['values'])) {
-		$sql = zz_edit_sql($zz_tab[0]['sql'], 'WHERE', $zz_tab[0]['table'].'.'
+		$sql = wrap_edit_sql($zz_tab[0]['sql'], 'WHERE', $zz_tab[0]['table'].'.'
 			.$zz_var['id']['field_name']." IN ('".implode("','", $zz_var['id']['values'])."')");
 		$existing = zz_db_fetch($sql, $zz_var['id']['field_name'], 'numeric');
 		foreach ($existing as $index => $existing_rec) {
@@ -445,9 +445,9 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 			$ids[] = $line[$my_tab['hierarchy']['id_field_name']];
 		}
 		$sql = $my_tab['sql'];
-		$sql = zz_edit_sql($sql, 'WHERE', $my_tab['hierarchy']['id_field_name']
+		$sql = wrap_edit_sql($sql, 'WHERE', $my_tab['hierarchy']['id_field_name']
 			.' IN ('.implode(',', $ids).')');
-		$sql = zz_edit_sql($sql, 'WHERE', $main_tab[0]['id']['field_name']
+		$sql = wrap_edit_sql($sql, 'WHERE', $main_tab[0]['id']['field_name']
 			.' = '.$main_tab[0]['id']['value'].' OR ISNULL('.$main_tab[0]['id']['field_name'].')');
 		$records = zz_db_fetch($sql, $my_tab['hierarchy']['id_field_name']);
 		$existing = array();
@@ -641,7 +641,7 @@ function zz_subrecord_unique($my_tab, $existing, $fields) {
 		$foreign_key = substr($foreign_key, $pos + 1);
 	}
 	if (!empty($_GET['where'][$foreign_key])) {
-		$my_tab['sql'] = zz_edit_sql($my_tab['sql'], 
+		$my_tab['sql'] = wrap_edit_sql($my_tab['sql'], 
 			'WHERE', $foreign_key.' = '.intval($_GET['where'][$foreign_key]));
 	}
 	$id_field = array('field_name' => $my_tab['id_field_name'], 'value' => '');
@@ -743,7 +743,7 @@ function zz_subrecord_unique($my_tab, $existing, $fields) {
 			} else {
 				$value = $record[$field['field_name']];
 			}
-			$sql = zz_edit_sql(
+			$sql = wrap_edit_sql(
 				$my_tab['sql'], 'WHERE', $field['field_name'].' = '.$value
 			);
 			$existing_recs = zz_db_fetch($sql, $my_tab['id_field_name']);
@@ -1231,10 +1231,10 @@ function zz_query_single_record($sql, $table, $id, $sqlextra, $sql_translate, $t
 	global $zz_error;
 	
 	if (!$id[$type]) return array();
-	$sql = zz_edit_sql($sql,
+	$sql = wrap_edit_sql($sql,
 		'WHERE', sprintf('%s.%s = %d', $table, $id['field_name'], $id[$type])
 	);
-	$sql = zz_edit_sql($sql, 'FORCE INDEX', ' ', 'delete');
+	$sql = wrap_edit_sql($sql, 'FORCE INDEX', ' ', 'delete');
 	$record = zz_db_fetch($sql, '', '', 'record exists? ('.$type.')');
 	// if record is not yet in database, we will not get extra data because
 	// no ID exists yet
@@ -1260,7 +1260,7 @@ function zz_query_single_record($sql, $table, $id, $sqlextra, $sql_translate, $t
  * @return array
  */
 function zz_query_multiple_records($sql, $table, $id) {
-	$sql = zz_edit_sql($sql, 'WHERE', '%s.%s IN ("%s")',
+	$sql = wrap_edit_sql($sql, 'WHERE', '%s.%s IN ("%s")',
 		$table, $id['field_name'], implode('","', $id['values'])
 	);
 	$records = wrap_db_fetch($sql, $id['field_name'], '', 'multiple records exist?');
@@ -1295,7 +1295,7 @@ function zz_query_subrecord($my_tab, $main_table, $main_id_value,
 	
 	if ($my_tab['sql_not_unique']) {
 		if (substr(trim($my_tab['sql_not_unique']), 0, 9) === 'LEFT JOIN') {
-			$sql = zz_edit_sql(
+			$sql = wrap_edit_sql(
 				$my_tab['sql'], 'JOIN', $my_tab['sql_not_unique']
 			);
 		} else {
@@ -1307,13 +1307,13 @@ function zz_query_subrecord($my_tab, $main_table, $main_id_value,
 	}
 	if (!empty($my_tab['translate_field_name'])) {
 		// translation subtable
-		$sql = zz_edit_sql($sql, 'WHERE', 
+		$sql = wrap_edit_sql($sql, 'WHERE', 
 			$zz_conf['translations_table'].'.db_name = "'.$zz_conf['db_name'].'"
 			AND '.$zz_conf['translations_table'].'.table_name = "'.$main_table.'"
 			AND '.$zz_conf['translations_table'].'.field_name = "'
 				.$my_tab['translate_field_name'].'"');
 	}
-	$sql = zz_edit_sql(
+	$sql = wrap_edit_sql(
 		$sql, 'WHERE', sprintf('%s = %d', $my_tab['foreign_key_field_name'], $main_id_value)
 	);
 
