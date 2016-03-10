@@ -2384,9 +2384,24 @@ function zz_field_get_id_field_name($lines) {
  * @todo AJAX typeaheadfind
  */
 function zz_field_select_sql_too_long($field, $record, $detail_record, $id_field_name) {
-	global $zz_conf;	
+	global $zz_conf;
 
 	$outputf = zz_form_element('zz_check_select[]', $field['select_field_name'], 'hidden');
+
+	// for XHR request
+	if (empty($zz_conf['int']['selects']['url_self'])) {
+		$zz_conf['int']['selects']['url_self'] = $zz_conf['int']['url']['self']
+			.($zz_conf['int']['url']['qs_zzform']
+				? $zz_conf['int']['url']['qs_zzform'].'&'
+				: $zz_conf['int']['url']['?&']
+			);
+	}
+	$zz_conf['int']['selects'][] = array(
+		'field_no' => $field['field_no'],
+		'subtable_no' => $field['subtable_no'],
+		'field_id' => zz_make_id_fieldname($field['f_field_name']),
+		'url_self' => $zz_conf['int']['selects']['url_self']
+	);
 
 	// don't show select but text input instead
 	if ($detail_record) {
@@ -2405,21 +2420,7 @@ function zz_field_select_sql_too_long($field, $record, $detail_record, $id_field
 	$fieldattr['size'] = !empty($field['size_select_too_long']) ? $field['size_select_too_long'] : 32;
 	if ($field['required']) $fieldattr['required'] = true;
 	$outputf .= zz_form_element($field['f_field_name'], $value, 'text_noescape', true, $fieldattr);
-	// for XHR request
-	if (empty($zz_conf['int']['selects']['url_self'])) {
-		$zz_conf['int']['selects']['url_self'] = $zz_conf['int']['url']['self']
-			.($zz_conf['int']['url']['qs_zzform']
-				? $zz_conf['int']['url']['qs_zzform'].'&'
-				: $zz_conf['int']['url']['?&']
-			);
-	}
 
-	$zz_conf['int']['selects'][] = array(
-		'field_no' => $field['field_no'],
-		'subtable_no' => $field['subtable_no'],
-		'field_id' => !empty($fieldattr['id']) ? $fieldattr['id'] : zz_make_id_fieldname($field['f_field_name']),
-		'url_self' => $zz_conf['int']['selects']['url_self']
-	);
 	return $outputf;
 }
 
@@ -3039,7 +3040,7 @@ function zz_draw_select($field, $record, $line, $id_field_name, $form = false, $
 		if ($field['required']) $fieldattr['required'] = true;
 		// extra space, so that there won't be a LIKE operator that this value
 		// will be checked against!
-		$output = zz_form_element($field['f_field_name'], $fieldvalue.' ', 'text_noescape', false, $fieldattr);
+		$output = zz_form_element($field['f_field_name'], $fieldvalue.' ', 'text_noescape', true, $fieldattr);
 	} elseif ($form) {
 		$fieldattr = array();
 		// check == to compare strings with numbers as well
@@ -3051,7 +3052,7 @@ function zz_draw_select($field, $record, $line, $id_field_name, $form = false, $
 			$fieldattr['disabled'] = true;
 		}
 		if ($level !== '') $fieldattr['class'] = 'level'.$level;
-		$output = zz_form_element($fieldvalue, $line[$id_field_name], 'option', false, $fieldattr)."\n";
+		$output = zz_form_element($fieldvalue, $line[$id_field_name], 'option', true, $fieldattr)."\n";
 	} else {
 		$output = $fieldvalue;
 	}
