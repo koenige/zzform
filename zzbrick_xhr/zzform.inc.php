@@ -47,7 +47,7 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	$sql_fields = wrap_edit_sql($sql, 'SELECT', false, 'list');
 	$where = array();
 	foreach ($sql_fields as $sql_field) {
-		$where[] = sprintf('%s LIKE "%%%s%%"', $sql_field, wrap_db_escape($text));
+		$where[] = sprintf('%s LIKE "%%%s%%"', $sql_field['field'], wrap_db_escape($text));
 	}
 	$sql = wrap_edit_sql($sql, 'WHERE', implode(' OR ', $where));
 	$records = wrap_db_fetch($sql, '_dummy_', 'numeric');
@@ -88,34 +88,41 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	}
 	
 	foreach ($sql_fields as $index => $sql_field) {
-		if (!strstr($sql_field, '.')) continue;
-		$sql_field = explode('.', $sql_field);
-		$sql_fields[$index] = $sql_field[1];
+		$sql_fieldnames[$index] = $sql_field['field']; 
+		if (!strstr($sql_field['as'], '.')) continue;
+		$sql_field['as'] = explode('.', $sql_field['as']);
+		$sql_fields[$index]['as'] = $sql_field['as'][1];
 	}
 	
-	$id_field = array_shift($sql_fields);
+	array_shift($sql_fields);
 	if (!empty($field['show_hierarchy'])) {
-		$index = array_search($field['show_hierarchy'], $sql_fields);
-		if ($index !== false) unset($sql_fields[$index]);
+		$index = array_search($field['show_hierarchy'], $sql_fieldnames);
+		if ($index !== false) {
+			unset($sql_fields[$index]);
+		}
 	}
 	
 	$i = 0;
+	// @todo use common concat function for all occurences!
+	$concat = isset($field['concat_fields']) ? $field['concat_fields'] : ' | ';
 	foreach ($records as $record) {
-		wrap_error(json_encode($record));
-		$data['entries'][$i] = array(
-			'text' => $record[$sql_fields[0]]
-		);
-		foreach ($sql_fields as $index => $sql_field) {
-			if (!$index) continue;
-			if (!array_key_exists($sql_field, $record)) continue;
-			$data['entries'][$i]['elements'][$index] = array(
+		$j = 0;
+		$text = array();
+		foreach ($sql_fields as $sql_field) {
+			if (!array_key_exists($sql_field['as'], $record)) continue;
+			if (empty($record[$sql_field['as']])) continue;
+			$text[] = $record[$sql_field['as']];
+			$data['entries'][$i]['elements'][$j] = array(
 				'node' => 'div',
 				'properties' => array(
 					'className' => 'xhr_record',
-					'text' => $record[$sql_field]
+					'text' => $record[$sql_field['as']]
 				)
 			);
+			$j++;
 		}
+		// search entry for zzform, concatenated and space at the end
+		$data['entries'][$i]['text'] = implode($concat, $text).' ';
 		$i++;
 	}
 	return $data;
