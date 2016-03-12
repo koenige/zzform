@@ -301,7 +301,7 @@ function zz_export_kml($ops, $zz, $zz_var) {
 	
 	if (empty($zz_setting['kml_styles'])) {
 		if (empty($zz_setting['kml_default_dot'])) {
-			$zz_setting['kml_default_dot'] = '/_layout/map/blue-dot.png';
+			$zz_setting['kml_default_dot'] = $zz_setting['layout_path'].'/map/blue-dot.png';
 		}
 		$kml['styles'][] = array(
 			'id' => 'default',
