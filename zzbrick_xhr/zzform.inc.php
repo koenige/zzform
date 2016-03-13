@@ -36,8 +36,17 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	// @todo use part of zzform to check access rights
 	
 	if (!empty($subtable_no)) {
+		if (!array_key_exists($subtable_no, $zz['fields'])) {
+			wrap_error(sprintf('Subtable %s requested, but it is not in the table definition', $subtable_no));
+		}
+		if (!array_key_exists($field_no, $zz['fields'][$subtable_no]['fields'])) {
+			wrap_error(sprintf('Field %s in subtable %s requested, but it is not in the table definition', $field_no, $subtable_no));
+		}
 		$field = $zz['fields'][$subtable_no]['fields'][$field_no];
 	} else {
+		if (!array_key_exists($field_no, $zz['fields'])) {
+			wrap_error(sprintf('Field %s requested, but it is not in the table definition', $field_no));
+		}
 		$field = $zz['fields'][$field_no];
 	}
 	// @todo use common concat function for all occurences!
