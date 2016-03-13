@@ -2,11 +2,11 @@
  * zzform
  * Cascading Style Sheets (CSS)
  *
- * Part of »Zugzwang Project«
+ * Part of Â»Zugzwang ProjectÂ«
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2016 Gustaf Mossakowski
+ * @copyright Copyright Â© 2004-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -536,7 +536,7 @@ body #zzform .separator hr
 	#zzform textarea	{ max-height: 240px; }
 }
 
-
+%%% condition if wmd_editor %%%
 /* WMD Editor */
 
 .wmd-panel li	{ margin: 3px 0 0; }
@@ -550,7 +550,7 @@ body #zzform .separator hr
 				position: absolute; display: inline-block;
 				list-style: none; cursor: pointer; }
 .wmd-button > span {
-				background: url(../../_behaviour/pagedown/wmd-buttons.png) no-repeat 0 0;
+				background: url(%%% page behaviour_path %%%/pagedown/wmd-buttons.png) no-repeat 0 0;
 				width: 20px; height: 20px; display: inline-block; }
 .wmd-spacer1	{ left: 50px; }
 .wmd-spacer2	{ left: 175px; }
@@ -569,8 +569,10 @@ body #zzform .separator hr
 .wmd-prompt-dialog > form > input[type="button"]
 				{ border: 1px solid #888888; font-size: 0.8em; font-weight: bold; }
 
+%%% condition endif %%%
+%%% condition if xhr_vxjs %%%
 /* vxJS */
-.vxJS_xhrThrobber	{ width: 21px; height: 21px; background: url(/_layout/zzform/xhr_activity.gif) no-repeat 50% 50%; z-index: 100; }
+.vxJS_xhrThrobber	{ width: 21px; height: 21px; background: url(%%% page layout_path %%%/zzform/xhr_activity.gif) no-repeat 50% 50%; z-index: 100; }
 
 /* vxJS autoSuggest */
 .vxJS_autoSuggest				{ color: #000; position: absolute; z-index: 3; }
@@ -590,3 +592,4 @@ ul.vxJS_list					{ margin: 0; padding: 0;  list-style-type: none; }
 .xhr_foot		{ font-size: 80%; color: #999; margin: 0; line-height: 1.3; }
 
 .vxJS_list .hiLite	{ background: yellow; color: black; }
+%%% condition endif %%%
