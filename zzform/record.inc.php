@@ -2391,6 +2391,7 @@ function zz_field_select_sql_too_long($field, $record, $detail_record, $id_field
 	// for XHR request
 	if (empty($zz_conf['int']['selects']['url_self'])) {
 		$zz_conf['int']['selects']['url_self'] = $zz_conf['int']['url']['self']
+			.$zz_conf['int']['url']['qs']
 			.($zz_conf['int']['url']['qs_zzform']
 				? $zz_conf['int']['url']['qs_zzform'].'&'
 				: $zz_conf['int']['url']['?&']
