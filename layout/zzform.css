@@ -571,8 +571,9 @@ body #zzform .separator hr
 %%% condition endif %%%
 %%% condition if xhr_vxjs %%%
 /* vxJS */
-.vxJS_xhrThrobber	{ width: 21px; height: 21px; z-index: 100;
-					background: url(%%% page layout_path %%%/zzform/xhr_activity.gif) no-repeat 50% 50%; }
+.vxJS_xhrThrobber	{ width: 21px; height: 21px; z-index: 100; }
+.vxJS_xhrThrobber.active
+					{ background: url(%%% page layout_path %%%/zzform/xhr_activity.gif) no-repeat 50% 50%; }
 
 /* vxJS autoSuggest */
 .vxJS_autoSuggest	{ color: #000; position: absolute; z-index: 3; }
