@@ -1325,6 +1325,10 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			}
 			$my_rec['POST'][$field_name] = $field['function']($func_vars, $field_name);
 		}
+		// formatting_spaces? remove all spaces
+		if (!empty($field['formatting_spaces'])) {
+			$my_rec['POST'][$field_name] = str_replace(' ', '', $my_rec['POST'][$field_name]);
+		}
 
 		// per default, all fields are becoming part of SQL query
 		$my_rec['fields'][$f]['in_sql_query'] = true;
