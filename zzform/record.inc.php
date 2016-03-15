@@ -807,6 +807,12 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				AND (empty($field['number_type']) OR !in_array($field['number_type'], array('latitude', 'longitude')))) {
 				$field['size'] = $field['maxlength'];
 			}
+			if (!empty($field['formatting_spaces'])) {
+				$field['size'] += $field['formatting_spaces'];
+				if (isset($field['maxlength'])) {
+					$field['maxlength'] += $field['formatting_spaces'];
+				}
+			}
 
 			// apply factor only if there is a value in field
 			// don't apply it if it's a re-edit
