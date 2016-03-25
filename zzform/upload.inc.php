@@ -336,6 +336,8 @@ function zz_upload_check_files($zz_tab) {
 		}
 		foreach (array_keys($field['image']) as $img) {
 			$images[$no][$img] = $field['image'][$img];
+			$images[$no][$img]['optional_image'] = isset($field['optional_image'])
+				? $field['optional_image'] : false;
 
 			// initialize convert_options
 			if (!isset($images[$no][$img]['convert_options'])) {
@@ -1304,10 +1306,12 @@ function zz_upload_create_source($image, $path, $zz_tab, $tab = 0, $rec = 0) {
 	$source_filename = zz_makepath($path, $zz_tab, 'old', 'file', $tab, $rec);
 	if (!file_exists($source_filename)) {
 		$image['upload'] = array();
-		$zz_error[] = array(
-			'msg_dev' => sprintf(zz_text('Error: Source file %s does not exist. '), $source_filename),
-			'log_post_data' => false
-		);
+		if (empty($image['optional_image'])) {
+			$zz_error[] = array(
+				'msg_dev' => sprintf(zz_text('Error: Source file %s does not exist. '), $source_filename),
+				'log_post_data' => false
+			);
+		}
 	} else {
 		$image['upload']['name'] = basename($source_filename);
 		$image['upload']['tmp_name'] = $source_filename; // same because it's no upload
@@ -1388,10 +1392,12 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 	if (empty($image['action'])) return false;
 
 	if (!file_exists($filename)) {
-		$zz_error[] = array(
-			'msg_dev' => sprintf(zz_text('Error: Source file %s does not exist. '), $filename),
-			'log_post_data' => false
-		);
+		if (empty($image['optional_image'])) {
+			$zz_error[] = array(
+				'msg_dev' => sprintf(zz_text('Error: Source file %s does not exist. '), $filename),
+				'log_post_data' => false
+			);
+		}
 		return false;
 	}
 	if (in_array($image['upload']['filetype'], $zz_conf['upload_no_thumbnails'])) {
