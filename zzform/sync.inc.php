@@ -371,7 +371,9 @@ function zz_sync_zzform($raw, $import) {
 			// do nothing if value is NULL
 			if (!isset($line[$pos])) continue;
 			$fields = array();
-			if (strstr($field_name, '+') AND !empty($import['split_function'][$pos])) {
+			if (!empty($import['function'][$pos])) {
+				$fields[$field_name] = $import['function'][$pos]($line[$pos]);
+			} elseif (strstr($field_name, '+') AND !empty($import['split_function'][$pos])) {
 				// @todo error handling
 				$field_names = explode('+', $field_name);
 				$my_values = $import['split_function'][$pos](trim($line[$pos]));
