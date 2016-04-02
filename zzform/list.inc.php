@@ -1434,6 +1434,7 @@ function zz_list_format($text, $list_format) {
  */
 function zz_set_link($field, $line) {
 	$link = false;
+	if (!empty($field['list_no_link'])) return false;
 	if ($field['type'] === 'url') {
 		$link = $line[$field['field_name']];
 	} elseif ($field['type'] === 'mail' AND $line[$field['field_name']]) {
