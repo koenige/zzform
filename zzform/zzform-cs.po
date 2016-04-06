@@ -427,8 +427,8 @@ msgid "No entry found. Try less characters."
 msgstr "Hledání bylo neúspěšné, zkuste zadat méně znaků."
 
 #: Record form: Validation, displayed above form
-msgid "Following_errors_occured"
-msgstr "Došlo k následujícím chybám"
+msgid "These errors occurred:"
+msgstr "Došlo k následujícím chybám:"
 
 #: Record form: Validation, displayed above form
 msgid "Value incorrect in field %s."

@@ -431,8 +431,8 @@ msgid "No entry found. Try less characters."
 msgstr ""
 
 #: Record form: Validation, displayed above form
-msgid "Following_errors_occured"
-msgstr "The following errors occured"
+msgid "These errors occurred:"
+msgstr ""
 
 #: Record form: Validation, displayed above form
 msgid "Value incorrect in field %s."

@@ -2293,7 +2293,7 @@ function zz_error_validation() {
 
 	// user error message, visible to everyone
 	// line breaks \n important for mailing errors
-	$this_error['msg'] = '<p>'.zz_text('Following_errors_occured').': </p>'
+	$this_error['msg'] = '<p>'.zz_text('These errors occurred:').' </p>'
 		."\n".'<ul><li>'.implode("</li>\n<li>", $zz_error['validation']['msg'])
 		.'</li></ul>';
 	// if we got wrong values entered, put this into a developer message
