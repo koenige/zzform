@@ -110,7 +110,11 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 		if ($zz_var['action'] === 'update' AND !$zz_tab[0][0]['existing']) {
 			$zz_error['error'] = true;
 			$zz_error[] = array(
-				'msg_dev' => sprintf('Trying to update a non-existent record with ID %d.', $zz_var['id']['value']),
+				'msg_dev' => sprintf(
+					'Trying to update a non-existent record in table `%s` with ID %d.',
+					$zz_tab[0]['table'],
+					$zz_var['id']['value']
+				),
 				'level' => E_USER_ERROR
 			);
 			return false;
