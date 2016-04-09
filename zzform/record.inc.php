@@ -1004,16 +1004,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				//}
 			}
 			if (!empty($default_value)) // unset $my_rec['record'] so following fields are empty
-				unset($my_rec['record'][$field['field_name']]); 
-			if ($mode && $mode !== 'delete' && $mode !== 'show' && $mode !== 'review'
-				AND isset($field['add_details'])) {
-				$add_details_sep = strstr($field['add_details'], '?') ? '&amp;' : '?';
-				$outputf .= ' <a href="'.$field['add_details'].$add_details_sep
-					.'mode=add&amp;referer='.urlencode($_SERVER['REQUEST_URI'])
-					.$zz_conf['int']['add_details_where'].'"'
-					.(!empty($field['add_details_target']) ? ' target="'.$field['add_details_target'].'"' : '')
-					.' id="zz_add_details_'.$tab.'_'.$rec.'_'.$fieldkey.'">['.zz_text('new').' &hellip;]</a>';
-			}
+				unset($my_rec['record'][$field['field_name']]);
+			$outputf .= zz_record_add_details($field, $mode, $tab, $rec, $fieldkey);
 			if (trim($outputf) OR $outputf === '0') {
 				if (isset($field['prefix'])) $out['td']['content'] .= $field['prefix'];
 				if (!empty($field['use_as_label'])) {
@@ -1066,6 +1058,32 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 	$zz_conf['int']['append_next_type'] = $old_append_next_type;
 	$zz_conf['int']['add_details_where'] = $old_add_details_where;
 	return zz_return($output);
+}
+
+/**
+ * put new ... link next to field to add missing detail records
+ *
+ * @param array $field
+ * @param string $mode
+ * @param int $tab
+ * @param int $rec
+ * @param int $fieldkey
+ * @return string
+ */
+function zz_record_add_details($field, $mode, $tab, $rec, $fieldkey) {
+	global $zz_conf;
+
+	if (!isset($field['add_details'])) return '';
+	if (!$mode) return '';
+	if (in_array($mode, array('delete', 'show', 'review'))) return '';
+
+	$add_details_sep = strstr($field['add_details'], '?') ? '&amp;' : '?';
+	$text = ' <a href="'.$field['add_details'].$add_details_sep
+		.'mode=add&amp;referer='.urlencode($_SERVER['REQUEST_URI'])
+		.$zz_conf['int']['add_details_where'].'"'
+		.(!empty($field['add_details_target']) ? ' target="'.$field['add_details_target'].'"' : '')
+		.' id="zz_add_details_'.$tab.'_'.$rec.'_'.$fieldkey.'">['.zz_text('new').' &hellip;]</a>';
+	return $text;
 }
 
 /**
