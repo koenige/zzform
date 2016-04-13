@@ -450,10 +450,8 @@ function zz_list_set($zz, $count_rows) {
 	// @deprecated codeblock
 	// allow $list['group'] to be a string
 	if ($list['group']) {
-		$list['group'] = $group_from_get;
-		if (!is_array($list['group'])) {
-			$list['group'] = array($list['group']);
-		}
+		if ($group_from_get) $list['group'] = $group_from_get;
+		if (!is_array($list['group'])) $list['group'] = array($list['group']);
 	}
 
 	// which order?
