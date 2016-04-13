@@ -460,7 +460,10 @@ function zz_list_set($zz, $count_rows) {
 		$order = array_merge($zz_conf['int']['order'], $order);
 	}
 	foreach ($order as $index => $value) {
-		$order[$index] = trim($value);
+		$value = trim($value);
+		if (substr($value, -4) === ' ASC') $value = substr($value, 0, -4);
+		elseif (substr($value, -5) === ' DESC') $value = substr($value, 0, -5);
+		$order[$index] = $value;
 	}
 
 	// group in fields?
