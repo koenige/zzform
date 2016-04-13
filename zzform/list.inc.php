@@ -445,6 +445,38 @@ function zz_list_set($zz, $count_rows) {
 	// allow $list['group'] to be a string
 	if (!is_array($list['group']) AND $list['group'])
 		$list['group'] = array($list['group']);
+
+	// which order?
+	if (!empty($zz['sqlorder'])) {
+		$order = explode(',', str_replace('ORDER BY ', '', $zz['sqlorder']));
+	} else {
+		$order = array();
+	}
+	if (!empty($zz_conf['int']['order'])) {
+		$order = array_merge($zz_conf['int']['order'], $order);
+	}
+	foreach ($order as $index => $value) {
+		$order[$index] = trim($value);
+	}
+	$group = array();
+	foreach ($list['group'] as $index => $field) {
+		$new_index = array_search($field, $order);
+		if ($new_index !== false) {
+			$group[$new_index] = $field;
+		}
+	}
+	ksort($group);
+	// remove indices which do not correspond to sort order
+	// i. e. group has to start with 0, 1, 2 ... and the list must not have gaps
+	$prev_index = -1;
+	foreach (array_keys($group) as $index) {
+		if ($index !== $prev_index + 1) {
+			unset($group[$index]);
+		}
+		$prev_index++;
+	}
+	$list['group'] = $group;
+
 	// initialize internal group_field_no
 	$zz_conf['int']['group_field_no'] = array();
 
@@ -1898,6 +1930,7 @@ function zz_sql_order($fields, $sql) {
 	}
 	
 	if (!$order) return $sql;
+	$zz_conf['int']['order'] = $order;
 	$sql = wrap_edit_sql($sql, 'ORDER BY', implode(',', $order), 'add');
 	return $sql;
 }
