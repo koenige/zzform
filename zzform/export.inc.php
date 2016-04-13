@@ -112,7 +112,6 @@ function zz_export_init($zz, $ops) {
 	$character_encoding = $zz_conf['character_set'];
 	$ops['mode'] = 'export';
 	$zz_conf['list_display'] = $export;
-	$zz['list']['group'] = array(); // no grouping in export files
 
 	switch ($export) {
 	case 'kml':

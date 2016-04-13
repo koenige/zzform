@@ -143,6 +143,10 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		if ($zz_conf['modules']['debug']) zz_debug('list definitions set');
 
 		$list = zz_list_set($zz, count($lines));
+		if ($ops['mode'] === 'export') {
+			// no grouping in export files
+			$list['group'] = false;
+		}
 
 		// mark fields as 'show_field' corresponding to grouping
 		$table_defs = zz_list_show_group_fields($table_defs, $list);
