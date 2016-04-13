@@ -127,7 +127,7 @@ function zzform($zz) {
 
 	// initalize export module
 	// might set mode to export
-	if (!empty($zz_conf['export'])) list($zz, $ops) = zz_export_init($zz, $ops);
+	if (!empty($zz_conf['export'])) $ops = zz_export_init($ops);
 
 	// set $ops['mode'], $zz_var['action'], ['id']['value'] and $zz_conf for access
 	list($zz, $ops, $zz_var) = zz_record_access($zz, $ops, $zz_var);

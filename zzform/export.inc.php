@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2015 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -48,16 +48,15 @@ function zz_export_config() {
  * initializes export, sets a few variables
  *
  * @param array $ops
- * @param array $zz
  * @global array $zz_conf
  * @global array $zz_error
- * @return array $zz, $ops
+ * @return array $ops
  */
-function zz_export_init($zz, $ops) {
+function zz_export_init($ops) {
 	global $zz_conf;
 	global $zz_error;
-	if (empty($zz_conf['export'])) return array($zz, $ops);
-	if (empty($_GET['export'])) return array($zz, $ops);
+	if (empty($zz_conf['export'])) return $ops;
+	if (empty($_GET['export'])) return $ops;
 
 	// no edit modes allowed
 	$unwanted_keys = array('mode', 'id', 'source_id');
@@ -73,13 +72,13 @@ function zz_export_init($zz, $ops) {
 			'status' => 404
 		);
 		$ops['mode'] = false;
-		return array($zz, $ops);
+		return $ops;
 	}
 	// do not export anything if it's a 404 in export mode
 	// and e. g. limit is incorrect
 	if (!empty($zz_conf['int']['http_status']) AND $zz_conf['int']['http_status'] === 404) {
 		$ops['mode'] = false;
-		return array($zz, $ops);
+		return $ops;
 	}
 
 	// get type and (optional) script name
@@ -107,7 +106,7 @@ function zz_export_init($zz, $ops) {
 		);
 		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], array('export'));
 		$ops['mode'] = false;
-		return array($zz, $ops);
+		return $ops;
 	}
 	$character_encoding = $zz_conf['character_set'];
 	$ops['mode'] = 'export';
@@ -133,7 +132,7 @@ function zz_export_init($zz, $ops) {
 	}
 	$ops['headers'] = zz_export_headers($export, $character_encoding);
 
-	return array($zz, $ops);
+	return $ops;
 }
 
 /**
