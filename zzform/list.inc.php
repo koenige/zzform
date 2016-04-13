@@ -483,6 +483,7 @@ function zz_list_set($zz, $count_rows) {
 			foreach ($order as $o_index => $o_field) {
 				if (substr($o_field, 0, strlen($table_name) + 1) !== $table_name.'.') continue;
 				$new_index = $o_index;
+				break; // we found one, enough
 			}
 		}
 		if ($new_index !== false) {
