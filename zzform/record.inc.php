@@ -1076,6 +1076,11 @@ function zz_record_add_details($field, $mode, $tab, $rec, $fieldkey) {
 	if (!isset($field['add_details'])) return '';
 	if (!$mode) return '';
 	if (in_array($mode, array('delete', 'show', 'review'))) return '';
+	if ($mode === 'edit') {
+		if (in_array($field['type'], array(
+			'hidden', 'predefined', 'write_once', 'display'
+		))) return '';
+	}
 
 	$add_details_sep = strstr($field['add_details'], '?') ? '&amp;' : '?';
 	$text = ' <a href="'.$field['add_details'].$add_details_sep
