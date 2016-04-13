@@ -458,11 +458,29 @@ function zz_list_set($zz, $count_rows) {
 	foreach ($order as $index => $value) {
 		$order[$index] = trim($value);
 	}
+
+	// group in fields?
 	$group = array();
-	foreach ($list['group'] as $index => $field) {
-		$new_index = array_search($field, $order);
+	foreach ($zz['fields'] as $index => $field) {
+		if (empty($field['group_in_list'])) continue;
+		$new_index = array_search($field['field_name'], $order);
+		if ($new_index === false) {
+			$new_index = array_search($zz['table'].'.'.$field['field_name'], $order);
+		}
+		if ($new_index === false AND !empty($field['display_field'])) {
+			$new_index = array_search($field['display_field'], $order);
+		}
+		// select? ORDER BY with a table
+		if ($new_index === false AND !empty($field['sql'])) {
+			$table_name = wrap_edit_sql($field['sql'], 'FROM', '', 'list');
+			if ($table_name) $table_name = reset($table_name);
+			foreach ($order as $o_index => $o_field) {
+				if (substr($o_field, 0, strlen($table_name) + 1) !== $table_name.'.') continue;
+				$new_index = $o_index;
+			}
+		}
 		if ($new_index !== false) {
-			$group[$new_index] = $field;
+			$group[$new_index] = $field['field_name'];
 		}
 	}
 	ksort($group);
@@ -475,7 +493,10 @@ function zz_list_set($zz, $count_rows) {
 		}
 		$prev_index++;
 	}
-	$list['group'] = $group;
+
+	// this check is for backwards compatibility
+	// do not use 'group_in_list' with $list['group']
+	if (!$list['group']) $list['group'] = $group;
 
 	// initialize internal group_field_no
 	$zz_conf['int']['group_field_no'] = array();
