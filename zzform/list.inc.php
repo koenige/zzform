@@ -468,6 +468,7 @@ function zz_list_set($zz, $count_rows) {
 	// group in fields?
 	$group = array();
 	foreach ($zz['fields'] as $index => $field) {
+		if (empty($field['field_name'])) continue;
 		if (empty($field['group_in_list']) AND $field['field_name'] !== $group_from_get) continue;
 		$new_index = array_search($field['field_name'], $order);
 		if ($new_index === false) {
