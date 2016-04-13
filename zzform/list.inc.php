@@ -435,20 +435,26 @@ function zz_list_set($zz, $count_rows) {
 	}
 
 	// check 'group'
+	$group_from_get = false;
 	if (!empty($_GET['group'])) {
 		foreach ($zz['fields_in_list'] as $field) {
 			if ((isset($field['display_field']) && $field['display_field'] === $_GET['group'])
 				OR (isset($field['field_name']) && $field['field_name'] === $_GET['group'])
 			) {
-				if (isset($field['order'])) $list['group'] = $field['order'];
-				else $list['group'] = $_GET['group'];
+				if (isset($field['order'])) $group_from_get = $field['order'];
+				else $group_from_get = $_GET['group'];
 			}
 		}
 	}
 	
+	// @deprecated codeblock
 	// allow $list['group'] to be a string
-	if (!is_array($list['group']) AND $list['group'])
-		$list['group'] = array($list['group']);
+	if ($list['group']) {
+		$list['group'] = $group_from_get;
+		if (!is_array($list['group'])) {
+			$list['group'] = array($list['group']);
+		}
+	}
 
 	// which order?
 	if (!empty($zz['sqlorder'])) {
@@ -464,7 +470,7 @@ function zz_list_set($zz, $count_rows) {
 	// group in fields?
 	$group = array();
 	foreach ($zz['fields'] as $index => $field) {
-		if (empty($field['group_in_list'])) continue;
+		if (empty($field['group_in_list']) AND $field['field_name'] !== $group_from_get) continue;
 		$new_index = array_search($field['field_name'], $order);
 		if ($new_index === false) {
 			$new_index = array_search($zz['table'].'.'.$field['field_name'], $order);
