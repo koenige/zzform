@@ -481,8 +481,16 @@ function zz_list_set($zz, $count_rows) {
 		if ($new_index === false AND !empty($field['sql'])) {
 			$table_name = wrap_edit_sql($field['sql'], 'FROM', '', 'list');
 			if ($table_name) $table_name = reset($table_name);
+			if (empty($field['group_dependent_tables'])) {
+				$field['group_dependent_tables'] = array();
+			} elseif (!is_array($field['group_dependent_tables'])) {
+				$field['group_dependent_tables'] = array($field['group_dependent_tables']);
+			}
+			$field['group_dependent_tables'][] = $table_name;
 			foreach ($order as $o_index => $o_field) {
-				if (substr($o_field, 0, strlen($table_name) + 1) !== $table_name.'.') continue;
+				if (!strstr($o_field, '.')) continue;
+				$o_table_field = explode('.', $o_field);
+				if (!in_array($o_table_field[0], $field['group_dependent_tables'])) continue;
 				$new_index = $o_index;
 				break; // we found one, enough
 			}
