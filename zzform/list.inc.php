@@ -655,6 +655,9 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 					unset($rows[$z][$fieldindex]);
 					$list['group_titles'][$z][$pos] = implode(' &#8211; ', $rows[$z]['group']);
 				}
+				if (empty($list['group_titles'][$z][$pos])) {
+					$list['group_titles'][$z][$pos] = zz_text('- unknown -');
+				}
 			}
 			if ($zz_conf['modules']['debug']) {
 				zz_debug('table_query end '.$fieldindex.'-'.$field['type']);
@@ -2358,10 +2361,6 @@ function zz_list_table($list, $rows, $head) {
 	$rowgroup = false;
 	foreach ($rows as $index => $row) {
 		if ($list['group'] AND $row['group'] != $rowgroup) {
-			foreach ($list['group'] as $pos => $my_group) {
-				if (!empty($row['group'][$pos])) continue;
-				$list['group_titles'][$index][$pos] = zz_text('- unknown -');
-			}
 			if ($rowgroup) {
 				$my_groups = $rowgroup;
 				$my_old_groups = $row['group'];
@@ -2490,10 +2489,6 @@ function zz_list_ul($list, $rows) {
 	$rowgroup = false;
 	foreach ($rows as $index => $row) {
 		if ($list['group'] AND $row['group'] != $rowgroup) {
-			foreach ($list['group'] as $pos => $my_group) {
-				if (empty($row['group'][$pos])) 
-					$list['group_titles'][$index][$pos] = zz_text('- unknown -');
-			}
 			if ($rowgroup) {
 				$output .= "</ul>\n";
 			}
