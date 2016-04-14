@@ -648,15 +648,15 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 			$list = zz_list_sum($field, $list, $rows[$z][$fieldindex]['value'], $rows[$z]['group']);
 
 			// group: go through everything but don't show it in list
-			// @todo: check that it does not collide with append_next
+			// @todo check that it does not collide with append_next
 			if ($list['group']) {
 				$pos = array_search($fieldindex, $zz_conf['int']['group_field_no']);
 				if ($pos !== false) {
 					unset($rows[$z][$fieldindex]);
 					$list['group_titles'][$z][$pos] = implode(' &#8211; ', $rows[$z]['group']);
-				}
-				if (empty($list['group_titles'][$z][$pos])) {
-					$list['group_titles'][$z][$pos] = zz_text('- unknown -');
+					if (empty($list['group_titles'][$z][$pos])) {
+						$list['group_titles'][$z][$pos] = zz_text('- unknown -');
+					}
 				}
 			}
 			if ($zz_conf['modules']['debug']) {
