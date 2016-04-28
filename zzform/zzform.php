@@ -640,6 +640,7 @@ function zz_initialize($mode = false) {
 	);
 	$default['url_self']			= false;
 	$default['xhr_vxjs']			= false;
+	$default['upload_imagick_options_for']['jpeg'] = '-quality 60';
 	
 	zz_write_conf($default);
 	
