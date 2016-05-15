@@ -642,7 +642,7 @@ function zz_initialize($mode = false) {
 	$default['xhr_vxjs']			= false;
 	// this JPEG quality equals file size of photoshop's 60%
 	// with a little more artefacts and especially blurred diagonal lines
-	$default['upload_imagick_options_for']['jpeg'] = '-quality 85';
+	$default['upload_imagick_options_for']['jpeg'] = '-auto-orient -quality 85';
 	
 	zz_write_conf($default);
 	
