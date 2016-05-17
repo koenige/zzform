@@ -29,7 +29,7 @@ function zz_debug_config() {
  *		if ($zz_conf['modules']['debug']) {
  *			global $zz_debug;
  *			$zz_debug['function'] = __FUNCTION__;
- *			$zz_debug['function_time'] = microtime_float();
+ *			$zz_debug['function_time'] = microtime(true);
  *		}
  *	end of function
  *		if ($zz_conf['modules']['debug']) zz_debug();
@@ -51,10 +51,10 @@ function zz_debug($marker = false, $text = false, $id = false) {
 	// initialize
 	if (empty($zz_debug[$id])) {
 		$zz_debug[$id] = array();					// debug module
-		$zz_debug[$id]['timer'] = microtime_float();	// debug module
+		$zz_debug[$id]['timer'] = microtime(true);	// debug module
 	}
 
-	$time = microtime_float();
+	$time = microtime(true);
 	// initialize function parameters
 	if (substr($marker, 0, 5) === 'start') {
 		$current = array(
@@ -154,19 +154,6 @@ function zz_debug_time($return = array()) {
 	zz_error();
 }
 
-/**
- * Return current Unix timestamp with microseconds as float
- * = microtime(true) in PHP 5
- *
- * @return float
- * @deprecated
- * @todo move into compatiblity.inc.php
- */
-function microtime_float() {
-    list($usec, $sec) = explode(" ", microtime());
-    return ((float)$usec + (float)$sec);
-}
-
 function zz_debug_unset($id = false) {
 	global $zz_debug;
 	global $zz_conf;
@@ -174,5 +161,3 @@ function zz_debug_unset($id = false) {
 	if (!$id) $id = $zz_conf['id'];
 	unset($zz_debug[$id]);
 }
-
-?>

@@ -368,7 +368,7 @@ function zz_db_connection($table) {
 function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = false, $errorcode = E_USER_ERROR) {
 	global $zz_conf;
 	if (!empty($zz_conf['debug']) AND function_exists('wrap_error')) {
-		$time = microtime_float();
+		$time = microtime(true);
 	}
 	$lines = array();
 	$error = false;
@@ -466,7 +466,7 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 		.($result ? mysql_num_rows($result) : 0).')'.($info ? ': '.$info : ''), $sql);
 	if (!empty($zz_conf['debug']) AND function_exists('wrap_error')) {
 		// @todo: check if it's easier to do it with zz_error()
-		$time = microtime_float() - $time;
+		$time = microtime(true) - $time;
 		wrap_error('SQL query in '.$time.' - '.$sql, E_USER_NOTICE);
 	}
 	if ($error) {
@@ -534,7 +534,7 @@ function zz_db_change($sql, $id = false) {
 	global $zz_conf;
 	global $zz_error;
 	if (!empty($zz_conf['debug'])) {
-		$time = microtime_float();
+		$time = microtime(true);
 	}
 
 	// initialize $db
@@ -594,7 +594,7 @@ function zz_db_change($sql, $id = false) {
 	}
 	if (!empty($zz_conf['debug']) AND function_exists('wrap_error')) {
 		// @todo: check if it's easier to do it with zz_error()
-		$time = microtime_float() - $time;
+		$time = microtime(true) - $time;
 		wrap_error('SQL query in '.$time.' - '.$sql, E_USER_NOTICE);
 	}
 	return $db;	
