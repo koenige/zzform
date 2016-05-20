@@ -957,7 +957,11 @@ function zz_list_filter_sql($filters, $sql, &$filter_params) {
 			$sql = wrap_edit_sql($sql, 'WHERE', implode(' OR ', $wheres));
 		} elseif ($filter['type'] === 'like') {
 			// valid filter with LIKE
-			$sql = wrap_edit_sql($sql, 'WHERE', $filter['where'].' LIKE "%'.$filter_params[$filter['identifier']].'%"');
+			if (empty($filter['like'])) {
+				$filter['like'] = '%%%s%%';
+			}
+			$like = sprintf($filter['like'], $filter_params[$filter['identifier']]);
+			$sql = wrap_edit_sql($sql, 'WHERE', $filter['where'].' LIKE "'.$like.'"');
 		} else {
 			// invalid filter value, show list without filter
 			$sql = $old_sql;
