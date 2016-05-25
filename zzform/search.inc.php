@@ -166,26 +166,29 @@ function zz_search_field($field, $table, $searchop, $searchword) {
 	$field_type = zz_get_fieldtype($field);
 	$datetime = in_array($field_type, array('date', 'datetime', 'time', 'timestamp')) ? true : false;
 	if ($datetime and $searchword AND !is_array($searchword)) {
-		$timesearch = zz_search_time($searchword);
-		if ($timesearch) {
-			switch ($field_type) {
-			case 'datetime':
-				$searchword = date('Y-m-d', $timesearch).'%';
-				if ($searchop == '%LIKE%') $searchop = 'LIKE%';
-				break;
-			case 'time':
-				$searchword = date('H:i:s', $timesearch);
-				if ($searchop == '%LIKE%') $searchop = '=';
-				break;
-			case 'date':
-				$searchword = date('Y-m-d', $timesearch);
-				if ($searchop == '%LIKE%') $searchop = '=';
-				break;
-			}
-		} elseif (preg_match('/q\d(.)[0-9]{4}/i', $searchword, $separator)) {
+		if (preg_match('/q\d(.)[0-9]{4}/i', $searchword, $separator)) {
+			// Quarter
 			$searchword = trim(substr($searchword, 1));
 			$searchword = explode($separator[1], $searchword);
 			$searchop = "QUARTER";
+		} else {
+			$timesearch = zz_search_time($searchword);
+			switch ($field_type) {
+			case 'datetime':
+			case 'timestamp':
+				if ($timesearch) $searchword = date('Y-m-d', $timesearch).'%';
+				if (preg_match('/[0-9]{4}-[0-1][0-9]-[0-3][0-9]/', $searchword) AND $searchop === '%LIKE%') $searchop = 'LIKE%';
+				break;
+			case 'time':
+				if ($timesearch) $searchword = date('H:i:s', $timesearch);
+				if (preg_match('/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]/', $searchword) AND $searchop === '%LIKE%') $searchop = '=';
+				break;
+			case 'date':
+				if ($timesearch) $searchword = date('Y-m-d', $timesearch);
+				if (preg_match('/[0-9]{4}-[0-1][0-9]-[0-3][0-9]/', $searchword) AND $searchop === '%LIKE%') $searchop = '=';
+				break;
+			}
+			if (!preg_match('/[0-9:\-%]+/', $searchword)) return '';
 		}
 	}
 
