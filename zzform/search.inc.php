@@ -213,14 +213,17 @@ function zz_search_field($field, $table, $searchop, $searchword) {
 		return sprintf('(YEAR(%s) = "%s" AND QUARTER(%s) = "%s")', $fieldname, 
 			$searchword[1], $fieldname, $searchword[0]);
 	case '=':
+		if (!zz_search_set_enum($searchop, $searchword, $field_type, $field)) return '';
 		return sprintf('%s = "%s"', $fieldname, $searchword);
 	case '%LIKE':
+		if (!zz_search_set_enum($searchop, $searchword, $field_type, $field)) return '';
 		$collation = zz_db_field_collation('search', $table, $field);
 		if ($collation === NULL) return '';
 		if ($field['type'] === 'datetime') // bug in MySQL 
 			$fieldname = sprintf('DATE_FORMAT(%s, "%%Y-%%m-%%d %%H:%%i:%%s")', $fieldname);
 		return sprintf('%s LIKE %s"%%%s"', $fieldname, $collation, $searchword);
 	case 'LIKE%':
+		if (!zz_search_set_enum($searchop, $searchword, $field_type, $field)) return '';
 		$collation = zz_db_field_collation('search', $table, $field);
 		if ($collation === NULL) return '';
 		if ($field['type'] === 'datetime') // bug in MySQL
@@ -228,6 +231,7 @@ function zz_search_field($field, $table, $searchop, $searchword) {
 		return sprintf('%s LIKE %s"%s%%"', $fieldname, $collation, $searchword);
 	case '%LIKE%':
 	default:
+		if (!zz_search_set_enum($searchop, $searchword, $field_type, $field)) return '';
 		$collation = zz_db_field_collation('search', $table, $field);
 		if ($collation === NULL) return '';
 		if ($field['type'] === 'datetime') // bug in MySQL
@@ -235,6 +239,45 @@ function zz_search_field($field, $table, $searchop, $searchword) {
 		return sprintf('%s LIKE %s"%%%s%%"', $fieldname, $collation, $searchword);
 	}
 	return '';
+}
+
+/**
+ * for ENUM and SET fields, check if value to search for exists directly
+ * to improve SQL query
+ *
+ * @param string $searchop
+ * @param string $searchword
+ * @param string $field_type
+ * @param array $field
+ * @return bool false: don't query, search word does not exist
+ */
+function zz_search_set_enum($searchop, $searchword, $field_type, $field) {
+	if ($field_type !== 'select') return true;
+	if (!empty($field['enum'])) $set = $field['enum'];
+	elseif (!empty($field['set'])) $set = $field['set'];
+	else return true;
+	
+	switch ($searchop) {
+	case '=':
+		if (!in_array($searchword, $set)) return false;
+		return true;
+	case '%LIKE':
+		foreach ($set as $word) {
+			if (substr($word, -strlen($searchword)) === $searchword) return true;
+		}
+		return false;
+	case 'LIKE%':
+		foreach ($set as $word) {
+			if (substr($word, 0, strlen($searchword)) === $searchword) return true;
+		}
+		return false;
+	case '%LIKE%':
+		foreach ($set as $word) {
+			if (stristr($searchword, $word)) return true;
+		}
+		return false;
+	}
+	return true;
 }
 
 /**
