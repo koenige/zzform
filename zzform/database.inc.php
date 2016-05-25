@@ -47,13 +47,13 @@ function zz_log_sql($sql, $user, $record_id = false) {
 	if (is_array($record_id)) $record_id = NULL;
 	if (!empty($zz_conf['logging_id']) AND $record_id) {
 		$sql = sprintf(
-			'INSERT INTO %s (query, user, record_id) VALUES ("%s", "%s", %d)',
+			'INSERT INTO %s (query, user, record_id) VALUES (_binary "%s", "%s", %d)',
 			$zz_conf['logging_table'], wrap_db_escape($sql), $user, $record_id
 		);
 	} else {
 		// without record_id, only for backwards compatibility
 		$sql = sprintf(
-			'INSERT INTO %s (query, user) VALUES ("%s", "%s")',
+			'INSERT INTO %s (query, user) VALUES (_binary "%s", "%s")',
 			$zz_conf['logging_table'], wrap_db_escape($sql), $user
 		);
 	}
