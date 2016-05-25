@@ -803,7 +803,7 @@ function zz_db_field_collation($type, $table, $field, $index = 0) {
 			global $zz_error;
 			$zz_error[] = array(
 				'msg_dev' => 
-					sprintf('Cannot get character set information for %s.', $collate_fieldname)
+					sprintf('Cannot get character set information for %s.', $db_table.'.'.$collate_fieldname)
 					.$error_msg,
 				'level' => E_USER_NOTICE
 			);
