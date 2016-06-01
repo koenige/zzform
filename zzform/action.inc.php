@@ -250,9 +250,6 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		}
 	}
 
-	// add keyword _binary for these fields
-	$binary_fields = array('ip');
-
 	foreach (array_keys($zz_tab) as $tab)
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
 		if (!is_numeric($rec)) continue;
@@ -295,11 +292,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 					$field_values[] = $zz_tab[$tab][$rec]['id']['value'];
 				} else {
 					$field_list[] = '`'.$field['field_name'].'`';
-					if (in_array(zz_get_fieldtype($field), $binary_fields)) {
-						$field_values[] = '_binary'.$zz_tab[$tab][$rec]['POST_db'][$field['field_name']];
-					} else {
-						$field_values[] = $zz_tab[$tab][$rec]['POST_db'][$field['field_name']];
-					}
+					$field_values[] = $zz_tab[$tab][$rec]['POST_db'][$field['field_name']];
 				}
 			}
 			$me_sql = sprintf(
@@ -312,7 +305,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	// ### Update a record ###
 
 		} elseif ($zz_tab[$tab][$rec]['action'] === 'update') {
-			$update_values = zz_action_equals($zz_tab[$tab][$rec], $binary_fields);
+			$update_values = zz_action_equals($zz_tab[$tab][$rec]);
 			if ($update_values) {
 				$me_sql = sprintf(
 					' UPDATE %s SET %s WHERE %s = %d'
@@ -558,10 +551,9 @@ function zz_action_last_update($zz_tab, $action) {
  * if yes, no update is necessary
  *
  * @param array $my_rec ($zz_tab[$tab][$rec])
- * @param array $binary_fields list of fields which have binary content
  * @return array $update_values
  */
-function zz_action_equals($my_rec, $binary_fields) {
+function zz_action_equals($my_rec) {
 	$update_values = array();
 	$extra_update_values = array();
 	$equal = true; // old and new record are said to be equal
@@ -633,11 +625,7 @@ function zz_action_equals($my_rec, $binary_fields) {
 			);
 			$update = true;
 		}
-		$encoding = '';
-		if (in_array(zz_get_fieldtype($field), $binary_fields)) {
-			$encoding = '_binary';
-		}
-		$query = sprintf('`%s` = %s%s', $field['field_name'], $encoding, $my_rec['POST_db'][$field['field_name']]);
+		$query = sprintf('`%s` = %s', $field['field_name'], $my_rec['POST_db'][$field['field_name']]);
 		if (!empty($field['dont_check_on_update']) AND !$equal) {
 			$extra_update_values[] = $query;
 		}
@@ -980,6 +968,9 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
+	// add keyword _binary for these fields
+	$binary_fields = array('ip');
+
 	if (!empty($my_rec['last_fields'])) { 
 	// these fields have to be handled after others because they might get data 
 	// from other fields (e. g. upload_fields)
@@ -1070,8 +1061,12 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 			//	slashes, 0 and NULL
 			if ($my_rec['POST_db'][$field_name]) {
 				if (!zz_db_numeric_field($db_table, $field_name)) {
+					$encoding = '';
+					if (in_array(zz_get_fieldtype($field), $binary_fields)) {
+						$encoding = '_binary';
+					}
 					$my_rec['POST_db'][$field_name] = sprintf(
-						'"%s"', wrap_db_escape($my_rec['POST_db'][$field_name])
+						'%s"%s"', $encoding, wrap_db_escape($my_rec['POST_db'][$field_name])
 					);
 				}
 			} else {
