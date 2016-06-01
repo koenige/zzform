@@ -1010,12 +1010,13 @@ function zz_set_values($my_tab, $rec, $zz_var) {
  * @param array $existing values of existing record in case record is not set
  * @param array $where
  * @return array $post		POST
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_check_def_vals($post, $fields, $existing = array(), $where = false) {
 	foreach ($fields as $field) {
 		if (empty($field['field_name'])) continue;
 		$field_name = $field['field_name'];
+		// don't overwrite write_once with value if a value exists
+		if ($field['type'] === 'write_once' AND !empty($existing[$field_name])) continue;
 		// for all values, overwrite posted values with needed values
 		if (!empty($field['value'])) 
 			$post[$field_name] = $field['value'];
