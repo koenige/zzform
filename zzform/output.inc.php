@@ -717,10 +717,9 @@ function zz_init_referer() {
 		$zz_conf['referer'] = false;
 		if (isset($_GET['referer'])) $zz_conf['referer'] = $_GET['referer'];
 		if (isset($_POST['zz_referer'])) $zz_conf['referer'] = $_POST['zz_referer'];
-	} elseif (isset($_POST['zz_referer']))
+	} elseif (isset($_POST['zz_referer'])) {
 		$zz_conf['referer'] = $_POST['zz_referer'];
-	elseif (isset($_SERVER['HTTP_REFERER']))
-		$zz_conf['referer'] = $_SERVER['HTTP_REFERER'];
+	}
 	// remove actions from referer if set
 	$zz_conf['int']['referer'] = parse_url($zz_conf['referer']);
 	if (!empty($zz_conf['int']['referer']['query'])) {
