@@ -45,7 +45,7 @@ function zz_conditions_set($zz) {
 	// All supported shortcuts
 	$shortcuts = array(
 		'list_empty', 'record_mode', 'export_mode', 'where', 'multi',
-		'add', 'edit', 'delete', 'upload'
+		'add', 'edit', 'delete', 'upload', 'noid'
 	);
 	// Some shortcuts depend on a field, get field_name as extra definition
 	$shortcuts_depending_on_fields = array('where');
@@ -136,6 +136,9 @@ function zz_conditions_check($zz, $mode, $zz_var) {
 	$zz_conditions = array();
 	foreach ($zz['conditions'] AS $index => $condition) {
 		switch ($condition['scope']) {
+		case 'noid':
+			$zz_conditions['bool'][$index] = empty($zz_var['id']['value']) ? true : false;
+			break;
 		case 'add':
 			if ($mode === 'add' OR $zz_var['action'] === 'insert') {
 				$zz_conditions['bool'][$index] = true;
