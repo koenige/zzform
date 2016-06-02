@@ -49,7 +49,8 @@ function zzform($zz) {
 		'output' => false,
 		'error' => array(),
 		'id' => 0,
-		'mode' => false
+		'mode' => false,
+		'footer_text' => false
 	);
 	// set default configuration variables
 	// import modules, set and get URI
@@ -353,6 +354,7 @@ function zzform($zz) {
 	if ($ops['mode'] !== 'export') {
 		$ops['output'] .= zz_output_wmd_editor();
 		$ops['output'] .= zz_output_upndown_editor();
+		$ops['footer_text'] = !empty($zz['footer_text']) ? $zz['footer_text'] : '';
 	}
 	return zzform_exit($ops);
 }
@@ -396,7 +398,8 @@ function zzform_exit($ops) {
 	}
 	// prepare HTML output, not for export
 	if ($ops['mode'] !== 'export') {
-		if ($zz_conf['footer_text']) $ops['output'] .= $zz_conf['footer_text'];
+		if ($zz_conf['footer_text']) $ops['footer_text'] .= $zz_conf['footer_text'];
+		$ops['output'] .= $ops['footer_text'];
 		$ops['output'] = '<div id="zzform">'."\n".$ops['output'].'</div>'."\n";
 	}
 
