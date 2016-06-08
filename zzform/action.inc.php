@@ -565,6 +565,7 @@ function zz_action_equals($my_rec) {
 
 		// check if field values are different to existing record
 		if ($field['type'] === 'timestamp') {
+			$field['dont_check_on_update'] = true;
 			$update = true;
 		} elseif (in_array($field['field_name'], array_keys($my_rec['POST']))
 		AND !empty($my_rec['existing'])) {
@@ -626,14 +627,15 @@ function zz_action_equals($my_rec) {
 			$update = true;
 		}
 		$query = sprintf('`%s` = %s', $field['field_name'], $my_rec['POST_db'][$field['field_name']]);
-		if (!empty($field['dont_check_on_update']) AND !$equal) {
-			$extra_update_values[] = $query;
-		}
 		if (!$update) continue;
+		if (!empty($field['dont_check_on_update'])) {
+			$extra_update_values[] = $query;
+			continue;
+		}
 		$update_values[] = $query;
 	}
 	if ($update_values AND !$equal) {
-		$update_values += $extra_update_values;
+		$update_values = array_merge($update_values, $extra_update_values);
 		return $update_values;
 	}
 	return array();
