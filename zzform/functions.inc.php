@@ -249,6 +249,9 @@ function zz_get_url_self($url_self) {
 		? $_SERVER['HTTP_HOST']
 		: $_SERVER['SERVER_NAME'];
 	$url['base'] = $url['scheme'].'://'.$host;
+	if ($_SERVER['SERVER_PORT'] != 80) {
+		$url['base'] .= sprintf(':%s', $_SERVER['SERVER_PORT']);
+	}
 
 	// get own URI
 	$my_uri = parse_url($url['base'].$_SERVER['REQUEST_URI']);
