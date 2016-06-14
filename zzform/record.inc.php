@@ -847,10 +847,11 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 
 			if (!empty($field['default']) AND empty($field['value'])) {
 				// look at default only if no value is set - value overrides default
-				if (($mode === 'add' && !$my_rec['record']) OR !empty($is_option)
+				if (($mode === 'add' && !$my_rec['record'])
+					OR (!empty($is_option) AND empty($my_rec['record'][$field['field_name']]))
 					OR !$my_rec['record'] && !empty($field['def_val_ignore'])) { 
 					// set default only if record is empty 
-					// OR if it's an option field which is always empty 
+					// OR if it's an option field which is always empty on creation (but not on reedit)
 					// OR if default value is set to be ignored in case of no 
 					// further additions
 					$my_rec['record'][$field['field_name']] = $field['default'];
