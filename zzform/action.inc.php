@@ -739,8 +739,8 @@ function zz_action_function($type, $ops, $zz_tab) {
 	}
 
 	$change = array();
-	if (!empty($zz_tab[0]['geocode']) AND (in_array($type, array('before_insert', 'before_update')))) {
-		$change = zz_geo_geocode($type, $ops, $zz_tab);
+	if (!empty($zz_tab[0]['geocode']) AND $type === 'before_upload') {
+		$change = zz_geo_geocode($ops, $zz_tab);
 	}
 	if ($zz_tab[0]['hooks'][$type] !== true) {
 		if (!is_array($zz_tab[0]['hooks'][$type])) {

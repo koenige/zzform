@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2011, 2015 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2011, 2015-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -440,21 +440,34 @@ function zz_geo_timestamp_in($value) {
 /**
  * get latitude and longitude from a geocoding API depending on some fields
  *
- * @param string $type ('before_insert' or 'before_update')
  * @param array $ops
  * @param array $zz_tab
  * @return array $change
  */
-function zz_geo_geocode($type, $ops, $zz_tab) {
-	global $zz_error;
+function zz_geo_geocode($ops, $zz_tab) {
 	global $zz_conf;
 	
-	if (!in_array($type, array('before_insert', 'before_update'))) {
-		$zz_error[]['msg_dev'] = sprintf(
-			'Calling %s with wrong type %s', __FUNCTION__, $type
-		);
-		return array();
+	$geocoding = zz_geo_geocode_fields($ops['not_validated'], $zz_tab);
+	if (!$geocoding) return array();
+
+	// update coordinates:
+	$update = false;
+	// - if either latitude or longitude are NULL
+	foreach ($geocoding['latlon'] as $type => $f) {
+		$my_field = $zz_tab[$f['tab']][$f['rec']]['fields'][$f['no']];
+		$field = $ops['record_new'][$f['index']][$my_field['field_name']];
+		if (!$field AND $field !== 0 AND $field !== '0') $update = true;
 	}
+	if (!$update) {
+		foreach ($geocoding['source'] as $type => $f) {
+			$my_field = $zz_tab[$f['tab']][$f['rec']]['fields'][$f['no']];
+			$field = $ops['record_diff'][$f['index']][$my_field['field_name']];
+			if ($field !== 'same') $update = true;
+		}
+	}
+	if (!$update) return array();
+
+	$address = zz_geo_geocode_address($geocoding, $zz_tab, $ops['record_new']);
 
 	if (empty($zz_conf['geocoding_function'])) {
 		// you'll need a function that returns from Array $address
@@ -463,80 +476,104 @@ function zz_geo_geocode($type, $ops, $zz_tab) {
 		require_once $zz_setting['lib'].'/zzwrap/syndication.inc.php';
 		$zz_conf['geocoding_function'] = 'wrap_syndication_geocode';
 	}
+	$result = $zz_conf['geocoding_function']($address);
+	if (!$result) return array();
 
 	$change = array();
-	foreach ($ops['planned'] as $index => $planned) {
+	if ($result['longitude']) {
+		$f = $geocoding['latlon']['longitude'];
+		$my_field = $zz_tab[$f['tab']][$f['rec']]['fields'][$f['no']];
+		$change['record_replace'][$f['index']][$my_field['field_name']] = $result['longitude'];
+	}
+	if ($result['latitude']) {
+		$f = $geocoding['latlon']['latitude'];
+		$my_field = $zz_tab[$f['tab']][$f['rec']]['fields'][$f['no']];
+		$change['record_replace'][$f['index']][$my_field['field_name']] = $result['latitude'];
+	}
+	if ($result['postal_code'] AND isset($geocoding['source']['postal_code'])) {
+		$f = $geocoding['source']['postal_code'];
+		$my_field = $zz_tab[$f['tab']][$f['rec']]['fields'][$f['no']];
+		$change['record_replace'][$f['index']][$my_field['field_name']] = $result['postal_code'];
+	}
+	return $change;
+}
+
+/**
+ * get fields for geocoding
+ *
+ * @param array $list (= $ops['planned'] etc.)
+ * @param array $zz_tab
+ * @return array
+ */
+function zz_geo_geocode_fields($list, $zz_tab) {
+	global $zz_error;
+
+	$geocoding = array();
+	foreach ($list as $index => $planned) {
 		$tabrec = explode('-', $planned['tab-rec']);
-		$geocoding = array();
-		$latlon = array();
 		// get fields with latitude and longitude
 		// get input fields
 		$my_fields = $zz_tab[$tabrec[0]][$tabrec[1]]['fields'];
 		foreach ($my_fields as $no => $field) {
 			if (empty($field['field_name'])) continue;
 			if (empty($field['geocode'])) continue;
-			if (in_array($field['geocode'], array('latitude', 'longitude'))) {
-				$latlon[$field['geocode']] = $no;
-			} else {
-				$geocoding[$field['geocode']] = $no;
+			$type = in_array($field['geocode'], array('latitude', 'longitude')) ? 'latlon' : 'source';
+			if (!array_key_exists($type, $geocoding))
+				$geocoding[$type] = array();
+			if (array_key_exists($field['geocode'], $geocoding[$type])) {
+				// Important: we only look at the first occurence of each geocoding field!
+				continue;
 			}
-		}
-		if (!$latlon) continue;
-		if (count($latlon) !== 2) {
-			$zz_error[]['msg_dev'] = 'Record definition incorrect, only one of latitude/longitude present.';
-			continue;
-		}
-		// update coordinates:
-		$update = false;
-
-		// - if either latitude or longitude are NULL
-		foreach ($latlon as $type => $no) {
-			$field = $ops['record_new'][$index][$my_fields[$no]['field_name']];
-			if (!$field AND $field !== 0 AND $field !== '0') $update = true;
-		}
-
-		// - if address fields have changed
-		if (!$update) {
-			foreach ($geocoding as $type => $no) {
-				$field = $ops['record_diff'][$index][$my_fields[$no]['field_name']];
-				if ($field !== 'same') $update = true;
-			}
-		}
-		if ($update) {
-			$address = array();
-			foreach ($geocoding as $type => $no) {
-			// street, street_number, locality, postal_code, country
-			// each with _id
-				if (isset($ops['record_new'][$index][$my_fields[$no]['field_name']])) {
-					$value = $ops['record_new'][$index][$my_fields[$no]['field_name']];
-				} elseif (isset($my_fields[$no]['geocode_default'])) {
-					$value = $my_fields[$no]['geocode_default'];
-				}
-				if (substr($type, -3) === '_id') {
-					$type = substr($type, 0, -3);
-					if (!isset($my_fields[$no]['geocode_sql'])) {
-						$zz_error[]['msg_dev'] = sprintf('Error: geocode_sql not defined for field no %d', $no);
-						continue 2;
-					}
-					$sql = sprintf($my_fields[$no]['geocode_sql'], $value);
-					$value = zz_db_fetch($sql, '', 'single value');
-				}
-				if ($zz_conf['character_set'] !== 'utf-8' AND $value) {
-					// @todo: support more encodings than iso-8859-1 and utf-8
-					$value = iconv(strtoupper($zz_conf['character_set']), 'UTF-8', $value);
-				}
-				$address[$type] = $value;
-			}
-			$result = $zz_conf['geocoding_function']($address);
-			if ($result) {
-				if ($result['longitude'])
-					$change['record_replace'][$index][$my_fields[$latlon['longitude']]['field_name']] = $result['longitude'];
-				if ($result['latitude'])
-					$change['record_replace'][$index][$my_fields[$latlon['latitude']]['field_name']] = $result['latitude'];
-				if ($result['postal_code'] AND isset($geocoding['postal_code']))
-					$change['record_replace'][$index][$my_fields[$geocoding['postal_code']]['field_name']] = $result['postal_code'];
-			}
+			$geocoding[$type][$field['geocode']] = array(
+				'tab' => $tabrec[0], 'rec' => $tabrec[1], 'no' => $no, 'index' => $index
+			);
 		}
 	}
-	return $change;
+	if (empty($geocoding['latlon'])) return array();
+	if (count($geocoding['latlon']) !== 2) {
+		$zz_error[]['msg_dev'] = 'Record definition incorrect, only one of latitude/longitude present.';
+		return array();
+	}
+	return ($geocoding);
+}
+
+function zz_geo_geocode_address($geocoding, $zz_tab, $new) {
+	global $zz_error;
+	global $zz_conf;
+
+	// - if address fields have changed
+	$address = array();
+	foreach ($geocoding['source'] as $type => $f) {
+	// street, street_number, locality, postal_code, country
+	// each with _id
+		$my_field = $zz_tab[$f['tab']][$f['rec']]['fields'][$f['no']];
+		if (isset($new[$f['index']][$my_field['field_name']])) {
+			$value = $new[$f['index']][$my_field['field_name']];
+		} elseif (isset($my_field['geocode_default'])) {
+			$value = $my_field['geocode_default'];
+		}
+		if (substr($type, -3) === '_id') {
+			$type = substr($type, 0, -3);
+			if (!isset($my_field['geocode_sql'])) {
+				$zz_error[]['msg_dev'] = sprintf('Error: geocode_sql not defined for field no %d', $f['no']);
+				continue;
+			}
+			if (!is_numeric($value)) {
+				$values = zz_check_select_id($my_field, $value, $zz_tab[$f['tab']]['db_name'].'.'.$zz_tab[$f['tab']]['table']);
+				if (!empty($values['possible_values']) AND count($values['possible_values']) === 1) {
+					$value = reset($values['possible_values']);
+				} else {
+					continue;
+				}
+			}
+			$sql = sprintf($my_field['geocode_sql'], $value);
+			$value = zz_db_fetch($sql, '', 'single value');
+		}
+		if ($zz_conf['character_set'] !== 'utf-8' AND $value) {
+			// @todo support more encodings than iso-8859-1 and utf-8
+			$value = iconv(strtoupper($zz_conf['character_set']), 'UTF-8', $value);
+		}
+		$address[$type] = $value;
+	}
+	return $address;
 }
