@@ -2890,7 +2890,7 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
  * @global array $zz_conf bool 'multi'
  * @return array $field
  */
-function zz_check_select_id($field, $postvalue, $db_table, $id) {
+function zz_check_select_id($field, $postvalue, $db_table, $id = array()) {
 	global $zz_conf;
 	
 	// 1. get field names from SQL query
