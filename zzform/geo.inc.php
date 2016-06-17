@@ -449,6 +449,8 @@ function zz_geo_geocode($ops, $zz_tab) {
 	
 	$geocoding = zz_geo_geocode_fields($ops['not_validated'], $zz_tab);
 	if (!$geocoding) return array();
+	if (!array_key_exists('latlon', $geocoding)) return array();
+	if (!array_key_exists('source', $geocoding)) return array();
 
 	// update coordinates:
 	$update = false;
