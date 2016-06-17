@@ -864,9 +864,8 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 		// must be here before setting the action
 		if ($zz_tab[$tab][$rec]['access'] === 'show') continue;
 		if (!in_array($zz_tab[0][0]['action'], array('insert', 'update'))) continue;
-		if (empty($field['field_name'])) continue;
-		$my_tab[$rec]['POST'][$field['field_name']]
-			= zz_write_values($field, $zz_tab, $f, $tab, $rec);
+		$value = zz_write_values($field, $zz_tab, $f, $tab, $rec);
+		if (isset($value)) $my_tab[$rec]['POST'][$field['field_name']] = $value;
 	}
 
 	foreach ($my_tab[$rec]['fields'] as $field) {
@@ -958,8 +957,7 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 function zz_write_values($field, $zz_tab, $f, $tab = 0, $rec = 0) {
 	global $zz_conf;
 
-	$return_val = !empty($zz_tab[$tab][$rec]['POST'][$field['field_name']])
-		? $zz_tab[$tab][$rec]['POST'][$field['field_name']] : NULL;
+	$return_val = NULL;
 	//	copy value if field detail_value isset
 	if (!empty($field['detail_value'])) {
 		$value = zz_write_detail_values($zz_tab, $f, $tab, $rec);
@@ -970,7 +968,7 @@ function zz_write_values($field, $zz_tab, $f, $tab = 0, $rec = 0) {
 		$value = zz_write_upload_fields($zz_tab, $f, $tab, $rec);
 		if ($value) $return_val = $value;
 	}
-	if (!$return_val AND !empty($field['upload_default']))
+	if (!isset($return_val) AND !empty($field['upload_default']))
 		$return_val = $field['upload_default'];
 	return $return_val;
 }
@@ -1329,9 +1327,8 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 
 		if (!$tab AND !$rec) {
 			// here: only for main record, since subrecords already were taken care for
-			if (!empty($field_name)) {
-				$my_rec['POST'][$field_name] = zz_write_values($field, $zz_tab, $f);
-			}
+			$value = zz_write_values($field, $zz_tab, $f);
+			if (isset($value)) $my_rec['POST'][$field_name] = $value;
 		}
 
 		//	call function
