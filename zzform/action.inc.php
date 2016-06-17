@@ -864,14 +864,8 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 		// must be here before setting the action
 		if ($zz_tab[$tab][$rec]['access'] === 'show') continue;
 		if (!in_array($zz_tab[0][0]['action'], array('insert', 'update'))) continue;
-		if (!empty($field['detail_value'])) {
-			$value = zz_write_detail_values($zz_tab, $f, $tab, $rec);
-			if ($value) $my_tab[$rec]['POST'][$field['field_name']] = $value;
-		}
-		if (!empty($field['upload_field']) AND !empty($zz_conf['modules']['upload'])) {
-			$value = zz_write_upload_fields($zz_tab, $f, $tab, $rec);
-			if ($value) $my_tab[$rec]['POST'][$field['field_name']] = $value;
-		}
+		$my_tab[$rec]['POST'][$field['field_name']]
+			= zz_write_values($field, $zz_tab, $f, $tab, $rec);
 	}
 
 	foreach ($my_tab[$rec]['fields'] as $field) {
@@ -949,6 +943,32 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 
 	if ($zz_conf['modules']['debug']) zz_debug("end, values: ".substr($values, 0, 20));
 	return $my_tab;
+}
+
+/**
+ * get values from 'value', 'default' or 'upload'
+ *
+ * @param array $field
+ * @param array $zz_tab
+ * @param array $f
+ * @param int $tab
+ * @param int $rec
+ */
+function zz_write_values($field, $zz_tab, $f, $tab = 0, $rec = 0) {
+	global $zz_conf;
+
+	$return_val = $zz_tab[$tab][$rec]['POST'][$field['field_name']];
+	//	copy value if field detail_value isset
+	if (!empty($field['detail_value'])) {
+		$value = zz_write_detail_values($zz_tab, $f, $tab, $rec);
+		if ($value) $return_val = $value;
+	}
+	// check if some values should be gotten from upload fields
+	if (!empty($field['upload_field']) AND !empty($zz_conf['modules']['upload'])) {
+		$value = zz_write_upload_fields($zz_tab, $f, $tab, $rec);
+		if ($value) $return_val = $value;
+	}
+	return $return_val;
 }
 
 /**
@@ -1304,18 +1324,8 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 		}
 
 		if (!$tab AND !$rec) {
-			//	copy value if field detail_value isset
-			if (!empty($field['detail_value'])) {
-				$value = zz_write_detail_values($zz_tab, $f);
-				if ($value) $my_rec['POST'][$field_name] = $value;
-			}
-	
-			// check if some values should be gotten from upload fields
 			// here: only for main record, since subrecords already were taken care for
-			if (!empty($field['upload_field'])) {
-				$value = zz_write_upload_fields($zz_tab, $f);
-				if ($value) $my_rec['POST'][$field_name] = $value;
-			}
+			$my_rec['POST'][$field_name] = zz_write_values($field, $zz_tab, $f);
 		}
 
 		//	call function
