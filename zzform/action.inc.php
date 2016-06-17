@@ -957,7 +957,8 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 function zz_write_values($field, $zz_tab, $f, $tab = 0, $rec = 0) {
 	global $zz_conf;
 
-	$return_val = $zz_tab[$tab][$rec]['POST'][$field['field_name']];
+	$return_val = !empty($zz_tab[$tab][$rec]['POST'][$field['field_name']])
+		? $zz_tab[$tab][$rec]['POST'][$field['field_name']] : NULL;
 	//	copy value if field detail_value isset
 	if (!empty($field['detail_value'])) {
 		$value = zz_write_detail_values($zz_tab, $f, $tab, $rec);
