@@ -1896,8 +1896,6 @@ function zz_val_get_from_upload($field, $images, $post) {
 			} elseif (is_array($myval)) {
 				$myval = false;
 			}
-			if (!$myval AND !empty($field['upload_default']))
-				$myval = $field['upload_default'];
 			if ($myval && !empty($field['upload_sql'])) {
 				$sql = $field['upload_sql'].'"'.$myval.'"';
 				$myval = zz_db_fetch($sql, '', 'single value');
@@ -1928,7 +1926,7 @@ function zz_val_get_from_upload($field, $images, $post) {
 	);
 
 	if ($myval) return $myval;
-	else return $post;
+	return $post;
 }
 
 /** 

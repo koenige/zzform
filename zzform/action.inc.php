@@ -968,6 +968,8 @@ function zz_write_values($field, $zz_tab, $f, $tab = 0, $rec = 0) {
 		$value = zz_write_upload_fields($zz_tab, $f, $tab, $rec);
 		if ($value) $return_val = $value;
 	}
+	if (!$return_val AND !empty($field['upload_default']))
+		$return_val = $field['upload_default'];
 	return $return_val;
 }
 
