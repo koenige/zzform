@@ -2894,18 +2894,16 @@ function zz_check_select_id($field, $postvalue, $db_table, $id = array()) {
 	global $zz_conf;
 	
 	// 1. get field names from SQL query
-	$field['sql_fieldnames'] = zz_sql_fieldnames($field['sql']);
-	foreach ($field['sql_fieldnames'] as $index => $sql_fieldname) {
-		$sql_fieldname = trim($sql_fieldname);
+	$sql_fieldnames = wrap_edit_sql($field['sql'], 'SELECT', '', 'list'));
+	foreach ($sql_fieldnames as $index => $sql_fieldname) {
 		if (!empty($field['show_hierarchy'])
-			AND $sql_fieldname === $field['show_hierarchy']) {
+			AND $sql_fieldname['field_name'] !== $field['show_hierarchy']) {
 			// do not search in show_hierarchy as this field is there for 
 			// presentation only and might be removed below!
-			unset($field['sql_fieldnames'][$index]);	
-		} else {
-			// write trimmed value back to sql_fieldnames
-			$field['sql_fieldnames'][$index] = $sql_fieldname;
+			continue;
 		}
+		// write trimmed value back to sql_fieldnames
+		$field['sql_fieldnames'][$index] = $sql_fieldname['field_name'];
 	}
 
 	// 2. get posted values, field by field
