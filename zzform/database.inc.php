@@ -668,14 +668,14 @@ function zz_db_field_null($field, $db_table) {
 /**
  * prefix different charset if necessary for LIKE
  *
- * @param string $type 'search', 'reselect'
- * @param string $db_table
+ * @param string $type 'search', 'reselect', 'xhr'
+ * @param string $db_table (optional, for search)
  * @param array $field
  *		'character_set'
- * @param int $index (for 'reselect')
+ * @param int $index (optional, for reselect and xhr)
  * @return string
  */
-function zz_db_field_collation($type, $table, $field, $index = 0) {
+function zz_db_field_collation($type, $table = '', $field, $index = 0) {
 	global $zz_conf;
 	if (empty($zz_conf['character_set_db_multiple'])) return '';
 	
@@ -695,7 +695,12 @@ function zz_db_field_collation($type, $table, $field, $index = 0) {
 		$tables[] = $table;
 		break;
 	case 'reselect':
-		$collate_fieldname = $field['sql_fieldnames'][$index];
+	case 'xhr':
+		if ($type === 'xhr') {
+			$collare_fieldname = $field['field_name'];
+		} else {
+			$collate_fieldname = $field['sql_fieldnames'][$index];
+		}
 		$error_msg = '';
 		if (isset($field['sql_character_set']) AND
 			isset($field['sql_character_set'][$index])) {
