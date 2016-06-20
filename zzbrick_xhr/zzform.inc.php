@@ -60,13 +60,13 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 
 	// @todo modify SQL query according to zzform()
 	
-	$sql = $field['sql'];
+	$sql = wrap_db_prefix($field['sql']);
 	$sql_fields = wrap_edit_sql($sql, 'SELECT', false, 'list');
 	$table_from = wrap_edit_sql($sql, 'FROM', false, 'list');
 	$where = array();
 	foreach ($sql_fields as $sql_field) {
 		foreach ($text as $index => $value) {
-			$collation = zz_db_field_collation('search', wrap_db_prefix($table_from[0]), $sql_field);
+			$collation = zz_db_field_collation('search', $table_from[0], $sql_field);
 			$where[$index][] = sprintf('%s LIKE %s"%%%s%%"', $sql_field['field_name'], $collation, wrap_db_escape($value));
 		}
 	}
