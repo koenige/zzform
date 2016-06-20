@@ -27,7 +27,7 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	zz_initialize();
 
 	$data = array();
-	$text = strtolower($xmlHttpRequest['text']);
+	$text = mb_strtolower($xmlHttpRequest['text']);
 	$limit = $xmlHttpRequest['limit'] + 1;
 	
 	// might be forms, request, ... => process usual way and get script name from there
@@ -62,11 +62,12 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	
 	$sql = wrap_db_prefix($field['sql']);
 	$sql_fields = wrap_edit_sql($sql, 'SELECT', false, 'list');
-	$table_from = wrap_edit_sql($sql, 'FROM', false, 'list');
 	$where = array();
-	foreach ($sql_fields as $sql_field) {
+	foreach ($sql_fields as $no => $sql_field) {
+		// get sql_character_set etc.
+		$sql_field = array_merge($field, $sql_field);
 		foreach ($text as $index => $value) {
-			$collation = zz_db_field_collation('search', $table_from[0], $sql_field);
+			$collation = zz_db_field_collation('xhr', false, $sql_field, $no);
 			$where[$index][] = sprintf('%s LIKE %s"%%%s%%"', $sql_field['field_name'], $collation, wrap_db_escape($value));
 		}
 	}
