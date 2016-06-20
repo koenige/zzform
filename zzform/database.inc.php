@@ -165,52 +165,6 @@ function zz_sql_prefix_change_zz(&$item, $key) {
 }
 
 /**
- * gets fieldnames from SQL query
- *
- * @param string $sql SQL query
- * @return array list of field names, e. g.
- * Array
- * (
- *    [0] =>  object_id 
- *    [1] =>  objects.identifier
- *    [2] =>  categories.identifier
- * )
- */
-function zz_sql_fieldnames($sql) {
-	// preg_match, case insensitive, space after select, space around from 
-	// - might not be 100% perfect, but should work always
-	preg_match('/SELECT( DISTINCT|) *(.+) FROM /Ui', $sql, $fieldstring); 
-	if (empty($fieldstring)) return array();
-	$fields = explode(",", $fieldstring[2]);
-	unset($fieldstring);
-	$oldfield = false;
-	$newfields = false;
-	foreach ($fields as $myfield) {
-		// oldfield, so we are inside parentheses
-		if ($oldfield) $myfield = $oldfield.','.$myfield; 
-		// not enough brackets, so glue strings together until there are enough 
-		// - not 100% safe if bracket appears inside string
-		if (substr_count($myfield, '(') !== substr_count($myfield, ')')) {
-			$oldfield = $myfield; 
-		} else {
-			$myfields = '';
-			// replace AS blah against nothing
-			if (stristr($myfield, ') AS')) 
-				preg_match('/(.+\)) AS [a-z0-9_]/i', $myfield, $myfields); 
-			if ($myfields) $myfield = $myfields[1];
-			$myfields = '';
-			if (stristr($myfield, ' AS ')) 
-				preg_match('/(.+) AS [a-z0-9_]/i', $myfield, $myfields); 
-			if ($myfields) $myfield = $myfields[1];
-			$newfields[$myfield] = $myfield; // eliminate duplicates
-			$oldfield = false; // now that we've written it to array, empty it
-		}
-	}
-	$newfields = array_values($newfields);
-	return $newfields;
-}
-
-/**
  * counts number of records that will be caught by current SQL query
  *
  * @param string $sql
