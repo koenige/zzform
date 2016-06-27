@@ -2897,7 +2897,7 @@ function zz_check_select_id($field, $postvalue, $db_table, $id = array()) {
 	$sql_fieldnames = wrap_edit_sql($field['sql'], 'SELECT', '', 'list');
 	foreach ($sql_fieldnames as $index => $sql_fieldname) {
 		if (!empty($field['show_hierarchy'])
-			AND $sql_fieldname['field_name'] !== $field['show_hierarchy']) {
+			AND $sql_fieldname['field_name'] === $field['show_hierarchy']) {
 			// do not search in show_hierarchy as this field is there for 
 			// presentation only and might be removed below!
 			continue;
