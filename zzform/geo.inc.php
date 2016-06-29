@@ -447,7 +447,7 @@ function zz_geo_timestamp_in($value) {
 function zz_geo_geocode($ops, $zz_tab) {
 	global $zz_conf;
 	
-	$geocoding = zz_geo_geocode_fields($ops['not_validated'], $zz_tab);
+	$geocoding = zz_geo_geocode_fields($ops['not_validated'], $ops['record_new'], $zz_tab);
 	if (!$geocoding) return array();
 	if (!array_key_exists('latlon', $geocoding)) return array();
 	if (!array_key_exists('source', $geocoding)) return array();
@@ -503,11 +503,12 @@ function zz_geo_geocode($ops, $zz_tab) {
 /**
  * get fields for geocoding
  *
- * @param array $list (= $ops['planned'] etc.)
+ * @param array $list (= $ops['planned'])
+ * @param array $new (= $ops['record'])
  * @param array $zz_tab
  * @return array
  */
-function zz_geo_geocode_fields($list, $zz_tab) {
+function zz_geo_geocode_fields($list, $new, $zz_tab) {
 	global $zz_error;
 
 	$geocoding = array();
@@ -522,6 +523,9 @@ function zz_geo_geocode_fields($list, $zz_tab) {
 			$type = in_array($field['geocode'], array('latitude', 'longitude')) ? 'latlon' : 'source';
 			if (!array_key_exists($type, $geocoding))
 				$geocoding[$type] = array();
+			if (zz_geo_geocode_ignore($field, $my_fields, $new, $index, $zz_tab[$tabrec[0]]['db_name'].'.'.$zz_tab[$tabrec[0]]['table'])) {
+				continue;
+			}
 			if (array_key_exists($field['geocode'], $geocoding[$type])) {
 				// Important: we only look at the first occurence of each geocoding field!
 				continue;
@@ -536,9 +540,17 @@ function zz_geo_geocode_fields($list, $zz_tab) {
 		$zz_error[]['msg_dev'] = 'Record definition incorrect, only one of latitude/longitude present.';
 		return array();
 	}
-	return ($geocoding);
+	return $geocoding;
 }
 
+/**
+ * get values for address from geocoding fields
+ *
+ * @param array $geocoding (result of zz_geo_geocode_fields())
+ * @param array $zz_tab
+ * @param array $new ($ops['record_new'])
+ * @return array
+ */
 function zz_geo_geocode_address($geocoding, $zz_tab, $new) {
 	global $zz_error;
 	global $zz_conf;
@@ -578,4 +590,35 @@ function zz_geo_geocode_address($geocoding, $zz_tab, $new) {
 		$address[$type] = $value;
 	}
 	return $address;
+}
+
+/**
+ * check if geocode will be ignored because of another value in the same record
+ *
+ * @param array $field current field
+ * @param array $fields list of fields of this record
+ * @param array $new new record as in $ops['record_new']
+ * @param int $index
+ * @param string $db_table
+ * @return bool
+ */
+function zz_geo_geocode_ignore($field, $fields, $new, $index, $db_table) {
+	if (empty($field['geocode_ignore_if'])) return false;
+	$ignore_field_name = key($field['geocode_ignore_if']);
+	$ignore_value = $field['geocode_ignore_if'][$ignore_field_name];
+
+	foreach ($fields as $ignore_no => $ignore_field) {
+		if ($ignore_field['field_name'] !== $ignore_field_name) continue;
+		$value = $new[$index][$ignore_field_name];
+		if ($ignore_field['type'] === 'select' AND !is_numeric($value)) {
+			$p_values = zz_check_select_id($ignore_field, $value, $db_table);
+			if (!empty($p_values['possible_values']) AND count($p_values['possible_values']) === 1) {
+				$value = reset($p_values['possible_values']);
+			} else {
+				continue;
+			}
+		}
+		if ($ignore_value === $value) return true;
+	}
+	return false;
 }
