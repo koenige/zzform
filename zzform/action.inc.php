@@ -805,6 +805,9 @@ function zz_action_change($ops, $zz_tab, $change) {
 		foreach ($change['record_replace'] as $index => $values) {
 			list($tab, $rec) = explode('-', $planned[$index]['tab-rec']);
 			$zz_tab[$tab][$rec]['POST'] = array_merge($zz_tab[$tab][$rec]['POST'], $values);
+			if (!empty($change['change_info'][$index])) {
+				$zz_tab[$tab][$rec]['change_info'] = $change['change_info'][$index];
+			}
 		}
 	}
 	return array($ops, $zz_tab);
@@ -1148,7 +1151,9 @@ function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
 			? $zz_tab[$tab][$rec]['actual_action'] : $zz_tab[$tab][$rec]['action'],
 		'tab-rec' => $tab.'-'.$rec,
 		'error' => !empty($zz_tab[$tab][$rec]['error'])
-			? $zz_tab[$tab][$rec]['error'] : false
+			? $zz_tab[$tab][$rec]['error'] : false,
+		'change_info' => !empty($zz_tab[$tab][$rec]['change_info'])
+			? $zz_tab[$tab][$rec]['change_info'] : false
 	);
 	if ($type === 'return' AND $index === 0) {
 		// shortcut for ID
