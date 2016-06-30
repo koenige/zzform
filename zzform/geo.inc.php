@@ -486,16 +486,19 @@ function zz_geo_geocode($ops, $zz_tab) {
 		$f = $geocoding['latlon']['longitude'];
 		$my_field = $zz_tab[$f['tab']][$f['rec']]['fields'][$f['no']];
 		$change['record_replace'][$f['index']][$my_field['field_name']] = $result['longitude'];
+		$change['change_info'][$f['index']]['geocode'] = true;
 	}
 	if ($result['latitude']) {
 		$f = $geocoding['latlon']['latitude'];
 		$my_field = $zz_tab[$f['tab']][$f['rec']]['fields'][$f['no']];
 		$change['record_replace'][$f['index']][$my_field['field_name']] = $result['latitude'];
+		$change['change_info'][$f['index']]['geocode'] = true;
 	}
 	if ($result['postal_code'] AND isset($geocoding['source']['postal_code'])) {
 		$f = $geocoding['source']['postal_code'];
 		$my_field = $zz_tab[$f['tab']][$f['rec']]['fields'][$f['no']];
 		$change['record_replace'][$f['index']][$my_field['field_name']] = $result['postal_code'];
+		$change['change_info'][$f['index']]['geocode'] = true;
 	}
 	return $change;
 }
