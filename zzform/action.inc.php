@@ -1288,7 +1288,6 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	// in case validation fails, these values will be send back to user
 	$my_rec['POST-notvalid'] = $my_rec['POST'];
-	$my_rec['validation'] = true;
 	$my_rec['last_fields'] = array();
 	$my_rec['extra'] = array();
 
