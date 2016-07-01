@@ -66,35 +66,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	if ($zz_error['error'])
 		return zz_return(array($ops, $zz_tab, $validation));
 
-	foreach (array_keys($zz_tab) as $tab) {
-		foreach (array_keys($zz_tab[$tab]) as $rec) {
-			if (!is_numeric($rec)) continue;
-			if ($tab) {
-				// only if $tab and $rec != 0, i. e. only for subtables!
-				// set action field in zz_tab-array, 
-				$zz_tab[$tab] = zz_set_subrecord_action($zz_tab, $tab, $rec);
-				if ($zz_tab[$tab][$rec]['action'] === 'ignore') continue;
-			}
-			if ($zz_tab[$tab][$rec]['action'] === 'insert' 
-				OR $zz_tab[$tab][$rec]['action'] === 'update') {
-				// don't validate record which only will be shown!!
-				if ($zz_tab[$tab][$rec]['access'] === 'show') continue;
-			
-				// first part of validation where field values are independent
-				// from other field values
-				$zz_tab[$tab][$rec] = zz_validate($zz_tab[$tab][$rec], $zz_tab[$tab]['db_name']
-					.'.'.$zz_tab[$tab]['table'], $zz_tab[$tab]['table_name'], $tab, $rec, $zz_tab); 
-				if ($tab) {
-					// write changed POST values back to main POST array
-					// @todo let the next functions access the main POST array 
-					// differently
-					$zz_tab[0][0]['POST'][$zz_tab[$tab]['table_name']][$rec] = $zz_tab[$tab][$rec]['POST'];
-					foreach ($zz_tab[$tab][$rec]['extra'] AS $key => $value)
-						$zz_tab[0][0]['extra'][$zz_tab[$tab]['table_name'].'['.$rec.']['.$key.']'] = $value;
-				}
-			}
-		}
-	}
+	$zz_tab = zz_action_validate($zz_tab);
 
 	// check referential integrity
 	if ($zz_conf['check_referential_integrity']) {
@@ -1256,6 +1228,45 @@ function zz_foldercheck($zz_tab) {
  * V - Validation
  * --------------------------------------------------------------------
  */
+
+/**
+ * Set action for subrecords and call validation for all records
+ *
+ * @param array $zz_tab
+ * @return array
+ */
+function zz_action_validate($zz_tab) {
+	foreach (array_keys($zz_tab) as $tab) {
+		foreach (array_keys($zz_tab[$tab]) as $rec) {
+			if (!is_numeric($rec)) continue;
+			if ($tab) {
+				// only if $tab and $rec != 0, i. e. only for subtables!
+				// set action field in zz_tab-array, 
+				$zz_tab[$tab] = zz_set_subrecord_action($zz_tab, $tab, $rec);
+				if ($zz_tab[$tab][$rec]['action'] === 'ignore') continue;
+			}
+			if ($zz_tab[$tab][$rec]['action'] === 'insert' 
+				OR $zz_tab[$tab][$rec]['action'] === 'update') {
+				// don't validate record which only will be shown!!
+				if ($zz_tab[$tab][$rec]['access'] === 'show') continue;
+			
+				// first part of validation where field values are independent
+				// from other field values
+				$zz_tab[$tab][$rec] = zz_validate($zz_tab[$tab][$rec], $zz_tab[$tab]['db_name']
+					.'.'.$zz_tab[$tab]['table'], $zz_tab[$tab]['table_name'], $tab, $rec, $zz_tab); 
+				if ($tab) {
+					// write changed POST values back to main POST array
+					// @todo let the next functions access the main POST array 
+					// differently
+					$zz_tab[0][0]['POST'][$zz_tab[$tab]['table_name']][$rec] = $zz_tab[$tab][$rec]['POST'];
+					foreach ($zz_tab[$tab][$rec]['extra'] AS $key => $value)
+						$zz_tab[0][0]['extra'][$zz_tab[$tab]['table_name'].'['.$rec.']['.$key.']'] = $value;
+				}
+			}
+		}
+	}
+	return $zz_tab;
+}
 
 /**
  * Validates user input
