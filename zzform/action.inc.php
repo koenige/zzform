@@ -48,24 +48,9 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$zz_tab[0]['record_action'] = false;
 
-	foreach (array_keys($zz_tab) as $tab) {
-		foreach (array_keys($zz_tab[$tab]) as $rec) {
-			if (!is_numeric($rec)) continue;
-			if (!empty($zz_tab[0]['hooks']['before_upload'])) {
-				$ops = zz_record_info($ops, $zz_tab, $tab, $rec, 'not_validated');
-			}
-		}
-	}
-
 	// get images from different locations than upload
 	// if any other action before insertion/update/delete is required
-	if ($change = zz_action_function('before_upload', $ops, $zz_tab)) {
-		list($ops, $zz_tab) = zz_action_change($ops, $zz_tab, $change);
-		unset($ops['not_validated']);
-		unset($ops['record_old']);
-		unset($ops['record_new']);
-		unset($ops['record_diff']);
-	}
+	list($ops, $zz_tab) = zz_action_hook($ops, $zz_tab, 'before_upload', 'not_validated');
 	
 	//	### Check for validity, do some operations ###
 	if (!empty($zz_var['upload_form'])) {
@@ -701,6 +686,38 @@ function zz_action_details($detail_sqls, $zz_tab, $validation, $ops) {
 		}
 	}
 	return array($zz_tab, $validation, $ops);
+}
+
+/**
+ * call hook functions for a given position in the code
+ *
+ * @param array $ops
+ * @param array $zz_tab
+ * @param string $position
+ * @param string $type for @see zz_record_info()
+ */
+function zz_action_hook($ops, $zz_tab, $position, $type) {
+	if (empty($zz_tab[0]['hooks'][$position])) return array($ops, $zz_tab);
+
+	// get information
+	foreach (array_keys($zz_tab) as $tab) {
+		foreach (array_keys($zz_tab[$tab]) as $rec) {
+			if (!is_numeric($rec)) continue;
+			$ops = zz_record_info($ops, $zz_tab, $tab, $rec, $type);
+		}
+	}
+
+	// check if something is about to change
+	$change = zz_action_function($position, $ops, $zz_tab);
+	if (!$change) return array($ops, $zz_tab);
+
+	// apply changes
+	list($ops, $zz_tab) = zz_action_change($ops, $zz_tab, $change);
+	unset($ops[$type]);
+	unset($ops['record_old']);
+	unset($ops['record_new']);
+	unset($ops['record_diff']);
+	return array($ops, $zz_tab);
 }
 
 /**
