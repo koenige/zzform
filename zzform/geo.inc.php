@@ -470,6 +470,7 @@ function zz_geo_geocode($ops, $zz_tab) {
 	if (!$update) return array();
 
 	$address = zz_geo_geocode_address($geocoding, $zz_tab, $ops['record_new']);
+	if (!$address) return array();
 
 	if (empty($zz_conf['geocoding_function'])) {
 		// you'll need a function that returns from Array $address
