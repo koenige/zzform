@@ -183,24 +183,8 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		}
 	}
 
-	if (!empty($zz_tab[0]['hooks']['before_'.$zz_var['action']])) {
-		foreach ($zz_tab as $tab => $my_tab) {
-			foreach ($my_tab as $rec => $my_rec) {
-				if (!is_numeric($rec)) continue;
-				$ops = zz_record_info($ops, $zz_tab, $tab, $rec, 'planned');
-			}
-		}
-	}
-
 	// if any other action before insertion/update/delete is required
-	if ($change = zz_action_function('before_'.$zz_var['action'], $ops, $zz_tab)) {
-		list($ops, $zz_tab) = zz_action_change($ops, $zz_tab, $change);
-		// 'planned' is a variable just for custom 'action' scripts
-		unset($ops['planned']);
-	}
-	unset($ops['record_old']);
-	unset($ops['record_new']);
-	unset($ops['record_diff']);
+	list($ops, $zz_tab) = zz_action_hook($ops, $zz_tab, 'before_'.$zz_var['action'], 'planned');
 
 	if ($zz_error['error']) { // repeat, might be set in before_action
 		$zz_error['error'] = false;
