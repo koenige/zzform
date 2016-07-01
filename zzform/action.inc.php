@@ -48,8 +48,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$zz_tab[0]['record_action'] = false;
 
-	// get images from different locations than upload
-	// if any other action before insertion/update/delete is required
+	// hook, e. g. get images from different locations than upload
 	list($ops, $zz_tab) = zz_action_hook($ops, $zz_tab, 'before_upload', 'not_validated');
 	
 	//	### Check for validity, do some operations ###
@@ -183,7 +182,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		}
 	}
 
-	// if any other action before insertion/update/delete is required
+	// hook, if any other action before insertion/update/delete is required
 	list($ops, $zz_tab) = zz_action_hook($ops, $zz_tab, 'before_'.$zz_var['action'], 'planned');
 
 	if ($zz_error['error']) { // repeat, might be set in before_action
@@ -825,7 +824,6 @@ function zz_action_change($ops, $zz_tab, $change) {
  * @return array $my_tab ($zz_tab[$tab])
  *		changed: $zz_tab[$tab][$rec]['action'], $zz_tab[$tab]['subtable_deleted']
  *		may unset($zz_tab[$tab][$rec])
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 	// initialize variables
@@ -979,7 +977,6 @@ function zz_write_values($field, $zz_tab, $f, $tab = 0, $rec = 0) {
  * @global array $zz_conf
  * @return array $my_rec with validated values and marker if validation was successful 
  * 		($my_rec['validation'])
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 	global $zz_conf;
@@ -1219,7 +1216,6 @@ function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
  * @param array $zz_tab complete zz_tab array
  * @global array $zz_error
  * @return array $folders => $zz_tab[0]['folder'][] will be set
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_foldercheck($zz_tab) {
 	global $zz_error;
@@ -1273,7 +1269,6 @@ function zz_foldercheck($zz_tab) {
  * @global array $zz_conf
  * @return array $my_rec with validated values and marker if validation was 
  *		successful ($my_rec['validation'])
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 	global $zz_conf;
@@ -1702,7 +1697,6 @@ function zz_write_detail_values($zz_tab, $f, $tab = 0, $rec = 0) {
  * @param string $value value entered in form
  * @param array $validate defines against what to validate 
  * @return mixed false: everything is okay, string: error message
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_check_rules($value, $validate) {
 	foreach ($validate as $type => $needles) {
@@ -1730,7 +1724,6 @@ function zz_check_rules($value, $validate) {
  * @global array $zz_error
  * @global array $zz_conf	Configuration variables, here: 'hash_password'
  * @return string false: an error occurred; string: new encrypted password 
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_password_set($old, $new1, $new2, $sql, $field) {
 	global $zz_error;
@@ -1819,7 +1812,6 @@ function zz_integrity_relations($relation_table) {
  * @return mixed bool false: deletion of record possible, integrity will remain
  *		array: 'text' (error message), 'fields' (optional, names of tables
  *		which have a relation to the current record)
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_integrity_check($deletable_ids, $relations) {
 	if (!$relations) {
