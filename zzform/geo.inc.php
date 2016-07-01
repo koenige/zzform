@@ -458,7 +458,16 @@ function zz_geo_geocode($ops, $zz_tab) {
 		// - if either latitude or longitude are NULL
 		$my_field = $zz_tab[$f['tab']][$f['rec']]['fields'][$f['no']];
 		$field = $ops['record_new'][$f['index']][$my_field['field_name']];
-		if (!$field AND $field !== 0 AND $field !== '0') $update = true;
+		if (!$field AND $field !== 0 AND $field !== '0') {
+			$update = true;
+		} else {
+			// do not update if coordinates were changed by user
+			// test against output strings, there may be rounding errors
+			if (zz_geo_coord_out($ops['record_old'][$f['index']][$my_field['field_name']], $type)
+				!== zz_geo_coord_out($ops['record_new'][$f['index']][$my_field['field_name']], $type)) {
+				return array();
+			}
+		}
 	}
 	if (!$update) {
 		foreach ($geocoding['source'] as $type => $f) {
