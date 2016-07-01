@@ -130,12 +130,9 @@ function zz_dependent_modules($zz) {
 			break;
 		case 'geo':
 			$geo = false;
-			foreach ($zz['fields'] as $field) {
-				if (!isset($field['geocode'])) continue;
+			if (zz_module_fieldcheck($zz, 'geocode')) {
 				$geo = true;
-				break;
-			}
-			if (zz_module_fieldcheck($zz, 'number_type', 'latitude')) {
+			} elseif (zz_module_fieldcheck($zz, 'number_type', 'latitude')) {
 				$geo = true;
 			} elseif (zz_module_fieldcheck($zz, 'number_type', 'longitude')) {
 				$geo = true;
@@ -189,19 +186,19 @@ function zz_dependent_modules($zz) {
 /**
  * checks whether fields contain a value for a certain key
  *
- * @param array @zz
- * @param string @key
+ * @param array $zz
+ * @param string $key
  * @param string $type field type
  * @return
  */
-function zz_module_fieldcheck($zz, $key, $type) {
+function zz_module_fieldcheck($zz, $key, $type = '') {
 	foreach ($zz['fields'] as $field) {
-		if (!empty($field[$key]) AND $field[$key] === $type) {
+		if (zz_module_fieldchecks($field, $key, $type)) {
 			return true;
 		}
 		if (!empty($field['if'])) {
 			foreach ($field['if'] as $condfield) {
-				if (!empty($condfield[$key]) AND $condfield[$key] === $type) {
+				if (zz_module_fieldchecks($condfield, $key, $type)) {
 					return true;
 				}
 			}
@@ -209,17 +206,34 @@ function zz_module_fieldcheck($zz, $key, $type) {
 		if (empty($field['fields'])) continue;
 		foreach ($field['fields'] as $index => $subfield) {
 			if (!is_array($subfield)) continue;
-			if (!empty($subfield[$key]) AND $subfield[$key] === $type) {
+			if (zz_module_fieldchecks($subfield, $key, $type)) {
 				return true;
 			}
 			if (empty($subfield['if'])) continue;
 			foreach ($subfield['if'] as $condfield) {
-				if (!empty($condfield[$key]) AND $condfield[$key] === $type) {
+				if (zz_module_fieldchecks($condfield, $key, $type)) {
 					return true;
 				}
 			}
 		}
 	}
+	return false;
+}
+
+/**
+ * check a field if key exists or if key equals type
+ *
+ * @param array $field
+ * @param string $key
+ * @param string $type field type
+ * @return bool
+ */
+function zz_module_fieldchecks($field, $key, $type) {
+	if (!is_array($field)) return false;
+	if (!array_key_exists($key, $field)) return false;
+	if (!$field[$key]) return false;
+	if (!$type) return true;
+	if ($field[$key] === $type) return true;
 	return false;
 }
 
