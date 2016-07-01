@@ -65,8 +65,8 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 			continue;
 		}
 		$zz_tab[0]['geocode'] = true;
-		if (!isset($zz_tab[0]['hooks']['before_upload']))
-			$zz_tab[0]['hooks']['before_upload'] = true;
+		if (!isset($zz_tab[0]['hooks']['after_validation']))
+			$zz_tab[0]['hooks']['after_validation'] = true;
 		break;
 	}
 	$zz_tab[0]['record_action'] = false;

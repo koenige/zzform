@@ -68,6 +68,10 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 
 	$zz_tab = zz_action_validate($zz_tab);
 
+	// hook, if an action directly after validation is required
+	// e. g. geocoding
+	list($ops, $zz_tab) = zz_action_hook($ops, $zz_tab, 'after_validation', 'validated');
+
 	// check referential integrity
 	if ($zz_conf['check_referential_integrity']) {
 		// get table relations
@@ -702,7 +706,7 @@ function zz_action_function($type, $ops, $zz_tab) {
 	}
 
 	$change = array();
-	if (!empty($zz_tab[0]['geocode']) AND $type === 'before_upload') {
+	if (!empty($zz_tab[0]['geocode']) AND $type === 'after_validation') {
 		$change = zz_geo_geocode($ops, $zz_tab);
 	}
 	if ($zz_tab[0]['hooks'][$type] !== true) {
@@ -724,7 +728,9 @@ function zz_action_function($type, $ops, $zz_tab) {
 		}
 	}
 	if ($change) {
-		$record_replace = array('before_upload', 'before_insert', 'before_update');
+		$record_replace = array(
+			'before_upload', 'after_validation', 'before_insert', 'before_update'
+		);
 		if (!in_array($type, $record_replace)) {
 			if (array_key_exists('record_replace', $change)
 				AND !empty($change['record_replace'])) {
@@ -763,6 +769,7 @@ function zz_action_change($ops, $zz_tab, $change) {
 	if (!empty($change['record_replace'])) {
 		// get record definition from planned or not_validated
 		if (!empty($ops['planned'])) $planned = $ops['planned'];
+		elseif (!empty($ops['validated'])) $planned = $ops['validated'];
 		else $planned = $ops['not_validated'];
 		// replace values
 		foreach ($change['record_replace'] as $index => $values) {
@@ -771,7 +778,10 @@ function zz_action_change($ops, $zz_tab, $change) {
 			if (!empty($change['change_info'][$index])) {
 				$zz_tab[$tab][$rec]['change_info'] = $change['change_info'][$index];
 			}
+			$zz_tab[$tab][$rec]['was_validated'] = false;
 		}
+		// revalidate
+		$zz_tab = zz_action_validate($zz_tab);
 	}
 	return array($ops, $zz_tab);
 }
@@ -1088,7 +1098,7 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
  *		'record_new', 'record_old'
  */
 function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
-	if ($zz_tab[$tab][$rec]['action'] === 'ignore') return $ops;
+	if ($type !== 'validated' AND $zz_tab[$tab][$rec]['action'] === 'ignore') return $ops;
 	
 	if (!isset($ops['record_new'])) $ops['record_new'] = array();
 	if (!isset($ops['record_old'])) $ops['record_old'] = array();
@@ -1249,6 +1259,8 @@ function zz_action_validate($zz_tab) {
 				OR $zz_tab[$tab][$rec]['action'] === 'update') {
 				// don't validate record which only will be shown!!
 				if ($zz_tab[$tab][$rec]['access'] === 'show') continue;
+				// no revalidation of already validated records
+				if (!empty($zz_tab[$tab][$rec]['was_validated'])) continue;
 			
 				// first part of validation where field values are independent
 				// from other field values
@@ -1667,6 +1679,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 	}
 
 	// finished
+	$my_rec['was_validated'] = true;
 	return zz_return($my_rec);
 }
 

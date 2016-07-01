@@ -447,15 +447,15 @@ function zz_geo_timestamp_in($value) {
 function zz_geo_geocode($ops, $zz_tab) {
 	global $zz_conf;
 	
-	$geocoding = zz_geo_geocode_fields($ops['not_validated'], $ops['record_new'], $zz_tab);
+	$geocoding = zz_geo_geocode_fields($ops['validated'], $ops['record_new'], $zz_tab);
 	if (!$geocoding) return array();
 	if (!array_key_exists('latlon', $geocoding)) return array();
 	if (!array_key_exists('source', $geocoding)) return array();
 
 	// update coordinates:
 	$update = false;
-	// - if either latitude or longitude are NULL
 	foreach ($geocoding['latlon'] as $type => $f) {
+		// - if either latitude or longitude are NULL
 		$my_field = $zz_tab[$f['tab']][$f['rec']]['fields'][$f['no']];
 		$field = $ops['record_new'][$f['index']][$my_field['field_name']];
 		if (!$field AND $field !== 0 AND $field !== '0') $update = true;
