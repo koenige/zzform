@@ -532,8 +532,6 @@ function zz_conditions_subrecord($zz_tab, $zz_conditions) {
 				if ($zz_tab[$tab]['hierarchy']) {
 					if (!empty($zz_tab[$tab][$rec]['POST'])) {
 						$id_value = $zz_tab[$tab][$rec]['POST'][$zz_tab[$tab]['hierarchy']['id_field_name']];
-					} elseif (!empty($zz_tab[$tab]['POST'][$rec])) {
-						$id_value = $zz_tab[$tab]['POST'][$rec][$zz_tab[$tab]['hierarchy']['id_field_name']];
 					} else {
 						$id_value = '';
 					}

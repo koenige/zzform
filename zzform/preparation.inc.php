@@ -166,6 +166,18 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 		$zz_tab[0][0]['POST'], $zz_tab[0][0]['fields'], $zz_tab[0][0]['existing'],
 		(!empty($zz_var['where'][$zz_tab[0]['table']]) ? $zz_var['where'][$zz_tab[0]['table']] : '')
 	);
+
+	// assign POST values to each subrecord
+	foreach (array_keys($zz_tab) as $tab) {
+		foreach (array_keys($zz_tab[$tab]) as $rec) {
+			if (!is_numeric($rec)) continue;
+			if ($tab) {
+				// main record already assigned
+				$zz_tab[$tab][$rec]['POST'] = $zz_tab[$tab]['POST'][$rec];
+			}
+		}
+	}
+
 	return $zz_tab;
 }
 

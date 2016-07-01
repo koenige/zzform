@@ -48,17 +48,9 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$zz_tab[0]['record_action'] = false;
 
-	// assign POST values to each subrecord
 	foreach (array_keys($zz_tab) as $tab) {
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
 			if (!is_numeric($rec)) continue;
-			if (!$tab) {  // main record already assigned
-				if (!empty($zz_tab[0]['hooks']['before_upload'])) {
-					$ops = zz_record_info($ops, $zz_tab, $tab, $rec, 'not_validated');
-				}
-				continue;
-			}
-			$zz_tab[$tab][$rec]['POST'] = $zz_tab[$tab]['POST'][$rec];
 			if (!empty($zz_tab[0]['hooks']['before_upload'])) {
 				$ops = zz_record_info($ops, $zz_tab, $tab, $rec, 'not_validated');
 			}
@@ -77,7 +69,6 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	
 	//	### Check for validity, do some operations ###
 	if (!empty($zz_var['upload_form'])) {
-		// do only for zz_tab 0 0 etc. not zz_tab 0 sql etc.
 		// read upload image information, as required
 		$zz_tab = zz_upload_get($zz_tab);
 		if ($zz_var['action'] !== 'delete') {
