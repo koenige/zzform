@@ -92,6 +92,12 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 		$zz_tab[$tab] = zz_get_subrecords(
 			$mode, $zz['fields'][$no], $zz_tab[$tab], $zz_tab[0], $zz_var, $tab
 		);
+		foreach (array_keys($zz_tab[$tab]) as $rec) {
+			if (!is_numeric($rec)) continue;
+			if (empty($zz_tab[$tab]['POST'][$rec])) continue;
+			$zz_tab[$tab][$rec]['POST'] = $zz_tab[$tab]['POST'][$rec];
+			unset($zz_tab[$tab]['POST'][$rec]);
+		}
 		if ($zz_error['error']) return array();
 		if (isset($zz_tab[$tab]['subtable_focus'])) {
 			// set autofocus on subrecord, not on main record
@@ -124,7 +130,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 		foreach ($existing as $index => $existing_rec) {
 			$zz_tab[0][$index]['existing'] = $existing_rec;
 		}
-		// @todo: think about sqlextra
+		// @todo think about sqlextra
 	} else {
 		$zz_tab[0][0]['existing'] = array();
 	}
@@ -166,17 +172,6 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 		$zz_tab[0][0]['POST'], $zz_tab[0][0]['fields'], $zz_tab[0][0]['existing'],
 		(!empty($zz_var['where'][$zz_tab[0]['table']]) ? $zz_var['where'][$zz_tab[0]['table']] : '')
 	);
-
-	// assign POST values to each subrecord
-	foreach (array_keys($zz_tab) as $tab) {
-		foreach (array_keys($zz_tab[$tab]) as $rec) {
-			if (!is_numeric($rec)) continue;
-			if ($tab) {
-				// main record already assigned
-				$zz_tab[$tab][$rec]['POST'] = $zz_tab[$tab]['POST'][$rec];
-			}
-		}
-	}
 
 	return $zz_tab;
 }
