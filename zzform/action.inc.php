@@ -70,7 +70,9 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 
 	// hook, if an action directly after validation is required
 	// e. g. geocoding
-	list($ops, $zz_tab) = zz_action_hook($ops, $zz_tab, 'after_validation', 'validated');
+	if ($zz_var['action'] !== 'delete') {
+		list($ops, $zz_tab) = zz_action_hook($ops, $zz_tab, 'after_validation', 'validated');
+	}
 
 	// check referential integrity
 	if ($zz_conf['check_referential_integrity']) {
