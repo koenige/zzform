@@ -995,7 +995,6 @@ function zz_check_details($zz) {
 	}
 	if (empty($_SESSION['zzform'])) return $zz;
 
-	wrap_error('ID before: '.$zz_conf['id']);
 	foreach ($_SESSION['zzform'] as $id => $data) {
 		$data = array_reverse($data);
 		foreach ($data as $no => $form) {
@@ -1031,8 +1030,6 @@ function zz_check_details($zz) {
 			}
 		}
 	}
-	wrap_error('LAST ID: '.$_SESSION['zzform_last_id']);
-	wrap_error('ID after: '.$zz_conf['id']);
 	return $zz;
 }
 
