@@ -153,7 +153,8 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	// get rid of some POST values that are used at another place
 	$internal_fields = array(
 		'MAX_FILE_SIZE', 'zz_check_select', 'zz_action', 'zz_subtables',
-		'zz_delete_file', 'zz_referer', 'zz_save_record', 'zz_subtable_ids'
+		'zz_delete_file', 'zz_referer', 'zz_save_record', 'zz_subtable_ids',
+		'zz_id'
 	);
 	$zz_tab[0][0]['POST'] = array();
 	foreach (array_keys($_POST) AS $key) {

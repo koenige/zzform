@@ -525,10 +525,16 @@ function zz_initialize($mode = false) {
 			}
 		}
 		zz_initialize_int();
-		$zz_conf['id'] = mt_rand();
+		if (empty($zz_conf['id'])) {
+			if (!empty($_POST['zz_id'])) $zz_conf['id'] = $_POST['zz_id'];
+			else $zz_conf['id'] = mt_rand();
+		}
 		return true;
 	}
-	$zz_conf['id'] = mt_rand();
+	if (empty($zz_conf['id'])) {
+		if (!empty($_POST['zz_id'])) $zz_conf['id'] = $_POST['zz_id'];
+		else $zz_conf['id'] = mt_rand();
+	}
 
 	// Configuration on project level: Core defaults and functions
 	$default['character_set']	= 'utf-8';					// character set

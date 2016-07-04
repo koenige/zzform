@@ -4,11 +4,11 @@
  * zzform
  * Display of single record as a html form+table or for review as a table
  *
- * Part of »Zugzwang Project«
+ * Part of Â»Zugzwang ProjectÂ«
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2016 Gustaf Mossakowski
+ * @copyright Copyright Â© 2004-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -90,6 +90,7 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 		if (!empty($zz_var['upload_form'])) 
 			$output .= ' enctype="multipart/form-data"';
 		$output .= ' accept-charset="'.$zz_conf['character_set'].'">';
+		$output .= sprintf('<input type="hidden" name="zz_id" value="%d">', $zz_conf['id']);
 	}
 
 	// Heading inside HTML form element
