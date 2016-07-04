@@ -600,7 +600,7 @@ function zz_output_backlink($zz_tab = array()) {
 
 	return sprintf(
 		'<p id="back-overview"><a href="%s">%s</a></p>'."\n",
-		$link, zz_text('back-to-overview')
+		$link, zz_text($zz_conf['referer_text'])
 	);
 }
 

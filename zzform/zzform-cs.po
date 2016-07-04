@@ -28,7 +28,7 @@ msgid "records"
 msgstr "záznamy"
 
 #: Page elements
-msgid "back-to-overview"
+msgid "Back to overview"
 msgstr "Zpět na přehled"
 
 #: Page elements

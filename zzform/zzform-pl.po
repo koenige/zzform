@@ -29,7 +29,7 @@ msgid "records"
 msgstr "Wpisy"
 
 #: Page elements
-msgid "back-to-overview"
+msgid "Back to overview"
 msgstr "Z powrotem do podglądu"
 
 #: Page elements

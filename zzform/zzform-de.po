@@ -28,7 +28,7 @@ msgid "records"
 msgstr "Einträge"
 
 #: Page elements
-msgid "back-to-overview"
+msgid "Back to overview"
 msgstr "Zurück zur Übersicht"
 
 #: Page elements

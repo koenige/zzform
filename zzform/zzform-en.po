@@ -28,7 +28,7 @@ msgid "records"
 msgstr ""
 
 #: Page elements
-msgid "back-to-overview"
+msgid "Back to overview"
 msgstr "Back to overview"
 
 #: Page elements
