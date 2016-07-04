@@ -31,6 +31,11 @@ msgstr ""
 msgid "Back to overview"
 msgstr ""
 
+# Link to go back to the last form if a new detail record was added
+#: Page elements
+msgid "Back to last form"
+msgstr ""
+
 #: Page elements
 msgid "page"
 msgstr ""

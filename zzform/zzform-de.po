@@ -31,6 +31,11 @@ msgstr "Einträge"
 msgid "Back to overview"
 msgstr "Zurück zur Übersicht"
 
+# Link to go back to the last form if a new detail record was added
+#: Page elements
+msgid "Back to last form"
+msgstr "Zurück zum letzten Formular"
+
 #: Page elements
 msgid "page"
 msgstr "Seite"

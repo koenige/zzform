@@ -13,14 +13,14 @@ msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform\n"
 "POT-Creation-Date: \n"
 "PO-Revision-Date: \n"
+"Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
+"Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.8.6\n"
-"Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
-"Language: en\n"
+"X-Generator: Poedit 1.8.7\n"
 
 # Number of records as shown in page TITLE
 #: Page elements
@@ -30,6 +30,11 @@ msgstr ""
 #: Page elements
 msgid "Back to overview"
 msgstr "Back to overview"
+
+# Link to go back to the last form if a new detail record was added
+#: Page elements
+msgid "Back to last form"
+msgstr ""
 
 #: Page elements
 msgid "page"
@@ -768,4 +773,8 @@ msgstr "Error from database operation"
 
 #: Backend: Development, Error mail
 msgid "The following error(s) occured in project %s:"
+msgstr ""
+
+#: Auto complete
+msgid "No record was found."
 msgstr ""
