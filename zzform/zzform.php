@@ -998,7 +998,7 @@ function zz_check_details($zz) {
 	foreach ($_SESSION['zzform'] as $id => $data) {
 		$data = array_reverse($data);
 		foreach ($data as $no => $form) {
-			if ($form['destination'] === $_SERVER['REQUEST_URI']) {
+			if ($form['destination'] === substr($_SERVER['REQUEST_URI'], -strlen($form['destination']))) {
 				wrap_session_start();
 				$_SESSION['zzform'][$id][$no]['requested'] = true;
 				session_write_close();
@@ -1089,6 +1089,9 @@ function zz_add_details($zz) {
 	unset($_POST['zz_check_select']);
 	unset($_POST['zz_add_details']);
 	unset($_POST['zz_action']);
+	unset($_POST['zz_id']);
+	unset($_POST['zz_subtable_ids']);
+	unset($_POST['zz_referer']);
 	wrap_session_start();
 	$_SESSION['zzform'][$id][] = array(
 		'post' => $_POST,
