@@ -479,7 +479,6 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 	// q: show search form if empty search result occured as well
 	if (!$total_rows AND !isset($_GET['q'])) return $search_form;
 
-	$output = '';
 	$self = $zz_conf['int']['url']['self'];
 	// fields that won't be used for search
 	$unsearchable_fields = array('image', 'calculated', 'timestamp', 'upload_image', 'option');
