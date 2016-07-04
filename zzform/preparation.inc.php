@@ -1100,6 +1100,10 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
 			} elseif ($my_rec['access'] === 'show' AND !empty($my_rec['POST'])) {
 				$my_rec['record'] = $my_rec['POST'];
 			}
+		} elseif ($mode === 'add' AND !empty($zz_conf['int']['add_details_return'])) {
+			if (!empty($my_rec['POST'])) {
+				$my_rec['record'] = $my_rec['POST'];
+			}
 		} elseif ($mode === 'add' AND !empty($my_rec['id']['source_value'])) {
 			if (!empty($my_rec['POST'])) {
 				// no need to requery, we already did query a fresh record

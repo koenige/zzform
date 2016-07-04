@@ -1083,13 +1083,27 @@ function zz_record_add_details($field, $mode, $tab, $rec, $fieldkey) {
 			'hidden', 'predefined', 'write_once', 'display'
 		))) return '';
 	}
-
-	$add_details_sep = strstr($field['add_details'], '?') ? '&amp;' : '?';
-	$text = ' <a href="'.$field['add_details'].$add_details_sep
-		.'mode=add&amp;referer='.urlencode($_SERVER['REQUEST_URI'])
-		.$zz_conf['int']['add_details_where'].'"'
-		.(!empty($field['add_details_target']) ? ' target="'.$field['add_details_target'].'"' : '')
-		.' id="zz_add_details_'.$tab.'_'.$rec.'_'.$fieldkey.'">['.zz_text('new').' &hellip;]</a>';
+	
+	if (!empty($_SESSION['logged_in'])) {
+		if ($tab) {
+			$name = sprintf('zz_add_details[%s-%d-%d-%d-%d]',
+				$zz_conf['id'], $field['subtable_no'], $fieldkey, $tab, $rec
+			);
+		} else {
+			$name = sprintf('zz_add_details[%s-%d-%d-%d]',
+				$zz_conf['id'], $fieldkey, $tab, $rec
+			);
+		}
+		$text = ' <input type="submit" name="%s" value="%s">';
+		$text = sprintf($text, $name, zz_text('New …'));
+	} else {
+		$add_details_sep = strstr($field['add_details'], '?') ? '&amp;' : '?';
+		$text = ' <a href="'.$field['add_details'].$add_details_sep
+			.'mode=add&amp;referer='.urlencode($_SERVER['REQUEST_URI'])
+			.$zz_conf['int']['add_details_where'].'"'
+			.(!empty($field['add_details_target']) ? ' target="'.$field['add_details_target'].'"' : '')
+			.' id="zz_add_details_'.$tab.'_'.$rec.'_'.$fieldkey.'">['. zz_text('New …').']</a>';
+	}
 	return $text;
 }
 

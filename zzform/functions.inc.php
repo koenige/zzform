@@ -1152,6 +1152,8 @@ function zz_record_access($zz, $ops, $zz_var) {
 			unset($_POST['zz_action']);
 		}
 		$zz_var['query_records'] = true;
+	} elseif (!empty($zz_conf['int']['add_details_return'])) {
+		$zz_var['query_records'] = true;
 	} else {
 		$zz_var['query_records'] = false;
 	}

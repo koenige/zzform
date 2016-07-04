@@ -67,6 +67,10 @@ function zzform($zz) {
 		return zzform_exit($ops);
 	}
 
+	if (empty($zz_conf['multi'])) {
+		$zz = zz_check_details($zz);
+	}
+
 	$zz_conf['int']['access'] = isset($zz['access']) ? $zz['access'] : (isset($zz_conf['access']) ? $zz_conf['access'] : '');
 
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
@@ -974,4 +978,128 @@ function zzform_post_too_big() {
 		$_GET = array_merge($_GET, $query);
 	}
 	return true;
+}
+
+/**
+ * check if form was called via 'add_details'
+ *
+ * @param array $zz
+ * @return array $zz
+ */
+function zz_check_details($zz) {
+	global $zz_conf;
+	if (!empty($_POST['zz_add_details'])) {
+		zz_add_details($zz);
+		// on success: redirect
+		return $zz;
+	}
+	if (empty($_SESSION['zzform'])) return $zz;
+
+	wrap_error('ID before: '.$zz_conf['id']);
+	foreach ($_SESSION['zzform'] as $id => $data) {
+		$data = array_reverse($data);
+		foreach ($data as $no => $form) {
+			if ($form['destination'] === $_SERVER['REQUEST_URI']) {
+				wrap_session_start();
+				$_SESSION['zzform'][$id][$no]['requested'] = true;
+				session_write_close();
+				$zz_conf['id'] = $id;
+				foreach ($zz['fields'] as $no => $field) {
+					if (empty($field['add_details_destination'])) continue;
+					$zz['fields'][$no]['default'] = $form['value'];
+				}
+				$zz_conf['id'] = $id;
+				$zz_conf['int']['show_list'] = false;
+			} elseif ($form['source'] === $_SERVER['REQUEST_URI'] AND $form['requested']) {
+				$_POST = $form['post'];
+				$_GET = array_merge($_GET, $form['get']);
+				$zz_conf['id'] = $id;
+				$zz_conf['int']['add_details_return'] = true;
+				wrap_session_start();
+				unset($_SESSION['zzform'][$id][$no]);
+				if (empty($_SESSION['zzform'][$id])) {
+					unset($_SESSION['zzform'][$id]);
+				}
+				session_write_close();
+			} elseif (!empty($_SESSION['zzform_last_id'])
+				AND $_SESSION['zzform_last_id'] == $id AND $form['requested']) {
+				$zz_conf['id'] = $id;
+				$zz_conf['int']['show_list'] = false;
+				$zz_conf['referer'] = $form['source'];
+				$zz_conf['referer_text'] = 'Back to last form';
+				zz_init_referer();
+			}
+		}
+	}
+	wrap_error('LAST ID: '.$_SESSION['zzform_last_id']);
+	wrap_error('ID after: '.$zz_conf['id']);
+	return $zz;
+}
+
+/**
+ * redirect to another table to add missing detail record
+ * 
+ * @param array $zz
+ * @return bool false if there's an error
+ */
+function zz_add_details($zz) {
+	if (empty($_SESSION['logged_in'])) return false;
+
+	$add_details = key($_POST['zz_add_details']);
+	$add_details = explode('-', $add_details);
+	if (count($add_details) === 4) {
+		list($id, $field_no) = $add_details;
+		$subtable_no = false;
+	} else {
+		list($id, $subtable_no, $field_no, $tab, $rec) = $add_details;
+	}
+
+	foreach ($zz['fields'] as $no => $field) {
+		if ($subtable_no AND $no == $subtable_no) {
+			foreach ($field['fields'] as $sub_no => $sub_field) {
+				if ($sub_no == $field_no) {
+					// @todo check if correct
+					$posted_value = $_POST[$field['table_name']][$rec][$sub_field['field_name']];
+				}
+			}
+		} elseif ($no == $field_no) {
+			$posted_value = $_POST[$field['field_name']];
+		}
+		if (empty($field['type'])) continue;
+		if ($field['type'] !== 'id') continue;
+		$id_field_name = $field['field_name'];
+	}
+
+	if ($subtable_no) {
+		$field = $zz['fields'][$subtable_no]['fields'][$field_no];
+	} else {
+		$field = $zz['fields'][$field_no];
+	}
+	if (empty($field['add_details'])) return false;
+	
+	$redirect_to = $field['add_details'];
+	$redirect_to .= strstr($field['add_details'], '?') ? '&' : '?';
+	$redirect_to .= 'mode=add';
+
+	$source = $_SERVER['REQUEST_URI'];
+	$source .= strstr($source, '?') ? '&' : '?';
+	if ($_POST['zz_action'] === 'insert') {
+		$source .= 'mode=add';
+	} else {
+		$source .= sprintf('mode=edit&id=%d', $_POST[$id_field_name]);
+	}
+	unset($_POST['zz_check_select']);
+	unset($_POST['zz_add_details']);
+	unset($_POST['zz_action']);
+	wrap_session_start();
+	$_SESSION['zzform'][$id][] = array(
+		'post' => $_POST,
+		'get' => $_GET,
+		'source' => $source,
+		'destination' => $redirect_to,
+		'value' => $posted_value
+	);
+
+	wrap_http_status_header(303);
+	header('Location: '.$redirect_to);
 }

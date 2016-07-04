@@ -41,8 +41,8 @@ msgstr ""
 
 # Link to add a new value for detail record via dropdown
 #: Record form
-msgid "new"
-msgstr "New"
+msgid "New …"
+msgstr "New …"
 
 # @todo check if deprecated
 #: Record form: Heading
