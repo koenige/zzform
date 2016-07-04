@@ -320,12 +320,16 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 	$th = !empty($zz_conf['int']['hide_tfoot_th']) ? '' : '<th>&nbsp;</th> ';
 	
 	$output = '';
-	$cancelurl = $zz_conf['int']['url']['self'];
-	if ($base_qs = $zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']) {
-		$unwanted_keys = array(
-			'mode', 'id', 'add', 'delete', 'insert', 'update', 'noupdate', 'zzhash'
-		);
-		$cancelurl.= zz_edit_query_string($base_qs, $unwanted_keys);
+	if (!empty($zz_conf['int']['cancel_url'])) {
+		$cancelurl = $zz_conf['int']['cancel_url'];
+	} else {
+		$cancelurl = $zz_conf['int']['url']['self'];
+		if ($base_qs = $zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']) {
+			$unwanted_keys = array(
+				'mode', 'id', 'add', 'delete', 'insert', 'update', 'noupdate', 'zzhash'
+			);
+			$cancelurl .= zz_edit_query_string($base_qs, $unwanted_keys);
+		}
 	}
 	if ($mode && $mode !== 'review' && $mode !== 'show') {
 		$output .= '<tr>'.$th.'<td>'; 

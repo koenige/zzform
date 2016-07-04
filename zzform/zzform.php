@@ -1009,6 +1009,7 @@ function zz_check_details($zz) {
 				}
 				$zz_conf['id'] = $id;
 				$zz_conf['int']['show_list'] = false;
+				$zz_conf['int']['cancel_url'] = $form['source'];
 			} elseif ($form['source'] === $_SERVER['REQUEST_URI'] AND $form['requested']) {
 				$_POST = $form['post'];
 				$_GET = array_merge($_GET, $form['get']);
