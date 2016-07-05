@@ -529,16 +529,10 @@ function zz_initialize($mode = false) {
 			}
 		}
 		zz_initialize_int();
-		if (empty($zz_conf['id'])) {
-			if (!empty($_POST['zz_id'])) $zz_conf['id'] = $_POST['zz_id'];
-			else $zz_conf['id'] = wrap_randhom_hash(6);
-		}
+		zz_set_id();
 		return true;
 	}
-	if (empty($zz_conf['id'])) {
-		if (!empty($_POST['zz_id'])) $zz_conf['id'] = $_POST['zz_id'];
-		else $zz_conf['id'] = wrap_randhom_hash(6);
-	}
+	zz_set_id();
 
 	// Configuration on project level: Core defaults and functions
 	$default['character_set']	= 'utf-8';					// character set
@@ -675,6 +669,25 @@ function zz_initialize($mode = false) {
 	$zz_conf['zzform_init'] = true;
 	$zz_saved['conf'] = $zz_conf;
 	zz_return(true);
+}
+
+/**
+ * create an ID for zzform for internal purposes
+ *
+ * @param void
+ * @global array $zz_conf
+ */
+function zz_set_id() {
+	global $zz_conf;
+	if (!empty($zz_conf['id'])) return;
+	if (!empty($_GET['zz']) AND strlen($_GET['zz']) === 6) {
+		$zz_conf['id'] = $_GET['zz'];
+	} elseif (!empty($_POST['zz_id']) AND strlen($_POST['zz_id']) === 6) {
+		$zz_conf['id'] = $_POST['zz_id'];
+	} else {
+		$zz_conf['id'] = wrap_random_hash(6);
+	}
+	return;
 }
 
 /**
