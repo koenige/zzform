@@ -300,11 +300,6 @@ function zz_output_redirect($result, $return, $id_value, $zz_tab) {
 			exit;
 		case 'successful_insert':
 			wrap_http_status_header(303);
-			if (!empty($_SESSION['zzform'])) {
-				wrap_session_start();
-				$_SESSION['zzform_last_id'] = $zz_conf['id'];
-				session_write_close();
-			}
 			header('Location: '.$self.'insert='.$id_value.$secure);
 			exit;
 		case 'successful_update':
