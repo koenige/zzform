@@ -531,13 +531,13 @@ function zz_initialize($mode = false) {
 		zz_initialize_int();
 		if (empty($zz_conf['id'])) {
 			if (!empty($_POST['zz_id'])) $zz_conf['id'] = $_POST['zz_id'];
-			else $zz_conf['id'] = mt_rand();
+			else $zz_conf['id'] = wrap_randhom_hash(6);
 		}
 		return true;
 	}
 	if (empty($zz_conf['id'])) {
 		if (!empty($_POST['zz_id'])) $zz_conf['id'] = $_POST['zz_id'];
-		else $zz_conf['id'] = mt_rand();
+		else $zz_conf['id'] = wrap_randhom_hash(6);
 	}
 
 	// Configuration on project level: Core defaults and functions
