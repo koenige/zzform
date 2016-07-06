@@ -645,8 +645,10 @@ function zz_nice_tablenames($table) {
 function zz_extra_get_params($mode, $zz_conf) {
 	// Extra GET Parameter
 	$keep_query = array();
-	$keep_fields = array('where', 'var', 'order', 'group', 'q', 'scope', 'dir', 
-		'referer', 'url', 'nolist', 'filter', 'debug');
+	$keep_fields = array(
+		'where', 'var', 'order', 'group', 'q', 'scope', 'dir', 'referer',
+		'url', 'nolist', 'filter', 'debug', 'zz'
+	);
 	if ($mode === 'add') {
 		$keep_fields[] = 'add';
 	}
