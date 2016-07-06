@@ -596,7 +596,8 @@ function zz_geo_geocode_address($geocoding, $zz_tab, $new) {
 			$sql = sprintf($my_field['geocode_sql'], $value);
 			$value = zz_db_fetch($sql, '', 'single value');
 		}
-		if ($zz_conf['character_set'] !== 'utf-8' AND $value) {
+		if (!$value) continue;
+		if ($zz_conf['character_set'] !== 'utf-8') {
 			// @todo support more encodings than iso-8859-1 and utf-8
 			$value = iconv(strtoupper($zz_conf['character_set']), 'UTF-8', $value);
 		}
