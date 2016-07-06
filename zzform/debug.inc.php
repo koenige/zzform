@@ -40,7 +40,6 @@ function zz_debug_config() {
  *		'function' (name of function __FUNCTION__), 'function_time' (microtime 
  *		at which function started), 'timer', ...
  * @return string			HTML output
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_debug($marker = false, $text = false, $id = false) {
 	global $zz_debug;
@@ -91,14 +90,11 @@ function zz_debug($marker = false, $text = false, $id = false) {
  * 
  * @global array $zz_debug	$zz_debug['output'] as returned from zz_debug()
  * @return string			HTML output
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_debug_htmlout($id = false) {
+function zz_debug_htmlout() {
 	global $zz_debug;
-	if (!$id) {
-		global $zz_conf;
-		$id = $zz_conf['id'];
-	}
+	global $zz_conf;
+	$id = $zz_conf['id'];
 
 	$output = '<h1>'.zz_text('Debug Information').'</h1>';
 	$output .= '<table class="data debugtable"><thead>'."\n".'<tr><th>'
@@ -154,10 +150,9 @@ function zz_debug_time($return = array()) {
 	zz_error();
 }
 
-function zz_debug_unset($id = false) {
+function zz_debug_unset() {
 	global $zz_debug;
 	global $zz_conf;
 
-	if (!$id) $id = $zz_conf['id'];
-	unset($zz_debug[$id]);
+	unset($zz_debug[$zz_conf['id']]);
 }
