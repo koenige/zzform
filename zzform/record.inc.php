@@ -1098,7 +1098,7 @@ function zz_record_add_details($field, $mode, $tab, $rec, $fieldkey) {
 				$zz_conf['id'], $fieldkey, $tab, $rec
 			);
 		}
-		$text = ' <input type="submit" name="%s" value="%s">';
+		$text = ' <input type="submit" name="%s" value="%s" formnovalidate="formnovalidate">';
 		$text = sprintf($text, $name, zz_text('New …'));
 	} else {
 		$add_details_sep = strstr($field['add_details'], '?') ? '&amp;' : '?';
