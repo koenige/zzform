@@ -682,7 +682,7 @@ function zz_initialize($mode = false) {
  */
 function zz_set_id() {
 	global $zz_conf;
-	if (!empty($zz_conf['id'])) return;
+	if (!empty($zz_conf['id']) AND empty($zz_conf['multi'])) return;
 	if (!empty($_GET['zz']) AND strlen($_GET['zz']) === 6) {
 		$zz_conf['id'] = $_GET['zz'];
 	} elseif (!empty($_POST['zz_id']) AND strlen($_POST['zz_id']) === 6) {
