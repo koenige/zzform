@@ -124,7 +124,7 @@ function zz_details_start($zz) {
 	} else {
 		$source .= sprintf('mode=edit&id=%d', $_POST[$id_field_name]);
 	}
-	foreach ($zz_conf['int']['internal_fields'] as $fname) {
+	foreach ($zz_conf['int']['internal_post_fields'] as $fname) {
 		unset($_POST[$fname]);
 	}
 	wrap_session_start();
