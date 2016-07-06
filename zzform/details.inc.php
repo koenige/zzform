@@ -127,8 +127,7 @@ function zz_details_start($zz) {
 	foreach ($zz_conf['int']['internal_post_fields'] as $fname) {
 		unset($_POST[$fname]);
 	}
-	wrap_session_start();
-	$_SESSION['zzform'][$id][] = array(
+	$session = array(
 		'post' => $_POST,
 		'get' => $_GET,
 		'source' => $source,
@@ -138,6 +137,21 @@ function zz_details_start($zz) {
 		'destination_script' => zz_url_basename($redirect_to),
 		'new_value' => $posted_value
 	);
+	// overwrite existing SESSION entries with same source script
+	// if more than one detail record is added
+	$existing = NULL;
+	if (!empty($_SESSION['zzform'][$id])) {
+		foreach ($_SESSION['zzform'][$id] as $index => $form) {
+			if ($form['source_script'] !== $session['source_script']) continue;
+			$existing = $index;
+		}
+	}
+	wrap_session_start();
+	if (isset($existing)) {
+		$_SESSION['zzform'][$id][$existing] = $session;
+	} else {
+		$_SESSION['zzform'][$id][] = $session;
+	}
 
 	wrap_http_status_header(303);
 	header('Location: '.$redirect_to);
