@@ -151,14 +151,9 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	}
 
 	// get rid of some POST values that are used at another place
-	$internal_fields = array(
-		'MAX_FILE_SIZE', 'zz_check_select', 'zz_action', 'zz_subtables',
-		'zz_delete_file', 'zz_referer', 'zz_save_record', 'zz_subtable_ids',
-		'zz_id'
-	);
 	$zz_tab[0][0]['POST'] = array();
 	foreach (array_keys($_POST) AS $key) {
-		if (in_array($key, $internal_fields)) continue;
+		if (in_array($key, $zz_conf['int']['internal_post_fields'])) continue;
 		$zz_tab[0][0]['POST'][$key] = wrap_normalize($_POST[$key]);
 	}
 	//  POST is secured, now get rid of password fields in case of error_log_post

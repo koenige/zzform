@@ -720,6 +720,12 @@ function zz_initialize_int() {
 
 		zz_init_referer();
 	}
+
+	$zz_conf['int']['internal_post_fields'] = array(
+		'MAX_FILE_SIZE', 'zz_check_select', 'zz_action', 'zz_subtables',
+		'zz_delete_file', 'zz_referer', 'zz_save_record', 'zz_subtable_ids',
+		'zz_id'
+	);
 }
 
 /**
