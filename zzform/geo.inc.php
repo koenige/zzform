@@ -479,6 +479,7 @@ function zz_geo_geocode($ops, $zz_tab) {
 	if (!$update) return array();
 
 	$address = zz_geo_geocode_address($geocoding, $zz_tab, $ops['record_new']);
+	if (count($address) === 1 AND array_key_exists('place', $address)) return array();
 	if (!$address) return array();
 
 	if (empty($zz_conf['geocoding_function'])) {
