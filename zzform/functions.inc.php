@@ -263,9 +263,7 @@ function zz_get_url_self($url_self) {
 		? $_SERVER['HTTP_HOST']
 		: $_SERVER['SERVER_NAME'];
 	$url['base'] = $url['scheme'].'://'.$host;
-	if (($url['scheme'] === 'http' AND $_SERVER['SERVER_PORT'] != 80)
-		OR ($url['scheme'] === 'https' AND $_SERVER['SERVER_PORT'] != 443)
-	) {
+	if (!in_array($_SERVER['SERVER_PORT'], array(80, 443)) {
 		$url['base'] .= sprintf(':%s', $_SERVER['SERVER_PORT']);
 	}
 
