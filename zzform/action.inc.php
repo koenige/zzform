@@ -782,8 +782,10 @@ function zz_action_change($ops, $zz_tab, $change) {
 			}
 			$zz_tab[$tab][$rec]['was_validated'] = false;
 		}
-		// revalidate
-		$zz_tab = zz_action_validate($zz_tab);
+		// revalidate, but not if no validation has taken place before
+		if (!array_key_exists('not_validated', $ops)) {
+			$zz_tab = zz_action_validate($zz_tab);
+		}
 	}
 	return array($ops, $zz_tab);
 }
