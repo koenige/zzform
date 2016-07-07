@@ -36,7 +36,7 @@ function zz_log_sql($sql, $user, $record_id = false) {
 	global $zz_conf;
 	// logs each INSERT, UPDATE or DELETE query
 	// with record_id
-	if (!mysql_affected_rows()) return false;
+	if (!mysqli_affected_rows($zz_conf['db_connection'])) return false;
 	$sql = trim($sql);
 	if ($sql === 'SELECT 1') return false;
 	// check if zzform() set db_main, test against !empty because need not be set
@@ -57,7 +57,7 @@ function zz_log_sql($sql, $user, $record_id = false) {
 			$zz_conf['logging_table'], wrap_db_escape($sql), $user
 		);
 	}
-	$result = mysql_query($sql);
+	$result = mysqli_query($zz_conf['db_connection'], $sql);
 	if (!$result) return false;
 	else return true;
 	// die if logging is selected but does not work?
@@ -219,8 +219,14 @@ function zz_db_connection($table) {
 	// might be that there was no database connection established so far
 	// therefore the @, but it does not matter because we simply want to
 	// revert to the current database after exitting this script
-	$result = @mysql_query('SELECT DATABASE()');
-	$zz_conf['int']['db_current'] = $result ? mysql_result($result, 0, 0) : '';
+	$result = @mysqli_query($zz_conf['db_connection'], 'SELECT DATABASE()');
+	if ($result) {
+		mysqli_data_seek($result, 0);
+		$line = mysqli_fetch_row($result);
+		$zz_conf['int']['db_current'] = reset($line);
+	} else {
+		$zz_conf['int']['db_current'] = '';
+	}
 	// main database normally is the same db that zzform() uses for its
 	// operations, but if you use several databases, this is the one which
 	// is the main db, i. e. the one that will be used if no other database
@@ -236,7 +242,7 @@ function zz_db_connection($table) {
 		$db = zz_db_select($zz_conf['db_name']);
 		if (!$db) {
 			$zz_error[] = array(
-				'db_msg' => mysql_error(),
+				'db_msg' => mysqli_error($zz_conf['db_connection']),
 				'query' => 'SELECT DATABASE("'.$zz_conf['db_name'].'")',
 				'level' => E_USER_ERROR
 			);
@@ -245,16 +251,18 @@ function zz_db_connection($table) {
 		}
 	// 2. alternative: use current database
 	} else {
-		$result = mysql_query('SELECT DATABASE()');
-		if (mysql_error()) {
+		$result = mysqli_query($zz_conf['db_connection'], 'SELECT DATABASE()');
+		if (mysqli_error($zz_conf['db_connection'])) {
 			$zz_error[] = array(
-				'db_msg' => mysql_error(),
+				'db_msg' => mysqli_error($zz_conf['db_connection']),
 				'query' => 'SELECT DATABASE()',
 				'level' => E_USER_ERROR
 			);
 			return false;
 		}
-		$zz_conf['db_name'] = mysql_result($result, 0, 0);
+		mysqli_data_seek($result, 0);
+		$line = mysqli_fetch_row($result);
+		$zz_conf['db_name'] = reset($line);
 	}
 
 	// 3. alternative plus foreign db: put it in zz['table']
@@ -268,7 +276,7 @@ function zz_db_connection($table) {
 			$dbname = zz_db_select($db_name[1]);
 			if (!$dbname) {
 				$zz_error[] = array(
-					'db_msg' => mysql_error(),
+					'db_msg' => mysqli_error($zz_conf['db_connection']),
 					'query' => 'SELECT DATABASE("'.$db_name[1].'")',
 					'level' => E_USER_ERROR
 				);
@@ -326,22 +334,24 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 	}
 	$lines = array();
 	$error = false;
-	$result = mysql_query($sql);
+	$result = mysqli_query($zz_conf['db_connection'], $sql);
 	if ($result) {
 		if (!$id_field_name) {
 			// only one record
-			if (mysql_num_rows($result) === 1) {
+			if (mysqli_num_rows($result) === 1) {
 	 			if ($format === 'single value') {
-					$lines = mysql_result($result, 0, 0);
+					mysqli_data_seek($result, 0);
+					$lines = mysqli_fetch_row($result);
+					$lines = reset($lines);
 	 			} elseif ($format === 'object') {
-					$lines = mysql_fetch_object($result);
+					$lines = mysqli_fetch_object($result);
 				} else {
-					$lines = mysql_fetch_assoc($result);
+					$lines = mysqli_fetch_assoc($result);
 				}
 			}
- 		} elseif (is_array($id_field_name) AND mysql_num_rows($result)) {
+ 		} elseif (is_array($id_field_name) AND mysqli_num_rows($result)) {
 			if ($format === 'object') {
-				while ($line = mysql_fetch_object($result)) {
+				while ($line = mysqli_fetch_object($result)) {
 					if (count($id_field_name) === 3) {
 						if ($error = zz_db_field_in_query($line, $id_field_name, 3)) break;
 						$lines[$line->$id_field_name[0]][$line->$id_field_name[1]][$line->$id_field_name[2]] = $line;
@@ -352,7 +362,7 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 				}
  			} else {
  				// default or unknown format
-				while ($line = mysql_fetch_assoc($result)) {
+				while ($line = mysqli_fetch_assoc($result)) {
 		 			if ($format === 'single value') {
 						// just get last field, make sure that it's not one of the id_field_names!
 		 				$values = array_pop($line);
@@ -379,36 +389,36 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 					}
 				}
 			}
- 		} elseif (mysql_num_rows($result)) {
+ 		} elseif (mysqli_num_rows($result)) {
  			if ($format === 'count') {
- 				$lines = mysql_num_rows($result);
+ 				$lines = mysqli_num_rows($result);
  			} elseif ($format === 'single value') {
  				// you can reach this part here with a dummy id_field_name
  				// because no $id_field_name is needed!
-				while ($line = mysql_fetch_array($result)) {
+				while ($line = mysqli_fetch_array($result)) {
 					$lines[$line[0]] = $line[0];
 				}
  			} elseif ($format === 'id as key') {
-				while ($line = mysql_fetch_array($result)) {
+				while ($line = mysqli_fetch_array($result)) {
 					if ($error = zz_db_field_in_query($line, $id_field_name)) break;
 					$lines[$line[$id_field_name]] = true;
 				}
  			} elseif ($format === 'key/value') {
  				// return array in pairs
-				while ($line = mysql_fetch_array($result)) {
+				while ($line = mysqli_fetch_array($result)) {
 					$lines[$line[0]] = $line[1];
 				}
 			} elseif ($format === 'object') {
-				while ($line = mysql_fetch_object($result)) {
+				while ($line = mysqli_fetch_object($result)) {
 					if ($error = zz_db_field_in_query($line, $id_field_name)) break;
 					$lines[$line->$id_field_name] = $line;
 				}
 			} elseif ($format === 'numeric') {
-				while ($line = mysql_fetch_assoc($result))
+				while ($line = mysqli_fetch_assoc($result))
 					$lines[] = $line;
  			} else {
  				// default or unknown format
-				while ($line = mysql_fetch_assoc($result)) {
+				while ($line = mysqli_fetch_assoc($result)) {
 					if ($error = zz_db_field_in_query($line, $id_field_name)) break;
 					$lines[$line[$id_field_name]] = $line;
 				}
@@ -417,7 +427,7 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 	} else $error = true;
 	if ($error AND $error !== true) $info .= $error;
 	if ($zz_conf['modules']['debug']) zz_debug('sql (rows: '
-		.($result ? mysql_num_rows($result) : 0).')'.($info ? ': '.$info : ''), $sql);
+		.($result ? mysqli_num_rows($result) : 0).')'.($info ? ': '.$info : ''), $sql);
 	if (!empty($zz_conf['debug']) AND function_exists('wrap_error')) {
 		// @todo: check if it's easier to do it with zz_error()
 		$time = microtime(true) - $time;
@@ -437,7 +447,7 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 		global $zz_error;
 		$zz_error[] = array(
 			'msg_dev' => $msg_dev,
-			'db_msg' => mysql_error(), 
+			'db_msg' => mysqli_error($zz_conf['db_connection']), 
 			'query' => $sql,
 			'level' => $errorcode,
 			'status' => 503
@@ -515,15 +525,15 @@ function zz_db_change($sql, $id = false) {
 	}
 
 	// check
-	$result = mysql_query($sql);
+	$result = mysqli_query($zz_conf['db_connection'], $sql);
 	if ($result) {
-		if (!mysql_affected_rows()) {
+		if (!mysqli_affected_rows($zz_conf['db_connection'])) {
 			$db['action'] = 'nothing';
 		} else {
-			$db['rows'] = mysql_affected_rows();
+			$db['rows'] = mysqli_affected_rows($zz_conf['db_connection']);
 			$db['action'] = strtolower($tokens[0]);
 			if ($db['action'] === 'insert') // get ID value
-				$db['id_value'] = mysql_insert_id();
+				$db['id_value'] = mysqli_insert_id($zz_conf['db_connection']);
 			// Logs SQL Query, must be after insert_id was checked
 			if (!empty($zz_conf['logging']))
 				zz_log_sql($sql, $zz_conf['user'], $db['id_value']);
@@ -542,8 +552,8 @@ function zz_db_change($sql, $id = false) {
 		$db['action'] = '';
 		$db['error'] = array(
 			'query' => $sql,
-			'db_msg' => mysql_error(),
-			'db_errno' => mysql_errno()
+			'db_msg' => mysqli_error($zz_conf['db_connection']),
+			'db_errno' => mysqli_errno($zz_conf['db_connection'])
 		);
 	}
 	if (!empty($zz_conf['debug']) AND function_exists('wrap_error')) {
@@ -818,7 +828,8 @@ function zz_db_decimal_places($db_table, $field) {
  * @return bool
  */
 function zz_db_select($db_name) {
-	return mysql_select_db($db_name);
+	global $zz_conf;
+	return mysqli_select_db($zz_conf['db_connection'], $db_name);
 }
 
 /**
@@ -828,7 +839,8 @@ function zz_db_select($db_name) {
  * @return bool
  */
 function zz_db_charset($character_set) {
-	return mysql_set_charset($character_set);
+	global $zz_conf;
+	return mysqli_set_charset($zz_conf['db_connection'], $character_set);
 }
 
 /**
