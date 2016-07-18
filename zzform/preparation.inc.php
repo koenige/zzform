@@ -421,18 +421,11 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 		// get rid of foreign_keys and ids
 		foreach ($my_tab['POST'] as $post_id => &$post_field) {
 			foreach ($rec_tpl['fields'] AS $my_field) {
-				if (!empty($my_field['dont_copy'])) {
-					$post_field[$my_field['field_name']] = '';
-					continue;
-				}
 				if (empty($my_field['type'])) continue;
-				if ($my_field['type'] === 'id') {
-					$source_values[$post_id] = $post_field[$my_field['field_name']];
-					$post_field[$my_field['field_name']] = '';
-				} elseif ($my_field['type'] === 'foreign_key') {
-					$post_field[$my_field['field_name']] = '';
-				}
+				if ($my_field['type'] !== 'id') continue;
+				$source_values[$post_id] = $post_field[$my_field['field_name']];
 			}
+			$post_field = zz_prepare_clean_copy($rec_tpl['fields'], $post_field);
 		}
 	}
 
@@ -1117,16 +1110,7 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
 				}
 			}
 			// remove some values which cannot be copied
-			foreach ($my_rec['fields'] as $my_field) {
-				if (!empty($my_field['dont_copy'])) {
-					$my_rec['record'][$my_field['field_name']] = false;
-					continue;
-				}
-				if (empty($my_field['type'])) continue;
-				// identifier must be created from scratch
-				if ($my_field['type'] === 'identifier')
-					$my_rec['record'][$my_field['field_name']] = false;
-			}
+			$my_rec['record'] = zz_prepare_clean_copy($my_rec['fields'], $my_rec['record']);
 		}
 	// record has to be passed back to user
 	} else {
@@ -1161,6 +1145,38 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
 	}
 	zz_log_validation_errors($my_rec, $validation);
 	return zz_return($my_tab);
+}
+
+/**
+ * remove some values which cannot be copied
+ *
+ * @param array $fields
+ * @param array $record
+ * @return array
+ */
+function zz_prepare_clean_copy($fields, $record) {
+	foreach ($fields as $my_field) {
+		if (!empty($my_field['dont_copy'])) {
+			$record[$my_field['field_name']] = NULL;
+			$defvals = zz_check_def_vals($record, array($my_field));
+			if (!empty($defvals[$my_field['field_name']])) {
+				$record[$my_field['field_name']] = $defvals[$my_field['field_name']];
+			} else {
+				$record[$my_field['field_name']] = '';
+			}
+			continue;
+		}
+		if (empty($my_field['type'])) continue;
+		// identifier must be created from scratch
+		switch ($my_field['type']) {
+		case 'id':
+		case 'identifier':
+		case 'foreign_key':
+			$record[$my_field['field_name']] = false;
+			break;
+		}
+	}
+	return $record;
 }
 
 /**
