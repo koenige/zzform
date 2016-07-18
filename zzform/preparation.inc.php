@@ -166,7 +166,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	// set defaults and values, clean up POST
 	$zz_tab[0][0]['POST'] = zz_check_def_vals(
 		$zz_tab[0][0]['POST'], $zz_tab[0][0]['fields'], $zz_tab[0][0]['existing'],
-		(!empty($zz_var['where'][$zz_tab[0]['table']]) ? $zz_var['where'][$zz_tab[0]['table']] : '')
+		(!empty($zz_var['where'][$zz_tab[0]['table']]) ? $zz_var['where'][$zz_tab[0]['table']] : array())
 	);
 
 	return $zz_tab;
@@ -547,7 +547,7 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 			$my_tab['POST'][$rec], $field['fields'], $existing[$rec],
 			(!empty($zz_var['where'][$my_tab['table_name']]) 
 				? $zz_var['where'][$my_tab['table_name']] 
-				: ''
+				: array()
 			)
 		);
 	}
@@ -989,7 +989,7 @@ function zz_set_values($my_tab, $rec, $zz_var) {
 	if (!empty($my_tab['POST'][$rec])) {
 		$my_tab['POST'][$rec] = zz_check_def_vals(
 			$my_tab['POST'][$rec], $my_tab[$rec]['fields'], array(),
-			(!empty($zz_var['where'][$table]) ? $zz_var['where'][$table] : '')
+			(!empty($zz_var['where'][$table]) ? $zz_var['where'][$table] : array())
 		);
 	}
 	if (!empty($my_tab['fielddefs'])) {
@@ -1012,7 +1012,7 @@ function zz_set_values($my_tab, $rec, $zz_var) {
  * @param array $where
  * @return array $post		POST
  */
-function zz_check_def_vals($post, $fields, $existing = array(), $where = false) {
+function zz_check_def_vals($post, $fields, $existing = array(), $where = array()) {
 	foreach ($fields as $field) {
 		if (empty($field['field_name'])) continue;
 		$field_name = $field['field_name'];
