@@ -443,11 +443,11 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 		$msg_dev = 'Error in SQL query';
 		$msg_dev_args = array();
 		if (!empty($current['function'])) {
-			$msg_dev .= ' in function %s'
+			$msg_dev .= ' in function %s';
 			$msg_dev_args[] = $current['function'];
 		}
 		if ($info) {
-			$msg_dev .= ' - %s.'
+			$msg_dev .= ' - %s.';
 			$msg_dev_args[] = $info;
 		}
 
