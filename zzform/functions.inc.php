@@ -870,8 +870,8 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			if (!isset($fields[$no]['field_name'])) {
 				global $zz_error;
 				$zz_error[] = array(
-					'msg_dev' => 'Field definition incorrect: [No. '.$no.'] '
-						.serialize($fields[$no])
+					'msg_dev' => 'Field definition incorrect: [No. %d] %s',
+					'msg_dev_args' => array($no, json_encode($fields[$no]))
 				);
 			}
 			$fields[$no]['title'] = ucfirst($fields[$no]['field_name']);
@@ -1470,10 +1470,8 @@ function zz_record_access($zz, $ops, $zz_var) {
 		if (!$zz_conf[$mode] AND $ops['mode'] === $mode) {
 			$ops['mode'] = false;
 			$zz_error[] = array(
-				'msg_dev' => sprintf(
-					zz_text('Configuration does not allow this mode: %s'),
-					zz_text($mode)
-				),
+				'msg_dev' => 'Configuration does not allow this mode: %s',
+				'msg_dev_args' => array($mode),
 				'status' => 403,
 				'level' => E_USER_NOTICE
 			);
@@ -1481,10 +1479,8 @@ function zz_record_access($zz, $ops, $zz_var) {
 		if (!$zz_conf[$mode] AND $zz_var['action'] === $action) {
 			$zz_var['action'] = false;
 			$zz_error[] = array(
-				'msg_dev' => sprintf(
-					zz_text('Configuration does not allow this action: %s'),
-					zz_text($action)
-				),
+				'msg_dev' => 'Configuration does not allow this action: %s',
+				'msg_dev_args' => array($action),
 				'status' => 403,
 				'level' => E_USER_NOTICE
 			);
@@ -1718,10 +1714,8 @@ function zz_make_mode($modes, $content, $error = E_USER_WARNING) {
 		if (!function_exists($mode)) {
 			global $zz_error;
 			$zz_error[] = array(
-				'msg_dev' => sprintf(
-					zz_text('Configuration Error: mode with not-existing function "%s"'),
-					$mode
-				),
+				'msg_dev' => 'Configuration Error: mode with non-existing function `%s`',
+				'msg_dev_args' => array($mode),
 				'level' => $error
 			);
 			return false;
@@ -2070,6 +2064,7 @@ function zz_backwards_rename($var, $var_renamed, $var_name) {
  * 		string 'msg' message that always will be sent back to browser
  * 		string 'msg_dev' message that will be sent to browser, log and mail, 
  * 			depending on settings
+ *		array 'msg_dev_args' sprintf arguments for msg_dev
  * 		int 'level' for error level: currently implemented:
  * 			- E_USER_ERROR: critical error, action could not be finished,
  *				unrecoverable error
@@ -2145,7 +2140,11 @@ function zz_error() {
 
 		// initialize and translate error messages
 		$error['msg'] = !empty($error['msg']) ? zz_text(trim($error['msg'])) : '';
-		$error['msg_dev'] = !empty($error['msg_dev']) ? zz_text(trim($error['msg_dev'])) : '';
+		// @todo think about translating dev messages for administrators
+		$error['msg_dev'] = !empty($error['msg_dev']) ? trim($error['msg_dev']) : '';
+		if (!empty($error['msg_dev_args'])) {
+			$error['msg_dev'] = vsprintf($error['msg_dev'], $error['msg_dev_args']);
+		}
 
 		$user[$key] = false;
 		$admin[$key] = false;
@@ -2179,7 +2178,7 @@ function zz_error() {
 		$user[$key] .= $error['msg'];
 
 		// Admin output
-		if (!empty($error['msg_dev'])) 
+		if ($error['msg_dev']) 
 			$admin[$key] .= $error['msg_dev'].'<br>';
 		if (!empty($error['db_msg'])) 
 			$admin[$key] .= $error['db_msg'].':<br>';
@@ -2317,11 +2316,14 @@ function zz_error_validation() {
 		.'</li></ul>';
 	// if we got wrong values entered, put this into a developer message
 	if (!empty($zz_error['validation']['incorrect_values'])) {
+		$this_dev_msg_args = array();
 		foreach ($zz_error['validation']['incorrect_values'] as $incorrect_value) {
-			$this_dev_msg[] = zz_text('Field name').': '.$incorrect_value['field_name']
-				.' / '.zz_htmltag_escape($incorrect_value['msg']);
+			$this_dev_msg[] = 'Field name: %s / %s';
+			$this_dev_msg_args[] = $incorrect_value['field_name'];
+			$this_dev_msg_args[] = zz_htmltag_escape($incorrect_value['msg']);
 		}
 		$this_error['msg_dev'] = "\n\n".implode("\n", $this_dev_msg);
+		$this_error['msg_dev_args'] = $this_dev_msg_args;
 	}
 	if (!empty($zz_error['validation']['log_post_data'])) {
 		// must be set explicitly, do not log $_POST for file upload errors
@@ -2377,6 +2379,9 @@ function zz_error_multi($errors) {
 			continue;
 		}
 		if (empty($error['msg_dev'])) continue;
+		if (!empty($error['msg_dev_args'])) {
+			$error['msg_dev'] = vsprintf($error['msg_dev'], $error['msg_dev_args']);
+		}
 		$errors[] = $error['msg_dev'];
 	}
 	return $errors;
@@ -2431,7 +2436,8 @@ function zz_create_topfolders($dir) {
 	if ($success) {
 		if (!is_writable($upper_dir)) {
 			$zz_error[] = array(
-				'msg_dev' => sprintf(zz_text('Creation of directory %s failed: Parent directory is not writable.'), $dir),
+				'msg_dev' => 'Creation of directory %s failed: Parent directory is not writable.',
+				'msg_dev_args' => array($dir),
 				'level' => E_USER_ERROR
 			);
 			$zz_error['error'] = true;
@@ -2444,7 +2450,8 @@ function zz_create_topfolders($dir) {
 	}
 
 	$zz_error[] = array(
-		'msg_dev' => sprintf(zz_text('Creation of directory %s failed.'), $dir),
+		'msg_dev' => 'Creation of directory %s failed.',
+		'msg_dev_args' => array($dir),
 		'level' => E_USER_ERROR
 	);
 	$zz_error['error'] = true;
@@ -2888,9 +2895,8 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
 	}
 	if ($error AND $zz_conf['multi']) {
 		$zz_error[] = array(
-			'msg_dev' => sprintf('No entry found: value %s in field %s.',
-				$my_rec['POST'][$field_name], $field_name)
-				.' <br>SQL: '.$my_rec['fields'][$f]['sql_new']
+			'msg_dev' => 'No entry found: value %s in field %s. <br>SQL: %s',
+			'msg_dev_args' = array($my_rec['POST'][$field_name], $field_name, $my_rec['fields'][$f]['sql_new'])
 		);
 	}
 	return zz_return($my_rec);

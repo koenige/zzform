@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2010, 2014 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2010, 2014, 2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -144,7 +144,8 @@ function zz_debug_time($return = array()) {
 		.$return[0]['id_value'].' (mem pk: '.memory_get_peak_usage().') ';
 	
 	$zz_error[] = array(
-		'msg_dev' => '[DEBUG] '.$rec.'time: '.implode(' ', $zz_debug[$zz_conf['id']]['time']),
+		'msg_dev' => '[DEBUG] %stime: %s',
+		'msg_dev_args' => array($rec, implode(' ', $zz_debug[$zz_conf['id']]['time'])),
 		'level' => E_USER_NOTICE
 	);
 	zz_error();

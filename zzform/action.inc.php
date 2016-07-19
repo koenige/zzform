@@ -473,9 +473,9 @@ function zz_action_last_update($zz_tab, $action) {
 		$result = zz_db_change($sql, $zz_tab[0][0]['id']['value']);
 		if ($result['action'] !== 'update') {
 			global $zz_error;
-			$zz_error[]['msg_dev'] = sprintf(
-				'Update of timestamp failed (ID %d), query: %s', 
-				$zz_tab[0][0]['id']['value'], $sql
+			$zz_error[] = array(
+				'msg_dev' => 'Update of timestamp failed (ID %d), query: %s',
+				'msg_dev_args' => array($zz_tab[0][0]['id']['value'], $sql)
 			);
 		}
 	}
@@ -559,7 +559,8 @@ function zz_action_equals($my_rec) {
 			// we have an update but no existing record
 			global $zz_error;
 			$zz_error[] = array(
-				'msg_dev' => 'Update without existing record? '.'Record: '.json_encode($my_rec)
+				'msg_dev' => 'Update without existing record? Record: %s',
+				'msg_dev_args' => array(json_encode($my_rec))
 			);
 			$update = true;
 		}
@@ -737,9 +738,9 @@ function zz_action_function($type, $ops, $zz_tab) {
 			if (array_key_exists('record_replace', $change)
 				AND !empty($change['record_replace'])) {
 				unset($change['record_replace']);
-				$zz_error[] = array('msg_dev' => sprintf(
-					'Function for extra action (%s) tries to set record_replace. Will not be evaluated at this point.',
-					$type)
+				$zz_error[] = array(
+					'msg_dev' => 'Function for hook (%s) tries to set record_replace. Will not be evaluated at this point.',
+					'msg_dev_args' => array($type)
 				);
 			}
 		}
@@ -1795,8 +1796,8 @@ function zz_password_set($old, $new1, $new2, $sql, $field) {
 	} else {
 		$zz_error[] = array(
 			'msg' => 'Your current password is different from what you entered. Please try again.',
-			'msg_dev' => '(Encryption: '.$zz_conf['hash_password'].', existing hash: '
-				.$old_hash.', entered hash: '.wrap_password_hash($old),
+			'msg_dev' => '(Encryption: %s, existing hash: %s, entered hash: %s)',
+			'msg_dev_args' => array($zz_conf['hash_password'], $old_hash, wrap_password_hash($old)),
 			'level' => E_USER_NOTICE
 		);
 		return false;

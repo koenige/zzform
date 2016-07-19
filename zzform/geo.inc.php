@@ -583,7 +583,10 @@ function zz_geo_geocode_address($geocoding, $zz_tab, $new) {
 		if (substr($type, -3) === '_id') {
 			$type = substr($type, 0, -3);
 			if (!isset($my_field['geocode_sql'])) {
-				$zz_error[]['msg_dev'] = sprintf('Error: geocode_sql not defined for field no %d', $f['no']);
+				$zz_error[] = array(
+					'msg_dev' => 'Error: geocode_sql not defined for field no %d',
+					'msg_dev_args' => array($f['no'])
+				);
 				continue;
 			}
 			if (!is_numeric($value)) {

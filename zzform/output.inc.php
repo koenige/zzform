@@ -623,8 +623,8 @@ function zz_nice_tablenames($table) {
 			$table = substr($table, strlen($zz_conf['prefix']));
 		else {
 			$zz_error[] = array(
-				'msg_dev' => sprintf(zz_text('Table prefix is incorrect somehow: %s'), 
-					substr($table, 0, strlen($zz_conf['prefix'])))
+				'msg_dev' => 'Table prefix is incorrect somehow: %s',
+				'msg_dev_args' => array(substr($table, 0, strlen($zz_conf['prefix'])))
 			);
 		}
 	}

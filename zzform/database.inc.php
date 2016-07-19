@@ -440,13 +440,21 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 		} else {
 			$current['function'] = '';
 		}
-		$msg_dev = 'Error in SQL query'
-			.(!empty($current['function']) ? ' in function '.$current['function'] : '')
-			.($info ? ' - '.$info.'.' : '');
+		$msg_dev = 'Error in SQL query';
+		$msg_dev_args = array();
+		if (!empty($current['function'])) {
+			$msg_dev .= ' in function %s'
+			$msg_dev_args[] = $current['function'];
+		}
+		if ($info) {
+			$msg_dev .= ' - %s.'
+			$msg_dev_args[] = $info;
+		}
 
 		global $zz_error;
 		$zz_error[] = array(
 			'msg_dev' => $msg_dev,
+			'msg_dev_args' => $msg_dev_args,
 			'db_msg' => mysqli_error($zz_conf['db_connection']), 
 			'query' => $sql,
 			'level' => $errorcode,
@@ -771,9 +779,8 @@ function zz_db_field_collation($type, $table = '', $field, $index = 0) {
 		if (!$cols OR !in_array('Collation', array_keys($cols))) {
 			global $zz_error;
 			$zz_error[] = array(
-				'msg_dev' => 
-					sprintf('Cannot get character set information for %s.', $db_table.'.'.$collate_fieldname)
-					.$error_msg,
+				'msg_dev' => 'Cannot get character set information for %s.%s. %s',
+				'msg_dev_args' => array($db_table, $collate_fieldname, $error_msg),
 				'level' => E_USER_NOTICE
 			);
 			return NULL;

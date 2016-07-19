@@ -469,8 +469,8 @@ function zz_valid_request($action = false) {
 	if ($_GET['zzhash'] !== $zz_conf['int']['secret_key']) {
 		if (!$dont_log_error) {
 			$zz_error[] = array(
-				'msg_dev' => sprintf('Hash of script and ID differs from secret key (hash %s, secret %s).'
-					, $_GET['zzhash'], $zz_conf['int']['secret_key']),
+				'msg_dev' => 'Hash of script and ID differs from secret key (hash %s, secret %s).',
+				'msg_dev_args' => array($_GET['zzhash'], $zz_conf['int']['secret_key']),
 				'level' => E_USER_NOTICE
 			);
 			$dont_log_error = true;

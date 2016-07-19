@@ -421,7 +421,7 @@ function zz_search_subtable($field, $table, $main_id_fieldname) {
 	}
 	if (!$foreign_key) {
 		global $zz_error;
-		$zz_error[]['msg_dev'] = zz_text('Subtable definition is wrong. There must be a field which is defined as "foreign_key".');
+		$zz_error[]['msg_dev'] = 'Subtable definition is wrong. There must be a field which is defined as "foreign_key".';
 		zz_error();
 		exit;
 	}

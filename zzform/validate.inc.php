@@ -483,7 +483,8 @@ function zz_check_number($number) {
 	if (!$sum AND $sum !== 0) {
 		global $zz_error;
 		$zz_error[] = array(
-			'msg_dev' => __FUNCTION__.'(): calculation did not work. ['.implode('', $parts).']',
+			'msg_dev' => '%s(): calculation did not work. [%s]',
+			'msg_dev_args' => array(__FUNCTION__, implode('', $parts)),
 			'level' => E_USER_NOTICE
 		);
 		$sum = false;

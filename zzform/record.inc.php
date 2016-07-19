@@ -2511,8 +2511,8 @@ function zz_field_select_hierarchy($field, $lines, $record, $id_field_name) {
 		if (empty($lines[$field['show_hierarchy_subtree']])) {
 			global $zz_error;
 			$zz_error[] = array(
-				'msg_dev' => sprintf('Subtree with ID %s does not exist.',
-					$field['show_hierarchy_subtree']),
+				'msg_dev' => 'Subtree with ID %s does not exist.',
+				'msg_dev_args' => array($field['show_hierarchy_subtree']),
 				'error' => E_USER_WARNING
 			);
 		}

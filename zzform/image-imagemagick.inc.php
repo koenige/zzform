@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2006-2015 Gustaf Mossakowski
+ * @copyright Copyright © 2006-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  * @todo
  *	identify -list Format
@@ -283,7 +283,10 @@ function zz_imagick_add_options($source_ext, $image = array()) {
 			if ($image['upload']['colorspace'] === $option[1]) continue;
 			if (empty($image['upload']['icc_profile'])) continue;
 			if (!array_key_exists($image['upload']['icc_profile'], $zz_conf['icc_profiles'])) {
-				$zz_error[]['msg_dev'] = sprintf('No ICC profile found for %s', $image['upload']['icc_profile']);
+				$zz_error[] = array(
+					'msg_dev' => 'No ICC profile found for %s',
+					'msg_dev_args' => array($image['upload']['icc_profile'])
+				);
 				continue;
 			}
 			// use profiles!

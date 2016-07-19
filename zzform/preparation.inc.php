@@ -114,11 +114,8 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 		if ($zz_var['action'] === 'update' AND !$zz_tab[0][0]['existing']) {
 			$zz_error['error'] = true;
 			$zz_error[] = array(
-				'msg_dev' => sprintf(
-					'Trying to update a non-existent record in table `%s` with ID %d.',
-					$zz_tab[0]['table'],
-					$zz_var['id']['value']
-				),
+				'msg_dev' => 'Trying to update a non-existent record in table `%s` with ID %d.',
+				'msg_dev_args' => array($zz_tab[0]['table'], $zz_var['id']['value']),
 				'level' => E_USER_ERROR
 			);
 			return false;
@@ -489,9 +486,8 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 			if ($key === false) {
 				// illegal ID, this will only occur if user manipulated the form
 				$zz_error[] = array(
-					'msg_dev' => 'Detail record with invalid ID was posted '
-						.'(ID was said to be '.$posted[$my_tab['id_field_name']]
-						.', main record was ID '.$zz_var['id']['value'].')',
+					'msg_dev' => 'Detail record with invalid ID was posted (ID was said to be %s, main record was ID %s)',
+					'msg_dev_args' => array($posted[$my_tab['id_field_name']], $zz_var['id']['value']),
 					'level' => E_USER_NOTICE
 				);
 				unset($my_tab['POST'][$rec]);
@@ -668,7 +664,10 @@ function zz_subrecord_unique($my_tab, $existing, $fields) {
 			foreach ($my_tab['POST'] as $no => $record) {
 				foreach ($unique as $field_name) {
 					if (!isset($record[$field_name])) {
-						$zz_error[] = array('msg_dev' => 'UNIQUE was set but field %s is not in POST');
+						$zz_error[] = array(
+							'msg_dev' => 'UNIQUE was set but field %s is not in POST',
+							'msg_dev_args' => array($field_name)
+						);
 						continue;
 					}
 					$values[$field_name] = $record[$field_name];
@@ -735,9 +734,8 @@ function zz_subrecord_unique($my_tab, $existing, $fields) {
 				} else {
 					$value = '';
 					$zz_error[] = array(
-						'msg_dev' => sprintf('Field marked as unique, but '
-							.'could not find corresponding value: %s',
-							$field['field_name']),
+						'msg_dev' => 'Field marked as unique, but could not find corresponding value: %s',
+						'msg_dev_args' => array($field['field_name']),
 						'level' => E_USER_NOTICE
 					);
 				}
@@ -757,9 +755,8 @@ function zz_subrecord_unique($my_tab, $existing, $fields) {
 				$my_tab['POST'][$no][$my_tab['id_field_name']] = key($existing_recs); 
 			} elseif (count($existing_recs)) {
 				$zz_error[] = array(
-					'msg_dev' => sprintf('Field marked as unique, but '
-						.'value appears more than once in record: %s (SQL %s)',
-						$value, $sql),
+					'msg_dev' => 'Field marked as unique, but value appears more than once in record: %s (SQL %s)',
+					'msg_dev_args' => array($value, $sql),
 					'level' => E_USER_NOTICE
 				);
 			}
@@ -1276,7 +1273,10 @@ function zz_query_single_record($sql, $table, $id, $sqlextra, $sql_translate, $t
 	$record = zz_translate(array('sql_translate' => $sql_translate), $record);
 	foreach ($sqlextra as $sql) {
 		if (empty($id[$type])) {
-			$zz_error[]['msg_dev'] = sprintf('No ID %s found (Query: %s).', $type, $sql);
+			$zz_error[] = array(
+				'msg_dev' => 'No ID %s found (Query: %s).',
+				'msg_dev_args' => array($type, $sql)
+			);
 			continue;
 		}
 		$sql = sprintf($sql, $id[$type]);

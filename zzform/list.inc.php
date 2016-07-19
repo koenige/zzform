@@ -569,8 +569,9 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 		if ($subselect) $subselects[] = $subselect;
 		if (empty($line[$subselect['key_fieldname']])) {
 			$zz_error[] = array(
-				'msg_dev' => 'Wrong key_field_name. Please set $zz_sub["fields"]['
-				.'n]["key_field_name"] to something different: '.implode(', ', array_keys($line)));
+				'msg_dev' => 'Wrong key_field_name. Please set $zz_sub["fields"][n]["key_field_name"] to something different: %s',
+				'msg_dev_args' => array(implode(', ', array_keys($line)))
+			);
 		}
 	}
 	

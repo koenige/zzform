@@ -621,7 +621,8 @@ function zz_upload_fileinfo($file, $extension = false) {
 	if (!empty($file['warnings'])) {
 		foreach ($file['warnings'] as $function => $warnings) {
 			$zz_error[] = array(
-				'msg_dev' => $function." returns with a warning:\n\n".implode("\n", $warnings),
+				'msg_dev' => "%s returns with a warning:\n\n%s",
+				'msg_dev_args' => array($function, implode("\n", $warnings))
 				'log_post_data' => false,
 				'level' => E_USER_NOTICE
 			);
@@ -999,31 +1000,42 @@ function zz_upload_error_with_file($filename, $file, $return = array()) {
 		$zz_error['error'] = $my_error;
 	}
 	
+	if (empty($return['msg_dev_args'])) {
+		$return['msg_dev_args'] = array();
+	}
 	if (empty($return['error_msg'])) {
-		$return['error_msg'] = sprintf(zz_text('Action <code>%s</code> returned no file.'), $file['action']);
+		$return['error_msg'] = 'Action `%s` returned no file.';
+		$return['msg_dev_args'][] = $file['action'];
 	} else {
-		$return['error_msg'] = zz_text($return['error_msg']);
-		$return['error_msg'] .= "\r\nAction: ".$file['action'];
+		$return['error_msg'] .= "\r\nAction: %s";
+		$return['msg_dev_args'][] = $file['action'];
 	}
 	$return['error_msg'] .= "\r\n";
 	if (!empty($return['command'])) {
-		$return['error_msg'] .= "\r\n".zz_text('Command:').' '.$return['command'];
+		$return['error_msg'] .= "\r\nCommand: %s";
+		$return['msg_dev_args'][] = $return['command'];
 	}
 	if (!empty($return['output'])) {
-		$return['error_msg'] .= "\r\n".zz_text('Output:').' '.json_encode($return['output']);
+		$return['error_msg'] .= "\r\nOutput: %s";
+		$return['msg_dev_args'][] = json_encode($return['output']);
 	}
 	if (!empty($return['exit_status'])) {
-		$return['error_msg'] .= "\r\n".zz_text('Exit status:').' '.$return['exit_status'];
+		$return['error_msg'] .= "\r\nExit status: %s";
+		$return['msg_dev_args'][] = $return['exit_status'];
 	}
 	$err_upload = $file['upload'];
 	unset($err_upload['exif']); // too much information for log
 	unset($err_upload['exiftool']); // too much information for log
-	$return['error_msg'] .= "\r\n".var_export($err_upload, true);
-	if ($error_filename)
-		$return['error_msg'] .= "\r\n".zz_text('The source file was temporarily saved under: ').$error_filename;
+	$return['error_msg'] .= "\r\n%s";
+	$return['msg_dev_args'][] = var_export($err_upload, true);
+	if ($error_filename) {
+		$return['error_msg'] .= "\r\nThe source file was temporarily saved under: %s";
+		$return['msg_dev_args'][] = $error_filename;
+	}
 
 	$zz_error[] = array(
 		'msg_dev' => $return['error_msg'],
+		'msg_dev_args' => $return['msg_dev_args'],
 		'log_post_data' => false,
 		'level' => E_USER_NOTICE
 	);
@@ -1308,7 +1320,8 @@ function zz_upload_create_source($image, $path, $zz_tab, $tab = 0, $rec = 0) {
 		$image['upload'] = array();
 		if (empty($image['optional_image'])) {
 			$zz_error[] = array(
-				'msg_dev' => sprintf(zz_text('Error: Source file %s does not exist. '), $source_filename),
+				'msg_dev' => 'Error: Source file %s does not exist.',
+				'msg_dev_args' => array($source_filename),
 				'log_post_data' => false
 			);
 		}
@@ -1394,7 +1407,8 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 	if (!file_exists($filename)) {
 		if (empty($image['optional_image'])) {
 			$zz_error[] = array(
-				'msg_dev' => sprintf(zz_text('Error: Source file %s does not exist. '), $filename),
+				'msg_dev' => 'Error: Source file %s does not exist.',
+				'msg_dev_args' => array($filename),
 				'log_post_data' => false
 			);
 		}
@@ -1427,8 +1441,8 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 	$return = $action($filename, $tmp_filename, $dest_extension, $image);
 	if (!file_exists($tmp_filename)) {
 		$zz_error[] = array(
-			'msg_dev' => sprintf(zz_text('Error: File %s does not exist. Temporary Directory: %s'), 
-				$tmp_filename, realpath($zz_conf['tmp_dir'])),
+			'msg_dev' => 'Error: File %s does not exist. Temporary Directory: %s',
+			'msg_dev_args' => array($tmp_filename, realpath($zz_conf['tmp_dir'])),
 			'log_post_data' => false
 		);
 		return false;
@@ -1564,7 +1578,8 @@ function zz_upload_auto_image($image) {
 	if (!function_exists($autofunc)) {
 		global $zz_error;
 		$zz_error[] = array(
-			'msg_dev' => sprintf(zz_text('Configuration error: function %s for image upload does not exist.'), '<code>'.$autofunc.'()</code>'),
+			'msg_dev' => 'Configuration error: function <code>%s()</code> for image upload does not exist.',
+			'msg_dev_args' => array($autofunc),
 			'log_post_data' => false,
 			'level' => E_USER_ERROR
 		);
@@ -1634,7 +1649,7 @@ function zz_upload_extension($path, &$my_rec) {
 		return $extension;
 	}
 	$zz_error[] = array(
-		'msg_dev' => zz_text('Error. Could not determine file ending'),
+		'msg_dev' => 'Error. Could not determine file ending',
 		'log_post_data' => false,
 		'level' => E_USER_ERROR
 	);
@@ -1754,7 +1769,8 @@ function zz_write_upload_fields($zz_tab, $f, $tab = 0, $rec = 0) {
 		// check if definition is correct
 		if (count($nos) !== 4) {
 			$zz_error[] = array(
-				'msg_dev' => 'Error in $zz definition for upload_field: ['.$f.']',
+				'msg_dev' => 'Error in $zz definition for upload_field: [%d]',
+				'msg_dev_args' => array($f),
 				'log_post_data' => false,
 				'level' => E_USER_NOTICE
 			);
@@ -2146,7 +2162,8 @@ function zz_upload_delete($filename, $show_filename = false, $action = 'delete')
 	}
 	if (!is_file($filename)) {
 		$zz_error[] = array(
-			'msg_dev' => sprintf(zz_text('File %s exists, but is not a file.', $filename)),
+			'msg_dev' => 'File %s exists, but is not a file.',
+			'msg_dev_args' => $filename,
 			'log_post_data' => false,
 			'level' => E_USER_ERROR
 		);
@@ -2230,8 +2247,8 @@ function zz_upload_insert($source, $dest, $action = '-', $mode = 'copy') {
 	if (file_exists($dest)) {
 		if (!is_file($dest)) {
 			$zz_error[] = array(
-				'msg_dev' => sprintf(zz_text('Insert: %s exists, but is not a '
-					.'file.'), '<code>'.$dest.'</code>'),
+				'msg_dev' => 'Insert: `%s` exists, but is not a file.',
+				'msg_dev_args' => array($dest),
 				'level' => E_USER_ERROR
 			);
 			zz_error();
@@ -2251,17 +2268,17 @@ function zz_upload_insert($source, $dest, $action = '-', $mode = 'copy') {
 	$success = zz_rename($source, $dest);
 	if (!$success) {
 		if (!is_writeable(dirname($dest))) {
-			$msg_dev = sprintf(zz_text('Insufficient rights. Directory %s is not writable.'), 
-				'<code>'.dirname($dest).'</code>');
+			$msg_dev = 'Insufficient rights. Directory `%s` is not writable.';
+			$msg_dev_args[] = dirname($dest);
 		} else { 
-			$msg_dev = zz_text('Unknown error.').' '.zz_text('Copying not successful.')
-				.'<br>'.zz_text('from:').' '.$source
-				.'<br>'.zz_text('to:').' '.$dest.'<br>';
+			$msg_dev = 'Unknown error. Copying not successful. <br>From: %s <br>To: %s<br>';
+			$msg_dev_args = array($source, $dest);
 		}
 		$zz_error[] = array(
 			'msg' => zz_text('File could not be saved. There is a problem with '
 				.'the user rights. We are working on it.'),
 			'msg_dev' => $msg_dev,
+			'msg_dev_args' => $msg_dev_args,
 			'log_post_data' => false,
 			'level' => E_USER_ERROR
 		);
@@ -2524,7 +2541,8 @@ function zz_upload_get_typelist($filename, $type = 'Filetype', $optional = false
 		if ($optional) return false;
 		global $zz_error;
 		$zz_error[] = array(
-			'msg_dev' => sprintf(zz_text($type.' definitions in %s are not available!'), '"'.$filename.'"'),
+			'msg_dev' => '%s definitions in `%s` are not available!',
+			'msg_dev_args' => array($type, $filename),
 			'log_post_data' => false,
 			'level' => E_USER_ERROR
 		);
@@ -2698,14 +2716,15 @@ function zz_rename($oldname, $newname, $context = false) {
 	global $zz_error;
 	if (!$newname) {
 		$zz_error[] = array(
-			'msg_dev' => zz_text('zz_rename(): No new filename given.'),
+			'msg_dev' => 'zz_rename(): No new filename given.',
 			'level' => E_USER_WARNING
 		);
 		return false;
 	}
 	if (!file_exists($oldname)) {
 		$zz_error[] = array(
-			'msg_dev' => sprintf(zz_text('zz_rename(): File %s does not exist.'), $oldname),
+			'msg_dev' => 'zz_rename(): File %s does not exist.',
+			'msg_dev_args' => array($oldname),
 			'level' => E_USER_WARNING
 		);
 		return false;
@@ -2727,8 +2746,8 @@ function zz_rename($oldname, $newname, $context = false) {
 		}
 	}
 	$zz_error[] = array(
-		'msg_dev' => sprintf(zz_text('Copy/Delete for rename failed. Old filename: %s, new filename: %s'),
-			$oldname, $newname),
+		'msg_dev' => 'Copy/Delete for rename failed. Old filename: %s, new filename: %s',
+		'msg_dev_args' => array($oldname, $newname),
 		'level' => E_USER_NOTICE
 	);
 	return false;
