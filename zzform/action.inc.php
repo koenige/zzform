@@ -5,11 +5,11 @@
  * Action: update, delete, insert or review a record,
  * validation of user input, maintaining referential integrity
  *
- * Part of »Zugzwang Project«
+ * Part of Â»Zugzwang ProjectÂ«
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2016 Gustaf Mossakowski
+ * @copyright Copyright Â© 2004-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1734,7 +1734,7 @@ function zz_check_rules($value, $validate) {
 		case 'forbidden_strings':
 			foreach ($needles as $needle) {
 				if (stripos($value, $needle) === false) continue; // might be 0
-				return sprintf(zz_text('String <em>"%s"</em> is not allowed'), zz_htmltag_escape($needle));
+				return sprintf(zz_text('String <em>â€œ%sâ€</em> is not allowed'), zz_htmltag_escape($needle));
 			}
 			break;
 		}

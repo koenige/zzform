@@ -1612,9 +1612,8 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 				$text .= zz_field_concat($field, $select_fields);
 			} else {
 				global $zz_error;
-				$zz_error[]['msg'] = sprintf(zz_text('Record for %s does not exist.')
-					, '<strong>'.$field['title'].'</strong>')
-					.' (ID: '.zz_html_escape($value).')';
+				$zz_error[]['msg'] = sprintf(zz_text('Record for <strong>%s</strong> does not exist. (ID: %s)')
+					, $field['title'], zz_html_escape($value));
 				$zz_error['error'] = true;
 				return array('', '');
 			}

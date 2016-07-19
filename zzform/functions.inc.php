@@ -1041,7 +1041,7 @@ function zz_get_unique_fields($fields) {
 		// set ID fieldname
 		if (!empty($field['type']) AND $field['type'] === 'id') {
 			if ($zz_var['id']['field_name']) {
-				$zz_error['msg'] = 'Only one field may be defined as "id"!';
+				$zz_error['msg'] = 'Only one field may be defined as `id`!';
 				return false;
 			}
 			$zz_var['id']['field_name'] = $field['field_name'];
@@ -2141,6 +2141,7 @@ function zz_error() {
 		// initialize and translate error messages
 		$error['msg'] = !empty($error['msg']) ? zz_text(trim($error['msg'])) : '';
 		// @todo think about translating dev messages for administrators
+		// in a centrally set (not user defined) language
 		$error['msg_dev'] = !empty($error['msg_dev']) ? trim($error['msg_dev']) : '';
 		if (!empty($error['msg_dev_args'])) {
 			$error['msg_dev'] = vsprintf($error['msg_dev'], $error['msg_dev_args']);

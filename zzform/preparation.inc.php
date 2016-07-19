@@ -1210,8 +1210,8 @@ function zz_log_validation_errors($my_rec, $validation) {
 				$error = $field['error_msg'];
 			} else {
 				$error = sprintf(
-					zz_text('Value incorrect in field %s.'), 
-					'<strong>'.$field['title'].'</strong>'
+					zz_text('Value incorrect in field <strong>%s</strong>.'), 
+					$field['title']
 				);
 			}
 			$zz_error['validation']['msg'][] = $error.(
@@ -1230,15 +1230,15 @@ function zz_log_validation_errors($my_rec, $validation) {
 		} elseif (empty($field['dont_show_missing'])) {
 			if ($field['type'] === 'upload_image') {
 				$zz_error['validation']['msg'][] = sprintf(
-					zz_text('Nothing was uploaded in field %s.'),
-					'<strong>'.$field['title'].'</strong>'
+					zz_text('Nothing was uploaded in field <strong>%s</strong>.'),
+					$field['title']
 				).(!empty($my_rec['images'][$no][0]['upload']['error_msg'])
 					? ' '.$my_rec['images'][$no][0]['upload']['error_msg'] : '');
 			} else {
 				// there's a value missing
 				$zz_error['validation']['msg'][] = sprintf(
-					zz_text('Value missing in field %s.'),
-					'<strong>'.$field['title'].'</strong>'
+					zz_text('Value missing in field <strong>%s</strong>.'),
+					$field['title']
 				);
 				$zz_error['validation']['log_post_data'] = true;
 			}

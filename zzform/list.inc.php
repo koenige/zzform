@@ -4,11 +4,11 @@
  * zzform
  * Display all or a subset of all records in a list (e. g. table, ul)
  *
- * Part of �Zugzwang Project�
+ * Part of »Zugzwang Project«
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright � 2004-2016 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -969,7 +969,7 @@ function zz_list_filter_sql($filters, $sql, &$filter_params) {
 			if (empty($filter['ignore_invalid_filters'])) {
 				$zz_conf['int']['http_status'] = 404;
 				$zz_error[] = array(
-					'msg' => sprintf(zz_text('"%s" is not a valid value for the selection "%s". Please select a different filter.'), 
+					'msg' => sprintf(zz_text('“%s” is not a valid value for the selection “%s”. Please select a different filter.'), 
 						zz_htmltag_escape($filter_params[$filter['identifier']]), $filter['title']),
 					'level' => E_USER_NOTICE
 				);
@@ -999,8 +999,8 @@ function zz_list_filter_invalid() {
 		$link = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
 			.$zz_conf['int']['url']['?&'].$zz_conf['int']['url']['qs_zzform'];
 		$zz_error[] = array(
-			'msg' => sprintf(zz_text('A filter for the selection "%s" does not exist.'), $filter)
-				.' <a href="'.$link.'">'.sprintf(zz_text('List without this filter')).'</a>',
+			'msg' => sprintf(zz_text('A filter for the selection “%s” does not exist.'), $filter)
+				.' '.sprintf(zz_text('<a href="%s">List without this filter</a>'), $link),
 			'level' => E_USER_NOTICE
 		);
 		$error = true;
