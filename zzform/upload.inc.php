@@ -441,7 +441,7 @@ function zz_upload_check_files($zz_tab) {
 				// don't overwrite different error messages, filesize = 0 also might be the case
 				// if file which was uploaded is too big
 				// file is too small or 0, might occur while incorrect refresh of browser
-				$images[$no][$img]['upload']['error'] = UPLOAD_ERR_NO_FILE; // no file
+				$images[$no][$img]['upload']['error'] = UPLOAD_ERR_NO_FILE;
 				if ($images[$no][$img]['upload']['name'] AND $images[$no][$img]['upload']['type']) {
 					$images[$no][$img]['upload']['msg'] = sprintf(zz_text(
 						'The file %s is empty. If you are uploading from a Mac, please check if the data is not only available in the so-called “resource fork” of the file.'
@@ -1175,7 +1175,7 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 	$my_rec = &$zz_tab[$tab][$rec];
 	$image = $my_rec['images'][$no][$img];
 
-	if (!empty($image['unsupported_filetype'])) {
+	if (!empty($image['unsupported_filetype']) OR !empty($image['upload']['error'])) {
 		// get rid of the file and go on
 		if (empty($image['upload']['do_not_delete'])) {
 			zz_unlink_cleanup($image['upload']['tmp_name']);
@@ -1212,6 +1212,7 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 		if (!$src_image) // might come from zz_upload_get_source_field()
 			$src_image = $my_rec['images'][$no][$image['source']];
 		if (!empty($src_image['unsupported_filetype'])) return array();
+		if (!empty($src_image['upload']['error'])) return array();
 		if (!empty($image['use_modified_source'])) {
 			// get filename from modified source, false if there was an error
 			$source_filename = isset($src_image['files']) 
