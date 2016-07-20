@@ -1221,10 +1221,10 @@ function zz_log_validation_errors($my_rec, $validation) {
 			);
 			$zz_error['validation']['incorrect_values'][] = array(
 				'field_name' => $field['field_name'],
-				'msg' => zz_text('incorrect value').': '
-					.is_array($my_rec['record'][$field['field_name']])
+				'msg' => sprintf(zz_text('Incorrect value: %s'), 
+					is_array($my_rec['record'][$field['field_name']])
 					? json_encode($my_rec['record'][$field['field_name']])
-					: $my_rec['record'][$field['field_name']]
+					: $my_rec['record'][$field['field_name']])
 			);
 			$zz_error['validation']['log_post_data'] = true;
 		} elseif (empty($field['dont_show_missing'])) {

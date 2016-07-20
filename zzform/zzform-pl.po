@@ -650,8 +650,8 @@ msgid "Warning!"
 msgstr "Ostrzeżenie!"
 
 # Error handling
-msgid "incorrect value"
-msgstr "nieprawidłowa wartość"
+msgid "Incorrect value: %s"
+msgstr "Nieprawidłowa wartość: %s"
 
 # Error handling
 msgid "Database error"

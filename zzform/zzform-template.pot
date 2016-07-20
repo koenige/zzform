@@ -626,7 +626,7 @@ msgid "Warning!"
 msgstr ""
 
 # Error handling
-msgid "incorrect value"
+msgid "Incorrect value: %s"
 msgstr ""
 
 # Error handling
