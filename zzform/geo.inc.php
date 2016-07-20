@@ -460,7 +460,7 @@ function zz_geo_geocode($ops, $zz_tab) {
 		$field = $ops['record_new'][$f['index']][$my_field['field_name']];
 		if (!$field AND $field !== 0 AND $field !== '0') {
 			$update = true;
-		} else {
+		} elseif ($ops['record_old'][$f['index']]) {
 			// do not update if coordinates were changed by user
 			// test against output strings, there may be rounding errors
 			if (zz_geo_coord_out($ops['record_old'][$f['index']][$my_field['field_name']], $type)
