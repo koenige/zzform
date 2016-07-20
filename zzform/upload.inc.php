@@ -443,7 +443,7 @@ function zz_upload_check_files($zz_tab) {
 				// file is too small or 0, might occur while incorrect refresh of browser
 				$images[$no][$img]['upload']['error'] = UPLOAD_ERR_NO_FILE; // no file
 				if ($images[$no][$img]['upload']['name'] AND $images[$no][$img]['upload']['type']) {
-					$images[$no][$img]['upload']['error_msg'] = sprintf(zz_text(
+					$images[$no][$img]['upload']['msg'] = sprintf(zz_text(
 						'The file %s is empty. If you are uploading from a Mac, please check if the data is not only available in the so-called “resource fork” of the file.'
 					), zz_html_escape($images[$no][$img]['upload']['name']));
 				}
@@ -2153,7 +2153,8 @@ function zz_upload_delete($filename, $show_filename = false, $action = 'delete')
 	// just a precaution for e. g. simultaneous access
 		if ($show_filename) {
 			$zz_error[] = array(
-				'msg' => sprintf(zz_text('Could not delete %s, file did not exist.'), $show_filename),
+				'msg' => 'Could not delete %s, file did not exist.',
+				'msg_args' => array($show_filename),
 				'log_post_data' => false,
 				'level' => E_USER_NOTICE
 			);
@@ -2180,7 +2181,8 @@ function zz_upload_delete($filename, $show_filename = false, $action = 'delete')
 	}
 	if (!$success) {
 		$zz_error[] = array(
-			'msg' => sprintf(zz_text('Could not delete %s.'), $filename),
+			'msg' => 'Could not delete %s.',
+			'msg_args' => array($filename),
 			'log_post_data' => false,
 			'level' => E_USER_NOTICE
 		);
@@ -2275,8 +2277,8 @@ function zz_upload_insert($source, $dest, $action = '-', $mode = 'copy') {
 			$msg_dev_args = array($source, $dest);
 		}
 		$zz_error[] = array(
-			'msg' => zz_text('File could not be saved. There is a problem with '
-				.'the user rights. We are working on it.'),
+			'msg' => 'File could not be saved. There is a problem with '
+				.'the user rights. We are working on it.',
 			'msg_dev' => $msg_dev,
 			'msg_dev_args' => $msg_dev_args,
 			'log_post_data' => false,

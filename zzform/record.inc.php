@@ -125,18 +125,20 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 		}
 	} elseif (!empty($zz_tab[0]['integrity'])) {
 		$formhead = zz_text('Warning!');
-		$tmp_error_msg = 
-			zz_text('This record could not be deleted because there are details about this record in other records.')
-			.' '.$zz_tab[0]['integrity']['text']."\n";
-
-		if (isset($zz_tab[0]['integrity']['fields'])) {
-			$tmp_error_msg .= '<ul>'."\n";
-			foreach ($zz_tab[0]['integrity']['fields'] as $del_tab) {
-				$tmp_error_msg .= '<li>'.zz_nice_tablenames($del_tab).'</li>'."\n";
-			}
-			$tmp_error_msg .= '</ul>'."\n";
-		} 
-		$zz_error[]['msg'] = $tmp_error_msg;
+		if (isset($zz_tab[0]['integrity']['msg_args'])) {
+			$tmp_error_msg = sprintf(
+				"<ul>\n<li>%s</li>\n</ul>\n",
+				implode("</li>\n<li>", $zz_tab[0]['integrity']['msg_args'])
+			);
+		} else {
+			$tmp_error_msg = '';
+		}
+		$zz_error[] = array(
+			'msg' => array(
+				'This record could not be deleted because there are details about this record in other records.',
+				$zz_tab[0]['integrity']['msg'], "\n%s"),
+			'msg_args' => array($tmp_error_msg)
+		);
 	} elseif (in_array($ops['mode'], $record_form) OR 
 		($ops['mode'] === 'show' AND !$action_before_redirect)) {
 	//	mode = add | edit | delete: show form
@@ -1612,8 +1614,10 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 				$text .= zz_field_concat($field, $select_fields);
 			} else {
 				global $zz_error;
-				$zz_error[]['msg'] = sprintf(zz_text('Record for <strong>%s</strong> does not exist. (ID: %s)')
-					, $field['title'], zz_html_escape($value));
+				$zz_error[] = array(
+					'msg' => 'Record for <strong>%s</strong> does not exist. (ID: %s)',
+					'msg_args' => array($field['title'], zz_html_escape($value))
+				);
 				$zz_error['error'] = true;
 				return array('', '');
 			}
@@ -3161,8 +3165,9 @@ function zz_field_image($field, $display, $record, $record_saved, $images, $mode
 	if (($mode === 'add' OR $mode === 'edit') && $field['type'] === 'upload_image') {
 		if (!isset($field['image'])) {
 			$zz_error[] = array(
-				'msg' => 'File upload is currently impossible. '
-					.zz_text('An error occured. We are working on the '
+				'msg' => array(
+					'File upload is currently impossible.',
+					'An error occured. We are working on the '
 					.'solution of this problem. Sorry for your '
 					.'inconvenience. Please try again later.'),
 				'msg_dev' => 'Configuration error. Missing upload_image details.',

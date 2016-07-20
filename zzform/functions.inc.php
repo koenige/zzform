@@ -596,13 +596,13 @@ function zz_apply_filter($zz, $filter_params) {
 			if (!empty($zz['list']['hierarchy'])) {
 				$zz['list']['hierarchy']['id'] = $selection;
 			}
-			// @todo: if user searches something, the hierarchical view
+			// @todo if user searches something, the hierarchical view
 			// will be ignored and therefore this hierarchical filter does
 			// not work. think about a better solution.
 		} else {
 			$zz_error[] = array(
-				'msg' => sprintf(zz_text('This filter does not exist: %s'),
-					zz_htmltag_escape($filter_params[$filter['identifier']])),
+				'msg' => 'This filter does not exist: %s',
+				'msg_args' => array(zz_htmltag_escape($filter_params[$filter['identifier']])),
 				'level' => E_USER_NOTICE,
 				'status' => 404
 			);
@@ -2061,10 +2061,11 @@ function zz_backwards_rename($var, $var_renamed, $var_name) {
  *
  * @global array $zz_error
  *		array for each error:
- * 		string 'msg' message that always will be sent back to browser
+ * 		mixed 'msg' message(s) that always will be sent back to browser
+ *		array 'msg_args' vsprintf arguments for msg
  * 		string 'msg_dev' message that will be sent to browser, log and mail, 
  * 			depending on settings
- *		array 'msg_dev_args' sprintf arguments for msg_dev
+ *		array 'msg_dev_args' vsprintf arguments for msg_dev
  * 		int 'level' for error level: currently implemented:
  * 			- E_USER_ERROR: critical error, action could not be finished,
  *				unrecoverable error
@@ -2139,7 +2140,19 @@ function zz_error() {
 		}
 
 		// initialize and translate error messages
-		$error['msg'] = !empty($error['msg']) ? zz_text(trim($error['msg'])) : '';
+		if (!empty($error['msg'])) {
+			// allow 'msg' to be an array to translate each sentence individually
+			if (!is_array($error['msg'])) $error['msg'] = array($error['msg']);
+			foreach ($error['msg'] as $index => $msg) {
+				$error['msg'][$index] = zz_text(trim($msg));
+			}
+			$error['msg'] = implode(' ', $error['msg']);
+		} else {
+			$error['msg'] = '';
+		}
+		if (!empty($error['msg_args'])) {
+			$error['msg'] = vsprintf($error['msg'], $error['msg_args']);
+		}
 		// @todo think about translating dev messages for administrators
 		// in a centrally set (not user defined) language
 		$error['msg_dev'] = !empty($error['msg_dev']) ? trim($error['msg_dev']) : '';

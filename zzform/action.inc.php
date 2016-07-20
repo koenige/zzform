@@ -93,7 +93,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 				return zz_return(array($ops, $zz_tab, $validation));
 			// if something was returned, validation failed because there 
 			// probably are records
-			if ($zz_tab[0]['integrity']['fields']) {
+			if ($zz_tab[0]['integrity']['msg_args']) {
 				$validation = false;
 			} elseif ($zz_var['upload_form']) {
 				zz_integrity_check_files($dependent_ids);
@@ -1840,19 +1840,19 @@ function zz_integrity_relations($relation_table) {
  * @param array $deletable_ids
  * @param array $relations
  * @return mixed bool false: deletion of record possible, integrity will remain
- *		array: 'text' (error message), 'fields' (optional, names of tables
+ *		array: 'msg' (error message), 'msg_args' (optional, names of tables
  *		which have a relation to the current record)
  */
 function zz_integrity_check($deletable_ids, $relations) {
 	if (!$relations) {
 		global $zz_conf;
-		$response['text'] = sprintf(zz_text('No records in relation table'), 
-			'<code>'.$zz_conf['relations_table'].'</code>');
+		$response['msg'] = 'No records in relation table `%s`. Please fill in records.';
+		$response['msg_args'] = array($zz_conf['relations_table']);
 		return $response;
 	}
 
 	$response = array();
-	$response['fields'] = array();
+	$response['msg_args'] = array();
 	$response['updates'] = array();
 	foreach ($deletable_ids as $master_db => $tables) {
 		foreach ($tables as $master_table => $fields) {
@@ -1885,21 +1885,22 @@ function zz_integrity_check($deletable_ids, $relations) {
 							'ids' => $remaining_ids,
 							'field' => $field
 						);
-					} else {
+					} elseif (!array_key_exists($field['detail_table'], $response['msg_args'])) {
 						// there are still IDs which cannot be deleted
 						// check which record they belong to
 						// only get unique values
-						$response['fields'][$field['detail_table']] = $field['detail_table'];
+						$response['msg_args'][$field['detail_table']]
+							= zz_nice_tablenames($field['detail_table']);
 					}
 				}
 			}
 		}
 	}
-	if ($response['fields'] OR $response['updates']) {
-		if ($response['fields']) {
+	if ($response['msg_args'] OR $response['updates']) {
+		if ($response['msg_args']) {
 			// we still have detail records
-			$response['fields'] = array_values($response['fields']);
-			$response['text'] = zz_text('Detail records exist in the following tables:');
+			$response['msg_args'] = array_values($response['msg_args']);
+			$response['msg'] = 'Detail records exist in the following tables:';
 		}
 		return $response;
 	} else {

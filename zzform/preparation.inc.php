@@ -1232,8 +1232,8 @@ function zz_log_validation_errors($my_rec, $validation) {
 				$zz_error['validation']['msg'][] = sprintf(
 					zz_text('Nothing was uploaded in field <strong>%s</strong>.'),
 					$field['title']
-				).(!empty($my_rec['images'][$no][0]['upload']['error_msg'])
-					? ' '.$my_rec['images'][$no][0]['upload']['error_msg'] : '');
+				).(!empty($my_rec['images'][$no][0]['upload']['msg'])
+					? ' '.$my_rec['images'][$no][0]['upload']['msg'] : '');
 			} else {
 				// there's a value missing
 				$zz_error['validation']['msg'][] = sprintf(
