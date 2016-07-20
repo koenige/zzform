@@ -638,7 +638,7 @@ msgid "Export"
 msgstr ""
 
 # Modules: Export
-msgid "Please don't mess with the URL parameters. <code>%s</code> is not allowed here."
+msgid "Please don’t mess with the URL parameters. <code>%s</code> is not allowed here."
 msgstr ""
 
 # Modules: Geo

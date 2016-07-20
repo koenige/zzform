@@ -4,7 +4,7 @@
  * zzform
  * Conditions, conditional fields
  *
- * Part of »Zugzwang Project«
+ * Part of Â»Zugzwang ProjectÂ«
  * http://www.zugzwang.org/projects/zzform
  *
  * Contents:
@@ -24,7 +24,7 @@
  *	zz_conditions_list_check()		set conditions for list
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2010, 2013-2016 Gustaf Mossakowski
+ * @copyright Copyright Â© 2009-2010, 2013-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -222,7 +222,7 @@ function zz_conditions_record($zz, $zz_conditions, $id_value) {
 			$found = true;
 		}
 		if (!$found AND $zz_conf['modules']['debug']) {
-			zz_debug('conditions', 'Notice: `values`-condition was set, but there\'s no field using it! (Waste of ressources)');
+			zz_debug('conditions', 'Notice: `values`-condition was set, but thereâ€™s no field using it! (Waste of ressources)');
 		}
 	}
 	
@@ -418,7 +418,7 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 						}
 					} else {
 						$zz_error[] = array(
-							'msg_dev' => 'Value condition can\'t get corresponding value from database (field %s)',
+							'msg_dev' => 'Value condition canâ€™t get corresponding value from database (field %s)',
 							'msg_dev_args' => array($condition['field_name'])
 						);
 						return zz_return($zz_conditions);

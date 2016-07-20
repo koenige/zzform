@@ -4,11 +4,11 @@
  * zzform
  * Export module
  *
- * Part of »Zugzwang Project«
+ * Part of Â»Zugzwang ProjectÂ«
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2016 Gustaf Mossakowski
+ * @copyright Copyright Â© 2007-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -65,7 +65,7 @@ function zz_export_init($ops) {
 		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
 		$zz_error[] = array(
 			'msg' => sprintf(
-				zz_text('Please don\'t mess with the URL parameters. <code>%s</code> is not allowed here.'),
+				zz_text('Please donâ€™t mess with the URL parameters. <code>%s</code> is not allowed here.'),
 				$key
 			),
 			'level' => E_USER_NOTICE,

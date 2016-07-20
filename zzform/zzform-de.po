@@ -690,7 +690,7 @@ msgstr "Export"
 
 # Modules: Export
 msgid ""
-"Please don't mess with the URL parameters. <code>%s</code> is not allowed "
+"Please don’t mess with the URL parameters. <code>%s</code> is not allowed "
 "here."
 msgstr ""
 "Bitte ändern Sie nicht eigenhändig die URL-Parameter. <code>%s</code> ist "

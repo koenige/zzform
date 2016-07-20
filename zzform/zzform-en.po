@@ -460,7 +460,7 @@ msgstr ""
 msgid "Duplicate entry"
 msgstr ""
 "Duplicate entry in this table. Please check whether the record you were "
-"about to enter already exists or you\\'ll have to change the values you "
+"about to enter already exists or you’ll have to change the values you "
 "entered."
 
 # Record form: Validation, displayed above form
@@ -662,7 +662,7 @@ msgstr ""
 
 # Modules: Export
 msgid ""
-"Please don't mess with the URL parameters. <code>%s</code> is not allowed "
+"Please don’t mess with the URL parameters. <code>%s</code> is not allowed "
 "here."
 msgstr ""
 
