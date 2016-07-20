@@ -2144,9 +2144,29 @@ function zz_error() {
 			// allow 'msg' to be an array to translate each sentence individually
 			if (!is_array($error['msg'])) $error['msg'] = array($error['msg']);
 			foreach ($error['msg'] as $index => $msg) {
-				$error['msg'][$index] = zz_text(trim($msg));
+				if (is_array($msg)) {
+					$mymsg = array();
+					foreach ($msg as $submsg) {
+						$mymsg[] = zz_text(trim($submsg));
+					}
+					$error['msg'][$index] = implode(' ', $mymsg);
+				} else {
+					$error['msg'][$index] = zz_text(trim($msg));
+				}
 			}
-			$error['msg'] = implode(' ', $error['msg']);
+			if (empty($error['html'])) {
+				$error['msg'] = implode(' ', $error['msg']);
+			} else {
+				$mymsg = array();
+				foreach ($error['html'] as $index => $html) {
+					if (array_key_exists($index, $error['msg'])) {
+						$mymsg[] = sprintf($html, $error['msg'][$index]);
+					} else {
+						$mymsg[] = $html;
+					}
+				}
+				$error['msg'] = implode(' ', $mymsg);
+			}
 		} else {
 			$error['msg'] = '';
 		}
@@ -2155,7 +2175,9 @@ function zz_error() {
 		}
 		// @todo think about translating dev messages for administrators
 		// in a centrally set (not user defined) language
-		$error['msg_dev'] = !empty($error['msg_dev']) ? trim($error['msg_dev']) : '';
+		$error['msg_dev'] = !empty($error['msg_dev']) ? $error['msg_dev'] : '';
+		if (is_array($error['msg_dev'])) $error['msg_dev'] = implode(' ', $error['msg_dev']);
+		$error['msg_dev'] = trim($error['msg_dev']);
 		if (!empty($error['msg_dev_args'])) {
 			$error['msg_dev'] = vsprintf($error['msg_dev'], $error['msg_dev_args']);
 		}
@@ -2325,19 +2347,26 @@ function zz_error_validation() {
 
 	// user error message, visible to everyone
 	// line breaks \n important for mailing errors
-	$this_error['msg'] = '<p>'.zz_text('These errors occurred:').' </p>'
-		."\n".'<ul><li>'.implode("</li>\n<li>", $zz_error['validation']['msg'])
-		.'</li></ul>';
+	$this_error['msg'][] = 'These errors occurred:';
+	$this_error['html'][] = "<p>%s</p>\n<ul>";
+	foreach ($zz_error['validation']['msg'] as $msg) {
+		$this_error['msg'][] = $msg;
+		$this_error['html'][] = "<li>%s</li>\n";
+	}
+	$this_error['html'][] = "</ul>\n";
+	if (!empty($zz_error['validation']['msg_args'])) {
+		$this_error['msg_args'] = $zz_error['validation']['msg_args'];
+	}
 	// if we got wrong values entered, put this into a developer message
 	if (!empty($zz_error['validation']['incorrect_values'])) {
-		$this_dev_msg_args = array();
 		foreach ($zz_error['validation']['incorrect_values'] as $incorrect_value) {
-			$this_dev_msg[] = 'Field name: %s / %s';
-			$this_dev_msg_args[] = $incorrect_value['field_name'];
-			$this_dev_msg_args[] = zz_htmltag_escape($incorrect_value['msg']);
+			$this_error['msg_dev'] = array(
+				'Field name: %s / ', $incorrect_value['msg_dev']
+			);
+			foreach ($incorrect_value['msg_dev_args'] as $arg) {
+				$this_error['msg_dev_args'][] = $arg;
+			}
 		}
-		$this_error['msg_dev'] = "\n\n".implode("\n", $this_dev_msg);
-		$this_error['msg_dev_args'] = $this_dev_msg_args;
 	}
 	if (!empty($zz_error['validation']['log_post_data'])) {
 		// must be set explicitly, do not log $_POST for file upload errors

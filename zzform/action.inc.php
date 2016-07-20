@@ -122,11 +122,9 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			// mark it!
 			$zz_tab[0][0]['fields'][$my_tab['no']]['check_validation'] = false;
 			// show error message
-			$zz_error['validation']['msg'][] = sprintf(
-				zz_text('Minimum of records for table `%s` was not met (%d).'), 
-				zz_text($zz_tab[0][0]['fields'][$my_tab['no']]['title']),
-				$my_tab['min_records_required']
-			);
+			$zz_error['validation']['msg'][] = 'Minimum of records for table `%s` was not met (%d).';
+			$zz_error['validation']['msg_args'][] = zz_text($zz_tab[0][0]['fields'][$my_tab['no']]['title']);
+			$zz_error['validation']['msg_args'][] = $my_tab['min_records_required'];
 			$zz_error['validation']['log_post_data'] = true;
 			$validation = false;
 		}
@@ -1422,8 +1420,8 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				);
 				if ($coord['error']) {
 					$zz_error['validation']['incorrect_values'][] = array(
-						'field_name' => $field_name,
-						'msg' => $coord['error']
+						'dev_msg_args' => $field_name,
+						'dev_msg' => $coord['error']
 					);
 					$zz_error['validation']['log_post_data'] = true;
 					$my_rec['fields'][$f]['explanation'] = $coord['error'];
@@ -1583,8 +1581,8 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				if (empty($image['error'])) continue;
 				foreach ($image['error'] as $error) {
 					$zz_error['validation']['incorrect_values'][] = array(
-						'field_name' => $field_name,
-						'msg' => $error
+						'dev_msg_args' => $field_name,
+						'dev_msg' => $error
 					);
 				}
 			}
@@ -1726,7 +1724,7 @@ function zz_write_detail_values($zz_tab, $f, $tab = 0, $rec = 0) {
  *
  * @param string $value value entered in form
  * @param array $validate defines against what to validate 
- * @return mixed false: everything is okay, string: error message
+ * @return mixed false: everything is okay, array: error message
  */
 function zz_check_rules($value, $validate) {
 	foreach ($validate as $type => $needles) {
@@ -1734,7 +1732,10 @@ function zz_check_rules($value, $validate) {
 		case 'forbidden_strings':
 			foreach ($needles as $needle) {
 				if (stripos($value, $needle) === false) continue; // might be 0
-				return sprintf(zz_text('String <em>“%s”</em> is not allowed'), zz_htmltag_escape($needle));
+				return array(
+					'msg' => 'String <em>“%s”</em> is not allowed',
+					'msg_args' => zz_htmltag_escape($needle)
+				);
 			}
 			break;
 		}

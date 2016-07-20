@@ -443,9 +443,10 @@ function zz_upload_check_files($zz_tab) {
 				// file is too small or 0, might occur while incorrect refresh of browser
 				$images[$no][$img]['upload']['error'] = UPLOAD_ERR_NO_FILE;
 				if ($images[$no][$img]['upload']['name'] AND $images[$no][$img]['upload']['type']) {
-					$images[$no][$img]['upload']['msg'] = sprintf(zz_text(
-						'The file %s is empty. If you are uploading from a Mac, please check if the data is not only available in the so-called “resource fork” of the file.'
-					), zz_html_escape($images[$no][$img]['upload']['name']));
+					$images[$no][$img]['upload']['msg']
+						= 'The file %s is empty. If you are uploading from a Mac, please check if the data is not only available in the so-called “resource fork” of the file.';
+					$images[$no][$img]['upload']['msg_args']
+						= array(zz_html_escape($images[$no][$img]['upload']['name']));
 				}
 				if (file_exists($images[$no][$img]['upload']['tmp_name'])) {
 					// get rid of max 3 byte large file
