@@ -571,6 +571,11 @@ msgstr ""
 msgid "(no value)"
 msgstr "(brak wartości)"
 
+# List view: Filter
+#: zzform/functions.inc.php
+msgid "This filter does not exist: %s"
+msgstr ""
+
 # List view: Table head
 msgid "order by"
 msgstr "Sortuj według"

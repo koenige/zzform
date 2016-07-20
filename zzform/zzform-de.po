@@ -593,6 +593,11 @@ msgstr "<a href=\"%s\">Die Liste ohne diesen Filter</a>"
 msgid "(no value)"
 msgstr "(kein Wert)"
 
+# List view: Filter
+#: zzform/functions.inc.php
+msgid "This filter does not exist: %s"
+msgstr "Dieser Filter ist nicht vorhanden: %s"
+
 # List view: Table head
 msgid "order by"
 msgstr "Sortiere nach"
