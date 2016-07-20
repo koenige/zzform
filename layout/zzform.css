@@ -471,6 +471,7 @@ body #zzform .separator hr
 #zzform .error, #zzform .subtable .horizontal td.error
 					{ color: white; padding: .25em; }
 #zzform div.error	{ margin: 1em 0; padding-left: .75em; max-width: 40em; }
+#zzform div.error p	{ margin-top: 0; }
 #zzform td div.error
 					{ margin: 0 0 .5em; }
 #zzform .error small { padding: 0 .4em; display: block; }
