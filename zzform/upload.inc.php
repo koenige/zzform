@@ -622,7 +622,7 @@ function zz_upload_fileinfo($file, $extension = false) {
 		foreach ($file['warnings'] as $function => $warnings) {
 			$zz_error[] = array(
 				'msg_dev' => "%s returns with a warning:\n\n%s",
-				'msg_dev_args' => array($function, implode("\n", $warnings))
+				'msg_dev_args' => array($function, implode("\n", $warnings)),
 				'log_post_data' => false,
 				'level' => E_USER_NOTICE
 			);
