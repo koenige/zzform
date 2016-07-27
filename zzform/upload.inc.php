@@ -1176,7 +1176,10 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 	$my_rec = &$zz_tab[$tab][$rec];
 	$image = $my_rec['images'][$no][$img];
 
-	if (!empty($image['unsupported_filetype']) OR !empty($image['upload']['error'])) {
+	$abort = false;
+	if (!empty($image['unsupported_filetype'])) $abort = true;
+	if (!empty($image['upload']['error']) AND empty($image['source_file'])) $abort = true;
+	if ($abort) {
 		// get rid of the file and go on
 		if (empty($image['upload']['do_not_delete'])) {
 			zz_unlink_cleanup($image['upload']['tmp_name']);
