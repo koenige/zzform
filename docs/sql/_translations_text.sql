@@ -1,14 +1,17 @@
 # 
-# Tabellenstruktur für Tabelle `zzform_translations_text`
+# table structure for table `_translations_text`
+# Tabellenstruktur fÃ¼r Tabelle `_translations_text`
 # 
 
-CREATE TABLE `zzform_translations_text` (
-  `translation_id` int(10) unsigned NOT NULL auto_increment,
-  `translationfield_id` int(10) unsigned NOT NULL default '0',
-  `field_id` int(10) unsigned NOT NULL default '0',
-  `translation` text NOT NULL,
-  `language_id` int(10) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`translation_id`),
-  UNIQUE KEY `field_id` (`field_id`,`translationfield_id`,`language_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1  ;
-
+CREATE TABLE `_translations_text` (
+  `translation_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `translationfield_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `field_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `translation` text COLLATE utf8_unicode_ci NOT NULL,
+  `language_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`translation_id`),
+  UNIQUE KEY `field_id` (`field_id`,`translationfield_id`,`language_id`),
+  KEY `language_id` (`language_id`),
+  KEY `translationfield_id` (`translationfield_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

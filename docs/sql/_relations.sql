@@ -1,1 +1,19 @@
-## Tabellenstruktur für Tabelle `_relations`#CREATE TABLE `_relations` (  `rel_id` int(10) unsigned NOT NULL auto_increment,  `master_db` varchar(127) NOT NULL default '',  `master_table` varchar(127) NOT NULL default '',  `master_field` varchar(127) NOT NULL default '',  `detail_db` varchar(127) NOT NULL default '',  `detail_table` varchar(127) NOT NULL default '',  `detail_field` varchar(127) NOT NULL default '',  `delete` enum('delete','ask','no-delete') NOT NULL default 'no-delete',  `detail_id_field` varchar(127) NOT NULL default '',  `detail_url` varchar(63) default NULL,  PRIMARY KEY  (`rel_id`)) TYPE=MyISAM AUTO_INCREMENT=1 ;
+#
+# table structure for table `_relations`
+# Tabellenstruktur fÃ¼r Tabelle `_relations`
+#
+
+CREATE TABLE `_relations` (
+  `rel_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `master_db` varchar(127) COLLATE latin1_general_cs NOT NULL DEFAULT '',
+  `master_table` varchar(127) COLLATE latin1_general_cs NOT NULL DEFAULT '',
+  `master_field` varchar(127) COLLATE latin1_general_cs NOT NULL DEFAULT '',
+  `detail_db` varchar(127) COLLATE latin1_general_cs NOT NULL DEFAULT '',
+  `detail_table` varchar(127) COLLATE latin1_general_cs NOT NULL DEFAULT '',
+  `detail_field` varchar(127) COLLATE latin1_general_cs NOT NULL DEFAULT '',
+  `delete` enum('delete','ask','no-delete','update') COLLATE latin1_general_cs NOT NULL DEFAULT 'no-delete',
+  `detail_id_field` varchar(127) COLLATE latin1_general_cs NOT NULL DEFAULT '',
+  `detail_url` varchar(63) COLLATE latin1_general_cs DEFAULT NULL,
+  PRIMARY KEY (`rel_id`),
+  UNIQUE KEY `master_db` (`master_db`,`master_table`,`master_field`,`detail_db`,`detail_table`,`detail_field`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_general_cs;
