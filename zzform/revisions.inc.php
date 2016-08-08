@@ -37,21 +37,30 @@ function zz_revisions($ops) {
 	}
 	if (!$data) return array();
 
-	$sql = 'INSERT INTO %s (main_table_name, user_id, rev_status, created, last_update)
-		VALUES ("%s", %s, "live", NOW(), NOW())';
-	$sql = sprintf($sql, $zz_conf['revisions_table'], $ops['return'][0]['table'], $user_id);
+	$status = !empty($ops['revisions_only']) ? 'pending' : 'live';
+	$sql = 'INSERT INTO %s (main_table_name, main_record_id, user_id, rev_status, created, last_update)
+		VALUES ("%s", %d, %s, "%s", NOW(), NOW())';
+	$sql = sprintf($sql,
+		$zz_conf['revisions_table'], $ops['return'][0]['table'],
+		$ops['return'][0]['id_value'], $user_id, $status
+	);
 	$result = wrap_db_query($sql);
 	if (!$result) return array();
 	$rev_id = mysqli_insert_id($zz_conf['db_connection']);
 	zz_log_sql($sql, $zz_conf['user'], $rev_id);
 
-	$sql = 'UPDATE %s SET rev_status = "historic", last_update = NOW()
-		WHERE rev_status = "live" AND main_table_name = "%s" AND revision_id < %d';
-	$sql = sprintf($sql, $zz_conf['revisions_table'], $ops['return'][0]['table'], $rev_id);
-	$result = wrap_db_query($sql);
-	$rows = mysqli_affected_rows($zz_conf['db_connection']);
-	if ($rows) {
-		zz_log_sql($sql, $zz_conf['user']);
+	if ($status === 'live') {
+		$sql = 'UPDATE %s SET rev_status = "historic", last_update = NOW()
+			WHERE rev_status = "live" AND main_table_name = "%s" AND main_record_id = %d AND revision_id < %d';
+		$sql = sprintf($sql,
+			$zz_conf['revisions_table'], $ops['return'][0]['table'],
+			$ops['return'][0]['id_value'], $rev_id
+		);
+		$result = wrap_db_query($sql);
+		$rows = mysqli_affected_rows($zz_conf['db_connection']);
+		if ($rows) {
+			zz_log_sql($sql, $zz_conf['user']);
+		}
 	}
 
 	$sql_rev = 'INSERT INTO %s (revision_id, table_name, record_id, changed_values,
