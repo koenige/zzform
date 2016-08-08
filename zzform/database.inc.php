@@ -519,16 +519,15 @@ function zz_db_change($sql, $id = false) {
 	// dummy SQL means nothing will be done
 	if ($sql === 'SELECT 1') return $db;
 	
-	// get rid of extra whitespace, just to check statements
-	$sql_ws = preg_replace('~\s~', ' ', trim($sql));
-	$tokens = explode(' ', $sql_ws);
+	$statement = zz_db_statement($sql);
 	// check if statement is allowed
-	$allowed_statements = array('INSERT', 'DELETE', 'UPDATE');
-	if (!in_array($tokens[0], $allowed_statements)) {
+	$allowed_statements = array('insert', 'delete', 'update');
+	if (!in_array($statement, $allowed_statements)) {
 		$db['action'] = '';
 		$db['error'] = array(
 			'query' => $sql,
-			'msg_dev' => 'Statement not supported'
+			'msg_dev' => 'Statement not supported: %s',
+			'msg_dev_args' => array($statement)
 		);
 		return $db;
 	}
@@ -540,7 +539,7 @@ function zz_db_change($sql, $id = false) {
 			$db['action'] = 'nothing';
 		} else {
 			$db['rows'] = mysqli_affected_rows($zz_conf['db_connection']);
-			$db['action'] = strtolower($tokens[0]);
+			$db['action'] = strtolower($statement);
 			if ($db['action'] === 'insert') // get ID value
 				$db['id_value'] = mysqli_insert_id($zz_conf['db_connection']);
 			// Logs SQL Query, must be after insert_id was checked
@@ -571,6 +570,19 @@ function zz_db_change($sql, $id = false) {
 		wrap_error('SQL query in '.$time.' - '.$sql, E_USER_NOTICE);
 	}
 	return $db;	
+}
+
+/**
+ * get SQL statement from query
+ *
+ * @param string $sql
+ * @return string
+ */
+function zz_db_statement($sql) {
+	// get rid of extra whitespace, just to check statements
+	$sql_ws = preg_replace('~\s~', ' ', trim($sql));
+	$tokens = explode(' ', $sql_ws);
+	return strtolower($tokens[0]);
 }
 
 /**
