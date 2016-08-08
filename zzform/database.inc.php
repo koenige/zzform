@@ -498,12 +498,13 @@ function zz_db_field_in_query($line, $id_field_name, $count = 0) {
  *
  * @param string $sql
  * @param int $id
+ * @param bool $rev_only
  * @global array $zz_conf
  * @return array $db
  *		'action' (false = fail, 'nothing', 'insert', update', 'delete'), 
  *		'id_value', 'error', ...
  */
-function zz_db_change($sql, $id = false) {
+function zz_db_change($sql, $id = false, $rev_only = false) {
 	global $zz_conf;
 	global $zz_error;
 	if (!empty($zz_conf['debug'])) {
@@ -532,6 +533,12 @@ function zz_db_change($sql, $id = false) {
 		return $db;
 	}
 
+	// revisions only
+	if ($rev_only) {
+		$db['action'] = $statement;
+		return $db;
+	}
+
 	// check
 	$result = mysqli_query($zz_conf['db_connection'], $sql);
 	if ($result) {
@@ -539,7 +546,7 @@ function zz_db_change($sql, $id = false) {
 			$db['action'] = 'nothing';
 		} else {
 			$db['rows'] = mysqli_affected_rows($zz_conf['db_connection']);
-			$db['action'] = strtolower($statement);
+			$db['action'] = $statement;
 			if ($db['action'] === 'insert') // get ID value
 				$db['id_value'] = mysqli_insert_id($zz_conf['db_connection']);
 			// Logs SQL Query, must be after insert_id was checked
