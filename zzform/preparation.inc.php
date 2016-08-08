@@ -36,6 +36,17 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	$zz_tab[0]['sqlextra'] = !empty($zz['sqlextra']) ? $zz['sqlextra'] : array();
 	$zz_tab[0]['sql_translate'] = !empty($zz['sql_translate']) ? $zz['sql_translate'] : array();
 	$zz_tab[0]['hooks'] = !empty($zz['hooks']) ? $zz['hooks'] : array();
+	foreach ($zz_tab[0]['hooks'] as $hook => $actions) {
+		if (is_array($actions)) continue;
+		$zz_tab[0]['hooks'][$hook] = array($actions);
+	}
+	if (!empty($zz['revisions'])) {
+		require_once $zz_conf['dir_inc'].'/revisions.inc.php';
+		$hooks = array('after_insert', 'after_update', 'after_delete');
+		foreach ($hooks as $hook) {
+			$zz_tab[0]['hooks'][$hook][] = 'zz_revisions';
+		}		
+	}
 	$zz_tab[0]['folder'] = !empty($zz['folder']) ? $zz['folder'] : array();
 	$zz_tab[0]['dynamic_referer'] = !empty($zz['dynamic_referer']) ? $zz['dynamic_referer'] : false;
 	$zz_tab[0]['add_from_source_id'] = !empty($zz['add_from_source_id']) ? true : false;
