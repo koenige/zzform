@@ -2511,6 +2511,11 @@ function zz_field_select_hierarchy($field, $lines, $record, $id_field_name) {
 	// if there are no values for subtree, set subtree to false
 	if (!empty($field['show_hierarchy_subtree'])
 		AND empty($my_select[$field['show_hierarchy_subtree']])) {
+		if (!empty($field['possible_values'])) {
+			// it's a check_select, not all values are available
+			// so propably hierarchy is impossible to create
+			return array();
+		}
 		if (empty($lines[$field['show_hierarchy_subtree']])) {
 			global $zz_error;
 			$zz_error[] = array(
