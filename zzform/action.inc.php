@@ -1650,7 +1650,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				$my_rec['fields'][$f]['check_validation'] = false;
 			}
 		} elseif (!$my_rec['POST'][$field_name] 
-			AND empty($field['null'])
+			AND (empty($field['null']) OR $my_rec['POST'][$field_name] === '')
 			AND $field['type'] !== 'timestamp') {
 			if ($field['required_in_db']) {
 				$my_rec['validation'] = false;
