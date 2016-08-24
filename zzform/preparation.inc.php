@@ -1188,11 +1188,9 @@ function zz_prepare_clean_copy($fields, $record) {
  *
  * @param array $my_rec = $zz_tab[$tab][$rec]
  * @param bool $validation
- * @global array $zz_error
  * @return bool true: some errors were logged; false no errors were logged
  */
 function zz_log_validation_errors($my_rec, $validation) {
-	global $zz_error;
 	if ($my_rec['action'] === 'delete') return false;
 	if ($validation) return false;
 	if ($my_rec['access'] === 'show') return false;
@@ -1214,47 +1212,38 @@ function zz_log_validation_errors($my_rec, $validation) {
 				$error = $field['error_msg'];
 			} else {
 				$error = 'Value incorrect in field <strong>%s</strong>.'; 
-				$zz_error['validation']['msg_args'][] = $field['title'];
+				zz_error_validation_log('msg_args', $field['title']);
 			}
 			if (!empty($field['validation_error'])) {
 				$error = array($error);
 				$error[] = $field['validation_error']['msg'];
 				if (!empty($field['validation_error']['msg_args'])) {
-					if (!is_array($field['validation_error']['msg_args'])) {
-						$field['validation_error']['msg_args'] = array($field['validation_error']['msg_args']);
-					}
-					foreach ($field['validation_error']['msg_args'] as $arg) {
-						$zz_error['validation']['msg_args'][] = $arg;
-					}
+					zz_error_validation_log('msg_args', $field['validation_error']['msg_args']);
 				}
 			}
-			$zz_error['validation']['msg'][] = $error;
-			$zz_error['validation']['incorrect_values'][] = array(
-				'msg_dev' => 'Incorrect value: %s',
-				'msg_dev_args' => array($field['field_name'],
-					is_array($my_rec['record'][$field['field_name']])
-					? json_encode($my_rec['record'][$field['field_name']])
-					: $my_rec['record'][$field['field_name']]
-				)
+			zz_error_validation_log('msg', $error);
+			zz_error_validation_log('msg_dev', 'Incorrect value: %s');
+			zz_error_validation_log('msg_dev_args', $field['field_name']);
+			zz_error_validation_log('msg_dev_args', is_array($my_rec['record'][$field['field_name']])
+				? json_encode($my_rec['record'][$field['field_name']])
+				: $my_rec['record'][$field['field_name']]
 			);
-			$zz_error['validation']['log_post_data'] = true;
+			zz_error_validation_log('log_post_data', true);
 		} elseif (empty($field['dont_show_missing'])) {
 			if ($field['type'] === 'upload_image') {
 				$msg = 'Nothing was uploaded in field <strong>%s</strong>.';
-				$zz_error['validation']['msg_args'][] = $field['title'];
+				zz_error_validation_log('msg_args', $field['title']);
 				if (!empty($my_rec['images'][$no][0]['upload']['msg'])) {
 					$msg = array($msg);
 					$msg[] = $my_rec['images'][$no][0]['upload']['msg'];
-					foreach ($my_rec['images'][$no][0]['upload']['msg_args'] as $arg) {
-						$zz_error['validation']['msg_args'][] = $arg;
-					}
+					zz_error_validation_log('msg_args', $my_rec['images'][$no][0]['upload']['msg_args']);
 				}
-				$zz_error['validation']['msg'][] = $msg;
+				zz_error_validation_log('msg', $msg);
 			} else {
 				// there's a value missing
-				$zz_error['validation']['msg'][] = 'Value missing in field <strong>%s</strong>.';
-				$zz_error['validation']['msg_args'][] = $field['title'];
-				$zz_error['validation']['log_post_data'] = true;
+				zz_error_validation_log('msg', 'Value missing in field <strong>%s</strong>.');
+				zz_error_validation_log('msg_args', $field['title']);
+				zz_error_validation_log('log_post_data', true);
 			}
 		}
 	}

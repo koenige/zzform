@@ -2352,47 +2352,59 @@ function zz_error_output() {
 }
 
 /**
+ * log validation errors
+ *
+ * @param string $key
+ *		'msg', 'msg_args', 'msg_dev', 'msg_dev_args', log_post_data' => log for this key
+ *		'delete' => delete all values
+ * @param mixed $value
+ *		bool, array, string
+ * @return array
+ */
+function zz_error_validation_log($key = false, $value = array()) {
+	static $errors;
+	if (empty($errors) OR $key === 'delete') {
+		$errors = array(
+			'msg' => array(), 'msg_args' => array(), 'msg_dev' => array(),
+			'msg_dev_args' => array(), 'log_post_data' => false
+		);
+		if ($key === 'delete') $key = false;
+	}
+	if ($key) {
+		if (is_bool($value)) $errors[$key] = $value;
+		elseif (is_array($value)) $errors[$key] = array_merge($errors[$key], $value);
+		else $errors[$key][] = $value;
+	}
+	return $errors;
+}
+
+/**
  * output and log validation error messages
  *
- * @global array $zz_error
+ * @return void
  */
 function zz_error_validation() {
-	global $zz_error;
-	if (empty($zz_error['validation']['msg'])) return false;
-	if (!is_array($zz_error['validation']['msg'])) return false;
+	$errors = zz_error_validation_log();
+	if (!$errors['msg']) return false;
 
 	// user error message, visible to everyone
 	// line breaks \n important for mailing errors
-	$this_error['msg'][] = 'These errors occurred:';
-	$this_error['html'][] = "<p>%s</p>\n<ul>";
-	foreach ($zz_error['validation']['msg'] as $msg) {
-		$this_error['msg'][] = $msg;
-		$this_error['html'][] = "<li>%s</li>\n";
+	$errors['html'][] = "<p>%s</p>\n<ul>";
+	foreach ($errors['msg'] as $msg) {
+		$errors['html'][] = "<li>%s</li>\n";
 	}
-	$this_error['html'][] = "</ul>\n";
-	if (!empty($zz_error['validation']['msg_args'])) {
-		$this_error['msg_args'] = $zz_error['validation']['msg_args'];
-	}
+	$errors['html'][] = "</ul>\n";
+	array_unshift($errors['msg'], 'These errors occurred:');
 	// if we got wrong values entered, put this into a developer message
-	if (!empty($zz_error['validation']['incorrect_values'])) {
-		foreach ($zz_error['validation']['incorrect_values'] as $incorrect_value) {
-			$this_error['msg_dev'] = array(
-				'Field name: %s / ', $incorrect_value['msg_dev']
-			);
-			foreach ($incorrect_value['msg_dev_args'] as $arg) {
-				$this_error['msg_dev_args'][] = $arg;
-			}
-		}
+	$dev_msgs = $errors['msg_dev'];
+	unset($errors['msg_dev']);
+	foreach ($dev_msgs as $msg_dev) {
+		$errors['msg_dev'][] = 'Field name: %s / ';
+		$errors['msg_dev'][] = $msg_dev;
 	}
-	if (!empty($zz_error['validation']['log_post_data'])) {
-		// must be set explicitly, do not log $_POST for file upload errors
-		$this_error['log_post_data'] = true;
-	} else {
-		$this_error['log_post_data'] = false;
-	}
-	$this_error['level'] = E_USER_NOTICE;
-	zz_error_log($this_error);
-	unset($zz_error['validation']);
+	$errors['level'] = E_USER_NOTICE;
+	zz_error_log($errors);
+	zz_error_validation_log('delete');
 }
 
 /**
@@ -2410,18 +2422,15 @@ function zz_error_multi($errors) {
 
 	global $zz_error;
 	foreach ($zz_error as $index => $error) {
-		if (!is_numeric($index)) {
-			if ($index === 'validation') {
-				if (!empty($zz_error[$index]['msg']))
-					$errors = array_merge($errors, $zz_error[$index]['msg']);
-			}
-			continue;
-		}
 		if (empty($error['msg_dev'])) continue;
 		if (!empty($error['msg_dev_args'])) {
 			$error['msg_dev'] = vsprintf($error['msg_dev'], $error['msg_dev_args']);
 		}
 		$errors[] = $error['msg_dev'];
+	}
+	$validation_errors = zz_error_validation_log();
+	if ($validation_errors['msg']) {
+		$errors = array_merge($errors, $validation_errors['msg']['msg']);
 	}
 	return $errors;
 }

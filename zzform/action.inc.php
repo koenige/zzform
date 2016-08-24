@@ -30,7 +30,6 @@
  * @param array $zz_tab
  * @param bool $validation
  * @param array $zz_var
- * @global array $zz_error
  * @global array $zz_conf
  * @return array ($ops, $zz_tab, $validation)
  * @see zz_upload_get(), zz_upload_prepare(), zz_set_subrecord_action(),
@@ -39,7 +38,6 @@
  */
 function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	global $zz_conf;
-	global $zz_error;
 
 	if (file_exists($path = $zz_conf['dir_custom'].'/editing.inc.php')) {
 		include_once $path;
@@ -122,10 +120,10 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			// mark it!
 			$zz_tab[0][0]['fields'][$my_tab['no']]['check_validation'] = false;
 			// show error message
-			$zz_error['validation']['msg'][] = 'Minimum of records for table `%s` was not met (%d).';
-			$zz_error['validation']['msg_args'][] = zz_text($zz_tab[0][0]['fields'][$my_tab['no']]['title']);
-			$zz_error['validation']['msg_args'][] = $my_tab['min_records_required'];
-			$zz_error['validation']['log_post_data'] = true;
+			zz_error_validation_log('msg', 'Minimum of records for table `%s` was not met (%d).');
+			zz_error_validation_log('msg_args', zz_text($zz_tab[0][0]['fields'][$my_tab['no']]['title']));
+			zz_error_validation_log('msg_args', $my_tab['min_records_required']);
+			zz_error_validation_log('log_post_data', true);
 			$validation = false;
 		}
 	}
@@ -1295,7 +1293,6 @@ function zz_action_validate($zz_tab) {
  */
 function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 	global $zz_conf;
-	global $zz_error;
 
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	// in case validation fails, these values will be send back to user
@@ -1414,11 +1411,9 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 					$my_rec['POST'][$field_name], $field['number_type'], $precision
 				);
 				if ($coord['error']) {
-					$zz_error['validation']['incorrect_values'][] = array(
-						'msg_dev_args' => $field_name,
-						'msg_dev' => $coord['error']
-					);
-					$zz_error['validation']['log_post_data'] = true;
+					zz_error_validation_log('msg_dev', $coord['error']);
+					zz_error_validation_log('msg_dev_args', $field_name);
+					zz_error_validation_log('log_post_data', true);
 					$my_rec['fields'][$f]['explanation'] = $coord['error'];
 					$my_rec['fields'][$f]['check_validation'] = false;
 					$my_rec['validation'] = false;
@@ -1575,10 +1570,8 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				if (!is_numeric($key)) continue;
 				if (empty($image['error'])) continue;
 				foreach ($image['error'] as $error) {
-					$zz_error['validation']['incorrect_values'][] = array(
-						'msg_dev_args' => $field_name,
-						'msg_dev' => $error
-					);
+					zz_error_validation_log('msg_dev', $error);
+					zz_error_validation_log('msg_dev_args', $field_name);
 				}
 			}
 			break;
