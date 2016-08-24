@@ -39,7 +39,6 @@
  * @param string $dest_extension extension of destination file
  * @param array $image upload image array
  * @return mixed bool true: image creation was successful, array: error message
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_imagegd($source, $destination, $params, $dest_extension, $image) {
 	global $zz_conf;
@@ -154,7 +153,6 @@ function zz_imagegd($source, $destination, $params, $dest_extension, $image) {
  * @param string $dest_extension extension of destination file
  * @param array $image upload image array
  * @return bool true/false true: image creation was successful, false: unsuccessful
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
 	if (empty($image['upload']['width']) OR empty($image['upload']['height'])) {
@@ -205,7 +203,6 @@ function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
  * @param string $dest_extension extension of destination file
  * @param array $image upload image array
  * @return bool true/false true: image creation was successful, false: unsuccessful
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
  function zz_image_crop($source, $destination, $dest_extension, $image) {
  	// Image will be resized exactly to the size as wanted
