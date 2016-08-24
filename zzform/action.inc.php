@@ -684,13 +684,11 @@ function zz_action_hook($ops, $zz_tab, $position, $type) {
  * @param array $ops
  * @param array $zz_tab
  * @global array $zz_conf
- * @global array $zz_error (in case custom error message shall be logged)
  * @return mixed bool true if some action was performed; 
  *	array $change if some values need to be changed
  */
 function zz_action_function($type, $ops, $zz_tab) {
 	global $zz_conf;
-	global $zz_error;
 	if (empty($zz_tab[0]['hooks'][$type])) return false;
 
 	if (file_exists($zz_conf['hooks_dir'].'/hooks.inc.php')) {
