@@ -168,15 +168,16 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 		$output .= wrap_template('zzform-record-reselect', $reselect_errors);
 	}
 
-	// output validation error messages to the user
+	// output validation and database error messages to the user
 	zz_error_validation();
-	$error = zz_error();
+	zz_error();
+	$error = zz_error_output();
 	if ($error) {
 		if (!$div_record_open) {
 			$output .= '<div id="record">';
 			$div_record_open = true;
 		}
-		$output .= zz_error_output();
+		$output .= $error;
 	}
 
 	// set display of record (review, form, not at all)
