@@ -509,9 +509,9 @@ function zz_initialize($mode = false) {
 	}
 
 	$zz_error = array('output' => array());
-	zz_error_exit(false);
 
 	if (!empty($zz_conf['zzform_init'])) {
+		zz_error_exit(false);
 		// get clean $zz_conf without changes from different zzform calls or included scripts
 		if ($mode === 'overwrite') {
 			if (!empty($zz_conf['zzform_calls'])) {
@@ -554,6 +554,7 @@ function zz_initialize($mode = false) {
 	// include core functions
 	require_once $zz_conf['dir_inc'].'/functions.inc.php';
 	require_once $zz_conf['dir_inc'].'/database.inc.php';
+	zz_error_exit(false);
 
 	// optional functions
 	if (file_exists($zz_conf['dir_inc'].'/forcefilename-'.$zz_conf['character_set'].'.inc.php'))
