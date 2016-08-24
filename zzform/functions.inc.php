@@ -2077,12 +2077,9 @@ function zz_error() {
 	$log = array();
 	$mail = array();
 	$return = zz_error_exit() ? 'exit' : 'html';
-	$output = !empty($zz_error['output']) ? $zz_error['output'] : array();
-	unset($zz_error['output']); // we don't need this here
 	
 	if (!$zz_error) {
 		zz_error_exit(($return === 'exit') ? true : false);
-		$zz_error['output'] = $output;
 		return false;
 	}
 	
@@ -2292,7 +2289,7 @@ From: '.$from);
 	$zz_error = array();
 	
 	zz_error_exit(($return === 'exit') ? true : false);
-	$zz_error['output'] = array_merge($output, $user);
+	zz_error_out($user);
 
 	return true;
 }
@@ -2326,17 +2323,32 @@ function zz_error_exit($set = 'check') {
 }
 
 /**
+ * save error message output for later
+ *
+ * @param mixed
+ *	array: add to output array
+ *	bool: false deletes or initializes the output
+ * @return array
+ */
+function zz_error_out($data = array()) {
+	static $output;
+	if (empty($output)) $output = array();
+	if ($data === false) $output = array();
+	elseif ($data) $output = array_merge($output, $data);
+	return $output;
+}
+
+/**
  * outputs error messages
  *
- * @global array $zz_error ('output')
- * @return string $output
+ * @return string
  */
 function zz_error_output() {
-	global $zz_error;
-	if (!$zz_error['output']) return false;
-	$output = '<div class="error">'.implode('<br><br>', $zz_error['output']).'</div>'."\n";
-	$zz_error['output'] = array();
-	return $output;
+	$text = zz_error_out();
+	if (!$text) return '';
+	$text = '<div class="error">'.implode('<br><br>', $text).'</div>'."\n";
+	zz_error_out(false);
+	return $text;
 }
 
 /**

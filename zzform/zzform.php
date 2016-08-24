@@ -494,12 +494,10 @@ function zz_defaults($zz) {
  *		'overwrite': overwrites $zz_conf array with $zz_saved
  *		'old_conf': writes $zz_saved['old_conf'] back to $zz_conf
  * @global array $zz_conf
- * @global array $zz_error
  * @global array $zz_saved (needs global status, access as well from zz_write_conf())
  */
 function zz_initialize($mode = false) {
 	global $zz_conf;
-	global $zz_error;
 	global $zz_saved;
 	
 	if ($mode === 'old_conf') {
@@ -508,10 +506,9 @@ function zz_initialize($mode = false) {
 		return true;
 	}
 
-	$zz_error = array('output' => array());
-
 	if (!empty($zz_conf['zzform_init'])) {
 		zz_error_exit(false);
+		zz_error_out(false);
 		// get clean $zz_conf without changes from different zzform calls or included scripts
 		if ($mode === 'overwrite') {
 			if (!empty($zz_conf['zzform_calls'])) {
@@ -555,6 +552,7 @@ function zz_initialize($mode = false) {
 	require_once $zz_conf['dir_inc'].'/functions.inc.php';
 	require_once $zz_conf['dir_inc'].'/database.inc.php';
 	zz_error_exit(false);
+	zz_error_out(false);
 
 	// optional functions
 	if (file_exists($zz_conf['dir_inc'].'/forcefilename-'.$zz_conf['character_set'].'.inc.php'))
