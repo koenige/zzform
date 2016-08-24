@@ -2036,23 +2036,6 @@ function zz_backwards_rename($var, $var_renamed, $var_name) {
  * will display error messages for the current user on HTML webpage
  * depending on settings, will log errors in logfile and/or send errors by mail
  *
- * @global array $zz_error
- *		array for each error:
- * 		mixed 'msg' message(s) that always will be sent back to browser
- *		array 'msg_args' vsprintf arguments for msg
- * 		string 'msg_dev' message that will be sent to browser, log and mail, 
- * 			depending on settings
- *		array 'msg_dev_args' vsprintf arguments for msg_dev
- * 		int 'level' for error level: currently implemented:
- * 			- E_USER_ERROR: critical error, action could not be finished,
- *				unrecoverable error
- * 			- E_USER_WARNING: error, we need some extra user input
- * 			- E_USER_NOTICE: some default settings will be used because user 
- * 				input was not enough; e. g. date formats etc.
- * 		int 'db_errno' database: error number
- * 		string 'db_msg' database: error message
- * 		string 'query' SQL-Query
- * 		bool 'log_post_data': true (default); false: do not log POST
  * @global array $zz_conf
  *		$zz_conf['error_log']['notice'], $zz_conf['error_log']['warning'], 
  * 		$zz_conf['error_log']['error'] = path to error_log, default from php.ini
@@ -2065,8 +2048,6 @@ function zz_backwards_rename($var, $var_renamed, $var_name) {
  */
 function zz_error() {
 	global $zz_conf;
-	global $zz_error;	// we need this global, because it's global everywhere, 
-						// so we can clear the variable here
 	static $post_errors_logged;
 	
 	if (empty($zz_conf['error_handling'])) {
@@ -2078,7 +2059,8 @@ function zz_error() {
 	$mail = array();
 	$return = zz_error_exit() ? 'exit' : 'html';
 	
-	if (!$zz_error) {
+	$logged_errors = zz_error_log();
+	if (!$logged_errors) {
 		zz_error_exit(($return === 'exit') ? true : false);
 		return false;
 	}
@@ -2092,7 +2074,7 @@ function zz_error() {
 		.($zz_conf['user'] ? $zz_conf['user'] : zz_text('No user')).']';
 
 	// browse through all errors
-	foreach ($zz_error as $key => $error) {
+	foreach ($logged_errors as $key => $error) {
 		if (!is_numeric($key)) continue;
 		
 		// initialize error_level
@@ -2286,7 +2268,7 @@ From: '.$from);
 	}
 
 	// Went through all errors, so we do not need them anymore
-	$zz_error = array();
+	zz_error_log(false);
 	
 	zz_error_exit(($return === 'exit') ? true : false);
 	zz_error_out($user);
@@ -2298,11 +2280,30 @@ From: '.$from);
  * log an error message
  *
  * @param array $msg
- * @global array $zz_error
+ *		array for each error:
+ * 		mixed 'msg' message(s) that always will be sent back to browser
+ *		array 'msg_args' vsprintf arguments for msg
+ * 		string 'msg_dev' message that will be sent to browser, log and mail, 
+ * 			depending on settings
+ *		array 'msg_dev_args' vsprintf arguments for msg_dev
+ * 		int 'level' for error level: currently implemented:
+ * 			- E_USER_ERROR: critical error, action could not be finished,
+ *				unrecoverable error
+ * 			- E_USER_WARNING: error, we need some extra user input
+ * 			- E_USER_NOTICE: some default settings will be used because user 
+ * 				input was not enough; e. g. date formats etc.
+ * 		int 'db_errno' database: error number
+ * 		string 'db_msg' database: error message
+ * 		string 'query' SQL-Query
+ * 		bool 'log_post_data': true (default); false: do not log POST
+ * @static array $errors
+ * @return array
  */
-function zz_error_log($msg) {
-	global $zz_error;
-	$zz_error[] = $msg;
+function zz_error_log($msg = array()) {
+	static $errors;
+	if ($msg === false) $errors = array();
+	elseif ($msg) $errors[] = $msg;
+	return $errors;
 }
 
 /**
@@ -2413,15 +2414,14 @@ function zz_error_validation() {
  *
  * @param array $errors = $ops['error']
  * @global array $zz_conf
- * @global array $zz_error
  * @return array $errors
  */
 function zz_error_multi($errors) {
 	global $zz_conf;
 	if (!$zz_conf['multi']) return $errors;
 
-	global $zz_error;
-	foreach ($zz_error as $index => $error) {
+	$logged_errors = zz_error_log();
+	foreach ($logged_errors as $index => $error) {
 		if (empty($error['msg_dev'])) continue;
 		if (!empty($error['msg_dev_args'])) {
 			$error['msg_dev'] = vsprintf($error['msg_dev'], $error['msg_dev_args']);
