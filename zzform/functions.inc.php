@@ -2384,26 +2384,6 @@ function zz_error_validation() {
 }
 
 /**
- * creates HTML output for 'reselect' errors which need to be checked again
- *
- * @global array $zz_error
- * @return string
- */
-function zz_error_recheck() {
-	global $zz_error;
-	if (empty($zz_error['validation']['reselect'])) return '';
-	if (!is_array($zz_error['validation']['reselect'])) return '';
-	$text = '<div class="reselect"><p>'
-		.zz_text('Please check these values again').': </p>'."\n"
-		.'<ul><li>'.implode(".</li>\n<li>", $zz_error['validation']['reselect'])
-		.'.</li></ul></div>';
-	unset ($zz_error['validation']['reselect']);
-	if (!$zz_error['validation']) unset($zz_error['validation']);
-	return $text;
-}
-
-
-/**
  * log errors in $ops['error'] if zzform_multi() was called, because errors
  * won't be shown on screen in this mode
  *
