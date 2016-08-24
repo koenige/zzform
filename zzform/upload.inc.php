@@ -89,7 +89,6 @@
  * Default settings for upload module
  */
 function zz_upload_config() {
-	global $zz_error;
 	global $zz_conf;
 	static $calls;
 	if (!empty($calls)) return; // dont' call this twice;
@@ -138,7 +137,7 @@ function zz_upload_config() {
 
 	$default['file_types'] = parse_ini_file($zz_conf['dir_inc'].'/filetypes.cfg', true);
 	$default['file_types'] = zz_upload_set_filetypes($default['file_types']);
-	if ($zz_error['error']) return false;
+	if (zz_error_exit()) return false;
 	$default['upload_iptc_fields'] = zz_upload_get_typelist($zz_conf['dir_inc'].'/iptc-iimv4-1.txt', 'IPTC', true);
 
 	// unwanted mimetypes and their replacements
@@ -977,12 +976,10 @@ function zz_upload_unix_file($filename, $file) {
  *		error while converting a file
  * @global array $zz_conf
  *		'debug_upload', 'backup', 'backup_dir'
- * @global array $zz_error
  * @return bool false: nothing was found, true: unknown file was found
  */
 function zz_upload_error_with_file($filename, $file, $return = array()) {
 	global $zz_conf;
-	global $zz_error;
 	static $copied_files;
 	if (empty($zz_conf['debug_upload'])) return false;
 	if (empty($copied_files)) $copied_files = array();
@@ -992,12 +989,12 @@ function zz_upload_error_with_file($filename, $file, $return = array()) {
 	if ($zz_conf['backup'] AND !in_array($filename, $copied_files)) {
 		// don't return here in case of error - 
 		// it's not so important to break the whole process
-		$my_error = $zz_error['error'];
+		$my_error = zz_error_exit();
 		$error_filename = zz_upload_path($zz_conf['backup_dir'], 'error', $filename);
-		if (!$zz_error['error'])
+		if (!zz_error_exit())
 			copy($filename, $error_filename);
 		$copied_files[] = $filename; // just copy a file once
-		$zz_error['error'] = $my_error;
+		zz_error_exit($my_error);
 	}
 	
 	if (empty($return['msg_dev_args'])) {
@@ -2139,12 +2136,10 @@ function zz_upload_background($id, $no, $img) {
  		if this is not set, no error message will be shown to user (optional file)
  * @param string $action (optional) = record action, for backup only
  * @global array $zz_conf
- * @global array $zz_error
  * @return bool false: major error; true: file does not exist anymore
  */
 function zz_upload_delete($filename, $show_filename = false, $action = 'delete') {
 	global $zz_conf;
-	global $zz_error;
 
 	if (!file_exists($filename)) {
 	// just a precaution for e. g. simultaneous access
@@ -2171,7 +2166,7 @@ function zz_upload_delete($filename, $show_filename = false, $action = 'delete')
 
 	if ($zz_conf['backup']) {
 		$success = zz_rename($filename, zz_upload_path($zz_conf['backup_dir'], $action, $filename));
-		if ($zz_error['error']) return false;
+		if (zz_error_exit()) return false;
 		zz_cleanup_dirs(dirname($filename));
 	} else {
 		$success = zz_unlink_cleanup($filename);
@@ -2199,26 +2194,24 @@ function zz_upload_delete($filename, $show_filename = false, $action = 'delete')
  * @param string $uploaded_file = new upload file
  * @param string $action (optional) = record action, for backup only
  * @global array $zz_conf
- * @global array $zz_error
  * @return bool true: copy was succesful, false: an error occured
  */
 function zz_upload_update($source, $dest, $uploaded_file, $action = 'update') {
 	global $zz_conf;
-	global $zz_error;
 
 	zz_create_topfolders(dirname($dest));
-	if ($zz_error['error']) return false;
+	if (zz_error_exit()) return false;
 	if (file_exists($dest) AND $zz_conf['backup'] AND (strtolower($source) != strtolower($dest))) { 
 		// this case should not occur
 		// attention: file_exists returns true even if there is a change in case
 		zz_rename($dest, zz_upload_path($zz_conf['backup_dir'], $action, $dest));
-		if ($zz_error['error']) return false;
+		if (zz_error_exit()) return false;
 	}
 	if (!file_exists($source)) return true;
 	if ($zz_conf['backup'] AND $uploaded_file) {
 		// new image will be added later on for sure
 		zz_rename($source, zz_upload_path($zz_conf['backup_dir'], $action, $dest));
-		if ($zz_error['error']) return false;
+		if (zz_error_exit()) return false;
 	} else {
 		// just filename will change
 		zz_rename($source, $dest);
@@ -2235,12 +2228,10 @@ function zz_upload_update($source, $dest, $uploaded_file, $action = 'update') {
  * @param string $action (optional) = record action, for backup only
  * @param string $mode (optional) = copy|move (default: copy)
  * @global array $zz_conf
- * @global array $zz_error
  * @return bool true: copy was succesful, false: an error occured
  */
 function zz_upload_insert($source, $dest, $action = '-', $mode = 'copy') {
 	global $zz_conf;
-	global $zz_error;
 	
 	// check if destination exists, back it up or delete it
 	if (file_exists($dest)) {
@@ -2255,7 +2246,7 @@ function zz_upload_insert($source, $dest, $action = '-', $mode = 'copy') {
 		}
 		if ($zz_conf['backup']) {
 			zz_rename($dest, zz_upload_path($zz_conf['backup_dir'], $action, $dest));
-			if ($zz_error['error']) return false;
+			if (zz_error_exit()) return false;
 			zz_cleanup_dirs(dirname($dest));
 		} else {
 			zz_unlink_cleanup($dest);
@@ -2263,7 +2254,7 @@ function zz_upload_insert($source, $dest, $action = '-', $mode = 'copy') {
 	}
 	// create path if it does not exist or if cleanup removed it.
 	zz_create_topfolders(dirname($dest));
-	if ($zz_error['error']) return false;
+	if (zz_error_exit()) return false;
 	$success = zz_rename($source, $dest);
 	if (!$success) {
 		if (!is_writeable(dirname($dest))) {
@@ -2302,14 +2293,12 @@ function zz_upload_insert($source, $dest, $action = '-', $mode = 'copy') {
  * @param string $dir backup directory
  * @param string $action sql action
  * @param string $path file path
- * @global array $zz_error
  * @return string unique filename ? path?
  */
 function zz_upload_path($dir, $action, $path) {
-	global $zz_error;
 	$my_base = $dir.'/'.$action.'/';
 	zz_create_topfolders($my_base);
-	if ($zz_error['error']) return false;
+	if (zz_error_exit()) return false;
 	$i = 0;
 	do  { 
 		$my_path = $my_base.time().$i.'.'.basename($path);

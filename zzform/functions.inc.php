@@ -533,12 +533,10 @@ function zz_filter_defaults($zz) {
  *
  * @param array $zz
  * @param array $filter_params = $zz_var['filters']
- * @global array $zz_error
  * @return array ($zz, 'hierarchy' will be changed if corresponding filter,
  *	'filter', might be changed)
  */
 function zz_apply_filter($zz, $filter_params) {
-	global $zz_error;
 	if (!$zz['filter']) return $zz;
 
 	// set filter for complete form
@@ -559,7 +557,7 @@ function zz_apply_filter($zz, $filter_params) {
 				$zz['filter'][$filter['depends_on']]['subfilter'][] = $index;
 			}
 			$elements = zz_db_fetch($filter['sql'], '_dummy_id_', 'key/value');
-			if ($zz_error['error']) continue;
+			if (zz_error_exit()) continue;
 			// don't show filter if we have only one element
 			if (count($elements) <= 1) {
 				unset($filter);
@@ -603,7 +601,7 @@ function zz_apply_filter($zz, $filter_params) {
 				'level' => E_USER_NOTICE,
 				'status' => 404
 			));
-			$zz_error['error'] = true;
+			zz_error_exit(true);
 		}
 	}
 	return $zz;
@@ -2078,13 +2076,12 @@ function zz_error() {
 	$admin = array();
 	$log = array();
 	$mail = array();
-	$return = !empty($zz_error['error']) ? 'exit' : 'html';
+	$return = zz_error_exit() ? 'exit' : 'html';
 	$output = !empty($zz_error['output']) ? $zz_error['output'] : array();
-	unset($zz_error['error']); // we don't need this here
-	unset($zz_error['output']); // this neither
+	unset($zz_error['output']); // we don't need this here
 	
 	if (!$zz_error) {
-		$zz_error['error'] = ($return === 'exit') ? true : false;
+		zz_error_exit(($return === 'exit') ? true : false);
 		$zz_error['output'] = $output;
 		return false;
 	}
@@ -2294,7 +2291,7 @@ From: '.$from);
 	// Went through all errors, so we do not need them anymore
 	$zz_error = array();
 	
-	$zz_error['error'] = ($return === 'exit') ? true : false;
+	zz_error_exit(($return === 'exit') ? true : false);
 	$zz_error['output'] = array_merge($output, $user);
 
 	return true;
@@ -2309,6 +2306,23 @@ From: '.$from);
 function zz_error_log($msg) {
 	global $zz_error;
 	$zz_error[] = $msg;
+}
+
+/**
+ * set exit variable to signal the script to stop
+ *
+ * @param mixed $set
+ *	true: exit script;
+ *	false: do not exit script
+ *	'check': print out current status (default)
+ * @return bool
+ */
+function zz_error_exit($set = 'check') {
+	static $exit;
+	if (!isset($exit)) $exit = false;
+	if ($set === true) $exit = true;
+	elseif ($set === false) $exit = false;
+	return $exit;
 }
 
 /**
@@ -2458,7 +2472,6 @@ function zz_trigger_error_too_big() {
  * @return bool true/false = successful/fail
  */
 function zz_create_topfolders($dir) {
-	global $zz_error;
 	if (!$dir) return false;
 	// checks if directories above current exist and creates them if necessary
 	while (strpos($dir, '//'))
@@ -2477,7 +2490,7 @@ function zz_create_topfolders($dir) {
 				'msg_dev_args' => array($dir),
 				'level' => E_USER_ERROR
 			));
-			$zz_error['error'] = true;
+			zz_error_exit(true);
 			return false;
 		}
 		$success = mkdir($dir, 0777);
@@ -2491,7 +2504,7 @@ function zz_create_topfolders($dir) {
 		'msg_dev_args' => array($dir),
 		'level' => E_USER_ERROR
 	));
-	$zz_error['error'] = true;
+	zz_error_exit(true);
 	return false;
 }
 

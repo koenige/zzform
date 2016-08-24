@@ -63,7 +63,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			$ops['file_upload'] = false;
 		}
 	}
-	if ($zz_error['error'])
+	if (zz_error_exit())
 		return zz_return(array($ops, $zz_tab, $validation));
 
 	$zz_tab = zz_action_validate($zz_tab);
@@ -89,7 +89,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 				zz_array_merge($record_ids, $dependent_ids), $relations
 			);
 			// return database errors
-			if ($zz_error['error'])
+			if (zz_error_exit())
 				return zz_return(array($ops, $zz_tab, $validation));
 			// if something was returned, validation failed because there 
 			// probably are records
@@ -161,8 +161,8 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	// hook, if any other action before insertion/update/delete is required
 	list($ops, $zz_tab) = zz_action_hook($ops, $zz_tab, 'before_'.$zz_var['action'], 'planned');
 
-	if ($zz_error['error']) { // repeat, might be set in before_action
-		$zz_error['error'] = false;
+	if (zz_error_exit()) { // repeat, might be set in before_action
+		zz_error_exit(false);
 		$validation = false;
 		// delete temporary unused files
 		if (!empty($zz_var['upload_form'])) zz_upload_cleanup($zz_tab); 
@@ -411,7 +411,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			// upload images, delete images, as required
 			$zz_tab = zz_upload_action($zz_tab);
 			$ops['output'] .= zz_error();
-			if ($zz_error['error']) {
+			if (zz_error_exit()) {
 				zz_upload_cleanup($zz_tab);
 				return zz_return(array($ops, $zz_tab, $validation));
 			}

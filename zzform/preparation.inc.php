@@ -24,7 +24,6 @@
  */
 function zz_prepare_tables($zz, $zz_var, $mode) {
 	global $zz_conf;
-	global $zz_error;
 
 	$zz_tab = array();
 	// ### variables for main table will be saved in zz_tab[0]
@@ -100,7 +99,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 			// don't show values which are not saved in show-record mode
 			$zz_tab[$tab]['values'] = array();
 		}
-		if ($zz_error['error']) return array();
+		if (zz_error_exit()) return array();
 		$zz_tab[$tab] = zz_get_subrecords(
 			$mode, $zz['fields'][$no], $zz_tab[$tab], $zz_tab[0], $zz_var, $tab
 		);
@@ -110,7 +109,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 			$zz_tab[$tab][$rec]['POST'] = $zz_tab[$tab]['POST'][$rec];
 			unset($zz_tab[$tab]['POST'][$rec]);
 		}
-		if ($zz_error['error']) return array();
+		if (zz_error_exit()) return array();
 		if (isset($zz_tab[$tab]['subtable_focus'])) {
 			// set autofocus on subrecord, not on main record
 			$zz_tab[0]['subtable_focus'] = 'set';
@@ -124,7 +123,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 			$zz_tab[0]['sql'], $zz_tab[0]['table'], $zz_var['id'], $zz_tab[0]['sqlextra'], $zz_tab[0]['sql_translate']
 		);
 		if ($zz_var['action'] === 'update' AND !$zz_tab[0][0]['existing']) {
-			$zz_error['error'] = true;
+			zz_error_exit(true);
 			zz_error_log(array(
 				'msg_dev' => 'Trying to update a non-existent record in table `%s` with ID %d.',
 				'msg_dev_args' => array($zz_tab[0]['table'], $zz_var['id']['value']),
@@ -353,7 +352,6 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
  * @return array $my_tab
  */
 function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
-	global $zz_error;
 	global $zz_conf;
 	
 	if ($my_tab['subtable_ids']) {
@@ -418,7 +416,7 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 	} else {
 		$existing = array();
 	}
-	if (!empty($zz_error['error'])) return $my_tab;
+	if (zz_error_exit()) return $my_tab;
 	// get detail records for source_id
 	$source_values = array();
 	if ($mode === 'add' AND !empty($main_tab[0]['id']['source_value'])) {
@@ -426,7 +424,7 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 			$my_tab, $main_tab['table'], $main_tab[0]['id']['source_value'],
 			$rec_tpl['id']['field_name'], $my_tab['subtable_deleted']
 		);
-		if (!empty($zz_error['error'])) return $my_tab;
+		if (zz_error_exit()) return $my_tab;
 		// get rid of foreign_keys and ids
 		foreach ($my_tab['POST'] as $post_id => &$post_field) {
 			foreach ($rec_tpl['fields'] AS $my_field) {
@@ -644,7 +642,6 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
  * @param array $my_tab = $zz_tab[$tab]
  * @param array $existing
  * @param array $fields = $zz_tab[$tab]['fields'] for a subtable
- * @global array $zz_error
  * @return array $my_tab['POST']
  */
 function zz_subrecord_unique($my_tab, $existing, $fields) {

@@ -24,12 +24,10 @@
  *
  * @param array $zz
  * @global array $zz_conf	configuration variables
- * @global array $zz_error	error handling
  * @todo think of zzform($zz, $zz_conf) to get rid of global variables
  */
 function zzform($zz) {
 	global $zz_conf;
-	global $zz_error;
 
 //
 //	Initialize variables & modules
@@ -38,11 +36,6 @@ function zzform($zz) {
 	if (empty($zz_conf['zzform_calls'])) $zz_conf['zzform_calls'] = 1;
 	else $zz_conf['zzform_calls']++;
 
-	//	initialize variables
-	$zz_error = array(
-		'error' => false,		// if true, exit script immediately
-		'output' => array()
-	);
 	$ops = array(
 		'result' => '',
 		'headers' => false,
@@ -77,7 +70,7 @@ function zzform($zz) {
 	$zz_conf['int']['access'] = isset($zz['access']) ? $zz['access'] : (isset($zz_conf['access']) ? $zz_conf['access'] : '');
 
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	if ($zz_error['error']) return zzform_exit($ops); // exits script
+	if (zz_error_exit()) return zzform_exit($ops); // exits script
 
 	// include dependent modules
 	zz_dependent_modules($zz);
@@ -165,7 +158,7 @@ function zzform($zz) {
 	//	not include certain fields and not to get translation fields for these
 	if ($zz_conf['modules']['translations']) {
 		$zz['fields'] = zz_translations_init($zz['table'], $zz['fields']);
-		if ($zz_error['error']) {
+		if (zz_error_exit()) {
 			// if an error occured in zz_translations_check_for, return
 			return zzform_exit($ops);
 		}
@@ -273,7 +266,7 @@ function zzform($zz) {
 			// some minor errors?
 			zz_error();
 			// if an error occured in zz_action, exit
-			if ($zz_error['error']) return zzform_exit($ops); 
+			if (zz_error_exit()) return zzform_exit($ops); 
 			// was action successful?
 			if ($ops['result'] AND !$zz_conf['generate_output']) {
 				// zzform_multi: exit here, rest is for output only
@@ -306,7 +299,7 @@ function zzform($zz) {
 				$zz_tab[$tab] = zz_query_record($zz_tab[$tab], $rec, $validation, $ops['mode']);
 			}
 		}
-		if ($zz_error['error']) return zzform_exit($ops);
+		if (zz_error_exit()) return zzform_exit($ops);
 
 		if (!$zz_conf['generate_output']) {
 			$ops['error'] = zz_error_multi($ops['error']);
@@ -352,7 +345,7 @@ function zzform($zz) {
 			$ops['output'] .= zz_output_add_links($zz_var['extraGET']);
 		}
 	}
-	if ($zz_error['error']) return zzform_exit($ops); // critical error: exit;
+	if (zz_error_exit()) return zzform_exit($ops); // critical error: exit;
 
 	// set title
 	if ($ops['heading']) {
@@ -375,7 +368,6 @@ function zzform($zz) {
  */
 function zzform_exit($ops) {
 	global $zz_conf;
-	global $zz_error;
 	
 	// last time check for errors
 	zz_error();
@@ -383,7 +375,7 @@ function zzform_exit($ops) {
 	if ($ops['mode'] !== 'export') {
 		$ops['output'] .= zz_error_output();
 	}
-	$ops['critical_error'] = $zz_error['error'] ? true : false;
+	$ops['critical_error'] = zz_error_exit();
 	$ops['error_mail'] = array();
 	if (!empty($zz_conf['int']['error']))
 		$ops['error_mail'] = $zz_conf['int']['error'];
@@ -516,6 +508,9 @@ function zz_initialize($mode = false) {
 		return true;
 	}
 
+	$zz_error = array('output' => array());
+	zz_error_exit(false);
+
 	if (!empty($zz_conf['zzform_init'])) {
 		// get clean $zz_conf without changes from different zzform calls or included scripts
 		if ($mode === 'overwrite') {
@@ -572,7 +567,7 @@ function zz_initialize($mode = false) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	// stop if there were errors while adding modules
-	if ($zz_error['error']) zz_return(false);
+	if (zz_error_exit()) zz_return(false);
 
 	$default['hooks_dir']		= $zz_conf['dir_custom'];	// directory for included scripts after action has been taken
 

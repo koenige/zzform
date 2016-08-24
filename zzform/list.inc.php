@@ -23,7 +23,6 @@
  * @param array $ops			operation variables
  * @param array $zz_var			Main variables
  * @param array $zz_conditions	configuration variables
- * @global array $zz_error		errorhandling
  * @global array $zz_conf		Main conifguration parameters, will be modified
  * @return array
  *		array $ops
@@ -32,7 +31,6 @@
 function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	global $zz_error;
 	$zz_conf['int']['no_add_button_so_far'] = true;
 
 	if ($zz_conf['search']) {
@@ -96,7 +94,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	list($lines, $ops['records_total']) = zz_list_query($zz, $id_field);
 	// save total rows in zz_var for use in zz_nice_title()
 	$zz_var['limit_total_rows'] = $ops['records_total'];
-	if ($zz_error['error']) return zz_return(array($ops, $zz_var));
+	if (zz_error_exit()) return zz_return(array($ops, $zz_var));
 	$count_rows = count($lines);
 
 	// don't show anything if there is nothing
@@ -128,7 +126,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		// Check all conditions whether they are true;
 		if (!empty($zz_conf['modules']['conditions'])) {
 			$zz_conditions = zz_conditions_list_check($zz, $zz_conditions, $id_field, array_keys($lines), $ops['mode']);
-			if ($zz_error['error']) return zz_return(array($ops, $zz_var));
+			if (zz_error_exit()) return zz_return(array($ops, $zz_var));
 		}
 
 		// add 0 as a dummy record for which no conditions will be set

@@ -241,12 +241,10 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
  * @param array $zz_var
  * @param array $zz_conditions
  * @global array $zz_conf
- * @global array $zz_error
  * @return string $string			HTML-Output with all form fields
  */
 function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 	global $zz_conf;
-	global $zz_error;
 	
 	if (!$display) return false;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
@@ -268,7 +266,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 	$tbody = zz_show_field_rows($zz_tab, $mode, $display, $zz_var, $zz_conf_record);
 	$tfoot = zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple);
 	$output .= $tfoot.$tbody;
-	if ($zz_error['error']) return zz_return(false);
+	if (zz_error_exit()) return zz_return(false);
 	$output .= '</table>'."\n";
 	if ($multiple) {
 		foreach ($zz_var['id']['values'] as $id_value) {
@@ -433,7 +431,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 	$tab = 0, $rec = 0, $formdisplay = 'vertical', $extra_lastcol = false,
 	$table_count = 0, $show_explanation = true) {
 
-	global $zz_error;
 	global $zz_conf;	// Config variables
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$my_rec = $zz_tab[$tab][$rec];
@@ -885,7 +882,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				}
 
 				list($outputf, $hidden_element) = zz_field_hidden($field, $my_rec['record'], $my_rec['record_saved'], $mode);
-				if (!empty($zz_error['error'])) {
+				if (zz_error_exit()) {
 					zz_error();
 					return zz_return(false);
 				}
@@ -1609,12 +1606,11 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 				$select_fields = zz_field_select_ignore($select_fields, $field, 'unique');
 				$text .= zz_field_concat($field, $select_fields);
 			} else {
-				global $zz_error;
 				zz_error_log(array(
 					'msg' => 'Record for <strong>%s</strong> does not exist. (ID: %s)',
 					'msg_args' => array($field['title'], zz_html_escape($value))
 				));
-				$zz_error['error'] = true;
+				zz_error_exit(true);
 				return array('', '');
 			}
 		} elseif (isset($field['enum'])) {
