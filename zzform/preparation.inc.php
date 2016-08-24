@@ -1202,10 +1202,7 @@ function zz_log_validation_errors($my_rec, $validation) {
 		if ($field['type'] === 'subtable') continue;
 		if (!empty($field['mark_reselect'])) {
 			// oh, it's a reselect, add some validation message
-			$zz_error['validation']['reselect'][] = sprintf(
-				zz_text('Please select one of the values for field %s'),
-				'<strong>'.$field['title'].'</strong>'
-			);
+			zz_log_reselect_errors($field['title']);
 			continue;
 		}
 		// just look for check_validation set but false
@@ -1262,6 +1259,21 @@ function zz_log_validation_errors($my_rec, $validation) {
 		}
 	}
 	return true;
+}
+
+/**
+ * saves titles of fields with 'reselect' errors
+ *
+ * @param string $field_name (optional, will be added to list)
+ * @return array list of field titles
+ */
+function zz_log_reselect_errors($field_name = false) {
+	static $field_names;
+	if (empty($field_names)) $field_names = array();
+	if ($field_name) {
+		$field_names[]['title'] = $field_name;
+	}
+	return $field_names;
 }
 
 /**

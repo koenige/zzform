@@ -490,8 +490,8 @@ msgid "Please check these values again"
 msgstr "Bitte überprüfen Sie diese Werte nocheinmal"
 
 # Record form: Validation, displayed above form
-msgid "Please select one of the values for field %s"
-msgstr "Bitte wählen Sie aus einem der Werte für das Feld %s aus"
+msgid "Please select one of the values for field <strong>%s</strong>."
+msgstr "Bitte wählen Sie aus einem der Werte für das Feld <strong>%s</strong> aus."
 
 # Record form: Validation, displayed above form
 msgid "Creation of directory %s failed: Parent directory is not writable."

@@ -159,13 +159,13 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 	}
 
 	// output reselect warning messages to user
-	$error = zz_error_recheck();
-	if ($error) {
+	$reselect_errors = zz_log_reselect_errors();
+	if ($reselect_errors) {
 		if (!$div_record_open) {
 			$output .= '<div id="record">';
 			$div_record_open = true;
 		}
-		$output .= $error;
+		$output .= wrap_template('zzform-record-reselect', $reselect_errors);
 	}
 
 	// output validation error messages to the user
@@ -229,25 +229,6 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 	}
 
 	return $output;
-}
-
-/**
- * creates HTML output for 'reselect' errors which need to be checked again
- *
- * @global array $zz_error
- * @return string
- */
-function zz_error_recheck() {
-	global $zz_error;
-	if (empty($zz_error['validation']['reselect'])) return '';
-	if (!is_array($zz_error['validation']['reselect'])) return '';
-	$text = '<div class="reselect"><p>'
-		.zz_text('Please check these values again').': </p>'."\n"
-		.'<ul><li>'.implode(".</li>\n<li>", $zz_error['validation']['reselect'])
-		.'.</li></ul></div>';
-	unset ($zz_error['validation']['reselect']);
-	if (!$zz_error['validation']) unset($zz_error['validation']);
-	return $text;
 }
 
 /**
