@@ -4,7 +4,7 @@
  * zzform
  * Miscellaneous functions
  *
- * Part of »Zugzwang Project«
+ * Part of Â»Zugzwang ProjectÂ«
  * http://www.zugzwang.org/projects/zzform
  * 
  * Contents:
@@ -18,7 +18,7 @@
  * V - Validation, preparation for database
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2016 Gustaf Mossakowski
+ * @copyright Copyright Â© 2004-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -2441,10 +2441,16 @@ function zz_trigger_error_too_big() {
 	
 	if (empty($zz_conf['int']['post_too_big'])) return true;
 	$zz_error[] = array(
-		'msg' => zz_text('Transfer failed. Probably you sent a file that was too large.').'<br>'
-			.zz_text('Maximum allowed filesize is').' '
-			.wrap_bytes($zz_conf['upload_MAX_FILE_SIZE']).' &#8211; '
-			.sprintf(zz_text('You sent: %s data.'), wrap_bytes($_SERVER['CONTENT_LENGTH'])),
+		'msg' => array(
+			'Transfer failed. Probably you sent a file that was too large.',
+			'<br>',
+			'Maximum allowed filesize is %s.',
+			' â€“ You sent: %s data.'
+		),
+		'msg_args' => array(
+			wrap_bytes($zz_conf['upload_MAX_FILE_SIZE']),
+			wrap_bytes($_SERVER['CONTENT_LENGTH'])
+		),
 		'level' => E_USER_NOTICE
 	);
 	return false;

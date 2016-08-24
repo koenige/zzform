@@ -337,8 +337,8 @@ msgid "File is too big."
 msgstr "Soubor je příliš velký."
 
 # Record form: File upload
-msgid "Maximum allowed filesize is"
-msgstr "Maximálně povolená velikost souboru je"
+msgid "Maximum allowed filesize is %s."
+msgstr "Maximálně povolená velikost souboru je %s."
 
 # Record form: File upload
 msgid "Unsupported filetype:"
@@ -397,7 +397,7 @@ msgid "Transfer failed. Probably you sent a file that was too large."
 msgstr ""
 
 # Record form: File upload
-msgid "You sent: %s data."
+msgid " – You sent: %s data."
 msgstr ""
 
 # Record form: File upload

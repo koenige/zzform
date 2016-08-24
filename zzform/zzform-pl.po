@@ -342,8 +342,8 @@ msgid "File is too big."
 msgstr "Plik jest zbyt duży."
 
 # Record form: File upload
-msgid "Maximum allowed filesize is"
-msgstr "Maksymalna wielkość pliku wynosi"
+msgid "Maximum allowed filesize is %s."
+msgstr "Maksymalna wielkość pliku wynosi %s."
 
 # Record form: File upload
 msgid "Unsupported filetype:"
@@ -404,8 +404,8 @@ msgid "Transfer failed. Probably you sent a file that was too large."
 msgstr "Transfer nieudany. Prawdopodobnie wysłany plik, który był zbyt duży."
 
 # Record form: File upload
-msgid "You sent: %s data."
-msgstr "Wysłałeś: %s danych."
+msgid " – You sent: %s data."
+msgstr " – Wysłałeś: %s danych."
 
 # Record form: File upload
 msgid ""

@@ -3214,8 +3214,8 @@ function zz_field_image($field, $display, $record, $record_saved, $images, $mode
 				$text .= '<br><small>'.implode('<br>', 
 					$images[$fieldkey][$imagekey]['error']).'</small>';
 			} else {
-				$text .= '<br><small>'.zz_text('Maximum allowed filesize is').' '
-					.wrap_bytes($zz_conf['upload_MAX_FILE_SIZE']).'</small>';
+				$text .= '<br><small>'.sprintf(zz_text('Maximum allowed filesize is %s.'),
+					wrap_bytes($zz_conf['upload_MAX_FILE_SIZE'])).'</small>';
 			}
 			if ($display === 'form' && !empty($image['explanation'])) 
 				$text .= '<p class="explanation">'.$image['explanation'].'</p>';
