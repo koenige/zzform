@@ -1032,7 +1032,7 @@ function zz_get_unique_fields($fields) {
 		// set ID fieldname
 		if (!empty($field['type']) AND $field['type'] === 'id') {
 			if ($zz_var['id']['field_name']) {
-				zz_error_log(array(['msg'] => 'Only one field may be defined as `id`!'));
+				zz_error_log(array('msg' => 'Only one field may be defined as `id`!'));
 				return false;
 			}
 			$zz_var['id']['field_name'] = $field['field_name'];
