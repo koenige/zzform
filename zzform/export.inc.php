@@ -49,12 +49,10 @@ function zz_export_config() {
  *
  * @param array $ops
  * @global array $zz_conf
- * @global array $zz_error
  * @return array $ops
  */
 function zz_export_init($ops) {
 	global $zz_conf;
-	global $zz_error;
 	if (empty($zz_conf['export'])) return $ops;
 	if (empty($_GET['export'])) return $ops;
 
@@ -63,12 +61,12 @@ function zz_export_init($ops) {
 	foreach ($unwanted_keys as $key) {
 		if (!isset($_GET[$key])) continue;
 		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
-		$zz_error[] = array(
+		zz_error_log(array(
 			'msg' => 'Please don’t mess with the URL parameters. <code>%s</code> is not allowed here.',
 			'msg_args' => array($key),
 			'level' => E_USER_NOTICE,
 			'status' => 404
-		);
+		));
 		$ops['mode'] = false;
 		return $ops;
 	}
@@ -96,12 +94,12 @@ function zz_export_init($ops) {
 		}
 	}
 	if (!in_array($export, $zz_conf['int']['allowed_params']['export'])) {
-		$zz_error[] = array(
+		zz_error_log(array(
 			'msg_dev' => 'Export parameter not allowed: `%s`',
 			'msg_dev_args' => array($export ? $export : zz_htmltag_escape($_GET['export'])),
 			'level' => E_USER_NOTICE,
 			'status' => 404
-		);
+		));
 		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], array('export'));
 		$ops['mode'] = false;
 		return $ops;
@@ -426,7 +424,6 @@ function zz_export_script($type) {
  * @param array $zz_conf configuration
  *		'export_csv_enclosure', 'export_csv_delimiter'
  * @return string CSV output, head
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_export_csv_head($main_rows, $zz_conf) {
 	$output = '';
@@ -449,7 +446,6 @@ function zz_export_csv_head($main_rows, $zz_conf) {
  * @param array $zz_conf configuration
  *		'export_csv_enclosure', 'export_csv_delimiter'
  * @return string CSV output, data
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_export_csv_body($rows, $zz_conf) {
 	$output = '';

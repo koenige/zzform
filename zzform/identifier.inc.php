@@ -39,7 +39,6 @@
  * @param string $db_table	Name of Table [dbname.table]
  * @param int $field		Number of field definition
  * @return string identifier
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field = false) {
 	if (empty($vars)) return false;
@@ -341,7 +340,6 @@ function zz_identifier_substr($field_name) {
  * @param int $f = $zz['fields'][n]
  * @param array $main_post POST values of $zz_tab[0][0]['POST']
  * @return array $values
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @todo Funktion ist nicht ganz korrekt, da sie auf unvaldierte 
  * 		Detaildatensätze zugreift. Problem: Hauptdatens. wird vor Detaildatens.
  * 		geprüft (andersherum geht wohl auch nicht)
@@ -446,7 +444,6 @@ function zz_identifier_var($field_name, $my_rec, $main_post) {
  * @return void
  */
 function zz_identifier_redirect($type, $ops, $main_tab) {
-	global $zz_error;
 	foreach ($main_tab['set_redirect'] as $redirect) {
 		if (!is_array($redirect)) {
 			$old = $redirect;
@@ -466,7 +463,7 @@ function zz_identifier_redirect($type, $ops, $main_tab) {
 			}
 		}
 		if (empty($field_name)) {
-			$zz_error[] = array('msg_dev' => 'Missing field name for redirect');
+			zz_error_log(array('msg_dev' => 'Missing field name for redirect'));
 			continue;
 		}
 		if ($type === 'after_update') {
@@ -510,7 +507,6 @@ function zz_identifier_redirect($type, $ops, $main_tab) {
  * @param int $id record ID
  * @param string $fieldname (optional) if set, returns just fieldname
  * @return mixed array: full line from database, string: just field if fieldname
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_identifier_vars_db($sql, $id, $fieldname = false) {
 	global $zz_conf;

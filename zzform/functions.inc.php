@@ -323,7 +323,6 @@ function zz_get_url_self($url_self) {
  * @return array array $zz, $zz_var
  *		'where_condition' (conditions set by where, add and filter), 'zz_fields'
  *		(values for fields depending on where conditions)
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_get_where_conditions($zz, $zz_var) {
 	global $zz_conf;
@@ -446,7 +445,6 @@ function zz_check_get_array($key, $type, $values = array()) {
  * 
  * @param array $zz_conf
  * @return array $zz_conf_record subset of $zz_conf
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_record_conf($zz_conf) {
 	$wanted_keys = array(
@@ -538,7 +536,6 @@ function zz_filter_defaults($zz) {
  * @global array $zz_error
  * @return array ($zz, 'hierarchy' will be changed if corresponding filter,
  *	'filter', might be changed)
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_apply_filter($zz, $filter_params) {
 	global $zz_error;
@@ -600,12 +597,12 @@ function zz_apply_filter($zz, $filter_params) {
 			// will be ignored and therefore this hierarchical filter does
 			// not work. think about a better solution.
 		} else {
-			$zz_error[] = array(
+			zz_error_log(array(
 				'msg' => 'This filter does not exist: %s',
 				'msg_args' => array(zz_htmltag_escape($filter_params[$filter['identifier']])),
 				'level' => E_USER_NOTICE,
 				'status' => 404
-			);
+			));
 			$zz_error['error'] = true;
 		}
 	}
@@ -698,7 +695,6 @@ function zz_where_conditions($zz, $zz_var) {
  *		array $zz_var
  *			'where', 'where_condition', 'id', 
  *			'unique_fields'
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @see zz_get_where_conditions(), zz_get_unique_fields()
  */
 function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = array()) {
@@ -779,11 +775,11 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = arr
 		if ($line) {
 			$zz_var['id']['value'] = $line[$zz_var['id']['field_name']];
 //		} else {
-//			$zz_error[] = array(
+//			zz_error_log(array(
 //				'msg_dev' => zz_text('Database error. 
 //					This database has ambiguous values in ID field.'),
 //				'level' => E_USER_ERROR
-//			);
+//			));
 //			return zz_error(); // exit script
 		}
 		if (!$zz_var['id']['value']) $zz_conf['int']['where_with_unique_id'] = false;
@@ -868,11 +864,10 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 		}
 		if (!isset($fields[$no]['title'])) { // create title
 			if (!isset($fields[$no]['field_name'])) {
-				global $zz_error;
-				$zz_error[] = array(
+				zz_error_log(array(
 					'msg_dev' => 'Field definition incorrect: [No. %d] %s',
 					'msg_dev_args' => array($no, json_encode($fields[$no]))
-				);
+				));
 			}
 			$fields[$no]['title'] = ucfirst($fields[$no]['field_name']);
 			$fields[$no]['title'] = str_replace('_ID', ' ', $fields[$no]['title']);
@@ -1024,14 +1019,10 @@ function zz_hash($zz, $zz_conf) {
  * gets unique and id fields for further processing
  *
  * @param array $fields
- * @global array $zz_error
  * @return array $zz_var
  *		'id'[value], 'id'[field_name], 'unique_fields'
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_get_unique_fields($fields) {
-	global $zz_error;
-
 	$zz_var = array();
 	$zz_var['id']['value'] = false;
 	$zz_var['id']['field_name'] = false;
@@ -1041,7 +1032,7 @@ function zz_get_unique_fields($fields) {
 		// set ID fieldname
 		if (!empty($field['type']) AND $field['type'] === 'id') {
 			if ($zz_var['id']['field_name']) {
-				$zz_error['msg'] = 'Only one field may be defined as `id`!';
+				zz_error_log(array(['msg'] = 'Only one field may be defined as `id`!'));
 				return false;
 			}
 			$zz_var['id']['field_name'] = $field['field_name'];
@@ -1128,17 +1119,13 @@ function zz_set_fielddefs_for_record($fields, $zz_var) {
  *		'where_with_unique_id' bool if it's just one record to be shown (true)
  * @param array $zz_var --> will be changed as well
  * @global array $zz_conf
- * @global array $zz_error
- * @global array $_POST
  * @return array 
  *		$zz array
  *		$ops array
  *		$zz_var array
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_record_access($zz, $ops, $zz_var) {
 	global $zz_conf;
-	global $zz_error;
 
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	// initialize variables
@@ -1469,21 +1456,21 @@ function zz_record_access($zz, $ops, $zz_var) {
 	foreach ($modes as $mode => $action) {
 		if (!$zz_conf[$mode] AND $ops['mode'] === $mode) {
 			$ops['mode'] = false;
-			$zz_error[] = array(
+			zz_error_log(array(
 				'msg_dev' => 'Configuration does not allow this mode: %s',
 				'msg_dev_args' => array($mode),
 				'status' => 403,
 				'level' => E_USER_NOTICE
-			);
+			));
 		}
 		if (!$zz_conf[$mode] AND $zz_var['action'] === $action) {
 			$zz_var['action'] = false;
-			$zz_error[] = array(
+			zz_error_log(array(
 				'msg_dev' => 'Configuration does not allow this action: %s',
 				'msg_dev_args' => array($action),
 				'status' => 403,
 				'level' => E_USER_NOTICE
-			);
+			));
 		}
 	}
 
@@ -1510,7 +1497,6 @@ function zz_record_access($zz, $ops, $zz_var) {
  * 
  * @param array $zz_conf
  * @return array $zz_conf changed zz_conf-variables
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_listandrecord_access($zz_conf) {
 	switch ($zz_conf['int']['access']) {
@@ -1593,7 +1579,6 @@ function zz_listandrecord_access($zz_conf) {
  * @param string $type (optional) link, path or image, image will be returned in
  *		<img src="" alt="">
  * @return string URL or HTML-code for image
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_makelink($path, $record, $type = 'link') {
 	if (empty($path['ignore_record']) AND !$record) return false;
@@ -1712,12 +1697,11 @@ function zz_makelink($path, $record, $type = 'link') {
 function zz_make_mode($modes, $content, $error = E_USER_WARNING) {
 	foreach ($modes as $mode) {
 		if (!function_exists($mode)) {
-			global $zz_error;
-			$zz_error[] = array(
+			zz_error_log(array(
 				'msg_dev' => 'Configuration Error: mode with non-existing function `%s`',
 				'msg_dev_args' => array($mode),
 				'level' => $error
-			);
+			));
 			return false;
 		}
 		$content = $mode($content);
@@ -1740,7 +1724,6 @@ function zz_make_mode($modes, $content, $error = E_USER_WARNING) {
  * @param bool $do (optional)
  * @param int $tab (optional)
  * @param int $rec (optional)
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec = 0) {
 	// set variables
@@ -1826,12 +1809,9 @@ function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec 
  * @param string $sql
  * @param string $idvalue (optional)
  * @param string $idfield (optional)
- * @global array $zz_error
  * @return string
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_get_record($field_name, $sql, $idvalue = false, $idfield = false) { 
-	global $zz_error;
 	// if idvalue is not set: note: all values should be the same!
 	// First value is taken
 	if ($idvalue) 
@@ -1887,7 +1867,6 @@ function zz_magic_quotes_strip($mixed) {
  * @param array $old			Old array
  * @param array $new			New array
  * @return array $merged		Merged array
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_array_merge($old, $new) {
 	foreach ($new as $index => $value) {
@@ -2322,6 +2301,17 @@ From: '.$from);
 }
 
 /**
+ * log an error message
+ *
+ * @param array $msg
+ * @global array $zz_error
+ */
+function zz_error_log($msg) {
+	global $zz_error;
+	$zz_error[] = $msg;
+}
+
+/**
  * outputs error messages
  *
  * @global array $zz_error ('output')
@@ -2375,7 +2365,7 @@ function zz_error_validation() {
 		$this_error['log_post_data'] = false;
 	}
 	$this_error['level'] = E_USER_NOTICE;
-	$zz_error[] = $this_error;
+	zz_error_log($this_error);
 	unset($zz_error['validation']);
 }
 
@@ -2433,14 +2423,13 @@ function zz_error_multi($errors) {
 /**
  * Generate error message if POST is too big
  *
- * @return bookl
+ * @return bool
  */
 function zz_trigger_error_too_big() {
 	global $zz_conf;
-	global $zz_error;
 	
 	if (empty($zz_conf['int']['post_too_big'])) return true;
-	$zz_error[] = array(
+	zz_error_log(array(
 		'msg' => array(
 			'Transfer failed. Probably you sent a file that was too large.',
 			'<br>',
@@ -2452,7 +2441,7 @@ function zz_trigger_error_too_big() {
 			wrap_bytes($_SERVER['CONTENT_LENGTH'])
 		),
 		'level' => E_USER_NOTICE
-	);
+	));
 	return false;
 }
 
@@ -2467,7 +2456,6 @@ function zz_trigger_error_too_big() {
  * 
  * @param string $dir directory to be created
  * @return bool true/false = successful/fail
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_create_topfolders($dir) {
 	global $zz_error;
@@ -2484,11 +2472,11 @@ function zz_create_topfolders($dir) {
 	$success = zz_create_topfolders($upper_dir);
 	if ($success) {
 		if (!is_writable($upper_dir)) {
-			$zz_error[] = array(
+			zz_error_log(array(
 				'msg_dev' => 'Creation of directory %s failed: Parent directory is not writable.',
 				'msg_dev_args' => array($dir),
 				'level' => E_USER_ERROR
-			);
+			));
 			$zz_error['error'] = true;
 			return false;
 		}
@@ -2498,11 +2486,11 @@ function zz_create_topfolders($dir) {
 		//if (!$success) echo 'Change of Ownership of '.$dir.' failed.<br>';
 	}
 
-	$zz_error[] = array(
+	zz_error_log(array(
 		'msg_dev' => 'Creation of directory %s failed.',
 		'msg_dev_args' => array($dir),
 		'level' => E_USER_ERROR
-	);
+	));
 	$zz_error['error'] = true;
 	return false;
 }
@@ -2679,7 +2667,6 @@ function zz_translate($def, $values) {
  * @param array $new_keys		keys and values in pairs that shall be added or
  *		overwritten
  * @return string $string		New query string without removed keys
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_edit_query_string($query, $unwanted_keys = array(), $new_keys = array()) {
 	$query = str_replace('&amp;', '&', $query);
@@ -2847,14 +2834,11 @@ function zz_get_subtable_fielddef($fields, $table) {
  *		option-Field before we offer a blank text field to enter values
  * @param string $long_field_name // $table_name.'[]['.$field_name.']'
  * @param string $db_table
- * @global array $zz_error
  * @global array $zz_conf
  * @return array $my_rec changed keys:
  *		'fields'[$f], 'POST', 'POST-notvalid', 'validation'
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) {
-	global $zz_error;
 	global $zz_conf;
 
 	// only for 'select'-fields with SQL query (not for enums neither for sets)
@@ -2943,10 +2927,10 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
 		$error = true;
 	}
 	if ($error AND $zz_conf['multi']) {
-		$zz_error[] = array(
+		zz_error_log(array(
 			'msg_dev' => 'No entry found: value %s in field %s. <br>SQL: %s',
 			'msg_dev_args' => array($my_rec['POST'][$field_name], $field_name, $my_rec['fields'][$f]['sql_new'])
-		);
+		));
 	}
 	return zz_return($my_rec);
 }

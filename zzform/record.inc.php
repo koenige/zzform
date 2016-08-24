@@ -25,12 +25,10 @@
  * @param array $zz_conditions
  * @global array $zz_conf
  *		'url_self', 'url_self_qs_base', 'url_append', 'character_set'
- * @global array $zz_error
  * @return string $output
  */
 function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 	global $zz_conf;
-	global $zz_error;
 
 	$formhead = false;
 	$records = false;
@@ -133,12 +131,12 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 		} else {
 			$tmp_error_msg = '';
 		}
-		$zz_error[] = array(
+		zz_error_log(array(
 			'msg' => array(
 				'This record could not be deleted because there are details about this record in other records.',
 				$zz_tab[0]['integrity']['msg'], "\n%s"),
 			'msg_args' => array($tmp_error_msg)
-		);
+		));
 	} elseif (in_array($ops['mode'], $record_form) OR 
 		($ops['mode'] === 'show' AND !$action_before_redirect)) {
 	//	mode = add | edit | delete: show form
@@ -245,7 +243,6 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
  * @global array $zz_conf
  * @global array $zz_error
  * @return string $string			HTML-Output with all form fields
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 	global $zz_conf;
@@ -1368,7 +1365,6 @@ function zz_count_records($select, $subtree) {
  * @param array $id_field 'value', 'field_name' of main table
  * @param string $table name of main table
  * @return int value for default field
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_set_auto_value($field, $sql, $table, $tab, $rec, $id_field, $main_table) {
 
@@ -1614,10 +1610,10 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 				$text .= zz_field_concat($field, $select_fields);
 			} else {
 				global $zz_error;
-				$zz_error[] = array(
+				zz_error_log(array(
 					'msg' => 'Record for <strong>%s</strong> does not exist. (ID: %s)',
 					'msg_args' => array($field['title'], zz_html_escape($value))
-				);
+				));
 				$zz_error['error'] = true;
 				return array('', '');
 			}
@@ -2189,13 +2185,10 @@ function zz_field_set($field, $fields, $display, $my_tab) {
  * @param array $record $my_rec['record']
  * @param string $db_table db_name.table
  * @global array $zz_conf just checks for 'modules'[debug]
- * @global array $zz_error
  * @return string HTML output for form
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_field_select_sql($field, $display, $record, $db_table) {
 	global $zz_conf;
-	global $zz_error;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	$lines = zz_field_query($field);
@@ -2517,12 +2510,11 @@ function zz_field_select_hierarchy($field, $lines, $record, $id_field_name) {
 			return array();
 		}
 		if (empty($lines[$field['show_hierarchy_subtree']])) {
-			global $zz_error;
-			$zz_error[] = array(
+			zz_error_log(array(
 				'msg_dev' => 'Subtree with ID %s does not exist.',
 				'msg_dev_args' => array($field['show_hierarchy_subtree']),
 				'error' => E_USER_WARNING
-			);
+			));
 		}
 		return array();
 	}
@@ -2860,7 +2852,6 @@ function zz_field_select_radio_value($field, $record, $value, $label, $pos) {
  * @param array $record
  * @param int $rec
  * @return string $output HTML output for form
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_field_select_set($field, $display, $record, $rec) {
 	$myvalue = array();
@@ -3014,7 +3005,6 @@ function zz_field_select_enum($field, $display, $record) {
  * @global array $zz_conf
  *		$zz_conf['int']['add_details_where']
  * @return array string $field['sql']
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_form_select_sql_where($field, $where_fields) {
 	if (empty($field['sql_where'])) return $field['sql'];
@@ -3146,12 +3136,10 @@ function zz_field_select_ignore($line, $field, $type) {
  * @param string $mode
  * @param int $fieldkey
  * @global array $zz_conf
- * @global array $zz_error
  * @return string
  */
 function zz_field_image($field, $display, $record, $record_saved, $images, $mode, $fieldkey) {				
 	global $zz_conf;
-	global $zz_error;
 	$text = '';
 
 	if (($mode !== 'add' OR $field['type'] !== 'upload_image')
@@ -3169,7 +3157,7 @@ function zz_field_image($field, $display, $record, $record_saved, $images, $mode
 	}
 	if (($mode === 'add' OR $mode === 'edit') && $field['type'] === 'upload_image') {
 		if (!isset($field['image'])) {
-			$zz_error[] = array(
+			zz_error_log(array(
 				'msg' => array(
 					'File upload is currently impossible.',
 					'An error occured. We are working on the '
@@ -3177,7 +3165,7 @@ function zz_field_image($field, $display, $record, $record_saved, $images, $mode
 					.'inconvenience. Please try again later.'),
 				'msg_dev' => 'Configuration error. Missing upload_image details.',
 				'level' => E_USER_WARNING
-			);
+			));
 			return false;
 		}
 

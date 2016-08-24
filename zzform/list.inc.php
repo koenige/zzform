@@ -28,7 +28,6 @@
  * @return array
  *		array $ops
  *		array $zz_var
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	global $zz_conf;
@@ -40,7 +39,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		if (file_exists($zz_conf['dir_inc'].'/search.inc.php')) {
 			require_once $zz_conf['dir_inc'].'/search.inc.php';
 		} else {
-			$zz_error[] = array('msg_dev' => 'Search module was not found.');
+			zz_error_log(array('msg_dev' => 'Search module was not found.'));
 			$zz_conf['search'] = false;
 		}
 	}
@@ -531,14 +530,12 @@ function zz_list_set($zz, $count_rows) {
  * @param string $table ($zz['table'])
  * @param string $mode ($ops['mode'])
  * @global array $zz_conf
- * @global array $zz_error
  * @return array
  *	- array $rows data organized in rows
  *	- array $list with some additional information on how to output list
  */
 function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $table, $mode) {
 	global $zz_conf;
-	global $zz_error;
 	
 	$rows = array();
 	$subselects = array();
@@ -568,10 +565,10 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 		$subselect = zz_list_init_subselects($field, $fieldindex, $id_field);
 		if ($subselect) $subselects[] = $subselect;
 		if (empty($line[$subselect['key_fieldname']])) {
-			$zz_error[] = array(
+			zz_error_log(array(
 				'msg_dev' => 'Wrong key_field_name. Please set $zz_sub["fields"][n]["key_field_name"] to something different: %s',
 				'msg_dev_args' => array(implode(', ', array_keys($line)))
-			);
+			));
 		}
 	}
 	
@@ -895,13 +892,11 @@ function zz_filter_selection($filter, $filter_params, $pos) {
  * @param array $filter_params = $zz_var['filters']
  *		wrong filters may be unset
  * @global array $zz_conf
- * @global array $zz_error
  * @return string $sql
  * @see zz_filter_defaults() for check for invalid filters
  */
 function zz_list_filter_sql($filters, $sql, &$filter_params) {
 	global $zz_conf;
-	global $zz_error;
 
 	// no filter was selected, no change
 	if (!$filter_params) return $sql;
@@ -968,11 +963,11 @@ function zz_list_filter_sql($filters, $sql, &$filter_params) {
 			$sql = $old_sql;
 			if (empty($filter['ignore_invalid_filters'])) {
 				$zz_conf['int']['http_status'] = 404;
-				$zz_error[] = array(
+				zz_error_log(array(
 					'msg' => '“%s” is not a valid value for the selection “%s”. Please select a different filter.', 
 					'msg_args' => array(zz_htmltag_escape($filter_params[$filter['identifier']]), $filter['title']),
 					'level' => E_USER_NOTICE
-				);
+				));
 			}
 			// remove invalid filter from query string
 			unset($filter_params[$filter['identifier']]);
@@ -991,21 +986,20 @@ function zz_list_filter_sql($filters, $sql, &$filter_params) {
  */
 function zz_list_filter_invalid() {
 	global $zz_conf;
-	global $zz_error;
 
 	$error = false;
 	foreach ($zz_conf['int']['invalid_filters'] AS $identifier) {
 		$filter = zz_htmltag_escape($identifier);
 		$link = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
 			.$zz_conf['int']['url']['?&'].$zz_conf['int']['url']['qs_zzform'];
-		$zz_error[] = array(
+		zz_error_log(array(
 			'msg' => array(
 				'A filter for the selection “%s” does not exist.',
 				'<a href="%s">List without this filter</a>'
 			),
 			'msg_args' => array($filter, $link),
 			'level' => E_USER_NOTICE
-		);
+		));
 		$error = true;
 	}
 	return $error;
@@ -1510,7 +1504,6 @@ function zz_list_format($text, $list_format) {
  *		'link_title', 'link_target', 'link_attributes'
  * @param array $line values of current record
  * @return string $link opening A tag HTML code for link (false if there is no link)
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_set_link($field, $line) {
 	$link = false;
@@ -2271,7 +2264,6 @@ function zz_list_head($old_head, $where_values, $columns) {
  * @param bool $html (optional; true: output of HTML attribute)
  * @return mixed array $class list of strings with class names /
  *		string HTML output class="..."
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_field_class($field, $values, $html = false) {
 	$class = array();

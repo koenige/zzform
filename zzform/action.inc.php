@@ -310,7 +310,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 				$del_msg[] = 'integrity update: '.$me_sql.'<br>';
 			} else {
 				$result['error']['msg'] = 'Detail record could not be updated';
-				$zz_error[] = $result['error'];
+				zz_error_log($result['error']);
 			}
 		}
 	}
@@ -345,7 +345,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 					$del_msg[] = 'integrity delete: '.$me_sql.'<br>';
 				} else {
 					$result['error']['msg'] = 'Detail record could not be deleted';
-					$zz_error[] = $result['error'];
+					zz_error_log($result['error']);
 				}
 			}
 		}
@@ -367,7 +367,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 					$ops = zz_record_info($ops, $zz_tab, $tab, $rec);
 				} else { // something went wrong, but why?
 					$result['error']['msg'] = 'Detail record could not be deleted';
-					$zz_error[] = $result['error'];
+					zz_error_log($result['error']);
 					$zz_tab[$tab][$rec]['error'] = $result['error'];
 					// @todo not sure whether to cancel any further operations here
 				}
@@ -428,7 +428,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			$zz_tab[0][0]['id']['value'] = false;
 		}
 		$result['error']['level'] = E_USER_WARNING;
-		$zz_error[] = $result['error'];
+		zz_error_log($result['error']);
 		$zz_tab[0][0]['error'] = $result['error'];
 		$ops = zz_record_info($ops, $zz_tab);
 		$validation = false; // show record again!
@@ -471,11 +471,10 @@ function zz_action_last_update($zz_tab, $action) {
 		);
 		$result = zz_db_change($sql, $zz_tab[0][0]['id']['value'], $zz_tab[0]['revisions_only']);
 		if ($result['action'] !== 'update') {
-			global $zz_error;
-			$zz_error[] = array(
+			zz_error_log(array(
 				'msg_dev' => 'Update of timestamp failed (ID %d), query: %s',
 				'msg_dev_args' => array($zz_tab[0][0]['id']['value'], $sql)
-			);
+			));
 		}
 	}
 	if (!empty($result)) return true;
@@ -556,11 +555,10 @@ function zz_action_equals($my_rec) {
 			}
 		} else {
 			// we have an update but no existing record
-			global $zz_error;
-			$zz_error[] = array(
+			zz_error_log(array(
 				'msg_dev' => 'Update without existing record? Record: %s',
 				'msg_dev_args' => array(json_encode($my_rec))
-			);
+			));
 			$update = true;
 		}
 		$query = sprintf('`%s` = %s', $field['field_name'], $my_rec['POST_db'][$field['field_name']]);
@@ -585,12 +583,11 @@ function zz_action_equals($my_rec) {
  * @param array $zz_tab
  * @param bool $validation
  * @param array $ops
- * @global array $zz_error
+ * @global array $zz_conf
  * @return array
  *		$zz_tab, $validation, $ops
  */
 function zz_action_details($detail_sqls, $zz_tab, $validation, $ops) {
-	global $zz_error;
 	global $zz_conf;
 	
 	foreach (array_keys($detail_sqls) as $tab) {
@@ -625,7 +622,7 @@ function zz_action_details($detail_sqls, $zz_tab, $validation, $ops) {
 				// only if duplicate entry
 				$result['error']['msg'] = 'Detail record could not be handled';
 				$result['error']['level'] = E_USER_WARNING;
-				$zz_error[] = $result['error'];
+				zz_error_log($result['error']);
 				$zz_tab[$tab][$rec]['error'] = $result['error'];
 				$zz_tab[0]['record_action'] = false;
 				$validation = false; 
@@ -737,10 +734,10 @@ function zz_action_function($type, $ops, $zz_tab) {
 			if (array_key_exists('record_replace', $change)
 				AND !empty($change['record_replace'])) {
 				unset($change['record_replace']);
-				$zz_error[] = array(
+				zz_error_log(array(
 					'msg_dev' => 'Function for hook (%s) tries to set record_replace. Will not be evaluated at this point.',
 					'msg_dev_args' => array($type)
-				);
+				));
 			}
 		}
 		return $change;
@@ -814,7 +811,6 @@ function zz_action_change($ops, $zz_tab, $change) {
 function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 	// initialize variables
 	global $zz_conf;
-	global $zz_error;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$values = '';
 	$my_tab = $zz_tab[$tab];
@@ -968,7 +964,6 @@ function zz_write_values($field, $zz_tab, $f, $tab = 0, $rec = 0) {
  */
 function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 	global $zz_conf;
-	global $zz_error;
 
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
@@ -1203,11 +1198,9 @@ function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
  * Create, move or delete folders which are connected to records
  * 
  * @param array $zz_tab complete zz_tab array
- * @global array $zz_error
  * @return array $folders => $zz_tab[0]['folder'][] will be set
  */
 function zz_foldercheck($zz_tab) {
-	global $zz_error;
 	$folders = array();
 	if (empty($zz_tab[0]['folder'])) return $folders;
 	if ($zz_tab[0][0]['action'] !== 'update') return $folders;
@@ -1225,15 +1218,15 @@ function zz_foldercheck($zz_tab) {
 			if ($success) {
 				$folders[] = array('old' => $old_path, 'new' => $path);
 			} else { 
-				$zz_error[] = array(
+				zz_error_log(array(
 					'msg_dev' => 'Folder cannot be renamed.'
-				);
+				));
 				zz_error();
 			}
 		} else {
-			$zz_error[] = array(
+			zz_error_log(array(
 				'msg_dev' => 'There is already a folder by that name.'
-			);
+			));
 			zz_error();
 		}
 	}
@@ -1479,10 +1472,10 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 					$my_rec['POST'][$field_name.'_new_1'], 
 					$my_rec['POST'][$field_name.'_new_2'], $my_sql, $field);
 			} else {
-				$zz_error[] = array(
+				zz_error_log(array(
 					'msg' => 'Please enter your current password and twice your new password.',
 					'level' => E_USER_NOTICE
-				);
+				));
 			}
 			if ($pwd) $my_rec['POST'][$field_name] = $pwd;
 			else { 
@@ -1754,28 +1747,26 @@ function zz_check_rules($value, $validate) {
  * @param string $new2	New password, second time entered, to check if match
  * @param string $sql	SQL query to check whether passwords match
  * @param array $field
- * @global array $zz_error
  * @global array $zz_conf	Configuration variables, here: 'hash_password'
  * @return string false: an error occurred; string: new encrypted password 
  */
 function zz_password_set($old, $new1, $new2, $sql, $field) {
-	global $zz_error;
 	global $zz_conf;
 	if ($new1 !== $new2) {
 		// new passwords do not match
-		$zz_error[] = array(
+		zz_error_log(array(
 			'msg' => 'New passwords do not match. Please try again.',
 			'level' => E_USER_NOTICE
-		);
+		));
 		return false;
 	}
 	if ($old === $new1) {
 		// old password eq new password - this is against identity theft if 
 		// someone interferes a password mail
-		$zz_error[] = array(
+		zz_error_log(array(
 			'msg' => 'New and old password are identical. Please choose a different new password.',
 			'level' => E_USER_NOTICE
-		);
+		));
 		return false; 
 	}
 	$old_hash = zz_db_fetch($sql, '', 'single value', __FUNCTION__);
@@ -1785,24 +1776,24 @@ function zz_password_set($old, $new1, $new2, $sql, $field) {
 		// new1 = new2, old = old, everything is ok
 		$hash = wrap_password_hash($new1);
 		if ($hash) {
-			$zz_error[] = array(
+			zz_error_log(array(
 				'msg' => 'Your password has been changed!',
 				'level' => E_USER_NOTICE
-			);
+			));
 		} else {
-			$zz_error[] = array(
+			zz_error_log(array(
 				'msg' => 'Your new password could not be saved. Please try a different one.',
 				'level' => E_USER_WARNING
-			);
+			));
 		}
 		return $hash;
 	} else {
-		$zz_error[] = array(
+		zz_error_log(array(
 			'msg' => 'Your current password is different from what you entered. Please try again.',
 			'msg_dev' => '(Encryption: %s, existing hash: %s, entered hash: %s)',
 			'msg_dev_args' => array($zz_conf['hash_password'], $old_hash, wrap_password_hash($old)),
 			'level' => E_USER_NOTICE
-		);
+		));
 		return false;
 	}
 }

@@ -131,11 +131,9 @@ function zz_debug_htmlout() {
  * Logs time from different debug-markers in logfile
  * 
  * @param array $return (optional, $ops['return']);
- * @global array $zz_error
  * @global array $zz_debug
  */
 function zz_debug_time($return = array()) {
-	global $zz_error;
 	global $zz_debug;
 	global $zz_conf;
 
@@ -143,11 +141,11 @@ function zz_debug_time($return = array()) {
 	if ($return) $rec = $return[0]['action'].' '.$return[0]['table'].' '
 		.$return[0]['id_value'].' (mem pk: '.memory_get_peak_usage().') ';
 	
-	$zz_error[] = array(
+	zz_error_log(array(
 		'msg_dev' => '[DEBUG] %stime: %s',
 		'msg_dev_args' => array($rec, implode(' ', $zz_debug[$zz_conf['id']]['time'])),
 		'level' => E_USER_NOTICE
-	);
+	));
 	zz_error();
 }
 

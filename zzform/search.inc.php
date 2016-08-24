@@ -21,9 +21,7 @@
  * @param string $table
  * @param string $main_id_fieldname
  * @global array $zz_conf main configuration variables
- * @global array $zz_error
  * @return string $sql (un-)modified SQL query
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @todo if there are subtables, part of this functions code is run redundantly
  */
 function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
@@ -420,8 +418,9 @@ function zz_search_subtable($field, $table, $main_id_fieldname) {
 		}
 	}
 	if (!$foreign_key) {
-		global $zz_error;
-		$zz_error[]['msg_dev'] = 'Subtable definition is wrong. There must be a field which is defined as "foreign_key".';
+		zz_error_log(array(
+			'msg_dev' => 'Subtable definition is wrong. There must be a field which is defined as "foreign_key".'
+		));
 		zz_error();
 		exit;
 	}
@@ -462,7 +461,6 @@ function zz_search_subtable($field, $table, $main_id_fieldname) {
  * @param int $total_rows		total rows in database selection
  * @param string $count_rows	number of rows shown on html page
  * @return string $output		HTML output
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_search_form($fields, $table, $total_rows, $count_rows) {
 	global $zz_conf;

@@ -523,8 +523,6 @@ function zz_geo_geocode($ops, $zz_tab) {
  * @return array
  */
 function zz_geo_geocode_fields($list, $new, $zz_tab) {
-	global $zz_error;
-
 	$geocoding = array();
 	foreach ($list as $index => $planned) {
 		$tabrec = explode('-', $planned['tab-rec']);
@@ -551,7 +549,9 @@ function zz_geo_geocode_fields($list, $new, $zz_tab) {
 	}
 	if (empty($geocoding['latlon'])) return array();
 	if (count($geocoding['latlon']) !== 2) {
-		$zz_error[]['msg_dev'] = 'Record definition incorrect, only one of latitude/longitude present.';
+		zz_error_log(array(
+			'msg_dev' => 'Record definition incorrect, only one of latitude/longitude present.'
+		));
 		return array();
 	}
 	return $geocoding;
@@ -566,7 +566,6 @@ function zz_geo_geocode_fields($list, $new, $zz_tab) {
  * @return array
  */
 function zz_geo_geocode_address($geocoding, $zz_tab, $new) {
-	global $zz_error;
 	global $zz_conf;
 
 	// - if address fields have changed
@@ -583,10 +582,10 @@ function zz_geo_geocode_address($geocoding, $zz_tab, $new) {
 		if (substr($type, -3) === '_id') {
 			$type = substr($type, 0, -3);
 			if (!isset($my_field['geocode_sql'])) {
-				$zz_error[] = array(
+				zz_error_log(array(
 					'msg_dev' => 'Error: geocode_sql not defined for field no %d',
 					'msg_dev_args' => array($f['no'])
-				);
+				));
 				continue;
 			}
 			if (!is_numeric($value)) {

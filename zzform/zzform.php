@@ -58,10 +58,10 @@ function zzform($zz) {
 	$zz = zz_defaults($zz);
 
 	if (empty($zz['fields'])) {
-		$zz_error[] = array(
+		zz_error_log(array(
 			'msg_dev' => 'There is no table definition available (\'fields\'). Please check.',
 			'level' => E_USER_NOTICE
-		);
+		));
 		zz_error();
 		$ops['output'] .= zz_error_output();
 		return zzform_exit($ops);
@@ -84,11 +84,11 @@ function zzform($zz) {
 
 	if ($zz_conf['zzform_calls'] > 1 AND empty($zz_conf['multi'])) { 
 		// show a warning only if zzform is not explicitly called via zzform_multi()
-		$zz_error[] = array(
+		zz_error_log(array(
 			'msg_dev' => 'zzform has been called as a function more than once. '
 				.'You might want to check if this is correct.',
 			'level' => E_USER_NOTICE
-		);
+		));
 		zz_error();
 		$ops['output'] .= zz_error_output();
 	}
@@ -448,7 +448,6 @@ function zzform_exit($ops) {
  */
 function zz_valid_request($action = false) {
 	global $zz_conf;
-	global $zz_error;
 	static $dont_log_error;
 
 	$action_requests = array('delete', 'insert', 'update', 'noupdate');
@@ -468,11 +467,11 @@ function zz_valid_request($action = false) {
 	
 	if ($_GET['zzhash'] !== $zz_conf['int']['secret_key']) {
 		if (!$dont_log_error) {
-			$zz_error[] = array(
+			zz_error_log(array(
 				'msg_dev' => 'Hash of script and ID differs from secret key (hash %s, secret %s).',
 				'msg_dev_args' => array($_GET['zzhash'], $zz_conf['int']['secret_key']),
 				'level' => E_USER_NOTICE
-			);
+			));
 			$dont_log_error = true;
 		}
 		return false;
@@ -505,7 +504,6 @@ function zz_defaults($zz) {
  * @global array $zz_conf
  * @global array $zz_error
  * @global array $zz_saved (needs global status, access as well from zz_write_conf())
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_initialize($mode = false) {
 	global $zz_conf;

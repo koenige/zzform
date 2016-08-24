@@ -125,11 +125,11 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 		);
 		if ($zz_var['action'] === 'update' AND !$zz_tab[0][0]['existing']) {
 			$zz_error['error'] = true;
-			$zz_error[] = array(
+			zz_error_log(array(
 				'msg_dev' => 'Trying to update a non-existent record in table `%s` with ID %d.',
 				'msg_dev_args' => array($zz_tab[0]['table'], $zz_var['id']['value']),
 				'level' => E_USER_ERROR
-			);
+			));
 			return false;
 		}
 	} elseif (!empty($zz_var['id']['values'])) {
@@ -497,11 +497,11 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 			$key = array_search($posted[$my_tab['id_field_name']], $existing_ids);
 			if ($key === false) {
 				// illegal ID, this will only occur if user manipulated the form
-				$zz_error[] = array(
+				zz_error_log(array(
 					'msg_dev' => 'Detail record with invalid ID was posted (ID was said to be %s, main record was ID %s)',
 					'msg_dev_args' => array($posted[$my_tab['id_field_name']], $zz_var['id']['value']),
 					'level' => E_USER_NOTICE
-				);
+				));
 				unset($my_tab['POST'][$rec]);
 				continue;
 			}
@@ -648,7 +648,6 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
  * @return array $my_tab['POST']
  */
 function zz_subrecord_unique($my_tab, $existing, $fields) {
-	global $zz_error;
 	// check if a GET is set on the foreign key
 	$foreign_key = $my_tab['foreign_key_field_name'];
 	if ($pos = strrpos($foreign_key, '.')) {
@@ -676,10 +675,10 @@ function zz_subrecord_unique($my_tab, $existing, $fields) {
 			foreach ($my_tab['POST'] as $no => $record) {
 				foreach ($unique as $field_name) {
 					if (!isset($record[$field_name])) {
-						$zz_error[] = array(
+						zz_error_log(array(
 							'msg_dev' => 'UNIQUE was set but field %s is not in POST',
 							'msg_dev_args' => array($field_name)
-						);
+						));
 						continue;
 					}
 					$values[$field_name] = $record[$field_name];
@@ -745,11 +744,11 @@ function zz_subrecord_unique($my_tab, $existing, $fields) {
 					$value = '';
 				} else {
 					$value = '';
-					$zz_error[] = array(
+					zz_error_log(array(
 						'msg_dev' => 'Field marked as unique, but could not find corresponding value: %s',
 						'msg_dev_args' => array($field['field_name']),
 						'level' => E_USER_NOTICE
-					);
+					));
 				}
 				// we are not writing this value back to POST here
 				// because there's no way telling the script that this
@@ -766,11 +765,11 @@ function zz_subrecord_unique($my_tab, $existing, $fields) {
 			if (count($existing_recs) === 1) {
 				$my_tab['POST'][$no][$my_tab['id_field_name']] = key($existing_recs); 
 			} elseif (count($existing_recs)) {
-				$zz_error[] = array(
+				zz_error_log(array(
 					'msg_dev' => 'Field marked as unique, but value appears more than once in record: %s (SQL %s)',
 					'msg_dev_args' => array($value, $sql),
 					'level' => E_USER_NOTICE
-				);
+				));
 			}
 		}
 	}
@@ -1062,7 +1061,6 @@ function zz_check_def_vals($post, $fields, $existing = array(), $where = array()
  *		might unset $zz_tab[$tab][$rec]
  *		$zz_tab[$tab][$rec]['record'], $zz_tab[$tab][$rec]['record_saved'], 
  *		$zz_tab[$tab][$rec]['fields'], $zz_tab[$tab][$rec]['action']
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_query_record($my_tab, $rec, $validation, $mode) {
 	global $zz_conf;
@@ -1281,8 +1279,6 @@ function zz_log_validation_errors($my_rec, $validation) {
  * @return array
  */
 function zz_query_single_record($sql, $table, $id, $sqlextra, $sql_translate, $type = 'value') {		
-	global $zz_error;
-	
 	if (!$id[$type]) return array();
 	$sql = wrap_edit_sql($sql,
 		'WHERE', sprintf('%s.%s = %d', $table, $id['field_name'], $id[$type])
@@ -1295,10 +1291,10 @@ function zz_query_single_record($sql, $table, $id, $sqlextra, $sql_translate, $t
 	$record = zz_translate(array('sql_translate' => $sql_translate), $record);
 	foreach ($sqlextra as $sql) {
 		if (empty($id[$type])) {
-			$zz_error[] = array(
+			zz_error_log(array(
 				'msg_dev' => 'No ID %s found (Query: %s).',
 				'msg_dev_args' => array($type, $sql)
-			);
+			));
 			continue;
 		}
 		$sql = sprintf($sql, $id[$type]);
@@ -1342,7 +1338,6 @@ function zz_query_multiple_records($sql, $table, $id) {
  * @param array $deleted_ids = IDs that were deleted by user
  * @global array $zz_conf
  * @return array $records, indexed by ID
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_query_subrecord($my_tab, $main_table, $main_id_value,
 	$id_field_name, $deleted_ids = array()) {

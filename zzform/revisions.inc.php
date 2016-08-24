@@ -15,7 +15,6 @@
 
 function zz_revisions($ops) {
 	global $zz_conf;
-	global $zz_error;
 	$user_id = !empty($_SESSION['user_id']) ? $_SESSION['user_id'] : 'NULL';
 
 	$data = array();

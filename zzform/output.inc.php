@@ -72,13 +72,10 @@ function zz_output_heading($heading, $table = '') {
  *		array 'subtitle', 'fields'[n]'field_name' / 'key_field_name'
  * @param array $where_condition, optional
  * @global array $zz_conf
- * @global array $zz_error
  * @return string $heading
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_nice_headings($heading, $zz, $where_condition = array()) {
 	global $zz_conf;
-	global $zz_error;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$i = 0;
 	$heading_addition = array();
@@ -387,7 +384,6 @@ function zz_nice_title($heading, $fields, $zz_var, $mode = false) {
  * @param array $zz_fields
  * @global array $zz_conf
  * @return string $selection
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_nice_selection($zz_fields) {
 	if (empty($_GET['q'])) return false;
@@ -622,10 +618,10 @@ function zz_nice_tablenames($table) {
 		if (strtolower(substr($table, 0, strlen($zz_conf['prefix']))) === strtolower($zz_conf['prefix']))
 			$table = substr($table, strlen($zz_conf['prefix']));
 		else {
-			$zz_error[] = array(
+			zz_error_log(array(
 				'msg_dev' => 'Table prefix is incorrect somehow: %s',
 				'msg_dev_args' => array(substr($table, 0, strlen($zz_conf['prefix'])))
-			);
+			));
 		}
 	}
 	

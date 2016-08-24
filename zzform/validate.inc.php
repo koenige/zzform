@@ -481,12 +481,11 @@ function zz_check_number($number) {
 	eval('$sum = '.$calculation.';');
 	// in case some error occured, check what it is
 	if (!$sum AND $sum !== 0) {
-		global $zz_error;
-		$zz_error[] = array(
+		zz_error_log(array(
 			'msg_dev' => '%s(): calculation did not work. [%s]',
 			'msg_dev_args' => array(__FUNCTION__, implode('', $parts)),
 			'level' => E_USER_NOTICE
-		);
+		));
 		$sum = false;
 	}
 	return $sum;

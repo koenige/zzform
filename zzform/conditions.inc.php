@@ -124,12 +124,10 @@ function zz_conditions_set_field(&$field, &$new_index, &$sc, $cn) {
  * @param string $mode
  * @param array $zz_var
  *		'id' array ('value', 'name'), 'where', 'zz_fields'
- * @global array $zz_error
  * @global array $zz_conf
  * @return array $zz_conditions
  */
 function zz_conditions_check($zz, $mode, $zz_var) {
-	global $zz_error;
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
@@ -417,10 +415,10 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 							}
 						}
 					} else {
-						$zz_error[] = array(
+						zz_error_log(array(
 							'msg_dev' => 'Value condition can’t get corresponding value from database (field %s)',
 							'msg_dev_args' => array($condition['field_name'])
-						);
+						));
 						return zz_return($zz_conditions);
 					}
 				} else {
@@ -429,10 +427,10 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 				}
 			}
 			if (!$value) {
-				$zz_error[] = array(
+				zz_error_log(array(
 					'msg_dev' => 'Value condition has empty value in database (field %s)',
 					'msg_dev_args' => array($condition['field_name'])
-				);
+				));
 				return zz_return($zz_conditions);
 			}
 			$sql = sprintf($condition['sql'], $value);

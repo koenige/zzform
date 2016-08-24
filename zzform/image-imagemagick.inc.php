@@ -268,7 +268,6 @@ function zz_image_webimage($source, $dest, $dest_ext, $image) {
  */
 function zz_imagick_add_options($source_ext, $image = array()) {
 	global $zz_conf;
-	global $zz_error;
 
 	$convert_options = !empty($zz_conf['file_types'][$source_ext]['convert'])
 		? $zz_conf['file_types'][$source_ext]['convert'] : array();
@@ -283,10 +282,10 @@ function zz_imagick_add_options($source_ext, $image = array()) {
 			if ($image['upload']['colorspace'] === $option[1]) continue;
 			if (empty($image['upload']['icc_profile'])) continue;
 			if (!array_key_exists($image['upload']['icc_profile'], $zz_conf['icc_profiles'])) {
-				$zz_error[] = array(
+				zz_error_log(array(
 					'msg_dev' => 'No ICC profile found for %s',
 					'msg_dev_args' => array($image['upload']['icc_profile'])
-				);
+				));
 				continue;
 			}
 			// use profiles!

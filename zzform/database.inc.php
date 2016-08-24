@@ -209,11 +209,9 @@ function zz_sql_count_rows($sql, $id_field = '') {
  *
  * @param string $table table name, might include database name
  * @global array $zz_conf - 'db_name' might be changed or set
- * @global array $zz_error
  * @return string $table - name of main table
  */
 function zz_db_connection($table) {
-	global $zz_error;
 	global $zz_conf;
 
 	// get current db to SELECT it again before exitting
@@ -242,11 +240,11 @@ function zz_db_connection($table) {
 	if (!empty($zz_conf['db_name'])) {
 		$db = zz_db_select($zz_conf['db_name']);
 		if (!$db) {
-			$zz_error[] = array(
+			zz_error_log(array(
 				'db_msg' => mysqli_error($zz_conf['db_connection']),
 				'query' => 'SELECT DATABASE("'.$zz_conf['db_name'].'")',
 				'level' => E_USER_ERROR
-			);
+			));
 			$zz_conf['db_name'] = '';
 			return false;
 		}
@@ -254,11 +252,11 @@ function zz_db_connection($table) {
 	} else {
 		$result = mysqli_query($zz_conf['db_connection'], 'SELECT DATABASE()');
 		if (mysqli_error($zz_conf['db_connection'])) {
-			$zz_error[] = array(
+			zz_error_log(array(
 				'db_msg' => mysqli_error($zz_conf['db_connection']),
 				'query' => 'SELECT DATABASE()',
 				'level' => E_USER_ERROR
-			);
+			));
 			return false;
 		}
 		mysqli_data_seek($result, 0);
@@ -276,11 +274,11 @@ function zz_db_connection($table) {
 			// no database selected, get one, quick!
 			$dbname = zz_db_select($db_name[1]);
 			if (!$dbname) {
-				$zz_error[] = array(
+				zz_error_log(array(
 					'db_msg' => mysqli_error($zz_conf['db_connection']),
 					'query' => 'SELECT DATABASE("'.$db_name[1].'")',
 					'level' => E_USER_ERROR
-				);
+				));
 				$zz_conf['db_name'] = '';
 				return false;
 			}
@@ -290,11 +288,11 @@ function zz_db_connection($table) {
 	}
 
 	if (empty($zz_conf['db_name'])) {
-		$zz_error[] = array(
+		zz_error_log(array(
 			'msg_dev' => 'Please set the variable <code>$zz_conf[\'db_name\']</code>.'
 				.' It has to be set to the main database name used for zzform.',
 			'level' => E_USER_ERROR
-		);
+		));
 		return false;
 	}
 	return $table;
@@ -452,15 +450,14 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 			$msg_dev_args[] = $info;
 		}
 
-		global $zz_error;
-		$zz_error[] = array(
+		zz_error_log(array(
 			'msg_dev' => $msg_dev,
 			'msg_dev_args' => $msg_dev_args,
 			'db_msg' => mysqli_error($zz_conf['db_connection']), 
 			'query' => $sql,
 			'level' => $errorcode,
 			'status' => 503
-		);
+		));
 		zz_error();
 		return array();
 	}
@@ -506,7 +503,6 @@ function zz_db_field_in_query($line, $id_field_name, $count = 0) {
  */
 function zz_db_change($sql, $id = false, $rev_only = false) {
 	global $zz_conf;
-	global $zz_error;
 	if (!empty($zz_conf['debug'])) {
 		$time = microtime(true);
 	}
@@ -555,12 +551,12 @@ function zz_db_change($sql, $id = false, $rev_only = false) {
 		}
 		$warnings = zz_db_fetch('SHOW WARNINGS', '_dummy_', 'numeric');
 		foreach ($warnings as $warning) {
-			$zz_error[] = array(
+			zz_error_log(array(
 				'msg_dev' => 'MySQL reports a problem.',
 				'query' => $sql,
 				'db_msg' => $warning['Level'].': '.$warning['Message'],
 				'level' => E_USER_WARNING
-			);
+			));
 		}
 	} else { 
 		// something went wrong, but why?
@@ -797,12 +793,11 @@ function zz_db_field_collation($type, $table = '', $field, $index = 0) {
 		// column is not in db, we cannot check the collation, therefore we
 		// better exclude this field from search
 		if (!$cols OR !in_array('Collation', array_keys($cols))) {
-			global $zz_error;
-			$zz_error[] = array(
+			zz_error_log(array(
 				'msg_dev' => 'Cannot get character set information for %s.%s. %s',
 				'msg_dev_args' => array($db_table, $collate_fieldname, $error_msg),
 				'level' => E_USER_NOTICE
-			);
+			));
 			return NULL;
 		}
 		$charset = substr($cols['Collation'], 0, strpos($cols['Collation'], '_'));

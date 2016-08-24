@@ -11,7 +11,7 @@
  *	zz_translations_init()		checks whether fields should be translated
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2012 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2013, 2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -32,20 +32,17 @@ function zz_translations_config() {
  * @param string $table current table name to check which fields to translate
  * @param array $fields
  * @global array $zz_conf
- * @global array $zz_error
  * @return array $fields
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_translations_init($table, $fields) {
 	global $zz_conf;
-	global $zz_error;
 
 	if (!$zz_conf['translations_of_fields']) return $fields;
 	if (!$zz_conf['translations_table']) {
-		$zz_error[] = array(
+		zz_error_log(array(
 			'msg_dev' => '$zz_conf[\'translations_table\'] must be set.',
 			'level' => E_USER_ERROR
-		);
+		));
 		return zz_error();
 	}
 
