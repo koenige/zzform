@@ -1415,8 +1415,8 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				);
 				if ($coord['error']) {
 					$zz_error['validation']['incorrect_values'][] = array(
-						'dev_msg_args' => $field_name,
-						'dev_msg' => $coord['error']
+						'msg_dev_args' => $field_name,
+						'msg_dev' => $coord['error']
 					);
 					$zz_error['validation']['log_post_data'] = true;
 					$my_rec['fields'][$f]['explanation'] = $coord['error'];
@@ -1576,8 +1576,8 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				if (empty($image['error'])) continue;
 				foreach ($image['error'] as $error) {
 					$zz_error['validation']['incorrect_values'][] = array(
-						'dev_msg_args' => $field_name,
-						'dev_msg' => $error
+						'msg_dev_args' => $field_name,
+						'msg_dev' => $error
 					);
 				}
 			}
