@@ -2301,6 +2301,7 @@ From: '.$from);
  */
 function zz_error_log($msg = array()) {
 	static $errors;
+	if (empty($errors)) $errors = array();
 	if ($msg === false) $errors = array();
 	elseif ($msg) $errors[] = $msg;
 	return $errors;
