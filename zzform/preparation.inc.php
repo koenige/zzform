@@ -1079,7 +1079,11 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
 		$my_rec['record'] = array();
 		// check whether record already exists (this is of course impossible 
 		// for adding a record!)
-		if ($mode !== 'add' OR $my_rec['action']) {
+		if (in_array($mode, array('edit', 'add')) AND !empty($zz_conf['int']['add_details_return'])) {
+			if (!empty($my_rec['POST'])) {
+				$my_rec['record'] = $my_rec['POST'];
+			}
+		} elseif ($mode !== 'add' OR $my_rec['action']) {
 			if ($my_rec['id']['value']) {
 				$my_rec['record'] = zz_query_single_record(
 					$my_tab['sql'], $table, $my_rec['id'], $my_tab['sqlextra'], $my_tab['sql_translate']
@@ -1090,10 +1094,6 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
 				);
 				// @todo: think about sqlextra
 			} elseif ($my_rec['access'] === 'show' AND !empty($my_rec['POST'])) {
-				$my_rec['record'] = $my_rec['POST'];
-			}
-		} elseif ($mode === 'add' AND !empty($zz_conf['int']['add_details_return'])) {
-			if (!empty($my_rec['POST'])) {
 				$my_rec['record'] = $my_rec['POST'];
 			}
 		} elseif ($mode === 'add' AND !empty($my_rec['id']['source_value'])) {
