@@ -5,11 +5,11 @@
 # @copyright Copyright © 2015 Gustaf Mossakowski
 #
 #
-<script src="%%% page behaviour_path %%%/jquery/jquery-1.10.2.js"></script>
-<script src="%%% page behaviour_path %%%/htmlparser/htmlparser.js"></script>
-<script src="%%% page behaviour_path %%%/upndown/upndown.bundle.min.js"></script>
-<script src="%%% page behaviour_path %%%/marked/marked.js"></script>
-<script src="%%% page behaviour_path %%%/tinymce/tinymce.min.js"></script>
+<script src="%%% setting behaviour_path %%%/jquery/jquery-1.10.2.js"></script>
+<script src="%%% setting behaviour_path %%%/htmlparser/htmlparser.js"></script>
+<script src="%%% setting behaviour_path %%%/upndown/upndown.bundle.min.js"></script>
+<script src="%%% setting behaviour_path %%%/marked/marked.js"></script>
+<script src="%%% setting behaviour_path %%%/tinymce/tinymce.min.js"></script>
 <script type="text/javascript">
 
 %%% loop start %%%
@@ -33,7 +33,7 @@
 		statusbar: false,
 		menubar: false,
 
-		content_css : "%%% page layout_path %%%/zzform/upndown-editor.css",
+		content_css : "%%% setting layout_path %%%/zzform/upndown-editor.css",
 		init_instance_callback : function(editor) {
 		},
 		setup: function(editor) {
