@@ -50,10 +50,13 @@ function zz_details($zz) {
 		// saved
 		$zz_conf['int']['details_current'] = $current;
 		$zz_conf['int']['details_last'] = $last;
-		if (!empty($zz['hooks']['after_insert']) AND !is_array($zz['hooks']['after_insert'])) {
-			$zz['hooks']['after_insert'] = array($zz['hooks']['after_insert']);
+		$hooks = array('after_insert', 'after_update');
+		foreach ($hooks as $hook) {
+			if (!empty($zz['hooks'][$hook]) AND !is_array($zz['hooks'][$hook])) {
+				$zz['hooks'][$hook] = array($zz['hooks'][$hook]);
+			}
+			$zz['hooks'][$hook][] = 'zz_details_return';
 		}
-		$zz['hooks']['after_insert'][] = 'zz_details_return';
 	}
 	
 	return zz_details_show($zz, $current, $last);
