@@ -89,7 +89,7 @@ function zz_details_start($zz) {
 					$source_field_name = $table_name.'['.$rec.']['.$sub_field['field_name'].']';
 				}
 			}
-		} elseif ($no == $field_no) {
+		} elseif (!$subtable_no AND $no == $field_no) {
 			$posted_value = $_POST[$field['field_name']];
 			$source_field_name = $field['field_name'];
 		}
