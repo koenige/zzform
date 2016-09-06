@@ -299,6 +299,7 @@ function zz_sync_zzform($raw, $import) {
 	global $zz_conf;
 	// include form scripts
 	require_once $zz_conf['dir'].'/zzform.php';
+	require_once $zz_conf['dir'].'/functions.inc.php';
 
 	if (empty($import['existing_sql'])) {
 		wrap_error('Please define a query for the existing records in the database with $import["existing_sql"].', E_USER_ERROR);
