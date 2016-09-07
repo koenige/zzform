@@ -1194,6 +1194,8 @@ function zz_log_validation_errors($my_rec, $validation) {
 	if ($my_rec['action'] === 'delete') return false;
 	if ($validation) return false;
 	if ($my_rec['access'] === 'show') return false;
+	$dev_msg = array();
+	$somelogs = false;
 	
 	foreach ($my_rec['fields'] as $no => $field) {
 		if ($field['type'] === 'password_change') continue;
@@ -1201,6 +1203,7 @@ function zz_log_validation_errors($my_rec, $validation) {
 		if (!empty($field['mark_reselect'])) {
 			// oh, it's a reselect, add some validation message
 			zz_log_reselect_errors($field['title']);
+			$somelogs = true;
 			continue;
 		}
 		// just look for check_validation set but false
@@ -1229,6 +1232,7 @@ function zz_log_validation_errors($my_rec, $validation) {
 				: $my_rec['record'][$field['field_name']]
 			);
 			zz_error_validation_log('log_post_data', true);
+			$somelogs = true;
 		} elseif (empty($field['dont_show_missing'])) {
 			if ($field['type'] === 'upload_image') {
 				$msg = 'Nothing was uploaded in field <strong>%s</strong>.';
@@ -1245,6 +1249,27 @@ function zz_log_validation_errors($my_rec, $validation) {
 				zz_error_validation_log('msg_args', $field['title']);
 				zz_error_validation_log('log_post_data', true);
 			}
+			$somelogs = true;
+		} else {
+			if ($field['type'] === 'upload_image') {
+				$dev_msg['upload'][] = $field['title'];
+			} else {
+				$dev_msg['field'][] = $field['title'];
+			}
+		}
+	}
+	if ($dev_msg AND !$somelogs) {
+		// show dev error message if there's some error but nothing is shown
+		if (!empty($dev_msg['field'])) {
+			zz_error_log(array(
+				'msg_dev' => 'Validation error, value missing in field `%s`. Error was hidden (table misconfiguration?).',
+				'msg_dev_args' => $dev_msg['field']
+			));
+		} elseif (!empty($dev_msg['upload'])) {
+			zz_error_log(array(
+				'msg_dev' => 'Validation error, image upload missing in field `%s`. Error was hidden (table misconfiguration?).',
+				'msg_dev_args' => $dev_msg['upload']
+			));
 		}
 	}
 	return true;
