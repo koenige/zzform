@@ -1300,7 +1300,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 
 	foreach ($my_rec['fields'] as $f => $field) {
 	// 	shorthand
-		if (isset($field['field_name'])) $field_name = $field['field_name'];
+		$field_name = isset($field['field_name']) ? $field['field_name'] : '';
 	//	check if some values are to be replaced internally
 		if (!empty($field['replace_values']) 
 			AND !empty($my_rec['POST'][$field_name])) {
