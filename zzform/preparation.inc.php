@@ -124,10 +124,14 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 		);
 		if ($zz_var['action'] === 'update' AND !$zz_tab[0][0]['existing']) {
 			zz_error_exit(true);
+			$sql = wrap_edit_sql($zz_tab[0]['sql'],
+				'WHERE', sprintf('%s.%s = %d',$zz_tab[0]['table'], $zz_var['id']['field_name'], $zz_var['id']['value'])
+			);
 			zz_error_log(array(
 				'msg_dev' => 'Trying to update a non-existent record in table `%s` with ID %d.',
 				'msg_dev_args' => array($zz_tab[0]['table'], $zz_var['id']['value']),
-				'level' => E_USER_ERROR
+				'level' => E_USER_ERROR,
+				'query' => $sql
 			));
 			return false;
 		}
