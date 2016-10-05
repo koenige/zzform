@@ -878,7 +878,7 @@ function zz_filter_selection($filter, $filter_params, $pos) {
 	}
 	if (!$filter_output) return false;
 
-	return wrap_template('zzform-list-filter', $filter);
+	return wrap_template('zzform-list-filter', $filter, 'ignore positions');
 }
 
 /**
