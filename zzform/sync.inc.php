@@ -183,6 +183,9 @@ function zz_sync($import) {
 		return $page;
 	}
 
+	$zz_setting['extra_http_headers'][] = 'X-Frame-Options: Deny';
+	$zz_setting['extra_http_headers'][] = "Content-Security-Policy: frame-ancestors 'self'";
+
 	if ($testing) {
 		$page['head'] = wrap_template('zzform-head', $zz_setting);
 	}
@@ -670,6 +673,9 @@ function zz_sync_deletable($import) {
 		$data[$index]['script_url'] = isset($import['script_url']) ? $import['script_url'] : '';
 	}
 	$data['head'] = array_values($data['head']);
+
+	$zz_setting['extra_http_headers'][] = 'X-Frame-Options: Deny';
+	$zz_setting['extra_http_headers'][] = "Content-Security-Policy: frame-ancestors 'self'";
 
 	$page['query_strings'] = array('deletable');
 	$page['text'] = wrap_template('sync-deletable', $data);
