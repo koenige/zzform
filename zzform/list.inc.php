@@ -30,6 +30,7 @@
  */
 function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	global $zz_conf;
+	global $zz_setting;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$zz_conf['int']['no_add_button_so_far'] = true;
 
@@ -205,6 +206,8 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	
 	if ($zz_conf['int']['show_list']) {
 		if ($list['select_multiple_records']) {
+			$zz_setting['extra_http_headers'][] = 'X-Frame-Options: Deny';
+			$zz_setting['extra_http_headers'][] = "Content-Security-Policy: frame-ancestors 'self'";
 			$action_url = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs'];
 			if ($zz_var['extraGET']) {
 				// without first &amp;!

@@ -29,6 +29,7 @@
  */
 function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 	global $zz_conf;
+	global $zz_setting;
 
 	$formhead = false;
 	$records = false;
@@ -79,6 +80,8 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 	$form_open = false;
 	$div_record_open = false;
 	if (in_array($ops['mode'], $record_form)) {
+		$zz_setting['extra_http_headers'][] = 'X-Frame-Options: Deny';
+		$zz_setting['extra_http_headers'][] = "Content-Security-Policy: frame-ancestors 'self'";
 		$form_open = true;
 		$output .= '<form action="'.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs'];
 		// without first &amp;!
