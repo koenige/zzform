@@ -108,7 +108,7 @@ function forceFilename($str, $spaceChar = '-', $replacements = array()) {
 			$_str .= '-'; break;
 
 		default:
-			if (preg_match('/[A-Za-z0-9\(\)]/', $ch)) { $_str .= $ch; } break;
+			if (preg_match('/[A-Za-z0-9]/', $ch)) { $_str .= $ch; } break;
 		}
 	}
 	
