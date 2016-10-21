@@ -67,6 +67,8 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 		// get sql_character_set etc.
 		$sql_field = array_merge($field, $sql_field);
 		foreach ($text as $index => $value) {
+			// first field must be id field, so if value is not numeric, ignore it
+			if (!$no AND !is_numeric($value)) continue;
 			$collation = zz_db_field_collation('xhr', false, $sql_field, $no);
 			$where[$index][] = sprintf('%s LIKE %s"%%%s%%"', $sql_field['field_name'], $collation, wrap_db_escape($value));
 		}

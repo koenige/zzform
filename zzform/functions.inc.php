@@ -3015,6 +3015,8 @@ function zz_check_select_id($field, $postvalue, $db_table, $id = array()) {
 		// maybe there is no index 0, therefore we need a new variable $i
 		$i = 0;
 		foreach ($sql_fieldnames as $index => $sql_fieldname) {
+			// first field must be id field, so if value is not numeric, ignore it
+			if (!$index AND !is_numeric(trim($value))) continue;
 			// don't trim value here permanently (or you'll have a problem with
 			// reselect)
 			if (is_numeric(trim($value))) {
