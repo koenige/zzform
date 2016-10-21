@@ -731,7 +731,7 @@ function zz_db_field_collation($type, $table = '', $field, $index = 0) {
 	case 'reselect':
 	case 'xhr':
 		if ($type === 'xhr') {
-			$collare_fieldname = $field['field_name'];
+			$collate_fieldname = $field['field_name'];
 		} else {
 			$collate_fieldname = $field['sql_fieldnames'][$index];
 		}
@@ -785,6 +785,7 @@ function zz_db_field_collation($type, $table = '', $field, $index = 0) {
 		$cols = array();
 		$collate_fieldname = trim($collate_fieldname);
 		foreach ($db_tables as $db_table) {
+			$db_table = wrap_db_prefix($db_table);
 			$cols = zz_db_columns($db_table, $collate_fieldname);
 			// check all tables if field exists, write first match in $cols
 			if ($cols) break;
