@@ -454,7 +454,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 	$append_explanation = array();
 	$matrix = array();
 
-	zz_record_field_focus($zz_tab, $tab, $rec);
+	zz_record_focus($zz_tab, $tab, $rec);
 	
 	$firstrow = true;
 	$my_where_fields = isset($zz_var['where'][$zz_tab[$tab]['table_name']])
@@ -1121,7 +1121,7 @@ function zz_record_add_details($field, $mode, $tab, $rec, $fieldkey) {
  * @param int $rec (optional; required for initalizing $field_focus)
  * @return mixed bool true: $field_focus was initalized; string: HTML code
  */
-function zz_record_field_focus($zz_tab = false, $tab = 0, $rec = 0) {
+function zz_record_focus($zz_tab = false, $tab = 0, $rec = 0) {
 	static $field_focus;
 	if ($zz_tab) {
 		// set field focus
@@ -1144,6 +1144,24 @@ function zz_record_field_focus($zz_tab = false, $tab = 0, $rec = 0) {
 	if (!$field_focus) return '';
 	$field_focus = false;
 	return true;
+}
+
+/**
+ * set a focus on a field
+ *
+ * @param string $name field name
+ * @param string $type field type
+ * @return bool
+ */
+function zz_record_field_focus($name, $type) {
+	global $zz_conf;
+	if (!$zz_conf['html_autofocus']) return false;
+	$focus = array(
+		'text', 'checkbox', 'radio', 'password', 'textarea', 'select', 'date',
+		'datetime', 'email', 'url', 'time'
+	);
+	if (!in_array($type, $focus)) return false; 
+	return zz_record_focus();
 }
 
 /**
@@ -1442,16 +1460,9 @@ function zz_form_element($name, $value, $type = 'text', $id = false, $fieldattr 
 		$fieldattr['autocomplete'] = 'off';
 	}
 
-	// autofocus?	
-	if ($zz_conf['html_autofocus']) {
-		$focus = array('text', 'checkbox', 'radio', 'password', 'textarea', 'select',
-			'date', 'datetime', 'email', 'url', 'time');
-		if (!isset($fieldattr['autofocus']) AND in_array($type, $focus) 
-			AND zz_record_field_focus()) {
-			$fieldattr['autofocus'] = true;
-		}
-	} else {
-		$fieldattr['autofocus'] = false;
+	// autofocus?
+	if (!isset($fieldattr['autofocus'])) {
+		$fieldattr['autofocus'] = zz_record_field_focus($name, $type);
 	}
 
 	// multiple?
