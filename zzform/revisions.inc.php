@@ -74,3 +74,46 @@ function zz_revisions($ops) {
 	}
 	return array();
 }
+
+/**
+ * read revisions from database
+ *
+ * @param string $table
+ * @param int $record_id
+ * @return array
+ */
+function zz_revisions_read($table, $record_id) {
+	$sql = 'SELECT revisiondata_id
+			, table_name, record_id, changed_values, rev_action
+		FROM _revisiondata
+		LEFT JOIN _revisions USING (revision_id)
+		WHERE user_id = %d
+		AND rev_status = "pending"
+		AND main_table_name = "%s"
+		AND main_record_id = %d
+		ORDER BY created ASC';
+	$sql = sprintf($sql, $_SESSION['user_id'], $table, $record_id);
+	$revisions = wrap_db_fetch($sql, 'revisiondata_id');
+	$data = [];
+	foreach ($revisions as $rev) {
+		switch ($rev['rev_action']) {
+		case 'update':
+			$changed_values = json_decode($rev['changed_values']);
+			foreach ($changed_values as $field => $value) {
+				if ($table === $rev['table_name'] AND $record_id === $rev['record_id']) {
+					$data[$field] = $value;
+				} else {
+					$data[$rev['table_name']][$rev['record_id']][$field] = $value;
+				}
+			}
+			break;
+		case 'delete':
+			// @todo
+			break;
+		case 'insert':
+			// @todo
+			break;
+		}
+	}
+	return $data;
+}
