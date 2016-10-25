@@ -1305,7 +1305,8 @@ function zz_log_reselect_errors($field_name = false) {
  * @param string $type
  * @return array
  */
-function zz_query_single_record($sql, $table, $id, $sqlextra, $sql_translate, $type = 'value') {		
+function zz_query_single_record($sql, $table, $id, $sqlextra, $sql_translate, $type = 'value') {
+	global $zz_conf;
 	if (!$id[$type]) return array();
 	$sql = wrap_edit_sql($sql,
 		'WHERE', sprintf('%s.%s = %d', $table, $id['field_name'], $id[$type])
@@ -1326,6 +1327,13 @@ function zz_query_single_record($sql, $table, $id, $sqlextra, $sql_translate, $t
 		}
 		$sql = sprintf($sql, $id[$type]);
 		$record = array_merge($record, zz_db_fetch($sql));
+	}
+	if (!empty($zz_conf['int']['revisions_only'])) {
+		$data = zz_revisions_read($table, $id['value']);
+		foreach ($data as $field => $value) {
+			if (is_array($value)) continue; // @todo, it's a subrecord
+			$record[$field] = $value;
+		}
 	}
 	return $record;
 }
