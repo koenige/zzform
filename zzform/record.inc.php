@@ -1160,6 +1160,7 @@ function zz_record_field_focus($name, $type) {
 		'text', 'checkbox', 'radio', 'password', 'textarea', 'select', 'date',
 		'datetime', 'email', 'url', 'time'
 	);
+	if (!empty($_GET['focus']) AND $_GET['focus'] !== $name) return false;
 	if (!in_array($type, $focus)) return false; 
 	return zz_record_focus();
 }
