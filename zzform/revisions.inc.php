@@ -36,7 +36,7 @@ function zz_revisions($ops) {
 	}
 	if (!$data) return array();
 
-	$status = !empty($ops['revisions_only']) ? 'pending' : 'live';
+	$status = !empty($zz_conf['int']['revisions_only']) ? 'pending' : 'live';
 	$sql = 'INSERT INTO %s (main_table_name, main_record_id, user_id, rev_status, created, last_update)
 		VALUES ("%s", %d, %s, "%s", NOW(), NOW())';
 	$sql = sprintf($sql,

@@ -303,7 +303,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			if (count($null_update['ids']) === 1) {
 				$id = array_shift($null_update['ids']);
 			}
-			$result = zz_db_change($me_sql, $id, $zz_tab[0]['revisions_only']);
+			$result = zz_db_change($me_sql, $id);
 			if ($result['action']) {
 				$del_msg[] = 'integrity update: '.$me_sql.'<br>';
 			} else {
@@ -338,7 +338,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 				);
 				$id = false;
 				if (count($ids) === 1) $id = array_shift($ids);
-				$result = zz_db_change($me_sql, $id, $zz_tab[0]['revisions_only']);
+				$result = zz_db_change($me_sql, $id);
 				if ($result['action']) {
 					$del_msg[] = 'integrity delete: '.$me_sql.'<br>';
 				} else {
@@ -355,8 +355,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			foreach (array_keys($detail_sqls[$tab]) as $rec) {
 				// might already deleted if in dependent IDs but that does not matter
 				$result = zz_db_change(
-					$detail_sqls[$tab][$rec], $zz_tab[$tab][$rec]['id']['value'],
-					$zz_tab[0]['revisions_only']
+					$detail_sqls[$tab][$rec], $zz_tab[$tab][$rec]['id']['value']
 				);
 				if ($result['action']) {
 					$del_msg[] = 'zz_tab '.$tab.' '.$rec.': '.$detail_sqls[$tab][$rec].'<br>';
@@ -382,7 +381,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		}
 	}
 
-	$result = zz_db_change($sql_edit, $zz_tab[0][0]['id']['value'], $zz_tab[0]['revisions_only']);
+	$result = zz_db_change($sql_edit, $zz_tab[0][0]['id']['value']);
 	if ($result['action']) {
 		if ($zz_tab[0][0]['action'] === 'insert') {
 			$zz_tab[0][0]['id']['value'] = $result['id_value']; // for requery
@@ -467,7 +466,7 @@ function zz_action_last_update($zz_tab, $action) {
 			$zz_tab[0][0]['id']['field_name'],
 			$zz_tab[0][0]['id']['value']
 		);
-		$result = zz_db_change($sql, $zz_tab[0][0]['id']['value'], $zz_tab[0]['revisions_only']);
+		$result = zz_db_change($sql, $zz_tab[0][0]['id']['value']);
 		if ($result['action'] !== 'update') {
 			zz_error_log(array(
 				'msg_dev' => 'Update of timestamp failed (ID %d), query: %s',
@@ -613,7 +612,7 @@ function zz_action_details($detail_sqls, $zz_tab, $validation, $ops) {
 				AND !empty($my_rec['POST'][$my_rec['id']['field_name']]))
 				$zz_tab[$tab][$rec]['id']['value'] = $my_rec['POST'][$my_rec['id']['field_name']];
 
-			$result = zz_db_change($sql, $my_rec['id']['value'], $zz_tab[0]['revisions_only']);
+			$result = zz_db_change($sql, $my_rec['id']['value']);
 			if (!$result['action']) { 
 				// This should never occur, since all checks say that 
 				// this change is possible
@@ -1185,7 +1184,6 @@ function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
 		}
 	}
 	$ops['record_diff'][$index] = $rd;
-	$ops['revisions_only'] = !empty($zz_tab[0]['revisions_only']) ? true : false;
 
 	return $ops;
 }

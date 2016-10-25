@@ -39,14 +39,14 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 		if (is_array($actions)) continue;
 		$zz_tab[0]['hooks'][$hook] = array($actions);
 	}
+	$zz_conf['int']['revisions_only'] = !empty($zz['revisions_only']) ? true : false;
 	if (!empty($zz['revisions'])) {
 		require_once $zz_conf['dir_inc'].'/revisions.inc.php';
 		$hooks = array('after_insert', 'after_update', 'after_delete');
 		foreach ($hooks as $hook) {
 			$zz_tab[0]['hooks'][$hook][] = 'zz_revisions';
-		}		
+		}
 	}
-	$zz_tab[0]['revisions_only'] = !empty($zz['revisions_only']) ? true : false;
 	$zz_tab[0]['folder'] = !empty($zz['folder']) ? $zz['folder'] : array();
 	$zz_tab[0]['dynamic_referer'] = !empty($zz['dynamic_referer']) ? $zz['dynamic_referer'] : false;
 	$zz_tab[0]['add_from_source_id'] = !empty($zz['add_from_source_id']) ? true : false;

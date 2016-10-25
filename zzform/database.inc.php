@@ -495,13 +495,12 @@ function zz_db_field_in_query($line, $id_field_name, $count = 0) {
  *
  * @param string $sql
  * @param int $id
- * @param bool $rev_only
  * @global array $zz_conf
  * @return array $db
  *		'action' (false = fail, 'nothing', 'insert', update', 'delete'), 
  *		'id_value', 'error', ...
  */
-function zz_db_change($sql, $id = false, $rev_only = false) {
+function zz_db_change($sql, $id = false) {
 	global $zz_conf;
 	if (!empty($zz_conf['debug'])) {
 		$time = microtime(true);
@@ -530,7 +529,7 @@ function zz_db_change($sql, $id = false, $rev_only = false) {
 	}
 
 	// revisions only
-	if ($rev_only) {
+	if ($zz_conf['int']['revisions_only']) {
 		$db['action'] = $statement;
 		return $db;
 	}
