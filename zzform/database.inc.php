@@ -529,7 +529,7 @@ function zz_db_change($sql, $id = false) {
 	}
 
 	// revisions only
-	if ($zz_conf['int']['revisions_only']) {
+	if (!empty($zz_conf['int']['revisions_only'])) {
 		$db['action'] = $statement;
 		return $db;
 	}
