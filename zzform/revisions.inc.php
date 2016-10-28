@@ -20,6 +20,16 @@ function zz_revisions($ops) {
 	$data = array();
 	foreach ($ops['return'] as $index => $table) {
 		if ($table['action'] === 'nothing') continue;
+		if ($table['action'] === 'delete') {
+			$data[] = array(
+				'table_name' => $table['table'],
+				'record_id' => $table['id_value'],
+				'changed_values' => 'NULL',
+				'complete_values' => 'NULL',
+				'rev_action' => $table['action']
+			);
+			continue;
+		}
 		$changed = [];
 		foreach ($ops['record_diff'][$index] as $field_name => $diff) {
 			if ($diff === 'same') continue;
@@ -29,8 +39,8 @@ function zz_revisions($ops) {
 		$data[] = array(
 			'table_name' => $table['table'],
 			'record_id' => $table['id_value'],
-			'changed_values' => wrap_db_escape(json_encode($changed)),
-			'complete_values' => wrap_db_escape(json_encode($ops['record_new'][$index])),
+			'changed_values' => sprintf('"%s"', wrap_db_escape(json_encode($changed))),
+			'complete_values' => sprintf('"%s"', wrap_db_escape(json_encode($ops['record_new'][$index]))),
 			'rev_action' => $table['action']
 		);
 	}
@@ -63,7 +73,7 @@ function zz_revisions($ops) {
 	}
 
 	$sql_rev = 'INSERT INTO %s (revision_id, table_name, record_id, changed_values,
-		complete_values, rev_action) VALUES (%d, "%%s", %%d, "%%s", "%%s", "%%s")';
+		complete_values, rev_action) VALUES (%d, "%%s", %%d, %%s, %%s, "%%s")';
 	$sql_rev = sprintf($sql_rev, $zz_conf['revisions_data_table'], $rev_id);
 	foreach ($data as $line) {
 		$sql = vsprintf($sql_rev, $line);
