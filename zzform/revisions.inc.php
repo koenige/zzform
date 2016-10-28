@@ -110,7 +110,7 @@ function zz_revisions_read($table, $record_id) {
 		case 'update':
 			$changed_values = json_decode($rev['changed_values']);
 			foreach ($changed_values as $field => $value) {
-				if ($table === $rev['table_name'] AND $record_id === $rev['record_id']) {
+				if ($table === $rev['table_name'] AND $record_id.'' === $rev['record_id'].'') {
 					$data[$field] = $value;
 				} else {
 					$data[$rev['table_name']][$rev['record_id']][$field] = $value;
@@ -118,8 +118,12 @@ function zz_revisions_read($table, $record_id) {
 			}
 			break;
 		case 'delete':
-			// @todo
-			break;
+			if ($table === $rev['table_name'] AND $record_id.'' === $rev['record_id'].'') {
+				$data = [];
+			} else {
+				$data[$rev['table_name']][$rev['record_id']] = [];
+			}
+			break 2; // once a record is deleted, the rest is uninteresting
 		case 'insert':
 			// @todo
 			break;
