@@ -119,9 +119,9 @@ function zz_revisions_read($table, $record_id) {
 			break;
 		case 'delete':
 			if ($table === $rev['table_name'] AND $record_id.'' === $rev['record_id'].'') {
-				$data = [];
+				$data = NULL;
 			} else {
-				$data[$rev['table_name']][$rev['record_id']] = [];
+				$data[$rev['table_name']][$rev['record_id']] = NULL;
 			}
 			break 2; // once a record is deleted, the rest is uninteresting
 		case 'insert':
