@@ -40,7 +40,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 		$zz_tab[0]['hooks'][$hook] = array($actions);
 	}
 	$zz_conf['int']['revisions_only'] = !empty($zz['revisions_only']) ? true : false;
-	if (!empty($zz['revisions'])) {
+	if (!empty($zz_conf['int']['revisions_only']) OR !empty($zz['revisions'])) {
 		require_once $zz_conf['dir_inc'].'/revisions.inc.php';
 		$hooks = array('after_insert', 'after_update', 'after_delete');
 		foreach ($hooks as $hook) {
