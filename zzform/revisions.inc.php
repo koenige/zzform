@@ -13,7 +13,7 @@
  */
 
 
-function zz_revisions($ops) {
+function zz_revisions($ops, $rev_only = false) {
 	global $zz_conf;
 	$user_id = !empty($_SESSION['user_id']) ? $_SESSION['user_id'] : 'NULL';
 
@@ -47,6 +47,7 @@ function zz_revisions($ops) {
 	if (!$data) return array();
 
 	$status = !empty($zz_conf['int']['revisions_only']) ? 'pending' : 'live';
+	if ($rev_only) $status = 'pending'; // overwrite internal settings
 	$sql = 'INSERT INTO %s (main_table_name, main_record_id, user_id, rev_status, created, last_update)
 		VALUES ("%s", %d, %s, "%s", NOW(), NOW())';
 	$sql = sprintf($sql,
