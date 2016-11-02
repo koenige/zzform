@@ -939,6 +939,10 @@ function zz_upload_unix_file($filename, $file) {
 	}
 	$imagetype = false;
 	// check if it's an autocad document
+	$file['filetype_file_full'] = $file['filetype_file'];
+	if ($pos = strpos($file['filetype_file'], ': [')) {
+		$file['filetype_file'] = substr($file['filetype_file'], 0, $pos);
+	}
 	if (substr($file['filetype_file'], 0, 20) == 'DWG AutoDesk AutoCAD') {
 		$imagetype = 'dwg';
 		$file['validated'] = true;
