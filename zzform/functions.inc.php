@@ -1175,9 +1175,6 @@ function zz_record_access($zz, $ops, $zz_var) {
 			if (in_array($ops['mode'], array('edit', 'delete', 'show'))
 				AND !empty($_GET['id'])) {
 				$id_value = $_GET['id'];
-			} elseif ($ops['mode'] === 'add' AND $zz_conf['copy']
-				AND !empty($_GET['source_id'])) {
-				$zz_var['id']['source_value'] = $_GET['source_id'];
 			}
 		} else {
 			// illegal parameter, don't set a mode at all
@@ -1431,6 +1428,10 @@ function zz_record_access($zz, $ops, $zz_var) {
 		// now the settings which apply to both record and list
 		$zz_conf = zz_listandrecord_access($zz_conf);
 		break;
+	}
+
+	if ($ops['mode'] === 'add' AND $zz_conf['copy'] AND !empty($_GET['source_id'])) {
+		$zz_var['id']['source_value'] = $_GET['source_id'];
 	}
 
 	if ($zz_conf['int']['where_with_unique_id']) { // just for record, not for list
