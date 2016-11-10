@@ -2774,7 +2774,8 @@ function zz_field_select_radio($field, $record, $radios) {
 
 	// variant: more values as a list
 	$text = "\n".'<ul class="zz_radio_list">'."\n";
-	$text .= '<li>'.zz_field_select_radio_none($field, $record)."</li>\n";
+	$none = zz_field_select_radio_none($field, $record);
+	if ($none) $text .= '<li>'.$none."</li>\n";
 	foreach ($radios as $index => $radio) {
 		switch ($radio[0]) {
 		case 1:
