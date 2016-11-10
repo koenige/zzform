@@ -998,7 +998,11 @@ function zz_hash($zz, $zz_conf) {
 		'mail_subject_prefix', 'title_separator',
 		'referer', 'access', 'heading_prefix', 'redirect', 'search_form_always',
 		'redirect_on_change', 'filter', 'filter_position', 'text', 'file_types',
-		'translate_log_encodings'
+		'translate_log_encodings', 'limit', 'zzform_init', 'xhr_vxjs', 'url_self',
+		'show_list_while_edit', 'search', 'referer_text', 'html_autofocus',
+		'icc_profiles', 'hooks_dir', 'error_mail_parameters',
+		'error_mail_parameters', 'error_log_post', 'upload_log',
+		'error_mail_to', 'error_mail_from', 'log_errors', 'debug_upload'
 	);
 	foreach ($uninteresting_zz_conf_keys as $key) unset($zz_conf[$key]);
 	$uninteresting_zz_keys = array(
