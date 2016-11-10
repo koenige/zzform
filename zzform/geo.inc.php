@@ -621,6 +621,7 @@ function zz_geo_geocode_address($geocoding, $zz_tab, $new) {
  */
 function zz_geo_geocode_ignore($field, $fields, $new, $index, $db_table) {
 	if (empty($field['geocode_ignore_if'])) return false;
+	reset($field['geocode_ignore_if']);
 	$ignore_field_name = key($field['geocode_ignore_if']);
 	$ignore_value = $field['geocode_ignore_if'][$ignore_field_name];
 
