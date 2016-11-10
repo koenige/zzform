@@ -1447,9 +1447,19 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				$my_rec['POST'][$field_name] = wrap_password_hash($my_rec['POST'][$field_name]);
 			} elseif ($my_rec['action'] === 'update') {
 				$my_rec['POST']['zz_unencrypted_'.$field_name] = $my_rec['POST'][$field_name];
-				if (!isset($my_rec['POST'][$field_name.'--old'])
-				|| ($my_rec['POST'][$field_name] !== $my_rec['POST'][$field_name.'--old']))
+				$new_password = false;
+				if (!isset($my_rec['POST'][$field_name.'--old'])) {
+					if (!isset($my_rec['existing'][$field_name])) {
+						$new_password = true;
+					} elseif ($my_rec['existing'][$field_name] !== $my_rec['POST'][$field_name]) {
+						$new_password = true;
+					}
+				} elseif ($my_rec['POST'][$field_name] !== $my_rec['POST'][$field_name.'--old']) {
+					$new_password = true;
+				}
+				if ($new_password) {
 					$my_rec['POST'][$field_name] = wrap_password_hash($my_rec['POST'][$field_name]);
+				}
 			}
 			break;
 		case 'password_change':
