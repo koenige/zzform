@@ -856,9 +856,11 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 		if ($fields[$no]['type'] === 'write_once' AND empty($fields[$no]['type_detail'])) {
 			$fields[$no]['type_detail'] = 'text';
 		}
-		if ($fields[$no]['type'] === 'id' AND !isset($fields[$no]['dont_sort'])) {
+		if ($fields[$no]['type'] === 'id') {
 			// set dont_sort as a default for ID columns
-			$fields[$no]['dont_sort'] = true;
+			if (!isset($fields[$no]['dont_sort'])) $fields[$no]['dont_sort'] = true;
+			// hide empty ID fields on add
+			if ($mode === 'add') $fields[$no]['hide_in_form'] = true;
 		}
 		if (!isset($fields[$no]['title'])) { // create title
 			if (!isset($fields[$no]['field_name'])) {
