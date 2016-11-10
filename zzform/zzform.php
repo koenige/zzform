@@ -769,6 +769,8 @@ function zzform_multi($definition_file, $values) {
 	$int = !empty($zz_conf['int']) ? $zz_conf['int'] : array();
 
 	zz_initialize('overwrite');
+	unset($zz_conf['if']);
+	unset($zz_conf['unless']);
 	$zz_conf['generate_output'] = false;
 	// do not show output as it will be included after page head
 	$zz_conf['show_output'] = false;
