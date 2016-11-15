@@ -552,7 +552,7 @@ body #zzform .separator hr
 .wmd-button			{ width: 20px; height: 20px; padding: 0 3px 0 2px;
 					position: absolute; display: inline-block;
 					list-style: none; cursor: pointer; }
-.wmd-button > span	{ background: url(%%% page behaviour_path %%%/pagedown/wmd-buttons.png) no-repeat 0 0;
+.wmd-button > span	{ background: url(%%% setting behaviour_path %%%/pagedown/wmd-buttons.png) no-repeat 0 0;
 					width: 20px; height: 20px; display: inline-block; }
 .wmd-spacer1		{ left: 50px; }
 .wmd-spacer2		{ left: 175px; }
@@ -576,7 +576,7 @@ body #zzform .separator hr
 /* vxJS */
 .vxJS_xhrThrobber	{ width: 21px; height: 21px; z-index: 100; }
 .vxJS_xhrThrobber.active
-					{ background: url(%%% page layout_path %%%/zzform/xhr_activity.gif) no-repeat 50% 50%; }
+					{ background: url(%%% setting layout_path %%%/zzform/xhr_activity.gif) no-repeat 50% 50%; }
 
 /* vxJS autoSuggest */
 .vxJS_autoSuggest	{ color: #000; position: absolute; z-index: 3; }
