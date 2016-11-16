@@ -441,9 +441,10 @@ function zz_identifier_var($field_name, $my_rec, $main_post) {
  * @param string $type
  * @param array $ops
  * @param array $main_tab
- * @return void
+ * @return bool true = redirect was added
  */
 function zz_identifier_redirect($type, $ops, $main_tab) {
+	if (!in_array($type, array('after_update', 'after_delete'))) return false;
 	foreach ($main_tab['set_redirect'] as $redirect) {
 		if (!is_array($redirect)) {
 			$old = $redirect;
@@ -498,6 +499,7 @@ function zz_identifier_redirect($type, $ops, $main_tab) {
 		}
 		zzform_multi('redirects', $values);
 	}
+	return true;
 }
 
 /** 
