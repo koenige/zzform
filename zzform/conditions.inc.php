@@ -496,6 +496,10 @@ function zz_conditions_subrecord_check($zz, $zz_tab, $zz_conditions) {
 				if ($tab['no'] !== $condition['subrecord']) continue;
 				
 				if (!empty($condition['where'])) {
+					if (!empty($condition['where_with_main_id'])) {
+						// this reduces the length of the list of IDs returned by database
+						$condition['where'] = sprintf($condition['where'], $zz_tab[0][0]['id']['value']);
+					}
 					$sql = wrap_edit_sql($tab['sql'], 'WHERE', $condition['where']);
 					if (!empty($tab['hierarchy']['id_field_name'])) {
 						$id_field_name = $tab['hierarchy']['id_field_name'];
@@ -525,25 +529,27 @@ function zz_conditions_subrecord($zz_tab, $zz_conditions) {
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
 			if (!is_numeric($rec)) continue;
 			if (!empty($zz_conditions['bool']['subrecord-'.$zz_tab[$tab]['no']])) {
+				$id_value = -1;
 				if ($zz_tab[$tab]['hierarchy']) {
 					if (!empty($zz_tab[$tab][$rec]['POST'])) {
 						$id_value = $zz_tab[$tab][$rec]['POST'][$zz_tab[$tab]['hierarchy']['id_field_name']];
-					} else {
-						$id_value = '';
 					}
-					if ($id_value) {
+				} else {
+					$id_value = $zz_tab[$tab][$rec]['id']['value'];
+				}
+				if ($id_value !== -1) {
+					zz_conditions_merge_field(
+						$zz_tab[$tab][$rec],
+						$zz_conditions['bool']['subrecord-'.$zz_tab[$tab]['no']],
+						$id_value, 'detail'
+					);
+					foreach (array_keys($zz_tab[$tab][$rec]['fields']) as $sub_no) {
 						zz_conditions_merge_field(
-							$zz_tab[$tab][$rec],
+							$zz_tab[$tab][$rec]['fields'][$sub_no],
 							$zz_conditions['bool']['subrecord-'.$zz_tab[$tab]['no']],
 							$id_value, 'detail'
 						);
 					}
-				} else {
-					zz_conditions_merge_field(
-						$zz_tab[$tab][$rec],
-						$zz_conditions['bool']['subrecord-'.$zz_tab[$tab]['no']],
-						$zz_tab[$tab][$rec]['id']['value'], 'detail'
-					);
 				}
 			}
 			if (empty($zz_tab[$tab][$rec]['fields'])) {
