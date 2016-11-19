@@ -65,3 +65,12 @@ $zz['fields'][99]['hide_in_list'] = true;
 
 $zz['sql'] = 'SELECT * FROM '.$zz_conf['revisions_table'];
 $zz['sqlorder'] = ' ORDER BY created DESC, revision_id DESC';
+
+$zz['filter'][1]['sql'] = sprintf('SELECT DISTINCT rev_status, rev_status
+	FROM %s
+	ORDER BY rev_status', $zz_conf['revisions_table']);
+$zz['filter'][1]['title'] = 'Status';
+$zz['filter'][1]['identifier'] = 'status';
+$zz['filter'][1]['type'] = 'list';
+$zz['filter'][1]['field_name'] = 'rev_status';
+$zz['filter'][1]['where'] = 'rev_status';
