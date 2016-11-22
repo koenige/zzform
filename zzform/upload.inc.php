@@ -1178,7 +1178,9 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 
 	$abort = false;
 	if (!empty($image['unsupported_filetype'])) $abort = true;
-	if (!empty($image['upload']['error']) AND empty($image['source_file'])) $abort = true;
+//	the following line does not work because if image is missing on update
+//	there's no retrying creating the missing thumbnails
+//	if (!empty($image['upload']['error']) AND empty($image['source_file'])) $abort = true;
 	if ($abort) {
 		// get rid of the file and go on
 		if (empty($image['upload']['do_not_delete'])) {
