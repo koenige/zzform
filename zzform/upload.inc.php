@@ -1218,7 +1218,8 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 		if (!$src_image) // might come from zz_upload_get_source_field()
 			$src_image = $my_rec['images'][$no][$image['source']];
 		if (!empty($src_image['unsupported_filetype'])) return array();
-		if (!empty($src_image['upload']['error'])) return array();
+//		@todo this also does not work, see above
+//		if (!empty($src_image['upload']['error'])) return array();
 		if (!empty($image['use_modified_source'])) {
 			// get filename from modified source, false if there was an error
 			$source_filename = isset($src_image['files']) 
