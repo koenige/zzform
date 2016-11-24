@@ -1376,7 +1376,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 			break;
 		default:
 			$text = $row['value'];
-			if (empty($field['list_format'])) {
+			if (empty($field['list_format']) AND empty($field['export_no_html'])) {
 				$text = nl2br(zz_htmltag_escape($text));
 			}
 			break;
