@@ -570,7 +570,18 @@ function zz_apply_filter($zz, $filter_params) {
 					$filter['selection'][$key] = $value;
 				}
 			}
+		} elseif ($filter['type'] === 'function') {
+			$records = zz_filter_function($filter, $zz['sql']);
+			if (empty($records['unset'])) {
+				unset($zz['filter'][$index]);
+				continue;
+			}
+			if (count($records['all']) === count($records['unset'])) {
+				unset($zz['filter'][$index]);
+				continue;
+			}
 		}
+
 		if (!$filter['selection'] AND !empty($filter['default_selection'])) {
 			if (is_array($filter['default_selection'])) {
 				$filter['selection'] = $filter['default_selection'];
@@ -605,6 +616,24 @@ function zz_apply_filter($zz, $filter_params) {
 		}
 	}
 	return $zz;
+}
+
+/**
+ * get IDs for 'function' filters, save which are unset
+ *
+ * @param array $filter
+ * @param string $sql
+ * @return array
+ */
+function zz_filter_function($filter, $sql) {
+	$sql = wrap_edit_sql($sql, 'SELECT', $filter['where'], 'replace');
+	$record_ids = wrap_db_fetch($sql, '_dummy_', 'single value');
+	$unset = array();
+	foreach ($record_ids as $record_id) {
+		$result = $filter['function']($record_id);
+		if (!$result) $unset[$record_id] = $record_id;
+	}
+	return array('all' => $record_ids, 'unset' => $unset);
 }
 
 /**

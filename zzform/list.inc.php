@@ -869,9 +869,12 @@ function zz_filter_selection($filter, $filter_params, $pos) {
 			$link = $self.($qs ? $qs.'&amp;' : '?').'filter['.$f['identifier'].']=0';
 		}
 		$link_all = false;
-		if (isset($filter_params[$f['identifier']])
-			AND $filter_params[$f['identifier']] !== '0'
-			AND $filter_params[$f['identifier']] !== 0) $link_all = true;
+		if (isset($filter_params[$f['identifier']])) {
+			if ($filter[$index]['type'] === 'function') $link_all = true;
+			elseif ($filter_params[$f['identifier']] !== '0'
+				AND $filter_params[$f['identifier']] !== 0) $link_all = true;
+		}
+		
 		if (!$link_all) $link = false;
 
 		$filter[$index]['values'][] = array(
@@ -936,6 +939,16 @@ function zz_list_filter_sql($filters, $sql, &$filter_params) {
 				}
 				$sql = wrap_edit_sql($sql, 'WHERE', $filter['where'].$equals.'"'.$filter_value.'"');
 			}
+		} elseif ($filter['type'] === 'function') {
+			$records = zz_filter_function($filter, $sql);
+			foreach ($records['all'] as $record_id) {
+				if ($filter_params[$filter['identifier']] AND in_array($record_id, $records['unset'])) {
+					unset($records['all'][$record_id]);
+				} elseif (!$filter_params[$filter['identifier']] AND !in_array($record_id, $records['unset'])) {
+					unset($records['all'][$record_id]);
+				}
+			}
+			$sql = wrap_edit_sql($sql, 'WHERE', sprintf('%s IN (%s)', $filter['where'], implode(',', $records['all'])));
 		} elseif ($filter_params[$filter['identifier']] === '0' AND $filter['default_selection'] !== '0'
 			AND $filter['default_selection'] !== 0) {
 			// do nothing
