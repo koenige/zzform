@@ -137,7 +137,7 @@ function zz_nice_headings($heading, $zz, $where_condition = array()) {
 			if (empty($subheading['link_no_append'])) {
 				if (strstr($subheading['link'], '?')) $sep = '&amp;';
 				else $sep = '?';
-				$append = $sep.'mode=show&amp;id='.urlencode($where_condition[$mywh]);
+				$append = $sep.'show='.urlencode($where_condition[$mywh]);
 			}
 			$heading_addition[$i] = '<a href="'.$subheading['link'].$append.'">'
 				.$heading_addition[$i].'</a>';

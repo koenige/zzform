@@ -1203,6 +1203,21 @@ function zz_record_access($zz, $ops, $zz_var) {
 		}
 		break;
 
+	case !empty($_GET['edit']):
+		$ops['mode'] = 'edit';
+		$id_value = zz_check_get_array('edit', 'is_int');
+		break;
+
+	case !empty($_GET['delete']):
+		$ops['mode'] = 'delete';
+		$id_value = zz_check_get_array('delete', 'is_int');
+		break;
+
+	case !empty($_GET['show']):
+		$ops['mode'] = 'show';
+		$id_value = zz_check_get_array('show', 'is_int');
+		break;
+
 	case !empty($_GET['mode']):
 		// standard case, get mode from URL
 		if (in_array($_GET['mode'], $zz_conf['int']['allowed_params']['mode'])) {

@@ -120,7 +120,7 @@ function zz_details_start($zz) {
 	if ($_POST['zz_action'] === 'insert') {
 		$source .= 'mode=add';
 	} else {
-		$source .= sprintf('mode=edit&id=%d', $_POST[$id_field_name]);
+		$source .= sprintf('edit=%d', $_POST[$id_field_name]);
 	}
 	foreach ($zz_conf['int']['internal_post_fields'] as $fname) {
 		unset($_POST[$fname]);

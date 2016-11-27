@@ -23,13 +23,13 @@
 <tr class='%%% loopposition uneven "un" %%%even'>
 <td class='number'>%%% item no %%%</td>
 <td class='number'>
-%%% condition if _id & script_url %%%<a href="%%% item script_url %%%?mode=edit&amp;id=%%% item _id %%%">%%% item _id %%%</a>
+%%% condition if _id & script_url %%%<a href="%%% item script_url %%%?edit=%%% item _id %%%">%%% item _id %%%</a>
 %%% condition elseif _id %%%%%% item _id %%%
 %%% condition endif %%%
 </td>
 %%% loop fields %%%
 <td>
-%%% condition if my_script_url %%%<a href="%%% item my_script_url %%%?mode=edit&amp;id=%%% item value %%%">%%% condition endif %%%
+%%% condition if my_script_url %%%<a href="%%% item my_script_url %%%?edit=%%% item value %%%">%%% condition endif %%%
 %%% item value %%%
 %%% item my_script_url </a> %%%
 </td>

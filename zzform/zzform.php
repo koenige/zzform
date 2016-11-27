@@ -961,7 +961,8 @@ function zz_meta_tags() {
 	$meta = array();
 	$noindex = false;
 	$querystrings = array(
-		'order', 'group', 'mode', 'q'
+		'order', 'group', 'mode', 'q', 'edit', 'add', 'delete', 'show',
+		'insert', 'update'
 	);
 	foreach ($querystrings as $string) {
 		if (empty($_GET[$string])) continue;

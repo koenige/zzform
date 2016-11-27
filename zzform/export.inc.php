@@ -57,7 +57,10 @@ function zz_export_init($ops) {
 	if (empty($_GET['export'])) return $ops;
 
 	// no edit modes allowed
-	$unwanted_keys = array('mode', 'id', 'source_id');
+	$unwanted_keys = array(
+		'mode', 'id', 'source_id', 'show', 'edit', 'add', 'delete', 'insert',
+		'update'
+	);
 	foreach ($unwanted_keys as $key) {
 		if (!isset($_GET[$key])) continue;
 		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $unwanted_keys);

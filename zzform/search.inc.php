@@ -486,7 +486,7 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 		// do not show edited record, limit, ...
 		$unwanted_keys = array(
 			'q', 'scope', 'limit', 'mode', 'id', 'add', 'delete', 'insert',
-			'update', 'noupdate', 'zzhash'
+			'update', 'noupdate', 'zzhash', 'edit', 'show'
 		); 
 		$output .= zz_querystring_to_hidden(substr($qs, 1), $unwanted_keys);
 		// remove unwanted keys from link

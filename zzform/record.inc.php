@@ -327,7 +327,8 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 		$cancelurl = $zz_conf['int']['url']['self'];
 		if ($base_qs = $zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']) {
 			$unwanted_keys = array(
-				'mode', 'id', 'add', 'delete', 'insert', 'update', 'noupdate', 'zzhash'
+				'mode', 'id', 'add', 'delete', 'insert', 'update', 'noupdate',
+				'zzhash', 'edit', 'show'
 			);
 			$cancelurl .= zz_edit_query_string($base_qs, $unwanted_keys);
 		}
@@ -375,9 +376,9 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 			$output .= '<tr>'.$th.'<td class="reedit">';
 			if (empty($zz_conf_record['no_ok']))
 				$output .= '<a href="'.$cancelurl.'">'.zz_text('OK').'</a> | ';
-			$id_link = sprintf('&amp;id=%d', $zz_var['id']['value']);
+			$id_link = sprintf('%d', $zz_var['id']['value']);
 			if (!empty($zz_conf['int']['where_with_unique_id'])) $id_link = '';
-			$edit_link = 'mode=edit'.$id_link.$zz_var['extraGET'];
+			$edit_link = 'edit='.$id_link.$zz_var['extraGET'];
 			if ($zz_conf['int']['access'] === 'show_after_edit')
 				$edit_link = substr($zz_var['extraGET'], 5); // remove &amp;
 			$edit_link = $edit_link ? $zz_conf['int']['url']['?&'].$edit_link : '';
@@ -385,7 +386,7 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 				.$edit_link.'">'.zz_text('edit').'</a>';
 			if ($zz_conf_record['delete']) $output .= ' | <a href="'
 				.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
-				.$zz_conf['int']['url']['?&'].'mode=delete'.$id_link
+				.$zz_conf['int']['url']['?&'].'delete='.$id_link
 				.$zz_var['extraGET'].'">'.zz_text('delete').'</a>';
 			if ($zz_conf_record['copy']) {
 				$output .= sprintf(
