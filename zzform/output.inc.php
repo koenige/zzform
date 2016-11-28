@@ -1031,3 +1031,37 @@ function zz_output_upndown_editor() {
 	$output = wrap_template('upndown-editor', $data);
 	return $output;
 }
+
+/**
+ * Create links to edit, show, delete or copy a record
+ *
+ * @param int $id ID of this record
+ * @param array $zz_var ('extraGET')
+ * @param array $zz_conf_record
+ *		'edit', 'view', 'copy', 'delete'
+ * @global array $zz_conf
+ * @return string
+ */
+function zz_output_modes($id, $zz_var, $zz_conf_record) {
+	global $zz_conf;
+	$link = sprintf(
+		'<a href="%s%s%s%%s=%d%s">%%s</a>',
+		$zz_conf['int']['url']['self'], $zz_conf['int']['url']['qs'],
+		$zz_conf['int']['url']['?&'], $id, $zz_var['extraGET']
+	);
+	$modes = array();
+
+	if ($zz_conf_record['edit']) {
+		$modes[] = sprintf($link, 'edit', zz_text('edit'));
+	} elseif ($zz_conf_record['view']) {
+		$modes[] = sprintf($link, 'show', zz_text('show'));
+	}
+	if ($zz_conf_record['copy']) {
+		$modes[] = sprintf($link, 'add', zz_text('Copy'));
+	}
+	if ($zz_conf_record['delete']) {
+		$modes[] = sprintf($link, 'delete', zz_text('delete'));
+	}
+	if ($modes) return implode('&nbsp;&middot; ', $modes);
+	else return false;
+}

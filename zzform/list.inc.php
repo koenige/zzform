@@ -672,7 +672,7 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 		}
 		$lastline = $line;
 
-		$rows[$z]['modes'] = zz_list_modes($id, $zz_var, $zz_conf_record);
+		$rows[$z]['modes'] = zz_output_modes($id, $zz_var, $zz_conf_record);
 		if ($rows[$z]['modes']) $list['modes'] = true; // need a table row for this
 
 		if (!empty($zz_conf_record['details'])) {
@@ -1160,40 +1160,6 @@ function zz_list_query_hierarchy($zz, $id_field) {
 	}
 	$lines = zz_list_query_extras($lines, $id_field, $zz['sqlextra']);
 	return zz_return(array($lines, $total_rows));
-}
-
-/**
- * Create links to edit, show, delete or copy a record
- *
- * @param int $id ID of this record
- * @param array $zz_var ('extraGET')
- * @param array $zz_conf_record
- *		'edit', 'view', 'copy', 'delete'
- * @global array $zz_conf
- * @return string
- */
-function zz_list_modes($id, $zz_var, $zz_conf_record) {
-	global $zz_conf;
-	$link = sprintf(
-		'<a href="%s%s%s%%s=%d%s">%%s</a>',
-		$zz_conf['int']['url']['self'], $zz_conf['int']['url']['qs'],
-		$zz_conf['int']['url']['?&'], $id, $zz_var['extraGET']
-	);
-	$modes = array();
-
-	if ($zz_conf_record['edit']) {
-		$modes[] = sprintf($link, 'edit', zz_text('edit'));
-	} elseif ($zz_conf_record['view']) {
-		$modes[] = sprintf($link, 'show', zz_text('show'));
-	}
-	if ($zz_conf_record['copy']) {
-		$modes[] = sprintf($link, 'add', zz_text('Copy'));
-	}
-	if ($zz_conf_record['delete']) {
-		$modes[] = sprintf($link, 'delete', zz_text('delete'));
-	}
-	if ($modes) return implode('&nbsp;&middot; ', $modes);
-	else return false;
 }
 
 /**
