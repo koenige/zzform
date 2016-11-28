@@ -1206,14 +1206,26 @@ function zz_record_access($zz, $ops, $zz_var) {
 		}
 		break;
 
-	case !empty($_GET['edit']):
+	case isset($_GET['edit']):
 		$ops['mode'] = 'edit';
-		$id_value = zz_check_get_array('edit', 'is_int');
+		if ($zz_conf['int']['where_with_unique_id']) {
+			$id_value = $zz_var['id']['value'];
+		} else {
+			$id_value = zz_check_get_array('edit', 'is_int');
+		}
 		break;
 
 	case !empty($_GET['delete']):
 		$ops['mode'] = 'delete';
 		$id_value = zz_check_get_array('delete', 'is_int');
+		break;
+
+	case isset($_GET['delete']) AND $zz_conf['int']['where_with_unique_id']:
+		$ops['mode'] = 'delete';
+		$id_value = $zz_var['id']['value'];
+		// was record already deleted?
+		$record_id = wrap_db_fetch($zz['sql'], '_dummy_', 'single value');
+		if (!$record_id) $ops['mode'] = 'show';
 		break;
 
 	case !empty($_GET['show']):
