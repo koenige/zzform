@@ -568,7 +568,7 @@ function zz_output_add_links($zz, $extra_get) {
 	
 	$toolsline = array();
 	$toolsline[] = '<a accesskey="n" href="'.$zz_conf['int']['url']['self']
-		.$zz_conf['int']['url']['qs'].$zz_conf['int']['url']['?&'].'mode=add'
+		.$zz_conf['int']['url']['qs'].$zz_conf['int']['url']['?&'].'add'
 		.$extra_get.'">'.zz_text('Add new record').'</a>';
 	return '<p class="add-new">'.implode(' | ', $toolsline).'</p>'."\n";
 }

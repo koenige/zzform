@@ -1087,7 +1087,7 @@ function zz_record_add_details($field, $mode, $tab, $rec, $fieldkey) {
 	} else {
 		$add_details_sep = strstr($field['add_details'], '?') ? '&amp;' : '?';
 		$text = ' <a href="'.$field['add_details'].$add_details_sep
-			.'mode=add&amp;referer='.urlencode($_SERVER['REQUEST_URI'])
+			.'add&amp;referer='.urlencode($_SERVER['REQUEST_URI'])
 			.$zz_conf['int']['add_details_where'].'"'
 			.(!empty($field['add_details_target']) ? ' target="'.$field['add_details_target'].'"' : '')
 			.' id="zz_add_details_'.$tab.'_'.$rec.'_'.$fieldkey.'">['. zz_text('New …').']</a>';

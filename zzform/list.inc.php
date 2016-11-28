@@ -261,7 +261,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		// normal add button, only if list was shown beforehands
 		if ($ops['mode'] != 'add' && $zz_conf['add_link'] AND empty($zz['add']) && $zz_conf['int']['show_list']) {
 			$zz_conf['int']['no_add_button_so_far'] = false;
-			$toolsline[] = '<a accesskey="n" href="'.$base_url.'mode=add'
+			$toolsline[] = '<a accesskey="n" href="'.$base_url.'add'
 				.$zz_var['extraGET'].'">'.zz_text('Add new record').'</a>';
 		}
 		// multi-add-button, also show if there was no list, because it will only be shown below records!
@@ -274,10 +274,10 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 				if ($add['value']) {
 					$value = '&amp;add['.$add['field_name'].']='.$add['value'];
 				} else {
-					$value = '';
+					$value = '&amp;add';
 				}
 				$ops['output'] .= '<li><a href="'.$base_url
-					.'mode=add'.$zz_var['extraGET'].$value.'"'
+					.$value.$zz_var['extraGET'].'"'
 					.(!empty($add['title']) ? ' title="'.$add['title'].'"' : '')
 					.'>'.$add['type'].'</a>'
 					.(!empty($add['explanation']) ? ' ('.$add['explanation'].')' : '')

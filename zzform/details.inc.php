@@ -110,7 +110,7 @@ function zz_details_start($zz) {
 	
 	$redirect_to = $field['add_details'];
 	$redirect_to .= strstr($field['add_details'], '?') ? '&' : '?';
-	$redirect_to .= sprintf('mode=add&zz=%s', $zz_conf['id']);
+	$redirect_to .= sprintf('add&zz=%s', $zz_conf['id']);
 
 	$source = $_SERVER['REQUEST_URI'];
 	$source .= strstr($source, '?') ? '&' : '?';
@@ -118,7 +118,7 @@ function zz_details_start($zz) {
 		$source .= sprintf('zz=%s&', $zz_conf['id']);
 	}
 	if ($_POST['zz_action'] === 'insert') {
-		$source .= 'mode=add';
+		$source .= 'add';
 	} else {
 		$source .= sprintf('edit=%d', $_POST[$id_field_name]);
 	}
