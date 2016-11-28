@@ -332,6 +332,10 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 			);
 			$cancelurl .= zz_edit_query_string($base_qs, $unwanted_keys);
 		}
+		// do not show cancel URL if it is equal to current URL
+		if ($cancelurl === $zz_conf['int']['url']['self'].$base_qs) {
+			$cancelurl = false;
+		}
 	}
 	if ($mode && $mode !== 'review' && $mode !== 'show') {
 		$output .= '<tr>'.$th.'<td>'; 
@@ -371,31 +375,10 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 			$output .= ' <a href="'.$cancelurl.'">'.zz_text('Cancel').'</a>';
 		$output .= '</td></tr>'."\n";
 	} else {
-		if ($zz_conf_record['int']['access'] == 'add_only') return '';
+		if ($zz_conf_record['int']['access'] === 'add_only') return '';
 		if ($zz_conf_record['edit']) {
 			$output .= '<tr>'.$th.'<td class="reedit">';
-			if (empty($zz_conf_record['no_ok']))
-				$output .= '<a href="'.$cancelurl.'">'.zz_text('OK').'</a> | ';
-			$id_link = sprintf('%d', $zz_var['id']['value']);
-			if (!empty($zz_conf['int']['where_with_unique_id'])) $id_link = '';
-			$edit_link = 'edit='.$id_link.$zz_var['extraGET'];
-			if ($zz_conf['int']['access'] === 'show_after_edit')
-				$edit_link = substr($zz_var['extraGET'], 5); // remove &amp;
-			$edit_link = $edit_link ? $zz_conf['int']['url']['?&'].$edit_link : '';
-			$output .= '<a href="'.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
-				.$edit_link.'">'.zz_text('edit').'</a>';
-			if ($zz_conf_record['delete']) $output .= ' | <a href="'
-				.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
-				.$zz_conf['int']['url']['?&'].'delete='.$id_link
-				.$zz_var['extraGET'].'">'.zz_text('delete').'</a>';
-			if ($zz_conf_record['copy']) {
-				$output .= sprintf(
-					' | <a href="%s%s%sadd=%d%s">'.zz_text('Copy').'</a>'
-					, $zz_conf['int']['url']['self'], $zz_conf['int']['url']['qs']
-					, $zz_conf['int']['url']['?&'], $zz_var['id']['value']
-					, $zz_var['extraGET']
-				);
-			}
+			$output .= zz_output_modes($zz_var['id']['value'], $zz_var, $zz_conf_record, $cancelurl);
 			$output .= '</td></tr>'."\n";
 		}
 		if (!empty($zz_conf_record['details'])) {

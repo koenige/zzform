@@ -1042,25 +1042,35 @@ function zz_output_upndown_editor() {
  * @global array $zz_conf
  * @return string
  */
-function zz_output_modes($id, $zz_var, $zz_conf_record) {
+function zz_output_modes($id, $zz_var, $zz_conf_record, $cancelurl = '') {
 	global $zz_conf;
+	
+	if (!empty($zz_conf['int']['where_with_unique_id'])) $id = '';
+	$qs = ($id ? sprintf('=%d', $id) : '').$zz_var['extraGET'];
+	$qs_extra = $zz_conf['int']['url']['?&'].substr($zz_var['extraGET'], 5);
 	$link = sprintf(
-		'<a href="%s%s%s%%s=%d%s">%%s</a>',
-		$zz_conf['int']['url']['self'], $zz_conf['int']['url']['qs'],
-		$zz_conf['int']['url']['?&'], $id, $zz_var['extraGET']
+		'<a href="%s%s%%s%%s%%s">%%s</a>',
+		$zz_conf['int']['url']['self'],
+		$zz_conf['int']['url']['qs']
 	);
-	$modes = array();
 
+	$modes = array();
+	if (empty($zz_conf_record['no_ok']) AND $cancelurl)
+		$modes[] = '<a href="'.$cancelurl.'">'.zz_text('OK').'</a>';
 	if ($zz_conf_record['edit']) {
-		$modes[] = sprintf($link, 'edit', zz_text('edit'));
+		if ($zz_conf['int']['access'] === 'show_after_edit') {
+			$modes[] = sprintf($link, '', '', $qs_extra, zz_text('edit'));
+		} else {
+			$modes[] = sprintf($link, $zz_conf['int']['url']['?&'], 'edit', $qs, zz_text('edit'));
+		}
 	} elseif ($zz_conf_record['view']) {
-		$modes[] = sprintf($link, 'show', zz_text('show'));
+		$modes[] = sprintf($link, $zz_conf['int']['url']['?&'], 'show', $qs, zz_text('show'));
 	}
 	if ($zz_conf_record['copy']) {
-		$modes[] = sprintf($link, 'add', zz_text('Copy'));
+		$modes[] = sprintf($link, $zz_conf['int']['url']['?&'], 'add', $qs, zz_text('Copy'));
 	}
 	if ($zz_conf_record['delete']) {
-		$modes[] = sprintf($link, 'delete', zz_text('delete'));
+		$modes[] = sprintf($link, $zz_conf['int']['url']['?&'], 'delete', $qs, zz_text('delete'));
 	}
 	if ($modes) return implode('&nbsp;&middot; ', $modes);
 	else return false;
