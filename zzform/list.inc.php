@@ -1174,22 +1174,23 @@ function zz_list_query_hierarchy($zz, $id_field) {
  */
 function zz_list_modes($id, $zz_var, $zz_conf_record) {
 	global $zz_conf;
-	$link = '<a href="%s%s%s=%s">%s</a>';
-	$base_url = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
-		.$zz_conf['int']['url']['?&'];
-	$suffix = $id.$zz_var['extraGET'];
+	$link = sprintf(
+		'<a href="%s%s%s%%s=%d%s">%%s</a>',
+		$zz_conf['int']['url']['self'], $zz_conf['int']['url']['qs'],
+		$zz_conf['int']['url']['?&'], $id, $zz_var['extraGET']
+	);
 	$modes = array();
 
 	if ($zz_conf_record['edit']) {
-		$modes[] = sprintf($link, $base_url, 'edit', '', $suffix, zz_text('edit'));
+		$modes[] = sprintf($link, 'edit', zz_text('edit'));
 	} elseif ($zz_conf_record['view']) {
-		$modes[] = sprintf($link, $base_url, 'show', '', $suffix, zz_text('show'));
+		$modes[] = sprintf($link, 'show', zz_text('show'));
 	}
 	if ($zz_conf_record['copy']) {
-		$modes[] = sprintf($link, $base_url, 'mode=add&amp;', 'source_id', $suffix, zz_text('Copy'));
+		$modes[] = sprintf($link, 'add', zz_text('Copy'));
 	}
 	if ($zz_conf_record['delete']) {
-		$modes[] = sprintf($link, $base_url, 'delete', '', $suffix, zz_text('delete'));
+		$modes[] = sprintf($link, 'delete', zz_text('delete'));
 	}
 	if ($modes) return implode('&nbsp;&middot; ', $modes);
 	else return false;

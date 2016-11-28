@@ -390,7 +390,7 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 				.$zz_var['extraGET'].'">'.zz_text('delete').'</a>';
 			if ($zz_conf_record['copy']) {
 				$output .= sprintf(
-					' | <a href="%s%s%smode=add&amp;source_id=%d%s">'.zz_text('Copy').'</a>'
+					' | <a href="%s%s%sadd=%d%s">'.zz_text('Copy').'</a>'
 					, $zz_conf['int']['url']['self'], $zz_conf['int']['url']['qs']
 					, $zz_conf['int']['url']['?&'], $zz_var['id']['value']
 					, $zz_var['extraGET']

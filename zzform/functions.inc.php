@@ -338,7 +338,7 @@ function zz_get_where_conditions($zz, $zz_var) {
 	}
 
 	// ADD: overwrite write_once with values, in case there are identical fields
-	$add = zz_check_get_array('add', 'field_name');
+	$add = zz_check_get_array('add', 'field_name', array(), false);
 	if ($add) {
 		$zz_var['where_condition'] = array_merge(
 			$zz_var['where_condition'], $add
@@ -384,10 +384,11 @@ function zz_get_where_conditions($zz, $zz_var) {
  *		'is_numeric': checks if value is numeric
  *		'is_int': checks if value is integer / string that looks like integer
  * @param array $values (optional) list of possible values
+ * @param bool $exit_on_error defaults to true
  * @return mixed
  * @todo use this function in more places
  */
-function zz_check_get_array($key, $type, $values = array()) {
+function zz_check_get_array($key, $type, $values = array(), $exit_on_error = true) {
 	global $zz_conf;
 	$return = $type === 'field_name' ? array() : '';
 	if (!isset($_GET[$key])) return $return;
@@ -418,6 +419,7 @@ function zz_check_get_array($key, $type, $values = array()) {
 		break;
 	}
 	if (!$error_in) return $_GET[$key];
+	if (!$exit_on_error) return false;
 
 	$zz_conf['int']['http_status'] = 404;
 	$unwanted_keys = array();
@@ -1181,6 +1183,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 	// set mode and action according to $_GET and $_POST variables
 	// do not care yet if actions are allowed
 	$keys = array();
+
 	switch (true) {
 	case $ops['mode'] === 'export':
 		// Export overwrites all
@@ -1216,6 +1219,13 @@ function zz_record_access($zz, $ops, $zz_var) {
 	case !empty($_GET['show']):
 		$ops['mode'] = 'show';
 		$id_value = zz_check_get_array('show', 'is_int');
+		break;
+
+	case isset($_GET['add']):
+		$ops['mode'] = 'add';
+		if ($zz_conf['copy']) {
+			$zz_var['id']['source_value'] = zz_check_get_array('add', 'is_int', array(), false);
+		}
 		break;
 
 	case !empty($_GET['mode']):
@@ -1480,6 +1490,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		break;
 	}
 
+	// @deprecated
 	if ($ops['mode'] === 'add' AND $zz_conf['copy'] AND !empty($_GET['source_id'])) {
 		$zz_var['id']['source_value'] = $_GET['source_id'];
 	}
