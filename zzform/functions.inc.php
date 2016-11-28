@@ -339,6 +339,27 @@ function zz_get_where_conditions($zz, $zz_var) {
 
 	// ADD: overwrite write_once with values, in case there are identical fields
 	$add = zz_check_get_array('add', 'field_name', array(), false);
+	if (!$add AND !empty($_POST) AND $_POST['zz_action'] === 'insert' AND !empty($zz['add'])) {
+		$error_fieldname = '';
+		foreach ($zz['add'] as $addwhere) {
+			if (!array_key_exists($addwhere['field_name'], $_POST)) continue;
+			$error_fieldname = $addwhere['field_name'];
+			if ($_POST[$addwhere['field_name']] !== $addwhere['value']) continue;
+			$add[$addwhere['field_name']] = $addwhere['value'];
+		}
+		if (!$add) {
+			$error_value = $error_fieldname ? $_POST[$error_fieldname] : '';
+			// illegal add here, quit 403
+			zz_error_log(array(
+				'msg' => 'Adding value %s in field %s is forbidden here',
+				'msg_args' => array($error_value, $error_fieldname),
+				'level' => E_USER_WARNING,
+				'status' => 403
+			));
+			zz_error_exit(true);
+			return array($zz, $zz_var);
+		}
+	}
 	if ($add) {
 		$zz_var['where_condition'] = array_merge(
 			$zz_var['where_condition'], $add
@@ -3170,4 +3191,3 @@ function zz_check_values($post, $field_name, $value) {
 	}
 	return $post;
 }
-

@@ -646,9 +646,6 @@ function zz_extra_get_params($mode, $zz_conf) {
 		'where', 'var', 'order', 'group', 'q', 'scope', 'dir', 'referer',
 		'url', 'nolist', 'filter', 'debug', 'zz'
 	);
-	if ($mode === 'add' AND !empty($_GET['add']) AND is_array($_GET['add'])) {
-		$keep_fields[] = 'add';
-	}
 	foreach ($keep_fields AS $key) {
 		if (!empty($_GET[$key])) $keep_query[$key] = $_GET[$key];
 	}
