@@ -88,7 +88,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	if ($old_sql !== $zz['sql']) $zz['sqlcount'] = '';
 	$ops['output'] .= zz_filter_selection($zz['filter'], $zz_var['filters'], 'top');
 	if ($ops['mode'] != 'add' AND empty($zz_conf['no_add_above'])) {
-		$ops['output'] .= zz_output_add_links($zz_var['extraGET']);
+		$ops['output'] .= zz_output_add_links($zz, $zz_var['extraGET']);
 	}
 	if (!$zz['sql']) return zz_return(array($ops, $zz_var));
 
@@ -259,18 +259,18 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			.$zz_conf['int']['url']['?&'];
 
 		// normal add button, only if list was shown beforehands
-		if ($ops['mode'] != 'add' && $zz_conf['add_link'] AND !is_array($zz_conf['add']) && $zz_conf['int']['show_list']) {
+		if ($ops['mode'] != 'add' && $zz_conf['add_link'] AND empty($zz['add']) && $zz_conf['int']['show_list']) {
 			$zz_conf['int']['no_add_button_so_far'] = false;
 			$toolsline[] = '<a accesskey="n" href="'.$base_url.'mode=add'
 				.$zz_var['extraGET'].'">'.zz_text('Add new record').'</a>';
 		}
 		// multi-add-button, also show if there was no list, because it will only be shown below records!
 		
-		if ($ops['mode'] != 'add' && $zz_conf['add_link'] AND is_array($zz_conf['add'])) {
-			ksort($zz_conf['add']); // if some 'add' was unset before, here we get new numerical keys
+		if ($ops['mode'] != 'add' && $zz_conf['add_link'] AND !empty($zz['add'])) {
+			ksort($zz['add']); // if some 'add' was unset before, here we get new numerical keys
 			$ops['output'] .= '<div class="add-new"><p>'.zz_text('Add new record').":</p>\n<ul>";
 			$zz_conf['int']['no_add_button_so_far'] = false;
-			foreach ($zz_conf['add'] as $i => $add) {
+			foreach ($zz['add'] as $i => $add) {
 				if ($add['value']) {
 					$value = '&amp;add['.$add['field_name'].']='.$add['value'];
 				} else {

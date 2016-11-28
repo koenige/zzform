@@ -555,14 +555,15 @@ function zz_print_enum($field, $value, $type = 'abbr', $key = false) {
 /**
  * HTML output of Add-New-Link at the top of the list
  *
+ * @param array $zz
  * @param string $extra_get = $zz_var['extraGET']
  * @global array $zz_conf
  * @return string HTML output add new link
  */
-function zz_output_add_links($extra_get) {
+function zz_output_add_links($zz, $extra_get) {
 	global $zz_conf;
 	if (!$zz_conf['add_link']) return false;
-	if (is_array($zz_conf['add'])) return false;
+	if (!empty($zz['add'])) return false;
 	if ($zz_conf['int']['access'] === 'export') return false;
 	
 	$toolsline = array();

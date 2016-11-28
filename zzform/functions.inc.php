@@ -1459,7 +1459,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		if (empty($_POST)) $ops['mode'] = 'show';
 		break;
 	case 'add_only';
-		if (!is_array($zz_conf['add'])) $zz_conf['add'] = true;	// add record (form)
+		$zz_conf['add'] = true;				// add record (form)
 		$zz_conf['add_link'] = false;		// add record (links)
 		$zz_conf['edit'] = false;			// don't edit record (form+links)
 		$zz_conf['delete'] = false;			// don't delete record (form+links)
@@ -1579,13 +1579,13 @@ function zz_listandrecord_access($zz_conf) {
 		$zz_conf['view'] = true;			// show record (links)
 		break;
 	case 'show_and_add':
-		if (!is_array($zz_conf['add'])) $zz_conf['add'] = true; // add record (form+links)
+		$zz_conf['add'] = true; 			// add record (form+links)
 		$zz_conf['edit'] = false;			// edit record (form+links)
 		$zz_conf['delete'] = false;			// don't delete record (form+links)
 		$zz_conf['view'] = true;			// show record (links)
 		break;
 	case 'show_edit_add';
-		if (!is_array($zz_conf['add'])) $zz_conf['add'] = true; // add record (form+links)
+		$zz_conf['add'] = true; 			// add record (form+links)
 		$zz_conf['edit'] = true;			// edit record (form+links)
 		$zz_conf['delete'] = false;			// don't delete record (form+links)
 		$zz_conf['view'] = true;			// show record (links)
@@ -1603,7 +1603,7 @@ function zz_listandrecord_access($zz_conf) {
 		$zz_conf['view'] = false;			// don't show record (links)
 		break;
 	case 'edit_details_and_add':
-		if (!is_array($zz_conf['add'])) $zz_conf['add'] = true; // add record (form+links)
+		$zz_conf['add'] = true; 			// add record (form+links)
 		$zz_conf['edit'] = true;			// edit record (form+links)
 		$zz_conf['delete'] = false;			// don't delete record (form+links)
 		$zz_conf['view'] = false;			// don't show record (links)
@@ -1624,7 +1624,7 @@ function zz_listandrecord_access($zz_conf) {
 		$zz_conf['int']['show_list'] = true;		// show list, further steps in zz_list()
 		break;
 	case 'all':
-		if (!is_array($zz_conf['add'])) $zz_conf['add'] = true;	// add record (form+links)
+		$zz_conf['add'] = true;				// add record (form+links)
 		$zz_conf['edit'] = true;			// edit record (form+links)
 		$zz_conf['delete'] = true;			// delete record (form+links)
 		$zz_conf['view'] = false;			// don't show record (links)
