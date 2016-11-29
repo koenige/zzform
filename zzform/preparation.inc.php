@@ -91,11 +91,25 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	// get ID field, unique fields, check for unchangeable fields
 	$zz_tab[0][0]['id'] = &$zz_var['id'];
 	
+	if ($mode === 'revise') {
+		require_once $zz_conf['dir_inc'].'/revisions.inc.php';
+		$zz_tab[0]['revision_id'] = zz_revisions_read_id($zz_tab[0]['table'], $zz_tab[0][0]['id']['value']);
+	} elseif (!empty($_POST['zz_revision_id'])) {
+		require_once $zz_conf['dir_inc'].'/revisions.inc.php';
+		$zz_tab[0]['revision_id'] = intval($_POST['zz_revision_id']);
+	}
+	if (!empty($zz_tab[0]['revision_id'])) {
+		if (!isset($zz_tab[0]['hooks']['after_delete']))
+			$zz_tab[0]['hooks']['after_delete'] = true;
+		if (!isset($zz_tab[0]['hooks']['after_update']))
+			$zz_tab[0]['hooks']['after_update'] = true;
+	}
+	
 	//	### put each table (if more than one) into one array of its own ###
 	foreach ($zz_var['subtables'] as $tab => $no) {
 		if (!empty($zz['fields'][$no]['hide_in_form'])) continue;
 		$zz_tab[$tab] = zz_get_subtable($zz['fields'][$no], $zz_tab[0], $tab, $no);
-		if ($mode === 'show' AND $zz_tab[$tab]['values']) {
+		if (in_array($mode, array('revise', 'show')) AND $zz_tab[$tab]['values']) {
 			// don't show values which are not saved in show-record mode
 			$zz_tab[$tab]['values'] = array();
 		}
@@ -386,7 +400,7 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 	// get state
 	if ($mode === 'add' OR $zz_var['action'] === 'insert')
 		$state = 'add';
-	elseif ($mode === 'edit' OR $zz_var['action'] === 'update')
+	elseif ($mode === 'edit' OR $mode === 'revise' OR $zz_var['action'] === 'update')
 		$state = 'edit';
 	elseif ($mode === 'delete' OR $zz_var['action'] === 'delete')
 		$state = 'delete';
@@ -1063,7 +1077,7 @@ function zz_check_def_vals($post, $fields, $existing = array(), $where = array()
  *		$zz_tab[$tab][$rec]['record'], $zz_tab[$tab][$rec]['record_saved'], 
  *		$zz_tab[$tab][$rec]['fields'], $zz_tab[$tab][$rec]['action']
  */
-function zz_query_record($my_tab, $rec, $validation, $mode) {
+function zz_query_record($my_tab, $rec, $validation, $mode, $main_tab) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$my_rec = &$my_tab[$rec];
@@ -1150,6 +1164,10 @@ function zz_query_record($my_tab, $rec, $validation, $mode) {
 				$my_rec['fields'][$no]['class'] = 'error';
 			}
 		}
+	}
+	// revision?
+	if ($mode === 'revise' AND !empty($main_tab['revision_id'])) {
+		$my_tab = zz_revisisons_read_data($my_tab, $main_tab['revision_id']);
 	}
 	zz_log_validation_errors($my_rec, $validation);
 	return zz_return($my_tab);

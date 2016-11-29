@@ -699,6 +699,11 @@ function zz_action_function($type, $ops, $zz_tab) {
 		zz_identifier_redirect($type, $ops, $zz_tab[0]);
 	}
 
+	if (!empty($zz_tab[0]['revision_id'])
+		AND in_array($type, array('after_update', 'after_delete'))) {
+		zz_revisions_historic($zz_tab[0]['revision_id']);
+	}
+
 	$change = array();
 	if (!empty($zz_tab[0]['geocode']) AND $type === 'after_validation') {
 		$change = zz_geo_geocode($ops, $zz_tab);

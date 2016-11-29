@@ -134,6 +134,71 @@ function zz_revisions_read($table, $record_id) {
 }
 
 /**
+ * read a revision from the table if there is something that fits to this record
+ *
+ * @param string $table
+ * @param int $id_value
+ * @return int
+ */
+function zz_revisions_read_id($table, $id_value) {
+	global $zz_conf;
+	$sql = 'SELECT revision_id FROM %s
+		WHERE main_table_name = "%s"
+		AND main_record_id = %d
+		AND rev_status = "pending"
+		LIMIT 1';
+	$sql = sprintf($sql, $zz_conf['revisions_table'], $table, $id_value);
+	return wrap_db_fetch($sql, '', 'single value');
+}
+
+/**
+ * read revision date for a corresponding revision and either write data or
+ * set action to delete
+ *
+ * @param array $my_tab
+ * @param int $revision_id
+ * @return array
+ */
+function zz_revisisons_read_data($my_tab, $revision_id) {
+	global $zz_conf;
+	$sql = 'SELECT record_id, changed_values, rev_action
+		FROM %s
+		WHERE table_name = "%s"
+		AND revision_id = %d';
+	$sql = sprintf($sql
+		, $zz_conf['revisions_data_table']
+		, $my_tab['table_name']
+		, $revision_id
+	);
+	$revision_data = wrap_db_fetch($sql, 'record_id');
+	if (!$revision_data) return $my_tab;
+	foreach ($my_tab as $index => $rec) {
+		if (!is_numeric($index)) continue;
+		if (!in_array($rec['id']['value'], array_keys($revision_data))) continue;
+		$revision = $revision_data[$rec['id']['value']];
+		if ($revision['rev_action'] === 'update') {
+			$my_tab[$index]['revision'] = json_decode($revision['changed_values'], true);
+		} elseif ($revision['rev_action'] === 'delete') {
+			$my_tab[0]['action'] = 'delete';
+		}
+	}
+	return $my_tab;
+}
+
+/**
+ * update a pending revision to historic status
+ *
+ * @param int $id
+ * @return void
+ */
+function zz_revisions_historic($id_value) {
+	global $zz_conf;
+	$sql = 'UPDATE %s SET rev_status = "historic" WHERE revision_id = %d';
+	$sql = sprintf($sql, $zz_conf['revisions_table'], $id_value);
+	$result = zz_db_change($sql, $id_value);
+}
+
+/**
  * return a corresponding URL for a table where a table can be edited
  * defaults to URL in the same folder with table-name instead of table_name
  *

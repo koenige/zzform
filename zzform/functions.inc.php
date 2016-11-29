@@ -986,7 +986,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			);
 		}
 
-		if (in_array($mode, array('add', 'edit')) OR in_array($action, array('insert', 'update'))) {
+		if (in_array($mode, array('add', 'edit', 'revise')) OR in_array($action, array('insert', 'update'))) {
 			if (!isset($fields[$no]['maxlength']) && isset($fields[$no]['field_name'])) {
 				// no need to check maxlength in list view only 
 				$fields[$no]['maxlength'] = zz_db_field_maxlength(
@@ -1258,6 +1258,11 @@ function zz_record_access($zz, $ops, $zz_var) {
 	case !empty($_GET['show']):
 		$ops['mode'] = 'show';
 		$id_value = zz_check_get_array('show', 'is_int');
+		break;
+
+	case !empty($_GET['revise']):
+		$ops['mode'] = 'revise';
+		$id_value = zz_check_get_array('revise', 'is_int');
 		break;
 
 	case isset($_GET['add']):
@@ -1580,7 +1585,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 
 	// now, mode is set, do something depending on mode
 	
-	if (in_array($ops['mode'], array('edit', 'delete', 'add')) 
+	if (in_array($ops['mode'], array('edit', 'delete', 'add', 'revise')) 
 		AND !$zz_conf['show_list_while_edit']) $zz_conf['int']['show_list'] = false;
 	if (!$zz_conf['generate_output']) $zz_conf['int']['show_list'] = false;
 

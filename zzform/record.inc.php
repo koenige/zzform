@@ -75,7 +75,7 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 	// in these cases, no form element will be shown
 
 	$output = '';
-	$record_form = array('edit', 'delete', 'add');
+	$record_form = array('edit', 'delete', 'add', 'revise');
 	// Variable to correctly close form markup in case of error
 	$form_open = false;
 	$div_record_open = false;
@@ -99,7 +99,7 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 		$formhead = '<span class="error">'.sprintf(zz_text('Invalid ID for a record (must be an integer): %s'),
 			zz_html_escape($zz_var['id']['invalid_value'])).'</span>';
 		$zz_conf['int']['http_status'] = 404;
-	} elseif (in_array($ops['mode'], array('edit', 'delete', 'review', 'show'))
+	} elseif (in_array($ops['mode'], array('edit', 'delete', 'review', 'show', 'revise'))
 		AND !$zz_tab[0][0]['record'] AND $action_before_redirect !== 'delete') {
 		$sql = 'SELECT %s FROM %s WHERE %s = %d';
 		$sql = sprintf($sql, $zz_var['id']['field_name'], $zz_tab[0]['table'], $zz_var['id']['field_name'], $zz_tab[0][0]['id']['value']);
@@ -141,7 +141,7 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 			'msg_args' => array($tmp_error_msg)
 		));
 	} elseif (in_array($ops['mode'], $record_form) OR 
-		($ops['mode'] === 'show' AND !$action_before_redirect)) {
+		(in_array($ops['mode'], array('show')) AND !$action_before_redirect)) {
 	//	mode = add | edit | delete: show form
 		if (isset($zz_var['id']['values'])) {
 			$formhead = zz_text(ucfirst($ops['mode']).' several records');
@@ -185,7 +185,7 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 
 	// set display of record (review, form, not at all)
 
-	if ($ops['mode'] === 'delete' OR $ops['mode'] === 'show') {
+	if (in_array($ops['mode'], array('delete', 'show'))) {
 		$display_form = 'review';
 	} elseif (in_array($ops['mode'], $record_form)) {
 		$display_form = 'form';
@@ -199,8 +199,7 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 		$display_form = 'review';
 	} else
 		$display_form = false;
-	if (($ops['mode'] === 'edit' OR $ops['mode'] === 'delete' OR $ops['mode'] === 'review'
-		OR $ops['mode'] === 'show') 
+	if (in_array($ops['mode'], array('edit', 'delete', 'review', 'revise', 'show')) 
 		AND !$zz_tab[0][0]['record']) {
 		$display_form = false;
 	}
@@ -262,7 +261,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 		zz_conditions_merge_conf($zz_conf_record, $zz_conditions['bool'], $zz_var['id']['value']);
 	}
 
-	if (($mode === 'add' OR $mode === 'edit') && !empty($zz_conf['upload_MAX_FILE_SIZE'])
+	if (in_array($mode, array('add', 'edit', 'revise')) && !empty($zz_conf['upload_MAX_FILE_SIZE'])
 		AND !empty($zz_var['upload_form'])) 
 		$output .= zz_form_element('MAX_FILE_SIZE', $zz_conf['upload_MAX_FILE_SIZE'], 'hidden')."\n";
 	$output .= '<table>'."\n";
@@ -279,13 +278,16 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 	} elseif ($mode === 'delete') {
 		$output .= zz_form_element($zz_var['id']['field_name'], $zz_var['id']['value'], 'hidden')."\n";
 	}
-	if ($mode && $mode !== 'review' && $mode !== 'show') {
+	if ($mode && !in_array($mode, array('show'))) {
 		switch ($mode) {
 			case 'add': $submit = 'insert'; break;
-			case 'edit': $submit = 'update'; break;
+			case 'edit': case 'revise': $submit = 'update'; break;
 			case 'delete': $submit = 'delete'; break;
 		}
 		$output .= zz_form_element('zz_action', $submit, 'hidden');
+		if ($mode === 'revise' AND !empty($zz_tab[0]['revision_id'])) {
+			$output .= zz_form_element('zz_revision_id', $zz_tab[0]['revision_id'], 'hidden');
+		}
 		if ($zz_conf['referer'])
 			$output .= zz_form_element('zz_referer', $zz_conf['referer'], 'hidden');
 		if (isset($_GET['file']) && $_GET['file']) 
@@ -328,7 +330,7 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 		if ($base_qs = $zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']) {
 			$unwanted_keys = array(
 				'mode', 'id', 'add', 'delete', 'insert', 'update', 'noupdate',
-				'zzhash', 'edit', 'show'
+				'zzhash', 'edit', 'show', 'revise'
 			);
 			$cancelurl .= zz_edit_query_string($base_qs, $unwanted_keys);
 		}
@@ -337,10 +339,11 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 			$cancelurl = false;
 		}
 	}
-	if ($mode && $mode !== 'review' && $mode !== 'show') {
+	if ($mode && !in_array($mode, array('show'))) {
 		$output .= '<tr>'.$th.'<td>'; 
 		$fieldattr = array();
 		switch ($mode) {
+		case 'revise':
 		case 'edit':
 			if (!$multiple) {
 				$elementvalue = zz_text('Update record');
@@ -471,7 +474,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			continue; 
 		}
 		if ($field['type'] === 'option'
-			AND $mode !== 'edit' AND $mode !== 'add') {
+			AND !in_array($mode, array('edit', 'add', 'revise'))) {
 			// options will only be shown in edit mode
 			continue;
 		}
@@ -514,6 +517,21 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			if (!empty($field['hierarchy'])) $field['form_display'] = 'horizontal';
 		} else {
 			$field_display = $row_display;
+		}
+		if ($mode === 'revise') {
+			if (!empty($my_rec['revision']) AND !empty($field['field_name'])
+				AND in_array($field['field_name'], array_keys($my_rec['revision']))) {
+				$field['explanation'] = sprintf(
+					wrap_text('Old value: %s'), !empty($my_rec['record'][$field['field_name']])
+						? $my_rec['record'][$field['field_name']] : ' '.wrap_text('– empty –')
+				);
+				$my_rec['record'][$field['field_name']] = $my_rec['revision'][$field['field_name']];
+				if (!empty($field['class'])) $field['class'] .= ' ';
+				else $field['class'] = '';
+				$field['class'] .= 'reselect';
+			} elseif ($field['type'] !== 'subtable') {
+				$field_display = 'show';
+			}
 		}
 		if ($field_display !== 'form' OR !$show_explanation) {
 			$field['explanation'] = '';
@@ -639,7 +657,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				
 				if ($field_display === 'form') {
 					if ($zz_tab[$sub_tab]['min_records'] < $zz_tab[$sub_tab]['records']
-						&& !$dont_delete_records)
+						&& !$dont_delete_records AND $mode !== 'revise')
 						$show_remove = true;
 				}
 
@@ -725,7 +743,9 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					// add spacer only if there's something above and below spacer
 					$out['td']['content'] .= '<div class="subrecord_spacer"></div>';
 				}
-				$out['td']['content'] .= zz_output_subtable_submit('add', $field, $sub_tab);
+				if ($mode !== 'revise') {
+					$out['td']['content'] .= zz_output_subtable_submit('add', $field, $sub_tab);
+				}
 			}
 		} else {
 			//	"Normal" field
@@ -1068,8 +1088,8 @@ function zz_record_add_details($field, $mode, $tab, $rec, $fieldkey) {
 
 	if (!isset($field['add_details'])) return '';
 	if (!$mode) return '';
-	if (in_array($mode, array('delete', 'show', 'review'))) return '';
-	if ($mode === 'edit') {
+	if (in_array($mode, array('delete', 'show'))) return '';
+	if (in_array($mode, array('edit', 'revise'))) {
 		if (in_array($field['type'], array(
 			'hidden', 'predefined', 'write_once', 'display'
 		))) return '';
@@ -3155,7 +3175,7 @@ function zz_field_image($field, $display, $record, $record_saved, $images, $mode
 		}
 		if ($text) $text = '<p class="preview">'.$text.'</p>';
 	}
-	if (($mode === 'add' OR $mode === 'edit') && $field['type'] === 'upload_image') {
+	if (in_array($mode, array('add', 'edit', 'revise')) && $field['type'] === 'upload_image') {
 		if (!isset($field['image'])) {
 			zz_error_log(array(
 				'msg' => array(
@@ -3307,7 +3327,7 @@ function zz_field_display($field, $record, $record_saved) {
  * @return string
  */
 function zz_field_calculated($field, $record, $mode) {
-	if ($mode AND $mode !== 'show') {
+	if ($mode AND !in_array($mode, array('revise'))) {
 		return '('.zz_text('calculated_field').')';
 	}
 	switch ($field['calculation']) {

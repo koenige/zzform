@@ -296,8 +296,11 @@ function zzform($zz) {
 		foreach (array_keys($zz_tab) as $tab) {
 			foreach (array_keys($zz_tab[$tab]) as $rec) {
 				if (!is_numeric($rec)) continue;
-				$zz_tab[$tab] = zz_query_record($zz_tab[$tab], $rec, $validation, $ops['mode']);
+				$zz_tab[$tab] = zz_query_record($zz_tab[$tab], $rec, $validation, $ops['mode'], $zz_tab[0]);
 			}
+		}
+		if ($ops['mode'] === 'revise' AND $zz_tab[0][0]['action'] === 'delete') {
+			$ops['mode'] = 'delete';
 		}
 		if (zz_error_exit()) return zzform_exit($ops);
 
@@ -698,7 +701,7 @@ function zz_initialize_int() {
 	// initialize internal variables
 	$zz_conf['int'] = array();
 	$zz_conf['int']['allowed_params']['mode'] = array(
-		'edit', 'delete', 'show', 'add', 'review', 'list_only'
+		'edit', 'delete', 'show', 'add', 'review', 'list_only', 'revise'
 	);
 	// action parameters, 'review' is for internal use only
 	$zz_conf['int']['allowed_params']['action'] = array(
@@ -962,7 +965,7 @@ function zz_meta_tags() {
 	$noindex = false;
 	$querystrings = array(
 		'order', 'group', 'mode', 'q', 'edit', 'add', 'delete', 'show',
-		'insert', 'update'
+		'insert', 'update', 'revise'
 	);
 	foreach ($querystrings as $string) {
 		if (empty($_GET[$string])) continue;

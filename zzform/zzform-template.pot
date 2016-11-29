@@ -514,6 +514,18 @@ msgstr ""
 msgid "Merge not complete, records are different:"
 msgstr ""
 
+# Record form: Revision
+msgid "Revise a record"
+msgstr ""
+
+# Record form: Revision
+msgid "Old value: %s"
+msgstr ""
+
+# Record form: Revision
+msgid "– empty –"
+msgstr ""
+
 # List view: Revision
 msgid "live"
 msgstr ""
