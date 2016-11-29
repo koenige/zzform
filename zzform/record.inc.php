@@ -403,6 +403,7 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
  *
  * @param array $zz_ab
  * @param string $mode
+ * @param string $display
  * @param array $zz_var 
  *		function calls itself and uses 'horizontal_table_head'
  *		internally, therefore &$zz_var
@@ -935,7 +936,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					$field['max_select'] = $zz_conf_record['max_select'];
 					$field['max_select_val_len'] = $zz_conf_record['max_select_val_len'];
 
-					$outputf = zz_field_select_sql($field, $display, $my_rec['record'], 
+					$outputf = zz_field_select_sql($field, $field_display, $my_rec['record'], 
 						$zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table']);
 
 				} elseif (isset($field['set_folder'])) {
@@ -995,7 +996,9 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			}
 			if (!empty($default_value)) // unset $my_rec['record'] so following fields are empty
 				unset($my_rec['record'][$field['field_name']]);
-			$outputf .= zz_record_add_details($field, $mode, $tab, $rec, $fieldkey);
+			if ($field_display === 'form') {
+				$outputf .= zz_record_add_details($field, $mode, $tab, $rec, $fieldkey);
+			}
 			if (trim($outputf) OR $outputf === '0') {
 				if (isset($field['prefix'])) $out['td']['content'] .= $field['prefix'];
 				if (!empty($field['use_as_label'])) {
