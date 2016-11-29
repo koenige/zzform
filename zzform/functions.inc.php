@@ -125,6 +125,12 @@ function zz_dependent_modules($zz) {
 				// Look for shortcuts for conditions
 				if (isset($field['if'])) break 2;
 				if (isset($field['unless'])) break 2;
+				if (!empty($field['fields'])) {
+					foreach ($field['fields'] as $subfield) {
+						if (isset($subfield['if'])) break 3;
+						if (isset($subfield['unless'])) break 3;
+					}
+				}
 			}
 			unset($modules[$index]);
 			break;
