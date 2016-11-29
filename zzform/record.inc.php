@@ -285,7 +285,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 			case 'delete': $submit = 'delete'; break;
 		}
 		$output .= zz_form_element('zz_action', $submit, 'hidden');
-		if ($mode === 'revise' AND !empty($zz_tab[0]['revision_id'])) {
+		if (in_array($mode, array('revise', 'delete')) AND !empty($zz_tab[0]['revision_id'])) {
 			$output .= zz_form_element('zz_revision_id', $zz_tab[0]['revision_id'], 'hidden');
 		}
 		if ($zz_conf['referer'])
