@@ -132,3 +132,20 @@ function zz_revisions_read($table, $record_id) {
 	}
 	return $data;
 }
+
+/**
+ * return a corresponding URL for a table where a table can be edited
+ * defaults to URL in the same folder with table-name instead of table_name
+ *
+ * @param string $table name of table
+ * @return string
+ */
+function zz_revisions_table_to_url($table) {
+	global $zz_setting;
+	if (!empty($zz_setting['revisions_table_to_url'][$table])) {
+		return $zz_setting['revisions_table_to_url'][$table];
+	}
+	$table = str_replace('_', '-', $table);
+	$table = './'.$table;
+	return $table;
+}

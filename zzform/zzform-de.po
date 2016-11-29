@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.8.8\n"
+"X-Generator: Poedit 1.8.11\n"
 
 # Number of records as shown in page TITLE
 # Page elements
@@ -491,7 +491,8 @@ msgstr "Bitte überprüfen Sie diese Werte nocheinmal"
 
 # Record form: Validation, displayed above form
 msgid "Please select one of the values for field <strong>%s</strong>."
-msgstr "Bitte wählen Sie aus einem der Werte für das Feld <strong>%s</strong> aus."
+msgstr ""
+"Bitte wählen Sie aus einem der Werte für das Feld <strong>%s</strong> aus."
 
 # Record form: Validation, displayed above form
 msgid "Creation of directory %s failed: Parent directory is not writable."
@@ -555,6 +556,18 @@ msgstr ""
 # Record form: Merge
 msgid "Merge not complete, records are different:"
 msgstr "Zusammenfassung nicht komplett, die Einträge sind unterschiedlich:"
+
+# List view: Revision
+msgid "live"
+msgstr "live"
+
+# List view: Revision
+msgid "pending"
+msgstr "unerledigt"
+
+# List view: Revision
+msgid "historic"
+msgstr "historisch"
 
 # List view
 msgid "table-empty"

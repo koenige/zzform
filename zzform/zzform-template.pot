@@ -514,6 +514,18 @@ msgstr ""
 msgid "Merge not complete, records are different:"
 msgstr ""
 
+# List view: Revision
+msgid "live"
+msgstr ""
+
+# List view: Revision
+msgid "pending"
+msgstr ""
+
+# List view: Revision
+msgid "historic"
+msgstr ""
+
 # List view
 msgid "table-empty"
 msgstr ""

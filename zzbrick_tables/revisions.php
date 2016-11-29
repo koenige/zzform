@@ -18,6 +18,8 @@
 
 if (empty($zz_conf['revisions_table'])) wrap_quit(404);
 
+require_once $zz_conf['dir'].'/revisions.inc.php';
+
 $zz['title'] = 'Revisions';
 $zz['table'] = $zz_conf['revisions_table'];
 
@@ -30,6 +32,13 @@ $zz['fields'][2]['field_name'] = 'main_table_name';
 
 $zz['fields'][3]['title'] = 'Record';
 $zz['fields'][3]['field_name'] = 'main_record_id';
+$zz['fields'][3]['link'] = [
+	'mode1' => 'zz_revisions_table_to_url',
+	'field1' => 'main_table_name',
+	'string2' => '?revise=',
+	'field2' => 'main_record_id',
+	'string3' => '&nolist&referer='.urlencode($_SERVER['REQUEST_URI'])
+];
 
 $zz['fields'][4]['field_name'] = 'user_id';
 $zz['fields'][4]['type'] = 'write_once';
@@ -38,7 +47,7 @@ $zz['fields'][4]['default'] = isset($_SESSION['user_id']) ? $_SESSION['user_id']
 $zz['fields'][5]['title'] = 'Status';
 $zz['fields'][5]['field_name'] = 'rev_status';
 $zz['fields'][5]['type'] = 'select';
-$zz['fields'][5]['enum'] = ['live','pending','historic'];
+$zz['fields'][5]['enum'] = ['live', 'pending', 'historic'];
 $zz['fields'][5]['show_values_as_list'] = true;
 
 $zz['fields'][6]['field_name'] = 'created';
@@ -64,7 +73,7 @@ $zz['fields'][99]['class'] = 'block480';
 $zz['fields'][99]['hide_in_list'] = true;
 
 $zz['sql'] = 'SELECT * FROM '.$zz_conf['revisions_table'];
-$zz['sqlorder'] = ' ORDER BY created DESC, revision_id DESC';
+$zz['sqlorder'] = ' ORDER BY created ASC, revision_id ASC';
 
 $zz['filter'][1]['sql'] = sprintf('SELECT DISTINCT rev_status, rev_status
 	FROM %s
@@ -74,3 +83,5 @@ $zz['filter'][1]['identifier'] = 'status';
 $zz['filter'][1]['type'] = 'list';
 $zz['filter'][1]['field_name'] = 'rev_status';
 $zz['filter'][1]['where'] = 'rev_status';
+$zz['filter'][1]['default_selection'] = 'pending';
+$zz['filter'][1]['translate_field_value'] = true;
