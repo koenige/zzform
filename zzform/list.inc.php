@@ -840,6 +840,9 @@ function zz_filter_selection($filter, $filter_params, $pos) {
 					// ID might be string as well, so better urlencode it
 					$link = $self.($qs ? $qs.'&amp;' : '?').'filter['.$f['identifier'].']='.urlencode($id);
 				}
+				if (!empty($filter[$index]['translate_field_value'])) {
+					$selection = wrap_text($selection);
+				}
 				$filter[$index]['values'][] = array(
 					'title' => $selection,
 					'link' => $link
@@ -1843,7 +1846,7 @@ function zz_list_pageurl() {
 	// remove mode, id
 	$unwanted_keys = array(
 		'mode', 'id', 'limit', 'add', 'delete', 'insert', 'update', 'noupdate',
-		'zzhash', 'edit', 'show'
+		'zzhash', 'edit', 'show', 'revise'
 	);
 	$url['base'] = $zz_conf['int']['url']['self']
 		.zz_edit_query_string($zz_conf['int']['url']['qs']
