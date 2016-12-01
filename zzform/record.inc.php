@@ -278,7 +278,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 	} elseif ($mode === 'delete') {
 		$output .= zz_form_element($zz_var['id']['field_name'], $zz_var['id']['value'], 'hidden')."\n";
 	}
-	if ($mode && !in_array($mode, array('show'))) {
+	if ($mode && !in_array($mode, array('review', 'show'))) {
 		switch ($mode) {
 			case 'add': $submit = 'insert'; break;
 			case 'edit': case 'revise': $submit = 'update'; break;
@@ -339,7 +339,7 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 			$cancelurl = false;
 		}
 	}
-	if ($mode && !in_array($mode, array('show'))) {
+	if ($mode && !in_array($mode, array('review', 'show'))) {
 		$output .= '<tr>'.$th.'<td>'; 
 		$fieldattr = array();
 		switch ($mode) {
