@@ -272,9 +272,9 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			$zz_conf['int']['no_add_button_so_far'] = false;
 			foreach ($zz['add'] as $i => $add) {
 				if ($add['value']) {
-					$value = '&amp;add['.$add['field_name'].']='.$add['value'];
+					$value = 'add['.$add['field_name'].']='.$add['value'];
 				} else {
-					$value = '&amp;add';
+					$value = 'add';
 				}
 				$ops['output'] .= '<li><a href="'.$base_url
 					.$value.$zz_var['extraGET'].'"'
