@@ -1088,7 +1088,7 @@ function zz_record_add_details($field, $mode, $tab, $rec, $fieldkey) {
 
 	if (!isset($field['add_details'])) return '';
 	if (!$mode) return '';
-	if (in_array($mode, array('delete', 'show'))) return '';
+	if (in_array($mode, array('delete', 'show', 'review'))) return '';
 	if (in_array($mode, array('edit', 'revise'))) {
 		if (in_array($field['type'], array(
 			'hidden', 'predefined', 'write_once', 'display'
@@ -3327,7 +3327,7 @@ function zz_field_display($field, $record, $record_saved) {
  * @return string
  */
 function zz_field_calculated($field, $record, $mode) {
-	if ($mode AND !in_array($mode, array('revise'))) {
+	if ($mode AND !in_array($mode, array('revise', 'show'))) {
 		return '('.zz_text('calculated_field').')';
 	}
 	switch ($field['calculation']) {
