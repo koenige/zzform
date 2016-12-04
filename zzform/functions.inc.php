@@ -345,16 +345,16 @@ function zz_get_where_conditions($zz, $zz_var) {
 
 	// ADD: overwrite write_once with values, in case there are identical fields
 	$add = zz_check_get_array('add', 'field_name', array(), false);
-	if (!$add AND !empty($_POST) AND $_POST['zz_action'] === 'insert' AND !empty($zz['add'])) {
+	if (!$add AND !empty($_POST['zz_fields']) AND $_POST['zz_action'] === 'insert' AND !empty($zz['add'])) {
 		$error_fieldname = '';
 		foreach ($zz['add'] as $addwhere) {
-			if (!array_key_exists($addwhere['field_name'], $_POST)) continue;
+			if (!array_key_exists($addwhere['field_name'], $_POST['zz_fields'])) continue;
 			$error_fieldname = $addwhere['field_name'];
-			if ($_POST[$addwhere['field_name']] !== $addwhere['value']) continue;
+			if ($_POST['zz_fields'][$addwhere['field_name']].'' !== $addwhere['value'].'') continue;
 			$add[$addwhere['field_name']] = $addwhere['value'];
 		}
 		if (!$add) {
-			$error_value = $error_fieldname ? $_POST[$error_fieldname] : '';
+			$error_value = $error_fieldname ? $_POST['zz_fields'][$error_fieldname] : '';
 			// illegal add here, quit 403
 			zz_error_log(array(
 				'msg' => 'Adding value %s in field %s is forbidden here',

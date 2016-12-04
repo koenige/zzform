@@ -288,6 +288,11 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 		if (in_array($mode, array('revise', 'delete')) AND !empty($zz_tab[0]['revision_id'])) {
 			$output .= zz_form_element('zz_revision_id', $zz_tab[0]['revision_id'], 'hidden');
 		}
+		if (!empty($zz_var['zz_fields'])) {
+			foreach ($zz_var['zz_fields'] as $field_name => $field) {
+				$output .= zz_form_element('zz_fields['.$field_name.']', $field['value'], 'hidden');
+			}
+		}
 		if ($zz_conf['referer'])
 			$output .= zz_form_element('zz_referer', $zz_conf['referer'], 'hidden');
 		if (isset($_GET['file']) && $_GET['file']) 
