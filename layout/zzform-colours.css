@@ -7,28 +7,24 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright (c) 2005-2011, 2014 Gustaf Mossakowski
+ * @copyright Copyright (c) 2005-2011, 2014, 2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
 
-/* body and list view */
-body				{ color: #000; }
-body, #zzform .editbutton, #zzform td.recordid, #zzform th.recordid 
+/* list view, should be equal to body */
+#zzform .editbutton, #zzform td.recordid, #zzform th.recordid 
 					{ background-color: #CFCFC4; }
-
-/* links */
-#zzform a:link		{ color: #009; }
-#zzform a:visited	{ color: #669; }
-
 
 /* record view */
 #zzform #record table
-					{ background-color: #EEC; }
+					{ background-color: #F3F4F4; }
 #zzform #record .subtable th, #zzform #record .subtable td
-					{ background-color: #DDB; }
-#zzform #record tfoot th, #zzform #record tfoot td, td.where, th.where 
-					{ background-color: #A29F8A; }
+					{ background-color: #FAFBFB; }
+#zzform #record tfoot th, #zzform #record tfoot td
+					{ background-color: #CCC; }
+td.where, th.where 
+					{ background-color: #EEE; } /* a19884 */
 
 
 /* filter */
@@ -39,11 +35,12 @@ body, #zzform .editbutton, #zzform td.recordid, #zzform th.recordid
 /* list view (table) */
 #zzform table.data thead td, #zzform table.data thead th,
 #zzform table.data tr.group td, #zzform tr.last, #zzform tfoot td
-					{ border-color: #999; }
-#zzform tr.even		{ background-color: #CCB; }	/* even rows */
-#zzform tr.uneven	{ background-color: #EED; }	/* uneven rows */
-#zzform th.order	{ background-color: #DDB; }	/* column ORDER BY */
+					{ border-color: #BBC; }
+#zzform tr.even		{ background-color: #F3F4F4; } /* even rows */
+#zzform tr.uneven	{ background-color: #FAFBFB; } /* uneven rows */
+#zzform th.order	{ background-color: #DDB; } /* column ORDER BY */
 
+#zzform tfoot td	{ border-color: #7B939D; }
 
 /* list view (page navigation below list) */
 #zzform ul.pages li	{ border-color: #666; }
@@ -79,3 +76,7 @@ body #zzform .separator hr
 #zzform .error, #zzform .subtable .horizontal td.error
 					{ color: white; }
 #zzform .warning	{ background-color: yellow; }
+
+
+/* Media */
+#zzform ul.data li	{ max-width: 126px; height: 225px; }
