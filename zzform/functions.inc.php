@@ -2537,7 +2537,7 @@ function zz_error_multi($errors) {
 	}
 	$validation_errors = zz_error_validation_log();
 	if ($validation_errors['msg']) {
-		$errors = array_merge($errors, $validation_errors['msg']['msg']);
+		$errors = array_merge($errors, $validation_errors['msg']);
 	}
 	return $errors;
 }
