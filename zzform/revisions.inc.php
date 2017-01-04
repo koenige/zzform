@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2016 Gustaf Mossakowski
+ * @copyright Copyright © 2016-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -54,9 +54,8 @@ function zz_revisions($ops, $rev_only = false) {
 		$zz_conf['revisions_table'], $ops['return'][0]['table'],
 		$ops['return'][0]['id_value'], $user_id, $status
 	);
-	$result = wrap_db_query($sql);
-	if (!$result) return array();
-	$rev_id = mysqli_insert_id($zz_conf['db_connection']);
+	$rev_id = wrap_db_query($sql);
+	if (!$rev_id) return array();
 	zz_log_sql($sql, $zz_conf['user'], $rev_id);
 
 	if ($status === 'live') {
@@ -66,11 +65,8 @@ function zz_revisions($ops, $rev_only = false) {
 			$zz_conf['revisions_table'], $ops['return'][0]['table'],
 			$ops['return'][0]['id_value'], $rev_id
 		);
-		$result = wrap_db_query($sql);
-		$rows = mysqli_affected_rows($zz_conf['db_connection']);
-		if ($rows) {
-			zz_log_sql($sql, $zz_conf['user']);
-		}
+		$rows = wrap_db_query($sql);
+		if ($rows) zz_log_sql($sql, $zz_conf['user']);
 	}
 
 	$sql_rev = 'INSERT INTO %s (revision_id, table_name, record_id, changed_values,
@@ -78,9 +74,8 @@ function zz_revisions($ops, $rev_only = false) {
 	$sql_rev = sprintf($sql_rev, $zz_conf['revisions_data_table'], $rev_id);
 	foreach ($data as $line) {
 		$sql = vsprintf($sql_rev, $line);
-		$result = wrap_db_query($sql);
-		if (!$result) continue;
-		$rev_data_id = mysqli_insert_id($zz_conf['db_connection']);
+		$rev_data_id = wrap_db_query($sql);
+		if (!$rev_data_id) continue;
 		zz_log_sql($sql, $zz_conf['user'], $rev_data_id);
 	}
 	return array();
