@@ -13,7 +13,7 @@
  *		zz_db_*()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2016 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -36,7 +36,6 @@ function zz_log_sql($sql, $user, $record_id = false) {
 	global $zz_conf;
 	// logs each INSERT, UPDATE or DELETE query
 	// with record_id
-	if (!mysqli_affected_rows($zz_conf['db_connection'])) return false;
 	$sql = trim($sql);
 	if ($sql === 'SELECT 1') return false;
 	// check if zzform() set db_main, test against !empty because need not be set
@@ -545,7 +544,7 @@ function zz_db_change($sql, $id = false) {
 			if ($db['action'] === 'insert') // get ID value
 				$db['id_value'] = mysqli_insert_id($zz_conf['db_connection']);
 			// Logs SQL Query, must be after insert_id was checked
-			if (!empty($zz_conf['logging']))
+			if (!empty($zz_conf['logging']) AND mysqli_affected_rows($zz_conf['db_connection']))
 				zz_log_sql($sql, $zz_conf['user'], $db['id_value']);
 		}
 		$warnings = zz_db_fetch('SHOW WARNINGS', '_dummy_', 'numeric');
