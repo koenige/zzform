@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2016 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -291,7 +291,7 @@ function zz_identifier_exists($idf, $i, $db_table, $field, $id_field, $id_value,
 				$j--;
 				if ($j === $i) {
 					// -- does not work with alphabet
-					if (substr_count($j, 'a') == strlen($j)) {
+					if (substr_count($j, 'a') === strlen($j)) {
 						$j = substr($j, 0, -1);
 					}
 				}
@@ -394,7 +394,7 @@ function zz_identifier_var($field_name, $my_rec, $main_post) {
 			$field = zz_get_subtable_fielddef($my_rec['fields'], $table);
 			if ($field) {
 				$type = zz_get_fielddef($field['fields'], $field_name, 'type');
-				if ($type == 'date') {
+				if ($type === 'date') {
 					$value = zz_check_date($value); 
 					$value = str_replace('-00', '', $value); 
 					$value = str_replace('-00', '', $value); 
@@ -419,12 +419,12 @@ function zz_identifier_var($field_name, $my_rec, $main_post) {
 		$field_names = zz_split_fieldname($field_name);
 	if (!$field_names) return false;
 	
-	if ($field_names[0] == '0') {
+	if ($field_names[0] === '0') {
 		if (empty($main_post[$field_names[1]])) return false;
 		if (is_array($main_post[$field_names[1]])) return false;
 		$value = $main_post[$field_names[1]];
 		// remove " "
-		if (substr($value, 0, 1)  == '"' AND substr($value, -1) == '"')
+		if (substr($value, 0, 1)  === '"' AND substr($value, -1) === '"')
 			$value = substr($value, 1, -1);
 		return $value;
 	} 
@@ -497,6 +497,12 @@ function zz_identifier_redirect($type, $ops, $main_tab) {
 		default:
 			return false;
 		}
+		if (is_array($redirect) AND count($redirect) > 3) {
+			foreach ($redirect as $field_name => $value) {
+				if (in_array($field_name, array('old', 'new', 'field_name'))) continue;
+				$values['POST'][$field_name] = $value;
+			}
+		}
 		zzform_multi('redirects', $values);
 	}
 	return true;
@@ -520,7 +526,7 @@ function zz_identifier_vars_db($sql, $id, $fieldname = false) {
 	foreach ($sql_tokens as $token) {
 		if (!in_array($token, $unwanted)) {
 			$id_fieldname = trim($token);
-			if (substr($id_fieldname, -1) == ',')
+			if (substr($id_fieldname, -1) === ',')
 				$id_fieldname = substr($id_fieldname, 0, -1);
 			break;
 		}
