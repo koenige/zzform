@@ -500,7 +500,13 @@ function zz_identifier_redirect($type, $ops, $main_tab) {
 		if (is_array($redirect) AND count($redirect) > 3) {
 			foreach ($redirect as $field_name => $value) {
 				if (in_array($field_name, array('old', 'new', 'field_name'))) continue;
-				$values['POST'][$field_name] = $value;
+				if ($value !== $field_name) {
+					$values['POST'][$field_name] = $value;
+				} elseif ($type === 'after_delete') {
+					$values['POST'][$field_name] = $ops['record_old'][0][$field_name];
+				} else {
+					$values['POST'][$field_name] = $ops['record_new'][0][$field_name];
+				}
 			}
 		}
 		zzform_multi('redirects', $values);
