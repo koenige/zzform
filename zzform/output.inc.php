@@ -21,7 +21,8 @@
  * @param array $zz
  * @param array $where_condition = $zz_var['where_condition']
  * @return array $ops
- *		string 'heading', string 'title', string 'output'
+ *		string 'heading', string 'title', string 'output', string 'h1',
+ *		string 'explanation', string 'selection'
  */
 function zz_output_page($ops, $zz, $where_condition) {
 	// make nicer headings
@@ -29,16 +30,29 @@ function zz_output_page($ops, $zz, $where_condition) {
 	// provisional title, in case errors occur
 	$ops['title'] = strip_tags($ops['heading']);
 	if (trim($ops['heading']) AND empty($zz['dont_show_h1']))
-		$ops['output'].= "\n".'<h1>'.$ops['heading'].'</h1>'."\n\n";
-	if ($zz['explanation']) 
-		$ops['output'] .= zz_format($zz['explanation']);
-	$ops['output'] .= "\n<div class='explanation_dynamic'></div>\n";
-	$ops['output'] .= zz_error_output();
-
-	$selection = zz_nice_selection($zz['fields']);
-	if ($selection)
-		$ops['output'].= "\n".'<h2>'.$selection.'</h2>'."\n\n";
+		$ops['h1'] = $ops['heading'];
+	$ops['explanation'] = zz_format($zz['explanation']);
+	$ops['selection'] = zz_nice_selection($zz['fields']);
 	return $ops;
+}
+
+/**
+ * Output HTML via template
+ * 
+ * @param array $ops
+ * @return string
+ */
+function zz_output_full($ops) {
+	global $zz_conf;
+	if ($ops['mode'] === 'export') return $ops['output'];
+	if ($zz_conf['footer_text']) $ops['footer_text'] .= $zz_conf['footer_text'];
+	$ops['error_out'] = zz_error_output();
+
+	if ($zz_conf['int']['record']) {
+		$ops['wmd_editor'] = zz_output_wmd_editor();
+		$ops['upndown_editor'] = zz_output_upndown_editor();
+	}
+	return wrap_template('zzform', $ops);
 }
 
 /**

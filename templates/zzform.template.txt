@@ -1,0 +1,24 @@
+# Zugzwang Project
+# HTML output: zzform
+#
+# http://www.zugzwang.org/projects/zzform
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2017 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+<div id="zzform">
+%%% item h1 "<h1>%s</h1>" %%% 
+%%% item explanation %%% 
+<div class="explanation_dynamic"></div>
+%%% item error_out %%%
+%%% item selection "<h2>%s</h2> %%%
+
+%%% item output %%%
+%%% item wmd_editor %%%
+%%% item upndown_editor %%%
+%%% item footer_text %%%
+%%% condition if debug %%%
+<div class="debug">%%% item debug %%%</div>
+%%% condition endif %%%
+</div>

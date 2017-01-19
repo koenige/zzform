@@ -13,7 +13,7 @@
  *	zzform_multi()			multi edit for zzform, e. g. import
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2016 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -39,7 +39,7 @@ function zzform($zz) {
 	$ops = array(
 		'result' => '',
 		'headers' => false,
-		'output' => false,
+		'output' => '',
 		'error' => array(),
 		'id' => 0,
 		'mode' => false,
@@ -56,7 +56,6 @@ function zzform($zz) {
 			'level' => E_USER_NOTICE
 		));
 		zz_error();
-		$ops['output'] .= zz_error_output();
 		return zzform_exit($ops);
 	}
 
@@ -355,8 +354,6 @@ function zzform($zz) {
 		$ops['title'] = zz_nice_title($ops['heading'], $zz['fields'], $zz_var, $ops['mode']);
 	}
 	if ($ops['mode'] !== 'export') {
-		$ops['output'] .= zz_output_wmd_editor();
-		$ops['output'] .= zz_output_upndown_editor();
 		$ops['footer_text'] = !empty($zz['footer_text']) ? $zz['footer_text'] : '';
 	}
 	return zzform_exit($ops);
@@ -374,10 +371,6 @@ function zzform_exit($ops) {
 	
 	// last time check for errors
 	zz_error();
-	if (!isset($ops['output'])) $ops['output'] = '';
-	if ($ops['mode'] !== 'export') {
-		$ops['output'] .= zz_error_output();
-	}
 	$ops['critical_error'] = zz_error_exit();
 	$ops['error_mail'] = array();
 	if (!empty($zz_conf['int']['error']))
@@ -394,18 +387,15 @@ function zzform_exit($ops) {
 			zz_debug_time($ops['return']);
 		}
 		if ($zz_conf['debug'] AND $ops['mode'] !== 'export') {
-			$ops['output'] .= '<div class="debug">'.zz_debug_htmlout().'</div>'."\n";
+			$ops['debug'] = zz_debug_htmlout();
 		}
 		zz_debug_unset();
 	}
 	// prepare HTML output, not for export
-	if ($ops['mode'] !== 'export') {
-		if ($zz_conf['footer_text']) $ops['footer_text'] .= $zz_conf['footer_text'];
-		$ops['output'] .= $ops['footer_text'];
-		$ops['output'] = '<div id="zzform">'."\n".$ops['output'].'</div>'."\n";
+	if ($zz_conf['generate_output']) {
+		$ops['output'] = zz_output_full($ops);
+		if ($zz_conf['show_output']) echo $ops['output'];
 	}
-
-	if ($zz_conf['show_output']) echo $ops['output'];
 	
 	// HTML head
 	$ops['meta'] = zz_meta_tags();
