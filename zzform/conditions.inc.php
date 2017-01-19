@@ -24,7 +24,7 @@
  *	zz_conditions_list_check()		set conditions for list
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2010, 2013-2016 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2010, 2013-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -166,11 +166,6 @@ function zz_conditions_check($zz, $mode, $zz_var) {
 			if (!empty($zz_conf['multi'])) {
 				$zz_conditions['bool'][$index] = true;
 			}
-			break;
-		case 'list_empty':
-			// @todo: not yet implemented
-			// @todo: problem: when this function is called, we do not know
-			// anything about the number of records in list view
 			break;
 		case 'record_mode':
 			if ($mode AND $mode !== 'list_only') {
@@ -706,7 +701,6 @@ function zz_conditions_merge_conf(&$conf, $bool_conditions, $record_id) {
 function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids, $mode) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	if (!$zz_conf['int']['show_list']) return zz_return($zz_conditions);
 	if (empty($zz['conditions'])) return zz_return($zz_conditions);
 
 	// improve database performace, for this query we only need ID field
@@ -727,6 +721,7 @@ function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids, $mode) {
 			}
 			break;
 		case 'record':
+			if (!$zz_conf['int']['show_list']) break;
 			$sql = $zz['sql_without_limit'];
 			if (!empty($condition['where']))
 				$sql = wrap_edit_sql($sql, 'WHERE', $condition['where']);
@@ -744,6 +739,7 @@ function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids, $mode) {
 			$zz_conditions['bool'][$index] = $lines;
 			break;
 		case 'query':
+			if (!$zz_conf['int']['show_list']) break;
 			$sql = $condition['sql'];
 			$sql = wrap_edit_sql($sql, 'WHERE', $condition['key_field_name'].' IN ('.implode(', ', $ids).')');
 			$lines = zz_db_fetch($sql, $condition['key_field_name'], 'id as key', 'list-query ['.$index.']');
@@ -759,6 +755,16 @@ function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids, $mode) {
 				$zz_conditions['bool'][$index] = true;
 			} else {
 				$zz_conditions['bool'][$index] = false;
+			}
+			break;
+		case 'list_empty':
+			if (!empty($zz['sqlcount'])) {
+				$total_rows = zz_sql_count_rows($zz['sqlcount']);
+			} else {
+				$total_rows = zz_sql_count_rows($zz['sql'], $zz['table'].'.'.$id_field);
+			}
+			if (!$total_rows) {
+				$zz_conditions['bool'][$index] = true;
 			}
 			break;
 		default:

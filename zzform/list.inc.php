@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2016 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -123,13 +123,13 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	// Table definition, data and head
 	//
 
-	if ($zz_conf['int']['show_list']) {
-		// Check all conditions whether they are true;
-		if (!empty($zz_conf['modules']['conditions'])) {
-			$zz_conditions = zz_conditions_list_check($zz, $zz_conditions, $id_field, array_keys($lines), $ops['mode']);
-			if (zz_error_exit()) return zz_return(array($ops, $zz_var));
-		}
+	// Check all conditions whether they are true;
+	if (!empty($zz_conf['modules']['conditions'])) {
+		$zz_conditions = zz_conditions_list_check($zz, $zz_conditions, $id_field, array_keys($lines), $ops['mode']);
+		if (zz_error_exit()) return zz_return(array($ops, $zz_var));
+	}
 
+	if ($zz_conf['int']['show_list']) {
 		// add 0 as a dummy record for which no conditions will be set
 		// reindex $linex from 1 ... n
 		array_unshift($lines, '0');
@@ -163,6 +163,10 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			zz_conditions_merge_conf($zz, $zz_conditions['bool'], 0);
 		}
 		list($rows, $head) = zz_list_remove_empty_cols($rows, $head, $zz);
+	} else {
+		if (!empty($zz_conf['modules']['conditions'])) {
+			zz_conditions_merge_conf($zz, $zz_conditions['bool'], 0);
+		}
 	}
 
 	//
@@ -298,6 +302,8 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			$ops['output'] .= $search_form['bottom'];
 		}
 	}
+	// explanation might have changed due to conditions
+	$ops['explanation'] = zz_format($zz['explanation']);
 	return zz_return(array($ops, $zz_var));
 }
 
