@@ -10,7 +10,7 @@
 <div id="zzform">
 %%% item h1 "<h1>%s</h1>" %%% 
 %%% item explanation %%% 
-<div class="explanation_dynamic"></div>
+<div class='explanation_dynamic'></div>
 %%% item error_out %%%
 %%% item selection "<h2>%s</h2> %%%
 
