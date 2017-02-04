@@ -436,54 +436,90 @@ function zz_check_datetime($datetime) {
 
 /**
  * checks whether an input is a number or a simple calculation
+ * perform a calculation with a given string
+ * supports * / + - but no roots, powers, brackets etc.
  * 
- * @param string $number	number or calculation, may contain +-/* 0123456789 ,.
- * @return string number, with calculation performed / false if incorrect format
+ * @param string $number number or calculation, may contain +-/* 0123456789 ,.
+ * @return mixed number, with calculation performed / false if incorrect format
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_check_number($number) {
 	global $zz_conf;
 
 	// remove whitespace, it's nice to not have to care about this
-	$number = trim($number);
-	$number = str_replace(' ', '', $number);
+	$check = trim($number);
+	$check = str_replace(' ', '', $check);
 	if ($zz_conf['character_set'] === 'utf-8') {
-		$number = str_replace(chr(194).chr(160), '', $number); // non-breaking space
+		$check = str_replace(chr(194).chr(160), '', $check); // non-breaking space
 	} else {
-		$number = str_replace(chr(160), '', $number); // non-breaking space
+		$check = str_replace(chr(160), '', $check); // non-breaking space
 	}
-	// first charater must not be / or *
-	// NULL: possible feature: return doubleval $number to get at least something
-	if (!preg_match('~^[0-9.,+-][0-9.,\+\*\/-]*$~', $number)) return NULL;
+
+	// first character must not be / or *
+	// NULL: possible feature: return doubleval $check to get at least something
+	if (!preg_match('~^[0-9.,+-][0-9.,\+\*\/-]*$~', $check)) return NULL;
 	// put a + at the beginning, so all parts with real numbers start with 
 	// arithmetic symbols
-	if (!in_array(substr($number, 0, 1), array('-', '+'))) {
-		$number = '+'.$number;
+	if (!in_array(substr($check, 0, 1), array('-', '+'))) {
+		$check = '+'.$check;
 	}
-	preg_match_all('~[-+/*]+[0-9.,]+~', $number, $parts);
-	$parts = $parts[0];
+
+	preg_match_all('~([-+/*])([0-9.,]+)~', $check, $tokens);
+
+	$values = $tokens[2];
 	// go through all parts and solve the '.' and ',' problem
-	foreach ($parts as $index => $part) {
-		if ($dot = strpos($part, '.') AND $comma = strpos($part, ','))
-			if ($dot > $comma) $parts[$index] = str_replace(',', '', $part);
+	foreach ($values as $index => $value) {
+		if ($dot = strpos($value, '.') AND $comma = strpos($value, ',')) {
+			if ($dot > $comma) $values[$index] = str_replace(',', '', $value);
 			else {
-				$parts[$index] = str_replace('.', '', $part);
-				$parts[$index] = str_replace(',', '.', $parts[$index]);
+				$values[$index] = str_replace('.', '', $value);
+				$values[$index] = str_replace(',', '.', $values[$index]);
 			}
 		// must not: enter values like 1,000 and mean 1000!
-		elseif (strstr($part, ',')) $parts[$index] = str_replace(',', '.', $part);
+		} elseif (strstr($value, ',')) {
+			$values[$index] = str_replace(',', '.', $value);
+		}
+		// too many dots: this does not work (could be a mistyped date)
+		if (substr_count($values[$index], '.') > 1) return NULL;
 	}
-	$calculation = implode('', $parts);
-	// GPS EXIF data sometimes is written like +0/0
-	if (substr($calculation, -4) === '0/0') return NULL;
-	// +0.0 +0 +0.0000 ... = ''
-	if (preg_match('/^\+0\.*0*$/', $calculation)) return 0;
-	eval('$sum = '.$calculation.';');
+
+	$sum = 0;
+	$operators = $tokens[1];
+	$index = count($operators) - 1;
+	
+	// 1: division, replace it with multiplication (*1/n)
+	// in order to be able to check multiplication tokens backwards
+	foreach ($operators as $index => $operator) {
+		if ($operator !== '/') continue;
+		// division by zero? e. g. in GPS EXIF data 0/0
+		if (!$values[$index]) return NULL;
+		$operators[$index] = '*';
+		$values[$index] = 1 / $values[$index];
+	}
+	
+	
+	// 2: multiplication
+	while ($index >= 0) {
+		$operator = $operators[$index];
+		if ($operator === '*') {
+			$values[$index - 1] *= $values[$index];
+		}
+		$index--;
+	}
+
+	// 3: addition and substraction
+	foreach ($operators as $index => $operator) {
+		switch ($operator) {
+			case '-': $sum -= $values[$index]; break;
+			case '+': $sum += $values[$index]; break;
+		}
+	}
+
 	// in case some error occured, check what it is
-	if (!$sum AND $sum !== 0) {
+	if (!$sum AND $sum.'' !== '0') {
 		zz_error_log(array(
 			'msg_dev' => '%s(): calculation did not work. [%s]',
-			'msg_dev_args' => array(__FUNCTION__, implode('', $parts)),
+			'msg_dev_args' => array(__FUNCTION__, $number),
 			'level' => E_USER_NOTICE
 		));
 		$sum = false;
