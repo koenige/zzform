@@ -18,7 +18,7 @@
  * V - Validation, preparation for database
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2016 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -446,7 +446,7 @@ function zz_check_get_array($key, $type, $values = array(), $exit_on_error = tru
 		break;
 	}
 	if (!$error_in) return $_GET[$key];
-	if (!$exit_on_error) return false;
+	if (!$exit_on_error) return $return;
 
 	$zz_conf['int']['http_status'] = 404;
 	$unwanted_keys = array();
