@@ -2315,7 +2315,7 @@ function zz_list_table($list, $rows, $head) {
 	global $zz_conf;
 
 	// Header
-	$output = '<table class="data"><thead>'."\n".'<tr>';
+	$output = '<div class="list"><table class="data"><thead>'."\n".'<tr>';
 	if ($list['select_multiple_records']) $output .= '<th></th>';
 
 	// Rest cannot be set yet because we do not now details/mode-links
@@ -2412,7 +2412,7 @@ function zz_list_table($list, $rows, $head) {
 			array_pop($my_groups);
 		}
 	}
-	$output .= "</tbody>\n</table>\n";
+	$output .= "</tbody>\n</table></div>\n";
 	return $output;
 }
 
