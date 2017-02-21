@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2016 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1439,6 +1439,8 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			break;
 		case 'password':
 			if (!$my_rec['POST'][$field_name]) break;
+			// password already encrypted (multiple zz_validate() calls?)
+			if (!empty($my_rec['POST']['zz_unencrypted_'.$field_name])) break;
 
 			//	encrypt passwords, only for changed passwords! therefore string 
 			// 		is compared against old pwd
