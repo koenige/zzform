@@ -517,10 +517,10 @@ function zz_db_change($sql, $id = false) {
 	$statement = zz_db_statement($sql);
 	// check if statement is allowed
 	$allowed_statements = array(
-		'INSERT', 'DELETE', 'UPDATE', 'CREATE TABLE'
+		'INSERT', 'DELETE', 'UPDATE', 'CREATE TABLE', 'ALTER TABLE'
 	);
 	$no_rows_affected = array(
-		'CREATE TABLE'
+		'CREATE TABLE', 'ALTER TABLE'
 	);
 	if (!in_array($statement, $allowed_statements)) {
 		$db['action'] = '';
