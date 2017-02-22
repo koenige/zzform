@@ -542,14 +542,14 @@ function zz_db_change($sql, $id = false) {
 	$result = mysqli_query($zz_conf['db_connection'], $sql);
 	if ($result) {
 		if (in_array($statement, $no_rows_affected)) {
-			$db['action'] = $statement;
+			$db['action'] = strtolower($statement);
 			if (!empty($zz_conf['logging']))
 				zz_log_sql($sql, $zz_conf['user'], $db['id_value']);
 		} elseif (!mysqli_affected_rows($zz_conf['db_connection'])) {
 			$db['action'] = 'nothing';
 		} else {
 			$db['rows'] = mysqli_affected_rows($zz_conf['db_connection']);
-			$db['action'] = $statement;
+			$db['action'] = strtolower($statement);
 			if ($db['action'] === 'insert') // get ID value
 				$db['id_value'] = mysqli_insert_id($zz_conf['db_connection']);
 			// Logs SQL Query, must be after insert_id was checked
