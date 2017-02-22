@@ -516,7 +516,12 @@ function zz_db_change($sql, $id = false) {
 	
 	$statement = zz_db_statement($sql);
 	// check if statement is allowed
-	$allowed_statements = array('insert', 'delete', 'update');
+	$allowed_statements = array(
+		'INSERT', 'DELETE', 'UPDATE', 'CREATE TABLE'
+	);
+	$no_rows_affected = array(
+		'CREATE TABLE'
+	);
 	if (!in_array($statement, $allowed_statements)) {
 		$db['action'] = '';
 		$db['error'] = array(
@@ -536,7 +541,11 @@ function zz_db_change($sql, $id = false) {
 	// check
 	$result = mysqli_query($zz_conf['db_connection'], $sql);
 	if ($result) {
-		if (!mysqli_affected_rows($zz_conf['db_connection'])) {
+		if (in_array($statement, $no_rows_affected)) {
+			$db['action'] = $statement;
+			if (!empty($zz_conf['logging']))
+				zz_log_sql($sql, $zz_conf['user'], $db['id_value']);
+		} elseif (!mysqli_affected_rows($zz_conf['db_connection'])) {
 			$db['action'] = 'nothing';
 		} else {
 			$db['rows'] = mysqli_affected_rows($zz_conf['db_connection']);
@@ -544,7 +553,7 @@ function zz_db_change($sql, $id = false) {
 			if ($db['action'] === 'insert') // get ID value
 				$db['id_value'] = mysqli_insert_id($zz_conf['db_connection']);
 			// Logs SQL Query, must be after insert_id was checked
-			if (!empty($zz_conf['logging']) AND mysqli_affected_rows($zz_conf['db_connection']))
+			if (!empty($zz_conf['logging']) AND $db['rows'])
 				zz_log_sql($sql, $zz_conf['user'], $db['id_value']);
 		}
 		$warnings = zz_db_fetch('SHOW WARNINGS', '_dummy_', 'numeric');
@@ -583,7 +592,15 @@ function zz_db_statement($sql) {
 	// get rid of extra whitespace, just to check statements
 	$sql_ws = preg_replace('~\s~', ' ', trim($sql));
 	$tokens = explode(' ', $sql_ws);
-	return strtolower($tokens[0]);
+	$multitokens = [
+		'UNION', 'CREATE', 'DROP', 'ALTER', 'RENAME', 'TRUNCATE', 'LOAD'
+	];
+	if (in_array($tokens[0], $multitokens)) {
+		$keyword = $tokens[0].' '.$tokens[1];
+	} else {
+		$keyword = $tokens[0];
+	}
+	return strtoupper($keyword);
 }
 
 /**
