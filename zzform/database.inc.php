@@ -321,11 +321,11 @@ function zz_db_connection($table) {
  *	"object" = returns object
  *	"numeric" = returns lines in numerical array [0 ... n] instead of using field ids
  * @param string $info (optional) information about where this query was called
- * @param int $errorcode let's you set error level, default = E_USER_ERROR
+ * @param int $error_type let's you set error level, default = E_USER_ERROR
  * @return array with queried database content
  * @todo give a more detailed explanation of how function works
  */
-function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = false, $errorcode = E_USER_ERROR) {
+function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = false, $error_type = E_USER_ERROR) {
 	global $zz_conf;
 	if (!empty($zz_conf['debug']) AND function_exists('wrap_error')) {
 		$time = microtime(true);
@@ -454,7 +454,7 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 			'msg_dev_args' => $msg_dev_args,
 			'db_msg' => mysqli_error($zz_conf['db_connection']), 
 			'query' => $sql,
-			'level' => $errorcode,
+			'level' => $error_type,
 			'status' => 503
 		));
 		zz_error();
