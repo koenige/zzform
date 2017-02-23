@@ -403,6 +403,8 @@ function zzform_exit($ops) {
 	// HTTP status
 	if (!empty($zz_conf['int']['http_status'])) {
 		$ops['status'] = $zz_conf['int']['http_status'];
+		if (!empty($zz_conf['int']['error_type']))
+			$ops['error_type'] = $zz_conf['int']['error_type'];
 	} else {
 		$ops['status'] = 200;
 	}

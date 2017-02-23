@@ -986,6 +986,7 @@ function zz_list_filter_sql($filters, $sql, &$filter_params) {
 			$sql = $old_sql;
 			if (empty($filter['ignore_invalid_filters'])) {
 				$zz_conf['int']['http_status'] = 404;
+				$zz_conf['int']['error_type'] = E_USER_NOTICE;
 				zz_error_log(array(
 					'msg' => '“%s” is not a valid value for the selection “%s”. Please select a different filter.', 
 					'msg_args' => array(zz_htmltag_escape($filter_params[$filter['identifier']]), $filter['title']),
