@@ -1867,8 +1867,8 @@ function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec 
 		} elseif (substr($pkey, 0, 6) === 'string') {
 			$p .= $pvalue;
 		} elseif (substr($pkey, 0, 5) === 'field' OR $pkey === 'extension') {
-			$content = !empty($line[$pvalue]) ? $line[$pvalue] : '';
-			if (!$content AND $record === 'new') {
+			$content = (!empty($line[$pvalue]) OR $line[$pvalue] === '0') ? $line[$pvalue] : '';
+			if (!$content AND $content !== '0' AND $record === 'new') {
 				$content = zz_get_record(
 					$pvalue, $my_tab['sql'], $my_tab[$rec]['id']['value'], 
 					$my_tab['table'].'.'.$my_tab[$rec]['id']['field_name']
@@ -1876,7 +1876,7 @@ function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec 
 			}
 			if ($modes) {
 				$content = zz_make_mode($modes, $content);
-				if (!$content) return false;
+				if (!$content AND $content !== '0') return false;
 			}
 			$p .= $content;
 			if (!$alt_locked) {
