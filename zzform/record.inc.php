@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2016 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1662,6 +1662,8 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 				$text .= zz_htmltag_escape($display_value);
 			} elseif (!empty($record_saved[$field['field_name']])) {
 				$text .= zz_htmltag_escape($record_saved[$field['field_name']]);
+			} elseif (!empty($field['null'])) {
+				$text .= $display_value;
 			} else {
 				if (empty($field['append_next']))
 					if (!empty($field['value'])) $text .= $field['value'];
