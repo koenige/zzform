@@ -109,7 +109,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 				if (!empty($vars[$my_field_name])) continue 2;
 			}
 		}
-		if (!$var) {
+		if (!$var AND $var !== '0') {
 			if (!empty($conf['empty'][$key])) {
 				$var = $conf['empty'][$key];
 			} else {
@@ -376,7 +376,7 @@ function zz_identifier_vars($my_rec, $f, $main_post) {
  */
 function zz_identifier_var($field_name, $my_rec, $main_post) {
 	// 1. it's just a field name of the main record
-	if (!empty($my_rec['POST'][$field_name]))
+	if (!empty($my_rec['POST'][$field_name]) OR $my_rec['POST'][$field_name] === '0')
 		return $my_rec['POST'][$field_name];
 
 	// 2. it's a field name of a detail record
