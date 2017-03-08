@@ -2603,20 +2603,19 @@ function zz_unlink_cleanup($file) {
  * removes empty directories hierarchically, except for system directories
  *
  * @param string $dir name of directory
+ * @param array $indelible additional indelible dirs
  * @global array $zz_conf
  * @return bool
  */
-function zz_cleanup_dirs($dir) {
+function zz_cleanup_dirs($dir, $indelible = []) {
 	// first check if it's a directory that shall always be there
 	global $zz_conf;
 	$dir = realpath($dir);
 	if (!$dir) return false;
-	$indelible = array(
-		realpath($zz_conf['backup_dir']),
-		realpath($zz_conf['tmp_dir']),
-		realpath($zz_conf['root']),
-		'/tmp'
-	);
+	$indelible[] = realpath($zz_conf['backup_dir']);
+	$indelible[] = realpath($zz_conf['tmp_dir']);
+	$indelible[] = realpath($zz_conf['root']);
+	$indelible[] = '/tmp';
 	if (in_array($dir, $indelible)) return false;
 
 	if (!is_dir($dir)) return false;
