@@ -2808,7 +2808,7 @@ function zz_upload_check_max_file_size() {
  * @global array $zz_conf
  * @return bool
  */
-function zz_upload_exec($command, $log_description, &$output = array(), &$return_var = 0) {
+function zz_upload_exec($command, $log_description, $output = array(), $return_var = 0) {
 	global $zz_conf;
 	
 	// save stderr output to stdout ($output):
