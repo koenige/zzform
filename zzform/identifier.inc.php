@@ -376,7 +376,8 @@ function zz_identifier_vars($my_rec, $f, $main_post) {
  */
 function zz_identifier_var($field_name, $my_rec, $main_post) {
 	// 1. it's just a field name of the main record
-	if (!empty($my_rec['POST'][$field_name]) OR $my_rec['POST'][$field_name] === '0')
+	if (!empty($my_rec['POST'][$field_name])
+		OR (isset($my_rec['POST'][$field_name]) AND $my_rec['POST'][$field_name] === '0'))
 		return $my_rec['POST'][$field_name];
 
 	// 2. it's a field name of a detail record
