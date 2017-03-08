@@ -76,7 +76,7 @@
  *		['validated']		validated (yes = tested, no = rely on fileupload i. e. user)
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2006-2016 Gustaf Mossakowski
+ * @copyright Copyright © 2006-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -911,7 +911,12 @@ function zz_upload_unix_file($filename, $file) {
 	}
 	// output might contain characters in a different character encoding
 	$file['filetype_file'] = wrap_convert_string($output[0]);
-	unset($output);
+	// remove uninteresting key=value pairs
+	$file['filetype_file'] = explode(', ', $file['filetype_file']);
+	foreach ($file['filetype_file'] as $index => $values) {
+		if (preg_match('~^[A-Za-z0-9]+=.*~', $values)) unset($file['filetype_file'][$index]);
+	}
+	$file['filetype_file'] = implode(', ', $file['filetype_file']);
 
 	// get mime type
 	// attention, -I changed to -i in file, don't use shorthand here
