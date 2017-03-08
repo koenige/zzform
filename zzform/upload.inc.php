@@ -100,7 +100,10 @@ function zz_upload_config() {
 	else
 		$default['tmp_dir'] 		= false;
 	$default['graphics_library'] = 'imagemagick';
-	$default['imagemagick_paths'] = array('/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/phpbin', '/opt/local/bin'); 
+	$default['imagemagick_paths'] = [
+		'/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/phpbin',
+		'/opt/local/bin'
+	]; 
 	$default['upload_tools']['fileinfo'] = false;
 	$default['upload_tools']['fileinfo_whereis'] = 'file';
 	$default['upload_tools']['exiftool'] = false;
@@ -114,24 +117,24 @@ function zz_upload_config() {
 
 	// mimetypes, hardcoded in php
 
-	$default['image_types'] = array(
-		1 =>  array('mime' => 'image/gif', 'ext' => 'gif'),				// 1	IMAGETYPE_GIF
-		2 =>  array('mime' => 'image/jpeg', 'ext' => 'jpeg'),			// 2	IMAGETYPE_JPEG
-		3 =>  array('mime' => 'image/png', 'ext' => 'png'),				// 3	IMAGETYPE_PNG
-		4 =>  array('mime' => 'application/x-shockwave-flash', 'ext' => 'swf'),	// 4	IMAGETYPE_SWF
-		5 =>  array('mime' => 'image/psd', 'ext' => 'psd'),				// 5	IMAGETYPE_PSD
-		6 =>  array('mime' => 'image/bmp', 'ext' => 'bmp'),				// 6	IMAGETYPE_BMP
-		7 =>  array('mime' => 'image/tiff', 'ext' => 'tiff'),			// 7	IMAGETYPE_TIFF_II (intel byte order)
-		8 =>  array('mime' => 'image/tiff', 'ext' => 'tiff'),			// 8	IMAGETYPE_TIFF_MM (motorola byte order)
-		9 =>  array('mime' => 'application/octet-stream', 'ext' => 'jpc'),		// 9	IMAGETYPE_JPC	>= PHP 4.3.2
-		10 => array('mime' => 'image/jp2', 'ext' => 'jp2'),				// 10	IMAGETYPE_JP2	>= PHP 4.3.2
-		11 => array('mime' => 'application/octet-stream', 'ext' => 'jpf'),		// 11	IMAGETYPE_JPX	>= PHP 4.3.2
-		12 => array('mime' => 'application/octet-stream', 'ext' => 'jb2'),		// 12	IMAGETYPE_JB2	>= PHP 4.3.2
-		13 => array('mime' => 'application/x-shockwave-flash', 'ext' => 'swc'),	// 13	IMAGETYPE_SWC	>= PHP 4.3.0
-		14 => array('mime' => 'image/iff', 'ext' => 'aiff'),			// 14	IMAGETYPE_IFF
-		15 => array('mime' => 'image/vnd.wap.wbmp', 'ext' => 'wbmp'),	// 15	IMAGETYPE_WBMP	>= PHP 4.3.2
-		16 => array('mime' => 'image/xbm', 'ext' => 'xbm')				// 16	IMAGETYPE_XBM	>= PHP 4.3.2
-	);
+	$default['image_types'] = [
+		1 =>  ['mime' => 'image/gif', 'ext' => 'gif'],				// 1	IMAGETYPE_GIF
+		2 =>  ['mime' => 'image/jpeg', 'ext' => 'jpeg'],			// 2	IMAGETYPE_JPEG
+		3 =>  ['mime' => 'image/png', 'ext' => 'png'],				// 3	IMAGETYPE_PNG
+		4 =>  ['mime' => 'application/x-shockwave-flash', 'ext' => 'swf'],	// 4	IMAGETYPE_SWF
+		5 =>  ['mime' => 'image/psd', 'ext' => 'psd'],				// 5	IMAGETYPE_PSD
+		6 =>  ['mime' => 'image/bmp', 'ext' => 'bmp'],				// 6	IMAGETYPE_BMP
+		7 =>  ['mime' => 'image/tiff', 'ext' => 'tiff'],			// 7	IMAGETYPE_TIFF_II (intel byte order)
+		8 =>  ['mime' => 'image/tiff', 'ext' => 'tiff'],			// 8	IMAGETYPE_TIFF_MM (motorola byte order)
+		9 =>  ['mime' => 'application/octet-stream', 'ext' => 'jpc'],		// 9	IMAGETYPE_JPC	>= PHP 4.3.2
+		10 => ['mime' => 'image/jp2', 'ext' => 'jp2'],				// 10	IMAGETYPE_JP2	>= PHP 4.3.2
+		11 => ['mime' => 'application/octet-stream', 'ext' => 'jpf'],		// 11	IMAGETYPE_JPX	>= PHP 4.3.2
+		12 => ['mime' => 'application/octet-stream', 'ext' => 'jb2'],		// 12	IMAGETYPE_JB2	>= PHP 4.3.2
+		13 => ['mime' => 'application/x-shockwave-flash', 'ext' => 'swc'],	// 13	IMAGETYPE_SWC	>= PHP 4.3.0
+		14 => ['mime' => 'image/iff', 'ext' => 'aiff'],			// 14	IMAGETYPE_IFF
+		15 => ['mime' => 'image/vnd.wap.wbmp', 'ext' => 'wbmp'],	// 15	IMAGETYPE_WBMP	>= PHP 4.3.2
+		16 => ['mime' => 'image/xbm', 'ext' => 'xbm']				// 16	IMAGETYPE_XBM	>= PHP 4.3.2
+	];
 	foreach (array_keys($default['image_types']) as $key)
 		$default['image_types'][$key]['filetype'] = $default['image_types'][$key]['ext'];
 
@@ -141,22 +144,22 @@ function zz_upload_config() {
 	$default['upload_iptc_fields'] = zz_upload_get_typelist($zz_conf['dir_inc'].'/iptc-iimv4-1.txt', 'IPTC', true);
 
 	// unwanted mimetypes and their replacements
-	$default['mime_types_rewritten'] = array(
+	$default['mime_types_rewritten'] = [
 		'image/pjpeg' => 'image/jpeg', 	// Internet Explorer knows progressive JPEG instead of JPEG
 		'image/x-png' => 'image/png',	// Internet Explorer
 		'application/octet_stream' => 'application/octet-stream'
-	); 
+	]; 
 
 	// extensions for images that the browser can display natively
-	$default['webimages_by_extension'] = array('jpg', 'jpeg', 'gif', 'png');
+	$default['webimages_by_extension'] = ['jpg', 'jpeg', 'gif', 'png'];
 
 	// generate thumbnails in a background process?
 	$default['upload_background_thumbnails'] = false;
 
-	$default['upload_no_thumbnails'] = array();
-	$default['upload_multipage_images'] = array();
-	$default['exif_supported'] = array();
-	$default['upload_destination_filetype'] = array();
+	$default['upload_no_thumbnails'] = [];
+	$default['upload_multipage_images'] = [];
+	$default['exif_supported'] = [];
+	$default['upload_destination_filetype'] = [];
 	foreach ($default['file_types'] as $filetype => $def) {
 		if (empty($def['thumbnail'])) $default['upload_no_thumbnails'][] = $filetype;
 		if (!empty($def['multipage'])) $default['upload_multipage_images'][] = $filetype;
@@ -248,7 +251,7 @@ function zz_upload_get($zz_tab) {
 
 	// allow shortcuts for file_types
 	$zz_conf['file_types'] = zz_upload_set_filetypes($zz_conf['file_types']);
-	$zz_conf['int']['upload_cleanup_files'] = array();
+	$zz_conf['int']['upload_cleanup_files'] = [];
 
 	// create array upload_fields in $zz_tab[0] for easy access to upload fields
 	$zz_tab[0]['upload_fields'] = zz_upload_get_fields($zz_tab);
@@ -268,19 +271,19 @@ function zz_upload_get($zz_tab) {
  *		$zz_tab[$tab][$rec]['fields'][$f]
  */
 function zz_upload_get_fields($zz_tab) {
-	$upload_fields = array();
+	$upload_fields = [];
 	foreach (array_keys($zz_tab) as $tab) {
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
 			if (!is_int($tab) OR !is_int($rec)) continue;
 			foreach ($zz_tab[$tab][$rec]['fields'] as $f => $field) {
 				if ($field['type'] != 'upload_image') continue;
 				$key = !empty($zz_tab[$tab]['no']) ? $zz_tab[$tab]['no'] : $f;
-				$upload_fields[] = array(
+				$upload_fields[] = [
 					'tab' => $tab, 
 					'rec' => $rec,
 					'f' => $f,
 					'field_index' => $key
-				);
+				];
 			}
 		}
 	}
@@ -313,7 +316,7 @@ function zz_upload_check_files($zz_tab) {
 		$rec = $uf['rec'];
 		$no = $uf['f'];
 		$my_rec = &$zz_tab[$tab][$rec];
-		$images = array();
+		$images = [];
 		$field = $my_rec['fields'][$no];
 
 		// get unique fieldname for subtables and file uploads as set in editform.inc
@@ -329,7 +332,7 @@ function zz_upload_check_files($zz_tab) {
 		}
 		$field['f_field_name'] = zz_make_id_fieldname($field['f_field_name']);
 
-		$myfiles = array();
+		$myfiles = [];
 		if (!empty($_FILES[$field['f_field_name']])) {
 			$myfiles = $_FILES[$field['f_field_name']];
 		}
@@ -445,7 +448,7 @@ function zz_upload_check_files($zz_tab) {
 					$images[$no][$img]['upload']['msg']
 						= 'The file %s is empty. If you are uploading from a Mac, please check if the data is not only available in the so-called “resource fork” of the file.';
 					$images[$no][$img]['upload']['msg_args']
-						= array(zz_html_escape($images[$no][$img]['upload']['name']));
+						= [zz_html_escape($images[$no][$img]['upload']['name'])];
 				}
 				if (file_exists($images[$no][$img]['upload']['tmp_name'])) {
 					// get rid of max 3 byte large file
@@ -474,12 +477,12 @@ function zz_upload_check_files($zz_tab) {
 				if (isset($field['input_filetypes'])) {
 					$images[$no][$img]['input_filetypes'] = $field['input_filetypes'];
 				} else {
-					$images[$no][$img]['input_filetypes'] = array();
+					$images[$no][$img]['input_filetypes'] = [];
 				}
 			}
 			// input_filetypes must be an array
 			if (!is_array($images[$no][$img]['input_filetypes'])) {
-				$images[$no][$img]['input_filetypes'] = array($images[$no][$img]['input_filetypes']);
+				$images[$no][$img]['input_filetypes'] = [$images[$no][$img]['input_filetypes']];
 			}
 
 			//	check if filetype is allowed
@@ -587,12 +590,12 @@ function zz_upload_fileinfo($file, $extension = false) {
 
 	// check filetype by several means
 	if ($zz_conf['modules']['debug']) zz_debug('file', json_encode($file));
-	$functions = array(
+	$functions = [
 		'upload_getimagesize',		// getimagesize(), PHP
 		'upload_exif_imagetype',	// exif_imagetype(), PHP > 4.3.0
 		'imagick_identify',			// ImageMagick identify command
 		'upload_unix_file'			// Unix file command
-	);
+	];
 	foreach ($functions as $function) {
 		$function_name = 'zz_'.$function;
 		if (!function_exists($function_name)) continue;
@@ -619,12 +622,12 @@ function zz_upload_fileinfo($file, $extension = false) {
 
 	if (!empty($file['warnings'])) {
 		foreach ($file['warnings'] as $function => $warnings) {
-			zz_error_log(array(
+			zz_error_log([
 				'msg_dev' => "%s returns with a warning:\n\n%s",
-				'msg_dev_args' => array($function, implode("\n", $warnings)),
+				'msg_dev_args' => [$function, implode("\n", $warnings)],
 				'log_post_data' => false,
 				'level' => E_USER_NOTICE
-			));
+			]);
 		}
 	}
 	// @todo allow further file testing here, e. g. for PDF, DXF
@@ -654,7 +657,7 @@ function zz_upload_fileinfo($file, $extension = false) {
 	if (array_key_exists($extension, $zz_conf['upload_remap_type_if_extension'])) {
 		if (!is_array($zz_conf['upload_remap_type_if_extension'][$extension])) {
 			$zz_conf['upload_remap_type_if_extension'][$extension]
-				= array($zz_conf['upload_remap_type_if_extension'][$extension]);
+				= [$zz_conf['upload_remap_type_if_extension'][$extension]];
 		}
 		foreach ($zz_conf['upload_remap_type_if_extension'][$extension] as $ftype) {
 			if ($file['filetype'] !== $ftype) continue;
@@ -667,10 +670,10 @@ function zz_upload_fileinfo($file, $extension = false) {
 
 	// save unknown files for debugging
 	if ($file['filetype'] === 'unknown') {
-		$return = array(
+		$return = [
 			'error' => true,
 			'error_msg' => 'There was an attempt to upload the following file but the filetype is unknown.'
-		);
+		];
 		zz_upload_error_with_file($filename, $file, $return);
 	}
 
@@ -684,7 +687,7 @@ function zz_upload_fileinfo($file, $extension = false) {
 		// is kept
 		if ($zz_conf['upload_tools']['exiftool']) {
 			$file['exiftool'] = zz_upload_exiftool_read($filename);
-			$file['exif'] = array();
+			$file['exif'] = [];
 		} else {
 			$file['exif'] = exif_read_data($filename);
 		}
@@ -711,7 +714,7 @@ function zz_upload_exiftool_read($filename) {
 	$cmd = '/usr/local/bin/exiftool -b -j -struct -c "%%d %%d %%.8f" -l -lang %s -g1 "%s"';
 	$cmd = sprintf($cmd, $zz_conf['language'], $filename);
 	exec($cmd, $file_meta);
-	if (!$file_meta) return array();
+	if (!$file_meta) return [];
 	$file_meta = json_decode(implode('', $file_meta), true);
 	$file_meta = $file_meta[0];
 	return $file_meta;
@@ -859,7 +862,7 @@ function zz_upload_getimagesize($filename, $file) {
 	$file['filetype'] = $zz_conf['image_types'][$sizes[2]]['filetype'];
 	if (!empty($sizes['bits'])) $file['bits'] = $sizes['bits'];
 	if (!empty($sizes['channels'])) $file['channels'] = $sizes['channels'];
-	$file['recheck'] = array('tiff'); // RAW images might be recognized as TIFF
+	$file['recheck'] = ['tiff']; // RAW images might be recognized as TIFF
 	$file['validated'] = true;
 	return $file;
 }
@@ -883,7 +886,7 @@ function zz_upload_exif_imagetype($filename, $file) {
 	$file['ext'] = $zz_conf['image_types'][$imagetype]['ext'];
 	$file['mime'] = $zz_conf['image_types'][$imagetype]['mime'];
 	$file['filetype'] = $zz_conf['image_types'][$imagetype]['filetype'];
-	$file['recheck'] = array('tiff'); // RAW images might be recognized as TIFF
+	$file['recheck'] = ['tiff']; // RAW images might be recognized as TIFF
 	$file['validated'] = true;
 	return $file;
 } 
@@ -904,7 +907,7 @@ function zz_upload_unix_file($filename, $file) {
 	if (!$zz_conf['upload_tools']['fileinfo']) return $file;
 
 	$fileinfo = $zz_conf['upload_tools']['fileinfo_whereis'];
-	zz_upload_exec($fileinfo.' --brief "'.$filename.'"', 'Fileinfo', $output);
+	list($output, $return_var) = zz_upload_exec($fileinfo.' --brief "'.$filename.'"', 'Fileinfo');
 	if (!$output) return $file;
 	if ($zz_conf['modules']['debug']) {
 		zz_debug('file brief', json_encode($output));
@@ -920,7 +923,7 @@ function zz_upload_unix_file($filename, $file) {
 
 	// get mime type
 	// attention, -I changed to -i in file, don't use shorthand here
-	zz_upload_exec($fileinfo.' --mime --brief "'.$filename.'"', 'Fileinfo with MIME', $output);
+	list($output, $return_var) = zz_upload_exec($fileinfo.' --mime --brief "'.$filename.'"', 'Fileinfo with MIME');
 	if ($zz_conf['modules']['debug']) {
 		zz_debug('file mime', json_encode($output));
 	}
@@ -987,11 +990,11 @@ function zz_upload_unix_file($filename, $file) {
  *		'debug_upload', 'backup', 'backup_dir'
  * @return bool false: nothing was found, true: unknown file was found
  */
-function zz_upload_error_with_file($filename, $file, $return = array()) {
+function zz_upload_error_with_file($filename, $file, $return = []) {
 	global $zz_conf;
 	static $copied_files;
 	if (empty($zz_conf['debug_upload'])) return false;
-	if (empty($copied_files)) $copied_files = array();
+	if (empty($copied_files)) $copied_files = [];
 
 	// save file
 	$error_filename = false;
@@ -1007,7 +1010,7 @@ function zz_upload_error_with_file($filename, $file, $return = array()) {
 	}
 	
 	if (empty($return['msg_dev_args'])) {
-		$return['msg_dev_args'] = array();
+		$return['msg_dev_args'] = [];
 	}
 	if (empty($return['error_msg'])) {
 		$return['error_msg'] = 'Action `%s` returned no file.';
@@ -1039,12 +1042,12 @@ function zz_upload_error_with_file($filename, $file, $return = array()) {
 		$return['msg_dev_args'][] = $error_filename;
 	}
 
-	zz_error_log(array(
+	zz_error_log([
 		'msg_dev' => $return['error_msg'],
 		'msg_dev_args' => $return['msg_dev_args'],
 		'log_post_data' => false,
 		'level' => E_USER_NOTICE
-	));
+	]);
 	zz_error();
 	return true;
 }
@@ -1061,7 +1064,7 @@ function zz_upload_check_recreate($image, $zz_tab) {
 	if (empty($zz_tab[0][0]['existing'])) return false;
 	if (empty($zz_tab[0][0]['POST'])) return false;
 
-	$fields = array();
+	$fields = [];
 	foreach ($image['recreate_on_change'] as $no) {
 		if (!isset($zz_tab[0][0]['fields'][$no]['field_name'])) continue;
 		$fields[] = $zz_tab[0][0]['fields'][$no]['field_name'];
@@ -1191,7 +1194,7 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 		if (empty($image['upload']['do_not_delete'])) {
 			zz_unlink_cleanup($image['upload']['tmp_name']);
 		}
-		return array();
+		return [];
 	}
 
 	$image = zz_upload_merge_options($image, $zz_tab[$tab], $rec);
@@ -1210,7 +1213,7 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 	if (!empty($image['create_in_background'])) {
 		if (!$src_image) // might come from zz_upload_get_source_field()
 			$src_image = $my_rec['images'][$no][$image['source']];
-		if (!empty($src_image['unsupported_filetype'])) return array();
+		if (!empty($src_image['unsupported_filetype'])) return [];
 		list($image, $source_filename) = zz_upload_create_source($image, $src_image['path'], $zz_tab);
 		$image['upload']['do_not_delete'] = true; // don't delete source!
 		$use_uploaded_file = false;
@@ -1222,9 +1225,9 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 
 		if (!$src_image) // might come from zz_upload_get_source_field()
 			$src_image = $my_rec['images'][$no][$image['source']];
-		if (!empty($src_image['unsupported_filetype'])) return array();
+		if (!empty($src_image['unsupported_filetype'])) return [];
 //		@todo this also does not work, see above
-//		if (!empty($src_image['upload']['error'])) return array();
+//		if (!empty($src_image['upload']['error'])) return [];
 		if (!empty($image['use_modified_source'])) {
 			// get filename from modified source, false if there was an error
 			$source_filename = isset($src_image['files']) 
@@ -1257,7 +1260,7 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 		// cross check input filetypes
 		if (!empty($image['input_filetypes']) AND !empty($src_image['upload']['filetype'])) {
 			// continue if this file shall not be touched.
-			if (!in_array($src_image['upload']['filetype'], $image['input_filetypes'])) return array();
+			if (!in_array($src_image['upload']['filetype'], $image['input_filetypes'])) return [];
 		}
 		$use_uploaded_file = false;
 
@@ -1279,12 +1282,12 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 	}
 
 	if ($zz_conf['modules']['debug']) zz_debug('source_filename: '.$source_filename);
-	if (!$source_filename) return array();
-	if ($source_filename === 'none') return array();
+	if (!$source_filename) return [];
+	if ($source_filename === 'none') return [];
 
 	// get e. g. width and height from a list of widths and heights which fit best
 	$image = zz_upload_auto_image($image);
-	if (!$image) return array();
+	if (!$image) return [];
 
 	$tn = zz_upload_create_thumbnails($source_filename, $image, $my_rec, $no, $img);
 	if ($tn === -1) {
@@ -1329,13 +1332,13 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 function zz_upload_create_source($image, $path, $zz_tab, $tab = 0, $rec = 0) {
 	$source_filename = zz_makepath($path, $zz_tab, 'old', 'file', $tab, $rec);
 	if (!file_exists($source_filename)) {
-		$image['upload'] = array();
+		$image['upload'] = [];
 		if (empty($image['optional_image'])) {
-			zz_error_log(array(
+			zz_error_log([
 				'msg_dev' => 'Error: Source file %s does not exist.',
-				'msg_dev_args' => array($source_filename),
+				'msg_dev_args' => [$source_filename],
 				'log_post_data' => false
-			));
+			]);
 		}
 	} else {
 		$image['upload']['name'] = basename($source_filename);
@@ -1343,7 +1346,7 @@ function zz_upload_create_source($image, $path, $zz_tab, $tab = 0, $rec = 0) {
 		$image['upload']['error'] = 0;
 		$image['upload'] = zz_upload_fileinfo($image['upload']);
 	}
-	return array($image, $source_filename);
+	return [$image, $source_filename];
 }
 
 /**
@@ -1376,7 +1379,7 @@ function zz_upload_prepare_source_file($image, $my_rec, $zz_tab, $tab, $rec) {
 
 	$sql = sprintf($image['source_path_sql'], $my_rec['POST'][$image['source_file']]);
 	if (!empty($image['update_from_source_field_name']) AND !empty($image['update_from_source_value'])) {
-		$where = array();
+		$where = [];
 		foreach ($image['update_from_source_field_name'] as $index => $field_name) {
 			if (!array_key_exists($image['update_from_source_value'][$index], $my_rec['existing'])) continue;
 			$field_value = $my_rec['existing'][$image['update_from_source_value'][$index]];
@@ -1395,7 +1398,7 @@ function zz_upload_prepare_source_file($image, $my_rec, $zz_tab, $tab, $rec) {
 
 	$source_tab[$tab][$rec]['existing'] = $old_record;
 	list($image, $source_filename) = zz_upload_create_source($image, $image['source_path'], $source_tab, $tab, $rec);
-	return array($image, $source_filename);
+	return [$image, $source_filename];
 }
 
 /**
@@ -1416,11 +1419,11 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 
 	if (!file_exists($filename)) {
 		if (empty($image['optional_image'])) {
-			zz_error_log(array(
+			zz_error_log([
 				'msg_dev' => 'Error: Source file %s does not exist.',
-				'msg_dev_args' => array($filename),
+				'msg_dev_args' => [$filename],
 				'log_post_data' => false
-			));
+			]);
 		}
 		return false;
 	}
@@ -1428,9 +1431,9 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 		return false;
 	}
 	if ($zz_conf['upload_background_thumbnails'] AND empty($image['create_in_background'])) {
-		$zz_conf['int']['upload_background_thumbnails'][] = array(
+		$zz_conf['int']['upload_background_thumbnails'][] = [
 			'no' => $no, 'img' => $img
-		);
+		];
 		return false;
 	}
 	
@@ -1450,15 +1453,15 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 	$action = 'zz_image_'.$image['action'];
 	$return = $action($filename, $tmp_filename, $dest_extension, $image);
 	if (!file_exists($tmp_filename)) {
-		zz_error_log(array(
+		zz_error_log([
 			'msg_dev' => 'Error: File %s does not exist. Temporary Directory: %s',
-			'msg_dev_args' => array($tmp_filename, realpath($zz_conf['tmp_dir'])),
+			'msg_dev_args' => [$tmp_filename, realpath($zz_conf['tmp_dir'])],
 			'log_post_data' => false
-		));
+		]);
 		return false;
 	}
 	if (filesize($tmp_filename) > 3) {
-		$modified = array();
+		$modified = [];
 		$modified['tmp_name'] = $tmp_filename;
 		$modified = zz_upload_fileinfo($modified, $dest_extension);
 		// @todo ['modified']['name'] ?? necessary? so far, it's not.
@@ -1488,9 +1491,9 @@ function zz_upload_merge_options($image, $my_tab, $rec = 0) {
 	if (empty($image['options'])) return $image;
 	// to make it easier, allow input without array construct as well
 	if (!is_array($image['options'])) 
-		$image['options'] = array($image['options']); 
+		$image['options'] = [$image['options']]; 
 	if (isset($image['options_sql']) AND !is_array($image['options_sql'])) 
-		$image['options_sql'] = array($image['options_sql']); 
+		$image['options_sql'] = [$image['options_sql']]; 
 	// go through all options
 	foreach ($image['options'] as $index => $no) {
 		// check if we have the corresponding field, if not, simply ignore it!
@@ -1512,13 +1515,13 @@ function zz_upload_merge_options($image, $my_tab, $rec = 0) {
 			if ($option_record) {
 				parse_str($option_record, $options[$option_value]);
 			} else {
-				$options[$option_value] = array();
+				$options[$option_value] = [];
 			}
 		} elseif (!empty($image['options_key'][$index])) {
 			// use value of field as option value
-			$options[$option_value] = array(
+			$options[$option_value] = [
 				$image['options_key'][$index] => $option_value
-			);
+			];
 		} else {
 			// get options from field
 			$options = $my_tab[$rec]['fields'][$no]['options'];
@@ -1541,7 +1544,7 @@ function zz_upload_get_source_field($image, $zz_tab) {
 	// or array style (14[20]) for subtables
 	// source might only be 0, if other values are needed change to 
 	// if unset image source then 0
-	$source_field = array();
+	$source_field = [];
 	if (strstr($image['source_field'], '[')) { 
 		// it's an array like 44[20] meaning field 44, subtable, there field 20
 		preg_match('/(\d+)\[(\d+)\]/', $image['source_field'], $source_field);
@@ -1586,12 +1589,12 @@ function zz_upload_auto_image($image) {
 	// choose values from uploaded image, best fit
 	$autofunc = 'zz_image_auto_'.$image['auto'];
 	if (!function_exists($autofunc)) {
-		zz_error_log(array(
+		zz_error_log([
 			'msg_dev' => 'Configuration error: function <code>%s()</code> for image upload does not exist.',
-			'msg_dev_args' => array($autofunc),
+			'msg_dev_args' => [$autofunc],
 			'log_post_data' => false,
 			'level' => E_USER_ERROR
-		));
+		]);
 		zz_error();
 		return false;
 	}
@@ -1656,11 +1659,11 @@ function zz_upload_extension($path, &$my_rec) {
 		}
 		return $extension;
 	}
-	zz_error_log(array(
+	zz_error_log([
 		'msg_dev' => 'Error. Could not determine file ending',
 		'log_post_data' => false,
 		'level' => E_USER_ERROR
-	));
+	]);
 	return false;	
 }
 
@@ -1686,7 +1689,7 @@ function zz_upload_check(&$images, $action, $rec = 0) {
 		if (!isset($images[$img]['required'])) $images[$img]['required'] = false;
 		if ($rec AND !empty($images[$img]['required_only_first_detail_record']))
 			$images[$img]['required'] = false;
-		$images[$img]['error'] = array();
+		$images[$img]['error'] = [];
 		if (empty($images[$img]['field_name'])) continue;
 		if (!isset($images[$img]['upload']['error']))
 			$images[$img]['upload']['error'] = UPLOAD_ERR_NO_FILE;
@@ -1724,7 +1727,7 @@ function zz_upload_check(&$images, $action, $rec = 0) {
 		}
 
 //	check if minimal image size is reached
-		$width_height = array('width', 'height');
+		$width_height = ['width', 'height'];
 		foreach ($width_height as $which)
 			if (!empty($images[$img]['min_'.$which]) 
 				&& $images[$img]['min_'.$which] > $images[$img]['upload'][$which])
@@ -1734,7 +1737,7 @@ function zz_upload_check(&$images, $action, $rec = 0) {
 					.' ('.$images[$img]['upload'][$which].'px)';
 
 //	check if maximal image size has not been exceeded
-		$width_height = array('width', 'height');
+		$width_height = ['width', 'height'];
 		foreach ($width_height as $which)
 			if (!empty($images[$img]['max_'.$which])
 				&& $images[$img]['max_'.$which] < $images[$img]['upload'][$which])
@@ -1774,12 +1777,12 @@ function zz_write_upload_fields($zz_tab, $f, $tab = 0, $rec = 0) {
 		preg_match('~(\d+)\[(\d+)\]\[(\d+)\]~', $field['upload_field'], $nos);
 		// check if definition is correct
 		if (count($nos) !== 4) {
-			zz_error_log(array(
+			zz_error_log([
 				'msg_dev' => 'Error in $zz definition for upload_field: [%d]',
-				'msg_dev_args' => array($f),
+				'msg_dev_args' => [$f],
 				'log_post_data' => false,
 				'level' => E_USER_NOTICE
-			));
+			]);
 		} elseif (!empty($zz_tab[$nos[1]][$nos[2]]['images'][$nos[3]])) {
 			// check if something was uploaded
 			if (empty($zz_tab[$nos[1]][$nos[2]]['file_upload'])) return $posted;
@@ -1808,9 +1811,9 @@ function zz_write_upload_fields($zz_tab, $f, $tab = 0, $rec = 0) {
 function zz_val_get_from_upload($field, $images, $post) {
 	global $zz_conf;
 
-	$possible_upload_fields = array(
+	$possible_upload_fields = [
 		'date', 'time', 'text', 'memo', 'hidden', 'number', 'select'
-	);
+	];
 	if (!in_array($field['type'], $possible_upload_fields)) 
 		return $post;
 	// apart from hidden, set only values if no values have been set so far
@@ -1821,10 +1824,10 @@ function zz_val_get_from_upload($field, $images, $post) {
 	$v_arr = false;
 	$g = $field['upload_field'];
 	$possible_values = $field['upload_value'];
-	if (!is_array($possible_values)) $possible_values = array($possible_values);
+	if (!is_array($possible_values)) $possible_values = [$possible_values];
 	// empty values, e. g. GPS bearing = 0/0, ExifTool GPSImgDirectionRef = 'Unknown ()'
 	// ExifTool undef
-	$empty_values = array('0/0', 'Unknown ()', 'undef');
+	$empty_values = ['0/0', 'Unknown ()', 'undef'];
 	
 	foreach ($possible_values AS $v) {
 		switch ($v) {
@@ -1875,8 +1878,8 @@ function zz_val_get_from_upload($field, $images, $post) {
 					if (substr($v_var, -1) === ']') $v_var = substr($v_var, 0, -1);
 					if (substr($v_var, -1) === '*') {
 						$v_var = substr($v_var, 0, -1); // get rid of asterisk
-						$arrays = array($myval_upload, $myval_altern);
-						$subkeys = array();
+						$arrays = [$myval_upload, $myval_altern];
+						$subkeys = [];
 						foreach ($arrays as $array) {
 							if (!$array) continue;
 							foreach ($array as $key => $value) {
@@ -2156,22 +2159,22 @@ function zz_upload_delete($filename, $show_filename = false, $action = 'delete')
 	if (!file_exists($filename)) {
 	// just a precaution for e. g. simultaneous access
 		if ($show_filename) {
-			zz_error_log(array(
+			zz_error_log([
 				'msg' => 'Could not delete %s, file did not exist.',
-				'msg_args' => array($show_filename),
+				'msg_args' => [$show_filename],
 				'log_post_data' => false,
 				'level' => E_USER_NOTICE
-			));
+			]);
 		}
 		return true;
 	}
 	if (!is_file($filename)) {
-		zz_error_log(array(
+		zz_error_log([
 			'msg_dev' => 'File %s exists, but is not a file.',
 			'msg_dev_args' => $filename,
 			'log_post_data' => false,
 			'level' => E_USER_ERROR
-		));
+		]);
 		zz_error();
 		return false;
 	}
@@ -2184,12 +2187,12 @@ function zz_upload_delete($filename, $show_filename = false, $action = 'delete')
 		$success = zz_unlink_cleanup($filename);
 	}
 	if (!$success) {
-		zz_error_log(array(
+		zz_error_log([
 			'msg' => 'Could not delete %s.',
-			'msg_args' => array($filename),
+			'msg_args' => [$filename],
 			'log_post_data' => false,
 			'level' => E_USER_NOTICE
-		));
+		]);
 		return true;
 	} 
 	if ($zz_conf['modules']['debug']) {
@@ -2248,11 +2251,11 @@ function zz_upload_insert($source, $dest, $action = '-', $mode = 'copy') {
 	// check if destination exists, back it up or delete it
 	if (file_exists($dest)) {
 		if (!is_file($dest)) {
-			zz_error_log(array(
+			zz_error_log([
 				'msg_dev' => 'Insert: `%s` exists, but is not a file.',
-				'msg_dev_args' => array($dest),
+				'msg_dev_args' => [$dest],
 				'level' => E_USER_ERROR
-			));
+			]);
 			zz_error();
 			return false;
 		}
@@ -2274,16 +2277,16 @@ function zz_upload_insert($source, $dest, $action = '-', $mode = 'copy') {
 			$msg_dev_args[] = dirname($dest);
 		} else { 
 			$msg_dev = 'Unknown error. Copying not successful. <br>From: %s <br>To: %s<br>';
-			$msg_dev_args = array($source, $dest);
+			$msg_dev_args = [$source, $dest];
 		}
-		zz_error_log(array(
+		zz_error_log([
 			'msg' => 'File could not be saved. There is a problem with '
 				.'the user rights. We are working on it.',
 			'msg_dev' => $msg_dev,
 			'msg_dev_args' => $msg_dev_args,
 			'log_post_data' => false,
 			'level' => E_USER_ERROR
-		));
+		]);
 		return false;
 	}
 
@@ -2379,10 +2382,10 @@ function zz_session_write($type, $session) {
  */
 function zz_session_read($type) {
 	$filename = zz_session_filename($type);
-	if (!file_exists($filename)) return array();
+	if (!file_exists($filename)) return [];
 	$session = file_get_contents($filename);
 	$session = unserialize($session);
-	if (!$session) return array();
+	if (!$session) return [];
 	return $session;
 }
 
@@ -2538,18 +2541,18 @@ function zz_image_is_better_ratio($ratio, $old_ratio, $new_ratio) {
 function zz_upload_get_typelist($filename, $type = 'Filetype', $optional = false) {
 	if (!file_exists($filename)) {
 		if ($optional) return false;
-		zz_error_log(array(
+		zz_error_log([
 			'msg_dev' => '%s definitions in `%s` are not available!',
-			'msg_dev_args' => array($type, $filename),
+			'msg_dev_args' => [$type, $filename],
 			'log_post_data' => false,
 			'level' => E_USER_ERROR
-		));
+		]);
 		return zz_error();
 	}
 	if ($type == 'Filetype') {
-		$keys = array('filetype', 'ext_old', 'ext', 'mime', 'desc');
+		$keys = ['filetype', 'ext_old', 'ext', 'mime', 'desc'];
 	} elseif ($type == 'IPTC') {
-		$keys = array('ipct_id', 'dataset');
+		$keys = ['ipct_id', 'dataset'];
 	}
 	$matrix = file($filename);
 	foreach ($matrix as $line) {
@@ -2622,9 +2625,9 @@ function zz_cleanup_dirs($dir, $indelible = []) {
 	$dir_handle = opendir($dir);
 	if (!$dir_handle) return false;
 
-	$ignores = array('.', '..');
-	$delete_if_empty = array('.DS_Store', 'Thumbs.db');
-	$to_delete = array();
+	$ignores = ['.', '..'];
+	$delete_if_empty = ['.DS_Store', 'Thumbs.db'];
+	$to_delete = [];
 	$i = 0;
 	// check if directory is empty
 	while ($filename = readdir($dir_handle)) {
@@ -2673,11 +2676,11 @@ function zz_image_exif_thumbnail($source, $destination, $dest_ext = false, $imag
 		return false;
 	}
 	$exif_thumb = exif_thumbnail($source);
-	if (!$exif_thumb) return array(
+	if (!$exif_thumb) return [
 		'error' => true,
 		'error_msg' => 'EXIF thumbnail was not created.',
 		'command' => sprintf('exif_thumbnail(%s)', $source)
-	);
+	];
 	$imagehandle = fopen($destination, 'a');
 	fwrite($imagehandle, $exif_thumb);	//write the thumbnail image
 	return true;
@@ -2711,18 +2714,18 @@ function zz_upload_file_extension($filename) {
 function zz_rename($oldname, $newname, $context = false) {
 	global $zz_conf;
 	if (!$newname) {
-		zz_error_log(array(
+		zz_error_log([
 			'msg_dev' => 'zz_rename(): No new filename given.',
 			'level' => E_USER_WARNING
-		));
+		]);
 		return false;
 	}
 	if (!file_exists($oldname)) {
-		zz_error_log(array(
+		zz_error_log([
 			'msg_dev' => 'zz_rename(): File %s does not exist.',
-			'msg_dev_args' => array($oldname),
+			'msg_dev_args' => [$oldname],
 			'level' => E_USER_WARNING
-		));
+		]);
 		return false;
 	}
 	if (!empty($zz_conf['upload_copy_for_rename'])) {
@@ -2741,11 +2744,11 @@ function zz_rename($oldname, $newname, $context = false) {
 			if ($success) return $success;
 		}
 	}
-	zz_error_log(array(
+	zz_error_log([
 		'msg_dev' => 'Copy/Delete for rename failed. Old filename: %s, new filename: %s',
-		'msg_dev_args' => array($oldname, $newname),
+		'msg_dev_args' => [$oldname, $newname],
 		'level' => E_USER_NOTICE
-	));
+	]);
 	return false;
 }
 
@@ -2785,14 +2788,14 @@ function zz_upload_check_max_file_size() {
 	global $zz_conf;
 	
 	if ($zz_conf['upload_MAX_FILE_SIZE'] > ZZ_UPLOAD_INI_MAXFILESIZE) {
-		zz_error_log(array(
+		zz_error_log([
 			'msg_dev' => 'Value for upload_max_filesize from php.ini is '
 				.'smaller than value which is set in the script. The '
 				.'value from php.ini will be used. To upload bigger files'
 				.', please adjust your configuration settings.',
 			'log_post_data' => false,
 			'level' => E_USER_NOTICE
-		));
+		]);
 		$zz_conf['upload_MAX_FILE_SIZE'] = ZZ_UPLOAD_INI_MAXFILESIZE;
 	}
 }
@@ -2802,12 +2805,13 @@ function zz_upload_check_max_file_size() {
  *
  * @param string $command
  * @param string $log_description will appear in logfile(s)
- * @param array $output (optional, exec() $output)
- * @param array $return_var (optional, exec() $return_var)
+ * @return array
+ *		array $output (optional, exec() $output)
+ * 		array $return_var (optional, exec() $return_var)
  * @global array $zz_conf
  * @return bool
  */
-function zz_upload_exec($command, $log_description, $output = array(), $return_var = 0) {
+function zz_upload_exec($command, $log_description) {
 	global $zz_conf;
 	
 	// save stderr output to stdout ($output):
@@ -2830,7 +2834,7 @@ function zz_upload_exec($command, $log_description, $output = array(), $return_v
 		$log = sprintf($log, date('d-M-Y H:i:s'), $log_description, $command, $out, $time, $user);
 		error_log($log, 3, $zz_conf['upload_log']);
 	}
-	return true;
+	return [$output, $return_var];
 }
 
 /**
@@ -2851,12 +2855,12 @@ function zz_upload_set_filetypes($filetypes) {
 		if (empty($values['mime'])) {
 			$filetypes[$type]['mime'][0] = 'application/octet-stream';
 		} elseif (!is_array($values['mime'])) {
-			$filetypes[$type]['mime'] = array(0 => $values['mime']);
+			$filetypes[$type]['mime'] = [0 => $values['mime']];
 		}
 		if (empty($values['extension'])) {
 			$filetypes[$type]['extension'][0] = $type;
 		} elseif (!is_array($values['extension'])) {
-			$filetypes[$type]['extension'] = array(0 => $values['extension']);
+			$filetypes[$type]['extension'] = [0 => $values['extension']];
 		}
 		if (!array_key_exists('thumbnail', $values)) {
 			 $filetypes[$type]['thumbnail'] = 0;

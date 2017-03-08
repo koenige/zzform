@@ -21,14 +21,14 @@
  *	imagick_desc	ImageMagick_Description
  *	mime			MimeType
  *
- *	$bla = array(
- *	1 => array('type' => 'gif', 'ext' => 'gif', 'mime' => 'image/gif', 
+ *	$bla = [
+ *	1 => ['type' => 'gif', 'ext' => 'gif', 'mime' => 'image/gif', 
  *		'imagick_format' => 'GIF', 'imagick_mode' = 'rw+', 
- *		'imagick_desc' => 'CompuServe graphics interchange format (LZW disabled)')
- *	2 => array('type' => 'gif', 'ext' => 'gif', 'mime' => 'image/gif', 
+ *		'imagick_desc' => 'CompuServe graphics interchange format (LZW disabled)']
+ *	2 => ['type' => 'gif', 'ext' => 'gif', 'mime' => 'image/gif', 
  *		'imagick_format' => 'GIF', 'imagick_mode' = 'rw+', 
- *		'imagick_desc' => 'CompuServe graphics interchange format (LZW disabled)')
- *	);
+ *		'imagick_desc' => 'CompuServe graphics interchange format (LZW disabled)']
+ *	];
  */
 
 
@@ -69,7 +69,7 @@ function zz_imagick_identify($filename, $file) {
 	// always check only first page if it's a multipage file (document, movie etc.)
 	$time = filemtime($filename);
 	$command = sprintf('%s -format "%%m ~ %%w ~ %%h ~ %%[colorspace] ~ %%[profile:icc]" "%s[0]"', $command, $filename);
-	zz_upload_exec($command, 'ImageMagick identify', $output, $return_var);
+	list($output, $return_var) = zz_upload_exec($command, 'ImageMagick identify');
 	// identify has a bug at least with NEF images delegated to ufraw
 	// where it changes the file modification date and time to the current time
 	// note: filemtime() here would return the old time, so it's not possible to check that
@@ -235,7 +235,7 @@ function zz_image_webimage($source, $dest, $dest_ext, $image) {
 	$filetype = !empty($image['upload']['filetype']) ? $image['upload']['filetype'] : '';
 	$source = zz_imagick_check_multipage($source, $filetype, $image);
 	$source_ext = $image['upload']['ext'];
-	if (in_array($source_ext, array('pdf', 'eps'))) {
+	if (in_array($source_ext, ['pdf', 'eps'])) {
 		if (!$zz_conf['upload_tools']['ghostscript']) return zz_return(false);
 	}
 
@@ -266,11 +266,11 @@ function zz_image_webimage($source, $dest, $dest_ext, $image) {
  * @param array $image (optional)
  * @return string options
  */
-function zz_imagick_add_options($source_ext, $image = array()) {
+function zz_imagick_add_options($source_ext, $image = []) {
 	global $zz_conf;
 
 	$convert_options = !empty($zz_conf['file_types'][$source_ext]['convert'])
-		? $zz_conf['file_types'][$source_ext]['convert'] : array();
+		? $zz_conf['file_types'][$source_ext]['convert'] : [];
 
 	$ext_options = '';
 	if (empty($zz_conf['upload_imagick_options_no_defaults'][$source_ext])) {
@@ -282,11 +282,11 @@ function zz_imagick_add_options($source_ext, $image = array()) {
 			if ($image['upload']['colorspace'] === $option[1]) continue;
 			if (empty($image['upload']['icc_profile'])) continue;
 			if (!array_key_exists($image['upload']['icc_profile'], $zz_conf['icc_profiles'])) {
-				zz_error_log(array(
+				zz_error_log([
 					'msg_dev' => 'No ICC profile found for %s',
-					'msg_dev_args' => array($image['upload']['icc_profile']),
+					'msg_dev_args' => [$image['upload']['icc_profile']],
 					'log_post_data' => false
-				));
+				]);
 				continue;
 			}
 			// use profiles!
@@ -333,11 +333,11 @@ function zz_image_crop($source, $dest, $dest_ext, $image) {
 		// @todo this won't work with PDF etc.
 		$source_image = getimagesize($source);
 		if (empty($source_image[0])) {
-			$return = array(
+			$return = [
 				'error' => true,
 				'error_msg' => 'ImageMagick: cropped image was not created.',
 				'command' => sprintf('getimagesize(%s)', $source)
-			);
+			];
 			return zz_return($return); // no height means no picture or error
 		}
 		$source_width = $source_image[0];
@@ -389,7 +389,7 @@ function zz_image_crop($source, $dest, $dest_ext, $image) {
  *		array 'upload_imagick_options_for'
  * @return bool
  */
-function zz_imagick_convert($options, $source, $source_ext, $dest, $dest_ext, $image = array()) {
+function zz_imagick_convert($options, $source, $source_ext, $dest, $dest_ext, $image = []) {
 	global $zz_conf;
 	
 	$source_ext = zz_upload_extension_normalize($source_ext);
@@ -409,22 +409,22 @@ function zz_imagick_convert($options, $source, $source_ext, $dest, $dest_ext, $i
 	if ($options) $command .= $options.' ';
 
 	$command .= sprintf(' "%s" %s:"%s" ', $source, $dest_ext, $dest);
-	zz_upload_exec($command, 'ImageMagick convert', $output, $return_var);
+	list($output, $return_var) = zz_upload_exec($command, 'ImageMagick convert');
 	$return = true;
 	if ($return_var === -1) {
 		// function not found, or [function.exec]: Unable to fork ...
 		// try again once, one second later
 		sleep(1);
-		zz_upload_exec($command, 'ImageMagick convert', $output, $return_var);
+		list($output, $return_var) = zz_upload_exec($command, 'ImageMagick convert');
 	}
 	if ($output OR $return_var) {
-		$return = array(
+		$return = [
 			'error' => true,
 			'error_msg' => 'ImageMagick: surrogate image was not created.',
 			'exit_status' => $return_var,
 			'output' => $output,
 			'command' => $command
-		);
+		];
 	}
 	return $return;
 }
