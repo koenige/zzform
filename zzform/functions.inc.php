@@ -1278,7 +1278,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 			$ops['mode'] = $_GET['mode']; // set mode from URL
 			if (in_array($ops['mode'], array('edit', 'delete', 'show'))
 				AND !empty($_GET['id'])) {
-				$id_value = $_GET['id'];
+				$id_value = zz_check_get_array('id', 'is_int');
 			}
 		} else {
 			// illegal parameter, don't set a mode at all
@@ -1298,7 +1298,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		$found = 0;
 		foreach ($keys as $key) {
 			if (!isset($_GET[$key])) continue;
-			if ($key !== 'delete') $id_value = $_GET[$key];
+			if ($key !== 'delete') $id_value = zz_check_get_array($key, 'is_int');
 			$found++;
 		}
 		if ($found > 1) {
@@ -1337,7 +1337,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		}
 		$keys = array('thumbs', 'field');
 		$ops['mode'] = 'thumbnails';
-		$id_value = $_GET['thumbs'];
+		$id_value = zz_check_get_array('thumbs', 'is_int');
 		if (empty($_GET['field'])) {
 			$zz_conf['int']['http_status'] = 404;
 			break;
@@ -1536,7 +1536,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 
 	// @deprecated
 	if ($ops['mode'] === 'add' AND $zz_conf['copy'] AND !empty($_GET['source_id'])) {
-		$zz_var['id']['source_value'] = $_GET['source_id'];
+		$zz_var['id']['source_value'] = zz_check_get_array('source_id', 'is_int');
 	}
 
 	if ($zz_conf['int']['where_with_unique_id']) { // just for record, not for list
