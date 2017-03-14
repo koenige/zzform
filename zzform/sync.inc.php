@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2011-2016 Gustaf Mossakowski
+ * @copyright Copyright © 2011-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -52,7 +52,7 @@ function zz_sync($import) {
 
 	// limits
 	if (empty($_GET['limit'])) $import['limit'] = 0;
-	else $import['limit'] = intval($_GET['limit']);
+	else $import['limit'] = zz_check_get_array('limit', 'is_int');
 	$import['end'] = $import['limit'] + $zz_setting['sync_records_per_run'];
 
 	$import_types = array('csv', 'sql');
