@@ -1556,7 +1556,10 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				if (!$tempvar = zz_check_url($my_rec['POST'][$field_name])) {
 					$my_rec['fields'][$f]['check_validation'] = false;
 					$my_rec['validation'] = false;
-				} else $my_rec['POST'][$field_name] = $tempvar;
+				} else {
+					$tempvar = zz_remove_local_hostname($tempvar, $field);
+					$my_rec['POST'][$field_name] = $tempvar;
+				}
 			}
 			break;
 		case 'mail':
@@ -2108,4 +2111,28 @@ function zz_integrity_include_definition($filename) {
 function zz_integrity_include_conf($config) {
 	global $$config;
 	return $$config;
+}
+
+/**
+ * return URL without hostname
+ * standard behaviour, turn off with
+ * $zz['fields'][n]['remove_local_hostname'] = false
+ *
+ * @param string $tempvar URL
+ * @param array $field field definition
+ * @return string
+ */
+function zz_remove_local_hostname($tempvar, $field) {
+	if (isset($field['remove_local_hostname']) AND $field['remove_local_hostname'] === false) {
+		return $tempvar;
+	}
+	$removals = [
+		'http://'.$_SERVER['HTTP_HOST'], 'https://'.$_SERVER['HTTP_HOST']
+	];
+	foreach ($removals as $removal) {
+		if (substr($tempvar, 0, strlen($removal)) !== $removal) continue;
+		$tempvar = substr($tempvar, strlen($removal));
+		return $tempvar;
+	}
+	return $tempvar;
 }
