@@ -5,7 +5,7 @@
 # http://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2005-2015 Gustaf Mossakowski
+# @copyright Copyright © 2005-2017 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 msgid ""
@@ -162,8 +162,8 @@ msgid "record_was_deleted"
 msgstr "Wpis usunięty"
 
 # Record form: Heading
-msgid "%s records were deleted"
-msgstr "Usunięto %s rekordów"
+msgid "%d records were deleted"
+msgstr "Usunięto %d rekordów"
 
 # Record form: Heading
 msgid "record_was_inserted"

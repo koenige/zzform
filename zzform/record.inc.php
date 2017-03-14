@@ -34,7 +34,7 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 	$formhead = false;
 	$records = false;
 	if (!empty($_GET['delete'])) {
-		$records = $_GET['delete'];
+		$records = zz_check_get_array('delete', 'is_int');
 	} elseif (is_array($zz_var['id']['value'])) {
 		$records = count($zz_var['id']['value']);
 	}
@@ -60,7 +60,7 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 				if ($records === 1) {
 					$formhead = '1 '.zz_text('record_was_deleted');
 				} else {
-					$formhead = sprintf(zz_text('%s records were deleted'), $records);
+					$formhead = sprintf(zz_text('%d records were deleted'), $records);
 				}
 			} else {
 				$formhead = zz_text('record_was_deleted');
