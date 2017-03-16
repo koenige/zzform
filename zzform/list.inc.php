@@ -164,7 +164,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		}
 		list($rows, $head) = zz_list_remove_empty_cols($rows, $head, $zz);
 	} else {
-		if (!empty($zz_conf['modules']['conditions'])) {
+		if (!empty($zz_conf['modules']['conditions']) AND !empty($zz_conditions['bool'])) {
 			zz_conditions_merge_conf($zz, $zz_conditions['bool'], 0);
 		}
 	}
