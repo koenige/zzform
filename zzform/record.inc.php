@@ -1131,7 +1131,7 @@ function zz_record_add_details($field, $mode, $tab, $rec, $fieldkey) {
  * @param array $zz_tab (optional; required for initalizing $field_focus)
  * @param int $tab (optional; required for initalizing $field_focus)
  * @param int $rec (optional; required for initalizing $field_focus)
- * @return mixed bool true: $field_focus was initalized; string: HTML code
+ * @return bool true: $field_focus was initalized; false: do not focus
  */
 function zz_record_focus($zz_tab = false, $tab = 0, $rec = 0) {
 	static $field_focus;
@@ -1153,7 +1153,7 @@ function zz_record_focus($zz_tab = false, $tab = 0, $rec = 0) {
 	}
 
 	// set autofocus = true, in case it's wanted
-	if (!$field_focus) return '';
+	if (!$field_focus) return false;
 	$field_focus = false;
 	return true;
 }
