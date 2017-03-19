@@ -133,6 +133,16 @@ function zz_nice_headings($heading, $zz, $where_condition = array()) {
 			$heading_addition[$i][] = zz_htmltag_escape($where_condition[$mywh]);
 		}
 		if (empty($subheading['concat'])) $subheading['concat'] = ' ';
+		if (!empty($subheading['format'])) {
+			foreach ($heading_addition[$i] as $index => $value) {
+				if (is_array($subheading['format'])) {
+					if (empty($subheading['format'][$index])) continue;
+					$heading_addition[$i][$index] = $subheading['format'][$index]($value);
+				} else {
+					$heading_addition[$i][$index] = $subheading['format']($value);
+				}
+			}
+		}
 		if (is_array($subheading['concat'])) {
 			$addition = '';
 			foreach ($heading_addition[$i] AS $index => $text) {
