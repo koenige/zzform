@@ -218,17 +218,10 @@ function zz_is_url($url) {
 			$ldap = '/\[[0-9a-zA-Z:]*\]/';
 			if (preg_match($ldap, $part)) break;
 			// punycode domain name?
-			// @todo better integration of this library or at least the path
-			$punycode_lib = $zz_conf['dir'].'/../idna_convert/idna_convert.class.php';
-			if (file_exists($punycode_lib)) {
-				require_once $punycode_lib;
-				$IDN = new idna_convert();
-				if ($zz_conf['character_set'] !== 'utf-8') {
-					$part = iconv($zz_conf['character_set'], 'utf-8', $part);
-				}
-				$parts['host'] = $IDN->encode($part);
-				// here, we'll check if this is not only a wrong entry
-				// for all records, checkdnsrr would take too long
+			$parts['host'] = wrap_punycode_encode($part);
+			// here, we'll check if this is not only a wrong entry
+			// for all records, checkdnsrr would take too long
+			if ($part !== $parts['host']) {
 				if (checkdnsrr($parts['host'], 'ANY')) break;
 			}
 			return false;
