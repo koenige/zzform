@@ -1240,7 +1240,7 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 			$source_filename = $src_image['upload']['tmp_name'];
 			if (!$source_filename AND $image['recreate']) {
 				list($image, $source_filename) = zz_upload_create_source($image, $src_image['path'], $zz_tab);
-			} elseif (!$source_filename) {
+			} elseif (!$source_filename AND $zz_tab[$tab][$rec]['action'] === 'update') {
 				// no new file was uploaded, nothing to do
 				// but: check if all thumbnails already exist (due to errors or
 				// change in thumbnail definition!)
