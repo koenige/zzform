@@ -1290,13 +1290,12 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 			$link = false;
 			break;
 		case 'url':
+			$text = wrap_punycode_decode($row['value']);
+			$text = zz_cut_length(zz_htmltag_escape($text), $zz_conf_record['max_select_val_len']);
+			break;
 		case 'mail':
 		case 'mail+name':
-			if ($field['type'] === 'url') {
-				$text = zz_cut_length(zz_htmltag_escape($row['value']), $zz_conf_record['max_select_val_len']);
-			} else {
-				$text = zz_htmltag_escape($row['value']);
-			}
+			$text = zz_htmltag_escape($row['value']);
 			break;
 		case 'ipv4':
 		case 'date':

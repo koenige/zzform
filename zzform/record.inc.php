@@ -1877,6 +1877,7 @@ function zz_field_text($field, $display, $record, $dont_reformat = false) {
 		if ($field['type'] === 'url') {
 			$linktitle = zz_cut_length($value, $field['max_select_val_len']);
 			$linktitle = str_replace('<', '&lt;', $linktitle);
+			$linktitle = wrap_punycode_decode($linktitle);
 			return '<a href="'.zz_html_escape($value).'">'.$linktitle.'</a>';
 		} elseif ($field['type'] === 'mail') {
 			$value = str_replace('<', '&lt;', $value);
@@ -1894,6 +1895,7 @@ function zz_field_text($field, $display, $record, $dont_reformat = false) {
 	// return form element
 	$fieldtype = 'text';
 	if ($field['type'] === 'mail') $fieldtype = 'email';
+	if ($field['type'] === 'url') $value = wrap_punycode_decode($value);
 	// 'url' in Opera does not support relative URLs
 	// elseif ($field['type'] === 'url') $fieldtype = 'url';
 	// time is not supported correctly by Google Chrome (adds AM, PM to time
