@@ -63,32 +63,32 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 	}
 	
 	// set defaults, correct types
-	$default_configuration = array(
+	$default_configuration = [
 		'forceFilename' => '-', 'concat' => '.', 'exists' => '.',
-		'lowercase' => true, 'slashes' => false, 'replace' => array(),
-		'hash_md5' => false, 'ignore' => array(), 'max_length' => 36,
-		'ignore_this_if' => array(), 'empty' => array(), 'uppercase' => false,
+		'lowercase' => true, 'slashes' => false, 'replace' => [],
+		'hash_md5' => false, 'ignore' => [], 'max_length' => 36,
+		'ignore_this_if' => [], 'empty' => [], 'uppercase' => false,
 		'function' => false, 'function_parameter' => false,
-		'unique_with' => array(), 'where' => ''
-	);
+		'unique_with' => [], 'where' => ''
+	];
 	foreach ($default_configuration as $key => $value) {
 		if (!isset($conf[$key])) $conf[$key] = $value;
 	}
-	$conf_max_length_1 = array('forceFilename', 'exists');
+	$conf_max_length_1 = ['forceFilename', 'exists'];
 	foreach ($conf_max_length_1 as $key) {
 		$conf[$key] = substr($conf[$key], 0, 1);
 	}
-	$conf_arrays = array('ignore', 'unique_with');
+	$conf_arrays = ['ignore', 'unique_with'];
 	foreach ($conf_arrays as $key) {
-		if (!is_array($conf[$key])) $conf[$key] = array($conf[$key]);
+		if (!is_array($conf[$key])) $conf[$key] = [$conf[$key]];
 	}
-	$conf_arrays_in_arrays = array('ignore_this_if');
+	$conf_arrays_in_arrays = ['ignore_this_if'];
 	foreach ($conf_arrays_in_arrays as $key) {
 		foreach ($conf[$key] as $subkey => $value) {
-			if (!is_array($value)) $conf[$key][$subkey] = array($value);
+			if (!is_array($value)) $conf[$key][$subkey] = [$value];
 		}
 	}
-	$wheres = array();
+	$wheres = [];
 	foreach ($conf['unique_with'] as $unique_field) {
 		// identifier does not have to be unique, add where from other keys
 		$wheres[] = sprintf('%s = "%s"', $unique_field, zz_identifier_var('filetype_id', $my_rec, $my_rec['POST']));
@@ -99,7 +99,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 	}
 
 	$i = 0;
-	$idf_arr = array();
+	$idf_arr = [];
 	$len = 0;
 	foreach ($vars as $key => $var) {
 		$i++;
@@ -321,13 +321,13 @@ function zz_identifier_exists($idf, $i, $db_table, $field, $id_field, $id_value,
  *		string $substr (e. g. 0,4)
  */
 function zz_identifier_substr($field_name) {
-	if (!strstr($field_name, '}')) return array($field_name, '');
-	if (!strstr($field_name, '{')) return array($field_name, '');
+	if (!strstr($field_name, '}')) return [$field_name, ''];
+	if (!strstr($field_name, '{')) return [$field_name, ''];
 	preg_match('/{(.+)}$/', $field_name, $substr);
-	if (!$substr) return array($field_name, '');
+	if (!$substr) return [$field_name, ''];
 	$field_name = preg_replace('/{.+}$/', '', $field_name);
 	$substr = $substr[1];
-	return array($field_name, $substr);
+	return [$field_name, $substr];
 }
 
 /**
@@ -345,7 +345,7 @@ function zz_identifier_substr($field_name) {
  * 		geprüft (andersherum geht wohl auch nicht)
  */ 
 function zz_identifier_vars($my_rec, $f, $main_post) {
-	$values = array();
+	$values = [];
 	foreach ($my_rec['fields'][$f]['fields'] as $field_name) {
  		// get full field_name with {}, [] and . as index
  		$index = $field_name;
@@ -445,7 +445,7 @@ function zz_identifier_var($field_name, $my_rec, $main_post) {
  * @return bool true = redirect was added
  */
 function zz_identifier_redirect($type, $ops, $main_tab) {
-	if (!in_array($type, array('after_update', 'after_delete'))) return false;
+	if (!in_array($type, ['after_update', 'after_delete'])) return false;
 	foreach ($main_tab['set_redirect'] as $redirect) {
 		if (!is_array($redirect)) {
 			$old = $redirect;
@@ -465,20 +465,20 @@ function zz_identifier_redirect($type, $ops, $main_tab) {
 			}
 		}
 		if (empty($field_name)) {
-			zz_error_log(array('msg_dev' => 'Missing field name for redirect'));
+			zz_error_log(['msg_dev' => 'Missing field name for redirect']);
 			continue;
 		}
 		if ($type === 'after_update') {
 			if (empty($ops['record_diff'][0][$field_name])) continue;
 			if ($ops['record_diff'][0][$field_name] != 'diff') continue;
 		}
-
+		if (!$ops['record_old'][0][$field_name]) continue;
 		$old = sprintf($old, $ops['record_old'][0][$field_name]);
 		$sql = 'SELECT redirect_id FROM /*_PREFIX_*/redirects WHERE old_url = "%s"';
 		$sql = sprintf($sql, wrap_db_escape($old));
 		$redirect_id = zz_db_fetch($sql, '', 'single value');
 
-		$values = array();
+		$values = [];
 		if ($redirect_id) {
 			$values['action'] = 'update';
 			$values['POST']['redirect_id'] = $redirect_id;
@@ -500,7 +500,7 @@ function zz_identifier_redirect($type, $ops, $main_tab) {
 		}
 		if (is_array($redirect) AND count($redirect) > 3) {
 			foreach ($redirect as $field_name => $value) {
-				if (in_array($field_name, array('old', 'new', 'field_name'))) continue;
+				if (in_array($field_name, ['old', 'new', 'field_name'])) continue;
 				if ($value !== $field_name) {
 					$values['POST'][$field_name] = $value;
 				} elseif ($type === 'after_delete') {
@@ -529,7 +529,7 @@ function zz_identifier_vars_db($sql, $id, $fieldname = false) {
 	// remove whitespace
 	$sql = preg_replace("/\s+/", " ", $sql); // first blank needed for SELECT
 	$sql_tokens = explode(' ', trim($sql)); // remove whitespace
-	$unwanted = array('SELECT', 'DISTINCT');
+	$unwanted = ['SELECT', 'DISTINCT'];
 	foreach ($sql_tokens as $token) {
 		if (!in_array($token, $unwanted)) {
 			$id_fieldname = trim($token);
