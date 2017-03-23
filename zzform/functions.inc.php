@@ -2789,7 +2789,7 @@ function zz_translate($def, $values) {
  *		overwritten
  * @return string $string		New query string without removed keys
  */
-function zz_edit_query_string($query, $unwanted_keys = array(), $new_keys = array()) {
+function zz_edit_query_string($query, $unwanted_keys = array(), $new_keys = array(), $and = '&amp;') {
 	$query = str_replace('&amp;', '&', $query);
 	if (in_array(substr($query, 0, 1), array('?', '&'))) {
 		$query = substr($query, 1);
@@ -2815,7 +2815,7 @@ function zz_edit_query_string($query, $unwanted_keys = array(), $new_keys = arra
 	foreach ($new_keys as $new_key => $new_value)
 		$queryparts[$new_key] = $new_value; 
 	// glue everything back together
-	$query_string = http_build_query($queryparts, '', '&amp;');
+	$query_string = http_build_query($queryparts, '', $and);
 	if ($query_string) return '?'.$query_string; // URL without unwanted keys
 	else return false;
 }
