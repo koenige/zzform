@@ -36,25 +36,25 @@ function zzform($zz) {
 	if (empty($zz_conf['zzform_calls'])) $zz_conf['zzform_calls'] = 1;
 	else $zz_conf['zzform_calls']++;
 
-	$ops = array(
+	$ops = [
 		'result' => '',
 		'headers' => false,
 		'output' => '',
-		'error' => array(),
+		'error' => [],
 		'id' => 0,
 		'mode' => false,
 		'footer_text' => false
-	);
+	];
 	// set default configuration variables
 	// import modules, set and get URI
 	zz_initialize();
 	$zz = zz_defaults($zz);
 
 	if (empty($zz['fields'])) {
-		zz_error_log(array(
+		zz_error_log([
 			'msg_dev' => 'There is no table definition available (\'fields\'). Please check.',
 			'level' => E_USER_NOTICE
-		));
+		]);
 		zz_error();
 		return zzform_exit($ops);
 	}
@@ -76,11 +76,11 @@ function zzform($zz) {
 
 	if ($zz_conf['zzform_calls'] > 1 AND empty($zz_conf['multi'])) { 
 		// show a warning only if zzform is not explicitly called via zzform_multi()
-		zz_error_log(array(
+		zz_error_log([
 			'msg_dev' => 'zzform has been called as a function more than once. '
 				.'You might want to check if this is correct.',
 			'level' => E_USER_NOTICE
-		));
+		]);
 		zz_error();
 		$ops['output'] .= zz_error_output();
 	}
@@ -180,7 +180,7 @@ function zzform($zz) {
 		$zz = zz_conditions_set($zz);
 		$zz_conditions = zz_conditions_check($zz, $ops['mode'], $zz_var);
 	} else {
-		$zz_conditions = array();
+		$zz_conditions = [];
 	}
 
 	// conditions for list view will be set later
@@ -258,7 +258,7 @@ function zzform($zz) {
 		// just handing over form with values
 		if (isset($_POST['zz_review'])) $validation = false;
 
-		if (in_array($zz_var['action'], array('insert', 'update', 'delete'))) {
+		if (in_array($zz_var['action'], ['insert', 'update', 'delete'])) {
 			// check for validity, insert/update/delete record
 			require_once $zz_conf['dir_inc'].'/action.inc.php';
 			list($ops, $zz_tab, $validation) = zz_action($ops, $zz_tab, $validation, $zz_var);
@@ -285,7 +285,7 @@ function zzform($zz) {
 			elseif ($zz_var['action'] == 'insert') $ops['mode'] = 'add';
 			// this is from zz_access() but since mode has set, has to be
 			// checked against again
-			if (in_array($ops['mode'], array('edit', 'add')) 
+			if (in_array($ops['mode'], ['edit', 'add']) 
 				AND !$zz_conf['show_list_while_edit']) $zz_conf['int']['show_list'] = false;
 		}
 	
@@ -372,7 +372,7 @@ function zzform_exit($ops) {
 	// last time check for errors
 	zz_error();
 	$ops['critical_error'] = zz_error_exit();
-	$ops['error_mail'] = array();
+	$ops['error_mail'] = [];
 	if (!empty($zz_conf['int']['error']))
 		$ops['error_mail'] = $zz_conf['int']['error'];
 
@@ -437,7 +437,7 @@ function zz_valid_request($action = false) {
 	global $zz_conf;
 	static $dont_log_error;
 
-	$action_requests = array('delete', 'insert', 'update', 'noupdate');
+	$action_requests = ['delete', 'insert', 'update', 'noupdate'];
 	$request_found = false;
 	foreach ($action_requests as $request) {
 		if (!isset($_GET[$request])) continue;
@@ -446,7 +446,7 @@ function zz_valid_request($action = false) {
 	}
 	if (!$request_found) return false;
 	if ($action) {
-		if (!is_array($action)) $action = array($action);
+		if (!is_array($action)) $action = [$action];
 		if (!in_array($request_found, $action)) return false;
 	}
 	if (!empty($zz_conf['int']['where_with_unique_id'])) return true;
@@ -454,11 +454,11 @@ function zz_valid_request($action = false) {
 	
 	if ($_GET['zzhash'] !== $zz_conf['int']['secret_key']) {
 		if (!$dont_log_error) {
-			zz_error_log(array(
+			zz_error_log([
 				'msg_dev' => 'Hash of script and ID differs from secret key (hash %s, secret %s).',
 				'msg_dev_args' => array($_GET['zzhash'], $zz_conf['int']['secret_key']),
 				'level' => E_USER_NOTICE
-			));
+			]);
 			$dont_log_error = true;
 		}
 		return false;
@@ -527,8 +527,8 @@ function zz_initialize($mode = false) {
 	$default['dir_custom']		= $zz_conf['dir'].'/local';
 	$default['dir_inc']			= $zz_conf['dir'].'/inc';
 	$default['generate_output']	= true;
-	$default['error_mail_level']	= array('error', 'warning', 'notice');
-	$default['int_modules'] 	= array('debug', 'validate');
+	$default['error_mail_level']	= ['error', 'warning', 'notice'];
+	$default['int_modules'] 	= ['debug', 'validate'];
 	zz_write_conf($default);
 	
 	// modules depending on settings
@@ -537,11 +537,11 @@ function zz_initialize($mode = false) {
 	// Configuration on project level: shorthand values
 	if (!is_array($zz_conf['error_mail_level'])) {
 		if ($zz_conf['error_mail_level'] === 'error')
-			$zz_conf['error_mail_level'] = array('error');
+			$zz_conf['error_mail_level'] = ['error'];
 		elseif ($zz_conf['error_mail_level'] === 'warning')
-			$zz_conf['error_mail_level'] = array('error', 'warning');
+			$zz_conf['error_mail_level'] = ['error', 'warning'];
 		elseif ($zz_conf['error_mail_level'] === 'notice')
-			$zz_conf['error_mail_level'] = array('error', 'warning', 'notice');
+			$zz_conf['error_mail_level'] = ['error', 'warning', 'notice'];
 	}
 	// include core functions
 	require_once $zz_conf['dir_inc'].'/functions.inc.php';
@@ -575,8 +575,8 @@ function zz_initialize($mode = false) {
 	$default['details']			= false;	// column details; links to detail records with foreign key
 	$default['details_base']	= false;
 	$default['details_referer']	= true;		// add referer to details link
-	$default['details_url']		= array(); // might be array, therefore no $default
-	$default['details_sql']		= array();
+	$default['details_url']		= []; // might be array, therefore no $default
+	$default['details_sql']		= [];
 	$default['details_target']	= false;	// target-window for details link
 	$default['edit']			= true;		// show Action: Edit
 
@@ -594,9 +594,6 @@ function zz_initialize($mode = false) {
 	$default['filter_position'] 		= 'top';
 	$default['footer_text']			= false;		// text at the end of all
 	$default['group_html_table']		= '<strong>%s</strong>';
-	$default['hash_cost_log2']		= 11;
-	$default['hash_portable']		= false;
-	$default['hash_password']		= 'md5';
 	$default['heading_prefix']		= false;
 	$default['html_autofocus']		= true;
 	$default['language']			= 'en';
@@ -615,7 +612,7 @@ function zz_initialize($mode = false) {
 	$default['multi'] 				= false;		// zzform_multi
 	$default['multi_delete']		= false;
 	$default['multi_edit']			= false;
-	$default['multi_function']		= array();
+	$default['multi_function']		= [];
 	$default['prefix'] 				= false;	//	prefix for ALL tables like zz_
 	$default['project']				= preg_match('/^[a-zA-Z0-9-\.]+$/', $_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'];
 	$default['redirect']['successful_delete'] = false;	// redirect to diff. page after delete
@@ -633,9 +630,9 @@ function zz_initialize($mode = false) {
 	$default['thousands_separator']	= ' ';
 	$default['user']				= isset($_SERVER['PHP_AUTH_USER']) ? $_SERVER['PHP_AUTH_USER'] : '';
 	$default['view']				= false;	// 	show Action: View
-	$default['translate_log_encodings'] = array(
+	$default['translate_log_encodings'] = [
 		'iso-8859-2' => 'iso-8859-1'
-	);
+	];
 	$default['url_self']			= false;
 	$default['xhr_vxjs']			= false;
 	// this JPEG quality equals file size of photoshop's 60%
@@ -691,14 +688,14 @@ function zz_initialize_int() {
 
 	//	allowed parameters
 	// initialize internal variables
-	$zz_conf['int'] = array();
-	$zz_conf['int']['allowed_params']['mode'] = array(
+	$zz_conf['int'] = [];
+	$zz_conf['int']['allowed_params']['mode'] = [
 		'edit', 'delete', 'show', 'add', 'review', 'list_only', 'revise'
-	);
+	];
 	// action parameters, 'review' is for internal use only
-	$zz_conf['int']['allowed_params']['action'] = array(
+	$zz_conf['int']['allowed_params']['action'] = [
 		'insert', 'delete', 'update', 'multiple', 'thumbnails'
-	); 
+	];
 
 	$zz_conf['int']['url'] = zz_get_url_self($zz_conf['url_self']);
 
@@ -711,11 +708,11 @@ function zz_initialize_int() {
 		zz_init_referer();
 	}
 
-	$zz_conf['int']['internal_post_fields'] = array(
+	$zz_conf['int']['internal_post_fields'] = [
 		'MAX_FILE_SIZE', 'zz_check_select', 'zz_action', 'zz_subtables',
 		'zz_delete_file', 'zz_referer', 'zz_save_record', 'zz_subtable_ids',
 		'zz_id'
-	);
+	];
 }
 
 /**
@@ -757,11 +754,11 @@ function zzform_multi($definition_file, $values) {
 	unset($_GET);
 	unset($_POST);
 	unset($_FILES);
-	$ops = array();
+	$ops = [];
 	$ops['result'] = '';
 	$ops['id'] = 0;
 	// keep internal variables
-	$int = !empty($zz_conf['int']) ? $zz_conf['int'] : array();
+	$int = !empty($zz_conf['int']) ? $zz_conf['int'] : [];
 
 	zz_initialize('overwrite');
 	unset($zz_conf['if']);
@@ -784,7 +781,7 @@ function zzform_multi($definition_file, $values) {
 	}
 
 	if (!empty($values['FILES'])) $_FILES = $values['FILES'];
-	else $_FILES = array();
+	else $_FILES = [];
 
 	if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
 		$old_id = $zz_conf['id'];	
@@ -838,7 +835,7 @@ function zzform_file($definition_file) {
 	global $zz_conf;
 	global $zz_setting;
 	
-	$scripts = array();
+	$scripts = [];
 
 	if (file_exists($zz_conf['form_scripts'].'/'.$definition_file.'.php')) {
 		if (file_exists($zz_conf['form_scripts'].'/_common.inc.php')) {
@@ -857,7 +854,7 @@ function zzform_file($definition_file) {
 
 		$brick['path'] = $brick['setting']['brick_custom_dir'].'tables';
 		$brick['module_path'] = $brick['setting']['brick_module_dir'].'tables';
-		$brick['vars'] = array($definition_file);
+		$brick['vars'] = [$definition_file];
 		$brick = brick_forms_file($brick);
 		$scripts['common'] = $brick['common_script_path']; // might be empty
 		$scripts['tables'] = $brick['form_script_path']; // might be empty
@@ -875,7 +872,7 @@ function zzform_file($definition_file) {
  * @global array $zz_setting
  * @return array $zz
  */
-function zzform_include_table($definition_file, $values = array()) {
+function zzform_include_table($definition_file, $values = []) {
 	global $zz_conf;
 	global $zz_setting;
 	
@@ -953,19 +950,19 @@ function zz_write_conf_vars($variables, &$conf, $overwrite) {
  * @return array
  */
 function zz_meta_tags() {
-	$meta = array();
+	$meta = [];
 	$noindex = false;
-	$querystrings = array(
+	$querystrings = [
 		'order', 'group', 'mode', 'q', 'edit', 'add', 'delete', 'show',
 		'insert', 'update', 'revise'
-	);
+	];
 	foreach ($querystrings as $string) {
 		if (empty($_GET[$string])) continue;
 		$noindex = true;
 		break;
 	}
 	if ($noindex) {
-		$meta[] = array('name' => 'robots', 'content' => 'noindex, follow');
+		$meta[] = ['name' => 'robots', 'content' => 'noindex, follow'];
 	}
 	return $meta;
 }
