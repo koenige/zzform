@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2016 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -50,10 +50,10 @@ function zz_details($zz) {
 		// saved
 		$zz_conf['int']['details_current'] = $current;
 		$zz_conf['int']['details_last'] = $last;
-		$hooks = array('after_insert', 'after_update');
+		$hooks = ['after_insert', 'after_update'];
 		foreach ($hooks as $hook) {
 			if (!empty($zz['hooks'][$hook]) AND !is_array($zz['hooks'][$hook])) {
-				$zz['hooks'][$hook] = array($zz['hooks'][$hook]);
+				$zz['hooks'][$hook] = [$zz['hooks'][$hook]];
 			}
 			$zz['hooks'][$hook][] = 'zz_details_return';
 		}
@@ -125,7 +125,7 @@ function zz_details_start($zz) {
 	foreach ($zz_conf['int']['internal_post_fields'] as $fname) {
 		unset($_POST[$fname]);
 	}
-	$session = array(
+	$session = [
 		'post' => $_POST,
 		'get' => $_GET,
 		'source' => $source,
@@ -134,7 +134,7 @@ function zz_details_start($zz) {
 		'destination' => $redirect_to,
 		'destination_script' => zz_url_basename($redirect_to),
 		'new_value' => $posted_value
-	);
+	];
 	// overwrite existing SESSION entries with same source script
 	// if more than one detail record is added
 	$existing = NULL;
@@ -186,7 +186,7 @@ function zz_details_return($ops) {
 		unset($_SESSION['zzform'][$zz_conf['id']]);
 		// no more detail forms open, remove zz-ID from URL
 		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string(
-			$zz_conf['int']['url']['qs_zzform'], array('zz')
+			$zz_conf['int']['url']['qs_zzform'], ['zz'], [], '&'
 		);
 	}
 
