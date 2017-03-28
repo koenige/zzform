@@ -30,6 +30,8 @@
 function zz_sync($import) {
 	global $zz_setting;
 	global $zz_page;
+	global $zz_conf;
+	require_once $zz_conf['dir'].'/functions.inc.php';
 
 	$post = isset($_POST['action']) ? true : false;	// will be overwritten
 	$refresh = false;
@@ -302,7 +304,6 @@ function zz_sync_zzform($raw, $import) {
 	global $zz_conf;
 	// include form scripts
 	require_once $zz_conf['dir'].'/zzform.php';
-	require_once $zz_conf['dir'].'/functions.inc.php';
 
 	if (empty($import['existing_sql'])) {
 		wrap_error('Please define a query for the existing records in the database with $import["existing_sql"].', E_USER_ERROR);
