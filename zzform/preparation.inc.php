@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2016 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1231,7 +1231,7 @@ function zz_log_validation_errors($my_rec, $validation) {
 		// just look for check_validation set but false
 		if (!isset($field['check_validation'])) continue;
 		if ($field['check_validation']) continue;
-		if ($my_rec['record'][$field['field_name']]) {
+		if (trim($my_rec['record'][$field['field_name']])) {
 			// there's a value, so this is an incorrect value
 			if (!empty($field['error_msg'])) {
 				$error = $field['error_msg'];
