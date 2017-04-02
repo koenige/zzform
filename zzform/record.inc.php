@@ -457,7 +457,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 	if (in_array($my_rec['access'], array('show', 'none'))) {
 		$row_display = 'show';
 	} elseif ($my_rec['access'] === 'all') {
-		$row_display = 'edit';
+		$row_display = 'form';
 	} else {
 		$row_display = $display;
 	}
