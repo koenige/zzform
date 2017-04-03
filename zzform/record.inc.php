@@ -595,7 +595,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			// don't print out anything if record is empty
 			if (array_key_exists(0, $zz_tab[$sub_tab])) {
 				$fields = $zz_tab[$sub_tab][0]['fields'];
-				$out['td']['content'] .= zz_field_set($field, $fields, $field_display, $zz_tab[$sub_tab]);
+				$out['td']['content'] .= zz_field_set($field, $fields, $field_display, $zz_tab[$sub_tab], $zz_var);
 			}
 		} elseif ($field['type'] === 'subtable') {
 			//	Subtable
@@ -2134,9 +2134,10 @@ function zz_field_memo($field, $display, $record) {
  * @param array $fields
  * @param string $display
  * @param array $my_tab
+ * @param array $zz_var
  * @return string
  */
-function zz_field_set($field, $fields, $display, $my_tab) {
+function zz_field_set($field, $fields, $display, $my_tab, $zz_var = []) {
 	foreach ($fields as $index => $my_field) {
 		$field_names[$my_field['type']] = $my_field['field_name'];
 		if ($my_field['type'] === 'select') {
@@ -2172,6 +2173,13 @@ function zz_field_set($field, $fields, $display, $my_tab) {
 		if (isset($set['rec_no'])) continue;
 		$sets_indexed[$index]['rec_no'] = ++$rec_max;
 	}
+	// set defaults if mode (no id value) = add but not add from source (also no source_value)
+	if (empty($zz_var['id']['value']) AND empty($zz_var['id']['source_value'])
+		AND !empty($field['default']) AND $display === 'form') {
+		foreach ($field['default'] as $def) {
+			$sets_indexed[$def]['default'] = true;
+		}
+	}
 	$outputf = '';
 	foreach ($sets_indexed as $set) {
 		if ($display === 'form') {
@@ -2194,7 +2202,7 @@ function zz_field_set($field, $fields, $display, $my_tab) {
 				, $field['table_name'], $set['rec_no']
 				, $field['table_name'], $set['rec_no'], $field_names['select']
 				, $field['table_name'], $set['rec_no'], $set['id']
-				, (!empty($set['rec_id']) ? ' checked="checked"' : ''), $set['title']
+				, ((!empty($set['rec_id']) OR !empty($set['default'])) ? ' checked="checked"' : ''), $set['title']
 			);
 		} elseif (!empty($set['rec_id'])) {
 			if (!empty($outputf)) $outputf .= "<br>\n";
