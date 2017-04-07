@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2013, 2015-2016 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2013, 2015-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -79,10 +79,12 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 	$searchword = wrap_db_escape($searchword);
 
 	// get fields
-	$searchfields = array();
-	$q_search = array();
+	$searchfields = [];
+	$q_search = [];
 	// fields that won't be used for search
-	$unsearchable_fields = array('image', 'calculated', 'timestamp', 'upload_image', 'option'); 
+	$unsearchable_fields = [
+		'image', 'calculated', 'timestamp', 'upload_image', 'option'
+	];
 	$search = false;
 	$found = false;
 	foreach ($fields as $field) {
@@ -162,7 +164,7 @@ function zz_search_field($field, $table, $searchop, $searchword) {
 
 	// get searchword/operator, per field type
 	$field_type = zz_get_fieldtype($field);
-	$datetime = in_array($field_type, array('date', 'datetime', 'time', 'timestamp')) ? true : false;
+	$datetime = in_array($field_type, ['date', 'datetime', 'time', 'timestamp']) ? true : false;
 	if ($datetime and $searchword AND !is_array($searchword)) {
 		if (preg_match('/q\d(.)[0-9]{4}/i', $searchword, $separator)) {
 			// Quarter
@@ -175,18 +177,21 @@ function zz_search_field($field, $table, $searchop, $searchword) {
 			case 'datetime':
 			case 'timestamp':
 				if ($timesearch) $searchword = date('Y-m-d', $timesearch).'%';
-				if (preg_match('/[0-9]{4}-[0-1][0-9]-[0-3][0-9]/', $searchword) AND $searchop === '%LIKE%') $searchop = 'LIKE%';
+				if (preg_match('/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/', $searchword) AND $searchop === '%LIKE%') $searchop = 'LIKE%';
 				break;
 			case 'time':
 				if ($timesearch) $searchword = date('H:i:s', $timesearch);
-				if (preg_match('/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]/', $searchword) AND $searchop === '%LIKE%') $searchop = '=';
+				if (preg_match('/^[0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/', $searchword) AND $searchop === '%LIKE%') $searchop = '=';
 				break;
 			case 'date':
 				if ($timesearch) $searchword = date('Y-m-d', $timesearch);
-				if (preg_match('/[0-9]{4}-[0-1][0-9]-[0-3][0-9]/', $searchword) AND $searchop === '%LIKE%') $searchop = '=';
+				elseif (preg_match('/^([0-9]+)\.([0-9]+)\.$/', $searchword, $matches)) {
+					$searchword = sprintf('%1$02d-%2$02d', $matches[2], $matches[1]);
+				}
+				if (preg_match('/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/', $searchword) AND $searchop === '%LIKE%') $searchop = '=';
 				break;
 			}
-			if (!preg_match('/[0-9:\-%]+/', $searchword)) return '';
+			if (!preg_match('/^[0-9:\-%]+$/', $searchword)) return '';
 		}
 	}
 
@@ -320,7 +325,8 @@ function zz_search_time($searchword) {
 	// or year-month (2004-12)
 	if (is_array($searchword)) return false;
 	if (preg_match('/^\d{1,4}-*\d{0,2}-*\d{0,2}$/', trim($searchword))) return false;
-	return strtotime($searchword);
+	$date = zz_check_date($searchword);
+	return strtotime($date);
 }
 
 /**
@@ -418,9 +424,9 @@ function zz_search_subtable($field, $table, $main_id_fieldname) {
 		}
 	}
 	if (!$foreign_key) {
-		zz_error_log(array(
+		zz_error_log([
 			'msg_dev' => 'Subtable definition is wrong. There must be a field which is defined as "foreign_key".'
-		));
+		]);
 		zz_error();
 		exit;
 	}
@@ -479,15 +485,17 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 
 	$self = $zz_conf['int']['url']['self'];
 	// fields that won't be used for search
-	$unsearchable_fields = array('image', 'calculated', 'timestamp', 'upload_image', 'option');
+	$unsearchable_fields = [
+		'image', 'calculated', 'timestamp', 'upload_image', 'option'
+	];
 	$output = "\n".'<form method="GET" action="%s" class="zzsearch" accept-charset="%s"><p>';
 	$output = sprintf($output, $self, $zz_conf['character_set']);
 	if ($qs = $zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']) { 
 		// do not show edited record, limit, ...
-		$unwanted_keys = array(
+		$unwanted_keys = [
 			'q', 'scope', 'limit', 'mode', 'id', 'add', 'delete', 'insert',
 			'update', 'noupdate', 'zzhash', 'edit', 'show', 'revise'
-		); 
+		];
 		$output .= zz_querystring_to_hidden(substr($qs, 1), $unwanted_keys);
 		// remove unwanted keys from link
 		$self .= zz_edit_query_string($qs, $unwanted_keys); 
