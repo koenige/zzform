@@ -1896,6 +1896,9 @@ function zz_field_text($field, $display, $record, $dont_reformat = false) {
 	$fieldtype = 'text';
 	if ($field['type'] === 'mail') $fieldtype = 'email';
 	if ($field['type'] === 'url') $value = wrap_punycode_decode($value);
+	if ($field['type'] === 'text' AND !empty($field['sql'])) {
+		zz_xhr_select_add($field);
+	}
 	// 'url' in Opera does not support relative URLs
 	// elseif ($field['type'] === 'url') $fieldtype = 'url';
 	// time is not supported correctly by Google Chrome (adds AM, PM to time
