@@ -227,8 +227,16 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 	}
 
 	$output .= zz_output_backlink($zz_tab);
-	if (!empty($zz_conf['int']['selects']) AND $zz_conf['xhr_vxjs']) {
-		$output .= wrap_template('xhr-selects', $zz_conf['int']['selects']);
+	if ($zz_conf['xhr_vxjs']) {
+		if (!empty($zz_conf['int']['selects'])) {
+			$output .= wrap_template('xhr-selects', $zz_conf['int']['selects']);
+		}
+		if (!empty($zz_conf['int']['dependencies'])) {
+			if (!empty($zz_conf['int']['selects'])) {
+				$zz_conf['int']['dependencies']['xhr_selects'] = true;
+			}
+			$output .= wrap_template('xhr-dependencies', $zz_conf['int']['dependencies']);
+		}
 	}
 
 	return $output;
@@ -463,6 +471,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 	}
 
 	$multiple = !empty($zz_var['id']['values']) ? true : false;
+	$my_fields = [];
 	foreach ($my_rec['fields'] as $fieldkey => $field) {
 		if (!$field) continue;
 		if (!empty($field['hide_in_form'])) continue;
@@ -484,18 +493,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			continue;
 		}
 
-		// initialize variables
-		if (!$append_next) {
-			$out['tr']['attr'] = [];
-			$out['th']['attr'] = [];
-			$out['th']['content'] = '';
-			$out['th']['show'] = true;
-			$out['td']['attr'] = [];
-			$out['td']['content'] = '';
-			$out['separator'] = '';
-			$out['separator_before'] = '';
-		}
-		
 		// $tab means subtable, since main table has $tab = 0
 		if ($tab) {
 			$field['f_field_name'] = $zz_tab[$tab]['table_name'].'['.$rec.']['.$field['field_name'].']';
@@ -504,6 +501,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			$field['f_field_name'] = $field['field_name'];
 			$field['select_field_name'] = $field['field_name'];
 		}
+
 		if (!empty($field['format']) AND empty($field['hide_format_in_title_desc'])) { 
 			// formatted fields: show that they are being formatted!
 			if (!isset($field['title_desc'])) $field['title_desc'] = '';
@@ -516,6 +514,22 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			$field['explanation'] .= zz_record_js($field);
 		}
 
+		$my_fields[$fieldkey] = $field;
+	}
+
+	foreach ($my_fields as $fieldkey => $field) {
+		// initialize variables
+		if (!$append_next) {
+			$out['tr']['attr'] = [];
+			$out['th']['attr'] = [];
+			$out['th']['content'] = '';
+			$out['th']['show'] = true;
+			$out['td']['attr'] = [];
+			$out['td']['content'] = '';
+			$out['separator'] = '';
+			$out['separator_before'] = '';
+		}
+		
 		if ($field['type'] === 'subtable') {
 			$field_display = !empty($field['access']) ? $field['access'] : $display;
 			if (empty($field['form_display'])) $field['form_display'] = 'vertical';
@@ -544,6 +558,12 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 		}
 		if (!empty($field['explanation_top']))
 			$out['td']['content'] .= '<p class="explanation">'.$field['explanation_top'].'</p>';
+
+		// dependencies?
+		if ($field_display === 'form' AND !empty($field['dependencies'])) {
+			$field = zz_xhr_dependencies($field, $my_fields);
+			zz_xhr_add('dependencies', $field);
+		}
 
 		// initalize class values
 		if (!isset($field['class'])) $field['class'] = [];
@@ -1897,7 +1917,7 @@ function zz_field_text($field, $display, $record, $dont_reformat = false) {
 	if ($field['type'] === 'mail') $fieldtype = 'email';
 	if ($field['type'] === 'url') $value = wrap_punycode_decode($value);
 	if ($field['type'] === 'text' AND !empty($field['sql'])) {
-		zz_xhr_select_add($field);
+		zz_xhr_add('selects', $field);
 	}
 	// 'url' in Opera does not support relative URLs
 	// elseif ($field['type'] === 'url') $fieldtype = 'url';
@@ -2472,7 +2492,7 @@ function zz_field_select_sql_too_long($field, $record, $detail_record, $id_field
 
 	$outputf = zz_form_element('zz_check_select[]', $field['select_field_name'], 'hidden');
 
-	zz_xhr_select_add($field);
+	zz_xhr_add('selects', $field);
 
 	// don't show select but text input instead
 	if ($detail_record) {
@@ -2496,29 +2516,62 @@ function zz_field_select_sql_too_long($field, $record, $detail_record, $id_field
 }
 
 /**
- * add a field to possible XHR selects
+ * add a field to possible XHR selects or dependencies
  *
  * @param array $field
  * @global array $zz_conf
  */
-function zz_xhr_select_add($field) {
+function zz_xhr_add($type, $field) {
 	global $zz_conf;
-
-	// for XHR request
-	if (empty($zz_conf['int']['selects']['url_self'])) {
-		$zz_conf['int']['selects']['url_self'] = $zz_conf['int']['url']['self']
-			.$zz_conf['int']['url']['qs']
-			.($zz_conf['int']['url']['qs_zzform']
-				? $zz_conf['int']['url']['qs_zzform'].'&'
-				: $zz_conf['int']['url']['?&']
-			);
-	}
-	$zz_conf['int']['selects'][] = [
+	$zz_conf['int'][$type][] = [
 		'field_no' => $field['field_no'],
 		'subtable_no' => $field['subtable_no'],
 		'field_id' => zz_make_id_fieldname($field['f_field_name']),
-		'url_self' => $zz_conf['int']['selects']['url_self']
+		'url_self' => zz_xhr_url_self(),
+		'destination_field_ids' => isset($field['destination_field_ids']) ? $field['destination_field_ids'] : [],
+		'source_field_ids' => isset($field['source_field_ids']) ? $field['source_field_ids'] : []
 	];
+}
+
+/**
+ * get own URL for XHR
+ *
+ * @global array $zz_conf
+ */
+function zz_xhr_url_self() {
+	global $zz_conf;
+	return $zz_conf['int']['url']['self']
+		.$zz_conf['int']['url']['qs']
+		.($zz_conf['int']['url']['qs_zzform']
+			? $zz_conf['int']['url']['qs_zzform'].'&'
+			: $zz_conf['int']['url']['?&']
+		);
+}
+
+/**
+ * get field IDs for XHR request for dependencies
+ *
+ * @param array $field
+ * @param array $fields
+ * @return array $field
+ */
+function zz_xhr_dependencies($field, $fields) {
+	foreach ($field['dependencies'] as $dependency) {
+		if (empty($fields[$dependency])) continue;
+		$field['destination_field_ids'][] = [
+			'field_id' => zz_make_id_fieldname($fields[$dependency]['f_field_name']),
+			'field_no' => $dependency
+		];
+	}
+	if (!empty($field['dependencies_sources'])) {
+		foreach ($field['dependencies_sources'] as $dependency) {
+			$field['source_field_ids'][] = [
+				'field_id' => zz_make_id_fieldname($fields[$dependency]['f_field_name']),
+				'field_no' => $dependency
+			];
+		}
+	}
+	return $field;
 }
 
 /**

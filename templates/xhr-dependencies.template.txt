@@ -1,0 +1,40 @@
+# Zugzwang Project
+# Template for querying dependecies via XHR, using vxJS library
+#
+# http://www.zugzwang.org/projects/zzform
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2017 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+# List of fields:
+# xhr_selects, { field_no, subtable_no, field_id, url_self,
+# destination_field_ids { field_id }, source_field_ids { field_id } }
+#
+%%% condition unless xhr_selects %%%
+<script type="text/javascript" src="%%% setting behaviour_path %%%/vxjs/src/core.js"></script>
+<script type="text/javascript" src="%%% setting behaviour_path %%%/vxjs/src/xhr.js"></script>
+%%% condition endif %%%
+
+<script type="text/javascript">
+%%% loop start %%%
+	vxJS.event.addListener(document.getElementById('%%% item field_id %%%'), 'blur', function() {
+		if (!this.value) return;
+		var xhr = vxJS.xhr({
+			command: 'zzform-dependencies',
+			uri: '%%% item url_self %%%field_no=%%% item field_no%%%%%% item subtable_no "&subtable_no=%s" %%%'
+		}, {
+	    	text: {%%% item field_no %%%: this.value%%% loop source_field_ids %%%, %%% item field_no %%%: document.getElementById('%%% item field_id %%%').value%%% loop end %%%}
+		}, null, {complete: function() {
+			if (this.response) {
+			%%% loop destination_field_ids %%%
+				if (this.response.%%% item field_id %%%) {
+				   document.getElementById('%%% item field_id %%%').value = this.response.%%% item field_id %%%;
+				}
+			%%% loop end %%%
+			}
+		}});
+		xhr.submit();
+	});
+%%% loop end %%%
+</script>
