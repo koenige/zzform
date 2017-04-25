@@ -2558,10 +2558,27 @@ function zz_xhr_url_self() {
 function zz_xhr_dependencies($field, $fields) {
 	foreach ($field['dependencies'] as $dependency) {
 		if (empty($fields[$dependency])) continue;
-		$field['destination_field_ids'][] = [
-			'field_id' => zz_make_id_fieldname($fields[$dependency]['f_field_name']),
-			'field_no' => $dependency
-		];
+		$field_id = zz_make_id_fieldname($fields[$dependency]['f_field_name']);
+		if (!empty($fields[$dependency]['enum'])) {
+			$field_ids = [];
+			foreach ($fields[$dependency]['enum'] as $index => $value) {
+				$field_ids[] = [
+					'field_id' => $field_id,
+					'sub_field_id' => sprintf('%s-%d', $field_id, $index + 1),
+					'value' => $value
+				];
+			}
+			$field['destination_field_ids'][] = [
+				'field_id' => $field_id,
+				'field_ids' => $field_ids,
+				'field_no' => $dependency
+			];
+		} else {
+			$field['destination_field_ids'][] = [
+				'field_id' => $field_id,
+				'field_no' => $dependency
+			];
+		}
 	}
 	if (!empty($field['dependencies_sources'])) {
 		foreach ($field['dependencies_sources'] as $dependency) {

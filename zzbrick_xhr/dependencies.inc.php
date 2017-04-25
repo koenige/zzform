@@ -52,7 +52,7 @@ function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 	if (empty($field['dependencies'])) return false; // would not make sense
 	$sources = [$_GET['field_no']];
 	if (!empty($field['dependencies_sources'])) {
-		$sources += $field['dependencies_sources'];
+		$sources = array_merge($sources, $field['dependencies_sources']);
 	}
 	$input = $xmlHttpRequest['text'];
 	foreach ($sources as $source) {
@@ -67,7 +67,7 @@ function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 		} else {
 			$my_field = $zz['fields'][$source];
 		}
-		if ($my_field['sql']) {
+		if (!empty($my_field['sql'])) {
 			$select = zz_check_select_id($my_field, $input[$source], $zz_conf['db_name'].'.'.$zz['table']);
 			if (empty($select['possible_values'])) return false;
 			if (count($select['possible_values']) !== 1) return false;
@@ -76,7 +76,10 @@ function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 			$values[] = $input[$source];
 		}
 	}
-	foreach ($field['dependencies'] as $dependency) {
+	if (!empty($field['dependencies_function'])) {
+		$values = $field['dependencies_function']($values);
+	}
+	foreach ($field['dependencies'] as $index => $dependency) {
 		if (!empty($subtable_no)) {
 			$my_field = $zz['fields'][$subtable_no]['fields'][$dependency];
 		} else {
@@ -86,8 +89,8 @@ function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 			$sql = vsprintf($my_field['sql_dependency'][$_GET['field_no']], $values);
 			$value = wrap_db_fetch($sql, '', 'single value');
 			if (!$value) continue;
-		} else {
-			$value = count($values) === 1 ? reset($values) : $values;
+		} elseif (count($values) === count($field['dependencies'])) {
+			$value = $values[$index];
 		}
 		// @todo with subtables!
 		$id_field_name = zz_make_id_fieldname($my_field['field_name']);
