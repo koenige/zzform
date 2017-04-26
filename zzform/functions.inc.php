@@ -2954,12 +2954,11 @@ function zz_get_subtable_fielddef($fields, $table) {
  * @param int $max_select = e. g. $zz_conf['max_select'], maximum entries in
  *		option-Field before we offer a blank text field to enter values
  * @param string $long_field_name // $table_name.'[]['.$field_name.']'
- * @param string $db_table
  * @global array $zz_conf
  * @return array $my_rec changed keys:
  *		'fields'[$f], 'POST', 'POST-notvalid', 'validation'
  */
-function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) {
+function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 	global $zz_conf;
 
 	// only for 'select'-fields with SQL query (not for enums neither for sets)
@@ -2995,7 +2994,7 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	$my_rec['fields'][$f] = zz_check_select_id(
-		$my_rec['fields'][$f], $my_rec['POST'][$field_name], $db_table, $my_rec['id']
+		$my_rec['fields'][$f], $my_rec['POST'][$field_name], $my_rec['id']
 	);
 	$possible_values = $my_rec['fields'][$f]['possible_values'];
 
@@ -3060,13 +3059,18 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name, $db_table) 
  * Query possible values from database for a given SQL query and a given value
  *
  * @param array $field
+ *		'sql', 'sql_fieldnames_ignore', 'concat_fields', 'show_hierarchy',
+ *		'show_hierarchy_same_table', 'show_hierarchy_subtree'
+ *	(for collation only:)
+ *		'search', 'display_field', 'field_name', 'character_set',
+ *		'sql_character_set', 'sql_table'
  * @param string $postvalue
- * @param string $db_table
- * @param array $id = $zz_tab[$tab][$rec]['id']
+ * @param array $id = $zz_tab[$tab][$rec]['id'] optional; for hierarchy in same table
  * @global array $zz_conf bool 'multi'
  * @return array $field
+ *		'possible_values', 'sql_fieldnames', 'sql_new'
  */
-function zz_check_select_id($field, $postvalue, $db_table, $id = array()) {
+function zz_check_select_id($field, $postvalue, $id = []) {
 	global $zz_conf;
 	
 	// 1. get field names from SQL query
@@ -3130,7 +3134,7 @@ function zz_check_select_id($field, $postvalue, $db_table, $id = array()) {
 				$collation = '';
 			} else {
 				$collation = zz_db_field_collation(
-					'reselect', $db_table, $field, $index
+					'reselect', false, $field, $index
 				);
 			}
 			if (!$wheresql) $wheresql .= '(';

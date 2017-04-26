@@ -16,14 +16,11 @@
  * return matching values for setlink
  *
  * @param array $xmlHttpRequest
- *		int limit
  *		string text
- *		int	echo
  * @param array $zz
  * @return array
  */
 function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
-	global $zz_conf;
 	zz_initialize();
 
 	$data = [];
@@ -68,7 +65,7 @@ function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 			$my_field = $zz['fields'][$source];
 		}
 		if (!empty($my_field['sql'])) {
-			$select = zz_check_select_id($my_field, $input[$source], $zz_conf['db_name'].'.'.$zz['table']);
+			$select = zz_check_select_id($my_field, $input[$source]);
 			if (empty($select['possible_values'])) return false;
 			if (count($select['possible_values']) !== 1) return false;
 			$values[] = reset($select['possible_values']);

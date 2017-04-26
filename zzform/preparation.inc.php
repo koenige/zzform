@@ -706,7 +706,6 @@ function zz_subrecord_unique($my_tab, $existing, $fields) {
 
 						$check = true;
 						$long_field_name = $my_tab['table'].'[]['.$field_name.']';
-						$db_table = $my_tab['db_name'].'.'.$my_tab['table'];
 						if (isset($_POST['zz_check_select'])) {
 							// ... unless explicitly said not to check
 							if (in_array($field_name, $_POST['zz_check_select']))
@@ -722,7 +721,7 @@ function zz_subrecord_unique($my_tab, $existing, $fields) {
 						} else {
 							$my_id_field['value'] = '';
 						}
-						$field = zz_check_select_id($field, $values[$field_name].' ', $db_table, $my_id_field);
+						$field = zz_check_select_id($field, $values[$field_name].' ', $my_id_field);
 						if (count($field['possible_values']) !== 1) continue;
 						$values[$field_name] = reset($field['possible_values']);
 					}
@@ -747,11 +746,10 @@ function zz_subrecord_unique($my_tab, $existing, $fields) {
 			if (empty($record[$field['field_name']])) continue;
 			if (!empty($record[$my_tab['id_field_name']])) continue;
 			if ($field['type'] === 'select') {
-				$db_table = $my_tab['db_name'].'.'.$my_tab['table'];
 				$my_id_field = $id_field;
 				$my_id_field['value'] = isset($record[$id_field['field_name']]) ? $record[$id_field['field_name']] : '';
 				$field = zz_check_select_id(
-					$field, $record[$field['field_name']], $db_table, $my_id_field
+					$field, $record[$field['field_name']], $my_id_field
 				);
 				if (count($field['possible_values']) === 1) {
 					$value = reset($field['possible_values']);

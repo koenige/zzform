@@ -535,7 +535,7 @@ function zz_geo_geocode_fields($list, $new, $zz_tab) {
 			$type = in_array($field['geocode'], array('latitude', 'longitude')) ? 'latlon' : 'source';
 			if (!array_key_exists($type, $geocoding))
 				$geocoding[$type] = array();
-			if (zz_geo_geocode_ignore($field, $my_fields, $new, $index, $zz_tab[$tabrec[0]]['db_name'].'.'.$zz_tab[$tabrec[0]]['table'])) {
+			if (zz_geo_geocode_ignore($field, $my_fields, $new, $index)) {
 				continue;
 			}
 			if (array_key_exists($field['geocode'], $geocoding[$type])) {
@@ -589,7 +589,7 @@ function zz_geo_geocode_address($geocoding, $zz_tab, $new) {
 				continue;
 			}
 			if (!is_numeric($value)) {
-				$values = zz_check_select_id($my_field, $value, $zz_tab[$f['tab']]['db_name'].'.'.$zz_tab[$f['tab']]['table']);
+				$values = zz_check_select_id($my_field, $value);
 				if (!empty($values['possible_values']) AND count($values['possible_values']) === 1) {
 					$value = reset($values['possible_values']);
 				} else {
@@ -616,10 +616,9 @@ function zz_geo_geocode_address($geocoding, $zz_tab, $new) {
  * @param array $fields list of fields of this record
  * @param array $new new record as in $ops['record_new']
  * @param int $index
- * @param string $db_table
  * @return bool
  */
-function zz_geo_geocode_ignore($field, $fields, $new, $index, $db_table) {
+function zz_geo_geocode_ignore($field, $fields, $new, $index) {
 	if (empty($field['geocode_ignore_if'])) return false;
 	reset($field['geocode_ignore_if']);
 	$ignore_field_name = key($field['geocode_ignore_if']);
@@ -629,7 +628,7 @@ function zz_geo_geocode_ignore($field, $fields, $new, $index, $db_table) {
 		if ($ignore_field['field_name'] !== $ignore_field_name) continue;
 		$value = $new[$index][$ignore_field_name];
 		if ($ignore_field['type'] === 'select' AND !is_numeric($value)) {
-			$p_values = zz_check_select_id($ignore_field, $value, $db_table);
+			$p_values = zz_check_select_id($ignore_field, $value);
 			if (!empty($p_values['possible_values']) AND count($p_values['possible_values']) === 1) {
 				$value = reset($p_values['possible_values']);
 			} else {
