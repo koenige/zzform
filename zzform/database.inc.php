@@ -77,10 +77,10 @@ function zz_sql_prefix($vars, $type = 'zz') {
 	if ($type === 'zz') {
 		array_walk_recursive($vars, 'zz_sql_prefix_change_zz');
 	} else {
-		$sql_fields = array(
+		$sql_fields = [
 			'logging_table', 'relations_table', 'text_table',
 			'translations_table', 'revisions_table', 'revisions_data_table'
-		);
+		];
 		foreach ($sql_fields as $config) {
 			if (empty($zz_conf[$config])) continue;
 			zz_sql_prefix_change($zz_conf[$config]);
@@ -149,14 +149,14 @@ function zz_sql_prefix_change_zz(&$item, $key) {
 	// $zz['filter'][n]['sql']
 	// $zz['filter'][n]['where']
 	// $zz['filter'][n]['sql_join']
-	$sql_fields = array(
+	$sql_fields = [
 		'sql', 'having', 'where', 'path_sql', 'search', 'search_between',
 		'set_sql', 'sqlorder', 'sql_not_unique', 'sql_password_check',
 		'upload_sql', 'options_sql', 'source_path_sql', 'table',
 		'id_field_name', 'display_field', 'key_field_name', 'order',
 		'foreign_key_field_name', 'sqlcount', 'sqlextra', 'geocode_sql',
 		'min_records_sql', 'max_records_sql', 'sqlrecord', 'sql_join'
-	);
+	];
 	if (in_array($key, $sql_fields)) return false;
 	if (function_exists('wrap_error')) {
 		wrap_error(sprintf('Table prefix for key %s (item %s) replaced'
@@ -239,11 +239,11 @@ function zz_db_connection($table) {
 	if (!empty($zz_conf['db_name'])) {
 		$db = zz_db_select($zz_conf['db_name']);
 		if (!$db) {
-			zz_error_log(array(
+			zz_error_log([
 				'db_msg' => mysqli_error($zz_conf['db_connection']),
 				'query' => 'SELECT DATABASE("'.$zz_conf['db_name'].'")',
 				'level' => E_USER_ERROR
-			));
+			]);
 			$zz_conf['db_name'] = '';
 			return false;
 		}
@@ -251,11 +251,11 @@ function zz_db_connection($table) {
 	} else {
 		$result = mysqli_query($zz_conf['db_connection'], 'SELECT DATABASE()');
 		if (mysqli_error($zz_conf['db_connection'])) {
-			zz_error_log(array(
+			zz_error_log([
 				'db_msg' => mysqli_error($zz_conf['db_connection']),
 				'query' => 'SELECT DATABASE()',
 				'level' => E_USER_ERROR
-			));
+			]);
 			return false;
 		}
 		mysqli_data_seek($result, 0);
@@ -273,11 +273,11 @@ function zz_db_connection($table) {
 			// no database selected, get one, quick!
 			$dbname = zz_db_select($db_name[1]);
 			if (!$dbname) {
-				zz_error_log(array(
+				zz_error_log([
 					'db_msg' => mysqli_error($zz_conf['db_connection']),
 					'query' => 'SELECT DATABASE("'.$db_name[1].'")',
 					'level' => E_USER_ERROR
-				));
+				]);
 				$zz_conf['db_name'] = '';
 				return false;
 			}
@@ -287,11 +287,11 @@ function zz_db_connection($table) {
 	}
 
 	if (empty($zz_conf['db_name'])) {
-		zz_error_log(array(
+		zz_error_log([
 			'msg_dev' => 'Please set the variable <code>$zz_conf[\'db_name\']</code>.'
 				.' It has to be set to the main database name used for zzform.',
 			'level' => E_USER_ERROR
-		));
+		]);
 		return false;
 	}
 	return $table;
@@ -315,8 +315,8 @@ function zz_db_connection($table) {
  *  hierarchical array for the returned array with both keys
  * @param string $format optional, currently implemented
  *  'count' = returns count of rows
- *	'id as key' = returns array($id_field_value => true)
- *	"key/value" = returns array($key => $value)
+ *	'id as key' = returns [$id_field_value => true]
+ *	"key/value" = returns [$key => $value]
  *	"single value" = returns $value
  *	"object" = returns object
  *	"numeric" = returns lines in numerical array [0 ... n] instead of using field ids
@@ -330,7 +330,7 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 	if (!empty($zz_conf['debug']) AND function_exists('wrap_error')) {
 		$time = microtime(true);
 	}
-	$lines = array();
+	$lines = [];
 	$error = false;
 	$result = mysqli_query($zz_conf['db_connection'], $sql);
 	if ($result) {
@@ -439,7 +439,7 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 			$current['function'] = '';
 		}
 		$msg_dev = 'Error in SQL query';
-		$msg_dev_args = array();
+		$msg_dev_args = [];
 		if (!empty($current['function'])) {
 			$msg_dev .= ' in function %s';
 			$msg_dev_args[] = $current['function'];
@@ -449,16 +449,16 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 			$msg_dev_args[] = $info;
 		}
 
-		zz_error_log(array(
+		zz_error_log([
 			'msg_dev' => $msg_dev,
 			'msg_dev_args' => $msg_dev_args,
 			'db_msg' => mysqli_error($zz_conf['db_connection']), 
 			'query' => $sql,
 			'level' => $error_type,
 			'status' => 503
-		));
+		]);
 		zz_error();
-		return array();
+		return [];
 	}
 	return $lines;
 }
@@ -472,7 +472,7 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
  * @return bool true = error_message; false: everything ok
  */
 function zz_db_field_in_query($line, $id_field_name, $count = 0) {
-	$missing_fields = array();
+	$missing_fields = [];
 	if (!$count)
 		if (!in_array($id_field_name, array_keys($line))) {
 			$missing_fields[] = $id_field_name;
@@ -506,7 +506,7 @@ function zz_db_change($sql, $id = false) {
 	}
 
 	// initialize $db
-	$db = array();
+	$db = [];
 	$db['action'] = 'nothing';
 
 	// write back ID value if it's there
@@ -516,19 +516,19 @@ function zz_db_change($sql, $id = false) {
 	
 	$statement = zz_db_statement($sql);
 	// check if statement is allowed
-	$allowed_statements = array(
+	$allowed_statements = [
 		'INSERT', 'DELETE', 'UPDATE', 'CREATE TABLE', 'ALTER TABLE'
-	);
-	$no_rows_affected = array(
+	];
+	$no_rows_affected = [
 		'CREATE TABLE', 'ALTER TABLE'
-	);
+	];
 	if (!in_array($statement, $allowed_statements)) {
 		$db['action'] = '';
-		$db['error'] = array(
+		$db['error'] = [
 			'query' => $sql,
 			'msg_dev' => 'Statement not supported: %s',
-			'msg_dev_args' => array($statement)
-		);
+			'msg_dev_args' => [$statement]
+		];
 		return $db;
 	}
 
@@ -558,21 +558,21 @@ function zz_db_change($sql, $id = false) {
 		}
 		$warnings = zz_db_fetch('SHOW WARNINGS', '_dummy_', 'numeric');
 		foreach ($warnings as $warning) {
-			zz_error_log(array(
+			zz_error_log([
 				'msg_dev' => 'MySQL reports a problem.',
 				'query' => $sql,
 				'db_msg' => $warning['Level'].': '.$warning['Message'],
 				'level' => E_USER_WARNING
-			));
+			]);
 		}
 	} else { 
 		// something went wrong, but why?
 		$db['action'] = '';
-		$db['error'] = array(
+		$db['error'] = [
 			'query' => $sql,
 			'db_msg' => mysqli_error($zz_conf['db_connection']),
 			'db_errno' => mysqli_errno($zz_conf['db_connection'])
-		);
+		];
 	}
 	if (!empty($zz_conf['debug']) AND function_exists('wrap_error')) {
 		// @todo: check if it's easier to do it with zz_error()
@@ -628,10 +628,10 @@ function zz_db_field_maxlength($field, $type, $db_table) {
 	if (!$field) return false;
 	// just if it's a field with a field_name
 	// for some field types it makes no sense to check for maxlength
-	$dont_check = array(
+	$dont_check = [
 		'image', 'display', 'timestamp', 'hidden', 'foreign_key', 'select',
 		'id', 'date', 'time', 'option'
-	);
+	];
 	if (in_array($type, $dont_check)) return false;
 
 	global $zz_conf;
@@ -656,7 +656,7 @@ function zz_db_field_maxlength($field, $type, $db_table) {
  */
 function zz_db_columns($db_table, $field = false) {
 	static $columns;
-	if (!$db_table) return array();
+	if (!$db_table) return [];
 	if (!isset($columns[$db_table])) {
 		$sql = 'SHOW FULL COLUMNS FROM '.zz_db_table_backticks($db_table);
 		$columns[$db_table] = zz_db_fetch($sql, 'Field', false, false, E_USER_WARNING);
@@ -724,7 +724,7 @@ function zz_db_field_null($field, $db_table) {
  * @param int $index (optional, for reselect and xhr)
  * @return string
  */
-function zz_db_field_collation($type, $table = '', $field, $index = 0) {
+function zz_db_field_collation($type, $db_table = '', $field, $index = 0) {
 	global $zz_conf;
 	if (empty($zz_conf['character_set_db_multiple'])) return '';
 	
@@ -741,7 +741,7 @@ function zz_db_field_collation($type, $table = '', $field, $index = 0) {
 		}
 		$error_msg = ' This field will be excluded from search.';
 		if (isset($field['character_set'])) $charset = $field['character_set'];
-		$tables[] = $table;
+		$tables[] = $db_table;
 		break;
 	case 'reselect':
 	case 'xhr':
@@ -754,7 +754,7 @@ function zz_db_field_collation($type, $table = '', $field, $index = 0) {
 		if (isset($field['sql_character_set']) AND
 			isset($field['sql_character_set'][$index])) {
 			$charset = $field['sql_character_set'][$index];
-			$tables = array();
+			$tables = [];
 		} elseif (isset($field['sql_table']) AND
 			isset($field['sql_table'][$index])) {
 			$tables[] = $field['sql_table'][$index];
@@ -769,7 +769,7 @@ function zz_db_field_collation($type, $table = '', $field, $index = 0) {
 	}
 
 	if (!$charset) {
-		$db_tables = array();
+		$db_tables = [];
 		// get db table
 		// check collate fieldname, might be unusable, but only if not some
 		// function (e. g. CONCAT()) is in the way
@@ -789,7 +789,7 @@ function zz_db_field_collation($type, $table = '', $field, $index = 0) {
 				// more than four dots. this will appear as error below
 				break;
 			}
-			if (strstr($db_tables[0], '(')) $db_tables = array();
+			if (strstr($db_tables[0], '(')) $db_tables = [];
 		} else {
 			foreach ($tables as $index => $table) {
 				$table = trim($table);
@@ -797,11 +797,11 @@ function zz_db_field_collation($type, $table = '', $field, $index = 0) {
 				else $db_tables[] = $zz_conf['db_name'].'.'.$table;
 			}
 		}
-		$cols = array();
+		$cols = [];
 		$collate_fieldname = trim($collate_fieldname);
-		foreach ($db_tables as $db_table) {
-			$db_table = wrap_db_prefix($db_table);
-			$cols = zz_db_columns($db_table, $collate_fieldname);
+		foreach ($db_tables as $table) {
+			$table = wrap_db_prefix($table);
+			$cols = zz_db_columns($table, $collate_fieldname);
 			// check all tables if field exists, write first match in $cols
 			if ($cols) break;
 		}
@@ -809,11 +809,11 @@ function zz_db_field_collation($type, $table = '', $field, $index = 0) {
 		// column is not in db, we cannot check the collation, therefore we
 		// better exclude this field from search
 		if (!$cols OR !in_array('Collation', array_keys($cols))) {
-			zz_error_log(array(
+			zz_error_log([
 				'msg_dev' => 'Cannot get character set information for %s.%s. %s',
-				'msg_dev_args' => array($db_table, $collate_fieldname, $error_msg),
+				'msg_dev_args' => [$db_table, $collate_fieldname, $error_msg],
 				'level' => E_USER_NOTICE
-			));
+			]);
 			return NULL;
 		}
 		$charset = substr($cols['Collation'], 0, strpos($cols['Collation'], '_'));
@@ -890,9 +890,9 @@ function zz_db_charset($character_set) {
  */
 function zz_db_numeric_field($db_table, $field_name) {
 	$fielddef = zz_db_columns($db_table, $field_name);
-	$numeric_types = array(
+	$numeric_types = [
 		'int', 'tinyint', 'smallint', 'mediumint', 'bigint', 'decimal', 'float'
-	);
+	];
 	foreach ($numeric_types as $type) {
 		if (substr($fielddef['Type'], 0, strlen($type) + 1) === $type.'(') {
 			return true;
