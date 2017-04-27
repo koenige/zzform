@@ -158,10 +158,13 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 
 	// hook, if any other action before insertion/update/delete is required
 	list($ops, $zz_tab) = zz_action_hook($ops, $zz_tab, 'before_'.$zz_var['action'], 'planned');
+	if (!empty($ops['no_validation'])) $validation = false;
 
 	if (zz_error_exit()) { // repeat, might be set in before_action
 		zz_error_exit(false);
 		$validation = false;
+	}
+	if (!$validation) {
 		// delete temporary unused files
 		if (!empty($zz_var['upload_form'])) zz_upload_cleanup($zz_tab); 
 		return zz_return(array($ops, $zz_tab, $validation));
@@ -762,6 +765,11 @@ function zz_action_change($ops, $zz_tab, $change) {
 	// output?
 	if (!empty($change['output'])) {
 		$ops['output'] .= $change['output'];
+	}
+
+	// invalid?
+	if (!empty($change['no_validation'])) {
+		$ops['no_validation'] = true;
 	}
 	
 	// record? replace values as needed
