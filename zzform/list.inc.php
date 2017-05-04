@@ -936,6 +936,8 @@ function zz_list_filter_sql($filters, $sql, &$filter_params) {
 				$sql = wrap_edit_sql($sql, 'WHERE', 'ISNULL('.$filter['where'].')');
 			} elseif ($filter_value === '!NULL') {
 				$sql = wrap_edit_sql($sql, 'WHERE', '!ISNULL('.$filter['where'].')');
+			} elseif (strstr($filter['where'], '%s')) {
+				$sql = wrap_edit_sql($sql, 'WHERE', sprintf($filter['where'], $filter_value));
 			} else {
 				// allow ! as a symbol (may be escaped by \)
 				// for !=
