@@ -1385,7 +1385,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 	} else {
 		$idval = $zz_var['id']['value'];
 	}
-	echo '<br>'.$zz_conf['int']['secret_key'] = sha1($zz_conf['int']['hash'].$idval);
+	$zz_conf['int']['secret_key'] = sha1($zz_conf['int']['hash'].$idval);
 
 	// if conditions in $zz_conf['if'] -- check them
 	// get conditions if there are any, for access
