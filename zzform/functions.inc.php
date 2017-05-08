@@ -1060,7 +1060,8 @@ function zz_hash($zz, $zz_conf) {
 		'show_list_while_edit', 'search', 'referer_text', 'html_autofocus',
 		'icc_profiles', 'hooks_dir', 'error_mail_parameters',
 		'error_mail_parameters', 'error_log_post', 'upload_log',
-		'error_mail_to', 'error_mail_from', 'log_errors', 'debug_upload'
+		'error_mail_to', 'error_mail_from', 'log_errors', 'debug_upload',
+		'db_connection'
 	);
 	foreach ($uninteresting_zz_conf_keys as $key) unset($zz_conf[$key]);
 	$uninteresting_zz_keys = array(
@@ -1384,7 +1385,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 	} else {
 		$idval = $zz_var['id']['value'];
 	}
-	$zz_conf['int']['secret_key'] = sha1($zz_conf['int']['hash'].$idval);
+	echo '<br>'.$zz_conf['int']['secret_key'] = sha1($zz_conf['int']['hash'].$idval);
 
 	// if conditions in $zz_conf['if'] -- check them
 	// get conditions if there are any, for access
