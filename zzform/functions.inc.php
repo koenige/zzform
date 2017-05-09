@@ -345,7 +345,9 @@ function zz_get_where_conditions($zz, $zz_var) {
 
 	// ADD: overwrite write_once with values, in case there are identical fields
 	$add = zz_check_get_array('add', 'field_name', array(), false);
-	if (!$add AND !empty($_POST['zz_fields']) AND $_POST['zz_action'] === 'insert' AND !empty($zz['add'])) {
+	if (!$add AND !empty($_POST['zz_fields'])
+		AND (empty($_POST['zz_action']) OR $_POST['zz_action'] === 'insert') // empty => coming from 'details'
+		AND !empty($zz['add'])) {
 		$error_fieldname = '';
 		foreach ($zz['add'] as $addwhere) {
 			if (!array_key_exists($addwhere['field_name'], $_POST['zz_fields'])) continue;
