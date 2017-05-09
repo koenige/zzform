@@ -6,7 +6,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2010 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2014, 2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -23,8 +23,7 @@ menu, #menu, .noprint
 #zzform #back-overview
 					{ display: none; }
 #zzform .add-new	{ display: none; }
-#zzform .where, #zzform .pages
-					{ display: none; }
+#zzform .pages		{ display: none; }
 #zzform .zzsearch	{ display: none; }
 #zzform .zzfilter dd
 					{ border: none; margin: 0; padding: 0; }
