@@ -1870,7 +1870,7 @@ function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec 
 		} elseif (substr($pkey, 0, 6) === 'string') {
 			$p .= $pvalue;
 		} elseif (substr($pkey, 0, 5) === 'field' OR $pkey === 'extension') {
-			$content = (!empty($line[$pvalue]) OR $line[$pvalue] === '0') ? $line[$pvalue] : '';
+			$content = (!empty($line[$pvalue]) OR (isset($line[$pvalue]) AND $line[$pvalue] === '0')) ? $line[$pvalue] : '';
 			if (!$content AND $content !== '0' AND $record === 'new') {
 				$content = zz_get_record(
 					$pvalue, $my_tab['sql'], $my_tab[$rec]['id']['value'], 
