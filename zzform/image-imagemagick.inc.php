@@ -86,6 +86,17 @@ function zz_imagick_identify($filename, $file) {
 	}
 	if ($result === 'aborting...') return zz_return($file);
 	if (count($output)) {
+		// remove some warnings
+		$removes = [];
+		$removes[] = 'identify: unknown image property "%[profile:icc]"'; // no ICC profile = ok
+		foreach ($output as $index => $line) {
+		 	foreach ($removes as $remove) {
+		 		if (substr($line, 0, strlen($remove)) !== $remove) continue;
+		 		unset($output[$index]);
+		 	}
+		}
+	}
+	if (count($output)) {
 		// e. g.  '   **** Warning:', 'GPL Ghostscript:'
 		$file['warnings']['ImageMagick identify'] = $output;
 	}
