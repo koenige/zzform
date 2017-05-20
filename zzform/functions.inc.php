@@ -1050,7 +1050,7 @@ function zz_hash($zz, $zz_conf) {
 	// get rid of varying and internal settings
 	// get rid of configuration settings which are not important for
 	// the definition of the database table(s)
-	$uninteresting_zz_conf_keys = array(
+	$uninteresting_zz_conf_keys = [
 		'zzform_calls', 'int', 'id', 'footer_text', 
 		'breadcrumbs', 'dont_show_title_as_breadcrumb', 'error_handling',
 		'error_log', 'format', 'group_html_table', 'list_display',
@@ -1063,12 +1063,12 @@ function zz_hash($zz, $zz_conf) {
 		'icc_profiles', 'hooks_dir', 'error_mail_parameters',
 		'error_mail_parameters', 'error_log_post', 'upload_log',
 		'error_mail_to', 'error_mail_from', 'log_errors', 'debug_upload',
-		'db_connection'
+		'debug', 'db_connection'
 	);
 	foreach ($uninteresting_zz_conf_keys as $key) unset($zz_conf[$key]);
-	$uninteresting_zz_keys = array(
+	$uninteresting_zz_keys = [
 		'title', 'explanation', 'explanation_top', 'subtitle', 'list'
-	);
+	];
 	foreach ($uninteresting_zz_keys as $key) unset($zz[$key]);
 	foreach ($zz['fields'] as $no => $field) {
 		// defaults might change, e. g. dates
