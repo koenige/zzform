@@ -1064,7 +1064,7 @@ function zz_hash($zz, $zz_conf) {
 		'error_mail_parameters', 'error_log_post', 'upload_log',
 		'error_mail_to', 'error_mail_from', 'log_errors', 'debug_upload',
 		'debug', 'db_connection'
-	);
+	];
 	foreach ($uninteresting_zz_conf_keys as $key) unset($zz_conf[$key]);
 	$uninteresting_zz_keys = [
 		'title', 'explanation', 'explanation_top', 'subtitle', 'list'
