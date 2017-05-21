@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2016 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -22,7 +22,7 @@
  */
 function zz_export_config() {
 	$conf['int']['allowed_params']['mode'][] = 'export';
-	$conf['int']['allowed_params']['export'] = array('csv', 'csv-excel', 'pdf', 'kml');
+	$conf['int']['allowed_params']['export'] = ['csv', 'pdf', 'kml'];
 	zz_write_conf($conf, true);
 
 	// whether sql result might be exported 
@@ -57,19 +57,19 @@ function zz_export_init($ops) {
 	if (empty($_GET['export'])) return $ops;
 
 	// no edit modes allowed
-	$unwanted_keys = array(
+	$unwanted_keys = [
 		'mode', 'id', 'source_id', 'show', 'edit', 'add', 'delete', 'insert',
 		'update', 'revise'
-	);
+	];
 	foreach ($unwanted_keys as $key) {
 		if (!isset($_GET[$key])) continue;
 		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
-		zz_error_log(array(
+		zz_error_log([
 			'msg' => 'Please don’t mess with the URL parameters. <code>%s</code> is not allowed here.',
-			'msg_args' => array($key),
+			'msg_args' => [$key],
 			'level' => E_USER_NOTICE,
 			'status' => 404
-		));
+		]);
 		$ops['mode'] = false;
 		return $ops;
 	}
@@ -83,12 +83,15 @@ function zz_export_init($ops) {
 	// get type and (optional) script name
 	$export = false;
 	if (!is_array($zz_conf['export'])) {
-		$zz_conf['export'] = array($zz_conf['export']);
+		$zz_conf['export'] = [$zz_conf['export']];
 	}
 	foreach ($zz_conf['export'] as $type => $mode) {
 		$mode = zz_export_identifier($mode);
 		if ($_GET['export'] !== $mode) continue;
-		if (is_numeric($type)) {
+		if ($pos = strpos($mode, '-') AND $mode !== 'csv-excel') {
+			$export = substr($mode, 0, $pos);
+			$zz_conf['int']['export_script'] = substr($mode, $pos + 1);
+		} elseif (is_numeric($type)) {
 			$export = $mode;
 			$zz_conf['int']['export_script'] = '';
 		} else {
@@ -96,14 +99,15 @@ function zz_export_init($ops) {
 			$zz_conf['int']['export_script'] = $mode;
 		}
 	}
-	if (!in_array($export, $zz_conf['int']['allowed_params']['export'])) {
-		zz_error_log(array(
+	$export_param = strpos($export, '-') ? substr($export, 0, strpos($export, '-')) : $export;
+	if (!in_array($export_param, $zz_conf['int']['allowed_params']['export'])) {
+		zz_error_log([
 			'msg_dev' => 'Export parameter not allowed: `%s`',
-			'msg_dev_args' => array($export ? $export : zz_htmltag_escape($_GET['export'])),
+			'msg_dev_args' => [$export ? $export : zz_htmltag_escape($_GET['export'])],
 			'level' => E_USER_NOTICE,
 			'status' => 404
-		));
-		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], array('export'));
+		]);
+		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], ['export']);
 		$ops['mode'] = false;
 		return $ops;
 	}
@@ -111,7 +115,7 @@ function zz_export_init($ops) {
 	$ops['mode'] = 'export';
 	$zz_conf['list_display'] = $export;
 
-	switch ($export) {
+	switch ($export_param) {
 	case 'kml':
 		// always use UTF-8
 		zz_db_charset('UTF8');
@@ -121,15 +125,16 @@ function zz_export_init($ops) {
 			$zz_conf['int']['this_limit'] = false; 
 		}
 		break;
-	case 'csv-excel':
-		$character_encoding = 'utf-16le'; // Excel for Win and Mac platforms
 	case 'csv':
 	case 'pdf':
+		if ($export === 'csv-excel') {
+			$character_encoding = 'utf-16le'; // Excel for Win and Mac platforms
+		}
 		// always export all records
 		$zz_conf['int']['this_limit'] = false;
 		break;
 	}
-	$ops['headers'] = zz_export_headers($export, $character_encoding);
+	$ops['headers'] = zz_export_headers($export_param, $character_encoding);
 
 	return $ops;
 }
@@ -156,12 +161,11 @@ function zz_export_identifier($mode) {
  */
 function zz_export_headers($export, $charset) {
 	global $zz_conf;
-	$headers = array();
+	$headers = [];
 	$filename = basename($zz_conf['int']['url']['self']);
 
 	switch ($export) {
 	case 'csv':
-	case 'csv-excel':
 		// correct download of csv files
 		if (!empty($_SERVER['HTTP_USER_AGENT']) 
 			AND strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE'))
@@ -199,7 +203,7 @@ function zz_export_links($url, $querystring) {
 	$html = '<a href="%sexport=%s%s">'.zz_text('Export').' (%s)</a>';
 	
 	// remove some querystrings which have no effect anyways
-	$unwanted_querystrings = array('nolist', 'debug', 'referer', 'limit', 'order', 'dir');
+	$unwanted_querystrings = ['nolist', 'debug', 'referer', 'limit', 'order', 'dir'];
 	$qs = zz_edit_query_string($querystring, $unwanted_querystrings);
 	if (substr($qs, 1)) {
 		$qs = '&amp;'.substr($qs, 1);
@@ -208,7 +212,7 @@ function zz_export_links($url, $querystring) {
 	}
 
 	if (!is_array($zz_conf['export']))
-		$zz_conf['export'] = array($zz_conf['export']);
+		$zz_conf['export'] = [$zz_conf['export']];
 	foreach ($zz_conf['export'] as $type => $mode) {
 		if (is_numeric($type)) $type = $mode;
 		else $type = $mode.', '.$type;
@@ -293,17 +297,17 @@ function zz_export_kml($ops, $zz, $zz_var) {
 	
 	$kml['title'] = utf8_encode(zz_nice_title($ops['heading'], $ops['output']['head'], $zz_var));
 	$kml['description'] = zz_format($zz['explanation']);
-	$kml['styles'] = array();
-	$kml['placemarks'] = array();
+	$kml['styles'] = [];
+	$kml['placemarks'] = [];
 	
 	if (empty($zz_setting['kml_styles'])) {
 		if (empty($zz_setting['kml_default_dot'])) {
 			$zz_setting['kml_default_dot'] = $zz_setting['layout_path'].'/map/blue-dot.png';
 		}
-		$kml['styles'][] = array(
+		$kml['styles'][] = [
 			'id' => 'default',
 			'href' => $zz_setting['kml_default_dot']
-		);
+		];
 	} else {
 		$kml['styles'] = $zz_setting['kml_styles'];
 	}
@@ -317,7 +321,7 @@ function zz_export_kml($ops, $zz, $zz_var) {
 	foreach ($ops['output']['rows'] as $line) {
 		$latitude = '';
 		$longitude = '';
-		$extended_data = array();
+		$extended_data = [];
 		if (!empty($fields['point'])) {
 			$point = $line[$fields['point']]['value'];
 			$point = zz_geo_coord_sql_out($point, 'dec', ' ');
@@ -332,16 +336,16 @@ function zz_export_kml($ops, $zz, $zz_var) {
 		}
 		foreach ($ops['output']['head'] as $index => $field) {
 			if (empty($field['kml_extendeddata'])) continue;
-			$extended_data[] = array(
+			$extended_data[] = [
 				'field_name' => $field['field_name'],
 				'title' => $field['title'],
 				'value' => $line[$index]['text']
-			);
+			];
 		}
 		$title = $line[$fields['title']]['text'];
 		$title = strip_tags($title);
 		$title = str_replace('&', '&amp;', $title);
-		$kml['placemarks'][] = array(
+		$kml['placemarks'][] = [
 			'title' => $title,
 			'description' => zz_export_kml_description($ops['output']['head'], $line, $fields),
 			'longitude' => $longitude,
@@ -349,7 +353,7 @@ function zz_export_kml($ops, $zz, $zz_var) {
 			'altitude' => (isset($fields['altitude']) ? $line[$fields['altitude']]['value'] : ''),
 			'style' => (isset($fields['style']) ? $line[$fields['style']]['text'] : 'default'),
 			'extended_data' => $extended_data ? $extended_data : NULL
-		);
+		];
 	}
 	$output = wrap_template('kml-coordinates', $kml);
 	return $output;
@@ -365,15 +369,17 @@ function zz_export_kml($ops, $zz, $zz_var) {
  */
 function zz_export_kml_description($head, $line, $fields) {
 	global $zz_conf;
-	$set = array('title', 'longitude', 'latitude', 'altitude', 'point', 'style',
-		'description');
+	$set = [
+		'title', 'longitude', 'latitude', 'altitude', 'point', 'style',
+		'description'
+	];
 	$description = '';
 	foreach ($set as $field) {
 		if (!isset($fields[$field])) continue;
 		if ($field === 'description') $description = $line[$fields[$field]]['text'];
 		unset($line[$fields[$field]]);
 	}
-	$desc = array();
+	$desc = [];
 	foreach ($line as $no => $values) {
 		if (!is_numeric($no)) continue;
 		if (empty($values['text'])) continue;
