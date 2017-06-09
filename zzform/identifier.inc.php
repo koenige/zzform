@@ -184,7 +184,31 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 	}
 	if (!empty($conf['function'])) {
 		if (!empty($conf['function_parameter'])) {
-			$idf = $conf['function']($conf['function_parameter']);
+			if (is_array($conf['function_parameter'])) {
+				switch (count($conf['function_parameter'])) {
+				case 2:
+					$idf = $conf['function']($conf['function_parameter'][0]
+						, $conf['function_parameter'][1]
+					);
+					break;
+				case 3:
+					$idf = $conf['function']($conf['function_parameter'][0]
+						, $conf['function_parameter'][1]
+						, $conf['function_parameter'][2]
+					);
+					break;
+				case 4:
+					$idf = $conf['function']($conf['function_parameter'][0]
+						, $conf['function_parameter'][1]
+						, $conf['function_parameter'][2]
+						, $conf['function_parameter'][3]
+					);
+					break;
+				}
+				
+			} else {
+				$idf = $conf['function']($conf['function_parameter']);
+			}
 		} else {
 			$idf = $conf['function']($idf);
 		}
