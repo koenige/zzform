@@ -532,6 +532,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 		
 		if ($field['type'] === 'subtable') {
 			$field_display = !empty($field['access']) ? $field['access'] : $display;
+			if ($field_display === 'all') $field_display = 'form';
 			if (empty($field['form_display'])) $field['form_display'] = 'vertical';
 			if (!empty($field['hierarchy'])) $field['form_display'] = 'horizontal';
 		} else {
