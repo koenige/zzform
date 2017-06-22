@@ -916,6 +916,21 @@ function zz_list_filter_sql($filters, $sql, &$filter_params) {
 
 	foreach ($filters AS $filter) {
 		if (!in_array($filter['identifier'], array_keys($filter_params))) continue;
+		$filter_value = $filter_params[$filter['identifier']];
+
+		// where_if-Filter?
+		if (!empty($filter['where_if'])) {
+			if (!array_key_exists($filter_value, $filter['where_if'])) {
+				zz_list_filter_invalid_value($filter, $filter_value);
+				// remove invalid filter
+				unset($filter_params[$filter['identifier']]);
+				continue;
+			}
+			$sql = wrap_edit_sql($sql, 'WHERE', $filter['where_if'][$filter_value]);
+			continue;
+		}
+		
+		// where-Filter?
 		if (empty($filter['where'])) continue;
 		if (!isset($filter['default_selection'])) $filter['default_selection'] = '';
 		$old_sql = $sql;
@@ -924,14 +939,12 @@ function zz_list_filter_sql($filters, $sql, &$filter_params) {
 		}
 		
 		if ($filter['type'] === 'show_hierarchy'
-			AND false !== zz_in_array_str($filter_params[$filter['identifier']], array_keys($filter['selection']))
+			AND false !== zz_in_array_str($filter_value, array_keys($filter['selection']))
 		) {
-			$filter_value = $filter_params[$filter['identifier']];
 			$sql = wrap_edit_sql($sql, 'WHERE', $filter['where'].' = "'.$filter_value.'"');
-		} elseif (false !== zz_in_array_str($filter_params[$filter['identifier']], array_keys($filter['selection']))
+		} elseif (false !== zz_in_array_str($filter_value, array_keys($filter['selection']))
 			AND $filter['type'] === 'list') {
 			// it's a valid filter, so apply it.
-			$filter_value = $filter_params[$filter['identifier']];
 			if ($filter_value === 'NULL') {
 				$sql = wrap_edit_sql($sql, 'WHERE', 'ISNULL('.$filter['where'].')');
 			} elseif ($filter_value === '!NULL') {
@@ -953,26 +966,26 @@ function zz_list_filter_sql($filters, $sql, &$filter_params) {
 		} elseif ($filter['type'] === 'function') {
 			$records = zz_filter_function($filter, $sql);
 			foreach ($records['all'] as $record_id) {
-				if ($filter_params[$filter['identifier']] AND in_array($record_id, $records['unset'])) {
+				if ($filter_value AND in_array($record_id, $records['unset'])) {
 					unset($records['all'][$record_id]);
-				} elseif (!$filter_params[$filter['identifier']] AND !in_array($record_id, $records['unset'])) {
+				} elseif (!$filter_value AND !in_array($record_id, $records['unset'])) {
 					unset($records['all'][$record_id]);
 				}
 			}
 			$sql = wrap_edit_sql($sql, 'WHERE', sprintf('%s IN (%s)', $filter['where'], implode(',', $records['all'])));
-		} elseif ($filter_params[$filter['identifier']] === '0' AND $filter['default_selection'] !== '0'
+		} elseif ($filter_value === '0' AND $filter['default_selection'] !== '0'
 			AND $filter['default_selection'] !== 0) {
 			// do nothing
 		} elseif ($filter['type'] === 'list' AND is_array($filter['where'])) {
 			// valid filter with several wheres
-			$wheres = array();
+			$wheres = [];
 			foreach ($filter['where'] AS $filter_where) {
-				if ($filter_params[$filter['identifier']] === 'NULL') {
+				if ($filter_value === 'NULL') {
 					$wheres[] = 'ISNULL('.$filter_where.')';
-				} elseif ($filter_params[$filter['identifier']] === '!NULL') {
+				} elseif ($filter_value === '!NULL') {
 					$wheres[] = '!ISNULL('.$filter_where.')';
 				} else {
-					$wheres[] = $filter_where.' = "'.$filter_params[$filter['identifier']].'"';
+					$wheres[] = $filter_where.' = "'.$filter_value.'"';
 				}
 			}
 			$sql = wrap_edit_sql($sql, 'WHERE', implode(' OR ', $wheres));
@@ -981,29 +994,43 @@ function zz_list_filter_sql($filters, $sql, &$filter_params) {
 			if (empty($filter['like'])) {
 				$filter['like'] = '%%%s%%';
 			}
-			$like = sprintf($filter['like'], $filter_params[$filter['identifier']]);
+			$like = sprintf($filter['like'], $filter_value);
 			$sql = wrap_edit_sql($sql, 'WHERE', $filter['where'].' LIKE "'.$like.'"');
 		} else {
 			// invalid filter value, show list without filter
 			$sql = $old_sql;
-			if (empty($filter['ignore_invalid_filters'])) {
-				$zz_conf['int']['http_status'] = 404;
-				$zz_conf['int']['error_type'] = E_USER_NOTICE;
-				zz_error_log(array(
-					'msg' => '“%s” is not a valid value for the selection “%s”. Please select a different filter.', 
-					'msg_args' => array(zz_htmltag_escape($filter_params[$filter['identifier']]), $filter['title']),
-					'level' => E_USER_NOTICE
-				));
-			}
-			// remove invalid filter from query string
+			zz_list_filter_invalid_value($filter, $filter_value);
+			// remove invalid filter
 			unset($filter_params[$filter['identifier']]);
-			// remove invalid filter from internal query string
-			$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string(
-				$zz_conf['int']['url']['qs_zzform'], sprintf('filter[%s]', $filter['identifier'])
-			);
 		}
 	}
 	return $sql;
+}
+
+/**
+ * log if a filter has an invalid value
+ * edit internal query string to remove that invalid value
+ *
+ * @param array $filter
+ * @param string $value
+ * @return void
+ */
+function zz_list_filter_invalid_value($filter, $value) {
+	global $zz_conf;
+
+	if (empty($filter['ignore_invalid_filters'])) {
+		$zz_conf['int']['http_status'] = 404;
+		$zz_conf['int']['error_type'] = E_USER_NOTICE;
+		zz_error_log([
+			'msg' => '“%s” is not a valid value for the selection “%s”. Please select a different filter.', 
+			'msg_args' => [zz_htmltag_escape($value), $filter['title']],
+			'level' => E_USER_NOTICE
+		]);
+	}
+	// remove invalid filter from internal query string
+	$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string(
+		$zz_conf['int']['url']['qs_zzform'], sprintf('filter[%s]', $filter['identifier'])
+	);
 }
 
 /**
