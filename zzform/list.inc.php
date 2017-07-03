@@ -2559,7 +2559,7 @@ function zz_list_ul($list, $rows) {
  */
 function zz_list_syndication_get($field, $line) {
 	global $zz_setting;
-	require_once $zz_setting['lib'].'/zzwrap/syndication.inc.php';
+	require_once $zz_setting['core'].'/syndication.inc.php';
 
 	$img = zz_makelink($field['path_json_request'], $line);
 	$img = wrap_syndication_get($img);

@@ -2138,7 +2138,7 @@ function zz_upload_background($id, $no, $img) {
 	$data['thumbnails'] = 1;
 	$pwd = sprintf('%s:%s', $zz_conf['user'], wrap_password_token());
 	
-	require_once $zz_setting['lib'].'/zzwrap/syndication.inc.php';
+	require_once $zz_setting['core'].'/syndication.inc.php';
 	$result = wrap_syndication_retrieve_via_http($url, $headers, $method, $data, $pwd);
 }
 

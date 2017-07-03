@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2011, 2015-2016 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2011, 2015-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -43,21 +43,21 @@ function zz_geo_coord_in($value, $orientation = 'lat', $precision = 0) {
 	$value = preg_replace('~&[^;]+;~', ' ', $value); 
 
 	// set possible values for hemisphere
-	$hemispheres['lat'] = array('N' => '+', 'S' => '-',
-		zz_text('N') => '+', zz_text('S') => '-');
-	$hemispheres['lon'] = array('E' => '+', 'W' => '-',
-		zz_text('E') => '+', zz_text('W') => '-');
+	$hemispheres['lat'] = ['N' => '+', 'S' => '-',
+		zz_text('N') => '+', zz_text('S') => '-'];
+	$hemispheres['lon'] = ['E' => '+', 'W' => '-',
+		zz_text('E') => '+', zz_text('W') => '-'];
 	$hemisphere = '';
 
 	// set some values depending on orientation
 	$possible_hemispheres = $hemispheres[$orientation];
 	if ($orientation == 'lat') {
-		$degree_max = array(-90, 90);
+		$degree_max = [-90, 90];
 		$degree_convert = false;
 		$other_orientation = 'lon';
 	} else {
-		$degree_max = array(-360, 360);
-		$degree_convert = array(-180, 180);
+		$degree_max = [-360, 360];
+		$degree_convert = [-180, 180];
 		$other_orientation = 'lat';
 	}
 
@@ -277,7 +277,7 @@ function zz_decimal($number) {
  */
 function zz_geo_orientation($orientation) {
 	// test orientation
-	$orientations = array('latitude' => 'lat', 'longitude' => 'lon');
+	$orientations = ['latitude' => 'lat', 'longitude' => 'lon'];
 	if (in_array($orientation, array_keys($orientations))) {
 		return $orientations[$orientation];
 	} elseif (!in_array($orientation, $orientations)) {
@@ -330,7 +330,7 @@ function zz_geo_coords_from_exif($value, $which) {
 	// string: use function zz_geo_coord_in()
 	if (!is_array($value)) return zz_geo_coord_in($value, substr($which, 0, 3));
 
-	$my = array('value' => false, 'error' => false);
+	$my = ['value' => false, 'error' => false];
 	$field = sprintf('GPS%s', ucfirst($which));
 	$field_ref = sprintf('GPS%sRef', ucfirst($which));
 
@@ -345,9 +345,9 @@ function zz_geo_coords_from_exif($value, $which) {
 	}
 
 	switch ($which) {
-		case 'longitude': $orientation = array('E' => '+', 'W' => '-'); break;
-		case 'latitude':  $orientation = array('N' => '+', 'S' => '-'); break;
-		case 'altitude':  $orientation = array('0' => '+', '1' => '-'); break;
+		case 'longitude': $orientation = ['E' => '+', 'W' => '-']; break;
+		case 'latitude':  $orientation = ['N' => '+', 'S' => '-']; break;
+		case 'altitude':  $orientation = ['0' => '+', '1' => '-']; break;
 	}
 
 	// check if values are valid
@@ -448,9 +448,9 @@ function zz_geo_geocode($ops, $zz_tab) {
 	global $zz_conf;
 	
 	$geocoding = zz_geo_geocode_fields($ops['validated'], $ops['record_new'], $zz_tab);
-	if (!$geocoding) return array();
-	if (!array_key_exists('latlon', $geocoding)) return array();
-	if (!array_key_exists('source', $geocoding)) return array();
+	if (!$geocoding) return [];
+	if (!array_key_exists('latlon', $geocoding)) return [];
+	if (!array_key_exists('source', $geocoding)) return [];
 
 	// update coordinates:
 	$update = false;
@@ -465,7 +465,7 @@ function zz_geo_geocode($ops, $zz_tab) {
 			// test against output strings, there may be rounding errors
 			if (zz_geo_coord_out($ops['record_old'][$f['index']][$my_field['field_name']], $type)
 				!== zz_geo_coord_out($ops['record_new'][$f['index']][$my_field['field_name']], $type)) {
-				return array();
+				return [];
 			}
 		}
 	}
@@ -476,23 +476,23 @@ function zz_geo_geocode($ops, $zz_tab) {
 			if ($field !== 'same') $update = true;
 		}
 	}
-	if (!$update) return array();
+	if (!$update) return [];
 
 	$address = zz_geo_geocode_address($geocoding, $zz_tab, $ops['record_new']);
-	if (count($address) === 1 AND array_key_exists('place', $address)) return array();
-	if (!$address) return array();
+	if (count($address) === 1 AND array_key_exists('place', $address)) return [];
+	if (!$address) return [];
 
 	if (empty($zz_conf['geocoding_function'])) {
 		// you'll need a function that returns from Array $address
 		// an Array with latitude, longitude and postal_code (optional)
 		global $zz_setting;
-		require_once $zz_setting['lib'].'/zzwrap/syndication.inc.php';
+		require_once $zz_setting['core'].'/syndication.inc.php';
 		$zz_conf['geocoding_function'] = 'wrap_syndication_geocode';
 	}
 	$result = $zz_conf['geocoding_function']($address);
-	if (!$result) return array();
+	if (!$result) return [];
 
-	$change = array();
+	$change = [];
 	if ($result['longitude']) {
 		$f = $geocoding['latlon']['longitude'];
 		$my_field = $zz_tab[$f['tab']][$f['rec']]['fields'][$f['no']];
@@ -523,7 +523,7 @@ function zz_geo_geocode($ops, $zz_tab) {
  * @return array
  */
 function zz_geo_geocode_fields($list, $new, $zz_tab) {
-	$geocoding = array();
+	$geocoding = [];
 	foreach ($list as $index => $planned) {
 		$tabrec = explode('-', $planned['tab-rec']);
 		// get fields with latitude and longitude
@@ -532,9 +532,9 @@ function zz_geo_geocode_fields($list, $new, $zz_tab) {
 		foreach ($my_fields as $no => $field) {
 			if (empty($field['field_name'])) continue;
 			if (empty($field['geocode'])) continue;
-			$type = in_array($field['geocode'], array('latitude', 'longitude')) ? 'latlon' : 'source';
+			$type = in_array($field['geocode'], ['latitude', 'longitude']) ? 'latlon' : 'source';
 			if (!array_key_exists($type, $geocoding))
-				$geocoding[$type] = array();
+				$geocoding[$type] = [];
 			if (zz_geo_geocode_ignore($field, $my_fields, $new, $index)) {
 				continue;
 			}
@@ -542,17 +542,17 @@ function zz_geo_geocode_fields($list, $new, $zz_tab) {
 				// Important: we only look at the first occurence of each geocoding field!
 				continue;
 			}
-			$geocoding[$type][$field['geocode']] = array(
+			$geocoding[$type][$field['geocode']] = [
 				'tab' => $tabrec[0], 'rec' => $tabrec[1], 'no' => $no, 'index' => $index
-			);
+			];
 		}
 	}
-	if (empty($geocoding['latlon'])) return array();
+	if (empty($geocoding['latlon'])) return [];
 	if (count($geocoding['latlon']) !== 2) {
-		zz_error_log(array(
+		zz_error_log([
 			'msg_dev' => 'Record definition incorrect, only one of latitude/longitude present.'
-		));
-		return array();
+		]);
+		return [];
 	}
 	return $geocoding;
 }
@@ -569,7 +569,7 @@ function zz_geo_geocode_address($geocoding, $zz_tab, $new) {
 	global $zz_conf;
 
 	// - if address fields have changed
-	$address = array();
+	$address = [];
 	foreach ($geocoding['source'] as $type => $f) {
 	// street, street_number, locality, postal_code, country
 	// each with _id
@@ -582,10 +582,10 @@ function zz_geo_geocode_address($geocoding, $zz_tab, $new) {
 		if (substr($type, -3) === '_id') {
 			$type = substr($type, 0, -3);
 			if (!isset($my_field['geocode_sql'])) {
-				zz_error_log(array(
+				zz_error_log([
 					'msg_dev' => 'Error: geocode_sql not defined for field no %d',
-					'msg_dev_args' => array($f['no'])
-				));
+					'msg_dev_args' => [$f['no']]
+				]);
 				continue;
 			}
 			if (!is_numeric($value)) {
