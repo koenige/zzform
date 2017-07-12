@@ -126,20 +126,27 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 		}
 	} elseif (!empty($zz_tab[0]['integrity'])) {
 		$formhead = zz_text('Warning!');
-		if (isset($zz_tab[0]['integrity']['msg_args'])) {
-			$tmp_error_msg = sprintf(
-				"<ul>\n<li>%s</li>\n</ul>\n",
-				implode("</li>\n<li>", $zz_tab[0]['integrity']['msg_args'])
-			);
+		if (!empty($zz_tab[0]['integrity']['msg_no_list'])) {
+			zz_error_log([
+				'msg' => $zz_tab[0]['integrity']['msg'],
+				'msg_args' => $zz_tab[0]['integrity']['msg_args']
+			]);
 		} else {
-			$tmp_error_msg = '';
+			if (isset($zz_tab[0]['integrity']['msg_args'])) {
+				$tmp_error_msg = sprintf(
+					"<ul>\n<li>%s</li>\n</ul>\n",
+					implode("</li>\n<li>", $zz_tab[0]['integrity']['msg_args'])
+				);
+			} else {
+				$tmp_error_msg = '';
+			}
+			zz_error_log([
+				'msg' => [
+					'This record could not be deleted because there are details about this record in other records.',
+					$zz_tab[0]['integrity']['msg'], "\n%s"],
+				'msg_args' => [$tmp_error_msg]
+			]);
 		}
-		zz_error_log([
-			'msg' => [
-				'This record could not be deleted because there are details about this record in other records.',
-				$zz_tab[0]['integrity']['msg'], "\n%s"],
-			'msg_args' => [$tmp_error_msg]
-		]);
 	} elseif (in_array($ops['mode'], $record_form) OR 
 		(in_array($ops['mode'], ['show']) AND !$action_before_redirect)) {
 	//	mode = add | edit | delete: show form

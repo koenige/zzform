@@ -62,7 +62,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		}
 	}
 	if (zz_error_exit())
-		return zz_return(array($ops, $zz_tab, $validation));
+		return zz_return([$ops, $zz_tab, $validation]);
 
 	$zz_tab = zz_action_validate($zz_tab);
 
@@ -88,7 +88,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			);
 			// return database errors
 			if (zz_error_exit())
-				return zz_return(array($ops, $zz_tab, $validation));
+				return zz_return([$ops, $zz_tab, $validation]);
 			// if something was returned, validation failed because there 
 			// probably are records
 			if ($zz_tab[0]['integrity']['msg_args']) {
@@ -130,7 +130,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	
 	if (!$validation) {
 		if (!empty($zz_var['upload_form'])) zz_upload_cleanup($zz_tab, false); 
-		return zz_return(array($ops, $zz_tab, $validation));
+		return zz_return([$ops, $zz_tab, $validation]);
 	}
 
 	if ($zz_conf['modules']['debug']) zz_debug("validation successful");
@@ -147,7 +147,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			unset($my_rec);
 			$my_rec['action'] = 'delete';
 			$my_rec['access'] = '';
-			$my_rec['fields'] = array();
+			$my_rec['fields'] = [];
 			$my_rec['id']['field_name'] = $my_tab['id_field_name'];
 			$my_rec['id']['value'] = $del_id;
 			$my_rec['POST'][$my_rec['id']['field_name']] = $del_id;
@@ -167,7 +167,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	if (!$validation) {
 		// delete temporary unused files
 		if (!empty($zz_var['upload_form'])) zz_upload_cleanup($zz_tab); 
-		return zz_return(array($ops, $zz_tab, $validation));
+		return zz_return([$ops, $zz_tab, $validation]);
 	}
 
 	$sql_edit = '';
@@ -214,8 +214,8 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	//	### Insert a record ###
 	
 		} elseif ($zz_tab[$tab][$rec]['action'] === 'insert') {
-			$field_values = array();
-			$field_list = array();
+			$field_values = [];
+			$field_list = [];
 			foreach ($zz_tab[$tab][$rec]['fields'] as $field) {
 				if (!$field['in_sql_query']) continue;
 				if ($field['type'] === 'id') {
@@ -286,7 +286,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	}
 	// ### Perform database query and additional actions ###
 	
-	$del_msg = array();
+	$del_msg = [];
 
 	// if delete a record, first delete detail records so that in case of an 
 	// error there are no orphans
@@ -413,7 +413,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			$ops['output'] .= zz_error();
 			if (zz_error_exit()) {
 				zz_upload_cleanup($zz_tab);
-				return zz_return(array($ops, $zz_tab, $validation));
+				return zz_return([$ops, $zz_tab, $validation]);
 			}
 			$change = zz_action_function('after_upload', $ops, $zz_tab);
 			list($ops, $zz_tab) = zz_action_change($ops, $zz_tab, $change);
@@ -445,7 +445,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	
 	// delete temporary unused files
 	if (!empty($zz_var['upload_form'])) zz_upload_cleanup($zz_tab);
-	return zz_return(array($ops, $zz_tab, $validation));
+	return zz_return([$ops, $zz_tab, $validation]);
 }
 
 /**
@@ -471,10 +471,10 @@ function zz_action_last_update($zz_tab, $action) {
 		);
 		$result = zz_db_change($sql, $zz_tab[0][0]['id']['value']);
 		if ($result['action'] !== 'update') {
-			zz_error_log(array(
+			zz_error_log([
 				'msg_dev' => 'Update of timestamp failed (ID %d), query: %s',
-				'msg_dev_args' => array($zz_tab[0][0]['id']['value'], $sql)
-			));
+				'msg_dev_args' => [$zz_tab[0][0]['id']['value'], $sql]
+			]);
 		}
 	}
 	if (!empty($result)) return true;
@@ -489,8 +489,8 @@ function zz_action_last_update($zz_tab, $action) {
  * @return array $update_values
  */
 function zz_action_equals($my_rec) {
-	$update_values = array();
-	$extra_update_values = array();
+	$update_values = [];
+	$extra_update_values = [];
 	$equal = true; // old and new record are said to be equal
 
 	foreach ($my_rec['fields'] as $field) {
@@ -555,10 +555,10 @@ function zz_action_equals($my_rec) {
 			}
 		} else {
 			// we have an update but no existing record
-			zz_error_log(array(
+			zz_error_log([
 				'msg_dev' => 'Update without existing record? Record: %s',
-				'msg_dev_args' => array(json_encode($my_rec))
-			));
+				'msg_dev_args' => [json_encode($my_rec)]
+			]);
 			$update = true;
 		}
 		$query = sprintf('`%s` = %s', $field['field_name'], $my_rec['POST_db'][$field['field_name']]);
@@ -573,7 +573,7 @@ function zz_action_equals($my_rec) {
 		$update_values = array_merge($update_values, $extra_update_values);
 		return $update_values;
 	}
-	return array();
+	return [];
 }
 
 /**
@@ -643,7 +643,7 @@ function zz_action_details($detail_sqls, $zz_tab, $validation, $ops) {
 			}
 		}
 	}
-	return array($zz_tab, $validation, $ops);
+	return [$zz_tab, $validation, $ops];
 }
 
 /**
@@ -655,7 +655,7 @@ function zz_action_details($detail_sqls, $zz_tab, $validation, $ops) {
  * @param string $type for @see zz_record_info()
  */
 function zz_action_hook($ops, $zz_tab, $position, $type) {
-	if (empty($zz_tab[0]['hooks'][$position])) return array($ops, $zz_tab);
+	if (empty($zz_tab[0]['hooks'][$position])) return [$ops, $zz_tab];
 
 	// get information
 	foreach (array_keys($zz_tab) as $tab) {
@@ -667,7 +667,7 @@ function zz_action_hook($ops, $zz_tab, $position, $type) {
 
 	// check if something is about to change
 	$change = zz_action_function($position, $ops, $zz_tab);
-	if (!$change) return array($ops, $zz_tab);
+	if (!$change) return [$ops, $zz_tab];
 
 	// apply changes
 	list($ops, $zz_tab) = zz_action_change($ops, $zz_tab, $change);
@@ -675,7 +675,7 @@ function zz_action_hook($ops, $zz_tab, $position, $type) {
 	unset($ops['record_old']);
 	unset($ops['record_new']);
 	unset($ops['record_diff']);
-	return array($ops, $zz_tab);
+	return [$ops, $zz_tab];
 }
 
 /**
@@ -703,17 +703,17 @@ function zz_action_function($type, $ops, $zz_tab) {
 	}
 
 	if (!empty($zz_tab[0]['revision_id'])
-		AND in_array($type, array('after_update', 'after_delete'))) {
+		AND in_array($type, ['after_update', 'after_delete'])) {
 		zz_revisions_historic($zz_tab[0]['revision_id']);
 	}
 
-	$change = array();
+	$change = [];
 	if (!empty($zz_tab[0]['geocode']) AND $type === 'after_validation') {
 		$change = zz_geo_geocode($ops, $zz_tab);
 	}
 	if ($zz_tab[0]['hooks'][$type] !== true) {
 		if (!is_array($zz_tab[0]['hooks'][$type])) {
-			$zz_tab[0]['hooks'][$type] = array($zz_tab[0]['hooks'][$type]);
+			$zz_tab[0]['hooks'][$type] = [$zz_tab[0]['hooks'][$type]];
 		}
 		foreach ($zz_tab[0]['hooks'][$type] as $hook) {
 			$file = $zz_conf['hooks_dir'].'/'.$hook.'.inc.php';
@@ -730,17 +730,17 @@ function zz_action_function($type, $ops, $zz_tab) {
 		}
 	}
 	if ($change) {
-		$record_replace = array(
+		$record_replace = [
 			'before_upload', 'after_validation', 'before_insert', 'before_update'
-		);
+		];
 		if (!in_array($type, $record_replace)) {
 			if (array_key_exists('record_replace', $change)
 				AND !empty($change['record_replace'])) {
 				unset($change['record_replace']);
-				zz_error_log(array(
+				zz_error_log([
 					'msg_dev' => 'Function for hook (%s) tries to set record_replace. Will not be evaluated at this point.',
-					'msg_dev_args' => array($type)
-				));
+					'msg_dev_args' => [$type]
+				]);
 			}
 		}
 		return $change;
@@ -756,11 +756,11 @@ function zz_action_function($type, $ops, $zz_tab) {
  * @param array $ops
  * @param array $zz_tab
  * @param array $change string 'output', array 'record_replace'
- * @return array array($ops, $zz_tab)
+ * @return array [$ops, $zz_tab]
  */
 function zz_action_change($ops, $zz_tab, $change) {
-	if (!$change) return array($ops, $zz_tab);
-	if ($change === true) return array($ops, $zz_tab);
+	if (!$change) return [$ops, $zz_tab];
+	if ($change === true) return [$ops, $zz_tab];
 	
 	// output?
 	if (!empty($change['output'])) {
@@ -792,7 +792,7 @@ function zz_action_change($ops, $zz_tab, $change) {
 			$zz_tab = zz_action_validate($zz_tab);
 		}
 	}
-	return array($ops, $zz_tab);
+	return [$ops, $zz_tab];
 }
 
 /**
@@ -848,7 +848,7 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 		// check if some values should be gotten from detail_value/upload fields
 		// must be here before setting the action
 		if ($zz_tab[$tab][$rec]['access'] === 'show') continue;
-		if (!in_array($zz_tab[0][0]['action'], array('insert', 'update'))) continue;
+		if (!in_array($zz_tab[0][0]['action'], ['insert', 'update'])) continue;
 		$value = zz_write_values($field, $zz_tab, $f, $tab, $rec);
 		if (isset($value)) $my_tab[$rec]['POST'][$field['field_name']] = $value;
 	}
@@ -859,9 +859,9 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 		if (!isset($my_tab[$rec]['POST'][$field['field_name']])) continue;
 		$fvalues = $my_tab[$rec]['POST'][$field['field_name']];
 		// some fields will always be ignored since there is no user input
-		$ignores = array(
+		$ignores = [
 			'timestamp', 'id', 'foreign_key', 'translation_key', 'display', 'image'
-		);
+		];
 		if (in_array($field['type'], $ignores)) continue;
 		if (!empty($field['for_action_ignore'])) continue;
 		// check def_val_ignore, some auto values/values/default values will be ignored 
@@ -976,7 +976,7 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	// add keyword _binary for these fields
-	$binary_fields = array('ip');
+	$binary_fields = ['ip'];
 
 	if (!empty($my_rec['last_fields'])) { 
 	// these fields have to be handled after others because they might get data 
@@ -998,7 +998,7 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 	foreach ($my_rec['fields'] as $f => $field) {
 		$field_name = (!empty($field['field_name']) ? $field['field_name'] : '');
 	// text: convert encoding for some field types
-		if (in_array($field['type'], array('text', 'memo'))) {
+		if (in_array($field['type'], ['text', 'memo'])) {
 			$my_rec['POST'][$field_name]
 				= $my_rec['POST_db'][$field_name] 
 				= wrap_convert_string($my_rec['POST_db'][$field_name]);
@@ -1080,7 +1080,7 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 				// empty values = NULL, treat some special cases differently
 				// latitude/longitude: type string, different from 0
 				if (isset($field['number_type']) AND $my_rec['POST'][$field_name] !== ''
-					AND in_array($field['number_type'], array('latitude', 'longitude')))
+					AND in_array($field['number_type'], ['latitude', 'longitude']))
 					$my_rec['POST_db'][$field_name] = '0';
 				elseif (!empty($field['null']) AND $my_rec['POST'][$field_name] !== '') 
 					$my_rec['POST_db'][$field_name] = '0';
@@ -1109,12 +1109,12 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
 	if ($type !== 'validated' AND $zz_tab[$tab][$rec]['action'] === 'ignore') return $ops;
 	
-	if (!isset($ops['record_new'])) $ops['record_new'] = array();
-	if (!isset($ops['record_old'])) $ops['record_old'] = array();
-	if (!isset($ops['record_diff'])) $ops['record_diff'] = array();
+	if (!isset($ops['record_new'])) $ops['record_new'] = [];
+	if (!isset($ops['record_old'])) $ops['record_old'] = [];
+	if (!isset($ops['record_diff'])) $ops['record_diff'] = [];
 	
-	$rn = array();
-	$ro = array();
+	$rn = [];
+	$ro = [];
 	
 	// set index to make sure that main record is always 0
 	if (!$tab AND !$rec) $index = 0;
@@ -1123,7 +1123,7 @@ function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
 	// + 1 because main record will/might be last one that's handled
 
 	// set information on successful record operation
-	$ops[$type][$index] = array(
+	$ops[$type][$index] = [
 		'table' => $zz_tab[$tab]['table'],
 		'id_field_name' => $zz_tab[$tab][$rec]['id']['field_name'], 
 		'id_value' => $zz_tab[$tab][$rec]['id']['value'],
@@ -1134,7 +1134,7 @@ function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
 			? $zz_tab[$tab][$rec]['error'] : false,
 		'change_info' => !empty($zz_tab[$tab][$rec]['change_info'])
 			? $zz_tab[$tab][$rec]['change_info'] : false
-	);
+	];
 	if ($type === 'return' AND $index === 0) {
 		// shortcut for ID
 		$ops['id'] = $ops['return'][0]['id_value'];
@@ -1155,7 +1155,7 @@ function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
 		}
 		$ops['record_new'][$index] = $rn;
 	} else {
-		$ops['record_new'][$index] = array();
+		$ops['record_new'][$index] = [];
 	}
 	
 	// set old record
@@ -1166,15 +1166,15 @@ function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
 		// get a record that was deleted with JavaScript
 		$ops['record_old'][$index] = zz_query_single_record(
 			$zz_tab[$tab]['sql'], $zz_tab[$tab]['table'], $zz_tab[$tab][$rec]['id'],
-			isset($zz_tab[$tab]['sqlextra']) ? $zz_tab[$tab]['sqlextra'] : array(),
+			isset($zz_tab[$tab]['sqlextra']) ? $zz_tab[$tab]['sqlextra'] : [],
 			$zz_tab[$tab]['sql_translate']
 		);
 	} else {
-		$ops['record_old'][$index] = array();
+		$ops['record_old'][$index] = [];
 	}
 	
 	// diff old record and new record
-	$rd = array();
+	$rd = [];
 	if (!$rn) {
 		$fields = $zz_tab[$tab][$rec]['fields'];
 		if (!$fields AND isset($zz_tab[0][0]['fields'][$zz_tab[$tab]['no']]['fields'])) {
@@ -1208,7 +1208,7 @@ function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
  * @return array $folders => $zz_tab[0]['folder'][] will be set
  */
 function zz_foldercheck($zz_tab) {
-	$folders = array();
+	$folders = [];
 	if (empty($zz_tab[0]['folder'])) return $folders;
 	if ($zz_tab[0][0]['action'] !== 'update') return $folders;
 
@@ -1223,17 +1223,17 @@ function zz_foldercheck($zz_tab) {
 				$success = rename($old_path, $path);
 			}
 			if ($success) {
-				$folders[] = array('old' => $old_path, 'new' => $path);
-			} else { 
-				zz_error_log(array(
+				$folders[] = ['old' => $old_path, 'new' => $path];
+			} else {
+				zz_error_log([
 					'msg_dev' => 'Folder cannot be renamed.'
-				));
+				]);
 				zz_error();
 			}
 		} else {
-			zz_error_log(array(
+			zz_error_log([
 				'msg_dev' => 'There is already a folder by that name.'
-			));
+			]);
 			zz_error();
 		}
 	}
@@ -1306,8 +1306,8 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	// in case validation fails, these values will be send back to user
 	$my_rec['POST-notvalid'] = $my_rec['POST'];
-	$my_rec['last_fields'] = array();
-	$my_rec['extra'] = array();
+	$my_rec['last_fields'] = [];
+	$my_rec['extra'] = [];
 
 	foreach ($my_rec['fields'] as $f => $field) {
 	// 	shorthand
@@ -1363,7 +1363,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 					}
 				}
 			} else {
-				$func_vars = array();
+				$func_vars = [];
 			}
 			$my_rec['POST'][$field_name] = $field['function']($func_vars, $field_name);
 		}
@@ -1412,7 +1412,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 		case 'number':
 			//	calculation and choosing of right values in case of coordinates
 			if (isset($field['number_type']) 
-				AND in_array($field['number_type'], array('latitude', 'longitude'))) {
+				AND in_array($field['number_type'], ['latitude', 'longitude'])) {
 				// geographical coordinates
 				
 				$precision = zz_db_decimal_places($db_table, $field);
@@ -1488,10 +1488,10 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 					$my_rec['POST'][$field_name.'_new_1'], 
 					$my_rec['POST'][$field_name.'_new_2'], $my_sql, $field);
 			} else {
-				zz_error_log(array(
+				zz_error_log([
 					'msg' => 'Please enter your current password and twice your new password.',
 					'level' => E_USER_NOTICE
-				));
+				]);
 			}
 			if ($pwd) $my_rec['POST'][$field_name] = $pwd;
 			else { 
@@ -1744,10 +1744,10 @@ function zz_check_rules($value, $validate) {
 		case 'forbidden_strings':
 			foreach ($needles as $needle) {
 				if (stripos($value, $needle) === false) continue; // might be 0
-				return array(
+				return [
 					'msg' => 'String <em>“%s”</em> is not allowed',
 					'msg_args' => zz_htmltag_escape($needle)
-				);
+				];
 			}
 			break;
 		}
@@ -1771,19 +1771,19 @@ function zz_password_set($old, $new1, $new2, $sql, $field) {
 	global $zz_conf;
 	if ($new1 !== $new2) {
 		// new passwords do not match
-		zz_error_log(array(
+		zz_error_log([
 			'msg' => 'New passwords do not match. Please try again.',
 			'level' => E_USER_NOTICE
-		));
+		]);
 		return false;
 	}
 	if ($old === $new1) {
 		// old password eq new password - this is against identity theft if 
 		// someone interferes a password mail
-		zz_error_log(array(
+		zz_error_log([
 			'msg' => 'New and old password are identical. Please choose a different new password.',
 			'level' => E_USER_NOTICE
-		));
+		]);
 		return false; 
 	}
 	$old_hash = zz_db_fetch($sql, '', 'single value', __FUNCTION__);
@@ -1793,24 +1793,24 @@ function zz_password_set($old, $new1, $new2, $sql, $field) {
 		// new1 = new2, old = old, everything is ok
 		$hash = wrap_password_hash($new1);
 		if ($hash) {
-			zz_error_log(array(
+			zz_error_log([
 				'msg' => 'Your password has been changed!',
 				'level' => E_USER_NOTICE
-			));
+			]);
 		} else {
-			zz_error_log(array(
+			zz_error_log([
 				'msg' => 'Your new password could not be saved. Please try a different one.',
 				'level' => E_USER_WARNING
-			));
+			]);
 		}
 		return $hash;
 	} else {
-		zz_error_log(array(
+		zz_error_log([
 			'msg' => 'Your current password is different from what you entered. Please try again.',
 			'msg_dev' => '(Encryption: %s, existing hash: %s, entered hash: %s)',
-			'msg_dev_args' => array($zz_conf['hash_password'], $old_hash, wrap_password_hash($old)),
+			'msg_dev_args' => [$zz_conf['hash_password'], $old_hash, wrap_password_hash($old)],
 			'level' => E_USER_NOTICE
-		));
+		]);
 		return false;
 	}
 }
@@ -1841,7 +1841,7 @@ function zz_integrity_relations($relation_table) {
 	if ($relations) return $relations;
 
 	$sql = 'SELECT * FROM '.$relation_table;
-	$relations = zz_db_fetch($sql, array('master_db', 'master_table', 'master_field', 'rel_id'));
+	$relations = zz_db_fetch($sql, ['master_db', 'master_table', 'master_field', 'rel_id']);
 	return $relations;
 }
 
@@ -1858,13 +1858,14 @@ function zz_integrity_check($deletable_ids, $relations) {
 	if (!$relations) {
 		global $zz_conf;
 		$response['msg'] = 'No records in relation table `%s`. Please fill in records.';
-		$response['msg_args'] = array($zz_conf['relations_table']);
+		$response['msg_args'] = [$zz_conf['relations_table']];
+		$response['msg_no_list'] = true;
 		return $response;
 	}
 
-	$response = array();
-	$response['msg_args'] = array();
-	$response['updates'] = array();
+	$response = [];
+	$response['msg_args'] = [];
+	$response['updates'] = [];
 	foreach ($deletable_ids as $master_db => $tables) {
 		foreach ($tables as $master_table => $fields) {
 			if (!isset($relations[$master_db][$master_table])) {
@@ -1892,10 +1893,10 @@ function zz_integrity_check($deletable_ids, $relations) {
 				}
 				if ($remaining_ids) {
 					if ($field['delete'] === 'update') {
-						$response['updates'][] = array(
+						$response['updates'][] = [
 							'ids' => $remaining_ids,
 							'field' => $field
-						);
+						];
 					} elseif (!array_key_exists($field['detail_table'], $response['msg_args'])) {
 						// there are still IDs which cannot be deleted
 						// check which record they belong to
@@ -1931,9 +1932,9 @@ function zz_integrity_check($deletable_ids, $relations) {
  * @see zz_get_detail_record_ids()
  */
 function zz_integrity_dependent_record_ids($zz_tab, $relations) {
-	if (!$relations) return array();
+	if (!$relations) return [];
 
-	$details = array();
+	$details = [];
 	foreach (array_keys($zz_tab) as $tab) {
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
 			if (!is_numeric($rec)) continue;
@@ -1990,7 +1991,7 @@ function zz_integrity_deletable($db_name, $table, $id_field_name, $id_value, $re
 		if (!$records) continue;
 
 		if (empty($details[$rel['detail_db']][$rel['detail_table']][$rel['detail_id_field']]))
-			$details[$rel['detail_db']][$rel['detail_table']][$rel['detail_id_field']] = array();
+			$details[$rel['detail_db']][$rel['detail_table']][$rel['detail_id_field']] = [];
 		$details[$rel['detail_db']][$rel['detail_table']][$rel['detail_id_field']] 
 			= array_merge($records, $details[$rel['detail_db']][$rel['detail_table']][$rel['detail_id_field']]);
 
@@ -2017,7 +2018,7 @@ function zz_integrity_deletable($db_name, $table, $id_field_name, $id_value, $re
  * @see zz_get_depending_records()
  */
 function zz_integrity_record_ids($zz_tab) {
-	$records = array();
+	$records = [];
 	foreach ($zz_tab as $tab) {
 		foreach ($tab as $tab_no => $rec) {
 			if (!is_numeric($tab_no)) continue;
@@ -2025,7 +2026,7 @@ function zz_integrity_record_ids($zz_tab) {
 			if ($rec['action'] !== 'delete') continue;
 			if (is_array($rec['id']['value'])) {
 				if (!isset($records[$tab['db_name']][$tab['table']][$rec['id']['field_name']]))
-					$records[$tab['db_name']][$tab['table']][$rec['id']['field_name']] = array();
+					$records[$tab['db_name']][$tab['table']][$rec['id']['field_name']] = [];
 				$records[$tab['db_name']][$tab['table']][$rec['id']['field_name']]
 					= array_merge($records[$tab['db_name']][$tab['table']][$rec['id']['field_name']], $rec['id']['value']);
 			} else {
@@ -2107,7 +2108,7 @@ function zz_integrity_include_definition($filename) {
 	if (!empty($zz)) return $zz;
 	if (!empty($zz_sub)) return $zz_sub;
 	// @todo error handling?
-	return array();
+	return [];
 }
 
 /**
