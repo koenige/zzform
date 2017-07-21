@@ -329,10 +329,11 @@ function zz_imagick_add_options($source_ext, $image = []) {
  * @param string $dest_ext file extension for destination image
  * @param array $image further information about the image
  *		width, height etc.
+ * @param string $clipping defaults to center
  * @global array $zz_conf
  * @return bool (false: no image was created; true: image was created)
  */
-function zz_image_crop($source, $dest, $dest_ext, $image) {
+function zz_image_crop($source, $dest, $dest_ext, $image, $clipping = 'center') {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 // example: convert -thumbnail x240 -crop 240x240+140x0 reiff-pic09b.jpg test.jpg
@@ -359,8 +360,16 @@ function zz_image_crop($source, $dest, $dest_ext, $image) {
 		$options = '-thumbnail %dx%d';
 		$options = sprintf($options, $image['width'], $image['height']);
 	} elseif ($dest_ratio < $source_ratio) {
-		$new_width = floor($image['height']*$source_ratio);
-		$pos_x = floor(($new_width - $image['width']) / 2);
+		$new_width = floor($image['height'] * $source_ratio);
+		switch ($clipping) {
+		case 'left':
+			$pos_x = 0; break;
+		case 'right':
+			$pos_x = $new_width - $image['width']; break;
+		default:
+			$pos_x = floor(($new_width - $image['width']) / 2);
+			break;
+		}
 		$pos_y = 0;
 		$options = '-thumbnail %dx%d -crop %dx%d+%d+%d';
 		$options = sprintf(
@@ -368,9 +377,17 @@ function zz_image_crop($source, $dest, $dest_ext, $image) {
 			$image['height'], $pos_x, $pos_y
 		);
 	} else {
-		$new_height = floor($image['width']/$source_ratio);
+		$new_height = floor($image['width'] / $source_ratio);
 		$pos_x = 0;
-		$pos_y = floor(($new_height - $image['height']) / 2);
+		switch ($clipping) {
+		case 'top':
+			$pos_y = 0; break;
+		case 'bottom':
+			$pos_y = $new_height - $image['height']; break;
+		default:
+			$pos_y = floor(($new_height - $image['height']) / 2);
+			break;
+		}
 		$options = '-thumbnail %dx%d -crop %dx%d+%d+%d';
 		$options = sprintf(
 			$options, $image['width'], $new_height, $image['width'],

@@ -2529,6 +2529,46 @@ function zz_image_is_better_ratio($ratio, $old_ratio, $new_ratio) {
 }
 
 /**
+ * Create cropped image, clipping center
+ *
+ */
+function zz_image_crop_center($source, $dest, $dest_ext, $image) {
+	return zz_image_crop($source, $dest, $dest_ext, $image, 'center');
+}
+
+/**
+ * Create cropped image, clipping from top
+ *
+ */
+function zz_image_crop_top($source, $dest, $dest_ext, $image) {
+	return zz_image_crop($source, $dest, $dest_ext, $image, 'top');
+}
+
+/**
+ * Create cropped image, clipping from right
+ *
+ */
+function zz_image_crop_right($source, $dest, $dest_ext, $image) {
+	return zz_image_crop($source, $dest, $dest_ext, $image, 'right');
+}
+
+/**
+ * Create cropped image, clipping from bottom
+ *
+ */
+function zz_image_crop_bottom($source, $dest, $dest_ext, $image) {
+	return zz_image_crop($source, $dest, $dest_ext, $image, 'bottom');
+}
+
+/**
+ * Create cropped image, clipping from left
+ *
+ */
+function zz_image_crop_left($source, $dest, $dest_ext, $image) {
+	return zz_image_crop($source, $dest, $dest_ext, $image, 'left');
+}
+
+/**
  * reads default definitions from a textfile and writes them into an array
  *
  * @param string $filename Name of file

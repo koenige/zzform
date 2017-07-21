@@ -202,10 +202,10 @@ function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
  * @param string $destination filename of destination file
  * @param string $dest_extension extension of destination file
  * @param array $image upload image array
- * @param string $position (defaults to center)
+ * @param string $clipping (defaults to center)
  * @return bool true/false true: image creation was successful, false: unsuccessful
  */
- function zz_image_crop($source, $destination, $dest_extension, $image, $position = 'center') {
+ function zz_image_crop($source, $destination, $dest_extension, $image, $clipping = 'center') {
  	// Image will be resized exactly to the size as wanted
 	$params['dst_w'] = $image['width'];
 	$params['dst_h'] = $image['height'];
@@ -235,28 +235,24 @@ function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
 	$source_ratio = $params['src_w']/$params['src_h'];
 	// offset depending on sizes of source and destination images
 	if ($source_ratio > $dest_ratio) { // crop something from left and right side
-		$offset = ($params['src_w']-$params['src_h']/$params['dst_h']*$params['dst_w'])/2;
+		$offset = ($params['src_w'] - $params['src_h'] / $params['dst_h'] * $params['dst_w']) / 2;
 		if ($offset < 0) $offset = -$offset; // we need a positive offset
-		if ($position === 'left') {
-			$params['src_x'] = 0;
-		} else {
-			$params['src_x'] = floor($offset);
+		switch ($clipping) {
+			case 'left': $params['src_x'] = 0; break;
+			case 'right': $params['src_x'] = $offset * 2; break;
+			default: $params['src_x'] = floor($offset); break;
 		}
-		$params['src_w'] = floor($params['src_w']-2*$offset); // not exact, but 1px +/-
+		$params['src_w'] = floor($params['src_w'] - 2 * $offset); // not exact, but 1px +/-
 	} elseif ($source_ratio < $dest_ratio) { // crop something from top and bottom
 		$offset = ($params['src_h']-$params['src_w']/$params['dst_w']*$params['dst_h'])/2;
 		if ($offset < 0) $offset = -$offset; // we need a positive offset
-		$params['src_y'] = floor($offset);
-		$params['src_h'] = floor($params['src_h']-2*$offset); // not exact, but 1px +/-
+		switch ($clipping) {
+			case 'top': $params['src_y'] = 0; break;
+			case 'bottom': $params['src_y'] = $offset * 2; break;
+			default: $params['src_y'] = floor($offset); break;
+		}
+		$params['src_h'] = floor($params['src_h'] - 2 * $offset); // not exact, but 1px +/-
 	} // no changes if source ratio = destination ratio, then no cropping will occur
 	
 	return zz_imagegd($source, $destination, $params, $dest_extension, $image);
-}
-
-/**
- * creates a cropped thumbnail image with the GD graphic library
- * not centered but from the left
- */
- function zz_image_crop_left($source, $destination, $dest_extension, $image) {
-	return zz_image_crop($source, $destination, $dest_extension, $image, 'left');
 }
