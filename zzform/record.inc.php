@@ -1924,6 +1924,7 @@ function zz_field_text($field, $display, $record, $dont_reformat = false) {
 	if ($field['type'] === 'mail') $fieldtype = 'email';
 	if ($field['type'] === 'url') $value = wrap_punycode_decode($value);
 	if ($field['type'] === 'text' AND !empty($field['sql'])) {
+		$field['unrestricted'] = true;
 		zz_xhr_add('selects', $field);
 	}
 	// 'url' in Opera does not support relative URLs
@@ -2536,7 +2537,8 @@ function zz_xhr_add($type, $field) {
 		'field_id' => zz_make_id_fieldname($field['f_field_name']),
 		'url_self' => zz_xhr_url_self(),
 		'destination_field_ids' => isset($field['destination_field_ids']) ? $field['destination_field_ids'] : [],
-		'source_field_ids' => isset($field['source_field_ids']) ? $field['source_field_ids'] : []
+		'source_field_ids' => isset($field['source_field_ids']) ? $field['source_field_ids'] : [],
+		'unrestricted' => !empty($field['unrestricted']) ? $field['unrestricted'] : false
 	];
 }
 

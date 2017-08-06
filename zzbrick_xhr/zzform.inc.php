@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2016 Gustaf Mossakowski
+ * @copyright Copyright © 2016-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -33,6 +33,7 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	// might be forms, request, ... => process usual way and get script name from there
 	$field_no = isset($_GET['field_no']) ? intval($_GET['field_no']) : '';
 	$subtable_no = isset($_GET['subtable_no']) ? intval($_GET['subtable_no']) : '';
+	$unrestricted = !empty($_GET['unrestricted']) ? true : false;
 
 	// @todo use part of zzform to check access rights
 	
@@ -101,18 +102,20 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 
 	if (!$records) {
 		$data['entries'][] = array('text' => htmlspecialchars($xmlHttpRequest['text']));
-		$data['entries'][] = array(
-			'text' => wrap_text('No record was found.'),
-			'elements' => array(
-				0 => array(
-					'node' => 'div',
-					'properties' => array(
-						'className' => 'xhr_foot',
-						'text' => wrap_text('No record was found.')
+		if (!$unrestricted) {
+			$data['entries'][] = array(
+				'text' => wrap_text('No record was found.'),
+				'elements' => array(
+					0 => array(
+						'node' => 'div',
+						'properties' => array(
+							'className' => 'xhr_foot',
+							'text' => wrap_text('No record was found.')
+						)
 					)
 				)
-			)
-		);
+			);
+		}
 		return $data;
 	}
 	
