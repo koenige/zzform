@@ -69,7 +69,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 		'hash_md5' => false, 'ignore' => [], 'max_length' => 36,
 		'ignore_this_if' => [], 'empty' => [], 'uppercase' => false,
 		'function' => false, 'function_parameter' => false,
-		'unique_with' => [], 'where' => ''
+		'unique_with' => [], 'where' => '', 'strip_tags' => false
 	];
 	foreach ($default_configuration as $key => $value) {
 		if (!isset($conf[$key])) $conf[$key] = $value;
@@ -119,6 +119,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 				continue;
 			}
 		}
+		if ($conf['strip_tags']) $var = strip_tags($var);
 		// check for last element, if max_length is met
 		if ($my_rec AND !empty($my_rec['fields'][$field]['maxlength'])) {
 			$remaining_len = $my_rec['fields'][$field]['maxlength'] - $len;
