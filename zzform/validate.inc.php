@@ -11,7 +11,7 @@
  * otherwise they will return the value that was checked
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2005-2014, 2016 Gustaf Mossakowski
+ * @copyright Copyright © 2005-2014, 2016-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -53,7 +53,7 @@ function zz_check_mail($e_mail, $type = 'mail') {
 		}
 		
 		// check indivual addresses
-		$correct_mails = array();
+		$correct_mails = [];
 		foreach ($mails as $mail) {
 			$mail = trim($mail);
 			$parts = explode(' ', $mail);
@@ -121,7 +121,7 @@ function zz_check_enumset($enum_value, $field, $db_table) {
  * @return mixed array $values, bool false if no values
  */
 function zz_db_get_enumset($colum, $db_table) {
-	$values = array();
+	$values = [];
 	$column_definition = zz_db_columns($db_table, $colum);
 	if (!$column_definition) return false;
 	if (substr($column_definition['Type'], 0, 5) == "set('" 
@@ -201,7 +201,7 @@ function zz_is_url($url) {
 	$parts = parse_url($url);
 	if (!$parts) return false;
 
-	$tested_parts = array('scheme', 'host', 'port', 'user', 'pass', 'path', 'query');
+	$tested_parts = ['scheme', 'host', 'port', 'user', 'pass', 'path', 'query'];
 	foreach ($tested_parts as $key) {
 		$part = !empty($parts[$key]) ? $parts[$key] : '';
 		switch ($key) {
@@ -298,20 +298,20 @@ function zz_check_date($date) {
 	$date = str_replace("\xc2\xa0", ' ', $date);
 
 	// @todo: allow addition of months in different languages via config
-	$months = array(
-		1 => array('Januar', 'January', 'janvier', 'Jan', 'I'),
-		2 => array('Februar', 'February', 'février', 'Feb', 'F.vrier', 'II'),
-		3 => array('März', 'March', 'mars', 'Mar', 'M.r', 'M.rz', 'III'),
-		4 => array('April', 'avril', 'Apr', 'IV'),
-		5 => array('Mai', 'May', 'fevrier', 'V'),
-		6 => array('Juni', 'June', 'juin', 'Jun', 'VI'),
-		7 => array('Juli', 'July', 'juilett', 'Jul', 'VII'),
-		8 => array('August', 'août', 'ao.t', 'Aug', 'VIII'),
-		9 => array('September', 'Septembre', 'Sep', 'IX'),
-		10 => array('Oktober', 'October', 'octobre', 'Oct', 'Okt', 'X'),
-		11 => array('November', 'novembre', 'Nov', 'XI'),
-		12 => array('Dezember', 'December', 'décembre', 'd.cembre', 'Dec', 'Dez', 'XII')
-	);
+	$months = [
+		1 => ['Januar', 'January', 'janvier', 'Jan', 'I'],
+		2 => ['Februar', 'February', 'février', 'Feb', 'F.vrier', 'II'],
+		3 => ['März', 'March', 'mars', 'Mar', 'M.r', 'M.rz', 'III'],
+		4 => ['April', 'avril', 'Apr', 'IV'],
+		5 => ['Mai', 'May', 'fevrier', 'V'],
+		6 => ['Juni', 'June', 'juin', 'Jun', 'VI'],
+		7 => ['Juli', 'July', 'juilett', 'Jul', 'VII'],
+		8 => ['August', 'août', 'ao.t', 'Aug', 'VIII'],
+		9 => ['September', 'Septembre', 'Sep', 'IX'],
+		10 => ['Oktober', 'October', 'octobre', 'Oct', 'Okt', 'X'],
+		11 => ['November', 'novembre', 'Nov', 'XI'],
+		12 => ['Dezember', 'December', 'décembre', 'd.cembre', 'Dec', 'Dez', 'XII']
+	];
 	foreach ($months as $month => $values) {
 		foreach ($values as $value) {
 			if (preg_match('/^[^a-z]*'.$value.'[^a-z]/i', $date)) {
@@ -375,14 +375,17 @@ function zz_check_date($date) {
 			$new['month'] = $matches[1];
 			$new['year'] = $matches[2];
 		}
-	} elseif (in_array($date, array('yesterday', 'hier', 'gestern'))) {
+	} elseif (in_array($date, ['yesterday', 'hier', 'gestern'])) {
 		return date('Y-m-d', strtotime('yesterday'));
-	} elseif (in_array($date, array('today', 'aujourd\'hui', 'heute'))) {
+	} elseif (in_array($date, ['today', 'aujourd\'hui', 'heute'])) {
 		return date('Y-m-d', strtotime('today'));
-	} elseif (in_array($date, array('tomorrow', 'demain', 'morgen'))) {
+	} elseif (in_array($date, ['tomorrow', 'demain', 'morgen'])) {
 		return date('Y-m-d', strtotime('tomorrow'));
 	}
 	if (empty($new)) return false;
+	// only month: not enough! (could be "IX magazine" which is interpreted as
+	// month or similar)
+	if (count($new) === 1 AND !empty($new['month_a'])) return false;
 	if ($new['year'] < 100 AND strlen($new['year']) < 3) {
 		// this is for convenience, historic dates must be entered with at least
 		// three digits for the year (leading zeros)
@@ -394,7 +397,7 @@ function zz_check_date($date) {
 	}
 	if ($new['month'] > 12) return false;
 	if ($new['day'] > 31) return false;
-	if ($new['day'] > 30 AND in_array($new['month'], array(4, 6, 9, 11))) return false;
+	if ($new['day'] > 30 AND in_array($new['month'], [4, 6, 9, 11])) return false;
 	if ($new['day'] > 29 AND $new['month'] === 2) return false;
 
 	return sprintf("%04d-%02d-%02d", $new['year'], $new['month'], $new['day']);
@@ -453,7 +456,7 @@ function zz_check_number($number) {
 	if (!preg_match('~^[0-9.,+-][0-9.,\+\*\/-]*$~', $check)) return NULL;
 	// put a + at the beginning, so all parts with real numbers start with 
 	// arithmetic symbols
-	if (!in_array(substr($check, 0, 1), array('-', '+'))) {
+	if (!in_array(substr($check, 0, 1), ['-', '+'])) {
 		$check = '+'.$check;
 	}
 
@@ -510,11 +513,11 @@ function zz_check_number($number) {
 
 	// in case some error occured, check what it is
 	if (!$sum AND $sum.'' !== '0') {
-		zz_error_log(array(
+		zz_error_log([
 			'msg_dev' => '%s(): calculation did not work. [%s]',
-			'msg_dev_args' => array(__FUNCTION__, $number),
+			'msg_dev_args' => [__FUNCTION__, $number],
 			'level' => E_USER_NOTICE
-		));
+		]);
 		$sum = false;
 	}
 	return $sum;
