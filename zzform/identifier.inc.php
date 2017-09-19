@@ -120,6 +120,9 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 			}
 		}
 		if ($conf['strip_tags']) $var = strip_tags($var);
+		// remove everything after a line break
+		if ($pos = strpos($var, "\r")) $var = substr($var, 0, $pos);
+		if ($pos = strpos($var, "\n")) $var = substr($var, 0, $pos);
 		// check for last element, if max_length is met
 		if ($my_rec AND !empty($my_rec['fields'][$field]['maxlength'])) {
 			$remaining_len = $my_rec['fields'][$field]['maxlength'] - $len;
