@@ -8,7 +8,7 @@
 // for e.g. "This[1].is.a.filename.ext" in the save as dialog.
 // ---------------------------------------------------------
 
-function forceFilename($str, $spaceChar = '-', $replacements = array()) {
+function forceFilename($str, $spaceChar = '-', $replacements = []) {
 	$str = wrap_convert_string($str);
 	$str = trim($str);
 

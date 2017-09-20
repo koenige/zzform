@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2014-2015 Gustaf Mossakowski
+ * @copyright Copyright © 2014-2015, 2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -22,11 +22,11 @@ function zz_merge_records($zz) {
 	if (!is_array($_POST['zz_record_id'])) return false;
 	if (count($_POST['zz_record_id']) < 2) return false;
 
-	$msg = array();
+	$msg = [];
 	$uncheck = false;
 	$title = '';
 
-	$ids = array();
+	$ids = [];
 	foreach ($_POST['zz_record_id'] as $id) {
 		$ids[] = intval($id);
 	}
@@ -35,8 +35,8 @@ function zz_merge_records($zz) {
 	$old_ids = $ids;
 	
 	$id_field_name = '';
-	$equal_fields = array();
-	$equal_fields_titles = array();
+	$equal_fields = [];
+	$equal_fields_titles = [];
 	foreach ($zz['fields'] as $field) {
 		if ($field['type'] === 'id') $id_field_name = $field['field_name'];
 		if (!empty($field['merge_equal'])) {
@@ -64,9 +64,9 @@ function zz_merge_records($zz) {
 					'<em>'.$last_title.'</em>'
 				).'</p>';
 			}
-			return array(
+			return [
 				'msg' => $msg, 'uncheck' => $uncheck, 'title' => $title
-			);
+			];
 		}
 	}
 
@@ -115,16 +115,16 @@ function zz_merge_records($zz) {
 		}
 	}
 
-	$types_case_insensitive = array('mail');
-	$types_ignored = array('id', 'timestamp');
+	$types_case_insensitive = ['mail'];
+	$types_ignored = ['id', 'timestamp'];
 
 	$update = true;
-	$new_values = array();
+	$new_values = [];
 	$delete_old_records = false;
 	if (!$error) {
-		$merge_ignore_fields = array();
-		$case_insensitive_fields = array();
-		$fields_by_fieldname = array();
+		$merge_ignore_fields = [];
+		$case_insensitive_fields = [];
+		$fields_by_fieldname = [];
 		foreach ($zz['fields'] as $no => $field) {
 			if (empty($field['field_name'])) continue;
 			$fields_by_fieldname[$field['field_name']] = $no;
@@ -155,7 +155,7 @@ function zz_merge_records($zz) {
 			if ($old_record === $new_record) {
 				$delete_old_records = true;
 			} else {
-				$update_errors = array();
+				$update_errors = [];
 				foreach ($old_record as $field_name => $value) {
 					if (!$value) continue;
 					if ($value === $new_record[$field_name]) continue; // everything ok
@@ -168,11 +168,11 @@ function zz_merge_records($zz) {
 							// overwrite with different values is impossible
 							if ($value !== $new_values[$field_name]) {
 								$update = false;
-								$update_errors[] = array(
+								$update_errors[] = [
 									'field_name' => $field_name,
 									'old' => $old_record[$field_name],
 									'new' => $new_record[$field_name]
-								);
+								];
 							}
 						} else {
 							$new_values[$field_name] = $value;
@@ -189,11 +189,11 @@ function zz_merge_records($zz) {
 							}
 						} else {
 							$update = false;
-							$update_errors[] = array(
+							$update_errors[] = [
 								'field_name' => $field_name,
 								'old' => $old_record[$field_name],
 								'new' => $new_record[$field_name]
-							);
+							];
 						}
 					}
 				}
@@ -225,7 +225,7 @@ function zz_merge_records($zz) {
 			}
 		}
 		if ($update AND $new_values) {
-			$update_values = array();
+			$update_values = [];
 			foreach ($new_values as $field_name => $value) {
 				$update_values[] = sprintf('`%s` = "%s"', $field_name, $value);
 			}
@@ -267,14 +267,14 @@ function zz_merge_records($zz) {
 	if (!$error) {
 		// everything okay, so don't output all the details
 		$title = sprintf(zz_text('%d records merged successfully'), count($old_ids) + 1);
-		$msg = array();
+		$msg = [];
 	}
 
 	// @todo redirect on change
 	// @todo show main records on error to compare manually
-	return array(
+	return [
 		'msg' => $msg, 'uncheck' => $uncheck, 'title' => $title
-	);
+	];
 }
 
 /**
@@ -291,7 +291,7 @@ function zz_merge_updateable($old_value, $new_value, $field) {
 	case 'date': // ignore 00
 		$old_date = zz_merge_get_date($old_value);
 		$new_date = zz_merge_get_date($new_value);
-		$updated_date = array();
+		$updated_date = [];
 		for ($i = 0; $i < 3; $i++) {
 			if (empty($old_date[$i]) AND empty($new_date[$i])) {
 				$updated_date[$i] = '00';

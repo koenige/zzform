@@ -44,15 +44,15 @@ function zz_imagegd($source, $destination, $params, $dest_extension, $image) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
-	$possible_filetypes = array('xpm', 'xbm', 'wbmp', 'png', 'jpeg', 'gif');
+	$possible_filetypes = ['xpm', 'xbm', 'wbmp', 'png', 'jpeg', 'gif'];
 	$source_filetype = $image['upload']['filetype'];
 	if (!in_array($source_filetype, $possible_filetypes)) {
-		$return = array(
+		$return = [
 			'error' => true,
 			'error_msg' => sprintf(
 				'GD Library: filetype not allowed (%s). Allowed filetypes are: %s',
 				$source_filetype, implode(', ', $possible_filetypes))
-		);
+		];
 		return zz_return($return);
 	}
 	$imagecreatefromfunction = 'ImageCreateFrom'.$source_filetype;
@@ -76,11 +76,11 @@ function zz_imagegd($source, $destination, $params, $dest_extension, $image) {
 		ImageDestroy($source_image);
 		ImageDestroy($destination_image);
 		if (file_exists($destination)) return zz_return(true);
-		$return = array(
+		$return = [
 			'error' => true,
 			'error_msg' => 'GD Library: no JPEG image was created.',
 			'command' => sprintf('ImageJPEG(%s, %s, %s)', $destination_image, $destination, $jpeg_quality)
-		);
+		];
 		return zz_return($return);
 	case 'gif':
 		// Create Image
@@ -105,11 +105,11 @@ function zz_imagegd($source, $destination, $params, $dest_extension, $image) {
 		ImageDestroy($source_image);
 		ImageDestroy($destination_image);
 		if (file_exists($destination)) return zz_return(true);
-		$return = array(
+		$return = [
 			'error' => true,
 			'error_msg' => 'GD Library: no GIF image was created.',
 			'command' => sprintf('ImageGIF(%s, %s)', $destination_image, $destination)
-		);
+		];
 		return zz_return($return);
 	case 'png':
 		// Create Image
@@ -129,18 +129,18 @@ function zz_imagegd($source, $destination, $params, $dest_extension, $image) {
 		ImageDestroy($destination_image);
 		ImageDestroy($source_image);
 		if (file_exists($destination)) return zz_return(true);
-		$return = array(
+		$return = [
 			'error' => true,
 			'error_msg' => 'GD Library: no PNG image was created.',
 			'command' => sprintf('ImagePNG(%s, %s)', $destination_image, $destination)
-		);
+		];
 		return zz_return($return);
 	}
 	ImageDestroy($destination_image);
-	$return = array(
+	$return = [
 		'error' => true,
 		'error_msg' => sprintf('GD Library: filetype not yet supported (%s).', $filetype)
-	);
+	];
 	return zz_return($return);
 }
 

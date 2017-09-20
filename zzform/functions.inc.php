@@ -44,7 +44,7 @@ function zz_add_modules($modules, $path) {
 		$debug_started = true;
 	}
 //	initialize variables
-	$mod = array();
+	$mod = [];
 	$add = false;
 
 //	import modules
@@ -106,7 +106,7 @@ function zz_dependent_modules($zz) {
 	// check if POST is too big, then it will be empty
 	$zz_conf['int']['post_too_big'] = $zz_conf['generate_output'] ? zzform_post_too_big() : false;
 
-	$modules = array('translations', 'conditions', 'geo', 'export', 'upload');
+	$modules = ['translations', 'conditions', 'geo', 'export', 'upload'];
 	foreach ($modules as $index => $module) {
 		// continue if module already loaded
 		if (!empty($zz_conf['modules'][$module])) continue;
@@ -158,7 +158,7 @@ function zz_dependent_modules($zz) {
 				$export = true;
 				break;
 			}
-			$conditionals = array('if', 'unless');
+			$conditionals = ['if', 'unless'];
 			foreach ($conditionals as $conditional) {
 				if (empty($zz_conf[$conditional])) continue;
 				foreach ($zz_conf[$conditional] as $condition) {
@@ -269,7 +269,7 @@ function zz_get_url_self($url_self) {
 		? $_SERVER['HTTP_HOST']
 		: $_SERVER['SERVER_NAME'];
 	$url['base'] = $url['scheme'].'://'.$host;
-	if (!in_array($_SERVER['SERVER_PORT'], array(80, 443))) {
+	if (!in_array($_SERVER['SERVER_PORT'], [80, 443])) {
 		$url['base'] .= sprintf(':%s', $_SERVER['SERVER_PORT']);
 	}
 
@@ -344,7 +344,7 @@ function zz_get_where_conditions($zz, $zz_var) {
 	}
 
 	// ADD: overwrite write_once with values, in case there are identical fields
-	$add = zz_check_get_array('add', 'field_name', array(), false);
+	$add = zz_check_get_array('add', 'field_name', [], false);
 	if (!$add AND !empty($_POST['zz_fields'])
 		AND (empty($_POST['zz_action']) OR $_POST['zz_action'] === 'insert') // empty => coming from 'details'
 		AND !empty($zz['add'])) {
@@ -358,14 +358,14 @@ function zz_get_where_conditions($zz, $zz_var) {
 		if (!$add) {
 			$error_value = $error_fieldname ? $_POST['zz_fields'][$error_fieldname] : '';
 			// illegal add here, quit 403
-			zz_error_log(array(
+			zz_error_log([
 				'msg' => 'Adding value %s in field %s is forbidden here',
-				'msg_args' => array($error_value, $error_fieldname),
+				'msg_args' => [$error_value, $error_fieldname],
 				'level' => E_USER_WARNING,
 				'status' => 403
-			));
+			]);
 			zz_error_exit(true);
-			return array($zz, $zz_var);
+			return [$zz, $zz_var];
 		}
 	}
 	if ($add) {
@@ -400,7 +400,7 @@ function zz_get_where_conditions($zz, $zz_var) {
 		$zz['filter'][$index]['type'] = 'list';
 	}
 
-	return array($zz, $zz_var);
+	return [$zz, $zz_var];
 }
 
 /**
@@ -417,12 +417,12 @@ function zz_get_where_conditions($zz, $zz_var) {
  * @return mixed
  * @todo use this function in more places
  */
-function zz_check_get_array($key, $type, $values = array(), $exit_on_error = true) {
+function zz_check_get_array($key, $type, $values = [], $exit_on_error = true) {
 	global $zz_conf;
-	$return = $type === 'field_name' ? array() : '';
+	$return = $type === 'field_name' ? [] : '';
 	if (!isset($_GET[$key])) return $return;
 
-	$error_in = array();
+	$error_in = [];
 	switch ($type) {
 	case 'field_name':
 		if (!is_array($_GET[$key])) {
@@ -451,7 +451,7 @@ function zz_check_get_array($key, $type, $values = array(), $exit_on_error = tru
 	if (!$exit_on_error) return $return;
 
 	$zz_conf['int']['http_status'] = 404;
-	$unwanted_keys = array();
+	$unwanted_keys = [];
 	foreach ($error_in as $key => $values) {
 		if (is_array($values)) {
 			foreach (array_keys($values) as $subkey) {
@@ -478,13 +478,13 @@ function zz_check_get_array($key, $type, $values = array(), $exit_on_error = tru
  * @return array $zz_conf_record subset of $zz_conf
  */
 function zz_record_conf($zz_conf) {
-	$wanted_keys = array(
+	$wanted_keys = [
 		'int[access]', 'edit', 'delete', 'add', 'view', 'if', 'details', 
 		'details_url', 'details_base', 'details_target', 'details_referer',
 		'details_sql', 'max_select', 'max_select_val_len', 'copy', 'no_ok',
 		'cancel_link', 'unless'
-	);
-	$zz_conf_record = array();
+	];
+	$zz_conf_record = [];
 	foreach ($wanted_keys as $key) {
 		if (substr($key, 0, 4) === 'int[' AND substr($key, -1) === ']') {
 			$key = substr($key, 4, -1);
@@ -508,20 +508,20 @@ function zz_filter_defaults($zz) {
 	global $zz_conf;
 	// initialize, don't return because we'll check for $_GET later
 	if (empty($zz['filter'])) {
-		$zz['filter'] = array();
+		$zz['filter'] = [];
 	}
 	if ($zz['filter'] AND !empty($_GET['filter']) AND is_array($_GET['filter'])) {
 		$filter_params = $_GET['filter'];
 	} else {
 		// just in case it's a ?filter -request with no filter set
-		$filter_params = array();
+		$filter_params = [];
 		if (isset($_GET['filter'])) {
 			$zz_conf['int']['http_status'] = 404;
-			$unwanted_keys = array('filter');
+			$unwanted_keys = ['filter'];
 			$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
 		}
 	}
-	$identifiers = array();
+	$identifiers = [];
 
 	// if there are filters:
 	// initialize filter, set defaults
@@ -545,18 +545,18 @@ function zz_filter_defaults($zz) {
 	}
 
 	// check for invalid filters
-	$zz_conf['int']['invalid_filters'] = array();
+	$zz_conf['int']['invalid_filters'] = [];
 	foreach (array_keys($filter_params) AS $identifier) {
 		if (in_array($identifier, $identifiers)) continue;
 		$zz_conf['int']['http_status'] = 404;
 		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string(
-			$zz_conf['int']['url']['qs_zzform'], array('filter['.$identifier.']')
+			$zz_conf['int']['url']['qs_zzform'], ['filter['.$identifier.']']
 		);
 		$zz_conf['int']['invalid_filters'][] = zz_htmltag_escape($identifier);
 		// get rid of filter
 		unset($filter_params[$identifier]);
 	}
-	return array($zz['filter'], $filter_params);
+	return [$zz['filter'], $filter_params];
 }
 
 /**
@@ -572,7 +572,7 @@ function zz_apply_filter($zz, $filter_params) {
 
 	// set filter for complete form
 	foreach ($zz['filter'] AS $index => &$filter) {
-		if (!isset($filter['selection'])) $filter['selection'] = array();
+		if (!isset($filter['selection'])) $filter['selection'] = [];
 		// get 'selection' if sql query is given
 		if (!empty($filter['sql'])) {
 			if (!empty($filter['depends_on']) 
@@ -617,9 +617,9 @@ function zz_apply_filter($zz, $filter_params) {
 			if (is_array($filter['default_selection'])) {
 				$filter['selection'] = $filter['default_selection'];
 			} else {
-				$filter['selection'] = array(
+				$filter['selection'] = [
 					$filter['default_selection'] => $filter['default_selection']
-				);
+				];
 			}
 		}
 		if (!$filter_params) continue;
@@ -637,12 +637,12 @@ function zz_apply_filter($zz, $filter_params) {
 			// will be ignored and therefore this hierarchical filter does
 			// not work. think about a better solution.
 		} else {
-			zz_error_log(array(
+			zz_error_log([
 				'msg' => 'This filter does not exist: %s',
-				'msg_args' => array(zz_htmltag_escape($filter_params[$filter['identifier']])),
+				'msg_args' => [zz_htmltag_escape($filter_params[$filter['identifier']])],
 				'level' => E_USER_NOTICE,
 				'status' => 404
-			));
+			]);
 			zz_error_exit(true);
 		}
 	}
@@ -659,12 +659,12 @@ function zz_apply_filter($zz, $filter_params) {
 function zz_filter_function($filter, $sql) {
 	$sql = wrap_edit_sql($sql, 'SELECT', $filter['where'], 'replace');
 	$record_ids = wrap_db_fetch($sql, '_dummy_', 'single value');
-	$unset = array();
+	$unset = [];
 	foreach ($record_ids as $record_id) {
 		$result = $filter['function']($record_id);
 		if (!$result) $unset[$record_id] = $record_id;
 	}
-	return array('all' => $record_ids, 'unset' => $unset);
+	return ['all' => $record_ids, 'unset' => $unset];
 }
 
 /**
@@ -701,15 +701,15 @@ function zz_where_conditions($zz, $zz_var) {
 
 	// apply where conditions to SQL query
 	$zz['sql_without_where'] = $zz['sql'];
-	$table_for_where = isset($zz['table_for_where']) ? $zz['table_for_where'] : array();
+	$table_for_where = isset($zz['table_for_where']) ? $zz['table_for_where'] : [];
 	list($zz['sql'], $zz_var) = zz_apply_where_conditions(
 		$zz_var, $zz['sql'], $zz['table'], $table_for_where
 	);
 	// where with unique ID: remove filters, they do not make sense here
 	// (single record will be shown)
 	if ($zz_conf['int']['where_with_unique_id']) {
-		$zz['filter'] = array();
-		$zz_var['filters'] = array();
+		$zz['filter'] = [];
+		$zz_var['filters'] = [];
 	}
 	if (isset($zz['sqlrecord'])) {
 		list($zz['sqlrecord'], $zz_var) = zz_apply_where_conditions(
@@ -734,7 +734,7 @@ function zz_where_conditions($zz, $zz_var) {
 			$zz_var['zz_fields'][$zz['fields'][$no]['field_name']]);
 	}
 
-	return array($zz, $zz_var);
+	return [$zz, $zz_var];
 }
 
 /**
@@ -755,7 +755,7 @@ function zz_where_conditions($zz, $zz_var) {
  *			'unique_fields'
  * @see zz_get_where_conditions(), zz_get_unique_fields()
  */
-function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = array()) {
+function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = []) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
@@ -763,7 +763,7 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = arr
 	$zz_var['where'] = false;
 	$zz_conf['int']['where_with_unique_id'] = false;
 	
-	if (!$zz_var['where_condition']) return zz_return(array($sql, $zz_var));
+	if (!$zz_var['where_condition']) return zz_return([$sql, $zz_var]);
 
 	foreach ($zz_var['where_condition'] as $field_name => $value) {
 		$submitted_field_name = $field_name;
@@ -833,17 +833,17 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = arr
 		if ($line) {
 			$zz_var['id']['value'] = $line[$zz_var['id']['field_name']];
 //		} else {
-//			zz_error_log(array(
+//			zz_error_log([
 //				'msg_dev' => zz_text('Database error. 
 //					This database has ambiguous values in ID field.'),
 //				'level' => E_USER_ERROR
-//			));
+//			]);
 //			return zz_error(); // exit script
 		}
 		if (!$zz_var['id']['value']) $zz_conf['int']['where_with_unique_id'] = false;
 	}
 	
-	return zz_return(array($sql, $zz_var));
+	return zz_return([$sql, $zz_var]);
 }
 
 /**
@@ -891,9 +891,9 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 	$hash = md5(serialize($fields).$db_table.$multiple_times.$mode);
 	if (!empty($defs[$hash])) return zz_return($defs[$hash]);
 
-	$to_translates = array(
+	$to_translates = [
 		'title', 'explanation', 'explanation_top', 'title_append', 'title_tab'
-	);
+	];
 
 	foreach (array_keys($fields) as $no) {
 		if (!empty($fields[$no]['if'])) {
@@ -924,10 +924,10 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 		}
 		if (!isset($fields[$no]['title'])) { // create title
 			if (!isset($fields[$no]['field_name'])) {
-				zz_error_log(array(
+				zz_error_log([
 					'msg_dev' => 'Field definition incorrect: [No. %d] %s',
-					'msg_dev_args' => array($no, json_encode($fields[$no]))
-				));
+					'msg_dev_args' => [$no, json_encode($fields[$no])]
+				]);
 			}
 			$fields[$no]['title'] = ucfirst($fields[$no]['field_name']);
 			$fields[$no]['title'] = str_replace('_ID', ' ', $fields[$no]['title']);
@@ -956,7 +956,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			} else {
 				$fields[$no]['class'] = 'option';
 			}
-		} elseif (in_array(zz_get_fieldtype($fields[$no]), array('time', 'datetime'))) {
+		} elseif (in_array(zz_get_fieldtype($fields[$no]), ['time', 'datetime'])) {
 			if (empty($fields[$no]['time_format'])) {
 				$fields[$no]['time_format'] = 'H:i';
 			}
@@ -988,7 +988,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			);
 		}
 
-		if (in_array($mode, array('add', 'edit', 'revise')) OR in_array($action, array('insert', 'update'))) {
+		if (in_array($mode, ['add', 'edit', 'revise']) OR in_array($action, ['insert', 'update'])) {
 			if (!isset($fields[$no]['maxlength']) && isset($fields[$no]['field_name'])) {
 				// no need to check maxlength in list view only 
 				$fields[$no]['maxlength'] = zz_db_field_maxlength(
@@ -1028,9 +1028,9 @@ function zz_fill_out_required($field, $db_table) {
 	// might be NULL
 	if (zz_db_field_null($field['field_name'], $db_table)) return false;
 	// some field types never can be required
-	$never_required = array(
+	$never_required = [
 		'calculated', 'display', 'option', 'image', 'foreign', 'subtable'
-	);
+	];
 	if (in_array($field['type'], $never_required)) return false;
 
 	return true;
@@ -1088,16 +1088,16 @@ function zz_hash($zz, $zz_conf) {
  *		'id'[value], 'id'[field_name], 'unique_fields'
  */
 function zz_get_unique_fields($fields) {
-	$zz_var = array();
+	$zz_var = [];
 	$zz_var['id']['value'] = false;
 	$zz_var['id']['field_name'] = false;
-	$zz_var['unique_fields'] = array(); // for WHERE
+	$zz_var['unique_fields'] = []; // for WHERE
 
 	foreach ($fields AS $field) {
 		// set ID fieldname
 		if (!empty($field['type']) AND $field['type'] === 'id') {
 			if ($zz_var['id']['field_name']) {
-				zz_error_log(array('msg' => 'Only one field may be defined as `id`!'));
+				zz_error_log(['msg' => 'Only one field may be defined as `id`!']);
 				return false;
 			}
 			$zz_var['id']['field_name'] = $field['field_name'];
@@ -1125,8 +1125,8 @@ function zz_get_unique_fields($fields) {
  */
 function zz_set_fielddefs_for_record($fields, $zz_var) {
 	$rec = 1;
-	$zz_var['subtables'] = array();			// key: $rec, value: $no
-	$zz_var['save_old_record'] = array();	// key: int, value: $no
+	$zz_var['subtables'] = [];			// key: $rec, value: $no
+	$zz_var['save_old_record'] = [];	// key: int, value: $no
 	$zz_var['upload_form'] = false;			// false: no upload, true: upload possible
 
 	foreach (array_keys($fields) as $no) {
@@ -1170,7 +1170,7 @@ function zz_set_fielddefs_for_record($fields, $zz_var) {
 			break;
 		}
 	}
-	return array($fields, $zz_var);
+	return [$fields, $zz_var];
 }
 
 /** 
@@ -1212,7 +1212,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 	
 	// set mode and action according to $_GET and $_POST variables
 	// do not care yet if actions are allowed
-	$keys = array();
+	$keys = [];
 
 	switch (true) {
 	case $ops['mode'] === 'export':
@@ -1271,7 +1271,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 	case isset($_GET['add']):
 		$ops['mode'] = 'add';
 		if ($zz_conf['copy']) {
-			$zz_var['id']['source_value'] = zz_check_get_array('add', 'is_int', array(), false);
+			$zz_var['id']['source_value'] = zz_check_get_array('add', 'is_int', [], false);
 		}
 		break;
 
@@ -1279,14 +1279,14 @@ function zz_record_access($zz, $ops, $zz_var) {
 		// standard case, get mode from URL
 		if (in_array($_GET['mode'], $zz_conf['int']['allowed_params']['mode'])) {
 			$ops['mode'] = $_GET['mode']; // set mode from URL
-			if (in_array($ops['mode'], array('edit', 'delete', 'show'))
+			if (in_array($ops['mode'], ['edit', 'delete', 'show'])
 				AND !empty($_GET['id'])) {
 				$id_value = zz_check_get_array('id', 'is_int');
 			}
 		} else {
 			// illegal parameter, don't set a mode at all
 			$zz_conf['int']['http_status'] = 404;
-			$keys = array('id', 'mode');
+			$keys = ['id', 'mode'];
 		}
 		break;
 
@@ -1297,7 +1297,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		// last record operation was successful
 		$ops['mode'] = 'show';
 		if (isset($_GET['delete'])) $ops['mode'] = '';
-		$keys = array('delete', 'insert', 'update', 'noupdate');
+		$keys = ['delete', 'insert', 'update', 'noupdate'];
 		$found = 0;
 		foreach ($keys as $key) {
 			if (!isset($_GET[$key])) continue;
@@ -1338,7 +1338,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 			$zz_conf['int']['http_status'] = 404;
 			break;
 		}
-		$keys = array('thumbs', 'field');
+		$keys = ['thumbs', 'field'];
 		$ops['mode'] = 'thumbnails';
 		$id_value = zz_check_get_array('thumbs', 'is_int');
 		if (empty($_GET['field'])) {
@@ -1352,7 +1352,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		break;
 
 	case !empty($_GET['field']):
-		$keys = array('thumbs', 'field');
+		$keys = ['thumbs', 'field'];
 		$zz_conf['int']['http_status'] = 404;
 		break;
 
@@ -1391,7 +1391,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 
 	// if conditions in $zz_conf['if'] -- check them
 	// get conditions if there are any, for access
-	$zz_conf['int']['list_access'] = array(); // for old variables
+	$zz_conf['int']['list_access'] = []; // for old variables
 
 	if (!empty($zz_conf['modules']['conditions'])
 		AND (!empty($zz_conf['if']) OR !empty($zz_conf['unless']))
@@ -1400,9 +1400,9 @@ function zz_record_access($zz, $ops, $zz_var) {
 		// @todo do we need to check record conditions here?
 		$zz_conditions = zz_conditions_record_check($zz, $ops['mode'], $zz_var, $zz_conditions);
 		// save old variables for list view
-		$saved_variables = array(
+		$saved_variables = [
 			'access', 'add', 'edit', 'delete', 'view', 'details'
-		);
+		];
 		foreach ($saved_variables as $var) {
 			if (!isset($zz_conf[$var])) continue;
 			$zz_conf['int']['list_access'][$var] = $zz_conf[$var];
@@ -1419,7 +1419,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		$zz_conf['int']['access'] = 'show_after_add';
 	}
 	if ($zz_conf['int']['access'] === 'edit_only'
-		AND zz_valid_request(array('update', 'noupdate'))) {
+		AND zz_valid_request(['update', 'noupdate'])) {
 		$zz_conf['int']['access'] = 'show_after_edit';
 	}
 	if ($zz_conf['int']['access'] === 'add_then_edit') {
@@ -1433,11 +1433,11 @@ function zz_record_access($zz, $ops, $zz_var) {
 	}
 	
 	if ($ops['mode'] === 'thumbnails') {
-		$not_allowed = array(
+		$not_allowed = [
 			'show', 'show_and_delete', 'edit_details_only', 'edit_details_and_add',
 			'none', 'search_but_no_list', 'add_only', 'edit_only', 'add_then_edit',
 			'show_after_add', 'show_after_edit', 'show+edit'
-		);
+		];
 		// @todo check for valid ID in case of add_only, edit_only, add_then_edit
 		// and allow these, too.
 		if (!in_array($zz_conf['int']['access'], $not_allowed)) {
@@ -1559,25 +1559,25 @@ function zz_record_access($zz, $ops, $zz_var) {
 	}
 
 	// check unallowed modes and actions
-	$modes = array('add' => 'insert', 'edit' => 'update', 'delete' => 'delete');
+	$modes = ['add' => 'insert', 'edit' => 'update', 'delete' => 'delete'];
 	foreach ($modes as $mode => $action) {
 		if (!$zz_conf[$mode] AND $ops['mode'] === $mode) {
 			$ops['mode'] = false;
-			zz_error_log(array(
+			zz_error_log([
 				'msg_dev' => 'Configuration does not allow this mode: %s',
-				'msg_dev_args' => array($mode),
+				'msg_dev_args' => [$mode],
 				'status' => 403,
 				'level' => E_USER_NOTICE
-			));
+			]);
 		}
 		if (!$zz_conf[$mode] AND $zz_var['action'] === $action) {
 			$zz_var['action'] = false;
-			zz_error_log(array(
+			zz_error_log([
 				'msg_dev' => 'Configuration does not allow this action: %s',
-				'msg_dev_args' => array($action),
+				'msg_dev_args' => [$action],
 				'status' => 403,
 				'level' => E_USER_NOTICE
-			));
+			]);
 		}
 	}
 
@@ -1588,14 +1588,14 @@ function zz_record_access($zz, $ops, $zz_var) {
 
 	// now, mode is set, do something depending on mode
 	
-	if (in_array($ops['mode'], array('edit', 'delete', 'add', 'revise')) 
+	if (in_array($ops['mode'], ['edit', 'delete', 'add', 'revise'])
 		AND !$zz_conf['show_list_while_edit']) $zz_conf['int']['show_list'] = false;
 	if (!$zz_conf['generate_output']) $zz_conf['int']['show_list'] = false;
 
 	if ($ops['mode'] === 'list_only') {
 		$zz_conf['int']['record'] = false;	// don't show record
 	}
-	return zz_return(array($zz, $ops, $zz_var));
+	return zz_return([$zz, $ops, $zz_var]);
 }
 
 /** 
@@ -1702,7 +1702,7 @@ function zz_makelink($path, $record, $type = 'link') {
 		// lock if there is something definitely called extension
 		$alt_locked = false; 
 	}
-	if (!is_array($path)) $path = array('string' => $path);
+	if (!is_array($path)) $path = ['string' => $path];
 	foreach ($path as $part => $value) {
 		if (!$value) continue;
 		// remove numbers at the end of the part type
@@ -1733,7 +1733,7 @@ function zz_makelink($path, $record, $type = 'link') {
 			if ($modes) {
 				$content = zz_make_mode($modes, $content, E_USER_ERROR);
 				if (!$content) return false;
-				$modes = array();
+				$modes = [];
 			}
 			if ($part !== 'webfield') {
 				$url .= $content;
@@ -1804,11 +1804,11 @@ function zz_makelink($path, $record, $type = 'link') {
 function zz_make_mode($modes, $content, $error = E_USER_WARNING) {
 	foreach ($modes as $mode) {
 		if (!function_exists($mode)) {
-			zz_error_log(array(
+			zz_error_log([
 				'msg_dev' => 'Configuration Error: mode with non-existing function `%s`',
-				'msg_dev_args' => array($mode),
+				'msg_dev_args' => [$mode],
 				'level' => $error
-			));
+			]);
 			return false;
 		}
 		$content = $mode($content);
@@ -1844,11 +1844,11 @@ function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec 
 	switch ($record) {
 	case 'old':
 		$my_tab = $data[$tab];
-		$line = !empty($my_tab[$rec]['existing']) ? $my_tab[$rec]['existing'] : array();
+		$line = !empty($my_tab[$rec]['existing']) ? $my_tab[$rec]['existing'] : [];
 		break;
 	case 'new':
 		$my_tab = $data[$tab];
-		$line = !empty($my_tab[$rec]['POST']) ? $my_tab[$rec]['POST'] : array();
+		$line = !empty($my_tab[$rec]['POST']) ? $my_tab[$rec]['POST'] : [];
 		break;
 	case 'line':
 		$line = $data;
@@ -2002,7 +2002,7 @@ function zz_array_merge($old, $new) {
  * @return string $field_type
  */
 function zz_get_fieldtype($field) {
-	if (in_array($field['type'], array('hidden', 'predefined', 'write_once', 'display'))) {
+	if (in_array($field['type'], ['hidden', 'predefined', 'write_once', 'display'])) {
 		if (isset($field['type_detail'])) {
 			return $field['type_detail'];
 		}
@@ -2018,7 +2018,7 @@ function zz_get_fieldtype($field) {
  * @return array
  */
 function zz_backwards($zz_conf, $zz) {
-	$headings = array('var', 'sql', 'enum', 'link', 'link_no_append');
+	$headings = ['var', 'sql', 'enum', 'link', 'link_no_append'];
 	foreach ($headings as $suffix) {
 		if (isset($zz_conf['heading_'.$suffix])) {
 			if (function_exists('wrap_error')) {
@@ -2032,17 +2032,17 @@ function zz_backwards($zz_conf, $zz) {
 			}
 		}
 	}
-	$moved_to_zz = array(
+	$moved_to_zz = [
 		'heading' => 'title',
 		'heading_text' => 'explanation',
-		'heading_text_hidden_while_editing', array('if', 'record_mode', 'explanation'),
+		'heading_text_hidden_while_editing', ['if', 'record_mode', 'explanation'],
 		'heading_sub' => 'subtitle',
 		'action' => 'hooks',
-		'tfoot' => array('list', 'tfoot'),
-		'group' => array('list', 'group'),
+		'tfoot' => ['list', 'tfoot'],
+		'group' => ['list', 'group'],
 		'folder' => 'folder',
 		'filter' => 'filter'
-	);
+	];
 	foreach ($moved_to_zz as $old => $new) {
 		if (isset($zz_conf[$old])) {
 			if (is_array($new) AND count($new === 2)) {
@@ -2071,7 +2071,7 @@ function zz_backwards($zz_conf, $zz) {
 		));
 	}
 	// conditions applied = if
-	$cond_renamed = array('conditions' => 'if', 'not_conditions' => 'unless');
+	$cond_renamed = ['conditions' => 'if', 'not_conditions' => 'unless'];
 	foreach ($cond_renamed as $old => $new) {
 		if (isset($zz_conf[$old])) {
 			$zz_conf[$new] = $zz_conf[$old];
@@ -2103,12 +2103,12 @@ function zz_backwards($zz_conf, $zz) {
 		}
 	}
 	// renamed $zz variables
-	$zz_renamed = array('extra_action' => 'hooks');
+	$zz_renamed = ['extra_action' => 'hooks'];
 	$zz = zz_backwards_rename($zz, $zz_renamed, 'zz');
 	// renamed $zz_conf variables
-	$zz_conf_renamed = array('action_dir' => 'hooks_dir');
+	$zz_conf_renamed = ['action_dir' => 'hooks_dir'];
 	$zz_conf = zz_backwards_rename($zz_conf, $zz_conf_renamed, 'zz_conf');
-	return array($zz_conf, $zz);
+	return [$zz_conf, $zz];
 }
 
 /**
@@ -2162,10 +2162,10 @@ function zz_error() {
 	if (empty($zz_conf['error_handling'])) {
 		$zz_conf['error_handling'] = 'output';
 	}
-	$user = array();
-	$admin = array();
-	$log = array();
-	$mail = array();
+	$user = [];
+	$admin = [];
+	$log = [];
+	$mail = [];
 	$return = zz_error_exit() ? 'exit' : 'html';
 	
 	$logged_errors = zz_error_log();
@@ -2206,10 +2206,10 @@ function zz_error() {
 		// initialize and translate error messages
 		if (!empty($error['msg'])) {
 			// allow 'msg' to be an array to translate each sentence individually
-			if (!is_array($error['msg'])) $error['msg'] = array($error['msg']);
+			if (!is_array($error['msg'])) $error['msg'] = [$error['msg']];
 			foreach ($error['msg'] as $index => $msg) {
 				if (is_array($msg)) {
-					$mymsg = array();
+					$mymsg = [];
 					foreach ($msg as $submsg) {
 						$mymsg[] = zz_text(trim($submsg));
 					}
@@ -2221,7 +2221,7 @@ function zz_error() {
 			if (empty($error['html'])) {
 				$error['msg'] = implode(' ', $error['msg']);
 			} else {
-				$mymsg = array();
+				$mymsg = [];
 				foreach ($error['html'] as $index => $html) {
 					if (array_key_exists($index, $error['msg'])) {
 						$mymsg[] = sprintf($html, $error['msg'][$index]);
@@ -2408,10 +2408,10 @@ From: '.$from);
  * @static array $errors
  * @return array
  */
-function zz_error_log($msg = array()) {
+function zz_error_log($msg = []) {
 	static $errors;
-	if (empty($errors)) $errors = array();
-	if ($msg === false) $errors = array();
+	if (empty($errors)) $errors = [];
+	if ($msg === false) $errors = [];
 	elseif ($msg) $errors[] = $msg;
 	return $errors;
 }
@@ -2441,10 +2441,10 @@ function zz_error_exit($set = 'check') {
  *	bool: false deletes or initializes the output
  * @return array
  */
-function zz_error_out($data = array()) {
+function zz_error_out($data = []) {
 	static $output;
-	if (empty($output)) $output = array();
-	if ($data === false) $output = array();
+	if (empty($output)) $output = [];
+	if ($data === false) $output = [];
 	elseif ($data) $output = array_merge($output, $data);
 	return $output;
 }
@@ -2472,13 +2472,13 @@ function zz_error_output() {
  *		bool, array, string
  * @return array
  */
-function zz_error_validation_log($key = false, $value = array()) {
+function zz_error_validation_log($key = false, $value = []) {
 	static $errors;
 	if (empty($errors) OR $key === 'delete') {
-		$errors = array(
-			'msg' => array(), 'msg_args' => array(), 'msg_dev' => array(),
-			'msg_dev_args' => array(), 'log_post_data' => false
-		);
+		$errors = [
+			'msg' => [], 'msg_args' => [], 'msg_dev' => [],
+			'msg_dev_args' => [], 'log_post_data' => false
+		];
 		if ($key === 'delete') $key = false;
 	}
 	if ($key) {
@@ -2554,19 +2554,19 @@ function zz_trigger_error_too_big() {
 	global $zz_conf;
 	
 	if (empty($zz_conf['int']['post_too_big'])) return true;
-	zz_error_log(array(
-		'msg' => array(
+	zz_error_log([
+		'msg' => [
 			'Transfer failed. Probably you sent a file that was too large.',
 			'<br>',
 			'Maximum allowed filesize is %s.',
 			' – You sent: %s data.'
-		),
-		'msg_args' => array(
+		],
+		'msg_args' => [
 			wrap_bytes($zz_conf['upload_MAX_FILE_SIZE']),
 			wrap_bytes($_SERVER['CONTENT_LENGTH'])
-		),
+		],
 		'level' => E_USER_NOTICE
-	));
+	]);
 	return false;
 }
 
@@ -2596,11 +2596,11 @@ function zz_create_topfolders($dir) {
 	$success = zz_create_topfolders($upper_dir);
 	if ($success) {
 		if (!is_writable($upper_dir)) {
-			zz_error_log(array(
+			zz_error_log([
 				'msg_dev' => 'Creation of directory %s failed: Parent directory is not writable.',
-				'msg_dev_args' => array($dir),
+				'msg_dev_args' => [$dir],
 				'level' => E_USER_ERROR
-			));
+			]);
 			zz_error_exit(true);
 			return false;
 		}
@@ -2610,11 +2610,11 @@ function zz_create_topfolders($dir) {
 		//if (!$success) echo 'Change of Ownership of '.$dir.' failed.<br>';
 	}
 
-	zz_error_log(array(
+	zz_error_log([
 		'msg_dev' => 'Creation of directory %s failed.',
-		'msg_dev_args' => array($dir),
+		'msg_dev_args' => [$dir],
 		'level' => E_USER_ERROR
-	));
+	]);
 	zz_error_exit(true);
 	return false;
 }
@@ -2637,13 +2637,13 @@ function zz_create_topfolders($dir) {
 function zz_hierarchy($sql, $hierarchy) {
 	// for performance reasons, we only get the fields which are important
 	// for the hierarchy (we need to get all records)
-	$lines = zz_db_fetch($sql, array($hierarchy['id_field_name'], $hierarchy['mother_id_field_name']), 'key/value'); 
-	if (!$lines) return zz_return(array(array(), 0));
+	$lines = zz_db_fetch($sql, [$hierarchy['id_field_name'], $hierarchy['mother_id_field_name']], 'key/value'); 
+	if (!$lines) return zz_return([[], 0]);
 
 	if (empty($hierarchy['id'])) 
 		$hierarchy['id'] = 'NULL';
 
-	$h_lines = array();
+	$h_lines = [];
 	foreach ($lines as $id => $mother_id) {
 		// sort lines by mother_id
 		if ($id == $hierarchy['id']) {
@@ -2660,10 +2660,10 @@ function zz_hierarchy($sql, $hierarchy) {
 		$hierarchy['id'] = 'NULL';
 		unset($h_lines['TOP']);
 	}
-	if (!$h_lines) return zz_return(array(array(), 0));
+	if (!$h_lines) return zz_return([[], 0]);
 	$my_lines = zz_hierarchy_sort($h_lines, $hierarchy['id'], $hierarchy['id_field_name']);
 	$total_rows = count($my_lines); // sometimes, more rows might be selected beforehands,
-	return array($my_lines, $total_rows);
+	return [$my_lines, $total_rows];
 }
 
 /**
@@ -2677,8 +2677,8 @@ function zz_hierarchy($sql, $hierarchy) {
  * @return array $my_lines
  */
 function zz_hierarchy_sort($h_lines, $hierarchy, $id_field, $level = 0, &$i = 0) {
-	$my_lines = array();
-	$show_only = array();
+	$my_lines = [];
+	$show_only = [];
 	if (!$level AND $hierarchy !== 'NULL' AND !empty($h_lines['TOP'])) {
 		// show uppermost line
 		$h_lines['TOP'][0]['zz_level'] = $level;
@@ -2700,16 +2700,16 @@ function zz_hierarchy_sort($h_lines, $hierarchy, $id_field, $level = 0, &$i = 0)
 		}
 		foreach ($nulls as $id) {
 			// put all ids with missing main_ids into NULL-Array
-			$h_lines['NULL'] = array($id => $id);
+			$h_lines['NULL'] = [$id => $id];
 			$show_only[] = $id;
 		}
 	}
 	if (!empty($h_lines[$hierarchy])) {
 		foreach ($h_lines[$hierarchy] as $h_line) {
-			$my_lines[$i] = array(
+			$my_lines[$i] = [
 				$id_field => $h_line,
 				'zz_level' => $level
-			);
+			];
 			if (in_array($h_line, $show_only)) {
 				// added nulls are not editable, won't be shown
 				$my_lines[$i]['zz_conf']['access'] = 'none';
@@ -2755,7 +2755,7 @@ function zz_text($string) {
 function zz_translate($def, $values) {
 	if (empty($def['sql_translate'])) return $values;
 	if (!is_array($def['sql_translate'])) {
-		$def['sql_translate'] = array($def['sql_translate']);
+		$def['sql_translate'] = [$def['sql_translate']];
 	}
 	foreach ($def['sql_translate'] as $id_field_name => $table) {
 		if (is_numeric($id_field_name)) {
@@ -2792,13 +2792,13 @@ function zz_translate($def, $values) {
  *		overwritten
  * @return string $string		New query string without removed keys
  */
-function zz_edit_query_string($query, $unwanted_keys = array(), $new_keys = array(), $and = '&amp;') {
+function zz_edit_query_string($query, $unwanted_keys = [], $new_keys = [], $and = '&amp;') {
 	$query = str_replace('&amp;', '&', $query);
-	if (in_array(substr($query, 0, 1), array('?', '&'))) {
+	if (in_array(substr($query, 0, 1), ['?', '&'])) {
 		$query = substr($query, 1);
 	}
-	if (!is_array($unwanted_keys)) $unwanted_keys = array($unwanted_keys);
-	if (!is_array($new_keys)) $new_keys = array($new_keys);
+	if (!is_array($unwanted_keys)) $unwanted_keys = [$unwanted_keys];
+	if (!is_array($new_keys)) $new_keys = [$new_keys];
 	parse_str($query, $queryparts);
 	// remove unwanted keys from URI
 	foreach (array_keys($queryparts) as $key) {
@@ -2899,7 +2899,7 @@ function zz_split_fieldname($field_name) {
 	// split array in variable and key
 	preg_match('/^(.+)\[(.+)\]$/', $field_name, $field_names);
 	if (!isset($field_names[1]) OR !isset($field_names[2])) return false;
-	return array($field_names[1], $field_names[2]);
+	return [$field_names[1], $field_names[2]];
 }
 
 /**
@@ -3025,9 +3025,9 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 		if (!empty($my_rec['fields'][$f]['show_hierarchy'])) {
 			// since this is only a part of the list, hierarchy does not make sense
 			if (!isset($my_rec['fields'][$f]['sql_ignore'])) {
-				$my_rec['fields'][$f]['sql_ignore'] = array();
+				$my_rec['fields'][$f]['sql_ignore'] = [];
 			} elseif (!is_array($my_rec['fields'][$f]['sql_ignore'])) {
-				$my_rec['fields'][$f]['sql_ignore'] = array($my_rec['fields'][$f]['sql_ignore']);
+				$my_rec['fields'][$f]['sql_ignore'] = [$my_rec['fields'][$f]['sql_ignore']];
 			}
 			$my_rec['fields'][$f]['sql_ignore'][] = $my_rec['fields'][$f]['show_hierarchy'];
 			$my_rec['fields'][$f]['show_hierarchy'] = false;
@@ -3050,10 +3050,10 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 		$error = true;
 	}
 	if ($error AND $zz_conf['multi']) {
-		zz_error_log(array(
+		zz_error_log([
 			'msg_dev' => 'No entry found: value %s in field %s. <br>SQL: %s',
-			'msg_dev_args' => array($my_rec['POST'][$field_name], $field_name, $my_rec['fields'][$f]['sql_new'])
-		));
+			'msg_dev_args' => [$my_rec['POST'][$field_name], $field_name, $my_rec['fields'][$f]['sql_new']]
+		]);
 	}
 	return zz_return($my_rec);
 }

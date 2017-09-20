@@ -26,7 +26,7 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	global $zz_conf;
 	zz_initialize();
 
-	$data = array();
+	$data = [];
 	$text = mb_strtolower($xmlHttpRequest['text']);
 	$limit = $xmlHttpRequest['limit'] + 1;
 	
@@ -56,14 +56,14 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	if (strstr($text, $concat)) {
 		$text = explode($concat, $text);
 	} else {
-		$text = array($text);
+		$text = [$text];
 	}
 
 	// @todo modify SQL query according to zzform()
 	
 	$sql = wrap_db_prefix($field['sql']);
 	$sql_fields = wrap_edit_sql($sql, 'SELECT', false, 'list');
-	$where = array();
+	$where = [];
 	foreach ($sql_fields as $no => $sql_field) {
 		// get sql_character_set etc.
 		$sql_field = array_merge($field, $sql_field);
@@ -74,7 +74,7 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 			$where[$index][] = sprintf('%s LIKE %s"%%%s%%"', $sql_field['field_name'], $collation, wrap_db_escape($value));
 		}
 	}
-	$conditions = array();
+	$conditions = [];
 	foreach ($where as $condition) {
 		$conditions[] = sprintf('(%s)', implode(' OR ', $condition));
 	}
@@ -83,38 +83,38 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	$records = wrap_db_fetch($sql, '_dummy_', 'numeric');
 	if (count($records) > $limit) {
 		// more records than we might show
-		$data['entries'] = array();
-		$data['entries'][] = array('text' => htmlspecialchars($xmlHttpRequest['text']));
-		$data['entries'][] = array(
+		$data['entries'] = [];
+		$data['entries'][] = ['text' => htmlspecialchars($xmlHttpRequest['text'])];
+		$data['entries'][] = [
 			'text' => wrap_text('Please enter more characters.'),
-			'elements' => array(
-				0 => array(
+			'elements' => [
+				0 => [
 					'node' => 'div',
-					'properties' => array(
+					'properties' => [
 						'className' => 'xhr_foot',
 						'text' => wrap_text('Please enter more characters.')
-					)
-				)
-			)
-		);
+					]
+				]
+			]
+		];
 		return $data;
 	}
 
 	if (!$records) {
-		$data['entries'][] = array('text' => htmlspecialchars($xmlHttpRequest['text']));
+		$data['entries'][] = ['text' => htmlspecialchars($xmlHttpRequest['text'])];
 		if (!$unrestricted) {
-			$data['entries'][] = array(
+			$data['entries'][] = [
 				'text' => wrap_text('No record was found.'),
-				'elements' => array(
-					0 => array(
+				'elements' => [
+					0 => [
 						'node' => 'div',
-						'properties' => array(
+						'properties' => [
 							'className' => 'xhr_foot',
 							'text' => wrap_text('No record was found.')
-						)
-					)
-				)
-			);
+						]
+					]
+				]
+			];
 		}
 		return $data;
 	}
@@ -129,11 +129,11 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 		$sql_fields[$index]['as'] = $sql_field['as'][1];
 	}
 	
-	$removable = array('sql_ignore', 'show_hierarchy');
+	$removable = ['sql_ignore', 'show_hierarchy'];
 	foreach ($removable as $remove_key) {
 		if (!array_key_exists($remove_key, $field)) continue;
 		$remove_fields = $field[$remove_key];
-		if (!is_array($remove_fields)) $remove_fields = array($remove_fields);
+		if (!is_array($remove_fields)) $remove_fields = [$remove_fields];
 		foreach ($remove_fields as $remove_field) {
 			$index = array_search($remove_field, $sql_fieldnames);
 			if ($index !== false) {
@@ -145,18 +145,18 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	$i = 0;
 	foreach ($records as $record) {
 		$j = 0;
-		$text = array();
+		$text = [];
 		foreach ($sql_fields as $sql_field) {
 			if (!array_key_exists($sql_field['as'], $record)) continue;
 			if (empty($record[$sql_field['as']])) continue;
 			$text[] = $record[$sql_field['as']];
-			$data['entries'][$i]['elements'][$j] = array(
+			$data['entries'][$i]['elements'][$j] = [
 				'node' => 'div',
-				'properties' => array(
+				'properties' => [
 					'className' => 'xhr_record',
 					'text' => $record[$sql_field['as']]
-				)
-			);
+				]
+			];
 			$j++;
 		}
 		// search entry for zzform, concatenated and space at the end

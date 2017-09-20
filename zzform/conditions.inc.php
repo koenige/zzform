@@ -37,21 +37,21 @@
  *		replace $zz['fields'][n]['if']['where'] with index; add $zz['conditions']
  */
 function zz_conditions_set($zz) {
-	if (!isset($zz['conditions'])) $zz['conditions'] = array();
+	if (!isset($zz['conditions'])) $zz['conditions'] = [];
 	
 	// use negative values for indices
 	$new_index = -1;
 
 	// All supported shortcuts
-	$shortcuts = array(
+	$shortcuts = [
 		'list_empty', 'record_mode', 'export_mode', 'where', 'multi',
 		'add', 'edit', 'delete', 'upload', 'noid', 'revise'
-	);
+	];
 	// Some shortcuts depend on a field, get field_name as extra definition
-	$shortcuts_depending_on_fields = array('where');
+	$shortcuts_depending_on_fields = ['where'];
 
-	$sc = array();
-	$conditions = array('if', 'unless');
+	$sc = [];
+	$conditions = ['if', 'unless'];
 	foreach ($shortcuts as $sc['shortcut']) {
 		$sc['has_condition'] = false;
 		$sc['depending_on_fields']
@@ -100,14 +100,14 @@ function zz_conditions_set($zz) {
  * @return array $conditions
  */
 function zz_conditions_set_field(&$field, &$new_index, &$sc, $cn) {
-	$conditions = array();
-	if (!isset($field[$cn])) return array();
-	if (!isset($field[$cn][$sc['shortcut']])) return array();
+	$conditions = [];
+	if (!isset($field[$cn])) return [];
+	if (!isset($field[$cn][$sc['shortcut']])) return [];
 	$field[$cn][$new_index] = $field[$cn][$sc['shortcut']];
 	unset($field[$cn][$sc['shortcut']]);
 	if (!$sc['depending_on_fields']) {
 		$sc['has_condition'] = true;
-		return array();
+		return [];
 	}
 	$conditions[$new_index]['scope'] = $sc['shortcut'];
 	$conditions[$new_index]['field_name'] = $field['field_name'];
@@ -131,7 +131,7 @@ function zz_conditions_check($zz, $mode, $zz_var) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
-	$zz_conditions = array();
+	$zz_conditions = [];
 	foreach ($zz['conditions'] AS $index => $condition) {
 		switch ($condition['scope']) {
 		case 'noid':
@@ -245,7 +245,7 @@ function zz_conditions_record($zz, $zz_conditions, $id_value) {
 function zz_conditions_record_values($field, $values) {
 	foreach ($values as $condition => $records) {
 		if (empty($field['if'][$condition])) continue;
-		$all_values = array();
+		$all_values = [];
 		foreach ($records as $record) {
 			foreach ($record as $field_name => $value) {
 				$all_values[$field_name][] = $value;
@@ -290,7 +290,7 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 	foreach ($zz['conditions'] AS $index => $condition) {
 		switch ($condition['scope']) {
 		case 'record': // for form view (of saved records), list view comes later in zz_list() because requery of record 
-			$zz_conditions['bool'][$index] = array();
+			$zz_conditions['bool'][$index] = [];
 			if (($mode === 'add' OR $zz_var['action'] === 'insert') AND !empty($condition['add'])) {
 				if (!empty($condition['add']['where']) AND !$condition['where']) {
 					// where = '' is a means to make a condition always valid,
@@ -370,7 +370,7 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 				$zz_conditions['bool'][$index] = zz_array_merge($zz_conditions['bool'][$index], $lines);
 			break;
 		case 'query': // just for form view (of saved records), for list view will be later in zz_list()
-			$zz_conditions['bool'][$index] = array();
+			$zz_conditions['bool'][$index] = [];
 			if (empty($zz_var['id']['value'])) break;
 
 			$sql = wrap_edit_sql($condition['sql'], 'WHERE', sprintf(
@@ -384,7 +384,7 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 				$zz_conditions['bool'][$index] = zz_array_merge($zz_conditions['bool'][$index], $lines);
 			break;
 		case 'value': // just for record view
-			$zz_conditions['values'][$index] = array();
+			$zz_conditions['values'][$index] = [];
 
 			// get value for $condition['field_name']
 			$value = false;
@@ -413,10 +413,10 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 							}
 						}
 					} else {
-						zz_error_log(array(
+						zz_error_log([
 							'msg_dev' => 'Value condition can’t get corresponding value from database (field %s)',
-							'msg_dev_args' => array($condition['field_name'])
-						));
+							'msg_dev_args' => [$condition['field_name']]
+						]);
 						return zz_return($zz_conditions);
 					}
 				} else {
@@ -425,10 +425,10 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 				}
 			}
 			if (!$value) {
-				zz_error_log(array(
+				zz_error_log([
 					'msg_dev' => 'Value condition has empty value in database (field %s)',
-					'msg_dev_args' => array($condition['field_name'])
-				));
+					'msg_dev_args' => [$condition['field_name']]
+				]);
 				return zz_return($zz_conditions);
 			}
 			$sql = sprintf($condition['sql'], $value);
@@ -440,15 +440,15 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 				$zz_conditions['values'][$index] = array_merge($zz_conditions['values'][$index], $lines);
 			break;
 		case 'upload': // just for form view
-			$zz_conditions['uploads'][$index] = array();
+			$zz_conditions['uploads'][$index] = [];
 			$table = 0;
 			foreach ($zz['fields'] as $f => $field) {
 				if (!empty($field['type']) AND $field['type'] === 'upload_image') {
 					foreach ($subfield['image'] as $key => $upload_image) {
 						if (empty($upload_image['save_as_record'])) continue;
-						$zz_conditions['fields'][$index][] = array(
+						$zz_conditions['fields'][$index][] = [
 							'table_no' => 0, 'field_no' => $f, 'image_no' => $key
-						);
+						];
 					}
 				} elseif (!empty($field['type']) AND $field['type'] === 'subtable') {
 					$table++;
@@ -457,9 +457,9 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 						if ($subfield['type'] !== 'upload_image') continue;
 						foreach ($subfield['image'] as $key => $upload_image) {
 							if (empty($upload_image['save_as_record'])) continue;
-							$zz_conditions['fields'][$index][] = array(
+							$zz_conditions['fields'][$index][] = [
 								'table_no' => $table, 'field_no' => $subf, 'image_no' => $key
-							);
+							];
 						}
 					}
 				}
@@ -597,7 +597,7 @@ function zz_conditions_merge($array, $bool_conditions, $record_id, $reverse = fa
 	foreach ($conditions as $condition => $new_values) {
 		// only change arrays if there is something
 		// whole fields might be unset!
-		if (in_array($type, array('field', 'detail')) AND !isset($new_values)) continue;
+		if (in_array($type, ['field', 'detail']) AND !isset($new_values)) continue;
 		// whole configuration might not be unset!
 		if ($type === 'conf' AND empty($new_values)) continue;
 
@@ -694,8 +694,8 @@ function zz_conditions_merge_conf(&$conf, $bool_conditions, $record_id) {
  * @param string $mode ($ops['mode'])
  * @global array $zz_conf
  * @return array $zz_conditions 
- *		['bool'][$index of condition] = array($record ID1 => true, $record ID2 
- *		=> true, ..., $record IDn => true) or true = all true // false = fall false
+ *		['bool'][$index of condition] = [$record ID1 => true, $record ID2 
+ *		=> true, ..., $record IDn => true] or true = all true // false = fall false
  * @see zz_conditions_record_check()
  */
 function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids, $mode) {
@@ -770,7 +770,7 @@ function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids, $mode) {
 		default:
 			if (!isset($zz_conditions['bool'][$index])) {
 				// condition might be set by zz_conditions_record_check(), e. g. 'where'
-				$zz_conditions['bool'][$index] = array();
+				$zz_conditions['bool'][$index] = [];
 			}
 			break;
 		}

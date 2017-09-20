@@ -17,17 +17,17 @@ function zz_revisions($ops, $rev_only = false) {
 	global $zz_conf;
 	$user_id = !empty($_SESSION['user_id']) ? $_SESSION['user_id'] : 'NULL';
 
-	$data = array();
+	$data = [];
 	foreach ($ops['return'] as $index => $table) {
 		if ($table['action'] === 'nothing') continue;
 		if ($table['action'] === 'delete') {
-			$data[] = array(
+			$data[] = [
 				'table_name' => $table['table'],
 				'record_id' => $table['id_value'],
 				'changed_values' => 'NULL',
 				'complete_values' => 'NULL',
 				'rev_action' => $table['action']
-			);
+			];
 			continue;
 		}
 		$changed = [];
@@ -36,15 +36,15 @@ function zz_revisions($ops, $rev_only = false) {
 			$changed[$field_name] = $ops['record_new'][$index][$field_name];
 		}
 		if (!$changed) continue;
-		$data[] = array(
+		$data[] = [
 			'table_name' => $table['table'],
 			'record_id' => $table['id_value'],
 			'changed_values' => sprintf('"%s"', wrap_db_escape(json_encode($changed))),
 			'complete_values' => sprintf('"%s"', wrap_db_escape(json_encode($ops['record_new'][$index]))),
 			'rev_action' => $table['action']
-		);
+		];
 	}
-	if (!$data) return array();
+	if (!$data) return [];
 
 	$status = !empty($zz_conf['int']['revisions_only']) ? 'pending' : 'live';
 	if ($rev_only) $status = 'pending'; // overwrite internal settings
@@ -55,7 +55,7 @@ function zz_revisions($ops, $rev_only = false) {
 		$ops['return'][0]['id_value'], $user_id, $status
 	);
 	$rev_id = wrap_db_query($sql);
-	if (!$rev_id) return array();
+	if (!$rev_id) return [];
 	zz_log_sql($sql, $zz_conf['user'], $rev_id);
 
 	if ($status === 'live') {
@@ -78,7 +78,7 @@ function zz_revisions($ops, $rev_only = false) {
 		if (!$rev_data_id) continue;
 		zz_log_sql($sql, $zz_conf['user'], $rev_data_id);
 	}
-	return array();
+	return [];
 }
 
 /**

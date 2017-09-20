@@ -10,7 +10,7 @@
 // for e.g. "This[1].is.a.filename.ext" in the save as dialog.
 // ---------------------------------------------------------
 
-function forceFilename($str, $spaceChar = '-', $replacements = array()) {
+function forceFilename($str, $spaceChar = '-', $replacements = []) {
 
 	// get rid of html entities
 	$str = html_entity_decode($str);

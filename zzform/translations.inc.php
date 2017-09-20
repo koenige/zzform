@@ -11,7 +11,7 @@
  *	zz_translations_init()		checks whether fields should be translated
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2013, 2016 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2013, 2016-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -22,7 +22,7 @@
 function zz_translations_config() {
 	$default['translations_of_fields'] = false;
 	$default['translations_table'] = '';
-	$default['translations_script'] = array();
+	$default['translations_script'] = [];
 	zz_write_conf($default);
 }
 
@@ -39,17 +39,18 @@ function zz_translations_init($table, $fields) {
 
 	if (!$zz_conf['translations_of_fields']) return $fields;
 	if (!$zz_conf['translations_table']) {
-		zz_error_log(array(
+		zz_error_log([
 			'msg_dev' => '$zz_conf[\'translations_table\'] must be set.',
 			'level' => E_USER_ERROR
-		));
+		]);
 		return zz_error();
 	}
 
 	// Step 1: get fields which might be translated
 	$sql = 'SELECT translationfield_id, field_name, field_type
-		FROM '.$zz_conf['translations_table'].'
-		WHERE db_name = "'.$zz_conf['db_name'].'" AND table_name = "'.$table.'"';
+		FROM %s
+		WHERE db_name = "%s" AND table_name = "%s"';
+	$sql = sprintf($sql, $zz_conf['translations_table'], $zz_conf['db_name'], $table);
 	$translationfields = zz_db_fetch($sql, 'field_name');
 
 	$all_indices = array_keys($fields);

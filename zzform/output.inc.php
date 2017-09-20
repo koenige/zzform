@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2016 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -88,11 +88,11 @@ function zz_output_heading($heading, $table = '') {
  * @global array $zz_conf
  * @return string $heading
  */
-function zz_nice_headings($heading, $zz, $where_condition = array()) {
+function zz_nice_headings($heading, $zz, $where_condition = []) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$i = 0;
-	$heading_addition = array();
+	$heading_addition = [];
 	// depending on WHERE-Condition
 	foreach (array_keys($where_condition) as $mywh) {
 		$mywh = wrap_db_escape($mywh);
@@ -102,7 +102,7 @@ function zz_nice_headings($heading, $zz, $where_condition = array()) {
 		if (!isset($zz['subtitle'][$wh[$index]])) continue;
 		$subheading = $zz['subtitle'][$wh[$index]];
 		if (!isset($subheading['var']) AND !isset($subheading['value'])) continue;
-		$heading_addition[$i] = array();
+		$heading_addition[$i] = [];
 		if (isset($subheading['sql']) AND $where_condition[$mywh]) {
 			// only if there is a value! (might not be the case if 
 			// write_once-fields come into play)
@@ -206,7 +206,7 @@ function zz_show_more_actions($conf, $id, $line = false) {
 		exit;
 	}
  	if (empty($conf['details_url'])) $conf['details_url'] = '.php?id=';
-	$act = array();
+	$act = [];
 	foreach ($conf['details'] as $key => $new_action) {
 		$output = false;
 		if ($conf['details_base']) $new_action_url = $conf['details_base'][$key];
@@ -461,7 +461,7 @@ function zz_nice_selection($zz_fields) {
  * @return array
  */
 function zz_output_filter_title($filters, $filter_params) {
-	$titles = array();
+	$titles = [];
 	if (!$filters) return $titles;
 	if (!$filter_params) return $titles;
 	foreach ($filters as $index => $f) {
@@ -484,7 +484,7 @@ function zz_output_filter_title($filters, $filter_params) {
  * @return HTML output containing hidden input tags
  * @see zz_search_form(), zz_print_multiarray()
  */
-function zz_querystring_to_hidden($query_string, $unwanted_keys = array(), $level = 0) {
+function zz_querystring_to_hidden($query_string, $unwanted_keys = [], $level = 0) {
 	$output = '';
 	$html_template = '<input type="hidden" name="%s" value="%s">'."\n";
 	// parse_str just for first call of this function, not for recursive calls
@@ -512,7 +512,7 @@ function zz_querystring_to_hidden($query_string, $unwanted_keys = array(), $leve
  * @see zz_querystring_to_hidden()
  */
 function zz_print_multiarray($array, $parent_key = '') {
-	$vars = array();
+	$vars = [];
 	if (!is_array($array)) {
 		$vars[] = $array;
 		return $vars;
@@ -525,10 +525,10 @@ function zz_print_multiarray($array, $parent_key = '') {
 		if (is_array($value)) {
 			$vars = array_merge($vars, zz_print_multiarray($value, $mykey));
 		} else {
-			$vars[] = array(
+			$vars[] = [
 				'key' => $mykey,
 				'value' => zz_html_escape($value)
-			);
+			];
 		}
 	}
 	return $vars;
@@ -590,7 +590,7 @@ function zz_output_add_links($zz, $extra_get) {
 	if (!empty($zz['add'])) return false;
 	if ($zz_conf['int']['access'] === 'export') return false;
 	
-	$toolsline = array();
+	$toolsline = [];
 	$toolsline[] = '<a accesskey="n" href="'.$zz_conf['int']['url']['self']
 		.$zz_conf['int']['url']['qs'].$zz_conf['int']['url']['?&'].'add'
 		.$extra_get.'">'.zz_text('Add new record').'</a>';
@@ -604,7 +604,7 @@ function zz_output_add_links($zz, $extra_get) {
  * @global array $zz_conf
  * @return string HTML output Back to overview
  */
-function zz_output_backlink($zz_tab = array()) {
+function zz_output_backlink($zz_tab = []) {
 	global $zz_conf;
 	$link = false;	
 
@@ -643,10 +643,10 @@ function zz_nice_tablenames($table) {
 		if (strtolower(substr($table, 0, strlen($zz_conf['prefix']))) === strtolower($zz_conf['prefix']))
 			$table = substr($table, strlen($zz_conf['prefix']));
 		else {
-			zz_error_log(array(
+			zz_error_log([
 				'msg_dev' => 'Table prefix is incorrect somehow: %s',
-				'msg_dev_args' => array(substr($table, 0, strlen($zz_conf['prefix'])))
-			));
+				'msg_dev_args' => [substr($table, 0, strlen($zz_conf['prefix']))]
+			]);
 		}
 	}
 	
@@ -665,11 +665,11 @@ function zz_nice_tablenames($table) {
  */
 function zz_extra_get_params($mode, $zz_conf) {
 	// Extra GET Parameter
-	$keep_query = array();
-	$keep_fields = array(
+	$keep_query = [];
+	$keep_fields = [
 		'where', 'var', 'order', 'group', 'q', 'scope', 'dir', 'referer',
 		'url', 'nolist', 'filter', 'debug', 'zz'
-	);
+	];
 	foreach ($keep_fields AS $key) {
 		if (!empty($_GET[$key])) $keep_query[$key] = $_GET[$key];
 	}
@@ -692,7 +692,7 @@ function zz_extra_get_params($mode, $zz_conf) {
  * @global array $zz_conf
  * @return void
  */
-function zz_init_limit($zz = array()) {
+function zz_init_limit($zz = []) {
 	global $zz_conf;
 
 	// set default limit in case 'hierarchy' is used because hierarchies need more memory
@@ -743,7 +743,7 @@ function zz_init_referer() {
 	// remove actions from referer if set
 	$zz_conf['int']['referer'] = parse_url($zz_conf['referer']);
 	if (!empty($zz_conf['int']['referer']['query'])) {
-		$removes = array('delete', 'insert', 'update', 'noupdate');
+		$removes = ['delete', 'insert', 'update', 'noupdate'];
 		$zz_conf['int']['referer']['query'] = zz_edit_query_string($zz_conf['int']['referer']['query'], $removes);
 		$zz_conf['int']['referer']['query'] = str_replace('&amp;', '&', $zz_conf['int']['referer']['query']);
 	}
@@ -836,21 +836,25 @@ function zz_date_format($date) {
 
 	// international format, ISO 8601
 	$date_separator['---'] = '-';
-	$months['---'] = array('01' => '01', '02' => '02', '03' => '03', '04' => '04', 
-		'05' => '05', '06' => '06', '07' => '07', '08' => '08', '09' => '09', 
-		'10' => '10', '11' => '11', '12' => '12');
-	$date_order['---'] = array('year', 'month', 'day');
+	$months['---'] = [
+		'01' => '01', '02' => '02', '03' => '03', '04' => '04', '05' => '05',
+		'06' => '06', '07' => '07', '08' => '08', '09' => '09', '10' => '10',
+		'11' => '11', '12' => '12'
+	];
+	$date_order['---'] = ['year', 'month', 'day'];
 
 	// german format (deu)
 	$date_separator['deu'] = '.';
-	$date_order['deu'] = array('day', 'month', 'year');
+	$date_order['deu'] = ['day', 'month', 'year'];
 
 	// english format (eng)
 	$date_separator['eng'] = '&nbsp;';
-	$months['eng'] = array('01' => 'Jan', '02' => 'Feb', '03' => 'Mar', '04' => 'Apr', 
+	$months['eng'] = [
+		'01' => 'Jan', '02' => 'Feb', '03' => 'Mar', '04' => 'Apr',
 		'05' => 'May', '06' => 'Jun', '07' => 'Jul', '08' => 'Aug', '09' => 'Sep', 
-		'10' => 'Oct', '11' => 'Nov', '12' => 'Dec');
-	$date_order['eng'] = array('day', 'month', 'year');
+		'10' => 'Oct', '11' => 'Nov', '12' => 'Dec'
+	];
+	$date_order['eng'] = ['day', 'month', 'year'];
 
 	// default values: international format, or use language specific format
 	$my_date_separator = !empty($date_separator[$language]) ? $date_separator[$language] : $date_separator['---'];
@@ -1012,7 +1016,7 @@ function zz_output_wmd_editor() {
 	if (empty($zz_conf['wmd_editor'])) return '';
 	if ($zz_conf['wmd_editor'] === true) return '';
 	
-	$options = array();
+	$options = [];
 	if (!empty($zz_conf['wmd_editor_languages'])) {
 		if (in_array($zz_conf['language'], $zz_conf['wmd_editor_languages'])) {
 			$options[] = 'strings: Markdown.local.'.$zz_conf['language'];
@@ -1076,7 +1080,7 @@ function zz_output_modes($id, $zz_var, $zz_conf_record, $cancelurl = '') {
 		$zz_conf['int']['url']['qs']
 	);
 
-	$modes = array();
+	$modes = [];
 	if (empty($zz_conf_record['no_ok']) AND $cancelurl)
 		$modes[] = '<a href="'.$cancelurl.'">'.zz_text('OK').'</a>';
 	if ($zz_conf_record['edit']) {

@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2010, 2014, 2016 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2010, 2014, 2016-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -49,17 +49,17 @@ function zz_debug($marker = false, $text = false, $id = false) {
 
 	// initialize
 	if (empty($zz_debug[$id])) {
-		$zz_debug[$id] = array();					// debug module
+		$zz_debug[$id] = [];					// debug module
 		$zz_debug[$id]['timer'] = microtime(true);	// debug module
 	}
 
 	$time = microtime(true);
 	// initialize function parameters
 	if (substr($marker, 0, 5) === 'start') {
-		$current = array(
+		$current = [
 			'function' => $text,
 			'time_start' => $time
-		);
+		];
 		$zz_debug[$id]['function'][] = $current;
 	} elseif (substr($marker, 0, 3) === 'end') {
 		// set current function to last element and remove it
@@ -70,7 +70,7 @@ function zz_debug($marker = false, $text = false, $id = false) {
 	}
 	if ($marker === 'start') return true; // no output, just initialize
 
-	$debug = array();
+	$debug = [];
 	$debug['time'] = $time - $zz_debug[$id]['timer'];
 	$debug['time_used'] = $time - $current['time_start'];
 	$debug['memory'] = memory_get_usage();
@@ -133,7 +133,7 @@ function zz_debug_htmlout() {
  * @param array $return (optional, $ops['return']);
  * @global array $zz_debug
  */
-function zz_debug_time($return = array()) {
+function zz_debug_time($return = []) {
 	global $zz_debug;
 	global $zz_conf;
 
@@ -141,11 +141,11 @@ function zz_debug_time($return = array()) {
 	if ($return) $rec = $return[0]['action'].' '.$return[0]['table'].' '
 		.$return[0]['id_value'].' (mem pk: '.memory_get_peak_usage().') ';
 	
-	zz_error_log(array(
+	zz_error_log([
 		'msg_dev' => '[DEBUG] %stime: %s',
-		'msg_dev_args' => array($rec, implode(' ', $zz_debug[$zz_conf['id']]['time'])),
+		'msg_dev_args' => [$rec, implode(' ', $zz_debug[$zz_conf['id']]['time'])],
 		'level' => E_USER_NOTICE
-	));
+	]);
 	zz_error();
 }
 
