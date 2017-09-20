@@ -3212,7 +3212,10 @@ function zz_draw_select($field, $record, $line, $id_field_name, $form = false, $
 	// if only the id key is in the query, eg. show databases:
 	if (!$details) $details = $line[$key]; 
 	if (is_array($details)) $details = zz_field_concat($field, $details);
-	$fieldvalue = strip_tags($details); // remove tags, leave &#-Code as is
+	// remove tags, leave &#-Code as is
+	$fieldvalue = strip_tags($details);
+	// remove linebreaks
+	$fieldvalue = str_replace("\r\n", " ", $fieldvalue);
 	if ($form === 'reselect') {
 		$fieldattr = [];
 		$fieldattr['size'] = !empty($field['size_select_too_long']) ? $field['size_select_too_long'] : 32;

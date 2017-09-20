@@ -1692,7 +1692,7 @@ function zz_makelink($path, $record, $type = 'link') {
 	if (!$path) return false;
 
 	$url = '';
-	$modes = array();
+	$modes = [];
 	$path_full = '';		// absolute path in filesystem
 	$path_web = '';			// relative path on website
 	$check_against_root = false;
@@ -3098,9 +3098,9 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 	if (substr($postvalue, -1) !== ' ' AND !$zz_conf['multi']) {
 		// if there is a space at the end of the string, don't do LIKE 
 		// with %!
-		$likestring = '%s LIKE %s"%%%s%%"';
+		$likestring = 'REPLACE(%s, "\r\n", " ") LIKE %s"%%%s%%"';
 	} else {
-		$likestring = '%s = %s"%s"';
+		$likestring = 'REPLACE(%s, "\r\n", " ") = %s"%s"';
 		if (count($field['sql_fieldnames']) -1 === count($postvalues)
 			AND !$zz_conf['multi']) {
 			// multi normally sends ID
@@ -3123,7 +3123,7 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 			// reduces string with dots which come from values which have 
 			// been cut beforehands, use LIKE!
 			$value = $short_value[1];
-			$my_likestring = '%s LIKE %s"%s%%"';
+			$my_likestring = 'REPLACE(%s, "\r\n", " ") LIKE %s"%s%%"';
 		}
 		// maybe there is no index 0, therefore we need a new variable $i
 		$i = 0;
