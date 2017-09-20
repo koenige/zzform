@@ -22,7 +22,7 @@
  */
 function zz_export_config() {
 	$conf['int']['allowed_params']['mode'][] = 'export';
-	$conf['int']['allowed_params']['export'] = ['csv', 'pdf', 'kml'];
+	$conf['int']['allowed_params']['export'] = ['csv', 'pdf', 'kml', 'geojson'];
 	zz_write_conf($conf, true);
 
 	// whether sql result might be exported 
@@ -117,6 +117,7 @@ function zz_export_init($ops) {
 
 	switch ($export_param) {
 	case 'kml':
+	case 'geojson':
 		// always use UTF-8
 		zz_db_charset('UTF8');
 		// if kml file is called without limit parameter, it does not default
@@ -184,6 +185,11 @@ function zz_export_headers($export, $charset) {
 		$headers[]['true'] = 'Content-Type: application/vnd.google-earth.kml+xml; charset=utf8';
 		if (!empty($_GET['q'])) $filename .= ' '.forceFilename($_GET['q']);
 		$headers[]['true'] = 'Content-Disposition: attachment; filename="'.$filename.'.kml"';
+		break;
+	case 'geojson':
+		$headers[]['true'] = 'Content-Type: application/javascript; charset=utf8';
+		if (!empty($_GET['q'])) $filename .= ' '.forceFilename($_GET['q']);
+		$headers[]['true'] = 'Content-Disposition: attachment; filename="'.$filename.'.js"';
 		break;
 	}
 	return $headers;
@@ -276,6 +282,9 @@ function zz_export($ops, $zz, $zz_var) {
 		exit;
 	case 'kml':
 		$ops['output'] = zz_export_kml($ops, $zz, $zz_var);
+		return $ops;
+	case 'geojson':
+		$ops['output'] = zz_export_geojson($ops, $zz, $zz_var);
 		return $ops;
 	}
 }
@@ -395,6 +404,65 @@ function zz_export_kml_description($head, $line, $fields) {
 	$text = '<table class="kml_description">'.implode("\n", $desc).'</table>'
 		.$description;
 	return $text;
+}
+
+/**
+ * GeoJSON export
+ *
+ * needs 'geojson' field definitions, at least id and either latitude/longitude
+ * in one field or seperate latitude and longitude
+ * further fields are saved in 'properties'
+ * @param array $ops
+ * @param array $zz
+ * @param array $zz_var
+ * @return array $ops
+ */
+function zz_export_geojson($ops, $zz, $zz_var) {
+	$fields = [];
+	foreach ($ops['output']['head'] as $no => $column) {
+		if (!empty($column['geojson'])) {
+			$fields[$column['geojson']] = $no;
+		}
+	}
+
+	$p_fields = [];
+	foreach ($fields as $type => $no) {
+		if (in_array($type, ['id', 'latitude', 'longitude', 'latitude/longitude'])) continue;
+		$p_fields[$type] = $no;
+	}
+
+	$data = [];
+	$data['type'] = 'FeatureCollection';
+	foreach ($ops['output']['rows'] as $line) {
+		if (array_key_exists('latitude/longitude', $fields)) {
+			if (empty($line[$fields['latitude/longitude']]['value'])) continue;
+			list($latitude, $longitude) = explode(',', $line[$fields['latitude/longitude']]['value']);
+		} elseif (array_key_exists('latitude', $fields) AND array_key_exists('longitude', $fields)) {
+			$latitude = $line[$fields['latitude']]['value'];
+			$longitude = $line[$fields['longitude']]['value'];
+		} else {
+			continue;
+		}
+		$properties = [];
+		foreach ($p_fields as $type => $no) {
+			$properties[$type] = wrap_html_escape($line[$no]['value']);
+		}
+		$data['features'][] = [
+			'type' => 'Feature',
+			'id' => $line[$fields['id']]['value'],
+			'properties' => $properties,
+			'geometry' => [
+				'type' => 'Point',
+				'coordinates' => [
+					floatval($longitude),
+					floatval($latitude)
+				]
+			]
+		];
+	}
+	$output = json_encode($data);
+	$output = 'var locations = '.$output.';';
+	return $output;
 }
 
 /**
