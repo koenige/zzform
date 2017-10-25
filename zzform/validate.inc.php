@@ -149,7 +149,6 @@ function zz_db_get_enumset($colum, $db_table) {
  *		(starting with ../, /) might add http:// in front of it if this  
  *		generates a valid URL
  * @return string url if correct, or false
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_check_url($url) {
 	// remove invalid white space at the beginning and end of URL
@@ -284,7 +283,6 @@ function zz_check_time($time) {
  * 
  * @param string $date date in several possible formats
  * @return string international date (ISO 8601) YYYY-MM-DD
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @todo return ambiguous dates with a warning
  * @todo check if date is a valid calendar date (e. g. 2011-02-29 is invalid)
  */
@@ -437,7 +435,6 @@ function zz_check_datetime($datetime) {
  * 
  * @param string $number number or calculation, may contain +-/* 0123456789 ,.
  * @return mixed number, with calculation performed / false if incorrect format
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function zz_check_number($number) {
 	global $zz_conf;
