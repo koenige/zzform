@@ -814,7 +814,7 @@ function zzform_multi($definition_file, $values) {
 	// return on error in form script
 	if (!empty($ops['error'])) return $ops;
 	$ops = zzform($zz);
-	zz_initialize('old_conf');
+	zz_initialize('old_conf', $old_conf);
 	
 	// clean up
 	unset($_GET);
