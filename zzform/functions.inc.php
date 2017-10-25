@@ -1051,7 +1051,7 @@ function zz_hash($zz, $zz_conf) {
 	// get rid of configuration settings which are not important for
 	// the definition of the database table(s)
 	$uninteresting_zz_conf_keys = [
-		'zzform_calls', 'int', 'id', 'footer_text', 
+		'int', 'id', 'footer_text', 
 		'breadcrumbs', 'dont_show_title_as_breadcrumb', 'error_handling',
 		'error_log', 'format', 'group_html_table', 'list_display',
 		'limit_display', 'logging', 'logging_id', 'logging_table',

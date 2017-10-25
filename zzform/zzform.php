@@ -32,10 +32,6 @@ function zzform($zz) {
 //
 //	Initialize variables & modules
 //
-	// This variable signals that zzform is included
-	if (empty($zz_conf['zzform_calls'])) $zz_conf['zzform_calls'] = 1;
-	else $zz_conf['zzform_calls']++;
-
 	$ops = [
 		'result' => '',
 		'headers' => false,
@@ -47,7 +43,9 @@ function zzform($zz) {
 	];
 	// set default configuration variables
 	// import modules, set and get URI
-	zz_initialize();
+	zz_initialize('form');
+	zz_error();
+	$ops['output'] .= zz_error_output();
 	$zz = zz_defaults($zz);
 
 	if (empty($zz['fields'])) {
@@ -73,17 +71,6 @@ function zzform($zz) {
 
 	// include dependent modules
 	zz_dependent_modules($zz);
-
-	if ($zz_conf['zzform_calls'] > 1 AND empty($zz_conf['multi'])) { 
-		// show a warning only if zzform is not explicitly called via zzform_multi()
-		zz_error_log([
-			'msg_dev' => 'zzform has been called as a function more than once. '
-				.'You might want to check if this is correct.',
-			'level' => E_USER_NOTICE
-		]);
-		zz_error();
-		$ops['output'] .= zz_error_output();
-	}
 
 	list($zz_conf, $zz) = zz_backwards($zz_conf, $zz);
 	
@@ -484,22 +471,41 @@ function zz_defaults($zz) {
  * initalize zzform, sets default configuration variables if not set by user
  * includes modules
  *
- * @param string $mode
+ * @param string $mode (optional)
  *		default: false; 
  *		'overwrite': overwrites $zz_conf array with $zz_saved
  *		'old_conf': writes $zz_saved['old_conf'] back to $zz_conf
+ * @param array $old_conf (optional)
  * @global array $zz_conf
  * @global array $zz_saved (needs global status, access as well from zz_write_conf())
  */
-function zz_initialize($mode = false) {
+function zz_initialize($mode = false, $old_conf = []) {
 	global $zz_conf;
 	global $zz_saved;
-	
-	if ($mode === 'old_conf') {
-		// in case zzform was called from within zzform, get the old conf back
-		$calls = $zz_conf['zzform_calls'] - 1;
-		$zz_conf = $zz_saved['old_conf'];
-		$zz_conf['zzform_calls'] = $calls;
+	static $zzform_calls;
+	if (!isset($zzform_calls)) $zzform_calls = 0;
+
+	switch($mode) {
+	case 'form':
+		$zzform_calls++;
+		break;
+	case 'old_conf':
+		if ($zzform_calls > 1) {
+			// in case zzform was called from within zzform, get the old conf back
+			$zz_conf = $zz_saved['old_conf'];
+			$zzform_calls -= 1;
+		}
+		if ($zzform_calls > 1) {
+			// We're still in multiple calls
+			$zz_conf['generate_output'] = false;
+			$zz_conf['show_output'] = false;
+			$zz_conf['multi'] = true;
+		} else {
+			// inside the first call
+			$zz_conf['generate_output'] = isset($old_conf['generate_output']) ? $old_conf['generate_output'] : true;
+			$zz_conf['show_output'] = isset($old_conf['show_output']) ? $old_conf['show_output'] : true;
+			$zz_conf['multi'] = false;
+		}
 		return true;
 	}
 
@@ -508,14 +514,12 @@ function zz_initialize($mode = false) {
 		zz_error_out(false);
 		// get clean $zz_conf without changes from different zzform calls or included scripts
 		if ($mode === 'overwrite') {
-			if (!empty($zz_conf['zzform_calls']) AND $zz_conf['zzform_calls'] === 1) {
+			if (!empty($zzform_calls) AND $zzform_calls === 1) {
 				// zzform was called first (zzform_calls >= 1), zzform_multi() inside
 				$zz_saved['old_conf'] = $zz_conf;
 			}
 			if (!empty($zz_saved)) {
-				$calls = isset($zz_conf['zzform_calls']) ? $zz_conf['zzform_calls'] : 0;
 				$zz_conf = $zz_saved['conf'];
-				$zz_conf['zzform_calls'] = $calls;
 			}
 		}
 		zz_initialize_int();
@@ -657,6 +661,15 @@ function zz_initialize($mode = false) {
 
 	$zz_conf['zzform_init'] = true;
 	$zz_saved['conf'] = $zz_conf;
+
+	if ($mode === 'form' AND $zzform_calls > 1 AND empty($zz_conf['multi'])) { 
+		// show a warning only if zzform is not explicitly called via zzform_multi()
+		zz_error_log([
+			'msg_dev' => 'zzform has been called as a function more than once. '
+				.'You might want to check if this is correct.',
+			'level' => E_USER_NOTICE
+		]);
+	}
 	zz_return(true);
 }
 
@@ -765,7 +778,6 @@ function zzform_multi($definition_file, $values) {
 	zz_initialize('overwrite');
 	unset($zz_conf['if']);
 	unset($zz_conf['unless']);
-	$zz_conf['zzform_calls'] = $old_conf['zzform_calls'];
 	$zz_conf['generate_output'] = false;
 	// do not show output as it will be included after page head
 	$zz_conf['show_output'] = false;
@@ -802,20 +814,7 @@ function zzform_multi($definition_file, $values) {
 	// return on error in form script
 	if (!empty($ops['error'])) return $ops;
 	$ops = zzform($zz);
-	if ($zz_conf['zzform_calls'] > 1) {
-		zz_initialize('old_conf');
-	}
-	if ($zz_conf['zzform_calls'] > 1) {
-		// We're still in multiple calls
-		$zz_conf['generate_output'] = false;
-		$zz_conf['show_output'] = false;
-		$zz_conf['multi'] = true;
-	} else {
-		// inside the first call
-		$zz_conf['generate_output'] = isset($old_conf['generate_output']) ? $old_conf['generate_output'] : true;
-		$zz_conf['show_output'] = isset($old_conf['show_output']) ? $old_conf['show_output'] : true;
-		$zz_conf['multi'] = false;
-	}
+	zz_initialize('old_conf');
 	
 	// clean up
 	unset($_GET);
