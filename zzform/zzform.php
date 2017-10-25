@@ -265,7 +265,7 @@ function zzform($zz) {
 			// some minor errors?
 			zz_error();
 			// if an error occured in zz_action, exit
-			if (zz_error_exit()) return zzform_exit($ops); 
+			if (zz_error_exit()) return zzform_exit($ops);
 			// was action successful?
 			if ($ops['result'] AND !$zz_conf['generate_output']) {
 				// zzform_multi: exit here, rest is for output only
@@ -497,7 +497,9 @@ function zz_initialize($mode = false) {
 	
 	if ($mode === 'old_conf') {
 		// in case zzform was called from within zzform, get the old conf back
+		$calls = $zz_conf['zzform_calls'] - 1;
 		$zz_conf = $zz_saved['old_conf'];
+		$zz_conf['zzform_calls'] = $calls;
 		return true;
 	}
 
@@ -506,7 +508,7 @@ function zz_initialize($mode = false) {
 		zz_error_out(false);
 		// get clean $zz_conf without changes from different zzform calls or included scripts
 		if ($mode === 'overwrite') {
-			if (!empty($zz_conf['zzform_calls'])) {
+			if (!empty($zz_conf['zzform_calls']) AND $zz_conf['zzform_calls'] === 1) {
 				// zzform was called first (zzform_calls >= 1), zzform_multi() inside
 				$zz_saved['old_conf'] = $zz_conf;
 			}
@@ -763,6 +765,7 @@ function zzform_multi($definition_file, $values) {
 	zz_initialize('overwrite');
 	unset($zz_conf['if']);
 	unset($zz_conf['unless']);
+	$zz_conf['zzform_calls'] = $old_conf['zzform_calls'];
 	$zz_conf['generate_output'] = false;
 	// do not show output as it will be included after page head
 	$zz_conf['show_output'] = false;
@@ -801,13 +804,17 @@ function zzform_multi($definition_file, $values) {
 	$ops = zzform($zz);
 	if ($zz_conf['zzform_calls'] > 1) {
 		zz_initialize('old_conf');
+	}
+	if ($zz_conf['zzform_calls'] > 1) {
+		// We're still in multiple calls
+		$zz_conf['generate_output'] = false;
+		$zz_conf['show_output'] = false;
+		$zz_conf['multi'] = true;
 	} else {
+		// inside the first call
 		$zz_conf['generate_output'] = isset($old_conf['generate_output']) ? $old_conf['generate_output'] : true;
 		$zz_conf['show_output'] = isset($old_conf['show_output']) ? $old_conf['show_output'] : true;
 		$zz_conf['multi'] = false;
-		// zzform_multi was called before zzform from some other script
-		// this is of no interest to us
-		$zz_conf['zzform_calls'] = 0;
 	}
 	
 	// clean up
