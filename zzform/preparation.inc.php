@@ -1229,7 +1229,10 @@ function zz_log_validation_errors($my_rec, $validation) {
 		// just look for check_validation set but false
 		if (!isset($field['check_validation'])) continue;
 		if ($field['check_validation']) continue;
-		if (trim($my_rec['record'][$field['field_name']])) {
+		if (is_string($my_rec['record'][$field['field_name']])) {
+			$my_rec['record'][$field['field_name']] = trim($my_rec['record'][$field['field_name']]);
+		}
+		if ($my_rec['record'][$field['field_name']]) {
 			// there's a value, so this is an incorrect value
 			if (!empty($field['error_msg'])) {
 				$error = $field['error_msg'];
