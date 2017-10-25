@@ -472,6 +472,7 @@ function zz_geo_geocode($ops, $zz_tab) {
 	if (!$update) {
 		foreach ($geocoding['source'] as $type => $f) {
 			$my_field = $zz_tab[$f['tab']][$f['rec']]['fields'][$f['no']];
+			if (!empty($my_field['geocode_ignore_update'])) continue;
 			$field = $ops['record_diff'][$f['index']][$my_field['field_name']];
 			if ($field !== 'same') $update = true;
 		}
