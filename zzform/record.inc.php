@@ -953,7 +953,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			case 'mail':
 			case 'mail+name':
 			case 'ipv4':
-				$outputf = zz_field_text($field, $field_display, $my_rec['record'], $zz_tab[0]['dont_reformat']);
+				$outputf = zz_field_text($field, $field_display, $my_rec['record'], !$my_rec['validation'] ? true : $zz_tab[0]['dont_reformat']);
 				break;
 
 			case 'unix_timestamp': // zz_field_unix_timestamp
