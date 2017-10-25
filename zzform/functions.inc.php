@@ -2974,24 +2974,15 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 
 	// check if we need to check
 	if (empty($my_rec['fields'][$f]['always_check_select'])) {
-		if (!$zz_conf['multi']) {
-			if (empty($_POST['zz_check_select'])) return $my_rec;
-			$check = false;
-			if (in_array($field_name, $_POST['zz_check_select']))
-				$check = true;
-			elseif (in_array($long_field_name, $_POST['zz_check_select']))
-				$check = true;
-		} else {
-			// with zzform_multi(), no form exists, so check per default yes
-			$check = true;
-			if (isset($_POST['zz_check_select'])) {
-				// ... unless explicitly said not to check
-				if (in_array($field_name, $_POST['zz_check_select']))
-					$check = false;
-				elseif (in_array($long_field_name, $_POST['zz_check_select']))
-					$check = false;
-			}
-		}
+		// with zzform_multi(), no form exists, so check per default yes
+		// unless explicitly said not to check; with form its otherway round
+		$check = $zz_conf['multi'] ? true : false;
+		if (empty($_POST['zz_check_select']))
+			// nothing changes
+		elseif (in_array($field_name, $_POST['zz_check_select']))
+			$check = !$check;
+		elseif (in_array($long_field_name, $_POST['zz_check_select']))
+			$check = !$check;
 		if (!$check) return $my_rec;
 	}
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
