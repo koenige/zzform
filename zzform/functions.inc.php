@@ -2977,12 +2977,13 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 		// with zzform_multi(), no form exists, so check per default yes
 		// unless explicitly said not to check; with form its otherway round
 		$check = $zz_conf['multi'] ? true : false;
-		if (empty($_POST['zz_check_select']))
+		if (empty($_POST['zz_check_select'])) {
 			// nothing changes
-		elseif (in_array($field_name, $_POST['zz_check_select']))
+		} elseif (in_array($field_name, $_POST['zz_check_select'])) {
 			$check = !$check;
-		elseif (in_array($long_field_name, $_POST['zz_check_select']))
+		} elseif (in_array($long_field_name, $_POST['zz_check_select'])) {
 			$check = !$check;
+		}
 		if (!$check) return $my_rec;
 	}
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
