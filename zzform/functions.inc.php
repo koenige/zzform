@@ -3069,6 +3069,7 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 	global $zz_conf;
 	
 	// 1. get field names from SQL query
+	if (empty($field['sql_fieldnames'])) $field['sql_fieldnames'] = [];
 	$sql_fieldnames = wrap_edit_sql($field['sql'], 'SELECT', '', 'list');
 	foreach ($sql_fieldnames as $index => $sql_fieldname) {
 		if (!empty($field['show_hierarchy'])
@@ -3090,9 +3091,17 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 	if (substr($postvalue, -1) !== ' ' AND !$zz_conf['multi']) {
 		// if there is a space at the end of the string, don't do LIKE 
 		// with %!
-		$likestring = 'REPLACE(%s, "\r\n", " ") LIKE %s"%%%s%%"';
+		if ($field['sql'] === 'SHOW DATABASES') {
+			$likestring = '%s LIKE %s"%%%s%%"';
+		} else {
+			$likestring = 'REPLACE(%s, "\r\n", " ") LIKE %s"%%%s%%"';
+		}
 	} else {
-		$likestring = 'REPLACE(%s, "\r\n", " ") = %s"%s"';
+		if ($field['sql'] === 'SHOW DATABASES') {
+			$likestring = '%s = %s"%s"';
+		} else {
+			$likestring = 'REPLACE(%s, "\r\n", " ") = %s"%s"';
+		}
 		if (count($field['sql_fieldnames']) -1 === count($postvalues)
 			AND !$zz_conf['multi']) {
 			// multi normally sends ID
