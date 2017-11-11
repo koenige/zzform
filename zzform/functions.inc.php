@@ -1328,11 +1328,6 @@ function zz_record_access($zz, $ops, $zz_var) {
 		}
 		break;
 	
-	case $zz_conf['int']['where_with_unique_id']:
-		// just review the record
-		$ops['mode'] = 'review'; 
-		break;
-
 	case !empty($_GET['thumbs']):
 		if (empty($_POST)) {
 			$zz_conf['int']['http_status'] = 404;
@@ -1349,6 +1344,11 @@ function zz_record_access($zz, $ops, $zz_var) {
 		if (count($zz_var['thumb_field']) !== 2) {
 			$zz_conf['int']['http_status'] = 404;
 		}
+		break;
+
+	case $zz_conf['int']['where_with_unique_id']:
+		// just review the record
+		$ops['mode'] = 'review'; 
 		break;
 
 	case !empty($_GET['field']):
@@ -1438,9 +1438,15 @@ function zz_record_access($zz, $ops, $zz_var) {
 			'none', 'search_but_no_list', 'add_only', 'edit_only', 'add_then_edit',
 			'show_after_add', 'show_after_edit', 'show+edit'
 		];
-		// @todo check for valid ID in case of add_only, edit_only, add_then_edit
-		// and allow these, too.
+		$only_allowed_with_id = [
+			'add_only', 'edit_only', 'add_then_edit'
+		];
 		if (!in_array($zz_conf['int']['access'], $not_allowed)) {
+			$zz_conf['int']['access'] = 'thumbnails';
+		} elseif (in_array($zz_conf['int']['access'], $only_allowed_with_id)
+			AND $zz_conf['int']['where_with_unique_id']) {
+		// @todo check for other valid IDs in case of add_only, edit_only, add_then_edit
+		// and allow these, too. (are there any?)
 			$zz_conf['int']['access'] = 'thumbnails';
 		} else {
 			$zz_conf['int']['access'] = 'none';
