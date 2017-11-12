@@ -1072,7 +1072,13 @@ function zz_hash($zz, $zz_conf) {
 	foreach ($uninteresting_zz_keys as $key) unset($zz[$key]);
 	foreach ($zz['fields'] as $no => $field) {
 		// defaults might change, e. g. dates
-		if (isset($field['default'])) unset($zz['fields'][$no]);
+		if (isset($field['default'])) unset($zz['fields'][$no]['default']);
+		if (!empty($field['type']) AND $field['type'] === 'subtable') {
+			foreach ($field['fields'] as $sub_no => $sub_field) {
+				if (isset($sub_field['default'])) unset($zz['fields'][$no]['fields'][$sub_no]['default']);
+			}
+		}
+		// @todo remove if[no][default] too
 	}
 	$my['zz'] = $zz;
 	$my['zz_conf'] = $zz_conf;
