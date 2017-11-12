@@ -266,6 +266,9 @@ function zz_is_url($url) {
  * @return mixed false if input is illegal, time-string if input is correct
  */
 function zz_check_time($time) {
+	$time = trim($time);
+	$time = str_replace(' ', ':', $time);
+	$time = str_replace('::', ':', $time);
 	if (strlen($time) === 19 AND strstr($time, ' ')) {
 		// might be a date
 		$time = substr($time, strrpos($time, ' ') + 1);
