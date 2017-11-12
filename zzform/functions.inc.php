@@ -828,19 +828,14 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = [])
 	// (e. g. identifier with UNIQUE KEY) retrieve value for ID field from 
 	// database
 	if (!$zz_var['id']['value'] AND $zz_conf['int']['where_with_unique_id']) {
-		if ($zz_conf['modules']['debug']) zz_debug("where_conditions", $sql);
-		$line = zz_db_fetch($sql, '', '', 'WHERE; ambiguous values in ID?');
-		if ($line) {
-			$zz_var['id']['value'] = $line[$zz_var['id']['field_name']];
-//		} else {
-//			zz_error_log([
-//				'msg_dev' => zz_text('Database error. 
-//					This database has ambiguous values in ID field.'),
-//				'level' => E_USER_ERROR
-//			]);
-//			return zz_error(); // exit script
+		if ($zz_conf['modules']['debug']) zz_debug('where_conditions', $sql);
+		$line = zz_db_fetch($sql, '_dummy_', 'numeric', 'WHERE; ambiguous values in ID?');
+		// 0 (=add) or 1 records: 'where_with_unique_id' remains true
+		if (count($line) === 1 AND !empty($line[0][$zz_var['id']['field_name']])) {
+			$zz_var['id']['value'] = $line[0][$zz_var['id']['field_name']];
+		} elseif (count($line)) {
+			$zz_conf['int']['where_with_unique_id'] = false;
 		}
-		if (!$zz_var['id']['value']) $zz_conf['int']['where_with_unique_id'] = false;
 	}
 	
 	return zz_return([$sql, $zz_var]);
@@ -1354,7 +1349,8 @@ function zz_record_access($zz, $ops, $zz_var) {
 
 	case $zz_conf['int']['where_with_unique_id']:
 		// just review the record
-		$ops['mode'] = 'review'; 
+		if (!empty($zz_var['id']['value'])) $ops['mode'] = 'review'; 
+		else $ops['mode'] = 'add';
 		break;
 
 	case !empty($_GET['field']):
@@ -1515,7 +1511,9 @@ function zz_record_access($zz, $ops, $zz_var) {
 		$zz_conf['int']['show_list'] = false;		// no list
 		$zz_conf['cancel_link'] = false; 	// no cancel link
 		$zz_conf['no_ok'] = true;			// no OK button
-		$zz_conf['int']['hash_id'] = true;	// user cannot view all IDs
+		if (empty($zz_conf['int']['where_with_unique_id'])) {
+			$zz_conf['int']['hash_id'] = true;	// user cannot view all IDs
+		}
 		if (empty($_POST)) $ops['mode'] = 'add';
 		break;
 	case 'edit_only';
@@ -1558,7 +1556,10 @@ function zz_record_access($zz, $ops, $zz_var) {
 		// in case of where and not unique, ie. only one record in table, 
 		// don't do this.
 		$zz_conf['int']['show_list'] = false;		// don't show table
-		$zz_conf['add'] = false;			// don't show add record (form+links)
+		$no_add = true;
+		if ($ops['mode'] === 'add') $no_add = false;
+		if ($zz_var['action'] === 'insert') $no_add = false;
+		if ($no_add) $zz_conf['add'] = false; 		// don't show add record (form+links)
 	}
 
 	// $zz_conf is set regarding add, edit, delete
