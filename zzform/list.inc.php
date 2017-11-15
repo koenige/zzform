@@ -1645,7 +1645,7 @@ function zz_list_sum($field, $list, $value, $group) {
 		if (!isset($value[2])) $value[2] = 0;
 		$value = 3600 * $value[0] + 60 * $value[1] + $value[2];
 	}
-	$list['sum'][$field['title']] += $value;
+	if ($value) $list['sum'][$field['title']] += $value;
 	$list['sum_group'] = zz_list_group_sum($group, $list['sum_group'], $field['title'], $value);
 	return $list;
 }
@@ -1669,7 +1669,7 @@ function zz_list_group_sum($row_group, $sum_group, $field_title, $sum) {
 		else $index = $my_group;
 		if (!isset($sum_group[$index][$field_title])) 
 			$sum_group[$index][$field_title] = 0;
-		$sum_group[$index][$field_title] += $sum;
+		if ($sum) $sum_group[$index][$field_title] += $sum;
 	}
 	return $sum_group;
 }
