@@ -85,7 +85,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	$zz_tab[0][0]['action'] = $zz_var['action'];
 	$zz_tab[0][0]['fields'] = $zz['fields'];
 	$zz_tab[0][0]['validation'] = true;
-	$zz_tab[0][0]['record'] = false;
+	$zz_tab[0][0]['record'] = [];
 	$zz_tab[0][0]['access'] = !empty($zz['access']) ? $zz['access'] : false;
 
 	// get ID field, unique fields, check for unchangeable fields
@@ -394,7 +394,7 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 	$rec_tpl['access'] = $my_tab['access'];
 	$rec_tpl['id']['field_name'] = $my_tab['id_field_name'];
 	$rec_tpl['validation'] = true;
-	$rec_tpl['record'] = false;
+	$rec_tpl['record'] = [];
 	$rec_tpl['action'] = false;
 
 	// get state
@@ -923,7 +923,7 @@ function zz_get_subrecords_mode($my_tab, $rec_tpl, $zz_var, $existing_ids) {
 		$my_tab[$rec]['save_record'] = isset($my_tab['zz_save_record'][$rec])
 			? $my_tab['zz_save_record'][$rec] : '';
 
-		$my_tab[$rec]['POST'] = '';
+		$my_tab[$rec]['POST'] = [];
 		if ($my_tab['POST']) {
 			foreach ($my_tab['POST'] as $key => $my_rec) {
 				if ($idval) {
