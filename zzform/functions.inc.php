@@ -1694,6 +1694,7 @@ function zz_listandrecord_access($zz_conf) {
  * 
  * @param array $path
  *		'root', 'webroot', 'field1...fieldn', 'string1...stringn', 'mode1...n',
+ *		'extension', 'x_field[]', 'x_webfield[]', 'x_extension[]'
  *		'ignore_record' will cause record to be ignored
  * @param array $record current record
  * @param string $type (optional) link, path or image, image will be returned in
@@ -1707,7 +1708,19 @@ function zz_makelink($path, $record, $type = 'link') {
 	$url = '';
 	$modes = [];
 	$path_full = '';		// absolute path in filesystem
-	$path_web = '';			// relative path on website
+	$path_web[1] = '';		// relative path on website
+	$sets = [];
+	foreach (array_keys($path) as $part) {
+		if (substr($part, 0, 2) !== 'x_') continue;
+		$part = explode('[', $part);
+		$part = substr($part[1], 0, strpos($part[1], ']'));
+		$sets[$part] = $part;
+	}
+	foreach ($sets as $myset) {
+		$path_web[$myset] = '';		// relative path to retina image on website
+		$set[$myset] = NULL;			// show 2x image
+	}
+	
 	$check_against_root = false;
 
 	if ($type === 'image') {
@@ -1720,6 +1733,10 @@ function zz_makelink($path, $record, $type = 'link') {
 		if (!$value) continue;
 		// remove numbers at the end of the part type
 		while (is_numeric(substr($part, -1))) $part = substr($part, 0, -1);
+		if (substr($part, -1) === ']') {
+			$current_set = substr($part, strpos($part, '[') + 1, -1); 
+			$part = substr($part, 0, strpos($part, '['));
+		}
 		switch ($part) {
 		case 'root':
 			$check_against_root = true;
@@ -1731,7 +1748,10 @@ function zz_makelink($path, $record, $type = 'link') {
 		case 'webroot':
 			// web might come later, ignore parts before for web and add them
 			// to full path
-			$path_web = $value;
+			$path_web[1] = $value;
+			foreach ($sets as $myset) {
+				$path_web[$myset] = $value;
+			}
 			$path_full .= $url;
 			$url = '';
 			break;
@@ -1751,18 +1771,33 @@ function zz_makelink($path, $record, $type = 'link') {
 			if ($part !== 'webfield') {
 				$url .= $content;
 			}
-			$path_web .= $content;
+			$path_web[1] .= $content;
 			if ($type === 'image' AND !$alt_locked) {
 				$alt = zz_text('File: ').$record[$value];
 				if ($part === 'extension') $alt_locked = true;
 			}
 			break;
+		case 'x_extension':
+		case 'x_field':
+		case 'x_webfield':
+			if ($set[$current_set] === false) break;
+			if (!isset($record[$value])) { $set[$current_set] = false; break; }
+			$set[$current_set] = true;
+			$content = $record[$value];
+			if ($modes) {
+				$content = zz_make_mode($modes, $content, E_USER_ERROR);
+				if (!$content) break;
+				$modes = [];
+			}
+			$path_web[$current_set] .= $content;
+			break;
 		case 'string':
 			$url .= $value;
-			$path_web .= $value;
-			break;
 		case 'webstring':
-			$path_web .= $value;
+			$path_web[1] .= $value;
+			foreach ($sets as $myset) {
+				$path_web[$myset] .= $value;
+			}
 			break;
 		case 'mode':
 			$modes[] = $value;
@@ -1798,12 +1833,17 @@ function zz_makelink($path, $record, $type = 'link') {
 	case 'path':
 		return $path_full.$url;
 	case 'image':
-		if (!$path_web) return false;
-		$img = '<img src="'.$path_web.'" alt="'.$alt.'" class="thumb">';
+		if (!$path_web[1]) return false;
+		$srcset = [];
+		foreach ($sets as $myset) {
+			if ($set[$myset]) $srcset[] = $path_web[$myset].' '.$myset.'x';
+		}
+		$srcset = $srcset ? sprintf(' srcset="%s 1x, %s"', $path_web[1], implode(', ', $srcset)) : '';
+		$img = '<img src="'.$path_web[1].'"'.$srcset.' alt="'.$alt.'" class="thumb">';
 		return $img;
 	default:
 	case 'link':
-		return $path_web;
+		return $path_web[1];
 	}
 }
 
