@@ -1774,7 +1774,7 @@ function zz_write_upload_fields($zz_tab, $f, $tab = 0, $rec = 0) {
 		$images = $zz_tab[$tab][$rec]['images'][$field['upload_field']];
 	} else {
 		// file from detail record
-		preg_match('~(\d+)\[(\d+)\]\[(\d+)\]~', $field['upload_field'], $nos);
+		preg_match('~(\d+)\[([\d\*]+)\]\[(\d+)\]~', $field['upload_field'], $nos);
 		// check if definition is correct
 		if (count($nos) !== 4) {
 			zz_error_log([
@@ -1783,6 +1783,18 @@ function zz_write_upload_fields($zz_tab, $f, $tab = 0, $rec = 0) {
 				'log_post_data' => false,
 				'level' => E_USER_NOTICE
 			]);
+		} elseif ($nos[2] === '*') {
+			$numeric_keys = [];
+			foreach (array_keys($zz_tab[$nos[1]]) as $no) {
+				if (!is_numeric($no)) continue;
+				if (empty($zz_tab[$nos[1]][$no]['file_upload'])) continue;
+				$numeric_keys[] = $no;
+			}
+			if (!$numeric_keys) return $posted;
+			$images = [];
+			foreach ($numeric_keys as $no) {
+				$images = zz_array_merge($images, $zz_tab[$nos[1]][$no]['images'][$nos[3]]);
+			}
 		} elseif (!empty($zz_tab[$nos[1]][$nos[2]]['images'][$nos[3]])) {
 			// check if something was uploaded
 			if (empty($zz_tab[$nos[1]][$nos[2]]['file_upload'])) return $posted;
