@@ -679,8 +679,7 @@ function zz_upload_fileinfo($file, $extension = false) {
 	}
 
 	// read metadata
-	if (function_exists('exif_read_data') 
-		AND in_array($file['filetype'], $zz_conf['exif_supported'])) {
+	if (in_array($file['filetype'], $zz_conf['exif_supported'])) {
 		// you will need enough memory size to handle this if you are uploading
 		// pictures with layers from photoshop, because the original image is
 		// saved as metadata. exif_read_data() cannot read only the array keys
@@ -689,8 +688,10 @@ function zz_upload_fileinfo($file, $extension = false) {
 		if ($zz_conf['upload_tools']['exiftool']) {
 			$file['exiftool'] = zz_upload_exiftool_read($filename);
 			$file['exif'] = [];
-		} else {
+		} elseif (function_exists('exif_read_data')) {
 			$file['exif'] = exif_read_data($filename);
+		} else {
+			$file['exif'] = [];
 		}
 	}
 	// @todo further functions, e. g. zz_pdf_read_data if filetype == pdf ...
@@ -1820,8 +1821,6 @@ function zz_val_get_from_upload($field, $images, $post) {
 		return $post;
 
 	$myval = false;
-	$v_arr = false;
-	$g = $field['upload_field'];
 	$possible_values = $field['upload_value'];
 	if (!is_array($possible_values)) $possible_values = [$possible_values];
 	// empty values, e. g. GPS bearing = 0/0, ExifTool GPSImgDirectionRef = 'Unknown ()'
