@@ -107,10 +107,13 @@ function zz_imagick_identify($filename, $file) {
 	$file['filetype'] = strtolower($tokens[0]);
 
 	if (count($tokens) >= 3) {
-		$file['width'] = $tokens[1];
-		$file['height'] = $tokens[2];
-		$file['colorspace'] = isset($tokens[3]) ? $tokens[3] : '';
-		$file['icc_profile'] = isset($tokens[4]) ? $tokens[4] : '';
+		// bug: XMP are said to be 1 x 1 px sRGB
+		if (!in_array($file['filetype'], ['xmp'])) {
+			$file['width'] = $tokens[1];
+			$file['height'] = $tokens[2];
+			$file['colorspace'] = isset($tokens[3]) ? $tokens[3] : '';
+			$file['icc_profile'] = isset($tokens[4]) ? $tokens[4] : '';
+		}
 	}
 	if (empty($file['ext'])) {
 		if (isset($file['name'])) {
