@@ -269,9 +269,9 @@ function zz_check_time($time) {
 	$time = trim($time);
 	$time = str_replace(' ', ':', $time);
 	$time = str_replace('::', ':', $time);
-	if (strlen($time) === 19 AND strstr($time, ' ')) {
+	if (strlen($time) === 19) {
 		// might be a date
-		$time = substr($time, strrpos($time, ' ') + 1);
+		$time = substr($time, 11);
 	} elseif (preg_match('~^\d{1,2}$~', $time)) {
 		$time .= ':00:00';
 	}
