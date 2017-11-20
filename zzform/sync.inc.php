@@ -48,9 +48,10 @@ function zz_sync($import) {
 		$zz_setting['sync_page_refresh'] = 2;
 	if (!isset($zz_setting['sync_lists_dir']))
 		$zz_setting['sync_lists_dir'] = $zz_setting['media_folder'];
-	if (!isset($import['show_but_no_import'])) {
+	if (!isset($import['show_but_no_import']))
 		$import['show_but_no_import'] = [];
-	}
+	if (!isset($import['deletable_script_url']))
+		$import['deletable_script_url'] = [];
 
 	// limits
 	if (empty($_GET['limit'])) $import['limit'] = 0;
