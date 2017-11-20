@@ -1062,7 +1062,7 @@ function zz_hash($zz, $zz_conf) {
 	];
 	foreach ($uninteresting_zz_conf_keys as $key) unset($zz_conf[$key]);
 	$uninteresting_zz_keys = [
-		'title', 'explanation', 'explanation_top', 'subtitle', 'list'
+		'title', 'explanation', 'explanation_top', 'subtitle', 'list', 'access'
 	];
 	foreach ($uninteresting_zz_keys as $key) unset($zz[$key]);
 	foreach ($zz['fields'] as $no => $field) {
