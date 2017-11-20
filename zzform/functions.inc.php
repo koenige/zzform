@@ -2218,7 +2218,7 @@ function zz_error() {
 	$user = [];
 	$admin = [];
 	$log = [];
-	$mail = [];
+	$message = [];
 	$return = zz_error_exit() ? 'exit' : 'html';
 	
 	$logged_errors = zz_error_log();
@@ -2380,7 +2380,7 @@ function zz_error() {
 		if (isset($zz_conf['error_mail_level']) AND in_array(
 			$level, $zz_conf['error_mail_level'])
 		) {
-			$mail[$key] = $log[$key];
+			$message[$key] = $log[$key];
 		}
 
 		// Heading
@@ -2398,27 +2398,24 @@ function zz_error() {
 	switch ($zz_conf['error_handling']) {
 	case 'mail':	
 		if (!$zz_conf['error_mail_to']) break;
-		if (!count($mail)) break;
-		$mailtext = sprintf(
+		if (!count($message)) break;
+		$mail['message'] = sprintf(
 			zz_text('The following error(s) occured in project %s:'), $zz_conf['project']
 		);
-		$mailtext .= "\n\n".implode("\n\n", $mail);
-		$mailtext = html_entity_decode($mailtext, ENT_QUOTES, $log_encoding);		
-		$mailtext .= "\n\n-- \nURL: ".$zz_conf['int']['url']['base']
+		$mail['message'] .= "\n\n".implode("\n\n", $message);
+		$mail['message'] = html_entity_decode($mail['message'], ENT_QUOTES, $log_encoding);		
+		$mail['message'] .= "\n\n-- \nURL: ".$zz_conf['int']['url']['base']
 			.$_SERVER['REQUEST_URI']
 			."\nIP: ".$_SERVER['REMOTE_ADDR']
 			.(!empty($_SERVER['HTTP_USER_AGENT']) ? "\nBrowser: ".$_SERVER['HTTP_USER_AGENT'] : '');		
 		if ($zz_conf['user'])
-			$mailtext .= "\nUser: ".$zz_conf['user'];
-		$subject = (!empty($zz_conf['mail_subject_prefix']) 
-			? $zz_conf['mail_subject_prefix'] : '['.$zz_conf['project'].']').' '
-			.zz_text('Error during database operation');
-		$from = '"'.$zz_conf['project'].'" <'.$zz_conf['error_mail_from'].'>';
-		mail($zz_conf['error_mail_to'], $subject, 
-			$mailtext, 'MIME-Version: 1.0
-Content-Type: text/plain; charset='.$zz_conf['character_set'].'
-Content-Transfer-Encoding: 8bit
-From: '.$from);
+			$mail['message'] .= "\nUser: ".$zz_conf['user'];
+
+		if (empty($zz_conf['mail_subject_prefix']))
+			$zz_conf['mail_subject_prefix'] = $zz_conf['project'];
+		$mail['subject'] = zz_text('Error during database operation');
+		$mail['to'] = $zz_conf['error_mail_to'];
+		wrap_mail($mail);
 		break;
 	case 'output':
 		$user = $admin;
