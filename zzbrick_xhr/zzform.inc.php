@@ -61,7 +61,10 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 
 	// @todo modify SQL query according to zzform()
 	
-	$sql = wrap_db_prefix($field['sql']);
+	$sql = $field['sql'];
+	if (array_key_exists('add', $_GET) AND !empty($field['if']['add']['sql']))
+		$sql = $field['if']['add']['sql'];
+	$sql = wrap_db_prefix($sql);
 	$sql_fields = wrap_edit_sql($sql, 'SELECT', false, 'list');
 	$where = [];
 	foreach ($sql_fields as $no => $sql_field) {
