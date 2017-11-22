@@ -108,6 +108,7 @@ function zz_upload_config() {
 	$default['upload_tools']['fileinfo'] = false;
 	$default['upload_tools']['fileinfo_whereis'] = 'file';
 	$default['upload_tools']['exiftool'] = false;
+	$default['upload_tools']['exiftool_whereis'] = '/usr/local/bin/exiftool';
 	$default['upload_tools']['identify'] = true; // might be turned off for performance reasons while handling raw data
 	$default['upload_tools']['ghostscript'] = false; // whether we can use gs library
 	$default['upload_log']		= '';
@@ -713,7 +714,7 @@ function zz_upload_fileinfo($file, $extension = false) {
 function zz_upload_exiftool_read($filename) {
 	global $zz_conf;
 	// @todo use similar mechanism for finding ExifTool path as in imagemagick
-	$cmd = '/usr/local/bin/exiftool -b -j -struct -c "%%d %%d %%.8f" -l -lang %s -g1 "%s"';
+	$cmd = $zz_conf['upload_tools']['exiftool_whereis'].' -b -j -struct -c "%%d %%d %%.8f" -l -lang %s -g1 "%s"';
 	$cmd = sprintf($cmd, $zz_conf['language'], $filename);
 	exec($cmd, $file_meta);
 	if (!$file_meta) return [];
