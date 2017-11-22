@@ -799,14 +799,14 @@ function zzform_multi($definition_file, $values) {
 	if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
 		$old_id = $zz_conf['id'];	
 		$zz_conf['id'] = $id;
-		zz_debug('before including definition file');
+		zz_debug('find definition file', $definition_file);
 	}
 	$zz = zzform_include_table($definition_file, $values);
 	if (empty($zz_conf['user'])) {
 		$zz_conf['user'] = $_SERVER['REQUEST_URI'];
 	}
 	if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
-		zz_debug('definition file included');
+		zz_debug('got definition file');
 		$zz_conf['id'] = $old_id;
 	}
 	// return on error in form script
