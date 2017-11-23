@@ -1451,12 +1451,28 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 			$dest_extension = $zz_conf['upload_destination_filetype'][$dest_extension];
 	}
 
+	if (!empty($zz_conf['file_types'][$image['upload']['filetype']]['exiftool_thumbnail'])
+		AND !empty($zz_conf['upload_tools']['exiftool'])) {
+		$source_filename = zz_image_exiftool($filename, $image);
+		// @todo allow other fields as source as well
+		if (!empty($image['upload']['exiftool']['ID3v2_4']['PictureMIMEType']['val'])) {
+			foreach ($zz_conf['file_types'] as $type => $values) {
+				foreach ($values['mime'] as $mime) {
+					if ($mime === $image['upload']['exiftool']['ID3v2_4']['PictureMIMEType']['val'])
+						$dest_extension = reset($values['extension']);
+				}
+			}
+		}
+	} else {
+		$source_filename = $filename;
+	}
+
 	// create temporary file, so that original file remains the same 
 	// for further actions
 	$tmp_filename = tempnam(realpath($zz_conf['tmp_dir']), 'UPLOAD_');
 
 	$action = 'zz_image_'.$image['action'];
-	$return = $action($filename, $tmp_filename, $dest_extension, $image);
+	$return = $action($source_filename, $tmp_filename, $dest_extension, $image);
 	if (!file_exists($tmp_filename)) {
 		zz_error_log([
 			'msg_dev' => 'Error: File %s does not exist. Temporary Directory: %s',
@@ -2738,6 +2754,23 @@ function zz_image_exif_thumbnail($source, $destination, $dest_ext = false, $imag
 	$imagehandle = fopen($destination, 'a');
 	fwrite($imagehandle, $exif_thumb);	//write the thumbnail image
 	return true;
+}
+
+/**
+ * create thumbnail out of source file with ExifTool
+ *
+ * @param string $filename
+ * @param array $image
+ * @return string
+ */
+function zz_image_exiftool($filename, $image) {
+	global $zz_conf;
+	$tmp_filename = tempnam(realpath($zz_conf['tmp_dir']), 'UPLOAD_');
+
+	$cmd = $zz_conf['upload_tools']['exiftool_whereis'].' -b -Picture "%s" > "%s"';
+	$cmd = sprintf($cmd, $filename, $tmp_filename);
+	exec($cmd);
+	return $tmp_filename;
 }
 
 /**
