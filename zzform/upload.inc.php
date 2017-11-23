@@ -161,11 +161,13 @@ function zz_upload_config() {
 	$default['upload_no_thumbnails'] = [];
 	$default['upload_multipage_images'] = [];
 	$default['exif_supported'] = [];
+	$default['exiftool_supported'] = [];
 	$default['upload_destination_filetype'] = [];
 	foreach ($default['file_types'] as $filetype => $def) {
 		if (empty($def['thumbnail'])) $default['upload_no_thumbnails'][] = $filetype;
 		if (!empty($def['multipage'])) $default['upload_multipage_images'][] = $filetype;
 		if (!empty($def['exif_supported'])) $default['exif_supported'][] = $filetype;
+		if (!empty($def['exiftool_supported'])) $default['exiftool_supported'][] = $filetype;
 		if (!empty($def['destination_filetype'])) {
 			foreach ($def['extension'] as $extension) {
 				$default['upload_destination_filetype'][$extension] = $def['destination_filetype'];
@@ -680,7 +682,8 @@ function zz_upload_fileinfo($file, $extension = false) {
 	}
 
 	// read metadata
-	if (in_array($file['filetype'], $zz_conf['exif_supported'])) {
+	if (in_array($file['filetype'], $zz_conf['exif_supported'])
+		OR in_array($file['filetype'], $zz_conf['exiftool_supported'])) {
 		// you will need enough memory size to handle this if you are uploading
 		// pictures with layers from photoshop, because the original image is
 		// saved as metadata. exif_read_data() cannot read only the array keys
@@ -689,7 +692,7 @@ function zz_upload_fileinfo($file, $extension = false) {
 		if ($zz_conf['upload_tools']['exiftool']) {
 			$file['exiftool'] = zz_upload_exiftool_read($filename);
 			$file['exif'] = [];
-		} elseif (function_exists('exif_read_data')) {
+		} elseif (function_exists('exif_read_data') AND in_array($file['filetype'], $zz_conf['exif_supported'])) {
 			$file['exif'] = exif_read_data($filename);
 		} else {
 			$file['exif'] = [];
