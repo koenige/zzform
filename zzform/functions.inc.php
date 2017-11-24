@@ -591,7 +591,7 @@ function zz_apply_filter($zz, $filter_params) {
 			if (zz_error_exit()) continue;
 			// don't show filter if we have only one element
 			if (count($elements) <= 1) {
-				unset($filter);
+				unset($zz['filter'][$index]);
 				continue;
 			}
 			foreach ($elements as $key => $value) {
