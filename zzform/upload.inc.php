@@ -1455,10 +1455,11 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 		AND !empty($zz_conf['upload_tools']['exiftool'])) {
 		$source_filename = zz_image_exiftool($filename, $image);
 		// @todo allow other fields as source as well
-		if (!empty($image['upload']['exiftool']['ID3v2_4']['PictureMIMEType']['val'])) {
+		$meta = zz_upload_exiftool_read($source_filename);
+		if (!empty($meta['File']['MIMEType']['val'])) {
 			foreach ($zz_conf['file_types'] as $type => $values) {
 				foreach ($values['mime'] as $mime) {
-					if ($mime === $image['upload']['exiftool']['ID3v2_4']['PictureMIMEType']['val'])
+					if ($mime === $meta['File']['MIMEType']['val'])
 						$dest_extension = reset($values['extension']);
 				}
 			}
@@ -2766,9 +2767,16 @@ function zz_image_exif_thumbnail($source, $destination, $dest_ext = false, $imag
 function zz_image_exiftool($filename, $image) {
 	global $zz_conf;
 	$tmp_filename = tempnam(realpath($zz_conf['tmp_dir']), 'UPLOAD_');
+	if (!empty($image['upload']['exiftool']['QuickTime']['CoverArt'])) {
+		$field = 'CoverArt';
+	} elseif (!empty($image['upload']['exiftool']['ID3v2_4']['Picture'])) {
+		$field = 'Picture';
+	} else {
+		return false;
+	}
 
-	$cmd = $zz_conf['upload_tools']['exiftool_whereis'].' -b -Picture "%s" > "%s"';
-	$cmd = sprintf($cmd, $filename, $tmp_filename);
+	$cmd = $zz_conf['upload_tools']['exiftool_whereis'].' -b -%s "%s" > "%s"';
+	$cmd = sprintf($cmd, $field, $filename, $tmp_filename);
 	exec($cmd);
 	return $tmp_filename;
 }
