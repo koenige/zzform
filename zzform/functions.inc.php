@@ -1269,7 +1269,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		$id_value = zz_check_get_array('revise', 'is_int');
 		break;
 
-	case isset($_GET['add']):
+	case isset($_GET['add']) AND empty($_POST['zz_action']):
 		$ops['mode'] = 'add';
 		if ($zz_conf['copy']) {
 			$zz_var['id']['source_value'] = zz_check_get_array('add', 'is_int', [], false);
