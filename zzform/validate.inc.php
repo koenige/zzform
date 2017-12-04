@@ -4,14 +4,14 @@
  * zzform
  * Validation of user input
  *
- * Part of �Zugzwang Project�
+ * Part of »Zugzwang Project«
  * http://www.zugzwang.org/projects/zzform
  *
  * all functions return false if requirements are not met
  * otherwise they will return the value that was checked
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright � 2005-2014, 2016-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2005-2014, 2016-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -300,18 +300,18 @@ function zz_check_date($date) {
 
 	// @todo: allow addition of months in different languages via config
 	$months = [
-		1 => ['Januar', 'January', 'janvier', 'Jan', 'I'],
-		2 => ['Februar', 'February', 'f�vrier', 'Feb', 'F.vrier', 'II'],
-		3 => ['M�rz', 'March', 'mars', 'Mar', 'M.r', 'M.rz', 'III'],
-		4 => ['April', 'avril', 'Apr', 'IV'],
-		5 => ['Mai', 'May', 'fevrier', 'V'],
-		6 => ['Juni', 'June', 'juin', 'Jun', 'VI'],
-		7 => ['Juli', 'July', 'juilett', 'Jul', 'VII'],
-		8 => ['August', 'ao�t', 'ao.t', 'Aug', 'VIII'],
-		9 => ['September', 'Septembre', 'Sep', 'IX'],
-		10 => ['Oktober', 'October', 'octobre', 'Oct', 'Okt', 'X'],
-		11 => ['November', 'novembre', 'Nov', 'XI'],
-		12 => ['Dezember', 'December', 'd�cembre', 'd.cembre', 'Dec', 'Dez', 'XII']
+		1 => ['Januar', 'January', 'janvier', 'Jan', 'I', 'Styczeń'],
+		2 => ['Februar', 'February', 'février', 'Feb', 'F.vrier', 'II', 'Luty'],
+		3 => ['März', 'March', 'mars', 'Mar', 'M.r', 'M.rz', 'III', 'Marzec'],
+		4 => ['April', 'avril', 'Apr', 'IV', 'Kwiecień'],
+		5 => ['Mai', 'May', 'fevrier', 'V', 'Maj'],
+		6 => ['Juni', 'June', 'juin', 'Jun', 'VI', 'Czerwiec'],
+		7 => ['Juli', 'July', 'juilett', 'Jul', 'VII', 'Lipiec'],
+		8 => ['August', 'août', 'ao.t', 'Aug', 'VIII', 'Sierpień'],
+		9 => ['September', 'Septembre', 'Sep', 'IX', 'Wrzesień'],
+		10 => ['Oktober', 'October', 'octobre', 'Oct', 'Okt', 'X', 'Październik'],
+		11 => ['November', 'novembre', 'Nov', 'XI', 'Listopad'],
+		12 => ['Dezember', 'December', 'décembre', 'd.cembre', 'Dec', 'Dez', 'XII', 'Grudzień']
 	];
 	foreach ($months as $month => $values) {
 		foreach ($values as $value) {
@@ -376,11 +376,11 @@ function zz_check_date($date) {
 			$new['month'] = $matches[1];
 			$new['year'] = $matches[2];
 		}
-	} elseif (in_array($date, ['yesterday', 'hier', 'gestern'])) {
+	} elseif (in_array($date, ['yesterday', 'hier', 'gestern', 'wczoraj'])) {
 		return date('Y-m-d', strtotime('yesterday'));
-	} elseif (in_array($date, ['today', 'aujourd\'hui', 'heute'])) {
+	} elseif (in_array($date, ['today', 'aujourd\'hui', 'heute', 'dzisiaj', 'dziś'])) {
 		return date('Y-m-d', strtotime('today'));
-	} elseif (in_array($date, ['tomorrow', 'demain', 'morgen'])) {
+	} elseif (in_array($date, ['tomorrow', 'demain', 'morgen', 'jutro'])) {
 		return date('Y-m-d', strtotime('tomorrow'));
 	}
 	if (empty($new)) return false;
