@@ -423,7 +423,7 @@ body #zzform .separator hr
 #zzform .add-new li:first-child
 					{ border-left: none; }
 #zzform .add-new li a
-					{ padding: 0 0 0 .5em ; }
+					{ padding: 0 .5em ; }
 
 /* list view (page navigation below list) */
 #zzform .pages .last

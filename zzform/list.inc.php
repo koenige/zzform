@@ -263,31 +263,21 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			.$zz_conf['int']['url']['?&'];
 
 		// normal add button, only if list was shown beforehands
-		if ($ops['mode'] != 'add' && $zz_conf['add_link'] AND empty($zz['add']) && $zz_conf['int']['show_list']) {
+		if ($ops['mode'] !== 'add' && $zz_conf['add_link'] AND empty($zz['add']) && $zz_conf['int']['show_list']) {
 			$zz_conf['int']['no_add_button_so_far'] = false;
 			$toolsline[] = '<a accesskey="n" href="'.$base_url.'add'
 				.$zz_var['extraGET'].'">'.zz_text('Add new record').'</a>';
 		}
 		// multi-add-button, also show if there was no list, because it will only be shown below records!
 		
-		if ($ops['mode'] != 'add' && $zz_conf['add_link'] AND !empty($zz['add'])) {
+		if ($ops['mode'] !== 'add' && $zz_conf['add_link'] AND !empty($zz['add'])) {
 			ksort($zz['add']); // if some 'add' was unset before, here we get new numerical keys
-			$ops['output'] .= '<div class="add-new"><p>'.zz_text('Add new record').":</p>\n<ul>";
-			$zz_conf['int']['no_add_button_so_far'] = false;
 			foreach ($zz['add'] as $i => $add) {
-				if ($add['value']) {
-					$value = 'add['.$add['field_name'].']='.$add['value'];
-				} else {
-					$value = 'add';
-				}
-				$ops['output'] .= '<li><a href="'.$base_url
-					.$value.$zz_var['extraGET'].'"'
-					.(!empty($add['title']) ? ' title="'.$add['title'].'"' : '')
-					.'>'.$add['type'].'</a>'
-					.(!empty($add['explanation']) ? ' ('.$add['explanation'].')' : '')
-					.'</li>'."\n";
+				$zz['add'][$i]['base_url'] = $base_url;
+				$zz['add'][$i]['extraGET'] = $zz_var['extraGET'];
 			}
-			$ops['output'] .= '</ul></div>'."\n";
+			$ops['output'] .= wrap_template('zzform-list-add', $zz['add']);
+			$zz_conf['int']['no_add_button_so_far'] = false;
 		}
 
 		if ($zz_conf['export'] AND $ops['records_total']) 
