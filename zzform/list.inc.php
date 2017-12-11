@@ -940,7 +940,7 @@ function zz_list_filter_sql($filters, $sql, &$filter_params) {
 			} elseif ($filter_value === '!NULL') {
 				$sql = wrap_edit_sql($sql, 'WHERE', '!ISNULL('.$filter['where'].')');
 			} elseif (strstr($filter['where'], '%s')) {
-				$sql = wrap_edit_sql($sql, 'WHERE', sprintf($filter['where'], $filter_value));
+				$sql = wrap_edit_sql($sql, 'WHERE', sprintf($filter['where'], wrap_db_escape($filter_value)));
 			} else {
 				// allow ! as a symbol (may be escaped by \)
 				// for !=
@@ -951,7 +951,7 @@ function zz_list_filter_sql($filters, $sql, &$filter_params) {
 				} elseif (substr($filter_value, 0, 1) === '\\') {
 					$filter_value = substr($filter_value, 1);
 				}
-				$sql = wrap_edit_sql($sql, 'WHERE', $filter['where'].$equals.'"'.$filter_value.'"');
+				$sql = wrap_edit_sql($sql, 'WHERE', $filter['where'].$equals.'"'.wrap_db_escape($filter_value).'"');
 			}
 		} elseif ($filter['type'] === 'function') {
 			$records = zz_filter_function($filter, $sql);
