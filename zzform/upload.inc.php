@@ -173,6 +173,11 @@ function zz_upload_config() {
 				$default['upload_destination_filetype'][$extension] = $def['destination_filetype'];
 			}
 		}
+		if (!empty($def['destination_filetype_transparency'])) {
+			foreach ($def['extension'] as $extension) {
+				$default['upload_destination_filetype_transparency'][$extension] = $def['destination_filetype_transparency'];
+			}
+		}
 	}
 	// don't take first frame from mp4 movie, might be black
 	$default['upload_multipage_which']['m4v'] = 5;
@@ -1447,7 +1452,9 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 	if (!$dest_extension) {
 		$dest_extension = strtolower($image['upload']['ext']);
 		// map files to extensions, e. g. TIFF to PNG
-		if (!empty($zz_conf['upload_destination_filetype'][$dest_extension]))
+		if (!empty($image['upload']['transparency']) AND !empty($zz_conf['upload_destination_filetype_transparency'][$dest_extension]))
+			$dest_extension = $zz_conf['upload_destination_filetype_transparency'][$dest_extension];
+		elseif (!empty($zz_conf['upload_destination_filetype'][$dest_extension]))
 			$dest_extension = $zz_conf['upload_destination_filetype'][$dest_extension];
 	}
 

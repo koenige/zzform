@@ -259,6 +259,8 @@ function zz_image_webimage($source, $dest, $dest_ext, $image) {
 	) {
 		// do not create an identical webimage of already existing webimage
 		return zz_return(false);
+	} elseif (!empty($image['upload']['transparency']) AND !empty($zz_conf['upload_destination_filetype_transparency'][$source_ext])) {
+		$dest_ext = $zz_conf['upload_destination_filetype_transparency'][$source_ext];
 	} elseif (!empty($zz_conf['upload_destination_filetype'][$source_ext])) {
 		$dest_ext = $zz_conf['upload_destination_filetype'][$source_ext];
 	} elseif (!empty($image['convert_options'])) {
