@@ -162,6 +162,8 @@ function zz_search_field($field, $table, $searchop, $searchword) {
 		return '';
 	}
 
+	if ($field['type'] === 'number' AND !is_numeric($searchword)) return '';
+
 	// get searchword/operator, per field type
 	$field_type = zz_get_fieldtype($field);
 	$datetime = in_array($field_type, ['date', 'datetime', 'time', 'timestamp']) ? true : false;
