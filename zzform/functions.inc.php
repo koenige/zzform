@@ -3142,6 +3142,7 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 	$postvalues = explode($concat, $postvalue);
 
 	$use_single_comparison = false;
+	$id_field_name = $field['sql_fieldnames'][0];
 	if (substr($postvalue, -1) !== ' ' AND !$zz_conf['multi']) {
 		// if there is a space at the end of the string, don't do LIKE 
 		// with %!
@@ -3218,12 +3219,12 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 		$h_sql = 'SELECT %s FROM %s WHERE %s IN (%%s)';
 		$h_table = wrap_edit_sql($field['sql'], 'FROM', false, 'list');
 		$h_sql = sprintf($h_sql,
-			$field['sql_fieldnames'][0], $h_table[0], $field['show_hierarchy']
+			$id_field_name, $h_table[0], $field['show_hierarchy']
 		);
 		$children = wrap_db_children($field['show_hierarchy_subtree'], $h_sql);
 		unset($children[0]); // top hierarchy ID
 		$wheresql .= sprintf(' AND %s IN (%s)',
-			$field['sql_fieldnames'][0], implode(',', $children)
+			$id_field_name, implode(',', $children)
 		);
 	}
 	if ($wheresql) {
