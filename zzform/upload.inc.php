@@ -1388,6 +1388,7 @@ function zz_upload_prepare_source_file($image, $my_rec, $zz_tab, $tab, $rec) {
 	if (!$found) return false;
 
 	$sql = sprintf($image['source_path_sql'], $my_rec['POST'][$image['source_file']]);
+	$old_sql = $sql;
 	if (!empty($image['update_from_source_field_name']) AND !empty($image['update_from_source_value'])) {
 		$where = [];
 		foreach ($image['update_from_source_field_name'] as $index => $field_name) {
@@ -1404,6 +1405,12 @@ function zz_upload_prepare_source_file($image, $my_rec, $zz_tab, $tab, $rec) {
 		}
 	}
 	$old_record = zz_db_fetch($sql);
+	if (!$old_record) {
+		// does file exist?
+		$thumb_filename = zz_makepath($image['path'], $zz_tab, 'old', 'file', $tab, $rec);
+		if (file_exists($thumb_filename)) return false;
+		$old_record = zz_db_fetch($old_sql);
+	}
 	if (!$old_record) return false;
 
 	$source_tab[$tab][$rec]['existing'] = $old_record;
