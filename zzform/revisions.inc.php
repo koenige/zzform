@@ -55,15 +55,15 @@ function zz_revisions($ops, $rev_only = false) {
 		$ops['return'][0]['id_value'], $user_id, $status
 	);
 	$rev_id = wrap_db_query($sql);
-	if (!$rev_id) return [];
-	zz_log_sql($sql, $zz_conf['user'], $rev_id);
+	if (empty($rev_id['id'])) return [];
+	zz_log_sql($sql, $zz_conf['user'], $rev_id['id']);
 
 	if ($status === 'live') {
 		$sql = 'UPDATE %s SET rev_status = "historic", last_update = NOW()
 			WHERE rev_status = "live" AND main_table_name = "%s" AND main_record_id = %d AND revision_id < %d';
 		$sql = sprintf($sql,
 			$zz_conf['revisions_table'], $ops['return'][0]['table'],
-			$ops['return'][0]['id_value'], $rev_id
+			$ops['return'][0]['id_value'], $rev_id['id']
 		);
 		$rows = wrap_db_query($sql);
 		if ($rows) zz_log_sql($sql, $zz_conf['user']);
@@ -71,12 +71,12 @@ function zz_revisions($ops, $rev_only = false) {
 
 	$sql_rev = 'INSERT INTO %s (revision_id, table_name, record_id, changed_values,
 		complete_values, rev_action) VALUES (%d, "%%s", %%d, %%s, %%s, "%%s")';
-	$sql_rev = sprintf($sql_rev, $zz_conf['revisions_data_table'], $rev_id);
+	$sql_rev = sprintf($sql_rev, $zz_conf['revisions_data_table'], $rev_id['id']);
 	foreach ($data as $line) {
 		$sql = vsprintf($sql_rev, $line);
 		$rev_data_id = wrap_db_query($sql);
-		if (!$rev_data_id) continue;
-		zz_log_sql($sql, $zz_conf['user'], $rev_data_id);
+		if (empty($rev_data_id['id'])) continue;
+		zz_log_sql($sql, $zz_conf['user'], $rev_data_id['id']);
 	}
 	return [];
 }
