@@ -996,6 +996,8 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 	
 	$my_rec['POST_db'] = $my_rec['POST'];
 	foreach ($my_rec['fields'] as $f => $field) {
+		if (!empty($field['display_only'])) continue;
+
 		$field_name = (!empty($field['field_name']) ? $field['field_name'] : '');
 	// text: convert encoding for some field types
 		if (in_array($field['type'], ['text', 'memo'])) {
