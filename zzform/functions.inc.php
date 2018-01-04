@@ -919,10 +919,9 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 		}
 		if (!isset($fields[$no]['title'])) { // create title
 			if (!isset($fields[$no]['field_name'])) {
-				zz_error_log([
-					'msg_dev' => 'Field definition incorrect: [No. %d] %s',
-					'msg_dev_args' => [$no, json_encode($fields[$no])]
-				]);
+				wrap_error(sprintf('zzform field definition incorrect: [Table %s, No. %d] %s',
+					$db_table, $no, json_encode($fields[$no], JSON_PRETTY_PRINT)), E_USER_ERROR
+				);
 			}
 			$fields[$no]['title'] = ucfirst($fields[$no]['field_name']);
 			$fields[$no]['title'] = str_replace('_ID', ' ', $fields[$no]['title']);
