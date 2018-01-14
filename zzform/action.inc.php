@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1482,7 +1482,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 		case 'password_change':
 			//	change encrypted password
 			$pwd = false;
-			if ($my_rec['POST'][$field_name] 
+			if (($my_rec['POST'][$field_name] OR !empty($field['dont_require_old_password']))
 				AND $my_rec['POST'][$field_name.'_new_1']
 				AND $my_rec['POST'][$field_name.'_new_2']) {
 				$my_sql = $field['sql_password_check'].$my_rec['id']['value'];
@@ -1788,33 +1788,33 @@ function zz_password_set($old, $new1, $new2, $sql, $field) {
 		]);
 		return false; 
 	}
-	$old_hash = zz_db_fetch($sql, '', 'single value', __FUNCTION__);
-	if (!$old_hash) return false;
-	if (!empty($field['dont_require_old_password'])
-		OR wrap_password_check($old, $old_hash)) {
-		// new1 = new2, old = old, everything is ok
-		$hash = wrap_password_hash($new1);
-		if ($hash) {
+	if (empty($field['dont_require_old_password'])) {
+		$old_hash = zz_db_fetch($sql, '', 'single value', __FUNCTION__);
+		if (!$old_hash) return false;
+		if (!wrap_password_check($old, $old_hash)) {
 			zz_error_log([
-				'msg' => 'Your password has been changed!',
+				'msg' => 'Your current password is different from what you entered. Please try again.',
+				'msg_dev' => '(Encryption: %s, existing hash: %s, entered hash: %s)',
+				'msg_dev_args' => [$zz_conf['hash_password'], $old_hash, wrap_password_hash($old)],
 				'level' => E_USER_NOTICE
 			]);
-		} else {
-			zz_error_log([
-				'msg' => 'Your new password could not be saved. Please try a different one.',
-				'level' => E_USER_WARNING
-			]);
+			return false;
 		}
-		return $hash;
-	} else {
+	}
+	// new1 = new2, old = old, everything is ok
+	$hash = wrap_password_hash($new1);
+	if ($hash) {
 		zz_error_log([
-			'msg' => 'Your current password is different from what you entered. Please try again.',
-			'msg_dev' => '(Encryption: %s, existing hash: %s, entered hash: %s)',
-			'msg_dev_args' => [$zz_conf['hash_password'], $old_hash, wrap_password_hash($old)],
+			'msg' => 'Your password has been changed!',
 			'level' => E_USER_NOTICE
 		]);
-		return false;
+	} else {
+		zz_error_log([
+			'msg' => 'Your new password could not be saved. Please try a different one.',
+			'level' => E_USER_WARNING
+		]);
 	}
+	return $hash;
 }
 
 /**
