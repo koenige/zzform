@@ -6,7 +6,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -282,6 +282,11 @@ body #zzform .separator hr
 	#zzform #record .subtable .horizontal th:before { content: " / "; }
 	#zzform #record .subtable .horizontal th.firstrow:before { content: ""; }
 }
+
+#zzform #record .set
+					{ list-style: none; margin: 0; padding: 0; }
+#zzform #record .set li
+					{ margin: 0; padding: 0; }
 
 /* filter */
 #zzform .zzfilter	{ margin: 1em 0 1.5em; line-height: 1; overflow: hidden; }

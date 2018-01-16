@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -2221,10 +2221,9 @@ function zz_field_set($field, $fields, $display, $my_tab, $zz_var = []) {
 			$sets_indexed[$def]['default'] = true;
 		}
 	}
-	$outputf = '';
+	$outputf = '<ul class="set">';
 	foreach ($sets_indexed as $set) {
 		if ($display === 'form') {
-			if (!empty($outputf)) $outputf .= "<br>\n";
 			if (!empty($set['rec_id'])) {
 				$outputf .= sprintf(
 					'<input type="hidden" name="%s[%d][%s]" value="%d">'
@@ -2237,19 +2236,19 @@ function zz_field_set($field, $fields, $display, $my_tab, $zz_var = []) {
 				);
 			}
 			$outputf .= sprintf(
-				'<label for="check-%s-%d">'
+				'<li><label for="check-%s-%d">'
 				.'<input type="checkbox" name="%s[%d][%s]" id="check-%s-%d" value="%d"%s>&nbsp;%s'
-				.'</label>'
+				.'</label></li>'."\n"
 				, $field['table_name'], $set['rec_no']
 				, $field['table_name'], $set['rec_no'], $field_names['select']
 				, $field['table_name'], $set['rec_no'], $set['id']
 				, ((!empty($set['rec_id']) OR !empty($set['default'])) ? ' checked="checked"' : ''), $set['title']
 			);
 		} elseif (!empty($set['rec_id'])) {
-			if (!empty($outputf)) $outputf .= "<br>\n";
-			$outputf .= $set['title'];
+			$outputf .= sprintf("<li>%s</li>\n", $set['title']);
 		}
 	}
+	$outputf .= '</ul>';
 	return $outputf;
 }
 
