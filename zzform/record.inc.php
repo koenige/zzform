@@ -2169,11 +2169,12 @@ function zz_field_memo($field, $display, $record) {
  * @return string
  */
 function zz_field_set($field, $fields, $display, $my_tab, $zz_var = []) {
+	$group = false;
 	foreach ($fields as $index => $my_field) {
 		$field_names[$my_field['type']] = $my_field['field_name'];
 		if ($my_field['type'] === 'select') {
-			$sql = $field['sql'];
 			$sets = zz_field_query($my_field);
+			if (!empty($my_field['group'])) $group = $my_field['group'];
 		}
 	}
 	$exemplary_set = reset($sets);
@@ -2181,15 +2182,17 @@ function zz_field_set($field, $fields, $display, $my_tab, $zz_var = []) {
 	$set_field_names = [];
 	foreach (array_keys($exemplary_set) as $key) {
 		if (!$set_id_field_name) $set_id_field_name = $key;
-		else $set_field_names[] = $key;
+		elseif ($key !== $group) $set_field_names[] = $key;
 	}
 	foreach ($sets as $set) {
 		$title = [];
 		foreach ($set_field_names as $set_field_name) {
+			if (!$set[$set_field_name]) continue;
 			$title[] = $set[$set_field_name];
 		}
 		$sets_indexed[$set[$set_id_field_name]]['id'] = $set[$set_id_field_name];
 		$sets_indexed[$set[$set_id_field_name]]['title'] = implode(' | ', $title);
+		if ($group) $sets_indexed[$set[$set_id_field_name]]['group'] = $set[$group];
 	}
 	$rec_max = 0;
 	foreach ($my_tab as $rec_no => $rec) {
@@ -2221,8 +2224,14 @@ function zz_field_set($field, $fields, $display, $my_tab, $zz_var = []) {
 			$sets_indexed[$def]['default'] = true;
 		}
 	}
-	$outputf = '<ul class="set">';
+	$last_group = '';
+	$outputf = '';
 	foreach ($sets_indexed as $set) {
+		if ($group AND $set['group'] !== $last_group) {
+			if ($outputf) $outputf .= '</ul>'."\n";
+			$outputf .= sprintf('<li>%s<ul>'."\n", $set['group']);
+			$last_group = $set['group'];
+		}
 		if ($display === 'form') {
 			if (!empty($set['rec_id'])) {
 				$outputf .= sprintf(
@@ -2248,7 +2257,8 @@ function zz_field_set($field, $fields, $display, $my_tab, $zz_var = []) {
 			$outputf .= sprintf("<li>%s</li>\n", $set['title']);
 		}
 	}
-	$outputf .= '</ul>';
+	if ($group) $outputf .= '</ul></li>';
+	$outputf = sprintf('<ul class="set">%s</ul>', $outputf);
 	return $outputf;
 }
 

@@ -287,6 +287,10 @@ body #zzform .separator hr
 					{ list-style: none; margin: 0; padding: 0; }
 #zzform #record .set li
 					{ margin: 0; padding: 0; }
+#zzform #record .set li ul
+					{ margin: 0 0 .5em; padding: 0; }
+#zzform #record .set li li
+					{ list-style: none; }
 
 /* filter */
 #zzform .zzfilter	{ margin: 1em 0 1.5em; line-height: 1; overflow: hidden; }
