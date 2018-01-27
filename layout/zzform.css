@@ -423,12 +423,12 @@ body #zzform .separator hr
 
 
 /* list view (add new below list) */
-#zzform .add-new	{ overflow: hidden; }
+#zzform .add-new	{ overflow: hidden; margin: 1em 0; }
 #zzform .add-new p, #zzform .add-new ul, #zzform .add-new li
 					{ display: inline; }
-#zzform .add-new ul	{ margin: 0; padding: 0; }
+#zzform .add-new ul	{ margin: 0; padding: 0; display: inline-block; }
 #zzform .add-new li	{ list-style: none; border-left: 1px dotted;
-					padding: 0; margin: 0; }
+					padding: 0; margin: 0; display: inline-block; }
 #zzform .add-new li:first-child
 					{ border-left: none; }
 #zzform .add-new li a
