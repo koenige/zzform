@@ -1191,7 +1191,9 @@ function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
 		foreach ($rn as $field => $value) {
 			if (!key_exists($field, $ro)) {
 				$rd[$field] = 'insert';
-			} elseif ($ro[$field] != $value) {
+			} elseif ($ro[$field].'' != $value.'') {
+				// string comparison instead of !==
+				// to match numerical values against identical strings
 				$rd[$field] = 'diff';
 			} else {
 				$rd[$field] = 'same';
