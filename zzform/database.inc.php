@@ -872,17 +872,6 @@ function zz_db_select($db_name) {
 }
 
 /**
- * select a MySQL database character set
- *
- * @param string $db_name
- * @return bool
- */
-function zz_db_charset($character_set) {
-	global $zz_conf;
-	return mysqli_set_charset($zz_conf['db_connection'], $character_set);
-}
-
-/**
  * check if a field is numeric
  *
  * @param string $db_table

@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -119,7 +119,7 @@ function zz_export_init($ops) {
 	case 'kml':
 	case 'geojson':
 		// always use UTF-8
-		zz_db_charset('UTF8');
+		wrap_db_charset('utf8');
 		// if kml file is called without limit parameter, it does not default
 		// to limit=20 but to no limit instead
 		if (empty($_GET['limit'])) {
