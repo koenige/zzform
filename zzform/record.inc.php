@@ -2170,11 +2170,13 @@ function zz_field_memo($field, $display, $record) {
  */
 function zz_field_set($field, $fields, $display, $my_tab, $zz_var = []) {
 	$group = false;
+	$this_field = [];
 	foreach ($fields as $index => $my_field) {
 		$field_names[$my_field['type']] = $my_field['field_name'];
 		if ($my_field['type'] === 'select') {
 			$sets = zz_field_query($my_field);
 			if (!empty($my_field['group'])) $group = $my_field['group'];
+			$this_field = $my_field;
 		}
 	}
 	$exemplary_set = reset($sets);
@@ -2191,7 +2193,7 @@ function zz_field_set($field, $fields, $display, $my_tab, $zz_var = []) {
 			$title[] = $set[$set_field_name];
 		}
 		$sets_indexed[$set[$set_id_field_name]]['id'] = $set[$set_id_field_name];
-		$sets_indexed[$set[$set_id_field_name]]['title'] = implode(' | ', $title);
+		$sets_indexed[$set[$set_id_field_name]]['title'] = zz_field_concat($this_field, $title);
 		if ($group) $sets_indexed[$set[$set_id_field_name]]['group'] = $set[$group];
 	}
 	$rec_max = 0;
