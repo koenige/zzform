@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1212,6 +1212,8 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 	global $zz_conf;
 	static $append_field;
 	static $append_string_first;
+	static $append_prefix;
+	static $append_suffix;
 	
 	if (!empty($field['export_no_html'])) {
 		$row['export_no_html'] = true;
@@ -1399,7 +1401,23 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 	if (!empty($field['hide_zeros']) AND !$text) {
 		$text = '';
 	}
-	if ($text === '' OR $text === false) return $row;
+
+	if (!empty($field['list_prefix_append'])) {
+		$append_prefix = $field['list_prefix_append'];
+	}
+	if (!empty($field['list_suffix_append'])) {
+		$append_suffix = $field['list_suffix_append'];
+	}
+	
+	if ($text === '' OR $text === false) {
+		// always append suffix on last appended field, even if it is empty
+		if (!empty($append_suffix) AND empty($append_prefix) AND empty($field['list_append_next'])) {
+			$row['text'] .= zz_text($append_suffix);
+			$append_suffix = '';
+			$append_prefix = '';
+		}
+		return $row;
+	}
 
 	if ($mark_search_string AND $mode != 'export') {
 		$text = zz_mark_search_string($text, $field[$mark_search_string], $field);
@@ -1421,6 +1439,10 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 	if (!empty($field['list_prefix'])) {
 		$row['text'] .= zz_text($field['list_prefix']);
 	}
+	if (!empty($append_prefix)) {
+		$row['text'] .= zz_text($append_prefix);
+		$append_prefix = '';
+	}
 	if (!empty($field['list_abbr']) AND $mode != 'export') {
 		$row['text'] .= '<abbr title="'.zz_html_escape($line[$field['list_abbr']]).'">';
 	}
@@ -1436,6 +1458,10 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 	}
 	if (!empty($field['list_suffix'])) {
 		$row['text'] .= zz_text($field['list_suffix']);
+	}
+	if (!empty($append_suffix) AND empty($field['list_append_next'])) {
+		$row['text'] .= zz_text($append_suffix);
+		$append_suffix = '';
 	}
 	if (!empty($field['list_abbr']) AND $mode != 'export') {
 		$row['text'] .= '</abbr>';
