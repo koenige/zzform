@@ -724,7 +724,7 @@ function zz_action_function($type, $ops, $zz_tab) {
 				// it's a function
 				$custom_result = $hook($ops);
 				if (is_array($custom_result)) {
-					$change = array_merge($change, $custom_result);
+					$change = zz_array_merge($change, $custom_result);
 				}
 			}
 		}
