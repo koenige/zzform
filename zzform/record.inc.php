@@ -2231,7 +2231,11 @@ function zz_field_set($field, $fields, $display, $my_tab, $zz_var = []) {
 	foreach ($sets_indexed as $set) {
 		if ($group AND $set['group'] !== $last_group) {
 			if ($outputf) $outputf .= '</ul>'."\n";
-			$outputf .= sprintf('<li>%s<ul>'."\n", $set['group']);
+			$outputf .= sprintf(
+				'<li%s> <em>%s</em><ul>'."\n"
+				, ($display === 'form' ? ' class="js-zz_set_group"' : '')
+				, $set['group']
+			);
 			$last_group = $set['group'];
 		}
 		if ($display === 'form') {

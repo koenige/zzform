@@ -2,11 +2,11 @@
  * zzform
  * JavaScript to be executed at end of document
  *
- * Part of »Zugzwang Project«
+ * Part of Â»Zugzwang ProjectÂ«
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2011 Gustaf Mossakowski
+ * @copyright Copyright Â© 2009-2014, 2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -124,3 +124,30 @@ if (moretexts.length) {
 		};
 	}
 }
+
+/**
+ * for a subrecord set that is grouped, allow to check/uncheck all entries
+ * inside the group
+ */
+function zz_init_checkboxes() {
+	var checkboxes = document.getElementsByClassName('js-zz_set_group');
+	if (checkboxes.length) {
+		for (i = 0; i < checkboxes.length; i++) {
+			var new_checkbox = document.createElement('input');
+			new_checkbox.type = "checkbox";
+			(function(counter){
+				new_checkbox.addEventListener('click', function(){
+					var checkboxList = checkboxes[counter].getElementsByTagName('input');
+					for (j = 0; j < checkboxList.length; j++) {
+						if (checkboxList[j].type == 'checkbox') {
+							checkboxList[j].checked = this.checked;
+						}
+					}
+				}, false);
+   			})(i);
+			checkboxes[i].insertBefore(new_checkbox, checkboxes[i].firstChild);
+		}
+	}
+}
+zz_init_checkboxes();
+
