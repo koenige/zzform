@@ -217,7 +217,8 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 			$div_record_open = true;
 		}
 		// output form if necessary
-		$output .= zz_display_records($zz_tab, $ops['mode'], $display_form, $zz_var, $zz_conditions);
+		$data = zz_display_records($zz_tab, $ops['mode'], $display_form, $zz_var, $zz_conditions);
+		$output .= wrap_template('zzform-record', $data);
 	}
 
 	// close HTML form element
@@ -259,15 +260,16 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
  * @param array $zz_var
  * @param array $zz_conditions
  * @global array $zz_conf
- * @return string $string			HTML-Output with all form fields
+ * @return array $output			HTML-Output with all form fields
  */
 function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 	global $zz_conf;
 	
-	if (!$display) return false;
+	if (!$display) return [];
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
-	$output = '';
+	$output = [];
+	$output['hidden'] = [];
 
 	// there is a form to display
 	$zz_conf_record = zz_record_conf($zz_conf);
@@ -277,21 +279,28 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 	}
 
 	if (in_array($mode, ['add', 'edit', 'revise']) && !empty($zz_conf['upload_MAX_FILE_SIZE'])
-		AND !empty($zz_var['upload_form'])) 
-		$output .= zz_form_element('MAX_FILE_SIZE', $zz_conf['upload_MAX_FILE_SIZE'], 'hidden')."\n";
-	$output .= '<table>'."\n";
+		AND !empty($zz_var['upload_form'])) {
+		$output['hidden'][] = [
+			'name' => 'MAX_FILE_SIZE',
+			'value' => $zz_conf['upload_MAX_FILE_SIZE']
+		];
+	}
 	$multiple = !empty($zz_var['id']['values']) ? true : false;
-	$tbody = zz_show_field_rows($zz_tab, $mode, $display, $zz_var, $zz_conf_record);
-	$tfoot = zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple);
-	$output .= $tfoot.$tbody;
-	if (zz_error_exit()) return zz_return(false);
-	$output .= '</table>'."\n";
+	$output['tbody'] = zz_show_field_rows($zz_tab, $mode, $display, $zz_var, $zz_conf_record);
+	$output['tfoot'] = zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple);
+	if (zz_error_exit()) return zz_return([]);
 	if ($multiple) {
 		foreach ($zz_var['id']['values'] as $id_value) {
-			$output .= zz_form_element($zz_var['id']['field_name'].'[]', $id_value, 'hidden')."\n";
+			$output['hidden'][] = [
+				'name' => $zz_var['id']['field_name'].'[]',
+				'value' => $id_value
+			];
 		}
 	} elseif ($mode === 'delete') {
-		$output .= zz_form_element($zz_var['id']['field_name'], $zz_var['id']['value'], 'hidden')."\n";
+		$output['hidden'][] = [
+			'name' => $zz_var['id']['field_name'],
+			'value' => $zz_var['id']['value']
+		];
 	}
 	if ($mode && !in_array($mode, ['review', 'show'])) {
 		switch ($mode) {
@@ -299,28 +308,37 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 			case 'edit': case 'revise': $submit = 'update'; break;
 			case 'delete': $submit = 'delete'; break;
 		}
-		$output .= zz_form_element('zz_action', $submit, 'hidden');
+		$output['hidden'][] = ['name' => 'zz_action', 'value' => $submit];
 		if (in_array($mode, ['revise', 'delete']) AND !empty($zz_tab[0]['revision_id'])) {
-			$output .= zz_form_element('zz_revision_id', $zz_tab[0]['revision_id'], 'hidden');
+			$output['hidden'][] = [
+				'name' => 'zz_revision_id',
+				'value' => $zz_tab[0]['revision_id']
+			];
 		}
 		if (!empty($zz_var['zz_fields'])) {
 			foreach ($zz_var['zz_fields'] as $field_name => $field) {
-				$output .= zz_form_element('zz_fields['.$field_name.']', $field['value'], 'hidden');
+				$output['hidden'][] = [
+					'name' => 'zz_fields['.$field_name.']',
+					'value' => $field['value']
+				];
 			}
 		}
 		if ($zz_conf['referer'])
-			$output .= zz_form_element('zz_referer', $zz_conf['referer'], 'hidden');
+			$output['hidden'][] = [
+				'name' => 'zz_referer', 'value' => $zz_conf['referer']
+			];
 		if (isset($_GET['file']) && $_GET['file']) 
-			$output .= zz_form_element('file', zz_html_escape($_GET['file']), 'hidden');
+			$output['hidden'][] = [
+				'name' => 'file', 'value' => zz_html_escape($_GET['file'])
+			];
 	}
 	if ($display === 'form') {
 		foreach ($zz_tab as $tab => $my_tab) {
 			if (empty($my_tab['subtable_ids'])) continue;
-			$output .= zz_form_element(
-				sprintf('zz_subtable_ids[%s]', $my_tab['table_name']),
-				implode(',', $my_tab['subtable_ids']),
-				'hidden'
-			);
+			$output['hidden'][] = [
+				'name' => sprintf('zz_subtable_ids[%s]', $my_tab['table_name']),
+				'value' => implode(',', $my_tab['subtable_ids'])
+			];
 		}
 	}
 	return zz_return($output);
@@ -417,7 +435,6 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 				.'</td></tr>'."\n";
 		}			
 	}
-	$output = '<tfoot>'."\n".$output.'</tfoot>'."\n";
 	return $output;
 }
 
