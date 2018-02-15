@@ -7,16 +7,18 @@
 # @copyright Copyright © 2018 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
+# tfoot must be before thead or hitting ENTER won't necessarily save the record
+#
+%%% loop hidden %%%
+<input type="hidden" name="%%% item name %%%" value="%%% item value wrap_html_escape %%%">
+%%% loop end %%%
 <table>
 %%% condition if tfoot %%%
+<tfoot>
+%%% item tfoot %%%
+</tfoot>
 %%% condition endif %%%
 <tbody>
 %%% item tbody %%%
 </tbody>
-<tfoot>
-%%% item tfoot %%%
-</tfoot>
 </table>
-%%% loop hidden %%%
-<input type="hidden" name="%%% item name %%%" value="%%% item value wrap_html_escape %%%">
-%%% loop end %%%
