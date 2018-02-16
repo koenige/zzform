@@ -18,7 +18,7 @@
  * V - Validation, preparation for database
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1060,6 +1060,9 @@ function zz_hash($zz, $zz_conf) {
 		'debug', 'db_connection'
 	];
 	foreach ($uninteresting_zz_conf_keys as $key) unset($zz_conf[$key]);
+	// remove user if it's not an internal user
+	if (empty($zz_conf['user'])) unset($zz_conf['user']);
+	elseif (strstr($zz_conf['user'], ' ')) unset($zz_conf['user']);
 	$uninteresting_zz_keys = [
 		'title', 'explanation', 'explanation_top', 'subtitle', 'list', 'access'
 	];
