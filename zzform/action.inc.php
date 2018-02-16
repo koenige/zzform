@@ -713,17 +713,13 @@ function zz_action_function($type, $ops, $zz_tab) {
 	}
 	if ($zz_tab[0]['hooks'][$type] !== true) {
 		foreach ($zz_tab[0]['hooks'][$type] as $hook) {
-			$file = $zz_conf['hooks_dir'].'/'.$hook.'.inc.php';
-			if (file_exists($file)) {
-				// a file has to be included
-				include $file;
-			} else {
-				// it's a function
-				$custom_result = $hook($ops);
-				if (is_array($custom_result)) {
-					$change = zz_array_merge($change, $custom_result);
-				}
-			}
+			$file = str_replace('_', '-', $hook);
+			if (substr($file, 0, 3) === 'my-') $file = substr($file, 3);
+			$file = $zz_conf['hooks_dir'].'/'.$file.'.inc.php';
+			if (file_exists($file)) require_once $file;
+			$custom_result = $hook($ops);
+			if (!is_array($custom_result)) continue;
+			$change = zz_array_merge($change, $custom_result);
 		}
 	}
 	if ($change) {
