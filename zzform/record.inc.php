@@ -608,8 +608,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 
 		if (!$append_next) {
 			$out['tr']['attr'][] = implode(' ', $field['class']);
-			if ($formdisplay === 'horizontal' AND ($field['type'] === 'number'
-				OR (!empty($field['type_detail']) AND $field['type_detail'] === 'number'))) {
+			if ($formdisplay === 'horizontal' AND in_array(zz_get_fieldtype($field), ['number', 'sequence'])) {
 				$out['td']['attr'][] = 'number';
 			}
 			if (!(isset($field['show_title']) && !$field['show_title'])) {
@@ -850,7 +849,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 
 			// field size, maxlength
 			if (!isset($field['size'])) {
-				if ($field['type'] === 'number') {
+				if (in_array($field['type'], ['number', 'sequence'])) {
 					$field['size'] = 16;
 		 		} else {
 		 			$field['size'] = 32;
@@ -970,6 +969,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			case 'mail':
 			case 'mail+name':
 			case 'ipv4':
+			case 'sequence':
 				$outputf = zz_field_text($field, $field_display, $my_rec['record'], !$my_rec['validation'] ? true : $zz_tab[0]['dont_reformat']);
 				break;
 
@@ -3419,7 +3419,7 @@ function zz_field_display($field, $record, $record_saved) {
 	// display_value ?
 	// internationalization has to be done in zz-fields-definition
 	if (isset($field['display_value'])) {
-		if (!empty($field['type_detail']) AND $field['type_detail'] === 'number') {
+		if (zz_get_fieldtype($field) === 'number') {
 			$field['display_value'] = zz_number_format($field['display_value'], $field);
 		}
 		return $field['display_value']; 
