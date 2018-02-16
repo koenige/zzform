@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -52,9 +52,6 @@ function zz_details($zz) {
 		$zz_conf['int']['details_last'] = $last;
 		$hooks = ['after_insert', 'after_update'];
 		foreach ($hooks as $hook) {
-			if (!empty($zz['hooks'][$hook]) AND !is_array($zz['hooks'][$hook])) {
-				$zz['hooks'][$hook] = [$zz['hooks'][$hook]];
-			}
 			$zz['hooks'][$hook][] = 'zz_details_return';
 		}
 	}

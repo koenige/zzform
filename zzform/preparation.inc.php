@@ -35,10 +35,6 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	$zz_tab[0]['sqlextra'] = !empty($zz['sqlextra']) ? $zz['sqlextra'] : [];
 	$zz_tab[0]['sql_translate'] = !empty($zz['sql_translate']) ? $zz['sql_translate'] : [];
 	$zz_tab[0]['hooks'] = !empty($zz['hooks']) ? $zz['hooks'] : [];
-	foreach ($zz_tab[0]['hooks'] as $hook => $actions) {
-		if (is_array($actions)) continue;
-		$zz_tab[0]['hooks'][$hook] = [$actions];
-	}
 	$zz_conf['int']['revisions_only'] = !empty($zz['revisions_only']) ? true : false;
 	if (!empty($zz_conf['int']['revisions_only']) OR !empty($zz['revisions'])) {
 		require_once $zz_conf['dir_inc'].'/revisions.inc.php';

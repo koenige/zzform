@@ -712,9 +712,6 @@ function zz_action_function($type, $ops, $zz_tab) {
 		$change = zz_geo_geocode($ops, $zz_tab);
 	}
 	if ($zz_tab[0]['hooks'][$type] !== true) {
-		if (!is_array($zz_tab[0]['hooks'][$type])) {
-			$zz_tab[0]['hooks'][$type] = [$zz_tab[0]['hooks'][$type]];
-		}
 		foreach ($zz_tab[0]['hooks'][$type] as $hook) {
 			$file = $zz_conf['hooks_dir'].'/'.$hook.'.inc.php';
 			if (file_exists($file)) {

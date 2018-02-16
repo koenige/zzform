@@ -13,7 +13,7 @@
  *	zzform_multi()			multi edit for zzform, e. g. import
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -458,10 +458,20 @@ function zz_valid_request($action = false) {
  * @return array
  */
 function zz_defaults($zz) {
+	// set indices
 	if (!isset($zz['title']))
 		$zz['title'] = NULL;
 	if (!isset($zz['explanation']))
 		$zz['explanation'] = '';
+	
+	// check hooks if they are arrays
+	if (!empty($zz['hooks'])) {
+		foreach ($zz['hooks'] as $hook => $actions) {
+			if (is_array($actions)) continue;
+			$zz['hooks'][$hook] = [$actions];
+		}
+	}
+
 	return $zz;
 }
 
