@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -291,7 +291,7 @@ function zz_output_redirect($result, $return, $id_value, $zz_tab) {
 		if (!empty($zz_conf['int']['hash_id'])) {
 			// secret key has to be recalculated for insert operations
 			// because there did not exist an id value before = hash was different
-			$zz_conf['int']['secret_key'] = sha1($zz_conf['int']['hash'].$id_value);
+			$zz_conf['int']['secret_key'] = zz_secret_key($id_value);
 			$secure = '&zzhash='.$zz_conf['int']['secret_key'];
 		}
 		switch ($result) {

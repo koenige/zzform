@@ -1084,6 +1084,20 @@ function zz_hash($zz, $zz_conf) {
 }
 
 /**
+ * hash a secret key and make it small
+ *
+ * @param int @id
+ * @global string $zz_conf['int']['hash']
+ * @return string
+ */
+function zz_secret_key($id) {
+	global $zz_conf;
+	$hash = sha1($zz_conf['int']['hash'].$id);
+	$hash = wrap_base_convert($hash, 16, 62);
+	return $hash;
+}
+
+/**
  * gets unique and id fields for further processing
  *
  * @param array $fields
@@ -1391,7 +1405,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 	} else {
 		$idval = $zz_var['id']['value'];
 	}
-	$zz_conf['int']['secret_key'] = sha1($zz_conf['int']['hash'].$idval);
+	$zz_conf['int']['secret_key'] = zz_secret_key($idval);
 
 	// if conditions in $zz_conf['if'] -- check them
 	// get conditions if there are any, for access
