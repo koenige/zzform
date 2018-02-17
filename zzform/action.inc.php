@@ -704,7 +704,7 @@ function zz_action_function($type, $ops, $zz_tab) {
 
 	if (!empty($zz_tab[0]['revision_id'])
 		AND in_array($type, ['after_update', 'after_delete'])) {
-		zz_revisions_historic($zz_tab[0]['revision_id']);
+		zz_revisions_historic($ops, $zz_tab);
 	}
 
 	$change = [];

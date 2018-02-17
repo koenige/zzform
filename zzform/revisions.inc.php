@@ -183,11 +183,13 @@ function zz_revisisons_read_data($my_tab, $revision_id) {
 /**
  * update a pending revision to historic status
  *
- * @param int $id
+ * @param array $ops
+ * @param array $zz_tab
  * @return void
  */
-function zz_revisions_historic($id_value) {
+function zz_revisions_historic($ops, $zz_tab) {
 	global $zz_conf;
+	$id_value = $zz_tab[0]['revision_id'];
 	$sql = 'UPDATE %s SET rev_status = "historic" WHERE revision_id = %d';
 	$sql = sprintf($sql, $zz_conf['revisions_table'], $id_value);
 	$result = zz_db_change($sql, $id_value);
