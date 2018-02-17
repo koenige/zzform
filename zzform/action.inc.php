@@ -697,46 +697,36 @@ function zz_action_function($type, $ops, $zz_tab) {
 		require_once $zz_conf['hooks_dir'].'/hooks.inc.php';
 	}
 
-	if (!empty($zz_tab[0]['set_redirect'])) {
-		require_once $zz_conf['dir_inc'].'/identifier.inc.php';
-		zz_identifier_redirect($ops, $zz_tab);
-	}
-
 	$change = [];
-	if ($zz_tab[0]['hooks'][$type] !== true) {
-		foreach ($zz_tab[0]['hooks'][$type] as $hook) {
-			if (substr($hook, 0, 3) === 'zz_') {
-				// internal hooks get access to $zz_tab as well
-				$custom_result = $hook($ops, $zz_tab);
-			} else {
-				$file = str_replace('_', '-', $hook);
-				if (substr($file, 0, 3) === 'my-') $file = substr($file, 3);
-				$file = $zz_conf['hooks_dir'].'/'.$file.'.inc.php';
-				if (file_exists($file)) require_once $file;
-				$custom_result = $hook($ops);
-			}
-			if (!is_array($custom_result)) continue;
-			$change = zz_array_merge($change, $custom_result);
+	foreach ($zz_tab[0]['hooks'][$type] as $hook) {
+		if (substr($hook, 0, 3) === 'zz_') {
+			// internal hooks get access to $zz_tab as well
+			$custom_result = $hook($ops, $zz_tab);
+		} else {
+			$file = str_replace('_', '-', $hook);
+			if (substr($file, 0, 3) === 'my-') $file = substr($file, 3);
+			$file = $zz_conf['hooks_dir'].'/'.$file.'.inc.php';
+			if (file_exists($file)) require_once $file;
+			$custom_result = $hook($ops);
+		}
+		if (!is_array($custom_result)) continue;
+		$change = zz_array_merge($change, $custom_result);
+	}
+	if (!$change) return true;
+	$record_replace = [
+		'before_upload', 'after_validation', 'before_insert', 'before_update'
+	];
+	if (!in_array($type, $record_replace)) {
+		if (array_key_exists('record_replace', $change)
+			AND !empty($change['record_replace'])) {
+			unset($change['record_replace']);
+			zz_error_log([
+				'msg_dev' => 'Function for hook (%s) tries to set record_replace. Will not be evaluated at this point.',
+				'msg_dev_args' => [$type]
+			]);
 		}
 	}
-	if ($change) {
-		$record_replace = [
-			'before_upload', 'after_validation', 'before_insert', 'before_update'
-		];
-		if (!in_array($type, $record_replace)) {
-			if (array_key_exists('record_replace', $change)
-				AND !empty($change['record_replace'])) {
-				unset($change['record_replace']);
-				zz_error_log([
-					'msg_dev' => 'Function for hook (%s) tries to set record_replace. Will not be evaluated at this point.',
-					'msg_dev_args' => [$type]
-				]);
-			}
-		}
-		return $change;
-	} else {
-		return true;
-	}
+	return $change;
 }
 
 /**

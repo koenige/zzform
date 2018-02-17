@@ -49,11 +49,10 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	$zz_tab[0]['filter'] = !empty($zz['filter']) ? $zz['filter'] : [];
 	if (!empty($zz['set_redirect'])) {
 		// update/insert redirects after_delete and after_update
+		require_once $zz_conf['dir_inc'].'/identifier.inc.php';
 		$zz_tab[0]['set_redirect'] = $zz['set_redirect'];
-		if (!isset($zz_tab[0]['hooks']['after_delete']))
-			$zz_tab[0]['hooks']['after_delete'] = true;
-		if (!isset($zz_tab[0]['hooks']['after_update']))
-			$zz_tab[0]['hooks']['after_update'] = true;
+		$zz_tab[0]['hooks']['after_delete'][] = 'zz_identifier_redirect';
+		$zz_tab[0]['hooks']['after_update'][] = 'zz_identifier_redirect';
 	}
 	$zz_tab[0]['dont_reformat'] = !empty($_POST['zz_subtables']) ? true : false;
 	foreach ($zz['fields'] as $field) {
