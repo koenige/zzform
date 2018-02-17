@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -469,12 +469,14 @@ function zz_identifier_var($field_name, $my_rec, $main_post) {
  *
  * @param string $type
  * @param array $ops
- * @param array $main_tab
+ * @param array $zz_tab
  * @return bool true = redirect was added
  */
-function zz_identifier_redirect($type, $ops, $main_tab) {
-	if (!in_array($type, ['after_update', 'after_delete'])) return false;
-	foreach ($main_tab['set_redirect'] as $redirect) {
+function zz_identifier_redirect($ops, $zz_tab) {
+	$action = $ops['return'][0]['action'];
+	
+	if (!in_array($action, ['update', 'delete'])) return false;
+	foreach ($zz_tab[0]['set_redirect'] as $redirect) {
 		if (!is_array($redirect)) {
 			$old = $redirect;
 			$new = $redirect;
@@ -486,7 +488,7 @@ function zz_identifier_redirect($type, $ops, $main_tab) {
 			}
 		}
 		if (empty($field_name)) {
-			foreach ($main_tab[0]['fields'] as $field) {
+			foreach ($zz_tab[0][0]['fields'] as $field) {
 				if ($field['type'] !== 'identifier') continue;
 				$field_name = $field['field_name'];
 				break;
@@ -496,7 +498,7 @@ function zz_identifier_redirect($type, $ops, $main_tab) {
 			zz_error_log(['msg_dev' => 'Missing field name for redirect']);
 			continue;
 		}
-		if ($type === 'after_update') {
+		if ($action === 'update') {
 			if (empty($ops['record_diff'][0][$field_name])) continue;
 			if ($ops['record_diff'][0][$field_name] != 'diff') continue;
 		}
@@ -514,12 +516,12 @@ function zz_identifier_redirect($type, $ops, $main_tab) {
 			$values['action'] = 'insert';
 			$values['POST']['old_url'] = $old;
 		}
-		switch ($type) {
-		case 'after_update':
+		switch ($action) {
+		case 'update':
 			$values['POST']['new_url'] = sprintf($new, $ops['record_new'][0][$field_name]);
 			$values['POST']['code'] = 301;
 			break;
-		case 'after_delete':
+		case 'delete':
 			$values['POST']['new_url'] = '-';
 			$values['POST']['code'] = 410;
 			break;
@@ -531,7 +533,7 @@ function zz_identifier_redirect($type, $ops, $main_tab) {
 				if (in_array($field_name, ['old', 'new', 'field_name'])) continue;
 				if ($value !== $field_name) {
 					$values['POST'][$field_name] = $value;
-				} elseif ($type === 'after_delete') {
+				} elseif ($action === 'delete') {
 					$values['POST'][$field_name] = $ops['record_old'][0][$field_name];
 				} else {
 					$values['POST'][$field_name] = $ops['record_new'][0][$field_name];

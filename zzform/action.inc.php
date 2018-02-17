@@ -699,7 +699,7 @@ function zz_action_function($type, $ops, $zz_tab) {
 
 	if (!empty($zz_tab[0]['set_redirect'])) {
 		require_once $zz_conf['dir_inc'].'/identifier.inc.php';
-		zz_identifier_redirect($type, $ops, $zz_tab[0]);
+		zz_identifier_redirect($ops, $zz_tab);
 	}
 
 	if (!empty($zz_tab[0]['revision_id'])
