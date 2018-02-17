@@ -93,10 +93,8 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 		$zz_tab[0]['revision_id'] = intval($_POST['zz_revision_id']);
 	}
 	if (!empty($zz_tab[0]['revision_id'])) {
-		if (!isset($zz_tab[0]['hooks']['after_delete']))
-			$zz_tab[0]['hooks']['after_delete'] = true;
-		if (!isset($zz_tab[0]['hooks']['after_update']))
-			$zz_tab[0]['hooks']['after_update'] = true;
+		$zz_tab[0]['hooks']['after_delete'][] = 'zz_revisions_historic';
+		$zz_tab[0]['hooks']['after_update'][] = 'zz_revisions_historic';
 	}
 	
 	//	### put each table (if more than one) into one array of its own ###
