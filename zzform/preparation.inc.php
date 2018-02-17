@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -71,9 +71,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 		} elseif (empty($field['geocode'])) {
 			continue;
 		}
-		$zz_tab[0]['geocode'] = true;
-		if (!isset($zz_tab[0]['hooks']['after_validation']))
-			$zz_tab[0]['hooks']['after_validation'] = true;
+		$zz_tab[0]['hooks']['after_validation'][] = 'zz_geo_geocode';
 		break;
 	}
 	$zz_tab[0]['record_action'] = false;

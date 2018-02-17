@@ -708,16 +708,18 @@ function zz_action_function($type, $ops, $zz_tab) {
 	}
 
 	$change = [];
-	if (!empty($zz_tab[0]['geocode']) AND $type === 'after_validation') {
-		$change = zz_geo_geocode($ops, $zz_tab);
-	}
 	if ($zz_tab[0]['hooks'][$type] !== true) {
 		foreach ($zz_tab[0]['hooks'][$type] as $hook) {
-			$file = str_replace('_', '-', $hook);
-			if (substr($file, 0, 3) === 'my-') $file = substr($file, 3);
-			$file = $zz_conf['hooks_dir'].'/'.$file.'.inc.php';
-			if (file_exists($file)) require_once $file;
-			$custom_result = $hook($ops);
+			if (substr($hook, 0, 3) === 'zz_') {
+				// internal hooks get access to $zz_tab as well
+				$custom_result = $hook($ops, $zz_tab);
+			} else {
+				$file = str_replace('_', '-', $hook);
+				if (substr($file, 0, 3) === 'my-') $file = substr($file, 3);
+				$file = $zz_conf['hooks_dir'].'/'.$file.'.inc.php';
+				if (file_exists($file)) require_once $file;
+				$custom_result = $hook($ops);
+			}
 			if (!is_array($custom_result)) continue;
 			$change = zz_array_merge($change, $custom_result);
 		}
