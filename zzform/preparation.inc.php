@@ -34,13 +34,33 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	$zz_tab[0]['sql_without_where'] = $zz['sql_without_where'];
 	$zz_tab[0]['sqlextra'] = !empty($zz['sqlextra']) ? $zz['sqlextra'] : [];
 	$zz_tab[0]['sql_translate'] = !empty($zz['sql_translate']) ? $zz['sql_translate'] : [];
-	$zz_tab[0]['hooks'] = !empty($zz['hooks']) ? $zz['hooks'] : [];
 	$zz_tab[0]['folder'] = !empty($zz['folder']) ? $zz['folder'] : [];
 	$zz_tab[0]['dynamic_referer'] = !empty($zz['dynamic_referer']) ? $zz['dynamic_referer'] : false;
 	$zz_tab[0]['add_from_source_id'] = !empty($zz['add_from_source_id']) ? true : false;
 	$zz_tab[0]['filter'] = !empty($zz['filter']) ? $zz['filter'] : [];
 	$zz_tab[0]['dont_reformat'] = !empty($_POST['zz_subtables']) ? true : false;
 	$zz_tab[0]['record_action'] = false;
+
+	if (!empty($zz['set_redirect'])) {
+		// update/insert redirects after_delete and after_update
+		require_once $zz_conf['dir_inc'].'/identifier.inc.php';
+		$zz_tab[0]['set_redirect'] = $zz['set_redirect'];
+	}
+
+	$zz_conf['int']['revisions_only'] = !empty($zz['revisions_only']) ? true : false;
+	if (!empty($zz['revisions_only']) OR !empty($zz['revisions'])) {
+		require_once $zz_conf['dir_inc'].'/revisions.inc.php';
+	}
+	if ($mode === 'revise') {
+		require_once $zz_conf['dir_inc'].'/revisions.inc.php';
+		$zz_tab[0]['revision_id'] = zz_revisions_read_id($zz_tab[0]['table'], $zz_tab[0][0]['id']['value']);
+	} elseif (!empty($_POST['zz_revision_id'])) {
+		require_once $zz_conf['dir_inc'].'/revisions.inc.php';
+		$zz_tab[0]['revision_id'] = intval($_POST['zz_revision_id']);
+	}
+	if (!empty($zz_tab[0]['revision_id'])) $zz['revision_hooks'] = true;
+
+	$zz_tab[0]['hooks'] = zz_prepare_hooks($zz);
 	
 	$zz_tab[0][0]['action'] = $zz_var['action'];
 	$zz_tab[0][0]['fields'] = $zz['fields'];
@@ -50,52 +70,6 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	// get ID field, unique fields, check for unchangeable fields
 	$zz_tab[0][0]['id'] = &$zz_var['id'];
 
-	// internal hooks
-	foreach ($zz['fields'] as $field) {
-		// geocoding?
-		if (empty($field['type'])) continue;
-		if ($field['type'] === 'subtable') {
-			$continue = true;
-			foreach ($field['fields'] as $subfield) {
-				if (!empty($subfield['geocode'])) {
-					$continue = false;
-					break;
-				}
-			}
-			if ($continue) continue;
-		} elseif (empty($field['geocode'])) {
-			continue;
-		}
-		$zz_tab[0]['hooks']['after_validation'][] = 'zz_geo_geocode';
-		break;
-	}
-	if (!empty($zz['set_redirect'])) {
-		// update/insert redirects after_delete and after_update
-		require_once $zz_conf['dir_inc'].'/identifier.inc.php';
-		$zz_tab[0]['set_redirect'] = $zz['set_redirect'];
-		$zz_tab[0]['hooks']['after_delete'][] = 'zz_identifier_redirect';
-		$zz_tab[0]['hooks']['after_update'][] = 'zz_identifier_redirect';
-	}
-	$zz_conf['int']['revisions_only'] = !empty($zz['revisions_only']) ? true : false;
-	if (!empty($zz_conf['int']['revisions_only']) OR !empty($zz['revisions'])) {
-		require_once $zz_conf['dir_inc'].'/revisions.inc.php';
-		$hooks = ['after_insert', 'after_update', 'after_delete'];
-		foreach ($hooks as $hook) {
-			$zz_tab[0]['hooks'][$hook][] = 'zz_revisions';
-		}
-	}
-	if ($mode === 'revise') {
-		require_once $zz_conf['dir_inc'].'/revisions.inc.php';
-		$zz_tab[0]['revision_id'] = zz_revisions_read_id($zz_tab[0]['table'], $zz_tab[0][0]['id']['value']);
-	} elseif (!empty($_POST['zz_revision_id'])) {
-		require_once $zz_conf['dir_inc'].'/revisions.inc.php';
-		$zz_tab[0]['revision_id'] = intval($_POST['zz_revision_id']);
-	}
-	if (!empty($zz_tab[0]['revision_id'])) {
-		$zz_tab[0]['hooks']['after_delete'][] = 'zz_revisions_historic';
-		$zz_tab[0]['hooks']['after_update'][] = 'zz_revisions_historic';
-	}
-	
 	//	### put each table (if more than one) into one array of its own ###
 	foreach ($zz_var['subtables'] as $tab => $no) {
 		if (!empty($zz['fields'][$no]['hide_in_form'])) continue;
@@ -187,6 +161,57 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	);
 
 	return $zz_tab;
+}
+
+/**
+ * prepare hooks for database operations
+ * hooks defined with the table plus zzform's own hooks
+ * 
+ * @param array $zz
+ * @return array = $zz_tab[0]['hooks']
+ */
+function zz_prepare_hooks($zz) {
+	$hooks = !empty($zz['hooks']) ? $zz['hooks'] : [];
+
+	// geocoding?
+	foreach ($zz['fields'] as $field) {
+		// geocoding?
+		if (empty($field['type'])) continue;
+		if ($field['type'] === 'subtable') {
+			$continue = true;
+			foreach ($field['fields'] as $subfield) {
+				if (!empty($subfield['geocode'])) {
+					$continue = false;
+					break;
+				}
+			}
+			if ($continue) continue;
+		} elseif (empty($field['geocode'])) {
+			continue;
+		}
+		$hooks['after_validation'][] = 'zz_geo_geocode';
+		break;
+	}
+
+	// redirection?
+	if (!empty($zz['set_redirect'])) {
+		$hooks['after_delete'][] = 'zz_identifier_redirect';
+		$hooks['after_update'][] = 'zz_identifier_redirect';
+	}
+
+	// revisions?
+	if (!empty($zz['revisions_only']) OR !empty($zz['revisions'])) {
+		$my_hooks = ['after_insert', 'after_update', 'after_delete'];
+		foreach ($my_hooks as $hook) {
+			$hooks[$hook][] = 'zz_revisions';
+		}
+	}
+	if (!empty($zz['revision_hooks'])) {
+		$hooks['after_delete'][] = 'zz_revisions_historic';
+		$hooks['after_update'][] = 'zz_revisions_historic';
+	}
+
+	return $hooks;
 }
 
 /**
