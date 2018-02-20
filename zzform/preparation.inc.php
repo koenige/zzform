@@ -169,46 +169,47 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
  * 
  * @param array $zz
  * @return array = $zz_tab[0]['hooks']
+ * @todo don't prepare hooks in record mode (+ exclude from hash)
  */
 function zz_prepare_hooks($zz) {
 	$hooks = !empty($zz['hooks']) ? $zz['hooks'] : [];
 
-	// geocoding?
+	// geocoding? sequence?
+	$hook_found = [];
 	foreach ($zz['fields'] as $field) {
-		// geocoding?
 		if (empty($field['type'])) continue;
 		if ($field['type'] === 'subtable') {
-			$continue = true;
 			foreach ($field['fields'] as $subfield) {
-				if (!empty($subfield['geocode'])) {
-					$continue = false;
-					break;
-				}
+				if (!empty($subfield['geocode'])) $hook_found['zz_geo_geocode'] = true;
+				if (empty($field['type'])) continue;
+				if ($field['type'] === 'sequence') $hook_found['zz_sequence_normalize'] = true;
 			}
-			if ($continue) continue;
-		} elseif (empty($field['geocode'])) {
-			continue;
+		} elseif ($field['type'] === 'sequence') {
+			$hook_found['zz_sequence_normalize'] = true;
+		} elseif (!empty($field['geocode'])) {
+			$hook_found['zz_geo_geocode'] = true;
 		}
-		$hooks['after_validation'][] = 'zz_geo_geocode';
-		break;
+		if (count($hook_found) === 2) break;
 	}
+	if (!empty($zz['set_redirect'])) $hook_found['zz_identifier_redirect'] = true;
+	if (!empty($zz['revisions_only'])) $hook_found['zz_revisions'] = true;
+	elseif (!empty($zz['revisions'])) $hook_found['zz_revisions'] = true;
+	if (!empty($zz['revision_hooks'])) $hook_found['zz_revisions_historic'] = true;
 
-	// redirection?
-	if (!empty($zz['set_redirect'])) {
-		$hooks['after_delete'][] = 'zz_identifier_redirect';
-		$hooks['after_update'][] = 'zz_identifier_redirect';
-	}
-
-	// revisions?
-	if (!empty($zz['revisions_only']) OR !empty($zz['revisions'])) {
-		$my_hooks = ['after_insert', 'after_update', 'after_delete'];
-		foreach ($my_hooks as $hook) {
-			$hooks[$hook][] = 'zz_revisions';
+	$types = [
+		'zz_geo_geocode' => ['after_validation'],
+		'zz_identifier_redirect' => ['after_delete', 'after_update'],
+		'zz_revisions' => ['after_insert', 'after_update', 'after_delete'],
+		'zz_revisions_historic' => ['after_delete', 'after_update'],
+		'	' => ['before_insert', 'before_update', 'after_delete']
+	];
+	foreach ($types as $type => $internal_hooks) {
+		if (empty($hook_found[$type])) continue;
+		foreach ($internal_hooks as $hook) {
+			if (empty($hooks[$hook])) $hooks[$hook] = [];
+			// process internal hooks first
+			array_unshift($hooks[$hook], $type);
 		}
-	}
-	if (!empty($zz['revision_hooks'])) {
-		$hooks['after_delete'][] = 'zz_revisions_historic';
-		$hooks['after_update'][] = 'zz_revisions_historic';
 	}
 
 	return $hooks;

@@ -2133,3 +2133,15 @@ function zz_remove_local_hostname($tempvar, $field) {
 	}
 	return $tempvar;
 }
+
+/**
+ * normalize a sequence
+ * called as an internal hook function
+ *
+ * @param array $ops
+ * @param array $zz_tab
+ * @return array
+ */
+function zz_sequence_normalize($ops, $zz_tab) {
+	
+}
