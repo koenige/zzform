@@ -657,10 +657,29 @@ function zz_db_field_maxlength($field, $type, $db_table) {
  */
 function zz_db_columns($db_table, $field = false) {
 	static $columns;
+	static $max_integers;
 	if (!$db_table) return [];
+	if (empty($max_integers)) {
+		$sql = 'SELECT ~0 as bigint_unsigned
+			, ~0 >> 32 as int_unsigned
+			, ~0 >> 40 as mediumint_unsigned
+			, ~0 >> 48 as smallint_unsigned
+			, ~0 >> 56 as tinyint_unsigned
+			, ~0 >> 1  as bigint_signed
+			, ~0 >> 33 as int_signed
+			, ~0 >> 41 as mediumint_signed
+			, ~0 >> 49 as smallint_signed
+			, ~0 >> 57 as tinyint_signed';
+		$max_integers = zz_db_fetch($sql);
+	}
 	if (!isset($columns[$db_table])) {
 		$sql = 'SHOW FULL COLUMNS FROM '.zz_db_table_backticks($db_table);
 		$columns[$db_table] = zz_db_fetch($sql, 'Field', false, false, E_USER_WARNING);
+		foreach ($columns[$db_table] as $index => $my_field) {
+			preg_match('/(.*int)\(\d+\) (.+signed)/', $my_field['Type'], $fieldtype);
+			if (empty($fieldtype[1]) OR empty($fieldtype[2])) continue;
+			$columns[$db_table][$index]['max_int_value'] = $max_integers[$fieldtype[1].'_'.$fieldtype[2]];
+		}
 	}
 	if ($field) {
 		if (!empty($columns[$db_table][$field])) {
