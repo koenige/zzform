@@ -201,7 +201,7 @@ function zz_prepare_hooks($zz) {
 		'zz_identifier_redirect' => ['after_delete', 'after_update'],
 		'zz_revisions' => ['after_insert', 'after_update', 'after_delete'],
 		'zz_revisions_historic' => ['after_delete', 'after_update'],
-		'	' => ['before_insert', 'before_update', 'after_delete']
+		'zz_sequence_normalize' => ['before_insert', 'before_update', 'after_delete']
 	];
 	foreach ($types as $type => $internal_hooks) {
 		if (empty($hook_found[$type])) continue;
