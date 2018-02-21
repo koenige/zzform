@@ -2141,7 +2141,97 @@ function zz_remove_local_hostname($tempvar, $field) {
  * @param array $ops
  * @param array $zz_tab
  * @return array
+ * @todo if sequence numbers are missing, update numbers as well (optional)
  */
 function zz_sequence_normalize($ops, $zz_tab) {
-	
+	// which fields are the sequence fields?
+	$fields = [];
+	foreach ($zz_tab as $tab => $records) {
+		if (!is_numeric($tab)) continue;
+		foreach ($records as $rec => $record) {
+			if (!is_numeric($rec)) continue;
+			foreach ($record['fields'] as $no => $field) {
+				if (empty($field['type'])) continue;
+				if ($field['type'] !== 'sequence') continue;
+				$fields[$tab.'-'.$rec] = $field['field_name'];
+			}
+		}
+	}
+
+	$return = !empty($ops['planned']) ? 'planned' : 'return'; // return for deletion
+	foreach ($ops[$return] as $index => $table) {
+		if (!in_array($table['tab-rec'], array_keys($fields))) continue;
+		if ($ops['record_diff'][$index][$fields[$table['tab-rec']]] === 'same') continue;
+		$new_value = !empty($ops['record_new'][$index][$fields[$table['tab-rec']]])
+			? $ops['record_new'][$index][$fields[$table['tab-rec']]] : false;
+		$old_value = !empty($ops['record_old'][$index][$fields[$table['tab-rec']]])
+			? $ops['record_old'][$index][$fields[$table['tab-rec']]] : false;
+		list($tab, $rec) = explode('-', $table['tab-rec']);
+		$sql = $zz_tab[$tab]['sql'];
+		// @todo support filter
+		//		if (!empty($_GET['filter'])) {
+		//			require_once $zz_conf['dir_inc'].'/list.inc.php';
+		//			$sql = zz_list_filter_sql($zz_tab[$tab]['filter'], $sql, $_GET['filter']);
+		//		}
+		$data = wrap_db_fetch($sql, $zz_tab[$tab][$rec]['id']['field_name']);
+		// does new sequence value already exist?
+		// then update existing and following values +/- 1
+		if ($new_value) {
+			$key = array_search($new_value, array_column($data, $fields[$table['tab-rec']]));
+			if (!$key) continue;
+		}
+
+		// get IDs for updates
+		$updates = [];
+		foreach ($data as $id => $line) {
+			if ($line[$fields[$table['tab-rec']]].'' === $old_value.'') continue; // current record
+			if (!$new_value) {
+				if ($line[$fields[$table['tab-rec']]] < $old_value) continue;
+			} elseif ($new_value < $old_value OR !$old_value) {
+				if ($line[$fields[$table['tab-rec']]] < $new_value) continue;
+				if ($old_value AND $line[$fields[$table['tab-rec']]] > $old_value) continue;
+			} else {
+				if ($line[$fields[$table['tab-rec']]] > $new_value) continue;
+				if ($old_value AND $line[$fields[$table['tab-rec']]] < $old_value) continue;
+			}
+			$updates[] = $id;
+		}
+		if (!$updates) continue;
+
+		// update current record temporarily to max value of column; this is to avoid
+		// problems with unique keys
+		if ($old_value AND $new_value) {
+			$field_def = zz_db_columns(
+				$zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table'], $fields[$table['tab-rec']]
+			);
+			if (empty($field_def['max_int_value'])) {
+				zz_error_log([
+					'msg_dev' => 'Field has no maximum integer value (is it an integer?): %s.%s.%s',
+					'msg_dev_args' => [$zz_tab[$tab]['db_name'], $zz_tab[$tab]['table'], $fields[$table['tab-rec']]]
+				]);
+				continue;
+			}
+			$sql = 'UPDATE %s SET %s = %d WHERE %s = %d';
+			$sql = sprintf($sql
+				, $zz_tab[$tab]['table']
+				, $fields[$table['tab-rec']]
+				, $field_def['max_int_value']
+				, $zz_tab[$tab][$rec]['id']['field_name']
+				, $ops['record_new'][$index][$zz_tab[$tab][$rec]['id']['field_name']]
+			);
+			wrap_db_query($sql);
+		}
+
+		// update other records between old and new value, either increase or decrease
+		$sql = 'UPDATE %s SET %s = %s %s 1 WHERE %s IN (%s)';
+		$sql = sprintf($sql
+			, $zz_tab[$tab]['table']
+			, $fields[$table['tab-rec']]
+			, $fields[$table['tab-rec']]
+			, ($new_value AND ($new_value < $old_value OR !$old_value)) ? '+': '-'
+			, $zz_tab[$tab][$rec]['id']['field_name']
+			, implode(',', $updates)
+		);
+		$result = zz_db_change($sql);
+	}
 }
