@@ -756,10 +756,16 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					if (in_array($field['form_display'], ['lines', 'horizontal'])) {
 						$lastrow = $removebutton;	
 					}
-				}	
-				$details[$d_index] .= zz_show_field_rows($zz_tab, $subtable_mode, 
+				}
+				$subtable_rows = zz_show_field_rows($zz_tab, $subtable_mode, 
 					$field_display, $zz_var, $zz_conf_record, $sub_tab, $sub_rec,
 					$field['form_display'], $lastrow, $sub_rec, $h_show_explanation);
+				if ($field['form_display'] === 'inline') {
+					$matrix = array_merge($matrix, $subtable_rows);
+					$out = []; // @todo don't generate $out before
+				} else {
+					$details[$d_index] .= $subtable_rows;
+				}
 				if ($field['form_display'] === 'vertical') {
 					$details[$d_index] .= '</table></div>'."\n";
 					$table_open = false;
@@ -775,24 +781,26 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				$out['td']['content'] .= '<div class="subrecord_lines">';
 			}
 
-			$out['td']['content'] .= implode('', $details);
-			if ($table_open) {
-				$out['td']['content'] .= '</table></div>'."\n";
-			} elseif ($field['form_display'] === 'lines' AND $details) {
-				$out['td']['content'] .= '</div></div>'."\n";
-			}
-			if (!$c_subtables AND !empty($field['msg_no_subtables'])) {
-				// There are no subtables, optional: show a message here
-				$out['td']['content'] .= $field['msg_no_subtables'];
-			}
-			if ($field_display === 'form' 
-				AND $zz_tab[$sub_tab]['max_records'] > $zz_tab[$sub_tab]['records']) {
-				if ($field['form_display'] === 'lines' AND $details) {
-					// add spacer only if there's something above and below spacer
-					$out['td']['content'] .= '<div class="subrecord_spacer"></div>';
+			if ($field['form_display'] !== 'inline') {
+				$out['td']['content'] .= implode('', $details);
+				if ($table_open) {
+					$out['td']['content'] .= '</table></div>'."\n";
+				} elseif ($field['form_display'] === 'lines' AND $details) {
+					$out['td']['content'] .= '</div></div>'."\n";
 				}
-				if ($mode !== 'revise') {
-					$out['td']['content'] .= zz_output_subtable_submit('add', $field, $sub_tab);
+				if (!$c_subtables AND !empty($field['msg_no_subtables'])) {
+					// There are no subtables, optional: show a message here
+					$out['td']['content'] .= $field['msg_no_subtables'];
+				}
+				if ($field_display === 'form' 
+					AND $zz_tab[$sub_tab]['max_records'] > $zz_tab[$sub_tab]['records']) {
+					if ($field['form_display'] === 'lines' AND $details) {
+						// add spacer only if there's something above and below spacer
+						$out['td']['content'] .= '<div class="subrecord_spacer"></div>';
+					}
+					if ($mode !== 'revise') {
+						$out['td']['content'] .= zz_output_subtable_submit('add', $field, $sub_tab);
+					}
 				}
 			}
 		} else {
@@ -1113,8 +1121,9 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			$out['separator'] .= $field['separator'];
 		if (!empty($field['separator_before']))
 			$out['separator_before'] .= $field['separator_before'];
-		if (!$append_next) $matrix[] = $out;
+		if ($out AND !$append_next) $matrix[] = $out;
 	}
+	if ($formdisplay === 'inline') return $matrix;
 	$output = zz_output_field_rows($matrix, $zz_var, $formdisplay, $extra_lastcol, $tab);
 	// append_next_type is only valid for single table
 	$zz_conf['int']['append_next_type'] = $old_append_next_type;
