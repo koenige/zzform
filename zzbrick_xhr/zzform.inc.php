@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2016-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2016-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -84,6 +84,9 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	$sql = wrap_edit_sql($sql, 'WHERE', implode(' AND ', $conditions));
 	wrap_db_query('SET NAMES utf8'); // JSON is UTF-8
 	$records = wrap_db_fetch($sql, '_dummy_', 'numeric');
+	if (!empty($field['sql_translate'])) {
+		$records = array_merge($records, zz_check_select_translated($field, $text));
+	}
 	if (count($records) > $limit) {
 		// more records than we might show
 		$data['entries'] = [];
