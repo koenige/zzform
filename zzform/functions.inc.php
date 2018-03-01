@@ -3257,7 +3257,16 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 	);
 	if (!empty($field['sql_translate'])) {
 		$possible_values = zz_check_select_translated($field, $postvalues);
-		$field['possible_values'] = array_merge($field['possible_values'], array_keys($possible_values));
+		if ($possible_values) {
+			// add IDs to sql_new, in case there's more than one result
+			$my_fieldname = isset($field['key_field_name']) ? $field['key_field_name'] : $field['field_name'];
+			$wheresql .= ' OR '.sprintf('%s IN (%s)', $my_fieldname, implode(',', array_keys($possible_values)));
+			$field['sql_new'] = wrap_edit_sql($field['sql'], 'WHERE', $wheresql);
+		}
+		foreach (array_keys($possible_values) as $value) {
+			if (in_array($value, $field['possible_values'])) continue;
+			$field['possible_values'][$value] = $value;
+		}
 	}
 	$field['select_checked'] = true;
 	return $field;
