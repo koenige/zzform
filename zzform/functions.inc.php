@@ -3138,6 +3138,7 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 function zz_check_select_id($field, $postvalue, $id = []) {
 	global $zz_conf;
 	
+	if (!empty($field['select_checked'])) return $field;
 	// 1. get field names from SQL query
 	if (empty($field['sql_fieldnames'])) $field['sql_fieldnames'] = [];
 	$sql_fieldnames = wrap_edit_sql($field['sql'], 'SELECT', '', 'list');
@@ -3258,6 +3259,7 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 		$possible_values = zz_check_select_translated($field, $postvalues);
 		$field['possible_values'] = array_merge($field['possible_values'], array_keys($possible_values));
 	}
+	$field['select_checked'] = true;
 	return $field;
 }
 
