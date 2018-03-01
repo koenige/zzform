@@ -255,14 +255,7 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 	$my_tab['hierarchy'] = !empty($field['hierarchy']) ? $field['hierarchy'] : '';
 
 	// database and table name
-	if (strstr($field['table'], '.')) {
-		$table = explode('.', $field['table']);
-		$my_tab['db_name'] = $table[0];
-		$my_tab['table'] = $table[1];
-	} else {
-		$my_tab['db_name'] = $main_tab['db_name'];
-		$my_tab['table'] = $field['table'];
-	}
+	$my_tab += zz_db_table($field['table'], $main_tab['db_name']);
 	$my_tab['table_name'] = $field['table_name'];
 	
 	// pre-set values
