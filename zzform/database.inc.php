@@ -605,6 +605,26 @@ function zz_db_statement($sql) {
 }
 
 /**
+ * get table and database name
+ *
+ * @param string $table
+ * @param string $db_name (optional, use if db_name is not part of $table)
+ * @return array
+ */
+function zz_db_table($table, $db_name = false) {
+	global $zz_conf;
+	if (strstr($table, '.')) {
+		$table = explode('.', $table);
+		$my['db_name'] = $table[0];
+		$my['table'] = $table[1];
+	} else {
+		$my['db_name'] = $db_name ? $db_name : $zz_conf['db_name'];
+		$my['table'] = $table;
+	}
+	return $my;	
+}
+
+/**
  * puts backticks around database and table name
  *
  * @param string $db_table = db_name, table name or both concatenated
