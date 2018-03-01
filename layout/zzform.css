@@ -485,6 +485,8 @@ body #zzform .separator hr
 #zzform td div.error
 					{ margin: 0 0 .5em; }
 #zzform .error small { padding: 0 .4em; display: block; }
+#zzform .subrecord_lines .error small
+					{ display: inline; }
 
 
 /* debug */
