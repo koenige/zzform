@@ -3254,7 +3254,77 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 	$field['possible_values'] = zz_db_fetch(
 		$field['sql_new'], 'dummy_id', 'single value'
 	);
+	if (!empty($field['sql_translate'])) {
+		$possible_values = zz_check_select_translated($field, $postvalues);
+		$field['possible_values'] = array_merge($field['possible_values'], array_keys($possible_values));
+	}
 	return $field;
+}
+
+/**
+ * check if there are matches for a query in its translated values as well
+ *
+ * @param array $field
+ *		array 'sql_translate' e. g. ['country_id' => 'countries']
+ *		string 'sql' e. g. SELECT country_id, country_code, country FROM countries
+ * @param array $text list of values to look for
+ * @return array result from 'sql', but with translated values
+ */
+function zz_check_select_translated($field, $text) {
+	global $zz_conf;
+
+	// get fields
+	$sql_fields = 'SELECT translationfield_id, field_name, field_type
+		FROM '.$zz_conf['translations_table'].'
+		WHERE db_name = "%s" AND table_name = "%s"';
+	if (!is_array($field['sql_translate'])) {
+		$field['sql_translate'] = [$field['sql_translate']];
+	}
+	$translationfields['varchar'] = [];
+	$translationfields['text'] = [];
+	foreach ($field['sql_translate'] as $id_field_name => $table) {
+		$my = zz_db_table($table);
+		$sql = sprintf($sql_fields, $my['db_name'], $my['table']);
+		$fields = zz_db_fetch($sql, 'translationfield_id');
+		if (!$fields) continue;
+		foreach ($fields as $tfield) {
+			$translationfields[$tfield['field_type']][$tfield['translationfield_id']] = $tfield;
+		}
+	}
+	
+	// check translations
+	$sql_translations = wrap_db_prefix(wrap_sql('translations'));
+	$sql_translations = str_replace('AND field_id IN (%s)', '', $sql_translations);
+	$tconditions = [];
+	foreach ($text as $value) {
+		if (substr($value, -1) === ' ') {
+			$tconditions[] = sprintf('translation = "%s"', wrap_db_escape(trim($value)));
+		} else {
+			$tconditions[] = sprintf('translation LIKE "%%%s%%"', wrap_db_escape($value));
+		}
+	}
+	$records = [];
+	foreach ($translationfields as $type => $tfields) {
+		if (!$tfields) continue;
+		$sql = sprintf($sql_translations,
+			$type, implode(',', array_keys($tfields)), $zz_conf['language']
+		);
+		$sql = wrap_edit_sql($sql, 'WHERE', implode(' AND ', $tconditions));
+		$records += wrap_db_fetch($sql, '_dummy_', 'numeric');
+	}
+	if (!$records) return [];
+	
+	// read matching records from database and return them
+	
+	$field_ids = [];
+	foreach ($records as $record) {
+		$field_ids[$record['field_id']] = $record['field_id'];
+	}
+	$my_fieldname = isset($field['key_field_name']) ? $field['key_field_name'] : $field['field_name'];
+	$sql = wrap_edit_sql($field['sql'], 'WHERE', sprintf('%s IN (%s)', $my_fieldname, implode(',', $field_ids)));
+	$records = wrap_db_fetch($sql, $my_fieldname);
+	$records = zz_translate($field, $records);
+	return $records;
 }
 
 /**
