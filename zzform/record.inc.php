@@ -552,6 +552,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			$out['td']['content'] = '';
 			$out['separator'] = '';
 			$out['separator_before'] = '';
+			$out['sequence'] = !empty($field['field_sequence']) ? $field['field_sequence'] : 1;
 		}
 		
 		if ($field['type'] === 'subtable') {
@@ -1124,11 +1125,35 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 		if ($out AND !$append_next) $matrix[] = $out;
 	}
 	if ($formdisplay === 'inline') return $matrix;
+	$matrix = zz_record_sort_matrix($matrix);
 	$output = zz_output_field_rows($matrix, $zz_var, $formdisplay, $extra_lastcol, $tab);
 	// append_next_type is only valid for single table
 	$zz_conf['int']['append_next_type'] = $old_append_next_type;
 	$zz_conf['int']['add_details_where'] = $old_add_details_where;
 	return zz_return($output);
+}
+
+/**
+ * sorts the matrix of fields, if 'field_sequence' is set in any field
+ *
+ * @param array $matrix
+ * @return array $matrix
+ */
+function zz_record_sort_matrix($matrix) {
+	if (count($matrix) === 1) return $matrix;
+	$sort = false;
+	foreach ($matrix as $field) {
+		if ($field['sequence'] === 1) continue;
+		$sort = true;
+		break;
+	}
+	if (!$sort) return $matrix;
+	$sort = [];
+	foreach ($matrix as $field) {
+		$sort[] = $field['sequence'];
+	}
+	array_multisort($sort, $matrix);
+	return $matrix;
 }
 
 /**
