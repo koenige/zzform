@@ -133,6 +133,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		// add 0 as a dummy record for which no conditions will be set
 		// reindex $linex from 1 ... n
 		array_unshift($lines, '0');
+		list($zz['fields_in_list'], $lines) = zz_list_inline($zz['fields_in_list'], $lines);
 		list($table_defs, $zz['fields_in_list']) = zz_list_defs(
 			$lines, $zz_conditions, $zz['fields_in_list'], $zz['table'], $id_field, $ops['mode']
 		);
@@ -295,6 +296,60 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	// explanation might have changed due to conditions
 	$ops['explanation'] = zz_format($zz['explanation']);
 	return zz_return([$ops, $zz_var]);
+}
+
+/**
+ * if list_display = 'inline', move fields of subtable one level up to main table
+ * only works if subtable has a maximum of 1 detail records
+ *
+ * @param array $fields
+ * @return array $fields
+ */
+function zz_list_inline($fields, $lines) {
+	$pos = 0;
+	foreach ($fields as $no => $field) {
+		$pos++; // splice at this position
+		if (empty($field['type'])) continue;
+		if ($field['type'] !== 'subtable') continue;
+		if (empty($field['list_display'])) continue;
+		if ($field['list_display'] !== 'inline') continue;
+		$fields[$no]['hide_in_list'] = true; // hide subtable
+
+		// 1. move definition of subtable to equal level as main table
+		$foreign_key = false;
+		foreach ($field['fields'] as $subno => $subfield) {
+			if ($subfield['type'] === 'foreign_key') {
+				$foreign_key = !empty($subfield['key_field_name']) ? $subfield['key_field_name'] : $subfield['field_name'];
+			}
+			if (in_array($subfield['type'], ['id', 'foreign_key', 'timestamp'])) continue;
+			$pos++;
+			array_splice($fields, $pos, 0, [$subfield]);
+		}
+		
+		// 2. get data for subtable, add it to main query
+		$foreign_keys = [];
+		foreach ($lines as $line) {
+			if (!empty($line[$foreign_key])) $foreign_keys[] = $line[$foreign_key];
+		}
+		$sql = wrap_edit_sql($field['sql'], 'WHERE', sprintf('%s IN (%s)', $foreign_key, implode(',', $foreign_keys)));
+		$additional_data = wrap_db_fetch($sql, $foreign_key);
+		foreach ($field['fields'] as $subno => $subfield) {
+			if (in_array($subfield['type'], ['id', 'foreign_key', 'timestamp'])) continue;
+			$fn = !empty($subfield['display_field']) ? $subfield['display_field'] : $subfield['field_name'];
+			foreach ($lines as $index => $line) {
+				if (empty($line)) continue;
+				if (!empty($lines[$index][$fn])) {
+					zz_error_log([
+						'msg_dev' => 'Identical field name would be overwritten: %s',
+						'msg_dev_args' => $fn
+					]);
+					continue;
+				}
+				$lines[$index][$fn] = $additional_data[$line[$foreign_key]][$fn];
+			}
+		}
+	}
+	return [$fields, $lines];
 }
 
 /**
