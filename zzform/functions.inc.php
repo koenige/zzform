@@ -587,7 +587,16 @@ function zz_apply_filter($zz, $filter_params) {
 				}
 				$zz['filter'][$filter['depends_on']]['subfilter'][] = $index;
 			}
-			$elements = zz_db_fetch($filter['sql'], '_dummy_id_', 'key/value');
+			if (!empty($filter['sql_translate'])) {
+				$elements_t = zz_db_fetch($filter['sql'], '_dummy_id_', 'numeric');
+				$elements_t = zz_translate($filter, $elements_t);
+				$elements = [];
+				foreach ($elements_t as $element) {
+					$elements[reset($element)] = end($element);
+				}
+			} else {
+				$elements = zz_db_fetch($filter['sql'], '_dummy_id_', 'key/value');
+			}
 			if (zz_error_exit()) continue;
 			// don't show filter if we have only one element
 			if (count($elements) <= 1) {
