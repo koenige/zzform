@@ -1598,6 +1598,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 				'status' => 403,
 				'level' => E_USER_NOTICE
 			]);
+			$zz_conf['int']['record'] = false;
 		}
 		if (!$zz_conf[$mode] AND $zz_var['action'] === $action) {
 			$zz_var['action'] = false;
@@ -1607,6 +1608,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 				'status' => 403,
 				'level' => E_USER_NOTICE
 			]);
+			$zz_conf['int']['record'] = false;
 		}
 	}
 
