@@ -1132,7 +1132,7 @@ function zz_list_query($zz, $id_field) {
 	$zz['sql'] = zz_sql_order($zz['fields_in_list'], $zz['sql']);
 
 	if (empty($zz['list']['hierarchy'])) {
-		return [zz_list_query_flat($zz['sql'], $id_field, $zz['sqlextra']), $total_rows];
+		return [zz_list_query_flat($zz, $id_field), $total_rows];
 	} else {
 		return zz_list_query_hierarchy($zz, $id_field);
 	}
@@ -1146,7 +1146,7 @@ function zz_list_query($zz, $id_field) {
  * @global array $zz_conf
  * @return array $lines
  */
-function zz_list_query_flat($sql, $id_field, $extra_sqls) {
+function zz_list_query_flat($zz, $id_field) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
@@ -1155,16 +1155,19 @@ function zz_list_query_flat($sql, $id_field, $extra_sqls) {
 		// this standard value will only be used on rare occasions, when NO limit is set
 		// but someone tries to set a limit via URL-parameter
 		if (!$zz_conf['limit']) $zz_conf['limit'] = 20; 
-		$sql .= ' LIMIT '.($zz_conf['int']['this_limit']-$zz_conf['limit']).', '.($zz_conf['limit']);
+		$zz['sql'] .= ' LIMIT '.($zz_conf['int']['this_limit']-$zz_conf['limit']).', '.($zz_conf['limit']);
 	}
 
 	// read rows from database
 	if ($id_field) {
-		$lines = zz_db_fetch($sql, $id_field);
+		$lines = zz_db_fetch($zz['sql'], $id_field);
 	} else {
-		$lines = zz_db_fetch($sql, '_dummy_', 'numeric');
+		$lines = zz_db_fetch($zz['sql'], '_dummy_', 'numeric');
 	}
-	$lines = zz_list_query_extras($lines, $id_field, $extra_sqls);
+	$lines = zz_list_query_extras($lines, $id_field, $zz['sqlextra']);
+	if (!empty($zz['sql_translate'])) {
+		$lines = zz_translate($zz, $lines);
+	}
 	return zz_return($lines);
 }
 
@@ -1243,6 +1246,9 @@ function zz_list_query_hierarchy($zz, $id_field) {
 		}
 	}
 	$lines = zz_list_query_extras($lines, $id_field, $zz['sqlextra']);
+	if (!empty($zz['sql_translate'])) {
+		$lines = zz_translate($zz, $lines);
+	}
 	return zz_return([$lines, $total_rows]);
 }
 
