@@ -480,6 +480,7 @@ body #zzform .separator hr
 	#zzform #record .subtable td.error { background-color: red; }
 #zzform .error, #zzform .subtable .horizontal td.error
 					{ color: white; padding: .25em; }
+#zzform span.error	{ padding: 0; }
 #zzform div.error	{ margin: 1em 0; padding-left: .75em; max-width: 40em; }
 #zzform div.error p	{ margin-top: 0; }
 #zzform td div.error
