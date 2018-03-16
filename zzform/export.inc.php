@@ -22,7 +22,7 @@
  */
 function zz_export_config() {
 	$conf['int']['allowed_params']['mode'][] = 'export';
-	$conf['int']['allowed_params']['export'] = ['csv', 'pdf', 'kml', 'geojson'];
+	$conf['int']['allowed_params']['export'] = ['csv', 'pdf', 'kml', 'geojson', 'zip'];
 	zz_write_conf($conf, true);
 
 	// whether sql result might be exported 
@@ -128,6 +128,7 @@ function zz_export_init($ops) {
 		break;
 	case 'csv':
 	case 'pdf':
+	case 'zip':
 		if ($export === 'csv-excel') {
 			$character_encoding = 'utf-16le'; // Excel for Win and Mac platforms
 		}
@@ -180,6 +181,10 @@ function zz_export_headers($export, $charset) {
 	case 'pdf':
 		$headers[]['true'] = 'Content-Type: application/pdf;';
 		$headers[]['true'] = 'Content-Disposition: attachment; filename="'.$filename.'.pdf"';
+		break;
+	case 'zip':
+		$headers[]['true'] = 'Content-Type: application/zip;';
+		$headers[]['true'] = 'Content-Disposition: attachment; filename="'.$filename.'.zip"';
 		break;
 	case 'kml':
 		$headers[]['true'] = 'Content-Type: application/vnd.google-earth.kml+xml; charset=utf8';
@@ -279,6 +284,10 @@ function zz_export($ops, $zz, $zz_var) {
 	case 'pdf':
 		// no script is defined: standard PDF output
 		echo 'Sorry, standard PDF support is not yet available. Please use a custom script.';
+		exit;
+	case 'zip':
+		// no script is defined: standard ZIP output
+		echo 'Sorry, standard ZIP support is not yet available. Please use a custom script.';
 		exit;
 	case 'kml':
 		$ops['output'] = zz_export_kml($ops, $zz, $zz_var);
