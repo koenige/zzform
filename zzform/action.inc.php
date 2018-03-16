@@ -120,10 +120,19 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			// mark it!
 			$zz_tab[0][0]['fields'][$my_tab['no']]['check_validation'] = false;
 			// show error message
-			zz_error_validation_log('msg', 'Minimum of records for table `%s` was not met (%d).');
-			zz_error_validation_log('msg_args', zz_text($zz_tab[0][0]['fields'][$my_tab['no']]['title']));
-			zz_error_validation_log('msg_args', $my_tab['min_records_required']);
-			zz_error_validation_log('log_post_data', true);
+			if (empty($zz_tab[0][0]['fields'][$my_tab['no']]['dont_show_missing'])) {
+				zz_error_validation_log('msg', 'Minimum of records for table `%s` was not met (%d).');
+				zz_error_validation_log('msg_args', zz_text($zz_tab[0][0]['fields'][$my_tab['no']]['title']));
+				zz_error_validation_log('msg_args', $my_tab['min_records_required']);
+				zz_error_validation_log('log_post_data', true);
+			}
+			foreach ($zz_tab[$tab][$rec]['fields'] as $no => $field) {
+				if (empty($field['type'])) continue;
+				if (in_array($field['type'], ['foreign_key', 'id', 'timestamp'])) continue;
+				if (empty($field['required'])) continue;
+				if (!empty($zz_tab[$tab][$rec]['POST'][$field['field_name']])) continue;
+				$zz_tab[$tab][$rec]['fields'][$no]['check_validation'] = false;
+			}
 			$validation = false;
 		}
 	}
