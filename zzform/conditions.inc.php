@@ -24,7 +24,7 @@
  *	zz_conditions_list_check()		set conditions for list
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2010, 2013-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2010, 2013-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -464,6 +464,14 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 					}
 				}
 			}
+			break;
+		case 'access':
+			// get access rights for current ID with user function
+			if (empty($zz_var['id']['value'])) {
+				$zz_conditions['bool'][$index] = [];
+				break;
+			}
+			$zz_conditions['bool'][$index] = $condition['function']([$zz_var['id']['value']], $condition);
 			break;
 		case 'subrecord': // ignore here
 		default:
