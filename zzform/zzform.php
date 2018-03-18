@@ -422,7 +422,7 @@ function zz_valid_request($action = false) {
 	global $zz_conf;
 	static $dont_log_error;
 
-	$action_requests = ['delete', 'insert', 'update', 'noupdate'];
+	$action_requests = ['delete', 'insert', 'update', 'noupdate', 'thumbs'];
 	$request_found = false;
 	foreach ($action_requests as $request) {
 		if (!isset($_GET[$request])) continue;

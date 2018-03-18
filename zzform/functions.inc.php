@@ -1472,8 +1472,10 @@ function zz_record_access($zz, $ops, $zz_var) {
 			$zz_conf['int']['access'] = 'thumbnails';
 		} elseif (in_array($zz_conf['int']['access'], $only_allowed_with_id)
 			AND $zz_conf['int']['where_with_unique_id']) {
-		// @todo check for other valid IDs in case of add_only, edit_only, add_then_edit
-		// and allow these, too. (are there any?)
+			$zz_conf['int']['access'] = 'thumbnails';
+		} elseif (in_array($zz_conf['int']['access'], $only_allowed_with_id)
+			AND zz_valid_request()) {
+			// e. g. public access
 			$zz_conf['int']['access'] = 'thumbnails';
 		} else {
 			$zz_conf['int']['access'] = 'forbidden';

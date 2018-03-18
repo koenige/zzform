@@ -76,7 +76,7 @@
  *		['validated']		validated (yes = tested, no = rely on fileupload i. e. user)
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2006-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2006-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -2178,6 +2178,10 @@ function zz_upload_background($id, $no, $img) {
 	$url = sprintf('%s?thumbs=%d&field=%d-%d',
 		$zz_conf['int']['url']['full'], $id, $no, $img
 	);
+	if (in_array($zz_conf['int']['access'], ['add_only', 'edit_only', 'add_then_edit'])
+		AND empty($zz_conf['int']['where_with_unique_id'])) {
+		$url .= sprintf('&zzhash=%s', zz_secret_key($id));
+	}
 	$headers[] = 'X-Request-WWW-Authentication: 1';
 	$headers[] = 'X-Timeout-Ignore: 1';
 	$method = 'POST';
