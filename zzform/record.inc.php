@@ -3361,7 +3361,9 @@ function zz_field_image($field, $display, $record, $record_saved, $images, $mode
 			$text = $img = zz_makelink($field['path'], $record_saved, 'image');
 		}
 		if (!$img AND (!isset($field['dont_show_missing']) OR !$field['dont_show_missing'])) {
-			$text = '('.zz_text('image_not_display').')';
+			if (!isset($field['dont_show_missing_img']) OR !$field['dont_show_missing_img']) {
+				$text = '('.zz_text('image_not_display').')';
+			}
 		}
 		if ($text) $text = '<p class="preview">'.$text.'</p>';
 	}
