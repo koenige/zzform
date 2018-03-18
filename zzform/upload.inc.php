@@ -1157,18 +1157,16 @@ function zz_upload_prepare_tn($zz_tab, $zz_var) {
 	$img = $zz_var['thumb_field'][1];
 
 	foreach ($zz_tab[0]['upload_fields'] as $uf) {
-		if ($uf['tab']) continue; // just main record
-		if ($uf['rec']) continue; // just main record
 		if ($uf['f'] !== intval($no)) continue;
-		$zz_tab[0][0]['images'][$no][$img]['create_in_background'] = true;
-		$prepared_img = zz_upload_prepare_file($zz_tab, 0, 0, $no, $img);
+		$zz_tab[$uf['tab']][$uf['rec']]['images'][$no][$img]['create_in_background'] = true;
+		$prepared_img = zz_upload_prepare_file($zz_tab, $uf['tab'], $uf['rec'], $no, $img);
 		if ($prepared_img) {
-			$zz_tab[0][0]['images'][$no][$img] = $prepared_img;
+			$zz_tab[$uf['tab']][$uf['rec']]['images'][$no][$img] = $prepared_img;
 			if (!empty($prepared_img['no_file_upload'])) {
-				$zz_tab[0][0]['no_file_upload'] = true;
+				$zz_tab[$uf['tab']][$uf['rec']]['no_file_upload'] = true;
 			}
 			if (!empty($prepared_img['file_upload'])) {
-				$zz_tab[0][0]['file_upload'] = true;
+				$zz_tab[$uf['tab']][$uf['rec']]['file_upload'] = true;
 			}
 		}
 	}
@@ -1225,7 +1223,7 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 		if (!$src_image) // might come from zz_upload_get_source_field()
 			$src_image = $my_rec['images'][$no][$image['source']];
 		if (!empty($src_image['unsupported_filetype'])) return [];
-		list($image, $source_filename) = zz_upload_create_source($image, $src_image['path'], $zz_tab);
+		list($image, $source_filename) = zz_upload_create_source($image, $src_image['path'], $zz_tab, $tab, $rec);
 		$image['upload']['do_not_delete'] = true; // don't delete source!
 		$use_uploaded_file = false;
 
