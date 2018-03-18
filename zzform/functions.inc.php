@@ -1463,7 +1463,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		$not_allowed = [
 			'show', 'show_and_delete', 'edit_details_only', 'edit_details_and_add',
 			'none', 'search_but_no_list', 'add_only', 'edit_only', 'add_then_edit',
-			'show_after_add', 'show_after_edit', 'show+edit'
+			'show_after_add', 'show_after_edit', 'show+edit', 'forbidden'
 		];
 		$only_allowed_with_id = [
 			'add_only', 'edit_only', 'add_then_edit'
@@ -1476,7 +1476,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		// and allow these, too. (are there any?)
 			$zz_conf['int']['access'] = 'thumbnails';
 		} else {
-			$zz_conf['int']['access'] = 'none';
+			$zz_conf['int']['access'] = 'forbidden';
 			$zz_conf['int']['http_status'] = 403;
 			$ops['mode'] = false;
 			$zz_var['action'] = false;
@@ -1689,6 +1689,14 @@ function zz_listandrecord_access($zz_conf) {
 		$zz_conf['delete'] = false;			// don't delete record (form+links)
 		$zz_conf['view'] = false;			// don't show record (links)
 		$zz_conf['int']['record'] = false;	// don't show record
+		break;
+	case 'forbidden':
+		$zz_conf['add'] = false;			// don't add record (form+links)
+		$zz_conf['edit'] = false;			// don't edit record (form+links)
+		$zz_conf['delete'] = false;			// don't delete record (form+links)
+		$zz_conf['view'] = false;			// don't show record (links)
+		$zz_conf['int']['record'] = false;	// don't show record
+		$zz_conf['int']['show_list'] = false;	// don't show record
 		break;
 	case 'search_but_no_list':
 		$zz_conf['add'] = false;			// don't add record (form+links)
