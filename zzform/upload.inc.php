@@ -502,7 +502,7 @@ function zz_upload_check_files($zz_tab) {
 				$images[$no][$img]['unsupported_filetype'] = zz_text('Error: ')
 					.zz_text('Unsupported filetype:').' '
 					.$filetype
-					.'<br class="nonewline_in_mail">'.zz_text('Supported filetypes are:').' '
+					.'<br class="nonewline_in_mail">'.zz_text('Supported filetypes:').' '
 					.strtoupper(implode(', ', $images[$no][$img]['input_filetypes']));
 				$my_rec['file_upload'] = false;
 			} else {

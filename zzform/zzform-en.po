@@ -349,7 +349,7 @@ msgid "Unsupported filetype:"
 msgstr ""
 
 # Record form: File upload
-msgid "Supported filetypes are:"
+msgid "Supported filetypes:"
 msgstr ""
 
 # Record form: File upload
