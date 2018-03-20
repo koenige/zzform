@@ -524,8 +524,8 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 			if ($key === false) {
 				// illegal ID, this will only occur if user manipulated the form
 				zz_error_log([
-					'msg_dev' => 'Detail record with invalid ID was posted (ID was said to be %s, main record was ID %s)',
-					'msg_dev_args' => [$posted[$my_tab['id_field_name']], $zz_var['id']['value']],
+					'msg_dev' => 'Detail record with invalid ID was posted (ID of table_name %s was said to be %s, main record was ID %s)',
+					'msg_dev_args' => [$my_tab['table_name'], $posted[$my_tab['id_field_name']], $zz_var['id']['value']],
 					'level' => E_USER_NOTICE
 				]);
 				unset($my_tab['POST'][$rec]);
