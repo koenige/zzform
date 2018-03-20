@@ -1330,7 +1330,8 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 		}
 	//	set detail types for write_once-Fields
 		if ($field['type'] === 'write_once' 
-			AND empty($my_rec['record'][$field_name])) {
+			AND empty($my_rec['record'][$field_name])
+			AND empty($my_rec['existing'][$field_name])) {
 			if (!empty($field['type_detail']))
 				$my_rec['fields'][$f]['type'] = $field['type'] = $field['type_detail'];
 		}
