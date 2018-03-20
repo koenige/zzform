@@ -306,6 +306,15 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
  * @return array $fields
  */
 function zz_list_inline($fields, $lines) {
+	// hide subtable first, array_splice renumbers numerical indices
+	foreach ($fields as $no => $field) {
+		if (empty($field['type'])) continue;
+		if ($field['type'] !== 'subtable') continue;
+		if (empty($field['list_display'])) continue;
+		if ($field['list_display'] !== 'inline') continue;
+		$fields[$no]['hide_in_list'] = true; // hide subtable
+	}
+
 	$pos = 0;
 	foreach ($fields as $no => $field) {
 		$pos++; // splice at this position
@@ -313,7 +322,6 @@ function zz_list_inline($fields, $lines) {
 		if ($field['type'] !== 'subtable') continue;
 		if (empty($field['list_display'])) continue;
 		if ($field['list_display'] !== 'inline') continue;
-		$fields[$no]['hide_in_list'] = true; // hide subtable
 
 		// 1. move definition of subtable to equal level as main table
 		$foreign_key = false;
@@ -345,7 +353,14 @@ function zz_list_inline($fields, $lines) {
 					]);
 					continue;
 				}
-				$lines[$index][$fn] = $additional_data[$line[$foreign_key]][$fn];
+				if (!array_key_exists($line[$foreign_key], $additional_data)) {
+					zz_error_log([
+						'msg_dev' => 'No detail record exists for ID %d (table %s)',
+						'msg_dev_args' => [$line[$foreign_key], $field['table_name']]
+					]);
+				} else {
+					$lines[$index][$fn] = $additional_data[$line[$foreign_key]][$fn];
+				}
 			}
 		}
 	}
