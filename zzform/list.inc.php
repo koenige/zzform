@@ -978,6 +978,11 @@ function zz_list_filter_sql($filters, $sql, &$filter_params) {
 		if (!in_array($filter['identifier'], array_keys($filter_params))) continue;
 		$filter_value = $filter_params[$filter['identifier']];
 
+		$old_sql = $sql;
+		if (isset($filter['sql_join'])) {
+			$sql = wrap_edit_sql($sql, 'JOIN', $filter['sql_join']);
+		}
+
 		// where_if-Filter?
 		if (!empty($filter['where_if'])) {
 			if (!array_key_exists($filter_value, $filter['where_if'])) {
@@ -993,10 +998,6 @@ function zz_list_filter_sql($filters, $sql, &$filter_params) {
 		// where-Filter?
 		if (empty($filter['where'])) continue;
 		if (!isset($filter['default_selection'])) $filter['default_selection'] = '';
-		$old_sql = $sql;
-		if (isset($filter['sql_join'])) {
-			$sql = wrap_edit_sql($sql, 'JOIN', $filter['sql_join']);
-		}
 		
 		if ($filter['type'] === 'show_hierarchy'
 			AND false !== zz_in_array_str($filter_value, array_keys($filter['selection']))
