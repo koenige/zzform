@@ -53,7 +53,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	}
 	if ($mode === 'revise') {
 		require_once $zz_conf['dir_inc'].'/revisions.inc.php';
-		$zz_tab[0]['revision_id'] = zz_revisions_read_id($zz_tab[0]['table'], $zz_tab[0][0]['id']['value']);
+		$zz_tab[0]['revision_id'] = zz_revisions_read_id($zz_tab[0]['table'], $zz_var['id']['value']);
 	} elseif (!empty($_POST['zz_revision_id'])) {
 		require_once $zz_conf['dir_inc'].'/revisions.inc.php';
 		$zz_tab[0]['revision_id'] = intval($_POST['zz_revision_id']);
