@@ -2588,6 +2588,9 @@ function zz_field_select_sql_too_long($field, $record, $detail_record, $id_field
 	// in this case validation procedure will be skipped!
 	if (!empty($record[$field['field_name']])) 
 		$value = $record[$field['field_name']]; 
+	elseif (!empty($field['show_hierarchy_subtree']) 
+		AND !empty($field['show_hierarchy_use_top_value_instead_NULL']))
+		$value = $field['show_hierarchy_subtree'];
 	else
 		$value = '';
 	// add new record
