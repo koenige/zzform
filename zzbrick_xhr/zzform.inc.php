@@ -85,6 +85,13 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 		$conditions[] = sprintf('(%s)', implode(' OR ', $condition));
 	}
 	$sql = wrap_edit_sql($sql, 'WHERE', implode(' AND ', $conditions));
+	$ids = zz_hierarchy_subtree_ids($field);
+	if ($ids) {
+		$sql = wrap_edit_sql($sql, 'WHERE', sprintf('%s IN (%s)'
+			, !empty($field['key_field_name']) ? $field['key_field_name'] : $field['field_name']
+			, implode(',', $ids))
+		);
+	}
 	wrap_db_query('SET NAMES utf8'); // JSON is UTF-8
 	$records = wrap_db_fetch($sql, '_dummy_', 'numeric');
 	if (!empty($field['sql_translate'])) {
