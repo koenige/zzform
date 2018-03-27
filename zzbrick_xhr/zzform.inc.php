@@ -53,6 +53,8 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	}
 	// @todo use common concat function for all occurences!
 	$concat = isset($field['concat_fields']) ? $field['concat_fields'] : ' | ';
+	$equal = substr($text, -1) === ' ' ? true : false;
+	$text = trim($text);
 	if (strstr($text, $concat)) {
 		$text = explode($concat, $text);
 	} else {
@@ -74,7 +76,8 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 			// first field must be id field, so if value is not numeric, ignore it
 			if (!$no AND !is_numeric($value)) continue;
 			$collation = zz_db_field_collation('xhr', false, $sql_field, $no);
-			$where[$index][] = sprintf('%s LIKE %s"%%%s%%"', $sql_field['field_name'], $collation, wrap_db_escape($value));
+			$query = $equal ? '%s = %s"%s"' : '%s LIKE %s"%%%s%%"';
+			$where[$index][] = sprintf($query, $sql_field['field_name'], $collation, wrap_db_escape($value));
 		}
 	}
 	$conditions = [];
