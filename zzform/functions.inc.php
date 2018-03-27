@@ -3269,17 +3269,12 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 	if (!empty($field['show_hierarchy_same_table']) AND !empty($id['value'])) {
 		$wheresql .= sprintf(' AND `%s` != %d', $id['field_name'], $id['value']);
 	}
-	if (!empty($field['show_hierarchy_subtree'])) {
+	$ids = zz_hierarchy_subtree_ids($field);
+	if ($ids) {
 		// just allow chosing of records under the ID set in 'show_hierarchy_subtree'
-		$h_sql = 'SELECT %s FROM %s WHERE %s IN (%%s)';
-		$h_table = wrap_edit_sql($field['sql'], 'FROM', false, 'list');
-		$h_sql = sprintf($h_sql,
-			$id_field_name, $h_table[0], $field['show_hierarchy']
-		);
-		$children = wrap_db_children($field['show_hierarchy_subtree'], $h_sql);
-		unset($children[0]); // top hierarchy ID
+		unset($ids[0]); // top hierarchy ID
 		$wheresql .= sprintf(' AND %s IN (%s)',
-			$id_field_name, implode(',', $children)
+			$id_field_name, implode(',', $ids)
 		);
 	}
 	if ($wheresql) {
