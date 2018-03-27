@@ -3272,7 +3272,8 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 	$ids = zz_hierarchy_subtree_ids($field);
 	if ($ids) {
 		// just allow chosing of records under the ID set in 'show_hierarchy_subtree'
-		unset($ids[0]); // top hierarchy ID
+		if (empty($field['show_hierarchy_use_top_value_instead_NULL']))
+			unset($ids[0]); // top hierarchy ID
 		$wheresql .= sprintf(' AND %s IN (%s)',
 			$id_field_name, implode(',', $ids)
 		);
