@@ -3074,7 +3074,12 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 	// check only for 0, might be problem, but 0 should always be there
 	// if null -> accept it
 	$field_name = $my_rec['fields'][$f]['field_name'];
-	if (!$my_rec['POST'][$field_name]) return $my_rec;
+	if (!$my_rec['POST'][$field_name]) {
+		if (!empty($my_rec['fields'][$f]['show_hierarchy_use_top_value_instead_NULL'])) {
+			$my_rec['POST'][$field_name] = $my_rec['fields'][$f]['show_hierarchy_subtree'];
+		}
+		return $my_rec;
+	}
 	if (is_string($my_rec['POST'][$field_name]) AND !trim($my_rec['POST'][$field_name])) {
 		$my_rec['POST'][$field_name] = '';
 		return $my_rec;
