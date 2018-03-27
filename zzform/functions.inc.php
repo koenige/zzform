@@ -2823,12 +2823,9 @@ function zz_hierarchy_sort($h_lines, $hierarchy, $id_field, $level = 0, &$i = 0)
 function zz_hierarchy_subtree_ids($field) {
 	if (empty($field['show_hierarchy_subtree'])) return [];
 	$tables = wrap_edit_sql($field['sql'], 'FROM', false, 'list');
+	$fieldnames = wrap_edit_sql($field['sql'], 'SELECT', '', 'list');
 	$sql = 'SELECT %s FROM %s WHERE %s IN (%%s)';
-	$sql = sprintf($sql
-		, !empty($field['key_field_name']) ? $field['key_field_name'] : $field['field_name']
-		, $tables[0]
-		, $field['show_hierarchy']
-	);
+	$sql = sprintf($sql, $fieldnames[0]['field_name'], $tables[0], $field['show_hierarchy']);
 	$ids = wrap_db_children($field['show_hierarchy_subtree'], $sql);
 	return $ids;
 }
