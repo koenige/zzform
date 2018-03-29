@@ -773,6 +773,8 @@ function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids, $mode) {
 			}
 			if (!$total_rows) {
 				$zz_conditions['bool'][$index] = true;
+			} else {
+				$zz_conditions['bool'][$index] = false;
 			}
 			break;
 		default:
