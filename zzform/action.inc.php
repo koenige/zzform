@@ -1509,7 +1509,13 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			//	check for correct enum values
 			if (!$my_rec['POST'][$field_name]) break;
 			if (isset($field['enum'])) {
-				if (!$tempvar = zz_check_enumset($my_rec['POST'][$field_name], $field, $db_table)) {
+				if (!empty($field['enum_textinput']) AND $my_rec['POST'][$field_name] === end($field['enum'])) {
+					if (!empty($my_rec['POST'][$field_name.'--text'])) {
+						$my_rec['POST'][$field_name] = $my_rec['POST'][$field_name.'--text'];
+					} else {
+						$my_rec['POST'][$field_name] = '';
+					}
+				} elseif (!$tempvar = zz_check_enumset($my_rec['POST'][$field_name], $field, $db_table)) {
 					$my_rec['validation'] = false;
 					$my_rec['fields'][$f]['check_validation'] = false;
 				} else {

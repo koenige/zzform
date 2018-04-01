@@ -2986,6 +2986,17 @@ function zz_field_select_radio($field, $record, $radios) {
 			break;
 		}
 		$text .= $radio['element'];
+		if (!empty($field['enum_textinput']) AND $index + 1 === count($radios)) {
+			$inputval = '';
+			if (!empty($record[$field['field_name']])) {
+				if (!in_array($record[$field['field_name']], $field['enum'])) {
+					$inputval = $record[$field['field_name']];
+				}
+			}
+			$fieldattr['size'] = 32;
+			$input_fieldname = substr($field['f_field_name'], 0, -1).'--text]';
+			$text .= '<br>'.zz_form_element($input_fieldname, $inputval, 'text', true, $fieldattr);
+		}
 	}
 	$text .= "</li>\n";
 
@@ -3148,6 +3159,9 @@ function zz_field_select_enum($field, $display, $record) {
 			if ($set != $record[$field['field_name']]) continue;
 			$text = zz_print_enum($field, $set, 'full', $key);
 		}
+		if (!$text AND !empty($field['enum_textinput'])) {
+			$text = $record[$field['field_name']];
+		}
 		if (!empty($field['show_values_as_list'])) {
 			$zz_conf['int']['append_next_type'] = 'list';
 		}
@@ -3156,6 +3170,10 @@ function zz_field_select_enum($field, $display, $record) {
 
 	// check if should be shown as a list
 	// and if yes, return a list
+	if (!empty($field['enum_textinput'])) {
+		$field['show_values_as_list'] = true;
+	}
+		
 	if (count($field['enum']) <= 2) {
 		$sel_option = true;
 	} elseif (!empty($field['show_values_as_list'])) {
@@ -3169,6 +3187,12 @@ function zz_field_select_enum($field, $display, $record) {
 		foreach ($field['enum'] as $key => $set) {
 			$myi++;
 			$label = zz_print_enum($field, $set, 'full', $key);
+			if (!empty($field['enum_textinput']) AND $key + 1 === count($field['enum'])
+				AND !empty($record[$field['field_name']])
+				AND !in_array($record[$field['field_name']], $field['enum'])) {
+				// check last item by turning value of set into saved value
+				$set = $record[$field['field_name']];
+			}
 			$radios[] = zz_field_select_radio_value($field, $record, $set, $label, $myi);
 		}
 		return zz_field_select_radio($field, $record, $radios);
