@@ -2954,7 +2954,7 @@ function zz_field_select_radio($field, $record, $radios) {
 	// variant: only one value with a possible NULL value
 	if (count($radios) === 1) {
 		$text = sprintf('<input type="hidden" name="%s">', $field['f_field_name']);
-		$text .= str_replace('<input type="radio"', '<input type="checkbox"', $radios[0][1]);
+		$text .= str_replace('<input type="radio"', '<input type="checkbox"', $radios[0]['element']);
 		return $text;
 	}
 
@@ -2962,7 +2962,7 @@ function zz_field_select_radio($field, $record, $radios) {
 	if (empty($field['show_values_as_list'])) {
 		$text = zz_field_select_radio_none($field, $record);
 		foreach ($radios as $radio)
-			$text .= $radio[1]."\n";
+			$text .= $radio['element']."\n";
 		return $text;
 	}
 
@@ -2971,7 +2971,7 @@ function zz_field_select_radio($field, $record, $radios) {
 	$none = zz_field_select_radio_none($field, $record);
 	if ($none) $text .= '<li>'.$none."</li>\n";
 	foreach ($radios as $index => $radio) {
-		switch ($radio[0]) {
+		switch ($radio['level']) {
 		case 1:
 			$text .= "\n<ul><li>";
 			break;
@@ -2980,12 +2980,12 @@ function zz_field_select_radio($field, $record, $radios) {
 			else $text .= "<li>";
 			break;
 		default:
-			for ($i = 0; $i > $radio[0]; $i--) {
+			for ($i = 0; $i > $radio['level']; $i--) {
 				$text .= "</li></ul><li>";
 			}
 			break;
 		}
-		$text .= $radio[1];
+		$text .= $radio['element'];
 	}
 	$text .= "</li>\n";
 
@@ -3035,7 +3035,7 @@ function zz_field_select_radio_none($field, $record) {
  * @param mixed $value (int, string)
  * @param string $label
  * @param int $pos
- * @return string
+ * @return array
  */
 function zz_field_select_radio_value($field, $record, $value, $label, $pos) {
 	$id = zz_make_id_fieldname($field['f_field_name']).'-'.$pos;
@@ -3046,8 +3046,11 @@ function zz_field_select_radio_value($field, $record, $value, $label, $pos) {
 	if ($field['required']) $fieldattr['required'] = true;
 	$element = zz_form_element($field['f_field_name'], $value, 'radio', $id, $fieldattr);
 	$level = isset($field['zz_level']) ? $field['zz_level'] : 0;
-	return [$level, sprintf(' <label for="%s">%s&nbsp;%s</label>', $id, $element, $label)];
-	return $text;
+	return [
+		'level' => $level,
+		'element' => sprintf(' <label for="%s">%s&nbsp;%s</label>', $id, $element, $label),
+		'id' => $id
+	];
 }
 
 /**
@@ -3143,7 +3146,7 @@ function zz_field_select_enum($field, $display, $record) {
 			// instead of !== because of numeric values which might be
 			// represented by a string
 			if ($set != $record[$field['field_name']]) continue;
-			$text .= zz_print_enum($field, $set, 'full', $key);
+			$text = zz_print_enum($field, $set, 'full', $key);
 		}
 		if (!empty($field['show_values_as_list'])) {
 			$zz_conf['int']['append_next_type'] = 'list';
