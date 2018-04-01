@@ -151,3 +151,17 @@ function zz_init_checkboxes() {
 }
 zz_init_checkboxes();
 
+/**
+ * check a radio button if a corresponding input is filled
+ */
+var zz_inputs = document.getElementsByClassName('js-checkable');
+for (i = 0; i < zz_inputs.length; i++) {
+	(function(counter){
+		zz_inputs[i].addEventListener('keydown', function(){zz_selectRadio(counter)}, false);
+   	})(i);
+}
+function zz_selectRadio(counter) {
+	var checkbox = document.getElementById(zz_inputs[counter].getAttribute('data-check-id'));
+	if (!checkbox.checked) checkbox.checked = 'checked';
+}
+
