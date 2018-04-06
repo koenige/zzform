@@ -2996,7 +2996,12 @@ function zz_field_select_radio($field, $record, $radios) {
 			$fieldattr['size'] = 32;
 			$fieldattr['class'] = 'js-checkable';
 			$fieldattr['data-check-id'] = $radio['id'];
-			$input_fieldname = substr($field['f_field_name'], 0, -1).'--text]';
+			$input_fieldname = $field['f_field_name'];
+			if (substr($input_fieldname, -1) === ']') {
+				$input_fieldname = substr($input_fieldname, 0, -1).'--text]';
+			} else {
+				$input_fieldname .= '--text';
+			}
 			$text .= '<br>'.zz_form_element($input_fieldname, $inputval, 'text', true, $fieldattr);
 		}
 	}
