@@ -2262,8 +2262,18 @@ function zz_list_get_subselects($lines, $subselects) {
 				$linetext[] = $fieldtext;
 			}
 			$subselect_text = implode($subselect['concat_rows'], $linetext);
+			$prefix = $subselect['prefix'];
+			if (!empty($subselect['count'])) {
+				$count = count($sub_lines[$id]);
+				if (strstr($prefix, '%d')) {
+					$prefix = sprintf($subselect['prefix'], $count);
+				} else {
+					$prefix .= $count.' ';
+				}
+
+			}
 			if ($subselect_text) {
-				$subselect_text = $subselect['prefix'].$subselect_text.$subselect['suffix'];
+				$subselect_text = $prefix.$subselect_text.$subselect['suffix'];
 			}
 			if (!empty($subselect['list_format'])) {
 				$subselect_text = zz_list_format($subselect_text, $subselect['list_format']);
