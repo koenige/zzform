@@ -203,6 +203,7 @@ function zz_prepare_hooks($zz) {
 		'zz_revisions_historic' => ['after_delete', 'after_update'],
 		'zz_sequence_normalize' => ['before_insert', 'before_update', 'after_delete']
 	];
+	$types = array_reverse($types); // array_unshift sorts arrays backwards
 	foreach ($types as $type => $internal_hooks) {
 		if (empty($hook_found[$type])) continue;
 		foreach ($internal_hooks as $hook) {
