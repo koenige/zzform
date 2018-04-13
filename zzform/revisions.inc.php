@@ -8,12 +8,12 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2016-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2016-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
 
-function zz_revisions($ops, $rev_only = false) {
+function zz_revisions($ops, $zz_tab = [], $rev_only = false) {
 	global $zz_conf;
 	$user_id = !empty($_SESSION['user_id']) ? $_SESSION['user_id'] : 'NULL';
 
