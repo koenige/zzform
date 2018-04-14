@@ -3448,7 +3448,7 @@ function zz_field_image($field, $display, $record, $record_saved, $images, $mode
 				$text .= '<br><small>'.implode('<br>', 
 					$images[$fieldkey][$imagekey]['error']).'</small>';
 			} else {
-				$text .= '<br><small>'.sprintf(zz_text('Maximum allowed filesize is %s.'),
+				$text .= '<br><small class="explanation">'.sprintf(zz_text('Maximum allowed filesize is %s.'),
 					wrap_bytes($zz_conf['upload_MAX_FILE_SIZE'])).' '
 					.zz_text('Supported filetypes:').' '
 					.strtoupper(implode(', ', $field['input_filetypes'])).'</small>';

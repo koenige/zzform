@@ -359,7 +359,7 @@ msgstr "Nicht unterstützter Dateityp:"
 
 # Record form: File upload
 msgid "Supported filetypes:"
-msgstr "Diese Dateitypen werden unterstützt:"
+msgstr "Unterstützte Dateitypen:"
 
 # Record form: File upload
 msgid "Could not delete %s."

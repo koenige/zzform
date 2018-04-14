@@ -169,11 +169,13 @@ div.text #zzform, #zzform div.text
 					{ padding: .5em; border: none; } 
 #zzform #record tbody tr:first-child td
 					{ border-top: none; }
-#zzform p.desc, #zzform .explanation 
+#zzform p.desc, #zzform .explanation
 					{ margin: 0; padding: 0; font-weight: normal; 
-					font-size: 90%; clear: both; max-width: 40em; }
-#zzform p.explanation 
-					{ line-height: 1.2; }
+					font-size: 90%; clear: both; max-width: 35em; }
+#zzform p.explanation, #zzform small.explanation
+					{ line-height: 1.25; }
+#zzform small.explanation
+					{ display: block; }
 #zzform #record .upload td, #zzform #record .upload th
 					{ padding-top: 0; }
 #zzform #record .upload th
