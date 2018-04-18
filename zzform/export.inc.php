@@ -447,6 +447,9 @@ function zz_export_geojson($ops, $zz, $zz_var) {
 			if (empty($line[$fields['latitude/longitude']]['value'])) continue;
 			list($latitude, $longitude) = explode(',', $line[$fields['latitude/longitude']]['value']);
 		} elseif (array_key_exists('latitude', $fields) AND array_key_exists('longitude', $fields)) {
+			// accept 0, but not empty values
+			if ($line[$fields['latitude']]['value'] === '') continue;
+			if ($line[$fields['longitude']]['value'] === '') continue;
 			$latitude = $line[$fields['latitude']]['value'];
 			$longitude = $line[$fields['longitude']]['value'];
 		} else {
