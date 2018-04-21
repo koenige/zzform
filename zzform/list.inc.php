@@ -1141,6 +1141,7 @@ function zz_list_query($zz, $id_field) {
 		$total_rows = zz_sql_count_rows($zz['sql'], $zz['table'].'.'.$id_field);
 	}
 	if (!$total_rows) return [[], 0];
+	zz_list_limit_last($total_rows);
 	
 	// ORDER must be here because of where-clause
 	$zz['sql'] .= !empty($zz['sqlorder']) ? ' '.$zz['sqlorder'] : '';
@@ -1937,7 +1938,7 @@ function zz_list_pages($limit_step, $this_limit, $total_rows, $scope = 'body') {
 		'title' => zz_text('Next page')
 	];
 	$links[] = [
-		'link'	=> zz_list_pagelink($rec_last, $this_limit, 0, $url),
+		'link'	=> zz_list_pagelink($rec_last, $this_limit, 0, $url, 'last'),
 		'text'	=> '&gt;|',
 		'class' => 'last',
 		'title' => zz_text('Last page')
@@ -1994,10 +1995,11 @@ function zz_list_pageurl() {
  * @param int $limit_step 
  * @param array $url string 'base' = bare URL without unwanted query strings,
  *		string 'query' = querystring for limit
+ * @param string $pos special position
  * @global array $zz_conf 'limit'
  * @return string $url with limit=n
  */
-function zz_list_pagelink($start, $limit, $limit_step, $url) {
+function zz_list_pagelink($start, $limit, $limit_step, $url, $pos = '') {
 	global $zz_conf;
 	if ($start == -1) {
 		// all records
@@ -2015,7 +2017,7 @@ function zz_list_pagelink($start, $limit, $limit_step, $url) {
 	}
 	$url_out = $url['base'];
 	if ($limit_new != $zz_conf['limit']) {
-		$url_out .= $url['query'].$limit_new;
+		$url_out .= $url['query'].($pos ? $pos : $limit_new);
 	}
 	return $url_out;
 }
@@ -2671,4 +2673,17 @@ function zz_list_syndication_get($field, $line) {
 		.(!empty($field['path_json_base']) ? $field['path_json_base'] : '')
 		.$img.'"  alt="" class="thumb">';
 	return $text;
+}
+
+/**
+ * replace keyword limit=last with the correct numeric value 
+ *
+ * @param int $total_rows
+ * @return void
+ */
+function zz_list_limit_last($total_rows) {
+	global $zz_conf;
+	if (empty($zz_conf['int']['limit_last'])) return;
+	if ($total_rows <= $zz_conf['int']['this_limit']) return;
+	$zz_conf['int']['this_limit'] = (ceil($total_rows / $zz_conf['limit']) * $zz_conf['limit']);
 }

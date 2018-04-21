@@ -704,8 +704,12 @@ function zz_init_limit($zz = []) {
 	// get LIMIT from URI
 	if ($zz_conf['limit']) 
 		$zz_conf['int']['this_limit'] = $zz_conf['limit'];
-	$limit = zz_check_get_array('limit', 'is_int');
-	if ($limit !== '') $zz_conf['int']['this_limit'] = $limit;
+	if (!empty($_GET['limit']) AND $_GET['limit'] === 'last') {
+		$zz_conf['int']['limit_last'] = true;
+	} else {
+		$limit = zz_check_get_array('limit', 'is_int');
+		if ($limit !== '') $zz_conf['int']['this_limit'] = $limit;
+	}
 	if ($zz_conf['int']['this_limit'] AND $zz_conf['int']['this_limit'] < $zz_conf['limit'])
 		$zz_conf['int']['this_limit'] = $zz_conf['limit'];
 }	
