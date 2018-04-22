@@ -259,7 +259,7 @@ function zz_geo_coord_sql_out($point, $out = false, $concat = ', ') {
  * formats a number depending on language with . or ,
  *
  * @param string $number
- * @global array $zz_conf ($zz_conf['language'])
+ * @global array $zz_conf ($zz_conf['decimal_point'])
  * @return string $number
  */
 function zz_decimal($number) {
