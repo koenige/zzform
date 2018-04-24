@@ -153,6 +153,9 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		list($rows, $list) = zz_list_data(
 			$list, $lines, $table_defs, $zz_var, $zz_conditions, $zz['table'], $ops['mode']
 		);
+		if (!empty($list['extra_cols'])) {
+			$table_defs[0] += $list['extra_cols'];
+		}
 		unset($lines);
 
 		$list['where_values'] = !empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : '';
@@ -639,12 +642,13 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 		}
 	}
 	
-	$lines = zz_list_get_subselects($lines, $subselects);
+	list($lines, $extra) = zz_list_get_subselects($lines, $subselects);
 	
 	// put lines in new array, rows.
 	// $rows[$z][0]['text'] = '';
 	// $rows[$z][0]['class'] = [];
 	foreach ($lines as $index => $line) {
+		$rows[$z]['index'] = $index;
 		if ($id_field) {
 			$id = $line[$id_field];
 			if ($id == $zz_var['id']['value']) {
@@ -769,6 +773,39 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 			$rows[$row_index][$field_index]['class'][] = 'identical_value';
 		}
 		$previous_row = $row;
+	}
+
+	if ($extra) {
+		end($list['columns']);
+		$last = key($list['columns']);
+		foreach ($extra as $table => $cols) {
+			foreach ($cols as $title => $value) {
+				$last++;
+				$list['columns'][$last] = 1;
+				$list['extra_cols'][$last] = [
+					'title_tab' => $title,
+					'type' => 'display',
+					'hide_in_list_if_empty' => 1,
+					'title' => $title,
+					'show_field' => 1,
+					'class' => []
+				];
+			}
+			foreach ($rows as $index => $row) {
+				if (!is_numeric($index)) continue;
+				foreach ($list['extra_cols'] as $last => $col) {
+					if (!array_key_exists($table.'_'.$col['title'], $lines[$row['index']]))
+						$val = '';
+					else
+						$val = $lines[$row['index']][$table.'_'.$col['title']];
+					$rows[$index][$last] = [
+						'value' => $val,
+						'class' => [],
+						'text' => $val
+					];
+				}
+			}
+		}
 	}
 
 	return [$rows, $list];
@@ -2190,13 +2227,14 @@ function zz_list_init_subselects($field, $fieldindex, $table_id_field_name) {
  *			'prefix', 'concat_rows', 'suffix', 'concat_fields', 'show_empty_cells'
  * @param array $ids
  * @param array $field
- * @return array $rows
+ * @return array
  */
 function zz_list_get_subselects($lines, $subselects) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	$extra = [];
 	
-	if (!$subselects) return zz_return($lines);
+	if (!$subselects) return zz_return([$lines, $extra]);
 	
 	foreach ($subselects as $subselect) {
 		// IDs
@@ -2234,7 +2272,16 @@ function zz_list_get_subselects($lines, $subselects) {
 				foreach ($subselect['sql_ignore'] as $ignored_fieldname) {
 					unset($linefields[$ignored_fieldname]); 
 				}
-				$fieldtext = false;
+				if (!empty($subselect['display_inline'])) {
+					$key = array_shift($linefields);
+					$value = array_shift($linefields);
+					$lines[$no][$subselect['table_name'].'_'.$key] = zz_mark_search_string(
+						$value, $subselect['table_name'], $subselect
+					);
+					$extra[$subselect['table_name']][$key] = $key;
+					continue;
+				}
+				$fieldtext = '';
 				$index = 0;
 				foreach ($linefields as $field_name => $db_fields) {
 					if ($subselect['show_empty_cells'] AND !$db_fields) $db_fields = '&nbsp;';
@@ -2263,6 +2310,7 @@ function zz_list_get_subselects($lines, $subselects) {
 				}
 				$linetext[] = $fieldtext;
 			}
+			if (!empty($subselect['display_inline'])) continue;
 			$subselect_text = implode($subselect['concat_rows'], $linetext);
 			$prefix = $subselect['prefix'];
 			if (!empty($subselect['count'])) {
@@ -2285,7 +2333,7 @@ function zz_list_get_subselects($lines, $subselects) {
 			);
 		}
 	}
-	return zz_return($lines);
+	return zz_return([$lines, $extra]);
 }
 
 /**
