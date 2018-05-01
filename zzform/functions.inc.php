@@ -1733,6 +1733,7 @@ function zz_listandrecord_access($zz_conf) {
  *		'root', 'webroot', 'field1...fieldn', 'string1...stringn', 'mode1...n',
  *		'extension', 'x_field[]', 'x_webfield[]', 'x_extension[]'
  *		'ignore_record' will cause record to be ignored
+ *		'alternate_root' will check for an alternate root
  * @param array $record current record
  * @param string $type (optional) link, path or image, image will be returned in
  *		<img src="" alt="">
@@ -1745,6 +1746,7 @@ function zz_makelink($path, $record, $type = 'link') {
 	$url = '';
 	$modes = [];
 	$path_full = '';		// absolute path in filesystem
+	$path_alternate = '';
 	$path_web[1] = '';		// relative path on website
 	$sets = [];
 	foreach (array_keys($path) as $part) {
@@ -1782,6 +1784,11 @@ function zz_makelink($path, $record, $type = 'link') {
 			if (substr($path_full, -1) !== '/')
 				$path_full .= '/';
 			break;
+		case 'alternate_root':
+			$path_alternate = $value;
+			if (substr($path_alternate, -1) !== '/')
+				$path_alternate .= '/';
+			break;
 		case 'webroot':
 			// web might come later, ignore parts before for web and add them
 			// to full path
@@ -1790,6 +1797,7 @@ function zz_makelink($path, $record, $type = 'link') {
 				$path_web[$myset] = $value;
 			}
 			$path_full .= $url;
+			$path_alternate .= $url;
 			$url = '';
 			break;
 		case 'extension':
@@ -1853,7 +1861,9 @@ function zz_makelink($path, $record, $type = 'link') {
 		// check whether file exists
 		if (!file_exists($path_full.$url)) {
 			// file does not exist = false
-			return false;
+			if (!$path_alternate) return false;
+			if (!file_exists($path_alternate.$url)) return false;
+			$path_full = $path_alternate;
 		}
 		if ($type === 'image') {
 			// filesize is 0 = looks like error
