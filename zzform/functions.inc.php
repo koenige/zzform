@@ -2748,6 +2748,9 @@ function zz_hierarchy($sql, $hierarchy) {
 			$mother_id = 'TOP';
 		} elseif (empty($mother_id)) {
 			$mother_id = 'NULL';
+		} elseif (!in_array($mother_id, array_keys($lines))) {
+			// incomplete hierarchy, show element nevertheless
+			$mother_id = 'NULL';
 		}
 		$h_lines[$mother_id][$id] = $id;
 	}
