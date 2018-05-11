@@ -3107,8 +3107,14 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 			// nothing changes
 		} elseif (in_array($field_name, $_POST['zz_check_select'])) {
 			$check = !$check;
+			// do not check multiple times if zz_validate() is called more than once
+			$index = array_search($field_name, $_POST['zz_check_select']);
+			unset($_POST['zz_check_select'][$index]);
 		} elseif (in_array($long_field_name, $_POST['zz_check_select'])) {
 			$check = !$check;
+			// do not check multiple times if zz_validate() is called more than once
+			$index = array_search($long_field_name, $_POST['zz_check_select']);
+			unset($_POST['zz_check_select'][$index]);
 		}
 		if (!$check) return $my_rec;
 	}
