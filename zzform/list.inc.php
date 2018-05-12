@@ -357,10 +357,8 @@ function zz_list_inline($fields, $lines) {
 					continue;
 				}
 				if (!array_key_exists($line[$foreign_key], $additional_data)) {
-					zz_error_log([
-						'msg_dev' => 'No detail record exists for ID %d (table %s)',
-						'msg_dev_args' => [$line[$foreign_key], $field['table_name']]
-					]);
+					// No detail record exists, still initialize field
+					$lines[$index][$fn] = '';
 				} else {
 					$lines[$index][$fn] = $additional_data[$line[$foreign_key]][$fn];
 				}
