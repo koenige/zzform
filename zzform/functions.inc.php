@@ -2442,6 +2442,7 @@ function zz_error() {
 	}
 
 	// mail errors if said to do so
+	$mail = [];
 	switch ($zz_conf['error_handling']) {
 	case 'mail':	
 		if (!$zz_conf['error_mail_to']) break;
