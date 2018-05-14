@@ -1157,8 +1157,7 @@ function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
 		// get a record that was deleted with JavaScript
 		$ops['record_old'][$index] = zz_query_single_record(
 			$zz_tab[$tab]['sql'], $zz_tab[$tab]['table'], $zz_tab[$tab][$rec]['id'],
-			isset($zz_tab[$tab]['sqlextra']) ? $zz_tab[$tab]['sqlextra'] : [],
-			$zz_tab[$tab]['sql_translate']
+			isset($zz_tab[$tab]['sqlextra']) ? $zz_tab[$tab]['sqlextra'] : []
 		);
 	} else {
 		$ops['record_old'][$index] = [];
