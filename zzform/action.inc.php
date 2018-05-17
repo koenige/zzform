@@ -843,6 +843,11 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 	}
 
 	foreach ($my_tab[$rec]['fields'] as $field) {
+		// write_onces
+		if ($field['type'] === 'write_once' AND !empty($my_tab[$rec]['existing'][$field['field_name']])) {
+			$values .= $my_tab[$rec]['existing'][$field['field_name']];
+			continue;
+		}
 		// check if something was posted and write it down in $values
 		// so we know later, if this record should be added
 		if (!isset($my_tab[$rec]['POST'][$field['field_name']])) continue;
