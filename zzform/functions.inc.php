@@ -2454,7 +2454,7 @@ function zz_error() {
 		$mail['message'] = html_entity_decode($mail['message'], ENT_QUOTES, $log_encoding);		
 		$mail['message'] .= "\n\n-- \nURL: ".$zz_conf['int']['url']['base']
 			.$_SERVER['REQUEST_URI']
-			."\nIP: ".$_SERVER['REMOTE_ADDR']
+			."\nIP: ".$zz_setting['remote_ip']
 			.(!empty($_SERVER['HTTP_USER_AGENT']) ? "\nBrowser: ".$_SERVER['HTTP_USER_AGENT'] : '');		
 		if ($zz_conf['user'])
 			$mail['message'] .= "\nUser: ".$zz_conf['user'];
