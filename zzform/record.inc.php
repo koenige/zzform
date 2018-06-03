@@ -1176,6 +1176,9 @@ function zz_record_add_details($field, $mode, $tab, $rec, $fieldkey) {
 		if (in_array($field['type'], [
 			'hidden', 'predefined', 'write_once', 'display'
 		])) return '';
+	} elseif ($mode === 'add' AND !empty($field['value'])) {
+		// $zz['add'] with 'value'
+		return '';
 	}
 	
 	if (!empty($_SESSION['logged_in'])) {
