@@ -2257,6 +2257,7 @@ function zz_backwards_rename($var, $var_renamed, $var_name) {
  */
 function zz_error() {
 	global $zz_conf;
+	global $zz_setting;
 	static $post_errors_logged;
 	
 	if (empty($zz_conf['error_handling'])) {
