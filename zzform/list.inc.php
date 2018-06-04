@@ -333,6 +333,8 @@ function zz_list_inline($fields, $lines) {
 				$foreign_key = !empty($subfield['key_field_name']) ? $subfield['key_field_name'] : $subfield['field_name'];
 			}
 			if (in_array($subfield['type'], ['id', 'foreign_key', 'timestamp'])) continue;
+			$fn = !empty($subfield['display_field']) ? $subfield['display_field'] : $subfield['field_name'];
+			$subfield['display_field'] = $field['table_name'].'.'.$fn;
 			$pos++;
 			array_splice($fields, $pos, 0, [$subfield]);
 		}
@@ -347,9 +349,11 @@ function zz_list_inline($fields, $lines) {
 		foreach ($field['fields'] as $subno => $subfield) {
 			if (in_array($subfield['type'], ['id', 'foreign_key', 'timestamp'])) continue;
 			$fn = !empty($subfield['display_field']) ? $subfield['display_field'] : $subfield['field_name'];
+			$fn_key = $field['table_name'].'.'.$fn;
 			foreach ($lines as $index => $line) {
 				if (empty($line)) continue;
-				if (!empty($lines[$index][$fn])) {
+				// @todo remove following 7 lines, table_name prefix should be unique
+				if (!empty($lines[$index][$fn_key])) {
 					zz_error_log([
 						'msg_dev' => 'Identical field name would be overwritten: %s',
 						'msg_dev_args' => $fn
@@ -358,9 +362,9 @@ function zz_list_inline($fields, $lines) {
 				}
 				if (!array_key_exists($line[$foreign_key], $additional_data)) {
 					// No detail record exists, still initialize field
-					$lines[$index][$fn] = '';
+					$lines[$index][$fn_key] = '';
 				} else {
-					$lines[$index][$fn] = $additional_data[$line[$foreign_key]][$fn];
+					$lines[$index][$fn_key] = $additional_data[$line[$foreign_key]][$fn];
 				}
 			}
 		}
