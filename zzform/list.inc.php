@@ -102,7 +102,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	if (!$count_rows) {
 		$zz_conf['int']['show_list'] = false;
 		if ($text = zz_text('table-empty')) {
-			$ops['output'].= '<p>'.$text.'</p>';
+			$ops['output'].= '<p class="emptytable">'.$text.'</p>';
 		}
 		if ($ops['mode'] === 'export') {
 			// return 404 not found page (HTML, no export format)
