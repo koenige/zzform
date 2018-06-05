@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2013, 2015-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2013, 2015-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -453,7 +453,11 @@ function zz_search_subtable($field, $table, $main_id_fieldname) {
 		}
 		break;
 	default:
-		$subsql = zz_search_sql($field['fields'], $field['sql'], $field['table'], $main_id_fieldname);
+		$sql = '';
+		if (!empty($field['sql'])) $sql = $field['sql'];
+		elseif (!empty($field['subselect']['sql'])) $sql = $field['subselect']['sql'];
+		else return false;
+		$subsql = zz_search_sql($field['fields'], $sql, $field['table'], $main_id_fieldname);
 		break;
 	}
 	$ids = zz_db_fetch($subsql, $foreign_key, '', 'Search query for subtable.', E_USER_WARNING);
