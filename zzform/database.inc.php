@@ -697,7 +697,11 @@ function zz_db_columns($db_table, $field = false) {
 		$columns[$db_table] = zz_db_fetch($sql, 'Field', false, false, E_USER_WARNING);
 		foreach ($columns[$db_table] as $index => $my_field) {
 			preg_match('/(.*int)\(\d+\) (.+signed)/', $my_field['Type'], $fieldtype);
-			if (empty($fieldtype[1]) OR empty($fieldtype[2])) continue;
+			if (empty($fieldtype[1]) OR empty($fieldtype[2])) {
+				preg_match('/(.*int)\(\d+\)/', $my_field['Type'], $fieldtype);
+				if (count($fieldtype) !== 2) continue;
+				$fieldtype[2] = 'signed';
+			}
 			$columns[$db_table][$index]['max_int_value'] = $max_integers[$fieldtype[1].'_'.$fieldtype[2]];
 		}
 	}
