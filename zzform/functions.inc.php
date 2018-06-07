@@ -3414,7 +3414,7 @@ function zz_check_values($post, $field_name, $value) {
 			if (!$index) continue;
 			$fields[$index] = trim($field, ']');
 		}
-		if (count($fields === 3)) {
+		if (count($fields) === 3) {
 			$post[$fields[0]][$fields[1]][$fields[2]] = $value;
 		}
 	} else {
