@@ -2407,7 +2407,7 @@ function zz_error() {
 		// reformat log output
 		if (!empty($zz_conf['error_log'][$level]) AND $zz_conf['log_errors']) {
 			$line = '['.date('d-M-Y H:i:s').'] zzform '.ucfirst($level)
-				.': ['.$_SERVER['REQUEST_URI'].'] '.preg_replace("/\s+/", " ", $log[$key]);
+				.': ['.$zz_setting['request_uri'].'] '.preg_replace("/\s+/", " ", $log[$key]);
 			$line = substr($line, 0, $zz_conf['log_errors_max_len'] - (strlen($username) + 1));
 			$line .= $username."\n";
 			error_log($line, 3, $zz_conf['error_log'][$level]);
@@ -2454,7 +2454,7 @@ function zz_error() {
 		$mail['message'] .= "\n\n".implode("\n\n", $message);
 		$mail['message'] = html_entity_decode($mail['message'], ENT_QUOTES, $log_encoding);		
 		$mail['message'] .= "\n\n-- \nURL: ".$zz_conf['int']['url']['base']
-			.$_SERVER['REQUEST_URI']
+			.$zz_setting['request_uri']
 			."\nIP: ".$zz_setting['remote_ip']
 			.(!empty($_SERVER['HTTP_USER_AGENT']) ? "\nBrowser: ".$_SERVER['HTTP_USER_AGENT'] : '');		
 		if ($zz_conf['user'])
