@@ -557,11 +557,34 @@ function zz_export_csv_body($rows, $zz_conf) {
 				$myfield = str_replace("<br>", "\n", $myfield);
 				$myfield = strip_tags($myfield);
 			}
-			if ($myfield)
-				$tablerow[] = $zz_conf['export_csv_enclosure'].$myfield
-					.$zz_conf['export_csv_enclosure'];
-			else
+			if ($myfield) {
+				$mask = false;
+				if ($zz_conf['list_display'] === 'csv-excel') {
+					if (preg_match('/^0[0-9]+$/', $myfield)) {
+					// - number with leading 0 = TEXT
+						$mask = true;
+					} elseif (preg_match('/^[0-9]*\.[0-9]+$/', $myfield) AND $zz_conf['decimal_point'] === ',') {
+					// - number with . while decimal separator is , = TEXT
+						$mask = true;
+					} elseif (preg_match('/^[1]*[0-9] [AaPp]$/', $myfield)) {
+					// 2 A will be converted to 02:00 AM
+						$mask = true;
+					} elseif (preg_match('/^\+[0-9.,]+$/', $myfield)) {
+					// +49000 will be converted to 49000 (e. g. phone numbers)
+						$mask = true;
+					}
+				}
+				if ($mask) {
+					$tablerow[] = $zz_conf['export_csv_enclosure'].'='
+					.str_repeat($zz_conf['export_csv_enclosure'], 2).$myfield
+					.str_repeat($zz_conf['export_csv_enclosure'], 3);
+				} else {
+					$tablerow[] = $zz_conf['export_csv_enclosure'].$myfield
+						.$zz_conf['export_csv_enclosure'];
+				}
+			} else {
 				$tablerow[] = false; // empty value
+			}
 		}
 		$output .= implode($zz_conf['export_csv_delimiter'], $tablerow)."\r\n";
 	}
