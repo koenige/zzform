@@ -90,8 +90,9 @@
  */
 function zz_upload_config() {
 	global $zz_conf;
-	static $calls;
-	if (!empty($calls)) return; // dont' call this twice;
+	// don't call this twice. use variable because static does not work
+	// with zzform_multi() 
+	if (!empty($zz_conf['upload_calls'])) return;
 
 	$default['backup'] 			= false;	//	backup uploaded files?
 	$default['backup_dir'] 		= $zz_conf['dir'].'/backup';	//	directory where backup will be put into
@@ -113,8 +114,10 @@ function zz_upload_config() {
 	$default['upload_tools']['ghostscript'] = false; // whether we can use gs library
 	$default['upload_log']		= '';
 
-	$max_filesize = ini_get('upload_max_filesize');
-	define('ZZ_UPLOAD_INI_MAXFILESIZE', wrap_return_bytes($max_filesize));
+	if (!defined('ZZ_UPLOAD_INI_MAXFILESIZE')) {
+		$max_filesize = ini_get('upload_max_filesize');
+		define('ZZ_UPLOAD_INI_MAXFILESIZE', wrap_return_bytes($max_filesize));
+	}
 	$default['upload_MAX_FILE_SIZE']	= ZZ_UPLOAD_INI_MAXFILESIZE;
 
 	// mimetypes, hardcoded in php
@@ -195,7 +198,7 @@ function zz_upload_config() {
 	$default['upload_remap_type_if_extension']['eps'] = 'ps';
 	
 	zz_write_conf($default);
-	$calls = 1;
+	$zz_conf['upload_calls'] = 1;
 }
 
 /*	----------------------------------------------	*
@@ -1442,6 +1445,8 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 		}
 		return false;
 	}
+
+	zz_upload_config();
 	if (in_array($image['upload']['filetype'], $zz_conf['upload_no_thumbnails'])) {
 		return false;
 	}
