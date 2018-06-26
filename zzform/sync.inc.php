@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2011-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2011-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -190,7 +190,7 @@ function zz_sync($import) {
 	$zz_setting['extra_http_headers'][] = "Content-Security-Policy: frame-ancestors 'self'";
 
 	if ($testing) {
-		$page['head'] = wrap_template('zzform-head', $zz_setting);
+		$page['head'] = wrap_template('zzform-head');
 	}
 	$page['query_strings'] = ['limit'];
 	$page['text'] = implode('<br>', $lines);
@@ -682,7 +682,7 @@ function zz_sync_deletable($import) {
 
 	$page['query_strings'] = ['deletable'];
 	$page['text'] = wrap_template('sync-deletable', $data);
-	$page['head'] = wrap_template('zzform-head', $zz_setting);
+	$page['head'] = wrap_template('zzform-head');
 	$page['title'] = 'Deletable records';
 	return $page;
 }
