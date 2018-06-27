@@ -1122,7 +1122,10 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			$out['separator'] .= $field['separator'];
 		if (!empty($field['separator_before']))
 			$out['separator_before'] .= $field['separator_before'];
-		if ($out AND !$append_next) $matrix[] = $out;
+		if ($out AND !$append_next) {
+			if ($field['type'] === 'id' AND $out['td']['content'] === '') continue;
+			$matrix[] = $out;
+		}
 	}
 	if ($formdisplay === 'inline') return $matrix;
 	$matrix = zz_record_sort_matrix($matrix);
