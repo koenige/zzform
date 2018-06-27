@@ -509,6 +509,8 @@ body #zzform .separator hr
 					{ margin-top: 2em; }
 .maintenance h2:first-child
 					{ margin-top: 0; }
+.maintenance .logentry
+					{ hyphens: auto; -ms-hyphens: auto; -webkit-hyphens: auto; }
 
 /* moretext for lists */
 
