@@ -1777,6 +1777,7 @@ function zz_check_rules($value, $validate) {
  */
 function zz_password_set($old, $new1, $new2, $sql, $field) {
 	global $zz_conf;
+	$zz_conf['error_log_post'] = false; // never log posted passwords
 	if ($new1 !== $new2) {
 		// new passwords do not match
 		zz_error_log([
