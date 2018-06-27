@@ -1769,7 +1769,11 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 		} else $text .= zz_field_will_add_auto($field);
 	}
 	if ($mark_italics) $text .= '</em>';
-	$hidden = zz_form_element($field['f_field_name'], $value, 'hidden', true);
+	if ($mode !== 'show') {
+		$hidden = zz_form_element($field['f_field_name'], $value, 'hidden', true);
+	} else {
+		$hidden = '';
+	}
 	return [$text, $hidden];
 }
 
@@ -1788,7 +1792,11 @@ function zz_field_timestamp($field, $record, $mode) {
 	else $value = '';
 
 	// return form element
-	$text = zz_form_element($field['f_field_name'], $value, 'hidden', true);
+	if ($mode !== 'show') {
+		$text = zz_form_element($field['f_field_name'], $value, 'hidden', true);
+	} else {
+		$text = '';
+	}
 	// + return text
 	if (!empty($record[$field['field_name']])) {
 		$text .= ($mode !== 'delete' ? '<em title="'.zz_text('Would be changed on update').'">' : '')
