@@ -1768,7 +1768,7 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 		} else $text .= zz_field_will_add_auto($field);
 	}
 	if ($mark_italics) $text = zz_record_mark_italics($text, $mode);
-	if ($mode !== 'show') {
+	if (!in_array($mode, ['delete', 'show'])) {
 		$hidden = zz_form_element($field['f_field_name'], $value, 'hidden', true);
 	} else {
 		$hidden = '';
@@ -1791,7 +1791,7 @@ function zz_field_timestamp($field, $record, $mode) {
 	else $value = '';
 
 	// return form element
-	if ($mode !== 'show') {
+	if (!in_array($mode, ['delete', 'show'])) {
 		$text = zz_form_element($field['f_field_name'], $value, 'hidden', true);
 	} else {
 		$text = '';
