@@ -937,7 +937,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 
 			switch ($field['type']) {
 			case 'id':
-				$outputf = zz_field_id($field, $my_rec['id']['value']);
+				$outputf = zz_field_id($field, $my_rec['id']['value'], $mode, $tab);
 				break;
 
 			case 'predefined':
@@ -1281,6 +1281,7 @@ function zz_output_field_rows($matrix, &$zz_var, $formdisplay, $extra_lastcol, $
 	case 'lines':
 		$output .= '<div>'; // important for JS!
 		foreach ($matrix as $index => $row) {
+			if (!$row['td']['content']) continue;
 			$output .= '<span'.zz_show_class($row['tr']['attr']).'>';
 			$output .=	"\t".'<span'.zz_show_class($row['td']['attr'])
 				.' title="'.strip_tags($row['th']['content']).'">'
@@ -1650,13 +1651,21 @@ function zz_field_will_add_auto($field) {
 /**
  * record output of field type 'id'
  *
+ * just show ID of main record, detail records only hidden
  * @param array $field
  * @param int $id_value
+ * @param string $mode
+ * @param int $tab
  * @return string
  */
-function zz_field_id($field, $id_value) {
+function zz_field_id($field, $id_value, $mode, $tab) {
 	if (!$id_value) return zz_field_will_add_auto($field);
-	return zz_form_element($field['f_field_name'], $id_value, 'hidden', true).$id_value;
+	$out = '';
+	if ($mode !== 'show') {
+		$out = zz_form_element($field['f_field_name'], $id_value, 'hidden', true);
+	}
+	if (!$tab) $out .= $id_value;
+	return $out;
 }
 
 /**
