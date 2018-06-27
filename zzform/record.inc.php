@@ -1686,7 +1686,7 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 	if (!empty($field['value'])) {
 		if ($record AND $field['value'] !== $record[$field['field_name']]) {
 			$display_value = $record[$field['field_name']];
-			if ($mode !== 'delete') $mark_italics = true;
+			$mark_italics = true;
 		}
 		$value = $field['value'];
 	} elseif ($record) {
@@ -1694,7 +1694,6 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 	}
 
 	$text = '';
-	if ($mark_italics) $text .= '<em title="'.zz_text('Would be changed on update').'">';
 	$field_type = zz_get_fieldtype($field);
 	if ($field_type === 'ip') {
 		// binary display will get mangled while transfering
@@ -1768,7 +1767,7 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 				$text .= $display_value;
 		} else $text .= zz_field_will_add_auto($field);
 	}
-	if ($mark_italics) $text .= '</em>';
+	if ($mark_italics) $text = zz_record_mark_italics($text, $mode);
 	if ($mode !== 'show') {
 		$hidden = zz_form_element($field['f_field_name'], $value, 'hidden', true);
 	} else {
@@ -1799,9 +1798,7 @@ function zz_field_timestamp($field, $record, $mode) {
 	}
 	// + return text
 	if (!empty($record[$field['field_name']])) {
-		$text .= ($mode !== 'delete' ? '<em title="'.zz_text('Would be changed on update').'">' : '')
-			.zz_timestamp_format($record[$field['field_name']])
-			.($mode !== 'delete' ? '</em>' : '');
+		$text .= zz_record_mark_italics(zz_timestamp_format($record[$field['field_name']]), $mode);
 	} else {
 		$text .= zz_field_will_add_auto($field);
 	}
@@ -3621,4 +3618,16 @@ function zz_field_concat($field, $values) {
 	}
 	$values = array_filter($values);
 	return implode($concat, $values);
+}
+
+/**
+ * mark record in italics if possible change on update
+ *
+ * @param string $out
+ * @param string $mode
+ * @return string
+ */
+function zz_record_mark_italics($out, $mode) {
+	if (in_array($mode, ['delete', 'show'])) return $out;
+	return sprintf('<em title="%s">%s</em>', zz_text('Would be changed on update'), $out);
 }
