@@ -104,7 +104,14 @@ function zz_imagick_identify($filename, $file) {
 
 	if (substr($result, -1) !== ' ') $result .= ' '; // for explode
 	$tokens = explode(' ~ ', $result);
-	$file['filetype'] = strtolower($tokens[0]);
+	
+	$ftype = strtolower($tokens[0]);
+	if (array_key_exists($ftype, array_keys($zz_conf['image_types']))) {
+		$file['filetype'] = $zz_conf['image_types'][$ftype]['filetype'];
+		$file['ext'] = $zz_conf['image_types'][$ftype]['ext'];
+		$file['mime'] = $zz_conf['image_types'][$ftype]['mime'];
+		$file['validated'] = true;
+	}
 
 	if (count($tokens) >= 3) {
 		// bug: XMP are said to be 1 x 1 px sRGB
@@ -121,7 +128,6 @@ function zz_imagick_identify($filename, $file) {
 			$file['ext'] = substr($file['name'], strrpos($file['name'], '.') +1);
 		}
 	}
-	$file['validated'] = true;
 	return zz_return($file);
 }
 
