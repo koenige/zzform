@@ -871,8 +871,12 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 				$values .= '';
 			}
 		} else {
-			if (is_array($fvalues)) {
-				$values .= serialize($fvalues);
+			if (is_array($fvalues) AND (!empty($field['set']) OR !empty($field['enum']))) {
+				if (count($fvalues) !== 1 OR !empty($fvalues[0])) {
+					$values .= json_encode($fvalues);
+				}
+			} elseif (is_array($fvalues)) {
+				$values .= json_encode($fvalues);
 			} else {
 				if (!empty($field['null']) AND $fvalues === '0') $fvalues .= 'null';
 				$values .= $fvalues;
