@@ -68,7 +68,7 @@ function zz_imagick_identify($filename, $file) {
 	$command = zz_imagick_findpath('identify');
 	// always check only first page if it's a multipage file (document, movie etc.)
 	$time = filemtime($filename);
-	$command = sprintf('%s -format "%%m ~ %%w ~ %%h ~ %%[opaque] ~ %%[colorspace] ~ %%[profile:icc]" "%s[0]"', $command, $filename);
+	$command = sprintf('%s -format "%%m ~ %%w ~ %%h ~ %%[opaque] ~ %%[colorspace] ~ %%[profile:icc] ~ %%z" "%s[0]"', $command, $filename);
 	list($output, $return_var) = zz_upload_exec($command, 'ImageMagick identify');
 	// identify has a bug at least with NEF images delegated to ufraw
 	// where it changes the file modification date and time to the current time
@@ -121,6 +121,7 @@ function zz_imagick_identify($filename, $file) {
 			$file['transparency'] = (isset($tokens[3]) AND $tokens[3] === 'False') ? true : false;
 			$file['colorspace'] = isset($tokens[4]) ? $tokens[4] : '';
 			$file['icc_profile'] = isset($tokens[5]) ? $tokens[5] : '';
+			$file['depth_bit'] = isset($tokens[6]) ? $tokens[6] : '';
 		}
 	}
 	if (empty($file['ext'])) {
