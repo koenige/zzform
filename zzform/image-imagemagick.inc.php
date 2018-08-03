@@ -106,10 +106,10 @@ function zz_imagick_identify($filename, $file) {
 	$tokens = explode(' ~ ', $result);
 	
 	$ftype = strtolower($tokens[0]);
-	if (array_key_exists($ftype, array_keys($zz_conf['image_types']))) {
-		$file['filetype'] = $zz_conf['image_types'][$ftype]['filetype'];
-		$file['ext'] = $zz_conf['image_types'][$ftype]['ext'];
-		$file['mime'] = $zz_conf['image_types'][$ftype]['mime'];
+	if (array_key_exists($ftype, $zz_conf['file_types'])) {
+		$file['filetype'] = $zz_conf['file_types'][$ftype]['filetype'];
+		$file['ext'] = reset($zz_conf['file_types'][$ftype]['extension']);
+		$file['mime'] = reset($zz_conf['file_types'][$ftype]['mime']);
 		$file['validated'] = true;
 	}
 
