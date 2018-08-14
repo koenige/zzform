@@ -570,9 +570,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 						? $my_rec['record'][$field['field_name']] : ' '.wrap_text('– empty –')
 				);
 				$my_rec['record'][$field['field_name']] = $my_rec['revision'][$field['field_name']];
-				if (!empty($field['class'])) $field['class'] .= ' ';
-				else $field['class'] = '';
-				$field['class'] .= 'reselect';
+				$field['class'][] = 'reselect';
 			} elseif ($field['type'] !== 'subtable') {
 				$field_display = 'show';
 			}
@@ -590,9 +588,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			zz_xhr_add('dependencies', $field);
 		}
 
-		// initalize class values
-		if (!isset($field['class'])) $field['class'] = [];
-		elseif (!is_array($field['class'])) $field['class'] = [$field['class']];
+		// add class values from record
 		if (isset($my_rec['class'])) $field['class'][] = $my_rec['class'];
 
 		// add classes

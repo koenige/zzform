@@ -1349,7 +1349,6 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 
 	// set 'class'
 	if (!isset($row['class'])) $row['class'] = [];
-	elseif (!is_array($row['class'])) $row['class'] = [$row['class']];
 	// if table row is affected by where, mark this
 	$where_table = !empty($zz_var['where'][$table]) ? $zz_var['where'][$table] : '';
 	// set class depending on where and field info
@@ -2459,10 +2458,7 @@ function zz_field_class($field, $values, $html = false) {
 				$class[] = 'where';
 	if (!empty($field['class'])) {
 		// we may go through this twice
-		if (is_array($field['class']))
-			$class = array_merge($class, $field['class']);
-		else
-			$class[] = $field['class'];
+		$class = array_merge($class, $field['class']);
 	}
 	// array_keys(array_flip()) is reported to be faster than array_unique()
 	$class = array_keys(array_flip($class));

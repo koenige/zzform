@@ -938,6 +938,8 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			$fields[$no]['title'] = str_replace('_', ' ', $fields[$no]['title']);
 			$fields[$no]['title'] = rtrim($fields[$no]['title']);
 		}
+		if (empty($fields[$no]['class'])) $fields[$no]['class'] = [];
+		elseif (!is_array($fields[$no]['class'])) $fields[$no]['class'] = [$fields[$no]['class']];
 
 		if (empty($fields[$no]['translated'])) {
 			// translate fieldnames, if set
@@ -953,11 +955,8 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			// makes no sense to export a form field
 			$fields[$no]['export'] = false;
 			// format option-fields with CSS
-			if (!empty($fields[$no]['class'])
-				AND $fields[$no]['class'] !== 'option') {
-				$fields[$no]['class'] .= ' option';
-			} else {
-				$fields[$no]['class'] = 'option';
+			if (!in_array('option', $fields[$no]['class'])) {
+				$fields[$no]['class'][] = 'option';
 			}
 		} elseif (in_array(zz_get_fieldtype($fields[$no]), ['time', 'datetime'])) {
 			if (empty($fields[$no]['time_format'])) {
@@ -3131,7 +3130,7 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 	if (!count($possible_values)) {
 		// no records, user must re-enter values
 		$my_rec['fields'][$f]['type'] = 'select';
-		$my_rec['fields'][$f]['class'] = 'reselect';
+		$my_rec['fields'][$f]['class'][] = 'reselect';
 		$my_rec['fields'][$f]['suffix'] = '<br>'
 			.zz_text('No entry found. Try less characters.');
 		$my_rec['fields'][$f]['mark_reselect'] = true;
@@ -3147,7 +3146,7 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 		// let user reselect value from dropdown select
 		$my_rec['fields'][$f]['type'] = 'select';
 		$my_rec['fields'][$f]['sql'] = $my_rec['fields'][$f]['sql_new'];
-		$my_rec['fields'][$f]['class'] = 'reselect';
+		$my_rec['fields'][$f]['class'][] = 'reselect';
 		if (!empty($my_rec['fields'][$f]['show_hierarchy'])) {
 			// since this is only a part of the list, hierarchy does not make sense
 			if (!isset($my_rec['fields'][$f]['sql_ignore'])) {
@@ -3164,13 +3163,13 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 	} elseif (count($possible_values)) {
 		// still too many records, require more characters
 		$my_rec['fields'][$f]['default'] = 'reselect';
-		$my_rec['fields'][$f]['class'] = 'reselect';
+		$my_rec['fields'][$f]['class'][] = 'reselect';
 		$my_rec['fields'][$f]['suffix'] = ' '.zz_text('Please enter more characters.');
 		$my_rec['fields'][$f]['mark_reselect'] = true;
 		$my_rec['validation'] = false;
 		$error = true;
 	} else {
-		$my_rec['fields'][$f]['class'] = 'error' ;
+		$my_rec['fields'][$f]['class'][] = 'error';
 		$my_rec['fields'][$f]['check_validation'] = false;
 		$my_rec['validation'] = false;
 		$error = true;

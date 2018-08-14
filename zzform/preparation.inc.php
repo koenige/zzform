@@ -637,11 +637,7 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 				}
 				foreach ($my_rec['fields'] as $index => $field) {
 					if ($field['field_name'] !== $my_tab['hierarchy']['display_in']) continue;
-					if (empty($my_rec['fields'][$index]['class']))	
-						$my_tab[$rec]['fields'][$index]['class'] = '';
-					else
-						$my_tab[$rec]['fields'][$index]['class'] .= ' ';
-					$my_tab[$rec]['fields'][$index]['class'] .= 'level'.(!empty($line['zz_level']) ? $line['zz_level'] : '0');
+					$my_tab[$rec]['fields'][$index]['class'][] = 'level'.(!empty($line['zz_level']) ? $line['zz_level'] : '0');
 				}
 			}
 		}
@@ -1167,11 +1163,7 @@ function zz_query_record($my_tab, $rec, $validation, $mode, $main_tab) {
 			if (!isset($field['check_validation']) 
 				OR $field['check_validation']) continue;
 			// append error to 'class'
-			if (isset($my_rec['fields'][$no]['class'])) {
-				$my_rec['fields'][$no]['class'].= ' error';
-			} else {
-				$my_rec['fields'][$no]['class'] = 'error';
-			}
+			$my_rec['fields'][$no]['class'][] = 'error';
 		}
 	}
 	// revision?
