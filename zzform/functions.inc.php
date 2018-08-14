@@ -958,6 +958,8 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			if (!in_array('option', $fields[$no]['class'])) {
 				$fields[$no]['class'][] = 'option';
 			}
+		} elseif ($fields[$no]['type'] === 'memo') {
+			$fields[$no]['class'][] = 'hyphenate';
 		} elseif (in_array(zz_get_fieldtype($fields[$no]), ['time', 'datetime'])) {
 			if (empty($fields[$no]['time_format'])) {
 				$fields[$no]['time_format'] = 'H:i';
