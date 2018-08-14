@@ -485,13 +485,8 @@ msgid "No records in relation table `%s`. Please fill in records."
 msgstr "Žádné záznamy v související tabulce `%s`. Prosím, doplňte."
 
 # Record form: Validation of Database Integrity, displayed above form
-msgid "Detail records exist in the following tables:"
-msgstr "Detailní záznamy jsou v těchto tabulkách:"
-
-# Record form: Validation of Database Integrity, displayed above form
 msgid ""
-"This record could not be deleted because there are details about this record "
-"in other records."
+"This record could not be deleted because it has other data associated with it."
 msgstr ""
 "Tento příspěvek nemůže být vymazán, protože je vázán na ostatní záznamy."
 

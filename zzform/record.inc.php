@@ -142,7 +142,7 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 			}
 			zz_error_log([
 				'msg' => [
-					'This record could not be deleted because there are details about this record in other records.',
+					'This record could not be deleted because it has other data associated with it.',
 					$zz_tab[0]['integrity']['msg'], "\n%s"],
 				'msg_args' => [$tmp_error_msg]
 			]);

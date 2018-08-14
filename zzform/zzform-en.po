@@ -492,13 +492,8 @@ msgid "No records in relation table `%s`. Please fill in records."
 msgstr ""
 
 # Record form: Validation of Database Integrity, displayed above form
-msgid "Detail records exist in the following tables:"
-msgstr ""
-
-# Record form: Validation of Database Integrity, displayed above form
 msgid ""
-"This record could not be deleted because there are details about this record "
-"in other records."
+"This record could not be deleted because it has other data associated with it."
 msgstr ""
 
 # Record form: foreign record

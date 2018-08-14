@@ -1925,7 +1925,7 @@ function zz_integrity_check($deletable_ids, $relations) {
 		if ($response['msg_args']) {
 			// we still have detail records
 			$response['msg_args'] = array_values($response['msg_args']);
-			$response['msg'] = 'Detail records exist in the following tables:';
+			$response['msg'] = '';
 		}
 		return $response;
 	} else {
