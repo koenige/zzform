@@ -83,8 +83,10 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			// get record IDs of dependent records which have 'delete' set
 			// in table relations
 			$dependent_ids = zz_integrity_dependent_record_ids($zz_tab, $relations);
+			// work with array_merge_recursive even if there are duplicate IDs
+			// zz_array_merge() would overwrite IDs
 			$zz_tab[0]['integrity'] = zz_integrity_check(
-				zz_array_merge($record_ids, $dependent_ids), $relations
+				array_merge_recursive($record_ids, $dependent_ids), $relations
 			);
 			// return database errors
 			if (zz_error_exit())
