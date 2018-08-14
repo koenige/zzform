@@ -635,7 +635,7 @@ function zz_nice_tablenames($table) {
 	global $zz_conf;
 	// get it from config
 	if (!empty($zz_conf['nice_tablename'][$table])) {
-		$table = $zz_conf['nice_tablename'][$table];
+		$table = wrap_text($zz_conf['nice_tablename'][$table]);
 		return $table;
 	}
 	// or format it here
@@ -653,7 +653,7 @@ function zz_nice_tablenames($table) {
 	$table = explode('_', $table);
 	foreach (array_keys($table) as $id) $table[$id] = ucfirst($table[$id]);
 	$table = implode('/', $table);
-	return $table;
+	return wrap_text($table);
 }
 
 /**
