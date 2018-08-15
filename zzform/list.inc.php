@@ -2061,7 +2061,7 @@ function zz_list_pagelink($start, $limit, $limit_step, $url, $pos = '') {
 }
 
 /**
- * Adds ORDER BY to SQL string, if set via URL
+ * adds ORDER BY to SQL string, if set via URL
  * checks URL parameter for vaildity as well
  *
  * @param array $fields
@@ -2090,32 +2090,25 @@ function zz_sql_order($fields, $sql) {
 	if (!isset($_GET['order']) AND !isset($_GET['group'])) return $sql;
 
 	$order = [];
-	$get_order_used = false;
-	$get_group_used = false;
+	$types = ['order', 'group'];
+	foreach ($types as $type) {
+		$get_used[$type] = false;
+	}
 	foreach ($fields as $field) {
 		if (!empty($field['dont_sort'])) continue;
-		if (!empty($_GET['order'])
-			AND ((isset($field['display_field']) && $field['display_field'] === $_GET['order'])
-			OR (isset($field['field_name']) && $field['field_name'] === $_GET['order']))
-		) {
-			if (isset($field['order'])) $order[] = $field['order'].$my_order;
-			else $order[] = $_GET['order'].$my_order;
-			$get_order_used = true;
-		}
-		if (!empty($_GET['group'])
-			AND ((isset($field['display_field']) && $field['display_field'] === $_GET['group'])
-			OR (isset($field['field_name']) && $field['field_name'] === $_GET['group']))
-		) {
-			if (isset($field['order'])) $order[] = $field['order'].$my_order;
-			else $order[] = $_GET['group'].$my_order;
-			$get_group_used = true;
+		foreach ($types as $type) {
+			$sort = zz_sql_order_check($field, $type);
+			if (!$sort) continue;
+			$get_used[$type] = true;
+			$order[] = $sort.$my_order;
 		}
 	}
 	
 	// check variables if valid
 	$unwanted_keys = [];
-	if (isset($_GET['order']) AND !$get_order_used) $unwanted_keys[] = 'order';
-	if (isset($_GET['group']) AND !$get_group_used) $unwanted_keys[] = 'group';
+	foreach ($types as $type) {
+		if (isset($_GET[$type]) AND !$get_used[$type]) $unwanted_keys[] = $type;
+	}
 	if ($unwanted_keys) {
 		$zz_conf['int']['http_status'] = 404;
 		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string(
@@ -2127,6 +2120,23 @@ function zz_sql_order($fields, $sql) {
 	$zz_conf['int']['order'] = $order;
 	$sql = wrap_edit_sql($sql, 'ORDER BY', implode(',', $order), 'add');
 	return $sql;
+}
+
+/**
+ * check sorting field against field name or display field name, return order by
+ *
+ * @param array $field
+ * @param string $type
+ * @return string
+ */
+function zz_sql_order_check($field, $type) {
+	if (empty($_GET[$type])) return '';
+	if (isset($field['display_field']) AND $field['display_field'] === $_GET[$type]) $found = true;
+	elseif (isset($field['field_name']) AND $field['field_name'] === $_GET[$type]) $found = true;
+	else return '';
+
+	if (isset($field['order'])) return $field['order'];
+	return $_GET[$type];
 }
 
 /**
