@@ -270,8 +270,8 @@ function zz_export($ops, $zz, $zz_var) {
 	case 'csv':
 	case 'csv-excel':
 		$output = '';
-		$output .= zz_export_csv_head($ops['output']['head'], $zz_conf);
-		$output .= zz_export_csv_body($ops['output']['rows'], $zz_conf);
+		$output .= zz_export_csv_head($ops['output']['head']);
+		$output .= zz_export_csv_body($ops['output']['rows']);
 		if ($zz_conf['list_display'] === 'csv-excel') {
 			// @todo check with mb_list_encodings() if available
 			$output = mb_convert_encoding($output, 'UTF-16LE', $zz_conf['character_set']);
@@ -510,11 +510,13 @@ function zz_export_script($type) {
  * outputs data as CSV (head)
  *
  * @param array $main_rows main rows (without subtables)
- * @param array $zz_conf configuration
+ * @global array $zz_conf configuration
  *		'export_csv_enclosure', 'export_csv_delimiter'
  * @return string CSV output, head
  */
-function zz_export_csv_head($main_rows, $zz_conf) {
+function zz_export_csv_head($main_rows) {
+	global $zz_conf;
+
 	$output = '';
 	$tablerow = false;
 	$continue_next = false;
@@ -532,11 +534,14 @@ function zz_export_csv_head($main_rows, $zz_conf) {
  * outputs data as CSV (body)
  *
  * @param array $rows data in rows
- * @param array $zz_conf configuration
- *		'export_csv_enclosure', 'export_csv_delimiter'
+ * @global array $zz_conf configuration
+ *		'export_csv_enclosure', 'export_csv_delimiter', 'character_set',
+ *		'list_display', 'decimal_point'
  * @return string CSV output, data
  */
-function zz_export_csv_body($rows, $zz_conf) {
+function zz_export_csv_body($rows) {
+	global $zz_conf;
+
 	$output = '';
 	foreach ($rows as $index => $row) {
 		$tablerow = false;
