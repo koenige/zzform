@@ -2094,10 +2094,11 @@ function zz_sql_order($fields, $sql) {
 	foreach ($types as $type) {
 		$get_used[$type] = false;
 	}
-	foreach ($fields as $field) {
-		if (!empty($field['dont_sort'])) continue;
-		foreach ($types as $type) {
-			$sort = zz_sql_order_check($field, $type);
+	foreach ($types as $type) {
+		if (empty($_GET[$type])) continue;
+		foreach ($fields as $field) {
+			if (!empty($field['dont_sort'])) continue;
+			$sort = zz_sql_order_check($field, $type, $_GET[$type]);
 			if (!$sort) continue;
 			$get_used[$type] = true;
 			$order[] = $sort.$my_order;
@@ -2127,13 +2128,17 @@ function zz_sql_order($fields, $sql) {
  *
  * @param array $field
  * @param string $type
+ * @param string $field_name (from $_GET['order'] or $_GET['group'])
  * @return string
  */
-function zz_sql_order_check($field, $type) {
-	if (empty($_GET[$type])) return '';
-	if (isset($field['display_field']) AND $field['display_field'] === $_GET[$type]) $found = true;
-	elseif (isset($field['field_name']) AND $field['field_name'] === $_GET[$type]) $found = true;
-	else return '';
+function zz_sql_order_check($field, $type, $field_name) {
+	if (isset($field['display_field']) AND $field['display_field'] === $field_name) {
+		$found = true;
+	} elseif (isset($field['field_name']) AND $field['field_name'] === $field_name) {
+		$found = true;
+	} else {
+		return '';
+	}
 
 	if (isset($field['order'])) return $field['order'];
 	return $_GET[$type];
