@@ -2136,6 +2136,18 @@ function zz_sql_order_check($field, $type, $field_name) {
 		$found = true;
 	} elseif (isset($field['field_name']) AND $field['field_name'] === $field_name) {
 		$found = true;
+	} elseif ($field['type'] === 'subtable') {
+		if (empty($field['list_display'])) return '';
+		if ($field['list_display'] !== 'inline') return '';
+		if (!strstr($field_name, '.')) return '';
+		list($detail_table, $detail_field_name) = explode('.', $field_name);
+		if ($detail_table !== $field['table']) return '';
+		if (empty($field['fields'])) return '';
+		foreach ($field['fields'] as $detailfield) {
+			$sort = zz_sql_order_check($detailfield, $type, $detail_field_name);
+			if ($sort) return $sort;
+		}
+		return '';
 	} else {
 		return '';
 	}
