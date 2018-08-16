@@ -1029,7 +1029,7 @@ function zz_upload_error_with_file($filename, $file, $return = []) {
 	if (empty($return['error_msg'])) {
 		$return['error_msg'] = 'Action `%s` returned no file.';
 		$return['msg_dev_args'][] = $file['action'];
-	} else {
+	} elseif (!empty($file['action'])) { // e. g. if filetype unknown
 		$return['error_msg'] .= "\r\nAction: %s";
 		$return['msg_dev_args'][] = $file['action'];
 	}
@@ -1046,11 +1046,13 @@ function zz_upload_error_with_file($filename, $file, $return = []) {
 		$return['error_msg'] .= "\r\nExit status: %s";
 		$return['msg_dev_args'][] = $return['exit_status'];
 	}
-	$err_upload = $file['upload'];
-	unset($err_upload['exif']); // too much information for log
-	unset($err_upload['exiftool']); // too much information for log
-	$return['error_msg'] .= "\r\n%s";
-	$return['msg_dev_args'][] = var_export($err_upload, true);
+	if (!empty($file['upload'])) { // e. g. if filetype unknown
+		$err_upload = $file['upload'];
+		unset($err_upload['exif']); // too much information for log
+		unset($err_upload['exiftool']); // too much information for log
+		$return['error_msg'] .= "\r\n%s";
+		$return['msg_dev_args'][] = var_export($err_upload, true);
+	}
 	if ($error_filename) {
 		$return['error_msg'] .= "\r\nThe source file was temporarily saved under: %s";
 		$return['msg_dev_args'][] = $error_filename;
