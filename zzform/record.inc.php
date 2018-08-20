@@ -62,6 +62,7 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 				} else {
 					$formhead = sprintf(zz_text('%d records were deleted'), $records);
 				}
+				$action_before_redirect = '';
 			} else {
 				$formhead = zz_text('record_was_deleted');
 			}
