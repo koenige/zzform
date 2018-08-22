@@ -289,6 +289,25 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 
 	foreach ($zz['conditions'] AS $index => $condition) {
 		switch ($condition['scope']) {
+		case 'editing':
+			// get value
+			$value = '';
+			if (!empty($zz['where']) AND array_key_exists($condition['field_name'], $zz['where'])) {
+				$value = $zz['where'][$condition['field_name']];
+			} elseif (!empty($zz_var['where_condition']) AND array_key_exists($condition['field_name'], $zz_var['where_condition'])) {
+				$value = $zz_var['where_condition'][$condition['field_name']];
+			} elseif (!empty($_POST) AND array_key_exists($condition['field_name'], $_POST)) {
+				$value = $_POST[$condition['field_name']];
+			}
+			if (!$value) {
+				$zz_conditions['bool'][$index] = false;
+				break;
+			}
+			$sql = sprintf($condition['sql'], $value);
+			// get false or true
+			$bool = zz_db_fetch($sql, '', 'single value');
+			$zz_conditions['bool'][$index] = $bool ? true : false;
+			break;
 		case 'record': // for form view (of saved records), list view comes later in zz_list() because requery of record 
 			$zz_conditions['bool'][$index] = [];
 			if (($mode === 'add' OR $zz_var['action'] === 'insert') AND !empty($condition['add'])) {
