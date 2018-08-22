@@ -1304,7 +1304,12 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 	if (!$image) return [];
 
 	$tn = zz_upload_create_thumbnails($source_filename, $image, $my_rec, $no, $img);
-	if ($tn === -1) {
+	if ($tn === -2) {
+		// there should be an extension, but none was selected,
+		// so do not create new and delete existing thumbnails
+		$image['delete_thumbnail'] = true;
+
+	} elseif ($tn === -1) {
 		// an error occured
 		$image['no_file_upload'] = true;
 		$image['files']['tmp_file'] = false; // do not upload anything
@@ -1430,7 +1435,8 @@ function zz_upload_prepare_source_file($image, $my_rec, $zz_tab, $tab, $rec) {
  * @param int $no
  * @param int $img
  * @global array $zz_conf
- * @return mixed $modified (false: does not apply; -1: error; array: success)
+ * @return mixed $modified (false: does not apply; -1: error; 
+ *		-2: there should be an extension but none was selected, array: success)
  */
 function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 	global $zz_conf;
@@ -1452,6 +1458,13 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 	if (in_array($image['upload']['filetype'], $zz_conf['upload_no_thumbnails'])) {
 		return false;
 	}
+
+	$dest_extension = zz_upload_extension($image['path'], $my_rec);
+	if ($dest_extension === -1) {
+		$dest_extension = false;
+		if (!empty($image['no_action_unless_thumb_extension'])) return -2;
+	}
+
 	if ($zz_conf['upload_background_thumbnails'] AND empty($image['create_in_background'])) {
 		$zz_conf['int']['upload_background_thumbnails'][] = [
 			'no' => $no, 'img' => $img
@@ -1460,7 +1473,6 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 	}
 	
 	// set destination filetype
-	$dest_extension = zz_upload_extension($image['path'], $my_rec);
 	if (!$dest_extension) {
 		$dest_extension = strtolower($image['upload']['ext']);
 		// map files to extensions, e. g. TIFF to PNG
@@ -1695,7 +1707,7 @@ function zz_upload_extension($path, &$my_rec) {
 		// probably due to extension from field which has not been filled yet
 		// does not matter, that means that filetype for destination
 		// file remains the same.
-		return false;		
+		return -1;		
 	}
 	zz_error_log([
 		'msg_dev' => 'Error. Could not determine file ending',
@@ -2127,7 +2139,7 @@ function zz_upload_action($zz_tab) {
 							$old_path = preg_replace('/^('.$folder['old_e'].')/', $folder['new'], $old_path);
 					}
 				}
-				if ($path != $old_path) {
+				if ($path != $old_path AND empty($image['delete_thumbnail'])) {
 					// save paths: not necessary maybe, but in case ...
 					$image['files']['update']['path'] = $path;
 					$image['files']['update']['old_path'] = $old_path;
