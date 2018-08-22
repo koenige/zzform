@@ -1655,25 +1655,23 @@ function zz_upload_extension($path, &$my_rec) {
 	foreach ($path as $key => $value) {
 		if ($key === 'root') continue;
 		if (substr($key, 0, 3) === 'web') continue;
+		$path_value = $value;
+		$path_key = $key;
+		// just use last field, overwrite until last
+		// unless it's an extension
 		if ($key === 'extension') {
 			// definite field
-			$path_key = 'field';
-			$path_value = $value;
 			break;
-		} else {
-			// just use last field, overwrite until last
-			$path_key = $key;
-			$path_value = $value;
 		}
 	}
 	if (!$path_value) return false;
 
 	if (substr($path_key, 0, 6) === 'string') {
 		if (strstr($path_value, '.'))
-			return substr($path_value, strrpos($path_value, '.')+1);
+			return substr($path_value, strrpos($path_value, '.') + 1);
 		else
 			return $path_value;
-	} elseif (substr($path_key, 0, 5) === 'field') {
+	} elseif ($path_key === 'extension' OR substr($path_key, 0, 5) === 'field') {
 		$content = isset($my_rec['POST'][$path_value]) ? $my_rec['POST'][$path_value] : '';
 		if (strstr($content, '.'))
 			$extension = substr($content, strrpos($content, '.')+1);
@@ -1689,15 +1687,15 @@ function zz_upload_extension($path, &$my_rec) {
 			$sql = $my_rec['fields'][$no]['path_sql'];
 			if ($id_value = $my_rec['POST'][$my_rec['fields'][$no]['field_name']]) {
 				$extension = zz_db_fetch($sql.$id_value, '', 'single value');
-				if (!$extension) $extension = false;
-			} else {
-				$extension = false; // no extension could be found,
-				// probably due to extension from field which has not been filled yet
-				// does not matter, that means that filetype for destination
-				// file remains the same.
 			}
 		}
-		return $extension;
+		if (!empty($extension)) return $extension;
+	
+		// no extension could be found,
+		// probably due to extension from field which has not been filled yet
+		// does not matter, that means that filetype for destination
+		// file remains the same.
+		return false;		
 	}
 	zz_error_log([
 		'msg_dev' => 'Error. Could not determine file ending',
