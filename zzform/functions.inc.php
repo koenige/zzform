@@ -3177,9 +3177,14 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 		$error = true;
 	}
 	if ($error AND $zz_conf['multi']) {
+		if (count($possible_values) > 1) {
+			$errormsg = 'Multiple records matching (maybe set "ids" for zzform_multi?)';
+		} else {
+			$errormsg = 'No entry found';
+		}
 		zz_error_log([
-			'msg_dev' => 'No entry found: value %s in field %s. <br>SQL: %s',
-			'msg_dev_args' => [$my_rec['POST'][$field_name], $field_name, $my_rec['fields'][$f]['sql_new']]
+			'msg_dev' => '%s: value %s in field %s. <br>SQL: %s',
+			'msg_dev_args' => [$errormsg, $my_rec['POST'][$field_name], $field_name, $my_rec['fields'][$f]['sql_new']]
 		]);
 	}
 	return zz_return($my_rec);
