@@ -211,20 +211,8 @@ div.text #zzform, #zzform div.text
 #zzform optgroup	{ font-style: normal; font-weight: bold; }
 /* hierarchical options */
 #zzform option.level0 { font-weight: bold; }
-#zzform option.level1 { padding-left: 2em; }
-#zzform option.level2 { color: #339; padding-left: 4em; }
-#zzform option.level3 { font-style: italic; padding-left: 6em; }
-#zzform option.level4 { padding-left: 8em; }
-#zzform option.level5 { padding-left: 10em; }
-#zzform option.level6 { padding-left: 12em; }
-@media screen and (max-width: 640px) {
-	#zzform option.level1 { padding-left: 1.5em; }
-	#zzform option.level2 { padding-left: 3em; }
-	#zzform option.level3 { padding-left: 4.5em; }
-	#zzform option.level4 { padding-left: 6em; }
-	#zzform option.level5 { padding-left: 7.5em; }
-	#zzform option.level6 { padding-left: 9em; }
-}
+#zzform option.level2 { color: #339; }
+#zzform option.level3 { font-style: italic; }
 
 #zzform input.sub-add { float: left; clear: left; margin-top: 0; }
 #zzform input.sub-remove-horizontal, #zzform input.sub-remove-vertical
