@@ -1411,6 +1411,8 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				// if it's the same value as in database, ok. it's already in binary form
 				if ($my_rec['existing'][$field_name] === $my_rec['POST'][$field_name]) break;
 			}
+			// don't convert it twice (hooks!)
+			if (@inet_ntop($my_rec['POST'][$field_name])) break;
 			$my_rec['POST'][$field_name] = @inet_pton($my_rec['POST'][$field_name]);
 			if (!$my_rec['POST'][$field_name]) {
 				$my_rec['fields'][$f]['check_validation'] = false;
