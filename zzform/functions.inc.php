@@ -1453,9 +1453,10 @@ function zz_record_access($zz, $ops, $zz_var) {
 			$zz_conf['int']['list_access'][$var] = $zz_conf[$var];
 		}
 		// overwrite new variables
-		zz_conditions_merge_conf($zz_conf, $zz_conditions['bool'], $zz_var['id']['value']);
+		if (!empty($zz_conditions['bool'])) {
+			zz_conditions_merge_conf($zz_conf, $zz_conditions['bool'], $zz_var['id']['value']);
+		}
 	}
-
 
 	// set (and overwrite if necessary) access variables, i. e.
 	// $zz_conf['add'], $zz_conf['edit'], $zz_conf['delete']

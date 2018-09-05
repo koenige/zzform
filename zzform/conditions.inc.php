@@ -37,8 +37,6 @@
  *		replace $zz['fields'][n]['if']['where'] with index; add $zz['conditions']
  */
 function zz_conditions_set($zz) {
-	if (!isset($zz['conditions'])) $zz['conditions'] = [];
-	
 	// use negative values for indices
 	$new_index = -1;
 

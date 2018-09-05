@@ -463,6 +463,8 @@ function zz_defaults($zz) {
 		$zz['title'] = NULL;
 	if (!isset($zz['explanation']))
 		$zz['explanation'] = '';
+	if (!isset($zz['conditions']))
+		$zz['conditions'] = [];
 	
 	// check hooks if they are arrays
 	if (!empty($zz['hooks'])) {
