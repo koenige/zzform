@@ -917,15 +917,6 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			// default type: text
 			$fields[$no]['type'] = 'text';
 		}
-		if ($fields[$no]['type'] === 'write_once' AND empty($fields[$no]['type_detail'])) {
-			$fields[$no]['type_detail'] = 'text';
-		}
-		if ($fields[$no]['type'] === 'id') {
-			// set dont_sort as a default for ID columns
-			if (!isset($fields[$no]['dont_sort'])) $fields[$no]['dont_sort'] = true;
-			// hide empty ID fields on add
-			if ($mode === 'add') $fields[$no]['hide_in_form'] = true;
-		}
 		if (!isset($fields[$no]['title'])) { // create title
 			if (!isset($fields[$no]['field_name'])) {
 				wrap_error(sprintf('zzform field definition incorrect: [Table %s, No. %d] %s',
@@ -949,7 +940,28 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			}
 			$fields[$no]['translated'] = true;
 		}
-		if ($fields[$no]['type'] === 'option') {
+
+		if (!isset($fields[$no]['explanation'])) {
+			$fields[$no]['explanation'] = false;
+		}
+		if (!$multiple_times) {
+			if (!empty($fields[$no]['sql'])) // replace whitespace with space
+				$fields[$no]['sql'] = preg_replace("/\s+/", " ", $fields[$no]['sql']);
+		}
+
+		// settings depending on field type
+		switch ($fields[$no]['type']) {
+		case 'write_once':
+			if (empty($fields[$no]['type_detail']))
+				$fields[$no]['type_detail'] = 'text';
+			break;
+		case 'id':
+			// set dont_sort as a default for ID columns
+			if (!isset($fields[$no]['dont_sort'])) $fields[$no]['dont_sort'] = true;
+			// hide empty ID fields on add
+			if ($mode === 'add') $fields[$no]['hide_in_form'] = true;
+			break;
+		case 'option':
 			// do not show option-fields in tab
 			$fields[$no]['hide_in_list'] = true;
 			// makes no sense to export a form field
@@ -958,22 +970,11 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			if (!in_array('option', $fields[$no]['class'])) {
 				$fields[$no]['class'][] = 'option';
 			}
-		} elseif ($fields[$no]['type'] === 'memo') {
+			break;
+		case 'memo':
 			$fields[$no]['class'][] = 'hyphenate';
-		} elseif (in_array(zz_get_fieldtype($fields[$no]), ['time', 'datetime'])) {
-			if (empty($fields[$no]['time_format'])) {
-				$fields[$no]['time_format'] = 'H:i';
-			}
-		}
-		// initialize
-		if (!isset($fields[$no]['explanation'])) {
-			$fields[$no]['explanation'] = false;
-		}
-		if (!$multiple_times) {
-			if (!empty($fields[$no]['sql'])) // replace whitespace with space
-				$fields[$no]['sql'] = preg_replace("/\s+/", " ", $fields[$no]['sql']);
-		}
-		if ($fields[$no]['type'] === 'subtable') {
+			break;
+		case 'subtable':
 			if (empty($fields[$no]['subselect']) AND !isset($fields[$no]['export'])) {
 				// subtables have no output by default unless there is a subselect
 				// definition; however in rare cases (e. g. with a condition set)
@@ -990,6 +991,12 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 				$fields[$no]['fields'], $fields[$no]['table'], $multiple_times,
 				$mode, $action, $no
 			);
+			break;
+		}
+		if (in_array(zz_get_fieldtype($fields[$no]), ['time', 'datetime'])) {
+			if (empty($fields[$no]['time_format'])) {
+				$fields[$no]['time_format'] = 'H:i';
+			}
 		}
 
 		if (in_array($mode, ['add', 'edit', 'revise']) OR in_array($action, ['insert', 'update'])) {
