@@ -992,6 +992,16 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 				$mode, $action, $no
 			);
 			break;
+		case 'translation_key':
+		case 'foreign_key':
+			// these do not exist in main record
+			if ($subtable_no) break;
+			if (!empty($fields[$no]['type_detail'])) {
+				$fields[$no]['type'] = $fields[$no]['type_detail'];
+			} else {
+				$fields[$no]['type'] = 'number';
+			}
+			break;
 		}
 		if (in_array(zz_get_fieldtype($fields[$no]), ['time', 'datetime'])) {
 			if (empty($fields[$no]['time_format'])) {
