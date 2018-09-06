@@ -619,6 +619,11 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 			// set values, rewrite POST-Array
 			$my_tab = zz_set_values($my_tab, $rec, $zz_var);
 		}
+	} elseif ($zz_var['action'] AND !empty($field['form_display']) AND $field['form_display'] === 'set') {
+		// here, we might need an empty record if field is required (min_records_required = 1)
+		$my_tab[0] = $rec_tpl;
+		$my_tab[0]['save_record'] = '';
+		$my_tab[0]['id']['value'] = '';
 	}
 	if ($my_tab['hierarchy']) {
 		foreach ($my_lines as $line) {
@@ -1232,10 +1237,10 @@ function zz_log_validation_errors($my_rec, $validation) {
 		// just look for check_validation set but false
 		if (!isset($field['check_validation'])) continue;
 		if ($field['check_validation']) continue;
-		if (is_string($my_rec['record'][$field['field_name']])) {
+		if (!empty($my_rec['record'][$field['field_name']]) AND is_string($my_rec['record'][$field['field_name']])) {
 			$my_rec['record'][$field['field_name']] = trim($my_rec['record'][$field['field_name']]);
 		}
-		if ($my_rec['record'][$field['field_name']]) {
+		if (!empty($my_rec['record'][$field['field_name']])) {
 			// there's a value, so this is an incorrect value
 			if (!empty($field['error_msg'])) {
 				$error = $field['error_msg'];
