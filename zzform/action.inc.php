@@ -128,12 +128,15 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 				zz_error_validation_log('msg_args', $my_tab['min_records_required']);
 				zz_error_validation_log('log_post_data', true);
 			}
-			foreach ($zz_tab[$tab][$rec]['fields'] as $no => $field) {
-				if (empty($field['type'])) continue;
-				if (in_array($field['type'], ['foreign_key', 'id', 'timestamp'])) continue;
-				if (empty($field['required'])) continue;
-				if (!empty($zz_tab[$tab][$rec]['POST'][$field['field_name']])) continue;
-				$zz_tab[$tab][$rec]['fields'][$no]['check_validation'] = false;
+			foreach (array_keys($my_tab) as $rec) {
+				if (!is_numeric($rec)) continue;
+				foreach ($zz_tab[$tab][$rec]['fields'] as $no => $field) {
+					if (empty($field['type'])) continue;
+					if (in_array($field['type'], ['foreign_key', 'id', 'timestamp'])) continue;
+					if (empty($field['required'])) continue;
+					if (!empty($zz_tab[$tab][$rec]['POST'][$field['field_name']])) continue;
+					$zz_tab[$tab][$rec]['fields'][$no]['check_validation'] = false;
+				}
 			}
 			$validation = false;
 		}
