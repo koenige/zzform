@@ -4,14 +4,14 @@
  * zzform
  * Translations
  *
- * Part of »Zugzwang Project«
+ * Part of Â»Zugzwang ProjectÂ«
  * http://www.zugzwang.org/projects/zzform
  *
  *	main functions (in order in which they are called)
  *	zz_translations_init()		checks whether fields should be translated
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2013, 2016-2018 Gustaf Mossakowski
+ * @copyright Copyright Â© 2009-2013, 2016-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -36,6 +36,7 @@ function zz_translations_config() {
  */
 function zz_translations_init($table, $fields) {
 	global $zz_conf;
+	global $zz_setting;
 
 	if (!$zz_conf['translations_of_fields']) return $fields;
 	if (!$zz_conf['translations_table']) {
@@ -45,6 +46,7 @@ function zz_translations_init($table, $fields) {
 		]);
 		return zz_error();
 	}
+	if (count($zz_setting['languages_allowed']) === 1) return $fields;
 
 	// Step 1: get fields which might be translated
 	$sql = 'SELECT translationfield_id, field_name, field_type
