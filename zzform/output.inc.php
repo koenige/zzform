@@ -1003,6 +1003,7 @@ function zz_time_format($value, $field) {
 function zz_datetime_format($value, $field) {
 	if (!$value) return $value;
 	if (!strstr($value, ' ')) return $value;
+	if (array_key_exists('check_validation', $field) AND !$field['check_validation']) return $value;
 	$text = explode(' ', $value);
 	$text = zz_date_format($text[0]).' '.zz_time_format($text[1], $field);
 	return $text;
