@@ -2243,6 +2243,17 @@ function zz_field_set($field, $fields, $display, $my_tab, $zz_var = []) {
 		$field_names[$my_field['type']] = $my_field['field_name'];
 		if ($my_field['type'] === 'select') {
 			$sets = zz_field_query($my_field);
+			if (!empty($my_field['show_hierarchy_subtree'])) {
+				foreach ($sets as $index => $set) {
+					if ($set[$my_field['show_hierarchy']] === $my_field['show_hierarchy_subtree']) continue;
+					unset($sets[$index]);
+				}
+			}
+			if (!empty($my_field['show_hierarchy'])) {
+				foreach ($sets as $index => $set) {
+					unset($sets[$index][$my_field['show_hierarchy']]);
+				}
+			}
 			if (!empty($my_field['group'])) $group = $my_field['group'];
 			$this_field = $my_field;
 		}
