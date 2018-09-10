@@ -2254,6 +2254,7 @@ function zz_field_set($field, $fields, $display, $my_tab, $zz_var = []) {
 					unset($sets[$index][$my_field['show_hierarchy']]);
 				}
 			}
+			$sets = zz_translate($my_field, $sets);
 			if (!empty($my_field['group'])) $group = $my_field['group'];
 			$this_field = $my_field;
 		}
