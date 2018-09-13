@@ -102,6 +102,8 @@ function zz_translations_init($table, $fields) {
 			}
 			if (!empty($zz_sub['fields'][$key]['inherit_format']) AND !empty($fields[$no]['format']))
 				$zz_sub['fields'][$key]['format'] = $fields[$no]['format'];
+			if (!empty($fields[$no]['rows']))
+				$zz_sub['fields'][$key]['rows'] = $fields[$no]['rows'];
 		}
 		$translationsubtable[$index+$k] = $zz_sub;
 		$translationsubtable[$index+$k]['table_name'] .= '-'.$k;
