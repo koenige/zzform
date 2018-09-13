@@ -2179,7 +2179,7 @@ function zz_field_memo($field, $display, $record) {
 	$fieldattr = [];
 	!empty($field['cols']) OR $field['cols'] = 60;
 	!empty($field['rows']) OR $field['rows'] = 8;
-	if ($record) {
+	if ($record AND $value) {
 		// always add two extra lines
 		$calculated_rows = 2;
 		// factor for long text to get extra lines because of 
