@@ -373,6 +373,7 @@ function zz_get_where_conditions($zz, $zz_var) {
 			$zz_var['where_condition'], $add
 		);
 		foreach ($add as $key => $value) {
+			if (in_array($value, ['NULL', '!NULL'])) continue;
 			$zz_var['zz_fields'][$key]['value'] = $value;
 			$zz_var['zz_fields'][$key]['type'] = 'hidden';
 		}
