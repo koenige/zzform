@@ -499,7 +499,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 	$my_fields = [];
 	foreach ($my_rec['fields'] as $fieldkey => $field) {
 		if (!$field) continue;
-		if (array_key_exists($field['field_name'], $my_where_fields)) {
+		if (!empty($field['field_name']) AND array_key_exists($field['field_name'], $my_where_fields)) {
 			switch ($my_where_fields[$field['field_name']]) {
 			case '!NULL':
 				$field['required'] = $my_rec['fields'][$fieldkey]['required'] = true;
