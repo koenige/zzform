@@ -940,10 +940,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			case 'predefined':
 			case 'identifier':
 			case 'hidden':
-				if (!empty($my_where_fields[$field['field_name']])) {
-					$field['value'] = $my_where_fields[$field['field_name']];
-				}
-
 				list($outputf, $hidden_element) = zz_field_hidden($field, $my_rec['record'], $my_rec['record_saved'], $mode);
 				if (zz_error_exit()) {
 					zz_error();
