@@ -2015,6 +2015,7 @@ function zz_field_text($field, $display, $record, $dont_reformat = false) {
 	if ($field['required']) $fieldattr['required'] = true;
 	if (!empty($field['maxlength']))
 		$fieldattr['maxlength'] = $field['maxlength'];
+	if (!empty($field['pattern'])) $fieldattr['pattern'] = $field['pattern'];
 	return zz_form_element($field['f_field_name'], $value, $fieldtype, true, $fieldattr);
 }
 
@@ -2081,6 +2082,7 @@ function zz_field_number($field, $display, $record, $dont_reformat) {
 	if ($field['required']) $fieldattr['required'] = true;
 	if (!empty($field['maxlength']))
 		$fieldattr['maxlength'] = $field['maxlength'];
+	if (!empty($field['pattern'])) $fieldattr['pattern'] = $field['pattern'];
 	$text = zz_form_element($field['f_field_name'], $value, $formtype, true, $fieldattr);
 	return $text.$suffix;
 }
