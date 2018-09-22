@@ -1712,6 +1712,26 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				$my_rec['fields'][$f]['validation_error'] = $msg;
 			}
 		}
+
+	//	check against pattern
+		if (!empty($field['pattern'])
+			AND !empty($my_rec['POST'][$field_name])) {
+			if (is_array($my_rec['POST'][$field_name])) {
+				$my_rec['validation'] = false;
+				$my_rec['fields'][$f]['check_validation'] = false;
+				$my_rec['fields'][$f]['validation_error'] = [
+					'msg' => 'Array <em>“%s”</em> does not match pattern <em>“%s”</em>',
+					'msg_args' => [json_encode($my_rec['POST'][$field_name]), $field['pattern']]
+				];
+			} elseif (!zz_validate_pattern($my_rec['POST'][$field_name], $field['pattern'])) {
+				$my_rec['validation'] = false;
+				$my_rec['fields'][$f]['check_validation'] = false;
+				$my_rec['fields'][$f]['validation_error'] = [
+					'msg' => 'Value <em>“%s”</em> does not match pattern <em>“%s”</em>',
+					'msg_args' => [zz_htmltag_escape($my_rec['POST'][$field_name]), $field['pattern']]
+				];
+			}
+		}
 	}
 
 	// finished

@@ -11,7 +11,7 @@
  * otherwise they will return the value that was checked
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2005-2014, 2016-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2005-2014, 2016-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -521,4 +521,18 @@ function zz_check_number($number) {
 		$sum = false;
 	}
 	return $sum;
+}
+
+/**
+ * check against pattern
+ * 
+ * @param mixed $value
+ * @param string $pattern
+ * @return bool true = valid
+ */
+function zz_validate_pattern($value, $pattern) {
+	if (is_array($value)) return false;
+	if (!preg_match('/'.$pattern.'/', $value, $matches)) return false;
+	if (!$matches[0].'' === $value) return false;
+	return $value;
 }
