@@ -3103,6 +3103,9 @@ function zz_field_select_radio_value($field, $record, $value, $label, $pos) {
 	if ($record AND $value == $record[$field['field_name']]) 
 		$fieldattr['checked'] = true;
 	if ($field['required']) $fieldattr['required'] = true;
+	if (!empty($field['disabled']) AND in_array($value, $field['disabled'])) {
+		$fieldattr['disabled'] = true;
+	}
 	$element = zz_form_element($field['f_field_name'], $value, 'radio', $id, $fieldattr);
 	$level = isset($field['zz_level']) ? $field['zz_level'] : 0;
 	return [
