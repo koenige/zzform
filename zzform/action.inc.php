@@ -1942,7 +1942,7 @@ function zz_integrity_check($deletable_ids, $relations) {
 						// check which record they belong to
 						// only get unique values
 						$response['msg_args'][$field['detail_table']]
-							= zz_nice_tablenames($field['detail_table']);
+							= zz_nice_tablenames($field['detail_table']).sprintf(' (%d)', count($detail_ids));
 					}
 				}
 			}
