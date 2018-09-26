@@ -358,7 +358,9 @@ function zz_geo_coords_from_exif($value, $which) {
 		$my['value'] = zz_geo_calculate_fraction($value[$field]);
 	}
 	if ($my['value']) {
-		$my['value'] = $orientation[$value[$field_ref]].$my['value'];
+		// GPSAltitudeRef might be space or empty
+		if (empty(trim($value[$field_ref]))) $my['value'] = '+'.$my['value'];
+		else $my['value'] = $orientation[$value[$field_ref]].$my['value'];
 	}
 	return $my;
 }
