@@ -1341,7 +1341,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 	case isset($_GET['noupdate']):
 		// last record operation was successful
 		$ops['mode'] = 'show';
-		if (isset($_GET['delete'])) $ops['mode'] = '';
+		if (isset($_GET['delete'])) $ops['mode'] = 'list_only';
 		$keys = ['delete', 'insert', 'update', 'noupdate'];
 		$found = 0;
 		foreach ($keys as $key) {

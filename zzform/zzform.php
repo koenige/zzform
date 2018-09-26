@@ -313,6 +313,10 @@ function zzform($zz) {
 		require_once $zz_conf['dir_inc'].'/record.inc.php';
 		$ops['output'] .= zz_record($ops, $zz_tab, $zz_var, $zz_conditions);	
 	} else {
+		if (isset($_GET['delete'])) {
+			// just show heading that record was deleted
+			$ops['output'] .= '<div id="record"><h2>'.zz_text('record_was_deleted').'</h2></div>'."\n";
+		}
 		// call error function if there's anything
 		zz_error();
 		$ops['output'] .= zz_error_output();
