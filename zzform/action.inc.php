@@ -1352,7 +1352,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 		//	remove entries which are for display only
 		if (!empty($field['display_only'])) {
 			$my_rec['fields'][$f]['in_sql_query'] = false;
-			$my_rec['fields'][$f]['class'] = 'hidden';
+			$my_rec['fields'][$f]['class'][] = 'hidden';
 			continue;
 		}
 
