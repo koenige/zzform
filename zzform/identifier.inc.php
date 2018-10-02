@@ -69,7 +69,8 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 		'hash_md5' => false, 'ignore' => [], 'max_length' => 36,
 		'ignore_this_if' => [], 'empty' => [], 'uppercase' => false,
 		'function' => false, 'function_parameter' => false,
-		'unique_with' => [], 'where' => '', 'strip_tags' => false
+		'unique_with' => [], 'where' => '', 'strip_tags' => false,
+		'exists_format' => '%s'
 	];
 	foreach ($default_configuration as $key => $value) {
 		if (!isset($conf[$key])) $conf[$key] = $value;
@@ -180,7 +181,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 	// start value, if idf already exists
 	$i = !empty($conf['start']) ? $conf['start'] : 2;
 	// start always?
-	if (!empty($conf['start_always'])) $idf .= $conf['exists'].$i;
+	if (!empty($conf['start_always'])) $idf .= $conf['exists'].sprintf($conf['exists_format'], $i);
 	else $conf['start_always'] = false;
 	// hash md5?
 	if (!empty($conf['hash_md5'])) {
@@ -326,7 +327,7 @@ function zz_identifier_exists($idf, $i, $db_table, $field, $id_field, $id_value,
 				$idf = substr($idf, 0, -strlen($j));
 			}
 		}
-		$suffix = $conf['exists'].$i;
+		$suffix = $conf['exists'].sprintf($conf['exists_format'], $i);
 		// in case there is a value for maxlen, make sure that resulting
 		// string won't be longer
 		if ($maxlen && strlen($idf.$suffix) > $maxlen) 
