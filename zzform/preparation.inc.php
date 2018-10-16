@@ -1054,7 +1054,7 @@ function zz_check_def_vals($post, $fields, $existing = [], $where = []) {
 			$post[$field_name] = $existing[$field_name];
 		// just for values which are not set (!) set default value
 		// (not for empty strings!, not for update)
-		if (!empty($field['default']) AND !isset($post[$field_name]))
+		if (zz_has_default($field) AND !isset($post[$field_name]))
 			$post[$field_name] = $field['default'];
 		// most important, therefore last: [where]
 		if (!empty($where[$field_name]))

@@ -923,7 +923,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				if ($default) $field['default'] = $default;
 			}
 
-			if (!empty($field['default']) AND empty($field['value'])) {
+			if (zz_has_default($field) AND empty($field['value'])) {
 				// look at default only if no value is set - value overrides default
 				if (($mode === 'add' && !$my_rec['record'])
 					OR (!empty($is_option) AND empty($my_rec['record'][$field['field_name']]))

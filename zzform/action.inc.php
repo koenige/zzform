@@ -865,7 +865,7 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 		if (!empty($field['for_action_ignore'])) continue;
 		// check def_val_ignore, some auto values/values/default values will be ignored 
 		if (!empty($field['def_val_ignore'])) {
-			if (empty($field['value']) AND !empty($field['default'])
+			if (empty($field['value']) AND zz_has_default($field)
 				AND $field['default'] != trim($my_tab[$rec]['POST'][$field['field_name']])) {
 			// defaults will only be ignored if different from default value
 			// but only if no value is set!

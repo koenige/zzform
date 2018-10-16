@@ -3447,3 +3447,16 @@ function zz_check_values($post, $field_name, $value) {
 	}
 	return $post;
 }
+
+/**
+ * check if a field has a default value
+ *
+ * @param array $field
+ * @return bool true = has default value
+ */
+function zz_has_default($field) {
+	if (!isset($field['default'])) return false;
+	if ($field['default'] === 0) return true;
+	if (!empty($field['default'])) return true;
+	return false;
+}
