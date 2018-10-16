@@ -2300,10 +2300,10 @@ function zz_field_set($field, $fields, $display, $my_tab, $zz_var = []) {
 			// add from source
 			$rec = $rec['POST'];
 			foreach ($field['fields'] as $subfield) {
-				if (!empty($rec[$subfield['field_name']])) {
-					// value exists, so say it's a default value
-					$sets_indexed[$rec[$subfield['field_name']]]['default'] = true;
-				}
+				if (empty($rec[$subfield['field_name']])) continue;
+				if (!array_key_exists($rec[$subfield['field_name']], $sets_indexed)) continue;
+				// value exists, so say it's a default value
+				$sets_indexed[$rec[$subfield['field_name']]]['default'] = true;
 			}
 		}
 	}
