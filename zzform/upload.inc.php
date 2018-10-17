@@ -1799,7 +1799,7 @@ function zz_upload_check(&$images, $action, $rec = 0) {
 			continue; 
 		}
 
-//	check if minimal image size is reached
+//	check if minimal image size is reached: min_width, min_height
 		$width_height = ['width', 'height'];
 		foreach ($width_height as $which)
 			if (!empty($images[$img]['min_'.$which]) 
@@ -1809,7 +1809,7 @@ function zz_upload_check(&$images, $action, $rec = 0) {
 					.' %s was not reached.'), '('.$images[$img]['min_'.$which].'px)')
 					.' ('.$images[$img]['upload'][$which].'px)';
 
-//	check if maximal image size has not been exceeded
+//	check if maximal image size has not been exceeded: max_width, max_height
 		$width_height = ['width', 'height'];
 		foreach ($width_height as $which)
 			if (!empty($images[$img]['max_'.$which])
@@ -1818,6 +1818,23 @@ function zz_upload_check(&$images, $action, $rec = 0) {
 					.sprintf(zz_text('Maximum '.$which
 					.' %s has been exceeded.'), '('.$images[$img]['max_'.$which].'px)')
 					.' ('.$images[$img]['upload'][$which].'px)';
+
+//	check if maximal number of pages is not exceeded
+		if (!empty($images[$img]['max_pages']) AND $images[$img]['upload']['filetype'] === 'pdf') {
+			if (!empty($images[$img]['upload']['pdfinfo']['Pages'])) {
+				if ($images[$img]['upload']['pdfinfo']['Pages'] > $images[$img]['max_pages']) {
+					$images[$img]['error'][] = zz_text('Error: ')
+						.sprintf(zz_text('The PDF consists of %d pages. Only %d pages are allowed.')
+							, $images[$img]['upload']['pdfinfo']['Pages']
+							, $images[$img]['max_pages']
+					);
+				}
+			} else {
+				zz_error_log([
+					'msg_dev' => '`max_pages` can only be used with PDF filetypes and `pdfinfo` as upload tool.'
+				]);
+			}
+		}
 
 		if ($images[$img]['error']) $error = true;
 	}
