@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.8.11\n"
+"X-Generator: Poedit 1.8.12\n"
 
 # Number of records as shown in page TITLE
 # Page elements
@@ -408,6 +408,10 @@ msgid "Maximum height %s has been exceeded."
 msgstr "Maximale Höhe %s wurde überschritten."
 
 # Record form: File upload
+msgid "The PDF consists of %d pages. Only %d pages are allowed."
+msgstr "Das PDF besteht aus %d Seiten. Nur %d Seiten sind erlaubt."
+
+# Record form: File upload
 msgid "Transfer failed. Probably you sent a file that was too large."
 msgstr ""
 "Übertragung fehlgeschlagen. Vermutlich haben Sie eine Datei gesendet, die zu "
@@ -511,9 +515,11 @@ msgstr ""
 
 # Record form: Validation of Database Integrity, displayed above form
 msgid ""
-"This record could not be deleted because it has other data associated with it."
+"This record could not be deleted because it has other data associated with "
+"it."
 msgstr ""
-"Der Eintrag konnte nicht gelöscht werden, da mit ihm weitere Daten verknüpft sind:"
+"Der Eintrag konnte nicht gelöscht werden, da mit ihm weitere Daten verknüpft "
+"sind:"
 
 # Record form: foreign record
 msgid "edit-after-save"
