@@ -112,6 +112,7 @@ function zz_upload_config() {
 	$default['upload_tools']['exiftool_whereis'] = '/usr/local/bin/exiftool';
 	$default['upload_tools']['identify'] = true; // might be turned off for performance reasons while handling raw data
 	$default['upload_tools']['ghostscript'] = false; // whether we can use gs library
+	$default['upload_tools']['pdfinfo'] = false;
 	$default['upload_log']		= '';
 
 	if (!defined('ZZ_UPLOAD_INI_MAXFILESIZE')) {
@@ -706,11 +707,33 @@ function zz_upload_fileinfo($file, $extension = false) {
 			$file['exif'] = [];
 		}
 	}
+	if ($file['filetype'] === 'pdf' AND $zz_conf['upload_tools']['pdfinfo']) {
+		$file['pdfinfo'] = zz_upload_pdfinfo($filename);
+	}
+	
 	// @todo further functions, e. g. zz_pdf_read_data if filetype == pdf ...
 	// @todo or read AutoCAD Version from DXF, DWG, ...
 	// @todo or read IPCT data.
 
 	return zz_return($file);
+}
+
+/**
+ * read information about pdf with pdfinfo
+ *
+ * @param string $filename
+ * @return array
+ */
+function zz_upload_pdfinfo($filename) {
+	exec(sprintf('pdfinfo "%s"', $filename), $raw);
+	$data = [];
+	foreach ($raw as $line) {
+		$separator = strpos($line, ':');
+		$key = substr($line, 0, $separator);
+		$value  = trim(substr($line, $separator + 1));
+		$data[$key] = $value;
+	}
+	return $data;
 }
 
 /**
