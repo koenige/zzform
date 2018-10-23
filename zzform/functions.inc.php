@@ -1011,13 +1011,15 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 		}
 
 		if (in_array($mode, ['add', 'edit', 'revise']) OR in_array($action, ['insert', 'update'])) {
-			if (!isset($fields[$no]['maxlength']) && isset($fields[$no]['field_name'])) {
-				// no need to check maxlength in list view only 
-				$fields[$no]['maxlength'] = zz_db_field_maxlength(
-					$fields[$no]['field_name'], $fields[$no]['type'], $db_table
-				);
-			} else {
-				$fields[$no]['maxlength'] = 32;
+			if (!isset($fields[$no]['maxlength'])) {
+				if (isset($fields[$no]['field_name'])) {
+					// no need to check maxlength in list view only 
+					$fields[$no]['maxlength'] = zz_db_field_maxlength(
+						$fields[$no]['field_name'], $fields[$no]['type'], $db_table
+					);
+				} else {
+					$fields[$no]['maxlength'] = 32;
+				}
 			}
 			$fields[$no]['required'] = zz_fill_out_required($fields[$no], $db_table);
 		} else {
