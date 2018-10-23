@@ -459,6 +459,10 @@ msgstr "Bitte geben Sie mehr Buchstaben ein."
 msgid "No entry found. Try less characters."
 msgstr "Keinen Eintrag gefunden. Versuchen Sie es mit weniger Zeichen."
 
+# Record form: Validation, displayed inside form
+msgid "The Text is too long (max. %d characters, %d submitted)."
+msgstr "Der Text ist zu lang (max. %d Zeichen, %d eingegeben)."
+
 # Record form: Validation, displayed above form
 msgid "These errors occurred:"
 msgstr "Diese Fehler sind aufgetreten:"

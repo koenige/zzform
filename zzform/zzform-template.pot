@@ -430,6 +430,10 @@ msgstr ""
 msgid "No entry found. Try less characters."
 msgstr ""
 
+# Record form: Validation, displayed inside form
+msgid "The text is too long (max. %d characters, %d submitted)."
+msgstr ""
+
 # Record form: Validation, displayed above form
 msgid "These errors occurred:"
 msgstr ""

@@ -1703,6 +1703,18 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			}
 		}
 
+	// check length
+		if (!empty($field['maxlength'])) {
+			if (mb_strlen($my_rec['POST'][$field_name]) > $field['maxlength']) {
+				$my_rec['fields'][$f]['check_validation'] = false;
+				$my_rec['fields'][$f]['validation_error'] = [
+					'msg' => 'Text is too long (max. %d characters, %d submitted).',
+					'msg_args' => [$field['maxlength'], mb_strlen($my_rec['POST'][$field_name])]
+				];
+				$my_rec['validation'] = false;
+			}
+		}
+
 	//	check against forbidden strings
 		if (!empty($field['validate'])
 			AND !empty($my_rec['POST'][$field_name])) {
