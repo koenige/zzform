@@ -111,7 +111,6 @@ function zz_export_init($ops) {
 		$ops['mode'] = false;
 		return $ops;
 	}
-	$character_encoding = $zz_conf['character_set'];
 	$ops['mode'] = 'export';
 	$zz_conf['list_display'] = $export;
 
@@ -129,14 +128,10 @@ function zz_export_init($ops) {
 	case 'csv':
 	case 'pdf':
 	case 'zip':
-		if ($export === 'csv-excel') {
-			$character_encoding = 'utf-16le'; // Excel for Win and Mac platforms
-		}
 		// always export all records
 		$zz_conf['int']['this_limit'] = false;
 		break;
 	}
-	$ops['headers'] = zz_export_headers($export_param, $character_encoding);
 
 	return $ops;
 }
@@ -151,33 +146,6 @@ function zz_export_identifier($mode) {
 	$mode = strtolower($mode);
 	$mode = str_replace(' ', '-', $mode);
 	return $mode;
-}
-
-/**
- * Creates HTTP headers for export depending on type of export
- *
- * @param string $export type of export ('csv', 'pdf', ...)
- * @param string $charset character encoding ($zz_conf['character_set'])
- * @global array $zz_conf 'int'['url']['self']
- * @return array $headers
- * @todo remove this function, check pdf and zip exports before
- */
-function zz_export_headers($export, $charset) {
-	global $zz_conf;
-	$headers = [];
-	$filename = basename($zz_conf['int']['url']['self']);
-
-	switch ($export) {
-	case 'pdf':
-		$headers[]['true'] = 'Content-Type: application/pdf;';
-		$headers[]['true'] = 'Content-Disposition: attachment; filename="'.$filename.'.pdf"';
-		break;
-	case 'zip':
-		$headers[]['true'] = 'Content-Type: application/zip;';
-		$headers[]['true'] = 'Content-Disposition: attachment; filename="'.$filename.'.zip"';
-		break;
-	}
-	return $headers;
 }
 
 /**
