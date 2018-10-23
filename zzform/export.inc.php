@@ -160,6 +160,7 @@ function zz_export_identifier($mode) {
  * @param string $charset character encoding ($zz_conf['character_set'])
  * @global array $zz_conf 'int'['url']['self']
  * @return array $headers
+ * @todo remove this function, check pdf and zip exports before
  */
 function zz_export_headers($export, $charset) {
 	global $zz_conf;
@@ -167,17 +168,6 @@ function zz_export_headers($export, $charset) {
 	$filename = basename($zz_conf['int']['url']['self']);
 
 	switch ($export) {
-	case 'csv':
-		// correct download of csv files
-		if (!empty($_SERVER['HTTP_USER_AGENT']) 
-			AND strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE'))
-		{
-			$headers[]['true'] = 'Cache-Control: maxage=1'; // in seconds
-			$headers[]['true'] = 'Pragma: public';
-		}
-		$headers[]['true'] = 'Content-Type: text/csv; charset='.$charset;
-		$headers[]['true'] = 'Content-Disposition: attachment; filename="'.$filename.'.csv"';
-		break;
 	case 'pdf':
 		$headers[]['true'] = 'Content-Type: application/pdf;';
 		$headers[]['true'] = 'Content-Disposition: attachment; filename="'.$filename.'.pdf"';
@@ -185,16 +175,6 @@ function zz_export_headers($export, $charset) {
 	case 'zip':
 		$headers[]['true'] = 'Content-Type: application/zip;';
 		$headers[]['true'] = 'Content-Disposition: attachment; filename="'.$filename.'.zip"';
-		break;
-	case 'kml':
-		$headers[]['true'] = 'Content-Type: application/vnd.google-earth.kml+xml; charset=utf8';
-		if (!empty($_GET['q'])) $filename .= ' '.forceFilename($_GET['q']);
-		$headers[]['true'] = 'Content-Disposition: attachment; filename="'.$filename.'.kml"';
-		break;
-	case 'geojson':
-		$headers[]['true'] = 'Content-Type: application/javascript; charset=utf8';
-		if (!empty($_GET['q'])) $filename .= ' '.forceFilename($_GET['q']);
-		$headers[]['true'] = 'Content-Disposition: attachment; filename="'.$filename.'.js"';
 		break;
 	}
 	return $headers;
@@ -266,6 +246,8 @@ function zz_export($ops, $zz, $zz_var) {
 		return $function($ops);
 	}
 
+	$filename = basename($zz_conf['int']['url']['self']);
+
 	switch ($zz_conf['list_display']) {
 	case 'csv':
 	case 'csv-excel':
@@ -273,14 +255,14 @@ function zz_export($ops, $zz, $zz_var) {
 		$output .= zz_export_csv_head($ops['output']['head']);
 		$output .= zz_export_csv_body($ops['output']['rows']);
 		if ($zz_conf['list_display'] === 'csv-excel') {
+			$headers['character_set'] = 'utf-16le';
 			// @todo check with mb_list_encodings() if available
 			$output = mb_convert_encoding($output, 'UTF-16LE', $zz_conf['character_set']);
-			// Add BOM, @todo if later zzwrap is used to send out zzform exports
-			// the BOM has to be added separately (does not count to Content-Length)
-			$output = chr(255).chr(254).$output;
+		} else {
+			$headers['character_set'] = $zz_conf['character_set'];
 		}
-		$ops['output'] = $output;
-		return $ops;
+		$headers['filename'] = $filename.'.csv';
+		return wrap_send_text($output, 'csv', 200, $headers);
 	case 'pdf':
 		// no script is defined: standard PDF output
 		echo 'Sorry, standard PDF support is not yet available. Please use a custom script.';
@@ -290,11 +272,17 @@ function zz_export($ops, $zz, $zz_var) {
 		echo 'Sorry, standard ZIP support is not yet available. Please use a custom script.';
 		exit;
 	case 'kml':
-		$ops['output'] = zz_export_kml($ops, $zz, $zz_var);
-		return $ops;
+		$zz_conf['character_set'] = 'utf-8';
+		$output = zz_export_kml($ops, $zz, $zz_var);
+		if (!empty($_GET['q'])) $filename .= ' '.forceFilename($_GET['q']);
+		$headers['filename'] = $filename.'.kml';
+		return wrap_send_text($output, 'kml', 200, $headers);
 	case 'geojson':
-		$ops['output'] = zz_export_geojson($ops, $zz, $zz_var);
-		return $ops;
+		$zz_conf['character_set'] = 'utf-8';
+		$output = zz_export_geojson($ops, $zz, $zz_var);
+		if (!empty($_GET['q'])) $filename .= ' '.forceFilename($_GET['q']);
+		$headers['filename'] = $filename.'.geojson';
+		return wrap_send_text($output, 'geojson', 200, $headers);
 	}
 }
 
