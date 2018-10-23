@@ -2209,6 +2209,14 @@ function zz_field_memo($field, $display, $record) {
 	$fieldattr['rows'] = $field['rows'];
 	$fieldattr['cols'] = $field['cols'];
 	if ($field['required']) $fieldattr['required'] = true;
+	if (!empty($field['maxlength'])) {
+		$fieldattr['maxlength'] = $field['maxlength'];
+		$displayed = $field['rows'] * $field['cols'];
+		if ($displayed AND $displayed > $field['maxlength']) {
+			$fieldattr['rows'] = ceil($field['maxlength'] / $field['cols']);
+		}
+	}
+	if ($fieldattr['rows'] < 2) $fieldattr['rows'] = 2;
 	if (!empty($field['format']) AND $field['format'] === 'markdown'
 		AND !empty($zz_conf['wmd_editor'])) {
 		$fieldattr['class'] = 'wmd-input';
