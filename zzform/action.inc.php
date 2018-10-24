@@ -1704,7 +1704,8 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 		}
 
 	// check length
-		if (!empty($field['maxlength'])) {
+		if (!empty($field['maxlength'])
+			AND !empty($my_rec['POST'][$field_name])) {
 			if (mb_strlen($my_rec['POST'][$field_name]) > $field['maxlength']) {
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['fields'][$f]['validation_error'] = [
