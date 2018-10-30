@@ -1072,7 +1072,9 @@ function zz_list_filter_sql($filters, $sql, &$filter_params) {
 					unset($records['all'][$record_id]);
 				}
 			}
-			$sql = wrap_edit_sql($sql, 'WHERE', sprintf('%s IN (%s)', $filter['where'], implode(',', $records['all'])));
+			if ($records['all']) {
+				$sql = wrap_edit_sql($sql, 'WHERE', sprintf('%s IN (%s)', $filter['where'], implode(',', $records['all'])));
+			}
 		} elseif ($filter_value === '0' AND $filter['default_selection'] !== '0'
 			AND $filter['default_selection'] !== 0) {
 			// do nothing
