@@ -228,7 +228,6 @@ function zz_details_show($zz, $current, $last) {
 			if (empty($field)) continue;
 			if (empty($field['type'])) $field['type'] = 'text'; // zz_fill_out() starts later
 			if ($field['type'] === 'id') continue;
-			if (!empty($field['write_details'])) $first = $no;
 			if (!$first AND $field['type'] === 'text') {
 				$first = $no;
 			}
