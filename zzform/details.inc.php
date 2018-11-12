@@ -225,6 +225,7 @@ function zz_details_show($zz, $current, $last) {
 		$found = false;
 		$first = false;
 		foreach ($zz['fields'] as $no => $field) {
+			if (empty($field)) continue;
 			if (empty($field['type'])) $field['type'] = 'text'; // zz_fill_out() starts later
 			if ($field['type'] === 'id') continue;
 			if (!$first AND $field['type'] === 'text') {
