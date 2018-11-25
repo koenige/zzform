@@ -2299,6 +2299,7 @@ function zz_list_get_subselects($lines, $subselects) {
 			if (empty($sub_lines[$id])) continue;
 			$linetext = [];
 			foreach ($sub_lines[$id] as $linefields) {
+				$link = $subselect['link'] ? zz_makelink($subselect['link'], $linefields) : '';
 				foreach ($subselect['sql_ignore'] as $ignored_fieldname) {
 					unset($linefields[$ignored_fieldname]); 
 				}
@@ -2334,10 +2335,7 @@ function zz_list_get_subselects($lines, $subselects) {
 					$fieldtext .= $db_fields;
 					$index++;
 				}
-				if ($subselect['link']) {
-					$link = zz_makelink($subselect['link'], $linefields);
-					if ($link) $fieldtext = sprintf('<a href="%s">%s</a>', $link, $fieldtext);
-				}
+				if ($link) $fieldtext = sprintf('<a href="%s">%s</a>', $link, $fieldtext);
 				$linetext[] = $fieldtext;
 			}
 			if (!empty($subselect['display_inline'])) continue;
