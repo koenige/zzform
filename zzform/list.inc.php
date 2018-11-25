@@ -2643,24 +2643,9 @@ function zz_list_remove_empty_cols($rows, $head, $zz) {
 		}
 	}
 
-	// in case of list_append_next, say that all involved rows have content
-	foreach ($head as $no => $col) {
-		if (isset($lastcol) AND array_key_exists($no, $column_content)) {
-			if (empty($column_content[$lastcol])) {
-				$column_content[$lastcol] = $column_content[$no];
-			}
-			unset($lastcol);
-		}
-		if (empty($col['list_append_next'])) continue;
-		$lastcol = $no;
-	}
-	$hide_next = false;
 	foreach ($head as $no => $col) {
 		if (!empty($zz['list']['hide_columns_if_empty'])) $col['hide_in_list_if_empty'] = true;
-		if ((empty($column_content[$no]) AND !empty($col['hide_in_list_if_empty'])) OR $hide_next) {
-			// hide next if list_append_next is set
-			if (!empty($col['list_append_next'])) $hide_next = true;
-			else $hide_next = false;
+		if ((empty($column_content[$no]) AND !empty($col['hide_in_list_if_empty']))) {
 			unset($head[$no]); // for zz_field_sum()
 			$hidden_columns[$no] = true;
 			continue;
