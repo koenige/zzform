@@ -769,6 +769,7 @@ function zz_upload_make_title($filename) {
 	$filename = str_replace('_', ' ', $filename); // make output more readable
 	$filename = str_replace('.', ' ', $filename); // make output more readable
 	$filename = ucfirst($filename);
+	$filename = wrap_normalize($filename);
 	return $filename;
 }
 
