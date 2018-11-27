@@ -1704,8 +1704,12 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 		}
 
 	// check length
+	// (check here against array because field might be used as 'set' or 'enum',
+	// then a check is not necessary because the person who created the field
+	// approved the values beforehands)
 		if (!empty($field['maxlength'])
-			AND !empty($my_rec['POST'][$field_name])) {
+			AND !empty($my_rec['POST'][$field_name])
+			AND !is_array($my_rec['POST'][$field_name])) {
 			if (mb_strlen($my_rec['POST'][$field_name]) > $field['maxlength']) {
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['fields'][$f]['validation_error'] = [
