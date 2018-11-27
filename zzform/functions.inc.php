@@ -2661,6 +2661,11 @@ function zz_error_multi($errors) {
 	}
 	$validation_errors = zz_error_validation_log();
 	if ($validation_errors['msg']) {
+		foreach ($validation_errors['msg'] as $index => $msg) {
+			$validation_errors['msg'][$index] = strip_tags($msg);
+			if (empty($validation_errors['msg_args'][$index])) continue;
+			$validation_errors['msg'][$index] = vsprintf($validation_errors['msg'][$index], $validation_errors['msg_args'][$index]);
+		}
 		$errors = array_merge($errors, $validation_errors['msg']);
 	}
 	return $errors;
