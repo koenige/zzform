@@ -163,7 +163,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		unset($table_defs);
 
 		// merge common $zz settings for all records
-		if (!empty($zz_conf['modules']['conditions'])) {
+		if (!empty($zz_conf['modules']['conditions']) AND !empty($zz_conditions['bool'])) {
 			zz_conditions_merge_conf($zz, $zz_conditions['bool'], 0);
 		}
 		list($rows, $head) = zz_list_remove_empty_cols($rows, $head, $zz);
@@ -398,6 +398,7 @@ function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $id_field
 		$line_defs[$index] = $fields_in_list;
 		// conditions
 		if (empty($zz_conf['modules']['conditions'])) continue;
+		if (empty($zz_conditions['bool'])) continue;
 		if (!$index) {
 			// only apply conditions to list head if condition
 			// is valid for all records (true or false/empty array instead of array of ids)
@@ -628,7 +629,7 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 	// good to have conditional fields which do not display in list view anyways
 	foreach ($first_row as $fieldindex => $field) {
 		// Apply conditions
-		if (!empty($zz_conf['modules']['conditions'])) {
+		if (!empty($zz_conf['modules']['conditions']) AND !empty($zz_conditions['bool'])) {
 			zz_conditions_merge_field($field, $zz_conditions['bool'], $line[$id_field]);
 		}
 		if ($field['type'] !== 'subtable') continue;
@@ -688,7 +689,7 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 		foreach ($table_defs[$def_index] as $fieldindex => $field) {
 			if ($zz_conf['modules']['debug']) zz_debug("table_query foreach ".$fieldindex);
 			// conditions
-			if (!empty($zz_conf['modules']['conditions'])) {
+			if (!empty($zz_conf['modules']['conditions']) AND !empty($zz_conditions['bool'])) {
 				zz_conditions_merge_field($field, $zz_conditions['bool'], $line[$id_field]);
 				if (!empty($zz_conf_record['if']) OR !empty($zz_conf_record['unless'])) {
 					zz_conditions_merge_conf($zz_conf_record, $zz_conditions['bool'], $line[$id_field]);
