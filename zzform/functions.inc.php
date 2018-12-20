@@ -2358,7 +2358,13 @@ function zz_error() {
 			$error['msg'] = '';
 		}
 		if (!empty($error['msg_args'])) {
-			$error['msg'] = vsprintf($error['msg'], $error['msg_args']);
+			// flatten msg_args because msg is concatenated already
+			$args = [];
+			foreach ($error['msg_args'] as $arg) {
+				if (is_array($arg)) $args = array_merge($args, $arg);
+				else $args[] = $arg;
+			}
+			$error['msg'] = vsprintf($error['msg'], $args);
 		}
 		// @todo think about translating dev messages for administrators
 		// in a centrally set (not user defined) language
