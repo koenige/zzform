@@ -702,13 +702,23 @@ function zz_subrecord_unique($my_tab, $existing, $fields) {
 			foreach ($my_tab['POST'] as $no => $record) {
 				foreach ($unique as $field_name) {
 					if (!isset($record[$field_name])) {
-						zz_error_log([
-							'msg_dev' => 'UNIQUE was set but field %s is not in POST',
-							'msg_dev_args' => [$field_name]
-						]);
-						continue;
+						// check if there's a value for this field which cannot be changed
+						foreach ($fields as $field) {
+							if ($field['field_name'] !== $field_name) continue;
+							if (empty($field['value'])) continue;
+							$values[$field_name] = $field['value'];
+							break;
+						}
+						if (empty($values[$field_name])) {
+							zz_error_log([
+								'msg_dev' => 'UNIQUE was set but field %s is not in POST',
+								'msg_dev_args' => [$field_name]
+							]);
+							continue;
+						}
+					} else {
+						$values[$field_name] = $record[$field_name];
 					}
-					$values[$field_name] = $record[$field_name];
 					// check if we have to get the corresponding ID for a string
 					if (intval($values[$field_name]).'' === $values[$field_name].'') continue;
 					foreach ($fields as $field) {
