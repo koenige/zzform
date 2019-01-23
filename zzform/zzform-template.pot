@@ -5,7 +5,7 @@
 # http://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2005-2018 Gustaf Mossakowski
+# @copyright Copyright © 2005-2019 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 msgid ""
@@ -528,6 +528,66 @@ msgstr ""
 
 # Record form: Revision
 msgid "– empty –"
+msgstr ""
+
+# Record form: Captcha
+msgid "Please enter the digits from the image."
+msgstr ""
+
+# Record form: Captcha
+msgid "(Reload image)"
+msgstr ""
+
+# Record form: Captcha
+msgid "Please enter the following code: %s."
+msgstr ""
+
+# Record form: Captcha
+msgid "Please add %s to it."
+msgstr ""
+
+# Record form: Captcha
+msgid "zero"
+msgstr ""
+
+# Record form: Captcha
+msgid "one"
+msgstr ""
+
+# Record form: Captcha
+msgid "two"
+msgstr ""
+
+# Record form: Captcha
+msgid "three"
+msgstr ""
+
+# Record form: Captcha
+msgid "four"
+msgstr ""
+
+# Record form: Captcha
+msgid "five"
+msgstr ""
+
+# Record form: Captcha
+msgid "six"
+msgstr ""
+
+# Record form: Captcha
+msgid "seven"
+msgstr ""
+
+# Record form: Captcha
+msgid "eight"
+msgstr ""
+
+# Record form: Captcha
+msgid "nine"
+msgstr ""
+
+# Record form: Captcha
+msgid "ten"
 msgstr ""
 
 # List view: Revision

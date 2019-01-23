@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1066,6 +1066,14 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 
 			case 'calculated':
 				$outputf = zz_field_calculated($field, $my_rec['record'], $mode);
+				break;
+
+			case 'captcha':
+				if (empty($field['explanation']))
+					$field['explanation'] = wrap_text('Please enter the digits from the image.');
+				// captcha only for adding, otherwise hide field
+				if ($mode !== 'add') continue 2;
+				$outputf = zz_field_captcha($field, $my_rec['record'], $mode);
 				break;
 
 			default:
@@ -3628,6 +3636,22 @@ function zz_field_calculated($field, $record, $mode) {
 	}
 	// type not supported
 	return '';
+}
+
+/**
+ * Output form element type="captcha"
+ *
+ * @param array $field
+ * @param array $record
+ * @param string $mode
+ * @return string
+ */
+function zz_field_captcha($field, $record, $mode) {
+	global $zz_conf;
+	$field['zz_id'] = $zz_conf['id'];
+	$captcha_code = zz_captcha_code($zz_conf['id']);
+	$field['alt_text'] = zz_captcha_alt_text($captcha_code);
+	return wrap_template('zzform-captcha', $field);
 }
 
 /**

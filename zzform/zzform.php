@@ -13,7 +13,7 @@
  *	zzform_multi()			multi edit for zzform, e. g. import
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -28,6 +28,9 @@
  */
 function zzform($zz) {
 	global $zz_conf;
+	
+// diversion?
+	if (!empty($_GET['request'])) return zzform_exit(zzform_request());
 
 //
 //	Initialize variables & modules
@@ -353,6 +356,26 @@ function zzform($zz) {
 		$ops['footer_text'] = !empty($zz['footer_text']) ? $zz['footer_text'] : '';
 	}
 	return zzform_exit($ops);
+}
+
+/**
+ * do something else via 'request=xy'
+ *
+ * @param void
+ * @return void
+ */
+function zzform_request() {
+	global $zz_conf;
+
+	if (empty($_GET['request'])) wrap_quit(404);
+	switch ($_GET['request']) {
+	case 'captcha':
+		if (empty($_GET['zz'])) wrap_quit(404);
+		require_once $zz_conf['dir_inc'].'/captcha.inc.php';
+		return zz_captcha_image($_GET['zz']);
+		break;
+	}
+	wrap_quit(404);
 }
 
 /** 

@@ -18,7 +18,7 @@
  * V - Validation, preparation for database
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -106,7 +106,9 @@ function zz_dependent_modules($zz) {
 	// check if POST is too big, then it will be empty
 	$zz_conf['int']['post_too_big'] = $zz_conf['generate_output'] ? zzform_post_too_big() : false;
 
-	$modules = ['translations', 'conditions', 'geo', 'export', 'upload'];
+	$modules = [
+		'translations', 'conditions', 'geo', 'export', 'upload', 'captcha'
+	];
 	foreach ($modules as $index => $module) {
 		// continue if module already loaded
 		if (!empty($zz_conf['modules'][$module])) continue;
@@ -175,6 +177,11 @@ function zz_dependent_modules($zz) {
 			if ($zz_conf['int']['post_too_big']) break;
 			if (!empty($_FILES)) break;
 			if (!zz_module_fieldcheck($zz, 'type', 'upload_image')) {
+				unset($modules[$index]);
+			}
+			break;
+		case 'captcha':
+			if (!zz_module_fieldcheck($zz, 'type', 'captcha')) {
 				unset($modules[$index]);
 			}
 			break;

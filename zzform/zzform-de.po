@@ -5,7 +5,7 @@
 # http://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2005-2018 Gustaf Mossakowski
+# @copyright Copyright © 2005-2019 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 msgid ""
@@ -572,6 +572,66 @@ msgstr "Alter Wert: %s"
 # Record form: Revision
 msgid "– empty –"
 msgstr "– leer –"
+
+# Record form: Captcha
+msgid "Please enter the digits from the image."
+msgstr "Bitte geben Sie die Ziffern aus dem Bild ein."
+
+# Record form: Captcha
+msgid "(Reload image)"
+msgstr "(Bild erneut laden)"
+
+# Record form: Captcha
+msgid "Please enter the following code: %s."
+msgstr "Bitte geben Sie den folgenden Code ein: %s."
+
+# Record form: Captcha
+msgid "Please add %s to it."
+msgstr "Bitte fügen Sie %s hinzu."
+
+# Record form: Captcha
+msgid "zero"
+msgstr "null"
+
+# Record form: Captcha
+msgid "one"
+msgstr "eins"
+
+# Record form: Captcha
+msgid "two"
+msgstr "zwei"
+
+# Record form: Captcha
+msgid "three"
+msgstr "drei"
+
+# Record form: Captcha
+msgid "four"
+msgstr "vier"
+
+# Record form: Captcha
+msgid "five"
+msgstr "fünf"
+
+# Record form: Captcha
+msgid "six"
+msgstr "sechs"
+
+# Record form: Captcha
+msgid "seven"
+msgstr "sieben"
+
+# Record form: Captcha
+msgid "eight"
+msgstr "acht"
+
+# Record form: Captcha
+msgid "nine"
+msgstr "neun"
+
+# Record form: Captcha
+msgid "ten"
+msgstr "zehn"
 
 # List view: Revision
 msgid "live"

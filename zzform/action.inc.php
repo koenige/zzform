@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1638,6 +1638,13 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 		case 'memo':
 			if (!empty($field['trim'])) {
 				$my_rec['POST'][$field_name] = trim($my_rec['POST'][$field_name]);
+			}
+			break;
+		case 'captcha':
+			$my_rec['fields'][$f]['in_sql_query'] = false;
+			if (!$my_rec['POST'][$field_name] OR !zz_captcha_code($zz_conf['id'], $my_rec['POST'][$field_name])) {
+				$my_rec['fields'][$f]['check_validation'] = false;
+				$my_rec['validation'] = false;
 			}
 			break;
 		default:
