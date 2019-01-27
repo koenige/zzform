@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2011, 2015-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2011, 2015-2017, 2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -43,10 +43,10 @@ function zz_geo_coord_in($value, $orientation = 'lat', $precision = 0) {
 	$value = preg_replace('~&[^;]+;~', ' ', $value); 
 
 	// set possible values for hemisphere
-	$hemispheres['lat'] = ['N' => '+', 'S' => '-',
-		zz_text('N') => '+', zz_text('S') => '-'];
-	$hemispheres['lon'] = ['E' => '+', 'W' => '-',
-		zz_text('E') => '+', zz_text('W') => '-'];
+	$hemispheres = [
+		'lat' => ['N' => '+', 'S' => '-', zz_text('N') => '+', zz_text('S') => '-'],
+		'lon' => ['E' => '+', 'W' => '-', zz_text('E') => '+', zz_text('W') => '-']
+	];
 	$hemisphere = '';
 
 	// set some values depending on orientation
@@ -63,7 +63,7 @@ function zz_geo_coord_in($value, $orientation = 'lat', $precision = 0) {
 
 	// check if last letter matches hemisphere
 	if (in_array(substr($value, -1), array_keys($possible_hemispheres))) {
-		$hemisphere_letter = substr($value, -1); 
+		$hemisphere_letter = substr($value, -1);
 		$hemisphere = $possible_hemispheres[$hemisphere_letter];
 		$value = substr($value, 0, -1);
 	} elseif (in_array(substr($value, -1), array_keys($hemispheres[$other_orientation]))) {
