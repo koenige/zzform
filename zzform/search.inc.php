@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2013, 2015-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2013, 2015-2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -111,7 +111,7 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 			$found = true;
 			break;
 		default:
-			continue;
+			continue 2;
 		}
 		if ($subsearch) $q_search[] = $subsearch;
 		// additional between search
