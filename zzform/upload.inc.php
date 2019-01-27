@@ -510,6 +510,8 @@ function zz_upload_check_files($zz_tab) {
 					.strtoupper(implode(', ', $images[$no][$img]['input_filetypes']));
 				$my_rec['file_upload'] = false;
 				$my_rec['filetype_upload_error'] = true;
+				// mark with class 'error'
+				$zz_tab[0][0]['fields'][$uf['field_index']]['check_validation'] = false;
 			} else {
 				$zz_tab[0]['file_upload'] = $my_rec['file_upload'] = true;
 			}
