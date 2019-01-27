@@ -889,6 +889,8 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 		}
 	}
 
+	// show records with upload error again
+	if (!empty($my_tab[$rec]['filetype_upload_error'])) $values = true;
 	if (!empty($my_tab['records_depend_on_upload']) 
 		AND !empty($my_tab[$rec]['no_file_upload'])) {
 		$values = false;

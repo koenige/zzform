@@ -76,7 +76,7 @@
  *		['validated']		validated (yes = tested, no = rely on fileupload i. e. user)
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2006-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2006-2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -509,6 +509,7 @@ function zz_upload_check_files($zz_tab) {
 					.'<br class="nonewline_in_mail">'.zz_text('Supported filetypes:').' '
 					.strtoupper(implode(', ', $images[$no][$img]['input_filetypes']));
 				$my_rec['file_upload'] = false;
+				$my_rec['filetype_upload_error'] = true;
 			} else {
 				$zz_tab[0]['file_upload'] = $my_rec['file_upload'] = true;
 			}
