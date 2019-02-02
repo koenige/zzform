@@ -529,7 +529,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 		// $tab means subtable, since main table has $tab = 0
 		if ($tab) {
 			$field['f_field_name'] = $zz_tab[$tab]['table_name'].'['.$rec.']['.$field['field_name'].']';
-			$field['select_field_name'] = $zz_tab[$tab]['table_name'].'[]['.$field['field_name'].']';
+			$field['select_field_name'] = zz_long_fieldname($zz_tab[$tab]['table_name'], $rec, $field['field_name']);
 		} elseif (isset($field['field_name'])) {
 			$field['f_field_name'] = $field['field_name'];
 			$field['select_field_name'] = $field['field_name'];

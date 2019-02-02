@@ -3046,6 +3046,18 @@ function zz_htmlnoand_escape($string) {
  */
 
 /**
+ * create a long field name for subtables
+ *
+ * @param string $table_name
+ * @param int $rec
+ * @param string $field_name
+ * @return string
+ */
+function zz_long_fieldname($table_name, $rec, $field_name) {
+	return sprintf('%s[%d][%s]', $table_name, $rec, $field_name);
+}
+
+/**
  * splits a string some_id[some_field] into an array 
  *
  * @param string $field_name 'some_id[some_field]'
@@ -3115,7 +3127,7 @@ function zz_get_subtable_fielddef($fields, $table) {
  * @param int $f Key of current field
  * @param int $max_select = e. g. $zz_conf['max_select'], maximum entries in
  *		option-Field before we offer a blank text field to enter values
- * @param string $long_field_name // $table_name.'[]['.$field_name.']'
+ * @param string $long_field_name // $table_name.'[$rec]['.$field_name.']'
  * @global array $zz_conf
  * @return array $my_rec changed keys:
  *		'fields'[$f], 'POST', 'POST-notvalid', 'validation'

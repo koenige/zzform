@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -727,7 +727,7 @@ function zz_subrecord_unique($my_tab, $existing, $fields) {
 						if (empty($field['sql'])) break;
 
 						$check = true;
-						$long_field_name = $my_tab['table'].'[]['.$field_name.']';
+						$long_field_name = zz_long_fieldname($my_tab['table'], $no, $field_name);
 						if (isset($_POST['zz_check_select'])) {
 							// ... unless explicitly said not to check
 							if (in_array($field_name, $_POST['zz_check_select']))

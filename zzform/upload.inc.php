@@ -1417,8 +1417,8 @@ function zz_upload_prepare_source_file($image, $my_rec, $zz_tab, $tab, $rec) {
 		if (!$my_rec['POST'][$image['source_file']]) continue;
 		$found = true;
 		if ($field['type'] !== 'select') break;
-		$my_rec = zz_check_select($my_rec, $index, $zz_conf['max_select'], 
-			$zz_tab[$tab]['table'].'[]['.$my_rec['fields'][$index]['field_name'].']');
+		$long_field_name = zz_long_fieldname($zz_tab[$tab]['table'], $rec, $my_rec['fields'][$index]['field_name']);
+		$my_rec = zz_check_select($my_rec, $index, $zz_conf['max_select'], $long_field_name);
 	}
 	if (!$found) return false;
 
@@ -1583,8 +1583,8 @@ function zz_upload_merge_options($image, $my_tab, $rec = 0) {
 		// this is the selected option
 		if ($my_tab[$rec]['fields'][$no]['type'] === 'select') {
 			// @todo do this in action module beforehands
-			$my_tab[$rec] = zz_check_select($my_tab[$rec], $no, $zz_conf['max_select'], 
-				$my_tab['table'].'[]['.$my_tab[$rec]['fields'][$no]['field_name'].']');
+			$long_field_name = zz_long_fieldname($my_tab['table'], $rec, $my_tab[$rec]['fields'][$no]['field_name']);
+			$my_tab[$rec] = zz_check_select($my_tab[$rec], $no, $zz_conf['max_select'], $long_field_name);
 		}
 		$option_value = $my_tab[$rec]['POST'][$field_name];
 		if (!empty($image['options_sql'][$index]) AND $option_value) {
