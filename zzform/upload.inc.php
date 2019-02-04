@@ -334,14 +334,12 @@ function zz_upload_check_files($zz_tab) {
 
 		// get unique fieldname for subtables and file uploads as set in editform.inc
 		// $tab means subtable, since main table has $tab = 0
-		$field['f_field_name'] = '';
-		$field['select_field_name'] = '';
 		if ($tab) {
 			$field['f_field_name'] = $zz_tab[$tab]['table_name'].'['.$rec.']['.$field['field_name'].']';
-			$field['select_field_name'] = $zz_tab[$tab]['table_name'].'[]['.$field['field_name'].']';
 		} elseif (isset($field['field_name'])) {
 			$field['f_field_name'] = $field['field_name'];
-			$field['select_field_name'] = $field['field_name'];
+		} else {
+			$field['f_field_name'] = '';
 		}
 		$field['f_field_name'] = zz_make_id_fieldname($field['f_field_name']);
 
@@ -443,11 +441,7 @@ function zz_upload_check_files($zz_tab) {
 			$images[$no][$img]['upload']['tmp_name'] = $myfilename;
 			$myfilename = false;
 			
-			if (!isset($myfiles['error'][$field_name])) { // PHP 4.1 and prior
-				$images[$no][$img]['upload'] = zz_upload_compat_error($images[$no][$img]['upload']);
-			} else {
-				$images[$no][$img]['upload']['error'] = $myfiles['error'][$field_name];
-			}
+			$images[$no][$img]['upload']['error'] = $myfiles['error'][$field_name];
 			if (!isset($myfiles['size'][$field_name])) {
 				$myfiles['size'][$field_name] = filesize($images[$no][$img]['upload']['tmp_name']);
 			}
@@ -2922,33 +2916,6 @@ function zz_rename($oldname, $newname, $context = false) {
 		'level' => E_USER_NOTICE
 	]);
 	return false;
-}
-
-/**
- * set errors for upload, backwards compatiblity for PHP 4.1 and earlier
- * will be used from zzform_multi() as well
- *
- * @param array $upload
- * @global array $zz_conf
- * @return array $upload
- */
-function zz_upload_compat_error($upload) {
-	global $zz_conf;
-	if ($upload['tmp_name'] == 'none') {
-		$upload['error'] = UPLOAD_ERR_NO_FILE; // no file
-		$upload['type'] = false; // set to application/octet-stream
-		$upload['name'] = false;
-		$upload['tmp_name'] = false;
-	} elseif ($zz_conf['upload_MAX_FILE_SIZE'] AND (isset($upload['size']))
-		&& $upload['size'] > $zz_conf['upload_MAX_FILE_SIZE']) {
-		$upload['error'] = UPLOAD_ERR_FORM_SIZE; // too big
-		$upload['type'] = false; // set to application/octet-stream
-		$upload['name'] = false;
-		$upload['tmp_name'] = false;
-	} else {
-		$upload['error'] = UPLOAD_ERR_OK; // everything ok
-	}
-	return $upload;
 }
 
 /**
