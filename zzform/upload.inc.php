@@ -468,11 +468,16 @@ function zz_upload_check_files($zz_tab) {
 				$images[$no][$img]['upload']['size'] = $myfiles['size'][$field_name];
 			}
 			switch ($images[$no][$img]['upload']['error']) {
-				case UPLOAD_ERR_NO_FILE: continue 2; // no file
-				case UPLOAD_ERR_PARTIAL: continue 2; // partial upload
-				case UPLOAD_ERR_FORM_SIZE: continue 2; // file is too big
-				case UPLOAD_ERR_INI_SIZE: continue 2; // file is too big
-				case UPLOAD_ERR_OK: break; // everything ok.
+				case UPLOAD_ERR_NO_FILE:
+					continue 2;
+				case UPLOAD_ERR_PARTIAL:
+				case UPLOAD_ERR_FORM_SIZE:
+				case UPLOAD_ERR_INI_SIZE:
+					$my_rec['file_upload_error'] = true;
+					$zz_tab[0][0]['fields'][$uf['field_index']]['check_validation'] = false;
+					continue 2;
+				case UPLOAD_ERR_OK:
+					break;
 			}
 			// get upload info
 			$images[$no][$img]['upload'] = zz_upload_fileinfo($images[$no][$img]['upload'], $extension);
