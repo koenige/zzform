@@ -499,11 +499,11 @@ function zz_upload_check_files($zz_tab) {
 					$filetype = zz_text('unknown').' ('.zz_htmltag_escape($images[$no][$img]['upload']['type']).')';
 				$images[$no][$img]['unsupported_filetype'] = zz_text('Error: ')
 					.zz_text('Unsupported filetype:').' '
-					.$filetype
+					.strtoupper($filetype)
 					.'<br class="nonewline_in_mail">'.zz_text('Supported filetypes:').' '
 					.strtoupper(implode(', ', $images[$no][$img]['input_filetypes']));
 				$my_rec['file_upload'] = false;
-				$my_rec['filetype_upload_error'] = true;
+				$my_rec['file_upload_error'] = true;
 				// mark with class 'error'
 				$zz_tab[0][0]['fields'][$uf['field_index']]['check_validation'] = false;
 			} else {
