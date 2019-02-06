@@ -3144,15 +3144,16 @@ function zz_field_select_radio_value($field, $record, $value, $label, $pos) {
 function zz_field_select_set($field, $display, $record, $rec) {
 	$myvalue = [];
 	$output = '';
-	$myi = 0;
+	$i = 0;
+	$field['id'] = zz_make_id_fieldname($field['f_field_name']);
 	if ($display === 'form') {
 		// send dummy field to get a response if field content should be deleted
-		$myid = 'check-'.$field['field_name'].'-'.$myi.'-'.$rec;
+		$myid = 'check-'.$field['id'].'-'.$i;
 		$output .= zz_form_element($field['f_field_name'].'[]', '', 'hidden', $myid);
 	}
 	foreach ($field['set'] as $key => $set) {
-		$myi++;
-		$myid = 'check-'.$field['field_name'].'-'.$myi.'-'.$rec;
+		$i++;
+		$myid = 'check-'.$field['id'].'-'.$i;
 		$set_display = zz_print_enum($field, $set, 'full');
 		if ($display === 'form') {
 			$fieldattr = [];
