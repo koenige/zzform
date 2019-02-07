@@ -184,7 +184,7 @@ function zz_image_gray($source, $dest, $dest_ext, $image) {
 	$source = zz_imagick_check_multipage($source, $filetype, $image);
 	$convert = zz_imagick_convert(
 		'-colorspace gray '.$image['convert_options'],
-		$source, $image['upload']['ext'], $dest, $dest_ext
+		$source, $image['upload']['ext'], $dest, $dest_ext, $image
 	);
 
 	if ($zz_conf['modules']['debug']) zz_debug('end');
@@ -410,9 +410,14 @@ function zz_image_crop($source, $dest, $dest_ext, $image, $clipping = 'center') 
 	}
 	$filetype = !empty($image['upload']['filetype']) ? $image['upload']['filetype'] : '';
 	$source = zz_imagick_check_multipage($source, $filetype, $image);
+	if (!empty($image['watermark'])) {
+		if (!empty($pos_x)) {
+			$options .= sprintf(' -geometry +%d+%d', $pos_x, $pos_y);
+		}
+	}
 	$convert = zz_imagick_convert(
 		$options.' '.$image['convert_options'],
-		$source, $image['upload']['ext'], $dest, $dest_ext
+		$source, $image['upload']['ext'], $dest, $dest_ext, $image
 	);
 	return zz_return($convert);
 }
@@ -449,8 +454,15 @@ function zz_imagick_convert($options, $source, $source_ext, $dest, $dest_ext, $i
 	// first extra options like auto-orient, then other options by script
 	if ($ext_options) $command .= $ext_options.' ';
 	if ($options) $command .= $options.' ';
+	if (!empty($image['watermark'])) {
+		if (empty($image['convert_options_append']))
+			$image['convert_options_append'] = '';
+		$image['convert_options_append'] .= sprintf(' "%s" -composite', $image['watermark']);
+	}
 
-	$command .= sprintf(' "%s" %s:"%s" ', $source, $dest_ext, $dest);
+	$options_append = !empty($image['convert_options_append']) ? $image['convert_options_append'] : '';
+	
+	$command .= sprintf(' "%s" %s %s:"%s" ', $source, $options_append, $dest_ext, $dest);
 	list($output, $return_var) = zz_upload_exec($command, 'ImageMagick convert');
 	$return = true;
 	if ($return_var === -1) {
