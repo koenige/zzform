@@ -411,7 +411,7 @@ function zz_image_crop($source, $dest, $dest_ext, $image, $clipping = 'center') 
 	$filetype = !empty($image['upload']['filetype']) ? $image['upload']['filetype'] : '';
 	$source = zz_imagick_check_multipage($source, $filetype, $image);
 	if (!empty($image['watermark'])) {
-		if (!empty($pos_x)) {
+		if (!empty($pos_x) OR !empty($pos_y)) {
 			$options .= sprintf(' -geometry +%d+%d', $pos_x, $pos_y);
 		}
 	}
