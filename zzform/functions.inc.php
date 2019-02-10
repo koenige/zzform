@@ -3131,7 +3131,7 @@ function zz_get_subtable_fielddef($fields, $table) {
  */
 function zz_session_write($type, $session) {
 	$fp = fopen(zz_session_filename($type), 'w');
-	fwrite($fp, json_encode($session));
+	fwrite($fp, json_encode($session, JSON_PRETTY_PRINT));
 	fclose($fp);
 	return true;
 }
@@ -3146,7 +3146,7 @@ function zz_session_read($type) {
 	$filename = zz_session_filename($type);
 	if (!file_exists($filename)) return [];
 	$session = file_get_contents($filename);
-	$session = json_decode($session);
+	$session = json_decode($session, true);
 	if (!$session) return [];
 	return $session;
 }
