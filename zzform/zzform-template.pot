@@ -365,6 +365,10 @@ msgid "Delete this file"
 msgstr ""
 
 # Record form: File upload
+msgid "File uploaded:"
+msgstr ""
+
+# Record form: File upload
 msgid "File could not be saved. There is a problem with the user rights. We are working on it."
 msgstr ""
 

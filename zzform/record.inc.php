@@ -3509,6 +3509,13 @@ function zz_field_image($field, $display, $record, $record_saved, $images, $mode
 				$text .= '<br><small>'.implode('<br>', 
 					$images[$fieldkey][$imagekey]['error']).'</small>';
 			} else {
+				if (!empty($images[$fieldkey][$imagekey]['upload']['size'])) {
+					$text .= sprintf('<br>%s <strong>%s</strong> (%s)'
+						, zz_text('File uploaded:')
+						, strtoupper($images[$fieldkey][$imagekey]['upload']['filetype'])
+						, wrap_bytes($images[$fieldkey][$imagekey]['upload']['size'])
+					);
+				}
 				$text .= '<br><small class="explanation">'.sprintf(zz_text('Maximum allowed filesize is %s.'),
 					wrap_bytes($zz_conf['upload_MAX_FILE_SIZE'])).' '
 					.zz_text('Supported filetypes:').' '

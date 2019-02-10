@@ -384,6 +384,10 @@ msgid "Delete this file"
 msgstr "Diese Datei löschen"
 
 # Record form: File upload
+msgid "File uploaded:"
+msgstr "Hochgeladene Datei:"
+
+# Record form: File upload
 msgid ""
 "File could not be saved. There is a problem with the user rights. We are "
 "working on it."
@@ -460,7 +464,7 @@ msgid "No entry found. Try less characters."
 msgstr "Keinen Eintrag gefunden. Versuchen Sie es mit weniger Zeichen."
 
 # Record form: Validation, displayed inside form
-msgid "The Text is too long (max. %d characters, %d submitted)."
+msgid "The text is too long (max. %d characters, %d submitted)."
 msgstr "Der Text ist zu lang (max. %d Zeichen, %d eingegeben)."
 
 # Record form: Validation, displayed above form
