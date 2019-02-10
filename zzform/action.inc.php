@@ -1634,12 +1634,15 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			$my_rec['fields'][$f]['in_sql_query'] = false;
 			break;
 		case 'text':
-			if (empty($field['dont_trim'])) {
+		case 'memo':
+			// normalize linebreaks
+			$my_rec['POST'][$field_name] = str_replace("\r\n", "\n", $my_rec['POST'][$field_name]);
+			$my_rec['POST'][$field_name] = str_replace("\r", "\n", $my_rec['POST'][$field_name]);
+			// trim text
+			if (empty($field['dont_trim']) AND $type === 'text') {
 				$my_rec['POST'][$field_name] = trim($my_rec['POST'][$field_name]);
 			}
-			break;
-		case 'memo':
-			if (!empty($field['trim'])) {
+			if (!empty($field['trim']) AND $type === 'memo') {
 				$my_rec['POST'][$field_name] = trim($my_rec['POST'][$field_name]);
 			}
 			break;
