@@ -3131,7 +3131,7 @@ function zz_get_subtable_fielddef($fields, $table) {
  */
 function zz_session_write($type, $session) {
 	$fp = fopen(zz_session_filename($type), 'w');
-	fwrite($fp, serialize($session));
+	fwrite($fp, json_encode($session));
 	fclose($fp);
 	return true;
 }
@@ -3146,7 +3146,7 @@ function zz_session_read($type) {
 	$filename = zz_session_filename($type);
 	if (!file_exists($filename)) return [];
 	$session = file_get_contents($filename);
-	$session = unserialize($session);
+	$session = json_decode($session);
 	if (!$session) return [];
 	return $session;
 }
@@ -3173,10 +3173,13 @@ function zz_session_delete($type) {
  */
 function zz_session_filename($type) {
 	global $zz_conf;
-	$filename = $zz_conf['tmp_dir'].sprintf('/%s-%s-%s.txt',
-		session_id(),
-		$zz_conf['int']['secret_key'],
-		$type
+	$dir = $zz_conf['tmp_dir'].'/zzform-sessions';
+	wrap_mkdir($dir);
+	$filename = sprintf('%s/%s-%s-%s.txt'
+		, $dir
+		, session_id()
+		, $zz_conf['int']['secret_key']
+		, $type
 	);
 	return $filename;
 }
