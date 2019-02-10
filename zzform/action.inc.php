@@ -1723,11 +1723,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 		if (!empty($field['maxlength'])
 			AND !empty($my_rec['POST'][$field_name])
 			AND !is_array($my_rec['POST'][$field_name])) {
-			// shorten text, maxlength might be calculated in textareas
-			// with LF only but when sending them, these must be transformed
-			// to CRLF (two characters)
-			$value = str_replace("\r\n", "\n", $my_rec['POST'][$field_name]);
-			if ($length = mb_strlen($value) > $field['maxlength']) {
+			if ($length = mb_strlen($my_rec['POST'][$field_name]) > $field['maxlength']) {
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['fields'][$f]['validation_error'] = [
 					'msg' => 'Text is too long (max. %d characters, %d submitted).',
