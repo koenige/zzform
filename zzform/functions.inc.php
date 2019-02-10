@@ -15,6 +15,7 @@
  * I - Internationalisation functions
  * O - Output functions
  * R - Record functions used by several modules
+ * S - Session functions
  * V - Validation, preparation for database
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
@@ -3112,6 +3113,74 @@ function zz_get_subtable_fielddef($fields, $table) {
 	}
 	return false;
 }
+
+
+/*
+ * --------------------------------------------------------------------
+ * S - Session functions
+ * --------------------------------------------------------------------
+ */
+
+/**
+ * write a session for a part of the program to disk
+ * php session is not locked, so race conditions might occur
+ *
+ * @param string $type name of the part of the program
+ * @param array $session data to write
+ * @return bool
+ */
+function zz_session_write($type, $session) {
+	$fp = fopen(zz_session_filename($type), 'w');
+	fwrite($fp, serialize($session));
+	fclose($fp);
+	return true;
+}
+
+/**
+ * read a session for a part of the program from disk
+ *
+ * @param string $type name of the part of the program
+ * @return array
+ */
+function zz_session_read($type) {
+	$filename = zz_session_filename($type);
+	if (!file_exists($filename)) return [];
+	$session = file_get_contents($filename);
+	$session = unserialize($session);
+	if (!$session) return [];
+	return $session;
+}
+
+/**
+ * delete a session for a part of the program from disk
+ *
+ * @param string $type name of the part of the program
+ * @return array
+ */
+function zz_session_delete($type) {
+	$filename = zz_session_filename($type);
+	if (!file_exists($filename)) return false;
+	unlink($filename);
+	return true;
+}
+
+/**
+ * generate a session filename made out of
+ * current session ID and script ID
+ *
+ * @param string $type name of the part of the program
+ * @return string
+ */
+function zz_session_filename($type) {
+	global $zz_conf;
+	$filename = $zz_conf['tmp_dir'].sprintf('/%s-%s-%s.txt',
+		session_id(),
+		$zz_conf['int']['secret_key'],
+		$type
+	);
+	return $filename;
+}
+
 
 /*
  * --------------------------------------------------------------------
