@@ -1082,6 +1082,7 @@ function zz_hash($zz, $zz_conf) {
 	// get rid of varying and internal settings
 	// get rid of configuration settings which are not important for
 	// the definition of the database table(s)
+	$id = $zz_conf['id'];
 	$uninteresting_zz_conf_keys = [
 		'int', 'id', 'footer_text', 
 		'breadcrumbs', 'dont_show_title_as_breadcrumb', 'error_handling',
@@ -1118,6 +1119,7 @@ function zz_hash($zz, $zz_conf) {
 	$my['zz'] = $zz;
 	$my['zz_conf'] = $zz_conf;
 	$hash = sha1(serialize($my));
+	zz_secret_id('write', $id, $hash);
 	return $hash;
 }
 
@@ -1133,6 +1135,45 @@ function zz_secret_key($id) {
 	$hash = sha1($zz_conf['int']['hash'].$id);
 	$hash = wrap_base_convert($hash, 16, 62);
 	return $hash;
+}
+
+/**
+ * read or write secret_key connected to zzform ID
+ *
+ * @param string $mode ('read', 'write')
+ * @param string $id
+ * @param string $hash
+ */
+function zz_secret_id($mode, $id = '', $hash = '') {
+	global $zz_conf;
+	global $zz_setting;
+
+	$logfile = $zz_conf['tmp_dir'].'/zzform-ids.log';
+	if (!file_exists($logfile)) touch($logfile);
+	$logs = file($logfile);
+	if (!$id) $id = $zz_conf['id'];
+
+	$now = time();
+	// keep IDs for a maximum of seven days
+	$keep_max = $now - 60 * 60 * 24 * 7;
+	$found = '';
+	$delete_lines = [];
+	foreach ($logs as $index => $line) {
+		// 0 = timestamp, 1 = zz_id, 2 = secret
+		$file = explode(' ', trim($line));
+		if ($file[0] < $keep_max) $delete_lines[] = $index;
+		if ($file[1] !== $id) continue;
+		$found = $file[2];
+		break;
+	}
+	if ($delete_lines) {
+		require_once $zz_setting['core'].'/file.inc.php';
+		wrap_file_delete_line($delete_lines);
+	}
+
+	if ($mode === 'read') return $found;
+	if ($found) return;
+	error_log(sprintf("%s %s %s\n", $now, $id, $hash), 3, $logfile);
 }
 
 /**
