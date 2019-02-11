@@ -529,6 +529,13 @@ msgstr ""
 "Der Eintrag konnte nicht gelöscht werden, da mit ihm weitere Daten verknüpft "
 "sind:"
 
+# Record form: Validation, resubmit because of logout
+msgid ""
+"You had been logged out automatically. Therefore, your changes were not yet saved. Please submit the form again."
+msgstr ""
+"Sie wurden automatisch ausgeloggt, Ihre Änderungen wurden daher noch nicht "
+"gespeichert. Bitte schicken Sie das Formular erneut ab."
+
 # Record form: foreign record
 msgid "edit-after-save"
 msgstr "Kein Eintrag möglich. Bitte speichern Sie zuerst den Eintrag."

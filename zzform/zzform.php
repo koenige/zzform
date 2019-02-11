@@ -60,6 +60,11 @@ function zzform($zz) {
 		return zzform_exit($ops);
 	}
 
+	$review_via_login = false;
+	if (!empty($_SESSION['zzform']['review_via_login'])) {
+		zz_review_via_login();
+		$review_via_login = true;
+	}
 	if (empty($zz_conf['multi'])
 		AND (!empty($_POST['zz_add_details']) OR !empty($_SESSION['zzform'][$zz_conf['id']]))
 	) {
@@ -245,6 +250,19 @@ function zzform($zz) {
 			if (isset($_POST['zz_subtables'])) $validation = false;
 		// just handing over form with values
 		if (isset($_POST['zz_review'])) $validation = false;
+		if ($review_via_login) {
+			$validation = false;
+		}
+		if ($review_via_login OR !empty($_SESSION['zzform']['delete_via_login'])) {
+			zz_error_log([
+				'msg' => 'You had been logged out automatically. Therefore, your changes were not yet saved. Please submit the form again.',
+				'level' => E_USER_NOTICE
+			]);
+		}
+		if (!empty($_SESSION['zzform']['delete_via_login'])) {
+			wrap_session_start();
+			unset($_SESSION['zzform']['delete_via_login']);
+		}
 
 		if (in_array($zz_var['action'], ['insert', 'update', 'delete'])) {
 			// check for validity, insert/update/delete record

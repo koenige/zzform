@@ -3226,6 +3226,72 @@ function zz_session_filename($type) {
 	return $filename;
 }
 
+/**
+ * save POST and FILES for use after login
+ *
+ * @param void
+ * @return string
+ */
+function zz_session_via_login() {
+	global $zz_conf;
+
+	// this function is called from outside zzform!
+	$zz_conf['id'] = $_POST['zz_id'];
+	$zz_conf['int']['secret_key'] = zz_secret_id('read');
+
+	zz_session_write('postdata', $_POST);
+	if (!empty($_FILES)) {
+		require_once $zz_conf['dir'].'/upload.inc.php';
+		foreach ($_FILES AS $field_name => $file) {
+			foreach ($file['tmp_name'] as $type => $filename) {
+				$new_filename = $zz_conf['tmp_dir'].'/zzform-sessions/'.basename($filename);
+				zz_rename($filename, $new_filename);
+				$_FILES[$field_name]['tmp_name'][$type] = $new_filename;
+			}
+		}
+	}
+	zz_session_write('filedata', $_FILES); // if files, move files to _tmp dir
+
+	$text = sprintf('<input type="hidden" name="zz_review_via_login" value="%s">'."\n", $zz_conf['id']);
+	return $text;
+}
+
+/**
+ * review a form after being logged out and logged in again
+ *
+ * return bool
+ */
+function zz_review_via_login() {
+	global $zz_conf;
+	global $zz_setting;
+
+	$zz_conf['id'] = $_SESSION['zzform']['review_via_login'];
+	$zz_conf['int']['secret_key'] = zz_secret_id('read');
+
+	$zz_setting['zzform_id_from_session'] = true;
+	$_POST = zz_session_read('postdata');
+	zz_session_delete('postdata');
+	$_FILES = zz_session_read('filedata');
+	zz_session_delete('filedata');
+	$zz_setting['zzform_id_from_session'] = false;
+	
+	wrap_session_start();
+	unset($_SESSION['zzform']['review_via_login']);
+
+	if (empty($_POST['zz_action'])) return false;
+	if ($_POST['zz_action'] !== 'delete') return true;
+
+	$_SESSION['zzform']['delete_via_login'] = true;
+	unset($_POST['zz_id']);
+	unset($_POST['zz_action']);
+	$_GET['delete'] = array_shift($_POST);
+	$uri = $zz_setting['request_uri'];
+	if (strstr($uri, '?')) $uri .= '&';
+	else $uri .= '?';
+	$uri .= sprintf('delete=%d', $_GET['delete']);
+	return wrap_redirect($uri, 301, false);
+}
+
 
 /*
  * --------------------------------------------------------------------
