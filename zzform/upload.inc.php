@@ -1150,7 +1150,18 @@ function zz_upload_prepare($zz_tab) {
 		$rec = $uf['rec'];
 		$no = $uf['f'];
 		$my_rec = &$zz_tab[$tab][$rec];
-		if (!empty($my_rec['images'][$no]['read_from_session'])) continue;
+		if (!empty($my_rec['images'][$no]['read_from_session'])) {
+			// mark if background images should be created
+			foreach (array_keys($my_rec['fields'][$no]['image']) as $img) {
+				if (empty($my_rec['images'][$no][$img])) continue;
+				if ($zz_conf['upload_background_thumbnails'] AND empty($my_rec['images'][$no][$img]['create_in_background'])) {
+					$zz_conf['int']['upload_background_thumbnails'][] = [
+						'no' => $no, 'img' => $img
+					];
+				}
+			}
+			continue;
+		}
 
 		foreach (array_keys($my_rec['fields'][$no]['image']) as $img) {
 			if (empty($my_rec['images'][$no][$img])) continue;
