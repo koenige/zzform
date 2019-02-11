@@ -3214,11 +3214,12 @@ function zz_session_delete($type) {
  */
 function zz_session_filename($type) {
 	global $zz_conf;
+	global $zz_setting;
 	$dir = $zz_conf['tmp_dir'].'/zzform-sessions';
 	wrap_mkdir($dir);
 	$filename = sprintf('%s/%s-%s-%s.txt'
 		, $dir
-		, session_id()
+		, (empty(session_id()) OR !empty($zz_setting['zzform_id_from_session'])) ? $zz_conf['id'] : session_id()
 		, $zz_conf['int']['secret_key']
 		, $type
 	);
