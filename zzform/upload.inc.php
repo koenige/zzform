@@ -441,7 +441,12 @@ function zz_upload_check_files($zz_tab) {
 			$images[$no][$img]['upload']['tmp_name'] = $myfilename;
 			$myfilename = false;
 			
-			$images[$no][$img]['upload']['error'] = $myfiles['error'][$field_name];
+			if (!empty($myfiles['error'][$field_name])) {
+				$images[$no][$img]['upload']['error'] = $myfiles['error'][$field_name];
+			} else {
+				// zzform_multi()
+				$images[$no][$img]['upload']['error'] = UPLOAD_ERR_OK;
+			}
 			if (!isset($myfiles['size'][$field_name])) {
 				$myfiles['size'][$field_name] = filesize($images[$no][$img]['upload']['tmp_name']);
 			}
