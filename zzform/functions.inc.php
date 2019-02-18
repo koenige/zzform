@@ -1168,7 +1168,7 @@ function zz_secret_id($mode, $id = '', $hash = '') {
 	}
 	if ($delete_lines) {
 		require_once $zz_setting['core'].'/file.inc.php';
-		wrap_file_delete_line($delete_lines);
+		wrap_file_delete_line($logfile, $delete_lines);
 	}
 
 	if ($mode === 'read') return $found;
