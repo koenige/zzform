@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -288,9 +288,11 @@ function zz_identifier_concat($data, $concat) {
  * @global array $zz_conf
  * @return string $idf
  */
-function zz_identifier_exists($idf, $i, $db_table, $field, $id_field, $id_value,
-	$conf, $maxlen = false) {
+function zz_identifier_exists($idf, $i, $db_table, $field, $id_field, $id_value, $conf, $maxlen = false) {
 	global $zz_conf;
+	static $existing;
+	if (empty($existing[$db_table])) $existing[$db_table] = [];
+
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$sql = 'SELECT %s FROM %s
 		WHERE %s = "%s"
@@ -302,7 +304,7 @@ function zz_identifier_exists($idf, $i, $db_table, $field, $id_field, $id_value,
 		$conf['where'] ? ' AND '.$conf['where'] : ''
 	);
 	$records = zz_db_fetch($sql, $field, 'single value');
-	if ($records) {
+	if ($records OR in_array($idf, $existing[$db_table])) {
 		$start = false;
 		if (is_numeric($i) AND $i > 2) $start = true;
 		elseif (!is_numeric($i) AND $i > 'b') $start = true;
@@ -338,6 +340,7 @@ function zz_identifier_exists($idf, $i, $db_table, $field, $id_field, $id_value,
 			$idf, $i, $db_table, $field, $id_field, $id_value, $conf, $maxlen
 		);
 	}
+	$existing[$db_table][] = $idf;
 	return zz_return($idf);
 }
 
