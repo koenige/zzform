@@ -2236,6 +2236,8 @@ function zz_sequence_normalize($ops, $zz_tab) {
 				if (empty($field['type'])) continue;
 				if ($field['type'] !== 'sequence') continue;
 				$fields[$tab.'-'.$rec]['field_name'] = $field['field_name'];
+				if (!empty($field['sequence_sql']))
+					$fields[$tab.'-'.$rec]['sql'] = $field['sequence_sql'];
 			}
 		}
 	}
@@ -2251,6 +2253,18 @@ function zz_sequence_normalize($ops, $zz_tab) {
 			? $ops['record_old'][$index][$my_field['field_name']] : false;
 		list($tab, $rec) = explode('-', $table['tab-rec']);
 		$sql = $zz_tab[$tab]['sql'];
+		if (!empty($my_field['sql']['join'])) {
+			$sql = wrap_edit_sql($sql, 'JOIN', $my_field['sql']['join']);
+		}
+		if (!empty($my_field['sql']['where_fields'])) {
+			$w_sql = wrap_edit_sql($sql, 'SELECT', implode(', ', $my_field['sql']['where_fields']), 'replace');
+			$w_sql = wrap_edit_sql($w_sql, 'WHERE', sprintf('%s = %d', $zz_tab[$tab][$rec]['id']['field_name'], $zz_tab[$tab][$rec]['id']['value']));
+			$record = wrap_db_fetch($w_sql);
+			$my_field['sql']['where'] = vsprintf($my_field['sql']['where'], $record);
+		}
+		if (!empty($my_field['sql']['where'])) {
+			$sql = wrap_edit_sql($sql, 'WHERE', $my_field['sql']['where']);
+		}
 		// @todo support filter
 		//		if (!empty($_GET['filter'])) {
 		//			require_once $zz_conf['dir_inc'].'/list.inc.php';
