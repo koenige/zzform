@@ -13,7 +13,7 @@
  *		zz_db_*()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -518,10 +518,10 @@ function zz_db_change($sql, $id = false) {
 	// check if statement is allowed
 	$allowed_statements = [
 		'INSERT', 'DELETE', 'UPDATE', 'CREATE TABLE', 'ALTER TABLE',
-		'CREATE VIEW', 'ALTER VIEW'
+		'CREATE VIEW', 'ALTER VIEW', 'SET'
 	];
 	$no_rows_affected = [
-		'CREATE TABLE', 'ALTER TABLE', 'CREATE VIEW', 'ALTER VIEW'
+		'CREATE TABLE', 'ALTER TABLE', 'CREATE VIEW', 'ALTER VIEW', 'SET'
 	];
 	if (!in_array($statement, $allowed_statements)) {
 		$db['action'] = '';
