@@ -2235,7 +2235,7 @@ function zz_sequence_normalize($ops, $zz_tab) {
 			foreach ($record['fields'] as $no => $field) {
 				if (empty($field['type'])) continue;
 				if ($field['type'] !== 'sequence') continue;
-				$fields[$tab.'-'.$rec] = $field['field_name'];
+				$fields[$tab.'-'.$rec]['field_name'] = $field['field_name'];
 			}
 		}
 	}
@@ -2243,11 +2243,12 @@ function zz_sequence_normalize($ops, $zz_tab) {
 	$return = !empty($ops['planned']) ? 'planned' : 'return'; // return for deletion
 	foreach ($ops[$return] as $index => $table) {
 		if (!in_array($table['tab-rec'], array_keys($fields))) continue;
-		if ($ops['record_diff'][$index][$fields[$table['tab-rec']]] === 'same') continue;
-		$new_value = !empty($ops['record_new'][$index][$fields[$table['tab-rec']]])
-			? $ops['record_new'][$index][$fields[$table['tab-rec']]] : false;
-		$old_value = !empty($ops['record_old'][$index][$fields[$table['tab-rec']]])
-			? $ops['record_old'][$index][$fields[$table['tab-rec']]] : false;
+		$my_field = $fields[$table['tab-rec']];
+		if ($ops['record_diff'][$index][$my_field['field_name']] === 'same') continue;
+		$new_value = !empty($ops['record_new'][$index][$my_field['field_name']])
+			? $ops['record_new'][$index][$my_field['field_name']] : false;
+		$old_value = !empty($ops['record_old'][$index][$my_field['field_name']])
+			? $ops['record_old'][$index][$my_field['field_name']] : false;
 		list($tab, $rec) = explode('-', $table['tab-rec']);
 		$sql = $zz_tab[$tab]['sql'];
 		// @todo support filter
@@ -2259,22 +2260,22 @@ function zz_sequence_normalize($ops, $zz_tab) {
 		// does new sequence value already exist?
 		// then update existing and following values +/- 1
 		if ($new_value) {
-			$key = array_search($new_value, array_column($data, $fields[$table['tab-rec']]));
+			$key = array_search($new_value, array_column($data, $my_field['field_name']));
 			if (!$key) continue;
 		}
 
 		// get IDs for updates
 		$updates = [];
 		foreach ($data as $id => $line) {
-			if ($line[$fields[$table['tab-rec']]].'' === $old_value.'') continue; // current record
+			if ($line[$my_field['field_name']].'' === $old_value.'') continue; // current record
 			if (!$new_value) {
-				if ($line[$fields[$table['tab-rec']]] < $old_value) continue;
+				if ($line[$my_field['field_name']] < $old_value) continue;
 			} elseif ($new_value < $old_value OR !$old_value) {
-				if ($line[$fields[$table['tab-rec']]] < $new_value) continue;
-				if ($old_value AND $line[$fields[$table['tab-rec']]] > $old_value) continue;
+				if ($line[$my_field['field_name']] < $new_value) continue;
+				if ($old_value AND $line[$my_field['field_name']] > $old_value) continue;
 			} else {
-				if ($line[$fields[$table['tab-rec']]] > $new_value) continue;
-				if ($old_value AND $line[$fields[$table['tab-rec']]] < $old_value) continue;
+				if ($line[$my_field['field_name']] > $new_value) continue;
+				if ($old_value AND $line[$my_field['field_name']] < $old_value) continue;
 			}
 			$updates[] = $id;
 		}
@@ -2284,19 +2285,19 @@ function zz_sequence_normalize($ops, $zz_tab) {
 		// problems with unique keys
 		if ($old_value AND $new_value) {
 			$field_def = zz_db_columns(
-				$zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table'], $fields[$table['tab-rec']]
+				$zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table'], $my_field['field_name']
 			);
 			if (empty($field_def['max_int_value'])) {
 				zz_error_log([
 					'msg_dev' => 'Field has no maximum integer value (is it an integer?): %s.%s.%s',
-					'msg_dev_args' => [$zz_tab[$tab]['db_name'], $zz_tab[$tab]['table'], $fields[$table['tab-rec']]]
+					'msg_dev_args' => [$zz_tab[$tab]['db_name'], $zz_tab[$tab]['table'], $my_field['field_name']]
 				]);
 				continue;
 			}
 			$sql = 'UPDATE %s SET %s = %d WHERE %s = %d';
 			$sql = sprintf($sql
 				, $zz_tab[$tab]['table']
-				, $fields[$table['tab-rec']]
+				, $my_field['field_name']
 				, $field_def['max_int_value']
 				, $zz_tab[$tab][$rec]['id']['field_name']
 				, $ops['record_new'][$index][$zz_tab[$tab][$rec]['id']['field_name']]
@@ -2308,8 +2309,8 @@ function zz_sequence_normalize($ops, $zz_tab) {
 		$sql = 'UPDATE %s SET %s = %s %s 1 WHERE %s IN (%s)';
 		$sql = sprintf($sql
 			, $zz_tab[$tab]['table']
-			, $fields[$table['tab-rec']]
-			, $fields[$table['tab-rec']]
+			, $my_field['field_name']
+			, $my_field['field_name']
 			, ($new_value AND ($new_value < $old_value OR !$old_value)) ? '+': '-'
 			, $zz_tab[$tab][$rec]['id']['field_name']
 			, implode(',', $updates)
