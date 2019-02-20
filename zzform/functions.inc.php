@@ -263,6 +263,9 @@ function zz_module_fieldchecks($field, $key, $type) {
  *		'full' = full URL with base and request path
  */
 function zz_get_url_self($url_self) {
+	global $zz_page;
+	$my_uri = $zz_page['url']['full'];
+
 	// some basic settings
 	$url['self'] = $url_self;
 	// normal situation: there is no query string in the base url, 
@@ -270,19 +273,11 @@ function zz_get_url_self($url_self) {
 	$url['?&'] = '?';
 	// no base query string which belongs url_self
 	$url['qs'] = '';
-	$url['scheme'] = (isset($_SERVER['HTTPS']) AND $_SERVER['HTTPS'] === 'on') 
-		? 'https'
-		: 'http';
-	$host = preg_match('/^[a-zA-Z0-9-\.]+$/', $_SERVER['HTTP_HOST'])
-		? $_SERVER['HTTP_HOST']
-		: $_SERVER['SERVER_NAME'];
-	$url['base'] = $url['scheme'].'://'.$host;
+	$url['scheme'] = $my_uri['scheme'];
+	$url['base'] = $url['scheme'].'://'.$my_uri['host'];
 	if (!in_array($_SERVER['SERVER_PORT'], [80, 443])) {
 		$url['base'] .= sprintf(':%s', $_SERVER['SERVER_PORT']);
 	}
-
-	// get own URI
-	$my_uri = parse_url($url['base'].$_SERVER['REQUEST_URI']);
 
 	if (!$url_self) {
 		// nothing was defined, we just do it as we like
