@@ -2256,9 +2256,13 @@ function zz_sequence_normalize($ops, $zz_tab) {
 		if (!empty($my_field['sql']['join'])) {
 			$sql = wrap_edit_sql($sql, 'JOIN', $my_field['sql']['join']);
 		}
-		if (!empty($my_field['sql']['where_fields'])) {
-			$w_sql = wrap_edit_sql($sql, 'SELECT', implode(', ', $my_field['sql']['where_fields']), 'replace');
-			$w_sql = wrap_edit_sql($w_sql, 'WHERE', sprintf('%s = %d', $zz_tab[$tab][$rec]['id']['field_name'], $zz_tab[$tab][$rec]['id']['value']));
+		if (!empty($my_field['sql']['values'])) {
+			if (!$new_value) continue; // @todo does not work for DELETE (after_delete)
+			$values = [];
+			foreach ($my_field['sql']['values'] as $field) {
+				$values[] = zz_check_values($zz_tab[0][0]['POST'], $field);
+			}
+			$w_sql = vsprintf($my_field['sql']['values_sql'], $values);
 			$record = wrap_db_fetch($w_sql);
 			$my_field['sql']['where'] = vsprintf($my_field['sql']['where'], $record);
 		}
@@ -2275,7 +2279,7 @@ function zz_sequence_normalize($ops, $zz_tab) {
 		// then update existing and following values +/- 1
 		if ($new_value) {
 			$key = array_search($new_value, array_column($data, $my_field['field_name']));
-			if (!$key) continue;
+			if ($key === false) continue;
 		}
 
 		// get IDs for updates
