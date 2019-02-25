@@ -3636,10 +3636,10 @@ function zz_check_select_translated($field, $text) {
  *
  * @param array $post
  * @param string $field_name
- * @param string $value
+ * @param string $value (NULL: get value, other: set value)
  * @return array
  */
-function zz_check_values($post, $field_name, $value) {
+function zz_check_values($post, $field_name, $value = NULL) {
 	if (strstr($field_name, '[')) {
 		$fields = explode('[', $field_name);
 		foreach ($fields as $index => $field) {
@@ -3647,10 +3647,18 @@ function zz_check_values($post, $field_name, $value) {
 			$fields[$index] = trim($field, ']');
 		}
 		if (count($fields) === 3) {
-			$post[$fields[0]][$fields[1]][$fields[2]] = $value;
+			if (is_null($value)) {
+				return $post[$fields[0]][$fields[1]][$fields[2]];
+			} else {
+				$post[$fields[0]][$fields[1]][$fields[2]] = $value;
+			}
 		}
 	} else {
-		$post[$field_name] = $value;
+		if (is_null($value)) {
+			return($post[$field_name]);
+		} else {
+			$post[$field_name] = $value;
+		}
 	}
 	return $post;
 }
