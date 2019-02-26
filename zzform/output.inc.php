@@ -678,7 +678,7 @@ function zz_extra_get_params($mode, $zz_conf) {
 		$keep_query['nolist'] = true;
 	if ($zz_conf['int']['this_limit'] AND $zz_conf['int']['this_limit'] != $zz_conf['limit'])
 		$keep_query['limit'] = $zz_conf['int']['this_limit'];
-	elseif ($zz_conf['int']['limit_last'])
+	elseif (!empty($zz_conf['int']['limit_last']))
 		$keep_query['limit'] = 'last';
 
 	$extra_get = http_build_query($keep_query);
