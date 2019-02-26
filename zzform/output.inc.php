@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -676,8 +676,10 @@ function zz_extra_get_params($mode, $zz_conf) {
 	// write some query strings differently
 	if (isset($_GET['nolist'])) 
 		$keep_query['nolist'] = true;
-	if ($zz_conf['int']['this_limit'] && $zz_conf['int']['this_limit'] != $zz_conf['limit'])
+	if ($zz_conf['int']['this_limit'] AND $zz_conf['int']['this_limit'] != $zz_conf['limit'])
 		$keep_query['limit'] = $zz_conf['int']['this_limit'];
+	elseif ($zz_conf['int']['limit_last'])
+		$keep_query['limit'] = 'last';
 
 	$extra_get = http_build_query($keep_query);
 	if ($extra_get) 
