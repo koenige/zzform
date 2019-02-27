@@ -264,7 +264,10 @@ function zz_module_fieldchecks($field, $key, $type) {
  */
 function zz_get_url_self($url_self) {
 	global $zz_page;
+	global $zz_setting;
+
 	$my_uri = $zz_page['url']['full'];
+	$my_uri['path'] = $zz_setting['base'].$my_uri['path'];
 
 	// some basic settings
 	$url['self'] = $url_self;
