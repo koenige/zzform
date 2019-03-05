@@ -2422,6 +2422,8 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 				.' -- Current Value: '
 				.zz_html_escape($record[$field['field_name']])
 				.' -- Error --<br>'.zz_text('no_selection_possible');
+		} elseif (!empty($field['disabled']) AND in_array($line[$id_field_name], $field['disabled'])) {
+			$outputf = zz_text('no_selection_possible');
 		} else {
 			$outputf = zz_form_element($field['f_field_name'], $line[$id_field_name],
 				'hidden', true).zz_draw_select($field, $record, $line, $id_field_name);
