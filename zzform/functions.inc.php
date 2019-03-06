@@ -2536,7 +2536,7 @@ function zz_error() {
 			$mail['message'] .= "\nUser: ".$zz_conf['user'];
 
 		if (empty($zz_conf['mail_subject_prefix']))
-			$zz_conf['mail_subject_prefix'] = $zz_conf['project'];
+			$zz_conf['mail_subject_prefix'] = '['.$zz_conf['project'].']';
 		$mail['subject'] = zz_text('Error during database operation');
 		$mail['to'] = $zz_conf['error_mail_to'];
 		wrap_mail($mail);
