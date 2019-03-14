@@ -82,17 +82,11 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 	$searchfields = [];
 	$q_search = [];
 	// fields that won't be used for search
-	$unsearchable_fields = [
-		'image', 'calculated', 'timestamp', 'upload_image', 'option'
-	];
 	$search = false;
 	$found = false;
 	foreach ($fields as $field) {
 		if (empty($field)) continue;
-		// is it a field explicitly excluded from search?
-		if (!empty($field['exclude_from_search'])) continue;
-		// is it a field which cannot be searched?
-		if (in_array($field['type'], $unsearchable_fields)) continue;
+		if (!zz_search_searchable($field)) continue;
 		
 		if ($scope) {
 			$search = zz_search_scope($field, $table, $scope);
@@ -491,9 +485,6 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 
 	$self = $zz_conf['int']['url']['self'];
 	// fields that won't be used for search
-	$unsearchable_fields = [
-		'image', 'calculated', 'timestamp', 'upload_image', 'option'
-	];
 	$output = "\n".'<form method="GET" action="%s" class="zzsearch" accept-charset="%s"><p>';
 	$output = sprintf($output, $self, $zz_conf['character_set']);
 	if ($qs = $zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']) { 
@@ -514,8 +505,7 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 	$output.= '<select name="scope">';
 	$output.= '<option value="">'.zz_text('all fields').'</option>'."\n";
 	foreach ($fields as $field) {
-		if (in_array($field['type'], $unsearchable_fields)) continue;
-		if (!empty($field['exclude_from_search'])) continue;
+		if (!zz_search_searchable($field)) continue;
 		if ($field['type'] === 'subtable') {
 			if (empty($field['subselect'])) continue;
 			$fieldname = $field['table_name'];
@@ -548,4 +538,24 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 		$search_form['bottom'] = $output;
 	}
 	return $search_form;
+}
+
+/**
+ * unsearchable fields
+ *
+ * @return bool false: no search possible
+ */
+function zz_search_searchable($field) {
+	// is it a field explicitly excluded from search?
+	if (!empty($field['exclude_from_search']))
+		return false;
+
+	// is it a field which cannot be searched?
+	if (in_array($field['type'], [
+		'image', 'calculated', 'timestamp', 'upload_image', 'option', 'captcha'
+	]))
+		return false;
+
+	// all other fields
+	return true;
 }
