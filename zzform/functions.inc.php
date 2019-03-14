@@ -1009,6 +1009,18 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 				$fields[$no]['type'] = 'number';
 			}
 			break;
+		case 'captcha':
+			if (!empty($action) AND $action !== 'insert') {
+				unset($fields[$no]);
+				continue 2;
+			}
+			if (!empty($mode) AND $mode !== 'add') {
+				unset($fields[$no]);
+				continue 2;
+			}
+			$fields[$no]['hide_in_list'] = true;
+			$fields[$no]['export'] = false;
+			break;
 		}
 		if (in_array(zz_get_fieldtype($fields[$no]), ['time', 'datetime'])) {
 			if (empty($fields[$no]['time_format'])) {
