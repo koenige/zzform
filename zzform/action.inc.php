@@ -767,9 +767,9 @@ function zz_action_change($ops, $zz_tab, $change) {
 	}
 	
 	if (!empty($change['integrity_delete'])) {
-		if (empty($zz_tab['integrity_delete']))
-			$zz_tab['integrity_delete'] = [];
-		$zz_tab['integrity_delete'] = array_merge_recursive($zz_tab['integrity_delete'], $change['integrity_delete']);
+		if (empty($zz_tab[0]['integrity_delete']))
+			$zz_tab[0]['integrity_delete'] = [];
+		$zz_tab[0]['integrity_delete'] = array_merge_recursive($zz_tab[0]['integrity_delete'], $change['integrity_delete']);
 	}
 	
 	// record? replace values as needed
@@ -2023,8 +2023,8 @@ function zz_integrity_dependent_record_ids($zz_tab, $relations) {
 			);
 		}
 	}
-	if (!empty($zz_tab['integrity_delete']))
-		$details = array_merge_recursive($details, $zz_tab['integrity_delete']);
+	if (!empty($zz_tab[0]['integrity_delete']))
+		$details = array_merge_recursive($details, $zz_tab[0]['integrity_delete']);
 	return $details;
 }
 
