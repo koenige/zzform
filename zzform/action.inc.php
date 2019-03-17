@@ -766,6 +766,12 @@ function zz_action_change($ops, $zz_tab, $change) {
 		$ops['no_validation'] = true;
 	}
 	
+	if (!empty($change['integrity_delete'])) {
+		if (empty($zz_tab['integrity_delete']))
+			$zz_tab['integrity_delete'] = [];
+		$zz_tab['integrity_delete'] = array_merge_recursive($zz_tab['integrity_delete'], $change['integrity_delete']);
+	}
+	
 	// record? replace values as needed
 	if (!empty($change['record_replace'])) {
 		// get record definition from planned or not_validated
@@ -2017,6 +2023,8 @@ function zz_integrity_dependent_record_ids($zz_tab, $relations) {
 			);
 		}
 	}
+	if (!empty($zz_tab['integrity_delete']))
+		$details = array_merge_recursive($details, $zz_tab['integrity_delete']);
 	return $details;
 }
 
