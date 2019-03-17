@@ -2412,23 +2412,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 		AND (!zz_db_field_null($field['field_name'], $db_table)
 			OR !empty($field['required']))
 	) {
-		$line = array_shift($lines);
-		// get ID field_name which must be 1st field in SQL query
-		$id_field_name = array_keys($line);
-		$id_field_name = current($id_field_name);
-		// compare as strings here!
-		if ($record AND $record[$field['field_name']] AND $line[$id_field_name].'' !== $record[$field['field_name']].'') {
-			$outputf = 'Possible Values: '.$line[$id_field_name]
-				.' -- Current Value: '
-				.zz_html_escape($record[$field['field_name']])
-				.' -- Error --<br>'.zz_text('no_selection_possible');
-		} elseif (!empty($field['disabled']) AND in_array($line[$id_field_name], $field['disabled'])) {
-			$outputf = zz_text('no_selection_possible');
-		} else {
-			$outputf = zz_form_element($field['f_field_name'], $line[$id_field_name],
-				'hidden', true).zz_draw_select($field, $record, $line, $id_field_name);
-		}
-		return zz_return($outputf);
+		return zz_return(zz_field_select_single($lines, $record, $field));
 	}
 
 // #1.3 SELECT has one or several results, let user select something
@@ -2448,8 +2432,6 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 	// re-index lines by id_field_name if it makes sense
 	if (!$too_many_records) {
 		$lines = zz_field_select_lines($field, $lines, $id_field_name);
-		
-
 		// do we have to display the results hierarchical?
 		if (!empty($field['show_hierarchy'])) {
 			$lines = zz_field_select_hierarchy($field, $lines, $record, $id_field_name);
@@ -2460,6 +2442,13 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 		$count_rows = count($lines);
 	} else {
 		$count_rows = $lines[0];
+	}
+
+	if ($display === 'form' AND $count_rows === 1 
+		AND (!zz_db_field_null($field['field_name'], $db_table)
+			OR !empty($field['required']))
+	) {
+		return zz_return(zz_field_select_single($lines, $record, $field));
 	}
 
 	// 1.3.2: more records than we'd like to display
@@ -2534,6 +2523,34 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 	zz_error();
 	$outputf .= zz_error_output();
 	return zz_return($outputf);
+}
+
+/**
+ * just one line for select: return preselected
+ *
+ * @param array $lines
+ * @param array $record
+ * @param array $field
+ * @return string
+ */
+function zz_field_select_single($lines, $record, $field) {
+	$line = array_shift($lines);
+	// get ID field_name which must be 1st field in SQL query
+	$id_field_name = array_keys($line);
+	$id_field_name = current($id_field_name);
+	// compare as strings here!
+	if ($record AND $record[$field['field_name']] AND $line[$id_field_name].'' !== $record[$field['field_name']].'') {
+		$outputf = 'Possible Values: '.$line[$id_field_name]
+			.' -- Current Value: '
+			.zz_html_escape($record[$field['field_name']])
+			.' -- Error --<br>'.zz_text('no_selection_possible');
+	} elseif (!empty($field['disabled']) AND in_array($line[$id_field_name], $field['disabled'])) {
+		$outputf = zz_text('no_selection_possible');
+	} else {
+		$outputf = zz_form_element($field['f_field_name'], $line[$id_field_name],
+			'hidden', true).zz_draw_select($field, $record, $line, $id_field_name);
+	}
+	return $outputf;
 }
 
 /**
