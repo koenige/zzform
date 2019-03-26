@@ -3379,7 +3379,7 @@ function zz_draw_select($field, $record, $line, $id_field_name, $form = false, $
 		$level = $line['zz_level'];
 		unset($line['zz_level']);
 	} else {
-		$level= '';
+		$level = '';
 	}
 	if ($addlevel) $level++;
 	if (empty($field['sql_index_only'])) {
@@ -3402,8 +3402,7 @@ function zz_draw_select($field, $record, $line, $id_field_name, $form = false, $
 	// if only the id key is in the query, eg. show databases:
 	if (!$details) $details = $line[$key]; 
 	if (is_array($details)) $details = zz_field_concat($field, $details);
-	// remove tags, leave &#-Code as is
-	$fieldvalue = strip_tags($details);
+	$fieldvalue = $details;
 	// remove linebreaks
 	$fieldvalue = str_replace("\r\n", " ", $fieldvalue);
 	if ($form === 'reselect') {
@@ -3414,6 +3413,8 @@ function zz_draw_select($field, $record, $line, $id_field_name, $form = false, $
 		// will be checked against!
 		$output = zz_form_element($field['f_field_name'], $fieldvalue.' ', 'text_noescape', true, $fieldattr);
 	} elseif ($form) {
+		// remove tags, leave &#-Code as is
+		$fieldvalue = strip_tags($fieldvalue);
 		$fieldattr = [];
 		// check == to compare strings with numbers as well
 		if ($record AND $line[$id_field_name] == $record[$field['field_name']]) {
