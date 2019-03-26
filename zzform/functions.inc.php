@@ -3477,13 +3477,13 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 		if ($field['sql'] === 'SHOW DATABASES') {
 			$likestring = '%s LIKE %s"%%%s%%"';
 		} else {
-			$likestring = 'REPLACE(%s, "\r\n", " ") LIKE %s"%%%s%%"';
+			$likestring = ' LIKE %s"%%%s%%"';
 		}
 	} else {
 		if ($field['sql'] === 'SHOW DATABASES') {
 			$likestring = '%s = %s"%s"';
 		} else {
-			$likestring = 'REPLACE(%s, "\r\n", " ") = %s"%s"';
+			$likestring = ' = %s"%s"';
 		}
 		if (count($field['sql_fieldnames']) -1 === count($postvalues)
 			AND !$zz_conf['multi']) {
@@ -3507,7 +3507,11 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 			// reduces string with dots which come from values which have 
 			// been cut beforehands, use LIKE!
 			$value = $short_value[1];
-			$my_likestring = 'REPLACE(%s, "\r\n", " ") LIKE %s"%s%%"';
+			$my_likestring = ' LIKE %s"%s%%"';
+		}
+		if (substr($my_likestring, 0, 1) === ' ') {
+			// remove tags, remove line breaks when comparing
+			$my_likestring = 'REGEXP_REPLACE(REPLACE(%s, "\r\n", " "), "<.+?>" , "") '.$my_likestring;
 		}
 		// maybe there is no index 0, therefore we need a new variable $i
 		$i = 0;
