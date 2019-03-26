@@ -3511,7 +3511,7 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 		}
 		if (substr($my_likestring, 0, 1) === ' ') {
 			// remove tags, remove line breaks when comparing
-			$my_likestring = 'REGEXP_REPLACE(REPLACE(%s, "\r\n", " "), "<.+?>" , "") '.$my_likestring;
+			$my_likestring = 'REPLACE(%s, "\r\n", " ") '.$my_likestring;
 		}
 		// maybe there is no index 0, therefore we need a new variable $i
 		$i = 0;
