@@ -3575,7 +3575,7 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 	$field['possible_values'] = zz_db_fetch(
 		$field['sql_new'], 'dummy_id', 'single value'
 	);
-	if (!empty($field['sql_translate'])) {
+	if (!empty($field['sql_translate']) AND !empty($zz_conf['translations_table'])) {
 		$possible_values = zz_check_select_translated($field, $postvalues);
 		if ($possible_values) {
 			// add IDs to sql_new, in case there's more than one result
