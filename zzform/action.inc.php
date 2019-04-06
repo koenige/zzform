@@ -1376,7 +1376,11 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				foreach ($field['fields'] as $var) {
 					if (strstr($var, '.')) {
 						$vars = explode('.', $var);
-						$func_vars[$var] = $my_rec['POST'][$vars[0]][0][$vars[1]];
+						if (!empty($my_rec['POST'][$vars[0]][0][$vars[1]])) {
+							$func_vars[$var] = $my_rec['POST'][$vars[0]][0][$vars[1]];
+						} else {
+							$func_vars[$var] = '';
+						}
 					} else {
 						$func_vars[$var] = $my_rec['POST'][$var];
 					}
