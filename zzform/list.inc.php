@@ -334,7 +334,7 @@ function zz_list_inline($fields, $lines) {
 			}
 			if (in_array($subfield['type'], ['id', 'foreign_key', 'timestamp'])) continue;
 			$fn = !empty($subfield['display_field']) ? $subfield['display_field'] : $subfield['field_name'];
-			$subfield['display_field'] = $field['table_name'].'.'.$fn;
+			$subfield['row_value'] = $field['table_name'].'.'.$fn;
 			$pos++;
 			array_splice($fields, $pos, 0, [$subfield]);
 		}
@@ -1375,6 +1375,9 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 		$text = zz_htmltag_escape($text);
 		$mark_search_string = 'display_field';
 	} else {
+		if (isset($field['row_value'])) {
+			$row['value'] = $line[$field['row_value']];
+		}
 		//	go for type of field if no display field is set
 		switch ($field['type']) {
 		case 'calculated':
