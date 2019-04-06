@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -645,7 +645,7 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 		}
 	}
 	
-	list($lines, $extra) = zz_list_get_subselects($lines, $subselects);
+	list($lines, $extra) = zz_list_get_subselects($lines, $subselects, $mode);
 	
 	// put lines in new array, rows.
 	// $rows[$z][0]['text'] = '';
@@ -2253,17 +2253,16 @@ function zz_list_init_subselects($field, $fieldindex, $table_id_field_name) {
 /**
  * get values for "subselects" in detailrecords
  *
- * @param array $rows
+ * @param array $lines
  * @param array $subselects List of detail records with an SQL query
  *		$zz['fields'][n]['subselect'] = ...;
  *			required keys: 'sql', 'id_table_and_fieldname', 'id_field_name'
  *			optional keys: 'translation_key', 'list_format', 'export_no_html',
  *			'prefix', 'concat_rows', 'suffix', 'concat_fields', 'show_empty_cells'
- * @param array $ids
- * @param array $field
+ * @param string $mode
  * @return array
  */
-function zz_list_get_subselects($lines, $subselects) {
+function zz_list_get_subselects($lines, $subselects, $mode) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$extra = [];
@@ -2278,9 +2277,15 @@ function zz_list_get_subselects($lines, $subselects) {
 		}
 	
 		// default values
-		if (!isset($subselect['prefix'])) $subselect['prefix'] = '<p>';
-		if (!isset($subselect['concat_rows'])) $subselect['concat_rows'] = "</p>\n<p>";
-		if (!isset($subselect['suffix'])) $subselect['suffix'] = '</p>';
+		if (!empty($subselect['export_no_html']) AND $mode === 'export') {
+			if (!isset($subselect['prefix'])) $subselect['prefix'] = '';
+			if (!isset($subselect['concat_rows'])) $subselect['concat_rows'] = "\n";
+			if (!isset($subselect['suffix'])) $subselect['suffix'] = '';
+		} else {
+			if (!isset($subselect['prefix'])) $subselect['prefix'] = '<p>';
+			if (!isset($subselect['concat_rows'])) $subselect['concat_rows'] = "</p>\n<p>";
+			if (!isset($subselect['suffix'])) $subselect['suffix'] = '</p>';
+		}
 		if (!isset($subselect['concat_fields'])) $subselect['concat_fields'] = ' ';
 		if (!isset($subselect['show_empty_cells'])) $subselect['show_empty_cells'] = false;
 		if (!isset($subselect['link'])) $subselect['link'] = [];
