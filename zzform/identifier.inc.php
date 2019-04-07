@@ -70,7 +70,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 		'ignore_this_if' => [], 'empty' => [], 'uppercase' => false,
 		'function' => false, 'function_parameter' => false,
 		'unique_with' => [], 'where' => '', 'strip_tags' => false,
-		'exists_format' => '%s'
+		'exists_format' => '%s', 'ignore_this_if_identical' => []
 	];
 	foreach ($default_configuration as $key => $value) {
 		if (!isset($conf[$key])) $conf[$key] = $value;
@@ -83,7 +83,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 	foreach ($conf_arrays as $key) {
 		if (!is_array($conf[$key])) $conf[$key] = [$conf[$key]];
 	}
-	$conf_arrays_in_arrays = ['ignore_this_if'];
+	$conf_arrays_in_arrays = ['ignore_this_if', 'ignore_this_if_identical'];
 	foreach ($conf_arrays_in_arrays as $key) {
 		foreach ($conf[$key] as $subkey => $value) {
 			if (!is_array($value)) $conf[$key][$subkey] = [$value];
@@ -108,6 +108,11 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 		if (!empty($conf['ignore_this_if'][$key])) {
 			foreach ($conf['ignore_this_if'][$key] as $my_field_name) {
 				if (!empty($vars[$my_field_name])) continue 2;
+			}
+		}
+		if (!empty($conf['ignore_this_if_identical'][$key])) {
+			foreach ($conf['ignore_this_if_identical'][$key] as $my_field_name) {
+				if ($vars[$my_field_name] === $vars[$key]) continue 2;
 			}
 		}
 		if (!$var AND $var !== '0') {
