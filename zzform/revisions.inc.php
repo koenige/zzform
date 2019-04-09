@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2016-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2016-2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -101,6 +101,7 @@ function zz_revisions_read($table, $record_id) {
 	$sql = sprintf($sql, $_SESSION['user_id'], $table, $record_id);
 	$revisions = wrap_db_fetch($sql, 'revisiondata_id');
 	$data = [];
+	$dummy_ids = [];
 	foreach ($revisions as $rev) {
 		switch ($rev['rev_action']) {
 		case 'update':
@@ -121,7 +122,14 @@ function zz_revisions_read($table, $record_id) {
 			}
 			break 2; // once a record is deleted, the rest is uninteresting
 		case 'insert':
-			// @todo
+			if ($table === $rev['table_name']) break; // @todo
+			$changed_values = json_decode($rev['changed_values']);
+			if (empty($dummy_ids[$rev['table_name']]))
+				$dummy_ids[$rev['table_name']] = 0;
+			$dummy_id = $dummy_ids[$rev['table_name']] -1;
+			foreach ($changed_values as $field => $value) {
+				$data[$rev['table_name']][$dummy_id][$field] = $value;
+			}
 			break;
 		}
 	}
