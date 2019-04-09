@@ -1364,9 +1364,20 @@ function zz_query_single_record($sql, $table, $id, $sqlextra, $type = 'value') {
 		$record = array_merge($record, zz_db_fetch($sql));
 	}
 	if (!empty($zz_conf['int']['revisions_only'])) {
+		if (empty($zz_conf['int']['revision_data']))
+			$zz_conf['int']['revision_data'] = [];
 		$data = zz_revisions_read($table, $id['value']);
+		if (!$data AND !empty($zz_conf['int']['revision_data'][$table])
+			AND array_key_exists($id['value'], $zz_conf['int']['revision_data'][$table])) {
+			$data = $zz_conf['int']['revision_data'][$table][$id['value']];
+		}
 		foreach ($data as $field => $value) {
-			if (is_array($value)) continue; // @todo, it's a subrecord
+			if (is_array($value)) {
+				// it's a detail record
+				if (empty($zz_conf['int']['revision_data'][$field]))
+					$zz_conf['int']['revision_data'][$field] = [];
+				$zz_conf['int']['revision_data'][$field] += $value;
+			}
 			$record[$field] = $value;
 		}
 	}
