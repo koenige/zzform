@@ -1080,7 +1080,7 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 		default:
 			//	slashes, 0 and NULL
 			if ($my_rec['POST_db'][$field_name]) {
-				if (empty($zz_conf['mysql5.5_support']) AND zz_get_fieldtype($field) === 'ip') {
+				if (mysqli_get_server_info($zz_conf['db_connection']) >= '5.6.0' AND zz_get_fieldtype($field) === 'ip') {
 					$my_rec['POST_db'][$field_name] = sprintf(
 						'INET6_ATON("%s")', 
 						wrap_db_escape($my_rec['POST_db'][$field_name])
@@ -1439,7 +1439,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				$my_rec['validation'] = false;
 			}
 			// @deprecated: old MySQL 5.5 support
-			if (!empty($zz_conf['mysql5.5_support'])) {
+			if (mysqli_get_server_info($zz_conf['db_connection']) < '5.6.0') {
 				$my_rec['POST'][$field_name] = $value;
 			}
 			break;			
