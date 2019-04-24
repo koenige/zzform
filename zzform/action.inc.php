@@ -1080,7 +1080,12 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 		default:
 			//	slashes, 0 and NULL
 			if ($my_rec['POST_db'][$field_name]) {
-				if (!zz_db_numeric_field($db_table, $field_name)) {
+				if (empty($zz_conf['mysql5.5_support']) AND zz_get_fieldtype($field) === 'ip') {
+					$my_rec['POST_db'][$field_name] = sprintf(
+						'INET6_ATON("%s")', 
+						wrap_db_escape($my_rec['POST_db'][$field_name])
+					);
+				} elseif (!zz_db_numeric_field($db_table, $field_name)) {
 					$encoding = '';
 					if (in_array(zz_get_fieldtype($field), $binary_fields)) {
 						$encoding = '_binary';
@@ -1428,10 +1433,14 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			}
 			// don't convert it twice (hooks!)
 			if (@inet_ntop($my_rec['POST'][$field_name])) break;
-			$my_rec['POST'][$field_name] = @inet_pton($my_rec['POST'][$field_name]);
-			if (!$my_rec['POST'][$field_name]) {
+			$value = @inet_pton($my_rec['POST'][$field_name]);
+			if (!$value) {
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['validation'] = false;
+			}
+			// @deprecated: old MySQL 5.5 support
+			if (!empty($zz_conf['mysql5.5_support'])) {
+				$my_rec['POST'][$field_name] = $value;
 			}
 			break;			
 		case 'number':
