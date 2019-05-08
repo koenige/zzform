@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2014-2015, 2017 Gustaf Mossakowski
+ * @copyright Copyright © 2014-2015, 2017, 2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -23,9 +23,6 @@ function zz_merge_records($zz) {
 	if (count($_POST['zz_record_id']) < 2) return false;
 
 	$msg = [];
-	$uncheck = false;
-	$title = '';
-
 	$ids = [];
 	foreach ($_POST['zz_record_id'] as $id) {
 		$ids[] = intval($id);
@@ -65,7 +62,7 @@ function zz_merge_records($zz) {
 				).'</p>';
 			}
 			return [
-				'msg' => $msg, 'uncheck' => $uncheck, 'title' => $title
+				'msg' => $msg, 'uncheck' => false, 'title' => ''
 			];
 		}
 	}
@@ -78,6 +75,7 @@ function zz_merge_records($zz) {
 	$sql = sprintf($sql, $zz_conf['relations_table'], $zz_conf['db_name'], $zz['table'], $id_field_name);
 	$dependent_records = zz_db_fetch($sql, 'rel_id');
 	
+	$uncheck = false;
 	$dependent_sql = 'SELECT %s, %s FROM %s.%s WHERE %s IN (%s)';
 	$record_sql = 'UPDATE %s SET %s = %%d WHERE %s = %%d';
 	$error = false;
@@ -268,6 +266,8 @@ function zz_merge_records($zz) {
 		// everything okay, so don't output all the details
 		$title = sprintf(zz_text('%d records merged successfully'), count($old_ids) + 1);
 		$msg = [];
+	} else {
+		$title = '';
 	}
 
 	// @todo redirect on change
