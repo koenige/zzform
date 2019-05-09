@@ -1371,7 +1371,11 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 	$text = '';
 
 	if (isset($field['display_field'])) {
-		$text = $line[$field['display_field']];
+		if (isset($field['row_value'])) {
+			$text = $line[$field['row_value']];
+		} else {
+			$text = $line[$field['display_field']];
+		}
 		$text = zz_htmltag_escape($text);
 		$mark_search_string = 'display_field';
 	} else {
