@@ -2185,7 +2185,8 @@ function zz_list_th($field, $mode = 'html') {
 	if ($mode === 'nohtml') return $out;
 	
 	// create a link to order this column if desired
-	if (isset($field['display_field'])) $order_val = $field['display_field'];
+	if (isset($field['row_value'])) $order_val = $field['row_value'];
+	elseif (isset($field['display_field'])) $order_val = $field['display_field'];
 	else $order_val = $field['field_name'];
 	$unwanted_keys = [
 		'dir', 'delete', 'insert', 'update', 'noupdate', 'zzhash'
