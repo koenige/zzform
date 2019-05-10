@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -448,12 +448,12 @@ function zz_export_script($type) {
 	// script may reside in extra file
 	// if not, function has to exist already
 	$script_filename = $zz_conf['dir_custom'].'/export-'.$type.'-'
-		.str_replace( ' ', '-', $zz_conf['int']['export_script']).'.inc.php';
+		.$zz_conf['int']['export_script'].'.inc.php';
 	if (file_exists($script_filename))
 		require_once $script_filename;
 
 	// check if custom function exists
-	$function = 'export_'.$type.'_'.str_replace(' ', '_', $zz_conf['int']['export_script']);
+	$function = 'export_'.$type.'_'.str_replace('-', '_', $zz_conf['int']['export_script']);
 	if (!function_exists($function)) {
 		echo 'Sorry, the required custom '.strtoupper($type).' export function <code>'
 			.$function.'()</code> does not exist.';
