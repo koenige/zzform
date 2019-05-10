@@ -180,14 +180,25 @@ function zz_search_field($field, $table, $searchop, $searchword) {
 				if (preg_match('/^[0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/', $searchword) AND $searchop === '%LIKE%') $searchop = '=';
 				break;
 			case 'date':
-				if ($timesearch) $searchword = date('Y-m-d', $timesearch);
-				elseif (preg_match('/^([0-9]+)\.([0-9]+)\.$/', $searchword, $matches)) {
+				preg_match('/^([0-9]+)$/', $searchword, $matches);
+				if ($timesearch) {
+					$searchword = date('Y-m-d', $timesearch);
+				} elseif (preg_match('/^([0-9]+)\.([0-9]+)\.$/', $searchword, $matches)) {
 					$searchword = sprintf('%1$02d-%2$02d', $matches[2], $matches[1]);
+				} elseif (preg_match('/^(\d{1,4})-(\d{0,2})$/', $searchword, $matches)) {
+					$searchop = 'YEAR-MONTH';
+					$searchword = $matches;
+				} elseif (preg_match('/^(\d{1,2})$/', $searchword, $matches)) {
+					$searchop = 'MONTH';
+					$searchword = $matches[1];
+				} elseif (preg_match('/^(\d{1,4})$/', $searchword, $matches)) {
+					$searchop = 'YEAR';
+					$searchword = $matches[1];
 				}
-				if (preg_match('/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/', $searchword) AND $searchop === '%LIKE%') $searchop = '=';
+				if ($searchop === '%LIKE%' AND preg_match('/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/', $searchword)) $searchop = '=';
 				break;
 			}
-			if (!preg_match('/^[0-9:\-%]+$/', $searchword)) return '';
+			if (!is_array($searchword) AND !preg_match('/^[0-9:\-%]+$/', $searchword)) return '';
 		}
 	}
 
@@ -214,6 +225,13 @@ function zz_search_field($field, $table, $searchop, $searchword) {
 		// @todo: improve to use indices, BETWEEN year_begin and year_end ...
 		return sprintf('(YEAR(%s) = "%s" AND QUARTER(%s) = "%s")', $fieldname, 
 			$searchword[1], $fieldname, $searchword[0]);
+	case 'YEAR':
+		return sprintf('YEAR(%s) = %d', $fieldname, $searchword);
+	case 'YEAR-MONTH':
+		return sprintf('(YEAR(%s) = %d AND MONTH(%s) = %d)', $fieldname, 
+			$searchword[1], $fieldname, $searchword[2]);
+	case 'MONTH':
+		return sprintf('MONTH(%s) = %d', $fieldname, $searchword);
 	case '=':
 		if (!zz_search_set_enum($searchop, $searchword, $field_type, $field)) return '';
 		return sprintf('%s = "%s"', $fieldname, $searchword);
