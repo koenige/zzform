@@ -632,9 +632,16 @@ function zz_db_table($table, $db_name = false) {
  * @return string $db_table `database`.`table` or `database` or `table`
  */
 function zz_db_table_backticks($db_table) {
-	if (substr($db_table, 0, 1) !== '`' AND substr($db_table, -1) !== '`') {
-		$db_table = '`'.str_replace('.', '`.`', $db_table).'`';
+	global $zz_conf;
+	$db_table = explode('.', $db_table);
+	if (count($db_table) === 1) {
+		array_unshift($db_table, $zz_conf['db_name']);
 	}
+	foreach ($db_table as $index => $table) {
+		if (substr($table, 0, 1) === '`' AND substr($table, -1) === '`') continue;
+		$db_table[$index] = sprintf('`%s`', $table);
+	}
+	$db_table = implode('.', $db_table);
 	return $db_table;
 }
 
@@ -692,8 +699,9 @@ function zz_db_columns($db_table, $field = false) {
 			, ~0 >> 57 as tinyint_signed';
 		$max_integers = zz_db_fetch($sql);
 	}
+	$db_table = zz_db_table_backticks($db_table);
 	if (!isset($columns[$db_table])) {
-		$sql = 'SHOW FULL COLUMNS FROM '.zz_db_table_backticks($db_table);
+		$sql = sprintf('SHOW FULL COLUMNS FROM %s', $db_table);
 		$columns[$db_table] = zz_db_fetch($sql, 'Field', false, false, E_USER_WARNING);
 		foreach ($columns[$db_table] as $index => $my_field) {
 			preg_match('/(.*int)\(\d+\) (.+signed)/', $my_field['Type'], $fieldtype);
