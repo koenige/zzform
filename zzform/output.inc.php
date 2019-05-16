@@ -33,6 +33,7 @@ function zz_output_page($ops, $zz, $where_condition) {
 		$ops['h1'] = $ops['heading'];
 	$ops['explanation'] = zz_format($zz['explanation']);
 	$ops['selection'] = zz_nice_selection($zz['fields']);
+	$ops['class'] = !empty($zz['class']) ? $zz['class'] : '';
 	return $ops;
 }
 
