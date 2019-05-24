@@ -358,6 +358,9 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 						$sql = wrap_edit_sql($sql, 'WHERE', $condition['where']);
 					if (!empty($condition['having']))
 						$sql = wrap_edit_sql($sql, 'HAVING', $condition['having']);
+					else
+						$sql = wrap_edit_sql($sql, 'SELECT', $zz['table'].'.'.$zz_var['id']['field_name'], 'replace');
+
 					if (zz_db_fetch($sql, '', '', 'record-new ['.$index.']')) {
 						$zz_conditions['bool'][$index][0] = true;
 					} else {
@@ -375,6 +378,8 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 				$sql = wrap_edit_sql($sql, 'WHERE', $condition['where']);
 			if (!empty($condition['having']))
 				$sql = wrap_edit_sql($sql, 'HAVING', $condition['having']);
+			else
+				$sql = wrap_edit_sql($sql, 'SELECT', $zz['table'].'.'.$zz_var['id']['field_name'], 'replace');
 			// just get this single record
 			$sql = wrap_edit_sql($sql, 'WHERE', sprintf(
 				'`%s`.`%s` = %d', $zz['table'], $zz_var['id']['field_name'], $zz_var['id']['value']
