@@ -231,9 +231,6 @@ function zz_db_connection($table) {
 	// name is specified
 	$zz_conf['int']['db_main'] = false;
 
-	if (!isset($zz_conf['db_connection'])) {
-		include_once $zz_conf['dir_custom'].'/db.inc.php';
-	}
 	// get db_name.
 	// 1. best way: put it in zz_conf['db_name']
 	if (!empty($zz_conf['db_name'])) {
@@ -935,6 +932,7 @@ function zz_db_numeric_field($db_table, $field_name) {
 		'int', 'tinyint', 'smallint', 'mediumint', 'bigint', 'decimal', 'float'
 	];
 	foreach ($numeric_types as $type) {
+		if (empty($fielddef['Type'])) wrap_error('FIELDDEF: '.json_encode($fielddef).' ('.$db_table.', '.$field_name.')', E_USER_ERROR);
 		if (substr($fielddef['Type'], 0, strlen($type) + 1) === $type.'(') {
 			return true;
 		}
