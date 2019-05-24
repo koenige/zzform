@@ -932,7 +932,6 @@ function zz_db_numeric_field($db_table, $field_name) {
 		'int', 'tinyint', 'smallint', 'mediumint', 'bigint', 'decimal', 'float'
 	];
 	foreach ($numeric_types as $type) {
-		if (empty($fielddef['Type'])) wrap_error('FIELDDEF: '.json_encode($fielddef).' ('.$db_table.', '.$field_name.')', E_USER_ERROR);
 		if (substr($fielddef['Type'], 0, strlen($type) + 1) === $type.'(') {
 			return true;
 		}
