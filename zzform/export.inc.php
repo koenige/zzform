@@ -214,7 +214,7 @@ function zz_export($ops, $zz, $zz_var) {
 		return $function($ops);
 	}
 
-	$filename = basename($zz_conf['int']['url']['self']);
+	$filename = forceFilename($ops['title'], " ", [':' => ' ', '.' => ' ', '–' => '-']);
 
 	switch ($zz_conf['list_display']) {
 	case 'csv':
