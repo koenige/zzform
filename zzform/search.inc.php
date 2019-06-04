@@ -474,6 +474,14 @@ function zz_search_subtable($field, $table, $main_id_fieldname) {
 	}
 	$ids = zz_db_fetch($subsql, $foreign_key, '', 'Search query for subtable.', E_USER_WARNING);
 	if (!$ids) return false;
+	if (in_array('', array_keys($ids))) {
+		zz_error_log([
+			'msg_dev' => 'Search: empty key for %s found in query',
+			'msg_dev_args' => [$foreign_key],
+			'query' => $sql
+		]);
+		unset($ids['']);
+	}
 	return $table.'.'.$main_id_fieldname.' IN ('.implode(',', array_keys($ids)).')';
 }
 
