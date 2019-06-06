@@ -2659,7 +2659,9 @@ function zz_list_remove_empty_cols($rows, $head, $zz) {
 
 	foreach ($head as $no => $col) {
 		if (!empty($zz['list']['hide_columns_if_empty'])) $col['hide_in_list_if_empty'] = true;
-		if ((empty($column_content[$no]) AND !empty($col['hide_in_list_if_empty']))) {
+		if (empty($column_content[$no]) AND !empty($col['hide_in_list_if_empty'])
+			AND empty($col['list_append_next'])
+		) {
 			unset($head[$no]); // for zz_field_sum()
 			$hidden_columns[$no] = true;
 			continue;
