@@ -2111,6 +2111,12 @@ function zz_sql_order($fields, $sql) {
 			$sort = zz_sql_order_check($field, $type, $_GET[$type]);
 			if (!$sort) continue;
 			$get_used[$type] = true;
+			if (strstr($sort, ',')) {
+				$sort = explode(',', $sort);
+			} else {
+				$sort = [$sort];
+			}
+			$sort = implode($my_order.', ', $sort);
 			$order[] = $sort.$my_order;
 		}
 	}
