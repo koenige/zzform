@@ -163,7 +163,7 @@ function zz_details_start($zz) {
  * 		int[details_current], int[details_last]
  * @return void
  */
-function zz_details_return($ops) {
+function zz_details_return($ops, $zz_tab) {
 	global $zz_conf;
 	$current = $zz_conf['int']['details_current'];
 	$last = $zz_conf['int']['details_last'];
@@ -172,7 +172,16 @@ function zz_details_return($ops) {
 
 	// save return_id
 	if (isset($last)) {
-		$_SESSION['zzform'][$zz_conf['id']][$last]['new_id'] = $ops['id'];
+		if (!empty($zz_tab[0]['add_details_return_field'])) {
+			list($id_table, $id_field) = explode('.', $zz_tab[0]['add_details_return_field']);
+			foreach ($ops['return'] as $index => $table) {
+				if ($table['table'] !== $id_table) continue;
+				$id = $ops['record_new'][$index][$id_field];
+			}
+		} else {
+			$id = $ops['id'];
+		}
+		$_SESSION['zzform'][$zz_conf['id']][$last]['new_id'] = $id;
 	}
 
 	// remove session entries for this record

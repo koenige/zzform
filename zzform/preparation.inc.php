@@ -40,6 +40,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	$zz_tab[0]['filter'] = !empty($zz['filter']) ? $zz['filter'] : [];
 	$zz_tab[0]['dont_reformat'] = !empty($_POST['zz_subtables']) ? true : false;
 	$zz_tab[0]['record_action'] = false;
+	$zz_tab[0]['add_details_return_field'] = !empty($zz['add_details_return_field']) ? $zz['add_details_return_field'] : '';
 
 	if (!empty($zz['set_redirect'])) {
 		// update/insert redirects after_delete and after_update
