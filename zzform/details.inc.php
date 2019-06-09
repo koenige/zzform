@@ -233,6 +233,7 @@ function zz_details_show($zz, $current, $last) {
 		// write string from previous form as a default to this form
 		$found = false;
 		$first = false;
+		$subfound = false;
 		foreach ($zz['fields'] as $no => $field) {
 			if (empty($field)) continue;
 			if (empty($field['type'])) $field['type'] = 'text'; // zz_fill_out() starts later
@@ -242,12 +243,22 @@ function zz_details_show($zz, $current, $last) {
 			}
 			if (empty($field['add_details_destination'])) continue;
 			$found = $no;
+			if ($field['type'] === 'subtable') {
+				foreach ($field['fields'] as $subno => $subfield) {
+					if (empty($subfield['add_details_destination'])) continue;
+					$subfound = $subno;
+				}
+			}
 		}
 		if (!$found AND $first) {
 			$found = $first;
 		}
 		if ($found) {
-			$zz['fields'][$found]['default'] = $_SESSION['zzform'][$zz_conf['id']][$last]['new_value'];
+			if ($subfound) {
+				$zz['fields'][$found]['fields'][$subfound]['default'] = $_SESSION['zzform'][$zz_conf['id']][$last]['new_value'];
+			} else {
+				$zz['fields'][$found]['default'] = $_SESSION['zzform'][$zz_conf['id']][$last]['new_value'];
+			}
 		}
 	}
 
