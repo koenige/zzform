@@ -2268,26 +2268,35 @@ function zz_field_memo($field, $display, $record) {
  */
 function zz_field_set($field, $fields, $display, $my_tab, $zz_var = []) {
 	$group = false;
+	$sets = [];
 	$this_field = [];
 	foreach ($fields as $index => $my_field) {
 		$field_names[$my_field['type']] = $my_field['field_name'];
-		if ($my_field['type'] === 'select') {
-			$sets = zz_field_query($my_field);
-			if (!empty($my_field['show_hierarchy_subtree'])) {
-				foreach ($sets as $index => $set) {
-					if ($set[$my_field['show_hierarchy']] === $my_field['show_hierarchy_subtree']) continue;
-					unset($sets[$index]);
-				}
+		if ($my_field['type'] !== 'select') continue;
+		$sets = zz_field_query($my_field);
+		if (!empty($my_field['show_hierarchy_subtree'])) {
+			foreach ($sets as $index => $set) {
+				if ($set[$my_field['show_hierarchy']] === $my_field['show_hierarchy_subtree']) continue;
+				unset($sets[$index]);
 			}
-			if (!empty($my_field['show_hierarchy'])) {
-				foreach ($sets as $index => $set) {
-					unset($sets[$index][$my_field['show_hierarchy']]);
-				}
-			}
-			$sets = zz_translate($my_field, $sets);
-			if (!empty($my_field['group'])) $group = $my_field['group'];
-			$this_field = $my_field;
 		}
+		if (!empty($my_field['show_hierarchy'])) {
+			foreach ($sets as $index => $set) {
+				unset($sets[$index][$my_field['show_hierarchy']]);
+			}
+		}
+		$sets = zz_translate($my_field, $sets);
+		if (!empty($my_field['group'])) $group = $my_field['group'];
+		$this_field = $my_field;
+		break;
+	}
+	if (!$sets) {
+		zz_error_log([
+			'msg_dev' => 'For a subtable with a form_display = `set`, there needs to be a field with a field type `select`.',
+			'level' => E_USER_ERROR
+		]);
+		zz_error();
+		return;
 	}
 	$exemplary_set = reset($sets);
 	$set_id_field_name = '';
