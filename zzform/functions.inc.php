@@ -1163,14 +1163,14 @@ function zz_secret_id($mode, $id = '', $hash = '') {
 	global $zz_conf;
 	global $zz_setting;
 
-	$logfile = $zz_conf['tmp_dir'].'/zzform-ids.log';
+	$logfile = $zz_setting['log_dir'].'/zzform-ids.log';
 	if (!file_exists($logfile)) touch($logfile);
 	$logs = file($logfile);
 	if (!$id) $id = $zz_conf['id'];
 
 	$now = time();
-	// keep IDs for a maximum of seven days
-	$keep_max = $now - 60 * 60 * 24 * 7;
+	// keep IDs for a maximum of one day
+	$keep_max = $now - 60 * 60 * 24;
 	$found = '';
 	$delete_lines = [];
 	foreach ($logs as $index => $line) {
