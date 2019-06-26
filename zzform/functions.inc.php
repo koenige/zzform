@@ -3259,6 +3259,7 @@ function zz_session_via_login() {
 		require_once $zz_conf['dir'].'/upload.inc.php';
 		foreach ($_FILES AS $field_name => $file) {
 			foreach ($file['tmp_name'] as $type => $filename) {
+				if (!$filename) continue;
 				$new_filename = $zz_conf['tmp_dir'].'/zzform-sessions/'.basename($filename);
 				zz_rename($filename, $new_filename);
 				$_FILES[$field_name]['tmp_name'][$type] = $new_filename;
