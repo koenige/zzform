@@ -1018,6 +1018,11 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 							sprintf("%s = %d", $zz_var['id']['field_name'], $zz_var['id']['value'])
 						);
 					}
+					if (!empty($field['sql_where_without_id']) AND !empty($zz_var['id']['value'])) {
+						$field['sql'] = wrap_edit_sql($field['sql'], 'WHERE',
+							sprintf("%s != %d", $zz_var['id']['field_name'], $zz_var['id']['value'])
+						);
+					}
 
 					// write some values into $fields
 					$field['max_select'] = $zz_conf_record['max_select'];
