@@ -500,11 +500,12 @@ function zz_export_script($type) {
  *
  * @param array $main_rows main rows (without subtables)
  * @global array $zz_conf configuration
- *		'export_csv_enclosure', 'export_csv_delimiter'
+ *		'export_csv_enclosure', 'export_csv_delimiter', 'export_csv_no_head'
  * @return string CSV output, head
  */
 function zz_export_csv_head($main_rows) {
 	global $zz_conf;
+	if (!empty($zz_conf['export_csv_no_head'])) return '';
 
 	$output = '';
 	$tablerow = false;
