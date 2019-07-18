@@ -3156,7 +3156,7 @@ function zz_field_select_radio_value($field, $record, $value, $label, $pos) {
 	$level = isset($field['zz_level']) ? $field['zz_level'] : 0;
 	return [
 		'level' => $level,
-		'element' => sprintf(' <label for="%s">%s&nbsp;%s</label>', $id, $element, $label),
+		'element' => sprintf('<label for="%s">%s&nbsp;%s</label>', $id, $element, $label),
 		'id' => $id
 	];
 }
