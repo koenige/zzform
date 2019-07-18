@@ -219,6 +219,8 @@ function zz_export($ops, $zz, $zz_var) {
 	switch ($zz_conf['list_display']) {
 	case 'csv':
 	case 'csv-excel':
+		// sort head, rows
+		zz_export_sort($ops['output']);
 		$output = '';
 		$output .= zz_export_csv_head($ops['output']['head']);
 		$output .= zz_export_csv_body($ops['output']['rows']);
@@ -252,6 +254,37 @@ function zz_export($ops, $zz, $zz_var) {
 		$headers['filename'] = $filename.'.geojson';
 		return wrap_send_text($output, 'geojson', 200, $headers);
 	}
+}
+
+/**
+ * sort output by field_sequence
+ *
+ * @param array $out
+ * @return bool
+ */
+function zz_export_sort(&$out) {
+	$field_sequences = array_column($out['head'], 'field_sequence');
+	if (!$field_sequences) return false;
+	sort($field_sequences);
+	$max_field_sequence = end($field_sequences);
+	foreach ($out['head'] as $index => $line) {
+		if (!empty($line['field_sequence'])) continue;
+		$out['head'][$index]['field_sequence'] = ++$max_field_sequence;
+	}
+	$field_sequences = array_column($out['head'], 'field_sequence');
+	foreach ($out['rows'] as $index => $row) {
+		$field_sequences_per_row = $field_sequences;
+		$extras = [];
+		foreach ($row as $subindex => $value) {
+			if (is_numeric($subindex)) continue;
+			$extras[$subindex] = $value;
+			unset($out['rows'][$index][$subindex]);
+		}
+		array_multisort($field_sequences_per_row, SORT_ASC, $out['rows'][$index]);
+		$out['rows'][$index] += $extras;
+	}
+	array_multisort($field_sequences, SORT_ASC, $out['head']);
+	return true;
 }
 
 /**
