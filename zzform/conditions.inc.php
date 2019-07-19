@@ -175,6 +175,8 @@ function zz_conditions_check($zz, $mode, $zz_var) {
 		case 'export_mode':
 			if ($mode === 'export') {
 				$zz_conditions['bool'][$index] = true;
+			} else {
+				$zz_conditions['bool'][$index] = false;
 			}
 			break;
 		case 'revise':
@@ -222,7 +224,7 @@ function zz_conditions_record($zz, $zz_conditions, $id_value) {
 		}
 	}
 	
-	// check if there are any bool-conditions 
+	// check if there are any bool-conditions
 	if (!empty($zz_conditions['bool'])) {
 		zz_conditions_merge_conf($zz, $zz_conditions['bool'], $id_value);
 		foreach (array_keys($zz['fields']) as $no) {
