@@ -556,6 +556,8 @@ function zz_export_csv_body($rows) {
 				$myfield = strip_tags($myfield);
 			}
 			if ($myfield) {
+				if (!empty($field['export_csv_maxlength']))
+					$myfield = substr($myfield, 0, $field['export_csv_maxlength']);
 				$mask = false;
 				if ($zz_conf['list_display'] === 'csv-excel' AND $zz_conf['export_csv_enclosure']) {
 					if (preg_match('/^0[0-9]+$/', $myfield)) {

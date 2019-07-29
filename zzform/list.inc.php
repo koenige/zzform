@@ -1335,8 +1335,10 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 	static $append_prefix;
 	static $append_suffix;
 	
-	if (!empty($field['export_no_html'])) {
-		$row['export_no_html'] = true;
+	$export_fields = ['export_no_html', 'export_csv_maxlength'];
+	foreach ($export_fields as $export_field) {
+		if (!empty($field[$export_field]))
+			$row[$export_field] = $field[$export_field];
 	}
 	
 	// check if one of these fields has a type_detail
