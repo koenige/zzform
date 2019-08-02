@@ -982,6 +982,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			case 'url':
 				$field['max_select_val_len'] = $zz_conf_record['max_select_val_len'];
 			case 'text':
+			case 'parameter':
 			case 'time':
 			case 'enum':
 			case 'mail':
@@ -1994,18 +1995,21 @@ function zz_field_text($field, $display, $record, $dont_reformat = false) {
 		// show zeros
 		if ($value === '') return '';
 		if ($value === NULL) return '';
-		if ($field['type'] === 'url') {
+		switch ($field['type']) {
+		case 'url':
 			$linktitle = zz_cut_length($value, $field['max_select_val_len']);
 			$linktitle = str_replace('<', '&lt;', $linktitle);
 			$linktitle = wrap_punycode_decode($linktitle);
 			return '<a href="'.zz_html_escape($value).'">'.$linktitle.'</a>';
-		} elseif ($field['type'] === 'mail') {
+		case 'mail':
 			$value = str_replace('<', '&lt;', $value);
 			return '<a href="mailto:'.$value.'">'.$value.'</a>';
-		} elseif ($field['type'] === 'mail+name') {
+		case 'mail+name':
 			$value = str_replace('<', '&lt;', $value);
 			return '<a href="mailto:'.rawurlencode($value).'">'.$value.'</a>';
-		} else {
+		case 'parameter':
+			return zz_parameter_format($value);
+		default:
 			// escape HTML elements
 			$value = str_replace('<', '&lt;', $value);
 			return $value;

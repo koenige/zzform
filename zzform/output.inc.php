@@ -829,7 +829,6 @@ function zz_money_format($int, $unit = '') {
  * @param string $date date to be converted, international date or output of this function
  * @param string $language 2-letter-languagecode ISO 639-1 or 3-letter-code ISO 639-2T
  * @return string formatted date
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @todo cleanup
  */
 function zz_date_format($date) {
@@ -1009,6 +1008,38 @@ function zz_datetime_format($value, $field) {
 	if (array_key_exists('check_validation', $field) AND !$field['check_validation']) return $value;
 	$text = explode(' ', $value);
 	$text = zz_date_format($text[0]).' '.zz_time_format($text[1], $field);
+	return $text;
+}
+
+/**
+ * format a list of query string parameters
+ *
+ * @param string $value
+ * @return string
+ */
+function zz_parameter_format($value) {
+	if (!$value) return $value;
+	parse_str($value, $parameters);
+	if ($parameters) {
+		$text = zz_parameter_format_recursive($parameters);
+		$text = implode('', $text);
+	} else {
+		$text = $value;
+	}
+	$text = sprintf('<code><ul>%s</ul></code>', $text);
+	return $text;
+}
+
+function zz_parameter_format_recursive($parameters, $prefix = '') {
+	$text = [];
+	foreach ($parameters as $key => $parameter) {
+		if ($prefix) $key = sprintf('%s[%s]', $prefix, $key);
+		if (is_array($parameter)) {
+			$text = array_merge($text, zz_parameter_format_recursive($parameter, $key));
+		} else {
+			$text[] = sprintf('<li><em>%s</em>: %s</li>', $key, $parameter);
+		}
+	}
 	return $text;
 }
 
