@@ -18,6 +18,7 @@
 /* general styles */
 #zzform table		{ border-collapse: collapse; }
 #zzform img			{ border: none; }
+#zzform code ul		{ margin: 0; list-style: square; }
 #zzform td, #zzform th
 					{ padding: 0 .5em; vertical-align: top; }
 #zzform th			{ width: auto; text-align: left; }
