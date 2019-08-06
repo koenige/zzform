@@ -1037,7 +1037,7 @@ function zz_parameter_format_recursive($parameters, $prefix = '') {
 		if (is_array($parameter)) {
 			$text = array_merge($text, zz_parameter_format_recursive($parameter, $key));
 		} else {
-			$text[] = sprintf('<li><em>%s</em>: %s</li>', $key, $parameter);
+			$text[] = sprintf('<li><em>%s:</em> %s</li>', $key, $parameter);
 		}
 	}
 	return $text;
