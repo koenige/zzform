@@ -2038,6 +2038,7 @@ function zz_field_text($field, $display, $record, $dont_reformat = false) {
 	if (!empty($field['maxlength']))
 		$fieldattr['maxlength'] = $field['maxlength'];
 	if (!empty($field['pattern'])) $fieldattr['pattern'] = $field['pattern'];
+	elseif ($field['type'] === 'phone') $fieldattr['pattern'] = '[+()0-9-/ ]+';
 	return zz_form_element($field['f_field_name'], $value, $fieldtype, true, $fieldattr);
 }
 
