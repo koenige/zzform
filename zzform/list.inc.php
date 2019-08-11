@@ -1515,6 +1515,9 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 		case 'parameter':
 			$text = zz_parameter_format($row['value']);
 			break;
+		case 'phone':
+			$text = zz_phone_format($row['value']);
+			break;
 		default:
 			$text = $row['value'];
 			if (empty($field['list_format']) AND empty($field['export_no_html'])) {

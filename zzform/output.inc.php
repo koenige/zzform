@@ -1044,6 +1044,18 @@ function zz_parameter_format_recursive($parameters, $prefix = '') {
 }
 
 /**
+ * format a phone number, return a phone link if possible
+ *
+ * @param string $value
+ * @return string
+ */
+function zz_phone_format($value) {
+	if (substr($value, 0, 1) !== '+') return $value;
+	$tel = preg_replace('/[^0-9]/', '', $value);
+	return sprintf('<a href="tel:+%s">%s</a>', $tel, $value);
+}
+
+/**
  * Output WMD Editor
  *
  * @global array $zz_conf
