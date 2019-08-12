@@ -48,11 +48,12 @@ function zz_revisions($ops, $zz_tab = [], $rev_only = false) {
 
 	$status = !empty($zz_conf['int']['revisions_only']) ? 'pending' : 'live';
 	if ($rev_only) $status = 'pending'; // overwrite internal settings
-	$sql = 'INSERT INTO %s (main_table_name, main_record_id, user_id, rev_status, created, last_update)
-		VALUES ("%s", %d, %s, "%s", NOW(), NOW())';
+	$sql = 'INSERT INTO %s (main_table_name, main_record_id, user_id, rev_status, created, script_url, last_update)
+		VALUES ("%s", %d, %s, "%s", NOW(), %s, NOW())';
 	$sql = sprintf($sql,
 		$zz_conf['revisions_table'], $ops['return'][0]['table'],
 		$ops['return'][0]['id_value'], $user_id, $status
+		, (!empty($zz_conf['revisions_url']) ? sprintf('"%s"', $zz_conf['revisions_url']) : 'NULL')
 	);
 	$rev_id = wrap_db_query($sql);
 	if (empty($rev_id['id'])) return [];

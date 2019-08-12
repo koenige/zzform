@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2016 Gustaf Mossakowski
+ * @copyright Copyright © 2016, 2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -34,7 +34,7 @@ $zz['fields'][3]['title'] = 'Record';
 $zz['fields'][3]['field_name'] = 'main_record_id';
 $zz['fields'][3]['link'] = [
 	'mode1' => 'zz_revisions_table_to_url',
-	'field1' => 'main_table_name',
+	'field1' => 'revisions_url',
 	'string2' => '?revise=',
 	'field2' => 'main_record_id',
 	'string3' => '&nolist&referer='.urlencode($_SERVER['REQUEST_URI'])
@@ -67,12 +67,18 @@ $zz['fields'][7]['subselect']['sql'] = sprintf('SELECT revision_id, table_name, 
 	$zz_conf['revisions_data_table'], $zz_conf['revisions_table']
 );
 
+$zz['fields'][8]['title'] = 'Script URL';
+$zz['fields'][8]['field_name'] = 'script_url';
+$zz['fields'][8]['hide_in_list'] = true;
+
 $zz['fields'][99]['field_name'] = 'last_update';
 $zz['fields'][99]['type'] = 'timestamp';
 $zz['fields'][99]['class'] = 'block480';
 $zz['fields'][99]['hide_in_list'] = true;
 
-$zz['sql'] = 'SELECT * FROM '.$zz_conf['revisions_table'];
+$zz['sql'] = 'SELECT *
+	, IFNULL(script_url, main_table_name) AS revisions_url
+	FROM '.$zz_conf['revisions_table'];
 $zz['sqlorder'] = ' ORDER BY created ASC, revision_id ASC';
 
 $zz['filter'][1]['sql'] = sprintf('SELECT DISTINCT rev_status, rev_status
