@@ -211,10 +211,10 @@ function zz_revisions_historic($ops, $zz_tab) {
  * @return string
  */
 function zz_revisions_table_to_url($table) {
-	global $zz_setting;
-	if (!empty($zz_setting['revisions_table_to_url'][$table])) {
-		return $zz_setting['revisions_table_to_url'][$table];
-	}
+	$setting = wrap_get_setting('revisions_table_to_url');
+	parse_str($setting, $setting);
+	if (!empty($setting[$table])) return $setting[$table];
+	if (substr($table, 0, 1) === '/') return $table;
 	$table = str_replace('_', '-', $table);
 	$table = './'.$table;
 	return $table;
