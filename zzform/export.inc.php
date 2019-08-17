@@ -446,7 +446,7 @@ function zz_export_geojson($ops, $zz, $zz_var) {
 		}
 		$properties = [];
 		foreach ($p_fields as $type => $no) {
-			$properties[$type] = wrap_html_escape($line[$no]['value']);
+			$properties[$type] = wrap_html_escape($line[$no]['text']);
 		}
 		$data['features'][] = [
 			'type' => 'Feature',
