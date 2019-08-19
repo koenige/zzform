@@ -2336,7 +2336,8 @@ function zz_field_set($field, $fields, $display, $my_tab, $zz_var = []) {
 			$sets_indexed[$rec[$field_names['select']]]['rec_id'] = $rec[$field_names['id']];
 			$sets_indexed[$rec[$field_names['select']]]['rec_no'] = $rec_no;
 			if ($rec_no > $rec_max) $rec_max = $rec_no;
-		} elseif (!empty($rec['POST']) AND !empty($zz_var['id']['source_value'])) {
+		} elseif ((!empty($rec['POST']) AND !empty($zz_var['id']['source_value'])
+			OR (!empty($rec['POST']) AND $rec['action'] === 'review'))) {
 			// add from source
 			$rec = $rec['POST'];
 			foreach ($field['fields'] as $subfield) {
