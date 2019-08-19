@@ -76,8 +76,12 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 			// first field must be id field, so if value is not numeric, ignore it
 			if (!$no AND !is_numeric($value)) continue;
 			$collation = zz_db_field_collation('xhr', false, $sql_field, $no);
-			$query = $equal ? '%s = %s"%s"' : '%s LIKE %s"%%%s%%"';
+			$query = $equal ? 'LOWER(%s) = %s"%s"' : 'LOWER(%s) LIKE %s"%%%s%%"';
 			$where[$index][] = sprintf($query, $sql_field['field_name'], $collation, wrap_db_escape($value));
+			if (!empty($field['sql_translate'])) {
+				$condition = zz_check_select_translated($field, $sql_field['field_name'], $value, $equal);
+				if ($condition) $where[$index][] = $condition;
+			}
 		}
 	}
 	$conditions = [];
@@ -93,10 +97,13 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 		);
 	}
 	wrap_db_query('SET NAMES utf8'); // JSON is UTF-8
-	$records = wrap_db_fetch($sql, '_dummy_', 'numeric');
-	if (!empty($field['sql_translate'])) {
-		$records = array_merge($records, zz_check_select_translated($field, $text));
+	$records = wrap_db_fetch($sql, $sql_fields[0]['field_name']);
+	if ($field['sql_translate']) {
+		foreach ($field['sql_translate'] as $t_id_field => $t_table) {
+			$records = wrap_translate($records, $t_table, $t_id_field);
+		}
 	}
+	$records = array_values($records);
 	if (count($records) > $limit) {
 		// more records than we might show
 		$data['entries'] = [];
