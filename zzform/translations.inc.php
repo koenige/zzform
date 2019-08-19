@@ -11,7 +11,7 @@
  *	zz_translations_init()		checks whether fields should be translated
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2013, 2016-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2013, 2016-2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -124,4 +124,37 @@ function zz_translations_init($table, $fields) {
 		$k++;
 	}
 	return $fields;
+}
+
+/**
+ * check if a field can be translated
+ *
+ * @param array $sql_translate e. g. [['country_id'] => 'countries']
+ * @return array definition in varchar, text, which fields of table can be translated
+ */
+function zz_translations_fields($sql_translate) {
+	global $zz_conf;
+	static $tfields;
+	if (empty($tfields)) $tfields = [];
+	if (!is_array($sql_translate)) {
+		$sql_translate = [$sql_translate];
+	}
+	$key = json_encode($sql_translate);
+	if (array_key_exists($key, $tfields)) return $tfields[$key];
+
+	$sql_fields = 'SELECT translationfield_id, field_name, field_type
+		FROM '.$zz_conf['translations_table'].'
+		WHERE db_name = "%s" AND table_name = "%s"';
+	$tfields[$key]['varchar'] = [];
+	$tfields[$key]['text'] = [];
+	foreach ($sql_translate as $id_field_name => $table) {
+		$my = zz_db_table($table);
+		$sql = sprintf($sql_fields, $my['db_name'], $my['table']);
+		$fields = zz_db_fetch($sql, 'translationfield_id');
+		if (!$fields) continue;
+		foreach ($fields as $tfield) {
+			$tfields[$key][$tfield['field_type']][$tfield['translationfield_id']] = $tfield;
+		}
+	}
+	return $tfields[$key];	
 }
