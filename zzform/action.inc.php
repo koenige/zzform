@@ -1677,6 +1677,10 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				$my_rec['validation'] = false;
 			}
 			break;
+		case 'parameter':
+			$my_rec['POST'][$field_name] = str_replace("\r\n\r\n", "&", $my_rec['POST'][$field_name]);
+			$my_rec['POST'][$field_name] = str_replace("\r\n", "&", $my_rec['POST'][$field_name]);
+			break;
 		default:
 			break;
 		}

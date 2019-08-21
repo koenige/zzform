@@ -2021,12 +2021,21 @@ function zz_field_text($field, $display, $record, $dont_reformat = false) {
 
 	// return form element
 	$fieldtype = 'text';
-	if ($field['type'] === 'mail') $fieldtype = 'email';
-	if ($field['type'] === 'url') $value = wrap_punycode_decode($value);
-	if ($field['type'] === 'text' AND !empty($field['sql'])) {
+	switch ($field['type']) {
+	case 'mail':
+		$fieldtype = 'email'; break;
+	case 'url':
+		$value = wrap_punycode_decode($value); break;
+	case 'text':
+		if (empty($field['sql'])) break;
 		$field['unrestricted'] = true;
 		zz_xhr_add('selects', $field);
+		break;
+	case 'parameter':
+		$field['rows'] = 1;
+		return zz_field_memo($field, $display, $record);
 	}
+
 	// 'url' in Opera does not support relative URLs
 	// elseif ($field['type'] === 'url') $fieldtype = 'url';
 	// time is not supported correctly by Google Chrome (adds AM, PM to time
@@ -2197,6 +2206,9 @@ function zz_field_memo($field, $display, $record) {
 
 	// get value
 	$value = $record ? $record[$field['field_name']] : '';
+	if ($field['type'] === 'parameter') {
+		$value = str_replace('&', "\n\n", $value);
+	}
 
 	// return text
 	if ($display !== 'form') {
