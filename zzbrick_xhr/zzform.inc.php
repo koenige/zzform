@@ -98,7 +98,7 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	}
 	wrap_db_query('SET NAMES utf8'); // JSON is UTF-8
 	$records = wrap_db_fetch($sql, $sql_fields[0]['field_name']);
-	if ($field['sql_translate']) {
+	if (!empty($field['sql_translate'])) {
 		foreach ($field['sql_translate'] as $t_id_field => $t_table) {
 			$records = wrap_translate($records, $t_table, $t_id_field);
 		}
