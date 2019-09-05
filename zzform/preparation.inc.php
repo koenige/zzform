@@ -70,6 +70,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	$zz_tab[0][0]['access'] = !empty($zz['access']) ? $zz['access'] : false;
 	// get ID field, unique fields, check for unchangeable fields
 	$zz_tab[0][0]['id'] = &$zz_var['id'];
+	$zz_tab[0][0]['check_select_fields'] = zz_prepare_check_select();
 
 	//	### put each table (if more than one) into one array of its own ###
 	foreach ($zz_var['subtables'] as $tab => $no) {
@@ -87,6 +88,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 			if (!is_numeric($rec)) continue;
 			if (empty($zz_tab[$tab]['POST'][$rec])) continue;
 			$zz_tab[$tab][$rec]['POST'] = $zz_tab[$tab]['POST'][$rec];
+			$zz_tab[$tab][$rec]['check_select_fields'] = !empty($zz_tab[$tab]['check_select_fields'][$rec]) ? $zz_tab[$tab]['check_select_fields'][$rec] : [];
 			unset($zz_tab[$tab]['POST'][$rec]);
 		}
 		if (zz_error_exit()) return [];
@@ -556,6 +558,7 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 			continue;
 		}
 		$post[$key] = $my_tab['POST'][$rec];
+		$my_tab['check_select_fields'][$key] = zz_prepare_check_select($my_tab['table_name'], $rec);
 		$records[$key] = $my_tab['POST'][$rec];
 		unset($my_tab['POST'][$rec]);
 	}
@@ -667,6 +670,28 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 }
 
 /**
+ * get field names for selechts which have to be checked
+ *
+ * @param string $table_name
+ * @param int $rec
+ * @return array
+ */
+function zz_prepare_check_select($table_name = '', $rec = 0) {
+	$matches = [];
+	if (empty($_POST['zz_check_select'])) return $matches;
+	if ($table_name) {
+		$pattern = sprintf('/^%s\[%d\]\[(.+)\]$/', $table_name, $rec);
+	} else {
+		$pattern = '/^([^[]+)$/';
+	}
+	foreach ($_POST['zz_check_select'] as $field_name) {
+		preg_match($pattern, $field_name, $match);
+		if (!empty($match[1])) $matches[] = $match[1];
+	}
+	return $matches;
+}
+
+/**
  * gets ID of subrecord if one of the fields in the subrecord definition
  * is defined as unique (only for multi-operations)
  * 
@@ -701,6 +726,7 @@ function zz_subrecord_unique($my_tab, $existing, $fields) {
 			}
 			$values = [];
 			foreach ($my_tab['POST'] as $no => $record) {
+				$check_select_fields = zz_prepare_check_select($my_tab['table_name'], $no);
 				foreach ($unique as $field_name) {
 					if (!isset($record[$field_name])) {
 						// check if there's a value for this field which cannot be changed
@@ -727,16 +753,10 @@ function zz_subrecord_unique($my_tab, $existing, $fields) {
 						if ($field['type'] !== 'select') break;
 						if (empty($field['sql'])) break;
 
-						$check = true;
-						$long_field_name = zz_long_fieldname($my_tab['table'], $no, $field_name);
-						if (isset($_POST['zz_check_select'])) {
-							// ... unless explicitly said not to check
-							if (in_array($field_name, $_POST['zz_check_select']))
-								$check = false;
-							elseif (in_array($long_field_name, $_POST['zz_check_select']))
-								$check = false;
+						if (in_array($field_name, $check_select_fields)) {
+							// check unless explicitly said not to check
+							break;
 						}
-						if (!$check) break;
 						
 						$my_id_field = $id_field;
 						if (array_key_exists('field_name', $id_field) AND isset($record[$id_field['field_name']])) {
@@ -953,12 +973,14 @@ function zz_get_subrecords_mode($my_tab, $rec_tpl, $zz_var, $existing_ids) {
 					if (!isset($my_rec[$rec_tpl['id']['field_name']])) continue;
 					if ($my_rec[$rec_tpl['id']['field_name']] != $idval) continue;
 					$my_tab[$rec]['POST'] = $my_rec;
+					$my_tab[$rec]['check_select_fields'] = !empty($my_tab['check_select_fields'][$key]) ? $my_tab['check_select_fields'][$key] : [];
 					unset($my_tab['POST'][$key]);
 				} else {
 					if (!empty($my_rec[$rec_tpl['id']['field_name']])) continue;
 					if ($my_tab[$rec]['POST']) continue;
 					// find first value pair that matches and put it into POST
 					$my_tab[$rec]['POST'] = $my_rec;
+					$my_tab[$rec]['check_select_fields'] = !empty($my_tab['check_select_fields'][$key]) ? $my_tab['check_select_fields'][$key] : [];
 					unset($my_tab['POST'][$key]);
 				}
 			}

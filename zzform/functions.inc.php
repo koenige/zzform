@@ -3323,12 +3323,11 @@ function zz_review_via_login() {
  * @param int $f Key of current field
  * @param int $max_select = e. g. $zz_conf['max_select'], maximum entries in
  *		option-Field before we offer a blank text field to enter values
- * @param string $long_field_name // $table_name.'[$rec]['.$field_name.']'
  * @global array $zz_conf
  * @return array $my_rec changed keys:
  *		'fields'[$f], 'POST', 'POST-notvalid', 'validation'
  */
-function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
+function zz_check_select($my_rec, $f, $max_select) {
 	global $zz_conf;
 
 	// only for 'select'-fields with SQL query (not for enums neither for sets)
@@ -3353,21 +3352,12 @@ function zz_check_select($my_rec, $f, $max_select, $long_field_name) {
 		// with zzform_multi(), no form exists, so check per default yes
 		// unless explicitly said not to check; with form its otherway round
 		$check = $zz_conf['multi'] ? true : false;
-		if (empty($_POST['zz_check_select'])) {
-			// nothing changes
-		} elseif (in_array($field_name, $_POST['zz_check_select'])) {
+		if (in_array($field_name, $my_rec['check_select_fields'])) {
 			$check = !$check;
 			if ($check) {
 				// do not check multiple times if zz_validate() is called more than once
-				$index = array_search($field_name, $_POST['zz_check_select']);
-				unset($_POST['zz_check_select'][$index]);
-			}
-		} elseif (in_array($long_field_name, $_POST['zz_check_select'])) {
-			$check = !$check;
-			if ($check) {
-				// do not check multiple times if zz_validate() is called more than once
-				$index = array_search($long_field_name, $_POST['zz_check_select']);
-				unset($_POST['zz_check_select'][$index]);
+				$index = array_search($field_name, $my_rec['check_select_fields']);
+				unset($my_rec['check_select_fields'][$index]);
 			}
 		}
 		if (!$check) return $my_rec;
