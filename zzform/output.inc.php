@@ -991,6 +991,9 @@ function zz_number_format($value, $field) {
  */
 function zz_time_format($value, $field) {
 	if (!$value) return $value;
+	if (!preg_match('/\d+:\d+:\d+/', $value)) {
+		$value = zz_check_time($value);
+	}
 	$value = date($field['time_format'], strtotime($value));
 	return $value;
 }
