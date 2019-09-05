@@ -711,16 +711,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	
 	zz_initialize_int();
 
-	//	URL parameter
-	if (get_magic_quotes_gpc()) {
-		// sometimes unwanted standard config
-		// @deprecated removed from PHP 5.4.0 on
-		if (!empty($_POST)) $_POST = zz_magic_quotes_strip($_POST);
-		if (!empty($_GET)) $_GET = zz_magic_quotes_strip($_GET);
-		if (!empty($_FILES)) $_FILES = zz_magic_quotes_strip($_FILES);
-		// _COOKIE and _REQUEST are not being used
-	}
-
 	$zz_conf['zzform_init'] = true;
 	$zz_saved['conf'] = $zz_conf;
 
@@ -853,7 +843,7 @@ function zzform_multi($definition_file, $values) {
 	}
 	if (!empty($values['ids'])) {
 		foreach ($values['ids'] as $field_name) {
-			$_POST['zz_check_select'][$field_name] = true;
+			$_POST['zz_check_select'][] = $field_name;
 		}
 	}
 
