@@ -1918,6 +1918,8 @@ function zz_field_password($field, $display, $record, $action) {
 	$fieldattr['size'] = $field['size'];
 	if (!empty($field['maxlength']))
 		$fieldattr['maxlength'] = $field['maxlength'];
+	if (!empty($field['minlength']))
+		$fieldattr['minlength'] = $field['minlength'];
 	if ($field['required']) $fieldattr['required'] = true;
 	$text = zz_form_element($field['f_field_name'], $value, 'password', true, $fieldattr);
 	if ($record AND $action !== 'insert') {
@@ -1955,6 +1957,8 @@ function zz_field_password_change($field, $display) {
 	$fieldattr['size'] = $field['size'];
 	if (!empty($field['maxlength']))
 		$fieldattr['maxlength'] = $field['maxlength'];
+	if (!empty($field['minlength']))
+		$fieldattr['minlength'] = $field['minlength'];
 	$fieldattr['required'] = true;
 	$out = '<table class="subtable">'."\n";
 	if (empty($field['dont_require_old_password'])) {
@@ -2046,6 +2050,8 @@ function zz_field_text($field, $display, $record, $dont_reformat = false) {
 	if ($field['required']) $fieldattr['required'] = true;
 	if (!empty($field['maxlength']))
 		$fieldattr['maxlength'] = $field['maxlength'];
+	if (!empty($field['minlength']))
+		$fieldattr['minlength'] = $field['minlength'];
 	if (!empty($field['pattern'])) $fieldattr['pattern'] = $field['pattern'];
 	elseif ($field['type'] === 'phone') $fieldattr['pattern'] = '[+()0-9-/ ]+';
 	return zz_form_element($field['f_field_name'], $value, $fieldtype, true, $fieldattr);
@@ -2114,6 +2120,8 @@ function zz_field_number($field, $display, $record, $dont_reformat) {
 	if ($field['required']) $fieldattr['required'] = true;
 	if (!empty($field['maxlength']))
 		$fieldattr['maxlength'] = $field['maxlength'];
+	if (!empty($field['minlength']))
+		$fieldattr['minlength'] = $field['minlength'];
 	if (!empty($field['pattern'])) $fieldattr['pattern'] = $field['pattern'];
 	$text = zz_form_element($field['f_field_name'], $value, $formtype, true, $fieldattr);
 	return $text.$suffix;
@@ -2251,6 +2259,8 @@ function zz_field_memo($field, $display, $record) {
 			$fieldattr['rows'] = ceil($field['maxlength'] / $field['cols']);
 		}
 	}
+	if (!empty($field['minlength']))
+		$fieldattr['minlength'] = $field['minlength'];
 	if ($fieldattr['rows'] < 2) $fieldattr['rows'] = 2;
 	if (!empty($field['format']) AND $field['format'] === 'markdown'
 		AND !empty($zz_conf['wmd_editor'])) {

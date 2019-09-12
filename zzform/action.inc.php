@@ -1759,6 +1759,18 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				$my_rec['validation'] = false;
 			}
 		}
+		if (!empty($field['minlength'])
+			AND !empty($my_rec['POST'][$field_name])
+			AND !is_array($my_rec['POST'][$field_name])) {
+			if (($length = mb_strlen($my_rec['POST'][$field_name])) < $field['minlength']) {
+				$my_rec['fields'][$f]['check_validation'] = false;
+				$my_rec['fields'][$f]['validation_error'] = [
+					'msg' => 'Text is too short (min. %d characters, %d submitted).',
+					'msg_args' => [[$field['minlength'], $length]]
+				];
+				$my_rec['validation'] = false;
+			}
+		}
 
 	//	check against forbidden strings
 		if (!empty($field['validate'])
