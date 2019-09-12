@@ -1026,6 +1026,11 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			$fields[$no]['hide_in_list'] = true;
 			$fields[$no]['export'] = false;
 			break;
+		case 'password':
+		case 'password_change':
+			if (!isset($fields[$no]['minlength'])) $fields[$no]['minlength'] = 8;
+			if (!isset($fields[$no]['maxlength'])) $fields[$no]['maxlength'] = 60;
+			break;
 		}
 		if (in_array(zz_get_fieldtype($fields[$no]), ['time', 'datetime'])) {
 			if (empty($fields[$no]['time_format'])) {
