@@ -1343,9 +1343,9 @@ function zz_record_access($zz, $ops, $zz_var) {
 		if (!empty($_POST['zz_action']) AND $_POST['zz_action'] === 'insert') {
 			$ops['mode'] = 'add';
 		} elseif (!empty($_POST['zz_action']) AND $_POST['zz_action'] === 'update'
-			AND !empty($_POST[$zz_var['id']['field_name']])) {
+			AND $zz_var['id']['value']) {
 			$ops['mode'] = 'edit';
-			$id_value = $_POST[$zz_var['id']['field_name']];
+			$id_value = $zz_var['id']['value'];
 		} else {
 			// this should not occur if form is used legally
 			$ops['mode'] = false;
