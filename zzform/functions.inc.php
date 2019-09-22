@@ -1338,6 +1338,9 @@ function zz_record_access($zz, $ops, $zz_var) {
 		break;
 
 	case isset($_POST['zz_subtables']):
+		if (empty($zz_var['id']['value']) AND !empty($_POST[$zz_var['id']['field_name']])) {
+			$zz_var['id']['value'] = $_POST[$zz_var['id']['field_name']];
+		}
 		// ok, no submit button was hit but only add/remove form fields for
 		// detail records in subtable, so set mode accordingly (no action!)
 		if (!empty($_POST['zz_action']) AND $_POST['zz_action'] === 'insert') {
