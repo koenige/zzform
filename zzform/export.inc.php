@@ -556,6 +556,10 @@ function zz_export_csv_body($rows) {
 				$myfield = strip_tags($myfield);
 			}
 			if ($myfield) {
+				if (!empty($zz_conf['export_csv_replace'])) {
+					foreach ($zz_conf['export_csv_replace'] as $search => $replace)
+						$myfield = str_replace($search, $replace, $myfield);
+				}
 				if (!empty($field['export_csv_maxlength']))
 					$myfield = substr($myfield, 0, $field['export_csv_maxlength']);
 				$mask = false;
