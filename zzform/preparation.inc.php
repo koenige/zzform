@@ -1256,7 +1256,7 @@ function zz_log_validation_errors($my_rec, $validation) {
 	if ($validation) return false;
 	if ($my_rec['access'] === 'show') return false;
 	$dev_msg = [];
-	$somelogs = false;
+	$somelogs = !empty($my_rec['validation_error_logged']) ? $my_rec['validation_error_logged'] : false;
 	
 	foreach ($my_rec['fields'] as $no => $field) {
 		if ($field['type'] === 'password_change') continue;

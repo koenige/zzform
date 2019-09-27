@@ -132,6 +132,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 					zz_error_validation_log('msg_args', zz_text($zz_tab[0][0]['fields'][$my_tab['no']]['title']));
 				}
 				zz_error_validation_log('log_post_data', true);
+				$zz_tab[$tab][$rec]['validation_error_logged'] = true;
 			}
 			foreach (array_keys($my_tab) as $rec) {
 				if (!is_numeric($rec)) continue;
