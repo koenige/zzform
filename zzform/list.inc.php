@@ -129,18 +129,20 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		if (zz_error_exit()) return zz_return([$ops, $zz_var]);
 	}
 
+	// add 0 as a dummy record for which no conditions will be set
+	// reindex $linex from 1 ... n
+	array_unshift($lines, '0');
+	list($zz['fields_in_list'], $lines) = zz_list_inline($zz['fields_in_list'], $lines);
 	if ($zz_conf['int']['show_list']) {
-		// add 0 as a dummy record for which no conditions will be set
-		// reindex $linex from 1 ... n
-		array_unshift($lines, '0');
-		list($zz['fields_in_list'], $lines) = zz_list_inline($zz['fields_in_list'], $lines);
 		list($table_defs, $zz['fields_in_list']) = zz_list_defs(
 			$lines, $zz_conditions, $zz['fields_in_list'], $zz['table'], $id_field, $ops['mode']
 		);
-		// remove first dummy array
-		unset($lines[0]);
-		if ($zz_conf['modules']['debug']) zz_debug('list definitions set');
+	}
+	// remove first dummy array
+	unset($lines[0]);
+	if ($zz_conf['modules']['debug']) zz_debug('list definitions set');
 
+	if ($zz_conf['int']['show_list']) {
 		$list = zz_list_set($zz, count($lines));
 		if ($ops['mode'] === 'export') {
 			// no grouping in export files
@@ -161,16 +163,14 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		$list['where_values'] = !empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : '';
 		$head = zz_list_head($table_defs[0], $list['where_values'], $list['columns']);
 		unset($table_defs);
+	}
 
-		// merge common $zz settings for all records
-		if (!empty($zz_conf['modules']['conditions']) AND !empty($zz_conditions['bool'])) {
-			zz_conditions_merge_conf($zz, $zz_conditions['bool'], 0);
-		}
+	// merge common $zz settings for all records
+	if (!empty($zz_conf['modules']['conditions']) AND !empty($zz_conditions['bool'])) {
+		zz_conditions_merge_conf($zz, $zz_conditions['bool'], 0);
+	}
+	if ($zz_conf['int']['show_list']) {
 		list($rows, $head) = zz_list_remove_empty_cols($rows, $head, $zz);
-	} else {
-		if (!empty($zz_conf['modules']['conditions']) AND !empty($zz_conditions['bool'])) {
-			zz_conditions_merge_conf($zz, $zz_conditions['bool'], 0);
-		}
 	}
 
 	//
@@ -344,6 +344,7 @@ function zz_list_inline($fields, $lines) {
 		foreach ($lines as $line) {
 			if (!empty($line[$foreign_key])) $foreign_keys[] = $line[$foreign_key];
 		}
+		if (!$foreign_keys) continue; // empty table
 		$sql = wrap_edit_sql($field['sql'], 'WHERE', sprintf('%s IN (%s)', $foreign_key, implode(',', $foreign_keys)));
 		$additional_data = wrap_db_fetch($sql, $foreign_key);
 		foreach ($field['fields'] as $subno => $subfield) {
