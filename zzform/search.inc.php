@@ -104,6 +104,19 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 			$subsearch = zz_search_subtable($field, $table, $main_id_fieldname);
 			$found = true;
 			break;
+		case 'subfield':
+			list ($subtable, $subfield_name) = explode('.', $scope);
+			foreach ($field['fields'] as $no => $s_field) {
+				if ($s_field['type'] === 'id') {
+					$submain_id_fieldname = $s_field['field_name'];
+				}
+				if ($s_field['field_name'] === $subfield_name) {
+					$subfield = $s_field;
+				}
+			}
+			$subsearch = zz_search_field($subfield, $subtable, $submain_id_fieldname, $searchword);
+			$found = true;
+			break;
 		default:
 			continue 2;
 		}
@@ -305,7 +318,7 @@ function zz_search_set_enum($searchop, $searchword, $field_type, $field) {
  *
  * @param array $field field defintion
  * @param string $scope
- * @return string where to search: field | subtable
+ * @return string where to search: field | subtable | subfield
  */
 function zz_search_scope($field, $table, $scope) {
 	$search_field = false;
@@ -318,6 +331,11 @@ function zz_search_scope($field, $table, $scope) {
 			$search_field = true;
 		} elseif ($scope === $table.'.'.$field['field_name']) {
 			$search_field = true;
+		}
+	} elseif (!empty($field['table']) AND $field['table'] === substr($scope, 0, strpos($scope, '.'))) {
+		foreach ($field['fields'] as $no => $subfield) {
+			if ($subfield['field_name'] !== substr($scope, strpos($scope, '.') + 1)) continue;
+			return 'subfield';
 		}
 	}
 
@@ -535,6 +553,8 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 		if ($field['type'] === 'subtable') {
 			if (empty($field['subselect'])) continue;
 			$fieldname = $field['table_name'];
+		} elseif (!empty($field['row_value'])) {
+			$fieldname = $field['row_value'];
 		} else {
 			$fieldname = (isset($field['display_field']) && $field['display_field']) 
 				? $field['display_field'] : $table.'.'.$field['field_name'];
