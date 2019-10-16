@@ -1730,9 +1730,12 @@ function zz_mark_search_string($value, $field_name = false, $field = []) {
 	if (empty($_GET['q'])) return $value;
 	if (!empty($_GET['scope'])) {
 		if (strstr($_GET['scope'], '.'))
-			$my_field_name = substr($_GET['scope'], strrpos($_GET['scope'], '.')+1);
+			$my_field_name = substr($_GET['scope'], strrpos($_GET['scope'], '.') + 1);
 		else
 			$my_field_name = $_GET['scope'];
+		if (!empty($field['mark_scope']) AND in_array($my_field_name, $field['mark_scope']))
+			$my_field_name = $field_name;
+		
 		if ($my_field_name != $field_name) return $value;
 	}
 
