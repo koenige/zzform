@@ -757,7 +757,7 @@ function zz_action_function($type, $ops, $zz_tab) {
  * @param array $zz_tab
  * @param array $change string 'output', array 'record_replace',
  *		array 'validation_fields', bool 'no_validation', array 'integrity_delete',
- *		array 'change_info'
+ *		array 'change_info', string 'output_form'
  * @return array [$ops, $zz_tab]
  */
 function zz_action_change($ops, $zz_tab, $change) {
@@ -766,7 +766,12 @@ function zz_action_change($ops, $zz_tab, $change) {
 	
 	// output?
 	if (!empty($change['output'])) {
+		// before form
 		$ops['output'] .= $change['output'];
+	}
+	if (!empty($change['output_form'])) {
+		// inside form
+		$ops['form'] = $change['output_form'];
 	}
 
 	// get record definition from planned or not_validated

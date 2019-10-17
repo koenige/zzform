@@ -95,6 +95,7 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 			$output .= ' enctype="multipart/form-data"';
 		$output .= ' accept-charset="'.$zz_conf['character_set'].'">';
 		$output .= sprintf('<input type="hidden" name="zz_id" value="%s">', $zz_conf['id']);
+		if (!empty($ops['form'])) $output .= $ops['form'];
 	}
 
 	// Heading inside HTML form element
