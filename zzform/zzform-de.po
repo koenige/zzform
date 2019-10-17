@@ -511,6 +511,10 @@ msgstr ""
 "Bitte wählen Sie aus einem der Werte für das Feld <strong>%s</strong> aus."
 
 # Record form: Validation, displayed above form
+msgid "Please check the values for field <strong>%s</strong>."
+msgstr "Bitte prüfen Sie den Werte für das Feld <strong>%s</strong>."
+
+# Record form: Validation, displayed above form
 msgid "Creation of directory %s failed: Parent directory is not writable."
 msgstr ""
 "Erstellung des Verzeichnisses %s ist fehlgeschlagen: Hauptverzeichnis ist "

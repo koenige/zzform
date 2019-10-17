@@ -11,7 +11,11 @@
 <p>%%% text Please check these values again %%%: </p>
 <ul>
 %%% loop start %%%
+%%% condition if select %%%
 <li>%%% text "Please select one of the values for field <strong>%s</strong>." title %%%</li>
+%%% condition else %%%
+<li>%%% text "Please check the value for field <strong>%s</strong>." title %%%</li>
+%%% condition endif %%%
 %%% loop end %%%
 </ul>
 </div>
