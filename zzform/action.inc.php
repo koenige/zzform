@@ -755,7 +755,9 @@ function zz_action_function($type, $ops, $zz_tab) {
  *
  * @param array $ops
  * @param array $zz_tab
- * @param array $change string 'output', array 'record_replace'
+ * @param array $change string 'output', array 'record_replace',
+ *		array 'validation_fields', bool 'no_validation', array 'integrity_delete',
+ *		array 'change_info'
  * @return array [$ops, $zz_tab]
  */
 function zz_action_change($ops, $zz_tab, $change) {
@@ -767,9 +769,36 @@ function zz_action_change($ops, $zz_tab, $change) {
 		$ops['output'] .= $change['output'];
 	}
 
+	// get record definition from planned or not_validated
+	if (!empty($ops['planned'])) $planned = $ops['planned'];
+	elseif (!empty($ops['validated'])) $planned = $ops['validated'];
+	else $planned = $ops['not_validated'];
+
 	// invalid?
 	if (!empty($change['no_validation'])) {
 		$ops['no_validation'] = true;
+		// validation message
+		// = $change['no_validation_msg'];
+		// mark invalid fields (reselect or error)
+		if (!empty($change['validation_fields'])) {
+			foreach ($change['validation_fields'] as $index => $fields) {
+				list($tab, $rec) = explode('-', $planned[$index]['tab-rec']);
+				foreach ($zz_tab[$tab][$rec]['fields'] as $no => $field) {
+					if (empty($field['field_name'])) continue;
+					if (!array_key_exists($field['field_name'], $fields)) continue;
+					if (!empty($fields[$field['field_name']]['class'])) {
+						$zz_tab[$tab][$rec]['fields'][$no]['class'][] = $fields[$field['field_name']]['class'];
+						if ($fields[$field['field_name']]['class'] === 'reselect')
+							$zz_tab[$tab][$rec]['fields'][$no]['mark_reselect'] = true;
+					}
+					if (!empty($fields[$field['field_name']]['explanation'])) {
+						if (empty($zz_tab[$tab][$rec]['fields'][$no]['explanation']))
+							$zz_tab[$tab][$rec]['fields'][$no]['explanation'] = '';
+						$zz_tab[$tab][$rec]['fields'][$no]['explanation'] .= wrap_text($fields[$field['field_name']]['explanation']);
+					}
+				}
+			}
+		}
 	}
 	
 	if (!empty($change['integrity_delete'])) {
@@ -780,10 +809,6 @@ function zz_action_change($ops, $zz_tab, $change) {
 	
 	// record? replace values as needed
 	if (!empty($change['record_replace'])) {
-		// get record definition from planned or not_validated
-		if (!empty($ops['planned'])) $planned = $ops['planned'];
-		elseif (!empty($ops['validated'])) $planned = $ops['validated'];
-		else $planned = $ops['not_validated'];
 		// replace values
 		foreach ($change['record_replace'] as $index => $values) {
 			list($tab, $rec) = explode('-', $planned[$index]['tab-rec']);
