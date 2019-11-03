@@ -199,20 +199,28 @@ function zz_nice_headings($heading, $zz, $where_condition = []) {
  * @return string HTML output of all detail links
  */
 function zz_show_more_actions($conf, $id, $line) {
+	static $error; // @deprecated
+
 	if (!function_exists('forceFilename')) {
 		echo zz_text('Function forceFilename() required but not found! It is as well '
 			.'possible that <code>$zz_conf[\'character_set\']</code> is incorrectly set.');
 		exit;
 	}
- 	if (empty($conf['details_url'])) $conf['details_url'] = '.php?id=';	// @deprecated
 	$act = [];
 	foreach ($conf['details'] as $key => $detail) {
-		if (!is_array($detail)) {
+		if (!is_array($detail) AND (
+			!empty($conf['details_url']) OR !empty($conf['details_base'])
+			OR !empty($conf['details_target']) OR !empty($conf['details_sql'])
+		)) {
 			// @deprecated
-			zz_error_log([
-				'msg_dev' => 'Using deprecated details notation (key %d)',
-				'msg_dev_args' => [$key]
-			]);
+			if (empty($error)) {
+				zz_error_log([
+					'msg_dev' => 'Using deprecated details notation (key %d, script %s)',
+					'msg_dev_args' => [$key, basename($_SERVER['REQUEST_URI'])]
+				]);
+				$error = true;
+			}
+		 	if (empty($conf['details_url'])) $conf['details_url'] = '.php?id=';	// @deprecated
 			$output = false;
 			if ($conf['details_base']) $new_action_url = $conf['details_base'][$key];
 			else $new_action_url = strtolower(forceFilename($detail));
@@ -250,7 +258,9 @@ function zz_show_more_actions($conf, $id, $line) {
 				if ($count) $output .= '&nbsp;('.$count.')';
 			}
 			$act[] = $output;
-		} elseif (!empty($detail['title'])) {
+		} else {
+			if (!is_array($detail))
+				$detail = ['title' => $detail];
 			if (empty($detail['link'])) {
 				$detail['link'] = [
 					'string' => sprintf('%s?where[%s]=', strtolower(forceFilename($detail['title'])), key($line)),
@@ -267,11 +277,6 @@ function zz_show_more_actions($conf, $id, $line) {
 			$count = (!empty($detail['sql']) AND $no = zz_db_fetch(sprintf($detail['sql'], $id), '', 'single value')) ? sprintf('&nbsp;(%d)', $no) : '';
 			$url = zz_makelink($detail['link'], $line);
 			$act[] = sprintf('<a href="%s%s"%s>%s%s</a>', $url, $referer, $target, zz_text($detail['title']), $count);
-		} else {
-			zz_error_log([
-				'msg_dev' => 'Details %d are ignored, missing title',
-				'msg_dev_args' => [$key]
-			]);
 		}
 	}
 	$output = implode('&nbsp;&middot; ', $act);
