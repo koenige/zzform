@@ -185,66 +185,94 @@ function zz_nice_headings($heading, $zz, $where_condition = []) {
 /**
  * HTML output of detail-links for list view
  *
- * @param array $conf = $zz_conf_record
- * 	- array 'details'
- * 	- mixed 'details_url'
- * 	- array 'details_base'
- *		optional; must be set for each key in 'details', if unset, the link base
- *		will be created from 'details'
- * 	- string 'details_target'
- * 	- bool 'details_referer'
- *  - array 'details_sql'
+ * @param array $conf = $zz_conf_record, using ['details]
+ * 	- string 'title'
+ * 	- mixed 'link' (optional)
+ *		- missing: link will be created from title
+ *		- string: main ID field is added to link
+ *		- array: 'field', 'string' as in 'path' construction
+ * 	- string 'target'
+ * 	- bool 'referer'
+ *  - string 'sql'
  * @param int $id
  * @param array $line
- * @global array $zz_conf
  * @return string HTML output of all detail links
  */
-function zz_show_more_actions($conf, $id, $line = false) {
-	global $zz_conf;
+function zz_show_more_actions($conf, $id, $line) {
 	if (!function_exists('forceFilename')) {
 		echo zz_text('Function forceFilename() required but not found! It is as well '
 			.'possible that <code>$zz_conf[\'character_set\']</code> is incorrectly set.');
 		exit;
 	}
- 	if (empty($conf['details_url'])) $conf['details_url'] = '.php?id=';
+ 	if (empty($conf['details_url'])) $conf['details_url'] = '.php?id=';	// @deprecated
 	$act = [];
-	foreach ($conf['details'] as $key => $new_action) {
-		$output = false;
-		if ($conf['details_base']) $new_action_url = $conf['details_base'][$key];
-		else $new_action_url = strtolower(forceFilename($new_action));
-		$output .= '<a href="'.$new_action_url;
-		if (isset($conf['details_url'][$key]) && is_array($conf['details_url'][$key])) {
-		// values are different for each key
-			foreach ($conf['details_url'][$key] as $part_key => $value) {
-				if (substr($part_key, 0, 5) === 'field') {
-					if (empty($line)) continue 2;
-					$output .= $line[$value];
-				} else {
-					$output .= $value;
+	foreach ($conf['details'] as $key => $detail) {
+		if (!is_array($detail)) {
+			// @deprecated
+			zz_error_log([
+				'msg_dev' => 'Using deprecated details notation (key %d)',
+				'msg_dev_args' => [$key]
+			]);
+			$output = false;
+			if ($conf['details_base']) $new_action_url = $conf['details_base'][$key];
+			else $new_action_url = strtolower(forceFilename($detail));
+			$output .= '<a href="'.$new_action_url;
+			if (isset($conf['details_url'][$key]) && is_array($conf['details_url'][$key])) {
+			// values are different for each key
+				foreach ($conf['details_url'][$key] as $part_key => $value) {
+					if (substr($part_key, 0, 5) === 'field') {
+						if (empty($line)) continue 2;
+						$output .= $line[$value];
+					} else {
+						$output .= $value;
+					}
 				}
-			}
-		} elseif (is_array($conf['details_url'])) {
-		// all values are the same
-			foreach ($conf['details_url'] as $part_key => $value) {
-				if (substr($part_key, 0, 5) === 'field') {
-					if (empty($line)) continue 2;
-					$output .= $line[$value];
-				} else {
-					$output .= $value;
+			} elseif (is_array($conf['details_url'])) {
+			// all values are the same
+				foreach ($conf['details_url'] as $part_key => $value) {
+					if (substr($part_key, 0, 5) === 'field') {
+						if (empty($line)) continue 2;
+						$output .= $line[$value];
+					} else {
+						$output .= $value;
+					}
 				}
+			} else
+				$output .= $conf['details_url'];
+			if (!isset($conf['details_url']) OR !is_array($conf['details_url'])) $output .= $id;
+			
+			$output .= ($conf['details_referer'] ? '&amp;referer='.urlencode($_SERVER['REQUEST_URI']) : '')
+				.'"'
+				.(!empty($conf['details_target']) ? ' target="'.$conf['details_target'].'"' : '')
+				.'>'.zz_text($detail).'</a>';
+			if (!empty($conf['details_sql'][$key])) {
+				$count = zz_db_fetch($conf['details_sql'][$key].$id, '', 'single value');
+				if ($count) $output .= '&nbsp;('.$count.')';
 			}
-		} else
-			$output .= $conf['details_url'];
-		if (!isset($conf['details_url']) OR !is_array($conf['details_url'])) $output .= $id;
-		$output .= ($conf['details_referer'] ? '&amp;referer='.urlencode($_SERVER['REQUEST_URI']) : '')
-			.'"'
-			.(!empty($conf['details_target']) ? ' target="'.$conf['details_target'].'"' : '')
-			.'>'.zz_text($new_action).'</a>';
-		if (!empty($conf['details_sql'][$key])) {
-			$count = zz_db_fetch($conf['details_sql'][$key].$id, '', 'single value');
-			if ($count) $output .= '&nbsp;('.$count.')';
+			$act[] = $output;
+		} elseif (!empty($detail['title'])) {
+			if (empty($detail['link'])) {
+				$detail['link'] = [
+					'string' => sprintf('%s?where[%s]=', strtolower(forceFilename($detail['title'])), key($line)),
+					'field' => key($line)
+				];
+			} elseif (!is_array($detail['link'])) {
+				$detail['link'] = [
+					'string' => $detail['link'],
+					'field' => key($line)
+				];
+			}
+			$target = !empty($detail['target']) ? sprintf(' target="%s"', $detail['target']) : '';
+			$referer = !empty($detail['referer']) ? sprintf('&amp;referer=%s', urlencode($_SERVER['REQUEST_URI'])) : '';
+			$count = (!empty($detail['sql']) AND $no = zz_db_fetch(sprintf($detail['sql'], $id), '', 'single value')) ? sprintf('&nbsp;(%d)', $no) : '';
+			$url = zz_makelink($detail['link'], $line);
+			$act[] = sprintf('<a href="%s%s"%s>%s%s</a>', $url, $referer, $target, zz_text($detail['title']), $count);
+		} else {
+			zz_error_log([
+				'msg_dev' => 'Details %d are ignored, missing title',
+				'msg_dev_args' => [$key]
+			]);
 		}
-		$act[] = $output;
 	}
 	$output = implode('&nbsp;&middot; ', $act);
 	return $output;
