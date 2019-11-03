@@ -2242,7 +2242,7 @@ function zz_backwards($zz_conf, $zz) {
 	];
 	foreach ($moved_to_zz as $old => $new) {
 		if (isset($zz_conf[$old])) {
-			if (is_array($new) AND count($new === 2)) {
+			if (is_array($new) AND count($new) === 2) {
 				$zz[$new[0]][$new[1]] = $zz_conf[$old];
 				$new = implode('"]["', $new);
 			} else {
