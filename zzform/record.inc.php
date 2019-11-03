@@ -276,7 +276,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 	$output['hidden'] = [];
 
 	// there is a form to display
-	$zz_conf_record = zz_record_conf($zz_conf);
+	$zz_conf_record = zz_record_conf($zz_conf, $zz_tab[0][0]);
 	// check conditions
 	if (!empty($zz_conditions['bool'])) {
 		zz_conditions_merge_conf($zz_conf_record, $zz_conditions['bool'], $zz_var['id']['value']);

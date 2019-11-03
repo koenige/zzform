@@ -153,7 +153,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		$table_defs = zz_list_show_group_fields($table_defs, $list);
 
 		list($rows, $list) = zz_list_data(
-			$list, $lines, $table_defs, $zz_var, $zz_conditions, $zz['table'], $ops['mode']
+			$list, $lines, $table_defs, $zz, $zz_var, $zz_conditions, $zz['table'], $ops['mode']
 		);
 		if (!empty($list['extra_cols'])) {
 			$table_defs[0] += $list['extra_cols'];
@@ -599,6 +599,7 @@ function zz_list_set($zz, $count_rows) {
  * @param array $list
  * @param array $lines
  * @param array $table_defs
+ * @param array $zz
  * @param array $zz_var
  * @param array $zz_conditions
  * @param string $table ($zz['table'])
@@ -608,7 +609,7 @@ function zz_list_set($zz, $count_rows) {
  *	- array $rows data organized in rows
  *	- array $list with some additional information on how to output list
  */
-function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $table, $mode) {
+function zz_list_data($list, $lines, $table_defs, $zz, $zz_var, $zz_conditions, $table, $mode) {
 	global $zz_conf;
 	
 	$rows = [];
@@ -668,7 +669,7 @@ function zz_list_data($list, $lines, $table_defs, $zz_var, $zz_conditions, $tabl
 		$def_index = (count($table_defs) > 1) ? $index : 0;
 		$rows[$z]['group'] = zz_list_group_titles($list, $table_defs[$def_index], $line);
 		// configuration variables just for this line
-		$zz_conf_record = zz_record_conf($zz_conf);
+		$zz_conf_record = zz_record_conf($zz_conf, $zz);
 		if (!empty($line['zz_conf'])) {
 			// check whether there are different configuration variables 
 			// e. g. for hierarchies

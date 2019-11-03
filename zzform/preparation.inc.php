@@ -71,6 +71,9 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	// get ID field, unique fields, check for unchangeable fields
 	$zz_tab[0][0]['id'] = &$zz_var['id'];
 	$zz_tab[0][0]['check_select_fields'] = zz_prepare_check_select();
+	$zz_tab[0][0]['details'] = !empty($zz['details']) ? $zz['details'] : [];
+	$zz_tab[0][0]['if'] = !empty($zz['if']) ? $zz['if'] : [];
+	$zz_tab[0][0]['unless'] = !empty($zz['unless']) ? $zz['unless'] : [];
 
 	//	### put each table (if more than one) into one array of its own ###
 	foreach ($zz_var['subtables'] as $tab => $no) {

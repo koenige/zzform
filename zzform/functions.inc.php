@@ -482,9 +482,10 @@ function zz_check_get_array($key, $type, $values = [], $exit_on_error = true) {
  * individually
  * 
  * @param array $zz_conf
+ * @param array $zz
  * @return array $zz_conf_record subset of $zz_conf
  */
-function zz_record_conf($zz_conf) {
+function zz_record_conf($zz_conf, $zz) {
 	$wanted_keys = [
 		'int[access]', 'edit', 'delete', 'add', 'view', 'if', 'details', 
 		'details_url', 'details_base', 'details_target', 'details_referer',
@@ -497,6 +498,8 @@ function zz_record_conf($zz_conf) {
 			$key = substr($key, 4, -1);
 			$zz_conf_record['int'][$key] = isset($zz_conf['int'][$key])
 				? $zz_conf['int'][$key] : ''; 
+		} elseif (isset($zz[$key])) {
+			$zz_conf_record[$key] = $zz[$key];
 		} elseif (isset($zz_conf[$key])) {
 			$zz_conf_record[$key] = $zz_conf[$key];
 		}
