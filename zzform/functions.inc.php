@@ -3481,7 +3481,9 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 	$postvalues = explode($concat, $postvalue);
 
 	$use_single_comparison = false;
-	$id_field_name = $field['sql_fieldnames'][0];
+	if (!empty($field['sql_fieldnames'][0]))
+		// save for later use
+		$id_field_name = $field['sql_fieldnames'][0];
 	if (substr($postvalue, -1) !== ' ' AND !$zz_conf['multi']) {
 		$search_equal = false;
 		// if there is a space at the end of the string, don't do LIKE 
