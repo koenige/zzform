@@ -112,6 +112,8 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 				}
 				if ($s_field['field_name'] === $subfield_name) {
 					$subfield = $s_field;
+				} elseif (!empty($s_field['display_field']) AND $s_field['display_field'] === $subfield_name) {
+					$subfield = $s_field;
 				}
 			}
 			$subsearch = zz_search_field($subfield, $subtable, $submain_id_fieldname, $searchword);
@@ -333,9 +335,10 @@ function zz_search_scope($field, $table, $scope) {
 			$search_field = true;
 		}
 	} elseif (!empty($field['table']) AND $field['table'] === substr($scope, 0, strpos($scope, '.'))) {
+		$look_for = substr($scope, strpos($scope, '.') + 1);
 		foreach ($field['fields'] as $no => $subfield) {
-			if ($subfield['field_name'] !== substr($scope, strpos($scope, '.') + 1)) continue;
-			return 'subfield';
+			if ($subfield['field_name'] === $look_for) return 'subfield';
+			if (isset($subfield['display_field']) AND $subfield['display_field'] === $look_for) return 'subfield';
 		}
 	}
 
