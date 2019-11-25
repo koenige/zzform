@@ -602,7 +602,8 @@ function zz_apply_filter($zz, $filter_params) {
 				$elements_t = zz_translate($filter, $elements_t);
 				$elements = [];
 				foreach ($elements_t as $element) {
-					$elements[reset($element)] = end($element);
+					// first value = ID, second value = label
+					$elements[array_shift($element)] = array_shift($element);
 				}
 			} else {
 				$elements = zz_db_fetch($filter['sql'], '_dummy_id_', 'key/value');
