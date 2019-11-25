@@ -428,7 +428,7 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 		}
 		if (!empty($zz_conf_record['details'])) {
 			$output .= '<tr>'.$th.'<td class="editbutton">'
-				.zz_show_more_actions($zz_conf_record, $zz_var['id']['value'], $zz_tab[0][0]['record'])
+				.zz_show_more_actions($zz_conf_record, $zz_var['id']['value'], $zz_var['id']['field_name'], $zz_tab[0][0]['record'])
 				.'</td></tr>'."\n";
 		}
 		if (empty($zz_conf_record['details']) AND !$zz_conf_record['edit']

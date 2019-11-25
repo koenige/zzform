@@ -751,7 +751,7 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_var, $zz_conditions, 
 		if ($rows[$z]['modes']) $list['modes'] = true; // need a table row for this
 
 		if (!empty($zz_conf_record['details'])) {
-			$rows[$z]['details'] = zz_show_more_actions($zz_conf_record, $id, $line);
+			$rows[$z]['details'] = zz_show_more_actions($zz_conf_record, $id, $zz_var['id']['field_name'], $line);
 			if ($rows[$z]['modes']) {
 				// we need a table row for this
 				$list['details'] = true;

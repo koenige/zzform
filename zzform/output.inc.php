@@ -195,10 +195,11 @@ function zz_nice_headings($heading, $zz, $where_condition = []) {
  * 	- bool 'referer'
  *  - string 'sql'
  * @param int $id
+ * @param string $id_field_name
  * @param array $line
  * @return string HTML output of all detail links
  */
-function zz_show_more_actions($conf, $id, $line) {
+function zz_show_more_actions($conf, $id, $id_field_name, $line) {
 	static $error; // @deprecated
 
 	if (!function_exists('forceFilename')) {
@@ -263,13 +264,13 @@ function zz_show_more_actions($conf, $id, $line) {
 				$detail = ['title' => $detail];
 			if (empty($detail['link'])) {
 				$detail['link'] = [
-					'string' => sprintf('%s?where[%s]=', strtolower(forceFilename($detail['title'])), key($line)),
-					'field' => key($line)
+					'string' => sprintf('%s?where[%s]=', strtolower(forceFilename($detail['title'])), $id_field_name),
+					'field' => $id_field_name
 				];
 			} elseif (!is_array($detail['link'])) {
 				$detail['link'] = [
 					'string' => $detail['link'],
-					'field' => key($line)
+					'field' => $id_field_name
 				];
 			}
 			$target = !empty($detail['target']) ? sprintf(' target="%s"', $detail['target']) : '';
