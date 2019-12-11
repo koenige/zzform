@@ -2507,9 +2507,9 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 
 	// first OPTION element
 	// normally don't show a value, unless we only look at a part of a hierarchy
-	$fieldvalue = (!empty($field['show_hierarchy_subtree']) 
-		AND !empty($field['show_hierarchy_use_top_value_instead_NULL'])) 
-		? $field['show_hierarchy_subtree'] : '';
+	$fieldvalue = zz_field_select_value_hierarchy($field, $record, $id_field_name);
+	if (!$fieldvalue) $field['show_hierarchy_use_top_value_instead_NULL'] = false;
+
 	$fieldattr = [];
 	if ($record) if (!$record[$field['field_name']]) $fieldattr['selected'] = true;
 	if (isset($field['text_none_selected'])) {

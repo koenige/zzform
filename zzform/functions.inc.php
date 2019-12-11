@@ -3349,9 +3349,8 @@ function zz_check_select($my_rec, $f, $max_select) {
 	// if null -> accept it
 	$field_name = $my_rec['fields'][$f]['field_name'];
 	if (!$my_rec['POST'][$field_name]) {
-		if (!empty($my_rec['fields'][$f]['show_hierarchy_use_top_value_instead_NULL'])) {
-			$my_rec['POST'][$field_name] = $my_rec['fields'][$f]['show_hierarchy_subtree'];
-		}
+		$my_rec['POST'][$field_name]
+			= zz_field_select_value_hierarchy($my_rec['fields'][$f], $my_rec['POST'], $my_rec['id']['field_name']);
 		return $my_rec;
 	}
 	if (is_string($my_rec['POST'][$field_name]) AND !trim($my_rec['POST'][$field_name])) {
@@ -3441,6 +3440,23 @@ function zz_check_select($my_rec, $f, $max_select) {
 		]);
 	}
 	return zz_return($my_rec);
+}
+
+/**
+ * check if there's a hierarchy ID that should be used instead of an empty value
+ *
+ * @param array $field
+ * @param array $record
+ * @param string $id_field_name
+ * @return mixed
+ */
+function zz_field_select_value_hierarchy($field, $record, $id_field_name) {
+	if (empty($field['show_hierarchy_subtree'])) return '';
+	if (empty($field['show_hierarchy_use_top_value_instead_NULL'])) return '';
+	if (!empty($field['show_hierarchy_same_table'])) {
+		if ($record[$id_field_name] === $field['show_hierarchy_subtree']) return '';
+	}
+	return $field['show_hierarchy_subtree'];
 }
 
 /**
