@@ -498,6 +498,11 @@ function zz_record_conf($zz_conf, $zz) {
 			$key = substr($key, 4, -1);
 			$zz_conf_record['int'][$key] = isset($zz_conf['int'][$key])
 				? $zz_conf['int'][$key] : ''; 
+		} elseif (isset($zz[$key]) AND isset($zz_conf[$key])) {
+			$zz_conf_record[$key] = $zz_conf[$key];
+			foreach ($zz[$key] as $subkey => $value) {
+				$zz_conf_record[$key][$subkey] = $value;
+			}
 		} elseif (isset($zz[$key])) {
 			$zz_conf_record[$key] = $zz[$key];
 		} elseif (isset($zz_conf[$key])) {
