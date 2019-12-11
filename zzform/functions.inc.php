@@ -499,12 +499,11 @@ function zz_record_conf($zz_conf, $zz) {
 			$zz_conf_record['int'][$key] = isset($zz_conf['int'][$key])
 				? $zz_conf['int'][$key] : ''; 
 		} elseif (!empty($zz[$key]) AND !empty($zz_conf[$key])) {
-			$zz_conf_record[$key] = $zz_conf[$key];
-			if (is_array($zz_conf_record[$key])) {
+			if (is_array($zz_conf[$key])) {
 				// ignore $zz definition if $zz_conf is not an array here, e. g. for 'add'
-				foreach ($zz[$key] as $subkey => $value) {
-					$zz_conf_record[$key][$subkey] = $value;
-				}
+				$zz_conf_record[$key] = zz_array_merge($zz_conf[$key], $zz[$key]);
+			} else {
+				$zz_conf_record[$key] = $zz_conf[$key];
 			}
 		} elseif (isset($zz[$key])) {
 			$zz_conf_record[$key] = $zz[$key];
