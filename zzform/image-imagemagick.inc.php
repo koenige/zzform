@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2006-2019 Gustaf Mossakowski
+ * @copyright Copyright © 2006-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  * @todo
  *	identify -list Format
@@ -501,7 +501,7 @@ function zz_imagick_findpath($command = 'convert') {
 	}
 
 	$paths = $zz_conf['imagemagick_paths'];
-	if ($last_dir = array_pop($paths) != '/notexistent') {
+	if ($last_dir = array_pop($paths) !== '/notexistent') {
 		$zz_conf['imagemagick_paths'][] = '/notexistent';
 	}
 	$path = $zz_conf['imagemagick_paths'][0];
@@ -511,11 +511,11 @@ function zz_imagick_findpath($command = 'convert') {
 		$i++;
 		if ($i > count($zz_conf['imagemagick_paths']) -1) break;
 	}
-	if ($path == '/notexistent') {
-		echo '<p>Configuration error on server: ImageMagick <code>'.$command
-			.'</code> could not be found. Paths tried: '
-			.implode(', ', $zz_conf['imagemagick_paths']).'</p>';
-		exit;
+	if ($path === '/notexistent') {
+		wrap_error('Configuration error on server: ImageMagick `'.$command
+			.'` could not be found. Paths tried: '
+			.implode(', ', $zz_conf['imagemagick_paths']), E_USER_WARNING);
+		return '';
 	}
 	$command = $path.'/'.$command.' ';
 	return $command;
