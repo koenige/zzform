@@ -19,7 +19,7 @@
  * V - Validation, preparation for database
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2019 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -2159,18 +2159,6 @@ function zz_make_id_fieldname($fieldname, $prefix = 'field') {
 	$fieldname = str_replace(']', '', $fieldname);
 	if ($prefix) $fieldname = $prefix.'_'.$fieldname;
 	return $fieldname;
-}
-
-/** 
- * strips magic quotes from multidimensional arrays
- * 
- * @param array $mixed Array with magic_quotes
- * @return array Array without magic_quotes
- */
-function zz_magic_quotes_strip($mixed) {
-   if(is_array($mixed))
-       return array_map('zz_magic_quotes_strip', $mixed);
-   return stripslashes($mixed);
 }
 
 /** 
