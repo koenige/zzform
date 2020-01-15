@@ -373,39 +373,42 @@ function zz_image_crop($source, $dest, $dest_ext, $image, $clipping = 'center') 
 	if ($dest_ratio == $source_ratio) {
 		$options = '-thumbnail %dx%d';
 		$options = sprintf($options, $image['width'], $image['height']);
-	} elseif ($dest_ratio < $source_ratio) {
-		$new_width = floor($image['height'] * $source_ratio);
-		switch ($clipping) {
-		case 'left':
-			$pos_x = 0; break;
-		case 'right':
-			$pos_x = $new_width - $image['width']; break;
-		default:
-			$pos_x = floor(($new_width - $image['width']) / 2);
-			break;
-		}
-		$pos_y = 0;
-		$options = '-thumbnail %dx%d -crop %dx%d+%d+%d';
-		$options = sprintf(
-			$options, $new_width, $image['height'], $image['width'],
-			$image['height'], $pos_x, $pos_y
-		);
 	} else {
-		$new_height = floor($image['width'] / $source_ratio);
-		$pos_x = 0;
-		switch ($clipping) {
-		case 'top':
-			$pos_y = 0; break;
-		case 'bottom':
-			$pos_y = $new_height - $image['height']; break;
-		default:
-			$pos_y = floor(($new_height - $image['height']) / 2);
-			break;
+		if ($dest_ratio < $source_ratio) {
+			$new_width = floor($image['height'] * $source_ratio);
+			$pos_y = 0;
+			switch ($clipping) {
+			case 'left':
+				$gravity = 'West';
+				$pos_x = 0; break;
+			case 'right':
+				$gravity = 'East';
+				$pos_x = $new_width - $image['width']; break;
+			default: // center
+				$gravity = 'Center';
+				$pos_x = floor(($new_width - $image['width']) / 2);
+				break;
+			}
+		} else {
+			$new_height = floor($image['width'] / $source_ratio);
+			$pos_x = 0;
+			switch ($clipping) {
+			case 'top':
+				$gravity = 'North';
+				$pos_y = 0; break;
+			case 'bottom':
+				$gravity = 'South';
+				$pos_y = $new_height - $image['height']; break;
+			default: // center
+				$gravity = 'Center';
+				$pos_y = floor(($new_height - $image['height']) / 2);
+				break;
+			}
 		}
-		$options = '-thumbnail %dx%d -crop %dx%d+%d+%d';
+		$options = '-thumbnail %dx%d^ -gravity %s -extent %dx%d';
 		$options = sprintf(
-			$options, $image['width'], $new_height, $image['width'],
-			$image['height'], $pos_x, $pos_y
+			$options, $image['width'], $image['height'], $gravity,
+			$image['width'], $image['height']
 		);
 	}
 	$filetype = !empty($image['upload']['filetype']) ? $image['upload']['filetype'] : '';
