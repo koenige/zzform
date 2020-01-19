@@ -13,7 +13,7 @@
  *		zz_db_*()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2019 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -655,7 +655,7 @@ function zz_db_field_maxlength($field, $type, $db_table) {
 	// for some field types it makes no sense to check for maxlength
 	$dont_check = [
 		'image', 'display', 'timestamp', 'hidden', 'foreign_key', 'select',
-		'id', 'date', 'time', 'option'
+		'id', 'date', 'time', 'option', 'ip'
 	];
 	if (in_array($type, $dont_check)) return false;
 
