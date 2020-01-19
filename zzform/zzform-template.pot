@@ -5,7 +5,7 @@
 # http://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2005-2019 Gustaf Mossakowski
+# @copyright Copyright © 2005-2020 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 msgid ""
@@ -435,7 +435,7 @@ msgid "No entry found. Try less characters."
 msgstr ""
 
 # Record form: Validation, displayed inside form
-msgid "The text is too long (max. %d characters, %d submitted)."
+msgid "Text is too long (max. %d characters, %d submitted)."
 msgstr ""
 
 # Record form: Validation, displayed inside form
