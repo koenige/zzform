@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2019 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1722,10 +1722,6 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 
 	$text = '';
 	$field_type = zz_get_fieldtype($field);
-	if ($field_type === 'ip') {
-		// binary display will get mangled while transfering
-		$value = @inet_ntop($value);
-	}
 	if (!$display_value) $display_value = $value;
 
 	if ($value AND in_array($field_type, ['number', 'ipv4', 'date', 'datetime', 'time'])) {
@@ -2127,11 +2123,7 @@ function zz_field_number($field, $display, $record, $dont_reformat) {
  */
 function zz_field_ip($field, $display, $record) {
 	// get value
-	$value = $record ? @inet_ntop($record[$field['field_name']]) : '';
-	if (!empty($record[$field['field_name']]) AND !$value) {
-		// reselect, value does not need to be converted
-		$value = $record[$field['field_name']];
-	}
+	$value = $record ? $record[$field['field_name']] : '';
 
 	// return text
 	if ($display !== 'form') return $value;

@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2019 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -107,6 +107,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 		$zz_tab[0][0]['existing'] = zz_query_single_record(
 			$zz_tab[0]['sql'], $zz_tab[0]['table'], $zz_var['id'], $zz_tab[0]['sqlextra']
 		);
+		$zz_tab[0][0]['existing'] = zz_prepare_record($zz_tab[0][0]['existing'], $zz_tab[0][0]['fields']);
 		if ($zz_var['action'] === 'update' AND !$zz_tab[0][0]['existing']) {
 			zz_error_exit(true);
 			$sql = wrap_edit_sql($zz_tab[0]['sql'],
@@ -125,6 +126,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 			.$zz_var['id']['field_name']." IN ('".implode("','", $zz_var['id']['values'])."')");
 		$existing = zz_db_fetch($sql, $zz_var['id']['field_name'], 'numeric');
 		foreach ($existing as $index => $existing_rec) {
+			$existing_rec = zz_prepare_record($existing_rec, $zz_tab[0][0]['fields']);
 			$zz_tab[0][$index]['existing'] = $existing_rec;
 		}
 		// @todo think about sqlextra
@@ -1152,10 +1154,12 @@ function zz_query_record($my_tab, $rec, $validation, $mode, $main_tab) {
 				$my_rec['record'] = zz_query_single_record(
 					$my_tab['sql'], $table, $my_rec['id'], $my_tab['sqlextra']
 				);
+				$my_rec['record'] = zz_prepare_record($my_rec['record'], $my_rec['fields']);
 			} elseif (!empty($my_rec['id']['values'])) {
 				$my_rec['record'] = zz_query_multiple_records(
 					$my_tab['sql'], $table, $my_rec['id']
 				);
+				$my_rec['record'] = zz_prepare_record($my_rec['record'], $my_rec['fields']);
 				// @todo: think about sqlextra
 			} elseif ($my_rec['access'] === 'show' AND !empty($my_rec['POST'])) {
 				$my_rec['record'] = $my_rec['POST'];
@@ -1175,6 +1179,7 @@ function zz_query_record($my_tab, $rec, $validation, $mode, $main_tab) {
 					// source record does not exist
 				} else {
 					$my_rec['record'][$my_rec['id']['field_name']] = false;
+					$my_rec['record'] = zz_prepare_record($my_rec['record'], $my_rec['fields']);
 				}
 			}
 			// remove some values which cannot be copied
@@ -1213,6 +1218,23 @@ function zz_query_record($my_tab, $rec, $validation, $mode, $main_tab) {
 	}
 	zz_log_validation_errors($my_rec, $validation);
 	return zz_return($my_tab);
+}
+
+/**
+ * prepare record from database, convert binary fields
+ * to make life easy
+ *
+ * @param array $record
+ * @param array $fields
+ * @return array $record
+ */
+function zz_prepare_record($record, $fields) {
+	foreach ($fields as $field) {
+		if (zz_get_fieldtype($field) === 'ip') {
+			$record[$field['field_name']] = inet_ntop($record[$field['field_name']]);
+		}
+	}
+	return $record;
 }
 
 /**
