@@ -561,6 +561,9 @@ function zz_action_equals($my_rec) {
 				} else {
 					$update = false;
 				}
+			} elseif (zz_get_fieldtype($field) === 'ip') {
+				if (inet_ntop(inet_pton($post)) === $my_rec['existing'][$field['field_name']]) continue;
+				else $equal = false;
 			} elseif ($post.'' !== $my_rec['existing'][$field['field_name']].'') {
 				// we need to append '' here to compare strings and
 				// not numbers (004 != 4)
@@ -1022,9 +1025,6 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
-	// add keyword _binary for these fields
-	$binary_fields = ['ip'];
-
 	if (!empty($my_rec['last_fields'])) { 
 	// these fields have to be handled after others because they might get data 
 	// from other fields (e. g. upload_fields)
@@ -1116,18 +1116,20 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 		default:
 			//	slashes, 0 and NULL
 			if ($my_rec['POST_db'][$field_name]) {
-				if (mysqli_get_server_info($zz_conf['db_connection']) >= '5.6.0' AND zz_get_fieldtype($field) === 'ip') {
-					$my_rec['POST_db'][$field_name] = sprintf(
-						'INET6_ATON("%s")', 
-						wrap_db_escape($my_rec['POST_db'][$field_name])
-					);
-				} elseif (!zz_db_numeric_field($db_table, $field_name)) {
-					$encoding = '';
-					if (in_array(zz_get_fieldtype($field), $binary_fields)) {
-						$encoding = '_binary';
+				if (zz_get_fieldtype($field) === 'ip') {
+					if (mysqli_get_server_info($zz_conf['db_connection']) >= '5.6.0') {
+						$my_rec['POST_db'][$field_name] = sprintf(
+							'INET6_ATON("%s")', 
+							wrap_db_escape($my_rec['POST_db'][$field_name])
+						);
+					} else {
+						$my_rec['POST_db'][$field_name] = sprintf(
+							'UNHEX("%s")', wrap_db_escape(bin2hex(inet_pton($my_rec['POST_db'][$field_name])))
+						);
 					}
+				} elseif (!zz_db_numeric_field($db_table, $field_name)) {
 					$my_rec['POST_db'][$field_name] = sprintf(
-						'%s"%s"', $encoding, wrap_db_escape($my_rec['POST_db'][$field_name])
+						'"%s"', wrap_db_escape($my_rec['POST_db'][$field_name])
 					);
 				}
 			} else {
@@ -1467,16 +1469,9 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 				// if it's the same value as in database, ok. it's already in binary form
 				if ($my_rec['existing'][$field_name] === $my_rec['POST'][$field_name]) break;
 			}
-			// don't convert it twice (hooks!)
-			if (@inet_ntop($my_rec['POST'][$field_name])) break;
-			$value = @inet_pton($my_rec['POST'][$field_name]);
-			if (!$value) {
+			if (!filter_var($my_rec['POST'][$field_name], FILTER_VALIDATE_IP)) {
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['validation'] = false;
-			}
-			// @deprecated: old MySQL 5.5 support
-			if (mysqli_get_server_info($zz_conf['db_connection']) < '5.6.0') {
-				$my_rec['POST'][$field_name] = $value;
 			}
 			break;			
 		case 'number':
