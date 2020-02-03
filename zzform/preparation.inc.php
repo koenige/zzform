@@ -1230,7 +1230,7 @@ function zz_query_record($my_tab, $rec, $validation, $mode, $main_tab) {
  */
 function zz_prepare_record($record, $fields) {
 	foreach ($fields as $field) {
-		if (zz_get_fieldtype($field) === 'ip') {
+		if (zz_get_fieldtype($field) === 'ip' AND !empty($record[$field['field_name']])) {
 			$record[$field['field_name']] = inet_ntop($record[$field['field_name']]);
 		}
 	}
