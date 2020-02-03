@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2019 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1703,8 +1703,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			}
 			break;
 		case 'parameter':
-			$my_rec['POST'][$field_name] = str_replace("\r\n\r\n", "&", $my_rec['POST'][$field_name]);
-			$my_rec['POST'][$field_name] = str_replace("\r\n", "&", $my_rec['POST'][$field_name]);
+			$my_rec['POST'][$field_name] = zz_validate_parameter($my_rec['POST'][$field_name]);
 			break;
 		default:
 			break;
@@ -1832,6 +1831,28 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 	// finished
 	$my_rec['was_validated'] = true;
 	return zz_return($my_rec);
+}
+
+/**
+ * validate parameters field
+ *
+ * @param string $value
+ * @return string
+ */
+function zz_validate_parameter($fvalue) {
+	// replace multi line notation
+	$fvalue = str_replace("\r\n\r\n", "&", $fvalue);
+	$fvalue = str_replace("\r\n", "&", $fvalue);
+
+	// check if there's whitespace at the end of one of the keys/values
+	parse_str($fvalue, $parameters);
+	$values = [];
+	foreach ($parameters as $key => $value) {
+		$values[] = sprintf('%s=%s', trim($key, '_'), trim($value));
+	}
+	$fvalue = implode('&', $values);
+	
+	return $fvalue;
 }
 
 /**
