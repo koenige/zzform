@@ -1171,7 +1171,7 @@ function zz_secret_key($id) {
 /**
  * read or write secret_key connected to zzform ID
  *
- * @param string $mode ('read', 'write')
+ * @param string $mode ('read', 'write', 'timecheck')
  * @param string $id
  * @param string $hash
  */
@@ -1188,6 +1188,7 @@ function zz_secret_id($mode, $id = '', $hash = '') {
 	// keep IDs for a maximum of one day
 	$keep_max = $now - 60 * 60 * 24;
 	$found = '';
+	$timestamp = 0;
 	$delete_lines = [];
 	foreach ($logs as $index => $line) {
 		// 0 = timestamp, 1 = zz_id, 2 = secret
@@ -1195,6 +1196,7 @@ function zz_secret_id($mode, $id = '', $hash = '') {
 		if ($file[0] < $keep_max) $delete_lines[] = $index;
 		if ($file[1] !== $id) continue;
 		$found = $file[2];
+		$timestamp = $file[0];
 		break;
 	}
 	if ($delete_lines) {
@@ -1203,6 +1205,7 @@ function zz_secret_id($mode, $id = '', $hash = '') {
 	}
 
 	if ($mode === 'read') return $found;
+	elseif ($mode === 'timecheck') return $now - $timestamp;
 	if ($found) return;
 	error_log(sprintf("%s %s %s\n", $now, $id, $hash), 3, $logfile);
 }

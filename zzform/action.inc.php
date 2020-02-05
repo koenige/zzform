@@ -147,6 +147,12 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			$validation = false;
 		}
 	}
+
+	// check timeframe
+	if ($zz_var['action'] === 'insert' AND $validation) {
+		$validation = zz_action_timeframe();
+		if (!$validation) $zz_conf['int']['resend_form_required'] = true;
+	}
 	
 	if (!$validation) {
 		if (!empty($zz_var['upload_form'])) zz_upload_cleanup($zz_tab, false); 
@@ -832,6 +838,19 @@ function zz_action_change($ops, $zz_tab, $change) {
 		}
 	}
 	return [$ops, $zz_tab];
+}
+
+/**
+ * check if form with new record is sent after a certain timeframe
+ *
+ * @return bool false: no validation, resend form
+ */
+function zz_action_timeframe() {
+	$timeframe = zz_secret_id('timecheck');
+	// @todo calculate timeframe based on required fields, e. g. 2 seconds per field
+	$min_seconds_per_form = 5;
+	if ($timeframe > $min_seconds_per_form) return true;
+	return false;
 }
 
 /**

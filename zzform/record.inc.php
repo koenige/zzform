@@ -186,6 +186,12 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 	zz_error_validation();
 	zz_error();
 	$error = zz_error_output();
+	if (!empty($zz_conf['int']['resend_form_required'])) {
+		$error .= sprintf(
+			'<div class="reselect"><p>%s</p></div>'
+			, zz_text('Sorry, an error has occurred.<br>Please send the form again.')
+		);
+	}
 	if ($error) {
 		if (!$div_record_open) {
 			$output .= '<div id="record">';
