@@ -846,6 +846,9 @@ function zz_action_change($ops, $zz_tab, $change) {
  * @return bool false: no validation, resend form
  */
 function zz_action_timeframe() {
+	global $zz_conf;
+	if (!empty($zz_conf['multi'])) return true;
+
 	$timeframe = zz_secret_id('timecheck');
 	// @todo calculate timeframe based on required fields, e. g. 2 seconds per field
 	$min_seconds_per_form = 5;
