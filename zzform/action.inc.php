@@ -1870,7 +1870,26 @@ function zz_validate_parameter($fvalue) {
 	parse_str($fvalue, $parameters);
 	$values = [];
 	foreach ($parameters as $key => $value) {
-		$values[] = sprintf('%s=%s', trim($key, '_'), trim($value));
+		if (is_array($value)) {
+			foreach ($value as $subkey => $subvalue) {
+				if (is_array($subvalue)) {
+					foreach ($subvalue as $subsubkey => $subsubvalue) {
+						if (is_array($subsubvalue)) {
+							zz_error_log(
+								['msg' => 'Nesting of more than three keys is not supported.']
+							);
+							$values[] = 'error';
+						} else {
+							$values[] = sprintf('%s[%s][%s]=%s', trim($key), trim($subkey), trim($subsubkey), trim($subsubvalue));
+						}
+					}
+				} else {
+					$values[] = sprintf('%s[%s]=%s', trim($key), trim($subkey), trim($subvalue));
+				}
+			}
+		} else {
+			$values[] = sprintf('%s=%s', trim($key, '_'), trim($value));
+		}
 	}
 	$fvalue = implode('&', $values);
 	
