@@ -574,6 +574,7 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 	$my_tab['records'] = count($records);
 
 	foreach (array_keys($records) AS $rec) {
+		$existing[$rec] = zz_prepare_record($existing[$rec], $field['fields']);
 		if (empty($my_tab['POST'][$rec]) AND !empty($existing[$rec])) {
 			$my_tab['POST'][$rec] = $existing[$rec];
 		} elseif (empty($my_tab['POST'][$rec]) AND !empty($records[$rec])) {
