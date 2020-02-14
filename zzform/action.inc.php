@@ -848,6 +848,7 @@ function zz_action_change($ops, $zz_tab, $change) {
 function zz_action_timeframe() {
 	global $zz_conf;
 	if (!empty($zz_conf['multi'])) return true;
+	if (!empty($_SESSION['logged_in'])) return true; // just for public forms
 
 	$timeframe = zz_secret_id('timecheck');
 	// @todo calculate timeframe based on required fields, e. g. 2 seconds per field
