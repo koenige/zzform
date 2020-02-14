@@ -2198,6 +2198,7 @@ function zz_array_merge($old, $new) {
  * @return string $field_type
  */
 function zz_get_fieldtype($field) {
+	if (empty($field)) return;
 	if (in_array($field['type'], ['hidden', 'predefined', 'write_once', 'display'])) {
 		if (isset($field['type_detail'])) {
 			return $field['type_detail'];
