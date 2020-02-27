@@ -76,7 +76,7 @@
  *		['validated']		validated (yes = tested, no = rely on fileupload i. e. user)
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2006-2019 Gustaf Mossakowski
+ * @copyright Copyright © 2006-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -762,6 +762,22 @@ function zz_upload_exiftool_read($filename) {
 	$file_meta = json_decode(implode('', $file_meta), true);
 	$file_meta = $file_meta[0];
 	return $file_meta;
+}
+
+/**
+ * write EXIF metadata with ExifTool
+ *
+ * @param string $filename
+ * @global array $my_rec ($zz_tab[$tab][$rec])
+ * @return void
+ * @todo under development
+ */
+function zz_upload_exiftool_write($filename, $my_rec) {
+	global $zz_conf;
+	return;
+	$cmd = '%s -key="value" "%s"';
+	$cmd = sprintf($cmd, $zz_conf['upload_tools']['exiftool_whereis'], $filename);
+	exec($cmd);
 }
 
 /**
@@ -1557,6 +1573,7 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 	if (filesize($tmp_filename) > 3) {
 		$modified = [];
 		$modified['tmp_name'] = $tmp_filename;
+		zz_upload_exiftool_write($tmp_filename, $my_rec);
 		$modified = zz_upload_fileinfo($modified, $dest_extension);
 		// @todo ['modified']['name'] ?? necessary? so far, it's not.
 	}  else {
