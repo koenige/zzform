@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2019 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -821,6 +821,15 @@ function zz_format($text) {
  */
 function zz_field_format($value, $field) {
 	$field_type = zz_get_fieldtype($field);
+	if (!empty($field['preformat'])) {
+		if (!function_exists($field['preformat']))
+			wrap_error(sprintf('Preformat function %s does not exist.', $field['preformat']), E_USER_ERROR);
+		if (!empty($field['preformat_parameters'])) {
+			$value = $field['preformat']($value, $field['preformat_parameters']);
+		} else {
+			$value = $field['preformat']($value);
+		}
+	}
 	switch ($field_type) {
 		case 'number':
 			return zz_number_format($value, $field);
