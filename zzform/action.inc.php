@@ -720,10 +720,18 @@ function zz_action_hook($ops, $zz_tab, $position, $type) {
  */
 function zz_action_function($type, $ops, $zz_tab) {
 	global $zz_conf;
+	global $zz_setting;
+	
 	if (empty($zz_tab[0]['hooks'][$type])) return false;
 
 	if (file_exists($zz_conf['hooks_dir'].'/hooks.inc.php')) {
 		require_once $zz_conf['hooks_dir'].'/hooks.inc.php';
+	}
+	if (!empty($zz_setting['active_module'])) {
+		$module_hooks_dir = sprintf('%s/%s/zzform', $zz_setting['modules_dir'], $zz_setting['active_module']);
+		if (file_exists($module_hooks_dir.'/hooks.inc.php')) {
+			require_once $module_hooks_dir.'/hooks.inc.php';
+		}
 	}
 
 	$change = [];
@@ -736,6 +744,15 @@ function zz_action_function($type, $ops, $zz_tab) {
 			if (substr($file, 0, 3) === 'my-') $file = substr($file, 3);
 			$file = $zz_conf['hooks_dir'].'/'.$file.'.inc.php';
 			if (file_exists($file)) require_once $file;
+			if (!function_exists($hook)) {
+				if (!empty($zz_setting['active_module'])) {
+					$active_mod_prefix = sprintf('mod_%s_', $zz_setting['active_module']);
+					if (substr($hook, 0, 3) === 'my_') {
+						$module_hook = str_replace('my_', $active_mod_prefix, $hook);
+					}
+					if (function_exists($module_hook)) $hook = $module_hook;
+				}
+			}
 			$custom_result = $hook($ops);
 		}
 		if (!is_array($custom_result)) continue;
