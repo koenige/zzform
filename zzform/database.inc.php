@@ -213,10 +213,10 @@ function zz_sql_count_rows($sql, $id_field = '') {
 function zz_db_connection($table) {
 	global $zz_conf;
 
-	// get current db to SELECT it again before exitting
+	// get current db to SELECT it again before exiting
 	// might be that there was no database connection established so far
 	// therefore the @, but it does not matter because we simply want to
-	// revert to the current database after exitting this script
+	// revert to the current database after exiting this script
 	$result = @mysqli_query($zz_conf['db_connection'], 'SELECT DATABASE()');
 	if ($result) {
 		mysqli_data_seek($result, 0);
