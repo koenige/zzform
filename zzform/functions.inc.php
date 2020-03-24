@@ -1178,6 +1178,7 @@ function zz_secret_key($id) {
 function zz_secret_id($mode, $id = '', $hash = '') {
 	global $zz_conf;
 	global $zz_setting;
+	if (!empty($zz_conf['multi'])) return;
 
 	$logfile = $zz_setting['log_dir'].'/zzform-ids.log';
 	if (!file_exists($logfile)) touch($logfile);
