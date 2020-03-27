@@ -2675,7 +2675,8 @@ function zz_list_remove_empty_cols($rows, $head, $zz) {
 			if ($col['text']) $column_content[$no] = true;
 		}
 	}
-	
+
+	// remove empty column head
 	$last_empty_cols = [];
 	foreach ($head as $no => $col) {
 		if (!empty($zz['list']['hide_columns_if_empty'])) $col['hide_in_list_if_empty'] = true;
@@ -2697,6 +2698,8 @@ function zz_list_remove_empty_cols($rows, $head, $zz) {
 			$last_empty_cols = [];
 		}
 	}
+
+	// remove empty column rows
 	foreach ($rows as $index => $row) {
 		foreach ($row as $fieldindex => $field) {
 			if (!empty($hidden_columns[$fieldindex])) unset($rows[$index][$fieldindex]);
