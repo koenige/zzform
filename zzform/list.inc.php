@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2019 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -2675,15 +2675,26 @@ function zz_list_remove_empty_cols($rows, $head, $zz) {
 			if ($col['text']) $column_content[$no] = true;
 		}
 	}
-
+	
+	$last_empty_cols = [];
 	foreach ($head as $no => $col) {
 		if (!empty($zz['list']['hide_columns_if_empty'])) $col['hide_in_list_if_empty'] = true;
-		if (empty($column_content[$no]) AND !empty($col['hide_in_list_if_empty'])
-			AND empty($col['list_append_next'])
-		) {
-			unset($head[$no]); // for zz_field_sum()
-			$hidden_columns[$no] = true;
-			continue;
+		if (empty($column_content[$no]) AND !empty($col['hide_in_list_if_empty'])) {
+			if (empty($col['list_append_next'])) {
+				unset($head[$no]); // for zz_field_sum()
+				$hidden_columns[$no] = true;
+				foreach ($last_empty_cols as $last_no) {
+					unset($head[$last_no]);
+					$hidden_columns[$last_no] = true;
+				}
+				$last_empty_cols = [];
+			} else {
+				// save column for later removal if appended column is empty, too
+				$last_empty_cols[] = $no;
+			}
+		} else {
+			// reset last columns if there's a column with content inbetween
+			$last_empty_cols = [];
 		}
 	}
 	foreach ($rows as $index => $row) {
