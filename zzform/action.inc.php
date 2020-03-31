@@ -93,7 +93,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 				return zz_return([$ops, $zz_tab, $validation]);
 			// if something was returned, validation failed because there 
 			// probably are records
-			if ($zz_tab[0]['integrity']['msg_args']) {
+			if (is_array($zz_tab[0]['integrity']) AND $zz_tab[0]['integrity']['msg_args']) {
 				$validation = false;
 			} elseif ($zz_var['upload_form']) {
 				zz_integrity_check_files($dependent_ids);
