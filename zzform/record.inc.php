@@ -2260,6 +2260,13 @@ function zz_field_memo($field, $display, $record) {
 		$fieldattr['class'] = 'markdown';
 		$fieldattr['id'] = 'markdown-'.$zz_conf['upndown_editor'];
 	}
+
+	if (!empty($field['sql'])) {
+		$field['unrestricted'] = true;
+		$field['field_id'] = $fieldattr['id'];
+		zz_xhr_add('selects', $field);
+	}
+
 	$text = zz_form_element($field['f_field_name'], $value, 'textarea', true, $fieldattr);
 	if (!empty($field['format']) AND $field['format'] === 'markdown'
 		AND !empty($zz_conf['wmd_editor'])) {
@@ -2721,7 +2728,7 @@ function zz_xhr_add($type, $field) {
 	$zz_conf['int'][$type][] = [
 		'field_no' => $field['field_no'],
 		'subtable_no' => $field['subtable_no'],
-		'field_id' => zz_make_id_fieldname($field['f_field_name']),
+		'field_id' => !empty($field['field_id']) ? $field['field_id'] : zz_make_id_fieldname($field['f_field_name']),
 		'url_self' => zz_xhr_url_self(),
 		'destination_field_ids' => isset($field['destination_field_ids']) ? $field['destination_field_ids'] : [],
 		'source_field_ids' => isset($field['source_field_ids']) ? $field['source_field_ids'] : [],
