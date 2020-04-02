@@ -3453,7 +3453,8 @@ function zz_check_select($my_rec, $f, $max_select) {
 function zz_field_select_value_hierarchy($field, $record, $id_field_name) {
 	if (empty($field['show_hierarchy_subtree'])) return '';
 	if (empty($field['show_hierarchy_use_top_value_instead_NULL'])) return '';
-	if (!empty($field['show_hierarchy_same_table'])) {
+	if (!empty($field['show_hierarchy_same_table']) AND !empty($record)
+		AND array_key_exists($id_field_name, $record)) {
 		if ($record[$id_field_name] === $field['show_hierarchy_subtree']) return '';
 	}
 	return $field['show_hierarchy_subtree'];
