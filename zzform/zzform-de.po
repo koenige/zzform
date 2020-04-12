@@ -422,7 +422,7 @@ msgstr ""
 "groß war."
 
 # Record form: File upload
-msgid " – You sent: %s data."
+msgid "– You sent: %s data."
 msgstr " – Sie haben %s Daten gesendet."
 
 # Record form: File upload
