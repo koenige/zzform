@@ -667,6 +667,30 @@ function zz_db_field_maxlength($field, $type, $db_table) {
 	if ($field_def) {
 		preg_match('/\((\d+)\)/s', $field_def['Type'], $my_result);
 		if (isset($my_result[1])) $maxlength = $my_result[1];
+		else {
+			// from MySQL 8.0.19, there are no default lengths for ints
+			$type = explode(' ', $field_def['Type']);
+			if (wrap_substr($type[0], 'int', 'end')) {
+				switch ($type[0]) {
+				case 'tinyint':
+					$maxlength = 3;
+					if ($type[1] === 'unsigned') $maxlength++;
+					break;
+				case 'smallint':
+					$maxlength = 5;
+					if ($type[1] === 'unsigned') $maxlength++;
+					break;
+				case 'mediumint':
+					$maxlength = 8; break;
+				case 'int':
+					$maxlength = 10;
+					if ($type[1] === 'unsigned') $maxlength++;
+					break;
+				case 'bigint':
+					$maxlength = 20; break;
+				}
+			}
+		}
 	}
 	if ($zz_conf['modules']['debug']) zz_debug($type.($maxlength ? '-'.$maxlength : ''));
 	return zz_return($maxlength);
