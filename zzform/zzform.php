@@ -13,7 +13,7 @@
  *	zzform_multi()			multi edit for zzform, e. g. import
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2019 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -319,7 +319,7 @@ function zzform($zz) {
 		return zzform_exit($ops);
 	}
 	
-	$zz_var['extraGET'] = zz_extra_get_params($ops['mode'], $zz_conf);
+	zz_extra_get_params();
 
 	if ($zz_conf['int']['record']) {
 		// there might be now a where value for this record
@@ -361,7 +361,7 @@ function zzform($zz) {
 		// if there was no add button in list, add it here
 		if (!empty($zz_conf['int']['no_add_button_so_far']) AND !empty($zz_conf['no_add_above'])
 			AND $ops['mode'] != 'add') {
-			$ops['output'] .= zz_output_add_links($zz, $zz_var['extraGET']);
+			$ops['output'] .= zz_output_add_links($zz);
 		}
 	}
 	if (zz_error_exit()) return zzform_exit($ops); // critical error: exit;

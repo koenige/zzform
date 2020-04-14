@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2019 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -152,18 +152,17 @@ function zz_export_identifier($mode) {
  * HTML output of links for export
  *
  * @param string $url
- * @param string $querystring
  * @global array $zz_conf
  * @return array $links array of strings with links for export
  */
-function zz_export_links($url, $querystring) {
+function zz_export_links($url) {
 	global $zz_conf;
 	$links = false;
 	$html = '<a href="%sexport=%s%s">'.zz_text('Export').' (%s)</a>';
 	
 	// remove some querystrings which have no effect anyways
 	$unwanted_querystrings = ['nolist', 'debug', 'referer', 'limit', 'order', 'dir'];
-	$qs = zz_edit_query_string($querystring, $unwanted_querystrings);
+	$qs = zz_edit_query_string($zz_conf['int']['extra_get'], $unwanted_querystrings);
 	if (substr($qs, 1)) {
 		$qs = '&amp;'.substr($qs, 1);
 	} else {

@@ -615,11 +615,10 @@ function zz_print_enum($field, $value, $type = 'abbr', $key = false) {
  * HTML output of Add-New-Link at the top of the list
  *
  * @param array $zz
- * @param string $extra_get = $zz_var['extraGET']
  * @global array $zz_conf
  * @return string HTML output add new link
  */
-function zz_output_add_links($zz, $extra_get) {
+function zz_output_add_links($zz) {
 	global $zz_conf;
 	if (!$zz_conf['add_link']) return false;
 	if (!empty($zz['add'])) return false;
@@ -628,7 +627,7 @@ function zz_output_add_links($zz, $extra_get) {
 	$toolsline = [];
 	$toolsline[] = '<a accesskey="n" href="'.$zz_conf['int']['url']['self']
 		.$zz_conf['int']['url']['qs'].$zz_conf['int']['url']['?&'].'add'
-		.$extra_get.'">'.zz_text('Add new record').'</a>';
+		.$zz_conf['int']['extra_get'].'">'.zz_text('Add new record').'</a>';
 	return '<p class="add-new">'.implode(' | ', $toolsline).'</p>'."\n";
 }
 
@@ -694,11 +693,12 @@ function zz_nice_tablenames($table) {
 /**
  * changes own URL, adds some extra parameter
  *
- * @param string $mode ($ops['mode'], if = 'add', keeps add-parameter in URL)
- * @param array $zz_conf
+ * @global array $zz_conf
  * @return string extra GET parameters for links
  */
-function zz_extra_get_params($mode, $zz_conf) {
+function zz_extra_get_params() {
+	global $zz_conf;
+
 	// Extra GET Parameter
 	$keep_query = [];
 	$keep_fields = [
@@ -716,10 +716,9 @@ function zz_extra_get_params($mode, $zz_conf) {
 	elseif (!empty($zz_conf['int']['limit_last']))
 		$keep_query['limit'] = 'last';
 
-	$extra_get = http_build_query($keep_query);
-	if ($extra_get) 
-		$extra_get = '&amp;'.str_replace('&', '&amp;', $extra_get);
-	return $extra_get;
+	$zz_conf['int']['extra_get'] = http_build_query($keep_query);
+	if ($zz_conf['int']['extra_get']) 
+		$zz_conf['int']['extra_get'] = '&amp;'.str_replace('&', '&amp;', $zz_conf['int']['extra_get']);
 }
 
 /**
@@ -1159,18 +1158,18 @@ function zz_output_upndown_editor() {
  * Create links to edit, show, delete or copy a record
  *
  * @param int $id ID of this record
- * @param array $zz_var ('extraGET')
  * @param array $zz_conf_record
  *		'edit', 'view', 'copy', 'delete'
+ * @param string $cancelurl
  * @global array $zz_conf
  * @return string
  */
-function zz_output_modes($id, $zz_var, $zz_conf_record, $cancelurl = '') {
+function zz_output_modes($id, $zz_conf_record, $cancelurl = '') {
 	global $zz_conf;
 	
 	if (!empty($zz_conf['int']['where_with_unique_id'])) $id = '';
-	$qs = ($id ? sprintf('=%d', $id) : '').$zz_var['extraGET'];
-	$qs_extra = $zz_conf['int']['url']['?&'].substr($zz_var['extraGET'], 5);
+	$qs = ($id ? sprintf('=%d', $id) : '').$zz_conf['int']['extra_get'];
+	$qs_extra = $zz_conf['int']['url']['?&'].substr($zz_conf['int']['extra_get'], 5);
 	$link = sprintf(
 		'<a href="%s%s%%s%%s%%s">%%s</a>',
 		$zz_conf['int']['url']['self'],

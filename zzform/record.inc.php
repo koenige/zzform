@@ -86,8 +86,8 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 		$form_open = true;
 		$output .= '<form action="'.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs'];
 		// without first &amp;!
-		if ($zz_var['extraGET']) 
-			$output .= $zz_conf['int']['url']['?&'].substr($zz_var['extraGET'], 5);
+		if ($zz_conf['int']['extra_get']) 
+			$output .= $zz_conf['int']['url']['?&'].substr($zz_conf['int']['extra_get'], 5);
 		if (!empty($zz_conf['form_anchor']))
 			$output .= sprintf('#%s', $zz_conf['form_anchor']);
 		$output .= '" method="POST"';
@@ -429,7 +429,7 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 		if ($zz_conf_record['int']['access'] === 'add_only') return '';
 		if ($zz_conf_record['edit']) {
 			$output .= '<tr>'.$th.'<td class="reedit">';
-			$output .= zz_output_modes($zz_var['id']['value'], $zz_var, $zz_conf_record, $cancelurl);
+			$output .= zz_output_modes($zz_var['id']['value'], $zz_conf_record, $cancelurl);
 			$output .= '</td></tr>'."\n";
 		}
 		if (!empty($zz_conf_record['details'])) {

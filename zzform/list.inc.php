@@ -88,7 +88,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	if ($old_sql !== $zz['sql']) $zz['sqlcount'] = '';
 	$ops['output'] .= zz_filter_selection($zz['filter'], $zz_var['filters'], 'top');
 	if ($ops['mode'] != 'add' AND empty($zz_conf['no_add_above'])) {
-		$ops['output'] .= zz_output_add_links($zz, $zz_var['extraGET']);
+		$ops['output'] .= zz_output_add_links($zz);
 	}
 	if (!$zz['sql']) return zz_return([$ops, $zz_var]);
 
@@ -217,9 +217,9 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			$zz_setting['extra_http_headers'][] = 'X-Frame-Options: Deny';
 			$zz_setting['extra_http_headers'][] = "Content-Security-Policy: frame-ancestors 'self'";
 			$action_url = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs'];
-			if ($zz_var['extraGET']) {
+			if ($zz_conf['int']['extra_get']) {
 				// without first &amp;!
-				$action_url .= $zz_conf['int']['url']['?&'].substr($zz_var['extraGET'], 5);
+				$action_url .= $zz_conf['int']['url']['?&'].substr($zz_conf['int']['extra_get'], 5);
 			}
 			$ops['output'] .= sprintf('<form action="%s" method="POST" accept-charset="%s">'."\n",
 				$action_url, $zz_conf['character_set']);
@@ -270,7 +270,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		if ($ops['mode'] !== 'add' && $zz_conf['add_link'] AND empty($zz['add']) && $zz_conf['int']['show_list']) {
 			$zz_conf['int']['no_add_button_so_far'] = false;
 			$toolsline[] = '<a accesskey="n" href="'.$base_url.'add'
-				.$zz_var['extraGET'].'">'.zz_text('Add new record').'</a>';
+				.$zz_conf['int']['extra_get'].'">'.zz_text('Add new record').'</a>';
 		}
 		// multi-add-button, also show if there was no list, because it will only be shown below records!
 		
@@ -278,14 +278,14 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			ksort($zz['add']); // if some 'add' was unset before, here we get new numerical keys
 			foreach ($zz['add'] as $i => $add) {
 				$zz['add'][$i]['base_url'] = $base_url;
-				$zz['add'][$i]['extraGET'] = $zz_var['extraGET'];
+				$zz['add'][$i]['extraGET'] = $zz_conf['int']['extra_get'];
 			}
 			$ops['output'] .= wrap_template('zzform-list-add', $zz['add']);
 			$zz_conf['int']['no_add_button_so_far'] = false;
 		}
 
 		if ($zz_conf['export'] AND $ops['records_total']) 
-			$toolsline = array_merge($toolsline, zz_export_links($base_url, $zz_var['extraGET']));
+			$toolsline = array_merge($toolsline, zz_export_links($base_url));
 		if ($toolsline)
 			$ops['output'] .= '<p class="add-new bottom-add-new">'.implode(' | ', $toolsline).'</p>';
 		$ops['output'] .= zz_list_total_records($ops['records_total']);
@@ -747,7 +747,7 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_var, $zz_conditions, 
 		}
 		$lastline = $line;
 
-		$rows[$z]['modes'] = zz_output_modes($id, $zz_var, $zz_conf_record);
+		$rows[$z]['modes'] = zz_output_modes($id, $zz_conf_record);
 		if ($rows[$z]['modes']) $list['modes'] = true; // need a table row for this
 
 		if (!empty($zz_conf_record['details'])) {
