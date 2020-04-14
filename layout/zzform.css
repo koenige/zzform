@@ -458,9 +458,8 @@ body #zzform .separator hr
 /* highlighting */
 #zzform .negative	{ color: red; }
 /* current record */
-#zzform .current_record td, #zzform .current_record p
-					{ background: yellow; }
-#zzform .highlight	{ background-color: yellow; color: black; }
+#zzform .current_record td, #zzform .current_record p, #zzform .highlight
+					{ background-color: yellow; color: black; }
 /* make a choice again */
 #zzform #record .reselect th, #zzform #record .reselect td, #zzform #record .reselect
 					{ background-color: green; }
