@@ -31,7 +31,10 @@
 %%% condition if cancel_url %%%
  <a href="%%% item cancel_url %%%">%%% text Cancel %%%</a>
 %%% condition endif %%%
+%%% condition if actions %%%
+%%% condition if modes %%% || %%% condition endif %%%
 %%% item actions %%%
+%%% condition endif %%%
 </td>
 </tr>
 </tfoot>
