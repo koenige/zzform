@@ -636,31 +636,37 @@ function zz_output_add_links($zz) {
  *
  * @param array $zz
  * @param array $ops
+ * @param string $posititon ('above', 'below' list)
  * @global array $zz_conf
  * @return string
  */
-function zz_output_add_export_links($zz, $ops) {
+function zz_output_add_export_links($zz, $ops, $position = 'below') {
 	global $zz_conf;
 	static $no_add_button_so_far;
+	if (!isset($no_add_button_so_far)) $no_add_button_so_far = true;
 	$links = [];
+	if ($zz_conf['int']['access'] === 'export') return '';
+	if ($position === 'above') {
+		if (!empty($zz_conf['no_add_above'])) return '';
+	} else {
+		// only if list was shown beforehands
+		if (!$ops['records_total']) return '';
+		if ($zz_conf['export']) $links['export'] = zz_export_links();
+	}
 
-	if ($ops['mode'] !== 'add' && $zz_conf['add_link']) {
-		// normal add button, only if list was shown beforehands
-		$no_add_button_so_far = true;
+	if ($ops['mode'] !== 'add' AND $zz_conf['add_link']) {
+		$no_add_button_so_far = false;
 		$zz_conf['int']['no_add_button_so_far'] = false;
-		if (empty($zz['add']) && $zz_conf['int']['show_list']) {
+		if (empty($zz['add'])) {
+			// normal add button
 			$links['add_record'] = true;
 		} elseif (!empty($zz['add'])) {
-		// multi-add-button, also show if there was no list, 
-		// because it will only be shown below records!
+			// multi-add-button
 			// if some 'add' was unset before, here we get new numerical keys
 			$links['add'] = $zz['add'];
 			ksort($links['add']);
 		}
 	}
-
-	if ($zz_conf['export'] AND $ops['records_total']) 
-		$links['export'] = zz_export_links();
 	return wrap_template('zzform-list-add', $links);
 }
 
