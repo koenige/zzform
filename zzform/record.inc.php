@@ -297,7 +297,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 	}
 	$multiple = !empty($zz_var['id']['values']) ? true : false;
 	$output['tbody'] = zz_show_field_rows($zz_tab, $mode, $display, $zz_var, $zz_conf_record);
-	$output['tfoot'] = zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple);
+	$output += zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple);
 	if (zz_error_exit()) return zz_return([]);
 	if ($multiple) {
 		foreach ($zz_var['id']['values'] as $id_value) {
@@ -363,7 +363,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
  * @param array $zz_tab
  * @param bool $multiple
  * @global array $zz_conf
- * @return string
+ * @return array
  */
 function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 	global $zz_conf;
@@ -385,7 +385,6 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 		}
 	}
 	if ($mode && !in_array($mode, ['review', 'show'])) {
-		$output = '<td>'; 
 		$fieldattr = [];
 		switch ($mode) {
 		case 'revise':
@@ -414,29 +413,30 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 			$fieldattr['accesskey'] = 's';
 			break;
 		}
-		$output .= zz_form_element('', $elementvalue, 'submit', false, $fieldattr);
+		$output['submit'] = zz_form_element('', $elementvalue, 'submit', false, $fieldattr);
 		if (($cancelurl !== $_SERVER['REQUEST_URI'] OR ($zz_var['action']) OR !empty($_POST))
 			AND $zz_conf_record['cancel_link']) 
 			// only show cancel link if it is possible to hide form 
 			// @todo expanded to action, not sure if this works on add only forms, 
 			// this is for re-edit a record in case of missing field values etc.
-			$output .= ' <a href="'.$cancelurl.'">'.zz_text('Cancel').'</a>';
+			$output['cancel_url'] = $cancelurl;
 	} else {
-		if ($zz_conf_record['int']['access'] === 'add_only') return '';
+		if ($zz_conf_record['int']['access'] === 'add_only') return [];
 		if ($zz_conf_record['edit']) {
-			$output = '<td class="reedit">';
-			$output .= zz_output_modes($zz_var['id']['value'], $zz_conf_record, $cancelurl);
+			$output['tfoot_class'] = 'reedit';
+			$output['modes'] = zz_output_modes($zz_var['id']['value'], $zz_conf_record, $cancelurl);
 		}
 		if (!empty($zz_conf_record['details'])) {
-			$output = '<td class="editbutton">'
-				.zz_show_more_actions($zz_conf_record, $zz_var['id']['value'], $zz_var['id']['field_name'], $zz_tab[0][0]['record']);
+			$output['tfoot_class'] = 'editbutton';
+			$output['actions'] = zz_show_more_actions($zz_conf_record, $zz_var['id']['value'], $zz_var['id']['field_name'], $zz_tab[0][0]['record']);
 		}
 		if (empty($zz_conf_record['details']) AND !$zz_conf_record['edit']
 			AND $zz_conf_record['cancel_link']) {
-			$output = '<td class="editbutton">'
-				.' <a href="'.$cancelurl.'">'.zz_text('Cancel').'</a>';
+			$output['tfoot_class'] = 'editbutton';
+			$output['cancel_url'] = $cancelurl;
 		}			
 	}
+	$output['tfoot'] = true;
 	return $output;
 }
 

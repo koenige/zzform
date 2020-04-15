@@ -17,7 +17,14 @@
 <tfoot>
 <tr>
 %%% condition unless setting zzform_int_hide_tfoot_th %%%<th>&nbsp;</th> %%% condition endif %%%
-%%% item tfoot %%%</td>
+<td%%% item tfoot_class " class='%s'" %%%>
+%%% item submit %%%
+%%% item modes %%%
+%%% condition if cancel_url %%%
+ <a href="%%% item cancel_url %%%">%%% text Cancel %%%</a>
+%%% condition endif %%%
+%%% item actions %%%
+</td>
 </tr>
 </tfoot>
 %%% condition endif %%%
