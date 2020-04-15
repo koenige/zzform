@@ -654,6 +654,7 @@ function zz_output_add_export_links($zz, $ops, $position = 'below') {
 			ksort($links['add']);
 		}
 	}
+	if (!$links) return '';
 	return wrap_template('zzform-list-add', $links);
 }
 
