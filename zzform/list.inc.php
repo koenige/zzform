@@ -276,10 +276,6 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			// multi-add-button, also show if there was no list, 
 			// because it will only be shown below records!
 				ksort($zz['add']); // if some 'add' was unset before, here we get new numerical keys
-				foreach ($zz['add'] as $i => $add) {
-					$zz['add'][$i]['base_url'] = $base_url;
-					$zz['add'][$i]['extraGET'] = $zz_conf['int']['extra_get'];
-				}
 				$ops['output'] .= wrap_template('zzform-list-add', $zz['add']);
 			}
 		}

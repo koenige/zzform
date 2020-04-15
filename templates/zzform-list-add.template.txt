@@ -4,14 +4,15 @@
 # http://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2017 Gustaf Mossakowski
+# @copyright Copyright © 2017, 2020 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 <div class="add-new"><p>%%% text Add new record %%%:</p>
 <ul>
 %%% loop start %%%
-<li><a href="%%% item base_url %%%add%%% condition if value %%%
+<li><a href="%%% setting zzform_int_url_self %%%%%% setting zzform_int_url_qs %%%%%% setting zzform_int_url_?& %%%add%%% condition if value %%%
 [%%% item field_name %%%]=%%% item value %%%
-%%% condition endif %%%%%% item extraGET %%%"%%% item title " title='%s'" %%%>%%% item type %%%</a>%%% item explanation " (%s)" %%%</li>%%% loop end %%%
+%%% condition endif %%%%%% setting zzform_int_extra_get %%%"%%% item title " title='%s'" %%%>%%% item type %%%</a>%%% item explanation " (%s)" %%%</li>
+%%% loop end %%%
 </ul>
 </div>
