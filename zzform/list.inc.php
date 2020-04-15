@@ -54,7 +54,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	// zz_fill_out must be outside if show_list, because it is necessary for
 	// search results with no resulting records
 	// fill_out, but do not unset conditions
-	$zz['fields_in_list'] = zz_fill_out($zz['fields_in_list'], $zz_conf['db_name'].'.'.$zz['table'], 1); 
+	$zz['fields_in_list'] = zz_fill_out($zz['fields_in_list'], $zz_conf['db_name'].'.'.$zz['table'], 1);
 
 	// only if search is allowed and there is something
 	// if q modify $zz['sql']: add search query
@@ -262,28 +262,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		if ($zz_conf['int']['show_list']) {
 			$ops['output'] .= zz_filter_selection($zz['filter'], $zz_var['filters'], 'bottom');
 		}
-		$toolsline = [];
-		$base_url = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
-			.$zz_conf['int']['url']['?&'];
-
-		if ($ops['mode'] !== 'add' && $zz_conf['add_link']) {
-			// normal add button, only if list was shown beforehands
-			$zz_conf['int']['no_add_button_so_far'] = false;
-			if (empty($zz['add']) && $zz_conf['int']['show_list']) {
-				$toolsline[] = '<a accesskey="n" href="'.$base_url.'add'
-					.$zz_conf['int']['extra_get'].'">'.zz_text('Add new record').'</a>';
-			} elseif (!empty($zz['add'])) {
-			// multi-add-button, also show if there was no list, 
-			// because it will only be shown below records!
-				ksort($zz['add']); // if some 'add' was unset before, here we get new numerical keys
-				$ops['output'] .= wrap_template('zzform-list-add', $zz['add']);
-			}
-		}
-
-		if ($zz_conf['export'] AND $ops['records_total']) 
-			$toolsline = array_merge($toolsline, zz_export_links($base_url));
-		if ($toolsline)
-			$ops['output'] .= '<p class="add-new bottom-add-new">'.implode(' | ', $toolsline).'</p>';
+		$ops['output'] .= zz_output_add_export_links($zz, $ops);
 		$ops['output'] .= zz_list_total_records($ops['records_total']);
 		$ops['output'] .= zz_list_pages($zz_conf['limit'], $zz_conf['int']['this_limit'], $ops['records_total']);	
 		// @todo: NEXT, PREV Links at the end of the page
