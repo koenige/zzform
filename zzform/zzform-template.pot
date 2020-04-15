@@ -217,6 +217,10 @@ msgstr ""
 msgid "Edit records"
 msgstr ""
 
+# Record form: bottom
+msgid "Show"
+msgstr ""
+
 # no value available for display, should be abbreviated
 # Record form: field output
 msgid "N/A"

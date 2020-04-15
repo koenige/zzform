@@ -420,12 +420,18 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 			// @todo expanded to action, not sure if this works on add only forms, 
 			// this is for re-edit a record in case of missing field values etc.
 			$output['cancel_url'] = $cancelurl;
+	} elseif ($zz_conf_record['int']['access'] === 'add_only') {
+		return [];
 	} else {
-		if ($zz_conf_record['int']['access'] === 'add_only') return [];
 		if ($zz_conf_record['edit']) {
 			$output['tfoot_class'] = 'reedit';
 			if (empty($zz_conf_record['no_ok']) AND $cancelurl)
 				$output['cancel_ok'] = $cancelurl;
+			// record link?
+			foreach ($zz_tab[0][0]['fields'] as $field) {
+				if (empty($field['link_record']) OR empty($field['link'])) continue;
+				$output['link_record'] = zz_makelink($field['link'], $zz_tab[0][0]['record']);
+			}
 			$output['modes'] = zz_output_modes($zz_var['id']['value'], $zz_conf_record);
 		}
 		if (!empty($zz_conf_record['details'])) {

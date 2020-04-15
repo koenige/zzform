@@ -21,8 +21,13 @@
 %%% item submit %%%
 %%% condition if cancel_ok %%%
 <a href="%%% item cancel_ok %%%">%%% text OK %%%</a>%%% condition endif %%%
-%%% condition if cancel_ok & modes %%%&nbsp;&middot; %%% condition endif %%%
+%%% condition if link_record %%%
+%%% condition if cancel_ok %%%&nbsp;&middot; %%% condition endif %%%
+<a href="%%% item link_record %%%">%%% text Show %%%</a>%%% condition endif %%%
+%%% condition if modes %%%
+%%% condition if cancel_ok | link_record %%%&nbsp;&middot; %%% condition endif %%%
 %%% item modes %%%
+%%% condition endif %%%
 %%% condition if cancel_url %%%
  <a href="%%% item cancel_url %%%">%%% text Cancel %%%</a>
 %%% condition endif %%%
