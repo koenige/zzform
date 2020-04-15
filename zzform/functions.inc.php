@@ -689,7 +689,8 @@ function zz_filter_function($filter, $sql) {
 	$unset = [];
 	foreach ($record_ids as $record_id) {
 		$result = $filter['function']($record_id);
-		if (!$result) $unset[$record_id] = $record_id;
+		if ($result === NULL) unset($record_ids[$record_id]);
+		elseif (!$result) $unset[$record_id] = $record_id;
 	}
 	return ['all' => $record_ids, 'unset' => $unset];
 }
