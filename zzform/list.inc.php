@@ -32,7 +32,6 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	global $zz_conf;
 	global $zz_setting;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	$zz_conf['int']['no_add_button_so_far'] = true;
 
 	if ($zz_conf['search']) {
 		if (file_exists($zz_conf['dir_inc'].'/search.inc.php')) {

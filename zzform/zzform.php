@@ -359,10 +359,7 @@ function zzform($zz) {
 	if ($ops['mode'] !== 'export') {
 		$ops['output'] .= zz_output_backlink();
 		// if there was no add button in list, add it here
-		if (!empty($zz_conf['int']['no_add_button_so_far']) AND !empty($zz_conf['no_add_above'])
-			AND $ops['mode'] != 'add') {
-			$ops['output'] .= zz_output_add_links($zz);
-		}
+		$ops['output'] .= zz_output_add_export_links($zz, $ops, 'nolist');
 	}
 	if (zz_error_exit()) return zzform_exit($ops); // critical error: exit;
 

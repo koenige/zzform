@@ -612,26 +612,6 @@ function zz_print_enum($field, $value, $type = 'abbr', $key = false) {
 }
 
 /**
- * HTML output of Add-New-Link at the top of the list
- *
- * @param array $zz
- * @global array $zz_conf
- * @return string HTML output add new link
- */
-function zz_output_add_links($zz) {
-	global $zz_conf;
-	if (!$zz_conf['add_link']) return false;
-	if (!empty($zz['add'])) return false;
-	if ($zz_conf['int']['access'] === 'export') return false;
-	
-	$toolsline = [];
-	$toolsline[] = '<a accesskey="n" href="'.$zz_conf['int']['url']['self']
-		.$zz_conf['int']['url']['qs'].$zz_conf['int']['url']['?&'].'add'
-		.$zz_conf['int']['extra_get'].'">'.zz_text('Add new record').'</a>';
-	return '<p class="add-new">'.implode(' | ', $toolsline).'</p>'."\n";
-}
-
-/**
  * HTML output of Add-New-Link at the bottom of the list
  *
  * @param array $zz
@@ -642,21 +622,28 @@ function zz_output_add_links($zz) {
  */
 function zz_output_add_export_links($zz, $ops, $position = 'below') {
 	global $zz_conf;
-	static $no_add_button_so_far;
-	if (!isset($no_add_button_so_far)) $no_add_button_so_far = true;
+	static $add_button_shown;
+	if (empty($add_button_shown)) $add_button_shown = false;
+	if ($ops['mode'] === 'export') return '';
+
 	$links = [];
-	if ($zz_conf['int']['access'] === 'export') return '';
-	if ($position === 'above') {
+	switch ($position) {
+	case 'above':
 		if (!empty($zz_conf['no_add_above'])) return '';
-	} else {
+		break;
+	case 'below':
 		// only if list was shown beforehands
 		if (!$ops['records_total']) return '';
 		if ($zz_conf['export']) $links['export'] = zz_export_links();
+		break;
+	case 'nolist':
+		if (empty($zz_conf['no_add_above'])) return '';
+		if ($add_button_shown) return '';
+		break;
 	}
 
 	if ($ops['mode'] !== 'add' AND $zz_conf['add_link']) {
-		$no_add_button_so_far = false;
-		$zz_conf['int']['no_add_button_so_far'] = false;
+		$add_button_shown = true;
 		if (empty($zz['add'])) {
 			// normal add button
 			$links['add_record'] = true;
