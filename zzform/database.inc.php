@@ -674,17 +674,17 @@ function zz_db_field_maxlength($field, $type, $db_table) {
 				switch ($type[0]) {
 				case 'tinyint':
 					$maxlength = 3;
-					if ($type[1] === 'unsigned') $maxlength++;
+					if (!empty($type[1]) AND $type[1] === 'unsigned') $maxlength++;
 					break;
 				case 'smallint':
 					$maxlength = 5;
-					if ($type[1] === 'unsigned') $maxlength++;
+					if (!empty($type[1]) AND $type[1] === 'unsigned') $maxlength++;
 					break;
 				case 'mediumint':
 					$maxlength = 8; break;
 				case 'int':
 					$maxlength = 10;
-					if ($type[1] === 'unsigned') $maxlength++;
+					if (!empty($type[1]) AND $type[1] === 'unsigned') $maxlength++;
 					break;
 				case 'bigint':
 					$maxlength = 20; break;
