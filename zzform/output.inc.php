@@ -641,31 +641,27 @@ function zz_output_add_links($zz) {
  */
 function zz_output_add_export_links($zz, $ops) {
 	global $zz_conf;
-	$toolsline = [];
-	$output = '';
-	$base_url = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
-		.$zz_conf['int']['url']['?&'];
+	static $no_add_button_so_far;
+	$links = [];
 
 	if ($ops['mode'] !== 'add' && $zz_conf['add_link']) {
 		// normal add button, only if list was shown beforehands
+		$no_add_button_so_far = true;
 		$zz_conf['int']['no_add_button_so_far'] = false;
 		if (empty($zz['add']) && $zz_conf['int']['show_list']) {
-			$toolsline[] = '<a accesskey="n" href="'.$base_url.'add'
-				.$zz_conf['int']['extra_get'].'">'.zz_text('Add new record').'</a>';
+			$links['add_record'] = true;
 		} elseif (!empty($zz['add'])) {
 		// multi-add-button, also show if there was no list, 
 		// because it will only be shown below records!
 			// if some 'add' was unset before, here we get new numerical keys
-			ksort($zz['add']);
-			$output .= wrap_template('zzform-list-add', $zz);
+			$links['add'] = $zz['add'];
+			ksort($links['add']);
 		}
 	}
 
 	if ($zz_conf['export'] AND $ops['records_total']) 
-		$toolsline = array_merge($toolsline, zz_export_links($base_url));
-	if ($toolsline)
-		$output .= '<p class="add-new bottom-add-new">'.implode(' | ', $toolsline).'</p>';
-	return $output;
+		$links['export'] = zz_export_links();
+	return wrap_template('zzform-list-add', $links);
 }
 
 /**

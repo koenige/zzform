@@ -151,14 +151,12 @@ function zz_export_identifier($mode) {
 /**
  * HTML output of links for export
  *
- * @param string $url
  * @global array $zz_conf
  * @return array $links array of strings with links for export
  */
-function zz_export_links($url) {
+function zz_export_links() {
 	global $zz_conf;
-	$links = false;
-	$html = '<a href="%sexport=%s%s">'.zz_text('Export').' (%s)</a>';
+	$links = [];
 	
 	// remove some querystrings which have no effect anyways
 	$unwanted_querystrings = ['nolist', 'debug', 'referer', 'limit', 'order', 'dir'];
@@ -174,7 +172,11 @@ function zz_export_links($url) {
 	foreach ($zz_conf['export'] as $type => $mode) {
 		if (is_numeric($type)) $type = $mode;
 		else $type = $mode.', '.$type;
-		$links[] = sprintf($html, $url, zz_export_identifier($mode), $qs, $type);
+		$links[] = [
+			'mode' => zz_export_identifier($mode),
+			'qs' => $qs,
+			'type' => $type
+		];
 	}
 	return $links;
 }
