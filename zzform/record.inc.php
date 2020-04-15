@@ -368,9 +368,6 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 	global $zz_conf;
 	
-	$th = !empty($zz_conf['int']['hide_tfoot_th']) ? '' : '<th>&nbsp;</th> ';
-	
-	$output = '';
 	if (!empty($zz_conf['int']['cancel_url'])) {
 		$cancelurl = $zz_conf['int']['cancel_url'];
 	} else {
@@ -388,7 +385,7 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 		}
 	}
 	if ($mode && !in_array($mode, ['review', 'show'])) {
-		$output .= '<tr>'.$th.'<td>'; 
+		$output = '<td>'; 
 		$fieldattr = [];
 		switch ($mode) {
 		case 'revise':
@@ -424,24 +421,20 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 			// @todo expanded to action, not sure if this works on add only forms, 
 			// this is for re-edit a record in case of missing field values etc.
 			$output .= ' <a href="'.$cancelurl.'">'.zz_text('Cancel').'</a>';
-		$output .= '</td></tr>'."\n";
 	} else {
 		if ($zz_conf_record['int']['access'] === 'add_only') return '';
 		if ($zz_conf_record['edit']) {
-			$output .= '<tr>'.$th.'<td class="reedit">';
+			$output = '<td class="reedit">';
 			$output .= zz_output_modes($zz_var['id']['value'], $zz_conf_record, $cancelurl);
-			$output .= '</td></tr>'."\n";
 		}
 		if (!empty($zz_conf_record['details'])) {
-			$output .= '<tr>'.$th.'<td class="editbutton">'
-				.zz_show_more_actions($zz_conf_record, $zz_var['id']['value'], $zz_var['id']['field_name'], $zz_tab[0][0]['record'])
-				.'</td></tr>'."\n";
+			$output = '<td class="editbutton">'
+				.zz_show_more_actions($zz_conf_record, $zz_var['id']['value'], $zz_var['id']['field_name'], $zz_tab[0][0]['record']);
 		}
 		if (empty($zz_conf_record['details']) AND !$zz_conf_record['edit']
 			AND $zz_conf_record['cancel_link']) {
-			$output .= '<tr>'.$th.'<td class="editbutton">'
-				.' <a href="'.$cancelurl.'">'.zz_text('Cancel').'</a>'
-				.'</td></tr>'."\n";
+			$output = '<td class="editbutton">'
+				.' <a href="'.$cancelurl.'">'.zz_text('Cancel').'</a>';
 		}			
 	}
 	return $output;

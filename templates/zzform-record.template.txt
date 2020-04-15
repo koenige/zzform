@@ -4,7 +4,7 @@
 # http://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2018 Gustaf Mossakowski
+# @copyright Copyright © 2018, 2020 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 # tfoot must be before thead or hitting ENTER won't necessarily save the record
@@ -15,7 +15,10 @@
 <table>
 %%% condition if tfoot %%%
 <tfoot>
-%%% item tfoot %%%
+<tr>
+%%% condition unless setting zzform_int_hide_tfoot_th %%%<th>&nbsp;</th> %%% condition endif %%%
+%%% item tfoot %%%</td>
+</tr>
 </tfoot>
 %%% condition endif %%%
 <tbody>
