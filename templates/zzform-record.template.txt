@@ -19,6 +19,9 @@
 %%% condition unless setting zzform_int_hide_tfoot_th %%%<th>&nbsp;</th> %%% condition endif %%%
 <td%%% item tfoot_class " class='%s'" %%%>
 %%% item submit %%%
+%%% condition if cancel_ok %%%
+<a href="%%% item cancel_ok %%%">%%% text OK %%%</a>%%% condition endif %%%
+%%% condition if cancel_ok & modes %%%&nbsp;&middot; %%% condition endif %%%
 %%% item modes %%%
 %%% condition if cancel_url %%%
  <a href="%%% item cancel_url %%%">%%% text Cancel %%%</a>

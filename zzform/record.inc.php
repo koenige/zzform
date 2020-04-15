@@ -424,7 +424,9 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 		if ($zz_conf_record['int']['access'] === 'add_only') return [];
 		if ($zz_conf_record['edit']) {
 			$output['tfoot_class'] = 'reedit';
-			$output['modes'] = zz_output_modes($zz_var['id']['value'], $zz_conf_record, $cancelurl);
+			if (empty($zz_conf_record['no_ok']) AND $cancelurl)
+				$output['cancel_ok'] = $cancelurl;
+			$output['modes'] = zz_output_modes($zz_var['id']['value'], $zz_conf_record);
 		}
 		if (!empty($zz_conf_record['details'])) {
 			$output['tfoot_class'] = 'editbutton';

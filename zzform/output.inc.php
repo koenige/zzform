@@ -1187,11 +1187,10 @@ function zz_output_upndown_editor() {
  * @param int $id ID of this record
  * @param array $zz_conf_record
  *		'edit', 'view', 'copy', 'delete'
- * @param string $cancelurl
  * @global array $zz_conf
  * @return string
  */
-function zz_output_modes($id, $zz_conf_record, $cancelurl = '') {
+function zz_output_modes($id, $zz_conf_record) {
 	global $zz_conf;
 	
 	if (!empty($zz_conf['int']['where_with_unique_id'])) $id = '';
@@ -1204,8 +1203,6 @@ function zz_output_modes($id, $zz_conf_record, $cancelurl = '') {
 	);
 
 	$modes = [];
-	if (empty($zz_conf_record['no_ok']) AND $cancelurl)
-		$modes[] = '<a href="'.$cancelurl.'">'.zz_text('OK').'</a>';
 	if ($zz_conf_record['edit']) {
 		if ($zz_conf['int']['access'] === 'show_after_edit') {
 			$modes[] = sprintf($link, '', '', $qs_extra, zz_text('edit'));
