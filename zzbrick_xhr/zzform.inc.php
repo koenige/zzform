@@ -88,7 +88,11 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	foreach ($where as $condition) {
 		$conditions[] = sprintf('(%s)', implode(' OR ', $condition));
 	}
-	$sql = wrap_edit_sql($sql, 'WHERE', implode(' AND ', $conditions));
+	if (wrap_substr(trim($sql), 'SHOW')) {
+		$sql .= sprintf(' LIKE "%%%s%%"', $text[0]);
+	} else {
+		$sql = wrap_edit_sql($sql, 'WHERE', implode(' AND ', $conditions));
+	}
 	$ids = zz_hierarchy_subtree_ids($field);
 	if ($ids) {
 		$sql = wrap_edit_sql($sql, 'WHERE', sprintf('%s IN (%s)'
@@ -97,10 +101,14 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 		);
 	}
 	wrap_db_query('SET NAMES utf8'); // JSON is UTF-8
-	$id_field_name = $sql_fields[0]['field_name'];
-	if (strstr($id_field_name, '.'))
-		$id_field_name = substr($id_field_name, strrpos($id_field_name, '.') + 1);
-	$records = wrap_db_fetch($sql, $id_field_name);
+	if ($sql_fields) {
+	 	$id_field_name = $sql_fields[0]['field_name'];
+		if (strstr($id_field_name, '.'))
+			$id_field_name = substr($id_field_name, strrpos($id_field_name, '.') + 1);
+		$records = wrap_db_fetch($sql, $id_field_name);
+	} else {
+		$records = wrap_db_fetch($sql, '_dummy_', 'numeric');
+	}
 	if (!empty($field['sql_translate'])) {
 		foreach ($field['sql_translate'] as $t_id_field => $t_table) {
 			$records = wrap_translate($records, $t_table, $t_id_field);
@@ -172,18 +180,29 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	foreach ($records as $record) {
 		$j = 0;
 		$text = [];
-		foreach ($sql_fields as $sql_field) {
-			if (!array_key_exists($sql_field['as'], $record)) continue;
-			if (empty($record[$sql_field['as']])) continue;
-			$text[] = $record[$sql_field['as']];
-			$data['entries'][$i]['elements'][$j] = [
+		if ($sql_fields) {
+			foreach ($sql_fields as $sql_field) {
+				if (!array_key_exists($sql_field['as'], $record)) continue;
+				if (empty($record[$sql_field['as']])) continue;
+				$text[] = $record[$sql_field['as']];
+				$data['entries'][$i]['elements'][$j] = [
+					'node' => 'div',
+					'properties' => [
+						'className' => 'xhr_record',
+						'text' => $record[$sql_field['as']]
+					]
+				];
+				$j++;
+			}
+		} elseif (wrap_substr(trim($sql), 'SHOW')) {
+			$text[] = reset($record);
+			$data['entries'][$i]['elements'][0] = [
 				'node' => 'div',
 				'properties' => [
 					'className' => 'xhr_record',
-					'text' => $record[$sql_field['as']]
+					'text' => reset($record)
 				]
 			];
-			$j++;
 		}
 		// search entry for zzform, concatenated and space at the end
 		$data['entries'][$i]['text'] = implode($concat, $text).' ';
