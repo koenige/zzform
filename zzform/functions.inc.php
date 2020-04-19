@@ -3507,14 +3507,14 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 		$search_equal = false;
 		// if there is a space at the end of the string, don't do LIKE 
 		// with %!
-		if ($field['sql'] === 'SHOW DATABASES') {
+		if (wrap_substr(trim($field['sql']), 'SHOW')) {
 			$likestring = '%s LIKE %s"%%%s%%"';
 		} else {
 			$likestring = ' LIKE %s"%%%s%%"';
 		}
 	} else {
 		$search_equal = true;
-		if ($field['sql'] === 'SHOW DATABASES') {
+		if (wrap_substr(trim($field['sql']), 'SHOW')) {
 			$likestring = '%s = %s"%s"';
 		} else {
 			$likestring = ' = %s"%s"';
@@ -3595,9 +3595,9 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 	}
 	if ($wheresql) {
 		$field['sql_new'] = wrap_edit_sql($field['sql'], 'WHERE', $wheresql);
-	} elseif ($field['sql'] === 'SHOW DATABASES') {
+	} elseif (wrap_substr(trim($field['sql']), 'SHOW')) {
 		$likestring = str_replace('=', 'LIKE', $likestring);
-		$field['sql_new'] = sprintf($likestring, 'SHOW DATABASES', '', trim($value));
+		$field['sql_new'] = sprintf($likestring, $field['sql'], '', trim($value));
 	} else {
 		$field['sql_new'] = $field['sql'];
 	}
