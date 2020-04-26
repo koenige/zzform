@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -85,6 +85,7 @@ function zz_details_start($zz) {
 			foreach ($field['fields'] as $sub_no => $sub_field) {
 				if ($sub_no == $field_no) {
 					$table_name = isset($field['table_name']) ? $field['table_name'] : $field['table'];
+					$table_name = wrap_db_prefix($table_name);
 					$posted_value = $_POST[$table_name][$rec][$sub_field['field_name']];
 					$source_field_name = $table_name.'['.$rec.']['.$sub_field['field_name'].']';
 				}
