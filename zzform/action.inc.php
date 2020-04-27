@@ -38,9 +38,16 @@
  */
 function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	global $zz_conf;
+	global $zz_setting;
 
 	if (file_exists($path = $zz_conf['dir_custom'].'/editing.inc.php')) {
 		include_once $path;
+	}
+	if (!empty($zz_setting['active_module'])) {
+		$module_editing_dir = sprintf('%s/%s/zzform', $zz_setting['modules_dir'], $zz_setting['active_module']);
+		if (file_exists($module_editing_dir.'/editing.inc.php')) {
+			require_once $module_editing_dir.'/editing.inc.php';
+		}
 	}
 
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
