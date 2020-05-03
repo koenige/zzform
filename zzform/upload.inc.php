@@ -1176,9 +1176,7 @@ function zz_upload_prepare($zz_tab) {
 			foreach (array_keys($my_rec['fields'][$no]['image']) as $img) {
 				if (empty($my_rec['images'][$no][$img])) continue;
 				if ($zz_conf['upload_background_thumbnails'] AND empty($my_rec['images'][$no][$img]['create_in_background'])) {
-					$zz_conf['int']['upload_background_thumbnails'][] = [
-						'no' => $no, 'img' => $img
-					];
+					zz_upload_background($no.'-'.$img);
 				}
 			}
 			continue;
@@ -1523,9 +1521,7 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 	}
 
 	if ($zz_conf['upload_background_thumbnails'] AND empty($image['create_in_background'])) {
-		$zz_conf['int']['upload_background_thumbnails'][] = [
-			'no' => $no, 'img' => $img
-		];
+		zz_upload_background($no.'-'.$img);
 		return false;
 	}
 	
@@ -2245,11 +2241,7 @@ function zz_upload_action($zz_tab) {
 	}
 
 	// background thumbnails will be triggered now
-	if (!empty($zz_conf['int']['upload_background_thumbnails'])) {
-		foreach ($zz_conf['int']['upload_background_thumbnails'] as $tn) {
-			zz_upload_background($zz_tab[0][0]['id']['value'], $tn['no'], $tn['img']);
-		}
-	}
+	zz_upload_background($zz_tab[0][0]['id']['value'], 'create');
 
 	if ($zz_conf['modules']['debug']) zz_debug('end');
 	return $zz_tab;
@@ -2257,28 +2249,41 @@ function zz_upload_action($zz_tab) {
 
 /**
  * create thumbnails in background
- * this only works with zzwrap library
  *
+ * @param string $number
+ * @param string $action ('set' or 'create')
  */
-function zz_upload_background($id, $no, $img) {
+function zz_upload_background($number, $action = 'set') {
 	global $zz_conf;
 	global $zz_setting;
-
-	$url = sprintf('%s?thumbs=%d&field=%d-%d',
-		$zz_conf['int']['url']['full'], $id, $no, $img
-	);
-	if (in_array($zz_conf['int']['access'], ['add_only', 'edit_only', 'add_then_edit'])
-		AND empty($zz_conf['int']['where_with_unique_id'])) {
-		$url .= sprintf('&zzhash=%s', zz_secret_key($id));
-	}
-	$headers[] = 'X-Request-WWW-Authentication: 1';
-	$headers[] = 'X-Timeout-Ignore: 1';
-	$method = 'POST';
-	$data['thumbnails'] = 1;
-	$pwd = sprintf('%s:%s', $zz_conf['user'], wrap_password_token($zz_conf['user']));
+	static $fields;
+	if (!is_array($fields)) $fields = [];
 	
-	require_once $zz_setting['core'].'/syndication.inc.php';
-	$result = wrap_syndication_retrieve_via_http($url, $headers, $method, $data, $pwd);
+	if ($action === 'set') {
+		if (in_array($number, $fields)) return;
+		$fields[] = $number;
+		return;
+	}
+	if (!$fields) return;
+	foreach ($fields as $index => $field) {
+		$url = sprintf('%s?thumbs=%d&field=%s',
+			$zz_conf['int']['url']['full'], $number, $field
+		);
+		if (in_array($zz_conf['int']['access'], ['add_only', 'edit_only', 'add_then_edit'])
+			AND empty($zz_conf['int']['where_with_unique_id'])) {
+			$url .= sprintf('&zzhash=%s', zz_secret_key($number));
+		}
+		$headers[] = 'X-Request-WWW-Authentication: 1';
+		$headers[] = 'X-Timeout-Ignore: 1';
+		$method = 'POST';
+		$data['thumbnails'] = 1;
+		$pwd = sprintf('%s:%s', $zz_conf['user'], wrap_password_token($zz_conf['user']));
+	
+		require_once $zz_setting['core'].'/syndication.inc.php';
+		$result = wrap_syndication_retrieve_via_http($url, $headers, $method, $data, $pwd);
+		unset($fields[$index]);
+	}
+	return;
 }
 
 /**
