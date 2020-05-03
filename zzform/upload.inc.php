@@ -2261,6 +2261,8 @@ function zz_upload_background($number, $action = 'set') {
 	
 	if ($action === 'set') {
 		if (in_array($number, $fields)) return;
+		// no thumbnail for main image @todo check when this is called
+		if (substr($number, -2) === '-0') return;
 		$fields[] = $number;
 		return;
 	}
