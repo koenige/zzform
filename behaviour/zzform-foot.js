@@ -6,7 +6,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2014, 2018 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2014, 2018, 2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -163,3 +163,43 @@ function zz_selectRadio(counter) {
 	if (!checkbox.checked) checkbox.checked = 'checked';
 }
 
+/*
+ * check if filters are too long and hide them
+ *
+ * @param string action
+ * @param string field_id
+ * @return void
+ */
+function zz_filters(action, field_id) {
+	var filters = document.getElementsByClassName('zzfilter_dropdown');
+	if (!filters.length) return;
+	for (i = 0; i < filters.length; i++) {
+		filter_id = filters[i].id;
+		if (action == 'init') {
+			(function(filter_id){
+				filters[i].addEventListener('click', function() {zz_filters('toggle', filter_id); });
+			})(filter_id);
+		}
+		var j = 0;
+		if (field_id == filter_id || action == 'init') {
+			var js_collapse = filters[i].getElementsByClassName('js_collapse');
+			var js_expand = filters[i].getElementsByClassName('js_expand');
+			if (action == 'init' || js_collapse[0].style.display == 'inline') {
+				js_collapse[0].style.display = 'none';
+				js_expand[0].style.display = 'inline';
+				while (dd = document.getElementById(filter_id + '-' + j)) {
+					if (!dd.className) dd.style.display = 'none';
+					j++;
+				}
+			} else {
+				js_collapse[0].style.display = 'inline';
+				js_expand[0].style.display = 'none';
+				while (dd = document.getElementById(filter_id + '-' + j)) {
+					if (!dd.className) dd.style.display = 'block';
+					j++;
+				}
+			}
+		}
+	}
+}
+zz_filters('init');

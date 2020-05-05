@@ -949,3 +949,13 @@ msgstr "Folgende(r) Fehler sind im Projekt %s aufgetaucht:"
 # Auto complete
 msgid "No record was found."
 msgstr "Kein Eintrag gefunden."
+
+# Filter
+#: _behaviour/zzform-foot.js
+msgid "expand"
+msgstr "ausklappen"
+
+# Filter
+#: _behaviour/zzform-foot.js
+msgid "collapse"
+msgstr "zuklappen"

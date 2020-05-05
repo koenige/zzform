@@ -887,6 +887,7 @@ function zz_filter_selection($filter, $filter_params, $pos) {
 
 	$filter_output = false;
 	foreach ($filter as $index => $f) {
+		$filter[$index]['length'] = 0;
 		// remove this filter from query string
 		$other_filters['filter'] = $filter_params;
 		unset($other_filters['filter'][$f['identifier']]);
@@ -904,6 +905,7 @@ function zz_filter_selection($filter, $filter_params, $pos) {
 		
 		if (!empty($f['selection'])) {
 			// $f['selection'] might be empty if there's no record in the database
+			$sequence = 1;
 			foreach ($f['selection'] as $id => $selection) {
 				$is_selected = ((isset($filter_params[$f['identifier']]) 
 					AND $filter_params[$f['identifier']] == $id))
@@ -925,17 +927,22 @@ function zz_filter_selection($filter, $filter_params, $pos) {
 				}
 				$filter[$index]['values'][] = [
 					'title' => $selection,
-					'link' => $link
+					'link' => $link,
+					'index' => $sequence
 				];
+				$filter[$index]['length'] += strlen($selection);
 				$filter_output = true;
+				$sequence++;
 			}
 		} elseif (isset($filter_params[$f['identifier']])) {
 			// no filter selections are shown, but there is a current filter, 
 			// so show this
 			$filter[$index]['values'][] = [
 				'title' => zz_htmltag_escape($filter_params[$f['identifier']]),
-				'link' => false
+				'link' => false,
+				'index' => 1
 			];
+			$filter[$index]['length'] += strlen($selection);
 			$filter_output = false;
 		} else {
 			// nothing to output: like-filter, so don't display anything
@@ -962,8 +969,11 @@ function zz_filter_selection($filter, $filter_params, $pos) {
 
 		$filter[$index]['values'][] = [
 			'link' => $link,
-			'all' => true
+			'all' => true,
+			'index' => 0
 		];
+		if ($filter[$index]['length'] > 200)
+			$filter[$index]['dropdown_filter'] = true;
 	}
 	if (!$filter_output) return false;
 

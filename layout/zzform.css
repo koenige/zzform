@@ -285,7 +285,7 @@ body #zzform .separator hr
 					{ list-style: none; }
 
 /* filter */
-#zzform .zzfilter	{ margin: 1em 0 1.5em; line-height: 1; overflow: hidden; }
+#zzform .zzfilter	{ margin: 1.5em 0 0; line-height: 1; overflow: hidden; }
 #zzform .zzfilter dl { margin: 0 0 .5em; padding: 0; }
 #zzform .zzfilter dt { float: left; clear: left; }
 #zzform .zzfilter dd { margin: 0 0 .5em; padding: 0; float: left;
@@ -296,6 +296,8 @@ body #zzform .separator hr
 					{ border-right: none; }
 #zzform .zzfilter a, #zzform .zzfilter strong
 					{ padding: 0 .5em; text-decoration: none; }
+#zzform .zzfilter_dropdown
+					{ cursor: pointer; }
 
 
 /* list view (table) */

@@ -4,17 +4,24 @@
 # http://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2015 Gustaf Mossakowski
+# @copyright Copyright © 2015, 2020 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+# List of fields:
+# { sql, title, identifier, type, where, selection, length, values { title,
+# link, index } }
 #
 <div class="zzfilter">
 	<dl>
 %%% loop start %%%
 		<dt>%%% text Selection %%% %%% item title %%%:</dt>
+%%% condition if dropdown_filter %%%
+		<dd class="zzfilter_dropdown" id="zzfilter-%%% item identifier %%%"><strong>– <span class="js_expand">%%% text expand %%%</span> <span class="js_collapse">%%% text collapse %%%</span> –</strong></dd>
+%%% condition endif %%%
 %%% loop values %%%
-		<dd%%% item all " class='filter_all'" %%%>
+		<dd %%% item all " class='filter_all'" %%%%%% condition unless link %%% " class='zz_active_filter'"%%% condition endif %%% id="zzfilter-%%% item identifier %%%-%%% item index %%%">
 %%% condition if link %%%<a href="%%% item link %%%">%%% condition else %%%<strong>%%% condition endif %%%
-%%% condition if all %%%&#8211;&nbsp;%%% text all %%%&nbsp;&#8211;%%% condition else %%%%%% item title %%%%%% condition endif %%%
+%%% condition if all %%%–&nbsp;%%% text all %%%&nbsp;–%%% condition else %%%%%% item title %%%%%% condition endif %%%
 %%% condition if link %%%</a>%%% condition else %%%</strong>%%% condition endif %%%
 		</dd>
 %%% loop end %%%

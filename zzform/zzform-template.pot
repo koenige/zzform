@@ -871,3 +871,13 @@ msgstr ""
 # Auto complete
 msgid "No record was found."
 msgstr ""
+
+# Filter
+#: _behaviour/zzform-foot.js
+msgid "expand"
+msgstr ""
+
+# Filter
+#: _behaviour/zzform-foot.js
+msgid "collapse"
+msgstr ""
