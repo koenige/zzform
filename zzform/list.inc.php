@@ -85,8 +85,8 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	$zz['sql'] = zz_list_filter_sql($zz['filter'], $zz['sql'], $zz_var['filters']);
 	if (zz_list_filter_invalid()) $zz['sql'] = false;
 	if ($old_sql !== $zz['sql']) $zz['sqlcount'] = '';
-	$ops['output'] .= zz_filter_selection($zz['filter'], $zz_var['filters'], 'top');
 	$ops['output'] .= zz_output_add_export_links($zz, $ops, 'above');
+	$ops['output'] .= zz_filter_selection($zz['filter'], $zz_var['filters'], 'top');
 	if (!$zz['sql']) return zz_return([$ops, $zz_var]);
 
 	list($lines, $ops['records_total']) = zz_list_query($zz, $id_field);
