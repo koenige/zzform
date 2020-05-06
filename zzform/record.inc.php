@@ -368,7 +368,10 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 	global $zz_conf;
 	
-	if (!empty($zz_conf['int']['cancel_url'])) {
+	if (!empty($zz_conf['referer']) AND array_key_exists('nolist', $_GET)
+		AND !empty($zz_conf['redirect_to_referer_zero_records'])) {
+		$cancelurl = $zz_conf['referer'];
+	} elseif (!empty($zz_conf['int']['cancel_url'])) {
 		$cancelurl = $zz_conf['int']['cancel_url'];
 	} else {
 		$cancelurl = $zz_conf['int']['url']['self'];
