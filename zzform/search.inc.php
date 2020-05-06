@@ -187,8 +187,19 @@ function zz_search_field($field, $table, $searchop, $searchword) {
 			switch ($field_type) {
 			case 'datetime':
 			case 'timestamp':
-				if ($timesearch) $searchword = date('Y-m-d', $timesearch).'%';
-				if (preg_match('/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/', $searchword) AND $searchop === '%LIKE%') $searchop = 'LIKE%';
+				if ($timesearch) {
+					$searchword = [
+						date('Y-m-d', $timesearch).' 00:00:00',
+						date('Y-m-d', $timesearch).' 23:59:59'
+					];
+					$searchop = 'BETWEEN';
+				} elseif (preg_match('/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/', $searchword) AND $searchop === '%LIKE%') {
+					$searchword = [
+						$searchword.' 00:00:00',
+						$searchword.' 23:59:59'
+					];
+					$searchop = 'BETWEEN';
+				}
 				break;
 			case 'time':
 				if ($timesearch) $searchword = date('H:i:s', $timesearch);
@@ -264,6 +275,10 @@ function zz_search_field($field, $table, $searchop, $searchword) {
 		if ($field['type'] === 'datetime') // bug in MySQL
 			$fieldname = sprintf('DATE_FORMAT(%s, "%%Y-%%m-%%d %%H:%%i:%%s")', $fieldname);
 		return sprintf('%s LIKE %s"%s%%"', $fieldname, $collation, $searchword);
+	case 'BETWEEN':
+		if (in_array($field['type'], ['datetime', 'timestamp'])) {
+			return sprintf('%s BETWEEN "%s" AND "%s"', $fieldname, $searchword[0], $searchword[1]);
+		}
 	case '%LIKE%':
 	default:
 		if (!zz_search_set_enum($searchop, $searchword, $field_type, $field)) return '';
