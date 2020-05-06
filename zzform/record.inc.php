@@ -2744,11 +2744,22 @@ function zz_xhr_add($type, $field) {
  */
 function zz_xhr_url_self() {
 	global $zz_conf;
+	$marker = $zz_conf['int']['url']['?&'];
+	$qs = $zz_conf['int']['url']['qs'];
+	$extra = [];
+	if (!empty($_POST) AND array_key_exists('zz_fields', $_POST) AND $_POST['zz_action'] === 'insert') {
+		foreach ($_POST['zz_fields'] as $field_name => $field_id)
+			$extra[] = sprintf('add[%s]=%s', $field_name, $field_id);
+	}
+	if ($extra) {
+		$qs .= $marker.implode('&', $extra);
+		if (!$zz_conf['int']['url']['qs']) $marker = '&';
+	}
 	return $zz_conf['int']['url']['self']
-		.$zz_conf['int']['url']['qs']
+		.$qs
 		.($zz_conf['int']['url']['qs_zzform']
 			? $zz_conf['int']['url']['qs_zzform'].'&'
-			: $zz_conf['int']['url']['?&']
+			: $marker
 		);
 }
 
