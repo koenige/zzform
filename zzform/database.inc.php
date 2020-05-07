@@ -671,29 +671,41 @@ function zz_db_field_maxlength($field, $type, $db_table) {
 			// from MySQL 8.0.19, there are no default lengths for ints
 			$typed = explode(' ', $field_def['Type']);
 			if (wrap_substr($typed[0], 'int', 'end')) {
-				switch ($typed[0]) {
-				case 'tinyint':
-					$maxlength = 3;
-					if (!empty($typed[1]) AND $typed[1] === 'unsigned') $maxlength++;
-					break;
-				case 'smallint':
-					$maxlength = 5;
-					if (!empty($typed[1]) AND $typed[1] === 'unsigned') $maxlength++;
-					break;
-				case 'mediumint':
-					$maxlength = 8; break;
-				case 'int':
-					$maxlength = 10;
-					if (!empty($typed[1]) AND $typed[1] === 'unsigned') $maxlength++;
-					break;
-				case 'bigint':
-					$maxlength = 20; break;
-				}
+				$maxlength = zz_db_int_length($typed);
 			}
 		}
 	}
 	if ($zz_conf['modules']['debug']) zz_debug($type.($maxlength ? '-'.$maxlength : ''));
 	return zz_return($maxlength);
+}
+
+/**
+ * get integer length per field 
+ * default field lengths are not stored in the table definition from MySQL 8 on
+ *
+ * @param array
+ * @return int
+ */
+function zz_db_int_length($typed) {
+	switch ($typed[0]) {
+	case 'tinyint':
+		$length = 3;
+		if (!empty($typed[1]) AND $typed[1] === 'unsigned') $length++;
+		break;
+	case 'smallint':
+		$length = 5;
+		if (!empty($typed[1]) AND $typed[1] === 'unsigned') $length++;
+		break;
+	case 'mediumint':
+		$length = 8; break;
+	case 'int':
+		$length = 10;
+		if (!empty($typed[1]) AND $typed[1] === 'unsigned') $length++;
+		break;
+	case 'bigint':
+		$length = 20; break;
+	}
+	return $length;
 }
 
 /**
