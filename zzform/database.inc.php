@@ -739,7 +739,7 @@ function zz_db_columns($db_table, $field = false) {
 		foreach ($columns[$db_table] as $index => $my_field) {
 			preg_match('/(.*int)\(*\d*\)* (.+signed)/', $my_field['Type'], $fieldtype);
 			if (empty($fieldtype[1]) OR empty($fieldtype[2])) {
-				preg_match('/(.*int)\(*\d*\)*/', $my_field['Type'], $fieldtype);
+				preg_match('/^(.*int)\(*\d*\)*$/', $my_field['Type'], $fieldtype);
 				if (!$fieldtype) continue;
 				$fieldtype[2] = 'signed';
 			}
