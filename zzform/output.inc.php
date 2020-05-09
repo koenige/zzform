@@ -474,16 +474,16 @@ function zz_nice_selection($zz_fields) {
 		$add_equal_sign = true;
 	}
 	if (substr($_GET['q'], 0, 1) === '<')
-		$selection .= '<strong>&lt;</strong> '.zz_html_escape(substr($_GET['q'], 1));
+		$selection .= '<strong>&lt;</strong> '.wrap_html_escape(substr($_GET['q'], 1));
 	elseif (substr($_GET['q'], 0, 1) === '>')
-		$selection .= '<strong>&gt;</strong> '.zz_html_escape(substr($_GET['q'], 1));
+		$selection .= '<strong>&gt;</strong> '.wrap_html_escape(substr($_GET['q'], 1));
 	else {
 		$q = $_GET['q'];
 		if (substr($q, 0, 2) === '\\')
 			$q = substr($q, 1);
 		if ($add_equal_sign)
 			$selection .= $fieldname.' <strong>=</strong> ';
-		$selection .= '*'.zz_html_escape($q).'*';
+		$selection .= '*'.wrap_html_escape($q).'*';
 	}
 	return zz_return($selection);
 }
@@ -562,7 +562,7 @@ function zz_print_multiarray($array, $parent_key = '') {
 		} else {
 			$vars[] = [
 				'key' => $mykey,
-				'value' => zz_html_escape($value)
+				'value' => wrap_html_escape($value)
 			];
 		}
 	}

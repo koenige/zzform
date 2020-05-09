@@ -460,7 +460,7 @@ function zz_upload_check_files($zz_tab) {
 					$images[$no][$img]['upload']['msg']
 						= 'The file %s is empty. If you are uploading from a Mac, please check if the data is not only available in the so-called “resource fork” of the file.';
 					$images[$no][$img]['upload']['msg_args']
-						= [zz_html_escape($images[$no][$img]['upload']['name'])];
+						= [wrap_html_escape($images[$no][$img]['upload']['name'])];
 				}
 				if (file_exists($images[$no][$img]['upload']['tmp_name'])) {
 					// get rid of max 3 byte large file

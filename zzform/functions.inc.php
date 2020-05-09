@@ -3053,24 +3053,6 @@ function zz_edit_query_string($query, $unwanted_keys = [], $new_keys = [], $and 
 }
 
 /**
- * Escapes unvalidated strings for HTML values (< > & " ')
- *
- * @param string $string
- * @return string $string
- * @global array $zz_conf
- */
-function zz_html_escape($string) {
-	global $zz_conf;
-	switch ($zz_conf['character_set']) {
-		case 'iso-8859-2': $character_set = 'ISO-8859-1'; break;
-		default: $character_set = $zz_conf['character_set']; break;
-	}
-	$new_string = @htmlspecialchars($string, ENT_QUOTES, $character_set);
-	if (!$new_string) $new_string = htmlspecialchars($string, ENT_QUOTES, 'ISO-8859-1');
-	return $new_string;
-}
-
-/**
  * Escapes strings for HTML text (< >)
  *
  * @param string $string

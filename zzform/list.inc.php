@@ -1562,7 +1562,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 		$append_prefix = '';
 	}
 	if (!empty($field['list_abbr']) AND $mode != 'export') {
-		$row['text'] .= '<abbr title="'.zz_html_escape($line[$field['list_abbr']]).'">';
+		$row['text'] .= '<abbr title="'.wrap_html_escape($line[$field['list_abbr']]).'">';
 	}
 
 	if ($link) $row['text'] .= $link;

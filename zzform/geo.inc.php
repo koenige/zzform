@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2011, 2015-2017, 2019 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2011, 2015-2017, 2019-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -111,12 +111,12 @@ function zz_geo_coord_in($value, $orientation = 'lat', $precision = 0) {
 		case 2: // seconds
 			// test range, 0-59.9999 is allowed
 			if ($part < 0) {
-				$part = zz_html_escape($part);
+				$part = wrap_html_escape($part);
 				$type = ($index == 2) ? 'seconds' : 'minutes';
 				$my['error'] = sprintf(zz_text('%s is too small. Please enter for '.$type.' a positive value or 0.'), $part);
 				return $my;
 			} elseif ($part >= 60) {
-				$part = zz_html_escape($part);
+				$part = wrap_html_escape($part);
 				$type = ($index == 2) ? 'seconds' : 'minutes';
 				$my['error'] = sprintf(zz_text('%s is too big. Please enter for '.$type.' a value smaller than 60.'), $part);
 				return $my;

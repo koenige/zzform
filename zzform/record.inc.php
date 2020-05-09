@@ -101,7 +101,7 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 	// Heading inside HTML form element
 	if (!empty($zz_var['id']['invalid_value'])) {
 		$formhead = '<span class="error">'.sprintf(zz_text('Invalid ID for a record (must be an integer): %s'),
-			zz_html_escape($zz_var['id']['invalid_value'])).'</span>';
+			wrap_html_escape($zz_var['id']['invalid_value'])).'</span>';
 		$zz_conf['int']['http_status'] = 404;
 	} elseif (in_array($ops['mode'], ['edit', 'delete', 'review', 'show', 'revise'])
 		AND !$zz_tab[0][0]['record'] AND $action_before_redirect !== 'delete') {
@@ -110,7 +110,7 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 		$id_exists = zz_db_fetch($sql, '', 'single value');
 		if ($id_exists) {
 			$formhead = '<span class="error">'.sprintf(zz_text('Sorry, it is not possible to access the ID %d from here.'),
-				zz_html_escape($zz_tab[0][0]['id']['value'])).'</span>';
+				wrap_html_escape($zz_tab[0][0]['id']['value'])).'</span>';
 			$zz_conf['int']['http_status'] = 403;
 		} else {
 			$sql = 'SELECT MAX(%s) FROM %s';
@@ -120,11 +120,11 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 				AND $zz_tab[0][0]['id']['value'] > 0) {
 				// This of course is only 100% correct if it is an incremental ID
 				$formhead = '<span class="error">'.sprintf(zz_text('The record with the ID %d was already deleted.'),
-					zz_html_escape($zz_tab[0][0]['id']['value'])).'</span>';
+					wrap_html_escape($zz_tab[0][0]['id']['value'])).'</span>';
 				$zz_conf['int']['http_status'] = 410;
 			} else {
 				$formhead = '<span class="error">'.sprintf(zz_text('A record with the ID %d does not exist.'),
-					zz_html_escape($zz_tab[0][0]['id']['value'])).'</span>';
+					wrap_html_escape($zz_tab[0][0]['id']['value'])).'</span>';
 				$zz_conf['int']['http_status'] = 404;
 			}
 		}
@@ -339,7 +339,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 			];
 		if (isset($_GET['file']) && $_GET['file']) 
 			$output['hidden'][] = [
-				'name' => 'file', 'value' => zz_html_escape($_GET['file'])
+				'name' => 'file', 'value' => wrap_html_escape($_GET['file'])
 			];
 	}
 	if ($display === 'form') {
@@ -1758,7 +1758,7 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 			} else {
 				zz_error_log([
 					'msg' => 'Record for <strong>%s</strong> does not exist. (ID: %s)',
-					'msg_args' => [$field['title'], zz_html_escape($value)]
+					'msg_args' => [$field['title'], wrap_html_escape($value)]
 				]);
 				zz_error_exit(true);
 				return ['', ''];
@@ -2001,7 +2001,7 @@ function zz_field_text($field, $display, $record, $dont_reformat = false) {
 			$linktitle = zz_cut_length($value, $field['max_select_val_len']);
 			$linktitle = str_replace('<', '&lt;', $linktitle);
 			$linktitle = wrap_punycode_decode($linktitle);
-			return '<a href="'.zz_html_escape($value).'">'.$linktitle.'</a>';
+			return '<a href="'.wrap_html_escape($value).'">'.$linktitle.'</a>';
 		case 'mail':
 			$value = str_replace('<', '&lt;', $value);
 			return '<a href="mailto:'.$value.'">'.$value.'</a>';
@@ -2588,7 +2588,7 @@ function zz_field_select_single($lines, $record, $field) {
 	if ($record AND $record[$field['field_name']] AND $line[$id_field_name].'' !== $record[$field['field_name']].'') {
 		$outputf = 'Possible Values: '.$line[$id_field_name]
 			.' -- Current Value: '
-			.zz_html_escape($record[$field['field_name']])
+			.wrap_html_escape($record[$field['field_name']])
 			.' -- Error --<br>'.zz_text('no_selection_possible');
 	} elseif (!empty($field['disabled']) AND in_array($line[$id_field_name], $field['disabled'])) {
 		$outputf = zz_text('no_selection_possible');
@@ -3677,7 +3677,7 @@ function zz_field_display($field, $record, $record_saved) {
 		if (!empty($field['translate_field_value']))
 			$value = zz_text($value);
 
-		$value = zz_html_escape($value);
+		$value = wrap_html_escape($value);
 		if (isset($field['format'])) {
 			$value = $field['format']($value);
 		} else {

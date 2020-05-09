@@ -560,7 +560,7 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 		$self .= zz_edit_query_string($qs, $unwanted_keys); 
 	}
 	$output.= '<input type="search" size="30" name="q"';
-	if (isset($_GET['q'])) $output.= ' value="'.zz_html_escape($_GET['q']).'"';
+	if (isset($_GET['q'])) $output.= ' value="'.wrap_html_escape($_GET['q']).'"';
 	$output.= '>';
 	$output.= '<input type="submit" value="'.zz_text('search').'">';
 	$output.= ' '.zz_text('in').' ';	
