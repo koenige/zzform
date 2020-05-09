@@ -528,7 +528,7 @@ function zz_search_subtable($field, $table, $main_id_fieldname) {
  * @param string $table			name of database table
  * @param int $total_rows		total rows in database selection
  * @param string $count_rows	number of rows shown on html page
- * @return string $output		HTML output
+ * @return array				HTML output
  */
 function zz_search_form($fields, $table, $total_rows, $count_rows) {
 	global $zz_conf;
@@ -544,29 +544,21 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 	// show search form only if there are records as a result of this query; 
 	// q: show search form if empty search result occured as well
 	if (!$total_rows AND !isset($_GET['q'])) return $search_form;
+	$search['q'] = isset($_GET['q']) ? $_GET['q'] : NULL;
 
-	$self = $zz_conf['int']['url']['self'];
 	// fields that won't be used for search
-	$output = "\n".'<form method="GET" action="%s" class="zzsearch" accept-charset="%s"><p>';
-	$output = sprintf($output, $self, $zz_conf['character_set']);
 	if ($qs = $zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']) { 
 		// do not show edited record, limit, ...
 		$unwanted_keys = [
 			'q', 'scope', 'limit', 'mode', 'id', 'add', 'delete', 'insert',
 			'update', 'noupdate', 'zzhash', 'edit', 'show', 'revise'
 		];
-		$output .= zz_querystring_to_hidden(substr($qs, 1), $unwanted_keys);
+		$search['hidden_fields'] = zz_querystring_to_hidden(substr($qs, 1), $unwanted_keys);
 		// remove unwanted keys from link
-		$self .= zz_edit_query_string($qs, $unwanted_keys); 
+		$search['url_qs'] = zz_edit_query_string($qs, $unwanted_keys); 
 	}
-	$output.= '<input type="search" size="30" name="q"';
-	if (isset($_GET['q'])) $output.= ' value="'.wrap_html_escape($_GET['q']).'"';
-	$output.= '>';
-	$output.= '<input type="submit" value="'.zz_text('search').'">';
-	$output.= ' '.zz_text('in').' ';	
-	$output.= '<select name="scope">';
-	$output.= '<option value="">'.zz_text('all fields').'</option>'."\n";
-	foreach ($fields as $field) {
+	$search['fields'] = [];
+	foreach ($fields as $index => $field) {
 		if (!zz_search_searchable($field)) continue;
 		if ($field['type'] === 'subtable') {
 			if (empty($field['subselect'])) continue;
@@ -577,16 +569,12 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 			$fieldname = (isset($field['display_field']) && $field['display_field']) 
 				? $field['display_field'] : $table.'.'.$field['field_name'];
 		}
-		$output.= '<option value="'.$fieldname.'"';
-		if (isset($_GET['scope']) AND $_GET['scope'] == $fieldname) 
-			$output.= ' selected="selected"';
-		$output.= '>'.strip_tags($field['title']).'</option>'."\n";
+		$search['fields'][$index] = $field;
+		$search['fields'][$index]['field_name'] = $fieldname;
+		$search['fields'][$index]['selected']
+			= (isset($_GET['scope']) AND $_GET['scope'] === $fieldname) ? true : false;
 	}
-	$output.= '</select>';
-	if (!empty($_GET['q'])) {
-		$output.= ' &nbsp;<a href="'.$self.'">'.zz_text('Show all records').'</a>';
-	}
-	$output.= '</p></form>'."\n";
+	$output = wrap_template('zzform-search', $search);
 
 	if ($zz_conf['search'] === true) $zz_conf['search'] = 'bottom'; // default!
 	switch ($zz_conf['search']) {

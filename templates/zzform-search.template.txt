@@ -1,0 +1,22 @@
+# Zugzwang Project
+# HTML output: zzform search form
+#
+# http://www.zugzwang.org/projects/zzform
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2020 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+<form method="GET" action="%%% setting zzform_int_url_self %%%" class="zzsearch" accept-charset="%%% setting charset %%%">
+%%% item hidden_fields %%%
+<p><input type="search" size="30" name="q" value="%%% item q wrap_html_escape %%%">
+<input type="submit" value="%%% text search %%%"> %%% text in %%% <select name="scope">
+<option value="">%%% text all fields %%%</option>
+%%% loop fields %%%
+<option value="%%% item field_name %%%"%%% condition if selected %%% selected="selected"%%% condition endif %%%>%%% item title strip_tags %%%</option>
+%%% loop end %%%
+</select>
+%%% condition if q %%%
+ &nbsp;<a href="%%% setting zzform_int_url_self %%%%%% item url_qs %%%">%%% text Show all records %%%</a>
+%%% condition endif %%%
+</p></form>
