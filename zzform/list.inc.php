@@ -1537,8 +1537,11 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 		return $row;
 	}
 
-	if ($mark_search_string AND $mode != 'export') {
-		$text = zz_mark_search_string($text, $field[$mark_search_string], $field);
+	if ($mode !== 'export') {
+		$text = zz_list_word_split($text);
+		if ($mark_search_string) {
+			$text = zz_mark_search_string($text, $field[$mark_search_string], $field);
+		}
 	}
 
 	// add prefixes etc. to 'text'
@@ -1581,7 +1584,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 		$row['text'] .= zz_text($append_suffix);
 		$append_suffix = '';
 	}
-	if (!empty($field['list_abbr']) AND $mode != 'export') {
+	if (!empty($field['list_abbr']) AND $mode !== 'export') {
 		$row['text'] .= '</abbr>';
 	}
 
@@ -1695,6 +1698,27 @@ function zz_set_link($field, $line) {
 }
 
 /**
+ * add zero width spaces to very long words to make list readable
+ *
+ * @param string $text
+ * @global $zz_conf	int word_split
+ * @return string
+ */
+function zz_list_word_split($text) {
+	global $zz_conf;
+	if (!$zz_conf['word_split']) return $text;
+
+	$text = explode(' ', $text);
+	foreach ($text as $index => $word) {
+		if (strlen($word) < $zz_conf['word_split']) continue;
+		$word = str_split($word, $zz_conf['word_split']);
+		$text[$index] = implode('<wbr>', $word);
+	}
+	$text = implode(' ', $text);
+	return $text;
+}
+
+/**
  * marks search string in list display on webpage
  *
  * @param string $value value to mark
@@ -1703,6 +1727,7 @@ function zz_set_link($field, $line) {
  * @param array $field field definition
  * @global array $zz_conf
  * @return string $value value with marks
+ * @todo support strings which are splitted by <wbr>
  */
 function zz_mark_search_string($value, $field_name = false, $field = []) {
 	global $zz_conf;

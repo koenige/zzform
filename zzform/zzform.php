@@ -4,7 +4,7 @@
  * zzform
  * Core script
  *
- * Part of »Zugzwang Project«
+ * Part of Â»Zugzwang ProjectÂ«
  * http://www.zugzwang.org/projects/zzform
  *
  * List of functions in this file
@@ -13,7 +13,7 @@
  *	zzform_multi()			multi edit for zzform, e. g. import
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2020 Gustaf Mossakowski
+ * @copyright Copyright Â© 2004-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -656,9 +656,9 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['error_log_post']		= false;
 
 	$default['export']				= false;
-	$default['filter_position'] 		= 'top';
+	$default['filter_position'] 	= 'top';
 	$default['footer_text']			= false;		// text at the end of all
-	$default['group_html_table']		= '<strong>%s</strong>';
+	$default['group_html_table']	= '<strong>%s</strong>';
 	$default['heading_prefix']		= false;
 	$default['html_autofocus']		= true;
 	$default['language']			= 'en';
@@ -666,8 +666,8 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['limit_show_range'] 	= 800;		// range in which links to records around current selection will be shown
 	$default['limit_display']		= 'pages';
 	$default['limit_all_max']		= 1500;		// maximum records on one page
-	$default['list_display']			= 'table';
-	$default['logging'] 				= false;	//	if logging should occur, turned off by default 
+	$default['list_display']		= 'table';
+	$default['logging'] 			= false;	//	if logging should occur, turned off by default 
 	$default['logging_table'] 		= '_logging';	// name of table where INSERT, DELETE and UPDATE actions will be logged
 	$default['max_detail_records']	= 20;		// max 20 detail records, might be expanded later on
 	$default['max_select_val_len']	= 60;		// maximum length of values in select
@@ -690,11 +690,12 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['search'] 				= true;	// search for records possible or not
 	$default['search_form_always']	= false;
 	$default['show_list_while_edit'] = true;
-	$default['show_output']		= true;		// ECHO output or keep it in $ops['output']
-	$default['title_separator']	= ' &#8211; ';
+	$default['show_output']			= true;		// ECHO output or keep it in $ops['output']
+	$default['title_separator']		= ' &#8211; ';
 	$default['thousands_separator']	= ' ';
 	$default['user']				= isset($_SERVER['PHP_AUTH_USER']) ? $_SERVER['PHP_AUTH_USER'] : '';
 	$default['view']				= false;	// 	show Action: View
+	$default['word_split']			= 32; 		// longer words are split with zero width in list view
 	$default['translate_log_encodings'] = [
 		'iso-8859-2' => 'iso-8859-1'
 	];
