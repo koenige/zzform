@@ -1708,13 +1708,14 @@ function zz_list_word_split($text) {
 	global $zz_conf;
 	if (!$zz_conf['word_split']) return $text;
 
-	$text = explode(' ', $text);
-	foreach ($text as $index => $word) {
+	$words = explode(' ', $text);
+	if (substr($words[0], 0, 1) === '<') return $text; // no splitting in HTML code
+	foreach ($words as $index => $word) {
 		if (strlen($word) < $zz_conf['word_split']) continue;
 		$word = str_split($word, $zz_conf['word_split']);
-		$text[$index] = implode('<wbr>', $word);
+		$words[$index] = implode('<wbr>', $word);
 	}
-	$text = implode(' ', $text);
+	$text = implode(' ', $words);
 	return $text;
 }
 
