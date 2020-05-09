@@ -24,7 +24,7 @@
  *	zz_conditions_list_check()		set conditions for list
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2010, 2013-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2010, 2013-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -317,7 +317,7 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 					$zz_conditions['bool'][$index][0] = true;
 				} elseif (!empty($condition['add']['where'])) {
 					// WHERE with ISNULL and $_GET['where']
-					if (preg_match('/^!ISNULL\((.+)\)$/', $condition['where'], $matches)) {
+					if (preg_match('/^NOT ISNULL\((.+)\)$/', $condition['where'], $matches)) {
 						if (isset($matches[1])) {
 							if (!empty($zz_var['where'][$zz['table']][$matches[1]])) {
 								$zz_conditions['bool'][$index][0] = true;

@@ -828,7 +828,7 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = [])
 				AND $zz_var['where_condition'][$field_name] === '!NULL')
 			{
 				$sql = wrap_edit_sql($sql, 'WHERE', 
-					sprintf('!ISNULL(%s)', $field_reference)
+					sprintf('NOT ISNULL(%s)', $field_reference)
 				);
 				continue; // don't use !NULL as where variable!
 			} else {

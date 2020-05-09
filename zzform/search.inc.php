@@ -235,7 +235,7 @@ function zz_search_field($field, $table, $searchop, $searchword) {
 		return sprintf('ISNULL(%s)', $fieldname);
 	case '!NULL':
 		if (!zz_db_field_null($field['field_name'], $zz_conf['db_name'].'.'.$table)) return '';
-		return sprintf('!ISNULL(%s)', $fieldname);
+		return sprintf('NOT ISNULL(%s)', $fieldname);
 	case '<':
 		return sprintf('%s < "%s"', $fieldname, $searchword);
 	case '<=':
@@ -497,7 +497,7 @@ function zz_search_subtable($field, $table, $main_id_fieldname) {
 		if ($_GET['q'] === 'NULL') {
 			$subsql = sprintf($subsql, 'ISNULL');
 		} else {
-			$subsql = sprintf($subsql, '!ISNULL');
+			$subsql = sprintf($subsql, 'NOT ISNULL');
 		}
 		break;
 	default:

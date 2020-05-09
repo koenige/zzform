@@ -1033,7 +1033,7 @@ function zz_list_filter_sql($filters, $sql, &$filter_params) {
 			if ($filter_value === 'NULL') {
 				$sql = wrap_edit_sql($sql, 'WHERE', 'ISNULL('.$filter['where'].')');
 			} elseif ($filter_value === '!NULL') {
-				$sql = wrap_edit_sql($sql, 'WHERE', '!ISNULL('.$filter['where'].')');
+				$sql = wrap_edit_sql($sql, 'WHERE', 'NOT ISNULL('.$filter['where'].')');
 			} elseif (strstr($filter['where'], '%s')) {
 				$sql = wrap_edit_sql($sql, 'WHERE', sprintf($filter['where'], wrap_db_escape($filter_value)));
 			} else {
@@ -1070,7 +1070,7 @@ function zz_list_filter_sql($filters, $sql, &$filter_params) {
 				if ($filter_value === 'NULL') {
 					$wheres[] = 'ISNULL('.$filter_where.')';
 				} elseif ($filter_value === '!NULL') {
-					$wheres[] = '!ISNULL('.$filter_where.')';
+					$wheres[] = 'NOT ISNULL('.$filter_where.')';
 				} else {
 					$wheres[] = $filter_where.' = "'.$filter_value.'"';
 				}

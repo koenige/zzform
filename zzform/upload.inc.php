@@ -1460,7 +1460,7 @@ function zz_upload_prepare_source_file($image, $my_rec, $zz_tab, $tab, $rec) {
 			if ($field_value) {
 				$where[] = sprintf('(%s != "%s" OR ISNULL(%s))', $field_name, $field_value, $field_name);
 			} else {
-				$where[] = sprintf('!ISNULL(%s)', $field_name);
+				$where[] = sprintf('NOT ISNULL(%s)', $field_name);
 			}
 		}
 		if ($where) {
