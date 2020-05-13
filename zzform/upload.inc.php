@@ -756,7 +756,7 @@ function zz_upload_exiftool_read($filename) {
 	global $zz_conf;
 	// @todo use similar mechanism for finding ExifTool path as in imagemagick
 	$cmd = $zz_conf['upload_tools']['exiftool_whereis'].' -b -j -struct -c "%%d %%d %%.8f" -l -lang %s -g1 "%s"';
-	$cmd = sprintf($cmd, $zz_conf['language'], $filename);
+	$cmd = sprintf($cmd, wrap_get_setting('lang'), $filename);
 	exec($cmd, $file_meta);
 	if (!$file_meta) return [];
 	$file_meta = json_decode(implode('', $file_meta), true);

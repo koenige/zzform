@@ -905,8 +905,8 @@ function zz_date_format($date) {
 	if (!$date) return '';
 
 	// convert ISO 639-1 codes to ISO 639-2T
-	if ($zz_conf['language'] === 'de') $language = 'deu';
-	elseif ($zz_conf['language'] === 'en') $language = 'eng';
+	if (wrap_get_setting('lang') === 'de') $language = 'deu';
+	elseif (wrap_get_setting('lang') === 'en') $language = 'eng';
 	else $language = '---';
 
 	// international format, ISO 8601
@@ -1141,8 +1141,8 @@ function zz_output_wmd_editor() {
 	
 	$options = [];
 	if (!empty($zz_conf['wmd_editor_languages'])) {
-		if (in_array($zz_conf['language'], $zz_conf['wmd_editor_languages'])) {
-			$options[] = 'strings: Markdown.local.'.$zz_conf['language'];
+		if (in_array(wrap_get_setting('lang'), $zz_conf['wmd_editor_languages'])) {
+			$options[] = 'strings: Markdown.local.'.wrap_get_setting('lang');
 		}
 	}
 	if ($options) $options = ', { '.implode(', ', $options).' }';

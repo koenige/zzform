@@ -3624,7 +3624,7 @@ function zz_check_select_translated($field, $sql_fieldname, $value, $search_equa
 		foreach ($t_fields as $t_field) {
 			if ($t_field['field_name'] !== $sql_fieldname) continue;
 			$sql = sprintf($sql_translations,
-				$type, implode(',', array_keys($t_fields)), $zz_conf['language']
+				$type, implode(',', array_keys($t_fields)), wrap_get_setting('lang')
 			);
 			$sql = wrap_edit_sql($sql, 'WHERE', implode(' OR ', $tconditions));
 			$records += wrap_db_fetch($sql, '_dummy_', 'numeric');

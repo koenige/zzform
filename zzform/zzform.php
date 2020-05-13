@@ -661,7 +661,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['group_html_table']	= '<strong>%s</strong>';
 	$default['heading_prefix']		= false;
 	$default['html_autofocus']		= true;
-	$default['language']			= 'en';
 	$default['limit']				= false;	// only n records are shown at once
 	$default['limit_show_range'] 	= 800;		// range in which links to records around current selection will be shown
 	$default['limit_display']		= 'pages';
