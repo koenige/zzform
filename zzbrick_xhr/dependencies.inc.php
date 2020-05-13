@@ -69,6 +69,9 @@ function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 			if (empty($select['possible_values'])) return false;
 			if (count($select['possible_values']) !== 1) return false;
 			$values[] = reset($select['possible_values']);
+		} elseif (!empty($my_field['cfg'])) {
+			if (array_key_exists(trim($input[$source]), $my_field['cfg']))
+				$values = $my_field['cfg'][trim($input[$source])];
 		} else {
 			$values[] = $input[$source];
 		}
