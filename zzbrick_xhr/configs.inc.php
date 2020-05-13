@@ -58,8 +58,10 @@ function mod_zzform_xhr_configs($xmlHttpRequest, $zz) {
 	foreach ($field['cfg'] as $key => $values) {
 		if ($equal) {
 			if ($key === $text) $records[] = $key;
-		} else {
-			if (wrap_substr($key, $text)) $records[] = $key;
+		} elseif (wrap_substr($key, $text)) {
+			$records[] = $key;
+		} elseif (strstr($key, $text)) {
+			$records[] = $key;
 		}
 	}
 
