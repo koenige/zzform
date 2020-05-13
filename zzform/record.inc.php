@@ -256,6 +256,9 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 			if (!empty($zz_conf['int']['selects'])) {
 				$zz_conf['int']['dependencies']['xhr_selects'] = true;
 			}
+			if (!empty($zz_conf['int']['configs'])) {
+				$zz_conf['int']['dependencies']['xhr_configs'] = true;
+			}
 			$output .= wrap_template('xhr-dependencies', $zz_conf['int']['dependencies']);
 		}
 	}

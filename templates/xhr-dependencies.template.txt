@@ -12,7 +12,7 @@
 # field_ids { field_id, value }, field_no }, source_field_ids { field_id,
 # field_no } } 
 #
-%%% condition unless xhr_selects %%%
+%%% condition unless xhr_selects | xhr_configs %%%
 <script type="text/javascript" src="%%% setting behaviour_path %%%/vxjs/src/core.js"></script>
 <script type="text/javascript" src="%%% setting behaviour_path %%%/vxjs/src/xhr.js"></script>
 %%% condition endif %%%
