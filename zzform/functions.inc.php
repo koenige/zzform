@@ -2554,7 +2554,7 @@ function zz_error() {
 		if (!$zz_conf['error_mail_to']) break;
 		if (!count($message)) break;
 		$mail['message'] = sprintf(
-			zz_text('The following error(s) occured in project %s:'), $zz_conf['project']
+			zz_text('The following error(s) occured in project %s:'), wrap_get_setting('project')
 		);
 		$mail['message'] .= "\n\n".implode("\n\n", $message);
 		$mail['message'] = html_entity_decode($mail['message'], ENT_QUOTES, $log_encoding);		
@@ -2566,7 +2566,7 @@ function zz_error() {
 			$mail['message'] .= "\nUser: ".$zz_conf['user'];
 
 		if (empty($zz_conf['mail_subject_prefix']))
-			$zz_conf['mail_subject_prefix'] = '['.$zz_conf['project'].']';
+			$zz_conf['mail_subject_prefix'] = '['.wrap_get_setting('project').']';
 		$mail['subject'] = zz_text('Error during database operation');
 		$mail['to'] = $zz_conf['error_mail_to'];
 		wrap_mail($mail);
