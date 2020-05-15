@@ -2381,6 +2381,9 @@ function zz_remove_local_hostname($tempvar, $field) {
  * @todo if sequence numbers are missing, update numbers as well (optional)
  */
 function zz_sequence_normalize($ops, $zz_tab) {
+	static $used_maxint_values;
+	if (empty($used_maxint_values)) $used_maxint_values = [];
+
 	// which fields are the sequence fields?
 	$fields = [];
 	foreach ($zz_tab as $tab => $records) {
@@ -2457,15 +2460,21 @@ function zz_sequence_normalize($ops, $zz_tab) {
 		// update current record temporarily to max value of column; this is to avoid
 		// problems with unique keys
 		if ($old_value AND $new_value) {
-			$field_def = zz_db_columns(
-				$zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table'], $my_field['field_name']
-			);
-			if (empty($field_def['max_int_value'])) {
-				zz_error_log([
-					'msg_dev' => 'Field has no maximum integer value (is it an integer?): %s.%s.%s',
-					'msg_dev_args' => [$zz_tab[$tab]['db_name'], $zz_tab[$tab]['table'], $my_field['field_name']]
-				]);
-				continue;
+			$full_field = sprintf('%s.%s.%s', $zz_tab[$tab]['db_name'], $zz_tab[$tab]['table'], $my_field['field_name']);
+			if (array_key_exists($full_field, $used_maxint_values)) {
+				$field_def['max_int_value'] = --$used_maxint_values[$full_field];
+			} else {
+				$field_def = zz_db_columns(
+					$zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table'], $my_field['field_name']
+				);
+				if (empty($field_def['max_int_value'])) {
+					zz_error_log([
+						'msg_dev' => 'Field has no maximum integer value (is it an integer?): %s.%s.%s',
+						'msg_dev_args' => [$zz_tab[$tab]['db_name'], $zz_tab[$tab]['table'], $my_field['field_name']]
+					]);
+					continue;
+				}
+				 $used_maxint_values[$full_field] = $field_def['max_int_value'];
 			}
 			$sql = 'UPDATE %s SET %s = %d WHERE %s = %d';
 			$sql = sprintf($sql
