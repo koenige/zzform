@@ -189,8 +189,8 @@ function zz_prepare_hooks($zz) {
 		if ($field['type'] === 'subtable') {
 			foreach ($field['fields'] as $subfield) {
 				if (!empty($subfield['geocode'])) $hook_found['zz_geo_geocode'] = true;
-				if (empty($field['type'])) continue;
-				if ($field['type'] === 'sequence') $hook_found['zz_sequence_normalize'] = true;
+				if (empty($subfield['type'])) continue;
+				if ($subfield['type'] === 'sequence') $hook_found['zz_sequence_normalize'] = true;
 			}
 		} elseif ($field['type'] === 'sequence') {
 			$hook_found['zz_sequence_normalize'] = true;
