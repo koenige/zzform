@@ -627,7 +627,7 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_var, $zz_conditions, 
 	foreach ($lines as $index => $line) {
 		$rows[$z]['index'] = $index;
 		if ($id_field) {
-			$id = $line[$id_field];
+			$rows[$z]['id_value'] = $id = $line[$id_field];
 			if ($id == $zz_var['id']['value']) {
 				$list['current_record'] = $z;
 			} elseif (!empty($zz_var['id']['values'])) {
@@ -637,6 +637,16 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_var, $zz_conditions, 
 			}
 		} else {
 			$id = false;
+		}
+		if (!empty($list['dnd'])) {
+			if (!empty($list['dnd_id_field']) AND array_key_exists($list['dnd_id_field'], $line))
+				$rows[$z]['dnd_id'] = $line[$list['dnd_id_field']];
+			else
+				$rows[$z]['dnd_id'] = $rows[$z]['id_value'];
+			if (!empty($list['dnd_sequence_field']) AND array_key_exists($list['dnd_sequence_field'], $line))
+				$rows[$z]['sequence'] = $line[$list['dnd_sequence_field']];
+			else
+				$rows[$z]['sequence'] = $index;
 		}
 		$def_index = (count($table_defs) > 1) ? $index : 0;
 		$rows[$z]['group'] = zz_list_group_titles($list, $table_defs[$def_index], $line);
@@ -2746,9 +2756,15 @@ function zz_list_ul($list, $rows) {
 			);
 			$rowgroup = $row['group'];
 		}
-		$output .= '<li class="'.($index & 1 ? 'uneven':'even')
+		$output .= '<li';
+		if (!empty($list['dnd']))
+			$output .= ' draggable="true"';
+		$output .= ' class="'.($index & 1 ? 'uneven':'even')
 			.((isset($list['current_record']) AND $list['current_record'] == $index) ? ' current_record' : '')
-			.(($index + 1) === count($rows) ? ' last' : '').'">'; //onclick="Highlight();"
+			.(($index + 1) === count($rows) ? ' last' : '').'"';
+		if (!empty($list['dnd'])) 
+			$output .= ' data-sequence="'.$row['sequence'].'" data-id="'.$row['dnd_id'].'"';
+		$output .= '>'; //onclick="Highlight();"
 		foreach ($row as $fieldindex => $field) {
 			if (is_numeric($fieldindex) && $field['text'])
 				$output .= '<p'.($field['class'] ? ' class="'.implode(' ', $field['class']).'"' : '')
@@ -2765,6 +2781,17 @@ function zz_list_ul($list, $rows) {
 	if ($list['buttons']) {
 		$output .= '<p class="multiple">'.$list['checkbox_all']
 		.' <em>'.zz_text('Selection').':</em> '.$list['buttons'].'</p>';
+	}
+	global $zz_setting;
+	$list['dnd_start'] = !empty($_GET['limit']) ? $_GET['limit'] - $zz_conf['limit'] : 0;
+	if (!empty($list['dnd'])) {
+		$output .= '<script>
+			var zz_dnd_id_field = "'.$list['dnd_id_field'].'";
+			var zz_dnd_sequence_field = "'.$list['dnd_sequence_field'].'";
+			var zz_dnd_target_url = "'.$list['dnd_target_url'].'";
+			var zz_dnd_dnd_start = "'.$list['dnd_start'].'";
+		</script>';
+		$output .= '<script src="'.$zz_setting['behaviour_path'].'/zzform/drag.js"></script>';
 	}
 	return $output;
 }

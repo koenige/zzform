@@ -616,3 +616,15 @@ ul.vxJS_list		{ margin: 0; padding: 0;  list-style-type: none; }
 
 .vxJS_list .hiLite	{ background: yellow; color: black; }
 %%% condition endif %%%
+
+/* drag and drop */
+
+#zzform [draggable], #zzform [draggable] a
+					{ -moz-user-select: none; -khtml-user-select: none;
+					-webkit-user-select: none; user-select: none;
+					/* Required to make elements draggable in old WebKit */
+					-khtml-user-drag: element; -webkit-user-drag: element; }
+#zzform .data li.dragElem
+					{ opacity: 0.4; }
+#zzform .data li.over
+					{ border-left-color: #FFF; }
