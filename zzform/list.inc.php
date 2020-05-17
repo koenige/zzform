@@ -2783,7 +2783,7 @@ function zz_list_ul($list, $rows) {
 		.' <em>'.zz_text('Selection').':</em> '.$list['buttons'].'</p>';
 	}
 	global $zz_setting;
-	$list['dnd_start'] = !empty($_GET['limit']) ? $_GET['limit'] - $zz_conf['limit'] : 0;
+	$list['dnd_start'] = $zz_conf['int']['this_limit'] - $zz_conf['limit'];
 	if (!empty($list['dnd'])) {
 		$output .= '<script>
 			var zz_dnd_id_field = "'.$list['dnd_id_field'].'";
