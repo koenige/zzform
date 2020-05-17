@@ -55,6 +55,7 @@ function mod_zzform_xhr_configs($xmlHttpRequest, $zz) {
 	$text = trim($text);
 
 	// find key in $cfg
+	$records = [];
 	foreach ($field['cfg'] as $key => $values) {
 		if ($equal) {
 			if ($key === $text) $records[] = $key;
