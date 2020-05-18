@@ -94,13 +94,6 @@ function zz_upload_config() {
 	// with zzform_multi() 
 	if (!empty($zz_conf['upload_calls'])) return;
 
-	$default['backup'] 			= false;	//	backup uploaded files?
-	$default['backup_dir'] 		= $zz_conf['dir'].'/backup';	//	directory where backup will be put into
-	if (ini_get('upload_tmp_dir'))
-		$default['tmp_dir']		= ini_get('upload_tmp_dir');
-	else
-		$default['tmp_dir'] 		= false;
-	$default['graphics_library'] = 'imagemagick';
 	$default['imagemagick_paths'] = [
 		'/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/phpbin',
 		'/opt/local/bin'
@@ -147,7 +140,6 @@ function zz_upload_config() {
 	$default['file_types'] = parse_ini_file($zz_conf['dir_inc'].'/filetypes.cfg', true);
 	$default['file_types'] = zz_upload_set_filetypes($default['file_types']);
 	if (zz_error_exit()) return false;
-	$default['upload_iptc_fields'] = zz_upload_get_typelist($zz_conf['dir_inc'].'/iptc-iimv4-1.txt', 'IPTC', true);
 
 	// unwanted mimetypes and their replacements
 	$default['mime_types_rewritten'] = [
