@@ -443,7 +443,8 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		if (!empty($zz_var['upload_form'])) {
 			// upload images, delete images, as required
 			$zz_tab = zz_upload_action($zz_tab);
-			$ops['output'] .= zz_error();
+			$error = zz_error();
+			if ($error !== true) $ops['output'] .= $error;
 			if (zz_error_exit()) {
 				zz_upload_cleanup($zz_tab);
 				return zz_return([$ops, $zz_tab, $validation]);
