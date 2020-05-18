@@ -287,8 +287,9 @@ function zzform($zz) {
 	//	Query updated, added or editable record
 	
 		if (!$validation) {
-			if ($zz_var['action'] == 'update') $ops['mode'] = 'edit';
-			elseif ($zz_var['action'] == 'insert') $ops['mode'] = 'add';
+			if (!empty($ops['result']) AND wrap_substr($ops['result'], 'partial_')) $ops['mode'] = 'edit';
+			elseif ($zz_var['action'] === 'update') $ops['mode'] = 'edit';
+			elseif ($zz_var['action'] === 'insert') $ops['mode'] = 'add';
 			// this is from zz_access() but since mode has set, has to be
 			// checked against again
 			if (in_array($ops['mode'], ['edit', 'add']) 

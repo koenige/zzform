@@ -451,7 +451,10 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			$change = zz_action_function('after_upload', $ops, $zz_tab);
 			list($ops, $zz_tab) = zz_action_change($ops, $zz_tab, $change);
 		}
-		if ($zz_tab[0]['record_action']) {
+		if ($zz_tab[0]['record_action'] === 'partial') {
+			$validation = false;
+			$ops['result'] = 'partial_'.$zz_tab[0][0]['action'];
+		} elseif ($zz_tab[0]['record_action']) {
 			$ops['result'] = 'successful_'.$zz_tab[0][0]['action'];
 		}
 	} else {
@@ -660,7 +663,8 @@ function zz_action_details($detail_sqls, $zz_tab, $validation, $ops) {
 				$result['error']['level'] = E_USER_WARNING;
 				zz_error_log($result['error']);
 				$zz_tab[$tab][$rec]['error'] = $result['error'];
-				$zz_tab[0]['record_action'] = false;
+				// main record was already inserted or updated, log as partial
+				$zz_tab[0]['record_action'] = 'partial';
 				$validation = false; 
 				$zz_tab[0][0]['fields'][$zz_tab[$tab]['no']]['check_validation'] = false;
 			} elseif ($my_rec['action'] === 'insert') {
