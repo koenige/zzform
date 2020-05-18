@@ -3190,6 +3190,28 @@ function zz_get_subtable_fielddef($fields, $table) {
  * @return bool
  */
 function zz_session_write($type, $session) {
+	global $zz_conf;
+
+	if ($type === 'filedata') {
+		require_once $zz_conf['dir'].'/upload.inc.php';
+		foreach ($session AS $field_name => $file) {
+			if (is_array($file['tmp_name'])) {
+				foreach ($file['tmp_name'] as $field_key => $filename) {
+					if (!$filename) continue;
+					if ($file['error'][$field_key] !== UPLOAD_ERR_OK) continue;
+					$new_filename = $zz_conf['tmp_dir'].'/zzform-sessions/'.basename($filename);
+					zz_rename($filename, $new_filename);
+					$session[$field_name]['tmp_name'][$field_key] = $new_filename;
+				}
+			} else {
+				if (!$file['tmp_name']) continue;
+				if ($file['error'] !== UPLOAD_ERR_OK) continue;
+				$new_filename = $zz_conf['tmp_dir'].'/zzform-sessions/'.basename($file['tmp_name']);
+				zz_rename($filename, $new_filename);
+				$session[$field_name]['tmp_name'] = $new_filename;
+			}
+		}
+	}
 	$fp = fopen(zz_session_filename($type), 'w');
 	fwrite($fp, json_encode($session, JSON_PRETTY_PRINT));
 	fclose($fp);
@@ -3247,17 +3269,6 @@ function zz_session_via_login() {
 	$zz_conf['int']['secret_key'] = zz_secret_id('read');
 
 	zz_session_write('postdata', $_POST);
-	if (!empty($_FILES)) {
-		require_once $zz_conf['dir'].'/upload.inc.php';
-		foreach ($_FILES AS $field_name => $file) {
-			foreach ($file['tmp_name'] as $type => $filename) {
-				if (!$filename) continue;
-				$new_filename = $zz_conf['tmp_dir'].'/zzform-sessions/'.basename($filename);
-				zz_rename($filename, $new_filename);
-				$_FILES[$field_name]['tmp_name'][$type] = $new_filename;
-			}
-		}
-	}
 	zz_session_write('filedata', $_FILES); // if files, move files to _tmp dir
 
 	$text = sprintf('<input type="hidden" name="zz_review_via_login" value="%s">'."\n", $zz_conf['id']);
