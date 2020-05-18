@@ -526,7 +526,7 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 	$post = [];
 	
 	foreach ($my_tab['POST'] as $rec => $posted) {
-		if (!empty($posted[$my_tab['id_field_name']])) {
+		if (!empty($posted[$my_tab['id_field_name']]) AND $posted[$my_tab['id_field_name']] !== "''") {
 			// this will only occur if main record is updated or deleted!
 			// check if posted ID is in existing IDs
 			$key = array_search($posted[$my_tab['id_field_name']], $existing_ids);
