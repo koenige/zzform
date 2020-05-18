@@ -2231,11 +2231,9 @@ function zz_backwards($zz_conf, $zz) {
 	$headings = ['var', 'sql', 'enum', 'link', 'link_no_append'];
 	foreach ($headings as $suffix) {
 		if (isset($zz_conf['heading_'.$suffix])) {
-			if (function_exists('wrap_error')) {
-				wrap_error(sprintf(
-					'Use of deprecated variable $zz_conf["heading_%s"], use $zz["subtitle"][$key][%s] instead. (URL: %s)',
-					$suffix, $suffix, $_SERVER['REQUEST_URI']));
-			}
+			wrap_error(sprintf(
+				'Use of deprecated variable $zz_conf["heading_%s"], use $zz["subtitle"][$key][%s] instead. (URL: %s)',
+				$suffix, $suffix, $_SERVER['REQUEST_URI']));
 			foreach ($zz_conf['heading_'.$suffix] as $field => $value) {
 				$zz['subtitle'][$field][$suffix] = $value;
 				unset ($zz_conf['heading_'.$suffix][$field]);
