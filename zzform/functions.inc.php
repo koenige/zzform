@@ -3207,21 +3207,9 @@ function zz_session_read($type) {
 	if (!file_exists($filename)) return [];
 	$session = file_get_contents($filename);
 	$session = json_decode($session, true);
+	unlink($filename);
 	if (!$session) return [];
 	return $session;
-}
-
-/**
- * delete a session for a part of the program from disk
- *
- * @param string $type name of the part of the program
- * @return array
- */
-function zz_session_delete($type) {
-	$filename = zz_session_filename($type);
-	if (!file_exists($filename)) return false;
-	unlink($filename);
-	return true;
 }
 
 /**
@@ -3290,9 +3278,7 @@ function zz_review_via_login() {
 
 	$zz_setting['zzform_id_from_session'] = true;
 	$_POST = zz_session_read('postdata');
-	zz_session_delete('postdata');
 	$_FILES = zz_session_read('filedata');
-	zz_session_delete('filedata');
 	$zz_setting['zzform_id_from_session'] = false;
 	
 	wrap_session_start();

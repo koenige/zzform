@@ -2471,7 +2471,6 @@ function zz_upload_cleanup($zz_tab, $validated = true) {
 
 	// valid request = destroy session and delete files
 	if ($validated) {
-		zz_session_delete('files');
 		foreach ($zz_conf['int']['upload_cleanup_files'] as $file) {
 			zz_unlink_cleanup($file);
 		}
