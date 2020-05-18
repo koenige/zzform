@@ -373,6 +373,17 @@ function zz_get_where_conditions($zz, $zz_var) {
 			zz_error_exit(true);
 			return [$zz, $zz_var];
 		}
+		// dependent fields?
+		foreach ($zz['fields'] as $no => $field) {
+			// @todo add support for fields appearing in subtables if needed
+			if (empty($field['dependent_on_add_field'])) continue;
+			if (empty($field['dependent_on_add_sql'])) continue;
+			if (!array_key_exists($field['dependent_on_add_field'], $add)) continue;
+			$sql = sprintf($field['dependent_on_add_sql'], $add[$field['dependent_on_add_field']]);
+			$value = zz_db_fetch($sql, '', 'single value');
+			if (!$value) continue;
+			$add[$field['field_name']] = $value;
+		}
 	}
 	if ($add) {
 		$zz_var['where_condition'] = array_merge(
