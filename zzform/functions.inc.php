@@ -3248,15 +3248,39 @@ function zz_session_write($type, $data) {
  * read a session for a part of the program from disk
  *
  * @param string $type name of the part of the program
+ * @param array $data default empty, if data: check if something else was posted
  * @return array
  */
-function zz_session_read($type) {
+function zz_session_read($type, $data = []) {
 	$filename = zz_session_filename($type);
-	if (!file_exists($filename)) return [];
+	if (!file_exists($filename)) return $data;
 	$session = file_get_contents($filename);
 	$session = json_decode($session, true);
 	unlink($filename);
-	if (!$session) return [];
+	if (!$session) return $data;
+	if (!$data) return $session;
+
+	if ($type !== 'filedata') {
+		wrap_error(sprintf('Merging session data is not supported for type `%s`.', $type));
+		return $session;
+	}
+	foreach ($data as $field_name => $files) {
+		if (is_array($files['error'])) {
+			foreach ($files['error'] as $field_key => $error) {
+				// new data has nothing to show: take old data
+				if ($error === UPLOAD_ERR_NO_FILE) continue;
+				// take new data
+				foreach ($files as $key => $values) {
+					$session[$field_name][$key][$field_key] = $values[$field_key];
+				}
+			}
+		} else {
+			// new data has nothing to show: take old data
+			if ($files['error'] === UPLOAD_ERR_NO_FILE) continue;
+			// take new data
+			$session[$field_name] = $data[$field_name];
+		}
+	}
 	return $session;
 }
 
