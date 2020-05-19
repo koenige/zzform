@@ -386,7 +386,7 @@ function zz_upload_check_files($zz_tab) {
 				$myfiles['name'][$field_name] = '';
 				$myfiles['type'][$field_name] = '';
 				$myfiles['size'][$field_name] = 0;
-				$myfiles['error'][$field_name] = 4; // no file was uploaded
+				$myfiles['error'][$field_name] = UPLOAD_ERR_NO_FILE;
 			}
 
 			if (!isset($myfiles['name'][$field_name])) {
