@@ -3283,7 +3283,9 @@ function zz_session_read($type, $data = []) {
 			foreach ($files['error'] as $field_key => $error) {
 				// new data has nothing to show: take old data
 				if ($error === UPLOAD_ERR_NO_FILE) continue;
-				// take new data
+				// take new data, remove old saved file
+				$previous_upload = $session[$field_name]['tmp_name'][$field_key];
+				if (file_exists($previous_upload)) unlink($previous_upload);
 				foreach ($files as $key => $values) {
 					$session[$field_name][$key][$field_key] = $values[$field_key];
 				}
@@ -3291,7 +3293,9 @@ function zz_session_read($type, $data = []) {
 		} else {
 			// new data has nothing to show: take old data
 			if ($files['error'] === UPLOAD_ERR_NO_FILE) continue;
-			// take new data
+			// take new data, remove old saved file
+			$previous_upload = $session[$field_name]['tmp_name'];
+			if (file_exists($previous_upload)) unlink($previous_upload);
 			$session[$field_name] = $data[$field_name];
 		}
 	}
