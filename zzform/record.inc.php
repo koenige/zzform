@@ -3595,11 +3595,22 @@ function zz_field_image($field, $display, $record, $record_saved, $images, $mode
 				$text .= '<br><small>'.implode('<br>', 
 					$images[$fieldkey][$imagekey]['error']).'</small>';
 			} else {
+				$file_upload_data = [];
 				if (!empty($images[$fieldkey][$imagekey]['upload']['size'])) {
+					$file_upload_data = $images[$fieldkey][$imagekey]['upload'];
+				} elseif (!empty($_FILES)) {
+					$file_key = zz_make_id_fieldname($field['f_field_name']);
+					$img_key = $field['image'][0]['field_name'];
+					if (!empty($_FILES[$file_key]['tmp_name'][$img_key])) {
+						$file_upload_data['size'] = $_FILES[$file_key]['size'][$img_key];
+						$file_upload_data['filetype'] = zz_upload_file_extension($_FILES[$file_key]['tmp_name'][$img_key]);
+					}
+				}
+				if ($file_upload_data) {
 					$text .= sprintf('<br>%s <strong>%s</strong> (%s)'
 						, zz_text('File uploaded:')
-						, strtoupper($images[$fieldkey][$imagekey]['upload']['filetype'])
-						, wrap_bytes($images[$fieldkey][$imagekey]['upload']['size'])
+						, strtoupper($file_upload_data['filetype'])
+						, wrap_bytes($file_upload_data['size'])
 					);
 				}
 				$text .= '<br><small class="explanation">'.sprintf(zz_text('Maximum allowed filesize is %s.'),
