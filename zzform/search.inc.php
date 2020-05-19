@@ -393,6 +393,15 @@ function zz_search_checkfield($field_name, $table, $searchword) {
 	global $zz_conf;
 	if (!strstr($table, '.')) $table = $zz_conf['db_name'].'.'.$table;
 	$column = zz_db_columns($table, $field_name);
+	if (!$column) {
+		zz_error_log([
+			'msg_dev' => 'Column definition for field `%s.%s` cannot be read.',
+			'msg_dev_args' => [$table, $field_name],
+			'log_post_data' => false,
+			'level' => E_USER_NOTICE
+		]);
+		return '';
+	}
 	$type = $column['Type'];
 	if ($pos = strpos($type, '('))
 		$type = substr($type, 0, $pos);
