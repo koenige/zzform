@@ -3217,6 +3217,7 @@ function zz_session_write($type, $data) {
 			if (is_array($file['tmp_name'])) {
 				foreach ($file['tmp_name'] as $field_key => $filename) {
 					if (!$filename) continue;
+					if (!is_uploaded_file($filename)) continue; // might have been already moved
 					if ($file['error'][$field_key] !== UPLOAD_ERR_OK) continue;
 					$new_filename = $zz_conf['tmp_dir'].'/zzform-sessions/'.basename($filename);
 					zz_rename($filename, $new_filename);
@@ -3224,6 +3225,7 @@ function zz_session_write($type, $data) {
 				}
 			} else {
 				if (!$file['tmp_name']) continue;
+				if (!is_uploaded_file($file['tmp_name'])) continue; // might have been already moved
 				if ($file['error'] !== UPLOAD_ERR_OK) continue;
 				$new_filename = $zz_conf['tmp_dir'].'/zzform-sessions/'.basename($file['tmp_name']);
 				zz_rename($filename, $new_filename);
