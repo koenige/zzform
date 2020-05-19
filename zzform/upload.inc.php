@@ -2480,19 +2480,7 @@ function zz_upload_cleanup($zz_tab, $validated = true) {
 	if (!$zz_tab[0]['upload_fields']) return false;
 
 	// unfinished request: put files into session, do not delete
-	$session['upload_cleanup_files'] = $zz_conf['int']['upload_cleanup_files'];
-	foreach ($zz_tab[0]['upload_fields'] as $uf) {
-		$tab = $uf['tab'];
-		$rec = $uf['rec'];
-		if (empty($zz_tab[$tab][$rec]['images'])) continue;
-		if (isset($zz_tab[$tab][$rec]['file_upload'])) {
-			$session[$tab][$rec]['file_upload'] = $zz_tab[$tab][$rec]['file_upload'];
-		} else {
-			$session[$tab][$rec]['file_upload'] = false;
-		} 
-		$session[$tab][$rec]['images'] = $zz_tab[$tab][$rec]['images'];
-	}
-	zz_session_write('files', $session);
+	zz_session_write('files', $zz_tab);
 }
 
 

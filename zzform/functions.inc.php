@@ -3189,11 +3189,30 @@ function zz_get_subtable_fielddef($fields, $table) {
  * @param array $session data to write
  * @return bool
  */
-function zz_session_write($type, $session) {
+function zz_session_write($type, $data) {
 	global $zz_conf;
 
-	if ($type === 'filedata') {
+	switch ($type)
+	case 'files':
+		// $data = $zz_tab
+		$session = [];
+		$session['upload_cleanup_files'] = $zz_conf['int']['upload_cleanup_files'];
+		foreach ($data[0]['upload_fields'] as $uf) {
+			$tab = $uf['tab'];
+			$rec = $uf['rec'];
+			if (empty($data[$tab][$rec]['images'])) continue;
+			if (isset($data[$tab][$rec]['file_upload'])) {
+				$session[$tab][$rec]['file_upload'] = $data[$tab][$rec]['file_upload'];
+			} else {
+				$session[$tab][$rec]['file_upload'] = false;
+			} 
+			$session[$tab][$rec]['images'] = $data[$tab][$rec]['images'];
+		}
+		break;
+	case 'filedata':
+		// $data = $_FILES
 		require_once $zz_conf['dir'].'/upload.inc.php';
+		$session = $data;
 		foreach ($session AS $field_name => $file) {
 			if (is_array($file['tmp_name'])) {
 				foreach ($file['tmp_name'] as $field_key => $filename) {
@@ -3211,6 +3230,11 @@ function zz_session_write($type, $session) {
 				$session[$field_name]['tmp_name'] = $new_filename;
 			}
 		}
+		break;
+	case 'postdata':
+		// $data = $_POST
+		$session = $data;
+		break;
 	}
 	$fp = fopen(zz_session_filename($type), 'w');
 	fwrite($fp, json_encode($session, JSON_PRETTY_PRINT));
