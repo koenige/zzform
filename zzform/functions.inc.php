@@ -1337,6 +1337,16 @@ function zz_record_access($zz, $ops, $zz_var) {
 
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	// initialize variables
+	$create_new_zzform_secret_key = true;
+	if (!empty($_POST['zz_id'])) {
+		$zz_conf['id'] = $_POST['zz_id'];
+		$zz_conf['int']['secret_key'] = zz_secret_id('read');
+		if ($zz_conf['int']['secret_key']) {
+			$create_new_zzform_secret_key = false;
+			$_FILES = zz_session_read('filedata', $_FILES);
+		}
+	}
+
 	$zz_var['action'] = false;		// action: what database operations are to be done
 	$zz_conf['int']['record'] = true; // show record somehow (edit, view, ...)
 	
@@ -1379,6 +1389,9 @@ function zz_record_access($zz, $ops, $zz_var) {
 		} else {
 			// this should not occur if form is used legally
 			$ops['mode'] = false;
+		}
+		if (!empty($_FILES)) {
+			zz_session_write('filedata', $_FILES);
 		}
 		break;
 
@@ -1534,7 +1547,8 @@ function zz_record_access($zz, $ops, $zz_var) {
 	} else {
 		$idval = $zz_var['id']['value'];
 	}
-	$zz_conf['int']['secret_key'] = zz_secret_key($idval);
+	if ($create_new_zzform_secret_key)
+		$zz_conf['int']['secret_key'] = zz_secret_key($idval);
 
 	// if conditions in $zz_conf['if'] -- check them
 	// get conditions if there are any, for access
