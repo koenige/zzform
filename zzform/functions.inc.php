@@ -3192,7 +3192,7 @@ function zz_get_subtable_fielddef($fields, $table) {
 function zz_session_write($type, $data) {
 	global $zz_conf;
 
-	switch ($type)
+	switch ($type) {
 	case 'files':
 		// $data = $zz_tab
 		$session = [];
