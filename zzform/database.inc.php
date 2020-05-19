@@ -751,7 +751,7 @@ function zz_db_columns($db_table, $field = false) {
 		if (!empty($columns[$db_table][$field])) {
 			return $columns[$db_table][$field];
 		} else {
-			return false;
+			return [];
 		}
 	}
 	return $columns[$db_table];
