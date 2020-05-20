@@ -4,7 +4,7 @@
 # http://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2017 Gustaf Mossakowski
+# @copyright Copyright © 2017, 2020 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 # List of fields:
@@ -12,7 +12,7 @@
 # field_ids { field_id, value }, field_no }, source_field_ids { field_id,
 # field_no } } 
 #
-%%% condition unless xhr_selects | xhr_configs %%%
+%%% condition unless xhr_selects %%%
 <script type="text/javascript" src="%%% setting behaviour_path %%%/vxjs/src/core.js"></script>
 <script type="text/javascript" src="%%% setting behaviour_path %%%/vxjs/src/xhr.js"></script>
 %%% condition endif %%%

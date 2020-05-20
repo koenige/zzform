@@ -249,15 +249,9 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 		if (!empty($zz_conf['int']['selects'])) {
 			$output .= wrap_template('xhr-selects', $zz_conf['int']['selects']);
 		}
-		if (!empty($zz_conf['int']['configs'])) {
-			$output .= wrap_template('xhr-configs', $zz_conf['int']['configs']);
-		}
 		if (!empty($zz_conf['int']['dependencies'])) {
 			if (!empty($zz_conf['int']['selects'])) {
 				$zz_conf['int']['dependencies']['xhr_selects'] = true;
-			}
-			if (!empty($zz_conf['int']['configs'])) {
-				$zz_conf['int']['dependencies']['xhr_configs'] = true;
 			}
 			$output .= wrap_template('xhr-dependencies', $zz_conf['int']['dependencies']);
 		}
@@ -2033,11 +2027,11 @@ function zz_field_text($field, $display, $record, $dont_reformat = false) {
 	case 'url':
 		$value = wrap_punycode_decode($value); break;
 	case 'text':
-		if (!empty($field['sql'])) {
+		if (!empty($field['sql']) OR !empty($field['cfg'])) {
 			$field['unrestricted'] = true;
+			if (!empty($field['cfg']))
+				$field['xhr_command'] = 'zzform-configs';
 			zz_xhr_add('selects', $field);
-		} elseif (!empty($field['cfg'])) {
-			zz_xhr_add('configs', $field);
 		}
 		break;
 	case 'parameter':
