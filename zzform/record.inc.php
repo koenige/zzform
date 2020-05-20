@@ -2738,6 +2738,8 @@ function zz_field_select_sql_too_long($field, $record, $detail_record, $id_field
  */
 function zz_xhr_add($type, $field) {
 	global $zz_conf;
+
+	$default_command = ($type === 'selects') ? 'zzform' : 'zzform-'.$type;
 	$zz_conf['int'][$type][] = [
 		'field_no' => $field['field_no'],
 		'subtable_no' => $field['subtable_no'],
@@ -2745,7 +2747,8 @@ function zz_xhr_add($type, $field) {
 		'url_self' => zz_xhr_url_self(),
 		'destination_field_ids' => isset($field['destination_field_ids']) ? $field['destination_field_ids'] : [],
 		'source_field_ids' => isset($field['source_field_ids']) ? $field['source_field_ids'] : [],
-		'unrestricted' => !empty($field['unrestricted']) ? $field['unrestricted'] : false
+		'unrestricted' => !empty($field['unrestricted']) ? $field['unrestricted'] : false,
+		'command' => !empty($field['xhr_command']) ? $field['xhr_command'] : $default_command,
 	];
 }
 
