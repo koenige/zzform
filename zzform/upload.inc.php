@@ -210,7 +210,7 @@ function zz_upload_thumbnail($ops, $zz_tab, $zz_var) {
 	global $zz_conf;
 
 	if (empty($zz_tab[0][0]['existing'])) {
-		$ops['error'][] = sprintf('ID %s not found', $zz_var['id']['value']);
+		$ops['error'][] = sprintf('ID %s not found', $zz_conf['int']['id']['value']);
 		$zz_conf['int']['http_status'] = 404;
 		return $ops;
 	}
@@ -221,10 +221,10 @@ function zz_upload_thumbnail($ops, $zz_tab, $zz_var) {
 	
 	$ops['thumb_field'] = $zz_var['thumb_field'];
 	if (!empty($zz_tab[0][0]['file_upload'])) {
-		$ops['id'] = $zz_var['id']['value'];
+		$ops['id'] = $zz_conf['int']['id']['value'];
 		$ops['result'] = 'thumbnail created';
 	} elseif (!empty($zz_tab[0][0]['no_file_upload'])) {
-		$ops['id'] = $zz_var['id']['value'];
+		$ops['id'] = $zz_conf['int']['id']['value'];
 		$ops['result'] = 'thumbnail not created';
 	} else {
 		$ops['error'] = sprintf('Thumbnail information for field %d (No. %d) not found',
@@ -2233,7 +2233,7 @@ function zz_upload_action($zz_tab) {
 	}
 
 	// background thumbnails will be triggered now
-	zz_upload_background($zz_tab[0][0]['id']['value'], 'create');
+	zz_upload_background($zz_conf['int']['id']['value'], 'create');
 
 	if ($zz_conf['modules']['debug']) zz_debug('end');
 	return $zz_tab;

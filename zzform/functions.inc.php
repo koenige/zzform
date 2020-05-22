@@ -852,12 +852,12 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = [])
 // hier auch fuer write_once
 		$zz_var['where'][$table_name][$field_name] = $value;
 
-		if ($field_name === $zz_var['id']['field_name']) {
+		if ($field_name === $zz_conf['int']['id']['field_name']) {
 			if (intval($value).'' === $value.'') {
 				$zz_conf['int']['where_with_unique_id'] = true;
-				$zz_var['id']['value'] = $value;
+				$zz_conf['int']['id']['value'] = $value;
 			} else {
-				$zz_var['id']['invalid_value'] = $value;
+				$zz_conf['int']['id']['invalid_value'] = $value;
 			}
 		} elseif (in_array($field_name, array_keys($zz_var['unique_fields']))) {
 			$zz_conf['int']['where_with_unique_id'] = true;
@@ -866,12 +866,12 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = [])
 	// in case where is not combined with ID field but UNIQUE field
 	// (e. g. identifier with UNIQUE KEY) retrieve value for ID field from 
 	// database
-	if (!$zz_var['id']['value'] AND $zz_conf['int']['where_with_unique_id']) {
+	if (!$zz_conf['int']['id']['value'] AND $zz_conf['int']['where_with_unique_id']) {
 		if ($zz_conf['modules']['debug']) zz_debug('where_conditions', $sql);
 		$line = zz_db_fetch($sql, '_dummy_', 'numeric', 'WHERE; ambiguous values in ID?');
 		// 0 (=add) or 1 records: 'where_with_unique_id' remains true
-		if (count($line) === 1 AND !empty($line[0][$zz_var['id']['field_name']])) {
-			$zz_var['id']['value'] = $line[0][$zz_var['id']['field_name']];
+		if (count($line) === 1 AND !empty($line[0][$zz_conf['int']['id']['field_name']])) {
+			$zz_conf['int']['id']['value'] = $line[0][$zz_conf['int']['id']['field_name']];
 		} elseif (count($line)) {
 			$zz_conf['int']['where_with_unique_id'] = false;
 		}
@@ -1231,19 +1231,21 @@ function zz_secret_id($mode, $id = '', $hash = '') {
  *		'id'[value], 'id'[field_name], 'unique_fields'
  */
 function zz_get_unique_fields($fields) {
+	global $zz_conf;
+
 	$zz_var = [];
-	$zz_var['id']['value'] = false;
-	$zz_var['id']['field_name'] = false;
+	$zz_conf['int']['id']['value'] = false;
+	$zz_conf['int']['id']['field_name'] = false;
 	$zz_var['unique_fields'] = []; // for WHERE
 
 	foreach ($fields AS $field) {
 		// set ID fieldname
 		if (!empty($field['type']) AND $field['type'] === 'id') {
-			if ($zz_var['id']['field_name']) {
+			if ($zz_conf['int']['id']['field_name']) {
 				zz_error_log(['msg' => 'Only one field may be defined as `id`!']);
 				return false;
 			}
-			$zz_var['id']['field_name'] = $field['field_name'];
+			$zz_conf['int']['id']['field_name'] = $field['field_name'];
 		}
 		if (!empty($field['unique']) AND !is_array($field['unique'])) {
 			// 'unique' might be array for subtables
@@ -1375,17 +1377,17 @@ function zz_record_access($zz, $ops, $zz_var) {
 		break;
 
 	case isset($_POST['zz_subtables']):
-		if (empty($zz_var['id']['value']) AND !empty($_POST[$zz_var['id']['field_name']])) {
-			$zz_var['id']['value'] = $_POST[$zz_var['id']['field_name']];
+		if (empty($zz_conf['int']['id']['value']) AND !empty($_POST[$zz_conf['int']['id']['field_name']])) {
+			$zz_conf['int']['id']['value'] = $_POST[$zz_conf['int']['id']['field_name']];
 		}
 		// ok, no submit button was hit but only add/remove form fields for
 		// detail records in subtable, so set mode accordingly (no action!)
 		if (!empty($_POST['zz_action']) AND $_POST['zz_action'] === 'insert') {
 			$ops['mode'] = 'add';
 		} elseif (!empty($_POST['zz_action']) AND $_POST['zz_action'] === 'update'
-			AND $zz_var['id']['value']) {
+			AND $zz_conf['int']['id']['value']) {
 			$ops['mode'] = 'edit';
-			$id_value = $zz_var['id']['value'];
+			$id_value = $zz_conf['int']['id']['value'];
 		} else {
 			// this should not occur if form is used legally
 			$ops['mode'] = false;
@@ -1398,7 +1400,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 	case isset($_GET['edit']):
 		$ops['mode'] = 'edit';
 		if ($zz_conf['int']['where_with_unique_id']) {
-			$id_value = $zz_var['id']['value'];
+			$id_value = $zz_conf['int']['id']['value'];
 		} else {
 			$id_value = zz_check_get_array('edit', 'is_int');
 		}
@@ -1411,7 +1413,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 
 	case isset($_GET['delete']) AND $zz_conf['int']['where_with_unique_id']:
 		$ops['mode'] = 'delete';
-		$id_value = $zz_var['id']['value'];
+		$id_value = $zz_conf['int']['id']['value'];
 		// was record already deleted?
 		$record_id = wrap_db_fetch($zz['sql'], '_dummy_', 'single value');
 		if (!$record_id) $ops['mode'] = 'show';
@@ -1430,7 +1432,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 	case isset($_GET['add']) AND empty($_POST['zz_action']):
 		$ops['mode'] = 'add';
 		if ($zz_conf['copy']) {
-			$zz_var['id']['source_value'] = zz_check_get_array('add', 'is_int', [], false);
+			$zz_conf['int']['id']['source_value'] = zz_check_get_array('add', 'is_int', [], false);
 		}
 		break;
 
@@ -1476,13 +1478,13 @@ function zz_record_access($zz, $ops, $zz_var) {
 				} elseif (!empty($_POST['zz_multiple_delete'])) {
 					$ops['mode'] = 'delete';
 				}
-				$zz_var['id']['values'] = $_POST['zz_record_id'];
+				$zz_conf['int']['id']['values'] = $_POST['zz_record_id'];
 			}
 		} else {
 			// triggers valid database action
 			$zz_var['action'] = $_POST['zz_action']; 
-			if (!empty($_POST[$zz_var['id']['field_name']]))
-				$id_value = $_POST[$zz_var['id']['field_name']];
+			if (!empty($_POST[$zz_conf['int']['id']['field_name']]))
+				$id_value = $_POST[$zz_conf['int']['id']['field_name']];
 			$ops['mode'] = false;
 		}
 		break;
@@ -1507,7 +1509,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 
 	case $zz_conf['int']['where_with_unique_id']:
 		// just review the record
-		if (!empty($zz_var['id']['value'])) $ops['mode'] = 'review'; 
+		if (!empty($zz_conf['int']['id']['value'])) $ops['mode'] = 'review'; 
 		else $ops['mode'] = 'add';
 		break;
 
@@ -1531,21 +1533,21 @@ function zz_record_access($zz, $ops, $zz_var) {
 
 	// write main id value, might have been written by a more trustful instance
 	// beforehands ($_GET['where'] etc.)
-	if (empty($zz_var['id']['value']) AND !empty($id_value)) {
+	if (empty($zz_conf['int']['id']['value']) AND !empty($id_value)) {
 		if (!is_numeric($id_value)) {
-			$zz_var['id']['invalid_value'] = $id_value;
+			$zz_conf['int']['id']['invalid_value'] = $id_value;
 		} else {
-			$zz_var['id']['value'] = $id_value;
+			$zz_conf['int']['id']['value'] = $id_value;
 		}
-	} elseif (!isset($zz_var['id']['value'])) {
-		$zz_var['id']['value'] = '';
+	} elseif (!isset($zz_conf['int']['id']['value'])) {
+		$zz_conf['int']['id']['value'] = '';
 	}
 
 	// now that we have the ID value, we can calculate the secret key
-	if (!empty($zz_var['id']['values'])) {
-		$idval = implode(',', $zz_var['id']['values']);
+	if (!empty($zz_conf['int']['id']['values'])) {
+		$idval = implode(',', $zz_conf['int']['id']['values']);
 	} else {
-		$idval = $zz_var['id']['value'];
+		$idval = $zz_conf['int']['id']['value'];
 	}
 	if ($create_new_zzform_secret_key)
 		$zz_conf['int']['secret_key'] = zz_secret_key($idval);
@@ -1556,7 +1558,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 
 	if (!empty($zz_conf['modules']['conditions'])
 		AND (!empty($zz_conf['if']) OR !empty($zz_conf['unless']))
-		AND $zz_var['id']['value']) {
+		AND $zz_conf['int']['id']['value']) {
 		$zz_conditions = zz_conditions_check($zz, $ops['mode'], $zz_var);
 		// @todo do we need to check record conditions here?
 		$zz_conditions = zz_conditions_record_check($zz, $ops['mode'], $zz_var, $zz_conditions);
@@ -1570,7 +1572,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		}
 		// overwrite new variables
 		if (!empty($zz_conditions['bool'])) {
-			zz_conditions_merge_conf($zz_conf, $zz_conditions['bool'], $zz_var['id']['value']);
+			zz_conditions_merge_conf($zz_conf, $zz_conditions['bool'], $zz_conf['int']['id']['value']);
 		}
 	}
 
@@ -1585,9 +1587,9 @@ function zz_record_access($zz, $ops, $zz_var) {
 		$zz_conf['int']['access'] = 'show_after_edit';
 	}
 	if ($zz_conf['int']['access'] === 'add_then_edit') {
-		if ($zz_var['id']['value'] AND zz_valid_request()) {
+		if ($zz_conf['int']['id']['value'] AND zz_valid_request()) {
 			$zz_conf['int']['access'] = 'show+edit';
-		} elseif ($zz_var['id']['value']) {
+		} elseif ($zz_conf['int']['id']['value']) {
 			$zz_conf['int']['access'] = 'edit_only';
 		} else {
 			$zz_conf['int']['access'] = 'add_only';
@@ -1711,7 +1713,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 
 	// @deprecated
 	if ($ops['mode'] === 'add' AND $zz_conf['copy'] AND !empty($_GET['source_id'])) {
-		$zz_var['id']['source_value'] = zz_check_get_array('source_id', 'is_int');
+		$zz_conf['int']['id']['source_value'] = zz_check_get_array('source_id', 'is_int');
 	}
 
 	if ($zz_conf['int']['where_with_unique_id']) { // just for record, not for list

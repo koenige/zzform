@@ -409,7 +409,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 
 	if ($zz_conf['modules']['debug'] AND $zz_conf['debug']) {
 		$ops['output'].= '<br>';
-		$ops['output'].= 'Main ID value: '.$zz_tab[0][0]['id']['value'].'<br>';
+		$ops['output'].= 'Main ID value: '.$zz_conf['int']['id']['value'].'<br>';
 		$ops['output'].= 'Main SQL query: '.$sql_edit.'<br>';
 		if ($del_msg) {
 			$ops['output'].= 'SQL deletion queries:<br>'.(implode('', $del_msg));
@@ -417,10 +417,10 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		}
 	}
 
-	$result = zz_db_change($sql_edit, $zz_tab[0][0]['id']['value']);
+	$result = zz_db_change($sql_edit, $zz_conf['int']['id']['value']);
 	if ($result['action']) {
 		if ($zz_tab[0][0]['action'] === 'insert') {
-			$zz_tab[0][0]['id']['value'] = $result['id_value']; // for requery
+			$zz_conf['int']['id']['value'] = $result['id_value']; // for requery
 		}
 		// save record values for use outside of zzform()
 		if ($result['action'] === 'nothing') {
@@ -462,7 +462,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		// Output Error Message
 		if ($zz_var['action'] === 'insert') {
 			// for requery
-			$zz_tab[0][0]['id']['value'] = false;
+			$zz_conf['int']['id']['value'] = false;
 		}
 		$result['error']['level'] = E_USER_WARNING;
 		zz_error_log($result['error']);
@@ -634,7 +634,7 @@ function zz_action_details($detail_sqls, $zz_tab, $validation, $ops) {
 		foreach (array_keys($detail_sqls[$tab]) as $rec) {
 			$my_rec = $zz_tab[$tab][$rec];
 			$sql = $detail_sqls[$tab][$rec];
-			$sql = str_replace('[FOREIGN_KEY]', sprintf('%d', $zz_tab[0][0]['id']['value']), $sql);
+			$sql = str_replace('[FOREIGN_KEY]', sprintf('%d', $zz_conf['int']['id']['value']), $sql);
 			if (!empty($zz_tab[$tab]['detail_key'])) {
 				// @todo allow further detail keys
 				// if not all files where uploaded, go up one detail record until

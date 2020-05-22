@@ -35,8 +35,8 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 	$records = false;
 	if (!empty($_GET['delete'])) {
 		$records = zz_check_get_array('delete', 'is_int');
-	} elseif (is_array($zz_var['id']['value'])) {
-		$records = count($zz_var['id']['value']);
+	} elseif (is_array($zz_conf['int']['id']['value'])) {
+		$records = count($zz_conf['int']['id']['value']);
 	}
 	if (isset($_GET['delete'])) {
 		$action_before_redirect = 'delete';
@@ -99,32 +99,32 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 	}
 
 	// Heading inside HTML form element
-	if (!empty($zz_var['id']['invalid_value'])) {
+	if (!empty($zz_conf['int']['id']['invalid_value'])) {
 		$formhead = '<span class="error">'.sprintf(zz_text('Invalid ID for a record (must be an integer): %s'),
-			wrap_html_escape($zz_var['id']['invalid_value'])).'</span>';
+			wrap_html_escape($zz_conf['int']['id']['invalid_value'])).'</span>';
 		$zz_conf['int']['http_status'] = 404;
 	} elseif (in_array($ops['mode'], ['edit', 'delete', 'review', 'show', 'revise'])
 		AND !$zz_tab[0][0]['record'] AND $action_before_redirect !== 'delete') {
 		$sql = 'SELECT %s FROM %s WHERE %s = %d';
-		$sql = sprintf($sql, $zz_var['id']['field_name'], $zz_tab[0]['table'], $zz_var['id']['field_name'], $zz_tab[0][0]['id']['value']);
+		$sql = sprintf($sql, $zz_conf['int']['id']['field_name'], $zz_tab[0]['table'], $zz_conf['int']['id']['field_name'], $zz_conf['int']['id']['value']);
 		$id_exists = zz_db_fetch($sql, '', 'single value');
 		if ($id_exists) {
 			$formhead = '<span class="error">'.sprintf(zz_text('Sorry, it is not possible to access the ID %d from here.'),
-				wrap_html_escape($zz_tab[0][0]['id']['value'])).'</span>';
+				wrap_html_escape($zz_conf['int']['id']['value'])).'</span>';
 			$zz_conf['int']['http_status'] = 403;
 		} else {
 			$sql = 'SELECT MAX(%s) FROM %s';
-			$sql = sprintf($sql, $zz_var['id']['field_name'], $zz_tab[0]['table']);
+			$sql = sprintf($sql, $zz_conf['int']['id']['field_name'], $zz_tab[0]['table']);
 			$max_id = zz_db_fetch($sql, '', 'single value');
-			if ($max_id > $zz_tab[0][0]['id']['value']
-				AND $zz_tab[0][0]['id']['value'] > 0) {
+			if ($max_id > $zz_conf['int']['id']['value']
+				AND $zz_conf['int']['id']['value'] > 0) {
 				// This of course is only 100% correct if it is an incremental ID
 				$formhead = '<span class="error">'.sprintf(zz_text('The record with the ID %d was already deleted.'),
-					wrap_html_escape($zz_tab[0][0]['id']['value'])).'</span>';
+					wrap_html_escape($zz_conf['int']['id']['value'])).'</span>';
 				$zz_conf['int']['http_status'] = 410;
 			} else {
 				$formhead = '<span class="error">'.sprintf(zz_text('A record with the ID %d does not exist.'),
-					wrap_html_escape($zz_tab[0][0]['id']['value'])).'</span>';
+					wrap_html_escape($zz_conf['int']['id']['value'])).'</span>';
 				$zz_conf['int']['http_status'] = 404;
 			}
 		}
@@ -154,7 +154,7 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 	} elseif (in_array($ops['mode'], $record_form) OR 
 		(in_array($ops['mode'], ['show']) AND !$action_before_redirect)) {
 	//	mode = add | edit | delete: show form
-		if (isset($zz_var['id']['values'])) {
+		if (isset($zz_conf['int']['id']['values'])) {
 			$formhead = zz_text(ucfirst($ops['mode']).' several records');
 		} else {
 			$formhead = zz_text(ucfirst($ops['mode']) .' a record');
@@ -285,7 +285,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 	$zz_conf_record = zz_record_conf($zz_conf, $zz_tab[0][0]);
 	// check conditions
 	if (!empty($zz_conditions['bool'])) {
-		zz_conditions_merge_conf($zz_conf_record, $zz_conditions['bool'], $zz_var['id']['value']);
+		zz_conditions_merge_conf($zz_conf_record, $zz_conditions['bool'], $zz_conf['int']['id']['value']);
 	}
 
 	if (in_array($mode, ['add', 'edit', 'revise']) && !empty($zz_conf['upload_MAX_FILE_SIZE'])
@@ -295,21 +295,21 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 			'value' => $zz_conf['upload_MAX_FILE_SIZE']
 		];
 	}
-	$multiple = !empty($zz_var['id']['values']) ? true : false;
+	$multiple = !empty($zz_conf['int']['id']['values']) ? true : false;
 	$output['tbody'] = zz_show_field_rows($zz_tab, $mode, $display, $zz_var, $zz_conf_record);
 	$output += zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple);
 	if (zz_error_exit()) return zz_return([]);
 	if ($multiple) {
-		foreach ($zz_var['id']['values'] as $id_value) {
+		foreach ($zz_conf['int']['id']['values'] as $id_value) {
 			$output['hidden'][] = [
-				'name' => $zz_var['id']['field_name'].'[]',
+				'name' => $zz_conf['int']['id']['field_name'].'[]',
 				'value' => $id_value
 			];
 		}
 	} elseif ($mode === 'delete') {
 		$output['hidden'][] = [
-			'name' => $zz_var['id']['field_name'],
-			'value' => $zz_var['id']['value']
+			'name' => $zz_conf['int']['id']['field_name'],
+			'value' => $zz_conf['int']['id']['value']
 		];
 	}
 	if ($mode && !in_array($mode, ['review', 'show'])) {
@@ -435,11 +435,11 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 				if (empty($field['link_record']) OR empty($field['link'])) continue;
 				$output['link_record'] = zz_makelink($field['link'], $zz_tab[0][0]['record']);
 			}
-			$output['modes'] = zz_output_modes($zz_var['id']['value'], $zz_conf_record);
+			$output['modes'] = zz_output_modes($zz_conf['int']['id']['value'], $zz_conf_record);
 		}
 		if (!empty($zz_conf_record['details'])) {
 			$output['tfoot_class'] = 'editbutton';
-			$output['actions'] = zz_show_more_actions($zz_conf_record, $zz_var['id']['value'], $zz_var['id']['field_name'], $zz_tab[0][0]['record']);
+			$output['actions'] = zz_show_more_actions($zz_conf_record, $zz_conf['int']['id']['value'], $zz_tab[0][0]['record']);
 		}
 		if (empty($zz_conf_record['details']) AND !$zz_conf_record['edit']
 			AND $zz_conf_record['cancel_link']) {
@@ -507,7 +507,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 		$row_display = $display;
 	}
 
-	$multiple = !empty($zz_var['id']['values']) ? true : false;
+	$multiple = !empty($zz_conf['int']['id']['values']) ? true : false;
 	$my_fields = [];
 	foreach ($my_rec['fields'] as $fieldkey => $field) {
 		if (!$field) continue;
@@ -914,7 +914,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			// auto values
 			if (isset($field['auto_value'])) {
 				$field['default'] = zz_set_auto_value($field, $zz_tab[$tab]['sql'], 
-					$zz_tab[$tab]['table'], $tab, $rec, $zz_var['id'], $zz_tab[0]['table']);
+					$zz_tab[$tab]['table'], $tab, $rec, $zz_tab[0]['table']);
 			}
 
 			// $zz_var, values, defaults
@@ -1025,14 +1025,14 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 						$field['sql'] = zz_form_select_sql_where($field, $my_where_fields);
 					}
 					// check for 'sql_where_with_id'
-					if (!empty($field['sql_where_with_id']) AND !empty($zz_var['id']['value'])) {
+					if (!empty($field['sql_where_with_id']) AND !empty($zz_conf['int']['id']['value'])) {
 						$field['sql'] = wrap_edit_sql($field['sql'], 'WHERE', 
-							sprintf("%s = %d", $zz_var['id']['field_name'], $zz_var['id']['value'])
+							sprintf("%s = %d", $zz_conf['int']['id']['field_name'], $zz_conf['int']['id']['value'])
 						);
 					}
-					if (!empty($field['sql_where_without_id']) AND !empty($zz_var['id']['value'])) {
+					if (!empty($field['sql_where_without_id']) AND !empty($zz_conf['int']['id']['value'])) {
 						$field['sql'] = wrap_edit_sql($field['sql'], 'WHERE',
-							sprintf("%s != %d", $zz_var['id']['field_name'], $zz_var['id']['value'])
+							sprintf("%s != %d", $zz_conf['int']['id']['field_name'], $zz_conf['int']['id']['value'])
 						);
 					}
 
@@ -1513,11 +1513,10 @@ function zz_count_records($select, $subtree) {
  * @param string $sql SQL query of main record
  * @param int $tab number of table (0 = main record, 1...n = detail tables)
  * @param int $rec number of detail record in table $tab
- * @param array $id_field 'value', 'field_name' of main table
  * @param string $table name of main table
  * @return int value for default field
  */
-function zz_set_auto_value($field, $sql, $table, $tab, $rec, $id_field, $main_table) {
+function zz_set_auto_value($field, $sql, $table, $tab, $rec, $main_table) {
 
 	// currently, only 'increment' is supported for auto values
 	if ($field['auto_value'] !== 'increment') return $field['default'];
@@ -1533,9 +1532,9 @@ function zz_set_auto_value($field, $sql, $table, $tab, $rec, $id_field, $main_ta
 
 	if ($tab) { 
 		// subtable
-		if (!empty($id_field['field_name']) AND !empty($id_field['value'])) {
+		if (!empty($zz_conf['int']['id']['field_name']) AND !empty($zz_conf['int']['id']['value'])) {
 			$sql = wrap_edit_sql($sql, 'WHERE', '('.$main_table.'.'
-				.$id_field['field_name'].' = '.$id_field['value'].')');
+				.$zz_conf['int']['id']['field_name'].' = '.$zz_conf['int']['id']['value'].')');
 			$last_record = zz_db_fetch($sql, '', 'single value');
 			if ($last_record) {
 				if ($rec > $last_record)
@@ -2304,6 +2303,8 @@ function zz_field_memo($field, $display, $record) {
  * @return string
  */
 function zz_field_set($field, $fields, $display, $my_tab, $zz_var = []) {
+	global $zz_conf;
+
 	$group = false;
 	$sets = [];
 	$this_field = [];
@@ -2360,7 +2361,7 @@ function zz_field_set($field, $fields, $display, $my_tab, $zz_var = []) {
 			$sets_indexed[$rec[$field_names['select']]]['rec_id'] = $rec[$field_names['id']];
 			$sets_indexed[$rec[$field_names['select']]]['rec_no'] = $rec_no;
 			if ($rec_no > $rec_max) $rec_max = $rec_no;
-		} elseif ((!empty($rec['POST']) AND !empty($zz_var['id']['source_value'])
+		} elseif ((!empty($rec['POST']) AND !empty($zz_conf['int']['id']['source_value'])
 			OR (!empty($rec['POST']) AND $rec['action'] === 'review'))) {
 			// add from source
 			$rec = $rec['POST'];
@@ -2377,7 +2378,7 @@ function zz_field_set($field, $fields, $display, $my_tab, $zz_var = []) {
 		$sets_indexed[$index]['rec_no'] = ++$rec_max;
 	}
 	// set defaults if mode (no id value) = add but not add from source (also no source_value)
-	if (empty($zz_var['id']['value']) AND empty($zz_var['id']['source_value'])
+	if (empty($zz_conf['int']['id']['value']) AND empty($zz_conf['int']['id']['source_value'])
 		AND !empty($field['default']) AND $display === 'form') {
 		foreach ($field['default'] as $def) {
 			$sets_indexed[$def]['default'] = true;

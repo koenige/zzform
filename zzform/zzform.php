@@ -187,7 +187,7 @@ function zzform($zz) {
 	if ($zz_conf['int']['record']) {
 		if (!empty($zz_conf['modules']['conditions'])) {
 			$zz_conditions = zz_conditions_record_check($zz, $ops['mode'], $zz_var, $zz_conditions);
-			$zz = zz_conditions_record($zz, $zz_conditions, $zz_var['id']['value']);
+			$zz = zz_conditions_record($zz, $zz_conditions);
 		}
 	 	// sets some $zz-definitions for records depending on existing definition for
 		// translations, subtabes, uploads, write_once-fields
@@ -233,7 +233,7 @@ function zzform($zz) {
 		$zz_tab = zz_prepare_tables($zz, $zz_var, $ops['mode']);
 		if (!$zz_tab) return zzform_exit($ops);
 		// @todo keep track of current values for ID separately
-		$zz_tab[0][0]['id'] = &$zz_var['id'];
+		$zz_tab[0][0]['id'] = &$zz_conf['int']['id'];
 
 		// set conditions for detail records
 		// id is available just now
@@ -278,7 +278,7 @@ function zzform($zz) {
 				return zzform_exit($ops);
 			} elseif ($ops['result']) {
 				// Redirect, if wanted.
-				zz_output_redirect($ops['result'], $ops['return'], $zz_var['id']['value'], $zz_tab);
+				zz_output_redirect($ops['result'], $ops['return'], $zz_tab);
 			}
 		} elseif ($zz_var['action'] === 'thumbnails') {
 			$ops = zz_upload_thumbnail($ops, $zz_tab, $zz_var);

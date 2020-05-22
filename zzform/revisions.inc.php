@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2016-2019 Gustaf Mossakowski
+ * @copyright Copyright © 2016-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -141,17 +141,16 @@ function zz_revisions_read($table, $record_id) {
  * read a revision from the table if there is something that fits to this record
  *
  * @param string $table
- * @param int $id_value
  * @return int
  */
-function zz_revisions_read_id($table, $id_value) {
+function zz_revisions_read_id($table) {
 	global $zz_conf;
 	$sql = 'SELECT revision_id FROM %s
 		WHERE main_table_name = "%s"
 		AND main_record_id = %d
 		AND rev_status = "pending"
 		LIMIT 1';
-	$sql = sprintf($sql, $zz_conf['revisions_table'], $table, $id_value);
+	$sql = sprintf($sql, $zz_conf['revisions_table'], $table, $zz_conf['int']['id']['value']);
 	return wrap_db_fetch($sql, '', 'single value');
 }
 

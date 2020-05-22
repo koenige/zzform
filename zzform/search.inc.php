@@ -19,12 +19,11 @@
  * @param array $fields
  * @param string $sql
  * @param string $table
- * @param string $main_id_fieldname
  * @global array $zz_conf main configuration variables
  * @return string $sql (un-)modified SQL query
  * @todo if there are subtables, part of this functions code is run redundantly
  */
-function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
+function zz_search_sql($fields, $sql, $table) {
 	// no changes if there's no query string
 	if (empty($_GET['q'])) return $sql;
 
@@ -101,7 +100,7 @@ function zz_search_sql($fields, $sql, $table, $main_id_fieldname) {
 			$found = true;
 			break;
 		case 'subtable':
-			$subsearch = zz_search_subtable($field, $table, $main_id_fieldname);
+			$subsearch = zz_search_subtable($field, $table);
 			$found = true;
 			break;
 		case 'subfield':
@@ -465,10 +464,12 @@ function zz_search_checkfield($field_name, $table, $searchword) {
  * in search results
  *
  * @param array $field
- * @param string $main_id_fieldname
+ * @param string $table
  * @return string part of SQL query
  */
-function zz_search_subtable($field, $table, $main_id_fieldname) {
+function zz_search_subtable($field, $table) {
+	global $zz_conf;
+
 	$foreign_key = '';
 	$sub_id_fieldname = '';
 	foreach ($field['fields'] as $f_index => $subfield) {
@@ -498,9 +499,9 @@ function zz_search_subtable($field, $table, $main_id_fieldname) {
 				ON %s.%s = %s.%s
 			WHERE %%s(%s)';
 		$subsql = sprintf($subsql,
-			$table, $main_id_fieldname, $table,
+			$table, $zz_conf['int']['id']['field_name'], $table,
 			$field['table'],
-			$table, $main_id_fieldname, $field['table'], $foreign_key,
+			$table, $zz_conf['int']['id']['field_name'], $field['table'], $foreign_key,
 			$sub_id_fieldname
 		);
 		if ($_GET['q'] === 'NULL') {
@@ -514,7 +515,7 @@ function zz_search_subtable($field, $table, $main_id_fieldname) {
 		if (!empty($field['sql'])) $sql = $field['sql'];
 		elseif (!empty($field['subselect']['sql'])) $sql = $field['subselect']['sql'];
 		else return false;
-		$subsql = zz_search_sql($field['fields'], $sql, $field['table'], $main_id_fieldname);
+		$subsql = zz_search_sql($field['fields'], $sql, $field['table']);
 		break;
 	}
 	$ids = zz_db_fetch($subsql, $foreign_key, '', 'Search query for subtable.', E_USER_WARNING);
@@ -527,7 +528,7 @@ function zz_search_subtable($field, $table, $main_id_fieldname) {
 		]);
 		unset($ids['']);
 	}
-	return $table.'.'.$main_id_fieldname.' IN ('.implode(',', array_keys($ids)).')';
+	return $table.'.'.$zz_conf['int']['id']['field_name'].' IN ('.implode(',', array_keys($ids)).')';
 }
 
 /** 

@@ -54,7 +54,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	}
 	if ($mode === 'revise') {
 		require_once $zz_conf['dir_inc'].'/revisions.inc.php';
-		$zz_tab[0]['revision_id'] = zz_revisions_read_id($zz_tab[0]['table'], $zz_var['id']['value']);
+		$zz_tab[0]['revision_id'] = zz_revisions_read_id($zz_tab[0]['table']);
 	} elseif (!empty($_POST['zz_revision_id'])) {
 		require_once $zz_conf['dir_inc'].'/revisions.inc.php';
 		$zz_tab[0]['revision_id'] = intval($_POST['zz_revision_id']);
@@ -69,7 +69,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	$zz_tab[0][0]['record'] = [];
 	$zz_tab[0][0]['access'] = !empty($zz['access']) ? $zz['access'] : false;
 	// get ID field, unique fields, check for unchangeable fields
-	$zz_tab[0][0]['id'] = &$zz_var['id'];
+	$zz_tab[0][0]['id'] = &$zz_conf['int']['id'];
 	$zz_tab[0][0]['check_select_fields'] = zz_prepare_check_select();
 	$zz_tab[0][0]['details'] = !empty($zz['details']) ? $zz['details'] : [];
 	$zz_tab[0][0]['if'] = !empty($zz['if']) ? $zz['if'] : [];
@@ -103,28 +103,28 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 
 	if (!$zz_var['query_records']) return $zz_tab;
 
-	if (!empty($zz_var['id']['value'])) {
+	if (!empty($zz_conf['int']['id']['value'])) {
 		$zz_tab[0][0]['existing'] = zz_query_single_record(
-			$zz_tab[0]['sql'], $zz_tab[0]['table'], $zz_var['id'], $zz_tab[0]['sqlextra']
+			$zz_tab[0]['sql'], $zz_tab[0]['table'], $zz_conf['int']['id'], $zz_tab[0]['sqlextra']
 		);
 		$zz_tab[0][0]['existing'] = zz_prepare_record($zz_tab[0][0]['existing'], $zz_tab[0][0]['fields']);
 		if ($zz_var['action'] === 'update' AND !$zz_tab[0][0]['existing']) {
 			zz_error_exit(true);
 			$sql = wrap_edit_sql($zz_tab[0]['sql'],
-				'WHERE', sprintf('%s.%s = %d',$zz_tab[0]['table'], $zz_var['id']['field_name'], $zz_var['id']['value'])
+				'WHERE', sprintf('%s.%s = %d',$zz_tab[0]['table'], $zz_conf['int']['id']['field_name'], $zz_conf['int']['id']['value'])
 			);
 			zz_error_log([
 				'msg_dev' => 'Trying to update a non-existent record in table `%s` with ID %d.',
-				'msg_dev_args' => [$zz_tab[0]['table'], $zz_var['id']['value']],
+				'msg_dev_args' => [$zz_tab[0]['table'], $zz_conf['int']['id']['value']],
 				'level' => E_USER_ERROR,
 				'query' => $sql
 			]);
 			return false;
 		}
-	} elseif (!empty($zz_var['id']['values'])) {
+	} elseif (!empty($zz_conf['int']['id']['values'])) {
 		$sql = wrap_edit_sql($zz_tab[0]['sql'], 'WHERE', $zz_tab[0]['table'].'.'
-			.$zz_var['id']['field_name']." IN ('".implode("','", $zz_var['id']['values'])."')");
-		$existing = zz_db_fetch($sql, $zz_var['id']['field_name'], 'numeric');
+			.$zz_conf['int']['id']['field_name']." IN ('".implode("','", $zz_conf['int']['id']['values'])."')");
+		$existing = zz_db_fetch($sql, $zz_conf['int']['id']['field_name'], 'numeric');
 		foreach ($existing as $index => $existing_rec) {
 			$existing_rec = zz_prepare_record($existing_rec, $zz_tab[0][0]['fields']);
 			$zz_tab[0][$index]['existing'] = $existing_rec;
@@ -534,7 +534,7 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 				// illegal ID, this will only occur if user manipulated the form
 				zz_error_log([
 					'msg_dev' => 'Detail record with invalid ID was posted (ID of table_name %s was said to be %s, main record was ID %s)',
-					'msg_dev_args' => [$my_tab['table_name'], $posted[$my_tab['id_field_name']], $zz_var['id']['value']],
+					'msg_dev_args' => [$my_tab['table_name'], $posted[$my_tab['id_field_name']], $zz_conf['int']['id']['value']],
 					'level' => E_USER_NOTICE
 				]);
 				unset($my_tab['POST'][$rec]);
@@ -1389,7 +1389,7 @@ function zz_log_reselect_errors($field_name = false, $type = 'select') {
  *
  * @param string $sql $zz_tab[tab]['sql']
  * @param string $table $zz['table']
- * @param array $id	$zz_var['id']
+ * @param array $id	id[value] and [id]field_name from record
  * @param array $sqlextra $zz['sqlextra']
  * @param string $type
  * @return array
@@ -1467,7 +1467,7 @@ function zz_query_multiple_records($sql, $table, $id) {
  * 
  * @param array $my_tab = $zz_tab[$tab] = where $tab is the detail record to query
  * @param string $zz_tab[0]['table'] = main table name
- * @param int $zz_tab[0][0]['id']['value'] = main id value	
+ * @param int main id value	(source value or own value)
  * @param string $id_field_name = ID field name of detail record
  * @param array $deleted_ids = IDs that were deleted by user
  * @global array $zz_conf

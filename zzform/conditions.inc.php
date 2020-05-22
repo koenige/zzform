@@ -133,7 +133,7 @@ function zz_conditions_check($zz, $mode, $zz_var) {
 	foreach ($zz['conditions'] AS $index => $condition) {
 		switch ($condition['scope']) {
 		case 'noid':
-			$zz_conditions['bool'][$index] = empty($zz_var['id']['value']) ? true : false;
+			$zz_conditions['bool'][$index] = empty($zz_conf['int']['id']['value']) ? true : false;
 			break;
 		case 'add':
 			if ($mode === 'add' OR $zz_var['action'] === 'insert') {
@@ -208,7 +208,7 @@ function zz_conditions_check($zz, $mode, $zz_var) {
  * @global array $zz_conf
  * @return array $zz
  */
-function zz_conditions_record($zz, $zz_conditions, $id_value) {
+function zz_conditions_record($zz, $zz_conditions) {
 	global $zz_conf;
 
 	// check for 'values'
@@ -226,9 +226,9 @@ function zz_conditions_record($zz, $zz_conditions, $id_value) {
 	
 	// check if there are any bool-conditions
 	if (!empty($zz_conditions['bool'])) {
-		zz_conditions_merge_conf($zz, $zz_conditions['bool'], $id_value);
+		zz_conditions_merge_conf($zz, $zz_conditions['bool'], $zz_conf['int']['id']['value']);
 		foreach (array_keys($zz['fields']) as $no) {
-			zz_conditions_merge_field($zz['fields'][$no], $zz_conditions['bool'], $id_value);
+			zz_conditions_merge_field($zz['fields'][$no], $zz_conditions['bool'], $zz_conf['int']['id']['value']);
 		}
 	}
 	return $zz;
@@ -369,7 +369,7 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 					if (zz_error_exit()) return zz_return($zz_conditions); // DB error
 				}
 			}
-			if (empty($zz_var['id']['value'])) break;
+			if (empty($zz_conf['int']['id']['value'])) break;
 
 			$sql = isset($zz['sqlrecord']) ? $zz['sqlrecord'] : $zz['sql'];
 			// for performance, remove force index
@@ -379,12 +379,12 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 			if (!empty($condition['having']))
 				$sql = wrap_edit_sql($sql, 'HAVING', $condition['having']);
 			else
-				$sql = wrap_edit_sql($sql, 'SELECT', $zz['table'].'.'.$zz_var['id']['field_name'], 'replace');
+				$sql = wrap_edit_sql($sql, 'SELECT', $zz['table'].'.'.$zz_conf['int']['id']['field_name'], 'replace');
 			// just get this single record
 			$sql = wrap_edit_sql($sql, 'WHERE', sprintf(
-				'`%s`.`%s` = %d', $zz['table'], $zz_var['id']['field_name'], $zz_var['id']['value']
+				'`%s`.`%s` = %d', $zz['table'], $zz_conf['int']['id']['field_name'], $zz_conf['int']['id']['value']
 			));
-			$lines = zz_db_fetch($sql, $zz_var['id']['field_name'], 'id as key', 'record-list ['.$index.']');
+			$lines = zz_db_fetch($sql, $zz_conf['int']['id']['field_name'], 'id as key', 'record-list ['.$index.']');
 			if (zz_error_exit()) return zz_return($zz_conditions); // DB error
 			if (empty($zz_conditions['bool'][$index]))
 				$zz_conditions['bool'][$index] = $lines;
@@ -393,10 +393,10 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 			break;
 		case 'query': // just for form view (of saved records), for list view will be later in zz_list()
 			$zz_conditions['bool'][$index] = [];
-			if (empty($zz_var['id']['value'])) break;
+			if (empty($zz_conf['int']['id']['value'])) break;
 
 			$sql = wrap_edit_sql($condition['sql'], 'WHERE', sprintf(
-				'%s = %d', $condition['key_field_name'], $zz_var['id']['value']
+				'%s = %d', $condition['key_field_name'], $zz_conf['int']['id']['value']
 			));
 			$lines = zz_db_fetch($sql, $condition['key_field_name'], 'id as key', 'query ['.$index.']');
 			if (zz_error_exit()) return zz_return($zz_conditions); // DB error
@@ -418,7 +418,7 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 			} else {
 				$sql = isset($zz['sqlrecord']) ? $zz['sqlrecord'] : $zz['sql'];
 				$sql = wrap_edit_sql($sql, 'WHERE', sprintf(
-					'%s.%s = %d', $zz['table'], $zz_var['id']['field_name'], $zz_var['id']['value']
+					'%s.%s = %d', $zz['table'], $zz_conf['int']['id']['field_name'], $zz_conf['int']['id']['value']
 				));
 				$line = zz_db_fetch($sql, '', '', 'value/1 ['.$index.']');
 				if (zz_error_exit()) return zz_return($zz_conditions); // DB error
@@ -427,7 +427,7 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 						$value = $line[$condition['field_name']];
 					} elseif (isset($zz['sqlextra'])) {
 						foreach ($zz['sqlextra'] as $sql) {
-							$sql = sprintf($sql, $zz_var['id']['value']);
+							$sql = sprintf($sql, $zz_conf['int']['id']['value']);
 							$line = zz_db_fetch($sql, '', '', 'value/1b ['.$index.']');
 							if (isset($line[$condition['field_name']])) {
 								$value = $line[$condition['field_name']];
@@ -489,11 +489,11 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 			break;
 		case 'access':
 			// get access rights for current ID with user function
-			if (empty($zz_var['id']['value'])) {
+			if (empty($zz_conf['int']['id']['value'])) {
 				$zz_conditions['bool'][$index] = [];
 				break;
 			}
-			$zz_conditions['bool'][$index] = $condition['function']([$zz_var['id']['value']], $condition);
+			$zz_conditions['bool'][$index] = $condition['function']([$zz_conf['int']['id']['value']], $condition);
 			break;
 		case 'subrecord': // ignore here
 		default:
@@ -528,7 +528,7 @@ function zz_conditions_subrecord_check($zz, $zz_tab, $zz_conditions) {
 				if (!empty($condition['where'])) {
 					if (!empty($condition['where_with_main_id'])) {
 						// this reduces the length of the list of IDs returned by database
-						$condition['where'] = sprintf($condition['where'], $zz_tab[0][0]['id']['value']);
+						$condition['where'] = sprintf($condition['where'], $zz_conf['int']['id']['value']);
 					}
 					$sql = wrap_edit_sql($tab['sql'], 'WHERE', $condition['where']);
 					if (!empty($tab['hierarchy']['id_field_name'])) {
@@ -723,7 +723,6 @@ function zz_conditions_merge_conf(&$conf, $bool_conditions, $record_id) {
  * 
  * @param array $zz (table definition)
  * @param array $zz_conditions (existing conditions from zz_conditions_record_check)
- * @param string $id_field (record ID field name)
  * @param array $ids (record IDs)
  * @param string $mode ($ops['mode'])
  * @global array $zz_conf
@@ -732,13 +731,13 @@ function zz_conditions_merge_conf(&$conf, $bool_conditions, $record_id) {
  *		=> true, ..., $record IDn => true] or true = all true // false = fall false
  * @see zz_conditions_record_check()
  */
-function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids, $mode) {
+function zz_conditions_list_check($zz, $zz_conditions, $ids, $mode) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if (empty($zz['conditions'])) return zz_return($zz_conditions);
 
 	// improve database performace, for this query we only need ID field
-	$zz['sql_without_limit'] = wrap_edit_sql($zz['sql_without_limit'], 'SELECT', $zz['table'].'.'.$id_field, 'replace');
+	$zz['sql_without_limit'] = wrap_edit_sql($zz['sql_without_limit'], 'SELECT', $zz['table'].'.'.$zz_conf['int']['id']['field_name'], 'replace');
 	// get rid of ORDER BY because we don't have the fields and we don't need it
 	$zz['sql_without_limit'] = wrap_edit_sql($zz['sql_without_limit'], 'ORDER BY', ' ', 'delete');
 	$zz['sql_without_limit'] = wrap_edit_sql($zz['sql_without_limit'], 'FORCE INDEX', ' ', 'delete');
@@ -766,9 +765,9 @@ function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids, $mode) {
 				// not sure if WHERE .. IN () is slowing things down with
 				// a big number of IDs
 				// this restriction might be removed in later versions of zzform
-				$sql = wrap_edit_sql($sql, 'WHERE', '`'.$zz['table'].'`.'.$id_field.' IN ('.implode(',', $ids).')');
+				$sql = wrap_edit_sql($sql, 'WHERE', '`'.$zz['table'].'`.'.$zz_conf['int']['id']['field_name'].' IN ('.implode(',', $ids).')');
 			}
-			$lines = zz_db_fetch($sql, $id_field, 'id as key', 'list-record ['.$index.']');
+			$lines = zz_db_fetch($sql, $zz_conf['int']['id']['field_name'], 'id as key', 'list-record ['.$index.']');
 			if (zz_error_exit()) return zz_return($zz_conditions); // DB error
 			$zz_conditions['bool'][$index] = $lines;
 			break;
@@ -795,7 +794,7 @@ function zz_conditions_list_check($zz, $zz_conditions, $id_field, $ids, $mode) {
 			if (!empty($zz['sqlcount'])) {
 				$total_rows = zz_sql_count_rows($zz['sqlcount']);
 			} else {
-				$total_rows = zz_sql_count_rows($zz['sql'], $zz['table'].'.'.$id_field);
+				$total_rows = zz_sql_count_rows($zz['sql'], $zz['table'].'.'.$zz_conf['int']['id']['field_name']);
 			}
 			if (!$total_rows) {
 				$zz_conditions['bool'][$index] = true;

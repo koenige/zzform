@@ -59,11 +59,9 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	// if q modify $zz['sql']: add search query
 	if (!empty($_GET['q']) AND $zz_conf['search']) {
 		$old_sql = $zz['sql'];
-		$zz['sql'] = zz_search_sql($zz['fields_in_list'], $zz['sql'], $zz['table'], $zz_var['id']['field_name']);
+		$zz['sql'] = zz_search_sql($zz['fields_in_list'], $zz['sql'], $zz['table']);
 		if ($old_sql !== $zz['sql']) $zz['sqlcount'] = '';
 	}
-
-	$id_field = $zz_var['id']['field_name'];
 
 	if ($zz_conf['int']['list_access']) {
 		$zz_conf = array_merge($zz_conf, $zz_conf['int']['list_access']);
@@ -87,7 +85,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	if ($old_sql !== $zz['sql']) $zz['sqlcount'] = '';
 	if (!$zz['sql']) return zz_return([$ops, $zz_var]);
 
-	list($lines, $ops['records_total']) = zz_list_query($zz, $id_field);
+	list($lines, $ops['records_total']) = zz_list_query($zz);
 	// save total rows in zz_var for use in zz_nice_title()
 	$zz_var['limit_total_rows'] = $ops['records_total'];
 	if (zz_error_exit()) return zz_return([$ops, $zz_var]);
@@ -124,7 +122,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 
 	// Check all conditions whether they are true;
 	if (!empty($zz_conf['modules']['conditions'])) {
-		$zz_conditions = zz_conditions_list_check($zz, $zz_conditions, $id_field, array_keys($lines), $ops['mode']);
+		$zz_conditions = zz_conditions_list_check($zz, $zz_conditions, array_keys($lines), $ops['mode']);
 		if (zz_error_exit()) return zz_return([$ops, $zz_var]);
 	}
 
@@ -134,7 +132,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	list($zz['fields_in_list'], $lines) = zz_list_inline($zz['fields_in_list'], $lines);
 	if ($zz_conf['int']['show_list']) {
 		list($table_defs, $zz['fields_in_list']) = zz_list_defs(
-			$lines, $zz_conditions, $zz['fields_in_list'], $zz['table'], $id_field, $ops['mode']
+			$lines, $zz_conditions, $zz['fields_in_list'], $zz['table'], $ops['mode']
 		);
 	}
 	// remove first dummy array
@@ -359,13 +357,12 @@ function zz_list_inline($fields, $lines) {
  * @param array $zz_conditions
  * @param array $fields_in_list ($zz['fields'])
  * @param string $table ($zz['table'])
- * @param string $id_field ($zz_var['id']['field_name'])
  * @param string $mode ($ops['mode'])
  * @return array
  *		- array $table_defs
  *		- array $fields_in_list
  */
-function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $id_field, $mode) {
+function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $mode) {
 	global $zz_conf;
 
 	$conditions_applied = false; // check if there are any conditions
@@ -387,7 +384,7 @@ function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $id_field
 			$my_bool_conditions = $zz_conditions['bool'];
 		}
 		foreach (array_keys($line_defs[$index]) as $fieldindex) {
-			if (!isset($line[$id_field])) {
+			if (!isset($line[$zz_conf['int']['id']['field_name']])) {
 				if ($index !== 0) continue;
 				// header
 				$applied = zz_conditions_merge_field(
@@ -395,7 +392,7 @@ function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $id_field
 				);
 			} else {
 				$applied = zz_conditions_merge_field(
-					$line_defs[$index][$fieldindex], $my_bool_conditions, $line[$id_field]
+					$line_defs[$index][$fieldindex], $my_bool_conditions, $line[$zz_conf['int']['id']['field_name']]
 				);
 			}
 			if ($applied) $conditions_applied = true;
@@ -592,7 +589,6 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_var, $zz_conditions, 
 	$z = 0;
 	//$group_hierarchy = false; // see below, hierarchical grouping
 	$lastline = false;
-	$id_field = $zz_var['id']['field_name'];
 
 	// prepare content of subrecords ahead, because they have to be
 	// queried together from the database
@@ -606,12 +602,12 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_var, $zz_conditions, 
 	foreach ($first_row as $fieldindex => $field) {
 		// Apply conditions
 		if (!empty($zz_conf['modules']['conditions']) AND !empty($zz_conditions['bool'])) {
-			zz_conditions_merge_field($field, $zz_conditions['bool'], $line[$id_field]);
+			zz_conditions_merge_field($field, $zz_conditions['bool'], $line[$zz_conf['int']['id']['field_name']]);
 		}
 		if ($field['type'] !== 'subtable') continue;
 		if (empty($field['subselect']['sql'])) continue;
 
-		$subselect = zz_list_init_subselects($field, $fieldindex, $id_field);
+		$subselect = zz_list_init_subselects($field, $fieldindex);
 		if ($subselect) $subselects[] = $subselect;
 		if (empty($line[$subselect['key_fieldname']])) {
 			zz_error_log([
@@ -628,12 +624,12 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_var, $zz_conditions, 
 	// $rows[$z][0]['class'] = [];
 	foreach ($lines as $index => $line) {
 		$rows[$z]['index'] = $index;
-		if ($id_field) {
-			$rows[$z]['id_value'] = $id = $line[$id_field];
-			if ($id == $zz_var['id']['value']) {
+		if ($zz_conf['int']['id']['field_name']) {
+			$rows[$z]['id_value'] = $id = $line[$zz_conf['int']['id']['field_name']];
+			if ($id == $zz_conf['int']['id']['value']) {
 				$list['current_record'] = $z;
-			} elseif (!empty($zz_var['id']['values'])) {
-				if (in_array($id, $zz_var['id']['values'])) {
+			} elseif (!empty($zz_conf['int']['id']['values'])) {
+				if (in_array($id, $zz_conf['int']['id']['values'])) {
 					$list['current_records'][] = $z; 
 				}
 			}
@@ -662,12 +658,12 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_var, $zz_conditions, 
 		if ($list['select_multiple_records']) {
 			// checkbox for records
 			$checked = false;
-			if (!empty($zz_var['id']['values']) AND empty($list['dont_check_records'])) {
-				if (in_array($id, $zz_var['id']['values'])) $checked = true;
+			if (!empty($zz_conf['int']['id']['values']) AND empty($list['dont_check_records'])) {
+				if (in_array($id, $zz_conf['int']['id']['values'])) $checked = true;
 			}
 			$rows[$z][-1]['text'] = sprintf(
 				'<input type="checkbox" name="zz_record_id[]" value="%s"%s>',
-				$line[$id_field], ($checked ? ' checked="checked"' : '')
+				$line[$zz_conf['int']['id']['field_name']], ($checked ? ' checked="checked"' : '')
 			);
 			$rows[$z][-1]['class'][] = 'select_multiple_records';
 		}
@@ -676,9 +672,9 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_var, $zz_conditions, 
 			if ($zz_conf['modules']['debug']) zz_debug("table_query foreach ".$fieldindex);
 			// conditions
 			if (!empty($zz_conf['modules']['conditions']) AND !empty($zz_conditions['bool'])) {
-				zz_conditions_merge_field($field, $zz_conditions['bool'], $line[$id_field]);
+				zz_conditions_merge_field($field, $zz_conditions['bool'], $line[$zz_conf['int']['id']['field_name']]);
 				if (!empty($zz_conf_record['if']) OR !empty($zz_conf_record['unless'])) {
-					zz_conditions_merge_conf($zz_conf_record, $zz_conditions['bool'], $line[$id_field]);
+					zz_conditions_merge_conf($zz_conf_record, $zz_conditions['bool'], $line[$zz_conf['int']['id']['field_name']]);
 					$zz_conf_record = zz_listandrecord_access($zz_conf_record);
 					if (!isset($zz_conf_record['add_link']))
 						// Link Add new ...
@@ -735,7 +731,7 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_var, $zz_conditions, 
 		if ($rows[$z]['modes']) $list['modes'] = true; // need a table row for this
 
 		if (!empty($zz_conf_record['details'])) {
-			$rows[$z]['details'] = zz_show_more_actions($zz_conf_record, $id, $zz_var['id']['field_name'], $line);
+			$rows[$z]['details'] = zz_show_more_actions($zz_conf_record, $id, $line);
 			if ($rows[$z]['modes']) {
 				// we need a table row for this
 				$list['details'] = true;
@@ -1165,18 +1161,17 @@ function zz_list_filter_invalid() {
  *		string 'sqlorder'
  * 		string 'table' name of database table ($zz['table'])
  * 		array 'fields_in_list' list of fields ($zz['fields_in_list'])
- * @param string $id_field ($zz_var['id']['field_name'])
  * @global array $zz_conf
  * @return array (array $lines, int $total_rows)
  */
-function zz_list_query($zz, $id_field) {
+function zz_list_query($zz) {
 	global $zz_conf;
 
 	if (!isset($zz['sqlextra'])) $zz['sqlextra'] = [];
 	if (!empty($zz['sqlcount'])) {
 		$total_rows = zz_sql_count_rows($zz['sqlcount']);
 	} else {
-		$total_rows = zz_sql_count_rows($zz['sql'], $zz['table'].'.'.$id_field);
+		$total_rows = zz_sql_count_rows($zz['sql'], $zz['table'].'.'.$zz_conf['int']['id']['field_name']);
 	}
 	if (!$total_rows) return [[], 0];
 	zz_list_limit_last($total_rows);
@@ -1187,9 +1182,9 @@ function zz_list_query($zz, $id_field) {
 	$zz['sql'] = zz_sql_order($zz['fields_in_list'], $zz['sql']);
 
 	if (empty($zz['list']['hierarchy'])) {
-		return [zz_list_query_flat($zz, $id_field), $total_rows];
+		return [zz_list_query_flat($zz), $total_rows];
 	} else {
-		return zz_list_query_hierarchy($zz, $id_field);
+		return zz_list_query_hierarchy($zz);
 	}
 }
 
@@ -1197,11 +1192,10 @@ function zz_list_query($zz, $id_field) {
  * Query records for list view, flat mode
  *
  * @param string $sql SQL query ($zz['sql'])
- * @param string $id_field ($zz_var['id']['field_name'])
  * @global array $zz_conf
  * @return array $lines
  */
-function zz_list_query_flat($zz, $id_field) {
+function zz_list_query_flat($zz) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
@@ -1214,12 +1208,12 @@ function zz_list_query_flat($zz, $id_field) {
 	}
 
 	// read rows from database
-	if ($id_field) {
-		$lines = zz_db_fetch($zz['sql'], $id_field);
+	if ($zz_conf['int']['id']['field_name']) {
+		$lines = zz_db_fetch($zz['sql'], $zz_conf['int']['id']['field_name']);
 	} else {
 		$lines = zz_db_fetch($zz['sql'], '_dummy_', 'numeric');
 	}
-	$lines = zz_list_query_extras($lines, $id_field, $zz['sqlextra']);
+	$lines = zz_list_query_extras($lines, $zz['sqlextra']);
 	if (!empty($zz['sql_translate'])) {
 		$lines = zz_translate($zz, $lines);
 	}
@@ -1230,18 +1224,17 @@ function zz_list_query_flat($zz, $id_field) {
  * Query extra fields
  *
  * @param array $lines
- * @param string $id_field
  * @param array $extra_sqls
  * @return array $lines
  */
-function zz_list_query_extras($lines, $id_field, $extra_sqls) {
+function zz_list_query_extras($lines, $extra_sqls) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	if (!$extra_sqls) return $lines;
 	foreach ($extra_sqls as $sql) {
 		$sql = sprintf($sql, implode(',', array_keys($lines)));
-		$extras = zz_db_fetch($sql, $id_field);
+		$extras = zz_db_fetch($sql, $zz_conf['int']['id']['field_name']);
 		foreach ($extras as $id => $fields) {
 			$lines[$id] = array_merge($lines[$id], $fields);
 		}
@@ -1253,15 +1246,14 @@ function zz_list_query_extras($lines, $id_field, $extra_sqls) {
  * Query records for list view, flat mode
  *
  * @param array $zz
- * @param string $id_field ($zz_var['id']['field_name'])
  * @global array $zz_conf
  * @return array array $lines, $total_rows
  */
-function zz_list_query_hierarchy($zz, $id_field) {
+function zz_list_query_hierarchy($zz) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
-	$zz['list']['hierarchy']['id_field_name'] = $id_field;
+	$zz['list']['hierarchy']['id_field_name'] = $zz_conf['int']['id']['field_name'];
 	list($my_lines, $total_rows) = zz_hierarchy($zz['sql'], $zz['list']['hierarchy']);
 	if ($zz_conf['int']['this_limit'] - $zz_conf['limit'] >= $total_rows) {
 		$zz_conf['int']['http_status'] = 404;
@@ -1280,27 +1272,27 @@ function zz_list_query_hierarchy($zz, $id_field) {
 		}
 		foreach (range($start, $end) as $index) {
 			if (!empty($my_lines[$index])) 
-				$lines[$my_lines[$index][$id_field]] = $my_lines[$index];
+				$lines[$my_lines[$index][$zz_conf['int']['id']['field_name']]] = $my_lines[$index];
 		}
 		// for performance reasons, we didn't save the full result set,
 		// so we have to requery it again.
 		if ($zz_conf['int']['this_limit'] !== '') {
-			$zz['sql'] = wrap_edit_sql($zz['sql'], 'WHERE', '`'.$zz['table'].'`.'.$id_field
+			$zz['sql'] = wrap_edit_sql($zz['sql'], 'WHERE', '`'.$zz['table'].'`.'.$zz_conf['int']['id']['field_name']
 				.' IN ('.implode(',', array_keys($lines)).')');
 		} // else sql remains same
-		$lines = zz_array_merge($lines, zz_db_fetch($zz['sql'], $id_field));
+		$lines = zz_array_merge($lines, zz_db_fetch($zz['sql'], $zz_conf['int']['id']['field_name']));
 	}
 	foreach ($lines as $line) {
 		if (empty($line['zz_hidden_line'])) continue;
 		// get record which is normally beyond our scope via ID
 		$zz['sql'] = wrap_edit_sql($zz['sql'], 'WHERE', 'nothing', 'delete');
-		$zz['sql'] = wrap_edit_sql($zz['sql'], 'WHERE', '`'.$zz['table'].'`.'.$id_field.' = "'.$line[$id_field].'"');
+		$zz['sql'] = wrap_edit_sql($zz['sql'], 'WHERE', '`'.$zz['table'].'`.'.$zz_conf['int']['id']['field_name'].' = "'.$line[$zz_conf['int']['id']['field_name']].'"');
 		$line = zz_db_fetch($zz['sql']);
 		if ($line) {
-			$lines[$line[$id_field]] = array_merge($lines[$line[$id_field]], $line);
+			$lines[$line[$zz_conf['int']['id']['field_name']]] = array_merge($lines[$line[$zz_conf['int']['id']['field_name']]], $line);
 		}
 	}
-	$lines = zz_list_query_extras($lines, $id_field, $zz['sqlextra']);
+	$lines = zz_list_query_extras($lines, $zz['sqlextra']);
 	if (!empty($zz['sql_translate'])) {
 		$lines = zz_translate($zz, $lines);
 	}
@@ -2252,12 +2244,13 @@ function zz_list_th($field, $mode = 'html') {
  *
  * @param array $field
  * @param int $fieldindex no. of field where content appears in list
- * @param string $table_id_field_name
  * @return array
  *	- string key_field_name
  *	- array subselect definition
  */
-function zz_list_init_subselects($field, $fieldindex, $table_id_field_name) {
+function zz_list_init_subselects($field, $fieldindex) {
+	global $zz_conf;
+
 	$subselect = $field['subselect'];
 	$foreign_key_field = [];
 	$translation_key_field = [];
@@ -2271,7 +2264,7 @@ function zz_list_init_subselects($field, $fieldindex, $table_id_field_name) {
 	// get field name of foreign key
 	$subselect['id_field_name'] = $foreign_key_field['field_name'];
 	if ($translation_key_field) {
-		$subselect['key_fieldname'] = $table_id_field_name;
+		$subselect['key_fieldname'] = $zz_conf['int']['id']['field_name'];
 		$subselect['translation_key'] = $translation_key_field['translation_key'];
 	} else { // $foreign_key_field
 		// if main field name and foreign field name differ, use main ID

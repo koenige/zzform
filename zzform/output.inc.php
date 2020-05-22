@@ -195,11 +195,11 @@ function zz_nice_headings($heading, $zz, $where_condition = []) {
  * 	- bool 'referer'
  *  - string 'sql'
  * @param int $id
- * @param string $id_field_name
  * @param array $line
  * @return string HTML output of all detail links
  */
-function zz_show_more_actions($conf, $id, $id_field_name, $line) {
+function zz_show_more_actions($conf, $id, $line) {
+	global $zz_conf;
 	static $error; // @deprecated
 
 	if (!function_exists('forceFilename')) {
@@ -264,13 +264,13 @@ function zz_show_more_actions($conf, $id, $id_field_name, $line) {
 				$detail = ['title' => $detail];
 			if (empty($detail['link'])) {
 				$detail['link'] = [
-					'string' => sprintf('%s?where[%s]=', strtolower(forceFilename($detail['title'])), $id_field_name),
-					'field' => $id_field_name
+					'string' => sprintf('%s?where[%s]=', strtolower(forceFilename($detail['title'])), $zz_conf['int']['id']['field_name']),
+					'field' => $zz_conf['int']['id']['field_name']
 				];
 			} elseif (!is_array($detail['link'])) {
 				$detail['link'] = [
 					'string' => $detail['link'],
-					'field' => $id_field_name
+					'field' => $zz_conf['int']['id']['field_name']
 				];
 			}
 			$target = !empty($detail['target']) ? sprintf(' target="%s"', $detail['target']) : '';
@@ -289,13 +289,13 @@ function zz_show_more_actions($conf, $id, $id_field_name, $line) {
  *
  * @param string $result ($ops['result'])
  * @param array $return ($ops['return'])
- * @param int $id_value ($zz_var['id']['value'])
  * @param array $zz_tab
  * @global array $zz_conf
  * @return bool false if nothing was done (redirect otherwise)
  */
-function zz_output_redirect($result, $return, $id_value, $zz_tab) {
+function zz_output_redirect($result, $return, $zz_tab) {
 	global $zz_conf;
+
 	if (!empty($zz_conf['redirect'][$result])) {
 		if ($zz_conf['modules']['debug'] AND $zz_conf['debug_time']) {
 			zz_debug_time($return);
@@ -315,6 +315,7 @@ function zz_output_redirect($result, $return, $id_value, $zz_tab) {
 	// don't do so in case of debugging
 		// multiple edit?
 		$nos = '';
+		$id_value = $zz_conf['int']['id']['value'];
 		if (is_array($id_value)) {
 			$nos = '-'.count($id_value);
 			$id_value = implode(',', $id_value);
@@ -334,7 +335,7 @@ function zz_output_redirect($result, $return, $id_value, $zz_tab) {
 			if (!empty($zz_conf['redirect_to_referer_zero_records'])
 				AND !empty($zz_conf['int']['referer']['path'])) {
 				// redirect to referer if there are no records in list
-				$id_field_name = $zz_tab[0]['table'].'.'.$zz_tab[0][0]['id']['field_name'];
+				$id_field_name = $zz_tab[0]['table'].'.'.$zz_conf['int']['id']['field_name'];
 				if (!empty($_GET['nolist']) OR !zz_sql_count_rows($zz_tab[0]['sql'], $id_field_name)) {
 					if (empty($zz_conf['int']['referer']['scheme'])) {
 						$self = $zz_conf['int']['url']['base'];
@@ -431,7 +432,7 @@ function zz_nice_title($heading, $fields, $zz_var, $mode = false) {
 	if (!empty($zz_conf['int']['where_with_unique_id'])) $show_id = false;
 	if ($show_id) {
 		$title .= $zz_conf['title_separator'].zz_text($mode)
-			.($zz_var['id']['value'] ? ': ID '.$zz_var['id']['value'] : '');
+			.($zz_conf['int']['id']['value'] ? ': ID '.$zz_conf['int']['id']['value'] : '');
 	}
 
 	return $title;
