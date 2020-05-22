@@ -34,12 +34,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	if ($zz_conf['search']) {
-		if (file_exists($zz_conf['dir_inc'].'/search.inc.php')) {
-			require_once $zz_conf['dir_inc'].'/search.inc.php';
-		} else {
-			zz_error_log(['msg_dev' => 'Search module was not found.']);
-			$zz_conf['search'] = false;
-		}
+		require_once $zz_conf['dir_inc'].'/search.inc.php';
 	}
 
 	// Turn off hierarchical sorting when using search
@@ -604,7 +599,7 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_var, $zz_conditions, 
 		if (!empty($zz_conf['modules']['conditions']) AND !empty($zz_conditions['bool'])) {
 			zz_conditions_merge_field($field, $zz_conditions['bool'], $line[$zz_conf['int']['id']['field_name']]);
 		}
-		if ($field['type'] !== 'subtable') continue;
+		if ($field AND $field['type'] !== 'subtable') continue;
 		if (empty($field['subselect']['sql'])) continue;
 
 		$subselect = zz_list_init_subselects($field, $fieldindex);
