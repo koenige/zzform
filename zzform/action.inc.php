@@ -861,7 +861,6 @@ function zz_action_change($ops, $zz_tab, $change) {
 			}
 			$zz_tab[$tab][$rec]['was_validated'] = false;
 			if (!empty($change['no_check_select_fields'][$index])) {
-				echo wrap_print($change['no_check_select_fields'][$index]);
 				foreach ($change['no_check_select_fields'][$index] as $field_name) {
 					$key = array_search($field_name, $zz_tab[$tab][$rec]['check_select_fields']);
 					if ($key !== false)
