@@ -589,11 +589,7 @@ function zz_initialize($mode = false, $old_conf = []) {
 	zz_set_id();
 
 	// Configuration on project level: Core defaults and functions
-	$default['character_set']	= 'utf-8';					// character set
-	$default['dir_custom']		= $zz_conf['dir'].'/local';
-	$default['dir_inc']			= $zz_conf['dir'].'/inc';
 	$default['generate_output']	= true;
-	$default['error_mail_level']	= ['error', 'warning', 'notice'];
 	$default['int_modules'] 	= ['debug', 'validate'];
 	zz_write_conf($default);
 	
@@ -636,7 +632,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['cancel_link']		= true;
 	$default['check_referential_integrity'] = true;
 	$default['copy']			= false;	// show action: copy
-	$default['decimal_point']	= '.';
 	$default['delete']			= true;	// show action: delete
 	$default['details']			= false;	// column details; links to detail records with foreign key
 	$default['details_base']	= false;
@@ -646,15 +641,8 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['details_target']	= false;	// target-window for details link
 	$default['edit']			= true;		// show Action: Edit
 
-	$default['error_handling']		= 'output';
-	$default['error_log']['error']	= ini_get('error_log');
-	$default['error_log']['notice']	= ini_get('error_log');
-	$default['error_log']['warning']	= ini_get('error_log');
 	$default['error_mail_from']		= false;
 	$default['error_mail_to']		= false;
-	$default['log_errors_max_len'] 	= ini_get('log_errors_max_len');
-	$default['log_errors'] 			= ini_get('log_errors');
-	$default['error_log_post']		= false;
 
 	$default['export']				= false;
 	$default['filter_position'] 	= 'top';
@@ -667,8 +655,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['limit_display']		= 'pages';
 	$default['limit_all_max']		= 1500;		// maximum records on one page
 	$default['list_display']		= 'table';
-	$default['logging'] 			= false;	//	if logging should occur, turned off by default 
-	$default['logging_table'] 		= '_logging';	// name of table where INSERT, DELETE and UPDATE actions will be logged
 	$default['max_detail_records']	= 20;		// max 20 detail records, might be expanded later on
 	$default['max_select_val_len']	= 60;		// maximum length of values in select
 	$default['max_select'] 			= 60;		// maximum entries in select/option, if bigger than sub-select
@@ -684,7 +670,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['redirect']['successful_update'] = false;	// redirect to diff. page after update
 	$default['redirect']['no_update'] = false;	// redirect to diff. page after update without changes
 	$default['redirect_on_change']	= true;
-	$default['relations_table'] 	= '_relations';	//	name of relations table for referential integrity
 	$default['referer_text']		= 'Back to overview';
 	$default['search'] 				= true;	// search for records possible or not
 	$default['search_form_always']	= false;
