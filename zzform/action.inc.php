@@ -2394,6 +2394,7 @@ function zz_remove_local_hostname($tempvar, $field) {
  * @todo if sequence numbers are missing, update numbers as well (optional)
  */
 function zz_sequence_normalize($ops, $zz_tab) {
+	global $zz_conf;
 	static $used_maxint_values;
 	if (empty($used_maxint_values)) $used_maxint_values = [];
 
@@ -2445,6 +2446,9 @@ function zz_sequence_normalize($ops, $zz_tab) {
 		//			require_once $zz_conf['dir_inc'].'/list.inc.php';
 		//			$sql = zz_list_filter_sql($zz_tab[$tab]['filter'], $sql, $_GET['filter']);
 		//		}
+		if ($tab) {
+			$sql =  wrap_edit_sql($sql, 'WHERE', sprintf('%s = %d', $zz_conf['int']['id']['field_name'], $zz_conf['int']['id']['value']));
+		}
 		$data = wrap_db_fetch($sql, $zz_tab[$tab][$rec]['id']['field_name']);
 		// does new sequence value already exist?
 		// then update existing and following values +/- 1
@@ -2501,7 +2505,7 @@ function zz_sequence_normalize($ops, $zz_tab) {
 		}
 
 		// update other records between old and new value, either increase or decrease
-		$sql = 'UPDATE %s SET %s = %s %s 1 WHERE %s IN (%s)';
+		$sql = 'UPDATE %s SET %s = %s %s 1 WHERE %s IN (%s) ORDER BY %s %s';
 		$sql = sprintf($sql
 			, $zz_tab[$tab]['table']
 			, $my_field['field_name']
@@ -2509,6 +2513,8 @@ function zz_sequence_normalize($ops, $zz_tab) {
 			, ($new_value AND ($new_value < $old_value OR !$old_value)) ? '+': '-'
 			, $zz_tab[$tab][$rec]['id']['field_name']
 			, implode(',', $updates)
+			, $my_field['field_name']
+			, ($new_value AND ($new_value < $old_value OR !$old_value)) ? 'DESC': 'ASC'
 		);
 		$result = zz_db_change($sql);
 	}
