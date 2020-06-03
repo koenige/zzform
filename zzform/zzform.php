@@ -298,7 +298,7 @@ function zzform($zz) {
 		foreach (array_keys($zz_tab) as $tab) {
 			foreach (array_keys($zz_tab[$tab]) as $rec) {
 				if (!is_numeric($rec)) continue;
-				$zz_tab[$tab] = zz_query_record($zz_tab[$tab], $rec, $validation, $ops['mode'], $zz_tab[0]);
+				$zz_tab[$tab] = zz_query_record($zz_tab, $tab, $rec, $validation, $ops['mode']);
 			}
 		}
 		if ($ops['mode'] === 'revise' AND $zz_tab[0][0]['action'] === 'delete') {

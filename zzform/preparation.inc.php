@@ -77,15 +77,23 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 
 	//	### put each table (if more than one) into one array of its own ###
 	foreach ($zz_var['subtables'] as $tab => $no) {
-		if (!empty($zz['fields'][$no]['hide_in_form'])) continue;
-		$zz_tab[$tab] = zz_get_subtable($zz['fields'][$no], $zz_tab[0], $tab, $no);
+		if (strstr($no, '-')) {
+			$nos = explode('-', $no);
+			$my_field = &$zz['fields'][$nos[0]]['fields'][$nos[1]];
+			$main_tab = array_search($nos[0], $zz_var['subtables']);
+		} else {
+			$my_field = &$zz['fields'][$no];
+			$main_tab = 0;
+		}
+		if (!empty($my_field['hide_in_form'])) continue;
+		$zz_tab[$tab] = zz_get_subtable($my_field, $zz_tab[$main_tab], $tab, $no);
 		if (in_array($mode, ['revise', 'show']) AND $zz_tab[$tab]['values']) {
 			// don't show values which are not saved in show-record mode
 			$zz_tab[$tab]['values'] = [];
 		}
 		if (zz_error_exit()) return [];
 		$zz_tab[$tab] = zz_get_subrecords(
-			$mode, $zz['fields'][$no], $zz_tab[$tab], $zz_tab[0], $zz_var, $tab
+			$mode, $my_field, $zz_tab, $tab, $zz_var
 		);
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
 			if (!is_numeric($rec)) continue;
@@ -142,9 +150,9 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	if ($zz_var['action'] === 'update' OR $zz_var['action'] === 'delete') {
 		if (count($zz_var['save_old_record']) && !empty($zz_tab[0][0]['existing'])) {
 			foreach ($zz_var['save_old_record'] as $no) {
-				if (empty($zz_tab[0][0]['existing'][$zz['fields'][$no]['field_name']])) continue;
-				$_POST[$zz['fields'][$no]['field_name']] 
-					= $zz_tab[0][0]['existing'][$zz['fields'][$no]['field_name']];
+				if (empty($zz_tab[0][0]['existing'][$my_field['field_name']])) continue;
+				$_POST[$my_field['field_name']] 
+					= $zz_tab[0][0]['existing'][$my_field['field_name']];
 			}
 		}
 	}
@@ -186,7 +194,7 @@ function zz_prepare_hooks($zz) {
 	$hook_found = [];
 	foreach ($zz['fields'] as $field) {
 		if (empty($field['type'])) continue;
-		if ($field['type'] === 'subtable') {
+		if (in_array($field['type'], ['subtable', 'foreign_table'])) {
 			foreach ($field['fields'] as $subfield) {
 				if (!empty($subfield['geocode'])) $hook_found['zz_geo_geocode'] = true;
 				if (empty($subfield['type'])) continue;
@@ -249,6 +257,7 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 
 	// no in $zz['fields']
 	$my_tab['no'] = $no;
+	$my_tab['type'] = $field['type'];
 
 	// SQL query
 	$my_tab['sql'] = $field['sql'];
@@ -385,15 +394,16 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
  *
  * @param string $mode ($ops['mode'])
  * @param array $field
- * @param array $my_tab = $zz_tab[$tab]
- * @param array $main_tab = $zz_tab[0]
+ * @param array $zz_tab
+ * @param int $tab = tabindex
  * @param array $zz_var
- * @param array $tab = tabindex
  * @return array $my_tab
  */
-function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
+function zz_get_subrecords($mode, $field, $zz_tab, $tab, $zz_var) {
 	global $zz_conf;
 	
+	$my_tab = $zz_tab[$tab];
+
 	if ($my_tab['subtable_ids']) {
 		$existing_ids = array_flip($my_tab['subtable_ids']);
 		foreach ($my_tab['POST'] as $rec => $my_rec) {
@@ -449,8 +459,14 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 	// remove records which have been deleted by user interaction
 	if (in_array($state, ['edit', 'delete', 'show'])) {
 		// add: no record exists so far
+		if (strstr($my_tab['no'], '-')) {
+			$no = substr($my_tab['no'], 0, strpos($my_tab['no'], '-'));
+			$id_tab = array_search($no, $zz_var['subtables']);
+		} else {
+			$id_tab = 0;
+		}
 		$existing = zz_query_subrecord(
-			$my_tab, $main_tab[0]['id']['value'],
+			$my_tab, $zz_tab[$id_tab][0]['id']['value'],
 			$rec_tpl['id']['field_name'], $my_tab['subtable_deleted']
 		);
 	} else {
@@ -459,9 +475,9 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 	if (zz_error_exit()) return $my_tab;
 	// get detail records for source_id
 	$source_values = [];
-	if ($mode === 'add' AND !empty($main_tab[0]['id']['source_value'])) {
+	if ($mode === 'add' AND !empty($zz_tab[0][0]['id']['source_value'])) {
 		$my_tab['POST'] = zz_query_subrecord(
-			$my_tab, $main_tab[0]['id']['source_value'],
+			$my_tab, $zz_tab[0][0]['id']['source_value'],
 			$rec_tpl['id']['field_name'], $my_tab['subtable_deleted']
 		);
 		if (zz_error_exit()) return $my_tab;
@@ -500,8 +516,8 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 		$sql = $my_tab['sql'];
 		$sql = wrap_edit_sql($sql, 'WHERE', $my_tab['hierarchy']['id_field_name']
 			.' IN ('.implode(',', $ids).')');
-		$sql = wrap_edit_sql($sql, 'WHERE', $main_tab[0]['id']['field_name']
-			.' = '.$main_tab[0]['id']['value'].' OR ISNULL('.$main_tab[0]['id']['field_name'].')');
+		$sql = wrap_edit_sql($sql, 'WHERE', $zz_tab[0][0]['id']['field_name']
+			.' = '.$zz_tab[0][0]['id']['value'].' OR ISNULL('.$zz_tab[0][0]['id']['field_name'].')');
 		$records = zz_db_fetch($sql, $my_tab['hierarchy']['id_field_name']);
 		$existing = [];
 		foreach ($ids as $id) {
@@ -554,7 +570,7 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 			$key = $start_new_recs;
 			$existing[$key] = []; // no existing record exists
 			// get source_value key
-			if ($mode === 'add' AND !empty($main_tab[0]['id']['source_value'])) {
+			if ($mode === 'add' AND !empty($zz_tab[0][0]['id']['source_value'])) {
 				$my_tab['source_values'][$key] = $source_values[$rec];
 			}
 			$start_new_recs++;
@@ -1120,8 +1136,9 @@ function zz_check_def_vals($post, $fields, $existing = [], $where = []) {
  * if everything was successful, query record (except in case it was deleted)
  * if not, write POST values back into form
  *
- * @param array $my_tab complete zz_tab[$tab] array
- * @param int $rec Number of detail record
+ * @param array $zz_tab
+ * @param int $tab number of table
+ * @param int $rec number of detail record
  * @param bool $validation true/false
  * @param string $mode ($ops['mode'])
  * @return array $zz_tab[$tab]
@@ -1129,9 +1146,10 @@ function zz_check_def_vals($post, $fields, $existing = [], $where = []) {
  *		$zz_tab[$tab][$rec]['record'], $zz_tab[$tab][$rec]['record_saved'], 
  *		$zz_tab[$tab][$rec]['fields'], $zz_tab[$tab][$rec]['action']
  */
-function zz_query_record($my_tab, $rec, $validation, $mode, $main_tab) {
+function zz_query_record($zz_tab, $tab, $rec, $validation, $mode) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	$my_tab = $zz_tab[$tab];
 	$my_rec = &$my_tab[$rec];
 	$table = $my_tab['table'];
 	// detail records don't have 'extra'
@@ -1217,8 +1235,8 @@ function zz_query_record($my_tab, $rec, $validation, $mode, $main_tab) {
 		}
 	}
 	// revision?
-	if ($mode === 'revise' AND !empty($main_tab['revision_id'])) {
-		$my_tab = zz_revisisons_read_data($my_tab, $main_tab['revision_id']);
+	if ($mode === 'revise' AND !empty($zz_tab[0]['revision_id'])) {
+		$my_tab = zz_revisisons_read_data($my_tab, $zz_tab[0]['revision_id']);
 	}
 	zz_log_validation_errors($my_rec, $validation);
 	return zz_return($my_tab);
@@ -1288,8 +1306,7 @@ function zz_log_validation_errors($my_rec, $validation) {
 	$somelogs = !empty($my_rec['validation_error_logged']) ? $my_rec['validation_error_logged'] : false;
 	
 	foreach ($my_rec['fields'] as $no => $field) {
-		if ($field['type'] === 'password_change') continue;
-		if ($field['type'] === 'subtable') continue;
+		if (in_array($field['type'], ['password_change', 'subtable', 'foreign_table'])) continue;
 		if (!empty($field['mark_reselect'])) {
 			// oh, it's a reselect, add some validation message
 			zz_log_reselect_errors($field['title'], $field['type']);

@@ -314,8 +314,12 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			continue;
 		}
 		
-		if (!$sql_edit) $sql_edit = $me_sql;
-		else 			$detail_sqls[$tab][$rec] = $me_sql;
+		if (!$sql_edit)
+			$sql_edit = $me_sql;
+		elseif ($zz_tab[$tab]['type'] === 'foreign_table')
+			$foreign_sqls[$tab][$rec] = $me_sql;
+		else
+			$detail_sqls[$tab][$rec] = $me_sql;
 	}
 	// ### Perform database query and additional actions ###
 	
@@ -406,6 +410,20 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 				}
 			}
 	}
+	
+	// 4. foreign IDs?
+	$foreign_ids = ['[FOREIGN_KEY]' => sprintf('%d', $zz_conf['int']['id']['value'])]; 
+	if ($zz_tab[0][0]['action'] === 'insert' AND isset($foreign_sqls)) {
+		foreach ($foreign_sqls as $tab => $foreign_sql) {
+			$result = zz_db_change($foreign_sql[0], $zz_tab[$tab][0]['id']['value']);
+			if ($result['action']) {
+				$foreign_ids['[FOREIGN_KEY_'.$zz_tab[$tab]['no'].']'] = $result['id_value'];
+			}
+		}
+		foreach ($foreign_ids as $key => $value) {
+			$sql_edit = str_replace($key, $value, $sql_edit);
+		}
+	}
 
 	if ($zz_conf['modules']['debug'] AND $zz_conf['debug']) {
 		$ops['output'].= '<br>';
@@ -430,7 +448,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		$zz_tab[0]['record_action'] = true;
 		if (isset($detail_sqls)) {
 			list($zz_tab, $validation, $ops) 
-				= zz_action_details($detail_sqls, $zz_tab, $validation, $ops);
+				= zz_action_details($detail_sqls, $zz_tab, $validation, $ops, $foreign_ids);
 		}
 		zz_action_last_update($zz_tab, $result['action']);
 
@@ -531,8 +549,7 @@ function zz_action_equals($my_rec) {
 	$equal = true; // old and new record are said to be equal
 
 	foreach ($my_rec['fields'] as $field) {
-		if ($field['type'] === 'subtable') continue;
-		if ($field['type'] === 'id') continue;
+		if (in_array($field['type'], ['id', 'subtable', 'foreign_table'])) continue;
 		if (!$field['in_sql_query']) continue;
 
 		// check if field values are different to existing record
@@ -623,18 +640,21 @@ function zz_action_equals($my_rec) {
  * @param array $zz_tab
  * @param bool $validation
  * @param array $ops
+ * @param array $foreign_ids: pairs of [FOREIGN_KEY] = ID
  * @global array $zz_conf
  * @return array
  *		$zz_tab, $validation, $ops
  */
-function zz_action_details($detail_sqls, $zz_tab, $validation, $ops) {
+function zz_action_details($detail_sqls, $zz_tab, $validation, $ops, $foreign_ids) {
 	global $zz_conf;
 	
 	foreach (array_keys($detail_sqls) as $tab) {
 		foreach (array_keys($detail_sqls[$tab]) as $rec) {
 			$my_rec = $zz_tab[$tab][$rec];
 			$sql = $detail_sqls[$tab][$rec];
-			$sql = str_replace('[FOREIGN_KEY]', sprintf('%d', $zz_conf['int']['id']['value']), $sql);
+			foreach ($foreign_ids as $key => $value) {
+				$sql = str_replace($key, $value, $sql);
+			}
 			if (!empty($zz_tab[$tab]['detail_key'])) {
 				// @todo allow further detail keys
 				// if not all files where uploaded, go up one detail record until
@@ -961,6 +981,7 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 		}
 		// check if something was posted and write it down in $values
 		// so we know later, if this record should be added
+		if ($field['type'] === 'subtable') continue;
 		if (!isset($my_tab[$rec]['POST'][$field['field_name']])) continue;
 		$fvalues = $my_tab[$rec]['POST'][$field['field_name']];
 		// some fields will always be ignored since there is no user input
@@ -1145,7 +1166,11 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 
 		switch ($field['type']) {
 		case 'foreign_key':
-			$my_rec['POST_db'][$field_name] = '[FOREIGN_KEY]';
+			$sno = strstr($field['subtable_no'], '-') ? '_'.substr($field['subtable_no'], 0, strpos($field['subtable_no'], '-')): '';
+			$my_rec['POST_db'][$field_name] = '[FOREIGN_KEY'.$sno.']';
+			break;
+		case 'foreign_id':
+			$my_rec['POST_db'][$field_name] = '[FOREIGN_KEY_'.$field['foreign_id_field'].']';
 			break;
 		case 'detail_key':
 			$my_rec['POST_db'][$field_name] = '[DETAIL_KEY]';
@@ -1162,6 +1187,7 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 		case 'id':
 		case 'foreign':
 		case 'subtable':
+		case 'foreign_table':
 		case 'display':
 		case 'option':
 		case 'write_once':
@@ -1515,6 +1541,8 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			} else
 				$my_rec['POST'][$field_name] = "''";
 			break;
+		case 'foreign_id':
+			continue 2;
 		case 'ipv4':
 			//	convert ipv4 address to long
 			if ($my_rec['POST'][$field_name])
@@ -1738,6 +1766,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 		case 'image':
 		case 'foreign':
 		case 'subtable':
+		case 'foreign_table':
 		case 'list_function':
 			//	remove entries which are for display only
 			// 	or will be processed somewhere else

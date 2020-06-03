@@ -1010,6 +1010,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			$fields[$no]['class'][] = 'hyphenate';
 			break;
 		case 'subtable':
+		case 'foreign_table':
 			if (empty($fields[$no]['subselect']) AND !isset($fields[$no]['export'])) {
 				// subtables have no output by default unless there is a subselect
 				// definition; however in rare cases (e. g. with a condition set)
@@ -1024,7 +1025,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			}
 			$fields[$no]['fields'] = zz_fill_out(
 				$fields[$no]['fields'], $fields[$no]['table'], $multiple_times,
-				$mode, $action, $no
+				$mode, $action, !empty($fields[$no]['subtable_no']) ? $fields[$no]['subtable_no'].'-'.$no : $no
 			);
 			break;
 		case 'translation_key':
@@ -1104,7 +1105,7 @@ function zz_fill_out_required($field, $db_table) {
 	if (zz_db_field_null($field['field_name'], $db_table)) return false;
 	// some field types never can be required
 	$never_required = [
-		'calculated', 'display', 'option', 'image', 'foreign', 'subtable'
+		'calculated', 'display', 'option', 'image', 'foreign', 'subtable', 'foreign_table'
 	];
 	if (in_array($field['type'], $never_required)) return false;
 
@@ -1152,7 +1153,7 @@ function zz_hash($zz, $zz_conf) {
 	foreach ($zz['fields'] as $no => $field) {
 		// defaults might change, e. g. dates
 		if (isset($field['default'])) unset($zz['fields'][$no]['default']);
-		if (!empty($field['type']) AND $field['type'] === 'subtable') {
+		if (!empty($field['type']) AND in_array($field['type'], ['subtable', 'foreign_table'])) {
 			foreach ($field['fields'] as $sub_no => $sub_field) {
 				if (isset($sub_field['default'])) unset($zz['fields'][$no]['fields'][$sub_no]['default']);
 			}
@@ -1287,6 +1288,7 @@ function zz_set_fielddefs_for_record($fields, $zz_var) {
 		if (!isset($fields[$no]['type'])) continue;
 		switch ($fields[$no]['type']) {
 		case 'subtable':
+		case 'foreign_table':
 			// save number of subtable, get table_name and check whether sql
 			// is unique, look for upload form as well
 			$zz_var['subtables'][$rec] = $no;
@@ -1300,10 +1302,20 @@ function zz_set_fielddefs_for_record($fields, $zz_var) {
 				// - foreign ID would be changed to main record's id
 				$fields[$no]['access'] = 'show';
 			}
-			foreach ($fields[$no]['fields'] as $subfield) {
+			foreach ($fields[$no]['fields'] as $subno => $subfield) {
 				if (empty($subfield['type'])) continue;
-				if ($subfield['type'] !== 'upload_image') continue;
-				$zz_var['upload_form'] = true;
+				switch ($subfield['type']) {
+				case 'upload_image':
+					$zz_var['upload_form'] = true;
+					break;
+				case 'subtable': 
+					$zz_var['subtables'][$rec] = $no.'-'.$subno;
+					if (!isset($subfield['table_name']))
+						$fields[$no]['fields'][$subno]['table_name'] = $subfield['table'];
+					$fields[$no]['fields'][$subno]['subtable'] = $rec;
+					$rec++;
+					break;
+				}
 			}
 			break;
 		case 'upload_image':

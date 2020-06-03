@@ -91,6 +91,7 @@ function zz_search_sql($fields, $sql, $table) {
 			$search = zz_search_scope($field, $table, $scope);
 		} else {
 			if ($field['type'] === 'subtable') $search = 'subtable';
+			elseif ($field['type'] === 'foreign_table') $search = false;
 			else $search = 'field';
 		}
 		$subsearch = false;

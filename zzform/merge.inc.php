@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2014-2015, 2017, 2019 Gustaf Mossakowski
+ * @copyright Copyright © 2014-2015, 2017, 2019-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -40,7 +40,7 @@ function zz_merge_records($zz) {
 				'key_field_name' => $field['field_name']
 			];
 		}
-		if ($field['type'] !== 'subtable') continue;
+		if (!in_array($field['type'], ['subtable', 'foreign_table'])) continue;
 		if (empty($field['form_display'])) continue;
 		if ($field['form_display'] !== 'inline') continue;
 		foreach ($field['fields'] as $subfield) {

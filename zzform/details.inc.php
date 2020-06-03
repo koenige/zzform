@@ -244,7 +244,7 @@ function zz_details_show($zz, $current, $last) {
 			}
 			if (empty($field['add_details_destination'])) continue;
 			$found = $no;
-			if ($field['type'] === 'subtable') {
+			if (in_array($field['type'], ['subtable', 'foreign_table'])) {
 				foreach ($field['fields'] as $subno => $subfield) {
 					if (empty($subfield['add_details_destination'])) continue;
 					$subfound = $subno;

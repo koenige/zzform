@@ -279,7 +279,7 @@ function zz_list_inline($fields, $lines) {
 	// hide subtable first, array_splice renumbers numerical indices
 	foreach ($fields as $no => $field) {
 		if (empty($field['type'])) continue;
-		if ($field['type'] !== 'subtable') continue;
+		if (!in_array($field['type'], ['subtable', 'foreign_table'])) continue;
 		if (empty($field['list_display'])) continue;
 		if ($field['list_display'] !== 'inline') continue;
 		$fields[$no]['hide_in_list'] = true; // hide subtable
@@ -289,7 +289,7 @@ function zz_list_inline($fields, $lines) {
 	foreach ($fields as $no => $field) {
 		$pos++; // splice at this position
 		if (empty($field['type'])) continue;
-		if ($field['type'] !== 'subtable') continue;
+		if (!in_array($field['type'], ['subtable', 'foreign_table'])) continue;
 		if (empty($field['list_display'])) continue;
 		if ($field['list_display'] !== 'inline') continue;
 
@@ -599,7 +599,7 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_var, $zz_conditions, 
 		if (!empty($zz_conf['modules']['conditions']) AND !empty($zz_conditions['bool'])) {
 			zz_conditions_merge_field($field, $zz_conditions['bool'], $line[$zz_conf['int']['id']['field_name']]);
 		}
-		if ($field AND $field['type'] !== 'subtable') continue;
+		if ($field AND !in_array($field['type'], ['subtable', 'foreign_table'])) continue;
 		if (empty($field['subselect']['sql'])) continue;
 
 		$subselect = zz_list_init_subselects($field, $fieldindex);
@@ -1417,6 +1417,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 			}
 			break;
 		case 'subtable':
+		case 'foreign_table':
 			$text = $row['value']; // field was already formatted etc. in subselect
 			$mark_search_string = false;
 			$link = false;
@@ -2172,7 +2173,7 @@ function zz_sql_order_check($field, $type, $field_name) {
 		$found = true;
 	} elseif (isset($field['field_name']) AND $field['field_name'] === $field_name) {
 		$found = true;
-	} elseif ($field['type'] === 'subtable') {
+	} elseif (in_array($field['type'], ['subtable', 'foreign_table'])) {
 		if (empty($field['list_display'])) return '';
 		if ($field['list_display'] !== 'inline') return '';
 		if (!strstr($field_name, '.')) return '';

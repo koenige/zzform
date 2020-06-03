@@ -526,9 +526,9 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			// don't show timestamp in add mode
 			continue;
 		}
-		if ($field['type'] === 'foreign_key' 
-			OR $field['type'] === 'translation_key' 
-			OR $field['type'] === 'detail_key') {
+		if (in_array($field['type'],
+			['foreign_key', 'translation_key', 'detail_key', 'foreign_id'])
+		) {
 			// this must not be displayed, for internal link only
 			continue; 
 		}
@@ -539,7 +539,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 		}
 
 		// $tab means subtable, since main table has $tab = 0
-		if ($tab) {
+		if ($tab AND !in_array($field['type'], ['subtable', 'foreign_table'])) {
 			$field['f_field_name'] =
 			$field['select_field_name'] = zz_long_fieldname($zz_tab[$tab]['table_name'], $rec, $field['field_name']);
 		} elseif (isset($field['field_name'])) {
@@ -576,7 +576,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			$out['sequence'] = !empty($field['field_sequence']) ? $field['field_sequence'] : 1;
 		}
 		
-		if ($field['type'] === 'subtable') {
+		if (in_array($field['type'], ['subtable', 'foreign_table'])) {
 			$field_display = (!empty($field['access']) AND $field['access'] !== 'all') ? $field['access'] : $display;
 			if (empty($field['form_display'])) $field['form_display'] = 'vertical';
 			if (!empty($field['hierarchy'])) $field['form_display'] = 'horizontal';
@@ -592,7 +592,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				);
 				$my_rec['record'][$field['field_name']] = $my_rec['revision'][$field['field_name']];
 				$field['class'][] = 'reselect';
-			} elseif ($field['type'] !== 'subtable') {
+			} elseif (!in_array($field['type'], ['subtable', 'foreign_table'])) {
 				$field_display = 'show';
 			}
 		}
@@ -658,7 +658,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				$fields = $zz_tab[$sub_tab][0]['fields'];
 				$out['td']['content'] .= zz_field_set($field, $fields, $field_display, $zz_tab[$sub_tab], $zz_var);
 			}
-		} elseif ($field['type'] === 'subtable') {
+		} elseif (in_array($field['type'], ['subtable', 'foreign_table'])) {
 			//	Subtable
 			$sub_tab = $field['subtable'];
 			if (empty($field['title_button'])) {

@@ -72,7 +72,9 @@ function zz_conditions_set($zz) {
 			// check $zz['fields'] individually
 			foreach (array_keys($zz['fields']) as $no) {
 				$zz['conditions'] += zz_conditions_set_field($zz['fields'][$no], $new_index, $sc, $cn);
-				if (!empty($zz['fields'][$no]['type']) AND $zz['fields'][$no]['type'] === 'subtable') {
+				if (!empty($zz['fields'][$no]['type'])
+					AND in_array($zz['fields'][$no]['type'], ['subtable', 'foreign_table'])
+				) {
 					foreach (array_keys($zz['fields'][$no]['fields']) as $detail_no) {
 						$zz['conditions'] += zz_conditions_set_field($zz['fields'][$no]['fields'][$detail_no], $new_index, $sc, $cn);
 					}
@@ -472,7 +474,7 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 							'table_no' => 0, 'field_no' => $f, 'image_no' => $key
 						];
 					}
-				} elseif (!empty($field['type']) AND $field['type'] === 'subtable') {
+				} elseif (!empty($field['type']) AND in_array($field['type'], ['subtable', 'foreign_table'])) {
 					$table++;
 					foreach ($field['fields'] as $subf => $subfield) {
 						if (empty($subfield['type'])) continue;
