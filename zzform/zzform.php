@@ -130,9 +130,6 @@ function zzform($zz) {
 	// action won't be changed before record operations
 	// (there it will be changed depending on outcome of db operations)
 
-	// upload values are only needed for record
-	if (!$zz_conf['int']['record']) unset($zz_conf['upload']);
-
 //
 //	Errors? Initaliziation of output
 //
@@ -192,7 +189,6 @@ function zzform($zz) {
 	 	// sets some $zz-definitions for records depending on existing definition for
 		// translations, subtabes, uploads, write_once-fields
 		list($zz['fields'], $zz_var) = zz_set_fielddefs_for_record($zz['fields'], $zz_var);
-		if (empty($zz_var['upload_form'])) unset($zz_conf['upload']); // values are not needed
 	}
 
 	// now we have the correct field definitions	
