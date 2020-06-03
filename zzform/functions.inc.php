@@ -223,10 +223,25 @@ function zz_module_fieldcheck($zz, $key, $type = '') {
 			if (zz_module_fieldchecks($subfield, $key, $type)) {
 				return true;
 			}
-			if (empty($subfield['if'])) continue;
-			foreach ($subfield['if'] as $condfield) {
-				if (zz_module_fieldchecks($condfield, $key, $type)) {
+			if (!empty($subfield['if'])) {
+				foreach ($subfield['if'] as $condfield) {
+					if (zz_module_fieldchecks($condfield, $key, $type)) {
+						return true;
+					}
+				}
+			}
+			if (empty($subfield['fields'])) continue;
+			foreach ($subfield['fields'] as $sindex => $ssubfield) {
+				if (!is_array($ssubfield)) continue;
+				if (zz_module_fieldchecks($ssubfield, $key, $type)) {
 					return true;
+				}
+				if (!empty($ssubfield['if'])) {
+					foreach ($ssubfield['if'] as $scondfield) {
+						if (zz_module_fieldchecks($scondfield, $key, $type)) {
+							return true;
+						}
+					}
 				}
 			}
 		}
