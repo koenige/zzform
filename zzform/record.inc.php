@@ -565,15 +565,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 	foreach ($my_fields as $fieldkey => $field) {
 		// initialize variables
 		if (!$append_next) {
-			$out['tr']['attr'] = [];
-			$out['th']['attr'] = [];
-			$out['th']['content'] = '';
-			$out['th']['show'] = true;
-			$out['td']['attr'] = [];
-			$out['td']['content'] = '';
-			$out['separator'] = '';
-			$out['separator_before'] = '';
-			$out['sequence'] = !empty($field['field_sequence']) ? $field['field_sequence'] : 1;
+			$out = zz_record_init_out($field);
 		}
 		
 		if (in_array($field['type'], ['subtable', 'foreign_table'])) {
@@ -780,7 +772,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					$field['form_display'], $lastrow, $sub_rec, $h_show_explanation);
 				if ($field['form_display'] === 'inline') {
 					$matrix = array_merge($matrix, $subtable_rows);
-					$out = []; // @todo don't generate $out before
+					$out = [];
 				} else {
 					$details[$d_index] .= $subtable_rows;
 				}
@@ -1152,10 +1144,14 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 		}
 		if ($field['explanation'])
 			$out['td']['content'] .= '<p class="explanation">'.$field['explanation'].'</p>';
-		if (!empty($field['separator']))
+		if (!empty($field['separator'])) {
+			if (!$out) $out = zz_record_init_out($field);
 			$out['separator'] .= $field['separator'];
-		if (!empty($field['separator_before']))
+		}
+		if (!empty($field['separator_before'])) {
+			if (!$out) $out = zz_record_init_out($field);
 			$out['separator_before'] .= $field['separator_before'];
+		}
 		if ($out AND !$append_next) {
 			if ($field['type'] === 'id' AND $out['td']['content'] === '') continue;
 			$matrix[] = $out;
@@ -1168,6 +1164,25 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 	$zz_conf['int']['append_next_type'] = $old_append_next_type;
 	$zz_conf['int']['add_details_where'] = $old_add_details_where;
 	return zz_return($output);
+}
+
+/**
+ * initialize $out variable
+ *
+ * @param array $field
+ * @return array
+ */
+function zz_record_init_out($field) {
+	$out['tr']['attr'] = [];
+	$out['th']['attr'] = [];
+	$out['th']['content'] = '';
+	$out['th']['show'] = true;
+	$out['td']['attr'] = [];
+	$out['td']['content'] = '';
+	$out['separator'] = '';
+	$out['separator_before'] = '';
+	$out['sequence'] = !empty($field['field_sequence']) ? $field['field_sequence'] : 1;
+	return $out;
 }
 
 /**
