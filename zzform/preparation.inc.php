@@ -239,7 +239,7 @@ function zz_prepare_hooks($zz) {
  *		'table', 'table_name', 'values', 'fielddefs', 'max_records', 
  *		'min_records', 'records_depend_on_upload', 
  *		'records_depend_on_upload_more_than_one', 'foreign_key_field_name',
- *		'translate_field_name', 'detail_key', 'tick_to_save', 'access'
+ *		'translate_field_name_where', 'detail_key', 'tick_to_save', 'access'
  */
 function zz_get_subtable($field, $main_tab, $tab, $no) {
 	global $zz_conf;
@@ -302,8 +302,11 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 	$my_tab['foreign_key_field_name'] = (!empty($field['foreign_key_field_name']) 
 		? $field['foreign_key_field_name'] 
 		: $main_tab['table'].'.'.$main_tab[0]['id']['field_name']);
-	$my_tab['translate_field_name'] = !empty($field['translate_field_name']) 
-		? $field['translate_field_name'] : false;
+	$my_tab['translate_field_name_where'] = !empty($field['translate_field_name'])
+		? ($zz_conf['translations_table'].'.db_name = "'.$zz_conf['db_name'].'"
+			AND '.$zz_conf['translations_table'].'.table_name = "'.$main_tab['table'].'"
+			AND '.$zz_conf['translations_table'].'.field_name = "'
+				.$field['translate_field_name'].'"') : '';
 	$my_tab['unique'] = !empty($field['unique']) ? $field['unique'] : false;
 
 	// get detail key, if there is a field definition with it.
@@ -447,7 +450,7 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 	if (in_array($state, ['edit', 'delete', 'show'])) {
 		// add: no record exists so far
 		$existing = zz_query_subrecord(
-			$my_tab, $main_tab['table'], $main_tab[0]['id']['value'],
+			$my_tab, $main_tab[0]['id']['value'],
 			$rec_tpl['id']['field_name'], $my_tab['subtable_deleted']
 		);
 	} else {
@@ -458,7 +461,7 @@ function zz_get_subrecords($mode, $field, $my_tab, $main_tab, $zz_var, $tab) {
 	$source_values = [];
 	if ($mode === 'add' AND !empty($main_tab[0]['id']['source_value'])) {
 		$my_tab['POST'] = zz_query_subrecord(
-			$my_tab, $main_tab['table'], $main_tab[0]['id']['source_value'],
+			$my_tab, $main_tab[0]['id']['source_value'],
 			$rec_tpl['id']['field_name'], $my_tab['subtable_deleted']
 		);
 		if (zz_error_exit()) return $my_tab;
@@ -1466,15 +1469,13 @@ function zz_query_multiple_records($sql, $table, $id) {
  * query a detail record
  * 
  * @param array $my_tab = $zz_tab[$tab] = where $tab is the detail record to query
- * @param string $zz_tab[0]['table'] = main table name
  * @param int main id value	(source value or own value)
  * @param string $id_field_name = ID field name of detail record
  * @param array $deleted_ids = IDs that were deleted by user
  * @global array $zz_conf
  * @return array $records, indexed by ID
  */
-function zz_query_subrecord($my_tab, $main_table, $main_id_value,
-	$id_field_name, $deleted_ids = []) {
+function zz_query_subrecord($my_tab, $id_value, $id_field_name, $deleted_ids = []) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	
@@ -1490,16 +1491,12 @@ function zz_query_subrecord($my_tab, $main_table, $main_id_value,
 	} else {
 		$sql = $my_tab['sql'];
 	}
-	if (!empty($my_tab['translate_field_name'])) {
+	if (!empty($my_tab['translate_field_name_where'])) {
 		// translation subtable
-		$sql = wrap_edit_sql($sql, 'WHERE', 
-			$zz_conf['translations_table'].'.db_name = "'.$zz_conf['db_name'].'"
-			AND '.$zz_conf['translations_table'].'.table_name = "'.$main_table.'"
-			AND '.$zz_conf['translations_table'].'.field_name = "'
-				.$my_tab['translate_field_name'].'"');
+		$sql = wrap_edit_sql($sql, 'WHERE', $my_tab['translate_field_name_where']);
 	}
 	$sql = wrap_edit_sql(
-		$sql, 'WHERE', sprintf('%s = %d', $my_tab['foreign_key_field_name'], $main_id_value)
+		$sql, 'WHERE', sprintf('%s = %d', $my_tab['foreign_key_field_name'], $id_value)
 	);
 
 	$records = zz_db_fetch($sql, $id_field_name, '', '', E_USER_WARNING);
