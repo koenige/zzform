@@ -412,7 +412,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	}
 	
 	// 4. foreign IDs?
-	$foreign_ids = ['[FOREIGN_KEY]' => sprintf('%d', $zz_conf['int']['id']['value'])]; 
+	$foreign_ids = [];
 	if ($zz_tab[0][0]['action'] === 'insert' AND isset($foreign_sqls)) {
 		foreach ($foreign_sqls as $tab => $foreign_sql) {
 			$result = zz_db_change($foreign_sql[0], $zz_tab[$tab][0]['id']['value']);
@@ -440,6 +440,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 		if ($zz_tab[0][0]['action'] === 'insert') {
 			$zz_conf['int']['id']['value'] = $result['id_value']; // for requery
 		}
+		$foreign_ids['[FOREIGN_KEY]'] = sprintf('%d', $zz_conf['int']['id']['value']); 
 		// save record values for use outside of zzform()
 		if ($result['action'] === 'nothing') {
 			$zz_tab[0][0]['actual_action'] = 'nothing';
@@ -686,8 +687,13 @@ function zz_action_details($detail_sqls, $zz_tab, $validation, $ops, $foreign_id
 				$zz_tab[$tab][$rec]['error'] = $result['error'];
 				// main record was already inserted or updated, log as partial
 				$zz_tab[0]['record_action'] = 'partial';
-				$validation = false; 
-				$zz_tab[0][0]['fields'][$zz_tab[$tab]['no']]['check_validation'] = false;
+				$validation = false;
+				if (strstr($zz_tab[$tab]['no'], '-')) {
+					$nos = explode('-', $zz_tab[$tab]['no']);
+					$zz_tab[0][0]['fields'][$nos[0]]['check_validation'] = false;
+				} else {
+					$zz_tab[0][0]['fields'][$zz_tab[$tab]['no']]['check_validation'] = false;
+				}
 			} elseif ($my_rec['action'] === 'insert') {
 				// for requery
 				$zz_tab[$tab][$rec]['id']['value'] = $result['id_value'];
