@@ -331,6 +331,7 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 		}
 		if ($subfield['type'] === 'id') {
 			$my_tab['id_field_name'] = $subfield['field_name'];
+			$my_tab['id']['field_name'] = $subfield['field_name'];
 		}
 		if ($subfield['type'] !== 'detail_key') continue;
 		if (empty($main_tab[0]['fields'][$subfield['detail_key']])) continue;
