@@ -937,7 +937,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 		zz_debug('start', __FUNCTION__.$multiple_times);
 	}
 	static $defs;
-	$hash = md5(serialize($fields).$db_table.$multiple_times.$mode);
+	$hash = md5(serialize($fields).$db_table.$multiple_times.$mode.$subtable_no);
 	if (!empty($defs[$hash])) return zz_return($defs[$hash]);
 
 	$to_translates = [
