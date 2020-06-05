@@ -1966,6 +1966,7 @@ function zz_validate_parameter($fvalue) {
 		}
 	}
 	$fvalue = implode('&', $values);
+	if ($fvalue) $fvalue = '&'.$fvalue; // add leading ampersand for simpler queries
 	
 	return $fvalue;
 }

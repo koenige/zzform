@@ -2224,7 +2224,7 @@ function zz_field_memo($field, $display, $record) {
 	// get value
 	$value = $record ? $record[$field['field_name']] : '';
 	if ($field['type'] === 'parameter') {
-		$value = str_replace('&', "\n\n", $value);
+		$value = str_replace('&', "\n\n", ltrim($value, '&'));
 	}
 
 	// return text
