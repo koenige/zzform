@@ -150,9 +150,9 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	if ($zz_var['action'] === 'update' OR $zz_var['action'] === 'delete') {
 		if (count($zz_var['save_old_record']) && !empty($zz_tab[0][0]['existing'])) {
 			foreach ($zz_var['save_old_record'] as $no) {
-				if (empty($zz_tab[0][0]['existing'][$my_field['field_name']])) continue;
-				$_POST[$my_field['field_name']] 
-					= $zz_tab[0][0]['existing'][$my_field['field_name']];
+				if (empty($zz_tab[0][0]['existing'][$zz['fields'][$no]['field_name']])) continue;
+				$_POST[$zz['fields'][$no]['field_name']] 
+					= $zz_tab[0][0]['existing'][$zz['fields'][$no]['field_name']];
 			}
 		}
 	}
