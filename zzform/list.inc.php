@@ -86,7 +86,8 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	if (zz_error_exit()) return zz_return([$ops, $zz_var]);
 	$count_rows = count($lines);
 
-	if ($count_rows < 8) $zz_conf['no_add_above'] = true;
+	if ($count_rows < 8 AND $zz_conf['list_display'] === 'ul')
+		$zz_conf['no_add_above'] = true;
 	$ops['output'] .= zz_output_add_export_links($zz, $ops, 'above');
 	$ops['output'] .= zz_filter_selection($zz['filter'], $zz_var['filters'], 'top');
 
