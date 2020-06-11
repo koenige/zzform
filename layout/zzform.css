@@ -591,7 +591,8 @@ body #zzform .separator hr
 					{ background: url(%%% setting layout_path %%%/zzform/xhr_activity.gif) no-repeat 50% 50%; }
 
 /* vxJS autoSuggest */
-.vxJS_autoSuggest	{ color: #000; position: absolute; z-index: 3; }
+.vxJS_autoSuggest	{ color: #000; position: absolute; z-index: 3;
+					min-width: 10em; }
 .vxJS_autoSuggest ul
 					{ background: #FFF; border: 1px solid #808080;
 					margin: 2px 0; padding: 0; list-style-type: none;
