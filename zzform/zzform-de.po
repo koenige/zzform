@@ -506,6 +506,22 @@ msgid "String <em>“%s”</em> is not allowed"
 msgstr "Die Zeichenfolge <em>»%s«</em> ist nicht erlaubt"
 
 # Record form: Validation, displayed above form
+msgid "Value “%s” needs to be greater than “%s”."
+msgstr "Der Wert „%s“ muss größer als „%s“ sein."
+
+# Record form: Validation, displayed above form
+msgid "Value “%s” needs to be greater than or equal to “%s”."
+msgstr "Der Wert „%s“ muss größer oder gleich „%s“ sein."
+
+# Record form: Validation, displayed above form
+msgid "Value “%s” needs to be smaller than “%s”."
+msgstr "Der Wert „%s“ muss kleiner als „%s“ sein."
+
+# Record form: Validation, displayed above form
+msgid "Value “%s” needs to be smaller than or equal to “%s”."
+msgstr "Der Wert „%s“ muss kleiner oder gleich „%s“ sein."
+
+# Record form: Validation, displayed above form
 msgid "Please check these values again"
 msgstr "Bitte überprüfen Sie diese Werte nocheinmal"
 

@@ -1896,7 +1896,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 	//	check against forbidden strings
 		if (!empty($field['validate'])
 			AND !empty($my_rec['POST'][$field_name])) {
-			if ($msg = zz_check_rules($my_rec['POST'][$field_name], $field['validate'])) {
+			if ($msg = zz_check_rules($my_rec['POST'][$field_name], $field, $my_rec['POST'])) {
 				$my_rec['validation'] = false;
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['fields'][$f]['validation_error'] = $msg;
@@ -2006,18 +2006,43 @@ function zz_write_detail_values($zz_tab, $f, $tab = 0, $rec = 0) {
  * validates input against a set of rules
  *
  * @param string $value value entered in form
- * @param array $validate defines against what to validate 
+ * @param array $field
+ *		'validate' defines against what to validate 
+ *		'validate_msg' (optional) set validation error message
+ * @param array $post
  * @return mixed false: everything is okay, array: error message
  */
-function zz_check_rules($value, $validate) {
-	foreach ($validate as $type => $needles) {
+function zz_check_rules($value, $field, $post) {
+	foreach ($field['validate'] as $type => $data) {
+		$validate_msg = !empty($field['validate_msg'][$type]) ? $field['validate_msg'][$type] : '';
 		switch ($type) {
 		case 'forbidden_strings':
-			foreach ($needles as $needle) {
+			foreach ($data as $needle) {
 				if (stripos($value, $needle) === false) continue; // might be 0
 				return [
-					'msg' => 'String <em>“%s”</em> is not allowed',
+					'msg' => $validate_msg ? $validate_msg : 'String <em>“%s”</em> is not allowed',
 					'msg_args' => zz_htmltag_escape($needle)
+				];
+			}
+			break;
+		case '>':
+		case '>=':
+		case '<':
+		case '<=':
+			if (!is_array($data)) $data = [$data];
+			foreach ($data as $field) {
+				if (empty($post[$field])) continue;
+				if ($type === '>' AND $value > $post[$field]) continue;
+				if ($type === '>=' AND $value >= $post[$field]) continue;
+				if ($type === '<' AND $value < $post[$field]) continue;
+				if ($type === '<=' AND $value <= $post[$field]) continue;
+				$msg['>'] = 'greater than';
+				$msg['>='] = 'greater than or equal to';
+				$msg['<'] = 'smaller than';
+				$msg['<='] = 'smaller than or equal to';
+				return [
+					'msg' => $validate_msg ? $validate_msg : 'Value “%s” needs to be '.$msg[$type].' “%s”.',
+					'msg_args' => [zz_htmltag_escape($value), zz_htmltag_escape($post[$field])]
 				];
 			}
 			break;

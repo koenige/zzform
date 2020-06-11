@@ -475,6 +475,22 @@ msgid "String <em>“%s”</em> is not allowed"
 msgstr ""
 
 # Record form: Validation, displayed above form
+msgid "Value “%s” needs to be greater than “%s”."
+msgstr ""
+
+# Record form: Validation, displayed above form
+msgid "Value “%s” needs to be greater than or equal to “%s”."
+msgstr ""
+
+# Record form: Validation, displayed above form
+msgid "Value “%s” needs to be smaller than “%s”."
+msgstr ""
+
+# Record form: Validation, displayed above form
+msgid "Value “%s” needs to be smaller than or equal to “%s”."
+msgstr ""
+
+# Record form: Validation, displayed above form
 msgid "Please check these values again"
 msgstr ""
 
