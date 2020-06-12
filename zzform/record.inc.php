@@ -2936,24 +2936,29 @@ function zz_field_select_sql_radio($field, $record, $lines) {
 	$radios = [];
 	$level = 0;
 	$lines = zz_field_unique_ignore($lines, $field);
+	$last_group = '';
 	foreach ($lines as $id => $line) {
 		$pos++;
-		$label = '';
 		array_shift($line); // get rid of ID, is already in $id
 		$line = zz_field_select_ignore($line, $field, 'sql');
 		if ($field['show_hierarchy']) unset($line[$field['show_hierarchy']]);
 		$oldlevel = $level;
 		$level = !empty($line['zz_level']) ? $line['zz_level'] : 0;
 		unset($line['zz_level']);
-		if (!empty($field['group'])) { 
-			// group display
-			if ($line[$field['group']])
-				$label .= '<em>'.$line[$field['group']].':</em> ';
+		$field['zz_level'] = $level - $oldlevel;
+		// group display
+		if (!empty($field['group']) AND $line[$field['group']]) {
+			if (!$last_group OR $last_group !== $line[$field['group']]) {
+				$radios[] = [
+					'level' => $level,
+					'element' => $line[$field['group']],
+					'id' => ''
+				];
+				$last_group = $line[$field['group']];
+			}
 			unset($line[$field['group']]);
 		}
-		$label .= zz_field_concat($field, $line);
-		$field['zz_level'] = $level - $oldlevel;
-		$radios[] = zz_field_select_radio_value($field, $record, $id, $label, $pos);
+		$radios[] = zz_field_select_radio_value($field, $record, $id, zz_field_concat($field, $line), $pos);
 	}
 	return zz_field_select_radio($field, $record, $radios);
 }
