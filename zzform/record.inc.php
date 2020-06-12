@@ -813,6 +813,14 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					}
 				}
 			}
+			if ($field['form_display'] === 'lines') {
+				$all_have_errors = zz_record_check_error($zz_tab[$field['subtable']]);
+				if ($all_have_errors) {
+					// mark full table row as having an error
+					$out['th']['attr'][] = 'error';
+					$out['td']['attr'][] = 'error';
+				}
+			}
 		} else {
 			//	"Normal" field
 			$hidden_element = '';
@@ -1322,7 +1330,7 @@ function zz_record_field_focus($name, $type) {
  */
 function zz_output_field_rows($matrix, &$zz_var, $formdisplay, $extra_lastcol, $tab) {
 	global $zz_conf;
-	$output = false;
+	$output = '';
 	
 	$th_content = false;
 	foreach ($matrix as $index => $row) {
@@ -1331,8 +1339,11 @@ function zz_output_field_rows($matrix, &$zz_var, $formdisplay, $extra_lastcol, $
 	if (!$tab AND !$th_content) $zz_conf['int']['hide_tfoot_th'] = true;
 	switch ($formdisplay) {
 	case 'lines':
-		$output .= '<div>'; // important for JS!
+		$error = false;
 		foreach ($matrix as $index => $row) {
+			foreach ($row['tr']['attr'] as $attr) {
+				if (strstr($attr, 'error')) $error = true;
+			}
 			if (!$row['td']['content']) continue;
 			$output .= '<span'.zz_show_class($row['tr']['attr']).'>';
 			$output .=	"\t".'<span'.zz_show_class($row['td']['attr'])
@@ -1343,7 +1354,7 @@ function zz_output_field_rows($matrix, &$zz_var, $formdisplay, $extra_lastcol, $
 		if ($extra_lastcol AND $extra_lastcol !== '&nbsp;') {
 			$output .= ' '.$extra_lastcol;
 		}
-		$output .= '</div>'."\n";
+		$output = '<div'.($error ? ' class="error"' : '').'>'.$output.'</div>'."\n"; // div important for JS!
 		break;
 	case 'vertical':
 		foreach ($matrix as $index => $row) {
@@ -3812,4 +3823,37 @@ function zz_field_concat($field, $values) {
 function zz_record_mark_italics($out, $mode) {
 	if (in_array($mode, ['delete', 'show'])) return $out;
 	return sprintf('<em title="%s">%s</em>', zz_text('Would be changed on update'), $out);
+}
+
+/**
+ * check for subtables with form_display = 'lines' if there’s an error somewhere
+ * mark full row accordingly
+ *
+ * @param array $my_tab
+ * @return bool
+ */
+function zz_record_check_error($my_tab) {
+	$error_found = [];
+	foreach ($my_tab as $no => $rec) {
+		if (!is_numeric($no)) continue;
+		$error_found[$no] = false;
+		foreach ($rec['fields'] as $field) {
+			if (empty($field['class'])) continue;
+			foreach ($field['class'] as $class) {
+				if (strstr($class, 'error')) {
+					$error_found[$no] = true;
+					continue 3;
+				}
+			}
+		}
+	}
+	$all_have_errors = true;
+	if (!$error_found) $all_have_errors = false;
+	foreach ($error_found as $found) {
+		if (!$found) {
+			$all_have_errors = false;
+			break;
+		}
+	}
+	return $all_have_errors;
 }
