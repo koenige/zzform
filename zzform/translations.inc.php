@@ -11,7 +11,7 @@
  *	zz_translations_init()		checks whether fields should be translated
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2013, 2016-2019 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2013, 2016-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -100,8 +100,12 @@ function zz_translations_init($table, $fields) {
 					$zz_sub['foreign_key_field_name'] = $zz_sub['fields'][$key]['field_name'];
 				}
 			}
-			if (!empty($zz_sub['fields'][$key]['inherit_format']) AND !empty($fields[$no]['format']))
-				$zz_sub['fields'][$key]['format'] = $fields[$no]['format'];
+			if (!empty($zz_sub['fields'][$key]['inherit_format'])) {
+				if (!empty($fields[$no]['format']))
+					$zz_sub['fields'][$key]['format'] = $fields[$no]['format'];
+				if (!empty($fields[$no]['typo_cleanup']))
+					$zz_sub['fields'][$key]['typo_cleanup'] = true;
+			}
 			if (!empty($fields[$no]['rows']))
 				$zz_sub['fields'][$key]['rows'] = $fields[$no]['rows'];
 		}

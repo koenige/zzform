@@ -1531,7 +1531,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 			$my_rec['POST'][$field_name] = str_replace(' ', '', $my_rec['POST'][$field_name]);
 		}
 		if (!empty($field['typo_cleanup'])) {
-			$my_rec['POST'][$field_name] = wrap_typo_cleanup($my_rec['POST'][$field_name]);
+			$my_rec['POST'][$field_name] = wrap_typo_cleanup($my_rec['POST'][$field_name], zz_typo_cleanup_language($my_rec['POST']));
 		}
 
 		// per default, all fields are becoming part of SQL query
@@ -2582,4 +2582,29 @@ function zz_sequence_normalize($ops, $zz_tab) {
 		);
 		$result = zz_db_change($sql);
 	}
+}
+
+/**
+ * get language for translation
+ * look for field 'language_id' or first field ending with '_language_id'
+ *
+ * @param array $post POST data of translated or main record
+ * @return array
+ */
+function zz_typo_cleanup_language($post) {
+	$language_id = false;
+	$language_code = '';
+	foreach ($post as $field_name => $value) {
+		if ($field_name === 'language_id') {
+			$language_id = $value;
+			break;
+		}
+		if (!wrap_substr($field_name, '_language_id', 'end')) continue;
+		$language_id = $value;
+		break;
+	}
+	if (!$language_id) return '';
+	$languages = wrap_id('languages', '', 'list');
+	$language_code = array_search($language_id, $languages);
+	return $language_code;
 }
