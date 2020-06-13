@@ -1530,6 +1530,9 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 		if (!empty($field['formatting_spaces'])) {
 			$my_rec['POST'][$field_name] = str_replace(' ', '', $my_rec['POST'][$field_name]);
 		}
+		if (!empty($field['typo_cleanup'])) {
+			$my_rec['POST'][$field_name] = wrap_typo_cleanup($my_rec['POST'][$field_name]);
+		}
 
 		// per default, all fields are becoming part of SQL query
 		$my_rec['fields'][$f]['in_sql_query'] = true;
