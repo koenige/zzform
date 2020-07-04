@@ -1518,7 +1518,7 @@ function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
 							$func_vars[$var] = '';
 						}
 					} else {
-						$func_vars[$var] = $my_rec['POST'][$var];
+						$func_vars[$var] = !empty($my_rec['POST'][$var]) ? $my_rec['POST'][$var] : '';
 					}
 				}
 			} else {
