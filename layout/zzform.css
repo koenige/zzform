@@ -464,7 +464,7 @@ body #zzform .separator hr
 					{ background-color: yellow; color: black; }
 /* make a choice again */
 #zzform #record .reselect th, #zzform #record .reselect td, #zzform #record .reselect
-					{ background-color: green; }
+					{ background-color: green; color: white; }
 #zzform div.reselect p, #zzform div.reselect ul, #zzform #record .reselect p
 					{ color: white; margin: .25em 0; }
 #zzform div.reselect
