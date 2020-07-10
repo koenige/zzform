@@ -601,7 +601,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 
 		// dependencies?
 		if ($field_display === 'form' AND !empty($field['dependencies'])) {
-			$field = zz_xhr_dependencies($field, $my_fields);
+			$field = zz_xhr_dependencies($field, $my_fields, $rec);
 			zz_xhr_add('dependencies', $field);
 		}
 
@@ -2774,6 +2774,7 @@ function zz_xhr_add($type, $field) {
 		'source_field_ids' => isset($field['source_field_ids']) ? $field['source_field_ids'] : [],
 		'unrestricted' => !empty($field['unrestricted']) ? $field['unrestricted'] : false,
 		'command' => !empty($field['xhr_command']) ? $field['xhr_command'] : $default_command,
+		'rec' => isset($field['rec']) ? $field['rec'] : false
 	];
 }
 
@@ -2808,9 +2809,10 @@ function zz_xhr_url_self() {
  *
  * @param array $field
  * @param array $fields
+ * @param int $rec
  * @return array $field
  */
-function zz_xhr_dependencies($field, $fields) {
+function zz_xhr_dependencies($field, $fields, $rec) {
 	foreach ($field['dependencies'] as $dependency) {
 		if (empty($fields[$dependency])) continue;
 		$field_id = zz_make_id_fieldname($fields[$dependency]['f_field_name']);
@@ -2843,6 +2845,7 @@ function zz_xhr_dependencies($field, $fields) {
 			];
 		}
 	}
+	$field['rec'] = $rec;
 	return $field;
 }
 

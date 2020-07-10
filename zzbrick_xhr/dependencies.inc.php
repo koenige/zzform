@@ -92,8 +92,14 @@ function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 		} elseif (count($values) === count($field['dependencies'])) {
 			$value = $values[$index];
 		}
-		// @todo with subtables!
-		$id_field_name = zz_make_id_fieldname($my_field['field_name']);
+		if (!empty($subtable_no) AND isset($_GET['rec'])) {
+			$table_name = isset($zz['fields'][$subtable_no]['table_name']) ? $zz['fields'][$subtable_no]['table_name'] : $zz['fields'][$subtable_no]['table'];
+			$rec = intval($_GET['rec']);
+			$id_field_name = zz_long_fieldname($table_name, $rec, $my_field['field_name']);
+			$id_field_name = zz_make_id_fieldname($id_field_name);
+		} else {
+			$id_field_name = zz_make_id_fieldname($my_field['field_name']);
+		}
 		$data[$id_field_name] = $value;
 	}
 	return $data;

@@ -9,8 +9,8 @@
 #
 # List of fields:
 # { field_no, subtable_no, field_id, url_self, destination_field_ids {
-# field_ids { field_id, value }, field_no }, source_field_ids { field_id,
-# field_no } } 
+# field_id, field_ids { field_id, value }, field_no }, source_field_ids {
+# field_id, field_no }, unrestricted, command, rec }
 #
 %%% condition unless xhr_selects %%%
 <script type="text/javascript" src="%%% setting behaviour_path %%%/vxjs/src/core.js"></script>
@@ -23,7 +23,7 @@
 		if (!this.value) return;
 		var xhr = vxJS.xhr({
 			command: '%%% item command %%%',
-			uri: '%%% item url_self %%%field_no=%%% item field_no%%%%%% item subtable_no "&subtable_no=%s" %%%'
+			uri: '%%% item url_self %%%field_no=%%% item field_no%%%%%% item subtable_no "&subtable_no=%s" %%%%%% item rec "&rec=%s" %%%'
 		}, {
 	    	text: {%%% item field_no %%%: this.value%%% loop source_field_ids %%%, %%% item field_no %%%: document.getElementById('%%% item field_id %%%').value%%% loop end %%%}
 		}, null, {complete: function() {
