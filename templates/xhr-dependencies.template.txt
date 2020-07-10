@@ -23,7 +23,7 @@
 		if (!this.value) return;
 		var xhr = vxJS.xhr({
 			command: '%%% item command %%%',
-			uri: '%%% item url_self %%%field_no=%%% item field_no%%%%%% item subtable_no "&subtable_no=%s" %%%%%% item rec "&rec=%s" %%%'
+			uri: '%%% item url_self %%%field_no=%%% item field_no%%%%%% item subtable_no "&subtable_no=%s" %%%%%% item rec "&rec=%s" %%%%%% setting zzform_int_id_value "&zz_id_value=%s" %%%'
 		}, {
 	    	text: {%%% item field_no %%%: this.value%%% loop source_field_ids %%%, %%% item field_no %%%: document.getElementById('%%% item field_id %%%').value%%% loop end %%%}
 		}, null, {complete: function() {
