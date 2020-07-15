@@ -10,7 +10,9 @@
 
 function forceFilename($str, $spaceChar = '-', $replacements = []) {
 	global $zz_setting;
+	global $zz_conf;
 	static $characters;
+
 	if (!$characters) {
 		$data = file($zz_setting['core'].'/transliteration-characters.tsv');
 		foreach ($data as $line) {
@@ -20,7 +22,8 @@ function forceFilename($str, $spaceChar = '-', $replacements = []) {
 			$characters[trim($line[0])] = trim($line[1]);
 		}
 	}
-	$str = wrap_convert_string($str);
+	$str = wrap_convert_string($str, 'UTF-8');
+	wrap_set_encoding('utf-8');
 	$str = trim($str);
 
 	// get rid of html entities
@@ -58,5 +61,6 @@ function forceFilename($str, $spaceChar = '-', $replacements = []) {
 		$_str = substr($_str, 0, -1);
 	}
 
+	wrap_set_encoding($zz_conf['character_set']);
 	return $_str;
 }
