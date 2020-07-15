@@ -9,6 +9,17 @@
 // ---------------------------------------------------------
 
 function forceFilename($str, $spaceChar = '-', $replacements = []) {
+	global $zz_setting;
+	static $characters;
+	if (!$characters) {
+		$data = file($zz_setting['core'].'/transliteration-characters.tsv');
+		foreach ($data as $line) {
+			if (!trim($line)) continue;
+			if (substr($line, 0, 1) === '#') continue;
+			$line = explode("\t", $line);
+			$characters[trim($line[0])] = trim($line[1]);
+		}
+	}
 	$str = wrap_convert_string($str);
 	$str = trim($str);
 
@@ -30,113 +41,13 @@ function forceFilename($str, $spaceChar = '-', $replacements = []) {
 			continue;
 		}
 		switch ($ch) {
-		case '€':
-		 	$_str .= 'EUR'; break;	 
-			
-		case 'À': case 'Á': case 'Â': case 'Ã': case 'Å':
-		case 'Ā': case 'Â': case 'Ą': case 'Ă':
-		 	$_str .= 'A'; break;	 
-		case 'à': case 'á': case 'â': case 'ã': case 'å':
-		case 'ā': case 'â': case 'ą': case 'ă':
-			$_str .= 'a'; break;	 
-
-		case 'Ä': case 'Æ':
-			$_str .= 'Ae'; break;	 
-		case 'ä': case 'æ':
-			$_str .= 'ae'; break;
-
-		case 'Ç': case 'Ć': case 'Č': case 'Ć':
-			$_str .= 'C'; break;
-		case 'ç': case 'ç': case 'č': case 'ć':
-			$_str .= 'c'; break;
-
-		case 'Ð': case 'Ď':
-			$_str .= 'D'; break;
-		case 'đ': case 'ď':
-			$_str .= 'd'; break;
-
-		case 'È': case 'É': case 'Ê': case 'Ë': case 'Ē':
-		case 'Ę': case 'Ě': 
-			$_str .= 'E'; break;	 
-		case 'è': case 'é': case 'ê': case 'ë': case 'ē':
-		case 'ę': case 'ě':
-			$_str .= 'e'; break;	 
-
- 		case 'Ğ':
- 			$_str .= 'G'; break;
- 		case 'ğ':
- 			$_str .= 'g'; break;
-
-		case 'Ì': case 'Í': case 'Î': case 'Ï': case 'Ī': case 'İ':
-			$_str .= 'I'; break;	 
-		case 'ì': case 'í': case 'î': case 'ï': case 'ī': case 'ı':
-			$_str .= 'i'; break;	 
-
-		case 'Ł': case 'Ľ': case 'Ĺ':
-			$_str .= 'L'; break;
-		case 'ł': case 'ľ': case 'ĺ':
-			$_str .= 'l'; break;
-
-		case 'Ñ': case 'Ň': case 'Ń':
-			$_str .= 'N'; break;
-		case 'ñ': case 'ň': case 'ń':
-			$_str .= 'n'; break;
-
-		case 'Ò': case 'Ó': case 'Ô': case 'Õ': case 'Ő': case 'Ø':
-			$_str .= 'O'; break;	 
-		case 'ò': case 'ó': case 'ô': case 'õ': case 'ő': case 'ø':
-			$_str .= 'o'; break;	 
-
-		case 'Ö': case 'Œ':
-			$_str .= 'Oe'; break;
-		case 'ö': case 'œ':
-			$_str .= 'oe'; break;
-
-		case 'Ŕ': case 'Ř': 
-			$_str .= 'R'; break;
-		case 'ŕ': case 'ř': 
-			$_str .= 'r'; break;
-
-		case 'ß':
-			$_str .= 'ss'; break;
-
-		case 'Ś': case 'Š': case 'Ş':
-			$_str .= 'S'; break;
-		case 'ś': case 'š': case 'ş':
-			$_str .= 's'; break;
-
-		case 'Ť': case 'Ţ':
-			$_str .= 'T'; break;
-		case 'ť': case 'ţ':
-			$_str .= 't'; break;
-
-		case 'Ù': case 'Ú': case 'Û': case 'Ū': case 'Ű': case 'Ů':
-			$_str .= 'U'; break;	 
-		case 'ù': case 'ú': case 'û': case 'ū': case 'ű': case 'ů':
-			$_str .= 'u'; break;	 
-
-		case 'Ü':
-			$_str .= 'Ue'; break;
-		case 'ü':
-			$_str .= 'ue'; break;
-
-		case 'Ý': case 'Ÿ':
-			$_str .= 'Y'; break;
-		case 'ý': case 'ÿ':
-			$_str .= 'y'; break;
-
-		case 'Ź': case 'Ž': case 'Ż':
-			$_str .= 'Z'; break;
-		case 'ź': case 'ž': case 'ż':
-			$_str .= 'z'; break;
-
-		case ' ':	$_str .= $spaceChar; break;
-
-		case '/': case '\'': case '-': case ':':
-			$_str .= '-'; break;
-
+		case array_key_exists($ch, $characters):
+			$_str .= $characters[$ch]; break;
+		case ' ':
+			$_str .= $spaceChar; break;
 		default:
-			if (preg_match('/[A-Za-z0-9]/u', $ch)) {	$_str .= $ch;	} break;
+			if (preg_match('/[A-Za-z0-9]/u', $ch)) { $_str .= $ch; }
+			break;
 		}
 	}	 
 
