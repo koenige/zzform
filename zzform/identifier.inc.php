@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2019 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -162,7 +162,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 			$dir_vars = explode('/', $var);
 			foreach ($dir_vars as $d_var) {
 				if (!$d_var) continue;
-				$my_var = forceFilename(
+				$my_var = wrap_filename(
 					$d_var, $conf['forceFilename'], $conf['replace']
 				);
 				if ($conf['lowercase']) $my_var = strtolower($my_var);
@@ -170,7 +170,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 				$idf_arr[] = $my_var;
 			}
 		} else {
-			$my_var = forceFilename(
+			$my_var = wrap_filename(
 				$var, $conf['forceFilename'], $conf['replace']
 			);
 			if ($conf['lowercase']) $my_var = strtolower($my_var);

@@ -607,10 +607,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	zz_error_exit(false);
 	zz_error_out(false);
 
-	// optional functions
-	if (file_exists($zz_conf['dir_inc'].'/forcefilename-'.$zz_conf['character_set'].'.inc.php'))
-		include_once $zz_conf['dir_inc'].'/forcefilename-'.$zz_conf['character_set'].'.inc.php';
-
 //	Modules
 
 	// Modules on project level

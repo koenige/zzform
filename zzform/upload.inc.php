@@ -797,7 +797,7 @@ function zz_upload_make_title($filename) {
 function zz_upload_make_name($filename) {
 	// remove file extension up to 4 letters
 	$filename = preg_replace('/\.[a-zA-Z0-9]*$/', '', $filename);
-	$filename = forceFilename($filename);
+	$filename = wrap_filename($filename);
 	return $filename;
 }
 

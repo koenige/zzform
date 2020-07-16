@@ -202,11 +202,6 @@ function zz_show_more_actions($conf, $id, $line) {
 	global $zz_conf;
 	static $error; // @deprecated
 
-	if (!function_exists('forceFilename')) {
-		echo zz_text('Function forceFilename() required but not found! It is as well '
-			.'possible that <code>$zz_conf[\'character_set\']</code> is incorrectly set.');
-		exit;
-	}
 	$act = [];
 	foreach ($conf['details'] as $key => $detail) {
 		if (!is_array($detail) AND (
@@ -224,7 +219,7 @@ function zz_show_more_actions($conf, $id, $line) {
 		 	if (empty($conf['details_url'])) $conf['details_url'] = '.php?id=';	// @deprecated
 			$output = false;
 			if ($conf['details_base']) $new_action_url = $conf['details_base'][$key];
-			else $new_action_url = strtolower(forceFilename($detail));
+			else $new_action_url = strtolower(wrap_filename($detail));
 			$output .= '<a href="'.$new_action_url;
 			if (isset($conf['details_url'][$key]) && is_array($conf['details_url'][$key])) {
 			// values are different for each key
@@ -264,7 +259,7 @@ function zz_show_more_actions($conf, $id, $line) {
 				$detail = ['title' => $detail];
 			if (empty($detail['link'])) {
 				$detail['link'] = [
-					'string' => sprintf('%s?where[%s]=', strtolower(forceFilename($detail['title'])), $zz_conf['int']['id']['field_name']),
+					'string' => sprintf('%s?where[%s]=', strtolower(wrap_filename($detail['title'])), $zz_conf['int']['id']['field_name']),
 					'field' => $zz_conf['int']['id']['field_name']
 				];
 			} elseif (!is_array($detail['link'])) {

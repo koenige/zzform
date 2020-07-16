@@ -215,7 +215,7 @@ function zz_export($ops, $zz, $zz_var) {
 		return $function($ops);
 	}
 
-	$filename = forceFilename($ops['title'], " ", [':' => ' ', '.' => ' ', '–' => '-']);
+	$filename = wrap_filename($ops['title'], " ", [':' => ' ', '.' => ' ', '–' => '-']);
 
 	switch ($zz_conf['list_display']) {
 	case 'csv':
@@ -245,13 +245,13 @@ function zz_export($ops, $zz, $zz_var) {
 	case 'kml':
 		$zz_conf['character_set'] = 'utf-8';
 		$output = zz_export_kml($ops, $zz, $zz_var);
-		if (!empty($_GET['q'])) $filename .= ' '.forceFilename($_GET['q']);
+		if (!empty($_GET['q'])) $filename .= ' '.wrap_filename($_GET['q']);
 		$headers['filename'] = $filename.'.kml';
 		return wrap_send_text($output, 'kml', 200, $headers);
 	case 'geojson':
 		$zz_conf['character_set'] = 'utf-8';
 		$output = zz_export_geojson($ops, $zz, $zz_var);
-		if (!empty($_GET['q'])) $filename .= ' '.forceFilename($_GET['q']);
+		if (!empty($_GET['q'])) $filename .= ' '.wrap_filename($_GET['q']);
 		$headers['filename'] = $filename.'.geojson';
 		return wrap_send_text($output, 'geojson', 200, $headers);
 	}
