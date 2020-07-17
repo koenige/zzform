@@ -742,6 +742,7 @@ function zz_db_columns($db_table, $field = false) {
 			if (empty($fieldtype[1]) OR empty($fieldtype[2])) {
 				preg_match('/^(.*int)\(*\d*\)*$/', $my_field['Type'], $fieldtype);
 				if (!$fieldtype) continue;
+				if ($fieldtype[0] === 'point') continue;
 				$fieldtype[2] = 'signed';
 			}
 			$columns[$db_table][$index]['max_int_value'] = $max_integers[$fieldtype[1].'_'.$fieldtype[2]];
