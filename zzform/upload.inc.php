@@ -106,7 +106,7 @@ function zz_upload_config() {
 	$default['upload_tools']['identify'] = true; // might be turned off for performance reasons while handling raw data
 	$default['upload_tools']['ghostscript'] = false; // whether we can use gs library
 	$default['upload_tools']['pdfinfo'] = false;
-	$default['upload_log']		= '';
+	$default['upload_log'] = false;
 
 	if (!defined('ZZ_UPLOAD_INI_MAXFILESIZE')) {
 		$max_filesize = ini_get('upload_max_filesize');
@@ -2914,6 +2914,7 @@ function zz_upload_check_max_file_size() {
  */
 function zz_upload_exec($command, $log_description) {
 	global $zz_conf;
+	global $zz_setting;
 	
 	// save stderr output to stdout ($output):
 	$command .= ' 2>&1';
@@ -2933,7 +2934,7 @@ function zz_upload_exec($command, $log_description) {
 		else $out = '[json] '.json_encode($output);
 		$log = "[%s] zzform Upload: %s %s (Output: %s) {%s} [User: %s]\n";
 		$log = sprintf($log, date('d-M-Y H:i:s'), $log_description, $command, $out, $time, $user);
-		error_log($log, 3, $zz_conf['upload_log']);
+		error_log($log, 3, $zz_setting['log_dir'].'/upload.log');
 	}
 	return [$output, $return_var];
 }
