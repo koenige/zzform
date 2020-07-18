@@ -599,6 +599,7 @@ function zz_upload_fileinfo($file, $extension = false) {
 
 	$filename = $file['tmp_name'];
 	if (!$extension) $extension = zz_upload_file_extension($filename);
+	$file['upload_ext'] = $extension;
 
 	// check filetype by several means
 	if ($zz_conf['modules']['debug']) zz_debug('file', json_encode($file));
@@ -1017,6 +1018,32 @@ function zz_upload_unix_file($filename, $file) {
 //		$file['validated'] = true;
 //	} elseif ($file['filetype_file'] == 'data') {
 	// ...
+	
+	// check if mime type from file() matches $file['filetype']
+	$possible_filetypes = [];
+	foreach ($zz_conf['file_types'] as $filetype => $data) {
+		if (empty($data['mime'])) continue;
+		if (!in_array($file['mime'], $data['mime'])) continue;
+		$possible_filetypes[] = $filetype;
+	}
+	
+	if (!in_array($file['filetype'], $possible_filetypes)) {
+		zz_error_log([
+			'msg_dev' => 'File type %s does not match MIME type %s as found by file() for %s',
+			'msg_dev_args' => [$file['filetype'], $file['mime'], $file['name']],
+			'log_post_data' => false
+		]);
+		foreach ($possible_filetypes as $index => $filetype) {
+			if (!in_array($file['upload_ext'], $zz_conf['file_types'][$filetype]['extension']))
+				unset($possible_filetypes[$index]);
+		}
+		if (count($possible_filetypes) === 1) {
+			$imagetype = reset($possible_filetypes);
+		} else {
+			$file['validated'] = false;
+		}
+	}
+	
 	if (!empty($file['validated']) AND $imagetype) {
 		$file['ext'] = $zz_conf['file_types'][$imagetype]['extension'][0];
 		$file['mime'] = $zz_conf['file_types'][$imagetype]['mime'][0];
