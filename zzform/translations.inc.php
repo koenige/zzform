@@ -109,6 +109,14 @@ function zz_translations_init($table, $fields) {
 			if (!empty($fields[$no]['rows']))
 				$zz_sub['fields'][$key]['rows'] = $fields[$no]['rows'];
 		}
+		if (!empty($fields[$no]['if']))
+			$zz_sub['if'] = $fields[$no]['if'];
+		if (!empty($fields[$no]['unless']))
+			$zz_sub['unless'] = $fields[$no]['unless'];
+		if (!empty($fields[$no]['separator'])) {
+			$zz_sub['separator'] = $fields[$no]['separator'];
+			unset($fields[$no]['separator']);
+		}
 		$translationsubtable[$index+$k] = $zz_sub;
 		$translationsubtable[$index+$k]['table_name'] .= '-'.$k;
 		$translationsubtable[$index+$k]['translate_field_name'] = $field_name;
