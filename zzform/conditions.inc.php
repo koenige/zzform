@@ -355,20 +355,28 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 					// inserted and it's not yet possible to check that)
 					$zz_conditions['bool'][$index][0] = true;
 					break;
-				} elseif (!empty($zz_var['where'][$zz['table']][$condition['add']['key_field_name']])) {
-					$sql = $condition['add']['sql']
-						.'"'.$zz_var['where'][$zz['table']][$condition['add']['key_field_name']].'"';
-					if (!empty($condition['where']))
-						$sql = wrap_edit_sql($sql, 'WHERE', $condition['where']);
-					if (!empty($condition['having']))
-						$sql = wrap_edit_sql($sql, 'HAVING', $condition['having']);
-
-					if (zz_db_fetch($sql, '', '', 'record-new ['.$index.']')) {
-						$zz_conditions['bool'][$index][0] = true;
+				} elseif (!empty($condition['add']['key_field_name'])) {
+					if (strstr($condition['add']['key_field_name'], '.')) {
+						list($table, $field_name) = explode('.', $condition['add']['key_field_name']);
 					} else {
-						$zz_conditions['bool'][$index][0] = false;
+						$table = $zz['table'];
+						$field_name = $condition['add']['key_field_name'];
 					}
-					if (zz_error_exit()) return zz_return($zz_conditions); // DB error
+					if (!empty($zz_var['where'][$table][$field_name])) {
+						$sql = $condition['add']['sql']
+							.'"'.$zz_var['where'][$table][$field_name].'"';
+						if (!empty($condition['where']))
+							$sql = wrap_edit_sql($sql, 'WHERE', $condition['where']);
+						if (!empty($condition['having']))
+							$sql = wrap_edit_sql($sql, 'HAVING', $condition['having']);
+
+						if (zz_db_fetch($sql, '', '', 'record-new ['.$index.']')) {
+							$zz_conditions['bool'][$index][0] = true;
+						} else {
+							$zz_conditions['bool'][$index][0] = false;
+						}
+						if (zz_error_exit()) return zz_return($zz_conditions); // DB error
+					}
 				}
 			}
 			if (empty($zz_conf['int']['id']['value'])) break;
