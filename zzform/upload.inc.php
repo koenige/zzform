@@ -1028,11 +1028,13 @@ function zz_upload_unix_file($filename, $file) {
 	}
 	
 	if (!in_array($file['filetype'], $possible_filetypes)) {
-		zz_error_log([
-			'msg_dev' => 'File type %s does not match MIME type %s as found by file() for %s',
-			'msg_dev_args' => [$file['filetype'], $file['mime'], $file['name']],
-			'log_post_data' => false
-		]);
+		if ($file['filetype'] !== 'unknown') {
+			zz_error_log([
+				'msg_dev' => 'File type %s does not match MIME type %s as found by file() for %s',
+				'msg_dev_args' => [$file['filetype'], $file['mime'], $file['name']],
+				'log_post_data' => false
+			]);
+		}
 		foreach ($possible_filetypes as $index => $filetype) {
 			if (!in_array($file['upload_ext'], $zz_conf['file_types'][$filetype]['extension']))
 				unset($possible_filetypes[$index]);
