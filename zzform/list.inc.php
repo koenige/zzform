@@ -1713,8 +1713,43 @@ function zz_list_word_split($text) {
 	if (substr($words[0], 0, 1) === '<') return $text; // no splitting in HTML code
 	foreach ($words as $index => $word) {
 		if (strlen($word) < $zz_conf['word_split']) continue;
-		$word = str_split($word, $zz_conf['word_split']);
-		$words[$index] = implode('<wbr>', $word);
+		if (!strstr($word, '<') AND !strstr($word, '&')) {
+			$parts = str_split($word, $zz_conf['word_split']);
+		} else {
+			// no break inside entities
+			// no break inside HTML
+			$word_length = 0;
+			$last_split = -1;
+			$parts = [];
+			$stop_char = false;
+			$remaining = $word;
+			for ($i = 0; $i < mb_strlen($word); $i++) {
+				if (!$stop_char) $word_length++;
+				switch (mb_substr($word, $i, 1)) {
+				case '<':
+					$stop_char = '>';
+					break;
+				case '>':
+					if ($stop_char === '>') $stop_char = false;
+					break;
+				case '&':
+					$stop_char = ';';
+					break;
+				case ';':
+					if ($stop_char === ';') $stop_char = false;
+					break;
+				}
+				if ($word_length === $zz_conf['word_split']) {
+					$parts[] = mb_substr($remaining, 0, $i - $last_split);
+					$word_length = 0;
+					$remaining = mb_substr($remaining, $i - $last_split);
+					$last_split = $i;
+				}
+			}
+			if ($remaining) $parts[] = $remaining;
+			$word = [$word];
+		}
+		$words[$index] = implode('<wbr>', $parts);
 	}
 	$text = implode(' ', $words);
 	return $text;
