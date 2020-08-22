@@ -117,6 +117,13 @@ function zz_translations_init($table, $fields) {
 			$zz_sub['separator'] = $fields[$no]['separator'];
 			unset($fields[$no]['separator']);
 		}
+		if (!empty($fields[$no]['field_sequence'])) {
+			if (strstr($fields[$no]['field_sequence'], '.')) {
+				$zz_sub['field_sequence'] = $fields[$no]['field_sequence'].'1';
+			} else {
+				$zz_sub['field_sequence'] = $fields[$no]['field_sequence'].'.1';
+			}
+		}
 		$translationsubtable[$index+$k] = $zz_sub;
 		$translationsubtable[$index+$k]['table_name'] .= '-'.$k;
 		$translationsubtable[$index+$k]['translate_field_name'] = $field_name;
