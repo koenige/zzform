@@ -946,7 +946,7 @@ function zz_filter_selection($filter, $filter_params, $pos) {
 				'link' => false,
 				'index' => 1
 			];
-			$filter[$index]['length'] += strlen($selection);
+			$filter[$index]['length'] += strlen($filter_params[$f['identifier']]);
 			$filter_output = false;
 		} else {
 			// nothing to output: like-filter, so don't display anything
