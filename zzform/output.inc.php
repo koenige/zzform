@@ -807,8 +807,7 @@ function zz_init_referer() {
 	$zz_conf['int']['referer'] = parse_url($zz_conf['referer']);
 	if (!empty($zz_conf['int']['referer']['query'])) {
 		$removes = ['delete', 'insert', 'update', 'noupdate'];
-		$zz_conf['int']['referer']['query'] = zz_edit_query_string($zz_conf['int']['referer']['query'], $removes);
-		$zz_conf['int']['referer']['query'] = str_replace('&amp;', '&', $zz_conf['int']['referer']['query']);
+		$zz_conf['int']['referer']['query'] = zz_edit_query_string($zz_conf['int']['referer']['query'], $removes, [], '&');
 	}
 	$zz_conf['referer'] = (
 		(!empty($zz_conf['int']['referer']['scheme']) ? $zz_conf['int']['referer']['scheme'].'://'
