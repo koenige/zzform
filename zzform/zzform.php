@@ -738,7 +738,7 @@ function zz_initialize_int() {
 		'insert', 'delete', 'update', 'multiple', 'thumbnails'
 	];
 
-	$zz_conf['int']['url'] = zz_get_url_self($zz_conf['url_self']);
+	$zz_conf['int']['url'] = zz_get_url_self();
 
 	if ($zz_conf['generate_output']) {
 		// display list of records in database

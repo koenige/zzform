@@ -269,7 +269,6 @@ function zz_module_fieldchecks($field, $key, $type) {
 /**
  * define URL of script
  *
- * @param string $url_self ($zz_conf['url_self'])
  * @return array $url (= $zz_conf['int']['url'])
  *		'self' = own URL for form action
  *		'?&' = either ? or & to append further query strings
@@ -277,15 +276,15 @@ function zz_module_fieldchecks($field, $key, $type) {
  *		'qs_zzform' = query string part of zzform of URL
  *		'full' = full URL with base and request path
  */
-function zz_get_url_self($url_self) {
+function zz_get_url_self() {
 	global $zz_page;
 	global $zz_setting;
-
+	global $zz_conf;
+	
 	$my_uri = $zz_page['url']['full'];
 	$my_uri['path'] = $zz_setting['base'].$my_uri['path'];
 
 	// some basic settings
-	$url['self'] = $url_self;
 	// normal situation: there is no query string in the base url, 
 	// so add query string starting ?
 	$url['?&'] = '?';
@@ -297,7 +296,7 @@ function zz_get_url_self($url_self) {
 		$url['base'] .= sprintf(':%s', $_SERVER['SERVER_PORT']);
 	}
 
-	if (!$url_self) {
+	if (empty($zz_conf['url_self'])) {
 		// nothing was defined, we just do it as we like
 		$url['self'] = $my_uri['path'];
 		// zzform query string
@@ -307,8 +306,8 @@ function zz_get_url_self($url_self) {
 	}
 
 	// it's possible to use url_self without http://hostname, so check for that
-	$examplebase = (substr($url_self, 0, 1) === '/') ? $url['base'] : '';
-	$base_uri = parse_url($examplebase.$url_self);
+	$examplebase = (substr($zz_conf['url_self'], 0, 1) === '/') ? $url['base'] : '';
+	$base_uri = parse_url($examplebase.$zz_conf['url_self']);
 	if ($examplebase) {
 		$url['self'] = $base_uri['path'];
 		$url['full'] = $url['base'].$url['self'];
@@ -320,22 +319,26 @@ function zz_get_url_self($url_self) {
 		// no base query string which belongs url_self
 		$url['qs'] = '?'.$base_uri['query'];
 		$url['?&'] = '&amp;';
-	}
-	if (!empty($my_uri['query']) AND !empty($base_uri['query'])) {
-		parse_str($my_uri['query'], $my_uri_query);
-		parse_str($base_uri['query'], $base_uri_query);
-		foreach ($my_uri_query AS $key => $value) {
-			if (!empty($base_uri_query[$key]) AND $base_uri_query[$key] === $value) {
-				unset($my_uri_query[$key]);
+		if (!empty($my_uri['query'])) {
+			parse_str($my_uri['query'], $my_uri_query);
+			parse_str($base_uri['query'], $base_uri_query);
+			foreach ($my_uri_query AS $key => $value) {
+				if (!empty($base_uri_query[$key]) AND $base_uri_query[$key] === $value) {
+					unset($my_uri_query[$key]);
+				}
 			}
+			unset($base_uri_query);
+			$url['qs_zzform'] = http_build_query($my_uri_query);
+			if ($url['qs_zzform']) $url['qs_zzform'] = '&'.$url['qs_zzform'];
+		} else {
+			$url['qs_zzform'] = '';
 		}
-		unset($base_uri_query);
-		$url['qs_zzform'] = http_build_query($my_uri_query);
-		if ($url['qs_zzform']) $url['qs_zzform'] = '&'.$url['qs_zzform'];
-	} elseif (!empty($my_uri['query']))
-		$url['qs_zzform'] = '&'.$my_uri['query'];
-	else
+	} elseif (!empty($my_uri['query'])) {
+		$url['qs_zzform'] = '?'.$my_uri['query'];
+	} else {
 		$url['qs_zzform'] = '';
+	}
+
 	return $url;
 }
 
@@ -3075,21 +3078,21 @@ function zz_translate($def, $values) {
  */
 function zz_edit_query_string($query, $unwanted_keys = [], $new_keys = [], $and = '&amp;') {
 	$query = str_replace('&amp;', '&', $query);
-	if (in_array(substr($query, 0, 1), ['?', '&'])) {
+	if (substr($query, 0, 1) === '?') {
 		$query = substr($query, 1);
 	}
 	if (!is_array($unwanted_keys)) $unwanted_keys = [$unwanted_keys];
 	if (!is_array($new_keys)) $new_keys = [$new_keys];
-	parse_str($query, $queryparts);
+	parse_str($query, $parts);
 	// remove unwanted keys from URI
-	foreach (array_keys($queryparts) as $key) {
+	foreach (array_keys($parts) as $key) {
 		if (in_array($key, $unwanted_keys)) {
-			unset($queryparts[$key]);
-		} elseif (is_array($queryparts[$key])) {
-			foreach (array_keys($queryparts[$key]) as $subkey) {
+			unset($parts[$key]);
+		} elseif (is_array($parts[$key])) {
+			foreach (array_keys($parts[$key]) as $subkey) {
 				foreach ($unwanted_keys as $unwanted) {
 					if ($unwanted === $key.'['.$subkey.']') {
-						unset($queryparts[$key][$subkey]);
+						unset($parts[$key][$subkey]);
 					}
 				}
 			}
@@ -3097,9 +3100,9 @@ function zz_edit_query_string($query, $unwanted_keys = [], $new_keys = [], $and 
 	}
 	// add new keys or overwrite existing keys
 	foreach ($new_keys as $new_key => $new_value)
-		$queryparts[$new_key] = $new_value; 
+		$parts[$new_key] = $new_value; 
 	// glue everything back together
-	$query_string = http_build_query($queryparts, '', $and);
+	$query_string = http_build_query($parts, '', $and);
 	if ($query_string) return '?'.$query_string; // URL without unwanted keys
 	else return false;
 }
