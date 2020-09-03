@@ -1164,6 +1164,7 @@ function zz_hash($zz, $zz_conf) {
 	// remove user if it's not an internal user
 	if (empty($zz_conf['user'])) unset($zz_conf['user']);
 	elseif (strstr($zz_conf['user'], ' ')) unset($zz_conf['user']);
+	elseif (empty($_SESSION['username'])) unset($zz_conf['user']);
 	$uninteresting_zz_keys = [
 		'title', 'explanation', 'explanation_top', 'subtitle', 'list', 'access'
 	];
