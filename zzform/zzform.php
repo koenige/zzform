@@ -492,6 +492,11 @@ function zz_valid_request($action = false) {
 			]);
 			$dont_log_error = true;
 		}
+		// remove invalid parameters from URL (for XHR requests)
+		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string(
+			$zz_conf['int']['url']['qs_zzform'], ['zzhash', 'insert', 'update']
+		);
+		$zz_conf['int']['id']['value'] = false;
 		return false;
 	}
 	return true;
