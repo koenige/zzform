@@ -836,7 +836,8 @@ function zzform_multi($definition_file, $values) {
 	}
 	$zz = zzform_include_table($definition_file, $values);
 	if (empty($zz_conf['user'])) {
-		$zz_conf['user'] = $_SERVER['REQUEST_URI'];
+		if (!empty($_SESSION['username'])) $zz_conf['user'] = $_SESSION['username'];
+		else $zz_conf['user'] = $_SERVER['REQUEST_URI'];
 	}
 	if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
 		zz_debug('got definition file');
