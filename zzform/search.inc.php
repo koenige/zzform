@@ -403,9 +403,17 @@ function zz_search_checkfield($field_name, $table, $searchword) {
 		return '';
 	}
 	$type = $column['Type'];
+	if (wrap_substr($type, 'unsigned', 'end')) {
+		$unsigned = true;
+		$type = substr($type, 0, -9);
+	} else {
+		if (wrap_substr($type, 'signed', 'end')) {
+			$type = substr($type, 0, -7);
+		}
+		$unsigned = false;
+	}
 	if ($pos = strpos($type, '('))
 		$type = substr($type, 0, $pos);
-	$unsigned = substr($column['Type'], -8) == 'unsigned' ? true: false;
 	
 	// check if numeric value
 	switch ($type) {
