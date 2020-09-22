@@ -92,7 +92,7 @@ function zz_merge_records($zz) {
 
 		$dependent_sql = 'SELECT %s, %s FROM %s.%s WHERE %s IN (%s)';
 		$record_sql = 'UPDATE %s SET %s = %%d WHERE %s = %%d';
-		foreach ($dependent_records as $record) {
+		if ($old_ids) foreach ($dependent_records as $record) {
 			$sql = sprintf($dependent_sql,
 				$record['detail_id_field'], $record['detail_field'],
 				$record['detail_db'], $record['detail_table'], $record['detail_field'],
