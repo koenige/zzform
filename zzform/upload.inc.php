@@ -2850,6 +2850,7 @@ function zz_image_exiftool($filename, $image) {
  * @return string $extension (part behind last dot or 'unknown')
  */
 function zz_upload_file_extension($filename) {
+	$filename = basename($filename);
 	if (strstr($filename, '.'))
 		$extension = strtolower(substr($filename, strrpos($filename, '.')+1));
 	else
