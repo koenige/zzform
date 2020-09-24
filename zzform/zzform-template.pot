@@ -499,7 +499,7 @@ msgid "Please select one of the values for field <strong>%s</strong>."
 msgstr ""
 
 # Record form: Validation, displayed above form
-msgid "Please check the values for field <strong>%s</strong>."
+msgid "Please check the value for field <strong>%s</strong>."
 msgstr ""
 
 # Record form: Validation, displayed above form
