@@ -892,17 +892,14 @@ function zz_db_field_collation($type, $db_table = '', $field, $index = 0) {
 			if ($cols) break;
 		}
 	
-		// column is not in db, we cannot check the collation, therefore we
-		// better exclude this field from search
 		if (!$cols OR !in_array('Collation', array_keys($cols))) {
-			zz_error_log([
-				'msg_dev' => 'Cannot get character set information for %s.%s. %s',
-				'msg_dev_args' => [$db_table, $collate_fieldname, $error_msg],
-				'level' => E_USER_NOTICE
-			]);
-			return NULL;
+			// column is not in db, we cannot check the collation, therefore we
+			// assume it is the same as the standard collation
+			// attention: might generate errors if this is not the case
+			$charset = $zz_conf['int']['character_set_db'];
+		} else {
+			$charset = substr($cols['Collation'], 0, strpos($cols['Collation'], '_'));
 		}
-		$charset = substr($cols['Collation'], 0, strpos($cols['Collation'], '_'));
 	}
 	if (!$charset) return '';
 	if ($charset !== $zz_conf['int']['character_set_db']) return '_'.$charset;
