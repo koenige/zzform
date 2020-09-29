@@ -143,7 +143,7 @@ function zz_imagick_identify($filename, $file) {
 function zz_imagick_check_multipage($source, $filetype, $image) {
 	global $zz_conf;
 
-	if (!in_array($filetype, array_keys($zz_conf['upload_multipage_images']))) {
+	if (!in_array($filetype, $zz_conf['upload_multipage_images'])) {
 		return $source;
 	}
 	if (!$filetype) {
