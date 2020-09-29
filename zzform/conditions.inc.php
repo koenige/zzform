@@ -319,9 +319,16 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 					$zz_conditions['bool'][$index][0] = true;
 				} elseif (!empty($condition['add']['where'])) {
 					// WHERE with ISNULL and $_GET['where']
+					// or condition ['add']['where'] in combination with add !NULL
+					// $zz['conditions'][1]['add']['where'] = 'main_product_id';
+					// $zz['add']['field_name' => 'main_product_id', 'value' => '!NULL']
 					if (preg_match('/^NOT ISNULL\((.+)\)$/', $condition['where'], $matches)) {
 						if (isset($matches[1])) {
 							if (!empty($zz_var['where'][$zz['table']][$matches[1]])) {
+								$zz_conditions['bool'][$index][0] = true;
+								break;
+							}
+							if (!empty($_POST[$matches[1]])) {
 								$zz_conditions['bool'][$index][0] = true;
 								break;
 							}
