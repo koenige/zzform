@@ -332,6 +332,8 @@ function zz_imagick_add_options($source_ext, $image = []) {
 	} elseif (!empty($zz_conf['upload_imagick_options'])) {
 		$ext_options .= ' '.$zz_conf['upload_imagick_options'];
 	}
+	if (!empty($zz_conf['upload_imagick_options_always']))
+		$ext_options .= ' '.$zz_conf['upload_imagick_options_always'];
 	return $ext_options;
 }
 
