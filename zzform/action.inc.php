@@ -1949,6 +1949,8 @@ function zz_validate_parameter($fvalue) {
 	// replace multi line notation
 	$fvalue = str_replace("\r\n\r\n", "&", $fvalue);
 	$fvalue = str_replace("\r\n", "&", $fvalue);
+	// escape + sign
+	$fvalue = str_replace("+", "%2B", $fvalue);
 
 	// check if there's whitespace at the end of one of the keys/values
 	parse_str($fvalue, $parameters);
@@ -1975,9 +1977,12 @@ function zz_validate_parameter($fvalue) {
 			$values[] = sprintf('%s=%s', trim($key, '_'), trim($value));
 		}
 	}
+	sort($values);
 	$fvalue = implode('&', $values);
 	if ($fvalue) $fvalue = '&'.$fvalue; // add leading ampersand for simpler queries
 	
+	// escape + sign again	
+	$fvalue = str_replace("+", "%2B", $fvalue);
 	return $fvalue;
 }
 
