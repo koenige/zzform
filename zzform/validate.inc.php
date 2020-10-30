@@ -11,7 +11,7 @@
  * otherwise they will return the value that was checked
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2005-2014, 2016-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2005-2014, 2016-2018, 2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -171,15 +171,7 @@ function zz_check_url($url) {
 		$parts = zz_is_url($url);
 		if (!$parts) return false;
 	}
-	$url = $parts['scheme'].':'
-		.(!empty($parts['host']) ? '//' : '')
-		.(!empty($parts['user']) ? $parts['user']
-			.(!empty($parts['pass']) ? ':'.$parts['pass'] : '').'@' : '')
-		.(!empty($parts['host']) ? $parts['host'] : '')
-		.(!empty($parts['port']) ? ':'.$parts['port'] : '')
-		.(!empty($parts['path']) ? $parts['path'] : '')
-		.(!empty($parts['query']) ? '?'.$parts['query'] : '')
-		.(!empty($parts['fragment']) ? '#'.$parts['fragment'] : '');
+	$url = wrap_build_url($parts);
 	return $url;
 }
 
