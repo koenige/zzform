@@ -149,9 +149,7 @@ function zz_details_start($zz) {
 		$_SESSION['zzform'][$id][] = $session;
 	}
 
-	wrap_http_status_header(303);
-	header('Location: '.$redirect_to);
-	exit;
+	wrap_redirect(303, $redirect_to, false);
 }
 
 /**

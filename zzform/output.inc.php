@@ -302,9 +302,7 @@ function zz_output_redirect($result, $return, $zz_tab) {
 			$zz_conf['redirect'][$result] = $zz_conf['int']['url']['base']
 				.$zz_conf['redirect'][$result];
 		}
-		wrap_http_status_header(303);
-		header('Location: '.$zz_conf['redirect'][$result]);
-		exit;
+		wrap_redirect(303, $zz_conf['redirect'][$result], false);
 	} elseif (!$zz_conf['debug'] AND $zz_conf['redirect_on_change']) {
 	// redirect to same URL, as to protect against reloading the POST variables
 	// don't do so in case of debugging
@@ -347,22 +345,14 @@ function zz_output_redirect($result, $return, $zz_tab) {
 					}
 				}
 			}
-			wrap_http_status_header(303);
 			if ($nos) $nos = '='.$nos;
-			header('Location: '.$self.'delete'.$nos);
-			exit;
+			wrap_redirect(303, $self.'delete'.$nos, false);
 		case 'successful_insert':
-			wrap_http_status_header(303);
-			header('Location: '.$self.'insert='.$id_value.$secure);
-			exit;
+			wrap_redirect(303, $self.'insert='.$id_value.$secure, false);
 		case 'successful_update':
-			wrap_http_status_header(303);
-			header('Location: '.$self.'update='.$id_value.$secure);
-			exit;
+			wrap_redirect(303, $self.'update='.$id_value.$secure, false);
 		case 'no_update':
-			wrap_http_status_header(303);
-			header('Location: '.$self.'noupdate='.$id_value.$secure);
-			exit;
+			wrap_redirect(303, $self.'noupdate='.$id_value.$secure, false);
 		}
 	}
 	return false;
