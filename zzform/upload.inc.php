@@ -502,8 +502,8 @@ function zz_upload_check_files($zz_tab) {
 				$images[$no][$img]['unsupported_filetype'] = zz_text('Error: ')
 					.zz_text('Unsupported filetype:').' '
 					.strtoupper($filetype)
-					.'<br class="nonewline_in_mail">'.zz_text('Supported filetypes:').' '
-					.strtoupper(implode(', ', $images[$no][$img]['input_filetypes']));
+					.'<br class="nonewline_in_mail">'
+					.zz_upload_supported_filetypes($images[$no][$img]['input_filetypes']);
 				$my_rec['file_upload'] = false;
 				$my_rec['file_upload_error'] = true;
 				// mark with class 'error'
@@ -3002,4 +3002,28 @@ function zz_upload_set_filetypes($filetypes) {
 		}
 	}
 	return $filetypes;
+}
+
+/**
+ * show list of supported filetypes
+ *
+ * @param array $filetypes
+ * @return string
+ */
+function zz_upload_supported_filetypes($filetypes) {
+	$sql = 'SELECT filetype_id, UPPER(filetype) AS filetype, filetype_description
+		FROM filetypes
+		WHERE filetype IN ("%s")';
+	$sql = sprintf($sql, implode('", "', $filetypes));
+	$filetypes = wrap_db_fetch($sql, 'filetype_id', 'numeric');
+	
+	$text = zz_text('Supported filetypes:').' ';
+	foreach ($filetypes as $index => $filetype) {
+		if ($filetype['filetype_description'])
+			$text .= sprintf('<abbr title="%s">%s</abbr>', $filetype['filetype_description'], $filetype['filetype']);
+		else
+			$text .= $filetype['filetype'];
+		if ($index + 1 < count($filetypes)) $text .= ', ';
+	}
+	return $text;
 }
