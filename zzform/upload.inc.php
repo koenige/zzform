@@ -3011,11 +3011,9 @@ function zz_upload_set_filetypes($filetypes) {
  * @return string
  */
 function zz_upload_supported_filetypes($filetypes) {
-	$sql = 'SELECT filetype_id, UPPER(filetype) AS filetype, filetype_description
-		FROM filetypes
-		WHERE filetype IN ("%s")';
-	$sql = sprintf($sql, implode('", "', $filetypes));
+	$sql = sprintf(wrap_sql('filetypelist'), implode("', '", $filetypes));
 	$filetypes = wrap_db_fetch($sql, 'filetype_id', 'numeric');
+	$filetypes = wrap_translate($filetypes, 'filetypes', 'filetype_id');
 	
 	$text = zz_text('Supported filetypes:').' ';
 	foreach ($filetypes as $index => $filetype) {

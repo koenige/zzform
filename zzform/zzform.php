@@ -587,6 +587,7 @@ function zz_initialize($mode = false, $old_conf = []) {
 		zz_set_id();
 		return true;
 	}
+	wrap_sql('zzform', 'set');
 	zz_set_id();
 
 	// Configuration on project level: Core defaults and functions
