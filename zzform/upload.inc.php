@@ -1289,6 +1289,11 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 	}
 
 	$image = zz_upload_merge_options($image, $zz_tab[$tab], $rec);
+	if (!empty($image['on_request'])) {
+		// on request = do not create file, just update it if it was created on request
+		$source_filename = zz_makepath($image['path'], $zz_tab, 'old', 'file', $tab, $rec);
+		if (!file_exists($source_filename)) return $image;
+	}
 	if (!empty($image['ignore'])) return $image;
 
 	$use_uploaded_file = true;
