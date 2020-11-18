@@ -2786,6 +2786,7 @@ function zz_xhr_add($type, $field) {
 function zz_xhr_url_self() {
 	global $zz_conf;
 	$marker = $zz_conf['int']['url']['?&'];
+	if ($marker === '&amp;') $marker = '&'; // no entity encoding
 	$qs = $zz_conf['int']['url']['qs'];
 	$extra = [];
 	if (!empty($_POST) AND array_key_exists('zz_fields', $_POST) AND $_POST['zz_action'] === 'insert') {
