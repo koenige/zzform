@@ -2206,9 +2206,10 @@ function zz_upload_action($zz_tab) {
 				$show_filename = true;
 				// optional files: don't show error message!
 				if (!$filename) $show_filename = false;
-				if (!empty($val['ignore'])) $show_filename = false;
-				if (!empty($my_rec['fields'][$no]['optional_image'])) $show_filename = false;
-				if (!empty($val['optional_image'])) $show_filename = false;
+				elseif (!empty($val['ignore'])) $show_filename = false;
+				elseif (!empty($my_rec['fields'][$no]['optional_image'])) $show_filename = false;
+				elseif (!empty($val['optional_image'])) $show_filename = false;
+				elseif (!empty($val['on_request'])) $show_filename = false;
 				if ($show_filename)
 					$show_filename = zz_makepath($val['path'], $zz_tab, 'old', 'local', $tab, $rec);
 				// delete file
