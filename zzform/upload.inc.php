@@ -137,8 +137,7 @@ function zz_upload_config() {
 	foreach (array_keys($default['image_types']) as $key)
 		$default['image_types'][$key]['filetype'] = $default['image_types'][$key]['ext'];
 
-	$default['file_types'] = parse_ini_file($zz_conf['dir_inc'].'/filetypes.cfg', true);
-	$default['file_types'] = zz_upload_set_filetypes($default['file_types']);
+	$default['file_types'] = wrap_filetypes();
 	if (zz_error_exit()) return false;
 
 	// unwanted mimetypes and their replacements
@@ -255,7 +254,7 @@ function zz_upload_get($zz_tab) {
 		include_once $zz_conf['dir_inc'].'/image-'.$zz_conf['graphics_library'].'.inc.php';
 
 	// allow shortcuts for file_types
-	$zz_conf['file_types'] = zz_upload_set_filetypes($zz_conf['file_types']);
+	$zz_conf['file_types'] = wrap_filetypes_normalize($zz_conf['file_types']);
 	$zz_conf['int']['upload_cleanup_files'] = [];
 
 	// create array upload_fields in $zz_tab[0] for easy access to upload fields
@@ -2973,41 +2972,6 @@ function zz_upload_exec($command, $log_description) {
 		error_log($log, 3, $zz_setting['log_dir'].'/upload.log');
 	}
 	return [$output, $return_var];
-}
-
-/**
- * get default values for $zz_conf['file_types']
- *
- * @param array $filetypes = $zz_conf['file_types']
- * @return array $filetypes
- *		indexed by string type
- *		string 'description'
- *		array 'mime'
- *		array 'extension'
- *		bool 'thumbnail'
- *		bool 'multipage'
- */
-function zz_upload_set_filetypes($filetypes) {
-	foreach ($filetypes as $type => $values) {
-		$filetypes[$type]['filetype'] = $type;
-		if (empty($values['mime'])) {
-			$filetypes[$type]['mime'][0] = 'application/octet-stream';
-		} elseif (!is_array($values['mime'])) {
-			$filetypes[$type]['mime'] = [0 => $values['mime']];
-		}
-		if (empty($values['extension'])) {
-			$filetypes[$type]['extension'][0] = $type;
-		} elseif (!is_array($values['extension'])) {
-			$filetypes[$type]['extension'] = [0 => $values['extension']];
-		}
-		if (!array_key_exists('thumbnail', $values)) {
-			 $filetypes[$type]['thumbnail'] = 0;
-		}
-		if (!array_key_exists('multipage', $values)) {
-			 $filetypes[$type]['multipage'] = 0;
-		}
-	}
-	return $filetypes;
 }
 
 /**
