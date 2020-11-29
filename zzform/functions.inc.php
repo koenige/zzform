@@ -3658,7 +3658,7 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 
 			$wheresql .= sprintf($my_likestring, $sql_fieldname, $collation,
 				wrap_db_escape(trim($value)));
-			if (!empty($field['sql_translate']) AND !empty($zz_conf['translations_table'])) {
+			if (!empty($field['sql_translate'])) {
 				$condition = zz_check_select_translated($field, $sql_fieldname, $value, $search_equal);
 				if ($condition) $wheresql .= sprintf(' OR %s', $condition);
 			}
@@ -3710,6 +3710,7 @@ function zz_check_select_id($field, $postvalue, $id = []) {
  */
 function zz_check_select_translated($field, $sql_fieldname, $value, $search_equal) {
 	global $zz_conf;
+	if (empty($zz_conf['translations_of_fields'])) return '';
 	require_once $zz_conf['dir_inc'].'/translations.inc.php'; // for XHR
 
 	// set conditions
