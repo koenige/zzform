@@ -149,7 +149,7 @@ function zz_details_start($zz) {
 		$_SESSION['zzform'][$id][] = $session;
 	}
 
-	wrap_redirect($redirect_to, 303, false);
+	wrap_redirect_change($redirect_to);
 }
 
 /**
