@@ -907,7 +907,7 @@ function zzform_include_table($definition_file, $values = []) {
 	global $zz_setting;
 	
 	$scripts = zzform_file($definition_file);
-	if (!empty($scripts['table'])) {
+	if (!empty($scripts['tables'])) {
 		if ($scripts['common']) require_once $scripts['common'];
 		$zz_view = !empty($values['view']) ? $values['view'] : false;		
 		require $scripts['tables'];
