@@ -1078,8 +1078,11 @@ function zz_upload_error_with_file($filename, $file, $return = []) {
 	if (empty($copied_files)) $copied_files = [];
 
 	// save file
+	// don’t do that when creating thumbnails in background: master file is
+	// already saved anyways
 	$error_filename = false;
-	if ($zz_conf['backup'] AND !in_array($filename, $copied_files)) {
+	if ($zz_conf['backup'] AND !in_array($filename, $copied_files)
+		AND empty($file['create_in_background'])) {
 		// don't return here in case of error - 
 		// it's not so important to break the whole process
 		$my_error = zz_error_exit();
