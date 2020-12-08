@@ -75,7 +75,7 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 		foreach ($text as $index => $value) {
 			// first field must be id field, so if value is not numeric, ignore it
 			if (!$no AND !is_numeric($value)) continue;
-			$collation = zz_db_field_collation('xhr', false, $sql_field, $no);
+			$collation = zz_db_field_collation('xhr', $sql_field, false, $no);
 			$query = $equal ? 'LOWER(%s) = %s"%s"' : 'LOWER(%s) LIKE %s"%%%s%%"';
 			$where[$index][] = sprintf($query, $sql_field['field_name'], $collation, wrap_db_escape($value));
 			if (!empty($field['sql_translate'])) {

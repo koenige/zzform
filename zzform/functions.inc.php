@@ -3648,7 +3648,7 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 				$collation = '';
 			} else {
 				$collation = zz_db_field_collation(
-					'reselect', false, $field, $index
+					'reselect', $field, false, $index
 				);
 			}
 			if (!$wheresql) $wheresql .= '(';

@@ -805,13 +805,13 @@ function zz_db_field_null($field, $db_table) {
  * prefix different charset if necessary for LIKE
  *
  * @param string $type 'search', 'reselect', 'xhr'
- * @param string $db_table (optional, for search)
  * @param array $field
  *		'character_set'
+ * @param string $db_table (optional, for search)
  * @param int $index (optional, for reselect and xhr)
  * @return string
  */
-function zz_db_field_collation($type, $db_table = '', $field, $index = 0) {
+function zz_db_field_collation($type, $field, $db_table = '', $index = 0) {
 	global $zz_conf;
 	
 	$charset = '';
