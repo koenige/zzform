@@ -1425,8 +1425,7 @@ function zz_action_validate($zz_tab) {
 			
 				// first part of validation where field values are independent
 				// from other field values
-				$zz_tab[$tab][$rec] = zz_validate($zz_tab[$tab][$rec], $zz_tab[$tab]['db_name']
-					.'.'.$zz_tab[$tab]['table'], $zz_tab[$tab]['table_name'], $tab, $rec, $zz_tab); 
+				$zz_tab[$tab][$rec] = zz_validate($zz_tab, $tab, $rec);
 				if ($tab) {
 					// write changed POST values back to main POST array
 					// @todo let the next functions access the main POST array 
@@ -1444,20 +1443,21 @@ function zz_action_validate($zz_tab) {
 /**
  * Validates user input
  * 
- * @param array $my_rec = $zz_tab[$tab][$rec]
- * @param string $db_table [db_name.table]
- * @param string $table_name Alias for table if it occurs in the form more than once
+ * @param array $zz_tab
  * @param int $tab
  * @param int $rec
- * @param array $zz_tab = $zz_tab[0][0], keys ['POST'], ['images'] and ['extra']
  * @global array $zz_conf
  * @return array $my_rec with validated values and marker if validation was 
  *		successful ($my_rec['validation'])
  */
-function zz_validate($my_rec, $db_table, $table_name, $tab, $rec = 0, $zz_tab) {
+function zz_validate($zz_tab, $tab, $rec = 0) {
 	global $zz_conf;
-
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+
+	$my_rec = $zz_tab[$tab][$rec];
+	$db_table = $zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table'];
+	$table_name = $zz_tab[$tab]['table_name']; // Alias for table if it occurs in the form more than once
+	
 	// in case validation fails, these values will be send back to user
 	$my_rec['POST-notvalid'] = $my_rec['POST'];
 	$my_rec['last_fields'] = [];
