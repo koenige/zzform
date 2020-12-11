@@ -411,6 +411,13 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 		case 'query': // just for form view (of saved records), for list view will be later in zz_list()
 			$zz_conditions['bool'][$index] = [];
 			if (($mode === 'add' OR $zz_var['action'] === 'insert') AND !empty($condition['add'])) {
+				if (!empty($condition['add']['always'])) {
+					// mode = 'add': this condition is always true
+					// (because condition is true for this record after being 
+					// inserted and it's not yet possible to check that)
+					$zz_conditions['bool'][$index][0] = true;
+					break;
+				}
 				$sql = $condition['add']['sql']
 					.'"'.$zz_var['where'][$zz['table']][$condition['add']['key_field_name']].'"';
 				if (zz_db_fetch($sql, '', '', 'record-new ['.$index.']')) {
