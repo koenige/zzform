@@ -2150,6 +2150,14 @@ function zz_field_number($field, $display, $record, $dont_reformat) {
 		$fieldattr['maxlength'] = $field['maxlength'];
 	if (!empty($field['minlength']))
 		$fieldattr['minlength'] = $field['minlength'];
+	if (isset($field['max'])) {
+		$fieldattr['max'] = $field['max'];
+		$formtype = 'number';
+	}
+	if (isset($field['min'])) {
+		$fieldattr['min'] = $field['min'];
+		$formtype = 'number';
+	}
 	if (!empty($field['pattern'])) $fieldattr['pattern'] = $field['pattern'];
 	$text = zz_form_element($field['f_field_name'], $value, $formtype, true, $fieldattr);
 	return $text.$suffix;
