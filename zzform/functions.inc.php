@@ -1073,6 +1073,16 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			if (!isset($fields[$no]['minlength'])) $fields[$no]['minlength'] = 8;
 			if (!isset($fields[$no]['maxlength'])) $fields[$no]['maxlength'] = 60;
 			break;
+		case 'upload_image':
+			if (!empty($fields[$no]['upload_max_filesize'])) {
+				$fields[$no]['upload_max_filesize'] = wrap_return_bytes($fields[$no]['upload_max_filesize']);
+			} else {
+				$fields[$no]['upload_max_filesize'] = $zz_conf['upload_MAX_FILE_SIZE']; 
+			}
+			$ini_filesize = wrap_return_bytes(ini_get('upload_max_filesize'));
+			if ($fields[$no]['upload_max_filesize'] > $ini_filesize)
+				$fields[$no]['upload_max_filesize'] = $ini_filesize;
+			break;
 		}
 		if (in_array(zz_get_fieldtype($fields[$no]), ['time', 'datetime'])) {
 			if (empty($fields[$no]['time_format'])) {

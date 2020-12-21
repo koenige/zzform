@@ -463,6 +463,15 @@ function zz_upload_check_files($zz_tab) {
 			} else {
 				$images[$no][$img]['upload']['size'] = $myfiles['size'][$field_name];
 			}
+			// file not too big if max smaller than ini_size?
+			if ($field['upload_max_filesize'] < $images[$no][$img]['upload']['size']) {
+				$images[$no][$img]['upload']['error'] = UPLOAD_ERR_FORM_SIZE;
+				$images[$no][$img]['upload_max_filesize'] = $field['upload_max_filesize'];
+				if (file_exists($images[$no][$img]['upload']['tmp_name']))
+					zz_unlink_cleanup($images[$no][$img]['upload']['tmp_name']);
+				$images[$no][$img]['upload']['tmp_name'] = false;
+			}
+			
 			switch ($images[$no][$img]['upload']['error']) {
 				case UPLOAD_ERR_NO_FILE:
 					continue 2;
@@ -1838,7 +1847,7 @@ function zz_upload_check(&$images, $action, $rec = 0) {
 			case UPLOAD_ERR_INI_SIZE: // file is too big
 				$images[$img]['error'][] = zz_text('Error: ').zz_text('File is too big.').' '
 					.sprintf(zz_text('Maximum allowed filesize is %s.'),
-						wrap_bytes($zz_conf['upload_MAX_FILE_SIZE'])
+						wrap_bytes($images[$img]['upload_max_filesize'])
 					); // Max allowed
 				break; 
 			case UPLOAD_ERR_OK: // everything ok.

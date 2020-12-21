@@ -3651,7 +3651,7 @@ function zz_field_image($field, $display, $record, $record_saved, $images, $mode
 					);
 				}
 				$text .= '<br><small class="explanation">'.sprintf(zz_text('Maximum allowed filesize is %s.'),
-					wrap_bytes($zz_conf['upload_MAX_FILE_SIZE'])).' '
+					wrap_bytes($field['upload_max_filesize'])).' '
 					.zz_upload_supported_filetypes($field['input_filetypes']).'</small>';
 			}
 			if ($display === 'form' && !empty($image['explanation'])) 
