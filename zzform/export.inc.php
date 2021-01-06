@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -161,11 +161,6 @@ function zz_export_links() {
 	// remove some querystrings which have no effect anyways
 	$unwanted_querystrings = ['nolist', 'debug', 'referer', 'limit', 'order', 'dir'];
 	$qs = zz_edit_query_string($zz_conf['int']['extra_get'], $unwanted_querystrings);
-	if (substr($qs, 1)) {
-		$qs = '&amp;'.substr($qs, 1);
-	} else {
-		$qs = '';
-	}
 
 	if (!is_array($zz_conf['export']))
 		$zz_conf['export'] = [$zz_conf['export']];

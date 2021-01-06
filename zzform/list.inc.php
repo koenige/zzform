@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -212,7 +212,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			$action_url = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs'];
 			if ($zz_conf['int']['extra_get']) {
 				// without first &amp;!
-				$action_url .= $zz_conf['int']['url']['?&'].substr($zz_conf['int']['extra_get'], 5);
+				$action_url .= $zz_conf['int']['url']['?&'].$zz_conf['int']['extra_get'];
 			}
 			$ops['output'] .= sprintf('<form action="%s" method="POST" accept-charset="%s">'."\n",
 				$action_url, $zz_conf['character_set']);

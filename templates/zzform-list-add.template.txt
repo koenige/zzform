@@ -4,7 +4,7 @@
 # http://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2017, 2020 Gustaf Mossakowski
+# @copyright Copyright © 2017, 2020-2021 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 %%% condition if add %%%
@@ -13,7 +13,7 @@
 %%% loop add %%%
 <li><a href="%%% setting zzform_int_url_self %%%%%% setting zzform_int_url_qs %%%%%% setting zzform_int_url_?& %%%add%%% condition if value %%%
 [%%% item field_name %%%]=%%% item value %%%
-%%% condition endif %%%%%% setting zzform_int_extra_get %%%"%%% item title " title='%s'" %%%>%%% item type %%%</a>%%% item explanation " (%s)" %%%</li>
+%%% condition endif %%%%%% setting zzform_int_extra_get "&amp;%s" %%%"%%% item title " title='%s'" %%%>%%% item type %%%</a>%%% item explanation " (%s)" %%%</li>
 %%% loop end %%%
 </ul>
 </div>
@@ -21,11 +21,11 @@
 %%% condition if add_record | export %%%
 <p class="add-new bottom-add-new">
 %%% condition if add_record %%%
-<a accesskey="n" href="%%% setting zzform_int_url_self %%%%%% setting zzform_int_url_qs %%%%%% setting zzform_int_url_?& %%%add%%% setting zzform_int_extra_get %%%">%%% text Add new record %%%</a>
+<a accesskey="n" href="%%% setting zzform_int_url_self %%%%%% setting zzform_int_url_qs %%%%%% setting zzform_int_url_?& %%%add%%% setting zzform_int_extra_get "&amp;%s" %%%">%%% text Add new record %%%</a>
 %%% condition endif %%%
 %%% condition if add_record & export %%% | %%% condition endif %%%
 %%% loop export %%%
-<a href="%%% setting zzform_int_url_self %%%%%% setting zzform_int_url_qs %%%%%% setting zzform_int_url_?& %%%export=%%% item mode %%%%%% item qs %%%">%%% text Export %%% (%%% item type %%%)</a>
+<a href="%%% setting zzform_int_url_self %%%%%% setting zzform_int_url_qs %%%%%% setting zzform_int_url_?& %%%export=%%% item mode %%%%%% item qs "&amp;%s" %%%">%%% text Export %%% (%%% item type %%%)</a>
 %%% loopposition first|middle " | "%%%
 %%% loop end %%%
 </p>

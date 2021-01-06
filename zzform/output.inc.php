@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -708,7 +708,8 @@ function zz_nice_tablenames($table) {
  * changes own URL, adds some extra parameter
  *
  * @global array $zz_conf
- * @return string extra GET parameters for links
+ *		string 'extra_get' for extra GET parameters for links
+ * @return void
  */
 function zz_extra_get_params() {
 	global $zz_conf;
@@ -732,7 +733,7 @@ function zz_extra_get_params() {
 
 	$zz_conf['int']['extra_get'] = http_build_query($keep_query);
 	if ($zz_conf['int']['extra_get']) 
-		$zz_conf['int']['extra_get'] = '&amp;'.str_replace('&', '&amp;', $zz_conf['int']['extra_get']);
+		$zz_conf['int']['extra_get'] = str_replace('&', '&amp;', $zz_conf['int']['extra_get']);
 }
 
 /**
@@ -1180,8 +1181,8 @@ function zz_output_modes($id, $zz_conf_record) {
 	global $zz_conf;
 	
 	if (!empty($zz_conf['int']['where_with_unique_id'])) $id = '';
-	$qs = ($id ? sprintf('=%d', $id) : '').$zz_conf['int']['extra_get'];
-	$qs_extra = $zz_conf['int']['url']['?&'].substr($zz_conf['int']['extra_get'], 5);
+	$qs = ($id ? sprintf('=%d', $id) : '').($zz_conf['int']['extra_get'] ? '&amp;'.$zz_conf['int']['extra_get'] : '');
+	$qs_extra = $zz_conf['int']['url']['?&'].$zz_conf['int']['extra_get'];
 	$link = sprintf(
 		'<a href="%s%s%%s%%s%%s">%%s</a>',
 		$zz_conf['int']['url']['self'],

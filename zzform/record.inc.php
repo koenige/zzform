@@ -92,7 +92,7 @@ function zz_record($ops, $zz_record, $zz_tab, $zz_var, $zz_conditions) {
 		$output .= '<form action="'.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs'];
 		// without first &amp;!
 		if ($zz_conf['int']['extra_get']) 
-			$output .= $zz_conf['int']['url']['?&'].substr($zz_conf['int']['extra_get'], 5);
+			$output .= $zz_conf['int']['url']['?&'].$zz_conf['int']['extra_get'];
 		if (!empty($zz_conf['form_anchor']))
 			$output .= sprintf('#%s', $zz_conf['form_anchor']);
 		$output .= '" method="POST"';
