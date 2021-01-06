@@ -13,7 +13,7 @@
  *	zzform_multi()			multi edit for zzform, e. g. import
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -329,7 +329,7 @@ function zzform($zz) {
 		}
 		// display updated, added or editable Record
 		require_once $zz_conf['dir_inc'].'/record.inc.php';
-		$ops['output'] .= zz_record($ops, $zz_tab, $zz_var, $zz_conditions);	
+		$ops['output'] .= zz_record($ops, (!empty($zz['record']) ? $zz['record'] : []), $zz_tab, $zz_var, $zz_conditions);	
 	} else {
 		if (isset($_GET['delete'])) {
 			// just show heading that record was deleted

@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -19,6 +19,7 @@
  *
  * @param array $ops
  *		'output', 'mode', 'result'
+ * @param array $zz_record = $zz['record']
  * @param array $zz_tab
  * @param array $zz_var
  *		'upload_form', 'action'
@@ -27,7 +28,7 @@
  *		'url_self', 'url_self_qs_base', 'url_append', 'character_set'
  * @return string $output
  */
-function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
+function zz_record($ops, $zz_record, $zz_tab, $zz_var, $zz_conditions) {
 	global $zz_conf;
 	global $zz_setting;
 
@@ -240,12 +241,12 @@ function zz_record($ops, $zz_tab, $zz_var, $zz_conditions) {
 	if ($div_record_open) $output .= "</div>\n";
 	if ($form_open) $output .= "</form>\n";
 
-	if (!empty($zz_conf['footer_record']['insert']) AND zz_valid_request('insert')) {
-		$output .= $zz_conf['footer_record']['insert'];
-	} elseif (!empty($zz_conf['footer_record']['update']) AND zz_valid_request(['update', 'noupdate'])) {
-		$output .= $zz_conf['footer_record']['update'];
-	} elseif (!empty($zz_conf['footer_record']['delete']) AND zz_valid_request('delete')) {
-		$output .= $zz_conf['footer_record']['delete'];
+	if (!empty($zz_record['footer']['insert']) AND zz_valid_request('insert')) {
+		$output .= $zz_record['footer']['insert'];
+	} elseif (!empty($zz_record['footer']['update']) AND zz_valid_request(['update', 'noupdate'])) {
+		$output .= $zz_record['footer']['update'];
+	} elseif (!empty($zz_record['footer']['delete']) AND zz_valid_request('delete')) {
+		$output .= $zz_record['footer']['delete'];
 	}
 
 	$output .= zz_output_backlink($zz_tab);
