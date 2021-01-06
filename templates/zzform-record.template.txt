@@ -70,4 +70,8 @@
 %%% condition if form %%%
 </form>
 %%% condition endif %%%
+
 %%% item footer %%%
+%%% item backlink %%%
+%%% item js_xhr_selects %%%
+%%% item js_xhr_dependencies %%%

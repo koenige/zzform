@@ -209,27 +209,21 @@ function zz_record($ops, $zz_record, $zz_tab, $zz_var, $zz_conditions) {
 		$record['footer'] =	'';
 	}
 
-	if ($record === $zz_record) {
-		// nothing to output, do not use template
-		// @todo check if this is necessary
-		$output = '';
-	} else {
-		$output = wrap_template('zzform-record', $record);
-	}
-	$output .= zz_output_backlink($zz_tab);
+	$record['backlink'] = zz_output_backlink($zz_tab);
+
 	if ($zz_conf['xhr_vxjs']) {
 		if (!empty($zz_conf['int']['selects'])) {
-			$output .= wrap_template('xhr-selects', $zz_conf['int']['selects']);
+			$record['js_xhr_selects'] = wrap_template('xhr-selects', $zz_conf['int']['selects']);
 		}
 		if (!empty($zz_conf['int']['dependencies'])) {
 			if (!empty($zz_conf['int']['selects'])) {
 				$zz_conf['int']['dependencies']['xhr_selects'] = true;
 			}
-			$output .= wrap_template('xhr-dependencies', $zz_conf['int']['dependencies']);
+			 $record['js_xhr_dependencies'] = wrap_template('xhr-dependencies', $zz_conf['int']['dependencies']);
 		}
 	}
 
-	return $output;
+	return wrap_template('zzform-record', $record);
 }
 
 /**
