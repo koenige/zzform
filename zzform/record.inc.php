@@ -32,7 +32,8 @@ function zz_record($ops, $zz_record, $zz_tab, $zz_var, $zz_conditions) {
 	global $zz_conf;
 	global $zz_setting;
 
-	$formhead = false;
+	$record = $zz_record;
+	$record['formhead'] = false;
 	$records = false;
 	if (!empty($_GET['delete'])) {
 		$records = zz_check_get_array('delete', 'is_int');
@@ -52,60 +53,47 @@ function zz_record($ops, $zz_record, $zz_tab, $zz_var, $zz_conditions) {
 	}
 	if ($zz_tab[0]['record_action'] OR $action_before_redirect) {
 		if ($zz_var['action'] === 'insert' OR $action_before_redirect === 'insert') {
-			$formhead = zz_text('record_was_inserted');
+			$record['formhead'] = zz_text('record_was_inserted');
 		} elseif (($zz_var['action'] === 'update' AND $ops['result'] === 'successful_update')
 			OR $action_before_redirect === 'update') {
-			$formhead = zz_text('record_was_updated');
+			$record['formhead'] = zz_text('record_was_updated');
 		} elseif ($zz_var['action'] === 'delete' OR $action_before_redirect === 'delete') {
 			if ($records) {
 				if ($records === 1) {
-					$formhead = '1 '.zz_text('record_was_deleted');
+					$record['formhead'] = '1 '.zz_text('record_was_deleted');
 				} else {
-					$formhead = sprintf(zz_text('%d records were deleted'), $records);
+					$record['formhead'] = sprintf(zz_text('%d records were deleted'), $records);
 				}
 				$action_before_redirect = '';
 			} else {
-				$formhead = zz_text('record_was_deleted');
+				$record['formhead'] = zz_text('record_was_deleted');
 			}
 		} elseif (($zz_var['action'] === 'update' AND $ops['result'] === 'no_update')
 			OR $action_before_redirect === 'noupdate') {
-			$formhead = zz_text('Record was not updated (no changes were made)');
+			$record['formhead'] = zz_text('Record was not updated (no changes were made)');
 		}
 	}
 
-	// open HTML form element
-	// in these cases, no form element will be shown
-
-	$output = '';
 	$record_form = ['edit', 'delete', 'add', 'revise'];
-	// Variable to correctly close form markup in case of error
-	$form_open = false;
-	$div_record_open = false;
 	if (in_array($ops['mode'], $record_form)) {
+		$record['form'] = true;
 		if (!empty($zz_setting['csp_frame_ancestors'])) {
 			$zz_setting['extra_http_headers'][] = "Content-Security-Policy: frame-ancestors 'self' ".$zz_setting['csp_frame_ancestors'];
 		} else {
 			$zz_setting['extra_http_headers'][] = 'X-Frame-Options: Deny';
 			$zz_setting['extra_http_headers'][] = "Content-Security-Policy: frame-ancestors 'self'";
 		}
-		$form_open = true;
-		$output .= '<form action="'.$zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs'];
-		// without first &amp;!
-		if ($zz_conf['int']['extra_get']) 
-			$output .= $zz_conf['int']['url']['?&'].$zz_conf['int']['extra_get'];
 		if (!empty($zz_conf['form_anchor']))
-			$output .= sprintf('#%s', $zz_conf['form_anchor']);
-		$output .= '" method="POST"';
-		if (!empty($zz_var['upload_form'])) 
-			$output .= ' enctype="multipart/form-data"';
-		$output .= ' accept-charset="'.$zz_conf['character_set'].'">';
-		$output .= sprintf('<input type="hidden" name="zz_id" value="%s">', $zz_conf['id']);
-		if (!empty($ops['form'])) $output .= $ops['form'];
+			$record['form_anchor'] = $zz_conf['form_anchor'];
+		$record['upload'] = !empty($zz_var['upload_form']) ? true : false;
+		if (!empty($ops['form'])) $record['hook_output'] = $ops['form'];
+	} else {
+		$record['form'] = false;
 	}
 
 	// Heading inside HTML form element
 	if (!empty($zz_conf['int']['id']['invalid_value'])) {
-		$formhead = '<span class="error">'.sprintf(zz_text('Invalid ID for a record (must be an integer): %s'),
+		$record['formhead'] = '<span class="error">'.sprintf(zz_text('Invalid ID for a record (must be an integer): %s'),
 			wrap_html_escape($zz_conf['int']['id']['invalid_value'])).'</span>';
 		$zz_conf['int']['http_status'] = 404;
 	} elseif (in_array($ops['mode'], ['edit', 'delete', 'review', 'show', 'revise'])
@@ -114,7 +102,7 @@ function zz_record($ops, $zz_record, $zz_tab, $zz_var, $zz_conditions) {
 		$sql = sprintf($sql, $zz_conf['int']['id']['field_name'], $zz_tab[0]['table'], $zz_conf['int']['id']['field_name'], $zz_conf['int']['id']['value']);
 		$id_exists = zz_db_fetch($sql, '', 'single value');
 		if ($id_exists) {
-			$formhead = '<span class="error">'.sprintf(zz_text('Sorry, it is not possible to access the ID %d from here.'),
+			$record['formhead'] = '<span class="error">'.sprintf(zz_text('Sorry, it is not possible to access the ID %d from here.'),
 				wrap_html_escape($zz_conf['int']['id']['value'])).'</span>';
 			$zz_conf['int']['http_status'] = 403;
 		} else {
@@ -124,17 +112,17 @@ function zz_record($ops, $zz_record, $zz_tab, $zz_var, $zz_conditions) {
 			if ($max_id > $zz_conf['int']['id']['value']
 				AND $zz_conf['int']['id']['value'] > 0) {
 				// This of course is only 100% correct if it is an incremental ID
-				$formhead = '<span class="error">'.sprintf(zz_text('The record with the ID %d was already deleted.'),
+				$record['formhead'] = '<span class="error">'.sprintf(zz_text('The record with the ID %d was already deleted.'),
 					wrap_html_escape($zz_conf['int']['id']['value'])).'</span>';
 				$zz_conf['int']['http_status'] = 410;
 			} else {
-				$formhead = '<span class="error">'.sprintf(zz_text('A record with the ID %d does not exist.'),
+				$record['formhead'] = '<span class="error">'.sprintf(zz_text('A record with the ID %d does not exist.'),
 					wrap_html_escape($zz_conf['int']['id']['value'])).'</span>';
 				$zz_conf['int']['http_status'] = 404;
 			}
 		}
 	} elseif (!empty($zz_tab[0]['integrity'])) {
-		$formhead = zz_text('Warning!');
+		$record['formhead'] = zz_text('Warning!');
 		if (!empty($zz_tab[0]['integrity']['msg_no_list'])) {
 			zz_error_log([
 				'msg' => $zz_tab[0]['integrity']['msg'],
@@ -160,50 +148,29 @@ function zz_record($ops, $zz_record, $zz_tab, $zz_var, $zz_conditions) {
 		(in_array($ops['mode'], ['show']) AND !$action_before_redirect)) {
 	//	mode = add | edit | delete: show form
 		if (isset($zz_conf['int']['id']['values'])) {
-			$formhead = zz_text(ucfirst($ops['mode']).' several records');
+			$record['formhead'] = zz_text(ucfirst($ops['mode']).' several records');
 		} else {
-			$formhead = zz_text(ucfirst($ops['mode']) .' a record');
+			$record['formhead'] = zz_text(ucfirst($ops['mode']) .' a record');
 		}
 	} elseif ($zz_var['action'] OR $action_before_redirect) {	
 	//	action = insert update review: show form with new values
-		if (!$formhead AND $zz_var['action']) {
-			$formhead = zz_text(ucfirst($zz_var['action']).' failed');
+		if (!$record['formhead'] AND $zz_var['action']) {
+			$record['formhead'] = zz_text(ucfirst($zz_var['action']).' failed');
 		}
 	} elseif ($ops['mode'] === 'review') {
-		$formhead = zz_text('Show a record');
-	}
-	if (trim($formhead)) {
-		$output .= '<div id="record">'."\n<h2>".ucfirst($formhead)."</h2>\n\n";
-		$div_record_open = true;
+		$record['formhead'] = zz_text('Show a record');
 	}
 
 	// output reselect warning messages to user
 	$reselect_errors = zz_log_reselect_errors();
 	if ($reselect_errors) {
-		if (!$div_record_open) {
-			$output .= '<div id="record">';
-			$div_record_open = true;
-		}
-		$output .= wrap_template('zzform-record-reselect', $reselect_errors);
+		$record['reselect_errors'] = wrap_template('zzform-record-reselect', $reselect_errors);
 	}
 
 	// output validation and database error messages to the user
 	zz_error_validation();
 	zz_error();
-	$error = zz_error_output();
-	if (!empty($zz_conf['int']['resend_form_required'])) {
-		$error .= sprintf(
-			'<div class="reselect"><p>%s</p></div>'
-			, zz_text('Sorry, an error has occurred.<br>Please send the form again.')
-		);
-	}
-	if ($error) {
-		if (!$div_record_open) {
-			$output .= '<div id="record">';
-			$div_record_open = true;
-		}
-		$output .= $error;
-	}
+	$record['errors'] = zz_error_output();
 
 	// set display of record (review, form, not at all)
 
@@ -213,7 +180,7 @@ function zz_record($ops, $zz_record, $zz_tab, $zz_var, $zz_conditions) {
 		$display_form = 'form';
 	} elseif ($zz_var['action'] === 'delete') {
 		$display_form = false;
-	} elseif ($zz_var['action'] AND $formhead) {
+	} elseif ($zz_var['action'] AND $record['formhead']) {
 		$display_form = 'review';
 	} elseif ($zz_var['action']) {
 		$display_form = false;
@@ -225,30 +192,30 @@ function zz_record($ops, $zz_record, $zz_tab, $zz_var, $zz_conditions) {
 		AND !$zz_tab[0][0]['record']) {
 		$display_form = false;
 	}
+	$record['formhead'] = trim($record['formhead']); // can be ' ' to hide it
 
 	if ($display_form) {
-		if (!$div_record_open) {
-			$output .= '<div id="record">';
-			$div_record_open = true;
-		}
 		// output form if necessary
-		$data = zz_display_records($zz_tab, $ops['mode'], $display_form, $zz_var, $zz_conditions);
-		$output .= wrap_template('zzform-record', $data);
+		$record += zz_display_records($zz_tab, $ops['mode'], $display_form, $zz_var, $zz_conditions);
 	}
 
-	// close HTML form element
-
-	if ($div_record_open) $output .= "</div>\n";
-	if ($form_open) $output .= "</form>\n";
-
-	if (!empty($zz_record['footer']['insert']) AND zz_valid_request('insert')) {
-		$output .= $zz_record['footer']['insert'];
-	} elseif (!empty($zz_record['footer']['update']) AND zz_valid_request(['update', 'noupdate'])) {
-		$output .= $zz_record['footer']['update'];
-	} elseif (!empty($zz_record['footer']['delete']) AND zz_valid_request('delete')) {
-		$output .= $zz_record['footer']['delete'];
+	if (!empty($record['footer']['insert']) AND zz_valid_request('insert')) {
+		$record['footer'] = $record['footer']['insert'];
+	} elseif (!empty($record['footer']['update']) AND zz_valid_request(['update', 'noupdate'])) {
+		$record['footer'] = $record['footer']['update'];
+	} elseif (!empty($record['footer']['delete']) AND zz_valid_request('delete')) {
+		$record['footer'] = $record['footer']['delete'];
+	} else {
+		$record['footer'] =	'';
 	}
 
+	if ($record === $zz_record) {
+		// nothing to output, do not use template
+		// @todo check if this is necessary
+		$output = '';
+	} else {
+		$output = wrap_template('zzform-record', $record);
+	}
 	$output .= zz_output_backlink($zz_tab);
 	if ($zz_conf['xhr_vxjs']) {
 		if (!empty($zz_conf['int']['selects'])) {

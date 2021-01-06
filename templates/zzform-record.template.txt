@@ -4,14 +4,36 @@
 # http://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2018, 2020 Gustaf Mossakowski
+# @copyright Copyright © 2018, 2020-2021 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 # tfoot must be before thead or hitting ENTER won't necessarily save the record
 #
+%%% condition if form %%%
+<form action="%%% setting zzform_int_url_self %%%%%% setting zzform_int_url_qs %%%
+%%% condition if setting zzform_int_extra_get %%%
+%%% setting zzform_int_url_?& %%%%%% setting zzform_int_extra_get %%%
+%%% condition endif %%%
+%%% item form_anchor "#%s" %%%" method="POST"%%% condition if upload %%% enctype="multipart/form-data"%%% condition endif %%% accept-charset="%%% setting character_set %%%">
+<input type="hidden" name="zz_id" value="%%% setting zzform_id %%%">
+%%% item hook_output %%%
+%%% condition endif %%%
+
+<div id="record">
+%%% condition if formhead %%%
+<h2>%%% item formhead ucfirst %%%</h2>
+%%% condition endif %%%
+
+%%% item reselect_errors %%%
+%%% item errors %%%
+%%% condition if setting zzform_int_resend_form_required %%%
+<div class="reselect"><p>%%% text Sorry, an error has occurred.<br>Please send the form again. %%%</p></div>
+%%% condition endif %%%
+
 %%% loop hidden %%%
 <input type="hidden" name="%%% item name %%%" value="%%% item value wrap_html_escape %%%">
 %%% loop end %%%
+%%% condition if tbody | tfoot %%%
 <table>
 %%% condition if tfoot %%%
 <tfoot>
@@ -43,3 +65,9 @@
 %%% item tbody %%%
 </tbody>
 </table>
+%%% condition endif %%%
+</div>
+%%% condition if form %%%
+</form>
+%%% condition endif %%%
+%%% item footer %%%
