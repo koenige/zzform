@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1463,9 +1463,42 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 	$my_rec['last_fields'] = [];
 	$my_rec['extra'] = [];
 
+	// dependent fields
+	//	$zz['fields'][5]['dependent_field_no'] = 9;
+	//	$zz['fields'][5]['dependent_field_if_selected'] = 'crm_category';
+	//	$zz['fields'][5]['dependent_field_required'] = true;
+	$dependent_fields_ids = [];
+	foreach ($my_rec['fields'] as $f => $field) {
+		if (empty($field['dependent_field_no'])) continue;
+		$records = zz_db_fetch($field['sql'], '_dummy_', 'numeric');
+		$dependent_fields_ids[$field['dependent_field_no']]['source_field_name'] = $field['field_name'];
+		$dependent_fields_ids[$field['dependent_field_no']]['required'] = !empty($field['dependent_field_required']) ? true : false;
+		foreach ($records as $record) {
+			if (empty($record[$field['dependent_field_if_selected']])) continue;
+			$dependent_fields_ids[$field['dependent_field_no']]['values'][] = reset($record);
+		}
+	}
+
 	foreach ($my_rec['fields'] as $f => $field) {
 	// 	shorthand
 		$field_name = isset($field['field_name']) ? $field['field_name'] : '';
+
+	//	fields depends on other field?
+		if (!empty($dependent_fields_ids[$f])) {
+			if (!empty($my_rec['POST'][$dependent_fields_ids[$f]['source_field_name']])
+				AND in_array($my_rec['POST'][$dependent_fields_ids[$f]['source_field_name']], $dependent_fields_ids[$f]['values'])) {
+				// visible, i. e. value is possible
+				if ($dependent_fields_ids[$f]['required']) {
+					$field['required'] = $field['required_in_db']
+					= $my_rec['fields'][$f]['required'] = $my_rec['fields'][$f]['required_in_db']
+					= true;
+				}
+			} else {
+				// invisible, remove existing value if there is one
+				$my_rec['POST'][$field_name] = false;
+			}
+		}
+
 	//	check if some values are to be replaced internally
 		if (!empty($field['replace_values']) 
 			AND !empty($my_rec['POST'][$field_name])) {
