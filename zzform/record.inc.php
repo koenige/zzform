@@ -1014,7 +1014,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					if (!empty($field['dependent_field_if_selected'])) {
 						$zz_conf['int']['js_field_dependencies'][] = [
 							'main_field_id' => zz_make_id_fieldname($field['f_field_name']),
-							'dependent_field_id' => zz_make_id_fieldname($my_fields[$field['dependent_field_no']]['f_field_name'])
+							'dependent_field_id' => zz_make_id_fieldname($my_fields[$field['dependent_field_no']]['f_field_name']),
+							'required' => !empty($field['dependent_field_required']) ? true : false
 						];
 					}
 				} elseif (isset($field['set_folder'])) {
