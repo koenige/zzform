@@ -222,6 +222,8 @@ function zz_record($ops, $zz_record, $zz_tab, $zz_var, $zz_conditions) {
 			 $record['js_xhr_dependencies'] = wrap_template('xhr-dependencies', $zz_conf['int']['dependencies']);
 		}
 	}
+	if (!empty($zz_conf['int']['js_field_dependencies']))
+		$record['js_field_dependencies'] = wrap_template('zzform-js-field-dependencies', $zz_conf['int']['js_field_dependencies']);
 
 	return wrap_template('zzform-record', $record);
 }
@@ -1009,6 +1011,12 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					$outputf = zz_field_select_sql($field, $field_display, $my_rec['record'], 
 						$zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table']);
 
+					if (!empty($field['dependent_field_if_selected'])) {
+						$zz_conf['int']['js_field_dependencies'][] = [
+							'main_field_id' => zz_make_id_fieldname($field['f_field_name']),
+							'dependent_field_id' => zz_make_id_fieldname($my_fields[$field['dependent_field_no']]['f_field_name'])
+						];
+					}
 				} elseif (isset($field['set_folder'])) {
 					// #2a SELECT with set_folder
 					$outputf = zz_field_select_set_folder($field, $field_display, $my_rec['record'], $rec);
@@ -2516,6 +2524,13 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 	// 1.3.4: draw a SELECT element
 	$fieldattr = [];
 	if ($field['required']) $fieldattr['required'] = true;
+	if (!empty($field['dependent_field_if_selected'])) {
+		foreach ($lines as $field_id => $line) {
+			if (empty($line[$field['dependent_field_if_selected']])) continue;
+			$fieldattr['data-dependent_field_if_selected'][] = $field_id;
+		}
+		$fieldattr['data-dependent_field_if_selected'] = implode(',', $fieldattr['data-dependent_field_if_selected']);
+	}
 	$outputf = zz_form_element($field['f_field_name'], '', 'select', true, $fieldattr)."\n";
 
 	// first OPTION element
