@@ -1011,7 +1011,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					$outputf = zz_field_select_sql($field, $field_display, $my_rec['record'], 
 						$zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table']);
 
-					if (!empty($field['dependent_field_if_selected'])) {
+					if (!empty($field['dependent_field_if_selected']) AND !empty($my_fields[$field['dependent_field_no']])) {
 						$zz_conf['int']['js_field_dependencies'][] = [
 							'main_field_id' => zz_make_id_fieldname($field['f_field_name']),
 							'dependent_field_id' => zz_make_id_fieldname($my_fields[$field['dependent_field_no']]['f_field_name']),
