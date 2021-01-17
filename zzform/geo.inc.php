@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2011, 2015-2017, 2019-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2011, 2015-2017, 2019-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -628,6 +628,7 @@ function zz_geo_geocode_ignore($field, $fields, $new, $index) {
 	$ignore_value = $field['geocode_ignore_if'][$ignore_field_name];
 
 	foreach ($fields as $ignore_no => $ignore_field) {
+		if (empty($ignore_field['field_name'])) continue;
 		if ($ignore_field['field_name'] !== $ignore_field_name) continue;
 		$value = $new[$index][$ignore_field_name];
 		if ($ignore_field['type'] === 'select' AND !is_numeric($value)) {
