@@ -13,7 +13,7 @@
  *		zz_db_*()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -966,6 +966,8 @@ function zz_db_numeric_field($db_table, $field_name) {
 		'int', 'tinyint', 'smallint', 'mediumint', 'bigint', 'decimal', 'float'
 	];
 	foreach ($numeric_types as $type) {
+		if ($fielddef['Type'] === $type) return true;
+		if ($fielddef['Type'] === $type.' unsigned') return true;
 		if (substr($fielddef['Type'], 0, strlen($type) + 1) === $type.'(') {
 			return true;
 		}
