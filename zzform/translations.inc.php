@@ -11,7 +11,7 @@
  *	zz_translations_init()		checks whether fields should be translated
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2013, 2016-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2013, 2016-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -74,6 +74,7 @@ function zz_translations_init($table, $fields) {
 			$k++;
 			continue;
 		}
+		if (!empty($fields[$no]['hide_in_form'])) continue;
 
 		// include new subtable for translations
 		$zz_sub = [];	
