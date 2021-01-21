@@ -5,11 +5,11 @@
  * Module geo: handling of geographic coordinates
  * (input, output, transformation DMS - DD and vice versa)
  *
- * Part of »Zugzwang Project«
+ * Part of Â»Zugzwang ProjectÂ«
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2011, 2015-2017, 2019-2021 Gustaf Mossakowski
+ * @copyright Copyright Â© 2004-2011, 2015-2017, 2019-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -143,9 +143,9 @@ function zz_geo_coord_in($value, $orientation = 'lat', $precision = 0) {
 	}
 	if ($degree_convert) {
 		if ($decimal < $degree_convert[0]) {
-			$decimal += 360; // -183°W = +177°E
+			$decimal += 360; // -183Â°W = +177Â°E
 		} elseif ($decimal > $degree_convert[1]) {
-			$decimal -= 360; // +210°E = -150°W
+			$decimal -= 360; // +210Â°E = -150Â°W
 		}
 	}
 	if ($precision) $decimal = round($decimal, $precision);
@@ -155,7 +155,7 @@ function zz_geo_coord_in($value, $orientation = 'lat', $precision = 0) {
 
 /**
  * output of a geographical coordinate
- * 19°41'59"N 98°50'38"W / 19.6996°N 98.8440°W / 19.6996; -98.8440
+ * 19Â°41'59"N 98Â°50'38"W / 19.6996Â°N 98.8440Â°W / 19.6996; -98.8440
  *
  * @param double $decimal value of coordinate, e. g. 69.34829922
  * @param string $orientation ('lat' or 'lon')
@@ -198,17 +198,17 @@ function zz_geo_coord_out($decimal, $orientation = 'lat', $out = false) {
 		case 'o':
 			$coord[] = $hemisphere_text;
 			break;
-		case 'deg':	// 98.8440°W
+		case 'deg':	// 98.8440Â°W
 			$coord[] = zz_decimal($decimal).'&#176;'.$spacer.$hemisphere_text;
 			break;
 		case 'dec':	// -98.8440
 			$coord[] = $hemisphere.zz_decimal($decimal);
 			break;
-		case 'dm':	// 98°50.6333'W
+		case 'dm':	// 98Â°50.6333'W
 			$min = zz_decimal(round(($decimal-floor($decimal))*60, $round));
 			$coord[] = floor($decimal).'&#176;'.$spacer.($min ? $min.'&#8242;'.$spacer : '').$hemisphere_text;
 			break;
-		case 'dms':	// 98°50'38"W
+		case 'dms':	// 98Â°50'38"W
 		default:
 			// transform decimal value to seconds and round first!
 			$sec = round($decimal * 3600, $round);
