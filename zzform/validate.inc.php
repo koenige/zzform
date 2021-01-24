@@ -11,7 +11,7 @@
  * otherwise they will return the value that was checked
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2005-2014, 2016-2018, 2020 Gustaf Mossakowski
+ * @copyright Copyright © 2005-2014, 2016-2018, 2020-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -264,6 +264,12 @@ function zz_check_time($time) {
 	if (strlen($time) === 19) {
 		// might be a date
 		$time = substr($time, 11);
+	} elseif (strlen($time) === 25
+		AND preg_match('/^\+\d\d:\d\d$/', substr($time, 19))
+	) {
+		// timestamp with timezone offset
+		// get rid of timezone offset, @todo save timezone offset
+		$time = substr($time, 0, 10).' '.substr($time, 11, 8);
 	} elseif (preg_match('~^\d{1,2}$~', $time)) {
 		$time .= ':00:00';
 	}
