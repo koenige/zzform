@@ -12,7 +12,6 @@
  *	zz_upload_get()				writes arrays upload_fields, images
  *								i. e. checks which fields offer uploads,
  *								collects and writes information about files
- *		zz_check_def_files()
  *		zz_upload_get_fields()	checks which fields allow upload
  *		zz_upload_check_files()	checks files, puts information to 'image' array
  *			zz_upload_fileinfo()	read information (filesize, exif etc.)
@@ -34,8 +33,7 @@
  *
  *	2. additional functions
  *
- *	zz_upload_path()			creates unique name for file (?)
- *	zz_upload_get_typelist()	reads filetypes from txt-file
+ *	zz_upload_path()			creates unique name for backup file
  *
  *	3. zz_tab array
  *	
@@ -76,7 +74,7 @@
  *		['validated']		validated (yes = tested, no = rely on fileupload i. e. user)
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2006-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2006-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1095,7 +1093,7 @@ function zz_upload_error_with_file($filename, $file, $return = []) {
 		// don't return here in case of error - 
 		// it's not so important to break the whole process
 		$my_error = zz_error_exit();
-		$error_filename = zz_upload_path($zz_conf['backup_dir'], 'error', $filename);
+		$error_filename = zz_upload_path('error', $filename);
 		if (!zz_error_exit())
 			copy($filename, $error_filename);
 		$copied_files[] = $filename; // just copy a file once
@@ -2363,7 +2361,7 @@ function zz_upload_delete($filename, $show_filename = false, $action = 'delete')
 	}
 
 	if ($zz_conf['backup']) {
-		$success = zz_rename($filename, zz_upload_path($zz_conf['backup_dir'], $action, $filename));
+		$success = zz_rename($filename, zz_upload_path($action, $filename));
 		if (zz_error_exit()) return false;
 		zz_cleanup_dirs(dirname($filename));
 	} else {
@@ -2402,13 +2400,13 @@ function zz_upload_update($source, $dest, $uploaded_file, $action = 'update') {
 	if (file_exists($dest) AND $zz_conf['backup'] AND (strtolower($source) != strtolower($dest))) { 
 		// this case should not occur
 		// attention: file_exists returns true even if there is a change in case
-		zz_rename($dest, zz_upload_path($zz_conf['backup_dir'], $action, $dest));
+		zz_rename($dest, zz_upload_path($action, $dest));
 		if (zz_error_exit()) return false;
 	}
 	if (!file_exists($source)) return true;
 	if ($zz_conf['backup'] AND $uploaded_file) {
 		// new image will be added later on for sure
-		zz_rename($source, zz_upload_path($zz_conf['backup_dir'], $action, $dest));
+		zz_rename($source, zz_upload_path($action, $dest));
 		if (zz_error_exit()) return false;
 	} else {
 		// just filename will change
@@ -2443,7 +2441,7 @@ function zz_upload_insert($source, $dest, $action = '-', $mode = 'copy') {
 			return false;
 		}
 		if ($zz_conf['backup']) {
-			zz_rename($dest, zz_upload_path($zz_conf['backup_dir'], $action, $dest));
+			zz_rename($dest, zz_upload_path($action, $dest));
 			if (zz_error_exit()) return false;
 			zz_cleanup_dirs(dirname($dest));
 		} else {
@@ -2488,13 +2486,14 @@ function zz_upload_insert($source, $dest, $action = '-', $mode = 'copy') {
  * Creates unique filename from backup dir, action and file path
  * 
  * called form zz_upload_action
- * @param string $dir backup directory
  * @param string $action sql action
  * @param string $path file path
- * @return string unique filename ? path?
+ * @return string unique filename
  */
-function zz_upload_path($dir, $action, $path) {
-	$my_base = $dir.'/'.$action.'/';
+function zz_upload_path($action, $path) {
+	global $zz_conf;
+
+	$my_base = $zz_conf['backup_dir'].'/'.$action.'/';
 	zz_create_topfolders($my_base);
 	if (zz_error_exit()) return false;
 	$i = 0;
@@ -2677,59 +2676,6 @@ function zz_image_crop_bottom($source, $dest, $dest_ext, $image) {
  */
 function zz_image_crop_left($source, $dest, $dest_ext, $image) {
 	return zz_image_crop($source, $dest, $dest_ext, $image, 'left');
-}
-
-/**
- * reads default definitions from a textfile and writes them into an array
- *
- * @param string $filename Name of file
- * @param string $type (optional) 'Filetype' or 'IPTC'
- * @param string $optional
- * @return array $defaults
- * @todo $mode = file, sql; read values from database table
- */
-function zz_upload_get_typelist($filename, $type = 'Filetype', $optional = false) {
-	if (!file_exists($filename)) {
-		if ($optional) return false;
-		zz_error_log([
-			'msg_dev' => '%s definitions in `%s` are not available!',
-			'msg_dev_args' => [$type, $filename],
-			'log_post_data' => false,
-			'level' => E_USER_ERROR
-		]);
-		return zz_error();
-	}
-	if ($type == 'Filetype') {
-		$keys = ['filetype', 'ext_old', 'ext', 'mime', 'desc'];
-	} elseif ($type == 'IPTC') {
-		$keys = ['ipct_id', 'dataset'];
-	}
-	$matrix = file($filename);
-	foreach ($matrix as $line) {
-		$default = false;
-		if (substr($line, 0, 1) == '#') continue;	// Lines with # will be ignored
-		elseif (!trim($line)) continue;				// empty lines will be ignored
-		$values = explode("\t", trim($line));
-		
-		$i = 0;
-		foreach ($values as $value) {
-			if ($value == '### EOF') continue 2;
-			if ($value)	{
-				if ($type == 'IPTC' AND !$i) {
-					$parts = explode(':', $value);
-					$value = $parts[0].'#'.sprintf("%03s", $parts[1], 0);
-				}
-				$default[$keys[$i]] = $value;
-				$i++;
-			}
-		}
-		if ($type == 'IPTC') {
-			$defaults[$default[$keys[0]]] = $default;
-		} else {
-			$defaults[$default[$keys[0]]][] = $default;
-		}
-	}
-	return $defaults;
 }
 
 /**
