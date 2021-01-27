@@ -273,7 +273,7 @@ function zzform($zz) {
 			if ($ops['result'] AND !$zz_conf['generate_output']) {
 				// zzform_multi: exit here, rest is for output only
 				return zzform_exit($ops);
-			} elseif ($ops['result'] AND !$ops['html_fragment']) {
+			} elseif ($ops['result']) {
 				// Redirect, if wanted.
 				zz_output_redirect($ops['result'], $ops['return'], $zz_tab);
 			}

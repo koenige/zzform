@@ -89,6 +89,12 @@
 %%% condition if upload_form %%%
 <script>
 
+var zzform_action_url = '%%% setting zzform_int_url_self %%%%%% setting zzform_int_url_qs %%%
+%%% condition if setting zzform_int_extra_get %%%
+%%% setting zzform_int_url_?& %%%%%% setting zzform_int_extra_get %%%
+%%% condition endif %%%
+%%% item form_anchor "#%s" %%%';
+
 document.getElementById('zzform_form').addEventListener('submit', function(event) {
 	event.preventDefault();
 	document.getElementById('zzform_submit').style = 'display: none;';
@@ -102,11 +108,7 @@ document.getElementById('zzform_form').addEventListener('submit', function(event
 	xhr.addEventListener("load", completeHandler, false);
 	xhr.addEventListener("error", errorHandler, false);
 	xhr.addEventListener("abort", abortHandler, false);
-	xhr.open('POST', '%%% setting zzform_int_url_self %%%%%% setting zzform_int_url_qs %%%
-%%% condition if setting zzform_int_extra_get %%%
-%%% setting zzform_int_url_?& %%%%%% setting zzform_int_extra_get %%%
-%%% condition endif %%%
-%%% item form_anchor "#%s" %%%');
+	xhr.open('POST', zzform_action_url);
 	xhr.send(data);
 });
 
@@ -118,6 +120,11 @@ function progressHandler(event){
 }
 
 function completeHandler(event){
+	if (event.target.responseURL !== zzform_action_url) {
+		window.location.replace(event.target.responseURL);
+		return false;
+	}
+
 	var myForm = document.getElementById('%%% setting zzform_replace_div %%%');
 	myForm.innerHTML = event.target.responseText;
 	
