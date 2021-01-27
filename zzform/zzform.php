@@ -42,7 +42,8 @@ function zzform($zz) {
 		'error' => [],
 		'id' => 0,
 		'mode' => false,
-		'footer_text' => false
+		'footer_text' => false,
+		'html_fragment' => !empty($_POST['zz_html_fragment']) ? true : false
 	];
 	// set default configuration variables
 	// import modules, set and get URI
@@ -272,7 +273,7 @@ function zzform($zz) {
 			if ($ops['result'] AND !$zz_conf['generate_output']) {
 				// zzform_multi: exit here, rest is for output only
 				return zzform_exit($ops);
-			} elseif ($ops['result']) {
+			} elseif ($ops['result'] AND !$ops['html_fragment']) {
 				// Redirect, if wanted.
 				zz_output_redirect($ops['result'], $ops['return'], $zz_tab);
 			}
@@ -669,6 +670,7 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['redirect']['no_update'] = false;	// redirect to diff. page after update without changes
 	$default['redirect_on_change']	= true;
 	$default['referer_text']		= 'Back to overview';
+	$default['replace_div']			= 'zzform';
 	$default['search'] 				= true;	// search for records possible or not
 	$default['search_form_always']	= false;
 	$default['show_list_while_edit'] = true;
