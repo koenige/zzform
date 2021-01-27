@@ -5,7 +5,7 @@
 # http://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2005-2020 Gustaf Mossakowski
+# @copyright Copyright © 2005-2021 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 msgid ""
@@ -975,3 +975,27 @@ msgstr "ausklappen"
 #: _behaviour/zzform-foot.js
 msgid "collapse"
 msgstr "zuklappen"
+
+#: templates/zzform-record.template.xt
+msgid "Upload Failed"
+msgstr "Hochladen fehlgeschlagen"
+
+#: templates/zzform-record.template.xt
+msgid "Upload Aborted"
+msgstr "Hochladen abgebrochen"
+
+#: templates/zzform-record.template.xt
+msgid "% uploaded … please wait"
+msgstr "% hochgeladen … Bitte warten"
+
+#: templates/zzform-record.template.xt
+msgid "Uploaded:"
+msgstr "Hochgeladen:"
+
+#: templates/zzform-record.template.xt
+msgid "Total:"
+msgstr "Gesamt:"
+
+#: templates/zzform-record.template.xt
+msgid "Bytes"
+msgstr "Bytes"

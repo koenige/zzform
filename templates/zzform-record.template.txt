@@ -14,7 +14,7 @@
 %%% condition if setting zzform_int_extra_get %%%
 %%% setting zzform_int_url_?& %%%%%% setting zzform_int_extra_get %%%
 %%% condition endif %%%
-%%% item form_anchor "#%s" %%%" method="POST"%%% condition if upload %%% enctype="multipart/form-data"%%% condition endif %%% accept-charset="%%% setting character_set %%%">
+%%% item form_anchor "#%s" %%%" method="POST"%%% condition if upload %%% enctype="multipart/form-data"%%% condition endif %%% accept-charset="%%% setting character_set %%%" id="zzform_form">
 <input type="hidden" name="zz_id" value="%%% setting zzform_id %%%">
 %%% item hook_output %%%
 %%% condition endif %%%
@@ -40,6 +40,7 @@
 <tr>
 %%% condition unless setting zzform_int_hide_tfoot_th %%%<th>&nbsp;</th> %%% condition endif %%%
 <td%%% item tfoot_class " class='%s'" %%%>
+<div id="zzform_submit">
 %%% item submit %%%
 %%% condition if cancel_ok %%%
 <a href="%%% item cancel_ok %%%">%%% text OK %%%</a>%%% condition endif %%%
@@ -57,6 +58,15 @@
 %%% condition if modes %%% || %%% condition endif %%%
 %%% item actions %%%
 %%% condition endif %%%
+</div>
+%%% condition if upload_form %%%
+<div id="zzform_upload_progress" style="display: none;">
+  <progress id="zzform_upload_progress_bar" value="0" max="100" style="width:300px;"></progress>
+  <h3 id="zzform_upload_status"></h3>
+  <p id="zzform_loaded"></p>
+</div>
+%%% condition endif %%%
+
 </td>
 </tr>
 </tfoot>
@@ -76,3 +86,61 @@
 %%% item js_xhr_selects %%%
 %%% item js_xhr_dependencies %%%
 %%% item js_field_dependencies %%%
+%%% condition if upload_form %%%
+<script>
+
+document.getElementById('zzform_form').addEventListener('submit', function(event) {
+	event.preventDefault();
+	document.getElementById('zzform_submit').style = 'display: none;';
+	document.getElementById('zzform_upload_progress').style = 'display: block;';
+
+	var data = new FormData(document.getElementById('zzform_form'));
+	data.append('zz_html_fragment', 1);
+
+	var xhr = new XMLHttpRequest();
+	xhr.upload.addEventListener("progress", progressHandler, false);
+	xhr.addEventListener("load", completeHandler, false);
+	xhr.addEventListener("error", errorHandler, false);
+	xhr.addEventListener("abort", abortHandler, false);
+	xhr.open('POST', '%%% setting zzform_int_url_self %%%%%% setting zzform_int_url_qs %%%
+%%% condition if setting zzform_int_extra_get %%%
+%%% setting zzform_int_url_?& %%%%%% setting zzform_int_extra_get %%%
+%%% condition endif %%%
+%%% item form_anchor "#%s" %%%');
+	xhr.send(data);
+});
+
+function progressHandler(event){
+	document.getElementById("zzform_loaded").innerHTML = "%%% text Uploaded: %%% " + event.loaded + " / %%% text Total: %%% " + event.total + " %%% text Bytes %%% ";
+	var percent = (event.loaded / event.total) * 100;
+	document.getElementById("zzform_upload_progress_bar").value = Math.round(percent);
+	document.getElementById("zzform_upload_status").innerHTML = Math.round(percent)+ "%%% text % uploaded … please wait %%%";
+}
+
+function completeHandler(event){
+	var myForm = document.getElementById('%%% setting zzform_replace_div %%%');
+	myForm.innerHTML = event.target.responseText;
+	
+	// activate scripts
+	var allScripts = myForm.getElementsByTagName('script');
+	for (i = 0; i < allScripts.length; i++) {
+		var g = document.createElement('script');
+		var s = allScripts[i];
+		g.text = s.innerHTML;
+		s.parentNode.insertBefore(g, s);
+		s.remove();
+	}
+
+	// move to top of page
+	scroll(0,0);
+}
+
+function errorHandler(event){
+	document.getElementById("zzform_upload_status").innerHTML = "%%% text Upload Failed %%%";
+}
+function abortHandler(event){
+	document.getElementById("zzform_upload_status").innerHTML = "%%% text Upload Aborted %%%";
+}
+
+</script>
+%%% condition endif %%%

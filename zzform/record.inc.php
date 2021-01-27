@@ -225,6 +225,9 @@ function zz_record($ops, $zz_record, $zz_tab, $zz_var, $zz_conditions) {
 	if (!empty($zz_conf['int']['js_field_dependencies']))
 		$record['js_field_dependencies'] = wrap_template('zzform-js-field-dependencies', $zz_conf['int']['js_field_dependencies']);
 
+	if (!empty($zz_var['upload_form']) AND in_array($ops['mode'], ['add', 'edit'])) {
+		$record['upload_form'] = true;
+	}
 	return wrap_template('zzform-record', $record);
 }
 
