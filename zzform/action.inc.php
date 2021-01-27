@@ -199,7 +199,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	}
 	if (!$validation) {
 		// delete temporary unused files
-		if (!empty($zz_var['upload_form'])) zz_upload_cleanup($zz_tab); 
+		if (!empty($zz_var['upload_form'])) zz_upload_cleanup($zz_tab, false); 
 		return zz_return([$ops, $zz_tab, $validation]);
 	}
 
