@@ -19,7 +19,7 @@
  * V - Validation, preparation for database
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -3064,9 +3064,11 @@ function zz_translate($def, $values) {
 	foreach (array_keys($values) as $index) {
 		if (!is_numeric($index)) {
 			unset($values['wrap_source_language']);
+			unset($values['wrap_source_content']);
 			break;
 		}
 		unset($values[$index]['wrap_source_language']);
+		unset($values[$index]['wrap_source_content']);
 	}
 	return $values;
 }
