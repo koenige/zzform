@@ -161,6 +161,7 @@ function zz_export_links() {
 	// remove some querystrings which have no effect anyways
 	$unwanted_querystrings = ['nolist', 'debug', 'referer', 'limit', 'order', 'dir'];
 	$qs = zz_edit_query_string($zz_conf['int']['extra_get'], $unwanted_querystrings);
+	$qs = substr($qs, 1);
 
 	if (!is_array($zz_conf['export']))
 		$zz_conf['export'] = [$zz_conf['export']];
