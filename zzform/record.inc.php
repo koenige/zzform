@@ -971,6 +971,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			case 'ipv4':
 			case 'sequence':
 			case 'phone':
+			case 'username':
 				$outputf = zz_field_text($field, $field_display, $my_rec['record'], !$my_rec['validation'] ? true : $zz_tab[0]['dont_reformat']);
 				break;
 
@@ -2015,6 +2016,8 @@ function zz_field_text($field, $display, $record, $dont_reformat = false) {
 			return zz_parameter_format($value);
 		case 'phone':
 			return zz_phone_format($value);
+		case 'username':
+			return zz_username_format($value, $field);
 		default:
 			// escape HTML elements
 			$value = str_replace('<', '&lt;', $value);

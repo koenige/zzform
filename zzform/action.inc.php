@@ -1779,6 +1779,14 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 				}
 			}
 			break;
+		case 'username':
+			if ($my_rec['POST'][$field_name]) {
+				if (!$tempvar = zz_check_username($my_rec['POST'][$field_name], $field)) {
+					$my_rec['fields'][$f]['check_validation'] = false;
+					$my_rec['validation'] = false;
+				} else $my_rec['POST'][$field_name] = $tempvar;
+			}
+			break;
 		case 'mail':
 		case 'mail+name':
 			//	check for correct mailaddress

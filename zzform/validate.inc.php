@@ -522,6 +522,72 @@ function zz_check_number($number) {
 }
 
 /**
+ * checks whether an input is a public username for a website
+ * 
+ * @param string $username (username or URL)
+ * @param array $field
+ *		string parse_url
+ *		string url
+ *		bool dont_check_username_online
+ * @return string
+ */
+function zz_check_username($username, $field) {
+	global $zz_setting;
+
+	// URL or username?
+	$url = parse_url($username);
+	$field_value = '';
+	if ($url['path'] AND !empty($field['parse_url'])) {
+		if (strstr($field['parse_url'], '[')) {
+			$parse_url = explode('[', $field['parse_url']);
+			foreach ($parse_url as $index => $value) {
+				if (!$index) continue;
+				if (substr($value, -1) !== ']') continue;
+				$parse_url[$index] = substr($value, 0, -1);
+			}
+		} elseif (!is_array($field['parse_url'])) {
+			$parse_url = [$field['parse_url']];
+		} else {
+			$parse_url = $field['parse_url'];
+		}
+		if (array_key_exists($parse_url[0], $url)) {
+			if (!isset($parse_url[1])) {
+				$field_value = $url[$parse_url[0]];
+			} else {
+				switch ($parse_url[0]) {
+				case 'path':
+					if (substr($url['path'], 0, 1) === '/')
+						$url['path'] = substr($url['path'], 1);
+					$path = explode('/', $url['path']);
+					if (empty($path[$parse_url[1]])) break;
+					$field_value = $path[$parse_url[1]];
+					break;
+				case 'query':
+					parse_str($url['query'], $query);
+					if (empty($query[$parse_url[1]])) break;
+					$field_value = $query[$parse_url[1]];
+					break;
+				}
+			}
+		}
+	}
+	if (!$field_value) $field_value = $username;
+	
+	// does username exist?
+	$url = sprintf($field['url'], $field_value);
+	if (!zz_is_url($url)) return false;
+
+	if (empty($field['dont_check_username_online'])) {
+		require_once $zz_setting['core'].'/syndication.inc.php';
+		$success = wrap_syndication_get($url, 'html');
+		if (empty($success['_']['data'])) return false;
+	}
+		
+	return $field_value;
+}
+
+
+/**
  * check against pattern
  * 
  * @param mixed $value

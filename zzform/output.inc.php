@@ -1115,6 +1115,19 @@ function zz_phone_format($value) {
 }
 
 /**
+ * format a username, return a link
+ *
+ * @param string $value
+ * @param array $field
+ * @return string
+ */
+function zz_username_format($value, $field) {
+	if (empty($field['url'])) return '@'.$value;
+	$url = sprintf($field['url'], $value);
+	return sprintf('<a href="%s">@%s</a>', $url, $value);
+}
+
+/**
  * Output WMD Editor
  *
  * @global array $zz_conf
