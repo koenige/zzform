@@ -2550,11 +2550,14 @@ function zz_field_class($field, $values, $html = false) {
 		$class[] = 'recordid';
 	elseif (in_array($field['type'], ['number', 'calculated', 'sequence']))
 		$class[] = 'number';
-	if (!empty($_GET['order']) AND empty($field['dont_sort'])) 
+	if (!empty($_GET['order']) AND empty($field['dont_sort'])) {
 		if (!empty($field['field_name']) AND $field['field_name'] === $_GET['order'])
 			$class[] = 'order';
 		elseif (!empty($field['display_field']) AND $field['display_field'] === $_GET['order']) 
 			$class[] = 'order';
+		elseif (!empty($field['row_value']) AND $field['row_value'] === $_GET['order'])
+			$class[] = 'order';
+	}
 	if ($values)
 		if (isset($field['field_name']) AND empty($field['dont_show_where_class'])) 
 		// does not apply for subtables!
