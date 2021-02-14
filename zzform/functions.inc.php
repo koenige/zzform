@@ -1955,6 +1955,17 @@ function zz_makelink($path, $record, $type = 'link') {
 			$part = substr($part, 0, strpos($part, '['));
 		}
 		switch ($part) {
+		case 'function':
+			if (function_exists($value) AND !empty($path['fields'])) {
+				$params = [];
+				foreach ($path['fields'] as $function_field) {
+					$params[$function_field] = $record[$function_field];
+				}
+				$path_web[1] .= $value($params);
+			}
+			break;
+		case 'fields':
+			break;
 		case 'root':
 			$check_against_root = true;
 			// root has to be first element, everything before will be ignored
