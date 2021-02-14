@@ -1570,7 +1570,8 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 	}
 
 	if ($link) $row['text'] .= $link;
-	$row['text'] .= $text;
+	if (empty($field['list_hide_value']))
+		$row['text'] .= $text;
 	if ($link) $row['text'] .= '</a>';
 
 	if (isset($field['list_unit'])) {
