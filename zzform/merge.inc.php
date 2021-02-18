@@ -74,6 +74,21 @@ function zz_merge_records($zz) {
 	$msg = [];
 	$uncheck = false;
 	$error = false;
+	$main = [];
+
+	foreach ($recs as $no => $rec) {
+		// keep lowest ID
+		sort($rec['ids']);
+		$recs[$no]['new_id'] = array_shift($rec['ids']);
+		$recs[$no]['old_ids'] = $rec['ids'];
+
+		$main = zz_merge_prepare_record($recs[$no], $main);
+		if (!empty($main['msg'])) {
+			$msg = array_merge($msg, $main['msg']);
+			$main['msg'] = [];
+		}
+		if (!empty($main['error'])) $error = true;
+	}
 
 	$msg_fail['update'] = 'Merge: Updating ID %d in the table %s failed: %s';
 	$msg_fail['delete'] = 'Merge: Deleting ID %d in the table %s failed: %s';
@@ -82,11 +97,7 @@ function zz_merge_records($zz) {
 
 	// walk through detail record first, main record last
 	$recs = array_reverse($recs);
-	foreach ($recs as $rec) {
-		// keep lowest ID
-		sort($rec['ids']);
-		$new_id = array_shift($rec['ids']);
-		$old_ids = $rec['ids'];
+	if (!$error OR !empty($zz_conf['debug'])) foreach ($recs as $rec) {
 		$sql = 'SELECT rel_id, detail_db, detail_table, detail_field, `delete`, detail_id_field
 			FROM %s
 			WHERE master_db = "%s"
@@ -99,17 +110,17 @@ function zz_merge_records($zz) {
 		$record_update_sql = 'UPDATE %s SET %s = %%d WHERE %s = %%d';
 		$record_delete_sql = 'DELETE FROM %s WHERE %s = %%d';
 
-		if ($old_ids) foreach ($dependent_records as $record) {
+		if ($rec['old_ids']) foreach ($dependent_records as $record) {
 			$sql = sprintf($dependent_sql,
 				$record['detail_db'], $record['detail_table'], $record['detail_field'],
-				implode(',', $old_ids)
+				implode(',', $rec['old_ids'])
 			);
 			$records = zz_db_fetch($sql, $record['detail_id_field']);
 			if (!$records) continue;
 
 			$sql = sprintf($dependent_sql,
 				$record['detail_db'], $record['detail_table'], $record['detail_field'],
-				$new_id
+				$rec['new_id']
 			);
 			$existing = zz_db_fetch($sql, $record['detail_id_field']);
 			$actions = zz_merge_compare($records, $existing, $record);
@@ -131,7 +142,7 @@ function zz_merge_records($zz) {
 				$action = $actions[$record_id];
 				switch ($action) {
 				case 'update':
-					$sql = sprintf($this_record_sql[$action], $new_id, $record_id);
+					$sql = sprintf($this_record_sql[$action], $rec['new_id'], $record_id);
 					break;
 				case 'delete':
 					$sql = sprintf($this_record_sql[$action], $record_id);
@@ -154,132 +165,23 @@ function zz_merge_records($zz) {
 		}
 
 		// merge main record
-		$types_case_insensitive = ['mail'];
-		$types_ignored = ['id', 'timestamp'];
 
-		$update = true;
-		$new_values = [];
-		$delete_old_records = false;
-		if (!$error) {
-			$merge_ignore_fields = [];
-			$case_insensitive_fields = [];
-			$fields_by_fieldname = [];
-			foreach ($rec['fields'] as $no => $field) {
-				if (empty($field['field_name'])) continue;
-				$fields_by_fieldname[$field['field_name']] = $no;
-				if (in_array($field['type'], $types_ignored)) {
-					$merge_ignore_fields[] = $field['field_name'];
-				} elseif (!empty($field['merge_ignore'])) {
-					$merge_ignore_fields[] = $field['field_name'];
-				} elseif ($field['field_name'] === $rec['key_field_name']) {
-					$merge_ignore_fields[] = $field['field_name'];
-				}
-				if (in_array($field['type'], $types_case_insensitive)) {
-					$case_insensitive_fields[] = $field['field_name'];		
-				}
-			}
-	
-			// no detail records exist anymore
-			$old_sql = sprintf('SELECT * FROM %s WHERE %s = %%d', $rec['table'], $rec['id_field_name']);
-			$delete_sql = sprintf('DELETE FROM %s WHERE %s = %%d LIMIT 1', $rec['table'], $rec['id_field_name']); 
-			$sql = sprintf($old_sql, $new_id);
-			$new_record = zz_db_fetch($sql);
-			foreach ($merge_ignore_fields as $field) {
-				if (array_key_exists($field, $new_record)) unset($new_record[$field]);
-			}
-			foreach ($old_ids as $old_id) {
-				$sql = sprintf($old_sql, $old_id);
-				$old_record = zz_db_fetch($sql);
-				foreach ($merge_ignore_fields as $field) {
-					if (array_key_exists($field, $old_record)) unset($old_record[$field]);
-				}
-				if ($old_record === $new_record) {
-					$delete_old_records = true;
-				} else {
-					$update_errors = [];
-					foreach ($old_record as $field_name => $value) {
-						if (!$value) continue;
-						if ($value === $new_record[$field_name]) continue; // everything ok
-						if (in_array($field_name, $case_insensitive_fields)) {
-							if (strtolower($value) === strtolower($new_record[$field_name])) continue;
-						}
-						if (!$new_record[$field_name]) {
-							// existing field is empty, we can overwrite it
-							if (array_key_exists($field_name, $new_values)) {
-								// overwrite with different values is impossible
-								if ($value !== $new_values[$field_name]) {
-									$update = false;
-									$update_errors[] = [
-										'field_name' => $field_name,
-										'old' => $old_record[$field_name],
-										'new' => $new_record[$field_name]
-									];
-								}
-							} else {
-								$new_values[$field_name] = $value;
-							}
-						} else {
-							// values differ, no overwriting
-							$newval = zz_merge_updateable(
-								$old_record[$field_name], $new_record[$field_name],
-								$rec['fields'][$fields_by_fieldname[$field_name]]
-							);
-							if ($newval) {
-								if ($newval !== $new_record[$field_name]) {
-									$new_values[$field_name] = $newval;
-								}
-							} else {
-								$update = false;
-								$update_errors[] = [
-									'field_name' => $field_name,
-									'old' => $old_record[$field_name],
-									'new' => $new_record[$field_name]
-								];
-							}
-						}
-					}
-					if (!$update) {
-						foreach ($update_errors as $index => $error) {
-							foreach ($rec['fields'] as $no => $field) {
-								if (empty($field['field_name'])) continue;
-								if ($field['field_name'] !== $error['field_name']) continue;
-								if (empty($field['title'])) {
-									$update_errors[$index]['title'] = $field['field_name'];
-								} else {
-									$update_errors[$index]['title'] = $field['title'];
-								}
-							}
-						}
-						$error_text = '';
-						foreach ($update_errors as $error) {
-							$error_text .= sprintf('<li><strong>%s</strong>: %s &#8211; %s</li>', 
-								$error['title'], $error['old'], $error['new']
-							)."\n";
-						}
-						$msg[] = '<p class="error">'.zz_text('Merge not complete, records are different:').'</p>'
-							.'<ul>'.$error_text.'</ul>';
-						$error = true;
-					} elseif (!$new_values) {
-						// No changes in new record, so delete it
-						$delete_old_records = true;
-					}
-				}
-			}
-			if ($update AND $new_values) {
+		if (!$error OR !empty($zz_conf['debug'])) {
+			if ($main['update'] AND $main['new_values']) {
 				$update_values = [];
-				foreach ($new_values as $field_name => $value) {
+				foreach ($main['new_values'] as $field_name => $value) {
 					$update_values[] = sprintf('`%s` = "%s"', $field_name, $value);
 				}
 				$sql = 'UPDATE %s SET %s WHERE %s = %d';
 				$sql = sprintf($sql, $rec['table'],
-					implode(', ', $update_values), $rec['id_field_name'], $new_id
+					implode(', ', $update_values), $rec['id_field_name'], $rec['new_id']
 				);
-				$result = zz_merge_action($sql, $new_id);
+				$result = zz_merge_action($sql, $rec['new_id']);
 				if ($result['action'] === 'update') {
 					$msg[] = sprintf(zz_text($msg_success['update']),
 						'<code>'.$rec['table'].'</code>', $old_id
 					);
-					$delete_old_records = true;
+					$main['delete_old_records'] = true;
 				} else {
 					$msg[] = sprintf(zz_text($msg_fail['update']),
 						'<code>'.$rec['table'].'</code>', $old_id, $result['error']['db_msg']
@@ -287,8 +189,10 @@ function zz_merge_records($zz) {
 					$error = true;
 				}
 			}
-			if ($delete_old_records AND !$error) {
-				foreach ($old_ids as $old_id) {
+			if ($main['delete_old_records'] AND !$error) {
+				$delete_sql = sprintf('DELETE FROM %s WHERE %s = %%d LIMIT 1', $rec['table'], $rec['id_field_name']); 
+
+				foreach ($rec['old_ids'] as $old_id) {
 					$sql = sprintf($delete_sql, $old_id);
 					$result = zz_merge_action($sql, $old_id);
 					if ($result['action'] === 'delete') {
@@ -305,11 +209,10 @@ function zz_merge_records($zz) {
 				}
 			}
 		}
-	
 	}
 	if (!$error) {
 		// everything okay, so don't output all the details
-		$title = sprintf(zz_text('%d records merged successfully'), count($old_ids) + 1);
+		$title = sprintf(zz_text('%d records merged successfully'), count($rec['old_ids']) + 1);
 		$msg = [];
 	} else {
 		$title = '';
@@ -331,7 +234,7 @@ function zz_merge_records($zz) {
  */
 function zz_merge_action($sql, $id) {
 	global $zz_conf;
-	
+
 	if (!empty($zz_conf['debug'])) {
 		$result['action'] = false;
 		$result['error']['db_msg'] = $sql;
@@ -486,4 +389,129 @@ function zz_merge_compare($records, $existing, $relation) {
 		if (empty($action[$record_id])) $action[$record_id] = 'update';
 	}
 	return $action;
+}
+
+/**
+ * prepare merge of main record(s)
+ *
+ * @param array $rec
+ * @return array
+ */
+function zz_merge_prepare_record($rec, $main = []) {
+	$types_case_insensitive = ['mail'];
+	$types_ignored = ['id', 'timestamp'];
+	$merge_ignore_fields = [];
+	$case_insensitive_fields = [];
+	$fields_by_fieldname = [];
+	
+	if (!$main) {
+		$main = [
+			'delete_old_records' => false,
+			'update' => true,
+			'new_values' => []
+		];
+	}
+
+	foreach ($rec['fields'] as $no => $field) {
+		if (empty($field['field_name'])) continue;
+		$fields_by_fieldname[$field['field_name']] = $no;
+		if (in_array($field['type'], $types_ignored)) {
+			$merge_ignore_fields[] = $field['field_name'];
+		} elseif (!empty($field['merge_ignore'])) {
+			$merge_ignore_fields[] = $field['field_name'];
+		} elseif ($field['field_name'] === $rec['key_field_name']) {
+			$merge_ignore_fields[] = $field['field_name'];
+		}
+		if (in_array($field['type'], $types_case_insensitive)) {
+			$case_insensitive_fields[] = $field['field_name'];		
+		}
+	}
+
+	// no detail records exist anymore
+	$old_sql = sprintf('SELECT * FROM %s WHERE %s = %%d', $rec['table'], $rec['id_field_name']);
+	$sql = sprintf($old_sql, $rec['new_id']);
+	$new_record = zz_db_fetch($sql);
+	foreach ($merge_ignore_fields as $field) {
+		if (array_key_exists($field, $new_record)) unset($new_record[$field]);
+	}
+
+	foreach ($rec['old_ids'] as $old_id) {
+		$sql = sprintf($old_sql, $old_id);
+		$old_record = zz_db_fetch($sql);
+		foreach ($merge_ignore_fields as $field) {
+			if (array_key_exists($field, $old_record)) unset($old_record[$field]);
+		}
+		if ($old_record === $new_record) {
+			$main['delete_old_records'] = true;
+		} else {
+			$update_errors = [];
+			foreach ($old_record as $field_name => $value) {
+				if (!$value) continue;
+				if ($value === $new_record[$field_name]) continue; // everything ok
+				if (in_array($field_name, $case_insensitive_fields)) {
+					if (strtolower($value) === strtolower($new_record[$field_name])) continue;
+				}
+				if (!$new_record[$field_name]) {
+					// existing field is empty, we can overwrite it
+					if (array_key_exists($field_name, $main['new_values'])) {
+						// overwrite with different values is impossible
+						if ($value !== $main['new_values'][$field_name]) {
+							$main['update'] = false;
+							$update_errors[] = [
+								'field_name' => $field_name,
+								'old' => $old_record[$field_name],
+								'new' => $new_record[$field_name]
+							];
+						}
+					} else {
+						$main['new_values'][$field_name] = $value;
+					}
+				} else {
+					// values differ, no overwriting
+					$newval = zz_merge_updateable(
+						$old_record[$field_name], $new_record[$field_name],
+						$rec['fields'][$fields_by_fieldname[$field_name]]
+					);
+					if ($newval) {
+						if ($newval !== $new_record[$field_name]) {
+							$main['new_values'][$field_name] = $newval;
+						}
+					} else {
+						$main['update'] = false;
+						$update_errors[] = [
+							'field_name' => $field_name,
+							'old' => $old_record[$field_name],
+							'new' => $new_record[$field_name]
+						];
+					}
+				}
+			}
+			if (!$main['update']) {
+				foreach ($update_errors as $index => $error) {
+					foreach ($rec['fields'] as $no => $field) {
+						if (empty($field['field_name'])) continue;
+						if ($field['field_name'] !== $error['field_name']) continue;
+						if (empty($field['title'])) {
+							$update_errors[$index]['title'] = $field['field_name'];
+						} else {
+							$update_errors[$index]['title'] = $field['title'];
+						}
+					}
+				}
+				$error_text = '';
+				foreach ($update_errors as $error) {
+					$error_text .= sprintf('<li><strong>%s</strong>: %s &#8211; %s</li>', 
+						$error['title'], $error['old'], $error['new']
+					)."\n";
+				}
+				$main['msg'][] = '<p class="error">'.zz_text('Merge not complete, records are different:').'</p>'
+					.'<ul>'.$error_text.'</ul>';
+				$main['error'] = true;
+			} elseif (!$main['new_values']) {
+				// No changes in new record, so delete it
+				$main['delete_old_records'] = true;
+			}
+		}
+	}
+	return $main;
 }
