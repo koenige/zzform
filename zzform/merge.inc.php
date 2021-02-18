@@ -90,35 +90,61 @@ function zz_merge_records($zz) {
 		$sql = sprintf($sql, $zz_conf['relations_table'], $zz_conf['db_name'], $rec['table'], $rec['id_field_name']);
 		$dependent_records = zz_db_fetch($sql, 'rel_id');
 
-		$dependent_sql = 'SELECT %s, %s FROM %s.%s WHERE %s IN (%s)';
-		$record_sql = 'UPDATE %s SET %s = %%d WHERE %s = %%d';
+		$dependent_sql = 'SELECT * FROM %s.%s WHERE %s IN (%s)';
+		$record_update_sql = 'UPDATE %s SET %s = %%d WHERE %s = %%d';
+		$record_delete_sql = 'DELETE FROM %s WHERE %s = %%d';
+		$msg_fail['update'] = 'Merge: Updating ID %d in the table %s failed: %s';
+		$msg_fail['delete'] = 'Merge: Deleting ID %d in the table %s failed: %s';
+		$msg_success['update'] = 'Merge: Updating ID %d in the table %s was successful';
+		$msg_success['delete'] = 'Merge: Deleting ID %d in the table %s was successful';
+
 		if ($old_ids) foreach ($dependent_records as $record) {
 			$sql = sprintf($dependent_sql,
-				$record['detail_id_field'], $record['detail_field'],
 				$record['detail_db'], $record['detail_table'], $record['detail_field'],
 				implode(',', $old_ids)
 			);
 			$records = zz_db_fetch($sql, $record['detail_id_field']);
 			if (!$records) continue;
 
-			$this_record_sql = sprintf($record_sql,
+			$sql = sprintf($dependent_sql,
+				$record['detail_db'], $record['detail_table'], $record['detail_field'],
+				$new_id
+			);
+			$existing = zz_db_fetch($sql, $record['detail_id_field']);
+			$actions = zz_merge_compare($records, $existing, $record);
+
+			$this_record_sql['update'] = sprintf($record_update_sql,
 				($record['detail_db'] !== $zz_conf['db_name'] 
 					? $record['detail_db'].'.'.$record['detail_table'] 
 					: $record['detail_table']),
 				$record['detail_field'], $record['detail_id_field']
 			);
+			$this_record_sql['delete'] = sprintf($record_delete_sql,
+				($record['detail_db'] !== $zz_conf['db_name'] 
+					? $record['detail_db'].'.'.$record['detail_table'] 
+					: $record['detail_table']),
+				$record['detail_id_field']
+			);
 			foreach ($records as $entry) {
 				$record_id = $entry[$record['detail_id_field']];
-				$sql = sprintf($this_record_sql, $new_id, $record_id);
-				$result = zz_db_change($sql, $record_id);
-				if ($result['action'] === 'update') {
-					$msg[] = sprintf(zz_text('Merging entry in table %s merged (ID: %d)'),
-						'<code>'.$record['detail_table'].'</code>', $record_id
+				$action = $actions[$record_id];
+				switch ($action) {
+				case 'update':
+					$sql = sprintf($this_record_sql[$action], $new_id, $record_id);
+					break;
+				case 'delete':
+					$sql = sprintf($this_record_sql[$action], $record_id);
+					break;
+				}
+				$result = zz_merge_action($sql, $record_id);
+				if ($result['action'] === $action) {
+					$msg[] = sprintf(zz_text($msg_success[$action]),
+						$record_id, '<code>'.$record['detail_table'].'</code>'
 					);
 					$uncheck = true;
 				} else {
-					$msg[] = sprintf(zz_text('Merging entry in table %s failed with an error (ID: %d): %s'),
-						'<code>'.$record['detail_table'].'</code>', $record_id, $result['error']['db_msg']
+					$msg[] = sprintf(zz_text($msg_fail[$action]),
+						$record_id, '<code>'.$record['detail_table'].'</code>', $result['error']['db_msg']
 					);
 					$error = true;
 				}
@@ -247,7 +273,7 @@ function zz_merge_records($zz) {
 				$sql = sprintf($sql, $rec['table'],
 					implode(', ', $update_values), $rec['id_field_name'], $new_id
 				);
-				$result = zz_db_change($sql, $new_id);
+				$result = zz_merge_action($sql, $new_id);
 				if ($result['action'] === 'update') {
 					$msg[] = sprintf(zz_text('Update entry in table %s (ID: %d)'),
 						'<code>'.$rec['table'].'</code>', $old_id
@@ -263,7 +289,7 @@ function zz_merge_records($zz) {
 			if ($delete_old_records AND !$error) {
 				foreach ($old_ids as $old_id) {
 					$sql = sprintf($delete_sql, $old_id);
-					$result = zz_db_change($sql, $old_id);
+					$result = zz_merge_action($sql, $old_id);
 					if ($result['action'] === 'delete') {
 						$msg[] = sprintf(zz_text('Deleted entry in table %s (ID: %d)'),
 							'<code>'.$rec['table'].'</code>', $old_id
@@ -293,6 +319,25 @@ function zz_merge_records($zz) {
 	return [
 		'msg' => $msg, 'uncheck' => $uncheck, 'title' => $title
 	];
+}
+
+/**
+ * perform database changes for merging
+ *
+ * @param string $sql
+ * @param int $id
+ * @return array
+ */
+function zz_merge_action($sql, $id) {
+	global $zz_conf;
+	
+	if (!empty($zz_conf['debug'])) {
+		$result['action'] = false;
+		$result['error']['db_msg'] = $sql;
+	} else {
+		$result = zz_db_change($sql, $id);
+	}
+	return $result;
 }
 
 /**
@@ -399,4 +444,45 @@ function zz_merge_message($merge) {
 	}
 	$output .= '</div>'."\n";
 	return $output;
+}
+
+/**
+ * compare kept records with merged records if they are identical
+ * return IDs indexed by ID with action (delete, update)
+ *
+ * @param array $records
+ * @param array $existing
+ * @param array $relation relation definition
+ * @return array
+ */
+function zz_merge_compare($records, $existing, $relation) {
+	global $zz_conf;
+
+	$action = [];
+	$data = ['records', 'existing'];
+	foreach ($data as $type) {
+		foreach ($$type as $record_id => $record) {
+			unset($$type[$record_id][$relation['detail_id_field']]);
+			unset($$type[$record_id][$relation['detail_field']]);
+			foreach ($zz_conf['merge_ignore_fields'] as $field) {
+				if (strstr($field, '.')) {
+					$field = explode('.', $field);
+					if ($field[0] !== $relation['detail_table']) continue;
+					unset($$type[$record_id][$field[1]]);
+				} else {
+					unset($$type[$record_id][$field]);
+				}
+			}
+		}
+	}
+	
+	foreach ($existing as $existing_record) {
+		foreach ($records as $record_id => $record) {
+			if ($record === $existing_record) $action[$record_id] = 'delete';
+		}
+	}
+	foreach (array_keys($records) as $record_id) {
+		if (empty($action[$record_id])) $action[$record_id] = 'update';
+	}
+	return $action;
 }
