@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2014-2015, 2017, 2019-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2014-2015, 2017, 2019-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -75,6 +75,11 @@ function zz_merge_records($zz) {
 	$uncheck = false;
 	$error = false;
 
+	$msg_fail['update'] = 'Merge: Updating ID %d in the table %s failed: %s';
+	$msg_fail['delete'] = 'Merge: Deleting ID %d in the table %s failed: %s';
+	$msg_success['update'] = 'Merge: Updating ID %d in the table %s was successful';
+	$msg_success['delete'] = 'Merge: Deleting ID %d in the table %s was successful';
+
 	// walk through detail record first, main record last
 	$recs = array_reverse($recs);
 	foreach ($recs as $rec) {
@@ -93,10 +98,6 @@ function zz_merge_records($zz) {
 		$dependent_sql = 'SELECT * FROM %s.%s WHERE %s IN (%s)';
 		$record_update_sql = 'UPDATE %s SET %s = %%d WHERE %s = %%d';
 		$record_delete_sql = 'DELETE FROM %s WHERE %s = %%d';
-		$msg_fail['update'] = 'Merge: Updating ID %d in the table %s failed: %s';
-		$msg_fail['delete'] = 'Merge: Deleting ID %d in the table %s failed: %s';
-		$msg_success['update'] = 'Merge: Updating ID %d in the table %s was successful';
-		$msg_success['delete'] = 'Merge: Deleting ID %d in the table %s was successful';
 
 		if ($old_ids) foreach ($dependent_records as $record) {
 			$sql = sprintf($dependent_sql,
@@ -275,12 +276,12 @@ function zz_merge_records($zz) {
 				);
 				$result = zz_merge_action($sql, $new_id);
 				if ($result['action'] === 'update') {
-					$msg[] = sprintf(zz_text('Update entry in table %s (ID: %d)'),
+					$msg[] = sprintf(zz_text($msg_success['update']),
 						'<code>'.$rec['table'].'</code>', $old_id
 					);
 					$delete_old_records = true;
 				} else {
-					$msg[] = sprintf(zz_text('Update of entry in table %s failed with an error (ID: %d): %s'),
+					$msg[] = sprintf(zz_text($msg_fail['update']),
 						'<code>'.$rec['table'].'</code>', $old_id, $result['error']['db_msg']
 					);
 					$error = true;
@@ -291,12 +292,12 @@ function zz_merge_records($zz) {
 					$sql = sprintf($delete_sql, $old_id);
 					$result = zz_merge_action($sql, $old_id);
 					if ($result['action'] === 'delete') {
-						$msg[] = sprintf(zz_text('Deleted entry in table %s (ID: %d)'),
+						$msg[] = sprintf(zz_text($msg_success['delete']),
 							'<code>'.$rec['table'].'</code>', $old_id
 						);
 						$uncheck = true;
 					} else {
-						$msg[] = sprintf(zz_text('Deletion of entry in table %s failed with an error (ID: %d): %s'),
+						$msg[] = sprintf(zz_text($msg_fail['delete']),
 							'<code>'.$rec['table'].'</code>', $old_id, $result['error']['db_msg']
 						);
 						$error = true;
