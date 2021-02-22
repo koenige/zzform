@@ -213,17 +213,22 @@ zz_filters('init');
 function zzformReplacePage(page, scrollTop = true) {
 	document.title = page.title;
 
-	var myForm = zzformDiv();
-	myForm.innerHTML = page.html;
-
-	// activate scripts
-	var allScripts = myForm.getElementsByTagName('script');
-	for (i = 0; i < allScripts.length; i++) {
-		var g = document.createElement('script');
-		var s = allScripts[i];
-		g.text = s.innerHTML;
-		s.parentNode.insertBefore(g, s);
-		s.remove();
+	if (page.noFragment) {
+		document.open();
+        document.write(page.html);
+        document.close();
+	} else {
+		var replaceContent = zzformDiv();
+		replaceContent.innerHTML = page.html;
+		// activate scripts
+		var allScripts = replaceContent.getElementsByTagName('script');
+		for (i = 0; i < allScripts.length; i++) {
+			var g = document.createElement('script');
+			var s = allScripts[i];
+			g.text = s.innerHTML;
+			s.parentNode.insertBefore(g, s);
+			s.remove();
+		}
 	}
 
 	// move to top of page
@@ -236,11 +241,15 @@ function zzformReplacePage(page, scrollTop = true) {
  * @param object event
  */
 function zzformLoadPage(event){
-	var page = JSON.parse(event.target.responseText);
-	
-	if (!page) {
-		window.location.replace(event.target.responseURL);
-		return false;
+	try {
+		var page = JSON.parse(event.target.responseText);
+	} catch (e) {
+		var page = {
+			'html': event.target.responseText,
+			'title': null,
+			'url': event.target.responseURL,
+			'noFragment': true
+		}
 	}
 
 	if (page.url && page.url !== zzform_action_url) {
