@@ -670,7 +670,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['redirect']['no_update'] = false;	// redirect to diff. page after update without changes
 	$default['redirect_on_change']	= true;
 	$default['referer_text']		= 'Back to overview';
-	$default['replace_div']			= 'zzform';
 	$default['search'] 				= true;	// search for records possible or not
 	$default['search_form_always']	= false;
 	$default['show_list_while_edit'] = true;
