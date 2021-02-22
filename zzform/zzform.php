@@ -43,7 +43,8 @@ function zzform($zz) {
 		'id' => 0,
 		'mode' => false,
 		'footer_text' => false,
-		'html_fragment' => !empty($_POST['zz_html_fragment']) ? true : false
+		'html_fragment' => !empty($_POST['zz_html_fragment']) ? true : false,
+		'redirect_url' => false
 	];
 	// set default configuration variables
 	// import modules, set and get URI
@@ -275,7 +276,9 @@ function zzform($zz) {
 				return zzform_exit($ops);
 			} elseif ($ops['result']) {
 				// Redirect, if wanted.
-				zz_output_redirect($ops['result'], $ops['return'], $zz_tab);
+				$ops['redirect_url'] = zz_output_redirect($ops['result'], $ops['return'], $zz_tab);
+				if ($ops['redirect_url'])
+					wrap_redirect_change($ops['redirect_url']);
 			}
 		} elseif ($zz_var['action'] === 'thumbnails') {
 			$ops = zz_upload_thumbnail($ops, $zz_tab, $zz_var);

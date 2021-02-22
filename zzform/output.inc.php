@@ -286,7 +286,7 @@ function zz_show_more_actions($conf, $id, $line) {
  * @param array $return ($ops['return'])
  * @param array $zz_tab
  * @global array $zz_conf
- * @return bool false if nothing was done (redirect otherwise)
+ * @return mixed bool false if nothing was done or string redirect URL
  */
 function zz_output_redirect($result, $return, $zz_tab) {
 	global $zz_conf;
@@ -302,7 +302,7 @@ function zz_output_redirect($result, $return, $zz_tab) {
 			$zz_conf['redirect'][$result] = $zz_conf['int']['url']['base']
 				.$zz_conf['redirect'][$result];
 		}
-		wrap_redirect_change($zz_conf['redirect'][$result]);
+		return $zz_conf['redirect'][$result];
 	} elseif (!$zz_conf['debug'] AND $zz_conf['redirect_on_change']) {
 	// redirect to same URL, as to protect against reloading the POST variables
 	// don't do so in case of debugging
@@ -346,13 +346,13 @@ function zz_output_redirect($result, $return, $zz_tab) {
 				}
 			}
 			if ($nos) $nos = '='.$nos;
-			wrap_redirect_change($self.'delete'.$nos);
+			return $self.'delete'.$nos;
 		case 'successful_insert':
-			wrap_redirect_change($self.'insert='.$id_value.$secure);
+			return $self.'insert='.$id_value.$secure;
 		case 'successful_update':
-			wrap_redirect_change($self.'update='.$id_value.$secure);
+			return $self.'update='.$id_value.$secure;
 		case 'no_update':
-			wrap_redirect_change($self.'noupdate='.$id_value.$secure);
+			return $self.'noupdate='.$id_value.$secure;
 		}
 	}
 	return false;
