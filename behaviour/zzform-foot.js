@@ -6,7 +6,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2014, 2018, 2020 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2014, 2018, 2020-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -203,3 +203,80 @@ function zz_filters(action, field_id) {
 	}
 }
 zz_filters('init');
+
+/**
+ * replaces zzform ID element (or other) and HTML title
+ *
+ * @param object page (page.title, page.html)
+ * @param bool scrollTop: scroll to top of page after update of contents (default yes)
+ */
+function zzformReplacePage(page, scrollTop = true) {
+	document.title = page.title;
+
+	var myForm = zzformDiv();
+	myForm.innerHTML = page.html;
+
+	// activate scripts
+	var allScripts = myForm.getElementsByTagName('script');
+	for (i = 0; i < allScripts.length; i++) {
+		var g = document.createElement('script');
+		var s = allScripts[i];
+		g.text = s.innerHTML;
+		s.parentNode.insertBefore(g, s);
+		s.remove();
+	}
+
+	// move to top of page
+	if (scrollTop) scroll(0,0);
+}
+
+/**
+ * reload page after post
+ *
+ * @param object event
+ */
+function zzformLoadPage(event){
+	var page = JSON.parse(event.target.responseText);
+	
+	if (!page) {
+		window.location.replace(event.target.responseURL);
+		return false;
+	}
+
+	if (page.url && page.url !== zzform_action_url) {
+		if (history.pushState) {
+			window.history.pushState(page, page.title, page.url);
+		} else {
+			window.location.replace(page.url);
+			return false;
+		}
+	}
+	zzformReplacePage(page);
+}
+
+/**
+ * get the element where all zzform related content is in
+ */
+function zzformDiv() {
+	return document.getElementById('%%% setting zzform_replace_div %%%');
+}
+
+/**
+ * save the current page for popstate event when going back
+ */
+function zzformSavePage() {
+	if (history.pushState) {
+		var old = {
+			title: window.title,
+			html: zzformDiv().innerHTML,
+			url: window.location + ''
+		}
+		window.history.replaceState(old, old.title, old.url);
+	}
+}
+
+window.onpopstate = function(event){
+	if (event.state) {
+		zzformReplacePage(event.state);
+	}
+};

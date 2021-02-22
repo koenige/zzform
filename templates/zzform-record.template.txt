@@ -89,7 +89,7 @@
 %%% condition if upload_form %%%
 <script>
 
-var zzform_action_url = '%%% setting zzform_int_url_self %%%%%% setting zzform_int_url_qs %%%
+var zzform_action_url = '%%% setting host_base %%%%%% setting zzform_int_url_self %%%%%% setting zzform_int_url_qs %%%
 %%% condition if setting zzform_int_extra_get %%%
 %%% setting zzform_int_url_?& %%%%%% setting zzform_int_extra_get %%%
 %%% condition endif %%%
@@ -97,6 +97,7 @@ var zzform_action_url = '%%% setting zzform_int_url_self %%%%%% setting zzform_i
 
 document.getElementById('zzform_form').addEventListener('submit', function(event) {
 	event.preventDefault();
+	zzformSavePage();
 	document.getElementById('zzform_submit').style = 'display: none;';
 	document.getElementById('zzform_upload_progress').style = 'display: block;';
 
@@ -105,7 +106,7 @@ document.getElementById('zzform_form').addEventListener('submit', function(event
 
 	var xhr = new XMLHttpRequest();
 	xhr.upload.addEventListener("progress", progressHandler, false);
-	xhr.addEventListener("load", completeHandler, false);
+	xhr.addEventListener("load", zzformLoadPage, false);
 	xhr.addEventListener("error", errorHandler, false);
 	xhr.addEventListener("abort", abortHandler, false);
 	xhr.open('POST', zzform_action_url);
@@ -117,29 +118,6 @@ function progressHandler(event){
 	var percent = (event.loaded / event.total) * 100;
 	document.getElementById("zzform_upload_progress_bar").value = Math.round(percent);
 	document.getElementById("zzform_upload_status").innerHTML = Math.round(percent)+ "%%% text % uploaded … please wait %%%";
-}
-
-function completeHandler(event){
-	if (event.target.responseURL !== zzform_action_url) {
-		window.location.replace(event.target.responseURL);
-		return false;
-	}
-
-	var myForm = document.getElementById('%%% setting zzform_replace_div %%%');
-	myForm.innerHTML = event.target.responseText;
-	
-	// activate scripts
-	var allScripts = myForm.getElementsByTagName('script');
-	for (i = 0; i < allScripts.length; i++) {
-		var g = document.createElement('script');
-		var s = allScripts[i];
-		g.text = s.innerHTML;
-		s.parentNode.insertBefore(g, s);
-		s.remove();
-	}
-
-	// move to top of page
-	scroll(0,0);
 }
 
 function errorHandler(event){

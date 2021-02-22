@@ -277,7 +277,7 @@ function zzform($zz) {
 			} elseif ($ops['result']) {
 				// Redirect, if wanted.
 				$ops['redirect_url'] = zz_output_redirect($ops['result'], $ops['return'], $zz_tab);
-				if ($ops['redirect_url'])
+				if ($ops['redirect_url'] AND empty($ops['html_fragment']))
 					wrap_redirect_change($ops['redirect_url']);
 			}
 		} elseif ($zz_var['action'] === 'thumbnails') {
