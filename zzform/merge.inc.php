@@ -166,7 +166,7 @@ function zz_merge_records($zz) {
 			if (!empty($rec['prep']['update']) AND $rec['prep']['new_values']) {
 				$update_values = [];
 				foreach ($rec['prep']['new_values'] as $field_name => $value) {
-					$update_values[] = sprintf('`%s` = "%s"', $field_name, $value);
+					$update_values[] = sprintf('`%s` = "%s"', $field_name, wrap_db_escape($value));
 				}
 				$sql = 'UPDATE %s SET %s WHERE %s = %d';
 				$sql = sprintf($sql, $rec['table'],
