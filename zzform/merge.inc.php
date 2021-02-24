@@ -459,39 +459,30 @@ function zz_merge_prepare_record($rec) {
 				if (in_array($field_name, $case_insensitive_fields)) {
 					if (strtolower($value) === strtolower($new_record[$field_name])) continue;
 				}
-				if (!$new_record[$field_name]) {
+
+				$newval = zz_merge_updateable(
+					$old_record[$field_name], $new_record[$field_name],
+					$rec['fields'][$fields_by_fieldname[$field_name]]
+				);
+				if ($newval) {
+					if ($newval !== $new_record[$field_name]) {
+						$prep['new_values'][$field_name] = $new_record[$field_name] = $newval;
+					}
+				} elseif (!$new_record[$field_name]
+					AND !array_key_exists($field_name, $prep['new_values'])) {
 					// existing field is empty, we can overwrite it
-					if (array_key_exists($field_name, $prep['new_values'])) {
-						// overwrite with different values is impossible
-						if ($value !== $prep['new_values'][$field_name]) {
-							$prep['update'] = false;
-							$update_errors[] = [
-								'field_name' => $field_name,
-								'old' => $old_record[$field_name],
-								'new' => $new_record[$field_name]
-							];
-						}
-					} else {
-						$prep['new_values'][$field_name] = $value;
-					}
+					$prep['new_values'][$field_name] = $new_record[$field_name] = $value;
+				} elseif (!$new_record[$field_name]
+					AND $value === $prep['new_values'][$field_name]) {
+					// value identical, don’t do anything
 				} else {
-					// values differ, no overwriting
-					$newval = zz_merge_updateable(
-						$old_record[$field_name], $new_record[$field_name],
-						$rec['fields'][$fields_by_fieldname[$field_name]]
-					);
-					if ($newval) {
-						if ($newval !== $new_record[$field_name]) {
-							$prep['new_values'][$field_name] = $new_record[$field_name] = $newval;
-						}
-					} else {
-						$prep['update'] = false;
-						$update_errors[] = [
-							'field_name' => $field_name,
-							'old' => $old_record[$field_name],
-							'new' => $new_record[$field_name]
-						];
-					}
+					// overwrite with different values is impossible
+					$prep['update'] = false;
+					$update_errors[] = [
+						'field_name' => $field_name,
+						'old' => $old_record[$field_name],
+						'new' => $new_record[$field_name]
+					];
 				}
 			}
 			if (!$prep['update']) {
