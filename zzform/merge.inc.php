@@ -369,13 +369,15 @@ function zz_merge_compare($records, $existing, $relation) {
 		foreach ($$type as $record_id => $record) {
 			unset($$type[$record_id][$relation['detail_id_field']]);
 			unset($$type[$record_id][$relation['detail_field']]);
-			foreach ($zz_conf['merge_ignore_fields'] as $field) {
-				if (strstr($field, '.')) {
-					$field = explode('.', $field);
-					if ($field[0] !== $relation['detail_table']) continue;
-					unset($$type[$record_id][$field[1]]);
-				} else {
-					unset($$type[$record_id][$field]);
+			if (!empty($zz_conf['merge_ignore_fields'])) {
+				foreach ($zz_conf['merge_ignore_fields'] as $field) {
+					if (strstr($field, '.')) {
+						$field = explode('.', $field);
+						if ($field[0] !== $relation['detail_table']) continue;
+						unset($$type[$record_id][$field[1]]);
+					} else {
+						unset($$type[$record_id][$field]);
+					}
 				}
 			}
 		}
