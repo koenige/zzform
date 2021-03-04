@@ -478,6 +478,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 		$row_display = $display;
 	}
 
+	$dependent_fields_ids = zz_dependent_field_ids($my_rec['fields'], $tab, $rec);
 	$multiple = !empty($zz_conf['int']['id']['values']) ? true : false;
 	$my_fields = [];
 	foreach ($my_rec['fields'] as $fieldkey => $field) {
@@ -507,6 +508,21 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			AND !in_array($mode, ['edit', 'add', 'revise'])) {
 			// options will only be shown in edit mode
 			continue;
+		}
+
+		// dependent field?
+		if (array_key_exists($fieldkey, $dependent_fields_ids)) {
+			if (empty($my_rec['id']['value'])) { // add mode
+				$field['class'][] = 'hidden';
+			} elseif (empty($my_rec['record'][$dependent_fields_ids[$fieldkey]['source_field_name']])) {
+				$field['class'][] = 'hidden';
+			} elseif (empty($dependent_fields_ids[$fieldkey]['values'])) {
+				$field['class'][] = 'hidden';
+			} else {
+				$source_field_value = $my_rec['record'][$dependent_fields_ids[$fieldkey]['source_field_name']];
+				if (!in_array($source_field_value, $dependent_fields_ids[$fieldkey]['values']))
+					$field['class'][] = 'hidden';
+			}
 		}
 
 		// $tab means subtable, since main table has $tab = 0
