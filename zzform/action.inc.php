@@ -1466,19 +1466,7 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 	// dependent fields
 	//	$zz['fields'][5]['dependent_fields'][9]['if_selected'] = 'crm_category';
 	//	$zz['fields'][5]['dependent_fields'][9]['required] = true;
-	$dependent_fields_ids = [];
-	foreach ($my_rec['fields'] as $f => $field) {
-		if (empty($field['dependent_fields'])) continue;
-		$records = zz_db_fetch($field['sql'], '_dummy_', 'numeric');
-		foreach ($field['dependent_fields'] as $field_no => $dependent_field) {
-			$dependent_fields_ids[$field_no]['source_field_name'] = $field['field_name'];
-			$dependent_fields_ids[$field_no]['required'] = !empty($dependent_field['required']) ? true : false;
-			foreach ($records as $record) {
-				if (empty($record[$dependent_field['if_selected']])) continue;
-				$dependent_fields_ids[$field_no]['values'][] = reset($record);
-			}
-		}
-	}
+	$dependent_fields_ids = zz_dependent_field_ids($my_rec['fields'], $tab, $rec);
 
 	foreach ($my_rec['fields'] as $f => $field) {
 	// 	shorthand

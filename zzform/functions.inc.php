@@ -3246,6 +3246,35 @@ function zz_get_subtable_fielddef($fields, $table) {
 	return false;
 }
 
+/**
+ * get IDs for which fields are shown
+ *
+ * @param array $fields
+ * @param int $tab
+ * @param int $rec
+ * @return array
+ */
+function zz_dependent_field_ids($fields, $tab, $rec) {
+	static $dependent_ids;
+	if (!empty($dependent_ids[$tab][$rec]))
+		return $dependent_ids[$tab][$rec];
+
+	$dependent_ids[$tab][$rec] = [];
+	foreach ($fields as $field) {
+		if (empty($field['dependent_fields'])) continue;
+		$records = zz_db_fetch($field['sql'], '_dummy_', 'numeric');
+		foreach ($field['dependent_fields'] as $field_no => $dependent_field) {
+			$dependent_ids[$tab][$rec][$field_no]['source_field_name'] = $field['field_name'];
+			$dependent_ids[$tab][$rec][$field_no]['required'] = !empty($dependent_field['required']) ? true : false;
+			foreach ($records as $record) {
+				if (empty($record[$dependent_field['if_selected']])) continue;
+				$dependent_ids[$tab][$rec][$field_no]['values'][] = reset($record);
+			}
+		}
+	}
+	return $dependent_ids[$tab][$rec];
+}
+
 
 /*
  * --------------------------------------------------------------------
