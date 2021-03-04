@@ -512,16 +512,21 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 
 		// dependent field?
 		if (array_key_exists($fieldkey, $dependent_fields_ids)) {
+			$hidden = false;
 			if (empty($my_rec['id']['value'])) { // add mode
-				$field['class'][] = 'hidden';
+				$hidden = true;
 			} elseif (empty($my_rec['record'][$dependent_fields_ids[$fieldkey]['source_field_name']])) {
-				$field['class'][] = 'hidden';
+				$hidden = true;
 			} elseif (empty($dependent_fields_ids[$fieldkey]['values'])) {
-				$field['class'][] = 'hidden';
+				$hidden = true;
 			} else {
 				$source_field_value = $my_rec['record'][$dependent_fields_ids[$fieldkey]['source_field_name']];
 				if (!in_array($source_field_value, $dependent_fields_ids[$fieldkey]['values']))
-					$field['class'][] = 'hidden';
+					$hidden = true;
+			}
+			if ($hidden) {
+				$field['class'][] = 'hidden';
+				$field['required'] = false;
 			}
 		}
 
