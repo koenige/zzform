@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2017 Gustaf Mossakowski
+ * @copyright Copyright © 2017, 2020-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -87,13 +87,19 @@ function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 		}
 		if (!empty($my_field['sql_dependency'][$_GET['field_no']])) {
 			$sql = vsprintf($my_field['sql_dependency'][$_GET['field_no']], $values);
-			$value = wrap_db_fetch($sql, '', 'single value');
+			$value = wrap_db_fetch($sql);
 			if (!$value) continue;
+			if (!empty($my_field['sql_translate'])) {
+				foreach ($my_field['sql_translate'] as $t_id_field => $t_table) {
+					$value = wrap_translate($value, $t_table, $t_id_field);
+				}
+			}
+			$value = reset($value);			
 		} elseif (count($values) === count($field['dependencies'])) {
 			$value = $values[$index];
 		}
 		if (!empty($subtable_no) AND isset($_GET['rec'])) {
-			$table_name = isset($zz['fields'][$subtable_no]['table_name']) ? $zz['fields'][$subtable_no]['table_name'] : $zz['fields'][$subtable_no]['table'];
+			$table_name = isset($zz['fields'][$subtable_no]['table_name']) ? $zz['fields'][$subtable_no]['table_name'] : wrap_db_prefix($zz['fields'][$subtable_no]['table']);
 			$rec = intval($_GET['rec']);
 			$id_field_name = zz_long_fieldname($table_name, $rec, $my_field['field_name']);
 			$id_field_name = zz_make_id_fieldname($id_field_name);
