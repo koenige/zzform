@@ -1015,12 +1015,16 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					$outputf = zz_field_select_sql($field, $field_display, $my_rec['record'], 
 						$zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table']);
 
-					if (!empty($field['dependent_field_if_selected']) AND !empty($my_fields[$field['dependent_field_no']])) {
-						$zz_conf['int']['js_field_dependencies'][] = [
-							'main_field_id' => zz_make_id_fieldname($field['f_field_name']),
-							'dependent_field_id' => zz_make_id_fieldname($my_fields[$field['dependent_field_no']]['f_field_name']),
-							'required' => !empty($field['dependent_field_required']) ? true : false
-						];
+					if (!empty($field['dependent_fields'])) {
+						foreach ($field['dependent_fields'] as $field_no => $dependent_field) {
+							if (empty($my_fields[$field_no])) continue;
+							$zz_conf['int']['js_field_dependencies'][] = [
+								'main_field_id' => zz_make_id_fieldname($field['f_field_name']),
+								'dependent_field_id' => zz_make_id_fieldname($my_fields[$field_no]['f_field_name']),
+								'required' => !empty($dependent_field['required']) ? true : false,
+								'field_no' => $field_no
+							];
+						}
 					}
 				} elseif (isset($field['set_folder'])) {
 					// #2a SELECT with set_folder
@@ -2531,12 +2535,14 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 	// 1.3.4: draw a SELECT element
 	$fieldattr = [];
 	if ($field['required']) $fieldattr['required'] = true;
-	if (!empty($field['dependent_field_if_selected'])) {
-		foreach ($lines as $field_id => $line) {
-			if (empty($line[$field['dependent_field_if_selected']])) continue;
-			$fieldattr['data-dependent_field_if_selected'][] = $field_id;
+	if (!empty($field['dependent_fields'])) {
+		foreach ($field['dependent_fields'] as $field_no => $dependent_field) {
+			foreach ($lines as $field_id => $line) {
+				if (empty($line[$dependent_field['if_selected']])) continue;
+				$fieldattr['data-dependent_field_'.$field_no][] = $field_id;
+			}
+			$fieldattr['data-dependent_field_'.$field_no] = implode(',', $fieldattr['data-dependent_field_'.$field_no]);
 		}
-		$fieldattr['data-dependent_field_if_selected'] = implode(',', $fieldattr['data-dependent_field_if_selected']);
 	}
 	$outputf = zz_form_element($field['f_field_name'], '', 'select', true, $fieldattr)."\n";
 
