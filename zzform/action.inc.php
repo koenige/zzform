@@ -1482,6 +1482,22 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 					= $my_rec['fields'][$f]['required'] = $my_rec['fields'][$f]['required_in_db']
 					= true;
 				}
+			} elseif (!empty($dependent_fields_ids[$f]['set_values'])
+				AND !empty($my_rec['POST'][$dependent_fields_ids[$f]['source_field_name']])
+				AND array_key_exists($my_rec['POST'][$dependent_fields_ids[$f]['source_field_name']], $dependent_fields_ids[$f]['set_values'])) {
+				$values = $dependent_fields_ids[$f]['set_values'][$my_rec['POST'][$dependent_fields_ids[$f]['source_field_name']]];
+				if (array_key_exists($field_name, $values)) {
+					if (wrap_substr($field_name, '_id', 'end') AND !is_numeric($values[$field_name])) {
+						$table = substr($field_name, 0, -3);
+						if (strstr($table, '_'))
+							$table = substr($table, strrpos($table, '_') + 1);
+						$table = wrap_substr($table, 'y', 'end') ? substr($table, 0, -1).'ies' : $table.'s';
+						$values[$field_name] = wrap_id($table, $values[$field_name]);
+					}
+					$my_rec['POST'][$field_name] = $values[$field_name];
+				} else {
+					$my_rec['POST'][$field_name] = false;
+				}
 			} else {
 				// invisible, remove existing value if there is one
 				$my_rec['POST'][$field_name] = false;

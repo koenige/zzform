@@ -3267,6 +3267,13 @@ function zz_dependent_field_ids($fields, $tab, $rec) {
 			$dependent_ids[$tab][$rec][$field_no]['source_field_name'] = $field['field_name'];
 			$dependent_ids[$tab][$rec][$field_no]['required'] = !empty($dependent_field['required']) ? true : false;
 			foreach ($records as $record) {
+				// is record hidden but a value needs to be set?
+				if (!empty($dependent_field['value']) AND array_key_exists($dependent_field['value'], $record)) {
+					parse_str($record[$dependent_field['value']], $parameters);
+					if (!empty($parameters['value'])) {
+						$dependent_ids[$tab][$rec][$field_no]['set_values'][reset($record)] = $parameters['value'];
+					}
+				}
 				if (empty($record[$dependent_field['if_selected']])) continue;
 				$dependent_ids[$tab][$rec][$field_no]['values'][] = reset($record);
 			}
