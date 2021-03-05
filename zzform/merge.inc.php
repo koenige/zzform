@@ -209,12 +209,11 @@ function zz_merge_records($zz) {
 	if (!$error) {
 		// everything okay, so don't output all the details
 		$title = sprintf(zz_text('%d records merged successfully'), count($rec['old_ids']) + 1);
-		$msg = [];
+		wrap_redirect_change('?zzmsg='.$title);
 	} else {
 		$title = '';
 	}
 
-	// @todo redirect on change
 	// @todo show main records on error to compare manually
 	return [
 		'msg' => $msg, 'uncheck' => $uncheck, 'title' => $title

@@ -50,6 +50,8 @@ function zzform($zz) {
 	// import modules, set and get URI
 	zz_initialize('form');
 	zz_error();
+	if (!empty($_GET['zzmsg']))
+		$ops['output'] .= sprintf('<h2>%s</h2>', wrap_html_escape($_GET['zzmsg']));
 	$ops['output'] .= zz_error_output();
 	$zz = zz_defaults($zz);
 

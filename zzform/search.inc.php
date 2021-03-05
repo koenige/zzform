@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2013, 2015-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2013, 2015-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -570,7 +570,7 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 		// do not show edited record, limit, ...
 		$unwanted_keys = [
 			'q', 'scope', 'limit', 'mode', 'id', 'add', 'delete', 'insert',
-			'update', 'noupdate', 'zzhash', 'edit', 'show', 'revise'
+			'update', 'noupdate', 'zzhash', 'edit', 'show', 'revise', 'zzmsg'
 		];
 		$search['hidden_fields'] = zz_querystring_to_hidden(substr($qs, 1), $unwanted_keys);
 		// remove unwanted keys from link

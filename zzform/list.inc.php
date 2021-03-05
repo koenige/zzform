@@ -884,7 +884,7 @@ function zz_filter_selection($filter, $filter_params, $pos) {
 	// do not show edited record, limit
 	$unwanted_keys = [
 		'q', 'scope', 'limit', 'mode', 'id', 'add', 'filter', 'delete',
-		'insert', 'update', 'noupdate', 'zzhash'
+		'insert', 'update', 'noupdate', 'zzhash', 'zzmsg'
 	];
 	$qs = zz_edit_query_string($zz_conf['int']['url']['qs']
 		.$zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
