@@ -87,7 +87,7 @@
 %%% item js_xhr_dependencies %%%
 %%% item js_field_dependencies %%%
 %%% condition if form %%%
-<script>
+<script data-js="immediately">
 
 var zzformForm = document.getElementById('zzform_form');
 var zzformSubmitButton = '';
@@ -96,6 +96,9 @@ var zzformActionURL = '%%% setting host_base %%%%%% setting zzform_int_url_self 
 %%% setting zzform_int_url_?& %%%%%% setting zzform_int_extra_get %%%
 %%% condition endif %%%
 %%% item form_anchor "#%s" %%%';
+
+</script>
+<script>
 
 document.getElementById('zzform_form').addEventListener('submit', function(event) {
 	event.preventDefault();

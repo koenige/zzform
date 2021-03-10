@@ -217,7 +217,18 @@ function zzformReplacePage(page, scrollTop = true) {
 		for (i = 0; i < allScripts.length; i++) {
 			var g = document.createElement('script');
 			var s = allScripts[i];
-			g.text = s.innerHTML;
+			if (s.src) {
+				g.src = s.src;
+				g.async = false;
+			} else {
+				if(s.getAttribute('data-js') === 'immediately') {
+					g.innerHTML = s.innerHTML;
+				} else {
+					g.src = 'data:text/javascript,' + s.innerHTML;
+					g.async = false;
+					g.defer = true;
+				}
+			}
 			s.parentNode.insertBefore(g, s);
 			s.remove();
 		}
@@ -257,7 +268,10 @@ function zzformLoadPage(event){
 	} else {
 		zzformReplacePage(page);
 	}
-	zzformRecordForm();
+	// still a form visibile? refresh it
+	zzformForm = document.getElementById('zzform_form');
+	if (zzformForm)
+		zzformRecordForm();
 }
 
 /**
