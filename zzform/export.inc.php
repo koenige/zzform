@@ -249,7 +249,7 @@ function zz_export($ops, $zz, $zz_var) {
 		$output = zz_export_geojson($ops, $zz, $zz_var);
 		if (!empty($_GET['q'])) $filename .= ' '.wrap_filename($_GET['q']);
 		$headers['filename'] = $filename.'.geojson';
-		return wrap_send_text($output, 'geojson', 200, $headers);
+		return wrap_send_text($output, 'js', 200, $headers);
 	}
 }
 
