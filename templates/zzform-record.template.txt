@@ -12,7 +12,7 @@
 %%% condition if form %%%
 <form action="%%% setting zzform_int_url_self %%%%%% setting zzform_int_url_qs %%%
 %%% condition if setting zzform_int_extra_get %%%
-%%% setting zzform_int_url_?& %%%%%% setting zzform_int_extra_get %%%
+%%% setting zzform_int_url_?& %%%%%% setting zzform_int_extra_get_escaped %%%
 %%% condition endif %%%
 %%% item form_anchor "#%s" %%%" method="POST"%%% condition if upload %%% enctype="multipart/form-data"%%% condition endif %%% accept-charset="%%% setting character_set %%%" id="zzform_form">
 <input type="hidden" name="zz_id" value="%%% setting zzform_id %%%">

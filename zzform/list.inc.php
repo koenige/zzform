@@ -212,7 +212,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			$action_url = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs'];
 			if ($zz_conf['int']['extra_get']) {
 				// without first &amp;!
-				$action_url .= $zz_conf['int']['url']['?&'].$zz_conf['int']['extra_get'];
+				$action_url .= $zz_conf['int']['url']['?&'].$zz_conf['int']['extra_get_escaped'];
 			}
 			$ops['output'] .= sprintf('<form action="%s" method="POST" accept-charset="%s">'."\n",
 				$action_url, $zz_conf['character_set']);

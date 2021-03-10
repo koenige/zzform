@@ -732,7 +732,7 @@ function zz_extra_get_params() {
 
 	$zz_conf['int']['extra_get'] = http_build_query($keep_query);
 	if ($zz_conf['int']['extra_get']) 
-		$zz_conf['int']['extra_get'] = str_replace('&', '&amp;', $zz_conf['int']['extra_get']);
+		$zz_conf['int']['extra_get_escaped'] = str_replace('&', '&amp;', $zz_conf['int']['extra_get']);
 }
 
 /**
@@ -1178,8 +1178,8 @@ function zz_output_modes($id, $zz_conf_record) {
 	global $zz_conf;
 	
 	if (!empty($zz_conf['int']['where_with_unique_id'])) $id = '';
-	$qs = ($id ? sprintf('=%d', $id) : '').($zz_conf['int']['extra_get'] ? '&amp;'.$zz_conf['int']['extra_get'] : '');
-	$qs_extra = $zz_conf['int']['url']['?&'].$zz_conf['int']['extra_get'];
+	$qs = ($id ? sprintf('=%d', $id) : '').($zz_conf['int']['extra_get_escaped'] ? '&amp;'.$zz_conf['int']['extra_get_escaped'] : '');
+	$qs_extra = $zz_conf['int']['url']['?&'].$zz_conf['int']['extra_get_escaped'];
 	$link = sprintf(
 		'<a href="%s%s%%s%%s%%s">%%s</a>',
 		$zz_conf['int']['url']['self'],
