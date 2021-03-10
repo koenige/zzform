@@ -86,10 +86,25 @@
 %%% item js_xhr_selects %%%
 %%% item js_xhr_dependencies %%%
 %%% item js_field_dependencies %%%
-%%% condition if upload_form %%%
+%%% condition if form %%%
 <script>
 
-var zzform_action_url = '%%% setting host_base %%%%%% setting zzform_int_url_self %%%%%% setting zzform_int_url_qs %%%
+/**
+ * send name of buttons for adding/removing sub records or detail records
+ *
+ */
+function zzformButtonsInit() {
+	var subrecordButtons = document.getElementById('zzform_form').querySelectorAll('input[formnovalidate]');
+	for (j = 0; j < subrecordButtons.length; j++) {
+		subrecordButtons[j].onclick = function(ev) {
+			zzformSubmitButton = this.name;
+		};
+	}
+}
+var zzformSubmitButton = '';
+zzformButtonsInit();
+
+var zzformActionURL = '%%% setting host_base %%%%%% setting zzform_int_url_self %%%%%% setting zzform_int_url_qs %%%
 %%% condition if setting zzform_int_extra_get %%%
 %%% setting zzform_int_url_?& %%%%%% setting zzform_int_extra_get %%%
 %%% condition endif %%%
@@ -99,27 +114,35 @@ document.getElementById('zzform_form').addEventListener('submit', function(event
 	event.preventDefault();
 	zzformSavePage();
 	document.getElementById('zzform_submit').style = 'display: none;';
+%%% condition if upload_form %%%
 	document.getElementById('zzform_upload_progress').style = 'display: block;';
+%%% condition endif %%%
 
 	var data = new FormData(document.getElementById('zzform_form'));
 	data.append('zz_html_fragment', 1);
+	if (zzformSubmitButton) {
+		data.append(zzformSubmitButton, 1);
+	}
 
 	var xhr = new XMLHttpRequest();
+%%% condition if upload_form %%%
 	xhr.upload.addEventListener("progress", progressHandler, false);
-	xhr.addEventListener("load", zzformLoadPage, false);
+%%% condition endif %%%
 	xhr.addEventListener("error", errorHandler, false);
 	xhr.addEventListener("abort", abortHandler, false);
-	xhr.open('POST', zzform_action_url);
+	xhr.addEventListener("load", zzformLoadPage, false);
+	xhr.open('POST', zzformActionURL);
 	xhr.send(data);
 });
 
+%%% condition if upload_form %%%
 function progressHandler(event){
 	document.getElementById("zzform_loaded").innerHTML = "%%% text Uploaded: %%% " + event.loaded + " / %%% text Total: %%% " + event.total + " %%% text Bytes %%% ";
 	var percent = (event.loaded / event.total) * 100;
 	document.getElementById("zzform_upload_progress_bar").value = Math.round(percent);
 	document.getElementById("zzform_upload_status").innerHTML = Math.round(percent)+ "%%% text % uploaded … please wait %%%";
 }
-
+%%% condition endif %%%
 function errorHandler(event){
 	document.getElementById("zzform_upload_status").innerHTML = "%%% text Upload Failed %%%";
 }

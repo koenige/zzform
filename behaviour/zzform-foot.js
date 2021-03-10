@@ -79,34 +79,6 @@ function zz_toggle_element(myelement) {
 zz_toggle_elements();
 
 /**
- * remove subrecords without an HTTP request
- */
-Array.prototype.forEach.call(document.querySelectorAll('input.sub-remove-vertical'), function(el) {
-	el.onclick = function(ev) {
-		ev.preventDefault();
-		this.previousSibling.previousSibling.remove();
-		this.remove();
-		return false;
-	};
-});
-Array.prototype.forEach.call(document.querySelectorAll('input.sub-remove-horizontal'), function(el) {
-	el.onclick = function(ev) {
-		ev.preventDefault();
-		this.parentNode.parentNode.remove();
-		this.remove();
-		return false;
-	};
-});
-Array.prototype.forEach.call(document.querySelectorAll('input.sub-remove-lines'), function(el) {
-	el.onclick = function(ev) {
-		ev.preventDefault();
-		this.parentNode.remove();
-		this.remove();
-		return false;
-	};
-});
-
-/**
  * show only a part of a very long text in list view
  */
 var moretexts = document.getElementsByClassName("moretext");
@@ -252,7 +224,7 @@ function zzformLoadPage(event){
 		}
 	}
 
-	if (page.url && page.url !== zzform_action_url) {
+	if (page.url && page.url !== zzformActionURL) {
 		if (history.pushState) {
 			window.history.pushState(page, page.title, page.url);
 		} else {
@@ -260,7 +232,11 @@ function zzformLoadPage(event){
 			return false;
 		}
 	}
-	zzformReplacePage(page);
+	if (zzformSubmitButton) {
+		zzformReplacePage(page, false);
+	} else {
+		zzformReplacePage(page);
+	}
 }
 
 /**
