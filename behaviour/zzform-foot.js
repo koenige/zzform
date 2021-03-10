@@ -11,20 +11,34 @@
  */
 
 
+if (typeof zzformForm !== 'undefined') zzformRecordForm();
+
+/**
+ * initialize all functions that are in use for the record form
+ */
+function zzformRecordForm() {
+	zzformButtons();
+	zzformOptionFields();
+	zzformCheckBoxes();
+	zzformRadios();
+}
+
 /**
  *	adds &nbsp; for hierarchical form options
  *	Safari and since 2018 Firefox as well
  *  unfortunately does not support modifications to style of forms
  */
-var optionfields = document.getElementsByTagName('option');
-for (var i=0; i<optionfields.length; i++) {
-	if (optionfields[i].className.substring(0, 5) == 'level') {
-		var len = optionfields[i].className.substring(5, 6);
-		var level = '';
-		for (var k=0; k<len; k++) {
-			level = level + String.fromCharCode(160) + String.fromCharCode(160) + String.fromCharCode(160) + String.fromCharCode(160);
+function zzformOptionFields() {
+	var optionfields = zzformForm.getElementsByTagName('option');
+	for (var i=0; i<optionfields.length; i++) {
+		if (optionfields[i].className.substring(0, 5) == 'level') {
+			var len = optionfields[i].className.substring(5, 6);
+			var level = '';
+			for (var k=0; k<len; k++) {
+				level = level + String.fromCharCode(160).repeat(4);
+			}
+			optionfields[i].text = level + optionfields[i].text;
 		}
-		optionfields[i].text = level + optionfields[i].text;
 	}
 }
 
@@ -81,8 +95,9 @@ zz_toggle_elements();
 /**
  * show only a part of a very long text in list view
  */
-var moretexts = document.getElementsByClassName("moretext");
-if (moretexts.length) {
+function zzformMoreTexts() {
+	var moretexts = document.getElementsByClassName("moretext");
+	if (!moretexts.length) return;
 	for (var i = 0; i < moretexts.length; i++) {
 		moretexts[i].className = "moretext moretext_hidden";
 		moretexts[i].onclick = function() {
@@ -94,13 +109,15 @@ if (moretexts.length) {
 		};
 	}
 }
+zzformMoreTexts();
+
 
 /**
  * for a subrecord set that is grouped, allow to check/uncheck all entries
  * inside the group
  */
-function zz_init_checkboxes() {
-	var checkboxes = document.getElementsByClassName('js-zz_set_group');
+function zzformCheckBoxes() {
+	var checkboxes = zzformForm.getElementsByClassName('js-zz_set_group');
 	if (checkboxes.length) {
 		for (i = 0; i < checkboxes.length; i++) {
 			var new_checkbox = document.createElement('input');
@@ -119,19 +136,21 @@ function zz_init_checkboxes() {
 		}
 	}
 }
-zz_init_checkboxes();
 
 /**
  * check a radio button if a corresponding input is filled
  */
-var zz_inputs = document.getElementsByClassName('js-checkable');
-for (i = 0; i < zz_inputs.length; i++) {
-	(function(counter){
-		zz_inputs[i].addEventListener('keydown', function(){zz_selectRadio(counter)}, false);
-   	})(i);
+function zzformRadios() {
+	var zz_inputs = zzformForm.getElementsByClassName('js-checkable');
+	for (i = 0; i < zz_inputs.length; i++) {
+		(function(counter){
+			zz_inputs[i].addEventListener('keydown', function(){zz_selectRadio(counter)}, false);
+		})(i);
+	}
 }
+
 function zz_selectRadio(counter) {
-	var checkbox = document.getElementById(zz_inputs[counter].getAttribute('data-check-id'));
+	var checkbox = zzformForm.getElementById(zz_inputs[counter].getAttribute('data-check-id'));
 	if (!checkbox.checked) checkbox.checked = 'checked';
 }
 
@@ -237,6 +256,7 @@ function zzformLoadPage(event){
 	} else {
 		zzformReplacePage(page);
 	}
+	zzformRecordForm();
 }
 
 /**
@@ -265,3 +285,16 @@ window.onpopstate = function(event){
 		zzformReplacePage(event.state);
 	}
 };
+
+/**
+ * send name of buttons for adding/removing sub records or detail records
+ *
+ */
+function zzformButtons() {
+	var subrecordButtons = zzformForm.querySelectorAll('input[formnovalidate]');
+	for (j = 0; j < subrecordButtons.length; j++) {
+		subrecordButtons[j].onclick = function(ev) {
+			zzformSubmitButton = this.name;
+		};
+	}
+}

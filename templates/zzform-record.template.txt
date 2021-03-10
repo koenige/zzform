@@ -89,21 +89,8 @@
 %%% condition if form %%%
 <script>
 
-/**
- * send name of buttons for adding/removing sub records or detail records
- *
- */
-function zzformButtonsInit() {
-	var subrecordButtons = document.getElementById('zzform_form').querySelectorAll('input[formnovalidate]');
-	for (j = 0; j < subrecordButtons.length; j++) {
-		subrecordButtons[j].onclick = function(ev) {
-			zzformSubmitButton = this.name;
-		};
-	}
-}
+var zzformForm = document.getElementById('zzform_form');
 var zzformSubmitButton = '';
-zzformButtonsInit();
-
 var zzformActionURL = '%%% setting host_base %%%%%% setting zzform_int_url_self %%%%%% setting zzform_int_url_qs %%%
 %%% condition if setting zzform_int_extra_get %%%
 %%% setting zzform_int_url_?& %%%%%% setting zzform_int_extra_get %%%
