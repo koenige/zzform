@@ -210,7 +210,8 @@ function zzformReplacePage(page, scrollTop = true) {
         document.close();
 	} else {
 		var replaceContent = zzformDiv();
-		replaceContent.innerHTML = page.html;
+		replaceContent.parentNode.innerHTML = page.html;
+		replaceContent = zzformDiv();
 		// activate scripts
 		var allScripts = replaceContent.getElementsByTagName('script');
 		for (i = 0; i < allScripts.length; i++) {
@@ -273,7 +274,7 @@ function zzformSavePage() {
 	if (history.pushState) {
 		var old = {
 			title: window.title,
-			html: zzformDiv().innerHTML,
+			html: '<div id="zzform">' + zzformDiv().innerHTML + '</div>',
 			url: window.location + ''
 		}
 		window.history.replaceState(old, old.title, old.url);
