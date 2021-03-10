@@ -50,7 +50,6 @@ function zz_output_full($ops) {
 	$ops['error_out'] = zz_error_output();
 
 	if ($zz_conf['int']['record']) {
-		$ops['wmd_editor'] = zz_output_wmd_editor();
 		$ops['upndown_editor'] = zz_output_upndown_editor();
 	}
 	return wrap_template('zzform', $ops);
@@ -1128,36 +1127,21 @@ function zz_username_format($value, $field) {
 }
 
 /**
- * Output WMD Editor
+ * Settings for WMD Editor
  *
  * @global array $zz_conf
- * @return string HTML code for JavaScript
  */
 function zz_output_wmd_editor() {
 	global $zz_conf;
 	
 	if (empty($zz_conf['wmd_editor'])) return '';
 	if ($zz_conf['wmd_editor'] === true) return '';
+	$zz_conf['wmd_editor_instances'] = $zz_conf['wmd_editor'] - 1;
 	
-	$options = [];
-	if (!empty($zz_conf['wmd_editor_languages'])) {
-		if (in_array(wrap_get_setting('lang'), $zz_conf['wmd_editor_languages'])) {
-			$options[] = 'strings: Markdown.local.'.wrap_get_setting('lang');
-		}
+	if (!empty($zz_conf['wmd_editor_languages'])
+		AND in_array(wrap_get_setting('lang'), $zz_conf['wmd_editor_languages'])) {
+		$zz_conf['wmd_editor_lang'] = wrap_get_setting('lang');
 	}
-	if ($options) $options = ', { '.implode(', ', $options).' }';
-	else $options = '';
-
-	$output = '<script type="text/javascript">'."\n";
-	$output .= '(function () {'."\n";
-	for ($i = 1; $i < $zz_conf['wmd_editor']; $i++) {
-		$output .= 'var converter'.$i.' = new Markdown.Converter();'."\n";
-		$output .= 'var editor'.$i.' = new Markdown.Editor(converter'.$i.', "-'.$i.'"'.$options.');'."\n";
-		$output .= 'editor'.$i.'.run()'."\n";
-	}
-	$output .= '})();'."\n";
-	$output .= '</script>'."\n";
-	return $output;	
 }
 
 /**

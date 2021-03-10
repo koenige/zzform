@@ -21,6 +21,7 @@ function zzformRecordForm() {
 	zzformOptionFields();
 	zzformCheckBoxes();
 	zzformRadios();
+	zzformWmdEditor();
 }
 
 /**
@@ -311,5 +312,25 @@ function zzformButtons() {
 		subrecordButtons[j].onclick = function(ev) {
 			zzformSubmitButton = this.name;
 		};
+	}
+}
+
+/**
+ * generate instances of the WMD editor
+ *
+ */
+function zzformWmdEditor() {
+	var converter;
+	var editor;
+	var instanceNo;
+	var options;
+	if (zzformWmdEditorLang)
+		options = {strings: Markdown.local[zzformWmdEditorLang] };
+
+	for (j = 0; j < zzformWmdEditorInstances; j++) {
+		instanceNo = '-' + (j + 1);
+		converter = new Markdown.Converter();
+		editor = new Markdown.Editor(converter, instanceNo, options);
+		editor.run();
 	}
 }

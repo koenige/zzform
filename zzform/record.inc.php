@@ -228,6 +228,7 @@ function zz_record($ops, $zz_record, $zz_tab, $zz_var, $zz_conditions) {
 	if (!empty($zz_var['upload_form']) AND in_array($ops['mode'], ['add', 'edit'])) {
 		$record['upload_form'] = true;
 	}
+	zz_output_wmd_editor();
 	return wrap_template('zzform-record', $record);
 }
 
