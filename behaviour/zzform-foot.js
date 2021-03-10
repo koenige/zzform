@@ -331,6 +331,7 @@ function zzformButtons() {
  *
  */
 function zzformWmdEditor() {
+	if (typeof zzformWmdEditorInstances === 'undefined') return false;
 	var converter;
 	var editor;
 	var instanceNo;
