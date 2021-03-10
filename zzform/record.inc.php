@@ -707,7 +707,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				}
 				
 				if ($field_display === 'form') {
-					if ($zz_tab[$sub_tab]['min_records'] < $zz_tab[$sub_tab]['records']
+					if ($zz_tab[$sub_tab]['min_records'] <= $zz_tab[$sub_tab]['records']
 						&& !$dont_delete_records AND $mode !== 'revise')
 						$show_remove = true;
 				}
