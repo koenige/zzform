@@ -12,6 +12,7 @@
 
 
 if (typeof zzformForm !== 'undefined') zzformRecordForm();
+var zzformLoadedJS = [];
 
 /**
  * initialize all functions that are in use for the record form
@@ -219,8 +220,10 @@ function zzformReplacePage(page, scrollTop = true) {
 			var g = document.createElement('script');
 			var s = allScripts[i];
 			if (s.src) {
-				g.src = s.src;
-				g.async = false;
+				if (!zzformLoadedJS.includes(s.src)) {
+					g.src = s.src;
+					g.async = false;
+				}
 			} else {
 				if(s.getAttribute('data-js') === 'immediately') {
 					g.innerHTML = s.innerHTML;
@@ -273,6 +276,7 @@ function zzformLoadPage(event){
 	zzformForm = document.getElementById('zzform_form');
 	if (zzformForm)
 		zzformRecordForm();
+	zz_filters('init');
 }
 
 /**
@@ -286,6 +290,13 @@ function zzformDiv() {
  * save the current page for popstate event when going back
  */
 function zzformSavePage() {
+	var allScripts = zzformDiv().getElementsByTagName('script');
+	if (allScripts.length) {
+		for (i = 0; i < allScripts.length; i++) {
+			if (allScripts[i].src) zzformLoadedJS[i] = allScripts[i].src;
+		}
+	}
+
 	if (history.pushState) {
 		var old = {
 			title: window.title,
