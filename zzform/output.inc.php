@@ -733,6 +733,8 @@ function zz_extra_get_params() {
 	$zz_conf['int']['extra_get'] = http_build_query($keep_query);
 	if ($zz_conf['int']['extra_get']) 
 		$zz_conf['int']['extra_get_escaped'] = str_replace('&', '&amp;', $zz_conf['int']['extra_get']);
+	else
+		$zz_conf['int']['extra_get_escaped'] = '';
 }
 
 /**
