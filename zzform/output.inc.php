@@ -420,6 +420,8 @@ function zz_nice_title($heading, $fields, $zz_var, $mode = false) {
 			.($zz_conf['int']['id']['value'] ? ': ID '.$zz_conf['int']['id']['value'] : '');
 	}
 
+	$title = html_entity_decode($title);
+	$title = strip_tags($title);
 	return $title;
 }
 
