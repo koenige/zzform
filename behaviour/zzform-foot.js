@@ -23,6 +23,7 @@ function zzformRecordForm() {
 	zzformCheckBoxes();
 	zzformRadios();
 	zzformWmdEditor();
+	zzformForm.addEventListener('submit', zzformSubmit);
 }
 
 /**
@@ -198,6 +199,41 @@ function zz_filters(action, field_id) {
 zz_filters('init');
 
 /**
+ * submit a form with XHR, reducing size of data transmitted
+ * and allowing to display upload progress bar
+ */
+function zzformSubmit(event) {
+	// XHR possible? if not, use normal HTML form mechanism
+	try { ok = new XMLHttpRequest(); }
+	catch (e) { }
+	if (!ok) return;
+
+	event.preventDefault();
+	zzformSavePage();
+	document.getElementById('zzform_submit').style = 'display: none;';
+	zzformUploadForm = document.getElementById('zzform_upload_progress');
+	if (zzformUploadForm) {
+		zzformUploadForm.style = 'display: block;';
+	}
+
+	var data = new FormData(zzformForm);
+	data.append('zz_html_fragment', 1);
+	if (zzformSubmitButton) {
+		data.append(zzformSubmitButton, 1);
+	}
+
+	var xhr = new XMLHttpRequest();
+	if (zzformUploadForm) {
+		xhr.upload.addEventListener('progress', zzformUploadProgress, false);
+	}
+	xhr.addEventListener('error', zzformUploadError, false);
+	xhr.addEventListener('abort', zzformUploadAbort, false);
+	xhr.addEventListener('load', zzformLoadPage, false);
+	xhr.open('POST', zzformActionURL);
+	xhr.send(data);
+}
+
+/**
  * replaces zzform ID element (or other) and HTML title
  *
  * @param object page (page.title, page.html)
@@ -242,7 +278,19 @@ function zzformReplacePage(page, scrollTop = true) {
 	if (scrollTop) scroll(0,0);
 	else if (typeof replaceContent !== 'undefined') {
 		var autoFocusElement = replaceContent.querySelector('input[autofocus="autofocus"]');
-		if (autoFocusElement) autoFocusElement.focus();
+		if (autoFocusElement) {
+			autoFocusElement.focus();
+		} else {
+			autoFocusElement = replaceContent.querySelector('select[autofocus="autofocus"]');
+			if (autoFocusElement) {
+				autoFocusElement.focus();
+			} else {
+				autoFocusElement = replaceContent.querySelector('textarea[autofocus="autofocus"]');
+				if (autoFocusElement) {
+					autoFocusElement.focus();
+				}
+			}
+		}
 	}
 }
 
@@ -294,6 +342,7 @@ function zzformDiv() {
  * save the current page for popstate event when going back
  */
 function zzformSavePage() {
+	// save all script src URLs so they are not loaded again later
 	var allScripts = zzformDiv().getElementsByTagName('script');
 	if (allScripts.length) {
 		for (i = 0; i < allScripts.length; i++) {
@@ -301,6 +350,7 @@ function zzformSavePage() {
 		}
 	}
 
+	// if pushState is supported, save current page in history
 	if (history.pushState) {
 		var old = {
 			title: window.title,
@@ -316,6 +366,30 @@ window.onpopstate = function(event){
 		zzformReplacePage(event.state);
 	}
 };
+
+/**
+ * show upload status
+ */
+function zzformUploadProgress(event){
+	document.getElementById("zzform_loaded").innerHTML = "%%% text Uploaded: %%% " + event.loaded + " / %%% text Total: %%% " + event.total + " %%% text Bytes %%% ";
+	var percent = (event.loaded / event.total) * 100;
+	document.getElementById("zzform_upload_progress_bar").value = Math.round(percent);
+	document.getElementById("zzform_upload_status").innerHTML = Math.round(percent)+ "%%% text % uploaded … please wait %%%";
+}
+
+/**
+ * show upload error message
+ */
+function zzformUploadError(event){
+	document.getElementById("zzform_upload_status").innerHTML = "%%% text Upload Failed %%%";
+}
+
+/**
+ * show upload abort message
+ */
+function zzformUploadAbort(event){
+	document.getElementById("zzform_upload_status").innerHTML = "%%% text Upload Aborted %%%";
+}
 
 /**
  * send name of buttons for adding/removing sub records or detail records
