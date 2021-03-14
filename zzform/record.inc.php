@@ -2563,7 +2563,8 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 				if (empty($line[$dependent_field['if_selected']])) continue;
 				$fieldattr['data-dependent_field_'.$field_no][] = $field_id;
 			}
-			$fieldattr['data-dependent_field_'.$field_no] = implode(',', $fieldattr['data-dependent_field_'.$field_no]);
+			if (!empty($fieldattr['data-dependent_field_'.$field_no]))
+				$fieldattr['data-dependent_field_'.$field_no] = implode(',', $fieldattr['data-dependent_field_'.$field_no]);
 		}
 	}
 	$outputf = zz_form_element($field['f_field_name'], '', 'select', true, $fieldattr)."\n";
