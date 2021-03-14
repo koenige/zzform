@@ -967,35 +967,35 @@ msgid "No record was found."
 msgstr "Kein Eintrag gefunden."
 
 # Filter
-#: _behaviour/zzform-foot.js
+#: behaviour/zzform-foot.js
 msgid "expand"
 msgstr "ausklappen"
 
 # Filter
-#: _behaviour/zzform-foot.js
+#: behaviour/zzform-foot.js
 msgid "collapse"
 msgstr "zuklappen"
 
-#: templates/zzform-record.template.xt
+#: behaviour/zzform-foot.js
 msgid "Upload Failed"
 msgstr "Hochladen fehlgeschlagen"
 
-#: templates/zzform-record.template.xt
+#: behaviour/zzform-foot.js
 msgid "Upload Aborted"
 msgstr "Hochladen abgebrochen"
 
-#: templates/zzform-record.template.xt
+#: behaviour/zzform-foot.js
 msgid "% uploaded … please wait"
 msgstr "% hochgeladen … Bitte warten"
 
-#: templates/zzform-record.template.xt
+#: behaviour/zzform-foot.js
 msgid "Uploaded:"
 msgstr "Hochgeladen:"
 
-#: templates/zzform-record.template.xt
+#: behaviour/zzform-foot.js
 msgid "Total:"
 msgstr "Gesamt:"
 
-#: templates/zzform-record.template.xt
+#: behaviour/zzform-foot.js
 msgid "Bytes"
 msgstr "Bytes"
