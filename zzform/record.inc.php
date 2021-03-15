@@ -482,6 +482,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 	$dependent_fields_ids = zz_dependent_field_ids($my_rec['fields'], $tab, $rec);
 	$multiple = !empty($zz_conf['int']['id']['values']) ? true : false;
 	$my_fields = [];
+	$hidden_field_nos = [];
 	foreach ($my_rec['fields'] as $fieldkey => $field) {
 		if (!$field) continue;
 		if (!empty($field['field_name']) AND array_key_exists($field['field_name'], $my_where_fields)) {
@@ -526,9 +527,13 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					$hidden = true;
 			}
 			if ($hidden) {
+				$hidden_field_nos[] = $fieldkey;
 				$field['class'][] = 'hidden';
 				$field['required'] = false;
 			}
+		} elseif (!empty($field['translate_field_index']) AND in_array($field['translate_field_index'], $hidden_field_nos)) {
+			$field['class'][] = 'hidden';
+			$my_fields[$field['translate_field_index']]['has_translation'] = true;
 		}
 
 		// $tab means subtable, since main table has $tab = 0
@@ -1044,7 +1049,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 								'main_field_id' => zz_make_id_fieldname($field['f_field_name']),
 								'dependent_field_id' => zz_make_id_fieldname($my_fields[$field_no]['f_field_name']),
 								'required' => !empty($dependent_field['required']) ? true : false,
-								'field_no' => $field_no
+								'field_no' => $field_no,
+								'has_translation' => !empty($my_fields[$field_no]['has_translation']) ? true : false
 							];
 						}
 					}

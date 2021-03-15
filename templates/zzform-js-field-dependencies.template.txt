@@ -1,7 +1,8 @@
-# Zugzwang Project
+# zzform module
 # JS code for field dependencies
 #
-# http://www.zugzwang.org/projects/zzform
+# https://www.zugzwang.org/projects/zzform
+# Part of »Zugzwang Project«
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
 # @copyright Copyright © 2021 Gustaf Mossakowski
@@ -18,10 +19,16 @@ document.getElementById('%%% item main_field_id %%%').addEventListener('change',
 %%% condition if required %%%
 		dependentField.required = true;
 %%% condition endif %%%
+%%% condition if has_translation %%%
+		dependentRow.nextSibling.nextSibling.classList.remove('hidden'); // space, tr
+%%% condition endif %%%
 	} else {
 		dependentRow.classList.add('hidden');
 %%% condition if required %%%
 		dependentField.required = false;
+%%% condition endif %%%
+%%% condition if has_translation %%%
+		dependentRow.nextSibling.nextSibling.classList.add('hidden'); // space, tr
 %%% condition endif %%%
 	}
 });
