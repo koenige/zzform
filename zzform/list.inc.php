@@ -2549,7 +2549,7 @@ function zz_field_class($field, $values, $html = false) {
 		$class[] = 'level'.$field['level'];
 	if ($field['type'] === 'id' && empty($field['show_id']))
 		$class[] = 'recordid';
-	elseif (in_array($field['type'], ['number', 'calculated', 'sequence']))
+	elseif (in_array($field['type'], ['number', 'calculated', 'sequence', 'date']))
 		$class[] = 'number';
 	if (!empty($_GET['order']) AND empty($field['dont_sort'])) {
 		if (!empty($field['field_name']) AND $field['field_name'] === $_GET['order'])
