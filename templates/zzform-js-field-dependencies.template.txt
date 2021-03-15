@@ -12,7 +12,7 @@
 %%% loop start %%%
 document.getElementById('%%% item main_field_id %%%').addEventListener('change', function() {
 	var dependentField = document.getElementById('%%% item dependent_field_id %%%');
-	var dependentRow = dependentField.parentNode.parentNode;
+	var dependentRow = dependentField.closest('tr');
 	var dependentFieldShown = this.getAttribute('data-dependent_field_%%% item field_no %%%').split(',');
 	if (dependentFieldShown.includes(this.value)) {
 		dependentRow.classList.remove('hidden');
