@@ -1959,6 +1959,7 @@ function zz_makelink($path, $record, $type = 'link') {
 			if (function_exists($value) AND !empty($path['fields'])) {
 				$params = [];
 				foreach ($path['fields'] as $function_field) {
+					if (!isset($record[$function_field])) continue;
 					$params[$function_field] = $record[$function_field];
 				}
 				$path_web[1] .= $value($params);
