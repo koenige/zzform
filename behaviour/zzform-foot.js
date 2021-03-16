@@ -18,6 +18,12 @@ var zzformLoadedJS = [];
  * initialize all functions that are in use for the record form
  */
 function zzformRecordForm() {
+	// remove existing auto suggestion divs
+	var items = document.querySelectorAll('div.vxJS_autoSuggest');
+	for (var i = 0; i < items.length; i++) {
+		items[i].remove();
+	}
+
 	zzformButtons();
 	zzformOptionFields();
 	zzformCheckBoxes();
