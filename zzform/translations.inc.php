@@ -126,7 +126,7 @@ function zz_translations_init($table, $fields) {
 			}
 		}
 		$translationsubtable[$index+$k] = $zz_sub;
-		$translationsubtable[$index+$k]['table_name'] .= '-'.$k;
+		$translationsubtable[$index+$k]['table_name'] .= '_'.$k;
 		$translationsubtable[$index+$k]['translate_field_name'] = $field_name;
 		$translationsubtable[$index+$k]['translate_field_index'] = $no;
 		if(!empty($fields[$no]['translation'])) {
