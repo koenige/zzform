@@ -380,6 +380,12 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 	foreach ($password_fields AS $password_field)
 		unset($_POST[$my_tab['table_name']][$password_field]);
 
+	// subtable_remove must meet min_records_required
+	if ($my_tab['min_records_required']
+		AND count($my_tab['POST']) <= $my_tab['min_records_required']) {
+		$my_tab['subtable_remove'] = [];
+	}
+
 	// subtable_remove may come with ID
 	foreach (array_keys($my_tab['subtable_remove']) as $rec) {
 		if (empty($my_tab['subtable_remove'][$rec])) continue;
