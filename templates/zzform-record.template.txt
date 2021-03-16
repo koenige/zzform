@@ -95,7 +95,7 @@ var zzformSubmitButton = '';
 var zzformWmdEditorInstances = %%% setting zzform_wmd_editor_instances %%%;
 var zzformWmdEditorLang = '%%% setting zzform_wmd_editor_lang %%%';
 %%% condition endif %%%
-var zzformActionURL = '%%% setting host_base %%%%%% setting zzform_int_url_self %%%%%% setting zzform_int_url_qs %%%
+var zzformActionURL = '%%% setting zzform_int_url_self %%%%%% setting zzform_int_url_qs %%%
 %%% condition if setting zzform_int_extra_get %%%
 %%% setting zzform_int_url_?& %%%%%% setting zzform_int_extra_get %%%
 %%% condition endif %%%
