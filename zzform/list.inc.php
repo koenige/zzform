@@ -1503,6 +1503,9 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 		case 'phone':
 			$text = zz_phone_format($row['value']);
 			break;
+		case 'username':
+			$text = zz_username_format($row['value'], $field);
+			break;
 		default:
 			$text = $row['value'];
 			if (empty($field['list_format']) AND empty($field['export_no_html'])) {
