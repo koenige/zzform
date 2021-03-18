@@ -5,7 +5,7 @@
  * Display of single record as a html form+table or for review as a table
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2004-2021 Gustaf Mossakowski
@@ -717,8 +717,13 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				
 				if ($field_display === 'form') {
 					if ($zz_tab[$sub_tab]['min_records'] <= $zz_tab[$sub_tab]['records']
+						AND $zz_tab[$sub_tab]['records'] > $zz_tab[$sub_tab]['min_records_required']
 						&& !$dont_delete_records AND $mode !== 'revise')
-						$show_remove = true;
+						// do not show remove button for single inline records,
+						// bit too much
+						if ($zz_tab[$sub_tab]['records'] !== 1 OR $field['form_display'] !== 'lines') {
+							$show_remove = true;
+						}
 				}
 
 				// Mode
