@@ -3,7 +3,7 @@
  * JavaScript to be executed at end of document
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2009-2014, 2018, 2020-2021 Gustaf Mossakowski
@@ -254,10 +254,15 @@ function zzformReplacePage(page, scrollTop = true) {
         document.close();
 	} else {
 		var replaceContent = zzformDiv();
-		replaceContent.parentNode.innerHTML = page.html;
-		replaceContent = zzformDiv();
-		// activate scripts
-		var allScripts = replaceContent.getElementsByTagName('script');
+		if (replaceContent.id === 'zzform') {
+			// avoid duplicate #zzform div
+			replaceContent.parentNode.innerHTML = page.html;
+			replaceContent = zzformDiv();
+		} else {
+			replaceContent.innerHTML = page.html;
+		}
+		// activate scripts, only inside #zzform (not zzform-foot.js!)
+		var allScripts = document.getElementById('zzform').getElementsByTagName('script');
 		for (i = 0; i < allScripts.length; i++) {
 			var g = document.createElement('script');
 			var s = allScripts[i];
@@ -360,7 +365,7 @@ function zzformSavePage() {
 	if (history.pushState) {
 		var old = {
 			title: window.title,
-			html: '<div id="zzform">' + zzformDiv().innerHTML + '</div>',
+			html: '<div id="%%% setting zzform_replace_div %%%">' + zzformDiv().innerHTML + '</div>',
 			url: window.location + ''
 		}
 		window.history.replaceState(old, old.title, old.url);
