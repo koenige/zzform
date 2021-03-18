@@ -364,7 +364,7 @@ function zzformSavePage() {
 	// if pushState is supported, save current page in history
 	if (history.pushState) {
 		var old = {
-			title: window.title,
+			title: document.title,
 			html: '<div id="%%% setting zzform_replace_div %%%">' + zzformDiv().innerHTML + '</div>',
 			url: window.location + ''
 		}
