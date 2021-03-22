@@ -3263,7 +3263,14 @@ function zz_dependent_field_ids($fields, $tab, $rec) {
 	$dependent_ids[$tab][$rec] = [];
 	foreach ($fields as $field) {
 		if (empty($field['dependent_fields'])) continue;
-		$records = zz_db_fetch($field['sql'], '_dummy_', 'numeric');
+		if (!empty($field['enum'])) {
+			$records = [];
+			foreach ($field['enum'] as $enum) {
+				$records[][$enum] = $enum;
+			}
+		} else {
+			$records = zz_db_fetch($field['sql'], '_dummy_', 'numeric');
+		}
 		foreach ($field['dependent_fields'] as $field_no => $dependent_field) {
 			$dependent_ids[$tab][$rec][$field_no]['source_field_name'] = $field['field_name'];
 			$dependent_ids[$tab][$rec][$field_no]['required'] = !empty($dependent_field['required']) ? true : false;

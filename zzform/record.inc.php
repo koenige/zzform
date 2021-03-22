@@ -1051,18 +1051,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					$outputf = zz_field_select_sql($field, $field_display, $my_rec['record'], 
 						$zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table']);
 
-					if (!empty($field['dependent_fields'])) {
-						foreach ($field['dependent_fields'] as $field_no => $dependent_field) {
-							if (empty($my_fields[$field_no])) continue;
-							$zz_conf['int']['js_field_dependencies'][] = [
-								'main_field_id' => zz_make_id_fieldname($field['f_field_name']),
-								'dependent_field_id' => zz_make_id_fieldname($my_fields[$field_no]['f_field_name']),
-								'required' => !empty($dependent_field['required']) ? true : false,
-								'field_no' => $field_no,
-								'has_translation' => !empty($my_fields[$field_no]['has_translation']) ? true : false
-							];
-						}
-					}
 				} elseif (isset($field['set_folder'])) {
 					// #2a SELECT with set_folder
 					$outputf = zz_field_select_set_folder($field, $field_display, $my_rec['record'], $rec);
@@ -1087,6 +1075,18 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				} else {
 					// #5 SELECT without any source = that won't work ...
 					$outputf = zz_text('no_source_defined').'. '.zz_text('no_selection_possible');
+				}
+				if (!empty($field['dependent_fields'])) {
+					foreach ($field['dependent_fields'] as $field_no => $dependent_field) {
+						if (empty($my_fields[$field_no])) continue;
+						$zz_conf['int']['js_field_dependencies'][] = [
+							'main_field_id' => zz_make_id_fieldname($field['f_field_name']),
+							'dependent_field_id' => zz_make_id_fieldname($my_fields[$field_no]['f_field_name']),
+							'required' => !empty($dependent_field['required']) ? true : false,
+							'field_no' => $field_no,
+							'has_translation' => !empty($my_fields[$field_no]['has_translation']) ? true : false
+						];
+					}
 				}
 				break;
 
@@ -3170,11 +3170,12 @@ function zz_field_select_get_record($field, $record, $id_field_name) {
  * @param array $field
  * @param array $record
  * @param array $radios (output of zz_field_select_radio_value())
+ * @param array $fieldattr (optional)
  * @global array $zz_conf
  * @return string $text
  * @see zz_field_select_radio_none(), zz_field_select_radio_value()
  */
-function zz_field_select_radio($field, $record, $radios) {
+function zz_field_select_radio($field, $record, $radios, $fieldattr = []) {
 	// variant: only one value with a possible NULL value
 	if (count($radios) === 1) {
 		$text = sprintf('<input type="hidden" name="%s">', $field['f_field_name']);
@@ -3183,15 +3184,17 @@ function zz_field_select_radio($field, $record, $radios) {
 	}
 
 	// variant: only two or three values next to each other
+	$attr = zz_form_element_attributes($fieldattr);
 	if (empty($field['show_values_as_list'])) {
 		$text = zz_field_select_radio_none($field, $record);
 		foreach ($radios as $radio)
 			$text .= $radio['element']."\n";
+		$text = sprintf('<span id="%s"%s>%s</span>', zz_make_id_fieldname($field['f_field_name']), $attr, $text);
 		return $text;
 	}
 
 	// variant: more values as a list
-	$text = "\n".'<ul class="zz_radio_list">'."\n";
+	$text = "\n".'<ul class="zz_radio_list" id="'.zz_make_id_fieldname($field['f_field_name']).'"'.$attr.'>'."\n";
 	$none = zz_field_select_radio_none($field, $record);
 	if ($none) $text .= '<li>'.$none."</li>\n";
 	foreach ($radios as $index => $radio) {
@@ -3408,7 +3411,17 @@ function zz_field_select_enum($field, $display, $record) {
 	if (!empty($field['enum_textinput'])) {
 		$field['show_values_as_list'] = true;
 	}
-		
+
+	$fieldattr = [];
+	if (!empty($field['dependent_fields'])) {
+		foreach ($field['dependent_fields'] as $field_no => $dependent_field) {
+			if (!in_array($dependent_field['if_selected'], $field['enum'])) continue;
+			$fieldattr['data-dependent_field_'.$field_no][] = $dependent_field['if_selected'];
+		}
+		if (!empty($fieldattr['data-dependent_field_'.$field_no]))
+			$fieldattr['data-dependent_field_'.$field_no] = implode(',', $fieldattr['data-dependent_field_'.$field_no]);
+	}
+	
 	if (count($field['enum']) <= 2) {
 		$sel_option = true;
 	} elseif (!empty($field['show_values_as_list'])) {
@@ -3430,10 +3443,9 @@ function zz_field_select_enum($field, $display, $record) {
 			}
 			$radios[] = zz_field_select_radio_value($field, $record, $set, $label, $myi);
 		}
-		return zz_field_select_radio($field, $record, $radios);
+		return zz_field_select_radio($field, $record, $radios, $fieldattr);
 	}
 
-	$fieldattr = [];
 	if ($field['required']) $fieldattr['required'] = true;
 	$text = zz_form_element($field['f_field_name'], '', 'select', true, $fieldattr)."\n";
 	$fieldattr = [];
