@@ -1654,22 +1654,8 @@ function zz_form_element($name, $value, $type = 'text', $id = false, $fieldattr 
 		$fieldattr['value'] = $value;
 	}
 
-	// prepare attributes for HTML
-	$attr = '';
-	foreach ($fieldattr as $attr_name => $attr_value) {
-		if ($attr_value === false) {
-			// boolean false
-			continue;
-		} elseif ($attr_value === true) {
-			// boolean true
-			$attr .= ' '.$attr_name.'="'.$attr_name.'"';
-		} else {
-			// default
-			$attr_value = str_replace('"', '&quot;', $attr_value);
-			$attr .= ' '.$attr_name.'="'.$attr_value.'"';
-		}
-	}
-	
+	$attr = zz_form_element_attributes($fieldattr);
+
 	// return HTML depending on type
 	switch ($type) {
 	case 'textarea':
@@ -1691,6 +1677,29 @@ function zz_form_element($name, $value, $type = 'text', $id = false, $fieldattr 
 		return sprintf('<input type="%s" value="%s"%s>', $type, $value, $attr);
 	}
 	return '';
+}
+
+/**
+ * prepare attributes for HTML
+ *
+ * @param array $fieldattr
+ * @return string
+ */
+function zz_form_element_attributes($fieldattr) {
+	$attr = [];
+	foreach ($fieldattr as $attr_name => $attr_value) {
+		if ($attr_value === false) {
+			// boolean false
+			continue;
+		} elseif ($attr_value === true) {
+			// boolean true
+			$attr_value = $attr_name;
+		}
+		$attr[] = sprintf('%s="%s"', $attr_name, $attr_value);
+	}
+	$attr = implode(' ', $attr);
+	if ($attr) $attr = ' '.$attr;
+	return $attr;
 }
 
 /**
