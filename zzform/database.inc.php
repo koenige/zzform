@@ -962,6 +962,14 @@ function zz_db_select($db_name) {
  */
 function zz_db_numeric_field($db_table, $field_name) {
 	$fielddef = zz_db_columns($db_table, $field_name);
+	if (empty($fielddef)) {
+		// field not available
+		zz_error_log([
+			'msg_dev' => 'Field %s not found in table %s.',
+			'msg_dev_args' => [$field_name, $db_table]
+		]);
+		return false;
+	}
 	$numeric_types = [
 		'int', 'tinyint', 'smallint', 'mediumint', 'bigint', 'decimal', 'float'
 	];
