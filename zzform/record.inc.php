@@ -520,7 +520,16 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				if (!in_array($source_field_value, $dependent_fields_ids[$fieldkey]['values']))
 					$hidden = true;
 			} elseif (empty($my_rec['id']['value'])) { // add mode
-				$hidden = true;
+				// default?
+				$default_selected = false;
+				foreach ($my_rec['fields'] as $my_no => $my_field) {
+					if (empty($my_field['field_name'])) continue;
+					if ($my_field['field_name'] !== $dependent_fields_ids[$fieldkey]['source_field_name']) continue;
+					if (empty($my_field['default'])) continue;
+					if (!in_array($my_field['default'], $dependent_fields_ids[$fieldkey]['values'])) continue;
+					$default_selected = true;
+				}
+				if (!$default_selected) $hidden = true;
 			} elseif (empty($my_rec['record'][$dependent_fields_ids[$fieldkey]['source_field_name']])) {
 				$hidden = true;
 			} elseif (empty($dependent_fields_ids[$fieldkey]['values'])) {
