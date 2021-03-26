@@ -1476,7 +1476,7 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 		if (!empty($dependent_fields_ids[$f])) {
 			foreach ($dependent_fields_ids[$f] as $dependency) {
 				$source_value = zz_dependent_value($dependency, $my_rec, $zz_tab);
-				if ($source_value AND in_array($source_value, $dependency['values'])) {
+				if ($source_value AND !empty($dependency['values']) AND in_array($source_value, $dependency['values'])) {
 					// visible, i. e. value is possible
 					if ($dependency['required']) {
 						$field['required'] = $field['required_in_db']
