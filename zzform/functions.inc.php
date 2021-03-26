@@ -3261,35 +3261,87 @@ function zz_dependent_field_ids($fields, $tab, $rec) {
 		return $dependent_ids[$tab][$rec];
 
 	$dependent_ids[$tab][$rec] = [];
-	foreach ($fields as $field) {
+	foreach ($fields as $index => $field) {
 		if (empty($field['dependent_fields'])) continue;
 		if (!empty($field['enum'])) {
+			// select with enum
 			$records = [];
 			foreach ($field['enum'] as $enum) {
 				$records[][$enum] = $enum;
 			}
+		} elseif (!empty($field['fields'])) {
+			// subtable
+			$field_names = [];
+			foreach ($field['dependent_fields'] as $field_no => $dependent_field) {
+				$field_names[] = $dependent_field['field_name'];
+			}
+			$field_names = array_unique($field_names);
+			if (count($field_names) > 1) {
+				zz_error_log([
+					'msg_dev' => 'It is not possible to depend on different fields in a single subtable (%s). Second field is ignored.',
+					'msg_dev_args' => [implode(', ', $field_names)]
+				]);
+			}
+			$field_names = reset($field_names);
+			foreach ($field['fields'] as $subfield) {
+				if (empty($subfield['field_name'])) continue;
+				if ($subfield['field_name'] === $field_names) {
+					$records = zz_db_fetch($subfield['sql'], '_dummy_', 'numeric');
+				}
+			}
 		} else {
+			// select with sql
 			$records = zz_db_fetch($field['sql'], '_dummy_', 'numeric');
 		}
 		foreach ($field['dependent_fields'] as $field_no => $dependent_field) {
-			$dependent_ids[$tab][$rec][$field_no]['source_field_name'] = $field['field_name'];
-			$dependent_ids[$tab][$rec][$field_no]['required'] = !empty($dependent_field['required']) ? true : false;
+			if (empty($field['field_name']) AND !empty($field['table_name'])) {
+				$dependent_ids[$tab][$rec][$field_no][$index]['source_table'] = $field['table_name'];
+				$dependent_ids[$tab][$rec][$field_no][$index]['source_field_name'] = $dependent_field['field_name'];
+			} else {
+				$dependent_ids[$tab][$rec][$field_no][$index]['source_field_name'] = $field['field_name'];
+			}
+			$dependent_ids[$tab][$rec][$field_no][$index]['required'] = !empty($dependent_field['required']) ? true : false;
 			foreach ($records as $record) {
 				// is record hidden but a value needs to be set?
 				if (!empty($dependent_field['value']) AND array_key_exists($dependent_field['value'], $record)) {
 					parse_str($record[$dependent_field['value']], $parameters);
 					if (!empty($parameters['value'])) {
-						$dependent_ids[$tab][$rec][$field_no]['set_values'][reset($record)] = $parameters['value'];
+						$dependent_ids[$tab][$rec][$field_no][$index]['set_values'][reset($record)] = $parameters['value'];
 					}
 				}
 				if (empty($record[$dependent_field['if_selected']])) continue;
-				$dependent_ids[$tab][$rec][$field_no]['values'][] = reset($record);
+				$dependent_ids[$tab][$rec][$field_no][$index]['values'][] = reset($record);
 			}
 		}
 	}
 	return $dependent_ids[$tab][$rec];
 }
 
+/**
+ * get value for field on which dependency is based upon
+ * might be in any of record, POST, existing since write_once fields
+ * do not send their value via POST
+ *
+ * @param array $dependency
+ * @param array $my_rec
+ * @param array $zz_tab
+ * @return string
+ */
+function zz_dependent_value($dependency, $my_rec, $zz_tab) {
+	$look_inside = ['record', 'POST', 'existing'];
+	foreach ($look_inside as $type) {
+		if (!empty($dependency['source_table'])) {
+			foreach ($zz_tab as $my_tab_no => $my_tab) {
+				if ($my_tab['table_name'] !== $dependency['source_table']) continue;
+				if (empty($zz_tab[$my_tab_no][0][$type][$dependency['source_field_name']])) break;
+				return $zz_tab[$my_tab_no][0][$type][$dependency['source_field_name']];
+			}
+		} elseif (!empty($my_rec[$type][$dependency['source_field_name']])) {
+			return $my_rec[$type][$dependency['source_field_name']];
+		}
+	}
+	return '';
+}
 
 /*
  * --------------------------------------------------------------------

@@ -1474,33 +1474,42 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 
 	//	fields depends on other field?
 		if (!empty($dependent_fields_ids[$f])) {
-			if (!empty($my_rec['POST'][$dependent_fields_ids[$f]['source_field_name']])
-				AND in_array($my_rec['POST'][$dependent_fields_ids[$f]['source_field_name']], $dependent_fields_ids[$f]['values'])) {
-				// visible, i. e. value is possible
-				if ($dependent_fields_ids[$f]['required']) {
-					$field['required'] = $field['required_in_db']
-					= $my_rec['fields'][$f]['required'] = $my_rec['fields'][$f]['required_in_db']
-					= true;
-				}
-			} elseif (!empty($dependent_fields_ids[$f]['set_values'])
-				AND !empty($my_rec['POST'][$dependent_fields_ids[$f]['source_field_name']])
-				AND array_key_exists($my_rec['POST'][$dependent_fields_ids[$f]['source_field_name']], $dependent_fields_ids[$f]['set_values'])) {
-				$values = $dependent_fields_ids[$f]['set_values'][$my_rec['POST'][$dependent_fields_ids[$f]['source_field_name']]];
-				if (array_key_exists($field_name, $values)) {
-					if (wrap_substr($field_name, '_id', 'end') AND !is_numeric($values[$field_name])) {
-						$table = substr($field_name, 0, -3);
-						if (strstr($table, '_'))
-							$table = substr($table, strrpos($table, '_') + 1);
-						$table = wrap_substr($table, 'y', 'end') ? substr($table, 0, -1).'ies' : $table.'s';
-						$values[$field_name] = wrap_id($table, $values[$field_name]);
+			foreach ($dependent_fields_ids[$f] as $dependency) {
+				$source_value = zz_dependent_value($dependency, $my_rec, $zz_tab);
+				if ($source_value AND in_array($source_value, $dependency['values'])) {
+					// visible, i. e. value is possible
+					if ($dependency['required']) {
+						$field['required'] = $field['required_in_db']
+						= $my_rec['fields'][$f]['required'] = $my_rec['fields'][$f]['required_in_db']
+						= true;
 					}
-					$my_rec['POST'][$field_name] = $values[$field_name];
+				} elseif (!empty($dependency['set_values']) AND $source_value
+					AND array_key_exists($source_value, $dependency['set_values'])) {
+					$values = $dependency['set_values'][$source_value];
+					if (array_key_exists($field_name, $values)) {
+						if (wrap_substr($field_name, '_id', 'end') AND !is_numeric($values[$field_name])) {
+							$table = substr($field_name, 0, -3);
+							if (strstr($table, '_'))
+								$table = substr($table, strrpos($table, '_') + 1);
+							$table = wrap_substr($table, 'y', 'end') ? substr($table, 0, -1).'ies' : $table.'s';
+							$values[$field_name] = wrap_id($table, $values[$field_name]);
+						}
+						$my_rec['POST'][$field_name] = $values[$field_name];
+					} else {
+						if (!empty($my_rec['fields'][$f]['required_in_db']) AND !empty($my_rec['fields'][$f]['dependent_empty_value'])) {
+							$my_rec['POST'][$field_name] = $my_rec['fields'][$f]['dependent_empty_value'];
+						} else {
+							$my_rec['POST'][$field_name] = false;
+						}
+					}
 				} else {
-					$my_rec['POST'][$field_name] = false;
+					// invisible, remove existing value if there is one
+					if (!empty($my_rec['fields'][$f]['required_in_db']) AND !empty($my_rec['fields'][$f]['dependent_empty_value'])) {
+						$my_rec['POST'][$field_name] = $my_rec['fields'][$f]['dependent_empty_value'];
+					} else {
+						$my_rec['POST'][$field_name] = false;
+					}
 				}
-			} else {
-				// invisible, remove existing value if there is one
-				$my_rec['POST'][$field_name] = false;
 			}
 		}
 

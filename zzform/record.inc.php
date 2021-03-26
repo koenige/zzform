@@ -515,29 +515,36 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 		// dependent field?
 		if (array_key_exists($fieldkey, $dependent_fields_ids)) {
 			$hidden = false;
-			if (!empty($zz_var['where'][$zz_tab[$tab]['table_name']][$dependent_fields_ids[$fieldkey]['source_field_name']])) {
-				$source_field_value = $zz_var['where'][$zz_tab[$tab]['table_name']][$dependent_fields_ids[$fieldkey]['source_field_name']];
-				if (!in_array($source_field_value, $dependent_fields_ids[$fieldkey]['values']))
+			foreach ($dependent_fields_ids[$fieldkey] as $dependency) {
+				if (!empty($zz_var['where'][$zz_tab[$tab]['table_name']][$dependency['source_field_name']])) {
+					// WHERE
+					$source_field_value = $zz_var['where'][$zz_tab[$tab]['table_name']][$dependency['source_field_name']];
+					if (!in_array($source_field_value, $dependency['values']))
+						$hidden = true;
+				} elseif (empty($my_rec['id']['value'])) { // add mode
+					// default?
+					$default_selected = false;
+					// check $my_fields, not $my_rec['fields']
+					// = it is always top down (upper fields can change visibility
+					// of fields below, not other way round), $my_fields does not
+					// include fields below yet but if a field is hidden by another
+					// dependency
+					foreach ($my_fields as $my_no => $my_field) {
+						if (empty($my_field['field_name'])) continue;
+						if ($my_field['field_name'] !== $dependency['source_field_name']) continue;
+						if (in_array('hidden', $my_field['class'])) continue; // hidden by another dependency?
+						if (empty($my_field['default'])) continue;
+						if (!in_array($my_field['default'], $dependency['values'])) continue;
+						$default_selected = true;
+					}
+					if (!$default_selected) $hidden = true;
+				} elseif (empty($dependency['values'])) {
 					$hidden = true;
-			} elseif (empty($my_rec['id']['value'])) { // add mode
-				// default?
-				$default_selected = false;
-				foreach ($my_rec['fields'] as $my_no => $my_field) {
-					if (empty($my_field['field_name'])) continue;
-					if ($my_field['field_name'] !== $dependent_fields_ids[$fieldkey]['source_field_name']) continue;
-					if (empty($my_field['default'])) continue;
-					if (!in_array($my_field['default'], $dependent_fields_ids[$fieldkey]['values'])) continue;
-					$default_selected = true;
+				} else {
+					$source_field_value = zz_dependent_value($dependency, $my_rec, $zz_tab);
+					if (!in_array($source_field_value, $dependency['values']))
+						$hidden = true;
 				}
-				if (!$default_selected) $hidden = true;
-			} elseif (empty($my_rec['record'][$dependent_fields_ids[$fieldkey]['source_field_name']])) {
-				$hidden = true;
-			} elseif (empty($dependent_fields_ids[$fieldkey]['values'])) {
-				$hidden = true;
-			} else {
-				$source_field_value = $my_rec['record'][$dependent_fields_ids[$fieldkey]['source_field_name']];
-				if (!in_array($source_field_value, $dependent_fields_ids[$fieldkey]['values']))
-					$hidden = true;
 			}
 			if ($hidden) {
 				$hidden_field_nos[] = $fieldkey;
@@ -837,6 +844,33 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					$out['td']['attr'][] = 'error';
 				}
 			}
+
+			if (!empty($field['dependent_fields'])) {
+				// check if subtable
+				// check if field = write_once
+				foreach ($field['dependent_fields'] as $field_no => $dependent_field) {
+					if (empty($my_fields[$field_no])) continue;
+					$show_dependency = true;
+					// check for write_once fields that cannot change,
+					// change eventListener obviously not working there
+					foreach ($field['fields'] as $subfield) {
+						if ($subfield['field_name'] !== $dependent_field['field_name']) continue;
+						if ($subfield['type'] !== 'write_once') continue;
+						if (empty($my_rec['id']['value'])) continue;
+						$show_dependency = false;
+					}
+					if ($show_dependency) {
+						$zz_conf['int']['js_field_dependencies'][] = [
+							'main_field_id' => zz_make_id_fieldname($field['table_name'].'[0]['.$dependent_field['field_name'].']'),
+							'dependent_field_id' => zz_make_id_fieldname($my_fields[$field_no]['f_field_name']),
+							'required' => !empty($dependent_field['required']) ? true : false,
+							'field_no' => $field_no,
+							'has_translation' => !empty($my_fields[$field_no]['has_translation']) ? true : false
+						];
+					}
+				}
+			}
+
 		} else {
 			//	"Normal" field
 			$hidden_element = '';

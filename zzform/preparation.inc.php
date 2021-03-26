@@ -393,6 +393,12 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 			$my_tab['subtable_deleted'][] = $my_tab['POST'][$rec][$my_tab['id_field_name']];
 	}
 	
+	// dependent fields, only if there can be 1 subrecord
+	if (!empty($field['dependent_fields']) AND $my_tab['min_records'] === 1
+		AND $my_tab['max_records'] === 1) {
+		$my_tab['dependent_fields'] = $field['dependent_fields'];
+	}
+	
 	return $my_tab;
 } 
 
@@ -696,6 +702,14 @@ function zz_get_subrecords($mode, $field, $zz_tab, $tab, $zz_var) {
 	// put $existing into $my_tab
 	foreach ($existing as $index => $existing_rec) {
 		$my_tab[$index]['existing'] = $existing_rec;
+	}
+	if (!empty($my_tab['dependent_fields'])) {
+		foreach ($my_tab['dependent_fields'] as $field_no => $dependent_field) {
+			foreach ($my_tab[0]['fields'] as $my_field_no => $my_field) {
+				if ($my_field['field_name'] !== $dependent_field['field_name']) continue;
+				$my_tab[0]['fields'][$my_field_no]['dependent_fields'] = $my_tab['dependent_fields'];
+			}
+		}
 	}
 
 	return $my_tab;
