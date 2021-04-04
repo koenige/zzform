@@ -281,6 +281,10 @@ function zzform($zz) {
 				$ops['redirect_url'] = zz_output_redirect($ops['result'], $ops['return'], $zz_tab);
 				if ($ops['redirect_url'] AND empty($ops['html_fragment']))
 					wrap_redirect_change($ops['redirect_url']);
+				if ($ops['redirect_url']) {
+					$zz_var['action'] = false;
+					$ops['mode'] = 'show';
+				}
 			}
 		} elseif ($zz_var['action'] === 'thumbnails') {
 			$ops = zz_upload_thumbnail($ops, $zz_tab, $zz_var);

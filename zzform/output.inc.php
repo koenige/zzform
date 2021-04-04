@@ -344,13 +344,21 @@ function zz_output_redirect($result, $return, $zz_tab) {
 					}
 				}
 			}
-			if ($nos) $nos = '='.$nos;
+			if ($nos) {
+				$nos = '='.$nos;
+				$_GET['delete'] = $nos; // for JS fragment
+			} else {
+				$_GET['delete'] = false;  // for JS fragment
+			}
 			return $self.'delete'.$nos;
 		case 'successful_insert':
+			$_GET['insert'] = $id_value;  // for JS fragment
 			return $self.'insert='.$id_value.$secure;
 		case 'successful_update':
+			$_GET['update'] = $id_value;  // for JS fragment
 			return $self.'update='.$id_value.$secure;
 		case 'no_update':
+			$_GET['no_update'] = $id_value;  // for JS fragment
 			return $self.'noupdate='.$id_value.$secure;
 		}
 	}
