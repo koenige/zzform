@@ -325,14 +325,6 @@ function zzform($zz) {
 	zz_extra_get_params();
 
 	if ($zz_conf['int']['record']) {
-		// there might be now a where value for this record
-		if (!empty($zz_var['where'][$zz['table']])) {
-			foreach ($zz_var['where'][$zz['table']] as $field_name => $value) {
-				if ($value) continue;
-				if (empty($zz_tab[0][0]['record'][$field_name])) continue;
-				$zz_var['where'][$zz['table']][$field_name] = $zz_tab[0][0]['record'][$field_name];
-			}
-		}
 		// display updated, added or editable Record
 		require_once $zz_conf['dir_inc'].'/record.inc.php';
 		$ops['output'] .= zz_record($ops, (!empty($zz['record']) ? $zz['record'] : []), $zz_tab, $zz_var, $zz_conditions);	

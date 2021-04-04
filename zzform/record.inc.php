@@ -32,6 +32,15 @@ function zz_record($ops, $zz_record, $zz_tab, $zz_var, $zz_conditions) {
 	global $zz_conf;
 	global $zz_setting;
 
+	// there might be now a where value for this record
+	if (!empty($zz_var['where'][$zz_tab[0]['table']])) {
+		foreach ($zz_var['where'][$zz_tab[0]['table']] as $field_name => $value) {
+			if ($value) continue;
+			if (empty($zz_tab[0][0]['record'][$field_name])) continue;
+			$zz_var['where'][$zz_tab[0]['table']][$field_name] = $zz_tab[0][0]['record'][$field_name];
+		}
+	}
+
 	$record = $zz_record;
 	$record['formhead'] = false;
 	$records = false;
