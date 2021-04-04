@@ -2429,6 +2429,9 @@ function zz_field_set($field, $fields, $display, $my_tab, $zz_var = []) {
 		$field_names[$my_field['type']] = $my_field['field_name'];
 		if ($my_field['type'] !== 'select') continue;
 		$sets = zz_field_query($my_field);
+		foreach ($sets as $sindex => $line) {
+			$sets[$sindex] = zz_field_select_ignore($line, $my_field, 'sql');
+		}
 		if (!empty($my_field['show_hierarchy_subtree'])) {
 			foreach ($sets as $index => $set) {
 				if ($set[$my_field['show_hierarchy']] === $my_field['show_hierarchy_subtree']) continue;
