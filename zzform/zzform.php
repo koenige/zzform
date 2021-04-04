@@ -412,6 +412,9 @@ function zzform_exit($ops) {
 	$ops['error_mail'] = [];
 	if (!empty($zz_conf['int']['error']))
 		$ops['error_mail'] = $zz_conf['int']['error'];
+	if (!empty($zz_conf['int']['ops_error_msg'])) {
+		$ops['error'] = array_merge($ops['error'], $zz_conf['int']['ops_error_msg']);
+	}
 
 	// return to old database
 	if (!empty($zz_conf['int']['db_current'])) zz_db_select($zz_conf['int']['db_current']);

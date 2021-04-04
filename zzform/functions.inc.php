@@ -2624,6 +2624,9 @@ function zz_error() {
 			$admin[$key] = '<strong>'.zz_text('Warning!').'</strong> '.$admin[$key];
 		}
 	}
+	foreach ($admin as $line) {
+		$zz_conf['int']['ops_error_msg'][] = strip_tags($line);
+	}
 
 	// mail errors if said to do so
 	$mail = [];
