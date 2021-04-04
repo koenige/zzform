@@ -2780,8 +2780,10 @@ function zz_error_validation_log($key = false, $value = []) {
  * @return void
  */
 function zz_error_validation() {
+	global $zz_conf;
 	$errors = zz_error_validation_log();
 	if (!$errors['msg']) return false;
+	if (!empty($zz_conf['multi'])) return false;
 
 	// user error message, visible to everyone
 	// line breaks \n important for mailing errors
