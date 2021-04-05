@@ -256,7 +256,12 @@ function zzformReplacePage(page, scrollTop = true) {
 		var replaceContent = zzformDiv();
 		if (replaceContent.id === 'zzform') {
 			// avoid duplicate #zzform div
-			replaceContent.parentNode.innerHTML = page.html;
+			// ignore other page elements if sent
+			replaceContent.id = 'zzform222222';
+			replaceContent.innerHTML = page.html;
+			var newZzform = document.getElementById('zzform');
+			replaceContent.innerHTML = newZzform.innerHTML;
+			replaceContent.id = 'zzform';
 			replaceContent = zzformDiv();
 		} else {
 			replaceContent.innerHTML = page.html;
