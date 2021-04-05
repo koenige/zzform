@@ -308,6 +308,8 @@ function zzformReplacePage(page, scrollTop = true) {
 			}
 		}
 	}
+	if (typeof(zzformAnchor) !== 'undefined')
+		location.hash = "#" + zzformAnchor;
 }
 
 /**

@@ -98,8 +98,8 @@ var zzformWmdEditorLang = '%%% setting zzform_wmd_editor_lang %%%';
 var zzformActionURL = '%%% setting zzform_int_url_self %%%%%% setting zzform_int_url_qs %%%
 %%% condition if setting zzform_int_extra_get %%%
 %%% setting zzform_int_url_?& %%%%%% setting zzform_int_extra_get %%%
-%%% condition endif %%%
-%%% item form_anchor "#%s" %%%';
+%%% condition endif %%%'; 
+%%% item form_anchor "var zzformAnchor = '%s';" %%%
 
 </script>
 %%% condition endif %%%
