@@ -231,7 +231,7 @@ function zz_record($ops, $zz_record, $zz_tab, $zz_var, $zz_conditions) {
 			 $record['js_xhr_dependencies'] = wrap_template('xhr-dependencies', $zz_conf['int']['dependencies']);
 		}
 	}
-	if (!empty($zz_conf['int']['js_field_dependencies']))
+	if (!empty($zz_conf['int']['js_field_dependencies']) AND $record['form'])
 		$record['js_field_dependencies'] = wrap_template('zzform-js-field-dependencies', $zz_conf['int']['js_field_dependencies']);
 
 	if (!empty($zz_var['upload_form']) AND in_array($ops['mode'], ['add', 'edit'])) {
@@ -348,6 +348,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
  */
 function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 	global $zz_conf;
+	$output = [];
 	
 	if (!empty($zz_conf['referer']) AND array_key_exists('nolist', $_GET)
 		AND !empty($zz_conf['redirect_to_referer_zero_records'])) {
@@ -404,6 +405,7 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 			// @todo expanded to action, not sure if this works on add only forms, 
 			// this is for re-edit a record in case of missing field values etc.
 			$output['cancel_url'] = $cancelurl;
+		$output['tfoot'] = true;
 	} elseif ($zz_conf_record['int']['access'] === 'add_only') {
 		return [];
 	} else {
@@ -417,18 +419,21 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 				$output['link_record'] = zz_makelink($field['link'], $zz_tab[0][0]['record']);
 			}
 			$output['modes'] = zz_output_modes($zz_conf['int']['id']['value'], $zz_conf_record);
+			$output['tfoot'] = true;
 		}
 		if (!empty($zz_conf_record['details'])) {
 			$output['tfoot_class'] = 'editbutton';
 			$output['actions'] = zz_show_more_actions($zz_conf_record, $zz_conf['int']['id']['value'], $zz_tab[0][0]['record']);
+			$output['tfoot'] = true;
 		}
 		if (empty($zz_conf_record['details']) AND !$zz_conf_record['edit']
 			AND $zz_conf_record['cancel_link']) {
 			$output['tfoot_class'] = 'editbutton';
 			$output['cancel_url'] = $cancelurl;
+			$output['tfoot'] = true;
 		}			
 	}
-	$output['tfoot'] = true;
+	
 	return $output;
 }
 
