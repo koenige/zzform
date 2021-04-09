@@ -361,7 +361,7 @@ function zz_output_redirect($result, $return, $zz_tab) {
 			$_GET['update'] = $id_value;  // for JS fragment
 			return $self.'update='.$id_value.$secure;
 		case 'no_update':
-			$_GET['no_update'] = $id_value;  // for JS fragment
+			$_GET['noupdate'] = $id_value;  // for JS fragment
 			return $self.'noupdate='.$id_value.$secure;
 		}
 	}
