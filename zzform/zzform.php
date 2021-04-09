@@ -430,6 +430,7 @@ function zzform_exit($ops) {
 	// prepare HTML output, not for export
 	if ($zz_conf['generate_output']) {
 		$ops['output'] = zz_output_full($ops);
+		$ops['head'] = zz_output_html_head($ops);
 		if ($zz_conf['show_output']) echo $ops['output'];
 	}
 	

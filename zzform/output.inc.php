@@ -59,6 +59,21 @@ function zz_output_full($ops) {
 }
 
 /**
+ * output for HTML HEAD
+ *
+ * @param array $ops
+ * @return string
+ */
+function zz_output_html_head($ops) {
+	global $zz_conf;
+
+	$head = wrap_template('zzform-head', [], 'ignore positions');
+	if (!empty($zz_conf['wmd_editor_instances']))
+		$head .= wrap_template('pagedown-head', [], 'ignore positions');
+	return $head;
+}
+
+/**
  * format a provisional heading if errors occur
  *
  * @param string $heading ($ops['heading'], from $zz['title'])
