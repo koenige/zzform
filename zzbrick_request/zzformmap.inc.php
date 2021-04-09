@@ -27,8 +27,7 @@ function mod_zzform_zzformmap($params, $settings) {
 	if (!$settings['records_total']) return false;
 
 	$type = !empty($settings['geo_map_export']) ? $settings['geo_map_export'] : 'kml';
-	$tpl = !empty($settings['geo_map_head']) ? $settings['geo_map_head'] : 'map';
-	$page['head'] = wrap_template($tpl, $map);
+	$head_tpl = !empty($settings['geo_map_head']) ? $settings['geo_map_head'] : 'map';
 
 	// output depending on export format
 	switch ($type) {
@@ -38,14 +37,16 @@ function mod_zzform_zzformmap($params, $settings) {
 		// HTML output goes into {$template}.template.txt
 		$map['kml_url'] = mod_zzform_zzformmap_url('kml');
 		$page['extra']['body_attributes'] = ' onload="init()"';
-		return $page;
+		break;
 	case 'geojson':
 		$map['geojson'] = mod_zzform_zzformmap_url('geojson');
 		$page['text'] = wrap_template($settings['geo_map_html'], $map);
-		return $page;
+		break;
 	default:
 		return false;
 	}
+	$page['head'] = wrap_template($head_tpl, $map);
+	return $page;
 }
 
 /**
