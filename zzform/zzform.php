@@ -795,17 +795,22 @@ function zzform_multi($definition_file, $values) {
 	// important because there may be multiple zzform calls
 	global $zz_conf;
 	
-	$old_conf = $zz_conf;
+	$old = [
+		'conf' => $zz_conf,
+		'GET' => !empty($_GET) ? $_GET : [],
+		'POST' => !empty($_POST) ? $_POST : [],
+		'FILES' => !empty($_FILES) ? $_FILES : []
+	];
+	unset($_GET);
+	unset($_POST);
+	unset($_FILES);
+
 	// debug, note: this will only start from the second time, zzform_multi()
 	// has been called! (modules debug is not set beforehands)
 	if (!empty($zz_conf['modules']['debug']) AND !empty($zz_conf['id'])) {
 		$id = $zz_conf['id'];
 		zz_debug('start', __FUNCTION__);
 	}
-
-	unset($_GET);
-	unset($_POST);
-	unset($_FILES);
 	$ops = [];
 	$ops['result'] = '';
 	$ops['id'] = 0;
@@ -836,7 +841,7 @@ function zzform_multi($definition_file, $values) {
 	else $_FILES = [];
 
 	if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
-		$old_id = $zz_conf['id'];	
+		$old['id'] = $zz_conf['id'];	
 		$zz_conf['id'] = $id;
 		zz_debug('find definition file', $definition_file);
 	}
@@ -847,17 +852,17 @@ function zzform_multi($definition_file, $values) {
 	}
 	if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
 		zz_debug('got definition file');
-		$zz_conf['id'] = $old_id;
+		$zz_conf['id'] = $old['id'];
 	}
 	// return on error in form script
 	if (!empty($ops['error'])) return $ops;
 	$ops = zzform($zz);
-	zz_initialize('old_conf', $old_conf);
-	
+
 	// clean up
-	unset($_GET);
-	unset($_POST);
-	unset($_FILES);
+	zz_initialize('old_conf', $old['conf']);
+	$_GET = $old['GET'];
+	$_POST = $old['POST'];
+	$_FILES = $old['FILES'];
 
 	$zz_conf['int'] = $int;
 	if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
