@@ -44,7 +44,8 @@ function zzform($zz) {
 		'mode' => false,
 		'footer_text' => false,
 		'html_fragment' => !empty($_POST['zz_html_fragment']) ? true : false,
-		'redirect_url' => false
+		'redirect_url' => false,
+		'page' => !empty($zz['page']) ? $zz['page'] : []
 	];
 	// set default configuration variables
 	// import modules, set and get URI
@@ -347,7 +348,7 @@ function zzform($zz) {
 		// and add/nav if limit/search buttons
 		require_once $zz_conf['dir_inc'].'/list.inc.php';
 		list($ops, $zz_var) = zz_list($zz, $ops, $zz_var, $zz_conditions);
-		if (empty($ops['mode']) AND !empty($ops['status'])) {
+		if (empty($ops['mode']) AND !empty($ops['page']['status'])) {
 			// return of a request script
 			$ops['mode'] = '';
 			$ops['output'] = $ops['text'];
@@ -430,20 +431,26 @@ function zzform_exit($ops) {
 	// prepare HTML output, not for export
 	if ($zz_conf['generate_output']) {
 		$ops['output'] = zz_output_full($ops);
-		$ops['head'] = zz_output_html_head($ops);
 		if ($zz_conf['show_output']) echo $ops['output'];
+
+		// HTML head
+		$ops['page']['head'] = zz_output_html_head($ops);
+		$ops['page']['meta'] = zz_meta_tags();
+
+		if (!empty($ops['html_fragment'])) {
+			$ops['page']['template'] = 'empty';
+			$ops['page']['url'] = $ops['redirect_url'];
+			$ops['page']['send_as_json'] = true;
+		}
 	}
-	
-	// HTML head
-	$ops['meta'] = zz_meta_tags();
-	
+
 	// HTTP status
 	if (!empty($zz_conf['int']['http_status'])) {
-		$ops['status'] = $zz_conf['int']['http_status'];
+		$ops['page']['status'] = $zz_conf['int']['http_status'];
 		if (!empty($zz_conf['int']['error_type']))
-			$ops['error_type'] = $zz_conf['int']['error_type'];
+			$ops['page']['error_type'] = $zz_conf['int']['error_type'];
 	} else {
-		$ops['status'] = 200;
+		$ops['page']['status'] = 200;
 	}
 
 	// check if request is valid
