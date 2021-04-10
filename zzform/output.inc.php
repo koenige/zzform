@@ -74,6 +74,29 @@ function zz_output_html_head($ops) {
 }
 
 /**
+ * Gives information which meta tags should be added to HTML head
+ *
+ * @return array
+ */
+function zz_output_meta_tags() {
+	$meta = [];
+	$noindex = false;
+	$querystrings = [
+		'order', 'group', 'mode', 'q', 'edit', 'add', 'delete', 'show',
+		'insert', 'update', 'revise'
+	];
+	foreach ($querystrings as $string) {
+		if (empty($_GET[$string])) continue;
+		$noindex = true;
+		break;
+	}
+	if ($noindex) {
+		$meta[] = ['name' => 'robots', 'content' => 'noindex, follow'];
+	}
+	return $meta;
+}
+
+/**
  * format a provisional heading if errors occur
  *
  * @param string $heading ($ops['heading'], from $zz['title'])

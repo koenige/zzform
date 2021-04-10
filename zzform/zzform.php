@@ -429,7 +429,7 @@ function zzform_exit($ops) {
 		zz_debug_unset();
 	}
 	// prepare HTML output, not for export
-	if ($zz_conf['generate_output']) {
+	if ($zz_conf['generate_output'] AND function_exists('zz_output_full')) {
 		$ops['output'] = zz_output_full($ops);
 		if ($zz_conf['show_output']) echo $ops['output'];
 
@@ -439,7 +439,7 @@ function zzform_exit($ops) {
 		$ops['page']['head'] .= zz_output_html_head($ops);
 		if (empty($ops['page']['meta']))
 			$ops['page']['meta'] = [];
-		$ops['page']['meta'] = array_merge($ops['page']['meta'], zz_meta_tags());
+		$ops['page']['meta'] = array_merge($ops['page']['meta'], zz_output_meta_tags());
 
 		if (!empty($ops['html_fragment'])) {
 			$ops['page']['template'] = 'empty';
@@ -994,29 +994,6 @@ function zz_write_conf_vars($variables, &$conf, $overwrite) {
 		}
 	}
 	return true;
-}
-
-/**
- * Gives information which meta tags should be added to HTML head
- *
- * @return array
- */
-function zz_meta_tags() {
-	$meta = [];
-	$noindex = false;
-	$querystrings = [
-		'order', 'group', 'mode', 'q', 'edit', 'add', 'delete', 'show',
-		'insert', 'update', 'revise'
-	];
-	foreach ($querystrings as $string) {
-		if (empty($_GET[$string])) continue;
-		$noindex = true;
-		break;
-	}
-	if ($noindex) {
-		$meta[] = ['name' => 'robots', 'content' => 'noindex, follow'];
-	}
-	return $meta;
 }
 
 /**
