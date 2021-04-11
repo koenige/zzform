@@ -342,7 +342,7 @@ function zz_output_redirect($result, $return, $zz_tab) {
 			$zz_conf['redirect'][$result] = $zz_conf['int']['url']['base']
 				.$zz_conf['redirect'][$result];
 		}
-		return $zz_conf['redirect'][$result];
+		wrap_redirect_change($zz_conf['redirect'][$result]);
 	} elseif (!$zz_conf['debug'] AND $zz_conf['redirect_on_change']) {
 	// redirect to same URL, as to protect against reloading the POST variables
 	// don't do so in case of debugging
