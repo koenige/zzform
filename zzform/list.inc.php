@@ -94,7 +94,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	// don't show anything if there is nothing
 	if (!$count_rows) {
 		$zz_conf['int']['show_list'] = false;
-		if ($text = zz_text('table-empty')) {
+		if (empty($zz['list']['hide_empty_table']) AND $text = zz_text('table-empty')) {
 			$ops['output'].= '<p class="emptytable">'.$text.'</p>';
 		}
 		if ($ops['mode'] === 'export') {
