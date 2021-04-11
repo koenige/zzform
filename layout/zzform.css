@@ -6,7 +6,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -489,7 +489,7 @@ body #zzform .separator hr
 
 /* debug */
 #zzform .debug		{ background: white; border: 1px solid black; 
-					overflow: auto; font-size: 75%; color: black; }
+					overflow: auto; font-size: 75%; color: black; clear: both; }
 #zzform .debug h1	{ padding-left: .5em; }
 #zzform .debugtable dl { padding: 0; margin: 0; line-height: 1.5; }
 #zzform .debugtable dt { font-weight: bold; }
