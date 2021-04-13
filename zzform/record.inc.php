@@ -21,23 +21,21 @@
  *		'output', 'mode', 'result'
  * @param array $record = $zz['record']
  * @param array $zz_tab
- * @param array $zz_var
- *		'upload_form', 'action'
  * @param array $zz_conditions
  * @global array $zz_conf
  *		'url_self', 'url_self_qs_base', 'url_append', 'character_set'
  * @return string $output
  */
-function zz_record($ops, $record, $zz_tab, $zz_var, $zz_conditions) {
+function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 	global $zz_conf;
 	global $zz_setting;
 
 	// there might be now a where value for this record
-	if (!empty($zz_var['where'][$zz_tab[0]['table']])) {
-		foreach ($zz_var['where'][$zz_tab[0]['table']] as $field_name => $value) {
+	if (!empty($record['where'][$zz_tab[0]['table']])) {
+		foreach ($record['where'][$zz_tab[0]['table']] as $field_name => $value) {
 			if ($value) continue;
 			if (empty($zz_tab[0][0]['record'][$field_name])) continue;
-			$zz_var['where'][$zz_tab[0]['table']][$field_name] = $zz_tab[0][0]['record'][$field_name];
+			$record['where'][$zz_tab[0]['table']][$field_name] = $zz_tab[0][0]['record'][$field_name];
 		}
 	}
 
@@ -204,7 +202,7 @@ function zz_record($ops, $record, $zz_tab, $zz_var, $zz_conditions) {
 
 	if ($display_form) {
 		// output form if necessary
-		$record += zz_display_records($zz_tab, $ops['mode'], $display_form, $record, $zz_var, $zz_conditions);
+		$record += zz_display_records($zz_tab, $ops['mode'], $display_form, $record, $zz_conditions);
 	}
 
 	if (!empty($record['footer']['insert']) AND zz_valid_request('insert')) {
@@ -247,12 +245,11 @@ function zz_record($ops, $record, $zz_tab, $zz_var, $zz_conditions) {
  * @param string $mode
  * @param string $display	'review': show form with all values for
  *							review; 'form': show form for editing; 
- * @param array $zz_var
  * @param array $zz_conditions
  * @global array $zz_conf
  * @return array $output			HTML-Output with all form fields
  */
-function zz_display_records($zz_tab, $mode, $display, $zz_record, $zz_var, $zz_conditions) {
+function zz_display_records($zz_tab, $mode, $display, $zz_record, $zz_conditions) {
 	global $zz_conf;
 	
 	if (!$display) return [];
@@ -276,7 +273,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_record, $zz_var, $zz_c
 		];
 	}
 	$multiple = !empty($zz_conf['int']['id']['values']) ? true : false;
-	$output['tbody'] = zz_show_field_rows($zz_tab, $mode, $display, $zz_var, $zz_record, $zz_conf_record);
+	$output['tbody'] = zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $zz_conf_record);
 	$output += zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple);
 	if (zz_error_exit()) return zz_return([]);
 	if ($multiple) {
@@ -443,9 +440,6 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple)
  * @param string $mode
  * @param string $display
  * @param array $zz_record 
- * @param array $zz_var 
- *		function calls itself and uses 'horizontal_table_head'
- *		internally, therefore &$zz_var
  * @param array $zz_conf_record
  * @param int $tab (optional, default = 0 = main table)
  * @param int $rec (optional, default = 0 = main record)
@@ -455,7 +449,7 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple)
  * @param bool $show_explanation (optional)
  * @return string HTML output
  */
-function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_record,
+function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 	$zz_conf_record, $tab = 0, $rec = 0, $formdisplay = 'vertical',
 	$extra_lastcol = false, $table_count = 0, $show_explanation = true) {
 
@@ -481,8 +475,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_record,
 	zz_record_focus($zz_tab, $tab, $rec);
 	
 	$firstrow = true;
-	$my_where_fields = isset($zz_var['where'][$zz_tab[$tab]['table_name']])
-		? $zz_var['where'][$zz_tab[$tab]['table_name']] : [];
+	$my_where_fields = isset($zz_record['where'][$zz_tab[$tab]['table_name']])
+		? $zz_record['where'][$zz_tab[$tab]['table_name']] : [];
 	// this is for 0 0 main record:
 	// @todo check if this is correct, if there are other 'access' modes
 	if (in_array($my_rec['access'], ['show', 'none'])) {
@@ -530,9 +524,9 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_record,
 		if (array_key_exists($fieldkey, $dependent_fields_ids)) {
 			$hidden = false;
 			foreach ($dependent_fields_ids[$fieldkey] as $dependency) {
-				if (!empty($zz_var['where'][$zz_tab[$tab]['table_name']][$dependency['source_field_name']])) {
+				if (!empty($zz_record['where'][$zz_tab[$tab]['table_name']][$dependency['source_field_name']])) {
 					// WHERE
-					$source_field_value = $zz_var['where'][$zz_tab[$tab]['table_name']][$dependency['source_field_name']];
+					$source_field_value = $zz_record['where'][$zz_tab[$tab]['table_name']][$dependency['source_field_name']];
 					if (!in_array($source_field_value, $dependency['values']))
 						$hidden = true;
 				} elseif ($my_rec['action'] === 'review') {
@@ -684,7 +678,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_record,
 			// don't print out anything if record is empty
 			if (array_key_exists(0, $zz_tab[$sub_tab])) {
 				$fields = $zz_tab[$sub_tab][0]['fields'];
-				$out['td']['content'] .= zz_field_set($field, $fields, $field_display, $zz_tab[$sub_tab], $zz_var);
+				$out['td']['content'] .= zz_field_set($field, $fields, $field_display, $zz_tab[$sub_tab]);
 			}
 		} elseif (in_array($field['type'], ['subtable', 'foreign_table'])) {
 			//	Subtable
@@ -808,7 +802,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_record,
 					}
 				}
 				$subtable_rows = zz_show_field_rows($zz_tab, $subtable_mode, 
-					$field_display, $zz_var, $zz_record, $zz_conf_record, $sub_tab, $sub_rec,
+					$field_display, $zz_record, $zz_conf_record, $sub_tab, $sub_rec,
 					$field['form_display'], $lastrow, $sub_rec, $h_show_explanation);
 				if ($field['form_display'] === 'inline') {
 					$matrix = array_merge($matrix, $subtable_rows);
@@ -984,7 +978,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_record,
 					$zz_tab[$tab]['table'], $tab, $rec, $zz_tab[0]['table']);
 			}
 
-			// $zz_var, values, defaults
+			// values, defaults
 			if (isset($my_where_fields[$field['field_name']])) {
 				switch ($my_where_fields[$field['field_name']]) {
 				case '!NULL':
@@ -2423,13 +2417,13 @@ function zz_field_memo($field, $display, $record) {
 /**
  * record output of field type 'set', but as a subtable
  *
+ * @param array $field
  * @param array $fields
  * @param string $display
  * @param array $my_tab
- * @param array $zz_var
  * @return string
  */
-function zz_field_set($field, $fields, $display, $my_tab, $zz_var = []) {
+function zz_field_set($field, $fields, $display, $my_tab) {
 	global $zz_conf;
 
 	$group = false;
@@ -3547,7 +3541,7 @@ function zz_field_select_enum($field, $display, $record) {
  * add WHERE to $zz['fields'][n]['sql'] clause if necessary
  * 
  * @param array $field field that will be checked
- * @param array $where_fields = $zz_var['where'][$table_name]
+ * @param array $where_fields = $zz['record']['where'][$table_name]
  * @global array $zz_conf
  *		$zz_conf['int']['add_details_where']
  * @return array string $field['sql']

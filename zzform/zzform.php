@@ -332,7 +332,8 @@ function zzform($zz) {
 	if ($zz_conf['int']['record']) {
 		// display updated, added or editable Record
 		require_once $zz_conf['dir_inc'].'/record.inc.php';
-		$ops['output'] .= zz_record($ops, $zz['record'], $zz_tab, $zz_var, $zz_conditions);	
+		$zz['record']['where'] = !empty($zz_var['where']) ? $zz_var['where'] : [];
+		$ops['output'] .= zz_record($ops, $zz['record'], $zz_tab, $zz_conditions);	
 	} else {
 		if (isset($_GET['delete'])) {
 			// just show heading that record was deleted
