@@ -24,9 +24,7 @@
  * @param array $zz_var			Main variables
  * @param array $zz_conditions	configuration variables
  * @global array $zz_conf		Main conifguration parameters, will be modified
- * @return array
- *		array $ops
- *		array $zz_var
+ * @return array				modification of $ops
  */
 function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	global $zz_conf;
@@ -78,10 +76,10 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	$zz['sql'] = zz_list_filter_sql($zz['filter'], $zz['sql'], $zz_var['filters']);
 	if (zz_list_filter_invalid()) $zz['sql'] = false;
 	if ($old_sql !== $zz['sql']) $zz['sqlcount'] = '';
-	if (!$zz['sql']) return zz_return([$ops, $zz_var]);
+	if (!$zz['sql']) return zz_return($ops);
 
 	list($lines, $ops['records_total']) = zz_list_query($zz);
-	if (zz_error_exit()) return zz_return([$ops, $zz_var]);
+	if (zz_error_exit()) return zz_return($ops);
 	$count_rows = count($lines);
 
 	if ($count_rows < 8 AND $zz_conf['list_display'] === 'ul')
@@ -103,7 +101,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			$zz_conf['int']['http_status'] = 404;
 			$ops['mode'] = false;
 			unset($ops['headers']);
-			return zz_return([$ops, $zz_var]);
+			return zz_return($ops);
 		} elseif ($ops['records_total']) {
 			// 404 if limit is too large
 			$zz_conf['int']['http_status'] = 404;
@@ -117,7 +115,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	// Check all conditions whether they are true;
 	if (!empty($zz_conf['modules']['conditions'])) {
 		$zz_conditions = zz_conditions_list_check($zz, $zz_conditions, array_keys($lines), $ops['mode']);
-		if (zz_error_exit()) return zz_return([$ops, $zz_var]);
+		if (zz_error_exit()) return zz_return($ops);
 	}
 
 	// add 0 as a dummy record for which no conditions will be set
@@ -188,7 +186,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		}
 		if ($zz_conf['modules']['debug']) zz_debug('end');
 		$ops = zz_export($ops, $zz);
-		return zz_return([$ops, $zz_var]);
+		return zz_return($ops);
 	}
 	
 	//
@@ -264,7 +262,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	}
 	// explanation might have changed due to conditions
 	$ops['explanation'] = zz_format($zz['explanation']);
-	return zz_return([$ops, $zz_var]);
+	return zz_return($ops);
 }
 
 /**

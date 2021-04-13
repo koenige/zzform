@@ -347,7 +347,7 @@ function zzform($zz) {
 		// shows table with all records (limited by zz_conf['limit'])
 		// and add/nav if limit/search buttons
 		require_once $zz_conf['dir_inc'].'/list.inc.php';
-		list($ops, $zz_var) = zz_list($zz, $ops, $zz_var, $zz_conditions);
+		$ops = zz_list($zz, $ops, $zz_var, $zz_conditions);
 		if (empty($ops['mode']) AND !empty($ops['page']['status'])) {
 			// return of a request script
 			$ops['mode'] = '';
