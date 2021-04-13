@@ -408,8 +408,8 @@ function zz_get_where_conditions($zz) {
 		);
 		foreach ($add as $key => $value) {
 			if (in_array($value, ['NULL', '!NULL'])) continue;
-			$zz_var['zz_fields'][$key]['value'] = $value;
-			$zz_var['zz_fields'][$key]['type'] = 'hidden';
+			$zz['record']['zz_fields'][$key]['value'] = $value;
+			$zz['record']['zz_fields'][$key]['type'] = 'hidden';
 		}
 	}
 
@@ -778,13 +778,13 @@ function zz_where_conditions($zz) {
 	// definition
 	foreach (array_keys($zz['fields']) as $no) {
 		if (empty($zz['fields'][$no]['field_name'])) continue;
-		if (empty($zz_var['zz_fields'][$zz['fields'][$no]['field_name']])) continue;
+		if (empty($zz['record']['zz_fields'][$zz['fields'][$no]['field_name']])) continue;
 		// get old type definition and use it as type_detail if not set
 		if (empty($zz['fields'][$no]['type_detail'])) {
 			$zz['fields'][$no]['type_detail'] = $zz['fields'][$no]['type'];
 		}
 		$zz['fields'][$no] = array_merge($zz['fields'][$no], 
-			$zz_var['zz_fields'][$zz['fields'][$no]['field_name']]);
+			$zz['record']['zz_fields'][$zz['fields'][$no]['field_name']]);
 	}
 
 	return [$zz, $zz_var];

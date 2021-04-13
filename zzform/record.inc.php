@@ -305,8 +305,8 @@ function zz_display_records($zz_tab, $mode, $display, $zz_record, $zz_var, $zz_c
 				'value' => $zz_tab[0]['revision_id']
 			];
 		}
-		if (!empty($zz_var['zz_fields'])) {
-			foreach ($zz_var['zz_fields'] as $field_name => $field) {
+		if (!empty($zz_record['zz_fields'])) {
+			foreach ($zz_record['zz_fields'] as $field_name => $field) {
 				$output['hidden'][] = [
 					'name' => 'zz_fields['.$field_name.']',
 					'value' => $field['value']

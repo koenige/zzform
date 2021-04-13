@@ -167,7 +167,7 @@ function zzform($zz) {
 
 	// if no operations with the record are done, remove zz_fields
 	if (!$zz['record']['action'] AND (!$ops['mode'] OR $ops['mode'] === 'list_only'))
-		unset($zz_var['zz_fields']);
+		unset($zz['record']['zz_fields']);
 
 	// Module 'conditions': evaluate conditions
 	if (!empty($zz_conf['modules']['conditions'])) {

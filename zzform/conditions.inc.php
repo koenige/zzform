@@ -444,9 +444,9 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 
 			// get value for $condition['field_name']
 			$value = false;
-			if (!empty($zz_var['zz_fields'][$condition['field_name']])) {
+			if (!empty($zz['record']['zz_fields'][$condition['field_name']])) {
 				// Add, so get it from session
-				$value = $zz_var['zz_fields'][$condition['field_name']]['value'];
+				$value = $zz['record']['zz_fields'][$condition['field_name']]['value'];
 			} elseif (!empty($zz_var['where'][$zz['table']][$condition['field_name']])) {
 				$value = $zz_var['where'][$zz['table']][$condition['field_name']];
 			} else {
