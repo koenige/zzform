@@ -5,7 +5,7 @@
  * Core script
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/projects/zzform
  *
  * List of functions in this file
  *	zzform()				main zzform function
@@ -347,7 +347,8 @@ function zzform($zz) {
 		// shows table with all records (limited by zz_conf['limit'])
 		// and add/nav if limit/search buttons
 		require_once $zz_conf['dir_inc'].'/list.inc.php';
-		$ops = zz_list($zz, $ops, $zz_var, $zz_conditions);
+		$zz['list']['where'] = $zz_var['where'];
+		$ops = zz_list($zz, $ops, $zz_conditions);
 		if (empty($ops['mode']) AND !empty($ops['page']['status'])) {
 			// return of a request script
 			$ops['mode'] = '';

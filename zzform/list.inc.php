@@ -5,7 +5,7 @@
  * Display all or a subset of all records in a list (e. g. table, ul)
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2004-2021 Gustaf Mossakowski
@@ -21,12 +21,11 @@
  * and search form below table
  * @param array $zz				table and field definition
  * @param array $ops			operation variables
- * @param array $zz_var			Main variables
  * @param array $zz_conditions	configuration variables
  * @global array $zz_conf		Main conifguration parameters, will be modified
  * @return array				modification of $ops
  */
-function zz_list($zz, $ops, $zz_var, $zz_conditions) {
+function zz_list($zz, $ops, $zz_conditions) {
 	global $zz_conf;
 	global $zz_setting;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
@@ -142,14 +141,14 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 		$table_defs = zz_list_show_group_fields($table_defs, $list);
 
 		list($rows, $list) = zz_list_data(
-			$list, $lines, $table_defs, $zz, $zz_var, $zz_conditions, $zz['table'], $ops['mode']
+			$list, $lines, $table_defs, $zz, $zz_conditions, $zz['table'], $ops['mode']
 		);
 		if (!empty($list['extra_cols'])) {
 			$table_defs[0] += $list['extra_cols'];
 		}
 		unset($lines);
 
-		$list['where_values'] = !empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : '';
+		$list['where_values'] = !empty($list['where'][$zz['table']]) ? $list['where'][$zz['table']] : '';
 		$head = zz_list_head($table_defs[0], $list['where_values'], $list['columns']);
 		unset($table_defs);
 	}
@@ -563,7 +562,6 @@ function zz_list_set($zz, $count_rows) {
  * @param array $lines
  * @param array $table_defs
  * @param array $zz
- * @param array $zz_var
  * @param array $zz_conditions
  * @param string $table ($zz['table'])
  * @param string $mode ($ops['mode'])
@@ -572,7 +570,7 @@ function zz_list_set($zz, $count_rows) {
  *	- array $rows data organized in rows
  *	- array $list with some additional information on how to output list
  */
-function zz_list_data($list, $lines, $table_defs, $zz, $zz_var, $zz_conditions, $table, $mode) {
+function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $mode) {
 	global $zz_conf;
 	
 	$rows = [];
@@ -694,7 +692,7 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_var, $zz_conditions, 
 			}
 			$my_row = isset($rows[$z][$fieldindex]) ? $rows[$z][$fieldindex] : [];
 			$rows[$z][$fieldindex] = zz_list_field(
-				$list, $my_row, $field, $line, $lastline, $zz_var, $table, $mode, $zz_conf_record
+				$list, $my_row, $field, $line, $lastline, $table, $mode, $zz_conf_record
 			);
 			$list['columns'][$fieldindex] = true;
 
@@ -1299,7 +1297,6 @@ function zz_list_query_hierarchy($zz) {
  * @param array $field field definition
  * @param array $line current record from database
  * @param array $lastline previous record from database
- * @param array $zz_var
  * @param string $table
  * @param array $zz_conf_record
  * @global array $zz_conf
@@ -1308,7 +1305,7 @@ function zz_list_query_hierarchy($zz) {
  *		array 'class'	= Array of class names for cell
  *		string 'text'	= HTML output for cell
  */
-function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $mode, $zz_conf_record) {
+function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode, $zz_conf_record) {
 	global $zz_conf;
 	static $append_field;
 	static $append_string_first;
@@ -1335,7 +1332,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $zz_var, $table, $
 	// set 'class'
 	if (!isset($row['class'])) $row['class'] = [];
 	// if table row is affected by where, mark this
-	$where_table = !empty($zz_var['where'][$table]) ? $zz_var['where'][$table] : '';
+	$where_table = !empty($list['where'][$table]) ? $list['where'][$table] : '';
 	// set class depending on where and field info
 	$field['level'] = zz_list_field_level($list, $field, $line);
 	$row['class'] = array_merge($row['class'], zz_field_class($field, $where_table));
