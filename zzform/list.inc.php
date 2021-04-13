@@ -68,12 +68,12 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 
 	// Filters
 	// set 'selection', $zz['list']['hierarchy']
-	$zz = zz_apply_filter($zz, $zz_var['filters']);
-	$ops['filter_titles'] = zz_output_filter_title($zz['filter'], $zz_var['filters']);
+	zz_apply_filter($zz);
+	$ops['filter_titles'] = zz_output_filter_title($zz['filter'], $zz['filter_active']);
 
 	// modify SQL query depending on filter
 	$old_sql = $zz['sql'];
-	$zz['sql'] = zz_list_filter_sql($zz['filter'], $zz['sql'], $zz_var['filters']);
+	$zz['sql'] = zz_list_filter_sql($zz['filter'], $zz['sql'], $zz['filter_active']);
 	if (zz_list_filter_invalid()) $zz['sql'] = false;
 	if ($old_sql !== $zz['sql']) $zz['sqlcount'] = '';
 	if (!$zz['sql']) return zz_return($ops);
@@ -85,7 +85,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	if ($count_rows < 8 AND $zz_conf['list_display'] === 'ul')
 		$zz_conf['no_add_above'] = true;
 	$ops['output'] .= zz_output_add_export_links($zz, $ops, 'above');
-	$ops['output'] .= zz_filter_selection($zz['filter'], $zz_var['filters'], 'top');
+	$ops['output'] .= zz_filter_selection($zz['filter'], $zz['filter_active'], 'top');
 
 	// don't show anything if there is nothing
 	if (!$count_rows) {
@@ -249,7 +249,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	if (!($zz_conf['int']['access'] === 'search_but_no_list' AND empty($_GET['q']))) {
 		// filter, if there was a list
 		if ($zz_conf['int']['show_list']) {
-			$ops['output'] .= zz_filter_selection($zz['filter'], $zz_var['filters'], 'bottom');
+			$ops['output'] .= zz_filter_selection($zz['filter'], $zz['filter_active'], 'bottom');
 		}
 		$ops['output'] .= zz_output_add_export_links($zz, $ops);
 		$ops['output'] .= zz_list_total_records($ops['records_total']);
@@ -859,13 +859,13 @@ function zz_list_group_titles_out($group_titles, $concat = ' &#8211; ') {
  *		string 'where'
  *		array 'selection'
  *			id => title
- * @param array $filter_params = $zz_var['filters']
+ * @param array $filter_active = $zz['filter_active']
  * @param string $pos = 'top', 'bottom', or 'both'
  * @global array $zz_conf
  *		$zz_conf['int']['url']
  * @return string HTML output, all filters
  */
-function zz_filter_selection($filter, $filter_params, $pos) {
+function zz_filter_selection($filter, $filter_active, $pos) {
 	global $zz_conf;
 
 	if (!$filter) return '';
@@ -889,7 +889,7 @@ function zz_filter_selection($filter, $filter_params, $pos) {
 	foreach ($filter as $index => $f) {
 		$filter[$index]['length'] = 0;
 		// remove this filter from query string
-		$other_filters['filter'] = $filter_params;
+		$other_filters['filter'] = $filter_active;
 		unset($other_filters['filter'][$f['identifier']]);
 		if (!empty($f['subfilter'])) {
 			// this filter has a subfilter
@@ -907,8 +907,8 @@ function zz_filter_selection($filter, $filter_params, $pos) {
 			// $f['selection'] might be empty if there's no record in the database
 			$sequence = 1;
 			foreach ($f['selection'] as $id => $selection) {
-				$is_selected = ((isset($filter_params[$f['identifier']]) 
-					AND $filter_params[$f['identifier']] == $id))
+				$is_selected = ((isset($filter_active[$f['identifier']]) 
+					AND $filter_active[$f['identifier']] == $id))
 					? true : false;
 				if ($is_selected) {
 					// active filter: don't show a link
@@ -934,15 +934,15 @@ function zz_filter_selection($filter, $filter_params, $pos) {
 				$filter_output = true;
 				$sequence++;
 			}
-		} elseif (isset($filter_params[$f['identifier']])) {
+		} elseif (isset($filter_active[$f['identifier']])) {
 			// no filter selections are shown, but there is a current filter, 
 			// so show this
 			$filter[$index]['values'][] = [
-				'title' => zz_htmltag_escape($filter_params[$f['identifier']]),
+				'title' => zz_htmltag_escape($filter_active[$f['identifier']]),
 				'link' => false,
 				'index' => 1
 			];
-			$filter[$index]['length'] += strlen($filter_params[$f['identifier']]);
+			$filter[$index]['length'] += strlen($filter_active[$f['identifier']]);
 			$filter_output = false;
 		} else {
 			// nothing to output: like-filter, so don't display anything
@@ -959,10 +959,10 @@ function zz_filter_selection($filter, $filter_params, $pos) {
 			$link = $self.($qs ? $qs.'&amp;' : '?').'filter['.$f['identifier'].']=0';
 		}
 		$link_all = false;
-		if (isset($filter_params[$f['identifier']])) {
+		if (isset($filter_active[$f['identifier']])) {
 			if ($filter[$index]['type'] === 'function') $link_all = true;
-			elseif ($filter_params[$f['identifier']] !== '0'
-				AND $filter_params[$f['identifier']] !== 0) $link_all = true;
+			elseif ($filter_active[$f['identifier']] !== '0'
+				AND $filter_active[$f['identifier']] !== 0) $link_all = true;
 		}
 		
 		if (!$link_all) $link = false;
@@ -986,21 +986,21 @@ function zz_filter_selection($filter, $filter_params, $pos) {
  *
  * @param array $filters
  * @param string $sql
- * @param array $filter_params = $zz_var['filters']
+ * @param array $filter_active = $zz['filter_active']
  *		wrong filters may be unset
  * @global array $zz_conf
  * @return string $sql
  * @see zz_filter_defaults() for check for invalid filters
  */
-function zz_list_filter_sql($filters, $sql, &$filter_params) {
+function zz_list_filter_sql($filters, $sql, &$filter_active) {
 	global $zz_conf;
 
 	// no filter was selected, no change
-	if (!$filter_params) return $sql;
+	if (!$filter_active) return $sql;
 
 	foreach ($filters AS $filter) {
-		if (!in_array($filter['identifier'], array_keys($filter_params))) continue;
-		$filter_value = $filter_params[$filter['identifier']];
+		if (!in_array($filter['identifier'], array_keys($filter_active))) continue;
+		$filter_value = $filter_active[$filter['identifier']];
 
 		$old_sql = $sql;
 		if (isset($filter['sql_join'])) {
@@ -1012,7 +1012,7 @@ function zz_list_filter_sql($filters, $sql, &$filter_params) {
 			if (!array_key_exists($filter_value, $filter['where_if'])) {
 				zz_list_filter_invalid_value($filter, $filter_value);
 				// remove invalid filter
-				unset($filter_params[$filter['identifier']]);
+				unset($filter_active[$filter['identifier']]);
 				continue;
 			}
 			$sql = wrap_edit_sql($sql, 'WHERE', $filter['where_if'][$filter_value]);
@@ -1088,7 +1088,7 @@ function zz_list_filter_sql($filters, $sql, &$filter_params) {
 			$sql = $old_sql;
 			zz_list_filter_invalid_value($filter, $filter_value);
 			// remove invalid filter
-			unset($filter_params[$filter['identifier']]);
+			unset($filter_active[$filter['identifier']]);
 		}
 	}
 	return $sql;

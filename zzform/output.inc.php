@@ -529,19 +529,19 @@ function zz_nice_selection($zz_fields) {
  * Show filters with selection in title
  *
  * @param array $filters = $zz['filter']
- * @param array $filter_params = $zz_var['filters']
+ * @param array $filter_active = $zz['filter_active']
  * @return array
  */
-function zz_output_filter_title($filters, $filter_params) {
+function zz_output_filter_title($filters, $filter_active) {
 	$titles = [];
 	if (!$filters) return $titles;
-	if (!$filter_params) return $titles;
+	if (!$filter_active) return $titles;
 	foreach ($filters as $index => $f) {
-		if (empty($filter_params[$f['identifier']])) continue;
-		if (!empty($f['selection']) AND !empty($f['selection'][$filter_params[$f['identifier']]])) {
-			$titles[] = $f['title'].': '.$f['selection'][$filter_params[$f['identifier']]];
+		if (empty($filter_active[$f['identifier']])) continue;
+		if (!empty($f['selection']) AND !empty($f['selection'][$filter_active[$f['identifier']]])) {
+			$titles[] = $f['title'].': '.$f['selection'][$filter_active[$f['identifier']]];
 		} else {
-			$titles[] = $f['title'].': '.zz_htmltag_escape($filter_params[$f['identifier']]);
+			$titles[] = $f['title'].': '.zz_htmltag_escape($filter_active[$f['identifier']]);
 		}
 	}
 	return $titles;

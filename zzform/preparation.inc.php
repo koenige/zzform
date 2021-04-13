@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -38,6 +38,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	$zz_tab[0]['dynamic_referer'] = !empty($zz['dynamic_referer']) ? $zz['dynamic_referer'] : false;
 	$zz_tab[0]['add_from_source_id'] = !empty($zz['add_from_source_id']) ? true : false;
 	$zz_tab[0]['filter'] = !empty($zz['filter']) ? $zz['filter'] : [];
+	$zz_tab[0]['filter_active'] = !empty($zz['filter_active']) ? $zz['filter_active'] : [];
 	$zz_tab[0]['dont_reformat'] = !empty($_POST['zz_subtables']) ? true : false;
 	$zz_tab[0]['record_action'] = false;
 	$zz_tab[0]['add_details_return_field'] = !empty($zz['add_details_return_field']) ? $zz['add_details_return_field'] : '';

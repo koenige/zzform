@@ -110,7 +110,7 @@ function zzform($zz) {
 	if (!$zz_var) return zzform_exit($ops);
 
 	// check GET 'filter'
-	list($zz['filter'], $zz_var['filters']) = zz_filter_defaults($zz);
+	zz_filter_defaults($zz);
 
 	// get and apply where conditions to SQL query and fields
 	list ($zz, $zz_var) = zz_where_conditions($zz, $zz_var);
