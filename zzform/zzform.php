@@ -365,7 +365,7 @@ function zzform($zz) {
 
 	// set title
 	if ($ops['heading']) {
-		$ops['title'] = zz_nice_title($ops['heading'], $zz['fields'], $ops, $zz_var, $ops['mode']);
+		$ops['title'] = zz_nice_title($ops['heading'], $zz['fields'], $ops, $ops['mode']);
 	}
 	if ($ops['mode'] !== 'export') {
 		$ops['footer_text'] = !empty($zz['footer_text']) ? $zz['footer_text'] : '';

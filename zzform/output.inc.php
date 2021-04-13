@@ -411,14 +411,14 @@ function zz_output_redirect($result, $return, $zz_tab) {
  *
  * @param string $heading ($ops['heading'])
  * @param array $fields = $zz['fields']
- * @param array $zz_var
- *		'limit_total_rows', 'id', 'filters'
+ * @param array $ops
+ *		'records_total', 'filter_titles'
  * @param string $mode ($ops['mode'])
  * @global array $zz_conf
  *		'int['where_with_unique_id]' and others
  * @return string $title
  */
-function zz_nice_title($heading, $fields, $ops, $zz_var, $mode = false) {
+function zz_nice_title($heading, $fields, $ops, $mode = false) {
 	global $zz_conf;
 
 	// basic title

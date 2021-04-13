@@ -299,7 +299,7 @@ function zz_export_sort(&$out) {
 function zz_export_kml($ops, $zz, $zz_var) {
 	global $zz_setting;
 	
-	$kml['title'] = utf8_encode(zz_nice_title($ops['heading'], $ops['output']['head'], $ops, $zz_var));
+	$kml['title'] = utf8_encode(zz_nice_title($ops['heading'], $ops['output']['head'], $ops));
 	$kml['description'] = zz_format($zz['explanation']);
 	$kml['styles'] = [];
 	$kml['placemarks'] = [];
