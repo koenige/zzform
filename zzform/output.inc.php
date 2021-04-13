@@ -441,15 +441,15 @@ function zz_nice_title($heading, $fields, $ops, $zz_var, $mode = false) {
 			$page = 1;
 		// in case someone writes manually limit=85 where conf['limit'] = 20
 		// don't add limit to page title
-		if (is_int($page) AND $page AND !empty($zz_var['limit_total_rows'])) {
-			$max_page = ceil($zz_var['limit_total_rows'] / $zz_conf['limit']);
+		if (is_int($page) AND $page AND !empty($ops['records_total'])) {
+			$max_page = ceil($ops['records_total'] / $zz_conf['limit']);
 			if ($max_page.'' !== '1') {
 				if ($zz_conf['limit_display'] === 'entries') {
 					$title .= $zz_conf['title_separator'].zz_text('records').' '
 						.(($page-1)*$zz_conf['limit']).'-'
-						.($page*$zz_conf['limit'] > $zz_var['limit_total_rows']
-							? $zz_var['limit_total_rows'] : $page*$zz_conf['limit'])
-						.'/'.$zz_var['limit_total_rows'];
+						.($page*$zz_conf['limit'] > $ops['records_total']
+							? $ops['records_total'] : $page*$zz_conf['limit'])
+						.'/'.$ops['records_total'];
 				} else {
 					$title .= $zz_conf['title_separator'].zz_text('page').' '.$page.'/'.$max_page;
 				}

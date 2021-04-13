@@ -81,8 +81,6 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 	if (!$zz['sql']) return zz_return([$ops, $zz_var]);
 
 	list($lines, $ops['records_total']) = zz_list_query($zz);
-	// save total rows in zz_var for use in zz_nice_title()
-	$zz_var['limit_total_rows'] = $ops['records_total'];
 	if (zz_error_exit()) return zz_return([$ops, $zz_var]);
 	$count_rows = count($lines);
 
