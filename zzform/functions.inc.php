@@ -912,7 +912,6 @@ function zz_write_onces($zz, $zz_var) {
 		$field_name = $field['field_name'];
 		if (!empty($zz_var['where_condition'][$field_name])) continue;
 
-		$zz_var['write_once'][$field_name] = '';
 		$zz_var['where_condition'][$field_name] = '';
 		$zz_var['where'][$zz['table']][$field_name] = '';
 	}
