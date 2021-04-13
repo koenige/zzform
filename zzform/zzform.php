@@ -180,7 +180,7 @@ function zzform($zz) {
 
 	// conditions for list view will be set later
 	if ($zz_conf['int']['show_list'])
-		$zz['fields_in_list'] = $zz['fields']; 
+		$zz['list']['fields'] = $zz['fields']; 
 
 //
 //	Add, Update or Delete
