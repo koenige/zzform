@@ -1356,12 +1356,11 @@ function zz_set_fielddefs_for_record(&$zz) {
  *		int['record'], 'access', int['list_access'] etc. pp.
  *		'modules'[debug]
  *		'where_with_unique_id' bool if it's just one record to be shown (true)
- * @param array $zz_var --> will be changed as well
+ * @param array $zz_var
  * @global array $zz_conf
  * @return array 
  *		$zz array
  *		$ops array
- *		$zz_var array
  */
 function zz_record_access($zz, $ops, $zz_var) {
 	global $zz_conf;
@@ -1529,10 +1528,6 @@ function zz_record_access($zz, $ops, $zz_var) {
 		if (empty($_GET['field'])) {
 			$zz_conf['int']['http_status'] = 404;
 			break;
-		}
-		$zz_var['thumb_field'] = explode('-', $_GET['field']);
-		if (count($zz_var['thumb_field']) !== 2) {
-			$zz_conf['int']['http_status'] = 404;
 		}
 		break;
 

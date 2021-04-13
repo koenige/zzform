@@ -5,7 +5,7 @@
  * File upload
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/projects/zzform
  *
  *	1. main functions (in order in which they are called)
  *
@@ -200,10 +200,9 @@ function zz_upload_config() {
  *
  * @param array $ops
  * @param array $zz_tab
- * @param array $zz_var
  * @return array $ops
  */
-function zz_upload_thumbnail($ops, $zz_tab, $zz_var) {
+function zz_upload_thumbnail($ops, $zz_tab) {
 	global $zz_conf;
 
 	if (empty($zz_tab[0][0]['existing'])) {
@@ -211,12 +210,17 @@ function zz_upload_thumbnail($ops, $zz_tab, $zz_var) {
 		$zz_conf['int']['http_status'] = 404;
 		return $ops;
 	}
+	$ops['thumb_field'] = explode('-', $_GET['field']);
+	if (count($ops['thumb_field']) !== 2) {
+		$zz_conf['int']['http_status'] = 404;
+		return $ops;
+	}
+
 	$zz_tab = zz_upload_get($zz_tab);
-	$zz_tab = zz_upload_prepare_tn($zz_tab, $zz_var);
+	$zz_tab = zz_upload_prepare_tn($zz_tab, $ops);
 	$zz_tab = zz_upload_action($zz_tab);
 	zz_upload_cleanup($zz_tab);
-	
-	$ops['thumb_field'] = $zz_var['thumb_field'];
+
 	if (!empty($zz_tab[0][0]['file_upload'])) {
 		$ops['id'] = $zz_conf['int']['id']['value'];
 		$ops['result'] = 'thumbnail created';
@@ -225,7 +229,7 @@ function zz_upload_thumbnail($ops, $zz_tab, $zz_var) {
 		$ops['result'] = 'thumbnail not created';
 	} else {
 		$ops['error'] = sprintf('Thumbnail information for field %d (No. %d) not found',
-			$zz_var['thumb_field'][0], $zz_var['thumb_field'][1]
+			$ops['thumb_field'][0], $ops['thumb_field'][1]
 		);
 		$zz_conf['int']['http_status'] = 404;
 	}
@@ -1233,19 +1237,19 @@ function zz_upload_prepare($zz_tab) {
  * prepares single file for thumbnail generation
  *
  * @param array $zz_tab
- * @param array $zz_var
+ * @param array $ops
  *		array 'thumb_field' with number and image
  * @return array $zz_tab
  */
-function zz_upload_prepare_tn($zz_tab, $zz_var) {
+function zz_upload_prepare_tn($zz_tab, $ops) {
 	// do only something if there are upload_fields
 	if (empty($zz_tab[0]['upload_fields'])) return $zz_tab;
 
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
-	$no = $zz_var['thumb_field'][0];
-	$img = $zz_var['thumb_field'][1];
+	$no = $ops['thumb_field'][0];
+	$img = $ops['thumb_field'][1];
 
 	foreach ($zz_tab[0]['upload_fields'] as $uf) {
 		if ($uf['f'] !== intval($no)) continue;

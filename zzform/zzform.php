@@ -128,7 +128,7 @@ function zzform($zz) {
 	if (!empty($zz_conf['export'])) $ops = zz_export_init($ops);
 
 	// set $ops['mode'], $zz['record']['action'], ['id']['value'] and $zz_conf for access
-	list($zz, $ops, $zz_var) = zz_record_access($zz, $ops, $zz_var);
+	list($zz, $ops) = zz_record_access($zz, $ops, $zz_var);
 	$ops['error'] = zz_error_multi($ops['error']);
 
 	// mode won't be changed anymore before record operations
@@ -288,7 +288,7 @@ function zzform($zz) {
 				}
 			}
 		} elseif ($zz['record']['action'] === 'thumbnails') {
-			$ops = zz_upload_thumbnail($ops, $zz_tab, $zz_var);
+			$ops = zz_upload_thumbnail($ops, $zz_tab);
 		}
 
 	//	Query updated, added or editable record
