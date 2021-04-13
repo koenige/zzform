@@ -535,6 +535,10 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					$source_field_value = $zz_var['where'][$zz_tab[$tab]['table_name']][$dependency['source_field_name']];
 					if (!in_array($source_field_value, $dependency['values']))
 						$hidden = true;
+				} elseif ($my_rec['action'] === 'review') {
+					$source_field_value = zz_dependent_value($dependency, $my_rec, $zz_tab);
+					if (!in_array($source_field_value, $dependency['values']))
+						$hidden = true;
 				} elseif (empty($my_rec['id']['value'])) { // add mode
 					// default?
 					$default_selected = false;
