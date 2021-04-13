@@ -187,12 +187,11 @@ function zz_export_links() {
  *			with numerical index corresponding to 'head', each field is array
  *			made of 'class' (= HTML attribute values) and 'text' (= content)
  * @param array $zz
- * @param array $zz_var
  * @global array $zz_conf
  *		$zz_conf['int']['export_script']
  * @return mixed void (direct output) or array $ops
  */
-function zz_export($ops, $zz, $zz_var) {
+function zz_export($ops, $zz) {
 	global $zz_conf;
 	// check if we have data
 	if (!$zz_conf['int']['show_list']) return false;
@@ -240,13 +239,13 @@ function zz_export($ops, $zz, $zz_var) {
 		exit;
 	case 'kml':
 		$zz_conf['character_set'] = 'utf-8';
-		$output = zz_export_kml($ops, $zz, $zz_var);
+		$output = zz_export_kml($ops, $zz);
 		if (!empty($_GET['q'])) $filename .= ' '.wrap_filename($_GET['q']);
 		$headers['filename'] = $filename.'.kml';
 		return wrap_send_text($output, 'kml', 200, $headers);
 	case 'geojson':
 		$zz_conf['character_set'] = 'utf-8';
-		$output = zz_export_geojson($ops, $zz, $zz_var);
+		$output = zz_export_geojson($ops, $zz);
 		if (!empty($_GET['q'])) $filename .= ' '.wrap_filename($_GET['q']);
 		$headers['filename'] = $filename.'.geojson';
 		return wrap_send_text($output, 'js', 200, $headers);
@@ -291,12 +290,11 @@ function zz_export_sort(&$out) {
  *
  * @param array $ops
  * @param array $zz
- * @param array $zz_var
  * @global array $zz_conf
  * @global array $zz_setting
  * @return array $ops
  */
-function zz_export_kml($ops, $zz, $zz_var) {
+function zz_export_kml($ops, $zz) {
 	global $zz_setting;
 	
 	$kml['title'] = utf8_encode(zz_nice_title($ops['heading'], $ops['output']['head'], $ops));
@@ -409,10 +407,9 @@ function zz_export_kml_description($head, $line, $fields) {
  * further fields are saved in 'properties'
  * @param array $ops
  * @param array $zz
- * @param array $zz_var
  * @return array $ops
  */
-function zz_export_geojson($ops, $zz, $zz_var) {
+function zz_export_geojson($ops, $zz) {
 	$fields = [];
 	foreach ($ops['output']['head'] as $no => $column) {
 		if (!empty($column['geojson'])) {
