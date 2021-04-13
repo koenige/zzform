@@ -1283,74 +1283,69 @@ function zz_get_unique_fields($fields) {
  * sets some $zz-definitions for records depending on existing definition for
  * translations, subtabes, uploads, write_once-fields
  *
+ * changes in 'subtables', 'save_old_record', some minor 'fields' 
  * @param array $fields = $zz['fields']
- * @param array $zz_var
- * @return array 
- *		array $zz
- *		'subtables', 'save_old_record', , some minor 'fields' 
- *		changes
- *		array $zz_var
- *			'upload_form'
+ * @return bool 
  */
-function zz_set_fielddefs_for_record($fields, $zz_var) {
+function zz_set_fielddefs_for_record(&$zz) {
 	$rec = 1;
-	$zz_var['subtables'] = [];			// key: $rec, value: $no
-	$zz_var['save_old_record'] = [];	// key: int, value: $no
-	$zz_var['upload_form'] = false;			// false: no upload, true: upload possible
+	$zz['record']['subtables'] = [];			// key: $rec, value: $no
+	$zz['record']['save_old_record'] = [];	// key: int, value: $no
+	$zz['record']['upload_form'] = false;			// false: no upload, true: upload possible
 
-	foreach (array_keys($fields) as $no) {
+	foreach (array_keys($zz['fields']) as $no) {
 		// translations
-		if (!empty($fields[$no]['translate_field_index'])) {
-			$t_index = $fields[$no]['translate_field_index'];
-			if (isset($fields[$t_index]['translation'])
-				AND !$fields[$t_index]['translation']) {
-				unset ($fields[$no]);
+		if (!empty($zz['fields'][$no]['translate_field_index'])) {
+			$t_index = $zz['fields'][$no]['translate_field_index'];
+			if (isset($zz['fields'][$t_index]['translation'])
+				AND !$zz['fields'][$t_index]['translation']) {
+				unset ($zz['fields'][$no]);
 				continue;
 			}
 		}
-		if (!isset($fields[$no]['type'])) continue;
-		switch ($fields[$no]['type']) {
+		if (!isset($zz['fields'][$no]['type'])) continue;
+		switch ($zz['fields'][$no]['type']) {
 		case 'subtable':
 		case 'foreign_table':
 			// save number of subtable, get table_name and check whether sql
 			// is unique, look for upload form as well
-			$zz_var['subtables'][$rec] = $no;
-			if (!isset($fields[$no]['table_name']))
-				$fields[$no]['table_name'] = $fields[$no]['table'];
-			$fields[$no]['subtable'] = $rec;
+			$zz['record']['subtables'][$rec] = $no;
+			if (!isset($zz['fields'][$no]['table_name']))
+				$zz['fields'][$no]['table_name'] = $zz['fields'][$no]['table'];
+			$zz['fields'][$no]['subtable'] = $rec;
 			$rec++;
-			if (!empty($fields[$no]['sql_not_unique'])) {
+			if (!empty($zz['fields'][$no]['sql_not_unique'])) {
 				// must not change record where main record is not directly 
 				// superior to detail record 
 				// - foreign ID would be changed to main record's id
-				$fields[$no]['access'] = 'show';
+				$zz['fields'][$no]['access'] = 'show';
 			}
-			foreach ($fields[$no]['fields'] as $subno => $subfield) {
+			foreach ($zz['fields'][$no]['fields'] as $subno => $subfield) {
 				if (empty($subfield['type'])) continue;
 				switch ($subfield['type']) {
 				case 'upload_image':
-					$zz_var['upload_form'] = true;
+					$zz['record']['upload_form'] = true;
 					break;
 				case 'subtable': 
-					$zz_var['subtables'][$rec] = $no.'-'.$subno;
+					$zz['record']['subtables'][$rec] = $no.'-'.$subno;
 					if (!isset($subfield['table_name']))
-						$fields[$no]['fields'][$subno]['table_name'] = $subfield['table'];
-					$fields[$no]['fields'][$subno]['subtable'] = $rec;
+						$zz['fields'][$no]['fields'][$subno]['table_name'] = $subfield['table'];
+					$zz['fields'][$no]['fields'][$subno]['subtable'] = $rec;
 					$rec++;
 					break;
 				}
 			}
 			break;
 		case 'upload_image':
-			$zz_var['upload_form'] = true;
+			$zz['record']['upload_form'] = true;
 			break;
 		case 'write_once':
 		case 'display':
-			$zz_var['save_old_record'][] = $no;
+			$zz['record']['save_old_record'][] = $no;
 			break;
 		}
 	}
-	return [$fields, $zz_var];
+	return true;
 }
 
 /** 

@@ -29,6 +29,7 @@
  * @param array $ops
  * @param array $zz_tab
  * @param bool $validation
+ * @param array $zz_record = $zz['record']
  * @param array $zz_var
  * @global array $zz_conf
  * @return array ($ops, $zz_tab, $validation)
@@ -36,7 +37,7 @@
  *		zz_validate(), zz_integrity_check(), zz_upload_cleanup(), 
  *		zz_prepare_for_db(), zz_log_sql(), zz_foldercheck(), zz_upload_action()
  */
-function zz_action($ops, $zz_tab, $validation, $zz_var) {
+function zz_action($ops, $zz_tab, $validation, $zz_record, $zz_var) {
 	global $zz_conf;
 	global $zz_setting;
 
@@ -57,7 +58,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	list($ops, $zz_tab) = zz_action_hook($ops, $zz_tab, 'before_upload', 'not_validated');
 	
 	//	### Check for validity, do some operations ###
-	if (!empty($zz_var['upload_form'])) {
+	if (!empty($zz_record['upload_form'])) {
 		// read upload image information, as required
 		$zz_tab = zz_upload_get($zz_tab);
 		if ($zz_var['action'] !== 'delete') {
@@ -102,7 +103,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 			// probably are records
 			if (is_array($zz_tab[0]['integrity']) AND $zz_tab[0]['integrity']['msg_args']) {
 				$validation = false;
-			} elseif ($zz_var['upload_form']) {
+			} elseif ($zz_record['upload_form']) {
 				zz_integrity_check_files($dependent_ids);
 				// @todo allow deletion of files as well
 				// if there's no upload form in main record
@@ -162,7 +163,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	}
 	
 	if (!$validation) {
-		if (!empty($zz_var['upload_form'])) zz_upload_cleanup($zz_tab, false); 
+		if (!empty($zz_record['upload_form'])) zz_upload_cleanup($zz_tab, false); 
 		return zz_return([$ops, $zz_tab, $validation]);
 	}
 
@@ -199,7 +200,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	}
 	if (!$validation) {
 		// delete temporary unused files
-		if (!empty($zz_var['upload_form'])) zz_upload_cleanup($zz_tab, false); 
+		if (!empty($zz_record['upload_form'])) zz_upload_cleanup($zz_tab, false); 
 		return zz_return([$ops, $zz_tab, $validation]);
 	}
 
@@ -459,7 +460,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 
 		$zz_tab[0]['folder'] = zz_foldercheck($zz_tab);
 
-		if (!empty($zz_var['upload_form'])) {
+		if (!empty($zz_record['upload_form'])) {
 			// upload images, delete images, as required
 			$zz_tab = zz_upload_action($zz_tab);
 			$error = zz_error();
@@ -500,7 +501,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_var) {
 	if (empty($ops['result'])) $ops['id'] = 0;
 	
 	// delete temporary unused files
-	if (!empty($zz_var['upload_form'])) zz_upload_cleanup($zz_tab);
+	if (!empty($zz_record['upload_form'])) zz_upload_cleanup($zz_tab);
 	return zz_return([$ops, $zz_tab, $validation]);
 }
 

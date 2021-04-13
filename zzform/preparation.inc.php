@@ -77,11 +77,11 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	$zz_tab[0][0]['unless'] = !empty($zz['unless']) ? $zz['unless'] : [];
 
 	//	### put each table (if more than one) into one array of its own ###
-	foreach ($zz_var['subtables'] as $tab => $no) {
+	foreach ($zz['record']['subtables'] as $tab => $no) {
 		if (strstr($no, '-')) {
 			$nos = explode('-', $no);
 			$my_field = &$zz['fields'][$nos[0]]['fields'][$nos[1]];
-			$main_tab = array_search($nos[0], $zz_var['subtables']);
+			$main_tab = array_search($nos[0], $zz['record']['subtables']);
 		} else {
 			$my_field = &$zz['fields'][$no];
 			$main_tab = 0;
@@ -94,7 +94,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 		}
 		if (zz_error_exit()) return [];
 		$zz_tab[$tab] = zz_get_subrecords(
-			$mode, $my_field, $zz_tab, $tab, $zz_var
+			$mode, $my_field, $zz_tab, $tab, $zz['record'], $zz_var
 		);
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
 			if (!is_numeric($rec)) continue;
@@ -149,8 +149,8 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	// or if there is a display or write_once field (so that it can be used
 	// e. g. for identifiers):
 	if ($zz_var['action'] === 'update' OR $zz_var['action'] === 'delete') {
-		if (count($zz_var['save_old_record']) && !empty($zz_tab[0][0]['existing'])) {
-			foreach ($zz_var['save_old_record'] as $no) {
+		if (count($zz['record']['save_old_record']) && !empty($zz_tab[0][0]['existing'])) {
+			foreach ($zz['record']['save_old_record'] as $no) {
 				if (empty($zz_tab[0][0]['existing'][$zz['fields'][$no]['field_name']])) continue;
 				$_POST[$zz['fields'][$no]['field_name']] 
 					= $zz_tab[0][0]['existing'][$zz['fields'][$no]['field_name']];
@@ -410,10 +410,11 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
  * @param array $field
  * @param array $zz_tab
  * @param int $tab = tabindex
+ * @param array $zz_record = $zz['record']
  * @param array $zz_var
  * @return array $my_tab
  */
-function zz_get_subrecords($mode, $field, $zz_tab, $tab, $zz_var) {
+function zz_get_subrecords($mode, $field, $zz_tab, $tab, $zz_record, $zz_var) {
 	global $zz_conf;
 	
 	$my_tab = $zz_tab[$tab];
@@ -475,7 +476,7 @@ function zz_get_subrecords($mode, $field, $zz_tab, $tab, $zz_var) {
 		// add: no record exists so far
 		if (strstr($my_tab['no'], '-')) {
 			$no = substr($my_tab['no'], 0, strpos($my_tab['no'], '-'));
-			$id_tab = array_search($no, $zz_var['subtables']);
+			$id_tab = array_search($no, $zz_record['subtables']);
 		} else {
 			$id_tab = 0;
 		}

@@ -19,7 +19,7 @@
  *
  * @param array $ops
  *		'output', 'mode', 'result'
- * @param array $zz_record = $zz['record']
+ * @param array $record = $zz['record']
  * @param array $zz_tab
  * @param array $zz_var
  *		'upload_form', 'action'
@@ -28,7 +28,7 @@
  *		'url_self', 'url_self_qs_base', 'url_append', 'character_set'
  * @return string $output
  */
-function zz_record($ops, $zz_record, $zz_tab, $zz_var, $zz_conditions) {
+function zz_record($ops, $record, $zz_tab, $zz_var, $zz_conditions) {
 	global $zz_conf;
 	global $zz_setting;
 
@@ -41,7 +41,6 @@ function zz_record($ops, $zz_record, $zz_tab, $zz_var, $zz_conditions) {
 		}
 	}
 
-	$record = $zz_record;
 	$record['formhead'] = false;
 	$records = false;
 	if (!empty($_GET['delete'])) {
@@ -94,7 +93,7 @@ function zz_record($ops, $zz_record, $zz_tab, $zz_var, $zz_conditions) {
 		}
 		if (!empty($zz_conf['form_anchor']))
 			$record['form_anchor'] = $zz_conf['form_anchor'];
-		$record['upload'] = !empty($zz_var['upload_form']) ? true : false;
+		$record['upload'] = !empty($record['upload_form']) ? true : false;
 		if (!empty($ops['form'])) $record['hook_output'] = $ops['form'];
 	} else {
 		$record['form'] = false;
@@ -205,7 +204,7 @@ function zz_record($ops, $zz_record, $zz_tab, $zz_var, $zz_conditions) {
 
 	if ($display_form) {
 		// output form if necessary
-		$record += zz_display_records($zz_tab, $ops['mode'], $display_form, $zz_var, $zz_conditions);
+		$record += zz_display_records($zz_tab, $ops['mode'], $display_form, $record, $zz_var, $zz_conditions);
 	}
 
 	if (!empty($record['footer']['insert']) AND zz_valid_request('insert')) {
@@ -234,8 +233,8 @@ function zz_record($ops, $zz_record, $zz_tab, $zz_var, $zz_conditions) {
 	if (!empty($zz_conf['int']['js_field_dependencies']) AND $record['form'])
 		$record['js_field_dependencies'] = wrap_template('zzform-js-field-dependencies', $zz_conf['int']['js_field_dependencies']);
 
-	if (!empty($zz_var['upload_form']) AND in_array($ops['mode'], ['add', 'edit'])) {
-		$record['upload_form'] = true;
+	if (!in_array($ops['mode'], ['add', 'edit'])) {
+		$record['upload_form'] = false;
 	}
 	zz_output_wmd_editor();
 	return wrap_template('zzform-record', $record);
@@ -253,7 +252,7 @@ function zz_record($ops, $zz_record, $zz_tab, $zz_var, $zz_conditions) {
  * @global array $zz_conf
  * @return array $output			HTML-Output with all form fields
  */
-function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
+function zz_display_records($zz_tab, $mode, $display, $zz_record, $zz_var, $zz_conditions) {
 	global $zz_conf;
 	
 	if (!$display) return [];
@@ -270,7 +269,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_var, $zz_conditions) {
 	}
 
 	if (in_array($mode, ['add', 'edit', 'revise']) && !empty($zz_conf['upload_MAX_FILE_SIZE'])
-		AND !empty($zz_var['upload_form'])) {
+		AND !empty($zz_record['upload_form'])) {
 		$output['hidden'][] = [
 			'name' => 'MAX_FILE_SIZE',
 			'value' => $zz_conf['upload_MAX_FILE_SIZE']

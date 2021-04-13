@@ -193,7 +193,7 @@ function zzform($zz) {
 		}
 	 	// sets some $zz-definitions for records depending on existing definition for
 		// translations, subtabes, uploads, write_once-fields
-		list($zz['fields'], $zz_var) = zz_set_fielddefs_for_record($zz['fields'], $zz_var);
+		zz_set_fielddefs_for_record($zz);
 	}
 
 	// now we have the correct field definitions	
@@ -247,7 +247,7 @@ function zzform($zz) {
 
 		$validation = true;
 
-		if ($zz_var['subtables'] && $zz_var['action'] !== 'delete')
+		if ($zz['record']['subtables'] && $zz_var['action'] !== 'delete')
 			if (isset($_POST['zz_subtables'])) $validation = false;
 		// just handing over form with values
 		if (isset($_POST['zz_review'])) $validation = false;
@@ -268,7 +268,7 @@ function zzform($zz) {
 		if (in_array($zz_var['action'], ['insert', 'update', 'delete'])) {
 			// check for validity, insert/update/delete record
 			require_once $zz_conf['dir_inc'].'/action.inc.php';
-			list($ops, $zz_tab, $validation) = zz_action($ops, $zz_tab, $validation, $zz_var);
+			list($ops, $zz_tab, $validation) = zz_action($ops, $zz_tab, $validation, $zz['record'], $zz_var);
 			// some minor errors?
 			zz_error();
 			// if an error occured in zz_action, exit
