@@ -418,15 +418,15 @@ function zz_output_redirect($result, $return, $zz_tab) {
  *		'int['where_with_unique_id]' and others
  * @return string $title
  */
-function zz_nice_title($heading, $fields, $zz_var, $mode = false) {
+function zz_nice_title($heading, $fields, $ops, $zz_var, $mode = false) {
 	global $zz_conf;
 
 	// basic title
 	$title = strip_tags($heading);
 
 	// addition: filters
-	if (!empty($zz_var['filter_titles'])) {
-		$title .= $zz_conf['title_separator'].implode($zz_conf['title_separator'], $zz_var['filter_titles']);
+	if (!empty($ops['filter_titles'])) {
+		$title .= $zz_conf['title_separator'].implode($zz_conf['title_separator'], $ops['filter_titles']);
 	}
 	
 	// addition: search
