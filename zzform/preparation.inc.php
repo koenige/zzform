@@ -110,7 +110,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 		}
 	}
 
-	if (!$zz_var['query_records']) return $zz_tab;
+	if (!$zz['record']['query_records']) return $zz_tab;
 
 	if (!empty($zz_conf['int']['id']['value'])) {
 		$zz_tab[0][0]['existing'] = zz_query_single_record(

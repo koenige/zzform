@@ -1393,11 +1393,11 @@ function zz_record_access($zz, $ops, $zz_var) {
 		) {
 			unset($_POST['zz_action']);
 		}
-		$zz_var['query_records'] = true;
+		$zz['record']['query_records'] = true;
 	} elseif (!empty($zz_conf['int']['add_details_return'])) {
-		$zz_var['query_records'] = true;
+		$zz['record']['query_records'] = true;
 	} else {
-		$zz_var['query_records'] = false;
+		$zz['record']['query_records'] = false;
 	}
 	
 	// set mode and action according to $_GET and $_POST variables
@@ -1738,7 +1738,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		$zz_conf['generate_output'] = false;
 		$zz_conf['int']['record'] = true;
 		$zz_var['action'] = 'thumbnails';
-		$zz_var['query_records'] = true;
+		$zz['record']['query_records'] = true;
 		break;
 	default:
 		// now the settings which apply to both record and list
