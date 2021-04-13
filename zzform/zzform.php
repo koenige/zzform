@@ -127,7 +127,7 @@ function zzform($zz) {
 	// might set mode to export
 	if (!empty($zz_conf['export'])) $ops = zz_export_init($ops);
 
-	// set $ops['mode'], $zz_var['action'], ['id']['value'] and $zz_conf for access
+	// set $ops['mode'], $zz['record']['action'], ['id']['value'] and $zz_conf for access
 	list($zz, $ops, $zz_var) = zz_record_access($zz, $ops, $zz_var);
 	$ops['error'] = zz_error_multi($ops['error']);
 
@@ -161,12 +161,12 @@ function zzform($zz) {
 //
 //	Fields, 2nd check after definitions are complete
 //
-	if ($ops['mode'] !== 'add' AND $zz_var['action'] !== 'insert') {
+	if ($ops['mode'] !== 'add' AND $zz['record']['action'] !== 'insert') {
 		$zz_var = zz_write_onces($zz, $zz_var);
 	}
 
 	// if no operations with the record are done, remove zz_fields
-	if (!$zz_var['action'] AND (!$ops['mode'] OR $ops['mode'] === 'list_only'))
+	if (!$zz['record']['action'] AND (!$ops['mode'] OR $ops['mode'] === 'list_only'))
 		unset($zz_var['zz_fields']);
 
 	// Module 'conditions': evaluate conditions
@@ -198,7 +198,7 @@ function zzform($zz) {
 
 	// now we have the correct field definitions	
 	// set type, title etc. where unset
-	$zz['fields'] = zz_fill_out($zz['fields'], $zz_conf['db_name'].'.'.$zz['table'], false, $ops['mode'], $zz_var['action']); 
+	$zz['fields'] = zz_fill_out($zz['fields'], $zz_conf['db_name'].'.'.$zz['table'], false, $ops['mode'], $zz['record']['action']); 
 
 	zz_trigger_error_too_big();
 	zz_error();	// @todo check if this can go into zz_trigger_error_too_big()
@@ -247,7 +247,7 @@ function zzform($zz) {
 
 		$validation = true;
 
-		if ($zz['record']['subtables'] && $zz_var['action'] !== 'delete')
+		if ($zz['record']['subtables'] && $zz['record']['action'] !== 'delete')
 			if (isset($_POST['zz_subtables'])) $validation = false;
 		// just handing over form with values
 		if (isset($_POST['zz_review'])) $validation = false;
@@ -265,10 +265,10 @@ function zzform($zz) {
 			unset($_SESSION['zzform']['delete_via_login']);
 		}
 
-		if (in_array($zz_var['action'], ['insert', 'update', 'delete'])) {
+		if (in_array($zz['record']['action'], ['insert', 'update', 'delete'])) {
 			// check for validity, insert/update/delete record
 			require_once $zz_conf['dir_inc'].'/action.inc.php';
-			list($ops, $zz_tab, $validation) = zz_action($ops, $zz_tab, $validation, $zz['record'], $zz_var);
+			list($ops, $zz_tab, $validation) = zz_action($ops, $zz_tab, $validation, $zz['record']);
 			// some minor errors?
 			zz_error();
 			// if an error occured in zz_action, exit
@@ -283,11 +283,11 @@ function zzform($zz) {
 				if ($ops['redirect_url'] AND empty($ops['html_fragment']))
 					wrap_redirect_change($ops['redirect_url']);
 				if ($ops['redirect_url']) {
-					$zz_var['action'] = false;
+					$zz['record']['action'] = false;
 					$ops['mode'] = 'show';
 				}
 			}
-		} elseif ($zz_var['action'] === 'thumbnails') {
+		} elseif ($zz['record']['action'] === 'thumbnails') {
 			$ops = zz_upload_thumbnail($ops, $zz_tab, $zz_var);
 		}
 
@@ -295,8 +295,8 @@ function zzform($zz) {
 	
 		if (!$validation) {
 			if (!empty($ops['result']) AND wrap_substr($ops['result'], 'partial_')) $ops['mode'] = 'edit';
-			elseif ($zz_var['action'] === 'update') $ops['mode'] = 'edit';
-			elseif ($zz_var['action'] === 'insert') $ops['mode'] = 'add';
+			elseif ($zz['record']['action'] === 'update') $ops['mode'] = 'edit';
+			elseif ($zz['record']['action'] === 'insert') $ops['mode'] = 'add';
 			// this is from zz_access() but since mode has set, has to be
 			// checked against again
 			if (in_array($ops['mode'], ['edit', 'add']) 
@@ -332,7 +332,7 @@ function zzform($zz) {
 	if ($zz_conf['int']['record']) {
 		// display updated, added or editable Record
 		require_once $zz_conf['dir_inc'].'/record.inc.php';
-		$ops['output'] .= zz_record($ops, (!empty($zz['record']) ? $zz['record'] : []), $zz_tab, $zz_var, $zz_conditions);	
+		$ops['output'] .= zz_record($ops, $zz['record'], $zz_tab, $zz_var, $zz_conditions);	
 	} else {
 		if (isset($_GET['delete'])) {
 			// just show heading that record was deleted

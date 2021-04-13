@@ -926,7 +926,7 @@ function zz_write_onces($zz, $zz_var) {
  * @param string $db_table [i. e. db_name.table]
  * @param bool $multiple_times marker for conditions
  * @param string $mode (optional, $ops['mode'])
- * @param string $action (optional, $zz_var['action'])
+ * @param string $action (optional, $zz['record']['action'])
  * @param int $subtable_no number of subtable in definition
  * @return array $fields
  */
@@ -1349,7 +1349,7 @@ function zz_set_fielddefs_for_record(&$zz) {
 }
 
 /** 
- * Sets $ops['mode'], $zz_var['action'] and several $zz_conf-variables
+ * Sets $ops['mode'], $zz['record']['action'] and several $zz_conf-variables
  * according to what the user request and what the user is allowed to request
  * 
  * @param array $zz
@@ -1379,7 +1379,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		}
 	}
 
-	$zz_var['action'] = false;		// action: what database operations are to be done
+	$zz['record']['action'] = false;		// action: what database operations are to be done
 	$zz_conf['int']['record'] = true; // show record somehow (edit, view, ...)
 	
 	if (!empty($_POST['zz_action'])) {
@@ -1512,7 +1512,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 			}
 		} else {
 			// triggers valid database action
-			$zz_var['action'] = $_POST['zz_action']; 
+			$zz['record']['action'] = $_POST['zz_action']; 
 			if (!empty($_POST[$zz_conf['int']['id']['field_name']]))
 				$id_value = $_POST[$zz_conf['int']['id']['field_name']];
 			$ops['mode'] = false;
@@ -1648,7 +1648,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 			$zz_conf['int']['access'] = 'forbidden';
 			$zz_conf['int']['http_status'] = 403;
 			$ops['mode'] = false;
-			$zz_var['action'] = false;
+			$zz['record']['action'] = false;
 		}
 	}
 
@@ -1732,7 +1732,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		$zz_conf['int']['show_list'] = false;
 		$zz_conf['generate_output'] = false;
 		$zz_conf['int']['record'] = true;
-		$zz_var['action'] = 'thumbnails';
+		$zz['record']['action'] = 'thumbnails';
 		$zz['record']['query_records'] = true;
 		break;
 	default:
@@ -1752,7 +1752,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		$zz_conf['int']['show_list'] = false;		// don't show table
 		$no_add = true;
 		if ($ops['mode'] === 'add') $no_add = false;
-		if ($zz_var['action'] === 'insert') $no_add = false;
+		if ($zz['record']['action'] === 'insert') $no_add = false;
 		if ($no_add) $zz_conf['add'] = false; 		// don't show add record (form+links)
 	}
 
@@ -1778,8 +1778,8 @@ function zz_record_access($zz, $ops, $zz_var) {
 			]);
 			$zz_conf['int']['record'] = false;
 		}
-		if (!$zz_conf[$mode] AND $zz_var['action'] === $action) {
-			$zz_var['action'] = false;
+		if (!$zz_conf[$mode] AND $zz['record']['action'] === $action) {
+			$zz['record']['action'] = false;
 			zz_error_log([
 				'msg_dev' => 'Configuration does not allow this action: %s',
 				'msg_dev_args' => [$action],
@@ -1792,7 +1792,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 
 	if ($zz_conf['int']['access'] === 'edit_details_only') $zz['access'] = 'show';
 	if ($zz_conf['int']['access'] === 'edit_details_and_add' 
-		AND $ops['mode'] !== 'add' AND $zz_var['action'] !== 'insert')
+		AND $ops['mode'] !== 'add' AND $zz['record']['action'] !== 'insert')
 		$zz['access'] = 'show';
 
 	// now, mode is set, do something depending on mode

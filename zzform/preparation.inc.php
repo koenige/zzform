@@ -64,7 +64,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 
 	$zz_tab[0]['hooks'] = zz_prepare_hooks($zz);
 	
-	$zz_tab[0][0]['action'] = $zz_var['action'];
+	$zz_tab[0][0]['action'] = $zz['record']['action'];
 	$zz_tab[0][0]['fields'] = $zz['fields'];
 	$zz_tab[0][0]['validation'] = true;
 	$zz_tab[0][0]['record'] = [];
@@ -117,7 +117,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 			$zz_tab[0]['sql'], $zz_tab[0]['table'], $zz_conf['int']['id'], $zz_tab[0]['sqlextra']
 		);
 		$zz_tab[0][0]['existing'] = zz_prepare_record($zz_tab[0][0]['existing'], $zz_tab[0][0]['fields']);
-		if ($zz_var['action'] === 'update' AND !$zz_tab[0][0]['existing']) {
+		if ($zz['record']['action'] === 'update' AND !$zz_tab[0][0]['existing']) {
 			zz_error_exit(true);
 			$sql = wrap_edit_sql($zz_tab[0]['sql'],
 				'WHERE', sprintf('%s.%s = %d',$zz_tab[0]['table'], $zz_conf['int']['id']['field_name'], $zz_conf['int']['id']['value'])
@@ -148,7 +148,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	// do the same if a file might be renamed, deleted ... via upload
 	// or if there is a display or write_once field (so that it can be used
 	// e. g. for identifiers):
-	if ($zz_var['action'] === 'update' OR $zz_var['action'] === 'delete') {
+	if ($zz['record']['action'] === 'update' OR $zz['record']['action'] === 'delete') {
 		if (count($zz['record']['save_old_record']) && !empty($zz_tab[0][0]['existing'])) {
 			foreach ($zz['record']['save_old_record'] as $no) {
 				if (empty($zz_tab[0][0]['existing'][$zz['fields'][$no]['field_name']])) continue;
@@ -445,11 +445,11 @@ function zz_get_subrecords($mode, $field, $zz_tab, $tab, $zz_record, $zz_var) {
 	$rec_tpl['action'] = false;
 
 	// get state
-	if ($mode === 'add' OR $zz_var['action'] === 'insert')
+	if ($mode === 'add' OR $zz_record['action'] === 'insert')
 		$state = 'add';
-	elseif ($mode === 'edit' OR $mode === 'revise' OR $zz_var['action'] === 'update')
+	elseif ($mode === 'edit' OR $mode === 'revise' OR $zz_record['action'] === 'update')
 		$state = 'edit';
-	elseif ($mode === 'delete' OR $zz_var['action'] === 'delete')
+	elseif ($mode === 'delete' OR $zz_record['action'] === 'delete')
 		$state = 'delete';
 	else
 		$state = 'show';
@@ -648,7 +648,7 @@ function zz_get_subrecords($mode, $field, $zz_tab, $tab, $zz_record, $zz_var) {
 		$my_tab = zz_get_subrecords_mode(
 			$my_tab, $rec_tpl, $zz_var, $existing_ids
 		);
-	} elseif ($zz_var['action'] AND !empty($my_tab['POST'])) {
+	} elseif ($zz_record['action'] AND !empty($my_tab['POST'])) {
 		// individual definition
 		foreach (array_keys($records) as $rec) {
 			$my_tab[$rec] = $rec_tpl;
@@ -663,7 +663,7 @@ function zz_get_subrecords($mode, $field, $zz_tab, $tab, $zz_record, $zz_var) {
 			// set values, rewrite POST-Array
 			$my_tab = zz_set_values($my_tab, $rec, $zz_var);
 		}
-	} elseif ($zz_var['action'] AND !empty($field['form_display']) AND $field['form_display'] === 'set') {
+	} elseif ($zz_record['action'] AND !empty($field['form_display']) AND $field['form_display'] === 'set') {
 		// here, we might need an empty record if field is required (min_records_required = 1)
 		$my_tab[0] = $rec_tpl;
 		$my_tab[0]['save_record'] = '';

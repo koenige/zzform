@@ -60,12 +60,12 @@ function zz_record($ops, $record, $zz_tab, $zz_var, $zz_conditions) {
 		$action_before_redirect = '';
 	}
 	if ($zz_tab[0]['record_action'] OR $action_before_redirect) {
-		if ($zz_var['action'] === 'insert' OR $action_before_redirect === 'insert') {
+		if ($record['action'] === 'insert' OR $action_before_redirect === 'insert') {
 			$record['formhead'] = zz_text('record_was_inserted');
-		} elseif (($zz_var['action'] === 'update' AND $ops['result'] === 'successful_update')
+		} elseif (($record['action'] === 'update' AND $ops['result'] === 'successful_update')
 			OR $action_before_redirect === 'update') {
 			$record['formhead'] = zz_text('record_was_updated');
-		} elseif ($zz_var['action'] === 'delete' OR $action_before_redirect === 'delete') {
+		} elseif ($record['action'] === 'delete' OR $action_before_redirect === 'delete') {
 			if ($records) {
 				if ($records === 1) {
 					$record['formhead'] = '1 '.zz_text('record_was_deleted');
@@ -76,7 +76,7 @@ function zz_record($ops, $record, $zz_tab, $zz_var, $zz_conditions) {
 			} else {
 				$record['formhead'] = zz_text('record_was_deleted');
 			}
-		} elseif (($zz_var['action'] === 'update' AND $ops['result'] === 'no_update')
+		} elseif (($record['action'] === 'update' AND $ops['result'] === 'no_update')
 			OR $action_before_redirect === 'noupdate') {
 			$record['formhead'] = zz_text('Record was not updated (no changes were made)');
 		}
@@ -160,10 +160,10 @@ function zz_record($ops, $record, $zz_tab, $zz_var, $zz_conditions) {
 		} else {
 			$record['formhead'] = zz_text(ucfirst($ops['mode']) .' a record');
 		}
-	} elseif ($zz_var['action'] OR $action_before_redirect) {	
+	} elseif ($record['action'] OR $action_before_redirect) {	
 	//	action = insert update review: show form with new values
-		if (!$record['formhead'] AND $zz_var['action']) {
-			$record['formhead'] = zz_text(ucfirst($zz_var['action']).' failed');
+		if (!$record['formhead'] AND $record['action']) {
+			$record['formhead'] = zz_text(ucfirst($record['action']).' failed');
 		}
 	} elseif ($ops['mode'] === 'review') {
 		$record['formhead'] = zz_text('Show a record');
@@ -186,11 +186,11 @@ function zz_record($ops, $record, $zz_tab, $zz_var, $zz_conditions) {
 		$display_form = 'review';
 	} elseif (in_array($ops['mode'], $record_form)) {
 		$display_form = 'form';
-	} elseif ($zz_var['action'] === 'delete') {
+	} elseif ($record['action'] === 'delete') {
 		$display_form = false;
-	} elseif ($zz_var['action'] AND $record['formhead']) {
+	} elseif ($record['action'] AND $record['formhead']) {
 		$display_form = 'review';
-	} elseif ($zz_var['action']) {
+	} elseif ($record['action']) {
 		$display_form = false;
 	} elseif ($ops['mode'] === 'review') {
 		$display_form = 'review';
@@ -276,8 +276,8 @@ function zz_display_records($zz_tab, $mode, $display, $zz_record, $zz_var, $zz_c
 		];
 	}
 	$multiple = !empty($zz_conf['int']['id']['values']) ? true : false;
-	$output['tbody'] = zz_show_field_rows($zz_tab, $mode, $display, $zz_var, $zz_conf_record);
-	$output += zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple);
+	$output['tbody'] = zz_show_field_rows($zz_tab, $mode, $display, $zz_var, $zz_record, $zz_conf_record);
+	$output += zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple);
 	if (zz_error_exit()) return zz_return([]);
 	if ($multiple) {
 		foreach ($zz_conf['int']['id']['values'] as $id_value) {
@@ -338,14 +338,14 @@ function zz_display_records($zz_tab, $mode, $display, $zz_record, $zz_var, $zz_c
  * show table foot for record
  *
  * @param string $mode
- * @param array $zz_var
+ * @param array $zz_record
  * @param array $zz_conf_record
  * @param array $zz_tab
  * @param bool $multiple
  * @global array $zz_conf
  * @return array
  */
-function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
+function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple) {
 	global $zz_conf;
 	$output = [];
 	
@@ -398,7 +398,7 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
 			break;
 		}
 		$output['submit'] = zz_form_element('', $elementvalue, 'submit', false, $fieldattr);
-		if (($cancelurl !== $_SERVER['REQUEST_URI'] OR ($zz_var['action']) OR !empty($_POST))
+		if (($cancelurl !== $_SERVER['REQUEST_URI'] OR ($zz_record['action']) OR !empty($_POST))
 			AND $zz_conf_record['cancel_link']) 
 			// only show cancel link if it is possible to hide form 
 			// @todo expanded to action, not sure if this works on add only forms, 
@@ -442,6 +442,7 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
  * @param array $zz_ab
  * @param string $mode
  * @param string $display
+ * @param array $zz_record 
  * @param array $zz_var 
  *		function calls itself and uses 'horizontal_table_head'
  *		internally, therefore &$zz_var
@@ -454,9 +455,9 @@ function zz_record_tfoot($mode, $zz_var, $zz_conf_record, $zz_tab, $multiple) {
  * @param bool $show_explanation (optional)
  * @return string HTML output
  */
-function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
-	$tab = 0, $rec = 0, $formdisplay = 'vertical', $extra_lastcol = false,
-	$table_count = 0, $show_explanation = true) {
+function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_record,
+	$zz_conf_record, $tab = 0, $rec = 0, $formdisplay = 'vertical',
+	$extra_lastcol = false, $table_count = 0, $show_explanation = true) {
 
 	global $zz_conf;	// Config variables
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
@@ -722,7 +723,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					AND $field_display !== 'form'
 					AND !empty($field['tick_to_save'])) continue;
 				if ($zz_tab[$sub_tab][$sub_rec]['action'] === 'delete'
-					AND $field_display !== 'form' AND $zz_var['action']) continue;
+					AND $field_display !== 'form' AND $zz_record['action']) continue;
 				$details[$d_index] = '';
 
 				$c_subtables++;
@@ -808,7 +809,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 					}
 				}
 				$subtable_rows = zz_show_field_rows($zz_tab, $subtable_mode, 
-					$field_display, $zz_var, $zz_conf_record, $sub_tab, $sub_rec,
+					$field_display, $zz_var, $zz_record, $zz_conf_record, $sub_tab, $sub_rec,
 					$field['form_display'], $lastrow, $sub_rec, $h_show_explanation);
 				if ($field['form_display'] === 'inline') {
 					$matrix = array_merge($matrix, $subtable_rows);
@@ -1019,7 +1020,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 			// output all records
 			//
 			
-			if ($field['type'] === 'write_once' AND ($mode === 'add' OR $zz_var['action'] === 'insert')) {
+			if ($field['type'] === 'write_once' AND ($mode === 'add' OR $zz_record['action'] === 'insert')) {
 				$field['type'] = $field['type_detail'];
 			}
 			if (!isset($my_rec['record_saved'])) $my_rec['record_saved'] = NULL;
@@ -1049,7 +1050,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_conf_record,
 				break;
 
 			case 'password':
-				$outputf = zz_field_password($field, $field_display, $my_rec['record'], $zz_var['action']);
+				$outputf = zz_field_password($field, $field_display, $my_rec['record'], $zz_record['action']);
 				break;
 
 			case 'password_change':

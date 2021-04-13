@@ -30,14 +30,13 @@
  * @param array $zz_tab
  * @param bool $validation
  * @param array $zz_record = $zz['record']
- * @param array $zz_var
  * @global array $zz_conf
  * @return array ($ops, $zz_tab, $validation)
  * @see zz_upload_get(), zz_upload_prepare(), zz_set_subrecord_action(),
  *		zz_validate(), zz_integrity_check(), zz_upload_cleanup(), 
  *		zz_prepare_for_db(), zz_log_sql(), zz_foldercheck(), zz_upload_action()
  */
-function zz_action($ops, $zz_tab, $validation, $zz_record, $zz_var) {
+function zz_action($ops, $zz_tab, $validation, $zz_record) {
 	global $zz_conf;
 	global $zz_setting;
 
@@ -61,7 +60,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record, $zz_var) {
 	if (!empty($zz_record['upload_form'])) {
 		// read upload image information, as required
 		$zz_tab = zz_upload_get($zz_tab);
-		if ($zz_var['action'] !== 'delete') {
+		if ($zz_record['action'] !== 'delete') {
 			$ops['file_upload'] = $zz_tab[0]['file_upload'];
 			// read upload image information, as required
 			$zz_tab = zz_upload_prepare($zz_tab);
@@ -76,7 +75,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record, $zz_var) {
 
 	// hook, if an action directly after validation is required
 	// e. g. geocoding
-	if ($zz_var['action'] !== 'delete') {
+	if ($zz_record['action'] !== 'delete') {
 		list($ops, $zz_tab) = zz_action_hook($ops, $zz_tab, 'after_validation', 'validated');
 	}
 
@@ -126,7 +125,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record, $zz_var) {
 		}
 		// check if enough records, just for subtables ($tab = 1...n)
 		if ($tab AND $my_recs < $my_tab['min_records_required']
-			AND $zz_var['action'] !== 'delete') {
+			AND $zz_record['action'] !== 'delete') {
 			// mark it!
 			$zz_tab[0][0]['fields'][$my_tab['no']]['check_validation'] = false;
 			// show error message
@@ -157,7 +156,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record, $zz_var) {
 	}
 
 	// check timeframe
-	if ($zz_var['action'] === 'insert' AND $validation) {
+	if ($zz_record['action'] === 'insert' AND $validation) {
 		$validation = zz_action_timeframe();
 		if (!$validation) $zz_conf['int']['resend_form_required'] = true;
 	}
@@ -191,7 +190,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record, $zz_var) {
 	}
 
 	// hook, if any other action before insertion/update/delete is required
-	list($ops, $zz_tab) = zz_action_hook($ops, $zz_tab, 'before_'.$zz_var['action'], 'planned');
+	list($ops, $zz_tab) = zz_action_hook($ops, $zz_tab, 'before_'.$zz_record['action'], 'planned');
 	if (!empty($ops['no_validation'])) $validation = false;
 
 	if (zz_error_exit()) { // repeat, might be set in before_action
@@ -455,7 +454,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record, $zz_var) {
 		zz_action_last_update($zz_tab, $result['action']);
 
 		// if any other action after insertion/update/delete is required
-		$change = zz_action_function('after_'.$zz_var['action'], $ops, $zz_tab);
+		$change = zz_action_function('after_'.$zz_record['action'], $ops, $zz_tab);
 		list($ops, $zz_tab) = zz_action_change($ops, $zz_tab, $change);
 
 		$zz_tab[0]['folder'] = zz_foldercheck($zz_tab);
@@ -480,7 +479,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record, $zz_var) {
 		}
 	} else {
 		// Output Error Message
-		if ($zz_var['action'] === 'insert') {
+		if ($zz_record['action'] === 'insert') {
 			// for requery
 			$zz_conf['int']['id']['value'] = false;
 		}

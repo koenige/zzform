@@ -138,20 +138,20 @@ function zz_conditions_check($zz, $mode, $zz_var) {
 			$zz_conditions['bool'][$index] = empty($zz_conf['int']['id']['value']) ? true : false;
 			break;
 		case 'add':
-			if ($mode === 'add' OR $zz_var['action'] === 'insert') {
+			if ($mode === 'add' OR $zz['record']['action'] === 'insert') {
 				$zz_conditions['bool'][$index] = true;
-			} elseif ($mode === 'edit' OR $zz_var['action'] === 'update') {
+			} elseif ($mode === 'edit' OR $zz['record']['action'] === 'update') {
 				// and it is a detail record
 				$zz_conditions['bool'][$index]['add_detail'] = true;
 			}
 			break;
 		case 'edit':
-			if ($mode === 'edit' OR $zz_var['action'] === 'update') {
+			if ($mode === 'edit' OR $zz['record']['action'] === 'update') {
 				$zz_conditions['bool'][$index] = true;
 			}
 			break;
 		case 'delete':
-			if ($mode === 'delete' OR $zz_var['action'] === 'delete') {
+			if ($mode === 'delete' OR $zz['record']['action'] === 'delete') {
 				$zz_conditions['bool'][$index] = true;
 			}
 			break;
@@ -170,7 +170,7 @@ function zz_conditions_check($zz, $mode, $zz_var) {
 		case 'record_mode':
 			if ($mode AND $mode !== 'list_only') {
 				$zz_conditions['bool'][$index] = true;
-			} elseif ($zz_var['action']) {
+			} elseif ($zz['record']['action']) {
 				$zz_conditions['bool'][$index] = true;
 			}
 			break;
@@ -312,7 +312,7 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 			break;
 		case 'record': // for form view (of saved records), list view comes later in zz_list() because requery of record 
 			$zz_conditions['bool'][$index] = [];
-			if (($mode === 'add' OR $zz_var['action'] === 'insert') AND !empty($condition['add'])) {
+			if (($mode === 'add' OR $zz['record']['action'] === 'insert') AND !empty($condition['add'])) {
 				if (!empty($condition['add']['where']) AND !$condition['where']) {
 					// where = '' is a means to make a condition always valid,
 					// this also works for add
@@ -410,7 +410,7 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 			break;
 		case 'query': // just for form view (of saved records), for list view will be later in zz_list()
 			$zz_conditions['bool'][$index] = [];
-			if (($mode === 'add' OR $zz_var['action'] === 'insert') AND !empty($condition['add'])) {
+			if (($mode === 'add' OR $zz['record']['action'] === 'insert') AND !empty($condition['add'])) {
 				if (!empty($condition['add']['always'])) {
 					// mode = 'add': this condition is always true
 					// (because condition is true for this record after being 
