@@ -187,7 +187,7 @@ function zz_list($zz, $ops, $zz_var, $zz_conditions) {
 			];
 		}
 		if ($zz_conf['modules']['debug']) zz_debug('end');
-		$ops = zz_export($ops, $zz, $zz_var);
+		$ops = zz_export($ops, $zz);
 		return zz_return([$ops, $zz_var]);
 	}
 	
