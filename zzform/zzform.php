@@ -105,15 +105,15 @@ function zzform($zz) {
 //	Filter, ID, WHERE
 //
 	// get 'unique_fields', especially 'id' = PRIMARY KEY
-	$zz_var = zz_get_unique_fields($zz['fields']);
+	$success = zz_get_unique_fields($zz['fields']);
 	// exit if there's something wrong with the table definition
-	if (!$zz_var) return zzform_exit($ops);
+	if (!$success) return zzform_exit($ops);
 
 	// check GET 'filter'
 	zz_filter_defaults($zz);
 
 	// get and apply where conditions to SQL query and fields
-	list ($zz, $zz_var) = zz_where_conditions($zz, $zz_var);
+	list ($zz, $zz_var) = zz_where_conditions($zz);
 
 //
 //	Check mode, action, access for record;

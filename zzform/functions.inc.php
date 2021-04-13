@@ -347,14 +347,13 @@ function zz_get_url_self() {
  * results in a WHERE condition applied to the main SQL query
  *
  * @param array $zz ('where', like in $_GET)
- * @param array $zz_var
  * @global array $zz_conf
  *		'filter' will be checked for 'where'-filter and set if there is one
  * @return array array $zz, $zz_var
  *		'where_condition' (conditions set by where, add and filter), 'zz_fields'
  *		(values for fields depending on where conditions)
  */
-function zz_get_where_conditions($zz, $zz_var) {
+function zz_get_where_conditions($zz) {
 	global $zz_conf;
 
 	// WHERE: Add with suggested values
@@ -742,17 +741,16 @@ function zz_in_array_str($needle, $haystack) {
  * get and apply where conditions to SQL query and fields
  *
  * @param array $zz
- * @param array $zz_var
  * @return array
  *		array $zz
  *		array $zz_var
  */
-function zz_where_conditions($zz, $zz_var) {
+function zz_where_conditions($zz) {
 	global $zz_conf;
 
 	// get 'where_conditions' for SQL query from GET add, filter oder where
 	// get 'zz_fields' from GET add
-	list($zz, $zz_var) = zz_get_where_conditions($zz, $zz_var);
+	list($zz, $zz_var) = zz_get_where_conditions($zz);
 
 	// apply where conditions to SQL query
 	$zz['sql_without_where'] = $zz['sql'];
@@ -797,17 +795,17 @@ function zz_where_conditions($zz, $zz_var) {
  * further variables for nice headings etc.
  *
  * @param array $zz_var
- *		'where_condition' from zz_get_where_conditions(), 'unique_fields'
+ *		'where_condition' from zz_get_where_conditions()
  * @param string $sql Main SQL query
  * @param string $table Name of main table
  * @param array $table_for_where (optional)
  * @global array $zz_conf checks for 'modules'['debug']
  *		change: 'where_with_unique_id'
+ *		int[unique_fields]
  * @return array
  *		string $sql = modified main query (if applicable)
  *		array $zz_var
  *			'where', 'where_condition', 'id', 
- *			'unique_fields'
  * @see zz_get_where_conditions(), zz_get_unique_fields()
  */
 function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = []) {
@@ -875,7 +873,7 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = [])
 			} else {
 				$zz_conf['int']['id']['invalid_value'] = $value;
 			}
-		} elseif (in_array($field_name, array_keys($zz_var['unique_fields']))) {
+		} elseif (in_array($field_name, $zz_conf['int']['unique_fields'])) {
 			$zz_conf['int']['where_with_unique_id'] = true;
 		}
 	}
@@ -1255,16 +1253,14 @@ function zz_secret_id($mode, $id = '', $hash = '') {
  * gets unique and id fields for further processing
  *
  * @param array $fields
- * @return array $zz_var
- *		'id'[value], 'id'[field_name], 'unique_fields'
+ * @return bool
  */
 function zz_get_unique_fields($fields) {
 	global $zz_conf;
 
-	$zz_var = [];
 	$zz_conf['int']['id']['value'] = false;
 	$zz_conf['int']['id']['field_name'] = false;
-	$zz_var['unique_fields'] = []; // for WHERE
+	$zz_conf['int']['unique_fields'] = []; // for WHERE
 
 	foreach ($fields AS $field) {
 		// set ID fieldname
@@ -1277,10 +1273,10 @@ function zz_get_unique_fields($fields) {
 		}
 		if (!empty($field['unique']) AND !is_array($field['unique'])) {
 			// 'unique' might be array for subtables
-			$zz_var['unique_fields'][$field['field_name']] = true;
+			$zz_conf['int']['unique_fields'][] = $field['field_name'];
 		}
 	}
-	return $zz_var;
+	return true;
 }
 
 /**
