@@ -699,7 +699,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_record,
 				// no formatting as a subtable if tick_to_save is used
 				$out['td']['attr'][] = 'subtable';
 			}
-			$zz_var['horizontal_table_head'] = false;
 			// go through all detail records
 			$table_open = false;
 			$firstsubtable_no = NULL;
@@ -1248,7 +1247,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, &$zz_var, $zz_record,
 	}
 	if ($formdisplay === 'inline') return $matrix;
 	$matrix = zz_record_sort_matrix($matrix);
-	$output = zz_output_field_rows($matrix, $zz_var, $formdisplay, $extra_lastcol, $tab);
+	$output = zz_output_field_rows($matrix, $formdisplay, $extra_lastcol, $tab);
 	// append_next_type is only valid for single table
 	$zz_conf['int']['append_next_type'] = $old_append_next_type;
 	$zz_conf['int']['add_details_where'] = $old_add_details_where;
@@ -1403,14 +1402,16 @@ function zz_record_field_focus($name, $type) {
  * HTML output of table rows for form
  *
  * @param array $matrix matrix of rows
- * @param array $zz_var 'horizontal_table_head'
  * @param string $formdisplay vertical | horizontal
  * @param string $extra_lastcol (optional)
  * @param int $tab
  * @return string HTML output
  */
-function zz_output_field_rows($matrix, &$zz_var, $formdisplay, $extra_lastcol, $tab) {
+function zz_output_field_rows($matrix, $formdisplay, $extra_lastcol, $tab) {
 	global $zz_conf;
+	static $table_head;
+	if (empty($table_head)) $table_head = [];
+	if (!array_key_exists($tab, $table_head)) $table_head[$tab] = false;
 	$output = '';
 	
 	$th_content = false;
@@ -1458,7 +1459,7 @@ function zz_output_field_rows($matrix, &$zz_var, $formdisplay, $extra_lastcol, $
 		if (!empty($matrix) AND $matrix[0]['separator_before']) {
 			$output .= zz_show_separator($matrix[0]['separator_before'], 1, count($matrix));
 		}
-		if (!$zz_var['horizontal_table_head']) { 
+		if (!$table_head[$tab]) { 
 			// just first detail record with values: show head
 			$output .= '<tr>'."\n";
 			foreach ($matrix as $row) { 
@@ -1467,7 +1468,7 @@ function zz_output_field_rows($matrix, &$zz_var, $formdisplay, $extra_lastcol, $
 			}
 			if ($extra_lastcol) $output .= '<th class="dummy_column">&nbsp;</th>';
 			$output .= '</tr>'."\n";
-			$zz_var['horizontal_table_head'] = true;
+			$table_head[$tab] = true;
 		}
 		$output .= '<tr>';
 		foreach ($matrix as $row) {
