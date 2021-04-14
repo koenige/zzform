@@ -757,15 +757,16 @@ function zz_where_conditions($zz) {
 	$zz['record']['where'] = [];
 	$zz_var = zz_apply_where_conditions($zz, $zz_var, 'list');
 	$zz_var = zz_apply_where_conditions($zz, $zz_var, 'record');
+	if (!$zz['record']['where']) {
+		// shortcout sqlcount is no longer possible
+		unset($zz['sqlcount']);
+	}
+
 	// where with unique ID: remove filters, they do not make sense here
 	// (single record will be shown)
 	if ($zz_conf['int']['where_with_unique_id']) {
 		$zz['filter'] = [];
 		$zz['filter_active'] = [];
-	}
-	if (!$zz['record']['where']) {
-		// shortcout sqlcount is no longer possible
-		unset($zz['sqlcount']);
 	}
 
 	// if GET add already set some values, merge them to field
@@ -816,73 +817,73 @@ function zz_apply_where_conditions(&$zz, $zz_var, $type) {
 	if (!$zz_var['where_condition']) return zz_return($zz_var);
 
 	foreach ($zz_var['where_condition'] as $field_name => $value) {
-		$submitted_field_name = $field_name;
-		if (preg_match('/[a-z_]+\(.+\)/i', trim($field_name))) {
-			// check if field_name comprises some function
-			// CONCAT(bla, blubb), do not change this
-			$table_name = '';
-		} elseif (strstr($field_name, '.')) {
-			// check if field_name comprises table_name
-			$field_tab = explode('.', $field_name);
-			$table_name = wrap_db_escape($field_tab[0]);
-			$field_name = wrap_db_escape($field_tab[1]);
-			unset($field_tab);
-		} else {
-			// allows you to set a different (or none at all) table name 
-			// for WHERE queries
-			if (isset($table_for_where[$field_name]))
-				$table_name = $table_for_where[$field_name];
-			else
-				$table_name = $zz['table'];
-			$field_name = wrap_db_escape($field_name);
-		}
-		$field_reference = $table_name ? $table_name.'.'.$field_name : $field_name;
-		// restrict list view to where, but not to add
-		if (empty($_GET['add'][$submitted_field_name])) {
-			if (!empty($zz_var['where_condition'][$field_name])
-				AND $zz_var['where_condition'][$field_name] === 'NULL')
-			{
-				$zz[$sql_key] = wrap_edit_sql($zz[$sql_key], 'WHERE', 
-					sprintf('ISNULL(%s)', $field_reference)
-				);
-				continue; // don't use NULL as where variable!
-			} elseif (!empty($zz_var['where_condition'][$field_name])
-				AND $zz_var['where_condition'][$field_name] === '!NULL')
-			{
-				$zz[$sql_key] = wrap_edit_sql($zz[$sql_key], 'WHERE', 
-					sprintf('NOT ISNULL(%s)', $field_reference)
-				);
-				continue; // don't use !NULL as where variable!
+			$submitted_field_name = $field_name;
+			if (preg_match('/[a-z_]+\(.+\)/i', trim($field_name))) {
+				// check if field_name comprises some function
+				// CONCAT(bla, blubb), do not change this
+				$table_name = '';
+			} elseif (strstr($field_name, '.')) {
+				// check if field_name comprises table_name
+				$field_tab = explode('.', $field_name);
+				$table_name = wrap_db_escape($field_tab[0]);
+				$field_name = wrap_db_escape($field_tab[1]);
+				unset($field_tab);
 			} else {
-				$zz[$sql_key] = wrap_edit_sql($zz[$sql_key], 'WHERE', 
-					sprintf('%s = "%s"', $field_reference, wrap_db_escape($value))
-				);
+				// allows you to set a different (or none at all) table name 
+				// for WHERE queries
+				if (isset($table_for_where[$field_name]))
+					$table_name = $table_for_where[$field_name];
+				else
+					$table_name = $zz['table'];
+				$field_name = wrap_db_escape($field_name);
 			}
-		}
+			$field_reference = $table_name ? $table_name.'.'.$field_name : $field_name;
+			// restrict list view to where, but not to add
+			if (empty($_GET['add'][$submitted_field_name])) {
+				if (!empty($zz_var['where_condition'][$field_name])
+					AND $zz_var['where_condition'][$field_name] === 'NULL')
+				{
+					$zz[$sql_key] = wrap_edit_sql($zz[$sql_key], 'WHERE', 
+						sprintf('ISNULL(%s)', $field_reference)
+					);
+					continue; // don't use NULL as where variable!
+				} elseif (!empty($zz_var['where_condition'][$field_name])
+					AND $zz_var['where_condition'][$field_name] === '!NULL')
+				{
+					$zz[$sql_key] = wrap_edit_sql($zz[$sql_key], 'WHERE', 
+						sprintf('NOT ISNULL(%s)', $field_reference)
+					);
+					continue; // don't use !NULL as where variable!
+				} else {
+					$zz[$sql_key] = wrap_edit_sql($zz[$sql_key], 'WHERE', 
+						sprintf('%s = "%s"', $field_reference, wrap_db_escape($value))
+					);
+				}
+			}
 
-		$zz['record']['where'][$table_name][$field_name] = $value;
+			$zz['record']['where'][$table_name][$field_name] = $value;
 
-		// if table row is affected by where, mark this
-		if ($zz['table'] === $table_name) {
-			// just for main table
-			$field_index = array_search($field_name, array_column($zz['fields'], 'field_name'));
-			$field_nos = array_keys($zz['fields']);
-			$no = $field_nos[$field_index];
-			if (!empty($zz['fields'][$no]['class']) AND !is_array($zz['fields'][$no]['class']))
-				$zz['fields'][$no]['class'] = [$zz['fields'][$no]['class']];
-			$zz['fields'][$no]['class'][] = 'where';
-		}
+			// if table row is affected by where, mark this
+			if ($zz['table'] === $table_name) {
+				// just for main table
+				$field_index = array_search($field_name, array_column($zz['fields'], 'field_name'));
+				$field_nos = array_keys($zz['fields']);
+				$no = $field_nos[$field_index];
+				if (!empty($zz['fields'][$no]['class']) AND !is_array($zz['fields'][$no]['class']))
+					$zz['fields'][$no]['class'] = [$zz['fields'][$no]['class']];
+				$zz['fields'][$no]['class'][] = 'where';
+			}
 
-		if ($field_name === $zz_conf['int']['id']['field_name']) {
-			if (intval($value).'' === $value.'') {
+			if ($field_name === $zz_conf['int']['id']['field_name']) {
+				if (intval($value).'' === $value.'') {
+					$zz_conf['int']['where_with_unique_id'] = true;
+					$zz_conf['int']['id']['value'] = $value;
+				} else {
+					$zz_conf['int']['id']['invalid_value'] = $value;
+				}
+			} elseif (in_array($field_name, $zz_conf['int']['unique_fields'])) {
 				$zz_conf['int']['where_with_unique_id'] = true;
-				$zz_conf['int']['id']['value'] = $value;
-			} else {
-				$zz_conf['int']['id']['invalid_value'] = $value;
 			}
-		} elseif (in_array($field_name, $zz_conf['int']['unique_fields'])) {
-			$zz_conf['int']['where_with_unique_id'] = true;
-		}
 	}
 	// in case where is not combined with ID field but UNIQUE field
 	// (e. g. identifier with UNIQUE KEY) retrieve value for ID field from 
