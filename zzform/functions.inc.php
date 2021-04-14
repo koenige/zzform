@@ -754,9 +754,8 @@ function zz_where_conditions($zz) {
 
 	// apply where conditions to SQL query
 	$zz['sql_without_where'] = $zz['sql'];
-	$table_for_where = isset($zz['table_for_where']) ? $zz['table_for_where'] : [];
 	list($zz, $zz_var) = zz_apply_where_conditions(
-		$zz, $zz_var, 'list', $zz['table'], $table_for_where
+		$zz, $zz_var, 'list'
 	);
 	// where with unique ID: remove filters, they do not make sense here
 	// (single record will be shown)
@@ -765,7 +764,7 @@ function zz_where_conditions($zz) {
 		$zz['filter_active'] = [];
 	}
 	list($zz, $zz_var) = zz_apply_where_conditions( 
-		$zz, $zz_var, 'record', $zz['table'], $table_for_where
+		$zz, $zz_var, 'record'
 	);
 	if (!empty($zz_var['where'])) {
 		// shortcout sqlcount is no longer possible
@@ -796,8 +795,6 @@ function zz_where_conditions($zz) {
  * @param array $zz_var
  *		'where_condition' from zz_get_where_conditions()
  * @param string $type apply conditions for which type? [list, record]
- * @param string $table Name of main table
- * @param array $table_for_where (optional)
  * @global array $zz_conf checks for 'modules'['debug']
  *		change: 'where_with_unique_id'
  *		int[unique_fields]
@@ -807,9 +804,10 @@ function zz_where_conditions($zz) {
  *			'where', 'where_condition', 'id', 
  * @see zz_get_where_conditions(), zz_get_unique_fields()
  */
-function zz_apply_where_conditions($zz, $zz_var, $type, $table, $table_for_where = []) {
+function zz_apply_where_conditions($zz, $zz_var, $type) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	$table_for_where = isset($zz['table_for_where']) ? $zz['table_for_where'] : [];
 
 	switch ($type) {
 		case 'list': $sql_key = 'sql'; break; // $zz['sql']
@@ -840,7 +838,7 @@ function zz_apply_where_conditions($zz, $zz_var, $type, $table, $table_for_where
 			if (isset($table_for_where[$field_name]))
 				$table_name = $table_for_where[$field_name];
 			else
-				$table_name = $table;
+				$table_name = $zz['table'];
 			$field_name = wrap_db_escape($field_name);
 		}
 		$field_reference = $table_name ? $table_name.'.'.$field_name : $field_name;
