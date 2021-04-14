@@ -148,8 +148,7 @@ function zz_list($zz, $ops, $zz_conditions) {
 		}
 		unset($lines);
 
-		$list['where_values'] = !empty($list['where'][$zz['table']]) ? $list['where'][$zz['table']] : '';
-		$head = zz_list_head($table_defs[0], $list['where_values'], $list['columns']);
+		$head = zz_list_head($table_defs[0], $list['columns']);
 		unset($table_defs);
 	}
 
@@ -1331,11 +1330,9 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode, $zz
 
 	// set 'class'
 	if (!isset($row['class'])) $row['class'] = [];
-	// if table row is affected by where, mark this
-	$where_table = !empty($list['where'][$table]) ? $list['where'][$table] : '';
 	// set class depending on where and field info
 	$field['level'] = zz_list_field_level($list, $field, $line);
-	$row['class'] = array_merge($row['class'], zz_field_class($field, $where_table));
+	$row['class'] = array_merge($row['class'], zz_field_class($field));
 				
 	// set 'text'
 	if (empty($row['text'])) $row['text'] = '';
@@ -1594,12 +1591,11 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode, $zz
  *
  * @param array $table_defs
  * @param int $z
- * @param array $table (foreign_key_field_name => value)
  * @param array $sum (field_name => value)
  * @global array $zz_conf ($zz_conf['int']['group_field_no'])
  * @return string HTML output of table foot
  */
-function zz_field_sum($table_defs, $z, $table, $sum) {
+function zz_field_sum($table_defs, $z, $sum) {
 	global $zz_conf;
 	$tfoot_line = '';
 	foreach ($table_defs as $index => $field) {
@@ -1608,7 +1604,7 @@ function zz_field_sum($table_defs, $z, $table, $sum) {
 		if ($field['type'] === 'id' && empty($field['show_id'])) {
 			$tfoot_line .= '<td class="recordid">'.$z.'</td>';
 		} elseif (!empty($field['sum'])) {
-			$tfoot_line .= '<td'.zz_field_class($field, (!empty($table) ? $table : ''), true).'>';
+			$tfoot_line .= '<td'.zz_field_class($field, true).'>';
 			$value = $sum[$field['title']];
 			if (isset($field['calculation']) AND $field['calculation'] === 'hours') {
 				$value = zz_hour_format($value);
@@ -1625,7 +1621,7 @@ function zz_field_sum($table_defs, $z, $table, $sum) {
 			$tfoot_line .= '</td>';
 		} else {
 			$tfoot_line .= '<td'
-				.zz_field_class($field, (!empty($table) ? $table : ''), true)
+				.zz_field_class($field, true)
 				.'>&nbsp;</td>';
 		}
 	}
@@ -1875,10 +1871,9 @@ function zz_list_group_sum($row_group, $sum_group, $field_title, $sum) {
  * @param array $rowgroup
  * @param array $main_table_query ($head from zz_list)
  * @param int $z
- * @param array $where_values
  * @param array $sum_group
  */
-function zz_list_group_foot($rowgroup, $main_table_query, $z, $where_values, $sum_group) {
+function zz_list_group_foot($rowgroup, $main_table_query, $z, $sum_group) {
 	$my_index = '';
 	foreach ($rowgroup as $my_group) {
 		if ($my_index) $my_index .= '['.$my_group.']';
@@ -1886,7 +1881,7 @@ function zz_list_group_foot($rowgroup, $main_table_query, $z, $where_values, $su
 	}
 	if (empty($sum_group[$my_index])) return false;
 	return '<tr class="group_sum">'
-		.zz_field_sum($main_table_query, $z, $where_values, $sum_group[$my_index])
+		.zz_field_sum($main_table_query, $z, $sum_group[$my_index])
 		.'</tr>'."\n";
 }
 
@@ -2497,11 +2492,10 @@ function zz_list_show_group_fields($table_defs, $list) {
  * note: for export, all columns have to be returned
  *
  * @param array $head
- * @param array $where_values
  * @param array $columns (list of columns that should appear)
  * @return array
  */
-function zz_list_head($old_head, $where_values, $columns) {
+function zz_list_head($old_head, $columns) {
 	$j = 0;
 
 	$continue_next = false;
@@ -2518,11 +2512,11 @@ function zz_list_head($old_head, $where_values, $columns) {
 		$head[$col_index]['th_nohtml'] = zz_list_th($field, 'nohtml');
 		if ($field['show_field']) {
 			$j = $col_index;
-			$head[$j]['class'] = zz_field_class($field, $where_values);
+			$head[$j]['class'] = zz_field_class($field);
 			$head[$j]['th'] = zz_list_th($field);
 		} elseif (!empty($field['list_append_show_title'])) {
 			// Add to previous field
-			$head[$j]['class'] = array_merge($head[$j]['class'], zz_field_class($field, $where_values));
+			$head[$j]['class'] = array_merge($head[$j]['class'], zz_field_class($field));
 			$head[$j]['th'] .= ' / '.zz_list_th($field);
 			$head[$j]['th_nohtml'] .= ' / '.zz_list_th($field, 'nohtml');
 		}
@@ -2534,12 +2528,11 @@ function zz_list_head($old_head, $where_values, $columns) {
  * sets class attribute if necessary
  * 
  * @param array $field
- * @param array $values
  * @param bool $html (optional; true: output of HTML attribute)
  * @return mixed array $class list of strings with class names /
  *		string HTML output class="..."
  */
-function zz_field_class($field, $values, $html = false) {
+function zz_field_class($field, $html = false) {
 	$class = [];
 	if (!empty($field['level']))
 		$class[] = 'level'.$field['level'];
@@ -2555,12 +2548,6 @@ function zz_field_class($field, $values, $html = false) {
 		elseif (!empty($field['row_value']) AND $field['row_value'] === $_GET['order'])
 			$class[] = 'order';
 	}
-	if ($values)
-		if (isset($field['field_name']) AND empty($field['dont_show_where_class'])) {
-		// does not apply for subtables!
-			if (array_key_exists($field['field_name'], $values)) 
-				$class[] = 'where';
-		}
 	if (!empty($field['class'])) {
 		// we may go through this twice
 		$class = array_merge($class, $field['class']);
@@ -2577,7 +2564,6 @@ function zz_field_class($field, $values, $html = false) {
  * outputs data in table format
  *
  * @param array $list
- *		array 'where_values'
  *		bool 'modes'
  *		bool 'details'
  *		string 'sum'
@@ -2620,7 +2606,7 @@ function zz_list_table($list, $rows, $head) {
 		$output .= '<tfoot>'."\n";
 		if ($list['sum']) {
 			$output .= '<tr class="sum">';
-			$output .= zz_field_sum($head, count($rows), $list['where_values'], $list['sum']);
+			$output .= zz_field_sum($head, count($rows), $list['sum']);
 			if ($list['modes'] OR $list['details'])
 				$output .= '<td class="editbutton">&nbsp;</td>';
 			$output .= '</tr>'."\n";
@@ -2643,7 +2629,7 @@ function zz_list_table($list, $rows, $head) {
 				$my_old_groups = $row['group'];
 				while ($my_groups) {
 					if ($list['tfoot'])
-						$output .= zz_list_group_foot($my_groups, $head, count($rows), $list['where_values'], $list['sum_group']);
+						$output .= zz_list_group_foot($my_groups, $head, count($rows), $list['sum_group']);
 					array_pop($my_groups);
 					array_pop($my_old_groups);
 					if ($my_groups == $my_old_groups) break;
@@ -2686,7 +2672,7 @@ function zz_list_table($list, $rows, $head) {
 	if ($list['tfoot'] AND $rowgroup) {
 		$my_groups = $rowgroup;
 		while ($my_groups) {
-			$output .= zz_list_group_foot($my_groups, $head, count($rows), $list['where_values'], $list['sum_group']);
+			$output .= zz_list_group_foot($my_groups, $head, count($rows), $list['sum_group']);
 			array_pop($my_groups);
 		}
 	}

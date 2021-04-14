@@ -755,8 +755,8 @@ function zz_where_conditions($zz) {
 	// apply where conditions to SQL query
 	$zz['sql_without_where'] = $zz['sql'];
 	$table_for_where = isset($zz['table_for_where']) ? $zz['table_for_where'] : [];
-	list($zz['sql'], $zz_var) = zz_apply_where_conditions(
-		$zz_var, $zz['sql'], $zz['table'], $table_for_where
+	list($zz, $zz_var) = zz_apply_where_conditions(
+		$zz, $zz_var, 'list', $zz['table'], $table_for_where
 	);
 	// where with unique ID: remove filters, they do not make sense here
 	// (single record will be shown)
@@ -764,8 +764,8 @@ function zz_where_conditions($zz) {
 		$zz['filter'] = [];
 		$zz['filter_active'] = [];
 	}
-	list($zz['sqlrecord'], $zz_var) = zz_apply_where_conditions(
-		$zz_var, $zz['sqlrecord'], $zz['table'], $table_for_where
+	list($zz, $zz_var) = zz_apply_where_conditions( 
+		$zz, $zz_var, 'record', $zz['table'], $table_for_where
 	);
 	if (!empty($zz_var['where'])) {
 		// shortcout sqlcount is no longer possible
@@ -792,9 +792,10 @@ function zz_where_conditions($zz) {
  * applies where conditions to get different sql query, id values and some
  * further variables for nice headings etc.
  *
+ * @param array $zz
  * @param array $zz_var
  *		'where_condition' from zz_get_where_conditions()
- * @param string $sql Main SQL query
+ * @param string $type apply conditions for which type? [list, record]
  * @param string $table Name of main table
  * @param array $table_for_where (optional)
  * @global array $zz_conf checks for 'modules'['debug']
@@ -806,15 +807,20 @@ function zz_where_conditions($zz) {
  *			'where', 'where_condition', 'id', 
  * @see zz_get_where_conditions(), zz_get_unique_fields()
  */
-function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = []) {
+function zz_apply_where_conditions($zz, $zz_var, $type, $table, $table_for_where = []) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+
+	switch ($type) {
+		case 'list': $sql_key = 'sql'; break; // $zz['sql']
+		case 'record': $sql_key = 'sqlrecord'; break; // $zz['sqlrecord']
+	}
 
 	// set some keys
 	$zz_var['where'] = false;
 	$zz_conf['int']['where_with_unique_id'] = false;
 	
-	if (!$zz_var['where_condition']) return zz_return([$sql, $zz_var]);
+	if (!$zz_var['where_condition']) return zz_return([$zz, $zz_var]);
 
 	foreach ($zz_var['where_condition'] as $field_name => $value) {
 		$submitted_field_name = $field_name;
@@ -843,26 +849,36 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = [])
 			if (!empty($zz_var['where_condition'][$field_name])
 				AND $zz_var['where_condition'][$field_name] === 'NULL')
 			{
-				$sql = wrap_edit_sql($sql, 'WHERE', 
+				$zz[$sql_key] = wrap_edit_sql($zz[$sql_key], 'WHERE', 
 					sprintf('ISNULL(%s)', $field_reference)
 				);
 				continue; // don't use NULL as where variable!
 			} elseif (!empty($zz_var['where_condition'][$field_name])
 				AND $zz_var['where_condition'][$field_name] === '!NULL')
 			{
-				$sql = wrap_edit_sql($sql, 'WHERE', 
+				$zz[$sql_key] = wrap_edit_sql($zz[$sql_key], 'WHERE', 
 					sprintf('NOT ISNULL(%s)', $field_reference)
 				);
 				continue; // don't use !NULL as where variable!
 			} else {
-				$sql = wrap_edit_sql($sql, 'WHERE', 
+				$zz[$sql_key] = wrap_edit_sql($zz[$sql_key], 'WHERE', 
 					sprintf('%s = "%s"', $field_reference, wrap_db_escape($value))
 				);
 			}
 		}
 
-// hier auch fuer write_once
 		$zz_var['where'][$table_name][$field_name] = $value;
+
+		// if table row is affected by where, mark this
+		if ($zz['table'] === $table_name) {
+			// just for main table
+			$field_index = array_search($field_name, array_column($zz['fields'], 'field_name'));
+			$field_nos = array_keys($zz['fields']);
+			$no = $field_nos[$field_index];
+			if (!empty($zz['fields'][$no]['class']) AND !is_array($zz['fields'][$no]['class']))
+				$zz['fields'][$no]['class'] = [$zz['fields'][$no]['class']];
+			$zz['fields'][$no]['class'][] = 'where';
+		}
 
 		if ($field_name === $zz_conf['int']['id']['field_name']) {
 			if (intval($value).'' === $value.'') {
@@ -879,8 +895,8 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = [])
 	// (e. g. identifier with UNIQUE KEY) retrieve value for ID field from 
 	// database
 	if (!$zz_conf['int']['id']['value'] AND $zz_conf['int']['where_with_unique_id']) {
-		if ($zz_conf['modules']['debug']) zz_debug('where_conditions', $sql);
-		$line = zz_db_fetch($sql, '_dummy_', 'numeric', 'WHERE; ambiguous values in ID?');
+		if ($zz_conf['modules']['debug']) zz_debug('where_conditions', $zz[$sql_key]);
+		$line = zz_db_fetch($zz[$sql_key], '_dummy_', 'numeric', 'WHERE; ambiguous values in ID?');
 		// 0 (=add) or 1 records: 'where_with_unique_id' remains true
 		if (count($line) === 1 AND !empty($line[0][$zz_conf['int']['id']['field_name']])) {
 			$zz_conf['int']['id']['value'] = $line[0][$zz_conf['int']['id']['field_name']];
@@ -889,7 +905,7 @@ function zz_apply_where_conditions($zz_var, $sql, $table, $table_for_where = [])
 		}
 	}
 	
-	return zz_return([$sql, $zz_var]);
+	return zz_return([$zz, $zz_var]);
 }
 
 /**
