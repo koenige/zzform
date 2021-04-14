@@ -232,7 +232,8 @@ function zzform($zz) {
 		if (in_array('upload', $zz_conf['modules']) && $zz_conf['modules']['upload'])
 			zz_upload_check_max_file_size();
 		
-		$zz_tab = zz_prepare_tables($zz, $zz_var, $ops['mode']);
+		$zz['record']['where'] = !empty($zz_var['where']) ? $zz_var['where'] : [];
+		$zz_tab = zz_prepare_tables($zz, $ops['mode']);
 		if (!$zz_tab) return zzform_exit($ops);
 		// @todo keep track of current values for ID separately
 		$zz_tab[0][0]['id'] = &$zz_conf['int']['id'];
@@ -333,7 +334,6 @@ function zzform($zz) {
 	if ($zz_conf['int']['record']) {
 		// display updated, added or editable Record
 		require_once $zz_conf['dir_inc'].'/record.inc.php';
-		$zz['record']['where'] = !empty($zz_var['where']) ? $zz_var['where'] : [];
 		$ops['output'] .= zz_record($ops, $zz['record'], $zz_tab, $zz_conditions);	
 	} else {
 		if (isset($_GET['delete'])) {

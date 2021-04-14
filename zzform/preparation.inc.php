@@ -18,11 +18,10 @@
  *  for 'action' and 'record'-modules
  *
  * @param array $zz
- * @param array $zz_var
  * @param string $mode ($ops['mode'])
  * @return array $zz_tab
  */
-function zz_prepare_tables($zz, $zz_var, $mode) {
+function zz_prepare_tables($zz, $mode) {
 	global $zz_conf;
 
 	$zz_tab = [];
@@ -42,7 +41,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	$zz_tab[0]['dont_reformat'] = !empty($_POST['zz_subtables']) ? true : false;
 	$zz_tab[0]['record_action'] = false;
 	$zz_tab[0]['add_details_return_field'] = !empty($zz['add_details_return_field']) ? $zz['add_details_return_field'] : '';
-	$zz_tab[0]['where'] = !empty($zz_var['where'][$zz['table']]) ? $zz_var['where'][$zz['table']] : [];
+	$zz_tab[0]['where'] = !empty($zz['record']['where'][$zz['table']]) ? $zz['record']['where'][$zz['table']] : [];
 
 	if (!empty($zz['set_redirect'])) {
 		// update/insert redirects after_delete and after_update
@@ -89,8 +88,8 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 		}
 		if (!empty($my_field['hide_in_form'])) continue;
 		$zz_tab[$tab] = zz_get_subtable($my_field, $zz_tab[$main_tab], $tab, $no);
-		$zz_tab[$tab]['where'] = !empty($zz_var['where'][$zz_tab[$tab]['table']])
-			? $zz_var['where'][$zz_tab[$tab]['table']] : [];
+		$zz_tab[$tab]['where'] = !empty($zz['record']['where'][$zz_tab[$tab]['table']])
+			? $zz['record']['where'][$zz_tab[$tab]['table']] : [];
 		if (in_array($mode, ['revise', 'show']) AND $zz_tab[$tab]['values']) {
 			// don't show values which are not saved in show-record mode
 			$zz_tab[$tab]['values'] = [];
