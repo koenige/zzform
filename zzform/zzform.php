@@ -232,7 +232,6 @@ function zzform($zz) {
 		if (in_array('upload', $zz_conf['modules']) && $zz_conf['modules']['upload'])
 			zz_upload_check_max_file_size();
 		
-		$zz['record']['where'] = !empty($zz_var['where']) ? $zz_var['where'] : [];
 		$zz_tab = zz_prepare_tables($zz, $ops['mode']);
 		if (!$zz_tab) return zzform_exit($ops);
 		// @todo keep track of current values for ID separately

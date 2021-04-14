@@ -754,19 +754,16 @@ function zz_where_conditions($zz) {
 
 	// apply where conditions to SQL query
 	$zz['sql_without_where'] = $zz['sql'];
-	list($zz, $zz_var) = zz_apply_where_conditions(
-		$zz, $zz_var, 'list'
-	);
+	$zz['record']['where'] = [];
+	$zz_var = zz_apply_where_conditions($zz, $zz_var, 'list');
+	$zz_var = zz_apply_where_conditions($zz, $zz_var, 'record');
 	// where with unique ID: remove filters, they do not make sense here
 	// (single record will be shown)
 	if ($zz_conf['int']['where_with_unique_id']) {
 		$zz['filter'] = [];
 		$zz['filter_active'] = [];
 	}
-	list($zz, $zz_var) = zz_apply_where_conditions( 
-		$zz, $zz_var, 'record'
-	);
-	if (!empty($zz_var['where'])) {
+	if (!$zz['record']['where']) {
 		// shortcout sqlcount is no longer possible
 		unset($zz['sqlcount']);
 	}
@@ -799,12 +796,11 @@ function zz_where_conditions($zz) {
  *		change: 'where_with_unique_id'
  *		int[unique_fields]
  * @return array
- *		string $sql = modified main query (if applicable)
  *		array $zz_var
  *			'where', 'where_condition', 'id', 
  * @see zz_get_where_conditions(), zz_get_unique_fields()
  */
-function zz_apply_where_conditions($zz, $zz_var, $type) {
+function zz_apply_where_conditions(&$zz, $zz_var, $type) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$table_for_where = isset($zz['table_for_where']) ? $zz['table_for_where'] : [];
@@ -815,10 +811,9 @@ function zz_apply_where_conditions($zz, $zz_var, $type) {
 	}
 
 	// set some keys
-	$zz_var['where'] = false;
 	$zz_conf['int']['where_with_unique_id'] = false;
 	
-	if (!$zz_var['where_condition']) return zz_return([$zz, $zz_var]);
+	if (!$zz_var['where_condition']) return zz_return($zz_var);
 
 	foreach ($zz_var['where_condition'] as $field_name => $value) {
 		$submitted_field_name = $field_name;
@@ -865,7 +860,7 @@ function zz_apply_where_conditions($zz, $zz_var, $type) {
 			}
 		}
 
-		$zz_var['where'][$table_name][$field_name] = $value;
+		$zz['record']['where'][$table_name][$field_name] = $value;
 
 		// if table row is affected by where, mark this
 		if ($zz['table'] === $table_name) {
@@ -903,7 +898,7 @@ function zz_apply_where_conditions($zz, $zz_var, $type) {
 		}
 	}
 	
-	return zz_return([$zz, $zz_var]);
+	return zz_return($zz_var);
 }
 
 /**
@@ -916,7 +911,7 @@ function zz_apply_where_conditions($zz, $zz_var, $type) {
  * @param array $zz_var
  * @return array $zz_var
  */
-function zz_write_onces($zz, $zz_var) {
+function zz_write_onces(&$zz, $zz_var) {
 	foreach ($zz['fields'] as $field) {
 		// get write once fields so we can base conditions (scope=values) on them
 		if (empty($field['type'])) continue;
@@ -925,7 +920,7 @@ function zz_write_onces($zz, $zz_var) {
 		if (!empty($zz_var['where_condition'][$field_name])) continue;
 
 		$zz_var['where_condition'][$field_name] = '';
-		$zz_var['where'][$zz['table']][$field_name] = '';
+		$zz['record']['where'][$zz['table']][$field_name] = '';
 	}
 	return $zz_var;
 }

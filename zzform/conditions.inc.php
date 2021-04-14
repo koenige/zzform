@@ -324,7 +324,7 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 					// $zz['add']['field_name' => 'main_product_id', 'value' => '!NULL']
 					if (preg_match('/^NOT ISNULL\((.+)\)$/', $condition['where'], $matches)) {
 						if (isset($matches[1])) {
-							if (!empty($zz_var['where'][$zz['table']][$matches[1]])) {
+							if (!empty($zz['record']['where'][$zz['table']][$matches[1]])) {
 								$zz_conditions['bool'][$index][0] = true;
 								break;
 							}
@@ -349,8 +349,8 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 					if (substr($cond_fields[2], 0, 1) === '"' AND substr($cond_fields[2], -1) === '"') {
 						$cond_fields[2] = substr($cond_fields[2], 1, -1);
 					}
-					if (!empty($zz_var['where'][$zz['table']])) {
-						foreach ($zz_var['where'][$zz['table']] as $field => $id) {
+					if (!empty($zz['record']['where'][$zz['table']])) {
+						foreach ($zz['record']['where'][$zz['table']] as $field => $id) {
 							if ($field !== $cond_fields[0]) continue;
 							if ($id !== $cond_fields[2]) continue;
 							$zz_conditions['bool'][$index][0] = true;
@@ -369,9 +369,9 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 						$table = $zz['table'];
 						$field_name = $condition['add']['key_field_name'];
 					}
-					if (!empty($zz_var['where'][$table][$field_name])) {
+					if (!empty($zz['record']['where'][$table][$field_name])) {
 						$sql = $condition['add']['sql']
-							.'"'.$zz_var['where'][$table][$field_name].'"';
+							.'"'.$zz['record']['where'][$table][$field_name].'"';
 						if (!empty($condition['where']))
 							$sql = wrap_edit_sql($sql, 'WHERE', $condition['where']);
 						if (!empty($condition['having']))
@@ -419,7 +419,7 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 					break;
 				}
 				$sql = $condition['add']['sql']
-					.'"'.$zz_var['where'][$zz['table']][$condition['add']['key_field_name']].'"';
+					.'"'.$zz['record']['where'][$zz['table']][$condition['add']['key_field_name']].'"';
 				if (zz_db_fetch($sql, '', '', 'record-new ['.$index.']')) {
 					$zz_conditions['bool'][$index][0] = true;
 				} else {
@@ -447,8 +447,8 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 			if (!empty($zz['record']['zz_fields'][$condition['field_name']])) {
 				// Add, so get it from session
 				$value = $zz['record']['zz_fields'][$condition['field_name']]['value'];
-			} elseif (!empty($zz_var['where'][$zz['table']][$condition['field_name']])) {
-				$value = $zz_var['where'][$zz['table']][$condition['field_name']];
+			} elseif (!empty($zz['record']['where'][$zz['table']][$condition['field_name']])) {
+				$value = $zz['record']['where'][$zz['table']][$condition['field_name']];
 			} else {
 				$sql = $zz['sqlrecord'];
 				$sql = wrap_edit_sql($sql, 'WHERE', sprintf(
