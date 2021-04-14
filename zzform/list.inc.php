@@ -2533,12 +2533,17 @@ function zz_list_head($old_head, $columns) {
  *		string HTML output class="..."
  */
 function zz_field_class($field, $html = false) {
+	static $append;
+	if (empty($append)) $append = false;
 	$class = [];
+
+	if (!empty($field['list_append_next'])) $append = 2;
 	if (!empty($field['level']))
 		$class[] = 'level'.$field['level'];
 	if ($field['type'] === 'id' && empty($field['show_id']))
 		$class[] = 'recordid';
-	elseif (in_array($field['type'], ['number', 'calculated', 'sequence', 'date']))
+	elseif (in_array($field['type'], ['number', 'calculated', 'sequence', 'date'])
+		AND !$append)
 		$class[] = 'number';
 	if (!empty($_GET['order']) AND empty($field['dont_sort'])) {
 		if (!empty($field['field_name']) AND $field['field_name'] === $_GET['order'])
@@ -2554,7 +2559,8 @@ function zz_field_class($field, $html = false) {
 	}
 	// array_keys(array_flip()) is reported to be faster than array_unique()
 	$class = array_keys(array_flip($class));
-
+	
+	$append--;
 	if (!$html) return $class;
 	if (!$class) return false;
 	return ' class="'.implode(' ', $class).'"';
