@@ -100,6 +100,7 @@ function zzform($zz) {
 	$zz = zz_sql_prefix($zz);
 	zz_sql_prefix($zz_conf, 'zz_conf');
 	if ($zz_conf['modules']['debug']) zz_debug('database connection ok');
+	if (empty($zz['sqlrecord'])) $zz['sqlrecord'] = $zz['sql'];
 
 //
 //	Filter, ID, WHERE

@@ -5,7 +5,7 @@
  * Preparation functions for record- and action-Modules
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2004-2021 Gustaf Mossakowski
@@ -30,7 +30,7 @@ function zz_prepare_tables($zz, $zz_var, $mode) {
 	$zz_tab[0]['db_name'] = $zz_conf['db_name'];
 	$zz_tab[0]['table'] = $zz['table'];
 	$zz_tab[0]['table_name'] = $zz['table'];
-	$zz_tab[0]['sql'] = isset($zz['sqlrecord']) ? $zz['sqlrecord'] : $zz['sql'];
+	$zz_tab[0]['sql'] = $zz['sqlrecord'];
 	$zz_tab[0]['sql_without_where'] = $zz['sql_without_where'];
 	$zz_tab[0]['sqlextra'] = !empty($zz['sqlextra']) ? $zz['sqlextra'] : [];
 	$zz_tab[0]['sql_translate'] = !empty($zz['sql_translate']) ? $zz['sql_translate'] : [];

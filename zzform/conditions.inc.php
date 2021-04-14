@@ -5,7 +5,7 @@
  * Conditions, conditional fields
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/projects/zzform
  *
  * Contents:
  *	main functions (in order in which they are called)
@@ -388,7 +388,7 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 			}
 			if (empty($zz_conf['int']['id']['value'])) break;
 
-			$sql = isset($zz['sqlrecord']) ? $zz['sqlrecord'] : $zz['sql'];
+			$sql = $zz['sqlrecord'];
 			// for performance, remove force index
 			$sql = wrap_edit_sql($sql, 'FORCE INDEX', ' ', 'delete');
 			if (!empty($condition['where']))
@@ -450,7 +450,7 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 			} elseif (!empty($zz_var['where'][$zz['table']][$condition['field_name']])) {
 				$value = $zz_var['where'][$zz['table']][$condition['field_name']];
 			} else {
-				$sql = isset($zz['sqlrecord']) ? $zz['sqlrecord'] : $zz['sql'];
+				$sql = $zz['sqlrecord'];
 				$sql = wrap_edit_sql($sql, 'WHERE', sprintf(
 					'%s.%s = %d', $zz['table'], $zz_conf['int']['id']['field_name'], $zz_conf['int']['id']['value']
 				));

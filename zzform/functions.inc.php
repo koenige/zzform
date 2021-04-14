@@ -5,7 +5,7 @@
  * Miscellaneous functions
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/projects/zzform
  * 
  * Contents:
  * C - Core functions
@@ -764,11 +764,9 @@ function zz_where_conditions($zz) {
 		$zz['filter'] = [];
 		$zz['filter_active'] = [];
 	}
-	if (isset($zz['sqlrecord'])) {
-		list($zz['sqlrecord'], $zz_var) = zz_apply_where_conditions(
-			$zz_var, $zz['sqlrecord'], $zz['table'], $table_for_where
-		);
-	}
+	list($zz['sqlrecord'], $zz_var) = zz_apply_where_conditions(
+		$zz_var, $zz['sqlrecord'], $zz['table'], $table_for_where
+	);
 	if (!empty($zz_var['where'])) {
 		// shortcout sqlcount is no longer possible
 		unset($zz['sqlcount']);
@@ -1443,7 +1441,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 		$ops['mode'] = 'delete';
 		$id_value = $zz_conf['int']['id']['value'];
 		// was record already deleted?
-		$record_id = wrap_db_fetch($zz['sql'], '_dummy_', 'single value');
+		$record_id = wrap_db_fetch($zz['sqlrecord'], '_dummy_', 'single value');
 		if (!$record_id) $ops['mode'] = 'show';
 		break;
 
