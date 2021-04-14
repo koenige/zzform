@@ -2556,10 +2556,11 @@ function zz_field_class($field, $values, $html = false) {
 			$class[] = 'order';
 	}
 	if ($values)
-		if (isset($field['field_name']) AND empty($field['dont_show_where_class'])) 
+		if (isset($field['field_name']) AND empty($field['dont_show_where_class'])) {
 		// does not apply for subtables!
-			if (zz_field_in_where($field['field_name'], $values)) 
+			if (array_key_exists($field['field_name'], $values)) 
 				$class[] = 'where';
+		}
 	if (!empty($field['class'])) {
 		// we may go through this twice
 		$class = array_merge($class, $field['class']);
@@ -2570,13 +2571,6 @@ function zz_field_class($field, $values, $html = false) {
 	if (!$html) return $class;
 	if (!$class) return false;
 	return ' class="'.implode(' ', $class).'"';
-}
-
-function zz_field_in_where($field, $values) {
-	$where = false;
-	foreach (array_keys($values) as $value)
-		if ($value == $field) $where = true;
-	return $where;
 }
 
 /**
