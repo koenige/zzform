@@ -19,14 +19,13 @@
  * 
  * @param array $ops
  * @param array $zz
- * @param array $where_condition = $zz_var['where_condition']
  * @return array $ops
  *		string 'heading', string 'title', string 'output', string 'h1',
  *		string 'explanation', string 'selection'
  */
-function zz_output_page($ops, $zz, $where_condition) {
+function zz_output_page($ops, $zz) {
 	// make nicer headings
-	$ops['heading'] = zz_nice_headings($ops['heading'], $zz, $where_condition);
+	$ops['heading'] = zz_nice_headings($ops['heading'], $zz);
 	// provisional title, in case errors occur
 	$ops['title'] = strip_tags($ops['heading']);
 	if (trim($ops['heading']) AND empty($zz['dont_show_h1']))
@@ -125,96 +124,97 @@ function zz_output_heading($heading, $table = '') {
  * @param string $heading ($ops['heading'])
  * @param array $zz
  *		array 'subtitle', 'fields'[n]'field_name' / 'key_field_name'
- * @param array $where_condition, optional
  * @global array $zz_conf
  * @return string $heading
  */
-function zz_nice_headings($heading, $zz, $where_condition = []) {
+function zz_nice_headings($heading, $zz) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$i = 0;
 	$heading_addition = [];
 	// depending on WHERE-Condition
-	foreach (array_keys($where_condition) as $mywh) {
-		$mywh = wrap_db_escape($mywh);
-		$wh = explode('.', $mywh);
-		if (!isset($wh[1])) $index = 0; // without .
-		else $index = 1;
-		if (!isset($zz['subtitle'][$wh[$index]])) continue;
-		$subheading = $zz['subtitle'][$wh[$index]];
-		if (!isset($subheading['var']) AND !isset($subheading['value'])) continue;
-		$heading_addition[$i] = [];
-		if (isset($subheading['sql']) AND $where_condition[$mywh]) {
-			// only if there is a value! (might not be the case if 
-			// write_once-fields come into play)
-			// create sql query, with $mywh instead of $wh[$index] because first 
-			// might be ambiguous
-			// extra space before mywh for replacement with key_field_name
-			$wh_sql = wrap_edit_sql($subheading['sql'], 'WHERE',
-				sprintf(' %s = "%s"', $mywh, wrap_db_escape($where_condition[$mywh]))
-			);
-			$wh_sql .= ' LIMIT 1';
-			//	if key_field_name is set
-			foreach ($zz['fields'] as $field) {
-				if (!isset($field['field_name'])) continue;
-				if ($field['field_name'] !== $wh[$index]) continue;
-				if (!isset($field['key_field_name'])) continue;
-				$wh_sql = str_replace(' '.$wh[$index].' ', ' '.$field['key_field_name'].' ', $wh_sql);
+	foreach ($zz['where_condition'] as $where_condition) {
+		foreach (array_keys($where_condition) as $mywh) {
+			$mywh = wrap_db_escape($mywh);
+			$wh = explode('.', $mywh);
+			if (!isset($wh[1])) $index = 0; // without .
+			else $index = 1;
+			if (!isset($zz['subtitle'][$wh[$index]])) continue;
+			$subheading = $zz['subtitle'][$wh[$index]];
+			if (!isset($subheading['var']) AND !isset($subheading['value'])) continue;
+			$heading_addition[$i] = [];
+			if (isset($subheading['sql']) AND $where_condition[$mywh]) {
+				// only if there is a value! (might not be the case if 
+				// write_once-fields come into play)
+				// create sql query, with $mywh instead of $wh[$index] because first 
+				// might be ambiguous
+				// extra space before mywh for replacement with key_field_name
+				$wh_sql = wrap_edit_sql($subheading['sql'], 'WHERE',
+					sprintf(' %s = "%s"', $mywh, wrap_db_escape($where_condition[$mywh]))
+				);
+				$wh_sql .= ' LIMIT 1';
+				//	if key_field_name is set
+				foreach ($zz['fields'] as $field) {
+					if (!isset($field['field_name'])) continue;
+					if ($field['field_name'] !== $wh[$index]) continue;
+					if (!isset($field['key_field_name'])) continue;
+					$wh_sql = str_replace(' '.$wh[$index].' ', ' '.$field['key_field_name'].' ', $wh_sql);
+				}
+				// just send a notice if this doesn't work as it's not crucial
+				$heading_values = zz_db_fetch($wh_sql, '', '', '', E_USER_NOTICE);
+				if ($heading_values) {
+					foreach ($subheading['var'] as $myfield)
+						$heading_addition[$i][] = $heading_values[$myfield];
+				}
+			} elseif (isset($subheading['enum'])) {
+				$heading_addition[$i][] = zz_htmltag_escape($where_condition[$mywh]);
+				// @todo insert corresponding value in enum_title
+			} elseif (isset($subheading['value'])) {
+				$heading_addition[$i][] = zz_htmltag_escape($where_condition[$mywh]);
 			}
-			// just send a notice if this doesn't work as it's not crucial
-			$heading_values = zz_db_fetch($wh_sql, '', '', '', E_USER_NOTICE);
-			if ($heading_values) {
-				foreach ($subheading['var'] as $myfield)
-					$heading_addition[$i][] = $heading_values[$myfield];
-			}
-		} elseif (isset($subheading['enum'])) {
-			$heading_addition[$i][] = zz_htmltag_escape($where_condition[$mywh]);
-			// @todo insert corresponding value in enum_title
-		} elseif (isset($subheading['value'])) {
-			$heading_addition[$i][] = zz_htmltag_escape($where_condition[$mywh]);
-		}
-		if (empty($subheading['concat'])) $subheading['concat'] = ' ';
-		if (!empty($subheading['format'])) {
-			foreach ($heading_addition[$i] as $index => $value) {
-				if (is_array($subheading['format'])) {
-					if (empty($subheading['format'][$index])) continue;
-					$heading_addition[$i][$index] = $subheading['format'][$index]($value);
-				} else {
-					$heading_addition[$i][$index] = $subheading['format']($value);
+			if (empty($subheading['concat'])) $subheading['concat'] = ' ';
+			if (!empty($subheading['format'])) {
+				foreach ($heading_addition[$i] as $index => $value) {
+					if (is_array($subheading['format'])) {
+						if (empty($subheading['format'][$index])) continue;
+						$heading_addition[$i][$index] = $subheading['format'][$index]($value);
+					} else {
+						$heading_addition[$i][$index] = $subheading['format']($value);
+					}
 				}
 			}
-		}
-		if (is_array($subheading['concat'])) {
-			$addition = '';
-			foreach ($heading_addition[$i] AS $index => $text) {
-				if (!isset($subheading['concat'][$index-1])) {
-					$subheading['concat'][$index-1] = end($subheading['concat']);
+			if (is_array($subheading['concat'])) {
+				$addition = '';
+				foreach ($heading_addition[$i] AS $index => $text) {
+					if (!isset($subheading['concat'][$index-1])) {
+						$subheading['concat'][$index-1] = end($subheading['concat']);
+					}
+					if ($index) $addition .= $subheading['concat'][$index-1];
+					$addition .= $text;
 				}
-				if ($index) $addition .= $subheading['concat'][$index-1];
-				$addition .= $text;
+				$heading_addition[$i] = $addition;
+			} else {
+				$heading_addition[$i] = implode($subheading['concat'], $heading_addition[$i]);
 			}
-			$heading_addition[$i] = $addition;
-		} else {
-			$heading_addition[$i] = implode($subheading['concat'], $heading_addition[$i]);
-		}
-		if ($heading_addition[$i] AND !empty($subheading['link'])) {
-			$append = '';
-			if (empty($subheading['link_no_append'])) {
-				if (strstr($subheading['link'], '?')) $sep = '&amp;';
-				else $sep = '?';
-				$append = $sep.'show='.urlencode($where_condition[$mywh]);
+			if ($heading_addition[$i] AND !empty($subheading['link'])) {
+				$append = '';
+				if (empty($subheading['link_no_append'])) {
+					if (strstr($subheading['link'], '?')) $sep = '&amp;';
+					else $sep = '?';
+					$append = $sep.'show='.urlencode($where_condition[$mywh]);
+				}
+				$heading_addition[$i] = '<a href="'.$subheading['link'].$append.'">'
+					.$heading_addition[$i].'</a>';
 			}
-			$heading_addition[$i] = '<a href="'.$subheading['link'].$append.'">'
-				.$heading_addition[$i].'</a>';
+			if (empty($heading_addition[$i])) unset($heading_addition[$i]);
+			else {
+				if (!empty($subheading['prefix']))
+					$heading_addition[$i] = ' '.$subheading['prefix'].$heading_addition[$i];
+				if (!empty($subheading['suffix']))
+					$heading_addition[$i] .= $subheading['suffix'];
+			}
+			$i++;
 		}
-		if (empty($heading_addition[$i])) unset($heading_addition[$i]);
-		else {
-			if (!empty($subheading['prefix']))
-				$heading_addition[$i] = ' '.$subheading['prefix'].$heading_addition[$i];
-			if (!empty($subheading['suffix']))
-				$heading_addition[$i] .= $subheading['suffix'];
-		}
-		$i++;
 	}
 	if ($heading_addition) {
 		$heading .= ': <br>'.implode(' &#8211; ', $heading_addition); 

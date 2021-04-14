@@ -120,14 +120,13 @@ function zz_conditions_set_field(&$field, &$new_index, &$sc, $cn) {
  * Check all conditions whether they are true;
  *
  * @param array $zz
- *		'conditions', 'table', 'sql', 'fields'
+ *		'conditions', 'table', 'sql', 'fields', 'where', 'zz_fields'
  * @param string $mode
- * @param array $zz_var
- *		'id' array ('value', 'name'), 'where', 'zz_fields'
  * @global array $zz_conf
+ *		int['id'] array ('value', 'name'), 
  * @return array $zz_conditions
  */
-function zz_conditions_check($zz, $mode, $zz_var) {
+function zz_conditions_check($zz, $mode) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
@@ -190,8 +189,10 @@ function zz_conditions_check($zz, $mode, $zz_var) {
 			// @todo: not yet implemented
 			break;
 		case 'where':
-			if (!empty($zz_var['where_condition'][$condition['field_name']]))
+			if (!empty($zz['where_condition']['list+record'][$condition['field_name']]))
 				$zz_conditions['bool'][$index] = true;
+			elseif (!empty($zz['where_condition']['record'][$condition['field_name']]))
+				$zz_conditions['bool'][$index] = true; // @todo maybe not apply for list?
 			break;
 		default:
 			break;
@@ -277,15 +278,14 @@ function zz_conditions_record_values($field, $values) {
  * Check all conditions whether they are true;
  *
  * @param array $zz
- *		'conditions', 'table', 'sql', 'fields'
+ *		'conditions', 'table', 'sql', 'fields', 'where', 'zz_fields'
  * @param string $mode
- * @param array $zz_var
- *		'id' array ('value', 'name'), 'where', 'zz_fields'
  * @param array $zz_conditions values from zz_conditions_check()
  * @global array $zz_conf
+ *		int['id'] array ('value', 'name'), 
  * @return array $zz_conditions
  */
-function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
+function zz_conditions_record_check($zz, $mode, $zz_conditions) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
@@ -294,10 +294,10 @@ function zz_conditions_record_check($zz, $mode, $zz_var, $zz_conditions) {
 		case 'editing':
 			// get value
 			$value = '';
-			if (!empty($zz['where']) AND array_key_exists($condition['field_name'], $zz['where'])) {
-				$value = $zz['where'][$condition['field_name']];
-			} elseif (!empty($zz_var['where_condition']) AND array_key_exists($condition['field_name'], $zz_var['where_condition'])) {
-				$value = $zz_var['where_condition'][$condition['field_name']];
+			if (!empty($zz['where_condition']['list+record']) AND array_key_exists($condition['field_name'], $zz['where_condition']['list+record'])) {
+				$value = $zz['where_condition']['list+record'][$condition['field_name']];
+			} elseif (!empty($zz['where_condition']['record']) AND array_key_exists($condition['field_name'], $zz['where_condition']['record'])) {
+				$value = $zz['where_condition']['record'][$condition['field_name']];
 			} elseif (!empty($_POST) AND array_key_exists($condition['field_name'], $_POST)) {
 				$value = $_POST[$condition['field_name']];
 			}

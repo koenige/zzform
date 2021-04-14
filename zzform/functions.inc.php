@@ -347,28 +347,29 @@ function zz_get_url_self() {
  * results in a WHERE condition applied to the main SQL query
  *
  * @param array $zz ('where', like in $_GET)
+ *		array 'where_condition' (conditions set by where, add and filter),
+ *		array 'zz_fields' (values for fields depending on where conditions)
  * @global array $zz_conf
  *		'filter' will be checked for 'where'-filter and set if there is one
- * @return array array $zz, $zz_var
- *		'where_condition' (conditions set by where, add and filter), 'zz_fields'
- *		(values for fields depending on where conditions)
+ * @return bool
  */
-function zz_get_where_conditions($zz) {
+function zz_get_where_conditions(&$zz) {
 	global $zz_conf;
 
 	// WHERE: Add with suggested values
-	$zz_var['where_condition'] = zz_check_get_array('where', 'field_name');
+	$zz['where_condition']['list+record'] = zz_check_get_array('where', 'field_name');
 	if (!empty($zz['where'])) {
 		// $zz['where'] will be merged to $_GET['where'], identical keys
 		// will be overwritten
-		$zz_var['where_condition'] = array_merge(
-			$zz_var['where_condition'], $zz['where']
+		$zz['where_condition']['list+record'] = array_merge(
+			$zz['where_condition']['list+record'], $zz['where']
 		);
 	}
 
 	// ADD: overwrite write_once with values, in case there are identical fields
-	$add = zz_check_get_array('add', 'field_name', [], false);
-	if (!$add AND !empty($_POST['zz_fields'])
+	// use add conditions only for record
+	$zz['where_condition']['record'] = zz_check_get_array('add', 'field_name', [], false);
+	if (!$zz['where_condition']['record'] AND !empty($_POST['zz_fields'])
 		AND (empty($_POST['zz_action']) OR $_POST['zz_action'] === 'insert') // empty => coming from 'details'
 		AND !empty($zz['add'])) {
 		$error_fieldname = '';
@@ -376,9 +377,9 @@ function zz_get_where_conditions($zz) {
 			if (!array_key_exists($addwhere['field_name'], $_POST['zz_fields'])) continue;
 			$error_fieldname = $addwhere['field_name'];
 			if ($_POST['zz_fields'][$addwhere['field_name']].'' !== $addwhere['value'].'') continue;
-			$add[$addwhere['field_name']] = $addwhere['value'];
+			$zz['where_condition']['record'][$addwhere['field_name']] = $addwhere['value'];
 		}
-		if (!$add) {
+		if (!$zz['where_condition']['record']) {
 			$error_value = $error_fieldname ? $_POST['zz_fields'][$error_fieldname] : '';
 			// illegal add here, quit 403
 			zz_error_log([
@@ -388,54 +389,52 @@ function zz_get_where_conditions($zz) {
 				'status' => 403
 			]);
 			zz_error_exit(true);
-			return [$zz, $zz_var];
+			return false;
 		}
 		// dependent fields?
 		foreach ($zz['fields'] as $no => $field) {
 			// @todo add support for fields appearing in subtables if needed
 			if (empty($field['dependent_on_add_field'])) continue;
 			if (empty($field['dependent_on_add_sql'])) continue;
-			if (!array_key_exists($field['dependent_on_add_field'], $add)) continue;
-			$sql = sprintf($field['dependent_on_add_sql'], $add[$field['dependent_on_add_field']]);
+			if (!array_key_exists($field['dependent_on_add_field'], $zz['where_condition']['record'])) continue;
+			$sql = sprintf($field['dependent_on_add_sql'], $zz['where_condition']['record'][$field['dependent_on_add_field']]);
 			$value = zz_db_fetch($sql, '', 'single value');
 			if (!$value) continue;
-			$add[$field['field_name']] = $value;
-		}
-	}
-	if ($add) {
-		$zz_var['where_condition'] = array_merge(
-			$zz_var['where_condition'], $add
-		);
-		foreach ($add as $key => $value) {
-			if (in_array($value, ['NULL', '!NULL'])) continue;
-			$zz['record']['zz_fields'][$key]['value'] = $value;
-			$zz['record']['zz_fields'][$key]['type'] = 'hidden';
+			$zz['where_condition']['record'][$field['field_name']] = $value;
 		}
 	}
 
 	// FILTER: check if there's a 'where'-filter
 	foreach ($zz['filter'] AS $index => $filter) {
 		if (!empty($filter['where'])
-			AND !empty($zz_var['where_condition'])
-			AND in_array($filter['where'], array_keys($zz_var['where_condition']))
+			AND !empty($zz['where_condition']['list+record'])
+			AND in_array($filter['where'], array_keys($zz['where_condition']['list+record']))
 		) {
 			// where-filter makes no sense since already one of the values
 			// is filtered by WHERE filter
 			// unless it is an add where_condition
-			if (!in_array($filter['where'], array_keys($add))) {
+			if (!in_array($filter['where'], array_keys($zz['where_condition']['record']))) {
 				unset($zz['filter'][$index]);
 			}
 		}
 		if ($filter['type'] !== 'where') continue;
 		if (!empty($zz['filter_active'][$filter['identifier']])) {
-			$zz_var['where_condition'][$filter['where']] 
+			$zz['where_condition']['list+record'][$filter['where']] 
 				= $zz['filter_active'][$filter['identifier']];
 		}
 		// 'where'-filters are beyond that 'list'-filters
 		$zz['filter'][$index]['type'] = 'list';
 	}
 
-	return [$zz, $zz_var];
+	if ($zz['where_condition']['record']) {
+		foreach ($zz['where_condition']['record'] as $key => $value) {
+			if (in_array($value, ['NULL', '!NULL'])) continue;
+			$zz['record']['zz_fields'][$key]['value'] = $value;
+			$zz['record']['zz_fields'][$key]['type'] = 'hidden';
+		}
+	}
+
+	return true;
 }
 
 /**
@@ -741,22 +740,20 @@ function zz_in_array_str($needle, $haystack) {
  * get and apply where conditions to SQL query and fields
  *
  * @param array $zz
- * @return array
- *		array $zz
- *		array $zz_var
+ * @return bool
  */
-function zz_where_conditions($zz) {
+function zz_where_conditions(&$zz) {
 	global $zz_conf;
 
 	// get 'where_conditions' for SQL query from GET add, filter oder where
 	// get 'zz_fields' from GET add
-	list($zz, $zz_var) = zz_get_where_conditions($zz);
+	zz_get_where_conditions($zz);
 
 	// apply where conditions to SQL query
 	$zz['sql_without_where'] = $zz['sql'];
 	$zz['record']['where'] = [];
-	$zz_var = zz_apply_where_conditions($zz, $zz_var, 'list');
-	$zz_var = zz_apply_where_conditions($zz, $zz_var, 'record');
+	zz_apply_where_conditions($zz, 'list');
+	zz_apply_where_conditions($zz, 'record');
 	if (!$zz['record']['where']) {
 		// shortcout sqlcount is no longer possible
 		unset($zz['sqlcount']);
@@ -782,7 +779,7 @@ function zz_where_conditions($zz) {
 			$zz['record']['zz_fields'][$zz['fields'][$no]['field_name']]);
 	}
 
-	return [$zz, $zz_var];
+	return true;
 }
 
 /**
@@ -790,18 +787,18 @@ function zz_where_conditions($zz) {
  * further variables for nice headings etc.
  *
  * @param array $zz
- * @param array $zz_var
  *		'where_condition' from zz_get_where_conditions()
+ *		change:
+ *		string $sql = modified main query (if applicable)
+ *			'where', 'where_condition', 'id', 
  * @param string $type apply conditions for which type? [list, record]
  * @global array $zz_conf checks for 'modules'['debug']
  *		change: 'where_with_unique_id'
  *		int[unique_fields]
- * @return array
- *		array $zz_var
- *			'where', 'where_condition', 'id', 
+ * @return bool
  * @see zz_get_where_conditions(), zz_get_unique_fields()
  */
-function zz_apply_where_conditions(&$zz, $zz_var, $type) {
+function zz_apply_where_conditions(&$zz, $type) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$table_for_where = isset($zz['table_for_where']) ? $zz['table_for_where'] : [];
@@ -813,10 +810,12 @@ function zz_apply_where_conditions(&$zz, $zz_var, $type) {
 
 	// set some keys
 	$zz_conf['int']['where_with_unique_id'] = false;
-	
-	if (!$zz_var['where_condition']) return zz_return($zz_var);
 
-	foreach ($zz_var['where_condition'] as $field_name => $value) {
+	if (empty($zz['where_condition']))
+		return zz_return(true);
+
+	foreach ($zz['where_condition'] as $area => $where_condition) {
+		foreach ($where_condition as $field_name => $value) {
 			$submitted_field_name = $field_name;
 			if (preg_match('/[a-z_]+\(.+\)/i', trim($field_name))) {
 				// check if field_name comprises some function
@@ -840,21 +839,21 @@ function zz_apply_where_conditions(&$zz, $zz_var, $type) {
 			$field_reference = $table_name ? $table_name.'.'.$field_name : $field_name;
 			// restrict list view to where, but not to add
 			if (empty($_GET['add'][$submitted_field_name])) {
-				if (!empty($zz_var['where_condition'][$field_name])
-					AND $zz_var['where_condition'][$field_name] === 'NULL')
+				if (!empty($zz['where_condition']['list+record'][$field_name])
+					AND $zz['where_condition']['list+record'][$field_name] === 'NULL')
 				{
 					$zz[$sql_key] = wrap_edit_sql($zz[$sql_key], 'WHERE', 
 						sprintf('ISNULL(%s)', $field_reference)
 					);
 					continue; // don't use NULL as where variable!
-				} elseif (!empty($zz_var['where_condition'][$field_name])
-					AND $zz_var['where_condition'][$field_name] === '!NULL')
+				} elseif (!empty($zz['where_condition']['list+record'][$field_name])
+					AND $zz['where_condition']['list+record'][$field_name] === '!NULL')
 				{
 					$zz[$sql_key] = wrap_edit_sql($zz[$sql_key], 'WHERE', 
 						sprintf('NOT ISNULL(%s)', $field_reference)
 					);
 					continue; // don't use !NULL as where variable!
-				} else {
+				} elseif (strstr($area, $type)) {
 					$zz[$sql_key] = wrap_edit_sql($zz[$sql_key], 'WHERE', 
 						sprintf('%s = "%s"', $field_reference, wrap_db_escape($value))
 					);
@@ -884,6 +883,7 @@ function zz_apply_where_conditions(&$zz, $zz_var, $type) {
 			} elseif (in_array($field_name, $zz_conf['int']['unique_fields'])) {
 				$zz_conf['int']['where_with_unique_id'] = true;
 			}
+		}
 	}
 	// in case where is not combined with ID field but UNIQUE field
 	// (e. g. identifier with UNIQUE KEY) retrieve value for ID field from 
@@ -899,7 +899,7 @@ function zz_apply_where_conditions(&$zz, $zz_var, $type) {
 		}
 	}
 	
-	return zz_return($zz_var);
+	return zz_return(true);
 }
 
 /**
@@ -909,21 +909,20 @@ function zz_apply_where_conditions(&$zz, $zz_var, $type) {
  * where is more important than write_once, so remove it from array if
  * there is a where equal to write_once
  * @param array $zz
- * @param array $zz_var
- * @return array $zz_var
+ * @return bool
  */
-function zz_write_onces(&$zz, $zz_var) {
+function zz_write_onces(&$zz) {
 	foreach ($zz['fields'] as $field) {
 		// get write once fields so we can base conditions (scope=values) on them
 		if (empty($field['type'])) continue;
 		if ($field['type'] !== 'write_once') continue;
 		$field_name = $field['field_name'];
-		if (!empty($zz_var['where_condition'][$field_name])) continue;
+		if (!empty($zz['where_condition']['list+record'][$field_name])) continue;
 
-		$zz_var['where_condition'][$field_name] = '';
+		$zz['where_condition']['list+record'][$field_name] = '';
 		$zz['record']['where'][$zz['table']][$field_name] = '';
 	}
-	return $zz_var;
+	return true;
 }
 
 /** 
@@ -1364,13 +1363,12 @@ function zz_set_fielddefs_for_record(&$zz) {
  *		int['record'], 'access', int['list_access'] etc. pp.
  *		'modules'[debug]
  *		'where_with_unique_id' bool if it's just one record to be shown (true)
- * @param array $zz_var
  * @global array $zz_conf
  * @return array 
  *		$zz array
  *		$ops array
  */
-function zz_record_access($zz, $ops, $zz_var) {
+function zz_record_access($zz, $ops) {
 	global $zz_conf;
 
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
@@ -1591,9 +1589,9 @@ function zz_record_access($zz, $ops, $zz_var) {
 	if (!empty($zz_conf['modules']['conditions'])
 		AND (!empty($zz_conf['if']) OR !empty($zz_conf['unless']))
 		AND $zz_conf['int']['id']['value']) {
-		$zz_conditions = zz_conditions_check($zz, $ops['mode'], $zz_var);
+		$zz_conditions = zz_conditions_check($zz, $ops['mode']);
 		// @todo do we need to check record conditions here?
-		$zz_conditions = zz_conditions_record_check($zz, $ops['mode'], $zz_var, $zz_conditions);
+		$zz_conditions = zz_conditions_record_check($zz, $ops['mode'], $zz_conditions);
 		// save old variables for list view
 		$saved_variables = [
 			'access', 'add', 'edit', 'delete', 'view', 'details'
@@ -1806,7 +1804,7 @@ function zz_record_access($zz, $ops, $zz_var) {
 	if ($ops['mode'] === 'list_only') {
 		$zz_conf['int']['record'] = false;	// don't show record
 	}
-	return zz_return([$zz, $ops, $zz_var]);
+	return zz_return([$zz, $ops]);
 }
 
 /** 

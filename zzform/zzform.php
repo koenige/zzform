@@ -114,7 +114,7 @@ function zzform($zz) {
 	zz_filter_defaults($zz);
 
 	// get and apply where conditions to SQL query and fields
-	list ($zz, $zz_var) = zz_where_conditions($zz);
+	zz_where_conditions($zz);
 
 //
 //	Check mode, action, access for record;
@@ -129,7 +129,7 @@ function zzform($zz) {
 	if (!empty($zz_conf['export'])) $ops = zz_export_init($ops);
 
 	// set $ops['mode'], $zz['record']['action'], ['id']['value'] and $zz_conf for access
-	list($zz, $ops) = zz_record_access($zz, $ops, $zz_var);
+	list($zz, $ops) = zz_record_access($zz, $ops);
 	$ops['error'] = zz_error_multi($ops['error']);
 
 	// mode won't be changed anymore before record operations
@@ -163,7 +163,7 @@ function zzform($zz) {
 //	Fields, 2nd check after definitions are complete
 //
 	if ($ops['mode'] !== 'add' AND $zz['record']['action'] !== 'insert') {
-		$zz_var = zz_write_onces($zz, $zz_var);
+		zz_write_onces($zz);
 	}
 
 	// if no operations with the record are done, remove zz_fields
@@ -174,7 +174,7 @@ function zzform($zz) {
 	if (!empty($zz_conf['modules']['conditions'])) {
 		if ($zz_conf['modules']['debug']) zz_debug('conditions start');
 		$zz = zz_conditions_set($zz);
-		$zz_conditions = zz_conditions_check($zz, $ops['mode'], $zz_var);
+		$zz_conditions = zz_conditions_check($zz, $ops['mode']);
 	} else {
 		$zz_conditions = [];
 	}
@@ -189,7 +189,7 @@ function zzform($zz) {
 
 	if ($zz_conf['int']['record']) {
 		if (!empty($zz_conf['modules']['conditions'])) {
-			$zz_conditions = zz_conditions_record_check($zz, $ops['mode'], $zz_var, $zz_conditions);
+			$zz_conditions = zz_conditions_record_check($zz, $ops['mode'], $zz_conditions);
 			$zz = zz_conditions_record($zz, $zz_conditions);
 		}
 	 	// sets some $zz-definitions for records depending on existing definition for
@@ -205,7 +205,7 @@ function zzform($zz) {
 	zz_error();	// @todo check if this can go into zz_trigger_error_too_big()
 
 	if ($zz_conf['generate_output'] AND ($zz_conf['int']['record'] OR $zz_conf['int']['show_list'])) {
-		$ops = zz_output_page($ops, $zz, $zz_var['where_condition']);
+		$ops = zz_output_page($ops, $zz);
 	}
 
 	if (isset($_POST['zz_multifunction'])) {
