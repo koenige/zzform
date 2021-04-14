@@ -752,8 +752,7 @@ function zz_where_conditions(&$zz) {
 	// apply where conditions to SQL query
 	$zz['sql_without_where'] = $zz['sql'];
 	$zz['record']['where'] = [];
-	zz_apply_where_conditions($zz, 'list');
-	zz_apply_where_conditions($zz, 'record');
+	zz_apply_where_conditions($zz);
 	if (!$zz['record']['where']) {
 		// shortcout sqlcount is no longer possible
 		unset($zz['sqlcount']);
@@ -791,22 +790,19 @@ function zz_where_conditions(&$zz) {
  *		change:
  *		string $sql = modified main query (if applicable)
  *			'where', 'where_condition', 'id', 
- * @param string $type apply conditions for which type? [list, record]
  * @global array $zz_conf checks for 'modules'['debug']
  *		change: 'where_with_unique_id'
  *		int[unique_fields]
  * @return bool
  * @see zz_get_where_conditions(), zz_get_unique_fields()
  */
-function zz_apply_where_conditions(&$zz, $type) {
+function zz_apply_where_conditions(&$zz) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$table_for_where = isset($zz['table_for_where']) ? $zz['table_for_where'] : [];
 
-	switch ($type) {
-		case 'list': $sql_key = 'sql'; break; // $zz['sql']
-		case 'record': $sql_key = 'sqlrecord'; break; // $zz['sqlrecord']
-	}
+	$sql_keys['list'] = 'sql';
+	$sql_keys['record'] = 'sqlrecord';
 
 	// set some keys
 	$zz_conf['int']['where_with_unique_id'] = false;
@@ -838,25 +834,27 @@ function zz_apply_where_conditions(&$zz, $type) {
 			}
 			$field_reference = $table_name ? $table_name.'.'.$field_name : $field_name;
 			// restrict list view to where, but not to add
-			if (empty($_GET['add'][$submitted_field_name])) {
-				if (!empty($zz['where_condition']['list+record'][$field_name])
-					AND $zz['where_condition']['list+record'][$field_name] === 'NULL')
-				{
-					$zz[$sql_key] = wrap_edit_sql($zz[$sql_key], 'WHERE', 
-						sprintf('ISNULL(%s)', $field_reference)
-					);
-					continue; // don't use NULL as where variable!
-				} elseif (!empty($zz['where_condition']['list+record'][$field_name])
-					AND $zz['where_condition']['list+record'][$field_name] === '!NULL')
-				{
-					$zz[$sql_key] = wrap_edit_sql($zz[$sql_key], 'WHERE', 
-						sprintf('NOT ISNULL(%s)', $field_reference)
-					);
-					continue; // don't use !NULL as where variable!
-				} elseif (strstr($area, $type)) {
-					$zz[$sql_key] = wrap_edit_sql($zz[$sql_key], 'WHERE', 
-						sprintf('%s = "%s"', $field_reference, wrap_db_escape($value))
-					);
+			foreach ($sql_keys as $type => $sql_key) {
+				if (empty($_GET['add'][$submitted_field_name])) {
+					if (!empty($zz['where_condition']['list+record'][$field_name])
+						AND $zz['where_condition']['list+record'][$field_name] === 'NULL')
+					{
+						$zz[$sql_key] = wrap_edit_sql($zz[$sql_key], 'WHERE', 
+							sprintf('ISNULL(%s)', $field_reference)
+						);
+						continue; // don't use NULL as where variable!
+					} elseif (!empty($zz['where_condition']['list+record'][$field_name])
+						AND $zz['where_condition']['list+record'][$field_name] === '!NULL')
+					{
+						$zz[$sql_key] = wrap_edit_sql($zz[$sql_key], 'WHERE', 
+							sprintf('NOT ISNULL(%s)', $field_reference)
+						);
+						continue; // don't use !NULL as where variable!
+					} elseif (strstr($area, $type)) {
+						$zz[$sql_key] = wrap_edit_sql($zz[$sql_key], 'WHERE', 
+							sprintf('%s = "%s"', $field_reference, wrap_db_escape($value))
+						);
+					}
 				}
 			}
 
@@ -889,8 +887,8 @@ function zz_apply_where_conditions(&$zz, $type) {
 	// (e. g. identifier with UNIQUE KEY) retrieve value for ID field from 
 	// database
 	if (!$zz_conf['int']['id']['value'] AND $zz_conf['int']['where_with_unique_id']) {
-		if ($zz_conf['modules']['debug']) zz_debug('where_conditions', $zz[$sql_key]);
-		$line = zz_db_fetch($zz[$sql_key], '_dummy_', 'numeric', 'WHERE; ambiguous values in ID?');
+		if ($zz_conf['modules']['debug']) zz_debug('where_conditions', $zz['sql']);
+		$line = zz_db_fetch($zz['sql'], '_dummy_', 'numeric', 'WHERE; ambiguous values in ID?');
 		// 0 (=add) or 1 records: 'where_with_unique_id' remains true
 		if (count($line) === 1 AND !empty($line[0][$zz_conf['int']['id']['field_name']])) {
 			$zz_conf['int']['id']['value'] = $line[0][$zz_conf['int']['id']['field_name']];
