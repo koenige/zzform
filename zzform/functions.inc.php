@@ -753,7 +753,7 @@ function zz_where_conditions(&$zz) {
 	$zz['sql_without_where'] = $zz['sql'];
 	$zz['record']['where'] = [];
 	zz_apply_where_conditions($zz);
-	if (!$zz['record']['where']) {
+	if ($zz['record']['where']) {
 		// shortcout sqlcount is no longer possible
 		unset($zz['sqlcount']);
 	}
