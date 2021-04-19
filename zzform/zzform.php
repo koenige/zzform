@@ -234,8 +234,6 @@ function zzform($zz) {
 		
 		$zz_tab = zz_prepare_tables($zz, $ops['mode']);
 		if (!$zz_tab) return zzform_exit($ops);
-		// @todo keep track of current values for ID separately
-		$zz_tab[0][0]['id'] = &$zz_conf['int']['id'];
 
 		// set conditions for detail records
 		// id is available just now
