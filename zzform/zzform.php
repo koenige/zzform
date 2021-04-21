@@ -51,8 +51,11 @@ function zzform($zz) {
 	// import modules, set and get URI
 	zz_initialize('form');
 	zz_error();
-	if (!empty($_GET['zzmsg']))
-		$ops['output'] .= sprintf('<h2>%s</h2>', wrap_html_escape($_GET['zzmsg']));
+	if (!empty($_GET['merge'])) {
+		$ops['output'] .= sprintf('<h2>%s</h2>', sprintf(
+			zz_text('%d records merged successfully'), substr($_GET['merge'], strrpos($_GET['merge'], '-') + 1)
+		));
+	}
 	$ops['output'] .= zz_error_output();
 	$zz = zz_defaults($zz);
 
@@ -219,7 +222,7 @@ function zzform($zz) {
 	if (isset($_POST['zz_merge'])) {
 		require_once $zz_conf['dir_inc'].'/merge.inc.php';
 		$merge = zz_merge_records($zz);
-		if ($merge['msg'] OR $merge['title']) {
+		if ($merge['msg']) {
 			$ops['output'] .= zz_merge_message($merge);
 		}
 		if ($merge['uncheck']) $zz['list']['dont_check_records'] = true;

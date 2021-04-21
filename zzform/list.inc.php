@@ -621,6 +621,9 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 				if (in_array($id, $zz_conf['int']['id']['values'])) {
 					$list['current_records'][] = $z; 
 				}
+			} elseif (!empty($_GET['merge'])) {
+				if ($id === substr($_GET['merge'], 0, strpos($_GET['merge'], '-')))
+					$list['current_record'] = $z;
 			}
 		} else {
 			$id = false;
@@ -877,7 +880,7 @@ function zz_filter_selection($filter, $filter_active, $pos) {
 	// do not show edited record, limit
 	$unwanted_keys = [
 		'q', 'scope', 'limit', 'mode', 'id', 'add', 'filter', 'delete',
-		'insert', 'update', 'noupdate', 'zzhash', 'zzmsg'
+		'insert', 'update', 'noupdate', 'zzhash', 'merge'
 	];
 	$qs = zz_edit_query_string($zz_conf['int']['url']['qs']
 		.$zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
@@ -2071,7 +2074,7 @@ function zz_list_pageurl() {
 	// remove mode, id
 	$unwanted_keys = [
 		'mode', 'id', 'limit', 'add', 'delete', 'insert', 'update', 'noupdate',
-		'zzhash', 'edit', 'show', 'revise'
+		'zzhash', 'edit', 'show', 'revise', 'merge'
 	];
 	$url['base'] = $zz_conf['int']['url']['self']
 		.zz_edit_query_string($zz_conf['int']['url']['qs']

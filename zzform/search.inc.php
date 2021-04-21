@@ -570,7 +570,7 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 		// do not show edited record, limit, ...
 		$unwanted_keys = [
 			'q', 'scope', 'limit', 'mode', 'id', 'add', 'delete', 'insert',
-			'update', 'noupdate', 'zzhash', 'edit', 'show', 'revise', 'zzmsg'
+			'update', 'noupdate', 'zzhash', 'edit', 'show', 'revise', 'merge'
 		];
 		$search['hidden_fields'] = zz_querystring_to_hidden(substr($qs, 1), $unwanted_keys);
 		// remove unwanted keys from link

@@ -356,7 +356,7 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple)
 		if ($base_qs = $zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']) {
 			$unwanted_keys = [
 				'mode', 'id', 'add', 'delete', 'insert', 'update', 'noupdate',
-				'zzhash', 'edit', 'show', 'revise', 'zzmsg'
+				'zzhash', 'edit', 'show', 'revise', 'merge'
 			];
 			$cancelurl .= zz_edit_query_string($base_qs, $unwanted_keys);
 		}

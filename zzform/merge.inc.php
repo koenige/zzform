@@ -67,7 +67,7 @@ function zz_merge_records($zz) {
 	$msg = array_merge($msg, zz_merge_equal($recs[0]));
 	if ($msg) {
 		return [
-			'msg' => $msg, 'uncheck' => false, 'title' => ''
+			'msg' => $msg, 'uncheck' => false
 		];
 	}
 
@@ -208,15 +208,12 @@ function zz_merge_records($zz) {
 	}
 	if (!$error) {
 		// everything okay, so don't output all the details
-		$title = sprintf(zz_text('%d records merged successfully'), count($rec['old_ids']) + 1);
-		wrap_redirect_change('?zzmsg='.$title);
-	} else {
-		$title = '';
+		wrap_redirect_change('?merge='.$rec['new_id'].'-'.(count($rec['old_ids']) + 1));
 	}
 
 	// @todo show main records on error to compare manually
 	return [
-		'msg' => $msg, 'uncheck' => $uncheck, 'title' => $title
+		'msg' => $msg, 'uncheck' => $uncheck
 	];
 }
 
@@ -342,7 +339,7 @@ function zz_merge_get_date($date) {
  */
 function zz_merge_message($merge) {
 	$output = '<div id="record">'."\n";
-	$output .= '<h2>'.($merge['title'] ? $merge['title'] : zz_text('Merge')).'</h2>'."\n";
+	$output .= '<h2>'.zz_text('Merge').'</h2>'."\n";
 	if ($merge['msg']) {
 		$output .= implode('<br>', $merge['msg']);
 	}
