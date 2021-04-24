@@ -88,8 +88,8 @@ function zz_prepare_tables($zz, $mode) {
 		}
 		if (!empty($my_field['hide_in_form'])) continue;
 		$zz_tab[$tab] = zz_get_subtable($my_field, $zz_tab[$main_tab], $tab, $no);
-		$zz_tab[$tab]['where'] = !empty($zz['record']['where'][$zz_tab[$tab]['table']])
-			? $zz['record']['where'][$zz_tab[$tab]['table']] : [];
+		$zz_tab[$tab]['where'] = !empty($zz['record']['where'][$zz_tab[$tab]['table_name']])
+			? $zz['record']['where'][$zz_tab[$tab]['table_name']] : [];
 		if (in_array($mode, ['revise', 'show']) AND $zz_tab[$tab]['values']) {
 			// don't show values which are not saved in show-record mode
 			$zz_tab[$tab]['values'] = [];
@@ -1322,6 +1322,7 @@ function zz_log_validation_errors($my_rec, $validation) {
 	$dev_msg = [];
 	$somelogs = !empty($my_rec['validation_error_logged']) ? $my_rec['validation_error_logged'] : false;
 	
+	echo wrap_print($my_rec);
 	foreach ($my_rec['fields'] as $no => $field) {
 		if (in_array($field['type'], ['password_change', 'subtable', 'foreign_table'])) continue;
 		if (!empty($field['mark_reselect'])) {
