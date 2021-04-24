@@ -863,12 +863,13 @@ function zz_apply_where_conditions(&$zz) {
 			// if table row is affected by where, mark this
 			if ($zz['table'] === $table_name) {
 				// just for main table
-				$field_index = array_search($field_name, array_column($zz['fields'], 'field_name'));
-				$field_nos = array_keys($zz['fields']);
-				$no = $field_nos[$field_index];
-				if (!empty($zz['fields'][$no]['class']) AND !is_array($zz['fields'][$no]['class']))
-					$zz['fields'][$no]['class'] = [$zz['fields'][$no]['class']];
-				$zz['fields'][$no]['class'][] = 'where';
+				foreach ($zz['fields'] as $no => $field) {
+					if (empty($field['field_name'])) continue;
+					if ($field['field_name'] !== $field_name) continue;
+					if (!empty($zz['fields'][$no]['class']) AND !is_array($zz['fields'][$no]['class']))
+						$zz['fields'][$no]['class'] = [$zz['fields'][$no]['class']];
+					$zz['fields'][$no]['class'][] = 'where';
+				}
 			}
 
 			if ($field_name === $zz_conf['int']['id']['field_name']) {
