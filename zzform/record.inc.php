@@ -958,6 +958,12 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 					$field['maxlength'] += $field['formatting_spaces'];
 				}
 			}
+			if (!empty($field['placeholder'])) {
+				if ($field['placeholder'] === true) $field['placeholder'] = $field['title'];
+				else $field['placeholder'] = wrap_text($field['placeholder']);
+			} else {
+				$field['placeholder'] = false;
+			}
 
 			// apply factor only if there is a value in field
 			// don't apply it if it's a re-edit
@@ -2158,6 +2164,7 @@ function zz_field_text($field, $display, $record, $dont_reformat = false) {
 //	elseif ($field['type'] === 'time') $fieldtype = 'time';
 	$fieldattr = [];
 	$fieldattr['size'] = $field['size'];
+	$fieldattr['placeholder'] = $field['placeholder'];
 	if ($field['required']) $fieldattr['required'] = true;
 	if (!empty($field['maxlength']))
 		$fieldattr['maxlength'] = $field['maxlength'];
@@ -2228,6 +2235,7 @@ function zz_field_number($field, $display, $record, $dont_reformat) {
 	// return form element
 	$fieldattr = [];
 	$fieldattr['size'] = $field['size'];
+	$fieldattr['placeholder'] = $field['placeholder'];
 	if ($field['required']) $fieldattr['required'] = true;
 	if (!empty($field['maxlength']))
 		$fieldattr['maxlength'] = $field['maxlength'];
@@ -2853,6 +2861,7 @@ function zz_field_select_sql_too_long($field, $record, $detail_record, $id_field
 	// add new record
 	$fieldattr = [];
 	$fieldattr['size'] = !empty($field['size_select_too_long']) ? $field['size_select_too_long'] : 32;
+	$fieldattr['placeholder'] = $field['placeholder'];
 	if ($field['required']) $fieldattr['required'] = true;
 	$outputf .= zz_form_element($field['f_field_name'], $value, 'text_noescape', true, $fieldattr);
 
