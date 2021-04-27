@@ -533,7 +533,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 					$source_field_value = zz_dependent_value($dependency, $my_rec, $zz_tab);
 					if (!in_array($source_field_value, $dependency['values']))
 						$hidden = true;
-				} elseif (empty($my_rec['id']['value'])) { // add mode
+				} elseif (empty($my_rec['id']['value']) AND (empty($my_rec['id']['source_value']))) { // add mode
 					// default?
 					$default_selected = false;
 					// check $my_fields, not $my_rec['fields']
