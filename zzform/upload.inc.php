@@ -344,6 +344,7 @@ function zz_upload_check_files($zz_tab) {
 			$images[$no][$img] = $field['image'][$img];
 			$images[$no][$img]['optional_image'] = isset($field['optional_image'])
 				? $field['optional_image'] : false;
+			$images[$no][$img]['upload_max_filesize'] = $field['upload_max_filesize'];
 
 			// initialize convert_options
 			if (!isset($images[$no][$img]['convert_options'])) {
@@ -468,7 +469,6 @@ function zz_upload_check_files($zz_tab) {
 			// file not too big if max smaller than ini_size?
 			if ($field['upload_max_filesize'] < $images[$no][$img]['upload']['size']) {
 				$images[$no][$img]['upload']['error'] = UPLOAD_ERR_FORM_SIZE;
-				$images[$no][$img]['upload_max_filesize'] = $field['upload_max_filesize'];
 				if (file_exists($images[$no][$img]['upload']['tmp_name']))
 					zz_unlink_cleanup($images[$no][$img]['upload']['tmp_name']);
 				$images[$no][$img]['upload']['tmp_name'] = false;
