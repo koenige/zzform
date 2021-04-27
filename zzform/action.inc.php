@@ -1502,6 +1502,9 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 						} else {
 							$my_rec['POST'][$field_name] = false;
 						}
+						$field['required'] = $field['required_in_db']
+							= $my_rec['fields'][$f]['required'] = $my_rec['fields'][$f]['required_in_db']
+							= false;
 					}
 				} else {
 					// invisible, remove existing value if there is one
@@ -1510,6 +1513,9 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 					} else {
 						$my_rec['POST'][$field_name] = false;
 					}
+					$field['required'] = $field['required_in_db']
+						= $my_rec['fields'][$f]['required'] = $my_rec['fields'][$f]['required_in_db']
+						= false;
 				}
 			}
 		}
