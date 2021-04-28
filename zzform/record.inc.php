@@ -2593,6 +2593,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 	if ($display === 'form' AND count($lines) === 1 
 		AND (!zz_db_field_null($field['field_name'], $db_table)
 			OR !empty($field['required']))
+		AND empty($field['select_dont_force_single_value'])
 	) {
 		return zz_return(zz_field_select_single($lines, $record, $field));
 	}
@@ -2629,6 +2630,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 	if ($display === 'form' AND $count_rows === 1 
 		AND (!zz_db_field_null($field['field_name'], $db_table)
 			OR !empty($field['required']))
+		AND empty($field['select_dont_force_single_value'])
 	) {
 		return zz_return(zz_field_select_single($lines, $record, $field));
 	}
