@@ -630,6 +630,14 @@ msgstr ""
 msgid "ten"
 msgstr ""
 
+# Record form: Date field
+msgid "Date"
+msgstr ""
+
+# Record form: Datetime field
+msgid "Date and time"
+msgstr ""
+
 # List view: Revision
 msgid "live"
 msgstr ""

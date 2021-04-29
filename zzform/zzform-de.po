@@ -679,6 +679,14 @@ msgstr "neun"
 msgid "ten"
 msgstr "zehn"
 
+# Record form: Date field
+msgid "Date"
+msgstr "Datum"
+
+# Record form: Datetime field
+msgid "Date and time"
+msgstr "Datum und Uhrzeit"
+
 # List view: Revision
 msgid "live"
 msgstr "live"

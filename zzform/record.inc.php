@@ -2296,6 +2296,7 @@ function zz_field_date($field, $display, $record) {
 	// return form element
 	$fieldattr = [];
 	$fieldattr['size'] = 12;
+	$fieldattr['placeholder'] = !empty($field['placeholder']) ? trim($field['placeholder']) : wrap_text('Date');
 	if ($field['required']) $fieldattr['required'] = true;
 	// HTML5 fieldtype date has bad usability in Opera (calendar only!)
 	return zz_form_element($field['f_field_name'], $value, 'text_noescape', true, $fieldattr);
@@ -2320,6 +2321,7 @@ function zz_field_datetime($field, $display, $record) {
 	// return form element
 	$fieldattr = [];
 	$fieldattr['size'] = $field['size'];
+	$fieldattr['placeholder'] = !empty($field['placeholder']) ? trim($field['placeholder']) : wrap_text('Date and time');
 	if ($field['required']) $fieldattr['required'] = true;
 	// datetime in Safari is like 2011-09-06T20:50Z
 	// $fieldtype = 'datetime';
