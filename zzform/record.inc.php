@@ -938,6 +938,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 			if (!isset($field['size'])) {
 				if (in_array($field['type'], ['number', 'sequence'])) {
 					$field['size'] = 16;
+		 		} elseif (in_array($field['type'], ['datetime', 'timestamp'])) {
+					$field['size'] = 18;
 		 		} else {
 		 			$field['size'] = 32;
 		 		}
