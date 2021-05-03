@@ -1199,6 +1199,7 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 		case 'option':
 		case 'write_once':
 		case 'list_function':
+		case 'captcha':
 			// dont' do anything with these
 			break;
 		case 'geo_point':
