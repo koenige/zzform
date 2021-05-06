@@ -12,24 +12,29 @@
 
 
 if (typeof zzformForm !== 'undefined') zzformRecordForm();
+zzformRemoveSuggestions();
 var zzformLoadedJS = [];
 
 /**
  * initialize all functions that are in use for the record form
  */
 function zzformRecordForm() {
-	// remove existing auto suggestion divs
-	var items = document.querySelectorAll('div.vxJS_autoSuggest');
-	for (var i = 0; i < items.length; i++) {
-		items[i].remove();
-	}
-
 	zzformButtons();
 	zzformOptionFields();
 	zzformCheckBoxes();
 	zzformRadios();
 	zzformWmdEditor();
 	zzformForm.addEventListener('submit', zzformSubmit);
+}
+
+/**
+ *	remove existing auto suggestion divs
+ */
+function zzformRemoveSuggestions() {
+	var items = document.querySelectorAll('div.vxJS_autoSuggest');
+	for (var i = 0; i < items.length; i++) {
+		items[i].remove();
+	}
 }
 
 /**
