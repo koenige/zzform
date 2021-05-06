@@ -1,13 +1,14 @@
-# Zugzwang Project
+# zzform module
 # Template for record
 #
-# http://www.zugzwang.org/projects/zzform
+# https://www.zugzwang.org/projects/zzform
+# Part of »Zugzwang Project«
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
 # @copyright Copyright © 2018, 2020-2021 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
-# tfoot must be before thead or hitting ENTER won't necessarily save the record
+# tfoot must be before thead or hitting ENTER won’t necessarily save the record
 #
 %%% condition if form %%%
 <form action="%%% setting zzform_int_url_self %%%%%% setting zzform_int_url_qs %%%
@@ -23,6 +24,7 @@
 %%% condition if formhead %%%
 <h2>%%% item formhead ucfirst %%%</h2>
 %%% condition endif %%%
+%%% item form_lead markdown %%%
 
 %%% item reselect_errors %%%
 %%% item errors %%%
