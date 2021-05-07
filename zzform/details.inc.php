@@ -69,6 +69,7 @@ function zz_details($zz) {
  */
 function zz_details_start($zz) {
 	global $zz_conf;
+	global $zz_setting;
 	if (empty($_SESSION['logged_in'])) return false;
 
 	$add_details = key($_POST['zz_add_details']);
@@ -110,7 +111,7 @@ function zz_details_start($zz) {
 	$redirect_to .= strstr($field['add_details'], '?') ? '&' : '?';
 	$redirect_to .= sprintf('add&zz=%s', $zz_conf['id']);
 
-	$source = $_SERVER['REQUEST_URI'];
+	$source = $zz_setting['request_uri'];
 	$source .= strstr($source, '?') ? '&' : '?';
 	if (!strstr($source, 'zz=')) {
 		$source .= sprintf('zz=%s&', $zz_conf['id']);
@@ -268,7 +269,7 @@ function zz_details_show($zz, $current, $last) {
 			$_SESSION['zzform'][$zz_conf['id']][$current]['source_field_name'],
 			$_SESSION['zzform'][$zz_conf['id']][$current]['new_id']
 		);
-	} 
+	}
 
 	return $zz;
 }
