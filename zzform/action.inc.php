@@ -2586,7 +2586,7 @@ function zz_sequence_normalize($ops, $zz_tab) {
 		//			$sql = zz_list_filter_sql($zz_tab[$tab]['filter'], $sql, $_GET['filter']);
 		//		}
 		if ($tab) {
-			$sql =  wrap_edit_sql($sql, 'WHERE', sprintf('%s = %d', $zz_conf['int']['id']['field_name'], $zz_conf['int']['id']['value']));
+			$sql =  wrap_edit_sql($sql, 'WHERE', sprintf('%s = %d', $zz_tab[$tab]['foreign_key_field_name'], $zz_conf['int']['id']['value']));
 		}
 		$data = wrap_db_fetch($sql, $zz_tab[$tab][$rec]['id']['field_name']);
 		// does new sequence value already exist?
