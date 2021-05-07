@@ -608,6 +608,38 @@ function zz_get_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 	// get all keys (some may only be in existing, some only in POST (new ones))
 	$my_tab['records'] = count($records);
 
+	// first check for review or access, 
+	// first if must be here because access might override mode here!
+	$tempvar = false;
+	if (in_array($state, ['add', 'edit']) AND $rec_tpl['access'] !== 'show') {
+		// check if user wants one record more (subtable_remove was already
+		// checked beforehands)
+		if ($my_tab['subtable_add']) {
+			$my_tab['subtable_add'] = [];
+			$my_tab['subtable_focus'] = $my_tab['records'];
+			$my_tab['records']++;
+			$tempvar = array_keys($records);
+			$tempvar = end($tempvar) + 1;
+		}
+		if ($my_tab['records'] < $my_tab['min_records']) 
+			$my_tab['records'] = $my_tab['min_records'];
+		// always show one record minimum
+		if ($zz_conf['always_show_empty_detail_record'])
+			if (!$my_tab['records']) $my_tab['records'] = 1;
+	}
+	
+	// sequence? hidden if records = 1
+	if ($my_tab['records'] === 1) {
+		foreach ($field['fields'] as $no => $subfield) {
+			if (!empty($subfield['type']) AND $subfield['type'] === 'sequence') {
+				$field['fields'][$no]['type'] = 'hidden';
+				$field['fields'][$no]['value'] = 1;
+				$field['fields'][$no]['hide_in_form'] = true;
+				$rec_tpl['fields'][$no] = $field['fields'][$no];
+			}
+		}
+	}
+	
 	foreach (array_keys($records) AS $rec) {
 		$existing[$rec] = zz_prepare_record($existing[$rec], $field['fields']);
 		if (empty($my_tab['POST'][$rec]) AND !empty($existing[$rec])) {
@@ -620,25 +652,8 @@ function zz_get_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 			$my_tab['POST'][$rec], $field['fields'], $existing[$rec], $my_tab['where']
 		);
 	}
-
-	// first check for review or access, 
-	// first if must be here because access might override mode here!
-	if (in_array($state, ['add', 'edit']) AND $rec_tpl['access'] !== 'show') {
-		// check if user wants one record more (subtable_remove was already
-		// checked beforehands)
-		if ($my_tab['subtable_add']) {
-			$my_tab['subtable_add'] = [];
-			$my_tab['subtable_focus'] = $my_tab['records'];
-			$my_tab['records']++;
-			$tempvar = array_keys($records);
-			$records[] = end($tempvar)+1;
-		}
-		if ($my_tab['records'] < $my_tab['min_records']) 
-			$my_tab['records'] = $my_tab['min_records'];
-		// always show one record minimum
-		if ($zz_conf['always_show_empty_detail_record'])
-			if (!$my_tab['records']) $my_tab['records'] = 1;
-	}
+	if ($tempvar)
+		$records[] = $tempvar;
 
 	// check records against database, if we have values, check number of records
 	if ($mode) {
