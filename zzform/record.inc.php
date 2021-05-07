@@ -502,12 +502,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 		}
 
 		if (!empty($field['hide_in_form'])) continue;
-		if ($field['type'] === 'sequence') {
-			// hide sequence fields if in a detail record and there is only one record
-			if ($tab AND !empty($zz_tab[$tab]['records']) AND $zz_tab[$tab]['records'] === 1) {
-				continue;
-			}
-		}
 		if (isset($field['multiple_edit']) AND !$field['multiple_edit']
 			AND $multiple) continue;
 		if ($field['type'] === 'timestamp' AND empty($my_rec['id']['value'])) {
