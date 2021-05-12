@@ -390,7 +390,9 @@ function zz_identifier_vars($my_rec, $f, $main_post) {
 		// check for substring parameter
 		list($field_name, $substr) = zz_identifier_substr($field_name);
 		// get value
-		$values[$index] = zz_identifier_var($field_name, $my_rec, $main_post);
+		$preferred = !empty($my_rec['fields'][$f]['conf_identifier']['preferred'])
+			? $my_rec['fields'][$f]['conf_identifier']['preferred'] : [];
+		$values[$index] = zz_identifier_var($field_name, $my_rec, $main_post, $preferred);
 
 		if (!$substr) continue;
 		eval ($line ='$values[$index] = substr($values[$index], '.$substr.');');
@@ -409,9 +411,10 @@ function zz_identifier_vars($my_rec, $f, $main_post) {
  * @param string $field_name
  * @param array $my_rec $zz_tab[$tab][$rec]
  * @param array $main_post POST values of $zz_tab[0][0]['POST']
+ * @param array $preferred
  * @return string $value
  */
-function zz_identifier_var($field_name, $my_rec, $main_post) {
+function zz_identifier_var($field_name, $my_rec, $main_post, $preferred) {
 	// 1. it's just a field name of the main record
 	if (!empty($my_rec['POST'][$field_name])
 		OR (isset($my_rec['POST'][$field_name]) AND $my_rec['POST'][$field_name] === '0'))
@@ -423,9 +426,28 @@ function zz_identifier_var($field_name, $my_rec, $main_post) {
 		list($table, $field_name) = explode('.', $field_name);
 		if (!isset($my_rec['POST'][$table])) return false;
 
-		if (!empty($my_rec['POST'][$table][0][$field_name])) {
+		$no = 0;
+		// if there can be more than one sub record, find preferred sub record
+		// via values, e. g. IDs. example:
+		// $zz['fields'][2]['conf_identifier']['preferred']['objects-Title'] = [
+		//	'text_language_id' => [wrap_id('languages', '-id'), wrap_id('languages', '---'), wrap_id('languages', 'eng')]
+		// ];
+		if (!empty($preferred[$table])) {
+			$key_field_name = key($preferred[$table]);
+			$values = $preferred[$table][$key_field_name];
+			$priority = count($values) + 1;
+			foreach ($my_rec['POST'][$table] as $index => $fields) {
+				if (!array_key_exists($key_field_name, $fields)) continue;
+				if (!in_array($fields[$key_field_name], $values)) continue;
+				if (array_search($fields[$key_field_name], $values) >= $priority) continue;
+				$priority = array_search($fields[$key_field_name], $values);
+				$no = $index;
+			}
+		}
+
+		if (!empty($my_rec['POST'][$table][$no][$field_name])) {
 			// this might not be correct, because it ignores the table_name
-			$value = $my_rec['POST'][$table][0][$field_name]; 
+			$value = $my_rec['POST'][$table][$no][$field_name]; 
 
 			// todo: problem: subrecords are being validated after main record, 
 			// so we might get invalid results
@@ -442,12 +464,12 @@ function zz_identifier_var($field_name, $my_rec, $main_post) {
 		}
 		$field_names = zz_split_fieldname($field_name);
 		if (!$field_names) return false;
-		if (empty($my_rec['POST'][$table][0][$field_names[0]])) return false;
+		if (empty($my_rec['POST'][$table][$no][$field_names[0]])) return false;
 		
 		$field = zz_get_subtable_fielddef($my_rec['fields'], $table);
 		if (!$field) return false;
 		
-		$id = $my_rec['POST'][$table][0][$field_names[0]];
+		$id = $my_rec['POST'][$table][$no][$field_names[0]];
 		$sql = zz_get_fielddef($field['fields'], $field_names[0], 'sql');
 		return zz_identifier_vars_db($sql, $id, $field_names[1]);
 	}
