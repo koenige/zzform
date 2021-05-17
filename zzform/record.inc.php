@@ -575,6 +575,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 		} elseif (isset($field['field_name'])) {
 			$field['f_field_name'] =
 			$field['select_field_name'] = $field['field_name'];
+		} elseif (in_array($field['type'], ['subtable', 'foreign_table'])) {
+			$field['f_field_name'] = $field['table_name'];
 		}
 
 		if (!empty($field['format']) AND empty($field['hide_format_in_title_desc'])) { 
@@ -693,6 +695,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 				// no formatting as a subtable if tick_to_save is used
 				$out['td']['attr'][] = 'subtable';
 			}
+			$out['td']['id'] = $field['f_field_name'];
 			// go through all detail records
 			$table_open = false;
 			$firstsubtable_no = NULL;
@@ -1450,7 +1453,9 @@ function zz_output_field_rows($matrix, $formdisplay, $extra_lastcol, $tab) {
 				$output .= '<th'.zz_show_class($row['th']['attr']).'>'
 					.$row['th']['content'].'</th>'."\n";
 			}
-			$output .=	"\t".'<td'.zz_show_class($row['td']['attr']).'>'
+			$output .=	"\t".'<td'
+				.(!empty($row['td']['id']) ? sprintf(' id="%s"', zz_make_id_fieldname($row['td']['id'])) : '')
+				.zz_show_class($row['td']['attr']).'>'
 				.$row['td']['content'].'</td></tr>'."\n";
 			if ($row['separator']) {
 				$output .= zz_show_separator($row['separator'], $index);
