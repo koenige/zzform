@@ -634,6 +634,7 @@ function zz_get_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 			if (!empty($subfield['type']) AND $subfield['type'] === 'sequence') {
 				$field['fields'][$no]['type'] = 'hidden';
 				$field['fields'][$no]['value'] = 1;
+				$field['fields'][$no]['for_action_ignore'] = true;
 				$field['fields'][$no]['hide_in_form'] = true;
 				$rec_tpl['fields'][$no] = $field['fields'][$no];
 			}
