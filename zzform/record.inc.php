@@ -751,7 +751,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 						&& !$dont_delete_records AND $mode !== 'revise')
 						// do not show remove button for single inline records,
 						// bit too much
-						if ($zz_tab[$sub_tab]['records'] !== 1 OR $field['form_display'] !== 'lines') {
+						if ($zz_tab[$sub_tab]['records'] !== 1 
+							OR ($field['form_display'] !== 'lines' AND $mode !== 'add')) {
 							$show_remove = true;
 						}
 				}
