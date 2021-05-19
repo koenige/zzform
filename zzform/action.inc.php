@@ -2014,6 +2014,9 @@ function zz_validate_parameter($fvalue) {
 	$fvalue = str_replace("\r\n", "&", $fvalue);
 	// escape + sign
 	$fvalue = str_replace("+", "%2B", $fvalue);
+	// keep %20 encoding
+	$percent20 = 'somerarelyappearingsequenceofcharacters20';
+	$fvalue = str_replace('%20', $percent20, $fvalue);
 
 	// check if there's whitespace at the end of one of the keys/values
 	parse_str($fvalue, $parameters);
@@ -2045,7 +2048,8 @@ function zz_validate_parameter($fvalue) {
 	if ($fvalue) $fvalue = '&'.$fvalue; // add leading ampersand for simpler queries
 	
 	// escape + sign again	
-	$fvalue = str_replace("+", "%2B", $fvalue);
+	$fvalue = str_replace('+', '%2B', $fvalue);
+	$fvalue = str_replace($percent20, '%20', $fvalue);
 	return $fvalue;
 }
 
