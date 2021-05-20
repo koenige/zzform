@@ -527,11 +527,11 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 				if (!empty($zz_record['where'][$zz_tab[$tab]['table_name']][$dependency['source_field_name']])) {
 					// WHERE
 					$source_field_value = $zz_record['where'][$zz_tab[$tab]['table_name']][$dependency['source_field_name']];
-					if (!in_array($source_field_value, $dependency['values']))
+					if (empty($dependency['values']) OR !in_array($source_field_value, $dependency['values']))
 						$hidden = true;
 				} elseif ($my_rec['action'] === 'review') {
 					$source_field_value = zz_dependent_value($dependency, $my_rec, $zz_tab);
-					if (!in_array($source_field_value, $dependency['values']))
+					if (empty($dependency['values']) OR !in_array($source_field_value, $dependency['values']))
 						$hidden = true;
 				} elseif (empty($my_rec['id']['value']) AND (empty($my_rec['id']['source_value']))) { // add mode
 					// default?
@@ -546,7 +546,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 						if ($my_field['field_name'] !== $dependency['source_field_name']) continue;
 						if (in_array('hidden', $my_field['class'])) continue; // hidden by another dependency?
 						if (empty($my_field['default'])) continue;
-						if (!in_array($my_field['default'], $dependency['values'])) continue;
+						if (empty($dependency['values']) OR !in_array($my_field['default'], $dependency['values'])) continue;
 						$default_selected = true;
 					}
 					if (!$default_selected) $hidden = true;
