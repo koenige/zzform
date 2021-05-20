@@ -972,11 +972,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 					$db_table, $no, json_encode($fields[$no], JSON_PRETTY_PRINT)), E_USER_ERROR
 				);
 			}
-			$fields[$no]['title'] = ucfirst($fields[$no]['field_name']);
-			$fields[$no]['title'] = str_replace('_ID', ' ', $fields[$no]['title']);
-			$fields[$no]['title'] = str_replace('_id', ' ', $fields[$no]['title']);
-			$fields[$no]['title'] = str_replace('_', ' ', $fields[$no]['title']);
-			$fields[$no]['title'] = rtrim($fields[$no]['title']);
+			$fields[$no]['title'] = zz_fill_out_field_title($fields[$no]['field_name']);
 		}
 		if (empty($fields[$no]['class'])) $fields[$no]['class'] = [];
 		elseif (!is_array($fields[$no]['class'])) $fields[$no]['class'] = [$fields[$no]['class']];
@@ -1139,6 +1135,21 @@ function zz_fill_out_required($field, $db_table) {
 	if (in_array($field['type'], $never_required)) return false;
 
 	return true;
+}
+
+/**
+ * create title from field name
+ *
+ * @param string $field_name
+ * @return string
+ */
+function zz_fill_out_field_title($field_name) {
+	$title = ucfirst($field_name);
+	$title = str_replace('_ID', ' ', $title);
+	$title = str_replace('_id', ' ', $title);
+	$title = str_replace('_', ' ', $title);
+	$title = rtrim($title);
+	return $title;
 }
 
 /**
