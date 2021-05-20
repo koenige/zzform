@@ -2340,7 +2340,7 @@ function zz_list_get_subselects($lines, $subselects, $mode) {
 		}
 	
 		// default values
-		if (!empty($subselect['export_no_html']) AND $mode === 'export') {
+		if (!empty($subselect['export_no_html']) OR $mode === 'export') {
 			if (!isset($subselect['prefix'])) $subselect['prefix'] = '';
 			if (!isset($subselect['concat_rows'])) $subselect['concat_rows'] = "\n";
 			if (!isset($subselect['suffix'])) $subselect['suffix'] = '';
