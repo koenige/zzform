@@ -82,14 +82,20 @@ function zz_translations_init($table, $fields) {
 
 		// include and read translation script
 		if (array_key_exists($translationfields[$field_name]['field_type'], $zz_conf['translations_script'])) {
+			// @deprecated
 			require $zz_conf['dir_custom'].'/'.$zz_conf['translations_script'][$translationfields[$field_name]['field_type']].'.inc.php';
 		} else {
-			$file = zzform_file(sprintf('translations-%s', $translationfields[$field_name]['field_type']));
-			if (!$file)
+			$filename = sprintf('translations-%s', $translationfields[$field_name]['field_type']);
+			$zz_sub = zzform_include_table(sprintf('translations-%s', $translationfields[$field_name]['field_type']));
+			if (!$zz_sub)
 				wrap_error(sprintf('Translations script for `%s` does not exist!', $translationfields[$field_name]['field_type']), E_USER_ERROR);
-			require $file['tables'];
 		}
 		$zz_sub = zz_sql_prefix($zz_sub);
+		// change title
+		$zz_sub['title'] = sprintf('%s (%s)'
+			, wrap_text(!empty($fields[$no]['title']) ? $fields[$no]['title'] : zz_fill_out_field_title($fields[$no]['field_name']))
+			, wrap_text($zz_sub['title'])
+		);
 		
 		// split fields-array
 		// glue together fields-array
