@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -35,6 +35,7 @@
  *			replaced by value
  *		'function' (false); name of function that identifier will go through finally
  *		'function_parameter' (false); single function parameter to pass to function
+ *		'remove_strings' ([]); list of strings that are removed
  * @param array $my_rec		$zz_tab[$tab][$rec]
  * @param string $db_table	Name of Table [dbname.table]
  * @param int $field		Number of field definition
@@ -70,7 +71,8 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 		'ignore_this_if' => [], 'empty' => [], 'uppercase' => false,
 		'function' => false, 'function_parameter' => false,
 		'unique_with' => [], 'where' => '', 'strip_tags' => false,
-		'exists_format' => '%s', 'ignore_this_if_identical' => []
+		'exists_format' => '%s', 'ignore_this_if_identical' => [],
+		'remove_strings' => []
 	];
 	foreach ($default_configuration as $key => $value) {
 		if (!isset($conf[$key])) $conf[$key] = $value;
@@ -79,7 +81,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 	foreach ($conf_max_length_1 as $key) {
 		$conf[$key] = substr($conf[$key], 0, 1);
 	}
-	$conf_arrays = ['ignore', 'unique_with'];
+	$conf_arrays = ['ignore', 'unique_with', 'remove_strings'];
 	foreach ($conf_arrays as $key) {
 		if (!is_array($conf[$key])) $conf[$key] = [$conf[$key]];
 	}
@@ -124,6 +126,10 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 				}
 				continue;
 			}
+		}
+		foreach ($conf['remove_strings'] as $remove_string) {
+			if (strstr($var, $remove_string))
+				$var = str_replace($remove_string, '', $var);
 		}
 		if ($conf['strip_tags']) $var = strip_tags($var);
 		// remove everything after a line break
