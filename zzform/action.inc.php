@@ -1460,6 +1460,34 @@ function zz_action_dependent_fields(&$zz_tab) {
 						// invisible, remove existing value if there is one
 						if (!empty($my_rec['fields'][$f]['required_in_db']) AND !empty($my_rec['fields'][$f]['dependent_empty_value'])) {
 							$zz_tab[$tab][$rec]['POST'][$field_name] = $my_rec['fields'][$f]['dependent_empty_value'];
+						} elseif (!$field_name AND !empty($field['table_name'])) {
+							$deleted_ids = zz_action_dependent_subtables($field, $my_rec['POST']);
+							if ($deleted_ids) {
+								// since it is a conditional field
+								// check if ID is in another subtable with same table
+								$all_deleted_ids = $deleted_ids;
+								foreach ($zz_tab as $index => $my_tab) {
+									if (!$index) continue; // main record
+									if ($my_tab['table_name'] === $field['table_name']) continue; // this is the subtable
+									if ($my_tab['table'] !== $field['table']) continue;
+									foreach ($deleted_ids as $index => $deleted_id) {
+										if (!in_array($deleted_id, $my_tab['subtable_ids'])) continue;
+										unset($deleted_ids[$index]); // we still need that record
+									}
+								}
+								$zz_tab[$field['subtable']]['subtable_deleted'] += $deleted_ids;
+								$zz_tab[$field['subtable']]['subtable_ids'] = [];
+								foreach ($zz_tab[$field['subtable']] as $sub_rec => $subtable) {
+									if (!is_numeric($sub_rec)) continue;
+									// remove data
+									$zz_tab[$field['subtable']][$sub_rec]['POST'] = [];
+									if (empty($subtable['id']['value'])
+										OR !in_array($subtable['id']['value'], $all_deleted_ids)) {
+										continue;
+									}
+									$zz_tab[$field['subtable']][$sub_rec]['id']['value'] = false;
+								}
+							}
 						} else {
 							$zz_tab[$tab][$rec]['POST'][$field_name] = false;
 						}
@@ -1471,6 +1499,32 @@ function zz_action_dependent_fields(&$zz_tab) {
 			}
 		}
 	}
+}
+
+/**
+ * check if there are dependent subtables that are hidden, get IDs
+ *
+ * @param array $field
+ * @param array $post
+ * @return array
+ */
+function zz_action_dependent_subtables($field, $post) {
+	// subtable, if there is an ID, remove it
+	$id_field_name = '';
+	foreach ($field['fields'] as $sub_field) {
+		if (empty($sub_field['type'])) continue;
+		if ($sub_field['type'] !== 'id') continue;
+		$id_field_name = $sub_field['field_name'];
+		break;
+	}
+	if (!$id_field_name) return [];
+	if (empty($post[$field['table_name']])) return [];
+	$to_delete = [];
+	foreach ($post[$field['table_name']] as $record) {
+		if (empty($record[$id_field_name])) continue;
+		$to_delete[] = $record[$id_field_name];
+	}
+	return $to_delete;
 }
 
 /**
