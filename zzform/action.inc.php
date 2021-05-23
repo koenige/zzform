@@ -71,6 +71,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 	if (zz_error_exit())
 		return zz_return([$ops, $zz_tab, $validation]);
 
+	zz_action_dependent_fields($zz_tab);
 	$zz_tab = zz_action_validate($zz_tab);
 
 	// hook, if an action directly after validation is required
@@ -1403,6 +1404,76 @@ function zz_foldercheck($zz_tab) {
  */
 
 /**
+ * check if dependent fields are invisible
+ * then no value for these must be saved, existing values need to be deleted
+ * 
+ * $zz['fields'][5]['dependent_fields'][9]['if_selected'] = 'crm_category';
+ * $zz['fields'][5]['dependent_fields'][9]['required] = true;
+ * @param array $zz_tab
+ * @return void
+ */
+function zz_action_dependent_fields(&$zz_tab) {
+	foreach (array_keys($zz_tab) as $tab) {
+		foreach (array_keys($zz_tab[$tab]) as $rec) {
+			if (!is_numeric($rec)) continue;
+			$my_rec = $zz_tab[$tab][$rec];
+			$dependent_fields_ids = zz_dependent_field_ids($my_rec['fields'], $tab, $rec);
+			if (!$dependent_fields_ids) continue;
+
+			foreach ($my_rec['fields'] as $f => $field) {
+				if (empty($dependent_fields_ids[$f])) continue;
+				// 	shorthand
+				$field_name = isset($field['field_name']) ? $field['field_name'] : '';
+
+				foreach ($dependent_fields_ids[$f] as $dependency) {
+					$source_value = zz_dependent_value($dependency, $my_rec, $zz_tab);
+					if ($source_value AND !empty($dependency['values']) AND in_array($source_value, $dependency['values'])) {
+						// visible, i. e. value is possible
+						if ($dependency['required']) {
+							$zz_tab[$tab][$rec]['fields'][$f]['required']
+								= $zz_tab[$tab][$rec]['fields'][$f]['required_in_db']
+								= true;
+						}
+					} elseif (!empty($dependency['set_values']) AND $source_value
+						AND array_key_exists($source_value, $dependency['set_values'])) {
+						$values = $dependency['set_values'][$source_value];
+						if (array_key_exists($field_name, $values)) {
+							if (wrap_substr($field_name, '_id', 'end') AND !is_numeric($values[$field_name])) {
+								$table = substr($field_name, 0, -3);
+								if (strstr($table, '_'))
+									$table = substr($table, strrpos($table, '_') + 1);
+								$table = wrap_substr($table, 'y', 'end') ? substr($table, 0, -1).'ies' : $table.'s';
+								$values[$field_name] = wrap_id($table, $values[$field_name]);
+							}
+							$zz_tab[$tab][$rec]['POST'][$field_name] = $values[$field_name];
+						} else {
+							if (!empty($my_rec['fields'][$f]['required_in_db']) AND !empty($my_rec['fields'][$f]['dependent_empty_value'])) {
+								$zz_tab[$tab][$rec]['POST'][$field_name] = $my_rec['fields'][$f]['dependent_empty_value'];
+							} else {
+								$zz_tab[$tab][$rec]['POST'][$field_name] = false;
+							}
+							$zz_tab[$tab][$rec]['fields'][$f]['required']
+								= $zz_tab[$tab][$rec]['fields'][$f]['required_in_db']
+								= false;
+						}
+					} else {
+						// invisible, remove existing value if there is one
+						if (!empty($my_rec['fields'][$f]['required_in_db']) AND !empty($my_rec['fields'][$f]['dependent_empty_value'])) {
+							$zz_tab[$tab][$rec]['POST'][$field_name] = $my_rec['fields'][$f]['dependent_empty_value'];
+						} else {
+							$zz_tab[$tab][$rec]['POST'][$field_name] = false;
+						}
+						$zz_tab[$tab][$rec]['fields'][$f]['required']
+							= $zz_tab[$tab][$rec]['fields'][$f]['required_in_db']
+							= false;
+					}
+				}
+			}
+		}
+	}
+}
+
+/**
  * Set action for subrecords and call validation for all records
  *
  * @param array $zz_tab
@@ -1458,68 +1529,15 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 
 	$my_rec = $zz_tab[$tab][$rec];
 	$db_table = $zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table'];
-	$table_name = $zz_tab[$tab]['table_name']; // Alias for table if it occurs in the form more than once
 	
-	// in case validation fails, these values will be send back to user
+	// in case validation fails, these values will be sent back to user
 	$my_rec['POST-notvalid'] = $my_rec['POST'];
 	$my_rec['last_fields'] = [];
 	$my_rec['extra'] = [];
 
-	// dependent fields
-	//	$zz['fields'][5]['dependent_fields'][9]['if_selected'] = 'crm_category';
-	//	$zz['fields'][5]['dependent_fields'][9]['required] = true;
-	$dependent_fields_ids = zz_dependent_field_ids($my_rec['fields'], $tab, $rec);
-
 	foreach ($my_rec['fields'] as $f => $field) {
 	// 	shorthand
 		$field_name = isset($field['field_name']) ? $field['field_name'] : '';
-
-	//	fields depends on other field?
-		if (!empty($dependent_fields_ids[$f])) {
-			foreach ($dependent_fields_ids[$f] as $dependency) {
-				$source_value = zz_dependent_value($dependency, $my_rec, $zz_tab);
-				if ($source_value AND !empty($dependency['values']) AND in_array($source_value, $dependency['values'])) {
-					// visible, i. e. value is possible
-					if ($dependency['required']) {
-						$field['required'] = $field['required_in_db']
-						= $my_rec['fields'][$f]['required'] = $my_rec['fields'][$f]['required_in_db']
-						= true;
-					}
-				} elseif (!empty($dependency['set_values']) AND $source_value
-					AND array_key_exists($source_value, $dependency['set_values'])) {
-					$values = $dependency['set_values'][$source_value];
-					if (array_key_exists($field_name, $values)) {
-						if (wrap_substr($field_name, '_id', 'end') AND !is_numeric($values[$field_name])) {
-							$table = substr($field_name, 0, -3);
-							if (strstr($table, '_'))
-								$table = substr($table, strrpos($table, '_') + 1);
-							$table = wrap_substr($table, 'y', 'end') ? substr($table, 0, -1).'ies' : $table.'s';
-							$values[$field_name] = wrap_id($table, $values[$field_name]);
-						}
-						$my_rec['POST'][$field_name] = $values[$field_name];
-					} else {
-						if (!empty($my_rec['fields'][$f]['required_in_db']) AND !empty($my_rec['fields'][$f]['dependent_empty_value'])) {
-							$my_rec['POST'][$field_name] = $my_rec['fields'][$f]['dependent_empty_value'];
-						} else {
-							$my_rec['POST'][$field_name] = false;
-						}
-						$field['required'] = $field['required_in_db']
-							= $my_rec['fields'][$f]['required'] = $my_rec['fields'][$f]['required_in_db']
-							= false;
-					}
-				} else {
-					// invisible, remove existing value if there is one
-					if (!empty($my_rec['fields'][$f]['required_in_db']) AND !empty($my_rec['fields'][$f]['dependent_empty_value'])) {
-						$my_rec['POST'][$field_name] = $my_rec['fields'][$f]['dependent_empty_value'];
-					} else {
-						$my_rec['POST'][$field_name] = false;
-					}
-					$field['required'] = $field['required_in_db']
-						= $my_rec['fields'][$f]['required'] = $my_rec['fields'][$f]['required_in_db']
-						= false;
-				}
-			}
-		}
 
 	//	check if some values are to be replaced internally
 		if (!empty($field['replace_values']) 
