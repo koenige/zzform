@@ -74,7 +74,8 @@ function zzform($zz) {
 		$review_via_login = true;
 	}
 	if (empty($zz_conf['multi'])
-		AND (!empty($_POST['zz_add_details']) OR !empty($_SESSION['zzform'][$zz_conf['id']]))
+		AND ((!empty($_POST['zz_add_details']) OR !empty($_POST['zz_edit_details']))
+		OR !empty($_SESSION['zzform'][$zz_conf['id']]))
 	) {
 		require_once $zz_conf['dir_inc'].'/details.inc.php';
 		$zz = zz_details($zz);

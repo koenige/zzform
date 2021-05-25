@@ -49,6 +49,11 @@ msgstr "Suche"
 msgid "New …"
 msgstr "Neu …"
 
+# Link to edit a new value for detail record via dropdown
+# Record form
+msgid "Edit …"
+msgstr "Bearbeiten …"
+
 # @todo check if deprecated
 # Record form: Heading
 msgid "review"

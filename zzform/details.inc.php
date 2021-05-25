@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -23,7 +23,7 @@ function zz_details($zz) {
 	global $zz_conf;
 	
 	// start script?
-	if (!empty($_POST['zz_add_details'])) {
+	if (!empty($_POST['zz_add_details']) OR !empty($_POST['zz_edit_details'])) {
 		zz_details_start($zz);
 		// on success: redirect
 		return $zz;
@@ -72,7 +72,8 @@ function zz_details_start($zz) {
 	global $zz_setting;
 	if (empty($_SESSION['logged_in'])) return false;
 
-	$add_details = key($_POST['zz_add_details']);
+	$mode = !empty($_POST['zz_add_details']) ? 'add' : 'edit';
+	$add_details = key($_POST['zz_'.$mode.'_details']);
 	$add_details = explode('-', $add_details);
 	if (count($add_details) === 4) {
 		list($id, $field_no) = $add_details;
@@ -109,7 +110,10 @@ function zz_details_start($zz) {
 	
 	$redirect_to = $field['add_details'];
 	$redirect_to .= strstr($field['add_details'], '?') ? '&' : '?';
-	$redirect_to .= sprintf('add&zz=%s', $zz_conf['id']);
+	if ($mode === 'add')
+		$redirect_to .= sprintf('add&zz=%s', $zz_conf['id']);
+	else
+		$redirect_to .= sprintf('edit=%d&zz=%s', $posted_value, $zz_conf['id']);
 
 	$source = $zz_setting['request_uri'];
 	$source .= strstr($source, '?') ? '&' : '?';

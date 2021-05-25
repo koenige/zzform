@@ -1329,16 +1329,17 @@ function zz_record_add_details($field, $mode, $tab, $rec, $fieldkey) {
 	
 	if (!empty($_SESSION['logged_in'])) {
 		if ($tab) {
-			$name = sprintf('zz_add_details[%s-%d-%d-%d-%d]',
+			$name = sprintf('%s-%d-%d-%d-%d',
 				$zz_conf['id'], $field['subtable_no'], $fieldkey, $tab, $rec
 			);
 		} else {
-			$name = sprintf('zz_add_details[%s-%d-%d-%d]',
+			$name = sprintf('%s-%d-%d-%d',
 				$zz_conf['id'], $fieldkey, $tab, $rec
 			);
 		}
-		$text = ' <input type="submit" name="%s" value="%s" formnovalidate="formnovalidate">';
-		$text = sprintf($text, $name, zz_text('New …'));
+		$text = ' <input type="submit" name="zz_add_details[%s]" value="%s" formnovalidate="formnovalidate" class="zz_add_details_add">';
+		$text .= ' <input type="submit" name="zz_edit_details[%s]" value="%s" formnovalidate="formnovalidate" class="zz_add_details_edit">';
+		$text = sprintf($text, $name, zz_text('New …'), $name, zz_text('Edit …'));
 	} else {
 		$add_details_sep = strstr($field['add_details'], '?') ? '&amp;' : '?';
 		$text = ' <a href="'.$field['add_details'].$add_details_sep

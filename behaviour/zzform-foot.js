@@ -23,6 +23,7 @@ function zzformRecordForm() {
 	zzformOptionFields();
 	zzformCheckBoxes();
 	zzformRadios();
+	zzformAddDetails();
 	zzformWmdEditor();
 	zzformForm.addEventListener('submit', zzformSubmit);
 }
@@ -166,6 +167,35 @@ function zzformRadios() {
 function zz_selectRadio(counter) {
 	var checkbox = zzformForm.getElementById(zz_inputs[counter].getAttribute('data-check-id'));
 	if (!checkbox.checked) checkbox.checked = 'checked';
+}
+
+/**
+ * show Edit/Add buttons, if there is an ID or not
+ *
+ */
+function zzformAddDetails() {
+	var addDetails = zzformForm.getElementsByClassName('zz_add_details_edit');
+	for (var i = 0; i < addDetails.length; i++) {
+		var select = addDetails[i].parentNode.getElementsByTagName('select');
+		var newButton = addDetails[i].parentNode.getElementsByTagName('input');
+		var display = 'none';
+		if (select.length) {
+			var options = select[0].getElementsByTagName('option');
+			for (var j = 0; j < options.length; j++) {
+				if (options[j].selected) {
+					if (options[j].value) display = 'inline';
+				}
+			}
+			select[0].addEventListener('change', zzformAddDetails);
+		}
+		if (display === 'inline') {
+			addDetails[i].setAttribute('style', 'display: inline;');
+			newButton[0].setAttribute('style', 'display: none;');
+		} else {
+			addDetails[i].setAttribute('style', 'display: none;');
+			newButton[0].setAttribute('style', 'display: inline;');
+		}
+	}
 }
 
 /*
