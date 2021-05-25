@@ -3262,11 +3262,12 @@ function zz_get_subtable_fielddef($fields, $table) {
 function zz_dependent_field_ids($fields, $tab, $rec) {
 	global $zz_conf;
 	static $dependent_ids;
+	$unique = sprintf('%s/%d/%d', $zz_conf['id'], $tab, $rec);
 	// save just for this request, therefore we use $zz_conf['id']
-	if (!empty($dependent_ids[$zz_conf['id']][$tab][$rec]))
-		return $dependent_ids[$zz_conf['id']][$tab][$rec];
+	if (!empty($dependent_ids[$unique]))
+		return $dependent_ids[$unique];
 
-	$dependent_ids[$zz_conf['id']][$tab][$rec] = [];
+	$dependent_ids[$unique] = [];
 	foreach ($fields as $index => $field) {
 		if (empty($field['dependent_fields'])) continue;
 		if (!empty($field['enum'])) {
@@ -3301,26 +3302,26 @@ function zz_dependent_field_ids($fields, $tab, $rec) {
 		}
 		foreach ($field['dependent_fields'] as $field_no => $dependent_field) {
 			if (empty($field['field_name']) AND !empty($field['table_name'])) {
-				$dependent_ids[$zz_conf['id']][$tab][$rec][$field_no][$index]['source_table'] = $field['table_name'];
-				$dependent_ids[$zz_conf['id']][$tab][$rec][$field_no][$index]['source_field_name'] = $dependent_field['field_name'];
+				$dependent_ids[$unique][$field_no][$index]['source_table'] = $field['table_name'];
+				$dependent_ids[$unique][$field_no][$index]['source_field_name'] = $dependent_field['field_name'];
 			} else {
-				$dependent_ids[$zz_conf['id']][$tab][$rec][$field_no][$index]['source_field_name'] = $field['field_name'];
+				$dependent_ids[$unique][$field_no][$index]['source_field_name'] = $field['field_name'];
 			}
-			$dependent_ids[$zz_conf['id']][$tab][$rec][$field_no][$index]['required'] = !empty($dependent_field['required']) ? true : false;
+			$dependent_ids[$unique][$field_no][$index]['required'] = !empty($dependent_field['required']) ? true : false;
 			foreach ($records as $record) {
 				// is record hidden but a value needs to be set?
 				if (!empty($dependent_field['value']) AND array_key_exists($dependent_field['value'], $record)) {
 					parse_str($record[$dependent_field['value']], $parameters);
 					if (!empty($parameters['value'])) {
-						$dependent_ids[$zz_conf['id']][$tab][$rec][$field_no][$index]['set_values'][reset($record)] = $parameters['value'];
+						$dependent_ids[$unique][$field_no][$index]['set_values'][reset($record)] = $parameters['value'];
 					}
 				}
 				if (empty($record[$dependent_field['if_selected']])) continue;
-				$dependent_ids[$zz_conf['id']][$tab][$rec][$field_no][$index]['values'][] = reset($record);
+				$dependent_ids[$unique][$field_no][$index]['values'][] = reset($record);
 			}
 		}
 	}
-	return $dependent_ids[$zz_conf['id']][$tab][$rec];
+	return $dependent_ids[$unique];
 }
 
 /**
