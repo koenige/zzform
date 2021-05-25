@@ -1511,6 +1511,14 @@ function zz_output_field_rows($matrix, $formdisplay, $extra_lastcol, $tab) {
  */
 function zz_output_subtable_submit($mode, $field, $tab, $rec = 0) {
 	$fieldattr = [];
+	// $zz['fields'][2]['select_empty_no_add'] = true;
+	foreach ($field['fields'] as $subfield) {
+		if (empty($subfield['select_empty_no_add'])) continue;
+		if (empty($subfield['sql'])) continue;
+		$records = zz_db_fetch($subfield['sql'], '_dummy_', 'numeric');
+		if (!$records) return '';
+	}
+
 	switch ($mode) {
 	case 'add':
 		$value = sprintf(zz_text('Add %s'), $field['title_button']);
