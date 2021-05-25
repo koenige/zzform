@@ -1304,8 +1304,8 @@ function zz_get_unique_fields($fields) {
  * @return bool 
  */
 function zz_set_fielddefs_for_record(&$zz) {
-	$rec = 1;
-	$zz['record']['subtables'] = [];			// key: $rec, value: $no
+	$tab = 1;
+	$zz['record']['subtables'] = [];			// key: $tab, value: $no
 	$zz['record']['save_old_record'] = [];	// key: int, value: $no
 	$zz['record']['upload_form'] = false;			// false: no upload, true: upload possible
 
@@ -1325,11 +1325,11 @@ function zz_set_fielddefs_for_record(&$zz) {
 		case 'foreign_table':
 			// save number of subtable, get table_name and check whether sql
 			// is unique, look for upload form as well
-			$zz['record']['subtables'][$rec] = $no;
+			$zz['record']['subtables'][$tab] = $no;
 			if (!isset($zz['fields'][$no]['table_name']))
 				$zz['fields'][$no]['table_name'] = $zz['fields'][$no]['table'];
-			$zz['fields'][$no]['subtable'] = $rec;
-			$rec++;
+			$zz['fields'][$no]['subtable'] = $tab;
+			$tab++;
 			if (!empty($zz['fields'][$no]['sql_not_unique'])) {
 				// must not change record where main record is not directly 
 				// superior to detail record 
@@ -1343,11 +1343,11 @@ function zz_set_fielddefs_for_record(&$zz) {
 					$zz['record']['upload_form'] = true;
 					break;
 				case 'subtable': 
-					$zz['record']['subtables'][$rec] = $no.'-'.$subno;
+					$zz['record']['subtables'][$tab] = $no.'-'.$subno;
 					if (!isset($subfield['table_name']))
 						$zz['fields'][$no]['fields'][$subno]['table_name'] = $subfield['table'];
-					$zz['fields'][$no]['fields'][$subno]['subtable'] = $rec;
-					$rec++;
+					$zz['fields'][$no]['fields'][$subno]['subtable'] = $tab;
+					$tab++;
 					break;
 				}
 			}
