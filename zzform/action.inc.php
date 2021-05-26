@@ -1805,7 +1805,7 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 				// record did not change, so we do not need to check the select value
 				break;
 			}
-			$my_rec = zz_check_select($my_rec, $f, $zz_conf['max_select']);
+			$my_rec = zz_check_select($my_rec, $f);
 			//	check for correct enum values
 			if (!$my_rec['POST'][$field_name]) break;
 			if (isset($field['enum'])) {

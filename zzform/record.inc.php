@@ -1110,10 +1110,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 						);
 					}
 
-					// write some values into $fields
-					$field['max_select'] = $zz_conf_record['max_select'];
-					$field['max_select_val_len'] = $zz_conf_record['max_select_val_len'];
-
 					$outputf = zz_field_select_sql($field, $field_display, $my_rec['record'], 
 						$zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table']);
 
@@ -2581,7 +2577,6 @@ function zz_field_set($field, $fields, $display, $my_tab) {
  * Output form element type="select", foreign_key with sql query
  * 
  * @param array $field field that will be checked
- *		$field['max_select'] = $zz_conf_record['max_select']
  * @param string $display
  * @param array $record $my_rec['record']
  * @param string $db_table db_name.table
@@ -3607,7 +3602,6 @@ function zz_form_select_sql_where($field, $where_fields) {
  * HTML output of values, either in <option>, <input> or as plain text
  *
  * @param array $field field definition
- *		'max_select_val_len' = $zz_conf_record['max_select_val_len']
  * @param array $record $my_rec['record']
  * @param array $line record from database
  * @param string $id_field_name

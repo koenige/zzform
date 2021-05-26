@@ -1485,7 +1485,7 @@ function zz_upload_prepare_source_file($image, $my_rec, $zz_tab, $tab, $rec) {
 		if (!$my_rec['POST'][$image['source_file']]) continue;
 		$found = true;
 		if ($field['type'] !== 'select') break;
-		$my_rec = zz_check_select($my_rec, $index, $zz_conf['max_select']);
+		$my_rec = zz_check_select($my_rec, $index);
 	}
 	if (!$found) return false;
 
@@ -1632,8 +1632,6 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
  * @return array $image
  */
 function zz_upload_merge_options($image, $my_tab, $rec = 0) {
-	global $zz_conf;
-	
 	if (empty($image['options'])) return $image;
 	// to make it easier, allow input without array construct as well
 	if (!is_array($image['options'])) 
@@ -1649,7 +1647,7 @@ function zz_upload_merge_options($image, $my_tab, $rec = 0) {
 		// this is the selected option
 		if ($my_tab[$rec]['fields'][$no]['type'] === 'select') {
 			// @todo do this in action module beforehands
-			$my_tab[$rec] = zz_check_select($my_tab[$rec], $no, $zz_conf['max_select']);
+			$my_tab[$rec] = zz_check_select($my_tab[$rec], $no);
 		}
 		$option_value = $my_tab[$rec]['POST'][$field_name];
 		if (!empty($image['options_sql'][$index]) AND $option_value) {

@@ -1080,6 +1080,12 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			if ($fields[$no]['upload_max_filesize'] > $ini_filesize)
 				$fields[$no]['upload_max_filesize'] = $ini_filesize;
 			break;
+		case 'select':
+			if (!isset($fields[$no]['max_select']))
+				$fields[$no]['max_select'] = $zz_conf['max_select'];
+			if (!isset($fields[$no]['max_select_val_len']))
+				$fields[$no]['max_select_val_len'] = $zz_conf['max_select_val_len'];
+			break;
 		}
 		if (in_array(zz_get_fieldtype($fields[$no]), ['time', 'datetime'])) {
 			if (empty($fields[$no]['time_format'])) {
@@ -3551,13 +3557,11 @@ function zz_review_via_login() {
  *
  * @param array $my_rec
  * @param int $f Key of current field
- * @param int $max_select = e. g. $zz_conf['max_select'], maximum entries in
- *		option-Field before we offer a blank text field to enter values
  * @global array $zz_conf
  * @return array $my_rec changed keys:
  *		'fields'[$f], 'POST', 'POST-notvalid', 'validation'
  */
-function zz_check_select($my_rec, $f, $max_select) {
+function zz_check_select($my_rec, $f) {
 	global $zz_conf;
 
 	// only for 'select'-fields with SQL query (not for enums neither for sets)
@@ -3614,7 +3618,7 @@ function zz_check_select($my_rec, $f, $max_select) {
 		$my_rec['POST-notvalid'][$field_name] = current($possible_values);
 		// if other fields contain errors:
 		$my_rec['fields'][$f]['sql'] = $my_rec['fields'][$f]['sql_new'];
-	} elseif (count($possible_values) <= $max_select) {
+	} elseif (count($possible_values) <= $my_rec['fields'][$f]['max_select']) {
 		// let user reselect value from dropdown select
 		$my_rec['fields'][$f]['type'] = 'select';
 		$my_rec['fields'][$f]['sql'] = $my_rec['fields'][$f]['sql_new'];
