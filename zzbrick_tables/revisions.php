@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2016, 2019 Gustaf Mossakowski
+ * @copyright Copyright © 2016, 2019, 2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -37,7 +37,7 @@ $zz['fields'][3]['link'] = [
 	'field1' => 'revisions_url',
 	'string2' => '?revise=',
 	'field2' => 'main_record_id',
-	'string3' => '&nolist&referer='.urlencode($_SERVER['REQUEST_URI'])
+	'string3' => '&nolist&referer='.urlencode($zz_setting['request_uri'])
 ];
 
 $zz['fields'][4]['field_name'] = 'user_id';

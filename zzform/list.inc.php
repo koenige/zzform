@@ -1659,6 +1659,8 @@ function zz_list_format($text, $list_format) {
  * @return string $link opening A tag HTML code for link (false if there is no link)
  */
 function zz_set_link($field, $line) {
+	global $zz_setting;
+
 	$link = false;
 	if (!empty($field['list_no_link'])) return false;
 	if ($field['type'] === 'url') {
@@ -1675,7 +1677,7 @@ function zz_set_link($field, $line) {
 		$link = $field['link'].$line[$field['field_name']];
 	}
 	if ($link AND !empty($field['link_referer'])) 
-		$link .= '&amp;referer='.urlencode($_SERVER['REQUEST_URI']);
+		$link .= '&amp;referer='.urlencode($zz_setting['request_uri']);
 	if (!$link) return false;
 
 	// if there's something, go on and put HTML for link together
@@ -2233,6 +2235,7 @@ function zz_sql_order_check($field, $type, $field_name) {
  */
 function zz_list_th($field, $mode = 'html') {
 	global $zz_conf;
+	global $zz_setting;
 
 	$out = !empty($field['title_tab']) ? $field['title_tab'] : $field['title'];
 	if (!empty($field['dont_sort'])) return $out;
@@ -2252,7 +2255,7 @@ function zz_list_th($field, $mode = 'html') {
 	$uri = $zz_conf['int']['url']['self'].zz_edit_query_string($zz_conf['int']['url']['qs']	
 		.$zz_conf['int']['url']['qs_zzform'], $unwanted_keys, $new_keys);
 	$order_dir = 'asc';
-	if (str_replace('&amp;', '&', $uri) === $_SERVER['REQUEST_URI']) {
+	if (str_replace('&amp;', '&', $uri) === $zz_setting['request_uri']) {
 		$uri.= '&amp;dir=desc';
 		$order_dir = 'desc';
 	}

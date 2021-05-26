@@ -809,6 +809,7 @@ function zzform_multi($definition_file, $values) {
 	// unset all variables that are not needed
 	// important because there may be multiple zzform calls
 	global $zz_conf;
+	global $zz_setting;
 	
 	$old = [
 		'conf' => $zz_conf,
@@ -863,7 +864,7 @@ function zzform_multi($definition_file, $values) {
 	$zz = zzform_include_table($definition_file, $values);
 	if (empty($zz_conf['user'])) {
 		if (!empty($_SESSION['username'])) $zz_conf['user'] = $_SESSION['username'];
-		else $zz_conf['user'] = $_SERVER['REQUEST_URI'];
+		else $zz_conf['user'] = $zz_setting['request_uri'];
 	}
 	if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
 		zz_debug('got definition file');

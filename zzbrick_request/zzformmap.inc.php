@@ -58,8 +58,9 @@ function mod_zzform_zzformmap($params, $settings) {
  */
 function mod_zzform_zzformmap_url($type = 'kml') {
 	global $zz_conf;
+	global $zz_setting;
 
-	$url = parse_url($_SERVER['REQUEST_URI']);
+	$url = parse_url($zz_setting['request_uri']);
 	$map_url = $url['path'];
 	if (!empty($url['query'])) {
 		parse_str($url['query'], $query);

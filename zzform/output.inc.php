@@ -240,6 +240,7 @@ function zz_nice_headings($heading, $zz) {
  */
 function zz_show_more_actions($conf, $id, $line) {
 	global $zz_conf;
+	global $zz_setting;
 	static $error; // @deprecated
 
 	$act = [];
@@ -252,7 +253,7 @@ function zz_show_more_actions($conf, $id, $line) {
 			if (empty($error)) {
 				zz_error_log([
 					'msg_dev' => 'Using deprecated details notation (key %d, script %s)',
-					'msg_dev_args' => [$key, basename($_SERVER['REQUEST_URI'])]
+					'msg_dev_args' => [$key, basename($zz_setting['request_uri'])]
 				]);
 				$error = true;
 			}
@@ -285,7 +286,7 @@ function zz_show_more_actions($conf, $id, $line) {
 				$output .= $conf['details_url'];
 			if (!isset($conf['details_url']) OR !is_array($conf['details_url'])) $output .= $id;
 			
-			$output .= ($conf['details_referer'] ? '&amp;referer='.urlencode($_SERVER['REQUEST_URI']) : '')
+			$output .= ($conf['details_referer'] ? '&amp;referer='.urlencode($zz_setting['request_uri']) : '')
 				.'"'
 				.(!empty($conf['details_target']) ? ' target="'.$conf['details_target'].'"' : '')
 				.'>'.zz_text($detail).'</a>';
@@ -309,7 +310,7 @@ function zz_show_more_actions($conf, $id, $line) {
 				];
 			}
 			$target = !empty($detail['target']) ? sprintf(' target="%s"', $detail['target']) : '';
-			$referer = !empty($detail['referer']) ? sprintf('&amp;referer=%s', urlencode($_SERVER['REQUEST_URI'])) : '';
+			$referer = !empty($detail['referer']) ? sprintf('&amp;referer=%s', urlencode($zz_setting['request_uri'])) : '';
 			$count = (!empty($detail['sql']) AND $no = zz_db_fetch(sprintf($detail['sql'], $id), '', 'single value')) ? sprintf('&nbsp;(%d)', $no) : '';
 			$url = zz_makelink($detail['link'], $line);
 			$act[] = sprintf('<a href="%s%s"%s>%s%s</a>', $url, $referer, $target, zz_text($detail['title']), $count);

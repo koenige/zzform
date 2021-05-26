@@ -344,6 +344,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_record, $zz_conditions
  */
 function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple) {
 	global $zz_conf;
+	global $zz_setting;
 	$output = [];
 	
 	if (!empty($zz_conf['referer']) AND array_key_exists('nolist', $_GET)
@@ -395,7 +396,7 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple)
 			break;
 		}
 		$output['submit'] = zz_form_element('', $elementvalue, 'submit', false, $fieldattr);
-		if (($cancelurl !== $_SERVER['REQUEST_URI'] OR ($zz_record['action']) OR !empty($_POST))
+		if (($cancelurl !== $zz_setting['request_uri'] OR ($zz_record['action']) OR !empty($_POST))
 			AND $zz_conf_record['cancel_link']) 
 			// only show cancel link if it is possible to hide form 
 			// @todo expanded to action, not sure if this works on add only forms, 
@@ -1310,6 +1311,7 @@ function zz_record_sort_matrix($matrix) {
  */
 function zz_record_add_details($field, $mode, $tab, $rec, $fieldkey) {
 	global $zz_conf;
+	global $zz_setting;
 
 	if (!isset($field['add_details'])) return '';
 	if (!$mode) return '';
@@ -1339,7 +1341,7 @@ function zz_record_add_details($field, $mode, $tab, $rec, $fieldkey) {
 	} else {
 		$add_details_sep = strstr($field['add_details'], '?') ? '&amp;' : '?';
 		$text = ' <a href="'.$field['add_details'].$add_details_sep
-			.'add&amp;referer='.urlencode($_SERVER['REQUEST_URI'])
+			.'add&amp;referer='.urlencode($zz_setting['request_uri'])
 			.$zz_conf['int']['add_details_where'].'"'
 			.(!empty($field['add_details_target']) ? ' target="'.$field['add_details_target'].'"' : '')
 			.' id="zz_add_details_'.$tab.'_'.$rec.'_'.$fieldkey.'">['. zz_text('New …').']</a>';
@@ -2011,6 +2013,7 @@ function zz_field_unix_timestamp($field, $display, $record) {
  * @return string
  */
 function zz_field_foreign($field, $id_value) {
+	global $zz_setting;
 	// get value
 	$sql = $field['sql'].$id_value;
 	$foreign_lines = zz_db_fetch($sql, 'dummy_id', 'single value', 'fieldtype foreign');
@@ -2025,7 +2028,7 @@ function zz_field_foreign($field, $id_value) {
 	if (!isset($field['add_foreign'])) return $text;
 	if (!$id_value) return $text.zz_text('edit-after-save');
 	return $text.' <a href="'.$field['add_foreign'].$id_value
-		.'&amp;referer='.urlencode($_SERVER['REQUEST_URI']).'">['
+		.'&amp;referer='.urlencode($zz_setting['request_uri']).'">['
 		.zz_text('edit').' &hellip;]</a>';
 }
 

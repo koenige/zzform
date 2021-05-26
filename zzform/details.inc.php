@@ -21,6 +21,7 @@
  */
 function zz_details($zz) {
 	global $zz_conf;
+	global $zz_setting;
 	
 	// start script?
 	if (!empty($_POST['zz_add_details']) OR !empty($_POST['zz_edit_details'])) {
@@ -32,7 +33,7 @@ function zz_details($zz) {
 	if (!array_key_exists($zz_conf['id'], $_SESSION['zzform'])) return $zz;
 
 	// check position
-	$script_name = zz_url_basename($_SERVER['REQUEST_URI']);
+	$script_name = zz_url_basename($zz_setting['request_uri']);
 	$last = NULL;
 	$current = NULL;
 
