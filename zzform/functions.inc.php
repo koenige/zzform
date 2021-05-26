@@ -282,6 +282,9 @@ function zz_get_url_self() {
 	global $zz_conf;
 	
 	$my_uri = $zz_page['url']['full'];
+	if (!empty($my_uri['path_forwarded']) AND wrap_substr($my_uri['path'], $my_uri['path_forwarded'])) {
+		$my_uri['path'] = substr($my_uri['path'], strlen($my_uri['path_forwarded']));
+	}
 	$my_uri['path'] = $zz_setting['base'].$my_uri['path'];
 
 	// some basic settings
