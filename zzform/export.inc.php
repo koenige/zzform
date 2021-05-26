@@ -272,8 +272,9 @@ function zz_export_sort(&$out) {
 		$field_sequences_per_row = $field_sequences;
 		$extras = [];
 		foreach ($row as $subindex => $value) {
-			if (is_numeric($subindex)) continue;
-			$extras[$subindex] = $value;
+			if (is_numeric($subindex) AND $subindex >= 0) continue;
+			// remove -1 array
+			if (!is_numeric($subindex)) $extras[$subindex] = $value;
 			unset($out['rows'][$index][$subindex]);
 		}
 		array_multisort($field_sequences_per_row, SORT_ASC, $out['rows'][$index]);
