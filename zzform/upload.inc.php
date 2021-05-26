@@ -228,7 +228,7 @@ function zz_upload_thumbnail($ops, $zz_tab) {
 		$ops['id'] = $zz_conf['int']['id']['value'];
 		$ops['result'] = 'thumbnail not created';
 	} else {
-		$ops['error'] = sprintf('Thumbnail information for field %d (No. %d) not found',
+		$ops['error'][] = sprintf('Thumbnail information for field %d (No. %d) not found',
 			$ops['thumb_field'][0], $ops['thumb_field'][1]
 		);
 		$zz_conf['int']['http_status'] = 404;
