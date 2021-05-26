@@ -1083,12 +1083,13 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			if ($fields[$no]['upload_max_filesize'] > $ini_filesize)
 				$fields[$no]['upload_max_filesize'] = $ini_filesize;
 			break;
-		case 'select':
+		}
+		if ($fields[$no]['type'] === 'select'
+			OR !empty($fields[$no]['type_detail']) AND $fields[$no]['type_detail'] === 'select') {
 			if (!isset($fields[$no]['max_select']))
 				$fields[$no]['max_select'] = $zz_conf['max_select'];
 			if (!isset($fields[$no]['max_select_val_len']))
 				$fields[$no]['max_select_val_len'] = $zz_conf['max_select_val_len'];
-			break;
 		}
 		if (in_array(zz_get_fieldtype($fields[$no]), ['time', 'datetime'])) {
 			if (empty($fields[$no]['time_format'])) {
