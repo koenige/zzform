@@ -252,10 +252,6 @@ function zzformSubmit(event) {
 	event.preventDefault();
 	zzformSavePage();
 	document.getElementById('zzform_submit').style = 'display: none;';
-	zzformUploadForm = document.getElementById('zzform_upload_progress');
-	if (zzformUploadForm) {
-		zzformUploadForm.style = 'display: block;';
-	}
 
 	var data = new FormData(zzformForm);
 	data.append('zz_html_fragment', 1);
@@ -264,7 +260,9 @@ function zzformSubmit(event) {
 	}
 
 	var xhr = new XMLHttpRequest();
+	zzformUploadForm = document.getElementById('zzform_upload_progress');
 	if (zzformUploadForm) {
+		zzformUploadForm.style = 'display: block;';
 		xhr.upload.addEventListener('progress', zzformUploadProgress, false);
 	}
 	xhr.addEventListener('error', zzformUploadError, false);
@@ -424,6 +422,7 @@ window.onpopstate = function(event){
  * show upload status
  */
 function zzformUploadProgress(event){
+	if (event.total < 100000) return; // do not show progress bar below 100 KB
 	document.getElementById("zzform_loaded").innerHTML = "%%% text Uploaded: %%% " + event.loaded + " / %%% text Total: %%% " + event.total + " %%% text Bytes %%% ";
 	var percent = (event.loaded / event.total) * 100;
 	document.getElementById("zzform_upload_progress_bar").value = Math.round(percent);
