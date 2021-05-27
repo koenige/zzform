@@ -480,6 +480,10 @@ msgstr "Text ist zu lang (max. %d Zeichen, %d eingegeben)."
 msgid "Text is too short (min. %d characters, %d submitted)."
 msgstr "Text ist zu kurz (min. %d Zeichen, %d eingegeben)."
 
+# Record form: Validation, displayed inside form
+msgid "Please make a different selection."
+msgstr "Bitte treffen Sie eine andere Auswahl."
+
 # Record form: Validation, displayed above form
 msgid "These errors occurred:"
 msgstr "Diese Fehler sind aufgetreten:"

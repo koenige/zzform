@@ -1805,6 +1805,14 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 				// record did not change, so we do not need to check the select value
 				break;
 			}
+			if (!empty($field['disabled_ids'])) {
+				// @todo racing conditions possible
+				if (in_array($my_rec['POST'][$field_name], $field['disabled_ids'])) {
+					$my_rec['validation'] = false;
+					$my_rec['fields'][$f]['check_validation'] = false;
+					$my_rec['fields'][$f]['suffix'] = ' '.zz_text('Please make a different selection.');
+				}
+			}
 			$my_rec = zz_check_select($my_rec, $f);
 			//	check for correct enum values
 			if (!$my_rec['POST'][$field_name]) break;

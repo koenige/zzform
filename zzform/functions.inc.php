@@ -3622,6 +3622,12 @@ function zz_check_select($my_rec, $f) {
 		$my_rec['POST-notvalid'][$field_name] = current($possible_values);
 		// if other fields contain errors:
 		$my_rec['fields'][$f]['sql'] = $my_rec['fields'][$f]['sql_new'];
+		if (!empty($my_rec['fields'][$f]['disabled_ids'])
+			AND in_array($my_rec['POST'][$field_name], $my_rec['fields'][$f]['disabled_ids'])) {
+			$my_rec['validation'] = false;
+			$my_rec['fields'][$f]['check_validation'] = false;
+			$my_rec['fields'][$f]['suffix'] = ' '.zz_text('Please make a different selection.');
+		}
 	} elseif (count($possible_values) <= $my_rec['fields'][$f]['max_select']) {
 		// let user reselect value from dropdown select
 		$my_rec['fields'][$f]['type'] = 'select';
