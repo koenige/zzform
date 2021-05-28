@@ -2444,7 +2444,6 @@ function zz_backwards_rename($var, $var_renamed, $var_name) {
 function zz_error() {
 	global $zz_conf;
 	global $zz_setting;
-	static $post_errors_logged;
 	
 	if (empty($zz_conf['error_handling'])) {
 		$zz_conf['error_handling'] = 'output';
@@ -2466,9 +2465,6 @@ function zz_error() {
 	if (in_array($log_encoding, array_keys($zz_conf['translate_log_encodings'])))
 		$log_encoding = $zz_conf['translate_log_encodings'][$log_encoding];
 	
-	$username = ' ['.zz_text('User').': '
-		.($zz_conf['user'] ? $zz_conf['user'] : zz_text('No user')).']';
-
 	// browse through all errors
 	foreach ($logged_errors as $key => $error) {
 		if (!is_numeric($key)) continue;
@@ -2483,7 +2479,6 @@ function zz_error() {
 		}
 		if (!$zz_conf['error_log_post']) $error['log_post_data'] = false;
 		elseif (empty($_POST)) $error['log_post_data'] = false;
-		elseif ($post_errors_logged) $error['log_post_data'] = false;
 
 		// page http status
 		if ($error['status'] !== 200) {
@@ -2598,23 +2593,8 @@ function zz_error() {
 		$log[$key] = str_replace('&lt;', '<', $log[$key]);
 		// reformat log output
 		if (!empty($zz_conf['error_log'][$level]) AND $zz_conf['log_errors']) {
-			$line = '['.date('d-M-Y H:i:s').'] zzform '.ucfirst($level)
-				.': ['.$zz_setting['request_uri'].'] '.preg_replace("/\s+/", " ", $log[$key]);
-			$line = substr($line, 0, $zz_conf['log_errors_max_len'] - (strlen($username) + 1));
-			$line .= $username."\n";
-			error_log($line, 3, $zz_conf['error_log'][$level]);
-			if ($error['log_post_data']) {
-				$line = '['.date('d-M-Y H:i:s').'] zzform Notice: POST';
-				if (function_exists('json_encode')) {
-					$line .= '[json] '.json_encode($_POST);
-				} else {
-					$line .= ' '.serialize($_POST);
-				}
-				$line = substr($line, 0, $zz_conf['log_errors_max_len'] 
-					- (strlen($username)+4)).' '.$username."\n";
-				error_log($line, 3, $zz_conf['error_log'][$level]);
-				$post_errors_logged = true;
-			}
+			wrap_log('zzform', $level, '['.$zz_setting['request_uri'].'] '.$log[$key]);
+			if ($error['log_post_data']) wrap_log('zzform', 'postdata');
 		}
 		// Mail output
 		if (isset($zz_conf['error_mail_level']) AND in_array(
@@ -2652,8 +2632,8 @@ function zz_error() {
 			.$zz_setting['request_uri']
 			."\nIP: ".$zz_setting['remote_ip']
 			.(!empty($_SERVER['HTTP_USER_AGENT']) ? "\nBrowser: ".$_SERVER['HTTP_USER_AGENT'] : '');		
-		if ($zz_conf['user'])
-			$mail['message'] .= "\nUser: ".$zz_conf['user'];
+		if ($user = wrap_user())
+			$mail['message'] .= sprintf("\nUser: %s", $user);
 
 		if (empty($zz_conf['mail_subject_prefix']))
 			$zz_conf['mail_subject_prefix'] = '['.wrap_get_setting('project').']';
