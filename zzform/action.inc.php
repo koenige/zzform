@@ -724,7 +724,9 @@ function zz_action_details($detail_sqls, $zz_tab, $validation, $ops, $foreign_id
  * @param string $type for @see zz_record_info()
  */
 function zz_action_hook($ops, $zz_tab, $position, $type) {
-	if (empty($zz_tab[0]['hooks'][$position])) return [$ops, $zz_tab];
+	if (empty($zz_tab[0]['hooks'][$position])
+		AND empty($zz_tab[0]['triggers'][$position]))
+		return [$ops, $zz_tab];
 
 	// get information
 	foreach (array_keys($zz_tab) as $tab) {
@@ -761,8 +763,12 @@ function zz_action_hook($ops, $zz_tab, $position, $type) {
 function zz_action_function($type, $ops, $zz_tab) {
 	global $zz_conf;
 	global $zz_setting;
-	
-	if (empty($zz_tab[0]['hooks'][$type])) return false;
+
+	if (empty($zz_tab[0]['hooks'][$type])) {
+		if (!empty($zz_tab[0]['triggers'][$type]))
+			zz_action_trigger($zz_tab[0]['triggers'][$type]);
+		return false;
+	}
 
 	if (file_exists($zz_conf['hooks_dir'].'/hooks.inc.php')) {
 		require_once $zz_conf['hooks_dir'].'/hooks.inc.php';
@@ -798,6 +804,10 @@ function zz_action_function($type, $ops, $zz_tab) {
 		if (!is_array($custom_result)) continue;
 		$change = zz_array_merge($change, $custom_result);
 	}
+
+	if (!empty($zz_tab[0]['triggers'][$type]))
+		zz_action_trigger($zz_tab[0]['triggers'][$type]);
+
 	if (!$change) return true;
 	$record_replace = [
 		'before_upload', 'after_validation', 'before_insert', 'before_update'
@@ -903,6 +913,17 @@ function zz_action_change($ops, $zz_tab, $change) {
 		}
 	}
 	return [$ops, $zz_tab];
+}
+
+/**
+ * trigger URL at a certain point in action process
+ *
+ * @param array $triggers list of URLs
+ */
+function zz_action_trigger($triggers) {
+	foreach ($triggers as $trigger) {
+		$data = wrap_trigger_protected_url($trigger);
+	}
 }
 
 /**

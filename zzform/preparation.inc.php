@@ -63,6 +63,7 @@ function zz_prepare_tables($zz, $mode) {
 	if (!empty($zz_tab[0]['revision_id'])) $zz['revision_hooks'] = true;
 
 	$zz_tab[0]['hooks'] = zz_prepare_hooks($zz);
+	$zz_tab[0]['triggers'] = !empty($zz['triggers']) ? $zz['triggers'] : [];
 	
 	$zz_tab[0][0]['action'] = $zz['record']['action'];
 	$zz_tab[0][0]['fields'] = $zz['fields'];
