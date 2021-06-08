@@ -403,11 +403,11 @@ function zz_search_checkfield($field_name, $table, $searchword) {
 		return '';
 	}
 	$type = $column['Type'];
-	if (wrap_substr($type, 'unsigned', 'end')) {
+	if (str_ends_with($type, 'unsigned')) {
 		$unsigned = true;
 		$type = substr($type, 0, -9);
 	} else {
-		if (wrap_substr($type, 'signed', 'end')) {
+		if (str_ends_with($type, 'signed')) {
 			$type = substr($type, 0, -7);
 		}
 		$unsigned = false;

@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2016-2019 Gustaf Mossakowski
+ * @copyright Copyright © 2016-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -88,7 +88,7 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	foreach ($where as $condition) {
 		$conditions[] = sprintf('(%s)', implode(' OR ', $condition));
 	}
-	if (wrap_substr(trim($sql), 'SHOW')) {
+	if (str_starts_with(trim($sql), 'SHOW')) {
 		$sql .= sprintf(' LIKE "%%%s%%"', $text[0]);
 	} else {
 		$sql = wrap_edit_sql($sql, 'WHERE', implode(' AND ', $conditions));
@@ -194,7 +194,7 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 				];
 				$j++;
 			}
-		} elseif (wrap_substr(trim($sql), 'SHOW')) {
+		} elseif (str_starts_with(trim($sql), 'SHOW')) {
 			$text[] = reset($record);
 			$data['entries'][$i]['elements'][0] = [
 				'node' => 'div',

@@ -1460,11 +1460,11 @@ function zz_action_dependent_fields(&$zz_tab) {
 						AND array_key_exists($source_value, $dependency['set_values'])) {
 						$values = $dependency['set_values'][$source_value];
 						if (array_key_exists($field_name, $values)) {
-							if (wrap_substr($field_name, '_id', 'end') AND !is_numeric($values[$field_name])) {
+							if (str_ends_with($field_name, '_id') AND !is_numeric($values[$field_name])) {
 								$table = substr($field_name, 0, -3);
 								if (strstr($table, '_'))
 									$table = substr($table, strrpos($table, '_') + 1);
-								$table = wrap_substr($table, 'y', 'end') ? substr($table, 0, -1).'ies' : $table.'s';
+								$table = str_ends_with($table, 'y') ? substr($table, 0, -1).'ies' : $table.'s';
 								$values[$field_name] = wrap_id($table, $values[$field_name]);
 							}
 							$zz_tab[$tab][$rec]['POST'][$field_name] = $values[$field_name];
@@ -2780,7 +2780,7 @@ function zz_typo_cleanup_language($post) {
 			$language_id = $value;
 			break;
 		}
-		if (!wrap_substr($field_name, '_language_id', 'end')) continue;
+		if (!str_ends_with($field_name, '_language_id')) continue;
 		$language_id = $value;
 		break;
 	}

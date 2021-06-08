@@ -671,7 +671,7 @@ function zz_db_field_maxlength($field, $type, $db_table) {
 		else {
 			// from MySQL 8.0.19, there are no default lengths for ints
 			$typed = explode(' ', $field_def['Type']);
-			if (wrap_substr($typed[0], 'int', 'end')) {
+			if (str_ends_with($typed[0], 'int')) {
 				$maxlength = zz_db_int_length($typed);
 			}
 		}

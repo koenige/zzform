@@ -282,7 +282,7 @@ function zz_get_url_self() {
 	global $zz_conf;
 	
 	$my_uri = $zz_page['url']['full'];
-	if (!empty($my_uri['path_forwarded']) AND wrap_substr($my_uri['path'], $my_uri['path_forwarded'])) {
+	if (!empty($my_uri['path_forwarded']) AND str_starts_with($my_uri['path'], $my_uri['path_forwarded'])) {
 		$my_uri['path'] = substr($my_uri['path'], strlen($my_uri['path_forwarded']));
 	}
 	$my_uri['path'] = $zz_setting['base'].$my_uri['path'];
@@ -3718,14 +3718,14 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 		$search_equal = false;
 		// if there is a space at the end of the string, don't do LIKE 
 		// with %!
-		if (wrap_substr(trim($field['sql']), 'SHOW')) {
+		if (str_starts_with(trim($field['sql']), 'SHOW')) {
 			$likestring = '%s LIKE %s"%%%s%%"';
 		} else {
 			$likestring = ' LIKE %s"%%%s%%"';
 		}
 	} else {
 		$search_equal = true;
-		if (wrap_substr(trim($field['sql']), 'SHOW')) {
+		if (str_starts_with(trim($field['sql']), 'SHOW')) {
 			$likestring = '%s = %s"%s"';
 		} else {
 			$likestring = ' = %s"%s"';
@@ -3806,7 +3806,7 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 	}
 	if ($wheresql) {
 		$field['sql_new'] = wrap_edit_sql($field['sql'], 'WHERE', $wheresql);
-	} elseif (wrap_substr(trim($field['sql']), 'SHOW')) {
+	} elseif (str_starts_with(trim($field['sql']), 'SHOW')) {
 		$likestring = str_replace('=', 'LIKE', $likestring);
 		$field['sql_new'] = sprintf($likestring, $field['sql'], '', trim($value));
 	} else {

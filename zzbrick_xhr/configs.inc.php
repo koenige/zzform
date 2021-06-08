@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2020 Gustaf Mossakowski
+ * @copyright Copyright © 2020-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -59,7 +59,7 @@ function mod_zzform_xhr_configs($xmlHttpRequest, $zz) {
 	foreach ($field['cfg'] as $key => $values) {
 		if ($equal) {
 			if ($key === $text) $records[] = $key;
-		} elseif (wrap_substr($key, $text)) {
+		} elseif (str_starts_with($key, $text)) {
 			$records[] = $key;
 		} elseif (strstr($key, $text)) {
 			$records[] = $key;
