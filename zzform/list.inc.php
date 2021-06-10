@@ -1166,7 +1166,6 @@ function zz_list_query($zz) {
 		$total_rows = zz_sql_count_rows($zz['sql'], $zz['table'].'.'.$zz_conf['int']['id']['field_name']);
 	}
 	if (!$total_rows) return [[], 0];
-	zz_list_limit_last($total_rows);
 	
 	// ORDER must be here because of where-clause
 	$zz['sql'] .= !empty($zz['sqlorder']) ? ' '.$zz['sqlorder'] : '';
@@ -1174,6 +1173,7 @@ function zz_list_query($zz) {
 	$zz['sql'] = zz_sql_order($zz['list']['fields'], $zz['sql']);
 
 	if (empty($zz['list']['hierarchy'])) {
+		zz_list_limit_last($total_rows);
 		return [zz_list_query_flat($zz), $total_rows];
 	} else {
 		return zz_list_query_hierarchy($zz);
@@ -1247,6 +1247,7 @@ function zz_list_query_hierarchy($zz) {
 
 	$zz['list']['hierarchy']['id_field_name'] = $zz_conf['int']['id']['field_name'];
 	list($my_lines, $total_rows) = zz_hierarchy($zz['sql'], $zz['list']['hierarchy']);
+	zz_list_limit_last($total_rows);
 	if ($zz_conf['int']['this_limit'] - $zz_conf['limit'] >= $total_rows) {
 		$zz_conf['int']['http_status'] = 404;
 		return [[], $total_rows];
