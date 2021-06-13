@@ -2593,8 +2593,8 @@ function zz_error() {
 		$log[$key] = str_replace('&lt;', '<', $log[$key]);
 		// reformat log output
 		if (!empty($zz_conf['error_log'][$level]) AND $zz_conf['log_errors']) {
-			wrap_log('zzform', $level, '['.$zz_setting['request_uri'].'] '.$log[$key]);
-			if ($error['log_post_data']) wrap_log('zzform', 'postdata');
+			wrap_log('['.$zz_setting['request_uri'].'] '.$log[$key],  $level, 'zzform');
+			if ($error['log_post_data']) wrap_log('postdata', 'notice', 'zzform');
 		}
 		// Mail output
 		if (isset($zz_conf['error_mail_level']) AND in_array(
