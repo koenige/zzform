@@ -774,30 +774,44 @@ function zz_action_function($type, $ops, $zz_tab) {
 		require_once $zz_conf['hooks_dir'].'/hooks.inc.php';
 	}
 	if (!empty($zz_setting['active_module'])) {
-		$module_hooks_dir = sprintf('%s/%s/zzform', $zz_setting['modules_dir'], $zz_setting['active_module']);
-		if (file_exists($module_hooks_dir.'/hooks.inc.php')) {
-			require_once $module_hooks_dir.'/hooks.inc.php';
-		}
+		zz_action_module_hooks($zz_setting['active_module']);
 	}
 
 	$change = [];
 	foreach ($zz_tab[0]['hooks'][$type] as $hook) {
-		if (substr($hook, 0, 3) === 'zz_') {
+		if (str_starts_with($hook, 'zz_')) {
 			// internal hooks get access to $zz_tab as well
 			$custom_result = $hook($ops, $zz_tab);
 		} else {
-			$file = str_replace('_', '-', $hook);
-			if (substr($file, 0, 3) === 'my-') $file = substr($file, 3);
-			$file = $zz_conf['hooks_dir'].'/'.$file.'.inc.php';
-			if (file_exists($file)) require_once $file;
+			if (str_starts_with($hook, 'mf_')) {
+				// module hook
+				$module = explode('_', $hook);
+				$module = $module[1];
+				zz_action_module_hooks($module);
+			} else {
+				$file = str_replace('_', '-', $hook);
+				if (str_starts_with($file, 'my-')) $file = substr($file, 3);
+				$file = $zz_conf['hooks_dir'].'/'.$file.'.inc.php';
+				if (file_exists($file)) require_once $file;
+			}
+			$found = true;
 			if (!function_exists($hook)) {
-				if (!empty($zz_setting['active_module'])) {
+				if (!empty($zz_setting['active_module']) AND str_starts_with($hook, 'my_')) {
 					$active_mod_prefix = sprintf('mod_%s_', $zz_setting['active_module']);
-					if (substr($hook, 0, 3) === 'my_') {
-						$module_hook = str_replace('my_', $active_mod_prefix, $hook);
-					}
+					$module_hook = str_replace('my_', $active_mod_prefix, $hook);
 					if (function_exists($module_hook)) $hook = $module_hook;
+					else $found = false;
+				} else {
+					$found = false;
 				}
+			}
+			if (!$found) {
+				zz_error_log([
+					'msg_dev' => 'Hook function %s was not found. Continuing without hook.',
+					'msg_dev_args' => [$hook],
+					'level' => E_USER_WARNING
+				]);
+				return false;
 			}
 			$custom_result = $hook($ops);
 		}
@@ -823,6 +837,22 @@ function zz_action_function($type, $ops, $zz_tab) {
 		}
 	}
 	return $change;
+}
+
+/**
+ * include hooks.inc from module
+ *
+ * @param string $module
+ * @return bool
+ */
+function zz_action_module_hooks($module) {
+	global $zz_setting;
+
+	if (!in_array($module, $zz_setting['modules'])) return false;
+	$dir = sprintf('%s/%s/zzform', $zz_setting['modules_dir'], $module);
+	if (!file_exists($dir.'/hooks.inc.php')) return false;
+	require_once $dir.'/hooks.inc.php';
+	return true;
 }
 
 /**
