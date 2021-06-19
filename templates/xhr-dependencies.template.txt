@@ -1,10 +1,11 @@
-# Zugzwang Project
+# zzform
 # Template for querying dependecies via XHR, using vxJS library
 #
-# http://www.zugzwang.org/projects/zzform
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2017, 2020 Gustaf Mossakowski
+# @copyright Copyright © 2017, 2020-2021 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 # List of fields:
@@ -37,7 +38,10 @@
 					}
 				%%% loop end %%%
 				%%% condition else %%%
-				   document.getElementById('%%% item field_id %%%').value = this.response.%%% item field_id %%%;
+					var thisField = document.getElementById('%%% item field_id %%%');
+					if (thisField.tagName !== 'SELECT') {
+					   document.getElementById('%%% item field_id %%%').value = this.response.%%% item field_id %%%;
+					}
 				%%% condition endif %%%
 				}
 			%%% loop end %%%
