@@ -2632,8 +2632,8 @@ function zz_error() {
 			.$zz_setting['request_uri']
 			."\nIP: ".$zz_setting['remote_ip']
 			.(!empty($_SERVER['HTTP_USER_AGENT']) ? "\nBrowser: ".$_SERVER['HTTP_USER_AGENT'] : '');		
-		if ($user = wrap_user())
-			$mail['message'] .= sprintf("\nUser: %s", $user);
+		if ($username = wrap_user())
+			$mail['message'] .= sprintf("\nUser: %s", $username);
 
 		if (empty($zz_conf['mail_subject_prefix']))
 			$zz_conf['mail_subject_prefix'] = '['.wrap_get_setting('project').']';
