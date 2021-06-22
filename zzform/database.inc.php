@@ -156,7 +156,7 @@ function zz_sql_prefix_change_zz(&$item, $key) {
 		'id_field_name', 'display_field', 'key_field_name', 'order',
 		'foreign_key_field_name', 'sqlcount', 'sqlextra', 'geocode_sql',
 		'min_records_sql', 'max_records_sql', 'sqlrecord', 'sql_join',
-		'dependent_on_add_sql'
+		'dependent_on_add_sql', 'sql_association'
 	];
 	if (in_array($key, $sql_fields)) return false;
 	if (function_exists('wrap_error')) {
