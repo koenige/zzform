@@ -2371,7 +2371,13 @@ function zz_list_get_subselects($lines, $subselects, $mode) {
 				'translationfield_id = '.$subselect['translation_key']);
 		// E_USER_WARNING might return message, we do not want to see this message
 		// but in the logs
-		$sub_lines = zz_db_fetch($subselect['sql'], [$subselect['id_field_name'], '_dummy_id_'], 'numeric', false, E_USER_WARNING);
+		$records = zz_db_fetch($subselect['sql'], '_dummy_id_', 'numeric', false, E_USER_WARNING);
+		$records = zz_translate($subselect, $records);
+		$sub_lines = [];
+		foreach ($records as $record) {
+			// sort by record ID
+			$sub_lines[$record[$subselect['id_field_name']]][] = $record;
+		}
 		if (!is_array($sub_lines)) $sub_lines = [];
 
 		foreach ($ids as $no => $id) {
