@@ -460,6 +460,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 	if (empty($my_rec['fields'])) zz_return(false);
 
 	$append_next = '';
+	$integrate_in_next = false;
 	$old_append_next_type = '';
 	$old_add_details_where = '';
 	if ($tab) {
@@ -684,6 +685,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 				$out['td']['content'] .= zz_field_set($field, $fields, $field_display, $zz_tab[$sub_tab]);
 			}
 		} elseif (in_array($field['type'], ['subtable', 'foreign_table'])) {
+			$integrate_in_next = !empty($field['integrate_in_next']) ? true : false;
 			//	Subtable
 			$sub_tab = $field['subtable'];
 			if (empty($field['title_button'])) {
@@ -1243,9 +1245,19 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 			if (!$out) $out = zz_record_init_out($field);
 			$out['separator_before'] .= $field['separator_before'];
 		}
-		if ($out AND !$append_next) {
+		if ($out AND !$append_next AND !$integrate_in_next) {
+			if (!empty($integrate_out)) {
+				foreach ($integrate_out as $integrate) {
+					if ($out['td']['content'] AND $integrate['td']['content'])
+						$out['td']['content'] = '<div class="subrecord_spacer"></div>'.$out['td']['content'];
+					$out['td']['content'] = $integrate['td']['content']."\n".$out['td']['content'];
+				}
+				$integrate_out = [];
+			}
 			if ($field['type'] === 'id' AND $out['td']['content'] === '') continue;
 			$matrix[] = $out;
+		} elseif ($integrate_in_next) {
+			$integrate_out[] = $out;
 		}
 	}
 	if ($formdisplay === 'inline') return $matrix;
