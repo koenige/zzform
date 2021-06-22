@@ -3584,6 +3584,7 @@ function zz_check_select($my_rec, $f) {
 	$my_rec['fields'][$f] = zz_check_select_id(
 		$my_rec['fields'][$f], $my_rec['POST'][$field_name], $my_rec['id']
 	);
+	$my_rec['fields'][$f]['sql_before'] = $my_rec['fields'][$f]['sql'];
 	$possible_values = $my_rec['fields'][$f]['possible_values'];
 
 	$error = false;

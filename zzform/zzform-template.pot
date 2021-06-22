@@ -519,6 +519,10 @@ msgstr ""
 msgid "Creation of directory %s failed."
 msgstr ""
 
+# Record form: Validation, displayed above form
+msgid "Value in field <em>“%s”</em> must not be identical to field <em>“%s”</em>."
+msgstr ""
+
 # Record form: Validation of Database Integrity, displayed above form
 msgid "No records in relation table `%s`. Please fill in records."
 msgstr ""

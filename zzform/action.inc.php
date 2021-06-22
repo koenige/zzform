@@ -2127,6 +2127,41 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 				];
 			}
 		}
+
+		// check not_identical_with
+		if (!empty($field['not_identical_with'])) {
+			$identical_value = false;
+			$second_f = false;
+			foreach ($my_rec['fields'] as $f_no => $my_field) {
+				if (empty($my_field['field_name'])) continue;
+				if ($my_field['field_name'] !== $field['not_identical_with']) continue;
+				$second_f = $f_no;
+			}
+
+			if (!empty($my_rec['POST'][$field['not_identical_with']])) {
+				$identical_value = $my_rec['POST'][$field['not_identical_with']];
+			} elseif ($my_rec['fields'][$second_f]['type'] === 'foreign_key') {
+				if ($zz_tab[0][0]['id']['field_name'] === $my_rec['fields'][$second_f]['field_name'])
+					$identical_value = $zz_tab[0][0]['id']['value'];
+				elseif (!empty($my_rec['fields'][$second_f]['foreign_key_field_name'])
+					AND $zz_tab[0][0]['id']['field_name'] === $my_rec['fields'][$second_f]['foreign_key_field_name'])
+					$identical_value = $zz_tab[0][0]['id']['value'];
+			}
+			if ($identical_value === $my_rec['POST'][$field_name]) {
+				$second_field_name = wrap_text('unkown');
+				if ($second_f)
+					$second_field_name = $my_rec['fields'][$second_f]['title'];
+				$my_rec['validation'] = false;
+				$my_rec['fields'][$f]['check_validation'] = false;
+				$my_rec['fields'][$f]['validation_error'] = [
+					'msg' => 'Value in field <em>“%s”</em> must not be identical to field <em>“%s”</em>.',
+					'msg_args' => [$my_rec['fields'][$f]['title'], $second_field_name]
+				];
+				$my_rec['POST'][$field['not_identical_with']] = false;
+				$my_rec['POST'][$field_name] = false;
+				$my_rec['fields'][$f]['sql'] = $my_rec['fields'][$f]['sql_before'];
+			}
+		}
 	}
 
 	// finished
