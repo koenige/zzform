@@ -640,7 +640,7 @@ function zz_get_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 				$rec_tpl['fields'][$no] = $field['fields'][$no];
 			}
 			if (!empty($subfield['if_single_record'])) {
-				$field['fields'][$no] += $subfield['if_single_record'];
+				$field['fields'][$no] = array_merge($field['fields'][$no], $subfield['if_single_record']);
 				$rec_tpl['fields'][$no] = $field['fields'][$no];
 			}
 		}
