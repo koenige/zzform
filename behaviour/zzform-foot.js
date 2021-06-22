@@ -32,7 +32,7 @@ function zzformRecordForm() {
  *	remove existing auto suggestion divs
  */
 function zzformRemoveSuggestions() {
-	var classes = ['div.vxJS_autoSuggest', 'div.vxJS_list'];
+	var classes = ['div.vxJS_autoSuggest'];
 	for (var j = 0; j < classes.length; j++) {
 		var items = document.querySelectorAll(classes[j]);
 		for (var i = 0; i < items.length; i++) {
@@ -382,6 +382,7 @@ function zzformLoadPage(event){
 	zzformForm = document.getElementById('zzform_form');
 	if (zzformForm)
 		zzformRecordForm();
+	zzformRemoveSuggestions();
 	zz_filters('init');
 }
 
