@@ -903,7 +903,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 			}
 			
 			if ($tab AND $field['required']
-				AND $zz_tab[$tab]['max_records'] !== $zz_tab[$tab]['min_records_required']) {
+				AND ($zz_tab[$tab]['max_records'] !== $zz_tab[$tab]['min_records_required'] OR !$zz_tab[$tab]['min_records_required'])) {
 				// support for required for subtable is too complicated so far, 
 				// because the whole subtable record may be optional
 				// just allow this for all required subrecords
