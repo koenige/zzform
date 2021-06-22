@@ -78,6 +78,7 @@ function zz_prepare_tables($zz, $mode) {
 	$zz_tab[0][0]['unless'] = !empty($zz['unless']) ? $zz['unless'] : [];
 
 	//	### put each table (if more than one) into one array of its own ###
+	$integrate_records = 0;
 	foreach ($zz['record']['subtables'] as $tab => $no) {
 		if (strstr($no, '-')) {
 			$nos = explode('-', $no);
@@ -88,6 +89,7 @@ function zz_prepare_tables($zz, $mode) {
 			$main_tab = 0;
 		}
 		if (!empty($my_field['hide_in_form'])) continue;
+		if ($integrate_records) $my_field['integrate_records'] = $integrate_records;
 		$zz_tab[$tab] = zz_get_subtable($my_field, $zz_tab[$main_tab], $tab, $no);
 		$zz_tab[$tab]['where'] = !empty($zz['record']['where'][$zz_tab[$tab]['table_name']])
 			? $zz['record']['where'][$zz_tab[$tab]['table_name']] : [];
@@ -111,6 +113,7 @@ function zz_prepare_tables($zz, $mode) {
 			// set autofocus on subrecord, not on main record
 			$zz_tab[0]['subtable_focus'] = 'set';
 		}
+		$integrate_records = $zz_tab[$tab]['integrate_in_next'] ? $zz_tab[$tab]['records'] : 0;
 	}
 
 	if (!$zz['record']['query_records']) return $zz_tab;
@@ -285,31 +288,42 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 	$my_tab['fielddefs'] = !empty($field['fielddefs']) ? $field['fielddefs'] : [];
 
 	// records
-	$settings = ['max', 'min'];
-	foreach ($settings as $set) {
-		// max_detail_records, max_records, max_records_sql
-		// min_detail_records, min_records, min_records_sql
-		if ($my_tab['hierarchy']) {
-			$my_tab[$set.'_records'] = 0;
-			continue;
+	if (!empty($field['integrate_in_next'])) {
+		// just display/edit existing records, do not allow here to add new detail records
+		$my_tab['min_records_required'] = 0;
+		$my_tab['min_records'] = 0;
+		$my_tab['max_records'] = 0;
+		$my_tab['integrate_in_next'] = true;
+	} else {
+		$my_tab['integrate_in_next'] = false;
+		$settings = ['max', 'min'];
+		foreach ($settings as $set) {
+			// max_detail_records, max_records, max_records_sql
+			// min_detail_records, min_records, min_records_sql
+			if ($my_tab['hierarchy']) {
+				$my_tab[$set.'_records'] = 0;
+				continue;
+			}
+			if (isset($field[$set.'_records'])) {
+				$my_tab[$set.'_records'] = $field[$set.'_records'];
+			} elseif (isset($field[$set.'_records_sql'])) {
+				$my_tab[$set.'_records'] = zz_db_fetch($field[$set.'_records_sql'], '', 'single value');
+			} else {
+				$my_tab[$set.'_records'] = $zz_conf[$set.'_detail_records'];
+			}
 		}
-		if (isset($field[$set.'_records'])) {
-			$my_tab[$set.'_records'] = $field[$set.'_records'];
-		} elseif (isset($field[$set.'_records_sql'])) {
-			$my_tab[$set.'_records'] = zz_db_fetch($field[$set.'_records_sql'], '', 'single value');
-		} else {
-			$my_tab[$set.'_records'] = $zz_conf[$set.'_detail_records'];
-		}
+		$my_tab['min_records_required'] = isset($field['min_records_required'])
+			? $field['min_records_required'] : 0;
+		if ($my_tab['min_records'] < $my_tab['min_records_required'])
+			$my_tab['min_records'] = $my_tab['min_records_required'];
+		$my_tab['records_depend_on_upload'] = isset($field['records_depend_on_upload'])
+			? $field['records_depend_on_upload'] : false;
+		$my_tab['records_depend_on_upload_more_than_one'] = 
+			isset($field['records_depend_on_upload_more_than_one'])
+			? $field['records_depend_on_upload_more_than_one'] : false;
+		if (!empty($field['integrate_records']) AND $my_tab['max_records'])
+			$my_tab['max_records'] -= $field['integrate_records'];
 	}
-	$my_tab['min_records_required'] = isset($field['min_records_required'])
-		? $field['min_records_required'] : 0;
-	if ($my_tab['min_records'] < $my_tab['min_records_required'])
-		$my_tab['min_records'] = $my_tab['min_records_required'];
-	$my_tab['records_depend_on_upload'] = isset($field['records_depend_on_upload'])
-		? $field['records_depend_on_upload'] : false;
-	$my_tab['records_depend_on_upload_more_than_one'] = 
-		isset($field['records_depend_on_upload_more_than_one'])
-		? $field['records_depend_on_upload_more_than_one'] : false;
 	
 	// foreign keys, translation keys, unique keys
 	$my_tab['foreign_key_field_name'] = (!empty($field['foreign_key_field_name']) 
