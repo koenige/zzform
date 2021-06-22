@@ -3963,6 +3963,12 @@ function zz_field_concat($field, $values) {
 	// only concat existing values
 	$count = count($values);
 	$values = array_values($values);
+
+	// check values for line breaks, existing |
+	foreach ($values as $index => $value) {
+		$values[$index] = zz_select_escape_value($value, $concat);
+	}
+
 	for ($i = 0; $i < $count; $i++) {
 		if (isset($field['concat_'.$i]) AND !empty($values[$i])) {
 			$values[$i] = sprintf($field['concat_'.$i], $values[$i]);
@@ -3973,6 +3979,26 @@ function zz_field_concat($field, $values) {
 	}
 	$values = array_filter($values);
 	return implode($concat, $values);
+}
+
+/**
+ * replace some values for SELECT or INPUT with check_select
+ *
+ * @param string $value
+ * @param string $concat
+ * @return string
+ */
+function zz_select_escape_value($value, $concat) {
+	$strings = [$concat, "\n", "\r"];
+	foreach ($strings as $string) {
+		if (strpos($value, $string)) {
+			$value = str_replace($string, ' ', $value);
+		}
+	}
+	while (strpos($value, '  ')) {
+		$value = str_replace('  ', ' ', $value);
+	}
+	return $value;
 }
 
 /**
