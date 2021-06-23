@@ -840,22 +840,6 @@ function zz_action_function($type, $ops, $zz_tab) {
 }
 
 /**
- * include {file}.inc.php from module
- *
- * @param string $module
- * @return bool
- */
-function zz_module_file($file, $module) {
-	global $zz_setting;
-
-	if (!in_array($module, $zz_setting['modules'])) return false;
-	$filename = sprintf('%s/%s/zzform/%s.inc.php', $zz_setting['modules_dir'], $module, $file);
-	if (!file_exists($filename)) return false;
-	require_once $filename;
-	return true;
-}
-
-/**
  * if the action function returned something, output or record for database
  * will be changed
  *
