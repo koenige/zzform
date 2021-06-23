@@ -470,18 +470,26 @@ function zz_export_geojson($ops, $zz) {
  */
 function zz_export_script($type) {
 	global $zz_conf;
+	global $zz_setting;
 	// check if a specific script should be called
 	if (empty($zz_conf['int']['export_script'])) return false;
+	$prefix = '';
 	
 	// script may reside in extra file
 	// if not, function has to exist already
-	$script_filename = $zz_conf['dir_custom'].'/export-'.$type.'-'
-		.$zz_conf['int']['export_script'].'.inc.php';
-	if (file_exists($script_filename))
+	$filename = sprintf('export-%s-%s', $type, $zz_conf['int']['export_script']);
+	$script_filename = sprintf('%s/%s.inc.php', $zz_conf['dir_custom'], $filename);
+	if (file_exists($script_filename)) {
 		require_once $script_filename;
-
+	} elseif (!empty($zz_setting['active_module'])) {
+		$success = zz_module_file($filename, $zz_setting['active_module']);
+		if ($success) $prefix = sprintf('mf_%s_', $zz_setting['active_module']);
+	}
+	
 	// check if custom function exists
-	$function = 'export_'.$type.'_'.str_replace('-', '_', $zz_conf['int']['export_script']);
+	$function = sprintf('%sexport_%s_%s'
+		, $prefix, $type, str_replace('-', '_', $zz_conf['int']['export_script'])
+	);
 	if (!function_exists($function)) {
 		echo 'Sorry, the required custom '.strtoupper($type).' export function <code>'
 			.$function.'()</code> does not exist.';
