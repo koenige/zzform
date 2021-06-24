@@ -3723,8 +3723,7 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 	}
 
 	// 2. get posted values, field by field
-	if (!isset($field['concat_fields'])) $concat = ' | ';
-	else $concat = $field['concat_fields'];
+	$concat = zz_select_concat($field);
 	$postvalues = explode($concat, $postvalue);
 
 	$use_single_comparison = false;
@@ -3889,6 +3888,37 @@ function zz_check_select_translated($field, $sql_fieldname, $value, $search_equa
 	}
 	$my_fieldname = isset($field['key_field_name']) ? $field['key_field_name'] : $field['field_name'];
 	return sprintf('%s IN (%s)', $my_fieldname, implode(',', $field_ids));
+}
+
+/**
+ * replace some values for SELECT or INPUT with check_select
+ *
+ * @param string $value
+ * @param string $concat
+ * @return string
+ */
+function zz_select_escape_value($value, $concat) {
+	$strings = [$concat, "\n", "\r"];
+	foreach ($strings as $string) {
+		if (strpos($value, $string)) {
+			$value = str_replace($string, ' ', $value);
+		}
+	}
+	while (strpos($value, '  ')) {
+		$value = str_replace('  ', ' ', $value);
+	}
+	return $value;
+}
+
+/**
+ * get concat value
+ *
+ * @param array $field field definition
+ * @return string
+ */
+function zz_select_concat($field) {
+	$concat = isset($field['concat_fields']) ? $field['concat_fields'] : ' | ';
+	return $concat;
 }
 
 /**

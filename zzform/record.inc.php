@@ -3958,8 +3958,7 @@ function zz_field_captcha($field, $record, $mode) {
  * @return string
  */
 function zz_field_concat($field, $values) {
-	if (!isset($field['concat_fields'])) $concat = ' | ';
-	else $concat = $field['concat_fields'];
+	$concat = zz_select_concat($field);
 	// only concat existing values
 	$count = count($values);
 	$values = array_values($values);
@@ -3979,26 +3978,6 @@ function zz_field_concat($field, $values) {
 	}
 	$values = array_filter($values);
 	return implode($concat, $values);
-}
-
-/**
- * replace some values for SELECT or INPUT with check_select
- *
- * @param string $value
- * @param string $concat
- * @return string
- */
-function zz_select_escape_value($value, $concat) {
-	$strings = [$concat, "\n", "\r"];
-	foreach ($strings as $string) {
-		if (strpos($value, $string)) {
-			$value = str_replace($string, ' ', $value);
-		}
-	}
-	while (strpos($value, '  ')) {
-		$value = str_replace('  ', ' ', $value);
-	}
-	return $value;
 }
 
 /**

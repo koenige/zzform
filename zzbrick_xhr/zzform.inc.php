@@ -51,8 +51,7 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 		}
 		$field = $zz['fields'][$field_no];
 	}
-	// @todo use common concat function for all occurences!
-	$concat = isset($field['concat_fields']) ? $field['concat_fields'] : ' | ';
+	$concat = zz_select_concat($field);
 	$equal = substr($text, -1) === ' ' ? true : false;
 	$text = trim($text);
 	if (strstr($text, $concat)) {
@@ -205,6 +204,9 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 			];
 		}
 		// search entry for zzform, concatenated and space at the end
+		foreach ($text as $index => $term) {
+			$text[$index] = zz_select_escape_value($term, $concat);
+		}
 		$data['entries'][$i]['text'] = implode($concat, $text).' ';
 		$i++;
 	}
