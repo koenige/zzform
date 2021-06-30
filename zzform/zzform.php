@@ -27,6 +27,7 @@
  * @todo think of zzform($zz, $zz_conf) to get rid of global variables
  */
 function zzform($zz) {
+	global $zz_setting;
 	global $zz_conf;
 	
 // diversion?
@@ -283,9 +284,13 @@ function zzform($zz) {
 			} elseif ($ops['result']) {
 				// Redirect, if wanted.
 				$ops['redirect_url'] = zz_output_redirect($ops['result'], $ops['return'], $zz_tab);
-				if ($ops['redirect_url'] AND empty($ops['html_fragment']))
-					wrap_redirect_change($ops['redirect_url']);
 				if ($ops['redirect_url']) {
+					if (empty($ops['html_fragment']))
+						wrap_redirect_change($ops['redirect_url']);
+					$redirect_url = parse_url($ops['redirect_url']);
+					$request_url = parse_url($zz_setting['request_uri']);
+					if ($redirect_url['path'] !== $request_url['path'])
+						wrap_redirect_change($ops['redirect_url']);
 					$zz['record']['action'] = false;
 					$ops['mode'] = 'show';
 				}
