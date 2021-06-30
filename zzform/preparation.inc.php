@@ -1358,7 +1358,7 @@ function zz_log_validation_errors($my_rec, $validation) {
 	$somelogs = !empty($my_rec['validation_error_logged']) ? $my_rec['validation_error_logged'] : false;
 	
 	foreach ($my_rec['fields'] as $no => $field) {
-		if (in_array($field['type'], ['password_change', 'subtable', 'foreign_table'])) continue;
+		if (!empty($field['type']) AND in_array($field['type'], ['password_change', 'subtable', 'foreign_table'])) continue;
 		if (!empty($field['mark_reselect'])) {
 			// oh, it's a reselect, add some validation message
 			zz_log_reselect_errors($field['title'], $field['type']);
