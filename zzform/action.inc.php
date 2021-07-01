@@ -2169,6 +2169,18 @@ function zz_validate_parameter($fvalue) {
 	$percent20 = 'somerarelyappearingsequenceofcharacters20';
 	$fvalue = str_replace('%20', $percent20, $fvalue);
 
+	// replace : with =
+	$fvalue = explode('&', $fvalue);
+	foreach ($fvalue as $index => $pair) {
+		if (strstr($pair, '=')) continue;
+		if (!strstr($pair, ':')) continue;
+		$pair = explode(':', $pair);
+		$key = array_shift($pair);
+		$value = trim(implode(':', $pair), '_');
+		$fvalue[$index] = sprintf('%s=%s', trim($key), trim($value));
+	}
+	$fvalue = implode('&', $fvalue);
+
 	// check if there's whitespace at the end of one of the keys/values
 	parse_str($fvalue, $parameters);
 	$values = [];
