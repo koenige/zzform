@@ -232,6 +232,7 @@ function zz_conditions_record($zz, $zz_conditions) {
 		zz_conditions_merge_conf($zz, $zz_conditions['bool'], $zz_conf['int']['id']['value']);
 		foreach (array_keys($zz['fields']) as $no) {
 			zz_conditions_merge_field($zz['fields'][$no], $zz_conditions['bool'], $zz_conf['int']['id']['value']);
+			if (!$zz['fields'][$no]) unset($zz['fields'][$no]);
 		}
 	}
 	return $zz;
@@ -613,6 +614,8 @@ function zz_conditions_subrecord($zz_tab, $zz_conditions) {
 							$zz_conditions['bool']['subrecord-'.$zz_tab[$tab]['no']],
 							$id_value, 'detail'
 						);
+						if (empty($zz_tab[$tab][$rec]['fields'][$sub_no]))
+							unset($zz_tab[$tab][$rec]['fields'][$sub_no]);
 					}
 				}
 			}
@@ -630,6 +633,8 @@ function zz_conditions_subrecord($zz_tab, $zz_conditions) {
 					$zz_conditions['bool'],
 					$zz_tab[$tab][$rec]['id']['value'], 'detail'
 				);
+				if (empty($zz_tab[$tab][$rec]['fields'][$sub_no]))
+					unset($zz_tab[$tab][$rec]['fields'][$sub_no]);
 			}
 		}
 	}
