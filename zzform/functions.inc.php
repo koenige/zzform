@@ -3812,7 +3812,8 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 	}
 	if ($wheresql) $wheresql .= ')';
 	if (!empty($field['show_hierarchy_same_table']) AND !empty($id['value'])) {
-		$wheresql .= sprintf(' AND `%s` != %d', $id['field_name'], $id['value']);
+		$id_field_name = $field['id_field_name'] ?? $id['field_name'];
+		$wheresql .= sprintf(' AND %s != %d', $id_field_name, $id['value']);
 	}
 	$ids = zz_hierarchy_subtree_ids($field);
 	if ($ids) {
