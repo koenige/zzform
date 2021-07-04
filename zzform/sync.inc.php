@@ -5,10 +5,10 @@
  * Synchronisation functions
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2011-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2011-2018, 2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -438,7 +438,7 @@ function zz_sync_zzform($raw, $import) {
 			$nothing++;
 		}
 	}
-	$testing['head'] = $head;
+	$testing['head'] = $head ?? [];
 	return [$updated, $inserted, $nothing, $errors, $testing];
 }
 
