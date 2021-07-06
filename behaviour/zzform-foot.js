@@ -14,6 +14,7 @@
 if (typeof zzformForm !== 'undefined') zzformRecordForm();
 zzformRemoveSuggestions();
 var zzformLoadedJS = [];
+var zzformStart = true;
 
 /**
  * initialize all functions that are in use for the record form

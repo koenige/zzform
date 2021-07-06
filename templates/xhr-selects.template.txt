@@ -17,17 +17,13 @@
 	vxJS.event.addDomReadyListener(function(){
 		var as%%% loopposition counter %%% = vxJS.widget.autoSuggest(document.getElementById("%%% item field_id %%%"),
 			{ command: '%%% item command %%%', uri: '%%% item url_self %%%field_no=%%% item field_no%%%%%% item subtable_no "&subtable_no=%s" %%%%%% item unrestricted "&unrestricted=1" %%%%%% setting zzform_int_id_value "&zz_id_value=%s" %%%' },
-			{
-				maxEntries: 30,
-				searchMode: true
-			}
+			{ maxEntries: 30, searchMode: true }
 		);
 	});
 %%% loop end %%%
 
-	if(document.createEvent){
-		var evt = document.createEvent("MutationEvents"); 
-		evt.initMutationEvent("DOMContentLoaded", true, true, document, "", "", "", 0); 
-		document.dispatchEvent(evt);
-	}
+if (typeof zzformStart !== 'undefined') {
+	window.document.dispatchEvent(new Event("DOMContentLoaded"));
+}
+
 </script>
