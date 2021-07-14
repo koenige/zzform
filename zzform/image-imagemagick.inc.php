@@ -481,6 +481,7 @@ function zz_image_crop($source, $dest, $dest_ext, $image, $clipping = 'center') 
  */
 function zz_imagick_convert($options, $source, $source_ext, $dest, $dest_ext, $image = []) {
 	global $zz_conf;
+	global $zz_setting;
 	
 	$source_ext = zz_upload_extension_normalize($source_ext);
 
@@ -498,6 +499,8 @@ function zz_imagick_convert($options, $source, $source_ext, $dest, $dest_ext, $i
 	if ($ext_options) $command .= $ext_options.' ';
 	if ($options) $command .= $options.' ';
 	if (!empty($image['watermark'])) {
+		if (!file_exists($image['watermark']))
+			$image['watermark'] = $zz_setting['inc'].'/custom/watermarks/'.$image['watermark'];
 		if (empty($image['convert_options_append']))
 			$image['convert_options_append'] = '';
 		$image['convert_options_append'] .= sprintf(' "%s" -composite', $image['watermark']);
