@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2006-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2006-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  * @todo
  *	identify -list Format
@@ -192,6 +192,42 @@ function zz_image_gray($source, $dest, $dest_ext, $image) {
 }
 
 /**
+ * Create image with custom properties
+ *
+ * @param string $source (temporary) name of source file with extension
+ * @param string $dest (temporary) name of destination file without extension
+ * @param string $dest_ext file extension for destination image
+ * @param array $image further information about the image
+ *		here: 'image' array with key/value pairs for imagemagick options
+ * @global array $zz_conf
+ * @return bool (false: no image was created; true: image was created)
+ */
+function zz_image_custom($source, $dest, $dest_ext, $image) {
+	global $zz_conf;
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	
+	$image['convert_options'] = ''; // just custom options
+	$image['no_options'] = true; // no standards from filetype
+	if (!empty($image['image'])) {
+		foreach ($image['image'] as $key => $value) {
+			$image['convert_options'] .= ' -'.$key;
+			if ($value)
+				$image['convert_options'] .= ' '.$value;
+		}
+	}
+	
+	$filetype = !empty($image['upload']['filetype']) ? $image['upload']['filetype'] : '';
+	$source = zz_imagick_check_multipage($source, $filetype, $image);
+	$convert = zz_imagick_convert(
+		$image['convert_options'],
+		$source, $image['upload']['ext'], $dest, $dest_ext, $image
+	);
+
+	if ($zz_conf['modules']['debug']) zz_debug('end');
+	return $convert;
+}
+
+/**
  * Create thumbnail image
  *
  * @param string $source (temporary) name of source file with extension
@@ -292,6 +328,8 @@ function zz_image_webimage($source, $dest, $dest_ext, $image) {
  */
 function zz_imagick_add_options($source_ext, $image = []) {
 	global $zz_conf;
+
+	if (!empty($image['no_options'])) return '';
 
 	$convert_options = !empty($zz_conf['file_types'][$source_ext]['convert'])
 		? $zz_conf['file_types'][$source_ext]['convert'] : [];
