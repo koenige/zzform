@@ -208,11 +208,14 @@ function zz_image_custom($source, $dest, $dest_ext, $image) {
 	
 	$image['convert_options'] = ''; // just custom options
 	$image['no_options'] = true; // no standards from filetype
-	if (!empty($image['image'])) {
-		foreach ($image['image'] as $key => $value) {
-			$image['convert_options'] .= ' -'.$key;
+	$keys = ['image' => 'convert_options', 'image2' => 'convert_options_append'];
+	foreach ($keys as $key_read => $key_write) {
+		if (empty($image[$key_read])) continue;
+		if (empty($image[$key_write])) $image[$key_write] = '';
+		foreach ($image[$key_read] as $key => $value) {
+			$image[$key_write] .= ' -'.$key;
 			if ($value)
-				$image['convert_options'] .= ' '.$value;
+				$image[$key_write] .= ' '.$value;
 		}
 	}
 	
