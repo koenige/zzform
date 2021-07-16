@@ -3,7 +3,7 @@
  * Cascading Style Sheets (CSS)
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2004-2021 Gustaf Mossakowski
@@ -213,7 +213,6 @@ div.text #zzform, #zzform div.text
 #zzform optgroup	{ font-style: normal; font-weight: bold; }
 /* hierarchical options */
 #zzform option.level0 { font-weight: bold; }
-#zzform option.level2 { color: #339; }
 #zzform option.level3 { font-style: italic; }
 
 #zzform input.sub-add { float: left; clear: left; margin-top: 0; }
