@@ -26,6 +26,7 @@
 function zz_check_mail($e_mail, $type = 'mail') {
 	// remove whitespace from address(es)
 	$e_mail = trim($e_mail);
+	$e_mail = strtolower($e_mail); // case insensitive, save it lowercase
 
 	if ($type == 'mail+name') {
 		// bla@example.org
