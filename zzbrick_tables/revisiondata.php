@@ -27,6 +27,7 @@ $zz['fields'][1]['type'] = 'id';
 
 $zz['fields'][2]['field_name'] = 'revision_id';
 
+$zz['fields'][3]['title'] = 'Table';
 $zz['fields'][3]['field_name'] = 'table_name';
 
 $zz['fields'][4]['field_name'] = 'record_id';
@@ -40,6 +41,7 @@ $zz['fields'][6]['type'] = 'memo';
 $zz['fields'][6]['hide_in_list'] = true;
 $zz['fields'][6]['rows'] = 3;
 
+$zz['fields'][7]['title'] = 'Action';
 $zz['fields'][7]['field_name'] = 'rev_action';
 $zz['fields'][7]['type'] = 'select';
 $zz['fields'][7]['enum'] = ['insert','update','delete'];

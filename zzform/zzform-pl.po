@@ -2,7 +2,7 @@
 # Translations, template
 #
 # Part of »Zugzwang Project«
-# http://www.zugzwang.org/projects/zzform
+# https://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
 # @copyright Copyright © 2005-2018 Gustaf Mossakowski

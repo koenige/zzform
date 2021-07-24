@@ -2,7 +2,7 @@
 # Translations
 #
 # Part of »Zugzwang Project«
-# http://www.zugzwang.org/projects/zzform
+# https://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
 # @copyright Copyright © 2005-2021 Gustaf Mossakowski
@@ -634,6 +634,36 @@ msgstr "Alter Wert: %s"
 # Record form: Revision
 msgid "– empty –"
 msgstr "– leer –"
+
+# Record form: Revision
+#: zzbrick_tables/revisions.php
+msgid "Revisions"
+msgstr "Revisionen"
+
+# Record form: Revision
+#: zzbrick_tables/revisions.php
+msgid "Data"
+msgstr "Daten"
+
+# Record form: Revision
+#: zzbrick_tables/revisions.php
+msgid "Script URL"
+msgstr "Skript-URL"
+
+# Record form: Revision
+#: zzbrick_tables/revisiondata.php
+msgid "ignore"
+msgstr "ignorieren"
+
+# Record form: Revision
+#: zzbrick_tables/revisiondata.php
+msgid "Changed values"
+msgstr "Geänderte Werte"
+
+# Record form: Revision
+#: zzbrick_tables/revisiondata.php
+msgid "Complete values"
+msgstr "Alle Werte"
 
 # Record form: Captcha
 msgid "Please enter the digits from the image."
