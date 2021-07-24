@@ -44,7 +44,7 @@ $zz['fields'][6]['rows'] = 3;
 $zz['fields'][7]['title'] = 'Action';
 $zz['fields'][7]['field_name'] = 'rev_action';
 $zz['fields'][7]['type'] = 'select';
-$zz['fields'][7]['enum'] = ['insert','update','delete'];
+$zz['fields'][7]['enum'] = ['insert', 'update', 'delete', 'ignore'];
 $zz['fields'][7]['show_values_as_list'] = true;
 
 $zz['sql'] = 'SELECT _revisiondata.*

@@ -1,8 +1,9 @@
 /**
- * Zugzwang Project
- * SQL for installation of zzform module
+ * zzform module
+ * SQL for installation
  *
- * http://www.zugzwang.org/modules/zzform
+ * Part of »Zugzwang Project«
+ * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2020-2021 Gustaf Mossakowski
@@ -17,7 +18,7 @@ CREATE TABLE `_revisiondata` (
   `record_id` int unsigned NOT NULL,
   `changed_values` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `complete_values` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-  `rev_action` enum('insert','update','delete') CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
+  `rev_action` enum('insert','update','delete','ignore') CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
   PRIMARY KEY (`revisiondata_id`),
   KEY `revision_id` (`revision_id`),
   KEY `table_name` (`table_name`),
