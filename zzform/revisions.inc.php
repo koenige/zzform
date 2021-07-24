@@ -5,7 +5,7 @@
  * Revision functions
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2016-2021 Gustaf Mossakowski
@@ -13,6 +13,15 @@
  */
 
 
+/**
+ * write data to revisions from a hook function
+ * (custom hook or internal zzform hook)
+ *
+ * @param array $ops
+ * @param array $zz_tab (not used here, but for all hook functions in zz_action_function())
+ * @param bool $rev_only
+ * @return
+ */
 function zz_revisions($ops, $zz_tab = [], $rev_only = false) {
 	global $zz_conf;
 	$user_id = !empty($_SESSION['user_id']) ? $_SESSION['user_id'] : 'NULL';
@@ -63,7 +72,8 @@ function zz_revisions($ops, $zz_tab = [], $rev_only = false) {
 	if ($status === 'live') {
 		$sql = 'UPDATE /*_PREFIX_*/_revisions
 			SET rev_status = "historic", last_update = NOW()
-			WHERE rev_status = "live" AND main_table_name = "%s" AND main_record_id = %d AND revision_id < %d';
+			WHERE rev_status = "live" AND main_table_name = "%s"
+			AND main_record_id = %d AND revision_id < %d';
 		$sql = sprintf($sql,
 			$ops['return'][0]['table'],
 			$ops['return'][0]['id_value'], $rev_id['id']
@@ -72,17 +82,28 @@ function zz_revisions($ops, $zz_tab = [], $rev_only = false) {
 		if ($rows) zz_log_sql($sql, $zz_conf['user']);
 	}
 
+	zz_revisions_save_data($data, $rev_id['id']);
+	return [];
+}
+
+/**
+ * save revision data
+ *
+ * @param array $data
+ * @param int $id
+ * @return void
+ */
+function zz_revisions_save_data($data, $id) {
 	$sql_rev = 'INSERT INTO /*_PREFIX_*/_revisiondata
 		(revision_id, table_name, record_id, changed_values, complete_values, rev_action)
 		VALUES (%d, "%%s", %%d, %%s, %%s, "%%s")';
-	$sql_rev = sprintf($sql_rev, $rev_id['id']);
+	$sql_rev = sprintf($sql_rev, $id);
 	foreach ($data as $line) {
 		$sql = vsprintf($sql_rev, $line);
 		$rev_data_id = wrap_db_query($sql);
 		if (empty($rev_data_id['id'])) continue;
 		zz_log_sql($sql, $zz_conf['user'], $rev_data_id['id']);
 	}
-	return [];
 }
 
 /**
@@ -95,8 +116,8 @@ function zz_revisions($ops, $zz_tab = [], $rev_only = false) {
 function zz_revisions_read($table, $record_id) {
 	$sql = 'SELECT revisiondata_id
 			, table_name, record_id, changed_values, rev_action
-		FROM _revisiondata
-		LEFT JOIN _revisions USING (revision_id)
+		FROM /*_PREFIX_*/_revisiondata
+		LEFT JOIN /*_PREFIX_*/_revisions USING (revision_id)
 		WHERE user_id = %d
 		AND rev_status = "pending"
 		AND main_table_name = "%s"
@@ -199,7 +220,8 @@ function zz_revisisons_read_data($my_tab, $revision_id) {
  */
 function zz_revisions_historic($ops, $zz_tab) {
 	$id_value = $zz_tab[0]['revision_id'];
-	$sql = 'UPDATE /*_PREFIX_*/_revisions SET rev_status = "historic" WHERE revision_id = %d';
+	$sql = 'UPDATE /*_PREFIX_*/_revisions
+		SET rev_status = "historic" WHERE revision_id = %d';
 	$sql = sprintf($sql, $id_value);
 	$result = zz_db_change($sql, $id_value);
 }
