@@ -294,6 +294,19 @@ function zzform($zz) {
 					$zz['record']['action'] = false;
 					$ops['mode'] = 'show';
 				}
+				// re-evaluate $zz_tab
+				// conditions and revisions might have changed
+				// @todo think of just changing some values depending on
+				// conditions, not all (efficency)
+				$zz_tab = zz_prepare_tables($zz, $ops['mode']);
+				if (!$zz_tab) return zzform_exit($ops);
+
+				// set conditions for detail records
+				// id is available just now
+				if (!empty($zz_conf['modules']['conditions'])) {
+					$zz_conditions = zz_conditions_subrecord_check($zz, $zz_tab, $zz_conditions);
+					$zz_tab = zz_conditions_subrecord($zz_tab, $zz_conditions);
+				}
 			}
 		} elseif ($zz['record']['action'] === 'thumbnails') {
 			$ops = zz_upload_thumbnail($ops, $zz_tab);
