@@ -16,12 +16,12 @@
 // access restriction has to be set in the file including this file
 // Bitte Zugriffsbeschränkungen in der Datei, die diese einbindet, definieren!
 
-if (empty($zz_conf['revisions_table'])) wrap_quit(404);
+if (empty($zz_conf['revisions'])) wrap_quit(404);
 
 require_once $zz_conf['dir'].'/revisions.inc.php';
 
 $zz['title'] = 'Revisions';
-$zz['table'] = $zz_conf['revisions_table'];
+$zz['table'] = '/*_PREFIX_*/_revisions';
 
 $zz['fields'][1]['title'] = 'ID';
 $zz['fields'][1]['field_name'] = 'revision_id';
@@ -61,11 +61,9 @@ unset($zz_sub);
 $zz['fields'][7]['title'] = 'Data';
 $zz['fields'][7]['type'] = 'subtable';
 $zz['fields'][7]['fields'][2]['type'] = 'foreign_key';
-$zz['fields'][7]['subselect']['sql'] = sprintf('SELECT revision_id, table_name, record_id, rev_action
-	FROM %s
-	LEFT JOIN %s USING (revision_id)',
-	$zz_conf['revisions_data_table'], $zz_conf['revisions_table']
-);
+$zz['fields'][7]['subselect']['sql'] = 'SELECT revision_id, table_name, record_id, rev_action
+	FROM /*_PREFIX_*/_revisiondata
+	LEFT JOIN /*_PREFIX_*/_revisions USING (revision_id)';
 
 $zz['fields'][8]['title'] = 'Script URL';
 $zz['fields'][8]['field_name'] = 'script_url';
@@ -78,12 +76,12 @@ $zz['fields'][99]['hide_in_list'] = true;
 
 $zz['sql'] = 'SELECT *
 	, IFNULL(script_url, main_table_name) AS revisions_url
-	FROM '.$zz_conf['revisions_table'];
+	FROM /*_PREFIX_*/_revisions';
 $zz['sqlorder'] = ' ORDER BY created ASC, revision_id ASC';
 
-$zz['filter'][1]['sql'] = sprintf('SELECT DISTINCT rev_status, rev_status
-	FROM %s
-	ORDER BY rev_status', $zz_conf['revisions_table']);
+$zz['filter'][1]['sql'] = 'SELECT DISTINCT rev_status, rev_status
+	FROM /*_PREFIX_*/_revisions
+	ORDER BY rev_status';
 $zz['filter'][1]['title'] = 'Status';
 $zz['filter'][1]['identifier'] = 'status';
 $zz['filter'][1]['type'] = 'list';

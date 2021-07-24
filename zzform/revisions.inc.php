@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2016-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2016-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -48,10 +48,11 @@ function zz_revisions($ops, $zz_tab = [], $rev_only = false) {
 
 	$status = !empty($zz_conf['int']['revisions_only']) ? 'pending' : 'live';
 	if ($rev_only) $status = 'pending'; // overwrite internal settings
-	$sql = 'INSERT INTO %s (main_table_name, main_record_id, user_id, rev_status, created, script_url, last_update)
+	$sql = 'INSERT INTO /*_PREFIX_*/_revisions
+		(main_table_name, main_record_id, user_id, rev_status, created, script_url, last_update)
 		VALUES ("%s", %d, %s, "%s", NOW(), %s, NOW())';
 	$sql = sprintf($sql,
-		$zz_conf['revisions_table'], $ops['return'][0]['table'],
+		$ops['return'][0]['table'],
 		$ops['return'][0]['id_value'], $user_id, $status
 		, (!empty($zz_conf['revisions_url']) ? sprintf('"%s"', $zz_conf['revisions_url']) : 'NULL')
 	);
@@ -60,19 +61,21 @@ function zz_revisions($ops, $zz_tab = [], $rev_only = false) {
 	zz_log_sql($sql, $zz_conf['user'], $rev_id['id']);
 
 	if ($status === 'live') {
-		$sql = 'UPDATE %s SET rev_status = "historic", last_update = NOW()
+		$sql = 'UPDATE /*_PREFIX_*/_revisions
+			SET rev_status = "historic", last_update = NOW()
 			WHERE rev_status = "live" AND main_table_name = "%s" AND main_record_id = %d AND revision_id < %d';
 		$sql = sprintf($sql,
-			$zz_conf['revisions_table'], $ops['return'][0]['table'],
+			$ops['return'][0]['table'],
 			$ops['return'][0]['id_value'], $rev_id['id']
 		);
 		$rows = wrap_db_query($sql);
 		if ($rows) zz_log_sql($sql, $zz_conf['user']);
 	}
 
-	$sql_rev = 'INSERT INTO %s (revision_id, table_name, record_id, changed_values,
-		complete_values, rev_action) VALUES (%d, "%%s", %%d, %%s, %%s, "%%s")';
-	$sql_rev = sprintf($sql_rev, $zz_conf['revisions_data_table'], $rev_id['id']);
+	$sql_rev = 'INSERT INTO /*_PREFIX_*/_revisiondata
+		(revision_id, table_name, record_id, changed_values, complete_values, rev_action)
+		VALUES (%d, "%%s", %%d, %%s, %%s, "%%s")';
+	$sql_rev = sprintf($sql_rev, $rev_id['id']);
 	foreach ($data as $line) {
 		$sql = vsprintf($sql_rev, $line);
 		$rev_data_id = wrap_db_query($sql);
@@ -145,12 +148,13 @@ function zz_revisions_read($table, $record_id) {
  */
 function zz_revisions_read_id($table) {
 	global $zz_conf;
-	$sql = 'SELECT revision_id FROM %s
+	$sql = 'SELECT revision_id
+		FROM /*_PREFIX_*/_revisions
 		WHERE main_table_name = "%s"
 		AND main_record_id = %d
 		AND rev_status = "pending"
 		LIMIT 1';
-	$sql = sprintf($sql, $zz_conf['revisions_table'], $table, $zz_conf['int']['id']['value']);
+	$sql = sprintf($sql, $table, $zz_conf['int']['id']['value']);
 	return wrap_db_fetch($sql, '', 'single value');
 }
 
@@ -163,13 +167,11 @@ function zz_revisions_read_id($table) {
  * @return array
  */
 function zz_revisisons_read_data($my_tab, $revision_id) {
-	global $zz_conf;
 	$sql = 'SELECT record_id, changed_values, rev_action
-		FROM %s
+		FROM /*_PREFIX_*/_revisiondata
 		WHERE table_name = "%s"
 		AND revision_id = %d';
 	$sql = sprintf($sql
-		, $zz_conf['revisions_data_table']
 		, $my_tab['table_name']
 		, $revision_id
 	);
@@ -196,10 +198,9 @@ function zz_revisisons_read_data($my_tab, $revision_id) {
  * @return void
  */
 function zz_revisions_historic($ops, $zz_tab) {
-	global $zz_conf;
 	$id_value = $zz_tab[0]['revision_id'];
-	$sql = 'UPDATE %s SET rev_status = "historic" WHERE revision_id = %d';
-	$sql = sprintf($sql, $zz_conf['revisions_table'], $id_value);
+	$sql = 'UPDATE /*_PREFIX_*/_revisions SET rev_status = "historic" WHERE revision_id = %d';
+	$sql = sprintf($sql, $id_value);
 	$result = zz_db_change($sql, $id_value);
 }
 
