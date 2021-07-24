@@ -77,9 +77,9 @@ $zz['sql'] = 'SELECT *
 	FROM /*_PREFIX_*/_revisions';
 $zz['sqlorder'] = ' ORDER BY created ASC, revision_id ASC';
 
-$zz['filter'][1]['sql'] = 'SELECT DISTINCT rev_status, rev_status
-	FROM /*_PREFIX_*/_revisions
-	ORDER BY rev_status';
+foreach ($zz['fields'][5]['enum'] as $enum) {
+	$zz['filter'][1]['selection'][$enum] = $enum;
+}
 $zz['filter'][1]['title'] = 'Status';
 $zz['filter'][1]['identifier'] = 'status';
 $zz['filter'][1]['type'] = 'list';
@@ -87,3 +87,5 @@ $zz['filter'][1]['field_name'] = 'rev_status';
 $zz['filter'][1]['where'] = 'rev_status';
 $zz['filter'][1]['default_selection'] = 'pending';
 $zz['filter'][1]['translate_field_value'] = true;
+
+$zz_conf['no_add_above'] = true;
