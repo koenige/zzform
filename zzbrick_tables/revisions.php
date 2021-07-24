@@ -5,7 +5,7 @@
  * Revisions of database records
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2016, 2019, 2021 Gustaf Mossakowski
@@ -55,9 +55,7 @@ $zz['fields'][6]['type'] = 'write_once';
 $zz['fields'][6]['type_detail'] = 'datetime';
 $zz['fields'][6]['default'] = date('Y-m-d H:i:s');
 
-include __DIR__.'/revisiondata.php';
-$zz['fields'][7] = $zz_sub;
-unset($zz_sub);
+$zz['fields'][7] = zzform_include_table('revisiondata');
 $zz['fields'][7]['title'] = 'Data';
 $zz['fields'][7]['type'] = 'subtable';
 $zz['fields'][7]['fields'][2]['type'] = 'foreign_key';
