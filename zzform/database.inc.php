@@ -79,7 +79,7 @@ function zz_sql_prefix($vars, $type = 'zz') {
 	} else {
 		$sql_fields = [
 			'logging_table', 'relations_table', 'text_table',
-			'translations_table', 'revisions_table', 'revisions_data_table'
+			'translations_table'
 		];
 		foreach ($sql_fields as $config) {
 			if (empty($zz_conf[$config])) continue;
