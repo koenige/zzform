@@ -15,7 +15,7 @@ CREATE TABLE `_revisiondata` (
   `revisiondata_id` int unsigned NOT NULL AUTO_INCREMENT,
   `revision_id` int unsigned NOT NULL,
   `table_name` varchar(63) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
-  `record_id` int unsigned NOT NULL,
+  `record_id` int NOT NULL,
   `changed_values` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `complete_values` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `rev_action` enum('insert','update','delete','ignore') CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,

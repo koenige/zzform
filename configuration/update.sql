@@ -12,3 +12,4 @@
 
 
 /* 2021-07-24-1 */	ALTER TABLE `_revisiondata` CHANGE `rev_action` `rev_action` enum('insert','update','delete','ignore') COLLATE 'latin1_general_ci' NOT NULL AFTER `complete_values`;
+/* 2021-07-25-1 */	ALTER TABLE `_revisiondata` CHANGE `record_id` `record_id` int NOT NULL AFTER `table_name`;
