@@ -785,7 +785,7 @@ function zz_initialize_int() {
 	$zz_conf['int']['internal_post_fields'] = [
 		'MAX_FILE_SIZE', 'zz_check_select', 'zz_action', 'zz_subtables',
 		'zz_delete_file', 'zz_referer', 'zz_save_record', 'zz_subtable_ids',
-		'zz_id'
+		'zz_id', 'zz_html_fragment'
 	];
 }
 
