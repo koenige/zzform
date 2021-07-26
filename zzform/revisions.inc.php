@@ -80,9 +80,11 @@ function zz_revisions($ops, $zz_tab = [], $rev_only = false) {
 		);
 		$rows = wrap_db_query($sql);
 		if ($rows) zz_log_sql($sql, $zz_conf['user']);
+		$open_revisions = [];
+	} else {
+		$open_revisions = zz_revisions_open($ops['return'][0]['table'], $ops['return'][0]['id_value'], $rev_id['id']);
 	}
-
-	zz_revisions_insert_data($data, $rev_id['id']);
+	zz_revisions_insert_data($data, $rev_id['id'], $open_revisions);
 	return [];
 }
 
@@ -91,9 +93,10 @@ function zz_revisions($ops, $zz_tab = [], $rev_only = false) {
  *
  * @param array $data
  * @param int $id
+ * @param array $open_revisions
  * @return void
  */
-function zz_revisions_insert_data($data, $id) {
+function zz_revisions_insert_data($data, $id, $open_revisions) {
 	global $zz_conf;
 
 	$sql_rev = 'INSERT INTO /*_PREFIX_*/_revisiondata
@@ -101,6 +104,34 @@ function zz_revisions_insert_data($data, $id) {
 		VALUES (%d, "%%s", %%d, %%s, %%s, "%%s")';
 	$sql_rev = sprintf($sql_rev, $id);
 	foreach ($data as $line) {
+		$ignored = [];
+		if (!$line['record_id']) {
+			$line['record_id'] = -1; // @todo -2, -3, how?
+		}
+		if ($line['record_id'] > 0 AND !empty($open_revisions[$line['table_name']][$line['record_id']])) {
+			// delete previous revisiondata with rev_action = delete
+			// delete parent revision if no other revisiondata exists
+			foreach ($open_revisions[$line['table_name']][$line['record_id']] as $open_rev) {
+				if ($open_rev['rev_action'] !== 'delete') continue;
+				$ignored[] = $open_rev;
+			}
+		} elseif (!empty($open_revisions[$line['table_name']][$line['record_id']])) {
+			// record was added, all previous revisions = historic
+			// if action = delete, do not log or log as historic
+			
+			$ignored = $open_revisions[$line['table_name']][$line['record_id']];
+			switch ($line['rev_action']) {
+				case 'update': $line['rev_action'] = 'insert'; break;
+				case 'delete': $line['rev_action'] = 'ignore'; break; // no record
+			}
+		}
+		foreach ($ignored as $open_rev) {
+			if ($open_rev['children'].'' === '1') {
+				zz_revisions_historic_update($open_rev['revision_id']);
+			} else {
+				zz_revisions_ignore_data($open_rev['revisiondata_id']);
+			}
+		}
 		$sql = vsprintf($sql_rev, $line);
 		$rev_data_id = wrap_db_query($sql);
 		if (empty($rev_data_id['id'])) continue;
@@ -331,4 +362,45 @@ function zz_revisions_table_to_url($table) {
 	$table = str_replace('_', '-', $table);
 	$table = './'.$table;
 	return $table;
+}
+
+/**
+ * get all open revisions for detail records of this record
+ *
+ * @param string $main_table_name
+ * @param int $main_record_id
+ * @param int $revision_id
+ * @return array
+ */
+function zz_revisions_open($main_table_name, $main_record_id, $revision_id) {
+	$sql = 'SELECT revisiondata_id, revision_id, table_name, record_id, rev_action
+			, (SELECT COUNT(*) FROM /*_PREFIX_*/_revisiondata rd
+				WHERE rd.revision_id = /*_PREFIX_*/_revisiondata.revision_id
+			) AS children
+		FROM /*_PREFIX_*/_revisiondata
+		LEFT JOIN /*_PREFIX_*/_revisions USING (revision_id)
+		WHERE rev_status = "pending" AND main_table_name = "%s"
+		AND main_record_id = %d AND revision_id < %d
+		AND table_name != main_table_name';
+	$sql = sprintf($sql, $main_table_name, $main_record_id, $revision_id);
+	return wrap_db_fetch($sql, ['table_name', 'record_id', 'revisiondata_id']);
+}
+
+/**
+ * remove a line from _revisiondata by setting it to ignore
+ *
+ * @param int $id_value
+ * @return bool
+ */
+function zz_revisions_ignore_data($id_value) {
+	global $zz_conf;
+
+	$sql = 'UPDATE /*_PREFIX_*/_revisiondata
+		SET rev_action = "ignore"
+		WHERE revisiondata_id = %d';
+	$sql = sprintf($sql, $id_value);
+	$result = wrap_db_query($sql);
+	if (!$result) return false;
+	zz_log_sql($sql, $zz_conf['user'], $id_value);
+	return true;
 }
