@@ -109,6 +109,41 @@ function zz_revisions_insert_data($data, $id) {
 }
 
 /**
+ * read revision data for $zz_tab
+ *
+ * @param array $main_tab = $zz_tab[0]
+ * @return array
+ */
+function zz_revisions_tab($main_tab) {
+	global $zz_conf;
+	$revision_data = [];
+
+	$data = zz_revisions_read($main_tab['table'], $main_tab[0]['id']['value']);
+	if ($data === NULL) {
+		$revision_data[$main_tab['table']] = [];
+		return $revision_data;
+	}
+	foreach ($data as $field => $value) {
+		if (!is_array($value)) {
+			$revision_data[$main_tab['table']][$main_tab[0]['id']['value']][$field] = $value;
+			continue;
+		}
+		// it’s a detail record
+		foreach ($value as $my_record_id => $my_record) {
+			if (empty($revision_data[$field][$my_record_id]))
+				$revision_data[$field][$my_record_id] = [];
+			if ($my_record) {
+				$revision_data[$field][$my_record_id]
+					= array_merge($revision_data[$field][$my_record_id], $my_record);
+			} else {
+				$revision_data[$field][$my_record_id] = NULL;
+			}
+		}
+	}
+	return $revision_data;
+}
+
+/**
  * read revisions from database
  *
  * @param string $table

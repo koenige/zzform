@@ -77,6 +77,9 @@ function zz_prepare_tables($zz, $mode) {
 	$zz_tab[0][0]['if'] = !empty($zz['if']) ? $zz['if'] : [];
 	$zz_tab[0][0]['unless'] = !empty($zz['unless']) ? $zz['unless'] : [];
 
+	if (!empty($zz_conf['int']['revisions_only']))
+		$zz_conf['int']['revision_data'] = zz_revisions_tab($zz_tab[0]);
+		
 	//	### put each table (if more than one) into one array of its own ###
 	$integrate_records = 0;
 	foreach ($zz['record']['subtables'] as $tab => $no) {
@@ -1488,23 +1491,17 @@ function zz_query_single_record($sql, $table, $table_name, $id, $sqlextra, $type
 		$sql = sprintf($sql, $id[$type]);
 		$record = array_merge($record, zz_db_fetch($sql));
 	}
-	if (!empty($zz_conf['int']['revisions_only'])) {
-		if (empty($zz_conf['int']['revision_data']))
-			$zz_conf['int']['revision_data'] = [];
-		$data = zz_revisions_read($table, $id['value']);
-		if (!$data AND !empty($zz_conf['int']['revision_data'][$table])
-			AND array_key_exists($id['value'], $zz_conf['int']['revision_data'][$table])) {
-			$data = $zz_conf['int']['revision_data'][$table][$id['value']];
-		}
-		foreach ($data as $field => $value) {
-			if (is_array($value)) {
-				// it's a detail record
-				if (empty($zz_conf['int']['revision_data'][$field]))
-					$zz_conf['int']['revision_data'][$field] = [];
-				$zz_conf['int']['revision_data'][$field] += $value;
+	if (isset($zz_conf['int']['revision_data'][$table_name])
+		AND array_key_exists($id['value'], $zz_conf['int']['revision_data'][$table_name])) {
+		$data = $zz_conf['int']['revision_data'][$table_name][$id['value']];
+		if ($data === NULL) {
+			$record = [];
+		} else {
+			foreach ($data as $field => $value) {
+				if (is_array($value)) continue;
+				$record[$field] = $value;
 			}
-			$record[$field] = $value;
-		}
+		}		
 	}
 	return $record;
 }
