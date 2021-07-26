@@ -1288,7 +1288,7 @@ function zz_query_record($zz_tab, $tab, $rec, $validation, $mode) {
 	}
 	// revision?
 	if ($mode === 'revise' AND !empty($zz_tab[0]['revision_id'])) {
-		$my_tab = zz_revisisons_read_data($my_tab, $zz_tab[0]['revision_id']);
+		$my_tab = zz_revisions_read_data($my_tab, $zz_tab[0]['revision_id']);
 	}
 	zz_log_validation_errors($my_rec, $validation);
 	return zz_return($my_tab);

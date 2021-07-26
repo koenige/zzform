@@ -115,13 +115,14 @@ function zz_revisions_save_data($data, $id) {
  */
 function zz_revisions_read($table, $record_id) {
 	$sql = 'SELECT revisiondata_id
-			, table_name, record_id, changed_values, rev_action
+			, table_name, record_id, changed_values, complete_values, rev_action
 		FROM /*_PREFIX_*/_revisiondata
 		LEFT JOIN /*_PREFIX_*/_revisions USING (revision_id)
 		WHERE user_id = %d
 		AND rev_status = "pending"
 		AND main_table_name = "%s"
 		AND main_record_id = %d
+		AND rev_action != "ignore"
 		ORDER BY created ASC';
 	$sql = sprintf($sql, $_SESSION['user_id'], $table, $record_id);
 	$revisions = wrap_db_fetch($sql, 'revisiondata_id');
@@ -148,7 +149,7 @@ function zz_revisions_read($table, $record_id) {
 			break 2; // once a record is deleted, the rest is uninteresting
 		case 'insert':
 			if ($table === $rev['table_name']) break; // @todo
-			$changed_values = json_decode($rev['changed_values']);
+			$changed_values = json_decode($rev['complete_values']);
 			if (empty($dummy_ids[$rev['table_name']]))
 				$dummy_ids[$rev['table_name']] = 0;
 			$dummy_id = $dummy_ids[$rev['table_name']] -1;
@@ -187,11 +188,12 @@ function zz_revisions_read_id($table) {
  * @param int $revision_id
  * @return array
  */
-function zz_revisisons_read_data($my_tab, $revision_id) {
+function zz_revisions_read_data($my_tab, $revision_id) {
 	$sql = 'SELECT record_id, changed_values, rev_action
 		FROM /*_PREFIX_*/_revisiondata
 		WHERE table_name = "%s"
-		AND revision_id = %d';
+		AND revision_id = %d
+		AND rev_action != "ignore"';
 	$sql = sprintf($sql
 		, $my_tab['table_name']
 		, $revision_id
