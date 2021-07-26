@@ -613,6 +613,9 @@ function zz_action_equals($my_rec) {
 				// are equal
 				$update = false;
 			}
+		} elseif ($my_rec['id']['value'] < 0) {
+			// revision, no existing record
+			$update = true;
 		} else {
 			// we have an update but no existing record
 			zz_error_log([

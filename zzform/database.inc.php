@@ -534,6 +534,7 @@ function zz_db_change($sql, $id = false) {
 	// revisions only
 	if (!empty($zz_conf['int']['revisions_only'])) {
 		$db['action'] = $statement;
+		$db['id_value'] = -1; // @todo allow -2, -3
 		return $db;
 	}
 

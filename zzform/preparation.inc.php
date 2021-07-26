@@ -1230,7 +1230,11 @@ function zz_query_record($zz_tab, $tab, $rec, $validation, $mode) {
 				$my_rec['record'] = $my_rec['POST'];
 			}
 		} elseif ($mode !== 'add' OR $my_rec['action']) {
-			if ($my_rec['id']['value']) {
+			if ($my_rec['id']['value'] < 0
+				AND !empty($zz_conf['int']['revision_data'][$zz_tab[$tab]['table_name']][$my_rec['id']['value']])) {
+				$my_rec['record'] = $zz_conf['int']['revision_data'][$zz_tab[$tab]['table_name']][$my_rec['id']['value']];
+				$my_rec['record'] = zz_prepare_record($my_rec['record'], $my_rec['fields']);
+			} elseif ($my_rec['id']['value']) {
 				$my_rec['record'] = zz_query_single_record(
 					$my_tab['sql'], $table, $my_tab['table_name'], $my_rec['id'], $my_tab['sqlextra']
 				);
