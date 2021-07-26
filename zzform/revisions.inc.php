@@ -82,7 +82,7 @@ function zz_revisions($ops, $zz_tab = [], $rev_only = false) {
 		if ($rows) zz_log_sql($sql, $zz_conf['user']);
 	}
 
-	zz_revisions_save_data($data, $rev_id['id']);
+	zz_revisions_insert_data($data, $rev_id['id']);
 	return [];
 }
 
@@ -93,7 +93,9 @@ function zz_revisions($ops, $zz_tab = [], $rev_only = false) {
  * @param int $id
  * @return void
  */
-function zz_revisions_save_data($data, $id) {
+function zz_revisions_insert_data($data, $id) {
+	global $zz_conf;
+
 	$sql_rev = 'INSERT INTO /*_PREFIX_*/_revisiondata
 		(revision_id, table_name, record_id, changed_values, complete_values, rev_action)
 		VALUES (%d, "%%s", %%d, %%s, %%s, "%%s")';
@@ -222,11 +224,25 @@ function zz_revisions_read_data($my_tab, $revision_id) {
  * @return void
  */
 function zz_revisions_historic($ops, $zz_tab) {
-	$id_value = $zz_tab[0]['revision_id'];
+	zz_revisions_historic_update($zz_tab[0]['revision_id']);
+}
+
+/**
+ * update a pending revision to historic status
+ *
+ * @param int $id_value
+ * @return void
+ */
+function zz_revisions_historic_update($id_value) {
+	global $zz_conf;
+
 	$sql = 'UPDATE /*_PREFIX_*/_revisions
-		SET rev_status = "historic" WHERE revision_id = %d';
+		SET rev_status = "historic", last_update = NOW()
+		WHERE revision_id = %d';
 	$sql = sprintf($sql, $id_value);
-	$result = zz_db_change($sql, $id_value);
+	$result = wrap_db_query($sql, $id_value);
+	if (!$result) return;
+	zz_log_sql($sql, $zz_conf['user'], $id_value);
 }
 
 /**
