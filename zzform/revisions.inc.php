@@ -279,6 +279,8 @@ function zz_revisions_read_data($my_tab, $revision_id) {
 			$my_tab[$index]['revision'] = json_decode($revision['changed_values'], true);
 		} elseif ($revision['rev_action'] === 'delete') {
 			$my_tab[0]['action'] = 'delete';
+		} elseif ($revision['rev_action'] === 'insert') {
+			$my_tab[$index]['revision'] = json_decode($revision['changed_values'], true);
 		}
 	}
 	return $my_tab;
