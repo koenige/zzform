@@ -618,6 +618,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 				);
 				$my_rec['record'][$field['field_name']] = $my_rec['revision'][$field['field_name']];
 				$field['class'][] = 'reselect';
+			} elseif ($my_rec['action'] === 'delete') {
+				$my_rec['record'] = [];
 			} elseif (!in_array($field['type'], ['subtable', 'foreign_table'])) {
 				$field_display = 'show';
 			}
@@ -1962,9 +1964,12 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
  */
 function zz_field_timestamp($field, $record, $mode) {
 	// get value
-	if (!empty($field['value'])) $value = $field['value'];
-	elseif ($record) $value = $record[$field['field_name']];
-	else $value = '';
+	if (!empty($field['value']))
+		$value = $field['value'];
+	elseif ($record AND array_key_exists($field['field_name'], $record))
+		$value = $record[$field['field_name']];
+	else
+		$value = '';
 
 	// return form element
 	if (!in_array($mode, ['delete', 'show'])) {

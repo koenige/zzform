@@ -144,6 +144,40 @@ function zz_revisions_tab($main_tab) {
 }
 
 /**
+ * overwrite or add subrecords
+ *
+ * @param array $my_tab
+ * @param array $records
+ */
+function zz_revisions_subrecord($my_tab, $records) {
+	global $zz_conf;
+	if (empty($zz_conf['int']['revision_data'][$my_tab['table_name']])) return $records;
+
+	// overwrite existing records
+	foreach ($records as $id => $line) {
+		if (!array_key_exists($id, $zz_conf['int']['revision_data'][$my_tab['table_name']])) continue;
+		if (!isset($zz_conf['int']['revision_data'][$my_tab['table_name']][$id])) {
+			foreach ($line as $field => $value) {
+				if ($field === $my_tab['id']['field_name']) continue;
+				if (!empty($my_tab['foreign_key']) AND $field === $my_tab['foreign_key']) continue;
+				$records[$id][$field] = '';
+			}
+		} else {
+			$records[$id] = array_merge(
+				$line, $zz_conf['int']['revision_data'][$my_tab['table_name']][$id]
+			);
+		}
+	}
+
+	// add new virtual records
+	foreach ($zz_conf['int']['revision_data'][$my_tab['table_name']] as $id => $line) {
+		if (in_array($id, array_keys($records))) continue;
+		if ($line) $records[$id] = $line;
+	}
+	return $records;
+}
+
+/**
  * read revisions from database
  *
  * @param string $table

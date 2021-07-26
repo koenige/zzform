@@ -354,6 +354,9 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 			$my_tab['id_field_name'] = $subfield['field_name'];
 			$my_tab['id']['field_name'] = $subfield['field_name'];
 		}
+		if ($subfield['type'] === 'foreign_key') {
+			$my_tab['foreign_key'] = $subfield['field_name'];
+		}
 		if ($subfield['type'] !== 'detail_key') continue;
 		if (empty($main_tab[0]['fields'][$subfield['detail_key']])) continue;
 		$detail_key_index = isset($subfield['detail_key_index']) 
@@ -1571,5 +1574,7 @@ function zz_query_subrecord($my_tab, $id_value, $id_field_name, $deleted_ids = [
 		// get rid of deleted records
 		unset($records[$id]);
 	}
+	if (!empty($zz_conf['int']['revisions_only']))
+		$records = zz_revisions_subrecord($my_tab, $records);
 	return zz_return($records);
 }
