@@ -120,7 +120,7 @@ function zz_prepare_tables($zz, $mode) {
 
 	if (!empty($zz_conf['int']['id']['value'])) {
 		$zz_tab[0][0]['existing'] = zz_query_single_record(
-			$zz_tab[0]['sql'], $zz_tab[0]['table'], $zz_conf['int']['id'], $zz_tab[0]['sqlextra']
+			$zz_tab[0]['sql'], $zz_tab[0]['table'], $zz_tab[0]['table'], $zz_conf['int']['id'], $zz_tab[0]['sqlextra']
 		);
 		$zz_tab[0][0]['existing'] = zz_prepare_record($zz_tab[0][0]['existing'], $zz_tab[0][0]['fields']);
 		if ($zz['record']['action'] === 'update' AND !$zz_tab[0][0]['existing']) {
@@ -1226,7 +1226,7 @@ function zz_query_record($zz_tab, $tab, $rec, $validation, $mode) {
 		} elseif ($mode !== 'add' OR $my_rec['action']) {
 			if ($my_rec['id']['value']) {
 				$my_rec['record'] = zz_query_single_record(
-					$my_tab['sql'], $table, $my_rec['id'], $my_tab['sqlextra']
+					$my_tab['sql'], $table, $my_tab['table_name'], $my_rec['id'], $my_tab['sqlextra']
 				);
 				$my_rec['record'] = zz_prepare_record($my_rec['record'], $my_rec['fields']);
 			} elseif (!empty($my_rec['id']['values'])) {
@@ -1246,7 +1246,7 @@ function zz_query_record($zz_tab, $tab, $rec, $validation, $mode) {
 			} else {
 				$sql = $my_tab['add_from_source_id'] ? $my_tab['sql_without_where'] : $my_tab['sql'];
 				$my_rec['record'] = zz_query_single_record(
-					$sql, $table, $my_rec['id'], $my_tab['sqlextra'], 'source_value'
+					$sql, $table, $my_tab['table_name'], $my_rec['id'], $my_tab['sqlextra'], 'source_value'
 				);
 				if (empty($my_rec['record'])) {
 					$my_tab['id']['source_value'] = false;
@@ -1271,7 +1271,7 @@ function zz_query_record($zz_tab, $tab, $rec, $validation, $mode) {
 		
 	//	get record for display fields and maybe others
 		$my_rec['record_saved'] = zz_query_single_record(
-			$my_tab['sql'], $table, $my_rec['id'], $my_tab['sqlextra']
+			$my_tab['sql'], $table, $my_tab['table_name'], $my_rec['id'], $my_tab['sqlextra']
 		);
 
 	//	display form again			
@@ -1466,7 +1466,7 @@ function zz_log_reselect_errors($field_name = false, $type = 'select') {
  * @param string $type
  * @return array
  */
-function zz_query_single_record($sql, $table, $id, $sqlextra, $type = 'value') {
+function zz_query_single_record($sql, $table, $table_name, $id, $sqlextra, $type = 'value') {
 	global $zz_conf;
 	if (!$id[$type]) return [];
 	$sql = wrap_edit_sql($sql,

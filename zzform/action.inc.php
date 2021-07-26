@@ -1313,6 +1313,7 @@ function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
 	// set information on successful record operation
 	$ops[$type][$index] = [
 		'table' => $zz_tab[$tab]['table'],
+		'table_name' => !empty($zz_tab[$tab]['table_name']) ? $zz_tab[$tab]['table_name'] : $zz_tab[$tab]['table'],
 		'id_field_name' => $zz_tab[$tab][$rec]['id']['field_name'], 
 		'id_value' => $zz_tab[$tab][$rec]['id']['value'],
 		'action' => !empty($zz_tab[$tab][$rec]['actual_action']) 
@@ -1353,7 +1354,7 @@ function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
 	} elseif (!empty($zz_tab[$tab][$rec]['id']['value'])) {
 		// get a record that was deleted with JavaScript
 		$ops['record_old'][$index] = zz_query_single_record(
-			$zz_tab[$tab]['sql'], $zz_tab[$tab]['table'], $zz_tab[$tab][$rec]['id'],
+			$zz_tab[$tab]['sql'], $zz_tab[$tab]['table'], $zz_tab[$tab]['table_name'], $zz_tab[$tab][$rec]['id'],
 			isset($zz_tab[$tab]['sqlextra']) ? $zz_tab[$tab]['sqlextra'] : []
 		);
 	} else {

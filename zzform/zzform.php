@@ -296,6 +296,9 @@ function zzform($zz) {
 				}
 				// @todo re-evalutate some conditions at this stage
 				// since records have changed
+				if (!empty($zz_conf['int']['revisions_only'])) {
+					$zz_conf['int']['revision_data'] = zz_revisions_tab($zz_tab[0]);
+				}
 			}
 		} elseif ($zz['record']['action'] === 'thumbnails') {
 			$ops = zz_upload_thumbnail($ops, $zz_tab);

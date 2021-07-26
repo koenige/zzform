@@ -31,7 +31,7 @@ function zz_revisions($ops, $zz_tab = [], $rev_only = false) {
 		if ($table['action'] === 'nothing') continue;
 		if ($table['action'] === 'delete') {
 			$data[] = [
-				'table_name' => $table['table'],
+				'table_name' => $table['table_name'],
 				'record_id' => $table['id_value'],
 				'changed_values' => 'NULL',
 				'complete_values' => 'NULL',
@@ -46,7 +46,7 @@ function zz_revisions($ops, $zz_tab = [], $rev_only = false) {
 		}
 		if (!$changed) continue;
 		$data[] = [
-			'table_name' => $table['table'],
+			'table_name' => $table['table_name'],
 			'record_id' => $table['id_value'],
 			'changed_values' => sprintf('"%s"', wrap_db_escape(json_encode($changed))),
 			'complete_values' => sprintf('"%s"', wrap_db_escape(json_encode($ops['record_new'][$index]))),
@@ -213,6 +213,7 @@ function zz_revisisons_read_data($my_tab, $revision_id) {
 
 /**
  * update a pending revision to historic status
+ * hook function
  *
  * @param array $ops
  * @param array $zz_tab
