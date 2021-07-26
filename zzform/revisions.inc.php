@@ -304,6 +304,7 @@ function zz_revisions_read_data($my_tab, $revision_id) {
 	if (!$revision_data) return $my_tab;
 	foreach ($my_tab as $index => $rec) {
 		if (!is_numeric($index)) continue;
+		if (!$rec['id']['value']) $rec['id']['value'] = -1;
 		if (!in_array($rec['id']['value'], array_keys($revision_data))) continue;
 		$revision = $revision_data[$rec['id']['value']];
 		if ($revision['rev_action'] === 'update') {
