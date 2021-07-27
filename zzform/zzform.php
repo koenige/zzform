@@ -219,6 +219,7 @@ function zzform($zz) {
 		}
 		$index = key($_POST['zz_multifunction']);
 		$function = $zz_conf['multi_function'][$index]['function'];
+		$_POST['zz_record_id'] = $_POST['zz_record_id'] ?? [];
 		return $function($_POST['zz_record_id']);
 	}
 	if (isset($_POST['zz_merge'])) {
