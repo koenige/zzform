@@ -13,6 +13,7 @@
 
 if (typeof zzformForm !== 'undefined') zzformRecordForm();
 zzformRemoveSuggestions();
+zzformSelections();
 var zzformLoadedJS = [];
 var zzformStart = true;
 
@@ -130,6 +131,23 @@ function zzformMoreTexts() {
 }
 zzformMoreTexts();
 
+/**
+ * change class name of list elements if multi checkbox is selected
+ */
+function zzformSelections() {
+	var selections = document.getElementsByName('zz_record_id[]');
+	for (var i = 0; i < selections.length; i++) {
+		selections[i].onclick = function() {
+			var container = this.closest('li');
+			if (!container) container = this.closest('tr');
+			if (container.classList.contains('selected')) {
+				container.classList.remove('selected'); 
+			} else {
+				container.classList.add('selected'); 
+			}
+		}
+	}
+}
 
 /**
  * for a subrecord set that is grouped, allow to check/uncheck all entries
