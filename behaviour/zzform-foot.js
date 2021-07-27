@@ -75,9 +75,11 @@ function zz_set_checkboxes(state, name) {
 			if (name) {
 				if (inputs[i].name == name) {
 					inputs[i].checked = state;
+					zzformCheckboxSelect(inputs[i]);
 				}
 			} else {
 				inputs[i].checked = state;
+				zzformCheckboxSelect(inputs[i]);
 			}
 		}
 	}
@@ -137,15 +139,19 @@ zzformMoreTexts();
 function zzformSelections() {
 	var selections = document.getElementsByName('zz_record_id[]');
 	for (var i = 0; i < selections.length; i++) {
-		selections[i].onclick = function() {
-			var container = this.closest('li');
-			if (!container) container = this.closest('tr');
-			if (container.classList.contains('selected')) {
-				container.classList.remove('selected'); 
-			} else {
-				container.classList.add('selected'); 
-			}
-		}
+		selections[i].addEventListener('change', zzformCheckboxSelect);
+	}
+}
+
+function zzformCheckboxSelect(event) {
+	var checkbox = event.target ?  event.target :  event;
+	var container = checkbox.closest('#zzform .data li');
+	if (container === null) container = checkbox.closest('#zzform .data tr');
+	if (container === null) return;
+	if (checkbox.checked) {
+		container.classList.add('selected');
+	} else {
+		container.classList.remove('selected'); 
 	}
 }
 
