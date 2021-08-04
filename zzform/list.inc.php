@@ -2028,7 +2028,9 @@ function zz_list_pages($limit_step, $this_limit, $total_rows, $scope = 'body') {
 		}
 		$links[] = [
 			'link'	=> zz_list_pagelink($i, $this_limit, $limit_step, $url),
-			'text'	=> $text
+			'text'	=> $text,
+			'mark_current' => true
+			
 		];
 	}
 	$limit_next = $this_limit + $limit_step;
@@ -2049,21 +2051,7 @@ function zz_list_pages($limit_step, $this_limit, $total_rows, $scope = 'body') {
 		'title' => zz_text('Last page')
 	];
 
-	// output links
-	$output = '<ul class="pages">'."\n";
-	$no_pages = ['&hellip;', '&gt;', '&gt;|', '|&lt;', '&lt;'];
-	foreach ($links as $link) {
-		// mark current page, but not ellipsis
-		$span = in_array($link['text'], $no_pages) ? 'span' : 'strong';
-		$output .= '<li'.(!empty($link['class']) ? ' class="'.$link['class'].'"' : '').'>'
-			.($link['link'] ? '<a href="'.$link['link'].'"'
-				.(!empty($link['title']) ? '  title="'.$link['title'].'"' : '')
-				.'>' : '<'.$span.'>')
-			.$link['text']
-			.($link['link'] ? '</a>' : '</'.$span.'>').'</li>'."\n";
-	}
-	$output .= "</ul>\n";
-	return $output;
+	return wrap_template('zzform-list-pages', $links);
 }
 
 /**
