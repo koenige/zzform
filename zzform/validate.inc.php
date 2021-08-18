@@ -235,7 +235,7 @@ function zz_is_url($url) {
 
 		case 'path':
 			if (!$part) break;
-			if (!preg_match("/^[0-9a-z\/_\.@~\-,=%;:+]*$/i", $part)) return false;
+			if (!preg_match("/^[0-9a-z\/_\.@~\-,=%;:+\(\)]*$/i", $part)) return false;
 			break;
 
 		case 'query':
@@ -573,6 +573,11 @@ function zz_check_username($username, $field) {
 		}
 	}
 	if (!$field_value) $field_value = $username;
+
+	$is_ascii = mb_detect_encoding($field_value, 'ASCII', true);
+	if (!$is_ascii) {
+		$field_value = urlencode($field_value);
+	}
 	
 	// does username exist?
 	$url = sprintf($field['url'], $field_value);
@@ -583,7 +588,8 @@ function zz_check_username($username, $field) {
 		$success = wrap_syndication_get($url, 'html');
 		if (empty($success['_']['data'])) return false;
 	}
-		
+
+	if (strstr($field_value, '%')) $field_value = urldecode($field_value);
 	return $field_value;
 }
 
