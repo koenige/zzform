@@ -733,6 +733,10 @@ msgstr "Datum"
 msgid "Date and time"
 msgstr "Datum und Uhrzeit"
 
+# Record form: foot
+msgid "Submit data …"
+msgstr "Übermittle Daten …"
+
 # List view: Revision
 msgid "live"
 msgstr "live"

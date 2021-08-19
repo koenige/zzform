@@ -630,3 +630,9 @@ ul.vxJS_list		{ margin: 0; padding: 0;  list-style-type: none; }
 					{ opacity: 0.4; }
 #zzform .data li.over
 					{ border-left-color: #FFF; }
+
+/* saved form */
+
+#zzform.saved_state #record
+					{ cursor: progress; }
+#zzform_save		{ display: none; }

@@ -681,6 +681,10 @@ msgstr ""
 msgid "Date and time"
 msgstr ""
 
+# Record form: foot
+msgid "Submit data …"
+msgstr ""
+
 # List view: Revision
 msgid "live"
 msgstr ""

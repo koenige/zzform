@@ -280,6 +280,7 @@ function zzformSubmit(event) {
 	event.preventDefault();
 	zzformSavePage();
 	document.getElementById('zzform_submit').style = 'display: none;';
+	document.getElementById('zzform_save').style = 'display: block;';
 
 	var data = new FormData(zzformForm);
 	data.append('zz_html_fragment', 1);
@@ -297,6 +298,7 @@ function zzformSubmit(event) {
 	xhr.addEventListener('abort', zzformUploadAbort, false);
 	xhr.addEventListener('load', zzformLoadPage, false);
 	xhr.open('POST', zzformActionURL);
+	zzformDisableElements();
 	xhr.send(data);
 }
 
@@ -409,6 +411,7 @@ function zzformLoadPage(event){
 		zzformRecordForm();
 	zzformRemoveSuggestions();
 	zz_filters('init');
+	zzform.classList.remove('saved_state');
 }
 
 /**
@@ -484,6 +487,22 @@ function zzformButtons() {
 		};
 	}
 }
+
+/**
+ * disable input elements after saving record
+ *
+ */
+function zzformDisableElements() {
+	zzform.classList.add('saved_state');
+	var disable = ['input', 'textarea', 'select'];
+	for (j = 0; j < disable.length; j++) {
+		var elements = zzformForm.getElementsByTagName(disable[j]);
+		for (k = 0; k < elements.length; k++) {
+			elements[k].setAttribute('disabled', true);
+		}
+	}
+}
+
 
 /**
  * generate instances of the WMD editor
