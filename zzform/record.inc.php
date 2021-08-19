@@ -972,6 +972,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 			if (!empty($field['placeholder'])) {
 				if ($field['placeholder'] === true) $field['placeholder'] = $field['title'];
 				else $field['placeholder'] = wrap_text($field['placeholder']);
+				$field['placeholder'] = strip_tags($field['placeholder']);
 			} else {
 				$field['placeholder'] = false;
 			}
