@@ -118,7 +118,7 @@ function zz_imagick_identify($filename, $file) {
 		if (!in_array($file['filetype'], ['xmp'])) {
 			$file['width'] = $tokens[1];
 			$file['height'] = $tokens[2];
-			$file['transparency'] = (isset($tokens[3]) AND $tokens[3] === 'False') ? true : false;
+			$file['transparency'] = (isset($tokens[3]) AND in_array($tokens[3], ['False', 'false', false])) ? true : false;
 			$file['colorspace'] = isset($tokens[4]) ? $tokens[4] : '';
 			$file['icc_profile'] = isset($tokens[5]) ? $tokens[5] : '';
 			$file['depth_bit'] = isset($tokens[6]) ? $tokens[6] : '';
