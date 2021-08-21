@@ -3372,6 +3372,7 @@ function zz_dependent_value($dependency, $my_rec, $zz_tab) {
  */
 function zz_session_write($type, $data) {
 	global $zz_conf;
+	global $zz_setting;
 
 	switch ($type) {
 	case 'files':
@@ -3400,7 +3401,7 @@ function zz_session_write($type, $data) {
 					if (!$filename) continue;
 					if (!is_uploaded_file($filename)) continue; // might have been already moved
 					if ($file['error'][$field_key] !== UPLOAD_ERR_OK) continue;
-					$new_filename = $zz_conf['tmp_dir'].'/zzform-sessions/'.basename($filename);
+					$new_filename = $zz_setting['tmp_dir'].'/zzform-sessions/'.basename($filename);
 					zz_rename($filename, $new_filename);
 					$session[$field_name]['tmp_name'][$field_key] = $new_filename;
 				}
@@ -3408,7 +3409,7 @@ function zz_session_write($type, $data) {
 				if (!$file['tmp_name']) continue;
 				if (!is_uploaded_file($file['tmp_name'])) continue; // might have been already moved
 				if ($file['error'] !== UPLOAD_ERR_OK) continue;
-				$new_filename = $zz_conf['tmp_dir'].'/zzform-sessions/'.basename($file['tmp_name']);
+				$new_filename = $zz_setting['tmp_dir'].'/zzform-sessions/'.basename($file['tmp_name']);
 				zz_rename($filename, $new_filename);
 				$session[$field_name]['tmp_name'] = $new_filename;
 			}
@@ -3479,7 +3480,7 @@ function zz_session_read($type, $data = []) {
 function zz_session_filename($type) {
 	global $zz_conf;
 	global $zz_setting;
-	$dir = $zz_conf['tmp_dir'].'/zzform-sessions';
+	$dir = $zz_setting['tmp_dir'].'/zzform-sessions';
 	wrap_mkdir($dir);
 	$filename = sprintf('%s/%s-%s-%s.txt'
 		, $dir

@@ -537,20 +537,20 @@ function zz_upload_check_files($zz_tab) {
  * only works with zzform_multi(), otherwise filename cannot be set to URL
  *
  * @param string $filename
- * @global array $zz_conf 'tmp_dir'
+ * @global array $zz_setting 'tmp_dir'
  * @return string temp filename on local server
  * @todo add further registered streams if necessary
  * @todo preserve timestamp (parse http headers?)
  */
 function zz_upload_remote_file($filename) {
+	global $zz_setting;
 	if (substr($filename, 0, 7) !== 'http://'
 		AND substr($filename, 0, 8) !== 'https://'
 		AND substr($filename, 0, 6) !== 'ftp://'
 	) {
 		return $filename;
 	}
-	global $zz_conf;
-	$tmp = $zz_conf['tmp_dir'];
+	$tmp = $zz_setting['tmp_dir'];
 	if (!is_dir($tmp)) $tmp = sys_get_temp_dir();
 
 	// download file
@@ -1534,6 +1534,7 @@ function zz_upload_prepare_source_file($image, $my_rec, $zz_tab, $tab, $rec) {
  */
 function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 	global $zz_conf;
+	global $zz_setting;
 	
 	if (empty($image['action'])) return false;
 
@@ -1593,14 +1594,14 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 
 	// create temporary file, so that original file remains the same 
 	// for further actions
-	$tmp_filename = tempnam(realpath($zz_conf['tmp_dir']), 'UPLOAD_');
+	$tmp_filename = tempnam($zz_setting['tmp_dir'], 'UPLOAD_');
 
 	$action = 'zz_image_'.$image['action'];
 	$return = $action($source_filename, $tmp_filename, $dest_extension, $image);
 	if (!file_exists($tmp_filename)) {
 		zz_error_log([
 			'msg_dev' => 'Error: File %s does not exist. Temporary Directory: %s',
-			'msg_dev_args' => [$tmp_filename, realpath($zz_conf['tmp_dir'])],
+			'msg_dev_args' => [$tmp_filename, $zz_setting['tmp_dir']],
 			'log_post_data' => false
 		]);
 		return false;
@@ -2711,10 +2712,11 @@ function zz_unlink_cleanup($file) {
 function zz_cleanup_dirs($dir, $indelible = []) {
 	// first check if it's a directory that shall always be there
 	global $zz_conf;
+	global $zz_setting;
 	$dir = realpath($dir);
 	if (!$dir) return false;
 	$indelible[] = realpath($zz_conf['backup_dir']);
-	$indelible[] = realpath($zz_conf['tmp_dir']);
+	$indelible[] = $zz_setting['tmp_dir'];
 	$indelible[] = realpath($zz_conf['root']);
 	$indelible[] = '/tmp';
 	if (in_array($dir, $indelible)) return false;
@@ -2792,8 +2794,8 @@ function zz_image_exif_thumbnail($source, $destination, $dest_ext = false, $imag
  * @return string
  */
 function zz_image_exiftool($filename, $image) {
-	global $zz_conf;
-	$tmp_filename = tempnam(realpath($zz_conf['tmp_dir']), 'UPLOAD_');
+	global $zz_setting;
+	$tmp_filename = tempnam($zz_setting['tmp_dir'], 'UPLOAD_');
 	if (!empty($image['upload']['exiftool']['QuickTime']['CoverArt'])) {
 		$field = 'CoverArt';
 	} elseif (!empty($image['upload']['exiftool']['ID3v2_4']['Picture'])) {
