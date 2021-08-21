@@ -885,7 +885,7 @@ function zz_apply_where_conditions(&$zz) {
 				foreach ($zz['fields'] as $no => $field) {
 					if (empty($field['field_name'])) continue;
 					if ($field['field_name'] !== $field_name) continue;
-					if (!empty($zz['fields'][$no]['class']) AND !is_array($zz['fields'][$no]['class']))
+					if (isset($zz['fields'][$no]['class']) AND !is_array($zz['fields'][$no]['class']))
 						$zz['fields'][$no]['class'] = [$zz['fields'][$no]['class']];
 					$zz['fields'][$no]['class'][] = 'where';
 				}
