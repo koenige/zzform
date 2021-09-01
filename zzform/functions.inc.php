@@ -1980,6 +1980,12 @@ function zz_makelink($path, $record, $type = 'link') {
 			$part = substr($part, 0, strpos($part, '['));
 		}
 		switch ($part) {
+		case 'area':
+			if (empty($path['fields'])) break;
+			$this_field = is_array($path['fields']) ? reset($path['fields']) : $path['fields'];
+			if (empty($record[$this_field])) break;
+			$path_web[1] .= wrap_path($value, $record[$this_field]);
+			break;
 		case 'function':
 			if (function_exists($value) AND !empty($path['fields'])) {
 				$params = [];
