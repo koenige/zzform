@@ -216,6 +216,11 @@ function zz_upload_thumbnail($ops, $zz_tab) {
 		return $ops;
 	}
 
+	if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+		$zz_conf['int']['http_status'] = 404;
+		return $ops;
+	}
+
 	$zz_tab = zz_upload_get($zz_tab);
 	$zz_tab = zz_upload_prepare_tn($zz_tab, $ops);
 	$zz_tab = zz_upload_action($zz_tab);

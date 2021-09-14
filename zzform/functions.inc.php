@@ -1560,10 +1560,6 @@ function zz_record_access($zz, $ops) {
 		break;
 	
 	case !empty($_GET['thumbs']):
-		if (empty($_POST)) {
-			$zz_conf['int']['http_status'] = 404;
-			break;
-		}
 		$keys = ['thumbs', 'field'];
 		$ops['mode'] = 'thumbnails';
 		$id_value = zz_check_get_array('thumbs', 'is_int');
