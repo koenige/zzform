@@ -335,6 +335,8 @@ function zzform($zz) {
 			$ops['error'] = zz_error_multi($ops['error']);
 			zz_error_validation();
 		}
+		// save record for footer template
+		$ops['record'] = $zz_tab[0][0]['record'];
 	}
 
 	if (!$zz_conf['generate_output']) {

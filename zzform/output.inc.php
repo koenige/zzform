@@ -45,7 +45,9 @@ function zz_output_page($ops, $zz) {
 function zz_output_full($ops) {
 	global $zz_conf;
 	if ($ops['mode'] === 'export') return $ops['output'];
-	if (!empty($zz_conf['footer_text_insert']) AND !empty($_GET['insert']))
+	if (!empty($zz_conf['footer_template']))
+		$ops['footer_text'] .= wrap_template($zz_conf['footer_template'], $ops['record'] ?? []);
+	elseif (!empty($zz_conf['footer_text_insert']) AND !empty($_GET['insert']))
 		$ops['footer_text'] .= $zz_conf['footer_text_insert'];
 	elseif ($zz_conf['footer_text'])
 		$ops['footer_text'] .= $zz_conf['footer_text'];
