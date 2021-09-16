@@ -2683,18 +2683,8 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 	}
 		
 	// 1.3.4: draw a SELECT element
-	$fieldattr = [];
+	$fieldattr = zz_field_dependent_fields($field, $lines);
 	if ($field['required']) $fieldattr['required'] = true;
-	if (!empty($field['dependent_fields'])) {
-		foreach ($field['dependent_fields'] as $field_no => $dependent_field) {
-			foreach ($lines as $field_id => $line) {
-				if (empty($line[$dependent_field['if_selected']])) continue;
-				$fieldattr['data-dependent_field_'.$field_no][] = $field_id;
-			}
-			if (!empty($fieldattr['data-dependent_field_'.$field_no]))
-				$fieldattr['data-dependent_field_'.$field_no] = implode(',', $fieldattr['data-dependent_field_'.$field_no]);
-		}
-	}
 	$outputf = zz_form_element($field['f_field_name'], '', 'select', true, $fieldattr)."\n";
 
 	// first OPTION element
@@ -3129,7 +3119,8 @@ function zz_field_select_sql_radio($field, $record, $lines) {
 		}
 		$radios[] = zz_field_select_radio_value($field, $record, $id, zz_field_concat($field, $line), $pos);
 	}
-	return zz_field_select_radio($field, $record, $radios);
+	$fieldattr = zz_field_dependent_fields($field, $lines);
+	return zz_field_select_radio($field, $record, $radios, $fieldattr);
 }
 
 /**
@@ -3517,15 +3508,7 @@ function zz_field_select_enum($field, $display, $record) {
 		$field['show_values_as_list'] = true;
 	}
 
-	$fieldattr = [];
-	if (!empty($field['dependent_fields'])) {
-		foreach ($field['dependent_fields'] as $field_no => $dependent_field) {
-			if (!in_array($dependent_field['if_selected'], $field['enum'])) continue;
-			$fieldattr['data-dependent_field_'.$field_no][] = $dependent_field['if_selected'];
-		}
-		if (!empty($fieldattr['data-dependent_field_'.$field_no]))
-			$fieldattr['data-dependent_field_'.$field_no] = implode(',', $fieldattr['data-dependent_field_'.$field_no]);
-	}
+	$fieldattr = zz_field_dependent_fields($field, $field['enum']);
 	
 	if (count($field['enum']) <= 2) {
 		$sel_option = true;
@@ -4029,4 +4012,32 @@ function zz_record_check_error($my_tab) {
 		}
 	}
 	return $all_have_errors;
+}
+
+/**
+ * set field attributes for dependent fields for use with JavaScript
+ *
+ * @param array $field
+ * @param array $lines
+ * @return array field attributes
+ */
+function zz_field_dependent_fields($field, $lines) {
+	if (empty($field['dependent_fields'])) return [];
+
+	$fieldattr = [];
+	foreach ($field['dependent_fields'] as $field_no => $dependent_field) {
+		foreach ($lines as $field_id => $line) {
+			if (!is_array($line)) {
+				// it’s an 'enum'
+				if ($dependent_field['if_selected'] !== $line) continue;
+				$field_id = $line;
+			} else {
+				if (empty($line[$dependent_field['if_selected']])) continue;
+			}
+			$fieldattr['data-dependent_field_'.$field_no][] = $field_id;
+		}
+		if (!empty($fieldattr['data-dependent_field_'.$field_no]))
+			$fieldattr['data-dependent_field_'.$field_no] = implode(',', $fieldattr['data-dependent_field_'.$field_no]);
+	}
+	return $fieldattr;
 }
