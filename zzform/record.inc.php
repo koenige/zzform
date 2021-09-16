@@ -2136,7 +2136,7 @@ function zz_field_password_change($field, $display) {
  */
 function zz_field_text($field, $display, $record, $dont_reformat = false) {
 	// get value
-	$value = $record ? $record[$field['field_name']] : '';
+	$value = !empty($record[$field['field_name']]) ? $record[$field['field_name']] : '';
 	if (!$dont_reformat) {
 		$value = zz_field_format($value, $field);
 	}
