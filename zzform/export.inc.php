@@ -482,7 +482,10 @@ function zz_export_script($type) {
 	if (file_exists($script_filename)) {
 		require_once $script_filename;
 	} elseif (!empty($zz_setting['active_module'])) {
+		// look for individual file per script
 		$success = zz_module_file($filename, $zz_setting['active_module']);
+		// look for export-[type], e. g. export-pdf.inc.php in module folder
+		if (!$success) $success = zz_module_file('export-'.$type, $zz_setting['active_module']);
 		if ($success) $prefix = sprintf('mf_%s_', $zz_setting['active_module']);
 	}
 	
