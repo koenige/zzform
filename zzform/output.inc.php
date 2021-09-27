@@ -24,6 +24,7 @@
  *		string 'explanation', string 'selection'
  */
 function zz_output_page($ops, $zz) {
+	$ops['breadcrumb'] = $ops['heading'];
 	// make nicer headings
 	$ops['heading'] = zz_nice_headings($ops['heading'], $zz);
 	// provisional title, in case errors occur
