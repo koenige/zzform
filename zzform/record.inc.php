@@ -2576,16 +2576,24 @@ function zz_field_set($field, $fields, $display, $my_tab) {
 					, $field['table_name'], $set['rec_no'], $field_names['select']
 				);
 			}
-			$outputf .= sprintf(
-				'<li><label for="check-%s-%d">'
-				.'<input type="checkbox" name="%s[%d][%s]" id="check-%s-%d" value="%d"%s>&nbsp;%s'
-				.'</label></li>'."\n"
-				, $field['table_name'], $set['rec_no']
-				, $field['table_name'], $set['rec_no'], $field_names['select']
-				, $field['table_name'], $set['rec_no'], $set['id']
-				, ((!empty($set['rec_id']) OR !empty($set['default'])) ? ' checked="checked"' : ''), $set['title']
-			);
-		} elseif (!empty($set['rec_id'])) {
+			if (!empty($set['id'])) {
+				$outputf .= sprintf(
+					'<li><label for="check-%s-%d">'
+					.'<input type="checkbox" name="%s[%d][%s]" id="check-%s-%d" value="%d"%s>&nbsp;%s'
+					.'</label></li>'."\n"
+					, $field['table_name'], $set['rec_no']
+					, $field['table_name'], $set['rec_no'], $field_names['select']
+					, $field['table_name'], $set['rec_no'], $set['id']
+					, ((!empty($set['rec_id']) OR !empty($set['default'])) ? ' checked="checked"' : ''), $set['title']
+				);
+			} else {
+				zz_error_log([
+					'msg_dev' => 'Found a value selected that is set to non-selectable (table %s, ID %d)',
+					'msg_dev_args' => [$field['table'], $set['rec_id']]
+				]);
+			}
+		} elseif (!empty($set['rec_id']) AND !empty($set['title'])) {
+			// title might be empty for non-selectable IDs
 			$outputf .= sprintf("<li>%s</li>\n", $set['title']);
 		}
 	}
