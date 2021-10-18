@@ -2657,6 +2657,7 @@ function zz_error() {
 			$zz_conf['mail_subject_prefix'] = '['.wrap_get_setting('project').']';
 		$mail['subject'] = zz_text('Error during database operation');
 		$mail['to'] = $zz_conf['error_mail_to'];
+		$mail['queue'] = true;
 		wrap_mail($mail);
 		break;
 	case 'output':
