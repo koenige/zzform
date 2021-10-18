@@ -6,7 +6,7 @@
  * will only be included if $zz_conf['generate_output'] = true
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2004-2021 Gustaf Mossakowski
@@ -956,9 +956,8 @@ function zz_date_format($date) {
 	// international format, ISO 8601
 	$date_separator['---'] = '-';
 	$months['---'] = [
-		'01' => '01', '02' => '02', '03' => '03', '04' => '04', '05' => '05',
-		'06' => '06', '07' => '07', '08' => '08', '09' => '09', '10' => '10',
-		'11' => '11', '12' => '12'
+		1 => '01', 2 => '02', 3 => '03', 4 => '04', 5 => '05', 6 => '06',
+		7 => '07', 8 => '08', 9 => '09', 10 => '10', 11 => '11', 12 => '12'
 	];
 	$date_order['---'] = ['year', 'month', 'day'];
 
@@ -969,9 +968,8 @@ function zz_date_format($date) {
 	// english format (eng)
 	$date_separator['eng'] = '&nbsp;';
 	$months['eng'] = [
-		'01' => 'Jan', '02' => 'Feb', '03' => 'Mar', '04' => 'Apr',
-		'05' => 'May', '06' => 'Jun', '07' => 'Jul', '08' => 'Aug', '09' => 'Sep', 
-		'10' => 'Oct', '11' => 'Nov', '12' => 'Dec'
+		1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr', 5 => 'May', 6 => 'Jun',
+		7 => 'Jul', 8 => 'Aug', 9 => 'Sep', 10 => 'Oct', 11 => 'Nov', 12 => 'Dec'
 	];
 	$date_order['eng'] = ['day', 'month', 'year'];
 
@@ -996,7 +994,7 @@ function zz_date_format($date) {
 	$date = '';
 	$date_parts['day'] = (!empty($date_parts[2]) AND $date_parts[2] !== '00') ? $date_parts[2] : false;
 	$date_parts['month'] = (!empty($date_parts[1]) AND $date_parts[1] !== '00'
-		AND $date_parts[1] > 0 AND  $date_parts[1] < 13) ? $my_months[$date_parts[1]] : false;
+		AND $date_parts[1] > 0 AND $date_parts[1] < 13) ? $my_months[intval($date_parts[1])] : false;
 	
 	if (substr($date_parts[0], 0, 1) === "0" AND substr($date_parts[0], 0, 2) !== "00") {
 		$date_parts['year'] = substr($date_parts[0], 1, 4);
