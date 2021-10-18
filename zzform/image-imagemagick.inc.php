@@ -5,7 +5,7 @@
  * Image manipulation with ImageMagick
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2006-2021 Gustaf Mossakowski
@@ -346,6 +346,7 @@ function zz_imagick_add_options($source_ext, $image = []) {
 			if (empty($image['upload']['colorspace'])) continue;
 			if ($image['upload']['colorspace'] === $option[1]) continue;
 			if (empty($image['upload']['icc_profile'])) continue;
+			if ($image['upload']['icc_profile'] === 'Artifex Software sRGB ICC Profile') continue;
 			if (!array_key_exists($image['upload']['icc_profile'], $zz_conf['icc_profiles'])) {
 				zz_error_log([
 					'msg_dev' => 'No ICC profile found for %s',
