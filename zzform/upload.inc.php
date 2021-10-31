@@ -1670,9 +1670,18 @@ function zz_upload_merge_options($image, $my_tab, $rec = 0) {
 			$options[$option_value] = [
 				$image['options_key'][$index] => $option_value
 			];
-		} else {
+		} elseif (isset($my_tab[$rec]['fields'][$no]['options'])) {
 			// get options from field
 			$options = $my_tab[$rec]['fields'][$no]['options'];
+		} elseif ($my_tab[$rec]['fields'][$no]['type'] === 'parameter') {
+			// some parameter field
+			parse_str($my_tab[$rec]['POST'][$my_tab[$rec]['fields'][$no]['field_name']], $options[$option_value]);
+		} else {
+			zz_error_log([
+				'msg_dev' => 'No options for field %s were found.',
+				'msg_dev_args' => [$my_tab[$rec]['fields'][$no]['field_name']]
+			]);
+			$options[$option_value] = false;
 		}
 		// overwrite values in script with selected option
 		$image = array_merge($image, $options[$option_value]); 
