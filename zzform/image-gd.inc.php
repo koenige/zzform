@@ -5,7 +5,7 @@
  * Image manipulation with GD library
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/projects/zzform
  *
  *	work in progress, not to be seen as a replacment for ImageMagick
  *	- thumbnail: support for jpeg, gif, png
@@ -66,6 +66,7 @@ function zz_imagegd($source, $destination, $params, $dest_extension, $image) {
 		// Create Image
 		$source_image = $imagecreatefromfunction($source);
 		Imagefill($destination_image, 0, 0, imagecolorallocate($destination_image, 255, 255, 255));
+		$source_image = zz_imagegd_crop($source_image, $params);
 		// Resizing the Image
 		ImageCopyResampled($destination_image, $source_image, $params['dst_x'],
 			$params['dst_y'], $params['src_x'], $params['src_y'], $params['dst_w'], 
@@ -95,6 +96,7 @@ function zz_imagegd($source, $destination, $params, $dest_extension, $image) {
 			imagefill($destination_image, 0, 0, $transparent_index);
 			imagecolortransparent($destination_image, $transparent_index);
 		}
+		$source_image = zz_imagegd_crop($source_image, $params);
 		// Resizing the Image
 		ImageCopyResampled($destination_image, $source_image, $params['dst_x'],
 			$params['dst_y'], $params['src_x'], $params['src_y'], $params['dst_w'], 
@@ -119,6 +121,7 @@ function zz_imagegd($source, $destination, $params, $dest_extension, $image) {
 		$colorTransparent = imagecolorallocatealpha($destination_image, 0, 0, 0, 127);
 		imagefill($destination_image, 0, 0, $colorTransparent);
 		imagesavealpha($destination_image, true);
+		$source_image = zz_imagegd_crop($source_image, $params);
 		// Resizing the Image
 		ImageCopyResampled($destination_image, $source_image, $params['dst_x'],
 			$params['dst_y'], $params['src_x'], $params['src_y'], $params['dst_w'], 
@@ -209,7 +212,6 @@ function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
  	// Image will be resized exactly to the size as wanted
 	$params['dst_w'] = $image['width'];
 	$params['dst_h'] = $image['height'];
-	$dest_ratio = $params['dst_w']/$params['dst_h'];
 
 	// full image
 	$params['dst_x'] = 0;	
@@ -231,7 +233,24 @@ function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
 	$params['src_x'] = 0;	// full image
 	$params['src_y'] = 0;
 
-	// get ratio of source image
+ 	if ($clipping === 'custom') {
+ 		$crop_area = explode(',', $image['crop']); // left top right bottom
+ 		$params['crop'] = [
+ 			'x' => $crop_area[0] * $params['src_w'],
+ 			'y' => $crop_area[1] * $params['src_h'],
+ 			'width' => ($crop_area[2] - $crop_area[0]) * $params['src_w'],
+ 			'height' => ($crop_area[3] - $crop_area[1]) * $params['src_h']
+ 		];
+ 		$params['src_w'] = $params['crop']['width'];
+ 		$params['src_h'] = $params['crop']['height'];
+	 	return zz_imagegd($source, $destination, $params, $dest_extension, $image);
+ 	}
+ 	
+ 	// @todo use $params['crop'] instead of the following code
+ 	// for other clippings, too
+
+	// get ratio of images
+	$dest_ratio = $params['dst_w']/$params['dst_h'];
 	$source_ratio = $params['src_w']/$params['src_h'];
 	// offset depending on sizes of source and destination images
 	if ($source_ratio > $dest_ratio) { // crop something from left and right side
@@ -255,4 +274,21 @@ function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
 	} // no changes if source ratio = destination ratio, then no cropping will occur
 	
 	return zz_imagegd($source, $destination, $params, $dest_extension, $image);
+}
+
+/**
+ * crop an image before resizing it
+ *
+ * @param gdimage $image
+ * @param array $params
+ * @return gdimage
+ */
+function zz_imagegd_crop($image, $params) {
+	if (empty($params['crop'])) return $image;
+	$cropped_image = imagecrop($image, $params['crop']);
+	if ($cropped_image !== false) {
+		$image = $cropped_image;
+		ImageDestroy($cropped_image);
+	}
+	return $image;
 }
