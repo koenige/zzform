@@ -285,6 +285,12 @@ function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
  * @return gdimage
  */
 function zz_imagegd_crop($image, $params) {
+	if (version_compare(PHP_VERSION, '8.0.0', '<')) {
+		zz_error_msg([
+			'msg_dev' => 'No support for GD image cropping below PHP 8 implemented.'
+		]);
+		return $image;
+	}
 	if (empty($params['crop'])) return $image;
 	$cropped_image = imagecrop($image, $params['crop']);
 	if ($cropped_image !== false) {
