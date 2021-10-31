@@ -2687,6 +2687,14 @@ function zz_image_crop_left($source, $dest, $dest_ext, $image) {
 }
 
 /**
+ * Create cropped image, custom clipping
+ *
+ */
+function zz_image_crop_custom($source, $dest, $dest_ext, $image) {
+	return zz_image_crop($source, $dest, $dest_ext, $image, 'custom');
+}
+
+/**
  * extracts dirname from filename and checks whether directory is empty
  * removes this directory and upper directories if they are empty
  *
