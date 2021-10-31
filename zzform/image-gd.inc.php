@@ -233,6 +233,7 @@ function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
 	$params['src_x'] = 0;	// full image
 	$params['src_y'] = 0;
 
+ 	if ($clipping === 'custom' AND empty($image['crop'])) $clipping = 'center';
  	if ($clipping === 'custom') {
  		$crop_area = explode(',', $image['crop']); // left top right bottom
  		$params['crop'] = [
