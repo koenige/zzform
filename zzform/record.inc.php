@@ -448,7 +448,7 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple)
  * @param string $extra_lastcol (optional)
  * @param int $table_count (optional)
  * @param bool $show_explanation (optional)
- * @return string HTML output
+ * @return mixed (array, bool, or string HTML output)
  */
 function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 	$zz_conf_record, $tab = 0, $rec = 0, $formdisplay = 'vertical',
@@ -814,7 +814,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 					$field_display, $zz_record, $zz_conf_record, $sub_tab, $sub_rec,
 					$field['form_display'], $lastrow, $sub_rec, $h_show_explanation);
 				if ($field['form_display'] === 'inline') {
-					$matrix = array_merge($matrix, $subtable_rows);
+					if ($subtable_rows)
+						$matrix = array_merge($matrix, $subtable_rows);
 					$out = [];
 				} else {
 					$details[$d_index] .= $subtable_rows;
