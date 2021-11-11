@@ -33,6 +33,16 @@ function zzform($zz) {
 // diversion?
 	if (!empty($_GET['request'])) return zzform_exit(zzform_request());
 
+	if (isset($_POST['zz_multifunction'])) {
+		if (file_exists($file = $zz_conf['hooks_dir'].'/multi.inc.php')) {
+			require_once $file;
+		}
+		$index = key($_POST['zz_multifunction']);
+		$function = $zz_conf['multi_function'][$index]['function'];
+		$_POST['zz_record_id'] = $_POST['zz_record_id'] ?? [];
+		return $function($_POST['zz_record_id']);
+	}
+
 //
 //	Initialize variables & modules
 //
@@ -213,15 +223,6 @@ function zzform($zz) {
 		$ops = zz_output_page($ops, $zz);
 	}
 
-	if (isset($_POST['zz_multifunction'])) {
-		if (file_exists($file = $zz_conf['hooks_dir'].'/multi.inc.php')) {
-			require_once $file;
-		}
-		$index = key($_POST['zz_multifunction']);
-		$function = $zz_conf['multi_function'][$index]['function'];
-		$_POST['zz_record_id'] = $_POST['zz_record_id'] ?? [];
-		return $function($_POST['zz_record_id']);
-	}
 	if (isset($_POST['zz_merge'])) {
 		require_once $zz_conf['dir_inc'].'/merge.inc.php';
 		$merge = zz_merge_records($zz);
