@@ -1727,6 +1727,13 @@ function zz_record_access($zz, $ops) {
 		$zz_conf['no_ok'] = true;			// no OK button
 		if (empty($_POST)) $ops['mode'] = 'show';
 		break;
+	case 'add+delete';
+		$zz_conf['add'] = true;				// add record (form)
+		$zz_conf['edit'] = false;			// don't edit record (form+links)
+		$zz_conf['delete'] = true;			// don't delete record (form+links)
+		$zz_conf['view'] = false;			// don't show record (links)
+		$zz_conf['int']['show_list'] = true;		// list
+		break;
 	case 'add_only';
 		$zz_conf['add'] = true;				// add record (form)
 		$zz_conf['add_link'] = false;		// add record (links)
