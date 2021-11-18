@@ -538,7 +538,7 @@ function zz_check_username($username, $field) {
 	// URL or username?
 	$url = parse_url($username);
 	$field_value = '';
-	if ($url['path'] AND !empty($field['parse_url'])) {
+	if ($url['path'] AND str_starts_with($url['path'], '/') AND !empty($field['parse_url'])) {
 		if (strstr($field['parse_url'], '[')) {
 			$parse_url = explode('[', $field['parse_url']);
 			foreach ($parse_url as $index => $value) {
@@ -560,8 +560,18 @@ function zz_check_username($username, $field) {
 					if (substr($url['path'], 0, 1) === '/')
 						$url['path'] = substr($url['path'], 1);
 					$path = explode('/', $url['path']);
-					if (empty($path[$parse_url[1]])) break;
-					$field_value = $path[$parse_url[1]];
+					if (str_ends_with($parse_url[1], '+')) {
+						$fragment = substr($parse_url[1], 0, -1);
+						$field_value = [];
+						while (!empty($path[$fragment])) {
+							$field_value[] = $path[$fragment];
+							$fragment++;
+						}
+						$field_value = implode('/', $field_value);
+					} else {
+						if (empty($path[$parse_url[1]])) break;
+						$field_value = $path[$parse_url[1]];
+					}
 					break;
 				case 'query':
 					parse_str($url['query'], $query);
