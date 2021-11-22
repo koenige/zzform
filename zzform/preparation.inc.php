@@ -1184,6 +1184,10 @@ function zz_check_def_vals($post, $fields, $existing = [], $where = []) {
 		if (!isset($post[$field_name])
 			AND !in_array($field['type'], $unwanted_field_types))
 			$post[$field_name] = '';
+		// add 1 to first sequence field (no. was hidden)
+		if ($field['type'] === 'sequence') {
+			if (isset($post[$field_name]) AND !$post[$field_name]) $post[$field_name] = 1;
+		}
 	}
 	return $post;
 }
