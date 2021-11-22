@@ -220,7 +220,7 @@ function zz_nice_headings($heading, $zz) {
 		}
 	}
 	if ($heading_addition) {
-		$heading .= ': <br>'.implode(' &#8211; ', $heading_addition); 
+		$heading .= ': <br>'.implode(' – ', $heading_addition); 
 	}
 	return zz_return($heading);
 }
@@ -640,7 +640,7 @@ function zz_print_enum($field, $value, $type = 'abbr', $key = false) {
 	}
 	if (!empty($field[$ft.'_abbr'][$key])) {
 		if ($type === 'full') {
-			$text .= ' &#8211; '.$field[$ft.'_abbr'][$key];
+			$text .= ' – '.$field[$ft.'_abbr'][$key];
 		} elseif ($type === 'abbr') {
 			if (stristr($text, '<abbr')) $text = strip_tags($text);
 			$text = sprintf(
@@ -930,7 +930,7 @@ function zz_money_format($int, $unit = '') {
 	if (!strstr($int, $zz_conf['decimal_point'])) {
 		$int .= $zz_conf['decimal_point'].'00';
 	}
-	//$int = str_replace (',00', ',&#8211;', $int);
+	//$int = str_replace (',00', ',–', $int);
 	if ($unit) $int .= ' '.$unit;
 	$int = str_replace(' ', '&nbsp;', $int);
 	return $int;

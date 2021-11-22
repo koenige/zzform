@@ -136,7 +136,7 @@ function zz_sync($import) {
 
 	// output results
 	$lines = [];
-	$lines[] = sprintf(wrap_text('Processing entries %s&#8211;%s &hellip;'), $import['limit'] + 1, $import['end']);
+	$lines[] = sprintf(wrap_text('Processing entries %s–%s …'), $import['limit'] + 1, $import['end']);
 	if ($updated) {
 		if ($updated === 1) {
 			$lines[] = wrap_text('1 update was made.');

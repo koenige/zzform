@@ -497,7 +497,7 @@ function zz_merge_prepare_record($rec) {
 				}
 				$error_text = '';
 				foreach ($update_errors as $error) {
-					$error_text .= sprintf('<li><strong>%s</strong>: %s &#8211; %s</li>', 
+					$error_text .= sprintf('<li><strong>%s</strong>: %s – %s</li>', 
 						$error['title'], $error['old'], $error['new']
 					)."\n";
 				}

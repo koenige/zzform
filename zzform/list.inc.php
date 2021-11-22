@@ -709,7 +709,7 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 				$pos = array_search($fieldindex, $zz_conf['int']['group_field_no']);
 				if ($pos !== false) {
 					unset($rows[$z][$fieldindex]);
-					$list['group_titles'][$z][$pos] = implode(' &#8211; ', $rows[$z]['group']);
+					$list['group_titles'][$z][$pos] = implode(' – ', $rows[$z]['group']);
 					if (empty($list['group_titles'][$z][$pos])) {
 						$list['group_titles'][$z][$pos] = zz_text('- unknown -');
 					}
@@ -843,7 +843,7 @@ function zz_list_group_titles($list, $fields, $line) {
 	return $group;
 }
 
-function zz_list_group_titles_out($group_titles, $concat = ' &#8211; ') {
+function zz_list_group_titles_out($group_titles, $concat = ' – ') {
 	// just show every title only once
 	$group_titles = array_unique($group_titles);
 	ksort($group_titles);
