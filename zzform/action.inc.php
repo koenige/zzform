@@ -1700,6 +1700,11 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 		if (!empty($field['typo_cleanup'])) {
 			$my_rec['POST'][$field_name] = wrap_typo_cleanup($my_rec['POST'][$field_name], zz_typo_cleanup_language($my_rec['POST']));
 		}
+		if (!empty($field['typo_remove_double_spaces'])) {
+			while (strstr($my_rec['POST'][$field_name], '  ')) {
+				$my_rec['POST'][$field_name] = str_replace('  ', ' ', $my_rec['POST'][$field_name]);
+			}
+		}
 		if (!empty($field['replace_substrings'])) {
 			if (!is_array($field['replace_substrings']))
 				$field['replace_substrings'] = [$field['replace_substrings']];
