@@ -80,8 +80,11 @@ function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 		$values = $field['dependencies_function']($values);
 	}
 	foreach ($field['dependencies'] as $index => $dependency) {
-		if (!empty($subtable_no)) {
-			$my_field = $zz['fields'][$subtable_no]['fields'][$dependency];
+		$this_subtable_no = !empty($subtable_no) ? $subtable_no : false;
+		if (strstr($dependency, '.'))
+			list ($this_subtable_no, $dependency) = explode('.', $dependency);
+		if ($this_subtable_no) {
+			$my_field = $zz['fields'][$this_subtable_no]['fields'][$dependency];
 		} else {
 			$my_field = $zz['fields'][$dependency];
 		}
@@ -98,8 +101,8 @@ function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 		} elseif (count($values) === count($field['dependencies'])) {
 			$value = $values[$index];
 		}
-		if (!empty($subtable_no) AND isset($_GET['rec'])) {
-			$table_name = isset($zz['fields'][$subtable_no]['table_name']) ? $zz['fields'][$subtable_no]['table_name'] : wrap_db_prefix($zz['fields'][$subtable_no]['table']);
+		if ($this_subtable_no AND isset($_GET['rec'])) {
+			$table_name = isset($zz['fields'][$this_subtable_no]['table_name']) ? $zz['fields'][$this_subtable_no]['table_name'] : wrap_db_prefix($zz['fields'][$this_subtable_no]['table']);
 			$rec = intval($_GET['rec']);
 			$id_field_name = zz_long_fieldname($table_name, $rec, $my_field['field_name']);
 			$id_field_name = zz_make_id_fieldname($id_field_name);

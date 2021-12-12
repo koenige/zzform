@@ -2964,6 +2964,19 @@ function zz_xhr_url_self() {
  */
 function zz_xhr_dependencies($field, $fields, $rec) {
 	foreach ($field['dependencies'] as $dependency) {
+		if (strstr($dependency, '.')) {
+			$nos = explode('.', $dependency);
+			if (empty($fields[$nos[0]]['fields'][$nos[1]])) continue;
+			$field_id = zz_make_id_fieldname(sprintf('%s[0][%s]'
+				, $fields[$nos[0]]['f_field_name']
+				, $fields[$nos[0]]['fields'][$nos[1]]['field_name'] 
+			));
+			$field['destination_field_ids'][] = [
+				'field_id' => $field_id,
+				'field_no' => $dependency
+			];
+			continue;
+		}
 		if (empty($fields[$dependency])) continue;
 		$field_id = zz_make_id_fieldname($fields[$dependency]['f_field_name']);
 		if (!empty($fields[$dependency]['enum'])) {
