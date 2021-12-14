@@ -1605,15 +1605,15 @@ function zz_show_class($attr) {
  */
 function zz_show_separator($separator, $row, $span = 2) {
 	if ($separator == 1 AND $row)
-		return '<tr><td colspan="'.$span.'" class="separator"><hr></td></tr>'."\n";
+		return '<tr class="separator_row"><td colspan="'.$span.'" class="separator"><hr></td></tr>'."\n";
 	elseif ($separator === 'column_begin')
-		return '<tr><td><table><tbody>'."\n";
+		return '<tr class="separator_row"><td><table><tbody>'."\n";
 	elseif ($separator === 'column')
 		return "</tbody></table>\n</td>\n\n".'<td class="left_separator"><table><tbody>'."\n";
 	elseif ($separator === 'column_end')
 		return "</tbody></table>\n</td></tr>\n";
 	elseif (substr($separator, 0, 5) === 'text ')
-		return '<tr><td colspan="'.$span.'" class="separator">'
+		return '<tr class="separator_row"><td colspan="'.$span.'" class="separator">'
 			.($row ? '<hr>' : '').substr($separator, 4).'</td></tr>'."\n";
 }
 
