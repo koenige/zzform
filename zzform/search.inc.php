@@ -75,7 +75,11 @@ function zz_search_sql($fields, $sql, $table) {
 		// first slash will be ignored, this is used to escape reserved characters
 		if (substr($searchword, 0, 1) == '\\') $searchword = substr($searchword, 1);
 	}
-	$searchword = wrap_db_escape($searchword);
+	if (!is_array($searchword))
+		$searchword = wrap_db_escape($searchword);
+	else
+		foreach (array_keys($searchword) as $index)
+			$searchword[$index] = wrap_db_escape($searchword[$index]);
 
 	// get fields
 	$searchfields = [];
@@ -426,6 +430,13 @@ function zz_search_checkfield($field_name, $table, $searchword) {
 	case 'float':
 	case 'double':
 	case 'real':
+		if (is_array($searchword)) {
+			foreach (array_keys($searchword) as $index) {
+				if (!is_numeric($searchword[$index])) return false;
+				if ($unsigned AND substr($searchword[$index], 0, 1) == '-') return false;
+			}
+			break;
+		}
 		if (strstr($searchword, ',')) {
 			// oversimple solution for . or , as decimal separator
 			// now you won't be able to search for 1,000,000 etc.
