@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1070,6 +1070,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 				break;
 
 			case 'url':
+			case 'url+placeholder':
 				$field['max_select_val_len'] = $zz_conf_record['max_select_val_len'];
 			case 'text':
 			case 'parameter':
@@ -1412,7 +1413,7 @@ function zz_record_field_focus($name, $type) {
 	if (!$zz_conf['html_autofocus']) return false;
 	$focus = [
 		'text', 'checkbox', 'radio', 'password', 'textarea', 'select', 'date',
-		'datetime', 'email', 'url', 'time'
+		'datetime', 'email', 'url', 'url+placeholder', 'time'
 	];
 	if (!empty($_GET['focus']) AND $_GET['focus'] !== $name) return false;
 	if (!in_array($type, $focus)) return false; 
@@ -2149,6 +2150,7 @@ function zz_field_text($field, $display, $record, $dont_reformat = false) {
 		if ($value === NULL) return '';
 		switch ($field['type']) {
 		case 'url':
+		case 'url+placeholder':
 			$linktitle = zz_cut_length($value, $field['max_select_val_len']);
 			$linktitle = str_replace('<', '&lt;', $linktitle);
 			$linktitle = wrap_punycode_decode($linktitle);
@@ -2178,6 +2180,7 @@ function zz_field_text($field, $display, $record, $dont_reformat = false) {
 	case 'mail':
 		$fieldtype = 'email'; break;
 	case 'url':
+	case 'url+placeholder':
 		$value = wrap_punycode_decode($value); break;
 	case 'text':
 		if (!empty($field['sql']) OR !empty($field['cfg'])) {

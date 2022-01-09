@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1420,6 +1420,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode, $zz
 			$link = false;
 			break;
 		case 'url':
+		case 'url+placeholder':
 			$text = wrap_punycode_decode($row['value']);
 			$text = zz_cut_length(zz_htmltag_escape($text), $zz_conf_record['max_select_val_len']);
 			break;
@@ -1666,7 +1667,7 @@ function zz_set_link($field, $line) {
 
 	$link = false;
 	if (!empty($field['list_no_link'])) return false;
-	if ($field['type'] === 'url') {
+	if (in_array($field['type'], ['url', 'url+placeholder'])) {
 		$link = $line[$field['field_name']];
 	} elseif ($field['type'] === 'mail' AND $line[$field['field_name']]) {
 		// mailto-Link only if there is an address in that field

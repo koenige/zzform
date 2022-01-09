@@ -11,7 +11,7 @@
  * otherwise they will return the value that was checked
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2005-2014, 2016-2018, 2020-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2005-2014, 2016-2018, 2020-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -28,7 +28,7 @@ function zz_check_mail($e_mail, $type = 'mail') {
 	$e_mail = trim($e_mail);
 	$e_mail = strtolower($e_mail); // case insensitive, save it lowercase
 
-	if ($type == 'mail+name') {
+	if ($type === 'mail+name') {
 		// bla@example.org
 		// bla@example.org, blubb@example.org
 		// bla@example.org,blubb@example.org
@@ -125,13 +125,13 @@ function zz_db_get_enumset($colum, $db_table) {
 	$values = [];
 	$column_definition = zz_db_columns($db_table, $colum);
 	if (!$column_definition) return false;
-	if (substr($column_definition['Type'], 0, 5) == "set('" 
-		AND substr($column_definition['Type'], -2) == "')") {
+	if (str_starts_with($column_definition['Type'], "set('")
+		AND str_ends_with($column_definition['Type'], "')")) {
 		// column of type SET
 		$values = substr($column_definition['Type'], 5, -2);
 		$values = explode("','", $values);
-	} elseif (substr($column_definition['Type'], 0, 6) == "enum('" 
-		AND substr($column_definition['Type'], -2) == "')") {
+	} elseif (str_starts_with($column_definition['Type'], "enum('")
+		AND str_ends_with($column_definition['Type'], "')")) {
 		// column of type ENUM
 		$values = substr($column_definition['Type'], 6, -2);
 		$values = explode("','", $values);
@@ -156,13 +156,13 @@ function zz_check_url($url) {
 	$url = trim($url);
 	// not sure: is \ a legal part of a URL?
 	$url = str_replace("\\", "/", $url);
-	if (substr($url, 0, 1) == "/") {
+	if (str_starts_with($url, '/')) {
 		if (zz_is_url('http://example.com'.$url)) return $url;
 		else return false;
-	} elseif (substr($url, 0, 2) == "./") {
+	} elseif (str_starts_with($url, './')) {
 		if (zz_is_url('http://example.com'.substr($url, 1))) return $url;
 		else return false;
-	} elseif (substr($url, 0, 3) == "../") {
+	} elseif (str_starts_with($url, '../')) {
 		if (zz_is_url('http://example.com'.substr($url, 2))) return $url;
 		else return false;
 	}
@@ -173,6 +173,36 @@ function zz_check_url($url) {
 		if (!$parts) return false;
 	}
 	$url = wrap_build_url($parts);
+	return $url;
+}
+
+/**
+ * checks whether an input is a URL or a placeholder identifier for a URL
+ * 
+ * @param string $url
+ * @return string url if correct, or false
+ */
+function zz_check_url_placeholder($url) {
+	// remove invalid white space at the beginning and end of URL
+	$url = trim($url);
+
+	// full URL?
+	$parts = zz_is_url($url);
+	if ($parts) return $url;
+	// looks like full URL but must be broken
+	if (strstr($url, '://')) return false;
+
+	// placeholder URL starts with / and gets ending from field ending
+	if (!str_starts_with($url, '/')) $url = sprintf('/%s', $url);
+	if (str_ends_with($url, '/')) $url = substr($url, 0, -1);
+	if (str_ends_with($url, '.html')) $url = substr($url, 0, -5);
+	
+	// no query strings allowed, just [a-z0-9] plus some special characters
+	// replace space with -
+	$allowed = ['/', '*', '%', '.', '_'];
+	foreach ($allowed as $char) $replacements[$char] = $char;
+	$url = wrap_filename($url, '-', $replacements);
+	$url = strtolower($url);
 	return $url;
 }
 
