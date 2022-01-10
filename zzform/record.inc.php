@@ -2829,10 +2829,14 @@ function zz_field_unique_ignore($lines, $field) {
 /**
  * Query records for select element
  *
+ * save results as there might be more than one sub record using the same select
+ * element
  * @param array $field 'sql', 'show_hierarchy_subtree', 'max_select'
  * @return array lines from database or 'too_many_records' count is too high
  */
 function zz_field_query($field) {
+	static $results;
+	if (empty($results)) $results = [];
 	// we do not show all fields if query is bigger than $field['max_select']
 	// so no need to query them (only if show_hierarchy_subtree is empty)
 	if (empty($field['show_hierarchy_subtree']) AND empty($field['show_hierarchy'])
@@ -2849,8 +2853,10 @@ function zz_field_query($field) {
 	} else {
 		$sql = $field['sql'];
 	}
+	if (array_key_exists($sql, $results)) return $results[$sql];
 	// return with warning, don't exit here
-	return zz_db_fetch($sql, '_dummy_id_', 'numeric', '', E_USER_WARNING);
+	$results[$sql] = zz_db_fetch($sql, '_dummy_id_', 'numeric', '', E_USER_WARNING);
+	return $results[$sql];
 }
 
 /**
