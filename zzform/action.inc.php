@@ -2735,6 +2735,8 @@ function zz_sequence_normalize($ops, $zz_tab) {
 				$fields[$tab.'-'.$rec]['field_name'] = $field['field_name'];
 				if (!empty($field['sequence_sql']))
 					$fields[$tab.'-'.$rec]['sql'] = $field['sequence_sql'];
+				if (!empty($field['max_int_value']))
+					$fields[$tab.'-'.$rec]['max_int_value'] = $field['max_int_value'];
 			}
 		}
 	}
@@ -2806,9 +2808,13 @@ function zz_sequence_normalize($ops, $zz_tab) {
 			if (array_key_exists($full_field, $used_maxint_values)) {
 				$field_def['max_int_value'] = --$used_maxint_values[$full_field];
 			} else {
-				$field_def = zz_db_columns(
-					$zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table'], $my_field['field_name']
-				);
+				if (!empty($my_field['max_int_value'])) {
+					$field_def['max_int_value'] = $my_field['max_int_value'];
+				} else {
+					$field_def = zz_db_columns(
+						$zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table'], $my_field['field_name']
+					);
+				}
 				if (empty($field_def['max_int_value'])) {
 					zz_error_log([
 						'msg_dev' => 'Field has no maximum integer value (is it an integer?): %s.%s.%s',
@@ -2816,7 +2822,7 @@ function zz_sequence_normalize($ops, $zz_tab) {
 					]);
 					continue;
 				}
-				 $used_maxint_values[$full_field] = $field_def['max_int_value'];
+				$used_maxint_values[$full_field] = $field_def['max_int_value'];
 			}
 			$sql = 'UPDATE %s SET %s = %d WHERE %s = %d';
 			$sql = sprintf($sql
