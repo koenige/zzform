@@ -5,7 +5,7 @@
  * Database functions
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/projects/zzform
  *
  * Contents:
  * D - Database functions (common functions)
@@ -13,7 +13,7 @@
  *		zz_db_*()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -898,7 +898,7 @@ function zz_db_field_collation($type, $field, $db_table = '', $index = 0) {
 			// assume it is the same as the standard collation
 			// attention: might generate errors if this is not the case
 			$charset = $zz_conf['int']['character_set_db'];
-		} else {
+		} elseif ($cols['Collation']) {
 			$charset = substr($cols['Collation'], 0, strpos($cols['Collation'], '_'));
 		}
 	}
