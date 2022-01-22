@@ -6,10 +6,10 @@
  * (input, output, transformation DMS - DD and vice versa)
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2011, 2015-2017, 2019-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2011, 2015-2017, 2019-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -170,7 +170,7 @@ function zz_geo_coord_out($decimal, $orientation = 'lat', $out = false) {
 	global $zz_conf;
 
 	if ($decimal == NULL) return false;
-	$coord = false;
+	$coord = [];
 	$round = isset($zz_conf['geo']['rounding']) ? $zz_conf['geo']['rounding'] : 2;
 	$spacer = isset($zz_conf['geo']['spacer']) ? $zz_conf['geo']['spacer'] : '&#160;';
 	if ($decimal === false) return false;
@@ -211,14 +211,11 @@ function zz_geo_coord_out($decimal, $orientation = 'lat', $out = false) {
 		case 'dms':	// 98°50'38"W
 		default:
 			// transform decimal value to seconds and round first!
-			$sec = round($decimal * 3600, $round);
-			$remaining_sec = $sec % 3600;
-			$deg = $sec - $remaining_sec;
-			$remaining_sec_parts = round($deg - floor($deg), $round);
-			$deg = floor($deg / 3600);
-			$sec = $remaining_sec % 60;
-			$min = ($remaining_sec - $sec) / 60;
-			$sec += $remaining_sec_parts;
+			$deg = intval($decimal);
+			$sec = round(($decimal - $deg) * 3600, $round);
+			$min = intval($sec) - (intval($sec) % 60); // min in seconds
+			$sec = $sec - $min;
+			$min /= 60;
 			$coord[] = $deg.'&#176;'.$spacer
 				.(($min OR $sec) ? $min.'&#8242;'.$spacer : '')
 				.($sec ? zz_decimal($sec).'&#8243;'.$spacer : '')
