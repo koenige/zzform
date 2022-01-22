@@ -6,10 +6,10 @@
  * validation of user input, maintaining referential integrity
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1162,7 +1162,7 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 				require_once $zz_conf['dir_inc'].'/identifier.inc.php';
 				$func_vars = zz_identifier_vars($my_rec, $f, $main_post);
 				$conf = (!empty($my_rec['fields'][$f]['conf_identifier']) 
-					? $my_rec['fields'][$f]['conf_identifier'] : false);
+					? $my_rec['fields'][$f]['conf_identifier'] : []);
 				$my_rec['POST'][$my_rec['fields'][$f]['field_name']] 
 					= zz_identifier($func_vars, $conf, $my_rec, $db_table, $f);
 			}
