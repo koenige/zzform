@@ -471,6 +471,7 @@ function zz_check_datetime($datetime) {
 function zz_check_number($number) {
 	global $zz_conf;
 
+	if (!$number) return false;
 	// remove whitespace, it's nice to not have to care about this
 	$check = trim($number);
 	$check = str_replace(' ', '', $check);

@@ -1753,8 +1753,10 @@ function zz_form_element($name, $value, $type = 'text', $id = false, $fieldattr 
 	// return HTML depending on type
 	switch ($type) {
 	case 'textarea':
-		$value = str_replace('&', '&amp;', $value);
-		$value = str_replace('<', '&lt;', $value);
+		if ($value) {
+			$value = str_replace('&', '&amp;', $value);
+			$value = str_replace('<', '&lt;', $value);
+		}
 		return sprintf('<textarea%s>%s</textarea>', $attr, $value);
 	case 'select':
 		return sprintf('<select%s>', $attr);
@@ -2377,7 +2379,7 @@ function zz_field_memo($field, $display, $record) {
 
 	// get value
 	$value = $record ? $record[$field['field_name']] : '';
-	if ($field['type'] === 'parameter') {
+	if ($field['type'] === 'parameter' AND $value) {
 		$value = str_replace('&', "\n\n", ltrim($value, '&'));
 	}
 
