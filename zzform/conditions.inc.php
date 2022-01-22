@@ -24,7 +24,7 @@
  *	zz_conditions_list_check()		set conditions for list
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2010, 2013-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2010, 2013-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -677,6 +677,8 @@ function zz_conditions_merge($array, $bool_conditions, $record_id, $reverse = fa
 		if ($reverse) {
 			if ($bool_conditions[$condition] === true)
 				$bool_conditions[$condition] = false;
+			elseif ($bool_conditions[$condition] === false)
+				$bool_conditions[$condition] = true;
 			elseif (empty($bool_conditions[$condition][$record_id])) 
 				$bool_conditions[$condition][$record_id] = true;
 			else 
