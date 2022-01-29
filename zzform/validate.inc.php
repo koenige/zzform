@@ -185,6 +185,7 @@ function zz_check_url($url) {
 function zz_check_url_placeholder($url) {
 	// remove invalid white space at the beginning and end of URL
 	$url = trim($url);
+	if ($url === '/') return $url;
 
 	// full URL?
 	$parts = zz_is_url($url);
