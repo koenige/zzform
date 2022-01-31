@@ -683,6 +683,13 @@ function zz_apply_filter(&$zz) {
 				unset($zz['filter'][$index]);
 				continue;
 			}
+		} elseif (!empty($filter['remove_if_empty'])) {
+			$sql = wrap_edit_sql($zz['sql'], 'SELECT', 'DISTINCT '.$filter['where'], 'replace');
+			$data = wrap_db_fetch($sql, '_dummy_', 'numeric');
+			if (count($data) === 1) {
+				unset($zz['filter'][$index]);
+				continue;
+			}
 		}
 
 		if (!$filter['selection'] AND !empty($filter['default_selection'])) {
