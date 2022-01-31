@@ -5,10 +5,10 @@
  * Export module
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -27,7 +27,7 @@ function zz_export_config() {
 
 	// whether sql result might be exported 
 	// (link for export will appear at the end of the page)
-	$default['export']			= false;				
+	$default['export']			= [];				
 	// PDF library to include
 	$default['pdflib_path']		= false;
 
@@ -514,7 +514,7 @@ function zz_export_csv_head($main_rows) {
 	if (!empty($zz_conf['export_csv_no_head'])) return '';
 
 	$output = '';
-	$tablerow = false;
+	$tablerow = [];
 	$continue_next = false;
 	foreach ($main_rows as $field) {
 		if (!empty($field['title_export_prefix'])) {
@@ -543,7 +543,7 @@ function zz_export_csv_body($rows) {
 
 	$output = '';
 	foreach ($rows as $index => $row) {
-		$tablerow = false;
+		$tablerow = [];
 		foreach ($row as $fieldindex => $field) {
 			if ($fieldindex AND !is_numeric($fieldindex)) continue; // 0 or 1 or 2 ...
 			$myfield = $field['text'];
