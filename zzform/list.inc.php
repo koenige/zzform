@@ -261,7 +261,7 @@ function zz_list($zz, $ops, $zz_conditions) {
 		}
 	}
 	// explanation might have changed due to conditions
-	$ops['explanation'] = zz_format($zz['explanation']);
+	$ops['explanation'] = $zz['explanation'];
 	return zz_return($ops);
 }
 

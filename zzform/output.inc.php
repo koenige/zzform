@@ -9,7 +9,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -31,7 +31,8 @@ function zz_output_page($ops, $zz) {
 	$ops['title'] = strip_tags($ops['heading']);
 	if (trim($ops['heading']) AND empty($zz['dont_show_h1']))
 		$ops['h1'] = $ops['heading'];
-	$ops['explanation'] = zz_format($zz['explanation']);
+	$ops['explanation'] = $zz['explanation'];
+	$ops['explanation_insert'] = $zz['explanation_insert'] ?? NULL;
 	$ops['selection'] = zz_nice_selection($zz['fields']);
 	$ops['class'] = !empty($zz['class']) ? $zz['class'] : '';
 	return $ops;
@@ -53,6 +54,11 @@ function zz_output_full($ops) {
 	elseif ($zz_conf['footer_text'])
 		$ops['footer_text'] .= $zz_conf['footer_text'];
 	$ops['error_out'] = zz_error_output();
+	if (isset($ops['explanation_insert']) AND !empty($_GET['insert'])) {
+		$ops['explanation'] = zz_format($ops['explanation_insert']);
+	} else {
+		$ops['explanation'] = zz_format($ops['explanation']);
+	}
 
 	if ($zz_conf['int']['record']) {
 		$ops['upndown_editor'] = zz_output_upndown_editor();

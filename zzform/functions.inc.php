@@ -19,7 +19,7 @@
  * V - Validation, preparation for database
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1214,7 +1214,8 @@ function zz_hash($zz, $zz_conf) {
 	elseif (strstr($zz_conf['user'], ' ')) unset($zz_conf['user']);
 	elseif (empty($_SESSION['username'])) unset($zz_conf['user']);
 	$uninteresting_zz_keys = [
-		'title', 'explanation', 'explanation_top', 'subtitle', 'list', 'access'
+		'title', 'explanation', 'explanation_top', 'subtitle', 'list', 'access',
+		'explanation_insert'
 	];
 	foreach ($uninteresting_zz_keys as $key) unset($zz[$key]);
 	foreach ($zz['fields'] as $no => $field) {
