@@ -3919,6 +3919,7 @@ function zz_check_select_translated($field, $sql_fieldname, $value, $search_equa
  * @return string
  */
 function zz_select_escape_value($value, $concat) {
+	if (!$value) return $value;
 	$strings = ["\n", "\r"];
 	if ($concat) array_unshift($strings, $concat);
 	foreach ($strings as $string) {
