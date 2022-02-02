@@ -1710,6 +1710,7 @@ function zz_set_link($field, $line) {
 function zz_list_word_split($text) {
 	global $zz_conf;
 	if (!$zz_conf['word_split']) return $text;
+	if (!$text) return $text;
 
 	$words = explode(' ', $text);
 	if (substr($words[0], 0, 1) === '<') return $text; // no splitting in HTML code
