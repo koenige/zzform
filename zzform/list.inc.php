@@ -1667,7 +1667,7 @@ function zz_set_link($field, $line) {
 
 	$link = false;
 	if (!empty($field['list_no_link'])) return false;
-	if (in_array($field['type'], ['url', 'url+placeholder'])) {
+	if ($field['type'] === 'url') {
 		$link = $line[$field['field_name']];
 	} elseif ($field['type'] === 'mail' AND $line[$field['field_name']]) {
 		// mailto-Link only if there is an address in that field
