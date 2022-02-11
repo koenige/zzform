@@ -1505,7 +1505,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode, $zz
 			break;
 		default:
 			$text = $row['value'];
-			if (empty($field['list_format']) AND empty($field['export_no_html'])) {
+			if ($text AND empty($field['list_format']) AND empty($field['export_no_html'])) {
 				$text = nl2br(zz_htmltag_escape($text));
 			}
 			break;
@@ -1528,7 +1528,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode, $zz
 		$append_suffix = $field['list_suffix_append'];
 	}
 	
-	if ($text === '' OR $text === false) {
+	if ($text === '' OR $text === false OR $text === NULL) {
 		// always append suffix on last appended field, even if it is empty
 		if (!empty($append_suffix) AND empty($append_prefix) AND empty($field['list_append_next'])) {
 			$row['text'] .= zz_text($append_suffix);

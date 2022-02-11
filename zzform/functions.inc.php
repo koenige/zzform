@@ -3170,6 +3170,7 @@ function zz_edit_query_string($query, $unwanted_keys = [], $new_keys = [], $and 
  * @global array $zz_conf
  */
 function zz_htmltag_escape($string) {
+	if (!$string) return $string;
 	global $zz_conf;
 	switch ($zz_conf['character_set']) {
 		case 'iso-8859-2': $character_set = 'ISO-8859-1'; break;
