@@ -40,15 +40,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 	global $zz_conf;
 	global $zz_setting;
 
-	if (file_exists($path = $zz_conf['dir_custom'].'/editing.inc.php')) {
-		include_once $path;
-	}
-	if (!empty($zz_setting['active_module'])) {
-		$module_editing_dir = sprintf('%s/%s/zzform', $zz_setting['modules_dir'], $zz_setting['active_module']);
-		if (file_exists($module_editing_dir.'/editing.inc.php')) {
-			require_once $module_editing_dir.'/editing.inc.php';
-		}
-	}
+	wrap_include_files('zzform/editing', 'custom/active');
 
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	$zz_tab[0]['record_action'] = false;
@@ -766,6 +758,7 @@ function zz_action_hook($ops, $zz_tab, $position, $type) {
 function zz_action_function($type, $ops, $zz_tab) {
 	global $zz_conf;
 	global $zz_setting;
+	static $hook_files;
 
 	if (empty($zz_tab[0]['hooks'][$type])) {
 		if (!empty($zz_tab[0]['triggers'][$type]))
@@ -773,12 +766,8 @@ function zz_action_function($type, $ops, $zz_tab) {
 		return false;
 	}
 
-	if (file_exists($zz_conf['hooks_dir'].'/hooks.inc.php')) {
-		require_once $zz_conf['hooks_dir'].'/hooks.inc.php';
-	}
-	if (!empty($zz_setting['active_module'])) {
-		zz_module_file('hooks', $zz_setting['active_module']);
-	}
+	if (empty($hook_files))
+		$hook_files = wrap_include_files('zzform/hooks', 'custom/active');
 
 	$change = [];
 	foreach ($zz_tab[0]['hooks'][$type] as $hook) {
@@ -790,12 +779,11 @@ function zz_action_function($type, $ops, $zz_tab) {
 				// module hook
 				$module = explode('_', $hook);
 				$module = $module[1];
-				zz_module_file('hooks', $module);
+				wrap_include_files('zzform/hooks', $module);
 			} else {
 				$file = str_replace('_', '-', $hook);
 				if (str_starts_with($file, 'my-')) $file = substr($file, 3);
-				$file = $zz_conf['hooks_dir'].'/'.$file.'.inc.php';
-				if (file_exists($file)) require_once $file;
+				wrap_include_files('zzform/'.$file, 'custom');
 			}
 			$found = true;
 			if (!function_exists($hook)) {

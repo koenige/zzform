@@ -13,7 +13,7 @@
  *	zzform_multi()			multi edit for zzform, e. g. import
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -34,9 +34,7 @@ function zzform($zz) {
 	if (!empty($_GET['request'])) return zzform_exit(zzform_request());
 
 	if (isset($_POST['zz_multifunction'])) {
-		if (file_exists($file = $zz_conf['hooks_dir'].'/multi.inc.php')) {
-			require_once $file;
-		}
+		wrap_include_files('zzform/multi', 'custom/active');
 		$index = key($_POST['zz_multifunction']);
 		$function = $zz_conf['multi_function'][$index]['function'];
 		$_POST['zz_record_id'] = $_POST['zz_record_id'] ?? [];
@@ -656,8 +654,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 
 	// stop if there were errors while adding modules
 	if (zz_error_exit()) zz_return(false);
-
-	$default['hooks_dir']		= $zz_conf['dir_custom'];	// directory for included scripts after action has been taken
 
 	$default['always_show_empty_detail_record'] = false;
 	$default['add']				= true;		// add or do not add data.

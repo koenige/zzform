@@ -478,14 +478,10 @@ function zz_export_script($type) {
 	// script may reside in extra file
 	// if not, function has to exist already
 	$filename = sprintf('export-%s-%s', $type, $zz_conf['int']['export_script']);
-	$script_filename = sprintf('%s/%s.inc.php', $zz_conf['dir_custom'], $filename);
-	if (file_exists($script_filename)) {
-		require_once $script_filename;
-	} elseif (!empty($zz_setting['active_module'])) {
-		// look for individual file per script
-		$success = zz_module_file($filename, $zz_setting['active_module']);
+	$success = wrap_include_files('zzform/'.$filename, 'custom/active');
+	if (!$success AND !empty($zz_setting['active_module'])) {
 		// look for export-[type], e. g. export-pdf.inc.php in module folder
-		if (!$success) $success = zz_module_file('export-'.$type, $zz_setting['active_module']);
+		$success = wrap_include_files('zzform/export-'.$type, 'active');
 		if ($success) $prefix = sprintf('mf_%s_', $zz_setting['active_module']);
 	}
 	

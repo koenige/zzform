@@ -267,22 +267,6 @@ function zz_module_fieldchecks($field, $key, $type) {
 }
 
 /**
- * include {file}.inc.php from module
- *
- * @param string $module
- * @return bool
- */
-function zz_module_file($file, $module) {
-	global $zz_setting;
-
-	if (!in_array($module, $zz_setting['modules'])) return false;
-	$filename = sprintf('%s/%s/zzform/%s.inc.php', $zz_setting['modules_dir'], $module, $file);
-	if (!file_exists($filename)) return false;
-	require_once $filename;
-	return true;
-}
-
-/**
  * define URL of script
  *
  * @return array $url (= $zz_conf['int']['url'])
@@ -1210,7 +1194,7 @@ function zz_hash($zz, $zz_conf) {
 		'redirect_on_change', 'filter', 'filter_position', 'text', 'file_types',
 		'translate_log_encodings', 'limit', 'zzform_init', 'xhr_vxjs', 'url_self',
 		'show_list_while_edit', 'search', 'referer_text', 'html_autofocus',
-		'icc_profiles', 'hooks_dir', 'error_mail_parameters',
+		'icc_profiles', 'error_mail_parameters',
 		'error_mail_parameters', 'error_log_post', 'upload_log',
 		'error_mail_to', 'error_mail_from', 'log_errors', 'debug_upload',
 		'debug', 'db_connection'
@@ -2425,8 +2409,9 @@ function zz_backwards($zz_conf, $zz) {
 	$zz_renamed = ['extra_action' => 'hooks'];
 	$zz = zz_backwards_rename($zz, $zz_renamed, 'zz');
 	// renamed $zz_conf variables
-	$zz_conf_renamed = ['action_dir' => 'hooks_dir'];
-	$zz_conf = zz_backwards_rename($zz_conf, $zz_conf_renamed, 'zz_conf');
+	// @deprecated, code here just in case it is needed in the future
+	// $zz_conf_renamed = ['action_dir' => 'hooks_dir'];
+	// $zz_conf = zz_backwards_rename($zz_conf, $zz_conf_renamed, 'zz_conf');
 	return [$zz_conf, $zz];
 }
 
