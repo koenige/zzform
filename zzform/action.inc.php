@@ -558,6 +558,7 @@ function zz_action_equals($my_rec) {
 			// check difference to existing record
 			$post = $my_rec['POST'][$field['field_name']];
 			if ($field['type'] === 'time'
+			AND $my_rec['existing'][$field['field_name']]
 			AND strlen($my_rec['existing'][$field['field_name']]) === 5) {
 				// time might be written as 08:00 instead of 08:00:00
 				$my_rec['existing'][$field['field_name']] .= ':00';
