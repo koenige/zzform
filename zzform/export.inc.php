@@ -482,7 +482,9 @@ function zz_export_script($type) {
 	if (!$success AND !empty($zz_setting['active_module'])) {
 		// look for export-[type], e. g. export-pdf.inc.php in module folder
 		$success = wrap_include_files('zzform/export-'.$type, 'active');
-		if ($success) $prefix = sprintf('mf_%s_', $zz_setting['active_module']);
+	}
+	if (!is_numeric(key($success))) {
+		$prefix = sprintf('mf_%s_', $zz_setting['active_module']);
 	}
 	
 	// check if custom function exists
