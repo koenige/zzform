@@ -483,7 +483,7 @@ function zz_export_script($type) {
 		// look for export-[type], e. g. export-pdf.inc.php in module folder
 		$success = wrap_include_files('zzform/export-'.$type, 'active');
 	}
-	if (!is_numeric(key($success))) {
+	if ($success AND !is_numeric(key($success))) {
 		$prefix = sprintf('mf_%s_', $zz_setting['active_module']);
 	}
 	
