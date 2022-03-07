@@ -1201,7 +1201,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 			if ($field_display === 'form') {
 				$outputf .= zz_record_add_details($field, $mode, $tab, $rec, $fieldkey);
 			}
-			if (trim($outputf) OR $outputf === '0') {
+			if (($outputf AND trim($outputf)) OR $outputf === '0') {
 				if (isset($field['prefix'])) $out['td']['content'] .= $field['prefix'];
 				if (!empty($field['use_as_label'])) {
 					$outputf = '<label for="zz_tick_'.$tab.'_'.$rec.'">'.$outputf.'</label>';
