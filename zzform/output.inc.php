@@ -879,13 +879,14 @@ function zz_init_referer() {
  * @return string
  */
 function zz_format($text) {
-	if (substr($text, 0, 8) === '%%% text' AND substr($text, -3) === '%%%') {
-		$text = trim(substr($text, 8, -3));
-		if (substr($text, 0, 1) === '"' AND substr($text, -1) === '"')
-			$text = trim(substr($text, 1, -1));
-		return zz_text($text);
-	}
-	return $text;
+	if (!$text) return $text;
+	if (!str_starts_with($text, '%%% text')) return $text;
+	if (!str_ends_with($text, '%%%')) return $text;
+
+	$text = trim(substr($text, 8, -3));
+	if (substr($text, 0, 1) === '"' AND substr($text, -1) === '"')
+		$text = trim(substr($text, 1, -1));
+	return zz_text($text);
 }
 
 /**
