@@ -54,7 +54,8 @@ function zzform($zz) {
 		'footer_text' => false,
 		'html_fragment' => !empty($_POST['zz_html_fragment']) ? true : false,
 		'redirect_url' => false,
-		'page' => !empty($zz['page']) ? $zz['page'] : []
+		'page' => !empty($zz['page']) ? $zz['page'] : [],
+		'explanation' => ''
 	];
 	// set default configuration variables
 	// import modules, set and get URI
