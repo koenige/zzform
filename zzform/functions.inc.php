@@ -614,6 +614,7 @@ function zz_filter_defaults(&$zz) {
  *	'filter', might be changed)
  */
 function zz_apply_filter(&$zz) {
+	global $zz_conf;
 	if (!$zz['filter']) return $zz;
 
 	// set filter for complete form
@@ -700,9 +701,18 @@ function zz_apply_filter(&$zz) {
 			// will be ignored and therefore this hierarchical filter does
 			// not work. think about a better solution.
 		} else {
+			if (str_starts_with($zz_conf['int']['url']['qs_zzform'], '?'))
+				$zz_conf['int']['url']['qs_zzform'] = substr($zz_conf['int']['url']['qs_zzform'], 1);
+			parse_str($zz_conf['int']['url']['qs_zzform'], $qs);
+			unset($qs['filter'][$filter['identifier']]);
+			if (empty($qs['filter'])) unset($qs['filter']);
+			$zz_conf['int']['url']['qs_zzform'] = http_build_query($qs);
+			$link = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
+				.$zz_conf['int']['url']['?&'].$zz_conf['int']['url']['qs_zzform'];
+
 			zz_error_log([
-				'msg' => 'This filter does not exist: %s',
-				'msg_args' => [zz_htmltag_escape($zz['filter_active'][$filter['identifier']])],
+				'msg' => ['This filter does not exist: %s', '<a href="%s">List without this filter</a>'],
+				'msg_args' => [zz_htmltag_escape($zz['filter_active'][$filter['identifier']]), $link],
 				'level' => E_USER_NOTICE,
 				'status' => 404
 			]);
