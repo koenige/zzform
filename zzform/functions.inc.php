@@ -3786,7 +3786,7 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 			$value = $short_value[1];
 			$my_likestring = ' LIKE %s"%s%%"';
 		}
-		if (substr($my_likestring, 0, 1) === ' ') {
+		if (str_starts_with($my_likestring, ' ')) {
 			// remove tags, remove line breaks when comparing
 			$my_likestring = sprintf(
 				'REPLACE(REPLACE(REPLACE(%%s, "\r\n", " "), "\n", " "), "%s", " ") %s'
