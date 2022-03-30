@@ -3454,13 +3454,32 @@ function zz_field_selected($field, $record, $value) {
 	// no === comparison here!
 	// because of numeric values which might be
 	// represented by a string
-	if ($value == $record[$field['field_name']]) return true;
-	if (empty($field['enum'])) return false;
-	if (empty($field['enum_translated'])) return false;
-	$key = array_search($value, $field['enum']);
-	foreach ($field['enum_translated'] as $lang => $translations) {
-		if ($translations[$key] != $record[$field['field_name']]) continue;
-		return $translations[$key];
+	if (!empty($field['enum'])) {
+		if ($value == $record[$field['field_name']]) return true;
+		if (!empty($field['enum_translated'])) {
+			$key = array_search($value, $field['enum']);
+			foreach ($field['enum_translated'] as $translations) {
+				if ($translations[$key] != $record[$field['field_name']]) continue;
+				return $translations[$key];
+			}
+		}
+	} elseif (!empty($field['set'])) {
+		if (!is_array($record[$field['field_name']])) {
+			//	won’t be array normally
+			$set = explode(',', $record[$field['field_name']]);
+		} else {
+			// just if a field did not pass validation, 
+			// set fields become arrays
+			$set = $record[$field['field_name']];
+		}
+		if (in_array($value, $set)) return true;
+		if (!empty($field['set_translated'])) {
+			$key = array_search($value, $field['set']);
+			foreach ($field['set_translated'] as $translations) {
+				if (!in_array($translations[$key], $set)) continue;
+				return $translations[$key];
+			}
+		}
 	}
 	return false;
 }
@@ -3487,30 +3506,23 @@ function zz_field_select_set($field, $display, $record, $rec) {
 	}
 	foreach ($field['set'] as $key => $set) {
 		$i++;
+		$internal_value = $set;
 		$myid = 'check-'.$field['id'].'-'.$i;
 		$set_display = zz_print_enum($field, $set, 'full');
 		if ($display === 'form') {
 			$fieldattr = [];
 			if ($record AND isset($record[$field['field_name']])) {
-				if (!is_array($record[$field['field_name']])) {
-					//	won't be array normally
-					$set_array = explode(',', $record[$field['field_name']]);
-				} else {
-					//just if a field did not pass validation, 
-					// set fields become arrays
-					$set_array = $record[$field['field_name']];
-				}
-				$fieldattr['checked'] = false;
-				if (!empty($set_array) && is_array($set_array)) {
-					if (in_array($set, $set_array)) 
-						$fieldattr['checked'] = true;
+				$selected = zz_field_selected($field, $record, $set);
+				if ($selected !== false) {
+					$fieldattr['checked'] = true;
+					if ($selected !== true) $internal_value = $selected;
 				}
 			} elseif (!empty($field['default_select_all'])) {
 				$fieldattr['checked'] = true;
 			} else {
 				$fieldattr['checked'] = false;
 			}
-			if (!$fieldattr['checked'] AND !empty($field['disabled_ids']) 
+			if (empty($fieldattr['checked']) AND !empty($field['disabled_ids']) 
 				AND is_array($field['disabled_ids'])
 				AND in_array($set, $field['disabled_ids'])) {
 				$fieldattr['disabled'] = true;
@@ -3519,15 +3531,13 @@ function zz_field_select_set($field, $display, $record, $rec) {
 			// because identical 'name'-attributes are not recognized
 			// if ($field['required']) $fieldattr['required'] = true;
 			$output .= ' <label for="'.$myid.'">'
-				.zz_form_element($field['f_field_name'].'[]', $set, 'checkbox', $myid, $fieldattr)
+				.zz_form_element($field['f_field_name'].'[]', $internal_value, 'checkbox', $myid, $fieldattr)
 				.'&nbsp;'.$set_display.'</label>';
 			if (count($field['set']) >= 4 OR !empty($field['show_values_as_list']))
 				$output .= '<br>';
-		} else {
-			if (in_array($set, explode(',', $record[$field['field_name']]))
-				AND empty($field['set_show_all_values'])) {
-				$myvalue[] = $set_display;
-			}
+		} elseif (empty($field['set_show_all_values'])) {
+			$selected = zz_field_selected($field, $record, $set);
+			if ($selected) $myvalue[] = $set_display;
 		}
 	}
 	if ($display !== 'form' AND !empty($field['set_show_all_values'])) {
