@@ -3418,20 +3418,51 @@ function zz_field_select_radio_none($field, $record) {
 function zz_field_select_radio_value($field, $record, $value, $label, $pos) {
 	$id = zz_make_id_fieldname($field['f_field_name']).'-'.$pos;
 	$fieldattr = [];
-	// no === comparison here!
-	if ($record AND $value == $record[$field['field_name']]) 
+	$internal_value = $value;
+	$selected = zz_field_selected($field, $record, $value);
+	if ($selected !== false) {
 		$fieldattr['checked'] = true;
+		if ($selected !== true)
+			$internal_value = $selected;
+	}
 	if ($field['required']) $fieldattr['required'] = true;
 	if (!empty($field['disabled']) AND in_array($value, $field['disabled'])) {
 		$fieldattr['disabled'] = true;
 	}
-	$element = zz_form_element($field['f_field_name'], $value, 'radio', $id, $fieldattr);
+	$element = zz_form_element($field['f_field_name'], $internal_value, 'radio', $id, $fieldattr);
 	$level = isset($field['zz_level']) ? $field['zz_level'] : 0;
 	return [
 		'level' => $level,
 		'element' => sprintf('<label for="%s">%s&nbsp;%s</label>', $id, $element, $label),
 		'id' => $id
 	];
+}
+
+/**
+ * determine whether a field is selected/checked or not
+ * allow field to have a translated value via 'enum_translated'
+ *
+ * @param array $field
+ * @param array $record
+ * @param mixed $value
+ * @return mixed
+ *		bool checked or not checked
+ *		string value, might change if translated
+ */
+function zz_field_selected($field, $record, $value) {
+	if (!$record) return false;
+	// no === comparison here!
+	// because of numeric values which might be
+	// represented by a string
+	if ($value == $record[$field['field_name']]) return true;
+	if (empty($field['enum'])) return false;
+	if (empty($field['enum_translated'])) return false;
+	$key = array_search($value, $field['enum']);
+	foreach ($field['enum_translated'] as $lang => $translations) {
+		if ($translations[$key] != $record[$field['field_name']]) continue;
+		return $translations[$key];
+	}
+	return false;
 }
 
 /**
@@ -3525,9 +3556,8 @@ function zz_field_select_enum($field, $display, $record) {
 	if ($display !== 'form') {
 		$text = '';
 		foreach ($field['enum'] as $key => $set) {
-			// instead of !== because of numeric values which might be
-			// represented by a string
-			if ($set != $record[$field['field_name']]) continue;
+			$selected = zz_field_selected($field, $record, $set);
+			if (!$selected) continue;
 			$text = zz_print_enum($field, $set, 'full', $key);
 		}
 		if (!$text AND !empty($field['enum_textinput'])) {
@@ -3590,14 +3620,18 @@ function zz_field_select_enum($field, $display, $record) {
 	$text .= zz_form_element($display, '', 'option', false, $fieldattr)."\n";
 	foreach ($field['enum'] as $key => $set) {
 		$fieldattr = [];
-		if ($record AND $set == $record[$field['field_name']]) {
+		$selected = zz_field_selected($field, $record, $set);
+		$internal_value = $set;
+		if ($selected !== false) {
 			$fieldattr['selected'] = true;
-		} elseif (!empty($field['disabled_ids']) 
+			if ($selected !== true) $internal_value = $selected;
+		}
+		if (empty($fieldattr['selected']) AND !empty($field['disabled_ids']) 
 			AND is_array($field['disabled_ids'])
 			AND in_array($set, $field['disabled_ids'])) {
 			$fieldattr['disabled'] = true;
 		}
-		$text .= zz_form_element(zz_print_enum($field, $set, 'full', $key), $set, 'option', false, $fieldattr)."\n";
+		$text .= zz_form_element(zz_print_enum($field, $set, 'full', $key), $internal_value, 'option', false, $fieldattr)."\n";
 	}
 	$text .= '</select>'."\n";
 	return $text;
