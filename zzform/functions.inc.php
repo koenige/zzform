@@ -2157,6 +2157,7 @@ function zz_make_mode($modes, $content, $error = E_USER_WARNING) {
  * @param bool $do (optional)
  * @param int $tab (optional)
  * @param int $rec (optional)
+ * @return string
  */
 function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec = 0) {
 	// set variables
@@ -2205,7 +2206,7 @@ function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec 
 			}
 			if ($modes) {
 				$content = zz_make_mode($modes, $content);
-				if (!$content AND $content !== '0') return false;
+				if (!$content AND $content !== '0') return '';
 			}
 			$p .= $content;
 			if (!$alt_locked) {
