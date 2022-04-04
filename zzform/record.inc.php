@@ -3480,6 +3480,8 @@ function zz_field_selected($field, $record, $value) {
 				return $translations[$key];
 			}
 		}
+	} elseif (!empty($field['sql'])) {
+		if ($record[$field['field_name']].'' === $value.'') return true;
 	}
 	return false;
 }
