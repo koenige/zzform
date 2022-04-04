@@ -74,7 +74,7 @@
  *		['validated']		validated (yes = tested, no = rely on fileupload i. e. user)
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2006-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2006-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -2239,6 +2239,9 @@ function zz_upload_action($zz_tab) {
 				if ($show_filename)
 					$show_filename = zz_makepath($val['path'], $zz_tab, 'old', 'local', $tab, $rec);
 				// delete file
+				if (str_ends_with($filename, '.') AND !empty($val['no_action_unless_thumb_extension'])) {
+					continue; // there is no file
+				}
 				$success = zz_upload_delete($filename, $show_filename);
 				if (!$success) return zz_return($zz_tab);
 				continue; // deleted, so don't care about the rest of the code
