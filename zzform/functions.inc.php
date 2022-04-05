@@ -1199,7 +1199,7 @@ function zz_hash($zz, $zz_conf) {
 		'breadcrumbs', 'dont_show_title_as_breadcrumb', 'error_handling',
 		'error_log', 'format', 'group_html_table', 'list_display',
 		'limit_display', 'logging', 'logging_id', 'logging_table',
-		'mail_subject_prefix', 'title_separator',
+		'title_separator',
 		'referer', 'access', 'heading_prefix', 'redirect', 'search_form_always',
 		'redirect_on_change', 'filter', 'filter_position', 'text', 'file_types',
 		'translate_log_encodings', 'limit', 'zzform_init', 'xhr_vxjs', 'url_self',
@@ -2664,8 +2664,8 @@ function zz_error() {
 		if ($username = wrap_user())
 			$mail['message'] .= sprintf("\nUser: %s", $username);
 
-		if (empty($zz_conf['mail_subject_prefix']))
-			$zz_conf['mail_subject_prefix'] = '['.wrap_get_setting('project').']';
+		if (empty($zz_setting['mail_subject_prefix']))
+			$zz_setting['mail_subject_prefix'] = '['.wrap_get_setting('project').']';
 		$mail['subject'] = zz_text('Error during database operation');
 		$mail['to'] = $zz_conf['error_mail_to'];
 		$mail['queue'] = true;
