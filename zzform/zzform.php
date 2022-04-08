@@ -481,6 +481,12 @@ function zzform_exit($ops) {
 	if ($zz_conf['int']['url']['qs_zzform']) {
 		$ops['url'] .= $zz_conf['int']['url']['?&'].$zz_conf['int']['url']['qs_zzform'];
 	}
+	if (!$zz_conf['valid_request'] AND !empty($_GET['zzhash'])
+		AND (!empty($_GET['insert']) OR !empty($_GET['update']))
+	) {
+		$ops['page']['redirect'] = $ops['url'];
+		wrap_quit(301, '', $ops['page']);
+	}
 
 	// get rid of internal variables
 	unset($zz_conf['int']);
