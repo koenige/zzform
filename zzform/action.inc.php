@@ -2151,7 +2151,8 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 				];
 				$my_rec['POST'][$field['not_identical_with']] = false;
 				$my_rec['POST'][$field_name] = false;
-				$my_rec['fields'][$f]['sql'] = $my_rec['fields'][$f]['sql_before'];
+				if (!empty($my_rec['fields'][$f]['sql_before']))
+					$my_rec['fields'][$f]['sql'] = $my_rec['fields'][$f]['sql_before'];
 			}
 		}
 	}
