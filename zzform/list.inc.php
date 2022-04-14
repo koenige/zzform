@@ -1538,7 +1538,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode, $zz
 		return $row;
 	}
 
-	if ($mode !== 'export') {
+	if ($mode !== 'export' AND (!isset($field['word_split']) OR $field['word_split'] === true)) {
 		$text = zz_list_word_split($text);
 		if ($mark_search_string) {
 			$text = zz_mark_search_string($text, $field[$mark_search_string], $field);
