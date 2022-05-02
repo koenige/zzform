@@ -1,0 +1,1034 @@
+# zzform
+# Translations, template
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/projects/zzform
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2005-2021 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Zugzwang Project -- zzform\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: Poedit 1.8.12\n"
+"Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
+"Language: uk\n"
+
+# Number of records as shown in page TITLE
+# Page elements
+msgid "records"
+msgstr "записів"
+
+# Page elements
+msgid "Back to overview"
+msgstr "Повернутися до огляду"
+
+# Link to go back to the last form if a new detail record was added
+# Page elements
+msgid "Back to last form"
+msgstr "Назад до останньої форми"
+
+# Page elements
+msgid "page"
+msgstr "сторінка"
+
+# Page elements: Heading
+msgid "Search"
+msgstr "Пошук"
+
+# Link to add a new value for detail record via dropdown
+# Record form
+msgid "New …"
+msgstr "Нові …"
+
+# Link to edit a new value for detail record via dropdown
+# Record form
+msgid "Edit …"
+msgstr "Редагувати …"
+
+# @todo check if deprecated
+# Record form: Heading
+msgid "review"
+msgstr "огляд"
+
+# @todo check if deprecated
+# Record form: Heading
+msgid "insert"
+msgstr "вставка"
+
+# @todo check if deprecated
+# Record form: Heading
+msgid "update"
+msgstr "оновлення"
+
+# @todo check if deprecated
+# Record form: Heading
+msgid "edit"
+msgstr "pедагувати"
+
+# @todo check if deprecated
+# Record form: Heading
+msgid "delete"
+msgstr "видалити"
+
+# @todo check if deprecated
+# Record form: Heading
+msgid "show"
+msgstr "показати"
+
+# @todo check if deprecated
+# Record form: Heading
+msgid "add"
+msgstr "Додати"
+
+# Record form: Heading
+msgid "Copy"
+msgstr "Копія"
+
+# Record form: Heading
+msgid "Merge"
+msgstr "Злиття"
+
+# Record form: Heading
+msgid "Add a record"
+msgstr "Додати запис"
+
+# Record form: Heading
+msgid "Delete a record"
+msgstr "Видалити запис"
+
+# Record form: Heading
+msgid "Edit a record"
+msgstr "Редагувати запис"
+
+# Record form: Heading
+msgid "Show a record"
+msgstr "Показати запис"
+
+# Record form: Heading
+msgid "Add several records"
+msgstr "Додати кілька записів"
+
+# Record form: Heading
+msgid "Delete several records"
+msgstr "Видалити декілька записів"
+
+# Record form: Heading
+msgid "Edit several records"
+msgstr "Редагувати кілька записів"
+
+# Record form: Heading
+msgid "Insert failed"
+msgstr "Вставляння картки не вдалося."
+
+# Record form: Heading
+msgid "Delete failed"
+msgstr "Помилка вилучення"
+
+# Record form: Heading
+msgid "Update failed"
+msgstr "Спроба оновлення зазнала невдачі"
+
+# Record form: Heading
+msgid "The record with the ID %d was already deleted."
+msgstr "Запис з ідентифікатором %d вже видалено."
+
+# Record form: Heading
+msgid "A record with the ID %d does not exist."
+msgstr "Запис з ідентифікатором %d не існує."
+
+# Record form: Heading
+msgid "Sorry, it is not possible to access the ID %d from here."
+msgstr "На жаль, звідси неможливо отримати доступ до ідентифікатора %d."
+
+# Record form: Heading
+msgid "Invalid ID for a record (must be an integer): %s"
+msgstr "Недійсний ідентифікатор запису (має бути цілим числом): %s"
+
+# Record form: Heading
+msgid "record_was_updated"
+msgstr "Запис оновлено"
+
+# Record form: Heading
+msgid "Record was not updated (no changes were made)"
+msgstr "Запис не оновлювався (зміни не вносилися)"
+
+# Record form: Heading
+msgid "record_was_deleted"
+msgstr "Запис було видалено"
+
+# Record form: Heading
+msgid "%d records were deleted"
+msgstr "%d записів було видалено"
+
+# Record form: Heading
+msgid "record_was_inserted"
+msgstr "Запис був вставлений"
+
+# Record form: Heading
+msgid "Configuration does not allow this action: %s"
+msgstr "Налаштування не дозволяє виконувати цю дію: %s"
+
+# Record form: Heading
+msgid "Configuration does not allow this mode: %s"
+msgstr "Налаштування не дозволяє цей режим: %s"
+
+# Stop editing this record
+# Record form: bottom
+msgid "Cancel"
+msgstr "Скасувати"
+
+# Record form: bottom
+msgid "OK"
+msgstr "Добре"
+
+# Record form: bottom
+msgid "Update record"
+msgstr "Оновити запис"
+
+# Record form: bottom
+msgid "Update records"
+msgstr "Оновити записи"
+
+# Record form: bottom
+msgid "Delete record"
+msgstr "Вилучити запис"
+
+# Record form: bottom
+msgid "Delete records"
+msgstr "Видалити записи"
+
+# Record form: bottom
+msgid "Add record"
+msgstr "Додати запис"
+
+# Record form: bottom
+msgid "Add records"
+msgstr "Додати записи"
+
+# Record form: bottom
+msgid "Edit record"
+msgstr "Редагувати запис"
+
+# Record form: bottom
+msgid "Edit records"
+msgstr "Редагувати записи"
+
+# Record form: bottom
+msgid "Show"
+msgstr "Показати"
+
+# no value available for display, should be abbreviated
+# Record form: field output
+msgid "N/A"
+msgstr "Не застосовується"
+
+# Record form: field output
+msgid "will_be_added_automatically"
+msgstr "буде додано автоматично"
+
+# Record form: field output
+msgid "calculated_field"
+msgstr "обчислене поле"
+
+# dropdown, first entry
+# Record form: Select
+msgid "none_selected"
+msgstr "жодного не вибрано"
+
+# radio buttons, first entry
+# Record form: Select
+msgid "no_selection"
+msgstr "немає вибору"
+
+# Record form: Select
+msgid "no_source_defined"
+msgstr "джерело не визначено"
+
+# Record form: Select
+msgid "no_selection_possible"
+msgstr "вибір неможливий"
+
+# Record form: Select
+msgid "(This entry is the highest entry in the hierarchy.)"
+msgstr "(Цей запис є найвищим записом в ієрархії.)"
+
+# select/deselect checkboxes
+# Record form: Select
+msgid "Select all"
+msgstr "Вибрати все"
+
+# select/deselect checkboxes
+# Record form: Select
+msgid "Deselect all"
+msgstr "Зняти виділення з усіх"
+
+# Record form: Change password
+msgid "Old:"
+msgstr "Старі:"
+
+# Record form: Change password
+msgid "New:"
+msgstr "Новий:"
+
+# Record form: Change password
+msgid "(Please confirm your new password twice)"
+msgstr "(Підтвердьте новий пароль двічі)"
+
+# Record form: Change password
+msgid "Your password has been changed!"
+msgstr "Ваш пароль змінено!"
+
+# Record form: Change password
+msgid ""
+"Your current password is different from what you entered. Please try again."
+msgstr "Ваш поточний пароль відрізняється від введеного. Повторіть спробу."
+
+# Record form: Change password
+msgid "New passwords do not match. Please try again."
+msgstr "Нові паролі не збігаються. Повторіть спробу."
+
+# Record form: Change password
+msgid "Please enter your current password and twice your new password."
+msgstr "Введіть поточний пароль і двічі новий."
+
+# Record form: Change password
+msgid ""
+"New and old password are identical. Please choose a different new password."
+msgstr "Новий і старий пароль ідентичні. Виберіть інший новий пароль."
+
+# Record form: Change password
+msgid "Rules for secure passwords"
+msgstr "Правила для захищених паролів"
+
+# Record form: Change password
+msgid "password-rules"
+msgstr ""
+"* Паролі мають містити щонайменше вісім символів.\n"
+"* Замість одного слова можуть бути кілька слів або навіть повні речення "
+"використовується.\n"
+"* Чим довший пароль (або вибране речення), тим кращий доступ сайт "
+"захищено.\n"
+"* Для коротких паролів рекомендується, щоб вони складалися з верхнього "
+"регістру та малі літери, цифри та спеціальні символи (? = + ; тощо).\n"
+"* Той самий пароль не слід використовувати на інших сайтах."
+
+# Record form: Change password
+msgid "hidden"
+msgstr "прихований"
+
+# Record form: Change password
+msgid "Your new password could not be saved. Please try a different one."
+msgstr "Не вдалося зберегти новий пароль. Спробуйте інший варіант."
+
+# Record form: File upload
+msgid "image_not_display"
+msgstr "Немає зображення"
+
+# Record form: File upload
+msgid "Error: "
+msgstr "Помилка: "
+
+# Record form: File upload
+msgid "No file was uploaded."
+msgstr "Файл не був завантажений."
+
+# Record form: File upload
+msgid "File was only partially uploaded."
+msgstr "Файл завантажено лише частково."
+
+# Record form: File upload
+msgid "File is too big."
+msgstr "Файл завеликий."
+
+# Record form: File upload
+msgid "Maximum allowed filesize is %s."
+msgstr "Максимальний допустимий розмір файлу - %s."
+
+# Record form: File upload
+msgid "Unsupported filetype:"
+msgstr "Непідтримуваний тип файла:"
+
+# Record form: File upload
+msgid "Supported filetypes:"
+msgstr "Підтримувані типи файлів:"
+
+# Record form: File upload
+msgid "Could not delete %s."
+msgstr "Не вдалося вилучити оболонку@ info"
+
+# Record form: File upload
+msgid "Could not delete %s, file did not exist."
+msgstr "Не вдалося видалити %s, файл не існує."
+
+# prefix for alt-attribute
+# Record form: File upload
+msgid "File: "
+msgstr "Файл:"
+
+# alt-attribute if there's no image
+# Record form: File upload
+msgid "no_image"
+msgstr "Немає зображення"
+
+# Record form: File upload
+msgid "Delete this file"
+msgstr "Видаліть цей файл"
+
+# Record form: File upload
+msgid "File uploaded:"
+msgstr "Файл завантажено:"
+
+# Record form: File upload
+msgid ""
+"File could not be saved. There is a problem with the user rights. We are "
+"working on it."
+msgstr ""
+"Не вдалося зберегти файл. Виникла проблема з правами користувача. Ми над "
+"цим працюємо."
+
+# Record form: File upload
+msgid "Minimum width %s was not reached."
+msgstr "Не досягнуто мінімальної ширини %s."
+
+# Record form: File upload
+msgid "Minimum height %s was not reached."
+msgstr "Мінімальна висота %s не була досягнута."
+
+# Record form: File upload
+msgid "Maximum width %s has been exceeded."
+msgstr "Перевищено максимальну ширину %s."
+
+# Record form: File upload
+msgid "Maximum height %s has been exceeded."
+msgstr "Перевищено максимальну висоту %s."
+
+# Record form: File upload
+msgid "The PDF consists of %d pages. Only %d pages are allowed."
+msgstr "PDF-файл складається з %d сторінок. Дозволено лише %d сторінок."
+
+# Record form: File upload
+msgid "Transfer failed. Probably you sent a file that was too large."
+msgstr ""
+"Спроба передачі зазнала невдачі. Можливо, ви надіслали файл завеликого "
+"розміру."
+
+# Record form: File upload
+msgid "– You sent: %s data."
+msgstr "– Ви надіслали: %s даних."
+
+# Record form: File upload
+msgid ""
+"The file %s is empty. If you are uploading from a Mac, please check if the "
+"data is not only available in the so-called “resource fork” of the file."
+msgstr ""
+"Файл %s порожній. Якщо ви завантажуєте з Mac, перевірте, чи дані доступні "
+"не тільки в так званому \"ресурсному форку\" файлу."
+
+# Record form: File upload
+#: zzform/record.inc.php
+msgid "File upload is currently impossible."
+msgstr "Завантаження файлу наразі неможливе."
+
+# e. g. Add Address, Add Phone Number ...
+# Record form: Detail record
+msgid "Add %s"
+msgstr "Додати %s"
+
+# Record form: Detail record
+msgid "Remove %s"
+msgstr "Видалити %s"
+
+# Record form: Detail record
+msgid "Remove"
+msgstr "Видалити"
+
+# Record form: Detail record
+msgid "Minimum of records for table `%s` was not met (%d)."
+msgstr "Мінімальна кількість записів для таблиці `%s` не була виконана (%d)."
+
+# Record form: Validation, displayed inside form
+msgid "Please enter more characters."
+msgstr "Введіть один чи більше символів"
+
+# Record form: Validation, displayed inside form
+msgid "No entry found. Try less characters."
+msgstr "Записів не знайдено. Спробуйте менше символів."
+
+# Record form: Validation, displayed inside form
+msgid "Text is too long (max. %d characters, %d submitted)."
+msgstr "Текст занадто довгий (макс. %d символів, %d надіслано)."
+
+# Record form: Validation, displayed inside form
+msgid "Text is too short (min. %d characters, %d submitted)."
+msgstr "Текст занадто короткий (мін. %d символів, %d надіслано)."
+
+# Record form: Validation, displayed inside form
+msgid "Please make a different selection."
+msgstr "Будь ласка, зробіть свій вибір."
+
+# Record form: Validation, displayed above form
+msgid "These errors occurred:"
+msgstr "Сталися такі помилки:"
+
+# Record form: Validation, displayed above form
+msgid "Value incorrect in field <strong>%s</strong>."
+msgstr "Неправильне значення в полі <strong>%s</strong>."
+
+# Record form: Validation, displayed above form
+msgid "Value missing in field <strong>%s</strong>."
+msgstr "У полі <strong>%s</strong> відсутнє значення."
+
+# Record form: Validation, displayed above form
+msgid "Nothing was uploaded in field <strong>%s</strong>."
+msgstr "Нічого не було завантажено в поле <strong>%s</strong>."
+
+# Record form: Validation, displayed above form
+msgid "Duplicate entry"
+msgstr "Здублювати запис"
+
+# Record form: Validation, displayed above form
+msgid "Detail record could not be handled"
+msgstr "Не вдалося обробити детальний запис"
+
+# Record form: Validation, displayed above form
+msgid "String <em>“%s”</em> is not allowed"
+msgstr "Рядок <em>«%s»</em> не допускається"
+
+# Record form: Validation, displayed above form
+msgid "Value “%s” needs to be greater than “%s”."
+msgstr "Значення «%s» має бути більшим за «%s»."
+
+# Record form: Validation, displayed above form
+msgid "Value “%s” needs to be greater than or equal to “%s”."
+msgstr "Значення «%s» має бути більше або дорівнювати «%s»."
+
+# Record form: Validation, displayed above form
+msgid "Value “%s” needs to be smaller than “%s”."
+msgstr "Значення «%s» має бути меншим за «%s»."
+
+# Record form: Validation, displayed above form
+msgid "Value “%s” needs to be smaller than or equal to “%s”."
+msgstr "Значення «%s» має бути меншим або рівним «%s»."
+
+# Record form: Validation, displayed above form
+msgid "Please check these values again"
+msgstr "Перевірте ці значення ще раз"
+
+# Record form: Validation, displayed above form
+msgid "Please select one of the values for field <strong>%s</strong>."
+msgstr "Будь ласка, виберіть одне зі значень для поля <strong>%s</strong>."
+
+# Record form: Validation, displayed above form
+msgid "Please check the value for field <strong>%s</strong>."
+msgstr "Будь ласка, перевірте значення для поля <strong>%s</strong>."
+
+# Record form: Validation, displayed above form
+msgid "Creation of directory %s failed: Parent directory is not writable."
+msgstr ""
+"Спроба створення каталогу %s зазнала невдачі: батьківський каталог "
+"недоступний для запису."
+
+# Record form: Validation, displayed above form
+msgid "Creation of directory %s failed."
+msgstr "Спроба створення каталогу %s зазнала невдачі."
+
+# Record form: Validation, displayed above form
+msgid ""
+"Value in field <em>“%s”</em> must not be identical to field <em>“%s”</em>."
+msgstr ""
+"Значення в полі <em>«%s»</em> не повинно бути ідентичним полі <em>«%s»</em>."
+
+# Record form: Validation of Database Integrity, displayed above form
+msgid "No records in relation table `%s`. Please fill in records."
+msgstr "Немає записів у таблиці відношень `%s`. Будь ласка, заповніть записи."
+
+# Record form: Validation of Database Integrity, displayed above form
+msgid ""
+"This record could not be deleted because it has other data associated with "
+"it."
+msgstr "Не вдалося видалити цей запис, оскільки з ним пов 'язані інші дані."
+
+# Record form: Validation, resubmit because of logout
+msgid ""
+"You had been logged out automatically. Therefore, your changes were not yet "
+"saved. Please submit the form again."
+msgstr ""
+"Ви автоматично вийшли з системи. Тому ваші зміни ще не збережено. Будь "
+"ласка, надішліть форму ще раз."
+
+# Record form: Resubmit because form was sent too quickly
+msgid "Sorry, an error has occurred.<br>Please send the form again."
+msgstr "На жаль, сталася помилка.<br>Будь ласка, надішліть форму знову."
+
+# Record form: foreign record
+msgid "edit-after-save"
+msgstr "Вхід неможливий. Спочатку збережіть цей запис."
+
+# Record form: foreign record
+msgid "no-data-available"
+msgstr "Немає даних."
+
+# Record form: identifier, hidden etc.
+msgid "Record for <strong>%s</strong> does not exist. (ID: %s)"
+msgstr "Запис для <strong>%s</strong> не існує. (ID: %s)"
+
+# Record form: identifier, hidden etc.
+msgid "Would be changed on update"
+msgstr "Буде змінено під час оновлення"
+
+# Record form: Merge
+msgid "%d records merged successfully"
+msgstr "%d записів успішно об 'єднано"
+
+# Record form: Merge
+msgid "For merging, the field %s has to be equal in all records."
+msgstr "Для об 'єднання поле %s має бути рівним у всіх записах."
+
+# Record form: Merge
+msgid "For merging, the fields %s and %s have to be equal in all records."
+msgstr "Для об 'єднання поля %s і %s повинні бути рівними у всіх записах."
+
+# Record form: Merge
+msgid "Merge not complete, records are different:"
+msgstr "Об 'єднання не завершено, записи відрізняються:"
+
+# Record form: Revision
+msgid "Revise a record"
+msgstr "Переглянути запис"
+
+# Record form: Revision
+msgid "Old value: %s"
+msgstr "Старе значення: %s"
+
+# Record form: Revision
+msgid "– empty –"
+msgstr "– Порожній –"
+
+# Record form: Revision
+#: zzbrick_tables/revisions.php
+msgid "Revisions"
+msgstr "Редакції"
+
+# Record form: Revision
+#: zzbrick_tables/revisions.php
+msgid "Data"
+msgstr "Дані"
+
+# Record form: Revision
+#: zzbrick_tables/revisions.php
+msgid "Script URL"
+msgstr "Сценарій"
+
+# Record form: Revision
+#: zzbrick_tables/revisiondata.php
+msgid "ignore"
+msgstr "ігнорувати"
+
+# Record form: Revision
+#: zzbrick_tables/revisiondata.php
+msgid "Changed values"
+msgstr "Змінені значення"
+
+# Record form: Revision
+#: zzbrick_tables/revisiondata.php
+msgid "Complete values"
+msgstr "Повні значення"
+
+# Record form: Captcha
+msgid "Please enter the digits from the image."
+msgstr "Будь ласка, введіть цифри з зображення."
+
+# Record form: Captcha
+msgid "(Reload image)"
+msgstr "(Перезавантажити зображення)"
+
+# Record form: Captcha
+msgid "Please enter the following code: %s."
+msgstr "Будь ласка, введіть наступний код: %s."
+
+# Record form: Captcha
+msgid "Please add %s to it."
+msgstr "Додайте %s до нього."
+
+# Record form: Captcha
+msgid "zero"
+msgstr "нуль"
+
+# Record form: Captcha
+msgid "one"
+msgstr "один"
+
+# Record form: Captcha
+msgid "two"
+msgstr "два"
+
+# Record form: Captcha
+msgid "three"
+msgstr "трьох"
+
+# Record form: Captcha
+msgid "four"
+msgstr "яотири"
+
+# Record form: Captcha
+msgid "five"
+msgstr "п'ять"
+
+# Record form: Captcha
+msgid "six"
+msgstr "шість"
+
+# Record form: Captcha
+msgid "seven"
+msgstr "сім"
+
+# Record form: Captcha
+msgid "eight"
+msgstr "вісім"
+
+# Record form: Captcha
+msgid "nine"
+msgstr "дев'ять"
+
+# Record form: Captcha
+msgid "ten"
+msgstr "десять"
+
+# Record form: Date field
+msgid "Date"
+msgstr "Дата"
+
+# Record form: Datetime field
+msgid "Date and time"
+msgstr "Дата та час"
+
+# Record form: foot
+msgid "Submit data …"
+msgstr "Надіслати дані …"
+
+# List view: Revision
+msgid "live"
+msgstr "наживо"
+
+# List view: Revision
+msgid "pending"
+msgstr "очікує"
+
+# List view: Revision
+msgid "historic"
+msgstr "Історія"
+
+# List view
+msgid "table-empty"
+msgstr "Немає доступних записів"
+
+# group by unknown
+# List view
+msgid "- unknown -"
+msgstr "– невідомий –"
+
+# List view: Filter
+msgid "Selection"
+msgstr "Відбір"
+
+# List view: Filter
+msgid "all"
+msgstr "весь"
+
+# List view: Filter
+msgid ""
+"“%s” is not a valid value for the selection “%s”. Please select a different "
+"filter."
+msgstr ""
+"“%s” не є допустимим значенням для вибору “%s”. Виберіть інший фільтр."
+
+# List view: Filter
+msgid "A filter for the selection “%s” does not exist."
+msgstr "Фільтр для вибору «%s» не існує."
+
+# List view: Filter
+msgid "<a href=\"%s\">List without this filter</a>"
+msgstr "<a href=\"%s\">Список без цього фільтра</a>"
+
+# List view: Filter
+msgid "(no value)"
+msgstr "(без значення)"
+
+# List view: Filter
+#: zzform/functions.inc.php
+msgid "This filter does not exist: %s"
+msgstr "Цей фільтр не існує: %s"
+
+# List view: Table head
+msgid "order by"
+msgstr "Сортувати по"
+
+# List view: Table head
+msgid "asc"
+msgstr "висхідний"
+
+# List view: Table head
+msgid "desc"
+msgstr "низхідний"
+
+# List view: Table head
+msgid "action"
+msgstr "Дія"
+
+# List view: Table head
+msgid "detail"
+msgstr "Деталі"
+
+# List view: bottom
+msgid "Add new record"
+msgstr "Створити запис"
+
+# List view: bottom
+msgid "records total"
+msgstr "всього записів"
+
+# List view: bottom
+msgid "record total"
+msgstr "Запис всього"
+
+# List view: bottom
+msgid "All records on one page"
+msgstr "Всі записи на одній сторінці"
+
+# List view: bottom
+msgid "First page"
+msgstr "Перша сторінка"
+
+# List view: bottom
+msgid "Previous page"
+msgstr "Попередня сторінка"
+
+# List view: bottom
+msgid "Next page"
+msgstr "Наступна сторінка"
+
+# List view: bottom
+msgid "Last page"
+msgstr "Попередня сторінка"
+
+# List view: Search form
+msgid "Show all records"
+msgstr "Показати: Усі записи"
+
+# List view: Search form
+msgid "in"
+msgstr "дюйм"
+
+# List view: Search form
+msgid "all fields"
+msgstr "всі поля"
+
+# Button
+# List view: Search form
+msgid "search"
+msgstr "пошук"
+
+# Error handling
+msgid "Warning!"
+msgstr "Застереження!"
+
+# Error handling
+msgid "Incorrect value: %s"
+msgstr "Неправильне значення: %s"
+
+# Error handling
+msgid "Database error"
+msgstr "Помилка бази даних"
+
+# Error handling
+msgid ""
+"An error occured. We are working on the solution of this problem. Sorry for "
+"your inconvenience. Please try again later."
+msgstr ""
+"Сталася помилка. Ми працюємо над вирішенням цієї проблеми. Вибачте за "
+"незручності. Повторіть спробу пізніше."
+
+# Export-Link
+# Modules: Export
+msgid "Export"
+msgstr "Експорт"
+
+# Modules: Export
+msgid ""
+"Please don’t mess with the URL parameters. <code>%s</code> is not allowed "
+"here."
+msgstr ""
+"Будь ласка, не втручайтеся з параметрами URL-адреси. <code>%s</code> не "
+"дозволено тут."
+
+# Modules: Geo
+msgid "N"
+msgstr "<abbr title=\"Північний\">П</abbr>"
+
+# Modules: Geo
+msgid "E"
+msgstr "<abbr title=\"Східний\">С</abbr>"
+
+# Modules: Geo
+msgid "S"
+msgstr "<abbr title=\"Південь\">П</abbr>"
+
+# Modules: Geo
+msgid "W"
+msgstr "<abbr title=\"Захід\">З</abbr>"
+
+# Modules: Geo
+msgid ""
+"It looks like this coordinate has a different orientation. Maybe latitude "
+"and longitude were interchanged?"
+msgstr ""
+"Схоже, ця координата має іншу орієнтацію. Можливо, широта і довгота були "
+"взаємозамінними?"
+
+# Modules: Geo
+msgid "Mismatch: %s signals different hemisphere than %s."
+msgstr "Невідповідність: %s сигнали відрізняються від %s."
+
+# Modules: Geo
+msgid "There are too many decimal points (or commas) in this value."
+msgstr "У цьому значенні занадто багато десяткових знаків (або ком)."
+
+# Modules: Geo
+msgid "Only the last number might have a decimal point (or comma)."
+msgstr "Лише останнє число може мати десяткову точку (або кому)."
+
+# Modules: Geo
+msgid "%s is too small. Please enter for minutes a positive value or 0."
+msgstr ""
+"%s занадто малий. Будь ласка, введіть протягом хвилин позитивне значення "
+"або 0."
+
+# Modules: Geo
+msgid "%s is too small. Please enter for seconds a positive value or 0."
+msgstr ""
+"%s занадто малий. Будь ласка, введіть протягом секунд позитивне значення "
+"або 0."
+
+# Modules: Geo
+msgid "%s is too big. Please enter for minutes a value smaller than 60."
+msgstr "%s завеликий. Будь ласка, введіть протягом хвилин значення менше 60."
+
+# Modules: Geo
+msgid "%s is too big. Please enter for seconds a value smaller than 60."
+msgstr "%s завеликий. Будь ласка, введіть протягом секунд значення менше 60."
+
+# Modules: Geo
+msgid ""
+"Sorry, there are too many numbers. We cannot interpret what you entered."
+msgstr ""
+"На жаль, занадто багато номерів. Ми не можемо інтерпретувати введені вами "
+"дані."
+
+# Modules: Geo
+msgid ""
+"Minimum value for degrees is %s. The value you entered is too small: %s."
+msgstr ""
+"Мінімальне значення для градусів - %s. Введене вами значення замале: %s."
+
+# Modules: Geo
+msgid "Maximum value for degrees is %s. The value you entered is too big: %s."
+msgstr ""
+"Максимальне значення для градусів - %s. Введене вами значення завелике: %s."
+
+# Modules: Upload (Table filetypes)
+msgid "Filetypes"
+msgstr "Типи файлів"
+
+# Modules: Upload (Table filetypes)
+msgid "MIME Content Type"
+msgstr "Тип контенту"
+
+# Modules: Upload (Table filetypes)
+msgid "MIME Subtype"
+msgstr "Підтип MIME"
+
+# Modules: Upload (Table filetypes)
+msgid "Extension"
+msgstr "Розширення"
+
+# Modules: Upload (Table filetypes)
+msgid "Ext."
+msgstr "Доп."
+
+# Modules: Upload (Table filetypes)
+msgid "Count"
+msgstr "Кількість"
+
+# Backend: Development
+msgid "Script configuration error. No display field set."
+msgstr "Помилка налаштування скрипту. Поле відображення не встановлено."
+
+# introduces field name with wrong values
+# Backend: Development
+msgid "Field name"
+msgstr "Назва поля"
+
+# from table relations
+# Backend: Development
+msgid "no-delete"
+msgstr "Не видаляйте"
+
+# Backend: Development
+msgid "Database error. This query has ambiguous values in ID field."
+msgstr "Помилка бази даних. Цей запит має неоднозначні значення в полі ID."
+
+# Backend: Development, Error mail
+msgid "Error during database operation"
+msgstr "Помилка під час роботи бази даних"
+
+# Backend: Development, Error mail
+msgid "The following error(s) occured in project %s:"
+msgstr "У проекті %s виникли такі помилки:"
+
+# Auto complete
+msgid "No record was found."
+msgstr "Запис не знайдено"
+
+# Filter
+#: behaviour/zzform-foot.js
+msgid "expand"
+msgstr "розгорнути"
+
+# Filter
+#: behaviour/zzform-foot.js
+msgid "collapse"
+msgstr "Згорнути"
+
+#: behaviour/zzform-foot.js
+msgid "Upload Failed"
+msgstr "Збій завантаження"
+
+#: behaviour/zzform-foot.js
+msgid "Upload Aborted"
+msgstr "Завантаження перервано"
+
+#: behaviour/zzform-foot.js
+msgid "% uploaded … please wait"
+msgstr "% u завантажено… будь ласка, зачекайте"
+
+#: behaviour/zzform-foot.js
+msgid "Uploaded:"
+msgstr "Завантажено:"
+
+#: behaviour/zzform-foot.js
+msgid "Total:"
+msgstr "До сплати:"
+
+#: behaviour/zzform-foot.js
+msgid "Bytes"
+msgstr "байт"
