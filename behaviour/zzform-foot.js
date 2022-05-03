@@ -271,7 +271,7 @@ zz_filters('init');
  * submit a form with XHR, reducing size of data transmitted
  * and allowing to display upload progress bar
  */
-function zzformSubmit(event) {
+async function zzformSubmit(event) {
 	// XHR possible? if not, use normal HTML form mechanism
 	try { ok = new XMLHttpRequest(); }
 	catch (e) { }
@@ -286,6 +286,17 @@ function zzformSubmit(event) {
 	data.append('zz_html_fragment', 1);
 	if (zzformSubmitButton) {
 		data.append(zzformSubmitButton, 1);
+	}
+	
+	if (zzformForm.hasAttribute('data-divert-files')) {
+		for (var pair of data.entries()) {
+			if (typeof(pair[1]) !== 'object') continue;
+			const fileUrl = await zzformDivertFiles(pair);
+			if (fileUrl) {
+				data.append('zz_divert_files_url', fileUrl);
+				data.delete(pair[0]);
+			}
+		}
 	}
 
 	var xhr = new XMLHttpRequest();
