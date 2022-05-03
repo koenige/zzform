@@ -343,6 +343,11 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 	// get id field name
 	$password_fields = [];
 	foreach ($field['fields'] AS $subfield) {
+		if (!empty($subfield['get_post_value']) AND !empty($_POST[$subfield['get_post_value']])
+			AND !empty($subfield['field_name'])) {
+			// set POST values depending on another value
+			$_POST[$my_tab['table_name']][][$subfield['field_name']] = $_POST[$subfield['get_post_value']];
+		}
 		if (!isset($subfield['type'])) continue;
 		if ($subfield['type'] === 'password') {
 			$password_fields[] = $subfield['field_name'];
