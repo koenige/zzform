@@ -6,7 +6,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2014, 2018, 2020-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2014, 2018, 2020-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -288,6 +288,14 @@ async function zzformSubmit(event) {
 		data.append(zzformSubmitButton, 1);
 	}
 	
+	var xhr = new XMLHttpRequest();
+	zzformUploadForm = document.getElementById('zzform_upload_progress');
+	if (zzformUploadForm) {
+		zzformUploadForm.style = 'display: block;';
+		xhr.upload.addEventListener('progress', zzformUploadProgress, false);
+	}
+	zzformDisableElements();
+
 	if (zzformForm.hasAttribute('data-divert-files')) {
 		for (var pair of data.entries()) {
 			if (typeof(pair[1]) !== 'object') continue;
@@ -299,17 +307,10 @@ async function zzformSubmit(event) {
 		}
 	}
 
-	var xhr = new XMLHttpRequest();
-	zzformUploadForm = document.getElementById('zzform_upload_progress');
-	if (zzformUploadForm) {
-		zzformUploadForm.style = 'display: block;';
-		xhr.upload.addEventListener('progress', zzformUploadProgress, false);
-	}
 	xhr.addEventListener('error', zzformUploadError, false);
 	xhr.addEventListener('abort', zzformUploadAbort, false);
 	xhr.addEventListener('load', zzformLoadPage, false);
 	xhr.open('POST', zzformActionURL);
-	zzformDisableElements();
 	xhr.send(data);
 }
 
