@@ -5,7 +5,7 @@
 # Part of »Zugzwang Project«
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2018, 2020-2021 Gustaf Mossakowski
+# @copyright Copyright © 2018, 2020-2022 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 # tfoot must be before thead or hitting ENTER won’t necessarily save the record
@@ -15,7 +15,8 @@
 %%% condition if setting zzform_int_extra_get %%%
 %%% setting zzform_int_url_?& %%%%%% setting zzform_int_extra_get_escaped %%%
 %%% condition endif %%%
-%%% item form_anchor "#%s" %%%" method="POST"%%% condition if upload %%% enctype="multipart/form-data"%%% condition endif %%% accept-charset="%%% setting character_set %%%" id="zzform_form">
+%%% item form_anchor "#%s" %%%" method="POST"%%% condition if upload %%% enctype="multipart/form-data"%%% condition endif %%% accept-charset="%%% setting character_set %%%" id="zzform_form"%%%
+condition if divert_files %%% data-divert-files="%%% item divert_files %%%"%%% condition endif %%%>
 <input type="hidden" name="zz_id" value="%%% setting zzform_id %%%">
 %%% item hook_output %%%
 %%% condition endif %%%
