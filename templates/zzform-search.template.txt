@@ -1,10 +1,11 @@
-# Zugzwang Project
+# zzform module
 # HTML output: zzform search form
 #
-# http://www.zugzwang.org/projects/zzform
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2020 Gustaf Mossakowski
+# @copyright Copyright © 2020, 2022 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 <form method="GET" action="%%% setting zzform_int_url_self %%%" class="zzsearch" accept-charset="%%% setting charset %%%">
@@ -17,6 +18,6 @@
 %%% loop end %%%
 </select>
 %%% condition if q %%%
- &nbsp;<a href="%%% setting zzform_int_url_self %%%%%% item url_qs %%%">%%% text Show all records %%%</a>
+ &nbsp;<a href="%%% setting zzform_int_url_self %%%%%% item url_qs %%%">%%% text Show all records (without search filter) %%%</a>
 %%% condition endif %%%
 </p></form>

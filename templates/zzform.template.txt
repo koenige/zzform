@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2017, 2019, 2021 Gustaf Mossakowski
+# @copyright Copyright © 2017, 2019, 2021-2022 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 <div id="zzform"%%% item class " class='%s'" %%%>
@@ -14,6 +14,9 @@
 <div class='explanation_dynamic'></div>
 %%% item error_out %%%
 %%% item selection "<h2>%s</h2> %%%
+%%% condition if record_deleted %%%
+<div id="record"><h2>%%% text Record was deleted %%%</h2></div>
+%%% condition endif %%%
 
 %%% item output %%%
 %%% item wmd_editor %%%

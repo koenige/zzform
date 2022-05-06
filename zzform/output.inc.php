@@ -475,7 +475,7 @@ function zz_nice_title($heading, $fields, $ops, $mode = false) {
 	if (!empty($_GET['zzhash'])) $show_id = false;
 	if (!empty($zz_conf['int']['where_with_unique_id'])) $show_id = false;
 	if ($show_id) {
-		$title .= $zz_conf['title_separator'].zz_text($mode)
+		$title .= $zz_conf['title_separator'].zz_text(ucfirst($mode))
 			.($zz_conf['int']['id']['value'] ? ': ID '.$zz_conf['int']['id']['value'] : '');
 	}
 
@@ -1252,18 +1252,18 @@ function zz_output_modes($id, $zz_conf_record) {
 	$modes = [];
 	if ($zz_conf_record['edit']) {
 		if ($zz_conf['int']['access'] === 'show_after_edit') {
-			$modes[] = sprintf($link, '', '', $qs_extra, zz_text('edit'));
+			$modes[] = sprintf($link, '', '', $qs_extra, zz_text('Edit'));
 		} else {
-			$modes[] = sprintf($link, $zz_conf['int']['url']['?&'], 'edit', $qs, zz_text('edit'));
+			$modes[] = sprintf($link, $zz_conf['int']['url']['?&'], 'edit', $qs, zz_text('Edit'));
 		}
 	} elseif ($zz_conf_record['view']) {
-		$modes[] = sprintf($link, $zz_conf['int']['url']['?&'], 'show', $qs, zz_text('show'));
+		$modes[] = sprintf($link, $zz_conf['int']['url']['?&'], 'show', $qs, zz_text('Show'));
 	}
 	if ($zz_conf_record['copy']) {
 		$modes[] = sprintf($link, $zz_conf['int']['url']['?&'], 'add', $qs, zz_text('Copy'));
 	}
 	if ($zz_conf_record['delete']) {
-		$modes[] = sprintf($link, $zz_conf['int']['url']['?&'], 'delete', $qs, zz_text('delete'));
+		$modes[] = sprintf($link, $zz_conf['int']['url']['?&'], 'delete', $qs, zz_text('Delete'));
 	}
 	if ($modes) return implode('&nbsp;&middot; ', $modes);
 	else return false;

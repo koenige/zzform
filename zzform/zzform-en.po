@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2005-2017 Gustaf Mossakowski
+# @copyright Copyright © 2005-2017, 2022 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 msgid ""
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.8.8\n"
+"X-Generator: Poedit 1.8.12\n"
 
 # Number of records as shown in page TITLE
 # Page elements
@@ -29,7 +29,7 @@ msgstr ""
 
 # Page elements
 msgid "Back to overview"
-msgstr "Back to overview"
+msgstr ""
 
 # Link to go back to the last form if a new detail record was added
 # Page elements
@@ -47,42 +47,35 @@ msgstr ""
 # Link to add a new value for detail record via dropdown
 # Record form
 msgid "New …"
-msgstr "New …"
+msgstr ""
 
-# @todo check if deprecated
-# Record form: Heading
-msgid "review"
-msgstr "Review"
+# Link to edit a new value for detail record via dropdown
+# Record form
+msgid "Edit …"
+msgstr ""
 
-# @todo check if deprecated
-# Record form: Heading
-msgid "insert"
-msgstr "Insert"
+# Page title
+msgid "Review"
+msgstr ""
 
-# @todo check if deprecated
-# Record form: Heading
-msgid "update"
-msgstr "Update"
+# Page title
+# List view: Multi function
+msgid "Edit"
+msgstr ""
 
-# @todo check if deprecated
-# Record form: Heading
-msgid "edit"
-msgstr "Edit"
+# Page title
+# List view: Multi function
+msgid "Delete"
+msgstr ""
 
-# @todo check if deprecated
-# Record form: Heading
-msgid "delete"
-msgstr "Delete"
+# Page title
+# Record form: bottom
+msgid "Show"
+msgstr ""
 
-# @todo check if deprecated
-# Record form: Heading
-msgid "show"
-msgstr "Show"
-
-# @todo check if deprecated
-# Record form: Heading
-msgid "add"
-msgstr "Add"
+# Page title
+msgid "Add"
+msgstr ""
 
 # Record form: Heading
 msgid "Copy"
@@ -149,24 +142,28 @@ msgid "Invalid ID for a record (must be an integer): %s"
 msgstr ""
 
 # Record form: Heading
-msgid "record_was_updated"
-msgstr "Record was updated"
+msgid "Record was updated"
+msgstr ""
 
 # Record form: Heading
 msgid "Record was not updated (no changes were made)"
 msgstr ""
 
 # Record form: Heading
-msgid "record_was_deleted"
-msgstr "Record was deleted"
+msgid "Record was deleted"
+msgstr ""
+
+# Record form: Heading
+msgid "1 record was deleted"
+msgstr ""
 
 # Record form: Heading
 msgid "%d records were deleted"
 msgstr ""
 
 # Record form: Heading
-msgid "record_was_inserted"
-msgstr "Record was inserted"
+msgid "Record was inserted"
+msgstr ""
 
 # Record form: Heading
 msgid "Configuration does not allow this action: %s"
@@ -219,34 +216,34 @@ msgstr ""
 
 # no value available for display, should be abbreviated
 # Record form: field output
-msgid "N/A"
-msgstr "<abbr title=\"Not available\">N/A</abbr>"
+msgid "<abbr title=\"Not available\">N/A</abbr>"
+msgstr ""
 
 # Record form: field output
-msgid "will_be_added_automatically"
-msgstr "will be added automatically"
+msgid "will be added automatically"
+msgstr ""
 
 # Record form: field output
-msgid "calculated_field"
-msgstr "calculated field"
+msgid "calculated field"
+msgstr ""
 
 # dropdown, first entry
 # Record form: Select
-msgid "none_selected"
-msgstr "None selected"
+msgid "None selected"
+msgstr ""
 
 # radio buttons, first entry
 # Record form: Select
-msgid "no_selection"
-msgstr "No selection"
+msgid "No selection"
+msgstr ""
 
 # Record form: Select
-msgid "no_source_defined"
-msgstr "No source defined"
+msgid "No source defined"
+msgstr ""
 
 # Record form: Select
-msgid "no_selection_possible"
-msgstr "No selection possible."
+msgid "No selection possible."
+msgstr ""
 
 # Record form: Select
 msgid "(This entry is the highest entry in the hierarchy.)"
@@ -297,8 +294,8 @@ msgid ""
 msgstr ""
 
 # Record form: Change password
-msgid "Rules for secure passwords"
-msgstr "Tips for secure passwords"
+msgid "Tips for secure passwords"
+msgstr ""
 
 # Record form: Change password
 msgid "password-rules"
@@ -319,10 +316,6 @@ msgstr ""
 # Record form: Change password
 msgid "Your new password could not be saved. Please try a different one."
 msgstr ""
-
-# Record form: File upload
-msgid "image_not_display"
-msgstr "No image"
 
 # Record form: File upload
 msgid "Error: "
@@ -367,11 +360,15 @@ msgstr ""
 
 # alt-attribute if there's no image
 # Record form: File upload
-msgid "no_image"
-msgstr "No Image"
+msgid "No image"
+msgstr ""
 
 # Record form: File upload
 msgid "Delete this file"
+msgstr ""
+
+# Record form: File upload
+msgid "File uploaded:"
 msgstr ""
 
 # Record form: File upload
@@ -394,6 +391,10 @@ msgstr ""
 
 # Record form: File upload
 msgid "Maximum height %s has been exceeded."
+msgstr ""
+
+# Record form: File upload
+msgid "The PDF consists of %d pages. Only %d pages are allowed."
 msgstr ""
 
 # Record form: File upload
@@ -440,6 +441,18 @@ msgstr ""
 msgid "No entry found. Try less characters."
 msgstr ""
 
+# Record form: Validation, displayed inside form
+msgid "Text is too long (max. %d characters, %d submitted)."
+msgstr ""
+
+# Record form: Validation, displayed inside form
+msgid "Text is too short (min. %d characters, %d submitted)."
+msgstr ""
+
+# Record form: Validation, displayed inside form
+msgid "Please make a different selection."
+msgstr ""
+
 # Record form: Validation, displayed above form
 msgid "These errors occurred:"
 msgstr ""
@@ -472,11 +485,31 @@ msgid "String <em>“%s”</em> is not allowed"
 msgstr ""
 
 # Record form: Validation, displayed above form
+msgid "Value “%s” needs to be greater than “%s”."
+msgstr ""
+
+# Record form: Validation, displayed above form
+msgid "Value “%s” needs to be greater than or equal to “%s”."
+msgstr ""
+
+# Record form: Validation, displayed above form
+msgid "Value “%s” needs to be smaller than “%s”."
+msgstr ""
+
+# Record form: Validation, displayed above form
+msgid "Value “%s” needs to be smaller than or equal to “%s”."
+msgstr ""
+
+# Record form: Validation, displayed above form
 msgid "Please check these values again"
 msgstr ""
 
 # Record form: Validation, displayed above form
 msgid "Please select one of the values for field <strong>%s</strong>."
+msgstr ""
+
+# Record form: Validation, displayed above form
+msgid "Please check the value for field <strong>%s</strong>."
 msgstr ""
 
 # Record form: Validation, displayed above form
@@ -487,22 +520,38 @@ msgstr ""
 msgid "Creation of directory %s failed."
 msgstr ""
 
+# Record form: Validation, displayed above form
+msgid ""
+"Value in field <em>“%s”</em> must not be identical to field <em>“%s”</em>."
+msgstr ""
+
 # Record form: Validation of Database Integrity, displayed above form
 msgid "No records in relation table `%s`. Please fill in records."
 msgstr ""
 
 # Record form: Validation of Database Integrity, displayed above form
 msgid ""
-"This record could not be deleted because it has other data associated with it."
+"This record could not be deleted because it has other data associated with "
+"it."
+msgstr ""
+
+# Record form: Validation, resubmit because of logout
+msgid ""
+"You had been logged out automatically. Therefore, your changes were not yet "
+"saved. Please submit the form again."
+msgstr ""
+
+# Record form: Resubmit because form was sent too quickly
+msgid "Sorry, an error has occurred.<br>Please send the form again."
 msgstr ""
 
 # Record form: foreign record
-msgid "edit-after-save"
-msgstr "No entry possible. First save this record."
+msgid "No entry possible. First save this record."
+msgstr ""
 
 # Record form: foreign record
-msgid "no-data-available"
-msgstr "No data available."
+msgid "No data available."
+msgstr ""
 
 # Record form: identifier, hidden etc.
 msgid "Record for <strong>%s</strong> does not exist. (ID: %s)"
@@ -528,9 +577,135 @@ msgstr ""
 msgid "Merge not complete, records are different:"
 msgstr ""
 
+# Record form: Revision
+msgid "Revise a record"
+msgstr ""
+
+# Record form: Revision
+msgid "Old value: %s"
+msgstr ""
+
+# Record form: Revision
+msgid "– empty –"
+msgstr ""
+
+# Record form: Revision
+#: zzbrick_tables/revisions.php
+msgid "Revisions"
+msgstr ""
+
+# Record form: Revision
+#: zzbrick_tables/revisions.php
+msgid "Data"
+msgstr ""
+
+# Record form: Revision
+#: zzbrick_tables/revisions.php
+msgid "Script URL"
+msgstr ""
+
+# Record form: Revision
+#: zzbrick_tables/revisiondata.php
+msgid "ignore"
+msgstr ""
+
+# Record form: Revision
+#: zzbrick_tables/revisiondata.php
+msgid "Changed values"
+msgstr ""
+
+# Record form: Revision
+#: zzbrick_tables/revisiondata.php
+msgid "Complete values"
+msgstr ""
+
+# Record form: Captcha
+msgid "Please enter the digits from the image."
+msgstr ""
+
+# Record form: Captcha
+msgid "(Reload image)"
+msgstr ""
+
+# Record form: Captcha
+msgid "Please enter the following code: %s."
+msgstr ""
+
+# Record form: Captcha
+msgid "Please add %s to it."
+msgstr ""
+
+# Record form: Captcha
+msgid "zero"
+msgstr ""
+
+# Record form: Captcha
+msgid "one"
+msgstr ""
+
+# Record form: Captcha
+msgid "two"
+msgstr ""
+
+# Record form: Captcha
+msgid "three"
+msgstr ""
+
+# Record form: Captcha
+msgid "four"
+msgstr ""
+
+# Record form: Captcha
+msgid "five"
+msgstr ""
+
+# Record form: Captcha
+msgid "six"
+msgstr ""
+
+# Record form: Captcha
+msgid "seven"
+msgstr ""
+
+# Record form: Captcha
+msgid "eight"
+msgstr ""
+
+# Record form: Captcha
+msgid "nine"
+msgstr ""
+
+# Record form: Captcha
+msgid "ten"
+msgstr ""
+
+# Record form: Date field
+msgid "Date"
+msgstr ""
+
+# Record form: Datetime field
+msgid "Date and time"
+msgstr ""
+
+# Record form: foot
+msgid "Submit data …"
+msgstr ""
+
+# List view: Revision
+msgid "live"
+msgstr ""
+
+# List view: Revision
+msgid "pending"
+msgstr ""
+
+# List view: Revision
+msgid "historic"
+msgstr ""
+
 # List view
-msgid "table-empty"
-msgstr "No entries available"
+msgid "No entries available"
+msgstr ""
 
 # group by unknown
 # List view
@@ -569,24 +744,20 @@ msgid "This filter does not exist: %s"
 msgstr ""
 
 # List view: Table head
-msgid "order by"
-msgstr "Order by"
+msgid "Order by"
+msgstr ""
 
 # List view: Table head
-msgid "asc"
-msgstr "ascending"
+msgid "ascending"
+msgstr ""
 
 # List view: Table head
-msgid "desc"
-msgstr "descending"
+msgid "descending"
+msgstr ""
 
 # List view: Table head
-msgid "action"
-msgstr "Action"
-
-# List view: Table head
-msgid "detail"
-msgstr "Details"
+msgid "Action"
+msgstr ""
 
 # List view: bottom
 msgid "Add new record"
@@ -621,8 +792,8 @@ msgid "Last page"
 msgstr ""
 
 # List view: Search form
-msgid "Show all records"
-msgstr "Show all records (without search filter)"
+msgid "Show all records (without search filter)"
+msgstr ""
 
 # List view: Search form
 msgid "in"
@@ -638,8 +809,8 @@ msgid "search"
 msgstr ""
 
 # Error handling
-msgid "Warning!"
-msgstr "Attention!"
+msgid "Attention!"
+msgstr ""
 
 # Error handling
 msgid "Incorrect value: %s"
@@ -763,18 +934,13 @@ msgstr ""
 msgid "Field name"
 msgstr ""
 
-# from table relations
-# Backend: Development
-msgid "no-delete"
-msgstr "Don't delete"
-
 # Backend: Development
 msgid "Database error. This query has ambiguous values in ID field."
 msgstr ""
 
 # Backend: Development, Error mail
-msgid "Error during database operation"
-msgstr "Error from database operation"
+msgid "Database access error"
+msgstr ""
 
 # Backend: Development, Error mail
 msgid "The following error(s) occured in project %s:"
@@ -782,4 +948,38 @@ msgstr ""
 
 # Auto complete
 msgid "No record was found."
+msgstr ""
+
+# Filter
+#: behaviour/zzform-foot.js
+msgid "expand"
+msgstr ""
+
+# Filter
+#: behaviour/zzform-foot.js
+msgid "collapse"
+msgstr ""
+
+#: behaviour/zzform-foot.js
+msgid "Upload Failed"
+msgstr ""
+
+#: behaviour/zzform-foot.js
+msgid "Upload Aborted"
+msgstr ""
+
+#: behaviour/zzform-foot.js
+msgid "% uploaded … please wait"
+msgstr ""
+
+#: behaviour/zzform-foot.js
+msgid "Uploaded:"
+msgstr ""
+
+#: behaviour/zzform-foot.js
+msgid "Total:"
+msgstr ""
+
+#: behaviour/zzform-foot.js
+msgid "Bytes"
 msgstr ""

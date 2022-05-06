@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2005-2018 Gustaf Mossakowski
+# @copyright Copyright © 2005-2018, 2022 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 msgid ""
@@ -50,39 +50,32 @@ msgstr "Wyszukiwanie"
 msgid "New …"
 msgstr "Nowy …"
 
-# @todo check if deprecated
-# Record form: Heading
-msgid "review"
+# Link to edit a new value for detail record via dropdown
+# Record form
+msgid "Edit …"
+msgstr "Zmienić …"
+
+# Page title
+msgid "Review"
 msgstr "Pokaż"
 
-# @todo check if deprecated
-# Record form: Heading
-msgid "insert"
-msgstr "Wstaw"
-
-# @todo check if deprecated
-# Record form: Heading
-msgid "update"
-msgstr "Aktualizacja"
-
-# @todo check if deprecated
-# Record form: Heading
-msgid "edit"
+# Page title
+# List view: Multi function
+msgid "Edit"
 msgstr "Zmienić"
 
-# @todo check if deprecated
-# Record form: Heading
-msgid "delete"
+# Page title
+# List view: Multi function
+msgid "Delete"
 msgstr "Usunąć"
 
-# @todo check if deprecated
-# Record form: Heading
-msgid "show"
+# Page title
+# Record form: bottom
+msgid "Show"
 msgstr "Pokazać"
 
-# @todo check if deprecated
-# Record form: Heading
-msgid "add"
+# Page title
+msgid "Add"
 msgstr "Dodaj"
 
 # Record form: Heading
@@ -150,7 +143,7 @@ msgid "Invalid ID for a record (must be an integer): %s"
 msgstr ""
 
 # Record form: Heading
-msgid "record_was_updated"
+msgid "Record was updated"
 msgstr "Wpis zaktualizowany"
 
 # Record form: Heading
@@ -158,15 +151,19 @@ msgid "Record was not updated (no changes were made)"
 msgstr "Rekord nie został zaktualizowany (nie zmian)"
 
 # Record form: Heading
-msgid "record_was_deleted"
+msgid "Record was deleted"
 msgstr "Wpis usunięty"
+
+# Record form: Heading
+msgid "1 record was deleted"
+msgstr "1 wpis usunięty"
 
 # Record form: Heading
 msgid "%d records were deleted"
 msgstr "Usunięto %d rekordów"
 
 # Record form: Heading
-msgid "record_was_inserted"
+msgid "Record was inserted"
 msgstr "Wpis został dodany"
 
 # Record form: Heading
@@ -220,33 +217,33 @@ msgstr ""
 
 # no value available for display, should be abbreviated
 # Record form: field output
-msgid "N/A"
+msgid "<abbr title=\"Not available\">N/A</abbr>"
 msgstr "Niedostępne"
 
 # Record form: field output
-msgid "will_be_added_automatically"
+msgid "will be added automatically"
 msgstr "zostanie automatycznie dodane"
 
 # Record form: field output
-msgid "calculated_field"
+msgid "calculated field"
 msgstr "Pole wyliczone"
 
 # dropdown, first entry
 # Record form: Select
-msgid "none_selected"
+msgid "None selected"
 msgstr "nie wybrano"
 
 # radio buttons, first entry
 # Record form: Select
-msgid "no_selection"
+msgid "No selection"
 msgstr "brak wyboru"
 
 # Record form: Select
-msgid "no_source_defined"
+msgid "No source defined"
 msgstr "Brak podanego źródła"
 
 # Record form: Select
-msgid "no_selection_possible"
+msgid "No selection possible."
 msgstr "Wybór niemożliwy"
 
 # Record form: Select
@@ -298,7 +295,7 @@ msgid ""
 msgstr "Nowe i stare hasło są identyczne. Prosze wybrać inne hasło"
 
 # Record form: Change password
-msgid "Rules for secure passwords"
+msgid "Tips for secure passwords"
 msgstr "Zasady bezpiecznego hasła"
 
 # Record form: Change password
@@ -320,10 +317,6 @@ msgstr "Ukryte"
 # Record form: Change password
 msgid "Your new password could not be saved. Please try a different one."
 msgstr "Nie można zapisać ponownie nowe hasło. Spróbuj inną."
-
-# Record form: File upload
-msgid "image_not_display"
-msgstr "nie ma obrazu"
 
 # Record form: File upload
 msgid "Error: "
@@ -368,12 +361,16 @@ msgstr "Plik: "
 
 # alt-attribute if there's no image
 # Record form: File upload
-msgid "no_image"
+msgid "No image"
 msgstr "Brak obrazu"
 
 # Record form: File upload
 msgid "Delete this file"
 msgstr "Skazuj ten plik"
+
+# Record form: File upload
+msgid "File uploaded:"
+msgstr ""
 
 # Record form: File upload
 msgid ""
@@ -398,6 +395,10 @@ msgstr "Maksymalna szerokość %s została przekroczona."
 # Record form: File upload
 msgid "Maximum height %s has been exceeded."
 msgstr "Maksymalna wysokość %s została przekroczona."
+
+# Record form: File upload
+msgid "The PDF consists of %d pages. Only %d pages are allowed."
+msgstr ""
 
 # Record form: File upload
 msgid "Transfer failed. Probably you sent a file that was too large."
@@ -445,6 +446,18 @@ msgstr "Prosze podać więcej liter."
 msgid "No entry found. Try less characters."
 msgstr "Nie odnaleziono. Prosze spróbować z większą ilością znaków."
 
+# Record form: Validation, displayed inside form
+msgid "Text is too long (max. %d characters, %d submitted)."
+msgstr ""
+
+# Record form: Validation, displayed inside form
+msgid "Text is too short (min. %d characters, %d submitted)."
+msgstr ""
+
+# Record form: Validation, displayed inside form
+msgid "Please make a different selection."
+msgstr ""
+
 # Record form: Validation, displayed above form
 msgid "These errors occurred:"
 msgstr "Wystąpiły następujące błędy:"
@@ -474,12 +487,32 @@ msgid "String <em>“%s”</em> is not allowed"
 msgstr "Ciąg znaków <em>\"%s\"</em> nie jest dozwolone"
 
 # Record form: Validation, displayed above form
+msgid "Value “%s” needs to be greater than “%s”."
+msgstr ""
+
+# Record form: Validation, displayed above form
+msgid "Value “%s” needs to be greater than or equal to “%s”."
+msgstr ""
+
+# Record form: Validation, displayed above form
+msgid "Value “%s” needs to be smaller than “%s”."
+msgstr ""
+
+# Record form: Validation, displayed above form
+msgid "Value “%s” needs to be smaller than or equal to “%s”."
+msgstr ""
+
+# Record form: Validation, displayed above form
 msgid "Please check these values again"
 msgstr "Proszę ponownie sprawdzić te wartości"
 
 # Record form: Validation, displayed above form
 msgid "Please select one of the values for field <strong>%s</strong>."
 msgstr "Wybierz jedną z wartości dla pola <strong>%s</strong>."
+
+# Record form: Validation, displayed above form
+msgid "Please check the value for field <strong>%s</strong>."
+msgstr ""
 
 # Record form: Validation, displayed above form
 msgid "Creation of directory %s failed: Parent directory is not writable."
@@ -489,22 +522,38 @@ msgstr ""
 msgid "Creation of directory %s failed."
 msgstr ""
 
+# Record form: Validation, displayed above form
+msgid ""
+"Value in field <em>“%s”</em> must not be identical to field <em>“%s”</em>."
+msgstr ""
+
 # Record form: Validation of Database Integrity, displayed above form
 msgid "No records in relation table `%s`. Please fill in records."
 msgstr "Brak wpisów w tabeli `%s`. Uzupełnij"
 
 # Record form: Validation of Database Integrity, displayed above form
 msgid ""
-"This record could not be deleted because it has other data associated with it."
+"This record could not be deleted because it has other data associated with "
+"it."
 msgstr ""
 "Nie można usunąć wpisu, ponieważ jego elementy występują w innych wpisach."
 
+# Record form: Validation, resubmit because of logout
+msgid ""
+"You had been logged out automatically. Therefore, your changes were not yet "
+"saved. Please submit the form again."
+msgstr ""
+
+# Record form: Resubmit because form was sent too quickly
+msgid "Sorry, an error has occurred.<br>Please send the form again."
+msgstr ""
+
 # Record form: foreign record
-msgid "edit-after-save"
+msgid "No entry possible. First save this record."
 msgstr "Zapisz przed edycją."
 
 # Record form: foreign record
-msgid "no-data-available"
+msgid "No data available."
 msgstr "Brak danych"
 
 # Record form: identifier, hidden etc.
@@ -531,8 +580,134 @@ msgstr ""
 msgid "Merge not complete, records are different:"
 msgstr ""
 
+# Record form: Revision
+msgid "Revise a record"
+msgstr ""
+
+# Record form: Revision
+msgid "Old value: %s"
+msgstr ""
+
+# Record form: Revision
+msgid "– empty –"
+msgstr ""
+
+# Record form: Revision
+#: zzbrick_tables/revisions.php
+msgid "Revisions"
+msgstr ""
+
+# Record form: Revision
+#: zzbrick_tables/revisions.php
+msgid "Data"
+msgstr ""
+
+# Record form: Revision
+#: zzbrick_tables/revisions.php
+msgid "Script URL"
+msgstr ""
+
+# Record form: Revision
+#: zzbrick_tables/revisiondata.php
+msgid "ignore"
+msgstr ""
+
+# Record form: Revision
+#: zzbrick_tables/revisiondata.php
+msgid "Changed values"
+msgstr ""
+
+# Record form: Revision
+#: zzbrick_tables/revisiondata.php
+msgid "Complete values"
+msgstr ""
+
+# Record form: Captcha
+msgid "Please enter the digits from the image."
+msgstr ""
+
+# Record form: Captcha
+msgid "(Reload image)"
+msgstr ""
+
+# Record form: Captcha
+msgid "Please enter the following code: %s."
+msgstr ""
+
+# Record form: Captcha
+msgid "Please add %s to it."
+msgstr ""
+
+# Record form: Captcha
+msgid "zero"
+msgstr ""
+
+# Record form: Captcha
+msgid "one"
+msgstr ""
+
+# Record form: Captcha
+msgid "two"
+msgstr ""
+
+# Record form: Captcha
+msgid "three"
+msgstr ""
+
+# Record form: Captcha
+msgid "four"
+msgstr ""
+
+# Record form: Captcha
+msgid "five"
+msgstr ""
+
+# Record form: Captcha
+msgid "six"
+msgstr ""
+
+# Record form: Captcha
+msgid "seven"
+msgstr ""
+
+# Record form: Captcha
+msgid "eight"
+msgstr ""
+
+# Record form: Captcha
+msgid "nine"
+msgstr ""
+
+# Record form: Captcha
+msgid "ten"
+msgstr ""
+
+# Record form: Date field
+msgid "Date"
+msgstr ""
+
+# Record form: Datetime field
+msgid "Date and time"
+msgstr ""
+
+# Record form: foot
+msgid "Submit data …"
+msgstr ""
+
+# List view: Revision
+msgid "live"
+msgstr ""
+
+# List view: Revision
+msgid "pending"
+msgstr ""
+
+# List view: Revision
+msgid "historic"
+msgstr ""
+
 # List view
-msgid "table-empty"
+msgid "No entries available"
 msgstr "Brak zapisów."
 
 # group by unknown
@@ -572,24 +747,20 @@ msgid "This filter does not exist: %s"
 msgstr ""
 
 # List view: Table head
-msgid "order by"
+msgid "Order by"
 msgstr "Sortuj według"
 
 # List view: Table head
-msgid "asc"
+msgid "ascending"
 msgstr "Rosnąco"
 
 # List view: Table head
-msgid "desc"
+msgid "descending"
 msgstr "Malejąco"
 
 # List view: Table head
-msgid "action"
+msgid "Action"
 msgstr "Akcja"
-
-# List view: Table head
-msgid "detail"
-msgstr "Szczegóły"
 
 # List view: bottom
 msgid "Add new record"
@@ -624,7 +795,7 @@ msgid "Last page"
 msgstr "Ostatnia strona"
 
 # List view: Search form
-msgid "Show all records"
+msgid "Show all records (without search filter)"
 msgstr "Wszystkie rekordy"
 
 # List view: Search form
@@ -641,7 +812,7 @@ msgid "search"
 msgstr "Szukaj"
 
 # Error handling
-msgid "Warning!"
+msgid "Attention!"
 msgstr "Ostrzeżenie!"
 
 # Error handling
@@ -766,17 +937,12 @@ msgstr "Błąd konfiguracji skryptu. Nie zestaw pole wyświetlacza."
 msgid "Field name"
 msgstr "Nazwa pola"
 
-# from table relations
-# Backend: Development
-msgid "no-delete"
-msgstr ""
-
 # Backend: Development
 msgid "Database error. This query has ambiguous values in ID field."
 msgstr "Błąd bazy. Zapytanie zawiera niejednoznaczne wartości"
 
 # Backend: Development, Error mail
-msgid "Error during database operation"
+msgid "Database access error"
 msgstr "Błąd bazy danych"
 
 # Backend: Development, Error mail
@@ -785,4 +951,38 @@ msgstr "Projekt wystąpił w projekcie %s:"
 
 # Auto complete
 msgid "No record was found."
+msgstr ""
+
+# Filter
+#: behaviour/zzform-foot.js
+msgid "expand"
+msgstr ""
+
+# Filter
+#: behaviour/zzform-foot.js
+msgid "collapse"
+msgstr ""
+
+#: behaviour/zzform-foot.js
+msgid "Upload Failed"
+msgstr ""
+
+#: behaviour/zzform-foot.js
+msgid "Upload Aborted"
+msgstr ""
+
+#: behaviour/zzform-foot.js
+msgid "% uploaded … please wait"
+msgstr ""
+
+#: behaviour/zzform-foot.js
+msgid "Uploaded:"
+msgstr ""
+
+#: behaviour/zzform-foot.js
+msgid "Total:"
+msgstr ""
+
+#: behaviour/zzform-foot.js
+msgid "Bytes"
 msgstr ""

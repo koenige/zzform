@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2005-2021 Gustaf Mossakowski
+# @copyright Copyright © 2005-2022 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 msgid ""
@@ -54,42 +54,30 @@ msgstr ""
 msgid "Edit …"
 msgstr ""
 
-# @todo check if deprecated
-# Record form: Heading
-msgid "review"
+# Page title
+msgid "Review"
 msgstr ""
 
-# @todo check if deprecated
-# Record form: Heading
-msgid "insert"
+# Page title
+# List view: Multi function
+msgid "Edit"
 msgstr ""
 
-# @todo check if deprecated
-# Record form: Heading
-msgid "update"
+# Page title
+# List view: Multi function
+msgid "Delete"
 msgstr ""
 
-# @todo check if deprecated
-# Record form: Heading
-msgid "edit"
+# Page title
+# Record form: bottom
+msgid "Show"
 msgstr ""
 
-# @todo check if deprecated
-# Record form: Heading
-msgid "delete"
+# Page title
+msgid "Add"
 msgstr ""
 
-# @todo check if deprecated
-# Record form: Heading
-msgid "show"
-msgstr ""
-
-# @todo check if deprecated
-# Record form: Heading
-msgid "add"
-msgstr ""
-
-# Record form: Heading
+# List view: Action
 msgid "Copy"
 msgstr ""
 
@@ -154,7 +142,7 @@ msgid "Invalid ID for a record (must be an integer): %s"
 msgstr ""
 
 # Record form: Heading
-msgid "record_was_updated"
+msgid "Record was updated"
 msgstr ""
 
 # Record form: Heading
@@ -162,7 +150,11 @@ msgid "Record was not updated (no changes were made)"
 msgstr ""
 
 # Record form: Heading
-msgid "record_was_deleted"
+msgid "Record was deleted"
+msgstr ""
+
+# Record form: Heading
+msgid "1 record was deleted"
 msgstr ""
 
 # Record form: Heading
@@ -170,7 +162,7 @@ msgid "%d records were deleted"
 msgstr ""
 
 # Record form: Heading
-msgid "record_was_inserted"
+msgid "Record was inserted"
 msgstr ""
 
 # Record form: Heading
@@ -222,39 +214,35 @@ msgstr ""
 msgid "Edit records"
 msgstr ""
 
-# Record form: bottom
-msgid "Show"
-msgstr ""
-
 # no value available for display, should be abbreviated
 # Record form: field output
-msgid "N/A"
+msgid "<abbr title=\"Not available\">N/A</abbr>"
 msgstr ""
 
 # Record form: field output
-msgid "will_be_added_automatically"
+msgid "will be added automatically"
 msgstr ""
 
 # Record form: field output
-msgid "calculated_field"
+msgid "calculated field"
 msgstr ""
 
 # dropdown, first entry
 # Record form: Select
-msgid "none_selected"
+msgid "None selected"
 msgstr ""
 
 # radio buttons, first entry
 # Record form: Select
-msgid "no_selection"
+msgid "No selection"
 msgstr ""
 
 # Record form: Select
-msgid "no_source_defined"
+msgid "No source defined"
 msgstr ""
 
 # Record form: Select
-msgid "no_selection_possible"
+msgid "No selection possible."
 msgstr ""
 
 # Record form: Select
@@ -304,7 +292,7 @@ msgid "New and old password are identical. Please choose a different new passwor
 msgstr ""
 
 # Record form: Change password
-msgid "Rules for secure passwords"
+msgid "Tips for secure passwords"
 msgstr ""
 
 # Record form: Change password
@@ -317,10 +305,6 @@ msgstr ""
 
 # Record form: Change password
 msgid "Your new password could not be saved. Please try a different one."
-msgstr ""
-
-# Record form: File upload
-msgid "image_not_display"
 msgstr ""
 
 # Record form: File upload
@@ -366,7 +350,7 @@ msgstr ""
 
 # alt-attribute if there's no image
 # Record form: File upload
-msgid "no_image"
+msgid "No image"
 msgstr ""
 
 # Record form: File upload
@@ -540,11 +524,11 @@ msgid "Sorry, an error has occurred.<br>Please send the form again."
 msgstr ""
 
 # Record form: foreign record
-msgid "edit-after-save"
+msgid "No entry possible. First save this record."
 msgstr ""
 
 # Record form: foreign record
-msgid "no-data-available"
+msgid "No data available."
 msgstr ""
 
 # Record form: identifier, hidden etc.
@@ -698,7 +682,7 @@ msgid "historic"
 msgstr ""
 
 # List view
-msgid "table-empty"
+msgid "No entries available"
 msgstr ""
 
 # group by unknown
@@ -736,23 +720,19 @@ msgid "This filter does not exist: %s"
 msgstr ""
 
 # List view: Table head
-msgid "order by"
+msgid "Order by"
 msgstr ""
 
 # List view: Table head
-msgid "asc"
+msgid "ascending"
 msgstr ""
 
 # List view: Table head
-msgid "desc"
+msgid "descending"
 msgstr ""
 
 # List view: Table head
-msgid "action"
-msgstr ""
-
-# List view: Table head
-msgid "detail"
+msgid "Action"
 msgstr ""
 
 # List view: bottom
@@ -788,7 +768,7 @@ msgid "Last page"
 msgstr ""
 
 # List view: Search form
-msgid "Show all records"
+msgid "Show all records (without search filter)"
 msgstr ""
 
 # List view: Search form
@@ -805,7 +785,7 @@ msgid "search"
 msgstr ""
 
 # Error handling
-msgid "Warning!"
+msgid "Attention!"
 msgstr ""
 
 # Error handling
@@ -922,17 +902,12 @@ msgstr ""
 msgid "Field name"
 msgstr ""
 
-# from table relations
-# Backend: Development
-msgid "no-delete"
-msgstr ""
-
 # Backend: Development
 msgid "Database error. This query has ambiguous values in ID field."
 msgstr ""
 
 # Backend: Development, Error mail
-msgid "Error during database operation"
+msgid "Database access error"
 msgstr ""
 
 # Backend: Development, Error mail

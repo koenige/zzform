@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2005-2021 Gustaf Mossakowski
+# @copyright Copyright © 2022 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 msgid ""
@@ -13,15 +13,15 @@ msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform\n"
 "POT-Creation-Date: \n"
 "PO-Revision-Date: \n"
+"Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
+"Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Generator: Poedit 1.8.12\n"
-"Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
-"Language: uk\n"
 
 # Number of records as shown in page TITLE
 # Page elements
@@ -55,39 +55,26 @@ msgstr "Нові …"
 msgid "Edit …"
 msgstr "Редагувати …"
 
-# @todo check if deprecated
-# Record form: Heading
-msgid "review"
-msgstr "огляд"
+# Page title
+msgid "Review"
+msgstr "Огляд"
 
-# @todo check if deprecated
-# Record form: Heading
-msgid "insert"
-msgstr "вставка"
+# Page title
+# List view: Multi function
+msgid "Edit"
+msgstr "Pедагувати"
 
-# @todo check if deprecated
-# Record form: Heading
-msgid "update"
-msgstr "оновлення"
+# Page title
+# List view: Multi function
+msgid "Delete"
+msgstr "Видалити"
 
-# @todo check if deprecated
-# Record form: Heading
-msgid "edit"
-msgstr "pедагувати"
+# Record form: bottom
+msgid "Show"
+msgstr "Показати"
 
-# @todo check if deprecated
-# Record form: Heading
-msgid "delete"
-msgstr "видалити"
-
-# @todo check if deprecated
-# Record form: Heading
-msgid "show"
-msgstr "показати"
-
-# @todo check if deprecated
-# Record form: Heading
-msgid "add"
+# Page title
+msgid "Add"
 msgstr "Додати"
 
 # Record form: Heading
@@ -155,7 +142,7 @@ msgid "Invalid ID for a record (must be an integer): %s"
 msgstr "Недійсний ідентифікатор запису (має бути цілим числом): %s"
 
 # Record form: Heading
-msgid "record_was_updated"
+msgid "Record was updated"
 msgstr "Запис оновлено"
 
 # Record form: Heading
@@ -163,15 +150,19 @@ msgid "Record was not updated (no changes were made)"
 msgstr "Запис не оновлювався (зміни не вносилися)"
 
 # Record form: Heading
-msgid "record_was_deleted"
+msgid "Record was deleted"
 msgstr "Запис було видалено"
+
+# Record form: Heading
+msgid "1 record was deleted"
+msgstr "1 запис було видалено"
 
 # Record form: Heading
 msgid "%d records were deleted"
 msgstr "%d записів було видалено"
 
 # Record form: Heading
-msgid "record_was_inserted"
+msgid "Record was inserted"
 msgstr "Запис був вставлений"
 
 # Record form: Heading
@@ -223,39 +214,35 @@ msgstr "Редагувати запис"
 msgid "Edit records"
 msgstr "Редагувати записи"
 
-# Record form: bottom
-msgid "Show"
-msgstr "Показати"
-
 # no value available for display, should be abbreviated
 # Record form: field output
-msgid "N/A"
+msgid "<abbr title=\"Not available\">N/A</abbr>"
 msgstr "Не застосовується"
 
 # Record form: field output
-msgid "will_be_added_automatically"
+msgid "will be added automatically"
 msgstr "буде додано автоматично"
 
 # Record form: field output
-msgid "calculated_field"
+msgid "calculated field"
 msgstr "обчислене поле"
 
 # dropdown, first entry
 # Record form: Select
-msgid "none_selected"
+msgid "None selected"
 msgstr "жодного не вибрано"
 
 # radio buttons, first entry
 # Record form: Select
-msgid "no_selection"
+msgid "No selection"
 msgstr "немає вибору"
 
 # Record form: Select
-msgid "no_source_defined"
+msgid "No source defined"
 msgstr "джерело не визначено"
 
 # Record form: Select
-msgid "no_selection_possible"
+msgid "No selection possible."
 msgstr "вибір неможливий"
 
 # Record form: Select
@@ -307,7 +294,7 @@ msgid ""
 msgstr "Новий і старий пароль ідентичні. Виберіть інший новий пароль."
 
 # Record form: Change password
-msgid "Rules for secure passwords"
+msgid "Tips for secure passwords"
 msgstr "Правила для захищених паролів"
 
 # Record form: Change password
@@ -316,8 +303,7 @@ msgstr ""
 "* Паролі мають містити щонайменше вісім символів.\n"
 "* Замість одного слова можуть бути кілька слів або навіть повні речення "
 "використовується.\n"
-"* Чим довший пароль (або вибране речення), тим кращий доступ сайт "
-"захищено.\n"
+"* Чим довший пароль (або вибране речення), тим кращий доступ сайт захищено.\n"
 "* Для коротких паролів рекомендується, щоб вони складалися з верхнього "
 "регістру та малі літери, цифри та спеціальні символи (? = + ; тощо).\n"
 "* Той самий пароль не слід використовувати на інших сайтах."
@@ -329,10 +315,6 @@ msgstr "прихований"
 # Record form: Change password
 msgid "Your new password could not be saved. Please try a different one."
 msgstr "Не вдалося зберегти новий пароль. Спробуйте інший варіант."
-
-# Record form: File upload
-msgid "image_not_display"
-msgstr "Немає зображення"
 
 # Record form: File upload
 msgid "Error: "
@@ -377,7 +359,7 @@ msgstr "Файл:"
 
 # alt-attribute if there's no image
 # Record form: File upload
-msgid "no_image"
+msgid "No image"
 msgstr "Немає зображення"
 
 # Record form: File upload
@@ -393,8 +375,8 @@ msgid ""
 "File could not be saved. There is a problem with the user rights. We are "
 "working on it."
 msgstr ""
-"Не вдалося зберегти файл. Виникла проблема з правами користувача. Ми над "
-"цим працюємо."
+"Не вдалося зберегти файл. Виникла проблема з правами користувача. Ми над цим "
+"працюємо."
 
 # Record form: File upload
 msgid "Minimum width %s was not reached."
@@ -431,8 +413,8 @@ msgid ""
 "The file %s is empty. If you are uploading from a Mac, please check if the "
 "data is not only available in the so-called “resource fork” of the file."
 msgstr ""
-"Файл %s порожній. Якщо ви завантажуєте з Mac, перевірте, чи дані доступні "
-"не тільки в так званому \"ресурсному форку\" файлу."
+"Файл %s порожній. Якщо ви завантажуєте з Mac, перевірте, чи дані доступні не "
+"тільки в так званому \"ресурсному форку\" файлу."
 
 # Record form: File upload
 #: zzform/record.inc.php
@@ -571,11 +553,11 @@ msgid "Sorry, an error has occurred.<br>Please send the form again."
 msgstr "На жаль, сталася помилка.<br>Будь ласка, надішліть форму знову."
 
 # Record form: foreign record
-msgid "edit-after-save"
+msgid "No entry possible. First save this record."
 msgstr "Вхід неможливий. Спочатку збережіть цей запис."
 
 # Record form: foreign record
-msgid "no-data-available"
+msgid "No data available."
 msgstr "Немає даних."
 
 # Record form: identifier, hidden etc.
@@ -729,7 +711,7 @@ msgid "historic"
 msgstr "Історія"
 
 # List view
-msgid "table-empty"
+msgid "No entries available"
 msgstr "Немає доступних записів"
 
 # group by unknown
@@ -749,8 +731,7 @@ msgstr "весь"
 msgid ""
 "“%s” is not a valid value for the selection “%s”. Please select a different "
 "filter."
-msgstr ""
-"“%s” не є допустимим значенням для вибору “%s”. Виберіть інший фільтр."
+msgstr "“%s” не є допустимим значенням для вибору “%s”. Виберіть інший фільтр."
 
 # List view: Filter
 msgid "A filter for the selection “%s” does not exist."
@@ -770,24 +751,20 @@ msgid "This filter does not exist: %s"
 msgstr "Цей фільтр не існує: %s"
 
 # List view: Table head
-msgid "order by"
+msgid "Order by"
 msgstr "Сортувати по"
 
 # List view: Table head
-msgid "asc"
+msgid "ascending"
 msgstr "висхідний"
 
 # List view: Table head
-msgid "desc"
+msgid "descending"
 msgstr "низхідний"
 
 # List view: Table head
-msgid "action"
+msgid "Action"
 msgstr "Дія"
-
-# List view: Table head
-msgid "detail"
-msgstr "Деталі"
 
 # List view: bottom
 msgid "Add new record"
@@ -822,7 +799,7 @@ msgid "Last page"
 msgstr "Попередня сторінка"
 
 # List view: Search form
-msgid "Show all records"
+msgid "Show all records (without search filter)"
 msgstr "Показати: Усі записи"
 
 # List view: Search form
@@ -839,7 +816,7 @@ msgid "search"
 msgstr "пошук"
 
 # Error handling
-msgid "Warning!"
+msgid "Attention!"
 msgstr "Застереження!"
 
 # Error handling
@@ -910,14 +887,14 @@ msgstr "Лише останнє число може мати десяткову 
 # Modules: Geo
 msgid "%s is too small. Please enter for minutes a positive value or 0."
 msgstr ""
-"%s занадто малий. Будь ласка, введіть протягом хвилин позитивне значення "
-"або 0."
+"%s занадто малий. Будь ласка, введіть протягом хвилин позитивне значення або "
+"0."
 
 # Modules: Geo
 msgid "%s is too small. Please enter for seconds a positive value or 0."
 msgstr ""
-"%s занадто малий. Будь ласка, введіть протягом секунд позитивне значення "
-"або 0."
+"%s занадто малий. Будь ласка, введіть протягом секунд позитивне значення або "
+"0."
 
 # Modules: Geo
 msgid "%s is too big. Please enter for minutes a value smaller than 60."
@@ -978,17 +955,12 @@ msgstr "Помилка налаштування скрипту. Поле від�
 msgid "Field name"
 msgstr "Назва поля"
 
-# from table relations
-# Backend: Development
-msgid "no-delete"
-msgstr "Не видаляйте"
-
 # Backend: Development
 msgid "Database error. This query has ambiguous values in ID field."
 msgstr "Помилка бази даних. Цей запит має неоднозначні значення в полі ID."
 
 # Backend: Development, Error mail
-msgid "Error during database operation"
+msgid "Database access error"
 msgstr "Помилка під час роботи бази даних"
 
 # Backend: Development, Error mail

@@ -1971,7 +1971,7 @@ function zz_makelink($path, $record, $type = 'link') {
 	$check_against_root = false;
 
 	if ($type === 'image') {
-		$alt = zz_text('no_image');
+		$alt = zz_text('No image');
 		// lock if there is something definitely called extension
 		$alt_locked = false; 
 	}
@@ -2636,10 +2636,10 @@ function zz_error() {
 		if (!$user[$key]) {
 			unset($user[$key]); // there is nothing, so nothing will be shown
 		} elseif ($level === 'error' OR $level === 'warning') {
-			$user[$key] = '<strong>'.zz_text('Warning!').'</strong> '.$user[$key];
+			$user[$key] = '<strong>'.zz_text('Attention!').'</strong> '.$user[$key];
 		}
 		if ($admin[$key] AND ($level === 'error' OR $level === 'warning')) {
-			$admin[$key] = '<strong>'.zz_text('Warning!').'</strong> '.$admin[$key];
+			$admin[$key] = '<strong>'.zz_text('Attention!').'</strong> '.$admin[$key];
 		}
 	}
 	foreach ($admin as $line) {
@@ -2666,7 +2666,7 @@ function zz_error() {
 
 		if (empty($zz_setting['mail_subject_prefix']))
 			$zz_setting['mail_subject_prefix'] = '['.wrap_get_setting('project').']';
-		$mail['subject'] = zz_text('Error during database operation');
+		$mail['subject'] = zz_text('Database access error');
 		$mail['to'] = $zz_conf['error_mail_to'];
 		$mail['queue'] = true;
 		wrap_mail($mail);

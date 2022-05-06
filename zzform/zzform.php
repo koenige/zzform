@@ -352,7 +352,7 @@ function zzform($zz) {
 	} else {
 		if (isset($_GET['delete'])) {
 			// just show heading that record was deleted
-			$ops['output'] .= '<div id="record"><h2>'.zz_text('record_was_deleted').'</h2></div>'."\n";
+			$ops['record_deleted'] = true;
 		}
 		// call error function if there's anything
 		zz_error();

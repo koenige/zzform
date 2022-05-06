@@ -91,7 +91,7 @@ function zz_list($zz, $ops, $zz_conditions) {
 	// don't show anything if there is nothing
 	if (!$count_rows) {
 		$zz_conf['int']['show_list'] = false;
-		if (empty($zz['list']['hide_empty_table']) AND $text = zz_text('table-empty')) {
+		if (empty($zz['list']['hide_empty_table']) AND $text = zz_text('No entries available')) {
 			$ops['output'].= '<p class="emptytable">'.$text.'</p>';
 		}
 		if ($ops['mode'] === 'export') {
@@ -214,9 +214,9 @@ function zz_list($zz, $ops, $zz_conditions) {
 				$action_url, $zz_conf['character_set']);
 			$list['buttons'] = [];
 			if ($zz_conf['multi_edit'])
-				$list['buttons'][] = '<input type="submit" value="'.zz_text('edit').'" name="zz_multiple_edit">';
+				$list['buttons'][] = '<input type="submit" value="'.zz_text('Edit').'" name="zz_multiple_edit">';
 			if ($zz_conf['multi_delete'])
-				$list['buttons'][] = '<input type="submit" value="'.zz_text('delete').'" name="zz_multiple_delete">';
+				$list['buttons'][] = '<input type="submit" value="'.zz_text('Delete').'" name="zz_multiple_delete">';
 			if ($zz_conf['merge'])
 				$list['buttons'][] = '<input type="submit" value="'.zz_text('Merge').'" name="zz_merge">';
 			foreach ($zz_conf['multi_function'] as $index => $mfunction) {
@@ -1399,7 +1399,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode, $zz
 						$default_image = $field['default_image'];
 					}
 					$text .= $link.'<img src="'.$default_image
-						.'"  alt="'.zz_text('no_image').'" class="thumb">'.($link ? '</a>' : '');
+						.'"  alt="'.zz_text('No image').'" class="thumb">'.($link ? '</a>' : '');
 				}
 				if (!empty($field['image']) AND $mode != 'export') {
 					foreach ($field['image'] as $image) {
@@ -2248,13 +2248,14 @@ function zz_list_th($field, $mode = 'html') {
 	$new_keys = ['order' => $order_val];
 	$uri = $zz_conf['int']['url']['self'].zz_edit_query_string($zz_conf['int']['url']['qs']	
 		.$zz_conf['int']['url']['qs_zzform'], $unwanted_keys, $new_keys);
-	$order_dir = 'asc';
 	if (str_replace('&amp;', '&', $uri) === $zz_setting['request_uri']) {
 		$uri.= '&amp;dir=desc';
-		$order_dir = 'desc';
+		$order_dir = zz_text('descending');
+	} else {
+		$order_dir = zz_text('ascending');
 	}
-	$link_open = '<a href="'.$uri.'" title="'.zz_text('order by').' '
-		.strip_tags($field['title']).' ('.zz_text($order_dir).')">';
+	$link_open = '<a href="'.$uri.'" title="'.zz_text('Order by').' '
+		.strip_tags($field['title']).' ('.$order_dir.')">';
 	$link_close = '</a>';
 
 	// HTML output
@@ -2605,7 +2606,7 @@ function zz_list_table($list, $rows, $head) {
 		$columns++;
 	}
 	if ($list['modes'] OR $list['details']) {
-		$output .= ' <th class="editbutton">'.zz_text('action').'</th>';
+		$output .= ' <th class="editbutton">'.zz_text('Action').'</th>';
 		$columns++;
 	}
 	$output .= '</tr></thead>'."\n";
