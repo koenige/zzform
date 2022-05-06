@@ -30,12 +30,12 @@ msgstr "записів"
 
 # Page elements
 msgid "Back to overview"
-msgstr "Повернутися до огляду"
+msgstr "Повернутися до перегляду"
 
 # Link to go back to the last form if a new detail record was added
 # Page elements
 msgid "Back to last form"
-msgstr "Назад до останньої форми"
+msgstr "Повернутися до попередньої форми"
 
 # Page elements
 msgid "page"
@@ -57,7 +57,7 @@ msgstr "Редагувати …"
 
 # Page title
 msgid "Review"
-msgstr "Огляд"
+msgstr "Перегляд"
 
 # Page title
 # List view: Multi function
@@ -79,11 +79,11 @@ msgstr "Додати"
 
 # Record form: Heading
 msgid "Copy"
-msgstr "Копія"
+msgstr "Скопіювати"
 
 # Record form: Heading
 msgid "Merge"
-msgstr "Злиття"
+msgstr "Об’єднання"
 
 # Record form: Heading
 msgid "Add a record"
@@ -115,11 +115,11 @@ msgstr "Редагувати кілька записів"
 
 # Record form: Heading
 msgid "Insert failed"
-msgstr "Вставляння картки не вдалося."
+msgstr "Не вдалося вставити"
 
 # Record form: Heading
 msgid "Delete failed"
-msgstr "Помилка вилучення"
+msgstr "Не вдалося видалити"
 
 # Record form: Heading
 msgid "Update failed"
@@ -155,7 +155,7 @@ msgstr "Запис було видалено"
 
 # Record form: Heading
 msgid "1 record was deleted"
-msgstr "1 запис було видалено"
+msgstr "Один запис видалено"
 
 # Record form: Heading
 msgid "%d records were deleted"
@@ -261,7 +261,7 @@ msgstr "Зняти виділення з усіх"
 
 # Record form: Change password
 msgid "Old:"
-msgstr "Старі:"
+msgstr "Старий:"
 
 # Record form: Change password
 msgid "New:"
@@ -346,7 +346,7 @@ msgstr "Підтримувані типи файлів:"
 
 # Record form: File upload
 msgid "Could not delete %s."
-msgstr "Не вдалося вилучити оболонку@ info"
+msgstr "Не вдалося видалити %s"
 
 # Record form: File upload
 msgid "Could not delete %s, file did not exist."
@@ -414,7 +414,7 @@ msgid ""
 "data is not only available in the so-called “resource fork” of the file."
 msgstr ""
 "Файл %s порожній. Якщо ви завантажуєте з Mac, перевірте, чи дані доступні не "
-"тільки в так званому \"ресурсному форку\" файлу."
+"тільки в так званому «ресурсному форку» файлу."
 
 # Record form: File upload
 #: zzform/record.inc.php
@@ -528,7 +528,8 @@ msgstr "Спроба створення каталогу %s зазнала не�
 msgid ""
 "Value in field <em>“%s”</em> must not be identical to field <em>“%s”</em>."
 msgstr ""
-"Значення в полі <em>«%s»</em> не повинно бути ідентичним полі <em>«%s»</em>."
+"Значення в полі <em>«%s»</em> не повинно бути ідентичним значенню поля "
+"<em>«%s»</em>."
 
 # Record form: Validation of Database Integrity, displayed above form
 msgid "No records in relation table `%s`. Please fill in records."
@@ -558,7 +559,7 @@ msgstr "Вхід неможливий. Спочатку збережіть це�
 
 # Record form: foreign record
 msgid "No data available."
-msgstr "Немає даних."
+msgstr "Немає доступних даних."
 
 # Record form: identifier, hidden etc.
 msgid "Record for <strong>%s</strong> does not exist. (ID: %s)"
@@ -640,7 +641,7 @@ msgstr "Будь ласка, введіть наступний код: %s."
 
 # Record form: Captcha
 msgid "Please add %s to it."
-msgstr "Додайте %s до нього."
+msgstr "Будь ласка, додайте до цього %s."
 
 # Record form: Captcha
 msgid "zero"
@@ -656,11 +657,11 @@ msgstr "два"
 
 # Record form: Captcha
 msgid "three"
-msgstr "трьох"
+msgstr "три"
 
 # Record form: Captcha
 msgid "four"
-msgstr "яотири"
+msgstr "чотири"
 
 # Record form: Captcha
 msgid "five"
@@ -708,7 +709,7 @@ msgstr "очікує"
 
 # List view: Revision
 msgid "historic"
-msgstr "Історія"
+msgstr "історичний"
 
 # List view
 msgid "No entries available"
@@ -768,11 +769,11 @@ msgstr "Дія"
 
 # List view: bottom
 msgid "Add new record"
-msgstr "Створити запис"
+msgstr "Додати новий запис"
 
 # List view: bottom
 msgid "records total"
-msgstr "всього записів"
+msgstr "загальна кількість записів"
 
 # List view: bottom
 msgid "record total"
@@ -804,7 +805,7 @@ msgstr "Показати: Усі записи"
 
 # List view: Search form
 msgid "in"
-msgstr "дюйм"
+msgstr "у"
 
 # List view: Search form
 msgid "all fields"
@@ -845,16 +846,16 @@ msgid ""
 "Please don’t mess with the URL parameters. <code>%s</code> is not allowed "
 "here."
 msgstr ""
-"Будь ласка, не втручайтеся з параметрами URL-адреси. <code>%s</code> не "
-"дозволено тут."
+"Будь ласка, Будь ласка, не втручайтесь за параметрами URL. <code>%s</code> "
+"тут не дозволяється."
 
 # Modules: Geo
 msgid "N"
-msgstr "<abbr title=\"Північний\">П</abbr>"
+msgstr "<abbr title=\"Північ\">П</abbr>"
 
 # Modules: Geo
 msgid "E"
-msgstr "<abbr title=\"Східний\">С</abbr>"
+msgstr "<abbr title=\"Схід\">С</abbr>"
 
 # Modules: Geo
 msgid "S"
@@ -928,7 +929,7 @@ msgstr "Типи файлів"
 
 # Modules: Upload (Table filetypes)
 msgid "MIME Content Type"
-msgstr "Тип контенту"
+msgstr "Тип вмісту MIME"
 
 # Modules: Upload (Table filetypes)
 msgid "MIME Subtype"
@@ -999,7 +1000,7 @@ msgstr "Завантажено:"
 
 #: behaviour/zzform-foot.js
 msgid "Total:"
-msgstr "До сплати:"
+msgstr "Всього:"
 
 #: behaviour/zzform-foot.js
 msgid "Bytes"
