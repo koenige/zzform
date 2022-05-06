@@ -147,7 +147,7 @@ msgstr "Запис оновлено"
 
 # Record form: Heading
 msgid "Record was not updated (no changes were made)"
-msgstr "Запис не оновлювався (зміни не вносилися)"
+msgstr "Запис не оновився (зміни не вносилися)"
 
 # Record form: Heading
 msgid "Record was deleted"
@@ -300,13 +300,12 @@ msgstr "Правила для захищених паролів"
 # Record form: Change password
 msgid "password-rules"
 msgstr ""
-"* Паролі мають містити щонайменше вісім символів.\n"
-"* Замість одного слова можуть бути кілька слів або навіть повні речення "
-"використовується.\n"
-"* Чим довший пароль (або вибране речення), тим кращий доступ сайт захищено.\n"
+"* замість одного слова можуть бути використані кілька слів або навіть повні "
+"речення\n"
+"* Чим довший пароль (або вибране речення), тим краще захищений доступ до "
+"сайту\n"
 "* Для коротких паролів рекомендується, щоб вони складалися з верхнього "
-"регістру та малі літери, цифри та спеціальні символи (? = + ; тощо).\n"
-"* Той самий пароль не слід використовувати на інших сайтах."
+"регістру та малих літер, цифр та спеціальних символів (?=+; тощо)"
 
 # Record form: Change password
 msgid "hidden"
@@ -364,7 +363,7 @@ msgstr "Немає зображення"
 
 # Record form: File upload
 msgid "Delete this file"
-msgstr "Видаліть цей файл"
+msgstr "Видалити цей файл"
 
 # Record form: File upload
 msgid "File uploaded:"
@@ -414,7 +413,7 @@ msgid ""
 "data is not only available in the so-called “resource fork” of the file."
 msgstr ""
 "Файл %s порожній. Якщо ви завантажуєте з Mac, перевірте, чи дані доступні не "
-"тільки в так званому «ресурсному форку» файлу."
+"тільки в так званому «вилка ресурсу» файлу."
 
 # Record form: File upload
 #: zzform/record.inc.php
@@ -732,7 +731,7 @@ msgstr "весь"
 msgid ""
 "“%s” is not a valid value for the selection “%s”. Please select a different "
 "filter."
-msgstr "“%s” не є допустимим значенням для вибору “%s”. Виберіть інший фільтр."
+msgstr "«%s» не є допустимим значенням для вибору “%s”. Виберіть інший фільтр."
 
 # List view: Filter
 msgid "A filter for the selection “%s” does not exist."
@@ -805,7 +804,7 @@ msgstr "Показати: Усі записи"
 
 # List view: Search form
 msgid "in"
-msgstr "у"
+msgstr "в"
 
 # List view: Search form
 msgid "all fields"
