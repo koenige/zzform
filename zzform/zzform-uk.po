@@ -478,7 +478,7 @@ msgid "Duplicate entry"
 msgstr "Здублювати запис"
 
 # Record form: Validation, displayed above form
-msgid "Detail record could not be handled"
+msgid "There was a problem with the detail record."
 msgstr "Не вдалося обробити детальний запис"
 
 # Record form: Validation, displayed above form

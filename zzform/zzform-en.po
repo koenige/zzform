@@ -477,7 +477,7 @@ msgstr ""
 "entered."
 
 # Record form: Validation, displayed above form
-msgid "Detail record could not be handled"
+msgid "There was a problem with the detail record."
 msgstr ""
 
 # Record form: Validation, displayed above form

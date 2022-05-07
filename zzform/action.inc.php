@@ -679,8 +679,12 @@ function zz_action_details($detail_sqls, $zz_tab, $validation, $ops, $foreign_id
 				// This should never occur, since all checks say that 
 				// this change is possible
 				// only if duplicate entry
-				$result['error']['msg'] = 'Detail record could not be handled';
+				$result['error']['msg'] = 'There was a problem with the detail record.';
 				$result['error']['level'] = E_USER_WARNING;
+				$result['error']['msg_dev'] = 'Query: %s',
+				$result['error']['msg_dev_args'][] = $sql;
+				if (empty($result['error']['query']))
+					$result['error']['query'] = $sql;
 				zz_error_log($result['error']);
 				$zz_tab[$tab][$rec]['error'] = $result['error'];
 				// main record was already inserted or updated, log as partial

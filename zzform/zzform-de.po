@@ -490,7 +490,7 @@ msgstr ""
 "gewünschte Eintrag bereits existiert oder ob Sie Ihren Eintrag ändern können."
 
 # Record form: Validation, displayed above form
-msgid "Detail record could not be handled"
+msgid "There was a problem with the detail record."
 msgstr "Teileintrag konnte nicht gespeichert werden."
 
 # Record form: Validation, displayed above form
