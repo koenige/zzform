@@ -681,7 +681,7 @@ function zz_action_details($detail_sqls, $zz_tab, $validation, $ops, $foreign_id
 				// only if duplicate entry
 				$result['error']['msg'] = 'There was a problem with the detail record.';
 				$result['error']['level'] = E_USER_WARNING;
-				$result['error']['msg_dev'] = 'Query: %s',
+				$result['error']['msg_dev'] = 'Query: %s';
 				$result['error']['msg_dev_args'][] = $sql;
 				if (empty($result['error']['query']))
 					$result['error']['query'] = $sql;
