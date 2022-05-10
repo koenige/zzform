@@ -147,7 +147,7 @@ msgstr "Запис оновлено"
 
 # Record form: Heading
 msgid "Record was not updated (no changes were made)"
-msgstr "Запис не оновився (зміни не вносилися)"
+msgstr "Запис не оновлювався (зміни не вносилися)"
 
 # Record form: Heading
 msgid "Record was deleted"
@@ -808,12 +808,12 @@ msgstr "в"
 
 # List view: Search form
 msgid "all fields"
-msgstr "всі поля"
+msgstr "усіх полях"
 
 # Button
 # List view: Search form
 msgid "search"
-msgstr "пошук"
+msgstr "шукати"
 
 # Error handling
 msgid "Attention!"
@@ -850,7 +850,7 @@ msgstr ""
 
 # Modules: Geo
 msgid "N"
-msgstr "<abbr title=\"Північ\">П</abbr>"
+msgstr "<abbr title=\"Північ\">Півн</abbr>"
 
 # Modules: Geo
 msgid "E"
@@ -858,7 +858,7 @@ msgstr "<abbr title=\"Схід\">С</abbr>"
 
 # Modules: Geo
 msgid "S"
-msgstr "<abbr title=\"Південь\">П</abbr>"
+msgstr "<abbr title=\"Південь\">Півд</abbr>"
 
 # Modules: Geo
 msgid "W"
@@ -940,7 +940,7 @@ msgstr "Розширення"
 
 # Modules: Upload (Table filetypes)
 msgid "Ext."
-msgstr "Доп."
+msgstr "Розшир."
 
 # Modules: Upload (Table filetypes)
 msgid "Count"
