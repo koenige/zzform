@@ -3468,8 +3468,10 @@ function zz_session_read($type, $data = []) {
 				// new data has nothing to show: take old data
 				if ($error === UPLOAD_ERR_NO_FILE) continue;
 				// take new data, remove old saved file
-				$previous_upload = $session[$field_name]['tmp_name'][$field_key];
-				if (file_exists($previous_upload)) unlink($previous_upload);
+				if (array_key_exists($field_name, $session)) {
+					$previous_upload = $session[$field_name]['tmp_name'][$field_key];
+					if (file_exists($previous_upload)) unlink($previous_upload);
+				}
 				foreach ($files as $key => $values) {
 					$session[$field_name][$key][$field_key] = $values[$field_key];
 				}
