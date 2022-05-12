@@ -624,7 +624,9 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 				$field_display = 'show';
 			}
 		}
-		if ($field_display !== 'form' OR !$show_explanation) {
+		if (($field_display !== 'form' OR !$show_explanation)
+			AND empty($field['always_show_explanation'])
+		) {
 			$field['explanation'] = '';
 			$field['explanation_top'] = '';
 		}
