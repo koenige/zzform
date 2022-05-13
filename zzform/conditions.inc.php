@@ -136,7 +136,7 @@ function zz_conditions_check($zz, $mode) {
 		case 'noid':
 			$zz_conditions['bool'][$index] = empty($zz_conf['int']['id']['value']) ? true : false;
 			break;
-		case 'add':
+		case 'insert':
 			if ($mode === 'add' OR $zz['record']['action'] === 'insert') {
 				$zz_conditions['bool'][$index] = true;
 			} elseif ($mode === 'edit' OR $zz['record']['action'] === 'update') {
@@ -144,7 +144,7 @@ function zz_conditions_check($zz, $mode) {
 				$zz_conditions['bool'][$index]['add_detail'] = true;
 			}
 			break;
-		case 'edit':
+		case 'update':
 			if ($mode === 'edit' OR $zz['record']['action'] === 'update') {
 				$zz_conditions['bool'][$index] = true;
 			}
@@ -193,6 +193,44 @@ function zz_conditions_check($zz, $mode) {
 				$zz_conditions['bool'][$index] = true;
 			elseif (!empty($zz['where_condition']['record'][$condition['field_name']]))
 				$zz_conditions['bool'][$index] = true; // @todo maybe not apply for list?
+			break;
+		default:
+			break;
+		}
+	}
+	return zz_return($zz_conditions);
+}
+
+/**
+ * check conditions for form and list view
+ * second part, after possible action
+ *
+ * @param array $zz_conditions
+ * @param array $zz
+ *		'conditions', 'table', 'sql', 'fields', 'where', 'zz_fields'
+ * @param string $mode
+ * @global array $zz_conf
+ * @return array $zz_conditions
+ */
+
+function zz_conditions_check_output($zz_conditions, $zz, $mode) {
+	global $zz_conf;
+	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+
+	foreach ($zz['conditions'] AS $index => $condition) {
+		switch ($condition['scope']) {
+		case 'add':
+			if ($mode === 'add' OR $zz['record']['action'] === 'insert') {
+				$zz_conditions['bool'][$index] = true;
+			} elseif ($mode === 'edit' OR $zz['record']['action'] === 'update') {
+				// and it is a detail record
+				$zz_conditions['bool'][$index]['add_detail'] = true;
+			}
+			break;
+		case 'edit':
+			if ($mode === 'edit' OR $zz['record']['action'] === 'update') {
+				$zz_conditions['bool'][$index] = true;
+			}
 			break;
 		default:
 			break;
