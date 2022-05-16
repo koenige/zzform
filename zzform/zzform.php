@@ -347,13 +347,10 @@ function zzform($zz) {
 
 	// check conditions after action again
 	if ($zz_conf['int']['record'] AND !empty($zz_conf['modules']['conditions'])) {
-		$zz_conditions = zz_conditions_check_output($zz_conditions, $zz, $ops['mode']);
-		$zz_conditions = zz_conditions_record_check($zz, $ops['mode'], $zz_conditions);
-		$zz_tab[0][0] = zz_conditions_record($zz_tab[0][0], $zz_conditions);
-		$zz_conditions = zz_conditions_subrecord_check($zz, $zz_tab, $zz_conditions);
-		$zz_tab = zz_conditions_subrecord($zz_tab, $zz_conditions);
+		// update $zz_tab, $zz_conditions
+		zz_conditions_before_record($zz, $zz_tab, $zz_conditions, $ops['mode']);
 	}
-	
+
 	if ($zz_conf['int']['record']) {
 		// display updated, added or editable Record
 		require_once $zz_conf['dir_inc'].'/record.inc.php';

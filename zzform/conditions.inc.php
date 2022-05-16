@@ -43,7 +43,7 @@ function zz_conditions_set($zz) {
 	// All supported shortcuts
 	$shortcuts = [
 		'list_empty', 'record_mode', 'export_mode', 'where', 'multi',
-		'add', 'edit', 'delete', 'upload', 'noid', 'revise'
+		'add', 'edit', 'delete', 'upload', 'noid', 'revise', 'insert', 'update'
 	];
 	// Some shortcuts depend on a field, get field_name as extra definition
 	$shortcuts_depending_on_fields = ['where'];
@@ -890,4 +890,26 @@ function zz_conditions_list_check($zz, $zz_conditions, $ids, $mode) {
 		}
 	}
 	return zz_return($zz_conditions);
+}
+
+/**
+ * set conditions again just before record is shown (after any action)
+ *
+ * @param array $zz
+ * @param array $zz_tab
+ * @param array $zz_conditions
+ * @param string $mode
+ */
+function zz_conditions_before_record($zz, &$zz_tab, &$zz_conditions, $mode) {
+	$zz_conditions = zz_conditions_check_output($zz_conditions, $zz, $mode);
+	$zz_conditions = zz_conditions_record_check($zz, $mode, $zz_conditions);
+	foreach (array_keys($zz_tab) as $tab) {
+		if (!is_numeric($tab)) continue;
+		foreach (array_keys($zz_tab[$tab]) as $rec) {
+			if (!is_numeric($rec)) continue;
+			$zz_tab[$tab][$rec] = zz_conditions_record($zz_tab[$tab][$rec], $zz_conditions);
+		}
+	}
+	$zz_conditions = zz_conditions_subrecord_check($zz, $zz_tab, $zz_conditions);
+	$zz_tab = zz_conditions_subrecord($zz_tab, $zz_conditions);
 }
