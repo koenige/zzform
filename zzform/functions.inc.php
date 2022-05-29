@@ -3790,11 +3790,15 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 			$my_likestring = ' LIKE %s"%s%%"';
 		}
 		if (str_starts_with($my_likestring, ' ')) {
-			// remove tags, remove line breaks when comparing
-			$my_likestring = sprintf(
-				'REPLACE(REPLACE(REPLACE(%%s, "\r\n", " "), "\n", " "), "%s", " ") %s'
-				, $concat, $my_likestring
-			);
+			if (strstr(trim($value), ' ')) {
+				// remove tags, remove line breaks when comparing
+				$my_likestring = sprintf(
+					'REPLACE(REPLACE(REPLACE(%%s, "\r\n", " "), "\n", " "), "%s", " ") %s'
+					, $concat, $my_likestring
+				);
+			} else {
+				$my_likestring = sprintf('%%s %s', $my_likestring);
+			}
 		}
 		// maybe there is no index 0, therefore we need a new variable $i
 		$i = 0;
