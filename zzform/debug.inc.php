@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2010, 2014, 2016-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2010, 2014, 2016-2017, 2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -67,6 +67,12 @@ function zz_debug($marker = false, $text = false, $id = false) {
 	} else {
 		// set current function to last element and keep it
 		$current = end($zz_debug[$id]['function']);
+	}
+	if (!is_array($current)) {
+		$current = [
+			'function' => 'unknown',
+			'time_start' => $time
+		];
 	}
 	if ($marker === 'start') return true; // no output, just initialize
 
