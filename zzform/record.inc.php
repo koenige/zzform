@@ -3716,6 +3716,7 @@ function zz_draw_select($field, $record, $line, $id_field_name, $form = false, $
 	if ($addlevel) $level++;
 	if (empty($field['sql_index_only'])) {
 		$line = zz_field_select_ignore($line, $field, 'sql');
+		$line = zz_field_select_format($line, $field);
 		foreach (array_keys($line) as $key) {	
 			// $i = 1: field['type'] === 'id'!
 			if (is_numeric($key)) continue;
@@ -3732,7 +3733,7 @@ function zz_draw_select($field, $record, $line, $id_field_name, $form = false, $
 	foreach ($details as $my_key => $value)
 		if (!$value) unset ($details[$my_key]);
 	// if only the id key is in the query, eg. show databases:
-	if (!$details) $details = $line[$key]; 
+	if (!$details) $details = $line[$key];
 	if (is_array($details)) $details = zz_field_concat($field, $details);
 	$fieldvalue = $details;
 	// remove linebreaks

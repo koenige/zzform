@@ -3740,10 +3740,21 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 		// write trimmed value back to sql_fieldnames
 		$field['sql_fieldnames'][$index] = $sql_fieldname['field_name'];
 	}
+	if (!empty($field['sql_format'])) {
+		// formatted fields look different, remove
+		foreach (array_keys($field['sql_format']) as $index)
+			unset($field['sql_fieldnames'][$index]);
+	}
 
 	// 2. get posted values, field by field
 	$concat = zz_select_concat($field);
 	$postvalues = explode($concat, $postvalue);
+	if (!empty($field['sql_format']) AND count($postvalues) === count($field['sql_fieldnames'])) {
+		foreach (array_keys($postvalues) as $index) {
+			if (array_key_exists($index + 1, $field['sql_fieldnames'])) continue;
+			unset($postvalues[$index]);
+		}
+	}
 
 	$use_single_comparison = false;
 	if (!empty($field['sql_fieldnames'][0]))
@@ -3860,6 +3871,22 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 	);
 	$field['select_checked'] = true;
 	return $field;
+}
+
+/**
+ * format field values
+ *
+ * @param array $line
+ * @param array $field
+ */
+function zz_field_select_format($line, $field) {
+	if (empty($field['sql_format'])) return $line;
+	$line_keys = array_keys($line);
+	foreach ($field['sql_format'] as $index => $format) {
+		if (!isset($line_keys[$index])) continue;
+		$line[$line_keys[$index]] = $format($line[$line_keys[$index]]);
+	}
+	return $line;
 }
 
 /**

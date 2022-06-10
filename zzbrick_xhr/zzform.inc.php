@@ -154,6 +154,11 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 		}
 		return $data;
 	}
+
+	if (!empty($field['sql_format'])) {
+		foreach (array_keys($records) as $index)
+			$records[$index] = zz_field_select_format($records[$index], $field);
+	}
 	
 	// remove ID field	
 	array_shift($sql_fields);
