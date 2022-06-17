@@ -6,7 +6,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -461,6 +461,8 @@ body #zzform .separator hr
 /* current record */
 #zzform .current_record td, #zzform .current_record p, #zzform .highlight
 					{ background-color: yellow; color: black; }
+#zzform .current_record p.select_multiple_records
+					{ background-color: transparent; }
 /* make a choice again */
 #zzform #record .reselect th, #zzform #record .reselect td, #zzform #record .reselect
 					{ background-color: green; color: white; }
