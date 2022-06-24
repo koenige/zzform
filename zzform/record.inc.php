@@ -3466,7 +3466,9 @@ function zz_field_selected($field, $record, $value) {
 			}
 		}
 	} elseif (!empty($field['set'])) {
-		if (!is_array($record[$field['field_name']])) {
+		if (!$record[$field['field_name']]) {
+			$set = [];
+		} elseif (!is_array($record[$field['field_name']])) {
 			//	won’t be array normally
 			$set = explode(',', $record[$field['field_name']]);
 		} else {
