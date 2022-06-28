@@ -5,10 +5,10 @@
  * Merge functions
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2014-2015, 2017, 2019-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2014-2015, 2017, 2019-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -254,6 +254,7 @@ function zz_merge_equal($table_def) {
 		}
 	}
 	if (!$equal_fields) return [];
+	if (!$table_def['ids']) return [];
 
 	$sql = sprintf('SELECT DISTINCT %s FROM %s.%s WHERE %s IN (%s)',
 		implode(', ', $equal_fields), $zz_conf['db_name'],
