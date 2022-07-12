@@ -31,7 +31,7 @@ function zz_list($zz, $ops, $zz_conditions) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	if ($zz_conf['search']) {
-		require_once $zz_conf['dir_inc'].'/search.inc.php';
+		require_once __DIR__.'/search.inc.php';
 	}
 
 	// Turn off hierarchical sorting when using search

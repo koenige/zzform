@@ -1152,7 +1152,7 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 		foreach ($my_rec['last_fields'] as $f)
 			//	call function: generate ID
 			if ($my_rec['fields'][$f]['type'] === 'identifier') {
-				require_once $zz_conf['dir_inc'].'/identifier.inc.php';
+				require_once __DIR__.'/identifier.inc.php';
 				$func_vars = zz_identifier_vars($my_rec, $f, $main_post);
 				$conf = (!empty($my_rec['fields'][$f]['conf_identifier']) 
 					? $my_rec['fields'][$f]['conf_identifier'] : []);
@@ -2764,7 +2764,7 @@ function zz_sequence_normalize($ops, $zz_tab) {
 		}
 		// @todo support filter
 		//		if (!empty($_GET['filter'])) {
-		//			require_once $zz_conf['dir_inc'].'/list.inc.php';
+		//			require_once __DIR__.'/list.inc.php';
 		//			$sql = zz_list_filter_sql($zz_tab[$tab]['filter'], $sql, $_GET['filter']);
 		//		}
 		if ($tab) {

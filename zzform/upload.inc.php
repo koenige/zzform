@@ -258,7 +258,7 @@ function zz_upload_get($zz_tab) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if ($zz_conf['graphics_library'])
-		include_once $zz_conf['dir_inc'].'/image-'.$zz_conf['graphics_library'].'.inc.php';
+		include_once __DIR__.'/image-'.$zz_conf['graphics_library'].'.inc.php';
 
 	// allow shortcuts for file_types
 	$zz_conf['file_types'] = wrap_filetypes_normalize($zz_conf['file_types']);

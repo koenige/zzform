@@ -34,10 +34,9 @@
  * Adds modules to zzform
  *
  * @param array $modules			list of modules to be added
- * @param string $path				path to where modules can be found
  * @return array $mod
  */
-function zz_add_modules($modules, $path) {
+function zz_add_modules($modules) {
 	global $zz_conf;
 	$debug_started = false;
 	if (!empty($zz_conf['modules']['debug'])) {
@@ -59,12 +58,12 @@ function zz_add_modules($modules, $path) {
 			$mod[$module] = false;
 			continue;
 		}
-		if (file_exists($path.'/'.$module.'.inc.php')) {
-			include_once $path.'/'.$module.'.inc.php';
+		if (file_exists(__DIR__.'/'.$module.'.inc.php')) {
+			include_once __DIR__.'/'.$module.'.inc.php';
 			$mod[$module] = true;
 			$add = true;
-		} elseif (file_exists($path.'/'.$module.'.php')) {
-			include_once $path.'/'.$module.'.php';
+		} elseif (file_exists(__DIR__.'/'.$module.'.php')) {
+			include_once __DIR__.'/'.$module.'.php';
 			$mod[$module] = true;
 			$add = true;
 		} else {
@@ -189,7 +188,7 @@ function zz_dependent_modules($zz) {
 		}
 	}
 	$zz_conf['modules'] = array_merge(
-		$zz_conf['modules'], zz_add_modules($modules, $zz_conf['dir_inc'])
+		$zz_conf['modules'], zz_add_modules($modules)
 	);
 	if (!empty($GLOBALS['zz_saved']['conf'])) {
 		$GLOBALS['zz_saved']['conf']['modules'] = $zz_conf['modules'];
@@ -3903,7 +3902,7 @@ function zz_field_select_format($line, $field) {
 function zz_check_select_translated($field, $sql_fieldname, $value, $search_equal) {
 	global $zz_conf;
 	if (empty($zz_conf['translations_of_fields'])) return '';
-	require_once $zz_conf['dir_inc'].'/translations.inc.php'; // for XHR
+	require_once __DIR__.'/translations.inc.php'; // for XHR
 
 	// set conditions
 	$tconditions = [];

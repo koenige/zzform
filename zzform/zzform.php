@@ -87,7 +87,7 @@ function zzform($zz) {
 		AND ((!empty($_POST['zz_add_details']) OR !empty($_POST['zz_edit_details']))
 		OR !empty($_SESSION['zzform'][$zz_conf['id']]))
 	) {
-		require_once $zz_conf['dir_inc'].'/details.inc.php';
+		require_once __DIR__.'/details.inc.php';
 		$zz = zz_details($zz);
 	}
 
@@ -223,7 +223,7 @@ function zzform($zz) {
 	}
 
 	if (isset($_POST['zz_merge'])) {
-		require_once $zz_conf['dir_inc'].'/merge.inc.php';
+		require_once __DIR__.'/merge.inc.php';
 		$merge = zz_merge_records($zz);
 		if ($merge['msg']) {
 			$ops['output'] .= zz_merge_message($merge);
@@ -233,7 +233,7 @@ function zzform($zz) {
 	}
 
 	if ($zz_conf['int']['record']) {
-		require_once $zz_conf['dir_inc'].'/preparation.inc.php';
+		require_once __DIR__.'/preparation.inc.php';
 
 		if (in_array('upload', $zz_conf['modules']) && $zz_conf['modules']['upload'])
 			zz_upload_check_max_file_size();
@@ -272,7 +272,7 @@ function zzform($zz) {
 
 		if (in_array($zz['record']['action'], ['insert', 'update', 'delete'])) {
 			// check for validity, insert/update/delete record
-			require_once $zz_conf['dir_inc'].'/action.inc.php';
+			require_once __DIR__.'/action.inc.php';
 			list($ops, $zz_tab, $validation) = zz_action($ops, $zz_tab, $validation, $zz['record']);
 			// some minor errors?
 			zz_error();
@@ -353,7 +353,7 @@ function zzform($zz) {
 
 	if ($zz_conf['int']['record']) {
 		// display updated, added or editable Record
-		require_once $zz_conf['dir_inc'].'/record.inc.php';
+		require_once __DIR__.'/record.inc.php';
 		$ops['output'] .= zz_record($ops, $zz['record'], $zz_tab, $zz_conditions);	
 	} else {
 		if (isset($_GET['delete'])) {
@@ -368,7 +368,7 @@ function zzform($zz) {
 	if ($zz_conf['int']['show_list']) {
 		// shows table with all records (limited by zz_conf['limit'])
 		// and add/nav if limit/search buttons
-		require_once $zz_conf['dir_inc'].'/list.inc.php';
+		require_once __DIR__.'/list.inc.php';
 		$ops = zz_list($zz, $ops, $zz_conditions);
 		if (empty($ops['mode']) AND !empty($ops['page']['status'])) {
 			// return of a request script
@@ -408,7 +408,7 @@ function zzform_request() {
 	switch ($_GET['request']) {
 	case 'captcha':
 		if (empty($_GET['zz'])) wrap_quit(404);
-		require_once $zz_conf['dir_inc'].'/captcha.inc.php';
+		require_once __DIR__.'/captcha.inc.php';
 		return zz_captcha_image($_GET['zz']);
 		break;
 	}
@@ -653,8 +653,8 @@ function zz_initialize($mode = false, $old_conf = []) {
 			$zz_conf['error_mail_level'] = ['error', 'warning', 'notice'];
 	}
 	// include core functions
-	require_once $zz_conf['dir_inc'].'/functions.inc.php';
-	require_once $zz_conf['dir_inc'].'/database.inc.php';
+	require_once __DIR__.'/functions.inc.php';
+	require_once __DIR__.'/database.inc.php';
 	zz_error_exit(false);
 	zz_error_out(false);
 
@@ -662,7 +662,7 @@ function zz_initialize($mode = false, $old_conf = []) {
 
 	// Modules on project level
 	// debug module must come first because of debugging reasons!
-	$zz_conf['modules'] = zz_add_modules($zz_conf['int_modules'], $zz_conf['dir_inc']);
+	$zz_conf['modules'] = zz_add_modules($zz_conf['int_modules']);
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	// stop if there were errors while adding modules

@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -45,19 +45,19 @@ function zz_prepare_tables($zz, $mode) {
 
 	if (!empty($zz['set_redirect'])) {
 		// update/insert redirects after_delete and after_update
-		require_once $zz_conf['dir_inc'].'/identifier.inc.php';
+		require_once __DIR__.'/identifier.inc.php';
 		$zz_tab[0]['set_redirect'] = $zz['set_redirect'];
 	}
 
 	$zz_conf['int']['revisions_only'] = !empty($zz['revisions_only']) ? true : false;
 	if (!empty($zz['revisions_only']) OR !empty($zz['revisions'])) {
-		require_once $zz_conf['dir_inc'].'/revisions.inc.php';
+		require_once __DIR__.'/revisions.inc.php';
 	}
 	if ($mode === 'revise') {
-		require_once $zz_conf['dir_inc'].'/revisions.inc.php';
+		require_once __DIR__.'/revisions.inc.php';
 		$zz_tab[0]['revision_id'] = zz_revisions_read_id($zz_tab[0]['table']);
 	} elseif (!empty($_POST['zz_revision_id'])) {
-		require_once $zz_conf['dir_inc'].'/revisions.inc.php';
+		require_once __DIR__.'/revisions.inc.php';
 		$zz_tab[0]['revision_id'] = intval($_POST['zz_revision_id']);
 	}
 	if (!empty($zz_tab[0]['revision_id'])) $zz['revision_hooks'] = true;
