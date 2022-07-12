@@ -689,11 +689,9 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['heading_prefix']		= false;
 	$default['html_autofocus']		= true;
 	$default['list_display']		= 'table';
-	$default['max_detail_records']	= 20;		// max 20 detail records, might be expanded later on
 	$default['max_select_val_len']	= 60;		// maximum length of values in select
 	$default['max_select'] 			= 60;		// maximum entries in select/option, if bigger than sub-select
 	$default['merge']				= false;
-	$default['min_detail_records']	= 0;		// min 0 detail records, might be expanded later on
 	$default['multi'] 				= false;		// zzform_multi
 	$default['multi_delete']		= false;
 	$default['multi_edit']			= false;
