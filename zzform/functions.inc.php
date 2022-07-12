@@ -1203,10 +1203,8 @@ function zz_hash($zz, $zz_conf) {
 		'redirect_on_change', 'filter', 'filter_position', 'text', 'file_types',
 		'translate_log_encodings', 'limit', 'zzform_init', 'xhr_vxjs', 'url_self',
 		'show_list_while_edit', 'search', 'referer_text', 'html_autofocus',
-		'icc_profiles', 'error_mail_parameters',
-		'error_mail_parameters', 'error_log_post', 'upload_log',
-		'error_mail_to', 'error_mail_from', 'log_errors', 'debug_upload',
-		'debug', 'db_connection'
+		'icc_profiles', 'error_log_post', 'upload_log',
+		'log_errors', 'debug_upload', 'debug', 'db_connection'
 	];
 	foreach ($uninteresting_zz_conf_keys as $key) unset($zz_conf[$key]);
 	// remove user if it's not an internal user
@@ -2466,7 +2464,6 @@ function zz_backwards_rename($var, $var_renamed, $var_name) {
  * 			- false: no output, just write into log if set
  * 			- 'mail': send admin errors via mail
  * 			- 'output': send admin erros via html
- * 		$zz_conf['error_mail_to'], $zz_conf['error_mail_from'] - mail addresses
  * @return bool false if no error was detected, true if error was detected
  */
 function zz_error() {
@@ -2649,7 +2646,7 @@ function zz_error() {
 	$mail = [];
 	switch ($zz_conf['error_handling']) {
 	case 'mail':	
-		if (!$zz_conf['error_mail_to']) break;
+		if (!wrap_get_setting('error_mail_to')) break;
 		if (!count($message)) break;
 		$mail['message'] = sprintf(
 			zz_text('The following error(s) occured in project %s:'), wrap_get_setting('project')
@@ -2666,7 +2663,7 @@ function zz_error() {
 		if (empty($zz_setting['mail_subject_prefix']))
 			$zz_setting['mail_subject_prefix'] = '['.wrap_get_setting('project').']';
 		$mail['subject'] = zz_text('Database access error');
-		$mail['to'] = $zz_conf['error_mail_to'];
+		$mail['to'] = wrap_get_setting('error_mail_to');
 		$mail['queue'] = true;
 		wrap_mail($mail);
 		break;

@@ -682,9 +682,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['details_target']	= false;	// target-window for details link
 	$default['edit']			= true;		// show Action: Edit
 
-	$default['error_mail_from']		= false;
-	$default['error_mail_to']		= false;
-
 	$default['export']				= [];
 	$default['filter_position'] 	= 'top';
 	$default['footer_text']			= false;		// text at the end of all
