@@ -193,6 +193,8 @@ function zz_export_links() {
  */
 function zz_export($ops, $zz) {
 	global $zz_conf;
+	global $zz_setting;
+
 	// check if we have data
 	if (!$zz_conf['int']['show_list']) return false;
 
@@ -223,9 +225,9 @@ function zz_export($ops, $zz) {
 		if ($zz_conf['list_display'] === 'csv-excel') {
 			$headers['character_set'] = 'utf-16le';
 			// @todo check with mb_list_encodings() if available
-			$output = mb_convert_encoding($output, 'UTF-16LE', $zz_conf['character_set']);
+			$output = mb_convert_encoding($output, 'UTF-16LE', $zz_setting['character_set']);
 		} else {
-			$headers['character_set'] = $zz_conf['character_set'];
+			$headers['character_set'] = $zz_setting['character_set'];
 		}
 		$headers['filename'] = $filename.'.csv';
 		return wrap_send_text($output, 'csv', 200, $headers);
@@ -238,13 +240,13 @@ function zz_export($ops, $zz) {
 		echo 'Sorry, standard ZIP support is not yet available. Please use a custom script.';
 		exit;
 	case 'kml':
-		$zz_conf['character_set'] = 'utf-8';
+		$zz_setting['character_set'] = 'utf-8';
 		$output = zz_export_kml($ops, $zz);
 		if (!empty($_GET['q'])) $filename .= ' '.wrap_filename($_GET['q']);
 		$headers['filename'] = $filename.'.kml';
 		return wrap_send_text($output, 'kml', 200, $headers);
 	case 'geojson':
-		$zz_conf['character_set'] = 'utf-8';
+		$zz_setting['character_set'] = 'utf-8';
 		$output = zz_export_geojson($ops, $zz);
 		if (!empty($_GET['q'])) $filename .= ' '.wrap_filename($_GET['q']);
 		$headers['filename'] = $filename.'.geojson';
@@ -371,7 +373,7 @@ function zz_export_kml($ops, $zz) {
  * @return string HTML output, definition list	
  */
 function zz_export_kml_description($head, $line, $fields) {
-	global $zz_conf;
+	global $zz_setting;
 	$set = [
 		'title', 'longitude', 'latitude', 'altitude', 'point', 'style',
 		'description'
@@ -391,7 +393,7 @@ function zz_export_kml_description($head, $line, $fields) {
 		} else {
 			$title = $head[$no]['th_nohtml'];
 		}
-		if ($zz_conf['character_set'] !== 'utf-8')
+		if ($zz_setting['character_set'] !== 'utf-8')
 			$title = utf8_encode($title);
 		$desc[] = '<tr><th>'.$title.'</th><td>'.$values['text'].'</td></tr>';
 	}
@@ -538,6 +540,7 @@ function zz_export_csv_head($main_rows) {
  */
 function zz_export_csv_body($rows) {
 	global $zz_conf;
+	global $zz_setting;
 
 	$output = '';
 	foreach ($rows as $index => $row) {
@@ -545,7 +548,7 @@ function zz_export_csv_body($rows) {
 		foreach ($row as $fieldindex => $field) {
 			if ($fieldindex AND !is_numeric($fieldindex)) continue; // 0 or 1 or 2 ...
 			$myfield = $field['text'];
-			$character_encoding = $zz_conf['character_set'];
+			$character_encoding = $zz_setting['character_set'];
 			if (substr($character_encoding, 0, 9) === 'iso-8859-')
 				$character_encoding = 'iso-8859-1'; // others are not recognized
 			$myfield = html_entity_decode($myfield, ENT_QUOTES, $character_encoding);

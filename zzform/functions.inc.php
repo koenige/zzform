@@ -2489,7 +2489,7 @@ function zz_error() {
 		return false;
 	}
 	
-	$log_encoding = $zz_conf['character_set'];
+	$log_encoding = $zz_setting['character_set'];
 	// PHP does not support all encodings
 	if (in_array($log_encoding, array_keys($zz_conf['translate_log_encodings'])))
 		$log_encoding = $zz_conf['translate_log_encodings'][$log_encoding];
@@ -3167,10 +3167,10 @@ function zz_edit_query_string($query, $unwanted_keys = [], $new_keys = [], $and 
  */
 function zz_htmltag_escape($string) {
 	if (!$string) return $string;
-	global $zz_conf;
-	switch ($zz_conf['character_set']) {
+	global $zz_setting;
+	switch ($zz_setting['character_set']) {
 		case 'iso-8859-2': $character_set = 'ISO-8859-1'; break;
-		default: $character_set = $zz_conf['character_set']; break;
+		default: $character_set = $zz_setting['character_set']; break;
 	}
 	$new_string = @htmlspecialchars($string, ENT_NOQUOTES, $character_set);
 	if (!$new_string) $new_string = htmlspecialchars($string, ENT_NOQUOTES, 'ISO-8859-1');
@@ -3186,10 +3186,10 @@ function zz_htmltag_escape($string) {
  * @global array $zz_conf
  */
 function zz_htmlnoand_escape($string) {
-	global $zz_conf;
-	switch ($zz_conf['character_set']) {
+	global $zz_setting;
+	switch ($zz_setting['character_set']) {
 		case 'iso-8859-2': $character_set = 'ISO-8859-1'; break;
-		default: $character_set = $zz_conf['character_set']; break;
+		default: $character_set = $zz_setting['character_set']; break;
 	}
 	$new_string = @htmlspecialchars($string, ENT_QUOTES, $character_set);
 	if (!$new_string) $string = htmlspecialchars($string, ENT_QUOTES, 'ISO-8859-1');

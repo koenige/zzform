@@ -566,7 +566,7 @@ function zz_geo_geocode_fields($list, $new, $zz_tab) {
  * @return array
  */
 function zz_geo_geocode_address($geocoding, $zz_tab, $new) {
-	global $zz_conf;
+	global $zz_setting;
 
 	// - if address fields have changed
 	$address = [];
@@ -600,9 +600,9 @@ function zz_geo_geocode_address($geocoding, $zz_tab, $new) {
 			$value = zz_db_fetch($sql, '', 'single value');
 		}
 		if (!$value) continue;
-		if ($zz_conf['character_set'] !== 'utf-8') {
+		if ($zz_setting['character_set'] !== 'utf-8') {
 			// @todo support more encodings than iso-8859-1 and utf-8
-			$value = iconv(strtoupper($zz_conf['character_set']), 'UTF-8', $value);
+			$value = iconv(strtoupper($zz_setting['character_set']), 'UTF-8', $value);
 		}
 		$address[$type] = $value;
 	}

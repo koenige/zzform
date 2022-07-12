@@ -211,7 +211,7 @@ function zz_list($zz, $ops, $zz_conditions) {
 				$action_url .= $zz_conf['int']['url']['?&'].$zz_conf['int']['extra_get_escaped'];
 			}
 			$ops['output'] .= sprintf('<form action="%s" method="POST" accept-charset="%s">'."\n",
-				$action_url, $zz_conf['character_set']);
+				$action_url, $zz_setting['character_set']);
 			$list['buttons'] = [];
 			if ($zz_conf['multi_edit'])
 				$list['buttons'][] = '<input type="submit" value="'.zz_text('Edit').'" name="zz_multiple_edit">';

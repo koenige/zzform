@@ -218,8 +218,6 @@ function zz_check_url_placeholder($url) {
  * @todo rewrite diacritical marks to %-encoding
  */
 function zz_is_url($url) {
-	global $zz_conf;
-
 	if (!$url) return false;
 	$parts = parse_url($url);
 	if (!$parts) return false;
@@ -470,13 +468,13 @@ function zz_check_datetime($datetime) {
  * @return mixed number, with calculation performed / false if incorrect format
  */
 function zz_check_number($number) {
-	global $zz_conf;
+	global $zz_setting;
 
 	if (!$number) return false;
 	// remove whitespace, it's nice to not have to care about this
 	$check = trim($number);
 	$check = str_replace(' ', '', $check);
-	if ($zz_conf['character_set'] === 'utf-8') {
+	if ($zz_setting['character_set'] === 'utf-8') {
 		$check = str_replace(chr(194).chr(160), '', $check); // non-breaking space
 	} else {
 		$check = str_replace(chr(160), '', $check); // non-breaking space
