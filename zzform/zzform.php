@@ -716,7 +716,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['thousands_separator']	= ' ';
 	$default['user']				= isset($_SERVER['PHP_AUTH_USER']) ? $_SERVER['PHP_AUTH_USER'] : '';
 	$default['view']				= false;	// 	show Action: View
-	$default['word_split']			= 32; 		// longer words are split with zero width in list view
 	$default['translate_log_encodings'] = [
 		'iso-8859-2' => 'iso-8859-1'
 	];

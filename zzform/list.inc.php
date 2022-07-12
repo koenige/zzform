@@ -1704,20 +1704,18 @@ function zz_set_link($field, $line) {
  * add zero width spaces to very long words to make list readable
  *
  * @param string $text
- * @global $zz_conf	int word_split
  * @return string
  */
 function zz_list_word_split($text) {
-	global $zz_conf;
-	if (!$zz_conf['word_split']) return $text;
+	if (!wrap_get_setting('zzform_word_split')) return $text;
 	if (!$text) return $text;
 
 	$words = explode(' ', $text);
 	if (substr($words[0], 0, 1) === '<') return $text; // no splitting in HTML code
 	foreach ($words as $index => $word) {
-		if (strlen($word) < $zz_conf['word_split']) continue;
+		if (strlen($word) < wrap_get_setting('zzform_word_split')) continue;
 		if (!strstr($word, '<') AND !strstr($word, '&')) {
-			$parts = str_split($word, $zz_conf['word_split']);
+			$parts = str_split($word, wrap_get_setting('zzform_word_split'));
 		} else {
 			// no break inside entities
 			// no break inside HTML
@@ -1742,7 +1740,7 @@ function zz_list_word_split($text) {
 					if ($stop_char === ';') $stop_char = false;
 					break;
 				}
-				if ($word_length === $zz_conf['word_split']) {
+				if ($word_length === wrap_get_setting('zzform_word_split')) {
 					$parts[] = mb_substr($remaining, 0, $i - $last_split);
 					$word_length = 0;
 					$remaining = mb_substr($remaining, $i - $last_split);
