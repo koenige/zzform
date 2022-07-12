@@ -454,7 +454,7 @@ function zz_nice_title($heading, $fields, $ops, $mode = false) {
 		if (is_int($page) AND $page AND !empty($ops['records_total'])) {
 			$max_page = ceil($ops['records_total'] / $zz_conf['limit']);
 			if ($max_page.'' !== '1') {
-				if ($zz_conf['limit_display'] === 'entries') {
+				if (wrap_get_setting('zzform_limit_display') === 'entries') {
 					$title .= $zz_conf['title_separator'].zz_text('records').' '
 						.(($page-1)*$zz_conf['limit']).'-'
 						.($page*$zz_conf['limit'] > $ops['records_total']

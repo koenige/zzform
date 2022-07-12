@@ -1920,14 +1920,11 @@ function zz_list_total_records($total_rows) {
  * @param int $this_limit = $zz_conf['int']['this_limit'] last record no. on this page
  * @param int $total_rows	count of total records that might be shown
  * @param string $scope 'body', @todo: 'head' (not yet implemented)
- * @global array $zz_conf 'limit_show_range'
  * @return string HTML output
  * @todo
  * 	- <link rel="next">, <link rel="previous">
  */
 function zz_list_pages($limit_step, $this_limit, $total_rows, $scope = 'body') {
-	global $zz_conf;
-
 	// check whether there are records
 	if (!$total_rows) return false;
 	
@@ -1963,7 +1960,7 @@ function zz_list_pages($limit_step, $this_limit, $total_rows, $scope = 'body') {
 		'class' => 'prev',
 		'title' => 	zz_text('Previous page')
 	];
-	if ($total_rows < $zz_conf['limit_all_max']) {
+	if ($total_rows < wrap_get_setting('zzform_limit_all_max')) {
 		$links[] = [
 			'link'	=> zz_list_pagelink(-1, $this_limit, 0, $url),
 			'text'	=> zz_text('all'),
@@ -1982,18 +1979,19 @@ function zz_list_pages($limit_step, $this_limit, $total_rows, $scope = 'body') {
 	$offset = $limit_step - ($total_rows % $limit_step);
 	$max_limit = $total_rows + $offset;
 
-	if ($zz_conf['limit_show_range']
-		AND $total_rows >= $zz_conf['limit_show_range']
+	$limit_show_range = wrap_get_setting('zzform_limit_show_range');
+	if ($limit_show_range
+		AND $total_rows >= $limit_show_range
 		AND $this_limit <= $max_limit)
 	{
-		$rec_start = $this_limit - ($zz_conf['limit_show_range']/2 + 2 * $limit_step);
+		$rec_start = $this_limit - ($limit_show_range / 2 + 2 * $limit_step);
 		if ($rec_start < 0) {
 			$rec_start = 0;
 		} elseif ($rec_start > 0) {
 			// set rec start to something which can be divided through step
 			$rec_start = ceil($rec_start/$limit_step)*$limit_step;
 		}
-		$rec_end = $this_limit + ($zz_conf['limit_show_range'] + $limit_step);
+		$rec_end = $this_limit + ($limit_show_range + $limit_step);
 		// total_rows -1 because min is + 1 later on
 		if ($rec_end > $total_rows -1) $rec_end = $total_rows -1;
 		$rec_last = (ceil($total_rows/$limit_step)*$limit_step);
@@ -2005,14 +2003,14 @@ function zz_list_pages($limit_step, $this_limit, $total_rows, $scope = 'body') {
 	for ($i = $rec_start; $i <= $rec_end; $i = $i + $limit_step) { 
 		$range_min = $i + 1;
 		$range_max = $i + $limit_step;
-		if ($this_limit + ceil($zz_conf['limit_show_range'] / 2) < $range_min) {
+		if ($this_limit + ceil($limit_show_range / 2) < $range_min) {
 			if (!$ellipsis_max) {
 				$links[] = ['text' => '&hellip;', 'link' => ''];
 				$ellipsis_max = true;
 			}
 			continue;
 		}
-		if ($this_limit > $range_max + floor($zz_conf['limit_show_range'] / 2)) {
+		if ($this_limit > $range_max + floor($limit_show_range / 2)) {
 			if (!$ellipsis_min) {
 				$links[] = ['text' => '&hellip;', 'link' => ''];
 				$ellipsis_min = true;
@@ -2021,12 +2019,13 @@ function zz_list_pages($limit_step, $this_limit, $total_rows, $scope = 'body') {
 		}
 		if ($range_max > $total_rows) $range_max = $total_rows;
 		// if just one above the last limit show this number only once
-		switch ($zz_conf['limit_display']) {
+		switch (wrap_get_setting('zzform_limit_display')) {
 		case 'entries':
 			$text = ($range_min === $range_max) ? $range_min : $range_min.'-'.$range_max;
+			break;
 		default:
 		case 'pages':
-			$text = $i/$zz_conf['limit']+1;
+			$text = $i / wrap_get_setting('zzform_limit') + 1;
 		}
 		$links[] = [
 			'link'	=> zz_list_pagelink($i, $this_limit, $limit_step, $url),

@@ -691,10 +691,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['group_html_table']	= '<strong>%s</strong>';
 	$default['heading_prefix']		= false;
 	$default['html_autofocus']		= true;
-	$default['limit']				= false;	// only n records are shown at once
-	$default['limit_show_range'] 	= 800;		// range in which links to records around current selection will be shown
-	$default['limit_display']		= 'pages';
-	$default['limit_all_max']		= 1500;		// maximum records on one page
 	$default['list_display']		= 'table';
 	$default['max_detail_records']	= 20;		// max 20 detail records, might be expanded later on
 	$default['max_select_val_len']	= 60;		// maximum length of values in select
