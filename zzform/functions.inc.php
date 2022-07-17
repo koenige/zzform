@@ -2842,12 +2842,13 @@ function zz_error_multi($errors) {
 	}
 	$validation_errors = zz_error_validation_log();
 	if ($validation_errors['msg']) {
-		foreach ($validation_errors['msg'] as $index => $msg) {
+		foreach ($validation_errors['msg'] as $index => $msg)
 			$validation_errors['msg'][$index] = strip_tags($msg);
-			if (empty($validation_errors['msg_args'][$index])) continue;
-			if (!is_array($validation_errors['msg_args'][$index]))
-				$validation_errors['msg_args'][$index] = [$validation_errors['msg_args'][$index]];
-			$validation_errors['msg'][$index] = vsprintf($validation_errors['msg'][$index], $validation_errors['msg_args'][$index]);
+		if (!empty($validation_errors['msg_args'])) {
+			$glue = 'SOME_NEVER_APPEARING_SEQUENCE_IN_ERROR_MSG';
+			$msgs = implode($glue, $validation_errors['msg']);
+			$msgs = vsprintf($msgs, $validation_errors['msg_args']);
+			$validation_errors['msg'] = explode($glue, $msgs);
 		}
 		$errors = array_merge($errors, $validation_errors['msg']);
 	}
