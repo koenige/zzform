@@ -2717,6 +2717,7 @@ function zz_unlink_cleanup($file) {
 	if (!$file) return false;
 	$full_path = realpath($file);
 	if (!$full_path) return true;
+	if (str_starts_with($full_path, wrap_get_setting('cache_dir'))) return false;
 	$dir = dirname($full_path);
 	$success = unlink($full_path);
 	
@@ -2878,7 +2879,11 @@ function zz_rename($oldname, $newname, $context = false) {
 		]);
 		return false;
 	}
-	if (!empty($zz_conf['upload_copy_for_rename'])) {
+	if (str_starts_with($oldname, wrap_get_setting('cache_dir'))) {
+		// just copy file, leave old file alone (e. g. if copying from cache)
+		$success = copy($oldname, $newname);
+		if ($success) return true;
+	} elseif (!empty($zz_conf['upload_copy_for_rename'])) {
 		// copy file, this also works in older php versions between partitions.
 		$success = copy($oldname, $newname);
 		if ($success) {
