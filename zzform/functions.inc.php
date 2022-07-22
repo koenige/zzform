@@ -1984,9 +1984,13 @@ function zz_makelink($path, $record, $type = 'link') {
 		switch ($part) {
 		case 'area':
 			if (empty($path['fields'])) break;
-			$this_field = is_array($path['fields']) ? reset($path['fields']) : $path['fields'];
-			if (empty($record[$this_field])) break;
-			$path_web[1] .= wrap_path($value, $record[$this_field]);
+			$path_values = [];
+			if (!is_array($path['fields'])) $path['fields'] = [$path['fields']];
+			foreach ($path['fields'] as $this_field) {
+				if (empty($record[$this_field])) break 2;
+				$path_values[] = $record[$this_field];
+			}
+			$path_web[1] .= wrap_path($value, $path_values);
 			break;
 		case 'function':
 			if (function_exists($value) AND !empty($path['fields'])) {
