@@ -1024,6 +1024,11 @@ msgstr "Fertig!"
 msgid "No updates/inserts were made."
 msgstr "Es wurden keine Einträge aktualisiert oder eingefügt."
 
+# Modules: Sync
+#: templates/sync-overview.template.txt
+msgid "Please select from one of the following datasets:"
+msgstr "Bitte wählen Sie aus einem der folgenden Datensätze:"
+
 # Modules: Upload (Table filetypes)
 msgid "Filetypes"
 msgstr "Dateitypen"

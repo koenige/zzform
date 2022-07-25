@@ -944,6 +944,11 @@ msgstr ""
 msgid "No updates/inserts were made."
 msgstr ""
 
+# Modules: Sync
+#: templates/sync-overview.template.txt
+msgid "Please select from one of the following datasets:"
+msgstr ""
+
 # Modules: Upload (Table filetypes)
 msgid "Filetypes"
 msgstr ""
