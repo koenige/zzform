@@ -76,8 +76,8 @@ function zz_sync($import) {
 			$import['first_line_headers'] = true;
 		if (!isset($import['ignore_head_lines']))
 			$import['ignore_head_lines'] = 0;
-		if (!isset($import['static']))
-			$import['static'] = [];
+		if (!isset($import['static1']))
+			$import['static1'] = false;
 		if (!isset($import['key_concat']))
 			$import['key_concat'] = false;
 		if (isset($_GET['deletable'])) break;
@@ -89,7 +89,7 @@ function zz_sync($import) {
 	case 'sql':
 		if (isset($_GET['deletable'])) break;
 		$limit = $import['end'] - $import['limit'];
-		$sql = $import['import_sql'];
+		$sql = $import['source'];
 		$sql .= sprintf(' LIMIT %d, %d', $import['limit'], $limit);
 		$raw = wrap_db_fetch($sql, $import['import_id_field_name']);
 		if (count($raw) === $limit) {
@@ -107,7 +107,7 @@ function zz_sync($import) {
 		wrap_error('Please set an import type via <code>$import["type"]</code>.', E_USER_ERROR);
 	}
 
-	if (isset($_GET['deletable']) AND !empty($import['deletable_sql'])) {
+	if (isset($_GET['deletable']) AND !empty($import['deletable'])) {
 		return zz_sync_deletable($import);
 	}
 	
@@ -277,9 +277,9 @@ function zz_sync_csv($import) {
  *
  * @param array $raw raw data, indexed by identifier
  * @param array $import import settings
- *		string	'existing_sql' = SQL query to get pairs of identifier/IDs
+ *		string	sql[existing] = SQL query to get pairs of identifier/IDs
  *		array 	'fields' = list of fields, indexed by position
- *		array 	'static' = values for fields, indexed by field name
+ *		array 	'static1', 'static2' = values for fields, 'field_name = value'
  *		string	'id_field_name' = field name of PRIMARY KEY of database table
  *		string	'form_script' = table script for sync
  *		array	'ignore_if_null' = list of field nos which will be ignored if
@@ -288,8 +288,8 @@ function zz_sync_csv($import) {
  *		$testing
  */
 function zz_sync_zzform($raw, $import) {
-	if (empty($import['existing_sql'])) {
-		wrap_error('Please define a query for the existing records in the database with $import["existing_sql"].', E_USER_ERROR);
+	if (empty($import['existing'])) {
+		wrap_error('Please define a query for the existing records in the database with -- identifier_existing --.', E_USER_ERROR);
 	}
 	if (empty($import['fields'])) {
 		wrap_error('Please set which fields should be imported in $import["fields"].', E_USER_ERROR);	
@@ -313,7 +313,7 @@ function zz_sync_zzform($raw, $import) {
 	$keys = array_keys($raw);
 	foreach ($keys as $id => $key) $keys[$id] = wrap_db_escape($key);
 	$keys = '"'.implode('", "', $keys).'"';
-	$sql = sprintf($import['existing_sql'], $keys);
+	$sql = sprintf($import['existing'], $keys);
 	$ids = wrap_db_fetch($sql, '_dummy_', 'key/value');
 
 	$action_ids[] = [];
@@ -381,10 +381,20 @@ function zz_sync_zzform($raw, $import) {
 			}
 		}
 		// static values to import
-		foreach ($import['static'] as $field_name => $value) {
+		$static = 'static1';
+		while (array_key_exists($static, $import)) {
+			list($field_name, $value) = explode(' = ', $import[$static]);
+			$field_name = trim($field_name);
+			$value = trim($value);
+			$value = trim($value, "'");
+			$value = trim($value, '"');
 			$head[$field_name] = $field_name;
 			$testing[$identifier][$field_name] = $value;
 			$values['POST'] = zz_check_values($values['POST'], $field_name, $value);
+
+			$static = substr($static, 6);
+			$static++;
+			$static = sprintf('static%d', $static);
 		}
 		if (!empty($ids[$identifier])) {
 			$testing[$identifier]['_action'] = $values['action'] = 'update';
@@ -609,14 +619,14 @@ function zz_sync_deletable($import) {
 		list($raw, $i) = zz_sync_csv($import);
 		break;
 	case 'sql':
-		$raw = wrap_db_fetch($import['import_sql'], $import['import_id_field_name']);
+		$raw = wrap_db_fetch($import['source'], $import['import_id_field_name']);
 		break;
 	}
 	$keys = array_keys($raw);
 	foreach ($keys as $index => $key) {
 		$keys[$index] = wrap_db_escape($key);
 	}
-	$sql = sprintf($import['deletable_sql'], '"'.implode('","', $keys).'"');
+	$sql = sprintf($import['deletable'], '"'.implode('","', $keys).'"');
 	$existing = wrap_db_fetch($sql, '_dummy_', 'numeric');
 
 	$j = 0;
