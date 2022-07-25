@@ -1,10 +1,11 @@
-# Zugzwang Project
+# zzform module
 # Template for sync list
 #
-# http://www.zugzwang.org/projects/zzform
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2016 Gustaf Mossakowski
+# @copyright Copyright © 2016, 2022 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 <div id="zzform">
@@ -12,9 +13,9 @@
 <table class="data">
 <thead>
 <tr>
-<th>No.</th>
-<th>ID</th>
-<th>%%% text action %%%</th>
+<th>%%% text No. %%%</th>
+<th>%%% text ID %%%</th>
+<th>%%% text Action %%%</th>
 %%% loop head %%%
 <th>%%% item field_name %%%</th>
 %%% loop end %%%
