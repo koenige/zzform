@@ -954,6 +954,76 @@ msgstr ""
 msgid "Deletable Records"
 msgstr "Löschbare Datensätze"
 
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "Processing entries %s–%s …"
+msgstr "Verarbeite Einträge %s–%s …"
+
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "1 update was made."
+msgstr "Ein Eintrag wurde aktualisiert"
+
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "%s updates were made."
+msgstr "%s Einträge wurden aktualisiert."
+
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "1 insert was made."
+msgstr "Es wurde ein Eintrag eingefügt."
+
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "%s inserts were made."
+msgstr "%s Einträge wurden eingefügt."
+
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "1 record was left as is."
+msgstr "Ein Eintrag blieb unverändert."
+
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "%s records were left as is."
+msgstr "%s Einträge blieben unverändert."
+
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "1 record had errors. (%s)"
+msgstr "Ein Eintrag hatte Fehler. (%s)"
+
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "%s records had errors."
+msgstr "%s Einträge hatten Fehler."
+
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "Go on to next page"
+msgstr "Weiter zur nächsten Seite"
+
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "Possibly deletable records"
+msgstr "Evtl. löschbare Datensätze"
+
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "Please wait for reload …"
+msgstr "Bitte warten Sie auf das Neuladen der Seite …"
+
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "Finished!"
+msgstr "Fertig!"
+
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "No updates/inserts were made."
+msgstr "Es wurden keine Einträge aktualisiert oder eingefügt."
+
 # Modules: Upload (Table filetypes)
 msgid "Filetypes"
 msgstr "Dateitypen"

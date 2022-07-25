@@ -157,13 +157,13 @@ function zz_sync($import) {
 		if (!$post) {
 			$lines[] = zz_sync_list($testing, $import);
 		} elseif ($refresh) {
-			$lines[] = sprintf('<a href="?limit=%s">Go on to next page</a>', $import['end']);
+			$lines[] = sprintf('<a href="?limit=%s">%s</a>', $import['end'], wrap_text('Go on to next page'));
 		} else {
-			$lines[] = '<a href="?deletable">Possibly deletable records</a>';
+			$lines[] = sprintf('<a href="?deletable">%s</a>', wrap_text('Possibly deletable records'));
 		}
 		$refresh = false;
 	} elseif ($refresh) {
-		$lines[] = wrap_text('Please wait for reload &hellip;');
+		$lines[] = wrap_text('Please wait for reload …');
 	} else {
 		$lines[] = wrap_text('Finished!');
 	}
