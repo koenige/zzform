@@ -869,6 +869,11 @@ msgstr ""
 msgid "Maximum value for degrees is %s. The value you entered is too big: %s."
 msgstr ""
 
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "Deletable Records"
+msgstr ""
+
 # Modules: Upload (Table filetypes)
 msgid "Filetypes"
 msgstr ""
