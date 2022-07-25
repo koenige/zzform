@@ -29,7 +29,6 @@ function zz_sync($import) {
 	global $zz_page;
 	global $zz_conf;
 	require_once $zz_conf['dir'].'/zzform.php';
-	wrap_module_activate('zzform');
 	
 	$post = isset($_POST['action']) ? true : false;	// will be overwritten
 	$refresh = false;
@@ -410,6 +409,7 @@ function zz_sync_zzform($raw, $import) {
 				continue;
 			}
 		}
+		if (!empty($import['ids'])) $values['ids'] = $import['ids'];
 		$ops = zzform_multi($import['form_script'], $values);
 		if ($ops['id']) {
 			$ids[$identifier] = $ops['id'];
@@ -639,7 +639,7 @@ function zz_sync_deletable($import) {
 			} else {
 				$data['head'][$field_name]['field_name'] = $field_name;
 				$data[$index]['fields'][$i]['value'] = $value;
-				if (in_array($field_name, array_keys($import['deletable_script_url']))) {
+				if (array_key_exists($field_name, $import['deletable_script_url'])) {
 					$data[$index]['fields'][$i]['my_script_url'] = $import['deletable_script_url'][$field_name];
 				}
 				$i++;

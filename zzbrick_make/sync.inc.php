@@ -28,8 +28,18 @@ function mod_zzform_make_sync($params) {
 	$files = wrap_collect_files('configuration/sync.sql');
 	foreach ($files as $file)
 		$queries = array_merge_recursive($queries, wrap_sql_file($file, '_'));
-	foreach (array_keys($queries) as $identifier)
+	foreach ($queries as $identifier => $module_queries) {
+		$ids = [];
+		foreach ($module_queries as $key => $query) {
+			if (!str_starts_with($key, 'static')) continue;
+			if (!strstr($query, ' = /*_ID')) continue;
+			list($qkey, $qvalue) = explode(' = ', $query);
+			$ids[] = $qkey;
+		}
 		$queries[$identifier] = wrap_system_sql_placeholders($queries[$identifier]);
+		if ($ids)
+			$queries[$identifier]['ids'] = $ids;
+	}
 
 	$data = wrap_cfg_files('sync');
 	foreach (array_keys($data) as $identifier) {
