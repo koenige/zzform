@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2011-2018, 2021 Gustaf Mossakowski
+ * @copyright Copyright © 2011-2018, 2021-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -21,9 +21,6 @@
  *		int		'end'
  *		string	'type' (csv, sql)
  * @global array $zz_setting
- *		int		'sync_records_per_run'
- *		int		'sync_page_refresh'
- *		string	'sync_lists_dir'
  * @global array $zz_page		'url'['full']['path']
  * @return array $page
  */
@@ -31,23 +28,13 @@ function zz_sync($import) {
 	global $zz_setting;
 	global $zz_page;
 	global $zz_conf;
-	require_once $zz_conf['dir'].'/functions.inc.php';
-
+	require_once $zz_conf['dir'].'/zzform.php';
+	wrap_module_activate('zzform');
+	
 	$post = isset($_POST['action']) ? true : false;	// will be overwritten
 	$refresh = false;
 	
 	// set defaults global
-	if (!isset($zz_setting['sync_records_per_run'])) {
-		if (!empty($import['testing'])) {
-			$zz_setting['sync_records_per_run'] = 100;
-		} else {
-			$zz_setting['sync_records_per_run'] = 1000;
-		}
-	}
-	if (!isset($zz_setting['sync_page_refresh']))
-		$zz_setting['sync_page_refresh'] = 2;
-	if (!isset($zz_setting['sync_lists_dir']))
-		$zz_setting['sync_lists_dir'] = $zz_setting['media_folder'];
 	if (!isset($import['show_but_no_import']))
 		$import['show_but_no_import'] = [];
 	if (!isset($import['deletable_script_url']))
@@ -56,7 +43,7 @@ function zz_sync($import) {
 	// limits
 	if (empty($_GET['limit'])) $import['limit'] = 0;
 	else $import['limit'] = zz_check_get_array('limit', 'is_int');
-	$import['end'] = $import['limit'] + $zz_setting['sync_records_per_run'];
+	$import['end'] = $import['limit'] + wrap_get_setting('sync_records_per_run') * ($import['testing'] ? 10 : 1);
 
 	$import_types = ['csv', 'sql'];
 	if (empty($import['type']) OR !in_array($import['type'], $import_types)) {
@@ -72,7 +59,7 @@ function zz_sync($import) {
 		if (empty($import['filename'])) {
 			wrap_error('Please set an import filename via $import["filename"].', E_USER_ERROR);
 		}
-		$import['source'] = $zz_setting['sync_lists_dir'].'/'.$import['filename'];
+		$import['source'] = $zz_setting['cms_dir'].'/_sync/'.$import['filename'];
 		if (!file_exists($import['source'])) {
 			$page['text'] = sprintf(wrap_text('Import: File %s does not exist. '
 				.'Please set a different filename'), $import['source']);
@@ -196,7 +183,7 @@ function zz_sync($import) {
 	$page['text'] = implode('<br>', $lines);
 	if ($refresh) {
 		$page['head'] = sprintf("\t".'<meta http-equiv="refresh" content="%s; URL=%s?limit=%s">'."\n",
-			$zz_setting['sync_page_refresh'], 
+			wrap_get_setting('sync_page_refresh'), 
 			$zz_setting['host_base'].$zz_page['url']['full']['path'], $import['end']);
 	}
 	return $page;
@@ -297,15 +284,10 @@ function zz_sync_csv($import) {
  *		string	'form_script' = table script for sync
  *		array	'ignore_if_null' = list of field nos which will be ignored if
  *				no value is set
- * @global array $zz_conf string 'dir'
  * @return array $updated, $inserted, $nothing = count of records, $errors,
  *		$testing
  */
 function zz_sync_zzform($raw, $import) {
-	global $zz_conf;
-	// include form scripts
-	require_once $zz_conf['dir'].'/zzform.php';
-
 	if (empty($import['existing_sql'])) {
 		wrap_error('Please define a query for the existing records in the database with $import["existing_sql"].', E_USER_ERROR);
 	}
@@ -451,10 +433,9 @@ function zz_sync_zzform($raw, $import) {
  */
 function zz_sync_list($testing, $import) {
 	global $zz_setting;
-	global $zz_conf;
 
 	// get head
-	$def = zz_sync_formdef($import['form_script'], $zz_setting, $zz_conf);
+	$def = zzform_include_table($import['form_script']);
 	$head = zz_sync_fields($def['fields'], $testing['head']);
 	$field_names = [];
 	$foreign_keys = [];
@@ -562,24 +543,6 @@ function zz_sync_list($testing, $import) {
 }
 
 /**
- * get list of fields from zzform definition
- *
- * @param string $form_script
- * @param array $zz_setting (not to be changed, therefore not global here)
- * @param array $zz_conf (not to be changed, therefore not global here)
- * @return array $zz
- */
-function zz_sync_formdef($form_script, $zz_setting, $zz_conf) {
-	$file = zzform_file($form_script);
-	require $file['tables'];
-	if (empty($zz)) {
-		return $zz_sub;
-	} else {
-		return $zz;
-	}
-}
-
-/**
  * get fields out of zzform definition that are displayed in sync table
  *
  * @param array $fields = $zz['fields']
@@ -683,6 +646,6 @@ function zz_sync_deletable($import) {
 	$page['query_strings'] = ['deletable'];
 	$page['text'] = wrap_template('sync-deletable', $data);
 	$page['head'] = wrap_template('zzform-head');
-	$page['title'] = 'Deletable records';
+	$page['title'] = wrap_text('Deletable Records');
 	return $page;
 }
