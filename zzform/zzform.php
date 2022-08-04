@@ -840,7 +840,7 @@ function zzform_file($definition_file) {
  * @param array $values (optional) values which might be used in table definition
  * @global array $zz_conf
  * @global array $zz_setting
- * @return array $zz
+ * @return array
  */
 function zzform_include_table($definition_file, $values = []) {
 	global $zz_conf;
@@ -849,28 +849,16 @@ function zzform_include_table($definition_file, $values = []) {
 	$scripts = zzform_file($definition_file);
 	if (!empty($scripts['tables'])) {
 		if ($scripts['common']) require_once $scripts['common'];
-		$zz_view = !empty($values['view']) ? $values['view'] : false;		
 		require $scripts['tables'];
-		if (!empty($zz)) {
-			$zz['view'] = $zz_view;
-			return $zz;
-		}
-		if (!empty($zz_sub)) {
-			$zz_sub['view'] = $zz_view;
-			return $zz_sub;
-		}
+		if (!empty($zz)) return $zz;
+		if (!empty($zz_sub)) return $zz_sub;
 		$error = 'No table definition in file %s found.';
 	} else {
 		$error = 'Table definition for %s: file is missing.';
 	}
 
 	$error = sprintf($error, $definition_file);
-	if (function_exists('wrap_error')) {
-		wrap_error($error, E_USER_ERROR);
-	} else {
-		// @todo throw zzform error
-		echo $error;
-	}
+	wrap_error($error, E_USER_ERROR);
 	exit;
 }
 
