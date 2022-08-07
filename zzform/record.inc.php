@@ -2403,6 +2403,7 @@ function zz_field_memo($field, $display, $record) {
 
 	// return form element
 	$fieldattr = [];
+	$fieldattr['placeholder'] = $field['placeholder'] ?? false;
 	!empty($field['cols']) OR $field['cols'] = 60;
 	!empty($field['rows']) OR $field['rows'] = 8;
 	if ($record AND $value) {
