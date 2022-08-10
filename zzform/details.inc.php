@@ -107,11 +107,10 @@ function zz_details_start($zz) {
 	} else {
 		$field = $zz['fields'][$field_no];
 	}
-	if (empty($field['add_details'])) return false;
-
 	if (is_array($field['add_details'])) {
 		$field['add_details'] = zz_details_link($field['add_details'], $_POST);
 	}
+	if (empty($field['add_details'])) return false;
 	
 	$redirect_to = $field['add_details'];
 	$redirect_to .= strstr($field['add_details'], '?') ? '&' : '?';
@@ -306,7 +305,7 @@ function zz_details_link($details, $record) {
 	if (empty($details['target'])) return $link;
 
 	preg_match('~\*(.+)\*~', $link, $matches);
-	if (empty($matches[1])) return $link;
+	if (empty($matches[1])) return '';
 	$ids = wrap_id($details['target'][0]['ids'], '', 'list');
 	foreach ($ids as $identifier => $id) {
 		if ($id !== $matches[1]) continue;
@@ -318,9 +317,9 @@ function zz_details_link($details, $record) {
 			, $identifier
 		);
 		$result = wrap_db_fetch($sql, '', 'single value');
-		if ($result)
-			$link = str_replace($matches[0], $result, $link);
+		if (!$result) return '';
+		return str_replace($matches[0], $result, $link);
 	}
-	return $link;
+	return '';
 }
 

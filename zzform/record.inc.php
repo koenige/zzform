@@ -1207,7 +1207,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 						require_once __DIR__.'/details.inc.php';
 						$field['add_details'] = zz_details_link($field['add_details'], $zz_tab[0][0]['record']);
 					}
-					$outputf .= zz_record_add_details($field, $tab, $rec, $fieldkey);
+					if ($field['add_details'])
+						$outputf .= zz_record_add_details($field, $tab, $rec, $fieldkey);
 				}
 			}
 			if (($outputf AND trim($outputf)) OR $outputf === '0') {
