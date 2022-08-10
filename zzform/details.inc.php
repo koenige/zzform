@@ -108,6 +108,10 @@ function zz_details_start($zz) {
 		$field = $zz['fields'][$field_no];
 	}
 	if (empty($field['add_details'])) return false;
+
+	if (is_array($field['add_details'])) {
+		$field['add_details'] = zz_details_link($field['add_details'], $_POST);
+	}
 	
 	$redirect_to = $field['add_details'];
 	$redirect_to .= strstr($field['add_details'], '?') ? '&' : '?';
@@ -289,3 +293,34 @@ function zz_url_basename($url) {
 	$parts = parse_url($url);
 	return basename($parts['path']);
 }
+
+/**
+ * create link to details form
+ *
+ * @param array $details
+ * @param array $record main record
+ * @return string
+ */
+function zz_details_link($details, $record) {
+	$link = zz_makelink($details, $record);
+	if (empty($details['target'])) return $link;
+
+	preg_match('~\*(.+)\*~', $link, $matches);
+	if (empty($matches[1])) return $link;
+	$ids = wrap_id($details['target'][0]['ids'], '', 'list');
+	foreach ($ids as $identifier => $id) {
+		if ($id !== $matches[1]) continue;
+		$sql = 'SELECT %s FROM %s WHERE %s LIKE "%%&target=%s%%"';
+		$sql = sprintf($sql
+			, $details['target'][0]['identifier_field'] ?? 'identifier'
+			, $details['target'][0]['table']
+			, $details['target'][0]['parameters_field'] ?? 'parameters'
+			, $identifier
+		);
+		$result = wrap_db_fetch($sql, '', 'single value');
+		if ($result)
+			$link = str_replace($matches[0], $result, $link);
+	}
+	return $link;
+}
+

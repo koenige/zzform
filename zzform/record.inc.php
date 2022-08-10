@@ -1200,8 +1200,15 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 			}
 			if (!empty($default_value)) // unset $my_rec['record'] so following fields are empty
 				unset($my_rec['record'][$field['field_name']]);
-			if ($field_display === 'form') {
-				$outputf .= zz_record_add_details($field, $mode, $tab, $rec, $fieldkey);
+			if ($field_display === 'form' AND !empty($field['add_details'])) {
+				$check = zz_record_add_details_check($field, $mode);
+				if ($check) {
+					if (is_array($field['add_details'])) {
+						require_once __DIR__.'/details.inc.php';
+						$field['add_details'] = zz_details_link($field['add_details'], $zz_tab[0][0]['record']);
+					}
+					$outputf .= zz_record_add_details($field, $tab, $rec, $fieldkey);
+				}
 			}
 			if (($outputf AND trim($outputf)) OR $outputf === '0') {
 				if (isset($field['prefix'])) $out['td']['content'] .= $field['prefix'];
@@ -1319,30 +1326,39 @@ function zz_record_sort_matrix($matrix) {
 }
 
 /**
- * put new ... link next to field to add missing detail records
+ * check if New … link should be displayed
  *
  * @param array $field
  * @param string $mode
+ * @return bool
+ */
+function zz_record_add_details_check($field, $mode) {
+	if (!isset($field['add_details'])) return false;
+	if (!$mode) return false;
+	if (in_array($mode, ['delete', 'show', 'review'])) return false;
+	if (in_array($mode, ['edit', 'revise'])) {
+		if (in_array($field['type'], [
+			'hidden', 'predefined', 'write_once', 'display'
+		])) return false;
+	} elseif ($mode === 'add' AND !empty($field['value'])) {
+		// $zz['add'] with 'value'
+		return false;
+	}
+	return true;
+}
+
+/**
+ * put new ... link next to field to add missing detail records
+ *
+ * @param array $field
  * @param int $tab
  * @param int $rec
  * @param int $fieldkey
  * @return string
  */
-function zz_record_add_details($field, $mode, $tab, $rec, $fieldkey) {
+function zz_record_add_details($field, $tab, $rec, $fieldkey) {
 	global $zz_conf;
 	global $zz_setting;
-
-	if (!isset($field['add_details'])) return '';
-	if (!$mode) return '';
-	if (in_array($mode, ['delete', 'show', 'review'])) return '';
-	if (in_array($mode, ['edit', 'revise'])) {
-		if (in_array($field['type'], [
-			'hidden', 'predefined', 'write_once', 'display'
-		])) return '';
-	} elseif ($mode === 'add' AND !empty($field['value'])) {
-		// $zz['add'] with 'value'
-		return '';
-	}
 	
 	if (!empty($_SESSION['logged_in'])) {
 		if ($tab) {

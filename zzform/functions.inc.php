@@ -1986,9 +1986,13 @@ function zz_makelink($path, $record, $type = 'link') {
 			if (empty($path['fields'])) break;
 			$path_values = [];
 			if (!is_array($path['fields'])) $path['fields'] = [$path['fields']];
-			foreach ($path['fields'] as $this_field) {
+			foreach ($path['fields'] as $index => $this_field) {
 				if (empty($record[$this_field])) break 2;
-				$path_values[] = $record[$this_field];
+				if (!empty($path['target'][$index]))
+					// placeholder for later use
+					$path_values[] = '*'.$record[$this_field].'*';
+				else
+					$path_values[] = $record[$this_field];
 			}
 			$path_web[1] .= wrap_path($value, $path_values);
 			break;
