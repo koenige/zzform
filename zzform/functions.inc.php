@@ -3087,6 +3087,7 @@ function zz_text($string) {
  * @return array $values (translated)
  */
 function zz_translate($def, $values) {
+	if (empty($values)) return $values;
 	if (empty($def['sql_translate'])) return $values;
 	if (!is_array($def['sql_translate'])) {
 		$def['sql_translate'] = [$def['sql_translate']];
