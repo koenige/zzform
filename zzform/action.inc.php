@@ -578,7 +578,9 @@ function zz_action_equals($my_rec) {
 					// existing and new value are both NULL or not there
 					$update = false;
 				}
-			} elseif ($field['type'] === 'number') {
+			} elseif ($field['type'] === 'number'
+				OR (!empty($field['type_detail']) AND $field['type_detail'] === 'number')
+			) {
 				// values of type 'number' have to be numeric
 				// check if they are, and then, check if they are equal
 				// for numbers: 004 = 4, 28.00 = 28
