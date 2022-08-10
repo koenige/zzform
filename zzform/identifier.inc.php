@@ -541,7 +541,7 @@ function zz_identifier_redirect($ops, $zz_tab) {
 			if (empty($ops['record_diff'][0][$field_name])) continue;
 			if ($ops['record_diff'][0][$field_name] != 'diff') continue;
 		}
-		if (!$ops['record_old'][0][$field_name]) continue;
+		if (empty($ops['record_old'][0][$field_name])) continue;
 		$old = sprintf($old, $ops['record_old'][0][$field_name]);
 		$sql = 'SELECT redirect_id FROM /*_PREFIX_*/redirects WHERE old_url = "%s"';
 		$sql = sprintf($sql, wrap_db_escape($old));
