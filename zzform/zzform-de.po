@@ -874,20 +874,40 @@ msgstr ""
 "hier nicht erlaubt."
 
 # Modules: Geo
+msgctxt "North"
 msgid "N"
-msgstr "<abbr title=\"Nord\">N</abbr>"
+msgstr "N"
 
 # Modules: Geo
+msgctxt "East"
 msgid "E"
-msgstr "<abbr title=\"Ost\">O</abbr>"
+msgstr "O"
 
 # Modules: Geo
+msgctxt "South"
 msgid "S"
-msgstr "<abbr title=\"Süd\">S</abbr>"
+msgstr "S"
 
 # Modules: Geo
+msgctxt "West"
 msgid "W"
-msgstr "<abbr title=\"West\">W</abbr>"
+msgstr "W"
+
+# Modules: Geo
+msgid "North"
+msgstr "Nord"
+
+# Modules: Geo
+msgid "East"
+msgstr "Ost"
+
+# Modules: Geo
+msgid "South"
+msgstr "Süd"
+
+# Modules: Geo
+msgid "West"
+msgstr "West"
 
 # Modules: Geo
 msgid ""

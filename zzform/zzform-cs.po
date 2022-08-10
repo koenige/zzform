@@ -832,19 +832,39 @@ msgid ""
 msgstr ""
 
 # Modules: Geo
+msgctxt "North"
 msgid "N"
 msgstr ""
 
 # Modules: Geo
+msgctxt "East"
 msgid "E"
 msgstr ""
 
 # Modules: Geo
+msgctxt "South"
 msgid "S"
 msgstr ""
 
 # Modules: Geo
+msgctxt "West"
 msgid "W"
+msgstr ""
+
+# Modules: Geo
+msgid "North"
+msgstr ""
+
+# Modules: Geo
+msgid "East"
+msgstr ""
+
+# Modules: Geo
+msgid "South"
+msgstr ""
+
+# Modules: Geo
+msgid "West"
 msgstr ""
 
 # Modules: Geo

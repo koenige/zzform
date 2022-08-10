@@ -849,20 +849,40 @@ msgstr ""
 "тут не дозволяється."
 
 # Modules: Geo
+msgctxt "North"
 msgid "N"
-msgstr "<abbr title=\"Північ\">Півн</abbr>"
+msgstr "Півн"
 
 # Modules: Geo
+msgctxt "East"
 msgid "E"
-msgstr "<abbr title=\"Схід\">С</abbr>"
+msgstr "С"
 
 # Modules: Geo
+msgctxt "South"
 msgid "S"
-msgstr "<abbr title=\"Південь\">Півд</abbr>"
+msgstr "Півд"
 
 # Modules: Geo
+msgctxt "West"
 msgid "W"
-msgstr "<abbr title=\"Захід\">З</abbr>"
+msgstr "З"
+
+# Modules: Geo
+msgid "North"
+msgstr "Північ"
+
+# Modules: Geo
+msgid "East"
+msgstr "Схід"
+
+# Modules: Geo
+msgid "South"
+msgstr "Південь"
+
+# Modules: Geo
+msgid "West"
+msgstr "Захід"
 
 # Modules: Geo
 msgid ""

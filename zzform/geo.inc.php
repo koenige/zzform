@@ -44,8 +44,8 @@ function zz_geo_coord_in($value, $orientation = 'lat', $precision = 0) {
 
 	// set possible values for hemisphere
 	$hemispheres = [
-		'lat' => ['N' => '+', 'S' => '-', zz_text('N') => '+', zz_text('S') => '-'],
-		'lon' => ['E' => '+', 'W' => '-', zz_text('E') => '+', zz_text('W') => '-']
+		'lat' => ['N' => '+', 'S' => '-', wrap_text('N', ['context' => 'North']) => '+', wrap_text('S', ['context' => 'South']) => '-'],
+		'lon' => ['E' => '+', 'W' => '-', wrap_text('E', ['context' => 'East']) => '+', wrap_text('W', ['context' => 'West']) => '-']
 	];
 	$hemisphere = '';
 
@@ -184,12 +184,19 @@ function zz_geo_coord_out($decimal, $orientation = 'lat', $out = false) {
 	if ($decimal < 0) $decimal = substr($decimal, 1); // get rid of - sign)
 	switch ($orientation) {
 		case 'lat':
-			$hemisphere_text = ($hemisphere == '+') ? strip_tags(wrap_text('N')) : strip_tags(wrap_text('S'));
+			$hemisphere_text = $hemisphere === '+' ? 'North' : 'South';
 			break;
 		case 'lon':
-			$hemisphere_text = ($hemisphere == '+') ? strip_tags(wrap_text('E')) : strip_tags(wrap_text('W'));
+			$hemisphere_text = $hemisphere === '+' ? 'East' : 'West';
 			break;
 	}
+	$hemisphere_text = wrap_text(substr($hemisphere_text, 0, 1), ['context' => $hemisphere_text]);
+/*
+	@todo allow HTML abbreviation, but this would rather be in zzwrap/format.inc.php
+	$hemisphere_text = sprintf('<abbr title="%s">%s</abbr>'
+		, wrap_text($hemisphere_text), wrap_text(substr($hemisphere_text, 0, 1), ['context' => $hemisphere_text])
+	);
+*/
 	
 	// 3. Output in desired format
 	$formats = explode('=', $out);
@@ -210,6 +217,7 @@ function zz_geo_coord_out($decimal, $orientation = 'lat', $out = false) {
 			break;
 		case 'dms':	// 98°50'38"W
 		default:
+			if (!is_numeric($decimal)) return $decimal;
 			// transform decimal value to seconds and round first!
 			$deg = intval($decimal);
 			$sec = round(($decimal - $deg) * 3600, $round);
