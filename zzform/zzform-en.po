@@ -838,20 +838,40 @@ msgid ""
 msgstr ""
 
 # Modules: Geo
+msgctxt "North"
 msgid "N"
-msgstr "<abbr title=\"North\">N</abbr>"
+msgstr ""
 
 # Modules: Geo
+msgctxt "East"
 msgid "E"
-msgstr "<abbr title=\"East\">E</abbr>"
+msgstr ""
 
 # Modules: Geo
+msgctxt "South"
 msgid "S"
-msgstr "<abbr title=\"South\">S</abbr>"
+msgstr ""
 
 # Modules: Geo
+msgctxt "West"
 msgid "W"
-msgstr "<abbr title=\"West\">W</abbr>"
+msgstr ""
+
+# Modules: Geo
+msgid "North"
+msgstr ""
+
+# Modules: Geo
+msgid "East"
+msgstr ""
+
+# Modules: Geo
+msgid "South"
+msgstr ""
+
+# Modules: Geo
+msgid "West"
+msgstr ""
 
 # Modules: Geo
 msgid ""
