@@ -42,7 +42,7 @@ function zz_sync($import) {
 	// limits
 	if (empty($_GET['limit'])) $import['limit'] = 0;
 	else $import['limit'] = zz_check_get_array('limit', 'is_int');
-	$import['end'] = $import['limit'] + wrap_get_setting('sync_records_per_run') * ($import['testing'] ? 10 : 1);
+	$import['end'] = $import['limit'] + wrap_get_setting('sync_records_per_run') * ($import['testing'] ? 1 : 10);
 
 	$import_types = ['csv', 'sql'];
 	if (empty($import['type']) OR !in_array($import['type'], $import_types)) {
