@@ -1,13 +1,15 @@
-# Zugzwang Project
+# zzform module
 # Template for sync list, deletable records
 #
-# http://www.zugzwang.org/projects/zzform
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2016 Gustaf Mossakowski
+# @copyright Copyright © 2016, 2022 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 <div id="zzform">
+%%% condition unless no_deletable_records %%%
 <table class="data">
 <thead>
 <tr>
@@ -38,4 +40,7 @@
 %%% loop end %%%
 </tbody>
 </table>
+%%% condition else %%%
+%%% text There are no deletable records. %%%
+%%% condition endif %%%
 </div>

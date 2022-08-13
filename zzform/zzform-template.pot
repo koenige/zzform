@@ -969,6 +969,11 @@ msgstr ""
 msgid "Please select from one of the following datasets:"
 msgstr ""
 
+# Modules: Sync
+#: templates/sync-overview.template.txt
+msgid "There are no deletable records."
+msgstr ""
+
 # Modules: Upload (Table filetypes)
 msgid "Filetypes"
 msgstr ""

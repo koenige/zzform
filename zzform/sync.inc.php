@@ -612,6 +612,7 @@ function zz_sync_fields($fields, $old_head) {
  */
 function zz_sync_deletable($import) {
 	global $zz_setting;
+	$data = [];
 
 	switch ($import['type']) {
 	case 'csv':
@@ -648,7 +649,8 @@ function zz_sync_deletable($import) {
 		$data[$index]['no'] = $j;
 		$data[$index]['script_url'] = isset($import['script_url']) ? $import['script_url'] : '';
 	}
-	$data['head'] = array_values($data['head']);
+	if (!empty($data['head'])) $data['head'] = array_values($data['head']);
+	if (!$data) $data['no_deletable_records'] = true;
 
 	$zz_setting['extra_http_headers'][] = 'X-Frame-Options: Deny';
 	$zz_setting['extra_http_headers'][] = "Content-Security-Policy: frame-ancestors 'self'";

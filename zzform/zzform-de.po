@@ -1049,6 +1049,11 @@ msgstr "Es wurden keine Einträge aktualisiert oder eingefügt."
 msgid "Please select from one of the following datasets:"
 msgstr "Bitte wählen Sie aus einem der folgenden Datensätze:"
 
+# Modules: Sync
+#: templates/sync-overview.template.txt
+msgid "There are no deletable records."
+msgstr "Es gibt keine löschbaren Datensätze."
+
 # Modules: Upload (Table filetypes)
 msgid "Filetypes"
 msgstr "Dateitypen"
