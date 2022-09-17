@@ -2078,7 +2078,7 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['fields'][$f]['validation_error'] = [
 					'msg' => 'Text is too long (max. %d characters, %d submitted).',
-					'msg_args' => [[$field['maxlength'], $length]]
+					'msg_args' => [$field['maxlength'], $length]
 				];
 				$my_rec['validation'] = false;
 			}
@@ -2090,7 +2090,7 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['fields'][$f]['validation_error'] = [
 					'msg' => 'Text is too short (min. %d characters, %d submitted).',
-					'msg_args' => [[$field['minlength'], $length]]
+					'msg_args' => [$field['minlength'], $length]
 				];
 				$my_rec['validation'] = false;
 			}
