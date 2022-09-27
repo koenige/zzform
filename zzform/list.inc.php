@@ -1050,6 +1050,14 @@ function zz_list_filter_sql($filters, $sql, &$filter_active) {
 				}
 				$sql = wrap_edit_sql($sql, 'WHERE', $filter['where'].$equals.'"'.wrap_db_escape($filter_value).'"');
 			}
+		} elseif ($filter['type'] === 'list' AND $filter_values = zz_list_filter_or($filter_value, array_keys($filter['selection']))) {
+			// @todo support all of the code above, too
+			// @todo allow to select this somehow, currently only available via URL manipulation
+			$or_conditions = [];
+			foreach ($filter_values as $f_value) {
+				$or_conditions[] = $filter['where'].' = "'.wrap_db_escape($f_value).'"';
+			}
+			$sql = wrap_edit_sql($sql, 'WHERE', implode(' OR ', $or_conditions));
 		} elseif ($filter['type'] === 'function') {
 			$records = zz_filter_function($filter, $sql);
 			foreach ($records['all'] as $record_id) {
@@ -1145,6 +1153,22 @@ function zz_list_filter_invalid() {
 		$error = true;
 	}
 	return $error;
+}
+
+/**
+ * check if it is an OR filter with a | and valid values
+ *
+ * @param string $filter_value
+ * @param array $selections
+ * @return array
+ */
+function zz_list_filter_or($filter_value, $selections) {
+	if (!strstr($filter_value, '|')) return [];
+	$filter_values = explode('|', $filter_value);
+	foreach ($filter_values as $value) {
+		if (!in_array($value, $selections)) return false;
+	}
+	return $filter_values;
 }
 
 /**
