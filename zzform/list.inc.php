@@ -253,7 +253,7 @@ function zz_list($zz, $ops, $zz_conditions) {
 		}
 		$ops['output'] .= zz_output_add_export_links($zz, $ops);
 		$ops['output'] .= zz_list_total_records($ops['records_total']);
-		$ops['output'] .= zz_list_pages(wrap_get_setting('zzform_limit'), $zz_conf['int']['this_limit'], $ops['records_total']);	
+		$ops['output'] .= zz_list_pages($zz_conf['int']['this_limit'], $ops['records_total']);	
 		// @todo: NEXT, PREV Links at the end of the page
 		// Search form
 		if ($zz_conf['search']) {
@@ -1946,11 +1946,12 @@ function zz_list_total_records($total_rows) {
  * @todo
  * 	- <link rel="next">, <link rel="previous">
  */
-function zz_list_pages($limit_step, $this_limit, $total_rows, $scope = 'body') {
+function zz_list_pages($this_limit, $total_rows, $scope = 'body') {
 	// check whether there are records
 	if (!$total_rows) return false;
 	
 	// check whether records shall be limited or not
+	$limit_step = wrap_get_setting('zzform_limit');
 	if (!$limit_step) return false;
 
 	// check whether a limit is set (all records shown won't need a navigation)
