@@ -253,7 +253,7 @@ function zz_list($zz, $ops, $zz_conditions) {
 		}
 		$ops['output'] .= zz_output_add_export_links($zz, $ops);
 		$ops['output'] .= zz_list_total_records($ops['records_total']);
-		$ops['output'] .= zz_list_pages($zz_conf['limit'], $zz_conf['int']['this_limit'], $ops['records_total']);	
+		$ops['output'] .= zz_list_pages(wrap_get_setting('zzform_limit'), $zz_conf['int']['this_limit'], $ops['records_total']);	
 		// @todo: NEXT, PREV Links at the end of the page
 		// Search form
 		if ($zz_conf['search']) {
@@ -1221,8 +1221,8 @@ function zz_list_query_flat($zz) {
 		// set a standard value for limit
 		// this standard value will only be used on rare occasions, when NO limit is set
 		// but someone tries to set a limit via URL-parameter
-		if (!$zz_conf['limit']) $zz_conf['limit'] = 20; 
-		$zz['sql'] .= ' LIMIT '.($zz_conf['int']['this_limit']-$zz_conf['limit']).', '.($zz_conf['limit']);
+		$limit = wrap_get_setting('zzform_limit') ? wrap_get_setting('zzform_limit') : 20;
+		$zz['sql'] .= ' LIMIT '.($zz_conf['int']['this_limit'] - $limit).', '.$limit);
 	}
 
 	// read rows from database
@@ -1274,7 +1274,7 @@ function zz_list_query_hierarchy($zz) {
 	$zz['list']['hierarchy']['id_field_name'] = $zz_conf['int']['id']['field_name'];
 	list($my_lines, $total_rows) = zz_hierarchy($zz['sql'], $zz['list']['hierarchy']);
 	zz_list_limit_last($total_rows);
-	if ($zz_conf['int']['this_limit'] - $zz_conf['limit'] >= $total_rows) {
+	if ($zz_conf['int']['this_limit'] - wrap_get_setting('zzform_limit') >= $total_rows) {
 		$zz_conf['int']['http_status'] = 404;
 		return [[], $total_rows];
 	}
@@ -1286,7 +1286,7 @@ function zz_list_query_hierarchy($zz) {
 			$start = 0;
 			$end = $total_rows -1;
 		} else {
-			$start = $zz_conf['int']['this_limit'] - $zz_conf['limit'];
+			$start = $zz_conf['int']['this_limit'] - wrap_get_setting('zzform_limit');
 			$end = $zz_conf['int']['this_limit'] -1;
 		}
 		foreach (range($start, $end) as $index) {
@@ -1938,7 +1938,7 @@ function zz_list_total_records($total_rows) {
 /**
  * if LIMIT is set, shows different pages for each $step records
  *
- * @param int $limit_step = $zz_conf['limit'] how many records shall be shown on each page
+ * @param int $limit_step = wrap_get_setting('zzform_limit') how many records shall be shown on each page
  * @param int $this_limit = $zz_conf['int']['this_limit'] last record no. on this page
  * @param int $total_rows	count of total records that might be shown
  * @param string $scope 'body', @todo: 'head' (not yet implemented)
@@ -2112,11 +2112,9 @@ function zz_list_pageurl() {
  * @param array $url string 'base' = bare URL without unwanted query strings,
  *		string 'query' = querystring for limit
  * @param string $pos special position
- * @global array $zz_conf 'limit'
  * @return string $url with limit=n
  */
 function zz_list_pagelink($start, $limit, $limit_step, $url, $pos = '') {
-	global $zz_conf;
 	if ($start == -1) {
 		// all records
 		if (!$limit) return false;
@@ -2132,7 +2130,7 @@ function zz_list_pagelink($start, $limit, $limit_step, $url, $pos = '') {
 		}
 	}
 	$url_out = $url['base'];
-	if ($limit_new != $zz_conf['limit']) {
+	if ($limit_new != wrap_get_setting('zzform_limit')) {
 		$url_out .= $url['query'].($pos ? $pos : $limit_new);
 	}
 	return $url_out;
@@ -2823,7 +2821,7 @@ function zz_list_ul($list, $rows) {
 		.' <em>'.zz_text('Selection').':</em> '.$list['buttons'].'</p>';
 	}
 	global $zz_setting;
-	$list['dnd_start'] = $zz_conf['int']['this_limit'] - $zz_conf['limit'];
+	$list['dnd_start'] = $zz_conf['int']['this_limit'] - wrap_get_setting('zzform_limit');
 	if (!empty($list['dnd'])) {
 		$output .= '<script>
 			var zz_dnd_id_field = "'.$list['dnd_id_field'].'";
@@ -2867,5 +2865,5 @@ function zz_list_limit_last($total_rows) {
 	global $zz_conf;
 	if (empty($zz_conf['int']['limit_last'])) return;
 	if ($total_rows <= $zz_conf['int']['this_limit']) return;
-	$zz_conf['int']['this_limit'] = (ceil($total_rows / $zz_conf['limit']) * $zz_conf['limit']);
+	$zz_conf['int']['this_limit'] = (ceil($total_rows / wrap_get_setting('zzform_limit')) * wrap_get_setting('zzform_limit'));
 }
