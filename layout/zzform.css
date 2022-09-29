@@ -638,3 +638,60 @@ ul.vxJS_list		{ margin: 0; padding: 0;  list-style-type: none; }
 #zzform.saved_state #record
 					{ cursor: progress; }
 #zzform_save		{ display: none; }
+
+
+@media print {
+	/* black text, 11pt */
+	body				{ font-size: 11pt; color: #000; }
+	#zzform a:link, #zzform a:visited
+						{ color: #000; text-decoration: none; }
+
+	/* hide navigational elements */
+	menu, #menu, .noprint
+						{ display: none; }
+	#zzform .editbutton	{ display: none; }
+	#zzform #back-overview
+						{ display: none; }
+	#zzform .add-new	{ display: none; }
+	#zzform .pages		{ display: none; }
+	#zzform .zzsearch	{ display: none; }
+	#zzform .zzfilter dd
+						{ border: none; margin: 0; padding: 0; }
+	#zzform .zzfilter dd a
+						{ display: none; }
+	#zzform .zzfilter dd strong
+						{ margin: 0 .5em; }
+
+
+	/* white background */
+	body, #zzform .editbutton, #zzform td.recordid, #zzform th.recordid 
+						{ background-color: #FFF; }
+	#zzform #record table
+						{ background-color: #FFF; }
+	#zzform #record .subtable th, #zzform #record .subtable td
+						{ background-color: #FFF; }
+	#zzform #record tfoot th, #zzform #record tfoot td, td.where, th.where 
+						{ background-color: #FFF; }
+	#zzform tr.even		{ background-color: #FFF; } /* even rows */
+	#zzform tr.uneven	{ background-color: #FFF; } /* uneven rows */
+
+	#zzform th.order	{ background-color: #FFF; } /* column ORDER BY */
+
+
+	/* table formatting */
+	tr					{ page-break-inside: avoid; }
+	#zzform table.data	{ border-collapse: separate; border-spacing: 0; }
+	#zzform table.data thead td, #zzform table.data thead th  
+						{ border-bottom: 1pt black solid; }
+	#zzform table.data thead
+						{ display: table-header-group; }
+	#zzform table.data tr.group td
+						{ border-top: 1pt black solid; }
+	#zzform tfoot td 
+						{ border-top: 1pt black solid; 
+						border-bottom: 3pt black double; }
+
+	/* below table */
+	#zzform .totalrecords
+						{ margin-top: 0; clear: left; }
+}
