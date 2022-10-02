@@ -1590,6 +1590,7 @@ function zz_record_access($zz, $ops) {
 		$id_value = false;
 		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $keys);
 		$ops['mode'] = false;
+		$zz_conf['int']['record'] = false;
 	}
 
 	// write main id value, might have been written by a more trustful instance
