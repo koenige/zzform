@@ -292,14 +292,6 @@ msgid "New and old password are identical. Please choose a different new passwor
 msgstr ""
 
 # Record form: Change password
-msgid "Tips for secure passwords"
-msgstr ""
-
-# Record form: Change password
-msgid "password-rules"
-msgstr ""
-
-# Record form: Change password
 msgid "hidden"
 msgstr ""
 

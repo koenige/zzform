@@ -294,22 +294,6 @@ msgid ""
 msgstr ""
 
 # Record form: Change password
-msgid "Tips for secure passwords"
-msgstr ""
-
-# Record form: Change password
-msgid "password-rules"
-msgstr ""
-"* Passwords should be at least eight characters long.\n"
-"* Instead of a single word, several words or even complete sentences can be "
-"used.\n"
-"* The longer the password (or the selected sentence), the better the access "
-"to the site is secured.\n"
-"* For short passwords, it is recommended that they consist of uppercase and "
-"lowercase letters, numbers and special characters (? = + ; etc.).\n"
-"* The same password should not be used on other sites."
-
-# Record form: Change password
 msgid "hidden"
 msgstr ""
 

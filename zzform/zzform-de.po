@@ -300,22 +300,6 @@ msgstr ""
 "Passwort aus."
 
 # Record form: Change password
-msgid "Tips for secure passwords"
-msgstr "Tipps für sichere Passwörter"
-
-# Record form: Change password
-msgid "password-rules"
-msgstr ""
-"* Passwörter sollten wenigstens acht Zeichen lang sein.\n"
-"* Statt eines einzelnen Wortes können auch mehrere Wörter oder komplette "
-"Sätze benutzt werden.\n"
-"* Je länger das Passwort (oder der gewählte Satz) ist, desto besser ist der "
-"Zugang zu der Website gesichert.\n"
-"* Für kurze Passwörter wird empfohlen, dass sie aus Groß- und "
-"Kleinbuchstaben, Ziffern und Sonderzeichen (? = + ; etc.) bestehen.\n"
-"* Dasselbe Passwort sollte nicht auf anderen Websites genutzt werden."
-
-# Record form: Change password
 msgid "hidden"
 msgstr "versteckt"
 

@@ -295,22 +295,6 @@ msgid ""
 msgstr "Nowe i stare hasło są identyczne. Prosze wybrać inne hasło"
 
 # Record form: Change password
-msgid "Tips for secure passwords"
-msgstr "Zasady bezpiecznego hasła"
-
-# Record form: Change password
-msgid "password-rules"
-msgstr ""
-"Hasło musi składać się z min. 8 znaków i zawierać duże i małe litery, cyfry "
-"oraz znaki specjalne.\n"
-"\n"
-"Przykłady bezpiecznych haseł:\n"
-"\n"
-"* !1Pw=ig! (Zasada: !Hasło powinno być znane tylko Tobie!)\n"
-"* 1sPh&uuml;o&auml;o&Ouml;  (Zasada: bezpieczne hasło powinno zawierać "
-"&uuml; oder &auml; oder &ouml;)"
-
-# Record form: Change password
 msgid "hidden"
 msgstr "Ukryte"
 

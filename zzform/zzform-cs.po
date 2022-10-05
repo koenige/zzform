@@ -296,16 +296,6 @@ msgid ""
 msgstr "Nové a staré heslo je stejné. Zadejte jiné nové heslo."
 
 # Record form: Change password
-msgid "Tips for secure passwords"
-msgstr "Pravidla pro tvorbu bezpečného hesla"
-
-# Record form: Change password
-msgid "password-rules"
-msgstr ""
-"Heslo musí obsahovat minimálně osm znaků. Doporučuje se používat velká i "
-"malá písmena, čísla a speciální znaky jako ?=+; atd."
-
-# Record form: Change password
 msgid "hidden"
 msgstr "schovat"
 
