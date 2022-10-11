@@ -423,8 +423,8 @@ function zzformLoadPage(event){
 		zzformRecordForm();
 	zzformRemoveSuggestions();
 	zz_filters('init');
-	if (zzformForm)
-		zzformForm.classList.remove('saved_state');
+	if (zzform)
+		zzform.classList.remove('saved_state');
 }
 
 /**
