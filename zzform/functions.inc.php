@@ -1410,7 +1410,7 @@ function zz_record_access($zz, $ops) {
 	// initialize variables
 	$create_new_zzform_secret_key = true;
 	if (!empty($_POST['zz_id'])) {
-		$zz_conf['id'] = $_POST['zz_id'];
+		$zz_conf['id'] = zz_check_id_value($_POST['zz_id']);
 		$zz_conf['int']['secret_key'] = zz_secret_id('read');
 		if ($zz_conf['int']['secret_key']) {
 			$create_new_zzform_secret_key = false;
@@ -3526,7 +3526,7 @@ function zz_session_via_login() {
 	global $zz_conf;
 
 	// this function is called from outside zzform!
-	$zz_conf['id'] = $_POST['zz_id'];
+	$zz_conf['id'] = zz_check_id_value($_POST['zz_id']);
 	$zz_conf['int']['secret_key'] = zz_secret_id('read');
 
 	zz_session_write('postdata', $_POST);
@@ -3545,7 +3545,7 @@ function zz_review_via_login() {
 	global $zz_conf;
 	global $zz_setting;
 
-	$zz_conf['id'] = $_SESSION['zzform']['review_via_login'];
+	$zz_conf['id'] = zz_check_id_value($_SESSION['zzform']['review_via_login']);
 	$zz_conf['int']['secret_key'] = zz_secret_id('read');
 
 	$zz_setting['zzform_id_from_session'] = true;

@@ -755,13 +755,28 @@ function zz_set_id() {
 	global $zz_conf;
 	if (!empty($zz_conf['id']) AND empty($zz_conf['multi'])) return;
 	if (!empty($_GET['zz']) AND strlen($_GET['zz']) === 6) {
-		$zz_conf['id'] = $_GET['zz'];
+		$zz_conf['id'] = zz_check_id_value($_GET['zz']);
 	} elseif (!empty($_POST['zz_id']) AND strlen($_POST['zz_id']) === 6) {
-		$zz_conf['id'] = $_POST['zz_id'];
+		$zz_conf['id'] = zz_check_id_value($_POST['zz_id']);
 	} else {
 		$zz_conf['id'] = wrap_random_hash(6);
 	}
 	return;
+}
+
+/**
+ * check if ID is valid (if returned via browser), if invalid: create new ID
+ *
+ * @param string
+ * @return string
+ */
+function zz_check_id_value($string) {
+	for ($i = 0; $i < mb_strlen($string); $i++) {
+		$letter = mb_substr($string, $i, 1);
+		if (!strstr('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', $letter))
+			return wrap_random_hash(6);
+	}
+	return $string;
 }
 
 /**

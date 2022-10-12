@@ -90,7 +90,7 @@ function zzform_multi($definition_file, $values) {
 
 	if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
 		$old['id'] = $zz_conf['id'];	
-		$zz_conf['id'] = $id;
+		$zz_conf['id'] = zz_check_id_value($id);
 		zz_debug('find definition file', $definition_file);
 	}
 	$zz = zzform_include_table($definition_file, $values);
@@ -100,7 +100,7 @@ function zzform_multi($definition_file, $values) {
 	}
 	if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
 		zz_debug('got definition file');
-		$zz_conf['id'] = $old['id'];
+		$zz_conf['id'] = zz_check_id_value($old['id']);
 	}
 	// return on error in form script
 	if (!empty($ops['error'])) return $ops;
@@ -114,7 +114,7 @@ function zzform_multi($definition_file, $values) {
 
 	$zz_conf['int'] = $int;
 	if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
-		$zz_conf['id'] = $id;
+		$zz_conf['id'] = zz_check_id_value($id);
 		zz_debug('end');
 	}
 	return $ops;
