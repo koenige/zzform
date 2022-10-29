@@ -1160,6 +1160,8 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 					? $my_rec['fields'][$f]['conf_identifier'] : []);
 				$my_rec['POST'][$my_rec['fields'][$f]['field_name']] 
 					= zz_identifier($func_vars, $conf, $my_rec, $db_table, $f);
+				if (!empty($my_rec['fields'][$f]['log_username']))
+					$zz_conf['user'] = wrap_user($my_rec['POST'][$my_rec['fields'][$f]['field_name']]);
 			}
 	}
 	unset($my_rec['last_fields']);
