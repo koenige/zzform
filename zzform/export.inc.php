@@ -486,7 +486,7 @@ function zz_export_script($type) {
 		$success = wrap_include_files('zzform/export-'.$type, 'active');
 	}
 	if ($success AND !is_numeric(key($success))) {
-		$prefix = sprintf('mf_%s_', $zz_setting['active_module']);
+		$prefix = sprintf('mf_%s_', key($success)); // = module name
 	}
 	
 	// check if custom function exists
