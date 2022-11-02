@@ -73,10 +73,10 @@ function zz_output_full($ops) {
  * @return string
  */
 function zz_output_html_head($ops) {
-	global $zz_conf;
+	global $zz_setting;
 
 	$head = wrap_template('zzform-head', [], 'ignore positions');
-	if (!empty($zz_conf['wmd_editor_instances']))
+	if (!empty($zz_setting['zzform_wmd_editor_instances']))
 		$head .= wrap_template('pagedown-head', [], 'ignore positions');
 	return $head;
 }
@@ -1197,14 +1197,14 @@ function zz_username_format($value, $field) {
  */
 function zz_output_wmd_editor() {
 	global $zz_conf;
+	global $zz_setting;
 	
 	if (empty($zz_conf['wmd_editor'])) return '';
 	if ($zz_conf['wmd_editor'] === true) return '';
-	$zz_conf['wmd_editor_instances'] = $zz_conf['wmd_editor'] - 1;
+	$zz_setting['zzform_wmd_editor_instances'] = $zz_conf['wmd_editor'] - 1;
 	
-	if (!empty($zz_conf['wmd_editor_languages'])
-		AND in_array(wrap_get_setting('lang'), $zz_conf['wmd_editor_languages'])) {
-		$zz_conf['wmd_editor_lang'] = wrap_get_setting('lang');
+	if (in_array(wrap_get_setting('lang'), wrap_get_setting('zzform_wmd_editor_languages'))) {
+		$zz_setting['zzform_wmd_editor_lang'] = wrap_get_setting('lang');
 	}
 }
 
