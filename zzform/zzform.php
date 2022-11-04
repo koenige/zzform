@@ -722,7 +722,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 		'iso-8859-2' => 'iso-8859-1'
 	];
 	$default['url_self']			= false;
-	$default['xhr_vxjs']			= false;
 	// this JPEG quality equals file size of photoshop's 60%
 	// with a little more artefacts and especially blurred diagonal lines
 	$default['upload_imagick_options_for']['jpeg'] = '-auto-orient -quality 85';

@@ -1201,7 +1201,7 @@ function zz_hash($zz, $zz_conf) {
 		'title_separator',
 		'referer', 'access', 'heading_prefix', 'redirect', 'search_form_always',
 		'redirect_on_change', 'filter', 'filter_position', 'text', 'file_types',
-		'translate_log_encodings', 'limit', 'zzform_init', 'xhr_vxjs', 'url_self',
+		'translate_log_encodings', 'limit', 'zzform_init', 'url_self',
 		'show_list_while_edit', 'search', 'referer_text', 'html_autofocus',
 		'icc_profiles', 'error_log_post', 'upload_log',
 		'log_errors', 'debug_upload', 'debug', 'db_connection'

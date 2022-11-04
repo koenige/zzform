@@ -217,7 +217,7 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 
 	$record['backlink'] = zz_output_backlink($zz_tab);
 
-	if ($zz_conf['xhr_vxjs']) {
+	if (wrap_get_setting('zzform_xhr_vxjs')) {
 		if (!empty($zz_conf['int']['selects'])) {
 			$record['js_xhr_selects'] = wrap_template('xhr-selects', $zz_conf['int']['selects']);
 		}
