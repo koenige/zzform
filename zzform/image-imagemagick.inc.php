@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2006-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2006-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  * @todo
  *	identify -list Format
@@ -60,7 +60,7 @@
 function zz_imagick_identify($filename, $file) {
 	global $zz_conf;
 
-	if ($zz_conf['graphics_library'] !== 'imagemagick') return $file;
+	if (wrap_get_setting('zzform_graphics_library') !== 'imagemagick') return $file;
 	if (!$zz_conf['upload_tools']['identify']) return $file;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if (!file_exists($filename)) return zz_return(false);

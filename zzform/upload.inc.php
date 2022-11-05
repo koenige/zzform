@@ -257,8 +257,8 @@ function zz_upload_thumbnail($ops, $zz_tab) {
 function zz_upload_get($zz_tab) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	if ($zz_conf['graphics_library'])
-		include_once __DIR__.'/image-'.$zz_conf['graphics_library'].'.inc.php';
+	if ($graphics_library = wrap_get_setting('zzform_graphics_library'))
+		include_once __DIR__.'/image-'.$graphics_library.'.inc.php';
 
 	// allow shortcuts for file_types
 	$zz_conf['file_types'] = wrap_filetypes_normalize($zz_conf['file_types']);
@@ -1084,7 +1084,7 @@ function zz_upload_unix_file($filename, $file) {
  * @param string $type type of error: 'unknown' = unknown file; 'convert' = 
  *		error while converting a file
  * @global array $zz_conf
- *		'debug_upload', 'backup', 'backup_dir'
+ *		'debug_upload'
  * @return bool false: nothing was found, true: unknown file was found
  */
 function zz_upload_error_with_file($filename, $file, $return = []) {
@@ -1097,7 +1097,7 @@ function zz_upload_error_with_file($filename, $file, $return = []) {
 	// don’t do that when creating thumbnails in background: master file is
 	// already saved anyways
 	$error_filename = false;
-	if ($zz_conf['backup'] AND !in_array($filename, $copied_files)
+	if (wrap_get_setting('zzform_backup') AND !in_array($filename, $copied_files)
 		AND empty($file['create_in_background'])) {
 		// don't return here in case of error - 
 		// it's not so important to break the whole process
@@ -1480,7 +1480,6 @@ function zz_upload_create_source($image, $path, $zz_tab, $tab = 0, $rec = 0) {
  *		array array $image, string $filename on success
  */
 function zz_upload_prepare_source_file($image, $my_rec, $zz_tab, $tab, $rec) {
-	global $zz_conf;
 	$source_filename = false;
 
 	// check if field is there, convert string in ID, if it's a checkselect
@@ -2142,7 +2141,7 @@ function zz_val_get_from_upload($field, $images, $post) {
  * called from within function zz_upload_action
  * @param array $zz_tab complete table data
  * @global array $zz_conf
- *		modules[debug], backup, backup_dir
+ *		modules[debug]
  * @return array $zz_tab with changed values
  * @see zz_upload_action()
  */
@@ -2380,7 +2379,7 @@ function zz_upload_delete($filename, $show_filename = false, $action = 'delete')
 		return false;
 	}
 
-	if ($zz_conf['backup']) {
+	if (wrap_get_setting('zzform_backup')) {
 		$success = zz_rename($filename, zz_upload_path($action, $filename));
 		if (zz_error_exit()) return false;
 		zz_cleanup_dirs(dirname($filename));
@@ -2417,14 +2416,14 @@ function zz_upload_update($source, $dest, $uploaded_file, $action = 'update') {
 
 	zz_create_topfolders(dirname($dest));
 	if (zz_error_exit()) return false;
-	if (file_exists($dest) AND $zz_conf['backup'] AND (strtolower($source) != strtolower($dest))) { 
+	if (file_exists($dest) AND wrap_get_setting('zzform_backup') AND (strtolower($source) != strtolower($dest))) { 
 		// this case should not occur
 		// attention: file_exists returns true even if there is a change in case
 		zz_rename($dest, zz_upload_path($action, $dest));
 		if (zz_error_exit()) return false;
 	}
 	if (!file_exists($source)) return true;
-	if ($zz_conf['backup'] AND $uploaded_file) {
+	if (wrap_get_setting('zzform_backup') AND $uploaded_file) {
 		// new image will be added later on for sure
 		zz_rename($source, zz_upload_path($action, $dest));
 		if (zz_error_exit()) return false;
@@ -2460,7 +2459,7 @@ function zz_upload_insert($source, $dest, $action = '-', $mode = 'copy') {
 			zz_error();
 			return false;
 		}
-		if ($zz_conf['backup']) {
+		if (wrap_get_setting('zzform_backup')) {
 			zz_rename($dest, zz_upload_path($action, $dest));
 			if (zz_error_exit()) return false;
 			zz_cleanup_dirs(dirname($dest));
@@ -2511,9 +2510,7 @@ function zz_upload_insert($source, $dest, $action = '-', $mode = 'copy') {
  * @return string unique filename
  */
 function zz_upload_path($action, $path) {
-	global $zz_conf;
-
-	$my_base = $zz_conf['backup_dir'].'/'.$action.'/';
+	$my_base = sprintf('%s/%s/', wrap_get_setting('zzform_backup_dir'), $action);
 	zz_create_topfolders($my_base);
 	if (zz_error_exit()) return false;
 	$i = 0;
@@ -2741,7 +2738,7 @@ function zz_cleanup_dirs($dir, $indelible = []) {
 	global $zz_setting;
 	$dir = realpath($dir);
 	if (!$dir) return false;
-	$indelible[] = realpath($zz_conf['backup_dir']);
+	$indelible[] = realpath(wrap_get_setting('zzform_backup_dir'));
 	$indelible[] = $zz_setting['tmp_dir'];
 	$indelible[] = realpath($zz_conf['root']);
 	$indelible[] = '/tmp';

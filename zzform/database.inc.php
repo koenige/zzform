@@ -34,26 +34,26 @@
  */
 function zz_log_sql($sql, $user, $record_id = false) {
 	global $zz_conf;
-	// logs each INSERT, UPDATE or DELETE query
-	// with record_id
+	global $zz_setting;
+
 	$sql = trim($sql);
 	if ($sql === 'SELECT 1') return false;
 	// check if zzform() set db_main, test against !empty because need not be set
 	// (zz_log_sql() might be called from outside zzform())
-	if (!strstr($zz_conf['logging_table'], '.') AND !empty($zz_conf['int']['db_main'])) {
-		$zz_conf['logging_table'] = $zz_conf['int']['db_main'].'.'.$zz_conf['logging_table'];
+	if (!strstr(wrap_get_setting('zzform_logging_table'), '.') AND !empty($zz_conf['int']['db_main'])) {
+		$zz_setting['zzform_logging_table'] = $zz_conf['int']['db_main'].'.'.wrap_get_setting('zzform_logging_table');
 	}
 	if (is_array($record_id)) $record_id = NULL;
-	if (!empty($zz_conf['logging_id']) AND $record_id) {
+	if (wrap_get_setting('zzform_logging_id') AND $record_id) {
 		$sql = sprintf(
 			'INSERT INTO %s (query, user, record_id) VALUES (_binary "%s", "%s", %d)',
-			$zz_conf['logging_table'], wrap_db_escape($sql), $user, $record_id
+			wrap_get_setting('zzform_logging_table'), wrap_db_escape($sql), $user, $record_id
 		);
 	} else {
 		// without record_id, only for backwards compatibility
 		$sql = sprintf(
 			'INSERT INTO %s (query, user) VALUES (_binary "%s", "%s")',
-			$zz_conf['logging_table'], wrap_db_escape($sql), $user
+			wrap_get_setting('zzform_logging_table'), wrap_db_escape($sql), $user
 		);
 	}
 	$result = mysqli_query($zz_conf['db_connection'], $sql);
@@ -73,17 +73,23 @@ function zz_log_sql($sql, $user, $record_id = false) {
  */
 function zz_sql_prefix($vars, $type = 'zz') {
 	global $zz_conf;
+	global $zz_setting;
 
 	if ($type === 'zz') {
 		array_walk_recursive($vars, 'zz_sql_prefix_change_zz');
 	} else {
 		$sql_fields = [
-			'logging_table', 'relations_table', 'text_table',
+			'zzform_logging_table', 'zzform_relations_table', 'text_table',
 			'translations_table'
 		];
 		foreach ($sql_fields as $config) {
-			if (empty($zz_conf[$config])) continue;
-			zz_sql_prefix_change($zz_conf[$config]);
+			if (str_starts_with($config, 'zzform_')) {
+				$zz_setting[$config] = wrap_get_setting($config);
+				zz_sql_prefix_change($zz_setting[$config]);
+			} else {
+				if (empty($zz_conf[$config])) continue;
+				zz_sql_prefix_change($zz_conf[$config]);
+			}
 		}
 	}
 
@@ -543,7 +549,7 @@ function zz_db_change($sql, $id = false) {
 	if ($result) {
 		if (in_array($statement, $no_rows_affected)) {
 			$db['action'] = strtolower($statement);
-			if (!empty($zz_conf['logging']))
+			if (wrap_get_setting('zzform_logging'))
 				zz_log_sql($sql, $zz_conf['user'], $db['id_value']);
 		} elseif (!mysqli_affected_rows($zz_conf['db_connection'])) {
 			$db['action'] = 'nothing';
@@ -553,7 +559,7 @@ function zz_db_change($sql, $id = false) {
 			if ($db['action'] === 'insert') // get ID value
 				$db['id_value'] = mysqli_insert_id($zz_conf['db_connection']);
 			// Logs SQL Query, must be after insert_id was checked
-			if (!empty($zz_conf['logging']) AND $db['rows'])
+			if (wrap_get_setting('zzform_logging') AND $db['rows'])
 				zz_log_sql($sql, $zz_conf['user'], $db['id_value']);
 		}
 		$warnings = zz_db_fetch('SHOW WARNINGS', '_dummy_', 'numeric');

@@ -1197,7 +1197,6 @@ function zz_hash($zz, $zz_conf) {
 		'int', 'id', 'footer_text', 'footer_text_insert', 'footer_template',
 		'breadcrumbs', 'dont_show_title_as_breadcrumb', 'error_handling',
 		'error_log', 'format', 'group_html_table', 'list_display',
-		'logging', 'logging_id', 'logging_table',
 		'title_separator',
 		'referer', 'access', 'heading_prefix', 'redirect', 'search_form_always',
 		'redirect_on_change', 'filter', 'filter_position', 'text', 'file_types',
