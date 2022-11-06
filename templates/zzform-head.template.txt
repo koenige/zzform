@@ -8,6 +8,3 @@
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 	<link rel="stylesheet" type="text/css" href="%%% setting layout_path %%%/zzform/zzform.css">
-%%% condition if setting zzform_colours %%%
-	<link rel="stylesheet" type="text/css" href="%%% setting layout_path %%%/zzform/zzform-colours.css">
-%%% condition endif %%%
