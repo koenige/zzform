@@ -67,21 +67,6 @@ function zz_output_full($ops) {
 }
 
 /**
- * output for HTML HEAD
- *
- * @param array $ops
- * @return string
- */
-function zz_output_html_head($ops) {
-	global $zz_setting;
-
-	$head = wrap_template('zzform-head', [], 'ignore positions');
-	if (!empty($zz_setting['zzform_wmd_editor_instances']))
-		$head .= wrap_template('pagedown-head', [], 'ignore positions');
-	return $head;
-}
-
-/**
  * Gives information which meta tags should be added to HTML head
  *
  * @return array

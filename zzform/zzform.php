@@ -465,7 +465,7 @@ function zzform_exit($ops) {
 		// HTML head
 		if (empty($ops['page']['head']))
 			$ops['page']['head'] = '';
-		$ops['page']['head'] .= zz_output_html_head($ops);
+		$ops['page']['head'] .= wrap_template('zzform-head', [], 'ignore positions');
 		if (empty($ops['page']['meta']))
 			$ops['page']['meta'] = [];
 		$ops['page']['meta'] = array_merge($ops['page']['meta'], zz_output_meta_tags());
