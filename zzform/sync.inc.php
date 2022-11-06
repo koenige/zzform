@@ -175,9 +175,6 @@ function zz_sync($import) {
 	$zz_setting['extra_http_headers'][] = 'X-Frame-Options: Deny';
 	$zz_setting['extra_http_headers'][] = "Content-Security-Policy: frame-ancestors 'self'";
 
-	if ($testing) {
-		$page['head'] = wrap_template('zzform-head');
-	}
 	$page['query_strings'] = ['limit'];
 	$page['text'] = implode('<br>', $lines);
 	if ($refresh) {
@@ -657,7 +654,6 @@ function zz_sync_deletable($import) {
 
 	$page['query_strings'] = ['deletable'];
 	$page['text'] = wrap_template('sync-deletable', $data);
-	$page['head'] = wrap_template('zzform-head');
 	$page['title'] = wrap_text('Deletable Records');
 	return $page;
 }
