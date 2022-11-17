@@ -69,30 +69,10 @@ function zz_log_sql($sql, $user, $record_id = false) {
  * syntax for prefixes is SQL comment / *PREFIX* /
  *
  * @param array $vars definition of table/configuration
- * @param string $type 'zz' or 'zz_conf'
  * @return array $vars (definition with replacements for table prefixes)
  */
-function zz_sql_prefix($vars, $type = 'zz') {
-	global $zz_conf;
-	global $zz_setting;
-
-	if ($type === 'zz') {
-		array_walk_recursive($vars, 'zz_sql_prefix_change_zz');
-	} else {
-		$sql_fields = [
-			'translations_table'
-		];
-		foreach ($sql_fields as $config) {
-			if (str_starts_with($config, 'zzform_')) {
-				$zz_setting[$config] = wrap_get_setting($config);
-				zz_sql_prefix_change($zz_setting[$config]);
-			} else {
-				if (empty($zz_conf[$config])) continue;
-				zz_sql_prefix_change($zz_conf[$config]);
-			}
-		}
-	}
-
+function zz_sql_prefix($vars) {
+	array_walk_recursive($vars, 'zz_sql_prefix_change_zz');
 	return $vars;
 }
 
