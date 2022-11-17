@@ -21,7 +21,6 @@
  */
 function zz_translations_config() {
 	$default['translations_of_fields'] = false;
-	$default['translations_table'] = '';
 	$default['translations_script'] = [];
 	zz_write_conf($default);
 }
@@ -39,9 +38,9 @@ function zz_translations_init($table, $fields) {
 	global $zz_setting;
 
 	if (!$zz_conf['translations_of_fields']) return $fields;
-	if (!$zz_conf['translations_table']) {
+	if (!wrap_sql_table('default_translationfields')) {
 		zz_error_log([
-			'msg_dev' => '$zz_conf[\'translations_table\'] must be set.',
+			'msg_dev' => '`default_translationfields__table` must be set.',
 			'level' => E_USER_ERROR
 		]);
 		return zz_error();
@@ -52,7 +51,7 @@ function zz_translations_init($table, $fields) {
 	$sql = 'SELECT translationfield_id, field_name, field_type
 		FROM %s
 		WHERE db_name = "%s" AND table_name = "%s"';
-	$sql = sprintf($sql, $zz_conf['translations_table'], $zz_conf['db_name'], $table);
+	$sql = sprintf($sql, wrap_sql_table('default_translationfields'), $zz_conf['db_name'], $table);
 	$translationfields = zz_db_fetch($sql, 'field_name');
 
 	$all_indices = array_keys($fields);
@@ -169,7 +168,7 @@ function zz_translations_fields($sql_translate) {
 	if (array_key_exists($key, $tfields)) return $tfields[$key];
 
 	$sql_fields = 'SELECT translationfield_id, field_name, field_type
-		FROM '.$zz_conf['translations_table'].'
+		FROM '.wrap_sql_table('default_translationfields').'
 		WHERE db_name = "%s" AND table_name = "%s"';
 	$tfields[$key]['varchar'] = [];
 	$tfields[$key]['text'] = [];
