@@ -1,6 +1,6 @@
 /**
  * zzform module
- * SQL queries for core, page, auth and database IDs
+ * SQL queries
  *
  * Part of »Zugzwang Project«
  * https://www.zugzwang.org/modules/zzform
