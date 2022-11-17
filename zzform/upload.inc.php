@@ -2970,7 +2970,7 @@ function zz_upload_exec($command, $log_description) {
  * @return string
  */
 function zz_upload_supported_filetypes($filetypes) {
-	$sql = sprintf(wrap_sql('filetypelist'), implode("', '", $filetypes));
+	$sql = sprintf(wrap_sql_query('zzform_filetypelist'), implode("', '", $filetypes));
 	$filetypes = wrap_db_fetch($sql, 'filetype_id', 'numeric');
 	$filetypes = wrap_translate($filetypes, 'filetypes', 'filetype_id');
 	
