@@ -75,7 +75,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 	// check referential integrity
 	if (wrap_get_setting('zzform_check_referential_integrity')) {
 		// get table relations
-		$relations = zz_integrity_relations(wrap_sql_query('zzform_relations__table'));
+		$relations = zz_integrity_relations(wrap_sql_table('zzform_relations'));
 		// get record IDs of all records in table definition (1 main, n sub records)
 		$record_ids = zz_integrity_record_ids($zz_tab);
 		// if no record IDs = no deletion is possible
@@ -2415,7 +2415,7 @@ function zz_integrity_relations($relation_table) {
 function zz_integrity_check($deletable_ids, $relations) {
 	if (!$relations) {
 		$response['msg'] = 'No records in relation table `%s`. Please fill in records.';
-		$response['msg_args'] = [wrap_sql_query('zzform_relations__table')];
+		$response['msg_args'] = [wrap_sql_table('zzform_relations')];
 		$response['msg_no_list'] = true;
 		return $response;
 	}

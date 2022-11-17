@@ -40,7 +40,7 @@ function zz_log_sql($sql, $user, $record_id = false) {
 	if ($sql === 'SELECT 1') return false;
 	// check if zzform() set db_main, test against !empty because need not be set
 	// (zz_log_sql() might be called from outside zzform())
-	$logging_table = wrap_sql_query('zzform_logging__table');
+	$logging_table = wrap_sql_table('zzform_logging');
 	if (!strstr($logging_table, '.') AND !empty($zz_conf['int']['db_main'])) {
 		$logging_table = $zz_conf['int']['db_main'].'.'.$logging_table;
 	}
