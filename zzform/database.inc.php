@@ -40,20 +40,21 @@ function zz_log_sql($sql, $user, $record_id = false) {
 	if ($sql === 'SELECT 1') return false;
 	// check if zzform() set db_main, test against !empty because need not be set
 	// (zz_log_sql() might be called from outside zzform())
-	if (!strstr(wrap_get_setting('zzform_logging_table'), '.') AND !empty($zz_conf['int']['db_main'])) {
-		$zz_setting['zzform_logging_table'] = $zz_conf['int']['db_main'].'.'.wrap_get_setting('zzform_logging_table');
+	$logging_table = wrap_sql_query('zzform_logging__table');
+	if (!strstr($logging_table, '.') AND !empty($zz_conf['int']['db_main'])) {
+		$logging_table = $zz_conf['int']['db_main'].'.'.$logging_table;
 	}
 	if (is_array($record_id)) $record_id = NULL;
 	if (wrap_get_setting('zzform_logging_id') AND $record_id) {
 		$sql = sprintf(
 			'INSERT INTO %s (query, user, record_id) VALUES (_binary "%s", "%s", %d)',
-			wrap_get_setting('zzform_logging_table'), wrap_db_escape($sql), $user, $record_id
+			$logging_table, wrap_db_escape($sql), $user, $record_id
 		);
 	} else {
 		// without record_id, only for backwards compatibility
 		$sql = sprintf(
 			'INSERT INTO %s (query, user) VALUES (_binary "%s", "%s")',
-			wrap_get_setting('zzform_logging_table'), wrap_db_escape($sql), $user
+			$logging_table, wrap_db_escape($sql), $user
 		);
 	}
 	$result = mysqli_query($zz_conf['db_connection'], $sql);
