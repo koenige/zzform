@@ -99,7 +99,7 @@ function zz_merge_records($zz) {
 			WHERE master_db = "%s"
 			AND master_table = "%s"
 			AND master_field = "%s"';
-		$sql = sprintf($sql, wrap_get_setting('zzform_relations_table'), $zz_conf['db_name'], $rec['table'], $rec['id_field_name']);
+		$sql = sprintf($sql, wrap_sql_query('zzform_relations__table'), $zz_conf['db_name'], $rec['table'], $rec['id_field_name']);
 		$dependent_records = zz_db_fetch($sql, 'rel_id');
 
 		$dependent_sql = 'SELECT * FROM %s.%s WHERE %s IN (%s)';

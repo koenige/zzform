@@ -677,7 +677,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['always_show_empty_detail_record'] = false;
 	$default['add']				= true;		// add or do not add data.
 	$default['cancel_link']		= true;
-	$default['check_referential_integrity'] = true;
 	$default['copy']			= false;	// show action: copy
 	$default['delete']			= true;	// show action: delete
 	$default['details']			= false;	// column details; links to detail records with foreign key

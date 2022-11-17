@@ -80,8 +80,7 @@ function zz_sql_prefix($vars, $type = 'zz') {
 		array_walk_recursive($vars, 'zz_sql_prefix_change_zz');
 	} else {
 		$sql_fields = [
-			'zzform_logging_table', 'zzform_relations_table', 'text_table',
-			'translations_table'
+			'text_table', 'translations_table'
 		];
 		foreach ($sql_fields as $config) {
 			if (str_starts_with($config, 'zzform_')) {

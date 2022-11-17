@@ -73,9 +73,9 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 	}
 
 	// check referential integrity
-	if ($zz_conf['check_referential_integrity']) {
+	if (wrap_get_setting('zzform_check_referential_integrity')) {
 		// get table relations
-		$relations = zz_integrity_relations(wrap_get_setting('zzform_relations_table'));
+		$relations = zz_integrity_relations(wrap_sql_query('zzform_relations__table'));
 		// get record IDs of all records in table definition (1 main, n sub records)
 		$record_ids = zz_integrity_record_ids($zz_tab);
 		// if no record IDs = no deletion is possible
@@ -2380,7 +2380,7 @@ function zz_password_set($old, $new1, $new2, $sql, $field) {
  *
  * functions for checking for relational integrity of mysql-databases
  * uses table _relations, similar to the PHPMyAdmin table of relations
- * name of table may be set with `zzform_relations_table`
+ * name of table may be set with `zzform_relations__table`
  * 
  * detail records if shown with current record will be deleted if they don't 
  * have detail records themselves. In the latter case, the resulting error message
@@ -2415,7 +2415,7 @@ function zz_integrity_relations($relation_table) {
 function zz_integrity_check($deletable_ids, $relations) {
 	if (!$relations) {
 		$response['msg'] = 'No records in relation table `%s`. Please fill in records.';
-		$response['msg_args'] = [wrap_get_setting('zzform_relations_table')];
+		$response['msg_args'] = [wrap_sql_query('zzform_relations__table')];
 		$response['msg_no_list'] = true;
 		return $response;
 	}

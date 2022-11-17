@@ -11,6 +11,9 @@
  */
 
 
+-- zzform_relations__table --
+/* _relations */
+
 -- zzform_logging__table --
 /* _logging */
 
