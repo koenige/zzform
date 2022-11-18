@@ -3920,7 +3920,8 @@ function zz_check_select_translated($field, $sql_fieldname, $value, $search_equa
 	}
 
 	// set query
-	$sql_translations = wrap_db_prefix(wrap_sql('translations'));
+	$sql_translations = wrap_sql_query('default_translations');
+	if (!$sql_translations) return '';
 	$sql_translations = str_replace('AND field_id IN (%s)', '', $sql_translations);
 
 	// get translations
