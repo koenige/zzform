@@ -36,7 +36,7 @@ function mod_zzform_make_sync($params) {
 			list($qkey, $qvalue) = explode(' = ', $query);
 			$ids[] = $qkey;
 		}
-		$queries[$identifier] = wrap_system_sql_placeholders($queries[$identifier]);
+		$queries[$identifier] = wrap_sql_placeholders($queries[$identifier]);
 		if ($ids)
 			$queries[$identifier]['ids'] = $ids;
 	}
