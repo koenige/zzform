@@ -108,10 +108,16 @@ function zz_translations_init($table, $fields) {
 				}
 			}
 			if (!empty($zz_sub['fields'][$key]['inherit_format'])) {
-				if (!empty($fields[$no]['format']))
-					$zz_sub['fields'][$key]['format'] = $fields[$no]['format'];
-				if (!empty($fields[$no]['typo_cleanup']))
-					$zz_sub['fields'][$key]['typo_cleanup'] = true;
+				$inherit_defs = ['type', 'format', 'typo_cleanup', 'rows'];
+				foreach ($inherit_defs as $inherit_def) {
+					if (!array_key_exists($inherit_def, $fields[$no])) continue;
+					$zz_sub['fields'][$key][$inherit_def] = $fields[$no][$inherit_def];
+					if ($inherit_def === 'type' AND $fields[$no][$inherit_def] === 'memo') {
+						// varchar form: display below, not inline
+						unset($zz_sub['form_display']);
+						$zz_sub['fields'][5]['append_next'] = false;
+					}
+				}
 			}
 			if (!empty($fields[$no]['rows']))
 				$zz_sub['fields'][$key]['rows'] = $fields[$no]['rows'];
