@@ -538,15 +538,22 @@ function zz_imagick_convert($options, $source, $source_ext, $dest, $dest_ext, $i
  *
  * @param string $command name of ImageMagick command
  * @global array $zz_conf
- *		imagemagick_path_unchecked, imagemagick_paths
+ *		imagemagick_paths
  * @return string $command correct path and command
  */
 function zz_imagick_findpath($command = 'convert') {
 	global $zz_conf;
 
-	if (!empty($zz_conf['imagemagick_path_unchecked'])) {
-		// don't do checks
-		$command = $zz_conf['imagemagick_path_unchecked'].'/'.$command.' ';
+	if ($path = wrap_get_setting('zzform_imagemagick_path_unchecked')
+		AND !wrap_get_setting('local_access')
+	) {
+		// don’t do checks on production server
+		$command = sprintf('%s/%s ', $path, $command);
+		return $command;
+	} elseif ($path = wrap_get_setting('zzform_imagemagick_path_unchecked_local')
+		AND wrap_get_setting('local_access')
+	) {
+		$command = sprintf('%s/%s ', $path, $command);
 		return $command;
 	}
 
@@ -567,7 +574,7 @@ function zz_imagick_findpath($command = 'convert') {
 			.implode(', ', $zz_conf['imagemagick_paths']), E_USER_WARNING);
 		return '';
 	}
-	$command = $path.'/'.$command.' ';
+	$command = sprintf('%s/%s ', $path, $command);
 	return $command;
 }
 
