@@ -2201,6 +2201,8 @@ function zz_validate_parameter($fvalue) {
 	parse_str($fvalue, $parameters);
 	$values = [];
 	foreach ($parameters as $key => $value) {
+		// main key always has to be lowercase, other keys might contain uppercase letters
+		$key = strtolower($key);
 		if (is_array($value)) {
 			foreach ($value as $subkey => $subvalue) {
 				if (is_array($subvalue)) {
