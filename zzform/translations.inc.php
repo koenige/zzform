@@ -45,6 +45,7 @@ function zz_translations_init($table, $fields) {
 		]);
 		return zz_error();
 	}
+	if (empty($zz_setting['languages_allowed'])) return $fields;
 	if (count($zz_setting['languages_allowed']) === 1) return $fields;
 
 	// Step 1: get fields which might be translated
