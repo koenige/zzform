@@ -1195,15 +1195,12 @@ function zz_hash($zz, $zz_conf) {
 	$id = $zz_conf['id'];
 	$uninteresting_zz_conf_keys = [
 		'int', 'id', 'footer_text', 'footer_text_insert', 'footer_template',
-		'breadcrumbs', 'dont_show_title_as_breadcrumb', 'error_handling',
-		'error_log', 'format', 'group_html_table', 'list_display',
-		'title_separator',
-		'referer', 'access', 'heading_prefix', 'redirect', 'search_form_always',
-		'redirect_on_change', 'filter', 'filter_position', 'text', 'file_types',
-		'translate_log_encodings', 'limit', 'zzform_init', 'url_self',
+		'breadcrumbs', 'dont_show_title_as_breadcrumb', 'format', 'group_html_table',
+		'list_display', 'title_separator', 'referer', 'access', 'heading_prefix',
+		'redirect', 'search_form_always', 'redirect_on_change', 'filter',
+		'filter_position', 'text', 'file_types', 'limit', 'zzform_init', 'url_self',
 		'show_list_while_edit', 'search', 'referer_text', 'html_autofocus',
-		'icc_profiles', 'error_log_post', 'upload_log',
-		'log_errors', 'debug_upload', 'debug', 'db_connection'
+		'icc_profiles', 'upload_log', 'debug_upload', 'debug', 'db_connection'
 	];
 	foreach ($uninteresting_zz_conf_keys as $key) unset($zz_conf[$key]);
 	// remove user if it's not an internal user
@@ -2466,21 +2463,14 @@ function zz_backwards_rename($var, $var_renamed, $var_name) {
  * depending on settings, will log errors in logfile and/or send errors by mail
  *
  * @global array $zz_conf
- *		$zz_conf['error_log']['notice'], $zz_conf['error_log']['warning'], 
- * 		$zz_conf['error_log']['error'] = path to error_log, default from php.ini
- * 		$zz_conf['error_handling'] = value for admin error logging
- * 			- false: no output, just write into log if set
- * 			- 'mail': send admin errors via mail
- * 			- 'output': send admin erros via html
  * @return bool false if no error was detected, true if error was detected
  */
 function zz_error() {
 	global $zz_conf;
 	global $zz_setting;
 	
-	if (empty($zz_conf['error_handling'])) {
-		$zz_conf['error_handling'] = 'output';
-	}
+	if (!wrap_get_setting('error_handling'))
+		$zz_setting['error_handling'] = 'output';
 	$user = [];
 	$admin = [];
 	$log = [];
@@ -2493,10 +2483,7 @@ function zz_error() {
 		return false;
 	}
 	
-	$log_encoding = $zz_setting['character_set'];
-	// PHP does not support all encodings
-	if (in_array($log_encoding, array_keys($zz_conf['translate_log_encodings'])))
-		$log_encoding = $zz_conf['translate_log_encodings'][$log_encoding];
+	$log_encoding = wrap_log_encoding();
 	
 	// browse through all errors
 	foreach ($logged_errors as $key => $error) {
@@ -2510,7 +2497,7 @@ function zz_error() {
 		if (!isset($error['log_post_data'])) {
 			$error['log_post_data'] = true;
 		}
-		if (!$zz_conf['error_log_post']) $error['log_post_data'] = false;
+		if (!wrap_get_setting('error_log_post')) $error['log_post_data'] = false;
 		elseif (empty($_POST)) $error['log_post_data'] = false;
 
 		// page http status
@@ -2625,16 +2612,13 @@ function zz_error() {
 		$log[$key] = strip_tags($log[$key]);
 		$log[$key] = str_replace('&lt;', '<', $log[$key]);
 		// reformat log output
-		if (!empty($zz_conf['error_log'][$level]) AND $zz_conf['log_errors']) {
+		if (wrap_get_setting('error_log['.$level.']') AND wrap_get_setting('log_errors')) {
 			wrap_log('['.$zz_setting['request_uri'].'] '.$log[$key],  $level, 'zzform');
 			if ($error['log_post_data']) wrap_log('postdata', 'notice', 'zzform');
 		}
 		// Mail output
-		if (isset($zz_conf['error_mail_level']) AND in_array(
-			$level, $zz_conf['error_mail_level'])
-		) {
+		if (in_array($level, wrap_get_setting('error_mail_level')))
 			$message[$key] = $log[$key];
-		}
 
 		// Heading
 		if (!$user[$key]) {
@@ -2652,7 +2636,7 @@ function zz_error() {
 
 	// mail errors if said to do so
 	$mail = [];
-	switch ($zz_conf['error_handling']) {
+	switch (wrap_get_setting('error_handling')) {
 	case 'mail':	
 		if (!wrap_get_setting('error_mail_to')) break;
 		if (!count($message)) break;
@@ -3169,7 +3153,6 @@ function zz_edit_query_string($query, $unwanted_keys = [], $new_keys = [], $and 
  *
  * @param string $string
  * @return string $string
- * @global array $zz_conf
  */
 function zz_htmltag_escape($string) {
 	if (!$string) return $string;
@@ -3189,7 +3172,6 @@ function zz_htmltag_escape($string) {
  *
  * @param string $string
  * @return string $string
- * @global array $zz_conf
  */
 function zz_htmlnoand_escape($string) {
 	global $zz_setting;

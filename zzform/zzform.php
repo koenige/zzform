@@ -648,15 +648,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	// modules depending on settings
 	if ($zz_conf['generate_output']) $zz_conf['int_modules'][] = 'output';
 
-	// Configuration on project level: shorthand values
-	if (!is_array($zz_conf['error_mail_level'])) {
-		if ($zz_conf['error_mail_level'] === 'error')
-			$zz_conf['error_mail_level'] = ['error'];
-		elseif ($zz_conf['error_mail_level'] === 'warning')
-			$zz_conf['error_mail_level'] = ['error', 'warning'];
-		elseif ($zz_conf['error_mail_level'] === 'notice')
-			$zz_conf['error_mail_level'] = ['error', 'warning', 'notice'];
-	}
 	// include core functions
 	require_once __DIR__.'/functions.inc.php';
 	require_once __DIR__.'/database.inc.php';
@@ -715,9 +706,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['thousands_separator']	= ' ';
 	$default['user']				= isset($_SERVER['PHP_AUTH_USER']) ? $_SERVER['PHP_AUTH_USER'] : wrap_user();
 	$default['view']				= false;	// 	show Action: View
-	$default['translate_log_encodings'] = [
-		'iso-8859-2' => 'iso-8859-1'
-	];
 	$default['url_self']			= false;
 	// this JPEG quality equals file size of photoshop's 60%
 	// with a little more artefacts and especially blurred diagonal lines

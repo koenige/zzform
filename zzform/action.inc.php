@@ -2327,8 +2327,8 @@ function zz_check_rules($value, $field, $post) {
  * @return string false: an error occurred; string: new encrypted password 
  */
 function zz_password_set($old, $new1, $new2, $sql, $field) {
-	global $zz_conf;
-	$zz_conf['error_log_post'] = false; // never log posted passwords
+	global $zz_setting;
+	$zz_setting['error_log_post'] = false; // never log posted passwords
 	if ($new1 !== $new2) {
 		// new passwords do not match
 		zz_error_log([
