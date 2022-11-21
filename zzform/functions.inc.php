@@ -1991,6 +1991,12 @@ function zz_makelink($path, $record, $type = 'link') {
 				else
 					$path_values[] = $record[$this_field];
 			}
+			if (strstr($value, '[%s]') AND !empty($path['area_fields'])) {
+				$area_values = [];
+				foreach ($path['area_fields'] as $this_field)
+					$area_values[] = $record[$this_field];
+				$value = vsprintf($value, $area_values);
+			}
 			$path_web[1] .= wrap_path($value, $path_values);
 			break;
 		case 'function':
