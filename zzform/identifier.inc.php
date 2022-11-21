@@ -519,12 +519,21 @@ function zz_identifier_redirect($ops, $zz_tab) {
 		if (!is_array($redirect)) {
 			$old = $redirect;
 			$new = $redirect;
-		} else {
+		} elseif (!is_array($redirect['old'])) {
 			$old = $redirect['old'];
 			$new = $redirect['new'];
 			if (isset($redirect['field_name'])) {
 				$field_name = $redirect['field_name'];
 			}
+		} else {
+			// @todo $field_name is actually defined twice
+			// get data from record_old that is not available yet in record_new
+			// @todo solve differently; currently a change of e. g. a publication category
+			// will not change the corresponding path
+			// maybe make full record available in 'new', too?
+			$record_new = $ops['record_new'][0] + $ops['record_old'][0];
+			$old = zz_makelink($redirect['old'], $ops['record_old'][0]);
+			$new = zz_makelink($redirect['new'], $record_new);
 		}
 		if (empty($field_name)) {
 			foreach ($zz_tab[0][0]['fields'] as $field) {
