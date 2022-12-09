@@ -2,7 +2,7 @@
 # TinyMCE Editor with upndown support
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2015 Gustaf Mossakowski
+# @copyright Copyright © 2015, 2022 Gustaf Mossakowski
 #
 #
 <script src="%%% setting behaviour_path %%%/jquery/jquery-1.10.2.js"></script>
@@ -10,7 +10,7 @@
 <script src="%%% setting behaviour_path %%%/upndown/upndown.bundle.min.js"></script>
 <script src="%%% setting behaviour_path %%%/marked/marked.js"></script>
 <script src="%%% setting behaviour_path %%%/tinymce/tinymce.min.js"></script>
-<script type="text/javascript">
+<script>
 
 %%% loop start %%%
 	// Intialize wysiwig editor with converted markdown source
