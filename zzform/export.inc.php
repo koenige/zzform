@@ -300,7 +300,9 @@ function zz_export_sort(&$out) {
 function zz_export_kml($ops, $zz) {
 	global $zz_setting;
 	
-	$kml['title'] = utf8_encode(zz_nice_title($ops['heading'], $ops['output']['head'], $ops));
+	$kml['title'] = zz_nice_title($ops['heading'], $ops['output']['head'], $ops);
+	if ($zz_setting['character_set'] !== 'utf-8')
+		$kml['title'] = mb_convert_encoding($kml['title'], 'UTF-8', $zz_setting['character_set']);
 	$kml['description'] = zz_format($zz['explanation']);
 	$kml['styles'] = [];
 	$kml['placemarks'] = [];
@@ -394,7 +396,7 @@ function zz_export_kml_description($head, $line, $fields) {
 			$title = $head[$no]['th_nohtml'];
 		}
 		if ($zz_setting['character_set'] !== 'utf-8')
-			$title = utf8_encode($title);
+			$title = mb_convert_encoding($title, 'UTF-8', $zz_setting['character_set']);
 		$desc[] = '<tr><th>'.$title.'</th><td>'.$values['text'].'</td></tr>';
 	}
 	$text = '<table class="kml_description">'.implode("\n", $desc).'</table>'
