@@ -1062,17 +1062,14 @@ function zz_get_subrecords_mode($my_tab, $rec_tpl, $existing_ids) {
 				if ($idval) {
 					if (!isset($my_rec[$rec_tpl['id']['field_name']])) continue;
 					if ($my_rec[$rec_tpl['id']['field_name']] != $idval) continue;
-					$my_tab[$rec]['POST'] = $my_rec;
-					$my_tab[$rec]['check_select_fields'] = !empty($my_tab['check_select_fields'][$key]) ? $my_tab['check_select_fields'][$key] : [];
-					unset($my_tab['POST'][$key]);
 				} else {
 					if (!empty($my_rec[$rec_tpl['id']['field_name']])) continue;
 					if ($my_tab[$rec]['POST']) continue;
-					// find first value pair that matches and put it into POST
-					$my_tab[$rec]['POST'] = $my_rec;
-					$my_tab[$rec]['check_select_fields'] = !empty($my_tab['check_select_fields'][$key]) ? $my_tab['check_select_fields'][$key] : [];
-					unset($my_tab['POST'][$key]);
 				}
+				// find first value pair that matches and put it into POST
+				$my_tab[$rec]['POST'] = $my_rec;
+				$my_tab[$rec]['check_select_fields'] = $my_tab['check_select_fields'][$key] ?? [];
+				unset($my_tab['POST'][$key]);
 			}
 		}
 	}

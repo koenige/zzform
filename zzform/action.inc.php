@@ -1681,7 +1681,7 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 							$func_vars[$var] = '';
 						}
 					} else {
-						$func_vars[$var] = !empty($my_rec['POST'][$var]) ? $my_rec['POST'][$var] : '';
+						$func_vars[$var] = $my_rec['POST'][$var] ?? '';
 					}
 				}
 			} else {
@@ -2277,13 +2277,12 @@ function zz_write_detail_values($zz_tab, $f, $tab = 0, $rec = 0) {
  */
 function zz_check_rules($value, $field, $post) {
 	foreach ($field['validate'] as $type => $data) {
-		$validate_msg = !empty($field['validate_msg'][$type]) ? $field['validate_msg'][$type] : '';
 		switch ($type) {
 		case 'forbidden_strings':
 			foreach ($data as $needle) {
 				if (stripos($value, $needle) === false) continue; // might be 0
 				return [
-					'msg' => $validate_msg ? $validate_msg : 'String <em>“%s”</em> is not allowed',
+					'msg' => $field['validate_msg'][$type] ?? 'String <em>“%s”</em> is not allowed',
 					'msg_args' => zz_htmltag_escape($needle)
 				];
 			}
@@ -2304,7 +2303,7 @@ function zz_check_rules($value, $field, $post) {
 				$msg['<'] = 'smaller than';
 				$msg['<='] = 'smaller than or equal to';
 				return [
-					'msg' => $validate_msg ? $validate_msg : 'Value “%s” needs to be '.$msg[$type].' “%s”.',
+					'msg' => $field['validate_msg'][$type] ?? 'Value “%s” needs to be '.$msg[$type].' “%s”.',
 					'msg_args' => [zz_htmltag_escape($value), zz_htmltag_escape($post[$field])]
 				];
 			}
