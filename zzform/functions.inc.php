@@ -3594,6 +3594,9 @@ function zz_check_select($my_rec, $f) {
 	}
 
 	// check if we need to check
+	if (is_string($my_rec['POST'][$field_name])
+		AND intval($my_rec['POST'][$field_name]).'' !== $my_rec['POST'][$field_name].'')
+		$my_rec['fields'][$f]['always_check_select'] = true;
 	if (empty($my_rec['fields'][$f]['always_check_select'])) {
 		// with zzform_multi(), no form exists, so check per default yes
 		// unless explicitly said not to check; with form its otherway round
