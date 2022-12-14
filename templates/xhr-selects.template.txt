@@ -12,7 +12,7 @@
 <script src="%%% setting behaviour_path %%%/vxjs/src/xhr.js"></script>
 <script src="%%% setting behaviour_path %%%/vxjs/src/widgets/autosuggest.js"></script>
 
-<script type="text/javascript">
+<script>
 %%% loop start %%%
 	vxJS.event.addDomReadyListener(function(){
 		var as%%% loopposition counter %%% = vxJS.widget.autoSuggest(document.getElementById("%%% item field_id %%%"),
