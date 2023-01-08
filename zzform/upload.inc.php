@@ -74,7 +74,7 @@
  *		['validated']		validated (yes = tested, no = rely on fileupload i. e. user)
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2006-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2006-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -2983,4 +2983,20 @@ function zz_upload_supported_filetypes($filetypes) {
 		if ($index + 1 < count($filetypes)) $text .= ', ';
 	}
 	return $text;
+}
+
+/**
+ * hide warnings in case filetypes.cfg says so
+ *
+ * @param array $file
+ * @param string $type
+ * @return bool
+ */
+function zz_upload_show_warning($file, $type) {
+	global $zz_conf;
+	if (empty($file['upload_ext'])) return true;
+	if (!array_key_exists($file['upload_ext'], $zz_conf['file_types'])) return true;
+	$def = $zz_conf['file_types'][$file['upload_ext']];
+	if (empty($def['hide_warnings'][$type])) return true;
+	return false;
 }

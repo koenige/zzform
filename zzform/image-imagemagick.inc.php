@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2006-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2006-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  * @todo
  *	identify -list Format
@@ -96,7 +96,7 @@ function zz_imagick_identify($filename, $file) {
 		 	}
 		}
 	}
-	if (count($output)) {
+	if (count($output) AND zz_upload_show_warning($file, 'identify')) {
 		// e. g.  '   **** Warning:', 'GPL Ghostscript:'
 		$file['warnings']['ImageMagick identify'] = $output;
 	}
