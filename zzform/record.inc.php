@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -2545,9 +2545,14 @@ function zz_field_set($field, $fields, $display, $my_tab) {
 		$title = [];
 		foreach ($set_field_names as $set_field_name) {
 			if (!$set[$set_field_name]) continue;
+			if (!empty($this_field['sql_replace'][$set_id_field_name]) 
+				AND $set_field_name === $this_field['sql_replace'][$set_id_field_name]) continue;
 			$title[] = $set[$set_field_name];
 		}
-		$sets_indexed[$set[$set_id_field_name]]['id'] = $set[$set_id_field_name];
+		if (!empty($this_field['sql_replace'][$set_id_field_name]))
+			$sets_indexed[$set[$set_id_field_name]]['id'] = $set[$this_field['sql_replace'][$set_id_field_name]];
+		else
+			$sets_indexed[$set[$set_id_field_name]]['id'] = $set[$set_id_field_name];
 		$sets_indexed[$set[$set_id_field_name]]['title'] = zz_field_concat($this_field, $title);
 		if ($group) $sets_indexed[$set[$set_id_field_name]]['group'] = $set[$group];
 	}
@@ -2556,8 +2561,16 @@ function zz_field_set($field, $fields, $display, $my_tab) {
 		if (!is_numeric($rec_no)) continue;
 		if (!empty($rec['existing'])) {
 			$rec = $rec['existing'];
-			$sets_indexed[$rec[$field_names['select']]]['rec_id'] = $rec[$field_names['id']];
-			$sets_indexed[$rec[$field_names['select']]]['rec_no'] = $rec_no;
+			if (!empty($this_field['sql_replace'][$set_id_field_name])) {
+				foreach ($sets_indexed as $id => $set_indexed) {
+					if ($set_indexed['id'] !== $rec[$field_names['select']]) continue;
+					$sets_indexed[$id]['rec_id'] = $rec[$field_names['id']];
+					$sets_indexed[$id]['rec_no'] = $rec_no;
+				}
+			} else {
+				$sets_indexed[$rec[$field_names['select']]]['rec_id'] = $rec[$field_names['id']];
+				$sets_indexed[$rec[$field_names['select']]]['rec_no'] = $rec_no;
+			}
 			if ($rec_no > $rec_max) $rec_max = $rec_no;
 		} elseif ((!empty($rec['POST']) AND !empty($zz_conf['int']['id']['source_value'])
 			OR (!empty($rec['POST']) AND $rec['action'] === 'review'))) {
