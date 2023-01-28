@@ -13,7 +13,7 @@
  *	zzform_multi()			multi edit for zzform, e. g. import
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -812,7 +812,10 @@ function zz_initialize_int() {
 function zzform_file($definition_file) {
 	global $zz_conf;
 	global $zz_setting;
-	require_once $zz_setting['lib'].'/zzbrick/forms.inc.php';
+	if (in_array('zzbrick', $zz_setting['modules']))
+		require_once $zz_setting['modules_dir'].'/zzbrick/zzbrick/forms.inc.php';
+	else
+		require_once $zz_setting['lib'].'/zzbrick/forms.inc.php';
 
 	$brick['setting'] = &$zz_setting;
 	if (empty($brick['setting']['brick_custom_dir']))
