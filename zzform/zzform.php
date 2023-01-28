@@ -817,14 +817,8 @@ function zzform_file($definition_file) {
 	else
 		require_once $zz_setting['lib'].'/zzbrick/forms.inc.php';
 
-	$brick['setting'] = &$zz_setting;
-	if (empty($brick['setting']['brick_custom_dir']))
-		$brick['setting']['brick_custom_dir'] = $zz_setting['custom'].'/zzbrick_';
-	if (empty($brick['setting']['brick_module_dir']))
-		$brick['setting']['brick_module_dir'] = '/zzbrick_';
-
-	$brick['path'] = $brick['setting']['brick_custom_dir'].'tables';
-	$brick['module_path'] = $brick['setting']['brick_module_dir'].'tables';
+	$brick['path'] = wrap_get_setting('brick_custom_dir').'tables';
+	$brick['module_path'] = wrap_get_setting('brick_module_dir').'tables';
 	$brick['vars'] = [$definition_file];
 	$brick = brick_forms_file($brick);
 
