@@ -810,12 +810,7 @@ function zz_initialize_int() {
  * @return array list of scripts
  */
 function zzform_file($definition_file) {
-	global $zz_conf;
-	global $zz_setting;
-	if (in_array('zzbrick', $zz_setting['modules']))
-		require_once $zz_setting['modules_dir'].'/zzbrick/zzbrick/forms.inc.php';
-	else
-		require_once $zz_setting['lib'].'/zzbrick/forms.inc.php';
+	wrap_include_files('forms', 'zzbrick');
 
 	$brick['path'] = wrap_get_setting('brick_custom_dir').'tables';
 	$brick['module_path'] = wrap_get_setting('brick_module_dir').'tables';
