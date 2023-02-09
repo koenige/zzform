@@ -175,6 +175,8 @@ function zz_nice_headings($heading, $zz) {
 					} else {
 						$heading_addition[$i][$index] = $subheading['format']($value);
 					}
+					if (!$heading_addition[$i][$index])
+						unset($heading_addition[$i][$index]);
 				}
 			}
 			if (is_array($subheading['concat'])) {
