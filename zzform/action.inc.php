@@ -9,7 +9,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -38,8 +38,7 @@
  */
 function zz_action($ops, $zz_tab, $validation, $zz_record) {
 	global $zz_conf;
-	global $zz_setting;
-
+	
 	wrap_include_files('zzform/editing', 'custom/active');
 
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
@@ -65,12 +64,12 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 
 	zz_action_dependent_fields($zz_tab);
 	$zz_tab = zz_action_validate($zz_tab);
+	zz_action_unique_check($zz_tab);
 
 	// hook, if an action directly after validation is required
 	// e. g. geocoding
-	if ($zz_record['action'] !== 'delete') {
+	if ($zz_record['action'] !== 'delete')
 		list($ops, $zz_tab) = zz_action_hook($ops, $zz_tab, 'after_validation', 'validated');
-	}
 
 	// check referential integrity
 	if (wrap_get_setting('zzform_check_referential_integrity')) {
@@ -763,7 +762,6 @@ function zz_action_hook($ops, $zz_tab, $position, $type) {
  *	array $change if some values need to be changed
  */
 function zz_action_function($type, $ops, $zz_tab) {
-	global $zz_setting;
 	static $hook_files;
 
 	if (empty($zz_tab[0]['hooks'][$type])) {
@@ -793,8 +791,8 @@ function zz_action_function($type, $ops, $zz_tab) {
 			}
 			$found = true;
 			if (!function_exists($hook)) {
-				if (!empty($zz_setting['active_module']) AND str_starts_with($hook, 'my_')) {
-					$active_mod_prefix = sprintf('mod_%s_', $zz_setting['active_module']);
+				if (wrap_get_setting('active_module') AND str_starts_with($hook, 'my_')) {
+					$active_mod_prefix = sprintf('mod_%s_', wrap_get_setting('active_module'));
 					$module_hook = str_replace('my_', $active_mod_prefix, $hook);
 					if (function_exists($module_hook)) $hook = $module_hook;
 					else $found = false;
@@ -2372,6 +2370,61 @@ function zz_password_set($old, $new1, $new2, $sql, $field) {
 		]);
 	}
 	return $hash;
+}
+
+/**
+ * check against unique restraints for main record only
+ *
+ * @param array $zz_tab
+ */
+function zz_action_unique_check(&$zz_tab) {
+	$sql = 'SHOW INDEXES FROM `%s`.`%s` WHERE Key_name != "PRIMARY" AND Non_unique = 0';
+	$sql = sprintf($sql, $zz_tab[0]['db_name'], $zz_tab[0]['table']);
+	// Key_name, Column_name, Null
+	$data = wrap_db_fetch($sql, '_dummy_', 'numeric');
+	$uniques = [];
+	foreach ($data as $line)
+		$uniques[$line['Key_name']][$line['Seq_in_index']] = [
+			'field_name' => $line['Column_name'],
+			'null' => $line['Null'] === 'YES' ? 1 : NULL
+		];
+	foreach ($uniques as $fields) {
+		$new_values = [];
+		foreach ($fields as $field) {
+			$value = $zz_tab[0][0]['POST'][$field['field_name']];
+			if (!$value) {
+				$value = 'NULL';
+				if ($field['null'])
+					if ($zz_tab[0]['unique_ignore_null']) continue; // check without field
+					else continue 2; // no check, since multiple NULL values are always allowed
+			} elseif (!is_int($value)) {
+				$value = sprintf('"%s"', $value);
+			}
+			$new_values[] = sprintf('`%s` = %s', $field['field_name'], $value);
+		}
+		$sql = 'SELECT `%s` FROM `%s`.`%s` WHERE %s AND `%s` != %d';
+		$sql = sprintf($sql
+			, $zz_tab[0][0]['id']['field_name'], $zz_tab[0]['db_name'], $zz_tab[0]['table']
+			, implode(' AND ', $new_values)
+			, $zz_tab[0][0]['id']['field_name'], $zz_tab[0][0]['id']['value']
+		);
+		$existing_id = wrap_db_fetch($sql, '', 'single value');
+		if ($existing_id) {
+			$zz_tab[0][0]['validation'] = false;
+			foreach ($zz_tab[0][0]['fields'] as $no => $fielddef) {
+				foreach ($fields as $field) {
+					if (empty($fielddef['field_name'])) continue;
+					if ($field['field_name'] !== $fielddef['field_name']) continue;
+					if (!empty($zz_tab[0][0]['fields'][$no]['hide_in_form'])) continue;
+					if (empty($zz_tab[0][0]['fields'][$no]['required_in_db'])) continue;
+					$zz_tab[0][0]['fields'][$no]['check_validation'] = false;
+					$zz_tab[0][0]['fields'][$no]['validation_error'] = [
+						'msg' => 'Duplicate entry',
+					];
+				}
+			}
+		}
+	}
 }
 
 /**

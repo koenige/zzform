@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -31,17 +31,18 @@ function zz_prepare_tables($zz, $mode) {
 	$zz_tab[0]['table_name'] = $zz['table'];
 	$zz_tab[0]['sql'] = $zz['sqlrecord'];
 	$zz_tab[0]['sql_without_where'] = $zz['sql_without_where'];
-	$zz_tab[0]['sqlextra'] = !empty($zz['sqlextra']) ? $zz['sqlextra'] : [];
-	$zz_tab[0]['sql_translate'] = !empty($zz['sql_translate']) ? $zz['sql_translate'] : [];
-	$zz_tab[0]['folder'] = !empty($zz['folder']) ? $zz['folder'] : [];
-	$zz_tab[0]['dynamic_referer'] = !empty($zz['dynamic_referer']) ? $zz['dynamic_referer'] : false;
+	$zz_tab[0]['sqlextra'] = $zz['sqlextra'] ?? [];
+	$zz_tab[0]['sql_translate'] = $zz['sql_translate'] ?? [];
+	$zz_tab[0]['folder'] = $zz['folder'] ?? [];
+	$zz_tab[0]['dynamic_referer'] = $zz['dynamic_referer'] ?? false;
 	$zz_tab[0]['add_from_source_id'] = !empty($zz['add_from_source_id']) ? true : false;
-	$zz_tab[0]['filter'] = !empty($zz['filter']) ? $zz['filter'] : [];
-	$zz_tab[0]['filter_active'] = !empty($zz['filter_active']) ? $zz['filter_active'] : [];
+	$zz_tab[0]['filter'] = $zz['filter'] ?? [];
+	$zz_tab[0]['filter_active'] = $zz['filter_active'] ?? [];
 	$zz_tab[0]['dont_reformat'] = !empty($_POST['zz_subtables']) ? true : false;
 	$zz_tab[0]['record_action'] = false;
-	$zz_tab[0]['add_details_return_field'] = !empty($zz['add_details_return_field']) ? $zz['add_details_return_field'] : '';
-	$zz_tab[0]['where'] = !empty($zz['record']['where'][$zz['table']]) ? $zz['record']['where'][$zz['table']] : [];
+	$zz_tab[0]['add_details_return_field'] = $zz['add_details_return_field'] ?? '';
+	$zz_tab[0]['where'] = $zz['record']['where'][$zz['table']] ?? [];
+	$zz_tab[0]['unique_ignore_null'] = $zz['unique_ignore_null'] ?? false;
 
 	if (!empty($zz['set_redirect'])) {
 		// update/insert redirects after_delete and after_update
