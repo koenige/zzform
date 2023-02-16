@@ -2391,7 +2391,7 @@ function zz_action_unique_check(&$zz_tab) {
 	foreach ($uniques as $fields) {
 		$new_values = [];
 		foreach ($fields as $field) {
-			$value = $zz_tab[0][0]['POST'][$field['field_name']];
+			$value = $zz_tab[0][0]['POST'][$field['field_name']] ?? false;
 			if (!$value) {
 				$value = 'NULL';
 				if ($field['null'])
