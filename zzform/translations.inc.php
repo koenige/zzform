@@ -11,7 +11,7 @@
  *	zz_translations_init()		checks whether fields should be translated
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2013, 2016-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2013, 2016-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -165,7 +165,6 @@ function zz_translations_init($table, $fields) {
  * @return array definition in varchar, text, which fields of table can be translated
  */
 function zz_translations_fields($sql_translate) {
-	global $zz_conf;
 	static $tfields;
 	if (empty($tfields)) $tfields = [];
 	if (!is_array($sql_translate)) {
