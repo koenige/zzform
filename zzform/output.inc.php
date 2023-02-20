@@ -419,7 +419,8 @@ function zz_nice_title($heading, $fields, $ops, $mode = false) {
 	global $zz_conf;
 
 	// basic title
-	$title = str_replace('<br>', ': ', $heading);
+	$title = str_replace(': <br>', ': ', $heading);
+	$title = str_replace('<br>', ': ', $title);
 	$title = strip_tags($title);
 
 	// addition: filters
