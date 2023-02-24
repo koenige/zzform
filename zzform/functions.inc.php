@@ -19,7 +19,7 @@
  * V - Validation, preparation for database
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1997,7 +1997,10 @@ function zz_makelink($path, $record, $type = 'link') {
 					$area_values[] = $record[$this_field];
 				$value = vsprintf($value, $area_values);
 			}
-			$path_web[1] .= wrap_path($value, $path_values);
+			$rights = true;
+			if (!empty($path['restrict_to']) AND !empty($record[$path['restrict_to']]))
+				$rights = sprintf('%s:%d', $path['restrict_to'], $record[$path['restrict_to']]);
+			$path_web[1] .= wrap_path($value, $path_values, $rights);
 			break;
 		case 'function':
 			if (function_exists($value) AND !empty($path['fields'])) {
@@ -2010,6 +2013,7 @@ function zz_makelink($path, $record, $type = 'link') {
 			}
 			break;
 		case 'fields':
+		case 'restrict_to':
 			break;
 		case 'root':
 			$check_against_root = true;
