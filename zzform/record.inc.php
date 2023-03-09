@@ -477,17 +477,15 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 	zz_record_focus($zz_tab, $tab, $rec);
 	
 	$firstrow = true;
-	$my_where_fields = isset($zz_record['where'][$zz_tab[$tab]['table_name']])
-		? $zz_record['where'][$zz_tab[$tab]['table_name']] : [];
+	$my_where_fields = $zz_record['where'][$zz_tab[$tab]['table_name']] ?? [];
 	// this is for 0 0 main record:
 	// @todo check if this is correct, if there are other 'access' modes
-	if (in_array($my_rec['access'], ['show', 'none'])) {
+	if (in_array($my_rec['access'], ['show', 'none']))
 		$row_display = 'show';
-	} elseif ($my_rec['access'] === 'all' AND $display === 'all') {
+	elseif ($my_rec['access'] === 'all' AND $display === 'all')
 		$row_display = 'form';
-	} else {
+	else
 		$row_display = $display;
-	}
 
 	$dependent_fields_ids = zz_dependent_field_ids($my_rec['fields'], $tab, $rec);
 	$multiple = !empty($zz_conf['int']['id']['values']) ? true : false;
@@ -501,6 +499,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 				$field['required'] = $my_rec['fields'][$fieldkey]['required'] = true;
 				break;
 			}
+			// WHERE overrides default (which would be used for display only, but still confusing)
+			unset($field['default']);
 		}
 
 		if (!empty($field['hide_in_form'])) continue;
