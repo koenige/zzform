@@ -104,7 +104,6 @@ function zz_upload_config() {
 	$default['upload_tools']['identify'] = true; // might be turned off for performance reasons while handling raw data
 	$default['upload_tools']['ghostscript'] = false; // whether we can use gs library
 	$default['upload_tools']['pdfinfo'] = false;
-	$default['upload_log'] = false;
 
 	if (!defined('ZZ_UPLOAD_INI_MAXFILESIZE')) {
 		$max_filesize = ini_get('upload_max_filesize');
@@ -2943,14 +2942,14 @@ function zz_upload_exec($command, $log_description) {
 	// save stderr output to stdout ($output):
 	$command .= ' 2>&1';
 
-	if ($zz_conf['upload_log']) {
+	if (wrap_setting('zzform_upload_log')) {
 		$time = microtime(true);
 	}
 	if ($zz_conf['modules']['debug']) {
 		zz_debug('identify command', $command);
 	}
 	exec($command, $output, $return_var);
-	if ($zz_conf['upload_log']) {
+	if (wrap_setting('zzform_upload_log')) {
 		$time = microtime(true) - $time;
 		$user = $zz_conf['user'] ? $zz_conf['user'] : zz_text('No user');
 		if (!$output) $out = '-';

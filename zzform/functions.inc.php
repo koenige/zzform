@@ -1200,7 +1200,7 @@ function zz_hash($zz, $zz_conf) {
 		'redirect', 'search_form_always', 'redirect_on_change', 'filter',
 		'filter_position', 'text', 'file_types', 'limit', 'zzform_init', 'url_self',
 		'show_list_while_edit', 'search', 'referer_text', 'html_autofocus',
-		'icc_profiles', 'upload_log', 'debug_upload', 'debug', 'db_connection'
+		'icc_profiles', 'debug_upload', 'debug', 'db_connection'
 	];
 	foreach ($uninteresting_zz_conf_keys as $key) unset($zz_conf[$key]);
 	// remove user if it's not an internal user
