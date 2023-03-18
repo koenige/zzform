@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2011-2018, 2021-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2011-2018, 2021-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -27,8 +27,7 @@
 function zz_sync($import) {
 	global $zz_setting;
 	global $zz_page;
-	global $zz_conf;
-	require_once $zz_conf['dir'].'/zzform.php';
+	require_once __DIR__.'/zzform.php';
 	
 	$post = isset($_POST['action']) ? true : false;	// will be overwritten
 	$refresh = false;

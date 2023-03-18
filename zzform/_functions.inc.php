@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2022 Gustaf Mossakowski
+ * @copyright Copyright © 2022-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -41,7 +41,7 @@ function zzform_multi($definition_file, $values) {
 	// important because there may be multiple zzform calls
 	global $zz_conf;
 	global $zz_setting;
-	require_once $zz_conf['dir'].'/zzform.php';
+	require_once __DIR__.'/zzform.php';
 	
 	$old = [
 		'conf' => $zz_conf,
