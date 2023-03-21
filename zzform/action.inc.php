@@ -72,7 +72,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 		list($ops, $zz_tab) = zz_action_hook($ops, $zz_tab, 'after_validation', 'validated');
 
 	// check referential integrity
-	if (wrap_get_setting('zzform_check_referential_integrity')) {
+	if (wrap_setting('zzform_check_referential_integrity')) {
 		// get table relations
 		$relations = zz_integrity_relations(wrap_sql_table('zzform_relations'));
 		// get record IDs of all records in table definition (1 main, n sub records)
@@ -791,8 +791,8 @@ function zz_action_function($type, $ops, $zz_tab) {
 			}
 			$found = true;
 			if (!function_exists($hook)) {
-				if (wrap_get_setting('active_module') AND str_starts_with($hook, 'my_')) {
-					$active_mod_prefix = sprintf('mod_%s_', wrap_get_setting('active_module'));
+				if (wrap_setting('active_module') AND str_starts_with($hook, 'my_')) {
+					$active_mod_prefix = sprintf('mod_%s_', wrap_setting('active_module'));
 					$module_hook = str_replace('my_', $active_mod_prefix, $hook);
 					if (function_exists($module_hook)) $hook = $module_hook;
 					else $found = false;
@@ -2324,8 +2324,7 @@ function zz_check_rules($value, $field, $post) {
  * @return string false: an error occurred; string: new encrypted password 
  */
 function zz_password_set($old, $new1, $new2, $sql, $field) {
-	global $zz_setting;
-	$zz_setting['error_log_post'] = false; // never log posted passwords
+	wrap_setting('error_log_post', false); // never log posted passwords
 	if ($new1 !== $new2) {
 		// new passwords do not match
 		zz_error_log([
@@ -2350,7 +2349,7 @@ function zz_password_set($old, $new1, $new2, $sql, $field) {
 			zz_error_log([
 				'msg' => 'Your current password is different from what you entered. Please try again.',
 				'msg_dev' => '(Encryption: %s, existing hash: %s, entered hash: %s)',
-				'msg_dev_args' => [wrap_get_setting('hash_password'), $old_hash, wrap_password_hash($old)],
+				'msg_dev_args' => [wrap_setting('hash_password'), $old_hash, wrap_password_hash($old)],
 				'level' => E_USER_NOTICE
 			]);
 			return false;

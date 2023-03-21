@@ -256,7 +256,7 @@ function zz_upload_thumbnail($ops, $zz_tab) {
 function zz_upload_get($zz_tab) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	if ($graphics_library = wrap_get_setting('zzform_graphics_library'))
+	if ($graphics_library = wrap_setting('zzform_graphics_library'))
 		include_once __DIR__.'/image-'.$graphics_library.'.inc.php';
 
 	// allow shortcuts for file_types
@@ -541,20 +541,18 @@ function zz_upload_check_files($zz_tab) {
  * only works with zzform_multi(), otherwise filename cannot be set to URL
  *
  * @param string $filename
- * @global array $zz_setting 'tmp_dir'
  * @return string temp filename on local server
  * @todo add further registered streams if necessary
  * @todo preserve timestamp (parse http headers?)
  */
 function zz_upload_remote_file($filename) {
-	global $zz_setting;
 	if (substr($filename, 0, 7) !== 'http://'
 		AND substr($filename, 0, 8) !== 'https://'
 		AND substr($filename, 0, 6) !== 'ftp://'
 	) {
 		return $filename;
 	}
-	$tmp = $zz_setting['tmp_dir'];
+	$tmp = wrap_setting('tmp_dir');
 	if (!is_dir($tmp)) $tmp = sys_get_temp_dir();
 
 	// download file
@@ -763,7 +761,7 @@ function zz_upload_exiftool_read($filename) {
 	global $zz_conf;
 	// @todo use similar mechanism for finding ExifTool path as in imagemagick
 	$cmd = $zz_conf['upload_tools']['exiftool_whereis'].' -b -j -struct -c "%%d %%d %%.8f" -l -lang %s -g1 "%s"';
-	$cmd = sprintf($cmd, wrap_get_setting('lang'), $filename);
+	$cmd = sprintf($cmd, wrap_setting('lang'), $filename);
 	exec($cmd, $file_meta);
 	if (!$file_meta) return [];
 	$file_meta = json_decode(implode('', $file_meta), true);
@@ -1096,7 +1094,7 @@ function zz_upload_error_with_file($filename, $file, $return = []) {
 	// don’t do that when creating thumbnails in background: master file is
 	// already saved anyways
 	$error_filename = false;
-	if (wrap_get_setting('zzform_backup') AND !in_array($filename, $copied_files)
+	if (wrap_setting('zzform_backup') AND !in_array($filename, $copied_files)
 		AND empty($file['create_in_background'])) {
 		// don't return here in case of error - 
 		// it's not so important to break the whole process
@@ -1537,7 +1535,6 @@ function zz_upload_prepare_source_file($image, $my_rec, $zz_tab, $tab, $rec) {
  */
 function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 	global $zz_conf;
-	global $zz_setting;
 	
 	if (empty($image['action'])) return false;
 
@@ -1597,14 +1594,14 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 
 	// create temporary file, so that original file remains the same 
 	// for further actions
-	$tmp_filename = tempnam($zz_setting['tmp_dir'], 'UPLOAD_');
+	$tmp_filename = tempnam(wrap_setting('tmp_dir'), 'UPLOAD_');
 
 	$action = 'zz_image_'.$image['action'];
 	$return = $action($source_filename, $tmp_filename, $dest_extension, $image);
 	if (!file_exists($tmp_filename)) {
 		zz_error_log([
 			'msg_dev' => 'Error: File %s does not exist. Temporary Directory: %s',
-			'msg_dev_args' => [$tmp_filename, $zz_setting['tmp_dir']],
+			'msg_dev_args' => [$tmp_filename, wrap_setting('tmp_dir')],
 			'log_post_data' => false
 		]);
 		return false;
@@ -2309,7 +2306,6 @@ function zz_upload_action($zz_tab) {
  */
 function zz_upload_background($number, $action = 'set') {
 	global $zz_conf;
-	global $zz_setting;
 	static $fields;
 	if (!is_array($fields)) $fields = [];
 	
@@ -2335,7 +2331,7 @@ function zz_upload_background($number, $action = 'set') {
 		$data['thumbnails'] = 1;
 		$pwd = sprintf('%s:%s', $zz_conf['user'], wrap_password_token($zz_conf['user']));
 	
-		require_once $zz_setting['core'].'/syndication.inc.php';
+		require_once wrap_setting('core').'/syndication.inc.php';
 		$result = wrap_syndication_retrieve_via_http($url, $headers, $method, $data, $pwd);
 		unset($fields[$index]);
 	}
@@ -2378,7 +2374,7 @@ function zz_upload_delete($filename, $show_filename = false, $action = 'delete')
 		return false;
 	}
 
-	if (wrap_get_setting('zzform_backup')) {
+	if (wrap_setting('zzform_backup')) {
 		$success = zz_rename($filename, zz_upload_path($action, $filename));
 		if (zz_error_exit()) return false;
 		zz_cleanup_dirs(dirname($filename));
@@ -2415,14 +2411,14 @@ function zz_upload_update($source, $dest, $uploaded_file, $action = 'update') {
 
 	zz_create_topfolders(dirname($dest));
 	if (zz_error_exit()) return false;
-	if (file_exists($dest) AND wrap_get_setting('zzform_backup') AND (strtolower($source) != strtolower($dest))) { 
+	if (file_exists($dest) AND wrap_setting('zzform_backup') AND (strtolower($source) != strtolower($dest))) { 
 		// this case should not occur
 		// attention: file_exists returns true even if there is a change in case
 		zz_rename($dest, zz_upload_path($action, $dest));
 		if (zz_error_exit()) return false;
 	}
 	if (!file_exists($source)) return true;
-	if (wrap_get_setting('zzform_backup') AND $uploaded_file) {
+	if (wrap_setting('zzform_backup') AND $uploaded_file) {
 		// new image will be added later on for sure
 		zz_rename($source, zz_upload_path($action, $dest));
 		if (zz_error_exit()) return false;
@@ -2458,7 +2454,7 @@ function zz_upload_insert($source, $dest, $action = '-', $mode = 'copy') {
 			zz_error();
 			return false;
 		}
-		if (wrap_get_setting('zzform_backup')) {
+		if (wrap_setting('zzform_backup')) {
 			zz_rename($dest, zz_upload_path($action, $dest));
 			if (zz_error_exit()) return false;
 			zz_cleanup_dirs(dirname($dest));
@@ -2509,7 +2505,7 @@ function zz_upload_insert($source, $dest, $action = '-', $mode = 'copy') {
  * @return string unique filename
  */
 function zz_upload_path($action, $path) {
-	$my_base = sprintf('%s/%s/', wrap_get_setting('zzform_backup_dir'), $action);
+	$my_base = sprintf('%s/%s/', wrap_setting('zzform_backup_dir'), $action);
 	zz_create_topfolders($my_base);
 	if (zz_error_exit()) return false;
 	$i = 0;
@@ -2713,7 +2709,7 @@ function zz_unlink_cleanup($file) {
 	if (!$file) return false;
 	$full_path = realpath($file);
 	if (!$full_path) return true;
-	if (str_starts_with($full_path, wrap_get_setting('cache_dir'))) return false;
+	if (str_starts_with($full_path, wrap_setting('cache_dir'))) return false;
 	$dir = dirname($full_path);
 	$success = unlink($full_path);
 	
@@ -2734,11 +2730,10 @@ function zz_unlink_cleanup($file) {
 function zz_cleanup_dirs($dir, $indelible = []) {
 	// first check if it's a directory that shall always be there
 	global $zz_conf;
-	global $zz_setting;
 	$dir = realpath($dir);
 	if (!$dir) return false;
-	$indelible[] = realpath(wrap_get_setting('zzform_backup_dir'));
-	$indelible[] = $zz_setting['tmp_dir'];
+	$indelible[] = realpath(wrap_setting('zzform_backup_dir'));
+	$indelible[] = wrap_setting('tmp_dir');
 	$indelible[] = realpath($zz_conf['root']);
 	$indelible[] = '/tmp';
 	if (in_array($dir, $indelible)) return false;
@@ -2816,8 +2811,7 @@ function zz_image_exif_thumbnail($source, $destination, $dest_ext = false, $imag
  * @return string
  */
 function zz_image_exiftool($filename, $image) {
-	global $zz_setting;
-	$tmp_filename = tempnam($zz_setting['tmp_dir'], 'UPLOAD_');
+	$tmp_filename = tempnam(wrap_setting('tmp_dir'), 'UPLOAD_');
 	if (!empty($image['upload']['exiftool']['QuickTime']['CoverArt'])) {
 		$field = 'CoverArt';
 	} elseif (!empty($image['upload']['exiftool']['ID3v2_4']['Picture'])) {
@@ -2875,7 +2869,7 @@ function zz_rename($oldname, $newname, $context = false) {
 		]);
 		return false;
 	}
-	if (str_starts_with($oldname, wrap_get_setting('cache_dir'))) {
+	if (str_starts_with($oldname, wrap_setting('cache_dir'))) {
 		// just copy file, leave old file alone (e. g. if copying from cache)
 		$success = copy($oldname, $newname);
 		if ($success) return true;
@@ -2937,7 +2931,6 @@ function zz_upload_check_max_file_size() {
  */
 function zz_upload_exec($command, $log_description) {
 	global $zz_conf;
-	global $zz_setting;
 	
 	// save stderr output to stdout ($output):
 	$command .= ' 2>&1';
@@ -2957,7 +2950,7 @@ function zz_upload_exec($command, $log_description) {
 		else $out = '[json] '.json_encode($output);
 		$log = "[%s] zzform Upload: %s %s (Output: %s) {%s} [User: %s]\n";
 		$log = sprintf($log, date('d-M-Y H:i:s'), $log_description, $command, $out, $time, $user);
-		error_log($log, 3, $zz_setting['log_dir'].'/upload.log');
+		error_log($log, 3, wrap_setting('log_dir').'/upload.log');
 	}
 	return [$output, $return_var];
 }

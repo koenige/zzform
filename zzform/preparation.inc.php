@@ -313,7 +313,7 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 			} elseif (isset($field[$set.'_records_sql'])) {
 				$my_tab[$set.'_records'] = zz_db_fetch($field[$set.'_records_sql'], '', 'single value');
 			} else {
-				$my_tab[$set.'_records'] = wrap_get_setting('zzform_'.$set.'_detail_records');
+				$my_tab[$set.'_records'] = wrap_setting('zzform_'.$set.'_detail_records');
 			}
 		}
 		$my_tab['min_records_required'] = isset($field['min_records_required'])

@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2021 Gustaf Mossakowski
+ * @copyright Copyright © 2021, 2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -58,9 +58,8 @@ function mod_zzform_zzformmap($params, $settings) {
  */
 function mod_zzform_zzformmap_url($type = 'kml') {
 	global $zz_conf;
-	global $zz_setting;
 
-	$url = parse_url($zz_setting['request_uri']);
+	$url = parse_url(wrap_setting('request_uri'));
 	$map_url = $url['path'];
 	if (!empty($url['query'])) {
 		parse_str($url['query'], $query);

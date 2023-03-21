@@ -9,7 +9,7 @@
  * https://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -510,8 +510,6 @@ function zz_identifier_var($field_name, $my_rec, $main_post, $preferred = []) {
  * @return bool true = redirect was added
  */
 function zz_identifier_redirect($ops, $zz_tab) {
-	global $zz_setting;
-
 	$action = $ops['return'][0]['action'];
 	
 	if (!in_array($action, ['update', 'delete'])) return false;
@@ -588,9 +586,9 @@ function zz_identifier_redirect($ops, $zz_tab) {
 				}
 			}
 		}
-		if (!empty($zz_setting['multiple_websites'])) {
+		if (wrap_setting('multiple_websites')) {
 			if (empty($values['POST']['website_id']))
-				$values['POST']['website_id'] = $zz_setting['website_id'];
+				$values['POST']['website_id'] = wrap_setting('website_id');
 		}
 
 		zzform_multi('redirects', $values);

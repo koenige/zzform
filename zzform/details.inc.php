@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2016-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2016-2021, 2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -21,7 +21,6 @@
  */
 function zz_details($zz) {
 	global $zz_conf;
-	global $zz_setting;
 	
 	// start script?
 	if (!empty($_POST['zz_add_details']) OR !empty($_POST['zz_edit_details'])) {
@@ -33,7 +32,7 @@ function zz_details($zz) {
 	if (!array_key_exists($zz_conf['id'], $_SESSION['zzform'])) return $zz;
 
 	// check position
-	$script_name = zz_url_basename($zz_setting['request_uri']);
+	$script_name = zz_url_basename(wrap_setting('request_uri'));
 	$last = NULL;
 	$current = NULL;
 
@@ -70,7 +69,6 @@ function zz_details($zz) {
  */
 function zz_details_start($zz) {
 	global $zz_conf;
-	global $zz_setting;
 	if (empty($_SESSION['logged_in'])) return false;
 
 	$mode = !empty($_POST['zz_add_details']) ? 'add' : 'edit';
@@ -119,7 +117,7 @@ function zz_details_start($zz) {
 	else
 		$redirect_to .= sprintf('edit=%d&zz=%s', $posted_value, $zz_conf['id']);
 
-	$source = $zz_setting['request_uri'];
+	$source = wrap_setting('request_uri');
 	$source .= strstr($source, '?') ? '&' : '?';
 	if (!strstr($source, 'zz=')) {
 		$source .= sprintf('zz=%s&', $zz_conf['id']);

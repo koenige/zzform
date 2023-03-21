@@ -20,12 +20,10 @@
  *		int		'limit'
  *		int		'end'
  *		string	'type' (csv, sql)
- * @global array $zz_setting
  * @global array $zz_page		'url'['full']['path']
  * @return array $page
  */
 function zz_sync($import) {
-	global $zz_setting;
 	global $zz_page;
 	require_once __DIR__.'/zzform.php';
 	
@@ -41,7 +39,7 @@ function zz_sync($import) {
 	// limits
 	if (empty($_GET['limit'])) $import['limit'] = 0;
 	else $import['limit'] = zz_check_get_array('limit', 'is_int');
-	$import['end'] = $import['limit'] + wrap_get_setting('sync_records_per_run') * ($import['testing'] ? 1 : 10);
+	$import['end'] = $import['limit'] + wrap_setting('sync_records_per_run') * ($import['testing'] ? 1 : 10);
 
 	$import_types = ['csv', 'sql'];
 	if (empty($import['type']) OR !in_array($import['type'], $import_types)) {
@@ -57,7 +55,7 @@ function zz_sync($import) {
 		if (empty($import['filename'])) {
 			wrap_error('Please set an import filename via $import["filename"].', E_USER_ERROR);
 		}
-		$import['source'] = $zz_setting['cms_dir'].'/_sync/'.$import['filename'];
+		$import['source'] = wrap_setting('cms_dir').'/_sync/'.$import['filename'];
 		if (!file_exists($import['source'])) {
 			$page['text'] = sprintf(wrap_text('Import: File %s does not exist. '
 				.'Please set a different filename'), $import['source']);
@@ -171,15 +169,15 @@ function zz_sync($import) {
 		return $page;
 	}
 
-	$zz_setting['extra_http_headers'][] = 'X-Frame-Options: Deny';
-	$zz_setting['extra_http_headers'][] = "Content-Security-Policy: frame-ancestors 'self'";
+	wrap_setting_add('extra_http_headers', 'X-Frame-Options: Deny');
+	wrap_setting_add('extra_http_headers', "Content-Security-Policy: frame-ancestors 'self'");
 
 	$page['query_strings'] = ['limit'];
 	$page['text'] = implode('<br>', $lines);
 	if ($refresh) {
 		$page['head'] = sprintf("\t".'<meta http-equiv="refresh" content="%s; URL=%s?limit=%s">'."\n",
-			wrap_get_setting('sync_page_refresh'), 
-			$zz_setting['host_base'].$zz_page['url']['full']['path'], $import['end']);
+			wrap_setting('sync_page_refresh'), 
+			wrap_setting('host_base').$zz_page['url']['full']['path'], $import['end']);
 	}
 	return $page;
 }
@@ -438,8 +436,6 @@ function zz_sync_zzform($raw, $import) {
  * @return string
  */
 function zz_sync_list($testing, $import) {
-	global $zz_setting;
-
 	// get head
 	$def = zzform_include_table($import['form_script']);
 	$head = zz_sync_fields($def['fields'], $testing['head']);
@@ -607,7 +603,6 @@ function zz_sync_fields($fields, $old_head) {
  * @return array
  */
 function zz_sync_deletable($import) {
-	global $zz_setting;
 	$data = [];
 
 	switch ($import['type']) {
@@ -648,8 +643,8 @@ function zz_sync_deletable($import) {
 	if (!empty($data['head'])) $data['head'] = array_values($data['head']);
 	if (!$data) $data['no_deletable_records'] = true;
 
-	$zz_setting['extra_http_headers'][] = 'X-Frame-Options: Deny';
-	$zz_setting['extra_http_headers'][] = "Content-Security-Policy: frame-ancestors 'self'";
+	wrap_setting_add('extra_http_headers', 'X-Frame-Options: Deny');
+	wrap_setting_add('extra_http_headers', "Content-Security-Policy: frame-ancestors 'self'");
 
 	$page['query_strings'] = ['deletable'];
 	$page['text'] = wrap_template('sync-deletable', $data);

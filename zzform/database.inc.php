@@ -13,7 +13,7 @@
  *		zz_db_*()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -34,7 +34,6 @@
  */
 function zz_log_sql($sql, $user, $record_id = false) {
 	global $zz_conf;
-	global $zz_setting;
 
 	$sql = trim($sql);
 	if ($sql === 'SELECT 1') return false;
@@ -45,7 +44,7 @@ function zz_log_sql($sql, $user, $record_id = false) {
 		$logging_table = $zz_conf['int']['db_main'].'.'.$logging_table;
 	}
 	if (is_array($record_id)) $record_id = NULL;
-	if (wrap_get_setting('zzform_logging_id') AND $record_id) {
+	if (wrap_setting('zzform_logging_id') AND $record_id) {
 		$sql = sprintf(
 			'INSERT INTO %s (query, user, record_id) VALUES (_binary "%s", "%s", %d)',
 			$logging_table, wrap_db_escape($sql), $user, $record_id
@@ -529,7 +528,7 @@ function zz_db_change($sql, $id = false) {
 	if ($result) {
 		if (in_array($statement, $no_rows_affected)) {
 			$db['action'] = strtolower($statement);
-			if (wrap_get_setting('zzform_logging'))
+			if (wrap_setting('zzform_logging'))
 				zz_log_sql($sql, $zz_conf['user'], $db['id_value']);
 		} elseif (!mysqli_affected_rows($zz_conf['db_connection'])) {
 			$db['action'] = 'nothing';
@@ -539,7 +538,7 @@ function zz_db_change($sql, $id = false) {
 			if ($db['action'] === 'insert') // get ID value
 				$db['id_value'] = mysqli_insert_id($zz_conf['db_connection']);
 			// Logs SQL Query, must be after insert_id was checked
-			if (wrap_get_setting('zzform_logging') AND $db['rows'])
+			if (wrap_setting('zzform_logging') AND $db['rows'])
 				zz_log_sql($sql, $zz_conf['user'], $db['id_value']);
 		}
 		$warnings = zz_db_fetch('SHOW WARNINGS', '_dummy_', 'numeric');

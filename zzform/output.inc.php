@@ -236,7 +236,6 @@ function zz_nice_headings($heading, $zz) {
  */
 function zz_show_more_actions($conf, $id, $line) {
 	global $zz_conf;
-	global $zz_setting;
 	static $error; // @deprecated
 
 	$act = [];
@@ -249,7 +248,7 @@ function zz_show_more_actions($conf, $id, $line) {
 			if (empty($error)) {
 				zz_error_log([
 					'msg_dev' => 'Using deprecated details notation (key %d, script %s)',
-					'msg_dev_args' => [$key, basename($zz_setting['request_uri'])]
+					'msg_dev_args' => [$key, basename(wrap_setting('request_uri'))]
 				]);
 				$error = true;
 			}
@@ -282,7 +281,7 @@ function zz_show_more_actions($conf, $id, $line) {
 				$output .= $conf['details_url'];
 			if (!isset($conf['details_url']) OR !is_array($conf['details_url'])) $output .= $id;
 			
-			$output .= ($conf['details_referer'] ? '&amp;referer='.urlencode($zz_setting['request_uri']) : '')
+			$output .= ($conf['details_referer'] ? '&amp;referer='.urlencode(wrap_setting('request_uri')) : '')
 				.'"'
 				.(!empty($conf['details_target']) ? ' target="'.$conf['details_target'].'"' : '')
 				.'>'.zz_text($detail).'</a>';
@@ -306,7 +305,7 @@ function zz_show_more_actions($conf, $id, $line) {
 				];
 			}
 			$target = !empty($detail['target']) ? sprintf(' target="%s"', $detail['target']) : '';
-			$referer = !empty($detail['referer']) ? sprintf('&amp;referer=%s', urlencode($zz_setting['request_uri'])) : '';
+			$referer = !empty($detail['referer']) ? sprintf('&amp;referer=%s', urlencode(wrap_setting('request_uri'))) : '';
 			$count = (!empty($detail['sql']) AND $no = zz_db_fetch(sprintf($detail['sql'], $id), '', 'single value')) ? sprintf('&nbsp;(%d)', $no) : '';
 			$url = zz_makelink($detail['link'], $line);
 			$act[] = sprintf('<a href="%s%s"%s>%s%s</a>', $url, $referer, $target, zz_text($detail['title']), $count);
@@ -433,21 +432,21 @@ function zz_nice_title($heading, $fields, $ops, $mode = false) {
 		$title .= $zz_conf['title_separator'].$selection;
 
 	// addition: page
-	if (wrap_get_setting('zzform_limit') AND $zz_conf['int']['this_limit'] !== '0') {
+	if (wrap_setting('zzform_limit') AND $zz_conf['int']['this_limit'] !== '0') {
 		if ($zz_conf['int']['this_limit']) 
-			$page = $zz_conf['int']['this_limit'] / wrap_get_setting('zzform_limit');
+			$page = $zz_conf['int']['this_limit'] / wrap_setting('zzform_limit');
 		else
 			$page = 1;
 		// in case someone writes manually limit=85 where conf['limit'] = 20
 		// don't add limit to page title
 		if (is_int($page) AND $page AND !empty($ops['records_total'])) {
-			$max_page = ceil($ops['records_total'] / wrap_get_setting('zzform_limit'));
+			$max_page = ceil($ops['records_total'] / wrap_setting('zzform_limit'));
 			if ($max_page.'' !== '1') {
-				if (wrap_get_setting('zzform_limit_display') === 'entries') {
+				if (wrap_setting('zzform_limit_display') === 'entries') {
 					$title .= $zz_conf['title_separator'].zz_text('records').' '
-						.(($page-1) * wrap_get_setting('zzform_limit')).'-'
-						.($page * wrap_get_setting('zzform_limit') > $ops['records_total']
-							? $ops['records_total'] : $page * wrap_get_setting('zzform_limit'))
+						.(($page-1) * wrap_setting('zzform_limit')).'-'
+						.($page * wrap_setting('zzform_limit') > $ops['records_total']
+							? $ops['records_total'] : $page * wrap_setting('zzform_limit'))
 						.'/'.$ops['records_total'];
 				} else {
 					$title .= $zz_conf['title_separator'].zz_text('page').' '.$page.'/'.$max_page;
@@ -776,7 +775,7 @@ function zz_extra_get_params() {
 	// write some query strings differently
 	if (isset($_GET['nolist'])) 
 		$keep_query['nolist'] = true;
-	if ($zz_conf['int']['this_limit'] AND $zz_conf['int']['this_limit'] != wrap_get_setting('zzform_limit'))
+	if ($zz_conf['int']['this_limit'] AND $zz_conf['int']['this_limit'] != wrap_setting('zzform_limit'))
 		$keep_query['limit'] = $zz_conf['int']['this_limit'];
 	elseif (!empty($zz_conf['int']['limit_last']))
 		$keep_query['limit'] = 'last';
@@ -797,25 +796,24 @@ function zz_extra_get_params() {
  */
 function zz_init_limit($zz = []) {
 	global $zz_conf;
-	global $zz_setting;
 
 	// set default limit in case 'hierarchy' is used because hierarchies need more memory
-	if (!wrap_get_setting('zzform_limit') AND !empty($zz['list']['hierarchy']))
-		$zz_setting['zzform_limit'] = 40;
+	if (!wrap_setting('zzform_limit') AND !empty($zz['list']['hierarchy']))
+		wrap_setting('zzform_limit', 40);
 
 	// current range which records are shown
 	$zz_conf['int']['this_limit']		= false;
 	// get LIMIT from URI
-	if (wrap_get_setting('zzform_limit')) 
-		$zz_conf['int']['this_limit'] = wrap_get_setting('zzform_limit');
+	if (wrap_setting('zzform_limit')) 
+		$zz_conf['int']['this_limit'] = wrap_setting('zzform_limit');
 	if (!empty($_GET['limit']) AND $_GET['limit'] === 'last') {
 		$zz_conf['int']['limit_last'] = true;
 	} else {
 		$limit = zz_check_get_array('limit', 'is_int');
 		if ($limit !== '') $zz_conf['int']['this_limit'] = $limit;
 	}
-	if ($zz_conf['int']['this_limit'] AND $zz_conf['int']['this_limit'] < wrap_get_setting('zzform_limit'))
-		$zz_conf['int']['this_limit'] = wrap_get_setting('zzform_limit');
+	if ($zz_conf['int']['this_limit'] AND $zz_conf['int']['this_limit'] < wrap_setting('zzform_limit'))
+		$zz_conf['int']['this_limit'] = wrap_setting('zzform_limit');
 }	
 
 /**
@@ -946,8 +944,8 @@ function zz_date_format($date) {
 	if (!$date) return '';
 
 	// convert ISO 639-1 codes to ISO 639-2T
-	if (wrap_get_setting('lang') === 'de') $language = 'deu';
-	elseif (wrap_get_setting('lang') === 'en') $language = 'eng';
+	if (wrap_setting('lang') === 'de') $language = 'deu';
+	elseif (wrap_setting('lang') === 'en') $language = 'eng';
 	else $language = '---';
 
 	// international format, ISO 8601
@@ -1186,15 +1184,13 @@ function zz_username_format($value, $field) {
  */
 function zz_output_wmd_editor() {
 	global $zz_conf;
-	global $zz_setting;
 	
 	if (empty($zz_conf['wmd_editor'])) return '';
 	if ($zz_conf['wmd_editor'] === true) return '';
-	$zz_setting['zzform_wmd_editor_instances'] = $zz_conf['wmd_editor'] - 1;
+	wrap_setting('zzform_wmd_editor_instances', $zz_conf['wmd_editor'] - 1);
 	
-	if (in_array(wrap_get_setting('lang'), wrap_get_setting('zzform_wmd_editor_languages'))) {
-		$zz_setting['zzform_wmd_editor_lang'] = wrap_get_setting('lang');
-	}
+	if (in_array(wrap_setting('lang'), wrap_setting('zzform_wmd_editor_languages')))
+		wrap_setting('zzform_wmd_editor_lang', wrap_setting('lang'));
 }
 
 /**
@@ -1205,7 +1201,6 @@ function zz_output_wmd_editor() {
  */
 function zz_output_upndown_editor() {
 	global $zz_conf;
-	global $zz_setting;
 
 	if (empty($zz_conf['upndown_editor'])) return '';
 	if ($zz_conf['upndown_editor'] === true) return '';

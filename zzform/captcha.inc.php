@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2019 Gustaf Mossakowski
+ * @copyright Copyright © 2019, 2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -22,9 +22,8 @@
  * @return void
  */
 function zz_captcha_code($zz_id, $code = false) {
-	global $zz_setting;
-	require_once $zz_setting['core'].'/file.inc.php';
-	$logfile = $zz_setting['log_dir'].'/captcha.log';
+	require_once wrap_setting('core').'/file.inc.php';
+	$logfile = wrap_setting('log_dir').'/captcha.log';
 	if (!file_exists($logfile)) touch($logfile);
 
 	$lines = file($logfile);
@@ -66,8 +65,6 @@ function zz_captcha_code($zz_id, $code = false) {
  * @return void
  */
 function zz_captcha_image($zz_id) {
-	global $zz_setting;
-
 	// initialise image with dimensions of 120 x 30 pixels
 	$image = @imagecreatetruecolor(120, 30) or wrap_quit(503, "Cannot Initialize new GD image stream");
 
@@ -86,13 +83,13 @@ function zz_captcha_image($zz_id) {
 
 	// using a mixture of TTF fonts
 	$fonts = [];
-	if (!empty($zz_setting['captcha_font_dir'])) {
-		if (is_dir($zz_setting['captcha_font_dir'])) {
-			$fonts = scandir($zz_setting['captcha_font_dir']);
+	if ($captcha_font_dir = wrap_setting('captcha_font_dir')) {
+		if (is_dir($captcha_font_dir)) {
+			$fonts = scandir($captcha_font_dir);
 			foreach ($fonts as $index => $font) {
 				if (substr($font, 0, 1) === '.') unset($fonts[$index]);
 				elseif (substr($font, -4) !== '.ttf') unset($fonts[$index]);
-				else $fonts[$index] = $zz_setting['captcha_font_dir'].'/'.$font;
+				else $fonts[$index] = $captcha_font_dir.'/'.$font;
 			}
 		}
 	}

@@ -11,7 +11,7 @@
  * otherwise they will return the value that was checked
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2005-2014, 2016-2018, 2020-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2005-2014, 2016-2018, 2020-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -468,13 +468,11 @@ function zz_check_datetime($datetime) {
  * @return mixed number, with calculation performed / false if incorrect format
  */
 function zz_check_number($number) {
-	global $zz_setting;
-
 	if (!$number) return false;
 	// remove whitespace, it's nice to not have to care about this
 	$check = trim($number);
 	$check = str_replace(' ', '', $check);
-	if ($zz_setting['character_set'] === 'utf-8') {
+	if (wrap_setting('character_set') === 'utf-8') {
 		$check = str_replace(chr(194).chr(160), '', $check); // non-breaking space
 	} else {
 		$check = str_replace(chr(160), '', $check); // non-breaking space
@@ -563,8 +561,6 @@ function zz_check_number($number) {
  * @return string
  */
 function zz_check_username($username, $field) {
-	global $zz_setting;
-
 	// URL or username?
 	$url = parse_url($username);
 	$field_value = '';
@@ -624,7 +620,7 @@ function zz_check_username($username, $field) {
 	if (!zz_is_url($url)) return false;
 
 	if (empty($field['dont_check_username_online'])) {
-		require_once $zz_setting['core'].'/syndication.inc.php';
+		require_once wrap_setting('core').'/syndication.inc.php';
 		$success = wrap_syndication_get($url, 'html');
 		if (empty($success['_']['data'])) return false;
 	}

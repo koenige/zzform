@@ -60,7 +60,7 @@
 function zz_imagick_identify($filename, $file) {
 	global $zz_conf;
 
-	if (wrap_get_setting('zzform_graphics_library') !== 'imagemagick') return $file;
+	if (wrap_setting('zzform_graphics_library') !== 'imagemagick') return $file;
 	if (!$zz_conf['upload_tools']['identify']) return $file;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if (!file_exists($filename)) return zz_return(false);
@@ -485,7 +485,6 @@ function zz_image_crop($source, $dest, $dest_ext, $image, $clipping = 'center') 
  */
 function zz_imagick_convert($options, $source, $source_ext, $dest, $dest_ext, $image = []) {
 	global $zz_conf;
-	global $zz_setting;
 	
 	$source_ext = zz_upload_extension_normalize($source_ext);
 
@@ -504,7 +503,7 @@ function zz_imagick_convert($options, $source, $source_ext, $dest, $dest_ext, $i
 	if ($options) $command .= $options.' ';
 	if (!empty($image['watermark'])) {
 		if (!file_exists($image['watermark']))
-			$image['watermark'] = $zz_setting['inc'].'/custom/watermarks/'.$image['watermark'];
+			$image['watermark'] = wrap_setting('custom').'/watermarks/'.$image['watermark'];
 		if (empty($image['convert_options_append']))
 			$image['convert_options_append'] = '';
 		$image['convert_options_append'] .= sprintf(' "%s" -composite', $image['watermark']);
@@ -544,14 +543,14 @@ function zz_imagick_convert($options, $source, $source_ext, $dest, $dest_ext, $i
 function zz_imagick_findpath($command = 'convert') {
 	global $zz_conf;
 
-	if ($path = wrap_get_setting('zzform_imagemagick_path_unchecked')
-		AND !wrap_get_setting('local_access')
+	if ($path = wrap_setting('zzform_imagemagick_path_unchecked')
+		AND !wrap_setting('local_access')
 	) {
 		// don’t do checks on production server
 		$command = sprintf('%s/%s ', $path, $command);
 		return $command;
-	} elseif ($path = wrap_get_setting('zzform_imagemagick_path_unchecked_local')
-		AND wrap_get_setting('local_access')
+	} elseif ($path = wrap_setting('zzform_imagemagick_path_unchecked_local')
+		AND wrap_setting('local_access')
 	) {
 		$command = sprintf('%s/%s ', $path, $command);
 		return $command;

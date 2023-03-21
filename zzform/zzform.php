@@ -27,7 +27,6 @@
  * @todo think of zzform($zz, $zz_conf) to get rid of global variables
  */
 function zzform($zz) {
-	global $zz_setting;
 	global $zz_conf;
 	
 // diversion?
@@ -72,9 +71,9 @@ function zzform($zz) {
 	// make some settings always in sync
 	// @todo reduce settings
 	if (empty($zz_conf['limit']))
-		$zz_conf['limit'] = wrap_get_setting('zzform_limit');
+		$zz_conf['limit'] = wrap_setting('zzform_limit');
 	else
-		$zz_setting['zzform_limit'] = $zz_conf['limit'];
+		wrap_setting('zzform_limit', $zz_conf['limit']);
 
 	if (empty($zz['fields'])) {
 		zz_error_log([
@@ -295,7 +294,7 @@ function zzform($zz) {
 					if (empty($ops['html_fragment']))
 						wrap_redirect_change($ops['redirect_url']);
 					$redirect_url = parse_url($ops['redirect_url']);
-					$request_url = parse_url($zz_setting['request_uri']);
+					$request_url = parse_url(wrap_setting('request_uri'));
 					if ($redirect_url['path'] !== $request_url['path'])
 						wrap_redirect_change($ops['redirect_url']);
 					$zz['record']['action'] = false;
@@ -806,14 +805,13 @@ function zz_initialize_int() {
  *
  * @param string $definition_file
  * @global array $zz_conf
- * @global array $zz_setting
  * @return array list of scripts
  */
 function zzform_file($definition_file) {
 	wrap_include_files('forms', 'zzbrick');
 
-	$brick['path'] = wrap_get_setting('brick_custom_dir').'tables';
-	$brick['module_path'] = wrap_get_setting('brick_module_dir').'tables';
+	$brick['path'] = wrap_setting('brick_custom_dir').'tables';
+	$brick['module_path'] = wrap_setting('brick_module_dir').'tables';
 	$brick['vars'] = [$definition_file];
 	$brick = brick_forms_file($brick);
 

@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2016-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2016-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -362,7 +362,7 @@ function zz_revisions_historic_update($id_value) {
  * @return string
  */
 function zz_revisions_table_to_url($table) {
-	$setting = wrap_get_setting('revisions_table_to_url');
+	$setting = wrap_setting('zzform_revisions_table_to_url');
 	if ($setting) {
 		parse_str($setting, $setting);
 		if (!empty($setting[$table])) return $setting[$table];

@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -193,7 +193,6 @@ function zz_export_links() {
  */
 function zz_export($ops, $zz) {
 	global $zz_conf;
-	global $zz_setting;
 
 	// check if we have data
 	if (!$zz_conf['int']['show_list']) return false;
@@ -225,9 +224,9 @@ function zz_export($ops, $zz) {
 		if ($zz_conf['list_display'] === 'csv-excel') {
 			$headers['character_set'] = 'utf-16le';
 			// @todo check with mb_list_encodings() if available
-			$output = mb_convert_encoding($output, 'UTF-16LE', $zz_setting['character_set']);
+			$output = mb_convert_encoding($output, 'UTF-16LE', wrap_setting('character_set'));
 		} else {
-			$headers['character_set'] = $zz_setting['character_set'];
+			$headers['character_set'] = wrap_setting('character_set');
 		}
 		$headers['filename'] = $filename.'.csv';
 		return wrap_send_text($output, 'csv', 200, $headers);
@@ -240,13 +239,13 @@ function zz_export($ops, $zz) {
 		echo 'Sorry, standard ZIP support is not yet available. Please use a custom script.';
 		exit;
 	case 'kml':
-		$zz_setting['character_set'] = 'utf-8';
+		wrap_setting('character_set', 'utf-8');
 		$output = zz_export_kml($ops, $zz);
 		if (!empty($_GET['q'])) $filename .= ' '.wrap_filename($_GET['q']);
 		$headers['filename'] = $filename.'.kml';
 		return wrap_send_text($output, 'kml', 200, $headers);
 	case 'geojson':
-		$zz_setting['character_set'] = 'utf-8';
+		wrap_setting('character_set', 'utf-8');
 		$output = zz_export_geojson($ops, $zz);
 		if (!empty($_GET['q'])) $filename .= ' '.wrap_filename($_GET['q']);
 		$headers['filename'] = $filename.'.geojson';
@@ -294,29 +293,23 @@ function zz_export_sort(&$out) {
  * @param array $ops
  * @param array $zz
  * @global array $zz_conf
- * @global array $zz_setting
  * @return array $ops
  */
 function zz_export_kml($ops, $zz) {
-	global $zz_setting;
-	
 	$kml['title'] = zz_nice_title($ops['heading'], $ops['output']['head'], $ops);
-	if ($zz_setting['character_set'] !== 'utf-8')
-		$kml['title'] = mb_convert_encoding($kml['title'], 'UTF-8', $zz_setting['character_set']);
+	if (wrap_setting('character_set') !== 'utf-8')
+		$kml['title'] = mb_convert_encoding($kml['title'], 'UTF-8', wrap_setting('character_set'));
 	$kml['description'] = zz_format($zz['explanation']);
 	$kml['styles'] = [];
 	$kml['placemarks'] = [];
 	
-	if (empty($zz_setting['kml_styles'])) {
-		if (empty($zz_setting['kml_default_dot'])) {
-			$zz_setting['kml_default_dot'] = $zz_setting['layout_path'].'/zzform/map/blue-dot.png';
-		}
+	if (!wrap_setting('kml_styles')) {
 		$kml['styles'][] = [
 			'id' => 'default',
-			'href' => $zz_setting['kml_default_dot']
+			'href' => wrap_setting('kml_default_dot')
 		];
 	} else {
-		$kml['styles'] = $zz_setting['kml_styles'];
+		$kml['styles'] = wrap_setting('kml_styles');
 	}
 	
 	foreach ($ops['output']['head'] as $no => $column) {
@@ -375,7 +368,6 @@ function zz_export_kml($ops, $zz) {
  * @return string HTML output, definition list	
  */
 function zz_export_kml_description($head, $line, $fields) {
-	global $zz_setting;
 	$set = [
 		'title', 'longitude', 'latitude', 'altitude', 'point', 'style',
 		'description'
@@ -395,8 +387,8 @@ function zz_export_kml_description($head, $line, $fields) {
 		} else {
 			$title = $head[$no]['th_nohtml'];
 		}
-		if ($zz_setting['character_set'] !== 'utf-8')
-			$title = mb_convert_encoding($title, 'UTF-8', $zz_setting['character_set']);
+		if (wrap_setting('character_set') !== 'utf-8')
+			$title = mb_convert_encoding($title, 'UTF-8', wrap_setting('character_set'));
 		$desc[] = '<tr><th>'.$title.'</th><td>'.$values['text'].'</td></tr>';
 	}
 	$text = '<table class="kml_description">'.implode("\n", $desc).'</table>'
@@ -474,7 +466,6 @@ function zz_export_geojson($ops, $zz) {
  */
 function zz_export_script($type) {
 	global $zz_conf;
-	global $zz_setting;
 	// check if a specific script should be called
 	if (empty($zz_conf['int']['export_script'])) return false;
 	$prefix = '';
@@ -483,7 +474,7 @@ function zz_export_script($type) {
 	// if not, function has to exist already
 	$filename = sprintf('export-%s-%s', $type, $zz_conf['int']['export_script']);
 	$success = wrap_include_files('zzform/'.$filename, 'custom/active');
-	if (!$success AND !empty($zz_setting['active_module'])) {
+	if (!$success AND wrap_setting('active_module')) {
 		// look for export-[type], e. g. export-pdf.inc.php in module folder
 		$success = wrap_include_files('zzform/export-'.$type, 'active');
 	}
@@ -542,7 +533,6 @@ function zz_export_csv_head($main_rows) {
  */
 function zz_export_csv_body($rows) {
 	global $zz_conf;
-	global $zz_setting;
 
 	$output = '';
 	foreach ($rows as $index => $row) {
@@ -550,7 +540,7 @@ function zz_export_csv_body($rows) {
 		foreach ($row as $fieldindex => $field) {
 			if ($fieldindex AND !is_numeric($fieldindex)) continue; // 0 or 1 or 2 ...
 			$myfield = $field['text'];
-			$character_encoding = $zz_setting['character_set'];
+			$character_encoding = wrap_setting('character_set');
 			if (substr($character_encoding, 0, 9) === 'iso-8859-')
 				$character_encoding = 'iso-8859-1'; // others are not recognized
 			$myfield = html_entity_decode($myfield, ENT_QUOTES, $character_encoding);

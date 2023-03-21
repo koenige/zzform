@@ -40,7 +40,6 @@ function zzform_multi($definition_file, $values) {
 	// unset all variables that are not needed
 	// important because there may be multiple zzform calls
 	global $zz_conf;
-	global $zz_setting;
 	require_once __DIR__.'/zzform.php';
 	
 	$old = [
@@ -94,9 +93,8 @@ function zzform_multi($definition_file, $values) {
 		zz_debug('find definition file', $definition_file);
 	}
 	$zz = zzform_include_table($definition_file, $values);
-	if (empty($zz_conf['user'])) {
-		$zz_conf['user'] = wrap_user($zz_setting['request_uri']);
-	}
+	if (empty($zz_conf['user']))
+		$zz_conf['user'] = wrap_user(wrap_setting('request_uri'));
 	if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
 		zz_debug('got definition file');
 		$zz_conf['id'] = zz_check_id_value($old['id']);

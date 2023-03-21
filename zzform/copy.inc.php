@@ -54,7 +54,7 @@ function zz_copy_records($table, $foreign_id_field_name, $source_id, $destinatio
 	$data = wrap_db_fetch($sql, $def['primary_key']);
 	if (!$data) return false;
 	
-	$dont_copy = wrap_get_setting('zzform_copy_fields_exclude');
+	$dont_copy = wrap_setting('zzform_copy_fields_exclude');
 	$dont_copy[] = $def['primary_key'];
 	$dont_copy[] = $foreign_id_field_name;
 	

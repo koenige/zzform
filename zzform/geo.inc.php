@@ -9,7 +9,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2011, 2015-2017, 2019-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2011, 2015-2017, 2019-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -493,8 +493,7 @@ function zz_geo_geocode($ops, $zz_tab) {
 	if (empty($zz_conf['geocoding_function'])) {
 		// you'll need a function that returns from Array $address
 		// an Array with latitude, longitude and postal_code (optional)
-		global $zz_setting;
-		require_once $zz_setting['core'].'/syndication.inc.php';
+		require_once wrap_setting('core').'/syndication.inc.php';
 		$zz_conf['geocoding_function'] = 'wrap_syndication_geocode';
 	}
 	$result = $zz_conf['geocoding_function']($address);
@@ -574,8 +573,6 @@ function zz_geo_geocode_fields($list, $new, $zz_tab) {
  * @return array
  */
 function zz_geo_geocode_address($geocoding, $zz_tab, $new) {
-	global $zz_setting;
-
 	// - if address fields have changed
 	$address = [];
 	foreach ($geocoding['source'] as $type => $f) {
@@ -608,9 +605,9 @@ function zz_geo_geocode_address($geocoding, $zz_tab, $new) {
 			$value = zz_db_fetch($sql, '', 'single value');
 		}
 		if (!$value) continue;
-		if ($zz_setting['character_set'] !== 'utf-8') {
+		if (wrap_setting('character_set') !== 'utf-8') {
 			// @todo support more encodings than iso-8859-1 and utf-8
-			$value = iconv(strtoupper($zz_setting['character_set']), 'UTF-8', $value);
+			$value = iconv(strtoupper(wrap_setting('character_set')), 'UTF-8', $value);
 		}
 		$address[$type] = $value;
 	}

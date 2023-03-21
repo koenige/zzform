@@ -35,7 +35,6 @@ function zz_translations_config() {
  */
 function zz_translations_init($table, $fields) {
 	global $zz_conf;
-	global $zz_setting;
 
 	if (!$zz_conf['translations_of_fields']) return $fields;
 	if (!wrap_sql_table('default_translationfields')) {
@@ -45,8 +44,8 @@ function zz_translations_init($table, $fields) {
 		]);
 		return zz_error();
 	}
-	if (!wrap_get_setting('languages_allowed')) return $fields;
-	if (count(wrap_get_setting('languages_allowed')) === 1) return $fields;
+	if (!wrap_setting('languages_allowed')) return $fields;
+	if (count(wrap_setting('languages_allowed')) === 1) return $fields;
 
 	// Step 1: get fields which might be translated
 	$sql = 'SELECT translationfield_id, field_name, field_type

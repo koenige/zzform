@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -27,7 +27,6 @@
  */
 function zz_list($zz, $ops, $zz_conditions) {
 	global $zz_conf;
-	global $zz_setting;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	if ($zz_conf['search']) {
@@ -203,15 +202,15 @@ function zz_list($zz, $ops, $zz_conditions) {
 	
 	if ($zz_conf['int']['show_list']) {
 		if ($list['select_multiple_records']) {
-			$zz_setting['extra_http_headers'][] = 'X-Frame-Options: Deny';
-			$zz_setting['extra_http_headers'][] = "Content-Security-Policy: frame-ancestors 'self'";
+			wrap_setting_add('extra_http_headers', 'X-Frame-Options: Deny');
+			wrap_setting_add('extra_http_headers', "Content-Security-Policy: frame-ancestors 'self'");
 			$action_url = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs'];
 			if ($zz_conf['int']['extra_get']) {
 				// without first &amp;!
 				$action_url .= $zz_conf['int']['url']['?&'].$zz_conf['int']['extra_get_escaped'];
 			}
 			$ops['output'] .= sprintf('<form action="%s" method="POST" accept-charset="%s">'."\n",
-				$action_url, $zz_setting['character_set']);
+				$action_url, wrap_setting('character_set'));
 			$list['buttons'] = [];
 			if ($zz_conf['multi_edit'])
 				$list['buttons'][] = '<input type="submit" value="'.zz_text('Edit').'" name="zz_multiple_edit">';
@@ -1221,7 +1220,7 @@ function zz_list_query_flat($zz) {
 		// set a standard value for limit
 		// this standard value will only be used on rare occasions, when NO limit is set
 		// but someone tries to set a limit via URL-parameter
-		$limit = wrap_get_setting('zzform_limit') ? wrap_get_setting('zzform_limit') : 20;
+		$limit = wrap_setting('zzform_limit') ? wrap_setting('zzform_limit') : 20;
 		$zz['sql'] .= ' LIMIT '.($zz_conf['int']['this_limit'] - $limit).', '.$limit;
 	}
 
@@ -1274,7 +1273,7 @@ function zz_list_query_hierarchy($zz) {
 	$zz['list']['hierarchy']['id_field_name'] = $zz_conf['int']['id']['field_name'];
 	list($my_lines, $total_rows) = zz_hierarchy($zz['sql'], $zz['list']['hierarchy']);
 	zz_list_limit_last($total_rows);
-	if ($zz_conf['int']['this_limit'] - wrap_get_setting('zzform_limit') >= $total_rows) {
+	if ($zz_conf['int']['this_limit'] - wrap_setting('zzform_limit') >= $total_rows) {
 		$zz_conf['int']['http_status'] = 404;
 		return [[], $total_rows];
 	}
@@ -1286,7 +1285,7 @@ function zz_list_query_hierarchy($zz) {
 			$start = 0;
 			$end = $total_rows -1;
 		} else {
-			$start = $zz_conf['int']['this_limit'] - wrap_get_setting('zzform_limit');
+			$start = $zz_conf['int']['this_limit'] - wrap_setting('zzform_limit');
 			$end = $zz_conf['int']['this_limit'] -1;
 		}
 		foreach (range($start, $end) as $index) {
@@ -1687,8 +1686,6 @@ function zz_list_format($text, $list_format) {
  * @return string $link opening A tag HTML code for link (false if there is no link)
  */
 function zz_set_link($field, $line) {
-	global $zz_setting;
-
 	$link = false;
 	if (!empty($field['list_no_link'])) return false;
 	if ($field['type'] === 'url') {
@@ -1705,7 +1702,7 @@ function zz_set_link($field, $line) {
 		$link = $field['link'].$line[$field['field_name']];
 	}
 	if ($link AND !empty($field['link_referer'])) 
-		$link .= '&amp;referer='.urlencode($zz_setting['request_uri']);
+		$link .= '&amp;referer='.urlencode(wrap_setting('request_uri'));
 	if (!$link) return false;
 
 	// if there's something, go on and put HTML for link together
@@ -1731,15 +1728,15 @@ function zz_set_link($field, $line) {
  * @return string
  */
 function zz_list_word_split($text) {
-	if (!wrap_get_setting('zzform_word_split')) return $text;
+	if (!wrap_setting('zzform_word_split')) return $text;
 	if (!$text) return $text;
 
 	$words = explode(' ', $text);
 	if (substr($words[0], 0, 1) === '<') return $text; // no splitting in HTML code
 	foreach ($words as $index => $word) {
-		if (strlen($word) < wrap_get_setting('zzform_word_split')) continue;
+		if (strlen($word) < wrap_setting('zzform_word_split')) continue;
 		if (!strstr($word, '<') AND !strstr($word, '&')) {
-			$parts = str_split($word, wrap_get_setting('zzform_word_split'));
+			$parts = str_split($word, wrap_setting('zzform_word_split'));
 		} else {
 			// no break inside entities
 			// no break inside HTML
@@ -1764,7 +1761,7 @@ function zz_list_word_split($text) {
 					if ($stop_char === ';') $stop_char = false;
 					break;
 				}
-				if ($word_length === wrap_get_setting('zzform_word_split')) {
+				if ($word_length === wrap_setting('zzform_word_split')) {
 					$parts[] = mb_substr($remaining, 0, $i - $last_split);
 					$word_length = 0;
 					$remaining = mb_substr($remaining, $i - $last_split);
@@ -1938,7 +1935,7 @@ function zz_list_total_records($total_rows) {
 /**
  * if LIMIT is set, shows different pages for each $step records
  *
- * @param int $limit_step = wrap_get_setting('zzform_limit') how many records shall be shown on each page
+ * @param int $limit_step = wrap_setting('zzform_limit') how many records shall be shown on each page
  * @param int $this_limit = $zz_conf['int']['this_limit'] last record no. on this page
  * @param int $total_rows	count of total records that might be shown
  * @param string $scope 'body', @todo: 'head' (not yet implemented)
@@ -1951,7 +1948,7 @@ function zz_list_pages($this_limit, $total_rows, $scope = 'body') {
 	if (!$total_rows) return false;
 	
 	// check whether records shall be limited or not
-	$limit_step = wrap_get_setting('zzform_limit');
+	$limit_step = wrap_setting('zzform_limit');
 	if (!$limit_step) return false;
 
 	// check whether a limit is set (all records shown won't need a navigation)
@@ -1983,7 +1980,7 @@ function zz_list_pages($this_limit, $total_rows, $scope = 'body') {
 		'class' => 'prev',
 		'title' => 	zz_text('Previous page')
 	];
-	if ($total_rows < wrap_get_setting('zzform_limit_all_max')) {
+	if ($total_rows < wrap_setting('zzform_limit_all_max')) {
 		$links[] = [
 			'link'	=> zz_list_pagelink(-1, $this_limit, 0, $url),
 			'text'	=> zz_text('all'),
@@ -2002,7 +1999,7 @@ function zz_list_pages($this_limit, $total_rows, $scope = 'body') {
 	$offset = $limit_step - ($total_rows % $limit_step);
 	$max_limit = $total_rows + $offset;
 
-	$limit_show_range = wrap_get_setting('zzform_limit_show_range');
+	$limit_show_range = wrap_setting('zzform_limit_show_range');
 	if ($limit_show_range
 		AND $total_rows >= $limit_show_range
 		AND $this_limit <= $max_limit)
@@ -2042,13 +2039,13 @@ function zz_list_pages($this_limit, $total_rows, $scope = 'body') {
 		}
 		if ($range_max > $total_rows) $range_max = $total_rows;
 		// if just one above the last limit show this number only once
-		switch (wrap_get_setting('zzform_limit_display')) {
+		switch (wrap_setting('zzform_limit_display')) {
 		case 'entries':
 			$text = ($range_min === $range_max) ? $range_min : $range_min.'-'.$range_max;
 			break;
 		default:
 		case 'pages':
-			$text = $i / wrap_get_setting('zzform_limit') + 1;
+			$text = $i / wrap_setting('zzform_limit') + 1;
 		}
 		$links[] = [
 			'link'	=> zz_list_pagelink($i, $this_limit, $limit_step, $url),
@@ -2131,7 +2128,7 @@ function zz_list_pagelink($start, $limit, $limit_step, $url, $pos = '') {
 		}
 	}
 	$url_out = $url['base'];
-	if ($limit_new != wrap_get_setting('zzform_limit')) {
+	if ($limit_new != wrap_setting('zzform_limit')) {
 		$url_out .= $url['query'].($pos ? $pos : $limit_new);
 	}
 	return $url_out;
@@ -2249,7 +2246,6 @@ function zz_sql_order_check($field, $type, $field_name) {
  */
 function zz_list_th($field, $mode = 'html') {
 	global $zz_conf;
-	global $zz_setting;
 
 	$out = !empty($field['title_tab']) ? $field['title_tab'] : $field['title'];
 	if (!empty($field['dont_sort'])) return $out;
@@ -2268,7 +2264,7 @@ function zz_list_th($field, $mode = 'html') {
 	$new_keys = ['order' => $order_val];
 	$uri = $zz_conf['int']['url']['self'].zz_edit_query_string($zz_conf['int']['url']['qs']	
 		.$zz_conf['int']['url']['qs_zzform'], $unwanted_keys, $new_keys);
-	if (str_replace('&amp;', '&', $uri) === $zz_setting['request_uri']) {
+	if (str_replace('&amp;', '&', $uri) === wrap_setting('request_uri')) {
 		$uri.= '&amp;dir=desc';
 		$order_dir = zz_text('descending');
 	} else {
@@ -2821,8 +2817,7 @@ function zz_list_ul($list, $rows) {
 		$output .= '<p class="multiple">'.$list['checkbox_all']
 		.' <em>'.zz_text('Selection').':</em> '.$list['buttons'].'</p>';
 	}
-	global $zz_setting;
-	$list['dnd_start'] = $zz_conf['int']['this_limit'] - wrap_get_setting('zzform_limit');
+	$list['dnd_start'] = $zz_conf['int']['this_limit'] - wrap_setting('zzform_limit');
 	if (!empty($list['dnd'])) {
 		$output .= '<script>
 			var zz_dnd_id_field = "'.$list['dnd_id_field'].'";
@@ -2830,7 +2825,7 @@ function zz_list_ul($list, $rows) {
 			var zz_dnd_target_url = "'.$list['dnd_target_url'].'";
 			var zz_dnd_dnd_start = "'.$list['dnd_start'].'";
 		</script>';
-		$output .= '<script src="'.$zz_setting['behaviour_path'].'/zzform/drag.js"></script>';
+		$output .= '<script src="'.wrap_setting('behaviour_path').'/zzform/drag.js"></script>';
 	}
 	return $output;
 }
@@ -2844,8 +2839,7 @@ function zz_list_ul($list, $rows) {
  * @return string
  */
 function zz_list_syndication_get($field, $line) {
-	global $zz_setting;
-	require_once $zz_setting['core'].'/syndication.inc.php';
+	require_once wrap_setting('core').'/syndication.inc.php';
 
 	$img = zz_makelink($field['path_json_request'], $line);
 	$img = wrap_syndication_get($img);
@@ -2866,5 +2860,5 @@ function zz_list_limit_last($total_rows) {
 	global $zz_conf;
 	if (empty($zz_conf['int']['limit_last'])) return;
 	if ($total_rows <= $zz_conf['int']['this_limit']) return;
-	$zz_conf['int']['this_limit'] = (ceil($total_rows / wrap_get_setting('zzform_limit')) * wrap_get_setting('zzform_limit'));
+	$zz_conf['int']['this_limit'] = (ceil($total_rows / wrap_setting('zzform_limit')) * wrap_setting('zzform_limit'));
 }

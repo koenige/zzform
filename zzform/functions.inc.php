@@ -277,14 +277,13 @@ function zz_module_fieldchecks($field, $key, $type) {
  */
 function zz_get_url_self() {
 	global $zz_page;
-	global $zz_setting;
 	global $zz_conf;
 	
 	$my_uri = $zz_page['url']['full'];
 	if (!empty($my_uri['path_forwarded']) AND str_starts_with($my_uri['path'], $my_uri['path_forwarded'])) {
 		$my_uri['path'] = substr($my_uri['path'], strlen($my_uri['path_forwarded']));
 	}
-	$my_uri['path'] = $zz_setting['base'].$my_uri['path'];
+	$my_uri['path'] = wrap_setting('base').$my_uri['path'];
 
 	// some basic settings
 	// normal situation: there is no query string in the base url, 
@@ -1252,10 +1251,9 @@ function zz_secret_key($id) {
  */
 function zz_secret_id($mode, $id = '', $hash = '') {
 	global $zz_conf;
-	global $zz_setting;
 	if (!empty($zz_conf['multi'])) return;
 
-	$logfile = $zz_setting['log_dir'].'/zzform-ids.log';
+	$logfile = wrap_setting('log_dir').'/zzform-ids.log';
 	if (!file_exists($logfile)) touch($logfile);
 	$logs = file($logfile);
 	if (!$id) $id = $zz_conf['id'];
@@ -1276,7 +1274,7 @@ function zz_secret_id($mode, $id = '', $hash = '') {
 		break;
 	}
 	if ($delete_lines) {
-		require_once $zz_setting['core'].'/file.inc.php';
+		require_once wrap_setting('core').'/file.inc.php';
 		wrap_file_delete_line($logfile, $delete_lines);
 	}
 
@@ -2477,10 +2475,9 @@ function zz_backwards_rename($var, $var_renamed, $var_name) {
  */
 function zz_error() {
 	global $zz_conf;
-	global $zz_setting;
 	
-	if (!wrap_get_setting('error_handling'))
-		$zz_setting['error_handling'] = 'output';
+	if (!wrap_setting('error_handling'))
+		wrap_setting('error_handling', 'output');
 	$user = [];
 	$admin = [];
 	$log = [];
@@ -2507,7 +2504,7 @@ function zz_error() {
 		if (!isset($error['log_post_data'])) {
 			$error['log_post_data'] = true;
 		}
-		if (!wrap_get_setting('error_log_post')) $error['log_post_data'] = false;
+		if (!wrap_setting('error_log_post')) $error['log_post_data'] = false;
 		elseif (empty($_POST)) $error['log_post_data'] = false;
 
 		// page http status
@@ -2622,12 +2619,12 @@ function zz_error() {
 		$log[$key] = strip_tags($log[$key]);
 		$log[$key] = str_replace('&lt;', '<', $log[$key]);
 		// reformat log output
-		if (wrap_get_setting('error_log['.$level.']') AND wrap_get_setting('log_errors')) {
-			wrap_log('['.$zz_setting['request_uri'].'] '.$log[$key],  $level, 'zzform');
+		if (wrap_setting('error_log['.$level.']') AND wrap_setting('log_errors')) {
+			wrap_log('['.wrap_setting('request_uri').'] '.$log[$key],  $level, 'zzform');
 			if ($error['log_post_data']) wrap_log('postdata', 'notice', 'zzform');
 		}
 		// Mail output
-		if (in_array($level, wrap_get_setting('error_mail_level')))
+		if (in_array($level, wrap_setting('error_mail_level')))
 			$message[$key] = $log[$key];
 
 		// Heading
@@ -2646,26 +2643,26 @@ function zz_error() {
 
 	// mail errors if said to do so
 	$mail = [];
-	switch (wrap_get_setting('error_handling')) {
+	switch (wrap_setting('error_handling')) {
 	case 'mail':	
-		if (!wrap_get_setting('error_mail_to')) break;
+		if (!wrap_setting('error_mail_to')) break;
 		if (!count($message)) break;
 		$mail['message'] = sprintf(
-			zz_text('The following error(s) occured in project %s:'), wrap_get_setting('project')
+			zz_text('The following error(s) occured in project %s:'), wrap_setting('project')
 		);
 		$mail['message'] .= "\n\n".implode("\n\n", $message);
 		$mail['message'] = html_entity_decode($mail['message'], ENT_QUOTES, $log_encoding);		
 		$mail['message'] .= "\n\n-- \nURL: ".$zz_conf['int']['url']['base']
-			.$zz_setting['request_uri']
-			."\nIP: ".$zz_setting['remote_ip']
+			.wrap_setting('request_uri')
+			."\nIP: ".wrap_setting('remote_ip')
 			.(!empty($_SERVER['HTTP_USER_AGENT']) ? "\nBrowser: ".$_SERVER['HTTP_USER_AGENT'] : '');		
 		if ($username = wrap_user())
 			$mail['message'] .= sprintf("\nUser: %s", $username);
 
-		if (empty($zz_setting['mail_subject_prefix']))
-			$zz_setting['mail_subject_prefix'] = '['.wrap_get_setting('project').']';
+		if (!wrap_setting('mail_subject_prefix'))
+			wrap_setting('mail_subject_prefix', '['.wrap_setting('project').']');
 		$mail['subject'] = zz_text('Database access error');
-		$mail['to'] = wrap_get_setting('error_mail_to');
+		$mail['to'] = wrap_setting('error_mail_to');
 		$mail['queue'] = true;
 		wrap_mail($mail);
 		break;
@@ -3078,7 +3075,7 @@ function zz_text($string) {
 }
 
 /**
- * Translate values with wrap_translate() from zzwrap library
+ * Translate values with wrap_translate() from zzwrap module
  *
  * @param array $def ($field or $zz)
  * @param array $values
@@ -3166,11 +3163,8 @@ function zz_edit_query_string($query, $unwanted_keys = [], $new_keys = [], $and 
  */
 function zz_htmltag_escape($string) {
 	if (!$string) return $string;
-	global $zz_setting;
-	switch ($zz_setting['character_set']) {
-		case 'iso-8859-2': $character_set = 'ISO-8859-1'; break;
-		default: $character_set = $zz_setting['character_set']; break;
-	}
+	$character_set = wrap_setting('character_set');
+	if ($character_set === 'iso-8859-2') $character_set = 'ISO-8859-1';
 	$new_string = @htmlspecialchars($string, ENT_NOQUOTES, $character_set);
 	if (!$new_string) $new_string = htmlspecialchars($string, ENT_NOQUOTES, 'ISO-8859-1');
 	$new_string = str_replace('&amp;', '&', $new_string);
@@ -3184,11 +3178,9 @@ function zz_htmltag_escape($string) {
  * @return string $string
  */
 function zz_htmlnoand_escape($string) {
-	global $zz_setting;
-	switch ($zz_setting['character_set']) {
-		case 'iso-8859-2': $character_set = 'ISO-8859-1'; break;
-		default: $character_set = $zz_setting['character_set']; break;
-	}
+	if (!$string) return $string;
+	$character_set = wrap_setting('character_set');
+	if ($character_set === 'iso-8859-2') $character_set = 'ISO-8859-1';
 	$new_string = @htmlspecialchars($string, ENT_QUOTES, $character_set);
 	if (!$new_string) $string = htmlspecialchars($string, ENT_QUOTES, 'ISO-8859-1');
 	$new_string = str_replace('&amp;', '&', $new_string);
@@ -3386,7 +3378,6 @@ function zz_dependent_value($dependency, $my_rec, $zz_tab) {
  */
 function zz_session_write($type, $data) {
 	global $zz_conf;
-	global $zz_setting;
 
 	switch ($type) {
 	case 'files':
@@ -3415,7 +3406,7 @@ function zz_session_write($type, $data) {
 					if (!$filename) continue;
 					if (!is_uploaded_file($filename)) continue; // might have been already moved
 					if ($file['error'][$field_key] !== UPLOAD_ERR_OK) continue;
-					$new_filename = $zz_setting['tmp_dir'].'/zzform-sessions/'.basename($filename);
+					$new_filename = wrap_setting('tmp_dir').'/zzform-sessions/'.basename($filename);
 					zz_rename($filename, $new_filename);
 					$session[$field_name]['tmp_name'][$field_key] = $new_filename;
 				}
@@ -3423,7 +3414,7 @@ function zz_session_write($type, $data) {
 				if (!$file['tmp_name']) continue;
 				if (!is_uploaded_file($file['tmp_name'])) continue; // might have been already moved
 				if ($file['error'] !== UPLOAD_ERR_OK) continue;
-				$new_filename = $zz_setting['tmp_dir'].'/zzform-sessions/'.basename($file['tmp_name']);
+				$new_filename = wrap_setting('tmp_dir').'/zzform-sessions/'.basename($file['tmp_name']);
 				zz_rename($filename, $new_filename);
 				$session[$field_name]['tmp_name'] = $new_filename;
 			}
@@ -3495,12 +3486,11 @@ function zz_session_read($type, $data = []) {
  */
 function zz_session_filename($type) {
 	global $zz_conf;
-	global $zz_setting;
-	$dir = $zz_setting['tmp_dir'].'/zzform-sessions';
+	$dir = wrap_setting('tmp_dir').'/zzform-sessions';
 	wrap_mkdir($dir);
 	$filename = sprintf('%s/%s-%s-%s.txt'
 		, $dir
-		, (empty(session_id()) OR !empty($zz_setting['zzform_id_from_session'])) ? $zz_conf['id'] : session_id()
+		, (empty(session_id()) OR wrap_setting('zzform_id_from_session')) ? $zz_conf['id'] : session_id()
 		, $zz_conf['int']['secret_key']
 		, $type
 	);
@@ -3534,15 +3524,14 @@ function zz_session_via_login() {
  */
 function zz_review_via_login() {
 	global $zz_conf;
-	global $zz_setting;
 
 	$zz_conf['id'] = zz_check_id_value($_SESSION['zzform']['review_via_login']);
 	$zz_conf['int']['secret_key'] = zz_secret_id('read');
 
-	$zz_setting['zzform_id_from_session'] = true;
+	wrap_setting('zzform_id_from_session', true);
 	$_POST = zz_session_read('postdata');
 	$_FILES = zz_session_read('filedata');
-	$zz_setting['zzform_id_from_session'] = false;
+	wrap_setting('zzform_id_from_session', false);
 	
 	wrap_session_start();
 	unset($_SESSION['zzform']['review_via_login']);
@@ -3554,7 +3543,7 @@ function zz_review_via_login() {
 	unset($_POST['zz_id']);
 	unset($_POST['zz_action']);
 	$_GET['delete'] = array_shift($_POST);
-	$uri = $zz_setting['request_uri'];
+	$uri = wrap_setting('request_uri');
 	if (strstr($uri, '?')) $uri .= '&';
 	else $uri .= '?';
 	$uri .= sprintf('delete=%d', $_GET['delete']);
@@ -3926,7 +3915,7 @@ function zz_check_select_translated($field, $sql_fieldname, $value, $search_equa
 		foreach ($t_fields as $t_field) {
 			if ($t_field['field_name'] !== $sql_fieldname) continue;
 			$sql = sprintf($sql_translations,
-				$type, implode(',', array_keys($t_fields)), wrap_get_setting('lang')
+				$type, implode(',', array_keys($t_fields)), wrap_setting('lang')
 			);
 			$sql = wrap_edit_sql($sql, 'WHERE', implode(' OR ', $tconditions));
 			$records += wrap_db_fetch($sql, '_dummy_', 'numeric');

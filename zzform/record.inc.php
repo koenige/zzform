@@ -28,7 +28,6 @@
  */
 function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 	global $zz_conf;
-	global $zz_setting;
 
 	// there might be now a where value for this record
 	if (!empty($record['where'][$zz_tab[0]['table']])) {
@@ -83,11 +82,11 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 	$record_form = ['edit', 'delete', 'add', 'revise'];
 	if (in_array($ops['mode'], $record_form)) {
 		$record['form'] = true;
-		if (!empty($zz_setting['csp_frame_ancestors'])) {
-			$zz_setting['extra_http_headers'][] = "Content-Security-Policy: frame-ancestors 'self' ".$zz_setting['csp_frame_ancestors'];
+		if ($csp_frame_ancestors = wrap_setting('csp_frame_ancestors')) {
+			wrap_setting_add('extra_http_headers', "Content-Security-Policy: frame-ancestors 'self' ".$csp_frame_ancestors);
 		} else {
-			$zz_setting['extra_http_headers'][] = 'X-Frame-Options: Deny';
-			$zz_setting['extra_http_headers'][] = "Content-Security-Policy: frame-ancestors 'self'";
+			wrap_setting_add('extra_http_headers', 'X-Frame-Options: Deny');
+			wrap_setting_add('extra_http_headers', "Content-Security-Policy: frame-ancestors 'self'");
 		}
 		if (!empty($zz_conf['form_anchor']))
 			$record['form_anchor'] = $zz_conf['form_anchor'];
@@ -217,7 +216,7 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 
 	$record['backlink'] = zz_output_backlink($zz_tab);
 
-	if (wrap_get_setting('zzform_xhr_vxjs')) {
+	if (wrap_setting('zzform_xhr_vxjs')) {
 		if (!empty($zz_conf['int']['selects'])) {
 			$record['js_xhr_selects'] = wrap_template('xhr-selects', $zz_conf['int']['selects']);
 		}
@@ -344,7 +343,6 @@ function zz_display_records($zz_tab, $mode, $display, $zz_record, $zz_conditions
  */
 function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple) {
 	global $zz_conf;
-	global $zz_setting;
 	$output = [];
 	
 	if (!empty($zz_conf['referer']) AND array_key_exists('nolist', $_GET)
@@ -396,7 +394,7 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple)
 			break;
 		}
 		$output['submit'] = zz_form_element('', $elementvalue, 'submit', false, $fieldattr);
-		if (($cancelurl !== $zz_setting['request_uri'] OR ($zz_record['action']) OR !empty($_POST))
+		if (($cancelurl !== wrap_setting('request_uri') OR ($zz_record['action']) OR !empty($_POST))
 			AND $zz_conf_record['cancel_link']) 
 			// only show cancel link if it is possible to hide form 
 			// @todo expanded to action, not sure if this works on add only forms, 
@@ -1359,7 +1357,6 @@ function zz_record_add_details_check($field, $mode) {
  */
 function zz_record_add_details($field, $tab, $rec, $fieldkey) {
 	global $zz_conf;
-	global $zz_setting;
 	
 	if (!empty($_SESSION['logged_in'])) {
 		if ($tab) {
@@ -1377,7 +1374,7 @@ function zz_record_add_details($field, $tab, $rec, $fieldkey) {
 	} else {
 		$add_details_sep = strstr($field['add_details'], '?') ? '&amp;' : '?';
 		$text = ' <a href="'.$field['add_details'].$add_details_sep
-			.'add&amp;referer='.urlencode($zz_setting['request_uri'])
+			.'add&amp;referer='.urlencode(wrap_setting('request_uri'))
 			.$zz_conf['int']['add_details_where'].'"'
 			.(!empty($field['add_details_target']) ? ' target="'.$field['add_details_target'].'"' : '')
 			.' id="zz_add_details_'.$tab.'_'.$rec.'_'.$fieldkey.'">['. zz_text('New …').']</a>';
@@ -2058,7 +2055,6 @@ function zz_field_unix_timestamp($field, $display, $record) {
  * @return string
  */
 function zz_field_foreign($field, $id_value) {
-	global $zz_setting;
 	// get value
 	$sql = $field['sql'].$id_value;
 	$foreign_lines = zz_db_fetch($sql, 'dummy_id', 'single value', 'fieldtype foreign');
@@ -2073,7 +2069,7 @@ function zz_field_foreign($field, $id_value) {
 	if (!isset($field['add_foreign'])) return $text;
 	if (!$id_value) return $text.zz_text('No entry possible. First save this record.');
 	return $text.' <a href="'.$field['add_foreign'].$id_value
-		.'&amp;referer='.urlencode($zz_setting['request_uri']).'">['
+		.'&amp;referer='.urlencode(wrap_setting('request_uri')).'">['
 		.zz_text('Edit …').']</a>';
 }
 
