@@ -919,11 +919,10 @@ function zz_field_format($value, $field) {
  * @return string formatted combination of amount and unit
  */
 function zz_money_format($int, $unit = '') {
-	global $zz_conf;
 	if (!$int) return false;
-	$int = number_format($int, 2, $zz_conf['decimal_point'], $zz_conf['thousands_separator']);
-	if (!strstr($int, $zz_conf['decimal_point'])) {
-		$int .= $zz_conf['decimal_point'].'00';
+	$int = number_format($int, 2, wrap_setting('decimal_point'), wrap_setting('thousands_separator'));
+	if (!strstr($int, wrap_setting('decimal_point'))) {
+		$int .= wrap_setting('decimal_point').'00';
 	}
 	//$int = str_replace (',00', ',–', $int);
 	if ($unit) $int .= ' '.$unit;
@@ -940,7 +939,6 @@ function zz_money_format($int, $unit = '') {
  * @todo cleanup
  */
 function zz_date_format($date) {
-	global $zz_conf;
 	if (!$date) return '';
 
 	// convert ISO 639-1 codes to ISO 639-2T
@@ -1052,8 +1050,6 @@ function zz_hour_format($seconds) {
  * @return string
  */
 function zz_number_format($value, $field) {
-	global $zz_conf;
-
 	if (empty($field['number_type'])) return $value;
 	if (!$value AND !empty($field['hide_zeros'])) return '';
 	
@@ -1078,7 +1074,7 @@ function zz_number_format($value, $field) {
 		} else {
 			$decimals = 0;
 		}
-		$text = number_format($value, $decimals, $zz_conf['decimal_point'], $zz_conf['thousands_separator']);
+		$text = number_format($value, $decimals, wrap_setting('decimal_point'), wrap_setting('thousands_separator'));
 		$text = str_replace(' ', '&nbsp;', $text);
 		break;
 	default:

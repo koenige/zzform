@@ -519,7 +519,7 @@ function zz_export_csv_head($main_rows) {
  * @param array $rows data in rows
  * @global array $zz_conf configuration
  *		'export_csv_enclosure', 'export_csv_delimiter', 'character_set',
- *		'list_display', 'decimal_point'
+ *		'list_display'
  * @return string CSV output, data
  */
 function zz_export_csv_body($rows) {
@@ -557,7 +557,7 @@ function zz_export_csv_body($rows) {
 					if (preg_match('/^0[0-9]+$/', $myfield)) {
 					// - number with leading 0 = TEXT
 						$mask = true;
-					} elseif (preg_match('/^[0-9]*\.[0-9]+$/', $myfield) AND $zz_conf['decimal_point'] === ',') {
+					} elseif (preg_match('/^[0-9]*\.[0-9]+$/', $myfield) AND wrap_setting('decimal_point') === ',') {
 					// - number with . while decimal separator is , = TEXT
 						$mask = true;
 					} elseif (preg_match('/^[1]*[0-9] [AaPp]$/', $myfield)) {

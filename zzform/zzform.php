@@ -701,7 +701,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['show_list_while_edit'] = true;
 	$default['show_output']			= true;		// ECHO output or keep it in $ops['output']
 	$default['title_separator']		= ' – ';
-	$default['thousands_separator']	= ' ';
 	$default['user']				= isset($_SERVER['PHP_AUTH_USER']) ? $_SERVER['PHP_AUTH_USER'] : wrap_user();
 	$default['view']				= false;	// 	show Action: View
 	$default['url_self']			= false;
