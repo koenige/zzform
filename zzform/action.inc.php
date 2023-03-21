@@ -1246,7 +1246,7 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 			//	slashes, 0 and NULL
 			if ($my_rec['POST_db'][$field_name]) {
 				if (zz_get_fieldtype($field) === 'ip') {
-					if (mysqli_get_server_info($zz_conf['db_connection']) >= '5.6.0') {
+					if (mysqli_get_server_info(wrap_db_connection()) >= '5.6.0') {
 						$my_rec['POST_db'][$field_name] = sprintf(
 							'INET6_ATON("%s")', 
 							wrap_db_escape($my_rec['POST_db'][$field_name])

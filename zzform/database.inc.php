@@ -56,7 +56,7 @@ function zz_log_sql($sql, $user, $record_id = false) {
 			$logging_table, wrap_db_escape($sql), $user
 		);
 	}
-	$result = mysqli_query($zz_conf['db_connection'], $sql);
+	$result = mysqli_query(wrap_db_connection(), $sql);
 	if (!$result) return false;
 	else return true;
 	// die if logging is selected but does not work?
@@ -93,7 +93,6 @@ function zz_sql_prefix_change(&$item) {
  *
  * @param mixed $item
  * @param string $key
- * @global array $zz_conf
  * @return void
  * @todo remove this function and do the replacement in zz_db_fetch() instead
  * for this to happen, all functions getting database names from table etc.
@@ -201,7 +200,7 @@ function zz_db_connection($table) {
 	// might be that there was no database connection established so far
 	// therefore the @, but it does not matter because we simply want to
 	// revert to the current database after exiting this script
-	$result = @mysqli_query($zz_conf['db_connection'], 'SELECT DATABASE()');
+	$result = @mysqli_query(wrap_db_connection(), 'SELECT DATABASE()');
 	if ($result) {
 		mysqli_data_seek($result, 0);
 		$line = mysqli_fetch_row($result);
@@ -221,7 +220,7 @@ function zz_db_connection($table) {
 		$db = zz_db_select($zz_conf['db_name']);
 		if (!$db) {
 			zz_error_log([
-				'db_msg' => mysqli_error($zz_conf['db_connection']),
+				'db_msg' => mysqli_error(wrap_db_connection()),
 				'query' => 'SELECT DATABASE("'.$zz_conf['db_name'].'")',
 				'level' => E_USER_ERROR
 			]);
@@ -230,10 +229,10 @@ function zz_db_connection($table) {
 		}
 	// 2. alternative: use current database
 	} else {
-		$result = mysqli_query($zz_conf['db_connection'], 'SELECT DATABASE()');
-		if (mysqli_error($zz_conf['db_connection'])) {
+		$result = mysqli_query(wrap_db_connection(), 'SELECT DATABASE()');
+		if (mysqli_error(wrap_db_connection())) {
 			zz_error_log([
-				'db_msg' => mysqli_error($zz_conf['db_connection']),
+				'db_msg' => mysqli_error(wrap_db_connection()),
 				'query' => 'SELECT DATABASE()',
 				'level' => E_USER_ERROR
 			]);
@@ -255,7 +254,7 @@ function zz_db_connection($table) {
 			$dbname = zz_db_select($db_name[1]);
 			if (!$dbname) {
 				zz_error_log([
-					'db_msg' => mysqli_error($zz_conf['db_connection']),
+					'db_msg' => mysqli_error(wrap_db_connection()),
 					'query' => 'SELECT DATABASE("'.$db_name[1].'")',
 					'level' => E_USER_ERROR
 				]);
@@ -313,7 +312,7 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 	}
 	$lines = [];
 	$error = false;
-	$result = mysqli_query($zz_conf['db_connection'], $sql);
+	$result = mysqli_query(wrap_db_connection(), $sql);
 	if ($result) {
 		if (!$id_field_name) {
 			// only one record
@@ -433,7 +432,7 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 		zz_error_log([
 			'msg_dev' => $msg_dev,
 			'msg_dev_args' => $msg_dev_args,
-			'db_msg' => mysqli_error($zz_conf['db_connection']), 
+			'db_msg' => mysqli_error(wrap_db_connection()), 
 			'query' => $sql,
 			'level' => $error_type,
 			'status' => 503
@@ -522,19 +521,19 @@ function zz_db_change($sql, $id = false) {
 	}
 
 	// check
-	$result = mysqli_query($zz_conf['db_connection'], $sql);
+	$result = mysqli_query(wrap_db_connection(), $sql);
 	if ($result) {
 		if (in_array($statement, $no_rows_affected)) {
 			$db['action'] = strtolower($statement);
 			if (wrap_setting('zzform_logging'))
 				zz_log_sql($sql, $zz_conf['user'], $db['id_value']);
-		} elseif (!mysqli_affected_rows($zz_conf['db_connection'])) {
+		} elseif (!mysqli_affected_rows(wrap_db_connection())) {
 			$db['action'] = 'nothing';
 		} else {
-			$db['rows'] = mysqli_affected_rows($zz_conf['db_connection']);
+			$db['rows'] = mysqli_affected_rows(wrap_db_connection());
 			$db['action'] = strtolower($statement);
 			if ($db['action'] === 'insert') // get ID value
-				$db['id_value'] = mysqli_insert_id($zz_conf['db_connection']);
+				$db['id_value'] = mysqli_insert_id(wrap_db_connection());
 			// Logs SQL Query, must be after insert_id was checked
 			if (wrap_setting('zzform_logging') AND $db['rows'])
 				zz_log_sql($sql, $zz_conf['user'], $db['id_value']);
@@ -553,8 +552,8 @@ function zz_db_change($sql, $id = false) {
 		$db['action'] = '';
 		$db['error'] = [
 			'query' => $sql,
-			'db_msg' => mysqli_error($zz_conf['db_connection']),
-			'db_errno' => mysqli_errno($zz_conf['db_connection'])
+			'db_msg' => mysqli_error(wrap_db_connection()),
+			'db_errno' => mysqli_errno(wrap_db_connection())
 		];
 	}
 	if (wrap_setting('debug') AND function_exists('wrap_error')) {
@@ -933,8 +932,7 @@ function zz_db_decimal_places($db_table, $field) {
  * @return bool
  */
 function zz_db_select($db_name) {
-	global $zz_conf;
-	return mysqli_select_db($zz_conf['db_connection'], $db_name);
+	return mysqli_select_db(wrap_db_connection(), $db_name);
 }
 
 /**
