@@ -28,8 +28,6 @@ function zz_export_config() {
 	// whether sql result might be exported 
 	// (link for export will appear at the end of the page)
 	$default['export']			= [];				
-	// PDF library to include
-	$default['pdflib_path']		= false;
 
 	// CSV defaults
 	// Excel requires
@@ -196,13 +194,6 @@ function zz_export($ops, $zz) {
 
 	// check if we have data
 	if (!$zz_conf['int']['show_list']) return false;
-
-	// pdf?
-	if ($zz_conf['list_display'] === 'pdf') {
-		// include pdf library
-		if (!empty($zz_conf['pdflib_path']))
-			require_once $zz_conf['pdflib_path'];
-	}
 
 	// custom functions
 	$function = zz_export_script($zz_conf['list_display']);
