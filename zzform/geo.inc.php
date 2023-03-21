@@ -490,13 +490,8 @@ function zz_geo_geocode($ops, $zz_tab) {
 	if (count($address) === 1 AND array_key_exists('place', $address)) return [];
 	if (!$address) return [];
 
-	if (empty($zz_conf['geocoding_function'])) {
-		// you'll need a function that returns from Array $address
-		// an Array with latitude, longitude and postal_code (optional)
-		require_once wrap_setting('core').'/syndication.inc.php';
-		$zz_conf['geocoding_function'] = 'wrap_syndication_geocode';
-	}
-	$result = $zz_conf['geocoding_function']($address);
+	require_once wrap_setting('core').'/syndication.inc.php';
+	$result = wrap_syndication_geocode($address);
 	if (!$result) return [];
 
 	$change = [];
