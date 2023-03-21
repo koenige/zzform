@@ -20,7 +20,6 @@
  * Default settings for translation module
  */
 function zz_translations_config() {
-	$default['translations_of_fields'] = false;
 	$default['translations_script'] = [];
 	zz_write_conf($default);
 }
@@ -36,7 +35,7 @@ function zz_translations_config() {
 function zz_translations_init($table, $fields) {
 	global $zz_conf;
 
-	if (!$zz_conf['translations_of_fields']) return $fields;
+	if (!wrap_setting('translate_fields')) return $fields;
 	if (!wrap_sql_table('default_translationfields')) {
 		zz_error_log([
 			'msg_dev' => '`default_translationfields__table` must be set.',

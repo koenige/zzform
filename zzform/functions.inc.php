@@ -115,9 +115,8 @@ function zz_dependent_modules($zz) {
 		$zz_conf['modules'][$module] = false;
 		switch ($module) {
 		case 'translations':
-			if (empty($zz_conf['translations_of_fields'])) {
+			if (!wrap_setting('translate_fields'))
 				unset($modules[$index]);
-			}
 			break;
 		case 'conditions':
 			if (!empty($zz['conditions'])) break;
@@ -3876,8 +3875,7 @@ function zz_field_select_format($line, $field) {
  * @return string SQL query part with ID or empty
  */
 function zz_check_select_translated($field, $sql_fieldname, $value, $search_equal) {
-	global $zz_conf;
-	if (empty($zz_conf['translations_of_fields'])) return '';
+	if (!wrap_setting('translate_fields')) return '';
 	require_once __DIR__.'/translations.inc.php'; // for XHR
 
 	// set conditions
