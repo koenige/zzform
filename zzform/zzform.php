@@ -450,7 +450,7 @@ function zzform_exit($ops) {
 		if ($ops['result'] AND !empty($zz_conf['debug_time'])) {
 			zz_debug_time($ops['return']);
 		}
-		if ($zz_conf['debug'] AND $ops['mode'] !== 'export') {
+		if (wrap_setting('debug') AND $ops['mode'] !== 'export') {
 			$ops['debug'] = zz_debug_htmlout();
 		}
 		zz_debug_unset();

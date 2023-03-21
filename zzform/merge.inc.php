@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2014-2015, 2017, 2019-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2014-2015, 2017, 2019-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -93,7 +93,7 @@ function zz_merge_records($zz) {
 
 	// walk through detail record first, main record last
 	$recs = array_reverse($recs);
-	if (!$error OR !empty($zz_conf['debug'])) foreach ($recs as $rec) {
+	if (!$error OR wrap_setting('debug')) foreach ($recs as $rec) {
 		$sql = 'SELECT rel_id, detail_db, detail_table, detail_field, `delete`, detail_id_field
 			FROM %s
 			WHERE master_db = "%s"
@@ -162,7 +162,7 @@ function zz_merge_records($zz) {
 
 		// merge main record
 
-		if (!$error OR !empty($zz_conf['debug'])) {
+		if (!$error OR wrap_setting('debug')) {
 			if (!empty($rec['prep']['update']) AND $rec['prep']['new_values']) {
 				$update_values = [];
 				foreach ($rec['prep']['new_values'] as $field_name => $value) {
@@ -186,7 +186,7 @@ function zz_merge_records($zz) {
 				}
 			}
 			foreach ($rec['old_ids'] as $old_id) {
-				if (!empty($rec['prep']['delete_old_records']) AND (!$error OR !empty($zz_conf['debug']))) {
+				if (!empty($rec['prep']['delete_old_records']) AND (!$error OR wrap_setting('debug'))) {
 					$sql = sprintf('DELETE FROM %s WHERE %s = %d LIMIT 1'
 						, $rec['table'], $rec['id_field_name'], $old_id
 					); 
@@ -225,9 +225,7 @@ function zz_merge_records($zz) {
  * @return array
  */
 function zz_merge_action($sql, $id) {
-	global $zz_conf;
-
-	if (!empty($zz_conf['debug'])) {
+	if (wrap_setting('debug')) {
 		$result['action'] = false;
 		$result['error']['db_msg'] = $sql;
 	} else {

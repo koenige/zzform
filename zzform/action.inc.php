@@ -418,7 +418,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 		}
 	}
 
-	if ($zz_conf['modules']['debug'] AND $zz_conf['debug']) {
+	if ($zz_conf['modules']['debug'] AND wrap_setting('debug')) {
 		$ops['output'].= '<br>';
 		$ops['output'].= 'Main ID value: '.$zz_conf['int']['id']['value'].'<br>';
 		$ops['output'].= 'Main SQL query: '.$sql_edit.'<br>';
@@ -708,7 +708,7 @@ function zz_action_details($detail_sqls, $zz_tab, $validation, $ops, $foreign_id
 				$zz_tab[0]['subrecord_action'] = true;
 			}
 			$ops = zz_record_info($ops, $zz_tab, $tab, $rec);
-			if ($zz_conf['modules']['debug'] AND $zz_conf['debug']) {
+			if ($zz_conf['modules']['debug'] AND wrap_setting('debug')) {
 				$ops['output'] .= 'SQL query for record '.$tab.'/'.$rec.': '.$sql.'<br>';
 			}
 		}

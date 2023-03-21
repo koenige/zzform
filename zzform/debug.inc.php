@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2010, 2014, 2016-2017, 2022 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2010, 2014, 2016-2017, 2022-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -17,7 +17,6 @@
  * Default settings for debug module
  */
 function zz_debug_config() {
-	$default['debug']			= false;	// turn on/off debugging mode
 	$default['debug_time'] 		= false;
 	zz_write_conf($default);
 }
