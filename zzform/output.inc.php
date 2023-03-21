@@ -736,13 +736,13 @@ function zz_nice_tablenames($table) {
 		return $table;
 	}
 	// or format it here
-	if ($zz_conf['prefix']) { // makes the response look nicer
-		if (strtolower(substr($table, 0, strlen($zz_conf['prefix']))) === strtolower($zz_conf['prefix']))
-			$table = substr($table, strlen($zz_conf['prefix']));
+	if (wrap_setting('db_prefix')) { // makes the response look nicer
+		if (strtolower(substr($table, 0, strlen(wrap_setting('db_prefix')))) === strtolower(wrap_setting('db_prefix')))
+			$table = substr($table, strlen(wrap_setting('db_prefix')));
 		else {
 			zz_error_log([
 				'msg_dev' => 'Table prefix is incorrect somehow: %s',
-				'msg_dev_args' => [substr($table, 0, strlen($zz_conf['prefix']))]
+				'msg_dev_args' => [substr($table, 0, strlen(wrap_setting('db_prefix')))]
 			]);
 		}
 	}

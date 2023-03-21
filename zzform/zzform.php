@@ -690,7 +690,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['multi_delete']		= false;
 	$default['multi_edit']			= false;
 	$default['multi_function']		= [];
-	$default['prefix'] 				= false;	//	prefix for ALL tables like zz_
 	$default['redirect']['successful_delete'] = false;	// redirect to diff. page after delete
 	$default['redirect']['successful_insert'] = false;	// redirect to diff. page after insert
 	$default['redirect']['successful_update'] = false;	// redirect to diff. page after update

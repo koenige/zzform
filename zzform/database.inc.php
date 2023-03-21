@@ -80,12 +80,10 @@ function zz_sql_prefix($vars) {
  * and replaces all prefixes of its value
  */
 function zz_sql_prefix_change(&$item) {
-	global $zz_conf;
-
 	if (!is_string($item)) return false;
 	$prefix = '/*_PREFIX_*/';
 	if (!strstr($item, $prefix)) return false;
-	$item = str_replace($prefix, $zz_conf['prefix'], $item);
+	$item = str_replace($prefix, wrap_setting('db_prefix'), $item);
 	return true;
 }
  
