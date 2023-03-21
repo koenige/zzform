@@ -50,7 +50,7 @@ function zz_translations_init($table, $fields) {
 	$sql = 'SELECT translationfield_id, field_name, field_type
 		FROM %s
 		WHERE db_name = "%s" AND table_name = "%s"';
-	$sql = sprintf($sql, wrap_sql_table('default_translationfields'), $zz_conf['db_name'], $table);
+	$sql = sprintf($sql, wrap_sql_table('default_translationfields'), wrap_setting('db_name'), $table);
 	$translationfields = zz_db_fetch($sql, 'field_name');
 
 	$all_indices = array_keys($fields);

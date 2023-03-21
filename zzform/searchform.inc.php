@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2013, 2015-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2013, 2015-2021, 2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -235,10 +235,10 @@ function zz_search_field($field, $table, $searchop, $searchword) {
 	// build search query part
 	switch ($searchop) {
 	case 'NULL':
-		if (!zz_db_field_null($field['field_name'], $zz_conf['db_name'].'.'.$table)) return '';
+		if (!zz_db_field_null($field['field_name'], wrap_setting('db_name').'.'.$table)) return '';
 		return sprintf('ISNULL(%s)', $fieldname);
 	case '!NULL':
-		if (!zz_db_field_null($field['field_name'], $zz_conf['db_name'].'.'.$table)) return '';
+		if (!zz_db_field_null($field['field_name'], wrap_setting('db_name').'.'.$table)) return '';
 		return sprintf('NOT ISNULL(%s)', $fieldname);
 	case '<':
 		return sprintf('%s < "%s"', $fieldname, $searchword);
@@ -395,7 +395,7 @@ function zz_search_time($searchword) {
  */
 function zz_search_checkfield($field_name, $table, $searchword) {
 	global $zz_conf;
-	if (!strstr($table, '.')) $table = $zz_conf['db_name'].'.'.$table;
+	if (!strstr($table, '.')) $table = wrap_setting('db_name').'.'.$table;
 	$column = zz_db_columns($table, $field_name);
 	if (!$column) {
 		zz_error_log([

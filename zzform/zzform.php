@@ -116,7 +116,7 @@ function zzform($zz) {
 //	Database connection, set db_name
 //
 	$zz['table'] = zz_db_connection($zz['table']);
-	if (!$zz_conf['db_name']) return zzform_exit($ops); // exits script
+	if (!wrap_setting('db_name')) return zzform_exit($ops); // exits script
 	$zz = zz_sql_prefix($zz);
 	if ($zz_conf['modules']['debug']) zz_debug('database connection ok');
 	if (empty($zz['sqlrecord'])) $zz['sqlrecord'] = $zz['sql'];
@@ -218,7 +218,7 @@ function zzform($zz) {
 
 	// now we have the correct field definitions	
 	// set type, title etc. where unset
-	$zz['fields'] = zz_fill_out($zz['fields'], $zz_conf['db_name'].'.'.$zz['table'], false, $ops['mode'], $zz['record']['action']); 
+	$zz['fields'] = zz_fill_out($zz['fields'], wrap_setting('db_name').'.'.$zz['table'], false, $ops['mode'], $zz['record']['action']); 
 
 	zz_trigger_error_too_big();
 	zz_error();	// @todo check if this can go into zz_trigger_error_too_big()

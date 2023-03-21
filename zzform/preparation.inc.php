@@ -26,7 +26,7 @@ function zz_prepare_tables($zz, $mode) {
 
 	$zz_tab = [];
 	// ### variables for main table will be saved in zz_tab[0]
-	$zz_tab[0]['db_name'] = $zz_conf['db_name'];
+	$zz_tab[0]['db_name'] = wrap_setting('db_name');
 	$zz_tab[0]['table'] = $zz['table'];
 	$zz_tab[0]['table_name'] = $zz['table'];
 	$zz_tab[0]['sql'] = $zz['sqlrecord'];
@@ -250,8 +250,6 @@ function zz_prepare_hooks($zz) {
  * @param array $main_tab = $zz_tab[0] for main record
  * @param int $tab = number of subtable
  * @param int $no = number of subtable definition in $zz['fields']
- * @global array $zz_conf
- *		'max_detail_records', 'min_detail_records'
  * @global array $_POST
  * @return array $my_tab = $zz_tab[$tab]
  *		'no', 'sql', 'sql_not_unique', 'keep_detailrecord_shown', 'db_name'
@@ -261,8 +259,6 @@ function zz_prepare_hooks($zz) {
  *		'translate_field_name_where', 'detail_key', 'tick_to_save', 'access'
  */
 function zz_get_subtable($field, $main_tab, $tab, $no) {
-	global $zz_conf;
-
 	// basics for all subrecords of the same table
 	$my_tab = [];
 
@@ -334,7 +330,7 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 		? $field['foreign_key_field_name'] 
 		: $main_tab['table'].'.'.$main_tab[0]['id']['field_name']);
 	$my_tab['translate_field_name_where'] = !empty($field['translate_field_name'])
-		? (wrap_sql_table('default_translationfields').'.db_name = "'.$zz_conf['db_name'].'"
+		? (wrap_sql_table('default_translationfields').'.db_name = "'.wrap_setting('db_name').'"
 			AND '.wrap_sql_table('default_translationfields').'.table_name = "'.$main_tab['table'].'"
 			AND '.wrap_sql_table('default_translationfields').'.field_name = "'
 				.$field['translate_field_name'].'"') : '';
@@ -1035,7 +1031,6 @@ function zz_values_get_equal_key(&$values, $record) {
  * @return array $my_tab
  */
 function zz_get_subrecords_mode($my_tab, $rec_tpl, $existing_ids) {
-	global $zz_conf;
 	// function will be run twice from zzform(), therefore be careful, 
 	// programmer!
 

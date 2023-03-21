@@ -14,8 +14,6 @@
 
 
 function zz_merge_records($zz) {
-	global $zz_conf;
-	
 	if (empty($_POST['zz_action'])) return false;
 	if ($_POST['zz_action'] !== 'multiple') return false;
 	if (empty($_POST['zz_record_id'])) return false;
@@ -99,7 +97,7 @@ function zz_merge_records($zz) {
 			WHERE master_db = "%s"
 			AND master_table = "%s"
 			AND master_field = "%s"';
-		$sql = sprintf($sql, wrap_sql_table('zzform_relations'), $zz_conf['db_name'], $rec['table'], $rec['id_field_name']);
+		$sql = sprintf($sql, wrap_sql_table('zzform_relations'), wrap_setting('db_name'), $rec['table'], $rec['id_field_name']);
 		$dependent_records = zz_db_fetch($sql, 'rel_id');
 
 		$dependent_sql = 'SELECT * FROM %s.%s WHERE %s IN (%s)';
@@ -122,13 +120,13 @@ function zz_merge_records($zz) {
 			$actions = zz_merge_compare($records, $existing, $record);
 
 			$this_record_sql['update'] = sprintf($record_update_sql,
-				($record['detail_db'] !== $zz_conf['db_name'] 
+				($record['detail_db'] !== wrap_setting('db_name') 
 					? $record['detail_db'].'.'.$record['detail_table'] 
 					: $record['detail_table']),
 				$record['detail_field'], $record['detail_id_field']
 			);
 			$this_record_sql['delete'] = sprintf($record_delete_sql,
-				($record['detail_db'] !== $zz_conf['db_name'] 
+				($record['detail_db'] !== wrap_setting('db_name') 
 					? $record['detail_db'].'.'.$record['detail_table'] 
 					: $record['detail_table']),
 				$record['detail_id_field']
@@ -241,8 +239,6 @@ function zz_merge_action($sql, $id) {
  * @return array
  */
 function zz_merge_equal($table_def) {
-	global $zz_conf;
-
 	$equal_fields = [];
 	$equal_fields_titles = [];
 	foreach ($table_def['fields'] as $field) {
@@ -255,7 +251,7 @@ function zz_merge_equal($table_def) {
 	if (!$table_def['ids']) return [];
 
 	$sql = sprintf('SELECT DISTINCT %s FROM %s.%s WHERE %s IN (%s)',
-		implode(', ', $equal_fields), $zz_conf['db_name'],
+		implode(', ', $equal_fields), wrap_setting('db_name'),
 		$table_def['table'], $table_def['id_field_name'], implode(', ', $table_def['ids'])
 	);
 	$distinct_records = zz_db_fetch($sql, '_dummy_', 'count');

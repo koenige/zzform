@@ -227,7 +227,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 		} else {
 			// the 'main' zzform() database is equal to the database for the 
 			// main record, so check against db_name
-			if ($zz_tab[$tab]['db_name'] !== $zz_conf['db_name']) 
+			if ($zz_tab[$tab]['db_name'] !== wrap_setting('db_name')) 
 				$me_db = $zz_tab[$tab]['db_name'].'.';
 		}
 		$me_sql = false;
@@ -358,7 +358,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 			} else {
 				// the 'main' zzform() database is equal to the database for the 
 				// main record, so check against db_name
-				if ($db_name !== $zz_conf['db_name']) 
+				if ($db_name !== wrap_setting('db_name')) 
 					$me_db = '`'.$db_name.'`.';
 			}
 			foreach ($tables as $table => $fields) {
@@ -2677,7 +2677,7 @@ function zz_integrity_check_files($dependent_ids) {
 			if (strstr($zz['table'], '.')) {
 				list($script_db, $script_table) = explode('.', $zz['table']);
 			} else {
-				$script_db = $zz_conf['db_name'];
+				$script_db = wrap_setting('db_name');
 				$script_table = $zz['table'];
 			}
 			if ($table !== $script_table) continue;

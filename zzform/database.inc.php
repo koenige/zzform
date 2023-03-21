@@ -216,15 +216,15 @@ function zz_db_connection($table) {
 
 	// get db_name.
 	// 1. best way: put it in zz_conf['db_name']
-	if (!empty($zz_conf['db_name'])) {
-		$db = zz_db_select($zz_conf['db_name']);
+	if (wrap_setting('db_name')) {
+		$db = zz_db_select(wrap_setting('db_name'));
 		if (!$db) {
 			zz_error_log([
 				'db_msg' => mysqli_error(wrap_db_connection()),
-				'query' => 'SELECT DATABASE("'.$zz_conf['db_name'].'")',
+				'query' => 'SELECT DATABASE("'.wrap_setting('db_name').'")',
 				'level' => E_USER_ERROR
 			]);
-			$zz_conf['db_name'] = '';
+			wrap_setting('db_name', '');
 			return false;
 		}
 	// 2. alternative: use current database
@@ -240,16 +240,16 @@ function zz_db_connection($table) {
 		}
 		mysqli_data_seek($result, 0);
 		$line = mysqli_fetch_row($result);
-		$zz_conf['db_name'] = reset($line);
+		wrap_setting('db_name', reset($line));
 	}
 
 	// 3. alternative plus foreign db: put it in zz['table']
 	if (preg_match('~(.+)\.(.+)~', $table, $db_name)) { // db_name is already in zz['table']
-		if ($zz_conf['db_name'] AND $zz_conf['db_name'] !== $db_name[1]) {
+		if (wrap_setting('db_name') AND wrap_setting('db_name') !== $db_name[1]) {
 			// this database is different from main database, so save it here
 			// for later
-			$zz_conf['int']['db_main'] = $zz_conf['db_name'];
-		} elseif (!$zz_conf['db_name']) { 
+			$zz_conf['int']['db_main'] = wrap_setting('db_name');
+		} elseif (!wrap_setting('db_name')) { 
 			// no database selected, get one, quick!
 			$dbname = zz_db_select($db_name[1]);
 			if (!$dbname) {
@@ -258,15 +258,15 @@ function zz_db_connection($table) {
 					'query' => 'SELECT DATABASE("'.$db_name[1].'")',
 					'level' => E_USER_ERROR
 				]);
-				$zz_conf['db_name'] = '';
+				wrap_setting('db_name', '');
 				return false;
 			}
 		}
-		$zz_conf['db_name'] = $db_name[1];
+		wrap_setting('db_name', $db_name[1]);
 		$table = $db_name[2];
 	}
 
-	if (empty($zz_conf['db_name'])) {
+	if (!wrap_setting('db_name')) {
 		zz_error_log([
 			'msg_dev' => 'Please set the variable <code>$zz_conf[\'db_name\']</code>.'
 				.' It has to be set to the main database name used for zzform.',
@@ -593,13 +593,12 @@ function zz_db_statement($sql) {
  * @return array
  */
 function zz_db_table($table, $db_name = false) {
-	global $zz_conf;
 	if (strstr($table, '.')) {
 		$table = explode('.', $table);
 		$my['db_name'] = $table[0];
 		$my['table'] = $table[1];
 	} else {
-		$my['db_name'] = $db_name ? $db_name : $zz_conf['db_name'];
+		$my['db_name'] = $db_name ? $db_name : wrap_setting('db_name');
 		$my['table'] = $table;
 	}
 	return $my;	
@@ -613,10 +612,9 @@ function zz_db_table($table, $db_name = false) {
  * @return string $db_table `database`.`table` or `database` or `table`
  */
 function zz_db_table_backticks($db_table) {
-	global $zz_conf;
 	$db_table = explode('.', $db_table);
 	if (count($db_table) === 1) {
-		array_unshift($db_table, $zz_conf['db_name']);
+		array_unshift($db_table, wrap_setting('db_name'));
 	}
 	foreach ($db_table as $index => $table) {
 		if (substr($table, 0, 1) === '`' AND substr($table, -1) === '`') continue;
@@ -846,7 +844,7 @@ function zz_db_field_collation($type, $field, $db_table = '', $index = 0) {
 			$table_field = explode('.', $collate_fieldname);
 			switch (count($table_field)) {
 			case 2:
-				$db_tables[0] = $zz_conf['db_name'].'.'.trim($table_field[0]);
+				$db_tables[0] = wrap_setting('db_name').'.'.trim($table_field[0]);
 				$collate_fieldname = $table_field[1];
 				break;
 			case 3:
@@ -863,7 +861,7 @@ function zz_db_field_collation($type, $field, $db_table = '', $index = 0) {
 			foreach ($tables as $index => $table) {
 				$table = trim($table);
 				if (strstr($table, '.')) $db_tables[] = $table;
-				else $db_tables[] = $zz_conf['db_name'].'.'.$table;
+				else $db_tables[] = wrap_setting('db_name').'.'.$table;
 			}
 		}
 		$cols = [];

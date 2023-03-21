@@ -89,14 +89,12 @@ function zz_copy_records($table, $foreign_id_field_name, $source_id, $destinatio
  * @return bool
  */
 function zz_copy_records_translations($table, $ids, $map) {
-	global $zz_conf;
-
 	$sql = 'SELECT translationfield_id, field_type
 		FROM %s
 		WHERE db_name = "%s" AND table_name = "%s"';
 	$sql = sprintf($sql
 		, wrap_sql_table('default_translationfields')
-		, $zz_conf['db_name']
+		, wrap_setting('db_name')
 		, $table
 	);
 	$translationfields = wrap_db_fetch($sql, 'translationfield_id');
