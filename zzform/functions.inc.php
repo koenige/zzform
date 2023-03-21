@@ -3157,32 +3157,17 @@ function zz_edit_query_string($query, $unwanted_keys = [], $new_keys = [], $and 
 
 /**
  * Escapes strings for HTML text (< >)
+ * ENT_QUOTES: Escapes validated or custom set strings for HTML values (< > " ')
  *
  * @param string $string
  * @return string $string
  */
-function zz_htmltag_escape($string) {
+function zz_htmltag_escape($string, $flags = ENT_NOQUOTES) {
 	if (!$string) return $string;
 	$character_set = wrap_setting('character_set');
 	if ($character_set === 'iso-8859-2') $character_set = 'ISO-8859-1';
-	$new_string = @htmlspecialchars($string, ENT_NOQUOTES, $character_set);
-	if (!$new_string) $new_string = htmlspecialchars($string, ENT_NOQUOTES, 'ISO-8859-1');
-	$new_string = str_replace('&amp;', '&', $new_string);
-	return $new_string;
-}
-
-/**
- * Escapes validated or custom set strings for HTML values (< > " ')
- *
- * @param string $string
- * @return string $string
- */
-function zz_htmlnoand_escape($string) {
-	if (!$string) return $string;
-	$character_set = wrap_setting('character_set');
-	if ($character_set === 'iso-8859-2') $character_set = 'ISO-8859-1';
-	$new_string = @htmlspecialchars($string, ENT_QUOTES, $character_set);
-	if (!$new_string) $string = htmlspecialchars($string, ENT_QUOTES, 'ISO-8859-1');
+	$new_string = @htmlspecialchars($string, $flags, $character_set);
+	if (!$new_string) $new_string = htmlspecialchars($string, $flags, 'ISO-8859-1');
 	$new_string = str_replace('&amp;', '&', $new_string);
 	return $new_string;
 }

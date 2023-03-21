@@ -639,7 +639,7 @@ function zz_print_enum($field, $value, $type = 'abbr', $key = false) {
 			if (stristr($text, '<abbr')) $text = strip_tags($text);
 			$text = sprintf(
 				'<abbr title="%s">%s</abbr>',
-				zz_htmlnoand_escape($field[$ft.'_abbr'][$key]), $text 
+				zz_htmltag_escape($field[$ft.'_abbr'][$key], ENT_QUOTES), $text 
 			);
 		}
 	}

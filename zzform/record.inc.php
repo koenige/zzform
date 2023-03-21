@@ -2289,7 +2289,7 @@ function zz_field_number($field, $display, $record, $dont_reformat) {
 	}
 	
 	// return text
-	if ($display !== 'form') return zz_htmlnoand_escape($value).$suffix;
+	if ($display !== 'form') return zz_htmltag_escape($value, ENT_QUOTES).$suffix;
 
 	// return form element
 	$fieldattr = [];
