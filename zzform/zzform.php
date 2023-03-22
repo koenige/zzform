@@ -407,8 +407,6 @@ function zzform($zz) {
  * @return void
  */
 function zzform_request() {
-	global $zz_conf;
-
 	if (empty($_GET['request'])) wrap_quit(404);
 	switch ($_GET['request']) {
 	case 'captcha':

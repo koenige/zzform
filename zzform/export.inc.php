@@ -283,7 +283,6 @@ function zz_export_sort(&$out) {
  *
  * @param array $ops
  * @param array $zz
- * @global array $zz_conf
  * @return array $ops
  */
 function zz_export_kml($ops, $zz) {

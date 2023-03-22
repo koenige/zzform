@@ -478,14 +478,9 @@ function zz_image_crop($source, $dest, $dest_ext, $image, $clipping = 'center') 
  * @param string $dest
  * @param string $dest_ext
  * @param array $image (optional)
- * @global array $zz_conf
- *		string 'upload_imagick_options', bool 'modules'['debug'], bool 'debug',
- *		array 'upload_imagick_options_for'
  * @return bool
  */
 function zz_imagick_convert($options, $source, $source_ext, $dest, $dest_ext, $image = []) {
-	global $zz_conf;
-	
 	$source_ext = zz_upload_extension_normalize($source_ext);
 
 	// avoid errors like
@@ -584,7 +579,6 @@ function zz_imagick_findpath($command = 'convert') {
  * @return string
  */
 function zz_imagick_version() {
-	global $zz_conf;
 	$command = zz_imagick_findpath();
 	$command .= ' --version';
 	exec($command, $output);
@@ -599,7 +593,6 @@ function zz_imagick_version() {
  * @return string
  */
 function zz_ghostscript_version() {
-	global $zz_conf;
 	$command = zz_imagick_findpath('gs');
 	$command .= ' --help';
 	exec($command, $output);

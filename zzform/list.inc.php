@@ -994,8 +994,6 @@ function zz_filter_selection($filter, $filter_active, $pos) {
  * @see zz_filter_defaults() for check for invalid filters
  */
 function zz_list_filter_sql($filters, $sql, &$filter_active) {
-	global $zz_conf;
-
 	// no filter was selected, no change
 	if (!$filter_active) return $sql;
 

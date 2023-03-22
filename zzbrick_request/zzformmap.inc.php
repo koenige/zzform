@@ -53,12 +53,9 @@ function mod_zzform_zzformmap($params, $settings) {
  * get own zzform URL stripped from unnecessary parts for map export
  *
  * @param string $type type of export
- * @global array $zz_conf
  * @return string $map_url
  */
 function mod_zzform_zzformmap_url($type = 'kml') {
-	global $zz_conf;
-
 	$url = parse_url(wrap_setting('request_uri'));
 	$map_url = $url['path'];
 	if (!empty($url['query'])) {

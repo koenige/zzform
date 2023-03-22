@@ -354,8 +354,6 @@ function zz_get_url_self() {
  * @return bool
  */
 function zz_get_where_conditions(&$zz) {
-	global $zz_conf;
-
 	// WHERE: Add with suggested values
 	$zz['where_condition']['list+record'] = zz_check_get_array('where', 'field_name');
 	if (!empty($zz['where'])) {

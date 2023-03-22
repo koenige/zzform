@@ -450,8 +450,6 @@ function zz_geo_timestamp_in($value) {
  * @return array $change
  */
 function zz_geo_geocode($ops, $zz_tab) {
-	global $zz_conf;
-	
 	$geocoding = zz_geo_geocode_fields($ops['validated'], $ops['record_new'], $zz_tab);
 	if (!$geocoding) return [];
 	if (!array_key_exists('latlon', $geocoding)) return [];
