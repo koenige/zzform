@@ -2988,3 +2988,43 @@ function zz_upload_show_warning($file, $type) {
 	if (empty($def['hide_warnings'][$type])) return true;
 	return false;
 }
+
+/**
+ * find path for binary
+ *
+ * @param string $command name of command
+ * @return string
+ */
+function zz_upload_binary_path($command) {
+	if ($path = wrap_setting('zzform_upload_binary_path_unchecked')
+		AND !wrap_setting('local_access')
+	) {
+		// don’t do checks on production server
+		$command = sprintf('%s/%s ', $path, $command);
+		return $command;
+	} elseif ($path = wrap_setting('zzform_upload_binary_path_unchecked_local')
+		AND wrap_setting('local_access')
+	) {
+		$command = sprintf('%s/%s ', $path, $command);
+		return $command;
+	}
+
+	$paths = wrap_setting('zzform_upload_binary_paths');
+	if ($last_dir = end($paths) !== '/notexistent')
+		$paths[] = '/notexistent';
+	$path = $paths[0];
+	$i = 1;
+	while (!file_exists($path.'/'.$command) AND !is_link($path.'/'.$command)) {
+		$path = $paths[$i];
+		$i++;
+		if ($i > count($paths) -1) break;
+	}
+	if ($path === '/notexistent') {
+		wrap_error('Configuration error on server: command `'.$command
+			.'` could not be found. Paths tried: '
+			.implode(', ', wrap_setting('zzform_upload_binary_paths')), E_USER_WARNING);
+		return '';
+	}
+	$command = sprintf('%s/%s ', $path, $command);
+	return $command;
+}
