@@ -94,9 +94,7 @@ function zz_upload_config() {
 
 	$default['icc_profiles'] = [];
 	$default['upload_tools']['fileinfo'] = false;
-	$default['upload_tools']['fileinfo_whereis'] = 'file';
 	$default['upload_tools']['exiftool'] = false;
-	$default['upload_tools']['exiftool_whereis'] = '/usr/local/bin/exiftool';
 	$default['upload_tools']['identify'] = true; // might be turned off for performance reasons while handling raw data
 	$default['upload_tools']['ghostscript'] = false; // whether we can use gs library
 	$default['upload_tools']['pdfinfo'] = false;
@@ -754,9 +752,9 @@ function zz_upload_pdfinfo($filename) {
  * @return array
  */
 function zz_upload_exiftool_read($filename) {
-	global $zz_conf;
-	// @todo use similar mechanism for finding ExifTool path as in imagemagick
-	$cmd = $zz_conf['upload_tools']['exiftool_whereis'].' -b -j -struct -c "%%d %%d %%.8f" -l -lang %s -g1 "%s"';
+	$cmd = zz_upload_binary('exiftool');
+	if (!$cmd) return [];
+	$cmd = $cmd.' -b -j -struct -c "%%d %%d %%.8f" -l -lang %s -g1 "%s"';
 	$cmd = sprintf($cmd, wrap_setting('lang'), $filename);
 	exec($cmd, $file_meta);
 	if (!$file_meta) return [];
@@ -774,10 +772,10 @@ function zz_upload_exiftool_read($filename) {
  * @todo under development
  */
 function zz_upload_exiftool_write($filename, $my_rec) {
-	global $zz_conf;
 	return;
-	$cmd = '%s -key="value" "%s"';
-	$cmd = sprintf($cmd, $zz_conf['upload_tools']['exiftool_whereis'], $filename);
+	$cmd = zz_upload_binary('exiftool');
+	if (!$cmd) return;
+	$cmd = sprintf('%s -key="value" "%s"', $cmd, $filename);
 	exec($cmd);
 }
 
@@ -968,7 +966,7 @@ function zz_upload_unix_file($filename, $file) {
 	global $zz_conf;
 	if (!$zz_conf['upload_tools']['fileinfo']) return $file;
 
-	$fileinfo = $zz_conf['upload_tools']['fileinfo_whereis'];
+	$fileinfo = zz_upload_binary('file');
 	list($output, $return_var) = zz_upload_exec($fileinfo.' --brief "'.$filename.'"', 'Fileinfo');
 	if (!$output) return $file;
 	if ($zz_conf['modules']['debug']) {
@@ -2813,10 +2811,12 @@ function zz_image_exiftool($filename, $image) {
 	} elseif (!empty($image['upload']['exiftool']['ID3v2_4']['Picture'])) {
 		$field = 'Picture';
 	} else {
-		return false;
+		return '';
 	}
 
-	$cmd = $zz_conf['upload_tools']['exiftool_whereis'].' -b -%s "%s" > "%s"';
+	$cmd = zz_upload_binary('exiftool');
+	if (!$cmd) return '';
+	$cmd = $cmd.' -b -%s "%s" > "%s"';
 	$cmd = sprintf($cmd, $field, $filename, $tmp_filename);
 	exec($cmd);
 	return $tmp_filename;
