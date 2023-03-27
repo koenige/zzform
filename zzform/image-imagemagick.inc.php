@@ -65,7 +65,7 @@ function zz_imagick_identify($filename, $file) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if (!file_exists($filename)) return zz_return(false);
 
-	$command = zz_imagick_findpath('identify');
+	$command = zz_upload_binary_path('identify');
 	// always check only first page if it's a multipage file (document, movie etc.)
 	$time = filemtime($filename);
 	$command = sprintf('%s -format "%%m ~ %%w ~ %%h ~ %%[opaque] ~ %%[colorspace] ~ %%[profile:icc] ~ %%z" "%s[0]"', $command, $filename);
@@ -490,7 +490,7 @@ function zz_imagick_convert($options, $source, $source_ext, $dest, $dest_ext, $i
 	putenv("MAGICK_THREAD_LIMIT=1");
 	putenv("OMP_NUM_THREADS=1");
 
-	$command = zz_imagick_findpath('convert');
+	$command = zz_upload_binary_path('convert');
 
 	$ext_options = zz_imagick_add_options($source_ext, $image);
 	// first extra options like auto-orient, then other options by script
@@ -528,19 +528,19 @@ function zz_imagick_convert($options, $source, $source_ext, $dest, $dest_ext, $i
 }
 
 /**
- * find ImageMagick path
+ * find path for binary
  *
- * @param string $command name of ImageMagick command
- * @return string $command correct path and command
+ * @param string $command name of command
+ * @return string
  */
-function zz_imagick_findpath($command = 'convert') {
-	if ($path = wrap_setting('zzform_imagemagick_path_unchecked')
+function zz_upload_binary_path($command) {
+	if ($path = wrap_setting('zzform_upload_binary_path_unchecked')
 		AND !wrap_setting('local_access')
 	) {
 		// don’t do checks on production server
 		$command = sprintf('%s/%s ', $path, $command);
 		return $command;
-	} elseif ($path = wrap_setting('zzform_imagemagick_path_unchecked_local')
+	} elseif ($path = wrap_setting('zzform_upload_binary_path_unchecked_local')
 		AND wrap_setting('local_access')
 	) {
 		$command = sprintf('%s/%s ', $path, $command);
@@ -548,9 +548,8 @@ function zz_imagick_findpath($command = 'convert') {
 	}
 
 	$paths = wrap_setting('zzform_upload_binary_paths');
-	if ($last_dir = end($paths) !== '/notexistent') {
+	if ($last_dir = end($paths) !== '/notexistent')
 		$paths[] = '/notexistent';
-	}
 	$path = $paths[0];
 	$i = 1;
 	while (!file_exists($path.'/'.$command) AND !is_link($path.'/'.$command)) {
@@ -559,7 +558,7 @@ function zz_imagick_findpath($command = 'convert') {
 		if ($i > count($paths) -1) break;
 	}
 	if ($path === '/notexistent') {
-		wrap_error('Configuration error on server: ImageMagick `'.$command
+		wrap_error('Configuration error on server: command `'.$command
 			.'` could not be found. Paths tried: '
 			.implode(', ', wrap_setting('zzform_upload_binary_paths')), E_USER_WARNING);
 		return '';
@@ -575,7 +574,7 @@ function zz_imagick_findpath($command = 'convert') {
  * @return string
  */
 function zz_imagick_version() {
-	$command = zz_imagick_findpath();
+	$command = zz_upload_binary_path('convert');
 	$command .= ' --version';
 	exec($command, $output);
 	if (!$output) return '';
@@ -589,7 +588,7 @@ function zz_imagick_version() {
  * @return string
  */
 function zz_ghostscript_version() {
-	$command = zz_imagick_findpath('gs');
+	$command = zz_upload_binary_path('gs');
 	$command .= ' --help';
 	exec($command, $output);
 	if (!$output) return '';
