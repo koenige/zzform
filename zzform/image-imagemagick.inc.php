@@ -526,31 +526,3 @@ function zz_imagick_convert($options, $source, $source_ext, $dest, $dest_ext, $i
 	}
 	return $return;
 }
-
-/**
- * ImageMagick version
- *
- * @param void
- * @return string
- */
-function zz_imagick_version() {
-	$command = zz_upload_binary_path('convert');
-	$command .= ' --version';
-	exec($command, $output);
-	if (!$output) return '';
-	return implode("  \n", $output);
-}
-
-/**
- * GhostScript version
- *
- * @param void
- * @return string
- */
-function zz_ghostscript_version() {
-	$command = zz_upload_binary_path('gs');
-	$command .= ' --help';
-	exec($command, $output);
-	if (!$output) return '';
-	return implode("  \n", $output);
-}

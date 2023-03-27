@@ -3028,3 +3028,26 @@ function zz_upload_binary_path($command) {
 	$command = sprintf('%s/%s ', $path, $command);
 	return $command;
 }
+
+/**
+ * get version information from binary
+ *
+ * @param string $command name of command
+ * @return string
+ */
+function zz_upload_binary_version($command) {
+	$options = wrap_setting('zzform_upload_binary_version_option['.$command.']');
+	if (!$options) {
+		wrap_error(sprintf('Set `zzform_upload_binary_version_option` for command `%s` to get version information.', $command), E_USER_WARNING);
+		return '';
+	}
+	$command = zz_upload_binary_path($command);
+	if (!$command) {
+		wrap_error(sprintf('Binary command `%s` not found.', $command), E_USER_WARNING);
+		return '';
+	}
+	$command = sprintf('%s %s', $command, $options);
+	exec($command, $output);
+	if (!$output) return '';
+	return implode("  \n", $output);
+}
