@@ -341,7 +341,7 @@ function zz_geo_coords_from_exif($value, $which) {
 	if (!in_array($field, array_keys($value))) return $my;
 	if (!in_array($field_ref, array_keys($value))) return $my;
 
-	if (!empty($zz_conf['upload_tools']['exiftool'])) {
+	if (wrap_setting('zzform_upload_tools_exiftool')) {
 		$value[$field] = zz_exiftool_normalize($value[$field]);
 		if ($value[$field] === false) return $my;
 		$value[$field_ref] = zz_exiftool_normalize($value[$field_ref]);

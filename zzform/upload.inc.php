@@ -93,11 +93,6 @@ function zz_upload_config() {
 	if (!empty($zz_conf['upload_calls'])) return;
 
 	$default['icc_profiles'] = [];
-	$default['upload_tools']['fileinfo'] = false;
-	$default['upload_tools']['exiftool'] = false;
-	$default['upload_tools']['identify'] = true; // might be turned off for performance reasons while handling raw data
-	$default['upload_tools']['ghostscript'] = false; // whether we can use gs library
-	$default['upload_tools']['pdfinfo'] = false;
 
 	if (!defined('ZZ_UPLOAD_INI_MAXFILESIZE')) {
 		$max_filesize = ini_get('upload_max_filesize');
@@ -704,7 +699,7 @@ function zz_upload_fileinfo($file, $extension = false) {
 		// saved as metadata. exif_read_data() cannot read only the array keys
 		// or you could exclude key ImageSourceData where the original image
 		// is kept
-		if ($zz_conf['upload_tools']['exiftool']) {
+		if (wrap_setting('zzform_upload_tools_exiftool')) {
 			$file['exiftool'] = zz_upload_exiftool_read($filename);
 			$file['exif'] = [];
 		} elseif (function_exists('exif_read_data') AND in_array($file['filetype'], $zz_conf['exif_supported'])) {
@@ -713,9 +708,8 @@ function zz_upload_fileinfo($file, $extension = false) {
 			$file['exif'] = [];
 		}
 	}
-	if ($file['filetype'] === 'pdf' AND $zz_conf['upload_tools']['pdfinfo']) {
+	if ($file['filetype'] === 'pdf')
 		$file['pdfinfo'] = zz_upload_pdfinfo($filename);
-	}
 	
 	// @todo further functions, e. g. zz_pdf_read_data if filetype == pdf ...
 	// @todo or read AutoCAD Version from DXF, DWG, ...
@@ -731,7 +725,10 @@ function zz_upload_fileinfo($file, $extension = false) {
  * @return array
  */
 function zz_upload_pdfinfo($filename) {
-	exec(sprintf('pdfinfo "%s"', $filename), $raw);
+	if (!wrap_setting('zzform_upload_tools_pdfinfo')) return [];
+	$cmd = zz_upload_binary('pdfinfo');
+	if (!$cmd) return [];
+	exec(sprintf('%s "%s"', $cmd, $filename), $raw);
 	$data = [];
 	foreach ($raw as $line) {
 		$separator = strpos($line, ':');
@@ -964,7 +961,7 @@ function zz_upload_exif_imagetype($filename, $file) {
  */
 function zz_upload_unix_file($filename, $file) {
 	global $zz_conf;
-	if (!$zz_conf['upload_tools']['fileinfo']) return $file;
+	if (!wrap_setting('zzform_upload_tools_file')) return $file;
 
 	$fileinfo = zz_upload_binary('file');
 	list($output, $return_var) = zz_upload_exec($fileinfo.' --brief "'.$filename.'"', 'Fileinfo');
@@ -1570,7 +1567,7 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 	}
 
 	if (!empty($zz_conf['file_types'][$image['upload']['filetype']]['exiftool_thumbnail'])
-		AND !empty($zz_conf['upload_tools']['exiftool'])) {
+		AND wrap_setting('zzform_upload_tools_exiftool')) {
 		$source_filename = zz_image_exiftool($filename, $image);
 		// @todo allow other fields as source as well
 		$meta = zz_upload_exiftool_read($source_filename);

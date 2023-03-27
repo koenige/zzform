@@ -61,7 +61,7 @@ function zz_imagick_identify($filename, $file) {
 	global $zz_conf;
 
 	if (wrap_setting('zzform_graphics_library') !== 'imagemagick') return $file;
-	if (!$zz_conf['upload_tools']['identify']) return $file;
+	if (!wrap_setting('zzform_upload_tools_identify')) return $file;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if (!file_exists($filename)) return zz_return(false);
 
@@ -297,7 +297,7 @@ function zz_image_webimage($source, $dest, $dest_ext, $image) {
 	$source = zz_imagick_check_multipage($source, $filetype, $image);
 	$source_ext = $image['upload']['ext'];
 	if (in_array($source_ext, ['pdf', 'eps'])) {
-		if (!$zz_conf['upload_tools']['ghostscript']) return zz_return(false);
+		if (!wrap_setting('zzform_upload_tools_gs')) return zz_return(false);
 	}
 
 	if (empty($image['convert_options']) 
