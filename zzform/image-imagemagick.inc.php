@@ -65,7 +65,7 @@ function zz_imagick_identify($filename, $file) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 	if (!file_exists($filename)) return zz_return(false);
 
-	$command = zz_upload_binary_path('identify');
+	$command = zz_upload_binary('identify');
 	// always check only first page if it's a multipage file (document, movie etc.)
 	$time = filemtime($filename);
 	$command = sprintf('%s -format "%%m ~ %%w ~ %%h ~ %%[opaque] ~ %%[colorspace] ~ %%[profile:icc] ~ %%z" "%s[0]"', $command, $filename);
@@ -490,7 +490,7 @@ function zz_imagick_convert($options, $source, $source_ext, $dest, $dest_ext, $i
 	putenv("MAGICK_THREAD_LIMIT=1");
 	putenv("OMP_NUM_THREADS=1");
 
-	$command = zz_upload_binary_path('convert');
+	$command = zz_upload_binary('convert');
 
 	$ext_options = zz_imagick_add_options($source_ext, $image);
 	// first extra options like auto-orient, then other options by script

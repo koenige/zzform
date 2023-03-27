@@ -2995,34 +2995,38 @@ function zz_upload_show_warning($file, $type) {
  * @param string $command name of command
  * @return string
  */
-function zz_upload_binary_path($command) {
-	if ($path = wrap_setting('zzform_upload_binary_path_unchecked')
-		AND !wrap_setting('local_access')
-	) {
-		// don’t do checks on production server
-		$command = sprintf('%s/%s ', $path, $command);
-		return $command;
-	} elseif ($path = wrap_setting('zzform_upload_binary_path_unchecked_local')
-		AND wrap_setting('local_access')
-	) {
-		$command = sprintf('%s/%s ', $path, $command);
-		return $command;
-	}
+function zz_upload_binary($command) {
+	// 1. check if there is a path for this binary
+	$setting = 'zzform_upload_binary_path%s[%s]';
+	$setting = sprintf($setting
+		, wrap_setting('local_access') ? '_local' : ''
+		, $command
+	);
+	if ($path = wrap_setting($setting)) return sprintf('%s/%s ', $path, $command);
+	
+	// 2. check if there is a general binary path given
+	$setting = 'zzform_upload_binary_folder%s';
+	$setting = sprintf($setting
+		, wrap_setting('local_access') ? '_local' : ''
+	);
+	if ($path = wrap_setting($setting)) return sprintf('%s/%s ', $path, $command);
 
-	$paths = wrap_setting('zzform_upload_binary_paths');
-	if ($last_dir = end($paths) !== '/notexistent')
+	// 3. check folders where binaries might be
+	$paths = wrap_setting('zzform_upload_binary_folders');
+	if (end($paths) !== '/notexistent')
 		$paths[] = '/notexistent';
-	$path = $paths[0];
-	$i = 1;
-	while (!file_exists($path.'/'.$command) AND !is_link($path.'/'.$command)) {
+
+	$i = 0;
+	do {
 		$path = $paths[$i];
 		$i++;
 		if ($i > count($paths) -1) break;
-	}
+	} while (!file_exists($path.'/'.$command) AND !is_link($path.'/'.$command));
+
 	if ($path === '/notexistent') {
 		wrap_error('Configuration error on server: command `'.$command
 			.'` could not be found. Paths tried: '
-			.implode(', ', wrap_setting('zzform_upload_binary_paths')), E_USER_WARNING);
+			.implode(', ', wrap_setting('zzform_upload_binary_folders')), E_USER_WARNING);
 		return '';
 	}
 	$command = sprintf('%s/%s ', $path, $command);
@@ -3041,7 +3045,7 @@ function zz_upload_binary_version($command) {
 		wrap_error(sprintf('Set `zzform_upload_binary_version_option` for command `%s` to get version information.', $command), E_USER_WARNING);
 		return '';
 	}
-	$command = zz_upload_binary_path($command);
+	$command = zz_upload_binary($command);
 	if (!$command) {
 		wrap_error(sprintf('Binary command `%s` not found.', $command), E_USER_WARNING);
 		return '';
