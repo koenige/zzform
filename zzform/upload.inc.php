@@ -92,10 +92,6 @@ function zz_upload_config() {
 	// with zzform_multi() 
 	if (!empty($zz_conf['upload_calls'])) return;
 
-	$default['imagemagick_paths'] = [
-		'/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/phpbin',
-		'/opt/local/bin'
-	];
 	$default['icc_profiles'] = [];
 	$default['upload_tools']['fileinfo'] = false;
 	$default['upload_tools']['fileinfo_whereis'] = 'file';

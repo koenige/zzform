@@ -531,13 +531,9 @@ function zz_imagick_convert($options, $source, $source_ext, $dest, $dest_ext, $i
  * find ImageMagick path
  *
  * @param string $command name of ImageMagick command
- * @global array $zz_conf
- *		imagemagick_paths
  * @return string $command correct path and command
  */
 function zz_imagick_findpath($command = 'convert') {
-	global $zz_conf;
-
 	if ($path = wrap_setting('zzform_imagemagick_path_unchecked')
 		AND !wrap_setting('local_access')
 	) {
@@ -551,21 +547,21 @@ function zz_imagick_findpath($command = 'convert') {
 		return $command;
 	}
 
-	$paths = $zz_conf['imagemagick_paths'];
-	if ($last_dir = array_pop($paths) !== '/notexistent') {
-		$zz_conf['imagemagick_paths'][] = '/notexistent';
+	$paths = wrap_setting('zzform_upload_binary_paths');
+	if ($last_dir = end($paths) !== '/notexistent') {
+		$paths[] = '/notexistent';
 	}
-	$path = $zz_conf['imagemagick_paths'][0];
+	$path = $paths[0];
 	$i = 1;
 	while (!file_exists($path.'/'.$command) AND !is_link($path.'/'.$command)) {
-		$path = $zz_conf['imagemagick_paths'][$i];
+		$path = $paths[$i];
 		$i++;
-		if ($i > count($zz_conf['imagemagick_paths']) -1) break;
+		if ($i > count($paths) -1) break;
 	}
 	if ($path === '/notexistent') {
 		wrap_error('Configuration error on server: ImageMagick `'.$command
 			.'` could not be found. Paths tried: '
-			.implode(', ', $zz_conf['imagemagick_paths']), E_USER_WARNING);
+			.implode(', ', wrap_setting('zzform_upload_binary_paths')), E_USER_WARNING);
 		return '';
 	}
 	$command = sprintf('%s/%s ', $path, $command);
