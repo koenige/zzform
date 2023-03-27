@@ -3047,7 +3047,8 @@ function zz_upload_binary_version($command, $log_error = true) {
 	}
 	$command = zz_upload_binary($command, $log_error);
 	if (!$command) {
-		wrap_error(sprintf('Binary command `%s` not found.', $command), E_USER_WARNING);
+		if ($log_error)
+			wrap_error(sprintf('Binary command `%s` not found.', $command), E_USER_WARNING);
 		return '';
 	}
 	$command = sprintf('%s %s', $command, $options);
