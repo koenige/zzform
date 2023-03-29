@@ -964,6 +964,11 @@ function zz_upload_unix_file($filename, $file) {
 	if (!wrap_setting('zzform_upload_tools_file')) return $file;
 
 	$fileinfo = zz_upload_binary('file');
+	if (!$fileinfo) {
+		// activated by default, but if not found, deactivate it
+		wrap_setting_write('zzform_upload_tools_file', 'false');
+		return $file;
+	}
 	list($output, $return_var) = zz_upload_exec($fileinfo.' --brief "'.$filename.'"', 'Fileinfo');
 	if (!$output) return $file;
 	if ($zz_conf['modules']['debug']) {
