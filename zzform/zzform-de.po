@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2005-2022 Gustaf Mossakowski
+# @copyright Copyright © 2005-2023 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 msgid ""
@@ -569,6 +569,32 @@ msgstr "Eintrag für <strong>%s</strong> existiert nicht. (ID: %s)"
 # Record form: identifier, hidden etc.
 msgid "Would be changed on update"
 msgstr "Würde bei Aktualisierung geändert."
+
+# Record form: Merge
+#: zzform/merge.inc.php
+msgid "Merge: Failed to update record with ID %d in table %s"
+msgstr ""
+"Zusammenführen: Eintrag mit ID %d in Tabelle %s konnte nicht aktualisiert "
+"werden"
+
+# Record form: Merge
+#: zzform/merge.inc.php
+msgid "Merge: Failed to delete record with ID %d in table %s"
+msgstr ""
+"Zusammenführen: Eintrag mit ID %d in Tabelle %s konnte nicht gelöscht werden"
+
+# Record form: Merge
+#: zzform/merge.inc.php
+msgid "Merge: Update of record with ID %d in table %s was successful"
+msgstr ""
+"Zusammenführen: Eintrag mit ID %d in Tabelle %s wurde erfolgreich "
+"aktualisiert"
+
+# Record form: Merge
+#: zzform/merge.inc.php
+msgid "Merge: Deletion of record with ID %d in table %s was successful"
+msgstr ""
+"Zusammenführen: Eintrag mit ID %d in Tabelle %s wurde erfolgreich gelöscht"
 
 # Record form: Merge
 msgid "%d records merged successfully"
