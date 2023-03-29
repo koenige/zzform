@@ -84,10 +84,10 @@ function zz_merge_records($zz) {
 		if ($log['error']) $error = true;
 	}
 
-	$msg_fail['update'] = 'Merge: Failed to update ID %d in table %s';
-	$msg_fail['delete'] = 'Merge: Failed to delete ID %d in table %s';
-	$msg_success['update'] = 'Merge: Update of ID %d in table %s was successful';
-	$msg_success['delete'] = 'Merge: Deletion of ID %d in table %s was successful';
+	$msg_fail['update'] = 'Merge: Failed to update record with ID %d in table %s';
+	$msg_fail['delete'] = 'Merge: Failed to delete record with ID %d in table %s';
+	$msg_success['update'] = 'Merge: Update of record with ID %d in table %s was successful';
+	$msg_success['delete'] = 'Merge: Deletion of record with ID %d in table %s was successful';
 
 	// walk through detail record first, main record last
 	$recs = array_reverse($recs);
