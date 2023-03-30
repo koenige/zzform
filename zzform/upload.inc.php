@@ -87,10 +87,10 @@
  * Default settings for upload module
  */
 function zz_upload_config() {
-	global $zz_conf;
+	static $upload_calls;
 	// don't call this twice. use variable because static does not work
 	// with zzform_multi() 
-	if (!empty($zz_conf['upload_calls'])) return;
+	if (!empty($upload_calls)) return;
 
 	$default['icc_profiles'] = [];
 
@@ -111,14 +111,14 @@ function zz_upload_config() {
 		6 =>  ['mime' => 'image/bmp', 'ext' => 'bmp'],				// 6	IMAGETYPE_BMP
 		7 =>  ['mime' => 'image/tiff', 'ext' => 'tiff'],			// 7	IMAGETYPE_TIFF_II (intel byte order)
 		8 =>  ['mime' => 'image/tiff', 'ext' => 'tiff'],			// 8	IMAGETYPE_TIFF_MM (motorola byte order)
-		9 =>  ['mime' => 'application/octet-stream', 'ext' => 'jpc'],		// 9	IMAGETYPE_JPC	>= PHP 4.3.2
-		10 => ['mime' => 'image/jp2', 'ext' => 'jp2'],				// 10	IMAGETYPE_JP2	>= PHP 4.3.2
-		11 => ['mime' => 'application/octet-stream', 'ext' => 'jpf'],		// 11	IMAGETYPE_JPX	>= PHP 4.3.2
-		12 => ['mime' => 'application/octet-stream', 'ext' => 'jb2'],		// 12	IMAGETYPE_JB2	>= PHP 4.3.2
-		13 => ['mime' => 'application/x-shockwave-flash', 'ext' => 'swc'],	// 13	IMAGETYPE_SWC	>= PHP 4.3.0
+		9 =>  ['mime' => 'application/octet-stream', 'ext' => 'jpc'],		// 9	IMAGETYPE_JPC
+		10 => ['mime' => 'image/jp2', 'ext' => 'jp2'],				// 10	IMAGETYPE_JP2
+		11 => ['mime' => 'application/octet-stream', 'ext' => 'jpf'],		// 11	IMAGETYPE_JPX
+		12 => ['mime' => 'application/octet-stream', 'ext' => 'jb2'],		// 12	IMAGETYPE_JB2
+		13 => ['mime' => 'application/x-shockwave-flash', 'ext' => 'swc'],	// 13	IMAGETYPE_SWC
 		14 => ['mime' => 'image/iff', 'ext' => 'aiff'],			// 14	IMAGETYPE_IFF
-		15 => ['mime' => 'image/vnd.wap.wbmp', 'ext' => 'wbmp'],	// 15	IMAGETYPE_WBMP	>= PHP 4.3.2
-		16 => ['mime' => 'image/xbm', 'ext' => 'xbm']				// 16	IMAGETYPE_XBM	>= PHP 4.3.2
+		15 => ['mime' => 'image/vnd.wap.wbmp', 'ext' => 'wbmp'],	// 15	IMAGETYPE_WBMP
+		16 => ['mime' => 'image/xbm', 'ext' => 'xbm']				// 16	IMAGETYPE_XBM
 	];
 	foreach (array_keys($default['image_types']) as $key)
 		$default['image_types'][$key]['filetype'] = $default['image_types'][$key]['ext'];
@@ -139,7 +139,7 @@ function zz_upload_config() {
 	$default['upload_remap_type_if_extension']['eps'] = 'ps';
 	
 	zz_write_conf($default);
-	$zz_conf['upload_calls'] = 1;
+	$upload_calls = 1;
 }
 
 /*	----------------------------------------------	*
