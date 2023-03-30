@@ -123,9 +123,6 @@ function zz_upload_config() {
 	foreach (array_keys($default['image_types']) as $key)
 		$default['image_types'][$key]['filetype'] = $default['image_types'][$key]['ext'];
 
-	$default['file_types'] = wrap_filetypes();
-	if (zz_error_exit()) return false;
-
 	// don't take first frame from mp4 movie, might be black
 	$default['upload_multipage_which']['m4v'] = 5;
 
@@ -214,8 +211,6 @@ function zz_upload_get($zz_tab) {
 	if ($graphics_library = wrap_setting('zzform_graphics_library'))
 		include_once __DIR__.'/image-'.$graphics_library.'.inc.php';
 
-	// allow shortcuts for file_types
-	$zz_conf['file_types'] = wrap_filetypes_normalize($zz_conf['file_types']);
 	$zz_conf['int']['upload_cleanup_files'] = [];
 
 	// create array upload_fields in $zz_tab[0] for easy access to upload fields
@@ -596,9 +591,8 @@ function zz_upload_fileinfo($file, $extension = false) {
 		}
 	}
 	// change extension to default extension of filetype
-	if (isset($zz_conf['file_types'][$file['filetype']])) {
-		$file['ext'] = $zz_conf['file_types'][$file['filetype']]['extension'][0];
-	}
+	if ($filetype_def = wrap_filetypes($file['filetype']))
+		$file['ext'] = $filetype_def['extension'][0];
 
 	if (!empty($file['warnings'])) {
 		foreach ($file['warnings'] as $function => $warnings) {
@@ -642,7 +636,8 @@ function zz_upload_fileinfo($file, $extension = false) {
 		foreach ($zz_conf['upload_remap_type_if_extension'][$extension] as $ftype) {
 			if ($file['filetype'] !== $ftype) continue;
 			$file['filetype'] = $extension;
-			$file['mime'] = $zz_conf['file_types'][$file['filetype']]['mime'][0];
+			$filetype_def = wrap_filetypes($file['filetype']);
+			$file['mime'] = $filetype_def['mime'][0];
 			break;
 		}
 	}
@@ -711,7 +706,6 @@ function zz_upload_pdfinfo($filename) {
  * read the EXIF data
  *
  * @param string $filename
- * @global array $zz_conf
  * @return array
  */
 function zz_upload_exiftool_read($filename) {
@@ -823,7 +817,7 @@ function zz_upload_extension_normalize($extension) {
  * 
  * @param string $mimetype mime type
  * @param string $extension file extension
- * @global array $zz_conf 'file_types'
+ * @global array $zz_conf
  * @return array $type or false
  */
 function zz_upload_filecheck($mimetype, $extension) {
@@ -838,7 +832,7 @@ function zz_upload_filecheck($mimetype, $extension) {
 	$type2unique = true;
 	$type3 = false;
 	$type3unique = true;
-	foreach ($zz_conf['file_types'] as $filetype) {
+	foreach (wrap_filetypes() as $filetype) {
 		if (in_array($extension, $filetype['extension'])
 			AND in_array($mimetype, $filetype['mime'])) {
 			$type1 = $filetype;	
@@ -995,7 +989,7 @@ function zz_upload_unix_file($filename, $file) {
 	
 	// check if mime type from file() matches $file['filetype']
 	$possible_filetypes = [];
-	foreach ($zz_conf['file_types'] as $filetype => $data) {
+	foreach (wrap_filetypes() as $filetype => $data) {
 		if (empty($data['mime'])) continue;
 		if (!in_array($file['mime'], $data['mime'])) continue;
 		$possible_filetypes[] = $filetype;
@@ -1010,7 +1004,8 @@ function zz_upload_unix_file($filename, $file) {
 			]);
 		}
 		foreach ($possible_filetypes as $index => $filetype) {
-			if (!in_array($file['upload_ext'], $zz_conf['file_types'][$filetype]['extension']))
+			$filetype_def = wrap_filetypes($filetype);
+			if (!in_array($file['upload_ext'], $filetype_def['extension']))
 				unset($possible_filetypes[$index]);
 		}
 		if (count($possible_filetypes) === 1) {
@@ -1021,9 +1016,10 @@ function zz_upload_unix_file($filename, $file) {
 	}
 	
 	if (!empty($file['validated']) AND $imagetype) {
-		$file['ext'] = $zz_conf['file_types'][$imagetype]['extension'][0];
-		$file['mime'] = $zz_conf['file_types'][$imagetype]['mime'][0];
-		$file['filetype'] = $zz_conf['file_types'][$imagetype]['filetype'];
+		$filetype_def = wrap_filetypes($imagetype);
+		$file['ext'] = $filetype_def['extension'][0];
+		$file['mime'] = $filetype_def['mime'][0];
+		$file['filetype'] = $filetype_def['filetype'];
 	}
 	return $file;
 }
@@ -1496,8 +1492,6 @@ function zz_upload_prepare_source_file($image, $my_rec, $zz_tab, $tab, $rec) {
  *		-2: there should be an extension but none was selected, array: success)
  */
 function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
-	global $zz_conf;
-	
 	if (empty($image['action'])) return false;
 
 	if (!file_exists($filename)) {
@@ -1536,13 +1530,13 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 			$dest_extension = $filetype_def['destination_filetype'];
 	}
 
-	if (!empty($zz_conf['file_types'][$image['upload']['filetype']]['exiftool_thumbnail'])
+	if (!empty($filetype_def['exiftool_thumbnail'])
 		AND wrap_setting('zzform_upload_tools_exiftool')) {
 		$source_filename = zz_image_exiftool($filename, $image);
 		// @todo allow other fields as source as well
 		$meta = zz_upload_exiftool_read($source_filename);
 		if (!empty($meta['File']['MIMEType']['val'])) {
-			foreach ($zz_conf['file_types'] as $type => $values) {
+			foreach (wrap_filetypes() as $type => $values) {
 				foreach ($values['mime'] as $mime) {
 					if ($mime === $meta['File']['MIMEType']['val'])
 						$dest_extension = reset($values['extension']);
@@ -2364,12 +2358,9 @@ function zz_upload_delete($filename, $show_filename = false, $action = 'delete')
  * @param string $dest = old destination filename
  * @param string $uploaded_file = new upload file
  * @param string $action (optional) = record action, for backup only
- * @global array $zz_conf
  * @return bool true: copy was succesful, false: an error occured
  */
 function zz_upload_update($source, $dest, $uploaded_file, $action = 'update') {
-	global $zz_conf;
-
 	zz_create_topfolders(dirname($dest));
 	if (zz_error_exit()) return false;
 	if (file_exists($dest) AND wrap_setting('zzform_backup') AND (strtolower($source) != strtolower($dest))) { 
@@ -2685,12 +2676,10 @@ function zz_unlink_cleanup($file) {
  *
  * @param string $dir name of directory
  * @param array $indelible additional indelible dirs
- * @global array $zz_conf
  * @return bool
  */
 function zz_cleanup_dirs($dir, $indelible = []) {
 	// first check if it's a directory that shall always be there
-	global $zz_conf;
 	$dir = realpath($dir);
 	if (!$dir) return false;
 	$indelible[] = realpath(wrap_setting('zzform_backup_dir'));
@@ -2948,11 +2937,9 @@ function zz_upload_supported_filetypes($filetypes) {
  * @return bool
  */
 function zz_upload_show_warning($file, $type) {
-	global $zz_conf;
 	if (empty($file['upload_ext'])) return true;
-	if (!array_key_exists($file['upload_ext'], $zz_conf['file_types'])) return true;
-	$def = $zz_conf['file_types'][$file['upload_ext']];
-	if (empty($def['hide_warnings'][$type])) return true;
+	if (!$filetype_def = wrap_filetypes($file['upload_ext'])) return true;
+	if (empty($filetype_def['hide_warnings'][$type])) return true;
 	return false;
 }
 

@@ -106,10 +106,10 @@ function zz_imagick_identify($filename, $file) {
 	$tokens = explode(' ~ ', $result);
 	
 	$ftype = strtolower($tokens[0]);
-	if (array_key_exists($ftype, $zz_conf['file_types'])) {
-		$file['filetype'] = $zz_conf['file_types'][$ftype]['filetype'];
-		$file['ext'] = reset($zz_conf['file_types'][$ftype]['extension']);
-		$file['mime'] = reset($zz_conf['file_types'][$ftype]['mime']);
+	if ($filetype_def = wrap_filetypes($ftype)) {
+		$file['filetype'] = $filetype_def['filetype'];
+		$file['ext'] = reset($filetype_def['extension']);
+		$file['mime'] = reset($filetype_def['mime']);
 		$file['validated'] = true;
 	}
 
@@ -183,7 +183,7 @@ function zz_image_gray($source, $dest, $dest_ext, $image) {
 	$source = zz_imagick_check_multipage($source, $filetype, $image);
 	$convert = zz_imagick_convert(
 		'-colorspace gray '.$image['convert_options'],
-		$source, $image['upload']['ext'], $dest, $dest_ext, $image
+		$source, $image['upload']['ext'], $filetype, $dest, $dest_ext, $image
 	);
 
 	if ($zz_conf['modules']['debug']) zz_debug('end');
@@ -222,7 +222,7 @@ function zz_image_custom($source, $dest, $dest_ext, $image) {
 	$source = zz_imagick_check_multipage($source, $filetype, $image);
 	$convert = zz_imagick_convert(
 		$image['convert_options'],
-		$source, $image['upload']['ext'], $dest, $dest_ext, $image
+		$source, $image['upload']['ext'], $filetype, $dest, $dest_ext, $image
 	);
 
 	if ($zz_conf['modules']['debug']) zz_debug('end');
@@ -264,7 +264,7 @@ function zz_image_thumbnail($source, $dest, $dest_ext, $image) {
 	$source = zz_imagick_check_multipage($source, $filetype, $image);
 	$convert = zz_imagick_convert(
 		sprintf('-thumbnail %s ', $geometry).$image['convert_options'],
-		$source, $image['upload']['ext'], $dest, $dest_ext, $image
+		$source, $image['upload']['ext'], $filetype, $dest, $dest_ext, $image
 	);
 
 	if ($zz_conf['modules']['debug']) zz_debug('thumbnail creation '
@@ -293,7 +293,7 @@ function zz_image_webimage($source, $dest, $dest_ext, $image) {
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
 	$filetype = $image['upload']['filetype'] ?? '';
-	$filetype_def = wrap_filetype($filetype);	
+	$filetype_def = wrap_filetypes($filetype);	
 	$source = zz_imagick_check_multipage($source, $filetype, $image);
 	$source_ext = $image['upload']['ext'];
 	if (in_array($source_ext, ['pdf', 'eps'])) {
@@ -317,7 +317,7 @@ function zz_image_webimage($source, $dest, $dest_ext, $image) {
 	}
 	$convert = zz_imagick_convert(
 		$image['convert_options'],
-		$source, $source_ext, $dest, $dest_ext, $image
+		$source, $source_ext, $filetype, $dest, $dest_ext, $image
 	);
 	return zz_return($convert);
 }
@@ -325,17 +325,18 @@ function zz_image_webimage($source, $dest, $dest_ext, $image) {
 /**
  * Add options for ImageMagick depending on source extension
  *
+ * @param string $filetype
  * @param string $source_ext
  * @param array $image (optional)
  * @return string options
  */
-function zz_imagick_add_options($source_ext, $image = []) {
+function zz_imagick_add_options($filetype, $source_ext, $image = []) {
 	global $zz_conf;
 
 	if (!empty($image['no_options'])) return '';
 
-	$convert_options = !empty($zz_conf['file_types'][$source_ext]['convert'])
-		? $zz_conf['file_types'][$source_ext]['convert'] : [];
+	$filetype_def = wrap_filetypes($filetype);
+	$convert_options = $filetype_def['convert'] ?? [];
 
 	$ext_options = '';
 	if (empty($zz_conf['upload_imagick_options_no_defaults'][$source_ext])) {
@@ -365,8 +366,8 @@ function zz_imagick_add_options($source_ext, $image = []) {
 		}
 	}
 	if (empty($zz_conf['upload_imagick_options_no_defaults'][$source_ext])) {
-		if (!empty($zz_conf['file_types'][$source_ext]['convert'])) {
-			$ext_options .= ' '.implode(' ', $zz_conf['file_types'][$source_ext]['convert']);
+		if (!empty($filetype_def['convert'])) {
+			$ext_options .= ' '.implode(' ', $filetype_def['convert']);
 		}
 	}
 	if (!empty($zz_conf['upload_imagick_options_for'][$source_ext])) {
@@ -464,7 +465,7 @@ function zz_image_crop($source, $dest, $dest_ext, $image, $clipping = 'center') 
 	}
 	$convert = zz_imagick_convert(
 		$options.' '.$image['convert_options'],
-		$source, $image['upload']['ext'], $dest, $dest_ext, $image
+		$source, $image['upload']['ext'], $filetype, $dest, $dest_ext, $image
 	);
 	return zz_return($convert);
 }
@@ -475,12 +476,13 @@ function zz_image_crop($source, $dest, $dest_ext, $image, $clipping = 'center') 
  * @param string $options
  * @param string $source
  * @param string $source_ext
+ * @param string $filetype
  * @param string $dest
  * @param string $dest_ext
  * @param array $image (optional)
  * @return bool
  */
-function zz_imagick_convert($options, $source, $source_ext, $dest, $dest_ext, $image = []) {
+function zz_imagick_convert($options, $source, $source_ext, $filetype, $dest, $dest_ext, $image = []) {
 	$source_ext = zz_upload_extension_normalize($source_ext);
 
 	// avoid errors like
@@ -492,7 +494,7 @@ function zz_imagick_convert($options, $source, $source_ext, $dest, $dest_ext, $i
 
 	$command = zz_upload_binary('convert');
 
-	$ext_options = zz_imagick_add_options($source_ext, $image);
+	$ext_options = zz_imagick_add_options($filetype, $source_ext, $image);
 	// first extra options like auto-orient, then other options by script
 	if ($ext_options) $command .= $ext_options.' ';
 	if ($options) $command .= $options.' ';
@@ -504,7 +506,7 @@ function zz_imagick_convert($options, $source, $source_ext, $dest, $dest_ext, $i
 		$image['convert_options_append'] .= sprintf(' "%s" -composite', $image['watermark']);
 	}
 
-	$options_append = !empty($image['convert_options_append']) ? $image['convert_options_append'] : '';
+	$options_append = $image['convert_options_append'] ?? '';
 	
 	$command .= sprintf(' "%s" %s %s:"%s" ', $source, $options_append, $dest_ext, $dest);
 	list($output, $return_var) = zz_upload_exec($command, 'ImageMagick convert');

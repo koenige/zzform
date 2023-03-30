@@ -1194,7 +1194,7 @@ function zz_hash($zz, $zz_conf) {
 		'breadcrumbs', 'dont_show_title_as_breadcrumb', 'format', 'group_html_table',
 		'list_display', 'title_separator', 'referer', 'access', 'heading_prefix',
 		'redirect', 'search_form_always', 'redirect_on_change', 'filter',
-		'filter_position', 'text', 'file_types', 'limit', 'zzform_init', 'url_self',
+		'filter_position', 'text', 'limit', 'zzform_init', 'url_self',
 		'show_list_while_edit', 'search', 'referer_text', 'html_autofocus',
 		'icc_profiles', 'debug_upload'
 	];
