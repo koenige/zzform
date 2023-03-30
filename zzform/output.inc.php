@@ -328,16 +328,13 @@ function zz_output_redirect($result, $return, $zz_tab) {
 	global $zz_conf;
 
 	if (!empty($zz_conf['redirect'][$result])) {
-		if ($zz_conf['modules']['debug'] AND $zz_conf['debug_time']) {
+		if ($zz_conf['modules']['debug'])
 			zz_debug_time($return);
-		}
-		if (is_array($zz_conf['redirect'][$result])) {
+		if (is_array($zz_conf['redirect'][$result]))
 			$zz_conf['redirect'][$result] = zz_makepath($zz_conf['redirect'][$result], $zz_tab);
-		}
-		if (substr($zz_conf['redirect'][$result], 0, 1) === '/') {
+		if (substr($zz_conf['redirect'][$result], 0, 1) === '/')
 			$zz_conf['redirect'][$result] = $zz_conf['int']['url']['base']
 				.$zz_conf['redirect'][$result];
-		}
 		wrap_redirect_change($zz_conf['redirect'][$result]);
 	} elseif (!wrap_setting('debug') AND $zz_conf['redirect_on_change']) {
 	// redirect to same URL, as to protect against reloading the POST variables

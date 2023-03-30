@@ -14,14 +14,6 @@
 
 
 /**
- * Default settings for debug module
- */
-function zz_debug_config() {
-	$default['debug_time'] 		= false;
-	zz_write_conf($default);
-}
-
-/**
  * HTML output of debugging information 
  * 
  *	start of function
@@ -141,6 +133,7 @@ function zz_debug_htmlout() {
 function zz_debug_time($return = []) {
 	global $zz_debug;
 	global $zz_conf;
+	if (!wrap_setting('zzform_debug_time')) return;
 
 	$rec = '';
 	if ($return) $rec = $return[0]['action'].' '.$return[0]['table'].' '
