@@ -139,27 +139,6 @@ function zz_upload_config() {
 	// generate thumbnails in a background process?
 	$default['upload_background_thumbnails'] = false;
 
-	$default['upload_no_thumbnails'] = [];
-	$default['upload_multipage_images'] = [];
-	$default['exif_supported'] = [];
-	$default['exiftool_supported'] = [];
-	$default['upload_destination_filetype'] = [];
-	foreach ($default['file_types'] as $filetype => $def) {
-		if (empty($def['thumbnail'])) $default['upload_no_thumbnails'][] = $filetype;
-		if (!empty($def['multipage'])) $default['upload_multipage_images'][] = $filetype;
-		if (!empty($def['exif_supported'])) $default['exif_supported'][] = $filetype;
-		if (!empty($def['exiftool_supported'])) $default['exiftool_supported'][] = $filetype;
-		if (!empty($def['destination_filetype'])) {
-			foreach ($def['extension'] as $extension) {
-				$default['upload_destination_filetype'][$extension] = $def['destination_filetype'];
-			}
-		}
-		if (!empty($def['destination_filetype_transparency'])) {
-			foreach ($def['extension'] as $extension) {
-				$default['upload_destination_filetype_transparency'][$extension] = $def['destination_filetype_transparency'];
-			}
-		}
-	}
 	// don't take first frame from mp4 movie, might be black
 	$default['upload_multipage_which']['m4v'] = 5;
 
@@ -692,8 +671,8 @@ function zz_upload_fileinfo($file, $extension = false) {
 	}
 
 	// read metadata
-	if (in_array($file['filetype'], $zz_conf['exif_supported'])
-		OR in_array($file['filetype'], $zz_conf['exiftool_supported'])) {
+	$filetype_def = wrap_filetypes($file['filetype']);
+	if (!empty($filetype_def['exif_supported']) OR !empty($filetype_def['exiftool_supported'])) {
 		// you will need enough memory size to handle this if you are uploading
 		// pictures with layers from photoshop, because the original image is
 		// saved as metadata. exif_read_data() cannot read only the array keys
@@ -702,7 +681,7 @@ function zz_upload_fileinfo($file, $extension = false) {
 		if (wrap_setting('zzform_upload_tools_exiftool')) {
 			$file['exiftool'] = zz_upload_exiftool_read($filename);
 			$file['exif'] = [];
-		} elseif (function_exists('exif_read_data') AND in_array($file['filetype'], $zz_conf['exif_supported'])) {
+		} elseif (function_exists('exif_read_data') AND !empty($filetype_def['exif_supported'])) {
 			$file['exif'] = exif_read_data($filename);
 		} else {
 			$file['exif'] = [];
@@ -1546,9 +1525,8 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 	}
 
 	zz_upload_config();
-	if (in_array($image['upload']['filetype'], $zz_conf['upload_no_thumbnails'])) {
-		return false;
-	}
+	$filetype_def = wrap_filetypes($image['upload']['filetype']);
+	if (empty($filetype_def['thumbnail'])) return false;
 
 	$dest_extension = zz_upload_extension($image['path'], $my_rec);
 	if ($dest_extension === -1) {
@@ -1565,10 +1543,10 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 	if (!$dest_extension) {
 		$dest_extension = strtolower($image['upload']['ext']);
 		// map files to extensions, e. g. TIFF to PNG
-		if (!empty($image['upload']['transparency']) AND !empty($zz_conf['upload_destination_filetype_transparency'][$dest_extension]))
-			$dest_extension = $zz_conf['upload_destination_filetype_transparency'][$dest_extension];
-		elseif (!empty($zz_conf['upload_destination_filetype'][$dest_extension]))
-			$dest_extension = $zz_conf['upload_destination_filetype'][$dest_extension];
+		if (!empty($image['upload']['transparency']) AND !empty($filetype_def['destination_filetype_transparency']))
+			$dest_extension = $filetype_def['destination_filetype_transparency'];
+		elseif (!empty($filetype_def['destination_filetype']))
+			$dest_extension = $filetype_def['destination_filetype'];
 	}
 
 	if (!empty($zz_conf['file_types'][$image['upload']['filetype']]['exiftool_thumbnail'])
@@ -2777,8 +2755,8 @@ function zz_cleanup_dirs($dir, $indelible = []) {
  * @return bool true if image was extracted, array with error message if not
  */
 function zz_image_exif_thumbnail($source, $destination, $dest_ext = false, $image = false) {
-	global $zz_conf;
-	if (!in_array($image['upload']['filetype'], $zz_conf['exif_supported'])) {
+	$filetype_def = wrap_filetypes($image['upload']['filetype']);
+	if (empty($filetype_def['exif_supported'])) {
 		// this filetype does not support EXIF thumbnails
 		return false;
 	}

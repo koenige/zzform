@@ -142,13 +142,12 @@ function zz_imagick_identify($filename, $file) {
  */
 function zz_imagick_check_multipage($source, $filetype, $image) {
 	global $zz_conf;
-
-	if (!in_array($filetype, $zz_conf['upload_multipage_images'])) {
-		return $source;
-	}
-	if (!$filetype) {
+	if (!$filetype)
 		$filetype = substr($source, strrpos($source, '.') +1);
-	}
+	$filetype_def = wrap_filetypes($filetype);
+	if (empty($filetype_def['multipage']))
+		return $source;
+
 	if (isset($image['source_frame'])) {
 		// here we start with page 1 as 1 not as 0, therefore remove 1
 		if (!$image['source_frame']) {
@@ -180,7 +179,7 @@ function zz_image_gray($source, $dest, $dest_ext, $image) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
-	$filetype = !empty($image['upload']['filetype']) ? $image['upload']['filetype'] : '';
+	$filetype = $image['upload']['filetype'] ?? '';
 	$source = zz_imagick_check_multipage($source, $filetype, $image);
 	$convert = zz_imagick_convert(
 		'-colorspace gray '.$image['convert_options'],
@@ -219,7 +218,7 @@ function zz_image_custom($source, $dest, $dest_ext, $image) {
 		}
 	}
 	
-	$filetype = !empty($image['upload']['filetype']) ? $image['upload']['filetype'] : '';
+	$filetype = $image['upload']['filetype'] ?? '';
 	$source = zz_imagick_check_multipage($source, $filetype, $image);
 	$convert = zz_imagick_convert(
 		$image['convert_options'],
@@ -261,7 +260,7 @@ function zz_image_thumbnail($source, $dest, $dest_ext, $image) {
 		$geometry = isset($image['width']) ? $image['width'] : '';
 		$geometry .= isset($image['height']) ? 'x'.$image['height'] : '';
 	}
-	$filetype = !empty($image['upload']['filetype']) ? $image['upload']['filetype'] : '';
+	$filetype = $image['upload']['filetype'] ?? '';
 	$source = zz_imagick_check_multipage($source, $filetype, $image);
 	$convert = zz_imagick_convert(
 		sprintf('-thumbnail %s ', $geometry).$image['convert_options'],
@@ -293,7 +292,8 @@ function zz_image_webimage($source, $dest, $dest_ext, $image) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
 
-	$filetype = !empty($image['upload']['filetype']) ? $image['upload']['filetype'] : '';
+	$filetype = $image['upload']['filetype'] ?? '';
+	$filetype_def = wrap_filetype($filetype);	
 	$source = zz_imagick_check_multipage($source, $filetype, $image);
 	$source_ext = $image['upload']['ext'];
 	if (in_array($source_ext, ['pdf', 'eps'])) {
@@ -305,10 +305,10 @@ function zz_image_webimage($source, $dest, $dest_ext, $image) {
 	) {
 		// do not create an identical webimage of already existing webimage
 		return zz_return(false);
-	} elseif (!empty($image['upload']['transparency']) AND !empty($zz_conf['upload_destination_filetype_transparency'][$source_ext])) {
-		$dest_ext = $zz_conf['upload_destination_filetype_transparency'][$source_ext];
-	} elseif (!empty($zz_conf['upload_destination_filetype'][$source_ext])) {
-		$dest_ext = $zz_conf['upload_destination_filetype'][$source_ext];
+	} elseif (!empty($image['upload']['transparency']) AND !empty($filetype_def['destination_filetype_transparency'])) {
+		$dest_ext = $filetype_def['destination_filetype_transparency'];
+	} elseif (!empty($filetype_def['destination_filetype'])) {
+		$dest_ext = $filetype_def['destination_filetype'];
 	} elseif (!empty($image['convert_options'])) {
 		// keep original image, create a new modified image
 		$dest_ext = $source_ext;
@@ -455,7 +455,7 @@ function zz_image_crop($source, $dest, $dest_ext, $image, $clipping = 'center') 
 			$image['width'], $image['height']
 		);
 	}
-	$filetype = !empty($image['upload']['filetype']) ? $image['upload']['filetype'] : '';
+	$filetype = $image['upload']['filetype'] ?? '';
 	$source = zz_imagick_check_multipage($source, $filetype, $image);
 	if (!empty($image['watermark'])) {
 		if (!empty($pos_x) OR !empty($pos_y)) {
