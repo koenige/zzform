@@ -3380,7 +3380,7 @@ function zz_session_write($type, $data) {
 		break;
 	case 'filedata':
 		// $data = $_FILES
-		require_once $zz_conf['dir'].'/upload.inc.php';
+		require_once __DIR__.'/upload.inc.php';
 		$session = $data;
 		foreach ($session AS $field_name => $file) {
 			if (is_array($file['tmp_name'])) {

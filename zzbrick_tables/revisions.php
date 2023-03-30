@@ -18,7 +18,7 @@
 
 if (empty($zz_conf['revisions'])) wrap_quit(404);
 
-require_once $zz_conf['dir'].'/revisions.inc.php';
+wrap_include_files('revisions', 'zzform');
 
 $zz['title'] = 'Revisions';
 $zz['table'] = '/*_PREFIX_*/_revisions';
