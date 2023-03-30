@@ -301,7 +301,7 @@ function zz_image_webimage($source, $dest, $dest_ext, $image) {
 	}
 
 	if (empty($image['convert_options']) 
-		AND (!$source_ext OR !empty($zz_conf['webimages_by_extension'][$source_ext]))
+		AND (!$source_ext OR in_array($source_ext, wrap_setting('zzform_webimages_by_extension')))
 	) {
 		// do not create an identical webimage of already existing webimage
 		return zz_return(false);

@@ -126,19 +126,6 @@ function zz_upload_config() {
 	$default['file_types'] = wrap_filetypes();
 	if (zz_error_exit()) return false;
 
-	// unwanted mimetypes and their replacements
-	$default['mime_types_rewritten'] = [
-		'image/pjpeg' => 'image/jpeg', 	// Internet Explorer knows progressive JPEG instead of JPEG
-		'image/x-png' => 'image/png',	// Internet Explorer
-		'application/octet_stream' => 'application/octet-stream'
-	]; 
-
-	// extensions for images that the browser can display natively
-	$default['webimages_by_extension'] = ['jpg', 'jpeg', 'gif', 'png'];
-
-	// generate thumbnails in a background process?
-	$default['upload_background_thumbnails'] = false;
-
 	// don't take first frame from mp4 movie, might be black
 	$default['upload_multipage_which']['m4v'] = 5;
 
@@ -570,8 +557,8 @@ function zz_upload_fileinfo($file, $extension = false) {
 	if (empty($file['tmp_name'])) return $file;
 	// rewrite some misspelled and misset filetypes
 	if (!empty($file['type'])) {
-		if (in_array($file['type'], array_keys($zz_conf['mime_types_rewritten'])))
-			$file['type'] = $zz_conf['mime_types_rewritten'][$file['type']];
+		if ($rewritten_filetype = wrap_setting('zzform_upload_mime_types_rewritten['.$file['type'].']'))
+			$file['type'] = $rewritten_filetype;
 	}
 	// check whether filesize is above 2 bytes or it will give a read error
 	if (empty($file['size'])) $file['size'] = filesize($file['tmp_name']);
@@ -1186,7 +1173,7 @@ function zz_upload_prepare($zz_tab) {
 			// mark if background images should be created
 			foreach (array_keys($my_rec['fields'][$no]['image']) as $img) {
 				if (empty($my_rec['images'][$no][$img])) continue;
-				if ($zz_conf['upload_background_thumbnails'] AND empty($my_rec['images'][$no][$img]['create_in_background'])) {
+				if (wrap_setting('zzform_upload_background_thumbnails') AND empty($my_rec['images'][$no][$img]['create_in_background'])) {
 					zz_upload_background($no.'-'.$img);
 				}
 			}
@@ -1534,7 +1521,7 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 		if (!empty($image['no_action_unless_thumb_extension'])) return -2;
 	}
 
-	if ($zz_conf['upload_background_thumbnails'] AND empty($image['create_in_background'])) {
+	if (wrap_setting('zzform_upload_background_thumbnails') AND empty($image['create_in_background'])) {
 		zz_upload_background($no.'-'.$img);
 		return false;
 	}
