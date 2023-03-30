@@ -2730,7 +2730,7 @@ function zz_cleanup_dirs($dir, $indelible = []) {
 	if (!$dir) return false;
 	$indelible[] = realpath(wrap_setting('zzform_backup_dir'));
 	$indelible[] = wrap_setting('tmp_dir');
-	$indelible[] = realpath($zz_conf['root']);
+	$indelible[] = wrap_setting('root_dir');
 	$indelible[] = '/tmp';
 	if (in_array($dir, $indelible)) return false;
 
