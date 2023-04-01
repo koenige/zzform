@@ -1915,7 +1915,7 @@ function zz_write_upload_fields($zz_tab, $f, $tab = 0, $rec = 0) {
 			if (!$numeric_keys) return $posted;
 			$images = [];
 			foreach ($numeric_keys as $no) {
-				$images = zz_array_merge($images, $zz_tab[$nos[1]][$no]['images'][$nos[3]]);
+				$images = wrap_array_merge($images, $zz_tab[$nos[1]][$no]['images'][$nos[3]]);
 			}
 		} elseif (!empty($zz_tab[$nos[1]][$nos[2]]['images'][$nos[3]])) {
 			// check if something was uploaded

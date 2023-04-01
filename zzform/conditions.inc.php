@@ -24,7 +24,7 @@
  *	zz_conditions_list_check()		set conditions for list
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2010, 2013-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2010, 2013-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -445,7 +445,7 @@ function zz_conditions_record_check($zz, $mode, $zz_conditions) {
 			if (empty($zz_conditions['bool'][$index]))
 				$zz_conditions['bool'][$index] = $lines;
 			else
-				$zz_conditions['bool'][$index] = zz_array_merge($zz_conditions['bool'][$index], $lines);
+				$zz_conditions['bool'][$index] = wrap_array_merge($zz_conditions['bool'][$index], $lines);
 			break;
 		case 'query': // just for form view (of saved records), for list view will be later in zz_list()
 			$zz_conditions['bool'][$index] = [];
@@ -476,7 +476,7 @@ function zz_conditions_record_check($zz, $mode, $zz_conditions) {
 			if (empty($zz_conditions['bool'][$index]))
 				$zz_conditions['bool'][$index] = $lines;
 			else
-				$zz_conditions['bool'][$index] = zz_array_merge($zz_conditions['bool'][$index], $lines);
+				$zz_conditions['bool'][$index] = wrap_array_merge($zz_conditions['bool'][$index], $lines);
 			break;
 		case 'value': // just for record view
 			$zz_conditions['values'][$index] = [];
@@ -740,7 +740,7 @@ function zz_conditions_merge($array, $bool_conditions, $record_id, $reverse = fa
 				// it's not necessarily there, this field
 				if (empty($array)) $array['hide_in_list'] = true;
 				// add new values for each true condition with values
-				$array = zz_array_merge($array, $new_values);
+				$array = wrap_array_merge($array, $new_values);
 			} else {
 				$array = false; // no new values, so unset this field or zz_conf-value
 				break; // don't add values from other ifs

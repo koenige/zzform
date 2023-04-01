@@ -1296,7 +1296,7 @@ function zz_list_query_hierarchy($zz) {
 			$zz['sql'] = wrap_edit_sql($zz['sql'], 'WHERE', '`'.$zz['table'].'`.'.$zz_conf['int']['id']['field_name']
 				.' IN ('.implode(',', array_keys($lines)).')');
 		} // else sql remains same
-		$lines = zz_array_merge($lines, zz_db_fetch($zz['sql'], $zz_conf['int']['id']['field_name']));
+		$lines = wrap_array_merge($lines, zz_db_fetch($zz['sql'], $zz_conf['int']['id']['field_name']));
 	}
 	foreach ($lines as $line) {
 		if (empty($line['zz_hidden_line'])) continue;

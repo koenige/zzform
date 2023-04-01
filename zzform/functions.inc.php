@@ -526,7 +526,7 @@ function zz_record_conf($zz_conf, $zz) {
 		} elseif (!empty($zz[$key]) AND !empty($zz_conf[$key])) {
 			if (is_array($zz_conf[$key])) {
 				// ignore $zz definition if $zz_conf is not an array here, e. g. for 'add'
-				$zz_conf_record[$key] = zz_array_merge($zz_conf[$key], $zz[$key]);
+				$zz_conf_record[$key] = wrap_array_merge($zz_conf[$key], $zz[$key]);
 			} else {
 				$zz_conf_record[$key] = $zz_conf[$key];
 			}
@@ -2288,33 +2288,6 @@ function zz_make_id_fieldname($fieldname, $prefix = 'field') {
 	$fieldname = str_replace(']', '', $fieldname);
 	if ($prefix) $fieldname = $prefix.'_'.$fieldname;
 	return $fieldname;
-}
-
-/** 
- * Merges Array recursively: replaces old with new keys, adds new keys
- * 
- * @param array $old			Old array
- * @param array $new			New array
- * @return array $merged		Merged array
- */
-function zz_array_merge($old, $new) {
-	foreach ($new as $index => $value) {
-		if (is_array($value)) {
-			if (!empty($old[$index])) {
-				$old[$index] = zz_array_merge($old[$index], $new[$index]);
-			} else
-				$old[$index] = $new[$index];
-		} else {
-			if (is_numeric($index) AND (!in_array($value, $old))) {
-				// numeric keys will be appended, if new
-				$old[] = $value;
-			} else {
-				// named keys will be replaced
-				$old[$index] = $value;
-			}
-		}
-	}
-	return $old;
 }
 
 /**

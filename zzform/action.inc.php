@@ -83,7 +83,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 			// in table relations
 			$dependent_ids = zz_integrity_dependent_record_ids($zz_tab, $relations);
 			// work with array_merge_recursive even if there are duplicate IDs
-			// zz_array_merge() would overwrite IDs
+			// wrap_array_merge() would overwrite IDs
 			$zz_tab[0]['integrity'] = zz_integrity_check(
 				array_merge_recursive($record_ids, $dependent_ids), $relations
 			);
@@ -811,7 +811,7 @@ function zz_action_function($type, $ops, $zz_tab) {
 			$custom_result = $hook($ops);
 		}
 		if (!is_array($custom_result)) continue;
-		$change = zz_array_merge($change, $custom_result);
+		$change = wrap_array_merge($change, $custom_result);
 	}
 
 	if (!empty($zz_tab[0]['triggers'][$type]))

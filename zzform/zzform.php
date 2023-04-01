@@ -864,7 +864,7 @@ function zz_write_conf($variables, $overwrite = false) {
 
 function zz_write_conf_vars($variables, &$conf, $overwrite) {
 	if ($overwrite) {
-		$conf = zz_array_merge($conf, $variables);
+		$conf = wrap_array_merge($conf, $variables);
 		return true;
 	}
 	foreach (array_keys($variables) as $key) {
