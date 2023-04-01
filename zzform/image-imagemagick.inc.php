@@ -344,7 +344,7 @@ function zz_imagick_add_options($filetype, $source_ext, $image = []) {
 			if ($image['upload']['colorspace'] === $option[1]) continue;
 			if (empty($image['upload']['icc_profile'])) continue;
 			if ($image['upload']['icc_profile'] === 'Artifex Software sRGB ICC Profile') continue;
-			if (!array_key_exists($image['upload']['icc_profile'], $zz_conf['icc_profiles'])) {
+			if (!wrap_setting('zzform_icc_profiles['.$image['upload']['icc_profile'].']')) {
 				zz_error_log([
 					'msg_dev' => 'No ICC profile found for %s',
 					'msg_dev_args' => [$image['upload']['icc_profile']],
@@ -355,8 +355,8 @@ function zz_imagick_add_options($filetype, $source_ext, $image = []) {
 			}
 			// use profiles!
 			$ext_options .= sprintf('-profile "%s" -profile "%s"',
-				$zz_conf['icc_profiles'][$image['upload']['icc_profile']],
-				$zz_conf['icc_profiles']['sRGB']
+				wrap_setting('zzform_icc_profiles['.$image['upload']['icc_profile'].']'),
+				wrap_setting('zzform_icc_profiles[sRGB]')
 			);
 			unset($convert_options[$index]);
 		}

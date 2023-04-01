@@ -92,8 +92,6 @@ function zz_upload_config() {
 	// with zzform_multi() 
 	if (!empty($upload_calls)) return;
 
-	$default['icc_profiles'] = [];
-
 	// mimetypes, hardcoded in php
 
 	$default['image_types'] = [
