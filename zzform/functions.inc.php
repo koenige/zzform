@@ -78,10 +78,6 @@ function zz_add_modules($modules) {
 			else $debug_msg = 'Module %s not included';
 			zz_debug(sprintf($debug_msg, $module));
 		}
-		$config_function = sprintf('zz_%s_config', $module);
-		if ($add AND function_exists($config_function)) {
-			$config_function();
-		}
 	}
 
 	// int_modules/ext_modules have debug module at different place

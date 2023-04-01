@@ -14,31 +14,6 @@
 
 
 /*		----------------------------------------------
- *					VARIABLES
- *		---------------------------------------------- */
-
-/**
- * Default settings for export module
- */
-function zz_export_config() {
-	$conf['int']['allowed_params']['mode'][] = 'export';
-	$conf['int']['allowed_params']['export'] = ['csv', 'pdf', 'kml', 'geojson', 'zip'];
-	zz_write_conf($conf, true);
-
-	// whether sql result might be exported 
-	// (link for export will appear at the end of the page)
-	$default['export']			= [];				
-
-	// CSV defaults
-	// Excel requires
-	// - tabulator when opening via double-click and Unicode text
-	// - semicolon when opening via double-click and ANSI text
-	$default['export_csv_delimiter'] = "\t";
-	$default['export_csv_enclosure'] = '"';
-	zz_write_conf($default);
-}
-
-/*		----------------------------------------------
  *					FUNCTIONS
  *		---------------------------------------------- */
 
@@ -98,7 +73,7 @@ function zz_export_init($ops) {
 		}
 	}
 	$export_param = strpos($export, '-') ? substr($export, 0, strpos($export, '-')) : $export;
-	if (!in_array($export_param, $zz_conf['int']['allowed_params']['export'])) {
+	if (!in_array($export_param, wrap_setting('zzform_export_formats'))) {
 		zz_error_log([
 			'msg_dev' => 'Export parameter not allowed: `%s`',
 			'msg_dev_args' => [$export ? $export : zz_htmltag_escape($_GET['export'])],
@@ -489,7 +464,7 @@ function zz_export_script($type) {
  *
  * @param array $main_rows main rows (without subtables)
  * @global array $zz_conf configuration
- *		'export_csv_enclosure', 'export_csv_delimiter', 'export_csv_no_head'
+ *		'export_csv_delimiter', 'export_csv_no_head'
  * @return string CSV output, head
  */
 function zz_export_csv_head($main_rows) {
@@ -503,10 +478,10 @@ function zz_export_csv_head($main_rows) {
 		if (!empty($field['title_export_prefix'])) {
 			$field['title'] = $field['title_export_prefix'].' '.$field['title'];
 		}
-		$tablerow[] = $zz_conf['export_csv_enclosure']
-			.str_replace($zz_conf['export_csv_enclosure'], $zz_conf['export_csv_enclosure']
-				.$zz_conf['export_csv_enclosure'], $field['title'])
-			.$zz_conf['export_csv_enclosure'];
+		$tablerow[] = wrap_setting('export_csv_enclosure')
+			.str_replace(wrap_setting('export_csv_enclosure'), wrap_setting('export_csv_enclosure')
+				.wrap_setting('export_csv_enclosure'), $field['title'])
+			.wrap_setting('export_csv_enclosure');
 	}
 	$output .= implode($zz_conf['export_csv_delimiter'], $tablerow)."\r\n";
 	return $output;
@@ -517,8 +492,7 @@ function zz_export_csv_head($main_rows) {
  *
  * @param array $rows data in rows
  * @global array $zz_conf configuration
- *		'export_csv_enclosure', 'export_csv_delimiter', 'character_set',
- *		'list_display'
+ *		'export_csv_delimiter', 'list_display'
  * @return string CSV output, data
  */
 function zz_export_csv_body($rows) {
@@ -534,8 +508,8 @@ function zz_export_csv_body($rows) {
 			if (substr($character_encoding, 0, 9) === 'iso-8859-')
 				$character_encoding = 'iso-8859-1'; // others are not recognized
 			$myfield = html_entity_decode($myfield, ENT_QUOTES, $character_encoding);
-			$myfield = str_replace($zz_conf['export_csv_enclosure'], 
-				$zz_conf['export_csv_enclosure'].$zz_conf['export_csv_enclosure'],
+			$myfield = str_replace(wrap_setting('export_csv_enclosure'), 
+				wrap_setting('export_csv_enclosure').wrap_setting('export_csv_enclosure'),
 				$myfield
 			);
 			if (!empty($field['export_no_html'])) {
@@ -552,7 +526,7 @@ function zz_export_csv_body($rows) {
 				if (!empty($field['export_csv_maxlength']))
 					$myfield = substr($myfield, 0, $field['export_csv_maxlength']);
 				$mask = false;
-				if ($zz_conf['list_display'] === 'csv-excel' AND $zz_conf['export_csv_enclosure']) {
+				if ($zz_conf['list_display'] === 'csv-excel' AND wrap_setting('export_csv_enclosure')) {
 					if (preg_match('/^0[0-9]+$/', $myfield)) {
 					// - number with leading 0 = TEXT
 						$mask = true;
@@ -568,12 +542,12 @@ function zz_export_csv_body($rows) {
 					}
 				}
 				if ($mask) {
-					$tablerow[] = $zz_conf['export_csv_enclosure'].'='
-					.str_repeat($zz_conf['export_csv_enclosure'], 2).$myfield
-					.str_repeat($zz_conf['export_csv_enclosure'], 3);
+					$tablerow[] = wrap_setting('export_csv_enclosure').'='
+					.str_repeat(wrap_setting('export_csv_enclosure'), 2).$myfield
+					.str_repeat(wrap_setting('export_csv_enclosure'), 3);
 				} else {
-					$tablerow[] = $zz_conf['export_csv_enclosure'].$myfield
-						.$zz_conf['export_csv_enclosure'];
+					$tablerow[] = wrap_setting('export_csv_enclosure').$myfield
+						.wrap_setting('export_csv_enclosure');
 				}
 			} else {
 				$tablerow[] = false; // empty value

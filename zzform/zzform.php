@@ -669,7 +669,15 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['details_target']	= false;	// target-window for details link
 	$default['edit']			= true;		// show Action: Edit
 
+	// whether sql result might be exported 
+	// (link for export will appear at the end of the page)
 	$default['export']				= [];
+	// CSV defaults
+	// Excel requires
+	// - tabulator when opening via double-click and Unicode text
+	// - semicolon when opening via double-click and ANSI text
+	$default['export_csv_delimiter'] = "\t";
+
 	$default['filter_position'] 	= 'top';
 	$default['footer_text']			= false;		// text at the end of all
 	$default['group_html_table']	= '<strong>%s</strong>';
@@ -768,6 +776,8 @@ function zz_initialize_int() {
 	$zz_conf['int']['allowed_params']['mode'] = [
 		'edit', 'delete', 'show', 'add', 'review', 'list_only', 'revise'
 	];
+	if (array_key_exists('export', $zz_conf['modules']))
+		$zz_conf['int']['allowed_params']['mode'][] = 'export';
 	// action parameters, 'review' is for internal use only
 	$zz_conf['int']['allowed_params']['action'] = [
 		'insert', 'delete', 'update', 'multiple', 'thumbnails'
