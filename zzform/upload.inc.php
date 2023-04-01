@@ -123,14 +123,6 @@ function zz_upload_config() {
 	foreach (array_keys($default['image_types']) as $key)
 		$default['image_types'][$key]['filetype'] = $default['image_types'][$key]['ext'];
 
-	// XML documents will be recognized as SVG (which is XML, too)
-	$default['upload_remap_type_if_extension']['gpx'] = 'svg';
-	// AI documents can be real PDF documents
-	$default['upload_remap_type_if_extension']['ai'] = 'pdf';
-	// EPS documents are PS documents, they are different
-	// this is a workaround, 'file' will make a differences
-	$default['upload_remap_type_if_extension']['eps'] = 'ps';
-	
 	zz_write_conf($default);
 	$upload_calls = 1;
 }
@@ -620,20 +612,6 @@ function zz_upload_fileinfo($file, $extension = false) {
 		}
 	}
 	
-	// some filetypes are identical to others, so we have to check the extension
-	if (array_key_exists($extension, $zz_conf['upload_remap_type_if_extension'])) {
-		if (!is_array($zz_conf['upload_remap_type_if_extension'][$extension])) {
-			$zz_conf['upload_remap_type_if_extension'][$extension]
-				= [$zz_conf['upload_remap_type_if_extension'][$extension]];
-		}
-		foreach ($zz_conf['upload_remap_type_if_extension'][$extension] as $ftype) {
-			if ($file['filetype'] !== $ftype) continue;
-			$file['filetype'] = $extension;
-			$filetype_def = wrap_filetypes($file['filetype']);
-			$file['mime'] = $filetype_def['mime'][0];
-			break;
-		}
-	}
 	if ($zz_conf['modules']['debug']) zz_debug('finish', json_encode($file));
 
 	// save unknown files for debugging
@@ -668,6 +646,9 @@ function zz_upload_fileinfo($file, $extension = false) {
 	// @todo further functions, e. g. zz_pdf_read_data if filetype == pdf ...
 	// @todo or read AutoCAD Version from DXF, DWG, ...
 	// @todo or read IPCT data.
+	
+	echo wrap_print($file);
+	exit;
 
 	return zz_return($file);
 }
