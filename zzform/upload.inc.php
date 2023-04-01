@@ -80,46 +80,6 @@
 
 
 /*	----------------------------------------------	*
- *					VARIABLES						*
- *	----------------------------------------------	*/
-
-/**
- * Default settings for upload module
- */
-function zz_upload_config() {
-	static $upload_calls;
-	// don't call this twice. use variable because static does not work
-	// with zzform_multi() 
-	if (!empty($upload_calls)) return;
-
-	// mimetypes, hardcoded in php
-
-	$default['image_types'] = [
-		1 =>  ['mime' => 'image/gif', 'ext' => 'gif'],				// 1	IMAGETYPE_GIF
-		2 =>  ['mime' => 'image/jpeg', 'ext' => 'jpeg'],			// 2	IMAGETYPE_JPEG
-		3 =>  ['mime' => 'image/png', 'ext' => 'png'],				// 3	IMAGETYPE_PNG
-		4 =>  ['mime' => 'application/x-shockwave-flash', 'ext' => 'swf'],	// 4	IMAGETYPE_SWF
-		5 =>  ['mime' => 'image/psd', 'ext' => 'psd'],				// 5	IMAGETYPE_PSD
-		6 =>  ['mime' => 'image/bmp', 'ext' => 'bmp'],				// 6	IMAGETYPE_BMP
-		7 =>  ['mime' => 'image/tiff', 'ext' => 'tiff'],			// 7	IMAGETYPE_TIFF_II (intel byte order)
-		8 =>  ['mime' => 'image/tiff', 'ext' => 'tiff'],			// 8	IMAGETYPE_TIFF_MM (motorola byte order)
-		9 =>  ['mime' => 'application/octet-stream', 'ext' => 'jpc'],		// 9	IMAGETYPE_JPC
-		10 => ['mime' => 'image/jp2', 'ext' => 'jp2'],				// 10	IMAGETYPE_JP2
-		11 => ['mime' => 'application/octet-stream', 'ext' => 'jpf'],		// 11	IMAGETYPE_JPX
-		12 => ['mime' => 'application/octet-stream', 'ext' => 'jb2'],		// 12	IMAGETYPE_JB2
-		13 => ['mime' => 'application/x-shockwave-flash', 'ext' => 'swc'],	// 13	IMAGETYPE_SWC
-		14 => ['mime' => 'image/iff', 'ext' => 'aiff'],			// 14	IMAGETYPE_IFF
-		15 => ['mime' => 'image/vnd.wap.wbmp', 'ext' => 'wbmp'],	// 15	IMAGETYPE_WBMP
-		16 => ['mime' => 'image/xbm', 'ext' => 'xbm']				// 16	IMAGETYPE_XBM
-	];
-	foreach (array_keys($default['image_types']) as $key)
-		$default['image_types'][$key]['filetype'] = $default['image_types'][$key]['ext'];
-
-	zz_write_conf($default);
-	$upload_calls = 1;
-}
-
-/*	----------------------------------------------	*
  *					MAIN FUNCTIONS					*
  *	----------------------------------------------	*/
 
@@ -639,9 +599,6 @@ function zz_upload_fileinfo($file, $extension = false) {
 	// @todo or read AutoCAD Version from DXF, DWG, ...
 	// @todo or read IPCT data.
 	
-	echo wrap_print($file);
-	exit;
-
 	return zz_return($file);
 }
 
@@ -741,9 +698,12 @@ function zz_upload_make_name($filename) {
 function zz_upload_mimecheck($mimetype, $extension) {
 	global $zz_conf;
 	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	foreach ($zz_conf['image_types'] as $imagetype)
-		if ($imagetype['mime'] === $mimetype AND $imagetype['ext'] === $extension)
-			return zz_return(true);
+	foreach (wrap_filetypes() as $filetype => $def) {
+		if (!array_key_exists('php', $def)) continue; // just checked: PHP image types
+		if (!in_array($mimetype, $def['mime'])) continue;
+		if (!in_array($extension, $def['extension'])) continue;
+		return zz_return(true);
+	}
 	if ($zz_conf['modules']['debug']) zz_debug('combination not yet checked');
 	return zz_return(false);
 }
@@ -794,7 +754,6 @@ function zz_upload_filecheck($mimetype, $extension) {
  *
  * @param string $filename
  * @param array $file
- * @global array $zz_conf (array 'image_types')
  * @return array $file
  *		(exists): int 'width', int 'height', string 'ext', string 'mime',
  *		string 'filetype', bool 'validated'
@@ -802,23 +761,39 @@ function zz_upload_filecheck($mimetype, $extension) {
  *		(internal, optional): array 'recheck'
  */
 function zz_upload_getimagesize($filename, $file) {
-	global $zz_conf;
 	if (!function_exists('getimagesize')) return $file;
 	if (!file_exists($filename)) return $file;
 	if (is_dir($filename)) return $file;
 	$sizes = getimagesize($filename);
 	if (!$sizes) return $file;
-	if (empty($zz_conf['image_types'][$sizes[2]])) return $file;
+	$found = zz_upload_filetype_php($file, $sizes[2]);
+	if (!$found) return $file;
 	$file['width'] = $sizes[0];
 	$file['height'] = $sizes[1];
-	$file['ext'] = $zz_conf['image_types'][$sizes[2]]['ext'];
-	$file['mime'] = $zz_conf['image_types'][$sizes[2]]['mime'];
-	$file['filetype'] = $zz_conf['image_types'][$sizes[2]]['filetype'];
+	$file['ext'] = $found['extension'][0];
+	$file['mime'] = $found['mime'][0];
+	$file['filetype'] = $found['filetype'];
 	if (!empty($sizes['bits'])) $file['bits'] = $sizes['bits'];
 	if (!empty($sizes['channels'])) $file['channels'] = $sizes['channels'];
 	$file['recheck'] = ['tiff']; // RAW images might be recognized as TIFF
 	$file['validated'] = true;
 	return $file;
+}
+
+/**
+ * get data in filetypes.cfg for a php image type
+ *
+ * @param int $const, e. g. IMAGETYPE_JPEG
+ * @return array
+ */
+function zz_upload_filetype_php($const) {
+	$found = [];
+	foreach (wrap_filetypes() as $filetype => $def) {
+		if (!array_key_exists('php', $def)) continue;
+		if (!in_array($const, $def['php'])) continue;
+		$found = $def;
+	}
+	return $found;
 }
 
 /**
@@ -831,15 +806,15 @@ function zz_upload_getimagesize($filename, $file) {
  *		(internal, optional): array 'recheck'
  */
 function zz_upload_exif_imagetype($filename, $file) {
-	global $zz_conf;
 	if (!function_exists('exif_imagetype')) return $file; 
 	if ($file['validated']) return $file;
 	$imagetype = exif_imagetype($filename);
 	if (!$imagetype) return $file;
-	if (empty($zz_conf['image_types'][$imagetype])) return $file;
-	$file['ext'] = $zz_conf['image_types'][$imagetype]['ext'];
-	$file['mime'] = $zz_conf['image_types'][$imagetype]['mime'];
-	$file['filetype'] = $zz_conf['image_types'][$imagetype]['filetype'];
+	$found = zz_upload_filetype_php($imagetype);
+	if (!$found) return $file;
+	$file['ext'] = $found['extension'][0];
+	$file['mime'] = $found['mime'][0];
+	$file['filetype'] = $found['filetype'];
 	$file['recheck'] = ['tiff']; // RAW images might be recognized as TIFF
 	$file['validated'] = true;
 	return $file;
@@ -1442,7 +1417,6 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 		return false;
 	}
 
-	zz_upload_config();
 	$filetype_def = wrap_filetypes($image['upload']['filetype']);
 	if (empty($filetype_def['thumbnail'])) return false;
 
