@@ -240,9 +240,6 @@ function zzform($zz) {
 	if ($zz_conf['int']['record']) {
 		require_once __DIR__.'/preparation.inc.php';
 
-		if (in_array('upload', $zz_conf['modules']) && $zz_conf['modules']['upload'])
-			zz_upload_check_max_file_size();
-		
 		$zz_tab = zz_prepare_tables($zz, $ops['mode']);
 		if (!$zz_tab) return zzform_exit($ops);
 

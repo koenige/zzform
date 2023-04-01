@@ -94,12 +94,6 @@ function zz_upload_config() {
 
 	$default['icc_profiles'] = [];
 
-	if (!defined('ZZ_UPLOAD_INI_MAXFILESIZE')) {
-		$max_filesize = ini_get('upload_max_filesize');
-		define('ZZ_UPLOAD_INI_MAXFILESIZE', wrap_return_bytes($max_filesize));
-	}
-	$default['upload_MAX_FILE_SIZE']	= ZZ_UPLOAD_INI_MAXFILESIZE;
-
 	// mimetypes, hardcoded in php
 
 	$default['image_types'] = [
@@ -2795,24 +2789,32 @@ function zz_rename($oldname, $newname, $context = false) {
 }
 
 /**
- * check if upload max file size is not bigger than ini-setting
+ * get maximum file size for upload in bytes
  *
- * @global array $zz_conf;
+ * @param string $size
+ * @return int
  */
-function zz_upload_check_max_file_size() {
-	global $zz_conf;
-	
-	if ($zz_conf['upload_MAX_FILE_SIZE'] > ZZ_UPLOAD_INI_MAXFILESIZE) {
-		zz_error_log([
-			'msg_dev' => 'Value for upload_max_filesize from php.ini is '
-				.'smaller than value which is set in the script. The '
-				.'value from php.ini will be used. To upload bigger files'
-				.', please adjust your configuration settings.',
-			'log_post_data' => false,
-			'level' => E_USER_NOTICE
-		]);
-		$zz_conf['upload_MAX_FILE_SIZE'] = ZZ_UPLOAD_INI_MAXFILESIZE;
+function zz_upload_max_filesize($size = 0) {
+	static $ini_upload_max;
+	if (!isset($ini_upload_max)) {
+		$ini_upload_max = wrap_return_bytes(ini_get('upload_max_filesize'));
+		$ini_post_max = wrap_return_bytes(ini_get('post_max_size'));
+		if ($ini_upload_max > $ini_post_max) $ini_upload_max = $ini_post_max;
 	}
+	
+	if (!$size) $size = wrap_setting('zzform_upload_max_filesize');
+	$size = wrap_return_bytes($size);
+	if ($size <= $ini_upload_max) return $size;
+	
+	zz_error_log([
+		'msg_dev' => 'Value for upload_max_filesize from php.ini is '
+			.'smaller than value which is set in the script. The '
+			.'value from php.ini will be used. To upload bigger files'
+			.', please adjust your configuration settings.',
+		'log_post_data' => false,
+		'level' => E_USER_NOTICE
+	]);
+	return $ini_upload_max;
 }
 
 /**

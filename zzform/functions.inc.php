@@ -1086,14 +1086,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			if (!isset($fields[$no]['maxlength'])) $fields[$no]['maxlength'] = 60;
 			break;
 		case 'upload_image':
-			if (!empty($fields[$no]['upload_max_filesize'])) {
-				$fields[$no]['upload_max_filesize'] = wrap_return_bytes($fields[$no]['upload_max_filesize']);
-			} else {
-				$fields[$no]['upload_max_filesize'] = $zz_conf['upload_MAX_FILE_SIZE']; 
-			}
-			$ini_filesize = wrap_return_bytes(ini_get('upload_max_filesize'));
-			if ($fields[$no]['upload_max_filesize'] > $ini_filesize)
-				$fields[$no]['upload_max_filesize'] = $ini_filesize;
+			$fields[$no]['upload_max_filesize'] = zz_upload_max_filesize($fields[$no]['upload_max_filesize'] ?? 0);
 			break;
 		}
 		if ($fields[$no]['type'] === 'select'
@@ -2841,7 +2834,7 @@ function zz_trigger_error_too_big() {
 			' – You sent: %s data.'
 		],
 		'msg_args' => [
-			wrap_bytes($zz_conf['upload_MAX_FILE_SIZE']),
+			wrap_bytes(zz_upload_max_filesize()),
 			wrap_bytes($_SERVER['CONTENT_LENGTH'])
 		],
 		'level' => E_USER_NOTICE

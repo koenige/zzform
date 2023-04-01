@@ -264,11 +264,10 @@ function zz_display_records($zz_tab, $mode, $display, $zz_record, $zz_conditions
 		zz_conditions_merge_conf($zz_conf_record, $zz_conditions['bool'], $zz_conf['int']['id']['value']);
 	}
 
-	if (in_array($mode, ['add', 'edit', 'revise']) && !empty($zz_conf['upload_MAX_FILE_SIZE'])
-		AND !empty($zz_record['upload_form'])) {
+	if (in_array($mode, ['add', 'edit', 'revise']) AND !empty($zz_record['upload_form'])) {
 		$output['hidden'][] = [
 			'name' => 'MAX_FILE_SIZE',
-			'value' => $zz_conf['upload_MAX_FILE_SIZE']
+			'value' => zz_upload_max_filesize()
 		];
 	}
 	$multiple = !empty($zz_conf['int']['id']['values']) ? true : false;
