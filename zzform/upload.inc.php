@@ -123,10 +123,6 @@ function zz_upload_config() {
 	foreach (array_keys($default['image_types']) as $key)
 		$default['image_types'][$key]['filetype'] = $default['image_types'][$key]['ext'];
 
-	$default['upload_filetype_map']['tif'] = 'tiff';
-	$default['upload_filetype_map']['jpe'] = 'jpeg';
-	$default['upload_filetype_map']['jpg'] = 'jpeg';
-
 	// XML documents will be recognized as SVG (which is XML, too)
 	$default['upload_remap_type_if_extension']['gpx'] = 'svg';
 	// AI documents can be real PDF documents
@@ -564,7 +560,7 @@ function zz_upload_fileinfo($file, $extension = false) {
 	if ($zz_conf['modules']['debug']) zz_debug('file', json_encode($file));
 	$functions = [
 		'upload_getimagesize',		// getimagesize(), PHP
-		'upload_exif_imagetype',	// exif_imagetype(), PHP > 4.3.0
+		'upload_exif_imagetype',	// exif_imagetype(), PHP
 		'imagick_identify',			// ImageMagick identify command
 		'upload_unix_file'			// Unix file command
 	];
@@ -575,7 +571,6 @@ function zz_upload_fileinfo($file, $extension = false) {
 		if (!empty($file['recheck'])) {
 			foreach ($file['recheck'] as $type) {
 				if ($file['filetype'] != $type) continue;
-				if (zz_upload_extension_matches_type($extension, $type)) continue;
 				// this filetype/extension combination needs to be re-checked
 				$file['validated'] = false;
 			}
@@ -624,6 +619,7 @@ function zz_upload_fileinfo($file, $extension = false) {
 			}
 		}
 	}
+	
 	// some filetypes are identical to others, so we have to check the extension
 	if (array_key_exists($extension, $zz_conf['upload_remap_type_if_extension'])) {
 		if (!is_array($zz_conf['upload_remap_type_if_extension'][$extension])) {
@@ -777,35 +773,6 @@ function zz_upload_mimecheck($mimetype, $extension) {
 			return zz_return(true);
 	if ($zz_conf['modules']['debug']) zz_debug('combination not yet checked');
 	return zz_return(false);
-}
-
-/**
- * checks if extension matches type
- *
- * @param string $extension
- * @param string $type
- * @global array $zz_conf
- * @return bool
- */
-function zz_upload_extension_matches_type($extension, $type) {
-	global $zz_conf;
-	if ($extension === $type) return true;
-	if (empty($zz_conf['upload_filetype_map'][$type])) return false;
-	if ($extension === $zz_conf['upload_filetype_map'][$type]) return true;
-	return false;
-}
-
-/**
- * return normalized extension
- *
- * @param string $extension
- * @global array $zz_conf
- * @return string
- */
-function zz_upload_extension_normalize($extension) {
-	global $zz_conf;
-	if (empty($zz_conf['upload_filetype_map'][$extension])) return $extension;
-	return $zz_conf['upload_filetype_map'][$extension];
 }
 
 /**

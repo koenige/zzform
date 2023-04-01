@@ -479,8 +479,6 @@ function zz_image_crop($source, $dest, $dest_ext, $image, $clipping = 'center') 
  * @return bool
  */
 function zz_imagick_convert($options, $source, $source_ext, $filetype, $dest, $dest_ext, $image = []) {
-	$source_ext = zz_upload_extension_normalize($source_ext);
-
 	// avoid errors like
 	// libgomp: Thread creation failed: Resource temporarily unavailable
 	// some ImageMagick versions have OpenMP support compiled into
