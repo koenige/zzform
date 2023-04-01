@@ -321,59 +321,53 @@ function zz_image_webimage($source, $dest, $dest_ext, $image) {
 /**
  * Add options for ImageMagick depending on source extension
  *
+ * no defaults from filetypes.cfg: wrap_setting('filetypes[pdf][convert]', '');
+ * no defaults and own options: wrap_setting('filetypes[pdf][convert]', '-option1 -option2');
+ * add own options to defaults: wrap_setting('filetypes[pdf][convert][]', '-option1 -option2');
+ *
  * @param string $filetype
- * @param string $source_ext
  * @param array $image (optional)
  * @return string options
  */
-function zz_imagick_add_options($filetype, $source_ext, $image = []) {
-	global $zz_conf;
-
+function zz_imagick_add_options($filetype, $image = []) {
 	if (!empty($image['no_options'])) return '';
 
+	$ext_options = [];
 	$filetype_def = wrap_filetypes($filetype);
-	$convert_options = $filetype_def['convert'] ?? [];
 
-	$ext_options = '';
-	if (empty($zz_conf['upload_imagick_options_no_defaults'][$source_ext])) {
-		foreach ($convert_options as $index => $option) {
-			// look for e. g. -colorspace sRGB and replace it with profiles
-			if (substr($option, 0, 16) !== '-colorspace sRGB') continue;
-			$colorspace = explode(' ', $option);
-			if (empty($image['upload']['colorspace'])) continue;
-			if ($image['upload']['colorspace'] === $option[1]) continue;
-			if (empty($image['upload']['icc_profile'])) continue;
-			if ($image['upload']['icc_profile'] === 'Artifex Software sRGB ICC Profile') continue;
-			if (!wrap_setting('zzform_icc_profiles['.$image['upload']['icc_profile'].']')) {
-				zz_error_log([
-					'msg_dev' => 'No ICC profile found for %s',
-					'msg_dev_args' => [$image['upload']['icc_profile']],
-					'log_post_data' => false,
-					'level' => E_USER_NOTICE
-				]);
-				continue;
-			}
-			// use profiles!
-			$ext_options .= sprintf('-profile "%s" -profile "%s"',
-				wrap_setting('zzform_icc_profiles['.$image['upload']['icc_profile'].']'),
-				wrap_setting('zzform_icc_profiles[sRGB]')
-			);
-			unset($convert_options[$index]);
+	// filetypes.cfg or wrap_setting() has convert?
+	$convert_options = $filetype_def['convert'] ?? [];
+	// no? then check if there are default options
+	if (!$convert_options AND wrap_setting('zzform_upload_imagick_options_default'))
+		$convert_options = wrap_setting('zzform_upload_imagick_options_default');
+
+	// look for e. g. -colorspace sRGB and replace it with profiles
+	foreach ($convert_options as $index => $option) {
+		if (!str_starts_with($option, '-colorspace sRGB')) continue;
+		if (empty($image['upload']['colorspace'])) continue;
+		if ($image['upload']['colorspace'] === $option[1]) continue;
+		if (empty($image['upload']['icc_profile'])) continue;
+		if ($image['upload']['icc_profile'] === 'Artifex Software sRGB ICC Profile') continue;
+		if (!wrap_setting('zzform_icc_profiles['.$image['upload']['icc_profile'].']')) {
+			zz_error_log([
+				'msg_dev' => 'No ICC profile found for %s',
+				'msg_dev_args' => [$image['upload']['icc_profile']],
+				'log_post_data' => false,
+				'level' => E_USER_NOTICE
+			]);
+			continue;
 		}
+		// use profiles!
+		$ext_options[] = sprintf('-profile "%s" -profile "%s"',
+			wrap_setting('zzform_icc_profiles['.$image['upload']['icc_profile'].']'),
+			wrap_setting('zzform_icc_profiles[sRGB]')
+		);
+		unset($convert_options[$index]);
 	}
-	if (empty($zz_conf['upload_imagick_options_no_defaults'][$source_ext])) {
-		if (!empty($filetype_def['convert'])) {
-			$ext_options .= ' '.implode(' ', $filetype_def['convert']);
-		}
-	}
-	if (!empty($zz_conf['upload_imagick_options_for'][$source_ext])) {
-		$ext_options .= ' '.$zz_conf['upload_imagick_options_for'][$source_ext];
-	} elseif (!empty($zz_conf['upload_imagick_options'])) {
-		$ext_options .= ' '.$zz_conf['upload_imagick_options'];
-	}
-	if (!empty($zz_conf['upload_imagick_options_always']))
-		$ext_options .= ' '.$zz_conf['upload_imagick_options_always'];
-	return $ext_options;
+	$ext_options = array_merge($ext_options, $convert_options);
+	if ($options = wrap_setting('zzform_upload_imagick_options_always'))
+		$ext_options[] = $options;
+	return implode(' ', $ext_options);
 }
 
 /**
@@ -488,7 +482,7 @@ function zz_imagick_convert($options, $source, $source_ext, $filetype, $dest, $d
 
 	$command = zz_upload_binary('convert');
 
-	$ext_options = zz_imagick_add_options($filetype, $source_ext, $image);
+	$ext_options = zz_imagick_add_options($filetype, $image);
 	// first extra options like auto-orient, then other options by script
 	if ($ext_options) $command .= $ext_options.' ';
 	if ($options) $command .= $options.' ';

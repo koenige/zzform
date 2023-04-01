@@ -2705,14 +2705,13 @@ function zz_upload_file_extension($filename) {
 }
 
 /**
- * renames a file with php rename, only if 'upload_copy_for_rename' is set
+ * renames a file with php rename, only if 'zzform_upload_copy_for_rename' is set
  * copies file and then deletes old file (in case there are problems renaming
  * files from one mount to another)
  *
  * @param string $oldname old file name
  * @param string $newname new file name
  * @param ressource $context
- * @global array $zz_conf -> bool 'upload_copy_for_rename'
  * @return bool true if rename was successful, false if not
  */
 function zz_rename($oldname, $newname, $context = false) {
@@ -2736,7 +2735,7 @@ function zz_rename($oldname, $newname, $context = false) {
 		// just copy file, leave old file alone (e. g. if copying from cache)
 		$success = copy($oldname, $newname);
 		if ($success) return true;
-	} elseif (!empty($zz_conf['upload_copy_for_rename'])) {
+	} elseif (wrap_setting('zzform_upload_copy_for_rename')) {
 		// copy file, this also works in older php versions between partitions.
 		$success = copy($oldname, $newname);
 		if ($success) {

@@ -705,9 +705,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['user']				= isset($_SERVER['PHP_AUTH_USER']) ? $_SERVER['PHP_AUTH_USER'] : wrap_user();
 	$default['view']				= false;	// 	show Action: View
 	$default['url_self']			= false;
-	// this JPEG quality equals file size of photoshop's 60%
-	// with a little more artefacts and especially blurred diagonal lines
-	$default['upload_imagick_options_for']['jpeg'] = '-auto-orient -quality 85';
 	
 	zz_write_conf($default);
 	
