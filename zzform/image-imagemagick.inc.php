@@ -136,12 +136,10 @@ function zz_imagick_identify($filename, $file) {
  * checks whether filetype has multiple pages
  *
  * @param string $source
- * @param strinf $filetype
- * @param global $zz_conf
+ * @param string $filetype
  * @param return $source
  */
 function zz_imagick_check_multipage($source, $filetype, $image) {
-	global $zz_conf;
 	if (!$filetype)
 		$filetype = substr($source, strrpos($source, '.') +1);
 	$filetype_def = wrap_filetypes($filetype);
@@ -155,13 +153,11 @@ function zz_imagick_check_multipage($source, $filetype, $image) {
 		} else {
 			$source_frame = $image['source_frame'] - 1;
 		}
-	} elseif (!empty($zz_conf['upload_multipage_which'][$filetype])) {
-		$source_frame = $zz_conf['upload_multipage_which'][$filetype];
 	} else {
-		// convert only first page or top layer
-		$source_frame = 0;
+		// setting? if not, convert only first page or top layer
+		$source_frame = $filetype['multipage_thumbnail_frame'] ?? 0;
 	}
-	$source .= '['.$source_frame.']';
+	$source = sprintf('%s[%d]', $source, $source_frame);
 	return $source;
 }
 

@@ -123,9 +123,6 @@ function zz_upload_config() {
 	foreach (array_keys($default['image_types']) as $key)
 		$default['image_types'][$key]['filetype'] = $default['image_types'][$key]['ext'];
 
-	// don't take first frame from mp4 movie, might be black
-	$default['upload_multipage_which']['m4v'] = 5;
-
 	$default['upload_filetype_map']['tif'] = 'tiff';
 	$default['upload_filetype_map']['jpe'] = 'jpeg';
 	$default['upload_filetype_map']['jpg'] = 'jpeg';
