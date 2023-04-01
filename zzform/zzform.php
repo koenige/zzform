@@ -99,7 +99,7 @@ function zzform($zz) {
 
 	$zz_conf['int']['access'] = isset($zz['access']) ? $zz['access'] : (isset($zz_conf['access']) ? $zz_conf['access'] : '');
 
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	if (zz_error_exit()) return zzform_exit($ops); // exits script
 
 	// include dependent modules
@@ -118,7 +118,7 @@ function zzform($zz) {
 	$zz['table'] = zz_db_connection($zz['table']);
 	if (!wrap_setting('db_name')) return zzform_exit($ops); // exits script
 	$zz = zz_sql_prefix($zz);
-	if ($zz_conf['modules']['debug']) zz_debug('database connection ok');
+	if (wrap_setting('debug')) zz_debug('database connection ok');
 	if (empty($zz['sqlrecord'])) $zz['sqlrecord'] = $zz['sql'];
 
 //
@@ -191,7 +191,7 @@ function zzform($zz) {
 
 	// Module 'conditions': evaluate conditions
 	if (!empty($zz_conf['modules']['conditions'])) {
-		if ($zz_conf['modules']['debug']) zz_debug('conditions start');
+		if (wrap_setting('debug')) zz_debug('conditions start');
 		$zz = zz_conditions_set($zz);
 		$zz_conditions = zz_conditions_check($zz, $ops['mode']);
 	} else {
@@ -319,7 +319,7 @@ function zzform($zz) {
 				AND !$zz_conf['show_list_while_edit']) $zz_conf['int']['show_list'] = false;
 		}
 	
-		if ($zz_conf['modules']['debug']) zz_debug('subtables end');
+		if (wrap_setting('debug')) zz_debug('subtables end');
 
 		// query record
 		foreach (array_keys($zz_tab) as $tab) {
@@ -439,7 +439,7 @@ function zzform_exit($ops) {
 	if (!empty($zz_conf['int']['db_current'])) zz_db_select($zz_conf['int']['db_current']);
 
 	// end debug mode
-	if ($zz_conf['modules']['debug']) {
+	if (wrap_setting('debug')) {
 		zz_debug('end');
 		// debug time only if there's a result and before leaving the page
 		if ($ops['result'])
@@ -651,7 +651,7 @@ function zz_initialize($mode = false, $old_conf = []) {
 	// Modules on project level
 	// debug module must come first because of debugging reasons!
 	$zz_conf['modules'] = zz_add_modules($zz_conf['int_modules']);
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	// stop if there were errors while adding modules
 	if (zz_error_exit()) zz_return(false);

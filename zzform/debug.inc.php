@@ -17,13 +17,13 @@
  * HTML output of debugging information 
  * 
  *	start of function
- *		if ($zz_conf['modules']['debug']) {
+ *		if (wrap_setting('debug')) {
  *			global $zz_debug;
  *			$zz_debug['function'] = __FUNCTION__;
  *			$zz_debug['function_time'] = microtime(true);
  *		}
  *	end of function
- *		if ($zz_conf['modules']['debug']) zz_debug();
+ *		if (wrap_setting('debug')) zz_debug();
  * @param string $marker	optional: marker to define position in function
  * @param string $text		optional: SQL query or function name
  * @param int $id			optional: Random ID for function, allows to log in different functions

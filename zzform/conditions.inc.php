@@ -128,7 +128,7 @@ function zz_conditions_set_field(&$field, &$new_index, &$sc, $cn) {
  */
 function zz_conditions_check($zz, $mode) {
 	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	$zz_conditions = [];
 	foreach ($zz['conditions'] AS $index => $condition) {
@@ -209,13 +209,11 @@ function zz_conditions_check($zz, $mode) {
  * @param array $zz
  *		'conditions', 'table', 'sql', 'fields', 'where', 'zz_fields'
  * @param string $mode
- * @global array $zz_conf
  * @return array $zz_conditions
  */
 
 function zz_conditions_check_output($zz_conditions, $zz, $mode) {
-	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	foreach ($zz['conditions'] AS $index => $condition) {
 		switch ($condition['scope']) {
@@ -260,9 +258,8 @@ function zz_conditions_record($zz, $zz_conditions) {
 			$zz['fields'][$no] = zz_conditions_record_values($zz['fields'][$no], $zz_conditions['values']);
 			$found = true;
 		}
-		if (!$found AND $zz_conf['modules']['debug']) {
+		if (!$found AND wrap_setting('debug'))
 			zz_debug('conditions', 'Notice: `values`-condition was set, but there’s no field using it! (Waste of ressources)');
-		}
 	}
 	
 	// check if there are any bool-conditions
@@ -326,7 +323,7 @@ function zz_conditions_record_values($field, $values) {
  */
 function zz_conditions_record_check($zz, $mode, $zz_conditions) {
 	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	foreach ($zz['conditions'] AS $index => $condition) {
 		switch ($condition['scope']) {
@@ -588,7 +585,7 @@ function zz_conditions_record_check($zz, $mode, $zz_conditions) {
  */
 function zz_conditions_subrecord_check($zz, $zz_tab, $zz_conditions) {
 	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	foreach ($zz['conditions'] AS $index => $condition) {
 		switch ($condition['scope']) {
@@ -688,12 +685,10 @@ function zz_conditions_subrecord($zz_tab, $zz_conditions) {
  * @param bool $reverse optional; false: if (default), true: unless
  * @param string $type 'field' => field definition will be changed, 'conf' =>
  *			$zz_conf or $zz_conf_record will be changed
- * @global array $zz_conf
  * @return array $array			modified $field- or $zz_conf-Array
  */
 function zz_conditions_merge($array, $bool_conditions, $record_id, $reverse = false, $type = 'field') {
-	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start ID'.$record_id, __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start ID'.$record_id, __FUNCTION__);
 
 	if (!$reverse) {
 		$conditions = $array['if'];
@@ -812,7 +807,7 @@ function zz_conditions_merge_conf(&$conf, $bool_conditions, $record_id) {
  */
 function zz_conditions_list_check($zz, $zz_conditions, $ids, $mode) {
 	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	if (empty($zz['conditions'])) return zz_return($zz_conditions);
 
 	// improve database performace, for this query we only need ID field

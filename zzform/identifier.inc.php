@@ -304,7 +304,7 @@ function zz_identifier_exists($idf, $i, $db_table, $field, $id_field, $id_value,
 	static $existing;
 	if (empty($existing[$zz_conf['id']][$db_table])) $existing[$zz_conf['id']][$db_table] = [];
 
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if ($wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	$sql = 'SELECT %s FROM %s
 		WHERE %s = "%s"
 		AND %s != %d
@@ -605,8 +605,7 @@ function zz_identifier_redirect($ops, $zz_tab) {
  * @return mixed array: full line from database, string: just field if fieldname
  */
 function zz_identifier_vars_db($sql, $id, $fieldname = false) {
-	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if ($wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	// remove whitespace
 	$sql = preg_replace("/\s+/", " ", $sql); // first blank needed for SELECT
 	$sql_tokens = explode(' ', trim($sql)); // remove whitespace

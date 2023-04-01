@@ -118,12 +118,10 @@ function zz_output_heading($heading, $table = '') {
  * @param string $heading ($ops['heading'])
  * @param array $zz
  *		array 'subtitle', 'fields'[n]'field_name' / 'key_field_name'
- * @global array $zz_conf
  * @return string $heading
  */
 function zz_nice_headings($heading, $zz) {
-	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	$i = 0;
 	$heading_addition = [];
 	// depending on WHERE-Condition
@@ -328,7 +326,7 @@ function zz_output_redirect($result, $return, $zz_tab) {
 	global $zz_conf;
 
 	if (!empty($zz_conf['redirect'][$result])) {
-		if ($zz_conf['modules']['debug'])
+		if (wrap_setting('debug'))
 			zz_debug_time($return);
 		if (is_array($zz_conf['redirect'][$result]))
 			$zz_conf['redirect'][$result] = zz_makepath($zz_conf['redirect'][$result], $zz_tab);
@@ -473,15 +471,13 @@ function zz_nice_title($heading, $fields, $ops, $mode = false) {
  * Formats 'selection' for search results
  *
  * @param array $zz_fields
- * @global array $zz_conf
  * @return string $selection
  */
 function zz_nice_selection($zz_fields) {
 	if (empty($_GET['q'])) return false;
-	global $zz_conf;
 
 	// Display search filter
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	$fieldname = false;
 	$selection = zz_text('Search').': ';
 	$add_equal_sign = false;

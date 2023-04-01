@@ -21,12 +21,9 @@
  *
  * @param string $table current table name to check which fields to translate
  * @param array $fields
- * @global array $zz_conf
  * @return array $fields
  */
 function zz_translations_init($table, $fields) {
-	global $zz_conf;
-
 	if (!wrap_setting('translate_fields')) return $fields;
 	if (!wrap_sql_table('default_translationfields')) {
 		zz_error_log([

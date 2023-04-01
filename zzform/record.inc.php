@@ -252,7 +252,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_record, $zz_conditions
 	global $zz_conf;
 	
 	if (!$display) return [];
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	$output = [];
 	$output['hidden'] = [];
@@ -452,7 +452,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 	$extra_lastcol = false, $table_count = 0, $show_explanation = true) {
 
 	global $zz_conf;	// Config variables
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	$my_rec = $zz_tab[$tab][$rec];
 	if (empty($my_rec['fields'])) zz_return(false);
 
@@ -1719,12 +1719,9 @@ function zz_set_auto_value($field, $sql, $table, $tab, $rec, $main_table) {
  * @param string $type (default: text)
  * @param mixed $id (optional; bool: create from $name; string: use as id)
  * @param array $fieldattr (further attributes, indexed by name => value)
- * @global array $zz_conf
  * @return string HTML code
  */
 function zz_form_element($name, $value, $type = 'text', $id = false, $fieldattr = []) {
-	global $zz_conf;
-
 	// escaping for some 'text' elements, not all
 	// e. g. geo coordinates and reselect-elements don't need &-values
 	// escaped and look better without escaping
@@ -2648,12 +2645,10 @@ function zz_field_set($field, $fields, $display, $my_tab) {
  * @param string $display
  * @param array $record $my_rec['record']
  * @param string $db_table db_name.table
- * @global array $zz_conf just checks for 'modules'[debug]
  * @return string HTML output for form
  */
 function zz_field_select_sql($field, $display, $record, $db_table) {
-	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	$lines = zz_field_query($field);
 	$lines = zz_field_unique_ignore($lines, $field);
@@ -2920,8 +2915,6 @@ function zz_field_get_id_field_name($lines) {
  * @todo AJAX typeaheadfind
  */
 function zz_field_select_sql_too_long($field, $record, $detail_record, $id_field_name) {
-	global $zz_conf;
-
 	$outputf = zz_form_element('zz_check_select[]', $field['select_field_name'], 'hidden');
 
 	zz_xhr_add('selects', $field);
@@ -3693,7 +3686,7 @@ function zz_form_select_sql_where($field, $where_fields) {
 	if (empty($field['sql_where'])) return $field['sql'];
 
 	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	$where_conditions = [];
 	foreach ($field['sql_where'] as $sql_where) {
@@ -3822,11 +3815,9 @@ function zz_field_select_ignore($line, $field, $type) {
  * @param array $images
  * @param string $mode
  * @param int $fieldkey
- * @global array $zz_conf
  * @return string
  */
 function zz_field_image($field, $display, $record, $record_saved, $images, $mode, $fieldkey) {				
-	global $zz_conf;
 	$text = '';
 
 	if (($mode !== 'add' OR $field['type'] !== 'upload_image')

@@ -51,18 +51,15 @@
  *    [9] => 0:00.349
  * @param string $filename filename of file which needs to be identified
  * @param array $file
- * @global array $zz_conf
  * @return array $file
  *		string 'filetype', int 'width', int 'height', bool 'validated',
  *		string 'ext', array 'warnings'
  * @todo always fill out $file['ext']
  */
 function zz_imagick_identify($filename, $file) {
-	global $zz_conf;
-
 	if (wrap_setting('zzform_graphics_library') !== 'imagemagick') return $file;
 	if (!wrap_setting('zzform_upload_tools_identify')) return $file;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	if (!file_exists($filename)) return zz_return(false);
 
 	$command = zz_upload_binary('identify');
@@ -75,7 +72,7 @@ function zz_imagick_identify($filename, $file) {
 	// note: filemtime() here would return the old time, so it's not possible to check that
 	touch($filename, $time);
 	if (!$output) return zz_return($file);
-	if ($zz_conf['modules']['debug']) zz_debug('identify output', json_encode($output));
+	if (wrap_setting('debug')) zz_debug('identify output', json_encode($output));
 	
 	// Error? Then first token ends with colon
 	// e. g. Error: identify: mv:
@@ -168,12 +165,10 @@ function zz_imagick_check_multipage($source, $filetype, $image) {
  * @param string $dest (temporary) name of destination file without extension
  * @param string $dest_ext file extension for destination image
  * @param array $image further information about the image
- * @global array $zz_conf
  * @return bool (false: no image was created; true: image was created)
  */
 function zz_image_gray($source, $dest, $dest_ext, $image) {
-	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	$filetype = $image['upload']['filetype'] ?? '';
 	$source = zz_imagick_check_multipage($source, $filetype, $image);
@@ -182,7 +177,7 @@ function zz_image_gray($source, $dest, $dest_ext, $image) {
 		$source, $image['upload']['ext'], $filetype, $dest, $dest_ext, $image
 	);
 
-	if ($zz_conf['modules']['debug']) zz_debug('end');
+	if (wrap_setting('debug')) zz_debug('end');
 	return $convert;
 }
 
@@ -194,12 +189,10 @@ function zz_image_gray($source, $dest, $dest_ext, $image) {
  * @param string $dest_ext file extension for destination image
  * @param array $image further information about the image
  *		here: 'image' array with key/value pairs for imagemagick options
- * @global array $zz_conf
  * @return bool (false: no image was created; true: image was created)
  */
 function zz_image_custom($source, $dest, $dest_ext, $image) {
-	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	
 	$image['convert_options'] = ''; // just custom options
 	$image['no_options'] = true; // no standards from filetype
@@ -221,7 +214,7 @@ function zz_image_custom($source, $dest, $dest_ext, $image) {
 		$source, $image['upload']['ext'], $filetype, $dest, $dest_ext, $image
 	);
 
-	if ($zz_conf['modules']['debug']) zz_debug('end');
+	if (wrap_setting('debug')) zz_debug('end');
 	return $convert;
 }
 
@@ -233,12 +226,10 @@ function zz_image_custom($source, $dest, $dest_ext, $image) {
  * @param string $dest_ext file extension for destination image
  * @param array $image further information about the image
  *		width, height
- * @global array $zz_conf
  * @return bool (false: no image was created; true: image was created)
  */
 function zz_image_thumbnail($source, $dest, $dest_ext, $image) {
-	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	
 	$rotate = false;
 	if (strstr($image['convert_options'], '-rotate ')) {
@@ -263,7 +254,7 @@ function zz_image_thumbnail($source, $dest, $dest_ext, $image) {
 		$source, $image['upload']['ext'], $filetype, $dest, $dest_ext, $image
 	);
 
-	if ($zz_conf['modules']['debug']) zz_debug('thumbnail creation '
+	if (wrap_setting('debug')) zz_debug('thumbnail creation '
 		.($convert === true ? '' : 'un').'successful:<br>'.$dest);
 	return zz_return($convert);
 }
@@ -281,12 +272,10 @@ function zz_image_thumbnail($source, $dest, $dest_ext, $image) {
  *		field_name (string), path (array), required (boolean), options (array),
  *		options_sql (string), source_field (array), upload (array), type (string)
  *		action (string) name of function, source (int)
- * @global array $zz_conf
  * @return bool (false: no image was created; true: image was created)
  */
 function zz_image_webimage($source, $dest, $dest_ext, $image) {
-	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	$filetype = $image['upload']['filetype'] ?? '';
 	$filetype_def = wrap_filetypes($filetype);	
@@ -379,12 +368,10 @@ function zz_imagick_add_options($filetype, $image = []) {
  * @param array $image further information about the image
  *		width, height etc.
  * @param string $clipping defaults to center
- * @global array $zz_conf
  * @return bool (false: no image was created; true: image was created)
  */
 function zz_image_crop($source, $dest, $dest_ext, $image, $clipping = 'center') {
-	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 // example: convert -thumbnail x240 -crop 240x240+140x0 reiff-pic09b.jpg test.jpg
 	$dest_ratio = $image['width'] / $image['height'];
 	if (!empty($image['upload']['height']) AND !empty($image['upload']['width'])) {

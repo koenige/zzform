@@ -149,7 +149,6 @@ function zz_revisions_insert_data($data, $id, $open_revisions) {
  * @return array
  */
 function zz_revisions_tab($main_tab) {
-	global $zz_conf;
 	$revision_data = [];
 
 	$data = zz_revisions_read($main_tab['table'], $main_tab[0]['id']['value']);

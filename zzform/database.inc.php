@@ -155,8 +155,7 @@ function zz_sql_prefix_change_zz(&$item, $key) {
  * @return int $lines
  */
 function zz_sql_count_rows($sql, $id_field = '') {
-	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	$sql = trim($sql);
 	if (!$id_field) {
@@ -268,7 +267,7 @@ function zz_db_connection($table) {
 
 	if (!wrap_setting('db_name')) {
 		zz_error_log([
-			'msg_dev' => 'Please set the variable <code>$zz_conf[\'db_name\']</code>.'
+			'msg_dev' => 'Please set the setting <code>db_name</code>.'
 				.' It has to be set to the main database name used for zzform.',
 			'level' => E_USER_ERROR
 		]);
@@ -404,7 +403,7 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 		}
 	} else $error = true;
 	if ($error AND $error !== true) $info .= $error;
-	if ($zz_conf['modules']['debug']) zz_debug('sql (rows: '
+	if (wrap_setting('debug')) zz_debug('sql (rows: '
 		.($result ? mysqli_num_rows($result) : 0).')'.($info ? ': '.$info : ''), $sql);
 	if (wrap_setting('debug') AND function_exists('wrap_error')) {
 		// @todo: check if it's easier to do it with zz_error()
@@ -412,7 +411,7 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 		wrap_error('SQL query in '.$time.' - '.$sql, E_USER_NOTICE);
 	}
 	if ($error) {
-		if ($zz_conf['modules']['debug']) {
+		if (wrap_setting('debug')) {
 			global $zz_debug;
 			$current = end($zz_debug[$zz_conf['id']]['function']);
 		} else {
@@ -641,8 +640,7 @@ function zz_db_field_maxlength($field, $type, $db_table) {
 	];
 	if (in_array($type, $dont_check)) return false;
 
-	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	$maxlength = false;
 	$field_def = zz_db_columns($db_table, $field);
@@ -657,7 +655,7 @@ function zz_db_field_maxlength($field, $type, $db_table) {
 			}
 		}
 	}
-	if ($zz_conf['modules']['debug']) zz_debug($type.($maxlength ? '-'.$maxlength : ''));
+	if (wrap_setting('debug')) zz_debug($type.($maxlength ? '-'.$maxlength : ''));
 	return zz_return($maxlength);
 }
 

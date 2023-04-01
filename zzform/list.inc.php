@@ -27,7 +27,7 @@
  */
 function zz_list($zz, $ops, $zz_conditions) {
 	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	if ($zz_conf['search']) {
 		require_once __DIR__.'/searchform.inc.php';
@@ -129,7 +129,7 @@ function zz_list($zz, $ops, $zz_conditions) {
 	}
 	// remove first dummy array
 	unset($lines[0]);
-	if ($zz_conf['modules']['debug']) zz_debug('list definitions set');
+	if (wrap_setting('debug')) zz_debug('list definitions set');
 
 	if ($zz_conf['int']['show_list']) {
 		$list = zz_list_set($zz, count($lines));
@@ -183,7 +183,7 @@ function zz_list($zz, $ops, $zz_conditions) {
 				'rows' => $rows
 			];
 		}
-		if ($zz_conf['modules']['debug']) zz_debug('end');
+		if (wrap_setting('debug')) zz_debug('end');
 		$ops = zz_export($ops, $zz);
 		return zz_return($ops);
 	}
@@ -401,9 +401,9 @@ function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $mode) {
 	$old_to_new_index = [];
 	foreach (array_keys($lines) as $index) {
 		if (empty($line_defs[$index])) continue;
-		if ($zz_conf['modules']['debug']) zz_debug('fill_out start');
+		if (wrap_setting('debug')) zz_debug('fill_out start');
 		$line_defs[$index] = zz_fill_out($line_defs[$index], wrap_setting('db_name').'.'.$table, 2);
-		if ($zz_conf['modules']['debug']) zz_debug('fill_out end');
+		if (wrap_setting('debug')) zz_debug('fill_out end');
 		foreach ($line_defs[$index] as $fieldindex => $field) {
 			if (in_array($fieldindex, array_keys($old_to_new_index))) {
 				$fi = $old_to_new_index[$fieldindex];
@@ -422,7 +422,7 @@ function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $mode) {
 				}
 			}
 		}
-		if ($zz_conf['modules']['debug']) zz_debug('table_query end');
+		if (wrap_setting('debug')) zz_debug('table_query end');
 	}
 	unset($old_to_new_index);
 	// now we have the basic stuff in $table_defs[0] and $line_defs[0]
@@ -662,7 +662,7 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 		}
 
 		foreach ($table_defs[$def_index] as $fieldindex => $field) {
-			if ($zz_conf['modules']['debug']) zz_debug("table_query foreach ".$fieldindex);
+			if (wrap_setting('debug')) zz_debug("table_query foreach ".$fieldindex);
 			// conditions
 			if (!empty($zz_conf['modules']['conditions']) AND !empty($zz_conditions['bool'])) {
 				zz_conditions_merge_field($field, $zz_conditions['bool'], $line[$zz_conf['int']['id']['field_name']]);
@@ -676,7 +676,7 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 					if (!$zz_conf['add']) $zz_conf['copy'] = false;			// don't copy record (form+links)
 				}
 			}
-			if ($zz_conf['modules']['debug']) {
+			if (wrap_setting('debug')) {
 				zz_debug('table_query foreach cond set '.$fieldindex);
 			}
 			
@@ -690,7 +690,7 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 				else break;
 			}
 
-			if ($zz_conf['modules']['debug']) {
+			if (wrap_setting('debug')) {
 				zz_debug('table_query before switch '.$fieldindex.'-'.$field['type']);
 			}
 			$my_row = isset($rows[$z][$fieldindex]) ? $rows[$z][$fieldindex] : [];
@@ -714,7 +714,7 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 					}
 				}
 			}
-			if ($zz_conf['modules']['debug']) {
+			if (wrap_setting('debug')) {
 				zz_debug('table_query end '.$fieldindex.'-'.$field['type']);
 			}
 		}
@@ -1212,7 +1212,7 @@ function zz_list_query($zz) {
  */
 function zz_list_query_flat($zz) {
 	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	if ($zz_conf['int']['this_limit']) { 
 		// set a standard value for limit
@@ -1244,7 +1244,7 @@ function zz_list_query_flat($zz) {
  */
 function zz_list_query_extras($lines, $extra_sqls) {
 	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	if (!$extra_sqls) return $lines;
 	foreach ($extra_sqls as $sql) {
@@ -1266,7 +1266,7 @@ function zz_list_query_extras($lines, $extra_sqls) {
  */
 function zz_list_query_hierarchy($zz) {
 	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	$zz['list']['hierarchy']['id_field_name'] = $zz_conf['int']['id']['field_name'];
 	list($my_lines, $total_rows) = zz_hierarchy($zz['sql'], $zz['list']['hierarchy']);
@@ -1663,12 +1663,11 @@ function zz_field_sum($table_defs, $z, $sum) {
  * @param mixed $list_format (array = list of formatting functions)
  */
 function zz_list_format($text, $list_format) {
-	global $zz_conf;
 	if (!is_array($list_format)) $list_format = [$list_format];
 	foreach ($list_format as $format) {
-		if (!empty($zz_conf['modules']['debug'])) zz_debug('start', $format);
+		if (!empty(wrap_setting('debug'))) zz_debug('start', $format);
 		$text = $format($text);
-		if (!empty($zz_conf['modules']['debug'])) zz_debug('end');
+		if (!empty(wrap_setting('debug'))) zz_debug('end');
 	}
 	return $text;
 }
@@ -2338,8 +2337,7 @@ function zz_list_init_subselects($field, $fieldindex) {
  * @return array
  */
 function zz_list_get_subselects($lines, $subselects, $mode) {
-	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	$extra = [];
 	
 	if (!$subselects) return zz_return([$lines, $extra]);
@@ -2460,13 +2458,11 @@ function zz_list_get_subselects($lines, $subselects, $mode) {
  * @param array $list
  * @param array $field
  * @param array $line
- * @global array $zz_conf
  * @return string level or ''
  */
 function zz_list_field_level($list, $field, $line) {
 	if (!isset($line['zz_level'])) return '';
 
-	global $zz_conf;
 	if (!empty($field['decrease_level'])) $line['zz_level'] -= $field['decrease_level'];
 
 	if (!empty($field['field_name']) // occurs in case of subtables

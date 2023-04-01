@@ -809,7 +809,7 @@ function zz_where_conditions(&$zz) {
  */
 function zz_apply_where_conditions(&$zz) {
 	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	$table_for_where = isset($zz['table_for_where']) ? $zz['table_for_where'] : [];
 
 	$sql_keys['list'] = 'sql';
@@ -899,7 +899,7 @@ function zz_apply_where_conditions(&$zz) {
 	// (e. g. identifier with UNIQUE KEY) retrieve value for ID field from 
 	// database
 	if (!$zz_conf['int']['id']['value'] AND $zz_conf['int']['where_with_unique_id']) {
-		if ($zz_conf['modules']['debug']) zz_debug('where_conditions', $zz['sql']);
+		if (wrap_setting('debug')) zz_debug('where_conditions', $zz['sql']);
 		$line = zz_db_fetch($zz['sql'], '_dummy_', 'numeric', 'WHERE; ambiguous values in ID?');
 		// 0 (=add) or 1 records: 'where_with_unique_id' remains true
 		if (count($line) === 1 AND !empty($line[0][$zz_conf['int']['id']['field_name']])) {
@@ -948,7 +948,7 @@ function zz_write_onces(&$zz) {
  */
 function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false, $action = false, $subtable_no = false) {
 	global $zz_conf;
-	if ($zz_conf['modules']['debug']) {
+	if (wrap_setting('debug')) {
 		zz_debug('start', __FUNCTION__.$multiple_times);
 	}
 	static $defs;
@@ -1386,7 +1386,7 @@ function zz_set_fielddefs_for_record(&$zz) {
 function zz_record_access($zz, $ops) {
 	global $zz_conf;
 
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	// initialize variables
 	$create_new_zzform_secret_key = true;
 	if (!empty($_POST['zz_id'])) {
@@ -2259,8 +2259,7 @@ function zz_get_record($field_name, $sql, $idvalue = false, $idfield = false) {
  * @return mixed return parameter
  */
 function zz_return($return = false) {
-	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('end');
+	if (wrap_setting('debug')) zz_debug('end');
 	return $return;
 }
 
@@ -3548,7 +3547,7 @@ function zz_check_select($my_rec, $f) {
 		}
 		if (!$check) return $my_rec;
 	}
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	$my_rec['fields'][$f] = zz_check_select_id(
 		$my_rec['fields'][$f], $my_rec['POST'][$field_name], $my_rec['id']

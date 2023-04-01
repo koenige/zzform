@@ -41,7 +41,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 	
 	wrap_include_files('zzform/editing', 'custom/active');
 
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	$zz_tab[0]['record_action'] = false;
 
 	// hook, e. g. get images from different locations than upload
@@ -159,7 +159,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 		return zz_return([$ops, $zz_tab, $validation]);
 	}
 
-	if ($zz_conf['modules']['debug']) zz_debug("validation successful");
+	if (wrap_setting('debug')) zz_debug("validation successful");
 
 	// put delete_ids into zz_tab-array to delete them
 	foreach ($zz_tab as $tab => $my_tab) {
@@ -418,7 +418,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 		}
 	}
 
-	if ($zz_conf['modules']['debug'] AND wrap_setting('debug')) {
+	if (wrap_setting('debug')) {
 		$ops['output'].= '<br>';
 		$ops['output'].= 'Main ID value: '.$zz_conf['int']['id']['value'].'<br>';
 		$ops['output'].= 'Main SQL query: '.$sql_edit.'<br>';
@@ -641,13 +641,10 @@ function zz_action_equals($my_rec) {
  * @param bool $validation
  * @param array $ops
  * @param array $foreign_ids: pairs of [FOREIGN_KEY] = ID
- * @global array $zz_conf
  * @return array
  *		$zz_tab, $validation, $ops
  */
 function zz_action_details($detail_sqls, $zz_tab, $validation, $ops, $foreign_ids) {
-	global $zz_conf;
-	
 	foreach (array_keys($detail_sqls) as $tab) {
 		foreach (array_keys($detail_sqls[$tab]) as $rec) {
 			$my_rec = $zz_tab[$tab][$rec];
@@ -708,7 +705,7 @@ function zz_action_details($detail_sqls, $zz_tab, $validation, $ops, $foreign_id
 				$zz_tab[0]['subrecord_action'] = true;
 			}
 			$ops = zz_record_info($ops, $zz_tab, $tab, $rec);
-			if ($zz_conf['modules']['debug'] AND wrap_setting('debug')) {
+			if (wrap_setting('debug')) {
 				$ops['output'] .= 'SQL query for record '.$tab.'/'.$rec.': '.$sql.'<br>';
 			}
 		}
@@ -969,15 +966,13 @@ function zz_action_timeframe() {
  * @param array $zz_tab
  * @param int $tab
  * @param int $rec
- * @global array $zz_conf
  * @return array $my_tab ($zz_tab[$tab])
  *		changed: $zz_tab[$tab][$rec]['action'], $zz_tab[$tab]['subtable_deleted']
  *		may unset($zz_tab[$tab][$rec])
  */
 function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 	// initialize variables
-	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	$values = '';
 	$my_tab = $zz_tab[$tab];
 
@@ -1096,7 +1091,7 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 			$my_tab[$rec]['action'] = 'ignore';
 	}
 
-	if ($zz_conf['modules']['debug']) zz_debug("end, values: ".substr($values, 0, 20));
+	if (wrap_setting('debug')) zz_debug("end, values: ".substr($values, 0, 20));
 	return $my_tab;
 }
 
@@ -1143,7 +1138,7 @@ function zz_write_values($field, $zz_tab, $f, $tab = 0, $rec = 0) {
 function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 	global $zz_conf;
 
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	if (!empty($my_rec['last_fields'])) { 
 	// these fields have to be handled after others because they might get data 
@@ -1613,7 +1608,7 @@ function zz_action_validate($zz_tab) {
  */
 function zz_validate($zz_tab, $tab, $rec = 0) {
 	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	$my_rec = $zz_tab[$tab][$rec];
 	$db_table = $zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table'];
@@ -2242,7 +2237,6 @@ function zz_validate_parameter($fvalue) {
  * @return string $value
  */
 function zz_write_detail_values($zz_tab, $f, $tab = 0, $rec = 0) {
-	global $zz_conf;
 	$my_field = $zz_tab[$tab][$rec]['fields'][$f]['detail_value'];
 	$value = false;
 	if (isset($zz_tab[$tab][$rec]['POST'][$my_field])) 
@@ -2258,7 +2252,7 @@ function zz_write_detail_values($zz_tab, $f, $tab = 0, $rec = 0) {
 		$field_name = $zz_tab[$tab][$rec]['fields'][$f]['field_name'];
 		$value = $zz_tab[$tab][$rec]['POST'][$field_name];
 	}
-	if ($zz_conf['modules']['debug'])
+	if (wrap_setting('debug'))
 		zz_debug(__FUNCTION__.'(): field '.$my_field.', value: '.$value);
 	return $value;
 }
@@ -2320,7 +2314,6 @@ function zz_check_rules($value, $field, $post) {
  * @param string $new2	New password, second time entered, to check if match
  * @param string $sql	SQL query to check whether passwords match
  * @param array $field
- * @global array $zz_conf	Configuration variables
  * @return string false: an error occurred; string: new encrypted password 
  */
 function zz_password_set($old, $new1, $new2, $sql, $field) {

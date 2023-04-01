@@ -328,8 +328,6 @@ function zz_geo_calculate_fraction($values) {
  *		'error' => error code
  */
 function zz_geo_coords_from_exif($value, $which) {
-	global $zz_conf;
-
 	// string: use function zz_geo_coord_in()
 	if (!is_array($value)) return zz_geo_coord_in($value, substr($which, 0, 3));
 

@@ -1208,7 +1208,7 @@ function zz_check_def_vals($post, $fields, $existing = [], $where = []) {
  */
 function zz_query_record($zz_tab, $tab, $rec, $validation, $mode) {
 	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	$my_tab = $zz_tab[$tab];
 	$my_rec = &$my_tab[$rec];
 	$table = $my_tab['table'];
@@ -1552,7 +1552,7 @@ function zz_query_multiple_records($sql, $table, $id) {
  */
 function zz_query_subrecord($my_tab, $id_value, $id_field_name, $deleted_ids = []) {
 	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	
 	if ($my_tab['sql_not_unique']) {
 		if (substr(trim($my_tab['sql_not_unique']), 0, 9) === 'LEFT JOIN') {

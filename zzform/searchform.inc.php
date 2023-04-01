@@ -28,8 +28,8 @@ function zz_search_sql($fields, $sql, $table) {
 	if (empty($_GET['q'])) return $sql;
 
 	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
-	if ($zz_conf['modules']['debug']) zz_debug('search query', $sql);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('search query', $sql);
 	static $calls;
 	$calls++;
 
@@ -143,7 +143,7 @@ function zz_search_sql($fields, $sql, $table) {
 	}
 	$sql = wrap_edit_sql($sql, 'WHERE', $q_search);
 
-	if ($zz_conf['modules']['debug']) zz_debug("end; search query", $sql);
+	if (wrap_setting('debug')) zz_debug("end; search query", $sql);
 	return $sql;
 }
 
@@ -157,7 +157,6 @@ function zz_search_sql($fields, $sql, $table) {
  * @return string part of query
  */
 function zz_search_field($field, $table, $searchop, $searchword) {
-	global $zz_conf;
 	// get field name
 	if (isset($field['search'])) {
 		$fieldname = $field['search'];
@@ -390,11 +389,9 @@ function zz_search_time($searchword) {
  * @param string $field_name
  * @param string $table
  * @param string $searchword
- * @global array $zz_conf
  * @return string
  */
 function zz_search_checkfield($field_name, $table, $searchword) {
-	global $zz_conf;
 	if (!strstr($table, '.')) $table = wrap_setting('db_name').'.'.$table;
 	$column = zz_db_columns($table, $field_name);
 	if (!$column) {

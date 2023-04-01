@@ -41,8 +41,7 @@
  * @return mixed bool true: image creation was successful, array: error message
  */
 function zz_imagegd($source, $destination, $params, $dest_extension, $image) {
-	global $zz_conf;
-	if ($zz_conf['modules']['debug']) zz_debug('start', __FUNCTION__);
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	$possible_filetypes = ['xpm', 'xbm', 'wbmp', 'png', 'jpeg', 'gif'];
 	$source_filetype = $image['upload']['filetype'];
