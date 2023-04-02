@@ -2551,8 +2551,8 @@ function zz_field_set($field, $fields, $display, $my_tab) {
 	$rec_max = 0;
 	foreach ($my_tab as $rec_no => $rec) {
 		if (!is_numeric($rec_no)) continue;
-		if (!empty($rec['existing'])) {
-			$rec = $rec['existing'];
+		if (!empty($rec['record'])) {
+			$rec = $rec['record'];
 			if (!empty($this_field['sql_replace'][$set_id_field_name])) {
 				foreach ($sets_indexed as $id => $set_indexed) {
 					if ($set_indexed['id'] !== $rec[$field_names['select']]) continue;
