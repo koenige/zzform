@@ -149,8 +149,15 @@ function zz_merge_records($zz) {
 					);
 					$uncheck = true;
 				} else {
-					$msg[] = sprintf(zz_text($msg_fail[$action]).'<br><code>%s</code>',
-						$record_id, '<code>'.$record['detail_table'].'</code>', $result['error']['db_msg']
+					$action_path = wrap_path('default_tables', str_replace('_', '-', $record['detail_table']));
+					if ($action_path)
+						$action_path = sprintf(
+							'<br><a href="%s?edit=%d&nolist=1&referer=%s">%s</a> | <a href="%s?delete=%d&nolist=1&referer=%s">%s</a>'
+							, $action_path, $record_id, wrap_html_escape(wrap_setting('request_uri')), zz_text('Edit')
+							, $action_path, $record_id, wrap_html_escape(wrap_setting('request_uri')), zz_text('Delete')
+						);
+					$msg[] = sprintf(zz_text($msg_fail[$action]).'<br><code>%s</code>%s',
+						$record_id, '<code>'.$record['detail_table'].'</code>', $result['error']['db_msg'], $action_path
 					);
 					$error = true;
 				}
@@ -336,7 +343,9 @@ function zz_merge_message($merge) {
 	$output = '<div id="record">'."\n";
 	$output .= '<h2>'.zz_text('Merge').'</h2>'."\n";
 	if ($merge['msg']) {
-		$output .= implode('<br>', $merge['msg']);
+		$output .= '<ul><li>';
+		$output .= implode("</li>\n<li>", $merge['msg']);
+		$output .= '</li></ul>';
 	}
 	$output .= '</div>'."\n";
 	return $output;
