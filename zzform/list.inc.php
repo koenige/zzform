@@ -2660,7 +2660,7 @@ function zz_list_table($list, $rows, $head) {
 				$output .= '</tbody><tbody>'."\n";
 			}
 			$output .= '<tr class="group"><td colspan="'.(count($row)-1)
-				.'">'.sprintf($zz_conf['group_html_table'], zz_list_group_titles_out($list['group_titles'][$index]))
+				.'">'.sprintf(wrap_setting('zzform_group_html_table'), zz_list_group_titles_out($list['group_titles'][$index]))
 				.'</td></tr>'."\n";
 			$rowgroup = $row['group'];
 		}

@@ -316,7 +316,7 @@ function zzform($zz) {
 			// this is from zz_access() but since mode has set, has to be
 			// checked against again
 			if (in_array($ops['mode'], ['edit', 'add']) 
-				AND !$zz_conf['show_list_while_edit']) $zz_conf['int']['show_list'] = false;
+				AND !wrap_setting('zzform_show_list_while_edit')) $zz_conf['int']['show_list'] = false;
 		}
 	
 		if (wrap_setting('debug')) zz_debug('subtables end');
@@ -680,8 +680,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 
 	$default['filter_position'] 	= 'top';
 	$default['footer_text']			= false;		// text at the end of all
-	$default['group_html_table']	= '<strong>%s</strong>';
-	$default['heading_prefix']		= false;
 	$default['html_autofocus']		= true;
 	$default['list_display']		= 'table';
 	$default['max_select_val_len']	= 60;		// maximum length of values in select
@@ -699,9 +697,7 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['referer_text']		= 'Back to overview';
 	$default['search'] 				= true;	// search for records possible or not
 	$default['search_form_always']	= false;
-	$default['show_list_while_edit'] = true;
 	$default['show_output']			= true;		// ECHO output or keep it in $ops['output']
-	$default['title_separator']		= ' – ';
 	$default['user']				= isset($_SERVER['PHP_AUTH_USER']) ? $_SERVER['PHP_AUTH_USER'] : wrap_user();
 	$default['view']				= false;	// 	show Action: View
 	$default['url_self']			= false;

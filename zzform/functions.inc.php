@@ -39,7 +39,7 @@
 function zz_add_modules($modules) {
 	global $zz_conf;
 	$debug_started = false;
-	if (!empty($zz_conf['modules']['debug'])) {
+	if (wrap_setting('debug') AND function_exists('zz_debug')) {
 		zz_debug('start', __FUNCTION__);
 		$debug_started = true;
 	}
@@ -69,7 +69,7 @@ function zz_add_modules($modules) {
 		} else {
 			$mod[$module] = false;
 		}
-		if (!empty($mod['debug']) OR !empty($zz_conf['modules']['debug'])) {
+		if (wrap_setting('debug') AND function_exists('zz_debug')) {
 			if (!$debug_started) {
 				zz_debug('start', __FUNCTION__);
 				$debug_started = true;
@@ -1180,11 +1180,11 @@ function zz_hash($zz, $zz_conf) {
 	$id = $zz_conf['id'];
 	$uninteresting_zz_conf_keys = [
 		'int', 'id', 'footer_text', 'footer_text_insert', 'footer_template',
-		'breadcrumbs', 'dont_show_title_as_breadcrumb', 'format', 'group_html_table',
-		'list_display', 'title_separator', 'referer', 'access', 'heading_prefix',
+		'breadcrumbs', 'dont_show_title_as_breadcrumb', 'format',
+		'list_display', 'referer', 'access',
 		'redirect', 'search_form_always', 'redirect_on_change', 'filter',
 		'filter_position', 'text', 'limit', 'zzform_init', 'url_self',
-		'show_list_while_edit', 'search', 'referer_text', 'html_autofocus',
+		'search', 'referer_text', 'html_autofocus',
 		'debug_upload'
 	];
 	foreach ($uninteresting_zz_conf_keys as $key) unset($zz_conf[$key]);
@@ -1817,7 +1817,7 @@ function zz_record_access($zz, $ops) {
 	// now, mode is set, do something depending on mode
 	
 	if (in_array($ops['mode'], ['edit', 'delete', 'add', 'revise'])
-		AND !$zz_conf['show_list_while_edit']) $zz_conf['int']['show_list'] = false;
+		AND !wrap_setting('zzform_show_list_while_edit')) $zz_conf['int']['show_list'] = false;
 	if (!$zz_conf['generate_output']) $zz_conf['int']['show_list'] = false;
 
 	if ($ops['mode'] === 'list_only') {

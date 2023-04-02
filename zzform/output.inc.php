@@ -105,9 +105,9 @@ function zz_output_heading($heading, $table = '') {
 		$heading = ucfirst($heading);
 	}
 	$heading = zz_text($heading);
-	if ($zz_conf['heading_prefix']) {
-		$zz_conf['heading_prefix'] = zz_text($zz_conf['heading_prefix']);
-		$heading = $zz_conf['heading_prefix'].' '.$heading;
+	if (wrap_setting('zzform_heading_prefix')) {
+		wrap_setting('zzform_heading_prefix', zz_text(wrap_setting('zzform_heading_prefix')));
+		$heading = wrap_setting('zzform_heading_prefix').' '.$heading;
 		}
 	return $heading;
 }
@@ -419,12 +419,12 @@ function zz_nice_title($heading, $fields, $ops, $mode = false) {
 
 	// addition: filters
 	if (!empty($ops['filter_titles'])) {
-		$title .= $zz_conf['title_separator'].implode($zz_conf['title_separator'], $ops['filter_titles']);
+		$title .= wrap_setting('zzform_title_separator').implode(wrap_setting('zzform_title_separator'), $ops['filter_titles']);
 	}
 	
 	// addition: search
 	if ($selection = zz_nice_selection($fields))
-		$title .= $zz_conf['title_separator'].$selection;
+		$title .= wrap_setting('zzform_title_separator').$selection;
 
 	// addition: page
 	if (wrap_setting('zzform_limit') AND $zz_conf['int']['this_limit'] !== '0') {
@@ -438,13 +438,13 @@ function zz_nice_title($heading, $fields, $ops, $mode = false) {
 			$max_page = ceil($ops['records_total'] / wrap_setting('zzform_limit'));
 			if ($max_page.'' !== '1') {
 				if (wrap_setting('zzform_limit_display') === 'entries') {
-					$title .= $zz_conf['title_separator'].zz_text('records').' '
+					$title .= wrap_setting('zzform_title_separator').zz_text('records').' '
 						.(($page-1) * wrap_setting('zzform_limit')).'-'
 						.($page * wrap_setting('zzform_limit') > $ops['records_total']
 							? $ops['records_total'] : $page * wrap_setting('zzform_limit'))
 						.'/'.$ops['records_total'];
 				} else {
-					$title .= $zz_conf['title_separator'].zz_text('page').' '.$page.'/'.$max_page;
+					$title .= wrap_setting('zzform_title_separator').zz_text('page').' '.$page.'/'.$max_page;
 				}
 			}
 		}
@@ -458,7 +458,7 @@ function zz_nice_title($heading, $fields, $ops, $mode = false) {
 	if (!empty($_GET['zzhash'])) $show_id = false;
 	if (!empty($zz_conf['int']['where_with_unique_id'])) $show_id = false;
 	if ($show_id) {
-		$title .= $zz_conf['title_separator'].zz_text(ucfirst($mode))
+		$title .= wrap_setting('zzform_title_separator').zz_text(ucfirst($mode))
 			.($zz_conf['int']['id']['value'] ? ': ID '.$zz_conf['int']['id']['value'] : '');
 	}
 

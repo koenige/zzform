@@ -54,7 +54,7 @@ function zzform_multi($definition_file, $values) {
 
 	// debug, note: this will only start from the second time, zzform_multi()
 	// has been called! (modules debug is not set beforehands)
-	if (!empty($zz_conf['modules']['debug']) AND !empty($zz_conf['id'])) {
+	if (wrap_setting('debug') AND function_exists('zz_debug') AND !empty($zz_conf['id'])) {
 		$id = $zz_conf['id'];
 		zz_debug('start', __FUNCTION__);
 	}
@@ -87,7 +87,7 @@ function zzform_multi($definition_file, $values) {
 	if (!empty($values['FILES'])) $_FILES = $values['FILES'];
 	else $_FILES = [];
 
-	if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
+	if (wrap_setting('debug') AND function_exists('zz_debug') AND !empty($id)) {
 		$old['id'] = $zz_conf['id'];	
 		$zz_conf['id'] = zz_check_id_value($id);
 		zz_debug('find definition file', $definition_file);
@@ -95,7 +95,7 @@ function zzform_multi($definition_file, $values) {
 	$zz = zzform_include_table($definition_file, $values);
 	if (empty($zz_conf['user']))
 		$zz_conf['user'] = wrap_user(wrap_setting('request_uri'));
-	if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
+	if (wrap_setting('debug') AND function_exists('zz_debug') AND !empty($id)) {
 		zz_debug('got definition file');
 		$zz_conf['id'] = zz_check_id_value($old['id']);
 	}
@@ -110,7 +110,7 @@ function zzform_multi($definition_file, $values) {
 	$_FILES = $old['FILES'];
 
 	$zz_conf['int'] = $int;
-	if (!empty($zz_conf['modules']['debug']) AND !empty($id)) {
+	if (wrap_setting('debug') AND function_exists('zz_debug') AND !empty($id)) {
 		$zz_conf['id'] = zz_check_id_value($id);
 		zz_debug('end');
 	}
