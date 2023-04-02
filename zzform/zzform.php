@@ -698,7 +698,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['search'] 				= true;	// search for records possible or not
 	$default['search_form_always']	= false;
 	$default['show_output']			= true;		// ECHO output or keep it in $ops['output']
-	$default['user']				= isset($_SERVER['PHP_AUTH_USER']) ? $_SERVER['PHP_AUTH_USER'] : wrap_user();
 	$default['view']				= false;	// 	show Action: View
 	$default['url_self']			= false;
 	

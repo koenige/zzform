@@ -68,7 +68,7 @@ function zz_revisions($ops, $zz_tab = [], $rev_only = false) {
 	zz_sql_prefix_change($sql);
 	$rev_id = wrap_db_query($sql);
 	if (empty($rev_id['id'])) return [];
-	zz_log_sql($sql, $zz_conf['user'], $rev_id['id']);
+	zz_log_sql($sql, '', $rev_id['id']);
 
 	if ($status === 'live') {
 		$sql = 'UPDATE /*_PREFIX_*/_revisions
@@ -81,7 +81,7 @@ function zz_revisions($ops, $zz_tab = [], $rev_only = false) {
 		);
 		zz_sql_prefix_change($sql);
 		$rows = wrap_db_query($sql);
-		if ($rows) zz_log_sql($sql, $zz_conf['user']);
+		if ($rows) zz_log_sql($sql);
 		$open_revisions = [];
 	} else {
 		$open_revisions = zz_revisions_open($ops['return'][0]['table'], $ops['return'][0]['id_value'], $rev_id['id']);
@@ -99,8 +99,6 @@ function zz_revisions($ops, $zz_tab = [], $rev_only = false) {
  * @return void
  */
 function zz_revisions_insert_data($data, $id, $open_revisions) {
-	global $zz_conf;
-
 	$sql_rev = 'INSERT INTO /*_PREFIX_*/_revisiondata
 		(revision_id, table_name, record_id, changed_values, complete_values, rev_action)
 		VALUES (%d, "%%s", %%d, %%s, %%s, "%%s")';
@@ -138,7 +136,7 @@ function zz_revisions_insert_data($data, $id, $open_revisions) {
 		$sql = vsprintf($sql_rev, $line);
 		$rev_data_id = wrap_db_query($sql);
 		if (empty($rev_data_id['id'])) continue;
-		zz_log_sql($sql, $zz_conf['user'], $rev_data_id['id']);
+		zz_log_sql($sql, '', $rev_data_id['id']);
 	}
 }
 
@@ -341,8 +339,6 @@ function zz_revisions_historic($ops, $zz_tab) {
  * @return void
  */
 function zz_revisions_historic_update($id_value) {
-	global $zz_conf;
-
 	$sql = 'UPDATE /*_PREFIX_*/_revisions
 		SET rev_status = "historic", last_update = NOW()
 		WHERE revision_id = %d';
@@ -350,7 +346,7 @@ function zz_revisions_historic_update($id_value) {
 	zz_sql_prefix_change($sql);
 	$result = wrap_db_query($sql, $id_value);
 	if (!$result) return;
-	zz_log_sql($sql, $zz_conf['user'], $id_value);
+	zz_log_sql($sql, '', $id_value);
 }
 
 /**
@@ -401,8 +397,6 @@ function zz_revisions_open($main_table_name, $main_record_id, $revision_id) {
  * @return bool
  */
 function zz_revisions_ignore_data($id_value) {
-	global $zz_conf;
-
 	$sql = 'UPDATE /*_PREFIX_*/_revisiondata
 		SET rev_action = "ignore"
 		WHERE revisiondata_id = %d';
@@ -410,6 +404,6 @@ function zz_revisions_ignore_data($id_value) {
 	zz_sql_prefix_change($sql);
 	$result = wrap_db_query($sql);
 	if (!$result) return false;
-	zz_log_sql($sql, $zz_conf['user'], $id_value);
+	zz_log_sql($sql, '', $id_value);
 	return true;
 }

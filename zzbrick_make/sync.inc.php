@@ -20,8 +20,7 @@
  * @return array
  */
 function mod_zzform_make_sync($params) {
-	global $zz_conf;
-	$zz_conf['user'] = 'Sync';
+	wrap_setting('log_username_suffix', 'Sync');
 	
 	$queries = [];
 	$files = wrap_collect_files('configuration/sync.sql');

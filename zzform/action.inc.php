@@ -1131,13 +1131,10 @@ function zz_write_values($field, $zz_tab, $f, $tab = 0, $rec = 0) {
  * @param array $my_rec = $zz_tab[$tab][$rec]
  * @param string $db_table [db_name.table]
  * @param array $main_post		POST values of $zz_tab[0][0]['POST']
- * @global array $zz_conf
  * @return array $my_rec with validated values and marker if validation was successful 
  * 		($my_rec['validation'])
  */
 function zz_prepare_for_db($my_rec, $db_table, $main_post) {
-	global $zz_conf;
-
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	if (!empty($my_rec['last_fields'])) { 
@@ -1153,7 +1150,7 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 				$my_rec['POST'][$my_rec['fields'][$f]['field_name']] 
 					= zz_identifier($func_vars, $conf, $my_rec, $db_table, $f);
 				if (!empty($my_rec['fields'][$f]['log_username']))
-					$zz_conf['user'] = wrap_user($my_rec['POST'][$my_rec['fields'][$f]['field_name']]);
+					wrap_setting('log_username_default', $my_rec['POST'][$my_rec['fields'][$f]['field_name']]);
 			}
 	}
 	unset($my_rec['last_fields']);

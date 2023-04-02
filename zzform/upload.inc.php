@@ -2171,7 +2171,7 @@ function zz_upload_background($number, $action = 'set') {
 		$headers[] = 'X-Timeout-Ignore: 1';
 		$method = 'POST';
 		$data['thumbnails'] = 1;
-		$pwd = sprintf('%s:%s', $zz_conf['user'], wrap_password_token($zz_conf['user']));
+		$pwd = sprintf('%s:%s', wrap_username(), wrap_password_token(wrap_username()));
 	
 		require_once wrap_setting('core').'/syndication.inc.php';
 		$result = wrap_syndication_retrieve_via_http($url, $headers, $method, $data, $pwd);
@@ -2761,12 +2761,9 @@ function zz_upload_max_filesize($size = 0) {
  * @return array
  *		array $output (optional, exec() $output)
  * 		array $return_var (optional, exec() $return_var)
- * @global array $zz_conf
  * @return bool
  */
 function zz_upload_exec($command, $log_description) {
-	global $zz_conf;
-	
 	// save stderr output to stdout ($output):
 	$command .= ' 2>&1';
 
@@ -2776,7 +2773,8 @@ function zz_upload_exec($command, $log_description) {
 	exec($command, $output, $return_var);
 	if (wrap_setting('zzform_upload_log')) {
 		$time = microtime(true) - $time;
-		$user = $zz_conf['user'] ? $zz_conf['user'] : zz_text('No user');
+		$user = wrap_username();
+		if (!$user) $user = zz_text('No user');
 		if (!$output) $out = '-';
 		elseif (is_array($output) AND count($output) === 1) $out = reset($output);
 		else $out = '[json] '.json_encode($output);

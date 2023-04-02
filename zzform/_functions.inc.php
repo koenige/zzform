@@ -93,8 +93,7 @@ function zzform_multi($definition_file, $values) {
 		zz_debug('find definition file', $definition_file);
 	}
 	$zz = zzform_include_table($definition_file, $values);
-	if (empty($zz_conf['user']))
-		$zz_conf['user'] = wrap_user(wrap_setting('request_uri'));
+	wrap_setting('log_username_default', wrap_setting('request_uri'));
 	if (wrap_setting('debug') AND function_exists('zz_debug') AND !empty($id)) {
 		zz_debug('got definition file');
 		$zz_conf['id'] = zz_check_id_value($old['id']);

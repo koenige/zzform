@@ -32,8 +32,9 @@
  * @param int $record_id = record ID, optional, if ID shall be logged
  * @return bool = operation successful or not
  */
-function zz_log_sql($sql, $user, $record_id = false) {
+function zz_log_sql($sql, $user = '', $record_id = false) {
 	global $zz_conf;
+	if (!$user) $user = wrap_username();
 
 	$sql = trim($sql);
 	if ($sql === 'SELECT 1') return false;
@@ -525,7 +526,7 @@ function zz_db_change($sql, $id = false) {
 		if (in_array($statement, $no_rows_affected)) {
 			$db['action'] = strtolower($statement);
 			if (wrap_setting('zzform_logging'))
-				zz_log_sql($sql, $zz_conf['user'], $db['id_value']);
+				zz_log_sql($sql, '', $db['id_value']);
 		} elseif (!mysqli_affected_rows(wrap_db_connection())) {
 			$db['action'] = 'nothing';
 		} else {
@@ -535,7 +536,7 @@ function zz_db_change($sql, $id = false) {
 				$db['id_value'] = mysqli_insert_id(wrap_db_connection());
 			// Logs SQL Query, must be after insert_id was checked
 			if (wrap_setting('zzform_logging') AND $db['rows'])
-				zz_log_sql($sql, $zz_conf['user'], $db['id_value']);
+				zz_log_sql($sql, '', $db['id_value']);
 		}
 		$warnings = zz_db_fetch('SHOW WARNINGS', '_dummy_', 'numeric');
 		foreach ($warnings as $warning) {

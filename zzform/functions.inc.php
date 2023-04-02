@@ -1188,10 +1188,6 @@ function zz_hash($zz, $zz_conf) {
 		'debug_upload'
 	];
 	foreach ($uninteresting_zz_conf_keys as $key) unset($zz_conf[$key]);
-	// remove user if it's not an internal user
-	if (empty($zz_conf['user'])) unset($zz_conf['user']);
-	elseif (strstr($zz_conf['user'], ' ')) unset($zz_conf['user']);
-	elseif (empty($_SESSION['username'])) unset($zz_conf['user']);
 	$uninteresting_zz_keys = [
 		'title', 'explanation', 'explanation_top', 'subtitle', 'list', 'access',
 		'explanation_insert'
@@ -2614,7 +2610,7 @@ function zz_error() {
 			.wrap_setting('request_uri')
 			."\nIP: ".wrap_setting('remote_ip')
 			.(!empty($_SERVER['HTTP_USER_AGENT']) ? "\nBrowser: ".$_SERVER['HTTP_USER_AGENT'] : '');		
-		if ($username = wrap_user())
+		if ($username = wrap_username())
 			$mail['message'] .= sprintf("\nUser: %s", $username);
 
 		if (!wrap_setting('mail_subject_prefix'))
