@@ -572,36 +572,36 @@ msgstr "Würde bei Aktualisierung geändert."
 
 # Record form: Merge
 #: zzform/merge.inc.php
-msgid "Merge: Failed to update record with ID %d in table %s"
+msgid "Merge: Failed to update record with ID %d in table <code>%s</code>."
 msgstr ""
-"Zusammenführen: Eintrag mit ID %d in Tabelle %s konnte nicht aktualisiert "
-"werden"
+"Zusammenführen: Eintrag mit ID %d in Tabelle <code>%s</code> konnte nicht aktualisiert "
+"werden."
 
 # Record form: Merge
 #: zzform/merge.inc.php
-msgid "Merge: Failed to delete record with ID %d in table %s"
+msgid "Merge: Failed to delete record with ID %d in table <code>%s</code>"
 msgstr ""
-"Zusammenführen: Eintrag mit ID %d in Tabelle %s konnte nicht gelöscht werden"
+"Zusammenführen: Eintrag mit ID %d in Tabelle <code>%s</code> konnte nicht gelöscht werden."
 
 # Record form: Merge
 #: zzform/merge.inc.php
-msgid "Merge: Update of record with ID %d in table %s was successful"
+msgid "Merge: Update of record with ID %d in table <code>%s</code> was successful."
 msgstr ""
-"Zusammenführen: Eintrag mit ID %d in Tabelle %s wurde erfolgreich "
-"aktualisiert"
+"Zusammenführen: Eintrag mit ID %d in Tabelle <code>%s</code> wurde erfolgreich "
+"aktualisiert."
 
 # Record form: Merge
 #: zzform/merge.inc.php
-msgid "Merge: Deletion of record with ID %d in table %s was successful"
+msgid "Merge: Deletion of record with ID %d in table <code>%s</code> was successful."
 msgstr ""
-"Zusammenführen: Eintrag mit ID %d in Tabelle %s wurde erfolgreich gelöscht"
+"Zusammenführen: Eintrag mit ID %d in Tabelle <code>%s</code> wurde erfolgreich gelöscht."
 
 # Record form: Merge
 msgid "%d records merged successfully"
 msgstr "%d Einträge erfolgreich zusammengefasst"
 
 # Record form: Merge
-msgid "For merging, the field %s has to be equal in all records."
+msgid "For merging, the field <em>%s</em> has to be equal in all records."
 msgstr ""
 "Für die Zusammenfassung der Einträge muß das Feld %s in allen Einträgen "
 "gleich sein."

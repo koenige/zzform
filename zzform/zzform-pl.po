@@ -553,7 +553,7 @@ msgid "%d records merged successfully"
 msgstr ""
 
 # Record form: Merge
-msgid "For merging, the field %s has to be equal in all records."
+msgid "For merging, the field <em>%s</em> has to be equal in all records."
 msgstr ""
 
 # Record form: Merge

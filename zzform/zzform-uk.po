@@ -559,8 +559,8 @@ msgid "%d records merged successfully"
 msgstr "%d записів успішно об 'єднано"
 
 # Record form: Merge
-msgid "For merging, the field %s has to be equal in all records."
-msgstr "Для об 'єднання поле %s має бути рівним у всіх записах."
+msgid "For merging, the field <em>%s</em> has to be equal in all records."
+msgstr "Для об 'єднання поле <em>%s</em> має бути рівним у всіх записах."
 
 # Record form: Merge
 msgid "For merging, the fields %s and %s have to be equal in all records."

@@ -84,11 +84,6 @@ function zz_merge_records($zz) {
 		if ($log['error']) $error = true;
 	}
 
-	$msg_fail['update'] = 'Merge: Failed to update record with ID %d in table %s';
-	$msg_fail['delete'] = 'Merge: Failed to delete record with ID %d in table %s';
-	$msg_success['update'] = 'Merge: Update of record with ID %d in table %s was successful';
-	$msg_success['delete'] = 'Merge: Deletion of record with ID %d in table %s was successful';
-
 	// walk through detail record first, main record last
 	$recs = array_reverse($recs);
 	if (!$error OR wrap_setting('debug')) foreach ($recs as $rec) {
@@ -144,21 +139,20 @@ function zz_merge_records($zz) {
 				}
 				$result = zz_merge_action($sql, $record_id);
 				if ($result['action'] === $action) {
-					$msg[] = sprintf(zz_text($msg_success[$action]),
-						$record_id, '<code>'.$record['detail_table'].'</code>'
-					);
+					$msg[] = [
+						'success_'.$action => true,
+						'table' => $record['detail_table'],
+						'record_id' => $record_id
+					];
 					$uncheck = true;
 				} else {
-					$action_path = wrap_path('default_tables', str_replace('_', '-', $record['detail_table']));
-					if ($action_path)
-						$action_path = sprintf(
-							'<br><a href="%s?edit=%d&nolist=1&referer=%s">%s</a> | <a href="%s?delete=%d&nolist=1&referer=%s">%s</a>'
-							, $action_path, $record_id, wrap_html_escape(wrap_setting('request_uri')), zz_text('Edit')
-							, $action_path, $record_id, wrap_html_escape(wrap_setting('request_uri')), zz_text('Delete')
-						);
-					$msg[] = sprintf(zz_text($msg_fail[$action]).'<br><code>%s</code>%s',
-						$record_id, '<code>'.$record['detail_table'].'</code>', $result['error']['db_msg'], $action_path
-					);
+					$msg[] = [
+						'fail_'.$action => true,
+						'table' => $record['detail_table'],
+						'record_id' => $record_id,
+						'db_msg' => $result['error']['db_msg'], 
+						'action' => wrap_path('default_tables', str_replace('_', '-', $record['detail_table']))
+					];
 					$error = true;
 				}
 				// @todo catch errors, e. g. if UNIQUE key hinders update
@@ -179,14 +173,19 @@ function zz_merge_records($zz) {
 				);
 				$result = zz_merge_action($sql, $rec['new_id']);
 				if ($result['action'] === 'update') {
-					$msg[] = sprintf(zz_text($msg_success['update']),
-						$rec['new_id'], '<code>'.$rec['table'].'</code>'
-					);
+					$msg[] = [
+						'success_update' => true,
+						'table' => $rec['table'],
+						'record_id' => $rec['new_id']
+					];
 					$rec['prep']['delete_old_records'] = true;
 				} else {
-					$msg[] = sprintf(zz_text($msg_fail['update']).'<br><code>%s</code>',
-						$rec['new_id'], '<code>'.$rec['table'].'</code>', $result['error']['db_msg']
-					);
+					$msg[] = [
+						'fail_update' => true,
+						'table' => $rec['table'],
+						'record_id' => $rec['new_id'],
+						'db_msg' => $result['error']['db_msg']
+					];
 					$error = true;
 				}
 			}
@@ -197,14 +196,19 @@ function zz_merge_records($zz) {
 					); 
 					$result = zz_merge_action($sql, $old_id);
 					if ($result['action'] === 'delete') {
-						$msg[] = sprintf(zz_text($msg_success['delete']),
-							$old_id, '<code>'.$rec['table'].'</code>'
-						);
+						$msg[] = [
+							'success_delete' => true,
+							'table' => $rec['table'],
+							'record_id' => $old_id
+						];
 						$uncheck = true;
 					} else {
-						$msg[] = sprintf(zz_text($msg_fail['delete']).'<br><code>%s</code>',
-							$old_id, '<code>'.$rec['table'].'</code>', $result['error']['db_msg']
-						);
+						$msg[] = [
+							'fail_delete' => true,
+							'table' => $rec['table'],
+							'record_id' => $old_id,
+							'db_msg' => $result['error']['db_msg']
+						];
 						$error = true;
 					}
 				}
@@ -265,17 +269,17 @@ function zz_merge_equal($table_def) {
 	if ($distinct_records === 1) return [];
 
 	if (count($equal_fields_titles) === 1) {
-		$msg[] = '<p class="error">'.
-			sprintf(zz_text('For merging, the field %s has to be equal in all records.'),
-			'<em>'.$equal_fields_titles[0].'</em>'
-		).'</p>';
+		$msg[] = [
+			'error' => true,
+			'fail_field' => $equal_fields_titles[0]
+		];
 	} else {
 		$last_title = array_pop($equal_fields_titles);
-		$msg[] = '<p class="error">'.
-			sprintf(zz_text('For merging, the fields %s and %s have to be equal in all records.'),
-			'<em>'.implode('</em>, <em>', $equal_fields_titles).'</em>',
-			'<em>'.$last_title.'</em>'
-		).'</p>';
+		$msg[] = [
+			'error' => true,
+			'fail_fields' => '<em>'.implode('</em>, <em>', $equal_fields_titles).'</em>',
+			'last_field' => '<em>'.$last_title.'</em>'
+		];
 	}
 	return $msg;
 }
@@ -340,14 +344,7 @@ function zz_merge_get_date($date) {
  * @return string
  */
 function zz_merge_message($merge) {
-	$output = '<div id="record">'."\n";
-	$output .= '<h2>'.zz_text('Merge').'</h2>'."\n";
-	if ($merge['msg']) {
-		$output .= '<ul><li>';
-		$output .= implode("</li>\n<li>", $merge['msg']);
-		$output .= '</li></ul>';
-	}
-	$output .= '</div>'."\n";
+	$output = wrap_template('zzform-merge', $merge);
 	return $output;
 }
 
@@ -495,14 +492,10 @@ function zz_merge_prepare_record($rec) {
 						}
 					}
 				}
-				$error_text = '';
-				foreach ($update_errors as $error) {
-					$error_text .= sprintf('<li><strong>%s</strong>: %s – %s</li>', 
-						$error['title'], $error['old'], $error['new']
-					)."\n";
-				}
-				$log['msg'][] = '<p class="error">'.zz_text('Merge not complete, records are different:').'</p>'
-					.'<ul>'.$error_text.'</ul>';
+				$log['msg'][] = [
+					'error' => true,
+					'records_different' => $update_errors
+				];
 				$log['error'] = true;
 			} elseif (!$prep['new_values']) {
 				// No changes in new record, so delete it

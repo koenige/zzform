@@ -1,0 +1,49 @@
+# zzform module
+# template for merge
+#
+# https://www.zugzwang.org/projects/zzform
+# Part of »Zugzwang Project«
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2023 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+<div id="record">
+<h2>%%% text Merge %%%</h2>
+%%% condition if msg %%%
+<ul>
+%%% loop msg %%%
+<li>%%% condition if error %%%<p class="error">%%% condition endif %%%
+%%% condition if fail_update %%%
+%%% text "Merge: Failed to update record with ID %d in table <code>%s</code>." record_id table %%%
+%%% condition elseif fail_delete %%%
+%%% text "Merge: Failed to delete record with ID %d in table <code>%s</code>." record_id table %%%
+%%% condition elseif success_update %%%
+%%% text "Merge: Update of record with ID %d in table <code>%s</code> was successful."" record_id table %%%
+%%% condition elseif success_delete %%%
+%%% text "Merge: Deletion of record with ID %d in table <code>%s</code> was successful." record_id table %%%
+%%% condition elseif fail_field %%%
+%%% text "For merging, the field <em>%s</em> has to be equal in all records." fail_field %%%
+%%% condition elseif fail_fields %%%
+%%% text "For merging, the fields %s and %s have to be equal in all records." fail_fields last_field %%%
+%%% condition elseif records_different %%%
+%%% text Merge not complete, records are different: %%%
+%%% condition endif %%%
+%%% condition if db_msg %%%<br><code>%%% item db_msg %%%</code>%%% condition endif %%%
+%%% condition if action %%%<br>
+<a href="%%% item action %%%?edit=%%% item record_id %%%&amp;nolist=1&amp;referer=%%% setting request_uri %%%">%%% text Edit %%%</a> | 
+<a href="%%% item action %%%?delete=%%% item record_id %%%&amp;nolist=1&amp;referer=%%% setting request_uri %%%">%%% text Delete %%%</a>
+%%% condition endif %%%
+%%% condition if error %%%</p>%%% condition endif %%%
+%%% condition if records_different %%%
+<ul>
+%%% loop records_different %%%
+<li><strong>%%% item title %%%</strong>: %%% item old %%% – %%% item new %%%</li>
+%%% loop end %%%
+</ul>
+%%% condition endif %%%
+</li>
+%%% loop end %%%
+</ul>
+%%% condition endif %%%
+</div>

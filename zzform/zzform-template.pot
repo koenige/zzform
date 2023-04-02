@@ -533,22 +533,22 @@ msgstr ""
 
 # Record form: Merge
 #: zzform/merge.inc.php
-msgid "Merge: Failed to update record with ID %d in table %s"
+msgid "Merge: Failed to update record with ID %d in table <code>%s<code>."
 msgstr ""
 
 # Record form: Merge
 #: zzform/merge.inc.php
-msgid "Merge: Failed to delete record with ID %d in table %s"
+msgid "Merge: Failed to delete record with ID %d in table <code>%s</code>."
 msgstr ""
 
 # Record form: Merge
 #: zzform/merge.inc.php
-msgid "Merge: Update of record with ID %d in table %s was successful"
+msgid "Merge: Update of record with ID %d in table <code>%s</code> was successful."
 msgstr ""
 
 # Record form: Merge
 #: zzform/merge.inc.php
-msgid "Merge: Deletion of record with ID %d in table %s was successful"
+msgid "Merge: Deletion of record with ID %d in table <code>%s</code> was successful."
 msgstr ""
 
 # Record form: Merge
@@ -556,7 +556,7 @@ msgid "%d records merged successfully"
 msgstr ""
 
 # Record form: Merge
-msgid "For merging, the field %s has to be equal in all records."
+msgid "For merging, the field <em>%s</em> has to be equal in all records."
 msgstr ""
 
 # Record form: Merge
