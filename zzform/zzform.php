@@ -230,9 +230,8 @@ function zzform($zz) {
 	if (isset($_POST['zz_merge'])) {
 		require_once __DIR__.'/merge.inc.php';
 		$merge = zz_merge_records($zz);
-		if ($merge['msg']) {
-			$ops['output'] .= zz_merge_message($merge);
-		}
+		if ($merge['msg'])
+			$ops['output'] .= wrap_template('zzform-merge', $merge);
 		if ($merge['uncheck']) $zz['list']['dont_check_records'] = true;
 		$zz_conf['int']['record'] = false;
 	}

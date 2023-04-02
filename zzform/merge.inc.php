@@ -338,17 +338,6 @@ function zz_merge_get_date($date) {
 }
 
 /**
- * output merge message
- *
- * @param array $merge
- * @return string
- */
-function zz_merge_message($merge) {
-	$output = wrap_template('zzform-merge', $merge);
-	return $output;
-}
-
-/**
  * compare kept records with merged records if they are identical
  * return IDs indexed by ID with action (delete, update)
  *
