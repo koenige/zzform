@@ -1665,9 +1665,9 @@ function zz_field_sum($table_defs, $z, $sum) {
 function zz_list_format($text, $list_format) {
 	if (!is_array($list_format)) $list_format = [$list_format];
 	foreach ($list_format as $format) {
-		if (!empty(wrap_setting('debug'))) zz_debug('start', $format);
+		if (wrap_setting('debug')) zz_debug('start', $format);
 		$text = $format($text);
-		if (!empty(wrap_setting('debug'))) zz_debug('end');
+		if (wrap_setting('debug')) zz_debug('end');
 	}
 	return $text;
 }
