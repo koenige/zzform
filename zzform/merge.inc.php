@@ -207,7 +207,7 @@ function zz_merge_records($zz) {
 							'fail_delete' => true,
 							'table' => $rec['table'],
 							'record_id' => $old_id,
-							'db_msg' => $result['error']['db_msg']
+							'db_msg' => $result['error']['db_msg'] ?? ''
 						];
 						$error = true;
 					}
