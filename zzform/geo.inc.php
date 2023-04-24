@@ -171,8 +171,8 @@ function zz_geo_coord_out($decimal, $orientation = 'lat', $out = false) {
 
 	if ($decimal == NULL) return false;
 	$coord = [];
-	$round = isset($zz_conf['geo']['rounding']) ? $zz_conf['geo']['rounding'] : 2;
-	$spacer = isset($zz_conf['geo']['spacer']) ? $zz_conf['geo']['spacer'] : '&#160;';
+	$round = $zz_conf['geo']['rounding'] ?? 2;
+	$spacer = $zz_conf['geo']['spacer'] ?? '&#160;';
 	if ($decimal === false) return false;
 	
 	// 1. Test orientation
