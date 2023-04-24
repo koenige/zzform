@@ -2613,9 +2613,9 @@ function zz_error() {
 		if ($username = wrap_username())
 			$mail['message'] .= sprintf("\nUser: %s", $username);
 
-		if (!wrap_setting('mail_subject_prefix'))
-			wrap_setting('mail_subject_prefix', '['.wrap_setting('project').']');
 		$mail['subject'] = zz_text('Database access error');
+		if (!wrap_setting('mail_subject_prefix'))
+			$mail['subject'] = '['.wrap_setting('project').'] '.$mail['subject'];
 		$mail['to'] = wrap_setting('error_mail_to');
 		$mail['queue'] = true;
 		wrap_mail($mail);
