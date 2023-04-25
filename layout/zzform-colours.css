@@ -7,22 +7,22 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright (c) 2005-2011, 2014, 2016-2017, 2020 Gustaf Mossakowski
+ * @copyright Copyright (c) 2005-2011, 2014, 2016-2017, 2020, 2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
 
 /* list view, should be equal to body */
 #zzform .editbutton, #zzform td.recordid, #zzform th.recordid 
-					{ background-color: #FFF; }
+					{ background-color: %%% setting zzform_css_background_color_body %%%; }
 
 /* record view */
 #zzform #record table
-					{ background-color: #F3F4F4; }
+					{ background-color: %%% setting zzform_css_background_color_record %%%; }
 #zzform #record .subtable th, #zzform #record .subtable td
-					{ background-color: #FAFBFB; }
+					{ background-color: %%% setting zzform_css_background_color_record_subtable %%%; }
 #zzform #record tfoot th, #zzform #record tfoot td
-					{ background-color: #CCC; }
+					{ background-color: %%% setting zzform_css_background_color_record_foot %%%; }
 td.where, th.where 
 					{ background-color: #EEE; } /* a19884 */
 
@@ -36,16 +36,16 @@ td.where, th.where
 #zzform table.data thead td, #zzform table.data thead th,
 #zzform table.data tr.group td, #zzform tr.last
 					{ border-color: #BBC; }
-#zzform tr.even		{ background-color: #F3F4F4; } /* even rows */
-#zzform tr.uneven	{ background-color: #FAFBFB; } /* uneven rows */
-#zzform th.order	{ background-color: #F3F4F4; } /* column ORDER BY */
+#zzform tr.even		{ background-color: %%% setting zzform_css_background_color_list_even %%%; }
+#zzform tr.uneven	{ background-color: %%% setting zzform_css_background_color_list_uneven %%%; }
+#zzform th.order	{ background-color: %%% setting zzform_css_background_color_list_order_by %%%; }
 
 #zzform tfoot td	{ border-color: #7B939D; }
 
 /* list view (page navigation below list) */
 #zzform ul.pages li	{ border-color: #666; }
 #zzform ul.pages li span
-					{ color: #CCC; }
+					{ color: %%% setting zzform_css_color_list_pages %%%; }
 #zzform ul.pages li a:hover
 					{ background-color: #DDD; }
 
