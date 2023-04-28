@@ -398,9 +398,11 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 		AND is_array($_POST[$my_tab['table_name']]))
 		? $_POST[$my_tab['table_name']] : [];
 	foreach ($my_tab['POST'] as $rec => $fields) {
-		foreach ($fields as $key => $value) {
+		foreach ($fields as $key => $value)
 			$my_tab['POST'][$rec][$key] = wrap_normalize($value);
-		}
+		if (!empty($my_tab['foreign_key']) AND empty($my_tab['POST'][$rec][$my_tab['foreign_key']])
+			AND !empty($main_tab[0]['id']['value']))
+			$my_tab['POST'][$rec][$my_tab['foreign_key']] = $main_tab[0]['id']['value'];
 	}
 	// POST is secured, now get rid of password fields in case of error_log_post
 	foreach ($password_fields AS $password_field)
