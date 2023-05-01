@@ -125,10 +125,11 @@ function zzform_multi($definition_file, $values, $type = 'tables') {
  * @param string $definition_file filename of table definition
  * @param array $values (optional) values which might be used in table definition
  * @param string $type 'table', 'form' or 'integrity-check'
+ * @param array $brick (optional, if called from zzbrick/forms)
  * @global array $zz_conf
  * @return array
  */
-function zzform_include($file, $values = [], $type = 'tables') {
+function zzform_include($file, $values = [], $type = 'tables', $brick = []) {
 	if ($type === 'integrity-check') {
 		$zz_conf = zzform_not_global();
 		$type = 'tables';
