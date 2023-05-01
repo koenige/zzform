@@ -55,7 +55,7 @@ $zz['fields'][6]['type'] = 'write_once';
 $zz['fields'][6]['type_detail'] = 'datetime';
 $zz['fields'][6]['default'] = date('Y-m-d H:i:s');
 
-$zz['fields'][7] = zzform_include_table('revisiondata');
+$zz['fields'][7] = zzform_include('revisiondata');
 $zz['fields'][7]['title'] = 'Data';
 $zz['fields'][7]['type'] = 'subtable';
 $zz['fields'][7]['fields'][2]['type'] = 'foreign_key';
@@ -77,9 +77,8 @@ $zz['sql'] = 'SELECT *
 	FROM /*_PREFIX_*/_revisions';
 $zz['sqlorder'] = ' ORDER BY created ASC, revision_id ASC';
 
-foreach ($zz['fields'][5]['enum'] as $enum) {
+foreach ($zz['fields'][5]['enum'] as $enum)
 	$zz['filter'][1]['selection'][$enum] = $enum;
-}
 $zz['filter'][1]['title'] = 'Status';
 $zz['filter'][1]['identifier'] = 'status';
 $zz['filter'][1]['type'] = 'list';

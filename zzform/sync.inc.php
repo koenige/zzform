@@ -437,7 +437,7 @@ function zz_sync_zzform($raw, $import) {
  */
 function zz_sync_list($testing, $import) {
 	// get head
-	$def = zzform_include_table($import['form_script']);
+	$def = zzform_include($import['form_script']);
 	$head = zz_sync_fields($def['fields'], $testing['head']);
 	$field_names = [];
 	$foreign_keys = [];

@@ -68,7 +68,7 @@ function zz_translations_init($table, $fields) {
 		$translationsubtable = [];	
 
 		// include and read translation script
-		$zz_sub = zzform_include_table(sprintf('translations-%s', $translationfields[$field_name]['field_type']));
+		$zz_sub = zzform_include(sprintf('translations-%s', $translationfields[$field_name]['field_type']));
 		if (!$zz_sub)
 			wrap_error(sprintf('Translations script for `%s` does not exist!', $translationfields[$field_name]['field_type']), E_USER_ERROR);
 		$zz_sub = zz_sql_prefix($zz_sub);

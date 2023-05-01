@@ -30,13 +30,14 @@
  *		array	'FILES'
  *		string	'action' => 'POST'['zz_action']: insert, delete, update
  *		array	'ids' => List of select-field names that get direct input of an id 
+ * @param string $type (optional)
  * @return array $ops
  * @todo do not unset superglobals
  * @todo so far, we have no support for 'values' for subrecords
  * @todo zzform() and zzform_multi() called within an action-script
  * causes not all zz_conf variables to be reset
  */
-function zzform_multi($definition_file, $values) {
+function zzform_multi($definition_file, $values, $type = 'tables') {
 	// unset all variables that are not needed
 	// important because there may be multiple zzform calls
 	global $zz_conf;
@@ -92,7 +93,7 @@ function zzform_multi($definition_file, $values) {
 		$zz_conf['id'] = zz_check_id_value($id);
 		zz_debug('find definition file', $definition_file);
 	}
-	$zz = zzform_include_table($definition_file, $values);
+	$zz = zzform_include($definition_file, $values, $type);
 	wrap_setting('log_username_default', wrap_setting('request_uri'));
 	if (wrap_setting('debug') AND function_exists('zz_debug') AND !empty($id)) {
 		zz_debug('got definition file');
@@ -114,4 +115,78 @@ function zzform_multi($definition_file, $values) {
 		zz_debug('end');
 	}
 	return $ops;
+}
+
+/**
+ * include $zz- or $zz_sub-table definition and accept changes for $zz_conf
+ * all other local variables will be ignored
+ * include zzform/forms.inc.php or zzform/tables.inc.php, too
+ *
+ * @param string $definition_file filename of table definition
+ * @param array $values (optional) values which might be used in table definition
+ * @param string $type 'table', 'form' or 'integrity-check'
+ * @global array $zz_conf
+ * @return array
+ */
+function zzform_include($file, $values = [], $type = 'tables') {
+	if ($type === 'integrity-check') {
+		$zz_conf = zzform_not_global();
+		$type = 'tables';
+	} else {
+		global $zz_conf;
+	}
+	if (str_starts_with($file, '../zzbrick_forms/')) {
+		$file = substr($file, 17);
+		$type = 'forms';
+		wrap_error('calling zzform_include() with `../zzbrick_forms/` is deprecated', E_USER_DEPRECATED);
+	}
+
+	if (!in_array($type, ['tables', 'forms']))
+		wrap_error(sprintf('%s is not a possible type for %s().', ucfirst($type), __FUNCTION__), E_USER_ERROR);
+	
+	$path = 'zzbrick_%s/%s.php';
+	$files = wrap_collect_files(sprintf($path, $type, $file));
+	if (!$files and strstr($file, '/')) {
+		$parts = explode('/', $file);
+		$files = wrap_collect_files(sprintf($path, $type, $parts[1]), $parts[0]);
+	}
+	if (!$files)
+		wrap_error(sprintf('%s definition for %s: file is missing.', ucfirst($type), $file), E_USER_ERROR);
+
+	// allow to use script without recursion
+	$backtrace = debug_backtrace();
+	foreach ($backtrace as $step) {
+		if (!in_array($step['file'], $files)) continue;
+		$key = array_search($step['file'], $files);
+		unset($files[$key]);
+	}
+	if (!$files)
+		wrap_error(sprintf('%s definition for %s: file is missing.', ucfirst($type), $file), E_USER_ERROR);
+
+	if (key($files) === 'default') {
+		if (!$default_tables = wrap_setting('default_tables')) return [];
+		if (is_array($default_tables) AND !in_array($file, $default_tables)) return [];
+	}
+
+	$path = 'zzform/%s.inc.php';
+	$common_files = wrap_include_files(sprintf($path, $type, $file));
+	$definition = reset($files);
+	
+	global $zz_conf;
+	include $definition;
+
+	$def = $zz ?? $zz_sub ?? [];
+	if (!$def)
+		wrap_error(sprintf('No %s definition in file %s found.', $type, $file), E_USER_ERROR);
+	return $def;
+}
+
+/**
+ * get read only $zz_conf
+ *
+ * @return array
+ */
+function zzform_not_global() {
+	global $zz_conf;
+	return $zz_conf;
 }

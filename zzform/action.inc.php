@@ -2657,9 +2657,7 @@ function zz_integrity_check_files($dependent_ids) {
 	foreach ($dependent_ids as $db_name => $tables) {
 		foreach ($tables as $table => $ids) {
 			$table = str_replace('_', '-', $table);
-			$definition_file = zzform_file($table);
-			if (!$definition_file OR !$definition_file['tables']) continue;
-			$zz = zz_integrity_include_definition($definition_file['tables']);
+			$zz = zzform_include($table, [], 'integrity-check');
 			if (!$zz) continue;
 
 			// check if this script fits the table and database name
@@ -2695,33 +2693,6 @@ function zz_integrity_check_files($dependent_ids) {
 		}
 	}
 	return $return;
-}
-
-/**
- * include zzform table definition file, just $zz without $zz_conf
- *
- * @param string $filename
- * @return array
- */
-function zz_integrity_include_definition($filename) {
-	$zz_setting = zz_integrity_include_conf('zz_setting');
-	$zz_conf = zz_integrity_include_conf('zz_conf');
-	require $filename;
-	if (!empty($zz)) return $zz;
-	if (!empty($zz_sub)) return $zz_sub;
-	// @todo error handling?
-	return [];
-}
-
-/**
- * return configuration variables read only
- *
- * @param string $config name of configuration variable
- * @return array
- */
-function zz_integrity_include_conf($config) {
-	global $$config;
-	return $$config;
 }
 
 /**

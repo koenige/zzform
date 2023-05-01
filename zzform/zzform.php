@@ -793,54 +793,16 @@ function zz_initialize_int() {
 }
 
 /**
- * get filename of table definition file
- *
- * @param string $definition_file
- * @global array $zz_conf
- * @return array list of scripts
- */
-function zzform_file($definition_file) {
-	wrap_include_files('forms', 'zzbrick');
-
-	$brick['path'] = wrap_setting('brick_custom_dir').'tables';
-	$brick['module_path'] = wrap_setting('brick_module_dir').'tables';
-	$brick['vars'] = [$definition_file];
-	$brick = brick_forms_file($brick);
-
-	$scripts = [];
-	$scripts['common'] = $brick['common_script_path']; // might be empty
-	$scripts['tables'] = $brick['form_script_path']; // might be empty
-	return $scripts;
-}
-
-/**
  * include $zz- or $zz_sub-table definition and accept changes for $zz_conf
  * all other local variables will be ignored
  *
  * @param string $definition_file filename of table definition
  * @param array $values (optional) values which might be used in table definition
- * @global array $zz_conf
- * @global array $zz_setting
  * @return array
+ * @deprecated
  */
 function zzform_include_table($definition_file, $values = []) {
-	global $zz_conf;
-	global $zz_setting;
-	
-	$scripts = zzform_file($definition_file);
-	if (!empty($scripts['tables'])) {
-		if ($scripts['common']) require_once $scripts['common'];
-		require $scripts['tables'];
-		if (!empty($zz)) return $zz;
-		if (!empty($zz_sub)) return $zz_sub;
-		$error = 'No table definition in file %s found.';
-	} else {
-		$error = 'Table definition for %s: file is missing.';
-	}
-
-	$error = sprintf($error, $definition_file);
-	wrap_error($error, E_USER_ERROR);
-	exit;
+	return zzform_include($definition_file, $values, 'tables');
 }
 
 /**
