@@ -16,27 +16,22 @@
 /**
  * HTML output of debugging information 
  * 
- *	start of function
- *		if (wrap_setting('debug')) {
- *			global $zz_debug;
- *			$zz_debug['function'] = __FUNCTION__;
- *			$zz_debug['function_time'] = microtime(true);
- *		}
- *	end of function
- *		if (wrap_setting('debug')) zz_debug();
- * @param string $marker	optional: marker to define position in function
+ * @param string $marker	optional: marker to define position in function or to call a sub function
  * @param string $text		optional: SQL query or function name
  * @param int $id			optional: Random ID for function, allows to log in different functions
- * @global array $zz_debug
- *		'function' (name of function __FUNCTION__), 'function_time' (microtime 
- *		at which function started), 'timer', ...
- * @return string			HTML output
+ * @return void
  */
 function zz_debug($marker = false, $text = false, $id = false) {
-	global $zz_debug;
-	global $zz_conf;
-
-	if (!$id) $id = $zz_conf['id'];
+	static $zz_debug;
+	static $process_id;
+	if (empty($process_id)) $process_id = wrap_random_hash(6);
+	if (!$id) $id = $process_id;
+	
+	switch ($marker) {
+		case '_output': return zz_debug_htmlout($zz_debug[$id]['output']);
+		case '_clear': unset($zz_debug[$id]); return;
+		case '_time': return zz_debug_time($zz_debug[$id]['time'], $text);
+	}
 
 	// initialize
 	if (empty($zz_debug[$id])) {
@@ -46,13 +41,13 @@ function zz_debug($marker = false, $text = false, $id = false) {
 
 	$time = microtime(true);
 	// initialize function parameters
-	if (substr($marker, 0, 5) === 'start') {
+	if (str_starts_with($marker, 'start')) {
 		$current = [
 			'function' => $text,
 			'time_start' => $time
 		];
 		$zz_debug[$id]['function'][] = $current;
-	} elseif (substr($marker, 0, 3) === 'end') {
+	} elseif (str_starts_with($marker, 'end')) {
 		// set current function to last element and remove it
 		$current = array_pop($zz_debug[$id]['function']);
 	} else {
@@ -85,14 +80,11 @@ function zz_debug($marker = false, $text = false, $id = false) {
 /**
  * HTML output of debugging information 
  * 
- * @global array $zz_debug	$zz_debug['output'] as returned from zz_debug()
- * @return string			HTML output
+ * @param array $data
+ * @return string
+ * @todo use wrap_template()
  */
-function zz_debug_htmlout() {
-	global $zz_debug;
-	global $zz_conf;
-	$id = $zz_conf['id'];
-
+function zz_debug_htmlout($data) {
 	$output = '<h1>'.zz_text('Debug Information').'</h1>';
 	$output .= '<table class="data debugtable"><thead>'."\n".'<tr><th>'
 		.zz_text('Time').'</th><th>'
@@ -100,7 +92,7 @@ function zz_debug_htmlout() {
 		.zz_text('Marker').'</th><th>'.zz_text('SQL').'</th></tr>'."\n"
 		.'</thead><tbody>';
 	$i = 0;
-	foreach ($zz_debug[$id]['output'] as $row) {
+	foreach ($data as $row) {
 		$output .= '<tr class="'.($i & 1 ? 'even': 'uneven').'">';
 		foreach ($row as $key => $val) {
 			if ($key === 'time') {
@@ -127,12 +119,10 @@ function zz_debug_htmlout() {
 /**
  * Logs time from different debug-markers in logfile
  * 
+ * @param array $time
  * @param array $return (optional, $ops['return']);
- * @global array $zz_debug
  */
-function zz_debug_time($return = []) {
-	global $zz_debug;
-	global $zz_conf;
+function zz_debug_time($time, $return = []) {
 	if (!wrap_setting('zzform_debug_time')) return;
 
 	$rec = '';
@@ -141,15 +131,8 @@ function zz_debug_time($return = []) {
 	
 	zz_error_log([
 		'msg_dev' => '[DEBUG] %stime: %s',
-		'msg_dev_args' => [$rec, implode(' ', $zz_debug[$zz_conf['id']]['time'])],
+		'msg_dev_args' => [$rec, implode(' ', $time)],
 		'level' => E_USER_NOTICE
 	]);
 	zz_error();
-}
-
-function zz_debug_unset() {
-	global $zz_debug;
-	global $zz_conf;
-
-	unset($zz_debug[$zz_conf['id']]);
 }

@@ -327,7 +327,7 @@ function zz_output_redirect($result, $return, $zz_tab) {
 
 	if (!empty($zz_conf['redirect'][$result])) {
 		if (wrap_setting('debug'))
-			zz_debug_time($return);
+			zz_debug('_time', $return);
 		if (is_array($zz_conf['redirect'][$result]))
 			$zz_conf['redirect'][$result] = zz_makepath($zz_conf['redirect'][$result], $zz_tab);
 		if (substr($zz_conf['redirect'][$result], 0, 1) === '/')

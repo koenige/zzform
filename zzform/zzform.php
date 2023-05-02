@@ -442,10 +442,10 @@ function zzform_exit($ops) {
 		zz_debug('end');
 		// debug time only if there's a result and before leaving the page
 		if ($ops['result'])
-			zz_debug_time($ops['return']);
+			zz_debug('_time', $ops['return']);
 		if (wrap_setting('debug') AND $ops['mode'] !== 'export')
-			$ops['debug'] = zz_debug_htmlout();
-		zz_debug_unset();
+			$ops['debug'] = zz_debug('_output');
+		zz_debug('_clear');
 	}
 	// prepare HTML output, not for export
 	if ($zz_conf['generate_output'] AND function_exists('zz_output_full')) {
