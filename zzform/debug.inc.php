@@ -98,10 +98,7 @@ function zz_debug_htmlout($data) {
 			if ($key === 'time') {
 				$val = '<dl><dt>'.$val.'</dt>';
 			} elseif ($key === 'time_used') {
-				if ($val > 0.1) $class = 'error';
-				elseif ($val > 0.01) $class = 'warning';
-				else $class = '';
-				if ($class) $val = '<span class="'.$class.'">'.$val.'</span>';
+				$val = '<span class="'.wrap_error_sql_class($val).'">'.$val.'</span>';
 				$val = '<dd>'.$val.'</dd></dl>';
 			}
 			if ($key !== 'time_used') $output .= '<td>';

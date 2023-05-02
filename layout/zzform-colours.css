@@ -75,7 +75,8 @@ body #zzform .separator hr
 					{ background-color: red; }
 #zzform .error, #zzform .subtable .horizontal td.error
 					{ color: white; }
-#zzform .warning	{ background-color: yellow; }
+#zzform .warning	{ background-color: orange; }
+#zzform .notice		{ background-color: yellow; }
 
 
 /* Media */
