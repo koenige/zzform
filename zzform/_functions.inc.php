@@ -168,6 +168,8 @@ function zzform_include($file, $values = [], $type = 'tables', $brick = []) {
 		if (!$default_tables = wrap_setting('default_tables')) return [];
 		if (is_array($default_tables) AND !in_array($file, $default_tables)) return [];
 	}
+	if ($package = key($files) AND $package !== 'custom')
+		wrap_package_activate($package);
 
 	$path = 'zzform/%s.inc.php';
 	$common_files = wrap_include_files(sprintf($path, $type, $file));
