@@ -572,6 +572,8 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 	// q: show search form if empty search result occured as well
 	if (!$total_rows AND !isset($_GET['q'])) return $search_form;
 	$search['q'] = isset($_GET['q']) ? $_GET['q'] : NULL;
+	if (strstr($search['q'], '%%%'))
+		$search['q'] = str_replace('%%%', '%\%\%', $search['q']);
 
 	// fields that won't be used for search
 	if ($qs = $zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']) { 
