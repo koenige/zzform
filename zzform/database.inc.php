@@ -306,7 +306,6 @@ function zz_db_connection($table) {
  * @todo give a more detailed explanation of how function works
  */
 function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = false, $error_type = E_USER_ERROR) {
-	global $zz_conf;
 	if (wrap_setting('debug') AND function_exists('wrap_error')) {
 		$time = microtime(true);
 	}
@@ -412,17 +411,12 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 		wrap_error('SQL query in '.$time.' - '.$sql, E_USER_NOTICE);
 	}
 	if ($error) {
-		if (wrap_setting('debug')) {
-			global $zz_debug;
-			$current = end($zz_debug[$zz_conf['id']]['function']);
-		} else {
-			$current['function'] = '';
-		}
+		$debug = debug_backtrace();
 		$msg_dev = 'Error in SQL query';
 		$msg_dev_args = [];
-		if (!empty($current['function'])) {
+		if (!empty($debug[1]['function'])) {
 			$msg_dev .= ' in function %s';
-			$msg_dev_args[] = $current['function'];
+			$msg_dev_args[] = $debug[1]['function'];
 		}
 		if ($info) {
 			$msg_dev .= ' - %s.';
