@@ -403,12 +403,9 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 		}
 	} else $error = true;
 	if ($error AND $error !== true) $info .= $error;
-	if (wrap_setting('debug')) zz_debug('sql (rows: '
-		.($result ? mysqli_num_rows($result) : 0).')'.($info ? ': '.$info : ''), $sql);
-	if (wrap_setting('debug') AND function_exists('wrap_error')) {
-		// @todo: check if it's easier to do it with zz_error()
-		$time = microtime(true) - $time;
-		wrap_error('SQL query in '.$time.' - '.$sql, E_USER_NOTICE);
+	if (wrap_setting('debug')) {
+		zz_debug('sql (rows: '.($result ? mysqli_num_rows($result) : 0).')'.($info ? ': '.$info : ''), $sql);
+		wrap_error_sql($sql, $time);
 	}
 	if ($error) {
 		$debug = debug_backtrace();
@@ -550,11 +547,8 @@ function zz_db_change($sql, $id = false) {
 			'db_errno' => mysqli_errno(wrap_db_connection())
 		];
 	}
-	if (wrap_setting('debug') AND function_exists('wrap_error')) {
-		// @todo: check if it's easier to do it with zz_error()
-		$time = microtime(true) - $time;
-		wrap_error('SQL query in '.$time.' - '.$sql, E_USER_NOTICE);
-	}
+	if (wrap_setting('debug'))
+		wrap_error_sql($sql, $time);
 	return $db;	
 }
 
