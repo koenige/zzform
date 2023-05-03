@@ -43,6 +43,13 @@
  */
 function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field = false) {
 	if (empty($vars)) return false;
+
+	// read additional configuration from parameters
+	if (!empty($conf['parameters']) AND !empty($vars[$conf['parameters']])) {
+		$conf = zz_identifier_configuration($conf, $vars[$conf['parameters']]);
+		unset($vars[$conf['parameters']]);
+	}
+
 	if ($my_rec AND $field AND $db_table) {
 		// there's a record, check if identifier is in write_once mode
 		$field_name = $my_rec['fields'][$field]['field_name'];
@@ -58,7 +65,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 				// identifier is in vars array
 				return $vars[$field_name];
 			} else {
-				unset ($vars[$field_name]);
+				unset($vars[$field_name]);
 			}
 		}
 	}
@@ -72,15 +79,13 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 		'function' => false, 'function_parameter' => false,
 		'unique_with' => [], 'where' => '', 'strip_tags' => false,
 		'exists_format' => '%s', 'ignore_this_if_identical' => [],
-		'remove_strings' => []
+		'remove_strings' => [], 'parameters' => '', 'prefix' => ''
 	];
-	foreach ($default_configuration as $key => $value) {
+	foreach ($default_configuration as $key => $value)
 		if (!isset($conf[$key])) $conf[$key] = $value;
-	}
 	$conf_max_length_1 = ['forceFilename', 'exists'];
-	foreach ($conf_max_length_1 as $key) {
+	foreach ($conf_max_length_1 as $key)
 		$conf[$key] = substr($conf[$key], 0, 1);
-	}
 	$conf_arrays = ['ignore', 'unique_with', 'remove_strings'];
 	foreach ($conf_arrays as $key) {
 		if (!is_array($conf[$key])) $conf[$key] = [$conf[$key]];
@@ -239,6 +244,21 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 		);
 	}
 	return $idf;
+}
+
+/**
+ * read configuration parameters from a field
+ *
+ * @param array $vars
+ * @param string $parameters
+ * @return array
+ */
+function zz_identifier_configuration($vars, $parameters) {
+	parse_str($parameters, $parameters);
+	if (empty($parameters['identifier'])) return $vars;
+	foreach ($parameters['identifier'] as $key => $value)
+		$vars[$key] = wrap_setting_value($value);
+	return $vars;
 }
 
 /**
