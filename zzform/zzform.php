@@ -105,8 +105,6 @@ function zzform($zz) {
 	// include dependent modules
 	zz_dependent_modules($zz);
 
-	list($zz_conf, $zz) = zz_backwards($zz_conf, $zz);
-	
 	// get hash from $zz and $zz_conf to get a unique identification of
 	// the settings, e. g. to save time for zzform_multi() or to get a
 	// secret key for some cases
