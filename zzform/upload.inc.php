@@ -200,6 +200,7 @@ function zz_upload_check_files($zz_tab) {
 	global $zz_conf;
 	
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
+	require_once __DIR__.'/session.inc.php';
 	$session = zz_session_read('files');
 	if (!empty($session['upload_cleanup_files'])) {
 		$zz_conf['int']['upload_cleanup_files'] = array_merge(
@@ -2366,6 +2367,7 @@ function zz_upload_cleanup($zz_tab, $validated = true) {
 	if (!$zz_tab[0]['upload_fields']) return false;
 
 	// unfinished request: put files into session, do not delete
+	require_once __DIR__.'/session.inc.php';
 	zz_session_write('files', $zz_tab);
 }
 

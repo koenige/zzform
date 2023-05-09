@@ -86,6 +86,7 @@ function zzform($zz) {
 
 	$review_via_login = false;
 	if (!empty($_SESSION['zzform']['review_via_login'])) {
+		require_once __DIR__.'/session.inc.php';
 		zz_review_via_login();
 		$review_via_login = true;
 	}
@@ -733,21 +734,6 @@ function zz_set_id() {
 		$zz_conf['id'] = wrap_random_hash(6);
 	}
 	return;
-}
-
-/**
- * check if ID is valid (if returned via browser), if invalid: create new ID
- *
- * @param string
- * @return string
- */
-function zz_check_id_value($string) {
-	for ($i = 0; $i < mb_strlen($string); $i++) {
-		$letter = mb_substr($string, $i, 1);
-		if (!strstr('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', $letter))
-			return wrap_random_hash(6);
-	}
-	return $string;
 }
 
 /**

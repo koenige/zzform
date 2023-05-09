@@ -194,3 +194,60 @@ function zzform_not_global() {
 	global $zz_conf;
 	return $zz_conf;
 }
+
+/**
+ * check if ID is valid (if returned via browser), if invalid: create new ID
+ *
+ * @param string
+ * @return string
+ */
+function zz_check_id_value($string) {
+	for ($i = 0; $i < mb_strlen($string); $i++) {
+		$letter = mb_substr($string, $i, 1);
+		if (!strstr('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', $letter))
+			return wrap_random_hash(6);
+	}
+	return $string;
+}
+
+/**
+ * read or write secret_key connected to zzform ID
+ *
+ * @param string $mode ('read', 'write', 'timecheck')
+ * @param string $id
+ * @param string $hash
+ */
+function zz_secret_id($mode, $id = '', $hash = '') {
+	global $zz_conf;
+	if (!empty($zz_conf['multi'])) return;
+
+	$logfile = wrap_setting('log_dir').'/zzform-ids.log';
+	if (!file_exists($logfile)) touch($logfile);
+	$logs = file($logfile);
+	if (!$id) $id = $zz_conf['id'];
+
+	$now = time();
+	// keep IDs for a maximum of one day
+	$keep_max = $now - 60 * 60 * 24;
+	$found = '';
+	$timestamp = 0;
+	$delete_lines = [];
+	foreach ($logs as $index => $line) {
+		// 0 = timestamp, 1 = zz_id, 2 = secret
+		$file = explode(' ', trim($line));
+		if ($file[0] < $keep_max) $delete_lines[] = $index;
+		if ($file[1] !== $id) continue;
+		$found = $file[2];
+		$timestamp = $file[0];
+		break;
+	}
+	if ($delete_lines) {
+		require_once wrap_setting('core').'/file.inc.php';
+		wrap_file_delete_line($logfile, $delete_lines);
+	}
+
+	if ($mode === 'read') return $found;
+	elseif ($mode === 'timecheck') return $now - $timestamp;
+	if ($found) return;
+	error_log(sprintf("%s %s %s\n", $now, $id, $hash), 3, $logfile);
+}
