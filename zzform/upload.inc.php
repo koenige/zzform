@@ -2832,7 +2832,7 @@ function zz_upload_show_warning($file, $type) {
  */
 function zz_upload_binary($command, $log_error = true) {
 	// 1. check if there is a path for this binary
-	$setting = 'zzform_upload_binary_path%s[%s]';
+	$setting = 'zzform_upload_binary_paths%s[%s]';
 	$setting = sprintf($setting
 		, wrap_setting('local_access') ? '_local' : ''
 		, $command
