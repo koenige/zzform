@@ -56,6 +56,12 @@ function zzform($zz) {
 		'page' => !empty($zz['page']) ? $zz['page'] : [],
 		'explanation' => ''
 	];
+	// @deprecated
+	if (!empty($zz_conf['dont_show_title_as_breadcrumb'])) {
+		$ops['page']['dont_show_title_as_breadcrumb'] = true;
+		unset($zz_conf['dont_show_title_as_breadcrumb']);
+		wrap_error('Use $zz[\'page\'][\'dont_show_title_as_breadcrumb\'] instead of $zz_conf[\'dont_show_title_as_breadcrumb\']', E_USER_DEPRECATED);
+	}
 	// set default configuration variables
 	// import modules, set and get URI
 	zz_initialize('form');
