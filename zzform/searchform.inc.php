@@ -254,58 +254,73 @@ function zz_search_field($field, $table, $searchop, $searchword) {
  * @return array
  */
 function zz_search_field_datetime($field_type, $searchword, $searchop) {
-	$datetime = in_array($field_type, ['date', 'datetime', 'time', 'timestamp']) ? true : false;
-	if ($datetime and $searchword AND !is_array($searchword)) {
-		if (preg_match('/q\d(.)[0-9]{4}/i', $searchword, $separator)) {
-			// Quarter
-			$searchword = trim(substr($searchword, 1));
-			$searchword = explode($separator[1], $searchword);
-			$searchop = "QUARTER";
-		} else {
-			$timesearch = zz_search_time($searchword);
-			switch ($field_type) {
-			case 'datetime':
-			case 'timestamp':
-				if ($timesearch) {
+	if (!in_array($field_type, ['date', 'datetime', 'time', 'timestamp'])) return [$searchword, $searchop];
+	if (!$searchword) return [$searchword, $searchop];
+	if (is_array($searchword)) return [$searchword, $searchop];
+
+	// Quarter?
+	if (preg_match('/q\d(.)[0-9]{4}/i', $searchword, $separator)) {
+		$searchword = trim(substr($searchword, 1));
+		$searchword = explode($separator[1], $searchword);
+		return [$searchword, 'QUARTER'];
+	}
+	
+	$timesearch = zz_search_time($searchword);
+	switch ($field_type) {
+	case 'datetime':
+	case 'timestamp':
+		if ($timesearch) {
+			$searchword = date('Y-m-d H:i:s', $timesearch);
+			switch ($searchop) {
+			case '>':
+			case '<=':
+				if (str_ends_with($searchword, ' 00:00:00'))
+					$searchword = date('Y-m-d', $timesearch).' 23:59:59';
+				break;
+			case '>=':
+			case '<':
+				break;
+			default:
+				if (str_ends_with($searchword, ' 00:00:00')) {
 					$searchword = [
 						date('Y-m-d', $timesearch).' 00:00:00',
 						date('Y-m-d', $timesearch).' 23:59:59'
 					];
 					$searchop = 'BETWEEN';
-				} elseif (preg_match('/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/', $searchword) AND $searchop === '%LIKE%') {
-					$searchword = [
-						$searchword.' 00:00:00',
-						$searchword.' 23:59:59'
-					];
-					$searchop = 'BETWEEN';
 				}
-				break;
-			case 'time':
-				if ($timesearch) $searchword = date('H:i:s', $timesearch);
-				if (preg_match('/^[0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/', $searchword) AND $searchop === '%LIKE%') $searchop = '=';
-				break;
-			case 'date':
-				preg_match('/^([0-9]+)$/', $searchword, $matches);
-				if ($timesearch) {
-					$searchword = date('Y-m-d', $timesearch);
-				} elseif (preg_match('/^([0-9]+)\.([0-9]+)\.$/', $searchword, $matches)) {
-					$searchword = sprintf('%1$02d-%2$02d', $matches[2], $matches[1]);
-				} elseif (preg_match('/^(\d{1,4})-(\d{0,2})$/', $searchword, $matches)) {
-					$searchop = 'YEAR-MONTH';
-					$searchword = $matches;
-				} elseif (preg_match('/^(\d{1,2})$/', $searchword, $matches)) {
-					$searchop = 'MONTH';
-					$searchword = $matches[1];
-				} elseif (preg_match('/^(\d{1,4})$/', $searchword, $matches)) {
-					$searchop = 'YEAR';
-					$searchword = $matches[1];
-				}
-				if ($searchop === '%LIKE%' AND preg_match('/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/', $searchword)) $searchop = '=';
-				break;
 			}
-			if (!is_array($searchword) AND !preg_match('/^[0-9:\-%]+$/', $searchword)) return [false, false];
+		} elseif (preg_match('/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/', $searchword) AND $searchop === '%LIKE%') {
+			$searchword = [
+				$searchword.' 00:00:00',
+				$searchword.' 23:59:59'
+			];
+			$searchop = 'BETWEEN';
 		}
+		break;
+	case 'time':
+		if ($timesearch) $searchword = date('H:i:s', $timesearch);
+		if (preg_match('/^[0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/', $searchword) AND $searchop === '%LIKE%') $searchop = '=';
+		break;
+	case 'date':
+		preg_match('/^([0-9]+)$/', $searchword, $matches);
+		if ($timesearch) {
+			$searchword = date('Y-m-d', $timesearch);
+		} elseif (preg_match('/^([0-9]+)\.([0-9]+)\.$/', $searchword, $matches)) {
+			$searchword = sprintf('%1$02d-%2$02d', $matches[2], $matches[1]);
+		} elseif (preg_match('/^(\d{1,4})-(\d{0,2})$/', $searchword, $matches)) {
+			$searchop = 'YEAR-MONTH';
+			$searchword = $matches;
+		} elseif (preg_match('/^(\d{1,2})$/', $searchword, $matches)) {
+			$searchop = 'MONTH';
+			$searchword = $matches[1];
+		} elseif (preg_match('/^(\d{1,4})$/', $searchword, $matches)) {
+			$searchop = 'YEAR';
+			$searchword = $matches[1];
+		}
+		if ($searchop === '%LIKE%' AND preg_match('/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/', $searchword)) $searchop = '=';
+		break;
 	}
+	if (!is_array($searchword) AND !preg_match('/^[0-9:\-% ]+$/', $searchword)) return [false, false];
 	return [$searchword, $searchop];
 }
 
@@ -393,7 +408,7 @@ function zz_search_time($searchword) {
 	// or year-month (2004-12)
 	if (is_array($searchword)) return false;
 	if (preg_match('/^\d{1,4}-*\d{0,2}-*\d{0,2}$/', trim($searchword))) return false;
-	$date = zz_check_date($searchword);
+	$date = zz_check_datetime($searchword);
 	return strtotime($date);
 }
 
