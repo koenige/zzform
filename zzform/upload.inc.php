@@ -95,17 +95,17 @@ function zz_upload_thumbnail($ops, $zz_tab) {
 
 	if (empty($zz_tab[0][0]['existing'])) {
 		$ops['error'][] = sprintf('ID %s not found', $zz_conf['int']['id']['value']);
-		$zz_conf['int']['http_status'] = 404;
+		wrap_static('page', 'status', 404);
 		return $ops;
 	}
 	$ops['thumb_field'] = explode('-', $_GET['field']);
 	if (count($ops['thumb_field']) !== 2) {
-		$zz_conf['int']['http_status'] = 404;
+		wrap_static('page', 'status', 404);
 		return $ops;
 	}
 
 	if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-		$zz_conf['int']['http_status'] = 404;
+		wrap_static('page', 'status', 404);
 		return $ops;
 	}
 
@@ -124,7 +124,7 @@ function zz_upload_thumbnail($ops, $zz_tab) {
 		$ops['error'][] = sprintf('Thumbnail information for field %d (No. %d) not found',
 			$ops['thumb_field'][0], $ops['thumb_field'][1]
 		);
-		$zz_conf['int']['http_status'] = 404;
+		wrap_static('page', 'status', 404);
 	}
 	return $ops;
 }

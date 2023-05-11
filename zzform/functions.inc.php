@@ -477,7 +477,7 @@ function zz_check_get_array($key, $type, $values = [], $exit_on_error = true) {
 	if (!$error_in) return $_GET[$key];
 	if (!$exit_on_error) return $return;
 
-	$zz_conf['int']['http_status'] = 404;
+	wrap_static('page', 'status', 404);
 	$unwanted_keys = [];
 	foreach ($error_in as $key => $values) {
 		if (is_array($values)) {
@@ -554,7 +554,7 @@ function zz_filter_defaults(&$zz) {
 	} else {
 		// just in case it's a ?filter -request with no filter set
 		if (isset($_GET['filter'])) {
-			$zz_conf['int']['http_status'] = 404;
+			wrap_static('page', 'status', 404);
 			$unwanted_keys = ['filter'];
 			$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
 		}
@@ -586,7 +586,7 @@ function zz_filter_defaults(&$zz) {
 	$zz_conf['int']['invalid_filters'] = [];
 	foreach (array_keys($zz['filter_active']) AS $identifier) {
 		if (in_array($identifier, $identifiers)) continue;
-		$zz_conf['int']['http_status'] = 404;
+		wrap_static('page', 'status', 404);
 		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string(
 			$zz_conf['int']['url']['qs_zzform'], ['filter['.$identifier.']']
 		);
@@ -1449,7 +1449,7 @@ function zz_record_access($zz, $ops) {
 			}
 		} else {
 			// illegal parameter, don't set a mode at all
-			$zz_conf['int']['http_status'] = 404;
+			wrap_static('page', 'status', 404);
 			$keys = ['id', 'mode'];
 		}
 		break;
@@ -1469,7 +1469,7 @@ function zz_record_access($zz, $ops) {
 			$found++;
 		}
 		if ($found > 1) {
-			$zz_conf['int']['http_status'] = 404;
+			wrap_static('page', 'status', 404);
 		}
 		break;
 
@@ -1497,7 +1497,7 @@ function zz_record_access($zz, $ops) {
 		$ops['mode'] = 'thumbnails';
 		$id_value = zz_check_get_array('thumbs', 'is_int');
 		if (empty($_GET['field'])) {
-			$zz_conf['int']['http_status'] = 404;
+			wrap_static('page', 'status', 404);
 			break;
 		}
 		break;
@@ -1510,7 +1510,7 @@ function zz_record_access($zz, $ops) {
 
 	case !empty($_GET['field']):
 		$keys = ['thumbs', 'field'];
-		$zz_conf['int']['http_status'] = 404;
+		wrap_static('page', 'status', 404);
 		break;
 
 	default:
@@ -1520,7 +1520,7 @@ function zz_record_access($zz, $ops) {
 		break;
 	}
 	
-	if (!empty($zz_conf['int']['http_status']) AND $zz_conf['int']['http_status'] === 404) {
+	if (wrap_static('page', 'status') === 404) {
 		$id_value = false;
 		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $keys);
 		$ops['mode'] = false;
@@ -1612,7 +1612,7 @@ function zz_record_access($zz, $ops) {
 			$zz_conf['int']['access'] = 'thumbnails';
 		} else {
 			$zz_conf['int']['access'] = 'forbidden';
-			$zz_conf['int']['http_status'] = 403;
+			wrap_static('page', 'status', 403);
 			$ops['mode'] = false;
 			$zz['record']['action'] = false;
 		}
@@ -2297,9 +2297,8 @@ function zz_error() {
 		elseif (empty($_POST)) $error['log_post_data'] = false;
 
 		// page http status
-		if ($error['status'] !== 200) {
-			$zz_conf['int']['http_status'] = $error['status'];
-		}
+		if ($error['status'] !== 200)
+			wrap_static('page', 'status', $error['status']);
 
 		// initialize and translate error messages
 		if (!empty($error['msg'])) {

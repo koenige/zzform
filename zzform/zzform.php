@@ -469,13 +469,8 @@ function zzform_exit($ops) {
 	}
 
 	// HTTP status
-	if (!empty($zz_conf['int']['http_status'])) {
-		wrap_static('page', 'status', $zz_conf['int']['http_status']);
-		if (!empty($zz_conf['int']['error_type']))
-			wrap_static('page', 'error_type', $zz_conf['int']['error_type']);
-	} else {
+	if (!wrap_static('page', 'status'))
 		wrap_static('page', 'status', 200);
-	}
 
 	// check if request is valid
 	$zz_conf['valid_request'] = zz_valid_request();

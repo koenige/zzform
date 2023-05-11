@@ -98,13 +98,13 @@ function zz_list($zz, $ops, $zz_conditions) {
 			// because there is no content
 			// @todo: output the same page with links, filters etc.
 			// as if no export were selected
-			$zz_conf['int']['http_status'] = 404;
+			wrap_static('page', 'status', 404);
 			$ops['mode'] = false;
 			unset($ops['headers']);
 			return zz_return($ops);
 		} elseif ($ops['records_total']) {
 			// 404 if limit is too large
-			$zz_conf['int']['http_status'] = 404;
+			wrap_static('page', 'status', 404);
 		}
 	}
 
@@ -1113,8 +1113,8 @@ function zz_list_filter_invalid_value($filter, $value) {
 	global $zz_conf;
 
 	if (empty($filter['ignore_invalid_filters'])) {
-		$zz_conf['int']['http_status'] = 404;
-		$zz_conf['int']['error_type'] = E_USER_NOTICE;
+		wrap_static('page', 'status', 404);
+		wrap_static('page', 'error_type', E_USER_NOTICE);
 		zz_error_log([
 			'msg' => '“%s” is not a valid value for the selection “%s”. Please select a different filter.', 
 			'msg_args' => [zz_htmltag_escape($value), $filter['title']],
@@ -1272,7 +1272,7 @@ function zz_list_query_hierarchy($zz) {
 	list($my_lines, $total_rows) = zz_hierarchy($zz['sql'], $zz['list']['hierarchy']);
 	zz_list_limit_last($total_rows);
 	if ($zz_conf['int']['this_limit'] - wrap_setting('zzform_limit') >= $total_rows) {
-		$zz_conf['int']['http_status'] = 404;
+		wrap_static('page', 'status', 404);
 		return [[], $total_rows];
 	}
 
@@ -2188,7 +2188,7 @@ function zz_sql_order($fields, $sql) {
 		if (isset($_GET[$type]) AND !$get_used[$type]) $unwanted_keys[] = $type;
 	}
 	if ($unwanted_keys) {
-		$zz_conf['int']['http_status'] = 404;
+		wrap_static('page', 'status', 404);
 		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string(
 			$zz_conf['int']['url']['qs_zzform'], $unwanted_keys
 		);

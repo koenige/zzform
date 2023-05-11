@@ -100,7 +100,7 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 	if (!empty($zz_conf['int']['id']['invalid_value'])) {
 		$record['formhead'] = '<span class="error">'.sprintf(zz_text('Invalid ID for a record (must be an integer): %s'),
 			wrap_html_escape($zz_conf['int']['id']['invalid_value'])).'</span>';
-		$zz_conf['int']['http_status'] = 404;
+		wrap_static('page', 'status', 404);
 	} elseif (in_array($ops['mode'], ['edit', 'delete', 'review', 'show', 'revise'])
 		AND !$zz_tab[0][0]['record'] AND $action_before_redirect !== 'delete') {
 		$sql = 'SELECT %s FROM %s WHERE %s = %d';
@@ -109,7 +109,7 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 		if ($id_exists) {
 			$record['formhead'] = '<span class="error">'.sprintf(zz_text('Sorry, it is not possible to access the ID %d from here.'),
 				wrap_html_escape($zz_conf['int']['id']['value'])).'</span>';
-			$zz_conf['int']['http_status'] = 403;
+			wrap_static('page', 'status', 403);
 		} else {
 			$sql = 'SELECT MAX(%s) FROM %s';
 			$sql = sprintf($sql, $zz_conf['int']['id']['field_name'], $zz_tab[0]['table']);
@@ -119,11 +119,11 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 				// This of course is only 100% correct if it is an incremental ID
 				$record['formhead'] = '<span class="error">'.sprintf(zz_text('The record with the ID %d was already deleted.'),
 					wrap_html_escape($zz_conf['int']['id']['value'])).'</span>';
-				$zz_conf['int']['http_status'] = 410;
+				wrap_static('page', 'status', 410);
 			} else {
 				$record['formhead'] = '<span class="error">'.sprintf(zz_text('A record with the ID %d does not exist.'),
 					wrap_html_escape($zz_conf['int']['id']['value'])).'</span>';
-				$zz_conf['int']['http_status'] = 404;
+				wrap_static('page', 'status', 404);
 			}
 		}
 	} elseif (!empty($zz_tab[0]['integrity'])) {

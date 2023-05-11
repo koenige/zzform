@@ -48,7 +48,7 @@ function zz_export_init($ops) {
 	}
 	// do not export anything if it's a 404 in export mode
 	// and e. g. limit is incorrect
-	if (!empty($zz_conf['int']['http_status']) AND $zz_conf['int']['http_status'] === 404) {
+	if (wrap_static('page', 'status') === 404) {
 		$ops['mode'] = false;
 		return $ops;
 	}

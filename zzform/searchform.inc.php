@@ -19,7 +19,6 @@
  * @param array $fields
  * @param string $sql
  * @param string $table
- * @global array $zz_conf main configuration variables
  * @return string $sql (un-)modified SQL query
  * @todo if there are subtables, part of this functions code is run redundantly
  */
@@ -27,7 +26,6 @@ function zz_search_sql($fields, $sql, $table) {
 	// no changes if there's no query string
 	if (empty($_GET['q'])) return $sql;
 
-	global $zz_conf;
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	if (wrap_setting('debug')) zz_debug('search query', $sql);
 	static $calls;
@@ -134,7 +132,7 @@ function zz_search_sql($fields, $sql, $table) {
 	}
 
 	if ($scope AND !$found) 
-		$zz_conf['int']['http_status'] = 404;
+		wrap_static('page', 'status', 404);
 
 	if ($q_search) {
 		$q_search = '('.implode(' OR ', $q_search).')';
