@@ -53,12 +53,12 @@ function zzform($zz) {
 		'footer_text' => false,
 		'html_fragment' => !empty($_POST['zz_html_fragment']) ? true : false,
 		'redirect_url' => false,
-		'page' => !empty($zz['page']) ? $zz['page'] : [],
 		'explanation' => ''
 	];
+	wrap_static('page', '', $zz['page'] ?? [], 'init');
 	// @deprecated
 	if (!empty($zz_conf['dont_show_title_as_breadcrumb'])) {
-		$ops['page']['dont_show_title_as_breadcrumb'] = true;
+		wrap_static('page', 'dont_show_title_as_breadcrumb', true);
 		unset($zz_conf['dont_show_title_as_breadcrumb']);
 		wrap_error('Use $zz[\'page\'][\'dont_show_title_as_breadcrumb\'] instead of $zz_conf[\'dont_show_title_as_breadcrumb\']', E_USER_DEPRECATED);
 	}
@@ -376,7 +376,7 @@ function zzform($zz) {
 		// and add/nav if limit/search buttons
 		require_once __DIR__.'/list.inc.php';
 		$ops = zz_list($zz, $ops, $zz_conditions);
-		if (empty($ops['mode']) AND !empty($ops['page']['status'])) {
+		if (empty($ops['mode']) AND wrap_static('page', 'status')) {
 			// return of a request script
 			$ops['mode'] = '';
 			$ops['output'] = $ops['text'];
@@ -458,27 +458,23 @@ function zzform_exit($ops) {
 		if ($zz_conf['show_output']) echo $ops['output'];
 
 		// HTML head
-		if (empty($ops['page']['head']))
-			$ops['page']['head'] = '';
-		$ops['page']['head'] .= wrap_template('zzform-head', [], 'ignore positions');
-		if (empty($ops['page']['meta']))
-			$ops['page']['meta'] = [];
-		$ops['page']['meta'] = array_merge($ops['page']['meta'], zz_output_meta_tags());
+		wrap_static('page', 'head', wrap_template('zzform-head', [], 'ignore positions'), 'append');
+		wrap_static('page', 'meta', zz_output_meta_tags(), 'add');
 
 		if (!empty($ops['html_fragment'])) {
-			$ops['page']['template'] = 'empty';
-			$ops['page']['url'] = $ops['redirect_url'];
-			$ops['page']['send_as_json'] = true;
+			wrap_static('page', 'template', 'empty');
+			wrap_static('page', 'url', $ops['redirect_url']);
+			wrap_static('page', 'send_as_json', true);
 		}
 	}
 
 	// HTTP status
 	if (!empty($zz_conf['int']['http_status'])) {
-		$ops['page']['status'] = $zz_conf['int']['http_status'];
+		wrap_static('page', 'status', $zz_conf['int']['http_status']);
 		if (!empty($zz_conf['int']['error_type']))
-			$ops['page']['error_type'] = $zz_conf['int']['error_type'];
+			wrap_static('page', 'error_type', $zz_conf['int']['error_type']);
 	} else {
-		$ops['page']['status'] = 200;
+		wrap_static('page', 'status', 200);
 	}
 
 	// check if request is valid
@@ -492,13 +488,14 @@ function zzform_exit($ops) {
 	if (!$zz_conf['valid_request'] AND !empty($_GET['zzhash'])
 		AND (!empty($_GET['insert']) OR !empty($_GET['update']))
 	) {
-		$ops['page']['redirect'] = $ops['url'];
-		wrap_quit(301, '', $ops['page']);
+		wrap_static('page', 'redirect', $ops['url']);
+		wrap_quit(301, '', wrap_static('page'));
 	}
 
 	// get rid of internal variables
 	unset($zz_conf['int']);
 
+	$ops['page'] = wrap_static('page');
 	return $ops;
 }
 
