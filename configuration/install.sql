@@ -41,4 +41,4 @@ CREATE TABLE `_revisions` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-INSERT INTO categories (`category`, `description`, `main_category_id`, `path`, `parameters`, `sequence`, `last_update`) VALUES ('thumbnails', NULL, (SELECT category_id FROM categories c WHERE path = 'jobs'), 'jobs/thumbnails', '&alias=jobs/thumbnails&max_requests=2', NULL, NOW());
+INSERT INTO categories (`category`, `description`, `main_category_id`, `path`, `parameters`, `sequence`, `last_update`) VALUES ('Thumbnails', NULL, (SELECT category_id FROM categories c WHERE path = 'jobs'), 'jobs/thumbnails', '&alias=jobs/thumbnails&max_requests=2', NULL, NOW());

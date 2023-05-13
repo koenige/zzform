@@ -16,4 +16,4 @@
 /* 2022-11-02-1 */	DELETE FROM `_settings` WHERE `setting_key` = 'zzform_wmd_editor_languages';
 /* 2023-03-27-1 */	UPDATE `_settings` SET `setting_key` = 'zzform_upload_binary_folder' WHERE `setting_key` = 'zzform_imagemagick_path_unchecked';
 /* 2023-03-27-2 */	UPDATE `_settings` SET `setting_key` = 'zzform_upload_binary_folder_local' WHERE `setting_key` = 'zzform_imagemagick_path_unchecked_local';
-/* 2023-05-13-1 */	INSERT INTO categories (`category`, `description`, `main_category_id`, `path`, `parameters`, `sequence`, `last_update`) VALUES ('thumbnails', NULL, (SELECT category_id FROM categories c WHERE path = 'jobs'), 'jobs/thumbnails', '&alias=jobs/thumbnails&max_requests=2', NULL, NOW());
+/* 2023-05-13-1 */	INSERT INTO categories (`category`, `description`, `main_category_id`, `path`, `parameters`, `sequence`, `last_update`) VALUES ('Thumbnails', NULL, (SELECT category_id FROM categories c WHERE path = 'jobs'), 'jobs/thumbnails', '&alias=jobs/thumbnails&max_requests=2', NULL, NOW());
