@@ -836,6 +836,7 @@ function zz_write_conf_vars($variables, &$conf, $overwrite) {
 function zzform_post_too_big() {
 	if ($_SERVER['REQUEST_METHOD'] !== 'POST') return false;
 	if (!empty($_POST)) return false;
+	if (empty($_SERVER['CONTENT_LENGTH'])) return false;
 	if ($_SERVER['CONTENT_LENGTH'] <= wrap_return_bytes(ini_get('post_max_size'))) return false;
 
 	// without sessions, we can't find out where the user has come from
