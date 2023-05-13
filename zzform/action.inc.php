@@ -928,7 +928,7 @@ function zz_action_change($ops, $zz_tab, $change) {
  */
 function zz_action_trigger($triggers) {
 	foreach ($triggers as $trigger) {
-		$data = wrap_trigger_protected_url($trigger);
+		$data = wrap_job($trigger);
 	}
 }
 

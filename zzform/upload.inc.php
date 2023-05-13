@@ -2168,14 +2168,10 @@ function zz_upload_background($number, $action = 'set') {
 			AND empty($zz_conf['int']['where_with_unique_id'])) {
 			$url .= sprintf('&zzhash=%s', zz_secret_key($number));
 		}
-		$headers[] = 'X-Request-WWW-Authentication: 1';
-		$headers[] = 'X-Timeout-Ignore: 1';
-		$method = 'POST';
-		$data['thumbnails'] = 1;
-		$pwd = sprintf('%s:%s', wrap_username(), wrap_password_token(wrap_username()));
-	
-		require_once wrap_setting('core').'/syndication.inc.php';
-		$result = wrap_syndication_retrieve_via_http($url, $headers, $method, $data, $pwd);
+		$data = [];
+		if (wrap_category_id('jobs/thumbnails', 'check'))
+			$data['job_category_id'] = wrap_category_id('jobs/thumbnails');
+		wrap_job($url, $data);
 		unset($fields[$index]);
 	}
 	return;
