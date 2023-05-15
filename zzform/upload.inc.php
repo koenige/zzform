@@ -93,6 +93,8 @@
 function zz_upload_thumbnail($ops, $zz_tab) {
 	global $zz_conf;
 
+	wrap_static('page', 'content_type', 'json');
+
 	if (empty($zz_tab[0][0]['existing'])) {
 		$ops['error'][] = sprintf('ID %s not found', $zz_conf['int']['id']['value']);
 		wrap_static('page', 'status', 404);
@@ -114,11 +116,27 @@ function zz_upload_thumbnail($ops, $zz_tab) {
 	$zz_tab = zz_upload_action($zz_tab);
 	zz_upload_cleanup($zz_tab);
 
-	if (!empty($zz_tab[0][0]['file_upload'])) {
+	// check all records
+	$file_upload = [];
+	$no_file_upload = [];
+	foreach ($zz_tab as $tab => $my_tab) {
+		if (!is_numeric($tab)) continue;
+		foreach ($my_tab as $rec => $my_rec) {
+			if (!empty($my_rec['file_upload'])) {
+				$file_upload[] = $my_rec['id']['value'];
+			} elseif (!empty($my_rec['no_file_upload'])) {
+				$no_file_upload[] = $my_rec['id']['value'];
+			}
+		}
+	}
+	
+	if ($file_upload) {
 		$ops['id'] = $zz_conf['int']['id']['value'];
+		$ops['thumbnail_ids'] = $file_upload; // can be more than one ID
 		$ops['result'] = 'thumbnail created';
-	} elseif (!empty($zz_tab[0][0]['no_file_upload'])) {
+	} elseif ($no_file_upload) {
 		$ops['id'] = $zz_conf['int']['id']['value'];
+		$ops['thumbnail_ids'] = $nofile_upload; // can be more than one ID
 		$ops['result'] = 'thumbnail not created';
 	} else {
 		$ops['error'][] = sprintf('Thumbnail information for field %d (No. %d) not found',
@@ -126,6 +144,12 @@ function zz_upload_thumbnail($ops, $zz_tab) {
 		);
 		wrap_static('page', 'status', 404);
 	}
+	$ops['output'] = json_encode([
+		'result' => $ops['result'] ?? '',
+		'record_id' => $ops['id'] ?? false,
+		'thumbnail_ids' => $ops['thumbnail_ids'] ?? [],
+		'error' => $ops['error']
+	]);
 	return $ops;
 }
 

@@ -309,6 +309,7 @@ function zzform($zz) {
 			}
 		} elseif ($zz['record']['action'] === 'thumbnails') {
 			$ops = zz_upload_thumbnail($ops, $zz_tab);
+			return zzform_exit($ops);
 		}
 
 	//	Query updated, added or editable record
