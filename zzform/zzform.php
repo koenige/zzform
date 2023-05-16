@@ -377,8 +377,8 @@ function zzform($zz) {
 		// and add/nav if limit/search buttons
 		require_once __DIR__.'/list.inc.php';
 		$ops = zz_list($zz, $ops, $zz_conditions);
-		if (empty($ops['mode']) AND wrap_static('page', 'status')) {
-			// return of a request script
+		if (empty($ops['mode']) AND wrap_static('page', 'status') AND isset($ops['text'])) {
+			// return of a request script (mode alone might be empty for empty exports, too)
 			$ops['mode'] = '';
 			$ops['output'] = $ops['text'];
 			$ops['heading'] = $ops['title'];
