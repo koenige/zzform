@@ -903,6 +903,8 @@ function zz_action_change($ops, $zz_tab, $change) {
 			if (!empty($change['change_info'][$index])) {
 				$zz_tab[$tab][$rec]['change_info'] = $change['change_info'][$index];
 			}
+			// remove 'possible_values' if set
+			zz_action_change_reset_possible_values($zz_tab[$tab][$rec]['fields'], $values);
 			$zz_tab[$tab][$rec]['was_validated'] = false;
 			if (!empty($change['no_check_select_fields'][$index])) {
 				foreach ($change['no_check_select_fields'][$index] as $field_name) {
@@ -914,11 +916,27 @@ function zz_action_change($ops, $zz_tab, $change) {
 			}
 		}
 		// revalidate, but not if no validation has taken place before
-		if (!array_key_exists('not_validated', $ops)) {
+		if (!array_key_exists('not_validated', $ops))
 			$zz_tab = zz_action_validate($zz_tab);
-		}
 	}
 	return [$ops, $zz_tab];
+}
+
+/**
+ * reset possible_values if record_replace has set a new value
+ *
+ * @param array $fields
+ * @param array $values
+ */
+function zz_action_change_reset_possible_values(&$fields, $values) {
+	foreach ($values as $field_name => $value) {
+		foreach ($fields as $field_no => $field) {
+			if (empty($field['field_name'])) continue;
+			if ($field['field_name'] !== $field_name) continue;
+			if (empty($field['possible_values'])) continue;
+			$fields[$field_no]['possible_values'] = [$value];
+		}
+	}
 }
 
 /**
@@ -1145,8 +1163,7 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 			if ($my_rec['fields'][$f]['type'] === 'identifier') {
 				require_once __DIR__.'/identifier.inc.php';
 				$func_vars = zz_identifier_vars($my_rec, $f, $main_post);
-				$conf = (!empty($my_rec['fields'][$f]['conf_identifier']) 
-					? $my_rec['fields'][$f]['conf_identifier'] : []);
+				$conf = $my_rec['fields'][$f]['conf_identifier'] ?? [];
 				$my_rec['POST'][$my_rec['fields'][$f]['field_name']] 
 					= zz_identifier($func_vars, $conf, $my_rec, $db_table, $f);
 				if (!empty($my_rec['fields'][$f]['log_username']))
