@@ -136,7 +136,7 @@ function zz_upload_thumbnail($ops, $zz_tab) {
 		$ops['result'] = 'thumbnail created';
 	} elseif ($no_file_upload) {
 		$ops['id'] = $zz_conf['int']['id']['value'];
-		$ops['thumbnail_ids'] = $nofile_upload; // can be more than one ID
+		$ops['thumbnail_ids'] = $no_file_upload; // can be more than one ID
 		$ops['result'] = 'thumbnail not created';
 	} else {
 		$ops['error'][] = sprintf('Thumbnail information for field %d (No. %d) not found',
