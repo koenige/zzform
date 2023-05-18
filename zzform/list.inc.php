@@ -292,28 +292,35 @@ function zz_list_inline($fields, $lines) {
 		// 1. move definition of subtable to equal level as main table
 		$foreign_key = false;
 		foreach ($field['fields'] as $subno => $subfield) {
-			if ($subfield['type'] === 'foreign_key') {
+			if ($subfield['type'] === 'foreign_key')
 				$foreign_key = !empty($subfield['key_field_name']) ? $subfield['key_field_name'] : $subfield['field_name'];
-			}
-			if (in_array($subfield['type'], ['id', 'foreign_key', 'timestamp'])) continue;
+			if (in_array($subfield['type'], ['id', 'foreign_key', 'timestamp', 'subtable'])) continue;
 			$fn = !empty($subfield['display_field']) ? $subfield['display_field'] : $subfield['field_name'];
 			$subfield['row_value'] = $field['table_name'].'.'.$fn;
+			if (!empty($subfield['list_abbr'])) {
+				// for this function
+				$field['fields'][$subno]['list_abbr_source'] = $subfield['list_abbr'];
+				$field['fields'][$subno]['list_abbr'] = $field['table_name'].'.'.$subfield['list_abbr'];
+				// for later
+				$subfield['list_abbr'] = $field['table_name'].'.'.$subfield['list_abbr'];
+			}
 			$pos++;
 			array_splice($fields, $pos, 0, [$subfield]);
 		}
 		
 		// 2. get data for subtable, add it to main query
 		$foreign_keys = [];
-		foreach ($lines as $line) {
+		foreach ($lines as $line)
 			if (!empty($line[$foreign_key])) $foreign_keys[] = $line[$foreign_key];
-		}
 		if (!$foreign_keys) continue; // empty table
-		$sql = wrap_edit_sql($field['sql'], 'WHERE', sprintf('%s IN (%s)', $foreign_key, implode(',', $foreign_keys)));
+		$sql = wrap_edit_sql($field['sql'], 'WHERE', sprintf('%s.%s IN (%s)', $field['table'], $foreign_key, implode(',', $foreign_keys)));
 		$additional_data = wrap_db_fetch($sql, $foreign_key);
 		foreach ($field['fields'] as $subno => $subfield) {
-			if (in_array($subfield['type'], ['id', 'foreign_key', 'timestamp'])) continue;
-			$fn = !empty($subfield['display_field']) ? $subfield['display_field'] : $subfield['field_name'];
+			if (in_array($subfield['type'], ['id', 'foreign_key', 'timestamp', 'option', 'subtable'])) continue;
+			$fn = $subfield['display_field'] ?? $subfield['field_name'];
 			$fn_key = $field['table_name'].'.'.$fn;
+			$list_abbr = $subfield['list_abbr_source'] ?? '';
+			$list_abbr_key = $subfield['list_abbr'] ?? '';
 			foreach ($lines as $index => $line) {
 				if (empty($line)) continue;
 				// @todo remove following 7 lines, table_name prefix should be unique
@@ -327,8 +334,12 @@ function zz_list_inline($fields, $lines) {
 				if (!array_key_exists($line[$foreign_key], $additional_data)) {
 					// No detail record exists, still initialize field
 					$lines[$index][$fn_key] = '';
+					if ($list_abbr_key)
+						$lines[$index][$list_abbr_key] = '';
 				} else {
 					$lines[$index][$fn_key] = $additional_data[$line[$foreign_key]][$fn];
+					if ($list_abbr_key)
+						$lines[$index][$list_abbr_key] = $additional_data[$line[$foreign_key]][$list_abbr];
 				}
 			}
 		}
