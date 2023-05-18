@@ -304,8 +304,8 @@ function zz_list_inline($fields, $lines) {
 				// for later
 				$subfield['list_abbr'] = $field['table_name'].'.'.$subfield['list_abbr'];
 			}
-			$pos++;
 			array_splice($fields, $pos, 0, [$subfield]);
+			$pos++;
 		}
 		
 		// 2. get data for subtable, add it to main query
