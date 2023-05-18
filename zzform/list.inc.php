@@ -294,7 +294,7 @@ function zz_list_inline($fields, $lines) {
 		foreach ($field['fields'] as $subno => $subfield) {
 			if ($subfield['type'] === 'foreign_key')
 				$foreign_key = !empty($subfield['key_field_name']) ? $subfield['key_field_name'] : $subfield['field_name'];
-			if (in_array($subfield['type'], ['id', 'foreign_key', 'timestamp', 'subtable'])) continue;
+			if (in_array($subfield['type'], ['foreign_key', 'timestamp', 'subtable'])) continue;
 			$fn = !empty($subfield['display_field']) ? $subfield['display_field'] : $subfield['field_name'];
 			$subfield['row_value'] = $field['table_name'].'.'.$fn;
 			if (!empty($subfield['list_abbr'])) {
@@ -316,7 +316,7 @@ function zz_list_inline($fields, $lines) {
 		$sql = wrap_edit_sql($field['sql'], 'WHERE', sprintf('%s.%s IN (%s)', $field['table'], $foreign_key, implode(',', $foreign_keys)));
 		$additional_data = wrap_db_fetch($sql, $foreign_key);
 		foreach ($field['fields'] as $subno => $subfield) {
-			if (in_array($subfield['type'], ['id', 'foreign_key', 'timestamp', 'option', 'subtable'])) continue;
+			if (in_array($subfield['type'], ['foreign_key', 'timestamp', 'option', 'subtable'])) continue;
 			$fn = $subfield['display_field'] ?? $subfield['field_name'];
 			$fn_key = $field['table_name'].'.'.$fn;
 			$list_abbr = $subfield['list_abbr_source'] ?? '';
