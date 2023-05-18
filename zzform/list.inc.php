@@ -1520,7 +1520,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode, $zz
 				}
 			} else {
 				$text = $row['value'];
-				$text = nl2br(zz_htmltag_escape($text));
+				if ($text) $text = nl2br(zz_htmltag_escape($text));
 			}
 			break;
 		case 'list_function':
