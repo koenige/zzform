@@ -468,7 +468,7 @@ function zz_check_datetime($datetime) {
  * @return mixed number, with calculation performed / false if incorrect format
  */
 function zz_check_number($number) {
-	if (!$number) return false;
+	if (!$number) return $number;
 	// remove whitespace, it's nice to not have to care about this
 	$check = trim($number);
 	$check = str_replace(' ', '', $check);
