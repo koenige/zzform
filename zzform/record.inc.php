@@ -23,7 +23,6 @@
  * @param array $zz_tab
  * @param array $zz_conditions
  * @global array $zz_conf
- *		'url_self', 'url_self_qs_base', 'url_append', 'character_set'
  * @return string $output
  */
 function zz_record($ops, $record, $zz_tab, $zz_conditions) {
@@ -2492,33 +2491,16 @@ function zz_field_memo($field, $display, $record) {
 function zz_field_set($field, $fields, $display, $my_tab) {
 	global $zz_conf;
 
-	$group = false;
-	$sets = [];
+	// get select field
 	$this_field = [];
+	$field_names = [];
 	foreach ($fields as $index => $my_field) {
 		$field_names[$my_field['type']] = $my_field['field_name'];
 		if ($my_field['type'] !== 'select') continue;
-		$sets = zz_field_query($my_field);
-		foreach ($sets as $sindex => $line) {
-			$sets[$sindex] = zz_field_select_ignore($line, $my_field, 'sql');
-		}
-		if (!empty($my_field['show_hierarchy_subtree'])) {
-			foreach ($sets as $index => $set) {
-				if ($set[$my_field['show_hierarchy']] === $my_field['show_hierarchy_subtree']) continue;
-				unset($sets[$index]);
-			}
-		}
-		if (!empty($my_field['show_hierarchy'])) {
-			foreach ($sets as $index => $set) {
-				unset($sets[$index][$my_field['show_hierarchy']]);
-			}
-		}
-		$sets = zz_translate($my_field, $sets);
-		if (!empty($my_field['group'])) $group = $my_field['group'];
 		$this_field = $my_field;
 		break;
 	}
-	if (!$sets) {
+	if (!$this_field) {
 		zz_error_log([
 			'msg_dev' => 'For a subtable with a form_display = `set`, there needs to be a field with a field type `select`.',
 			'level' => E_USER_ERROR
@@ -2526,6 +2508,25 @@ function zz_field_set($field, $fields, $display, $my_tab) {
 		zz_error();
 		return;
 	}
+
+	$sets = zz_field_query($this_field);
+	foreach ($sets as $index => $line)
+		$sets[$index] = zz_field_select_ignore($line, $this_field, 'sql');
+
+	if (!empty($this_field['show_hierarchy_subtree'])) {
+		foreach ($sets as $index => $set) {
+			if ($set[$this_field['show_hierarchy']] === $this_field['show_hierarchy_subtree']) continue;
+			unset($sets[$index]);
+		}
+	}
+	if (!empty($this_field['show_hierarchy'])) {
+		foreach ($sets as $index => $set) {
+			unset($sets[$index][$this_field['show_hierarchy']]);
+		}
+	}
+	$sets = zz_translate($this_field, $sets);
+	$group = $this_field['group'] ?? false;
+
 	$exemplary_set = reset($sets);
 	$set_id_field_name = '';
 	$set_field_names = [];
@@ -2560,7 +2561,7 @@ function zz_field_set($field, $fields, $display, $my_tab) {
 					$sets_indexed[$id]['rec_no'] = $rec_no;
 				}
 			} else {
-				$sets_indexed[$rec[$field_names['select']]]['rec_id'] = $rec[$field_names['id']];
+				$sets_indexed[$rec[$field_names['select']]]['rec_id'] = $rec[$field_names['id']] ?? '';
 				$sets_indexed[$rec[$field_names['select']]]['rec_no'] = $rec_no;
 			}
 			if ($rec_no > $rec_max) $rec_max = $rec_no;
