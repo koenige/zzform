@@ -336,7 +336,7 @@ function zz_get_url_self() {
 		$url['qs_zzform'] = '';
 	}
 
-	if (wrap_setting('zzform_host_base'))
+	if (wrap_setting('zzform_host_base') AND str_starts_with($url['self'], '/'))
 		$url['self'] = wrap_setting('host_base').$url['self'];
 	return $url;
 }
