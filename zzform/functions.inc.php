@@ -294,6 +294,8 @@ function zz_get_url_self() {
 	if (empty($zz_conf['url_self'])) {
 		// nothing was defined, we just do it as we like
 		$url['self'] = $my_uri['path'];
+		if (wrap_setting('zzform_host_base'))
+			$url['self'] = wrap_setting('host_base').$url['self'];
 		// zzform query string
 		$url['qs_zzform'] = !empty($my_uri['query']) ? '?'.$my_uri['query'] : '';
 		$url['full'] = $url['base'].$url['self'];
@@ -334,6 +336,8 @@ function zz_get_url_self() {
 		$url['qs_zzform'] = '';
 	}
 
+	if (wrap_setting('zzform_host_base'))
+		$url['self'] = wrap_setting('host_base').$url['self'];
 	return $url;
 }
 

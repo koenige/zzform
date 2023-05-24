@@ -11,8 +11,7 @@
 # tfoot must be before thead or hitting ENTER won’t necessarily save the record
 #
 %%% condition if form %%%
-<form action="%%% condition if setting zzform_host_base %%%%%% setting host_base %%%%%% condition endif %%%
-%%% setting zzform_int_url_self %%%%%% setting zzform_int_url_qs %%%
+<form action="%%% setting zzform_int_url_self %%%%%% setting zzform_int_url_qs %%%
 %%% condition if setting zzform_int_extra_get %%%
 %%% setting zzform_int_url_?& %%%%%% setting zzform_int_extra_get_escaped %%%
 %%% condition endif %%%
@@ -102,7 +101,7 @@ var zzformSubmitButton = '';
 var zzformWmdEditorInstances = %%% setting zzform_wmd_editor_instances %%%;
 var zzformWmdEditorLang = '%%% setting zzform_wmd_editor_lang %%%';
 %%% condition endif %%%
-var zzformActionURL = '%%% condition if setting zzform_host_base %%%%%% setting host_base %%%%%% condition endif %%%%%% setting zzform_int_url_self %%%%%% setting zzform_int_url_qs %%%
+var zzformActionURL = '%%% setting zzform_int_url_self %%%%%% setting zzform_int_url_qs %%%
 %%% condition if setting zzform_int_extra_get %%%
 %%% setting zzform_int_url_?& %%%%%% setting zzform_int_extra_get %%%
 %%% condition endif %%%'; 
