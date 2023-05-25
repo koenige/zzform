@@ -1176,11 +1176,9 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 				break;
 
 			case 'captcha':
-				if (empty($field['explanation']))
-					$field['explanation'] = wrap_text('Please enter the digits from the image.');
-				// captcha only for adding, otherwise hide field
-				if ($mode !== 'add') continue 2;
 				$outputf = zz_field_captcha($field, $my_rec['record'], $mode);
+				if (!$outputf) continue 2;
+				$field['explanation'] = '';
 				break;
 
 			default:
@@ -4041,9 +4039,14 @@ function zz_field_calculated($field, $record, $mode) {
  */
 function zz_field_captcha($field, $record, $mode) {
 	global $zz_conf;
-	$field['zz_id'] = $zz_conf['id'];
-	$captcha_code = zz_captcha_code($zz_conf['id']);
-	$field['alt_text'] = zz_captcha_alt_text($captcha_code);
+	// captcha only for adding, otherwise hide field
+	if ($mode !== 'add') return '';
+	if (!empty($field['captcha_solved'])) {
+		$field['captcha_solved'] = wrap_set_hash($zz_conf['id'], 'zzform_captcha_key');
+	} else {
+		$field['zz_id'] = $zz_conf['id'];
+		$field['alt_text'] = zz_captcha_alt_text(zz_captcha_code($zz_conf['id']));
+	}
 	return wrap_template('zzform-captcha', $field);
 }
 

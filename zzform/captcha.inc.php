@@ -22,6 +22,10 @@
  * @return void
  */
 function zz_captcha_code($zz_id, $code = false) {
+	if (str_starts_with($code, 'solved-')) {
+		// no need to solve a captcha twice, check code
+		return wrap_check_hash($zz_id, substr($code, 7), '', 'zzform_captcha_key');
+	}
 	require_once wrap_setting('core').'/file.inc.php';
 	$logfile = wrap_setting('log_dir').'/captcha.log';
 	if (!file_exists($logfile)) touch($logfile);
@@ -108,6 +112,7 @@ function zz_captcha_image($zz_id) {
 
 	// display image and clean up
 	header('Content-type: image/png');
+	header('Cache-Control: private, max-age=0, must-revalidate');
 	imagepng($image);
 	imagedestroy($image);
 	exit;

@@ -2005,9 +2005,14 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 			break;
 		case 'captcha':
 			$my_rec['fields'][$f]['in_sql_query'] = false;
-			if (!$my_rec['POST'][$field_name] OR !zz_captcha_code($zz_conf['id'], $my_rec['POST'][$field_name])) {
+			if (!$my_rec['POST'][$field_name]) {
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['validation'] = false;
+			} elseif (!zz_captcha_code($zz_conf['id'], $my_rec['POST'][$field_name])) {
+				$my_rec['fields'][$f]['check_validation'] = false;
+				$my_rec['validation'] = false;
+			} else {
+				$my_rec['fields'][$f]['captcha_solved'] = true;
 			}
 			break;
 		case 'parameter':
