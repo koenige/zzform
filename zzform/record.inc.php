@@ -2482,13 +2482,13 @@ function zz_field_memo($field, $display, $record) {
 /**
  * record output of field type 'set', but as a subtable
  *
- * @param array $field
+ * @param array $subtable $zz field definition of subtable
  * @param array $fields
  * @param string $display
  * @param array $my_tab
  * @return string
  */
-function zz_field_set($field, $fields, $display, $my_tab) {
+function zz_field_set($subtable, $fields, $display, $my_tab) {
 	global $zz_conf;
 
 	// get select field
@@ -2558,10 +2558,12 @@ function zz_field_set($field, $fields, $display, $my_tab) {
 				foreach ($sets_indexed as $id => $set_indexed) {
 					if ($set_indexed['id'] !== $rec[$field_names['select']]) continue;
 					$sets_indexed[$id]['rec_id'] = $rec[$field_names['id']];
+					$sets_indexed[$id]['checked'] = true;
 					$sets_indexed[$id]['rec_no'] = $rec_no;
 				}
 			} else {
 				$sets_indexed[$rec[$field_names['select']]]['rec_id'] = $rec[$field_names['id']] ?? '';
+				$sets_indexed[$rec[$field_names['select']]]['checked'] = true;
 				$sets_indexed[$rec[$field_names['select']]]['rec_no'] = $rec_no;
 			}
 			if ($rec_no > $rec_max) $rec_max = $rec_no;
@@ -2569,7 +2571,7 @@ function zz_field_set($field, $fields, $display, $my_tab) {
 			OR (!empty($rec['POST']) AND $rec['action'] === 'review'))) {
 			// add from source
 			$rec = $rec['POST'];
-			foreach ($field['fields'] as $subfield) {
+			foreach ($subtable['fields'] as $subfield) {
 				if (!array_key_exists('field_name', $subfield)) continue;
 				if (empty($rec[$subfield['field_name']])) continue;
 				if (!array_key_exists($rec[$subfield['field_name']], $sets_indexed)) continue;
@@ -2584,10 +2586,9 @@ function zz_field_set($field, $fields, $display, $my_tab) {
 	}
 	// set defaults if mode (no id value) = add but not add from source (also no source_value)
 	if (empty($zz_conf['int']['id']['value']) AND empty($zz_conf['int']['id']['source_value'])
-		AND !empty($field['default']) AND $display === 'form') {
-		foreach ($field['default'] as $def) {
-			$sets_indexed[$def]['default'] = true;
-		}
+		AND !empty($subtable['default']) AND $display === 'form') {
+		foreach ($subtable['default'] as $def)
+			$sets_indexed[$def]['checked'] = true;
 	}
 	$last_group = '';
 	$outputf = '';
@@ -2605,12 +2606,12 @@ function zz_field_set($field, $fields, $display, $my_tab) {
 			if (!empty($set['rec_id'])) {
 				$outputf .= sprintf(
 					'<input type="hidden" name="%s[%d][%s]" value="%d">'
-					, $field['table_name'], $set['rec_no'], $field_names['id']
+					, $subtable['table_name'], $set['rec_no'], $field_names['id']
 					, $set['rec_id']
 				);
 				$outputf .= sprintf(
 					'<input type="hidden" name="%s[%d][%s]" value="">'
-					, $field['table_name'], $set['rec_no'], $field_names['select']
+					, $subtable['table_name'], $set['rec_no'], $field_names['select']
 				);
 			}
 			if (!empty($set['id'])) {
@@ -2618,15 +2619,15 @@ function zz_field_set($field, $fields, $display, $my_tab) {
 					'<li><label for="check-%s-%d">'
 					.'<input type="checkbox" name="%s[%d][%s]" id="check-%s-%d" value="%d"%s>&nbsp;%s'
 					.'</label></li>'."\n"
-					, $field['table_name'], $set['rec_no']
-					, $field['table_name'], $set['rec_no'], $field_names['select']
-					, $field['table_name'], $set['rec_no'], $set['id']
-					, ((!empty($set['rec_id']) OR !empty($set['default'])) ? ' checked="checked"' : ''), $set['title']
+					, $subtable['table_name'], $set['rec_no']
+					, $subtable['table_name'], $set['rec_no'], $field_names['select']
+					, $subtable['table_name'], $set['rec_no'], $set['id']
+					, (!empty($set['checked']) ? ' checked="checked"' : ''), $set['title']
 				);
 			} else {
 				zz_error_log([
 					'msg_dev' => 'Found a value selected that is set to non-selectable (table %s, ID %d)',
-					'msg_dev_args' => [$field['table'], $set['rec_id']]
+					'msg_dev_args' => [$subtable['table'], $set['rec_id']]
 				]);
 			}
 		} elseif (!empty($set['rec_id']) AND !empty($set['title'])) {
