@@ -738,7 +738,6 @@ function zz_subrecords_post(&$my_tab, &$records, &$existing, $existing_ids, $mod
 					'msg_dev_args' => [$my_tab['table_name'], $posted[$my_tab['id_field_name']], $zz_conf['int']['id']['value']],
 					'level' => E_USER_NOTICE
 				]);
-				unset($my_tab['POST'][$rec]);
 				continue;
 			}
 		} elseif (in_array($state, ['add', 'edit']) 
@@ -759,13 +758,11 @@ function zz_subrecords_post(&$my_tab, &$records, &$existing, $existing_ids, $mod
 		} else {
 			// this is not allowed (wrong state or access: show, 
 			// too many detail records)
-			unset($my_tab['POST'][$rec]);
 			continue;
 		}
 		$post[$key] = $my_tab['POST'][$rec];
 		$my_tab['check_select_fields'][$key] = zz_prepare_check_select($my_tab['table_name'], $rec);
 		$records[$key] = $my_tab['POST'][$rec];
-		unset($my_tab['POST'][$rec]);
 	}
 	$my_tab['POST'] = $post;
 
