@@ -177,8 +177,8 @@ function zz_prepare_tables($zz, $mode) {
 	//  POST is secured, now get rid of password fields in case of error_log_post
 	foreach ($zz['fields'] AS $field) {
 		if (empty($field['type'])) continue;
-		if ($field['type'] === 'password') unset($_POST[$field['field_name']]);
-		if ($field['type'] === 'password_change') unset($_POST[$field['field_name']]);
+		if (!in_array($field['type'], ['password', 'password_change'])) continue;
+		unset($_POST[$field['field_name']]);
 	}
 
 	// set defaults and values, clean up POST
@@ -577,61 +577,7 @@ function zz_get_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 		$existing = $records = array_values($existing);
 	}
 	
-	$start_new_recs = count($records);
-	if ($my_tab['max_records'] < $start_new_recs) $start_new_recs = -1;
-
-	// now go into each individual subrecord
-	// assign POST array, first existing records, then new records,
-	// ignore illegally sent records
-	$post = [];
-	
-	foreach ($my_tab['POST'] as $rec => $posted) {
-		if (!empty($posted[$my_tab['id_field_name']]) AND $posted[$my_tab['id_field_name']] !== "''") {
-			// this will only occur if main record is updated or deleted!
-			// check if posted ID is in existing IDs
-			$key = array_search($posted[$my_tab['id_field_name']], $existing_ids);
-			if ($key === false) {
-				// illegal ID, this will only occur if user manipulated the form
-				zz_error_log([
-					'msg_dev' => 'Detail record with invalid ID was posted (ID of table_name %s was said to be %s, main record was ID %s)',
-					'msg_dev_args' => [$my_tab['table_name'], $posted[$my_tab['id_field_name']], $zz_conf['int']['id']['value']],
-					'level' => E_USER_NOTICE
-				]);
-				unset($my_tab['POST'][$rec]);
-				continue;
-			}
-		} elseif (in_array($state, ['add', 'edit']) 
-			AND $rec_tpl['access'] !== 'show' AND $values 
-			AND false !== $my_key = zz_values_get_equal_key($values, $my_tab['POST'][$rec])) {
-			$key = $my_key;
-		} elseif (in_array($state, ['add', 'edit']) 
-			AND $rec_tpl['access'] !== 'show'
-			AND $start_new_recs >= 0) {
-			// this is a new record, append it
-			$key = $start_new_recs;
-			$existing[$key] = []; // no existing record exists
-			// get source_value key
-			if ($mode === 'add' AND !empty($zz_tab[0][0]['id']['source_value'])) {
-				$my_tab['source_values'][$key] = $source_values[$rec];
-			}
-			$start_new_recs++;
-			if ($my_tab['max_records'] < $start_new_recs) $start_new_recs = -1;
-		} else {
-			// this is not allowed (wrong state or access: show, 
-			// too many detail records)
-			unset($my_tab['POST'][$rec]);
-			continue;
-		}
-		$post[$key] = $my_tab['POST'][$rec];
-		$my_tab['check_select_fields'][$key] = zz_prepare_check_select($my_tab['table_name'], $rec);
-		$records[$key] = $my_tab['POST'][$rec];
-		unset($my_tab['POST'][$rec]);
-	}
-	$my_tab['POST'] = $post;
-	unset($post);
-	
-	// get all keys (some may only be in existing, some only in POST (new ones))
-	$my_tab['records'] = count($records);
+	zz_subrecords_post($my_tab, $records, $existing, $existing_ids, $mode, $state, $values, $zz_tab[0][0]['id']);
 
 	// first check for review or access, 
 	// first if must be here because access might override mode here!
@@ -757,6 +703,74 @@ function zz_get_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 	}
 
 	return $my_tab;
+}
+
+/**
+ * go into each individual subrecord
+ * assign POST array, first existing records, then new records,
+ * ignore illegally sent records
+ *
+ * @param array $my_tab definition of subtable
+ * @param array $records
+ * @param array $existing
+ * @param array $existing_ids
+ * @param string $mode
+ * @param string $state
+ * @param array $values
+ * @param array $main_id = $zz_tab[0][0]['id']
+ */
+function zz_subrecords_post(&$my_tab, &$records, &$existing, $existing_ids, $mode, $state, $values, $main_id) {
+	global $zz_conf;
+
+	$start_new_recs = count($records);
+	if ($my_tab['max_records'] < $start_new_recs) $start_new_recs = -1;
+
+	$post = [];
+	foreach ($my_tab['POST'] as $rec => $posted) {
+		if (!empty($posted[$my_tab['id_field_name']]) AND $posted[$my_tab['id_field_name']] !== "''") {
+			// this will only occur if main record is updated or deleted!
+			// check if posted ID is in existing IDs
+			$key = array_search($posted[$my_tab['id_field_name']], $existing_ids);
+			if ($key === false) {
+				// illegal ID, this will only occur if user manipulated the form
+				zz_error_log([
+					'msg_dev' => 'Detail record with invalid ID was posted (ID of table_name %s was said to be %s, main record was ID %s)',
+					'msg_dev_args' => [$my_tab['table_name'], $posted[$my_tab['id_field_name']], $zz_conf['int']['id']['value']],
+					'level' => E_USER_NOTICE
+				]);
+				unset($my_tab['POST'][$rec]);
+				continue;
+			}
+		} elseif (in_array($state, ['add', 'edit']) 
+			AND $my_tab['access'] !== 'show' AND $values 
+			AND false !== $my_key = zz_values_get_equal_key($values, $posted)) {
+			$key = $my_key;
+		} elseif (in_array($state, ['add', 'edit']) 
+			AND $my_tab['access'] !== 'show'
+			AND $start_new_recs >= 0) {
+			// this is a new record, append it
+			$key = $start_new_recs;
+			$existing[$key] = []; // no existing record exists
+			// get source_value key
+			if ($mode === 'add' AND !empty($main_id['source_value']))
+				$my_tab['source_values'][$key] = $source_values[$rec];
+			$start_new_recs++;
+			if ($my_tab['max_records'] < $start_new_recs) $start_new_recs = -1;
+		} else {
+			// this is not allowed (wrong state or access: show, 
+			// too many detail records)
+			unset($my_tab['POST'][$rec]);
+			continue;
+		}
+		$post[$key] = $my_tab['POST'][$rec];
+		$my_tab['check_select_fields'][$key] = zz_prepare_check_select($my_tab['table_name'], $rec);
+		$records[$key] = $my_tab['POST'][$rec];
+		unset($my_tab['POST'][$rec]);
+	}
+	$my_tab['POST'] = $post;
+
+	// get all keys (some may only be in existing, some only in POST (new ones))
+	$my_tab['records'] = count($records);
 }
 
 /**
