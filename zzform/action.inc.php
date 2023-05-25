@@ -1469,7 +1469,8 @@ function zz_action_dependent_fields(&$zz_tab) {
 				$field_name = isset($field['field_name']) ? $field['field_name'] : '';
 
 				foreach ($dependent_fields_ids[$f] as $dependency) {
-					$source_value = zz_dependent_value($dependency, $my_rec, $zz_tab);
+					// do not use $my_rec to change, $zz_tab[$tab][$rec] might have changed
+					$source_value = zz_dependent_value($dependency, $zz_tab[$tab][$rec], $zz_tab);
 					if ($source_value AND !empty($dependency['values']) AND in_array($source_value, $dependency['values'])) {
 						// visible, i. e. value is possible
 						if ($dependency['required']) {
