@@ -577,7 +577,7 @@ function zz_get_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 		$existing = $records = array_values($existing);
 	}
 	
-	zz_subrecords_post($my_tab, $records, $existing, $existing_ids, $mode, $state, $values, $zz_tab[0][0]['id']);
+	zz_subrecords_post($my_tab, $records, $existing, $existing_ids, $mode, $state, $values, $source_values, $zz_tab[0][0]['id']);
 
 	// first check for review or access, 
 	// first if must be here because access might override mode here!
@@ -717,9 +717,10 @@ function zz_get_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
  * @param string $mode
  * @param string $state
  * @param array $values
+ * @param array $source_values
  * @param array $main_id = $zz_tab[0][0]['id']
  */
-function zz_subrecords_post(&$my_tab, &$records, &$existing, $existing_ids, $mode, $state, $values, $main_id) {
+function zz_subrecords_post(&$my_tab, &$records, &$existing, $existing_ids, $mode, $state, $values, $source_values, $main_id) {
 	global $zz_conf;
 
 	$start_new_recs = count($records);
