@@ -47,9 +47,16 @@ function zz_db_table_structure($table) {
  */
 function zz_copy_records($table, $foreign_id_field_name, $source_id, $destination_id, $transfer_field_name = false) {
 	$def = zz_db_table_structure($table);
+	$main_id_field_name = 'main_'.$def['primary_key'];
 
 	// existing records
 	$sql = 'SELECT * FROM `%s` WHERE `%s` = %d';
+	// does a main id field name exist?
+	// move values with main id to the end
+	if (!empty($def['foreign_keys']) AND in_array($main_id_field_name, $def['foreign_keys']))
+		$sql .= sprintf(' ORDER BY IF(ISNULL(%s), NULL, 1)', $main_id_field_name);
+	else
+		$main_id_field_name = false;
 	$sql = sprintf($sql, $def['table'], $foreign_id_field_name, $source_id);
 	$data = wrap_db_fetch($sql, $def['primary_key']);
 	if (!$data) return false;
@@ -68,6 +75,10 @@ function zz_copy_records($table, $foreign_id_field_name, $source_id, $destinatio
 		foreach ($line as $field_name => $value)
 			if (!in_array($field_name, $dont_copy))
 				$values['POST'][$field_name] = $value;
+		// main ID field name? map to copied main ID field name
+		if ($main_id_field_name AND !empty($values['POST'][$main_id_field_name]))
+			if (!isset($map[$values['POST'][$main_id_field_name]])) continue; // do not add this record
+			else $values['POST'][$main_id_field_name] = $map[$values['POST'][$main_id_field_name]];
 		if ($transfer_field_name)
 			$values['POST'][$transfer_field_name] = $line[$def['primary_key']];
 		$ops = zzform_multi($def['script_name'], $values);
