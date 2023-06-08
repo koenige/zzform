@@ -43,9 +43,10 @@ function zz_db_table_structure($table) {
  * @param int $source_id
  * @param int $destination_id
  * @param string $transfer_field_name to transfer additional data for POST (optional)
- * @return bool
+ * @param array $map_other other mappings of IDs (optional)
+ * @return array
  */
-function zz_copy_records($table, $foreign_id_field_name, $source_id, $destination_id, $transfer_field_name = false) {
+function zz_copy_records($table, $foreign_id_field_name, $source_id, $destination_id, $transfer_field_name = false, $map_other = []) {
 	$def = zz_db_table_structure($table);
 	$main_id_field_name = 'main_'.$def['primary_key'];
 
@@ -59,7 +60,7 @@ function zz_copy_records($table, $foreign_id_field_name, $source_id, $destinatio
 		$main_id_field_name = false;
 	$sql = sprintf($sql, $def['table'], $foreign_id_field_name, $source_id);
 	$data = wrap_db_fetch($sql, $def['primary_key']);
-	if (!$data) return false;
+	if (!$data) return [];
 	
 	$dont_copy = wrap_setting('zzform_copy_fields_exclude');
 	$dont_copy[] = $def['primary_key'];
@@ -73,8 +74,11 @@ function zz_copy_records($table, $foreign_id_field_name, $source_id, $destinatio
 	$values['POST'][$foreign_id_field_name] = $destination_id;
 	foreach ($data as $line) {
 		foreach ($line as $field_name => $value)
-			if (!in_array($field_name, $dont_copy))
+			if (!in_array($field_name, $dont_copy)) {
+				if (array_key_exists($field_name, $map_other) AND array_key_exists($value, $map_other[$field_name]))
+					$value = $map_other[$field_name][$value];
 				$values['POST'][$field_name] = $value;
+			}
 		// main ID field name? map to copied main ID field name
 		if ($main_id_field_name AND !empty($values['POST'][$main_id_field_name]))
 			if (!isset($map[$values['POST'][$main_id_field_name]])) continue; // do not add this record
@@ -88,7 +92,7 @@ function zz_copy_records($table, $foreign_id_field_name, $source_id, $destinatio
 		$map[$line[$def['primary_key']]] = $ops['id'];
 	}
 	zz_copy_records_translations($def['table'], array_keys($data), $map);
-	return true;	
+	return [$def['primary_key'] => $map];	
 }
 
 /**
