@@ -3759,7 +3759,8 @@ function zz_draw_select($field, $record, $line, $id_field_name, $form = false, $
 	if (is_array($details)) $details = zz_field_concat($field, $details);
 	$fieldvalue = $details;
 	// remove linebreaks
-	$fieldvalue = str_replace("\r\n", " ", $fieldvalue);
+	if ($fieldvalue)
+		$fieldvalue = str_replace("\r\n", " ", $fieldvalue);
 	if ($form === 'reselect') {
 		$fieldattr = [];
 		$fieldattr['size'] = !empty($field['size_select_too_long']) ? $field['size_select_too_long'] : 32;
