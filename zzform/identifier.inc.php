@@ -70,32 +70,8 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 		}
 	}
 	
-	// set defaults, correct types
-	$default_configuration = [
-		'forceFilename' => '-', 'concat' => '.', 'exists' => '.',
-		'lowercase' => true, 'slashes' => false, 'replace' => [],
-		'hash_md5' => false, 'ignore' => [], 'max_length' => 36,
-		'ignore_this_if' => [], 'empty' => [], 'uppercase' => false,
-		'function' => false, 'function_parameter' => false,
-		'unique_with' => [], 'where' => '', 'strip_tags' => false,
-		'exists_format' => '%s', 'ignore_this_if_identical' => [],
-		'remove_strings' => [], 'parameters' => '', 'prefix' => ''
-	];
-	foreach ($default_configuration as $key => $value)
-		if (!isset($conf[$key])) $conf[$key] = $value;
-	$conf_max_length_1 = ['forceFilename', 'exists'];
-	foreach ($conf_max_length_1 as $key)
-		$conf[$key] = substr($conf[$key], 0, 1);
-	$conf_arrays = ['ignore', 'unique_with', 'remove_strings'];
-	foreach ($conf_arrays as $key) {
-		if (!is_array($conf[$key])) $conf[$key] = [$conf[$key]];
-	}
-	$conf_arrays_in_arrays = ['ignore_this_if', 'ignore_this_if_identical'];
-	foreach ($conf_arrays_in_arrays as $key) {
-		foreach ($conf[$key] as $subkey => $value) {
-			if (!is_array($value)) $conf[$key][$subkey] = [$value];
-		}
-	}
+	zz_identifier_defaults($conf);
+
 	$wheres = [];
 	foreach ($conf['unique_with'] as $unique_field) {
 		// identifier does not have to be unique, add where from other keys
@@ -193,16 +169,16 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 	if (empty($idf_arr)) return false;
 
 	$idf = zz_identifier_concat($idf_arr, $conf['concat']);
-	if (!empty($conf['prefix'])) $idf = $conf['prefix'].$idf;
+	if ($conf['prefix']) $idf = $conf['prefix'].$idf;
 	// start value, if idf already exists
-	$i = !empty($conf['start']) ? $conf['start'] : 2;
+	$i = $conf['start'] ?? 2;
 	// start always?
-	if (!empty($conf['start_always'])) $idf .= $conf['exists'].sprintf($conf['exists_format'], $i);
-	else $conf['start_always'] = false;
+	if ($conf['start_always'])
+		$idf .= $conf['exists'].sprintf($conf['exists_format'], $i);
 	// hash md5?
-	if (!empty($conf['hash_md5'])) {
+	if (!empty($conf['hash_md5']))
 		$idf = md5($idf.date('Ymdhis'));
-	}
+
 	if (!empty($conf['function'])) {
 		if (!empty($conf['function_parameter'])) {
 			if (is_array($conf['function_parameter'])) {
@@ -259,6 +235,42 @@ function zz_identifier_configuration($vars, $parameters) {
 	foreach ($parameters['identifier'] as $key => $value)
 		$vars[$key] = wrap_setting_value($value);
 	return $vars;
+}
+
+/**
+ * set defaults, correct types
+ *
+ * @param array $conf
+ */
+function zz_identifier_defaults(&$conf) {
+	$default_configuration = [
+		'forceFilename' => '-', 'concat' => '.', 'exists' => '.',
+		'lowercase' => true, 'slashes' => false, 'replace' => [],
+		'hash_md5' => false, 'ignore' => [], 'max_length' => 36,
+		'ignore_this_if' => [], 'empty' => [], 'uppercase' => false,
+		'function' => false, 'function_parameter' => false,
+		'unique_with' => [], 'where' => '', 'strip_tags' => false,
+		'exists_format' => '%s', 'ignore_this_if_identical' => [],
+		'remove_strings' => [], 'parameters' => '', 'prefix' => '',
+		'start_always' => false
+	];
+	foreach ($default_configuration as $key => $value)
+		if (!array_key_exists($key, $conf)) $conf[$key] = $value;
+
+	$conf_max_length_1 = ['forceFilename', 'exists'];
+	foreach ($conf_max_length_1 as $key)
+		$conf[$key] = substr($conf[$key], 0, 1);
+
+	$conf_arrays = ['ignore', 'unique_with', 'remove_strings'];
+	foreach ($conf_arrays as $key)
+		if (!is_array($conf[$key])) $conf[$key] = [$conf[$key]];
+
+	$conf_arrays_in_arrays = ['ignore_this_if', 'ignore_this_if_identical'];
+	foreach ($conf_arrays_in_arrays as $key) {
+		foreach ($conf[$key] as $subkey => $value) {
+			if (!is_array($value)) $conf[$key][$subkey] = [$value];
+		}
+	}
 }
 
 /**
