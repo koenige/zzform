@@ -71,7 +71,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 	zz_identifier_defaults($conf);
 
 	if ($my_rec AND $field AND $db_table)
-		$conf['sql'] = zz_identifier_sql($conf, zz_identifier_var('filetype_id', $my_rec, $my_rec['POST']));
+		$conf['sql'] = zz_identifier_sql($db_table, $field_name, $my_rec, $conf);
 
 	$i = 0;
 	$idf_arr = [];
@@ -205,9 +205,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 	if ($my_rec AND $field AND $db_table) {
 		// check whether identifier exists
 		$idf = zz_identifier_exists(
-			$idf, $i, $db_table, $field_name, $my_rec['id']['field_name'],
-			$my_rec['POST'][$my_rec['id']['field_name']], $conf,
-			$my_rec['fields'][$field]['maxlength']
+			$idf, $i, $db_table, $field_name, $conf, $my_rec['fields'][$field]['maxlength']
 		);
 	}
 	return $idf;
@@ -310,25 +308,32 @@ function zz_identifier_concat($data, $concat) {
 /**
  * create SQL query to check existing records
  *
+ * @param string $db_table
+ * @param string $field_name
+ * @param array $my_rec
  * @param array $conf
- * @param string $unique_value
  * @return string
  */
-function zz_identifier_sql($conf, $unique_value = '') {
+function zz_identifier_sql($db_table, $field_name, $my_rec, $conf) {
 	$wheres = [];
 	// identifier does not have to be unique, add where from other keys
 	foreach ($conf['unique_with'] as $unique_field)
-		$wheres[] = sprintf('%s = "%s"', $unique_field, $unique_value);
+		$wheres[] = sprintf('%s = "%s"', $unique_field, zz_identifier_var('filetype_id', $my_rec, $my_rec['POST']));
 	if ($wheres) {
 		if ($conf['where']) $conf['where'] .= ' AND ';
 		$conf['where'] .= implode(' AND ', $wheres);
 	}
-	$sql = 'SELECT %%s
-		FROM %%s
-		WHERE %%s = "%%s"
-		AND %%s != %%d
+	$sql = 'SELECT %s
+		FROM %s
+		WHERE %s = "%%s"
+		AND %s != %d
 		%s';
 	$sql = sprintf($sql
+		, $my_rec['id']['field_name']
+		, zz_db_table_backticks($db_table)
+		, $field_name
+		, $my_rec['id']['field_name']
+		, $my_rec['POST'][$my_rec['id']['field_name']]
 		, $conf['where'] ? ' AND '.$conf['where'] : ''
 	);
 	return $sql;
@@ -342,24 +347,19 @@ function zz_identifier_sql($conf, $unique_value = '') {
  * @param mixed $i (integer or letter)
  * @param string $db_table [dbname.table]
  * @param string $field
- * @param string $id_field
- * @param string $id_value
  * @param array $conf
  * @param int $maxlen
  * @global array $zz_conf
  * @return string $idf
  */
-function zz_identifier_exists($idf, $i, $db_table, $field, $id_field, $id_value, $conf, $maxlen = false) {
+function zz_identifier_exists($idf, $i, $db_table, $field, $conf, $maxlen = false) {
 	global $zz_conf;
 	static $existing = [];
 	if (empty($existing[$zz_conf['id']][$db_table]))
 		$existing[$zz_conf['id']][$db_table] = [];
 
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
-	$sql = sprintf($conf['sql'],
-		$field, zz_db_table_backticks($db_table),
-		$field, $idf, $id_field, $id_value
-	);
+	$sql = sprintf($conf['sql'], $idf);
 	$records = zz_db_fetch($sql, $field, 'single value');
 	if ($records OR in_array($idf, $existing[$zz_conf['id']][$db_table])) {
 		$start = false;
@@ -394,7 +394,7 @@ function zz_identifier_exists($idf, $i, $db_table, $field, $id_field, $id_value,
 		$idf = $idf.$suffix;
 		$i++;
 		$idf = zz_identifier_exists(
-			$idf, $i, $db_table, $field, $id_field, $id_value, $conf, $maxlen
+			$idf, $i, $db_table, $field, $conf, $maxlen
 		);
 	}
 	$existing[$zz_conf['id']][$db_table][] = $idf;
