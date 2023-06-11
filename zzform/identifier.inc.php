@@ -73,6 +73,9 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 	if ($my_rec AND $field AND $db_table)
 		$conf['sql'] = zz_identifier_sql($db_table, $field_name, $my_rec, $conf);
 
+	if ($conf['random_hash'])
+		return zz_identifier_random_hash($conf);
+
 	$i = 0;
 	$idf_arr = [];
 	$len = 0;
@@ -240,8 +243,8 @@ function zz_identifier_defaults(&$conf) {
 		'function' => false, 'function_parameter' => false,
 		'unique_with' => [], 'where' => '', 'strip_tags' => false,
 		'exists_format' => '%s', 'ignore_this_if_identical' => [],
-		'remove_strings' => [], 'parameters' => '', 'prefix' => '',
-		'start_always' => false
+		'remove_strings' => [], 'parameters' => '', 'prefix' => '', 'sql' => '',
+		'start_always' => false, 'random_hash' => 0, 'random_hash_charset' => NULL
 	];
 	foreach ($default_configuration as $key => $value)
 		if (!array_key_exists($key, $conf)) $conf[$key] = $value;
@@ -337,6 +340,30 @@ function zz_identifier_sql($db_table, $field_name, $my_rec, $conf) {
 		, $conf['where'] ? ' AND '.$conf['where'] : ''
 	);
 	return $sql;
+}
+
+/**
+ * set random hash as identifier
+ *
+ * @param array $conf
+ * @return string
+ */
+function zz_identifier_random_hash($conf) {
+	$duplicate = true;
+	while ($duplicate) {
+		if ($conf['random_hash_charset'])
+			$hash = wrap_random_hash($conf['random_hash'], $conf['random_hash_charset']);
+		else
+			$hash = wrap_random_hash($conf['random_hash']);
+		if ($conf['sql']) {
+			$sql = sprintf($conf['sql'], $hash);
+			$duplicate = wrap_db_fetch($sql, '', 'single value');
+		} else {
+			// no check possible
+			$duplicate = false;
+		}
+	}
+	return $hash;
 }
 
 /**
