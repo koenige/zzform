@@ -4,19 +4,14 @@
  * zzform module
  * Revisions of database records
  *
- * Part of »Zugzwang Project«
+ * Part of Â»Zugzwang ProjectÂ«
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2016, 2021 Gustaf Mossakowski
+ * @copyright Copyright Â© 2016, 2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
-
-// access restriction has to be set in the file including this file
-// Bitte Zugriffsbeschränkungen in der Datei, die diese einbindet, definieren!
-
-if (empty($zz_conf['revisions'])) wrap_quit(404);
 
 $zz['title'] = 'Revisiondata';
 $zz['table'] = '/*_PREFIX_*/_revisiondata';
