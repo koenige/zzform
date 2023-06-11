@@ -55,32 +55,23 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 		$field_name = $my_rec['fields'][$field]['field_name'];
 		if (in_array($field_name, array_keys($vars))) {
 			$keep_idf = false;
-			if (!empty($conf['exists_function'])) {
+			if (!empty($conf['exists_function']))
 				$keep_idf = $conf['exists_function']($vars[$field_name], $vars);
-			} elseif ($vars[$field_name]) {
+			elseif ($vars[$field_name])
 				$keep_idf = true;
-			}
-			if ($keep_idf) {
+			if ($keep_idf)
 				// do not change anything if there has been a value set once and 
 				// identifier is in vars array
 				return $vars[$field_name];
-			} else {
+			else
 				unset($vars[$field_name]);
-			}
 		}
 	}
 	
 	zz_identifier_defaults($conf);
 
-	$wheres = [];
-	foreach ($conf['unique_with'] as $unique_field) {
-		// identifier does not have to be unique, add where from other keys
-		$wheres[] = sprintf('%s = "%s"', $unique_field, zz_identifier_var('filetype_id', $my_rec, $my_rec['POST']));
-	}
-	if ($wheres) {
-		if ($conf['where']) $conf['where'] .= ' AND ';
-		$conf['where'] .= implode(' AND ', $wheres);
-	}
+	if ($my_rec AND $field AND $db_table)
+		$conf['sql'] = zz_identifier_sql($conf, zz_identifier_var('filetype_id', $my_rec, $my_rec['POST']));
 
 	$i = 0;
 	$idf_arr = [];
@@ -317,6 +308,33 @@ function zz_identifier_concat($data, $concat) {
 }
 
 /**
+ * create SQL query to check existing records
+ *
+ * @param array $conf
+ * @param string $unique_value
+ * @return string
+ */
+function zz_identifier_sql($conf, $unique_value = '') {
+	$wheres = [];
+	// identifier does not have to be unique, add where from other keys
+	foreach ($conf['unique_with'] as $unique_field)
+		$wheres[] = sprintf('%s = "%s"', $unique_field, $unique_value);
+	if ($wheres) {
+		if ($conf['where']) $conf['where'] .= ' AND ';
+		$conf['where'] .= implode(' AND ', $wheres);
+	}
+	$sql = 'SELECT %%s
+		FROM %%s
+		WHERE %%s = "%%s"
+		AND %%s != %%d
+		%s';
+	$sql = sprintf($sql
+		, $conf['where'] ? ' AND '.$conf['where'] : ''
+	);
+	return $sql;
+}
+
+/**
  * check if an identifier already exists in database, add nuermical suffix
  * until an adequate identifier exists  (john-doe, john-doe-2, john-doe-3 ...)
  *
@@ -333,18 +351,14 @@ function zz_identifier_concat($data, $concat) {
  */
 function zz_identifier_exists($idf, $i, $db_table, $field, $id_field, $id_value, $conf, $maxlen = false) {
 	global $zz_conf;
-	static $existing;
-	if (empty($existing[$zz_conf['id']][$db_table])) $existing[$zz_conf['id']][$db_table] = [];
+	static $existing = [];
+	if (empty($existing[$zz_conf['id']][$db_table]))
+		$existing[$zz_conf['id']][$db_table] = [];
 
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
-	$sql = 'SELECT %s FROM %s
-		WHERE %s = "%s"
-		AND %s != %d
-		%s';
-	$sql = sprintf($sql,
+	$sql = sprintf($conf['sql'],
 		$field, zz_db_table_backticks($db_table),
-		$field, $idf, $id_field, $id_value,
-		$conf['where'] ? ' AND '.$conf['where'] : ''
+		$field, $idf, $id_field, $id_value
 	);
 	$records = zz_db_fetch($sql, $field, 'single value');
 	if ($records OR in_array($idf, $existing[$zz_conf['id']][$db_table])) {
