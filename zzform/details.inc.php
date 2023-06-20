@@ -223,7 +223,7 @@ function zz_details_show($zz, $current, $last) {
 		$zz_conf['int']['show_list'] = false;
 		$zz_conf['int']['cancel_url'] = $_SESSION['zzform'][$zz_conf['id']][$last]['source'];
 		$zz_conf['referer'] = $_SESSION['zzform'][$zz_conf['id']][$last]['source'];
-		$zz_conf['referer_text'] = 'Back to last form';
+		wrap_setting('zzform_referer_text', 'Back to last form');
 		zz_init_referer();
 	}
 

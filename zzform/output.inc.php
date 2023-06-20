@@ -711,7 +711,7 @@ function zz_output_backlink($zz_tab = []) {
 
 	return sprintf(
 		'<p id="back-overview"><a href="%s">%s</a></p>'."\n",
-		$link, zz_text($zz_conf['referer_text'])
+		$link, wrap_text(wrap_setting('zzform_referer_text'))
 	);
 }
 

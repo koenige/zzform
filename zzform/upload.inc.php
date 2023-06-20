@@ -965,14 +965,11 @@ function zz_upload_unix_file($filename, $file) {
  * 		int 'exit_status'
  * @param string $type type of error: 'unknown' = unknown file; 'convert' = 
  *		error while converting a file
- * @global array $zz_conf
- *		'debug_upload'
  * @return bool false: nothing was found, true: unknown file was found
  */
 function zz_upload_error_with_file($filename, $file, $return = []) {
-	global $zz_conf;
 	static $copied_files;
-	if (empty($zz_conf['debug_upload'])) return false;
+	if (!wrap_setting('zzform_debug_upload')) return false;
 	if (empty($copied_files)) $copied_files = [];
 
 	// save file
