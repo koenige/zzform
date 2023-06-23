@@ -124,11 +124,11 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 			if (empty($zz_tab[0][0]['fields'][$my_tab['no']]['dont_show_missing'])) {
 				if (empty($zz_tab[0][0]['fields'][$my_tab['no']]['form_display']) OR $zz_tab[0][0]['fields'][$my_tab['no']]['form_display'] !== 'set') {
 					zz_error_validation_log('msg', 'Minimum of records for table `%s` was not met (%d).');
-					zz_error_validation_log('msg_args', zz_text($zz_tab[0][0]['fields'][$my_tab['no']]['title']));
+					zz_error_validation_log('msg_args', wrap_text($zz_tab[0][0]['fields'][$my_tab['no']]['title']));
 					zz_error_validation_log('msg_args', $my_tab['min_records_required']);
 				} else {
 					zz_error_validation_log('msg', 'Value missing in field <strong>%s</strong>.');
-					zz_error_validation_log('msg_args', zz_text($zz_tab[0][0]['fields'][$my_tab['no']]['title']));
+					zz_error_validation_log('msg_args', wrap_text($zz_tab[0][0]['fields'][$my_tab['no']]['title']));
 				}
 				zz_error_validation_log('log_post_data', true);
 				if (is_numeric($rec))
@@ -1864,7 +1864,7 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 				if (in_array($my_rec['POST'][$field_name], $field['disabled_ids'])) {
 					$my_rec['validation'] = false;
 					$my_rec['fields'][$f]['check_validation'] = false;
-					$my_rec['fields'][$f]['suffix'] = ' '.zz_text('Please make a different selection.');
+					$my_rec['fields'][$f]['suffix'] = ' '.wrap_text('Please make a different selection.');
 				}
 			}
 			$my_rec = zz_check_select($my_rec, $f);

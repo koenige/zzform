@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2005-2018, 2022 Gustaf Mossakowski
+# @copyright Copyright © 2005-2018, 2022-2023 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 msgid ""
@@ -748,12 +748,12 @@ msgid "Add new record"
 msgstr "Přidat nový záznam"
 
 # List view: bottom
-msgid "records total"
-msgstr "záznamů celkově"
+msgid "%d records total"
+msgstr "%d záznamů celkově"
 
 # List view: bottom
-msgid "record total"
-msgstr "celkový záznam"
+msgid "%d record total"
+msgstr "%d celkový záznam"
 
 # List view: bottom
 msgid "All records on one page"

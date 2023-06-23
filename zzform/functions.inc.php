@@ -647,7 +647,7 @@ function zz_apply_filter(&$zz) {
 			}
 			foreach ($elements as $key => $value) {
 				if (is_null($value)) {
-					$filter['selection']['NULL'] = zz_text('(no value)');
+					$filter['selection']['NULL'] = wrap_text('(no value)');
 				} else {
 					$filter['selection'][$key] = $value;
 				}
@@ -995,7 +995,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			// translate fieldnames, if set
 			foreach ($to_translates as $to_translate) {
 				if (empty($fields[$no][$to_translate])) continue;
-				$fields[$no][$to_translate] = zz_text($fields[$no][$to_translate]);
+				$fields[$no][$to_translate] = wrap_text($fields[$no][$to_translate]);
 			}
 			$fields[$no]['translated'] = true;
 		}
@@ -1906,7 +1906,7 @@ function zz_makelink($path, $record, $type = 'link') {
 	$check_against_root = false;
 
 	if ($type === 'image') {
-		$alt = zz_text('No image');
+		$alt = wrap_text('No image');
 		// lock if there is something definitely called extension
 		$alt_locked = false; 
 	}
@@ -1997,7 +1997,7 @@ function zz_makelink($path, $record, $type = 'link') {
 			}
 			$path_web[1] .= $content;
 			if ($type === 'image' AND !$alt_locked) {
-				$alt = zz_text('File: ').$record[$value];
+				$alt = wrap_text('File: ').$record[$value];
 				if ($part === 'extension') $alt_locked = true;
 			}
 			break;
@@ -2033,7 +2033,7 @@ function zz_makelink($path, $record, $type = 'link') {
 	if (strstr($url, '.')) {
 		$ext = strtoupper(substr($url, strrpos($url, '.') + 1));
 	} else {
-		$ext = zz_text('- unknown -');
+		$ext = wrap_text('- unknown -');
 	}
 	
 	if ($check_against_root) {
@@ -2163,7 +2163,7 @@ function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec 
 			}
 			$p .= $content;
 			if (!$alt_locked) {
-				$alt = zz_text('File: ').$content;
+				$alt = wrap_text('File: ').$content;
 				if ($pkey === 'extension') $alt_locked = true;
 			}
 			$modes = false;
@@ -2311,11 +2311,11 @@ function zz_error() {
 				if (is_array($msg)) {
 					$mymsg = [];
 					foreach ($msg as $submsg) {
-						$mymsg[] = zz_text(trim($submsg));
+						$mymsg[] = wrap_text(trim($submsg));
 					}
 					$error['msg'][$index] = implode(' ', $mymsg);
 				} else {
-					$error['msg'][$index] = zz_text(trim($msg));
+					$error['msg'][$index] = wrap_text(trim($msg));
 				}
 			}
 			if (empty($error['html'])) {
@@ -2362,7 +2362,7 @@ function zz_error() {
 
 		switch ($error['level']) {
 		case E_USER_ERROR:
-			if (!$error['msg']) $user[$key] .= zz_text('An error occured.'
+			if (!$error['msg']) $user[$key] .= wrap_text('An error occured.'
 				.' We are working on the solution of this problem. '
 				.'Sorry for your inconvenience. Please try again later.');
 			$level = 'error';
@@ -2422,10 +2422,10 @@ function zz_error() {
 		if (!$user[$key]) {
 			unset($user[$key]); // there is nothing, so nothing will be shown
 		} elseif ($level === 'error' OR $level === 'warning') {
-			$user[$key] = '<strong>'.zz_text('Attention!').'</strong> '.$user[$key];
+			$user[$key] = '<strong>'.wrap_text('Attention!').'</strong> '.$user[$key];
 		}
 		if ($admin[$key] AND ($level === 'error' OR $level === 'warning')) {
-			$admin[$key] = '<strong>'.zz_text('Attention!').'</strong> '.$admin[$key];
+			$admin[$key] = '<strong>'.wrap_text('Attention!').'</strong> '.$admin[$key];
 		}
 	}
 	foreach ($admin as $line) {
@@ -2438,9 +2438,7 @@ function zz_error() {
 	case 'mail':	
 		if (!wrap_setting('error_mail_to')) break;
 		if (!count($message)) break;
-		$mail['message'] = sprintf(
-			zz_text('The following error(s) occured in project %s:'), wrap_setting('project')
-		);
+		$mail['message'] = wrap_text('The following error(s) occured in project %s:', ['values' => wrap_setting('project')]);
 		$mail['message'] .= "\n\n".implode("\n\n", $message);
 		$mail['message'] = html_entity_decode($mail['message'], ENT_QUOTES, $log_encoding);		
 		$mail['message'] .= "\n\n-- \nURL: ".$zz_conf['int']['url']['base']
@@ -2450,7 +2448,7 @@ function zz_error() {
 		if ($username = wrap_username())
 			$mail['message'] .= sprintf("\nUser: %s", $username);
 
-		$mail['subject'] = zz_text('Database access error');
+		$mail['subject'] = wrap_text('Database access error');
 		if (!wrap_setting('mail_subject_prefix'))
 			$mail['subject'] = '['.wrap_setting('project').'] '.$mail['subject'];
 		$mail['to'] = wrap_setting('error_mail_to');
@@ -2853,18 +2851,6 @@ function zz_hierarchy_subtree_ids($field) {
  * --------------------------------------------------------------------
  */
 
-/** 
- * Translate text if possible or write back text string to be translated
- * 
- * @param string $string		Text string to be translated
- * @return string $string		Translation of text
- */
-function zz_text($string) {
-	global $zz_conf;
-	if (empty($zz_conf['generate_output'])) return $string;
-	return wrap_text($string);
-}
-
 /**
  * Translate values with wrap_translate() from zzwrap module
  *
@@ -3205,7 +3191,7 @@ function zz_check_select($my_rec, $f) {
 		$my_rec['fields'][$f]['type'] = 'select';
 		$my_rec['fields'][$f]['class'][] = 'reselect';
 		$my_rec['fields'][$f]['suffix'] = '<br>'
-			.zz_text('No entry found. Try less characters.');
+			.wrap_text('No entry found. Try less characters.');
 		$my_rec['fields'][$f]['mark_reselect'] = true;
 		$my_rec['validation'] = false;
 		$error = true;
@@ -3219,7 +3205,7 @@ function zz_check_select($my_rec, $f) {
 			AND in_array($my_rec['POST'][$field_name], $my_rec['fields'][$f]['disabled_ids'])) {
 			$my_rec['validation'] = false;
 			$my_rec['fields'][$f]['check_validation'] = false;
-			$my_rec['fields'][$f]['suffix'] = ' '.zz_text('Please make a different selection.');
+			$my_rec['fields'][$f]['suffix'] = ' '.wrap_text('Please make a different selection.');
 		}
 	} elseif (count($possible_values) <= $my_rec['fields'][$f]['max_select']) {
 		// let user reselect value from dropdown select
@@ -3243,7 +3229,7 @@ function zz_check_select($my_rec, $f) {
 		// still too many records, require more characters
 		$my_rec['fields'][$f]['default'] = 'reselect';
 		$my_rec['fields'][$f]['class'][] = 'reselect';
-		$my_rec['fields'][$f]['suffix'] = ' '.zz_text('Please enter more characters.');
+		$my_rec['fields'][$f]['suffix'] = ' '.wrap_text('Please enter more characters.');
 		$my_rec['fields'][$f]['mark_reselect'] = true;
 		$my_rec['validation'] = false;
 		$error = true;

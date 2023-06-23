@@ -424,9 +424,9 @@ function zz_upload_check_files($zz_tab) {
 			if (!in_array($images[$no][$img]['upload']['filetype'], $images[$no][$img]['input_filetypes'])) {
 				$filetype = $images[$no][$img]['upload']['filetype'];
 				if ($filetype === 'unknown') // give more information
-					$filetype = zz_text('unknown').' ('.zz_htmltag_escape($images[$no][$img]['upload']['type']).')';
-				$images[$no][$img]['unsupported_filetype'] = zz_text('Error: ')
-					.zz_text('Unsupported filetype:').' '
+					$filetype = wrap_text('unknown').' ('.zz_htmltag_escape($images[$no][$img]['upload']['type']).')';
+				$images[$no][$img]['unsupported_filetype'] = wrap_text('Error: ')
+					.wrap_text('Unsupported filetype:').' '
 					.strtoupper($filetype)
 					.'<br class="nonewline_in_mail">'
 					.zz_upload_supported_filetypes($images[$no][$img]['input_filetypes']);
@@ -1717,17 +1717,17 @@ function zz_upload_check(&$images, $action, $rec = 0) {
 		switch ($images[$img]['upload']['error']) {
 			case UPLOAD_ERR_NO_FILE: // no file
 				if ($images[$img]['required'] && $action == 'insert') // required only for insert
-					$images[$img]['error'][] = zz_text('Error: ').zz_text('No file was uploaded.');
+					$images[$img]['error'][] = wrap_text('Error: ').wrap_text('No file was uploaded.');
 				else continue 2;
 				break;
 			case UPLOAD_ERR_PARTIAL: // partial upload
-				$images[$img]['error'][] = zz_text('Error: ').zz_text('File was only partially uploaded.');
+				$images[$img]['error'][] = wrap_text('Error: ').wrap_text('File was only partially uploaded.');
 				break; 
 			case UPLOAD_ERR_FORM_SIZE: // file is too big
 			case UPLOAD_ERR_INI_SIZE: // file is too big
-				$images[$img]['error'][] = zz_text('Error: ').zz_text('File is too big.').' '
-					.sprintf(zz_text('Maximum allowed filesize is %s.'),
-						wrap_bytes($images[$img]['upload_max_filesize'])
+				$images[$img]['error'][] = wrap_text('Error: ').wrap_text('File is too big.').' '
+					.wrap_text('Maximum allowed filesize is %s.'
+						, ['values' => wrap_bytes($images[$img]['upload_max_filesize'])]
 					); // Max allowed
 				break; 
 			case UPLOAD_ERR_OK: // everything ok.
@@ -1751,29 +1751,31 @@ function zz_upload_check(&$images, $action, $rec = 0) {
 		foreach ($width_height as $which)
 			if (!empty($images[$img]['min_'.$which]) 
 				&& $images[$img]['min_'.$which] > $images[$img]['upload'][$which])
-				$images[$img]['error'][] = zz_text('Error: ')
-					.sprintf(zz_text('Minimum '.$which
-					.' %s was not reached.'), '('.$images[$img]['min_'.$which].'px)')
-					.' ('.$images[$img]['upload'][$which].'px)';
+				$images[$img]['error'][] = wrap_text('Error: ')
+					.wrap_text('Minimum '.$which.' %s was not reached.'
+						, ['values' => '('.$images[$img]['min_'.$which].'px)']
+					).' ('.$images[$img]['upload'][$which].'px)';
 
 //	check if maximal image size has not been exceeded: max_width, max_height
 		$width_height = ['width', 'height'];
 		foreach ($width_height as $which)
 			if (!empty($images[$img]['max_'.$which])
 				&& $images[$img]['max_'.$which] < $images[$img]['upload'][$which])
-				$images[$img]['error'][] = zz_text('Error: ')
-					.sprintf(zz_text('Maximum '.$which
-					.' %s has been exceeded.'), '('.$images[$img]['max_'.$which].'px)')
-					.' ('.$images[$img]['upload'][$which].'px)';
+				$images[$img]['error'][] = wrap_text('Error: ')
+					.wrap_text('Maximum '.$which.' %s has been exceeded.'
+						, ['values' => '('.$images[$img]['max_'.$which].'px)']
+					).' ('.$images[$img]['upload'][$which].'px)';
 
 //	check if maximal number of pages is not exceeded
 		if (!empty($images[$img]['max_pages']) AND $images[$img]['upload']['filetype'] === 'pdf') {
 			if (!empty($images[$img]['upload']['pdfinfo']['Pages'])) {
 				if ($images[$img]['upload']['pdfinfo']['Pages'] > $images[$img]['max_pages']) {
-					$images[$img]['error'][] = zz_text('Error: ')
-						.sprintf(zz_text('The PDF consists of %d pages. Only %d pages are allowed.')
-							, $images[$img]['upload']['pdfinfo']['Pages']
+					$images[$img]['error'][] = wrap_text('Error: ')
+						.wrap_text('The PDF consists of %d pages. Only %d pages are allowed.'
+						, ['values' => [
+							$images[$img]['upload']['pdfinfo']['Pages']
 							, $images[$img]['max_pages']
+						]]
 					);
 				}
 			} else {
@@ -2793,7 +2795,7 @@ function zz_upload_exec($command, $log_description) {
 	if (wrap_setting('zzform_upload_log')) {
 		$time = microtime(true) - $time;
 		$user = wrap_username();
-		if (!$user) $user = zz_text('No user');
+		if (!$user) $user = wrap_text('No user');
 		if (!$output) $out = '-';
 		elseif (is_array($output) AND count($output) === 1) $out = reset($output);
 		else $out = '[json] '.json_encode($output);
@@ -2815,7 +2817,7 @@ function zz_upload_supported_filetypes($filetypes) {
 	$filetypes = wrap_db_fetch($sql, 'filetype_id', 'numeric');
 	$filetypes = wrap_translate($filetypes, 'filetypes', 'filetype_id');
 	
-	$text = zz_text('Supported filetypes:').' ';
+	$text = wrap_text('Supported filetypes:').' ';
 	foreach ($filetypes as $index => $filetype) {
 		if ($filetype['filetype_description'])
 			$text .= sprintf('<abbr title="%s">%s</abbr>', $filetype['filetype_description'], $filetype['filetype']);

@@ -67,7 +67,7 @@ function zz_geo_coord_in($value, $orientation = 'lat', $precision = 0) {
 		$hemisphere = $possible_hemispheres[$hemisphere_letter];
 		$value = substr($value, 0, -1);
 	} elseif (in_array(substr($value, -1), array_keys($hemispheres[$other_orientation]))) {
-		$my['error'] = zz_text('It looks like this coordinate has a different orientation. Maybe latitude and longitude were interchanged?');
+		$my['error'] = wrap_text('It looks like this coordinate has a different orientation. Maybe latitude and longitude were interchanged?');
 		return $my;
 	}
 
@@ -75,8 +75,9 @@ function zz_geo_coord_in($value, $orientation = 'lat', $precision = 0) {
 	if (in_array(substr($value, 0, 1), $possible_hemispheres)) {
 		if ($hemisphere AND substr($value, 0, 1) != $hemisphere) {
 			// mismatch
-			$my['error'] = sprintf(zz_text('Mismatch: %s signals different hemisphere than %s.'),
-				$hemisphere_letter, zz_htmltag_escape(substr($value, 0, 1)));
+			$my['error'] = wrap_text('Mismatch: %s signals different hemisphere than %s.', 
+				['values' => [$hemisphere_letter, zz_htmltag_escape(substr($value, 0, 1))]]
+			);
 			return $my;
 		} elseif (!$hemisphere) {
 			$hemisphere = substr($value, 0, 1);
@@ -94,12 +95,12 @@ function zz_geo_coord_in($value, $orientation = 'lat', $precision = 0) {
 		$part = str_replace(',', '.', $part);
 		// only one decimal separator is possible
 		if (substr_count($part, '.') > 1) {
-			$my['error'] = zz_text('There are too many decimal points (or commas) in this value.');
+			$my['error'] = wrap_text('There are too many decimal points (or commas) in this value.');
 			return $my;
 		}
 		// all values apart from the last value must be integers
 		if ($index != count($parts[0])-1 AND strstr($part, '.')) {
-			$my['error'] = zz_text('Only the last number might have a decimal point (or comma).');
+			$my['error'] = wrap_text('Only the last number might have a decimal point (or comma).');
 			return $my;
 		}
 
@@ -113,12 +114,12 @@ function zz_geo_coord_in($value, $orientation = 'lat', $precision = 0) {
 			if ($part < 0) {
 				$part = wrap_html_escape($part);
 				$type = ($index == 2) ? 'seconds' : 'minutes';
-				$my['error'] = sprintf(zz_text('%s is too small. Please enter for '.$type.' a positive value or 0.'), $part);
+				$my['error'] = wrap_text('%s is too small. Please enter for '.$type.' a positive value or 0.', ['values' => $part]);
 				return $my;
 			} elseif ($part >= 60) {
 				$part = wrap_html_escape($part);
 				$type = ($index == 2) ? 'seconds' : 'minutes';
-				$my['error'] = sprintf(zz_text('%s is too big. Please enter for '.$type.' a value smaller than 60.'), $part);
+				$my['error'] = wrap_text('%s is too big. Please enter for '.$type.' a value smaller than 60.', ['values' => $part]);
 				return $my;
 			}			
 			// add or substract correct value to/from degrees
@@ -127,18 +128,18 @@ function zz_geo_coord_in($value, $orientation = 'lat', $precision = 0) {
 			break;
 		case 3:
 			// no more than three parts
-			$my['error'] = zz_text('Sorry, there are too many numbers. We cannot interpret what you entered.');
+			$my['error'] = wrap_text('Sorry, there are too many numbers. We cannot interpret what you entered.');
 			return $my;
 		}
 	}
 	// check range
 	if ($decimal < $degree_max[0]) {
-		$my['error'] = sprintf(zz_text('Minimum value for degrees is %s. The value you entered is too small: %s.'),
-			$degree_max[0], $decimal);
+		$my['error'] = wrap_text('Minimum value for degrees is %s. The value you entered is too small: %s.',
+			['values' => [$degree_max[0], $decimal]]);
 		return $my;
 	} elseif ($decimal > $degree_max[1]) {
-		$my['error'] = sprintf(zz_text('Maximum value for degrees is %s. The value you entered is too big: %s.'),
-			$degree_max[1], $decimal);
+		$my['error'] = wrap_text('Maximum value for degrees is %s. The value you entered is too big: %s.',
+			['values' => [$degree_max[1], $decimal]]);
 		return $my;
 	}
 	if ($degree_convert) {

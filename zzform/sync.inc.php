@@ -57,8 +57,8 @@ function zz_sync($import) {
 		}
 		$import['source'] = wrap_setting('cms_dir').'/_sync/'.$import['filename'];
 		if (!file_exists($import['source'])) {
-			$page['text'] = sprintf(wrap_text('Import: File %s does not exist. '
-				.'Please set a different filename'), $import['source']);
+			$page['text'] = wrap_text('Import: File %s does not exist. '
+				.'Please set a different filename', ['values' => $import['source']]);
 			return $page;
 		}
 		// set defaults per file
@@ -119,33 +119,33 @@ function zz_sync($import) {
 
 	// output results
 	$lines = [];
-	$lines[] = sprintf(wrap_text('Processing entries %s–%s …'), $import['limit'] + 1, $import['end']);
+	$lines[] = wrap_text('Processing entries %s–%s …', ['values' => [$import['limit'] + 1, $import['end']]]);
 	if ($updated) {
 		if ($updated === 1) {
 			$lines[] = wrap_text('1 update was made.');
 		} else {
-			$lines[] = sprintf(wrap_text('%s updates were made.'), $updated);
+			$lines[] = wrap_text('%s updates were made.', ['values' => $updated]);
 		}
 	}
 	if ($inserted) {
 		if ($inserted === 1) {
 			$lines[] = wrap_text('1 insert was made.');
 		} else {
-			$lines[] = sprintf(wrap_text('%s inserts were made.'), $inserted);
+			$lines[] = wrap_text('%s inserts were made.', ['values' => $inserted]);
 		}
 	}
 	if ($nothing AND (!$testing OR $post)) {
 		if ($nothing === 1) {
 			$lines[] = wrap_text('1 record was left as is.');
 		} else {
-			$lines[] = sprintf(wrap_text('%s records were left as is.'), $nothing);
+			$lines[] = wrap_text('%s records were left as is.', ['values' => $nothing]);
 		}
 	}
 	if ($errors) {
 		if (count($errors) == 1) {
-			$lines[] = sprintf(wrap_text('1 record had errors. (%s)'), implode(', ', $errors));
+			$lines[] = wrap_text('1 record had errors. (%s)', ['values' => implode(', ', $errors)]);
 		} else {
-			$lines[] = sprintf(wrap_text('%s records had errors.'), count($errors))
+			$lines[] = wrap_text('%s records had errors.', ['values' => count($errors)])
 				."<ul><li>\n".implode("</li>\n<li>", $errors)."</li>\n</ul>\n";
 		}
 	}

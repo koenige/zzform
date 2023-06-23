@@ -104,9 +104,9 @@ function zz_output_heading($heading, $table = '') {
 		$heading = str_replace('_', ' ', $heading);
 		$heading = ucfirst($heading);
 	}
-	$heading = zz_text($heading);
+	$heading = wrap_text($heading);
 	if (wrap_setting('zzform_heading_prefix')) {
-		wrap_setting('zzform_heading_prefix', zz_text(wrap_setting('zzform_heading_prefix')));
+		wrap_setting('zzform_heading_prefix', wrap_text(wrap_setting('zzform_heading_prefix')));
 		$heading = wrap_setting('zzform_heading_prefix').' '.$heading;
 		}
 	return $heading;
@@ -282,7 +282,7 @@ function zz_show_more_actions($conf, $id, $line) {
 			$output .= ($conf['details_referer'] ? '&amp;referer='.urlencode(wrap_setting('request_uri')) : '')
 				.'"'
 				.(!empty($conf['details_target']) ? ' target="'.$conf['details_target'].'"' : '')
-				.'>'.zz_text($detail).'</a>';
+				.'>'.wrap_text($detail).'</a>';
 			if (!empty($conf['details_sql'][$key])) {
 				$count = zz_db_fetch($conf['details_sql'][$key].$id, '', 'single value');
 				if ($count) $output .= '&nbsp;('.$count.')';
@@ -306,7 +306,7 @@ function zz_show_more_actions($conf, $id, $line) {
 			$referer = !empty($detail['referer']) ? sprintf('&amp;referer=%s', urlencode(wrap_setting('request_uri'))) : '';
 			$count = (!empty($detail['sql']) AND $no = zz_db_fetch(sprintf($detail['sql'], $id), '', 'single value')) ? sprintf('&nbsp;(%d)', $no) : '';
 			$url = zz_makelink($detail['link'], $line);
-			$act[] = sprintf('<a href="%s%s"%s>%s%s</a>', $url, $referer, $target, zz_text($detail['title']), $count);
+			$act[] = sprintf('<a href="%s%s"%s>%s%s</a>', $url, $referer, $target, wrap_text($detail['title']), $count);
 		}
 	}
 	$output = implode('&nbsp;&middot; ', $act);
@@ -438,13 +438,13 @@ function zz_nice_title($heading, $fields, $ops, $mode = false) {
 			$max_page = ceil($ops['records_total'] / wrap_setting('zzform_limit'));
 			if ($max_page.'' !== '1') {
 				if (wrap_setting('zzform_limit_display') === 'entries') {
-					$title .= wrap_setting('zzform_title_separator').zz_text('records').' '
+					$title .= wrap_setting('zzform_title_separator').wrap_text('records').' '
 						.(($page-1) * wrap_setting('zzform_limit')).'-'
 						.($page * wrap_setting('zzform_limit') > $ops['records_total']
 							? $ops['records_total'] : $page * wrap_setting('zzform_limit'))
 						.'/'.$ops['records_total'];
 				} else {
-					$title .= wrap_setting('zzform_title_separator').zz_text('page').' '.$page.'/'.$max_page;
+					$title .= wrap_setting('zzform_title_separator').wrap_text('page').' '.$page.'/'.$max_page;
 				}
 			}
 		}
@@ -458,7 +458,7 @@ function zz_nice_title($heading, $fields, $ops, $mode = false) {
 	if (!empty($_GET['zzhash'])) $show_id = false;
 	if (!empty($zz_conf['int']['where_with_unique_id'])) $show_id = false;
 	if ($show_id) {
-		$title .= wrap_setting('zzform_title_separator').zz_text(ucfirst($mode))
+		$title .= wrap_setting('zzform_title_separator').wrap_text(ucfirst($mode))
 			.($zz_conf['int']['id']['value'] ? ': ID '.$zz_conf['int']['id']['value'] : '');
 	}
 
@@ -479,7 +479,7 @@ function zz_nice_selection($zz_fields) {
 	// Display search filter
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	$fieldname = false;
-	$selection = zz_text('Search').': ';
+	$selection = wrap_text('Search').': ';
 	$add_equal_sign = false;
 	if (!empty($_GET['scope'])) {
 		$scope = $_GET['scope'];
@@ -621,7 +621,7 @@ function zz_print_enum($field, $value, $type = 'abbr', $key = false) {
 	if (!empty($field[$ft.'_title'][$key])) {
 		$text = $field[$ft.'_title'][$key];
 	} elseif ($value !== 0) {
-		$text = zz_text($value);
+		$text = wrap_text($value);
 	} else {
 		$text = $value;
 	}
@@ -867,7 +867,7 @@ function zz_format($text) {
 	$text = trim(substr($text, 8, -3));
 	if (substr($text, 0, 1) === '"' AND substr($text, -1) === '"')
 		$text = trim(substr($text, 1, -1));
-	return zz_text($text);
+	return wrap_text($text);
 }
 
 /**
@@ -1226,18 +1226,18 @@ function zz_output_modes($id, $zz_conf_record) {
 	$modes = [];
 	if ($zz_conf_record['edit']) {
 		if ($zz_conf['int']['access'] === 'show_after_edit') {
-			$modes[] = sprintf($link, '', '', $qs_extra, zz_text('Edit'));
+			$modes[] = sprintf($link, '', '', $qs_extra, wrap_text('Edit'));
 		} else {
-			$modes[] = sprintf($link, $zz_conf['int']['url']['?&'], 'edit', $qs, zz_text('Edit'));
+			$modes[] = sprintf($link, $zz_conf['int']['url']['?&'], 'edit', $qs, wrap_text('Edit'));
 		}
 	} elseif ($zz_conf_record['view']) {
-		$modes[] = sprintf($link, $zz_conf['int']['url']['?&'], 'show', $qs, zz_text('Show'));
+		$modes[] = sprintf($link, $zz_conf['int']['url']['?&'], 'show', $qs, wrap_text('Show'));
 	}
 	if ($zz_conf_record['copy']) {
-		$modes[] = sprintf($link, $zz_conf['int']['url']['?&'], 'add', $qs, zz_text('Copy'));
+		$modes[] = sprintf($link, $zz_conf['int']['url']['?&'], 'add', $qs, wrap_text('Copy'));
 	}
 	if ($zz_conf_record['delete']) {
-		$modes[] = sprintf($link, $zz_conf['int']['url']['?&'], 'delete', $qs, zz_text('Delete'));
+		$modes[] = sprintf($link, $zz_conf['int']['url']['?&'], 'delete', $qs, wrap_text('Delete'));
 	}
 	if ($modes) return implode('&nbsp;&middot; ', $modes);
 	else return false;

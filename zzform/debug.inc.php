@@ -85,11 +85,11 @@ function zz_debug($marker = false, $text = false, $id = false) {
  * @todo use wrap_template()
  */
 function zz_debug_htmlout($data) {
-	$output = '<h1>'.zz_text('Debug Information').'</h1>';
+	$output = '<h1>'.wrap_text('Debug Information').'</h1>';
 	$output .= '<table class="data debugtable"><thead>'."\n".'<tr><th>'
-		.zz_text('Time').'</th><th>'
-		.zz_text('Mem').'</th><th>'.zz_text('Function').'</th><th>'
-		.zz_text('Marker').'</th><th>'.zz_text('SQL').'</th></tr>'."\n"
+		.wrap_text('Time').'</th><th>'
+		.wrap_text('Mem').'</th><th>'.wrap_text('Function').'</th><th>'
+		.wrap_text('Marker').'</th><th>'.wrap_text('SQL').'</th></tr>'."\n"
 		.'</thead><tbody>';
 	$i = 0;
 	foreach ($data as $row) {
@@ -109,7 +109,7 @@ function zz_debug_htmlout($data) {
 		$i++;
 	}
 	$output .= '</tbody></table>'."\n";
-	$output .= zz_text('Memory peak usage').': '.memory_get_peak_usage();
+	$output .= wrap_text('Memory peak usage').': '.memory_get_peak_usage();
 	return $output;
 }
 

@@ -805,12 +805,12 @@ msgid "Add new record"
 msgstr "Neuer Eintrag"
 
 # List view: bottom
-msgid "records total"
-msgstr "Einträge gesamt"
+msgid "%d records total"
+msgstr "%d Einträge gesamt"
 
 # List view: bottom
-msgid "record total"
-msgstr "Eintrag gesamt"
+msgid "%d record total"
+msgstr "%d Eintrag gesamt"
 
 # List view: bottom
 msgid "All records on one page"

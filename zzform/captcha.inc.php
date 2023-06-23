@@ -126,8 +126,8 @@ function zz_captcha_alt_text($captcha_code) {
 	foreach ($split as $pos) {
 		$alt_code[] = zz_captcha_number_to_string($pos);
 	}
-	$text = sprintf(wrap_text('Please enter the following code: %s.'), implode(' ', $alt_code));
-	$text .= ' '.sprintf(wrap_text('Please add %s to it.'), zz_captcha_number_to_string($substraction));
+	$text = wrap_text('Please enter the following code: %s.', ['values' => implode(' ', $alt_code)]);
+	$text .= ' '.wrap_text('Please add %s to it.', ['values' => zz_captcha_number_to_string($substraction)]);
 	return $text;
 }
 

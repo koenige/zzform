@@ -752,11 +752,11 @@ msgid "Add new record"
 msgstr ""
 
 # List view: bottom
-msgid "records total"
+msgid "%d records total"
 msgstr ""
 
 # List view: bottom
-msgid "record total"
+msgid "%d record total"
 msgstr ""
 
 # List view: bottom

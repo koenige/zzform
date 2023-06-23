@@ -67,9 +67,9 @@ function zzform($zz) {
 	zz_initialize('form');
 	zz_error();
 	if (!empty($_GET['merge'])) {
-		$ops['output'] .= sprintf('<h2>%s</h2>', sprintf(
-			zz_text('%d records merged successfully'), substr($_GET['merge'], strrpos($_GET['merge'], '-') + 1)
-		));
+		$ops['output'] .= sprintf('<h2>%s</h2>',
+			wrap_text('%d records merged successfully', ['values' => substr($_GET['merge'], strrpos($_GET['merge'], '-') + 1)])
+		);
 	}
 	$ops['output'] .= zz_error_output();
 	$zz = zz_defaults($zz);

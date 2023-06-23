@@ -90,7 +90,7 @@ function zz_list($zz, $ops, $zz_conditions) {
 	// don't show anything if there is nothing
 	if (!$count_rows) {
 		$zz_conf['int']['show_list'] = false;
-		if (empty($zz['list']['hide_empty_table']) AND $text = zz_text('No entries available')) {
+		if (empty($zz['list']['hide_empty_table']) AND $text = wrap_text('No entries available')) {
 			$ops['output'].= '<p class="emptytable">'.$text.'</p>';
 		}
 		if ($ops['mode'] === 'export') {
@@ -213,13 +213,13 @@ function zz_list($zz, $ops, $zz_conditions) {
 				$action_url, wrap_setting('character_set'));
 			$list['buttons'] = [];
 			if ($zz_conf['multi_edit'])
-				$list['buttons'][] = '<input type="submit" value="'.zz_text('Edit').'" name="zz_multiple_edit">';
+				$list['buttons'][] = '<input type="submit" value="'.wrap_text('Edit').'" name="zz_multiple_edit">';
 			if ($zz_conf['multi_delete'])
-				$list['buttons'][] = '<input type="submit" value="'.zz_text('Delete').'" name="zz_multiple_delete">';
+				$list['buttons'][] = '<input type="submit" value="'.wrap_text('Delete').'" name="zz_multiple_delete">';
 			if ($zz_conf['merge'])
-				$list['buttons'][] = '<input type="submit" value="'.zz_text('Merge').'" name="zz_merge">';
+				$list['buttons'][] = '<input type="submit" value="'.wrap_text('Merge').'" name="zz_merge">';
 			foreach ($zz_conf['multi_function'] as $index => $mfunction) {
-				$list['buttons'][] = '<input type="submit" value="'.zz_text($mfunction['title']).'" name="zz_multifunction['.$index.']">';
+				$list['buttons'][] = '<input type="submit" value="'.wrap_text($mfunction['title']).'" name="zz_multifunction['.$index.']">';
 			}
 			if ($list['buttons']) {
 				$list['buttons'] = '<input type="hidden" name="zz_action" value="multiple">'.implode(' ', $list['buttons']);
@@ -721,7 +721,7 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 					unset($rows[$z][$fieldindex]);
 					$list['group_titles'][$z][$pos] = implode(' – ', $rows[$z]['group']);
 					if (empty($list['group_titles'][$z][$pos])) {
-						$list['group_titles'][$z][$pos] = zz_text('- unknown -');
+						$list['group_titles'][$z][$pos] = wrap_text('- unknown -');
 					}
 				}
 			}
@@ -1431,7 +1431,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode, $zz
 						$default_image = $field['default_image'];
 					}
 					$text .= $link.'<img src="'.$default_image
-						.'"  alt="'.zz_text('No image').'" class="thumb">'.($link ? '</a>' : '');
+						.'"  alt="'.wrap_text('No image').'" class="thumb">'.($link ? '</a>' : '');
 				}
 				if (!empty($field['image']) AND $mode != 'export') {
 					foreach ($field['image'] as $image) {
@@ -1544,7 +1544,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode, $zz
 		}
 	}
 	if (!empty($field['translate_field_value'])) {
-		$text = zz_text($text);
+		$text = wrap_text($text);
 	}
 	if (!empty($field['list_format']) AND $text) {
 		$text = zz_list_format($text, $field['list_format']);
@@ -1563,7 +1563,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode, $zz
 	if ($text === '' OR $text === false OR $text === NULL) {
 		// always append suffix on last appended field, even if it is empty
 		if (!empty($append_suffix) AND empty($append_prefix) AND empty($field['list_append_next'])) {
-			$row['text'] .= zz_text($append_suffix);
+			$row['text'] .= wrap_text($append_suffix);
 			$append_suffix = '';
 			$append_prefix = '';
 		}
@@ -1579,10 +1579,10 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode, $zz
 
 	// add prefixes etc. to 'text'
 	if (!empty($field['list_append_if_first']) AND !$append_string_first) {
-		$row['text'] .= zz_text($field['list_append_if_first']);
+		$row['text'] .= wrap_text($field['list_append_if_first']);
 		$append_string_first = true;
 	} elseif (!empty($field['list_append_if_middle']) AND $append_string_first) {
-		$row['text'] .= zz_text($field['list_append_if_middle']);
+		$row['text'] .= wrap_text($field['list_append_if_middle']);
 	}
 	if (!empty($field['list_append_next'])) {
 		$append_field = true;
@@ -1591,10 +1591,10 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode, $zz
 		$append_string_first = false;
 	}
 	if (!empty($field['list_prefix'])) {
-		$row['text'] .= zz_text($field['list_prefix']);
+		$row['text'] .= wrap_text($field['list_prefix']);
 	}
 	if (!empty($append_prefix)) {
-		$row['text'] .= zz_text($append_prefix);
+		$row['text'] .= wrap_text($append_prefix);
 		$append_prefix = '';
 	}
 	if (!empty($field['list_abbr']) AND $mode != 'export') {
@@ -1612,10 +1612,10 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode, $zz
 		$row['text'] .= '&nbsp;'.$field['unit'];
 	}
 	if (!empty($field['list_suffix'])) {
-		$row['text'] .= zz_text($field['list_suffix']);
+		$row['text'] .= wrap_text($field['list_suffix']);
 	}
 	if (!empty($append_suffix) AND empty($field['list_append_next'])) {
-		$row['text'] .= zz_text($append_suffix);
+		$row['text'] .= wrap_text($append_suffix);
 		$append_suffix = '';
 	}
 	if (!empty($field['list_abbr']) AND $mode !== 'export') {
@@ -1934,10 +1934,9 @@ function zz_list_total_records($total_rows) {
 	global $zz_conf;
 	if (!empty($zz_conf['dont_show_total_records'])) return '';
 
-	$text = '';
-	if ($total_rows === 1) $text = '<p class="totalrecords">'.$total_rows.' '.zz_text('record total').'</p>'; 
-	elseif ($total_rows) $text = '<p class="totalrecords">'.$total_rows.' '.zz_text('records total').'</p>';
-	return $text;
+	if ($total_rows === 1) return '<p class="totalrecords">'.wrap_text('%d record total', ['values' => [$total_rows]]).'</p>'; 
+	if ($total_rows) return '<p class="totalrecords">'.wrap_text('%d records total', ['values' => [$total_rows]]).'</p>';
+	return '';
 }
 
 /**
@@ -1976,7 +1975,7 @@ function zz_list_pages($this_limit, $total_rows, $scope = 'body') {
 		'link'	=> zz_list_pagelink(0, $this_limit, $limit_step, $url),
 		'text'	=> '|&lt;',
 		'class' => 'first',
-		'title' => zz_text('First page')
+		'title' => wrap_text('First page')
 	];
 	$prev = $this_limit - $limit_step;
 	if ($prev > $total_rows) {
@@ -1986,14 +1985,14 @@ function zz_list_pages($this_limit, $total_rows, $scope = 'body') {
 		'link'	=> zz_list_pagelink($prev, $this_limit, 0, $url),
 		'text'	=> '&lt;',
 		'class' => 'prev',
-		'title' => 	zz_text('Previous page')
+		'title' => 	wrap_text('Previous page')
 	];
 	if ($total_rows < wrap_setting('zzform_limit_all_max')) {
 		$links[] = [
 			'link'	=> zz_list_pagelink(-1, $this_limit, 0, $url),
-			'text'	=> zz_text('all'),
+			'text'	=> wrap_text('all'),
 			'class' => 'all',
-			'title' => 	zz_text('All records on one page')
+			'title' => 	wrap_text('All records on one page')
 		];
 	}
 
@@ -2071,13 +2070,13 @@ function zz_list_pages($this_limit, $total_rows, $scope = 'body') {
 		'link'	=> zz_list_pagelink($limit_next, $this_limit, 0, $url),
 		'text'	=> '&gt;',
 		'class' => 'next',
-		'title' => zz_text('Next page')
+		'title' => wrap_text('Next page')
 	];
 	$links[] = [
 		'link'	=> zz_list_pagelink($rec_last, $this_limit, 0, $url, 'last'),
 		'text'	=> '&gt;|',
 		'class' => 'last',
-		'title' => zz_text('Last page')
+		'title' => wrap_text('Last page')
 	];
 
 	return wrap_template('zzform-list-pages', $links);
@@ -2274,11 +2273,11 @@ function zz_list_th($field, $mode = 'html') {
 		.$zz_conf['int']['url']['qs_zzform'], $unwanted_keys, $new_keys);
 	if (str_replace('&amp;', '&', $uri) === wrap_setting('request_uri')) {
 		$uri.= '&amp;dir=desc';
-		$order_dir = zz_text('descending');
+		$order_dir = wrap_text('descending');
 	} else {
-		$order_dir = zz_text('ascending');
+		$order_dir = wrap_text('ascending');
 	}
-	$link_open = '<a href="'.$uri.'" title="'.zz_text('Order by').' '
+	$link_open = '<a href="'.$uri.'" title="'.wrap_text('Order by').' '
 		.strip_tags($field['title']).' ('.$order_dir.')">';
 	$link_close = '</a>';
 
@@ -2627,7 +2626,7 @@ function zz_list_table($list, $rows, $head) {
 		$columns++;
 	}
 	if ($list['modes'] OR $list['details']) {
-		$output .= ' <th class="editbutton">'.zz_text('Action').'</th>';
+		$output .= ' <th class="editbutton">'.wrap_text('Action').'</th>';
 		$columns++;
 	}
 	$output .= '</tr></thead>'."\n";
@@ -2647,7 +2646,7 @@ function zz_list_table($list, $rows, $head) {
 		}
 		if ($list['buttons']) {
 			$output .= '<tr class="multiple"><td>'.$list['checkbox_all'].'</td>'
-			.'<td colspan="'.$columns.'"><em>'.zz_text('Selection').':</em> '
+			.'<td colspan="'.$columns.'"><em>'.wrap_text('Selection').':</em> '
 			.$list['buttons']
 			.'</td></tr>';
 		}
@@ -2820,7 +2819,7 @@ function zz_list_ul($list, $rows) {
 
 	if ($list['buttons']) {
 		$output .= '<p class="multiple">'.$list['checkbox_all']
-		.' <em>'.zz_text('Selection').':</em> '.$list['buttons'].'</p>';
+		.' <em>'.wrap_text('Selection').':</em> '.$list['buttons'].'</p>';
 	}
 	$list['dnd_start'] = $zz_conf['int']['this_limit'] - wrap_setting('zzform_limit');
 	if (!empty($list['dnd'])) {

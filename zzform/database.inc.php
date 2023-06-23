@@ -454,8 +454,9 @@ function zz_db_field_in_query($line, $id_field_name, $count = 0) {
 		}
 	}
 	if ($missing_fields) {
-		return sprintf(zz_text('Field <code>%s</code> is missing in SQL query')
-			, implode(', ', $missing_fields));
+		return wrap_text('Field <code>%s</code> is missing in SQL query'
+			, ['values' => implode(', ', $missing_fields)]
+		);
 	}
 	return false;
 }
@@ -735,7 +736,7 @@ function zz_db_columns($db_table, $field = false) {
 function zz_db_error($errno) {
 	switch($errno) {
 	case 1062:
-		$msg = zz_text('Duplicate entry');
+		$msg = wrap_text('Duplicate entry');
 		/*
 			@todo:
 			1. get table_name
@@ -751,7 +752,7 @@ function zz_db_error($errno) {
 		*/
 		break;
 	default:
-		$msg = zz_text('Database error');
+		$msg = wrap_text('Database error');
 	}
 	return $msg;
 }
