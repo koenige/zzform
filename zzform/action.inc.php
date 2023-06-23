@@ -150,7 +150,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 
 	// check timeframe
 	if ($zz_record['action'] === 'insert' AND $validation) {
-		$validation = zz_action_timeframe();
+		$validation = zz_action_timeframe($zz_record);
 		if (!$validation) $zz_conf['int']['resend_form_required'] = true;
 	}
 	
@@ -953,13 +953,19 @@ function zz_action_trigger($triggers) {
 /**
  * check if form with new record is sent after a certain timeframe
  *
+ * @param array $zz_record = $zz['record']
  * @return bool false: no validation, resend form
  */
-function zz_action_timeframe() {
+function zz_action_timeframe($zz_record) {
 	global $zz_conf;
 	if (!empty($zz_conf['multi'])) return true;
 	if (!empty($_SESSION['logged_in'])) return true; // just for public forms
-	if (!empty($zz_conf['no_timeframe'])) return true;
+	if (!empty($zz_record['no_timeframe'])) return true;
+	// @deprecated
+	if (!empty($zz_conf['no_timeframe'])) {
+		wrap_error('Depreacted: use $zz["record"]["no_timeframe"] instead of $zz_conf["no_timeframe"]', E_USER_DEPRECATED);
+		return true;
+	}
 
 	$timeframe = zz_secret_id('timecheck');
 	// @todo calculate timeframe based on required fields, e. g. 2 seconds per field
