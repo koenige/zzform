@@ -574,27 +574,31 @@ msgstr "Würde bei Aktualisierung geändert."
 #: zzform/merge.inc.php
 msgid "Merge: Failed to update record with ID %d in table <code>%s</code>."
 msgstr ""
-"Zusammenführen: Eintrag mit ID %d in Tabelle <code>%s</code> konnte nicht aktualisiert "
-"werden."
+"Zusammenführen: Eintrag mit ID %d in Tabelle <code>%s</code> konnte nicht "
+"aktualisiert werden."
 
 # Record form: Merge
 #: zzform/merge.inc.php
-msgid "Merge: Failed to delete record with ID %d in table <code>%s</code>"
+msgid "Merge: Failed to delete record with ID %d in table <code>%s</code>."
 msgstr ""
-"Zusammenführen: Eintrag mit ID %d in Tabelle <code>%s</code> konnte nicht gelöscht werden."
+"Zusammenführen: Eintrag mit ID %d in Tabelle <code>%s</code> konnte nicht "
+"gelöscht werden."
 
 # Record form: Merge
 #: zzform/merge.inc.php
-msgid "Merge: Update of record with ID %d in table <code>%s</code> was successful."
+msgid ""
+"Merge: Update of record with ID %d in table <code>%s</code> was successful."
 msgstr ""
-"Zusammenführen: Eintrag mit ID %d in Tabelle <code>%s</code> wurde erfolgreich "
-"aktualisiert."
+"Zusammenführen: Eintrag mit ID %d in Tabelle <code>%s</code> wurde "
+"erfolgreich aktualisiert."
 
 # Record form: Merge
 #: zzform/merge.inc.php
-msgid "Merge: Deletion of record with ID %d in table <code>%s</code> was successful."
+msgid ""
+"Merge: Deletion of record with ID %d in table <code>%s</code> was successful."
 msgstr ""
-"Zusammenführen: Eintrag mit ID %d in Tabelle <code>%s</code> wurde erfolgreich gelöscht."
+"Zusammenführen: Eintrag mit ID %d in Tabelle <code>%s</code> wurde "
+"erfolgreich gelöscht."
 
 # Record form: Merge
 msgid "%d records merged successfully"
@@ -805,12 +809,10 @@ msgid "Add new record"
 msgstr "Neuer Eintrag"
 
 # List view: bottom
-msgid "%d records total"
-msgstr "%d Einträge gesamt"
-
-# List view: bottom
 msgid "%d record total"
-msgstr "%d Eintrag gesamt"
+msgid_plural "%d records total"
+msgstr[0] "%d Eintrag gesamt"
+msgstr[1] "%d Einträge gesamt"
 
 # List view: bottom
 msgid "All records on one page"
@@ -991,43 +993,31 @@ msgstr "Verarbeite Einträge %s–%s …"
 
 # Modules: Sync
 #: zzform/sync.inc.php
-msgid "1 update was made."
-msgstr "Ein Eintrag wurde aktualisiert"
+msgid "%d update was made."
+msgid_plural "%d updates were made."
+msgstr[0] "Ein Eintrag wurde aktualisiert."
+msgstr[1] "%d Einträge wurden aktualisiert."
 
 # Modules: Sync
 #: zzform/sync.inc.php
-msgid "%s updates were made."
-msgstr "%s Einträge wurden aktualisiert."
+msgid "%d insert was made."
+msgid_plural "%d inserts were made."
+msgstr[0] "Es wurde ein Eintrag eingefügt."
+msgstr[1] "%d Einträge wurden eingefügt."
 
 # Modules: Sync
 #: zzform/sync.inc.php
-msgid "1 insert was made."
-msgstr "Es wurde ein Eintrag eingefügt."
+msgid "%d record was left as is."
+msgid_plural "%d records were left as is."
+msgstr[0] "Ein Eintrag blieb unverändert."
+msgstr[1] "%s Einträge blieben unverändert."
 
 # Modules: Sync
 #: zzform/sync.inc.php
-msgid "%s inserts were made."
-msgstr "%s Einträge wurden eingefügt."
-
-# Modules: Sync
-#: zzform/sync.inc.php
-msgid "1 record was left as is."
-msgstr "Ein Eintrag blieb unverändert."
-
-# Modules: Sync
-#: zzform/sync.inc.php
-msgid "%s records were left as is."
-msgstr "%s Einträge blieben unverändert."
-
-# Modules: Sync
-#: zzform/sync.inc.php
-msgid "1 record had errors. (%s)"
-msgstr "Ein Eintrag hatte Fehler. (%s)"
-
-# Modules: Sync
-#: zzform/sync.inc.php
-msgid "%s records had errors."
-msgstr "%s Einträge hatten Fehler."
+msgid "%d record had errors."
+msgid_plural "%d records had errors."
+msgstr[0] "Ein Eintrag hatte Fehler."
+msgstr[1] "%d Einträge hatten Fehler."
 
 # Modules: Sync
 #: zzform/sync.inc.php

@@ -546,6 +546,28 @@ msgid "Would be changed on update"
 msgstr ""
 
 # Record form: Merge
+#: zzform/merge.inc.php
+msgid "Merge: Failed to update record with ID %d in table <code>%s</code>."
+msgstr ""
+
+# Record form: Merge
+#: zzform/merge.inc.php
+msgid "Merge: Failed to delete record with ID %d in table <code>%s</code>."
+msgstr ""
+
+# Record form: Merge
+#: zzform/merge.inc.php
+msgid ""
+"Merge: Update of record with ID %d in table <code>%s</code> was successful."
+msgstr ""
+
+# Record form: Merge
+#: zzform/merge.inc.php
+msgid ""
+"Merge: Deletion of record with ID %d in table <code>%s</code> was successful."
+msgstr ""
+
+# Record form: Merge
 msgid "%d records merged successfully"
 msgstr ""
 
@@ -748,12 +770,10 @@ msgid "Add new record"
 msgstr ""
 
 # List view: bottom
-msgid "%d records total"
-msgstr ""
-
-# List view: bottom
 msgid "%d record total"
-msgstr ""
+msgid_plural "%d records total"
+msgstr[0] ""
+msgstr[1] ""
 
 # List view: bottom
 msgid "All records on one page"
@@ -903,6 +923,79 @@ msgstr ""
 
 # Modules: Geo
 msgid "Maximum value for degrees is %s. The value you entered is too big: %s."
+msgstr ""
+
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "Deletable Records"
+msgstr ""
+
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "Processing entries %s–%s …"
+msgstr ""
+
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "%d update was made."
+msgid_plural "%d updates were made."
+msgstr[0] ""
+msgstr[1] ""
+
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "%d insert was made."
+msgid_plural "%d inserts were made."
+msgstr[0] ""
+msgstr[1] ""
+
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "%d record was left as is."
+msgid_plural "%d records were left as is."
+msgstr[0] ""
+msgstr[1] ""
+
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "%d record had errors."
+msgid_plural "%d records had errors."
+msgstr[0] ""
+msgstr[1] ""
+
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "Go on to next page"
+msgstr ""
+
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "Possibly deletable records"
+msgstr ""
+
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "Please wait for reload …"
+msgstr ""
+
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "Finished!"
+msgstr ""
+
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "No updates/inserts were made."
+msgstr ""
+
+# Modules: Sync
+#: templates/sync-overview.template.txt
+msgid "Please select from one of the following datasets:"
+msgstr ""
+
+# Modules: Sync
+#: templates/sync-overview.template.txt
+msgid "There are no deletable records."
 msgstr ""
 
 # Modules: Upload (Table filetypes)

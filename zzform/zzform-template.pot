@@ -533,7 +533,7 @@ msgstr ""
 
 # Record form: Merge
 #: zzform/merge.inc.php
-msgid "Merge: Failed to update record with ID %d in table <code>%s<code>."
+msgid "Merge: Failed to update record with ID %d in table <code>%s</code>."
 msgstr ""
 
 # Record form: Merge
@@ -752,12 +752,9 @@ msgid "Add new record"
 msgstr ""
 
 # List view: bottom
-msgid "%d records total"
-msgstr ""
-
-# List view: bottom
 msgid "%d record total"
-msgstr ""
+msgid_plural "%d records total"
+msgstr[] ""
 
 # List view: bottom
 msgid "All records on one page"
@@ -913,43 +910,27 @@ msgstr ""
 
 # Modules: Sync
 #: zzform/sync.inc.php
-msgid "1 update was made."
-msgstr ""
+msgid "%d update was made."
+msgid_plural "%d updates were made."
+msgstr[] ""
 
 # Modules: Sync
 #: zzform/sync.inc.php
-msgid "%s updates were made."
-msgstr ""
+msgid "%d insert was made."
+msgid_plural "%d inserts were made."
+msgstr[] ""
 
 # Modules: Sync
 #: zzform/sync.inc.php
-msgid "1 insert was made."
-msgstr ""
+msgid "%d record was left as is."
+msgid_plural "%d records were left as is."
+msgstr[] ""
 
 # Modules: Sync
 #: zzform/sync.inc.php
-msgid "%s inserts were made."
-msgstr ""
-
-# Modules: Sync
-#: zzform/sync.inc.php
-msgid "1 record was left as is."
-msgstr ""
-
-# Modules: Sync
-#: zzform/sync.inc.php
-msgid "%s records were left as is."
-msgstr ""
-
-# Modules: Sync
-#: zzform/sync.inc.php
-msgid "1 record had errors. (%s)"
-msgstr ""
-
-# Modules: Sync
-#: zzform/sync.inc.php
-msgid "%s records had errors."
-msgstr ""
+msgid "%d record had errors."
+msgid_plural "%d records had errors."
+msgstr[] ""
 
 # Modules: Sync
 #: zzform/sync.inc.php

@@ -120,32 +120,17 @@ function zz_sync($import) {
 	// output results
 	$lines = [];
 	$lines[] = wrap_text('Processing entries %s–%s …', ['values' => [$import['limit'] + 1, $import['end']]]);
-	if ($updated) {
-		if ($updated === 1) {
-			$lines[] = wrap_text('1 update was made.');
-		} else {
-			$lines[] = wrap_text('%s updates were made.', ['values' => $updated]);
-		}
-	}
-	if ($inserted) {
-		if ($inserted === 1) {
-			$lines[] = wrap_text('1 insert was made.');
-		} else {
-			$lines[] = wrap_text('%s inserts were made.', ['values' => $inserted]);
-		}
-	}
-	if ($nothing AND (!$testing OR $post)) {
-		if ($nothing === 1) {
-			$lines[] = wrap_text('1 record was left as is.');
-		} else {
-			$lines[] = wrap_text('%s records were left as is.', ['values' => $nothing]);
-		}
-	}
+	if ($updated)
+		$lines[] = wrap_text('%d updates were made.', ['values' => $updated]);
+	if ($inserted)
+		$lines[] = wrap_text('%d inserts were made.', ['values' => $inserted]);
+	if ($nothing AND (!$testing OR $post))
+		$lines[] = wrap_text('%d records were left as is.', ['values' => $nothing]);
 	if ($errors) {
-		if (count($errors) == 1) {
-			$lines[] = wrap_text('1 record had errors. (%s)', ['values' => implode(', ', $errors)]);
+		if (count($errors) === 1) {
+			$lines[] = wrap_text('%d records had errors.', ['values' => 1]).sprintf('(%s)', implode(', ', $errors));
 		} else {
-			$lines[] = wrap_text('%s records had errors.', ['values' => count($errors)])
+			$lines[] = wrap_text('%d records had errors.', ['values' => count($errors)])
 				."<ul><li>\n".implode("</li>\n<li>", $errors)."</li>\n</ul>\n";
 		}
 	}

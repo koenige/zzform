@@ -1934,7 +1934,6 @@ function zz_list_total_records($total_rows) {
 	global $zz_conf;
 	if (!empty($zz_conf['dont_show_total_records'])) return '';
 
-	if ($total_rows === 1) return '<p class="totalrecords">'.wrap_text('%d record total', ['values' => [$total_rows]]).'</p>'; 
 	if ($total_rows) return '<p class="totalrecords">'.wrap_text('%d records total', ['values' => [$total_rows]]).'</p>';
 	return '';
 }
