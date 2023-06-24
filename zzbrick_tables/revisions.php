@@ -82,4 +82,4 @@ $zz['filter'][1]['where'] = 'rev_status';
 $zz['filter'][1]['default_selection'] = 'pending';
 $zz['filter'][1]['translate_field_value'] = true;
 
-$zz_conf['no_add_above'] = true;
+$zz['list']['no_add_above'] = true;

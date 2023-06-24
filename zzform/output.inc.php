@@ -657,7 +657,7 @@ function zz_output_add_export_links($zz, $ops, $position = 'below') {
 	$links = [];
 	switch ($position) {
 	case 'above':
-		if (!empty($zz_conf['no_add_above'])) return '';
+		if (!empty($zz['list']['no_add_above'])) return '';
 		break;
 	case 'below':
 		// only if list was shown beforehands
@@ -665,7 +665,7 @@ function zz_output_add_export_links($zz, $ops, $position = 'below') {
 		if ($zz_conf['export']) $links['export'] = zz_export_links();
 		break;
 	case 'nolist':
-		if (empty($zz_conf['no_add_above'])) return '';
+		if (empty($zz['list']['no_add_above'])) return '';
 		if ($add_button_shown) return '';
 		break;
 	}

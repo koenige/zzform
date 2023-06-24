@@ -875,4 +875,9 @@ function zzform_deprecated(&$ops, &$zz) {
 		unset($zz_conf['footer_template']);
 		wrap_error('Use $zz[\'footer\'][\'template\'] instead of $zz_conf[\'footer_template\']', E_USER_DEPRECATED);
 	}
+	if (!empty($zz_conf['no_add_above'])) {
+		$zz['list']['no_add_above'] = $zz_conf['no_add_above'];
+		unset($zz_conf['no_add_above']);
+		wrap_error('Use $zz[\'list\'][\'no_add_above\'] instead of $zz_conf[\'no_add_above\']', E_USER_DEPRECATED);
+	}
 }
