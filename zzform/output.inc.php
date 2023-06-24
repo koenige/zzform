@@ -47,12 +47,12 @@ function zz_output_page($ops, $zz) {
 function zz_output_full($ops) {
 	global $zz_conf;
 	if ($ops['mode'] === 'export') return $ops['output'];
-	if (!empty($zz_conf['footer_template']))
-		$ops['footer_text'] .= wrap_template($zz_conf['footer_template'], $ops['record'] ?? []);
-	elseif (!empty($zz_conf['footer_text_insert']) AND !empty($_GET['insert']))
-		$ops['footer_text'] .= $zz_conf['footer_text_insert'];
-	elseif ($zz_conf['footer_text'])
-		$ops['footer_text'] .= $zz_conf['footer_text'];
+	if (!empty($ops['footer']['template']))
+		$ops['footer_text'] .= wrap_template($ops['footer']['template'], $ops['record'] ?? []);
+	elseif (!empty($ops['footer']['text_insert']) AND !empty($_GET['insert']))
+		$ops['footer_text'] .= $ops['footer']['text_insert'];
+	elseif (!empty($ops['footer']['text']))
+		$ops['footer_text'] .= $ops['footer']['text'];
 	$ops['error_out'] = zz_error_output();
 	if (isset($ops['explanation_insert']) AND !empty($_GET['insert'])) {
 		$ops['explanation'] = zz_format($ops['explanation_insert']);

@@ -1182,8 +1182,7 @@ function zz_hash($zz, $zz_conf) {
 	// the definition of the database table(s)
 	$id = $zz_conf['id'];
 	$uninteresting_zz_conf_keys = [
-		'int', 'id', 'footer_text', 'footer_text_insert', 'footer_template',
-		'format', 'list_display', 'referer', 'access',
+		'int', 'id', 'format', 'list_display', 'referer', 'access',
 		'redirect', 'search_form_always', 'redirect_on_change', 'filter',
 		'filter_position', 'text', 'limit', 'zzform_init', 'url_self',
 		'search', 'html_autofocus'

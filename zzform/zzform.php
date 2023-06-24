@@ -50,18 +50,15 @@ function zzform($zz) {
 		'error' => [],
 		'id' => 0,
 		'mode' => false,
-		'footer_text' => false,
+		'footer' => $zz['footer'] ?? [],
+		'footer_text' => '',
 		'html_fragment' => !empty($_POST['zz_html_fragment']) ? true : false,
 		'redirect_url' => false,
 		'explanation' => ''
 	];
 	wrap_static('page', '', $zz['page'] ?? [], 'init');
-	// @deprecated
-	if (!empty($zz_conf['dont_show_title_as_breadcrumb'])) {
-		wrap_static('page', 'dont_show_title_as_breadcrumb', true);
-		unset($zz_conf['dont_show_title_as_breadcrumb']);
-		wrap_error('Use $zz[\'page\'][\'dont_show_title_as_breadcrumb\'] instead of $zz_conf[\'dont_show_title_as_breadcrumb\']', E_USER_DEPRECATED);
-	}
+	zzform_deprecated($ops, $zz);
+
 	// set default configuration variables
 	// import modules, set and get URI
 	zz_initialize('form');
@@ -676,7 +673,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['export_csv_delimiter'] = "\t";
 
 	$default['filter_position'] 	= 'top';
-	$default['footer_text']			= false;		// text at the end of all
 	$default['html_autofocus']		= true;
 	$default['list_display']		= 'table';
 	$default['max_select_val_len']	= 60;		// maximum length of values in select
@@ -848,4 +844,35 @@ function zzform_post_too_big() {
 		$_GET = array_merge($_GET, $query);
 	}
 	return true;
+}
+
+/**
+ * mark some deprecated settings
+ *
+ * @param array $ops
+ * @param array $zz
+ */
+function zzform_deprecated(&$ops, &$zz) {
+	global $zz_conf;
+
+	if (!empty($zz_conf['dont_show_title_as_breadcrumb'])) {
+		wrap_static('page', 'dont_show_title_as_breadcrumb', true);
+		unset($zz_conf['dont_show_title_as_breadcrumb']);
+		wrap_error('Use $zz[\'page\'][\'dont_show_title_as_breadcrumb\'] instead of $zz_conf[\'dont_show_title_as_breadcrumb\']', E_USER_DEPRECATED);
+	}
+	if (!empty($zz_conf['footer_text'])) {
+		$ops['footer']['text'] = $zz_conf['footer_text'];
+		unset($zz_conf['footer_text']);
+		wrap_error('Use $zz[\'footer\'][\'text\'] instead of $zz_conf[\'footer_text\']', E_USER_DEPRECATED);
+	}
+	if (!empty($zz_conf['footer_text_insert'])) {
+		$ops['footer']['text_insert'] = $zz_conf['footer_text_insert'];
+		unset($zz_conf['footer_text_insert']);
+		wrap_error('Use $zz[\'footer\'][\'text_insert\'] instead of $zz_conf[\'footer_text_insert\']', E_USER_DEPRECATED);
+	}
+	if (!empty($zz_conf['footer_template'])) {
+		$ops['footer']['template'] = $zz_conf['footer_template'];
+		unset($zz_conf['footer_template']);
+		wrap_error('Use $zz[\'footer\'][\'template\'] instead of $zz_conf[\'footer_template\']', E_USER_DEPRECATED);
+	}
 }
