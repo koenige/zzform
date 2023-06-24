@@ -334,65 +334,68 @@ function zz_output_redirect($result, $return, $zz_tab) {
 			$zz_conf['redirect'][$result] = $zz_conf['int']['url']['base']
 				.$zz_conf['redirect'][$result];
 		wrap_redirect_change($zz_conf['redirect'][$result]);
-	} elseif (!wrap_setting('debug') AND $zz_conf['redirect_on_change']) {
+	}
+
+	// debug mode? no redirect
+	if (wrap_setting('debug')) return false;
+
 	// redirect to same URL, as to protect against reloading the POST variables
 	// don't do so in case of debugging
-		// multiple edit?
-		$nos = '';
-		$id_value = $zz_conf['int']['id']['value'];
-		if (is_array($id_value)) {
-			$nos = '-'.count($id_value);
-			$id_value = implode(',', $id_value);
-		}
-		// it’s a URL, so replace &amp; with & via substr()
-		$self = $zz_conf['int']['url']['full']
-			.$zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']
-			.($zz_conf['int']['url']['qs_zzform'] ? '&' : substr($zz_conf['int']['url']['?&'], 0, 1));
-		$secure = false;
-		if (!empty($zz_conf['int']['hash_id'])) {
-			// secret key has to be recalculated for insert operations
-			// because there did not exist an id value before = hash was different
-			$zz_conf['int']['secret_key'] = zz_secret_key($id_value);
-			$secure = '&zzhash='.$zz_conf['int']['secret_key'];
-		}
-		switch ($result) {
-		case 'successful_delete':
-			if (!empty($zz_conf['redirect_to_referer_zero_records'])
-				AND !empty($zz_conf['int']['referer']['path'])) {
-				// redirect to referer if there are no records in list
-				$id_field_name = $zz_tab[0]['table'].'.'.$zz_conf['int']['id']['field_name'];
-				if (!empty($_GET['nolist']) OR !zz_sql_count_rows($zz_tab[0]['sql'], $id_field_name)) {
-					if (empty($zz_conf['int']['referer']['scheme'])) {
-						$self = $zz_conf['int']['url']['base'];
-					} else {
-						$self = $zz_conf['int']['referer']['scheme'].'://'
-							.$zz_conf['int']['referer']['host'];
-					}
-					$self .= $zz_conf['int']['referer']['path'];
-					if (empty($zz_conf['int']['referer']['query'])) {
-						$self .= '?';
-					} else {
-						$self .= $zz_conf['int']['referer']['query'].'&';
-					}
+	// multiple edit?
+	$nos = '';
+	$id_value = $zz_conf['int']['id']['value'];
+	if (is_array($id_value)) {
+		$nos = '-'.count($id_value);
+		$id_value = implode(',', $id_value);
+	}
+	// it’s a URL, so replace &amp; with & via substr()
+	$self = $zz_conf['int']['url']['full']
+		.$zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']
+		.($zz_conf['int']['url']['qs_zzform'] ? '&' : substr($zz_conf['int']['url']['?&'], 0, 1));
+	$secure = false;
+	if (!empty($zz_conf['int']['hash_id'])) {
+		// secret key has to be recalculated for insert operations
+		// because there did not exist an id value before = hash was different
+		$zz_conf['int']['secret_key'] = zz_secret_key($id_value);
+		$secure = '&zzhash='.$zz_conf['int']['secret_key'];
+	}
+	switch ($result) {
+	case 'successful_delete':
+		if (!empty($zz_conf['redirect_to_referer_zero_records'])
+			AND !empty($zz_conf['int']['referer']['path'])) {
+			// redirect to referer if there are no records in list
+			$id_field_name = $zz_tab[0]['table'].'.'.$zz_conf['int']['id']['field_name'];
+			if (!empty($_GET['nolist']) OR !zz_sql_count_rows($zz_tab[0]['sql'], $id_field_name)) {
+				if (empty($zz_conf['int']['referer']['scheme'])) {
+					$self = $zz_conf['int']['url']['base'];
+				} else {
+					$self = $zz_conf['int']['referer']['scheme'].'://'
+						.$zz_conf['int']['referer']['host'];
+				}
+				$self .= $zz_conf['int']['referer']['path'];
+				if (empty($zz_conf['int']['referer']['query'])) {
+					$self .= '?';
+				} else {
+					$self .= $zz_conf['int']['referer']['query'].'&';
 				}
 			}
-			if ($nos) {
-				$nos = '='.$nos;
-				$_GET['delete'] = $nos; // for JS fragment
-			} else {
-				$_GET['delete'] = false;  // for JS fragment
-			}
-			return $self.'delete'.$nos;
-		case 'successful_insert':
-			$_GET['insert'] = $id_value;  // for JS fragment
-			return $self.'insert='.$id_value.$secure;
-		case 'successful_update':
-			$_GET['update'] = $id_value;  // for JS fragment
-			return $self.'update='.$id_value.$secure;
-		case 'no_update':
-			$_GET['noupdate'] = $id_value;  // for JS fragment
-			return $self.'noupdate='.$id_value.$secure;
 		}
+		if ($nos) {
+			$nos = '='.$nos;
+			$_GET['delete'] = $nos; // for JS fragment
+		} else {
+			$_GET['delete'] = false;  // for JS fragment
+		}
+		return $self.'delete'.$nos;
+	case 'successful_insert':
+		$_GET['insert'] = $id_value;  // for JS fragment
+		return $self.'insert='.$id_value.$secure;
+	case 'successful_update':
+		$_GET['update'] = $id_value;  // for JS fragment
+		return $self.'update='.$id_value.$secure;
+	case 'no_update':
+		$_GET['noupdate'] = $id_value;  // for JS fragment
+		return $self.'noupdate='.$id_value.$secure;
 	}
 	return false;
 }

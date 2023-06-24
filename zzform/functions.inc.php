@@ -1182,10 +1182,9 @@ function zz_hash($zz, $zz_conf) {
 	// the definition of the database table(s)
 	$id = $zz_conf['id'];
 	$uninteresting_zz_conf_keys = [
-		'int', 'id', 'format', 'list_display', 'referer', 'access',
-		'redirect', 'search_form_always', 'redirect_on_change', 'filter',
-		'filter_position', 'text', 'limit', 'zzform_init', 'url_self',
-		'search', 'html_autofocus'
+		'int', 'id', 'format', 'list_display', 'referer', 'access', 'redirect',
+		'search_form_always', 'filter_position', 'text', 'limit', 'zzform_init',
+		'url_self', 'search', 'html_autofocus'
 	];
 	foreach ($uninteresting_zz_conf_keys as $key) unset($zz_conf[$key]);
 	$uninteresting_zz_keys = [

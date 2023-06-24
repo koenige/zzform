@@ -686,7 +686,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['redirect']['successful_insert'] = false;	// redirect to diff. page after insert
 	$default['redirect']['successful_update'] = false;	// redirect to diff. page after update
 	$default['redirect']['no_update'] = false;	// redirect to diff. page after update without changes
-	$default['redirect_on_change']	= true;
 	$default['search'] 				= true;	// search for records possible or not
 	$default['search_form_always']	= false;
 	$default['show_output']			= true;		// ECHO output or keep it in $ops['output']
