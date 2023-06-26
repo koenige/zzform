@@ -90,9 +90,8 @@ function zz_add_modules($modules) {
  * @param array $zz Table definition
  *		checking 'conditions', 'fields'
  * @global array $zz_conf
- *		array $zz_conf['modules'] will be written, $zz_conf['export'] if
- *		applicable
- *		checking 'translations_of_fields', 'generate_output'
+ *		array $zz_conf['modules'] will be written
+ *		checking 'generate_output'
  * @return void
  */
 function zz_dependent_modules($zz) {
@@ -145,12 +144,12 @@ function zz_dependent_modules($zz) {
 			break;
 		case 'export':
 			if ($zz_conf['generate_output'] === false) {
-				$zz_conf['export'] = false;
+				$zz['export'] = [];
 				unset($modules[$index]);
 				break;
 			}
 			$export = false;
-			if (!empty($zz_conf['export'])) {
+			if (!empty($zz['export'])) {
 				$export = true;
 				break;
 			}

@@ -21,13 +21,16 @@
  * initializes export, sets a few variables
  *
  * @param array $ops
+ * @param array $zz
  * @global array $zz_conf
  * @return array $ops
  */
-function zz_export_init($ops) {
+function zz_export_init(&$ops, &$zz) {
 	global $zz_conf;
-	if (empty($zz_conf['export'])) return $ops;
-	if (empty($_GET['export'])) return $ops;
+	if (!isset($zz['export'])) $zz['export'] = [];
+	elseif (!is_array($zz['export'])) $zz['export'] = [$zz['export']];
+	if (!$zz['export']) return;
+	if (empty($_GET['export'])) return;
 
 	// no edit modes allowed
 	$unwanted_keys = [
@@ -44,21 +47,18 @@ function zz_export_init($ops) {
 			'status' => 404
 		]);
 		$ops['mode'] = false;
-		return $ops;
+		return;
 	}
 	// do not export anything if it's a 404 in export mode
 	// and e. g. limit is incorrect
 	if (wrap_static('page', 'status') === 404) {
 		$ops['mode'] = false;
-		return $ops;
+		return;
 	}
 
 	// get type and (optional) script name
 	$export = false;
-	if (!is_array($zz_conf['export'])) {
-		$zz_conf['export'] = [$zz_conf['export']];
-	}
-	foreach ($zz_conf['export'] as $type => $mode) {
+	foreach ($zz['export'] as $type => $mode) {
 		$mode = zz_export_identifier($mode);
 		if ($_GET['export'] !== $mode) continue;
 		if ($pos = strpos($mode, '-') AND $mode !== 'csv-excel') {
@@ -82,7 +82,7 @@ function zz_export_init($ops) {
 		]);
 		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], ['export']);
 		$ops['mode'] = false;
-		return $ops;
+		return;
 	}
 	$ops['mode'] = 'export';
 	$zz_conf['list_display'] = $export;
@@ -105,8 +105,6 @@ function zz_export_init($ops) {
 		$zz_conf['int']['this_limit'] = false;
 		break;
 	}
-
-	return $ops;
 }
 
 /**
@@ -124,10 +122,11 @@ function zz_export_identifier($mode) {
 /**
  * HTML output of links for export
  *
+ * @param array $export ($zz['export'])
  * @global array $zz_conf
  * @return array $links array of strings with links for export
  */
-function zz_export_links() {
+function zz_export_links($export) {
 	global $zz_conf;
 	$links = [];
 	
@@ -136,9 +135,7 @@ function zz_export_links() {
 	$qs = zz_edit_query_string($zz_conf['int']['extra_get'], $unwanted_querystrings);
 	$qs = substr($qs, 1);
 
-	if (!is_array($zz_conf['export']))
-		$zz_conf['export'] = [$zz_conf['export']];
-	foreach ($zz_conf['export'] as $type => $mode) {
+	foreach ($export as $type => $mode) {
 		if (is_numeric($type)) $type = $mode;
 		else $type = $mode.', '.$type;
 		$links[] = [

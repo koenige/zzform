@@ -141,13 +141,12 @@ function zzform($zz) {
 //	Check mode, action, access for record;
 //	access for list will be checked later
 //
-	if ($zz_conf['generate_output']) {
+	if ($zz_conf['generate_output']) 
 		zz_init_limit($zz);
-	}
 
 	// initalize export module
 	// might set mode to export
-	if (!empty($zz_conf['export'])) $ops = zz_export_init($ops);
+	if (!empty($zz_conf['modules']['export'])) zz_export_init($ops, $zz);
 
 	// set $ops['mode'], $zz['record']['action'], ['id']['value'] and $zz_conf for access
 	list($zz, $ops) = zz_record_access($zz, $ops);
@@ -663,9 +662,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['details_target']	= false;	// target-window for details link
 	$default['edit']			= true;		// show Action: Edit
 
-	// whether sql result might be exported 
-	// (link for export will appear at the end of the page)
-	$default['export']				= [];
 	// CSV defaults
 	// Excel requires
 	// - tabulator when opening via double-click and Unicode text
@@ -682,10 +678,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['multi_delete']		= false;
 	$default['multi_edit']			= false;
 	$default['multi_function']		= [];
-	$default['redirect']['successful_delete'] = false;	// redirect to diff. page after delete
-	$default['redirect']['successful_insert'] = false;	// redirect to diff. page after insert
-	$default['redirect']['successful_update'] = false;	// redirect to diff. page after update
-	$default['redirect']['no_update'] = false;	// redirect to diff. page after update without changes
 	$default['search'] 				= true;	// search for records possible or not
 	$default['search_form_always']	= false;
 	$default['show_output']			= true;		// ECHO output or keep it in $ops['output']
@@ -883,5 +875,10 @@ function zzform_deprecated(&$ops, &$zz) {
 		$zz['record']['redirect'] = $zz_conf['redirect'];
 		unset($zz_conf['redirect']);
 		wrap_error('Use $zz[\'record\'][\'redirect\'] instead of $zz_conf[\'redirect\']', E_USER_DEPRECATED);
+	}
+	if (!empty($zz_conf['export'])) {
+		$zz['export'] = $zz_conf['export'];
+		unset($zz_conf['export']);
+		wrap_error('Use $zz[\'export\'] instead of $zz_conf[\'export\']', E_USER_DEPRECATED);
 	}
 }
