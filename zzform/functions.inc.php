@@ -2117,6 +2117,7 @@ function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec 
 	$root = false;		// root
 	$rootp = false;		// path just for root
 	$webroot = false;	// web root
+	$sql_fields = [];
 
 	// record data
 	switch ($record) {
@@ -2143,12 +2144,22 @@ function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec 
 			$webroot = $pvalue;
 			$rootp = $p;
 			$p = '';
-		} elseif (substr($pkey, 0, 4) === 'mode') {
+		} elseif (str_starts_with($pkey, 'mode')) {
 			$modes[] = $pvalue;
-		} elseif (substr($pkey, 0, 6) === 'string') {
+		} elseif (str_starts_with($pkey, 'string')) {
 			$p .= $pvalue;
-		} elseif (substr($pkey, 0, 5) === 'field' OR $pkey === 'extension') {
-			$content = (!empty($line[$pvalue]) OR (isset($line[$pvalue]) AND $line[$pvalue] === '0')) ? $line[$pvalue] : '';
+		} elseif (str_starts_with($pkey, 'sql_field')) {
+			$sql_fields[] = $line[$pvalue] ?? '';
+		} elseif (str_starts_with($pkey, 'sql')) {
+			$sql = $pvalue;
+			if ($sql_fields) $sql = vsprintf($sql, $sql_fields);
+			wrap_error('QUERY '.$sql);
+			$result = wrap_db_fetch($sql, '', 'single value');
+			wrap_error('QUERY RESULT '.json_encode($result));
+			if ($result) $p .= $result;
+			$sql_fields = [];
+		} elseif (str_starts_with($pkey, 'field') OR $pkey === 'extension') {
+			$content = $line[$pvalue] ?? '';
 			if (!$content AND $content !== '0' AND $record === 'new') {
 				$content = zz_get_record(
 					$pvalue, $my_tab['sql'], $my_tab[$rec]['id']['value'], 
