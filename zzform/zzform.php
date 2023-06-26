@@ -653,13 +653,7 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['add']				= true;		// add or do not add data.
 	$default['cancel_link']		= true;
 	$default['copy']			= false;	// show action: copy
-	$default['delete']			= true;	// show action: delete
-	$default['details']			= false;	// column details; links to detail records with foreign key
-	$default['details_base']	= false;
-	$default['details_referer']	= true;		// add referer to details link
-	$default['details_url']		= []; // might be array, therefore no $default
-	$default['details_sql']		= [];
-	$default['details_target']	= false;	// target-window for details link
+	$default['delete']			= true;		// show action: delete
 	$default['edit']			= true;		// show Action: Edit
 
 	// CSV defaults

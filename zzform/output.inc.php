@@ -234,80 +234,27 @@ function zz_nice_headings($heading, $zz) {
  */
 function zz_show_more_actions($conf, $id, $line) {
 	global $zz_conf;
-	static $error; // @deprecated
 
 	$act = [];
 	foreach ($conf['details'] as $key => $detail) {
-		if (!is_array($detail) AND (
-			!empty($conf['details_url']) OR !empty($conf['details_base'])
-			OR !empty($conf['details_target']) OR !empty($conf['details_sql'])
-		)) {
-			// @deprecated
-			if (empty($error)) {
-				zz_error_log([
-					'msg_dev' => 'Using deprecated details notation (key %d, script %s)',
-					'msg_dev_args' => [$key, basename(wrap_setting('request_uri'))]
-				]);
-				$error = true;
-			}
-		 	if (empty($conf['details_url'])) $conf['details_url'] = '.php?id=';	// @deprecated
-			$output = false;
-			if ($conf['details_base']) $new_action_url = $conf['details_base'][$key];
-			else $new_action_url = strtolower(wrap_filename($detail));
-			$output .= '<a href="'.$new_action_url;
-			if (isset($conf['details_url'][$key]) && is_array($conf['details_url'][$key])) {
-			// values are different for each key
-				foreach ($conf['details_url'][$key] as $part_key => $value) {
-					if (substr($part_key, 0, 5) === 'field') {
-						if (empty($line)) continue 2;
-						$output .= $line[$value];
-					} else {
-						$output .= $value;
-					}
-				}
-			} elseif (is_array($conf['details_url'])) {
-			// all values are the same
-				foreach ($conf['details_url'] as $part_key => $value) {
-					if (substr($part_key, 0, 5) === 'field') {
-						if (empty($line)) continue 2;
-						$output .= $line[$value];
-					} else {
-						$output .= $value;
-					}
-				}
-			} else
-				$output .= $conf['details_url'];
-			if (!isset($conf['details_url']) OR !is_array($conf['details_url'])) $output .= $id;
-			
-			$output .= ($conf['details_referer'] ? '&amp;referer='.urlencode(wrap_setting('request_uri')) : '')
-				.'"'
-				.(!empty($conf['details_target']) ? ' target="'.$conf['details_target'].'"' : '')
-				.'>'.wrap_text($detail).'</a>';
-			if (!empty($conf['details_sql'][$key])) {
-				$count = zz_db_fetch($conf['details_sql'][$key].$id, '', 'single value');
-				if ($count) $output .= '&nbsp;('.$count.')';
-			}
-			$act[] = $output;
-		} else {
-			if (!is_array($detail))
-				$detail = ['title' => $detail];
-			if (empty($detail['link'])) {
-				$detail['link'] = [
-					'string' => sprintf('%s?where[%s]=', strtolower(wrap_filename($detail['title'])), $zz_conf['int']['id']['field_name']),
-					'field' => $zz_conf['int']['id']['field_name']
-				];
-			} elseif (!is_array($detail['link'])) {
-				$detail['link'] = [
-					'string' => $detail['link'],
-					'field' => $zz_conf['int']['id']['field_name']
-				];
-			}
-			$target = !empty($detail['target']) ? sprintf(' target="%s"', $detail['target']) : '';
-			$referer = !empty($detail['referer']) ? sprintf('&amp;referer=%s', urlencode(wrap_setting('request_uri'))) : '';
-			$count = (!empty($detail['sql']) AND $no = zz_db_fetch(sprintf($detail['sql'], $id), '', 'single value')) ? sprintf('&nbsp;(%d)', $no) : '';
-			$url = zz_makelink($detail['link'], $line);
-			$act[] = sprintf('<a href="%s%s"%s>%s%s</a>', $url, $referer, $target, wrap_text($detail['title']), $count);
+		if (!is_array($detail))
+			$detail = ['title' => $detail];
+		if (empty($detail['link'])) {
+			$detail['link'] = [
+				'string' => sprintf('%s?where[%s]=', strtolower(wrap_filename($detail['title'])), $zz_conf['int']['id']['field_name']),
+				'field' => $zz_conf['int']['id']['field_name']
+			];
+		} elseif (!is_array($detail['link'])) {
+			$detail['link'] = [
+				'string' => $detail['link'],
+				'field' => $zz_conf['int']['id']['field_name']
+			];
 		}
+		$target = !empty($detail['target']) ? sprintf(' target="%s"', $detail['target']) : '';
+		$referer = !empty($detail['referer']) ? sprintf('&amp;referer=%s', urlencode(wrap_setting('request_uri'))) : '';
+		$count = (!empty($detail['sql']) AND $no = zz_db_fetch(sprintf($detail['sql'], $id), '', 'single value')) ? sprintf('&nbsp;(%d)', $no) : '';
+		$url = zz_makelink($detail['link'], $line);
+		$act[] = sprintf('<a href="%s%s"%s>%s%s</a>', $url, $referer, $target, wrap_text($detail['title']), $count);
 	}
 	$output = implode('&nbsp;&middot; ', $act);
 	return $output;

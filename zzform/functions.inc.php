@@ -511,9 +511,7 @@ function zz_check_get_array($key, $type, $values = [], $exit_on_error = true) {
 function zz_record_conf($zz_conf, $zz) {
 	$wanted_keys = [
 		'int[access]', 'edit', 'delete', 'add', 'view', 'if', 'details', 
-		'details_url', 'details_base', 'details_target', 'details_referer',
-		'details_sql', 'max_select', 'max_select_val_len', 'copy', 'no_ok',
-		'cancel_link', 'unless'
+		'max_select', 'max_select_val_len', 'copy', 'no_ok', 'cancel_link', 'unless'
 	];
 	$zz_conf_record = [];
 	foreach ($wanted_keys as $key) {
