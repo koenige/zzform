@@ -287,7 +287,7 @@ function zzform($zz) {
 				return zzform_exit($ops);
 			} elseif ($ops['result']) {
 				// Redirect, if wanted.
-				$ops['redirect_url'] = zz_output_redirect($ops['result'], $ops['return'], $zz_tab);
+				$ops['redirect_url'] = zz_output_redirect($ops, $zz, $zz_tab);
 				if ($ops['redirect_url']) {
 					if (empty($ops['html_fragment']))
 						wrap_redirect_change($ops['redirect_url']);
@@ -878,5 +878,10 @@ function zzform_deprecated(&$ops, &$zz) {
 		$zz['list']['no_add_above'] = $zz_conf['no_add_above'];
 		unset($zz_conf['no_add_above']);
 		wrap_error('Use $zz[\'list\'][\'no_add_above\'] instead of $zz_conf[\'no_add_above\']', E_USER_DEPRECATED);
+	}
+	if (!empty($zz_conf['redirect'])) {
+		$zz['redirect'] = $zz_conf['redirect'];
+		unset($zz_conf['redirect']);
+		wrap_error('Use $zz[\'redirect\'] instead of $zz_conf[\'redirect\']', E_USER_DEPRECATED);
 	}
 }

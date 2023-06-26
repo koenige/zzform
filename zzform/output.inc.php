@@ -316,24 +316,24 @@ function zz_show_more_actions($conf, $id, $line) {
 /**
  * Redirect to a different URL after successful action
  *
- * @param string $result ($ops['result'])
- * @param array $return ($ops['return'])
+ * @param array $ops
+ * @param array $zz
  * @param array $zz_tab
  * @global array $zz_conf
  * @return mixed bool false if nothing was done or string redirect URL
  */
-function zz_output_redirect($result, $return, $zz_tab) {
+function zz_output_redirect($ops, $zz, $zz_tab) {
 	global $zz_conf;
 
-	if (!empty($zz_conf['redirect'][$result])) {
+	if (!empty($zz['redirect'][$ops['result']])) {
+		$redirect = $zz['redirect'][$ops['result']];
 		if (wrap_setting('debug'))
-			zz_debug('_time', $return);
-		if (is_array($zz_conf['redirect'][$result]))
-			$zz_conf['redirect'][$result] = zz_makepath($zz_conf['redirect'][$result], $zz_tab);
-		if (substr($zz_conf['redirect'][$result], 0, 1) === '/')
-			$zz_conf['redirect'][$result] = $zz_conf['int']['url']['base']
-				.$zz_conf['redirect'][$result];
-		wrap_redirect_change($zz_conf['redirect'][$result]);
+			zz_debug('_time', $ops['return']);
+		if (is_array($redirect))
+			$redirect = zz_makepath($redirect, $zz_tab);
+		if (substr($redirect, 0, 1) === '/')
+			$redirect = $zz_conf['int']['url']['base'].$redirect;
+		wrap_redirect_change($redirect);
 	}
 
 	// debug mode? no redirect
@@ -359,7 +359,7 @@ function zz_output_redirect($result, $return, $zz_tab) {
 		$zz_conf['int']['secret_key'] = zz_secret_key($id_value);
 		$secure = '&zzhash='.$zz_conf['int']['secret_key'];
 	}
-	switch ($result) {
+	switch ($ops['result']) {
 	case 'successful_delete':
 		if (!empty($zz_conf['redirect_to_referer_zero_records'])
 			AND !empty($zz_conf['int']['referer']['path'])) {
