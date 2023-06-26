@@ -1179,9 +1179,8 @@ function zz_hash($zz, $zz_conf) {
 	// the definition of the database table(s)
 	$id = $zz_conf['id'];
 	$uninteresting_zz_conf_keys = [
-		'int', 'id', 'format', 'list_display', 'referer', 'access', 'redirect',
-		'search_form_always', 'filter_position', 'text', 'limit', 'zzform_init',
-		'url_self', 'search', 'html_autofocus'
+		'int', 'id', 'format', 'list_display', 'referer', 'access',
+		'text', 'limit', 'zzform_init', 'url_self'
 	];
 	foreach ($uninteresting_zz_conf_keys as $key) unset($zz_conf[$key]);
 	$uninteresting_zz_keys = [
@@ -1632,7 +1631,7 @@ function zz_record_access($zz, $ops) {
 		$zz_conf['edit'] = false;			// edit record (form+links)
 		$zz_conf['delete'] = false;			// don't delete record (form+links)
 		$zz_conf['view'] = false;			// don't show record (links)
-		$zz_conf['search'] = false;			// no search form
+		wrap_setting('zzform_search', false);			// no search form
 		$zz_conf['int']['show_list'] = false;		// no list
 		$zz_conf['no_ok'] = true;			// no OK button
 		$zz_conf['cancel_link'] = false; 	// no cancel link
@@ -1643,7 +1642,7 @@ function zz_record_access($zz, $ops) {
 		$zz_conf['edit'] = true;			// edit record (form+links)
 		$zz_conf['delete'] = false;			// don't delete record (form+links)
 		$zz_conf['view'] = false;			// don't show record (links)
-		$zz_conf['search'] = false;			// no search form
+		wrap_setting('zzform_search', false);			// no search form
 		$zz_conf['int']['show_list'] = false;		// no list
 		$zz_conf['no_ok'] = true;			// no OK button
 		$zz_conf['cancel_link'] = false; 	// no cancel link
@@ -1654,7 +1653,7 @@ function zz_record_access($zz, $ops) {
 		$zz_conf['edit'] = true;			// edit record (form+links)
 		$zz_conf['delete'] = false;			// don't delete record (form+links)
 		$zz_conf['view'] = false;			// don't show record (links)
-		$zz_conf['search'] = false;			// no search form
+		wrap_setting('zzform_search', false);			// no search form
 		$zz_conf['int']['show_list'] = false;		// no list
 		$zz_conf['no_ok'] = true;			// no OK button
 		if (empty($_POST)) $ops['mode'] = 'show';
@@ -1672,7 +1671,7 @@ function zz_record_access($zz, $ops) {
 		$zz_conf['edit'] = false;			// don't edit record (form+links)
 		$zz_conf['delete'] = false;			// don't delete record (form+links)
 		$zz_conf['view'] = false;			// don't show record (links)
-		$zz_conf['search'] = false;			// no search form
+		wrap_setting('zzform_search', false);			// no search form
 		$zz_conf['int']['show_list'] = false;		// no list
 		$zz_conf['cancel_link'] = false; 	// no cancel link
 		$zz_conf['no_ok'] = true;			// no OK button
@@ -1686,7 +1685,7 @@ function zz_record_access($zz, $ops) {
 		$zz_conf['edit'] = true;			// edit record (form+links)
 		$zz_conf['delete'] = false;			// don't delete record (form+links)
 		$zz_conf['view'] = false;			// don't show record (links)
-		$zz_conf['search'] = false;			// no search form
+		wrap_setting('zzform_search', false);			// no search form
 		$zz_conf['int']['show_list'] = false;		// no list
 		$zz_conf['no_ok'] = true;			// no OK button
 		$zz_conf['cancel_link'] = false; 	// no cancel link

@@ -29,15 +29,14 @@ function zz_list($zz, $ops, $zz_conditions) {
 	global $zz_conf;
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
-	if ($zz_conf['search']) {
+	if (wrap_setting('zzform_search'))
 		require_once __DIR__.'/searchform.inc.php';
-	}
 
 	// Turn off hierarchical sorting when using search
 	// @todo: implement hierarchical view even when using search
 	if (!isset($zz['list']['hierarchy'])) {
 		$zz['list']['hierarchy'] = [];
-	} elseif (!empty($_GET['q']) AND $zz_conf['search'] AND $zz['list']['hierarchy']) {
+	} elseif (!empty($_GET['q']) AND wrap_setting('zzform_search') AND $zz['list']['hierarchy']) {
 		$zz['list']['hierarchy'] = [];
 	}
 
@@ -48,7 +47,7 @@ function zz_list($zz, $ops, $zz_conditions) {
 
 	// only if search is allowed and there is something
 	// if q modify $zz['sql']: add search query
-	if (!empty($_GET['q']) AND $zz_conf['search']) {
+	if (!empty($_GET['q']) AND wrap_setting('zzform_search')) {
 		$old_sql = $zz['sql'];
 		$zz['sql'] = zz_search_sql($zz['list']['fields'], $zz['sql'], $zz['table']);
 		if ($old_sql !== $zz['sql']) $zz['sqlcount'] = '';
@@ -195,7 +194,7 @@ function zz_list($zz, $ops, $zz_conditions) {
 	zz_error();
 	$ops['output'] .= zz_error_output();
 
-	if ($zz_conf['search']) {
+	if (wrap_setting('zzform_search')) {
 		$search_form = zz_search_form($zz['list']['fields'], $zz['table'], $ops['records_total'], $count_rows);
 		$ops['output'] .= $search_form['top'];
 	}
@@ -247,15 +246,14 @@ function zz_list($zz, $ops, $zz_conditions) {
 	// Add new record
 	if (!($zz_conf['int']['access'] === 'search_but_no_list' AND empty($_GET['q']))) {
 		// filter, if there was a list
-		if ($zz_conf['int']['show_list']) {
+		if ($zz_conf['int']['show_list'])
 			$ops['output'] .= zz_filter_selection($zz['filter'], $zz['filter_active'], 'bottom');
-		}
 		$ops['output'] .= zz_output_add_export_links($zz, $ops);
 		$ops['output'] .= zz_list_total_records($ops['records_total']);
 		$ops['output'] .= zz_list_pages($zz_conf['int']['this_limit'], $ops['records_total']);	
 		// @todo: NEXT, PREV Links at the end of the page
 		// Search form
-		if ($zz_conf['search']) {
+		if (wrap_setting('zzform_search')) {
 			$ops['output'] .= $search_form['bottom'];
 		}
 	}
@@ -884,7 +882,7 @@ function zz_filter_selection($filter, $filter_active, $pos) {
 	if (!is_array($filter)) return '';
 	if (!$zz_conf['int']['show_list']) return '';
 	if ($zz_conf['int']['access'] === 'export') return '';
-	if (!in_array($zz_conf['filter_position'], [$pos, 'both'])) return '';
+	if (!in_array(wrap_setting('zzform_filter_position'), [$pos, 'both'])) return '';
 	
 	// create base URL for links
 	$self = $zz_conf['int']['url']['self'];

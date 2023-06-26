@@ -591,7 +591,7 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 	$search_form['top'] = '';
 	$search_form['bottom'] = '';
 	// don't show search form if all records are already shown
-	if ($total_rows <= $count_rows AND empty($zz_conf['search_form_always'])
+	if ($total_rows <= $count_rows AND !wrap_setting('zzform_search_form_always')
 		AND empty($_GET['q'])) {
 		return $search_form;
 	}
@@ -633,8 +633,9 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 	}
 	$output = wrap_template('zzform-search', $search);
 
-	if ($zz_conf['search'] === true) $zz_conf['search'] = 'bottom'; // default!
-	switch ($zz_conf['search']) {
+	$setting = wrap_setting('zzform_search');
+	if ($setting === true) $setting = 'bottom'; // default!
+	switch ($setting) {
 	case 'top':
 		// show form on top only if there are records!
 		if ($count_rows) $search_form['top'] = $output;

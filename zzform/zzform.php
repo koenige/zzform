@@ -649,7 +649,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	// stop if there were errors while adding modules
 	if (zz_error_exit()) zz_return(false);
 
-	$default['always_show_empty_detail_record'] = false;
 	$default['add']				= true;		// add or do not add data.
 	$default['cancel_link']		= true;
 	$default['copy']			= false;	// show action: copy
@@ -662,7 +661,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	// - semicolon when opening via double-click and ANSI text
 	$default['export_csv_delimiter'] = "\t";
 
-	$default['filter_position'] 	= 'top';
 	$default['html_autofocus']		= true;
 	$default['list_display']		= 'table';
 	$default['max_select_val_len']	= 60;		// maximum length of values in select
@@ -672,8 +670,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['multi_delete']		= false;
 	$default['multi_edit']			= false;
 	$default['multi_function']		= [];
-	$default['search'] 				= true;	// search for records possible or not
-	$default['search_form_always']	= false;
 	$default['show_output']			= true;		// ECHO output or keep it in $ops['output']
 	$default['view']				= false;	// 	show Action: View
 	$default['url_self']			= false;
