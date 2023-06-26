@@ -35,7 +35,7 @@ function zzform($zz) {
 	if (isset($_POST['zz_multifunction'])) {
 		wrap_include_files('zzform/multi', 'custom/active');
 		$index = key($_POST['zz_multifunction']);
-		$function = $zz_conf['multi_function'][$index]['function'];
+		$function = $zz['list']['multi_function'][$index]['function'];
 		$_POST['zz_record_id'] = $_POST['zz_record_id'] ?? [];
 		return $function($_POST['zz_record_id']);
 	}
@@ -664,9 +664,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['max_select'] 			= 60;		// maximum entries in select/option, if bigger than sub-select
 	$default['merge']				= false;
 	$default['multi'] 				= false;		// zzform_multi
-	$default['multi_delete']		= false;
-	$default['multi_edit']			= false;
-	$default['multi_function']		= [];
 	$default['view']				= false;	// 	show Action: View
 	$default['url_self']			= false;
 	

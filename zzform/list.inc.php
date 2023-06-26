@@ -211,15 +211,14 @@ function zz_list($zz, $ops, $zz_conditions) {
 			$ops['output'] .= sprintf('<form action="%s" method="POST" accept-charset="%s">'."\n",
 				$action_url, wrap_setting('character_set'));
 			$list['buttons'] = [];
-			if ($zz_conf['multi_edit'])
+			if (!empty($zz['list']['multi_edit']))
 				$list['buttons'][] = '<input type="submit" value="'.wrap_text('Edit').'" name="zz_multiple_edit">';
-			if ($zz_conf['multi_delete'])
+			if (!empty($zz['list']['multi_delete']))
 				$list['buttons'][] = '<input type="submit" value="'.wrap_text('Delete').'" name="zz_multiple_delete">';
 			if ($zz_conf['merge'])
 				$list['buttons'][] = '<input type="submit" value="'.wrap_text('Merge').'" name="zz_merge">';
-			foreach ($zz_conf['multi_function'] as $index => $mfunction) {
+			if (!empty($zz['list']['multi_function'])) foreach ($zz['list']['multi_function'] as $index => $mfunction)
 				$list['buttons'][] = '<input type="submit" value="'.wrap_text($mfunction['title']).'" name="zz_multifunction['.$index.']">';
-			}
 			if ($list['buttons']) {
 				$list['buttons'] = '<input type="hidden" name="zz_action" value="multiple">'.implode(' ', $list['buttons']);
 				$list['checkbox_all'] = '<input type="checkbox" onclick="zz_set_checkboxes(this.checked);">';
@@ -472,7 +471,7 @@ function zz_list_set($zz, $count_rows) {
 		'select_multiple_records' => false
 	], $list);
 	
-	if ($zz_conf['multi_edit'] OR $zz_conf['multi_delete'] OR $zz_conf['merge'] OR $zz_conf['multi_function']) {
+	if (!empty($zz['list']['multi_edit']) OR !empty($zz['list']['multi_delete']) OR $zz_conf['merge'] OR !empty($zz['list']['multi_function'])) {
 		if ($count_rows > 1) {
 			$list['select_multiple_records'] = true;
 		}
