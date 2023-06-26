@@ -864,4 +864,19 @@ function zzform_deprecated(&$ops, &$zz) {
 		unset($zz_conf['export']);
 		wrap_error('Use $zz[\'export\'] instead of $zz_conf[\'export\']', E_USER_DEPRECATED);
 	}
+	if (!empty($zz_conf['multi_function'])) {
+		$zz['list']['multi_function'] = $zz_conf['multi_function'];
+		unset($zz_conf['multi_function']);
+		wrap_error('Use $zz[\'list\'][\'multi_function\'] instead of $zz_conf[\'multi_function\']', E_USER_DEPRECATED);
+	}
+	if (!empty($zz_conf['multi_edit'])) {
+		$zz['list']['multi_edit'] = $zz_conf['multi_edit'];
+		unset($zz_conf['multi_edit']);
+		wrap_error('Use $zz[\'list\'][\'multi_edit\'] instead of $zz_conf[\'multi_edit\']', E_USER_DEPRECATED);
+	}
+	if (!empty($zz_conf['multi_delete'])) {
+		$zz['list']['multi_delete'] = $zz_conf['multi_delete'];
+		unset($zz_conf['multi_delete']);
+		wrap_error('Use $zz[\'list\'][\'multi_delete\'] instead of $zz_conf[\'multi_delete\']', E_USER_DEPRECATED);
+	}
 }
