@@ -69,8 +69,6 @@ function zzform_multi($definition_file, $values, $type = 'tables') {
 	unset($zz_conf['if']);
 	unset($zz_conf['unless']);
 	$zz_conf['generate_output'] = false;
-	// do not show output as it will be included after page head
-	$zz_conf['show_output'] = false;
 	// set 'multi' so we know the operation mode for other scripts
 	$zz_conf['multi'] = true;
 	if (!empty($values['GET'])) $_GET = $values['GET'];

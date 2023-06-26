@@ -452,7 +452,6 @@ function zzform_exit($ops) {
 	// prepare HTML output, not for export
 	if ($zz_conf['generate_output'] AND function_exists('zz_output_full')) {
 		$ops['output'] = zz_output_full($ops);
-		if ($zz_conf['show_output']) echo $ops['output'];
 
 		// HTML head
 		wrap_static('page', 'head', wrap_template('zzform-head', [], 'ignore positions'), 'append');
@@ -595,12 +594,10 @@ function zz_initialize($mode = false, $old_conf = []) {
 		if ($zzform_calls > 1) {
 			// We're still in multiple calls
 			$zz_conf['generate_output'] = false;
-			$zz_conf['show_output'] = false;
 			$zz_conf['multi'] = true;
 		} else {
 			// inside the first call
-			$zz_conf['generate_output'] = isset($old_conf['generate_output']) ? $old_conf['generate_output'] : true;
-			$zz_conf['show_output'] = isset($old_conf['show_output']) ? $old_conf['show_output'] : true;
+			$zz_conf['generate_output'] = $old_conf['generate_output'] ?? true;
 			$zz_conf['multi'] = false;
 		}
 		return true;
@@ -670,7 +667,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['multi_delete']		= false;
 	$default['multi_edit']			= false;
 	$default['multi_function']		= [];
-	$default['show_output']			= true;		// ECHO output or keep it in $ops['output']
 	$default['view']				= false;	// 	show Action: View
 	$default['url_self']			= false;
 	
