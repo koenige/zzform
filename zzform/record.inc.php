@@ -243,6 +243,7 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
  * @param string $mode
  * @param string $display	'review': show form with all values for
  *							review; 'form': show form for editing; 
+ * @param array $zz_record
  * @param array $zz_conditions
  * @global array $zz_conf
  * @return array $output			HTML-Output with all form fields
@@ -344,7 +345,7 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple)
 	$output = [];
 	
 	if (!empty($zz_conf['referer']) AND array_key_exists('nolist', $_GET)
-		AND !empty($zz_conf['redirect_to_referer_zero_records'])) {
+		AND !empty($zz_record['redirect_to_referer_zero_records'])) {
 		$cancelurl = $zz_conf['referer'];
 	} elseif (!empty($zz_conf['int']['cancel_url'])) {
 		$cancelurl = $zz_conf['int']['cancel_url'];

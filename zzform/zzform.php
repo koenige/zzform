@@ -880,8 +880,8 @@ function zzform_deprecated(&$ops, &$zz) {
 		wrap_error('Use $zz[\'list\'][\'no_add_above\'] instead of $zz_conf[\'no_add_above\']', E_USER_DEPRECATED);
 	}
 	if (!empty($zz_conf['redirect'])) {
-		$zz['redirect'] = $zz_conf['redirect'];
+		$zz['record']['redirect'] = $zz_conf['redirect'];
 		unset($zz_conf['redirect']);
-		wrap_error('Use $zz[\'redirect\'] instead of $zz_conf[\'redirect\']', E_USER_DEPRECATED);
+		wrap_error('Use $zz[\'record\'][\'redirect\'] instead of $zz_conf[\'redirect\']', E_USER_DEPRECATED);
 	}
 }

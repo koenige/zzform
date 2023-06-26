@@ -325,8 +325,8 @@ function zz_show_more_actions($conf, $id, $line) {
 function zz_output_redirect($ops, $zz, $zz_tab) {
 	global $zz_conf;
 
-	if (!empty($zz['redirect'][$ops['result']])) {
-		$redirect = $zz['redirect'][$ops['result']];
+	if (!empty($zz['record']['redirect'][$ops['result']])) {
+		$redirect = $zz['record']['redirect'][$ops['result']];
 		if (wrap_setting('debug'))
 			zz_debug('_time', $ops['return']);
 		if (is_array($redirect))
@@ -361,7 +361,7 @@ function zz_output_redirect($ops, $zz, $zz_tab) {
 	}
 	switch ($ops['result']) {
 	case 'successful_delete':
-		if (!empty($zz_conf['redirect_to_referer_zero_records'])
+		if (!empty($zz['record']['redirect_to_referer_zero_records'])
 			AND !empty($zz_conf['int']['referer']['path'])) {
 			// redirect to referer if there are no records in list
 			$id_field_name = $zz_tab[0]['table'].'.'.$zz_conf['int']['id']['field_name'];
