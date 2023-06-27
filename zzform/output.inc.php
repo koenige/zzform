@@ -98,7 +98,6 @@ function zz_output_meta_tags() {
  * @return string $heading
  */
 function zz_output_heading($heading, $table = '') {
-	global $zz_conf;
 	if (!isset($heading)) {
 		$heading = $table;
 		$heading = str_replace('_', ' ', $heading);
