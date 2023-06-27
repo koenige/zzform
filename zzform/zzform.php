@@ -886,4 +886,9 @@ function zzform_deprecated(&$ops, &$zz) {
 		unset($zz_conf['export_csv_no_head']);
 		wrap_error('Use setting `export_csv_heading`, false instead of $zz_conf[\'export_csv_no_head\']', E_USER_DEPRECATED);
 	}
+	if (!empty($zz_conf['export_csv_replace'])) {
+		wrap_setting('export_csv_replace', !$zz_conf['export_csv_replace']);
+		unset($zz_conf['export_csv_replace']);
+		wrap_error('Use setting `export_csv_replace`, false instead of $zz_conf[\'export_csv_replace\']', E_USER_DEPRECATED);
+	}
 }
