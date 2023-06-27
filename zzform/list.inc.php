@@ -79,9 +79,11 @@ function zz_list($zz, $ops, $zz_conditions) {
 	if (zz_error_exit()) return zz_return($ops);
 	$count_rows = count($lines);
 
-	if ($count_rows < 8 AND $zz_conf['list_display'] === 'ul')
+	if (empty($zz['list']['display']))
+		$zz['list']['display'] = 'table';
+	if ($count_rows < 8 AND $zz['list']['display'] === 'ul')
 		$zz['list']['no_add_above'] = true;
-	elseif ($count_rows < 4 AND $zz_conf['list_display'] === 'table')
+	elseif ($count_rows < 4 AND $zz['list']['display'] === 'table')
 		$zz['list']['no_add_above'] = true;
 	$ops['output'] .= zz_output_add_export_links($zz, $ops, 'above');
 	$ops['output'] .= zz_filter_selection($zz['filter'], $zz['filter_active'], 'top');
@@ -227,9 +229,9 @@ function zz_list($zz, $ops, $zz_conditions) {
 			$list['buttons'] = '';
 		}
 	
-		if ($zz_conf['list_display'] === 'table') {
+		if ($zz['list']['display'] === 'table') {
 			$ops['output'] .= zz_list_table($list, $rows, $head);
-		} elseif ($zz_conf['list_display'] === 'ul') {
+		} elseif ($zz['list']['display'] === 'ul') {
 			$ops['output'] .= zz_list_ul($list, $rows);
 		}
 
@@ -457,7 +459,7 @@ function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $mode) {
 function zz_list_set($zz, $count_rows) {
 	global $zz_conf;
 
-	$list = !empty($zz['list']) ? $zz['list'] : [];
+	$list = $zz['list'] ?? [];
 	// defaults, might be overwritten by $zz['list']
 	$list = array_merge([
 		'current_record' => NULL,
@@ -468,10 +470,13 @@ function zz_list_set($zz, $count_rows) {
 		'tfoot' => false, // shows table foot, e. g. for sums of individual values
 		'group' => [],
 		'hierarchy' => ['display_in' => ''],
-		'select_multiple_records' => false
+		'select_multiple_records' => false,
+		'multi_edit' => false,
+		'multi_delete' => false,
+		'multi_function' => []
 	], $list);
 	
-	if (!empty($zz['list']['multi_edit']) OR !empty($zz['list']['multi_delete']) OR $zz_conf['merge'] OR !empty($zz['list']['multi_function'])) {
+	if ($list['multi_edit'] OR $list['multi_delete'] OR $zz_conf['merge'] OR $list['multi_function']) {
 		if ($count_rows > 1) {
 			$list['select_multiple_records'] = true;
 		}
@@ -1374,7 +1379,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode, $zz
 
 	//	if there's a link, glue parts together
 	$link = false;
-	if ($mode !== 'export' OR $zz_conf['list_display'] === 'kml') {
+	if ($mode !== 'export' OR $list['display'] === 'kml') {
 		$link = zz_set_link($field, $line);
 	}
 
@@ -1797,8 +1802,8 @@ function zz_mark_search_string($value, $field_name = false, $field = []) {
 	global $zz_conf;
 	// check if field should be marked
 	if (!$zz_conf['int']['show_list']) return $value;
+	if (!empty($zz_conf['int']['export'])) return $value;
 	if (!empty($field['dont_mark_search_string'])) return $value;
-	if ($zz_conf['list_display'] != 'table' AND $zz_conf['list_display'] != 'ul') return $value;
 	if (empty($_GET['q'])) return $value;
 	if (!empty($_GET['scope'])) {
 		if (strstr($_GET['scope'], '.'))

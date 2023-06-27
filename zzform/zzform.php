@@ -636,8 +636,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	zz_error_exit(false);
 	zz_error_out(false);
 
-//	Modules
-
 	// Modules on project level
 	// debug module must come first because of debugging reasons!
 	$zz_conf['modules'] = zz_add_modules($zz_conf['int_modules']);
@@ -659,7 +657,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['export_csv_delimiter'] = "\t";
 
 	$default['html_autofocus']		= true;
-	$default['list_display']		= 'table';
 	$default['max_select_val_len']	= 60;		// maximum length of values in select
 	$default['max_select'] 			= 60;		// maximum entries in select/option, if bigger than sub-select
 	$default['merge']				= false;
@@ -878,5 +875,10 @@ function zzform_deprecated(&$ops, &$zz) {
 		$zz['list']['multi_delete'] = $zz_conf['multi_delete'];
 		unset($zz_conf['multi_delete']);
 		wrap_error('Use $zz[\'list\'][\'multi_delete\'] instead of $zz_conf[\'multi_delete\']', E_USER_DEPRECATED);
+	}
+	if (!empty($zz_conf['list_display'])) {
+		$zz['list']['display'] = $zz_conf['list_display'];
+		unset($zz_conf['list_display']);
+		wrap_error('Use $zz[\'list\'][\'display\'] instead of $zz_conf[\'list_display\']', E_USER_DEPRECATED);
 	}
 }

@@ -85,7 +85,8 @@ function zz_export_init(&$ops, &$zz) {
 		return;
 	}
 	$ops['mode'] = 'export';
-	$zz_conf['list_display'] = $export;
+	$zz['list']['display'] = $export;
+	$zz_conf['int']['export'] = true;
 
 	switch ($export_param) {
 	case 'kml':
@@ -168,7 +169,7 @@ function zz_export($ops, $zz) {
 	if (!$zz_conf['int']['show_list']) return false;
 
 	// custom functions
-	$function = zz_export_script($zz_conf['list_display']);
+	$function = zz_export_script($zz['list']['display']);
 	if ($function) {
 		// execute and return function
 		return $function($ops);
@@ -176,15 +177,15 @@ function zz_export($ops, $zz) {
 
 	$filename = wrap_filename($ops['title'], " ", [':' => ' ', '.' => ' ', '–' => '-']);
 
-	switch ($zz_conf['list_display']) {
+	switch ($zz['list']['display']) {
 	case 'csv':
 	case 'csv-excel':
 		// sort head, rows
 		zz_export_sort($ops['output']);
 		$output = '';
 		$output .= zz_export_csv_head($ops['output']['head']);
-		$output .= zz_export_csv_body($ops['output']['rows']);
-		if ($zz_conf['list_display'] === 'csv-excel') {
+		$output .= zz_export_csv_body($ops['output']['rows'], $zz['list']['display']);
+		if ($zz['list']['display'] === 'csv-excel') {
 			$headers['character_set'] = 'utf-16le';
 			// @todo check with mb_list_encodings() if available
 			$output = mb_convert_encoding($output, 'UTF-16LE', wrap_setting('character_set'));
@@ -488,11 +489,12 @@ function zz_export_csv_head($main_rows) {
  * outputs data as CSV (body)
  *
  * @param array $rows data in rows
+ * @param string $export_format
  * @global array $zz_conf configuration
- *		'export_csv_delimiter', 'list_display'
+ *		'export_csv_delimiter'
  * @return string CSV output, data
  */
-function zz_export_csv_body($rows) {
+function zz_export_csv_body($rows, $export_format) {
 	global $zz_conf;
 
 	$output = '';
@@ -523,7 +525,7 @@ function zz_export_csv_body($rows) {
 				if (!empty($field['export_csv_maxlength']))
 					$myfield = substr($myfield, 0, $field['export_csv_maxlength']);
 				$mask = false;
-				if ($zz_conf['list_display'] === 'csv-excel' AND wrap_setting('export_csv_enclosure')) {
+				if ($export_format === 'csv-excel' AND wrap_setting('export_csv_enclosure')) {
 					if (preg_match('/^0[0-9]+$/', $myfield)) {
 					// - number with leading 0 = TEXT
 						$mask = true;
