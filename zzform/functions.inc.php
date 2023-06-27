@@ -44,7 +44,6 @@ function zz_add_modules($modules) {
 	}
 //	initialize variables
 	$mod = [];
-	$add = false;
 
 //	import modules
 	foreach ($modules as $module) {
@@ -60,11 +59,9 @@ function zz_add_modules($modules) {
 		if (file_exists(__DIR__.'/'.$module.'.inc.php')) {
 			include_once __DIR__.'/'.$module.'.inc.php';
 			$mod[$module] = true;
-			$add = true;
 		} elseif (file_exists(__DIR__.'/'.$module.'.php')) {
 			include_once __DIR__.'/'.$module.'.php';
 			$mod[$module] = true;
-			$add = true;
 		} else {
 			$mod[$module] = false;
 		}
@@ -1179,7 +1176,7 @@ function zz_hash($zz, $zz_conf) {
 	// the definition of the database table(s)
 	$id = $zz_conf['id'];
 	$uninteresting_zz_conf_keys = [
-		'int', 'id', 'format', 'list_display', 'referer', 'access',
+		'int', 'id', 'format', 'referer', 'access',
 		'text', 'limit', 'zzform_init', 'url_self'
 	];
 	foreach ($uninteresting_zz_conf_keys as $key) unset($zz_conf[$key]);
