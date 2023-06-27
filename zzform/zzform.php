@@ -882,11 +882,27 @@ function zzform_deprecated(&$ops, &$zz) {
 	if (!empty($zz_conf['export_csv_replace'])) {
 		wrap_setting('export_csv_replace', $zz_conf['export_csv_replace']);
 		unset($zz_conf['export_csv_replace']);
-		wrap_error('Use setting `export_csv_replace`, false instead of $zz_conf[\'export_csv_replace\']', E_USER_DEPRECATED);
+		wrap_error('Use setting `export_csv_replace` instead of $zz_conf[\'export_csv_replace\']', E_USER_DEPRECATED);
 	}
 	if (!empty($zz_conf['export_csv_delimiter'])) {
 		wrap_setting('export_csv_delimiter', $zz_conf['export_csv_delimiter']);
 		unset($zz_conf['export_csv_delimiter']);
-		wrap_error('Use setting `export_csv_delimiter`, false instead of $zz_conf[\'export_csv_delimiter\']', E_USER_DEPRECATED);
+		wrap_error('Use setting `export_csv_delimiter` instead of $zz_conf[\'export_csv_delimiter\']', E_USER_DEPRECATED);
+	}
+	if (!empty($zz_conf['search'])) {
+		wrap_setting('zzform_search', $zz_conf['search']);
+		unset($zz_conf['search']);
+		wrap_error('Use setting `zzform_search` instead of $zz_conf[\'search\']', E_USER_DEPRECATED);
+	}
+	if (!empty($zz_conf['search_form_always'])) {
+		wrap_setting('zzform_search_form_always', $zz_conf['search_form_always']);
+		unset($zz_conf['search_form_always']);
+		wrap_error('Use setting `zzform_search_form_always` instead of $zz_conf[\'search_form_always\']', E_USER_DEPRECATED);
+	}
+	if (!empty($zz_conf['nice_tablename'])) {
+		foreach ($zz_conf['nice_tablename'] as $table => $nice)
+			wrap_setting('zzform_nice_tablename['.$table.']', $nice);
+		unset($zz_conf['nice_tablename']);
+		wrap_error('Use setting `zzform_nice_tablename` instead of $zz_conf[\'nice_tablename\']', E_USER_DEPRECATED);
 	}
 }

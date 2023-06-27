@@ -672,12 +672,10 @@ function zz_output_backlink($zz_tab = []) {
  * @return string formatted table name
  */
 function zz_nice_tablenames($table) {
-	global $zz_conf;
 	// get it from config
-	if (!empty($zz_conf['nice_tablename'][$table])) {
-		$table = wrap_text($zz_conf['nice_tablename'][$table]);
-		return $table;
-	}
+	if ($table_name = wrap_setting('zzform_nice_tablename['.$table.']'))
+		return $table_name;
+
 	// or format it here
 	if (wrap_setting('db_prefix')) { // makes the response look nicer
 		if (strtolower(substr($table, 0, strlen(wrap_setting('db_prefix')))) === strtolower(wrap_setting('db_prefix')))
