@@ -186,6 +186,10 @@ function zz_export($ops, $zz) {
 		$output .= zz_export_csv_head($ops['output']['head']);
 		$output .= zz_export_csv_body($ops['output']['rows'], $zz['list']['display']);
 		if ($zz['list']['display'] === 'csv-excel') {
+			// Excel requires
+			// - tabulator when opening via double-click and Unicode text
+			// - semicolon when opening via double-click and ANSI text
+			wrap_setting('export_csv_delimiter', "\t");
 			$headers['character_set'] = 'utf-16le';
 			// @todo check with mb_list_encodings() if available
 			$output = mb_convert_encoding($output, 'UTF-16LE', wrap_setting('character_set'));
@@ -461,12 +465,9 @@ function zz_export_script($type) {
  * outputs data as CSV (head)
  *
  * @param array $main_rows main rows (without subtables)
- * @global array $zz_conf configuration
- *		'export_csv_delimiter'
  * @return string CSV output, head
  */
 function zz_export_csv_head($main_rows) {
-	global $zz_conf;
 	if (!wrap_setting('export_csv_heading')) return '';
 
 	$output = '';
@@ -481,7 +482,7 @@ function zz_export_csv_head($main_rows) {
 				.wrap_setting('export_csv_enclosure'), $field['title'])
 			.wrap_setting('export_csv_enclosure');
 	}
-	$output .= implode($zz_conf['export_csv_delimiter'], $tablerow)."\r\n";
+	$output .= implode(wrap_setting('export_csv_delimiter'), $tablerow)."\r\n";
 	return $output;
 }
 
@@ -490,13 +491,9 @@ function zz_export_csv_head($main_rows) {
  *
  * @param array $rows data in rows
  * @param string $export_format
- * @global array $zz_conf configuration
- *		'export_csv_delimiter'
  * @return string CSV output, data
  */
 function zz_export_csv_body($rows, $export_format) {
-	global $zz_conf;
-
 	$output = '';
 	foreach ($rows as $index => $row) {
 		$tablerow = [];
@@ -550,7 +547,7 @@ function zz_export_csv_body($rows, $export_format) {
 				$tablerow[] = false; // empty value
 			}
 		}
-		$output .= implode($zz_conf['export_csv_delimiter'], $tablerow)."\r\n";
+		$output .= implode(wrap_setting('export_csv_delimiter'), $tablerow)."\r\n";
 	}
 	return $output;
 }

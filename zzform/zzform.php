@@ -649,13 +649,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['copy']			= false;	// show action: copy
 	$default['delete']			= true;		// show action: delete
 	$default['edit']			= true;		// show Action: Edit
-
-	// CSV defaults
-	// Excel requires
-	// - tabulator when opening via double-click and Unicode text
-	// - semicolon when opening via double-click and ANSI text
-	$default['export_csv_delimiter'] = "\t";
-
 	$default['html_autofocus']		= true;
 	$default['max_select_val_len']	= 60;		// maximum length of values in select
 	$default['max_select'] 			= 60;		// maximum entries in select/option, if bigger than sub-select
@@ -887,8 +880,13 @@ function zzform_deprecated(&$ops, &$zz) {
 		wrap_error('Use setting `export_csv_heading`, false instead of $zz_conf[\'export_csv_no_head\']', E_USER_DEPRECATED);
 	}
 	if (!empty($zz_conf['export_csv_replace'])) {
-		wrap_setting('export_csv_replace', !$zz_conf['export_csv_replace']);
+		wrap_setting('export_csv_replace', $zz_conf['export_csv_replace']);
 		unset($zz_conf['export_csv_replace']);
 		wrap_error('Use setting `export_csv_replace`, false instead of $zz_conf[\'export_csv_replace\']', E_USER_DEPRECATED);
+	}
+	if (!empty($zz_conf['export_csv_delimiter'])) {
+		wrap_setting('export_csv_delimiter', $zz_conf['export_csv_delimiter']);
+		unset($zz_conf['export_csv_delimiter']);
+		wrap_error('Use setting `export_csv_delimiter`, false instead of $zz_conf[\'export_csv_delimiter\']', E_USER_DEPRECATED);
 	}
 }
