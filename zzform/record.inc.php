@@ -3289,8 +3289,11 @@ function zz_field_select_get_record($field, $record, $id_field_name) {
 		$where_field_name = $id_field_name;
 
 	if (substr($field['sql'], 0, 4) === 'SHOW') {
-		$sql = wrap_edit_sql($field['sql'], 'WHERE', $where_field_name
-			.sprintf(' LIKE "%s"', $db_value));
+		if (strstr($field['sql'], 'LIKE'))
+			$sql = $field['sql'];
+		else
+			$sql = wrap_edit_sql($field['sql'], 'WHERE', $where_field_name
+				.sprintf(' LIKE "%s"', $db_value));
 	} else {
 		// only check numeric values, others won't give a valid result
 		// for these, just display the given values again
@@ -3782,6 +3785,8 @@ function zz_draw_select($field, $record, $line, $id_field_name, $form = false, $
 			$fieldattr['disabled'] = true;
 		}
 		if ($level !== '') $fieldattr['class'] = 'level'.$level;
+		// database, table or field names which do not come with an ID?
+		if ($line[$id_field_name] === $fieldvalue) $line[$id_field_name] = sprintf(' %s ', $line[$id_field_name]);
 		$output = zz_form_element($fieldvalue, $line[$id_field_name], 'option', true, $fieldattr)."\n";
 	} else {
 		$output = $fieldvalue;
