@@ -661,7 +661,7 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 			// e. g. for hierarchies
 			$zz_conf_record = array_merge($zz_conf_record, $line['zz_conf']);
 		}
-		if ($list['select_multiple_records']) {
+		if ($list['select_multiple_records'] AND in_array($list['display'], ['ul', 'table'])) {
 			// checkbox for records
 			$checked = false;
 			if (!empty($zz_conf['int']['id']['values']) AND empty($list['dont_check_records'])) {
