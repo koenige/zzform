@@ -673,7 +673,7 @@ function zz_output_backlink($zz_tab = []) {
 function zz_nice_tablenames($table) {
 	// get it from config
 	if ($table_name = wrap_setting('zzform_nice_tablename['.$table.']'))
-		return $table_name;
+		return wrap_text($table_name);
 
 	// or format it here
 	if (wrap_setting('db_prefix')) { // makes the response look nicer
