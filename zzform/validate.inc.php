@@ -438,7 +438,7 @@ function zz_check_date($date) {
  * @param string $datetime
  * @return string
  */
-function zz_check_datetime($datetime) {
+function zz_check_datetime($datetime, $field = []) {
 	if (strstr($datetime, ' ')) {
 		$datetime = explode(' ', $datetime);
 		if (count($datetime) === 2) {
@@ -450,7 +450,7 @@ function zz_check_datetime($datetime) {
 		}
 	} else {
 		$date = $datetime;
-		$time = '00:00:00';
+		$time = $field['default_time'] ?? '00:00:00';
 	}
 	$date = zz_check_date($date);
 	if (!$date) return false;
