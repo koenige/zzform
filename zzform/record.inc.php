@@ -4071,17 +4071,17 @@ function zz_field_concat($field, $values) {
 	$values = array_values($values);
 
 	// check values for line breaks, existing |
-	foreach ($values as $index => $value) {
-		$values[$index] = zz_select_escape_value($value, $concat);
+	// but only if content is displayed as option, not if there are radio buttons
+	if (empty($field['show_values_as_list'])) {
+		foreach ($values as $index => $value)
+			$values[$index] = zz_select_escape_value($value, $concat);
 	}
 
 	for ($i = 0; $i < $count; $i++) {
-		if (isset($field['concat_'.$i]) AND !empty($values[$i])) {
+		if (isset($field['concat_'.$i]) AND !empty($values[$i]))
 			$values[$i] = sprintf($field['concat_'.$i], $values[$i]);
-		}
-		if (isset($field['format_'.$i]) AND !empty($values[$i]) AND function_exists($field['format_'.$i])) {
+		if (isset($field['format_'.$i]) AND !empty($values[$i]) AND function_exists($field['format_'.$i]))
 			$values[$i] = $field['format_'.$i]($values[$i]);
-		}
 	}
 	$values = array_filter($values);
 	return implode($concat, $values);
