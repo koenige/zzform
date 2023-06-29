@@ -271,7 +271,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_record, $zz_conditions
 		];
 	}
 	$multiple = !empty($zz_conf['int']['id']['values']) ? true : false;
-	$output['tbody'] = zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $zz_conf_record);
+	$output['tbody'] = zz_show_field_rows($zz_tab, $mode, $display, $zz_record);
 	$output += zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple);
 	if (zz_error_exit()) return zz_return([]);
 	if ($multiple) {
@@ -437,8 +437,7 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple)
  * @param array $zz_ab
  * @param string $mode
  * @param string $display
- * @param array $zz_record 
- * @param array $zz_conf_record
+ * @param array $zz_record
  * @param int $tab (optional, default = 0 = main table)
  * @param int $rec (optional, default = 0 = main record)
  * @param string $formdisplay (optional)
@@ -447,9 +446,9 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple)
  * @param bool $show_explanation (optional)
  * @return mixed (array, bool, or string HTML output)
  */
-function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
-	$zz_conf_record, $tab = 0, $rec = 0, $formdisplay = 'vertical',
-	$extra_lastcol = false, $table_count = 0, $show_explanation = true) {
+function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec = 0
+	, $formdisplay = 'vertical', $extra_lastcol = false, $table_count = 0
+	, $show_explanation = true) {
 
 	global $zz_conf;	// Config variables
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
@@ -810,7 +809,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 					}
 				}
 				$subtable_rows = zz_show_field_rows($zz_tab, $subtable_mode, 
-					$field_display, $zz_record, $zz_conf_record, $sub_tab, $sub_rec,
+					$field_display, $zz_record, $sub_tab, $sub_rec,
 					$field['form_display'], $lastrow, $sub_rec, $h_show_explanation);
 				if ($field['form_display'] === 'inline') {
 					if ($subtable_rows)
@@ -1070,7 +1069,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record,
 
 			case 'url':
 			case 'url+placeholder':
-				$field['max_select_val_len'] = $zz_conf_record['max_select_val_len'];
+				$field['max_select_val_len'] = wrap_setting('zzform_max_select_val_len');
 			case 'text':
 			case 'parameter':
 			case 'time':

@@ -650,8 +650,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$default['delete']			= true;		// show action: delete
 	$default['edit']			= true;		// show Action: Edit
 	$default['html_autofocus']		= true;
-	$default['max_select_val_len']	= 60;		// maximum length of values in select
-	$default['max_select'] 			= 60;		// maximum entries in select/option, if bigger than sub-select
 	$default['merge']				= false;
 	$default['multi'] 				= false;		// zzform_multi
 	$default['view']				= false;	// 	show Action: View
@@ -904,5 +902,15 @@ function zzform_deprecated(&$ops, &$zz) {
 			wrap_setting('zzform_nice_tablename['.$table.']', $nice);
 		unset($zz_conf['nice_tablename']);
 		wrap_error('Use setting `zzform_nice_tablename` instead of $zz_conf[\'nice_tablename\']', E_USER_DEPRECATED);
+	}
+	if (!empty($zz_conf['max_select_val_len'])) {
+		wrap_setting('zzform_max_select_val_len', $zz_conf['max_select_val_len']);
+		unset($zz_conf['max_select_val_len']);
+		wrap_error('Use setting `zzform_max_select_val_len` instead of $zz_conf[\'max_select_val_len\']', E_USER_DEPRECATED);
+	}
+	if (!empty($zz_conf['max_select'])) {
+		wrap_setting('zzform_max_select', $zz_conf['max_select']);
+		unset($zz_conf['max_select']);
+		wrap_error('Use setting `zzform_max_select` instead of $zz_conf[\'max_select\']', E_USER_DEPRECATED);
 	}
 }

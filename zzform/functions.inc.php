@@ -507,8 +507,8 @@ function zz_check_get_array($key, $type, $values = [], $exit_on_error = true) {
  */
 function zz_record_conf($zz_conf, $zz) {
 	$wanted_keys = [
-		'int[access]', 'edit', 'delete', 'add', 'view', 'if', 'details', 
-		'max_select', 'max_select_val_len', 'copy', 'no_ok', 'cancel_link', 'unless'
+		'int[access]', 'edit', 'delete', 'add', 'view', 'if', 'details', 'copy', 'no_ok',
+		'cancel_link', 'unless'
 	];
 	$zz_conf_record = [];
 	foreach ($wanted_keys as $key) {
@@ -944,7 +944,6 @@ function zz_write_onces(&$zz) {
  * @return array $fields
  */
 function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false, $action = false, $subtable_no = false) {
-	global $zz_conf;
 	if (wrap_setting('debug')) {
 		zz_debug('start', __FUNCTION__.$multiple_times);
 	}
@@ -1085,9 +1084,9 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 		if ($fields[$no]['type'] === 'select'
 			OR !empty($fields[$no]['type_detail']) AND $fields[$no]['type_detail'] === 'select') {
 			if (!isset($fields[$no]['max_select']))
-				$fields[$no]['max_select'] = $zz_conf['max_select'];
+				$fields[$no]['max_select'] = wrap_setting('zzform_max_select');
 			if (!isset($fields[$no]['max_select_val_len']))
-				$fields[$no]['max_select_val_len'] = $zz_conf['max_select_val_len'];
+				$fields[$no]['max_select_val_len'] = wrap_setting('zzform_max_select_val_len');
 		}
 		if (in_array(zz_get_fieldtype($fields[$no]), ['time', 'datetime'])) {
 			if (empty($fields[$no]['time_format'])) {
@@ -1176,8 +1175,7 @@ function zz_hash($zz, $zz_conf) {
 	// the definition of the database table(s)
 	$id = $zz_conf['id'];
 	$uninteresting_zz_conf_keys = [
-		'int', 'id', 'format', 'referer', 'access',
-		'text', 'limit', 'zzform_init', 'url_self'
+		'int', 'id', 'format', 'referer', 'access', 'limit', 'zzform_init', 'url_self'
 	];
 	foreach ($uninteresting_zz_conf_keys as $key) unset($zz_conf[$key]);
 	$uninteresting_zz_keys = [

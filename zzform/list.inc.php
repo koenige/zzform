@@ -1338,14 +1338,12 @@ function zz_list_query_hierarchy($zz) {
  * @param array $lastline previous record from database
  * @param string $table
  * @param array $zz_conf_record
- * @global array $zz_conf
  * @return array $row
  *		string 'value'	= raw value in database, modified by factor/display if applicable
  *		array 'class'	= Array of class names for cell
  *		string 'text'	= HTML output for cell
  */
 function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode, $zz_conf_record) {
-	global $zz_conf;
 	static $append_field;
 	static $append_string_first;
 	static $append_prefix;
@@ -1456,7 +1454,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode, $zz
 		case 'url':
 		case 'url+placeholder':
 			$text = wrap_punycode_decode($row['value']);
-			$text = zz_cut_length(zz_htmltag_escape($text), $zz_conf_record['max_select_val_len']);
+			$text = zz_cut_length(zz_htmltag_escape($text), wrap_setting('zzform_max_select_val_len'));
 			break;
 		case 'mail':
 		case 'mail+name':
