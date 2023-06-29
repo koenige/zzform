@@ -999,8 +999,7 @@ function zz_number_format($value, $field) {
 	case 'latitude':
 	case 'longitude':
 		if ($value === NULL) return '';
-		if (empty($field['geo_format'])) $field['geo_format'] = 'dms';
-		$text = zz_geo_coord_out($value, $field['number_type'], $field['geo_format']);
+		$text = wrap_coordinate($value, $field['number_type'], $field['geo_format'] ?? 'dms');
 		break;
 	case 'bytes':
 		$text = wrap_bytes($value);

@@ -155,116 +155,23 @@ function zz_geo_coord_in($value, $orientation = 'lat', $precision = 0) {
 }
 
 /**
- * output of a geographical coordinate
- * 19°41'59"N 98°50'38"W / 19.6996°N 98.8440°W / 19.6996; -98.8440
- *
- * @param double $decimal value of coordinate, e. g. 69.34829922
- * @param string $orientation ('lat' or 'lon')
- * @param string $out output
- *		'dms' = degree + minute + second; 'deg' = degree, 'dm' = degree + minute,
- *		'dec' = decimal value; all may be appended by =other, e. g. dms=deg
- * @return string $coord
- */
-function zz_geo_coord_out($decimal, $orientation = 'lat', $out = false) {
-	if ($decimal == NULL) return false;
-	$coord = [];
-	if ($decimal === false) return false;
-	
-	// 1. Test orientation
-	$orientation = zz_geo_orientation($orientation);
-	if (!$orientation) return false;
-	
-	// 2. get some information
-	$hemisphere = ($decimal >= 0) ? '+' : '-';
-	if ($decimal < 0) $decimal = substr($decimal, 1); // get rid of - sign)
-	switch ($orientation) {
-		case 'lat':
-			$hemisphere_text = $hemisphere === '+' ? 'North' : 'South';
-			break;
-		case 'lon':
-			$hemisphere_text = $hemisphere === '+' ? 'East' : 'West';
-			break;
-	}
-	$hemisphere_text = wrap_text(substr($hemisphere_text, 0, 1), ['context' => $hemisphere_text]);
-/*
-	@todo allow HTML abbreviation, but this would rather be in zzwrap/format.inc.php
-	$hemisphere_text = sprintf('<abbr title="%s">%s</abbr>'
-		, wrap_text($hemisphere_text), wrap_text(substr($hemisphere_text, 0, 1), ['context' => $hemisphere_text])
-	);
-*/
-	
-	// 3. Output in desired format
-	$formats = explode('=', $out);
-	foreach ($formats as $format) {
-		switch ($format) {
-		case 'o':
-			$coord[] = $hemisphere_text;
-			break;
-		case 'deg':	// 98.8440°W
-			$coord[] = zz_decimal($decimal).'&#176;'.wrap_setting('geo_spacer').$hemisphere_text;
-			break;
-		case 'dec':	// -98.8440
-			$coord[] = $hemisphere.zz_decimal($decimal);
-			break;
-		case 'dm':	// 98°50.6333'W
-			$min = zz_decimal(round(($decimal-floor($decimal))*60, wrap_setting('geo_rounding')));
-			$coord[] = floor($decimal).'&#176;'.wrap_setting('geo_spacer').($min ? $min.'&#8242;'.wrap_setting('geo_spacer') : '').$hemisphere_text;
-			break;
-		case 'dms':	// 98°50'38"W
-		default:
-			if (!is_numeric($decimal)) return $decimal;
-			// transform decimal value to seconds and round first!
-			$deg = intval($decimal);
-			$sec = round(($decimal - $deg) * 3600, wrap_setting('geo_rounding'));
-			$min = intval($sec) - (intval($sec) % 60); // min in seconds
-			$sec = $sec - $min;
-			$min /= 60;
-			$coord[] = $deg.'&#176;'.wrap_setting('geo_spacer')
-				.(($min OR $sec) ? $min.'&#8242;'.wrap_setting('geo_spacer') : '')
-				.($sec ? zz_decimal($sec).'&#8243;'.wrap_setting('geo_spacer') : '')
-				.$hemisphere_text;
-			break;
-		}
-	}
-	if (!$coord) return false;
-	if (count($coord) == 1) {
-		$coord = $coord[0];
-	} else {
-		$coord = '('.$coord[0].' = '.$coord[1].')';
-	}
-	return $coord;
-}
-
-/**
  * output of a geographical coordinate from SQL
  *
  * @param string $point POINT(42.28 1.3)
- * @param $out output, see zz_geo_coord_out()
+ * @param $out output, see wrap_coordinate()
  * @param $concat HTML code between output of latitude and longitude
  * @return string $coord
- * @see zz_geo_coord_out()
+ * @see wrap_coordinate()
  */
 function zz_geo_coord_sql_out($point, $out = false, $concat = ', ') {
 	if (substr($point, 0, 6) != 'POINT(') return false;
 	if (substr($point, -1) != ')') return false;
 	$point = substr($point, 6, -1);
 	$point = explode(' ', $point);
-	$text = zz_geo_coord_out($point[0], 'lat', $out);
+	$text = wrap_latitude($point[0], $out);
 	$text .= $concat;
-	$text .= zz_geo_coord_out($point[1], 'lon', $out);
+	$text .= wrap_longitude($point[1], $out);
 	return $text;
-}
-
-/**
- * formats a number depending on language with . or ,
- *
- * @param string $number
- * @return string $number
- */
-function zz_decimal($number) {
-	// replace . with , where appropriate
-	$number = str_replace('.', wrap_setting('decimal_point'), $number);
-	return $number;
 }
 
 /**
@@ -459,8 +366,8 @@ function zz_geo_geocode($ops, $zz_tab) {
 		} elseif ($ops['record_old'][$f['index']]) {
 			// do not update if coordinates were changed by user
 			// test against output strings, there may be rounding errors
-			if (zz_geo_coord_out($ops['record_old'][$f['index']][$my_field['field_name']], $type)
-				!== zz_geo_coord_out($ops['record_new'][$f['index']][$my_field['field_name']], $type)) {
+			if (wrap_coordinate($ops['record_old'][$f['index']][$my_field['field_name']], $type)
+				!== wrap_coordinate($ops['record_new'][$f['index']][$my_field['field_name']], $type)) {
 				return [];
 			}
 		}

@@ -2265,7 +2265,7 @@ function zz_field_number($field, $display, $record, $dont_reformat) {
 		$value = zz_geo_coord_in($value, $field['number_type']);
 		$value = $value['value'];
 		if (!empty($field['geo_display_behind'])) {
-			$suffix = zz_geo_coord_out($value, $field['number_type'], $field['geo_display_behind']);
+			$suffix = wrap_coordinate($value, $field['number_type'], $field['geo_display_behind']);
 			if ($suffix) $suffix = ' <small>( = '.$suffix.')</small>';
 		}
 		// no escaping please
