@@ -163,17 +163,11 @@ function zz_geo_coord_in($value, $orientation = 'lat', $precision = 0) {
  * @param string $out output
  *		'dms' = degree + minute + second; 'deg' = degree, 'dm' = degree + minute,
  *		'dec' = decimal value; all may be appended by =other, e. g. dms=deg
- * @global array $zz_conf
- *		$zz_conf['geo']['rounding']
  * @return string $coord
  */
 function zz_geo_coord_out($decimal, $orientation = 'lat', $out = false) {
-	global $zz_conf;
-
 	if ($decimal == NULL) return false;
 	$coord = [];
-	$round = $zz_conf['geo']['rounding'] ?? 2;
-	$spacer = $zz_conf['geo']['spacer'] ?? '&#160;';
 	if ($decimal === false) return false;
 	
 	// 1. Test orientation
@@ -207,27 +201,27 @@ function zz_geo_coord_out($decimal, $orientation = 'lat', $out = false) {
 			$coord[] = $hemisphere_text;
 			break;
 		case 'deg':	// 98.8440°W
-			$coord[] = zz_decimal($decimal).'&#176;'.$spacer.$hemisphere_text;
+			$coord[] = zz_decimal($decimal).'&#176;'.wrap_setting('geo_spacer').$hemisphere_text;
 			break;
 		case 'dec':	// -98.8440
 			$coord[] = $hemisphere.zz_decimal($decimal);
 			break;
 		case 'dm':	// 98°50.6333'W
-			$min = zz_decimal(round(($decimal-floor($decimal))*60, $round));
-			$coord[] = floor($decimal).'&#176;'.$spacer.($min ? $min.'&#8242;'.$spacer : '').$hemisphere_text;
+			$min = zz_decimal(round(($decimal-floor($decimal))*60, wrap_setting('geo_rounding')));
+			$coord[] = floor($decimal).'&#176;'.wrap_setting('geo_spacer').($min ? $min.'&#8242;'.wrap_setting('geo_spacer') : '').$hemisphere_text;
 			break;
 		case 'dms':	// 98°50'38"W
 		default:
 			if (!is_numeric($decimal)) return $decimal;
 			// transform decimal value to seconds and round first!
 			$deg = intval($decimal);
-			$sec = round(($decimal - $deg) * 3600, $round);
+			$sec = round(($decimal - $deg) * 3600, wrap_setting('geo_rounding'));
 			$min = intval($sec) - (intval($sec) % 60); // min in seconds
 			$sec = $sec - $min;
 			$min /= 60;
-			$coord[] = $deg.'&#176;'.$spacer
-				.(($min OR $sec) ? $min.'&#8242;'.$spacer : '')
-				.($sec ? zz_decimal($sec).'&#8243;'.$spacer : '')
+			$coord[] = $deg.'&#176;'.wrap_setting('geo_spacer')
+				.(($min OR $sec) ? $min.'&#8242;'.wrap_setting('geo_spacer') : '')
+				.($sec ? zz_decimal($sec).'&#8243;'.wrap_setting('geo_spacer') : '')
 				.$hemisphere_text;
 			break;
 		}
