@@ -512,10 +512,9 @@ function zz_record_conf($zz_conf, $zz) {
 	];
 	$zz_conf_record = [];
 	foreach ($wanted_keys as $key) {
-		if (substr($key, 0, 4) === 'int[' AND substr($key, -1) === ']') {
+		if (str_starts_with($key, 'int[') AND str_ends_with($key, ']')) {
 			$key = substr($key, 4, -1);
-			$zz_conf_record['int'][$key] = isset($zz_conf['int'][$key])
-				? $zz_conf['int'][$key] : ''; 
+			$zz_conf_record[$key] = $zz_conf['int'][$key] ?? ''; 
 		} elseif (!empty($zz[$key]) AND !empty($zz_conf[$key])) {
 			if (is_array($zz_conf[$key])) {
 				// ignore $zz definition if $zz_conf is not an array here, e. g. for 'add'
@@ -1774,89 +1773,90 @@ function zz_record_access($zz, $ops) {
 }
 
 /** 
- * Sets configuration variables depending on $var['access']
+ * Sets configuration variables depending on $zz['access']
  * Access possible for list and for record view
  * 
- * @param array $zz_conf
- * @return array $zz_conf changed zz_conf-variables
+ * @param array $conf
+ * @return array
  */
-function zz_listandrecord_access($zz_conf) {
+function zz_listandrecord_access($conf) {
+	global $zz_conf;
 	switch ($zz_conf['int']['access']) {
 	case 'show':
-		$zz_conf['add'] = false;			// don't add record (form+links)
-		$zz_conf['edit'] = false;			// don't edit record (form+links)
-		$zz_conf['delete'] = false;			// don't delete record (form+links)
-		$zz_conf['view'] = true;			// show record (links)
+		$conf['add'] = false;				// don't add record (form+links)
+		$conf['edit'] = false;				// don't edit record (form+links)
+		$conf['delete'] = false;			// don't delete record (form+links)
+		$conf['view'] = true;				// show record (links)
 		break;
 	case 'show_and_add':
-		$zz_conf['add'] = true; 			// add record (form+links)
-		$zz_conf['edit'] = false;			// edit record (form+links)
-		$zz_conf['delete'] = false;			// don't delete record (form+links)
-		$zz_conf['view'] = true;			// show record (links)
+		$conf['add'] = true; 				// add record (form+links)
+		$conf['edit'] = false;				// edit record (form+links)
+		$conf['delete'] = false;			// don't delete record (form+links)
+		$conf['view'] = true;				// show record (links)
 		break;
 	case 'show_edit_add';
-		$zz_conf['add'] = true; 			// add record (form+links)
-		$zz_conf['edit'] = true;			// edit record (form+links)
-		$zz_conf['delete'] = false;			// don't delete record (form+links)
-		$zz_conf['view'] = true;			// show record (links)
+		$conf['add'] = true; 				// add record (form+links)
+		$conf['edit'] = true;				// edit record (form+links)
+		$conf['delete'] = false;			// don't delete record (form+links)
+		$conf['view'] = true;				// show record (links)
 		break;
 	case 'show_and_delete';
-		$zz_conf['add'] = false;			// don't add record (form+links)
-		$zz_conf['edit'] = false;			// don't edit record (form+links)
-		$zz_conf['delete'] = true;			// delete record (form+links)
-		$zz_conf['view'] = true;			// show record (links)
+		$conf['add'] = false;				// don't add record (form+links)
+		$conf['edit'] = false;				// don't edit record (form+links)
+		$conf['delete'] = true;				// delete record (form+links)
+		$conf['view'] = true;				// show record (links)
 		break;
 	case 'edit_details_only':
-		$zz_conf['add'] = false;			// don't add record (form+links)
-		$zz_conf['edit'] = true;			// edit record (form+links)
-		$zz_conf['delete'] = false;			// don't delete record (form+links)
-		$zz_conf['view'] = false;			// don't show record (links)
+		$conf['add'] = false;				// don't add record (form+links)
+		$conf['edit'] = true;				// edit record (form+links)
+		$conf['delete'] = false;			// don't delete record (form+links)
+		$conf['view'] = false;				// don't show record (links)
 		break;
 	case 'edit_details_and_add':
-		$zz_conf['add'] = true; 			// add record (form+links)
-		$zz_conf['edit'] = true;			// edit record (form+links)
-		$zz_conf['delete'] = false;			// don't delete record (form+links)
-		$zz_conf['view'] = false;			// don't show record (links)
+		$conf['add'] = true; 				// add record (form+links)
+		$conf['edit'] = true;				// edit record (form+links)
+		$conf['delete'] = false;			// don't delete record (form+links)
+		$conf['view'] = false;				// don't show record (links)
 		break;
 	case 'none':
-		$zz_conf['add'] = false;			// don't add record (form+links)
-		$zz_conf['edit'] = false;			// don't edit record (form+links)
-		$zz_conf['delete'] = false;			// don't delete record (form+links)
-		$zz_conf['view'] = false;			// don't show record (links)
+		$conf['add'] = false;				// don't add record (form+links)
+		$conf['edit'] = false;				// don't edit record (form+links)
+		$conf['delete'] = false;			// don't delete record (form+links)
+		$conf['view'] = false;				// don't show record (links)
 		$zz_conf['int']['record'] = false;	// don't show record
 		break;
 	case 'forbidden':
-		$zz_conf['add'] = false;			// don't add record (form+links)
-		$zz_conf['edit'] = false;			// don't edit record (form+links)
-		$zz_conf['delete'] = false;			// don't delete record (form+links)
-		$zz_conf['view'] = false;			// don't show record (links)
+		$conf['add'] = false;				// don't add record (form+links)
+		$conf['edit'] = false;				// don't edit record (form+links)
+		$conf['delete'] = false;			// don't delete record (form+links)
+		$conf['view'] = false;				// don't show record (links)
 		$zz_conf['int']['record'] = false;	// don't show record
 		$zz_conf['int']['show_list'] = false;	// don't show record
 		break;
 	case 'search_but_no_list':
-		$zz_conf['add'] = false;			// don't add record (form+links)
-		$zz_conf['edit'] = false;			// don't edit record (form+links)
-		$zz_conf['delete'] = false;			// don't delete record (form+links)
-		$zz_conf['view'] = false;			// don't show record (links)
+		$conf['add'] = false;				// don't add record (form+links)
+		$conf['edit'] = false;				// don't edit record (form+links)
+		$conf['delete'] = false;			// don't delete record (form+links)
+		$conf['view'] = false;				// don't show record (links)
 		$zz_conf['int']['record'] = false;	// don't show record
 		$zz_conf['int']['show_list'] = true;		// show list, further steps in zz_list()
 		break;
 	case 'all':
-		$zz_conf['add'] = true;				// add record (form+links)
-		$zz_conf['edit'] = true;			// edit record (form+links)
-		$zz_conf['delete'] = true;			// delete record (form+links)
-		$zz_conf['view'] = false;			// don't show record (links)
+		$conf['add'] = true;				// add record (form+links)
+		$conf['edit'] = true;				// edit record (form+links)
+		$conf['delete'] = true;				// delete record (form+links)
+		$conf['view'] = false;				// don't show record (links)
 		break;
 	default:
 		// do not change anything, just initalize if required
-		if (!isset($zz_conf['add'])) $zz_conf['add'] = true;
-		if (!isset($zz_conf['edit'])) $zz_conf['edit'] = true;
-		if (!isset($zz_conf['delete'])) $zz_conf['delete'] = false;
-		if (!isset($zz_conf['view'])) $zz_conf['view'] = false;
+		if (!isset($conf['add'])) $conf['add'] = true;
+		if (!isset($conf['edit'])) $conf['edit'] = true;
+		if (!isset($conf['delete'])) $conf['delete'] = false;
+		if (!isset($conf['view'])) $conf['view'] = false;
 		break;
 	}
 
-	return $zz_conf;
+	return $conf;
 }
 
 /** 

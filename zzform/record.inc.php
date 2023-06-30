@@ -401,7 +401,7 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple)
 			// this is for re-edit a record in case of missing field values etc.
 			$output['cancel_url'] = $cancelurl;
 		$output['tfoot'] = true;
-	} elseif ($zz_conf_record['int']['access'] === 'add_only') {
+	} elseif ($zz_conf_record['access'] === 'add_only') {
 		return [];
 	} else {
 		if ($zz_conf_record['edit']) {
