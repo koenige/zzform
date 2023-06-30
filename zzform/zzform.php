@@ -551,6 +551,10 @@ function zz_defaults($zz) {
 		$zz['explanation'] = '';
 	if (!isset($zz['conditions']))
 		$zz['conditions'] = [];
+
+	// record
+	if (!isset($zz['record']['copy']))
+		$zz['record']['copy'] = false; // show action: copy
 	
 	// check hooks if they are arrays
 	if (!empty($zz['hooks'])) {
@@ -646,7 +650,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 
 	$default['add']				= true;		// add or do not add data.
 	$default['cancel_link']		= true;
-	$default['copy']			= false;	// show action: copy
 	$default['delete']			= true;		// show action: delete
 	$default['edit']			= true;		// show Action: Edit
 	$default['html_autofocus']		= true;
@@ -842,11 +845,6 @@ function zzform_deprecated(&$ops, &$zz) {
 		unset($zz_conf['no_add_above']);
 		wrap_error('Use $zz[\'list\'][\'no_add_above\'] instead of $zz_conf[\'no_add_above\']', E_USER_DEPRECATED);
 	}
-	if (!empty($zz_conf['redirect'])) {
-		$zz['record']['redirect'] = $zz_conf['redirect'];
-		unset($zz_conf['redirect']);
-		wrap_error('Use $zz[\'record\'][\'redirect\'] instead of $zz_conf[\'redirect\']', E_USER_DEPRECATED);
-	}
 	if (!empty($zz_conf['export'])) {
 		$zz['export'] = $zz_conf['export'];
 		unset($zz_conf['export']);
@@ -912,5 +910,13 @@ function zzform_deprecated(&$ops, &$zz) {
 		wrap_setting('zzform_max_select', $zz_conf['max_select']);
 		unset($zz_conf['max_select']);
 		wrap_error('Use setting `zzform_max_select` instead of $zz_conf[\'max_select\']', E_USER_DEPRECATED);
+	}
+
+	$moved_to_record = ['redirect', 'copy'];
+	foreach ($moved_to_record as $key) {
+		if (!isset($zz_conf[$key])) continue;
+		$zz['record'][$key] = $zz_conf[$key];
+		unset($zz_conf[$key]);
+		wrap_error('Use $zz[\'record\'][\''.$key.'\'] instead of $zz_conf[\''.$key.'\']', E_USER_DEPRECATED);
 	}
 }

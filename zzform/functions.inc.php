@@ -525,6 +525,8 @@ function zz_record_conf($zz_conf, $zz) {
 			}
 		} elseif (isset($zz[$key])) {
 			$zz_conf_record[$key] = $zz[$key];
+		} elseif (isset($zz['record'][$key])) {
+			$zz_conf_record[$key] = $zz['record'][$key];
 		} elseif (isset($zz_conf[$key])) {
 			$zz_conf_record[$key] = $zz_conf[$key];
 		}
@@ -1426,9 +1428,8 @@ function zz_record_access($zz, $ops) {
 
 	case isset($_GET['add']) AND empty($_POST['zz_action']):
 		$ops['mode'] = 'add';
-		if ($zz_conf['copy']) {
+		if ($zz['record']['copy'])
 			$zz_conf['int']['id']['source_value'] = zz_check_get_array('add', 'is_int', [], false);
-		}
 		break;
 
 	case !empty($_GET['mode']):
@@ -1707,7 +1708,7 @@ function zz_record_access($zz, $ops) {
 	}
 
 	// @deprecated
-	if ($ops['mode'] === 'add' AND $zz_conf['copy'] AND !empty($_GET['source_id'])) {
+	if ($ops['mode'] === 'add' AND $zz['record']['copy'] AND !empty($_GET['source_id'])) {
 		$zz_conf['int']['id']['source_value'] = zz_check_get_array('source_id', 'is_int');
 	}
 
@@ -1723,7 +1724,7 @@ function zz_record_access($zz, $ops) {
 
 	// $zz_conf is set regarding add, edit, delete
 	// don't copy record (form+links)
-	if (!$zz_conf['add']) $zz_conf['copy'] = false;
+	if (!$zz_conf['add']) $zz['record']['copy'] = false;
 
 	if (!isset($zz_conf['add_link'])) {
 		// Link Add new ...

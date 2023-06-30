@@ -258,7 +258,8 @@ function zz_display_records($zz_tab, $mode, $display, $zz_record, $zz_conditions
 	$output['hidden'] = [];
 
 	// there is a form to display
-	$zz_conf_record = zz_record_conf($zz_conf, $zz_tab[0][0]);
+	// write 'record' key from $zz to $my_rec
+	$zz_conf_record = zz_record_conf($zz_conf, array_merge($zz_tab[0][0], ['record' => $zz_record]));
 	// check conditions
 	if (!empty($zz_conditions['bool'])) {
 		zz_conditions_merge_conf($zz_conf_record, $zz_conditions['bool'], $zz_conf['int']['id']['value']);
