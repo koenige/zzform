@@ -686,12 +686,11 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 						// Link Add new ...
 						$zz_conf_record['add_link'] = $zz_conf_record['add'] ? true : false; 
 					// $zz_conf is set regarding add, edit, delete
-					if (!$zz_conf['add']) $zz_conf['copy'] = false;			// don't copy record (form+links)
+					if (!$zz_conf_record['add']) $zz_conf_record['copy'] = false;	// don't copy record (form+links)
 				}
 			}
-			if (wrap_setting('debug')) {
+			if (wrap_setting('debug'))
 				zz_debug('table_query foreach cond set '.$fieldindex);
-			}
 			
 			// check all fields next to each other with list_append_next					
 			while (!empty($table_defs[$def_index][$fieldindex]['list_append_next'])) {
@@ -703,9 +702,8 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 				else break;
 			}
 
-			if (wrap_setting('debug')) {
+			if (wrap_setting('debug'))
 				zz_debug('table_query before switch '.$fieldindex.'-'.$field['type']);
-			}
 			$my_row = isset($rows[$z][$fieldindex]) ? $rows[$z][$fieldindex] : [];
 			$rows[$z][$fieldindex] = zz_list_field(
 				$list, $my_row, $field, $line, $lastline, $table, $mode, $zz_conf_record
