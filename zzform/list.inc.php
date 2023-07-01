@@ -32,6 +32,11 @@ function zz_list($zz, $ops, $zz_conditions) {
 	if (wrap_setting('zzform_search'))
 		require_once __DIR__.'/searchform.inc.php';
 
+	if (!empty($ops['list'])) {
+		$zz['list'] = array_merge($zz['list'], $ops['list']);
+		unset($ops['list']);
+	}
+
 	// Turn off hierarchical sorting when using search
 	// @todo: implement hierarchical view even when using search
 	if (!isset($zz['list']['hierarchy'])) {
@@ -43,13 +48,13 @@ function zz_list($zz, $ops, $zz_conditions) {
 	// zz_fill_out must be outside if show_list, because it is necessary for
 	// search results with no resulting records
 	// fill_out, but do not unset conditions
-	$zz['list']['fields'] = zz_fill_out($zz['list']['fields'], wrap_setting('db_name').'.'.$zz['table'], 1);
+	$zz['fields'] = zz_fill_out($zz['fields'], wrap_setting('db_name').'.'.$zz['table'], 1);
 
 	// only if search is allowed and there is something
 	// if q modify $zz['sql']: add search query
 	if (!empty($_GET['q']) AND wrap_setting('zzform_search')) {
 		$old_sql = $zz['sql'];
-		$zz['sql'] = zz_search_sql($zz['list']['fields'], $zz['sql'], $zz['table']);
+		$zz['sql'] = zz_search_sql($zz['fields'], $zz['sql'], $zz['table']);
 		if ($old_sql !== $zz['sql']) $zz['sqlcount'] = '';
 	}
 
@@ -122,10 +127,10 @@ function zz_list($zz, $ops, $zz_conditions) {
 	// add 0 as a dummy record for which no conditions will be set
 	// reindex $linex from 1 ... n
 	array_unshift($lines, '0');
-	list($zz['list']['fields'], $lines) = zz_list_inline($zz['list']['fields'], $lines);
+	list($zz['fields'], $lines) = zz_list_inline($zz['fields'], $lines);
 	if ($zz_conf['int']['show_list']) {
-		list($table_defs, $zz['list']['fields']) = zz_list_defs(
-			$lines, $zz_conditions, $zz['list']['fields'], $zz['table'], $ops['mode']
+		list($table_defs, $zz['fields']) = zz_list_defs(
+			$lines, $zz_conditions, $zz['fields'], $zz['table'], $ops['mode']
 		);
 	}
 	// remove first dummy array
@@ -197,7 +202,7 @@ function zz_list($zz, $ops, $zz_conditions) {
 	$ops['output'] .= zz_error_output();
 
 	if (wrap_setting('zzform_search')) {
-		$search_form = zz_search_form($zz['list']['fields'], $zz['table'], $ops['records_total'], $count_rows);
+		$search_form = zz_search_form($zz['fields'], $zz['table'], $ops['records_total'], $count_rows);
 		$ops['output'] .= $search_form['top'];
 	}
 	
@@ -485,7 +490,7 @@ function zz_list_set($zz, $count_rows) {
 	// check 'group'
 	$group_from_get = false;
 	if (!empty($_GET['group'])) {
-		foreach ($zz['list']['fields'] as $field) {
+		foreach ($zz['fields'] as $field) {
 			if ((isset($field['display_field']) && $field['display_field'] === $_GET['group'])
 				OR (isset($field['field_name']) && $field['field_name'] === $_GET['group'])
 			) {
@@ -1186,7 +1191,7 @@ function zz_list_filter_or($filter_value, $selections) {
  * 		string 'sql' SQL query ($zz['sql'])
  *		string 'sqlorder'
  * 		string 'table' name of database table ($zz['table'])
- * 		array 'list[fields]' list of fields ($zz['list']['fields'])
+ * 		array 'fields' list of fields
  * @global array $zz_conf
  * @return array (array $lines, int $total_rows)
  */
@@ -1204,7 +1209,7 @@ function zz_list_query($zz) {
 	// ORDER must be here because of where-clause
 	$zz['sql'] .= !empty($zz['sqlorder']) ? ' '.$zz['sqlorder'] : '';
 	// Alter SQL query if GET order (AND maybe GET dir) are set
-	$zz['sql'] = zz_sql_order($zz['list']['fields'], $zz['sql']);
+	$zz['sql'] = zz_sql_order($zz['fields'], $zz['sql']);
 
 	if (empty($zz['list']['hierarchy'])) {
 		zz_list_limit_last($total_rows);

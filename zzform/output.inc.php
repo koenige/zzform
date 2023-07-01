@@ -66,6 +66,10 @@ function zz_output_full($ops) {
 
 	if ($zz_conf['int']['record']) {
 		$ops['upndown_editor'] = zz_output_upndown_editor();
+	} else {
+		if (isset($_GET['delete']))
+			// just show heading that record was deleted
+			$ops['record_deleted'] = true;
 	}
 	return wrap_template('zzform', $ops);
 }

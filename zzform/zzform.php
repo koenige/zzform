@@ -210,20 +210,10 @@ function zzform($zz) {
 
 	zz_extra_get_params();
 
-	if ($zz_conf['int']['show_list']) {
-		if (!empty($ops['list'])) {
-			$zz['list'] = array_merge($zz['list'], $ops['list']);
-			unset($ops['list']);
-		}
-		$zz['list']['fields'] = $zz['fields'];
-		$ops = zz_output_page($ops, $zz);
-	}
+	// in case no record is shown, create page info
+	$ops = zz_output_page($ops, $zz);
 
 	if (!$zz_conf['int']['record']) {
-		if (isset($_GET['delete'])) {
-			// just show heading that record was deleted
-			$ops['record_deleted'] = true;
-		}
 		// call error function if there's anything
 		zz_error();
 		$ops['output'] .= zz_error_output();
