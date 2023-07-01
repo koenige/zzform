@@ -152,8 +152,8 @@ function zz_dependent_modules($zz) {
 			}
 			$conditionals = ['if', 'unless'];
 			foreach ($conditionals as $conditional) {
-				if (empty($zz_conf[$conditional])) continue;
-				foreach ($zz_conf[$conditional] as $condition) {
+				if (empty($zz[$conditional])) continue;
+				foreach ($zz[$conditional] as $condition) {
 					if (!empty($condition['export'])) {
 						$export = true;
 						break;
