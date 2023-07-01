@@ -54,7 +54,8 @@ function zzform($zz) {
 		'footer_text' => '',
 		'html_fragment' => !empty($_POST['zz_html_fragment']) ? true : false,
 		'redirect_url' => false,
-		'explanation' => ''
+		'explanation' => '',
+		'exit' => false
 	];
 	wrap_static('page', '', $zz['page'] ?? [], 'init');
 	zzform_deprecated($ops, $zz);
@@ -87,11 +88,11 @@ function zzform($zz) {
 		return zzform_exit($ops);
 	}
 
-	$review_via_login = false;
+	$ops['review_via_login'] = false;
 	if (!empty($_SESSION['zzform']['review_via_login'])) {
 		require_once __DIR__.'/session.inc.php';
 		zz_review_via_login();
-		$review_via_login = true;
+		$ops['review_via_login'] = true;
 	}
 	if (empty($zz_conf['multi'])
 		AND ((!empty($_POST['zz_add_details']) OR !empty($_POST['zz_edit_details']))
@@ -199,166 +200,26 @@ function zzform($zz) {
 		$zz_conditions = [];
 	}
 
-	// conditions for list view will be set later
-	if ($zz_conf['int']['show_list'])
-		$zz['list']['fields'] = $zz['fields']; 
-
-//
-//	Add, Update or Delete
-//
-
 	if ($zz_conf['int']['record']) {
-		if (!empty($zz_conf['modules']['conditions'])) {
-			$zz_conditions = zz_conditions_record_check($zz, $ops['mode'], $zz_conditions);
-			$zz = zz_conditions_record($zz, $zz_conditions);
-		}
-	 	// sets some $zz-definitions for records depending on existing definition for
-		// translations, subtabes, uploads, write_once-fields
-		zz_set_fielddefs_for_record($zz);
+		$ops = zzform_record($zz, $ops, $zz_conditions);
+		if ($ops['exit']) return zzform_exit($ops);
 	}
 
-	// now we have the correct field definitions	
-	// set type, title etc. where unset
-	$zz['fields'] = zz_fill_out($zz['fields'], wrap_setting('db_name').'.'.$zz['table'], false, $ops['mode'], $zz['record']['action']); 
+	if (!$zz_conf['generate_output'])
+		return zzform_exit($ops);
 
-	zz_trigger_error_too_big();
-	zz_error();	// @todo check if this can go into zz_trigger_error_too_big()
+	zz_extra_get_params();
 
-	if ($zz_conf['generate_output'] AND ($zz_conf['int']['record'] OR $zz_conf['int']['show_list'])) {
+	if ($zz_conf['int']['show_list']) {
+		if (!empty($ops['list'])) {
+			$zz['list'] = array_merge($zz['list'], $ops['list']);
+			unset($ops['list']);
+		}
+		$zz['list']['fields'] = $zz['fields'];
 		$ops = zz_output_page($ops, $zz);
 	}
 
-	if (isset($_POST['zz_merge'])) {
-		require_once __DIR__.'/merge.inc.php';
-		$merge = zz_merge_records($zz);
-		if ($merge['msg'])
-			$ops['output'] .= wrap_template('zzform-merge', $merge);
-		if ($merge['uncheck']) $zz['list']['dont_check_records'] = true;
-		$zz_conf['int']['record'] = false;
-	}
-
-	if ($zz_conf['int']['record']) {
-		require_once __DIR__.'/preparation.inc.php';
-
-		$zz_tab = zz_prepare_tables($zz, $ops['mode']);
-		if (!$zz_tab) return zzform_exit($ops);
-
-		// set conditions for detail records
-		// id is available just now
-		if (!empty($zz_conf['modules']['conditions'])) {
-			$zz_conditions = zz_conditions_subrecord_check($zz, $zz_tab, $zz_conditions);
-			$zz_tab = zz_conditions_subrecord($zz_tab, $zz_conditions);
-		}
-
-	//	Start action
-
-		$validation = true;
-
-		if ($zz['record']['subtables'] && $zz['record']['action'] !== 'delete')
-			if (isset($_POST['zz_subtables'])) $validation = false;
-		// just handing over form with values
-		if (isset($_POST['zz_review'])) $validation = false;
-		if ($review_via_login) {
-			$validation = false;
-		}
-		if ($review_via_login OR !empty($_SESSION['zzform']['delete_via_login'])) {
-			zz_error_log([
-				'msg' => 'You had been logged out automatically. Therefore, your changes were not yet saved. Please submit the form again.',
-				'level' => E_USER_NOTICE
-			]);
-		}
-		if (!empty($_SESSION['zzform']['delete_via_login'])) {
-			wrap_session_start();
-			unset($_SESSION['zzform']['delete_via_login']);
-		}
-
-		if (in_array($zz['record']['action'], ['insert', 'update', 'delete'])) {
-			// check for validity, insert/update/delete record
-			require_once __DIR__.'/action.inc.php';
-			list($ops, $zz_tab, $validation) = zz_action($ops, $zz_tab, $validation, $zz['record']);
-			// some minor errors?
-			zz_error();
-			// if an error occured in zz_action, exit
-			if (zz_error_exit()) return zzform_exit($ops);
-			// was action successful?
-			if ($ops['result'] AND !$zz_conf['generate_output']) {
-				// zzform_multi: exit here, rest is for output only
-				return zzform_exit($ops);
-			} elseif ($ops['result']) {
-				// Redirect, if wanted.
-				$ops['redirect_url'] = zz_output_redirect($ops, $zz, $zz_tab);
-				if ($ops['redirect_url']) {
-					if (empty($ops['html_fragment']))
-						wrap_redirect_change($ops['redirect_url']);
-					$redirect_url = parse_url($ops['redirect_url']);
-					$request_url = parse_url(wrap_setting('request_uri'));
-					if ($redirect_url['path'] !== $request_url['path'])
-						wrap_redirect_change($ops['redirect_url']);
-					$zz['record']['action'] = false;
-					$ops['mode'] = 'show';
-				}
-				// @todo re-evalutate some conditions at this stage
-				// since records have changed
-				if (!empty($zz_conf['int']['revisions_only'])) {
-					$zz_conf['int']['revision_data'] = zz_revisions_tab($zz_tab[0]);
-				}
-			}
-		} elseif ($zz['record']['action'] === 'thumbnails') {
-			$ops = zz_upload_thumbnail($ops, $zz_tab);
-			return zzform_exit($ops);
-		}
-
-	//	Query updated, added or editable record
-	
-		if (!$validation) {
-			if (!empty($ops['result']) AND str_starts_with($ops['result'], 'partial_')) $ops['mode'] = 'edit';
-			elseif ($zz['record']['action'] === 'update') $ops['mode'] = 'edit';
-			elseif ($zz['record']['action'] === 'insert') $ops['mode'] = 'add';
-			// this is from zz_access() but since mode has set, has to be
-			// checked against again
-			if (in_array($ops['mode'], ['edit', 'add']) 
-				AND !wrap_setting('zzform_show_list_while_edit')) $zz_conf['int']['show_list'] = false;
-		}
-	
-		if (wrap_setting('debug')) zz_debug('subtables end');
-
-		// query record
-		foreach (array_keys($zz_tab) as $tab) {
-			foreach (array_keys($zz_tab[$tab]) as $rec) {
-				if (!is_numeric($rec)) continue;
-				$zz_tab[$tab] = zz_query_record($zz_tab, $tab, $rec, $validation, $ops['mode']);
-			}
-		}
-		if ($ops['mode'] === 'revise' AND $zz_tab[0][0]['action'] === 'delete') {
-			$ops['mode'] = 'delete';
-		}
-		if (zz_error_exit()) return zzform_exit($ops);
-
-		if (!$zz_conf['generate_output']) {
-			$ops['error'] = zz_error_multi($ops['error']);
-			zz_error_validation();
-		}
-		// save record for footer template
-		$ops['record'] = $zz_tab[0][0]['record'];
-	}
-
-	if (!$zz_conf['generate_output']) {
-		return zzform_exit($ops);
-	}
-	
-	zz_extra_get_params();
-
-	// check conditions after action again
-	if ($zz_conf['int']['record'] AND !empty($zz_conf['modules']['conditions'])) {
-		// update $zz_tab, $zz_conditions
-		zz_conditions_before_record($zz, $zz_tab, $zz_conditions, $ops['mode']);
-	}
-
-	if ($zz_conf['int']['record']) {
-		// display updated, added or editable Record
-		require_once __DIR__.'/record.inc.php';
-		$ops['output'] .= zz_record($ops, $zz['record'], $zz_tab, $zz_conditions);	
-	} else {
+	if (!$zz_conf['int']['record']) {
 		if (isset($_GET['delete'])) {
 			// just show heading that record was deleted
 			$ops['record_deleted'] = true;
@@ -388,14 +249,181 @@ function zzform($zz) {
 	}
 	if (zz_error_exit()) return zzform_exit($ops); // critical error: exit;
 
-	// set title
-	if ($ops['heading']) {
+	if ($ops['heading'])
 		$ops['title'] = zz_nice_title($ops['heading'], $zz['fields'], $ops, $ops['mode']);
-	}
-	if ($ops['mode'] !== 'export') {
-		$ops['footer_text'] = !empty($zz['footer_text']) ? $zz['footer_text'] : '';
-	}
+	if ($ops['mode'] !== 'export')
+		$ops['footer_text'] = $zz['footer_text'] ?? '';
 	return zzform_exit($ops);
+}
+
+/**
+ * record operations
+ * add, update or delete
+ * show record
+ *
+ * @param array $zz
+ * @param array $ops
+ * @param array $zz_conditions
+ * @return array
+ */
+function zzform_record($zz, $ops, $zz_conditions) {
+	global $zz_conf;
+
+	if (!empty($zz_conf['modules']['conditions'])) {
+		$zz_conditions = zz_conditions_record_check($zz, $ops['mode'], $zz_conditions);
+		$zz = zz_conditions_record($zz, $zz_conditions);
+	}
+	// sets some $zz-definitions for records depending on existing definition for
+	// translations, subtabes, uploads, write_once-fields
+	zz_set_fielddefs_for_record($zz);
+
+	// now we have the correct field definitions	
+	// set type, title etc. where unset
+	$zz['fields'] = zz_fill_out($zz['fields'], wrap_setting('db_name').'.'.$zz['table'], false, $ops['mode'], $zz['record']['action']); 
+
+	zz_trigger_error_too_big();
+	zz_error();	// @todo check if this can go into zz_trigger_error_too_big()
+
+	if ($zz_conf['generate_output'])
+		$ops = zz_output_page($ops, $zz);
+
+	if (isset($_POST['zz_merge'])) {
+		require_once __DIR__.'/merge.inc.php';
+		$merge = zz_merge_records($zz);
+		if ($merge['msg'])
+			$ops['output'] .= wrap_template('zzform-merge', $merge);
+		if ($merge['uncheck']) $ops['list']['dont_check_records'] = true;
+		return $ops;
+	}
+
+	require_once __DIR__.'/preparation.inc.php';
+	$zz_tab = zz_prepare_tables($zz, $ops['mode']);
+	if (!$zz_tab) {
+		$ops['exit'] = true;
+		return $ops;
+	}
+
+	// set conditions for detail records
+	// id is available just now
+	if (!empty($zz_conf['modules']['conditions'])) {
+		$zz_conditions = zz_conditions_subrecord_check($zz, $zz_tab, $zz_conditions);
+		$zz_tab = zz_conditions_subrecord($zz_tab, $zz_conditions);
+	}
+
+	//	Start action
+
+	$validation = true;
+
+	if ($zz['record']['subtables'] && $zz['record']['action'] !== 'delete')
+		if (isset($_POST['zz_subtables'])) $validation = false;
+	// just handing over form with values
+	if (isset($_POST['zz_review'])) $validation = false;
+	if ($ops['review_via_login']) $validation = false;
+	if ($ops['review_via_login'] OR !empty($_SESSION['zzform']['delete_via_login'])) {
+		zz_error_log([
+			'msg' => 'You had been logged out automatically. Therefore, your changes were not yet saved. Please submit the form again.',
+			'level' => E_USER_NOTICE
+		]);
+	}
+	if (!empty($_SESSION['zzform']['delete_via_login'])) {
+		wrap_session_start();
+		unset($_SESSION['zzform']['delete_via_login']);
+	}
+
+	if (in_array($zz['record']['action'], ['insert', 'update', 'delete'])) {
+		// check for validity, insert/update/delete record
+		require_once __DIR__.'/action.inc.php';
+		list($ops, $zz_tab, $validation) = zz_action($ops, $zz_tab, $validation, $zz['record']);
+		// some minor errors?
+		zz_error();
+		// if an error occured in zz_action, exit
+		if (zz_error_exit()) {
+			$ops['exit'] = true;
+			return $ops;
+		}
+		// was action successful?
+		if ($ops['result'] AND !$zz_conf['generate_output']) {
+			// zzform_multi: exit here, rest is for output only
+			$ops['exit'] = true;
+			return $ops;
+		} elseif ($ops['result']) {
+			// Redirect, if wanted.
+			$ops['redirect_url'] = zz_output_redirect($ops, $zz, $zz_tab);
+			if ($ops['redirect_url']) {
+				if (empty($ops['html_fragment']))
+					wrap_redirect_change($ops['redirect_url']);
+				$redirect_url = parse_url($ops['redirect_url']);
+				$request_url = parse_url(wrap_setting('request_uri'));
+				if ($redirect_url['path'] !== $request_url['path'])
+					wrap_redirect_change($ops['redirect_url']);
+				$zz['record']['action'] = false;
+				$ops['mode'] = 'show';
+			}
+			// @todo re-evalutate some conditions at this stage
+			// since records have changed
+			if (!empty($zz_conf['int']['revisions_only'])) {
+				$zz_conf['int']['revision_data'] = zz_revisions_tab($zz_tab[0]);
+			}
+		}
+	} elseif ($zz['record']['action'] === 'thumbnails') {
+		$ops = zz_upload_thumbnail($ops, $zz_tab);
+		$ops['exit'] = true;
+		return $ops;
+	}
+
+	//	Query updated, added or editable record
+	
+	if (!$validation) {
+		if (!empty($ops['result']) AND str_starts_with($ops['result'], 'partial_')) $ops['mode'] = 'edit';
+		elseif ($zz['record']['action'] === 'update') $ops['mode'] = 'edit';
+		elseif ($zz['record']['action'] === 'insert') $ops['mode'] = 'add';
+		// this is from zz_access() but since mode has set, has to be
+		// checked against again
+		if (in_array($ops['mode'], ['edit', 'add']) 
+			AND !wrap_setting('zzform_show_list_while_edit')) $zz_conf['int']['show_list'] = false;
+	}
+
+	if (wrap_setting('debug')) zz_debug('subtables end');
+
+	// query record
+	foreach (array_keys($zz_tab) as $tab) {
+		foreach (array_keys($zz_tab[$tab]) as $rec) {
+			if (!is_numeric($rec)) continue;
+			$zz_tab[$tab] = zz_query_record($zz_tab, $tab, $rec, $validation, $ops['mode']);
+		}
+	}
+	if ($ops['mode'] === 'revise' AND $zz_tab[0][0]['action'] === 'delete') {
+		$ops['mode'] = 'delete';
+	}
+	if (zz_error_exit()) {
+		$ops['exit'] = true;
+		return $ops;
+	}
+
+	if (!$zz_conf['generate_output']) {
+		$ops['error'] = zz_error_multi($ops['error']);
+		zz_error_validation();
+	}
+	// save record for footer template
+	$ops['record'] = $zz_tab[0][0]['record'];
+
+	if (!$zz_conf['generate_output']) {
+		$ops['exit'] = true;
+		return $ops;
+	}
+
+	// check conditions after action again
+	if (!empty($zz_conf['modules']['conditions'])) {
+		// update $zz_tab, $zz_conditions
+		zz_conditions_before_record($zz, $zz_tab, $zz_conditions, $ops['mode']);
+	}
+
+	zz_extra_get_params();
+
+	// display updated, added or editable Record
+	require_once __DIR__.'/record.inc.php';
+	$ops['output'] .= zz_record($ops, $zz['record'], $zz_tab, $zz_conditions);	
+	return $ops;
 }
 
 /**
