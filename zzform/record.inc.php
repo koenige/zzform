@@ -125,7 +125,8 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 				wrap_static('page', 'status', 404);
 			}
 		}
-	} elseif (!empty($zz_tab[0]['integrity'])) {
+	} elseif (!empty($zz_tab[0]['integrity']['msg'])) {
+		// check for 'msg', 'updates' might contain values
 		$record['formhead'] = wrap_text('Attention!');
 		if (!empty($zz_tab[0]['integrity']['msg_no_list'])) {
 			zz_error_log([
