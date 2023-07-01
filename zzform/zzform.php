@@ -572,7 +572,19 @@ function zz_defaults($zz) {
 
 	// record
 	if (!isset($zz['record']['copy']))
-		$zz['record']['copy'] = false; // show action: copy
+		$zz['record']['copy'] = false;	// show action: copy
+	if (!isset($zz['record']['add']))
+		$zz['record']['add'] = true;	// add or do not add data.
+	if (!isset($zz['record']['edit']))
+		$zz['record']['edit'] = true;	// show action: edit
+	if (!isset($zz['record']['delete']))
+		$zz['record']['delete'] = true;	// show action: delete
+	if (!isset($zz['record']['view']))
+		$zz['record']['view'] = false;	// show action: view
+	if (!isset($zz['record']['cancel_link']))
+		$zz['record']['cancel_link'] = true;
+	if (!isset($zz['record']['no_ok']))
+		$zz['record']['no_ok'] = false;
 	
 	// check hooks if they are arrays
 	if (!empty($zz['hooks'])) {
@@ -666,14 +678,9 @@ function zz_initialize($mode = false, $old_conf = []) {
 	// stop if there were errors while adding modules
 	if (zz_error_exit()) zz_return(false);
 
-	$default['add']				= true;		// add or do not add data.
-	$default['cancel_link']		= true;
-	$default['delete']			= true;		// show action: delete
-	$default['edit']			= true;		// show Action: Edit
 	$default['html_autofocus']		= true;
 	$default['merge']				= false;
 	$default['multi'] 				= false;		// zzform_multi
-	$default['view']				= false;	// 	show Action: View
 	$default['url_self']			= false;
 	
 	zz_write_conf($default);
@@ -930,11 +937,14 @@ function zzform_deprecated(&$ops, &$zz) {
 		wrap_error('Use setting `zzform_max_select` instead of $zz_conf[\'max_select\']', E_USER_DEPRECATED);
 	}
 
-	$moved_to_record = ['redirect', 'copy'];
+	$moved_to_record = [
+		'redirect', 'copy', 'add', 'edit', 'delete', 'view', 'cancel_link', 'no_ok'
+	];
 	foreach ($moved_to_record as $key) {
 		if (!isset($zz_conf[$key])) continue;
 		$zz['record'][$key] = $zz_conf[$key];
 		unset($zz_conf[$key]);
 		wrap_error('Use $zz[\'record\'][\''.$key.'\'] instead of $zz_conf[\''.$key.'\']', E_USER_DEPRECATED);
 	}
+	// @todo $zz_conf['if'][1]['add'] is not re-written, as is $zz_conf['if'][1]['search']
 }

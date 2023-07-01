@@ -530,6 +530,14 @@ function zz_record_conf($zz_conf, $zz) {
 			$zz_conf_record[$key] = $zz_conf[$key];
 		}
 	}
+	// replace if[record] with if
+	if (!empty($zz_conf_record['if'])) {
+		foreach ($zz_conf_record['if'] as $no => $condition) {
+			if (empty($condition['record'])) continue;
+			unset($zz_conf_record['if'][$no]['record']);
+			$zz_conf_record['if'][$no] += $condition['record'];
+		}
+	}
 	return $zz_conf_record;
 }
 
@@ -1320,7 +1328,7 @@ function zz_set_fielddefs_for_record(&$zz) {
  * 
  * @param array $zz
  * @param array $zz_conf
- *		int['record'], 'access', int['list_access'] etc. pp.
+ *		int['record'], 'access' etc. pp.
  *		'modules'[debug]
  *		'where_with_unique_id' bool if it's just one record to be shown (true)
  * @global array $zz_conf
@@ -1542,30 +1550,37 @@ function zz_record_access($zz, $ops) {
 
 	// if conditions in $zz_conf['if'] -- check them
 	// get conditions if there are any, for access
-	$zz_conf['int']['list_access'] = []; // for old variables
+	$ops['list']['unchanged'] = []; // for old variables
 
 	if (!empty($zz_conf['modules']['conditions'])
-		AND (!empty($zz_conf['if']) OR !empty($zz_conf['unless']))
+		AND (!empty($zz['if']) OR !empty($zz['unless']))
 		AND $zz_conf['int']['id']['value']) {
 		$zz_conditions = zz_conditions_check($zz, $ops['mode']);
 		// @todo do we need to check record conditions here?
 		$zz_conditions = zz_conditions_record_check($zz, $ops['mode'], $zz_conditions);
 		// save old variables for list view
-		$saved_variables = [
-			'access', 'add', 'edit', 'delete', 'view', 'details'
+		$saved_variables_record = [
+			'add', 'edit', 'delete', 'view'
 		];
+		$saved_variables = [
+			'access', 'details'
+		];
+		foreach ($saved_variables_record as $var) {
+			if (!isset($zz['record'][$var])) continue;
+			$ops['list']['unchanged']['record'][$var] = $zz['record'][$var];
+		}
 		foreach ($saved_variables as $var) {
-			if (!isset($zz_conf[$var])) continue;
-			$zz_conf['int']['list_access'][$var] = $zz_conf[$var];
+			if (!isset($zz[$var])) continue;
+			$ops['list']['unchanged'][$var] = $zz[$var];
 		}
 		// overwrite new variables
 		if (!empty($zz_conditions['bool'])) {
-			zz_conditions_merge_conf($zz_conf, $zz_conditions['bool'], $zz_conf['int']['id']['value']);
+			zz_conditions_merge_conf($zz, $zz_conditions['bool'], $zz_conf['int']['id']['value']);
 		}
 	}
 
 	// set (and overwrite if necessary) access variables, i. e.
-	// $zz_conf['add'], $zz_conf['edit'], $zz_conf['delete']
+	// $zz['record']['add'], $zz['record']['edit'], $zz['record']['delete']
 
 	if ($zz_conf['int']['access'] === 'add_only' AND zz_valid_request('insert')) {
 		$zz_conf['int']['access'] = 'show_after_add';
@@ -1614,86 +1629,86 @@ function zz_record_access($zz, $ops) {
 	switch ($zz_conf['int']['access']) { // access overwrites individual settings
 	// first the record specific or overall settings
 	case 'export':
-		$zz_conf['add'] = false;			// don't add record (form+links)
-		$zz_conf['edit'] = false;			// don't edit record (form+links)
-		$zz_conf['delete'] = false;			// don't delete record (form+links)
-		$zz_conf['view'] = false;			// don't show record (links)
-		$zz_conf['int']['show_list'] = true;		// list
-		$zz_conf['int']['record'] = false;	// don't show record
+		$zz['record']['add'] = false;			// don't add record (form+links)
+		$zz['record']['edit'] = false;			// don't edit record (form+links)
+		$zz['record']['delete'] = false;		// don't delete record (form+links)
+		$zz['record']['view'] = false;			// don't show record (links)
+		$zz_conf['int']['show_list'] = true;	// list
+		$zz_conf['int']['record'] = false;		// don't show record
 		break;
 	case 'show_after_add';
-		$zz_conf['add'] = false;			// don't add record (form+links)
-		$zz_conf['edit'] = false;			// edit record (form+links)
-		$zz_conf['delete'] = false;			// don't delete record (form+links)
-		$zz_conf['view'] = false;			// don't show record (links)
-		wrap_setting('zzform_search', false);			// no search form
-		$zz_conf['int']['show_list'] = false;		// no list
-		$zz_conf['no_ok'] = true;			// no OK button
-		$zz_conf['cancel_link'] = false; 	// no cancel link
+		$zz['record']['add'] = false;			// don't add record (form+links)
+		$zz['record']['edit'] = false;			// edit record (form+links)
+		$zz['record']['delete'] = false;		// don't delete record (form+links)
+		$zz['record']['view'] = false;			// don't show record (links)
+		wrap_setting('zzform_search', false);	// no search form
+		$zz_conf['int']['show_list'] = false;	// no list
+		$zz['record']['no_ok'] = true;			// no OK button
+		$zz['record']['cancel_link'] = false; 	// no cancel link
 		if (empty($_POST)) $ops['mode'] = 'show';
 		break;
 	case 'show_after_edit';
-		$zz_conf['add'] = false;			// don't add record (form+links)
-		$zz_conf['edit'] = true;			// edit record (form+links)
-		$zz_conf['delete'] = false;			// don't delete record (form+links)
-		$zz_conf['view'] = false;			// don't show record (links)
+		$zz['record']['add'] = false;			// don't add record (form+links)
+		$zz['record']['edit'] = true;			// edit record (form+links)
+		$zz['record']['delete'] = false;			// don't delete record (form+links)
+		$zz['record']['view'] = false;			// don't show record (links)
 		wrap_setting('zzform_search', false);			// no search form
 		$zz_conf['int']['show_list'] = false;		// no list
-		$zz_conf['no_ok'] = true;			// no OK button
-		$zz_conf['cancel_link'] = false; 	// no cancel link
+		$zz['record']['no_ok'] = true;			// no OK button
+		$zz['record']['cancel_link'] = false; 	// no cancel link
 		if (empty($_POST)) $ops['mode'] = 'show';
 		break;
 	case 'show+edit';
-		$zz_conf['add'] = false;			// don't add record (form+links)
-		$zz_conf['edit'] = true;			// edit record (form+links)
-		$zz_conf['delete'] = false;			// don't delete record (form+links)
-		$zz_conf['view'] = false;			// don't show record (links)
+		$zz['record']['add'] = false;			// don't add record (form+links)
+		$zz['record']['edit'] = true;			// edit record (form+links)
+		$zz['record']['delete'] = false;			// don't delete record (form+links)
+		$zz['record']['view'] = false;			// don't show record (links)
 		wrap_setting('zzform_search', false);			// no search form
 		$zz_conf['int']['show_list'] = false;		// no list
-		$zz_conf['no_ok'] = true;			// no OK button
+		$zz['record']['no_ok'] = true;			// no OK button
 		if (empty($_POST)) $ops['mode'] = 'show';
 		break;
 	case 'add+delete';
-		$zz_conf['add'] = true;				// add record (form)
-		$zz_conf['edit'] = false;			// don't edit record (form+links)
-		$zz_conf['delete'] = true;			// don't delete record (form+links)
-		$zz_conf['view'] = false;			// don't show record (links)
+		$zz['record']['add'] = true;				// add record (form)
+		$zz['record']['edit'] = false;			// don't edit record (form+links)
+		$zz['record']['delete'] = true;			// don't delete record (form+links)
+		$zz['record']['view'] = false;			// don't show record (links)
 		$zz_conf['int']['show_list'] = true;		// list
 		break;
 	case 'add_only';
-		$zz_conf['add'] = true;				// add record (form)
+		$zz['record']['add'] = true;				// add record (form)
 		$zz_conf['add_link'] = false;		// add record (links)
-		$zz_conf['edit'] = false;			// don't edit record (form+links)
-		$zz_conf['delete'] = false;			// don't delete record (form+links)
-		$zz_conf['view'] = false;			// don't show record (links)
+		$zz['record']['edit'] = false;			// don't edit record (form+links)
+		$zz['record']['delete'] = false;			// don't delete record (form+links)
+		$zz['record']['view'] = false;			// don't show record (links)
 		wrap_setting('zzform_search', false);			// no search form
 		$zz_conf['int']['show_list'] = false;		// no list
-		$zz_conf['cancel_link'] = false; 	// no cancel link
-		$zz_conf['no_ok'] = true;			// no OK button
+		$zz['record']['cancel_link'] = false; 	// no cancel link
+		$zz['record']['no_ok'] = true;			// no OK button
 		if (empty($zz_conf['int']['where_with_unique_id'])) {
 			$zz_conf['int']['hash_id'] = true;	// user cannot view all IDs
 		}
 		if (empty($_POST)) $ops['mode'] = 'add';
 		break;
 	case 'edit_only';
-		$zz_conf['add'] = false;			// don't add record (form+links)
-		$zz_conf['edit'] = true;			// edit record (form+links)
-		$zz_conf['delete'] = false;			// don't delete record (form+links)
-		$zz_conf['view'] = false;			// don't show record (links)
+		$zz['record']['add'] = false;			// don't add record (form+links)
+		$zz['record']['edit'] = true;			// edit record (form+links)
+		$zz['record']['delete'] = false;			// don't delete record (form+links)
+		$zz['record']['view'] = false;			// don't show record (links)
 		wrap_setting('zzform_search', false);			// no search form
 		$zz_conf['int']['show_list'] = false;		// no list
-		$zz_conf['no_ok'] = true;			// no OK button
-		$zz_conf['cancel_link'] = false; 	// no cancel link
+		$zz['record']['no_ok'] = true;			// no OK button
+		$zz['record']['cancel_link'] = false; 	// no cancel link
 		if (empty($zz_conf['int']['where_with_unique_id'])) {
 			$zz_conf['int']['hash_id'] = true;	// user cannot view all IDs
 		}
 		if (empty($_POST)) $ops['mode'] = 'edit';
 		break;
 	case 'thumbnails':
-		$zz_conf['add'] = false;
-		$zz_conf['edit'] = false;
-		$zz_conf['delete'] = false;
-		$zz_conf['view'] = false;
+		$zz['record']['add'] = false;
+		$zz['record']['edit'] = false;
+		$zz['record']['delete'] = false;
+		$zz['record']['view'] = false;
 		$zz_conf['int']['show_list'] = false;
 		$zz_conf['generate_output'] = false;
 		$zz_conf['int']['record'] = true;
@@ -1702,7 +1717,7 @@ function zz_record_access($zz, $ops) {
 		break;
 	default:
 		// now the settings which apply to both record and list
-		$zz_conf = zz_listandrecord_access($zz_conf);
+		$zz['record'] = zz_listandrecord_access($zz['record']);
 		break;
 	}
 
@@ -1718,22 +1733,22 @@ function zz_record_access($zz, $ops) {
 		$no_add = true;
 		if ($ops['mode'] === 'add') $no_add = false;
 		if ($zz['record']['action'] === 'insert') $no_add = false;
-		if ($no_add) $zz_conf['add'] = false; 		// don't show add record (form+links)
+		if ($no_add) $zz['record']['add'] = false; 		// don't show add record (form+links)
 	}
 
-	// $zz_conf is set regarding add, edit, delete
+	// $zz['record'] is set regarding add, edit, delete
 	// don't copy record (form+links)
-	if (!$zz_conf['add']) $zz['record']['copy'] = false;
+	if (!$zz['record']['add']) $zz['record']['copy'] = false;
 
 	if (!isset($zz_conf['add_link'])) {
 		// Link Add new ...
-		$zz_conf['add_link'] = $zz_conf['add'] ? true : false;
+		$zz_conf['add_link'] = $zz['record']['add'] ? true : false;
 	}
 
 	// check unallowed modes and actions
 	$modes = ['add' => 'insert', 'edit' => 'update', 'delete' => 'delete'];
 	foreach ($modes as $mode => $action) {
-		if (!$zz_conf[$mode] AND $ops['mode'] === $mode) {
+		if (!$zz['record'][$mode] AND $ops['mode'] === $mode) {
 			$ops['mode'] = false;
 			zz_error_log([
 				'msg_dev' => 'Configuration does not allow this mode: %s',
@@ -1743,7 +1758,7 @@ function zz_record_access($zz, $ops) {
 			]);
 			$zz_conf['int']['record'] = false;
 		}
-		if (!$zz_conf[$mode] AND $zz['record']['action'] === $action) {
+		if (!$zz['record'][$mode] AND $zz['record']['action'] === $action) {
 			$zz['record']['action'] = false;
 			zz_error_log([
 				'msg_dev' => 'Configuration does not allow this action: %s',

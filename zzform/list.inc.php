@@ -33,7 +33,11 @@ function zz_list($zz, $ops, $zz_conditions) {
 		require_once __DIR__.'/searchform.inc.php';
 
 	if (!empty($ops['list'])) {
-		$zz['list'] = array_merge($zz['list'], $ops['list']);
+		if (!empty($ops['list']['unchanged'])) {
+			$zz = wrap_array_merge($zz, $ops['list']['unchanged']);
+			unset($ops['list']['unchanged']);
+		}
+		$zz['list'] = wrap_array_merge($zz['list'], $ops['list']);
 		unset($ops['list']);
 	}
 
@@ -58,10 +62,6 @@ function zz_list($zz, $ops, $zz_conditions) {
 		if ($old_sql !== $zz['sql']) $zz['sqlcount'] = '';
 	}
 
-	if ($zz_conf['int']['list_access']) {
-		$zz_conf = array_merge($zz_conf, $zz_conf['int']['list_access']);
-		unset($zz_conf['int']['list_access']);
-	}
 	if ($zz_conf['int']['access'] === 'search_but_no_list' AND empty($_GET['q'])) 
 		$zz_conf['int']['show_list'] = false;
 
