@@ -845,10 +845,17 @@ function zzform_post_too_big() {
 function zzform_deprecated(&$ops, &$zz) {
 	global $zz_conf;
 
-	if (!empty($zz_conf['dont_show_title_as_breadcrumb'])) {
-		wrap_static('page', 'dont_show_title_as_breadcrumb', true);
-		unset($zz_conf['dont_show_title_as_breadcrumb']);
-		wrap_error('Use $zz[\'page\'][\'dont_show_title_as_breadcrumb\'] instead of $zz_conf[\'dont_show_title_as_breadcrumb\']', E_USER_DEPRECATED);
+	$to_page = ['dont_show_title_as_breadcrumb', 'referer'];
+	foreach ($to_page as $key) {
+		if (empty($zz_conf[$key])) continue;
+		wrap_static('page', $key, $zz_conf[$key]);
+		unset($zz_conf[$key]);
+		wrap_error('Use $zz[\'page\'][\''.$key.'\'] instead of $zz_conf[\''.$key.'\']', E_USER_DEPRECATED);
+	}
+	if (!empty($zz['dynamic_referer'])) {
+		wrap_static('page', 'dynamic_referer', $zz['dynamic_referer']);
+		unset($zz['dynamic_referer']);
+		wrap_error('Use $zz[\'page\'][\'dynamic_referer\'] instead of $zz[\'dynamic_referer\']', E_USER_DEPRECATED);
 	}
 	if (!empty($zz_conf['footer_text'])) {
 		$ops['footer']['text'] = $zz_conf['footer_text'];

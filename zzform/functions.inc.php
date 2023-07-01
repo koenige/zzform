@@ -1184,12 +1184,12 @@ function zz_hash($zz, $zz_conf) {
 	// the definition of the database table(s)
 	$id = $zz_conf['id'];
 	$uninteresting_zz_conf_keys = [
-		'int', 'id', 'format', 'referer', 'access', 'limit', 'zzform_init', 'url_self'
+		'int', 'id', 'format', 'access', 'limit', 'zzform_init', 'url_self'
 	];
 	foreach ($uninteresting_zz_conf_keys as $key) unset($zz_conf[$key]);
 	$uninteresting_zz_keys = [
 		'title', 'explanation', 'explanation_top', 'subtitle', 'list', 'access',
-		'explanation_insert', 'export', 'details', 'footer'
+		'explanation_insert', 'export', 'details', 'footer', 'page'
 	];
 	foreach ($uninteresting_zz_keys as $key) unset($zz[$key]);
 	foreach ($zz['fields'] as $no => $field) {
@@ -1650,10 +1650,10 @@ function zz_record_access($zz, $ops) {
 	case 'show_after_edit';
 		$zz['record']['add'] = false;			// don't add record (form+links)
 		$zz['record']['edit'] = true;			// edit record (form+links)
-		$zz['record']['delete'] = false;			// don't delete record (form+links)
+		$zz['record']['delete'] = false;		// don't delete record (form+links)
 		$zz['record']['view'] = false;			// don't show record (links)
-		wrap_setting('zzform_search', false);			// no search form
-		$zz_conf['int']['show_list'] = false;		// no list
+		wrap_setting('zzform_search', false);	// no search form
+		$zz_conf['int']['show_list'] = false;	// no list
 		$zz['record']['no_ok'] = true;			// no OK button
 		$zz['record']['cancel_link'] = false; 	// no cancel link
 		if (empty($_POST)) $ops['mode'] = 'show';
@@ -1661,28 +1661,28 @@ function zz_record_access($zz, $ops) {
 	case 'show+edit';
 		$zz['record']['add'] = false;			// don't add record (form+links)
 		$zz['record']['edit'] = true;			// edit record (form+links)
-		$zz['record']['delete'] = false;			// don't delete record (form+links)
+		$zz['record']['delete'] = false;		// don't delete record (form+links)
 		$zz['record']['view'] = false;			// don't show record (links)
-		wrap_setting('zzform_search', false);			// no search form
-		$zz_conf['int']['show_list'] = false;		// no list
+		wrap_setting('zzform_search', false);	// no search form
+		$zz_conf['int']['show_list'] = false;	// no list
 		$zz['record']['no_ok'] = true;			// no OK button
 		if (empty($_POST)) $ops['mode'] = 'show';
 		break;
 	case 'add+delete';
-		$zz['record']['add'] = true;				// add record (form)
+		$zz['record']['add'] = true;			// add record (form)
 		$zz['record']['edit'] = false;			// don't edit record (form+links)
 		$zz['record']['delete'] = true;			// don't delete record (form+links)
 		$zz['record']['view'] = false;			// don't show record (links)
-		$zz_conf['int']['show_list'] = true;		// list
+		$zz_conf['int']['show_list'] = true;	// list
 		break;
 	case 'add_only';
-		$zz['record']['add'] = true;				// add record (form)
-		$zz_conf['add_link'] = false;		// add record (links)
+		$zz['record']['add'] = true;			// add record (form)
+		$zz_conf['add_link'] = false;			// add record (links)
 		$zz['record']['edit'] = false;			// don't edit record (form+links)
-		$zz['record']['delete'] = false;			// don't delete record (form+links)
+		$zz['record']['delete'] = false;		// don't delete record (form+links)
 		$zz['record']['view'] = false;			// don't show record (links)
-		wrap_setting('zzform_search', false);			// no search form
-		$zz_conf['int']['show_list'] = false;		// no list
+		wrap_setting('zzform_search', false);	// no search form
+		$zz_conf['int']['show_list'] = false;	// no list
 		$zz['record']['cancel_link'] = false; 	// no cancel link
 		$zz['record']['no_ok'] = true;			// no OK button
 		if (empty($zz_conf['int']['where_with_unique_id'])) {
@@ -1693,10 +1693,10 @@ function zz_record_access($zz, $ops) {
 	case 'edit_only';
 		$zz['record']['add'] = false;			// don't add record (form+links)
 		$zz['record']['edit'] = true;			// edit record (form+links)
-		$zz['record']['delete'] = false;			// don't delete record (form+links)
+		$zz['record']['delete'] = false;		// don't delete record (form+links)
 		$zz['record']['view'] = false;			// don't show record (links)
-		wrap_setting('zzform_search', false);			// no search form
-		$zz_conf['int']['show_list'] = false;		// no list
+		wrap_setting('zzform_search', false);	// no search form
+		$zz_conf['int']['show_list'] = false;	// no list
 		$zz['record']['no_ok'] = true;			// no OK button
 		$zz['record']['cancel_link'] = false; 	// no cancel link
 		if (empty($zz_conf['int']['where_with_unique_id'])) {

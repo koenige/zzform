@@ -655,12 +655,12 @@ function zz_output_backlink($zz_tab = []) {
 
 	if (!empty($zz_tab)) {
 		// backlink below record form, just dynamic_referer
-		if (empty($zz_tab[0]['dynamic_referer'])) return '';
+		if (!wrap_static('page', 'dynamic_referer')) return '';
 		if (empty($zz_tab[0][0]['record'])) return '';
-		$link = zz_makelink($zz_tab[0]['dynamic_referer'], $zz_tab[0][0]['record']);
+		$link = zz_makelink(wrap_static('page', 'dynamic_referer'), $zz_tab[0][0]['record']);
 		// don't show second referer below list/form
-		$zz_conf['referer'] = false;
-	} elseif ($zz_conf['referer']) {
+		wrap_static('page', 'referer', false);
+	} elseif (wrap_static('page', 'referer')) {
 		$link = $zz_conf['int']['referer_esc'];
 	}
 	if (!$link) return false;
@@ -789,25 +789,25 @@ function zz_cut_length($string, $max_length) {
 function zz_init_referer() {
 	global $zz_conf;
 	// get referer // @todo add support for SESSIONs as well
-	if (!isset($zz_conf['referer'])) {
-		$zz_conf['referer'] = false;
-		if (isset($_GET['referer'])) $zz_conf['referer'] = $_GET['referer'];
-		if (isset($_POST['zz_referer'])) $zz_conf['referer'] = $_POST['zz_referer'];
+	if (is_null(wrap_static('page', 'referer'))) {
+		wrap_static('page', 'referer', false);
+		if (isset($_GET['referer'])) wrap_static('page', 'referer', $_GET['referer']);
+		if (isset($_POST['zz_referer'])) wrap_static('page', 'referer', $_POST['zz_referer']);
 	} elseif (isset($_POST['zz_referer'])) {
-		$zz_conf['referer'] = $_POST['zz_referer'];
+		wrap_static('page', 'referer', $_POST['zz_referer']);
 	}
 	// remove actions from referer if set
-	$zz_conf['int']['referer'] = parse_url($zz_conf['referer']);
+	$zz_conf['int']['referer'] = parse_url(wrap_static('page', 'referer'));
 	if (!empty($zz_conf['int']['referer']['query'])) {
 		$removes = ['delete', 'insert', 'update', 'noupdate'];
 		$zz_conf['int']['referer']['query'] = zz_edit_query_string($zz_conf['int']['referer']['query'], $removes, [], '&');
 	}
-	$zz_conf['referer'] = (
+	wrap_static('page', 'referer', (
 		(!empty($zz_conf['int']['referer']['scheme']) ? $zz_conf['int']['referer']['scheme'].'://'
 			.$zz_conf['int']['referer']['host'] : '')
 		.$zz_conf['int']['referer']['path']
-		.(!empty($zz_conf['int']['referer']['query']) ? $zz_conf['int']['referer']['query'] : ''));
-	$zz_conf['int']['referer_esc'] = str_replace('&', '&amp;', $zz_conf['referer']);
+		.(!empty($zz_conf['int']['referer']['query']) ? $zz_conf['int']['referer']['query'] : '')));
+	$zz_conf['int']['referer_esc'] = str_replace('&', '&amp;', wrap_static('page', 'referer'));
 }
 
 /**

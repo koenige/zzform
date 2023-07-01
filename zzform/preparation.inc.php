@@ -34,7 +34,6 @@ function zz_prepare_tables($zz, $mode) {
 	$zz_tab[0]['sqlextra'] = $zz['sqlextra'] ?? [];
 	$zz_tab[0]['sql_translate'] = $zz['sql_translate'] ?? [];
 	$zz_tab[0]['folder'] = $zz['folder'] ?? [];
-	$zz_tab[0]['dynamic_referer'] = $zz['dynamic_referer'] ?? false;
 	$zz_tab[0]['add_from_source_id'] = !empty($zz['add_from_source_id']) ? true : false;
 	$zz_tab[0]['filter'] = $zz['filter'] ?? [];
 	$zz_tab[0]['filter_active'] = $zz['filter_active'] ?? [];

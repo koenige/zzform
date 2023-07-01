@@ -310,9 +310,9 @@ function zz_display_records($zz_tab, $mode, $display, $zz_record, $zz_conditions
 				];
 			}
 		}
-		if ($zz_conf['referer'])
+		if (wrap_static('page', 'referer'))
 			$output['hidden'][] = [
-				'name' => 'zz_referer', 'value' => $zz_conf['referer']
+				'name' => 'zz_referer', 'value' => wrap_static('page', 'referer')
 			];
 		if (isset($_GET['file']) && $_GET['file']) 
 			$output['hidden'][] = [
@@ -346,9 +346,9 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple)
 	global $zz_conf;
 	$output = [];
 	
-	if (!empty($zz_conf['referer']) AND array_key_exists('nolist', $_GET)
+	if (wrap_static('page', 'referer') AND array_key_exists('nolist', $_GET)
 		AND !empty($zz_record['redirect_to_referer_zero_records'])) {
-		$cancelurl = $zz_conf['referer'];
+		$cancelurl = wrap_static('page', 'referer');
 	} elseif (!empty($zz_conf['int']['cancel_url'])) {
 		$cancelurl = $zz_conf['int']['cancel_url'];
 	} else {
