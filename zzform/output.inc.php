@@ -24,6 +24,10 @@
  *		string 'explanation', string 'selection'
  */
 function zz_output_page($ops, $zz) {
+	static $calls = 0;
+	if ($calls) return $ops;
+	$calls++;
+
 	$ops['breadcrumb'] = $ops['heading'];
 	// make nicer headings
 	$ops['heading'] = zz_nice_headings($ops['heading'], $zz);
@@ -701,6 +705,9 @@ function zz_nice_tablenames($table) {
  */
 function zz_extra_get_params() {
 	global $zz_conf;
+	static $calls = 0;
+	if ($calls) return;
+	$calls++;
 
 	// Extra GET Parameter
 	$keep_query = [];
