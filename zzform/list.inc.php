@@ -2607,12 +2607,9 @@ function zz_field_class($field, $html = false) {
  *		int 'current_record'
  * @param array $rows
  * @param array $head
- * @global array $zz_conf
  * @return string
  */
 function zz_list_table($list, $rows, $head) {
-	global $zz_conf;
-
 	// Header
 	$output = '<div class="list"><table class="data"><thead>'."\n".'<tr>';
 	if ($list['select_multiple_records']) $output .= '<th></th>';
