@@ -18,7 +18,7 @@
  * only in list-mode and if there are records
  *
  * @param array $params
- * @param array $ops
+ * @param array $settings
  * @return array
  */
 function mod_zzform_zzformmap($params, $settings) {
