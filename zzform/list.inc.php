@@ -32,6 +32,7 @@ function zz_list($zz, $ops, $zz_conditions) {
 	if (wrap_setting('zzform_search'))
 		require_once __DIR__.'/searchform.inc.php';
 
+	if (empty($zz['list'])) $zz['list'] = [];
 	if (!empty($ops['list'])) {
 		if (!empty($ops['list']['unchanged'])) {
 			$zz = wrap_array_merge($zz, $ops['list']['unchanged']);
