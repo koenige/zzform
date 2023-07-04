@@ -957,4 +957,10 @@ function zzform_deprecated(&$ops, &$zz) {
 		wrap_error('Use $zz[\'record\'][\''.$key.'\'] instead of $zz_conf[\''.$key.'\']', E_USER_DEPRECATED);
 	}
 	// @todo $zz_conf['if'][1]['add'] is not re-written, as is $zz_conf['if'][1]['search']
+	if (!empty($zz_conf['dont_show_total_records'])) {
+		wrap_setting('zzform_hide_total_records', $zz_conf['dont_show_total_records']);
+		unset($zz_conf['dont_show_total_records']);
+		wrap_error('Use setting `zzform_hide_total_records` instead of $zz_conf[\'dont_show_total_records\']', E_USER_DEPRECATED);
+	}
+	
 }

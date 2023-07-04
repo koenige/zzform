@@ -1935,9 +1935,7 @@ function zz_list_group_foot($rowgroup, $main_table_query, $z, $sum_group) {
  * @return string HTML code with text
  */
 function zz_list_total_records($total_rows) {
-	global $zz_conf;
-	if (!empty($zz_conf['dont_show_total_records'])) return '';
-
+	if (wrap_setting('zzform_hide_total_records')) return '';
 	if ($total_rows) return '<p class="totalrecords">'.wrap_text('%d records total', ['values' => [$total_rows]]).'</p>';
 	return '';
 }
