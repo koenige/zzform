@@ -231,6 +231,9 @@ function zzform($zz) {
 			$ops['heading'] = $ops['title'];
 			// @todo breadcrumbs, head, etc.
 		}
+	} elseif (!$zz_conf['int']['record']) {
+		// no list, no record? redirect to referer
+		if ($referer = wrap_static('page', 'referer')) wrap_redirect($referer);
 	}
 	if ($ops['mode'] !== 'export') {
 		$ops['output'] .= zz_output_backlink();
