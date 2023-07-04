@@ -622,6 +622,7 @@ function zz_output_add_export_links($zz, $ops, $position = 'below') {
 		break;
 	case 'nolist':
 		// only show add links if no links where shown before
+		if (isset($_GET['nolist'])) return '';
 		if ($add_links_shown) return '';
 		break;
 	}
