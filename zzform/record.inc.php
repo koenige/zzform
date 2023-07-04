@@ -610,9 +610,9 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 		if ($mode === 'revise') {
 			if (!empty($my_rec['revision']) AND !empty($field['field_name'])
 				AND in_array($field['field_name'], array_keys($my_rec['revision']))) {
-				$field['explanation'] = sprintf(
-					wrap_text('Old value: %s'), !empty($my_rec['record'][$field['field_name']])
-						? $my_rec['record'][$field['field_name']] : ' '.wrap_text('– empty –')
+				$field['explanation'] = wrap_text(
+					'Old value: %s',
+					['values' => wrap_html_escape($my_rec['record'][$field['field_name']]) ?? wrap_text('– empty –')]
 				);
 				$my_rec['record'][$field['field_name']] = $my_rec['revision'][$field['field_name']];
 				$field['class'][] = 'reselect';
