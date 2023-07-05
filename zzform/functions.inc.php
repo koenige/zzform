@@ -635,7 +635,7 @@ function zz_init_cfg_value($def, $ext, $int) {
 	// check values if they match type
 	switch ($def['type']) {
 	case 'enum':
-		if (!in_array($value, $def['enum'])) $value = '';
+		if (!in_array($value, $def['enum'])) $value = $def['default'] ?? '';
 		break;
 	}
 
