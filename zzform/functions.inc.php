@@ -542,6 +542,107 @@ function zz_record_conf($zz_conf, $zz) {
 }
 
 /**
+ * initalize a variable from .cfg file
+ *
+ * @param string $key
+ * @param array $def existing definition by user
+ * @param array $int existing internal definition by system (optional)
+ * @return array
+ */
+function zz_init_cfg($key, $ext, $int = []) {
+	$cfg = zz_init_cfg_file($key);
+	$settings = [];
+	foreach ($cfg as $key => $def) {
+		// value?
+		if (empty($def['type'])) $def['type'] = 'text';
+		$value = zz_init_cfg_value($def, $ext[$key] ?? NULL, $int[$key] ?? NULL);
+		if (!$value AND !empty($def['no_auto_init'])) continue;
+		$new_settings = wrap_setting_key($key, $value);
+		$settings = wrap_array_merge($settings, $new_settings, true);
+	}
+	return $settings;
+}
+
+/**
+ * get configuration file
+ *
+ * @param string $key
+ * @return array
+ */
+function zz_init_cfg_file($key) {
+	if (strstr($key, '[')) {
+		$keys = rtrim($key, ']');
+		$keys = explode('[', $keys);
+		// own cfg file
+		$cfg = wrap_cfg_files(implode('-', $keys), ['package' => 'zzform']);
+		if (!$cfg) {
+			// subset of main file
+			$cfg = [];
+			$cfg_complete = wrap_cfg_files($keys[0], ['package' => 'zzform']);
+			if (!$cfg_complete) return [];
+			foreach ($cfg_complete as $cfg_key => $def) {
+				if (!str_starts_with($cfg_key, $keys[1].'[')) continue;
+				$cfg_keys = wrap_setting_key_array($cfg_key);
+				$cfg_key = '';
+				foreach ($cfg_keys as $index => $sub_key)
+					if ($index === 0) continue;
+					elseif ($index === 1) $cfg_key .= $sub_key;
+					else $cfg_key .= sprintf('[%s]', $sub_key);
+				$cfg[$cfg_key] = $def;
+			}
+		}
+	} else {
+		$cfg = wrap_cfg_files($key, ['package' => 'zzform']);
+	}
+	return $cfg;
+}
+
+/**
+ * get configuration value
+ *
+ * @param array $def definition of a single config key
+ * @param array $ext
+ * @param array $int
+ * @return mixed
+ */
+function zz_init_cfg_value($def, $ext, $int) {
+	// get value, in order int, ext, default
+	if ($int)
+		$value = $int;
+	elseif ($ext AND (empty($def['scope']) OR !in_array('internal', $def['scope'])))
+		$value = $ext;
+	elseif (isset($def['default']))
+		$value = $def['default'];
+	elseif (!empty($def['list']))
+		$value = [];
+	else
+		switch ($def['type']) {
+		case 'list':
+			$value = [];
+			break;
+		case 'int':
+			$value = 0;
+			break;
+		case 'text':
+		default:
+			$value = ''; break;
+		}
+	
+	// array?
+	if (!empty($def['list']) AND !is_array($value))
+		$value = [$value];
+
+	// check values if they match type
+	switch ($def['type']) {
+	case 'enum':
+		if (!in_array($value, $def['enum'])) $value = '';
+		break;
+	}
+
+	return $value;
+}
+
+/**
  * checks filter, sets default values and identifier
  *
  * @param array $zz
