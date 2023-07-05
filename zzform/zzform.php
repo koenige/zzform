@@ -681,7 +681,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	// stop if there were errors while adding modules
 	if (zz_error_exit()) zz_return(false);
 
-	$default['html_autofocus']		= true;
 	$default['merge']				= false;
 	$default['multi'] 				= false;		// zzform_multi
 	$default['url_self']			= false;
@@ -850,52 +849,52 @@ function zzform_deprecated(&$ops, &$zz) {
 
 	$to_page = ['dont_show_title_as_breadcrumb', 'referer'];
 	foreach ($to_page as $key) {
-		if (empty($zz_conf[$key])) continue;
+		if (!isset($zz_conf[$key])) continue;
 		wrap_static('page', $key, $zz_conf[$key]);
 		unset($zz_conf[$key]);
 		wrap_error('Use $zz[\'page\'][\''.$key.'\'] instead of $zz_conf[\''.$key.'\']', E_USER_DEPRECATED);
 	}
-	if (!empty($zz['dynamic_referer'])) {
+	if (isset($zz['dynamic_referer'])) {
 		wrap_static('page', 'dynamic_referer', $zz['dynamic_referer']);
 		unset($zz['dynamic_referer']);
 		wrap_error('Use $zz[\'page\'][\'dynamic_referer\'] instead of $zz[\'dynamic_referer\']', E_USER_DEPRECATED);
 	}
-	if (!empty($zz_conf['footer_text'])) {
+	if (isset($zz_conf['footer_text'])) {
 		$ops['footer']['text'] = $zz_conf['footer_text'];
 		unset($zz_conf['footer_text']);
 		wrap_error('Use $zz[\'footer\'][\'text\'] instead of $zz_conf[\'footer_text\']', E_USER_DEPRECATED);
 	}
-	if (!empty($zz_conf['footer_text_insert'])) {
+	if (isset($zz_conf['footer_text_insert'])) {
 		$ops['footer']['text_insert'] = $zz_conf['footer_text_insert'];
 		unset($zz_conf['footer_text_insert']);
 		wrap_error('Use $zz[\'footer\'][\'text_insert\'] instead of $zz_conf[\'footer_text_insert\']', E_USER_DEPRECATED);
 	}
-	if (!empty($zz_conf['footer_template'])) {
+	if (isset($zz_conf['footer_template'])) {
 		$ops['footer']['template'] = $zz_conf['footer_template'];
 		unset($zz_conf['footer_template']);
 		wrap_error('Use $zz[\'footer\'][\'template\'] instead of $zz_conf[\'footer_template\']', E_USER_DEPRECATED);
 	}
-	if (!empty($zz_conf['no_add_above'])) {
+	if (isset($zz_conf['no_add_above'])) {
 		$zz['list']['no_add_above'] = $zz_conf['no_add_above'];
 		unset($zz_conf['no_add_above']);
 		wrap_error('Use $zz[\'list\'][\'no_add_above\'] instead of $zz_conf[\'no_add_above\']', E_USER_DEPRECATED);
 	}
-	if (!empty($zz_conf['export'])) {
+	if (isset($zz_conf['export'])) {
 		$zz['export'] = $zz_conf['export'];
 		unset($zz_conf['export']);
 		wrap_error('Use $zz[\'export\'] instead of $zz_conf[\'export\']', E_USER_DEPRECATED);
 	}
-	if (!empty($zz_conf['multi_function'])) {
+	if (isset($zz_conf['multi_function'])) {
 		$zz['list']['multi_function'] = $zz_conf['multi_function'];
 		unset($zz_conf['multi_function']);
 		wrap_error('Use $zz[\'list\'][\'multi_function\'] instead of $zz_conf[\'multi_function\']', E_USER_DEPRECATED);
 	}
-	if (!empty($zz_conf['multi_edit'])) {
+	if (isset($zz_conf['multi_edit'])) {
 		$zz['list']['multi_edit'] = $zz_conf['multi_edit'];
 		unset($zz_conf['multi_edit']);
 		wrap_error('Use $zz[\'list\'][\'multi_edit\'] instead of $zz_conf[\'multi_edit\']', E_USER_DEPRECATED);
 	}
-	if (!empty($zz_conf['multi_delete'])) {
+	if (isset($zz_conf['multi_delete'])) {
 		$zz['list']['multi_delete'] = $zz_conf['multi_delete'];
 		unset($zz_conf['multi_delete']);
 		wrap_error('Use $zz[\'list\'][\'multi_delete\'] instead of $zz_conf[\'multi_delete\']', E_USER_DEPRECATED);
@@ -905,22 +904,22 @@ function zzform_deprecated(&$ops, &$zz) {
 		unset($zz_conf['list_display']);
 		wrap_error('Use $zz[\'list\'][\'display\'] instead of $zz_conf[\'list_display\']', E_USER_DEPRECATED);
 	}
-	if (!empty($zz_conf['export_csv_no_head'])) {
+	if (isset($zz_conf['export_csv_no_head'])) {
 		wrap_setting('export_csv_heading', !$zz_conf['export_csv_no_head']);
 		unset($zz_conf['export_csv_no_head']);
 		wrap_error('Use setting `export_csv_heading`, false instead of $zz_conf[\'export_csv_no_head\']', E_USER_DEPRECATED);
 	}
-	if (!empty($zz_conf['export_csv_replace'])) {
+	if (isset($zz_conf['export_csv_replace'])) {
 		wrap_setting('export_csv_replace', $zz_conf['export_csv_replace']);
 		unset($zz_conf['export_csv_replace']);
 		wrap_error('Use setting `export_csv_replace` instead of $zz_conf[\'export_csv_replace\']', E_USER_DEPRECATED);
 	}
-	if (!empty($zz_conf['export_csv_delimiter'])) {
+	if (isset($zz_conf['export_csv_delimiter'])) {
 		wrap_setting('export_csv_delimiter', $zz_conf['export_csv_delimiter']);
 		unset($zz_conf['export_csv_delimiter']);
 		wrap_error('Use setting `export_csv_delimiter` instead of $zz_conf[\'export_csv_delimiter\']', E_USER_DEPRECATED);
 	}
-	if (!empty($zz_conf['search'])) {
+	if (isset($zz_conf['search'])) {
 		wrap_setting('zzform_search', $zz_conf['search']);
 		unset($zz_conf['search']);
 		wrap_error('Use setting `zzform_search` instead of $zz_conf[\'search\']', E_USER_DEPRECATED);
@@ -936,12 +935,12 @@ function zzform_deprecated(&$ops, &$zz) {
 		unset($zz_conf['nice_tablename']);
 		wrap_error('Use setting `zzform_nice_tablename` instead of $zz_conf[\'nice_tablename\']', E_USER_DEPRECATED);
 	}
-	if (!empty($zz_conf['max_select_val_len'])) {
+	if (isset($zz_conf['max_select_val_len'])) {
 		wrap_setting('zzform_max_select_val_len', $zz_conf['max_select_val_len']);
 		unset($zz_conf['max_select_val_len']);
 		wrap_error('Use setting `zzform_max_select_val_len` instead of $zz_conf[\'max_select_val_len\']', E_USER_DEPRECATED);
 	}
-	if (!empty($zz_conf['max_select'])) {
+	if (isset($zz_conf['max_select'])) {
 		wrap_setting('zzform_max_select', $zz_conf['max_select']);
 		unset($zz_conf['max_select']);
 		wrap_error('Use setting `zzform_max_select` instead of $zz_conf[\'max_select\']', E_USER_DEPRECATED);
@@ -957,10 +956,14 @@ function zzform_deprecated(&$ops, &$zz) {
 		wrap_error('Use $zz[\'record\'][\''.$key.'\'] instead of $zz_conf[\''.$key.'\']', E_USER_DEPRECATED);
 	}
 	// @todo $zz_conf['if'][1]['add'] is not re-written, as is $zz_conf['if'][1]['search']
-	if (!empty($zz_conf['dont_show_total_records'])) {
+	if (isset($zz_conf['dont_show_total_records'])) {
 		wrap_setting('zzform_hide_total_records', $zz_conf['dont_show_total_records']);
 		unset($zz_conf['dont_show_total_records']);
 		wrap_error('Use setting `zzform_hide_total_records` instead of $zz_conf[\'dont_show_total_records\']', E_USER_DEPRECATED);
 	}
-	
+	if (isset($zz_conf['html_autofocus']) AND !$zz_conf['html_autofocus']) {
+		wrap_setting('zzform_autofocus', []);
+		unset($zz_conf['html_autofocus']);
+		wrap_error('Use setting `zzform_autofocus` instead of $zz_conf[\'html_autofocus\']', E_USER_DEPRECATED);
+	}
 }

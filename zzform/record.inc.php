@@ -1423,12 +1423,7 @@ function zz_record_focus($zz_tab = false, $tab = 0, $rec = 0) {
  * @return bool
  */
 function zz_record_field_focus($name, $type) {
-	global $zz_conf;
-	if (!$zz_conf['html_autofocus']) return false;
-	$focus = [
-		'text', 'checkbox', 'radio', 'password', 'textarea', 'select', 'date',
-		'datetime', 'email', 'url', 'url+placeholder', 'time'
-	];
+	if (!$focus = wrap_setting('zzform_autofocus')) return false;
 	if (!empty($_GET['focus']) AND $_GET['focus'] !== $name) return false;
 	if (!in_array($type, $focus)) return false; 
 	return zz_record_focus();
