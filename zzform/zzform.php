@@ -615,8 +615,8 @@ function zz_defaults($zz) {
 function zz_initialize($mode = false, $old_conf = []) {
 	global $zz_conf;
 	global $zz_saved;
-	static $zzform_calls;
-	if (!isset($zzform_calls)) $zzform_calls = 0;
+	static $zzform_calls = 0;
+	static $zzform_init = false;
 
 	switch($mode) {
 	case 'form':
@@ -640,7 +640,7 @@ function zz_initialize($mode = false, $old_conf = []) {
 		return true;
 	}
 
-	if (!empty($zz_conf['zzform_init'])) {
+	if ($zzform_init) {
 		zz_error_exit(false);
 		zz_error_out(false);
 		// get clean $zz_conf without changes from different zzform calls or included scripts
@@ -690,7 +690,7 @@ function zz_initialize($mode = false, $old_conf = []) {
 	
 	zz_initialize_int();
 
-	$zz_conf['zzform_init'] = true;
+	$zzform_init = true;
 	$zz_saved['conf'] = $zz_conf;
 
 	if ($mode === 'form' AND $zzform_calls > 1 AND empty($zz_conf['multi'])) { 
