@@ -708,10 +708,11 @@ function zz_filter_defaults(&$zz) {
  * checks filter, gets selection, sets hierarchy values
  *
  * @param array $zz
- * @return void ($zz, 'hierarchy' will be changed if corresponding filter,
- *	'filter', might be changed)
+ * @param array $list
+ * @return void ($list, 'hierarchy' will be changed if corresponding filter,
+ *	$zz 'filter', might be changed)
  */
-function zz_apply_filter(&$zz) {
+function zz_apply_filter(&$zz, &$list) {
 	global $zz_conf;
 	if (!$zz['filter']) return $zz;
 
@@ -792,9 +793,8 @@ function zz_apply_filter(&$zz) {
 			$zz['filter_active'][$filter['identifier']], array_keys($filter['selection'])
 		);
 		if ($selection) {
-			if (!empty($zz['list']['hierarchy'])) {
-				$zz['list']['hierarchy']['id'] = $selection;
-			}
+			if ($list['hierarchy']['display_in'])
+				$list['hierarchy']['id'] = $selection;
 			// @todo if user searches something, the hierarchical view
 			// will be ignored and therefore this hierarchical filter does
 			// not work. think about a better solution.

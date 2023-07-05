@@ -32,23 +32,17 @@ function zz_list($zz, $ops, $zz_conditions) {
 	if (wrap_setting('zzform_search'))
 		require_once __DIR__.'/searchform.inc.php';
 
-	if (empty($zz['list'])) $zz['list'] = [];
-	if (!empty($ops['list'])) {
-		if (!empty($ops['list']['unchanged'])) {
-			$zz = wrap_array_merge($zz, $ops['list']['unchanged']);
-			unset($ops['list']['unchanged']);
-		}
-		$zz['list'] = wrap_array_merge($zz['list'], $ops['list']);
-		unset($ops['list']);
+	if (!empty($ops['list']['unchanged'])) {
+		$zz = wrap_array_merge($zz, $ops['list']['unchanged']);
+		unset($ops['list']['unchanged']);
 	}
+
+	$list = zz_init_cfg('zz[list]', $zz['list'], $ops['list']);
 
 	// Turn off hierarchical sorting when using search
 	// @todo: implement hierarchical view even when using search
-	if (!isset($zz['list']['hierarchy'])) {
-		$zz['list']['hierarchy'] = [];
-	} elseif (!empty($_GET['q']) AND wrap_setting('zzform_search') AND $zz['list']['hierarchy']) {
-		$zz['list']['hierarchy'] = [];
-	}
+	if (!empty($_GET['q']) AND wrap_setting('zzform_search'))
+		$list['hierarchy']['display_in'] = '';
 
 	// zz_fill_out must be outside if show_list, because it is necessary for
 	// search results with no resulting records
@@ -70,8 +64,8 @@ function zz_list($zz, $ops, $zz_conditions) {
 	$zz['sql_without_limit'] = $zz['sql'];
 
 	// Filters
-	// set 'selection', $zz['list']['hierarchy']
-	zz_apply_filter($zz);
+	// set 'selection', $list['hierarchy']
+	zz_apply_filter($zz, $list);
 	$ops['filter_titles'] = zz_output_filter_title($zz['filter'], $zz['filter_active']);
 
 	// modify SQL query depending on filter
@@ -81,23 +75,22 @@ function zz_list($zz, $ops, $zz_conditions) {
 	if ($old_sql !== $zz['sql']) $zz['sqlcount'] = '';
 	if (!$zz['sql']) return zz_return($ops);
 
-	list($lines, $ops['records_total']) = zz_list_query($zz);
+	list($lines, $ops['records_total']) = zz_list_query($zz, $list);
 	if (zz_error_exit()) return zz_return($ops);
 	$count_rows = count($lines);
 
-	if (empty($zz['list']['display']))
-		$zz['list']['display'] = 'table';
-	if ($count_rows < 8 AND $zz['list']['display'] === 'ul')
-		$zz['list']['no_add_above'] = true;
-	elseif ($count_rows < 4 AND $zz['list']['display'] === 'table')
-		$zz['list']['no_add_above'] = true;
-	$ops['output'] .= zz_output_add_export_links($zz, $ops, 'above');
+	if ($count_rows < 8 AND $list['display'] === 'ul')
+		$list['no_add_above'] = true;
+	elseif ($count_rows < 4 AND $list['display'] === 'table')
+		$list['no_add_above'] = true;
+	if (!$list['no_add_above'])
+		$ops['output'] .= zz_output_add_export_links($zz, $ops, 'above');
 	$ops['output'] .= zz_filter_selection($zz['filter'], $zz['filter_active'], 'top');
 
 	// don't show anything if there is nothing
 	if (!$count_rows) {
 		$zz_conf['int']['show_list'] = false;
-		if (empty($zz['list']['hide_empty_table']) AND $text = wrap_text('No entries available')) {
+		if (!$list['hide_empty_table'] AND $text = wrap_text('No entries available')) {
 			$ops['output'].= '<p class="emptytable">'.$text.'</p>';
 		}
 		if ($ops['mode'] === 'export') {
@@ -139,10 +132,11 @@ function zz_list($zz, $ops, $zz_conditions) {
 	if (wrap_setting('debug')) zz_debug('list definitions set');
 
 	if ($zz_conf['int']['show_list']) {
-		$list = zz_list_set($zz, count($lines));
+		$list = zz_list_set($list, $zz, count($lines));
+
 		if ($ops['mode'] === 'export') {
 			// no grouping in export files
-			$list['group'] = false;
+			$list['group'] = [];
 		}
 
 		// mark fields as 'show_field' corresponding to grouping
@@ -151,9 +145,8 @@ function zz_list($zz, $ops, $zz_conditions) {
 		list($rows, $list) = zz_list_data(
 			$list, $lines, $table_defs, $zz, $zz_conditions, $zz['table'], $ops['mode']
 		);
-		if (!empty($list['extra_cols'])) {
+		if ($list['extra_cols'])
 			$table_defs[0] += $list['extra_cols'];
-		}
 		unset($lines);
 
 		$head = zz_list_head($table_defs[0], $list['columns']);
@@ -161,12 +154,11 @@ function zz_list($zz, $ops, $zz_conditions) {
 	}
 
 	// merge common $zz settings for all records
-	if (!empty($zz_conf['modules']['conditions']) AND !empty($zz_conditions['bool'])) {
+	if (!empty($zz_conf['modules']['conditions']) AND !empty($zz_conditions['bool']))
 		zz_conditions_merge_conf($zz, $zz_conditions['bool'], 0);
-	}
-	if ($zz_conf['int']['show_list']) {
-		list($rows, $head) = zz_list_remove_empty_cols($rows, $head, $zz);
-	}
+
+	if ($zz_conf['int']['show_list'])
+		list($rows, $head) = zz_list_remove_empty_cols($rows, $head, $zz, $list);
 
 	//
 	// Export
@@ -218,32 +210,27 @@ function zz_list($zz, $ops, $zz_conditions) {
 			}
 			$ops['output'] .= sprintf('<form action="%s" method="POST" accept-charset="%s">'."\n",
 				$action_url, wrap_setting('character_set'));
-			$list['buttons'] = [];
-			if (!empty($zz['list']['multi_edit']))
+			if ($list['multi_edit'])
 				$list['buttons'][] = '<input type="submit" value="'.wrap_text('Edit').'" name="zz_multiple_edit">';
-			if (!empty($zz['list']['multi_delete']))
+			if ($list['multi_delete'])
 				$list['buttons'][] = '<input type="submit" value="'.wrap_text('Delete').'" name="zz_multiple_delete">';
 			if ($zz_conf['merge'])
 				$list['buttons'][] = '<input type="submit" value="'.wrap_text('Merge').'" name="zz_merge">';
-			if (!empty($zz['list']['multi_function'])) foreach ($zz['list']['multi_function'] as $index => $mfunction)
+			if ($list['multi_function']) foreach ($list['multi_function'] as $index => $mfunction)
 				$list['buttons'][] = '<input type="submit" value="'.wrap_text($mfunction['title']).'" name="zz_multifunction['.$index.']">';
 			if ($list['buttons']) {
 				$list['buttons'] = '<input type="hidden" name="zz_action" value="multiple">'.implode(' ', $list['buttons']);
-				$list['checkbox_all'] = '<input type="checkbox" onclick="zz_set_checkboxes(this.checked);">';
 			}
-		} else {
-			$list['buttons'] = '';
 		}
 	
-		if ($zz['list']['display'] === 'table') {
+		if ($list['display'] === 'table') {
 			$ops['output'] .= zz_list_table($list, $rows, $head);
-		} elseif ($zz['list']['display'] === 'ul') {
+		} elseif ($list['display'] === 'ul') {
 			$ops['output'] .= zz_list_ul($list, $rows);
 		}
 
-		if ($list['select_multiple_records']) {
+		if ($list['select_multiple_records'])
 			$ops['output'] .= '</form>'."\n";
-		}
 	}
 
 	//
@@ -452,40 +439,17 @@ function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $mode) {
 /**
  * set default values for $list with some data
  *
- * @param array $zz => $zz['list'] will be used as default
+ * @param array $list
+ * @param array $zz
  * @param int $count_rows (number of records)
  * @return array
- *		int 'current_record'
- *		array 'sum'
- *		array 'sum_group'
- *		bool 'modes'
- *		bool 'details'
- *		bool 'tfoot'
  */
-function zz_list_set($zz, $count_rows) {
+function zz_list_set($list, $zz, $count_rows) {
 	global $zz_conf;
 
-	$list = $zz['list'] ?? [];
-	// defaults, might be overwritten by $zz['list']
-	$list = array_merge([
-		'current_record' => NULL,
-		'sum' => [],
-		'sum_group' => [],
-		'modes' => false, // don't show a table head for link to modes until necessary
-		'details' => false, // don't show a table head for link to details until necessary
-		'tfoot' => false, // shows table foot, e. g. for sums of individual values
-		'group' => [],
-		'hierarchy' => ['display_in' => ''],
-		'select_multiple_records' => false,
-		'multi_edit' => false,
-		'multi_delete' => false,
-		'multi_function' => []
-	], $list);
-	
 	if ($list['multi_edit'] OR $list['multi_delete'] OR $zz_conf['merge'] OR $list['multi_function']) {
-		if ($count_rows > 1) {
+		if ($count_rows > 1)
 			$list['select_multiple_records'] = true;
-		}
 	}
 
 	// check 'group'
@@ -502,11 +466,8 @@ function zz_list_set($zz, $count_rows) {
 	}
 	
 	// @deprecated codeblock
-	// allow $list['group'] to be a string
-	if ($list['group']) {
-		if ($group_from_get) $list['group'] = $group_from_get;
-		if (!is_array($list['group'])) $list['group'] = [$list['group']];
-	}
+	if ($list['group'] AND $group_from_get)
+		$list['group'] = [$group_from_get];
 
 	// which order?
 	if (!empty($zz['sqlorder'])) {
@@ -648,12 +609,12 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 		} else {
 			$id = false;
 		}
-		if (!empty($list['dnd'])) {
-			if (!empty($list['dnd_id_field']) AND array_key_exists($list['dnd_id_field'], $line))
+		if ($list['dnd']) {
+			if ($list['dnd_id_field'] AND array_key_exists($list['dnd_id_field'], $line))
 				$rows[$z]['dnd_id'] = $line[$list['dnd_id_field']];
 			else
 				$rows[$z]['dnd_id'] = $rows[$z]['id_value'];
-			if (!empty($list['dnd_sequence_field']) AND array_key_exists($list['dnd_sequence_field'], $line))
+			if ($list['dnd_sequence_field'] AND array_key_exists($list['dnd_sequence_field'], $line))
 				$rows[$z]['sequence'] = $line[$list['dnd_sequence_field']];
 			else
 				$rows[$z]['sequence'] = $index;
@@ -670,7 +631,7 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 		if ($list['select_multiple_records'] AND in_array($list['display'], ['ul', 'table'])) {
 			// checkbox for records
 			$checked = false;
-			if (!empty($zz_conf['int']['id']['values']) AND empty($list['dont_check_records'])) {
+			if (!empty($zz_conf['int']['id']['values']) AND !$list['dont_check_records']) {
 				if (in_array($id, $zz_conf['int']['id']['values'])) $checked = true;
 			}
 			$rows[$z][-1]['text'] = sprintf(
@@ -1193,10 +1154,11 @@ function zz_list_filter_or($filter_value, $selections) {
  *		string 'sqlorder'
  * 		string 'table' name of database table ($zz['table'])
  * 		array 'fields' list of fields
+ * @param array $list
  * @global array $zz_conf
  * @return array (array $lines, int $total_rows)
  */
-function zz_list_query($zz) {
+function zz_list_query($zz, $list) {
 	global $zz_conf;
 
 	if (!isset($zz['sqlextra'])) $zz['sqlextra'] = [];
@@ -1212,11 +1174,11 @@ function zz_list_query($zz) {
 	// Alter SQL query if GET order (AND maybe GET dir) are set
 	$zz['sql'] = zz_sql_order($zz['fields'], $zz['sql']);
 
-	if (empty($zz['list']['hierarchy'])) {
+	if (!$list['hierarchy']['display_in']) {
 		zz_list_limit_last($total_rows);
 		return [zz_list_query_flat($zz), $total_rows];
 	} else {
-		return zz_list_query_hierarchy($zz);
+		return zz_list_query_hierarchy($zz, $list);
 	}
 }
 
@@ -1235,7 +1197,7 @@ function zz_list_query_flat($zz) {
 		// set a standard value for limit
 		// this standard value will only be used on rare occasions, when NO limit is set
 		// but someone tries to set a limit via URL-parameter
-		$limit = wrap_setting('zzform_limit') ? wrap_setting('zzform_limit') : 20;
+		$limit = wrap_setting('zzform_limit') ?? 20;
 		$zz['sql'] .= ' LIMIT '.($zz_conf['int']['this_limit'] - $limit).', '.$limit;
 	}
 
@@ -1278,15 +1240,16 @@ function zz_list_query_extras($lines, $extra_sqls) {
  * Query records for list view, flat mode
  *
  * @param array $zz
+ * @param array $list
  * @global array $zz_conf
  * @return array array $lines, $total_rows
  */
-function zz_list_query_hierarchy($zz) {
+function zz_list_query_hierarchy($zz, $list) {
 	global $zz_conf;
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
-	$zz['list']['hierarchy']['id_field_name'] = $zz_conf['int']['id']['field_name'];
-	list($my_lines, $total_rows) = zz_hierarchy($zz['sql'], $zz['list']['hierarchy']);
+	$list['hierarchy']['id_field_name'] = $zz_conf['int']['id']['field_name'];
+	list($my_lines, $total_rows) = zz_hierarchy($zz['sql'], $list['hierarchy']);
 	zz_list_limit_last($total_rows);
 	if ($zz_conf['int']['this_limit'] - wrap_setting('zzform_limit') >= $total_rows) {
 		wrap_static('page', 'status', 404);
@@ -1381,9 +1344,8 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode, $zz
 
 	//	if there's a link, glue parts together
 	$link = false;
-	if ($mode !== 'export' OR $list['display'] === 'kml') {
+	if ($mode !== 'export' OR $list['display'] === 'kml')
 		$link = zz_set_link($field, $line);
-	}
 
 	$mark_search_string = 'field_name';
 	$text = '';
@@ -2598,12 +2560,6 @@ function zz_field_class($field, $html = false) {
  * outputs data in table format
  *
  * @param array $list
- *		bool 'modes'
- *		bool 'details'
- *		string 'sum'
- *		string 'sum_group'
- *		array 'group_titles'
- *		int 'current_record'
  * @param array $rows
  * @param array $head
  * @return string
@@ -2643,7 +2599,8 @@ function zz_list_table($list, $rows, $head) {
 			$output .= '</tr>'."\n";
 		}
 		if ($list['buttons']) {
-			$output .= '<tr class="multiple"><td>'.$list['checkbox_all'].'</td>'
+			$output .= '<tr class="multiple"><td>'
+			.'<input type="checkbox" onclick="zz_set_checkboxes(this.checked);"></td>'
 			.'<td colspan="'.$columns.'"><em>'.wrap_text('Selection').':</em> '
 			.$list['buttons']
 			.'</td></tr>';
@@ -2717,9 +2674,10 @@ function zz_list_table($list, $rows, $head) {
  * @param array $rows
  * @param array $head
  * @param array $zz
+ * @param array $list
  * @return array
  */
-function zz_list_remove_empty_cols($rows, $head, $zz) {
+function zz_list_remove_empty_cols($rows, $head, $zz, $list) {
 	// Check for empty columns
 	$column_content = [];
 	$hidden_columns = [];
@@ -2734,7 +2692,7 @@ function zz_list_remove_empty_cols($rows, $head, $zz) {
 	// remove empty column head
 	$last_empty_cols = [];
 	foreach ($head as $no => $col) {
-		if (!empty($zz['list']['hide_columns_if_empty'])) $col['hide_in_list_if_empty'] = true;
+		if ($list['hide_columns_if_empty']) $col['hide_in_list_if_empty'] = true;
 		if (empty($column_content[$no]) AND !empty($col['hide_in_list_if_empty'])) {
 			if (empty($col['list_append_next'])) {
 				unset($head[$no]); // for zz_field_sum()
@@ -2767,10 +2725,6 @@ function zz_list_remove_empty_cols($rows, $head, $zz) {
  * outputs data in ul format
  *
  * @param array $list
- *		bool 'modes'
- *		bool 'details'
- *		array 'group_titles'
- *		int 'current_record'
  * @param array $rows
  * @global array $zz_conf
  * @return string
@@ -2797,9 +2751,9 @@ function zz_list_ul($list, $rows) {
 		if (!empty($list['dnd']))
 			$output .= ' draggable="true"';
 		$output .= ' class="'.($index & 1 ? 'uneven':'even')
-			.((isset($list['current_record']) AND $list['current_record'] == $index) ? ' current_record' : '')
+			.($list['current_record'] == $index ? ' current_record' : '')
 			.(($index + 1) === count($rows) ? ' last' : '').'"';
-		if (!empty($list['dnd'])) 
+		if ($list['dnd']) 
 			$output .= ' data-sequence="'.$row['sequence'].'" data-id="'.$row['dnd_id'].'"';
 		$output .= '>'; //onclick="Highlight();"
 		foreach ($row as $fieldindex => $field) {
@@ -2816,7 +2770,7 @@ function zz_list_ul($list, $rows) {
 	$output .= "</ul>\n";
 
 	if ($list['buttons']) {
-		$output .= '<p class="multiple">'.$list['checkbox_all']
+		$output .= '<p class="multiple"><input type="checkbox" onclick="zz_set_checkboxes(this.checked);">'
 		.' <em>'.wrap_text('Selection').':</em> '.$list['buttons'].'</p>';
 	}
 	$list['dnd_start'] = $zz_conf['int']['this_limit'] - wrap_setting('zzform_limit');

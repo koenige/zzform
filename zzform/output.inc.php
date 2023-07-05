@@ -612,9 +612,6 @@ function zz_output_add_export_links($zz, $ops, $position = 'below') {
 
 	$links = [];
 	switch ($position) {
-	case 'above':
-		if (!empty($zz['list']['no_add_above'])) return '';
-		break;
 	case 'below':
 		// only if list was shown beforehands
 		if (!$ops['records_total']) return '';
