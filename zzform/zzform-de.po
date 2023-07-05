@@ -1113,6 +1113,11 @@ msgstr "ausklappen"
 msgid "collapse"
 msgstr "zuklappen"
 
+# Checks
+#: zzform/zzform.php
+msgid "Merging of record is not allowed."
+msgstr "Das Zusammenführen von Einträgen ist nicht erlaubt."
+
 #: behaviour/zzform-foot.js
 msgid "Upload Failed"
 msgstr "Hochladen fehlgeschlagen"

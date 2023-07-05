@@ -1026,6 +1026,11 @@ msgstr ""
 msgid "collapse"
 msgstr ""
 
+# Checks
+#: zzform/zzform.php
+msgid "Merging of record is not allowed."
+msgstr ""
+
 #: behaviour/zzform-foot.js
 msgid "Upload Failed"
 msgstr ""

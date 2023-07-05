@@ -64,7 +64,7 @@ function zzform($zz) {
 	// import modules, set and get URI
 	zz_initialize('form');
 	zz_error();
-	if (!empty($_GET['merge'])) {
+	if (!empty($_GET['merge']) AND !empty($zz['list']['merge'])) {
 		$ops['output'] .= sprintf('<h2>%s</h2>',
 			wrap_text('%d records merged successfully', ['values' => substr($_GET['merge'], strrpos($_GET['merge'], '-') + 1)])
 		);
@@ -281,6 +281,9 @@ function zzform_record($zz, $ops, $zz_conditions) {
 		$ops = zz_output_page($ops, $zz);
 
 	if (isset($_POST['zz_merge'])) {
+		if (empty($zz['list']['merge'])) {
+			wrap_error(wrap_text('Merging of record is not allowed.'), E_USER_ERROR);
+
 		require_once __DIR__.'/merge.inc.php';
 		$merge = zz_merge_records($zz);
 		if ($merge['msg'])
@@ -681,7 +684,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	// stop if there were errors while adding modules
 	if (zz_error_exit()) zz_return(false);
 
-	$default['merge']				= false;
 	$default['multi'] 				= false;		// zzform_multi
 	$default['url_self']			= false;
 	
@@ -874,30 +876,19 @@ function zzform_deprecated(&$ops, &$zz) {
 		unset($zz_conf['footer_template']);
 		wrap_error('Use $zz[\'footer\'][\'template\'] instead of $zz_conf[\'footer_template\']', E_USER_DEPRECATED);
 	}
-	if (isset($zz_conf['no_add_above'])) {
-		$zz['list']['no_add_above'] = $zz_conf['no_add_above'];
-		unset($zz_conf['no_add_above']);
-		wrap_error('Use $zz[\'list\'][\'no_add_above\'] instead of $zz_conf[\'no_add_above\']', E_USER_DEPRECATED);
+	$to_list = [
+		'no_add_above', 'multi_function', 'multi_edit', 'multi_delete', 'merge'
+	];
+	foreach ($to_list as $key) {
+		if (!isset($zz_conf[$key])) continue;
+		$zz['list'][$key] = $zz_conf[$key];
+		unset($zz_conf[$key]);
+		wrap_error('Use $zz[\'list\'][\''.$key.'\'] instead of $zz_conf[\''.$key.'\']', E_USER_DEPRECATED);
 	}
 	if (isset($zz_conf['export'])) {
 		$zz['export'] = $zz_conf['export'];
 		unset($zz_conf['export']);
 		wrap_error('Use $zz[\'export\'] instead of $zz_conf[\'export\']', E_USER_DEPRECATED);
-	}
-	if (isset($zz_conf['multi_function'])) {
-		$zz['list']['multi_function'] = $zz_conf['multi_function'];
-		unset($zz_conf['multi_function']);
-		wrap_error('Use $zz[\'list\'][\'multi_function\'] instead of $zz_conf[\'multi_function\']', E_USER_DEPRECATED);
-	}
-	if (isset($zz_conf['multi_edit'])) {
-		$zz['list']['multi_edit'] = $zz_conf['multi_edit'];
-		unset($zz_conf['multi_edit']);
-		wrap_error('Use $zz[\'list\'][\'multi_edit\'] instead of $zz_conf[\'multi_edit\']', E_USER_DEPRECATED);
-	}
-	if (isset($zz_conf['multi_delete'])) {
-		$zz['list']['multi_delete'] = $zz_conf['multi_delete'];
-		unset($zz_conf['multi_delete']);
-		wrap_error('Use $zz[\'list\'][\'multi_delete\'] instead of $zz_conf[\'multi_delete\']', E_USER_DEPRECATED);
 	}
 	if (!empty($zz_conf['list_display'])) {
 		$zz['list']['display'] = $zz_conf['list_display'];

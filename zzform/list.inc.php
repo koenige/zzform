@@ -214,7 +214,7 @@ function zz_list($zz, $ops, $zz_conditions) {
 				$list['buttons'][] = '<input type="submit" value="'.wrap_text('Edit').'" name="zz_multiple_edit">';
 			if ($list['multi_delete'])
 				$list['buttons'][] = '<input type="submit" value="'.wrap_text('Delete').'" name="zz_multiple_delete">';
-			if ($zz_conf['merge'])
+			if ($list['merge'])
 				$list['buttons'][] = '<input type="submit" value="'.wrap_text('Merge').'" name="zz_merge">';
 			if ($list['multi_function']) foreach ($list['multi_function'] as $index => $mfunction)
 				$list['buttons'][] = '<input type="submit" value="'.wrap_text($mfunction['title']).'" name="zz_multifunction['.$index.']">';
@@ -447,7 +447,7 @@ function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $mode) {
 function zz_list_set($list, $zz, $count_rows) {
 	global $zz_conf;
 
-	if ($list['multi_edit'] OR $list['multi_delete'] OR $zz_conf['merge'] OR $list['multi_function']) {
+	if ($list['multi_edit'] OR $list['multi_delete'] OR $list['merge'] OR $list['multi_function']) {
 		if ($count_rows > 1)
 			$list['select_multiple_records'] = true;
 	}
@@ -599,7 +599,7 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 				if (in_array($id, $zz_conf['int']['id']['values'])) {
 					$list['current_records'][] = $z; 
 				}
-			} elseif (!empty($_GET['merge'])) {
+			} elseif (!empty($_GET['merge']) AND $list['merge']) {
 				if ($id === substr($_GET['merge'], 0, strpos($_GET['merge'], '-')))
 					$list['current_record'] = $z;
 			}
