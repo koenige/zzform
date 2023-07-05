@@ -558,7 +558,7 @@ function zz_init_cfg($key, $ext, $int = []) {
 		$value = zz_init_cfg_value($def, $ext[$key] ?? NULL, $int[$key] ?? NULL);
 		if (!$value AND !empty($def['no_auto_init'])) continue;
 		$new_settings = wrap_setting_key($key, $value);
-		$settings = wrap_array_merge($settings, $new_settings, true);
+		$settings = wrap_array_merge($settings, $new_settings, false);
 	}
 	return $settings;
 }
