@@ -1778,7 +1778,6 @@ function zz_record_access($zz, $ops) {
 		break;
 	case 'add_only';
 		$zz['record']['add'] = true;			// add record (form)
-		$zz_conf['add_link'] = false;			// add record (links)
 		$zz['record']['edit'] = false;			// don't edit record (form+links)
 		$zz['record']['delete'] = false;		// don't delete record (form+links)
 		$zz['record']['view'] = false;			// don't show record (links)
@@ -1840,11 +1839,6 @@ function zz_record_access($zz, $ops) {
 	// $zz['record'] is set regarding add, edit, delete
 	// don't copy record (form+links)
 	if (!$zz['record']['add']) $zz['record']['copy'] = false;
-
-	if (!isset($zz_conf['add_link'])) {
-		// Link Add new ...
-		$zz_conf['add_link'] = $zz['record']['add'] ? true : false;
-	}
 
 	// check unallowed modes and actions
 	$modes = ['add' => 'insert', 'edit' => 'update', 'delete' => 'delete'];

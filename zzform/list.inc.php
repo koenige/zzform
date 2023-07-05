@@ -646,9 +646,6 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 				if (!empty($zz_conf_record['if']) OR !empty($zz_conf_record['unless'])) {
 					zz_conditions_merge_conf($zz_conf_record, $zz_conditions['bool'], $line[$zz_conf['int']['id']['field_name']]);
 					$zz_conf_record = zz_listandrecord_access($zz_conf_record);
-					if (!isset($zz_conf_record['add_link']))
-						// Link Add new ...
-						$zz_conf_record['add_link'] = $zz_conf_record['add'] ? true : false; 
 					// $zz_conf is set regarding add, edit, delete
 					if (!$zz_conf_record['add']) $zz_conf_record['copy'] = false;	// don't copy record (form+links)
 				}
