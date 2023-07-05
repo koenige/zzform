@@ -37,7 +37,7 @@ function zz_list($zz, $ops, $zz_conditions) {
 		unset($ops['list']['unchanged']);
 	}
 
-	$list = zz_init_cfg('zz[list]', $zz['list'], $ops['list']);
+	$list = zz_init_cfg('zz[list]', $zz['list'] ?? [], $ops['list'] ?? []);
 
 	// Turn off hierarchical sorting when using search
 	// @todo: implement hierarchical view even when using search
