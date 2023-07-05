@@ -529,9 +529,6 @@ function zz_list_set($list, $zz, $count_rows) {
 	// do not use 'group_in_list' with $list['group']
 	if (!$list['group']) $list['group'] = $group;
 
-	// initialize internal group_field_no
-	$zz_conf['int']['group_field_no'] = [];
-
 	return $list;
 }
 
@@ -673,7 +670,7 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 				zz_debug('table_query before switch '.$fieldindex.'-'.$field['type']);
 			$my_row = isset($rows[$z][$fieldindex]) ? $rows[$z][$fieldindex] : [];
 			$rows[$z][$fieldindex] = zz_list_field(
-				$list, $my_row, $field, $line, $lastline, $table, $mode, $zz_conf_record
+				$list, $my_row, $field, $line, $lastline, $table, $mode
 			);
 			$list['columns'][$fieldindex] = true;
 
@@ -683,7 +680,7 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 			// group: go through everything but don't show it in list
 			// @todo check that it does not collide with append_next
 			if ($list['group']) {
-				$pos = array_search($fieldindex, $zz_conf['int']['group_field_no']);
+				$pos = array_search($fieldindex, $list['group_field_no']);
 				if ($pos !== false) {
 					unset($rows[$z][$fieldindex]);
 					$list['group_titles'][$z][$pos] = implode(' – ', $rows[$z]['group']);
@@ -773,18 +770,16 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
  * @param array $list
  * @param array $fields zzform definition for fields of this line
  * @param array $line = current database record
- * @global array $zz_conf
  * @return array ($group)
  */
 function zz_list_group_titles($list, $fields, $line) {
-	global $zz_conf;
 	$group = [];
 	if (!$list['group']) return $group;
 
 	$group_count = count($list['group']);
 	foreach ($fields as $no => $field) {
 	//	check for group function
-		$pos = array_search($no, $zz_conf['int']['group_field_no']);
+		$pos = array_search($no, $list['group_field_no']);
 		if ($pos === false) continue;
 		/*	
 			@todo: hierarchical grouping!
@@ -967,7 +962,6 @@ function zz_filter_selection($filter, $filter_active, $pos) {
  * @param string $sql
  * @param array $filter_active = $zz['filter_active']
  *		wrong filters may be unset
- * @global array $zz_conf
  * @return string $sql
  * @see zz_filter_defaults() for check for invalid filters
  */
@@ -1304,13 +1298,12 @@ function zz_list_query_hierarchy($zz, $list) {
  * @param array $line current record from database
  * @param array $lastline previous record from database
  * @param string $table
- * @param array $zz_conf_record
  * @return array $row
  *		string 'value'	= raw value in database, modified by factor/display if applicable
  *		array 'class'	= Array of class names for cell
  *		string 'text'	= HTML output for cell
  */
-function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode, $zz_conf_record) {
+function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 	static $append_field;
 	static $append_string_first;
 	static $append_prefix;
@@ -1597,15 +1590,14 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode, $zz
  * @param array $table_defs
  * @param int $z
  * @param array $sum (field_name => value)
- * @global array $zz_conf ($zz_conf['int']['group_field_no'])
+ * @param array $list
  * @return string HTML output of table foot
  */
-function zz_field_sum($table_defs, $z, $sum) {
-	global $zz_conf;
+function zz_field_sum($table_defs, $z, $sum, $list) {
 	$tfoot_line = '';
 	foreach ($table_defs as $index => $field) {
 		if (!$field['show_field']) continue;
-		if (in_array($index, $zz_conf['int']['group_field_no'])) continue;
+		if (in_array($index, $list['group_field_no'])) continue;
 		if ($field['type'] === 'id' && empty($field['show_id'])) {
 			$tfoot_line .= '<td class="recordid">'.$z.'</td>';
 		} elseif (!empty($field['sum'])) {
@@ -1625,9 +1617,7 @@ function zz_field_sum($table_defs, $z, $sum) {
 				$tfoot_line .= '&nbsp;'.$field['unit'];	
 			$tfoot_line .= '</td>';
 		} else {
-			$tfoot_line .= '<td'
-				.zz_field_class($field, true)
-				.'>&nbsp;</td>';
+			$tfoot_line .= '<td'.zz_field_class($field, true).'>&nbsp;</td>';
 		}
 	}
 	return $tfoot_line;
@@ -1796,22 +1786,17 @@ function zz_mark_search_string($value, $field_name = false, $field = []) {
  * @param array $list
  * @param array $field $zz['fields'][n]-field definition
  * @param int $index index 'n' of $zz['fields']
- * @global array $zz_conf
- *		string 'group', array 'int'['group_field_no'] (will be set to 'n') 
  * @return bool true/false if field will be shown (group: false, otherwise true)
  */
-function zz_list_group_field_no($list, $field, $index) {
-	global $zz_conf;
-	if (!isset($zz_conf['int']['group_field_no'])) 
-		$zz_conf['int']['group_field_no'] = [];
+function zz_list_group_field_no(&$list, $field, $index) {
 	$keys = ['display_field', 'field_name'];
 	// field_name will overwrite display_field!
 	foreach ($keys as $key) {
 		if (empty($field[$key])) continue;
 		$pos = array_search($field[$key], $list['group']);
 		if ($pos === false) continue;
-		$zz_conf['int']['group_field_no'][$pos] = $index;
-		ksort($zz_conf['int']['group_field_no']);
+		$list['group_field_no'][$pos] = $index;
+		ksort($list['group_field_no']);
 		return false;
 	}
 	return true;
@@ -1875,17 +1860,18 @@ function zz_list_group_sum($row_group, $sum_group, $field_title, $sum) {
  * @param array $rowgroup
  * @param array $main_table_query ($head from zz_list)
  * @param int $z
- * @param array $sum_group
+ * @param array $list
+ * @return string
  */
-function zz_list_group_foot($rowgroup, $main_table_query, $z, $sum_group) {
+function zz_list_group_foot($rowgroup, $main_table_query, $z, $list) {
 	$my_index = '';
 	foreach ($rowgroup as $my_group) {
 		if ($my_index) $my_index .= '['.$my_group.']';
 		else $my_index = $my_group;
 	}
-	if (empty($sum_group[$my_index])) return false;
+	if (empty($list['sum_group'][$my_index])) return false;
 	return '<tr class="group_sum">'
-		.zz_field_sum($main_table_query, $z, $sum_group[$my_index])
+		.zz_field_sum($main_table_query, $z, $list['sum_group'][$my_index], $list)
 		.'</tr>'."\n";
 }
 
@@ -1893,7 +1879,6 @@ function zz_list_group_foot($rowgroup, $main_table_query, $z, $sum_group) {
  * outputs number of records in list
  *
  * @param int $total_rows
- * @global array $zz_conf
  * @return string HTML code with text
  */
 function zz_list_total_records($total_rows) {
@@ -2456,7 +2441,7 @@ function zz_list_field_level($list, $field, $line) {
  * @global array $zz_conf
  * @return array $table_defs ('show_field' set for each field)
  */
-function zz_list_show_group_fields($table_defs, $list) {
+function zz_list_show_group_fields($table_defs, &$list) {
 	global $zz_conf;
 	if (!$zz_conf['int']['show_list']) return $table_defs;
 
@@ -2593,7 +2578,7 @@ function zz_list_table($list, $rows, $head) {
 		$output .= '<tfoot>'."\n";
 		if ($list['sum']) {
 			$output .= '<tr class="sum">';
-			$output .= zz_field_sum($head, count($rows), $list['sum']);
+			$output .= zz_field_sum($head, count($rows), $list['sum'], $list);
 			if ($list['modes'] OR $list['details'])
 				$output .= '<td class="editbutton">&nbsp;</td>';
 			$output .= '</tr>'."\n";
@@ -2617,7 +2602,7 @@ function zz_list_table($list, $rows, $head) {
 				$my_old_groups = $row['group'];
 				while ($my_groups) {
 					if ($list['tfoot'])
-						$output .= zz_list_group_foot($my_groups, $head, count($rows), $list['sum_group']);
+						$output .= zz_list_group_foot($my_groups, $head, count($rows), $list);
 					array_pop($my_groups);
 					array_pop($my_old_groups);
 					if ($my_groups == $my_old_groups) break;
@@ -2660,7 +2645,7 @@ function zz_list_table($list, $rows, $head) {
 	if ($list['tfoot'] AND $rowgroup) {
 		$my_groups = $rowgroup;
 		while ($my_groups) {
-			$output .= zz_list_group_foot($my_groups, $head, count($rows), $list['sum_group']);
+			$output .= zz_list_group_foot($my_groups, $head, count($rows), $list);
 			array_pop($my_groups);
 		}
 	}
