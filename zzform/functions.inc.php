@@ -3274,28 +3274,32 @@ function zz_check_select($my_rec, $f) {
 	if (is_string($my_rec['POST'][$field_name])
 		AND intval($my_rec['POST'][$field_name]).'' !== $my_rec['POST'][$field_name].'')
 		$my_rec['fields'][$f]['always_check_select'] = true;
+	$check_string = true;
 	if (empty($my_rec['fields'][$f]['always_check_select'])) {
 		// with zzform_multi(), no form exists, so check per default yes
 		// unless explicitly said not to check; with form its otherway round
-		$check = $zz_conf['multi'] ? true : false;
+		$check_string = $zz_conf['multi'] ? true : false;
 		if (in_array($field_name, $my_rec['check_select_fields'])) {
-			$check = !$check;
-			if ($check) {
+			$check_string = !$check_string;
+			if ($check_string) {
 				// do not check multiple times if zz_validate() is called more than once
 				$index = array_search($field_name, $my_rec['check_select_fields']);
 				unset($my_rec['check_select_fields'][$index]);
 			}
 		}
-		if (!$check) return $my_rec;
 	}
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
-
-	$my_rec['fields'][$f] = zz_check_select_id(
-		$my_rec['fields'][$f], $my_rec['POST'][$field_name], $my_rec['id']
-	);
-	$my_rec['fields'][$f]['sql_before'] = $my_rec['fields'][$f]['sql'];
-	$possible_values = $my_rec['fields'][$f]['possible_values'];
-
+	
+	if ($check_string) {
+		$my_rec['fields'][$f] = zz_check_select_id(
+			$my_rec['fields'][$f], $my_rec['POST'][$field_name], $my_rec['id']
+		);
+		$my_rec['fields'][$f]['sql_before'] = $my_rec['fields'][$f]['sql'];
+		$possible_values = $my_rec['fields'][$f]['possible_values'];
+	} else {
+		$possible_values = [$my_rec['POST'][$field_name]];
+	}
+	
 	$error = false;
 	if (!count($possible_values)) {
 		// no records, user must re-enter values
@@ -3311,12 +3315,23 @@ function zz_check_select($my_rec, $f) {
 		$my_rec['POST'][$field_name] = current($possible_values);
 		$my_rec['POST-notvalid'][$field_name] = current($possible_values);
 		// if other fields contain errors:
-		$my_rec['fields'][$f]['sql'] = $my_rec['fields'][$f]['sql_new'];
+		if (!empty($my_rec['fields'][$f]['sql_new']))
+			$my_rec['fields'][$f]['sql'] = $my_rec['fields'][$f]['sql_new'];
 		if (!empty($my_rec['fields'][$f]['disabled_ids'])
 			AND in_array($my_rec['POST'][$field_name], $my_rec['fields'][$f]['disabled_ids'])) {
 			$my_rec['validation'] = false;
 			$my_rec['fields'][$f]['check_validation'] = false;
 			$my_rec['fields'][$f]['suffix'] = ' '.wrap_text('Please make a different selection.');
+		} else {
+			$sql = wrap_edit_sql($my_rec['fields'][$f]['sql'], 'WHERE', sprintf(
+				'%s = %d', $my_rec['fields'][$f]['key_field_name'] ?? $my_rec['fields'][$f]['field_name'], $my_rec['POST'][$field_name]
+			));
+			$exists = wrap_db_fetch($sql, '', 'single value');
+			if (!$exists) {
+				$my_rec['validation'] = false;
+				$my_rec['fields'][$f]['check_validation'] = false;
+				$my_rec['fields'][$f]['suffix'] = ' '.wrap_text('Please make a different selection.');
+			}
 		}
 	} elseif (count($possible_values) <= $my_rec['fields'][$f]['max_select']) {
 		// let user reselect value from dropdown select
