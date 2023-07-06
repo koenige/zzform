@@ -1117,10 +1117,10 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 		}
 
 		// settings depending on field type
-		switch ($fields[$no]['type']) {
+		$type = $fields[$no]['type_detail'] ?? $fields[$no]['type'];
+		switch ($type) {
 		case 'write_once':
-			if (empty($fields[$no]['type_detail']))
-				$fields[$no]['type_detail'] = 'text';
+			$fields[$no]['type_detail'] = 'text';
 			break;
 		case 'id':
 			// set dont_sort as a default for ID columns
@@ -1190,18 +1190,23 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 		case 'upload_image':
 			$fields[$no]['upload_max_filesize'] = zz_upload_max_filesize($fields[$no]['upload_max_filesize'] ?? 0);
 			break;
-		}
-		if ($fields[$no]['type'] === 'select'
-			OR !empty($fields[$no]['type_detail']) AND $fields[$no]['type_detail'] === 'select') {
+		case 'select':
 			if (!isset($fields[$no]['max_select']))
 				$fields[$no]['max_select'] = wrap_setting('zzform_max_select');
 			if (!isset($fields[$no]['max_select_val_len']))
 				$fields[$no]['max_select_val_len'] = wrap_setting('zzform_max_select_val_len');
-		}
-		if (in_array(zz_get_fieldtype($fields[$no]), ['time', 'datetime'])) {
-			if (empty($fields[$no]['time_format'])) {
-				$fields[$no]['time_format'] = 'H:i';
+			if (!isset($fields[$no]['key_field_name']) AND str_ends_with($fields[$no]['field_name'], '_id')
+				AND substr_count($fields[$no]['field_name'], '_') > 1) {
+				$pos = strrpos(substr($fields[$no]['field_name'], 0, -3), '_') + 1;
+				$fields[$no]['key_field_name'] = substr($fields[$no]['field_name'], $pos);
 			}
+				
+			break;
+		case 'time':
+		case 'datetime':
+			if (empty($fields[$no]['time_format']))
+				$fields[$no]['time_format'] = 'H:i';
+			break;
 		}
 
 		if (in_array($mode, ['add', 'edit', 'revise']) OR in_array($action, ['insert', 'update'])) {
