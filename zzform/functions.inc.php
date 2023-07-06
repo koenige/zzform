@@ -3323,6 +3323,8 @@ function zz_check_select($my_rec, $f) {
 			$my_rec['validation'] = false;
 			$my_rec['fields'][$f]['check_validation'] = false;
 			$my_rec['fields'][$f]['suffix'] = ' '.wrap_text('Please make a different selection.');
+			if (!empty($my_rec['fields'][$f]['disabled_ids_error_msg']))
+				$my_rec['fields'][$f]['suffix'] .= ' '.wrap_text($my_rec['fields'][$f]['disabled_ids_error_msg']);
 		} elseif (!$check_string) {
 			$sql = wrap_edit_sql($my_rec['fields'][$f]['sql'], 'WHERE', sprintf(
 				'%s = %d', $my_rec['fields'][$f]['key_field_name'] ?? $my_rec['fields'][$f]['field_name'], $my_rec['POST'][$field_name]
