@@ -121,7 +121,7 @@ function zz_list($zz, $ops, $zz_conditions) {
 	// add 0 as a dummy record for which no conditions will be set
 	// reindex $linex from 1 ... n
 	array_unshift($lines, '0');
-	list($zz['fields'], $lines) = zz_list_inline($zz['fields'], $lines);
+	list($zz['fields'], $lines) = zz_list_inline($zz['fields'], $lines, $ops['mode']);
 	if ($zz_conf['int']['show_list']) {
 		list($table_defs, $zz['fields']) = zz_list_defs(
 			$lines, $zz_conditions, $zz['fields'], $zz['table'], $ops['mode']
@@ -261,9 +261,11 @@ function zz_list($zz, $ops, $zz_conditions) {
  * only works if subtable has a maximum of 1 detail records
  *
  * @param array $fields
+ * @param array $lines
+ * @param string $mode
  * @return array $fields
  */
-function zz_list_inline($fields, $lines) {
+function zz_list_inline($fields, $lines, $mode) {
 	// hide subtable first, array_splice renumbers numerical indices
 	foreach ($fields as $no => $field) {
 		if (empty($field['type'])) continue;
@@ -287,6 +289,7 @@ function zz_list_inline($fields, $lines) {
 			if ($subfield['type'] === 'foreign_key')
 				$foreign_key = !empty($subfield['key_field_name']) ? $subfield['key_field_name'] : $subfield['field_name'];
 			if (in_array($subfield['type'], ['foreign_key', 'timestamp', 'subtable'])) continue;
+			if ($mode !== 'export' AND $subfield['type'] === 'id') continue;
 			$fn = !empty($subfield['display_field']) ? $subfield['display_field'] : $subfield['field_name'];
 			$subfield['row_value'] = $field['table_name'].'.'.$fn;
 			if (!empty($subfield['list_abbr'])) {
@@ -309,6 +312,7 @@ function zz_list_inline($fields, $lines) {
 		$additional_data = wrap_db_fetch($sql, $foreign_key);
 		foreach ($field['fields'] as $subno => $subfield) {
 			if (in_array($subfield['type'], ['foreign_key', 'timestamp', 'option', 'subtable'])) continue;
+			if ($mode !== 'export' AND $subfield['type'] === 'id') continue;
 			$fn = $subfield['display_field'] ?? $subfield['field_name'];
 			$fn_key = $field['table_name'].'.'.$fn;
 			$list_abbr = $subfield['list_abbr_source'] ?? '';
