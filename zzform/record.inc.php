@@ -683,8 +683,10 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 			$sub_tab = $field['subtable'];
 			// don't print out anything if record is empty
 			if (array_key_exists(0, $zz_tab[$sub_tab])) {
-				$fields = $zz_tab[$sub_tab][0]['fields'];
-				$out['td']['content'] .= zz_field_set($field, $fields, $field_display, $zz_tab[$sub_tab]);
+				$out['td']['content'] .= zz_field_set($field, $field_display, $zz_tab[$sub_tab]);
+				// check for errors
+				if (zz_record_subtable_error($zz_tab[$sub_tab]))
+					$out['tr']['attr'][] = 'error'; 
 			}
 		} elseif (in_array($field['type'], ['subtable', 'foreign_table'])) {
 			$integrate_in_next = !empty($field['integrate_in_next']) ? true : false;
@@ -2478,24 +2480,23 @@ function zz_field_memo($field, $display, $record) {
  * record output of field type 'set', but as a subtable
  *
  * @param array $subtable $zz field definition of subtable
- * @param array $fields
  * @param string $display
  * @param array $my_tab
  * @return string
  */
-function zz_field_set($subtable, $fields, $display, $my_tab) {
+function zz_field_set($subtable, $display, $my_tab) {
 	global $zz_conf;
 
 	// get select field
-	$this_field = [];
+	$field = [];
 	$field_names = [];
-	foreach ($fields as $index => $my_field) {
+	foreach ($my_tab[0]['fields'] as $index => $my_field) {
 		$field_names[$my_field['type']] = $my_field['field_name'];
 		if ($my_field['type'] !== 'select') continue;
-		$this_field = $my_field;
+		$field = $my_field;
 		break;
 	}
-	if (!$this_field) {
+	if (!$field) {
 		zz_error_log([
 			'msg_dev' => 'For a subtable with a form_display = `set`, there needs to be a field with a field type `select`.',
 			'level' => E_USER_ERROR
@@ -2504,23 +2505,23 @@ function zz_field_set($subtable, $fields, $display, $my_tab) {
 		return;
 	}
 
-	$sets = zz_field_query($this_field);
+	$sets = zz_field_query($field);
 	foreach ($sets as $index => $line)
-		$sets[$index] = zz_field_select_ignore($line, $this_field, 'sql');
+		$sets[$index] = zz_field_select_ignore($line, $field, 'sql');
 
-	if (!empty($this_field['show_hierarchy_subtree'])) {
+	if (!empty($field['show_hierarchy_subtree'])) {
 		foreach ($sets as $index => $set) {
-			if ($set[$this_field['show_hierarchy']] === $this_field['show_hierarchy_subtree']) continue;
+			if ($set[$field['show_hierarchy']] === $field['show_hierarchy_subtree']) continue;
 			unset($sets[$index]);
 		}
 	}
-	if (!empty($this_field['show_hierarchy'])) {
+	if (!empty($field['show_hierarchy'])) {
 		foreach ($sets as $index => $set) {
-			unset($sets[$index][$this_field['show_hierarchy']]);
+			unset($sets[$index][$field['show_hierarchy']]);
 		}
 	}
-	$sets = zz_translate($this_field, $sets);
-	$group = $this_field['group'] ?? false;
+	$sets = zz_translate($field, $sets);
+	$group = $field['group'] ?? false;
 
 	$exemplary_set = reset($sets);
 	$set_id_field_name = '';
@@ -2533,15 +2534,15 @@ function zz_field_set($subtable, $fields, $display, $my_tab) {
 		$title = [];
 		foreach ($set_field_names as $set_field_name) {
 			if (!$set[$set_field_name]) continue;
-			if (!empty($this_field['sql_replace'][$set_id_field_name]) 
-				AND $set_field_name === $this_field['sql_replace'][$set_id_field_name]) continue;
+			if (!empty($field['sql_replace'][$set_id_field_name]) 
+				AND $set_field_name === $field['sql_replace'][$set_id_field_name]) continue;
 			$title[] = $set[$set_field_name];
 		}
-		if (!empty($this_field['sql_replace'][$set_id_field_name]))
-			$sets_indexed[$set[$set_id_field_name]]['id'] = $set[$this_field['sql_replace'][$set_id_field_name]];
+		if (!empty($field['sql_replace'][$set_id_field_name]))
+			$sets_indexed[$set[$set_id_field_name]]['id'] = $set[$field['sql_replace'][$set_id_field_name]];
 		else
 			$sets_indexed[$set[$set_id_field_name]]['id'] = $set[$set_id_field_name];
-		$sets_indexed[$set[$set_id_field_name]]['title'] = zz_field_concat($this_field, $title);
+		$sets_indexed[$set[$set_id_field_name]]['title'] = zz_field_concat($field, $title);
 		if ($group) $sets_indexed[$set[$set_id_field_name]]['group'] = $set[$group];
 	}
 	$rec_max = 0;
@@ -2549,7 +2550,7 @@ function zz_field_set($subtable, $fields, $display, $my_tab) {
 		if (!is_numeric($rec_no)) continue;
 		if (!empty($rec['record'])) {
 			$rec = $rec['record'];
-			if (!empty($this_field['sql_replace'][$set_id_field_name])) {
+			if (!empty($field['sql_replace'][$set_id_field_name])) {
 				foreach ($sets_indexed as $id => $set_indexed) {
 					if ($set_indexed['id'] !== $rec[$field_names['select']]) continue;
 					$sets_indexed[$id]['rec_id'] = $rec[$field_names['id']];
@@ -4154,4 +4155,19 @@ function zz_field_dependent_fields($field, $lines) {
 			$fieldattr['data-dependent_field_'.$field_no] = implode(',', $fieldattr['data-dependent_field_'.$field_no]);
 	}
 	return $fieldattr;
+}
+
+/**
+ * check if there is an error inside a subtable
+ *
+ * @param array $my_tab
+ * @return bool
+ */
+function zz_record_subtable_error($my_tab) {
+	foreach ($my_tab as $rec_no => $rec) {
+		if (!is_numeric($rec_no)) continue;
+		foreach ($rec['fields'] as $no => $field)
+			if (in_array('error', $field['class'])) return true;
+	}
+	return false;
 }
