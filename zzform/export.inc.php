@@ -182,14 +182,16 @@ function zz_export($ops, $zz) {
 	case 'csv-excel':
 		// sort head, rows
 		zz_export_sort($ops['output']);
-		$output = '';
-		$output .= zz_export_csv_head($ops['output']['head']);
-		$output .= zz_export_csv_body($ops['output']['rows'], $zz['list']['display']);
 		if ($zz['list']['display'] === 'csv-excel') {
 			// Excel requires
 			// - tabulator when opening via double-click and Unicode text
 			// - semicolon when opening via double-click and ANSI text
 			wrap_setting('export_csv_delimiter', "\t");
+		}
+		$output = '';
+		$output .= zz_export_csv_head($ops['output']['head']);
+		$output .= zz_export_csv_body($ops['output']['rows'], $zz['list']['display']);
+		if ($zz['list']['display'] === 'csv-excel') {
 			$headers['character_set'] = 'utf-16le';
 			// @todo check with mb_list_encodings() if available
 			$output = mb_convert_encoding($output, 'UTF-16LE', wrap_setting('character_set'));
