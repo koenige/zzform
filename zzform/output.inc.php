@@ -558,7 +558,7 @@ function zz_print_multiarray($array, $parent_key = '') {
  * formats an enum field
  *
  * @param array $field
- *		enum_abbr, set_abbr, enum_title, set_title, ...
+ *		enum_abbr, set_abbr, enum_title, set_title, …
  * @param string $value
  * @param string $type 'full', 'abbr'
  * @param string $key (optional)
@@ -772,8 +772,12 @@ function zz_init_limit($zz = []) {
  */
 function zz_cut_length($string, $max_length) {
 	if (mb_strlen($string) <= $max_length) return $string;
+	// remove HTML formatting, multilines, might break when cut
+	$string = strip_tags($string);
+	$string = str_replace("\n", " ", $string);
+	if (mb_strlen($string) <= $max_length) return $string;
 	// cut long values
-	$string = mb_substr($string, 0, $max_length).'...';
+	$string = mb_substr($string, 0, $max_length).'…';
 	return $string;
 }
 
@@ -922,7 +926,7 @@ function zz_date_format($date) {
 		// DATETIME YYYY-MM-DD HH:ii:ss
 		$date = $match[1]; // ignore time, it's a date function
 	} elseif (preg_match("/^([0-9]{4})([0-9]{2})([0-9]{2})[0-2][0-9][0-5][0-9][0-5][0-9]$/", $date, $match)){
-		// YYYYMMDD ...
+		// YYYYMMDD …
 		$date = $match[1].'-'.$match[2].'-'.$match[3]; // ignore time, it's a date function
 	} elseif (!preg_match("/^[0-9-]+$/", $date)) {
 		return $date; #wenn kein richtiges datum, einfach datum zurueckgeben.
