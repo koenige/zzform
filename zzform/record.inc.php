@@ -87,8 +87,6 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 			wrap_setting_add('extra_http_headers', 'X-Frame-Options: Deny');
 			wrap_setting_add('extra_http_headers', "Content-Security-Policy: frame-ancestors 'self'");
 		}
-		if (!empty($zz_conf['form_anchor']))
-			$record['form_anchor'] = $zz_conf['form_anchor'];
 		$record['upload'] = !empty($record['upload_form']) ? true : false;
 		if (!empty($ops['form'])) $record['hook_output'] = $ops['form'];
 	} else {
