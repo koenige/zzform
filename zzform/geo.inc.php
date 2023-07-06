@@ -31,6 +31,7 @@ function zz_geo_coord_in($value, $orientation = 'lat', $precision = 0) {
 	$my['value'] = '';
 	$my['error'] = '';
 	if (is_null($value)) return $my;
+	if ($value === '') return $my;
 
 	// set possible values for hemisphere
 	$hemispheres = [
