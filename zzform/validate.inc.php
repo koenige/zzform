@@ -224,7 +224,7 @@ function zz_is_url($url) {
 
 	$tested_parts = ['scheme', 'host', 'port', 'user', 'pass', 'path', 'query'];
 	foreach ($tested_parts as $key) {
-		$part = !empty($parts[$key]) ? $parts[$key] : '';
+		$part = $parts[$key] ?? '';
 		switch ($key) {
 		case 'scheme':
 			if (!$part) return false;

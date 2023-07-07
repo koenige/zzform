@@ -351,11 +351,7 @@ function zz_export_kml_description($head, $line, $fields) {
 	foreach ($line as $no => $values) {
 		if (!is_numeric($no)) continue;
 		if (empty($values['text'])) continue;
-		if (!empty($head[$no]['title_kml'])) {
-			$title = $head[$no]['title_kml'];
-		} else {
-			$title = $head[$no]['th_nohtml'];
-		}
+		$title = $head[$no]['title_kml'] ?? $head[$no]['th_nohtml'];
 		if (wrap_setting('character_set') !== 'utf-8')
 			$title = mb_convert_encoding($title, 'UTF-8', wrap_setting('character_set'));
 		$desc[] = '<tr><th>'.$title.'</th><td>'.$values['text'].'</td></tr>';

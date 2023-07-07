@@ -648,7 +648,7 @@ function zz_initialize($mode = false, $old_conf = []) {
 		zz_error_out(false);
 		// get clean $zz_conf without changes from different zzform calls or included scripts
 		if ($mode === 'overwrite') {
-			if (!empty($zzform_calls) AND $zzform_calls === 1) {
+			if ($zzform_calls === 1) {
 				// zzform was called first (zzform_calls >= 1), zzform_multi() inside
 				$zz_saved['old_conf'] = $zz_conf;
 			}

@@ -1183,7 +1183,7 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 		if (!empty($field['display_only'])) continue;
 		if (!empty($field['input_only'])) continue;
 
-		$field_name = (!empty($field['field_name']) ? $field['field_name'] : '');
+		$field_name = $field['field_name'] ?? '';
 	// text: convert encoding for some field types
 		if (in_array($field['type'], ['text', 'memo'])) {
 			$my_rec['POST'][$field_name]
@@ -1325,16 +1325,13 @@ function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
 	// set information on successful record operation
 	$ops[$type][$index] = [
 		'table' => $zz_tab[$tab]['table'],
-		'table_name' => !empty($zz_tab[$tab]['table_name']) ? $zz_tab[$tab]['table_name'] : $zz_tab[$tab]['table'],
+		'table_name' => $zz_tab[$tab]['table_name'] ?? $zz_tab[$tab]['table'],
 		'id_field_name' => $zz_tab[$tab][$rec]['id']['field_name'], 
 		'id_value' => $zz_tab[$tab][$rec]['id']['value'],
-		'action' => !empty($zz_tab[$tab][$rec]['actual_action']) 
-			? $zz_tab[$tab][$rec]['actual_action'] : $zz_tab[$tab][$rec]['action'],
+		'action' => $zz_tab[$tab][$rec]['actual_action'] ?? $zz_tab[$tab][$rec]['action'],
 		'tab-rec' => $tab.'-'.$rec,
-		'error' => !empty($zz_tab[$tab][$rec]['error'])
-			? $zz_tab[$tab][$rec]['error'] : false,
-		'change_info' => !empty($zz_tab[$tab][$rec]['change_info'])
-			? $zz_tab[$tab][$rec]['change_info'] : false
+		'error' => $zz_tab[$tab][$rec]['error'] ?? false,
+		'change_info' => $zz_tab[$tab][$rec]['change_info'] ?? false
 	];
 	if ($type === 'return' AND $index === 0) {
 		// shortcut for ID
@@ -1689,11 +1686,7 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 				foreach ($field['fields'] as $var) {
 					if (strstr($var, '.')) {
 						$vars = explode('.', $var);
-						if (!empty($my_rec['POST'][$vars[0]][0][$vars[1]])) {
-							$func_vars[$var] = $my_rec['POST'][$vars[0]][0][$vars[1]];
-						} else {
-							$func_vars[$var] = '';
-						}
+						$func_vars[$var] = $my_rec['POST'][$vars[0]][0][$vars[1]] ?? '';
 					} else {
 						$func_vars[$var] = $my_rec['POST'][$var] ?? '';
 					}
@@ -2777,10 +2770,8 @@ function zz_sequence_normalize($ops, $zz_tab) {
 		if (!in_array($table['tab-rec'], array_keys($fields))) continue;
 		$my_field = $fields[$table['tab-rec']];
 		if ($ops['record_diff'][$index][$my_field['field_name']] === 'same') continue;
-		$new_value = !empty($ops['record_new'][$index][$my_field['field_name']])
-			? $ops['record_new'][$index][$my_field['field_name']] : false;
-		$old_value = !empty($ops['record_old'][$index][$my_field['field_name']])
-			? $ops['record_old'][$index][$my_field['field_name']] : false;
+		$new_value = $ops['record_new'][$index][$my_field['field_name']] ?? false;
+		$old_value = $ops['record_old'][$index][$my_field['field_name']] ?? false;
 		list($tab, $rec) = explode('-', $table['tab-rec']);
 		$sql = $zz_tab[$tab]['sql'];
 		if (!empty($my_field['sql']['join'])) {

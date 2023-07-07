@@ -717,13 +717,8 @@ function zz_db_columns($db_table, $field = false) {
 			$columns[$db_table][$index]['max_int_value'] = $max_integers[$fieldtype[1].'_'.$fieldtype[2]];
 		}
 	}
-	if ($field) {
-		if (!empty($columns[$db_table][$field])) {
-			return $columns[$db_table][$field];
-		} else {
-			return [];
-		}
-	}
+	if ($field)
+		return $columns[$db_table][$field] ?? [];
 	return $columns[$db_table];
 }
 

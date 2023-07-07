@@ -24,7 +24,7 @@
  */
 function zz_revisions($ops, $zz_tab = [], $rev_only = false) {
 	global $zz_conf;
-	$user_id = !empty($_SESSION['user_id']) ? $_SESSION['user_id'] : 'NULL';
+	$user_id = $_SESSION['user_id'] ?? 'NULL';
 
 	$data = [];
 	foreach ($ops['return'] as $index => $table) {

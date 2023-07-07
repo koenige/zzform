@@ -198,7 +198,7 @@ function zz_upload_get_fields($zz_tab) {
 			if (!is_int($tab) OR !is_int($rec)) continue;
 			foreach ($zz_tab[$tab][$rec]['fields'] as $f => $field) {
 				if ($field['type'] != 'upload_image') continue;
-				$key = !empty($zz_tab[$tab]['no']) ? $zz_tab[$tab]['no'] : $f;
+				$key = $zz_tab[$tab]['no'] ?? $f;
 				$upload_fields[] = [
 					'tab' => $tab, 
 					'rec' => $rec,
@@ -252,10 +252,7 @@ function zz_upload_check_files($zz_tab) {
 		}
 		$field['f_field_name'] = zz_make_id_fieldname($field['f_field_name']);
 
-		$myfiles = [];
-		if (!empty($_FILES[$field['f_field_name']])) {
-			$myfiles = $_FILES[$field['f_field_name']];
-		}
+		$myfiles = $_FILES[$field['f_field_name']] ?? [];
 		foreach (array_keys($field['image']) as $img) {
 			$images[$no][$img] = $field['image'][$img];
 			$images[$no][$img]['optional_image'] = isset($field['optional_image'])
@@ -300,7 +297,7 @@ function zz_upload_check_files($zz_tab) {
 			// we need at least a tmp_name from somewhere pointing to a file
 			// might be '' (file upload with no file)
 			if (!isset($myfiles['tmp_name'][$field_name])) {
-				$myfiles['tmp_name'][$field_name] = '';
+				$myfiles['tmp_name'][$field_name] = NULL;
 				$myfiles['name'][$field_name] = '';
 				$myfiles['type'][$field_name] = '';
 				$myfiles['size'][$field_name] = 0;
@@ -351,12 +348,8 @@ function zz_upload_check_files($zz_tab) {
 			$images[$no][$img]['upload']['tmp_name'] = $myfilename;
 			$myfilename = false;
 			
-			if (!empty($myfiles['error'][$field_name])) {
-				$images[$no][$img]['upload']['error'] = $myfiles['error'][$field_name];
-			} else {
-				// zzform_multi()
-				$images[$no][$img]['upload']['error'] = UPLOAD_ERR_OK;
-			}
+			// not set in zzform_multi()
+			$images[$no][$img]['upload']['error'] = $myfiles['error'][$field_name] ?? UPLOAD_ERR_OK;
 			if (!isset($myfiles['size'][$field_name])) {
 				$myfiles['size'][$field_name] = filesize($images[$no][$img]['upload']['tmp_name']);
 			}
@@ -376,7 +369,7 @@ function zz_upload_check_files($zz_tab) {
 					// get rid of max 3 byte large file
 					zz_unlink_cleanup($images[$no][$img]['upload']['tmp_name']);
 				}
-				$images[$no][$img]['upload']['tmp_name'] = false;
+				$images[$no][$img]['upload']['tmp_name'] = NULL;
 				$images[$no][$img]['upload']['type'] = false;
 				$images[$no][$img]['upload']['name'] = false;
 			} else {
@@ -387,7 +380,7 @@ function zz_upload_check_files($zz_tab) {
 				$images[$no][$img]['upload']['error'] = UPLOAD_ERR_FORM_SIZE;
 				if (file_exists($images[$no][$img]['upload']['tmp_name']))
 					zz_unlink_cleanup($images[$no][$img]['upload']['tmp_name']);
-				$images[$no][$img]['upload']['tmp_name'] = false;
+				$images[$no][$img]['upload']['tmp_name'] = NULL;
 			}
 			
 			switch ($images[$no][$img]['upload']['error']) {
@@ -508,7 +501,7 @@ function zz_upload_fileinfo($file, $extension = false) {
 
 	$file['validated'] = false;
 	$file['filetype'] = 'unknown';
-	$file['mime'] = !empty($file['type']) ? $file['type'] : '';
+	$file['mime'] = $file['type'] ?? '';
 	// check if there is a file
 	if (empty($file['tmp_name'])) return $file;
 	// rewrite some misspelled and misset filetypes
@@ -546,7 +539,7 @@ function zz_upload_fileinfo($file, $extension = false) {
 		}
 		if (wrap_setting('debug')) {
 			$function_name = substr($function_name, strpos('_', $function_name));
-			$type = !empty($file['filetype_file']) ? $file['filetype_file'] : $file['filetype'];
+			$type = $file['filetype_file'] ?? $file['filetype'];
 			zz_debug($function_name."()", $type.': '.json_encode($file));
 		}
 	}
@@ -1286,7 +1279,7 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 	} elseif ($tn === -1) {
 		// an error occured
 		$image['no_file_upload'] = true;
-		$image['files']['tmp_file'] = false; // do not upload anything
+		$image['files']['tmp_file'] = NULL; // do not upload anything
 		// @todo mark existing image for deletion if there is one!							
 		$image['delete_thumbnail'] = true;
 
@@ -1305,7 +1298,7 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 		// thumbnail could have been created, but was not, probably
 		// because it is impossible to create one (due to filetype) or there was
 		// some error
-		$image['files']['tmp_file'] = false;
+		$image['files']['tmp_file'] = NULL;
 	}
 
 	return $image;
@@ -2109,8 +2102,7 @@ function zz_upload_action($zz_tab) {
 			}
 
 		//	check if some file was uploaded
-			$uploaded_file = !empty($image['files']['tmp_file'])
-				? $image['files']['tmp_file'] : '';
+			$uploaded_file = $image['files']['tmp_file'] ?? '';
 
 		//	update, only if we have an old record (might sometimes not be the case!)
 			$old_path = ''; // initialize here, will be used later with delete_thumbnail
@@ -2407,7 +2399,7 @@ function zz_upload_cleanup($zz_tab, $validated = true) {
 function zz_image_auto_size($image) {
 	//	basics
 	// tolerance in px
-	$tolerance = !empty($image['auto_size_tolerance']) ? $image['auto_size_tolerance'] : 15; 
+	$tolerance = $image['auto_size_tolerance'] ?? 15; 
 	$width = $image['upload']['width'];
 	$height = $image['upload']['height'];
 	if (!$height) return $image;

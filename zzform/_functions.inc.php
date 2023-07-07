@@ -45,9 +45,9 @@ function zzform_multi($definition_file, $values, $type = 'tables') {
 	
 	$old = [
 		'conf' => $zz_conf,
-		'GET' => !empty($_GET) ? $_GET : [],
-		'POST' => !empty($_POST) ? $_POST : [],
-		'FILES' => !empty($_FILES) ? $_FILES : []
+		'GET' => $_GET ?? [],
+		'POST' => $_POST ?? [],
+		'FILES' => $_FILES ?? []
 	];
 	unset($_GET);
 	unset($_POST);
@@ -63,7 +63,7 @@ function zzform_multi($definition_file, $values, $type = 'tables') {
 	$ops['result'] = '';
 	$ops['id'] = 0;
 	// keep internal variables
-	$int = !empty($zz_conf['int']) ? $zz_conf['int'] : [];
+	$int = $zz_conf['int'] ?? [];
 
 	zz_initialize('overwrite');
 	unset($zz_conf['if']);

@@ -469,8 +469,7 @@ function zz_identifier_vars($my_rec, $f, $main_post) {
 		// check for substring parameter
 		list($field_name, $substr) = zz_identifier_substr($field_name);
 		// get value
-		$preferred = !empty($my_rec['fields'][$f]['conf_identifier']['preferred'])
-			? $my_rec['fields'][$f]['conf_identifier']['preferred'] : [];
+		$preferred = $my_rec['fields'][$f]['conf_identifier']['preferred'] ?? [];
 		$values[$index] = zz_identifier_var($field_name, $my_rec, $main_post, $preferred);
 
 		if (!$substr) continue;

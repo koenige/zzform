@@ -38,7 +38,7 @@ function zz_output_page($ops, $zz) {
 	$ops['explanation'] = $zz['explanation'];
 	$ops['explanation_insert'] = $zz['explanation_insert'] ?? NULL;
 	$ops['selection'] = zz_nice_selection($zz['fields']);
-	$ops['class'] = !empty($zz['class']) ? $zz['class'] : '';
+	$ops['class'] = $zz['class'] ?? '';
 	return $ops;
 }
 
@@ -807,7 +807,7 @@ function zz_init_referer() {
 		(!empty($zz_conf['int']['referer']['scheme']) ? $zz_conf['int']['referer']['scheme'].'://'
 			.$zz_conf['int']['referer']['host'] : '')
 		.$zz_conf['int']['referer']['path']
-		.(!empty($zz_conf['int']['referer']['query']) ? $zz_conf['int']['referer']['query'] : '')));
+		.($zz_conf['int']['referer']['query'] ?? '')));
 	$zz_conf['int']['referer_esc'] = str_replace('&', '&amp;', wrap_static('page', 'referer'));
 }
 
@@ -918,9 +918,9 @@ function zz_date_format($date) {
 	$date_order['eng'] = ['day', 'month', 'year'];
 
 	// default values: international format, or use language specific format
-	$my_date_separator = !empty($date_separator[$language]) ? $date_separator[$language] : $date_separator['---'];
-	$my_months = !empty($months[$language]) ? $months[$language] : $months['---'];
-	$my_date_order = !empty($date_order[$language]) ? $date_order[$language] : $date_order['---'];
+	$my_date_separator = $date_separator[$language] ?? $date_separator['---'];
+	$my_months = $months[$language] ?? $months['---'];
+	$my_date_order = $date_order[$language] ?? $date_order['---'];
 
 	if (preg_match("/^([0-9]{4}-[0-9]{2}-[0-9]{2}) [0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/", $date, $match)) {
 		// DATETIME YYYY-MM-DD HH:ii:ss

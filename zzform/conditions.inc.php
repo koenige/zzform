@@ -601,11 +601,7 @@ function zz_conditions_subrecord_check($zz, $zz_tab, $zz_conditions) {
 						$condition['where'] = sprintf($condition['where'], $zz_conf['int']['id']['value']);
 					}
 					$sql = wrap_edit_sql($tab['sql'], 'WHERE', $condition['where']);
-					if (!empty($tab['hierarchy']['id_field_name'])) {
-						$id_field_name = $tab['hierarchy']['id_field_name'];
-					} else {
-						$id_field_name = $tab['id_field_name'];
-					}
+					$id_field_name = $tab['hierarchy']['id_field_name'] ?? $tab['id_field_name'];
 					$zz_conditions['bool']['subrecord-'.$tab['no']][$index] = zz_db_fetch($sql, $id_field_name, 'id as key', 'subrecord');
 				}
 			}

@@ -287,10 +287,10 @@ function zz_list_inline($fields, $lines, $mode) {
 		$foreign_key = false;
 		foreach ($field['fields'] as $subno => $subfield) {
 			if ($subfield['type'] === 'foreign_key')
-				$foreign_key = !empty($subfield['key_field_name']) ? $subfield['key_field_name'] : $subfield['field_name'];
+				$foreign_key = $subfield['key_field_name'] ?? $subfield['field_name'];
 			if (in_array($subfield['type'], ['foreign_key', 'timestamp', 'subtable'])) continue;
 			if ($mode !== 'export' AND $subfield['type'] === 'id') continue;
-			$fn = !empty($subfield['display_field']) ? $subfield['display_field'] : $subfield['field_name'];
+			$fn = $subfield['display_field'] ?? $subfield['field_name'];
 			$subfield['row_value'] = $field['table_name'].'.'.$fn;
 			if (!empty($subfield['list_abbr'])) {
 				// for this function
@@ -1165,7 +1165,7 @@ function zz_list_query($zz, $list) {
 	if (!$total_rows) return [[], 0];
 	
 	// ORDER must be here because of where-clause
-	$zz['sql'] .= !empty($zz['sqlorder']) ? ' '.$zz['sqlorder'] : '';
+	$zz['sql'] .= ' '.($zz['sqlorder'] ?? '');
 	// Alter SQL query if GET order (AND maybe GET dir) are set
 	$zz['sql'] = zz_sql_order($zz['fields'], $zz['sql']);
 
@@ -2203,7 +2203,7 @@ function zz_sql_order_check($field, $type, $field_name) {
 function zz_list_th($field, $mode = 'html') {
 	global $zz_conf;
 
-	$out = !empty($field['title_tab']) ? $field['title_tab'] : $field['title'];
+	$out = $field['title_tab'] ?? $field['title'];
 	if (!empty($field['dont_sort'])) return $out;
 	if (!isset($field['field_name'])) return $out;
 	$unsortable_fields = ['calculated', 'image', 'upload_image']; // 'subtable'?
@@ -2786,9 +2786,7 @@ function zz_list_syndication_get($field, $line) {
 	$img = zz_makelink($field['path_json_request'], $line);
 	$img = wrap_syndication_get($img);
 	if (!$img) return false;
-	$text = '<img src="'
-		.(!empty($field['path_json_base']) ? $field['path_json_base'] : '')
-		.$img.'"  alt="" class="thumb">';
+	$text = '<img src="'.($field['path_json_base'] ?? '').$img.'"  alt="" class="thumb">';
 	return $text;
 }
 

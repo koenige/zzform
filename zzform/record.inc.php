@@ -1295,7 +1295,7 @@ function zz_record_init_out($field) {
 	$out['td']['content'] = '';
 	$out['separator'] = '';
 	$out['separator_before'] = '';
-	$out['sequence'] = !empty($field['field_sequence']) ? $field['field_sequence'] : 1;
+	$out['sequence'] = $field['field_sequence'] ?? 1;
 	return $out;
 }
 
@@ -1898,8 +1898,7 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 		$text .= zz_field_format($display_value, $field);
 	} elseif ($value AND $field_type === 'select') {
 		$detail_key = $display_value ? $display_value : $field['default'];
-		$my_fieldname = $field['field_name'];
-		if (isset($field['key_field_name'])) $my_fieldname = $field['key_field_name'];
+		$my_fieldname = $field['key_field_name'] ?? $field['field_name'];
 		if (isset($field['sql'])) {
 			$sql = wrap_edit_sql($field['sql'], 'WHERE', '('.$my_fieldname.' = '.$detail_key.')');
 			$select_fields = zz_db_fetch($sql);
@@ -2149,7 +2148,7 @@ function zz_field_password_change($field, $display) {
  */
 function zz_field_text($field, $display, $record, $dont_reformat = false) {
 	// get value
-	$value = !empty($record[$field['field_name']]) ? $record[$field['field_name']] : '';
+	$value = $record[$field['field_name']] ?? '';
 	if (!$dont_reformat) {
 		$value = zz_field_format($value, $field);
 	}
@@ -2923,10 +2922,7 @@ function zz_field_select_sql_too_long($field, $record, $detail_record, $id_field
 
 	// value will not be checked if one detail record is added because 
 	// in this case validation procedure will be skipped!
-	if (!empty($record[$field['field_name']])) 
-		$value = $record[$field['field_name']];
-	else
-		$value = '';
+	$value = $record[$field['field_name']] ?? '';
 	// add new record
 	$fieldattr = [];
 	$fieldattr['size'] = !empty($field['size_select_too_long']) ? $field['size_select_too_long'] : 32;
@@ -2950,13 +2946,13 @@ function zz_xhr_add($type, $field) {
 	$zz_conf['int'][$type][] = [
 		'field_no' => $field['field_no'],
 		'subtable_no' => $field['subtable_no'],
-		'field_id' => !empty($field['field_id']) ? $field['field_id'] : zz_make_id_fieldname($field['f_field_name']),
+		'field_id' => $field['field_id'] ?? zz_make_id_fieldname($field['f_field_name']),
 		'url_self' => zz_xhr_url_self(),
-		'destination_field_ids' => isset($field['destination_field_ids']) ? $field['destination_field_ids'] : [],
-		'source_field_ids' => isset($field['source_field_ids']) ? $field['source_field_ids'] : [],
-		'unrestricted' => !empty($field['unrestricted']) ? $field['unrestricted'] : false,
-		'command' => !empty($field['xhr_command']) ? $field['xhr_command'] : $default_command,
-		'rec' => isset($field['rec']) ? $field['rec'] : false
+		'destination_field_ids' => $field['destination_field_ids'] ?? [],
+		'source_field_ids' => $field['source_field_ids'] ?? [],
+		'unrestricted' => $field['unrestricted'] ?? false,
+		'command' => $field['xhr_command'] ?? $default_command,
+		'rec' => $field['rec'] ?? false
 	];
 }
 
@@ -3157,7 +3153,7 @@ function zz_field_select_sql_radio($field, $record, $lines) {
 		$line = zz_field_select_ignore($line, $field, 'sql');
 		if ($field['show_hierarchy']) unset($line[$field['show_hierarchy']]);
 		$oldlevel = $level;
-		$level = !empty($line['zz_level']) ? $line['zz_level'] : 0;
+		$level = $line['zz_level'] ?? 0;
 		unset($line['zz_level']);
 		$field['zz_level'] = $level - $oldlevel;
 		// group display
@@ -3278,10 +3274,7 @@ function zz_field_select_get_record($field, $record, $id_field_name) {
 		$db_value = substr($db_value, 1, -1);
 
 	// allow to set id_field_name
-	if (!empty($field['id_field_name']))
-		$where_field_name = $field['id_field_name'];
-	else
-		$where_field_name = $id_field_name;
+	$where_field_name = $field['id_field_name'] ?? $id_field_name;
 
 	if (substr($field['sql'], 0, 4) === 'SHOW') {
 		if (strstr($field['sql'], 'LIKE'))
@@ -3762,7 +3755,7 @@ function zz_draw_select($field, $record, $line, $id_field_name, $form = false, $
 		$fieldvalue = str_replace("\r\n", " ", $fieldvalue);
 	if ($form === 'reselect') {
 		$fieldattr = [];
-		$fieldattr['size'] = !empty($field['size_select_too_long']) ? $field['size_select_too_long'] : 32;
+		$fieldattr['size'] = $field['size_select_too_long'] ?? 32;
 		if ($field['required']) $fieldattr['required'] = true;
 		// extra space, so that there won't be a LIKE operator that this value
 		// will be checked against!
@@ -3867,8 +3860,7 @@ function zz_field_image($field, $display, $record, $record_saved, $images, $mode
 			$elementname = zz_make_id_fieldname($field['f_field_name']).'['.$image['field_name'].']';
 			$text .= zz_form_element($elementname, '', 'file', false);
 			if (empty($field['dont_show_file_link'])
-				AND $link = zz_makelink($image['path'], (!empty($record_saved) 
-					? $record_saved : $record))) {
+				AND $link = zz_makelink($image['path'], $record_saved ?? $record)) {
 				$fieldattr = [];
 				$fieldattr['autofocus'] = false;
 				$text .= '<br><a href="'.$link.'">'.$link

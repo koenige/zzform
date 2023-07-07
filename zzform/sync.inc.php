@@ -431,7 +431,7 @@ function zz_sync_list($testing, $import) {
 	$id_fields[$def['table']] = $def['fields'][1]['field_name'];
 	foreach ($head as $field) {
 		if (empty($field['field_name'])) continue;
-		$table = !empty($field['table']) ? $field['table'] : $def['table'];
+		$table = $field['table'] ?? $def['table'];
 		$field_names[$table][] = $field['field_name'];
 		if (!empty($field['foreign_key'])) {
 			$foreign_keys[$table] = $field['foreign_key'];

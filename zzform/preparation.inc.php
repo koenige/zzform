@@ -63,19 +63,19 @@ function zz_prepare_tables($zz, $mode) {
 	if (!empty($zz_tab[0]['revision_id'])) $zz['revision_hooks'] = true;
 
 	$zz_tab[0]['hooks'] = zz_prepare_hooks($zz);
-	$zz_tab[0]['triggers'] = !empty($zz['triggers']) ? $zz['triggers'] : [];
+	$zz_tab[0]['triggers'] = $zz['triggers'] ?? [];
 	
 	$zz_tab[0][0]['action'] = $zz['record']['action'];
 	$zz_tab[0][0]['fields'] = $zz['fields'];
 	$zz_tab[0][0]['validation'] = true;
 	$zz_tab[0][0]['record'] = [];
-	$zz_tab[0][0]['access'] = !empty($zz['access']) ? $zz['access'] : false;
+	$zz_tab[0][0]['access'] = $zz['access'] ?? false;
 	// get ID field, unique fields, check for unchangeable fields
 	$zz_tab[0][0]['id'] = &$zz_conf['int']['id'];
 	$zz_tab[0][0]['check_select_fields'] = zz_prepare_check_select();
-	$zz_tab[0][0]['details'] = !empty($zz['details']) ? $zz['details'] : [];
-	$zz_tab[0][0]['if'] = !empty($zz['if']) ? $zz['if'] : [];
-	$zz_tab[0][0]['unless'] = !empty($zz['unless']) ? $zz['unless'] : [];
+	$zz_tab[0][0]['details'] = $zz['details'] ?? [];
+	$zz_tab[0][0]['if'] = $zz['if'] ?? [];
+	$zz_tab[0][0]['unless'] = $zz['unless'] ?? [];
 
 	if (!empty($zz_conf['int']['revisions_only']))
 		$zz_conf['int']['revision_data'] = zz_revisions_tab($zz_tab[0]);
@@ -94,8 +94,7 @@ function zz_prepare_tables($zz, $mode) {
 		if (!empty($my_field['hide_in_form'])) continue;
 		if ($integrate_records) $my_field['integrate_records'] = $integrate_records;
 		$zz_tab[$tab] = zz_get_subtable($my_field, $zz_tab[$main_tab], $tab, $no);
-		$zz_tab[$tab]['where'] = !empty($zz['record']['where'][$zz_tab[$tab]['table_name']])
-			? $zz['record']['where'][$zz_tab[$tab]['table_name']] : [];
+		$zz_tab[$tab]['where'] = $zz['record']['where'][$zz_tab[$tab]['table_name']] ?? [];
 		if (in_array($mode, ['revise', 'show']) AND $zz_tab[$tab]['values']) {
 			// don't show values which are not saved in show-record mode
 			$zz_tab[$tab]['values'] = [];
@@ -108,7 +107,7 @@ function zz_prepare_tables($zz, $mode) {
 			if (!is_numeric($rec)) continue;
 			if (empty($zz_tab[$tab]['POST'][$rec])) continue;
 			$zz_tab[$tab][$rec]['POST'] = $zz_tab[$tab]['POST'][$rec];
-			$zz_tab[$tab][$rec]['check_select_fields'] = !empty($zz_tab[$tab]['check_select_fields'][$rec]) ? $zz_tab[$tab]['check_select_fields'][$rec] : [];
+			$zz_tab[$tab][$rec]['check_select_fields'] = $zz_tab[$tab]['check_select_fields'][$rec] ?? [];
 			unset($zz_tab[$tab]['POST'][$rec]);
 		}
 		if (zz_error_exit()) return [];
@@ -198,7 +197,7 @@ function zz_prepare_tables($zz, $mode) {
  * @todo don't prepare hooks in record mode (+ exclude from hash)
  */
 function zz_prepare_hooks($zz) {
-	$hooks = !empty($zz['hooks']) ? $zz['hooks'] : [];
+	$hooks = $zz['hooks'] ?? [];
 
 	// geocoding? sequence?
 	$hook_found = [];
@@ -274,17 +273,17 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 		$my_tab['sql_not_unique'] = $field['sql_not_unique'];
 		$my_tab['keep_detailrecord_shown'] = true;
 	}
-	$my_tab['sql_translate'] = !empty($field['sql_translate']) ? $field['sql_translate'] : [];
+	$my_tab['sql_translate'] = $field['sql_translate'] ?? [];
 	// Hierachy?
-	$my_tab['hierarchy'] = !empty($field['hierarchy']) ? $field['hierarchy'] : '';
+	$my_tab['hierarchy'] = $field['hierarchy'] ?? '';
 
 	// database and table name
 	$my_tab += zz_db_table($field['table'], $main_tab['db_name']);
 	$my_tab['table_name'] = $field['table_name'];
 	
 	// pre-set values
-	$my_tab['values'] = !empty($field['values']) ? $field['values'] : [];
-	$my_tab['fielddefs'] = !empty($field['fielddefs']) ? $field['fielddefs'] : [];
+	$my_tab['values'] = $field['values'] ?? [];
+	$my_tab['fielddefs'] = $field['fielddefs'] ?? [];
 
 	// records
 	if (!empty($field['integrate_in_next'])) {
@@ -325,15 +324,14 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 	}
 	
 	// foreign keys, translation keys, unique keys
-	$my_tab['foreign_key_field_name'] = (!empty($field['foreign_key_field_name']) 
-		? $field['foreign_key_field_name'] 
-		: $main_tab['table'].'.'.$main_tab[0]['id']['field_name']);
+	$my_tab['foreign_key_field_name'] = $field['foreign_key_field_name']
+		?? $main_tab['table'].'.'.$main_tab[0]['id']['field_name'];
 	$my_tab['translate_field_name_where'] = !empty($field['translate_field_name'])
 		? (wrap_sql_table('default_translationfields').'.db_name = "'.wrap_setting('db_name').'"
 			AND '.wrap_sql_table('default_translationfields').'.table_name = "'.$main_tab['table'].'"
 			AND '.wrap_sql_table('default_translationfields').'.field_name = "'
 				.$field['translate_field_name'].'"') : '';
-	$my_tab['unique'] = !empty($field['unique']) ? $field['unique'] : false;
+	$my_tab['unique'] = $field['unique'] ?? false;
 
 	// get detail key, if there is a field definition with it.
 	// get id field name
@@ -369,8 +367,7 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 	}
 
 	// tick to save
-	$my_tab['tick_to_save'] = !empty($field['tick_to_save']) 
-		? $field['tick_to_save'] : '';
+	$my_tab['tick_to_save'] = $field['tick_to_save'] ?? '';
 
 	// access
 	$my_tab['access'] = isset($field['access'])
@@ -390,8 +387,7 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 		? $_POST['zz_subtables']['remove'][$tab] : [];
 
 	// tick for save
-	$my_tab['zz_save_record'] = !empty($_POST['zz_save_record'][$tab])
-		? $_POST['zz_save_record'][$tab] : [];
+	$my_tab['zz_save_record'] = $_POST['zz_save_record'][$tab] ?? [];
 
 	$my_tab['POST'] = (!empty($_POST) AND !empty($_POST[$my_tab['table_name']]) 
 		AND is_array($_POST[$my_tab['table_name']]))
@@ -461,8 +457,8 @@ function zz_get_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 	// set general definition for all $my_tab[$rec] (kind of a record template)
 	$rec_tpl = [];
 	$rec_tpl['fields'] = $field['fields'];
-	$rec_tpl['if'] = !empty($field['if']) ? $field['if'] : [];
-	$rec_tpl['unless'] = !empty($field['unless']) ? $field['unless'] : [];
+	$rec_tpl['if'] = $field['if'] ?? [];
+	$rec_tpl['unless'] = $field['unless'] ?? [];
 	$rec_tpl['access'] = $my_tab['access'];
 	$rec_tpl['id']['field_name'] = $my_tab['id_field_name'];
 	$rec_tpl['validation'] = true;
@@ -673,7 +669,7 @@ function zz_get_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 				}
 				foreach ($my_rec['fields'] as $index => $field) {
 					if ($field['field_name'] !== $my_tab['hierarchy']['display_in']) continue;
-					$my_tab[$rec]['fields'][$index]['class'][] = 'level'.(!empty($line['zz_level']) ? $line['zz_level'] : '0');
+					$my_tab[$rec]['fields'][$index]['class'][] = 'level'.($line['zz_level'] ?? '0');
 				}
 			}
 		}
@@ -1348,11 +1344,7 @@ function zz_prepare_clean_copy($fields, $record) {
 		if (!empty($my_field['dont_copy'])) {
 			$record[$my_field['field_name']] = NULL;
 			$defvals = zz_check_def_vals($record, [$my_field]);
-			if (!empty($defvals[$my_field['field_name']])) {
-				$record[$my_field['field_name']] = $defvals[$my_field['field_name']];
-			} else {
-				$record[$my_field['field_name']] = '';
-			}
+			$record[$my_field['field_name']] = $defvals[$my_field['field_name']] ?? '';
 			continue;
 		}
 		if (empty($my_field['type'])) continue;
@@ -1380,7 +1372,7 @@ function zz_log_validation_errors($my_rec, $validation) {
 	if ($validation) return false;
 	if ($my_rec['access'] === 'show') return false;
 	$dev_msg = [];
-	$somelogs = !empty($my_rec['validation_error_logged']) ? $my_rec['validation_error_logged'] : false;
+	$somelogs = $my_rec['validation_error_logged'] ?? false;
 	
 	foreach ($my_rec['fields'] as $no => $field) {
 		if (!empty($field['type']) AND in_array($field['type'], ['password_change', 'subtable', 'foreign_table'])) continue;
