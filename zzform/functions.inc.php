@@ -621,11 +621,9 @@ function zz_init_cfg_value($def, $ext, $int) {
 			$value = [];
 			break;
 		case 'int':
-			$value = 0;
-			break;
 		case 'text':
 		default:
-			$value = ''; break;
+			$value = NULL; break;
 		}
 	
 	// array?
@@ -1200,7 +1198,6 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 				$pos = strrpos(substr($fields[$no]['field_name'], 0, -3), '_') + 1;
 				$fields[$no]['key_field_name'] = substr($fields[$no]['field_name'], $pos);
 			}
-				
 			break;
 		case 'time':
 		case 'datetime':
@@ -2230,11 +2227,11 @@ function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec 
 	switch ($record) {
 	case 'old':
 		$my_tab = $data[$tab];
-		$line = !empty($my_tab[$rec]['existing']) ? $my_tab[$rec]['existing'] : [];
+		$line = $my_tab[$rec]['existing'] ?? [];
 		break;
 	case 'new':
 		$my_tab = $data[$tab];
-		$line = !empty($my_tab[$rec]['POST']) ? $my_tab[$rec]['POST'] : [];
+		$line = $my_tab[$rec]['POST'] ?? [];
 		break;
 	case 'line':
 		$line = $data;
@@ -2461,7 +2458,7 @@ function zz_error() {
 		}
 		// @todo think about translating dev messages for administrators
 		// in a centrally set (not user defined) language
-		$error['msg_dev'] = !empty($error['msg_dev']) ? $error['msg_dev'] : '';
+		$error['msg_dev'] = $error['msg_dev'] ?? '';
 		if (is_array($error['msg_dev'])) $error['msg_dev'] = implode(' ', $error['msg_dev']);
 		$error['msg_dev'] = trim($error['msg_dev']);
 		if (!empty($error['msg_dev_args'])) {
