@@ -2503,6 +2503,7 @@ function zz_field_set($subtable, $display, $my_tab) {
 	}
 
 	$sets = zz_field_query($field);
+	if (!$sets) return;
 	foreach ($sets as $index => $line)
 		$sets[$index] = zz_field_select_ignore($line, $field, 'sql');
 
