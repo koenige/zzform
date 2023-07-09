@@ -1115,7 +1115,8 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 			$my_tab[$rec]['action'] = 'ignore';
 	}
 
-	if (wrap_setting('debug')) zz_debug("end, values: ".substr($values, 0, 20));
+	if (wrap_setting('debug'))
+		zz_debug(sprintf('end table %s, rec %d, values: %s', $my_tab['table_name'], $rec, substr($values, 0, 20)));
 	return $my_tab;
 }
 
