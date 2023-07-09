@@ -321,3 +321,16 @@ function zz_details_link($details, $record) {
 	return '';
 }
 
+/**
+ * hide add link if details mode
+ *
+ * @return bool true: show link, false: hide link
+ */
+function zz_details_add_link() {
+	global $zz_conf;
+	
+	if (empty($_SESSION['zzform'][$zz_conf['id']][0])) return true;
+	$session = $_SESSION['zzform'][$zz_conf['id']][0];
+	if (!empty($session['new_id'])) return false;
+	return true;
+}

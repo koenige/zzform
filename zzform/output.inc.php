@@ -608,6 +608,8 @@ function zz_print_enum($field, $value, $type = 'abbr', $key = false) {
 function zz_output_add_export_links($zz, $ops, $position = 'below') {
 	static $add_links_shown = false;
 	if ($ops['mode'] === 'export') return '';
+	if (function_exists('zz_details_add_link'))
+		if (!zz_details_add_link()) return '';
 
 	$links = [];
 	switch ($position) {
