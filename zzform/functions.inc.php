@@ -1115,17 +1115,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 		}
 
 		// settings depending on field type
-		$type = $fields[$no]['type_detail'] ?? $fields[$no]['type'];
-		switch ($type) {
-		case 'write_once':
-			$fields[$no]['type_detail'] = 'text';
-			break;
-		case 'id':
-			// set dont_sort as a default for ID columns
-			if (!isset($fields[$no]['dont_sort'])) $fields[$no]['dont_sort'] = true;
-			// hide empty ID fields on add
-			if ($mode === 'add') $fields[$no]['hide_in_form'] = true;
-			break;
+		switch ($fields[$no]['type']) {
 		case 'option':
 			// do not show option-fields in tab
 			$fields[$no]['hide_in_list'] = true;
@@ -1135,6 +1125,20 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			if (!in_array('option', $fields[$no]['class'])) {
 				$fields[$no]['class'][] = 'option';
 			}
+			break;
+		}		
+		
+		$type = $fields[$no]['type_detail'] ?? $fields[$no]['type'];
+		switch ($type) {
+		case 'write_once':
+			// would not be here if it had a type_detail set
+			$fields[$no]['type_detail'] = 'text';
+			break;
+		case 'id':
+			// set dont_sort as a default for ID columns
+			if (!isset($fields[$no]['dont_sort'])) $fields[$no]['dont_sort'] = true;
+			// hide empty ID fields on add
+			if ($mode === 'add') $fields[$no]['hide_in_form'] = true;
 			break;
 		case 'memo':
 			$fields[$no]['class'][] = 'hyphenate';
