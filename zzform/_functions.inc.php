@@ -163,6 +163,9 @@ function zzform_include($file, $values = [], $type = 'tables', $brick = []) {
 	if (!$files)
 		wrap_error(sprintf('%s definition for %s: file is missing.', ucfirst($type), $file), E_USER_ERROR);
 
+	if (key($files) === 'default' AND count($files) > 1)
+		array_shift($files);
+
 	if (key($files) === 'default') {
 		if (!$default_tables = wrap_setting('default_tables')) return [];
 		if (is_array($default_tables) AND !in_array($file, $default_tables)) return [];
