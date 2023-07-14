@@ -2737,7 +2737,7 @@ function zz_list_ul($list, $rows) {
 		if (!empty($list['dnd']))
 			$output .= ' draggable="true"';
 		$output .= ' class="'.($index & 1 ? 'uneven':'even')
-			.($list['current_record'] == $index ? ' current_record' : '')
+			.($list['current_record'] === $index ? ' current_record' : '')
 			.(($index + 1) === count($rows) ? ' last' : '').'"';
 		if ($list['dnd']) 
 			$output .= ' data-sequence="'.$row['sequence'].'" data-id="'.$row['dnd_id'].'"';
