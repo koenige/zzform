@@ -3332,8 +3332,9 @@ function zz_check_select($my_rec, $f) {
 			if (!empty($my_rec['fields'][$f]['disabled_ids_error_msg']))
 				$my_rec['fields'][$f]['suffix'] .= ' '.wrap_text($my_rec['fields'][$f]['disabled_ids_error_msg']);
 		} elseif (!$check_string) {
+			$sql_fields = wrap_edit_sql($my_rec['fields'][$f]['sql'], 'SELECT', '', 'list');
 			$sql = wrap_edit_sql($my_rec['fields'][$f]['sql'], 'WHERE', sprintf(
-				'%s = %d', $my_rec['fields'][$f]['key_field_name'] ?? $my_rec['fields'][$f]['field_name'], $my_rec['POST'][$field_name]
+				'%s = %d', $sql_fields[0]['field_name'], $my_rec['POST'][$field_name]
 			));
 			$exists = wrap_db_fetch($sql, '', 'single value');
 			if (!$exists) {
@@ -3635,7 +3636,7 @@ function zz_check_select_translated($field, $sql_fieldname, $value, $search_equa
 	foreach ($records as $record) {
 		$field_ids[$record['field_id']] = $record['field_id'];
 	}
-	$my_fieldname = isset($field['key_field_name']) ? $field['key_field_name'] : $field['field_name'];
+	$my_fieldname = $field['key_field_name'] ?? $field['field_name'];
 	return sprintf('%s IN (%s)', $my_fieldname, implode(',', $field_ids));
 }
 
