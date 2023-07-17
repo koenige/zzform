@@ -1631,6 +1631,7 @@ function zz_field_sum($table_defs, $z, $sum, $list) {
  * @param mixed $list_format (array = list of formatting functions)
  */
 function zz_list_format($text, $list_format) {
+	wrap_page_format_files();
 	if (!is_array($list_format)) $list_format = [$list_format];
 	foreach ($list_format as $format) {
 		if (wrap_setting('debug')) zz_debug('start', $format);
