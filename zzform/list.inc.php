@@ -2629,7 +2629,7 @@ function zz_list_table($list, $rows, $head) {
 		foreach ($row as $fieldindex => $field) {
 			if (!is_numeric($fieldindex)) continue;
 			$output .= '<td'
-				.($field['class'] ? ' class="'.implode(' ', $field['class']).'"' : '')
+				.($field['class'] ? ' class="'.implode(' ', array_unique($field['class'])).'"' : '')
 				.'>'.$field['text'].'</td>';
 		}
 		if (!empty($row['modes']) OR !empty($row['details'])) {
