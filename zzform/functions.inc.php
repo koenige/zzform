@@ -2316,13 +2316,16 @@ function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec 
  * @return string
  */
 function zz_get_record($field_name, $sql, $idvalue = false, $idfield = false) { 
+	static $queried = [];
+	$key = sprintf('%s-%s-%s', $sql, $idvalue, $idfield);
 	// if idvalue is not set: note: all values should be the same!
 	// First value is taken
-	if ($idvalue) 
-		$sql = wrap_edit_sql($sql, 'WHERE', sprintf('%s = %d', $idfield, $idvalue));
-	$line = zz_db_fetch($sql, '', '', __FUNCTION__);
-	if (!empty($line[$field_name])) return $line[$field_name];
-	else return false;
+	if (!array_key_exists($key, $queried)) {
+		if ($idvalue) 
+			$sql = wrap_edit_sql($sql, 'WHERE', sprintf('%s = %d', $idfield, $idvalue));
+		$queried[$key] = zz_db_fetch($sql, '', '', __FUNCTION__);
+	}
+	return $queried[$key][$field_name] ?? false;
 }
 
 /** 
