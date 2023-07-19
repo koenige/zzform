@@ -37,6 +37,7 @@ function zz_debug($marker = false, $text = false, $id = false) {
 	if (empty($zz_debug[$id])) {
 		$zz_debug[$id] = [];					// debug module
 		$zz_debug[$id]['timer'] = microtime(true);	// debug module
+		$zz_debug[$id]['function'] = [];
 	}
 
 	$time = microtime(true);
