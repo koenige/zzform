@@ -57,7 +57,9 @@ function zzform($zz) {
 		'explanation' => '',
 		'exit' => false
 	];
-	wrap_static('page', '', $zz['page'] ?? [], 'init');
+	if (empty($zz_conf['multi']))
+		wrap_static('page', '', $zz['page'] ?? [], 'init');
+
 	zzform_deprecated($ops, $zz);
 
 	// set default configuration variables
