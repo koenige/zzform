@@ -85,7 +85,8 @@ function zz_list($zz, $ops, $zz_conditions) {
 		$list['no_add_above'] = true;
 	if (!$list['no_add_above'])
 		$ops['output'] .= zz_output_add_export_links($zz, $ops, 'above');
-	$ops['output'] .= zz_filter_selection($zz['filter'], $zz['filter_active'], 'top');
+	if ($zz_conf['int']['show_list'])
+		$ops['output'] .= zz_filter_selection($zz['filter'], $zz['filter_active'], 'top');
 
 	// don't show anything if there is nothing
 	if (!$count_rows) {
@@ -844,7 +845,6 @@ function zz_filter_selection($filter, $filter_active, $pos) {
 
 	if (!$filter) return '';
 	if (!is_array($filter)) return '';
-	if (!$zz_conf['int']['show_list']) return '';
 	if ($zz_conf['int']['access'] === 'export') return '';
 	if (!in_array(wrap_setting('zzform_filter_position'), [$pos, 'both'])) return '';
 	
@@ -1756,7 +1756,6 @@ function zz_list_word_split($text) {
 function zz_mark_search_string($value, $field_name = false, $field = []) {
 	global $zz_conf;
 	// check if field should be marked
-	if (!$zz_conf['int']['show_list']) return $value;
 	if (!empty($zz_conf['int']['export'])) return $value;
 	if (!empty($field['dont_mark_search_string'])) return $value;
 	if (empty($_GET['q'])) return $value;
