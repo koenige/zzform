@@ -451,6 +451,7 @@ function zz_upload_check_files($zz_tab) {
  * @todo preserve timestamp (parse http headers?)
  */
 function zz_upload_remote_file($filename) {
+	if (!$filename) return $filename;
 	if (substr($filename, 0, 7) !== 'http://'
 		AND substr($filename, 0, 8) !== 'https://'
 		AND substr($filename, 0, 6) !== 'ftp://'
