@@ -143,6 +143,7 @@ function zz_dependent_modules($zz) {
 			if ($zz_conf['generate_output'] === false) {
 				$zz['export'] = [];
 				unset($modules[$index]);
+				zz_module_remove_mode('export');
 				break;
 			}
 			$export = false;
@@ -160,7 +161,10 @@ function zz_dependent_modules($zz) {
 					}
 				}
 			}
-			if (!$export) unset($modules[$index]);
+			if (!$export) {
+				zz_module_remove_mode('export');
+				unset($modules[$index]);
+			}
 			break;
 		case 'upload':
 			// check if there was an upload, so we need this module
@@ -184,6 +188,19 @@ function zz_dependent_modules($zz) {
 		$GLOBALS['zz_saved']['conf']['modules'] = $zz_conf['modules'];
 	}
 	return true;
+}
+
+/**
+ * remove a mode depending on module
+ *
+ * @param string $mode
+ * @return void
+ */
+function zz_module_remove_mode($mode) {
+	$allowed_modes = wrap_setting('zzform_allowed_modes');
+	$index = array_search($mode, $allowed_modes);
+	unset($allowed_modes[$index]);
+	wrap_setting('zzform_allowed_modes', $allowed_modes);
 }
 
 /**
@@ -1463,11 +1480,8 @@ function zz_record_access($zz, $ops) {
 	$zz_conf['int']['record'] = true; // show record somehow (edit, view, ...)
 	
 	if (!empty($_POST['zz_action'])) {
-		if (!in_array(
-			$_POST['zz_action'], $zz_conf['int']['allowed_params']['action'])
-		) {
+		if (!in_array($_POST['zz_action'], wrap_setting('zzform_allowed_actions')))
 			unset($_POST['zz_action']);
-		}
 		$zz['record']['query_records'] = true;
 	} elseif (!empty($zz_conf['int']['add_details_return'])) {
 		$zz['record']['query_records'] = true;
@@ -1548,7 +1562,7 @@ function zz_record_access($zz, $ops) {
 
 	case !empty($_GET['mode']):
 		// standard case, get mode from URL
-		if (in_array($_GET['mode'], $zz_conf['int']['allowed_params']['mode'])) {
+		if (in_array($_GET['mode'], wrap_setting('zzform_allowed_modes'))) {
 			$ops['mode'] = $_GET['mode']; // set mode from URL
 			if (in_array($ops['mode'], ['edit', 'delete', 'show'])
 				AND !empty($_GET['id'])) {

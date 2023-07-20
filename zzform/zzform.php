@@ -733,19 +733,8 @@ function zz_set_id() {
 function zz_initialize_int() {
 	global $zz_conf;
 
-	//	allowed parameters
 	// initialize internal variables
 	$zz_conf['int'] = [];
-	$zz_conf['int']['allowed_params']['mode'] = [
-		'edit', 'delete', 'show', 'add', 'review', 'list_only', 'revise'
-	];
-	if (array_key_exists('export', $zz_conf['modules']))
-		$zz_conf['int']['allowed_params']['mode'][] = 'export';
-	// action parameters, 'review' is for internal use only
-	$zz_conf['int']['allowed_params']['action'] = [
-		'insert', 'delete', 'update', 'multiple', 'thumbnails'
-	];
-
 	$zz_conf['int']['url'] = zz_get_url_self();
 
 	if ($zz_conf['generate_output']) {
@@ -756,12 +745,6 @@ function zz_initialize_int() {
 
 		zz_init_referer();
 	}
-
-	$zz_conf['int']['internal_post_fields'] = [
-		'MAX_FILE_SIZE', 'zz_check_select', 'zz_action', 'zz_subtables',
-		'zz_delete_file', 'zz_referer', 'zz_save_record', 'zz_subtable_ids',
-		'zz_id', 'zz_html_fragment'
-	];
 }
 
 /**

@@ -169,7 +169,7 @@ function zz_prepare_tables($zz, $mode) {
 	// get rid of some POST values that are used at another place
 	$zz_tab[0][0]['POST'] = [];
 	foreach (array_keys($_POST) AS $key) {
-		if (in_array($key, $zz_conf['int']['internal_post_fields'])) continue;
+		if (in_array($key, wrap_setting('zzform_internal_post_fields'))) continue;
 		$zz_tab[0][0]['POST'][$key] = wrap_normalize($_POST[$key]);
 	}
 	//  POST is secured, now get rid of password fields in case of error_log_post

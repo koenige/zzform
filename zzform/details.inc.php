@@ -127,9 +127,8 @@ function zz_details_start($zz) {
 	} else {
 		$source .= sprintf('edit=%d', $_POST[$id_field_name]);
 	}
-	foreach ($zz_conf['int']['internal_post_fields'] as $fname) {
+	foreach (wrap_setting('zzform_internal_post_fields') as $fname)
 		unset($_POST[$fname]);
-	}
 	$session = [
 		'post' => $_POST,
 		'get' => $_GET,
