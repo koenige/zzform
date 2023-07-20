@@ -626,7 +626,7 @@ function zz_init_cfg_value($def, $ext, $int) {
 	// get value, in order int, ext, default
 	if ($int)
 		$value = $int;
-	elseif ($ext AND (empty($def['scope']) OR !in_array('internal', $def['scope'])))
+	elseif (isset($ext) AND (empty($def['scope']) OR !in_array('internal', $def['scope'])))
 		$value = $ext;
 	elseif (isset($def['default']))
 		$value = $def['default'];
