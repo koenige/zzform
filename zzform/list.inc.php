@@ -38,6 +38,7 @@ function zz_list($zz, $ops, $zz_conditions) {
 	}
 
 	$list = zz_init_cfg('zz[list]', $zz['list'] ?? [], $ops['list'] ?? []);
+	if (!$zz_conf['int']['show_list']) $list['display'] = false;
 
 	// Turn off hierarchical sorting when using search
 	// @todo: implement hierarchical view even when using search
@@ -58,7 +59,7 @@ function zz_list($zz, $ops, $zz_conditions) {
 	}
 
 	if ($zz_conf['int']['access'] === 'search_but_no_list' AND empty($_GET['q'])) 
-		$zz_conf['int']['show_list'] = false;
+		$list['display'] = false;
 
 	// SQL query without limit and filter for conditions etc.!
 	$zz['sql_without_limit'] = $zz['sql'];
@@ -85,12 +86,12 @@ function zz_list($zz, $ops, $zz_conditions) {
 		$list['no_add_above'] = true;
 	if (!$list['no_add_above'])
 		$ops['output'] .= zz_output_add_export_links($zz, $ops, 'above');
-	if ($zz_conf['int']['show_list'])
+	if ($list['display'])
 		$ops['output'] .= zz_filter_selection($zz['filter'], $zz['filter_active'], 'top');
 
 	// don't show anything if there is nothing
 	if (!$count_rows) {
-		$zz_conf['int']['show_list'] = false;
+		$list['display'] = false;
 		if (!$list['hide_empty_table'] AND $text = wrap_text('No entries available')) {
 			$ops['output'].= '<p class="emptytable">'.$text.'</p>';
 		}
@@ -115,7 +116,7 @@ function zz_list($zz, $ops, $zz_conditions) {
 
 	// Check all conditions whether they are true;
 	if (!empty($zz_conf['modules']['conditions'])) {
-		$zz_conditions = zz_conditions_list_check($zz, $zz_conditions, array_keys($lines), $ops['mode']);
+		$zz_conditions = zz_conditions_list_check($zz, $list, $zz_conditions, array_keys($lines), $ops['mode']);
 		if (zz_error_exit()) return zz_return($ops);
 	}
 
@@ -123,7 +124,7 @@ function zz_list($zz, $ops, $zz_conditions) {
 	// reindex $linex from 1 ... n
 	array_unshift($lines, '0');
 	list($zz['fields'], $lines) = zz_list_inline($zz['fields'], $lines, $ops['mode']);
-	if ($zz_conf['int']['show_list']) {
+	if ($list['display']) {
 		list($table_defs, $zz['fields']) = zz_list_defs(
 			$lines, $zz_conditions, $zz['fields'], $zz['table'], $ops['mode']
 		);
@@ -132,7 +133,7 @@ function zz_list($zz, $ops, $zz_conditions) {
 	unset($lines[0]);
 	if (wrap_setting('debug')) zz_debug('list definitions set');
 
-	if ($zz_conf['int']['show_list']) {
+	if ($list['display']) {
 		$list = zz_list_set($list, $zz, count($lines));
 
 		if ($ops['mode'] === 'export') {
@@ -158,7 +159,7 @@ function zz_list($zz, $ops, $zz_conditions) {
 	if (!empty($zz_conf['modules']['conditions']) AND !empty($zz_conditions['bool']))
 		zz_conditions_merge_conf($zz, $zz_conditions['bool'], 0);
 
-	if ($zz_conf['int']['show_list'])
+	if ($list['display'])
 		list($rows, $head) = zz_list_remove_empty_cols($rows, $head, $zz, $list);
 
 	//
@@ -166,7 +167,7 @@ function zz_list($zz, $ops, $zz_conditions) {
 	//
 
 	if ($ops['mode'] === 'export') {
-		if (!$zz_conf['int']['show_list']) zz_return();
+		if (!$list['display']) zz_return();
 
 		// add empty column from heads in rows as well (for export)
 		foreach ($rows as $row_index => $row) {
@@ -199,7 +200,7 @@ function zz_list($zz, $ops, $zz_conditions) {
 		$ops['output'] .= $search_form['top'];
 	}
 	
-	if ($zz_conf['int']['show_list']) {
+	if ($list['display']) {
 		if ($list['select_multiple_records']) {
 			wrap_setting_add('extra_http_headers', 'X-Frame-Options: Deny');
 			wrap_setting_add('extra_http_headers', "Content-Security-Policy: frame-ancestors 'self'");
@@ -240,7 +241,7 @@ function zz_list($zz, $ops, $zz_conditions) {
 	// Add new record
 	if (!($zz_conf['int']['access'] === 'search_but_no_list' AND empty($_GET['q']))) {
 		// filter, if there was a list
-		if ($zz_conf['int']['show_list'])
+		if ($list['display'])
 			$ops['output'] .= zz_filter_selection($zz['filter'], $zz['filter_active'], 'bottom');
 		$ops['output'] .= zz_output_add_export_links($zz, $ops);
 		$ops['output'] .= zz_list_total_records($ops['records_total']);
@@ -2435,12 +2436,10 @@ function zz_list_field_level($list, $field, $line) {
  *
  * @param array $table_defs
  * @param array $list
- * @global array $zz_conf
  * @return array $table_defs ('show_field' set for each field)
  */
 function zz_list_show_group_fields($table_defs, &$list) {
-	global $zz_conf;
-	if (!$zz_conf['int']['show_list']) return $table_defs;
+	if (!$list['display']) return $table_defs;
 
 	$show_field = true;
 	foreach ($table_defs[0] as $index => $field) {

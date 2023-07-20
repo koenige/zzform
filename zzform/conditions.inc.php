@@ -792,6 +792,7 @@ function zz_conditions_merge_conf(&$conf, $bool_conditions, $record_id) {
  * Check all conditions whether they are true
  * 
  * @param array $zz (table definition)
+ * @param array $list
  * @param array $zz_conditions (existing conditions from zz_conditions_record_check)
  * @param array $ids (record IDs)
  * @param string $mode ($ops['mode'])
@@ -801,7 +802,7 @@ function zz_conditions_merge_conf(&$conf, $bool_conditions, $record_id) {
  *		=> true, ..., $record IDn => true] or true = all true // false = fall false
  * @see zz_conditions_record_check()
  */
-function zz_conditions_list_check($zz, $zz_conditions, $ids, $mode) {
+function zz_conditions_list_check($zz, $list, $zz_conditions, $ids, $mode) {
 	global $zz_conf;
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	if (empty($zz['conditions'])) return zz_return($zz_conditions);
@@ -824,7 +825,7 @@ function zz_conditions_list_check($zz, $zz_conditions, $ids, $mode) {
 			}
 			break;
 		case 'record':
-			if (!$zz_conf['int']['show_list']) break;
+			if (!$list['display']) break;
 			$sql = $zz['sql_without_limit'];
 			if (!empty($condition['where']))
 				$sql = wrap_edit_sql($sql, 'WHERE', $condition['where']);
@@ -842,7 +843,7 @@ function zz_conditions_list_check($zz, $zz_conditions, $ids, $mode) {
 			$zz_conditions['bool'][$index] = $lines;
 			break;
 		case 'query':
-			if (!$zz_conf['int']['show_list']) break;
+			if (!$list['display']) break;
 			$sql = $condition['sql'];
 			$sql = wrap_edit_sql($sql, 'WHERE', $condition['key_field_name'].' IN ('.implode(', ', $ids).')');
 			$lines = zz_db_fetch($sql, $condition['key_field_name'], 'id as key', 'list-query ['.$index.']');
