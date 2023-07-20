@@ -228,7 +228,8 @@ function zzform($zz) {
 	}
 	$list = zz_init_cfg('zz[list]', $zz['list'] ?? [], $ops['list'] ?? []);
 	// don't show list in case 'nolist' parameter is set
-	if (isset($_GET['nolist'])) $list['display'] = false;
+	if (isset($_GET['nolist']) AND (!isset($_GET['delete']) OR $_GET['delete']))
+		$list['display'] = false;
 
 	if ($list['display']) {
 		// shows table with all records (limited by zz_conf['limit'])
