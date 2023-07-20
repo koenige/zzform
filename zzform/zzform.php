@@ -700,6 +700,8 @@ function zz_initialize($mode = false, $old_conf = []) {
 	zz_write_conf($default);
 	
 	zz_initialize_int();
+	if ($zz_conf['generate_output'])
+		zz_init_referer();
 
 	$zzform_init = true;
 	$zz_saved['conf'] = $zz_conf;
@@ -746,9 +748,6 @@ function zz_initialize_int() {
 	// initialize internal variables
 	$zz_conf['int'] = [];
 	$zz_conf['int']['url'] = zz_get_url_self();
-
-	if ($zz_conf['generate_output'])
-		zz_init_referer();
 }
 
 /**
