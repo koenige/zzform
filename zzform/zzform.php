@@ -350,9 +350,7 @@ function zzform_record($zz, $ops, $zz_conditions) {
 			if ($ops['redirect_url']) {
 				if (empty($ops['html_fragment']))
 					wrap_redirect_change($ops['redirect_url']);
-				$redirect_url = parse_url($ops['redirect_url']);
-				$request_url = parse_url(wrap_setting('request_uri'));
-				if ($redirect_url['path'] !== $request_url['path'])
+				if (parse_url($ops['redirect_url'], PHP_URL_PATH) !== parse_url(wrap_setting('request_uri'), PHP_URL_PATH))
 					wrap_redirect_change($ops['redirect_url']);
 				$zz['record']['action'] = false;
 				$ops['mode'] = 'show';
@@ -834,9 +832,8 @@ function zzform_post_too_big() {
 	// without sessions, we can't find out where the user has come from
 	// just if we have a REFERER
 	if (empty($_SERVER['HTTP_REFERER'])) return true;
-	$url = parse_url($_SERVER['HTTP_REFERER']);
-	if (!empty($url['query'])) {
-		parse_str($url['query'], $query);
+	if ($query = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_QUERY)) {
+		parse_str($query, $query);
 		$_GET = array_merge($_GET, $query);
 	}
 	return true;

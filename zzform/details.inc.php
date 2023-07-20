@@ -287,8 +287,7 @@ function zz_details_show($zz, $current, $last) {
  * @return string
  */
 function zz_url_basename($url) {
-	$parts = parse_url($url);
-	return basename($parts['path']);
+	return basename(parse_url($url, PHP_URL_PATH));
 }
 
 /**

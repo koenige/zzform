@@ -2051,10 +2051,7 @@ function zz_list_pageurl() {
 	$url['base'] = $zz_conf['int']['url']['self']
 		.zz_edit_query_string($zz_conf['int']['url']['qs']
 		.$zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
-	$parts = parse_url($url['base']);
-	if (isset($parts['query'])) $url['query'] = '&amp;';
-	else $url['query'] = '?';
-	$url['query'] .= 'limit=';
+	$url['query'] = sprintf('%slimit=', (parse_url($url['base'], PHP_URL_QUERY) ? '&amp;' : '?'));
 	return $url;
 }
 
