@@ -765,11 +765,9 @@ function zz_cut_length($string, $max_length) {
 /**
  * creates link target for 'referer'
  *
- * @global array $zz_conf
  * @return void
  */
 function zz_init_referer() {
-	global $zz_conf;
 	// get referer // @todo add support for SESSIONs as well
 	if (is_null(wrap_static('page', 'referer'))) {
 		wrap_static('page', 'referer', false);
@@ -779,16 +777,14 @@ function zz_init_referer() {
 		wrap_static('page', 'referer', $_POST['zz_referer']);
 	}
 	// remove actions from referer if set
-	$zz_conf['int']['referer'] = parse_url(wrap_static('page', 'referer'));
-	if (!empty($zz_conf['int']['referer']['query'])) {
+	$url = parse_url(wrap_static('page', 'referer'));
+	if (!empty($url['query'])) {
 		$removes = ['delete', 'insert', 'update', 'noupdate'];
-		$zz_conf['int']['referer']['query'] = zz_edit_query_string($zz_conf['int']['referer']['query'], $removes, [], '&');
+		$url['query'] = zz_edit_query_string($url['query'], $removes, [], '&');
 	}
 	wrap_static('page', 'referer', (
-		(!empty($zz_conf['int']['referer']['scheme']) ? $zz_conf['int']['referer']['scheme'].'://'
-			.$zz_conf['int']['referer']['host'] : '')
-		.$zz_conf['int']['referer']['path']
-		.($zz_conf['int']['referer']['query'] ?? '')));
+		(!empty($url['scheme']) ? $url['scheme'].'://'.$url['host'] : '').$url['path'].($url['query'] ?? '')
+	));
 	if (!wrap_static('page', 'referer')) return;
 	wrap_static('page', 'referer_esc', str_replace('&', '&amp;', wrap_static('page', 'referer')));
 	wrap_static('page', 'zz_referer', true);
