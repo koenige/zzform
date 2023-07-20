@@ -221,11 +221,19 @@ function zzform($zz) {
 		$ops['output'] .= zz_error_output();
 	}
 
-	if ($zz_conf['int']['show_list']) {
+	// get $list
+	if (!empty($ops['list']['unchanged'])) {
+		$zz = wrap_array_merge($zz, $ops['list']['unchanged']);
+		unset($ops['list']['unchanged']);
+	}
+	$list = zz_init_cfg('zz[list]', $zz['list'] ?? [], $ops['list'] ?? []);
+	if (!$zz_conf['int']['show_list']) $list['display'] = false;
+
+	if ($list['display']) {
 		// shows table with all records (limited by zz_conf['limit'])
 		// and add/nav if limit/search buttons
 		require_once __DIR__.'/list.inc.php';
-		$ops = zz_list($zz, $ops, $zz_conditions);
+		$ops = zz_list($zz, $list, $ops, $zz_conditions);
 		if (empty($ops['mode']) AND wrap_static('page', 'status') AND isset($ops['text'])) {
 			// return of a request script (mode alone might be empty for empty exports, too)
 			$ops['mode'] = '';
@@ -237,6 +245,7 @@ function zzform($zz) {
 		// no list, no record? redirect to referer
 		if ($referer = wrap_static('page', 'referer')) wrap_redirect($referer);
 	}
+	$zz['fields'] = zz_fill_out($zz['fields'], $zz['table']);
 	if ($ops['mode'] !== 'export') {
 		$ops['output'] .= zz_output_backlink();
 		// if there was no add button in list, add it here

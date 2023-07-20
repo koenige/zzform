@@ -20,25 +20,18 @@
  * displays add new record, record navigation (if zz_conf['limit'] = true)
  * and search form below table
  * @param array $zz				table and field definition
+ * @param array $list
  * @param array $ops			operation variables
  * @param array $zz_conditions	configuration variables
  * @global array $zz_conf		Main conifguration parameters, will be modified
  * @return array				modification of $ops
  */
-function zz_list($zz, $ops, $zz_conditions) {
+function zz_list($zz, $list, $ops, $zz_conditions) {
 	global $zz_conf;
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	if (wrap_setting('zzform_search'))
 		require_once __DIR__.'/searchform.inc.php';
-
-	if (!empty($ops['list']['unchanged'])) {
-		$zz = wrap_array_merge($zz, $ops['list']['unchanged']);
-		unset($ops['list']['unchanged']);
-	}
-
-	$list = zz_init_cfg('zz[list]', $zz['list'] ?? [], $ops['list'] ?? []);
-	if (!$zz_conf['int']['show_list']) $list['display'] = false;
 
 	// Turn off hierarchical sorting when using search
 	// @todo: implement hierarchical view even when using search
