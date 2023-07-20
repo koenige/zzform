@@ -645,7 +645,8 @@ function zz_init_cfg_value($def, $ext, $int) {
 	
 	// array?
 	if (!empty($def['list']) AND !is_array($value))
-		$value = [$value];
+		if ($value) $value = [$value];
+		else $value = [];
 
 	// check values if they match type
 	switch ($def['type']) {
