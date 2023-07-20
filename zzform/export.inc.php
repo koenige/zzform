@@ -158,18 +158,12 @@ function zz_export_links($export) {
  *			with numerical index corresponding to 'head', each field is array
  *			made of 'class' (= HTML attribute values) and 'text' (= content)
  * @param array $zz
- * @global array $zz_conf
- *		$zz_conf['int']['export_script']
+ * @param array $list
  * @return mixed void (direct output) or array $ops
  */
-function zz_export($ops, $zz) {
-	global $zz_conf;
-
-	// check if we have data
-	if (!$zz_conf['int']['show_list']) return false;
-
+function zz_export($ops, $zz, $list) {
 	// custom functions
-	$function = zz_export_script($zz['list']['display']);
+	$function = zz_export_script($list['display']);
 	if ($function) {
 		// execute and return function
 		return $function($ops);
@@ -177,12 +171,12 @@ function zz_export($ops, $zz) {
 
 	$filename = wrap_filename($ops['title'], " ", [':' => ' ', '.' => ' ', '–' => '-']);
 
-	switch ($zz['list']['display']) {
+	switch ($list['display']) {
 	case 'csv':
 	case 'csv-excel':
 		// sort head, rows
 		zz_export_sort($ops['output']);
-		if ($zz['list']['display'] === 'csv-excel') {
+		if ($list['display'] === 'csv-excel') {
 			// Excel requires
 			// - tabulator when opening via double-click and Unicode text
 			// - semicolon when opening via double-click and ANSI text
@@ -190,8 +184,8 @@ function zz_export($ops, $zz) {
 		}
 		$output = '';
 		$output .= zz_export_csv_head($ops['output']['head']);
-		$output .= zz_export_csv_body($ops['output']['rows'], $zz['list']['display']);
-		if ($zz['list']['display'] === 'csv-excel') {
+		$output .= zz_export_csv_body($ops['output']['rows'], $list['display']);
+		if ($list['display'] === 'csv-excel') {
 			$headers['character_set'] = 'utf-16le';
 			// @todo check with mb_list_encodings() if available
 			$output = mb_convert_encoding($output, 'UTF-16LE', wrap_setting('character_set'));

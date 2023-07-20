@@ -165,25 +165,24 @@ function zz_list($zz, $ops, $zz_conditions) {
 	//
 
 	if ($ops['mode'] === 'export') {
-		if ($zz_conf['int']['show_list']) {
-			// add empty column from heads in rows as well (for export)
-			foreach ($rows as $row_index => $row) {
-				foreach (array_keys($head) as $col_index) {
-					if (!isset($row[$col_index])) {
-						$rows[$row_index][$col_index] = [
-							'value' => '', 'class' => [], 'text' => ''
-						];
-					}
+		if (!$zz_conf['int']['show_list']) zz_return();
+
+		// add empty column from heads in rows as well (for export)
+		foreach ($rows as $row_index => $row) {
+			foreach (array_keys($head) as $col_index) {
+				if (!isset($row[$col_index])) {
+					$rows[$row_index][$col_index] = [
+						'value' => '', 'class' => [], 'text' => ''
+					];
 				}
-				ksort($rows[$row_index]);
 			}
-			$ops['output'] = [
-				'head' => $head,
-				'rows' => $rows
-			];
+			ksort($rows[$row_index]);
 		}
-		if (wrap_setting('debug')) zz_debug('end');
-		$ops = zz_export($ops, $zz);
+		$ops['output'] = [
+			'head' => $head,
+			'rows' => $rows
+		];
+		$ops = zz_export($ops, $zz, $list);
 		return zz_return($ops);
 	}
 	
