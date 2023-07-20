@@ -303,9 +303,14 @@ function zz_output_redirect($ops, $zz, $zz_tab) {
 		$id_value = implode(',', $id_value);
 	}
 	// it’s a URL, so replace &amp; with & via substr()
+	$qs_zzform = $zz_conf['int']['url']['qs_zzform'];
+	// on delete, remove nolist, we don’t want to end with empty list
+	if ($ops['result'] === 'successful_delete') {
+		$qs_zzform = zz_edit_query_string($qs_zzform, ['nolist']);
+	}
 	$self = $zz_conf['int']['url']['full']
-		.$zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']
-		.($zz_conf['int']['url']['qs_zzform'] ? '&' : substr($zz_conf['int']['url']['?&'], 0, 1));
+		.$zz_conf['int']['url']['qs'].$qs_zzform
+		.($qs_zzform ? '&' : substr($zz_conf['int']['url']['?&'], 0, 1));
 	$secure = false;
 	if (!empty($zz_conf['int']['hash_id'])) {
 		// secret key has to be recalculated for insert operations
@@ -316,22 +321,12 @@ function zz_output_redirect($ops, $zz, $zz_tab) {
 	switch ($ops['result']) {
 	case 'successful_delete':
 		if (!empty($zz['record']['redirect_to_referer_zero_records'])
-			AND !empty($zz_conf['int']['referer']['path'])) {
+			AND wrap_static('page', 'referer')) {
 			// redirect to referer if there are no records in list
 			$id_field_name = $zz_tab[0]['table'].'.'.$zz_conf['int']['id']['field_name'];
 			if (!empty($_GET['nolist']) OR !zz_sql_count_rows($zz_tab[0]['sql'], $id_field_name)) {
-				if (empty($zz_conf['int']['referer']['scheme'])) {
-					$self = $zz_conf['int']['url']['base'];
-				} else {
-					$self = $zz_conf['int']['referer']['scheme'].'://'
-						.$zz_conf['int']['referer']['host'];
-				}
-				$self .= $zz_conf['int']['referer']['path'];
-				if (empty($zz_conf['int']['referer']['query'])) {
-					$self .= '?';
-				} else {
-					$self .= $zz_conf['int']['referer']['query'].'&';
-				}
+				$self = wrap_static('page', 'referer');
+				$self .= parse_url($self, PHP_URL_QUERY) ? '&' : '?';
 			}
 		}
 		if ($nos) {
@@ -644,26 +639,10 @@ function zz_output_add_export_links($zz, $ops, $position = 'below') {
 /**
  * HTML output of a backlink
  *
- * @param array $zz_tab
- * @global array $zz_conf
  * @return string HTML output Back to overview
  */
-function zz_output_backlink($zz_tab = []) {
-	global $zz_conf;
-	$link = false;
-
-	if (!empty($zz_tab)) {
-		// backlink below record form, just dynamic_referer
-		if (!wrap_static('page', 'dynamic_referer')) return '';
-		if (empty($zz_tab[0][0]['record'])) return '';
-		$link = zz_makelink(wrap_static('page', 'dynamic_referer'), $zz_tab[0][0]['record']);
-		// don't show second referer below list/form
-		wrap_static('page', 'referer', false);
-	} elseif (wrap_static('page', 'referer')) {
-		$link = $zz_conf['int']['referer_esc'];
-	}
-	if (!$link) return false;
-
+function zz_output_backlink() {
+	if (!$link = wrap_static('page', 'referer_esc')) return '';
 	return sprintf(
 		'<p id="back-overview"><a href="%s">%s</a></p>'."\n",
 		$link, wrap_text(wrap_setting('zzform_referer_text'))
@@ -810,7 +789,9 @@ function zz_init_referer() {
 			.$zz_conf['int']['referer']['host'] : '')
 		.$zz_conf['int']['referer']['path']
 		.($zz_conf['int']['referer']['query'] ?? '')));
-	$zz_conf['int']['referer_esc'] = str_replace('&', '&amp;', wrap_static('page', 'referer'));
+	if (!wrap_static('page', 'referer')) return;
+	wrap_static('page', 'referer_esc', str_replace('&', '&amp;', wrap_static('page', 'referer')));
+	wrap_static('page', 'zz_referer', true);
 }
 
 /**

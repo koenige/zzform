@@ -28,6 +28,8 @@
 function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 	global $zz_conf;
 
+	zz_record_dynamic_referer($ops['mode'], $ops['record']);
+
 	// there might be now a where value for this record
 	if (!empty($record['where'][$zz_tab[0]['table']])) {
 		foreach ($record['where'][$zz_tab[0]['table']] as $field_name => $value) {
@@ -212,8 +214,6 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 		$record['footer'] =	'';
 	}
 
-	$record['backlink'] = zz_output_backlink($zz_tab);
-
 	if (wrap_setting('zzform_xhr_vxjs')) {
 		if (!empty($zz_conf['int']['selects'])) {
 			$record['js_xhr_selects'] = wrap_template('xhr-selects', $zz_conf['int']['selects']);
@@ -308,7 +308,7 @@ function zz_display_records($zz_tab, $mode, $display, $zz_record, $zz_conditions
 				];
 			}
 		}
-		if (wrap_static('page', 'referer'))
+		if (wrap_static('page', 'referer') AND wrap_static('page', 'zz_referer'))
 			$output['hidden'][] = [
 				'name' => 'zz_referer', 'value' => wrap_static('page', 'referer')
 			];
@@ -330,6 +330,23 @@ function zz_display_records($zz_tab, $mode, $display, $zz_record, $zz_conditions
 }
 
 /**
+ * as soon as we got the updated record, create dynamic_referer
+ *
+ * @param string $mode
+ * @param array $record
+ * @return bool
+ */
+function zz_record_dynamic_referer($mode, $record) {
+	if (!$record) return false;
+	if (!array_key_exists('nolist', $_GET)) return false;
+	if (!wrap_static('page', 'dynamic_referer')) return false;
+	wrap_static('page', 'referer', zz_makelink(wrap_static('page', 'dynamic_referer'), $record));
+	wrap_static('page', 'referer_esc', str_replace('&', '&amp;', wrap_static('page', 'referer')));
+	if ($mode === 'delete') wrap_static('page', 'zz_referer', false);
+	return true;
+}
+
+/**
  * show table foot for record
  *
  * @param string $mode
@@ -344,8 +361,7 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple)
 	global $zz_conf;
 	$output = [];
 	
-	if (wrap_static('page', 'referer') AND array_key_exists('nolist', $_GET)
-		AND !empty($zz_record['redirect_to_referer_zero_records'])) {
+	if (wrap_static('page', 'referer') AND array_key_exists('nolist', $_GET)) {
 		$cancelurl = wrap_static('page', 'referer');
 	} elseif (!empty($zz_conf['int']['cancel_url'])) {
 		$cancelurl = $zz_conf['int']['cancel_url'];

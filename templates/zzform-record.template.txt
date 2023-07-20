@@ -88,7 +88,6 @@ condition if divert_files %%% data-divert-files="%%% item divert_files %%%"%%% c
 %%% condition endif %%%
 %%% item footer %%%
 
-%%% item backlink %%%
 %%% item js_xhr_selects %%%
 %%% item js_xhr_dependencies %%%
 %%% item js_field_dependencies %%%
