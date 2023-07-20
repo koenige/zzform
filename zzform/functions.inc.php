@@ -1754,7 +1754,6 @@ function zz_record_access($zz, $ops) {
 		$zz['record']['edit'] = false;			// don't edit record (form+links)
 		$zz['record']['delete'] = false;		// don't delete record (form+links)
 		$zz['record']['view'] = false;			// don't show record (links)
-		$zz_conf['int']['show_list'] = true;	// list
 		$zz_conf['int']['record'] = false;		// don't show record
 		break;
 	case 'show_after_add';
@@ -1794,7 +1793,6 @@ function zz_record_access($zz, $ops) {
 		$zz['record']['edit'] = false;			// don't edit record (form+links)
 		$zz['record']['delete'] = true;			// don't delete record (form+links)
 		$zz['record']['view'] = false;			// don't show record (links)
-		$zz_conf['int']['show_list'] = true;	// list
 		break;
 	case 'add_only';
 		$zz['record']['add'] = true;			// add record (form)
@@ -1969,7 +1967,6 @@ function zz_listandrecord_access($conf) {
 		$conf['delete'] = false;			// don't delete record (form+links)
 		$conf['view'] = false;				// don't show record (links)
 		$zz_conf['int']['record'] = false;	// don't show record
-		$zz_conf['int']['show_list'] = true;		// show list, further steps in zz_list()
 		break;
 	case 'all':
 		$conf['add'] = true;				// add record (form+links)
