@@ -1762,7 +1762,7 @@ function zz_record_access($zz, $ops) {
 		$zz['record']['delete'] = false;		// don't delete record (form+links)
 		$zz['record']['view'] = false;			// don't show record (links)
 		wrap_setting('zzform_search', false);	// no search form
-		$zz_conf['int']['show_list'] = false;	// no list
+		$zz['list']['display'] = false;			// no list
 		$zz['record']['no_ok'] = true;			// no OK button
 		$zz['record']['cancel_link'] = false; 	// no cancel link
 		if (empty($_POST)) $ops['mode'] = 'show';
@@ -1773,7 +1773,7 @@ function zz_record_access($zz, $ops) {
 		$zz['record']['delete'] = false;		// don't delete record (form+links)
 		$zz['record']['view'] = false;			// don't show record (links)
 		wrap_setting('zzform_search', false);	// no search form
-		$zz_conf['int']['show_list'] = false;	// no list
+		$zz['list']['display'] = false;			// no list
 		$zz['record']['no_ok'] = true;			// no OK button
 		$zz['record']['cancel_link'] = false; 	// no cancel link
 		if (empty($_POST)) $ops['mode'] = 'show';
@@ -1784,7 +1784,7 @@ function zz_record_access($zz, $ops) {
 		$zz['record']['delete'] = false;		// don't delete record (form+links)
 		$zz['record']['view'] = false;			// don't show record (links)
 		wrap_setting('zzform_search', false);	// no search form
-		$zz_conf['int']['show_list'] = false;	// no list
+		$zz['list']['display'] = false;			// no list
 		$zz['record']['no_ok'] = true;			// no OK button
 		if (empty($_POST)) $ops['mode'] = 'show';
 		break;
@@ -1800,7 +1800,7 @@ function zz_record_access($zz, $ops) {
 		$zz['record']['delete'] = false;		// don't delete record (form+links)
 		$zz['record']['view'] = false;			// don't show record (links)
 		wrap_setting('zzform_search', false);	// no search form
-		$zz_conf['int']['show_list'] = false;	// no list
+		$zz['list']['display'] = false;			// no list
 		$zz['record']['cancel_link'] = false; 	// no cancel link
 		$zz['record']['no_ok'] = true;			// no OK button
 		if (empty($zz_conf['int']['where_with_unique_id'])) {
@@ -1814,7 +1814,7 @@ function zz_record_access($zz, $ops) {
 		$zz['record']['delete'] = false;		// don't delete record (form+links)
 		$zz['record']['view'] = false;			// don't show record (links)
 		wrap_setting('zzform_search', false);	// no search form
-		$zz_conf['int']['show_list'] = false;	// no list
+		$zz['list']['display'] = false;			// no list
 		$zz['record']['no_ok'] = true;			// no OK button
 		$zz['record']['cancel_link'] = false; 	// no cancel link
 		if (empty($zz_conf['int']['where_with_unique_id'])) {
@@ -1827,12 +1827,14 @@ function zz_record_access($zz, $ops) {
 		$zz['record']['edit'] = false;
 		$zz['record']['delete'] = false;
 		$zz['record']['view'] = false;
-		$zz_conf['int']['show_list'] = false;
+		$zz['list']['display'] = false;
 		$zz_conf['generate_output'] = false;
 		$zz_conf['int']['record'] = true;
 		$zz['record']['action'] = 'thumbnails';
 		$zz['record']['query_records'] = true;
 		break;
+	case 'forbidden':
+		$zz['list']['display'] = false;	// don't show record, further in listandrecord_access
 	default:
 		// now the settings which apply to both record and list
 		$zz['record'] = zz_listandrecord_access($zz['record']);
@@ -1847,7 +1849,7 @@ function zz_record_access($zz, $ops) {
 	if ($zz_conf['int']['where_with_unique_id']) { // just for record, not for list
 		// in case of where and not unique, ie. only one record in table, 
 		// don't do this.
-		$zz_conf['int']['show_list'] = false;		// don't show table
+		$zz['list']['display'] = false;		// don't show table
 		$no_add = true;
 		if ($ops['mode'] === 'add') $no_add = false;
 		if ($zz['record']['action'] === 'insert') $no_add = false;
@@ -1891,8 +1893,8 @@ function zz_record_access($zz, $ops) {
 	// now, mode is set, do something depending on mode
 	
 	if (in_array($ops['mode'], ['edit', 'delete', 'add', 'revise'])
-		AND !wrap_setting('zzform_show_list_while_edit')) $zz_conf['int']['show_list'] = false;
-	if (!$zz_conf['generate_output']) $zz_conf['int']['show_list'] = false;
+		AND !wrap_setting('zzform_show_list_while_edit')) $zz['list']['display'] = false;
+	if (!$zz_conf['generate_output']) $zz['list']['display'] = false;
 
 	if ($ops['mode'] === 'list_only') {
 		$zz_conf['int']['record'] = false;	// don't show record
@@ -1959,7 +1961,6 @@ function zz_listandrecord_access($conf) {
 		$conf['delete'] = false;			// don't delete record (form+links)
 		$conf['view'] = false;				// don't show record (links)
 		$zz_conf['int']['record'] = false;	// don't show record
-		$zz_conf['int']['show_list'] = false;	// don't show record
 		break;
 	case 'search_but_no_list':
 		$conf['add'] = false;				// don't add record (form+links)

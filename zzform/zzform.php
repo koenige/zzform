@@ -227,7 +227,8 @@ function zzform($zz) {
 		unset($ops['list']['unchanged']);
 	}
 	$list = zz_init_cfg('zz[list]', $zz['list'] ?? [], $ops['list'] ?? []);
-	if (!$zz_conf['int']['show_list']) $list['display'] = false;
+	// don't show list in case 'nolist' parameter is set
+	if (isset($_GET['nolist'])) $list['display'] = false;
 
 	if ($list['display']) {
 		// shows table with all records (limited by zz_conf['limit'])
@@ -385,7 +386,7 @@ function zzform_record($zz, $ops, $zz_conditions) {
 		// this is from zz_access() but since mode has set, has to be
 		// checked against again
 		if (in_array($ops['mode'], ['edit', 'add']) 
-			AND !wrap_setting('zzform_show_list_while_edit')) $zz_conf['int']['show_list'] = false;
+			AND !wrap_setting('zzform_show_list_while_edit')) $ops['list']['display'] = false;
 	}
 
 	if (wrap_setting('debug')) zz_debug('subtables end');
@@ -746,14 +747,8 @@ function zz_initialize_int() {
 	$zz_conf['int'] = [];
 	$zz_conf['int']['url'] = zz_get_url_self();
 
-	if ($zz_conf['generate_output']) {
-		// display list of records in database
-		$zz_conf['int']['show_list'] = true;
-		// don't show list in case 'nolist' parameter is set
-		if (isset($_GET['nolist'])) $zz_conf['int']['show_list'] = false;
-
+	if ($zz_conf['generate_output'])
 		zz_init_referer();
-	}
 }
 
 /**

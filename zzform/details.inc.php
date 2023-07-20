@@ -219,7 +219,7 @@ function zz_details_show($zz, $current, $last) {
 
 	if (!empty($_SESSION['zzform'][$zz_conf['id']][$last])) {
 		// is there a form to return to?
-		$zz_conf['int']['show_list'] = false;
+		$zz['list']['display'] = false;
 		$zz_conf['int']['cancel_url'] = $_SESSION['zzform'][$zz_conf['id']][$last]['source'];
 		wrap_static('page', 'referer', $_SESSION['zzform'][$zz_conf['id']][$last]['source']);
 		wrap_setting('zzform_referer_text', 'Back to last form');
