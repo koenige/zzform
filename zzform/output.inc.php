@@ -614,6 +614,7 @@ function zz_output_add_export_links($zz, $ops, $position = 'below') {
 		if (!empty($zz['export'])) $links['export'] = zz_export_links($zz['export']);
 		break;
 	case 'nolist':
+		if ($ops['mode'] AND !wrap_setting('zzform_show_list_while_edit')) return '';
 		// only show add links if no links where shown before
 		if (isset($_GET['nolist'])) return '';
 		if ($add_links_shown) return '';
@@ -625,7 +626,7 @@ function zz_output_add_export_links($zz, $ops, $position = 'below') {
 		if (empty($zz['add'])) {
 			// normal add button
 			$links['add_record'] = true;
-		} elseif (!empty($zz['add'])) {
+		} else {
 			// multi-add-button
 			// if some 'add' was unset before, here we get new numerical keys
 			$links['add'] = $zz['add'];
