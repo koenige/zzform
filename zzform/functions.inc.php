@@ -1892,14 +1892,9 @@ function zz_record_access($zz, $ops) {
 		$zz['access'] = 'show';
 
 	// now, mode is set, do something depending on mode
-	
-	if (in_array($ops['mode'], ['edit', 'delete', 'add', 'revise'])
-		AND !wrap_setting('zzform_show_list_while_edit')) $zz['list']['display'] = false;
-	if (!$zz_conf['generate_output']) $zz['list']['display'] = false;
-
-	if ($ops['mode'] === 'list_only') {
+	if ($ops['mode'] === 'list_only')
 		$zz_conf['int']['record'] = false;	// don't show record
-	}
+
 	return zz_return([$zz, $ops]);
 }
 

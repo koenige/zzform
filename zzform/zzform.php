@@ -230,6 +230,8 @@ function zzform($zz) {
 	// don't show list in case 'nolist' parameter is set
 	if (isset($_GET['nolist']) AND (!isset($_GET['delete']) OR $_GET['delete']))
 		$list['display'] = false;
+	if (in_array($ops['mode'], ['edit', 'delete', 'add', 'revise'])
+		AND !wrap_setting('zzform_show_list_while_edit')) $list['display'] = false;
 
 	if ($list['display']) {
 		// shows table with all records (limited by zz_conf['limit'])
