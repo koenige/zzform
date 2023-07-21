@@ -2256,7 +2256,6 @@ function zz_upload_delete($filename, $show_filename = false, $action = 'delete')
  * @return bool true: copy was succesful, false: an error occured
  */
 function zz_upload_update($source, $dest, $uploaded_file, $action = 'update') {
-	zz_create_topfolders(dirname($dest));
 	if (zz_error_exit()) return false;
 	if (file_exists($dest) AND wrap_setting('zzform_backup') AND (strtolower($source) != strtolower($dest))) { 
 		// this case should not occur
@@ -2306,28 +2305,9 @@ function zz_upload_insert($source, $dest, $action = '-', $mode = 'copy') {
 			zz_unlink_cleanup($dest);
 		}
 	}
-	// create path if it does not exist or if cleanup removed it.
-	zz_create_topfolders(dirname($dest));
 	if (zz_error_exit()) return false;
-	$success = zz_rename($source, $dest);
-	if (!$success) {
-		if (!is_writeable(dirname($dest))) {
-			$msg_dev = 'Insufficient rights. Directory `%s` is not writable.';
-			$msg_dev_args[] = dirname($dest);
-		} else { 
-			$msg_dev = 'Unknown error. Copying not successful. <br>From: %s <br>To: %s<br>';
-			$msg_dev_args = [$source, $dest];
-		}
-		zz_error_log([
-			'msg' => 'File could not be saved. There is a problem with '
-				.'the user rights. We are working on it.',
-			'msg_dev' => $msg_dev,
-			'msg_dev_args' => $msg_dev_args,
-			'log_post_data' => false,
-			'level' => E_USER_ERROR
-		]);
-		return false;
-	}
+	$success = zz_rename($source, $dest, E_USER_ERROR);
+	if (!$success) return false;
 
 	if ($mode === 'move') { 
 		// do this with images which have not been touched
@@ -2689,51 +2669,84 @@ function zz_upload_file_extension($filename) {
  * copies file and then deletes old file (in case there are problems renaming
  * files from one mount to another)
  *
- * @param string $oldname old file name
- * @param string $newname new file name
- * @param ressource $context
+ * @param string $source old file name
+ * @param string $destination new file name
+ * @param int $fail_error_code
  * @return bool true if rename was successful, false if not
  */
-function zz_rename($oldname, $newname, $context = false) {
-	if (!$newname) {
+function zz_rename($source, $destination, $fail_error_code = E_USER_NOTICE) {
+	if (!$destination) {
 		zz_error_log([
 			'msg_dev' => 'zz_rename(): No new filename given.',
 			'level' => E_USER_WARNING
 		]);
 		return false;
 	}
-	if (!file_exists($oldname)) {
+	if (!file_exists($source)) {
 		zz_error_log([
 			'msg_dev' => 'zz_rename(): File %s does not exist.',
-			'msg_dev_args' => [$oldname],
+			'msg_dev_args' => [$source],
 			'level' => E_USER_WARNING
 		]);
 		return false;
 	}
-	if (str_starts_with($oldname, wrap_setting('cache_dir'))) {
+
+	// check if destination file is the same on error
+	$source_sha1 = sha1_file($source);
+
+	// now we have something to move, make sure destination folder exists
+	zz_create_topfolders(dirname($destination));
+	$destination_folder = dirname($destination);
+	$destination_folder_real = realpath($destination_folder);
+	if ($destination_folder !== $destination_folder_real)
+		$destination = $destination_folder_real.substr($destination, strlen($destination_folder));
+	
+	$copy_unlink_files = false;
+	if (wrap_setting('zzform_upload_copy_for_rename')) {
+		$copy_unlink_files = true;
+	} elseif ($mount_paths = wrap_setting('zzform_upload_mount_paths')) {
+		foreach ($mount_paths as $mount_path) {
+			if (!str_starts_with($destination, $mount_path)) continue;
+			$copy_unlink_files = true;
+			break;
+		}
+	}
+
+	if (str_starts_with($source, wrap_setting('cache_dir'))) {
 		// just copy file, leave old file alone (e. g. if copying from cache)
-		$success = copy($oldname, $newname);
+		$success = copy($source, $destination);
 		if ($success) return true;
-	} elseif (wrap_setting('zzform_upload_copy_for_rename')) {
+	} elseif ($copy_unlink_files) {
 		// copy file, this also works in older php versions between partitions.
-		$success = copy($oldname, $newname);
+		$success = copy($source, $destination);
 		if ($success) {
-			$success = unlink($oldname);
+			$success = unlink($source);
 			if ($success) return true;
 		}
 	} else {
-		if ($context) {
-			$success = rename($oldname, $newname, $context);
-			if ($success) return $success;
-		} else {
-			$success = rename($oldname, $newname);
-			if ($success) return $success;
-		}
+		$success = rename($source, $destination);
+		if ($success) return $success;
+	}
+	// there might be a rename: Operation not permitted error when e. g. moving
+	// files over partitions, but the file might still end up in the correct place
+	// error is caused from chown, chgrp which might not work on destination file system
+	if (file_exists($destination) AND sha1_file($destination) === $source_sha1) return true;
+
+	// error handling
+	if (!is_writeable(dirname($destination))) {
+		$msg_dev = 'Insufficient rights. Directory `%s` is not writable.';
+		$msg_dev_args[] = dirname($destination);
+	} else { 
+		$msg_dev = 'Unknown error. Copying of file not successful. <br>From: %s <br>To: %s<br>';
+		$msg_dev_args = [$source, $destination];
 	}
 	zz_error_log([
-		'msg_dev' => 'Copy/Delete for rename failed. Old filename: %s, new filename: %s',
-		'msg_dev_args' => [$oldname, $newname],
-		'level' => E_USER_NOTICE
+		'msg' => 'File could not be saved. There is a problem with '
+			.'the user rights. We are working on it.',
+		'msg_dev' => $msg_dev,
+		'msg_dev_args' => $msg_dev_args,
+		'log_post_data' => false,
+		'level' => $fail_error_code
 	]);
 	return false;
 }
