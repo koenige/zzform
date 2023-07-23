@@ -2571,7 +2571,7 @@ function zz_field_set($subtable, $display, $my_tab) {
 					$sets_indexed[$id]['checked'] = true;
 					$sets_indexed[$id]['rec_no'] = $rec_no;
 				}
-			} else {
+			} elseif (array_key_exists($field_names['select'], $rec)) {
 				$sets_indexed[$rec[$field_names['select']]]['rec_id'] = $rec[$field_names['id']] ?? '';
 				$sets_indexed[$rec[$field_names['select']]]['checked'] = true;
 				$sets_indexed[$rec[$field_names['select']]]['rec_no'] = $rec_no;
