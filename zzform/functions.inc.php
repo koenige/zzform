@@ -2269,9 +2269,7 @@ function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec 
 		} elseif (str_starts_with($pkey, 'sql')) {
 			$sql = $pvalue;
 			if ($sql_fields) $sql = vsprintf($sql, $sql_fields);
-			wrap_error('QUERY '.$sql);
 			$result = wrap_db_fetch($sql, '', 'single value');
-			wrap_error('QUERY RESULT '.json_encode($result));
 			if ($result) $p .= $result;
 			$sql_fields = [];
 		} elseif (str_starts_with($pkey, 'field') OR $pkey === 'extension') {
