@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2005-2023 Gustaf Mossakowski
+# @copyright Copyright © 2023 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 msgid ""
@@ -13,855 +13,831 @@ msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform\n"
 "POT-Creation-Date: \n"
 "PO-Revision-Date: \n"
-"Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
-"Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 1.8.12\n"
+"Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
+"Language: de\n"
 
 # Number of records as shown in page TITLE
 # Page elements
 msgid "records"
-msgstr "Einträge"
+msgstr ""
 
 # Page elements
 msgid "Back to overview"
-msgstr "Zurück zur Übersicht"
+msgstr ""
 
 # Link to go back to the last form if a new detail record was added
 # Page elements
 msgid "Back to last form"
-msgstr "Zurück zum letzten Formular"
+msgstr ""
 
 # Page elements
 msgid "page"
-msgstr "Seite"
+msgstr ""
 
 # Page elements: Heading
 msgid "Search"
-msgstr "Suche"
+msgstr ""
 
 # Link to add a new value for detail record via dropdown
 # Record form
 msgid "New …"
-msgstr "Neu …"
+msgstr ""
 
 # Link to edit a new value for detail record via dropdown
 # Record form
 msgid "Edit …"
-msgstr "Bearbeiten …"
+msgstr ""
 
 # Page title
 msgid "Review"
-msgstr "Anzeigen"
+msgstr ""
 
 # Page title
 # List view: Multi function
 msgid "Edit"
-msgstr "Bearbeiten"
+msgstr ""
 
 # Page title
 # List view: Multi function
 msgid "Delete"
-msgstr "Löschen"
+msgstr ""
 
+# Page title
 # Record form: bottom
 msgid "Show"
-msgstr "Anzeigen"
+msgstr ""
 
 # Page title
 msgid "Add"
-msgstr "Hinzufügen"
+msgstr ""
 
-# Record form: Heading
+# List view: Action
 msgid "Copy"
-msgstr "Kopieren"
+msgstr ""
 
 # Record form: Heading
 msgid "Merge"
-msgstr "Zusammenfassen"
+msgstr ""
 
 # Record form: Heading
 msgid "Add a record"
-msgstr "Eintrag hinzufügen"
+msgstr ""
 
 # Record form: Heading
 msgid "Delete a record"
-msgstr "Eintrag löschen"
+msgstr ""
 
 # Record form: Heading
 msgid "Edit a record"
-msgstr "Eintrag bearbeiten"
+msgstr ""
 
 # Record form: Heading
 msgid "Show a record"
-msgstr "Eintrag anzeigen"
+msgstr ""
 
 # Record form: Heading
 msgid "Add several records"
-msgstr "Mehrere Einträge hinzufügen"
+msgstr ""
 
 # Record form: Heading
 msgid "Delete several records"
-msgstr "Mehrere Einträge löschen"
+msgstr ""
 
 # Record form: Heading
 msgid "Edit several records"
-msgstr "Mehrere Einträge bearbeiten"
+msgstr ""
 
 # Record form: Heading
 msgid "Insert failed"
-msgstr "Einfügen fehlgeschlagen"
+msgstr ""
 
 # Record form: Heading
 msgid "Delete failed"
-msgstr "Löschen fehlgeschlagen"
+msgstr ""
 
 # Record form: Heading
 msgid "Update failed"
-msgstr "Aktualisieren fehlgeschlagen"
+msgstr ""
 
 # Record form: Heading
 msgid "The record with the ID %d was already deleted."
-msgstr "Der Eintrag mit der ID %d wurde bereits gelöscht."
+msgstr ""
 
 # Record form: Heading
 msgid "A record with the ID %d does not exist."
-msgstr "Es existiert kein Eintrag unter der ID %d."
+msgstr ""
 
 # Record form: Heading
 msgid "Sorry, it is not possible to access the ID %d from here."
-msgstr "Entschuldigung, es besteht von hier kein Zugriff auf die ID %d."
+msgstr ""
 
 # Record form: Heading
 msgid "Invalid ID for a record (must be an integer): %s"
-msgstr "Ungültige ID für einen Eintrag (muß Zahl sein): %s"
+msgstr ""
 
 # Record form: Heading
 msgid "Record was updated"
-msgstr "Eintrag wurde aktualisiert"
+msgstr ""
 
 # Record form: Heading
 msgid "Record was not updated (no changes were made)"
-msgstr "Eintrag wurde nicht aktualisiert (es gab keine Änderungen)"
+msgstr ""
 
 # Record form: Heading
 msgid "Record was deleted"
-msgstr "Eintrag wurde gelöscht"
+msgstr ""
 
 # Record form: Heading
 msgid "1 record was deleted"
-msgstr "1 Eintrag wurde gelöscht"
+msgstr ""
 
 # Record form: Heading
 msgid "%d records were deleted"
-msgstr "%d Einträge wurden gelöscht"
+msgstr ""
 
 # Record form: Heading
 msgid "Record was inserted"
-msgstr "Eintrag wurde eingefügt"
+msgstr ""
 
 # Record form: Heading
 msgid "Configuration does not allow this action: %s"
-msgstr "Die Konfiguration erlaubt diese Aktion nicht: %s"
+msgstr ""
 
 # Record form: Heading
 msgid "Configuration does not allow this mode: %s"
-msgstr "Die Konfiguration erlaubt diesen Modus nicht: %s"
+msgstr ""
 
 # Stop editing this record
 # Record form: bottom
 msgid "Cancel"
-msgstr "Abbrechen"
+msgstr ""
 
 # Record form: bottom
 msgid "OK"
-msgstr "OK"
+msgstr ""
 
 # Record form: bottom
 msgid "Update record"
-msgstr "Eintrag aktualisieren"
+msgstr ""
 
 # Record form: bottom
 msgid "Update records"
-msgstr "Einträge aktualisieren"
+msgstr ""
 
 # Record form: bottom
 msgid "Delete record"
-msgstr "Eintrag löschen"
+msgstr ""
 
 # Record form: bottom
 msgid "Delete records"
-msgstr "Einträge löschen"
+msgstr ""
 
 # Record form: bottom
 msgid "Add record"
-msgstr "Eintrag hinzufügen"
+msgstr ""
 
 # Record form: bottom
 msgid "Add records"
-msgstr "Einträge hinzufügen"
+msgstr ""
 
 # Record form: bottom
 msgid "Edit record"
-msgstr "Eintrag bearbeiten"
+msgstr ""
 
 # Record form: bottom
 msgid "Edit records"
-msgstr "Einträge bearbeiten"
+msgstr ""
 
 # no value available for display, should be abbreviated
 # Record form: field output
 msgid "<abbr title=\"Not available\">N/A</abbr>"
-msgstr "<abbr title=\"keine Angabe\">k.&nbsp;A.</abbr>"
+msgstr ""
 
 # Record form: field output
 msgid "will be added automatically"
-msgstr "wird automatisch hinzugefügt"
+msgstr ""
 
 # Record form: field output
 msgid "calculated field"
-msgstr "berechnetes Feld"
+msgstr ""
 
 # dropdown, first entry
 # Record form: Select
 msgid "None selected"
-msgstr "Nichts ausgewählt"
+msgstr ""
 
 # radio buttons, first entry
 # Record form: Select
 msgid "No selection"
-msgstr "Keine Auswahl"
+msgstr ""
 
 # Record form: Select
 msgid "No source defined"
-msgstr "Keine Quelle angegeben"
+msgstr ""
 
 # Record form: Select
 msgid "No selection possible."
-msgstr "Keine Auswahl möglich."
+msgstr ""
 
 # Record form: Select
 msgid "(This entry is the highest entry in the hierarchy.)"
-msgstr "(Dieser Eintrag ist der oberste Eintrag in der Hierarchie.)"
+msgstr ""
 
 # select/deselect checkboxes
 # Record form: Select
 msgid "Select all"
-msgstr "Alle auswählen"
+msgstr ""
 
 # select/deselect checkboxes
 # Record form: Select
 msgid "Deselect all"
-msgstr "Auswahl entfernen"
+msgstr ""
 
 # Record form: Change password
 msgid "Old:"
-msgstr "Alt:"
+msgstr ""
 
 # Record form: Change password
 msgid "New:"
-msgstr "Neu:"
+msgstr ""
 
 # Record form: Change password
 msgid "(Please enter your new password twice)"
-msgstr "(Bitte geben Sie Ihr Passwort zweimal ein)"
+msgstr "* Bitte gib Dein neues Passwort zweimal ein."
 
 # Record form: Change password
 msgid "Your password has been changed!"
-msgstr "Ihr Passwort wurde geändert."
+msgstr "Dein Passwort wurde geändert."
 
 # Record form: Change password
 msgid ""
 "Your current password is different from what you entered. Please try again."
 msgstr ""
-"Ihr aktuelles Passwort ist nicht das, was Sie eingegeben haben. Bitte "
-"versuchen Sie es nocheinmal."
+"Dein aktuelles Passwort ist nicht das, was du eingegeben hast. Bitte "
+"versuche es nocheinmal."
 
 # Record form: Change password
 msgid "New passwords do not match. Please try again."
 msgstr ""
-"Die Eingaben für das neue Passwort unterscheiden sich. Bitte versuchen Sie "
-"es nocheinmal."
+"Die Eingaben für das neue Passwort unterscheiden sich. Bitte versuche es "
+"nocheinmal."
 
 # Record form: Change password
 msgid "Please enter your current password and twice your new password."
-msgstr ""
-"Bitte geben Sie Ihr aktuelles Passwort und zweimal das neue Passwort ein."
+msgstr "Bitte gib dein aktuelles Passwort und zweimal das neue Passwort ein."
 
 # Record form: Change password
 msgid ""
 "New and old password are identical. Please choose a different new password."
 msgstr ""
-"Neues und altes Passwort sind identisch. Bitte wählen Sie ein anderes, neues "
+"Neues und altes Passwort sind identisch. Bitte wähle ein anderes, neues "
 "Passwort aus."
 
 # Record form: Change password
 msgid "hidden"
-msgstr "versteckt"
+msgstr ""
 
 # Record form: Change password
 msgid "Your new password could not be saved. Please try a different one."
 msgstr ""
-"Ihr neues Passwort konnte nicht gespeichert werden. Bitte versuchen Sie es "
-"mit einem anderen."
+"Dein neues Passwort konnte nicht gespeichert werden. Bitte versuche es mit "
+"einem anderen."
 
 # Record form: File upload
 msgid "Error: "
-msgstr "Fehler: "
+msgstr ""
 
 # Record form: File upload
 msgid "No file was uploaded."
-msgstr "Es wurde keine Datei hochgeladen."
+msgstr ""
 
 # Record form: File upload
 msgid "File was only partially uploaded."
-msgstr "Die Datei wurde nur teilweise hochgeladen."
+msgstr ""
 
 # Record form: File upload
 msgid "File is too big."
-msgstr "Die Datei ist zu groß."
+msgstr ""
 
 # Record form: File upload
 msgid "Maximum allowed filesize is %s."
-msgstr "Maximal erlaubte Dateigröße %s."
+msgstr ""
 
 # Record form: File upload
 msgid "Unsupported filetype:"
-msgstr "Nicht unterstützter Dateityp:"
+msgstr ""
 
 # Record form: File upload
 msgid "Supported filetypes:"
-msgstr "Unterstützte Dateitypen:"
+msgstr ""
 
 # Record form: File upload
 msgid "Could not delete %s."
-msgstr "Konnte %s nicht löschen."
+msgstr ""
 
 # Record form: File upload
 msgid "Could not delete %s, file did not exist."
-msgstr "Konnte %s nicht löschen, da die Datei nicht existierte."
+msgstr ""
 
 # prefix for alt-attribute
 # Record form: File upload
 msgid "File: "
-msgstr "Datei: "
+msgstr ""
 
 # alt-attribute if there's no image
 # Record form: File upload
 msgid "No image"
-msgstr "Kein Bild"
+msgstr ""
 
 # Record form: File upload
 msgid "Delete this file"
-msgstr "Diese Datei löschen"
+msgstr ""
 
 # Record form: File upload
 msgid "File uploaded:"
-msgstr "Hochgeladene Datei:"
+msgstr ""
 
 # Record form: File upload
 msgid ""
 "File could not be saved. There is a problem with the user rights. We are "
 "working on it."
 msgstr ""
-"Die Datei konnte nicht gespeichert werden. Es gibt ein Problem, aber wir "
-"arbeiten daran."
 
 # Record form: File upload
 msgid "Minimum width %s was not reached."
-msgstr "Minimale Breite %s nicht eingehalten."
+msgstr ""
 
 # Record form: File upload
 msgid "Minimum height %s was not reached."
-msgstr "Minimale Höhe %s nicht eingehalten."
+msgstr ""
 
 # Record form: File upload
 msgid "Maximum width %s has been exceeded."
-msgstr "Maximale Breite %s wurde überschritten."
+msgstr ""
 
 # Record form: File upload
 msgid "Maximum height %s has been exceeded."
-msgstr "Maximale Höhe %s wurde überschritten."
+msgstr ""
 
 # Record form: File upload
 msgid "The PDF consists of %d pages. Only %d pages are allowed."
-msgstr "Das PDF besteht aus %d Seiten. Nur %d Seiten sind erlaubt."
+msgstr ""
 
 # Record form: File upload
 msgid "Transfer failed. Probably you sent a file that was too large."
 msgstr ""
-"Übertragung fehlgeschlagen. Vermutlich haben Sie eine Datei gesendet, die zu "
+"Übertragung fehlgeschlagen. Vermutlich hast du eine Datei gesendet, die zu "
 "groß war."
 
 # Record form: File upload
 msgid "– You sent: %s data."
-msgstr " – Sie haben %s Daten gesendet."
+msgstr " – Du hast %s Daten gesendet."
 
 # Record form: File upload
 msgid ""
 "The file %s is empty. If you are uploading from a Mac, please check if the "
 "data is not only available in the so-called “resource fork” of the file."
 msgstr ""
-"Die Datei %s ist leer. Falls Sie von einem Mac hochladen, prüfen Sie bitte, "
-"ob die Daten nicht ausschließlich im sog. »Resource Fork« liegen."
+"Die Datei %s ist leer. Falls du von einem Mac hochlädst, prüfe bitte, ob die "
+"Daten nicht ausschließlich im sog. »Resource Fork« liegen."
 
 # Record form: File upload
 #: zzform/record.inc.php
 msgid "File upload is currently impossible."
-msgstr "Ein Dateiupload ist zur Zeit nicht möglich."
+msgstr ""
 
 # e. g. Add Address, Add Phone Number ...
 # Record form: Detail record
 msgid "Add %s"
-msgstr "%s ergänzen"
+msgstr ""
 
 # Record form: Detail record
 msgid "Remove %s"
-msgstr "%s entfernen"
+msgstr ""
 
 # Record form: Detail record
 msgid "Remove"
-msgstr "Entfernen"
+msgstr ""
 
 # Record form: Detail record
 msgid "Minimum of records for table `%s` was not met (%d)."
-msgstr "Im Feld `%s` sind mehr Daten erforderlich (min. Anzahl: %d)."
+msgstr ""
 
 # Record form: Validation, displayed inside form
 msgid "Please enter more characters."
-msgstr "Bitte geben Sie mehr Buchstaben ein."
+msgstr ""
 
 # Record form: Validation, displayed inside form
 msgid "No entry found. Try less characters."
-msgstr "Keinen Eintrag gefunden. Versuchen Sie es mit weniger Zeichen."
+msgstr "Keinen Eintrag gefunden. Versuche es mit weniger Zeichen."
 
 # Record form: Validation, displayed inside form
 msgid "Text is too long (max. %d characters, %d submitted)."
-msgstr "Text ist zu lang (max. %d Zeichen, %d eingegeben)."
+msgstr ""
 
 # Record form: Validation, displayed inside form
 msgid "Text is too short (min. %d characters, %d submitted)."
-msgstr "Text ist zu kurz (min. %d Zeichen, %d eingegeben)."
+msgstr ""
 
 # Record form: Validation, displayed inside form
 msgid "Please make a different selection."
-msgstr "Bitte treffen Sie eine andere Auswahl."
+msgstr "Bitte treffe eine andere Auswahl."
 
 # Record form: Validation, displayed above form
 msgid "These errors occurred:"
-msgstr "Diese Fehler sind aufgetreten:"
+msgstr ""
 
 # Record form: Validation, displayed above form
 msgid "Value incorrect in field <strong>%s</strong>."
-msgstr "Angabe im Feld <strong>%s</strong> erscheint falsch."
+msgstr ""
 
 # Record form: Validation, displayed above form
 msgid "Value missing in field <strong>%s</strong>."
-msgstr "Angabe im Feld <strong>%s</strong> fehlt."
+msgstr ""
 
 # Record form: Validation, displayed above form
 msgid "Nothing was uploaded in field <strong>%s</strong>."
-msgstr "Es wurde nichts im Feld <strong>%s</strong> hochgeladen."
+msgstr ""
 
 # Record form: Validation, displayed above form
 msgid "Duplicate entry"
 msgstr ""
-"Doppelter Eintrag in dieser Tabelle. Bitte überprüfen Sie, ob entweder der "
-"gewünschte Eintrag bereits existiert oder ob Sie Ihren Eintrag ändern können."
 
 # Record form: Validation, displayed above form
 msgid "There was a problem with the detail record."
-msgstr "Teileintrag konnte nicht gespeichert werden."
+msgstr ""
 
 # Record form: Validation, displayed above form
 msgid "String <em>“%s”</em> is not allowed"
-msgstr "Die Zeichenfolge <em>»%s«</em> ist nicht erlaubt"
+msgstr ""
 
 # Record form: Validation, displayed above form
 msgid "Value “%s” needs to be greater than “%s”."
-msgstr "Der Wert „%s“ muss größer als „%s“ sein."
+msgstr ""
 
 # Record form: Validation, displayed above form
 msgid "Value “%s” needs to be greater than or equal to “%s”."
-msgstr "Der Wert „%s“ muss größer oder gleich „%s“ sein."
+msgstr ""
 
 # Record form: Validation, displayed above form
 msgid "Value “%s” needs to be smaller than “%s”."
-msgstr "Der Wert „%s“ muss kleiner als „%s“ sein."
+msgstr ""
 
 # Record form: Validation, displayed above form
 msgid "Value “%s” needs to be smaller than or equal to “%s”."
-msgstr "Der Wert „%s“ muss kleiner oder gleich „%s“ sein."
+msgstr ""
 
 # Record form: Validation, displayed above form
 msgid "Please check these values again"
-msgstr "Bitte überprüfen Sie diese Werte nocheinmal"
+msgstr "Bitte überprüfe diese Werte nocheinmal"
 
 # Record form: Validation, displayed above form
 msgid "Please select one of the values for field <strong>%s</strong>."
-msgstr ""
-"Bitte wählen Sie aus einem der Werte für das Feld <strong>%s</strong> aus."
+msgstr "Bitte wähle aus einem der Werte für das Feld <strong>%s</strong> aus."
 
 # Record form: Validation, displayed above form
 msgid "Please check the value for field <strong>%s</strong>."
-msgstr "Bitte prüfen Sie den Wert für das Feld <strong>%s</strong>."
+msgstr "Bitte prüfe den Wert für das Feld <strong>%s</strong>."
 
 # Record form: Validation, displayed above form
 msgid "Creation of directory %s failed: Parent directory is not writable."
 msgstr ""
-"Erstellung des Verzeichnisses %s ist fehlgeschlagen: Hauptverzeichnis ist "
-"nicht schreibbar."
 
 # Record form: Validation, displayed above form
 msgid "Creation of directory %s failed."
-msgstr "Erstellung des Verzeichnisses %s ist fehlgeschlagen."
+msgstr ""
 
 # Record form: Validation, displayed above form
 msgid ""
 "Value in field <em>“%s”</em> must not be identical to field <em>“%s”</em>."
 msgstr ""
-"Der Wert im Feld <em>„%s“</em> darf nicht mit dem im Feld <em>„%s“</em> "
-"identisch sein."
 
 # Record form: Validation of Database Integrity, displayed above form
 msgid "No records in relation table `%s`. Please fill in records."
-msgstr ""
-"Keine Einträge in Tabelle `%s`. Bitte füllen Sie diese Tabelle mit Werten."
+msgstr "Keine Einträge in Tabelle `%s`. Bitte fülle diese Tabelle mit Werten."
 
 # Record form: Validation of Database Integrity, displayed above form
 msgid ""
 "This record could not be deleted because it has other data associated with "
 "it."
 msgstr ""
-"Der Eintrag konnte nicht gelöscht werden, da mit ihm weitere Daten verknüpft "
-"sind:"
 
 # Record form: Validation, resubmit because of logout
 msgid ""
 "You had been logged out automatically. Therefore, your changes were not yet "
 "saved. Please submit the form again."
 msgstr ""
-"Sie wurden automatisch ausgeloggt, Ihre Änderungen wurden daher noch nicht "
-"gespeichert. Bitte schicken Sie das Formular erneut ab."
+"Du wurdest automatisch ausgeloggt, deine Änderungen wurden daher noch nicht "
+"gespeichert. Bitte schick das Formular erneut ab."
 
 # Record form: Resubmit because form was sent too quickly
 msgid "Sorry, an error has occurred.<br>Please send the form again."
 msgstr ""
-"Entschuldigung, ein Fehler ist aufgetreten.<br>Bitte senden Sie das Formular "
+"Entschuldigung, ein Fehler ist aufgetreten.<br>Bitte sende das Formular "
 "erneut."
 
 # Record form: foreign record
 msgid "No entry possible. First save this record."
-msgstr "Kein Eintrag möglich. Bitte speichern Sie zuerst den Eintrag."
+msgstr "Kein Eintrag möglich. Bitte speichere zuerst den Eintrag."
 
 # Record form: foreign record
 msgid "No data available."
-msgstr "Keine Daten vorhanden"
+msgstr ""
 
 # Record form: identifier, hidden etc.
 msgid "Record for <strong>%s</strong> does not exist. (ID: %s)"
-msgstr "Eintrag für <strong>%s</strong> existiert nicht. (ID: %s)"
+msgstr ""
 
 # Record form: identifier, hidden etc.
 msgid "Would be changed on update"
-msgstr "Würde bei Aktualisierung geändert."
+msgstr ""
 
 # Record form: Merge
 #: zzform/merge.inc.php
 msgid "Merge: Failed to update record with ID %d in table <code>%s</code>."
 msgstr ""
-"Zusammenführen: Eintrag mit ID %d in Tabelle <code>%s</code> konnte nicht "
-"aktualisiert werden."
 
 # Record form: Merge
 #: zzform/merge.inc.php
 msgid "Merge: Failed to delete record with ID %d in table <code>%s</code>."
 msgstr ""
-"Zusammenführen: Eintrag mit ID %d in Tabelle <code>%s</code> konnte nicht "
-"gelöscht werden."
 
 # Record form: Merge
 #: zzform/merge.inc.php
 msgid ""
 "Merge: Update of record with ID %d in table <code>%s</code> was successful."
 msgstr ""
-"Zusammenführen: Eintrag mit ID %d in Tabelle <code>%s</code> wurde "
-"erfolgreich aktualisiert."
 
 # Record form: Merge
 #: zzform/merge.inc.php
 msgid ""
 "Merge: Deletion of record with ID %d in table <code>%s</code> was successful."
 msgstr ""
-"Zusammenführen: Eintrag mit ID %d in Tabelle <code>%s</code> wurde "
-"erfolgreich gelöscht."
 
 # Record form: Merge
 msgid "%d records merged successfully"
-msgstr "%d Einträge erfolgreich zusammengefasst"
+msgstr ""
 
 # Record form: Merge
 msgid "For merging, the field <em>%s</em> has to be equal in all records."
 msgstr ""
-"Für die Zusammenfassung der Einträge muß das Feld %s in allen Einträgen "
-"gleich sein."
 
 # Record form: Merge
 msgid "For merging, the fields %s and %s have to be equal in all records."
 msgstr ""
-"Für die Zusammenfassung der Einträge müssen die Felder %s und %s in allen "
-"Einträgen gleich sein."
 
 # Record form: Merge
 msgid "Merge not complete, records are different:"
-msgstr "Zusammenfassung nicht komplett, die Einträge sind unterschiedlich:"
+msgstr ""
 
 # Record form: Revision
 msgid "Revise a record"
-msgstr "Eintrag überarbeiten"
+msgstr ""
 
 # Record form: Revision
 msgid "Old value: %s"
-msgstr "Alter Wert: %s"
+msgstr ""
 
 # Record form: Revision
 msgid "– empty –"
-msgstr "– leer –"
+msgstr ""
 
 # Record form: Revision
 #: zzbrick_tables/revisions.php
 msgid "Revisions"
-msgstr "Revisionen"
+msgstr ""
 
 # Record form: Revision
 #: zzbrick_tables/revisions.php
 msgid "Data"
-msgstr "Daten"
+msgstr ""
 
 # Record form: Revision
 #: zzbrick_tables/revisions.php
 msgid "Script URL"
-msgstr "Skript-URL"
+msgstr ""
 
 # Record form: Revision
 #: zzbrick_tables/revisiondata.php
 msgid "ignore"
-msgstr "ignorieren"
+msgstr ""
 
 # Record form: Revision
 #: zzbrick_tables/revisiondata.php
 msgid "Changed values"
-msgstr "Geänderte Werte"
+msgstr ""
 
 # Record form: Revision
 #: zzbrick_tables/revisiondata.php
 msgid "Complete values"
-msgstr "Alle Werte"
+msgstr ""
 
 # Record form: Captcha
 msgid "Please enter the digits from the image."
-msgstr "Bitte geben Sie die Ziffern aus dem Bild ein."
+msgstr "Bitte gib die Ziffern aus dem Bild ein."
 
 # Record form: Captcha
 msgid "(Reload image)"
-msgstr "(Bild erneut laden)"
+msgstr ""
 
 # Record form: Captcha
 msgid "Please enter the following code: %s."
-msgstr "Bitte geben Sie den folgenden Code ein: %s."
+msgstr "Bitte gib den folgenden Code ein: %s."
 
 # Record form: Captcha
 msgid "Please add %s to it."
-msgstr "Bitte fügen Sie %s hinzu."
+msgstr "Bitte füge %s hinzu."
 
 # Record form: Captcha
 msgid "zero"
-msgstr "null"
+msgstr ""
 
 # Record form: Captcha
 msgid "one"
-msgstr "eins"
+msgstr ""
 
 # Record form: Captcha
 msgid "two"
-msgstr "zwei"
+msgstr ""
 
 # Record form: Captcha
 msgid "three"
-msgstr "drei"
+msgstr ""
 
 # Record form: Captcha
 msgid "four"
-msgstr "vier"
+msgstr ""
 
 # Record form: Captcha
 msgid "five"
-msgstr "fünf"
+msgstr ""
 
 # Record form: Captcha
 msgid "six"
-msgstr "sechs"
+msgstr ""
 
 # Record form: Captcha
 msgid "seven"
-msgstr "sieben"
+msgstr ""
 
 # Record form: Captcha
 msgid "eight"
-msgstr "acht"
+msgstr ""
 
 # Record form: Captcha
 msgid "nine"
-msgstr "neun"
+msgstr ""
 
 # Record form: Captcha
 msgid "ten"
-msgstr "zehn"
+msgstr ""
 
 # Record form: Date field
 msgid "Date"
-msgstr "Datum"
+msgstr ""
 
 # Record form: Datetime field
 msgid "Date and time"
-msgstr "Datum und Uhrzeit"
+msgstr ""
 
 # Record form: foot
 msgid "Submit data …"
-msgstr "Übermittle Daten …"
+msgstr ""
 
 # List view: Revision
 msgid "live"
-msgstr "live"
+msgstr ""
 
 # List view: Revision
 msgid "pending"
-msgstr "unerledigt"
+msgstr ""
 
 # List view: Revision
 msgid "historic"
-msgstr "historisch"
+msgstr ""
 
 # List view
 msgid "No entries available"
-msgstr "Keine Einträge vorhanden"
+msgstr ""
 
 # group by unknown
 # List view
 msgid "- unknown -"
-msgstr "- unbekannt -"
+msgstr ""
 
 # List view: Filter
 msgid "Selection"
-msgstr "Auswahl"
+msgstr ""
 
 # List view: Filter
 msgid "all"
-msgstr "Alle"
+msgstr ""
 
 # List view: Filter
 msgid ""
 "“%s” is not a valid value for the selection “%s”. Please select a different "
 "filter."
 msgstr ""
-"»%s« ist kein gültiger Wert für die Auswahl »%s«. Bitte treffen Sie eine "
-"andere Auswahl."
+"»%s« ist kein gültiger Wert für die Auswahl »%s«. Bitte triff eine andere "
+"Auswahl."
 
 # List view: Filter
 msgid "A filter for the selection “%s” does not exist."
-msgstr "Es existiert kein Filter für die Auswahl »%s«."
+msgstr ""
 
 # List view: Filter
 msgid "<a href=\"%s\">List without this filter</a>"
-msgstr "<a href=\"%s\">Die Liste ohne diesen Filter</a>"
+msgstr ""
 
 # List view: Filter
 msgid "(no value)"
-msgstr "(kein Wert)"
+msgstr ""
 
 # List view: Filter
 #: zzform/functions.inc.php
 msgid "This filter does not exist: %s"
-msgstr "Dieser Filter ist nicht vorhanden: %s"
+msgstr ""
 
 # List view: Table head
 msgid "Order by"
-msgstr "Sortiere nach"
+msgstr ""
 
 # List view: Table head
 msgid "ascending"
-msgstr "aufsteigend"
+msgstr ""
 
 # List view: Table head
 msgid "descending"
-msgstr "absteigend"
+msgstr ""
 
 # List view: Table head
 msgid "Action"
-msgstr "Aktion"
+msgstr ""
 
 # List view: bottom
 msgid "Add new record"
-msgstr "Neuer Eintrag"
+msgstr ""
 
 # List view: bottom
 msgid "%d record total"
 msgid_plural "%d records total"
-msgstr[0] "%d Eintrag gesamt"
-msgstr[1] "%d Einträge gesamt"
+msgstr[0] ""
+msgstr[1] ""
 
 # List view: bottom
 msgid "All records on one page"
-msgstr "Alle Einträge auf einer Seite"
+msgstr ""
 
 # List view: bottom
 msgid "First page"
-msgstr "Erste Seite"
+msgstr ""
 
 # List view: bottom
 msgid "Previous page"
-msgstr "Vorige Seite"
+msgstr ""
 
 # List view: bottom
 msgid "Next page"
-msgstr "Nächste Seite"
+msgstr ""
 
 # List view: bottom
 msgid "Last page"
-msgstr "Letzte Seite"
+msgstr ""
 
 # List view: Search form
 msgid "Show all records (without search filter)"
-msgstr "Zeige alle Einträge (ohne Suchfilter)"
+msgstr ""
 
 # List view: Search form
 msgid "in"
-msgstr "in"
+msgstr ""
 
 # List view: Search form
 msgid "all fields"
-msgstr "allen Feldern"
+msgstr ""
 
 # Button
 # List view: Search form
 msgid "search"
-msgstr "suche"
+msgstr ""
 
 # Error handling
 msgid "Attention!"
-msgstr "Achtung!"
+msgstr ""
 
 # Error handling
 msgid "Incorrect value: %s"
-msgstr "Falscher Wert: %s"
+msgstr ""
 
 # Error handling
 msgid "Database error"
-msgstr "Datenbankfehler"
+msgstr ""
 
 # Error handling
 msgid ""
@@ -869,275 +845,268 @@ msgid ""
 "your inconvenience. Please try again later."
 msgstr ""
 "Ein Fehler ist aufgetreten. Wir arbeiten an der Lösung des Problems. Bitte "
-"entschuldigen Sie die Unannehmlichkeiten. Versuchen Sie es bitte später "
-"nocheinmal."
+"entschuldige die Unannehmlichkeiten. Versuche es bitte später nocheinmal."
 
 # Export-Link
 # Modules: Export
 msgid "Export"
-msgstr "Export"
+msgstr ""
 
 # Modules: Export
 msgid ""
 "Please don’t mess with the URL parameters. <code>%s</code> is not allowed "
 "here."
 msgstr ""
-"Bitte ändern Sie nicht eigenhändig die URL-Parameter. <code>%s</code> ist "
-"hier nicht erlaubt."
+"Bitte ändere nicht eigenhändig die URL-Parameter. <code>%s</code> ist hier "
+"nicht erlaubt."
 
 # Modules: Geo
 msgctxt "North"
 msgid "N"
-msgstr "N"
+msgstr ""
 
 # Modules: Geo
 msgctxt "East"
 msgid "E"
-msgstr "O"
+msgstr ""
 
 # Modules: Geo
 msgctxt "South"
 msgid "S"
-msgstr "S"
+msgstr ""
 
 # Modules: Geo
 msgctxt "West"
 msgid "W"
-msgstr "W"
+msgstr ""
 
 # Modules: Geo
 msgid "North"
-msgstr "Nord"
+msgstr ""
 
 # Modules: Geo
 msgid "East"
-msgstr "Ost"
+msgstr ""
 
 # Modules: Geo
 msgid "South"
-msgstr "Süd"
+msgstr ""
 
 # Modules: Geo
 msgid "West"
-msgstr "West"
+msgstr ""
 
 # Modules: Geo
 msgid ""
 "It looks like this coordinate has a different orientation. Maybe latitude "
 "and longitude were interchanged?"
 msgstr ""
-"Es sieht aus, als ob diese Koordinate eine andere Orientierung hat. Wurden "
-"Länge und Breite vertauscht?"
 
 # Modules: Geo
 msgid "Mismatch: %s signals different hemisphere than %s."
-msgstr "Nicht eindeutig: %s zeigt eine andere Hemisphäre an als %s."
+msgstr ""
 
 # Modules: Geo
 msgid "There are too many decimal points (or commas) in this value."
-msgstr "In diesem Wert sind zuviele Kommas oder Punkte."
+msgstr ""
 
 # Modules: Geo
 msgid "Only the last number might have a decimal point (or comma)."
-msgstr "Nur die letzte Zahl darf ein Komma enthalten (oder einen Punkt)."
+msgstr ""
 
 # Modules: Geo
 msgid "%s is too small. Please enter for minutes a positive value or 0."
 msgstr ""
-"%s ist zu klein. Bitte geben Sie für Minuten einen positiven Wert oder 0 ein."
+"%s ist zu klein. Bitte gib für Minuten einen positiven Wert oder 0 ein."
 
 # Modules: Geo
 msgid "%s is too small. Please enter for seconds a positive value or 0."
 msgstr ""
-"%s ist zu klein. Bitte geben Sie für Sekunden einen positiven Wert oder 0 ein"
+"%s ist zu klein. Bitte gib für Sekunden einen positiven Wert oder 0 ein"
 
 # Modules: Geo
 msgid "%s is too big. Please enter for minutes a value smaller than 60."
-msgstr ""
-"%s ist zu groß. Bitte geben Sie für Minuten einen Wert kleiner als 60 ein."
+msgstr "%s ist zu groß. Bitte gib für Minuten einen Wert kleiner als 60 ein."
 
 # Modules: Geo
 msgid "%s is too big. Please enter for seconds a value smaller than 60."
-msgstr ""
-"%s ist zu groß. Bitte geben Sie für Sekunden einen Wert kleiner als 60 ein."
+msgstr "%s ist zu groß. Bitte gib für Sekunden einen Wert kleiner als 60 ein."
 
 # Modules: Geo
 msgid ""
 "Sorry, there are too many numbers. We cannot interpret what you entered."
 msgstr ""
-"Wir können leider nicht diese Koordinate korrekt interpretieren, da zuviele "
-"Zahlen eingegeben wurden."
 
 # Modules: Geo
 msgid ""
 "Minimum value for degrees is %s. The value you entered is too small: %s."
 msgstr ""
-"Der kleinste Wert für Grad ist %s. Der Wert, den Sie eingegeben haben, ist "
-"zu klein: %s."
+"Der kleinste Wert für Grad ist %s. Der Wert, den du eingegeben hast, ist zu "
+"klein: %s."
 
 # Modules: Geo
 msgid "Maximum value for degrees is %s. The value you entered is too big: %s."
 msgstr ""
-"Der größte Wert für Grad ist %s. Der Wert, den Sie eingegeben haben, ist zu "
+"Der größte Wert für Grad ist %s. Der Wert, den du eingegeben hast, ist zu "
 "groß: %s."
 
 # Modules: Sync
 #: zzform/sync.inc.php
 msgid "Deletable Records"
-msgstr "Löschbare Datensätze"
+msgstr ""
 
 # Modules: Sync
 #: zzform/sync.inc.php
 msgid "Processing entries %s–%s …"
-msgstr "Verarbeite Einträge %s–%s …"
+msgstr ""
 
 # Modules: Sync
 #: zzform/sync.inc.php
 msgid "%d update was made."
 msgid_plural "%d updates were made."
-msgstr[0] "Ein Eintrag wurde aktualisiert."
-msgstr[1] "%d Einträge wurden aktualisiert."
+msgstr[0] ""
+msgstr[1] ""
 
 # Modules: Sync
 #: zzform/sync.inc.php
 msgid "%d insert was made."
 msgid_plural "%d inserts were made."
-msgstr[0] "Es wurde ein Eintrag eingefügt."
-msgstr[1] "%d Einträge wurden eingefügt."
+msgstr[0] ""
+msgstr[1] ""
 
 # Modules: Sync
 #: zzform/sync.inc.php
 msgid "%d record was left as is."
 msgid_plural "%d records were left as is."
-msgstr[0] "Ein Eintrag blieb unverändert."
-msgstr[1] "%s Einträge blieben unverändert."
+msgstr[0] ""
+msgstr[1] ""
 
 # Modules: Sync
 #: zzform/sync.inc.php
 msgid "%d record had errors."
 msgid_plural "%d records had errors."
-msgstr[0] "Ein Eintrag hatte Fehler."
-msgstr[1] "%d Einträge hatten Fehler."
+msgstr[0] ""
+msgstr[1] ""
 
 # Modules: Sync
 #: zzform/sync.inc.php
 msgid "Go on to next page"
-msgstr "Weiter zur nächsten Seite"
+msgstr ""
 
 # Modules: Sync
 #: zzform/sync.inc.php
 msgid "Possibly deletable records"
-msgstr "Evtl. löschbare Datensätze"
+msgstr ""
 
 # Modules: Sync
 #: zzform/sync.inc.php
 msgid "Please wait for reload …"
-msgstr "Bitte warten Sie auf das Neuladen der Seite …"
+msgstr "Bitte warte auf das Neuladen der Seite …"
 
 # Modules: Sync
 #: zzform/sync.inc.php
 msgid "Finished!"
-msgstr "Fertig!"
+msgstr ""
 
 # Modules: Sync
 #: zzform/sync.inc.php
 msgid "No updates/inserts were made."
-msgstr "Es wurden keine Einträge aktualisiert oder eingefügt."
+msgstr ""
 
 # Modules: Sync
 #: templates/sync-overview.template.txt
 msgid "Please select from one of the following datasets:"
-msgstr "Bitte wählen Sie aus einem der folgenden Datensätze:"
+msgstr "Bitte wähle aus einem der folgenden Einträge:"
 
 # Modules: Sync
 #: templates/sync-overview.template.txt
 msgid "There are no deletable records."
-msgstr "Es gibt keine löschbaren Datensätze."
+msgstr ""
 
 # Modules: Upload (Table filetypes)
 msgid "Filetypes"
-msgstr "Dateitypen"
+msgstr ""
 
 # Modules: Upload (Table filetypes)
 msgid "MIME Content Type"
-msgstr "MIME Inhaltstyp"
+msgstr ""
 
 # Modules: Upload (Table filetypes)
 msgid "MIME Subtype"
-msgstr "MIME Untertyp"
+msgstr ""
 
 # Modules: Upload (Table filetypes)
 msgid "Extension"
-msgstr "Dateierweiterung"
+msgstr ""
 
 # Modules: Upload (Table filetypes)
 msgid "Ext."
-msgstr "Ext."
+msgstr ""
 
 # Modules: Upload (Table filetypes)
 msgid "Count"
-msgstr "Anzahl"
+msgstr ""
 
 # Backend: Development
 msgid "Script configuration error. No display field set."
-msgstr "Script configuration error. No display field set."
+msgstr ""
 
 # introduces field name with wrong values
 # Backend: Development
 msgid "Field name"
-msgstr "Feldname"
+msgstr ""
 
 # Backend: Development
 msgid "Database error. This query has ambiguous values in ID field."
-msgstr "Datenbankfehler. Diese Abfrage hat kein eindeutiges ID-Feld."
+msgstr ""
 
 # Backend: Development, Error mail
 msgid "Database access error"
-msgstr "Fehler bei Datenbankzugriff"
+msgstr ""
 
 # Backend: Development, Error mail
 msgid "The following error(s) occured in project %s:"
-msgstr "Folgende(r) Fehler sind im Projekt %s aufgetaucht:"
+msgstr ""
 
 # Auto complete
 msgid "No record was found."
-msgstr "Kein Eintrag gefunden."
+msgstr ""
 
 # Filter
 #: behaviour/zzform-foot.js
 msgid "expand"
-msgstr "ausklappen"
+msgstr ""
 
 # Filter
 #: behaviour/zzform-foot.js
 msgid "collapse"
-msgstr "zuklappen"
+msgstr ""
 
 # Checks
 #: zzform/zzform.php
 msgid "Merging of record is not allowed."
-msgstr "Das Zusammenführen von Einträgen ist nicht erlaubt."
+msgstr ""
 
 #: behaviour/zzform-foot.js
 msgid "Upload Failed"
-msgstr "Hochladen fehlgeschlagen"
+msgstr ""
 
 #: behaviour/zzform-foot.js
 msgid "Upload Aborted"
-msgstr "Hochladen abgebrochen"
+msgstr ""
 
 #: behaviour/zzform-foot.js
 msgid "% uploaded … please wait"
-msgstr "% hochgeladen … Bitte warten"
+msgstr ""
 
 #: behaviour/zzform-foot.js
 msgid "Uploaded:"
-msgstr "Hochgeladen:"
+msgstr ""
 
 #: behaviour/zzform-foot.js
 msgid "Total:"
-msgstr "Gesamt:"
+msgstr ""
 
 #: behaviour/zzform-foot.js
 msgid "Bytes"
-msgstr "Bytes"
+msgstr ""

@@ -268,7 +268,7 @@ msgid "New:"
 msgstr "Новий:"
 
 # Record form: Change password
-msgid "(Please confirm your new password twice)"
+msgid "(Please enter your new password twice)"
 msgstr "(Підтвердьте новий пароль двічі)"
 
 # Record form: Change password
