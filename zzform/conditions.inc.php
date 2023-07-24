@@ -243,11 +243,11 @@ function zz_conditions_check_output($zz_conditions, $zz, $mode) {
  * @param array $zz
  *		array 'fields'
  * @param array $zz_conditions
- * @param int $id_value
+ * @param bool $is_zz_tab (optional)
  * @global array $zz_conf
  * @return array $zz
  */
-function zz_conditions_record($zz, $zz_conditions) {
+function zz_conditions_record($zz, $zz_conditions, $is_zz_tab = false) {
 	global $zz_conf;
 
 	// check for 'values'
@@ -264,7 +264,7 @@ function zz_conditions_record($zz, $zz_conditions) {
 	
 	// check if there are any bool-conditions
 	if (!empty($zz_conditions['bool'])) {
-		zz_conditions_merge_conf($zz, $zz_conditions['bool'], $zz_conf['int']['id']['value']);
+		zz_conditions_merge_conf($zz, $zz_conditions['bool'], $zz_conf['int']['id']['value'], $is_zz_tab ? ['record'] : []);
 		foreach (array_keys($zz['fields']) as $no) {
 			zz_conditions_merge_field($zz['fields'][$no], $zz_conditions['bool'], $zz_conf['int']['id']['value']);
 			if (!$zz['fields'][$no]) unset($zz['fields'][$no]);
@@ -771,21 +771,42 @@ function zz_conditions_merge_field(&$field, $bool_conditions, $record_id, $type 
  *
  * @param array $conf (e. g. $zz_conf, $zz_conf_record: will change if 
  *		there are conditions)
- * @param array $bool_conditions	checked conditions
- * @param int $record_id		ID of record
+ * @param array $bool_conditions checked conditions
+ * @param int $record_id ID of record
+ * @param array $ignores keys to ignore
  * @return bool true: configuration was changed; false: nothing was changed
  */
-function zz_conditions_merge_conf(&$conf, $bool_conditions, $record_id) {
+function zz_conditions_merge_conf(&$conf, $bool_conditions, $record_id, $ignores = []) {
 	$merged = false;
 	if (!empty($conf['if'])) {
+		$conf['if'] = zz_conditions_merge_ignore($conf['if'], $ignores);
 		$conf = zz_conditions_merge($conf, $bool_conditions, $record_id, false, 'conf');
 		$merged = true;
 	}
 	if (!empty($conf['unless'])) {
+		$conf['unless'] = zz_conditions_merge_ignore($conf['unless'], $ignores);
 		$conf = zz_conditions_merge($conf, $bool_conditions, $record_id, true, 'conf');
 		$merged = true;
 	}
 	return $merged;
+}
+
+/**
+ * ignore some keys for merge, e. g. 'record' is good for $zz, but not for $zz_tab
+ *
+ * @param array $conditional
+ * @param array $ignores
+ * @return array
+ */
+function zz_conditions_merge_ignore($conditional, $ignores) {
+	if (!$ignores) return $conditional;
+	foreach ($conditional as $index => $condition) {
+		foreach (array_keys($condition) as $key) {
+			if (!in_array($key, $ignores)) continue;
+			unset($conditional[$index][$key]);
+		}
+	}
+	return $conditional;
 }
 
 /**
@@ -899,7 +920,7 @@ function zz_conditions_before_record($zz, &$zz_tab, &$zz_conditions, $mode) {
 		if (!is_numeric($tab)) continue;
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
 			if (!is_numeric($rec)) continue;
-			$zz_tab[$tab][$rec] = zz_conditions_record($zz_tab[$tab][$rec], $zz_conditions);
+			$zz_tab[$tab][$rec] = zz_conditions_record($zz_tab[$tab][$rec], $zz_conditions, true);
 		}
 	}
 	$zz_conditions = zz_conditions_subrecord_check($zz, $zz_tab, $zz_conditions);
