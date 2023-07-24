@@ -1470,7 +1470,7 @@ function zz_action_dependent_fields(&$zz_tab) {
 			foreach ($my_rec['fields'] as $f => $field) {
 				if (empty($dependent_fields_ids[$f])) continue;
 				// 	shorthand
-				$field_name = isset($field['field_name']) ? $field['field_name'] : '';
+				$field_name = $field['field_name'] ?? '';
 
 				foreach ($dependent_fields_ids[$f] as $dependency) {
 					// do not use $my_rec to change, $zz_tab[$tab][$rec] might have changed
@@ -1509,6 +1509,7 @@ function zz_action_dependent_fields(&$zz_tab) {
 						if (!empty($my_rec['fields'][$f]['required_in_db']) AND !empty($my_rec['fields'][$f]['dependent_empty_value'])) {
 							$zz_tab[$tab][$rec]['POST'][$field_name] = $my_rec['fields'][$f]['dependent_empty_value'];
 						} elseif (!$field_name AND !empty($field['table_name'])) {
+							// it is a subtable. delete existing records, do not add new records
 							$deleted_ids = zz_action_dependent_subtables($field, $my_rec['POST']);
 							if ($deleted_ids) {
 								// since it is a conditional field
@@ -1525,10 +1526,13 @@ function zz_action_dependent_fields(&$zz_tab) {
 								}
 								$zz_tab[$field['subtable']]['subtable_deleted'] += $deleted_ids;
 								$zz_tab[$field['subtable']]['subtable_ids'] = [];
-								foreach ($zz_tab[$field['subtable']] as $sub_rec => $subtable) {
-									if (!is_numeric($sub_rec)) continue;
-									// remove data
-									$zz_tab[$field['subtable']][$sub_rec]['POST'] = [];
+							}
+							foreach ($zz_tab[$field['subtable']] as $sub_rec => $subtable) {
+								if (!is_numeric($sub_rec)) continue;
+								// remove data
+								$zz_tab[$field['subtable']][$sub_rec]['POST'] = [];
+								$zz_tab[$field['subtable']][$sub_rec]['action'] = 'ignore'; // for new records with default values
+								if ($deleted_ids) {
 									if (empty($subtable['id']['value'])
 										OR !in_array($subtable['id']['value'], $all_deleted_ids)) {
 										continue;
