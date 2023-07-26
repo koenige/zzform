@@ -303,6 +303,8 @@ function zz_check_time($time) {
 	} elseif (preg_match('~^\d{1,2}$~', $time)) {
 		$time .= ':00:00';
 	}
+	// allow input like 855 for 08:55:00
+	if (strlen($time) === 3) $time = sprintf('0%s', $time);
 	$timestamp = strtotime($time);
 	if (!$timestamp) return false;
 	$time = date("H:i:s", $timestamp);
