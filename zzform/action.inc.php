@@ -2399,6 +2399,14 @@ function zz_action_unique_check(&$zz_tab) {
 	foreach ($uniques as $fields) {
 		$new_values = [];
 		foreach ($fields as $field) {
+			// check if value was validated
+			foreach ($zz_tab[0][0]['fields'] as $no => $fielddef) {
+				if (empty($fielddef['field_name'])) continue;
+				if ($field['field_name'] !== $fielddef['field_name']) continue;
+				if (!isset($zz_tab[0][0]['fields'][$no]['check_validation'])) continue;
+				if ($zz_tab[0][0]['fields'][$no]['check_validation']) continue;
+				continue 3;
+			}
 			$value = $zz_tab[0][0]['POST'][$field['field_name']] ?? false;
 			if (!$value) {
 				$value = 'NULL';
@@ -2406,7 +2414,7 @@ function zz_action_unique_check(&$zz_tab) {
 					if ($zz_tab[0]['unique_ignore_null']) continue; // check without field
 					else continue 2; // no check, since multiple NULL values are always allowed
 			} elseif (!is_int($value)) {
-				$value = sprintf('"%s"', $value);
+				$value = sprintf('"%s"', wrap_db_escape($value));
 			}
 			$new_values[] = sprintf('`%s` = %s', $field['field_name'], $value);
 		}
