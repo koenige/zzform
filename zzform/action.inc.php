@@ -1233,7 +1233,8 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 			$my_rec['POST_db'][$field_name] = '[DETAIL_KEY]';
 			break;
 		case 'translation_key':
-			$my_rec['POST_db'][$field_name] = $field['translation_key'];
+			if (isset($field['translation_key'])) // not set if multi copy
+				$my_rec['POST_db'][$field_name] = $field['translation_key'];
 			break;
 		case 'timestamp':
 			$my_rec['POST_db'][$field_name] = 'NOW()';
