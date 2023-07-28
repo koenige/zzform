@@ -1742,6 +1742,8 @@ function zz_record_access($zz, $ops) {
 		} else {
 			$zz_conf['int']['access'] = 'forbidden';
 			wrap_static('page', 'status', 403);
+			global $zz_page;
+			$zz_page['error_msg'] = 'You are not allowed to create these thumbnails.';
 			$ops['mode'] = false;
 			$zz['record']['action'] = false;
 		}
