@@ -64,61 +64,61 @@ function zz_translations_init($table, $fields) {
 		if (!empty($fields[$no]['hide_in_form'])) continue;
 
 		// include new subtable for translations
-		$zz_sub = [];	
+		$zz = [];	
 		$translationsubtable = [];	
 
 		// include and read translation script
-		$zz_sub = zzform_include(sprintf('translations-%s', $translationfields[$field_name]['field_type']));
-		if (!$zz_sub)
+		$zz = zzform_include(sprintf('translations-%s', $translationfields[$field_name]['field_type']));
+		if (!$zz)
 			wrap_error(sprintf('Translations script for `%s` does not exist!', $translationfields[$field_name]['field_type']), E_USER_ERROR);
-		$zz_sub = zz_sql_prefix($zz_sub);
+		$zz = zz_sql_prefix($zz);
 		// change title
-		$zz_sub['title'] = sprintf('%s (%s)'
+		$zz['title'] = sprintf('%s (%s)'
 			, wrap_text($fields[$no]['title'] ?? zz_fill_out_field_title($fields[$no]['field_name']))
-			, wrap_text($zz_sub['title'])
+			, wrap_text($zz['title'])
 		);
 		
 		// split fields-array
 		// glue together fields-array
-		foreach (array_keys($zz_sub['fields']) as $key) {
-			if (!empty($zz_sub['fields'][$key]['type'])) {
-				if ($zz_sub['fields'][$key]['type'] == 'translation_key') {
-					$zz_sub['fields'][$key]['translation_key'] = $translationfields[$field_name]['translationfield_id'];
-				} elseif ($zz_sub['fields'][$key]['type'] == 'foreign_key') {
-					$zz_sub['foreign_key_field_name'] = $zz_sub['fields'][$key]['field_name'];
+		foreach (array_keys($zz['fields']) as $key) {
+			if (!empty($zz['fields'][$key]['type'])) {
+				if ($zz['fields'][$key]['type'] == 'translation_key') {
+					$zz['fields'][$key]['translation_key'] = $translationfields[$field_name]['translationfield_id'];
+				} elseif ($zz['fields'][$key]['type'] == 'foreign_key') {
+					$zz['foreign_key_field_name'] = $zz['fields'][$key]['field_name'];
 				}
 			}
-			if (!empty($zz_sub['fields'][$key]['inherit_format'])) {
+			if (!empty($zz['fields'][$key]['inherit_format'])) {
 				$inherit_defs = ['type', 'format', 'typo_cleanup', 'rows'];
 				foreach ($inherit_defs as $inherit_def) {
 					if (!array_key_exists($inherit_def, $fields[$no])) continue;
-					$zz_sub['fields'][$key][$inherit_def] = $fields[$no][$inherit_def];
+					$zz['fields'][$key][$inherit_def] = $fields[$no][$inherit_def];
 					if ($inherit_def === 'type' AND $fields[$no][$inherit_def] === 'memo') {
 						// varchar form: display below, not inline
-						unset($zz_sub['form_display']);
-						$zz_sub['fields'][5]['append_next'] = false;
+						unset($zz['form_display']);
+						$zz['fields'][5]['append_next'] = false;
 					}
 				}
 			}
 			if (!empty($fields[$no]['rows']))
-				$zz_sub['fields'][$key]['rows'] = $fields[$no]['rows'];
+				$zz['fields'][$key]['rows'] = $fields[$no]['rows'];
 		}
 		if (!empty($fields[$no]['if']))
-			$zz_sub['if'] = $fields[$no]['if'];
+			$zz['if'] = $fields[$no]['if'];
 		if (!empty($fields[$no]['unless']))
-			$zz_sub['unless'] = $fields[$no]['unless'];
+			$zz['unless'] = $fields[$no]['unless'];
 		if (!empty($fields[$no]['separator'])) {
-			$zz_sub['separator'] = $fields[$no]['separator'];
+			$zz['separator'] = $fields[$no]['separator'];
 			unset($fields[$no]['separator']);
 		}
 		if (!empty($fields[$no]['field_sequence'])) {
 			if (strstr($fields[$no]['field_sequence'], '.')) {
-				$zz_sub['field_sequence'] = $fields[$no]['field_sequence'].'1';
+				$zz['field_sequence'] = $fields[$no]['field_sequence'].'1';
 			} else {
-				$zz_sub['field_sequence'] = $fields[$no]['field_sequence'].'.1';
+				$zz['field_sequence'] = $fields[$no]['field_sequence'].'.1';
 			}
 		}
-		$translationsubtable[$index+$k] = $zz_sub;
+		$translationsubtable[$index+$k] = $zz;
 		$translationsubtable[$index+$k]['table_name'] .= '_'.$k;
 		$translationsubtable[$index+$k]['translate_field_name'] = $field_name;
 		$translationsubtable[$index+$k]['translate_field_index'] = $no;
