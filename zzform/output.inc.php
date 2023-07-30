@@ -439,15 +439,15 @@ function zz_nice_selection($zz_fields) {
 			$scope = substr($scope, strrpos($scope, '.') + 1);
 		foreach ($zz_fields as $field) {
 			if (!empty($field['field_name']) AND $field['field_name'] === $scope) {
-				$fieldname = $field['title'];
+				$fieldname = zz_field_title($field);
 				break;
 			}
 			if (!empty($field['display_field']) AND $field['display_field'] === $scope) {
-				$fieldname = $field['title'];
+				$fieldname = zz_field_title($field);
 				break;
 			}
 			if (!empty($field['table_name']) AND $field['table_name'] === $scope) {
-				$fieldname = $field['title'];
+				$fieldname = zz_field_title($field);
 				break;
 			}
 		}

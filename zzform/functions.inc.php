@@ -1078,7 +1078,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 	if (!empty($defs[$hash])) return zz_return($defs[$hash]);
 
 	$to_translates = [
-		'title', 'explanation', 'explanation_top', 'title_append', 'title_tab'
+		'explanation', 'explanation_top', 'title_append', 'title_tab'
 	];
 
 	foreach (array_keys($fields) as $no) {
@@ -1099,14 +1099,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			// default type: text
 			$fields[$no]['type'] = 'text';
 		}
-		if (!isset($fields[$no]['title'])) { // create title
-			if (!isset($fields[$no]['field_name'])) {
-				wrap_error(sprintf('zzform field definition incorrect: [Table %s, No. %d] %s',
-					$db_table, $no, json_encode($fields[$no], JSON_PRETTY_PRINT)), E_USER_ERROR
-				);
-			}
-			$fields[$no]['title'] = zz_fill_out_field_title($fields[$no]['field_name']);
-		}
+		$fields[$no]['title'] = zz_field_title($fields[$no]);
 		if (empty($fields[$no]['class'])) $fields[$no]['class'] = [];
 		elseif (!is_array($fields[$no]['class'])) $fields[$no]['class'] = [$fields[$no]['class']];
 
@@ -1279,17 +1272,37 @@ function zz_fill_out_required($field, $db_table) {
 }
 
 /**
- * create title from field name
+ * return field title
  *
- * @param string $field_name
+ * @param array $field
  * @return string
  */
-function zz_fill_out_field_title($field_name) {
-	$title = ucfirst($field_name);
+function zz_field_title($field) {
+	static $translations = [];
+
+	// title exists, translate if not already done
+	if (isset($field['title'])) {
+		$title = $field['title'];
+		if (in_array($title, $translations)) return $title;
+		$title = wrap_text($title);
+		$translations[] = $title;
+		return $title;
+	}
+	
+	// title will be created from field_name, translate it
+	if (!isset($field['field_name'])) {
+		wrap_error(sprintf(
+			'zzform field definition incorrect, field has neither field_name nor title: %s'
+			, json_encode($field, JSON_PRETTY_PRINT)
+		), E_USER_ERROR);
+	}
+	$title = ucfirst($field['field_name']);
 	$title = str_replace('_ID', ' ', $title);
 	$title = str_replace('_id', ' ', $title);
 	$title = str_replace('_', ' ', $title);
 	$title = rtrim($title);
+	$title = wrap_text($title);
+	$translations[] = $title;
 	return $title;
 }
 

@@ -74,7 +74,7 @@ function zz_translations_init($table, $fields) {
 		$zz = zz_sql_prefix($zz);
 		// change title
 		$zz['title'] = sprintf('%s (%s)'
-			, wrap_text($fields[$no]['title'] ?? zz_fill_out_field_title($fields[$no]['field_name']))
+			, zz_field_title($fields[$no])
 			, wrap_text($zz['title'])
 		);
 		
