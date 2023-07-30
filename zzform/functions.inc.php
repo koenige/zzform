@@ -1694,16 +1694,9 @@ function zz_record_access($zz, $ops) {
 		// @todo do we need to check record conditions here?
 		$zz_conditions = zz_conditions_record_check($zz, $ops['mode'], $zz_conditions);
 		// save old variables for list view
-		$saved_variables_record = [
-			'add', 'edit', 'delete', 'view'
-		];
 		$saved_variables = [
 			'access', 'details'
 		];
-		foreach ($saved_variables_record as $var) {
-			if (!isset($zz['record'][$var])) continue;
-			$ops['list']['unchanged']['record'][$var] = $zz['record'][$var];
-		}
 		foreach ($saved_variables as $var) {
 			if (!isset($zz[$var])) continue;
 			$ops['list']['unchanged'][$var] = $zz[$var];
