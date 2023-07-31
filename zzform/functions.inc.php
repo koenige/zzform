@@ -2260,27 +2260,42 @@ function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec 
 
 	// put path together
 	$alt_locked = false;
-	foreach ($path as $pkey => $pvalue) {
+	foreach ($path as $part => $pvalue) {
 		if (!$pvalue) continue;
-		if ($pkey === 'root') {
+		while (is_numeric(substr($part, -1))) $part = substr($part, 0, -1);
+		switch ($part) {
+		case 'root':
 			$root = $pvalue;
-		} elseif ($pkey === 'webroot') {
+			break;
+
+		case 'webroot':
 			$webroot = $pvalue;
 			$rootp = $p;
 			$p = '';
-		} elseif (str_starts_with($pkey, 'mode')) {
+			break;
+
+		case 'mode':
 			$modes[] = $pvalue;
-		} elseif (str_starts_with($pkey, 'string')) {
+			break;
+		
+		case 'string':
 			$p .= $pvalue;
-		} elseif (str_starts_with($pkey, 'sql_field')) {
+			break;
+
+		case 'sql_field':
 			$sql_fields[] = $line[$pvalue] ?? '';
-		} elseif (str_starts_with($pkey, 'sql')) {
+			break;
+
+		case 'sql':
 			$sql = $pvalue;
 			if ($sql_fields) $sql = vsprintf($sql, $sql_fields);
 			$result = wrap_db_fetch($sql, '', 'single value');
 			if ($result) $p .= $result;
 			$sql_fields = [];
-		} elseif (str_starts_with($pkey, 'field') OR $pkey === 'extension') {
+			break;
+
+		case 'extension':
+		case 'field':
 			$content = $line[$pvalue] ?? '';
 			if (!$content AND $content !== '0' AND $record === 'new') {
 				$content = zz_get_record(
@@ -2298,6 +2313,10 @@ function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec 
 				if ($pkey === 'extension') $alt_locked = true;
 			}
 			$modes = false;
+			break;
+		default:
+			wrap_error('Unknown mode %s in %s', $part, __FUNCTION__, E_USER_NOTICE);
+			break;
 		}
 	}
 
