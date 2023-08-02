@@ -3187,6 +3187,8 @@ function zz_field_select_sql_radio($field, $record, $lines) {
 		}
 		$radios[] = zz_field_select_radio_value($field, $record, $id, zz_field_concat($field, $line), $pos);
 	}
+	if (!empty($field['show_no_option']))
+		$radios[] = zz_field_select_radio_value($field, $record, 0, wrap_text('No selection'), ++$pos);
 	$fieldattr = zz_field_dependent_fields($field, $lines);
 	return zz_field_select_radio($field, $record, $radios, $fieldattr);
 }
