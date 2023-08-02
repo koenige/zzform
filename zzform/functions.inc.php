@@ -2310,7 +2310,7 @@ function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec 
 			$p .= $content;
 			if (!$alt_locked) {
 				$alt = wrap_text('File: ').$content;
-				if ($pkey === 'extension') $alt_locked = true;
+				if ($part === 'extension') $alt_locked = true;
 			}
 			$modes = false;
 			break;
