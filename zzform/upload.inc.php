@@ -255,14 +255,12 @@ function zz_upload_check_files($zz_tab) {
 		$myfiles = $_FILES[$field['f_field_name']] ?? [];
 		foreach (array_keys($field['image']) as $img) {
 			$images[$no][$img] = $field['image'][$img];
-			$images[$no][$img]['optional_image'] = isset($field['optional_image'])
-				? $field['optional_image'] : false;
+			$images[$no][$img]['optional_image'] = $field['optional_image'] ?? false;
 			$images[$no][$img]['upload_max_filesize'] = $field['upload_max_filesize'];
 
 			// initialize convert_options
-			if (!isset($images[$no][$img]['convert_options'])) {
+			if (!isset($images[$no][$img]['convert_options']))
 				$images[$no][$img]['convert_options'] = '';
-			}
 
 			// check if thumbnail image might have to be recreated
 			if (!empty($images[$no][$img]['recreate_on_change'])) {
