@@ -2314,8 +2314,13 @@ function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec 
 			}
 			$modes = false;
 			break;
+
+		case 'webstring':
+		case 'webfield':
+			break;
+
 		default:
-			wrap_error('Unknown mode %s in %s', $part, __FUNCTION__, E_USER_NOTICE);
+			wrap_error(sprintf('Unknown mode %s in %s', $part, __FUNCTION__), E_USER_NOTICE);
 			break;
 		}
 	}
