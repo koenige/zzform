@@ -66,6 +66,17 @@ function zz_debug($marker = false, $text = false, $id = false) {
 	$debug = [];
 	$debug['time'] = $time - $zz_debug[$id]['timer'];
 	$debug['time_used'] = $time - $current['time_start'];
+	// don’t show if time used was below E-5
+	if (str_starts_with($marker, 'end') AND $debug['time_used'] < 0.0001) {
+		$last_output = end($zz_debug[$id]['output']);
+		if (!$last_output) return true;
+		if ($last_output['function'] !== $current['function']) return true;
+		if (!str_starts_with($last_output['marker'], 'start')) return true;
+		// remove corresponding start message if nothing really happened
+		array_pop($zz_debug[$id]['output']);
+		array_pop($zz_debug[$id]['time']);
+		return true;
+	}
 	$debug['memory'] = memory_get_usage();
 	$debug['function'] = $current['function'];
 	$debug['marker'] = $marker;
