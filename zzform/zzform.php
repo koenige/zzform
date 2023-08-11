@@ -74,13 +74,6 @@ function zzform($zz) {
 	$ops['output'] .= zz_error_output();
 	$zz = zz_defaults($zz);
 	
-	// make some settings always in sync
-	// @todo reduce settings
-	if (empty($zz_conf['limit']))
-		$zz_conf['limit'] = wrap_setting('zzform_limit');
-	else
-		wrap_setting('zzform_limit', $zz_conf['limit']);
-
 	if (empty($zz['fields'])) {
 		zz_error_log([
 			'msg_dev' => 'There is no table definition available (\'fields\'). Please check.',
