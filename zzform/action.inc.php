@@ -1169,10 +1169,8 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 			//	call function: generate ID
 			if ($my_rec['fields'][$f]['type'] === 'identifier') {
 				require_once __DIR__.'/identifier.inc.php';
-				$func_vars = zz_identifier_vars($my_rec, $f, $main_post);
-				$conf = $my_rec['fields'][$f]['conf_identifier'] ?? [];
 				$my_rec['POST'][$my_rec['fields'][$f]['field_name']] 
-					= zz_identifier($func_vars, $conf, $my_rec, $db_table, $f);
+					= zz_identifier([], [], $my_rec, $db_table, $f, $main_post);
 				if (!empty($my_rec['fields'][$f]['log_username']))
 					wrap_setting('log_username_default', $my_rec['POST'][$my_rec['fields'][$f]['field_name']]);
 			}

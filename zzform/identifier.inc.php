@@ -17,7 +17,7 @@
 /** 
  * Creates identifier field that is unique
  * 
- * @param array $vars pairs of field_name => value
+ * @param array $values pairs of field_name => value
  * @param array $conf	Configuration for how to handle the strings
  *		'forceFilename' ('-'); value which will be used for replacing spaces and 
  *			unknown letters
@@ -38,39 +38,49 @@
  *		'remove_strings' ([]); list of strings that are removed
  * @param array $my_rec		$zz_tab[$tab][$rec]
  * @param string $db_table	Name of Table [dbname.table]
- * @param int $field		Number of field definition
+ * @param int $no		Number of field definition
+ * @param array $post	main POST data
  * @return string identifier
  */
-function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field = false) {
-	if (empty($vars)) return false;
+function zz_identifier($values = [], $conf = [], $my_rec = [], $db_table = false, $no = 0, $post = []) {
+	if (!$conf) {
+		$conf = $my_rec['fields'][$no]['conf_identifier'] ?? [];
+		$conf_fields = $conf['fields'] = $my_rec['fields'][$no]['fields'];
+	}
+	if (!$values AND $my_rec)
+		$values = zz_identifier_values($conf, $my_rec, $post);
+	if (!$values) return false;
 
 	// read additional configuration from parameters
-	if (!empty($conf['parameters']) AND !empty($vars[$conf['parameters']])) {
-		$conf = zz_identifier_configuration($conf, $vars[$conf['parameters']]);
-		unset($vars[$conf['parameters']]);
+	if (!empty($conf['parameters']) AND !empty($values[$conf['parameters']])) {
+		$conf = zz_identifier_configuration($conf, $values[$conf['parameters']]);
+		unset($values[$conf['parameters']]);
+		// field set might be different now, get new values
+		if ($conf_fields !== $conf['fields'])
+			$values = zz_identifier_values($conf, $my_rec, $post);
 	}
 
-	if ($my_rec AND $field AND $db_table) {
+	if ($my_rec AND $no AND $db_table) {
 		// there's a record, check if identifier is in write_once mode
-		$field_name = $my_rec['fields'][$field]['field_name'];
-		if (in_array($field_name, array_keys($vars))) {
+		$field_name = $my_rec['fields'][$no]['field_name'];
+		if (in_array($field_name, array_keys($values))) {
 			$keep_idf = false;
 			if (!empty($conf['exists_function']))
-				$keep_idf = $conf['exists_function']($vars[$field_name], $vars);
-			elseif ($vars[$field_name])
+				$keep_idf = $conf['exists_function']($values[$field_name], $values);
+			elseif ($values[$field_name])
 				$keep_idf = true;
 			if ($keep_idf)
 				// do not change anything if there has been a value set once and 
 				// identifier is in vars array
-				return $vars[$field_name];
+				return $values[$field_name];
 			else
-				unset($vars[$field_name]);
+				unset($values[$field_name]);
 		}
 	}
 	
 	zz_identifier_defaults($conf);
 
-	if ($my_rec AND $field AND $db_table)
+	if ($my_rec AND $no AND $db_table)
 		$conf['sql'] = zz_identifier_sql($db_table, $field_name, $my_rec, $conf);
 
 	if ($conf['random_hash'])
@@ -79,17 +89,17 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 	$i = 0;
 	$idf_arr = [];
 	$len = 0;
-	foreach ($vars as $key => $var) {
+	foreach ($values as $key => $var) {
 		$i++;
 		if (in_array($key, $conf['ignore'])) continue;
 		if (!empty($conf['ignore_this_if'][$key])) {
 			foreach ($conf['ignore_this_if'][$key] as $my_field_name) {
-				if (!empty($vars[$my_field_name])) continue 2;
+				if (!empty($values[$my_field_name])) continue 2;
 			}
 		}
 		if (!empty($conf['ignore_this_if_identical'][$key])) {
 			foreach ($conf['ignore_this_if_identical'][$key] as $my_field_name) {
-				if ($vars[$my_field_name] === $vars[$key]) continue 2;
+				if ($values[$my_field_name] === $values[$key]) continue 2;
 			}
 		}
 		if (!$var AND $var !== '0') {
@@ -111,8 +121,8 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 		if ($pos = strpos($var, "\r")) $var = substr($var, 0, $pos);
 		if ($pos = strpos($var, "\n")) $var = substr($var, 0, $pos);
 		// check for last element, if max_length is met
-		if ($my_rec AND !empty($my_rec['fields'][$field]['maxlength'])) {
-			$remaining_len = $my_rec['fields'][$field]['maxlength'] - $len;
+		if ($my_rec AND !empty($my_rec['fields'][$no]['maxlength'])) {
+			$remaining_len = $my_rec['fields'][$no]['maxlength'] - $len;
 			if (!$conf['max_length']) {
 				$conf['max_length'] = $remaining_len;
 			} elseif ($conf['max_length'] > $remaining_len) {
@@ -120,7 +130,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 			}
 		}
 		if ($conf['max_length'] AND strlen($var) > $conf['max_length'] 
-			AND $i === count($vars)) {
+			AND $i === count($values)) {
 			$vparts = explode(' ', $var);
 			if (count($vparts) > 1) {
 				// always use first part, even if it's too long
@@ -136,7 +146,7 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 				$var = substr($var, 0, $conf['max_length']);
 			}
 		}
-		if ((strstr($var, '/') AND $i != count($vars))
+		if ((strstr($var, '/') AND $i != count($values))
 			OR $conf['slashes']) {
 			// last var will be treated normally, other vars may inherit 
 			// slashes from dir names
@@ -205,10 +215,10 @@ function zz_identifier($vars, $conf, $my_rec = false, $db_table = false, $field 
 		}
 	}
 	// ready, last checks
-	if ($my_rec AND $field AND $db_table) {
+	if ($my_rec AND $no AND $db_table) {
 		// check whether identifier exists
 		$idf = zz_identifier_exists(
-			$idf, $i, $db_table, $field_name, $conf, $my_rec['fields'][$field]['maxlength']
+			$idf, $i, $db_table, $field_name, $conf, $my_rec['fields'][$no]['maxlength']
 		);
 	}
 	return $idf;
@@ -321,7 +331,7 @@ function zz_identifier_sql($db_table, $field_name, $my_rec, $conf) {
 	$wheres = [];
 	// identifier does not have to be unique, add where from other keys
 	foreach ($conf['unique_with'] as $unique_field)
-		$wheres[] = sprintf('%s = "%s"', $unique_field, zz_identifier_var('filetype_id', $my_rec, $my_rec['POST']));
+		$wheres[] = sprintf('%s = "%s"', $unique_field, zz_identifier_val('filetype_id', $my_rec, $my_rec['POST']));
 	if ($wheres) {
 		if ($conf['where']) $conf['where'] .= ' AND ';
 		$conf['where'] .= implode(' AND ', $wheres);
@@ -449,33 +459,30 @@ function zz_identifier_substr($field_name) {
 /**
  * gets all variables for identifier field to use them in zz_identifier()
  *
+ * @param array $conf
  * @param array $my_rec = $zz_tab[$tab][$rec]
  * 		$my_rec['fields'][$f]['fields']:
  * 		possible syntax: fieldname[sql_fieldname] or tablename.fieldname or 
  *		fieldname; index not numeric but string: name of function to call
- * @param int $f = $zz['fields'][n]
  * @param array $main_post POST values of $zz_tab[0][0]['POST']
  * @return array $values
  * @todo Funktion ist nicht ganz korrekt, da sie auf unvaldierte 
  * 		Detaildatensätze zugreift. Problem: Hauptdatens. wird vor Detaildatens.
  * 		geprüft (andersherum geht wohl auch nicht)
  */ 
-function zz_identifier_vars($my_rec, $f, $main_post) {
+function zz_identifier_values($conf, $my_rec, $main_post) {
 	$values = [];
-	foreach ($my_rec['fields'][$f]['fields'] as $field_name) {
+	foreach ($conf['fields'] as $field_name) {
  		// get full field_name with {}, [] and . as index
  		$index = $field_name;
-
 		// check for substring parameter
 		list($field_name, $substr) = zz_identifier_substr($field_name);
 		// get value
-		$preferred = $my_rec['fields'][$f]['conf_identifier']['preferred'] ?? [];
-		$values[$index] = zz_identifier_var($field_name, $my_rec, $main_post, $preferred);
-
+		$values[$index] = zz_identifier_val($field_name, $my_rec, $main_post, $conf['preferred'] ?? []);
 		if (!$substr) continue;
 		eval ($line ='$values[$index] = substr($values[$index], '.$substr.');');
 	}
-	foreach ($my_rec['fields'][$f]['fields'] as $function => $field_name) {
+	foreach ($conf['fields'] as $function => $field_name) {
 		if (is_numeric($function)) continue;
 		if (function_exists($function))
 			$values[$field_name] = $function($values[$field_name], $values);
@@ -492,7 +499,7 @@ function zz_identifier_vars($my_rec, $f, $main_post) {
  * @param array $preferred
  * @return string $value
  */
-function zz_identifier_var($field_name, $my_rec, $main_post, $preferred = []) {
+function zz_identifier_val($field_name, $my_rec, $main_post, $preferred = []) {
 	// 1. it's just a field name of the main record
 	if (!empty($my_rec['POST'][$field_name])
 		OR (isset($my_rec['POST'][$field_name]) AND $my_rec['POST'][$field_name] === '0'))
@@ -549,7 +556,7 @@ function zz_identifier_var($field_name, $my_rec, $main_post, $preferred = []) {
 		
 		$id = $my_rec['POST'][$table][$no][$field_names[0]];
 		$sql = zz_get_fielddef($field['fields'], $field_names[0], 'sql');
-		return zz_identifier_vars_db($sql, $id, $field_names[1]);
+		return zz_identifier_values_db($sql, $id, $field_names[1]);
 	}
 	
 	// 3. it's a field name of a main or a detail record
@@ -570,7 +577,7 @@ function zz_identifier_var($field_name, $my_rec, $main_post, $preferred = []) {
 
 	$id = $my_rec['POST'][$field_names[0]];
 	$sql = zz_get_fielddef($my_rec['fields'], $field_names[0], 'sql');
-	return zz_identifier_vars_db($sql, $id, $field_names[1]);
+	return zz_identifier_values_db($sql, $id, $field_names[1]);
 }
 
 /**
@@ -676,7 +683,7 @@ function zz_identifier_redirect($ops, $zz_tab) {
  * @param string $fieldname (optional) if set, returns just fieldname
  * @return mixed array: full line from database, string: just field if fieldname
  */
-function zz_identifier_vars_db($sql, $id, $fieldname = false) {
+function zz_identifier_values_db($sql, $id, $fieldname = false) {
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	// remove whitespace
 	$sql = preg_replace("/\s+/", " ", $sql); // first blank needed for SELECT
