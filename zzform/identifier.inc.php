@@ -24,7 +24,7 @@
  * @return string identifier
  */
 function zz_identifier($my_rec, $db_table = false, $post = [], $no = 0) {
-	$conf = $my_rec['fields'][$no]['identifier'] ?? $my_rec;
+	$conf = (!isset($my_rec['fields'][$no])) ? $my_rec : $my_rec['fields'][$no]['identifier'] ?? $my_rec;
 	$conf_fields = $conf['fields'] = $my_rec['fields'][$no]['fields'] ?? [];
 	$values = $conf['values'] ?? zz_identifier_values($conf, $my_rec, $post);
 	if (!$values) return false;
