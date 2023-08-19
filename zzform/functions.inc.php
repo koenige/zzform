@@ -1219,6 +1219,12 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			if (empty($fields[$no]['time_format']))
 				$fields[$no]['time_format'] = 'H:i';
 			break;
+		case 'identifier':
+			if (!empty($fields[$no]['conf_identifier'])) {
+				$fields[$no]['identifier'] = $fields[$no]['conf_identifier'];
+				wrap_error('Deprecated: Use key `identifier` instead of `conf_identifier`', E_USER_DEPRECATED);
+			}
+			break;
 		}
 
 		if (in_array($mode, ['add', 'edit', 'revise']) OR in_array($action, ['insert', 'update'])) {

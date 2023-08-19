@@ -111,7 +111,7 @@ function zz_sql_prefix_change_zz(&$item, $key) {
 	// $zz['conditions'][n]['having']
 	// $zz['conditions'][n]['sql']
 	// $zz['conditions'][n]['where']
-	// $zz['fields'][n]['conf_identifier']['where'] 
+	// $zz['fields'][n]['identifier']['where'] 
 	// $zz['fields'][n]['path_sql']
 	// $zz['fields'][n]['search']
 	// $zz['fields'][n]['search_between']

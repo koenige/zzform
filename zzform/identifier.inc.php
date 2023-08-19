@@ -43,7 +43,7 @@
  * @return string identifier
  */
 function zz_identifier($my_rec, $db_table = false, $post = [], $no = 0) {
-	$conf = $my_rec['fields'][$no]['conf_identifier'] ?? $my_rec;
+	$conf = $my_rec['fields'][$no]['identifier'] ?? $my_rec;
 	$conf_fields = $conf['fields'] = $my_rec['fields'][$no]['fields'] ?? [];
 	$values = $conf['values'] ?? zz_identifier_values($conf, $my_rec, $post);
 	if (!$values) return false;
@@ -511,7 +511,7 @@ function zz_identifier_val($field_name, $my_rec, $main_post, $preferred = []) {
 		$no = 0;
 		// if there can be more than one sub record, find preferred sub record
 		// via values, e. g. IDs. example:
-		// $zz['fields'][2]['conf_identifier']['preferred']['objects-Title'] = [
+		// $zz['fields'][2]['identifier']['preferred']['objects-Title'] = [
 		//	'text_language_id' => [wrap_id('languages', '-id'), wrap_id('languages', '---'), wrap_id('languages', 'eng')]
 		// ];
 		if (!empty($preferred[$table])) {
