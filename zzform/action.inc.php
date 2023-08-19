@@ -1170,7 +1170,7 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 			if ($my_rec['fields'][$f]['type'] === 'identifier') {
 				require_once __DIR__.'/identifier.inc.php';
 				$my_rec['POST'][$my_rec['fields'][$f]['field_name']] 
-					= zz_identifier([], [], $my_rec, $db_table, $f, $main_post);
+					= zz_identifier($my_rec, $db_table, $main_post, $f);
 				if (!empty($my_rec['fields'][$f]['log_username']))
 					wrap_setting('log_username_default', $my_rec['POST'][$my_rec['fields'][$f]['field_name']]);
 			}

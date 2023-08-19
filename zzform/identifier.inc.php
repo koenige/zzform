@@ -17,8 +17,8 @@
 /** 
  * Creates identifier field that is unique
  * 
- * @param array $values pairs of field_name => value
- * @param array $conf	Configuration for how to handle the strings
+ * @param array $my_rec		$zz_tab[$tab][$rec]
+ * 		Configuration for how to handle the strings
  *		'forceFilename' ('-'); value which will be used for replacing spaces and 
  *			unknown letters
  *		'concat' ('.'); string used for concatenation of variables. might be 
@@ -36,19 +36,16 @@
  *		'function' (false); name of function that identifier will go through finally
  *		'function_parameter' (false); single function parameter to pass to function
  *		'remove_strings' ([]); list of strings that are removed
- * @param array $my_rec		$zz_tab[$tab][$rec]
+ *		'values' pairs of field_name => value (optional, normally via $conf['fields'])
  * @param string $db_table	Name of Table [dbname.table]
  * @param int $no		Number of field definition
  * @param array $post	main POST data
  * @return string identifier
  */
-function zz_identifier($values = [], $conf = [], $my_rec = [], $db_table = false, $no = 0, $post = []) {
-	if (!$conf) {
-		$conf = $my_rec['fields'][$no]['conf_identifier'] ?? [];
-		$conf_fields = $conf['fields'] = $my_rec['fields'][$no]['fields'];
-	}
-	if (!$values AND $my_rec)
-		$values = zz_identifier_values($conf, $my_rec, $post);
+function zz_identifier($my_rec, $db_table = false, $post = [], $no = 0) {
+	$conf = $my_rec['fields'][$no]['conf_identifier'] ?? $my_rec;
+	$conf_fields = $conf['fields'] = $my_rec['fields'][$no]['fields'] ?? [];
+	$values = $conf['values'] ?? zz_identifier_values($conf, $my_rec, $post);
 	if (!$values) return false;
 
 	// read additional configuration from parameters
@@ -60,7 +57,7 @@ function zz_identifier($values = [], $conf = [], $my_rec = [], $db_table = false
 			$values = zz_identifier_values($conf, $my_rec, $post);
 	}
 
-	if ($my_rec AND $no AND $db_table) {
+	if ($db_table) {
 		// there's a record, check if identifier is in write_once mode
 		$field_name = $my_rec['fields'][$no]['field_name'];
 		if (in_array($field_name, array_keys($values))) {
@@ -80,7 +77,7 @@ function zz_identifier($values = [], $conf = [], $my_rec = [], $db_table = false
 	
 	zz_identifier_defaults($conf);
 
-	if ($my_rec AND $no AND $db_table)
+	if ($db_table)
 		$conf['sql'] = zz_identifier_sql($db_table, $field_name, $my_rec, $conf);
 
 	if ($conf['random_hash'])
@@ -121,7 +118,7 @@ function zz_identifier($values = [], $conf = [], $my_rec = [], $db_table = false
 		if ($pos = strpos($var, "\r")) $var = substr($var, 0, $pos);
 		if ($pos = strpos($var, "\n")) $var = substr($var, 0, $pos);
 		// check for last element, if max_length is met
-		if ($my_rec AND !empty($my_rec['fields'][$no]['maxlength'])) {
+		if (!empty($my_rec['fields'][$no]['maxlength'])) {
 			$remaining_len = $my_rec['fields'][$no]['maxlength'] - $len;
 			if (!$conf['max_length']) {
 				$conf['max_length'] = $remaining_len;
@@ -215,7 +212,7 @@ function zz_identifier($values = [], $conf = [], $my_rec = [], $db_table = false
 		}
 	}
 	// ready, last checks
-	if ($my_rec AND $no AND $db_table) {
+	if ($db_table) {
 		// check whether identifier exists
 		$idf = zz_identifier_exists(
 			$idf, $i, $db_table, $field_name, $conf, $my_rec['fields'][$no]['maxlength']
