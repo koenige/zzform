@@ -434,7 +434,7 @@ function zz_identifier_values($conf, $my_rec, $main_post) {
 		// check for substring parameter
 		list($field_name, $substr) = zz_identifier_substr($field_name);
 		// get value
-		$values[$index] = zz_identifier_val($field_name, $my_rec, $main_post, $conf['preferred']);
+		$values[$index] = zz_identifier_val($field_name, $my_rec, $main_post, $conf['preferred'] ?? []);
 		if (!$substr) continue;
 		eval ($line ='$values[$index] = substr($values[$index], '.$substr.');');
 	}
