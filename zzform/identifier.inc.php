@@ -18,25 +18,6 @@
  * Creates identifier field that is unique
  * 
  * @param array $my_rec		$zz_tab[$tab][$rec]
- * 		Configuration for how to handle the strings
- *		'forceFilename' ('-'); value which will be used for replacing spaces and 
- *			unknown letters
- *		'concat' ('.'); string used for concatenation of variables. might be 
- *			array, values are used in the same order they appear in the array
- *		'exists' ('.'); string used for concatenation if identifier exists
- *		'lowercase' (true); false will not transform all letters to lowercase
- *		'uppercase' (false); true will transform all letters to uppercase
- *		'slashes' (false); true = slashes will be preserved
- *		'where' (false) WHERE-condition to be appended to query that checks 
- *			existence of identifier in database 
- *		'hash_md5' (false); true = hash will be created from field values and
- *			timestamp
- *		array 'replace' (false); key => value; characters in key will be
- *			replaced by value
- *		'function' (false); name of function that identifier will go through finally
- *		'function_parameter' (false); single function parameter to pass to function
- *		'remove_strings' ([]); list of strings that are removed
- *		'values' pairs of field_name => value (optional, normally via $conf['fields'])
  * @param string $db_table	Name of Table [dbname.table]
  * @param int $no		Number of field definition
  * @param array $post	main POST data
@@ -57,12 +38,14 @@ function zz_identifier($my_rec, $db_table = false, $post = [], $no = 0) {
 			$values = zz_identifier_values($conf, $my_rec, $post);
 	}
 
+	zz_identifier_defaults($conf);
+
 	if ($db_table) {
 		// there's a record, check if identifier is in write_once mode
 		$field_name = $my_rec['fields'][$no]['field_name'];
 		if (in_array($field_name, array_keys($values))) {
 			$keep_idf = false;
-			if (!empty($conf['exists_function']))
+			if ($conf['exists_function'])
 				$keep_idf = $conf['exists_function']($values[$field_name], $values);
 			elseif ($values[$field_name])
 				$keep_idf = true;
@@ -73,12 +56,8 @@ function zz_identifier($my_rec, $db_table = false, $post = [], $no = 0) {
 			else
 				unset($values[$field_name]);
 		}
-	}
-	
-	zz_identifier_defaults($conf);
-
-	if ($db_table)
 		$conf['sql'] = zz_identifier_sql($db_table, $field_name, $my_rec, $conf);
+	}
 
 	if ($conf['random_hash'])
 		return zz_identifier_random_hash($conf);
@@ -171,51 +150,46 @@ function zz_identifier($my_rec, $db_table = false, $post = [], $no = 0) {
 
 	$idf = zz_identifier_concat($idf_arr, $conf['concat']);
 	if ($conf['prefix']) $idf = $conf['prefix'].$idf;
-	// start value, if idf already exists
-	$i = $conf['start'] ?? 2;
 	// start always?
 	if ($conf['start_always'])
-		$idf .= $conf['exists'].sprintf($conf['exists_format'], $i);
+		$idf .= $conf['exists'].sprintf($conf['exists_format'], $conf['start']);
 	// hash md5?
 	if (!empty($conf['hash_md5']))
 		$idf = md5($idf.date('Ymdhis'));
 
-	if (!empty($conf['function'])) {
-		if (!empty($conf['function_parameter'])) {
-			if (is_array($conf['function_parameter'])) {
-				switch (count($conf['function_parameter'])) {
-				case 2:
-					$idf = $conf['function']($conf['function_parameter'][0]
-						, $conf['function_parameter'][1]
-					);
-					break;
-				case 3:
-					$idf = $conf['function']($conf['function_parameter'][0]
-						, $conf['function_parameter'][1]
-						, $conf['function_parameter'][2]
-					);
-					break;
-				case 4:
-					$idf = $conf['function']($conf['function_parameter'][0]
-						, $conf['function_parameter'][1]
-						, $conf['function_parameter'][2]
-						, $conf['function_parameter'][3]
-					);
-					break;
-				}
-				
-			} else {
-				$idf = $conf['function']($conf['function_parameter']);
-			}
-		} else {
+	if ($conf['function']) {
+		switch (count($conf['function_parameter'])) {
+		case 0:
 			$idf = $conf['function']($idf);
+			break;
+		case 1:
+			$idf = $conf['function']($conf['function_parameter'][0]);
+			break;
+		case 2:
+			$idf = $conf['function']($conf['function_parameter'][0]
+				, $conf['function_parameter'][1]
+			);
+			break;
+		case 3:
+			$idf = $conf['function']($conf['function_parameter'][0]
+				, $conf['function_parameter'][1]
+				, $conf['function_parameter'][2]
+			);
+			break;
+		case 4:
+			$idf = $conf['function']($conf['function_parameter'][0]
+				, $conf['function_parameter'][1]
+				, $conf['function_parameter'][2]
+				, $conf['function_parameter'][3]
+			);
+			break;
 		}
 	}
 	// ready, last checks
 	if ($db_table) {
 		// check whether identifier exists
 		$idf = zz_identifier_exists(
-			$idf, $i, $db_table, $field_name, $conf, $my_rec['fields'][$no]['maxlength']
+			$idf, $conf['start'], $db_table, $field_name, $conf, $my_rec['fields'][$no]['maxlength']
 		);
 	}
 	return $idf;
@@ -242,27 +216,12 @@ function zz_identifier_configuration($vars, $parameters) {
  * @param array $conf
  */
 function zz_identifier_defaults(&$conf) {
-	$default_configuration = [
-		'forceFilename' => '-', 'concat' => '.', 'exists' => '.',
-		'lowercase' => true, 'slashes' => false, 'replace' => [],
-		'hash_md5' => false, 'ignore' => [], 'max_length' => 36,
-		'ignore_this_if' => [], 'empty' => [], 'uppercase' => false,
-		'function' => false, 'function_parameter' => false,
-		'unique_with' => [], 'where' => '', 'strip_tags' => false,
-		'exists_format' => '%s', 'ignore_this_if_identical' => [],
-		'remove_strings' => [], 'parameters' => '', 'prefix' => '', 'sql' => '',
-		'start_always' => false, 'random_hash' => 0, 'random_hash_charset' => NULL
-	];
-	foreach ($default_configuration as $key => $value)
-		if (!array_key_exists($key, $conf)) $conf[$key] = $value;
+	$conf = zz_init_cfg('zz-fields[identifier]', $conf);
 
+	// @todo do this in zz_init_cfg() via max_length = 1
 	$conf_max_length_1 = ['forceFilename', 'exists'];
 	foreach ($conf_max_length_1 as $key)
 		$conf[$key] = substr($conf[$key], 0, 1);
-
-	$conf_arrays = ['ignore', 'unique_with', 'remove_strings'];
-	foreach ($conf_arrays as $key)
-		if (!is_array($conf[$key])) $conf[$key] = [$conf[$key]];
 
 	$conf_arrays_in_arrays = ['ignore_this_if', 'ignore_this_if_identical'];
 	foreach ($conf_arrays_in_arrays as $key) {
@@ -475,7 +434,7 @@ function zz_identifier_values($conf, $my_rec, $main_post) {
 		// check for substring parameter
 		list($field_name, $substr) = zz_identifier_substr($field_name);
 		// get value
-		$values[$index] = zz_identifier_val($field_name, $my_rec, $main_post, $conf['preferred'] ?? []);
+		$values[$index] = zz_identifier_val($field_name, $my_rec, $main_post, $conf['preferred']);
 		if (!$substr) continue;
 		eval ($line ='$values[$index] = substr($values[$index], '.$substr.');');
 	}
@@ -509,11 +468,6 @@ function zz_identifier_val($field_name, $my_rec, $main_post, $preferred = []) {
 		if (!isset($my_rec['POST'][$table])) return false;
 
 		$no = 0;
-		// if there can be more than one sub record, find preferred sub record
-		// via values, e. g. IDs. example:
-		// $zz['fields'][2]['identifier']['preferred']['objects-Title'] = [
-		//	'text_language_id' => [wrap_id('languages', '-id'), wrap_id('languages', '---'), wrap_id('languages', 'eng')]
-		// ];
 		if (!empty($preferred[$table])) {
 			$key_field_name = key($preferred[$table]);
 			$values = $preferred[$table][$key_field_name];
