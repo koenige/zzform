@@ -59,7 +59,8 @@ function zz_list($zz, $list, $ops, $zz_conditions) {
 
 	// Filters
 	// set 'selection', $list['hierarchy']
-	zz_apply_filter($zz, $list);
+	if ($zz_conf['modules']['filter'])
+		zz_apply_filter($zz, $list);
 	$ops['filter_titles'] = zz_output_filter_title($zz['filter'], $zz['filter_active']);
 
 	// modify SQL query depending on filter

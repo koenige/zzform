@@ -128,7 +128,8 @@ function zzform($zz) {
 	if (!$success) return zzform_exit($ops);
 
 	// check GET 'filter'
-	zz_filter_defaults($zz);
+	if ($zz_conf['modules']['filter'])
+		zz_filter_defaults($zz);
 
 	// get and apply where conditions to SQL query and fields
 	zz_where_conditions($zz);
