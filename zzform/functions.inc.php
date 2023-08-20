@@ -128,56 +128,40 @@ function zz_dependent_modules($zz) {
 			break;
 		case 'geo':
 			$geo = false;
-			if (zz_module_fieldcheck($zz, 'geocode')) {
+			if (zz_module_fieldcheck($zz['fields'], 'geocode'))
 				$geo = true;
-			} elseif (zz_module_fieldcheck($zz, 'number_type', 'latitude')) {
+			elseif (zz_module_fieldcheck($zz['fields'], 'number_type', 'latitude'))
 				$geo = true;
-			} elseif (zz_module_fieldcheck($zz, 'number_type', 'longitude')) {
+			elseif (zz_module_fieldcheck($zz['fields'], 'number_type', 'longitude'))
 				$geo = true;
-			} elseif (zz_module_fieldcheck($zz, 'type', 'geo_point')) {
+			elseif (zz_module_fieldcheck($zz['fields'], 'type', 'geo_point'))
 				$geo = true;
-			}
 			if (!$geo) unset($modules[$index]);
 			break;
 		case 'export':
-			if ($zz_conf['generate_output'] === false) {
-				$zz['export'] = [];
-				unset($modules[$index]);
-				zz_module_remove_mode('export');
-				break;
-			}
-			$export = false;
-			if (!empty($zz['export'])) {
-				$export = true;
-				break;
-			}
-			$conditionals = ['if', 'unless'];
-			foreach ($conditionals as $conditional) {
-				if (empty($zz[$conditional])) continue;
-				foreach ($zz[$conditional] as $condition) {
-					if (!empty($condition['export'])) {
-						$export = true;
-						break;
-					}
-				}
-			}
-			if (!$export) {
-				zz_module_remove_mode('export');
-				unset($modules[$index]);
+			$found = zz_module_key_check($zz, $module);
+			if ($found) break;
+			if ($module === 'export') zz_module_remove_mode($module);
+			$zz[$module] = [];
+			unset($modules[$index]);
+			if (isset($_GET[$module])) {
+				wrap_static('page', 'status', 404);
+				$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string(
+					$zz_conf['int']['url']['qs_zzform'], [$module]
+				);
 			}
 			break;
 		case 'upload':
 			// check if there was an upload, so we need this module
 			if ($zz_conf['int']['post_too_big']) break;
 			if (!empty($_FILES)) break;
-			if (!zz_module_fieldcheck($zz, 'type', 'upload_image')) {
+			if (!zz_module_fieldcheck($zz['fields'], 'type', 'upload_image')) {
 				unset($modules[$index]);
 			}
 			break;
 		case 'captcha':
-			if (!zz_module_fieldcheck($zz, 'type', 'captcha')) {
+			if (!zz_module_fieldcheck($zz['fields'], 'type', 'captcha'))
 				unset($modules[$index]);
-			}
 			break;
 		}
 	}
@@ -188,6 +172,32 @@ function zz_dependent_modules($zz) {
 		$GLOBALS['zz_saved']['conf']['modules'] = $zz_conf['modules'];
 	}
 	return true;
+}
+
+/**
+ * check if there is a key for the module in the $zz definition
+ * including if/unless, return false if no output is shown
+ *
+ * @param array $zz
+ * @param string $module
+ * @return bool
+ */
+function zz_module_key_check($zz, $module) {
+	global $zz_conf;
+
+	// module is for output only
+	if ($zz_conf['generate_output'] === false) return false;
+
+	// check if module is used
+	if (!empty($zz[$module])) return true;
+	$conditionals = ['if', 'unless'];
+	foreach ($conditionals as $conditional) {
+		if (empty($zz[$conditional])) continue;
+		foreach ($zz[$conditional] as $condition) {
+			if (!empty($condition[$module])) return true;
+		}
+	}
+	return false;
 }
 
 /**
@@ -206,13 +216,13 @@ function zz_module_remove_mode($mode) {
 /**
  * checks whether fields contain a value for a certain key
  *
- * @param array $zz
+ * @param array $definition
  * @param string $key
  * @param string $type field type
  * @return
  */
-function zz_module_fieldcheck($zz, $key, $type = '') {
-	foreach ($zz['fields'] as $field) {
+function zz_module_fieldcheck($definition, $key, $type = '') {
+	foreach ($definition as $field) {
 		if (zz_module_fieldchecks($field, $key, $type)) {
 			return true;
 		}
