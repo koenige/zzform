@@ -48,14 +48,13 @@ function zz_filter_defaults(&$zz) {
 	}
 
 	// check for invalid filters
-	$zz_conf['int']['invalid_filters'] = [];
 	foreach (array_keys($zz['filter_active']) AS $identifier) {
 		if (in_array($identifier, $identifiers)) continue;
 		wrap_static('page', 'status', 404);
 		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string(
 			$zz_conf['int']['url']['qs_zzform'], ['filter['.$identifier.']']
 		);
-		$zz_conf['int']['invalid_filters'][] = zz_htmltag_escape($identifier);
+		zz_list_filter_invalid(zz_htmltag_escape($identifier));
 		// get rid of filter
 		unset($zz['filter_active'][$identifier]);
 	}
@@ -342,14 +341,20 @@ function zz_list_filter_invalid_value($filter, $value) {
 
 /**
  * test filter identifiers if they exist
+ *
+ * @param string $filter (opitonal, add to list of invalid filters)
  * @return bool true if there are invalid filters
  */
-function zz_list_filter_invalid() {
+function zz_list_filter_invalid($filter = false) {
+	static $invalid_filters = [];
 	global $zz_conf;
-	if (empty($zz_conf['int']['invalid_filters'])) return false;
+	if ($filter) {
+		$invalid_filters[] = $filter;
+		return true;
+	}
 
 	$error = false;
-	foreach ($zz_conf['int']['invalid_filters'] AS $identifier) {
+	foreach ($invalid_filters AS $identifier) {
 		$filter = zz_htmltag_escape($identifier);
 		$link = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
 			.$zz_conf['int']['url']['?&'].$zz_conf['int']['url']['qs_zzform'];
