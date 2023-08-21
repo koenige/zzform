@@ -91,7 +91,7 @@ function zz_add_modules($modules) {
  *		checking 'generate_output'
  * @return void
  */
-function zz_dependent_modules($zz) {
+function zz_dependent_modules(&$zz) {
 	global $zz_conf;
 
 	// check if POST is too big, then it will be empty
@@ -550,11 +550,11 @@ function zz_record_conf($zz_conf, $zz) {
 			} else {
 				$zz_conf_record[$key] = $zz_conf[$key];
 			}
-		} elseif (isset($zz[$key])) {
+		} elseif (array_key_exists($key, $zz)) {
 			$zz_conf_record[$key] = $zz[$key];
-		} elseif (isset($zz['record'][$key])) {
+		} elseif (array_key_exists($key, $zz['record'])) {
 			$zz_conf_record[$key] = $zz['record'][$key];
-		} elseif (isset($zz_conf[$key])) {
+		} elseif (array_key_exists($key, $zz_conf)) {
 			$zz_conf_record[$key] = $zz_conf[$key];
 		}
 	}
@@ -704,7 +704,7 @@ function zz_where_conditions(&$zz) {
 	zz_apply_where_conditions($zz);
 	if ($zz['record']['where']) {
 		// shortcout sqlcount is no longer possible
-		unset($zz['sqlcount']);
+		$zz['sqlcount'] = NULL;
 	}
 
 	// where with unique ID: remove filters, they do not make sense here
@@ -748,7 +748,7 @@ function zz_where_conditions(&$zz) {
 function zz_apply_where_conditions(&$zz) {
 	global $zz_conf;
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
-	$table_for_where = isset($zz['table_for_where']) ? $zz['table_for_where'] : [];
+	$table_for_where = $zz['table_for_where'] ?? [];
 
 	$sql_keys['list'] = 'sql';
 	$sql_keys['record'] = 'sqlrecord';
@@ -1222,10 +1222,6 @@ function zz_get_unique_fields($fields) {
  */
 function zz_set_fielddefs_for_record(&$zz) {
 	$tab = 1;
-	$zz['record']['subtables'] = [];			// key: $tab, value: $no
-	$zz['record']['save_old_record'] = [];	// key: int, value: $no
-	$zz['record']['upload_form'] = false;			// false: no upload, true: upload possible
-
 	foreach (array_keys($zz['fields']) as $no) {
 		// translations
 		if (!empty($zz['fields'][$no]['translate_field_index'])) {
