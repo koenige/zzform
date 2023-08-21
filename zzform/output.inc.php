@@ -33,7 +33,7 @@ function zz_output_page($ops, $zz) {
 	$ops['heading'] = zz_nice_headings($ops['heading'], $zz);
 	// provisional title, in case errors occur
 	$ops['title'] = strip_tags($ops['heading']);
-	if (trim($ops['heading']) AND empty($zz['dont_show_h1']))
+	if (trim($ops['heading']) AND !$zz['dont_show_h1'])
 		$ops['h1'] = $ops['heading'];
 	$ops['explanation'] = $zz['explanation'];
 	$ops['explanation_insert'] = $zz['explanation_insert'] ?? NULL;
@@ -611,7 +611,7 @@ function zz_output_add_export_links($zz, $ops, $position = 'below') {
 	case 'below':
 		// only if list was shown beforehands
 		if (!$ops['records_total']) return '';
-		if (!empty($zz['export'])) $links['export'] = zz_export_links($zz['export']);
+		if ($zz['export']) $links['export'] = zz_export_links($zz['export']);
 		break;
 	case 'nolist':
 		if ($ops['mode'] AND !wrap_setting('zzform_show_list_while_edit')) return '';

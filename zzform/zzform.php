@@ -72,6 +72,7 @@ function zzform($zz) {
 		);
 	}
 	$ops['output'] .= zz_error_output();
+	$zz = zz_init_cfg('zz', $zz);
 	$zz = zz_defaults($zz);
 	
 	if (empty($zz['fields'])) {
@@ -117,7 +118,7 @@ function zzform($zz) {
 	if (!wrap_setting('db_name')) return zzform_exit($ops); // exits script
 	$zz = zz_sql_prefix($zz);
 	if (wrap_setting('debug')) zz_debug('database connection ok');
-	if (empty($zz['sqlrecord'])) $zz['sqlrecord'] = $zz['sql'];
+	if (!$zz['sqlrecord']) $zz['sqlrecord'] = $zz['sql'];
 
 //
 //	Filter, ID, WHERE
@@ -220,7 +221,7 @@ function zzform($zz) {
 		$zz = wrap_array_merge($zz, $ops['list']['unchanged']);
 		unset($ops['list']['unchanged']);
 	}
-	$list = zz_init_cfg('zz[list]', $zz['list'] ?? [], $ops['list'] ?? []);
+	$list = zz_init_cfg('zz[list]', $zz['list'], $ops['list'] ?? []);
 	// don't show list in case 'nolist' parameter is set
 	if (isset($_GET['nolist']) AND (!isset($_GET['delete']) OR $_GET['delete']))
 		$list['display'] = false;
@@ -254,7 +255,7 @@ function zzform($zz) {
 	if ($ops['heading'])
 		$ops['title'] = zz_nice_title($ops['heading'], $zz['fields'], $ops, $ops['mode']);
 	if ($ops['mode'] !== 'export')
-		$ops['footer_text'] = $zz['footer_text'] ?? '';
+		$ops['footer_text'] = $zz['footer']['text'];
 	return zzform_exit($ops);
 }
 
@@ -577,30 +578,6 @@ function zz_valid_request($action = false) {
  * @return array
  */
 function zz_defaults($zz) {
-	// set indices
-	if (!isset($zz['title']))
-		$zz['title'] = NULL;
-	if (!isset($zz['explanation']))
-		$zz['explanation'] = '';
-	if (!isset($zz['conditions']))
-		$zz['conditions'] = [];
-
-	// record
-	if (!isset($zz['record']['copy']))
-		$zz['record']['copy'] = false;	// show action: copy
-	if (!isset($zz['record']['add']))
-		$zz['record']['add'] = true;	// add or do not add data.
-	if (!isset($zz['record']['edit']))
-		$zz['record']['edit'] = true;	// show action: edit
-	if (!isset($zz['record']['delete']))
-		$zz['record']['delete'] = true;	// show action: delete
-	if (!isset($zz['record']['view']))
-		$zz['record']['view'] = false;	// show action: view
-	if (!isset($zz['record']['cancel_link']))
-		$zz['record']['cancel_link'] = true;
-	if (!isset($zz['record']['no_ok']))
-		$zz['record']['no_ok'] = false;
-	
 	// check hooks if they are arrays
 	if (!empty($zz['hooks'])) {
 		foreach ($zz['hooks'] as $hook => $actions) {

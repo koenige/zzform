@@ -31,17 +31,17 @@ function zz_prepare_tables($zz, $mode) {
 	$zz_tab[0]['table_name'] = $zz['table'];
 	$zz_tab[0]['sql'] = $zz['sqlrecord'];
 	$zz_tab[0]['sql_without_where'] = $zz['sql_without_where'];
-	$zz_tab[0]['sqlextra'] = $zz['sqlextra'] ?? [];
-	$zz_tab[0]['sql_translate'] = $zz['sql_translate'] ?? [];
-	$zz_tab[0]['folder'] = $zz['folder'] ?? [];
-	$zz_tab[0]['add_from_source_id'] = !empty($zz['add_from_source_id']) ? true : false;
-	$zz_tab[0]['filter'] = $zz['filter'] ?? [];
-	$zz_tab[0]['filter_active'] = $zz['filter_active'] ?? [];
+	$zz_tab[0]['sqlextra'] = $zz['sqlextra'];
+	$zz_tab[0]['sql_translate'] = $zz['sql_translate'];
+	$zz_tab[0]['folder'] = $zz['folder'];
+	$zz_tab[0]['add_from_source_id'] = $zz['add_from_source_id'];
+	$zz_tab[0]['filter'] = $zz['filter'];
+	$zz_tab[0]['filter_active'] = $zz['filter_active'];
 	$zz_tab[0]['dont_reformat'] = !empty($_POST['zz_subtables']) ? true : false;
 	$zz_tab[0]['record_action'] = false;
-	$zz_tab[0]['add_details_return_field'] = $zz['add_details_return_field'] ?? '';
+	$zz_tab[0]['add_details_return_field'] = $zz['add_details_return_field'];
 	$zz_tab[0]['where'] = $zz['record']['where'][$zz['table']] ?? [];
-	$zz_tab[0]['unique_ignore_null'] = $zz['unique_ignore_null'] ?? false;
+	$zz_tab[0]['unique_ignore_null'] = $zz['unique_ignore_null'];
 
 	if (!empty($zz['set_redirect'])) {
 		// update/insert redirects after_delete and after_update
@@ -49,8 +49,8 @@ function zz_prepare_tables($zz, $mode) {
 		$zz_tab[0]['set_redirect'] = $zz['set_redirect'];
 	}
 
-	$zz_conf['int']['revisions_only'] = !empty($zz['revisions_only']) ? true : false;
-	if (!empty($zz['revisions_only']) OR !empty($zz['revisions'])) {
+	$zz_conf['int']['revisions_only'] = $zz['revisions_only'];
+	if ($zz['revisions_only'] OR $zz['revisions']) {
 		require_once __DIR__.'/revisions.inc.php';
 	}
 	if ($mode === 'revise') {
@@ -63,19 +63,19 @@ function zz_prepare_tables($zz, $mode) {
 	if (!empty($zz_tab[0]['revision_id'])) $zz['revision_hooks'] = true;
 
 	$zz_tab[0]['hooks'] = zz_prepare_hooks($zz);
-	$zz_tab[0]['triggers'] = $zz['triggers'] ?? [];
+	$zz_tab[0]['triggers'] = $zz['triggers'];
 	
 	$zz_tab[0][0]['action'] = $zz['record']['action'];
 	$zz_tab[0][0]['fields'] = $zz['fields'];
 	$zz_tab[0][0]['validation'] = true;
 	$zz_tab[0][0]['record'] = [];
-	$zz_tab[0][0]['access'] = $zz['access'] ?? false;
+	$zz_tab[0][0]['access'] = $zz['access'];
 	// get ID field, unique fields, check for unchangeable fields
 	$zz_tab[0][0]['id'] = &$zz_conf['int']['id'];
 	$zz_tab[0][0]['check_select_fields'] = zz_prepare_check_select();
-	$zz_tab[0][0]['details'] = $zz['details'] ?? [];
-	$zz_tab[0][0]['if'] = $zz['if'] ?? [];
-	$zz_tab[0][0]['unless'] = $zz['unless'] ?? [];
+	$zz_tab[0][0]['details'] = $zz['details'];
+	$zz_tab[0][0]['if'] = $zz['if'];
+	$zz_tab[0][0]['unless'] = $zz['unless'];
 
 	if (!empty($zz_conf['int']['revisions_only']))
 		$zz_conf['int']['revision_data'] = zz_revisions_tab($zz_tab[0]);
@@ -197,7 +197,7 @@ function zz_prepare_tables($zz, $mode) {
  * @todo don't prepare hooks in record mode (+ exclude from hash)
  */
 function zz_prepare_hooks($zz) {
-	$hooks = $zz['hooks'] ?? [];
+	$hooks = $zz['hooks'];
 
 	// geocoding? sequence?
 	$hook_found = [];

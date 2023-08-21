@@ -495,7 +495,7 @@ function zz_conditions_record_check($zz, $mode, $zz_conditions) {
 				if ($line) {
 					if (isset($line[$condition['field_name']])) {
 						$value = $line[$condition['field_name']];
-					} elseif (isset($zz['sqlextra'])) {
+					} elseif ($zz['sqlextra']) {
 						foreach ($zz['sqlextra'] as $sql) {
 							$sql = sprintf($sql, $zz_conf['int']['id']['value']);
 							$line = zz_db_fetch($sql, '', '', 'value/1b ['.$index.']');
@@ -883,7 +883,7 @@ function zz_conditions_list_check($zz, $list, $zz_conditions, $ids, $mode) {
 			}
 			break;
 		case 'list_empty':
-			if (!empty($zz['sqlcount'])) {
+			if ($zz['sqlcount']) {
 				$total_rows = zz_sql_count_rows($zz['sqlcount']);
 			} else {
 				$total_rows = zz_sql_count_rows($zz['sql'], $zz['table'].'.'.$zz_conf['int']['id']['field_name']);

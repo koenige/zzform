@@ -23,10 +23,6 @@
 function zz_filter_defaults(&$zz) {
 	global $zz_conf;
 	// initialize, don't return because we'll check for $_GET later
-	if (empty($zz['filter'])) {
-		$zz['filter'] = [];
-	}
-	$zz['filter_active'] = [];
 
 	if ($zz['filter'] AND !empty($_GET['filter']) AND is_array($_GET['filter'])) {
 		$zz['filter_active'] = $_GET['filter'];

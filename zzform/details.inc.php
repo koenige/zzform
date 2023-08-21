@@ -177,7 +177,7 @@ function zz_details_return($ops, $zz_tab) {
 
 	// save return_id
 	if (isset($last)) {
-		if (!empty($zz_tab[0]['add_details_return_field'])) {
+		if ($zz_tab[0]['add_details_return_field']) {
 			list($id_table, $id_field) = explode('.', $zz_tab[0]['add_details_return_field']);
 			foreach ($ops['return'] as $index => $table) {
 				if ($table['table'] !== $id_table) continue;

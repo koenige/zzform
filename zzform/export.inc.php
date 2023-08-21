@@ -27,8 +27,6 @@
  */
 function zz_export_init(&$ops, &$zz) {
 	global $zz_conf;
-	if (!isset($zz['export'])) $zz['export'] = [];
-	elseif (!is_array($zz['export'])) $zz['export'] = [$zz['export']];
 	if (!$zz['export']) return;
 	if (empty($_GET['export'])) return;
 
