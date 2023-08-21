@@ -48,7 +48,7 @@ function zz_list($zz, $list, $ops, $zz_conditions) {
 	if (!empty($_GET['q']) AND wrap_setting('zzform_search')) {
 		$old_sql = $zz['sql'];
 		$zz['sql'] = zz_search_sql($zz['fields'], $zz['sql'], $zz['table']);
-		if ($old_sql !== $zz['sql']) $zz['sqlcount'] = '';
+		if ($old_sql !== $zz['sql']) $zz['sqlcount'] = NULL;
 	}
 
 	if ($zz_conf['int']['access'] === 'search_but_no_list' AND empty($_GET['q'])) 
@@ -67,7 +67,7 @@ function zz_list($zz, $list, $ops, $zz_conditions) {
 	$old_sql = $zz['sql'];
 	$zz['sql'] = zz_list_filter_sql($zz['filter'], $zz['sql'], $zz['filter_active']);
 	if (zz_list_filter_invalid()) $zz['sql'] = false;
-	if ($old_sql !== $zz['sql']) $zz['sqlcount'] = '';
+	if ($old_sql !== $zz['sql']) $zz['sqlcount'] = NULL;
 	if (!$zz['sql']) return zz_return($ops);
 
 	list($lines, $ops['records_total']) = zz_list_query($zz, $list);
@@ -1100,6 +1100,7 @@ function zz_list_filter_invalid_value($filter, $value) {
  */
 function zz_list_filter_invalid() {
 	global $zz_conf;
+	if (empty($zz_conf['int']['invalid_filters'])) return false;
 
 	$error = false;
 	foreach ($zz_conf['int']['invalid_filters'] AS $identifier) {
@@ -1150,12 +1151,10 @@ function zz_list_filter_or($filter_value, $selections) {
 function zz_list_query($zz, $list) {
 	global $zz_conf;
 
-	if (!isset($zz['sqlextra'])) $zz['sqlextra'] = [];
-	if (!empty($zz['sqlcount'])) {
+	if ($zz['sqlcount'])
 		$total_rows = zz_sql_count_rows($zz['sqlcount']);
-	} else {
+	else
 		$total_rows = zz_sql_count_rows($zz['sql'], $zz['table'].'.'.$zz_conf['int']['id']['field_name']);
-	}
 	if (!$total_rows) return [[], 0];
 	
 	// ORDER must be here because of where-clause
@@ -1197,9 +1196,8 @@ function zz_list_query_flat($zz) {
 		$lines = zz_db_fetch($zz['sql'], '_dummy_', 'numeric');
 	}
 	$lines = zz_list_query_extras($lines, $zz['sqlextra']);
-	if (!empty($zz['sql_translate'])) {
+	if ($zz['sql_translate'])
 		$lines = zz_translate($zz, $lines);
-	}
 	return zz_return($lines);
 }
 
@@ -1278,9 +1276,8 @@ function zz_list_query_hierarchy($zz, $list) {
 		}
 	}
 	$lines = zz_list_query_extras($lines, $zz['sqlextra']);
-	if (!empty($zz['sql_translate'])) {
+	if ($zz['sql_translate'])
 		$lines = zz_translate($zz, $lines);
-	}
 	return zz_return([$lines, $total_rows]);
 }
 
