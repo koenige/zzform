@@ -102,7 +102,7 @@ function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 			$value = $values[$index];
 		}
 		if ($this_subtable_no AND isset($_GET['rec'])) {
-			$table_name = isset($zz['fields'][$this_subtable_no]['table_name']) ? $zz['fields'][$this_subtable_no]['table_name'] : wrap_db_prefix($zz['fields'][$this_subtable_no]['table']);
+			$table_name = $zz['fields'][$this_subtable_no]['table_name'] ?? wrap_db_prefix($zz['fields'][$this_subtable_no]['table']);
 			$rec = intval($_GET['rec']);
 			$id_field_name = zz_long_fieldname($table_name, $rec, $my_field['field_name']);
 			$id_field_name = zz_make_id_fieldname($id_field_name);
