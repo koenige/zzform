@@ -254,8 +254,6 @@ function zzform($zz) {
 
 	if ($ops['heading'])
 		$ops['title'] = zz_nice_title($ops['heading'], $zz['fields'], $ops, $ops['mode']);
-	if ($ops['mode'] !== 'export')
-		$ops['footer_text'] = $zz['footer']['text'];
 	return zzform_exit($ops);
 }
 
