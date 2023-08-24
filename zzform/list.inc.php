@@ -64,11 +64,12 @@ function zz_list($zz, $list, $ops, $zz_conditions) {
 	$ops['filter_titles'] = zz_output_filter_title($zz['filter'], $zz['filter_active']);
 
 	// modify SQL query depending on filter
-	$old_sql = $zz['sql'];
-	$zz['sql'] = zz_list_filter_sql($zz['filter'], $zz['sql'], $zz['filter_active']);
-	if (zz_list_filter_invalid()) $zz['sql'] = false;
-	if ($old_sql !== $zz['sql']) $zz['sqlcount'] = NULL;
-	if (!$zz['sql']) return zz_return($ops);
+	if ($zz_conf['modules']['filter']) {
+		$old_sql = $zz['sql'];
+		$zz['sql'] = zz_filter_sql($zz['filter'], $zz['sql'], $zz['filter_active']);
+		if (!$zz['sql']) return zz_return($ops);
+		if ($old_sql !== $zz['sql']) $zz['sqlcount'] = NULL;
+	}
 
 	list($lines, $ops['records_total']) = zz_list_query($zz, $list);
 	if (zz_error_exit()) return zz_return($ops);

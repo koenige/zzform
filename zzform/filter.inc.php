@@ -54,7 +54,7 @@ function zz_filter_defaults(&$zz) {
 		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string(
 			$zz_conf['int']['url']['qs_zzform'], ['filter['.$identifier.']']
 		);
-		zz_list_filter_invalid(zz_htmltag_escape($identifier));
+		zz_filter_invalid(zz_htmltag_escape($identifier));
 		// get rid of filter
 		unset($zz['filter_active'][$identifier]);
 	}
@@ -205,7 +205,9 @@ function zz_filter_function($filter, $sql) {
  * @return string $sql
  * @see zz_filter_defaults() for check for invalid filters
  */
-function zz_list_filter_sql($filters, $sql, &$filter_active) {
+function zz_filter_sql($filters, $sql, &$filter_active) {
+	if (zz_filter_invalid()) return '';
+
 	// no filter was selected, no change
 	if (!$filter_active) return $sql;
 
@@ -214,14 +216,13 @@ function zz_list_filter_sql($filters, $sql, &$filter_active) {
 		$filter_value = $filter_active[$filter['identifier']];
 
 		$old_sql = $sql;
-		if (isset($filter['sql_join'])) {
+		if (isset($filter['sql_join']))
 			$sql = wrap_edit_sql($sql, 'JOIN', $filter['sql_join']);
-		}
 
 		// where_if-Filter?
 		if (!empty($filter['where_if'])) {
 			if (!array_key_exists($filter_value, $filter['where_if'])) {
-				zz_list_filter_invalid_value($filter, $filter_value);
+				zz_filter_invalid_value($filter, $filter_value);
 				// remove invalid filter
 				unset($filter_active[$filter['identifier']]);
 				continue;
@@ -259,7 +260,7 @@ function zz_list_filter_sql($filters, $sql, &$filter_active) {
 				}
 				$sql = wrap_edit_sql($sql, 'WHERE', $filter['where'].$equals.'"'.wrap_db_escape($filter_value).'"');
 			}
-		} elseif ($filter['type'] === 'list' AND $filter_values = zz_list_filter_or($filter_value, array_keys($filter['selection']))) {
+		} elseif ($filter['type'] === 'list' AND $filter_values = zz_filter_or($filter_value, array_keys($filter['selection']))) {
 			// @todo support all of the code above, too
 			// @todo allow to select this somehow, currently only available via URL manipulation
 			$or_conditions = [];
@@ -305,7 +306,7 @@ function zz_list_filter_sql($filters, $sql, &$filter_active) {
 		} else {
 			// invalid filter value, show list without filter
 			$sql = $old_sql;
-			zz_list_filter_invalid_value($filter, $filter_value);
+			zz_filter_invalid_value($filter, $filter_value);
 			// remove invalid filter
 			unset($filter_active[$filter['identifier']]);
 		}
@@ -321,7 +322,7 @@ function zz_list_filter_sql($filters, $sql, &$filter_active) {
  * @param string $value
  * @return void
  */
-function zz_list_filter_invalid_value($filter, $value) {
+function zz_filter_invalid_value($filter, $value) {
 	global $zz_conf;
 
 	if (empty($filter['ignore_invalid_filters'])) {
@@ -345,7 +346,7 @@ function zz_list_filter_invalid_value($filter, $value) {
  * @param string $filter (opitonal, add to list of invalid filters)
  * @return bool true if there are invalid filters
  */
-function zz_list_filter_invalid($filter = false) {
+function zz_filter_invalid($filter = false) {
 	static $invalid_filters = [];
 	global $zz_conf;
 	if ($filter) {
@@ -378,7 +379,7 @@ function zz_list_filter_invalid($filter = false) {
  * @param array $selections
  * @return array
  */
-function zz_list_filter_or($filter_value, $selections) {
+function zz_filter_or($filter_value, $selections) {
 	if (!strstr($filter_value, '|')) return [];
 	$filter_values = explode('|', $filter_value);
 	foreach ($filter_values as $value) {
