@@ -80,8 +80,14 @@ function zz_filter_list(&$zz, &$ops, &$list) {
 	if ($old_sql !== $zz['sql']) $zz['sqlcount'] = NULL;
 
 	// output filter
-	$ops['filter_top'] = zz_filter_selection($zz['filter'], $zz['filter_active'], 'top');
-	$ops['filter_bottom'] = zz_filter_selection($zz['filter'], $zz['filter_active'], 'bottom');
+	if (!$zz['filter']) return true;
+	if ($ops['mode'] === 'export') return true;
+	if (!wrap_setting('zzform_filter_position')) return true;
+	$filter = zz_filter_selection($zz['filter'], $zz['filter_active']);
+	if (in_array(wrap_setting('zzform_filter_position'), ['top', 'both']))
+		$ops['filter_top'] = $filter;
+	if (in_array(wrap_setting('zzform_filter_position'), ['bottom', 'both']))
+		$ops['filter_bottom'] = $filter;
 
 	return true;
 }
@@ -423,19 +429,13 @@ function zz_filter_or($filter_value, $selections) {
  *		array 'selection'
  *			id => title
  * @param array $filter_active = $zz['filter_active']
- * @param string $pos = 'top', 'bottom', or 'both'
  * @global array $zz_conf
  *		$zz_conf['int']['url']
  * @return string HTML output, all filters
  */
-function zz_filter_selection($filter, $filter_active, $pos) {
+function zz_filter_selection($filter, $filter_active) {
 	global $zz_conf;
 
-	if (!$filter) return '';
-	if (!is_array($filter)) return '';
-	if ($zz_conf['int']['access'] === 'export') return '';
-	if (!in_array(wrap_setting('zzform_filter_position'), [$pos, 'both'])) return '';
-	
 	// create base URL for links
 	$self = $zz_conf['int']['url']['self'];
 	// remove unwanted keys from link
