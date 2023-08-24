@@ -4,6 +4,10 @@
  * zzform
  * Filter functions
  *
+ * – zz_filter_defaults() is called at the beginning, to check GET variables and
+ * set WHERE condition if applicable
+ * – zz_filter_list() evaluates filter for list query and prepares HTML output
+ *
  * Part of »Zugzwang Project«
  * http://www.zugzwang.org/projects/zzform
  *
