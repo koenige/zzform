@@ -58,17 +58,9 @@ function zz_list($zz, $list, $ops, $zz_conditions) {
 	$zz['sql_without_limit'] = $zz['sql'];
 
 	// Filters
-	// set 'selection', $list['hierarchy']
-	if ($zz_conf['modules']['filter'])
-		zz_apply_filter($zz, $list);
-	$ops['filter_titles'] = zz_output_filter_title($zz['filter'], $zz['filter_active']);
-
-	// modify SQL query depending on filter
 	if ($zz_conf['modules']['filter']) {
-		$old_sql = $zz['sql'];
-		$zz['sql'] = zz_filter_sql($zz['filter'], $zz['sql'], $zz['filter_active']);
-		if (!$zz['sql']) return zz_return($ops);
-		if ($old_sql !== $zz['sql']) $zz['sqlcount'] = NULL;
+		$success = zz_filter_list($zz, $ops, $list);
+		if (!$success) return zz_return($ops);
 	}
 
 	list($lines, $ops['records_total']) = zz_list_query($zz, $list);
@@ -82,7 +74,7 @@ function zz_list($zz, $list, $ops, $zz_conditions) {
 	if (!$list['no_add_above'])
 		$ops['output'] .= zz_output_add_export_links($zz, $ops, 'above');
 	if ($list['display'])
-		$ops['output'] .= zz_filter_selection($zz['filter'], $zz['filter_active'], 'top');
+		$ops['output'] .= $ops['filter_top'] ?? '';
 
 	// don't show anything if there is nothing
 	if (!$count_rows) {
@@ -237,7 +229,7 @@ function zz_list($zz, $list, $ops, $zz_conditions) {
 	if (!($zz_conf['int']['access'] === 'search_but_no_list' AND empty($_GET['q']))) {
 		// filter, if there was a list
 		if ($list['display'])
-			$ops['output'] .= zz_filter_selection($zz['filter'], $zz['filter_active'], 'bottom');
+			$ops['output'] .= $ops['filter_bottom'] ?? '';
 		$ops['output'] .= zz_output_add_export_links($zz, $ops);
 		$ops['output'] .= zz_list_total_records($ops['records_total']);
 		$ops['output'] .= zz_list_pages($zz_conf['int']['this_limit'], $ops['records_total']);	
@@ -819,137 +811,6 @@ function zz_list_group_titles_out($group_titles, $concat = ' – ') {
 	$output = implode($concat, $group_titles);
 	return $output;
 }
-
-/**
- * prints out a list of filters to click
- *
- * @param array $filter
- *	array index =>
- *		string 'title'
- *		string 'identifier'
- *		string 'where'
- *		array 'selection'
- *			id => title
- * @param array $filter_active = $zz['filter_active']
- * @param string $pos = 'top', 'bottom', or 'both'
- * @global array $zz_conf
- *		$zz_conf['int']['url']
- * @return string HTML output, all filters
- */
-function zz_filter_selection($filter, $filter_active, $pos) {
-	global $zz_conf;
-
-	if (!$filter) return '';
-	if (!is_array($filter)) return '';
-	if ($zz_conf['int']['access'] === 'export') return '';
-	if (!in_array(wrap_setting('zzform_filter_position'), [$pos, 'both'])) return '';
-	
-	// create base URL for links
-	$self = $zz_conf['int']['url']['self'];
-	// remove unwanted keys from link
-	// do not show edited record, limit
-	$unwanted_keys = [
-		'q', 'scope', 'limit', 'mode', 'id', 'add', 'filter', 'delete',
-		'insert', 'update', 'noupdate', 'zzhash', 'merge'
-	];
-	$qs = zz_edit_query_string($zz_conf['int']['url']['qs']
-		.$zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
-
-	$filter_output = false;
-	foreach ($filter as $index => $f) {
-		$filter[$index]['length'] = 0;
-		// remove this filter from query string
-		$other_filters['filter'] = $filter_active;
-		unset($other_filters['filter'][$f['identifier']]);
-		if (!empty($f['subfilter'])) {
-			// this filter has a subfilter
-			// exclude subfilter from links as it will produce 404 errors
-			// since the combinations are not possible
-			foreach ($f['subfilter'] AS $subfilter) {
-				// filter does exist?
-				if (!isset($filter[$subfilter])) continue;
-				unset($other_filters['filter'][$filter[$subfilter]['identifier']]);
-			}
-		}
-		$qs = zz_edit_query_string($qs, [], $other_filters);
-		
-		if (!empty($f['selection'])) {
-			// $f['selection'] might be empty if there's no record in the database
-			$sequence = 1;
-			foreach ($f['selection'] as $id => $selection) {
-				$is_selected = ((isset($filter_active[$f['identifier']]) 
-					AND $filter_active[$f['identifier']] == $id))
-					? true : false;
-				if ($is_selected) {
-					// active filter: don't show a link
-					$link = false;
-				} elseif (!empty($f['default_selection']) 
-					AND ((is_array($f['default_selection']) AND key($f['default_selection']) == $id)
-					OR $f['default_selection'] == $id)) {
-					// default selection does not need parameter
-					$link = $self.$qs;
-				} else {
-					// ID might be string as well, so better urlencode it
-					$link = $self.($qs ? $qs.'&amp;' : '?').'filter['.$f['identifier'].']='.urlencode($id);
-				}
-				if (!empty($filter[$index]['translate_field_value'])) {
-					$selection = wrap_text($selection);
-				}
-				$filter[$index]['values'][] = [
-					'title' => $selection,
-					'link' => $link,
-					'index' => $sequence
-				];
-				$filter[$index]['length'] += strlen($selection);
-				$filter_output = true;
-				$sequence++;
-			}
-		} elseif (isset($filter_active[$f['identifier']])) {
-			// no filter selections are shown, but there is a current filter, 
-			// so show this
-			$filter[$index]['values'][] = [
-				'title' => zz_htmltag_escape($filter_active[$f['identifier']]),
-				'link' => false,
-				'index' => 1
-			];
-			$filter[$index]['length'] += strlen($filter_active[$f['identifier']]);
-			$filter_output = false;
-		} else {
-			// nothing to output: like-filter, so don't display anything
-			unset($filter[$index]);
-			continue;
-		}
-
-		// create '- all -'-Link
-		if (!empty($filter[$index]['hide_all_link'])) continue;
-		if (empty($f['default_selection'])) {
-			$link = $self.$qs;
-		} else {
-			// there is a default selection, so we need a parameter = 0!
-			$link = $self.($qs ? $qs.'&amp;' : '?').'filter['.$f['identifier'].']=0';
-		}
-		$link_all = false;
-		if (isset($filter_active[$f['identifier']])) {
-			if ($filter[$index]['type'] === 'function') $link_all = true;
-			elseif ($filter_active[$f['identifier']] !== '0'
-				AND $filter_active[$f['identifier']] !== 0) $link_all = true;
-		}
-		
-		if (!$link_all) $link = false;
-
-		$filter[$index]['values'][] = [
-			'link' => $link,
-			'all' => true,
-			'index' => 0
-		];
-		if ($filter[$index]['length'] > 200)
-			$filter[$index]['dropdown_filter'] = true;
-	}
-	if (!$filter_output) return false;
-
-	return wrap_template('zzform-list-filter', $filter, 'ignore positions');
-}
-
 
 /**
  * Query records for list view
