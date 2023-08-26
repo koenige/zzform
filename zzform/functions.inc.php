@@ -529,35 +529,27 @@ function zz_check_get_array($key, $type, $values = [], $exit_on_error = true) {
  * Sets record specific configuration variables that might be changed 
  * individually
  * 
- * @param array $zz_conf
  * @param array $zz
- * @return array $zz_conf_record subset of $zz_conf
+ * @global array $zz_conf
+ * @return array $zz_conf_record subset of $zz
  */
-function zz_record_conf($zz_conf, $zz) {
-	$wanted_keys = [
-		'int[access]', 'edit', 'delete', 'add', 'view', 'if', 'details', 'copy', 'no_ok',
-		'cancel_link', 'unless'
-	];
+function zz_record_conf($zz) {
+	global $zz_conf;
 	$zz_conf_record = [];
-	foreach ($wanted_keys as $key) {
-		if (str_starts_with($key, 'int[') AND str_ends_with($key, ']')) {
-			$key = substr($key, 4, -1);
-			$zz_conf_record[$key] = $zz_conf['int'][$key] ?? ''; 
-		} elseif (!empty($zz[$key]) AND !empty($zz_conf[$key])) {
-			if (is_array($zz_conf[$key])) {
-				// ignore $zz definition if $zz_conf is not an array here, e. g. for 'add'
-				$zz_conf_record[$key] = wrap_array_merge($zz_conf[$key], $zz[$key]);
-			} else {
-				$zz_conf_record[$key] = $zz_conf[$key];
-			}
-		} elseif (array_key_exists($key, $zz)) {
-			$zz_conf_record[$key] = $zz[$key];
-		} elseif (array_key_exists($key, $zz['record'])) {
-			$zz_conf_record[$key] = $zz['record'][$key];
-		} elseif (array_key_exists($key, $zz_conf)) {
-			$zz_conf_record[$key] = $zz_conf[$key];
-		}
-	}
+
+	// read access from $zz_conf
+	$zz_conf_record['access'] = $zz_conf['int']['access'] ?? '';
+
+	// read some keys from $zz['record']
+	$keys = ['edit', 'delete', 'add', 'view', 'copy', 'no_ok', 'cancel_link'];
+	foreach ($keys as $key)
+		$zz_conf_record[$key] = $zz['record'][$key] ?? false;
+
+	// read some keys from $zz
+	$keys = ['if', 'unless', 'details'];
+	foreach ($keys as $key)
+		$zz_conf_record[$key] = $zz[$key] ?? [];
+
 	// replace if[record] with if
 	if (!empty($zz_conf_record['if'])) {
 		foreach ($zz_conf_record['if'] as $no => $condition) {

@@ -611,7 +611,7 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 		$def_index = (count($table_defs) > 1) ? $index : 0;
 		$rows[$z]['group'] = zz_list_group_titles($list, $table_defs[$def_index], $line);
 		// configuration variables just for this line
-		$zz_conf_record = zz_record_conf($zz_conf, $zz);
+		$zz_conf_record = zz_record_conf($zz);
 		if (!empty($line['zz_conf'])) {
 			// check whether there are different configuration variables 
 			// e. g. for hierarchies
@@ -687,7 +687,7 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 		$rows[$z]['modes'] = zz_output_modes($id, $zz_conf_record);
 		if ($rows[$z]['modes']) $list['modes'] = true; // need a table row for this
 
-		if (!empty($zz_conf_record['details'])) {
+		if ($zz_conf_record['details']) {
 			$rows[$z]['details'] = zz_show_more_actions($zz_conf_record, $id, $line);
 			if ($rows[$z]['modes']) {
 				// we need a table row for this
