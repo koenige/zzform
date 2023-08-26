@@ -421,7 +421,7 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple)
 	} else {
 		if ($zz_conf_record['edit']) {
 			$output['tfoot_class'] = 'reedit';
-			if (empty($zz_conf_record['no_ok']) AND $cancelurl)
+			if (!$zz_conf_record['no_ok'] AND $cancelurl)
 				$output['cancel_ok'] = $cancelurl;
 			// record link?
 			foreach ($zz_tab[0][0]['fields'] as $field) {
@@ -431,12 +431,12 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple)
 			$output['modes'] = zz_output_modes($zz_conf['int']['id']['value'], $zz_conf_record);
 			$output['tfoot'] = true;
 		}
-		if (!empty($zz_conf_record['details'])) {
+		if ($zz_conf_record['details']) {
 			$output['tfoot_class'] = 'editbutton';
 			$output['actions'] = zz_show_more_actions($zz_conf_record, $zz_conf['int']['id']['value'], $zz_tab[0][0]['record']);
 			$output['tfoot'] = true;
 		}
-		if (empty($zz_conf_record['details']) AND !$zz_conf_record['edit']
+		if (!$zz_conf_record['details'] AND !$zz_conf_record['edit']
 			AND $zz_conf_record['cancel_link']) {
 			$output['tfoot_class'] = 'editbutton';
 			$output['cancel_url'] = $cancelurl;

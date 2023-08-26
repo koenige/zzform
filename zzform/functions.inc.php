@@ -551,7 +551,7 @@ function zz_record_conf($zz) {
 		$zz_conf_record[$key] = $zz[$key] ?? [];
 
 	// replace if[record] with if
-	if (!empty($zz_conf_record['if'])) {
+	if ($zz_conf_record['if']) {
 		foreach ($zz_conf_record['if'] as $no => $condition) {
 			if (empty($condition['record'])) continue;
 			unset($zz_conf_record['if'][$no]['record']);
