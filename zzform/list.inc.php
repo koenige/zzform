@@ -635,7 +635,7 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 			// conditions
 			if (!empty($zz_conf['modules']['conditions']) AND !empty($zz_conditions['bool'])) {
 				zz_conditions_merge_field($field, $zz_conditions['bool'], $line[$zz_conf['int']['id']['field_name']]);
-				if (!empty($zz_conf_record['if']) OR !empty($zz_conf_record['unless'])) {
+				if ($zz_conf_record['if'] OR $zz_conf_record['unless']) {
 					zz_conditions_merge_conf($zz_conf_record, $zz_conditions['bool'], $line[$zz_conf['int']['id']['field_name']]);
 					$zz_conf_record = zz_listandrecord_access($zz_conf_record);
 					// $zz_conf is set regarding add, edit, delete
