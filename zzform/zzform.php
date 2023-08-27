@@ -73,7 +73,6 @@ function zzform($zz) {
 	}
 	$ops['output'] .= zz_error_output();
 	$zz = zz_init_cfg('zz', $zz);
-	$zz = zz_defaults($zz);
 	
 	if (empty($zz['fields'])) {
 		zz_error_log([
@@ -567,24 +566,6 @@ function zz_valid_request($action = false) {
 		return false;
 	}
 	return true;
-}
-
-/**
- * set default values for $zz
- *
- * @param array $zz
- * @return array
- */
-function zz_defaults($zz) {
-	// check hooks if they are arrays
-	if (!empty($zz['hooks'])) {
-		foreach ($zz['hooks'] as $hook => $actions) {
-			if (is_array($actions)) continue;
-			$zz['hooks'][$hook] = [$actions];
-		}
-	}
-
-	return $zz;
 }
 
 /**

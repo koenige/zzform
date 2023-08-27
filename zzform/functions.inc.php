@@ -573,9 +573,11 @@ function zz_init_cfg($key, $ext, $int = []) {
 	$cfg = zz_init_cfg_file($key);
 	$settings = [];
 	foreach ($cfg as $key => $def) {
+		// just for completeness?
+		if (!empty($def['no_init'])) continue;
 		// value?
 		if (empty($def['type'])) $def['type'] = 'text';
-		$value = zz_init_cfg_value($def, $ext[$key] ?? NULL, $int[$key] ?? NULL);
+		$value = zz_init_cfg_value($key, $def, $ext, $int);
 		if (!$value AND !empty($def['no_auto_init'])) continue;
 		$new_settings = wrap_setting_key($key, $value);
 		$settings = wrap_array_merge($settings, $new_settings, false);
@@ -620,12 +622,16 @@ function zz_init_cfg_file($key) {
 /**
  * get configuration value
  *
+ * @param string $key
  * @param array $def definition of a single config key
  * @param array $ext
  * @param array $int
  * @return mixed
  */
-function zz_init_cfg_value($def, $ext, $int) {
+function zz_init_cfg_value($key, $def, $ext, $int) {
+	// get values from array
+	$ext = zz_init_cfg_array_value($key, $ext);
+	$int = zz_init_cfg_array_value($key, $int);
 	// get value, in order int, ext, default
 	if ($int)
 		$value = $int;
@@ -658,6 +664,25 @@ function zz_init_cfg_value($def, $ext, $int) {
 		break;
 	}
 
+	return $value;
+}
+
+/**
+ * get value from array, key might be footer[text], look for $values['footer']['text']
+ *
+ * @param string $key
+ * @param array $value
+ * @return mixed
+ */
+function zz_init_cfg_array_value($key, $values) {
+	if (!strstr($key, '[')) return $values[$key] ?? NULL;
+	$keys = rtrim($key, ']');
+	$keys = explode('[', $keys);
+	$value = $values;
+	foreach ($keys as $key) {
+		$key = rtrim($key, ']');
+		$value = $value[$key] ?? NULL;
+	}
 	return $value;
 }
 
