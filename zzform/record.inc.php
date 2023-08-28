@@ -1456,8 +1456,8 @@ function zz_record_field_focus($name, $type) {
  */
 function zz_output_field_rows($matrix, $formdisplay, $extra_lastcol, $tab) {
 	global $zz_conf;
-	static $table_head;
-	if (empty($table_head)) $table_head = [];
+	static $table_head = [];
+	if (!$matrix) return ''; // detail record was deleted: no matrix
 	if (!array_key_exists($tab, $table_head)) $table_head[$tab] = false;
 	$output = '';
 	
