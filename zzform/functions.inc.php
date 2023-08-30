@@ -565,7 +565,7 @@ function zz_record_conf($zz) {
  * initalize a variable from .cfg file
  *
  * @param string $key
- * @param array $def existing definition by user
+ * @param array $ext existing definition by user
  * @param array $int existing internal definition by system (optional)
  * @return array
  */
@@ -573,6 +573,8 @@ function zz_init_cfg($key, $ext, $int = []) {
 	$cfg = zz_init_cfg_file($key);
 	$settings = [];
 	foreach ($cfg as $key => $def) {
+		// ignore deprecated keys
+		if (!empty($def['deprecated'])) continue;
 		// just for completeness?
 		if (!empty($def['no_init'])) continue;
 		// value?
@@ -581,6 +583,51 @@ function zz_init_cfg($key, $ext, $int = []) {
 		if (!$value AND !empty($def['no_auto_init'])) continue;
 		$new_settings = wrap_setting_key($key, $value);
 		$settings = wrap_array_merge($settings, $new_settings, false);
+	}
+	return $settings;
+}
+
+/**
+ * rewrite deprecated variables from .cfg file
+ *
+ * @param string $key
+ * @param array $ext existing definition by user
+ * @return array
+ * @todo $zz_conf['if'][1]['add'] is not re-written, as is $zz_conf['if'][1]['search']
+ */
+function zz_init_cfg_deprecated($cfg_key, &$ext) {
+	$cfg = zz_init_cfg_file($cfg_key);
+	$settings = [];
+	foreach ($cfg as $key => $def) {
+		if (empty($def['deprecated'])) continue;
+		if (empty($def['type'])) $def['type'] = 'text';
+		$value = zz_init_cfg_value($key, $def, $ext);
+		if ($value === NULL) continue;
+		if (!empty($def['moved_to_zz'])) {
+			$new_key = $def['moved_to_zz'] === '1' ? $key : $def['moved_to_zz'];
+			$settings = wrap_array_merge($settings, wrap_setting_key($new_key, $value));
+			// @todo better display of error message for arrays
+			wrap_error(wrap_text(
+				'Deprecated notation $%s["%s"] for  found. Please use $zz["%s"] instead.'
+				, ['values' => [$cfg_key, $key, $new_key]]
+			), E_USER_DEPRECATED);
+		} elseif (!empty($def['moved_to_setting'])) {
+			$new_key = $def['moved_to_setting'] === '1' ? $key : $def['moved_to_setting'];
+			// invert_setting
+			if (!empty($def['invert_setting'])) $value = !$value;
+			if (empty($def['ignore_if_true']) OR $value !== true) {
+				if (is_array(wrap_setting($new_key)) AND $value)
+					wrap_setting_add($new_key, $value);
+				else
+					wrap_setting($new_key, $value);
+			}
+			wrap_error(wrap_text(
+				'Deprecated notation $%s["%s"] found. Please use wrap_setting("%s") instead.'
+				, ['values' => [$cfg_key, $key, $new_key]]
+			), E_USER_DEPRECATED);
+		}
+		// @todo support keys inside arrays
+		unset($ext[$key]);
 	}
 	return $settings;
 }
@@ -628,7 +675,7 @@ function zz_init_cfg_file($key) {
  * @param array $int
  * @return mixed
  */
-function zz_init_cfg_value($key, $def, $ext, $int) {
+function zz_init_cfg_value($key, $def, $ext, $int = []) {
 	// get values from array
 	$ext = zz_init_cfg_array_value($key, $ext);
 	$int = zz_init_cfg_array_value($key, $int);

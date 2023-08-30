@@ -43,6 +43,19 @@ function zzform($zz) {
 //
 //	Initialize variables & modules
 //
+
+	// include files
+	zzform_includes();
+
+	// remove and log deprecated variables
+	$settings = zz_init_cfg_deprecated('zz_conf', $zz_conf);
+	if ($settings) $zz = wrap_array_merge($zz, $settings);
+	$settings = zz_init_cfg_deprecated('zz', $zz);
+	if ($settings) $zz = wrap_array_merge($zz, $settings);
+	
+	// initialise $zz
+	$zz = zz_init_cfg('zz', $zz);
+
 	$ops = [
 		'result' => '',
 		'headers' => false,
@@ -50,7 +63,7 @@ function zzform($zz) {
 		'error' => [],
 		'id' => 0,
 		'mode' => false,
-		'footer' => $zz['footer'] ?? [],
+		'footer' => $zz['footer'],
 		'footer_text' => '',
 		'html_fragment' => !empty($_POST['zz_html_fragment']) ? true : false,
 		'redirect_url' => false,
@@ -58,9 +71,7 @@ function zzform($zz) {
 		'exit' => false
 	];
 	if (empty($zz_conf['multi']))
-		wrap_static('page', '', $zz['page'] ?? [], 'init');
-
-	zzform_deprecated($ops, $zz);
+		wrap_static('page', '', $zz['page'], 'init');
 
 	// set default configuration variables
 	// import modules, set and get URI
@@ -72,9 +83,8 @@ function zzform($zz) {
 		);
 	}
 	$ops['output'] .= zz_error_output();
-	$zz = zz_init_cfg('zz', $zz);
 	
-	if (empty($zz['fields'])) {
+	if (!$zz['fields']) {
 		zz_error_log([
 			'msg_dev' => 'There is no table definition available (\'fields\'). Please check.',
 			'level' => E_USER_NOTICE
@@ -636,8 +646,7 @@ function zz_initialize($mode = false, $old_conf = []) {
 	if ($zz_conf['generate_output']) $zz_conf['int_modules'][] = 'output';
 
 	// include core functions
-	require_once __DIR__.'/functions.inc.php';
-	require_once __DIR__.'/database.inc.php';
+	zzform_includes();
 	zz_error_exit(false);
 	zz_error_out(false);
 
@@ -781,120 +790,9 @@ function zzform_post_too_big() {
 }
 
 /**
- * mark some deprecated settings
- *
- * @param array $ops
- * @param array $zz
+ * includes required files for zzform
  */
-function zzform_deprecated(&$ops, &$zz) {
-	global $zz_conf;
-
-	$to_page = ['dont_show_title_as_breadcrumb', 'referer'];
-	foreach ($to_page as $key) {
-		if (!isset($zz_conf[$key])) continue;
-		wrap_static('page', $key, $zz_conf[$key]);
-		unset($zz_conf[$key]);
-		wrap_error('Use $zz[\'page\'][\''.$key.'\'] instead of $zz_conf[\''.$key.'\']', E_USER_DEPRECATED);
-	}
-	if (isset($zz['dynamic_referer'])) {
-		wrap_static('page', 'dynamic_referer', $zz['dynamic_referer']);
-		unset($zz['dynamic_referer']);
-		wrap_error('Use $zz[\'page\'][\'dynamic_referer\'] instead of $zz[\'dynamic_referer\']', E_USER_DEPRECATED);
-	}
-	if (isset($zz_conf['footer_text'])) {
-		$ops['footer']['text'] = $zz_conf['footer_text'];
-		unset($zz_conf['footer_text']);
-		wrap_error('Use $zz[\'footer\'][\'text\'] instead of $zz_conf[\'footer_text\']', E_USER_DEPRECATED);
-	}
-	if (isset($zz_conf['footer_text_insert'])) {
-		$ops['footer']['text_insert'] = $zz_conf['footer_text_insert'];
-		unset($zz_conf['footer_text_insert']);
-		wrap_error('Use $zz[\'footer\'][\'text_insert\'] instead of $zz_conf[\'footer_text_insert\']', E_USER_DEPRECATED);
-	}
-	if (isset($zz_conf['footer_template'])) {
-		$ops['footer']['template'] = $zz_conf['footer_template'];
-		unset($zz_conf['footer_template']);
-		wrap_error('Use $zz[\'footer\'][\'template\'] instead of $zz_conf[\'footer_template\']', E_USER_DEPRECATED);
-	}
-	$to_list = [
-		'no_add_above', 'multi_function', 'multi_edit', 'multi_delete', 'merge'
-	];
-	foreach ($to_list as $key) {
-		if (!isset($zz_conf[$key])) continue;
-		$zz['list'][$key] = $zz_conf[$key];
-		unset($zz_conf[$key]);
-		wrap_error('Use $zz[\'list\'][\''.$key.'\'] instead of $zz_conf[\''.$key.'\']', E_USER_DEPRECATED);
-	}
-	if (isset($zz_conf['export'])) {
-		$zz['export'] = $zz_conf['export'];
-		unset($zz_conf['export']);
-		wrap_error('Use $zz[\'export\'] instead of $zz_conf[\'export\']', E_USER_DEPRECATED);
-	}
-	if (!empty($zz_conf['list_display'])) {
-		$zz['list']['display'] = $zz_conf['list_display'];
-		unset($zz_conf['list_display']);
-		wrap_error('Use $zz[\'list\'][\'display\'] instead of $zz_conf[\'list_display\']', E_USER_DEPRECATED);
-	}
-	if (isset($zz_conf['export_csv_no_head'])) {
-		wrap_setting('export_csv_heading', !$zz_conf['export_csv_no_head']);
-		unset($zz_conf['export_csv_no_head']);
-		wrap_error('Use setting `export_csv_heading`, false instead of $zz_conf[\'export_csv_no_head\']', E_USER_DEPRECATED);
-	}
-	if (isset($zz_conf['export_csv_replace'])) {
-		wrap_setting('export_csv_replace', $zz_conf['export_csv_replace']);
-		unset($zz_conf['export_csv_replace']);
-		wrap_error('Use setting `export_csv_replace` instead of $zz_conf[\'export_csv_replace\']', E_USER_DEPRECATED);
-	}
-	if (isset($zz_conf['export_csv_delimiter'])) {
-		wrap_setting('export_csv_delimiter', $zz_conf['export_csv_delimiter']);
-		unset($zz_conf['export_csv_delimiter']);
-		wrap_error('Use setting `export_csv_delimiter` instead of $zz_conf[\'export_csv_delimiter\']', E_USER_DEPRECATED);
-	}
-	if (isset($zz_conf['search'])) {
-		wrap_setting('zzform_search', $zz_conf['search']);
-		unset($zz_conf['search']);
-		wrap_error('Use setting `zzform_search` instead of $zz_conf[\'search\']', E_USER_DEPRECATED);
-	}
-	if (!empty($zz_conf['search_form_always'])) {
-		wrap_setting('zzform_search_form_always', $zz_conf['search_form_always']);
-		unset($zz_conf['search_form_always']);
-		wrap_error('Use setting `zzform_search_form_always` instead of $zz_conf[\'search_form_always\']', E_USER_DEPRECATED);
-	}
-	if (!empty($zz_conf['nice_tablename'])) {
-		foreach ($zz_conf['nice_tablename'] as $table => $nice)
-			wrap_setting('zzform_nice_tablename['.$table.']', $nice);
-		unset($zz_conf['nice_tablename']);
-		wrap_error('Use setting `zzform_nice_tablename` instead of $zz_conf[\'nice_tablename\']', E_USER_DEPRECATED);
-	}
-	if (isset($zz_conf['max_select_val_len'])) {
-		wrap_setting('zzform_max_select_val_len', $zz_conf['max_select_val_len']);
-		unset($zz_conf['max_select_val_len']);
-		wrap_error('Use setting `zzform_max_select_val_len` instead of $zz_conf[\'max_select_val_len\']', E_USER_DEPRECATED);
-	}
-	if (isset($zz_conf['max_select'])) {
-		wrap_setting('zzform_max_select', $zz_conf['max_select']);
-		unset($zz_conf['max_select']);
-		wrap_error('Use setting `zzform_max_select` instead of $zz_conf[\'max_select\']', E_USER_DEPRECATED);
-	}
-
-	$moved_to_record = [
-		'redirect', 'copy', 'add', 'edit', 'delete', 'view', 'cancel_link', 'no_ok'
-	];
-	foreach ($moved_to_record as $key) {
-		if (!isset($zz_conf[$key])) continue;
-		$zz['record'][$key] = $zz_conf[$key];
-		unset($zz_conf[$key]);
-		wrap_error('Use $zz[\'record\'][\''.$key.'\'] instead of $zz_conf[\''.$key.'\']', E_USER_DEPRECATED);
-	}
-	// @todo $zz_conf['if'][1]['add'] is not re-written, as is $zz_conf['if'][1]['search']
-	if (isset($zz_conf['dont_show_total_records'])) {
-		wrap_setting('zzform_hide_total_records', $zz_conf['dont_show_total_records']);
-		unset($zz_conf['dont_show_total_records']);
-		wrap_error('Use setting `zzform_hide_total_records` instead of $zz_conf[\'dont_show_total_records\']', E_USER_DEPRECATED);
-	}
-	if (isset($zz_conf['html_autofocus']) AND !$zz_conf['html_autofocus']) {
-		wrap_setting('zzform_autofocus', []);
-		unset($zz_conf['html_autofocus']);
-		wrap_error('Use setting `zzform_autofocus` instead of $zz_conf[\'html_autofocus\']', E_USER_DEPRECATED);
-	}
+function zzform_includes() {
+	require_once __DIR__.'/functions.inc.php';
+	require_once __DIR__.'/database.inc.php';
 }
