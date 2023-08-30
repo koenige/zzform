@@ -77,7 +77,7 @@ function zzform($zz) {
 	// import modules, set and get URI
 	zz_initialize('form');
 	zz_error();
-	if (!empty($_GET['merge']) AND !empty($zz['list']['merge'])) {
+	if (!empty($_GET['merge']) AND $zz['list']['merge']) {
 		$ops['output'] .= sprintf('<h2>%s</h2>',
 			wrap_text('%d records merged successfully', ['values' => substr($_GET['merge'], strrpos($_GET['merge'], '-') + 1)])
 		);
