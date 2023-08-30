@@ -569,8 +569,8 @@ function zz_record_conf($zz) {
  * @param array $int existing internal definition by system (optional)
  * @return array
  */
-function zz_init_cfg($key, $ext, $int = []) {
-	$cfg = zz_init_cfg_file($key);
+function zz_init_cfg($cfg_key, $ext, $int = []) {
+	$cfg = zz_init_cfg_file($cfg_key);
 	$settings = [];
 	foreach ($cfg as $key => $def) {
 		// ignore deprecated keys
@@ -584,6 +584,8 @@ function zz_init_cfg($key, $ext, $int = []) {
 		$new_settings = wrap_setting_key($key, $value);
 		$settings = wrap_array_merge($settings, $new_settings, false);
 	}
+	// variables in $ext left?
+	zz_init_cfg_unused($cfg_key, $ext, $settings);
 	return $settings;
 }
 
@@ -630,6 +632,22 @@ function zz_init_cfg_deprecated($cfg_key, &$ext) {
 		unset($ext[$key]);
 	}
 	return $settings;
+}
+
+/**
+ * check for unused (mistyped?) keys in definition
+ *
+ * @param string $cfg_key
+ * @param array $values
+ * @param array $settings
+ * @return void
+ */
+function zz_init_cfg_unused($cfg_key, $values, $settings) {
+	foreach ($values as $key => $value) {
+		if (is_array($value)) zz_init_cfg_unused($cfg_key.'["'.$key.'"]', $value, $settings[$key] ?? []);
+		if (array_key_exists($key, $settings)) continue;
+		wrap_error(wrap_text('Key $%s["%s"] is set, but not used.', ['values' => [$cfg_key, $key]]), E_USER_NOTICE);
+	}
 }
 
 /**
