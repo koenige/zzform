@@ -542,9 +542,15 @@ function zz_upload_fileinfo($file, $extension = false) {
 			zz_debug($function_name."()", $type.': '.json_encode($file));
 		}
 	}
-	// change extension to default extension of filetype
-	if ($filetype_def = wrap_filetypes($file['filetype']))
+	if ($filetype_def = wrap_filetypes($file['filetype'])) {
+		// change filetype if extension shows it is a different filetype
+		if (!empty($filetype_def['map_extension'][$file['upload_ext']])) {
+			$file['filetype'] = $filetype_def['map_extension'][$file['upload_ext']];
+			$filetype_def = wrap_filetypes($file['filetype']);
+		}
+		// change extension to default extension of filetype
 		$file['ext'] = $filetype_def['extension'][0];
+	}
 
 	if (!empty($file['warnings'])) {
 		foreach ($file['warnings'] as $function => $warnings) {
@@ -608,7 +614,7 @@ function zz_upload_fileinfo($file, $extension = false) {
 			$file['exif'] = [];
 		}
 	}
-	if ($file['filetype'] === 'pdf')
+	if (!empty($filetype_def['pdfinfo']))
 		$file['pdfinfo'] = zz_upload_pdfinfo($filename);
 	
 	// @todo further functions, e. g. zz_pdf_read_data if filetype == pdf ...
