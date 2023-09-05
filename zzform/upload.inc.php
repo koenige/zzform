@@ -167,12 +167,11 @@ function zz_upload_thumbnail($ops, $zz_tab) {
  * 		$zz_tab[0][0]['images']
  */
 function zz_upload_get($zz_tab) {
-	global $zz_conf;
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	if ($graphics_library = wrap_setting('zzform_graphics_library'))
 		include_once __DIR__.'/image-'.$graphics_library.'.inc.php';
 
-	$zz_conf['int']['upload_cleanup_files'] = [];
+	zz_upload_cleanup_files([], 'init');
 
 	// create array upload_fields in $zz_tab[0] for easy access to upload fields
 	$zz_tab[0]['upload_fields'] = zz_upload_get_fields($zz_tab);
@@ -215,22 +214,16 @@ function zz_upload_get_fields($zz_tab) {
  * checks which files allow file upload
  *
  * @param array $my = $zz_tab[$tab][$rec]
- * @global array $zz_conf
  * @return array multidimensional information about images
  *		bool $zz_tab[tab][rec]['file_upload']
  *		array $zz_tab[tab][rec]['images']
  */
 function zz_upload_check_files($zz_tab) {
-	global $zz_conf;
-	
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	require_once __DIR__.'/session.inc.php';
 	$session = zz_session_read('files');
-	if (!empty($session['upload_cleanup_files'])) {
-		$zz_conf['int']['upload_cleanup_files'] = array_merge(
-			$zz_conf['int']['upload_cleanup_files'], $session['upload_cleanup_files']
-		);
-	}
+	if (!empty($session['upload_cleanup_files']))
+		zz_upload_cleanup_files($session['upload_cleanup_files']);
 	$zz_tab[0]['file_upload'] = false;
 
 	foreach ($zz_tab[0]['upload_fields'] as $uf) {
@@ -1158,7 +1151,6 @@ function zz_upload_prepare_tn($zz_tab, $ops) {
  * @return array $image = $zz_tab[tab][rec]['images'][no][img]
  */
 function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
-	global $zz_conf;
 	if (wrap_setting('debug')) zz_debug('preparing ['.$tab.']['.$rec.'] - '.$img);
 
 	// reference on image data
@@ -1262,9 +1254,8 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 		// it's the original file we upload to the server
 		$source_filename = $image['upload']['tmp_name'];
 		// for later cleanup of leftover tmp files
-		if (empty($image['upload']['do_not_delete']) AND $source_filename) {
-			$zz_conf['int']['upload_cleanup_files'][] = $source_filename;
-		}
+		if (empty($image['upload']['do_not_delete']) AND $source_filename)
+			zz_upload_cleanup_files($source_filename);
 	}
 
 	if (wrap_setting('debug')) zz_debug('source_filename: '.$source_filename);
@@ -1293,7 +1284,7 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 		$image['modified'] = $tn;
 		$image['file_upload'] = true;
 		$image['files']['tmp_file'] = $image['modified']['tmp_name'];
-		$zz_conf['int']['upload_cleanup_files'][] = $image['modified']['tmp_name'];
+		zz_upload_cleanup_files($image['modified']['tmp_name']);
 
 	} elseif (!isset($image['source'])) {
 		// save original file, no thumbnail was created
@@ -2079,7 +2070,6 @@ function zz_upload_action($zz_tab) {
 		$my_rec['POST'][$my_rec['id']['field_name']] = $my_rec['id']['value'];
 		foreach ($my_rec['fields'][$no]['image'] as $img => $val) {
 			$image = &$my_rec['images'][$no][$img]; // reference on image data
-			$mode = false;
 			$action = $zz_tab[$tab][$rec]['action'];
 			// no thumbnails were made, it's a detail record that 
 			// will be ignored
@@ -2135,12 +2125,7 @@ function zz_upload_action($zz_tab) {
 		// insert, update
 			if ($uploaded_file) {
 				$image['files']['destination'] = zz_makepath($val['path'], $zz_tab, 'new', 'file', $tab, $rec);
-				if (!isset($image['source']) && !isset($image['source_file']) && empty($image['action'])) {
-					$mode = 'move';
-				} else {
-					$mode = 'copy';
-				}
-				$success = zz_upload_insert($uploaded_file, $image['files']['destination'], $action, $mode);
+				$success = zz_upload_insert($uploaded_file, $image['files']['destination'], $action);
 				if (!$success) zz_return($zz_tab);
 			} else {
 				// ok, no thumbnail image, so in this case delete existing thumbnails
@@ -2286,10 +2271,9 @@ function zz_upload_update($source, $dest, $uploaded_file, $action = 'update') {
  * @param string $source = source filename
  * @param string $dest = destination filename
  * @param string $action (optional) = record action, for backup only
- * @param string $mode (optional) = copy|move (default: copy)
  * @return bool true: copy was succesful, false: an error occured
  */
-function zz_upload_insert($source, $dest, $action = '-', $mode = 'copy') {
+function zz_upload_insert($source, $dest, $action = '-') {
 	// check if destination exists, back it up or delete it
 	if (file_exists($dest)) {
 		if (!is_file($dest)) {
@@ -2313,10 +2297,6 @@ function zz_upload_insert($source, $dest, $action = '-', $mode = 'copy') {
 	$success = zz_rename($source, $dest, E_USER_ERROR);
 	if (!$success) return false;
 
-	if ($mode === 'move') { 
-		// do this with images which have not been touched
-		zz_unlink_cleanup($source);	
-	}
 	chmod($dest, 0644);
 	if (wrap_setting('debug')) zz_debug('file copied: %'.$source.'% to: %'.$dest.'%');
 	return true;
@@ -2354,9 +2334,8 @@ function zz_upload_cleanup($zz_tab, $validated = true) {
 
 	// valid request = destroy session and delete files
 	if ($validated) {
-		foreach ($zz_conf['int']['upload_cleanup_files'] as $file) {
+		foreach (zz_upload_cleanup_files() as $file)
 			zz_unlink_cleanup($file);
-		}
 		return true;
 	}
 
@@ -2365,6 +2344,38 @@ function zz_upload_cleanup($zz_tab, $validated = true) {
 	// unfinished request: put files into session, do not delete
 	require_once __DIR__.'/session.inc.php';
 	zz_session_write('files', $zz_tab);
+}
+
+/**
+ * list removable files
+ *
+ * @param mixed $paths
+ * @param string $action (add, init, remove)
+ * @return array list of files
+ */
+function zz_upload_cleanup_files($paths = [], $action = 'add') {
+	static $cleanup_files = [];
+	if (!is_array($paths)) $paths = [$paths];
+
+	switch ($action) {
+	case 'init':
+		$cleanup_files = [];
+		break;
+
+	case 'add':
+		foreach ($paths as $path)
+			$cleanup_files[] = $path;
+		break;
+
+	case 'remove':
+		foreach ($paths as $path) {
+			$key = array_search($path, $cleanup_files);
+			if ($key !== false) unset($cleanup_files[$key]);
+		}
+		break;
+
+	}
+	return $cleanup_files;
 }
 
 
@@ -2725,11 +2736,13 @@ function zz_rename($source, $destination, $fail_error_code = E_USER_NOTICE) {
 		$success = copy($source, $destination);
 		if ($success) {
 			$success = unlink($source);
+			zz_upload_cleanup_files($source, 'remove');
 			if ($success) return true;
 		}
 	} else {
 		$success = rename($source, $destination);
-		if ($success) return $success;
+		zz_upload_cleanup_files($source, 'remove');
+		if ($success) return true;
 	}
 	// there might be a rename: Operation not permitted error when e. g. moving
 	// files over partitions, but the file might still end up in the correct place

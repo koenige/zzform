@@ -22,13 +22,11 @@
  * @return bool
  */
 function zz_session_write($type, $data) {
-	global $zz_conf;
-
 	switch ($type) {
 	case 'files':
 		// $data = $zz_tab
 		$session = [];
-		$session['upload_cleanup_files'] = $zz_conf['int']['upload_cleanup_files'];
+		$session['upload_cleanup_files'] = zz_upload_cleanup_files();
 		foreach ($data[0]['upload_fields'] as $uf) {
 			$tab = $uf['tab'];
 			$rec = $uf['rec'];

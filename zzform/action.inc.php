@@ -2671,12 +2671,9 @@ function zz_integrity_record_ids($zz_tab) {
  * attached to them that need to be deleted as well
  *
  * @param array $dependent_ids
- * @global array $zz_conf
- *		change $zz_conf['int']['upload_cleanup_files']
  * @return bool true: files were added, false: nothing was changed
  */
 function zz_integrity_check_files($dependent_ids) {
-	global $zz_conf;
 	if (empty($dependent_ids)) return false;
 	$return = false;
 	
@@ -2711,7 +2708,7 @@ function zz_integrity_check_files($dependent_ids) {
 					foreach ($data as $line) {
 						$path = zz_makepath($image['path'], $line, 'line', 'file');
 						if (!$path) continue;
-						$zz_conf['int']['upload_cleanup_files'][] = $path;
+						zz_upload_cleanup_files($path);
 						$return = true;
 					}
 				}
