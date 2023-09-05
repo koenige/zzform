@@ -5,10 +5,10 @@
  * XHR request for dependecies
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2017, 2020-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2017, 2020-2021, 2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -34,14 +34,17 @@ function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 	if (!empty($subtable_no)) {
 		if (!array_key_exists($subtable_no, $zz['fields'])) {
 			wrap_error(sprintf('Subtable %s requested, but it is not in the table definition', $subtable_no));
+			return false;
 		}
 		if (!array_key_exists($field_no, $zz['fields'][$subtable_no]['fields'])) {
 			wrap_error(sprintf('Field %s in subtable %s requested, but it is not in the table definition', $field_no, $subtable_no));
+			return false;
 		}
 		$field = $zz['fields'][$subtable_no]['fields'][$field_no];
 	} else {
 		if (!array_key_exists($field_no, $zz['fields'])) {
 			wrap_error(sprintf('Field %s requested, but it is not in the table definition', $field_no));
+			return false;
 		}
 		$field = $zz['fields'][$field_no];
 	}
