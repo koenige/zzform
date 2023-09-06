@@ -205,8 +205,15 @@ function zzform_not_global() {
 function zz_check_id_value($string) {
 	for ($i = 0; $i < mb_strlen($string); $i++) {
 		$letter = mb_substr($string, $i, 1);
-		if (!strstr('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', $letter))
+		if (!strstr('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', $letter)) {
+			// this was not a legitimate access
+			if (!empty($_POST['zz_id'])) {
+				wrap_setting('log_username_suffix', $_SERVER['REMOTE_ADDR']);
+				wrap_error(sprintf('POST data removed because of illegal zz_id value `%s`', $_POST['zz_id']), E_USER_NOTICE);
+				unset($_POST);
+			}
 			return wrap_random_hash(6);
+		}
 	}
 	return $string;
 }
