@@ -242,11 +242,15 @@ function zzform($zz) {
 		// and add/nav if limit/search buttons
 		require_once __DIR__.'/list.inc.php';
 		$ops = zz_list($zz, $list, $ops, $zz_conditions);
-		if (empty($ops['mode']) AND wrap_static('page', 'status') AND isset($ops['text'])) {
+		if (empty($ops['mode']) AND (wrap_static('page', 'status') OR !empty($ops['status'])) AND isset($ops['text'])) {
 			// return of a request script (mode alone might be empty for empty exports, too)
 			$ops['mode'] = '';
 			$ops['output'] = $ops['text'];
 			$ops['heading'] = $ops['title'];
+			$ops['explanation'] = '';
+			if (!wrap_static('page', 'status'))
+				wrap_static('page', 'status', $ops['status']);
+			// @todo show error message if status != 200
 			// @todo breadcrumbs, head, etc.
 		}
 	} elseif (!$zz_conf['int']['record']) {
