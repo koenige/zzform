@@ -240,6 +240,7 @@ function zz_is_url($url) {
 			if (preg_match($ldap, $part)) break;
 			// punycode domain name?
 			$parts['host'] = wrap_punycode_encode($part);
+			if (!$parts['host']) return false; // wrong encoding
 			// here, we'll check if this is not only a wrong entry
 			// for all records, checkdnsrr would take too long
 			if ($part !== $parts['host']) {
