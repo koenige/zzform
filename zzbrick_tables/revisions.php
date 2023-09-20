@@ -28,16 +28,15 @@ $zz['fields'][2]['field_name'] = 'main_table_name';
 $zz['fields'][3]['title'] = 'Record';
 $zz['fields'][3]['field_name'] = 'main_record_id';
 $zz['fields'][3]['link'] = [
-	'mode1' => 'zz_revisions_table_to_url',
-	'field1' => 'revisions_url',
-	'string2' => '?revise=',
-	'field2' => 'main_record_id',
-	'string3' => '&nolist&referer='.urlencode(wrap_setting('request_uri'))
+	'function' => 'zz_revisions_table_to_url',
+	'fields' => [
+		'revisions_url', 'main_record_id'
+	]
 ];
 
 $zz['fields'][4]['field_name'] = 'user_id';
 $zz['fields'][4]['type'] = 'write_once';
-$zz['fields'][4]['default'] = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : '';
+$zz['fields'][4]['default'] = $_SESSION['user_id'] ?? '';
 
 $zz['fields'][5]['title'] = 'Status';
 $zz['fields'][5]['field_name'] = 'rev_status';

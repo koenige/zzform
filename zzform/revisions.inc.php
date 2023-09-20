@@ -353,19 +353,42 @@ function zz_revisions_historic_update($id_value) {
  * return a corresponding URL for a table where a table can be edited
  * defaults to URL in the same folder with table-name instead of table_name
  *
- * @param string $table name of table
+ * @param array $fields
+ *		string revisions_url
+ *		int main_record_id
  * @return string
  */
-function zz_revisions_table_to_url($table) {
-	$setting = wrap_setting('zzform_revisions_table_to_url');
+function zz_revisions_table_to_url($fields) {
+	$url = $fields['revisions_url'];
+	$qs = '?revise=%d&nolist&referer=%s';
+	$qs = sprintf($qs, $fields['main_record_id'], urlencode(wrap_setting('request_uri')));
+	
+	// get path
+	$setting = wrap_setting('zzform_revisions_table_to_url['.$url.']');
 	if ($setting) {
-		parse_str($setting, $setting);
-		if (!empty($setting[$table])) return $setting[$table];
+		$path = $setting;
+	} elseif (str_starts_with($url, '/')) {
+		$path = $url;
+	} else {
+		$path = str_replace('_', '-', $url);
+		$path = './'.$path;
 	}
-	if (substr($table, 0, 1) === '/') return $table;
-	$table = str_replace('_', '-', $table);
-	$table = './'.$table;
-	return $table;
+	$path .= $qs;
+
+	// parameter?
+	$setting = wrap_setting('zzform_revisions_table_to_query['.$url.']');
+	if (!$setting) return $path;
+
+	$sql = sprintf(wrap_sql_query($setting), $fields['main_record_id']);
+	$result = wrap_db_fetch($sql, '', 'single value');
+	if (!$result) return $path;
+
+	// we need to know what to do with the parameter
+	$setting = wrap_setting('zzform_revisions_table_to_qs['.$url.']');
+	if (!$setting) return $path;
+	
+	$path = sprintf('%s&%s', $path, sprintf($setting, $result));
+	return $path;
 }
 
 /**
