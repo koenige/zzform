@@ -156,6 +156,7 @@ function zzform_include($file, $values = [], $type = 'tables', $brick = []) {
 	// allow to use script without recursion
 	$backtrace = debug_backtrace();
 	foreach ($backtrace as $step) {
+		if (!array_key_exists('file', $step)) continue;
 		if (!in_array($step['file'], $files)) continue;
 		$key = array_search($step['file'], $files);
 		unset($files[$key]);
