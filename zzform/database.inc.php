@@ -686,10 +686,10 @@ function zz_db_int_length($typed) {
  * @return array definition for whole table or just field
  */
 function zz_db_columns($db_table, $field = false) {
-	static $columns;
-	static $max_integers;
+	static $columns = [];
+	static $max_integers = [];
 	if (!$db_table) return [];
-	if (empty($max_integers)) {
+	if (!$max_integers) {
 		$sql = 'SELECT ~0 as bigint_unsigned
 			, ~0 >> 32 as int_unsigned
 			, ~0 >> 40 as mediumint_unsigned

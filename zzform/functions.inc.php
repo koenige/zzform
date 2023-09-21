@@ -972,7 +972,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 	if (wrap_setting('debug')) {
 		zz_debug('start', __FUNCTION__.$multiple_times);
 	}
-	static $defs;
+	static $defs = [];
 	$hash = md5(serialize($fields).$db_table.$multiple_times.$mode.$subtable_no);
 	if (!empty($defs[$hash])) return zz_return($defs[$hash]);
 
@@ -2556,8 +2556,7 @@ function zz_error() {
  * @return array
  */
 function zz_error_log($msg = []) {
-	static $errors;
-	if (empty($errors)) $errors = [];
+	static $errors = [];
 	if ($msg === false) $errors = [];
 	elseif ($msg) $errors[] = $msg;
 	return $errors;
@@ -2573,8 +2572,7 @@ function zz_error_log($msg = []) {
  * @return bool
  */
 function zz_error_exit($set = 'check') {
-	static $exit;
-	if (!isset($exit)) $exit = false;
+	static $exit = false;
 	if ($set === true) $exit = true;
 	elseif ($set === false) $exit = false;
 	return $exit;
@@ -2589,8 +2587,7 @@ function zz_error_exit($set = 'check') {
  * @return array
  */
 function zz_error_out($data = []) {
-	static $output;
-	if (empty($output)) $output = [];
+	static $output = [];
 	if ($data === false) $output = [];
 	elseif ($data) $output = array_merge($output, $data);
 	return $output;
@@ -2620,8 +2617,8 @@ function zz_error_output() {
  * @return array
  */
 function zz_error_validation_log($key = false, $value = []) {
-	static $errors;
-	if (empty($errors) OR $key === 'delete') {
+	static $errors = [];
+	if (!$errors OR $key === 'delete') {
 		$errors = [
 			'msg' => [], 'msg_args' => [], 'msg_dev' => [],
 			'msg_dev_args' => [], 'log_post_data' => false
@@ -3093,7 +3090,7 @@ function zz_get_subtable_fielddef($fields, $table) {
  */
 function zz_dependent_field_ids($fields, $tab, $rec) {
 	global $zz_conf;
-	static $dependent_ids;
+	static $dependent_ids = [];
 	$unique = sprintf('%s/%d/%d', $zz_conf['id'], $tab, $rec);
 	// save just for this request, therefore we use $zz_conf['id']
 	if (!empty($dependent_ids[$unique]))

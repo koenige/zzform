@@ -1462,14 +1462,12 @@ function zz_log_validation_errors($my_rec, $validation) {
  * @return array list of field titles
  */
 function zz_log_reselect_errors($field_name = false, $type = 'select') {
-	static $field_names;
-	if (empty($field_names)) $field_names = [];
-	if ($field_name) {
+	static $field_names = [];
+	if ($field_name)
 		$field_names[] = [
 			'title' => $field_name,
 			$type => true
 		];
-	}
 	return $field_names;
 }
 

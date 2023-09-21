@@ -28,7 +28,7 @@ function zz_search_sql($fields, $sql, $table) {
 
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	if (wrap_setting('debug')) zz_debug('search query', $sql);
-	static $calls;
+	static $calls = 0;
 	$calls++;
 
 	// get scope

@@ -147,11 +147,9 @@ function zz_translations_init($table, $fields) {
  * @return array definition in varchar, text, which fields of table can be translated
  */
 function zz_translations_fields($sql_translate) {
-	static $tfields;
-	if (empty($tfields)) $tfields = [];
-	if (!is_array($sql_translate)) {
+	static $tfields = [];
+	if (!is_array($sql_translate))
 		$sql_translate = [$sql_translate];
-	}
 	$key = json_encode($sql_translate);
 	if (array_key_exists($key, $tfields)) return $tfields[$key];
 

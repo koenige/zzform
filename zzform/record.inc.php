@@ -1407,7 +1407,7 @@ function zz_record_add_details($field, $tab, $rec, $fieldkey) {
  * @return bool true: $field_focus was initalized; false: do not focus
  */
 function zz_record_focus($zz_tab = false, $tab = 0, $rec = 0) {
-	static $field_focus;
+	static $field_focus = NULL;
 	if ($zz_tab) {
 		// set field focus
 		// set autofocus = true (HTML5)
@@ -2877,8 +2877,7 @@ function zz_field_unique_ignore($lines, $field) {
  * @return array lines from database or 'too_many_records' count is too high
  */
 function zz_field_query($field) {
-	static $results;
-	if (empty($results)) $results = [];
+	static $results = [];
 	// we do not show all fields if query is bigger than $field['max_select']
 	// so no need to query them (only if show_hierarchy_subtree is empty)
 	if (empty($field['show_hierarchy_subtree']) AND empty($field['show_hierarchy'])
@@ -3120,7 +3119,7 @@ function zz_field_select_hierarchy($field, $lines, $record, $id_field_name) {
  * @return array
  */
 function zz_field_sethierarchy($field, $lines, $subtree, $level = 0) {
-	static $levels;
+	static $levels = 0;
 	if ($level) $levels = $level;
 
 	if ($subtree) {
@@ -3137,7 +3136,7 @@ function zz_field_sethierarchy($field, $lines, $subtree, $level = 0) {
 		$line['zz_level'] = $level;
 		$tree[$id] = $line;
 		if (!empty($lines[$id])) {
-			$tree += zz_field_sethierarchy($field, $lines, $id, $level+1);
+			$tree += zz_field_sethierarchy($field, $lines, $id, $level + 1);
 		}
 	}
 	if (!$levels) {

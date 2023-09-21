@@ -22,9 +22,9 @@
  * @return void
  */
 function zz_debug($marker = false, $text = false, $id = false) {
-	static $zz_debug;
-	static $process_id;
-	if (empty($process_id)) $process_id = wrap_random_hash(6);
+	static $zz_debug = [];
+	static $process_id = '';
+	if (!$process_id) $process_id = wrap_random_hash(6);
 	if (!$id) $id = $process_id;
 	
 	switch ($marker) {

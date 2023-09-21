@@ -972,10 +972,10 @@ function zz_list_query_hierarchy($zz, $list) {
  *		string 'text'	= HTML output for cell
  */
 function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
-	static $append_field;
-	static $append_string_first;
-	static $append_prefix;
-	static $append_suffix;
+	static $append_field = false;
+	static $append_string_first = false;
+	static $append_prefix = '';
+	static $append_suffix = '';
 	
 	$export_fields = ['export_no_html', 'export_csv_maxlength'];
 	foreach ($export_fields as $export_field) {
@@ -1170,26 +1170,21 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 			break;
 		}
 	}
-	if (!empty($field['translate_field_value'])) {
+	if (!empty($field['translate_field_value']))
 		$text = wrap_text($text);
-	}
-	if (!empty($field['list_format']) AND $text) {
+	if (!empty($field['list_format']) AND $text)
 		$text = zz_list_format($text, $field['list_format']);
-	}
-	if (!empty($field['hide_zeros']) AND !$text) {
+	if (!empty($field['hide_zeros']) AND !$text)
 		$text = '';
-	}
 
-	if (!empty($field['list_prefix_append'])) {
+	if (!empty($field['list_prefix_append']))
 		$append_prefix = $field['list_prefix_append'];
-	}
-	if (!empty($field['list_suffix_append'])) {
+	if (!empty($field['list_suffix_append']))
 		$append_suffix = $field['list_suffix_append'];
-	}
 	
 	if ($text === '' OR $text === false OR $text === NULL) {
 		// always append suffix on last appended field, even if it is empty
-		if (!empty($append_suffix) AND empty($append_prefix) AND empty($field['list_append_next'])) {
+		if ($append_suffix AND empty($append_prefix) AND empty($field['list_append_next'])) {
 			$row['text'] .= wrap_text($append_suffix);
 			$append_suffix = '';
 			$append_prefix = '';
@@ -2171,8 +2166,7 @@ function zz_list_head($old_head, $columns) {
  *		string HTML output class="..."
  */
 function zz_field_class($field, $html = false) {
-	static $append;
-	if (empty($append)) $append = false;
+	static $append = 0;
 	$class = [];
 
 	if (!empty($field['list_append_next'])) $append = 2;

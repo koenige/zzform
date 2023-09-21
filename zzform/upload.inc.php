@@ -959,9 +959,8 @@ function zz_upload_unix_file($filename, $file) {
  * @return bool false: nothing was found, true: unknown file was found
  */
 function zz_upload_error_with_file($filename, $file, $return = []) {
-	static $copied_files;
+	static $copied_files = [];
 	if (!wrap_setting('zzform_debug_upload')) return false;
-	if (empty($copied_files)) $copied_files = [];
 
 	// save file
 	// don’t do that when creating thumbnails in background: master file is
@@ -2154,8 +2153,7 @@ function zz_upload_action($zz_tab) {
  */
 function zz_upload_background($number, $action = 'set') {
 	global $zz_conf;
-	static $fields;
-	if (!is_array($fields)) $fields = [];
+	static $fields = [];
 	
 	if ($action === 'set') {
 		if (in_array($number, $fields)) return;
@@ -2775,7 +2773,7 @@ function zz_rename($source, $destination, $fail_error_code = E_USER_NOTICE) {
  * @return int
  */
 function zz_upload_max_filesize($size = 0) {
-	static $ini_upload_max;
+	static $ini_upload_max = NULL;
 	if (!isset($ini_upload_max)) {
 		$ini_upload_max = wrap_return_bytes(ini_get('upload_max_filesize'));
 		$ini_post_max = wrap_return_bytes(ini_get('post_max_size'));

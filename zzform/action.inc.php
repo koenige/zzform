@@ -759,7 +759,7 @@ function zz_action_hook($ops, $zz_tab, $position, $type) {
  *	array $change if some values need to be changed
  */
 function zz_action_function($type, $ops, $zz_tab) {
-	static $hook_files;
+	static $hook_files = [];
 
 	if (empty($zz_tab[0]['hooks'][$type])) {
 		if (!empty($zz_tab[0]['triggers'][$type]))
@@ -767,7 +767,7 @@ function zz_action_function($type, $ops, $zz_tab) {
 		return false;
 	}
 
-	if (empty($hook_files))
+	if (!$hook_files)
 		$hook_files = wrap_include_files('zzform/hooks', 'custom/active');
 
 	$change = [];
@@ -2464,7 +2464,7 @@ function zz_action_unique_check(&$zz_tab) {
  * @return array $relations
  */
 function zz_integrity_relations($relation_table) {
-	static $relations;
+	static $relations = [];
 	if ($relations) return $relations;
 
 	$sql = 'SELECT * FROM '.$relation_table;
@@ -2753,8 +2753,7 @@ function zz_remove_local_hostname($tempvar, $field) {
  */
 function zz_sequence_normalize($ops, $zz_tab) {
 	global $zz_conf;
-	static $used_maxint_values;
-	if (empty($used_maxint_values)) $used_maxint_values = [];
+	static $used_maxint_values = [];
 
 	// which fields are the sequence fields?
 	$fields = [];
