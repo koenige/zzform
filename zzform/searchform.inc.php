@@ -569,7 +569,7 @@ function zz_search_subtable($field, $table) {
 		zz_error_log([
 			'msg_dev' => 'Search: empty key for %s found in query',
 			'msg_dev_args' => [$foreign_key],
-			'query' => $sql
+			'query' => $subsql
 		]);
 		unset($ids['']);
 	}
