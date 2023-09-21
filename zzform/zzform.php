@@ -70,6 +70,9 @@ function zzform($zz) {
 		'explanation' => '',
 		'exit' => false
 	];
+	// internal zzform variables
+	wrap_static('zzform', '', $zz['vars'], 'init');
+	// page variables
 	if (empty($zz_conf['multi']))
 		wrap_static('page', '', $zz['page'], 'init');
 
