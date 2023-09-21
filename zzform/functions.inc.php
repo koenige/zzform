@@ -647,6 +647,7 @@ function zz_init_cfg_unused($cfg_key, $values, $settings) {
 		if ($key === '*') continue; // might come from brick forms, merging local_settings
 		if (is_array($value)) zz_init_cfg_unused($cfg_key.'["'.$key.'"]', $value, $settings[$key] ?? []);
 		if (array_key_exists($key, $settings)) continue;
+		if (!empty($values['init_ignore_log']) AND in_array($key, $values['init_ignore_log'])) continue;
 		wrap_error(wrap_text('Key $%s["%s"] is set, but not used.', ['values' => [$cfg_key, $key]]), E_USER_NOTICE);
 	}
 }
