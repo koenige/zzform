@@ -93,7 +93,8 @@ function zz_translations_init($table, $fields) {
 				foreach ($inherit_defs as $inherit_def) {
 					if (!array_key_exists($inherit_def, $fields[$no])) continue;
 					$zz['fields'][$key][$inherit_def] = $fields[$no][$inherit_def];
-					if ($inherit_def === 'type' AND $fields[$no][$inherit_def] === 'memo') {
+					if ($inherit_def === 'type' AND $fields[$no][$inherit_def] === 'memo'
+						AND $translationfields[$field_name]['field_type'] === 'varchar') {
 						// varchar form: display below, not inline
 						unset($zz['form_display']);
 						$zz['fields'][5]['append_next'] = false;
