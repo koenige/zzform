@@ -611,10 +611,11 @@ function zz_output_add_export_links($zz, $ops, $position = 'below') {
 	case 'below':
 		// only if list was shown beforehands
 		if (!$ops['records_total']) return '';
-		if ($zz['export']) $links['export'] = zz_export_links($zz['export']);
+		if (!$zz['export']) break;
+		$links['export'] = zz_export_links($zz['export']);
 		break;
 	case 'nolist':
-		if ($ops['mode'] AND !wrap_setting('zzform_show_list_while_edit')) return '';
+		if ($ops['mode'] AND $ops['mode'] !== 'list_only' AND !wrap_setting('zzform_show_list_while_edit')) return '';
 		// only show add links if no links where shown before
 		if (isset($_GET['nolist'])) return '';
 		if ($add_links_shown) return '';
