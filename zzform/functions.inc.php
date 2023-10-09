@@ -3432,7 +3432,7 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 	foreach ($postvalues as $value) {
 		// preg_match: "... ", extra space will be added in zz_draw_select!
 		$my_likestring = $likestring;
-		if (preg_match('/^(.+?) *\.\.\. *$/', $value, $short_value)) {
+		if (preg_match('/^(.+?) *… *$/', $value, $short_value)) {
 			// reduces string with dots which come from values which have 
 			// been cut beforehands, use LIKE!
 			$value = $short_value[1];
