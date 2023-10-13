@@ -800,6 +800,7 @@ function zzform_post_too_big() {
  * includes required files for zzform
  */
 function zzform_includes() {
+	wrap_include_files('zzform/definition'); // also done in zzbrick/form, here for zzform_multi()
 	require_once __DIR__.'/functions.inc.php';
 	require_once __DIR__.'/database.inc.php';
 }
