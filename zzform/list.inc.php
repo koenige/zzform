@@ -862,7 +862,9 @@ function zz_list_query_flat($zz) {
 		// this standard value will only be used on rare occasions, when NO limit is set
 		// but someone tries to set a limit via URL-parameter
 		$limit = wrap_setting('zzform_limit') ?? 20;
-		$zz['sql'] .= ' LIMIT '.($zz_conf['int']['this_limit'] - $limit).', '.$limit;
+		$limit_start = $zz_conf['int']['this_limit'] - $limit;
+		if ($limit_start < 0) $limit_start = 0;
+		$zz['sql'] .= sprintf(' LIMIT %d, %d', $limit_start, $limit);
 	}
 
 	// read rows from database
