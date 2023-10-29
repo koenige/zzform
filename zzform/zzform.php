@@ -72,9 +72,12 @@ function zzform($zz) {
 	];
 	// internal zzform variables
 	wrap_static('zzform', '', $zz['vars'], 'init');
-	// page variables
-	if (empty($zz_conf['multi']))
+	// page variables, general settings
+	if (empty($zz_conf['multi'])) {
 		wrap_static('page', '', $zz['page'], 'init');
+		foreach ($zz['setting'] as $key => $value)
+			wrap_setting($key, $value);
+	}
 
 	// set default configuration variables
 	// import modules, set and get URI
