@@ -363,6 +363,8 @@ function zz_upload_check_files($zz_tab) {
 				$images[$no][$img]['upload']['tmp_name'] = NULL;
 				$images[$no][$img]['upload']['type'] = false;
 				$images[$no][$img]['upload']['name'] = false;
+				if (empty($images[$no][$img]['upload']['size']))
+					$images[$no][$img]['upload']['size'] = 0;
 			} else {
 				$images[$no][$img]['upload']['size'] = $myfiles['size'][$field_name];
 			}
