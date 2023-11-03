@@ -287,25 +287,37 @@ function zz_sync_zzform($raw, $import) {
 	$errors = [];
 	$testing = [];
 
-	// get existing keys from database
-	$ids = zz_sync_ids($raw, $import['existing']);
+	if (empty($_POST['action'])) $_POST['action'] = [];
+	elseif (!is_array($_POST['action'])) $_POST['action'] = [$_POST['action']];
 
-	$action_ids[] = [];
-	if (!empty($import['testing']) AND !empty($_POST['action'])) {
-		foreach ($_POST['action'] as $index => $value) {
-			if ($value !== 'on') continue;
-			$action_ids[] = $index;
+	// normalise lines
+	// remove lines which have errors or are not active here
+	foreach ($raw as $identifier => $line) {
+		$line = $raw[$identifier] = zz_sync_line($line, $import['fields']);
+		if (count($line) !== count($import['fields'])) {
+			// there’s an error
+			$errors[] = zz_sync_line_errors($line, $import['fields']);
+			unset($raw[$identifier]);
+		} elseif (!empty($import['testing']) AND !empty($_POST['action'])) {
+			$ignore = false;
+			// records need to be activated via checkboxes
+			if (!array_key_exists($identifier, $_POST['action']))
+				$ignore = true;
+			elseif ($_POST['action'][$identifier] !== 'on')
+				$ignore = true;
+			if ($ignore) {
+				unset($raw[$identifier]);
+				$nothing++;
+			}
 		}
 	}
+
+	// get existing keys from database
+	$ids = zz_sync_ids($raw, $import['existing']);
 
 	foreach ($raw as $identifier => $line) {
 		$values = [];
 		$values['POST'] = [];
-		$line = zz_sync_line($line, $import['fields']);
-		if (count($line) !== count($import['fields'])) {
-			$errors[] = zz_sync_line_errors($line, $import['fields']);
-			continue;
-		}
 		foreach ($import['fields'] as $pos => $field_name) {
 			// don't delete field values if ignore_if_null is set
 			if (in_array($pos, $import['ignore_if_null'])
@@ -328,9 +340,8 @@ function zz_sync_zzform($raw, $import) {
 			foreach ($fields as $field_name => $value) {
 				$head[$field_name] = $field_name;
 				$testing[$identifier][$field_name] = $value;
-				if (!in_array($pos, $import['show_but_no_import'])) {
+				if (!in_array($pos, $import['show_but_no_import']))
 					$values['POST'] = zz_check_values($values['POST'], $field_name, $value);
-				}
 			}
 		}
 		// static values to import
@@ -357,12 +368,7 @@ function zz_sync_zzform($raw, $import) {
 			$testing[$identifier]['_action'] = $values['action'] = 'insert';
 			$testing[$identifier]['_insert'] = true;
 		}
-		if (!empty($import['testing'])) {
-			if (false === array_search($identifier, $action_ids)) {
-				$nothing++;
-				continue;
-			}
-		}
+		if (empty($_POST['action'])) continue;
 		if (!empty($import['ids'])) $values['ids'] = $import['ids'];
 		$ops = zzform_multi($import['form_script'], $values);
 		if ($ops['id']) {
