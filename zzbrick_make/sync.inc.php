@@ -52,6 +52,7 @@ function mod_zzform_make_sync($params) {
 	} 
 
 	wrap_include_files('sync', 'zzform');
+	wrap_include_files('zzform/definition');
 	$page = zz_sync($data[$params[0]]);
 	$page['breadcrumbs'][]['title'] = $data[$params[0]]['title'];
 	return $page;
