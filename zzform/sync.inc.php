@@ -301,30 +301,9 @@ function zz_sync_zzform($raw, $import) {
 	foreach ($raw as $identifier => $line) {
 		$values = [];
 		$values['POST'] = [];
-		if (count($line) > count($import['fields'])) {
-			// remove whitespace only fields at the end of the line
-			do {
-				$last = array_pop($line);
-			} while (!$last AND count($line) >= count($import['fields']));
-			$line[] = $last;
-		}
-		if (count($line) != count($import['fields'])) {
-			$error_line = [];
-			foreach ($import['fields'] as $pos => $field_name) {
-				if (!isset($line[$pos])) {
-					$error_line[$field_name] = '<strong>=>||| '.wrap_text('not set').' |||<=</strong>';
-				} else {
-					$error_line[$field_name] = $line[$pos];
-				}
-			}
-			if (count($line) > count($import['fields'])) {
-				$error_msg = 'too many values:';
-			} else {
-				$error_msg = 'not enough values:';
-			}
-			$errors = array_merge(
-				$errors, [$error_msg.' '.wrap_print($error_line).wrap_print($line)]
-			);
+		$line = zz_sync_line($line, $import['fields']);
+		if (count($line) !== count($import['fields'])) {
+			$errors[] = zz_sync_line_errors($line, $import['fields']);
 			continue;
 		}
 		foreach ($import['fields'] as $pos => $field_name) {
@@ -408,6 +387,40 @@ function zz_sync_zzform($raw, $import) {
 	$testing['head'] = $head ?? [];
 	return [$updated, $inserted, $nothing, $errors, $testing];
 }
+
+/**
+ * remove empty fields at end of line
+ *
+ * @param array $line
+ * @param array $fields
+ * @return array
+ */
+function zz_sync_line($line, $fields) {
+	if (count($line) > count($fields)) {
+		// remove whitespace only fields at the end of the line
+		do {
+			$last = array_pop($line);
+		} while (!$last AND count($line) >= count($fields));
+		$line[] = $last;
+	}
+	return $line;
+}
+
+/**
+ * set error message per line
+ *
+ * @param array $line
+ * @param array $fields
+ * @return string
+ */
+function zz_sync_line_errors($line, $fields) {
+	$error_line = [];
+	foreach ($fields as $pos => $field_name)
+		$error_line[$field_name] = $line[$pos] ??  '<strong>=>||| '.wrap_text('not set').' |||<=</strong>';
+	$error_msg = (count($line) > count($fields)) ? 'too many values:' : 'not enough values:';
+	return $error_msg.' '.wrap_print($error_line).wrap_print($line);
+}
+
 
 /**
  * display records to import
