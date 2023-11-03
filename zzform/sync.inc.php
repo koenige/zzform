@@ -288,11 +288,7 @@ function zz_sync_zzform($raw, $import) {
 	$testing = [];
 
 	// get existing keys from database
-	$keys = array_keys($raw);
-	foreach ($keys as $id => $key) $keys[$id] = wrap_db_escape($key);
-	$keys = '"'.implode('", "', $keys).'"';
-	$sql = sprintf($import['existing'], $keys);
-	$ids = wrap_db_fetch($sql, '_dummy_', 'key/value');
+	$ids = zz_sync_ids($raw, $import['existing']);
 
 	$action_ids[] = [];
 	if (!empty($import['testing']) AND !empty($_POST['action'])) {
@@ -599,12 +595,7 @@ function zz_sync_deletable($import) {
 		$raw = wrap_db_fetch($import['source'], $import['import_id_field_name']);
 		break;
 	}
-	$keys = array_keys($raw);
-	foreach ($keys as $index => $key) {
-		$keys[$index] = wrap_db_escape($key);
-	}
-	$sql = sprintf($import['deletable'], '"'.implode('","', $keys).'"');
-	$existing = wrap_db_fetch($sql, '_dummy_', 'numeric');
+	$existing = zz_sync_ids($raw, $import['deletable'], 'numeric');
 
 	$j = 0;
 	foreach ($existing as $index => $record) {
@@ -635,4 +626,20 @@ function zz_sync_deletable($import) {
 	$page['text'] = wrap_template('sync-deletable', $data);
 	$page['title'] = wrap_text('Deletable Records');
 	return $page;
+}
+
+/**
+ * get IDs from raw keys
+ *
+ * @param array $raw
+ * @param string $query
+ * @return array
+ */
+function zz_sync_ids($raw, $query, $format = 'key/value') {
+	$keys = array_keys($raw);
+	foreach ($keys as $id => $key) $keys[$id] = wrap_db_escape($key);
+	$keys = '"'.implode('", "', $keys).'"';
+	$sql = sprintf($query, $keys);
+	$ids = wrap_db_fetch($sql, '_dummy_', $format);
+	return $ids;
 }
