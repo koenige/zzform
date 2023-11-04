@@ -27,7 +27,7 @@ function zz_sync($import) {
 	global $zz_page;
 	require_once __DIR__.'/zzform.php';
 	
-	$post = isset($_POST['action']) ? true : false;	// will be overwritten
+	$post = $_SERVER['REQUEST_METHOD'] === 'POST' ? true : false;	// will be overwritten
 	$refresh = false;
 	
 	// set defaults global
@@ -35,11 +35,12 @@ function zz_sync($import) {
 		$import['show_but_no_import'] = [];
 	if (!isset($import['deletable_script_url']))
 		$import['deletable_script_url'] = [];
+	$import['sync_records_per_run'] = wrap_setting('sync_records_per_run') * ($import['testing'] ? 1 : 10);
 
 	// limits
 	if (empty($_GET['limit'])) $import['limit'] = 0;
 	else $import['limit'] = zz_check_get_array('limit', 'is_int');
-	$import['end'] = $import['limit'] + wrap_setting('sync_records_per_run') * ($import['testing'] ? 1 : 10);
+	$import['end'] = $import['limit'] + $import['sync_records_per_run'];
 
 	$import_types = ['csv', 'sql'];
 	if (empty($import['type']) OR !in_array($import['type'], $import_types)) {
@@ -284,6 +285,7 @@ function zz_sync_zzform($raw, $import) {
 	$updated = 0;
 	$inserted = 0;
 	$nothing = 0;
+	$raw_count = count($raw);
 	$errors = [];
 	$testing = [];
 
@@ -298,7 +300,7 @@ function zz_sync_zzform($raw, $import) {
 			// there’s an error
 			$errors[] = zz_sync_line_errors($line, $import['fields']);
 			unset($raw[$identifier]);
-		} elseif (!empty($import['testing']) AND !empty($_POST['action'])) {
+		} elseif (!empty($import['testing']) AND $_SERVER['REQUEST_METHOD'] === 'POST') {
 			$ignore = false;
 			// records need to be activated via checkboxes
 			if (!array_key_exists($identifier, $_POST['action']))
@@ -311,6 +313,8 @@ function zz_sync_zzform($raw, $import) {
 			}
 		}
 	}
+	if ($nothing === $raw_count)
+		return [$updated, $inserted, $nothing, $errors, true];
 	
 	$raw = zz_sync_field_queries($raw, $import);
 
@@ -370,7 +374,7 @@ function zz_sync_zzform($raw, $import) {
 			$testing[$identifier]['_action'] = $values['action'] = 'insert';
 			$testing[$identifier]['_insert'] = true;
 		}
-		if (empty($_POST['action'])) continue;
+		if ($_SERVER['REQUEST_METHOD'] !== 'POST') continue;
 		if (!empty($import['ids'])) $values['ids'] = $import['ids'];
 		$ops = zzform_multi($import['form_script'], $values);
 		if ($ops['id']) {
