@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2016, 2022 Gustaf Mossakowski
+# @copyright Copyright © 2016, 2022-2023 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 <div id="zzform">
@@ -31,7 +31,7 @@
 %%% condition endif %%%
 </td>
 <td%%% item _insert " class='highlight'"%%%>
-<input type="checkbox" checked="checked" name="action[%%% item index %%%]">
+<input type="checkbox" %%% condition unless identical %%%checked %%% condition endif %%%name="action[%%% item index %%%]">
 %%% item _action %%%</td>
 %%% loop fields %%%
 <td>

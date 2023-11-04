@@ -522,6 +522,7 @@ function zz_sync_list($testing, $import) {
 			if (substr($num, 0, 1) === '_') continue;
 			$testing[$index]['fields'][$num]['value'] = ''; 
 		}
+		$identical = true;
 		foreach ($line as $key => $value) {
 			if (substr($key, 0, 1) === '_') continue;
 			$num = $head['_mapping'][$key];
@@ -535,8 +536,8 @@ function zz_sync_list($testing, $import) {
 					$testing[$index]['fields'][$num]['values'][$row_index]['existing'] = $evalue;
 					if ($evalue === trim($value)) {
 						$testing[$index]['fields'][$num]['values'][$row_index]['identical'] = true;
-					}
-				}
+					} else $identical = false;
+				} else $identical = false;
 			} else {
 				$testing[$index]['fields'][$num]['value'] = $value;
 				$table = $def['table'];
@@ -546,11 +547,12 @@ function zz_sync_list($testing, $import) {
 					$testing[$index]['fields'][$num]['existing'] = $evalue;
 					if ($evalue === trim($value)) {
 						$testing[$index]['fields'][$num]['identical'] = true;
-					}
-				}
+					} else $identical = false;
+				} else $identical = false;
 			}
 			unset($testing[$index][$key]);
 		}
+		$testing[$index]['identical'] = $identical;
 		$testing[$index]['no'] = $j;
 		$testing[$index]['index'] = $index;
 		$testing[$index]['script_url'] = isset($import['script_url']) ? $import['script_url'] : '';
