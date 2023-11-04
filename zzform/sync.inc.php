@@ -311,6 +311,8 @@ function zz_sync_zzform($raw, $import) {
 			}
 		}
 	}
+	
+	$raw = zz_sync_field_queries($raw, $import);
 
 	// get existing keys from database
 	$ids = zz_sync_ids($raw, $import['existing']);
@@ -410,6 +412,30 @@ function zz_sync_line($line, $fields) {
 		$line[] = $last;
 	}
 	return $line;
+}
+
+/**
+ * read corresponding ID values for fields from database
+ *
+ * @param array $raw
+ * @param array $import
+ */
+function zz_sync_field_queries($raw, $import) {
+	foreach ($import['fields'] as $index => $field) {
+		$key = 'field_'.$field;
+		if (!array_key_exists($key, $import)) continue;
+		$values = [];
+		foreach ($raw as $line)
+			$values[trim($line[$index])] = trim($line[$index]);
+		$implode = $import[$key.'__implode'] ?? ',';
+		$implode = ltrim($implode, '/* ');
+		$implode = rtrim($implode, ' */');
+		$sql = sprintf($import[$key], implode($implode, $values));
+		$ids = wrap_db_fetch($sql, '_dummy_', 'key/value');
+		foreach ($raw as $identifier => $line)
+			$raw[$identifier][$index] = $ids[trim($line[$index])];
+	}
+	return $raw;
 }
 
 /**
