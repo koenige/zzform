@@ -1366,7 +1366,7 @@ function zz_list_word_split($text) {
 	foreach ($words as $index => $word) {
 		if (strlen($word) < wrap_setting('zzform_word_split')) continue;
 		if (!strstr($word, '<') AND !strstr($word, '&')) {
-			$parts = str_split($word, wrap_setting('zzform_word_split'));
+			$parts = mb_str_split($word, wrap_setting('zzform_word_split'));
 		} else {
 			// no break inside entities
 			// no break inside HTML
