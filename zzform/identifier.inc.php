@@ -185,6 +185,8 @@ function zz_identifier($my_rec, $db_table = false, $post = [], $no = 0) {
 			break;
 		}
 	}
+	// no - at the beginning of identifier
+	if (strlen($idf) > 1) $idf = ltrim($idf, '-');
 	// ready, last checks
 	if ($db_table) {
 		// check whether identifier exists
