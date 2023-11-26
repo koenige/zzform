@@ -81,3 +81,4 @@ body #zzform .separator hr
 
 /* Media */
 #zzform ul.data li	{ max-width: 126px; height: 225px; }
+#zzform ul.data img	{ width: 120px; height: 120px; object-fit: cover; }
