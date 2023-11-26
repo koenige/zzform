@@ -2071,7 +2071,8 @@ function zz_makelink($path, $record, $type = 'link') {
 			// filesize is 0 = looks like error
 			if (!$size = filesize($path_full.$url)) return false;
 			// getimagesize tests whether it's a web image
-			if (!getimagesize($path_full.$url)) {
+			$filetype_def = wrap_filetypes(strtolower($ext));
+			if (empty($filetype_def['webimage']) AND !getimagesize($path_full.$url)) {
 				// if not, return EXT (4.4 MB)
 				return $ext.' ('.wrap_bytes($size).')';
 			}
