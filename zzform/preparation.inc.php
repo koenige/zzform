@@ -1170,14 +1170,12 @@ function zz_check_def_vals($post, $fields, $existing = [], $where = []) {
 		// for all values, overwrite posted values with needed values
 		if (!empty($field['value'])) 
 			$post[$field_name] = $field['value'];
-		// just for values which are not set (!) set existing value (on update)
-		// if there is one
-		// (not for empty strings!)
-		if (!empty($existing[$field_name]) AND !isset($post[$field_name]))
+		// values which are not set in $post: read from $existing (e. g. if zzform_multi() is called)
+		if (array_key_exists($field_name, $existing) AND !array_key_exists($field_name, $post))
 			$post[$field_name] = $existing[$field_name];
 		// just for values which are not set (!) set default value
 		// (not for empty strings!, not for update)
-		if (zz_has_default($field) AND !isset($post[$field_name]))
+		if (zz_has_default($field) AND !array_key_exists($field_name, $post))
 			$post[$field_name] = $field['default'];
 		// most important, therefore last: [where]
 		if (!empty($where[$field_name]))
