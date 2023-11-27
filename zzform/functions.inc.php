@@ -1934,6 +1934,13 @@ function zz_makelink($path, $record, $type = 'link') {
 		$alt_locked = false; 
 	}
 	if (!is_array($path)) $path = ['string' => $path];
+	
+	// check if extension field is given but has no value
+	if (!empty($path['extension_missing']) AND !empty($path['extension'])) {
+		if (empty($record[$path['extension']]))
+			$path = array_merge($path, $path['extension_missing']);
+	}
+	
 	foreach ($path as $part => $value) {
 		if (!$value) continue;
 		// remove numbers at the end of the part type
