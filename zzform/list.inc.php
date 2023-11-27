@@ -2008,9 +2008,15 @@ function zz_list_get_subselects($lines, $subselects, $mode) {
 			$linetext = [];
 			foreach ($sub_lines[$id] as $linefields) {
 				$link = $subselect['link'] ? zz_makelink($subselect['link'], $linefields) : '';
-				foreach ($subselect['sql_ignore'] as $ignored_fieldname) {
-					unset($linefields[$ignored_fieldname]); 
+				$image = isset($subselect['image']) ? zz_makelink($subselect['image'], $linefields, 'image') : '';
+				if ($image) {
+					if ($link) $image = sprintf('<a href="%s">%s</a>', $link, $image);
+					$linetext[] = $image;
+					$subselect['dont_mark_search_string'] = true; // no search marking here
+					continue;
 				}
+				foreach ($subselect['sql_ignore'] as $ignored_fieldname)
+					unset($linefields[$ignored_fieldname]); 
 				if (!empty($subselect['display_inline'])) {
 					$key = array_shift($linefields);
 					$value = array_shift($linefields);
