@@ -2233,6 +2233,7 @@ function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec 
 
 		case 'webstring':
 		case 'webfield':
+		case 'extension_missing':
 			break;
 
 		default:
