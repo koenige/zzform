@@ -1936,7 +1936,8 @@ function zz_makelink($path, $record, $type = 'link') {
 	if (!is_array($path)) $path = ['string' => $path];
 	
 	// check if extension field is given but has no value
-	if (!empty($path['extension_missing']) AND !empty($path['extension'])) {
+	if (!empty($path['extension_missing']) AND !empty($path['extension'])
+		AND empty($record[$path['extension']])) {
 		// check if extension_missing[extension] is webimage, otherwise return false
 		if ($type === 'image' AND !empty($record[$path['extension_missing']['extension']])) {
 			foreach (wrap_filetypes() as $filetype => $def) {
@@ -1944,8 +1945,7 @@ function zz_makelink($path, $record, $type = 'link') {
 				if (empty($def['webimage']) AND empty($def['php'])) return false;
 			}
 		}
-		if (empty($record[$path['extension']]))
-			$path = array_merge($path, $path['extension_missing']);
+		$path = array_merge($path, $path['extension_missing']);
 	}
 	
 	foreach ($path as $part => $value) {
