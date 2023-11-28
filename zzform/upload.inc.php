@@ -148,7 +148,8 @@ function zz_upload_thumbnail($ops, $zz_tab) {
 		'result' => $ops['result'] ?? '',
 		'record_id' => $ops['id'] ?? false,
 		'thumbnail_ids' => $ops['thumbnail_ids'] ?? [],
-		'error' => $ops['error']
+		'error' => $ops['error'],
+		'files' => $zz_tab['files'] ?? []
 	]);
 	return $ops;
 }
@@ -2094,6 +2095,7 @@ function zz_upload_action($zz_tab) {
 				}
 				$success = zz_upload_delete($filename, $show_filename);
 				if (!$success) return zz_return($zz_tab);
+				$zz_tab['files'][] = ['filename' => $filename, 'action' => 'delete'];
 				continue; // deleted, so don't care about the rest of the code
 			}
 
@@ -2114,12 +2116,13 @@ function zz_upload_action($zz_tab) {
 							$old_path = preg_replace('/^('.$folder['old_e'].')/', $folder['new'], $old_path);
 					}
 				}
-				if ($path != $old_path AND empty($image['delete_thumbnail'])) {
+				if ($path !== $old_path AND empty($image['delete_thumbnail'])) {
 					// save paths: not necessary maybe, but in case ...
 					$image['files']['update']['path'] = $path;
 					$image['files']['update']['old_path'] = $old_path;
 					$success = zz_upload_update($old_path, $path, $uploaded_file);
 					if (!$success) return zz_return($zz_tab);
+					$zz_tab['files'][] = ['filename' => $filename, 'action' => 'update'];
 				}
 			}
 
@@ -2128,6 +2131,7 @@ function zz_upload_action($zz_tab) {
 				$image['files']['destination'] = zz_makepath($val['path'], $zz_tab, 'new', 'file', $tab, $rec);
 				$success = zz_upload_insert($uploaded_file, $image['files']['destination'], $action);
 				if (!$success) zz_return($zz_tab);
+				$zz_tab['files'][] = ['filename' => $image['files']['destination'], 'action' => $action];
 			} else {
 				// ok, no thumbnail image, so in this case delete existing thumbnails
 				// if there are any
