@@ -180,7 +180,7 @@ function zz_prepare_tables($zz, $mode) {
 	}
 
 	// set defaults and values, clean up POST
-	$zz_tab[0][0]['POST'] = zz_check_def_vals(
+	$zz_tab[0][0]['POST'] = zz_prepare_def_vals(
 		$zz_tab[0][0]['POST'], $zz_tab[0][0]['fields'], $zz_tab[0][0]['existing']
 		, $zz_tab[0]['where']
 	);
@@ -619,7 +619,7 @@ function zz_get_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 			$my_tab['POST'][$rec] = $records[$rec];
 		}
 		// set values, defaults if forgotten or overwritten
-		$my_tab['POST'][$rec] = zz_check_def_vals(
+		$my_tab['POST'][$rec] = zz_prepare_def_vals(
 			$my_tab['POST'][$rec], $field['fields'], $existing[$rec], $my_tab['where']
 		);
 	}
@@ -1137,7 +1137,7 @@ function zz_set_values($my_tab, $rec) {
 	// we have new values, so check whether these are set!
 	// it's not possible to do this beforehands!
 	if (!empty($my_tab['POST'][$rec])) {
-		$my_tab['POST'][$rec] = zz_check_def_vals(
+		$my_tab['POST'][$rec] = zz_prepare_def_vals(
 			$my_tab['POST'][$rec], $my_tab[$rec]['fields'], [], $my_tab['where']
 		);
 	}
@@ -1161,7 +1161,7 @@ function zz_set_values($my_tab, $rec) {
  * @param array $where
  * @return array $post		POST
  */
-function zz_check_def_vals($post, $fields, $existing = [], $where = []) {
+function zz_prepare_def_vals($post, $fields, $existing = [], $where = []) {
 	foreach ($fields as $field) {
 		if (empty($field['field_name'])) continue;
 		$field_name = $field['field_name'];
@@ -1175,7 +1175,7 @@ function zz_check_def_vals($post, $fields, $existing = [], $where = []) {
 			$post[$field_name] = $existing[$field_name];
 		// just for values which are not set (!) set default value
 		// (not for empty strings!, not for update)
-		if (zz_has_default($field) AND !array_key_exists($field_name, $post))
+		if (zz_prepare_use_default($post, $field))
 			$post[$field_name] = $field['default'];
 		// most important, therefore last: [where]
 		if (!empty($where[$field_name]))
@@ -1195,6 +1195,23 @@ function zz_check_def_vals($post, $fields, $existing = [], $where = []) {
 		}
 	}
 	return $post;
+}
+
+/**
+ * check whether to set default value or not
+ *
+ * @param array $post
+ * @param array $field
+ * @return bool
+ */
+function zz_prepare_use_default($post, $field) {
+	if (!zz_has_default($field)) return false; // no default value
+	if (!array_key_exists($field['field_name'], $post)) return true; // key does not exist: use default
+	if ($post[$field['field_name']]) return false; // has value
+	if ($post[$field['field_name']] === 0) return false; // has value
+	if ($post[$field['field_name']] === '0') return false; // has value
+	if (!empty($field['required_in_db'])) return true; // no value sent, but a value is required: use default
+	return false;
 }
 
 /** 
@@ -1340,9 +1357,9 @@ function zz_prepare_record($record, $fields) {
 function zz_prepare_clean_copy($fields, $record) {
 	foreach ($fields as $my_field) {
 		if (!empty($my_field['dont_copy'])) {
-			$record[$my_field['field_name']] = NULL;
-			$defvals = zz_check_def_vals($record, [$my_field]);
-			$record[$my_field['field_name']] = $defvals[$my_field['field_name']] ?? '';
+			unset($record[$my_field['field_name']]);
+			$defvals = zz_prepare_def_vals($record, [$my_field]);
+			$record[$my_field['field_name']] = $defvals[$my_field['field_name']] ?? NULL;
 			continue;
 		}
 		if (empty($my_field['type'])) continue;
