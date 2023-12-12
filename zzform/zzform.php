@@ -411,6 +411,7 @@ function zzform_record($zz, $ops, $zz_conditions) {
 	// query record
 	foreach (array_keys($zz_tab) as $tab) {
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
+			if (!is_numeric($tab)) continue;
 			if (!is_numeric($rec)) continue;
 			$zz_tab[$tab] = zz_query_record($zz_tab, $tab, $rec, $validation, $ops['mode']);
 		}
