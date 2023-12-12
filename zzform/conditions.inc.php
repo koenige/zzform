@@ -622,6 +622,7 @@ function zz_conditions_subrecord($zz_tab, $zz_conditions) {
 	if (empty($zz_conditions['bool'])) return $zz_tab;
 	foreach (array_keys($zz_tab) as $tab) {
 		if (!$tab) continue;
+		if (!is_numeric($tab)) continue;
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
 			if (!is_numeric($rec)) continue;
 			if (!empty($zz_conditions['bool']['subrecord-'.$zz_tab[$tab]['no']])) {
