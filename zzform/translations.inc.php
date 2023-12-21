@@ -82,9 +82,9 @@ function zz_translations_init($table, $fields) {
 		// glue together fields-array
 		foreach (array_keys($zz['fields']) as $key) {
 			if (!empty($zz['fields'][$key]['type'])) {
-				if ($zz['fields'][$key]['type'] == 'translation_key') {
+				if ($zz['fields'][$key]['type'] === 'translation_key') {
 					$zz['fields'][$key]['translation_key'] = $translationfields[$field_name]['translationfield_id'];
-				} elseif ($zz['fields'][$key]['type'] == 'foreign_key') {
+				} elseif ($zz['fields'][$key]['type'] === 'foreign_key') {
 					$zz['foreign_key_field_name'] = $zz['fields'][$key]['field_name'];
 				}
 			}
@@ -92,6 +92,8 @@ function zz_translations_init($table, $fields) {
 				$inherit_defs = ['type', 'format', 'typo_cleanup', 'rows'];
 				foreach ($inherit_defs as $inherit_def) {
 					if (!array_key_exists($inherit_def, $fields[$no])) continue;
+					// do not inherit identifier type
+					if ($inherit_def === 'type' AND $fields[$no][$inherit_def] === 'identifier') continue;
 					$zz['fields'][$key][$inherit_def] = $fields[$no][$inherit_def];
 					if ($inherit_def === 'type' AND $fields[$no][$inherit_def] === 'memo'
 						AND $translationfields[$field_name]['field_type'] === 'varchar') {
