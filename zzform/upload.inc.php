@@ -2122,7 +2122,7 @@ function zz_upload_action($zz_tab) {
 					$image['files']['update']['old_path'] = $old_path;
 					$success = zz_upload_update($old_path, $path, $uploaded_file);
 					if (!$success) return zz_return($zz_tab);
-					$zz_tab['files'][] = ['filename' => $filename, 'action' => 'update'];
+					$zz_tab['files'][] = ['filename' => $path, 'action' => 'update'];
 				}
 			}
 
