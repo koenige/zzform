@@ -9,7 +9,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1073,7 +1073,7 @@ function zz_parameter_format_recursive($parameters, $prefix = '') {
 		if (is_array($parameter)) {
 			$text = array_merge($text, zz_parameter_format_recursive($parameter, $key));
 		} else {
-			$text[] = sprintf('<li><em>%s:</em> %s</li>', $key, $parameter);
+			$text[] = sprintf('<li><em>%s:</em> %s</li>', $key, wrap_html_escape($parameter));
 		}
 	}
 	return $text;
