@@ -3743,7 +3743,7 @@ function zz_draw_select($field, $record, $line, $id_field_name, $form = false, $
 		$level = $line['zz_level'];
 		unset($line['zz_level']);
 	} else {
-		$level = '';
+		$level = 0;
 	}
 	if ($addlevel) $level++;
 	if (empty($field['sql_index_only'])) {
@@ -3790,7 +3790,7 @@ function zz_draw_select($field, $record, $line, $id_field_name, $form = false, $
 			AND in_array($line[$id_field_name], $field['disabled_ids'])) {
 			$fieldattr['disabled'] = true;
 		}
-		if ($level !== '') $fieldattr['class'] = 'level'.$level;
+		if ($level !== 0) $fieldattr['class'] = 'level'.$level;
 		// database, table or field names which do not come with an ID?
 		if ($line[$id_field_name] === $fieldvalue) $line[$id_field_name] = sprintf(' %s ', $line[$id_field_name]);
 		$output = zz_form_element($fieldvalue, $line[$id_field_name], 'option', true, $fieldattr)."\n";
