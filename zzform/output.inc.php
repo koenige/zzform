@@ -324,7 +324,7 @@ function zz_output_redirect($ops, $zz, $zz_tab) {
 			AND wrap_static('page', 'referer')) {
 			// redirect to referer if there are no records in list
 			$id_field_name = $zz_tab[0]['table'].'.'.$zz_conf['int']['id']['field_name'];
-			if (!empty($_GET['nolist']) OR !zz_sql_count_rows($zz_tab[0]['sql'], $id_field_name)) {
+			if (isset($_GET['nolist']) OR !zz_sql_count_rows($zz_tab[0]['sql'], $id_field_name)) {
 				$self = wrap_static('page', 'referer');
 				$self .= parse_url($self, PHP_URL_QUERY) ? '&' : '?';
 			}

@@ -5,7 +5,7 @@
 # Part of »Zugzwang Project«
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2023 Gustaf Mossakowski
+# @copyright Copyright © 2023-2024 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 <div id="record">
@@ -31,8 +31,8 @@
 %%% condition endif %%%
 %%% condition if db_msg %%%<br><code>%%% item db_msg %%%</code>%%% condition endif %%%
 %%% condition if action %%%<br>
-<a href="%%% item action %%%?edit=%%% item record_id %%%&amp;nolist=1&amp;referer=%%% setting request_uri %%%">%%% text Edit %%%</a> | 
-<a href="%%% item action %%%?delete=%%% item record_id %%%&amp;nolist=1&amp;referer=%%% setting request_uri %%%">%%% text Delete %%%</a>
+<a href="%%% item action %%%?edit=%%% item record_id %%%&amp;nolist&amp;referer=%%% setting request_uri %%%">%%% text Edit %%%</a> | 
+<a href="%%% item action %%%?delete=%%% item record_id %%%&amp;nolist&amp;referer=%%% setting request_uri %%%">%%% text Delete %%%</a>
 %%% condition endif %%%
 %%% condition if error %%%</p>%%% condition endif %%%
 %%% condition if records_different %%%
