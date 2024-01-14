@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2021, 2023 Gustaf Mossakowski
+ * @copyright Copyright © 2021, 2023-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -24,7 +24,7 @@
 function mod_zzform_zzformmap($params, $settings) {
 	if (empty($settings['geo_map_html'])) return false;
 	if ($settings['mode'] !== 'list_only') return false;
-	if (!$settings['records_total']) return false;
+	if (empty($settings['records_total'])) return false;
 
 	$type = $settings['geo_map_export'] ?? 'kml';
 	$head_tpl = $settings['geo_map_head'] ?? 'map';
