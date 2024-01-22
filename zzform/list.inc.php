@@ -630,6 +630,16 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 			$rows[$z][-1]['class'][] = 'select_multiple_records';
 		}
 
+		// check for .cfg file with private = 1, hide list_dependency field
+		if ($mode !== 'export') {
+			foreach ($table_defs[$def_index] as $fieldindex => $field) {
+				if (!isset($field['cfg'])) continue;
+				if (empty($field['cfg'][$line[$field['field_name']]]['private'])) continue;
+				if (!isset($field['list_dependency'])) continue;
+				$line[$field['list_dependency']] = '********';
+			}
+		}
+
 		foreach ($table_defs[$def_index] as $fieldindex => $field) {
 			if (wrap_setting('debug')) zz_debug("table_query foreach ".$fieldindex);
 			// conditions
