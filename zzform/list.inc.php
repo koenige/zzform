@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -58,7 +58,7 @@ function zz_list($zz, $list, $ops, $zz_conditions) {
 	$zz['sql_without_limit'] = $zz['sql'];
 
 	// Filters
-	if ($zz_conf['modules']['filter']) {
+	if (zz_modules('filter')) {
 		$success = zz_filter_list($zz, $ops, $list);
 		if (!$success) return zz_return($ops);
 	}
@@ -102,7 +102,7 @@ function zz_list($zz, $list, $ops, $zz_conditions) {
 	//
 
 	// Check all conditions whether they are true;
-	if (!empty($zz_conf['modules']['conditions'])) {
+	if (zz_modules('conditions')) {
 		$zz_conditions = zz_conditions_list_check($zz, $list, $zz_conditions, array_keys($lines), $ops['mode']);
 		if (zz_error_exit()) return zz_return($ops);
 	}
@@ -143,7 +143,7 @@ function zz_list($zz, $list, $ops, $zz_conditions) {
 	}
 
 	// merge common $zz settings for all records
-	if (!empty($zz_conf['modules']['conditions']) AND !empty($zz_conditions['bool']))
+	if (zz_modules('conditions') AND !empty($zz_conditions['bool']))
 		zz_conditions_merge_conf($zz, $zz_conditions['bool'], 0);
 
 	if ($list['display'])
@@ -355,7 +355,7 @@ function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $mode) {
 	foreach ($lines as $index => $line) {
 		$line_defs[$index] = $fields_in_list;
 		// conditions
-		if (empty($zz_conf['modules']['conditions'])) continue;
+		if (!zz_modules('conditions')) continue;
 		if (empty($zz_conditions['bool'])) continue;
 		if (!$index) {
 			// only apply conditions to list head if condition
@@ -560,7 +560,7 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 	// good to have conditional fields which do not display in list view anyways
 	foreach ($first_row as $fieldindex => $field) {
 		// Apply conditions
-		if (!empty($zz_conf['modules']['conditions']) AND !empty($zz_conditions['bool'])) {
+		if (zz_modules('conditions') AND !empty($zz_conditions['bool'])) {
 			zz_conditions_merge_field($field, $zz_conditions['bool'], $line[$zz_conf['int']['id']['field_name']]);
 		}
 		if ($field AND !in_array($field['type'], ['subtable', 'foreign_table'])) continue;
@@ -633,7 +633,7 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 		foreach ($table_defs[$def_index] as $fieldindex => $field) {
 			if (wrap_setting('debug')) zz_debug("table_query foreach ".$fieldindex);
 			// conditions
-			if (!empty($zz_conf['modules']['conditions']) AND !empty($zz_conditions['bool'])) {
+			if (zz_modules('conditions') AND !empty($zz_conditions['bool'])) {
 				zz_conditions_merge_field($field, $zz_conditions['bool'], $line[$zz_conf['int']['id']['field_name']]);
 				if ($zz_conf_record['if'] OR $zz_conf_record['unless']) {
 					zz_conditions_merge_conf($zz_conf_record, $zz_conditions['bool'], $line[$zz_conf['int']['id']['field_name']]);

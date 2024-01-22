@@ -18,7 +18,7 @@
  * V - Validation, preparation for database
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -30,55 +30,46 @@
  */
 
 /**
- * Adds modules to zzform
+ * check and add modules
  *
- * @param array $modules			list of modules to be added
- * @return array $mod
+ * @param string $module
+ * @param array $new_modules
+ * @return bool
  */
-function zz_add_modules($modules) {
-	global $zz_conf;
+function zz_modules($module, $new_modules = []) {
+	static $active_modules = [];
+
 	$debug_started = false;
 	if (wrap_setting('debug') AND function_exists('zz_debug')) {
 		zz_debug('start', __FUNCTION__);
 		$debug_started = true;
 	}
-//	initialize variables
-	$mod = [];
-
-//	import modules
-	foreach ($modules as $module) {
-		if (!empty($zz_conf['modules'][$module])) {
-			// we got that already
-			$mod[$module] = true;
+	
+	foreach ($new_modules as $new_module) {
+		// do we have that module already?
+		if (array_key_exists($new_module, $active_modules) AND $active_modules[$new_module]) continue;
+		// debug only if setting is true
+		if ($new_module === 'debug' AND !wrap_setting('debug')) continue;
+		if (!file_exists(__DIR__.'/'.$new_module.'.inc.php')) {
+			if (wrap_setting('debug') AND function_exists('zz_debug'))
+				zz_debug(sprintf('Module %s not included', $new_module));
 			continue;
 		}
-		if ($module === 'debug' AND !wrap_setting('debug')) {
-			$mod[$module] = false;
-			continue;
-		}
-		if (file_exists(__DIR__.'/'.$module.'.inc.php')) {
-			include_once __DIR__.'/'.$module.'.inc.php';
-			$mod[$module] = true;
-		} elseif (file_exists(__DIR__.'/'.$module.'.php')) {
-			include_once __DIR__.'/'.$module.'.php';
-			$mod[$module] = true;
-		} else {
-			$mod[$module] = false;
-		}
+		require_once __DIR__.'/'.$new_module.'.inc.php';
 		if (wrap_setting('debug') AND function_exists('zz_debug')) {
 			if (!$debug_started) {
 				zz_debug('start', __FUNCTION__);
 				$debug_started = true;
 			}
-			if ($mod[$module]) $debug_msg = 'Module %s included';
-			else $debug_msg = 'Module %s not included';
-			zz_debug(sprintf($debug_msg, $module));
+			zz_debug(sprintf('Module %s included', $new_module));
 		}
+		$active_modules[$new_module] = true;
 	}
 
-	// int_modules/ext_modules have debug module at different place
 	if ($debug_started) zz_debug('end');
-	return $mod;
+	
+	if ($module and !empty($active_modules[$module])) return true;
+	return false;
 }
 
 /**
@@ -87,7 +78,6 @@ function zz_add_modules($modules) {
  * @param array $zz Table definition
  *		checking 'conditions', 'fields'
  * @global array $zz_conf
- *		array $zz_conf['modules'] will be written
  *		checking 'generate_output'
  * @return void
  */
@@ -102,8 +92,7 @@ function zz_dependent_modules(&$zz) {
 	];
 	foreach ($modules as $index => $module) {
 		// continue if module already loaded
-		if (!empty($zz_conf['modules'][$module])) continue;
-		$zz_conf['modules'][$module] = false;
+		if (zz_modules($module)) continue;
 		switch ($module) {
 		case 'translations':
 			if (!wrap_setting('translate_fields'))
@@ -166,12 +155,7 @@ function zz_dependent_modules(&$zz) {
 			break;
 		}
 	}
-	$zz_conf['modules'] = array_merge(
-		$zz_conf['modules'], zz_add_modules($modules)
-	);
-	if (!empty($GLOBALS['zz_saved']['conf'])) {
-		$GLOBALS['zz_saved']['conf']['modules'] = $zz_conf['modules'];
-	}
+	zz_modules('', $modules);
 	return true;
 }
 
@@ -372,8 +356,6 @@ function zz_get_url_self() {
  * @param array $zz ('where', like in $_GET)
  *		array 'where_condition' (conditions set by where, add and filter),
  *		array 'zz_fields' (values for fields depending on where conditions)
- * @global array $zz_conf
- *		'filter' will be checked for 'where'-filter and set if there is one
  * @return bool
  */
 function zz_get_where_conditions(&$zz) {
@@ -1588,7 +1570,7 @@ function zz_record_access($zz, $ops) {
 	// get conditions if there are any, for access
 	$ops['list']['unchanged'] = []; // for old variables
 
-	if (!empty($zz_conf['modules']['conditions'])
+	if (zz_modules('conditions')
 		AND (!empty($zz['if']) OR !empty($zz['unless']))
 		AND $zz_conf['int']['id']['value']) {
 		$zz_conditions = zz_conditions_check($zz, $ops['mode']);

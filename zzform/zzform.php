@@ -13,7 +13,7 @@
  *	zzform_multi()			multi edit for zzform, e. g. import
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -144,7 +144,7 @@ function zzform($zz) {
 	if (!$success) return zzform_exit($ops);
 
 	// check GET 'filter'
-	if ($zz_conf['modules']['filter'])
+	if (zz_modules('filter'))
 		zz_filter_defaults($zz);
 
 	// get and apply where conditions to SQL query and fields
@@ -159,7 +159,7 @@ function zzform($zz) {
 
 	// initalize export module
 	// might set mode to export
-	if (!empty($zz_conf['modules']['export'])) zz_export_init($ops, $zz);
+	if (zz_modules('export')) zz_export_init($ops, $zz);
 
 	// set $ops['mode'], $zz['record']['action'], ['id']['value'] and $zz_conf for access
 	list($zz, $ops) = zz_record_access($zz, $ops);
@@ -184,7 +184,7 @@ function zzform($zz) {
 	//	check whether or not to include default translation subtables
 	//	this will be done after conditions were checked for so to be able to
 	//	not include certain fields and not to get translation fields for these
-	if ($zz_conf['modules']['translations']) {
+	if (zz_modules('translations')) {
 		$zz['fields'] = zz_translations_init($zz['table'], $zz['fields']);
 		if (zz_error_exit()) {
 			// if an error occured in zz_translations_check_for, return
@@ -204,7 +204,7 @@ function zzform($zz) {
 		unset($zz['record']['zz_fields']);
 
 	// Module 'conditions': evaluate conditions
-	if (!empty($zz_conf['modules']['conditions'])) {
+	if (zz_modules('conditions')) {
 		if (wrap_setting('debug')) zz_debug('conditions start');
 		$zz = zz_conditions_set($zz);
 		$zz_conditions = zz_conditions_check($zz, $ops['mode']);
@@ -289,7 +289,7 @@ function zzform($zz) {
 function zzform_record($zz, $ops, $zz_conditions) {
 	global $zz_conf;
 
-	if (!empty($zz_conf['modules']['conditions'])) {
+	if (zz_modules('conditions')) {
 		$zz_conditions = zz_conditions_record_check($zz, $ops['mode'], $zz_conditions);
 		$zz = zz_conditions_record($zz, $zz_conditions);
 	}
@@ -330,7 +330,7 @@ function zzform_record($zz, $ops, $zz_conditions) {
 
 	// set conditions for detail records
 	// id is available just now
-	if (!empty($zz_conf['modules']['conditions'])) {
+	if (zz_modules('conditions')) {
 		$zz_conditions = zz_conditions_subrecord_check($zz, $zz_tab, $zz_conditions);
 		$zz_tab = zz_conditions_subrecord($zz_tab, $zz_conditions);
 	}
@@ -437,7 +437,7 @@ function zzform_record($zz, $ops, $zz_conditions) {
 	}
 
 	// check conditions after action again
-	if (!empty($zz_conf['modules']['conditions'])) {
+	if (zz_modules('conditions')) {
 		// update $zz_tab, $zz_conditions
 		zz_conditions_before_record($zz, $zz_tab, $zz_conditions, $ops['mode']);
 	}
@@ -663,7 +663,7 @@ function zz_initialize($mode = false, $old_conf = []) {
 
 	// Modules on project level
 	// debug module must come first because of debugging reasons!
-	$zz_conf['modules'] = zz_add_modules($zz_conf['int_modules']);
+	zz_modules('', $zz_conf['int_modules']);
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	// stop if there were errors while adding modules

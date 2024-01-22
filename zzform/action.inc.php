@@ -9,7 +9,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1130,8 +1130,6 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
  * @param int $rec
  */
 function zz_write_values($field, $zz_tab, $f, $tab = 0, $rec = 0) {
-	global $zz_conf;
-
 	$return_val = NULL;
 	//	copy value if field detail_value isset
 	if (!empty($field['detail_value'])) {
@@ -1139,7 +1137,7 @@ function zz_write_values($field, $zz_tab, $f, $tab = 0, $rec = 0) {
 		if ($value) $return_val = $value;
 	}
 	// check if some values should be gotten from upload fields
-	if (!empty($field['upload_field']) AND !empty($zz_conf['modules']['upload'])) {
+	if (!empty($field['upload_field']) AND zz_modules('upload')) {
 		$value = zz_write_upload_fields($zz_tab, $f, $tab, $rec);
 		if ($value) $return_val = $value;
 	}
