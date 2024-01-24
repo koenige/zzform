@@ -320,6 +320,9 @@ function zz_output_redirect($ops, $zz, $zz_tab) {
 	}
 	switch ($ops['result']) {
 	case 'successful_delete':
+		// always redirect to referer if in revision mode
+		if (!empty($_POST['zz_revision_id']) AND isset($_GET['nolist']))
+			$zz['record']['redirect_to_referer_zero_records'] = true;
 		if (!empty($zz['record']['redirect_to_referer_zero_records'])
 			AND wrap_static('page', 'referer')) {
 			// redirect to referer if there are no records in list
