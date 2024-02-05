@@ -2649,7 +2649,7 @@ function zz_error_validation() {
 		$errors['html'][] = "<li>%s</li>\n";
 	}
 	$errors['html'][] = "</ul>\n";
-	array_unshift($errors['msg'], 'These errors occurred:');
+	array_unshift($errors['msg'], 'These problems occured:');
 	// if we got wrong values entered, put this into a developer message
 	$dev_msgs = $errors['msg_dev'];
 	unset($errors['msg_dev']);
