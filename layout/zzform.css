@@ -479,6 +479,7 @@ body #zzform .separator hr
 #zzform span.error	{ padding: .1em .2em; margin: 0 -.2em; }
 #zzform div.error	{ margin: 1em 0; padding-left: .75em; max-width: 40em; }
 #zzform div.error p	{ margin-top: 0; }
+#zzform div.error p:last-child	{ margin-bottom: 0; }
 #zzform div.error ul
 					{ margin-bottom: 0; }
 #zzform td div.error
