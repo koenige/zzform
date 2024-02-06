@@ -74,7 +74,7 @@
  *		['validated']		validated (yes = tested, no = rely on fileupload i. e. user)
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2006-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2006-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -2840,19 +2840,42 @@ function zz_upload_exec($command, $log_description) {
  * @return string
  */
 function zz_upload_supported_filetypes($filetypes) {
+	static $shown_groups = [];
 	$sql = sprintf(wrap_sql_query('zzform_filetypelist'), implode("', '", $filetypes));
 	$filetypes = wrap_db_fetch($sql, 'filetype_id', 'numeric');
 	$filetypes = wrap_translate($filetypes, 'filetypes', 'filetype_id');
 	
-	$text = wrap_text('Supported filetypes:').' ';
+	$text = [];
 	foreach ($filetypes as $index => $filetype) {
+		if ($group = zz_upload_filetype_group($filetype['filetype'])) {
+			$filetype = $group;
+			// show groups only once
+			if (in_array($group, $shown_groups)) continue;
+			$shown_groups[] = $group;
+		}
 		if ($filetype['filetype_description'])
-			$text .= sprintf('<abbr title="%s">%s</abbr>', $filetype['filetype_description'], $filetype['filetype']);
+			$text[] = sprintf('<abbr title="%s">%s</abbr>', $filetype['filetype_description'], $filetype['filetype']);
 		else
-			$text .= $filetype['filetype'];
-		if ($index + 1 < count($filetypes)) $text .= ', ';
+			$text[] = $filetype['filetype'];
 	}
+	$text = wrap_text('Supported filetypes:').' '.implode(', ', $text);
 	return $text;
+}
+
+/**
+ * group filetypes with a dash and filetype_group = 1
+ *
+ * @param string $filetype
+ * @return array
+ */
+function zz_upload_filetype_group($filetype) {
+	if (!strstr($filetype, '-')) return false;
+	$filetype = explode('-', $filetype);
+	$group_filetype = wrap_filetypes(strtolower($filetype[0]));
+	if (empty($group_filetype['filetype_group'])) return false;
+	$group_filetype['filetype_description'] = $group_filetype['description'];
+	$group_filetype['filetype'] = strtoupper($group_filetype['filetype']);
+	return $group_filetype;
 }
 
 /**
