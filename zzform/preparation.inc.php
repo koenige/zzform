@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -389,9 +389,7 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 	// tick for save
 	$my_tab['zz_save_record'] = $_POST['zz_save_record'][$tab] ?? [];
 
-	$my_tab['POST'] = (!empty($_POST) AND !empty($_POST[$my_tab['table_name']]) 
-		AND is_array($_POST[$my_tab['table_name']]))
-		? $_POST[$my_tab['table_name']] : [];
+	$my_tab['POST'] = zz_prepare_post_per_table($my_tab['table_name']);
 	foreach ($my_tab['POST'] as $rec => $fields) {
 		foreach ($fields as $key => $value)
 			$my_tab['POST'][$rec][$key] = wrap_normalize($value);
@@ -424,6 +422,33 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 	
 	return $my_tab;
 } 
+
+/**
+ * write POST data to 'POST' key per detail table
+ *
+ * also look for FILES array
+ * @param string $table
+ * @return array
+ */
+function zz_prepare_post_per_table($table) {
+	$post = [];
+	if (!empty($_FILES)) {
+		$table_key = sprintf('field_%s_', $table);
+		foreach (array_keys($_FILES) as $key) {
+			if (!str_starts_with($key, $table_key)) continue;
+			$key = substr($key, strlen($table_key));
+			$key = explode('-', $key);
+			$post[$key[0]] = [];
+		}
+	}
+	if (empty($_POST)) return $post;
+	if (empty($_POST[$table])) return $post;
+	if (!is_array($_POST[$table])) return $post;
+	
+	foreach ($_POST[$table] as $index => $data)
+		$post[$index] = $data;
+	return $post;
+}
 
 /**
  * creates array for each detail record in $zz_tab[$tab]
