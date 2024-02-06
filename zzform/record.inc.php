@@ -3950,6 +3950,9 @@ function zz_field_image($field, $display, $record, $record_saved, $images, $mode
  * @return string
  */
 function zz_field_display($field, $record, $record_saved) {
+	if (isset($field['hidden_value']))
+		return zz_form_element($field['f_field_name'], $field['hidden_value'], 'hidden', true);
+
 	// return text
 	// display_value ?
 	// internationalization has to be done in zz-fields-definition
@@ -3962,7 +3965,6 @@ function zz_field_display($field, $record, $record_saved) {
 	// no record
 	if (!$record) {
 		if (isset($field['display_empty'])) return $field['display_empty'];
-		elseif (isset($field['hidden_value'])) return zz_form_element($field['f_field_name'], $field['hidden_value'], 'hidden', true);
 		else return wrap_text('<abbr title="Not available">N/A</abbr>');
 	}
 
