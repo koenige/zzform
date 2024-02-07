@@ -68,16 +68,14 @@ function zzform($zz) {
 		'html_fragment' => !empty($_POST['zz_html_fragment']) ? true : false,
 		'redirect_url' => false,
 		'explanation' => '',
-		'exit' => false
+		'exit' => false,
+		'old_settings' => zzform_setting($zz['setting'])
 	];
 	// internal zzform variables
 	wrap_static('zzform', '', $zz['vars'], 'init');
 	// page variables, general settings
-	if (empty($zz_conf['multi'])) {
+	if (empty($zz_conf['multi']))
 		wrap_static('page', '', $zz['page'], 'init');
-		foreach ($zz['setting'] as $key => $value)
-			wrap_setting($key, $value);
-	}
 
 	// set default configuration variables
 	// import modules, set and get URI
@@ -484,12 +482,14 @@ function zzform_exit($ops) {
 	$ops['error_mail'] = [];
 	if (!empty($zz_conf['int']['error']))
 		$ops['error_mail'] = $zz_conf['int']['error'];
-	if (!empty($zz_conf['int']['ops_error_msg'])) {
+	if (!empty($zz_conf['int']['ops_error_msg']))
 		$ops['error'] = array_merge($ops['error'], $zz_conf['int']['ops_error_msg']);
-	}
 
 	// return to old database
 	if (!empty($zz_conf['int']['db_current'])) zz_db_select($zz_conf['int']['db_current']);
+
+	// reset changed settings in $zz['setting']
+	zzform_setting($ops['old_settings']);
 
 	// end debug mode
 	if (wrap_setting('debug')) {
@@ -807,4 +807,31 @@ function zzform_includes() {
 	wrap_include_files('zzform/definition'); // also done in zzbrick/form, here for zzform_multi()
 	require_once __DIR__.'/functions.inc.php';
 	require_once __DIR__.'/database.inc.php';
+}
+
+/**
+ * write $zz['setting'] to wrap_setting()
+ *
+ * allow some settings to be applied for batch operations
+ * @param array $setting
+ * @return array
+ */
+function zzform_setting($setting) {
+	global $zz_conf;
+	static $zzform_settings = [];
+	if (!$setting) return [];
+	if (!empty($zz_conf['multi']) AND !$zzform_settings)
+		$zzform_settings = wrap_cfg_files('settings', ['package' => 'zzform']);
+
+	$old_settings = [];
+	foreach ($setting as $key => $value) {
+		// are there any changes?
+		if (wrap_setting($key) === $value) continue;
+		// inside batch operations, only allow to change some settings
+		if (!empty($zz_conf['multi']) AND empty($zzform_settings[$key]['batch_setting'])) continue;
+		// save old setting, write new setting
+		$old_settings[$key] = wrap_setting($key);
+		wrap_setting($key, $value);
+	}
+	return $old_settings;
 }
