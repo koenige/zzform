@@ -413,9 +413,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 				$foreign_ids['[FOREIGN_KEY_'.$zz_tab[$tab]['no'].']'] = $result['id_value'];
 			}
 		}
-		foreach ($foreign_ids as $key => $value) {
-			$sql_edit = str_replace($key, $value, $sql_edit);
-		}
+		$sql_edit = zz_action_foreign_ids($sql_edit, $foreign_ids, $zz_tab[0][0]);
 	}
 
 	if (wrap_setting('debug')) {
@@ -649,9 +647,7 @@ function zz_action_details($detail_sqls, $zz_tab, $validation, $ops, $foreign_id
 		foreach (array_keys($detail_sqls[$tab]) as $rec) {
 			$my_rec = $zz_tab[$tab][$rec];
 			$sql = $detail_sqls[$tab][$rec];
-			foreach ($foreign_ids as $key => $value) {
-				$sql = str_replace($key, $value, $sql);
-			}
+			$sql = zz_action_foreign_ids($sql, $foreign_ids, $my_rec);
 			if (!empty($zz_tab[$tab]['detail_key'])) {
 				// @todo allow further detail keys
 				// if not all files where uploaded, go up one detail record until
@@ -711,6 +707,24 @@ function zz_action_details($detail_sqls, $zz_tab, $validation, $ops, $foreign_id
 		}
 	}
 	return [$zz_tab, $validation, $ops];
+}
+
+/**
+ * replace foreign ID placeholders with real IDs
+ *
+ * @param string $sql
+ * @param array $foreign_ids
+ * @param array $my_rec
+ * @return string
+ */
+function zz_action_foreign_ids($sql, $foreign_ids, $my_rec) {
+	if (empty($my_rec['foreign_key_placeholders'])) return $sql;
+	foreach ($my_rec['foreign_key_placeholders'] as $placeholder) {
+		if (!array_key_exists($placeholder, $foreign_ids))
+			return 'SELECT 1'; // no replacement possible, @todo check if NULL values should be possible
+		$sql = str_replace($placeholder, $foreign_ids[$placeholder], $sql);
+	}
+	return $sql;
 }
 
 /**
@@ -1220,9 +1234,11 @@ function zz_prepare_for_db($my_rec, $db_table, $main_post) {
 		switch ($field['type']) {
 		case 'foreign_key':
 			$sno = strstr($field['subtable_no'], '-') ? '_'.substr($field['subtable_no'], 0, strpos($field['subtable_no'], '-')): '';
+			$my_rec['foreign_key_placeholders'][] = 
 			$my_rec['POST_db'][$field_name] = '[FOREIGN_KEY'.$sno.']';
 			break;
 		case 'foreign_id':
+			$my_rec['foreign_key_placeholders'][] = 
 			$my_rec['POST_db'][$field_name] = '[FOREIGN_KEY_'.$field['foreign_id_field'].']';
 			break;
 		case 'detail_key':
