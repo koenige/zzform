@@ -411,6 +411,8 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 			$result = zz_db_change($foreign_sql[0], $zz_tab[$tab][0]['id']['value']);
 			if ($result['action']) {
 				$foreign_ids['[FOREIGN_KEY_'.$zz_tab[$tab]['no'].']'] = $result['id_value'];
+				$zz_tab[$tab][0]['id']['value'] = $result['id_value'];
+				$zz_tab[$tab][0]['POST'][$zz_tab[$tab][0]['id']['field_name']] = $result['id_value'];
 			}
 		}
 		$sql_edit = zz_action_foreign_ids($sql_edit, $foreign_ids, $zz_tab[0][0]);
