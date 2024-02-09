@@ -469,6 +469,8 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 			$ops['result'] = 'partial_'.$zz_tab[0][0]['action'];
 		} elseif ($zz_tab[0]['record_action']) {
 			$ops['result'] = 'successful_'.$zz_tab[0][0]['action'];
+			$change = zz_action_function('successful_'.$zz_tab[0][0]['action'], $ops, $zz_tab);
+			list($ops, $zz_tab) = zz_action_change($ops, $zz_tab, $change);
 		}
 	} else {
 		// Output Error Message
