@@ -314,11 +314,8 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 			? $field['min_records_required'] : 0;
 		if ($my_tab['min_records'] < $my_tab['min_records_required'])
 			$my_tab['min_records'] = $my_tab['min_records_required'];
-		$my_tab['records_depend_on_upload'] = isset($field['records_depend_on_upload'])
-			? $field['records_depend_on_upload'] : false;
-		$my_tab['records_depend_on_upload_more_than_one'] = 
-			isset($field['records_depend_on_upload_more_than_one'])
-			? $field['records_depend_on_upload_more_than_one'] : false;
+		$my_tab['records_depend_on_upload'] = $field['records_depend_on_upload'] ?? false;
+		$my_tab['records_depend_on_upload_more_than_one'] = $field['records_depend_on_upload_more_than_one'] ?? false;
 		if (!empty($field['integrate_records']) AND $my_tab['max_records'])
 			$my_tab['max_records'] -= $field['integrate_records'];
 	}
