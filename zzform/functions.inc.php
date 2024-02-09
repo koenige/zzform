@@ -1922,10 +1922,8 @@ function zz_makelink($path, $record, $type = 'link') {
 		AND empty($record[$path['extension']])) {
 		// check if extension_missing[extension] is webimage, otherwise return false
 		if ($type === 'image' AND !empty($record[$path['extension_missing']['extension']])) {
-			foreach (wrap_filetypes() as $filetype => $def) {
-				if (!in_array($record[$path['extension_missing']['extension']], $def['extension'])) continue;
-				if (empty($def['webimage']) AND empty($def['php'])) return false;
-			}
+			$def = wrap_filetypes($record[$path['extension_missing']['extension']], 'read-per-extension');
+			if (empty($def['webimage']) AND empty($def['php'])) return false;
 		}
 		$path = array_merge($path, $path['extension_missing']);
 	}
@@ -2067,7 +2065,7 @@ function zz_makelink($path, $record, $type = 'link') {
 			// filesize is 0 = looks like error
 			if (!$size = filesize($path_full.$url)) return false;
 			// getimagesize tests whether it's a web image
-			$filetype_def = wrap_filetypes(strtolower($ext));
+			$filetype_def = wrap_filetypes(strtolower($ext), 'read-per-extension');
 			if (empty($filetype_def['webimage']) AND !getimagesize($path_full.$url)) {
 				// if not, return EXT (4.4 MB)
 				return $ext.' ('.wrap_bytes($size).')';
