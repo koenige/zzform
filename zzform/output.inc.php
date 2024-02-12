@@ -604,6 +604,7 @@ function zz_print_enum($field, $value, $type = 'abbr', $key = false) {
  * @return string
  */
 function zz_output_add_export_links($zz, $ops, $position = 'below') {
+	global $zz_conf;
 	static $add_links_shown = false;
 	if ($ops['mode'] === 'export') return '';
 	if (function_exists('zz_details_add_link'))
@@ -625,7 +626,7 @@ function zz_output_add_export_links($zz, $ops, $position = 'below') {
 		break;
 	}
 
-	if ($ops['mode'] !== 'add' AND $zz['record']['add']) {
+	if ($ops['mode'] !== 'add' AND $zz['record']['add'] AND $zz_conf['int']['access'] !== 'add_only') {
 		$add_links_shown = true;
 		if (empty($zz['add'])) {
 			// normal add button
