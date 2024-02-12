@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1462,17 +1462,23 @@ function zz_output_field_rows($matrix, $formdisplay, $extra_lastcol, $tab) {
 	$output = '';
 	
 	$th_content = false;
+	$last_row = [
+		'separator_before' => false,
+		'separator' => false
+	];
 	foreach ($matrix as $index => $row) {
 		if ($row['th']['content'] AND $row['th']['show']) $th_content = true;
+		if ($row['separator_before'] AND $last_row['separator'] === $row['separator_before'])
+			unset($matrix[$index]['separator_before']);
+		$last_row = $row;
 	}
 	if (!$tab AND !$th_content) $zz_conf['int']['hide_tfoot_th'] = true;
 	switch ($formdisplay) {
 	case 'lines':
 		$error = false;
 		foreach ($matrix as $index => $row) {
-			foreach ($row['tr']['attr'] as $attr) {
+			foreach ($row['tr']['attr'] as $attr)
 				if (strstr($attr, 'error')) $error = true;
-			}
 			if (!$row['td']['content']) continue;
 			$output .= '<span'.zz_show_class($row['tr']['attr']).'>';
 			$output .=	"\t".'<span'.zz_show_class($row['td']['attr'])
@@ -1480,13 +1486,14 @@ function zz_output_field_rows($matrix, $formdisplay, $extra_lastcol, $tab) {
 				.$row['td']['content'].'</span>'."\n";
 			$output .= '</span>'."\n";
 		}
-		if ($extra_lastcol AND $extra_lastcol !== '&nbsp;') {
+		if ($extra_lastcol AND $extra_lastcol !== '&nbsp;')
 			$output .= ' '.$extra_lastcol;
-		}
 		$output = '<div'.($error ? ' class="error"' : '').'>'.$output.'</div>'."\n"; // div important for JS!
 		break;
 	case 'vertical':
+		$last_row = [];
 		foreach ($matrix as $index => $row) {
+			if ($last_row AND strstr($last_row['tr']['attr'][0], 'idrow hidden')) $index--;
 			if ($row['separator_before']) {
 				$output .= zz_show_separator($row['separator_before'], $index);
 			}
@@ -1499,15 +1506,14 @@ function zz_output_field_rows($matrix, $formdisplay, $extra_lastcol, $tab) {
 				.(!empty($row['td']['id']) ? sprintf(' id="%s"', zz_make_id_fieldname($row['td']['id'])) : '')
 				.zz_show_class($row['td']['attr']).'>'
 				.$row['td']['content'].'</td></tr>'."\n";
-			if ($row['separator']) {
+			if ($row['separator'])
 				$output .= zz_show_separator($row['separator'], $index);
-			}
+			$last_row = $row;
 		}
 		break;
 	case 'horizontal':
-		if (!empty($matrix) AND $matrix[0]['separator_before']) {
+		if (!empty($matrix) AND $matrix[0]['separator_before'])
 			$output .= zz_show_separator($matrix[0]['separator_before'], 1, count($matrix));
-		}
 		if (!$table_head[$tab]) { 
 			// just first detail record with values: show head
 			$output .= '<tr>'."\n";
@@ -1525,16 +1531,14 @@ function zz_output_field_rows($matrix, $formdisplay, $extra_lastcol, $tab) {
 				.'>'.$row['td']['content'].'</td>'."\n";
 		}
 		if ($extra_lastcol) {
-			if ($extra_lastcol === '&nbsp;') {
+			if ($extra_lastcol === '&nbsp;')
 				$output .= '<td class="dummy_column">'.$extra_lastcol.'</td>';			
-			} else {
+			else
 				$output .= '<td>'.$extra_lastcol.'</td>';
-			}
 		}
 		$output .= '</tr>'."\n";
-		if ($row['separator']) {
+		if ($row['separator'])
 			$output .= zz_show_separator($row['separator'], 1, count($matrix));
-		}
 		break;
 	}
 	return $output;
