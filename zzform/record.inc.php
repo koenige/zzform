@@ -1494,9 +1494,8 @@ function zz_output_field_rows($matrix, $formdisplay, $extra_lastcol, $tab) {
 		$last_row = [];
 		foreach ($matrix as $index => $row) {
 			if ($last_row AND strstr($last_row['tr']['attr'][0], 'idrow hidden')) $index--;
-			if ($row['separator_before']) {
+			if (!empty($row['separator_before']))
 				$output .= zz_show_separator($row['separator_before'], $index);
-			}
 			$output .= '<tr'.zz_show_class($row['tr']['attr']).'>';
 			if ($row['th']['show'] AND $th_content) {
 				$output .= '<th'.zz_show_class($row['th']['attr']).'>'
