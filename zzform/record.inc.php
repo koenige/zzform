@@ -1493,7 +1493,7 @@ function zz_output_field_rows($matrix, $formdisplay, $extra_lastcol, $tab) {
 	case 'vertical':
 		$last_row = [];
 		foreach ($matrix as $index => $row) {
-			if ($last_row AND strstr($last_row['tr']['attr'][0], 'idrow hidden')) $index--;
+			if (!empty($last_row['tr']['attr'][0]) AND strstr($last_row['tr']['attr'][0], 'idrow hidden')) $index--;
 			if (!empty($row['separator_before']))
 				$output .= zz_show_separator($row['separator_before'], $index);
 			$output .= '<tr'.zz_show_class($row['tr']['attr']).'>';
