@@ -1938,9 +1938,9 @@ function zz_makelink($path, $record, $type = 'link') {
 		}
 		switch ($part) {
 		case 'area':
-			if (empty($path['fields'])) break;
 			$path_values = [];
-			if (!is_array($path['fields'])) $path['fields'] = [$path['fields']];
+			if (empty($path['fields'])) $path['fields'] = [];
+			elseif (!is_array($path['fields'])) $path['fields'] = [$path['fields']];
 			foreach ($path['fields'] as $index => $this_field) {
 				if (empty($record[$this_field])) break 2;
 				if (!empty($path['target'][$index]))
