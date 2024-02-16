@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2016-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2016-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -27,6 +27,10 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 
 	$data = [];
 	$text = mb_strtolower($xmlHttpRequest['text']);
+	if (!is_numeric($xmlHttpRequest['limit'])) {
+		wrap_error('XHR request abandoned, values seem to be malformed: '.json_encode($xmlHttpRequest));
+		return [];
+	}
 	$limit = $xmlHttpRequest['limit'] + 1;
 	
 	// might be forms, request, ... => process usual way and get script name from there
