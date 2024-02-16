@@ -1321,6 +1321,9 @@ function zz_query_record($zz_tab, $tab, $rec, $validation, $mode) {
 	} else {
 		if (isset($my_rec['POST-notvalid'])) {
 			$my_rec['record'] = $my_rec['POST-notvalid'];
+			// remove illegal data
+			foreach ($my_rec['record'] as $field_name => $value)
+				if (is_array($value)) $my_rec['record'][$field_name] = '';
 		} elseif (isset($my_rec['POST'])) {
 			$my_rec['record'] = $my_rec['POST'];
 		} else {

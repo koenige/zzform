@@ -26,11 +26,11 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	zz_initialize();
 
 	$data = [];
-	$text = mb_strtolower($xmlHttpRequest['text']);
-	if (!is_numeric($xmlHttpRequest['limit'])) {
+	if (!is_numeric($xmlHttpRequest['limit']) OR is_array($xmlHttpRequest['text'])) {
 		wrap_error('XHR request abandoned, values seem to be malformed: '.json_encode($xmlHttpRequest));
 		return [];
 	}
+	$text = mb_strtolower($xmlHttpRequest['text']);
 	$limit = $xmlHttpRequest['limit'] + 1;
 	
 	// might be forms, request, ... => process usual way and get script name from there
@@ -41,7 +41,7 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	// @todo use part of zzform to check access rights
 	
 	if (!empty($subtable_no)) {
-		if (!array_key_exists($subtable_no, $zz['fields'])) {
+		if (!array_key_exists($subtable_no, $zz['fields']) OR !array_key_exists('fields', $zz['fields'][$subtable_no])) {
 			wrap_error(sprintf('Subtable %s requested, but it is not in the table definition', $subtable_no));
 			return $data;
 		}
@@ -71,6 +71,10 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	$sql = $field['sql'];
 	if (array_key_exists('add', $_GET) AND !empty($field['if']['insert']['sql']))
 		$sql = $field['if']['insert']['sql'];
+	if (!$sql) {
+		wrap_error('XHR request abandoned, no SQL query was found. Values: '.json_encode($xmlHttpRequest));
+		return [];
+	}
 	$sql = wrap_db_prefix($sql);
 	$sql_fields = wrap_edit_sql($sql, 'SELECT', false, 'list');
 	$where = [];

@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2017, 2020-2021, 2023 Gustaf Mossakowski
+ * @copyright Copyright © 2017, 2020-2021, 2023-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -32,7 +32,7 @@ function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 	// @todo use part of zzform to check access rights
 	
 	if (!empty($subtable_no)) {
-		if (!array_key_exists($subtable_no, $zz['fields'])) {
+		if (!array_key_exists($subtable_no, $zz['fields']) OR !array_key_exists('fields', $zz['fields'][$subtable_no])) {
 			wrap_error(sprintf('Subtable %s requested, but it is not in the table definition', $subtable_no));
 			return false;
 		}
@@ -57,6 +57,7 @@ function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 	$input = $xmlHttpRequest['text'];
 	foreach ($sources as $source) {
 		if (empty($input[$source])) return false; // not enough data
+		if (is_array($input[$source])) return false; // illegal access
 	}
 
 	$values = [];
@@ -92,6 +93,8 @@ function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 			$my_field = $zz['fields'][$dependency];
 		}
 		if (!empty($my_field['sql_dependency'][$_GET['field_no']])) {
+			foreach ($values as $index => $value)
+				$values[$index] = wrap_db_escape($value);
 			$sql = vsprintf($my_field['sql_dependency'][$_GET['field_no']], $values);
 			$value = wrap_db_fetch($sql);
 			if (!$value) continue;

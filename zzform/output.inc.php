@@ -430,6 +430,7 @@ function zz_nice_title($heading, $fields, $ops, $mode = false) {
  */
 function zz_nice_selection($zz_fields) {
 	if (empty($_GET['q'])) return false;
+	if (is_array($_GET['q'])) return false;
 
 	// Display search filter
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);

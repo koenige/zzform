@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2022-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2022-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -204,19 +204,28 @@ function zzform_not_global() {
  * @return string
  */
 function zz_check_id_value($string) {
+	if (is_array($string))
+		return zz_check_id_value_error();
 	for ($i = 0; $i < mb_strlen($string); $i++) {
 		$letter = mb_substr($string, $i, 1);
-		if (!strstr('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', $letter)) {
-			// this was not a legitimate access
-			if (!empty($_POST['zz_id'])) {
-				wrap_setting('log_username_suffix', $_SERVER['REMOTE_ADDR']);
-				wrap_error(sprintf('POST data removed because of illegal zz_id value `%s`', $_POST['zz_id']), E_USER_NOTICE);
-				unset($_POST);
-			}
-			return wrap_random_hash(6);
-		}
+		if (!strstr('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', $letter))
+			return zz_check_id_value_error();
 	}
 	return $string;
+}
+
+/**
+ * if ID is invalid, create new ID and if it was received via POST, log as error
+ *
+ * @return string
+ */
+function zz_check_id_value_error() {
+	if (!empty($_POST['zz_id'])) {
+		wrap_setting('log_username_suffix', wrap_http_remote_ip());
+		wrap_error(sprintf('POST data removed because of illegal zz_id value `%s`', json_encode($_POST['zz_id'])), E_USER_NOTICE);
+		unset($_POST);
+	}
+	return wrap_random_hash(6);
 }
 
 /**

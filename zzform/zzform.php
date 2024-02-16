@@ -703,7 +703,7 @@ function zz_set_id() {
 	if (!empty($zz_conf['id']) AND empty($zz_conf['multi'])) return;
 	if (!empty($_GET['zz']) AND strlen($_GET['zz']) === 6) {
 		$zz_conf['id'] = zz_check_id_value($_GET['zz']);
-	} elseif (!empty($_POST['zz_id']) AND strlen($_POST['zz_id']) === 6) {
+	} elseif (!empty($_POST['zz_id']) AND !is_array($_POST['zz_id']) AND strlen($_POST['zz_id']) === 6) {
 		$zz_conf['id'] = zz_check_id_value($_POST['zz_id']);
 	} else {
 		$zz_conf['id'] = wrap_random_hash(6);
