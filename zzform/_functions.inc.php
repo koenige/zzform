@@ -221,7 +221,7 @@ function zz_check_id_value($string) {
  */
 function zz_check_id_value_error() {
 	if (!empty($_POST['zz_id'])) {
-		wrap_setting('log_username_suffix', wrap_setting('remote_ip');
+		wrap_setting('log_username_suffix', wrap_setting('remote_ip'));
 		wrap_error(sprintf('POST data removed because of illegal zz_id value `%s`', json_encode($_POST['zz_id'])), E_USER_NOTICE);
 		unset($_POST);
 	}
