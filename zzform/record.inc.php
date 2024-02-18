@@ -596,10 +596,10 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 		if (!empty($field['format']) AND empty($field['hide_format_in_title_desc'])) { 
 			// formatted fields: show that they are being formatted!
 			if (!isset($field['title_desc'])) $field['title_desc'] = '';
-			$field['title_desc'] .= ' ['.(!empty($zz_conf['format'][$field['format']]['link']) 
-				? '<a href="'.$zz_conf['format'][$field['format']]['link'].'" target="help">' : '')
+			$format_link = wrap_setting('zzform_format['.$field['format'].'][link]') ?? NULL;
+			$field['title_desc'] .= ' ['.($format_link ? '<a href="'.$format_link.'" target="help">' : '')
 				.(ucfirst($field['format']))
-				.(!empty($zz_conf['format'][$field['format']]['link']) ? '</a>' : '').']';
+				.($format_link ? '</a>' : '').']';
 		}
 		if (!empty($field['js'])) {
 			$field['explanation'] .= zz_record_js($field);
