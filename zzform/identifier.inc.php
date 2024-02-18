@@ -9,7 +9,7 @@
  * https://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -39,6 +39,7 @@ function zz_identifier($my_rec, $db_table = false, $post = [], $no = 0) {
 	}
 
 	zz_identifier_defaults($conf);
+	$conf['max_length_field'] = $my_rec['fields'][$no]['maxlength'] ?? NULL;
 
 	if ($db_table) {
 		// there's a record, check if identifier is in write_once mode
@@ -64,7 +65,7 @@ function zz_identifier($my_rec, $db_table = false, $post = [], $no = 0) {
 
 	$i = 0;
 	$idf_arr = [];
-	$len = 0;
+	$len = 1;
 	foreach ($values as $key => $var) {
 		$i++;
 		if (in_array($key, $conf['ignore'])) continue;
@@ -97,8 +98,8 @@ function zz_identifier($my_rec, $db_table = false, $post = [], $no = 0) {
 		if ($pos = strpos($var, "\r")) $var = substr($var, 0, $pos);
 		if ($pos = strpos($var, "\n")) $var = substr($var, 0, $pos);
 		// check for last element, if max_length is met
-		if (!empty($my_rec['fields'][$no]['maxlength'])) {
-			$remaining_len = $my_rec['fields'][$no]['maxlength'] - $len;
+		if ($conf['max_length_field']) {
+			$remaining_len = $conf['max_length_field'] - $len;
 			if (!$conf['max_length']) {
 				$conf['max_length'] = $remaining_len;
 			} elseif ($conf['max_length'] > $remaining_len) {
@@ -107,48 +108,31 @@ function zz_identifier($my_rec, $db_table = false, $post = [], $no = 0) {
 		}
 		if ($conf['max_length'] AND strlen($var) > $conf['max_length'] 
 			AND $i === count($values)) {
-			$vparts = explode(' ', $var);
-			if (count($vparts) > 1) {
-				// always use first part, even if it's too long
-				$var = array_shift($vparts);
-				// < and not <= because space is always added
-				while (strlen($var.reset($vparts)) < $conf['max_length']) {
-					$var .= ' '.array_shift($vparts);
-				}
-				// cut off if first word is too long
-				$var = substr($var, 0, $conf['max_length']);
-			} else {
-				// there are no words, cut off in the middle of the word
-				$var = substr($var, 0, $conf['max_length']);
-			}
+			$var = zz_identifier_cut($var, $conf['max_length']);
 		}
 		if ((strstr($var, '/') AND $i != count($values))
 			OR $conf['slashes']) {
 			// last var will be treated normally, other vars may inherit 
 			// slashes from dir names
 			$dir_vars = explode('/', $var);
-			foreach ($dir_vars as $d_var) {
-				if (!$d_var) continue;
-				$my_var = wrap_filename(
-					$d_var, $conf['forceFilename'], $conf['replace']
-				);
-				if ($conf['lowercase']) $my_var = strtolower($my_var);
-				if ($conf['uppercase']) $my_var = strtoupper($my_var);
-				$idf_arr[] = $my_var;
-			}
 		} else {
-			$my_var = wrap_filename(
-				$var, $conf['forceFilename'], $conf['replace']
-			);
-			if ($conf['lowercase']) $my_var = strtolower($my_var);
-			if ($conf['uppercase']) $my_var = strtoupper($my_var);
-			$idf_arr[] = $my_var;
+			$dir_vars = [$var];
 		}
-		$len += strlen($my_var);
+		foreach ($dir_vars as $d_var) {
+			if (!$d_var) continue;
+			$my_var = wrap_filename(
+				$d_var, $conf['forceFilename'], $conf['replace']
+			);
+			$idf_arr[] = $my_var;
+			$len++;
+			$len += strlen($my_var);
+		}
 	}
 	if (empty($idf_arr)) return false;
 
 	$idf = zz_identifier_concat($idf_arr, $conf['concat']);
+	$idf = zz_identifier_cut($idf, $conf['max_length_field']);
+
 	if ($conf['prefix']) $idf = $conf['prefix'].$idf;
 	// start always?
 	if ($conf['start_always'])
@@ -156,50 +140,47 @@ function zz_identifier($my_rec, $db_table = false, $post = [], $no = 0) {
 	// hash md5?
 	if (!empty($conf['hash_md5']))
 		$idf = md5($idf.date('Ymdhis'));
-
+	// function
 	if ($conf['function']) {
-		switch (count($conf['function_parameter'])) {
-		case 0:
-			$idf = $conf['function']($idf);
-			break;
-		case 1:
-			$idf = $conf['function']($conf['function_parameter'][0]);
-			break;
-		case 2:
-			$idf = $conf['function']($conf['function_parameter'][0]
-				, $conf['function_parameter'][1]
-			);
-			break;
-		case 3:
-			$idf = $conf['function']($conf['function_parameter'][0]
-				, $conf['function_parameter'][1]
-				, $conf['function_parameter'][2]
-			);
-			break;
-		case 4:
-			$idf = $conf['function']($conf['function_parameter'][0]
-				, $conf['function_parameter'][1]
-				, $conf['function_parameter'][2]
-				, $conf['function_parameter'][3]
-			);
-			break;
-		}
+		$params = array_merge([$idf], $conf['function_parameter']);
+		$idf = call_user_func_array($conf['function'], $params);
 	}
 	// no - at the beginning of identifier
 	if (strlen($idf) > 1) $idf = ltrim($idf, '-');
 	if (!$idf) { // all --
 		$idf = wrap_setting('format_filename_empty') ?? $conf['forceFilename'];
-		if ($conf['lowercase']) $idf = strtolower($idf);
-		if ($conf['uppercase']) $idf = strtoupper($idf);
 	}
+	if ($conf['lowercase']) $idf = strtolower($idf);
+	if ($conf['uppercase']) $idf = strtoupper($idf);
 	// ready, last checks
 	if ($db_table) {
 		// check whether identifier exists
 		$idf = zz_identifier_exists(
-			$idf, $conf['start'], $db_table, $field_name, $conf, $my_rec['fields'][$no]['maxlength']
+			$idf, $conf['start'], $db_table, $field_name, $conf, $conf['max_length_field']
 		);
 	}
 	return $idf;
+}
+
+/**
+ * cut identifier length if it is too long
+ *
+ * @param string $str
+ * @param int $max_length
+ * @return string
+ */
+function zz_identifier_cut($str, $max_length) {
+    if (mb_strlen($str) <= $max_length)
+    	return $str;
+
+    $cut_point = $max_length;
+    $break_chars = [' ', '-'];
+
+    while ($cut_point > 0 && !in_array(mb_substr($str, $cut_point, 1), $break_chars))
+        $cut_point--;
+    if ($cut_point === 0)
+        return mb_substr($str, 0, $max_length);
+    return mb_substr($str, 0, $cut_point);
 }
 
 /**
