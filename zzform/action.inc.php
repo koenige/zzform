@@ -1723,7 +1723,8 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 			$my_rec['POST'][$field_name] = $field['function']($func_vars, $field_name);
 		}
 		// check for content that is illegaly submitted as array
-		if (array_key_exists($field_name, $my_rec['POST']) AND $my_rec['POST'][$field_name] AND is_array($my_rec['POST'][$field_name])) {
+		if (array_key_exists($field_name, $my_rec['POST']) AND $my_rec['POST'][$field_name]
+			AND is_array($my_rec['POST'][$field_name]) AND empty($field['set'])) {
 			$my_rec['fields'][$f]['check_validation'] = false;
 			$my_rec['validation'] = false;
 			$my_rec['POST'][$field_name] = '';
