@@ -2025,6 +2025,9 @@ function zz_list_get_subselects($lines, $subselects, $mode) {
 					$subselect['dont_mark_search_string'] = true; // no search marking here
 					continue;
 				}
+				if (isset($subselect['field_link']))
+					foreach ($subselect['field_link'] as $index => $field_link)
+						$subselect['field_link_parsed'][$index] = zz_makelink($field_link, $linefields);
 				foreach ($subselect['sql_ignore'] as $ignored_fieldname)
 					unset($linefields[$ignored_fieldname]); 
 				if (!empty($subselect['display_inline'])) {
@@ -2050,6 +2053,8 @@ function zz_list_get_subselects($lines, $subselects, $mode) {
 								$db_fields = $subselect['list_field_format']($db_fields);
 							}
 						}
+						if (!empty($subselect['field_link_parsed'][$index]))
+							$db_fields = sprintf('<a href="%s">%s</a>', $subselect['field_link_parsed'][$index], $db_fields);
 						if (!empty($subselect['field_prefix'][$index]))
 							$db_fields = $subselect['field_prefix'][$index].$db_fields;
 						if (!empty($subselect['field_suffix'][$index]))
