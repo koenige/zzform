@@ -489,7 +489,7 @@ function zzform_exit($ops) {
 	if (!empty($zz_conf['int']['db_current'])) zz_db_select($zz_conf['int']['db_current']);
 
 	// reset changed settings in $zz['setting']
-	zzform_setting($ops['old_settings']);
+	zzform_setting($ops['old_settings'] ?? []);
 
 	// end debug mode
 	if (wrap_setting('debug')) {
