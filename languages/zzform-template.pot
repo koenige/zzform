@@ -374,8 +374,10 @@ msgid "Maximum height %s has been exceeded."
 msgstr ""
 
 # Record form: File upload
-msgid "The PDF consists of %d pages. Only %d pages are allowed."
-msgstr ""
+msgid "The PDF consists of %d pages. Only %d page is allowed."
+msgid_plural "The PDF consists of %d pages. Only %d pages are allowed."
+msgstr[0] ""
+msgstr[1] ""
 
 # Record form: File upload
 msgid "Transfer failed. Probably you sent a file that was too large."
