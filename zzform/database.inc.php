@@ -13,7 +13,7 @@
  *		zz_db_*()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -614,16 +614,18 @@ function zz_db_table_backticks($db_table) {
 }
 
 /** 
- * checks maximum field length in MySQL database table
+ * sets maximum field length in MySQL database table
  * 
- * @param string $field	field name
+ * @param array $field
  * @param string $db_table	table name [i. e. db_name.table]
- * @return maximum length of field or false if no field length is set
+ * @return bool
  */
-function zz_db_field_maxlength($field, $type, $db_table) {
-	if (!$field) return false;
+function zz_db_field_maxlength(&$field, $db_table) {
+	$field['maxlength'] = false;
+	if (!$field['field_name']) return false;
 	// just if it's a field with a field_name
 	// for some field types it makes no sense to check for maxlength
+	$type = zz_get_fieldtype($field);
 	$dont_check = [
 		'image', 'display', 'timestamp', 'hidden', 'foreign_key', 'select',
 		'id', 'date', 'time', 'option', 'ip'
@@ -632,21 +634,21 @@ function zz_db_field_maxlength($field, $type, $db_table) {
 
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
-	$maxlength = false;
-	$field_def = zz_db_columns($db_table, $field);
+	$field_def = zz_db_columns($db_table, $field['field_name']);
 	if ($field_def) {
 		preg_match('/\((\d+)\)/s', $field_def['Type'], $my_result);
-		if (isset($my_result[1])) $maxlength = $my_result[1];
+		if (isset($my_result[1])) $field['maxlength'] = $my_result[1];
 		else {
 			// from MySQL 8.0.19, there are no default lengths for ints
 			$typed = explode(' ', $field_def['Type']);
 			if (str_ends_with($typed[0], 'int')) {
-				$maxlength = zz_db_int_length($typed);
+				$field['maxlength'] = zz_db_int_length($typed);
+				$field['max_int_value'] = $field_def['max_int_value'] ?? NULL;
 			}
 		}
 	}
-	if (wrap_setting('debug')) zz_debug($type.($maxlength ? '-'.$maxlength : ''));
-	return zz_return($maxlength);
+	if (wrap_setting('debug')) zz_debug($type.($field['maxlength'] ? '-'.$field['maxlength'] : ''));
+	return zz_return(true);
 }
 
 /**

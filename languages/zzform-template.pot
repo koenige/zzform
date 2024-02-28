@@ -1056,3 +1056,7 @@ msgstr ""
 #: behaviour/zzform-foot.js
 msgid "Bytes"
 msgstr ""
+
+#: zzform/action.inc.php
+msgid "The number %d is too high. Maximum value is %d."
+msgstr ""

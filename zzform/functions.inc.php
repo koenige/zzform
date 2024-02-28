@@ -1112,9 +1112,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			if (!isset($fields[$no]['maxlength'])) {
 				if (isset($fields[$no]['field_name'])) {
 					// no need to check maxlength in list view only 
-					$fields[$no]['maxlength'] = zz_db_field_maxlength(
-						$fields[$no]['field_name'], zz_get_fieldtype($fields[$no]), $db_table
-					);
+					zz_db_field_maxlength($fields[$no], $db_table);
 				} else {
 					$fields[$no]['maxlength'] = 32;
 				}
