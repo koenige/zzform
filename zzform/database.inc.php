@@ -329,7 +329,7 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
  		} elseif (is_array($id_field_name) AND mysqli_num_rows($result)) {
 			if ($format === 'object') {
 				while ($line = mysqli_fetch_object($result)) {
-					if ($error = zz_db_field_in_query($line, $id_field_name)) break;
+					if ($error = wrap_db_fields_in_record($id_field_name, $line)) break;
 					if (count($id_field_name) === 3)
 						$lines[$line->$id_field_name[0]][$line->$id_field_name[1]][$line->$id_field_name[2]] = $line;
 					else
@@ -343,18 +343,19 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 		 				$values = array_pop($line);
 		 			else
 		 				$values = $line;
-		 			if ($error = zz_db_field_in_query($line, $id_field_name)) break;
+		 			if ($error = wrap_db_fields_in_record($id_field_name, $line)) break;
 
-					if (count($id_field_name) === 4)
+					if (count($id_field_name) === 4) {
 						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]][$line[$id_field_name[3]]] = $values;
-					elseif (count($id_field_name) === 3)
+					} elseif (count($id_field_name) === 3) {
 						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]] = $values;
-					elseif ($format === 'key/value')
+					} elseif ($format === 'key/value') {
 						$lines[$line[$id_field_name[0]]] = $line[$id_field_name[1]];
-					elseif ($format === 'numeric')
+					} elseif ($format === 'numeric') {
 						$lines[$line[$id_field_name[0]]][] = $values;
-					else
+					} else {
 						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]] = $values;
+					}
 				}
 			}
  		} elseif (mysqli_num_rows($result)) {
@@ -368,7 +369,7 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 				}
  			} elseif ($format === 'id as key') {
 				while ($line = mysqli_fetch_array($result)) {
-					if ($error = zz_db_field_in_query($line, $id_field_name)) break;
+					if ($error = wrap_db_fields_in_record($id_field_name, $line)) break;
 					$lines[$line[$id_field_name]] = true;
 				}
  			} elseif ($format === 'key/value') {
@@ -378,7 +379,7 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 				}
 			} elseif ($format === 'object') {
 				while ($line = mysqli_fetch_object($result)) {
-					if ($error = zz_db_field_in_query($line, $id_field_name)) break;
+					if ($error = wrap_db_fields_in_record($id_field_name, $line)) break;
 					$lines[$line->$id_field_name] = $line;
 				}
 			} elseif ($format === 'numeric') {
@@ -387,7 +388,7 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
  			} else {
  				// default or unknown format
 				while ($line = mysqli_fetch_assoc($result)) {
-					if ($error = zz_db_field_in_query($line, $id_field_name)) break;
+					if ($error = wrap_db_fields_in_record($id_field_name, $line)) break;
 					$lines[$line[$id_field_name]] = $line;
 				}
 			}
@@ -428,25 +429,18 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 /**
  * checks if a field is present in a record
  *
- * @param array $line
- * @param mixed $id_field_name
+ * @param mixed $fields
+ * @param array $record
  * @return string (error message or '' if everything is okay)
  */
-function zz_db_field_in_query($line, $id_field_name) {
-	if (!is_array($id_field_name))
-		$id_field_name = [$id_field_name];
+function wrap_db_fields_in_record($fields, $record) {
+	if (!is_array($fields)) $fields = [$fields];
+	$missing_fields = array_diff($fields, array_keys($record));
+	if (!$missing_fields) return '';
 
-	$missing_fields = [];
-	foreach ($id_field_name as $field) {
-		if (array_key_exists($field, $line)) continue;
-		$missing_fields[] = $field;
-	}
-
-	if ($missing_fields)
-		return wrap_text('Field <code>%s</code> is missing in SQL query'
-			, ['values' => implode(', ', $missing_fields)]
-		);
-	return '';
+	return wrap_text('Fields <code>%s</code> are missing in SQL query'
+		, ['values' => implode(', ', $missing_fields)]
+	);
 }
 
 /**
