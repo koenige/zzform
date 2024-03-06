@@ -329,41 +329,32 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
  		} elseif (is_array($id_field_name) AND mysqli_num_rows($result)) {
 			if ($format === 'object') {
 				while ($line = mysqli_fetch_object($result)) {
-					if (count($id_field_name) === 3) {
-						if ($error = zz_db_field_in_query($line, $id_field_name, 3)) break;
+					if ($error = zz_db_field_in_query($line, $id_field_name)) break;
+					if (count($id_field_name) === 3)
 						$lines[$line->$id_field_name[0]][$line->$id_field_name[1]][$line->$id_field_name[2]] = $line;
-					} else {
-						if ($error = zz_db_field_in_query($line, $id_field_name, 2)) break;
+					else
 						$lines[$line->$id_field_name[0]][$line->$id_field_name[1]] = $line;
-					}
 				}
  			} else {
  				// default or unknown format
 				while ($line = mysqli_fetch_assoc($result)) {
-		 			if ($format === 'single value') {
+		 			if ($format === 'single value')
 						// just get last field, make sure that it's not one of the id_field_names!
 		 				$values = array_pop($line);
-		 			} else {
+		 			else
 		 				$values = $line;
-		 			}
-					if (count($id_field_name) === 4) {
-						if ($error = zz_db_field_in_query($line, $id_field_name, 4)) break;
+		 			if ($error = zz_db_field_in_query($line, $id_field_name)) break;
+
+					if (count($id_field_name) === 4)
 						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]][$line[$id_field_name[3]]] = $values;
-					} elseif (count($id_field_name) === 3) {
-						if ($error = zz_db_field_in_query($line, $id_field_name, 3)) break;
+					elseif (count($id_field_name) === 3)
 						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]] = $values;
-					} else {
-						if ($format === 'key/value') {
-							if ($error = zz_db_field_in_query($line, $id_field_name, 2)) break;
-							$lines[$line[$id_field_name[0]]] = $line[$id_field_name[1]];
-						} elseif ($format === 'numeric') {
-							if ($error = zz_db_field_in_query($line, $id_field_name, 1)) break;
-							$lines[$line[$id_field_name[0]]][] = $values;
-						} else {
-							if ($error = zz_db_field_in_query($line, $id_field_name, 2)) break;
-							$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]] = $values;
-						}
-					}
+					elseif ($format === 'key/value')
+						$lines[$line[$id_field_name[0]]] = $line[$id_field_name[1]];
+					elseif ($format === 'numeric')
+						$lines[$line[$id_field_name[0]]][] = $values;
+					else
+						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]] = $values;
 				}
 			}
  		} elseif (mysqli_num_rows($result)) {
@@ -435,30 +426,27 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 }
 
 /**
- * checks whether field_name is in record
+ * checks if a field is present in a record
  *
  * @param array $line
- * @param string $id_field_name
- * @param int $count if it's an array, no. of id_field_names
- * @return bool true = error_message; false: everything ok
+ * @param mixed $id_field_name
+ * @return string (error message or '' if everything is okay)
  */
-function zz_db_field_in_query($line, $id_field_name, $count = 0) {
+function zz_db_field_in_query($line, $id_field_name) {
+	if (!is_array($id_field_name))
+		$id_field_name = [$id_field_name];
+
 	$missing_fields = [];
-	if (!$count)
-		if (!in_array($id_field_name, array_keys($line))) {
-			$missing_fields[] = $id_field_name;
-		}
-	for ($count; $count; $count--) {
-		if (!in_array($id_field_name[($count-1)], array_keys($line))) {
-			$missing_fields[] = $id_field_name[($count-1)];
-		}
+	foreach ($id_field_name as $field) {
+		if (array_key_exists($field, $line)) continue;
+		$missing_fields[] = $field;
 	}
-	if ($missing_fields) {
+
+	if ($missing_fields)
 		return wrap_text('Field <code>%s</code> is missing in SQL query'
 			, ['values' => implode(', ', $missing_fields)]
 		);
-	}
-	return false;
+	return '';
 }
 
 /**
