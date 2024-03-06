@@ -427,23 +427,6 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 }
 
 /**
- * checks if a field is present in a record
- *
- * @param mixed $fields
- * @param array $record
- * @return string (error message or '' if everything is okay)
- */
-function wrap_db_fields_in_record($fields, $record) {
-	if (!is_array($fields)) $fields = [$fields];
-	$missing_fields = array_diff($fields, array_keys($record));
-	if (!$missing_fields) return '';
-
-	return wrap_text('Fields <code>%s</code> are missing in SQL query'
-		, ['values' => implode(', ', $missing_fields)]
-	);
-}
-
-/**
  * Change database content via INSERT, DELETE or UPDATE
  *
  * @param string $sql
