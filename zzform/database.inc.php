@@ -279,7 +279,6 @@ function zz_db_connection($table) {
 
 /**
  * Fetches records from database and returns array
- * identical to wrap_db_fetch, more or less
  * 
  * - without $id_field_name: expects exactly one record and returns
  * the values of this record as an array
@@ -312,89 +311,15 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 	$lines = [];
 	$error = false;
 	$result = mysqli_query(wrap_db_connection(), $sql);
-	if ($result) {
-		if (!$id_field_name) {
-			// only one record
-			if (mysqli_num_rows($result) === 1) {
-	 			if ($format === 'single value') {
-					mysqli_data_seek($result, 0);
-					$lines = mysqli_fetch_row($result);
-					$lines = reset($lines);
-	 			} elseif ($format === 'object') {
-					$lines = mysqli_fetch_object($result);
-				} else {
-					$lines = mysqli_fetch_assoc($result);
-				}
-			}
- 		} elseif (is_array($id_field_name) AND mysqli_num_rows($result)) {
-			if ($format === 'object') {
-				while ($line = mysqli_fetch_object($result)) {
-					if ($error = wrap_db_fields_in_record($id_field_name, $line)) break;
-					if (count($id_field_name) === 3)
-						$lines[$line->$id_field_name[0]][$line->$id_field_name[1]][$line->$id_field_name[2]] = $line;
-					else
-						$lines[$line->$id_field_name[0]][$line->$id_field_name[1]] = $line;
-				}
- 			} else {
- 				// default or unknown format
-				while ($line = mysqli_fetch_assoc($result)) {
-		 			if ($format === 'single value')
-						// just get last field, make sure that it's not one of the id_field_names!
-		 				$values = array_pop($line);
-		 			else
-		 				$values = $line;
-		 			if ($error = wrap_db_fields_in_record($id_field_name, $line)) break;
-
-					if (count($id_field_name) === 4) {
-						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]][$line[$id_field_name[3]]] = $values;
-					} elseif (count($id_field_name) === 3) {
-						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]] = $values;
-					} elseif ($format === 'key/value') {
-						$lines[$line[$id_field_name[0]]] = $line[$id_field_name[1]];
-					} elseif ($format === 'numeric') {
-						$lines[$line[$id_field_name[0]]][] = $values;
-					} else {
-						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]] = $values;
-					}
-				}
-			}
- 		} elseif (mysqli_num_rows($result)) {
- 			if ($format === 'count') {
- 				$lines = mysqli_num_rows($result);
- 			} elseif ($format === 'single value') {
- 				// you can reach this part here with a dummy id_field_name
- 				// because no $id_field_name is needed!
-				while ($line = mysqli_fetch_array($result)) {
-					$lines[$line[0]] = $line[0];
-				}
- 			} elseif ($format === 'id as key') {
-				while ($line = mysqli_fetch_array($result)) {
-					if ($error = wrap_db_fields_in_record($id_field_name, $line)) break;
-					$lines[$line[$id_field_name]] = true;
-				}
- 			} elseif ($format === 'key/value') {
- 				// return array in pairs
-				while ($line = mysqli_fetch_array($result)) {
-					$lines[$line[0]] = $line[1];
-				}
-			} elseif ($format === 'object') {
-				while ($line = mysqli_fetch_object($result)) {
-					if ($error = wrap_db_fields_in_record($id_field_name, $line)) break;
-					$lines[$line->$id_field_name] = $line;
-				}
-			} elseif ($format === 'numeric') {
-				while ($line = mysqli_fetch_assoc($result))
-					$lines[] = $line;
- 			} else {
- 				// default or unknown format
-				while ($line = mysqli_fetch_assoc($result)) {
-					if ($error = wrap_db_fields_in_record($id_field_name, $line)) break;
-					$lines[$line[$id_field_name]] = $line;
-				}
-			}
-		}
-	} else $error = true;
-	if ($error AND $error !== true) $info .= $error;
+	if (!$result) {
+		$error = true;
+	} else {
+		$lines = wrap_db_fetch_values($result, $id_field_name, $format);
+		$error = wrap_db_error_log('', 'clear');
+		foreach ($error as $error)
+			$info .= $error;
+	}
+	
 	if (wrap_setting('debug')) {
 		zz_debug('sql (rows: '.($result ? mysqli_num_rows($result) : 0).')'.($info ? ': '.$info : ''), $sql);
 		wrap_error_sql($sql, $time);
