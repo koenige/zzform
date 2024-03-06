@@ -2733,7 +2733,7 @@ function zz_integrity_check_files($dependent_ids) {
 			if (!$zz) continue;
 
 			// check if this script fits the table and database name
-			zz_sql_prefix_change($zz['table']);
+			$zz['table'] = wrap_db_prefix($zz['table']);
 			if (strstr($zz['table'], '.')) {
 				list($script_db, $script_table) = explode('.', $zz['table']);
 			} else {

@@ -34,6 +34,7 @@
  */
 function zz_log_sql($sql, $user = '', $record_id = false) {
 	global $zz_conf;
+	if (!wrap_setting('zzform_logging')) return false;
 	if (!$user) $user = wrap_username();
 
 	$sql = trim($sql);
@@ -82,9 +83,9 @@ function zz_sql_prefix($vars) {
  */
 function zz_sql_prefix_change(&$item) {
 	if (!is_string($item)) return false;
-	$prefix = '/*_PREFIX_*/';
-	if (!strstr($item, $prefix)) return false;
-	$item = str_replace($prefix, wrap_setting('db_prefix'), $item);
+	$changed = wrap_db_prefix($item);
+	if ($changed === $item) return false;
+	$item = $changed;
 	return true;
 }
  
@@ -407,8 +408,7 @@ function zz_db_change($sql, $id = false) {
 	if ($result) {
 		if (in_array($statement, $no_rows_affected)) {
 			$db['action'] = strtolower($statement);
-			if (wrap_setting('zzform_logging'))
-				zz_log_sql($sql, '', $db['id_value']);
+			zz_log_sql($sql, '', $db['id_value']);
 		} elseif (!mysqli_affected_rows(wrap_db_connection())) {
 			$db['action'] = 'nothing';
 		} else {
@@ -417,7 +417,7 @@ function zz_db_change($sql, $id = false) {
 			if ($db['action'] === 'insert') // get ID value
 				$db['id_value'] = mysqli_insert_id(wrap_db_connection());
 			// Logs SQL Query, must be after insert_id was checked
-			if (wrap_setting('zzform_logging') AND $db['rows'])
+			if ($db['rows'])
 				zz_log_sql($sql, '', $db['id_value']);
 		}
 		$warnings = zz_db_fetch('SHOW WARNINGS', '_dummy_', 'numeric');
