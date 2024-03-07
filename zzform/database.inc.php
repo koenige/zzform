@@ -377,7 +377,7 @@ function zz_db_change($sql, $id = false) {
 	// dummy SQL means nothing will be done
 	if ($sql === 'SELECT 1') return $db;
 	
-	$statement = zz_db_statement($sql);
+	$statement = wrap_sql_statement($sql);
 	// check if statement is allowed
 	$allowed_statements = [
 		'INSERT', 'DELETE', 'UPDATE', 'CREATE TABLE', 'ALTER TABLE',
@@ -441,27 +441,6 @@ function zz_db_change($sql, $id = false) {
 	if (wrap_setting('debug'))
 		wrap_error_sql($sql, $time);
 	return $db;	
-}
-
-/**
- * get SQL statement from query
- *
- * @param string $sql
- * @return string
- */
-function zz_db_statement($sql) {
-	// get rid of extra whitespace, just to check statements
-	$sql_ws = preg_replace('~\s~', ' ', trim($sql));
-	$tokens = explode(' ', $sql_ws);
-	$multitokens = [
-		'UNION', 'CREATE', 'DROP', 'ALTER', 'RENAME', 'TRUNCATE', 'LOAD'
-	];
-	if (in_array($tokens[0], $multitokens)) {
-		$keyword = $tokens[0].' '.$tokens[1];
-	} else {
-		$keyword = $tokens[0];
-	}
-	return strtoupper($keyword);
 }
 
 /**
