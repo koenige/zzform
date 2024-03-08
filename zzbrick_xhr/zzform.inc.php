@@ -109,7 +109,7 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 			, implode(',', $ids))
 		);
 	}
-	wrap_db_query('SET NAMES utf8'); // JSON is UTF-8
+	wrap_db_charset('utf8'); // JSON is UTF-8
 	if ($sql_fields) {
 	 	$id_field_name = $sql_fields[0]['field_name'];
 		if (strstr($id_field_name, '.'))
