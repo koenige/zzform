@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2011-2018, 2021-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2011-2018, 2021-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -20,13 +20,9 @@
  *		int		'limit'
  *		int		'end'
  *		string	'type' (csv, sql)
- * @global array $zz_page		'url'['full']['path']
- * @return array $page
+ * @return array
  */
 function zz_sync($import) {
-	global $zz_page;
-	require_once __DIR__.'/zzform.php';
-	
 	$post = $_SERVER['REQUEST_METHOD'] === 'POST' ? true : false;	// will be overwritten
 	$refresh = false;
 	
@@ -161,9 +157,9 @@ function zz_sync($import) {
 	$page['query_strings'] = ['limit'];
 	$page['text'] = implode('<br>', $lines);
 	if ($refresh) {
-		$page['head'] = sprintf("\t".'<meta http-equiv="refresh" content="%s; URL=%s?limit=%s">'."\n",
+		$page['head'] = sprintf("\t".'<meta http-equiv="refresh" content="%s; URL=%s%s?limit=%s">'."\n",
 			wrap_setting('sync_page_refresh'), 
-			wrap_setting('host_base').$zz_page['url']['full']['path'], $import['end']);
+			wrap_setting('host_base'), parse_url(wrap_setting('request_uri'), PHP_URL_PATH), $import['end']);
 	}
 	return $page;
 }
@@ -267,18 +263,14 @@ function zz_sync_csv($import) {
  *		$testing
  */
 function zz_sync_zzform($raw, $import) {
-	if (empty($import['existing'])) {
+	if (empty($import['existing']))
 		wrap_error('Please define a query for the existing records in the database with -- identifier_existing --.', E_USER_ERROR);
-	}
-	if (empty($import['fields'])) {
+	if (empty($import['fields']))
 		wrap_error('Please set which fields should be imported in $import["fields"].', E_USER_ERROR);	
-	}
-	if (empty($import['form_script'])) {
+	if (empty($import['form_script']))
 		wrap_error('Please tell us the name of the form script in $import["form_script"].', E_USER_ERROR);	
-	}
-	if (empty($import['id_field_name'])) {
+	if (empty($import['id_field_name']))
 		wrap_error('Please set the id field name of the table in $import["id_field_name"].', E_USER_ERROR);	
-	}
 	if (empty($import['ignore_if_null']))
 		$import['ignore_if_null'] = [];
 
