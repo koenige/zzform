@@ -150,7 +150,7 @@ function zzform_include($file, $values = [], $type = 'tables', $brick = []) {
 		$files = wrap_collect_files(sprintf($path, $type, $parts[1]), $parts[0]);
 	}
 	if (!$files)
-		if ($brick['parameter']) wrap_quit(404); // looking with *
+		if (!empty($brick['parameter'])) wrap_quit(404); // looking with *
 		else wrap_error(sprintf('%s definition for %s: file is missing.', ucfirst($type), $file), E_USER_ERROR);
 
 	// allow to use script without recursion
