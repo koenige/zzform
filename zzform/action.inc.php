@@ -1833,7 +1833,7 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 		case 'sequence':
 			if (!$my_rec['POST'][$field_name]) break;
 			$value = intval($my_rec['POST'][$field_name]);
-			if ($value.'' !== $my_rec['POST'][$field_name]) {
+			if ($value.'' !== $my_rec['POST'][$field_name].'') {
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['validation'] = false;
 			} elseif (!empty($field['max_int_value']) AND $value > $field['max_int_value']) {
