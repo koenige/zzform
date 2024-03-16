@@ -6,7 +6,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2021-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2021-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -17,3 +17,4 @@
 /* 2023-03-27-1 */	UPDATE `_settings` SET `setting_key` = 'zzform_upload_binary_folder' WHERE `setting_key` = 'zzform_imagemagick_path_unchecked';
 /* 2023-03-27-2 */	UPDATE `_settings` SET `setting_key` = 'zzform_upload_binary_folder_local' WHERE `setting_key` = 'zzform_imagemagick_path_unchecked_local';
 /* 2023-05-13-1 */	INSERT INTO categories (`category`, `description`, `main_category_id`, `path`, `parameters`, `sequence`, `last_update`) VALUES ('Thumbnails', NULL, (SELECT category_id FROM categories c WHERE path = 'jobs'), 'jobs/thumbnails', '&alias=jobs/thumbnails&max_requests=2', NULL, NOW());
+/* 2024-03-16-1 */	ALTER TABLE `_revisions` CHANGE `last_update` `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP;

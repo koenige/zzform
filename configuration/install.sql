@@ -6,7 +6,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2020-2021, 2023 Gustaf Mossakowski
+ * @copyright Copyright © 2020-2021, 2023-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -34,7 +34,7 @@ CREATE TABLE `_revisions` (
   `rev_status` enum('live','pending','historic') CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
   `created` datetime NOT NULL,
   `script_url` varchar(63) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
-  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`revision_id`),
   KEY `rev_status` (`rev_status`),
   KEY `main_table_name_main_record_id` (`main_table_name`,`main_record_id`)
