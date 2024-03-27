@@ -32,7 +32,7 @@ function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 	if (!empty($subtable_no)) {
 		if (!array_key_exists($subtable_no, $zz['fields']) OR !array_key_exists('fields', $zz['fields'][$subtable_no]))
 			return brick_xhr_error(503, 'Subtable %s requested, but it is not in the table definition', [$subtable_no]);
-		if (!array_key_exists($field_no, $zz['fields'][$subtable_no]['fields'])) {
+		if (!array_key_exists($field_no, $zz['fields'][$subtable_no]['fields']))
 			return brick_xhr_error(503, 'Field %s in subtable %s requested, but it is not in the table definition', [$field_no, $subtable_no]);
 		$field = $zz['fields'][$subtable_no]['fields'][$field_no];
 	} else {
