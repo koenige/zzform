@@ -26,10 +26,6 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	zz_initialize();
 
 	$data = [];
-	if (!is_numeric($xmlHttpRequest['limit']) OR is_array($xmlHttpRequest['text'])) {
-		wrap_error('XHR request abandoned, values seem to be malformed: '.json_encode($xmlHttpRequest));
-		return [];
-	}
 	$text = mb_strtolower($xmlHttpRequest['text']);
 	$limit = $xmlHttpRequest['limit'] + 1;
 	
