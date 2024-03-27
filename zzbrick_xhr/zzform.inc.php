@@ -25,7 +25,9 @@
 function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	zz_initialize();
 
-	$data = [];
+	if (is_array($xmlHttpRequest['text']))
+		return brick_xhr_error(400, 'malformed request', $xmlHttpRequest);
+
 	$text = mb_strtolower($xmlHttpRequest['text']);
 	$limit = $xmlHttpRequest['limit'] + 1;
 	
@@ -37,20 +39,14 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	// @todo use part of zzform to check access rights
 	
 	if (!empty($subtable_no)) {
-		if (!array_key_exists($subtable_no, $zz['fields']) OR !array_key_exists('fields', $zz['fields'][$subtable_no])) {
-			wrap_error(sprintf('Subtable %s requested, but it is not in the table definition', $subtable_no));
-			return $data;
-		}
-		if (!array_key_exists($field_no, $zz['fields'][$subtable_no]['fields'])) {
-			wrap_error(sprintf('Field %s in subtable %s requested, but it is not in the table definition', $field_no, $subtable_no));
-			return $data;
-		}
+		if (!array_key_exists($subtable_no, $zz['fields']) OR !array_key_exists('fields', $zz['fields'][$subtable_no]))
+			return brick_xhr_error(503, 'Subtable %s requested, but it is not in the table definition', [$subtable_no]);
+		if (!array_key_exists($field_no, $zz['fields'][$subtable_no]['fields']))
+			return brick_xhr_error(503, 'Field %s in subtable %s requested, but it is not in the table definition', [$field_no, $subtable_no]);
 		$field = $zz['fields'][$subtable_no]['fields'][$field_no];
 	} else {
-		if (!array_key_exists($field_no, $zz['fields'])) {
-			wrap_error(sprintf('Field %s requested, but it is not in the table definition', $field_no));
-			return $data;
-		}
+		if (!array_key_exists($field_no, $zz['fields']))
+			return brick_xhr_error(503, 'Field %s requested, but it is not in the table definition', [$field_no]);
 		$field = $zz['fields'][$field_no];
 	}
 	$concat = zz_select_concat($field);
@@ -67,10 +63,9 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	$sql = $field['sql'];
 	if (array_key_exists('add', $_GET) AND !empty($field['if']['insert']['sql']))
 		$sql = $field['if']['insert']['sql'];
-	if (!$sql) {
-		wrap_error('XHR request abandoned, no SQL query was found. Values: '.json_encode($xmlHttpRequest));
-		return [];
-	}
+	if (!$sql)
+		return brick_xhr_error(503, 'No SQL query was found. Values: %s', [json_encode($xmlHttpRequest)]);
+
 	$sql = wrap_db_prefix($sql);
 	$sql_fields = wrap_edit_sql($sql, 'SELECT', false, 'list');
 	$where = [];
@@ -120,6 +115,8 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 		}
 	}
 	$records = array_values($records);
+
+	$data = [];
 	if (count($records) > $limit) {
 		// more records than we might show
 		$data['entries'] = [];

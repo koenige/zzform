@@ -23,8 +23,6 @@
 function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 	zz_initialize();
 
-	$data = [];
-	
 	// might be forms, request, ... => process usual way and get script name from there
 	$field_no = isset($_GET['field_no']) ? intval($_GET['field_no']) : '';
 	$subtable_no = isset($_GET['subtable_no']) ? intval($_GET['subtable_no']) : '';
@@ -32,32 +30,27 @@ function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 	// @todo use part of zzform to check access rights
 	
 	if (!empty($subtable_no)) {
-		if (!array_key_exists($subtable_no, $zz['fields']) OR !array_key_exists('fields', $zz['fields'][$subtable_no])) {
-			wrap_error(sprintf('Subtable %s requested, but it is not in the table definition', $subtable_no));
-			return false;
-		}
+		if (!array_key_exists($subtable_no, $zz['fields']) OR !array_key_exists('fields', $zz['fields'][$subtable_no]))
+			return brick_xhr_error(503, 'Subtable %s requested, but it is not in the table definition', [$subtable_no]);
 		if (!array_key_exists($field_no, $zz['fields'][$subtable_no]['fields'])) {
-			wrap_error(sprintf('Field %s in subtable %s requested, but it is not in the table definition', $field_no, $subtable_no));
-			return false;
-		}
+			return brick_xhr_error(503, 'Field %s in subtable %s requested, but it is not in the table definition', [$field_no, $subtable_no]);
 		$field = $zz['fields'][$subtable_no]['fields'][$field_no];
 	} else {
-		if (!array_key_exists($field_no, $zz['fields'])) {
-			wrap_error(sprintf('Field %s requested, but it is not in the table definition', $field_no));
-			return false;
-		}
+		if (!array_key_exists($field_no, $zz['fields']))
+			return brick_xhr_error(503, 'Field %s requested, but it is not in the table definition', [$field_no]);
 		$field = $zz['fields'][$field_no];
 	}
 
-	if (empty($field['dependencies'])) return false; // would not make sense
+	if (empty($field['dependencies'])) return []; // would not make sense
 	$sources = [$_GET['field_no']];
 	if (!empty($field['dependencies_sources'])) {
 		$sources = array_merge($sources, $field['dependencies_sources']);
 	}
 	$input = $xmlHttpRequest['text'];
 	foreach ($sources as $source) {
-		if (empty($input[$source])) return false; // not enough data
-		if (is_array($input[$source])) return false; // illegal access
+		if (empty($input[$source])) return []; // not enough data
+		if (is_array($input[$source]))
+			return brick_xhr_error(400, 'malformed request', $xmlHttpRequest);
 	}
 
 	$values = [];
@@ -70,8 +63,8 @@ function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 		}
 		if (!empty($my_field['sql'])) {
 			$select = zz_check_select_id($my_field, $input[$source]);
-			if (empty($select['possible_values'])) return false;
-			if (count($select['possible_values']) !== 1) return false;
+			if (empty($select['possible_values'])) return [];
+			if (count($select['possible_values']) !== 1) return [];
 			$values[] = reset($select['possible_values']);
 		} elseif (!empty($my_field['cfg'])) {
 			if (array_key_exists(trim($input[$source]), $my_field['cfg']))
@@ -83,6 +76,8 @@ function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 	if (!empty($field['dependencies_function'])) {
 		$values = $field['dependencies_function']($values);
 	}
+	
+	$data = [];
 	foreach ($field['dependencies'] as $index => $dependency) {
 		$this_subtable_no = !empty($subtable_no) ? $subtable_no : false;
 		if (strstr($dependency, '.'))
