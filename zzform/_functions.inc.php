@@ -286,11 +286,15 @@ function zzform_batch_def($table, $msg, $msg_2 = '') {
 	if ($msg_2) $msg_2 = sprintf(' %s', $msg_2);
 
 	// get table definition
+	$def['ids'] = [];
 	$zz = zzform_include($def['table_script']);
 	foreach ($zz['fields'] as $no => $field) {
 		if (empty($field['type'])) continue;
-		if ($field['type'] !== 'id') continue;
-		$def['id_field_name'] = $field['field_name'];
+		if ($field['type'] === 'id') {
+			$def['id_field_name'] = $field['field_name'];
+		} elseif (!empty($field['field_name']) AND str_ends_with($field['field_name'], '_id')) {
+			$def['ids'][] = $field['field_name'];
+		}
 	}
 	if (empty($def['id_field_name'])) {
 		wrap_error($def['msg'].wrap_text(
@@ -319,7 +323,7 @@ function zzform_delete($table, $ids, $error_type = E_USER_NOTICE, $msg = '') {
 	if (!is_array($ids)) $ids = [$ids];
 	// @todo add support for UNIQUE ids with else
 
-	$msg_2 = wrap_text('Deletion of IDs %s impossible.', ['values' => implode(', ', $ids)]);
+	$msg_2 = wrap_text('Deletion of IDs %s impossible.', ['values' => [implode(', ', $ids)]]);
 	$def = zzform_batch_def($table, $msg, $msg_2);
 
 	$deleted_ids = [];
@@ -338,4 +342,34 @@ function zzform_delete($table, $ids, $error_type = E_USER_NOTICE, $msg = '') {
 		}
 	}
 	return $deleted_ids;
+}
+
+/**
+ * insert a record into a table
+ *
+ * examples:
+ * zzform_insert('categories', $data); // insert into categories tables, values => keys
+ * @param string $table
+ * @param array $data
+ * @param int $error_type (optional)
+ * @param string $msg (optional)
+ * @return array
+ */
+function zzform_insert($table, $data,  $error_type = E_USER_NOTICE, $msg = '') {
+	$msg_2 = wrap_text('Insertion of record into table %s impossible.', ['values' => [$table]]);
+	$def = zzform_batch_def($table, $msg, $msg_2);
+
+	$values = [];
+	$values['action'] = 'insert';
+	$values['ids'] = $def['ids'];
+	$values['POST'] = $data;
+	$ops = zzform_multi($def['table_script'], $values);
+	if (!$ops['id']) {
+		wrap_error($def['msg'].wrap_text(
+			'Unable to insert data %s into table %s. Reason: %s',
+			['values' => [json_encode($data), $def['table'], json_encode($ops['error'])]]
+		), $error_type);
+		return false;
+	}
+	return $ops['id'];
 }
