@@ -271,6 +271,38 @@ function zz_secret_id($mode, $id = '', $hash = '') {
 }
 
 /**
+ * prepare batch operation per table
+ *
+ * @param string $table
+ * @param string $msg
+ * @param string $msg_2 (optional)
+ * @return array
+ */
+function zzform_batch_def($table, $msg, $msg_2 = '') {
+	$def['table'] = $table;
+	$def['table_script'] = str_replace('_', '-', $def['table']);
+	$def['msg'] = $msg;
+	if ($def['msg']) $def['msg'] .= ' ';
+	if ($msg_2) $msg_2 = sprintf(' %s', $msg_2);
+
+	// get table definition
+	$zz = zzform_include($def['table_script']);
+	foreach ($zz['fields'] as $no => $field) {
+		if (empty($field['type'])) continue;
+		if ($field['type'] !== 'id') continue;
+		$def['id_field_name'] = $field['field_name'];
+	}
+	if (empty($def['id_field_name'])) {
+		wrap_error($def['msg'].wrap_text(
+			'Unable to find ID field name for table %s.',
+			['values' => [$def['table'], implode(', ', $ids)]]
+		).$msg_2, E_USER_ERROR);
+	}
+
+	return $def;
+}
+
+/**
  * delete one or more records of a table
  *
  * examples:
@@ -286,34 +318,20 @@ function zz_secret_id($mode, $id = '', $hash = '') {
 function zzform_delete($table, $ids, $error_type = E_USER_NOTICE, $msg = '') {
 	if (!is_array($ids)) $ids = [$ids];
 	// @todo add support for UNIQUE ids with else
-	if ($msg) $msg .= ' ';
 
-	// get table definition
-	$table_script = str_replace('_', '-', $table);
-	$zz = zzform_include($table_script);
-	foreach ($zz['fields'] as $no => $field) {
-		if (empty($field['type'])) continue;
-		if ($field['type'] !== 'id') continue;
-		$id_field_name = $field['field_name'];
-	}
-	if (empty($id_field_name)) {
-		wrap_error($msg.wrap_text(
-			'Unable to find ID field name for table %s, deletion of IDs impossible.',
-			['values' => [$table, implode(', ', $ids)]]
-		), $error_type);
-		return [];
-	}
+	$msg_2 = wrap_text('Deletion of IDs %s impossible.', ['values' => implode(', ', $ids)]);
+	$def = zzform_batch_def($table, $msg, $msg_2);
 
 	$deleted_ids = [];
 	$values = [];
 	$values['action'] = 'delete';
 	foreach ($ids as $id) {
-		$values['POST'][$id_field_name] = $id;
-		$ops = zzform_multi($table_script, $values);
+		$values['POST'][$def['id_field_name']] = $id;
+		$ops = zzform_multi($def['table_script'], $values);
 		if (!$ops['id']) {
-			wrap_error($msg.wrap_text(
+			wrap_error($def['msg'].wrap_text(
 				'Unable to delete ID %s from table %s. Reason: %s',
-				['values' => [$id, $table, json_encode($ops['error'])]]
+				['values' => [$id, $def['table'], json_encode($ops['error'])]]
 			), $error_type);
 		} else {
 			$deleted_ids[] = $ops['id'];
