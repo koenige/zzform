@@ -269,3 +269,53 @@ function zz_secret_id($mode, $id = '', $hash = '') {
 	if ($found) return;
 	error_log(sprintf("%s %s %s\n", $now, $id, $hash), 3, $logfile);
 }
+
+/**
+ * delete one or more records of a table
+ *
+ * examples:
+ * zzform_delete('rooms_contacts', 23); // delete ID 23
+ * delete UNIQUE record with room_id = 10 and contact_id = 14
+ * zzform_delete('rooms_contacts', ['room_id' => 10, 'contact_id' => 14]); 
+ * @param string $table
+ * @param mixed $ids
+ * @param int $$error_type (optional)
+ * @return array
+ */
+function zzform_delete($table, $ids, $error_type = E_USER_NOTICE) {
+	if (!is_array($ids)) $ids = [$ids];
+	// @todo add support for UNIQUE ids with else
+
+	// get table definition
+	$table_script = str_replace('_', '-', $table);
+	$zz = zzform_include($table_script);
+	foreach ($zz['fields'] as $no => $field) {
+		if (empty($field['type'])) continue;
+		if ($field['type'] !== 'id') continue;
+		$id_field_name = $field['field_name'];
+	}
+	if (empty($id_field_name)) {
+		wrap_error(wrap_text(
+			'Unable to find ID field name for table %s, deletion of IDs impossible.',
+			['values' => [$table, implode(', ', $ids)]]
+		), $error_type);
+		return [];
+	}
+
+	$deleted_ids = [];
+	$values = [];
+	$values['action'] = 'delete';
+	foreach ($ids as $id) {
+		$values['POST'][$id_field_name] = $id;
+		$ops = zzform_multi($table_script, $values);
+		if (!$ops['id']) {
+			wrap_error(wrap_text(
+				'Unable to delete ID %s from table %s. Reason: %s',
+				['values' => [$id, $table, json_encode($ops['error'])]]
+			), $error_type);
+		} else {
+			$deleted_ids[] = $ops['id'];
+		}
+	}
+	return $deleted_ids;
+}
