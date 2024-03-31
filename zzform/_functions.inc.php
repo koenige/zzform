@@ -287,10 +287,20 @@ function zzform_batch_def($table, $msg = '', $msg_2 = '') {
 	if ($def['msg']) $def['msg'] .= ' ';
 	if ($msg_2) $msg_2 = sprintf(' %s', $msg_2);
 
+	// read table structure from database
+	$sql = 'SHOW COLUMNS FROM `%s`';
+	$sql = sprintf($sql, $def['table']);
+	$structure = wrap_db_fetch($sql, '_dummy_', 'numeric');
+	foreach ($structure as $field) {
+		if ($field['Key'] === 'PRI') $def['primary_key'] = $field['Field'];
+		elseif ($field['Key'] === 'UNI') $def['uniques'][] = $field['Field'];
+	}
+
 	// get table definition
 	$def['ids'] = [];
 	$zz = zzform_include($def['table_script']);
 	foreach ($zz['fields'] as $no => $field) {
+		if (!empty($field['unique'])) $def['uniques'][] = $field['field_name'];
 		if (empty($field['type'])) continue;
 		if ($field['type'] === 'subtable') {
 			$def['subtable_sqls'][$no] = $field['sql'];
@@ -308,7 +318,7 @@ function zzform_batch_def($table, $msg = '', $msg_2 = '') {
 			}
 		}
 		if ($field['type'] === 'id') {
-			$def['primary_key'] = $field['field_name'];
+			$def['primary_key'] = $field['field_name']; // duplicate from above, just in case
 		} elseif (!empty($field['field_name']) AND str_ends_with($field['field_name'], '_id')) {
 			$def['ids'][] = $field['field_name'];
 		}
@@ -371,7 +381,7 @@ function zzform_delete($table, $ids, $error_type = E_USER_NOTICE, $msg = '') {
  * @param array $data
  * @param int $error_type (optional)
  * @param string $msg (optional)
- * @return array
+ * @return int
  */
 function zzform_insert($table, $data, $error_type = E_USER_NOTICE, $msg = '') {
 	$msg_2 = wrap_text('Insertion of record into table %s impossible.', ['values' => [$table]]);
@@ -385,6 +395,58 @@ function zzform_insert($table, $data, $error_type = E_USER_NOTICE, $msg = '') {
 	if (!$ops['id']) {
 		wrap_error($def['msg'].wrap_text(
 			'Unable to insert data %s into table %s. Reason: %s',
+			['values' => [json_encode($data), $def['table'], json_encode($ops['error'])]]
+		), $error_type);
+		return NULL;
+	}
+	return $ops['id'];
+}
+
+/**
+ * update a record in a table
+ *
+ * @param string $table
+ * @param array $data
+ * @param int $error_type (optional)
+ * @param string $msg (optional)
+ * @return int
+ */
+function zzform_update($table, $data, $error_type = E_USER_NOTICE, $msg = '') {
+	$def = zzform_batch_def($table, $msg);
+	
+	// allow to update with unique value instead of primary key, too
+	if (empty($data[$def['primary_key']])) {
+		if (empty($def['uniques'])) {
+			wrap_error($def['msg'].wrap_text(
+				'Unable to update record with data %s in table %s. No unique key given.',
+				['values' => [json_encode($data), $def['table']]]
+			), $error_type);
+			return NULL;
+		}
+		foreach ($def['uniques'] as $unique_field) {
+			if (!array_key_exists($unique_field, $data)) continue;
+			$sql = 'SELECT `%s` FROM `%s` WHERE `%s` = "%s"';
+			$sql = sprintf($sql, $def['primary_key'], $def['table'], $unique_field, $data[$unique_field]);
+			$data[$def['primary_key']] = wrap_db_fetch($sql, '', 'single value');
+			if ($data[$def['primary_key']]) break;
+		}
+		if (empty($data[$def['primary_key']])) {
+			wrap_error($def['msg'].wrap_text(
+				'Unable to update record with data %s in table %s. No primary key found.',
+				['values' => [json_encode($data), $def['table']]]
+			), $error_type);
+			return NULL;
+		}
+	}
+	
+	$values = [];
+	$values['action'] = 'update';
+	$values['ids'] = $def['ids'];
+	$values['POST'] = $data;
+	$ops = zzform_multi($def['table_script'], $values);
+	if (!$ops['id']) {
+		wrap_error($def['msg'].wrap_text(
+			'Unable to update data %s in table %s. Reason: %s',
 			['values' => [json_encode($data), $def['table'], json_encode($ops['error'])]]
 		), $error_type);
 		return false;
