@@ -278,7 +278,9 @@ function zz_secret_id($mode, $id = '', $hash = '') {
  * @param string $msg_2 (optional)
  * @return array
  */
-function zzform_batch_def($table, $msg, $msg_2 = '') {
+function zzform_batch_def($table, $msg = '', $msg_2 = '') {
+	wrap_include_files('zzform/definition');
+
 	$def['table'] = $table;
 	$def['table_script'] = str_replace('_', '-', $def['table']);
 	$def['msg'] = $msg;
@@ -290,13 +292,29 @@ function zzform_batch_def($table, $msg, $msg_2 = '') {
 	$zz = zzform_include($def['table_script']);
 	foreach ($zz['fields'] as $no => $field) {
 		if (empty($field['type'])) continue;
+		if ($field['type'] === 'subtable') {
+			$def['subtable_sqls'][$no] = $field['sql'];
+			$def['subtable_tables'][$no] = $field['table_name'] ?? $field['table'];
+			foreach ($field['fields'] as $subfield) {
+				if (empty($subfield['type'])) continue;
+				switch ($subfield['type']) {
+				case 'id':
+					$def['subtable_primary_keys'][$no] = $subfield['field_name'];
+					break;
+				case 'foreign_key':
+					$def['subtable_foreign_keys'][$no] = $subfield['field_name'];
+					break;
+				}
+			}
+		}
 		if ($field['type'] === 'id') {
-			$def['id_field_name'] = $field['field_name'];
+			$def['primary_key'] = $field['field_name'];
 		} elseif (!empty($field['field_name']) AND str_ends_with($field['field_name'], '_id')) {
 			$def['ids'][] = $field['field_name'];
 		}
 	}
-	if (empty($def['id_field_name'])) {
+	$def['sql'] = $zz['sql'];
+	if (empty($def['primary_key'])) {
 		wrap_error($def['msg'].wrap_text(
 			'Unable to find ID field name for table %s.',
 			['values' => [$def['table'], implode(', ', $ids)]]
@@ -330,7 +348,7 @@ function zzform_delete($table, $ids, $error_type = E_USER_NOTICE, $msg = '') {
 	$values = [];
 	$values['action'] = 'delete';
 	foreach ($ids as $id) {
-		$values['POST'][$def['id_field_name']] = $id;
+		$values['POST'][$def['primary_key']] = $id;
 		$ops = zzform_multi($def['table_script'], $values);
 		if (!$ops['id']) {
 			wrap_error($def['msg'].wrap_text(
@@ -355,7 +373,7 @@ function zzform_delete($table, $ids, $error_type = E_USER_NOTICE, $msg = '') {
  * @param string $msg (optional)
  * @return array
  */
-function zzform_insert($table, $data,  $error_type = E_USER_NOTICE, $msg = '') {
+function zzform_insert($table, $data, $error_type = E_USER_NOTICE, $msg = '') {
 	$msg_2 = wrap_text('Insertion of record into table %s impossible.', ['values' => [$table]]);
 	$def = zzform_batch_def($table, $msg, $msg_2);
 
@@ -372,4 +390,62 @@ function zzform_insert($table, $data,  $error_type = E_USER_NOTICE, $msg = '') {
 		return false;
 	}
 	return $ops['id'];
+}
+
+/**
+ * copy records from one ID to another
+ *
+ * @param string $table
+ * @param string $foreign_id_field
+ * @param int $source_id
+ * @param int $destination_id
+ * @return array
+ * @todo add support for translations, as in zz_copy_records()
+ */
+function zzform_copy($table, $foreign_id_field, $source_id, $destination_id) {
+	$def = zzform_batch_def($table);
+	
+	// get existing data
+	$sql = wrap_edit_sql($def['sql'], 'WHERE', sprintf('%s = %d', $foreign_id_field, $source_id));
+	$records = wrap_db_fetch($sql, $def['primary_key']);
+	if (!$records) return [];
+	$details = [];
+	if (!empty($def['subtable_sqls'])) {
+		foreach ($def['subtable_sqls'] as $index => $sql) {
+			$sql = wrap_edit_sql($sql, 'WHERE', sprintf('%s IN (%s)', $def['primary_key'], implode(',', array_keys($records))));
+			$details[$index] = wrap_db_fetch($sql, '_dummy_', 'numeric');
+		}
+	}
+
+	$dont_copy = wrap_setting('zzform_copy_fields_exclude');
+	$dont_copy[] = $def['primary_key'];
+	$dont_copy[] = $foreign_id_field;
+	
+	// insert data
+	$results = [];
+	foreach ($records as $id => $record) {
+		$data = [];
+		// main record
+		foreach ($record as $field_name => $value) {
+			if (in_array($field_name, $dont_copy)) continue;
+			$data[$field_name] = $value;
+			// @todo exclude display fields?
+		}
+		$data[$foreign_id_field] = $destination_id;
+
+		// detail records
+		foreach ($details as $index => $detailrecords) {
+			foreach ($detailrecords as $detail_index => $detailrecord) {
+				if ($detailrecord[$def['subtable_foreign_keys'][$index]] !== $record[$def['primary_key']]) continue;
+				foreach ($detailrecord as $field_name => $value) {
+					if (in_array($field_name, $dont_copy)) continue;
+					if ($field_name === $def['subtable_foreign_keys'][$index]) continue;
+					if ($field_name === $def['subtable_primary_keys'][$index]) continue;
+					$data[$def['subtable_tables'][$index]][$detail_index][$field_name] = $value;
+				}
+			}
+		}
+		$results[] = zzform_insert($def['table'], $data);
+	}
+	return $results;
 }
