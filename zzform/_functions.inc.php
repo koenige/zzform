@@ -281,11 +281,13 @@ function zz_secret_id($mode, $id = '', $hash = '') {
 function zzform_batch_def($table, $msg = '', $msg_2 = '') {
 	wrap_include_files('zzform/definition');
 
-	$def['table'] = $table;
-	$def['table_script'] = str_replace('_', '-', $def['table']);
+	$def['table_script'] = str_replace('_', '-', $table);
 	$def['msg'] = $msg;
 	if ($def['msg']) $def['msg'] .= ' ';
 	if ($msg_2) $msg_2 = sprintf(' %s', $msg_2);
+
+	$zz = zzform_include($def['table_script']);
+	$def['table'] = wrap_db_prefix($zz['table']);
 
 	// read table structure from database
 	$sql = 'SHOW COLUMNS FROM `%s`';
@@ -298,7 +300,6 @@ function zzform_batch_def($table, $msg = '', $msg_2 = '') {
 
 	// get table definition
 	$def['ids'] = [];
-	$zz = zzform_include($def['table_script']);
 	foreach ($zz['fields'] as $no => $field) {
 		if (!empty($field['unique'])) $def['uniques'][] = $field['field_name'];
 		if (empty($field['type'])) continue;
