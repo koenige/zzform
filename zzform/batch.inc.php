@@ -24,6 +24,7 @@
  */
 function zzform_update_date($line, $table, $id_field_name, $field_name) {
 	if (empty($line[$field_name])) return false;
+	if (!array_key_exists($id_field_name, $line)) return false;
 	
 	$new = zzform_date_quality($line[$field_name]);
 	if (!$new) return false;
@@ -31,7 +32,7 @@ function zzform_update_date($line, $table, $id_field_name, $field_name) {
 	$sql = 'SELECT `%s` FROM `%s` WHERE `%s` = %d';
 	$sql = sprintf($sql, $field_name, $table, $id_field_name, $line[$id_field_name]);
 	$existing = wrap_db_fetch($sql, '', 'single value');
-	$old = zzform_date_quality($existing);
+	$old = $existing ? zzform_date_quality($existing) : 0;
 	if ($old >= $new) return false;
 
 	$line = [
