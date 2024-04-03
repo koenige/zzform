@@ -76,6 +76,7 @@ function zzform($zz) {
 	// page variables, general settings
 	if (empty($zz_conf['multi']))
 		wrap_static('page', '', $zz['page'], 'init');
+	zz_error_validation_log('delete');
 
 	// set default configuration variables
 	// import modules, set and get URI
