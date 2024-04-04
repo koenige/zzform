@@ -46,6 +46,8 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 
 	// hook, e. g. get images from different locations than upload
 	list($ops, $zz_tab) = zz_action_hook($ops, $zz_tab, 'before_upload', 'not_validated');
+	if ($ops['ignore'])
+		return zz_return([$ops, $zz_tab, $validation]);
 	
 	//	### Check for validity, do some operations ###
 	if (!empty($zz_record['upload_form'])) {
@@ -872,6 +874,12 @@ function zz_action_change($ops, $zz_tab, $change) {
 	if (!empty($change['output_form'])) {
 		// inside form
 		$ops['form'] = $change['output_form'];
+	}
+	
+	// ignore?
+	if (!empty($change['ignore'])) {
+		$ops['ignore'] = true;
+		return [$ops, $zz_tab];
 	}
 
 	// get record definition from planned or not_validated

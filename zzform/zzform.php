@@ -69,7 +69,8 @@ function zzform($zz) {
 		'redirect_url' => false,
 		'explanation' => '',
 		'exit' => false,
-		'old_settings' => zzform_setting($zz['setting'])
+		'old_settings' => zzform_setting($zz['setting']),
+		'ignore' => false
 	];
 	// internal zzform variables
 	wrap_static('zzform', '', $zz['vars'], 'init');

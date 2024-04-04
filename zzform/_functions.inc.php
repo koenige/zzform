@@ -393,7 +393,7 @@ function zzform_insert($table, $data, $error_type = E_USER_NOTICE, $msg = '') {
 	$values['ids'] = $def['ids'];
 	$values['POST'] = $data;
 	$ops = zzform_multi($def['table_script'], $values);
-	if (!$ops['id']) {
+	if (!$ops['id'] AND !$ops['ignore']) {
 		wrap_error($def['msg'].wrap_text(
 			'Unable to insert data %s into table %s. Reason: %s',
 			['values' => [json_encode($data), $def['table'], json_encode($ops['error'])]]
@@ -445,7 +445,7 @@ function zzform_update($table, $data, $error_type = E_USER_NOTICE, $msg = '') {
 	$values['ids'] = $def['ids'];
 	$values['POST'] = $data;
 	$ops = zzform_multi($def['table_script'], $values);
-	if (!$ops['id']) {
+	if (!$ops['id'] AND !$ops['ignore']) {
 		wrap_error($def['msg'].wrap_text(
 			'Unable to update data %s in table %s. Reason: %s',
 			['values' => [json_encode($data), $def['table'], json_encode($ops['error'])]]
