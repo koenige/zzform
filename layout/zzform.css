@@ -21,12 +21,12 @@
 #zzform code ul		{ margin: 0; list-style: square; }
 #zzform code li		{ margin: 0; }
 #zzform td, #zzform th
-					{ padding: 0 .5em; vertical-align: top; }
+					{ padding: 0 .5rem; vertical-align: top; }
 #zzform th			{ width: auto; text-align: left; }
 #zzform td p		{ margin-top: .5em; margin-bottom: .5em; }
 #zzform .nobr		{ white-space: nowrap; }
 div.text #zzform, #zzform div.text
-					{ padding: 1em; }
+					{ padding: 1rem; }
 #zzform td h1, #zzform td h2, #zzform td h3, #zzform td h4, #zzform td h5,
 	#zzform td h6	{ margin: 0 0 .5em; }
 #zzform .hidden 	{ display: none; }
@@ -146,7 +146,7 @@ div.text #zzform, #zzform div.text
 #zzform td.number, #zzform #record .subtable td.number 
 					{ text-align: right; }
 #zzform #record .subtable td p, #zzform #record .subtable th p,
-#zzform table td	{ padding: .2em; }
+#zzform table td	{ padding: .2rem; }
 #zzform #record .subtable td p.preview, #zzform #record .subtable th p.preview
 					{ padding: 0; }
 #zzform table td small { font-size: 90%; }
@@ -158,7 +158,7 @@ div.text #zzform, #zzform div.text
 #zzform #record table
 					{ margin: 0 0 1em 0; }
 #zzform #record th, #zzform #record td
-					{ line-height: 1.5em; padding: .25em .5em; }
+					{ line-height: 1.5em; padding: .25rem .5rem; }
 #zzform #record tbody tr:first-child td
 					{ border-top: none; }
 #zzform #record table table
@@ -168,7 +168,7 @@ div.text #zzform, #zzform div.text
 #zzform #record table table th
 					{ font-weight: normal; }
 #zzform #record tfoot th, #zzform #record tfoot td
-					{ padding: .5em; border: none; } 
+					{ padding: .5rem; border: none; } 
 #zzform #record tbody tr:first-child td
 					{ border-top: none; }
 #zzform p.desc, #zzform .explanation
@@ -185,7 +185,7 @@ div.text #zzform, #zzform div.text
 #zzform #record .upload
 					{ padding-bottom: 0; margin-bottom: 0; }
 #zzform #record .tick_to_save
-					{ float: left; padding-right: .5em; margin: 0; }
+					{ float: left; padding-right: .5rem; margin: 0; }
 #zzform form .hidden_in_form
 					{ display: none; }
 
@@ -232,7 +232,9 @@ body #zzform .separator hr
 #zzform .left_separator
 					{ border-left: 3px #FFF solid; }
 #zzform #record td.separator
-					{ padding: .25em 0; }
+					{ padding: .25rem 0; }
+#zzform #record td.separator h3
+					{ padding: 0 .5rem; }
 
 /* record view, detail records */
 #zzform #record .detailrecord
@@ -244,15 +246,15 @@ body #zzform .separator hr
 #zzform #record .subtable table
 					{ margin-bottom: .4em; }
 #zzform #record .subtable th
-					{ padding: 0 .5em .25em 0; width: 12%; }
+					{ padding: 0 .5rem .25rem 0; width: 12%; }
 #zzform #record .subtable td
-					{ padding: 0 0 .25em 0; text-align: left; }
+					{ padding: 0 0 .25rem 0; text-align: left; }
 #zzform #record .subtable .horizontal
 					{ width: auto; }
 #zzform #record .subtable .horizontal th
-					{ width: auto; font-weight: bold; padding-right: .75em; }
+					{ width: auto; font-weight: bold; padding-right: .75rem; }
 #zzform #record .subtable .horizontal td
-					{ width: auto; padding-right: .5em; }
+					{ width: auto; padding-right: .5rem; }
 #zzform #record .hide_td table
 					{ display: none; }
 #zzform #record .toggle_td table 
@@ -269,7 +271,7 @@ body #zzform .separator hr
 						{ padding-top: 0; }
 
 	#zzform #record .subtable .horizontal th
-					{ float: left; font-weight: normal; padding-right: .25em; }
+					{ float: left; font-weight: normal; padding-right: .25rem; }
 	#zzform #record .subtable .horizontal th:before { content: " / "; }
 	#zzform #record .subtable .horizontal th.firstrow:before { content: ""; }
 }
@@ -294,7 +296,7 @@ body #zzform .separator hr
 #zzform .zzfilter dd:last-child
 					{ border-right: none; }
 #zzform .zzfilter a, #zzform .zzfilter strong
-					{ padding: 0 .5em; text-decoration: none; }
+					{ padding: 0 .5rem; text-decoration: none; }
 #zzform .zzfilter_dropdown
 					{ cursor: pointer; }
 
@@ -308,17 +310,17 @@ body #zzform .separator hr
 #zzform .list		{ overflow: auto; max-width: 100%; }
 #zzform table.data	{ margin: .5em 0; }
 #zzform .data td
-					{ padding: 0.25em .5em; }
+					{ padding: 0.25rem .5rem; }
 #zzform .data thead td, #zzform .data thead th
-					{ padding-bottom: .25em; border-bottom: 1px solid; }
+					{ padding-bottom: .25rem; border-bottom: 1px solid; }
 #zzform .data thead a
 					{ text-decoration: none; }
-#zzform .editbutton	{ padding: 0 .5em; }
-#zzform th.where	{ padding-top: .5em; }
+#zzform .editbutton	{ padding: 0 .5rem; }
+#zzform th.where	{ padding-top: .5rem; }
 #zzform .data tr.group td
-					{ border-top: 1px solid; padding-top: 1em; }
+					{ border-top: 1px solid; padding-top: 1rem; }
 #zzform .data tr.group_sum td
-					{ padding-bottom: .5em; font-weight: bold; }
+					{ padding-bottom: .5rem; font-weight: bold; }
 #zzform td.last 	{ border-bottom: 1px solid; }
 
 #zzform td p, #zzform td ul
@@ -329,19 +331,19 @@ body #zzform .separator hr
 					{ font-weight: bold; border-top: 1px solid; 
 					border-bottom: 3px double; }
 #zzform tfoot tr.multiple td
-					{ padding-top: .75em; }
+					{ padding-top: .75rem; }
 #zzform tfoot tr.multiple input
 					{ vertical-align: top; }
 #zzform .data td.hyphenate
 					{ hyphens: auto; }
 
 /* list view (table): hierarchies */
-#zzform div.level1 { padding-left: 2.5em; 
+#zzform div.level1 { padding-left: 2.5rem; 
 					/* background: url line-vertical.gif .5em 0 repeat-y; */
-					margin-bottom: -.25em; padding-bottom: .25em; 
+					margin-bottom: -.25em; padding-bottom: .25rem; 
 					/* overwrite padding of td */ }
 #zzform table td.level1, #zzform #record table td.level1
-					{ padding-left: 2.5em;
+					{ padding-left: 2.5rem;
 					/*background: url line-vertical.gif  1em 0 repeat-y; */ }
 /*
 #zzform table td.last
@@ -349,66 +351,66 @@ body #zzform .separator hr
 */
 #zzform table td.level2, #zzform #record table td.level2,
 #zzform #record table .detailrecord tr.level2 td
-					{ padding-left: 5em; 
+					{ padding-left: 5rem; 
 					/* background: url line-vertical.gif  1em 0 repeat-y; */ }
 #zzform table td.level3, #zzform #record table td.level3,
 #zzform #record table .detailrecord .level3 td
-					{ padding-left: 7.5em; }
+					{ padding-left: 7.5rem; }
 #zzform table td.level4, #zzform #record table td.level4,
 #zzform #record table .detailrecord .level4 td
-					{ padding-left: 10em; }
+					{ padding-left: 10rem; }
 #zzform table td.level5, #zzform #record table td.level5,
 #zzform #record table .detailrecord .level5 td
-					{ padding-left: 12.5em; }
+					{ padding-left: 12.5rem; }
 #zzform table td.level6, #zzform #record table td.level6,
 #zzform #record table .detailrecord .level6 td
-					{ padding-left: 15em; }
+					{ padding-left: 15rem; }
 #zzform table td.level7, #zzform #record table td.level7,
 #zzform #record table .detailrecord .level7 td
-					{ padding-left: 17.5em; }
+					{ padding-left: 17.5rem; }
 #zzform table td.level8, #zzform #record table td.level8,
 #zzform #record table .detailrecord .level8 td
-					{ padding-left: 20em; }
+					{ padding-left: 20rem; }
 #zzform table td.level9, #zzform #record table td.level9,
 #zzform #record table .detailrecord .level9 td
-					{ padding-left: 22.5em; }
+					{ padding-left: 22.5rem; }
 #zzform table td.level10, #zzform #record table td.level10,
 #zzform #record table .detailrecord .level10 td
-					{ padding-left: 25em; }
+					{ padding-left: 25rem; }
 @media screen and (max-width: 640px) {
 	#zzform table td.level1, #zzform #record table td.level1
-						{ padding-left: 1.5em; }
+						{ padding-left: 1.5rem; }
 	#zzform table td.level2, #zzform #record table td.level2,
 	#zzform #record table .detailrecord tr.level2 td
-						{ padding-left: 3em; }
+						{ padding-left: 3rem; }
 	#zzform table td.level3, #zzform #record table td.level3,
 	#zzform #record table .detailrecord .level3 td
-						{ padding-left: 4.5em; }
+						{ padding-left: 4.5rem; }
 	#zzform table td.level4, #zzform #record table td.level4,
 	#zzform #record table .detailrecord .level4 td
-						{ padding-left: 6em; }
+						{ padding-left: 6rem; }
 	#zzform table td.level5, #zzform #record table td.level5,
 	#zzform #record table .detailrecord .level5 td
-						{ padding-left: 7.5em; }
+						{ padding-left: 7.5rem; }
 	#zzform table td.level6, #zzform #record table td.level6,
 	#zzform #record table .detailrecord .level6 td
-						{ padding-left: 9em; }
+						{ padding-left: 9rem; }
 	#zzform table td.level7, #zzform #record table td.level7,
 	#zzform #record table .detailrecord .level7 td
-						{ padding-left: 10.5em; }
+						{ padding-left: 10.5rem; }
 	#zzform table td.level8, #zzform #record table td.level8,
 	#zzform #record table .detailrecord .level8 td
-						{ padding-left: 12em; }
+						{ padding-left: 12rem; }
 	#zzform table td.level9, #zzform #record table td.level9,
 	#zzform #record table .detailrecord .level9 td
-						{ padding-left: 13.5em; }
+						{ padding-left: 13.5rem; }
 	#zzform table td.level10, #zzform #record table td.level10,
 	#zzform #record table .detailrecord .level10 td
-						{ padding-left: 15em; }
+						{ padding-left: 15rem; }
 }
 
 /* list view (ul) */
-#zzform ul.data		{ padding: 0; margin: 1em 0; overflow: hidden; }
+#zzform ul.data		{ padding: 0; margin: 1rem 0; overflow: hidden; }
 #zzform ul.data li	{ float: left; overflow: hidden; list-style: none;
 					margin: 0 1em 1em 0; padding: 0; } 
 #zzform ul.data img	{ vertical-align: middle; margin: 0; border: 0; padding: 0; }
@@ -427,17 +429,17 @@ body #zzform .separator hr
 #zzform .add-new li:first-child
 					{ border-left: none; }
 #zzform .add-new li a
-					{ padding: 0 .5em ; }
+					{ padding: 0 .5rem ; }
 
 /* list view (page navigation below list) */
 #zzform .pages .last
 					{ border-bottom: none; }
-#zzform .pages		{ margin: 0; padding: 0 0 1em 0; list-style: none; 
+#zzform .pages		{ margin: 0; padding: 0 0 1rem 0; list-style: none; 
 					line-height: 1; overflow: hidden; }
 #zzform .pages li	{ margin: 0 0 .5em; float: left; padding: 0; 
 					border-left: 1px dotted; }
 #zzform .pages li a, #zzform ul.pages li span, #zzform ul.pages li strong 
-					{ padding: 0 .5em; text-decoration: none; }
+					{ padding: 0 .5rem; text-decoration: none; }
 #zzform .pages li.first
 					{ border-left: 0; }
 #zzform .pages li.first a, #zzform .pages li.first span,
@@ -449,7 +451,7 @@ body #zzform .separator hr
 
 /* list view (maps) */
 #zzform .kml_description td, #zzform .kml_description th
-					{ padding: .2em .5em .2em 0; }
+					{ padding: .2rem .5rem .2rem 0; }
 
 /* list view (multiple records) */
 
@@ -469,22 +471,22 @@ body #zzform .separator hr
 #zzform div.reselect p, #zzform div.reselect ul, #zzform #record .reselect p
 					{ color: white; margin: .25em 0; }
 #zzform div.reselect
-					{ padding: .25em .5em; margin: 1em 0; }
+					{ padding: .25rem .5rem; margin: 1em 0; }
 /* errors */
 #zzform .error, #zzform .subtable .horizontal td.error,
 #zzform #record tr.error td, #zzform #record tr.error th, 
 	#zzform #record .subtable td.error { background-color: red; }
 #zzform .error, #zzform .subtable .horizontal td.error
-					{ color: white; padding: .25em; }
-#zzform span.error	{ padding: .1em .2em; margin: 0 -.2em; }
-#zzform div.error	{ margin: 1em 0; padding-left: .75em; max-width: 40em; }
+					{ color: white; padding: .25rem; }
+#zzform span.error	{ padding: .1rem .2rem; margin: 0 -.2em; }
+#zzform div.error	{ margin: 1em 0; padding-left: .75rem; max-width: 40em; }
 #zzform div.error p	{ margin-top: 0; }
 #zzform div.error p:last-child	{ margin-bottom: 0; }
 #zzform div.error ul
 					{ margin-bottom: 0; }
 #zzform td div.error
 					{ margin: 0 0 .5em; }
-#zzform .error small { padding: 0 .4em; display: block; }
+#zzform .error small { padding: 0 .4rem; display: block; }
 #zzform .subrecord_lines .error small
 					{ display: inline; }
 #zzform td .subrecord_lines div.error
@@ -494,13 +496,13 @@ body #zzform .separator hr
 /* debug */
 #zzform .debug		{ background: white; border: 1px solid black; 
 					overflow: auto; font-size: 75%; color: black; clear: both; }
-#zzform .debug h1	{ padding-left: .5em; }
+#zzform .debug h1	{ padding-left: .5rem; }
 #zzform .debugtable dl { padding: 0; margin: 0; line-height: 1.5; }
 #zzform .debugtable dt { font-weight: bold; }
 #zzform .debugtable dd { padding: 0; margin: 0; }
 #zzform .zzvariables th	
 					{ white-space: nowrap; text-align: left; 
-					padding-right: .5em; vertical-align: top; }
+					padding-right: .5rem; vertical-align: top; }
 
 /* maintenance */
 #zzform .blocklabel	{ display: block; height: 100%; width: 100%; }
@@ -604,10 +606,10 @@ body #zzform .separator hr
 					margin: 2px 0; padding: 0; list-style-type: none;
 					font-size: 90%; }
 .vxJS_autoSuggest li
-					{ cursor: pointer; margin: 0; padding: 0.25em 0.5em;
+					{ cursor: pointer; margin: 0; padding: 0.25rem 0.5rem;
 					font-size: 100%; }
 .vxJS_autoSuggest li span
-					{ padding: 0 0.5em; }
+					{ padding: 0 0.5rem; }
 .vxJS_autoSuggest li span.hiLite
 					{ padding: 0; }
 
