@@ -331,6 +331,13 @@ function zzform_batch_def($table, $msg = '', $msg_2 = '') {
 			['values' => [$def['table'], implode(', ', $ids)]]
 		).$msg_2, E_USER_ERROR);
 	}
+	if (!empty($zz['add'])) {
+		foreach ($zz['add'] as $add) {
+			$def['add'][$add['field_name']][] = $add['value'];
+		}
+	} else {
+		$def['add'] = [];
+	}
 
 	return $def;
 }
@@ -391,6 +398,21 @@ function zzform_insert($table, $data, $error_type = E_USER_NOTICE, $msg = '') {
 	$values = [];
 	$values['action'] = 'insert';
 	$values['ids'] = $def['ids'];
+	foreach ($def['add'] as $field_name => $ids) {
+		if (!array_key_exists($field_name, $data)) continue;
+		if (in_array($data[$field_name], $ids)) {
+			$values['GET']['add'][$field_name] = $data[$field_name];
+			unset($data[$field_name]);
+		} elseif (in_array('', $ids)) {
+			// do nothing
+		} else {
+			wrap_error($def['msg'].wrap_text(
+				'Forbidden to insert data %s into table %s: Value %s is not allowed for field %s. Reason: %s',
+				['values' => [json_encode($data), $def['table'], $data[$field_name], $field_name, json_encode($ops['error'])]]
+			), $error_type);
+			return NULL;
+		}
+	}
 	$values['POST'] = $data;
 	$ops = zzform_multi($def['table_script'], $values);
 	if (!$ops['id'] AND !$ops['ignore']) {
