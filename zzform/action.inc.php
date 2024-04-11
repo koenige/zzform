@@ -1117,6 +1117,11 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 		AND empty($my_tab[$rec]['file_upload']) AND $rec) {
 		$values = false;
 	}
+	
+	// foreign action, no values?
+	if (zz_foreign_id_action($my_tab[$rec]['fields'], $zz_tab)) {
+		$values = true;
+	}
 
 	// @todo seems to be twice the same operation since $tab and $rec are !0
 	if ($my_tab['access'] === 'show' OR
@@ -1148,6 +1153,30 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 	if (wrap_setting('debug'))
 		zz_debug(sprintf('end table %s, rec %d, values: %s', $my_tab['table_name'], $rec, substr($values, 0, 20)));
 	return $my_tab;
+}
+
+/**
+ * check for record with foreign_id if record that this is dependent on will be added
+ *
+ * @param array $fields
+ * @param array $zz_tab
+ * @return bool
+ */
+function zz_foreign_id_action($fields, $zz_tab) {
+	foreach ($fields as $field) {
+		if (empty($field['foreign_id_field'])) continue;
+		foreach ($zz_tab as $tab => $my_tab) {
+			if (!is_numeric($tab)) continue;
+			if (empty($my_tab['no'])) continue;
+			if ($my_tab['no'].'' !== $field['foreign_id_field'].'') continue;
+			
+			foreach ($my_tab as $rec => $my_rec) {
+				if (!is_numeric($rec)) continue;
+				if ($my_rec['action'] === 'insert') return true;
+			}
+		}
+	}
+	return false;
 }
 
 /**
