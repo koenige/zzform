@@ -472,8 +472,9 @@ function zzform_update($table, $data, $error_type = E_USER_NOTICE, $msg = '') {
 			'Unable to update data %s in table %s. Reason: %s',
 			['values' => [json_encode($data), $def['table'], json_encode($ops['error'])]]
 		), $error_type);
-		return false;
+		return NULL;
 	}
+	if ($ops['result'] === 'no_update') return 0;
 	return $ops['id'];
 }
 
