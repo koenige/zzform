@@ -292,7 +292,7 @@ function zzform_batch_def($table, $settings = []) {
 		$def['type'] = 'tables';
 	}
 	$def['table_script'] = str_replace('_', '-', $table);
-	$def['msg'] = $msg;
+	$def['msg'] = $settings['msg'] ?? '';
 	if ($def['msg']) $def['msg'] .= ' ';
 	$msg_2 = $settings['msg_2'] ?? '';
 	if ($msg_2) $msg_2 = sprintf(' %s', $msg_2);
@@ -366,7 +366,6 @@ function zzform_batch_def($table, $settings = []) {
  * @param string $table
  * @param mixed $ids
  * @param int $error_type (optional)
- * @param string $msg (optional)
  * @param array $settings (optional)
  *		string 'msg': additional error messsage
  *		bool 'log_post_data'
