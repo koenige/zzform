@@ -281,12 +281,18 @@ function zz_secret_id($mode, $id = '', $hash = '') {
 function zzform_batch_def($table, $msg = '', $msg_2 = '') {
 	wrap_include_files('zzform/definition');
 
+	if (str_starts_with($table, 'forms/')) {
+		$table = substr($table, strlen('forms/'));
+		$def['type'] = 'forms';
+	} else {
+		$def['type'] = 'tables';
+	}
 	$def['table_script'] = str_replace('_', '-', $table);
 	$def['msg'] = $msg;
 	if ($def['msg']) $def['msg'] .= ' ';
 	if ($msg_2) $msg_2 = sprintf(' %s', $msg_2);
 
-	$zz = zzform_include($def['table_script']);
+	$zz = zzform_include($def['table_script'], [], $def['type']);
 	$def['table'] = wrap_db_prefix($zz['table']);
 
 	// read table structure from database
@@ -301,8 +307,9 @@ function zzform_batch_def($table, $msg = '', $msg_2 = '') {
 	// get table definition
 	$def['ids'] = [];
 	foreach ($zz['fields'] as $no => $field) {
-		if (!empty($field['unique'])) $def['uniques'][] = $field['field_name'];
 		if (empty($field['type'])) continue;
+		if (!empty($field['unique']) AND $field['type'] !== 'subtable')
+			$def['uniques'][] = $field['field_name'];
 		if ($field['type'] === 'subtable') {
 			$def['subtable_sqls'][$no] = $field['sql'];
 			$def['subtable_tables'][$no] = $field['table_name'] ?? $field['table'];
@@ -324,6 +331,7 @@ function zzform_batch_def($table, $msg = '', $msg_2 = '') {
 			$def['ids'][] = $field['field_name'];
 		}
 	}
+	$def['uniques'] = array_unique($def['uniques']);
 	$def['sql'] = $zz['sql'];
 	if (empty($def['primary_key'])) {
 		wrap_error($def['msg'].wrap_text(
@@ -367,7 +375,7 @@ function zzform_delete($table, $ids, $error_type = E_USER_NOTICE, $msg = '') {
 	$values['action'] = 'delete';
 	foreach ($ids as $id) {
 		$values['POST'][$def['primary_key']] = $id;
-		$ops = zzform_multi($def['table_script'], $values);
+		$ops = zzform_multi($def['table_script'], $values, $def['type']);
 		if (!$ops['id']) {
 			wrap_error($def['msg'].wrap_text(
 				'Unable to delete ID %s from table %s. Reason: %s',
@@ -414,7 +422,7 @@ function zzform_insert($table, $data, $error_type = E_USER_NOTICE, $msg = '') {
 		}
 	}
 	$values['POST'] = $data;
-	$ops = zzform_multi($def['table_script'], $values);
+	$ops = zzform_multi($def['table_script'], $values, $def['type']);
 	if (!$ops['id'] AND !$ops['ignore']) {
 		wrap_error($def['msg'].wrap_text(
 			'Unable to insert data %s into table %s. Reason: %s',
@@ -466,7 +474,7 @@ function zzform_update($table, $data, $error_type = E_USER_NOTICE, $msg = '') {
 	$values['action'] = 'update';
 	$values['ids'] = $def['ids'];
 	$values['POST'] = $data;
-	$ops = zzform_multi($def['table_script'], $values);
+	$ops = zzform_multi($def['table_script'], $values, $def['type']);
 	if (!$ops['id'] AND !$ops['ignore']) {
 		wrap_error($def['msg'].wrap_text(
 			'Unable to update data %s in table %s. Reason: %s',
