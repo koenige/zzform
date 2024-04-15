@@ -274,12 +274,16 @@ function zz_secret_id($mode, $id = '', $hash = '') {
  * prepare batch operation per table
  *
  * @param string $table
- * @param string $msg
- * @param string $msg_2 (optional)
+ * @param array $settings
  * @return array
  */
-function zzform_batch_def($table, $msg = '', $msg_2 = '') {
+function zzform_batch_def($table, $settings = []) {
 	wrap_include_files('zzform/definition');
+	
+	// error handling
+	$def['error_settings'] = [];
+	if (array_key_exists('log_post_data', $settings))
+		$def['error_settings']['log_post_data'] = $settings['log_post_data'];
 
 	if (str_starts_with($table, 'forms/')) {
 		$table = substr($table, strlen('forms/'));
@@ -290,6 +294,7 @@ function zzform_batch_def($table, $msg = '', $msg_2 = '') {
 	$def['table_script'] = str_replace('_', '-', $table);
 	$def['msg'] = $msg;
 	if ($def['msg']) $def['msg'] .= ' ';
+	$msg_2 = $settings['msg_2'] ?? '';
 	if ($msg_2) $msg_2 = sprintf(' %s', $msg_2);
 
 	$zz = zzform_include($def['table_script'], [], $def['type']);
@@ -337,7 +342,7 @@ function zzform_batch_def($table, $msg = '', $msg_2 = '') {
 		wrap_error($def['msg'].wrap_text(
 			'Unable to find ID field name for table %s.',
 			['values' => [$def['table'], implode(', ', $ids)]]
-		).$msg_2, E_USER_ERROR);
+		).$msg_2, E_USER_ERROR, $def['error_settings']);
 	}
 	if (!empty($zz['add'])) {
 		foreach ($zz['add'] as $add) {
@@ -361,14 +366,17 @@ function zzform_batch_def($table, $msg = '', $msg_2 = '') {
  * @param mixed $ids
  * @param int $error_type (optional)
  * @param string $msg (optional)
+ * @param array $settings (optional)
+ *		string 'msg': additional error messsage
+ *		bool 'log_post_data'
  * @return array
  */
-function zzform_delete($table, $ids, $error_type = E_USER_NOTICE, $msg = '') {
+function zzform_delete($table, $ids, $error_type = E_USER_NOTICE, $settings = []) {
 	if (!is_array($ids)) $ids = [$ids];
 	// @todo add support for UNIQUE ids with else
 
-	$msg_2 = wrap_text('Deletion of IDs %s impossible.', ['values' => [implode(', ', $ids)]]);
-	$def = zzform_batch_def($table, $msg, $msg_2);
+	$settings['msg_2'] = wrap_text('Deletion of IDs %s impossible.', ['values' => [implode(', ', $ids)]]);
+	$def = zzform_batch_def($table, $settings);
 
 	$deleted_ids = [];
 	$values = [];
@@ -380,7 +388,7 @@ function zzform_delete($table, $ids, $error_type = E_USER_NOTICE, $msg = '') {
 			wrap_error($def['msg'].wrap_text(
 				'Unable to delete ID %s from table %s. Reason: %s',
 				['values' => [$id, $def['table'], json_encode($ops['error'])]]
-			), $error_type);
+			), $error_type, $def['error_settings']);
 		} else {
 			$deleted_ids[] = $ops['id'];
 		}
@@ -396,12 +404,14 @@ function zzform_delete($table, $ids, $error_type = E_USER_NOTICE, $msg = '') {
  * @param string $table
  * @param array $data
  * @param int $error_type (optional)
- * @param string $msg (optional)
+ * @param array $settings (optional)
+ *		string 'msg': additional error messsage
+ *		bool 'log_post_data'
  * @return int
  */
-function zzform_insert($table, $data, $error_type = E_USER_NOTICE, $msg = '') {
-	$msg_2 = wrap_text('Insertion of record into table %s impossible.', ['values' => [$table]]);
-	$def = zzform_batch_def($table, $msg, $msg_2);
+function zzform_insert($table, $data, $error_type = E_USER_NOTICE, $settings = []) {
+	$settings['msg_2'] = wrap_text('Insertion of record into table %s impossible.', ['values' => [$table]]);
+	$def = zzform_batch_def($table, $settings);
 
 	$values = [];
 	$values['action'] = 'insert';
@@ -417,7 +427,7 @@ function zzform_insert($table, $data, $error_type = E_USER_NOTICE, $msg = '') {
 			wrap_error($def['msg'].wrap_text(
 				'Forbidden to insert data %s into table %s: Value %s is not allowed for field %s. Reason: %s',
 				['values' => [json_encode($data), $def['table'], $data[$field_name], $field_name, json_encode($ops['error'])]]
-			), $error_type);
+			), $error_type, $def['error_settings']);
 			return NULL;
 		}
 	}
@@ -427,7 +437,7 @@ function zzform_insert($table, $data, $error_type = E_USER_NOTICE, $msg = '') {
 		wrap_error($def['msg'].wrap_text(
 			'Unable to insert data %s into table %s. Reason: %s',
 			['values' => [json_encode($data), $def['table'], json_encode($ops['error'])]]
-		), $error_type);
+		), $error_type, $def['error_settings']);
 		return NULL;
 	}
 	return $ops['id'];
@@ -439,11 +449,13 @@ function zzform_insert($table, $data, $error_type = E_USER_NOTICE, $msg = '') {
  * @param string $table
  * @param array $data
  * @param int $error_type (optional)
- * @param string $msg (optional)
+ * @param array $settings (optional)
+ *		string 'msg': additional error messsage
+ *		bool 'log_post_data'
  * @return int
  */
-function zzform_update($table, $data, $error_type = E_USER_NOTICE, $msg = '') {
-	$def = zzform_batch_def($table, $msg);
+function zzform_update($table, $data, $error_type = E_USER_NOTICE, $settings = []) {
+	$def = zzform_batch_def($table, $settings);
 	
 	// allow to update with unique value instead of primary key, too
 	if (empty($data[$def['primary_key']])) {
@@ -451,7 +463,7 @@ function zzform_update($table, $data, $error_type = E_USER_NOTICE, $msg = '') {
 			wrap_error($def['msg'].wrap_text(
 				'Unable to update record with data %s in table %s. No unique key given.',
 				['values' => [json_encode($data), $def['table']]]
-			), $error_type);
+			), $error_type, $def['error_settings']);
 			return NULL;
 		}
 		foreach ($def['uniques'] as $unique_field) {
@@ -465,7 +477,7 @@ function zzform_update($table, $data, $error_type = E_USER_NOTICE, $msg = '') {
 			wrap_error($def['msg'].wrap_text(
 				'Unable to update record with data %s in table %s. No primary key found.',
 				['values' => [json_encode($data), $def['table']]]
-			), $error_type);
+			), $error_type, $def['error_settings']);
 			return NULL;
 		}
 	}
@@ -479,7 +491,7 @@ function zzform_update($table, $data, $error_type = E_USER_NOTICE, $msg = '') {
 		wrap_error($def['msg'].wrap_text(
 			'Unable to update data %s in table %s. Reason: %s',
 			['values' => [json_encode($data), $def['table'], json_encode($ops['error'])]]
-		), $error_type);
+		), $error_type, $def['error_settings']);
 		return NULL;
 	}
 	if ($ops['result'] === 'no_update') return 0;
