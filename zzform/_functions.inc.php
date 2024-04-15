@@ -299,6 +299,7 @@ function zzform_batch_def($table, $settings = []) {
 
 	$zz = zzform_include($def['table_script'], [], $def['type']);
 	$def['table'] = wrap_db_prefix($zz['table']);
+	$def['uniques'] = [];
 
 	// read table structure from database
 	$sql = 'SHOW COLUMNS FROM `%s`';
@@ -459,7 +460,7 @@ function zzform_update($table, $data, $error_type = E_USER_NOTICE, $settings = [
 	
 	// allow to update with unique value instead of primary key, too
 	if (empty($data[$def['primary_key']])) {
-		if (empty($def['uniques'])) {
+		if (!$def['uniques']) {
 			wrap_error($def['msg'].wrap_text(
 				'Unable to update record with data %s in table %s. No unique key given.',
 				['values' => [json_encode($data), $def['table']]]
