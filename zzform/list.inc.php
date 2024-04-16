@@ -2018,9 +2018,11 @@ function zz_list_get_subselects($lines, $subselects, $mode) {
 			$linetext = [];
 			foreach ($sub_lines[$id] as $linefields) {
 				$link = $subselect['link'] ? zz_makelink($subselect['link'], $linefields) : '';
-				$image = isset($subselect['image']) ? zz_makelink($subselect['image'], $linefields, 'image') : '';
+				$type = $mode === 'export' ? 'link' : 'image';
+				$image = isset($subselect['image']) ? zz_makelink($subselect['image'], $linefields, $type) : '';
 				if ($image) {
-					if ($link) $image = sprintf('<a href="%s">%s</a>', $link, $image);
+					if ($link AND $mode !== 'export') $image = sprintf('<a href="%s">%s</a>', $link, $image);
+					elseif ($mode === 'export') $image = wrap_setting('host_base').$image;
 					$linetext[] = $image;
 					$subselect['dont_mark_search_string'] = true; // no search marking here
 					continue;
