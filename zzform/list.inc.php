@@ -2216,6 +2216,7 @@ function zz_field_class($field, $html = false) {
 	$class = array_keys(array_flip($class));
 	
 	$append--;
+	if ($append < 0) $append = 0;
 	if (!$html) return $class;
 	if (!$class) return false;
 	return ' class="'.implode(' ', $class).'"';
