@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2019, 2023 Gustaf Mossakowski
+ * @copyright Copyright © 2019, 2023-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -36,6 +36,11 @@ function zz_captcha_code($zz_id, $code = false) {
 	$delete_lines = [];
 	foreach ($lines as $index => $line) {
 		$line = explode(" ", $line);
+		// check validity of line
+		if ($line[0] !== trim($line[0])) {
+			$delete_lines[] = $index;
+			continue;
+		}
 		if (($line[0] + 86400 * 30) < time()) {
 			$delete_lines[] = $index;
 		}
