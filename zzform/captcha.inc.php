@@ -35,17 +35,16 @@ function zz_captcha_code($zz_id, $code = false) {
 	$existing_digit = '';
 	$delete_lines = [];
 	foreach ($lines as $index => $line) {
-		$line = explode(" ", $line);
-		// check validity of line
-		if ($line[0] !== trim($line[0])) {
+		$line = trim($line);
+		if (!preg_match('/[0-9]{10} [a-zA-Z0-9]{6} [0-9]{5}/', $line)) {
 			$delete_lines[] = $index;
 			continue;
 		}
-		if (($line[0] + 86400 * 30) < time()) {
+		$line = explode(" ", $line);
+		if (($line[0] + 86400 * 30) < time())
 			$delete_lines[] = $index;
-		}
 		if ($line[1].'' !== $zz_id.'') continue;
-		$existing_digit = trim($line[2]);
+		$existing_digit = $line[2];
 		if ($code) $delete_lines[] = $index;
 		break;
 	}
@@ -58,10 +57,7 @@ function zz_captcha_code($zz_id, $code = false) {
 	// delete old lines, older than 30 days
 	wrap_file_delete_line($logfile, $delete_lines);
 	if ($existing_digit) return $existing_digit;
-	$digit = '';
-	for ($x = 1; $x <= 5; $x++) {
-	  $digit .= rand(0, 9);
-	}
+	$digit = wrap_random_hash(5, '0123456789');
 	error_log(sprintf("%s %s %s\n", time(), $zz_id, $digit), 3, $logfile);
 	return $digit;
 }
