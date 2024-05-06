@@ -2978,8 +2978,9 @@ function zz_edit_query_string($query, $unwanted_keys = [], $new_keys = [], $and 
 		$parts[$new_key] = $new_value; 
 	// glue everything back together
 	$query_string = http_build_query($parts, '', $and);
-	if ($query_string) return '?'.$query_string; // URL without unwanted keys
-	else return false;
+	if (!$query_string) return false;
+	$query_string = wrap_url_normalize_percent_encoding($query_string, 'query');
+	return '?'.$query_string; // URL without unwanted keys
 }
 
 /**

@@ -1891,19 +1891,29 @@ function zz_list_th($field, $mode = 'html') {
 	$new_keys = ['order' => $order_val];
 	$uri = $zz_conf['int']['url']['self'].zz_edit_query_string($zz_conf['int']['url']['qs']	
 		.$zz_conf['int']['url']['qs_zzform'], $unwanted_keys, $new_keys);
-	if (str_replace('&amp;', '&', $uri) === wrap_setting('request_uri')) {
-		$uri.= '&amp;dir=desc';
+	if (zz_list_is_url_self($uri)) {
+		$uri .= '&amp;dir=desc';
 		$order_dir = wrap_text('descending');
 	} else {
 		$order_dir = wrap_text('ascending');
 	}
-	$link_open = '<a href="'.$uri.'" title="'.wrap_text('Order by').' '
-		.strip_tags($field['title']).' ('.$order_dir.')">';
-	$link_close = '</a>';
+	$html = '<a href="%s" title="%s %s (%s)">%s</a>';
+	return sprintf($html
+		, $uri, wrap_text('Order by'), strip_tags($field['title']), $order_dir, $out
+	);
+}
 
-	// HTML output
-	$out = $link_open.$out.$link_close;
-	return $out;
+/**
+ * check if a given URL equals the current URL
+ *
+ * @param string $uri
+ * @return bool
+ */
+function zz_list_is_url_self($uri) {
+	$uri = str_replace('&amp;', '&', $uri);
+	if ($uri === wrap_setting('request_uri')) return true;
+	if ($uri === wrap_setting('host_base').wrap_setting('request_uri')) return true;
+	return false;
 }
 
 /**
