@@ -434,7 +434,7 @@ function zz_prepare_post_per_table($table) {
 		foreach (array_keys($_FILES) as $key) {
 			if (!str_starts_with($key, $table_key)) continue;
 			$key = substr($key, strlen($table_key));
-			$key = explode('-', $key);
+			$key = explode('_', $key);
 			$post[$key[0]] = [];
 		}
 	}
