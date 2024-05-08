@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2013, 2015-2021, 2023 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2013, 2015-2021, 2023-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -33,7 +33,13 @@ function zz_search_sql($fields, $sql, $table) {
 
 	// get scope
 	$scope = (!empty($_GET['scope']) AND $calls === 1) ? $_GET['scope'] : '';
-	
+
+	// replace tabs, duplicate spaces	
+	if (strstr($_GET['q'], chr(9)))
+		$_GET['q'] = str_replace(chr(9), ' ', $_GET['q']);
+	while (strstr($_GET['q'], '  '))
+		$_GET['q'] = str_replace('  ', ' ', $_GET['q']);
+
 	// get search operator, globally for all fields
 	$searchword = $_GET['q'];
 	if (substr($searchword, 0, 1) == ' ' AND substr($searchword, -1) == ' ') {
