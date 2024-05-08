@@ -1106,7 +1106,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 			$text = zz_field_format($row['value'], $field);
 			break;
 		case 'ip':
-			$text = @inet_ntop($row['value']);
+			$text = $row['value'] ? @inet_ntop($row['value']) : '';
 			break;
 		case 'unix_timestamp':
 			$text = date('Y-m-d H:i:s', $row['value']);
