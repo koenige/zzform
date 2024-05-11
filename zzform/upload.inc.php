@@ -1539,7 +1539,7 @@ function zz_upload_merge_options($image, $my_tab, $rec = 0) {
 				'msg_dev' => 'No options for field %s were found.',
 				'msg_dev_args' => [$my_tab[$rec]['fields'][$no]['field_name']]
 			]);
-			$options[$option_value] = false;
+			$options[$option_value] = [];
 		}
 		// overwrite values in script with selected option
 		$image = array_merge($image, $options[$option_value]); 
