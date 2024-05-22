@@ -216,7 +216,7 @@ function zz_db_connection($table) {
 	$zz_conf['int']['db_main'] = false;
 
 	// get db_name.
-	// 1. best way: put it in zz_conf['db_name']
+	// 1. best way: put it in setting `db_name`
 	if (wrap_setting('db_name')) {
 		$db = zz_db_select(wrap_setting('db_name'));
 		if (!$db) {

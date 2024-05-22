@@ -113,7 +113,7 @@ function zzform($zz) {
 		$zz = zz_details($zz);
 	}
 
-	$zz_conf['int']['access'] = $zz['access'] ?? $zz_conf['access'] ?? '';
+	$zz_conf['int']['access'] = $zz['access'] ?? '';
 
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	if (zz_error_exit()) return zzform_exit($ops); // exits script
@@ -244,7 +244,7 @@ function zzform($zz) {
 		AND !wrap_setting('zzform_show_list_while_edit')) $list['display'] = false;
 
 	if ($list['display']) {
-		// shows table with all records (limited by zz_conf['limit'])
+		// shows table with all records (limited by setting `zzform_limit`)
 		// and add/nav if limit/search buttons
 		require_once __DIR__.'/list.inc.php';
 		$ops = zz_list($zz, $list, $ops, $zz_conditions);

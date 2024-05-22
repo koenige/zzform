@@ -76,7 +76,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 	// check referential integrity
 	if (wrap_setting('zzform_check_referential_integrity')) {
 		// get table relations
-		$relations = zz_integrity_relations(wrap_sql_table('zzform_relations'));
+		$relations = zz_integrity_relations();
 		// get record IDs of all records in table definition (1 main, n sub records)
 		$record_ids = zz_integrity_record_ids($zz_tab);
 		// if no record IDs = no deletion is possible
@@ -987,11 +987,6 @@ function zz_action_timeframe($zz_record) {
 	if (!empty($zz_conf['multi'])) return true;
 	if (!empty($_SESSION['logged_in'])) return true; // just for public forms
 	if (!empty($zz_record['no_timeframe'])) return true;
-	// @deprecated
-	if (!empty($zz_conf['no_timeframe'])) {
-		wrap_error('Depreacted: use $zz["record"]["no_timeframe"] instead of $zz_conf["no_timeframe"]', E_USER_DEPRECATED);
-		return true;
-	}
 
 	$timeframe = zz_secret_id('timecheck');
 	// @todo calculate timeframe based on required fields, e. g. 2 seconds per field
@@ -2546,14 +2541,14 @@ function zz_action_unique_check(&$zz_tab) {
 /**
  * gets all entries from the table where the database relations are stored
  *
- * @param string $relation_table	Name of relation table ($zz_conf['relation_table'])
  * @return array $relations
  */
-function zz_integrity_relations($relation_table) {
+function zz_integrity_relations() {
 	static $relations = [];
 	if ($relations) return $relations;
 
-	$sql = 'SELECT * FROM '.$relation_table;
+	$sql = 'SELECT * FROM %s';
+	$sql = sprintf($sql, wrap_sql_table('zzform_relations'));
 	$relations = zz_db_fetch($sql, ['master_db', 'master_table', 'master_field', 'rel_id']);
 	return $relations;
 }

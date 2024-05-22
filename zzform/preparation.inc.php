@@ -367,8 +367,7 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 	$my_tab['tick_to_save'] = $field['tick_to_save'] ?? '';
 
 	// access
-	$my_tab['access'] = isset($field['access'])
-		? $field['access'] : false;
+	$my_tab['access'] = $field['access'] ?? false;
 	
 	// POST array
 	// buttons: add, remove subrecord

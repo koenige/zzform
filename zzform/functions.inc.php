@@ -577,7 +577,6 @@ function zz_init_cfg($cfg_key, $ext, $int = []) {
  * @param string $key
  * @param array $ext existing definition by user
  * @return array
- * @todo $zz_conf['if'][1]['add'] is not re-written, as is $zz_conf['if'][1]['search']
  */
 function zz_init_cfg_deprecated($cfg_key, &$ext) {
 	$cfg = zz_init_cfg_file($cfg_key);
@@ -1207,7 +1206,7 @@ function zz_hash($zz, $zz_conf) {
 	// the definition of the database table(s)
 	$id = $zz_conf['id'];
 	$uninteresting_zz_conf_keys = [
-		'int', 'id', 'format', 'access', 'limit', 'url_self'
+		'int', 'id', 'access', 'url_self'
 	];
 	foreach ($uninteresting_zz_conf_keys as $key) unset($zz_conf[$key]);
 	$uninteresting_zz_keys = [
@@ -1564,7 +1563,7 @@ function zz_record_access($zz, $ops) {
 	if ($create_new_zzform_secret_key)
 		$zz_conf['int']['secret_key'] = zz_secret_key($idval);
 
-	// if conditions in $zz_conf['if'] -- check them
+	// if conditions in $zz['if'] -- check them
 	// get conditions if there are any, for access
 	$ops['list']['unchanged'] = []; // for old variables
 

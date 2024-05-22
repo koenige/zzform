@@ -24,7 +24,7 @@
  *	zz_conditions_list_check()		set conditions for list
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2010, 2013-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2010, 2013-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -60,12 +60,6 @@ function zz_conditions_set($zz) {
 				if (isset($zz[$cn][$sc['shortcut']])) {
 					$zz[$cn][$new_index] = $zz[$cn][$sc['shortcut']];
 					unset($zz[$cn][$sc['shortcut']]);
-					$sc['has_condition'] = true;
-				}
-				// check $zz_conf
-				if (isset($zz_conf[$cn][$sc['shortcut']])) {
-					$zz_conf[$cn][$new_index] = $zz_conf[$cn][$sc['shortcut']];
-					unset($zz_conf[$cn][$sc['shortcut']]);
 					$sc['has_condition'] = true;
 				}
 			}

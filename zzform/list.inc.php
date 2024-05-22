@@ -16,14 +16,14 @@
 /**
  * shows records in list view
  * 
- * displays table with records (limited by zz_conf['limit'])
- * displays add new record, record navigation (if zz_conf['limit'] = true)
+ * displays table with records (limited by setting `zzform_limit`)
+ * displays add new record, record navigation (if setting `zzform_limit` applies)
  * and search form below table
  * @param array $zz				table and field definition
  * @param array $list
  * @param array $ops			operation variables
  * @param array $zz_conditions	configuration variables
- * @global array $zz_conf		Main conifguration parameters, will be modified
+ * @global array $zz_conf		Main configuration parameters, will be modified
  * @return array				modification of $ops
  */
 function zz_list($zz, $list, $ops, $zz_conditions) {

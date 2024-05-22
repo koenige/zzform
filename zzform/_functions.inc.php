@@ -34,8 +34,6 @@
  * @return array $ops
  * @todo do not unset superglobals
  * @todo so far, we have no support for 'values' for subrecords
- * @todo zzform() and zzform_multi() called within an action-script
- * causes not all zz_conf variables to be reset
  */
 function zzform_multi($definition_file, $values, $type = 'tables') {
 	// unset all variables that are not needed
@@ -66,8 +64,6 @@ function zzform_multi($definition_file, $values, $type = 'tables') {
 	$int = $zz_conf['int'] ?? [];
 
 	zz_initialize('overwrite');
-	unset($zz_conf['if']);
-	unset($zz_conf['unless']);
 	$zz_conf['generate_output'] = false;
 	// set 'multi' so we know the operation mode for other scripts
 	$zz_conf['multi'] = true;

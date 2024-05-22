@@ -387,7 +387,7 @@ function zz_nice_title($heading, $fields, $ops, $mode = false) {
 			$page = $zz_conf['int']['this_limit'] / wrap_setting('zzform_limit');
 		else
 			$page = 1;
-		// in case someone writes manually limit=85 where conf['limit'] = 20
+		// in case someone writes manually limit=85 where `zzform_limit` = 20
 		// don't add limit to page title
 		if (is_int($page) AND $page AND !empty($ops['records_total'])) {
 			$max_page = ceil($ops['records_total'] / wrap_setting('zzform_limit'));

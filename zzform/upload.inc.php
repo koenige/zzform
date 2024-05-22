@@ -2050,7 +2050,7 @@ function zz_upload_action($zz_tab) {
 	// create path
 	// check if path exists, if not, create it
 	// check if file_exists, if true, move file to backup-directory,
-	//		if zz_conf says so
+	//		if setting says so
 	// no changes: move_uploaded_file to destination directory, write new 
 	//		filename to array in case this image will be needed later on 
 	// changes: move changed file to dest. directory
