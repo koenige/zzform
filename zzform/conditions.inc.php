@@ -80,9 +80,43 @@ function zz_conditions_set($zz) {
 			$new_index--;
 		}
 	}
+	// set WHERE conditions
+	foreach ($zz['conditions'] as $index => $condition) {
+		if (empty($condition['where_field'])) continue;
+		$zz['conditions'][$index]['where'] = zz_conditions_where($condition);
+	}
 	return $zz;
 }
 
+/**
+ * create a WHERE condition from where_field, where_value, where_value_not
+ *
+ * @param array $condition
+ * @return string
+ */
+function zz_conditions_where($condition) {
+	if (!empty($condition['where_values'])) {
+		return zz_conditions_where_values($condition['where_field'], $condition['where_values'], true);
+	} elseif (!empty($condition['where_values_not'])) {
+		return zz_conditions_where_values($condition['where_field'], $condition['where_values_not'], false);
+	}
+	return '';
+}
+
+function zz_conditions_where_values($field_name, $values, $equal) {
+	if (!is_array($values))
+		$values = [$values];
+	foreach ($values as $index => $value) {
+		if (is_numeric($value)) continue;
+		$values[$index] = sprintf('"%s"', $value);
+	}
+	if (count($values) === 1) {
+		$template = $equal ? '%s = %s' : '%s != %s';
+		return sprintf($template, $field_name, reset($values));
+	}
+	$template = $equal ? '%s IN (%s)' : '%s NOT IN (%s)';
+	return sprintf($template, $field_name, implode(',', $values));
+}
 
 /**
  * set conditions for 'field' array (main and detail records)
@@ -342,7 +376,7 @@ function zz_conditions_record_check($zz, $mode, $zz_conditions) {
 			break;
 		case 'record': // for form view (of saved records), list view comes later in zz_list() because requery of record 
 			$zz_conditions['bool'][$index] = [];
-			if (($mode === 'add' OR $zz['record']['action'] === 'insert') AND !empty($condition['add'])) {
+			if ($mode === 'add' OR $zz['record']['action'] === 'insert') {
 				if (!empty($condition['add']['where']) AND !$condition['where']) {
 					// where = '' is a means to make a condition always valid,
 					// this also works for add
@@ -366,26 +400,10 @@ function zz_conditions_record_check($zz, $mode, $zz_conditions) {
 					}
 					// check directly if where-condition equals where for record
 					$cond_fields = explode(' ', $condition['where']);
-					// 0: table.field_name or field_name
-					$cond_fields[0] = trim($cond_fields[0]);
-					if (strstr($cond_fields[0], '.')) {
-						$cond_fields[0] = substr($cond_fields[0], strlen($zz['table'])+1);
-					}
 					// 1: only = supported
 					if (empty($cond_fields[1]) OR trim($cond_fields[1]) !== '=') break;
-					// 2: value may be enclosed in ""
-					if (empty($cond_fields[2])) break;
-					$cond_fields[2] = trim($cond_fields[2]);
-					if (substr($cond_fields[2], 0, 1) === '"' AND substr($cond_fields[2], -1) === '"') {
-						$cond_fields[2] = substr($cond_fields[2], 1, -1);
-					}
-					if (!empty($zz['record']['where'][$zz['table']])) {
-						foreach ($zz['record']['where'][$zz['table']] as $field => $id) {
-							if ($field !== $cond_fields[0]) continue;
-							if ($id !== $cond_fields[2]) continue;
-							$zz_conditions['bool'][$index][0] = true;
-						}
-					}
+					$check = zz_conditions_where_check($zz, $cond_fields[0], $cond_fields[2] ?? false, true);
+					if ($check) $zz_conditions['bool'][$index][0] = true;
 				} elseif (!empty($condition['add']['always'])) {
 					// mode = 'add': this condition is always true
 					// (because condition is true for this record after being 
@@ -414,6 +432,15 @@ function zz_conditions_record_check($zz, $mode, $zz_conditions) {
 						}
 						if (zz_error_exit()) return zz_return($zz_conditions); // DB error
 					}
+				} elseif (!empty($condition['where_field'])) {
+					if (!empty($condition['where_values'])) {
+						$check = zz_conditions_where_check($zz, $condition['where_field'], $condition['where_values'], true);
+					} elseif (!empty($condition['where_values_not'])) {
+						$check = zz_conditions_where_check($zz, $condition['where_field'], $condition['where_values_not'], false);
+					} else {
+						$check = false;
+					}
+					if ($check) $zz_conditions['bool'][$index][0] = true;
 				}
 			}
 			if (empty($zz_conf['int']['id']['value'])) break;
@@ -565,6 +592,50 @@ function zz_conditions_record_check($zz, $mode, $zz_conditions) {
 		}
 	}
 	return zz_return($zz_conditions);
+}
+
+/**
+ * check if a field + value match WHERE condition of definition
+ * or if value is POSTed
+ *
+ * @param array $zz
+ * @param string $field_name
+ * @param mixed $values
+ * @param bool $equal
+ * @return bool
+ */
+function zz_conditions_where_check($zz, $field_name, $values, $equal) {
+	// prepare field name
+	$field_name = trim($field_name);
+	if (strstr($field_name, '.')) {
+		list ($table, $field_name) = explode('.', $field_name);
+	} else {
+		$table = $zz['table'];
+	}
+
+	// prepare values
+	if (!$values) return false;
+	if (!is_array($values)) $values = [$values];
+	foreach (array_keys($values) as $index) {
+		$values[$index] = trim($values[$index]);
+		// value may be enclosed in ""
+		$values[$index] = trim($values[$index], '"');
+	}
+
+	// get sources
+	$sources = [];
+	if (!empty($zz['record']['where'][$table]) AND array_key_exists($field_name, $zz['record']['where'][$table]))
+		$sources[] = $zz['record']['where'][$table][$field_name];
+	if ($table === $zz['table'] AND !empty($_POST) AND array_key_exists($field_name, $_POST))
+		$sources[] = $_POST[$field_name];
+
+	// @todo add support for zz_check_select
+	foreach ($sources as $value) {
+		if ($equal AND !in_array($value, $values)) continue;
+		if (!$equal AND in_array($value, $values)) continue;
+		return true;
+	}
+	return false;
 }
 
 /**
