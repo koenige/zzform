@@ -40,6 +40,7 @@ function mod_zzform_zzformmap($params, $settings) {
 		break;
 	case 'geojson':
 		$map['geojson'] = mod_zzform_zzformmap_url('geojson');
+		$map['no_further_information'] = isset($settings['access']) and $settings['access'] === 'show' ? true : false;
 		$page['text'] = wrap_template($settings['geo_map_html'], $map);
 		break;
 	default:
