@@ -26,61 +26,26 @@ function zz_sync($import) {
 	$post = $_SERVER['REQUEST_METHOD'] === 'POST' ? true : false;	// will be overwritten
 	$refresh = false;
 	
-	// set defaults global
-	if (!isset($import['show_but_no_import']))
-		$import['show_but_no_import'] = [];
-	if (!isset($import['deletable_script_url']))
-		$import['deletable_script_url'] = [];
-	$import['sync_records_per_run'] = wrap_setting('sync_records_per_run') * ($import['testing'] ? 1 : 10);
+	$import = zz_sync_defaults($import);
 
-	// limits
-	if (empty($_GET['limit'])) $import['limit'] = 0;
-	else $import['limit'] = zz_check_get_array('limit', 'is_int');
-	$import['end'] = $import['limit'] + $import['sync_records_per_run'];
-
-	$import_types = ['csv', 'sql'];
-	if (empty($import['type']) OR !in_array($import['type'], $import_types)) {
-		wrap_error(sprintf(
-			'Please set an import type via $import["type"]. Possible types are: %s',
-			implode(', ', $import_types)
-		), E_USER_ERROR);
+	if (isset($_GET['deletable'])) {
+		if (empty($import['deletable'])) wrap_quit(404, 'Deletions are not possible for this synchronization.');
+		return zz_sync_deletable($import);
 	}
 
 	switch ($import['type']) {
 	case 'csv':
-		// get source file
-		if (empty($import['filename'])) {
-			wrap_error('Please set an import filename via $import["filename"].', E_USER_ERROR);
-		}
-		$import['source'] = wrap_setting('cms_dir').'/_sync/'.$import['filename'];
 		if (!file_exists($import['source'])) {
 			$page['text'] = wrap_text('Import: File %s does not exist. '
 				.'Please set a different filename', ['values' => $import['source']]);
 			return $page;
 		}
-		// set defaults per file
-		if (!isset($import['comments']))
-			$import['comments'] = '#';
-		if (!isset($import['enclosure']))
-			$import['enclosure'] = '"';
-		if (!isset($import['delimiter']))
-			$import['delimiter'] = ',';
-		if (!isset($import['first_line_headers']))
-			$import['first_line_headers'] = true;
-		if (!isset($import['ignore_head_lines']))
-			$import['ignore_head_lines'] = 0;
-		if (!isset($import['static1']))
-			$import['static1'] = false;
-		if (!isset($import['key_concat']))
-			$import['key_concat'] = false;
-		if (isset($_GET['deletable'])) break;
 		list($raw, $i) = zz_sync_csv($import);
 		if ($i === $import['end']) {
 			$refresh = true;
 		}
 		break;
 	case 'sql':
-		if (isset($_GET['deletable'])) break;
 		$limit = $import['end'] - $import['limit'];
 		$sql = $import['source'];
 		$sql .= sprintf(' LIMIT %d, %d', $import['limit'], $limit);
@@ -96,14 +61,8 @@ function zz_sync($import) {
 			}
 		}
 		break;
-	default:
-		wrap_error('Please set an import type via <code>$import["type"]</code>.', E_USER_ERROR);
 	}
 
-	if (isset($_GET['deletable']) AND !empty($import['deletable'])) {
-		return zz_sync_deletable($import);
-	}
-	
 	if (empty($raw)) {
 		$page['query_string'] = 'limit';
 		$page['status'] = 404;
@@ -162,6 +121,61 @@ function zz_sync($import) {
 			wrap_setting('host_base'), parse_url(wrap_setting('request_uri'), PHP_URL_PATH), $import['end']);
 	}
 	return $page;
+}
+
+/**
+ * set default values for sync
+ *
+ * @param array $import
+ * @return array
+ */
+function zz_sync_defaults($import) {
+	if (!isset($import['show_but_no_import']))
+		$import['show_but_no_import'] = [];
+	if (!isset($import['deletable_script_url']))
+		$import['deletable_script_url'] = [];
+
+	$import['sync_records_per_run'] = wrap_setting('sync_records_per_run') * ($import['testing'] ? 1 : 10);
+
+	// limits
+	$import['limit'] = empty($_GET['limit']) ? 0 : zz_check_get_array('limit', 'is_int');
+	$import['end'] = $import['limit'] + $import['sync_records_per_run'];
+
+	if (!isset($import['type'])) $import['type'] = false;
+	switch ($import['type']) {
+	case 'csv':
+		// get source file
+		if (empty($import['filename']))
+			wrap_error('Please set an import filename via $import["filename"].', E_USER_ERROR);
+		$import['source'] = wrap_setting('cms_dir').'/_sync/'.$import['filename'];
+		// set defaults per file
+		if (!isset($import['comments']))
+			$import['comments'] = '#';
+		if (!isset($import['enclosure']))
+			$import['enclosure'] = '"';
+		if (!isset($import['delimiter']))
+			$import['delimiter'] = ',';
+		if (!isset($import['first_line_headers']))
+			$import['first_line_headers'] = true;
+		if (!isset($import['ignore_head_lines']))
+			$import['ignore_head_lines'] = 0;
+		if (!isset($import['static1']))
+			$import['static1'] = false;
+		if (!isset($import['key_concat']))
+			$import['key_concat'] = false;
+		break;
+	case 'sql':
+		break;
+	default:
+		wrap_error(
+			sprintf(
+				'Please set an import type via <code>$import["type"]</code>. Possible types are: %s'
+				, implode(', ', ['csv', 'sql'])
+			), E_USER_ERROR
+		);
+	}
+		
+	return $import;
 }
 
 /**
