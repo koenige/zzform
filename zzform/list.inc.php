@@ -898,6 +898,7 @@ function zz_list_query_flat($zz) {
  */
 function zz_list_query_extras($lines, $extra_sqls) {
 	global $zz_conf;
+	if (!$lines) return $lines;
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	if (!$extra_sqls) return $lines;
