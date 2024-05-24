@@ -1387,6 +1387,23 @@ function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
 		'error' => $zz_tab[$tab][$rec]['error'] ?? false,
 		'change_info' => $zz_tab[$tab][$rec]['change_info'] ?? false
 	];
+	if (!empty($zz_tab[$tab][$rec]['images'])) {
+		foreach ($zz_tab[$tab][$rec]['images'] as $no => $images) {
+			foreach ($images as $index => $image) {
+				if (!is_numeric($index)) continue;
+				$ops['uploads'][$index][] = [
+					'field_no' => $no,
+					'upload_index' => $index,
+					'tmp_name' => $image['upload']['tmp_name'] ?? $image['files']['tmp_file'] ?? NULL,
+					'size' => $image['upload']['size'] ?? NULL,
+					'validated' => $image['upload']['validated'] ?? NULL,
+					'filetype' => $image['upload']['filetype'] ?? NULL,
+					'error' => $image['upload']['error'] ?? NULL,
+				];
+			}
+		}
+	}
+
 	if ($type === 'return' AND $index === 0) {
 		// shortcut for ID
 		$ops['id'] = $ops['return'][0]['id_value'];
