@@ -1389,11 +1389,11 @@ function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
 	];
 	if (!empty($zz_tab[$tab][$rec]['images'])) {
 		foreach ($zz_tab[$tab][$rec]['images'] as $no => $images) {
-			foreach ($images as $index => $image) {
-				if (!is_numeric($index)) continue;
+			foreach ($images as $image_index => $image) {
+				if (!is_numeric($image_index)) continue;
 				$ops['uploads'][$index][] = [
 					'field_no' => $no,
-					'upload_index' => $index,
+					'upload_index' => $image_index,
 					'tmp_name' => $image['upload']['tmp_name'] ?? $image['files']['tmp_file'] ?? NULL,
 					'size' => $image['upload']['size'] ?? NULL,
 					'validated' => $image['upload']['validated'] ?? NULL,
