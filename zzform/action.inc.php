@@ -1399,6 +1399,7 @@ function zz_record_info($ops, $zz_tab, $tab = 0, $rec = 0, $type = 'return') {
 					'validated' => $image['upload']['validated'] ?? NULL,
 					'filetype' => $image['upload']['filetype'] ?? NULL,
 					'error' => $image['upload']['error'] ?? NULL,
+					'field_name' => $zz_tab[$tab][$rec]['fields'][$no]['field_name']
 				];
 			}
 		}
