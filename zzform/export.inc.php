@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -430,10 +430,10 @@ function zz_export_script($type) {
 	// script may reside in extra file
 	// if not, function has to exist already
 	$filename = sprintf('export-%s-%s', $type, $zz_conf['int']['export_script']);
-	$success = wrap_include_files('zzform/'.$filename, 'custom/active');
+	$success = wrap_include('zzform/'.$filename, 'custom/active');
 	if (!$success AND wrap_setting('active_module')) {
 		// look for export-[type], e. g. export-pdf.inc.php in module folder
-		$success = wrap_include_files('zzform/export-'.$type, 'active');
+		$success = wrap_include('zzform/export-'.$type, 'active');
 	}
 	if ($success AND !is_numeric(key($success))) {
 		$prefix = sprintf('mf_%s_', key($success)); // = module name

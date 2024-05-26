@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2022-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2022-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -51,8 +51,8 @@ function mod_zzform_make_sync($params) {
 		return $page;
 	} 
 
-	wrap_include_files('sync', 'zzform');
-	wrap_include_files('zzform/definition');
+	wrap_include('sync', 'zzform');
+	wrap_include('zzform/definition');
 	$page = zz_sync($data[$params[0]]);
 	$page['breadcrumbs'][]['title'] = $data[$params[0]]['title'];
 	return $page;

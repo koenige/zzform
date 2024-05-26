@@ -171,7 +171,7 @@ function zzform_include($file, $values = [], $type = 'tables', $brick = []) {
 		wrap_package_activate($package);
 
 	$path = 'zzform/%s.inc.php';
-	$common_files = wrap_include_files(sprintf($path, $type, $file));
+	wrap_include(sprintf($path, $type));
 	$definition = reset($files);
 	
 	global $zz_conf;
@@ -274,7 +274,7 @@ function zz_secret_id($mode, $id = '', $hash = '') {
  * @return array
  */
 function zzform_batch_def($table, $settings = []) {
-	wrap_include_files('zzform/definition');
+	wrap_include('zzform/definition');
 	
 	// error handling
 	$def['error_settings'] = [];

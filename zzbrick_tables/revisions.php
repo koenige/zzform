@@ -8,12 +8,12 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2016, 2019, 2021, 2023 Gustaf Mossakowski
+ * @copyright Copyright © 2016, 2019, 2021, 2023-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
 
-wrap_include_files('revisions', 'zzform');
+wrap_include('revisions', 'zzform');
 
 $zz['title'] = 'Revisions';
 $zz['table'] = '/*_PREFIX_*/_revisions';

@@ -52,7 +52,7 @@ function zzform_update_date($line, $table, $id_field_name, $field_name) {
  * @return int
  */
 function zzform_date_quality($date) {
-	wrap_include_files('validate', 'zzform');
+	wrap_include('validate', 'zzform');
 	$date = zz_check_date($date);
 	if (!$date) return 0;
 	if (str_ends_with($date, '-00-00')) return 1;

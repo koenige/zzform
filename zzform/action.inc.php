@@ -39,7 +39,7 @@
 function zz_action($ops, $zz_tab, $validation, $zz_record) {
 	global $zz_conf;
 	
-	wrap_include_files('zzform/editing', 'custom/active');
+	wrap_include('zzform/editing', 'custom/active');
 
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	$zz_tab[0]['record_action'] = false;
@@ -788,7 +788,7 @@ function zz_action_function($type, $ops, $zz_tab) {
 	}
 
 	if (!$hook_files)
-		$hook_files = wrap_include_files('zzform/hooks', 'custom/active');
+		$hook_files = wrap_include('zzform/hooks', 'custom/active');
 
 	$change = [];
 	foreach ($zz_tab[0]['hooks'][$type] as $hook) {
@@ -800,11 +800,11 @@ function zz_action_function($type, $ops, $zz_tab) {
 				// module hook
 				$module = explode('_', $hook);
 				$module = $module[1];
-				wrap_include_files('zzform/hooks', $module);
+				wrap_include('zzform/hooks', $module);
 			} else {
 				$file = str_replace('_', '-', $hook);
 				if (str_starts_with($file, 'my-')) $file = substr($file, 3);
-				wrap_include_files('zzform/'.$file, 'custom');
+				wrap_include('zzform/'.$file, 'custom');
 			}
 			$found = true;
 			if (!function_exists($hook)) {

@@ -33,7 +33,7 @@ function zzform($zz) {
 	if (!empty($_GET['request'])) return zzform_exit(zzform_request());
 
 	if (isset($_POST['zz_multifunction'])) {
-		wrap_include_files('zzform/multi', 'custom/active');
+		wrap_include('zzform/multi', 'custom/active');
 		$index = key($_POST['zz_multifunction']);
 		$function = $zz['list']['multi_function'][$index]['function'];
 		$_POST['zz_record_id'] = $_POST['zz_record_id'] ?? [];
@@ -806,7 +806,7 @@ function zzform_post_too_big() {
  * includes required files for zzform
  */
 function zzform_includes() {
-	wrap_include_files('zzform/definition'); // also done in zzbrick/form, here for zzform_multi()
+	wrap_include('zzform/definition'); // also done in zzbrick/form, here for zzform_multi()
 	require_once __DIR__.'/functions.inc.php';
 	require_once __DIR__.'/database.inc.php';
 }
