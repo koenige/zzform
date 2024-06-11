@@ -2256,11 +2256,19 @@ function zz_field_number($field, $display, $record, $dont_reformat) {
 	$value = $record ? $record[$field['field_name']] : '';
 	$suffix = false;
 	$formtype = 'text';
+	$fieldattr = [];
 
 	if (!isset($field['number_type'])) $field['number_type'] = false;
 	switch ($field['number_type']) {
 	case 'bytes':
 		// do not reformat bytes as it will result in a loss of information
+		break;
+	case 'range':
+		$formtype = 'range';
+		$num = zz_check_number($value);
+		if ($num.'' === '0') $value = 0;
+		else $value = intval($value);
+		$fieldattr['step'] = $field['step'] ?? 1;
 		break;
 	case 'latitude':
 	case 'longitude':
@@ -2300,7 +2308,6 @@ function zz_field_number($field, $display, $record, $dont_reformat) {
 	if ($display !== 'form') return zz_htmltag_escape($value, ENT_QUOTES).$suffix;
 
 	// return form element
-	$fieldattr = [];
 	$fieldattr['size'] = $field['size'];
 	$fieldattr['placeholder'] = $field['placeholder'];
 	if ($field['required']) $fieldattr['required'] = true;
@@ -2310,11 +2317,11 @@ function zz_field_number($field, $display, $record, $dont_reformat) {
 		$fieldattr['minlength'] = $field['minlength'];
 	if (isset($field['max'])) {
 		$fieldattr['max'] = $field['max'];
-		$formtype = 'number';
+		if ($formtype !== 'range') $formtype = 'number';
 	}
 	if (isset($field['min'])) {
 		$fieldattr['min'] = $field['min'];
-		$formtype = 'number';
+		if ($formtype !== 'range') $formtype = 'number';
 	}
 	if (!empty($field['pattern'])) $fieldattr['pattern'] = $field['pattern'];
 	$text = zz_form_element($field['f_field_name'], $value, $formtype, true, $fieldattr);
