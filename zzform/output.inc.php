@@ -1013,6 +1013,9 @@ function zz_number_format($value, $field) {
 		$text = number_format($value, $decimals, wrap_setting('decimal_point'), wrap_setting('thousands_separator'));
 		$text = str_replace(' ', '&nbsp;', $text);
 		break;
+	case 'rating':
+		$text = zz_rating_format($value, $field);
+		break;
 	default:
 		$text = $value;
 		break;
@@ -1107,6 +1110,18 @@ function zz_username_format($value, $field) {
 	if (empty($field['url'])) return '@'.$value;
 	$url = sprintf($field['url'], $value);
 	return sprintf('<a href="%s">@%s</a>', $url, $value);
+}
+
+/**
+ * format a star rating
+ *
+ * @param string $value
+ * @return string
+ */
+function zz_rating_format($value, $field) {
+	wrap_include('record', 'zzform');
+	$record[$field['field_name']] = $value;
+	return zz_field_rating($field, 'review', $record);
 }
 
 /**

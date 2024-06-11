@@ -2270,6 +2270,8 @@ function zz_field_number($field, $display, $record, $dont_reformat) {
 		else $value = intval($value);
 		$fieldattr['step'] = $field['step'] ?? 1;
 		break;
+	case 'rating':
+		return zz_field_rating($field, $display, $record);
 	case 'latitude':
 	case 'longitude':
 		if (!$record) break;
@@ -2326,6 +2328,37 @@ function zz_field_number($field, $display, $record, $dont_reformat) {
 	if (!empty($field['pattern'])) $fieldattr['pattern'] = $field['pattern'];
 	$text = zz_form_element($field['f_field_name'], $value, $formtype, true, $fieldattr);
 	return $text.$suffix;
+}
+
+/**
+ * record output of field type 'number', number_type rating
+ *
+ * @param array $field
+ * @param string $display
+ * @param array $record
+ * @return string
+ */
+function zz_field_rating($field, $display, $record) {
+	$value = $record[$field['field_name']] ?? 0;
+	$value = intval($value);
+
+	$text = [];
+	$symbols = $field['max'] ?? wrap_setting('zzform_rating_max');
+	for ($i = 1; $i <= $symbols; $i++) {
+		if ($display !== 'form') {
+			$class = $i <= $value ? ' class="ratingselected"' : '';
+			$text[] = sprintf('<label%s><span>%s</span></label>', $class, wrap_setting('zzform_rating_symbol'));
+		} else {
+			$fieldattr = [
+				'id' => zz_make_id_fieldname($field['f_field_name'].'_'.$i),
+				'checked' => $value === $i ? true : false,
+				'title' => $i
+			];
+			$input = zz_form_element($field['f_field_name'], $i, 'radio', true, $fieldattr);
+			$text[] = sprintf('<label>%s<span>%s</span></label>', $input, wrap_setting('zzform_rating_symbol'));
+		}
+	}
+	return sprintf('<div class="zz_rating">%s</div>', implode("\n", $text));
 }
 
 /**

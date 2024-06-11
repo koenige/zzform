@@ -7,7 +7,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright (c) 2005-2011, 2014, 2016-2017, 2020, 2023 Gustaf Mossakowski
+ * @copyright Copyright (c) 2005-2011, 2014, 2016-2017, 2020, 2023-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -82,3 +82,15 @@ body #zzform .separator hr
 /* Media */
 #zzform ul.data li	{ max-width: 126px; height: 225px; }
 #zzform ul.data img	{ width: 120px; height: 120px; object-fit: cover; }
+
+
+/* record view, rating field */
+#zzform .zz_rating label
+				{ color: grey; }
+#zzform .zz_rating label:has(input:focus-visible) span
+				{ background: black; }
+#zzform .zz_rating label:is(:has(> input:checked), :has(~ label > input:checked)),
+#zzform .zz_rating label.ratingselected
+				{ color: gold; }
+#zzform .zz_rating label:is(:has(> input:hover), :has(~ label > input:hover))
+				{ color: goldenrod; }
