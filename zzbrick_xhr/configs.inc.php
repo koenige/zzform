@@ -28,8 +28,10 @@ function mod_zzform_xhr_configs($xmlHttpRequest, $zz) {
 	$limit = $xmlHttpRequest['limit'] + 1;
 	
 	// might be forms, request, ... => process usual way and get script name from there
-	$field_no = isset($_GET['field_no']) ? intval($_GET['field_no']) : '';
-	$subtable_no = isset($_GET['subtable_no']) ? intval($_GET['subtable_no']) : '';
+	$field_no = $_GET['field_no'] ?? 0;
+	if (!wrap_is_int($field_no)) return brick_xhr_error(400, 'Malformed field number: %s', $field_no);
+	$subtable_no = $_GET['subtable_no'] ?? 0;
+	if (!wrap_is_int($subtable_no)) return brick_xhr_error(400, 'Malformed subtable number: %s', $subtable_no);
 	$unrestricted = !empty($_GET['unrestricted']) ? true : false;
 
 	// @todo use part of zzform to check access rights
