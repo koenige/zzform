@@ -430,15 +430,17 @@ function zz_export_script($type) {
 	// script may reside in extra file
 	// if not, function has to exist already
 	$filename = sprintf('export-%s-%s', $type, $zz_conf['int']['export_script']);
-	$success = wrap_include('zzform/'.$filename, 'custom/active');
-	if (!$success AND wrap_setting('active_module')) {
+	$files = wrap_include('zzform/'.$filename, 'custom/active');
+	if (!$files AND wrap_setting('active_module')) {
 		// look for export-[type], e. g. export-pdf.inc.php in module folder
-		$success = wrap_include('zzform/export-'.$type, 'active');
+		$files = wrap_include('zzform/export-'.$type, 'active');
 	}
-	if ($success AND !is_numeric(key($success))) {
-		$prefix = sprintf('mf_%s_', key($success)); // = module name
+	if ($files) {
+		$package = key($files['packages']);
+		if ($package !== 'custom')
+			$prefix = sprintf('mf_%s_', $package);
 	}
-	
+
 	// check if custom function exists
 	$function = sprintf('%sexport_%s_%s'
 		, $prefix, $type, str_replace('-', '_', $zz_conf['int']['export_script'])
