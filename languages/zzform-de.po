@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.4.2\n"
+"X-Generator: Poedit 3.4.4\n"
 
 # Number of records as shown in page TITLE
 # Page elements
@@ -1147,3 +1147,14 @@ msgstr "Bytes"
 #: zzform/action.inc.php
 msgid "The number %d is too high. Maximum value is %d."
 msgstr "Die Zahl %d ist zu hoch. Der maximale Wert ist %d."
+
+#: zzform/export.inc.php
+msgid "The required %s export function <code>%s()</code> does not exist."
+msgstr "Die erforderliche %s-Exportfunktion <code>%s()</code> existiert nicht."
+
+#: zzform/export.inc.php
+msgid ""
+"Standard %s export support is not supported. Please use a custom script."
+msgstr ""
+"Der Standard-%s-Export wird nicht unterstützt. Bitte verwenden Sie ein "
+"eigenes Skript."

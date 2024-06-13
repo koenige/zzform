@@ -1060,3 +1060,11 @@ msgstr ""
 #: zzform/action.inc.php
 msgid "The number %d is too high. Maximum value is %d."
 msgstr ""
+
+#: zzform/export.inc.php
+msgid "The required %s export function <code>%s()</code> does not exist."
+msgstr ""
+
+#: zzform/export.inc.php
+msgid "Standard %s export support is not supported. Please use a custom script."
+msgstr ""

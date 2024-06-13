@@ -193,13 +193,11 @@ function zz_export($ops, $zz, $list) {
 		$headers['filename'] = $filename.'.csv';
 		return wrap_send_text($output, 'csv', 200, $headers);
 	case 'pdf':
-		// no script is defined: standard PDF output
-		echo 'Sorry, standard PDF support is not yet available. Please use a custom script.';
-		exit;
 	case 'zip':
-		// no script is defined: standard ZIP output
-		echo 'Sorry, standard ZIP support is not yet available. Please use a custom script.';
-		exit;
+		wrap_quit(503, wrap_text(
+			'Standard %s export support is not supported. Please use a custom script.',
+			['values' => [strtoupper($list['display'])]]
+		));
 	case 'kml':
 		wrap_setting('character_set', 'utf-8');
 		$output = zz_export_kml($ops, $zz);
@@ -446,9 +444,10 @@ function zz_export_script($type) {
 		, $prefix, $type, str_replace('-', '_', $zz_conf['int']['export_script'])
 	);
 	if (!function_exists($function)) {
-		echo 'Sorry, the required custom '.strtoupper($type).' export function <code>'
-			.$function.'()</code> does not exist.';
-		exit;
+		wrap_quit(503, wrap_text(
+			'The required %s export function <code>%s()</code> does not exist.',
+			['values' => [strtoupper($type), $function]]
+		));
 	}
 	return $function;
 }
