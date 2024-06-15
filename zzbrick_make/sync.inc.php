@@ -34,8 +34,6 @@ function mod_zzform_make_sync($params) {
 
 	wrap_include('sync', 'zzform');
 	wrap_include('zzform/definition');
-	foreach (array_keys($data) as $identifier)
-		$data[$identifier] += zz_sync_queries($identifier);
 	$page = zz_sync($data[$params[0]]);
 	$page['breadcrumbs'][]['title'] = $data[$params[0]]['title'];
 	return $page;

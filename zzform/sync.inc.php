@@ -25,6 +25,9 @@
 function zz_sync($setting) {
 	$post = $_SERVER['REQUEST_METHOD'] === 'POST' ? true : false;	// will be overwritten
 	$refresh = false;
+
+	if (!empty($setting['identifier']))
+		$setting += zz_sync_queries($setting['identifier']);
 	
 	$setting = zz_sync_defaults($setting);
 
