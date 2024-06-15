@@ -25,6 +25,7 @@
 function zz_sync($setting) {
 	$post = $_SERVER['REQUEST_METHOD'] === 'POST' ? true : false;	// will be overwritten
 	$refresh = false;
+	wrap_include('batch', 'zzform');
 
 	if (!empty($setting['identifier']))
 		$setting += zz_sync_queries($setting['identifier']);
@@ -135,17 +136,13 @@ function zz_sync_queries($identifier) {
 
 	if (!array_key_exists($identifier, $queries)) return [];
 	$queries = $queries[$identifier];
+	$queries = wrap_sql_placeholders($queries);
 
 	// get ids
 	$ids = [];
 	foreach ($queries as $key => $query) {
 		if (!str_starts_with($key, 'static')) continue;
 		unset($queries[$key]);
-		if (strstr($query, ' = /*_ID')) {
-			list($qkey, $qvalue) = explode(' = ', $query);
-			$ids[] = $qkey;
-		}
-		$query = wrap_sql_placeholders($query);
 		list($field_name, $value) = explode(' = ', $query);
 		$field_name = trim($field_name);
 		$value = trim($value);
@@ -153,8 +150,6 @@ function zz_sync_queries($identifier) {
 		$value = trim($value, '"');
 		$queries['static'][$field_name] = $value;
 	}
-	if ($ids)
-		$queries['ids'] = $ids;
 
 	// get field
 	foreach ($queries as $key => $query) {
@@ -214,9 +209,7 @@ function zz_sync_defaults($setting) {
 		wrap_error('Please set which fields should be imported in `fields`.', E_USER_ERROR);	
 	if (empty($setting['form_script']))
 		wrap_error('Please tell us the name of the form script in `form_script`.', E_USER_ERROR);	
-	if (empty($setting['id_field_name']))
-		wrap_error('Please set the id field name of the table in `id_field_name`.', E_USER_ERROR);	
-		
+
 	return $setting;
 }
 
@@ -335,70 +328,59 @@ function zz_sync_zzform($raw, $setting) {
 
 	// get existing keys from database
 	$ids = zz_sync_ids($raw, $setting['existing']);
+	$def = zzform_batch_def($setting['form_script']);
 
-	foreach ($raw as $identifier => $line) {
-		$values = [];
-		$values['POST'] = [];
+	foreach ($raw as $identifier => $line_raw) {
+		$line = [];
 		foreach ($setting['fields'] as $pos => $field_name) {
 			// don't delete field values if ignore_if_null is set
 			if (in_array($pos, $setting['ignore_if_null'])
-				AND empty($line[$pos]) AND $line[$pos] !== 0 AND $line[$pos] !== '0') continue;
+				AND empty($line_raw[$pos]) AND $line_raw[$pos] !== 0 AND $line_raw[$pos] !== '0') continue;
 			// do nothing if value is NULL
-			if (!isset($line[$pos])) continue;
+			if (!isset($line_raw[$pos])) continue;
 			$fields = [];
 			if (!empty($setting['function'][$pos])) {
-				$fields[$field_name] = $setting['function'][$pos]($line[$pos]);
+				$fields[$field_name] = $setting['function'][$pos]($line_raw[$pos]);
 			} elseif (strstr($field_name, '+') AND !empty($setting['split_function'][$pos])) {
 				// @todo error handling
 				$field_names = explode('+', $field_name);
-				$my_values = $setting['split_function'][$pos](trim($line[$pos]));
+				$my_values = $setting['split_function'][$pos](trim($line_raw[$pos]));
 				foreach ($field_names as $field_name) {
 					$fields[$field_name] = array_shift($my_values);
 				}
 			} else {
-				$fields[$field_name] = trim($line[$pos]);
+				$fields[$field_name] = trim($line_raw[$pos]);
 			}
 			foreach ($fields as $field_name => $value) {
 				$head[$field_name] = $field_name;
 				$testing[$identifier][$field_name] = $value;
 				if (!in_array($pos, $setting['show_but_no_import']))
-					$values['POST'] = zz_check_values($values['POST'], $field_name, $value);
+					$line = zz_check_values($line, $field_name, $value);
 			}
 		}
 		// static values to sync
 		foreach ($setting['static'] as $field_name => $value) {
 			$head[$field_name] = $field_name;
 			$testing[$identifier][$field_name] = $value;
-			$values['POST'] = zz_check_values($values['POST'], $field_name, $value);
+			$line = zz_check_values($line, $field_name, $value);
 		}
 		if (!empty($ids[$identifier])) {
-			$testing[$identifier]['_action'] = $values['action'] = 'update';
-			$values['GET']['where'][$setting['id_field_name']] = $ids[$identifier];
+			$testing[$identifier]['_action'] = 'update';
 			$testing[$identifier]['_id'] = $ids[$identifier];
+			$line[$def['primary_key']] = $ids[$identifier];
 		} else {
-			$testing[$identifier]['_action'] = $values['action'] = 'insert';
+			$testing[$identifier]['_action'] = 'insert';
 			$testing[$identifier]['_insert'] = true;
 		}
 		if ($_SERVER['REQUEST_METHOD'] !== 'POST') continue;
-		$values['ids'] = $setting['ids'];
-		$ops = zzform_multi($setting['form_script'], $values);
-		if ($ops['id']) {
-			$ids[$identifier] = $ops['id'];
-		}
-		if ($ops['result'] === 'successful_insert') {
-			$inserted++;
-		} elseif ($ops['result'] === 'successful_update') {
-			$updated++;
-		} elseif (!$ops['id']) {
-			if ($ops['error']) {
-				foreach ($ops['error'] as $error) {
-					$errors[] = sprintf('Record "%s": ', $identifier).$error;
-				}
-			} else {
-				$errors[] = 'Unknown error: '.$ops['output'];
-			}
+		if ($testing[$identifier]['_action'] === 'update') {
+			$success = zzform_update($setting['form_script'], $line);
+			if ($success) $updated++;
+			else $nothing++;
 		} else {
-			$nothing++;
+			$success = zzform_insert($setting['form_script'], $line);
+			if ($success) $inserted++;
+			else $nothing++;
 		}
 	}
 	$testing['head'] = $head ?? [];
@@ -471,13 +453,14 @@ function zz_sync_line_errors($line, $fields) {
  */
 function zz_sync_list($testing, $setting) {
 	// get head
-	$def = zzform_include($setting['form_script']);
+	$def = zzform_batch_def($setting['form_script']);
+
 	$head = zz_sync_fields($def['fields'], $testing['head']);
 	$field_names = [];
 	$foreign_keys = [];
-	$foreign_keys[$def['table']] = $def['fields'][1]['field_name'];
+	$foreign_keys[$def['table']] = $def['primary_key'];
 	$id_fields = [];
-	$id_fields[$def['table']] = $def['fields'][1]['field_name'];
+	$id_fields[$def['table']] = $def['primary_key'];
 	foreach ($head as $field) {
 		if (empty($field['field_name'])) continue;
 		$table = $field['table'] ?? $def['table'];
@@ -510,11 +493,11 @@ function zz_sync_list($testing, $setting) {
 		$sql = 'SELECT %s
 			FROM %s
 			WHERE %s IN (%s)';
-		$sql = sprintf($sql,
-			implode(', ', $fnames),
-			$table,
-			$def['fields'][1]['field_name'],
-			implode(',', $ids)
+		$sql = sprintf($sql
+			, implode(', ', $fnames)
+			, $table
+			, $def['primary_key']
+			, implode(',', $ids)
 		);
 		if ($id_fields[$table] === $foreign_keys[$table]) {
 			$existing[$table] = wrap_db_fetch($sql, $id_fields[$table]);
@@ -608,6 +591,7 @@ function zz_sync_fields($fields, $old_head) {
 			$table_name = $field['table_name'] ?? $field['table'];
 			$foreign_key = false;
 			foreach ($field['fields'] as $subno => $subfield) {
+				if (!$subfield) continue;
 				if (!empty($subfield['type'])) {
 					switch ($subfield['type']) {
 					case 'foreign_key':
@@ -648,6 +632,7 @@ function zz_sync_fields($fields, $old_head) {
  */
 function zz_sync_deletable($setting) {
 	$data = [];
+	$def = zzform_batch_def($setting['form_script']);
 
 	switch ($setting['type']) {
 	case 'csv':
@@ -665,7 +650,7 @@ function zz_sync_deletable($setting) {
 		$i = 0;
 		$j++;
 		foreach ($record as $field_name => $value) {
-			if ($field_name === $setting['id_field_name']) {
+			if ($field_name === $def['primary_key']) {
 				$data[$index]['_id'] = $value;
 			} else {
 				$data['head'][$field_name]['field_name'] = $field_name;
