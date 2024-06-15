@@ -568,7 +568,7 @@ function zz_sync_list($testing, $setting) {
 		$testing[$index]['identical'] = $identical;
 		$testing[$index]['no'] = $j;
 		$testing[$index]['index'] = $index;
-		$testing[$index]['script_url'] = $setting['script_url'];
+		$testing[$index]['script_url'] = zz_sync_script_url($setting);
 	}
 	foreach ($missing_fields as $field) {
 		wrap_error(wrap_text('Field %s is missing in table definiton.', ['values' => [$field]]));
@@ -677,7 +677,7 @@ function zz_sync_deletable($setting) {
 			}
 		}
 		$data[$index]['no'] = $j;
-		$data[$index]['script_url'] = $setting['script_url'];
+		$data[$index]['script_url'] = zz_sync_script_url($setting);
 	}
 	if (!empty($data['head'])) $data['head'] = array_values($data['head']);
 	if (!$data) $data['no_deletable_records'] = true;
@@ -705,4 +705,15 @@ function zz_sync_ids($raw, $query, $format = 'key/value') {
 	$sql = sprintf($query, $keys);
 	$ids = wrap_db_fetch($sql, '_dummy_', $format);
 	return $ids;
+}
+
+/**
+ * create script URL
+ *
+ * @param array $setting
+ * @return string
+ */
+function zz_sync_script_url($setting) {
+	if ($setting['script_path']) return wrap_path($setting['script_path']);
+	return $setting['script_url'];
 }
