@@ -16,40 +16,40 @@
 /**
  * Sync some data with other database content
  *
- * @param array $import
+ * @param array $setting
  *		int		'limit'
  *		int		'end'
  *		string	'type' (csv, sql)
  * @return array
  */
-function zz_sync($import) {
+function zz_sync($setting) {
 	$post = $_SERVER['REQUEST_METHOD'] === 'POST' ? true : false;	// will be overwritten
 	$refresh = false;
 	
-	$import = zz_sync_defaults($import);
+	$setting = zz_sync_defaults($setting);
 
 	if (isset($_GET['deletable'])) {
-		if (empty($import['deletable'])) wrap_quit(404, 'Deletions are not possible for this synchronization.');
-		return zz_sync_deletable($import);
+		if (empty($setting['deletable'])) wrap_quit(404, 'Deletions are not possible for this synchronization.');
+		return zz_sync_deletable($setting);
 	}
 
-	switch ($import['type']) {
+	switch ($setting['type']) {
 	case 'csv':
-		if (!file_exists($import['source'])) {
+		if (!file_exists($setting['source'])) {
 			$page['text'] = wrap_text('Import: File %s does not exist. '
-				.'Please set a different filename', ['values' => $import['source']]);
+				.'Please set a different filename', ['values' => $setting['source']]);
 			return $page;
 		}
-		list($raw, $i) = zz_sync_csv($import);
-		if ($i === $import['end']) {
+		list($raw, $i) = zz_sync_csv($setting);
+		if ($i === $setting['end']) {
 			$refresh = true;
 		}
 		break;
 	case 'sql':
-		$limit = $import['end'] - $import['limit'];
-		$sql = $import['source'];
-		$sql .= sprintf(' LIMIT %d, %d', $import['limit'], $limit);
-		$raw = wrap_db_fetch($sql, $import['import_id_field_name']);
+		$limit = $setting['end'] - $setting['limit'];
+		$sql = $setting['source'];
+		$sql .= sprintf(' LIMIT %d, %d', $setting['limit'], $limit);
+		$raw = wrap_db_fetch($sql, $setting['import_id_field_name']);
 		if (count($raw) === $limit) {
 			$refresh = true;
 		}
@@ -71,11 +71,11 @@ function zz_sync($import) {
 	}
 
 	// sync data
-	list($updated, $inserted, $nothing, $errors, $testing) = zz_sync_zzform($raw, $import);
+	list($updated, $inserted, $nothing, $errors, $testing) = zz_sync_zzform($raw, $setting);
 
 	// output results
 	$lines = [];
-	$lines[] = wrap_text('Processing entries %s–%s …', ['values' => [$import['limit'] + 1, $import['end']]]);
+	$lines[] = wrap_text('Processing entries %s–%s …', ['values' => [$setting['limit'] + 1, $setting['end']]]);
 	if ($updated)
 		$lines[] = wrap_text('%d updates were made.', ['values' => $updated]);
 	if ($inserted)
@@ -92,9 +92,9 @@ function zz_sync($import) {
 	}
 	if ($testing) {
 		if (!$post) {
-			$lines[] = zz_sync_list($testing, $import);
+			$lines[] = zz_sync_list($testing, $setting);
 		} elseif ($refresh) {
-			$lines[] = sprintf('<a href="?limit=%s">%s</a>', $import['end'], wrap_text('Go on to next page'));
+			$lines[] = sprintf('<a href="?limit=%s">%s</a>', $setting['end'], wrap_text('Go on to next page'));
 		} else {
 			$lines[] = sprintf('<a href="?deletable">%s</a>', wrap_text('Possibly deletable records'));
 		}
@@ -118,7 +118,7 @@ function zz_sync($import) {
 	if ($refresh) {
 		$page['head'] = sprintf("\t".'<meta http-equiv="refresh" content="%s; URL=%s%s?limit=%s">'."\n",
 			wrap_setting('sync_page_refresh'), 
-			wrap_setting('host_base'), parse_url(wrap_setting('request_uri'), PHP_URL_PATH), $import['end']);
+			wrap_setting('host_base'), parse_url(wrap_setting('request_uri'), PHP_URL_PATH), $setting['end']);
 	}
 	return $page;
 }
@@ -126,62 +126,74 @@ function zz_sync($import) {
 /**
  * set default values for sync
  *
- * @param array $import
+ * @param array $setting
  * @return array
+ * @todo solve this via .cfg file
  */
-function zz_sync_defaults($import) {
-	if (!isset($import['show_but_no_import']))
-		$import['show_but_no_import'] = [];
-	if (!isset($import['deletable_script_url']))
-		$import['deletable_script_url'] = [];
+function zz_sync_defaults($setting) {
+	if (!isset($setting['show_but_no_import']))
+		$setting['show_but_no_import'] = [];
+	if (!isset($setting['deletable_script_url']))
+		$setting['deletable_script_url'] = [];
 
-	$import['sync_records_per_run'] = wrap_setting('sync_records_per_run') * ($import['testing'] ? 1 : 10);
+	$setting['sync_records_per_run'] = wrap_setting('sync_records_per_run') * ($setting['testing'] ? 1 : 10);
 
 	// limits
-	$import['limit'] = empty($_GET['limit']) ? 0 : zz_check_get_array('limit', 'is_int');
-	$import['end'] = $import['limit'] + $import['sync_records_per_run'];
+	$setting['limit'] = empty($_GET['limit']) ? 0 : zz_check_get_array('limit', 'is_int');
+	$setting['end'] = $setting['limit'] + $setting['sync_records_per_run'];
 
-	if (!isset($import['type'])) $import['type'] = false;
-	switch ($import['type']) {
+	if (!isset($setting['type'])) $setting['type'] = false;
+	switch ($setting['type']) {
 	case 'csv':
 		// get source file
-		if (empty($import['filename']))
-			wrap_error('Please set an import filename via $import["filename"].', E_USER_ERROR);
-		$import['source'] = wrap_setting('cms_dir').'/_sync/'.$import['filename'];
+		if (empty($setting['filename']))
+			wrap_error('Please set an import filename via $setting["filename"].', E_USER_ERROR);
+		$setting['source'] = wrap_setting('cms_dir').'/_sync/'.$setting['filename'];
 		// set defaults per file
-		if (!isset($import['comments']))
-			$import['comments'] = '#';
-		if (!isset($import['enclosure']))
-			$import['enclosure'] = '"';
-		if (!isset($import['delimiter']))
-			$import['delimiter'] = ',';
-		if (!isset($import['first_line_headers']))
-			$import['first_line_headers'] = true;
-		if (!isset($import['ignore_head_lines']))
-			$import['ignore_head_lines'] = 0;
-		if (!isset($import['static1']))
-			$import['static1'] = false;
-		if (!isset($import['key_concat']))
-			$import['key_concat'] = false;
+		if (!isset($setting['comments']))
+			$setting['comments'] = '#';
+		if (!isset($setting['enclosure']))
+			$setting['enclosure'] = '"';
+		if (!isset($setting['delimiter']))
+			$setting['delimiter'] = ',';
+		if (!isset($setting['first_line_headers']))
+			$setting['first_line_headers'] = true;
+		if (!isset($setting['ignore_head_lines']))
+			$setting['ignore_head_lines'] = 0;
+		if (!isset($setting['static1']))
+			$setting['static1'] = false;
+		if (!isset($setting['key_concat']))
+			$setting['key_concat'] = false;
 		break;
 	case 'sql':
 		break;
 	default:
 		wrap_error(
 			sprintf(
-				'Please set an import type via <code>$import["type"]</code>. Possible types are: %s'
+				'Please set an import type via <code>$setting["type"]</code>. Possible types are: %s'
 				, implode(', ', ['csv', 'sql'])
 			), E_USER_ERROR
 		);
 	}
+
+	if (empty($setting['existing']))
+		wrap_error('Please define a query for the existing records in the database with -- identifier_existing --.', E_USER_ERROR);
+	if (empty($setting['fields']))
+		wrap_error('Please set which fields should be imported in $setting["fields"].', E_USER_ERROR);	
+	if (empty($setting['form_script']))
+		wrap_error('Please tell us the name of the form script in $setting["form_script"].', E_USER_ERROR);	
+	if (empty($setting['id_field_name']))
+		wrap_error('Please set the id field name of the table in $setting["id_field_name"].', E_USER_ERROR);	
+	if (empty($setting['ignore_if_null']))
+		$setting['ignore_if_null'] = [];
 		
-	return $import;
+	return $setting;
 }
 
 /**
  * Sync data from CSV file with database content
  *
- * @param array $import
+ * @param array $setting
  *		string	'source' = local filename of import file
  *		string	'delimiter' = delimiter of fields
  *		string	'enclosure' = enclosure of field value
@@ -189,54 +201,53 @@ function zz_sync_defaults($import) {
  *		string	'comments' = character that marks commenting lines
  * @return array $raw
  */
-function zz_sync_csv($import) {
+function zz_sync_csv($setting) {
 	// open CSV file
 	$i = 0;
 	$first = false;
-	$handle = fopen($import['source'], "r");
+	$handle = fopen($setting['source'], "r");
 
-	if (!isset($import['key'])) {
-		wrap_error('Please set one or more fields as key fields in $import["key"].', E_USER_ERROR);
-	}
+	if (!isset($setting['key']))
+		wrap_error('Please set one or more fields as key fields in $setting["key"].', E_USER_ERROR);
 
 	$processed = 0;
 	while (!feof($handle)) {
-		$line = fgetcsv($handle, 8192, $import['delimiter'], $import['enclosure']);
+		$line = fgetcsv($handle, 8192, $setting['delimiter'], $setting['enclosure']);
 		$line_complete = $line;
 		// ignore empty lines
 		if (!$line) continue;
 		if (!trim(implode('', $line))) continue;
 		// ignore comments
-		if ($import['ignore_head_lines']) {
-			$import['ignore_head_lines']--;
+		if ($setting['ignore_head_lines']) {
+			$setting['ignore_head_lines']--;
 			continue;
 		}
-		if ($import['comments']) {
-			if (substr($line[0], 0, 1) == $import['comments']) continue;
+		if ($setting['comments']) {
+			if (substr($line[0], 0, 1) == $setting['comments']) continue;
 		}
 		// ignore first line = field names
-		if ($import['first_line_headers'] AND !$i AND !$first) {
+		if ($setting['first_line_headers'] AND !$i AND !$first) {
 			$first = true;
 			continue;
 		}
 		// start counting lines
 		$i++;
 		// ignore lines that were already processed
-		if ($i <= $import['limit']) continue;
+		if ($i <= $setting['limit']) continue;
 		// do not import some fields which should be ignored
-		if (!empty($import['ignore_fields'])) {
-			foreach ($import['ignore_fields'] as $no) unset($line[$no]);
+		if (!empty($setting['ignore_fields'])) {
+			foreach ($setting['ignore_fields'] as $no) unset($line[$no]);
 		}
 		// save lines in $raw
 		foreach (array_keys($line) AS $id) {
 			$line[$id] = trim($line[$id]);
-			if (empty($line[$id]) AND isset($import['empty_fields_use_instead'][$id])) {
-				$line[$id] = trim($line_complete[$import['empty_fields_use_instead'][$id]]);
+			if (empty($line[$id]) AND isset($setting['empty_fields_use_instead'][$id])) {
+				$line[$id] = trim($line_complete[$setting['empty_fields_use_instead'][$id]]);
 			}
 		}
-		if (is_array($import['key'])) {
+		if (is_array($setting['key'])) {
 			$key = [];
-			foreach ($import['key'] AS $no) {
+			foreach ($setting['key'] AS $no) {
 				if (!isset($line[$no])) {
 					wrap_error(sprintf(
 						'New record has not enough values for the key. (%d expected, record looks as follows: %s)',
@@ -245,14 +256,14 @@ function zz_sync_csv($import) {
 				}
 				$key[] = $line[$no];
 			}
-			$key = implode($import['key_concat'], $key);
+			$key = implode($setting['key_concat'], $key);
 		} else {
-			$key = $line[$import['key']];
+			$key = $line[$setting['key']];
 		}
 		$key = trim($key);
 		$raw[$key] = $line;
 		$processed++; // does not necessarily correspond with count($raw)
-		if ($processed === ($import['end'] - $import['limit'])) break;
+		if ($processed === ($setting['end'] - $setting['limit'])) break;
 	}
 	fclose($handle);
 	if (empty($raw)) return [[], $i];
@@ -265,7 +276,7 @@ function zz_sync_csv($import) {
  * as required
  *
  * @param array $raw raw data, indexed by identifier
- * @param array $import import settings
+ * @param array $setting import settings
  *		string	sql[existing] = SQL query to get pairs of identifier/IDs
  *		array 	'fields' = list of fields, indexed by position
  *		array 	'static1', 'static2' = values for fields, 'field_name = value'
@@ -276,18 +287,7 @@ function zz_sync_csv($import) {
  * @return array $updated, $inserted, $nothing = count of records, $errors,
  *		$testing
  */
-function zz_sync_zzform($raw, $import) {
-	if (empty($import['existing']))
-		wrap_error('Please define a query for the existing records in the database with -- identifier_existing --.', E_USER_ERROR);
-	if (empty($import['fields']))
-		wrap_error('Please set which fields should be imported in $import["fields"].', E_USER_ERROR);	
-	if (empty($import['form_script']))
-		wrap_error('Please tell us the name of the form script in $import["form_script"].', E_USER_ERROR);	
-	if (empty($import['id_field_name']))
-		wrap_error('Please set the id field name of the table in $import["id_field_name"].', E_USER_ERROR);	
-	if (empty($import['ignore_if_null']))
-		$import['ignore_if_null'] = [];
-
+function zz_sync_zzform($raw, $setting) {
 	$updated = 0;
 	$inserted = 0;
 	$nothing = 0;
@@ -301,12 +301,12 @@ function zz_sync_zzform($raw, $import) {
 	// normalise lines
 	// remove lines which have errors or are not active here
 	foreach ($raw as $identifier => $line) {
-		$line = $raw[$identifier] = zz_sync_line($line, $import['fields']);
-		if (count($line) !== count($import['fields'])) {
+		$line = $raw[$identifier] = zz_sync_line($line, $setting['fields']);
+		if (count($line) !== count($setting['fields'])) {
 			// there’s an error
-			$errors[] = zz_sync_line_errors($line, $import['fields']);
+			$errors[] = zz_sync_line_errors($line, $setting['fields']);
 			unset($raw[$identifier]);
-		} elseif (!empty($import['testing']) AND $_SERVER['REQUEST_METHOD'] === 'POST') {
+		} elseif (!empty($setting['testing']) AND $_SERVER['REQUEST_METHOD'] === 'POST') {
 			$ignore = false;
 			// records need to be activated via checkboxes
 			if (!array_key_exists($identifier, $_POST['action']))
@@ -322,27 +322,27 @@ function zz_sync_zzform($raw, $import) {
 	if ($nothing === $raw_count)
 		return [$updated, $inserted, $nothing, $errors, true];
 	
-	$raw = zz_sync_field_queries($raw, $import);
+	$raw = zz_sync_field_queries($raw, $setting);
 
 	// get existing keys from database
-	$ids = zz_sync_ids($raw, $import['existing']);
+	$ids = zz_sync_ids($raw, $setting['existing']);
 
 	foreach ($raw as $identifier => $line) {
 		$values = [];
 		$values['POST'] = [];
-		foreach ($import['fields'] as $pos => $field_name) {
+		foreach ($setting['fields'] as $pos => $field_name) {
 			// don't delete field values if ignore_if_null is set
-			if (in_array($pos, $import['ignore_if_null'])
+			if (in_array($pos, $setting['ignore_if_null'])
 				AND empty($line[$pos]) AND $line[$pos] !== 0 AND $line[$pos] !== '0') continue;
 			// do nothing if value is NULL
 			if (!isset($line[$pos])) continue;
 			$fields = [];
-			if (!empty($import['function'][$pos])) {
-				$fields[$field_name] = $import['function'][$pos]($line[$pos]);
-			} elseif (strstr($field_name, '+') AND !empty($import['split_function'][$pos])) {
+			if (!empty($setting['function'][$pos])) {
+				$fields[$field_name] = $setting['function'][$pos]($line[$pos]);
+			} elseif (strstr($field_name, '+') AND !empty($setting['split_function'][$pos])) {
 				// @todo error handling
 				$field_names = explode('+', $field_name);
-				$my_values = $import['split_function'][$pos](trim($line[$pos]));
+				$my_values = $setting['split_function'][$pos](trim($line[$pos]));
 				foreach ($field_names as $field_name) {
 					$fields[$field_name] = array_shift($my_values);
 				}
@@ -352,14 +352,14 @@ function zz_sync_zzform($raw, $import) {
 			foreach ($fields as $field_name => $value) {
 				$head[$field_name] = $field_name;
 				$testing[$identifier][$field_name] = $value;
-				if (!in_array($pos, $import['show_but_no_import']))
+				if (!in_array($pos, $setting['show_but_no_import']))
 					$values['POST'] = zz_check_values($values['POST'], $field_name, $value);
 			}
 		}
 		// static values to import
 		$static = 'static1';
-		while (array_key_exists($static, $import)) {
-			list($field_name, $value) = explode(' = ', $import[$static]);
+		while (array_key_exists($static, $setting)) {
+			list($field_name, $value) = explode(' = ', $setting[$static]);
 			$field_name = trim($field_name);
 			$value = trim($value);
 			$value = trim($value, "'");
@@ -374,15 +374,15 @@ function zz_sync_zzform($raw, $import) {
 		}
 		if (!empty($ids[$identifier])) {
 			$testing[$identifier]['_action'] = $values['action'] = 'update';
-			$values['GET']['where'][$import['id_field_name']] = $ids[$identifier];
+			$values['GET']['where'][$setting['id_field_name']] = $ids[$identifier];
 			$testing[$identifier]['_id'] = $ids[$identifier];
 		} else {
 			$testing[$identifier]['_action'] = $values['action'] = 'insert';
 			$testing[$identifier]['_insert'] = true;
 		}
 		if ($_SERVER['REQUEST_METHOD'] !== 'POST') continue;
-		if (!empty($import['ids'])) $values['ids'] = $import['ids'];
-		$ops = zzform_multi($import['form_script'], $values);
+		if (!empty($setting['ids'])) $values['ids'] = $setting['ids'];
+		$ops = zzform_multi($setting['form_script'], $values);
 		if ($ops['id']) {
 			$ids[$identifier] = $ops['id'];
 		}
@@ -428,19 +428,19 @@ function zz_sync_line($line, $fields) {
  * read corresponding ID values for fields from database
  *
  * @param array $raw
- * @param array $import
+ * @param array $setting
  */
-function zz_sync_field_queries($raw, $import) {
-	foreach ($import['fields'] as $index => $field) {
+function zz_sync_field_queries($raw, $setting) {
+	foreach ($setting['fields'] as $index => $field) {
 		$key = 'field_'.$field;
-		if (!array_key_exists($key, $import)) continue;
+		if (!array_key_exists($key, $setting)) continue;
 		$values = [];
 		foreach ($raw as $line)
 			$values[trim($line[$index])] = trim($line[$index]);
-		$implode = $import[$key.'__implode'] ?? ',';
+		$implode = $setting[$key.'__implode'] ?? ',';
 		$implode = ltrim($implode, '/* ');
 		$implode = rtrim($implode, ' */');
-		$sql = sprintf($import[$key], implode($implode, $values));
+		$sql = sprintf($setting[$key], implode($implode, $values));
 		$ids = wrap_db_fetch($sql, '_dummy_', 'key/value');
 		foreach ($raw as $identifier => $line)
 			$raw[$identifier][$index] = $ids[trim($line[$index])];
@@ -468,12 +468,12 @@ function zz_sync_line_errors($line, $fields) {
  * display records to import
  *
  * @param array $testing
- * @param array $import
+ * @param array $setting
  * @return string
  */
-function zz_sync_list($testing, $import) {
+function zz_sync_list($testing, $setting) {
 	// get head
-	$def = zzform_include($import['form_script']);
+	$def = zzform_include($setting['form_script']);
 	$head = zz_sync_fields($def['fields'], $testing['head']);
 	$field_names = [];
 	$foreign_keys = [];
@@ -525,7 +525,7 @@ function zz_sync_list($testing, $import) {
 		}
 	}
 
-	$j = intval($import['limit']);
+	$j = intval($setting['limit']);
 	foreach ($testing as $index => $line) {
 		$j++;
 		foreach (array_keys($head) as $num) {
@@ -565,7 +565,7 @@ function zz_sync_list($testing, $import) {
 		$testing[$index]['identical'] = $identical;
 		$testing[$index]['no'] = $j;
 		$testing[$index]['index'] = $index;
-		$testing[$index]['script_url'] = isset($import['script_url']) ? $import['script_url'] : '';
+		$testing[$index]['script_url'] = $setting['script_url'] ?? '';
 	}
 	
 	$testing = array_values($testing);
@@ -575,7 +575,7 @@ function zz_sync_list($testing, $import) {
 		if (isset($field['table_title'])) {
 			$testing['head'][$num]['field_name'] .= $field['table_title'].'<br>';
 		}
-		$testing['head'][$num]['field_name'] .= isset($field['title']) ? $field['title'] : $field['field_name'];
+		$testing['head'][$num]['field_name'] .= $field['title'] ?? $field['field_name'];
 	}
 
 	$text = wrap_template('sync', $testing);
@@ -599,7 +599,7 @@ function zz_sync_fields($fields, $old_head) {
 		} elseif (!empty($field['type']) AND $field['type'] === 'subtable') {
 			// @todo write zzform function that puts all definitions in table
 			// like fill out
-			$table_name = isset($field['table_name']) ? $field['table_name'] : $field['table'];
+			$table_name = $field['table_name'] ?? $field['table'];
 			$foreign_key = false;
 			foreach ($field['fields'] as $subno => $subfield) {
 				if (!empty($subfield['type'])) {
@@ -616,7 +616,7 @@ function zz_sync_fields($fields, $old_head) {
 				$first_row = sprintf($field_name, 0);
 				if (!in_array($first_row, $old_head)) continue;
 				$head[$no.'-'.$subno] = $subfield;
-				$head[$no.'-'.$subno]['table_title'] = isset($field['title']) ? $field['title'] : ucfirst($field['table']);
+				$head[$no.'-'.$subno]['table_title'] = $field['title'] ?? ucfirst($field['table']);
 				$head[$no.'-'.$subno]['table'] = $field['table'];
 				$head[$no.'-'.$subno]['id_field'] = $id_field_name;
 				$head[$no.'-'.$subno]['foreign_key'] = $foreign_key;
@@ -637,41 +637,41 @@ function zz_sync_fields($fields, $old_head) {
 /**
  * show deletable records
  *
- * @param array $import
+ * @param array $setting
  * @return array
  */
-function zz_sync_deletable($import) {
+function zz_sync_deletable($setting) {
 	$data = [];
 
-	switch ($import['type']) {
+	switch ($setting['type']) {
 	case 'csv':
-		$import['end'] = 0;
-		list($raw, $i) = zz_sync_csv($import);
+		$setting['end'] = 0;
+		list($raw, $i) = zz_sync_csv($setting);
 		break;
 	case 'sql':
-		$raw = wrap_db_fetch($import['source'], $import['import_id_field_name']);
+		$raw = wrap_db_fetch($setting['source'], $setting['import_id_field_name']);
 		break;
 	}
-	$existing = zz_sync_ids($raw, $import['deletable'], 'numeric');
+	$existing = zz_sync_ids($raw, $setting['deletable'], 'numeric');
 
 	$j = 0;
 	foreach ($existing as $index => $record) {
 		$i = 0;
 		$j++;
 		foreach ($record as $field_name => $value) {
-			if ($field_name === $import['id_field_name']) {
+			if ($field_name === $setting['id_field_name']) {
 				$data[$index]['_id'] = $value;
 			} else {
 				$data['head'][$field_name]['field_name'] = $field_name;
 				$data[$index]['fields'][$i]['value'] = $value;
-				if (array_key_exists($field_name, $import['deletable_script_url'])) {
-					$data[$index]['fields'][$i]['my_script_url'] = $import['deletable_script_url'][$field_name];
+				if (array_key_exists($field_name, $setting['deletable_script_url'])) {
+					$data[$index]['fields'][$i]['my_script_url'] = $setting['deletable_script_url'][$field_name];
 				}
 				$i++;
 			}
 		}
 		$data[$index]['no'] = $j;
-		$data[$index]['script_url'] = isset($import['script_url']) ? $import['script_url'] : '';
+		$data[$index]['script_url'] = $setting['script_url'] ?? '';
 	}
 	if (!empty($data['head'])) $data['head'] = array_values($data['head']);
 	if (!$data) $data['no_deletable_records'] = true;
