@@ -524,6 +524,7 @@ function zz_sync_list($testing, $setting) {
 	}
 
 	$j = intval($setting['limit']);
+	$missing_fields = [];
 	foreach ($testing as $index => $line) {
 		$j++;
 		foreach (array_keys($head) as $num) {
@@ -533,6 +534,10 @@ function zz_sync_list($testing, $setting) {
 		$identical = true;
 		foreach ($line as $key => $value) {
 			if (substr($key, 0, 1) === '_') continue;
+			if (!array_key_exists($key, $head['_mapping'])) {
+				$missing_fields[$key] = $key;
+				continue;
+			}
 			$num = $head['_mapping'][$key];
 			if (strstr($num, '-')) {
 				$row_index = substr($key, strpos($key, '[') + 1, strpos($key, ']') - strpos($key, '[') - 1);
@@ -564,6 +569,9 @@ function zz_sync_list($testing, $setting) {
 		$testing[$index]['no'] = $j;
 		$testing[$index]['index'] = $index;
 		$testing[$index]['script_url'] = $setting['script_url'];
+	}
+	foreach ($missing_fields as $field) {
+		wrap_error(wrap_text('Field %s is missing in table definiton.', ['values' => [$field]]));
 	}
 	
 	$testing = array_values($testing);
