@@ -153,6 +153,24 @@ function zz_sync_queries($identifier) {
 	if ($ids)
 		$queries['ids'] = $ids;
 
+	// get field
+	foreach ($queries as $key => $query) {
+		if (!str_starts_with($key, 'field_')) continue;
+		unset($queries[$key]);
+		$keys = explode('_', $key);
+		$new_keys = [];
+		$new_keys[] = array_shift($keys); // remove `field`
+		$pos = array_search('', $keys);
+		if ($pos !== false) {
+			while(count($keys) > $pos) {
+				$new_key = array_pop($keys);
+				if ($new_key) array_unshift($new_keys, $new_key);
+			}
+		}
+		$new_keys = array_reverse($new_keys);
+		$queries[implode('_', $new_keys)][implode('_', $keys)] = $query;
+	}
+
 	return $queries;
 }
 
@@ -465,15 +483,14 @@ function zz_sync_line($line, $fields) {
  */
 function zz_sync_field_queries($raw, $setting) {
 	foreach ($setting['fields'] as $index => $field) {
-		$key = 'field_'.$field;
-		if (!array_key_exists($key, $setting)) continue;
+		if (!array_key_exists($field, $setting['field'])) continue;
 		$values = [];
 		foreach ($raw as $line)
 			$values[trim($line[$index])] = trim($line[$index]);
-		$implode = $setting[$key.'__implode'] ?? ',';
+		$implode = $setting['field_implode'][$field] ?? ',';
 		$implode = ltrim($implode, '/* ');
 		$implode = rtrim($implode, ' */');
-		$sql = sprintf($setting[$key], implode($implode, $values));
+		$sql = sprintf($setting['field'][$field], implode($implode, $values));
 		$ids = wrap_db_fetch($sql, '_dummy_', 'key/value');
 		foreach ($raw as $identifier => $line)
 			$raw[$identifier][$index] = $ids[trim($line[$index])];
