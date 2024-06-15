@@ -348,6 +348,7 @@ function zzform_batch_def($table, $settings = []) {
 	} else {
 		$def['add'] = [];
 	}
+	$def['fields'] = $zz['fields'];
 
 	return $def;
 }
