@@ -124,6 +124,36 @@ function zz_sync($setting) {
 }
 
 /**
+ * read data from sync.sql
+ *
+ * @param string $identifier
+ * @return array
+ */
+function zz_sync_queries($identifier) {
+	$queries = [];
+	$files = wrap_collect_files('configuration/sync.sql');
+	foreach ($files as $file)
+		$queries = array_merge_recursive($queries, wrap_sql_file($file, '_'));
+
+	if (!array_key_exists($identifier, $queries)) return [];
+	$queries = $queries[$identifier];
+
+	// get ids
+	$ids = [];
+	foreach ($queries as $key => $query) {
+		if (!str_starts_with($key, 'static')) continue;
+		if (!strstr($query, ' = /*_ID')) continue;
+		list($qkey, $qvalue) = explode(' = ', $query);
+		$ids[] = $qkey;
+	}
+	$queries = wrap_sql_placeholders($queries);
+	if ($ids)
+		$queries['ids'] = $ids;
+
+	return $queries;
+}
+
+/**
  * set default values for sync
  *
  * @param array $setting
