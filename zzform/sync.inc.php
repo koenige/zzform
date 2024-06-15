@@ -140,11 +140,19 @@ function zz_sync_queries($identifier) {
 	$ids = [];
 	foreach ($queries as $key => $query) {
 		if (!str_starts_with($key, 'static')) continue;
-		if (!strstr($query, ' = /*_ID')) continue;
-		list($qkey, $qvalue) = explode(' = ', $query);
-		$ids[] = $qkey;
+		unset($queries[$key]);
+		if (strstr($query, ' = /*_ID')) {
+			list($qkey, $qvalue) = explode(' = ', $query);
+			$ids[] = $qkey;
+		}
+		$query = wrap_sql_placeholders($query);
+		list($field_name, $value) = explode(' = ', $query);
+		$field_name = trim($field_name);
+		$value = trim($value);
+		$value = trim($value, "'");
+		$value = trim($value, '"');
+		$queries['static'][$field_name] = $value;
 	}
-	$queries = wrap_sql_placeholders($queries);
 	if ($ids)
 		$queries['ids'] = $ids;
 
@@ -357,21 +365,11 @@ function zz_sync_zzform($raw, $setting) {
 					$values['POST'] = zz_check_values($values['POST'], $field_name, $value);
 			}
 		}
-		// static values to import
-		$static = 'static1';
-		while (array_key_exists($static, $setting)) {
-			list($field_name, $value) = explode(' = ', $setting[$static]);
-			$field_name = trim($field_name);
-			$value = trim($value);
-			$value = trim($value, "'");
-			$value = trim($value, '"');
+		// static values to sync
+		foreach ($setting['static'] as $field_name => $value) {
 			$head[$field_name] = $field_name;
 			$testing[$identifier][$field_name] = $value;
 			$values['POST'] = zz_check_values($values['POST'], $field_name, $value);
-
-			$static = substr($static, 6);
-			$static++;
-			$static = sprintf('static%d', $static);
 		}
 		if (!empty($ids[$identifier])) {
 			$testing[$identifier]['_action'] = $values['action'] = 'update';
