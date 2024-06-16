@@ -210,6 +210,52 @@ function zz_sync_defaults($setting) {
 	if (empty($setting['form_script']))
 		wrap_error('Please tell us the name of the form script in `form_script`.', E_USER_ERROR);	
 
+	// set correct table_name for subtables
+	$setting = zz_sync_table_shortcut($setting);
+	return $setting;
+}
+
+/**
+ * allow for shortcut notation, just table, not table name
+ *
+ * @param array $setting
+ * @return array
+ */
+function zz_sync_table_shortcut($setting) {
+	$def = zzform_batch_def($setting['form_script']);
+	
+	$static_values = [];
+	foreach ($setting['static'] as $field_name => $value)
+		$static_values = zz_check_values($static_values, $field_name, $value);
+	foreach ($static_values as $table => $values) {
+		if (in_array($table, $def['subtable_tables'])) continue;
+		// check which of the subtables is correct here
+		foreach ($def['subtable_tables'] as $field_no => $subtable) {
+			if (!str_starts_with($subtable, $table)) continue;
+			foreach ($def['fields'][$field_no]['fields'] as $sub_no => $sub_field) {
+				if (empty($sub_field['field_name'])) continue;
+				if (!array_key_exists($sub_field['field_name'], $values[0])) continue;
+				if (empty($sub_field['value'])) continue;
+				if ($sub_field['value'] !== $values[0][$sub_field['field_name']]) continue;
+				
+				// we found it
+				foreach ($setting['fields'] as $index => $field) {
+					if (!str_starts_with($field, $table.'[')) continue;
+					$setting['fields'][$index] = $subtable.substr($field, strlen($table));
+				}
+				$keys = ['field', 'field_implode', 'static'];
+				foreach ($keys as $key) {
+					foreach ($setting[$key] as $identifier => $sql) {
+						if (!str_starts_with($identifier, $table.'[')) continue;
+						unset($setting[$key][$identifier]);
+						$identifier = $subtable.substr($identifier, strlen($table));
+						$setting[$key][$identifier] = $sql;
+					}
+				}
+			}
+		}
+	}
+	
 	return $setting;
 }
 
@@ -554,7 +600,7 @@ function zz_sync_list($testing, $setting) {
 		$testing[$index]['script_url'] = zz_sync_script_url($setting);
 	}
 	foreach ($missing_fields as $field) {
-		wrap_error(wrap_text('Field %s is missing in table definiton.', ['values' => [$field]]));
+		wrap_error(wrap_text('Field %s is missing in table definition.', ['values' => [$field]]));
 	}
 	
 	$testing = array_values($testing);
@@ -605,11 +651,13 @@ function zz_sync_fields($fields, $old_head) {
 				$field_name = sprintf('%s[%%d][%s]', $table_name, $subfield['field_name']);
 				$first_row = sprintf($field_name, 0);
 				if (!in_array($first_row, $old_head)) continue;
+				$subfield += [
+					'table_title' => $field['title'] ?? ucfirst($field['table']),
+					'table' => $field['table'],
+					'id_field' => $id_field_name,
+					'foreign_key' => $foreign_key
+				];
 				$head[$no.'-'.$subno] = $subfield;
-				$head[$no.'-'.$subno]['table_title'] = $field['title'] ?? ucfirst($field['table']);
-				$head[$no.'-'.$subno]['table'] = $field['table'];
-				$head[$no.'-'.$subno]['id_field'] = $id_field_name;
-				$head[$no.'-'.$subno]['foreign_key'] = $foreign_key;
 				$head['_mapping'][$first_row] = $no.'-'.$subno;
 				$i = 1;
 				while (true) {
