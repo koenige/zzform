@@ -294,20 +294,11 @@ function zzform_batch_def($table, $settings = []) {
 	if ($msg_2) $msg_2 = sprintf(' %s', $msg_2);
 
 	$zz = zzform_include($def['table_script'], [], $def['type']);
-	$def['table'] = wrap_db_prefix($zz['table']);
-	$def['uniques'] = [];
-
-	// read table structure from database
-	$sql = 'SHOW COLUMNS FROM `%s`';
-	$sql = sprintf($sql, $def['table']);
-	$structure = wrap_db_fetch($sql, '_dummy_', 'numeric');
-	foreach ($structure as $field) {
-		if ($field['Key'] === 'PRI') $def['primary_key'] = $field['Field'];
-		elseif ($field['Key'] === 'UNI') $def['uniques'][] = $field['Field'];
-	}
+	
+	wrap_include('database', 'zzform');
+	$def = array_merge($def, zz_db_table_structure($zz['table']));
 
 	// get table definition
-	$def['ids'] = [];
 	foreach ($zz['fields'] as $no => $field) {
 		if (empty($field['type'])) continue;
 		if (!empty($field['unique']) AND $field['type'] !== 'subtable')
@@ -329,8 +320,6 @@ function zzform_batch_def($table, $settings = []) {
 		}
 		if ($field['type'] === 'id') {
 			$def['primary_key'] = $field['field_name']; // duplicate from above, just in case
-		} elseif (!empty($field['field_name']) AND str_ends_with($field['field_name'], '_id')) {
-			$def['ids'][] = $field['field_name'];
 		}
 	}
 	$def['uniques'] = array_unique($def['uniques']);
@@ -412,7 +401,7 @@ function zzform_insert($table, $data, $error_type = E_USER_NOTICE, $settings = [
 
 	$values = [];
 	$values['action'] = 'insert';
-	$values['ids'] = $def['ids'];
+	$values['ids'] = $def['foreign_keys'];
 	foreach ($def['add'] as $field_name => $ids) {
 		if (!array_key_exists($field_name, $data)) continue;
 		if (in_array($data[$field_name], $ids)) {
@@ -481,7 +470,7 @@ function zzform_update($table, $data, $error_type = E_USER_NOTICE, $settings = [
 	
 	$values = [];
 	$values['action'] = 'update';
-	$values['ids'] = $def['ids'];
+	$values['ids'] = $def['foreign_keys'];
 	$values['POST'] = $data;
 	$ops = zzform_multi($def['table_script'], $values, $def['type']);
 	if (!$ops['id'] AND !$ops['ignore']) {

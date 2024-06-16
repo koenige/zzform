@@ -825,7 +825,7 @@ function zz_db_numeric_field($db_table, $field_name) {
  */
 function zz_db_table_structure($table) {
 	$def = [];
-	$def['table'] = $table;
+	$def['table'] = wrap_db_prefix($table);
 	$sql = 'SHOW COLUMNS FROM `%s`';
 	$sql = sprintf($sql, $def['table']);
 	$structure = wrap_db_fetch($sql, '_dummy_', 'numeric');
@@ -834,7 +834,9 @@ function zz_db_table_structure($table) {
 			$def['primary_key'] = $field['Field'];
 		elseif (str_ends_with($field['Field'], '_id'))
 			$def['foreign_keys'][] = $field['Field'];
+		if ($field['Key'] === 'UNI')
+			$def['uniques'][] = $field['Field'];
 	}
-	$def['script_name'] = str_replace('_', '-', $def['table']);
+	$def['script_name'] = str_replace('_', '-', str_replace('/*_PREFIX_*/', '', $table));
 	return $def;
 }
