@@ -816,3 +816,25 @@ function zz_db_numeric_field($db_table, $field_name) {
 	}
 	return false;
 }
+
+/**
+ * get structure of table
+ *
+ * @param string $table name of table
+ * @return array
+ */
+function zz_db_table_structure($table) {
+	$def = [];
+	$def['table'] = $table;
+	$sql = 'SHOW COLUMNS FROM `%s`';
+	$sql = sprintf($sql, $def['table']);
+	$structure = wrap_db_fetch($sql, '_dummy_', 'numeric');
+	foreach ($structure as $field) {
+		if ($field['Key'] === 'PRI')
+			$def['primary_key'] = $field['Field'];
+		elseif (str_ends_with($field['Field'], '_id'))
+			$def['foreign_keys'][] = $field['Field'];
+	}
+	$def['script_name'] = str_replace('_', '-', $def['table']);
+	return $def;
+}

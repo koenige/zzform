@@ -8,32 +8,10 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2023 Gustaf Mossakowski
+ * @copyright Copyright © 2023-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
-
-/**
- * get structure of table
- *
- * @param string $table name of table
- * @return array
- */
-function zz_db_table_structure($table) {
-	$def = [];
-	$def['table'] = $table;
-	$sql = 'SHOW COLUMNS FROM `%s`';
-	$sql = sprintf($sql, $def['table']);
-	$structure = wrap_db_fetch($sql, '_dummy_', 'numeric');
-	foreach ($structure as $field) {
-		if ($field['Key'] === 'PRI')
-			$def['primary_key'] = $field['Field'];
-		elseif (str_ends_with($field['Field'], '_id'))
-			$def['foreign_keys'][] = $field['Field'];
-	}
-	$def['script_name'] = str_replace('_', '-', $def['table']);
-	return $def;
-}
 
 /**
  * copy one or several records of a dependent table
@@ -47,6 +25,7 @@ function zz_db_table_structure($table) {
  * @return array
  */
 function zz_copy_records($table, $foreign_id_field_name, $source_id, $destination_id, $transfer_field_name = false, $map_other = []) {
+	wrap_include('database', 'zzform');
 	$def = zz_db_table_structure($table);
 	$main_id_field_name = 'main_'.$def['primary_key'];
 
