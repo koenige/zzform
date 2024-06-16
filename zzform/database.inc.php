@@ -829,13 +829,32 @@ function zz_db_table_structure($table) {
 	$sql = 'SHOW COLUMNS FROM `%s`';
 	$sql = sprintf($sql, $def['table']);
 	$structure = wrap_db_fetch($sql, '_dummy_', 'numeric');
+	$get_unique_keys = false;
 	foreach ($structure as $field) {
 		if ($field['Key'] === 'PRI')
 			$def['primary_key'] = $field['Field'];
 		elseif (str_ends_with($field['Field'], '_id'))
 			$def['foreign_keys'][] = $field['Field'];
 		if ($field['Key'] === 'UNI')
-			$def['uniques'][] = $field['Field'];
+			$def['uniques'][$field['Field']][] = $field['Field'];
+		elseif ($field['Key'] === 'MUL')
+			$get_unique_keys = true;
+	}
+	if ($get_unique_keys) {
+		// @todo this will also trigger if the multi column key is not a UNIQUE key
+		$sql = 'SELECT INDEX_NAME, GROUP_CONCAT(COLUMN_NAME ORDER BY SEQ_IN_INDEX SEPARATOR ",") AS columns
+			FROM information_schema.STATISTICS
+			WHERE TABLE_SCHEMA = "%s"
+			AND TABLE_NAME = "%s"
+			AND NON_UNIQUE = 0
+			AND INDEX_NAME != "PRIMARY"
+			GROUP BY INDEX_NAME';
+		$sql = sprintf($sql, wrap_setting('db_name'), $def['table']);
+		$uniques = wrap_db_fetch($sql, '_dummy_', 'numeric');
+		foreach ($uniques as $unique) {
+			$columns = explode(',', $unique['columns']);
+			$def['uniques'][$unique['INDEX_NAME']] = $columns;
+		}
 	}
 	$def['script_name'] = str_replace('_', '-', str_replace('/*_PREFIX_*/', '', $table));
 	return $def;

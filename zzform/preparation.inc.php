@@ -328,7 +328,7 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 			AND '.wrap_sql_table('default_translationfields').'.table_name = "'.$main_tab['table'].'"
 			AND '.wrap_sql_table('default_translationfields').'.field_name = "'
 				.$field['translate_field_name'].'"') : '';
-	$my_tab['unique'] = $field['unique'] ?? false;
+	$my_tab['unique'] = zz_prepare_unique($field);
 
 	// get detail key, if there is a field definition with it.
 	// get id field name
@@ -418,6 +418,19 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 	
 	return $my_tab;
 } 
+
+/**
+ * get unique keys for detail tables
+ *
+ * @param array $field
+ * @return array
+ */
+function zz_prepare_unique($field) {
+	if (!empty($field['unique'])) return $field['unique'];
+	$def = zz_db_table_structure($field['table']);
+	if (!empty($def['uniques'])) return $def['uniques'];
+	return [];
+}
 
 /**
  * write POST data to 'POST' key per detail table

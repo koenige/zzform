@@ -301,8 +301,10 @@ function zzform_batch_def($table, $settings = []) {
 	// get table definition
 	foreach ($zz['fields'] as $no => $field) {
 		if (empty($field['type'])) continue;
+		// @todo this overwrites existing unique from database, check if this here
+		// is necessary (maybe adding more possibilities?)
 		if (!empty($field['unique']) AND $field['type'] !== 'subtable')
-			$def['uniques'][] = $field['field_name'];
+			$def['uniques'][$field['field_name']] = [$field['field_name']];
 		if ($field['type'] === 'subtable') {
 			$def['subtable_sqls'][$no] = $field['sql'];
 			$def['subtable_tables'][$no] = $field['table_name'] ?? $field['table'];
@@ -322,7 +324,6 @@ function zzform_batch_def($table, $settings = []) {
 			$def['primary_key'] = $field['field_name']; // duplicate from above, just in case
 		}
 	}
-	$def['uniques'] = array_unique($def['uniques']);
 	$def['sql'] = $zz['sql'];
 	if (empty($def['primary_key'])) {
 		wrap_error($def['msg'].wrap_text(
@@ -452,10 +453,14 @@ function zzform_update($table, $data, $error_type = E_USER_NOTICE, $settings = [
 			), $error_type, $def['error_settings']);
 			return NULL;
 		}
-		foreach ($def['uniques'] as $unique_field) {
-			if (!array_key_exists($unique_field, $data)) continue;
-			$sql = 'SELECT `%s` FROM `%s` WHERE `%s` = "%s"';
-			$sql = sprintf($sql, $def['primary_key'], $def['table'], $unique_field, $data[$unique_field]);
+		foreach ($def['uniques'] as $unique_fields) {
+			$where = [];
+			foreach ($unique_fields as $unique_field) {
+				if (!array_key_exists($unique_field, $data)) continue 2;
+				$where[] = sprintf('`%s` = "%s"', $unique_field, $data[$unique_field]);
+			}
+			$sql = 'SELECT `%s` FROM `%s` WHERE %s';
+			$sql = sprintf($sql, $def['primary_key'], $def['table'], implode(' AND ', $where));
 			$data[$def['primary_key']] = wrap_db_fetch($sql, '', 'single value');
 			if ($data[$def['primary_key']]) break;
 		}
