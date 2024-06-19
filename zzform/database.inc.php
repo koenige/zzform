@@ -859,3 +859,26 @@ function zz_db_table_structure($table) {
 	$def['script_name'] = str_replace('_', '-', str_replace('/*_PREFIX_*/', '', $table));
 	return $def;
 }
+
+/**
+ * check if an ID was already deleted
+ *
+ * @param string $table
+ * @param string $id_field_name
+ * @param int $id_value
+ */
+function zz_db_deleted_id($table, $id_field_name, $id_value) {
+	$sql = 'SELECT %s FROM %s WHERE %s = %d';
+	$sql = sprintf($sql, $id_field_name, $table, $id_field_name, $id_value);
+	$id_exists = wrap_db_fetch($sql, '', 'single value');
+	if ($id_exists) return false;
+
+	$sql = 'SELECT `AUTO_INCREMENT`
+		FROM  INFORMATION_SCHEMA.TABLES
+		WHERE TABLE_SCHEMA = "%s"
+		AND   TABLE_NAME   = "%s";';
+	$sql = sprintf($sql, wrap_setting('db_name'), $table);
+	$max_increment = wrap_db_fetch($sql, '', 'single value');
+	if ($max_increment > $id_value) return true;
+	return false;
+}
