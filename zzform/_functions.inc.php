@@ -402,7 +402,7 @@ function zzform_insert($table, $data, $error_type = E_USER_NOTICE, $settings = [
 
 	$values = [];
 	$values['action'] = 'insert';
-	$values['ids'] = $def['foreign_keys'];
+	$values['ids'] = $def['foreign_keys'] ?? [];
 	foreach ($def['add'] as $field_name => $ids) {
 		if (!array_key_exists($field_name, $data)) continue;
 		if (in_array($data[$field_name], $ids)) {
@@ -475,7 +475,7 @@ function zzform_update($table, $data, $error_type = E_USER_NOTICE, $settings = [
 	
 	$values = [];
 	$values['action'] = 'update';
-	$values['ids'] = $def['foreign_keys'];
+	$values['ids'] = $def['foreign_keys'] ?? [];
 	$values['POST'] = $data;
 	$ops = zzform_multi($def['table_script'], $values, $def['type']);
 	if (!$ops['id'] AND !$ops['ignore']) {
