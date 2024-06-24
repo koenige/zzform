@@ -111,9 +111,9 @@ function zz_output_heading($heading, $table = '') {
 		$heading = str_replace('_', ' ', $heading);
 		$heading = ucfirst($heading);
 	}
-	$heading = wrap_text($heading);
+	$heading = wrap_text($heading, ['source' => wrap_setting('zzform_script_path')]);
 	if (wrap_setting('zzform_heading_prefix')) {
-		wrap_setting('zzform_heading_prefix', wrap_text(wrap_setting('zzform_heading_prefix')));
+		wrap_setting('zzform_heading_prefix', wrap_text(wrap_setting('zzform_heading_prefix'), ['ignore_missing_translation' => true]));
 		$heading = wrap_setting('zzform_heading_prefix').' '.$heading;
 		}
 	return $heading;
@@ -261,7 +261,7 @@ function zz_show_more_actions($conf, $id, $line) {
 		$referer = !empty($detail['referer']) ? sprintf('&amp;referer=%s', urlencode(wrap_setting('request_uri'))) : '';
 		$count = (!empty($detail['sql']) AND $no = zz_db_fetch(sprintf($detail['sql'], $id), '', 'single value')) ? sprintf('&nbsp;(%d)', $no) : '';
 		$url = zz_makelink($detail['link'], $line);
-		$act[] = sprintf('<a href="%s%s"%s>%s%s</a>', $url, $referer, $target, wrap_text($detail['title']), $count);
+		$act[] = sprintf('<a href="%s%s"%s>%s%s</a>', $url, $referer, $target, wrap_text($detail['title'], ['source' => wrap_setting('zzform_script_path')]), $count);
 	}
 	$output = implode('&nbsp;&middot; ', $act);
 	return $output;
@@ -577,7 +577,7 @@ function zz_print_enum($field, $value, $type = 'abbr', $key = false) {
 	if (!empty($field[$ft.'_title'][$key])) {
 		$text = $field[$ft.'_title'][$key];
 	} elseif ($value !== 0) {
-		$text = wrap_text($value);
+		$text = wrap_text($value, ['source' => wrap_setting('zzform_script_path')]);
 	} else {
 		$text = $value;
 	}
@@ -665,7 +665,7 @@ function zz_output_backlink() {
 function zz_nice_tablenames($table) {
 	// get it from config
 	if ($table_name = wrap_setting('zzform_nice_tablename['.$table.']'))
-		return wrap_text($table_name);
+		return wrap_text($table_name, ['source' => wrap_setting('zzform_script_path')]);
 
 	// or format it here
 	if (wrap_setting('db_prefix')) { // makes the response look nicer

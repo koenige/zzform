@@ -709,7 +709,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 			if (empty($field['title_button'])) {
 				$field['title_button'] = strip_tags($field['title']); 
 			} else {
-				$field['title_button'] = wrap_text($field['title_button']);
+				$field['title_button'] = wrap_text($field['title_button'], ['source' => wrap_setting('zzform_script_path')]);
 			}
 			$out['th']['attr'][] = 'sub-add';
 			if (empty($field['tick_to_save'])) {
@@ -988,7 +988,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 			}
 			if (!empty($field['placeholder'])) {
 				if ($field['placeholder'] === true) $field['placeholder'] = $field['title'];
-				else $field['placeholder'] = wrap_text($field['placeholder']);
+				else $field['placeholder'] = wrap_text($field['placeholder'], ['source' => wrap_setting('zzform_script_path')]);
 				$field['placeholder'] = strip_tags($field['placeholder']);
 			} else {
 				$field['placeholder'] = false;
@@ -2792,7 +2792,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 	$fieldattr = [];
 	if ($record) if (!$record[$field['field_name']]) $fieldattr['selected'] = true;
 	if (isset($field['text_none_selected'])) {
-		$display = wrap_text($field['text_none_selected']);
+		$display = wrap_text($field['text_none_selected'], ['source' => wrap_setting('zzform_script_path')]);
 	} else {
 		$display = wrap_text('None selected');
 	}
@@ -3702,7 +3702,7 @@ function zz_field_select_enum($field, $display, $record) {
 		$fieldattr['selected'] = true;
 	}
 	if (isset($field['text_none_selected'])) {
-		$display = wrap_text($field['text_none_selected']);
+		$display = wrap_text($field['text_none_selected'], ['source' => wrap_setting('zzform_script_path')]);
 	} else {
 		$display = wrap_text('None selected');
 	}
@@ -4023,7 +4023,7 @@ function zz_field_display($field, $record, $record_saved) {
 		if (!$value) return '';
 
 		if (!empty($field['translate_field_value']))
-			$value = wrap_text($value);
+			$value = wrap_text($value, ['source' => wrap_setting('zzform_script_path')]);
 		return $value;
 
 	} elseif (isset($field['field_name'])) {

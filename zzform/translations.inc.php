@@ -11,7 +11,7 @@
  *	zz_translations_init()		checks whether fields should be translated
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2013, 2016-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2013, 2016-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -75,7 +75,7 @@ function zz_translations_init($table, $fields) {
 		// change title
 		$zz['title'] = sprintf('%s (%s)'
 			, zz_field_title($fields[$no])
-			, wrap_text($zz['title'])
+			, wrap_text($zz['title'], ['source' => wrap_setting('zzform_script_path')])
 		);
 		
 		// split fields-array

@@ -591,7 +591,7 @@ function zz_init_cfg_deprecated($cfg_key, &$ext) {
 			$settings = wrap_array_merge($settings, wrap_setting_key($new_key, $value));
 			// @todo better display of error message for arrays
 			wrap_error(wrap_text(
-				'Deprecated notation $%s["%s"] for  found. Please use $zz["%s"] instead.'
+				'Deprecated notation $%s["%s"] found. Please use $zz["%s"] instead.'
 				, ['values' => [$cfg_key, $key, $new_key]]
 			), E_USER_DEPRECATED);
 		} elseif (!empty($def['moved_to_setting'])) {
@@ -987,7 +987,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			// translate fieldnames, if set
 			foreach ($to_translates as $to_translate) {
 				if (empty($fields[$no][$to_translate])) continue;
-				$fields[$no][$to_translate] = wrap_text($fields[$no][$to_translate]);
+				$fields[$no][$to_translate] = wrap_text($fields[$no][$to_translate], ['source' => wrap_setting('zzform_script_path')]);
 			}
 			$fields[$no]['translated'] = true;
 		}
@@ -1168,7 +1168,7 @@ function zz_field_title($field) {
 	if (isset($field['title'])) {
 		$title = $field['title'];
 		if (in_array($title, $translations)) return $title;
-		$title = wrap_text($title);
+		$title = wrap_text($title, ['source' => wrap_setting('zzform_script_path')]);
 		$translations[] = $title;
 		return $title;
 	}
@@ -1185,7 +1185,7 @@ function zz_field_title($field) {
 	$title = str_replace('_id', ' ', $title);
 	$title = str_replace('_', ' ', $title);
 	$title = rtrim($title);
-	$title = wrap_text($title);
+	$title = wrap_text($title, ['source' => wrap_setting('zzform_script_path')]);
 	$translations[] = $title;
 	return $title;
 }
@@ -3263,7 +3263,7 @@ function zz_check_select($my_rec, $f) {
 			$my_rec['fields'][$f]['check_validation'] = false;
 			$my_rec['fields'][$f]['suffix'] = ' '.wrap_text('Please make a different selection.');
 			if (!empty($my_rec['fields'][$f]['disabled_ids_error_msg']))
-				$my_rec['fields'][$f]['suffix'] .= ' '.wrap_text($my_rec['fields'][$f]['disabled_ids_error_msg']);
+				$my_rec['fields'][$f]['suffix'] .= ' '.wrap_text($my_rec['fields'][$f]['disabled_ids_error_msg'], ['source' => wrap_setting('zzform_script_path')]);
 		} elseif (!$check_string) {
 			$sql_fields = wrap_edit_sql($my_rec['fields'][$f]['sql'], 'SELECT', '', 'list');
 			$sql = wrap_edit_sql($my_rec['fields'][$f]['sql'], 'WHERE', sprintf(
