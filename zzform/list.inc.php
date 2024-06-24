@@ -1247,10 +1247,10 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 		$row['text'] .= '&nbsp;'.$field['unit'];
 	}
 	if (!empty($field['list_suffix'])) {
-		$row['text'] .= wrap_text($field['list_suffix']);
+		$row['text'] .= wrap_text($field['list_suffix'], ['source' => wrap_setting('zzform_script_path')]);
 	}
 	if (!empty($append_suffix) AND empty($field['list_append_next'])) {
-		$row['text'] .= wrap_text($append_suffix);
+		$row['text'] .= wrap_text($append_suffix, ['source' => wrap_setting('zzform_script_path')]);
 		$append_suffix = '';
 	}
 	if (!empty($field['list_abbr']) AND $mode !== 'export') {
