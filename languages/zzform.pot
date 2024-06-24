@@ -15,11 +15,367 @@ msgstr ""
 "PO-Revision-Date: \n"
 "Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
-"Language: de\n"
+"Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: configuration/settings.cfg
+msgid "folder for fonts used by captchas"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "custom settings for Content-Security-Policy header"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "default graphic for KML styles"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of styles, each with 'id' and 'href', for KML export"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "initial installation date of zzform module (for updates)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "page refresh in seconds at the end of sync"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "no. of records shown per run; if testing=1, no. will be multiplied by 10"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "action parameters in zzform, 'review' is for internal use only"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "mode parameters in zzform"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "set HTML attribute `autofocus` to first input field/first input field of this type"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "backup uploaded files that were updated, deleted, etc."
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "directory where zzform can put files for backup"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "secret key which forms a hash that allows to continue without solving captcha again"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "timeframe in minutes during which the zzform_captcha_key is valid"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "check referential integrity while performing database operations"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "include CSS file with colours for zzform forms and tables"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of field names that are not copied with copy function"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "CSS background-color for list view, should be equal to body"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "CSS background-color for record view"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "CSS background-color for record view, footer"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "CSS background-color for record view, subtable"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "CSS background-color for list view, even rows"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "CSS background-color for list view, uneven rows"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "CSS background-color for list view, order by column header"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "CSS text color in page navigation below list view"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "add elapsed time per function call to debug log"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "activate debugging for uploads"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "supported formats for exporting data"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "position of filters related to list data"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "link to the markdown manual"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "HTML code for headings of groups in tables"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "graphics library to use with zzform (imagemagick or gd)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "HTML prefix for all tables before h1 heading"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "do not show line with no. of total records below list"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "add host base to action URLs, only needed if HTML base element points to a different server"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of ICC profiles in the form of name of profile => path to profile"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "marker to read ID for zzform from SESSION"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "fields in POST data that are used by zzform internally"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "limit of records shown in zzform’s lists"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "maximum records in list shown on one page (for performance reasons)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "display links to limits as page no. or as no. of entries"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "range in which links to records in list around current selection will be shown"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "log database changes?"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "use field _logging.record_id (turning off is @deprecated)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "maximum entries in select/option, if bigger than sub-select"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "maximum length of values in select"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of fields to ignore when comparing two records while merging (last_update = for all tables, addresses.last_update = just for table addresses)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "max no. of detail records to add in a record form"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "min no. of detail records to add in a record form"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of table name aliases used for better readability if a table name is displayed, e. g. if a record cannot be deleted because of database constraints"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "packagecss is not used, therefore include zzform.css via zzform"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "default value for rating fields, if `max` is not set"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "symbol used for rating fields"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "text that is displayed on link back to referring page"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "if more content than that inside #zzform should be replaced, use this DIV element with this ID instead."
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list with mappings of table to query strings with placeholder for results of query for editing revisions"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list with mappings of table to query for editing revisions"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list with mappings of table to URL for editing revisions"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "file path to main zzform script that is used"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "allow to search, where to show search form"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "always show a search form, even if there are no records"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "show list of records below record that is edited/deleted/added"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "separator between parts of page title"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "create thumbnails in zzform as background process?"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "if it is not allowed to check the standard directories for binary executables, enter the path to the directory"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "if it is not allowed to check the standard directories for binary executables, enter the path to the directory (development server only)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "paths on server to upload binaries (e. g. imagemagick)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "paths for each individual binary used in upload"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "paths for each individual binary used in upload on the development server"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "option per binary to get verbose version information"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "in case there are problems renaming files from one mount to another, activate to copy file and then delete old file"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "options to use always with all ImageMagick’s convert calls, e. g. for using a different temporary folder"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "options to use with all ImageMagick’s convert calls, only if no custom options per filetype are defined"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "log system() upload commands for debugging"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "maximum file size in bytes that can be uploaded"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "unwanted mimetypes and their replacements"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "Paths which indicate that a file is on a mounted file system; instead of rename, copy/unlink is used"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "use `exiftool` to get information about file"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "use `file` to get information about file"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "use `ghostscript` to get information about file"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "use `identify` to get information about file"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "use `pdfinfo` to get information about file"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "extensions for images that the browser can display natively"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "use Pagedown Editor (old: WMD) for Markdown"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "no. of instances of the Pagedown editor on a webpage"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "language used for Pagedown Editor for Markdown"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "possible language(s) for Pagedown Editor for Markdown"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "maximum characters, longer words are split with zero width in list view"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "use XHR for select fields; needs vxJS library"
+msgstr ""
 
 #: configuration/zz.cfg
 msgid "allows to restrict access to main record, like $zz['fields'][n]['access'] to subtables"
