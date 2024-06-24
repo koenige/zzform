@@ -20,7 +20,514 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.8.6\n"
+
+#: configuration/zz.cfg
+msgid "allows to restrict access to main record, like $zz['fields'][n]['access'] to subtables"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "Allows to add from source_id even if the access to that ID is restricted by a $zz['where'] or $_GET['where']"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "if set to true, h1 will not be shown"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "Textblock after heading"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "Textblock after heading, only in insert mode"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "list of possible export modes"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "list of fields per record"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "Filter for records to be shown"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "list with root, string, field, mode for a folder that must be renamed/deleted after changing the record"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid " if set, zzbrick/forms module will include a javascript map (e. g. OpenLayers) to display the records via a KML export on this map; a map template and a JavaScript-library is required"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "hook functions"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "hook function called after a successful delete, but before files are moved"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "hook function called after a successful insert, but before files are moved"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "hook function called after a successful update, but before files are moved"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "hook function called after upload is checked, before validation"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "hook function called after record was validated"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "hook function called before a delete attempt"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "hook function called before an insert attempt"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "hook function called before an update attempt"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "hook function called before upload is checked"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "hook function called after a successful delete"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "hook function called after a successful insert"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "hook function called after a successful update"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "keys to ignore for log of unused defintion keys if definition is initalised"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "list view definitions"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "allows to add a new record"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "HTML code for submit buttons for several actions below list"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "definition of all table columns"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "ID of currently shown record"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "IDs of activated records"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "don't show a table head for link to details until necessary"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "how the tabular data is displayed"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "use drag and drop in list view to change sort order of records"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "ID field name in table that saves the sort order"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "field name in table where the new sort order is saved"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "starting value, if records spawn over several pages"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "URL that is called via XHR to change order of records"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "marker that records should not be marked as checked anymore after e. g. a merge operation"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "definition of additional table columns"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "list of field names that records in list view use for grouping"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "HTML code for group titles"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "check all columns in list and hide columns if they are empty, behaviour is equivalent to 'hide_in_list_if_empty' on a per field basis"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "do not show message that there are no records if there are none"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "show list with hierarchy"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "display hierarchy in this field, i. e. this field gets indented"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "do not show uppermost value in list, just subtree"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "top ID value if just a subset of the records are shown"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "ID field name "
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "main ID field name"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "allow to merge records"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "don’t show a table head for link to modes until necessary"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "allow to delete multiple records"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "allow to edit multiple records"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "allow to call a function on several records at one"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "function name"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "HTML: title of button"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "never show link above list to add a new record"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "internal marker that multiple records can be selected, e. g. for multi_function or merge"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "sums per column"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "sums per group per column"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "shows table foot, e. g. for sums of individual values"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "referer which links back to previous page, overwrites $zz['page']['referer'] and must be array with field1, string1 etc."
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "list of variables that can be used in page template via extra_{key}"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "set meta tags for webpage"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "list of request functions that are called after record form/list is created"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "page title, set inside zzform"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "add or do not add data"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "show action: copy"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "show action: delete"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "show action: edit"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "anchor (#id) for form, if needed"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "Markdown code for HTML block directly after form heading"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "key: int, value: $no"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "save number of subtables, key: $tab, value: $no or $no-$subno"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "show action: view"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "false: no upload, true: upload possible"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "list of redirects that will be added to the database redirects table if an identifier is updated or a record with an identifier is deleted. Might be list of strings (old and new pattern is equal), list of arrays (old and new patterns differ); field_name may be set optionally if more than one identifier is in the field list."
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "settings that you normally set via wrap_setting() but that won’t be set in multi()-calls (e. g. disallowing a child script to change zzform_limit for the main script)"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "SQL statement for list display and to get field values for form display"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "separate SQL query for counting records if main query is too heavy"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "if SQL query is too complex, additional values can be read via 'sqlextra' queries"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "SQL statement, part must begin with ' ORDER BY', to sort database table"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "SQL query which will be used only for record view, not for list view, use `sql` if not set"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "Allows translation for this table (or key => table or list of tables or keys and tables) with wrap_translate()"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "do not mark search string in subselect text, e. g. if there’s HTML code"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "link just around one of the field values, set by index"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "HTML code or text which will be shown before the field value"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "HTML code or text which will be shown after the field value"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "path for image, created created with makelink() from subselect data"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "path for link, created with makelink() from subselect data"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "Name of database table (might include database name as well, e. g. Database.Table)"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "optional: h1-heading to be used for form instead of $zz['table']"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "describes UNIQUE key for detail tables. For updates via zzform_multi() which do not know the record ID of the detail table this can be used to avoid getting this ID first."
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "variables for internal use inside zzform, later available via wrap_static('zzform')"
+msgstr ""
+
+#: configuration/zz.cfg
+msgid "WHERE condition for record, like via URL where[some_id]=10"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "requirements for creating identifiers"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "string or array of strings used for concatenation of variables. if array, values are used in the same order they appear in the array"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "list of values (field_name => value) that are used as a default if there is no value"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "string used for concatenation if identifier exists"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "sprintf() format for numerical value that is appended if identifier already exists"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "function to determine whether existing identifiers should change or not (e. g. for events moved to a different year, change, otherwise not)"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "list of fields used to create the identifier, notation like category_id[parameters] possible"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "string that will be used for replacing spaces and unknown letters"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "name of function that identifier will go through finally"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "up to 4 function parameters to pass to function, if none is set, use identifier as parameter"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "create hash from identifier and current timestamp"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "list of fields that are ignored for creation of identifier (fields were used before)"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "list of fields (field1 => field2) that are ignored, e. g. field1 is ignored if field2 has a value"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "list of fields (field1 => field2) that are ignored, e. g. field1 is ignored if field2 has an identical value"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "transform all letters to lowercase?"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "maximum length of identifier"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "name of field in `fields` that contains parameters that are added to identifier configuration"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "prefix that will always be added before identifier"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "if there can be more than one sub record, find preferred sub record via values, e. g. IDs. example: $zz['fields'][2]['identifier']['preferred']['objects-Title'] = ['text_language_id' => [wrap_id('languages', '-id'), wrap_id('languages', '---'), wrap_id('languages', 'eng')]];"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "use a random hash as identifier, length of characters"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "string with characters used for random_hash"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "list of strings that are removed from values for identifier"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "key => value; characters in key will be replaced by value"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "preserve slashes?"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "SQL query to check if identifier already exists"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "value from which the first identical identifier begins to count up"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "always append start value, even for first occurence of an identifier"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "strip HTML tags with strip_tags()"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "list of extra fields that are needed to create a query with a unique result"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "transform all letters to uppercase?"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "pairs of field_name => value (optional if not called via zzform, normally via ['fields'])"
+msgstr ""
+
+#: configuration/zz-fields.cfg
+msgid "WHERE-condition to be appended to query that checks existence of identifier in database"
+msgstr ""
 
 # Number of records as shown in page TITLE
 # Page elements
