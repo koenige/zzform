@@ -2358,7 +2358,7 @@ function zz_field_rating($field, $display, $record) {
 			$text[] = sprintf('<label>%s<span>%s</span></label>', $input, wrap_setting('zzform_rating_symbol'));
 		}
 	}
-	return sprintf('<div class="zz_rating">%s</div>', implode("\n", $text));
+	return sprintf('<div class="zz_rating">%s</div>', implode("", $text));
 }
 
 /**
