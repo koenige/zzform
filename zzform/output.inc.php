@@ -682,7 +682,7 @@ function zz_nice_tablenames($table) {
 	$table = explode('_', $table);
 	foreach (array_keys($table) as $id) $table[$id] = ucfirst($table[$id]);
 	$table = implode('/', $table);
-	return wrap_text($table);
+	return wrap_text($table, ['source' => wrap_setting('zzform_script_path')]);
 }
 
 /**
@@ -811,7 +811,7 @@ function zz_format($text) {
 	$text = trim(substr($text, 8, -3));
 	if (substr($text, 0, 1) === '"' AND substr($text, -1) === '"')
 		$text = trim(substr($text, 1, -1));
-	return wrap_text($text);
+	return wrap_text($text, ['source' => wrap_setting('zzform_script_path')]);
 }
 
 /**
