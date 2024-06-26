@@ -2123,7 +2123,7 @@ function zz_field_password($field, $display, $record, $action) {
 	// new: the know-it-alls of all big browsers decided that autocomplete is evil
 	// to hinder the browser fill in your password in a new login record, we need
 	// an extra password and username field where these
-	$text = '<input type="text" style="display: none;"><input type="password" style="display: none;">'
+	$text = '<input type="text" class="hidden"><input type="password" class="hidden">'
 		.$text;
 	return $text;
 }

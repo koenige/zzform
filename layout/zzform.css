@@ -294,6 +294,10 @@ body #zzform .separator hr
 #zzform #record .set li li
 					{ list-style: none; }
 
+/* progress bar */
+#zzform_upload_progress_bar
+					{ width: 300px; }
+
 /* filter */
 #zzform .zzfilter	{ margin: 1.5em 0 0; line-height: 1; overflow: hidden; }
 #zzform .zzfilter dl { margin: 0 0 .5em; padding: 0; }

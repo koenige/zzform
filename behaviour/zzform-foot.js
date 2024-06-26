@@ -6,7 +6,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2014, 2018, 2020-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2014, 2018, 2020-2022, 2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -291,7 +291,7 @@ async function zzformSubmit(event) {
 	var xhr = new XMLHttpRequest();
 	zzformUploadForm = document.getElementById('zzform_upload_progress');
 	if (zzformUploadForm) {
-		zzformUploadForm.style = 'display: block;';
+		zzformUploadForm.classList.remove('hidden');
 		xhr.upload.addEventListener('progress', zzformUploadProgress, false);
 	}
 	zzformDisableElements();

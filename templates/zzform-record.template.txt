@@ -66,8 +66,8 @@ condition if divert_files %%% data-divert-files="%%% item divert_files %%%"%%% c
 %%% text Submit data … %%%
 </div>
 %%% condition if upload_form %%%
-<div id="zzform_upload_progress" style="display: none;">
-  <progress id="zzform_upload_progress_bar" value="0" max="100" style="width:300px;"></progress>
+<div id="zzform_upload_progress" class="hidden">
+  <progress id="zzform_upload_progress_bar" value="0" max="100"></progress>
   <h3 id="zzform_upload_status"></h3>
   <p id="zzform_loaded"></p>
 </div>
