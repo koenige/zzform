@@ -855,6 +855,11 @@ function zz_upload_unix_file($filename, $file) {
 		return $file;
 	}
 	list($output, $return_var) = zz_upload_exec($fileinfo.' --brief "'.$filename.'"', 'Fileinfo');
+	if ($return_var === 127) {
+		// activated by default, but if not found, deactivate it
+		wrap_setting_write('zzform_upload_tools_file', 'false');
+		return $file;
+	}
 	if (!$output) return $file;
 	if (wrap_setting('debug')) zz_debug('file brief', json_encode($output));
 	// output might contain characters in a different character encoding
