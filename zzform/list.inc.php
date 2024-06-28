@@ -568,10 +568,10 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 
 		$subselect = zz_list_init_subselects($field, $fieldindex);
 		if ($subselect) $subselects[] = $subselect;
-		if (empty($line[$subselect['key_fieldname']])) {
+		if (!array_key_exists($subselect['key_fieldname'], $line)) {
 			zz_error_log([
-				'msg_dev' => 'Wrong key_field_name. Please set $zz_sub["fields"][n]["key_field_name"] to something different: %s',
-				'msg_dev_args' => [implode(', ', array_keys($line))]
+				'msg_dev' => 'Wrong key_field_name `%s`. Please set $zz_sub["fields"][n]["key_field_name"] to something different: %s',
+				'msg_dev_args' => [$subselect['key_fieldname'], implode(', ', array_keys($line))]
 			]);
 		}
 	}
@@ -1987,8 +1987,10 @@ function zz_list_get_subselects($lines, $subselects, $mode) {
 		// IDs
 		$ids = [];
 		foreach ($lines as $no => $line) {
+			if (!$line[$subselect['key_fieldname']]) continue;
 			$ids[$no] = $line[$subselect['key_fieldname']];
 		}
+		if (!$ids) continue;
 	
 		// default values
 		if (!empty($subselect['export_no_html']) OR $mode === 'export') {
