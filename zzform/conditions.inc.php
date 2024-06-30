@@ -42,7 +42,7 @@ function zz_conditions_set($zz) {
 
 	// All supported shortcuts
 	$shortcuts = [
-		'list_empty', 'record_mode', 'export_mode', 'where', 'multi',
+		'list_empty', 'record_mode', 'export_mode', 'where', 'multi', 'batch',
 		'add', 'edit', 'delete', 'upload', 'noid', 'revise', 'insert', 'update'
 	];
 	// Some shortcuts depend on a field, get field_name as extra definition
@@ -190,8 +190,11 @@ function zz_conditions_check($zz, $mode) {
 			}
 			break;
 		case 'multi':
+		case 'batch':
 			if (!empty($zz_conf['multi'])) {
 				$zz_conditions['bool'][$index] = true;
+			} else {
+				$zz_conditions['bool'][$index] = false;
 			}
 			break;
 		case 'record_mode':
@@ -905,6 +908,7 @@ function zz_conditions_list_check($zz, $list, $zz_conditions, $ids, $mode) {
 		// case record remains the same as in form view
 		// case query covers more ids
 		case 'multi':
+		case 'batch':
 			if (!empty($zz_conf['multi'])) {
 				$zz_conditions['bool'][$index] = true;
 			} else {
