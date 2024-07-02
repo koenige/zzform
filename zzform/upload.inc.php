@@ -2892,6 +2892,7 @@ function zz_upload_filetype_group($filetype) {
  */
 function zz_upload_show_warning($file, $type) {
 	if (empty($file['upload_ext'])) return true;
+	if ($file['upload_ext'] === 'unknown') return true;
 	$filetype_def = wrap_filetypes($file['upload_ext'], 'read-per-extension');
 	if (empty($filetype_def['hide_warnings'][$type])) return true;
 	return false;
