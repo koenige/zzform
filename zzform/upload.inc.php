@@ -515,12 +515,16 @@ function zz_upload_fileinfo($file, $extension = false) {
 	// check filetype by several means
 	if (wrap_setting('debug')) zz_debug('file', json_encode($file));
 	$functions = [
+		'upload_unix_file',			// Unix file command
 		'upload_getimagesize',		// getimagesize(), PHP
 		'upload_exif_imagetype',	// exif_imagetype(), PHP
-		'imagick_identify',			// ImageMagick identify command
-		'upload_unix_file'			// Unix file command
+		'imagick_identify'			// ImageMagick identify command
 	];
 	foreach ($functions as $function) {
+		// if `file` found that it is a text file:
+		// no further checks with functions to check image or binary files are necessary
+		if (!empty($file['mime_file']) AND str_starts_with($file['mime_file'], 'text/'))
+			continue;
 		$function_name = 'zz_'.$function;
 		if (!function_exists($function_name)) continue;
 		$file = $function_name($filename, $file);
@@ -878,6 +882,7 @@ function zz_upload_unix_file($filename, $file) {
 	if (empty($output[0])) return $file;
 
 	$file['mime'] = $output[0];
+	$file['mime_file'] = $output[0];
 	// save charset somewhere else
 	// application/pdf; charset=binary or text/plain; charset=utf-8
 	if (strstr($file['mime'], ';')) {
