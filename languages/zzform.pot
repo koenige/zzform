@@ -1924,6 +1924,30 @@ msgstr ""
 msgid "The number %d is too high. Maximum value is %d."
 msgstr ""
 
+#: zzform/debug.inc.php:100
+msgid "Debug Information"
+msgstr ""
+
+#: zzform/debug.inc.php:103
+msgid "Mem"
+msgstr ""
+
+#: zzform/debug.inc.php:103
+msgid "Function"
+msgstr ""
+
+#: zzform/debug.inc.php:104
+msgid "Marker"
+msgstr ""
+
+#: zzform/debug.inc.php:104
+msgid "SQL"
+msgstr ""
+
+#: zzform/debug.inc.php:124
+msgid "Memory peak usage"
+msgstr ""
+
 #: zzform/export.inc.php
 msgid "The required %s export function <code>%s()</code> does not exist."
 msgstr ""
