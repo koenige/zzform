@@ -217,9 +217,10 @@ function zz_nice_headings($heading, $zz) {
 			$i++;
 		}
 	}
-	if ($heading_addition) {
+	if (array_key_exists('text', $zz['subtitle']))
+		$heading_addition[] = $zz['subtitle']['text'];
+	if ($heading_addition)
 		$heading .= ': <br>'.implode(' – ', $heading_addition); 
-	}
 	return zz_return($heading);
 }
 
