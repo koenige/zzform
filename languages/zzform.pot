@@ -1920,6 +1920,10 @@ msgstr ""
 msgid "Bytes"
 msgstr ""
 
+#: zzform/_functions.inc.php:401
+msgid "Unable to insert record into table %s."
+msgstr ""
+
 #: zzform/action.inc.php
 msgid "The number %d is too high. Maximum value is %d."
 msgstr ""

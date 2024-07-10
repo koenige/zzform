@@ -398,7 +398,7 @@ function zzform_delete($table, $ids, $error_type = E_USER_NOTICE, $settings = []
  * @return int
  */
 function zzform_insert($table, $data, $error_type = E_USER_NOTICE, $settings = []) {
-	$settings['msg_2'] = wrap_text('Insertion of record into table %s impossible.', ['values' => [$table]]);
+	$settings['msg_2'] = wrap_text('Unable to insert record into table %s.', ['values' => [$table]]);
 	$def = zzform_batch_def($table, $settings);
 
 	$values = [];
