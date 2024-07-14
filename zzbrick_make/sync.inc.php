@@ -28,7 +28,7 @@ function mod_zzform_make_sync($params) {
 
 	if (empty($params[0]) OR !array_key_exists($params[0], $data)) {
 		$data = array_values($data);
-		if (!array_key_exists($params[0], $data)) {
+		if (count($params) AND !array_key_exists($params[0], $data)) {
 			foreach (array_keys($data) as $index)
 				$data[$index]['sync_inexistent'] = true;
 			$data['sync_inexistent'] = true;
