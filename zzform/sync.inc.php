@@ -42,7 +42,7 @@ function zz_sync($setting) {
 	case 'csv':
 		if (!file_exists($setting['csv_source']))
 			wrap_quit(503, wrap_text('Import: File %s does not exist. '
-				.'Please set a different filename', ['values' => $setting['csv_source']]));
+				.'Please set a different filename.', ['values' => $setting['csv_source']]));
 		list($raw, $i) = zz_sync_csv($setting);
 		if ($i === $setting['end']) $refresh = true;
 		break;
@@ -190,7 +190,10 @@ function zz_sync_defaults($setting) {
 		// get source file
 		if (empty($setting['csv_filename']))
 			wrap_error('Please set an import filename via $setting["csv_filename"].', E_USER_ERROR);
-		$setting['csv_source'] = wrap_setting('cms_dir').'/_sync/'.$setting['csv_filename'];
+		if (str_starts_with($setting['csv_filename'], '%'))
+			$setting['csv_source'] = wrap_setting_value_placeholder($setting['csv_filename']);
+		else
+			$setting['csv_source'] = wrap_setting('cms_dir').'/_sync/'.$setting['csv_filename'];
 		break;
 	case 'sql':
 		break;
@@ -204,7 +207,9 @@ function zz_sync_defaults($setting) {
 	}
 
 	if (empty($setting['existing']))
-		wrap_error('Please define a query for the existing records in the database with -- identifier_existing --.', E_USER_ERROR);
+		wrap_error(wrap_text('Please define a query for the existing records in the database with -- %s_existing --.',
+			['values' => [$setting['identifier']]]
+		), E_USER_ERROR);
 	if (empty($setting['fields']))
 		wrap_error('Please set which fields should be imported in `fields`.', E_USER_ERROR);	
 	if (empty($setting['form_script']))
@@ -272,7 +277,7 @@ function zz_sync_csv($setting) {
 	$handle = fopen($setting['csv_source'], "r");
 
 	if (!count($setting['csv_key']))
-		wrap_error('Please set one or more fields as key fields in `csv_key`.', E_USER_ERROR);
+		wrap_error('Please set one or more fields as unique key fields in `csv_key`.', E_USER_ERROR);
 
 	$processed = 0;
 	while (!feof($handle)) {
