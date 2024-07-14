@@ -1829,6 +1829,11 @@ msgstr ""
 
 # Modules: Sync
 #: templates/sync-overview.template.txt
+msgid "There is no definition for a synchronization named <code>%s</code>."
+msgstr ""
+
+# Modules: Sync
+#: templates/sync-overview.template.txt
 msgid "There are no deletable records."
 msgstr ""
 
