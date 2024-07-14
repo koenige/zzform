@@ -362,6 +362,7 @@ function zz_sync_csv_fixed_width_line($handle, $setting) {
 	if ($line === false) return $line;
 	$new_line = [];
 	foreach ($head[$setting['identifier']]['fields'] as $index => $field) {
+		if ($setting['csv_id_only'] and !in_array($field, $setting['csv_key'])) continue;
 		$value = trim(substr($line, $head[$setting['identifier']]['start'][$index], $head[$setting['identifier']]['length'][$index]));
 		$new_line[$field] = $value;
 	}
@@ -826,6 +827,7 @@ function zz_sync_deletable($setting) {
 	switch ($setting['type']) {
 	case 'csv':
 		$setting['end'] = 0;
+		$setting['csv_id_only'] = true;
 		list($raw, $i) = zz_sync_csv($setting);
 		break;
 	case 'sql':
