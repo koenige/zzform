@@ -26,8 +26,15 @@ function mod_zzform_make_sync($params) {
 	foreach (array_keys($data) as $identifier)
 		$data[$identifier]['identifier'] = $identifier;
 
-	if (empty($params[0])) {
+	if (empty($params[0]) OR !array_key_exists($params[0], $data)) {
 		$data = array_values($data);
+		if (!array_key_exists($params[0], $data)) {
+			foreach (array_keys($data) as $index)
+				$data[$index]['sync_inexistent'] = true;
+			$data['sync_inexistent'] = true;
+			$data['identifier'] = $params[0];
+			$page['status'] = 404;
+		}
 		$page['text'] = wrap_template('sync-overview', $data);
 		return $page;
 	}
