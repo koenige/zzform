@@ -540,57 +540,12 @@ function zz_sync_line_errors($line, $fields) {
 function zz_sync_list($testing, $setting) {
 	// get head
 	$def = zzform_batch_def($setting['form_script']);
-
 	$head = zz_sync_fields($def['fields'], $testing['head']);
-	$field_names = [];
-	$foreign_keys = [];
-	$foreign_keys[$def['table']] = $def['primary_key'];
-	$id_fields = [];
-	$id_fields[$def['table']] = $def['primary_key'];
-	foreach ($head as $field) {
-		if (empty($field['field_name'])) continue;
-		$table = $field['table'] ?? $def['table'];
-		$field_names[$table][] = $field['field_name'];
-		if (!empty($field['foreign_key'])) {
-			$foreign_keys[$table] = $field['foreign_key'];
-		}
-		if (!empty($field['id_field'])) {
-			$id_fields[$table] = $field['id_field'];
-		}
-	}
 	unset($testing['head']);
 
-	// get values
-	$ids = [];
-	foreach ($testing as $index => $line) {
-		foreach ($line as $key => $value) {
-			if ($key === '_id') $ids[] = $value;
-		}
-	}
-		
 	// get existing records
-	foreach ($field_names as $table => $fnames) {
-		if (!in_array($foreign_keys[$table], $fnames)) {
-			array_unshift($fnames, $foreign_keys[$table]);
-		}
-		if (!in_array($id_fields[$table], $fnames)) {
-			array_unshift($fnames, $id_fields[$table]);
-		}
-		$sql = 'SELECT %s
-			FROM %s
-			WHERE %s IN (%s)';
-		$sql = sprintf($sql
-			, implode(', ', $fnames)
-			, $table
-			, $def['primary_key']
-			, implode(',', $ids)
-		);
-		if ($id_fields[$table] === $foreign_keys[$table]) {
-			$existing[$table] = wrap_db_fetch($sql, $id_fields[$table]);
-		} else {
-			$existing[$table] = wrap_db_fetch($sql, [$foreign_keys[$table], $id_fields[$table]], 'numeric');
-		}
-	}
+	$ids = zz_sync_id_values($testing);
+	$existing = zz_sync_existing($def, $head, $ids);
 
 	$j = intval($setting['limit']);
 	$missing_fields = [];
@@ -660,6 +615,74 @@ function zz_sync_list($testing, $setting) {
 	$text = wrap_template('sync', $testing);
 	return $text;
 }
+
+/**
+ * get existing records
+ *
+ * @param array $def
+ * @param array $head
+ * @param array $ids
+ * @return array
+ */
+function zz_sync_existing($def, $head, $ids) {
+	$field_names = [];
+	$foreign_keys = [];
+	$foreign_keys[$def['table']] = $def['primary_key'];
+	$id_fields = [];
+	$id_fields[$def['table']] = $def['primary_key'];
+
+	foreach ($head as $field) {
+		if (empty($field['field_name'])) continue;
+		$table = $field['table'] ?? $def['table'];
+		$field_names[$table][] = $field['field_name'];
+		if (!empty($field['foreign_key'])) {
+			$foreign_keys[$table] = $field['foreign_key'];
+		}
+		if (!empty($field['id_field'])) {
+			$id_fields[$table] = $field['id_field'];
+		}
+	}
+
+	foreach ($field_names as $table => $fnames) {
+		if (!in_array($foreign_keys[$table], $fnames)) {
+			array_unshift($fnames, $foreign_keys[$table]);
+		}
+		if (!in_array($id_fields[$table], $fnames)) {
+			array_unshift($fnames, $id_fields[$table]);
+		}
+		$sql = 'SELECT %s
+			FROM %s
+			WHERE %s IN (%s)';
+		$sql = sprintf($sql
+			, implode(', ', $fnames)
+			, $table
+			, $def['primary_key']
+			, implode(',', $ids)
+		);
+		if ($id_fields[$table] === $foreign_keys[$table]) {
+			$existing[$table] = wrap_db_fetch($sql, $id_fields[$table]);
+		} else {
+			$existing[$table] = wrap_db_fetch($sql, [$foreign_keys[$table], $id_fields[$table]], 'numeric');
+		}
+	}
+	return $existing;
+}
+
+/**
+ * get all IDs
+ *
+ * @param array $data
+ * @return array
+ */
+function zz_sync_id_values($data) {
+	$ids = [];
+	foreach ($data as $index => $line) {
+		foreach ($line as $key => $value) {
+			if ($key === '_id') $ids[] = $value;
+		}
+	}
+	return $ids;
+}	
 
 /**
  * set field value to NULL if empty
