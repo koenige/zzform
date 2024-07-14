@@ -70,7 +70,7 @@ function zz_sync($setting) {
 	}
 
 	// sync data
-	list($updated, $inserted, $nothing, $errors, $testing) = zz_sync_zzform($raw, $setting);
+	list($updated, $inserted, $nothing, $errors, $data) = zz_sync_zzform($raw, $setting);
 
 	// output results
 	$lines = [];
@@ -79,7 +79,7 @@ function zz_sync($setting) {
 		$lines[] = wrap_text('%d updates were made.', ['values' => $updated]);
 	if ($inserted)
 		$lines[] = wrap_text('%d inserts were made.', ['values' => $inserted]);
-	if ($nothing AND (!$testing OR $post))
+	if ($nothing AND (!$data OR $post))
 		$lines[] = wrap_text('%d records were left as is.', ['values' => $nothing]);
 	if ($errors) {
 		if (count($errors) === 1) {
@@ -89,9 +89,9 @@ function zz_sync($setting) {
 				."<ul><li>\n".implode("</li>\n<li>", $errors)."</li>\n</ul>\n";
 		}
 	}
-	if ($testing) {
+	if ($data) {
 		if (!$post) {
-			$lines[] = zz_sync_list($testing, $setting);
+			$lines[] = zz_sync_list($data, $setting);
 		} elseif ($refresh) {
 			$lines[] = sprintf('<a href="?limit=%s">%s</a>', $setting['end'], wrap_text('Go on to next page'));
 		} else {
@@ -373,7 +373,7 @@ function zz_sync_csv_fixed_width_line($handle, $setting) {
  * @param array $raw raw data, indexed by identifier
  * @param array $setting sync settings
  * @return array $updated, $inserted, $nothing = count of records, $errors,
- *		$testing
+ *		$data
  */
 function zz_sync_zzform($raw, $setting) {
 	$updated = 0;
@@ -381,7 +381,7 @@ function zz_sync_zzform($raw, $setting) {
 	$nothing = 0;
 	$raw_count = count($raw);
 	$errors = [];
-	$testing = [];
+	$data = [];
 
 	if (empty($_POST['action'])) $_POST['action'] = [];
 	elseif (!is_array($_POST['action'])) $_POST['action'] = [$_POST['action']];
@@ -439,7 +439,7 @@ function zz_sync_zzform($raw, $setting) {
 			}
 			foreach ($fields as $field_name => $value) {
 				$head[$field_name] = $field_name;
-				$testing[$identifier][$field_name] = $value;
+				$data[$identifier][$field_name] = $value;
 				if (!in_array($pos, $setting['show_but_no_import']))
 					$line = zz_check_values($line, $field_name, $value);
 			}
@@ -447,19 +447,19 @@ function zz_sync_zzform($raw, $setting) {
 		// static values to sync
 		foreach ($setting['static'] as $field_name => $value) {
 			$head[$field_name] = $field_name;
-			$testing[$identifier][$field_name] = $value;
+			$data[$identifier][$field_name] = $value;
 			$line = zz_check_values($line, $field_name, $value);
 		}
 		if (!empty($ids[$identifier])) {
-			$testing[$identifier]['_action'] = 'update';
-			$testing[$identifier]['_id'] = $ids[$identifier];
+			$data[$identifier]['_action'] = 'update';
+			$data[$identifier]['_id'] = $ids[$identifier];
 			$line[$def['primary_key']] = $ids[$identifier];
 		} else {
-			$testing[$identifier]['_action'] = 'insert';
-			$testing[$identifier]['_insert'] = true;
+			$data[$identifier]['_action'] = 'insert';
+			$data[$identifier]['_insert'] = true;
 		}
 		if ($_SERVER['REQUEST_METHOD'] !== 'POST') continue;
-		if ($testing[$identifier]['_action'] === 'update') {
+		if ($data[$identifier]['_action'] === 'update') {
 			$success = zzform_update($setting['form_script'], $line);
 			if ($success) $updated++;
 			else $nothing++;
@@ -469,8 +469,8 @@ function zz_sync_zzform($raw, $setting) {
 			else $nothing++;
 		}
 	}
-	$testing['head'] = $head ?? [];
-	return [$updated, $inserted, $nothing, $errors, $testing];
+	$data['head'] = $head ?? [];
+	return [$updated, $inserted, $nothing, $errors, $data];
 }
 
 /**
@@ -533,27 +533,27 @@ function zz_sync_line_errors($line, $fields) {
 /**
  * display records to import
  *
- * @param array $testing
+ * @param array $data
  * @param array $setting
  * @return string
  */
-function zz_sync_list($testing, $setting) {
+function zz_sync_list($data, $setting) {
 	// get head
 	$def = zzform_batch_def($setting['form_script']);
-	$head = zz_sync_fields($def['fields'], $testing['head']);
-	unset($testing['head']);
+	$head = zz_sync_fields($def['fields'], $data['head']);
+	unset($data['head']);
 
 	// get existing records
-	$ids = zz_sync_id_values($testing);
+	$ids = zz_sync_id_values($data);
 	$existing = zz_sync_existing($def, $head, $ids);
 
 	$j = intval($setting['limit']);
 	$missing_fields = [];
-	foreach ($testing as $index => $line) {
+	foreach ($data as $index => $line) {
 		$j++;
 		foreach (array_keys($head) as $num) {
 			if (substr($num, 0, 1) === '_') continue;
-			$testing[$index]['fields'][$num]['value'] = ''; 
+			$data[$index]['fields'][$num]['value'] = ''; 
 		}
 		$identical = true;
 		foreach ($line as $key => $value) {
@@ -565,54 +565,54 @@ function zz_sync_list($testing, $setting) {
 			$num = $head['_mapping'][$key];
 			if (strstr($num, '-')) {
 				$row_index = substr($key, strpos($key, '[') + 1, strpos($key, ']') - strpos($key, '[') - 1);
-				$testing[$index]['fields'][$num]['values'][$row_index]['value'] = $value;
+				$data[$index]['fields'][$num]['values'][$row_index]['value'] = $value;
 				$table = $head[$num]['table'];
 				$fname = substr($key, strrpos($key, '[') + 1, -1);
 				if (isset($line['_id']) AND !empty($existing[$table][$line['_id']][$row_index][$fname])) {
 					$evalue = $existing[$table][$line['_id']][$row_index][$fname];
-					$testing[$index]['fields'][$num]['values'][$row_index]['existing'] = $evalue;
+					$data[$index]['fields'][$num]['values'][$row_index]['existing'] = $evalue;
 					if ($evalue === trim($value)) {
-						$testing[$index]['fields'][$num]['values'][$row_index]['identical'] = true;
+						$data[$index]['fields'][$num]['values'][$row_index]['identical'] = true;
 					} else $identical = false;
 				} else $identical = false;
 			} else {
 				if ($value) $value = trim($value);
 				if (!$value) $value = zz_sync_null_value($value, $key, $def['fields']);
-				$testing[$index]['fields'][$num]['value'] = $value;
+				$data[$index]['fields'][$num]['value'] = $value;
 				$table = $def['table'];
 				$fname = $key;
 				if (isset($line['_id']) AND array_key_exists($fname, $existing[$table][$line['_id']])) {
 					$evalue = $existing[$table][$line['_id']][$fname];
-					$testing[$index]['fields'][$num]['existing'] = $evalue;
+					$data[$index]['fields'][$num]['existing'] = $evalue;
 					if (is_null($value) AND is_null($evalue)) {
-						$testing[$index]['fields'][$num]['identical'] = true;
+						$data[$index]['fields'][$num]['identical'] = true;
 					} elseif ($evalue === $value) {
-						$testing[$index]['fields'][$num]['identical'] = true;
+						$data[$index]['fields'][$num]['identical'] = true;
 					} else $identical = false;
 				} else $identical = false;
 			}
-			unset($testing[$index][$key]);
+			unset($data[$index][$key]);
 		}
-		$testing[$index]['identical'] = $identical;
-		$testing[$index]['no'] = $j;
-		$testing[$index]['index'] = $index;
-		$testing[$index]['script_url'] = zz_sync_script_url($setting);
+		$data[$index]['identical'] = $identical;
+		$data[$index]['no'] = $j;
+		$data[$index]['index'] = $index;
+		$data[$index]['script_url'] = zz_sync_script_url($setting);
 	}
 	foreach ($missing_fields as $field) {
 		wrap_error(wrap_text('Field %s is missing in table definition.', ['values' => [$field]]));
 	}
 	
-	$testing = array_values($testing);
+	$data = array_values($data);
 	foreach ($head as $num => $field) {
 		if (substr($num, 0, 1) === '_') continue;
-		$testing['head'][$num]['field_name'] = '';
+		$data['head'][$num]['field_name'] = '';
 		if (isset($field['table_title'])) {
-			$testing['head'][$num]['field_name'] .= $field['table_title'].'<br>';
+			$data['head'][$num]['field_name'] .= $field['table_title'].'<br>';
 		}
-		$testing['head'][$num]['field_name'] .= $field['title'] ?? $field['field_name'];
+		$data['head'][$num]['field_name'] .= $field['title'] ?? $field['field_name'];
 	}
 
-	$text = wrap_template('sync', $testing);
+	$text = wrap_template('sync', $data);
 	return $text;
 }
 
@@ -718,7 +718,7 @@ function zz_sync_def_field($field_name, $fields) {
  * get fields out of zzform definition that are displayed in sync table
  *
  * @param array $fields = $zz['fields']
- * @param array $old_head = $testing['head'], list of field names
+ * @param array $old_head = $data['head'], list of field names
  * 		or subtable + index + field_name
  * @return array $head
  */
