@@ -621,13 +621,17 @@ function zz_sync_list($testing, $setting) {
 					} else $identical = false;
 				} else $identical = false;
 			} else {
+				if ($value) $value = trim($value);
+				if (!$value) $value = zz_sync_null_value($value, $key, $def['fields']);
 				$testing[$index]['fields'][$num]['value'] = $value;
 				$table = $def['table'];
 				$fname = $key;
-				if (isset($line['_id']) AND !empty($existing[$table][$line['_id']][$fname])) {
+				if (isset($line['_id']) AND array_key_exists($fname, $existing[$table][$line['_id']])) {
 					$evalue = $existing[$table][$line['_id']][$fname];
 					$testing[$index]['fields'][$num]['existing'] = $evalue;
-					if ($evalue === trim($value)) {
+					if (is_null($value) AND is_null($evalue)) {
+						$testing[$index]['fields'][$num]['identical'] = true;
+					} elseif ($evalue === $value) {
 						$testing[$index]['fields'][$num]['identical'] = true;
 					} else $identical = false;
 				} else $identical = false;
@@ -655,6 +659,36 @@ function zz_sync_list($testing, $setting) {
 
 	$text = wrap_template('sync', $testing);
 	return $text;
+}
+
+/**
+ * set field value to NULL if empty
+ *
+ * @param string $field_name
+ * @param array $fields
+ * @return array
+ */
+function zz_sync_null_value($value, $field_name, $fields) {
+	$fielddef = zz_sync_def_field($field_name, $fields);
+	if ($value === 0 OR $value === '0' AND !empty($fielddef['null'])) return $value;
+	if ($value === '' AND !empty($fielddef['null_string'])) return $value;
+	return NULL;
+}
+
+/**
+ * get definition for field by field name
+ *
+ * @param string $field_name
+ * @param array $fields
+ * @return array
+ */
+function zz_sync_def_field($field_name, $fields) {
+	foreach ($fields as $field) {
+		if (empty($field['field_name'])) continue;
+		if ($field['field_name'] !== $field_name) continue;
+		return $field;
+	}
+	return [];
 }
 
 /**
