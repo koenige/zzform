@@ -217,6 +217,8 @@ function zz_sync_defaults($setting) {
 
 	// set correct table_name for subtables
 	$setting = zz_sync_table_shortcut($setting);
+	
+	if (!$setting['logging']) wrap_setting('zzform_logging', false);
 	return $setting;
 }
 
