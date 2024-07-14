@@ -432,8 +432,10 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 
 	$result = zz_db_change($sql_edit, $zz_conf['int']['id']['value']);
 	if ($result['action']) {
-		if ($zz_tab[0][0]['action'] === 'insert') {
-			$zz_conf['int']['id']['value'] = $result['id_value']; // for requery
+		if ($zz_tab[0][0]['action'] === 'insert' AND $result['id_value']) {
+			// for requery
+			// id_value might be empty if import_id_value is set and field has no auto increment field
+			$zz_conf['int']['id']['value'] = $result['id_value'];
 		}
 		$foreign_ids['[FOREIGN_KEY]'] = sprintf('%d', $zz_conf['int']['id']['value']); 
 		// save record values for use outside of zzform()
