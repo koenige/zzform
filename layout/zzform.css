@@ -639,8 +639,8 @@ ul.vxJS_list		{ margin: 0; padding: 0;  list-style-type: none; }
 .vxJS_list .hiLite	{ background: yellow; color: black; }
 %%% condition endif %%%
 
-/* drag and drop */
 
+/* drag and drop */
 #zzform [draggable], #zzform [draggable] a
 					{ -moz-user-select: none; -khtml-user-select: none;
 					-webkit-user-select: none; user-select: none;
@@ -651,12 +651,20 @@ ul.vxJS_list		{ margin: 0; padding: 0;  list-style-type: none; }
 #zzform .data li.over
 					{ border-left-color: #FFF; }
 
-/* saved form */
 
+/* saved form */
 #zzform.saved_state #record
 					{ cursor: progress; }
 #zzform_save		{ display: none; }
 
+
+/* sync */
+.db_ignore			{ height: 1.2rem; overflow: hidden; }
+.db_ignore td		{ color: #CCC; height: 1.2rem; }
+.db_ignore .identical_value
+					{ display: none; }
+.db_ignore input[type=checkbox]
+					{ display: none; }
 
 @media print {
 	/* black text, 11pt */

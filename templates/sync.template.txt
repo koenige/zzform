@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2016, 2022-2023 Gustaf Mossakowski
+# @copyright Copyright © 2016, 2022-2024 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 <div id="zzform">
@@ -22,17 +22,17 @@
 </tr>
 </thead>
 <tbody>
-%%% loop start %%%
-<tr class='%%% loopposition uneven "un" %%%even'>
-<td class='number%%% item _insert " highlight"%%%'>%%% item no %%%</td>
-<td class='number%%% item _insert " highlight"%%%'>
-%%% condition if _id & script_url %%%<a href="%%% item script_url %%%?edit=%%% item _id %%%">%%% item _id %%%</a>
-%%% condition elseif _id %%%%%% item _id %%%
+%%% loop records %%%
+<tr class='%%% loopposition uneven "un" %%%even db_%%% item action %%%'>
+<td class='number%%% item insert " highlight"%%%'>%%% item no %%%</td>
+<td class='number%%% item insert " highlight"%%%'>
+%%% condition if id & script_url %%%<a href="%%% item script_url %%%?edit=%%% item id %%%">%%% item id %%%</a>
+%%% condition elseif id %%%%%% item id %%%
 %%% condition endif %%%
 </td>
-<td%%% item _insert " class='highlight'"%%%>
+<td%%% item insert " class='highlight'"%%%>
 <input type="checkbox" %%% condition unless identical %%%checked %%% condition endif %%%name="action[%%% item index %%%]">
-%%% item _action %%%</td>
+%%% item action %%%</td>
 %%% loop fields %%%
 <td>
 %%% condition if values %%%

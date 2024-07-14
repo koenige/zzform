@@ -416,6 +416,11 @@ function zz_sync_zzform($raw, $setting) {
 	$ids = zz_sync_ids($raw, $setting['existing']);
 	$def = zzform_batch_def($setting['form_script']);
 
+	$data['field_names'] = zz_sync_field_names($setting);
+	$data['fields'] = zz_sync_fields($def['fields'], $data['field_names']);
+	$existing = zz_sync_existing($def, $data['fields'], $ids);
+
+	$lines = [];
 	foreach ($raw as $identifier => $line_raw) {
 		$line = [];
 		foreach ($setting['fields'] as $pos => $field_name) {
@@ -423,6 +428,8 @@ function zz_sync_zzform($raw, $setting) {
 			if (in_array($pos, $setting['ignore_if_null'])
 				AND empty($line_raw[$pos]) AND $line_raw[$pos] !== 0 AND $line_raw[$pos] !== '0') continue;
 			// do nothing if value is NULL
+			if ($line_raw[$pos]) $line_raw[$pos] = trim($line_raw[$pos]);
+			if (!$line_raw[$pos]) $line_raw[$pos] = zz_sync_null_value($line_raw[$pos], $field_name, $def['fields']);
 			if (!isset($line_raw[$pos])) continue;
 			$fields = [];
 			if (!empty($setting['function'][$pos])) {
@@ -438,38 +445,47 @@ function zz_sync_zzform($raw, $setting) {
 				$fields[$field_name] = trim($line_raw[$pos]);
 			}
 			foreach ($fields as $field_name => $value) {
-				$head[$field_name] = $field_name;
-				$data[$identifier][$field_name] = $value;
+				$data['records'][$identifier]['line_flat'][$field_name] = $value;
 				if (!in_array($pos, $setting['show_but_no_import']))
 					$line = zz_check_values($line, $field_name, $value);
 			}
 		}
 		// static values to sync
 		foreach ($setting['static'] as $field_name => $value) {
-			$head[$field_name] = $field_name;
-			$data[$identifier][$field_name] = $value;
+			$data['records'][$identifier]['line_flat'][$field_name] = $value;
 			$line = zz_check_values($line, $field_name, $value);
 		}
 		if (!empty($ids[$identifier])) {
-			$data[$identifier]['_action'] = 'update';
-			$data[$identifier]['_id'] = $ids[$identifier];
+			list($data['records'][$identifier]['identical'], $data['records'][$identifier]['identical_fields'])
+				= zz_sync_identical($line, $existing[$ids[$identifier]] ?? []);
+			if ($data['records'][$identifier]['identical'])
+				$data['records'][$identifier]['action'] = 'ignore';
+			else
+				$data['records'][$identifier]['action'] = 'update';
+			$data['records'][$identifier]['id'] = $ids[$identifier];
+			$data['records'][$identifier]['existing'] = $existing[$ids[$identifier]] ?? [];
 			$line[$def['primary_key']] = $ids[$identifier];
 		} else {
-			$data[$identifier]['_action'] = 'insert';
-			$data[$identifier]['_insert'] = true;
+			$data['records'][$identifier]['action'] = 'insert';
+			$data['records'][$identifier]['insert'] = true;
 		}
-		if ($_SERVER['REQUEST_METHOD'] !== 'POST') continue;
-		if ($data[$identifier]['_action'] === 'update') {
-			$success = zzform_update($setting['form_script'], $line);
+		$lines[$identifier] = $line;
+	}
+
+	if ($_SERVER['REQUEST_METHOD'] !== 'POST')
+		return [$updated, $inserted, $nothing, $errors, $data];
+
+	foreach ($raw as $identifier => $line_raw) {
+		if ($data['records'][$identifier]['action'] === 'update') {
+			$success = zzform_update($setting['form_script'], $lines[$identifier]);
 			if ($success) $updated++;
 			else $nothing++;
 		} else {
-			$success = zzform_insert($setting['form_script'], $line);
+			$success = zzform_insert($setting['form_script'], $lines[$identifier]);
 			if ($success) $inserted++;
 			else $nothing++;
 		}
 	}
-	$data['head'] = $head ?? [];
 	return [$updated, $inserted, $nothing, $errors, $data];
 }
 
@@ -546,10 +562,31 @@ function zz_sync_ids($raw, $query, $format = 'key/value') {
 }
 
 /**
+ * get all field names
+ *
+ * @param array $setting
+ * @return array
+ */
+function zz_sync_field_names($setting) {
+	$fields = [];
+	foreach ($setting['fields'] as $pos => $field_name) {
+		if (strstr($field_name, '+') AND !empty($setting['split_function'][$pos])) {
+			$field_names = explode('+', $field_name);
+			foreach ($field_names as $field_name)
+				$fields[$field_name] = $field_name;
+		} else
+			$fields[$field_name] = $field_name;
+	}
+	foreach (array_keys($setting['static']) as $field_name)
+		$fields[$field_name] = $field_name;
+	return array_values($fields);
+}
+
+/**
  * get fields out of zzform definition that are displayed in sync table
  *
  * @param array $fields = $zz['fields']
- * @param array $old_head = $data['head'], list of field names
+ * @param array $old_head = $data['field_names'], list of field names
  * 		or subtable + index + field_name
  * @return array $head
  */
@@ -582,6 +619,7 @@ function zz_sync_fields($fields, $old_head) {
 				$subfield += [
 					'table_title' => $field['title'] ?? ucfirst($field['table']),
 					'table' => $field['table'],
+					'table_name' => $field['table_name'] ?? $field['table'],
 					'id_field' => $id_field_name,
 					'foreign_key' => $foreign_key
 				];
@@ -604,21 +642,23 @@ function zz_sync_fields($fields, $old_head) {
  * get existing records
  *
  * @param array $def
- * @param array $head
+ * @param array $fields
  * @param array $ids
  * @return array
  */
-function zz_sync_existing($def, $head, $ids) {
-	$field_names = [];
+function zz_sync_existing($def, $fields, $ids) {
+	$tables = [];
 	$foreign_keys = [];
 	$foreign_keys[$def['table']] = $def['primary_key'];
 	$id_fields = [];
 	$id_fields[$def['table']] = $def['primary_key'];
 
-	foreach ($head as $field) {
+	foreach ($fields as $field) {
 		if (empty($field['field_name'])) continue;
 		$table = $field['table'] ?? $def['table'];
-		$field_names[$table][] = $field['field_name'];
+		$tables[$table]['table'] = $table;
+		$tables[$table]['table_name'] =  $field['table_name'] ?? $table;
+		$tables[$table]['fields'][] = $field['field_name'];
 		if (!empty($field['foreign_key'])) {
 			$foreign_keys[$table] = $field['foreign_key'];
 		}
@@ -627,46 +667,33 @@ function zz_sync_existing($def, $head, $ids) {
 		}
 	}
 
-	foreach ($field_names as $table => $fnames) {
-		if (!in_array($foreign_keys[$table], $fnames)) {
-			array_unshift($fnames, $foreign_keys[$table]);
+	$existing = [];
+	foreach ($tables as $tdef) {
+		if (!in_array($foreign_keys[$tdef['table']], $tdef['fields'])) {
+			array_unshift($tdef['fields'], $foreign_keys[$tdef['table']]);
 		}
-		if (!in_array($id_fields[$table], $fnames)) {
-			array_unshift($fnames, $id_fields[$table]);
+		if (!in_array($id_fields[$tdef['table']], $tdef['fields'])) {
+			array_unshift($tdef['fields'], $id_fields[$tdef['table']]);
 		}
 		$sql = 'SELECT %s
 			FROM %s
 			WHERE %s IN (%s)';
 		$sql = sprintf($sql
-			, implode(', ', $fnames)
-			, $table
+			, implode(', ', $tdef['fields'])
+			, $tdef['table']
 			, $def['primary_key']
 			, implode(',', $ids)
 		);
-		if ($id_fields[$table] === $foreign_keys[$table]) {
-			$existing[$table] = wrap_db_fetch($sql, $id_fields[$table]);
+		if ($id_fields[$tdef['table']] === $foreign_keys[$tdef['table']]) {
+			$existing = wrap_db_fetch($sql, $id_fields[$tdef['table']]);
 		} else {
-			$existing[$table] = wrap_db_fetch($sql, [$foreign_keys[$table], $id_fields[$table]], 'numeric');
+			$details = wrap_db_fetch($sql, [$foreign_keys[$tdef['table']], $id_fields[$tdef['table']]], 'numeric');
+			foreach ($details as $foreign_key => $record)
+				$existing[$foreign_key][$tdef['table_name']] = $record;
 		}
 	}
 	return $existing;
 }
-
-/**
- * get all IDs
- *
- * @param array $data
- * @return array
- */
-function zz_sync_id_values($data) {
-	$ids = [];
-	foreach ($data as $index => $line) {
-		foreach ($line as $key => $value) {
-			if ($key === '_id') $ids[] = $value;
-		}
-	}
-	return $ids;
-}	
 
 /**
  * set field value to NULL if empty
@@ -697,6 +724,33 @@ function zz_sync_def_field($field_name, $fields) {
 	}
 	return [];
 }
+/**
+ * check record if it is identical to existing record
+ *
+ * @param array $new
+ * @param array $existing
+ * @return array
+ */
+function zz_sync_identical($new, $existing) {
+	$check = [];
+	$identical = true;
+	foreach ($new as $field_name => $value) {
+		if (!is_array($value)) {
+			$identical_field = $value === $existing[$field_name] ? true : false;
+			$check[$field_name] = $identical_field;
+			if (!$identical_field) $identical = false;
+		} else {
+			foreach ($value as $index => $details) {
+				foreach ($details as $detail_field_name => $detail_value) {
+					$identical_field = $detail_value === $existing[$field_name][$index][$detail_field_name] ? true : false;
+					$check[$field_name][$index][$detail_field_name] = $identical_field;
+					if (!$identical_field) $identical = false;
+				}
+			}
+		}
+	}
+	return [$identical, $check];
+}
 
 /**
  * display records to import
@@ -706,72 +760,45 @@ function zz_sync_def_field($field_name, $fields) {
  * @return string
  */
 function zz_sync_list($data, $setting) {
-	// get head
-	$def = zzform_batch_def($setting['form_script']);
-	$head = zz_sync_fields($def['fields'], $data['head']);
-	unset($data['head']);
-
-	// get existing records
-	$ids = zz_sync_id_values($data);
-	$existing = zz_sync_existing($def, $head, $ids);
-
 	$j = intval($setting['limit']);
 	$missing_fields = [];
-	foreach ($data as $index => $line) {
+	foreach ($data['records'] as $index => &$line) {
 		$j++;
-		foreach (array_keys($head) as $num) {
+		foreach (array_keys($data['fields']) as $num) {
 			if (substr($num, 0, 1) === '_') continue;
-			$data[$index]['fields'][$num]['value'] = ''; 
+			$line['fields'][$num]['value'] = ''; 
 		}
-		$identical = true;
-		foreach ($line as $key => $value) {
+		foreach ($line['line_flat'] as $key => $value) {
 			if (substr($key, 0, 1) === '_') continue;
-			if (!array_key_exists($key, $head['_mapping'])) {
+			if (!array_key_exists($key, $data['fields']['_mapping'])) {
 				$missing_fields[$key] = $key;
 				continue;
 			}
-			$num = $head['_mapping'][$key];
+			$num = $data['fields']['_mapping'][$key];
 			if (strstr($num, '-')) {
-				$row_index = substr($key, strpos($key, '[') + 1, strpos($key, ']') - strpos($key, '[') - 1);
-				$data[$index]['fields'][$num]['values'][$row_index]['value'] = $value;
-				$table = $head[$num]['table'];
-				$fname = substr($key, strrpos($key, '[') + 1, -1);
-				if (isset($line['_id']) AND !empty($existing[$table][$line['_id']][$row_index][$fname])) {
-					$evalue = $existing[$table][$line['_id']][$row_index][$fname];
-					$data[$index]['fields'][$num]['values'][$row_index]['existing'] = $evalue;
-					if ($evalue === trim($value)) {
-						$data[$index]['fields'][$num]['values'][$row_index]['identical'] = true;
-					} else $identical = false;
-				} else $identical = false;
+				$field = explode('[', $key);
+				foreach ($field as $field_index => $part)
+					$field[$field_index] = rtrim($part, ']');
+				$line['fields'][$num]['values'][$field[1]]['value'] = $value;
+				$line['fields'][$num]['values'][$field[1]]['existing']
+					= $line['existing'][$field[0]][$field[1]][$field[2]] ?? NULL;
+				$line['fields'][$num]['values'][$field[1]]['identical']
+					= $line['identical_fields'][$field[0]][$field[1]][$field[2]] ?? false;
 			} else {
-				if ($value) $value = trim($value);
-				if (!$value) $value = zz_sync_null_value($value, $key, $def['fields']);
-				$data[$index]['fields'][$num]['value'] = $value;
-				$table = $def['table'];
-				$fname = $key;
-				if (isset($line['_id']) AND array_key_exists($fname, $existing[$table][$line['_id']])) {
-					$evalue = $existing[$table][$line['_id']][$fname];
-					$data[$index]['fields'][$num]['existing'] = $evalue;
-					if (is_null($value) AND is_null($evalue)) {
-						$data[$index]['fields'][$num]['identical'] = true;
-					} elseif ($evalue === $value) {
-						$data[$index]['fields'][$num]['identical'] = true;
-					} else $identical = false;
-				} else $identical = false;
+				$line['fields'][$num]['value'] = $value;
+				$line['fields'][$num]['existing'] = $line['existing'][$key] ?? NULL;
+				$line['fields'][$num]['identical'] = $line['identical_fields'][$key] ?? NULL;
 			}
-			unset($data[$index][$key]);
 		}
-		$data[$index]['identical'] = $identical;
-		$data[$index]['no'] = $j;
-		$data[$index]['index'] = $index;
-		$data[$index]['script_url'] = zz_sync_script_url($setting);
+		$line['no'] = $j;
+		$line['index'] = $index;
+		$line['script_url'] = zz_sync_script_url($setting);
 	}
-	foreach ($missing_fields as $field) {
+
+	foreach ($missing_fields as $field)
 		wrap_error(wrap_text('Field %s is missing in table definition.', ['values' => [$field]]));
-	}
 	
-	$data = array_values($data);
-	foreach ($head as $num => $field) {
+	foreach ($data['fields'] as $num => $field) {
 		if (substr($num, 0, 1) === '_') continue;
 		$data['head'][$num]['field_name'] = '';
 		if (isset($field['table_title'])) {
@@ -811,18 +838,18 @@ function zz_sync_deletable($setting) {
 		$j++;
 		foreach ($record as $field_name => $value) {
 			if ($field_name === $def['primary_key']) {
-				$data[$index]['_id'] = $value;
+				$data['records'][$index]['id'] = $value;
 			} else {
 				$data['head'][$field_name]['field_name'] = $field_name;
-				$data[$index]['fields'][$i]['value'] = $value;
+				$data['records'][$index]['fields'][$i]['value'] = $value;
 				if (array_key_exists($field_name, $setting['deletable_script_path'])) {
-					$data[$index]['fields'][$i]['my_script_url'] = $setting['deletable_script_path'][$field_name];
+					$data['records'][$index]['fields'][$i]['my_script_url'] = $setting['deletable_script_path'][$field_name];
 				}
 				$i++;
 			}
 		}
-		$data[$index]['no'] = $j;
-		$data[$index]['script_url'] = zz_sync_script_url($setting);
+		$data['records'][$index]['no'] = $j;
+		$data['records'][$index]['script_url'] = zz_sync_script_url($setting);
 	}
 	if (!empty($data['head'])) $data['head'] = array_values($data['head']);
 	if (!$data) $data['no_deletable_records'] = true;
