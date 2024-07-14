@@ -996,3 +996,19 @@ function zz_conditions_before_record($zz, &$zz_tab, &$zz_conditions, $mode) {
 	$zz_conditions = zz_conditions_subrecord_check($zz, $zz_tab, $zz_conditions);
 	$zz_tab = zz_conditions_subrecord($zz_tab, $zz_conditions);
 }
+
+/**
+ * check if there are any batch conditions for access and evaluate them
+ *
+ * @param array $zz
+ * @return array
+ */
+function zz_conditions_access($zz) {
+	global $zz_conf;
+	
+	if (isset($zz['if']['batch']['access']) AND !empty($zz_conf['multi']))
+		$zz['access'] = $zz['if']['batch']['access'];
+	elseif (isset($zz['unless']['batch']['access']) AND empty($zz_conf['multi']))
+		$zz['access'] = $zz['unless']['batch']['access'];
+	return $zz;
+}

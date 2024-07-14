@@ -113,8 +113,6 @@ function zzform($zz) {
 		$zz = zz_details($zz);
 	}
 
-	$zz_conf['int']['access'] = $zz['access'] ?? '';
-
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	if (zz_error_exit()) return zzform_exit($ops); // exits script
 
@@ -125,6 +123,10 @@ function zzform($zz) {
 	// the settings, e. g. to save time for zzform_multi() or to get a
 	// secret key for some cases
 	$zz_conf['int']['hash'] = zz_hash($zz, $zz_conf);
+
+	if (zz_modules('conditions'))
+		$zz = zz_conditions_access($zz);
+	$zz_conf['int']['access'] = $zz['access'] ?? '';
 
 //
 //	Database connection, set db_name
