@@ -2022,6 +2022,13 @@ msgstr "Bitte wählen Sie aus einem der folgenden Datensätze:"
 
 # Modules: Sync
 #: templates/sync-overview.template.txt
+msgid "There is no definition for a synchronization named <code>%s</code>."
+msgstr ""
+"Es gibt keine Definition für eine Synchronisierung mit dem Namen <code>%s</"
+"code>."
+
+# Modules: Sync
+#: templates/sync-overview.template.txt
 msgid "There are no deletable records."
 msgstr "Es gibt keine löschbaren Datensätze."
 

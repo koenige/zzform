@@ -281,7 +281,11 @@ function zz_sync_csv($setting) {
 
 	$processed = 0;
 	while (!feof($handle)) {
-		$line = fgetcsv($handle, 8192, $setting['csv_delimiter'], $setting['csv_enclosure']);
+		if ($setting['csv_fixed_width']) {
+			$line = zz_sync_csv_fixed_width_line($handle, $setting);
+		} else {
+			$line = fgetcsv($handle, 8192, $setting['csv_delimiter'], $setting['csv_enclosure']);
+		}
 		$line_complete = $line;
 		// ignore empty lines
 		if (!$line) continue;
@@ -291,7 +295,7 @@ function zz_sync_csv($setting) {
 			$setting['csv_ignore_head_lines']--;
 			continue;
 		}
-		if ($setting['csv_comments'] AND str_starts_with($line[0], $setting['csv_comments'])) continue;
+		if ($setting['csv_comments'] AND str_starts_with(reset($line), $setting['csv_comments'])) continue;
 		// ignore first line = field names
 		if ($setting['csv_first_line_headers'] AND !$i AND !$first) {
 			$first = true;
@@ -330,6 +334,37 @@ function zz_sync_csv($setting) {
 	return [$raw, $i];
 }
 
+/**
+ * get lines in fixed width format
+ *
+ * @param resource $handle
+ * @param array $setting
+ */
+function zz_sync_csv_fixed_width_line($handle, $setting) {
+	static $head = [];
+	if (!array_key_exists($setting['identifier'], $head)) {
+		// get first line
+		$line = fgets($handle, 8192);
+		foreach ($setting['csv_fixed_width_replace'] as $old => $new)
+			$line = str_replace($old, $new, $line);
+		preg_match_all('~([-\w]+)\s+~', $line, $matches);
+		$head[$setting['identifier']]['fields'] = $matches[1];
+		$pos = 0;
+		foreach ($matches[0] as $index => $field) {
+			$head[$setting['identifier']]['length'][$index] = strlen($field);
+			$head[$setting['identifier']]['start'][$index] = $pos;
+			$pos += strlen($field);
+		}
+	}
+	$line = fgets($handle, 8192);
+	if ($line === false) return $line;
+	$new_line = [];
+	foreach ($head[$setting['identifier']]['fields'] as $index => $field) {
+		$value = trim(substr($line, $head[$setting['identifier']]['start'][$index], $head[$setting['identifier']]['length'][$index]));
+		$new_line[$field] = $value;
+	}
+	return $new_line;
+}
 
 /**
  * Sync of raw data to import with existing data, updates or inserts raw data
