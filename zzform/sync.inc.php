@@ -483,7 +483,7 @@ function zz_sync_zzform($raw, $setting) {
 			$success = zzform_update($setting['form_script'], $lines[$identifier]);
 			if ($success) $updated++;
 			else $nothing++;
-		} else {
+		} elseif ($data['records'][$identifier]['action'] === 'insert') {
 			$success = zzform_insert($setting['form_script'], $lines[$identifier]);
 			if ($success) $inserted++;
 			else $nothing++;
