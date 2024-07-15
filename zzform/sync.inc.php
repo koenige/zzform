@@ -650,6 +650,7 @@ function zz_sync_fields($fields, $old_head) {
  * @return array
  */
 function zz_sync_existing($def, $fields, $ids) {
+	if (!$ids) return [];
 	$tables = [];
 	$foreign_keys = [];
 	$foreign_keys[$def['table']] = $def['primary_key'];
