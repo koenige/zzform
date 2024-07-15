@@ -9,6 +9,7 @@
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 <div id="zzform">
+%%% condition if records %%%
 <form method="POST" action="">
 <table class="data">
 <thead>
@@ -64,4 +65,5 @@
 </table>
 <input type="submit">
 </form>
+%%% condition endif %%%
 </div>
