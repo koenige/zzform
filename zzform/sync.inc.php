@@ -23,7 +23,6 @@
  * @return array
  */
 function zz_sync($setting) {
-	$post = $_SERVER['REQUEST_METHOD'] === 'POST' ? true : false;	// will be overwritten
 	$refresh = false;
 	wrap_include('batch', 'zzform');
 
@@ -70,27 +69,27 @@ function zz_sync($setting) {
 	}
 
 	// sync data
-	list($updated, $inserted, $nothing, $errors, $data) = zz_sync_zzform($raw, $setting);
+	list($result, $data) = zz_sync_zzform($raw, $setting);
 
 	// output results
 	$lines = [];
 	$lines[] = wrap_text('Processing entries %s–%s …', ['values' => [$setting['limit'] + 1, $setting['end']]]);
-	if ($updated)
-		$lines[] = wrap_text('%d updates were made.', ['values' => $updated]);
-	if ($inserted)
-		$lines[] = wrap_text('%d inserts were made.', ['values' => $inserted]);
-	if ($nothing AND (!$data OR $post))
+	if ($result['updated'])
+		$lines[] = wrap_text('%d updates were made.', ['values' => $result['updated']]);
+	if ($result['inserted'])
+		$lines[] = wrap_text('%d inserts were made.', ['values' => $result['inserted']]);
+	if ($result['nothing'] AND (!$data OR $_SERVER['REQUEST_METHOD'] === 'POST'))
 		$lines[] = wrap_text('%d records were left as is.', ['values' => $nothing]);
-	if ($errors) {
-		if (count($errors) === 1) {
-			$lines[] = wrap_text('%d records had errors.', ['values' => 1]).sprintf('(%s)', implode(', ', $errors));
+	if ($result['errors']) {
+		if (count($result['errors']) === 1) {
+			$lines[] = wrap_text('%d records had errors.', ['values' => 1]).sprintf('(%s)', implode(', ', $result['errors']));
 		} else {
-			$lines[] = wrap_text('%d records had errors.', ['values' => count($errors)])
-				."<ul><li>\n".implode("</li>\n<li>", $errors)."</li>\n</ul>\n";
+			$lines[] = wrap_text('%d records had errors.', ['values' => count($result['errors'])])
+				."<ul><li>\n".implode("</li>\n<li>", $result['errors'])."</li>\n</ul>\n";
 		}
 	}
 	if ($data) {
-		if (!$post) {
+		if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 			$lines[] = zz_sync_list($data, $setting);
 		} elseif ($refresh) {
 			$lines[] = sprintf('<a href="?limit=%s">%s</a>', $setting['end'], wrap_text('Go on to next page'));
@@ -375,15 +374,16 @@ function zz_sync_csv_fixed_width_line($handle, $setting) {
  *
  * @param array $raw raw data, indexed by identifier
  * @param array $setting sync settings
- * @return array $updated, $inserted, $nothing = count of records, $errors,
- *		$data
+ * @return array
  */
 function zz_sync_zzform($raw, $setting) {
-	$updated = 0;
-	$inserted = 0;
-	$nothing = 0;
+	$result = [
+		'updated' => 0,
+		'inserted' => 0,
+		'nothing' => 0,
+		'errors' => []
+	];
 	$raw_count = count($raw);
-	$errors = [];
 	$data = [];
 
 	if (empty($_POST['action'])) $_POST['action'] = [];
@@ -395,7 +395,7 @@ function zz_sync_zzform($raw, $setting) {
 		$line = $raw[$identifier] = zz_sync_line($line, $setting['fields']);
 		if (count($line) !== count($setting['fields'])) {
 			// there’s an error
-			$errors[] = zz_sync_line_errors($line, $setting['fields']);
+			$result['errors'][] = zz_sync_line_errors($line, $setting['fields']);
 			unset($raw[$identifier]);
 		} elseif ($setting['testing'] AND $_SERVER['REQUEST_METHOD'] === 'POST') {
 			$ignore = false;
@@ -406,12 +406,12 @@ function zz_sync_zzform($raw, $setting) {
 				$ignore = true;
 			if ($ignore) {
 				unset($raw[$identifier]);
-				$nothing++;
+				$result['nothing']++;
 			}
 		}
 	}
-	if ($nothing === $raw_count)
-		return [$updated, $inserted, $nothing, $errors, true];
+	if ($result['nothing'] === $raw_count)
+		return [$result, true];
 	
 	$raw = zz_sync_field_queries($raw, $setting);
 
@@ -476,20 +476,20 @@ function zz_sync_zzform($raw, $setting) {
 	}
 
 	if ($_SERVER['REQUEST_METHOD'] !== 'POST')
-		return [$updated, $inserted, $nothing, $errors, $data];
+		return [$result, $data];
 
 	foreach ($raw as $identifier => $line_raw) {
 		if ($data['records'][$identifier]['action'] === 'update') {
 			$success = zzform_update($setting['form_script'], $lines[$identifier]);
-			if ($success) $updated++;
-			else $nothing++;
+			if ($success) $result['updated']++;
+			else $result['nothing']++;
 		} elseif ($data['records'][$identifier]['action'] === 'insert') {
 			$success = zzform_insert($setting['form_script'], $lines[$identifier]);
-			if ($success) $inserted++;
-			else $nothing++;
+			if ($success) $result['inserted']++;
+			else $result['nothing']++;
 		}
 	}
-	return [$updated, $inserted, $nothing, $errors, $data];
+	return [$result, $data];
 }
 
 /**
