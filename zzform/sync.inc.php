@@ -79,7 +79,7 @@ function zz_sync($setting) {
 	if ($result['inserted'])
 		$lines[] = wrap_text('%d inserts were made.', ['values' => $result['inserted']]);
 	if ($result['nothing'] AND (!$data OR $_SERVER['REQUEST_METHOD'] === 'POST'))
-		$lines[] = wrap_text('%d records were left as is.', ['values' => $nothing]);
+		$lines[] = wrap_text('%d records were left as is.', ['values' => $result['nothing']]);
 	if ($result['errors']) {
 		if (count($result['errors']) === 1) {
 			$lines[] = wrap_text('%d records had errors.', ['values' => 1]).sprintf('(%s)', implode(', ', $result['errors']));
