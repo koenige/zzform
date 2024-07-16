@@ -90,6 +90,7 @@ function zz_sync($setting) {
 	wrap_setting_add('extra_http_headers', "Content-Security-Policy: frame-ancestors 'self'");
 
 	$page['query_strings'] = ['limit'];
+	$page['title'] = wrap_text('Synchronization: %s', ['values' => [$setting['title']]]);
 	$page['text'] = wrap_template('sync', $data);
 	return $page;
 }

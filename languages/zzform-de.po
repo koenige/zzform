@@ -1959,49 +1959,54 @@ msgstr "Löschbare Datensätze"
 
 # Modules: Sync
 #: zzform/sync.inc.php
+msgid "Synchronization: %s"
+msgstr "Synchronisierung: %s"
+
+# Modules: Sync
+#: templates/sync.template.txt
 msgid "Processing entries %s–%s …"
 msgstr "Verarbeite Einträge %s–%s …"
 
 # Modules: Sync
-#: zzform/sync.inc.php
+#: templates/sync.template.txt
 msgid "%d update was made."
 msgid_plural "%d updates were made."
 msgstr[0] "Ein Eintrag wurde aktualisiert."
 msgstr[1] "%d Einträge wurden aktualisiert."
 
 # Modules: Sync
-#: zzform/sync.inc.php
+#: templates/sync.template.txt
 msgid "%d insert was made."
 msgid_plural "%d inserts were made."
 msgstr[0] "Es wurde ein Eintrag eingefügt."
 msgstr[1] "%d Einträge wurden eingefügt."
 
 # Modules: Sync
-#: zzform/sync.inc.php
+#: templates/sync.template.txt
 msgid "%d record was left as is."
 msgid_plural "%d records were left as is."
 msgstr[0] "Ein Eintrag blieb unverändert."
 msgstr[1] "%s Einträge blieben unverändert."
 
 # Modules: Sync
-#: zzform/sync.inc.php
+#: templates/sync.template.txt
 msgid "%d record had errors."
 msgid_plural "%d records had errors."
 msgstr[0] "Ein Eintrag hatte Fehler."
 msgstr[1] "%d Einträge hatten Fehler."
 
 # Modules: Sync
-#: zzform/sync.inc.php
+#: templates/sync.template.txt
 msgid "Go on to next page"
 msgstr "Weiter zur nächsten Seite"
 
 # Modules: Sync
-#: zzform/sync.inc.php
+#: templates/sync.template.txt
 msgid "Possibly deletable records"
 msgstr "Evtl. löschbare Datensätze"
 
 # Modules: Sync
-#: zzform/sync.inc.php
+#: templates/sync.template.txt
 msgid "Finished!"
 msgstr "Fertig!"
 

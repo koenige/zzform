@@ -1769,6 +1769,11 @@ msgid "Deletable Records"
 msgstr ""
 
 # Modules: Sync
+#: zzform/sync.inc.php
+msgid "Synchronization: %s"
+msgstr ""
+
+# Modules: Sync
 #: templates/sync.template.txt
 msgid "Processing entries %s–%s …"
 msgstr ""
