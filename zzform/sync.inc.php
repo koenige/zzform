@@ -157,7 +157,10 @@ function zz_sync_queries($identifier) {
  */
 function zz_sync_defaults($setting) {
 	// limits
-	$setting['sync_records_per_run'] = wrap_setting('sync_records_per_run') * ($setting['testing'] ? 1 : 10);
+	if (!$setting['sync_records_per_run']) {
+		$setting['sync_records_per_run'] = wrap_setting('sync_records_per_run');
+		if (!$setting['testing']) $setting['sync_records_per_run'] *= 10;
+	}
 	$setting['limit'] = empty($_GET['limit']) ? 0 : zz_check_get_array('limit', 'is_int');
 	$setting['end'] = $setting['limit'] + $setting['sync_records_per_run'];
 
@@ -718,7 +721,7 @@ function zz_sync_def_field($field_name, $fields) {
  * @param bool $show_field_data show data for each field if it is identical or not
  * @return array
  */
-function zz_sync_identical($new, $existing, $show_field_data) {
+function zz_sync_identical($new, $existing, $show_field_data = true) {
 	if ($show_field_data) $check = [];
 	$identical = true;
 	foreach ($new as $field_name => $value) {
