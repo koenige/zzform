@@ -70,55 +70,27 @@ function zz_sync($setting) {
 
 	// sync data
 	$data = zz_sync_zzform($raw, $setting);
+	$data['begin'] = $setting['limit'] + 1;
+	$data['end'] = $setting['end'];
 
-	// output results
-	$lines = [];
-	$lines[] = wrap_text('Processing entries %s–%s …', ['values' => [$setting['limit'] + 1, $setting['end']]]);
-	if ($data['updated'])
-		$lines[] = wrap_text('%d updates were made.', ['values' => $data['updated']]);
-	if ($data['inserted'])
-		$lines[] = wrap_text('%d inserts were made.', ['values' => $data['inserted']]);
-	if ($data['nothing'] AND (!$data OR $_SERVER['REQUEST_METHOD'] === 'POST'))
-		$lines[] = wrap_text('%d records were left as is.', ['values' => $data['nothing']]);
-	if ($data['errors']) {
-		if (count($data['errors']) === 1) {
-			$lines[] = wrap_text('%d records had errors.', ['values' => 1]).sprintf('(%s)', implode(', ', $data['errors']));
-		} else {
-			$lines[] = wrap_text('%d records had errors.', ['values' => count($data['errors'])])
-				."<ul><li>\n".implode("</li>\n<li>", $data['errors'])."</li>\n</ul>\n";
-		}
-	}
-	if ($data) {
-		if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-			$data = zz_sync_list($data, $setting);
-		} elseif ($refresh) {
-			$lines[] = sprintf('<a href="?limit=%s">%s</a>', $setting['end'], wrap_text('Go on to next page'));
-		} else {
-			$lines[] = sprintf('<a href="?deletable">%s</a>', wrap_text('Possibly deletable records'));
-		}
-		$refresh = false;
-	} elseif ($refresh) {
-		$lines[] = wrap_text('Please wait for reload …');
+	// only show processed records if records were processed, no 0 values
+	if (!$data['nothing']) $data['nothing'] = NULL;
+	if (!$data['updated']) $data['updated'] = NULL;
+	if (!$data['inserted']) $data['inserted'] = NULL;
+
+	if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+		$data = zz_sync_list($data, $setting);
 	} else {
-		$lines[] = wrap_text('Finished!');
-	}
-
-	if (!$lines) {
-		$page['text'] = wrap_text('No updates/inserts were made.');
-		return $page;
+		$data['errors_count'] = count($data['errors']);
+		$data['refresh'] = $refresh;
+		$data['last'] = !$refresh;
 	}
 
 	wrap_setting_add('extra_http_headers', 'X-Frame-Options: Deny');
 	wrap_setting_add('extra_http_headers', "Content-Security-Policy: frame-ancestors 'self'");
 
 	$page['query_strings'] = ['limit'];
-	$page['text'] = implode('<br>', $lines);
-	$page['text'] .= wrap_template('sync', $data);
-	if ($refresh) {
-		$page['head'] = sprintf("\t".'<meta http-equiv="refresh" content="%s; URL=%s%s?limit=%s">'."\n",
-			wrap_setting('sync_page_refresh'), 
-			wrap_setting('host_base'), parse_url(wrap_setting('request_uri'), PHP_URL_PATH), $setting['end']);
-	}
+	$page['text'] = wrap_template('sync', $data);
 	return $page;
 }
 
@@ -395,7 +367,7 @@ function zz_sync_zzform($raw, $setting) {
 		$line = $raw[$identifier] = zz_sync_line($line, $setting['fields']);
 		if (count($line) !== count($setting['fields'])) {
 			// there’s an error
-			$data['errors'][] = zz_sync_line_errors($line, $setting['fields']);
+			$data['errors'][]['error'] = zz_sync_line_errors($line, $setting['fields']);
 			unset($raw[$identifier]);
 		} elseif ($setting['testing'] AND $_SERVER['REQUEST_METHOD'] === 'POST') {
 			$ignore = false;

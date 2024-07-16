@@ -975,17 +975,7 @@ msgstr ""
 
 # Modules: Sync
 #: zzform/sync.inc.php
-msgid "Please wait for reload …"
-msgstr ""
-
-# Modules: Sync
-#: zzform/sync.inc.php
 msgid "Finished!"
-msgstr ""
-
-# Modules: Sync
-#: zzform/sync.inc.php
-msgid "No updates/inserts were made."
 msgstr ""
 
 # Modules: Sync

@@ -8,6 +8,39 @@
 # @copyright Copyright © 2016, 2022-2024 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
+
+<p>%%% text "Processing entries %s–%s …" begin end %%%</p>
+
+<ul>
+%%% condition if updated %%%
+<li>%%% text "%d updates were made." updated %%%</li>
+%%% condition endif %%%
+
+%%% condition if inserted %%%
+<li>%%% text "%d inserts were made." inserted %%%</li>
+%%% condition endif %%%
+
+%%% condition if nothing %%%
+<li>%%% text "%d records were left as is." nothing %%%</li>
+%%% condition endif %%%
+
+%%% condition if errors %%%
+<li>%%% text "%d records had errors." errors_count %%%
+	<ul>
+%%% loop errors %%%
+	<li>%%% item error %%%</li>
+%%% loop end %%%
+	</ul>
+</li>
+%%% condition endif %%%
+%%% condition if refresh %%%
+<li><a href="?limit=%%% item end %%%">%%% text Go on to next page %%%</a></li>
+%%% condition elseif last %%%
+<li>%%% text Finished! %%%</li>
+<li><a href="?deletable">%%% text Possibly deletable records %%%</a></li>
+%%% condition endif %%%
+</ul>
+
 <div id="zzform">
 %%% condition if records %%%
 <form method="POST" action="">

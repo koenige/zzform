@@ -1769,57 +1769,47 @@ msgid "Deletable Records"
 msgstr ""
 
 # Modules: Sync
-#: zzform/sync.inc.php
+#: templates/sync.template.txt
 msgid "Processing entries %s–%s …"
 msgstr ""
 
 # Modules: Sync
-#: zzform/sync.inc.php
+#: templates/sync.template.txt
 msgid "%d update was made."
 msgid_plural "%d updates were made."
 msgstr[] ""
 
 # Modules: Sync
-#: zzform/sync.inc.php
+#: templates/sync.template.txt
 msgid "%d insert was made."
 msgid_plural "%d inserts were made."
 msgstr[] ""
 
 # Modules: Sync
-#: zzform/sync.inc.php
+#: templates/sync.template.txt
 msgid "%d record was left as is."
 msgid_plural "%d records were left as is."
 msgstr[] ""
 
 # Modules: Sync
-#: zzform/sync.inc.php
+#: templates/sync.template.txt
 msgid "%d record had errors."
 msgid_plural "%d records had errors."
 msgstr[] ""
 
 # Modules: Sync
-#: zzform/sync.inc.php
+#: templates/sync.template.txt
 msgid "Go on to next page"
 msgstr ""
 
 # Modules: Sync
-#: zzform/sync.inc.php
+#: templates/sync.template.txt
 msgid "Possibly deletable records"
 msgstr ""
 
 # Modules: Sync
-#: zzform/sync.inc.php
-msgid "Please wait for reload …"
-msgstr ""
-
-# Modules: Sync
-#: zzform/sync.inc.php
+#: templates/sync.template.txt
 msgid "Finished!"
-msgstr ""
-
-# Modules: Sync
-#: zzform/sync.inc.php
-msgid "No updates/inserts were made."
 msgstr ""
 
 # Modules: Sync

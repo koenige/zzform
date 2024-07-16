@@ -2002,18 +2002,8 @@ msgstr "Evtl. löschbare Datensätze"
 
 # Modules: Sync
 #: zzform/sync.inc.php
-msgid "Please wait for reload …"
-msgstr "Bitte warten Sie auf das Neuladen der Seite …"
-
-# Modules: Sync
-#: zzform/sync.inc.php
 msgid "Finished!"
 msgstr "Fertig!"
-
-# Modules: Sync
-#: zzform/sync.inc.php
-msgid "No updates/inserts were made."
-msgstr "Es wurden keine Einträge aktualisiert oder eingefügt."
 
 # Modules: Sync
 #: templates/sync-overview.template.txt
