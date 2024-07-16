@@ -79,7 +79,10 @@ function zz_sync($setting) {
 	if (!$data['inserted']) $data['inserted'] = NULL;
 
 	if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-		$data = zz_sync_list($data, $setting);
+		if ($setting['testing'])
+			$data = zz_sync_list($data, $setting);
+		else
+			unset($data['records']);
 	} else {
 		$data['errors_count'] = count($data['errors']);
 		$data['refresh'] = $refresh;
@@ -421,19 +424,24 @@ function zz_sync_zzform($raw, $setting) {
 				$fields[$field_name] = trim($line_raw[$pos]);
 			}
 			foreach ($fields as $field_name => $value) {
-				$data['records'][$identifier]['line_flat'][$field_name] = $value;
+				if ($setting['testing'])
+					$data['records'][$identifier]['line_flat'][$field_name] = $value;
 				if (!in_array($pos, $setting['show_but_no_import']))
 					$line = zz_check_values($line, $field_name, $value);
 			}
 		}
 		// static values to sync
 		foreach ($setting['static'] as $field_name => $value) {
-			$data['records'][$identifier]['line_flat'][$field_name] = $value;
+			if ($setting['testing'])
+				$data['records'][$identifier]['line_flat'][$field_name] = $value;
 			$line = zz_check_values($line, $field_name, $value);
 		}
 		if (!empty($ids[$identifier])) {
-			list($data['records'][$identifier]['identical'], $data['records'][$identifier]['identical_fields'])
-				= zz_sync_identical($line, $existing[$ids[$identifier]] ?? []);
+			if ($setting['testing'])
+				list($data['records'][$identifier]['identical'], $data['records'][$identifier]['identical_fields'])
+					= zz_sync_identical($line, $existing[$ids[$identifier]] ?? []);
+			else
+				$data['records'][$identifier]['identical'] = zz_sync_identical($line, $existing[$ids[$identifier]] ?? [], false);
 			if ($data['records'][$identifier]['identical'])
 				$data['records'][$identifier]['action'] = 'ignore';
 			else
@@ -707,26 +715,36 @@ function zz_sync_def_field($field_name, $fields) {
  *
  * @param array $new
  * @param array $existing
+ * @param bool $show_field_data show data for each field if it is identical or not
  * @return array
  */
-function zz_sync_identical($new, $existing) {
-	$check = [];
+function zz_sync_identical($new, $existing, $show_field_data) {
+	if ($show_field_data) $check = [];
 	$identical = true;
 	foreach ($new as $field_name => $value) {
 		if (!is_array($value)) {
 			$identical_field = $value === $existing[$field_name] ? true : false;
-			$check[$field_name] = $identical_field;
-			if (!$identical_field) $identical = false;
+			if ($show_field_data)
+				$check[$field_name] = $identical_field;
+			if (!$identical_field) {
+				if (!$show_field_data) return false;
+				$identical = false;
+			}
 		} else {
 			foreach ($value as $index => $details) {
 				foreach ($details as $detail_field_name => $detail_value) {
 					$identical_field = $detail_value === $existing[$field_name][$index][$detail_field_name] ? true : false;
-					$check[$field_name][$index][$detail_field_name] = $identical_field;
-					if (!$identical_field) $identical = false;
+					if ($show_field_data)
+						$check[$field_name][$index][$detail_field_name] = $identical_field;
+					if (!$identical_field) {
+						if (!$show_field_data) return false;
+						$identical = false;
+					}
 				}
 			}
 		}
 	}
+	if (!$show_field_data) return $identical;
 	return [$identical, $check];
 }
 
