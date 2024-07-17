@@ -2028,9 +2028,16 @@ msgstr ""
 "code>."
 
 # Modules: Sync
-#: templates/sync-overview.template.txt
+#: templates/sync-deletable.template.txt
 msgid "There are no deletable records."
 msgstr "Es gibt keine löschbaren Datensätze."
+
+# Modules: Sync
+#: templates/sync-deletable.template.txt
+msgid "%d deletion was made."
+msgid_plural "%d deletions were made."
+msgstr[0] "%d Eintrag wurde gelöscht."
+msgstr[1] "%d Einträge wurden gelöscht."
 
 # Modules: Upload (Table filetypes)
 msgid "Filetypes"

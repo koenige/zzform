@@ -819,28 +819,34 @@ function zz_sync_deletable($setting) {
 		break;
 	}
 	$existing = zz_sync_ids($raw, $setting['deletable'], 'numeric');
-
-	$j = 0;
-	foreach ($existing as $index => $record) {
-		$i = 0;
-		$j++;
-		foreach ($record as $field_name => $value) {
-			if ($field_name === $def['primary_key']) {
-				$data['records'][$index]['id'] = $value;
-			} else {
-				$data['head'][$field_name]['field_name'] = $field_name;
-				$data['records'][$index]['fields'][$i]['value'] = $value;
-				if (array_key_exists($field_name, $setting['deletable_script_path'])) {
-					$data['records'][$index]['fields'][$i]['my_script_url'] = $setting['deletable_script_path'][$field_name];
+	if ($_SERVER['REQUEST_METHOD'] === 'POST' AND !$setting['testing']) {
+		$deleted_ids = zzform_delete('fide-players', array_column($existing, 'player_id'));
+		$data['deleted'] = count($deleted_ids);
+	} else {
+		$j = 0;
+		foreach ($existing as $index => $record) {
+			$i = 0;
+			$j++;
+			foreach ($record as $field_name => $value) {
+				if ($field_name === $def['primary_key']) {
+					$data['records'][$index]['id'] = $value;
+				} else {
+					$data['head'][$field_name]['field_name'] = $field_name;
+					$data['records'][$index]['fields'][$i]['value'] = $value;
+					if (array_key_exists($field_name, $setting['deletable_script_path'])) {
+						$data['records'][$index]['fields'][$i]['my_script_url'] = $setting['deletable_script_path'][$field_name];
+					}
+					$i++;
 				}
-				$i++;
 			}
+			$data['records'][$index]['no'] = $j;
+			$data['records'][$index]['script_url'] = zz_sync_script_url($setting);
 		}
-		$data['records'][$index]['no'] = $j;
-		$data['records'][$index]['script_url'] = zz_sync_script_url($setting);
+		if (!empty($data['head'])) $data['head'] = array_values($data['head']);
+		if (!$data) $data['no_deletable_records'] = true;
 	}
-	if (!empty($data['head'])) $data['head'] = array_values($data['head']);
-	if (!$data) $data['no_deletable_records'] = true;
+
+	$data['testing'] = $setting['testing'];
 	return $data;
 }
 

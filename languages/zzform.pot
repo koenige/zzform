@@ -1833,9 +1833,16 @@ msgid "There is no definition for a synchronization named <code>%s</code>."
 msgstr ""
 
 # Modules: Sync
-#: templates/sync-overview.template.txt
+#: templates/sync-deletable.template.txt
 msgid "There are no deletable records."
 msgstr ""
+
+# Modules: Sync
+#: templates/sync-deletable.template.txt
+msgid "%d deletion was made."
+msgid_plural "%d deletions were made."
+msgstr[0] ""
+msgstr[1] ""
 
 # Modules: Upload (Table filetypes)
 msgid "Filetypes"

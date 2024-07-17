@@ -9,6 +9,12 @@
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 <div id="zzform">
+%%% condition if deleted %%%
+<ul>
+<li>%%% text "%d deletions were made." deleted %%%</li>
+</ul>
+
+%%% condition else %%%
 %%% condition unless no_deletable_records %%%
 <table class="data">
 <thead>
@@ -40,7 +46,13 @@
 %%% loop end %%%
 </tbody>
 </table>
+%%% condition unless testing %%%
+<form method="POST" action="">
+<input type="submit" value="%%% text Delete records %%%">
+</form>
+%%% condition endif %%%
 %%% condition else %%%
 %%% text There are no deletable records. %%%
+%%% condition endif %%%
 %%% condition endif %%%
 </div>
