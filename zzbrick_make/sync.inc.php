@@ -55,12 +55,23 @@ function mod_zzform_make_sync($params) {
 	wrap_setting_add('extra_http_headers', "Content-Security-Policy: frame-ancestors 'self'");
 
 	if (isset($_GET['deletable'])) {
+		$page['data'] = [
+			'deleted' => $data['deleted'] ?? 0,
+			'next_url' => ''
+		];
 		$page['query_strings'] = ['deletable'];
-		$page['text'] = wrap_template('sync-deletable', $data);
 		$page['title'] = wrap_text('Deletable Records');
-		return $page;
+		$page['text'] = wrap_template('sync-deletable', $data);
+	} else {
+		$url_self = parse_url(wrap_setting('request_uri'), PHP_URL_PATH);
+		$url_self = sprintf('%s%s', wrap_setting('host_base'), $url_self);
+		$page['data'] = [
+			'updated' => $data['updated'],
+			'inserted' => $data['inserted'],
+			'nothing' => $data['nothing'],
+			'next_url' => $url_self.(!empty($data['last']) ? '?deletable' : sprintf('limit=%d', $data['end']))
+		];
+		$page['text'] = wrap_template('sync', $data);
 	}
-
-	$page['text'] = wrap_template('sync', $data);
 	return $page;
 }
