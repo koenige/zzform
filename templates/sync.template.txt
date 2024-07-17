@@ -14,19 +14,19 @@
 
 <ul>
 %%% condition if updated %%%
-<li>%%% text "%d updates were made." updated %%%</li>
+<li>%%% text "%d updates were made." updated wrap_number %%%</li>
 %%% condition endif %%%
 
 %%% condition if inserted %%%
-<li>%%% text "%d inserts were made." inserted %%%</li>
+<li>%%% text "%d inserts were made." inserted wrap_number %%%</li>
 %%% condition endif %%%
 
 %%% condition if nothing %%%
-<li>%%% text "%d records were left as is." nothing %%%</li>
+<li>%%% text "%d records were left as is." nothing wrap_number %%%</li>
 %%% condition endif %%%
 
 %%% condition if errors %%%
-<li>%%% text "%d records had errors." errors_count %%%
+<li>%%% text "%d records had errors." errors_count wrap_number %%%
 	<ul>
 %%% loop errors %%%
 	<li>%%% item error %%%</li>

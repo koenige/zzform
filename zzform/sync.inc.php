@@ -461,6 +461,8 @@ function zz_sync_zzform($raw, $setting) {
 			$success = zzform_insert($setting['form_script'], $lines[$identifier]);
 			if ($success) $data['inserted']++;
 			else $data['nothing']++;
+		} else {
+			$data['nothing']++;
 		}
 	}
 	unset($data['records']);
