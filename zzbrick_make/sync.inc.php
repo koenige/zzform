@@ -22,26 +22,45 @@
 function mod_zzform_make_sync($params) {
 	wrap_setting('log_username_suffix', 'Sync');
 
-	$data = wrap_cfg_files('sync');
-	foreach (array_keys($data) as $identifier)
-		$data[$identifier]['identifier'] = $identifier;
+	$config = wrap_cfg_files('sync');
+	foreach (array_keys($config) as $identifier)
+		$config[$identifier]['identifier'] = $identifier;
 
-	if (empty($params[0]) OR !array_key_exists($params[0], $data)) {
-		$data = array_values($data);
-		if (count($params) AND !array_key_exists($params[0], $data)) {
-			foreach (array_keys($data) as $index)
-				$data[$index]['sync_inexistent'] = true;
-			$data['sync_inexistent'] = true;
-			$data['identifier'] = $params[0];
+	if (empty($params[0]) OR !array_key_exists($params[0], $config)) {
+		$config = array_values($config);
+		if (count($params) AND !array_key_exists($params[0], $config)) {
+			foreach (array_keys($config) as $index)
+				$config[$index]['sync_inexistent'] = true;
+			$config['sync_inexistent'] = true;
+			$config['identifier'] = $params[0];
 			$page['status'] = 404;
 		}
-		$page['text'] = wrap_template('sync-overview', $data);
+		$page['text'] = wrap_template('sync-overview', $config);
 		return $page;
 	}
 
+	$page['query_strings'] = ['limit'];
+	$page['title'] = wrap_text('Synchronization: %s', ['values' => [$config[$params[0]]['title']]]);
+	$page['breadcrumbs'][]['title'] = $config[$params[0]]['title'];
+
 	wrap_include('sync', 'zzform');
 	wrap_include('zzform/definition');
-	$page = zz_sync($data[$params[0]]);
-	$page['breadcrumbs'][]['title'] = $data[$params[0]]['title'];
+	$data = zz_sync($config[$params[0]]);
+	if (!$data) {
+		$page['status'] = 404;
+		$page['text'] = '';
+		return $page;
+	}
+	wrap_setting_add('extra_http_headers', 'X-Frame-Options: Deny');
+	wrap_setting_add('extra_http_headers', "Content-Security-Policy: frame-ancestors 'self'");
+
+	if (isset($_GET['deletable'])) {
+		$page['query_strings'] = ['deletable'];
+		$page['text'] = wrap_template('sync-deletable', $data);
+		$page['title'] = wrap_text('Deletable Records');
+		return $page;
+	}
+
+	$page['text'] = wrap_template('sync', $data);
 	return $page;
 }

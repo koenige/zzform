@@ -61,12 +61,7 @@ function zz_sync($setting) {
 		break;
 	}
 
-	if (empty($raw)) {
-		$page['query_string'] = 'limit';
-		$page['status'] = 404;
-		$page['text'] = '';
-		return $page;
-	}
+	if (empty($raw)) return [];
 
 	// sync data
 	if ($setting['testing'] OR $_SERVER['REQUEST_METHOD'] === 'POST')
@@ -90,14 +85,7 @@ function zz_sync($setting) {
 		$data['refresh'] = $refresh;
 		$data['last'] = !$refresh;
 	}
-
-	wrap_setting_add('extra_http_headers', 'X-Frame-Options: Deny');
-	wrap_setting_add('extra_http_headers', "Content-Security-Policy: frame-ancestors 'self'");
-
-	$page['query_strings'] = ['limit'];
-	$page['title'] = wrap_text('Synchronization: %s', ['values' => [$setting['title']]]);
-	$page['text'] = wrap_template('sync', $data);
-	return $page;
+	return $data;
 }
 
 /**
@@ -853,14 +841,7 @@ function zz_sync_deletable($setting) {
 	}
 	if (!empty($data['head'])) $data['head'] = array_values($data['head']);
 	if (!$data) $data['no_deletable_records'] = true;
-
-	wrap_setting_add('extra_http_headers', 'X-Frame-Options: Deny');
-	wrap_setting_add('extra_http_headers', "Content-Security-Policy: frame-ancestors 'self'");
-
-	$page['query_strings'] = ['deletable'];
-	$page['text'] = wrap_template('sync-deletable', $data);
-	$page['title'] = wrap_text('Deletable Records');
-	return $page;
+	return $data;
 }
 
 /**
