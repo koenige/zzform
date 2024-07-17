@@ -8,8 +8,9 @@
 # @copyright Copyright © 2016, 2022-2024 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
-
-<p>%%% text "Processing entries %s–%s …" begin end %%%</p>
+<div id="zzform">
+<form method="POST" action="">
+<p>%%% text "Processing entries %s–%s …" begin wrap_number end wrap_number %%%</p>
 
 <ul>
 %%% condition if updated %%%
@@ -41,9 +42,7 @@
 %%% condition endif %%%
 </ul>
 
-<div id="zzform">
 %%% condition if records %%%
-<form method="POST" action="">
 <table class="data">
 <thead>
 <tr>
@@ -96,7 +95,9 @@
 %%% loop end %%%
 </tbody>
 </table>
-<input type="submit">
-</form>
 %%% condition endif %%%
+%%% condition unless post | last %%%
+<input type="submit" value="%%% text Synchronize %%%">
+%%% condition endif %%%
+</form>
 </div>

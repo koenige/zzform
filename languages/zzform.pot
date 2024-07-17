@@ -1818,6 +1818,11 @@ msgid "Finished!"
 msgstr ""
 
 # Modules: Sync
+#: templates/sync.template.txt
+msgid "Synchronize"
+msgstr ""
+
+# Modules: Sync
 #: templates/sync-overview.template.txt
 msgid "Please select from one of the following datasets:"
 msgstr ""

@@ -69,14 +69,15 @@ function zz_sync($setting) {
 	}
 
 	// sync data
-	$data = zz_sync_zzform($raw, $setting);
+	if ($setting['testing'] OR $_SERVER['REQUEST_METHOD'] === 'POST')
+		$data = zz_sync_zzform($raw, $setting);
 	$data['begin'] = $setting['limit'] + 1;
 	$data['end'] = $setting['end'];
 
 	// only show processed records if records were processed, no 0 values
-	if (!$data['nothing']) $data['nothing'] = NULL;
-	if (!$data['updated']) $data['updated'] = NULL;
-	if (!$data['inserted']) $data['inserted'] = NULL;
+	if (empty($data['nothing'])) $data['nothing'] = NULL;
+	if (empty($data['updated'])) $data['updated'] = NULL;
+	if (empty($data['inserted'])) $data['inserted'] = NULL;
 
 	if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 		if ($setting['testing'])
@@ -84,6 +85,7 @@ function zz_sync($setting) {
 		else
 			unset($data['records']);
 	} else {
+		$data['post'] = true;
 		$data['errors_count'] = count($data['errors']);
 		$data['refresh'] = $refresh;
 		$data['last'] = !$refresh;

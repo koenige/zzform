@@ -24,7 +24,7 @@ msgstr ""
 
 #: configuration/settings.cfg
 msgid "folder for fonts used by captchas"
-msgstr ""
+msgstr "Ordner für von Captchas verwendete Schriftarten"
 
 #: configuration/settings.cfg
 msgid "custom settings for Content-Security-Policy header"
@@ -2009,6 +2009,11 @@ msgstr "Evtl. löschbare Datensätze"
 #: templates/sync.template.txt
 msgid "Finished!"
 msgstr "Fertig!"
+
+# Modules: Sync
+#: templates/sync.template.txt
+msgid "Synchronize"
+msgstr "Synchronisieren"
 
 # Modules: Sync
 #: templates/sync-overview.template.txt
