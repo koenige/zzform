@@ -1033,6 +1033,10 @@ msgstr "Diese Änderungen wurden auf dem entfernten Server angewendet."
 msgid "These changes were applied to the local server."
 msgstr "Diese Änderungen wurden auf dem lokalen Server angewendet."
 
+#: templates/logging-read.template.txt
+msgid "Logfile has only %d entries."
+msgstr "Log-Datei hat nur %d Einträge."
+
 # Number of records as shown in page TITLE
 # Page elements
 msgid "records"

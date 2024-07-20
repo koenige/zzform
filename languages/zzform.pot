@@ -927,6 +927,10 @@ msgstr ""
 msgid "These changes were applied to the local server."
 msgstr ""
 
+#: templates/logging-read.template.txt
+msgid "Logfile has only %d entries."
+msgstr ""
+
 # Number of records as shown in page TITLE
 # Page elements
 msgid "records"
