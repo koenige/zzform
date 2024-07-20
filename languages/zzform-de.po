@@ -990,6 +990,49 @@ msgid ""
 "in database"
 msgstr ""
 
+#: templates/logging-add.template.txt
+msgid "Please upload a file."
+msgstr "Bitte laden Sie eine Datei hoch."
+
+#: templates/logging-add.template.txt
+msgid "There was an error while uploading the file."
+msgstr "Fehler beim Hochladen der Datei."
+
+#: templates/logging-add.template.txt
+msgid "The content of the file was not readable (Format needs to be JSON)."
+msgstr "Der Inhalt der Datei war nicht lesbar (Format muss JSON sein)."
+
+#: templates/logging-add.template.txt
+msgid "The highest existing log entry is %d, but import starts with %d."
+msgstr ""
+"Der höchsten vorhandenen Log-Eintrag ist %d, aber der Import beginnt mit %d."
+
+#: templates/logging-add.template.txt
+msgid "Record ID %d was added with a different log ID %d."
+msgstr "Datensatz-ID %d wurde mit einer anderen Protokoll-ID %d hinzugefügt."
+
+#: templates/logging-add.template.txt
+msgid "There was an error adding record ID %d."
+msgstr "Es gab einen Fehler beim Hinzufügen von Datensatz-ID %d."
+
+#: templates/logging-add.template.txt
+msgid "There was an error adding log for record ID %d."
+msgstr "Es gab einen Fehler beim Hinzufügen des Logs von Datensatz-ID %d."
+
+#: templates/logging-add.template.txt
+msgid "%d log entry was added, ID was %d."
+msgid_plural "All %d log entries were added, last ID was %d."
+msgstr[0] "%d Log-Eintrag wurde hinzugefügt, ID war %d."
+msgstr[1] "Alle %d Log-Einträge wurden hinzugefügt, letzte ID war %d."
+
+#: templates/logging-add.template.txt
+msgid "These changes were applied to the remote server."
+msgstr "Diese Änderungen wurden auf dem entfernten Server angewendet."
+
+#: templates/logging-add.template.txt
+msgid "These changes were applied to the local server."
+msgstr "Diese Änderungen wurden auf dem lokalen Server angewendet."
+
 # Number of records as shown in page TITLE
 # Page elements
 msgid "records"

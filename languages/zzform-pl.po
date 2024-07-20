@@ -23,6 +23,49 @@ msgstr ""
 "|| n%100>=20) ? 1 : 2);\n"
 "X-Generator: Poedit 1.8.12\n"
 
+#: templates/logging-add.template.txt
+msgid "Please upload a file."
+msgstr "Prześlij plik."
+
+#: templates/logging-add.template.txt
+msgid "There was an error while uploading the file."
+msgstr "Błąd podczas przesyłania pliku."
+
+#: templates/logging-add.template.txt
+msgid "The content of the file was not readable (Format needs to be JSON)."
+msgstr "Zawartość pliku nie była możliwa do odczytania (format musi być JSON)."
+
+#: templates/logging-add.template.txt
+msgid "The highest existing log entry is %d, but import starts with %d."
+msgstr "Najwyższy istniejący wpis w logu to %d, ale import zaczyna się od %d."
+
+#: templates/logging-add.template.txt
+msgid "Record ID %d was added with a different log ID %d."
+msgstr "Rekord ID %d został dodany z innym ID logu %d."
+
+#: templates/logging-add.template.txt
+msgid "There was an error adding record ID %d."
+msgstr "Wystąpił błąd przy dodawaniu ID rekordu %d."
+
+#: templates/logging-add.template.txt
+msgid "There was an error adding log for record ID %d."
+msgstr "Wystąpił błąd dodawania logu dla ID rekordu %d."
+
+#: templates/logging-add.template.txt
+msgid "%d log entry was added, ID was %d."
+msgid_plural "All %d log entries were added, last ID was %d."
+msgstr[0] "Dodano wszystkie %d wpisy do logu, ostatni ID to %d."
+msgstr[1] "Dodano wszystkie %d wpisy do logu, ostatni ID to %d."
+msgstr[2] "Dodano wszystkie %d wpisy do logu, ostatni ID to %d."
+
+#: templates/logging-add.template.txt
+msgid "These changes were applied to the remote server."
+msgstr "Zmiany te zostały zastosowane do zdalnego serwera."
+
+#: templates/logging-add.template.txt
+msgid "These changes were applied to the local server."
+msgstr "Zmiany te zostały zastosowane do lokalnego serwera."
+
 # Number of records as shown in page TITLE
 # Page elements
 msgid "records"

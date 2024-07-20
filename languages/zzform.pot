@@ -885,6 +885,48 @@ msgstr ""
 msgid "WHERE-condition to be appended to query that checks existence of identifier in database"
 msgstr ""
 
+#: templates/logging-add.template.txt
+msgid "Please upload a file."
+msgstr ""
+
+#: templates/logging-add.template.txt
+msgid "There was an error while uploading the file."
+msgstr ""
+
+#: templates/logging-add.template.txt
+msgid "The content of the file was not readable (Format needs to be JSON)."
+msgstr ""
+
+#: templates/logging-add.template.txt
+msgid "The highest existing log entry is %d, but import starts with %d."
+msgstr ""
+
+#: templates/logging-add.template.txt
+msgid "Record ID %d was added with a different log ID %d."
+msgstr ""
+
+#: templates/logging-add.template.txt
+msgid "There was an error adding record ID %d."
+msgstr ""
+
+#: templates/logging-add.template.txt
+msgid "There was an error adding log for record ID %d."
+msgstr ""
+
+#: templates/logging-add.template.txt
+msgid "%d log entry was added, ID was %d."
+msgid_plural "All %d log entries were added, last ID was %d."
+msgstr[] ""
+msgstr[] ""
+
+#: templates/logging-add.template.txt
+msgid "These changes were applied to the remote server."
+msgstr ""
+
+#: templates/logging-add.template.txt
+msgid "These changes were applied to the local server."
+msgstr ""
+
 # Number of records as shown in page TITLE
 # Page elements
 msgid "records"
