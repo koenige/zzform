@@ -2677,6 +2677,8 @@ function zz_field_set($subtable, $display, $my_tab) {
 					, $subtable['table_name'], $set['rec_no'], $set['id']
 					, (!empty($set['checked']) ? ' checked="checked"' : ''), $set['title']
 				);
+			} elseif (!empty($set['rec_id']) AND !wrap_is_int($set['rec_id'])) {
+				wrap_quit(400, 'Malformed request, ID for a set needs to be numeric');
 			} else {
 				zz_error_log([
 					'msg_dev' => 'Found a value selected that is set to non-selectable (table %s, ID %d)',
