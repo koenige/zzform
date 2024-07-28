@@ -1,0 +1,25 @@
+# zzform module
+# Template for maintenance script, logging
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzform
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2016, 2018, 2020-2024 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+<h2>%%% text SQL log %%%</h2>
+<ul>
+<li><form method="GET" action="">
+%%% text Download SQL log, starting with ID %%%&nbsp; <input type="number" name="loggingread">&nbsp; <input type="submit" value="%%% text Download %%%">
+</form></li>
+<li><form method="POST" action="" enctype="multipart/form-data">
+%%% text Upload SQL log %%%&nbsp; <input type="file" name="sqlfile">&nbsp; <input type="submit" value="%%% text Upload %%%">
+<input type="hidden" name="loggingadd" value="1">
+</form></li>
+%%% condition if setting local_access %%%
+%%% condition if path default_sync_server %%%
+<li><form method="POST" action="" enctype="multipart/form-data"><input type="submit" name="serversync" value="%%% text Synchronize local and remote server %%%"></form></li>
+%%% condition endif %%%
+%%% condition endif %%%
+</ul>

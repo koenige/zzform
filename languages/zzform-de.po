@@ -1037,6 +1037,27 @@ msgstr "Diese Änderungen wurden auf dem lokalen Server angewendet."
 msgid "Logfile has only %d entries."
 msgstr "Log-Datei hat nur %d Einträge."
 
+#: templates/maintenance-logging.template.txt
+msgid "SQL log"
+msgstr "SQL-Protokoll"
+
+#: templates/maintenance-logging.template.txt
+msgid "Download SQL log, starting with ID"
+msgstr "Herunterladen des SQL-Protokolls, beginnend mit ID"
+
+#: templates/maintenance-logging.template.txt
+#: templates/logging-add.template.txt
+msgid "Upload SQL log"
+msgstr "SQL-Log hochladen"
+
+#: templates/maintenance-logging.template.txt
+msgid "Upload"
+msgstr "Hochladen"
+
+#: templates/maintenance-logging.template.txt
+msgid "Synchronize local and remote server"
+msgstr "Synchronisierung des lokalen und entfernten Servers"
+
 # Number of records as shown in page TITLE
 # Page elements
 msgid "records"
