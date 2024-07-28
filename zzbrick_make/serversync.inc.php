@@ -66,6 +66,7 @@ function mod_zzform_make_serversync_production() {
  * @return array
  */
 function mod_zzform_make_serversync_development() {
+	wrap_access_quit('default_maintenance');
 	wrap_include('logging', 'zzform');
 	$page['title'] = wrap_text('Synchronize local and remote server');
 	wrap_setting('log_username_default', wrap_setting('sync_user'));
@@ -76,7 +77,7 @@ function mod_zzform_make_serversync_development() {
 		return $page;
 	}
 
-	$path = wrap_path('default_sync_server');
+	$path = wrap_path('zzform_sync_server');
 	$url = sprintf('https://%s%s', substr(wrap_setting('hostname'), 0, -6), $path);
 	$data = ['return_last_logging_entry' => 1];
 	$headers_to_send[] = 'Accept: application/json';

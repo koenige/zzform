@@ -18,3 +18,4 @@
 /* 2023-03-27-2 */	UPDATE `_settings` SET `setting_key` = 'zzform_upload_binary_folder_local' WHERE `setting_key` = 'zzform_imagemagick_path_unchecked_local';
 /* 2023-05-13-1 */	INSERT INTO categories (`category`, `description`, `main_category_id`, `path`, `parameters`, `sequence`, `last_update`) VALUES ('Thumbnails', NULL, (SELECT category_id FROM categories c WHERE path = 'jobs'), 'jobs/thumbnails', '&alias=jobs/thumbnails&max_requests=2', NULL, NOW());
 /* 2024-03-16-1 */	ALTER TABLE `_revisions` CHANGE `last_update` `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP;
+/* 2024-07-29-1 */	UPDATE _settings SET setting_key = 'zzform_sync_server_path' WHERE setting_key = 'default_sync_server_path';

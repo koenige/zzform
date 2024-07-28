@@ -18,7 +18,7 @@
 <input type="hidden" name="loggingadd" value="1">
 </form></li>
 %%% condition if setting local_access %%%
-%%% condition if path default_sync_server %%%
+%%% condition if path zzform_sync_server %%%
 <li><form method="POST" action="" enctype="multipart/form-data"><input type="submit" name="serversync_development" value="%%% text Synchronize local and remote server %%%"></form></li>
 %%% condition endif %%%
 %%% condition endif %%%
