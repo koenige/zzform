@@ -952,6 +952,30 @@ msgstr ""
 msgid "Synchronize local and remote server"
 msgstr ""
 
+#: templates/sync-server.template.txt
+msgid "This only works from a local server!"
+msgstr ""
+
+#: templates/sync-server.template.txt
+msgid "The server returned with an error (%d)."
+msgstr ""
+
+#: templates/sync-server.template.txt
+msgid "Both servers have %s log entries."
+msgstr ""
+
+#: templates/sync-server.template.txt
+msgid "No synchronisation is necessary."
+msgstr ""
+
+#: templates/sync-server.template.txt
+msgid "The log entries %d do not match."
+msgstr ""
+
+#: templates/sync-server.template.txt
+msgid "A synchronisation is impossible."
+msgstr ""
+
 #: zzbrick_make/serversync.inc.php
 msgid ""
 "This URL is for synchronising a production and a development server only. No "

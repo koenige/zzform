@@ -91,6 +91,30 @@ msgstr "Przesyłanie plików"
 msgid "Synchronize local and remote server"
 msgstr "Synchronizacja serwera lokalnego i zdalnego"
 
+#: templates/sync-server.template.txt
+msgid "This only works from a local server!"
+msgstr "To działa tylko z lokalnego serwera!"
+
+#: templates/sync-server.template.txt
+msgid "The server returned with an error (%d)."
+msgstr "Serwer powrócił z błędem (%d)."
+
+#: templates/sync-server.template.txt
+msgid "Both servers have %s log entries."
+msgstr "Oba serwery mają wpisy w logu %s."
+
+#: templates/sync-server.template.txt
+msgid "No synchronisation is necessary."
+msgstr "Synchronizacja nie jest konieczna."
+
+#: templates/sync-server.template.txt
+msgid "The log entries %d do not match."
+msgstr "Wpisy w logu %d nie są zgodne."
+
+#: templates/sync-server.template.txt
+msgid "A synchronisation is impossible."
+msgstr "Synchronizacja jest niemożliwa."
+
 #: zzbrick_make/serversync.inc.php
 msgid ""
 "This URL is for synchronising a production and a development server only. No "

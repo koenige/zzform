@@ -1058,6 +1058,30 @@ msgstr "Hochladen"
 msgid "Synchronize local and remote server"
 msgstr "Synchronisierung des lokalen und entfernten Servers"
 
+#: templates/sync-server.template.txt
+msgid "This only works from a local server!"
+msgstr "Dies funktioniert nur von einem lokalen Server!"
+
+#: templates/sync-server.template.txt
+msgid "The server returned with an error (%d)."
+msgstr "Der Server gab einen Fehler zurück (%d)."
+
+#: templates/sync-server.template.txt
+msgid "Both servers have %s log entries."
+msgstr "Beide Server haben %s Log-Einträge."
+
+#: templates/sync-server.template.txt
+msgid "No synchronisation is necessary."
+msgstr "Es ist keine Synchronisierung notwendig."
+
+#: templates/sync-server.template.txt
+msgid "The log entries %d do not match."
+msgstr "Die Log-Einträge %d stimmen nicht überein."
+
+#: templates/sync-server.template.txt
+msgid "A synchronisation is impossible."
+msgstr "Eine Synchronisierung ist nicht möglich."
+
 #: zzbrick_make/serversync.inc.php
 msgid ""
 "This URL is for synchronising a production and a development server only. No "
