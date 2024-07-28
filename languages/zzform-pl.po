@@ -91,6 +91,14 @@ msgstr "Przesyłanie plików"
 msgid "Synchronize local and remote server"
 msgstr "Synchronizacja serwera lokalnego i zdalnego"
 
+#: zzbrick_make/serversync.inc.php
+msgid ""
+"This URL is for synchronising a production and a development server only. No "
+"direct access is possible."
+msgstr ""
+"Ten adres URL służy wyłącznie do synchronizacji serwera produkcyjnego i "
+"rozwojowego. Nie jest możliwy bezpośredni dostęp."
+
 # Number of records as shown in page TITLE
 # Page elements
 msgid "records"

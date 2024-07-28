@@ -952,6 +952,12 @@ msgstr ""
 msgid "Synchronize local and remote server"
 msgstr ""
 
+#: zzbrick_make/serversync.inc.php
+msgid ""
+"This URL is for synchronising a production and a development server only. No "
+"direct access is possible."
+msgstr ""
+
 # Number of records as shown in page TITLE
 # Page elements
 msgid "records"

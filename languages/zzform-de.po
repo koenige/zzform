@@ -1058,6 +1058,14 @@ msgstr "Hochladen"
 msgid "Synchronize local and remote server"
 msgstr "Synchronisierung des lokalen und entfernten Servers"
 
+#: zzbrick_make/serversync.inc.php
+msgid ""
+"This URL is for synchronising a production and a development server only. No "
+"direct access is possible."
+msgstr ""
+"Diese URL ist nur für die Synchronisierung von Produktions- und Entwicklungs-"
+"Server. Kein direkter Zugriff möglich."
+
 # Number of records as shown in page TITLE
 # Page elements
 msgid "records"
