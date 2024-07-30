@@ -2295,8 +2295,10 @@ function zz_validate_parameter($fvalue) {
 	$fvalue = str_replace('%20', $percent20, $fvalue);
 
 	// replace : with =
-	$fvalue = explode('&', $fvalue);
+	$pattern = '/&(?![^"]*"(?:(?:[^"]*"){2})*[^"]*$)/';
+	$fvalue = preg_split($pattern, $fvalue);
 	foreach ($fvalue as $index => $pair) {
+		$fvalue[$index] = $pair = str_replace('&', '%26', $pair);
 		if (strstr($pair, '=')) continue;
 		if (!strstr($pair, ':')) continue;
 		$pair = explode(':', $pair);
@@ -2310,6 +2312,7 @@ function zz_validate_parameter($fvalue) {
 	parse_str($fvalue, $parameters);
 	$values = [];
 	foreach ($parameters as $key => $value) {
+		$value = str_replace('&', '%26', $value);
 		// main key always has to be lowercase, other keys might contain uppercase letters
 		$key = strtolower($key);
 		if (is_array($value)) {
