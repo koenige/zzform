@@ -20,19 +20,26 @@
  * @return array
  */
 function zz_logging_read($start) {
-	$limit = 0;
-
-	$sql = 'SELECT COUNT(*) FROM %s WHERE log_id >= %d ORDER BY log_id';
-	$sql = sprintf($sql, wrap_sql_table('zzform_logging'), $start);
-	$logcount = wrap_db_fetch($sql, '', 'single value');
-	if ($logcount > 10000) {
-		$limit = 10000;
+	$sql = 'SELECT * FROM /*_TABLE zzform_logging _*/
+		WHERE log_id >= %d ORDER BY log_id
+		LIMIT /*_SETTING zzform_logging_max_read _*/';
+	$sql = sprintf($sql, $start);
+	$data = wrap_db_fetch($sql, 'log_id');
+	
+	if (count($data) > wrap_setting('zzform_logging_max_read')) {
+		$limit = wrap_setting('zzform_logging_max_read');
+	} elseif (count($data) === wrap_setting('zzform_logging_max_read')) {
+		$sql = 'SELECT COUNT(*) FROM /*_TABLE zzform_logging _*/ WHERE log_id >= %d';
+		$sql = sprintf($sql, $start);
+		$logcount = wrap_db_fetch($sql, '', 'single value');
+		if ($logcount > wrap_setting('zzform_logging_max_read'))
+			$limit = wrap_setting('zzform_logging_max_read');
+		else
+			$limit = 0;
+	} else {
+		$limit = 0;
 	}
 
-	$sql = 'SELECT * FROM %s WHERE log_id >= %d ORDER BY log_id';
-	$sql = sprintf($sql, wrap_sql_table('zzform_logging'), $start);
-	if ($limit) $sql .= sprintf(' LIMIT %d', 10000);
-	$data = wrap_db_fetch($sql, 'log_id');
 	return [$data, $limit];
 }
 
@@ -47,22 +54,20 @@ function zz_logging_add($json) {
 	if (!$json) return ['no_json' => 1];
 
 	$first_id = key($json);
-	$sql = 'SELECT MAX(log_id) FROM %s';
-	$sql = sprintf($sql, wrap_sql_table('zzform_logging'));
+	$sql = 'SELECT MAX(log_id) FROM /*_TABLE zzform_logging _*/';
 	$max_logs = wrap_db_fetch($sql, '', 'single value');
 	if ($max_logs + 1 !== $first_id) {
 		return ['max_logs' => $max_logs, 'first_id' => $first_id];
 	}
 	
 	// Everything ok, we can import
-	$log_template = 'INSERT INTO %s (query, record_id, user, last_update) VALUES (_binary "%s", %s, "%s", "%s")';
+	$log_template = 'INSERT INTO /*_TABLE zzform_logging _*/ (query, record_id, user, last_update) VALUES (_binary "%s", %s, "%s", "%s")';
 	foreach ($json as $line) {
 		$success = wrap_db_query($line['query']);
 		if (empty($success['id']) AND empty($success['rows']) AND $success !== true) {
 			return ['log_id' => $line['log_id'], 'add_error' => 1];
 		}
-		$sql = sprintf($log_template,
-			wrap_sql_table('zzform_logging'), wrap_db_escape($line['query'])
+		$sql = sprintf($log_template, wrap_db_escape($line['query'])
 			, ($line['record_id'] ? $line['record_id'] : 'NULL')
 			, wrap_db_escape($line['user']), $line['last_update']
 		);
@@ -84,8 +89,7 @@ function zz_logging_add($json) {
  * @return array
  */
 function zz_logging_last() {
-	$sql = 'SELECT * FROM %s ORDER BY log_id DESC LIMIT 1';
-	$sql = sprintf($sql, wrap_sql_table('zzform_logging'));
+	$sql = 'SELECT * FROM /*_TABLE zzform_logging _*/ ORDER BY log_id DESC LIMIT 1';
 	return wrap_db_fetch($sql);
 }
 
@@ -96,7 +100,6 @@ function zz_logging_last() {
  * @return int
  */
 function zz_logging_max() {
-	$sql = 'SELECT MAX(log_id) FROM %s';
-	$sql = sprintf($sql, wrap_sql_table('zzform_logging'));
+	$sql = 'SELECT MAX(log_id) FROM /*_TABLE zzform_logging _*/';
 	return wrap_db_fetch($sql, '', 'single value');
 }
