@@ -113,3 +113,90 @@ function zz_logging_max() {
 	$sql = 'SELECT MAX(log_id) FROM /*_TABLE zzform_logging _*/';
 	return wrap_db_fetch($sql, '', 'single value');
 }
+
+/**
+ * get oldest month from logging data
+ *
+ * @param void
+ * @return array
+ */
+function zz_logging_oldest_month() {
+	$sql = 'SELECT EXTRACT(YEAR_MONTH FROM MIN(last_update)) AS oldest_month
+			, DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL /*_SETTING zzform_logging_keep_months _*/ MONTH), "%Y%m") AS keep_month
+		FROM /*_TABLE zzform_logging _*/';
+	return wrap_db_fetch($sql);
+}
+
+/**
+ * delete all logging data from a given month
+ *
+ * @param int $month
+ * @param int $limit
+ * @return array
+ */
+function zz_logging_delete_month($month, $limit) {
+	if ($limit) {
+		$sql = 'DELETE FROM /*_TABLE zzform_logging _*/
+			WHERE EXTRACT(YEAR_MONTH FROM last_update) = %d
+			LIMIT %d';
+		$sql = sprintf($sql, $month, $limit);
+	} else {
+		$sql = 'DELETE FROM /*_TABLE zzform_logging _*/
+			WHERE EXTRACT(YEAR_MONTH FROM last_update) = %d';
+		$sql = sprintf($sql, $month);
+	}
+	return wrap_db_query($sql);
+}
+
+/**
+ * save JSON log data in file, gzip it
+ *
+ * @param string $period
+ * @param array $data
+ * @return array
+ */
+function zz_logging_save($period, $data) {
+	// save logs as JSON file
+	$logdir = sprintf('%s/database/%s', wrap_setting('log_dir'), substr($period, 0, 4));
+	wrap_mkdir($logdir);
+	$logfile = sprintf('%s/%s.jsonl.gz', $logdir, $period);
+	$i = 2;
+	while (file_exists($logfile)) {
+		$logfile = sprintf('%s/%s-%d.jsonl.gz', $logdir, $period, $i);
+		$i++;
+		if ($i > 1000) {
+			wrap_error(wrap_text(
+				'Archive file for database logging for period %s already exists.'
+				, ['values' => [$period]]
+			), E_USER_WARNING);
+			return false;
+		}
+	}
+	$logfile = substr($logfile, 0, -3); // remove .gz here
+	$stream = fopen($logfile, 'a');
+	foreach ($data as $index => $line) {
+		$line = json_encode([$index => $line], true);
+		fwrite($stream, $line."\n");
+	}
+	fclose($stream);
+
+	if (!file_exists($logfile)) {
+		wrap_error(wrap_text(
+			'Archive file for database logging for period %s was not created.'
+			, ['values' => [$month]]
+		), E_USER_WARNING);
+		return false;
+	}
+
+	// gzip JSON file
+	wrap_include('archive', 'zzwrap');
+	$success = wrap_gzip($logfile);
+	if (!$success) {
+		wrap_error(wrap_text(
+			'Unable to gzip archive file for database logging for period %s.'
+			, ['values' => [$month]]
+		), E_USER_WARNING);
+		return false;
+	}
+	return true;
+}

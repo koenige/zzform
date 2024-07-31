@@ -1,0 +1,27 @@
+# zzform module
+# Archive logging data
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/projects/zzform
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2024 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+<div id="zzform" class="maintenance">
+%%% condition if data_unavailable %%%
+<p class="error">%%% text No logging data available. %%%</p>
+
+%%% condition elseif no_archive_data %%%
+<p>%%% text "No logging data available older than %d months." setting zzform_logging_keep_months %%%
+ %%% text "The oldest data in the logging table comes from <strong>%s</strong>." oldest_month %%%
+</p>
+
+%%% condition else %%%
+%%% condition if archived %%%
+<p>%%% text "%d logging records from %s were archived." archived month %%%</p>
+%%% condition endif %%%
+<form method="POST" action=""><input type="submit" value="%%% text "Archive logging data from %s" oldest_month%%%"></form>
+
+%%% condition endif %%%
+</div>

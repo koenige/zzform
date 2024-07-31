@@ -927,6 +927,26 @@ msgstr ""
 msgid "These changes were applied to the local server."
 msgstr ""
 
+#: templates/logging-archive.template.txt
+msgid "No logging data available."
+msgstr ""
+
+#: templates/logging-archive.template.txt
+msgid "No logging data available older than %d months."
+msgstr ""
+
+#: templates/logging-archive.template.txt
+msgid "The oldest data in the logging table comes from <strong>%s</strong>."
+msgstr ""
+
+#: templates/logging-archive.template.txt
+msgid "%d logging records from %s were archived."
+msgstr ""
+
+#: templates/logging-archive.template.txt
+msgid "Archive logging data from %s"
+msgstr ""
+
 #: templates/logging-read.template.txt
 msgid "Logfile has only %d entries."
 msgstr ""
@@ -2067,4 +2087,19 @@ msgstr ""
 
 #: zzform/export.inc.php
 msgid "Standard %s export support is not supported. Please use a custom script."
+msgstr ""
+
+# Logging
+#: zzform/logging.inc.php
+msgid "Archive file for database logging for period %s already exists."
+msgstr ""
+
+# Logging
+#: zzform/logging.inc.php
+msgid "Archive file for database logging for period %s was not created."
+msgstr ""
+
+# Logging
+#: zzform/logging.inc.php
+msgid "Unable to gzip archive file for database logging for period %s."
 msgstr ""

@@ -1033,6 +1033,28 @@ msgstr "Diese Änderungen wurden auf dem entfernten Server angewendet."
 msgid "These changes were applied to the local server."
 msgstr "Diese Änderungen wurden auf dem lokalen Server angewendet."
 
+#: templates/logging-archive.template.txt
+msgid "No logging data available."
+msgstr "Keine Aufzeichungs-Daten vorhanden."
+
+#: templates/logging-archive.template.txt
+msgid "No logging data available older than %d months."
+msgstr "Keine Aufzeichungs-Daten vorhanden, die älter als %d Monate sind."
+
+#: templates/logging-archive.template.txt
+msgid "The oldest data in the logging table comes from <strong>%s</strong>."
+msgstr ""
+"Die ältesten Daten aus der Aufzeichnungs-Tabelle kommen aus <strong>%s</"
+"strong>."
+
+#: templates/logging-archive.template.txt
+msgid "%d logging records from %s were archived."
+msgstr "%d Aufzeichnungs-Einträge aus %s wurden archiviert."
+
+#: templates/logging-archive.template.txt
+msgid "Archive logging data from %s"
+msgstr "Archivierung der Aufzeichnungsdaten von %s"
+
 #: templates/logging-read.template.txt
 msgid "Logfile has only %d entries."
 msgstr "Log-Datei hat nur %d Einträge."
@@ -2269,3 +2291,24 @@ msgid ""
 msgstr ""
 "Der Standard-%s-Export wird nicht unterstützt. Bitte verwenden Sie ein "
 "eigenes Skript."
+
+# Logging
+#: zzform/logging.inc.php
+msgid "Archive file for database logging for period %s already exists."
+msgstr ""
+"Eine Archivdatei für Datenbank-Aufzeichnungen für den Zeitraum %s ist "
+"bereits vorhanden."
+
+# Logging
+#: zzform/logging.inc.php
+msgid "Archive file for database logging for period %s was not created."
+msgstr ""
+"Eine Archivdatei für Datenbank-Aufzeichungen für den Zeitraum %s konnte "
+"nicht erstellt werden."
+
+# Logging
+#: zzform/logging.inc.php
+msgid "Unable to gzip archive file for database logging for period %s."
+msgstr ""
+"Es war nicht möglich, ein gzip-Archiv der Datenbank-Aufzeichungsdatei für "
+"die Periode %s zu erstellen."

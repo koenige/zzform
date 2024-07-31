@@ -25,7 +25,19 @@ LIMIT /*_SETTING zzform_logging_max_read _*/;
 		
 -- zzform_logging_log_id_count --
 SELECT COUNT(*)
-FROM /*_TABLE zzform_logging _*/ WHERE log_id >= %d;
+FROM /*_TABLE zzform_logging _*/
+WHERE log_id >= %d;
+
+-- zzform_logging_month_read --
+SELECT *
+FROM /*_TABLE zzform_logging _*/
+WHERE EXTRACT(YEAR_MONTH FROM last_update) = %d
+LIMIT /*_SETTING zzform_logging_max_read _*/;
+		
+-- zzform_logging_month_count --
+SELECT COUNT(*)
+FROM /*_TABLE zzform_logging _*/
+WHERE EXTRACT(YEAR_MONTH FROM last_update) = %d;
 
 -- zzform_filetypelist --
 SELECT filetype_id, UPPER(filetype) AS filetype, filetype_description
