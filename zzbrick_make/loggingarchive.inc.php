@@ -53,7 +53,9 @@ function mod_zzform_make_loggingarchive_go($month) {
 	
 	$success = zz_logging_save($month, $log[0]);
 	if (!$success) return 0;
-	
-	$records = zz_logging_delete_month($month, $log[1]);
+
+	$limit = $log[1];
+	if (!$limit) $limit = count($log[0]);
+	$records = zz_logging_delete_month($month, $limit);
 	return $records['rows'];
 }
