@@ -202,3 +202,12 @@ function zz_logging_save($period, $data) {
 	}
 	return true;
 }
+
+/**
+ * re-order logging table after records have been removed
+ *
+ */
+function zz_logging_sort() {
+	$sql = 'ALTER TABLE /*_TABLE zzform_logging _*/ ORDER BY log_id ASC';
+	wrap_db_query($sql);
+}

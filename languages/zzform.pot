@@ -947,6 +947,14 @@ msgstr ""
 msgid "Archive logging data from %s"
 msgstr ""
 
+#: templates/logging-archive.template.txt
+msgid "Re-sort logging table"
+msgstr ""
+
+#: templates/logging-archive.template.txt
+msgid "Logging table was sorted by ID."
+msgstr ""
+
 #: templates/logging-read.template.txt
 msgid "Logfile has only %d entries."
 msgstr ""

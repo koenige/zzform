@@ -1055,6 +1055,14 @@ msgstr "%d Aufzeichnungs-Einträge aus %s wurden archiviert."
 msgid "Archive logging data from %s"
 msgstr "Archivierung der Aufzeichnungsdaten von %s"
 
+#: templates/logging-archive.template.txt
+msgid "Re-sort logging table"
+msgstr "Aufzeichnungstabelle neu sortieren"
+
+#: templates/logging-archive.template.txt
+msgid "Logging table was sorted by ID."
+msgstr "Die Aufzeichnungs-Tabelle wurde nach ID sortiert."
+
 #: templates/logging-read.template.txt
 msgid "Logfile has only %d entries."
 msgstr "Log-Datei hat nur %d Einträge."

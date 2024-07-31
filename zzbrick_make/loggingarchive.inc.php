@@ -24,11 +24,16 @@ function mod_zzform_make_loggingarchive() {
 	wrap_include('logging', 'zzform');
 
 	$data = zz_logging_oldest_month();
-	if (!$data['oldest_month'])
+	if (!$data['oldest_month']) {
 		$data['data_unavailable'] = true;
-	elseif ($data['oldest_month'] >= $data['keep_month'])
+	} elseif ($data['oldest_month'] >= $data['keep_month']) {
 		$data['no_archive_data'] = true;
-	elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+		if ($_SERVER['REQUEST_METHOD'] === 'POST' AND array_key_exists('sort', $_POST)) {
+			zz_logging_sort();
+			wrap_redirect('??sorted=1');
+			$data['just_sorted'] = true;
+		}
+	} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		$archived = mod_zzform_make_loggingarchive_go($data['oldest_month']);
 		if ($archived) wrap_redirect(sprintf('?archived=%d&month=%d', $archived, $data['oldest_month']));
 	}
@@ -36,9 +41,12 @@ function mod_zzform_make_loggingarchive() {
 		$data['archived'] = intval($_GET['archived']);
 		$data['month'] = intval($_GET['month']);
 	}
+	if (!empty($_GET['sorted']))
+		$data['just_sorted'] = true;
 
 	$page['query_strings'][] = 'archived';
 	$page['query_strings'][] = 'month';
+	$page['query_strings'][] = 'sorted';
 	$page['text'] = wrap_template('logging-archive', $data);
 	return $page;
 }
