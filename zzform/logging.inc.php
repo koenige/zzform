@@ -44,7 +44,7 @@ function zz_logging_read($start) {
 }
 
 /*
- * add logging entries to logging table
+ * add logging entries to logging table, execute queries
  *
  * @param string $json
  * @return array
@@ -54,32 +54,43 @@ function zz_logging_add($json) {
 	if (!$json) return ['no_json' => 1];
 
 	$first_id = key($json);
-	$sql = 'SELECT MAX(log_id) FROM /*_TABLE zzform_logging _*/';
-	$max_logs = wrap_db_fetch($sql, '', 'single value');
+	$max_logs = zz_logging_max();
 	if ($max_logs + 1 !== $first_id) {
 		return ['max_logs' => $max_logs, 'first_id' => $first_id];
 	}
 	
 	// Everything ok, we can import
-	$log_template = 'INSERT INTO /*_TABLE zzform_logging _*/ (query, record_id, user, last_update) VALUES (_binary "%s", %s, "%s", "%s")';
 	foreach ($json as $line) {
 		$success = wrap_db_query($line['query']);
 		if (empty($success['id']) AND empty($success['rows']) AND $success !== true) {
 			return ['log_id' => $line['log_id'], 'add_error' => 1];
 		}
-		$sql = sprintf($log_template, wrap_db_escape($line['query'])
-			, ($line['record_id'] ? $line['record_id'] : 'NULL')
-			, wrap_db_escape($line['user']), $line['last_update']
-		);
-		$log_id = wrap_db_query($sql);
-		if (empty($log_id['id'])) {
+		$logging = zz_logging_insert($line);
+		if (empty($logging['id'])) {
 			return ['log_id' => $line['log_id'], 'log_add_error' => 1];
 		}
-		if ($line['log_id'].'' !== $log_id['id'].'') {
-			return ['log_id' => $line['log_id'], 'local_log_id' => $log_id['id']];
+		if ($line['log_id'].'' !== $logging['id'].'') {
+			return ['log_id' => $line['log_id'], 'local_log_id' => $logging['id']];
 		}
 	}
 	return ['log_id' => $line['log_id'], 'total_count' => count($json)];
+}
+
+/**
+ * insert logging entry from other system into logging table
+ *
+ * @param array $line
+ */
+function zz_logging_insert($line) {
+	$sql = 'INSERT INTO /*_TABLE zzform_logging _*/ (query, record_id, user, last_update)
+		VALUES (_binary "%s", %s, "%s", "%s")';
+	$sql = sprintf($sql
+		, wrap_db_escape($line['query'])
+		, ($line['record_id'] ?? 'NULL')
+		, wrap_db_escape($line['user'])
+		, $line['last_update']
+	);
+	return wrap_db_query($sql);
 }
 
 /*
