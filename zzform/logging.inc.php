@@ -159,10 +159,10 @@ function zz_logging_save($period, $data) {
 	// save logs as JSON file
 	$logdir = sprintf('%s/database/%s', wrap_setting('log_dir'), substr($period, 0, 4));
 	wrap_mkdir($logdir);
-	$logfile = sprintf('%s/%s.jsonl.gz', $logdir, $period);
+	$logfile = sprintf('%s/%s-logging.jsonl.gz', $logdir, $period);
 	$i = 2;
 	while (file_exists($logfile)) {
-		$logfile = sprintf('%s/%s-%d.jsonl.gz', $logdir, $period, $i);
+		$logfile = sprintf('%s/%s-%d-logging.jsonl.gz', $logdir, $period, $i);
 		$i++;
 		if ($i > 1000) {
 			wrap_error(wrap_text(
@@ -175,9 +175,11 @@ function zz_logging_save($period, $data) {
 	$logfile = substr($logfile, 0, -3); // remove .gz here
 	$stream = fopen($logfile, 'a');
 	foreach ($data as $index => $line) {
-		$line = json_encode([$index => $line], true);
-		fwrite($stream, $line."\n");
+		$json = json_encode([$index => $line], true);
+		fwrite($stream, $json."\n");
 	}
+	if (!empty($line['last_update']))
+		touch($logfile, strtotime($line['last_update']));
 	fclose($stream);
 
 	if (!file_exists($logfile)) {
