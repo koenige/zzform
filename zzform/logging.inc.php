@@ -26,9 +26,7 @@ function zz_logging_read($start, $type = 'log_id') {
 	$sql = sprintf($sql, $start);
 	$data = wrap_db_fetch($sql, 'log_id');
 	
-	if (count($data) > wrap_setting('zzform_logging_max_read')) {
-		$limit = wrap_setting('zzform_logging_max_read');
-	} elseif (count($data) === wrap_setting('zzform_logging_max_read')) {
+	if (count($data) === intval(wrap_setting('zzform_logging_max_read'))) {
 		$query = sprintf('zzform_logging_%s_count', $type);
 		$sql = wrap_sql_query($query);
 		$sql = sprintf($sql, $start);
