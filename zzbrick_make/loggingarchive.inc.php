@@ -38,8 +38,6 @@ function mod_zzform_make_loggingarchive() {
 
 	$page['query_strings'][] = 'archived';
 	$page['query_strings'][] = 'month';
-	$page['title'] = wrap_text('Archive log data');
-	$page['breadcrumbs'][]['title'] = wrap_text('Archive log data');
 	$page['text'] = wrap_template('logging-archive', $data);
 	return $page;
 }
