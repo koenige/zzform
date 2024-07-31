@@ -17,19 +17,20 @@
  * read logging entries from logging table
  *
  * @param int $start
+ * @param string $type name of query from queries.sql
  * @return array
  */
-function zz_logging_read($start) {
-	$sql = 'SELECT * FROM /*_TABLE zzform_logging _*/
-		WHERE log_id >= %d ORDER BY log_id
-		LIMIT /*_SETTING zzform_logging_max_read _*/';
+function zz_logging_read($start, $type = 'log_id') {
+	$query = sprintf('zzform_logging_%s_read', $type);
+	$sql = wrap_sql_query($query);
 	$sql = sprintf($sql, $start);
 	$data = wrap_db_fetch($sql, 'log_id');
 	
 	if (count($data) > wrap_setting('zzform_logging_max_read')) {
 		$limit = wrap_setting('zzform_logging_max_read');
 	} elseif (count($data) === wrap_setting('zzform_logging_max_read')) {
-		$sql = 'SELECT COUNT(*) FROM /*_TABLE zzform_logging _*/ WHERE log_id >= %d';
+		$query = sprintf('zzform_logging_%s_count', $type);
+		$sql = wrap_sql_query($query);
 		$sql = sprintf($sql, $start);
 		$logcount = wrap_db_fetch($sql, '', 'single value');
 		if ($logcount > wrap_setting('zzform_logging_max_read'))
