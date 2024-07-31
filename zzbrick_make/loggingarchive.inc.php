@@ -20,6 +20,7 @@
  * @return array $page
  */
 function mod_zzform_make_loggingarchive() {
+	wrap_setting('cache', false);
 	wrap_include('logging', 'zzform');
 
 	$data = zz_logging_oldest_month();
