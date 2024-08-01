@@ -517,17 +517,6 @@ body #zzform .separator hr
 					{ white-space: nowrap; text-align: left; 
 					padding-right: .5rem; vertical-align: top; }
 
-/* maintenance */
-#zzform .blocklabel	{ display: block; height: 100%; width: 100%; }
-.maintenance h2
-					{ margin-top: 2em; }
-.maintenance h2:first-child
-					{ margin-top: 0; }
-.maintenance .logentry
-					{ hyphens: auto; -ms-hyphens: auto; -webkit-hyphens: auto; }
-.maintenance .exists
-					{ text-decoration: line-through; }
-
 /* moretext for lists */
 
 #zzform .moretext_hidden
