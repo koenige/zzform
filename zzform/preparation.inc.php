@@ -198,6 +198,9 @@ function zz_prepare_tables($zz, $mode) {
  */
 function zz_prepare_hooks($zz) {
 	$hooks = $zz['hooks'];
+	// arrays? might not be the case if set via condition
+	foreach ($hooks as $position => $hooks_per_position)
+		if (!is_array($hooks_per_position)) $hooks[$position] = [$hooks_per_position];
 
 	// geocoding? sequence?
 	$hook_found = [];
