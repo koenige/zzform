@@ -59,6 +59,9 @@ function zz_sync($setting) {
 			}
 		}
 		break;
+	case 'sparql':
+		list($raw, $refresh) = zz_sync_sparql($setting);
+		break;
 	}
 
 	if (empty($raw)) return [];
@@ -166,11 +169,13 @@ function zz_sync_defaults($setting) {
 		break;
 	case 'sql':
 		break;
+	case 'sparql':
+		break;
 	default:
 		wrap_error(
 			sprintf(
 				'Please set an import type via <code>$setting["type"]</code>. Possible types are: %s'
-				, implode(', ', ['csv', 'sql'])
+				, implode(', ', ['csv', 'sql', 'sparql'])
 			), E_USER_ERROR
 		);
 	}
@@ -336,6 +341,39 @@ function zz_sync_csv_fixed_width_line($handle, $setting) {
 		$new_line[$field] = $value;
 	}
 	return $new_line;
+}
+
+/**
+ * Sync data from SPARQL source
+ *
+ * @param array $setting
+ * @return array $raw
+ */
+function zz_sync_sparql($setting) {
+	$query = preg_replace('/\s+/', ' ', $setting['source']);
+	$offset = $setting['end'] - $setting['limit'];
+	$query .= sprintf('LIMIT %d OFFSET %d', $setting['sync_records_per_run'], $setting['limit']);
+	$url = sprintf($setting['sparql_uri'], urlencode($query));
+	
+	$options = [
+		'http' => [
+			'method' => 'GET',
+			'header' => [
+				'Accept: application/sparql-results+json',
+				'User-Agent: Zugzwang Project; +https://www.zugzwang.org/'
+			]
+		]
+	];
+
+	$context = stream_context_create($options);
+	$raw = file_get_contents($url, false, $context);
+	if (!$raw)
+		wrap_error(wrap_text('Could not fetch data from %s', ['values' => [$setting['sparql_uri']]])); // @todo better error message
+
+	$raw = json_decode($raw, true);
+	list($raw, $count) = $setting['sparql_raw_function']($raw);
+	$refresh = ($count === $offset) ? true : false;
+	return [$raw, $refresh];
 }
 
 /**
