@@ -387,6 +387,8 @@ function zz_sync_zzform($raw, $setting) {
 	// get existing keys from database
 	$ids = zz_sync_ids($raw, $setting['existing']);
 	$def = zzform_batch_def($setting['form_script']);
+	if (!empty($setting['existing_order_by']))
+		$def['order_by'] = $setting['existing_order_by'];
 
 	$data['field_names'] = zz_sync_field_names($setting);
 	$data['fields'] = zz_sync_fields($def['fields'], $data['field_names']);
@@ -640,6 +642,7 @@ function zz_sync_existing($def, $fields, $ids) {
 		$tables[$table]['table'] = $table;
 		$tables[$table]['table_name'] =  $field['table_name'] ?? $table;
 		$tables[$table]['fields'][] = $field['field_name'];
+		$tables[$table]['order_by'] = $def['order_by'][$table] ?? '';
 		if (!empty($field['foreign_key'])) {
 			$foreign_keys[$table] = $field['foreign_key'];
 		}
@@ -665,6 +668,7 @@ function zz_sync_existing($def, $fields, $ids) {
 			, $def['primary_key']
 			, implode(',', $ids)
 		);
+		if ($tdef['order_by']) $sql .= sprintf(' ORDER BY %s', $tdef['order_by']);
 		if ($id_fields[$tdef['table']] === $foreign_keys[$tdef['table']]) {
 			$existing = wrap_db_fetch($sql, $id_fields[$tdef['table']]);
 		} else {
@@ -716,6 +720,10 @@ function zz_sync_def_field($field_name, $fields) {
 function zz_sync_identical($new, $existing, $show_field_data = true) {
 	if ($show_field_data) $check = [];
 	$identical = true;
+	if (!$existing) {
+		$identical = false;
+		return [$identical, $check];
+	}
 	foreach ($new as $field_name => $value) {
 		if (!is_array($value)) {
 			$identical_field = $value === $existing[$field_name] ? true : false;
@@ -728,7 +736,10 @@ function zz_sync_identical($new, $existing, $show_field_data = true) {
 		} else {
 			foreach ($value as $index => $details) {
 				foreach ($details as $detail_field_name => $detail_value) {
-					$identical_field = $detail_value === $existing[$field_name][$index][$detail_field_name] ? true : false;
+					if (!isset($existing[$field_name][$index][$detail_field_name]))
+						$identical_field = false;
+					else
+						$identical_field = $detail_value === $existing[$field_name][$index][$detail_field_name] ? true : false;
 					if ($show_field_data)
 						$check[$field_name][$index][$detail_field_name] = $identical_field;
 					if (!$identical_field) {
