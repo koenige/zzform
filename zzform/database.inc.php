@@ -686,9 +686,6 @@ function zz_db_field_collation($type, $field, $db_table = '', $index = 0) {
 		break;
 	}
 	if (!$collate_fieldname) return '';
-	if (!isset($zz_conf['int']['character_set_db'])) {
-		zz_db_get_charset();
-	}
 
 	if (!$charset) {
 		$db_tables = [];
@@ -732,27 +729,29 @@ function zz_db_field_collation($type, $field, $db_table = '', $index = 0) {
 			// column is not in db, we cannot check the collation, therefore we
 			// assume it is the same as the standard collation
 			// attention: might generate errors if this is not the case
-			$charset = $zz_conf['int']['character_set_db'];
+			$charset = zz_db_charset();
 		} elseif ($cols['Collation']) {
 			$charset = substr($cols['Collation'], 0, strpos($cols['Collation'], '_'));
 		}
 	}
 	if (!$charset) return '';
-	if ($charset !== $zz_conf['int']['character_set_db']) return '_'.$charset;
+	if ($charset !== zz_db_charset()) return '_'.$charset;
 	return '';	
 }
 
 /**
  * gets character set which is used for current db connection
  *
- * @param array $zz_conf
- *	function will write key 'character_set_db'
+ * @param void
+ * @return string
  */
-function zz_db_get_charset() {
-	global $zz_conf;
-	$sql = 'SHOW VARIABLES LIKE "character_set_connection"';
-	$character_set = zz_db_fetch($sql);
-	$zz_conf['int']['character_set_db'] = $character_set['Value'];
+function zz_db_charset() {
+	static $character_set = '';
+	if (!$character_set) {
+		$sql = 'SHOW VARIABLES LIKE "character_set_connection"';
+		$character_set = zz_db_fetch($sql);
+	}
+	return $character_set;
 }
 
 /**
