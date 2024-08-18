@@ -311,6 +311,7 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 	}
 	$lines = [];
 	$error = false;
+	$sql = wrap_sql_placeholders($sql);
 	$result = mysqli_query(wrap_db_connection(), $sql);
 	if (!$result) {
 		$error = true;
