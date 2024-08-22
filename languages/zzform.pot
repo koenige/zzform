@@ -2111,3 +2111,19 @@ msgstr ""
 #: zzform/logging.inc.php
 msgid "Unable to gzip archive file for database logging for period %s."
 msgstr ""
+
+#: configuration/access.cfg
+msgid "synchronize local development and production server"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "time in months to keep logging data in the database before archiving it"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "maximum number of lines that are read from logging table"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "URL to synchronize local development and production server"
+msgstr ""
