@@ -11,7 +11,7 @@
 <div id="zzform">
 %%% condition if deleted %%%
 <ul>
-<li>%%% text "%d deletions were made." deleted %%%</li>
+<li>%%% text "%s deletions were made." deleted wrap_number %%%</li>
 </ul>
 
 %%% condition else %%%

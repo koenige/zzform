@@ -2099,31 +2099,31 @@ msgstr "Verarbeite Einträge %s–%s …"
 
 # Modules: Sync
 #: templates/sync.template.txt
-msgid "%d update was made."
-msgid_plural "%d updates were made."
+msgid "%s update was made."
+msgid_plural "%s updates were made."
 msgstr[0] "Ein Eintrag wurde aktualisiert."
-msgstr[1] "%d Einträge wurden aktualisiert."
+msgstr[1] "%s Einträge wurden aktualisiert."
 
 # Modules: Sync
 #: templates/sync.template.txt
-msgid "%d insert was made."
-msgid_plural "%d inserts were made."
+msgid "%s insert was made."
+msgid_plural "%s inserts were made."
 msgstr[0] "Es wurde ein Eintrag eingefügt."
-msgstr[1] "%d Einträge wurden eingefügt."
+msgstr[1] "%s Einträge wurden eingefügt."
 
 # Modules: Sync
 #: templates/sync.template.txt
-msgid "%d record was left as is."
-msgid_plural "%d records were left as is."
+msgid "%s record was left as is."
+msgid_plural "%s records were left as is."
 msgstr[0] "Ein Eintrag blieb unverändert."
 msgstr[1] "%s Einträge blieben unverändert."
 
 # Modules: Sync
 #: templates/sync.template.txt
-msgid "%d record had errors."
-msgid_plural "%d records had errors."
+msgid "%s record had errors."
+msgid_plural "%s records had errors."
 msgstr[0] "Ein Eintrag hatte Fehler."
-msgstr[1] "%d Einträge hatten Fehler."
+msgstr[1] "%s Einträge hatten Fehler."
 
 # Modules: Sync
 #: templates/sync.template.txt
@@ -2164,10 +2164,10 @@ msgstr "Es gibt keine löschbaren Datensätze."
 
 # Modules: Sync
 #: templates/sync-deletable.template.txt
-msgid "%d deletion was made."
-msgid_plural "%d deletions were made."
-msgstr[0] "%d Eintrag wurde gelöscht."
-msgstr[1] "%d Einträge wurden gelöscht."
+msgid "%s deletion was made."
+msgid_plural "%s deletions were made."
+msgstr[0] "%s Eintrag wurde gelöscht."
+msgstr[1] "%s Einträge wurden gelöscht."
 
 # Modules: Upload (Table filetypes)
 msgid "Filetypes"

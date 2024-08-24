@@ -963,32 +963,32 @@ msgstr ""
 
 # Modules: Sync
 #: zzform/sync.inc.php
-msgid "%d update was made."
-msgid_plural "%d updates were made."
+msgid "%s update was made."
+msgid_plural "%s updates were made."
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
 # Modules: Sync
 #: zzform/sync.inc.php
-msgid "%d insert was made."
-msgid_plural "%d inserts were made."
+msgid "%s insert was made."
+msgid_plural "%s inserts were made."
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
 # Modules: Sync
 #: zzform/sync.inc.php
-msgid "%d record was left as is."
-msgid_plural "%d records were left as is."
+msgid "%s record was left as is."
+msgid_plural "%s records were left as is."
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
 # Modules: Sync
 #: zzform/sync.inc.php
-msgid "%d record had errors."
-msgid_plural "%d records had errors."
+msgid "%s record had errors."
+msgid_plural "%s records had errors."
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
