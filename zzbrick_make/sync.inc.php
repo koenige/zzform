@@ -69,7 +69,7 @@ function mod_zzform_make_sync($params) {
 			'updated' => $data['updated'],
 			'inserted' => $data['inserted'],
 			'nothing' => $data['nothing'],
-			'next_url' => $url_self.(!empty($data['last']) ? '?deletable' : sprintf('limit=%d', $data['end']))
+			'next_url' => $url_self.(!empty($data['last']) ? '?deletable' : sprintf('?limit=%d', $data['end']))
 		];
 		$page['text'] = wrap_template('sync', $data);
 	}
