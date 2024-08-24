@@ -1873,7 +1873,7 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 					if (!empty($field['max_int_value']) AND $n_val > $field['max_int_value']) {
 						$my_rec['validation'] = false;
 						$my_rec['fields'][$f]['check_validation'] = false;
-						$my_rec['fields'][$f]['error_msg'] = 'The number %d is too high. Maximum value is %d.';
+						$my_rec['fields'][$f]['validation_error']['msg'] = 'The number %d is too high. Maximum value is %d.';
 						$my_rec['fields'][$f]['validation_error']['msg_args'] = [$n_val, $field['max_int_value']];
 					}
 				} else {
@@ -1891,7 +1891,7 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 			} elseif (!empty($field['max_int_value']) AND $value > $field['max_int_value']) {
 				$my_rec['validation'] = false;
 				$my_rec['fields'][$f]['check_validation'] = false;
-				$my_rec['fields'][$f]['error_msg'] = 'The number %d is too high. Maximum value is %d.';
+				$my_rec['fields'][$f]['validation_error']['msg'] = 'The number %d is too high. Maximum value is %d.';
 				$my_rec['fields'][$f]['validation_error']['msg_args'] = [$value, $field['max_int_value']];
 			}
 			break;
