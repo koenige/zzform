@@ -1559,13 +1559,8 @@ function zz_action_dependent_fields(&$zz_tab) {
 						AND array_key_exists($source_value, $dependency['set_values'])) {
 						$values = $dependency['set_values'][$source_value];
 						if (array_key_exists($field_name, $values)) {
-							if (str_ends_with($field_name, '_id') AND !is_numeric($values[$field_name])) {
-								$table = substr($field_name, 0, -3);
-								if (strstr($table, '_'))
-									$table = substr($table, strrpos($table, '_') + 1);
-								$table = str_ends_with($table, 'y') ? substr($table, 0, -1).'ies' : $table.'s';
-								$values[$field_name] = wrap_id($table, $values[$field_name]);
-							}
+							if (str_ends_with($field_name, '_id') AND !is_numeric($values[$field_name]))
+								$values[$field_name] = wrap_id(wrap_sql_plural($field_name), $values[$field_name]);
 							$zz_tab[$tab][$rec]['POST'][$field_name] = $values[$field_name];
 						} else {
 							if (!empty($my_rec['fields'][$f]['required_in_db']) AND !empty($my_rec['fields'][$f]['dependent_empty_value'])) {
