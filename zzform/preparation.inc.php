@@ -567,9 +567,8 @@ function zz_get_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 
 	// check if we have a sync or so and there's a detail record with
 	// a unique field: get the existing detail record id if there's one
-	if (!empty($zz_conf['multi'])) {
+	if (!empty($zz_conf['multi']))
 		$my_tab['POST'] = zz_subrecord_unique($my_tab, $existing, $field['fields']);
-	}
 
 	if ($my_tab['values'] AND $state !== 'delete') {
 		// get field names for values
@@ -826,7 +825,7 @@ function zz_prepare_check_select($table_name = '', $rec = 0) {
 }
 
 /**
- * gets ID of subrecord if one of the fields in the subrecord definition
+ * sets ID of subrecord if one of the fields in the subrecord definition
  * is defined as unique (only for multi-operations)
  * 
  * @param array $my_tab = $zz_tab[$tab]
@@ -837,29 +836,20 @@ function zz_prepare_check_select($table_name = '', $rec = 0) {
 function zz_subrecord_unique($my_tab, $existing, $fields) {
 	// check if a GET is set on the foreign key
 	$foreign_key = $my_tab['foreign_key_field_name'];
-	if ($pos = strrpos($foreign_key, '.')) {
+	if ($pos = strrpos($foreign_key, '.'))
 		$foreign_key = substr($foreign_key, $pos + 1);
-	}
+
 	if (!empty($_GET['where'][$foreign_key])) {
 		$my_tab['sql'] = wrap_edit_sql($my_tab['sql'], 
 			'WHERE', $foreign_key.' = '.intval($_GET['where'][$foreign_key]));
 	}
-	$id_field = ['field_name' => $my_tab['id_field_name'], 'value' => ''];
-	if (!empty($my_tab['unique'])) {
+	if (!empty($my_tab['unique']) AND $existing) {
 		// this is only important for UPDATEs of the main record
-		// @todo merge with code for 'unique' on a field level
 
 		foreach ($my_tab['unique'] AS $unique) {
-			if (empty($existing)) continue;
-			// check if there's a foreign key and remove it from unique key
-			foreach ($fields as $field) {
-				if ($field['type'] !== 'foreign_key') continue;
-				$key = array_search($field['field_name'], $unique);
-				if ($key === false) continue;
-				unset($unique[$key]);
-			}
-			$values = [];
+			zz_prepare_unique_remove_foreign_key($unique, $fields);
 			foreach ($my_tab['POST'] as $no => $record) {
+				if (!empty($record[$my_tab['id_field_name']])) continue;
 				$check_select_fields = zz_prepare_check_select($my_tab['table_name'], $no);
 				foreach ($unique as $field_name) {
 					if (!isset($record[$field_name])) {
@@ -867,50 +857,37 @@ function zz_subrecord_unique($my_tab, $existing, $fields) {
 						foreach ($fields as $field) {
 							if ($field['field_name'] !== $field_name) continue;
 							if (empty($field['value'])) continue;
-							$values[$field_name] = $field['value'];
+							$record[$field_name] = $field['value'];
 							break;
 						}
-						if (empty($values[$field_name])) {
+						if (empty($record[$field_name])) {
 							zz_error_log([
 								'msg_dev' => 'UNIQUE was set but field %s is not in POST',
 								'msg_dev_args' => [$field_name]
 							]);
 							continue;
 						}
-					} else {
-						$values[$field_name] = $record[$field_name];
 					}
 					// check if we have to get the corresponding ID for a string
-					if (intval($values[$field_name]).'' === $values[$field_name].'') continue;
+					if (intval($record[$field_name]).'' === $record[$field_name].'') continue;
 					foreach ($fields as $field) {
 						if ($field['field_name'] !== $field_name) continue;
 						if ($field['type'] !== 'select') break;
 						if (empty($field['sql'])) break;
+						// check unless explicitly said not to check
+						if (in_array($field_name, $check_select_fields)) break;
 
-						if (in_array($field_name, $check_select_fields)) {
-							// check unless explicitly said not to check
-							break;
-						}
-						
-						$my_id_field = $id_field;
-						if (array_key_exists('field_name', $id_field) AND isset($record[$id_field['field_name']])) {
-							$my_id_field['value'] = $record[$id_field['field_name']];
-						} else {
-							$my_id_field['value'] = '';
-						}
-						$field = zz_check_select_id($field, $values[$field_name].' ', $my_id_field);
-						if (count($field['possible_values']) !== 1) continue;
-						$values[$field_name] = reset($field['possible_values']);
+						$value = zz_prepare_unique_field_value($field, $my_tab['id_field_name'], $record);
+						if ($value) $record[$field_name] = $value;
 					}
 				}
 				foreach ($existing as $id => $record_in_db) {
 					$found = true;
-					foreach ($values as $field_name => $value) {
+					foreach ($record as $field_name => $value) {
 						if ($record_in_db[$field_name] != $value) $found = false;
 					}
-					if ($found) {
-						$my_tab['POST'][$no][$my_tab['id_field_name']] = $id;
-					}
+					if (!$found) continue;
+					$my_tab['POST'][$no][$my_tab['id_field_name']] = $id;
 				}
 			}
 		}
@@ -923,23 +900,8 @@ function zz_subrecord_unique($my_tab, $existing, $fields) {
 			if (empty($record[$field['field_name']])) continue;
 			if (!empty($record[$my_tab['id_field_name']])) continue;
 			if ($field['type'] === 'select') {
-				$my_id_field = $id_field;
-				$my_id_field['value'] = isset($record[$id_field['field_name']]) ? $record[$id_field['field_name']] : '';
-				$field = zz_check_select_id(
-					$field, $record[$field['field_name']], $my_id_field
-				);
-				if (count($field['possible_values']) === 1) {
-					$value = reset($field['possible_values']);
-				} elseif (count($field['possible_values']) === 0) {
-					$value = '';
-				} else {
-					$value = '';
-					zz_error_log([
-						'msg_dev' => 'Field marked as unique, but could not find corresponding value: %s',
-						'msg_dev_args' => [$field['field_name']],
-						'level' => E_USER_NOTICE
-					]);
-				}
+				$value = zz_prepare_unique_field_value($field, $my_tab['id_field_name'], $record);
+
 				// we are not writing this value back to POST here
 				// because there's no way telling the script that this
 				// value was already replaced
@@ -964,6 +926,54 @@ function zz_subrecord_unique($my_tab, $existing, $fields) {
 		}
 	}
 	return $my_tab['POST'];
+}
+
+/**
+ * check if there's a foreign key and remove it from unique key
+ *
+ * @param array $unique
+ * @param array $fields
+ * @return array
+ */
+function zz_prepare_unique_remove_foreign_key(&$unique, $fields) {
+	foreach ($fields as $field) {
+		if ($field['type'] !== 'foreign_key') continue;
+		$key = array_search($field['field_name'], $unique);
+		if ($key === false) continue;
+		unset($unique[$key]);
+	}
+}
+
+/**
+ * check select value for unique field
+ *
+ * @param array $field
+ * @param array $id_field_name
+ * @param array $record
+ * @return mixed
+ */
+function zz_prepare_unique_field_value($field, $id_field_name, $record) {
+	$id_field = [
+		'field_name' => $id_field_name,
+		'value' => $record[$id_field['field_name']] ?? ''
+	];
+	$field = zz_check_select_id(
+		$field, $record[$field['field_name']], $id_field
+	);
+
+	if (count($field['possible_values']) === 1)
+		return reset($field['possible_values']);
+
+	if (count($field['possible_values']) === 0)
+		return '';
+
+	// @todo check if this error message is useful on `tab` level
+	zz_error_log([
+		'msg_dev' => 'Field marked as unique, but could not find corresponding value: %s',
+		'msg_dev_args' => [$field['field_name']],
+		'level' => E_USER_NOTICE
+	]);
+	return '';
 }
 
 /**
