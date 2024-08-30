@@ -845,52 +845,8 @@ function zz_subrecord_unique($my_tab, $existing, $fields) {
 	}
 	if (!empty($my_tab['unique']) AND $existing) {
 		// this is only important for UPDATEs of the main record
-
-		foreach ($my_tab['unique'] AS $unique) {
-			zz_prepare_unique_remove_foreign_key($unique, $fields);
-			foreach ($my_tab['POST'] as $no => $record) {
-				if (!empty($record[$my_tab['id_field_name']])) continue;
-				$check_select_fields = zz_prepare_check_select($my_tab['table_name'], $no);
-				foreach ($unique as $field_name) {
-					if (!isset($record[$field_name])) {
-						// check if there's a value for this field which cannot be changed
-						foreach ($fields as $field) {
-							if ($field['field_name'] !== $field_name) continue;
-							if (empty($field['value'])) continue;
-							$record[$field_name] = $field['value'];
-							break;
-						}
-						if (empty($record[$field_name])) {
-							zz_error_log([
-								'msg_dev' => 'UNIQUE was set but field %s is not in POST',
-								'msg_dev_args' => [$field_name]
-							]);
-							continue;
-						}
-					}
-					// check if we have to get the corresponding ID for a string
-					if (intval($record[$field_name]).'' === $record[$field_name].'') continue;
-					foreach ($fields as $field) {
-						if ($field['field_name'] !== $field_name) continue;
-						if ($field['type'] !== 'select') break;
-						if (empty($field['sql'])) break;
-						// check unless explicitly said not to check
-						if (in_array($field_name, $check_select_fields)) break;
-
-						$value = zz_prepare_unique_field_value($field, $my_tab['id_field_name'], $record);
-						if ($value) $record[$field_name] = $value;
-					}
-				}
-				foreach ($existing as $id => $record_in_db) {
-					$found = true;
-					foreach ($record as $field_name => $value) {
-						if ($record_in_db[$field_name] != $value) $found = false;
-					}
-					if (!$found) continue;
-					$my_tab['POST'][$no][$my_tab['id_field_name']] = $id;
-				}
-			}
-		}
+		foreach ($my_tab['unique'] AS $unique)
+			$my_tab['POST'] = zz_prepare_unique_record($my_tab, $existing, $fields, $unique);
 	}
 	foreach ($fields as $f => $field) {
 		if (empty($field['unique'])) continue;
@@ -923,6 +879,63 @@ function zz_subrecord_unique($my_tab, $existing, $fields) {
 					'level' => E_USER_NOTICE
 				]);
 			}
+		}
+	}
+	return $my_tab['POST'];
+}
+
+/**
+ * check each posted record against unique fields and add record ID into POST if match
+ *
+ * @param array $my_tab
+ * @param array $existing
+ * @param array $fields
+ * @param array $unique
+ * @return array
+ */
+function zz_prepare_unique_record($my_tab, $existing, $fields, $unique) {
+	zz_prepare_unique_remove_foreign_key($unique, $fields);
+	foreach ($my_tab['POST'] as $no => $record) {
+		if (!empty($record[$my_tab['id_field_name']])) continue;
+		$check_select_fields = zz_prepare_check_select($my_tab['table_name'], $no);
+		foreach ($unique as $field_name) {
+			if (!isset($record[$field_name])) {
+				// check if there's a value for this field which cannot be changed
+				foreach ($fields as $field) {
+					if ($field['field_name'] !== $field_name) continue;
+					if (empty($field['value'])) continue;
+					$record[$field_name] = $field['value'];
+					break;
+				}
+				if (empty($record[$field_name])) {
+					zz_error_log([
+						'msg_dev' => 'UNIQUE was set but field %s is not in POST',
+						'msg_dev_args' => [$field_name]
+					]);
+					continue;
+				}
+			}
+			// check if we have to get the corresponding ID for a string
+			if (intval($record[$field_name]).'' === $record[$field_name].'') continue;
+			foreach ($fields as $field) {
+				if ($field['field_name'] !== $field_name) continue;
+				if ($field['type'] !== 'select') break;
+				if (empty($field['sql'])) break;
+				// check unless explicitly said not to check
+				if (in_array($field_name, $check_select_fields)) break;
+
+				$value = zz_prepare_unique_field_value($field, $my_tab['id_field_name'], $record);
+				if ($value) $record[$field_name] = $value;
+			}
+		}
+		foreach ($existing as $id => $record_in_db) {
+			$found = true;
+			foreach ($record as $field_name => $value) {
+				if (!in_array($field_name, $unique)) continue;
+				if ($record_in_db[$field_name] != $value) $found = false;
+			}
+			if (!$found) continue;
+			$my_tab['POST'][$no][$my_tab['id_field_name']] = $id;
 		}
 	}
 	return $my_tab['POST'];
