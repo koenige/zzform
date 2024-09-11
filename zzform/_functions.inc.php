@@ -547,3 +547,17 @@ function zzform_copy($table, $foreign_id_field, $source_id, $destination_id) {
 	}
 	return $results;
 }
+
+/**
+ * get unique identifier per field
+ * for changing fields not depending on numbering
+ *
+ * @param array $field
+ * @return string
+ */
+function zzform_field_identifier($field) {
+	$identifier = $field['field_name'] ?? $field['table_name'] ?? $field['table'] ?? '';
+	if (str_starts_with($identifier, '/*_PREFIX_*/'))
+		$identifier = substr($identifier, strlen('/*_PREFIX_*/'));
+	return $identifier;
+}
