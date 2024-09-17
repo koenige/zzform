@@ -49,11 +49,13 @@ function mod_zzform_make_sync($params) {
 	if (!$data) {
 		$page['status'] = 404;
 		$page['text'] = '';
+		$page['extra']['job'] = 'fail';
 		return $page;
 	}
 	wrap_setting_add('extra_http_headers', 'X-Frame-Options: Deny');
 	wrap_setting_add('extra_http_headers', "Content-Security-Policy: frame-ancestors 'self'");
 
+	$page['extra']['job'] = 'sync';
 	if (isset($_GET['deletable'])) {
 		$page['data'] = [
 			'deleted' => $data['deleted'] ?? 0,
