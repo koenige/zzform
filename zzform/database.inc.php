@@ -35,7 +35,7 @@
 function zz_log_sql($sql, $user = '', $record_id = false) {
 	global $zz_conf;
 	if (!wrap_setting('zzform_logging')) return false;
-	if (!$user) $user = wrap_username();
+	$user = wrap_username($user);
 
 	$sql = trim($sql);
 	if ($sql === 'SELECT 1') return false;
