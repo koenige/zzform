@@ -636,7 +636,7 @@ function zz_identifier_values_db($sql, $id, $fieldname = false) {
 			break;
 		}
 	}
-	$sql = wrap_edit_sql($sql, 'WHERE', $id_fieldname.' = '.$id);
+	$sql = wrap_edit_sql($sql, 'WHERE', sprintf('%s = %d', $id_fieldname, $id));
 	$line = zz_db_fetch($sql);
 	if ($fieldname) {
 		if (isset($line[$fieldname])) return zz_return($line[$fieldname]);

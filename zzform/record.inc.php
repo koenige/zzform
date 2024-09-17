@@ -1701,8 +1701,9 @@ function zz_set_auto_value($field, $sql, $table, $tab, $rec, $main_table) {
 	if ($tab) { 
 		// subtable
 		if (!empty($zz_conf['int']['id']['field_name']) AND !empty($zz_conf['int']['id']['value'])) {
-			$sql = wrap_edit_sql($sql, 'WHERE', '('.$main_table.'.'
-				.$zz_conf['int']['id']['field_name'].' = '.$zz_conf['int']['id']['value'].')');
+			$sql = wrap_edit_sql($sql, 'WHERE', sprintf(
+				'%s.%s = %d', $main_table, $zz_conf['int']['id']['field_name'], $zz_conf['int']['id']['value']
+			));
 			$last_record = zz_db_fetch($sql, '', 'single value');
 			if ($last_record) {
 				if ($rec > $last_record)
@@ -1919,7 +1920,7 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 		$detail_key = $display_value ? $display_value : $field['default'];
 		$my_fieldname = $field['key_field_name'] ?? $field['field_name'];
 		if (isset($field['sql'])) {
-			$sql = wrap_edit_sql($field['sql'], 'WHERE', '('.$my_fieldname.' = '.$detail_key.')');
+			$sql = wrap_edit_sql($field['sql'], 'WHERE', sprintf('%s = %d', $my_fieldname, $detail_key));
 			$select_fields = zz_db_fetch($sql);
 			$select_fields = zz_translate($field, $select_fields);
 			if ($select_fields) {

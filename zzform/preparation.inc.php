@@ -586,10 +586,13 @@ function zz_get_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 			$ids[] = $line[$my_tab['hierarchy']['id_field_name']];
 		}
 		$sql = $my_tab['sql'];
-		$sql = wrap_edit_sql($sql, 'WHERE', $my_tab['hierarchy']['id_field_name']
-			.' IN ('.implode(',', $ids).')');
-		$sql = wrap_edit_sql($sql, 'WHERE', $zz_tab[0][0]['id']['field_name']
-			.' = '.$zz_tab[0][0]['id']['value'].' OR ISNULL('.$zz_tab[0][0]['id']['field_name'].')');
+		$sql = wrap_edit_sql($sql, 'WHERE', sprintf('%s IN (%s)',
+			$my_tab['hierarchy']['id_field_name'], implode(',', $ids)
+		));
+		$sql = wrap_edit_sql($sql, 'WHERE', sprintf('%s = %d OR ISNULL(%s)',
+			$zz_tab[0][0]['id']['field_name'], $zz_tab[0][0]['id']['value'],
+			$zz_tab[0][0]['id']['field_name']
+		));
 		$records = zz_db_fetch($sql, $my_tab['hierarchy']['id_field_name']);
 		$existing = [];
 		foreach ($ids as $id) {
@@ -840,8 +843,9 @@ function zz_subrecord_unique($my_tab, $existing, $fields) {
 		$foreign_key = substr($foreign_key, $pos + 1);
 
 	if (!empty($_GET['where'][$foreign_key])) {
-		$my_tab['sql'] = wrap_edit_sql($my_tab['sql'], 
-			'WHERE', $foreign_key.' = '.intval($_GET['where'][$foreign_key]));
+		$my_tab['sql'] = wrap_edit_sql($my_tab['sql'], 'WHERE',
+			sprintf('%s = %d', $foreign_key, intval($_GET['where'][$foreign_key]))
+		);
 	}
 	if (!empty($my_tab['unique']) AND $existing) {
 		// this is only important for UPDATEs of the main record
@@ -867,7 +871,7 @@ function zz_subrecord_unique($my_tab, $existing, $fields) {
 				$value = $record[$field['field_name']];
 			}
 			$sql = wrap_edit_sql(
-				$my_tab['sql'], 'WHERE', $field['field_name'].' = '.$value
+				$my_tab['sql'], 'WHERE', sprintf('%s = %d', $field['field_name'], $value)
 			);
 			$existing_recs = zz_db_fetch($sql, $my_tab['id_field_name']);
 			if (count($existing_recs) === 1) {
@@ -963,7 +967,7 @@ function zz_prepare_unique_remove_foreign_key(&$unique, $fields) {
  * @param array $field
  * @param array $id_field_name
  * @param array $record
- * @return mixed
+ * @return int
  */
 function zz_prepare_unique_field_value($field, $id_field_name, $record) {
 	$id_field = [
@@ -978,7 +982,7 @@ function zz_prepare_unique_field_value($field, $id_field_name, $record) {
 		return reset($field['possible_values']);
 
 	if (count($field['possible_values']) === 0)
-		return '';
+		return 0;
 
 	// @todo check if this error message is useful on `tab` level
 	zz_error_log([
@@ -986,7 +990,7 @@ function zz_prepare_unique_field_value($field, $id_field_name, $record) {
 		'msg_dev_args' => [$field['field_name']],
 		'level' => E_USER_NOTICE
 	]);
-	return '';
+	return 0;
 }
 
 /**
