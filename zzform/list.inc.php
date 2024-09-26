@@ -1241,9 +1241,9 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 		$row['text'] .= $text;
 	if ($link) $row['text'] .= '</a>';
 
-	if (isset($field['list_unit'])) {
+	if (!empty($field['list_unit'])) {
 		$row['text'] .= '&nbsp;'.$field['list_unit'];
-	} elseif (isset($field['unit'])) {
+	} elseif (!empty($field['unit'])) {
 		$row['text'] .= '&nbsp;'.$field['unit'];
 	}
 	if (!empty($field['list_suffix'])) {
