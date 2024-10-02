@@ -869,9 +869,10 @@ function zz_sync_deletable($setting) {
 		$raw = wrap_db_fetch($setting['source'], $setting['source_id_field_name']);
 		break;
 	}
-	$existing = zz_sync_ids($raw, $setting['deletable'], 'numeric');
+	$existing = zz_sync_deletable_existing($raw, $setting);
+
 	if ($_SERVER['REQUEST_METHOD'] === 'POST' AND !$setting['testing']) {
-		$deleted_ids = zzform_delete('fide-players', array_column($existing, 'player_id'));
+		$deleted_ids = zzform_delete($setting['form_script'], array_column($existing, $setting['source_id_field_name']));
 		$data['deleted'] = count($deleted_ids);
 	} else {
 		$j = 0;
@@ -899,6 +900,32 @@ function zz_sync_deletable($setting) {
 
 	$data['testing'] = $setting['testing'];
 	return $data;
+}
+
+/**
+ * get IDs that can be deleted
+ *
+ * @param array $raw
+ * @param array $setting
+ * @return array
+ */
+function zz_sync_deletable_existing($raw, $setting) {
+	if (count($raw) < wrap_setting('zzform_sync_max_ids_deletable'))
+		return zz_sync_ids($raw, $setting['deletable'], 'numeric');
+
+	$sql = 'CREATE TEMPORARY TABLE temp_ids (id INT PRIMARY KEY)';
+	wrap_db_query($sql);
+
+	$sql_template = 'INSERT INTO temp_ids (id) VALUES (%s)';
+	foreach (array_chunk(array_keys($raw), wrap_setting('zzform_sync_max_ids_deletable')) as $batch) {
+		$raw_ids = implode('),(', array_map('intval', $batch));
+		$sql = sprintf($sql_template, $raw_ids);
+		wrap_db_query($sql);
+	}
+	
+	$sql_not_in = 'SELECT id FROM temp_ids';
+	$sql = sprintf($setting['deletable'], $sql_not_in);
+	return wrap_db_fetch($sql, '_dummy_', 'numeric');
 }
 
 /**
