@@ -1120,6 +1120,18 @@ msgstr ""
 "Diese URL ist nur für die Synchronisierung von Produktions- und Entwicklungs-"
 "Server. Kein direkter Zugriff möglich."
 
+#: zzbrick_request/integritycheck.inc.php
+msgid "Relational Integrity"
+msgstr "Relationale Integrität"
+
+#: templates/integritycheck.template.txt
+msgid "Nothing to check."
+msgstr "Nichts zum Prüfen da."
+
+#: templates/integritycheck.template.txt
+msgid "Field <code>%s</code> contains only valid values."
+msgstr "Feld <code>%s</code> enthält nur gültige Werte."
+
 # Number of records as shown in page TITLE
 # Page elements
 msgid "records"

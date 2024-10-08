@@ -1,0 +1,32 @@
+# zzform module
+# Template for checking relational integriy
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/projects/zzform
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2024 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+<div id="zzform" class="maintenance">
+%%% condition if nothing_to_check %%%
+<p>%%% text Nothing to check. %%%</p>
+
+%%% condition else %%%
+<ul>
+%%% loop start %%%
+%%% switch status %%%
+%%% case ok %%%
+	<li class="ok">%%% text OK %%% – %%% text "Field <code>%s</code> contains only valid values." field_name %%%</li>
+%%% case error %%%
+	<li class="error">%%% text Error %%% – %%% text "Field <code>%s</code> contains invalid values:" field_name %%% 
+	(%%% item detail_id_field %%% => %%% item detail_field %%%)<br>
+%%% loop ids %%%
+ %%% item id %%% => %%% item foreign_id %%%;
+%%% loop end %%%</li>
+%%% switch end %%%
+%%% loop end %%%
+</ul>
+
+%%% condition endif %%%
+</div>

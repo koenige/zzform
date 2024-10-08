@@ -1010,6 +1010,18 @@ msgid ""
 "direct access is possible."
 msgstr ""
 
+#: zzbrick_request/integritycheck.inc.php
+msgid "Relational Integrity"
+msgstr ""
+
+#: templates/integritycheck.template.txt
+msgid "Nothing to check."
+msgstr ""
+
+#: templates/integritycheck.template.txt
+msgid "Field <code>%s</code> contains only valid values."
+msgstr ""
+
 # Number of records as shown in page TITLE
 # Page elements
 msgid "records"
