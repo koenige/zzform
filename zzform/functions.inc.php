@@ -1195,12 +1195,15 @@ function zz_field_title($field) {
  * configuration ($zz_conf) to be able to save time for zzform_multi() and
  * to get a possible hash for a secret key
  *
- * @param array $zz
- * @param array $zz_conf
+ * @param array $zz (optional, for creating a hash)
+ * @param array $zz_conf (optional, for creating a hash)
  * @return string $hash
  * @todo check if $_GET['id'], $_GET['where'] and so on need to be included
  */
-function zz_hash($zz, $zz_conf) {
+function zz_hash($zz = [], $zz_conf = []) {
+	static $hash = '';
+	if ($hash) return $hash;
+
 	// get rid of varying and internal settings
 	// get rid of configuration settings which are not important for
 	// the definition of the database table(s)
@@ -1235,12 +1238,10 @@ function zz_hash($zz, $zz_conf) {
  * hash a secret key and make it small
  *
  * @param int @id
- * @global string $zz_conf['int']['hash']
  * @return string
  */
 function zz_secret_key($id) {
-	global $zz_conf;
-	$hash = sha1($zz_conf['int']['hash'].$id);
+	$hash = sha1(zz_hash().$id);
 	$hash = wrap_base_convert($hash, 16, 62);
 	return $hash;
 }
