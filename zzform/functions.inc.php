@@ -1214,16 +1214,15 @@ function zz_hash($zz = [], $zz_conf = []) {
 	foreach ($uninteresting_zz_conf_keys as $key) unset($zz_conf[$key]);
 	$uninteresting_zz_keys = [
 		'title', 'explanation', 'explanation_top', 'subtitle', 'list', 'access',
-		'explanation_insert', 'export', 'details', 'footer', 'page'
+		'explanation_insert', 'export', 'details', 'footer', 'page', 'setting'
 	];
 	foreach ($uninteresting_zz_keys as $key) unset($zz[$key]);
-	foreach ($zz['fields'] as $no => $field) {
+	foreach ($zz['fields'] as $no => &$field) {
 		// defaults might change, e. g. dates
-		if (isset($field['default'])) unset($zz['fields'][$no]['default']);
+		zz_hash_remove_defaults($field);
 		if (!empty($field['type']) AND in_array($field['type'], ['subtable', 'foreign_table'])) {
-			foreach ($field['fields'] as $sub_no => $sub_field) {
-				if (isset($sub_field['default'])) unset($zz['fields'][$no]['fields'][$sub_no]['default']);
-			}
+			foreach ($field['fields'] as $sub_no => &$sub_field)
+				zz_hash_remove_defaults($sub_field);
 		}
 		// @todo remove if[no][default] too
 	}
@@ -1232,6 +1231,25 @@ function zz_hash($zz = [], $zz_conf = []) {
 	$hash = sha1(serialize($my));
 	zz_secret_id('write', $id, $hash);
 	return $hash;
+}
+
+/**
+ * remove default values for hash, might be timestamps etc., to get a definition
+ * that does not change
+ *
+ * @param array $field
+ */
+function zz_hash_remove_defaults(&$field) {
+	if (isset($field['default'])) unset($field['default']);
+	$conditions = ['if', 'unless'];
+	foreach ($conditions as $condition) {
+		if (isset($field[$condition]) AND is_array($field[$condition])) {
+			foreach ($field[$condition] as $if_key => $if_settings) {
+				if (!array_key_exists('default', $if_settings)) continue;
+				unset($field[$condition][$if_key]['default']);
+			}
+		}
+	}
 }
 
 /**
