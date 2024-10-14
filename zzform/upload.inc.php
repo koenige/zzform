@@ -2912,19 +2912,12 @@ function zz_upload_show_warning($file, $type) {
  */
 function zz_upload_binary($command, $log_error = true) {
 	// 1. check if there is a path for this binary
-	$setting = 'zzform_upload_binary_paths%s[%s]';
-	$setting = sprintf($setting
-		, wrap_setting('local_access') ? '_local' : ''
-		, $command
-	);
-	if ($path = wrap_setting($setting)) return sprintf('%s/%s ', $path, $command);
+	if ($path = wrap_setting('zzform_upload_binary_paths['.$command.']'))
+		return sprintf('%s/%s ', $path, $command);
 	
 	// 2. check if there is a general binary path given
-	$setting = 'zzform_upload_binary_folder%s';
-	$setting = sprintf($setting
-		, wrap_setting('local_access') ? '_local' : ''
-	);
-	if ($path = wrap_setting($setting)) return sprintf('%s/%s ', $path, $command);
+	if ($path = wrap_setting('zzform_upload_binary_folder'))
+		return sprintf('%s/%s ', $path, $command);
 
 	// 3. check folders where binaries might be
 	$paths = wrap_setting('zzform_upload_binary_folders');
