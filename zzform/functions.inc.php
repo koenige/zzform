@@ -1248,6 +1248,7 @@ function zz_hash_remove_defaults(&$field) {
 	foreach ($conditions as $condition) {
 		if (isset($field[$condition]) AND is_array($field[$condition])) {
 			foreach ($field[$condition] as $if_key => $if_settings) {
+				if (!is_array($if_settings)) continue;
 				if (!array_key_exists('default', $if_settings)) continue;
 				unset($field[$condition][$if_key]['default']);
 			}
