@@ -293,6 +293,7 @@ function zz_get_url_self() {
 	$url['?&'] = '?';
 	// no base query string which belongs url_self
 	$url['qs'] = '';
+	$url['qs_zzform'] = '';
 	$url['scheme'] = $my_uri['scheme'];
 	$url['base'] = $url['scheme'].'://'.$my_uri['host'];
 	if (!in_array($_SERVER['SERVER_PORT'], [80, 443])) {
@@ -303,7 +304,9 @@ function zz_get_url_self() {
 		// nothing was defined, we just do it as we like
 		$url['self'] = $my_uri['path'];
 		// zzform query string
-		$url['qs_zzform'] = !empty($my_uri['query']) ? '?'.$my_uri['query'] : '';
+		$qs_key = wrap_setting('zzform_url_keep_query') ? 'qs' : 'qs_zzform';
+		$url[$qs_key] = !empty($my_uri['query']) ? '?'.$my_uri['query'] : '';
+		if ($qs_key === 'qs' AND $url['qs']) $url['?&'] = '&amp;';
 		$url['full'] = $url['base'].$url['self'];
 		if (wrap_setting('zzform_host_base'))
 			$url['self'] = $url['base'].$url['self'];
