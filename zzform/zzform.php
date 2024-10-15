@@ -674,7 +674,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	if (zz_error_exit()) zz_return(false);
 
 	$default['multi'] 				= false;		// zzform_multi
-	$default['url_self']			= false;
 	
 	zz_write_conf($default);
 	

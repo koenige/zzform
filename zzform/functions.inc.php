@@ -295,55 +295,14 @@ function zz_get_url_self() {
 	$url['qs'] = '';
 	$url['qs_zzform'] = '';
 
-	if (empty($zz_conf['url_self'])) {
-		// nothing was defined, we just do it as we like
-		$url['self'] = $my_uri['path'];
-		// zzform query string
-		$qs_key = wrap_setting('zzform_url_keep_query') ? 'qs' : 'qs_zzform';
-		$url[$qs_key] = !empty($my_uri['query']) ? '?'.$my_uri['query'] : '';
-		if ($qs_key === 'qs' AND $url['qs']) $url['?&'] = '&amp;';
-		$url['full'] = wrap_setting('host_base').$url['self'];
-		if (wrap_setting('zzform_host_base'))
-			$url['self'] = $url['full'];
-		return $url;
-	}
-
-	// it's possible to use url_self without http://hostname, so check for that
-	$examplebase = (substr($zz_conf['url_self'], 0, 1) === '/') ? wrap_setting('host_base') : '';
-	$base_uri = parse_url($examplebase.$zz_conf['url_self']);
-	if ($examplebase) {
-		$url['self'] = $base_uri['path'];
-		$url['full'] = wrap_setting('host_base').$url['self'];
-	} else {
-		$url['self'] = $base_uri['scheme'].'://'.$base_uri['host'].$base_uri['path'];
-		$url['full'] = $url['self'];
-	}
-	if (!empty($base_uri['query'])) {
-		// no base query string which belongs url_self
-		$url['qs'] = '?'.$base_uri['query'];
-		$url['?&'] = '&amp;';
-		if (!empty($my_uri['query'])) {
-			parse_str($my_uri['query'], $my_uri_query);
-			parse_str($base_uri['query'], $base_uri_query);
-			foreach ($my_uri_query AS $key => $value) {
-				if (!empty($base_uri_query[$key]) AND $base_uri_query[$key] === $value) {
-					unset($my_uri_query[$key]);
-				}
-			}
-			unset($base_uri_query);
-			$url['qs_zzform'] = http_build_query($my_uri_query);
-			if ($url['qs_zzform']) $url['qs_zzform'] = '&'.$url['qs_zzform'];
-		} else {
-			$url['qs_zzform'] = '';
-		}
-	} elseif (!empty($my_uri['query'])) {
-		$url['qs_zzform'] = '?'.$my_uri['query'];
-	} else {
-		$url['qs_zzform'] = '';
-	}
-
-	if (wrap_setting('zzform_host_base') AND str_starts_with($url['self'], '/'))
-		$url['self'] = wrap_setting('host_base').$url['self'];
+	$url['self'] = $my_uri['path'];
+	// zzform query string
+	$qs_key = wrap_setting('zzform_url_keep_query') ? 'qs' : 'qs_zzform';
+	$url[$qs_key] = !empty($my_uri['query']) ? '?'.$my_uri['query'] : '';
+	if ($qs_key === 'qs' AND $url['qs']) $url['?&'] = '&amp;';
+	$url['full'] = wrap_setting('host_base').$url['self'];
+	if (wrap_setting('zzform_host_base'))
+		$url['self'] = $url['full'];
 	return $url;
 }
 
@@ -1207,7 +1166,7 @@ function zz_hash($zz = [], $zz_conf = []) {
 	// the definition of the database table(s)
 	$id = $zz_conf['id'];
 	$uninteresting_zz_conf_keys = [
-		'int', 'id', 'url_self'
+		'int', 'id'
 	];
 	foreach ($uninteresting_zz_conf_keys as $key) unset($zz_conf[$key]);
 	$uninteresting_zz_keys = [
