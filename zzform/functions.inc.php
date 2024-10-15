@@ -294,11 +294,6 @@ function zz_get_url_self() {
 	// no base query string which belongs url_self
 	$url['qs'] = '';
 	$url['qs_zzform'] = '';
-	$url['scheme'] = $my_uri['scheme'];
-	$url['base'] = $url['scheme'].'://'.$my_uri['host'];
-	if (!in_array($_SERVER['SERVER_PORT'], [80, 443])) {
-		$url['base'] .= sprintf(':%s', $_SERVER['SERVER_PORT']);
-	}
 
 	if (empty($zz_conf['url_self'])) {
 		// nothing was defined, we just do it as we like
@@ -307,18 +302,18 @@ function zz_get_url_self() {
 		$qs_key = wrap_setting('zzform_url_keep_query') ? 'qs' : 'qs_zzform';
 		$url[$qs_key] = !empty($my_uri['query']) ? '?'.$my_uri['query'] : '';
 		if ($qs_key === 'qs' AND $url['qs']) $url['?&'] = '&amp;';
-		$url['full'] = $url['base'].$url['self'];
+		$url['full'] = wrap_setting('host_base').$url['self'];
 		if (wrap_setting('zzform_host_base'))
-			$url['self'] = $url['base'].$url['self'];
+			$url['self'] = $url['full'];
 		return $url;
 	}
 
 	// it's possible to use url_self without http://hostname, so check for that
-	$examplebase = (substr($zz_conf['url_self'], 0, 1) === '/') ? $url['base'] : '';
+	$examplebase = (substr($zz_conf['url_self'], 0, 1) === '/') ? wrap_setting('host_base') : '';
 	$base_uri = parse_url($examplebase.$zz_conf['url_self']);
 	if ($examplebase) {
 		$url['self'] = $base_uri['path'];
-		$url['full'] = $url['base'].$url['self'];
+		$url['full'] = wrap_setting('host_base').$url['self'];
 	} else {
 		$url['self'] = $base_uri['scheme'].'://'.$base_uri['host'].$base_uri['path'];
 		$url['full'] = $url['self'];
@@ -348,7 +343,7 @@ function zz_get_url_self() {
 	}
 
 	if (wrap_setting('zzform_host_base') AND str_starts_with($url['self'], '/'))
-		$url['self'] = $url['base'].$url['self'];
+		$url['self'] = wrap_setting('host_base').$url['self'];
 	return $url;
 }
 
@@ -2516,8 +2511,7 @@ function zz_error() {
 		$mail['message'] = wrap_text('The following error(s) occured in project %s:', ['values' => wrap_setting('project')]);
 		$mail['message'] .= "\n\n".implode("\n\n", $message);
 		$mail['message'] = html_entity_decode($mail['message'], ENT_QUOTES, $log_encoding);		
-		$mail['message'] .= "\n\n-- \nURL: ".$zz_conf['int']['url']['base']
-			.wrap_setting('request_uri')
+		$mail['message'] .= "\n\n-- \nURL: ".wrap_setting('host_base').wrap_setting('request_uri')
 			."\nIP: ".wrap_setting('remote_ip')
 			.(!empty($_SERVER['HTTP_USER_AGENT']) ? "\nBrowser: ".$_SERVER['HTTP_USER_AGENT'] : '');		
 		if ($username = wrap_username())
