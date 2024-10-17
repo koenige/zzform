@@ -687,43 +687,6 @@ function zz_nice_tablenames($table) {
 }
 
 /**
- * changes own URL, adds some extra parameter
- *
- * @global array $zz_conf
- *		string 'extra_get' for extra GET parameters for links
- * @return void
- */
-function zz_extra_get_params() {
-	global $zz_conf;
-	static $calls = 0;
-	if ($calls) return;
-	$calls++;
-
-	// Extra GET Parameter
-	$keep_query = [];
-	$keep_fields = [
-		'where', 'var', 'order', 'group', 'q', 'scope', 'dir', 'referer',
-		'url', 'nolist', 'filter', 'debug', 'zz'
-	];
-	foreach ($keep_fields AS $key) {
-		if (!empty($_GET[$key])) $keep_query[$key] = $_GET[$key];
-	}
-	// write some query strings differently
-	if (isset($_GET['nolist'])) 
-		$keep_query['nolist'] = true;
-	if ($zz_conf['int']['this_limit'] AND $zz_conf['int']['this_limit'] != wrap_setting('zzform_limit'))
-		$keep_query['limit'] = $zz_conf['int']['this_limit'];
-	elseif (!empty($zz_conf['int']['limit_last']))
-		$keep_query['limit'] = 'last';
-
-	$zz_conf['int']['extra_get'] = http_build_query($keep_query);
-	if ($zz_conf['int']['extra_get']) 
-		$zz_conf['int']['extra_get_escaped'] = str_replace('&', '&amp;', $zz_conf['int']['extra_get']);
-	else
-		$zz_conf['int']['extra_get_escaped'] = '';
-}
-
-/**
  * initializes 'limit' for display of records
  *
  * @param array $zz (might be empty)

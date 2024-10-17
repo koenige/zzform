@@ -268,38 +268,6 @@ function zz_module_fieldchecks($field, $key, $type) {
 }
 
 /**
- * define URL of script
- *
- * @return array $url (= $zz_conf['int']['url'])
- *		'self' = own URL for form action
- *		'?&' = either ? or & to append further query strings
- *		'qs' = query string part of URL
- *		'qs_zzform' = query string part of zzform of URL
- *		'full' = full URL with base and request path
- */
-function zz_get_url_self() {
-	global $zz_page;
-	
-	$my_uri = $zz_page['url']['full'];
-	if (!empty($my_uri['path_forwarded']) AND str_starts_with($my_uri['path'], $my_uri['path_forwarded'])) {
-		$my_uri['path'] = substr($my_uri['path'], strlen($my_uri['path_forwarded']));
-	}
-	$my_uri['path'] = wrap_setting('base').$my_uri['path'];
-
-	// query string: existing and from zzform
-	$url['qs'] = '';
-	$url['qs_zzform'] = '';
-	$qs_key = wrap_setting('zzform_url_keep_query') ? 'qs' : 'qs_zzform';
-	$url[$qs_key] = !empty($my_uri['query']) ? '?'.$my_uri['query'] : '';
-	// delimiter for adding `qs_zzform`
-	$url['?&'] = $url['qs'] ? '&amp;' : '?';
-
-	$url['full'] = wrap_setting('host_base').$my_uri['path'];
-	$url['self'] = wrap_setting('zzform_host_base') ? $url['full'] : $my_uri['path'];
-	return $url;
-}
-
-/**
  * checks if there is a parameter in the URL (where, add, filter) that
  * results in a WHERE condition applied to the main SQL query
  *
@@ -2907,49 +2875,6 @@ function zz_translate($def, $values) {
  * O - Output functions
  * --------------------------------------------------------------------
  */
-
-
-/** 
- * Removes unwanted keys from QUERY_STRING
- * 
- * @param string $query			query-part of URI
- * @param array $unwanted_keys	keys that shall be removed, subkeys might be
- *		removed writing key[subkey]
- * @param array $new_keys		keys and values in pairs that shall be added or
- *		overwritten
- * @return string $string		New query string without removed keys
- */
-function zz_edit_query_string($query, $unwanted_keys = [], $new_keys = [], $and = '&amp;') {
-	$query = str_replace('&amp;', '&', $query);
-	if (substr($query, 0, 1) === '?') {
-		$query = substr($query, 1);
-	}
-	if (!is_array($unwanted_keys)) $unwanted_keys = [$unwanted_keys];
-	if (!is_array($new_keys)) $new_keys = [$new_keys];
-	parse_str($query, $parts);
-	// remove unwanted keys from URI
-	foreach (array_keys($parts) as $key) {
-		if (in_array($key, $unwanted_keys)) {
-			unset($parts[$key]);
-		} elseif (is_array($parts[$key])) {
-			foreach (array_keys($parts[$key]) as $subkey) {
-				foreach ($unwanted_keys as $unwanted) {
-					if ($unwanted === $key.'['.$subkey.']') {
-						unset($parts[$key][$subkey]);
-					}
-				}
-			}
-		}
-	}
-	// add new keys or overwrite existing keys
-	foreach ($new_keys as $new_key => $new_value)
-		$parts[$new_key] = $new_value; 
-	// glue everything back together
-	$query_string = http_build_query($parts, '', $and);
-	if (!$query_string) return false;
-	$query_string = wrap_url_normalize_percent_encoding($query_string, 'query');
-	return '?'.$query_string; // URL without unwanted keys
-}
 
 /**
  * Escapes strings for HTML text (< >)

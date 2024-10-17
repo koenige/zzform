@@ -572,7 +572,7 @@ function zzform_list_init() {
 	if ($init) return; // just once
 
 	// zz_edit_query_string(), zz_get_url_self()
-	wrap_include('functions', 'zzform');
+	wrap_include('url', 'zzform');
 	// zz_init_limit()
 	wrap_include('output', 'zzform');
 	// zz_mark_search_string(), zz_list_total_records(), zz_list_pages()
