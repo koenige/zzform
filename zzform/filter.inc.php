@@ -377,7 +377,7 @@ function zz_filter_invalid($filter = false) {
 				'A filter for the selection “%s” does not exist.',
 				'<a href="%s">List without this filter</a>'
 			],
-			'msg_args' => [zz_htmltag_escape($identifier), zzform_url('self+qs')],
+			'msg_args' => [zz_htmltag_escape($identifier), zzform_url('self+qs+qs_zzform')],
 			'level' => E_USER_NOTICE
 		]);
 		$error = true;
@@ -420,7 +420,7 @@ function zz_filter_selection($filter, $filter_active) {
 	// do not show edited record, limit
 	$self = zzform_url_remove([
 		'q', 'scope', 'limit', 'mode', 'id', 'add', 'filter', 'delete',
-		'insert', 'update', 'noupdate', 'zzhash', 'merge'], zzform_url('self+qs')
+		'insert', 'update', 'noupdate', 'zzhash', 'merge'], zzform_url('self+qs+qs_zzform')
 	);
 
 	$filter_output = false;

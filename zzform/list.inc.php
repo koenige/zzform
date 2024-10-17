@@ -1713,7 +1713,7 @@ function zz_list_pagelink($start, $limit, $limit_step = 0, $pos = '') {
 	$url = zzform_url_remove([
 		'mode', 'id', 'limit', 'add', 'delete', 'insert', 'update', 'noupdate',
 		'zzhash', 'edit', 'show', 'revise', 'merge'
-	], zzform_url('self+qs'));
+	], zzform_url('self+qs+qs_zzform'));
 
 	if ($start == -1) {
 		// all records
@@ -1856,7 +1856,7 @@ function zz_list_th($field, $mode = 'html') {
 	$unwanted_keys = [
 		'dir', 'delete', 'insert', 'update', 'noupdate', 'zzhash'
 	];
-	$url = zzform_url_remove($unwanted_keys, zzform_url('self+qs'));
+	$url = zzform_url_remove($unwanted_keys, zzform_url('self+qs+qs_zzform'));
 	$url = zzform_url_add(['order' => $order_val], $url);
 	if (zz_list_is_url_self($url)) {
 		$url = zzform_url_add(['dir' => 'desc'], $url);

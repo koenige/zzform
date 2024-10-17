@@ -370,9 +370,9 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple)
 			'mode', 'id', 'add', 'delete', 'insert', 'update', 'noupdate',
 			'zzhash', 'edit', 'show', 'revise', 'merge'
 		];
-		$cancelurl = zzform_url_remove($unwanted_keys, zzform_url('self+qs'));
+		$cancelurl = zzform_url_remove($unwanted_keys, zzform_url('self+qs+qs_zzform'));
 		// do not show cancel URL if it is equal to current URL
-		if ($cancelurl === zzform_url('self+qs') AND empty($_POST['zz_html_fragment'])) {
+		if ($cancelurl === zzform_url('self+qs+qs_zzform') AND empty($_POST['zz_html_fragment'])) {
 			$cancelurl = false;
 		}
 	}
@@ -3026,7 +3026,7 @@ function zz_xhr_url_self() {
 		foreach ($_POST['zz_fields'] as $field_name => $field_id)
 			$extra['add'][$field_name] = $field_id;
 	}
-	$url = zzform_url_add($extra, zzform_url('self+qs'), '&');
+	$url = zzform_url_add($extra, zzform_url('self+qs+qs_zzform'), '&');
 	$url .= parse_url($url, PHP_URL_QUERY) ? '&' : '?';
 	return $url;
 }

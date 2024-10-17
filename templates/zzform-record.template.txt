@@ -5,16 +5,13 @@
 # Part of »Zugzwang Project«
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2018, 2020-2023 Gustaf Mossakowski
+# @copyright Copyright © 2018, 2020-2024 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 # tfoot must be before thead or hitting ENTER won’t necessarily save the record
 #
 %%% condition if form %%%
-<form action="%%% setting zzform_int_url_self %%%%%% setting zzform_int_url_qs %%%
-%%% condition if setting zzform_int_extra_get %%%
-%%% setting zzform_int_url_?& %%%%%% setting zzform_int_extra_get_escaped %%%
-%%% condition endif %%%
+<form action="%%% page zzformurl type=self+extra encode=1 %%%
 %%% item form_anchor "#%s" %%%" method="POST"%%% condition if upload %%% enctype="multipart/form-data"%%% condition endif %%% accept-charset="%%% setting character_set %%%" id="zzform_form"%%%
 condition if divert_files %%% data-divert-files="%%% item divert_files %%%"%%% condition endif %%%>
 <input type="hidden" name="zz_id" value="%%% setting zzform_id %%%">
@@ -100,10 +97,7 @@ var zzformSubmitButton = '';
 var zzformWmdEditorInstances = %%% setting zzform_wmd_editor_instances %%%;
 var zzformWmdEditorLang = '%%% setting zzform_wmd_editor_lang %%%';
 %%% condition endif %%%
-var zzformActionURL = '%%% setting zzform_int_url_self %%%%%% setting zzform_int_url_qs %%%
-%%% condition if setting zzform_int_extra_get %%%
-%%% setting zzform_int_url_?& %%%%%% setting zzform_int_extra_get %%%
-%%% condition endif %%%'; 
+var zzformActionURL = '%%% page zzformurl type=self+extra %%%';
 %%% item form_anchor "var zzformAnchor = '%s';" %%%
 
 </script>
