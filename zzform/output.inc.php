@@ -1165,5 +1165,5 @@ function zz_output_modes($id, $zz_conf_record) {
 function zz_output_modes_template($qs, $text) {
 	$url = zzform_url_add($qs, zzform_url('self+extra'));
 	$url = zzform_url_escape($url);
-	return sprintf('<a href="%s">%s</a>', $url, wrap_text($text));
+	return sprintf('<a href="%s">%s</a>', zzform_url_escape($url), wrap_text($text));
 }

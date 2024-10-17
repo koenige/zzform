@@ -193,7 +193,7 @@ function zz_list($zz, $list, $ops, $zz_conditions) {
 			wrap_setting_add('extra_http_headers', "Content-Security-Policy: frame-ancestors 'self'");
 
 			$ops['output'] .= sprintf('<form action="%s" method="POST" accept-charset="%s">'."\n",
-				zzform_url('self+extra'), wrap_setting('character_set'));
+				zzform_url_escape(zzform_url('self+extra')), wrap_setting('character_set'));
 			if ($list['multi_edit'])
 				$list['buttons'][] = '<input type="submit" value="'.wrap_text('Edit').'" name="zz_multiple_edit">';
 			if ($list['multi_delete'])
@@ -796,7 +796,7 @@ function zz_list_group_titles($list, $fields, $line) {
 		if (!empty($field['link'])) {
 			$link = zz_makelink($field['link'], $line);
 			if ($link) {
-				$group[$pos] = sprintf('<a href="%s">%s</a>', $link, $group[$pos]);
+				$group[$pos] = sprintf('<a href="%s">%s</a>', zzform_url_escape($link), $group[$pos]);
 			}
 		}
 		$group_count--;
@@ -1866,7 +1866,7 @@ function zz_list_th($field, $mode = 'html') {
 	}
 	$template = '<a href="%s" title="%s %s (%s)">%s</a>';
 	return sprintf($template
-		, $url, wrap_text('Order by'), strip_tags($field['title']), $order_dir, $out
+		, zzform_url_escape($url), wrap_text('Order by'), strip_tags($field['title']), $order_dir, $out
 	);
 }
 

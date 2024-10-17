@@ -189,7 +189,7 @@ function zz_filter_apply(&$zz, &$list) {
 			$link = zzform_url_remove([sprintf('filter[%s]', $filter['identifier'])], zzform_url('self'));
 			zz_error_log([
 				'msg' => ['This filter does not exist: %s', '<a href="%s">List without this filter</a>'],
-				'msg_args' => [zz_htmltag_escape($zz['filter_active'][$filter['identifier']]), $link],
+				'msg_args' => [zz_htmltag_escape($zz['filter_active'][$filter['identifier']]), zzform_url_escape($link)],
 				'level' => E_USER_NOTICE,
 				'status' => 404
 			]);
@@ -377,7 +377,7 @@ function zz_filter_invalid($filter = false) {
 				'A filter for the selection “%s” does not exist.',
 				'<a href="%s">List without this filter</a>'
 			],
-			'msg_args' => [zz_htmltag_escape($identifier), zzform_url('self+qs+qs_zzform')],
+			'msg_args' => [zz_htmltag_escape($identifier), zzform_url_escape(zzform_url('self+qs+qs_zzform'))],
 			'level' => E_USER_NOTICE
 		]);
 		$error = true;

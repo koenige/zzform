@@ -43,16 +43,16 @@ condition if divert_files %%% data-divert-files="%%% item divert_files %%%"%%% c
 <div id="zzform_submit">
 %%% item submit %%%
 %%% condition if cancel_ok %%%
-<a href="%%% item cancel_ok %%%">%%% text OK %%%</a>%%% condition endif %%%
+<a href="%%% item cancel_ok zzform_url_escape %%%">%%% text OK %%%</a>%%% condition endif %%%
 %%% condition if link_record %%%
 %%% condition if cancel_ok %%%&nbsp;&middot; %%% condition endif %%%
-<a href="%%% item link_record %%%">%%% text Show %%%</a>%%% condition endif %%%
+<a href="%%% item link_record zzform_url_escape %%%">%%% text Show %%%</a>%%% condition endif %%%
 %%% condition if modes %%%
 %%% condition if cancel_ok | link_record %%%&nbsp;&middot; %%% condition endif %%%
 %%% item modes %%%
 %%% condition endif %%%
 %%% condition if cancel_url %%%
- <a href="%%% item cancel_url %%%">%%% text Cancel %%%</a>
+ <a href="%%% item cancel_url zzform_url_escape %%%">%%% text Cancel %%%</a>
 %%% condition endif %%%
 %%% condition if actions %%%
 %%% condition if modes %%% || %%% condition endif %%%

@@ -5,13 +5,13 @@
 # https://www.zugzwang.org/projects/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2021 Gustaf Mossakowski
+# @copyright Copyright © 2021, 2024 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 <ul class="pages">
 %%% loop start %%%
 <li%%% item class " class='%s'" %%%>%%% condition if link 
-%%%<a href="%%% item link %%%"%%% item title " title='%s'" %%%>%%% condition elseif mark_current 
+%%%<a href="%%% item link zzform_url_escape %%%"%%% item title " title='%s'" %%%>%%% condition elseif mark_current 
 %%%<strong>%%% condition else 
 %%%<span>%%% condition endif %%%%%% item text %%%%%% condition if link 
 %%%</a>%%% condition elseif mark_current 
