@@ -279,7 +279,6 @@ function zz_module_fieldchecks($field, $key, $type) {
  */
 function zz_get_url_self() {
 	global $zz_page;
-	global $zz_conf;
 	
 	$my_uri = $zz_page['url']['full'];
 	if (!empty($my_uri['path_forwarded']) AND str_starts_with($my_uri['path'], $my_uri['path_forwarded'])) {
@@ -287,22 +286,16 @@ function zz_get_url_self() {
 	}
 	$my_uri['path'] = wrap_setting('base').$my_uri['path'];
 
-	// some basic settings
-	// normal situation: there is no query string in the base url, 
-	// so add query string starting ?
-	$url['?&'] = '?';
-	// no base query string which belongs url_self
+	// query string: existing and from zzform
 	$url['qs'] = '';
 	$url['qs_zzform'] = '';
-
-	$url['self'] = $my_uri['path'];
-	// zzform query string
 	$qs_key = wrap_setting('zzform_url_keep_query') ? 'qs' : 'qs_zzform';
 	$url[$qs_key] = !empty($my_uri['query']) ? '?'.$my_uri['query'] : '';
-	if ($qs_key === 'qs' AND $url['qs']) $url['?&'] = '&amp;';
-	$url['full'] = wrap_setting('host_base').$url['self'];
-	if (wrap_setting('zzform_host_base'))
-		$url['self'] = $url['full'];
+	// delimiter for adding `qs_zzform`
+	$url['?&'] = $url['qs'] ? '&amp;' : '?';
+
+	$url['full'] = wrap_setting('host_base').$my_uri['path'];
+	$url['self'] = wrap_setting('zzform_host_base') ? $url['full'] : $my_uri['path'];
 	return $url;
 }
 
