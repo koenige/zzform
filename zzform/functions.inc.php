@@ -136,9 +136,7 @@ function zz_dependent_modules(&$zz) {
 			unset($modules[$index]);
 			if (isset($_GET[$module])) {
 				wrap_static('page', 'status', 404);
-				$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string(
-					$zz_conf['int']['url']['qs_zzform'], [$module]
-				);
+				zzform_url_remove_qs($module);
 			}
 			break;
 		case 'upload':
@@ -373,7 +371,6 @@ function zz_get_where_conditions(&$zz) {
  * @todo use this function in more places
  */
 function zz_check_get_array($key, $type, $values = [], $exit_on_error = true) {
-	global $zz_conf;
 	$return = $type === 'field_name' ? [] : '';
 	if (!isset($_GET[$key])) return $return;
 
@@ -418,9 +415,7 @@ function zz_check_get_array($key, $type, $values = [], $exit_on_error = true) {
 			unset($_GET[$key]);
 		}
 	}
-	$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string(
-		$zz_conf['int']['url']['qs_zzform'], $unwanted_keys
-	);
+	zzform_url_remove_qs($unwanted_keys);
 	if (!isset($_GET[$key])) return $return;
 	return $_GET[$key];
 }
@@ -1475,7 +1470,7 @@ function zz_record_access($zz, $ops) {
 	
 	if (wrap_static('page', 'status') === 404) {
 		$id_value = false;
-		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $keys);
+		zzform_url_remove_qs($keys);
 		$ops['mode'] = false;
 		$zz_conf['int']['record'] = false;
 	}

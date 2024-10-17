@@ -1722,9 +1722,7 @@ function zz_list_pageurl() {
 		'mode', 'id', 'limit', 'add', 'delete', 'insert', 'update', 'noupdate',
 		'zzhash', 'edit', 'show', 'revise', 'merge'
 	];
-	$url['base'] = $zz_conf['int']['url']['self']
-		.zz_edit_query_string($zz_conf['int']['url']['qs']
-		.$zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
+	$url['base'] = $zz_conf['int']['url']['self'].zzform_url_remove_qs($unwanted_keys, 'qs+qs_zzform');
 	$url['query'] = sprintf('%slimit=', (parse_url($url['base'], PHP_URL_QUERY) ? '&amp;' : '?'));
 	return $url;
 }
@@ -1820,9 +1818,7 @@ function zz_sql_order($fields, $sql) {
 	}
 	if ($unwanted_keys) {
 		wrap_static('page', 'status', 404);
-		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string(
-			$zz_conf['int']['url']['qs_zzform'], $unwanted_keys
-		);
+		zzform_url_remove_qs($unwanted_keys);
 	}
 	
 	if (!$order) return $sql;
@@ -1889,18 +1885,17 @@ function zz_list_th($field, $mode = 'html') {
 	$unwanted_keys = [
 		'dir', 'delete', 'insert', 'update', 'noupdate', 'zzhash'
 	];
-	$new_keys = ['order' => $order_val];
-	$uri = $zz_conf['int']['url']['self'].zz_edit_query_string($zz_conf['int']['url']['qs']	
-		.$zz_conf['int']['url']['qs_zzform'], $unwanted_keys, $new_keys);
-	if (zz_list_is_url_self($uri)) {
-		$uri .= '&amp;dir=desc';
+	$qs = zzform_url_remove_qs($unwanted_keys, 'qs+qs_zzform');
+	$qs = zzform_url_add_qs(['order' => $order_val], $qs);
+	if (zz_list_is_url_self($zz_conf['int']['url']['self'].$qs)) {
+		$qs = zzform_url_add_qs(['dir' => 'desc'], $qs);
 		$order_dir = wrap_text('descending');
 	} else {
 		$order_dir = wrap_text('ascending');
 	}
 	$html = '<a href="%s" title="%s %s (%s)">%s</a>';
 	return sprintf($html
-		, $uri, wrap_text('Order by'), strip_tags($field['title']), $order_dir, $out
+		, $zz_conf['int']['url']['self'].$qs, wrap_text('Order by'), strip_tags($field['title']), $order_dir, $out
 	);
 }
 

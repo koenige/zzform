@@ -102,7 +102,6 @@ function zz_output_meta_tags() {
  *
  * @param string $heading ($ops['heading'], from $zz['title'])
  * @param string $table table name as set in $zz['table']
- * @global array $zz_conf 'heading'
  * @return string $heading
  */
 function zz_output_heading($heading, $table = '') {
@@ -304,10 +303,11 @@ function zz_output_redirect($ops, $zz, $zz_tab) {
 		$id_value = implode(',', $id_value);
 	}
 	// it’s a URL, so replace &amp; with & via substr()
-	$qs_zzform = $zz_conf['int']['url']['qs_zzform'];
 	// on delete, remove nolist, we don’t want to end with empty list
 	if ($ops['result'] === 'successful_delete') {
-		$qs_zzform = zz_edit_query_string($qs_zzform, ['nolist']);
+		$qs_zzform = zzform_url_remove_qs(['nolist'], 'qs_zzform', 'return');
+	} else {
+		$qs_zzform = $zz_conf['int']['url']['qs_zzform'];
 	}
 	$self = $zz_conf['int']['url']['full']
 		.$zz_conf['int']['url']['qs'].$qs_zzform
@@ -751,7 +751,7 @@ function zz_init_referer() {
 	$url = parse_url(wrap_static('page', 'referer'));
 	if (!empty($url['query'])) {
 		$removes = ['delete', 'insert', 'update', 'noupdate'];
-		$url['query'] = zz_edit_query_string($url['query'], $removes, [], '&');
+		$url['query'] = zzform_url_remove_qs($removes, $url['query'], 'return', '&');
 	}
 	wrap_static('page', 'referer', (
 		(!empty($url['scheme']) ? $url['scheme'].'://'.$url['host'] : '').$url['path'].($url['query'] ?? '')

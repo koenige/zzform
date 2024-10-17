@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2016-2021, 2023 Gustaf Mossakowski
+ * @copyright Copyright © 2016-2021, 2023-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -196,9 +196,7 @@ function zz_details_return($ops, $zz_tab) {
 	if (isset($_SESSION['zzform'][$zz_conf['id']]) AND !$_SESSION['zzform'][$zz_conf['id']]) {
 		unset($_SESSION['zzform'][$zz_conf['id']]);
 		// no more detail forms open, remove zz-ID from URL
-		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string(
-			$zz_conf['int']['url']['qs_zzform'], ['zz'], [], '&'
-		);
+		zzform_url_remove_qs(['zz'], 'qs_zzform', 'change', '&');
 	}
 
 	session_write_close();

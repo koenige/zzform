@@ -372,7 +372,7 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple)
 				'mode', 'id', 'add', 'delete', 'insert', 'update', 'noupdate',
 				'zzhash', 'edit', 'show', 'revise', 'merge'
 			];
-			$cancelurl .= zz_edit_query_string($base_qs, $unwanted_keys);
+			$cancelurl .= zzform_url_remove_qs($unwanted_keys, 'qs+qs_zzform');
 		}
 		// do not show cancel URL if it is equal to current URL
 		if ($cancelurl === $zz_conf['int']['url']['self'].$base_qs AND empty($_POST['zz_html_fragment'])) {

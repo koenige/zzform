@@ -22,10 +22,8 @@
  *
  * @param array $zz
  * @return void (modified array filter, array filter_active in $zz) 
- * @global array $zz_conf
  */
 function zz_filter_defaults(&$zz) {
-	global $zz_conf;
 	if ($zz['filter'] AND !empty($_GET['filter']) AND is_array($_GET['filter']))
 		$zz['filter_active'] = $_GET['filter'];
 	$identifiers = [];
@@ -55,9 +53,7 @@ function zz_filter_defaults(&$zz) {
 	foreach (array_keys($zz['filter_active']) AS $identifier) {
 		if (in_array($identifier, $identifiers)) continue;
 		wrap_static('page', 'status', 404);
-		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string(
-			$zz_conf['int']['url']['qs_zzform'], ['filter['.$identifier.']']
-		);
+		zzform_url_remove_qs([sprintf('filter[%s]', $identifier)]);
 		zz_filter_invalid(zz_htmltag_escape($identifier));
 		// get rid of filter
 		unset($zz['filter_active'][$identifier]);
@@ -357,8 +353,6 @@ function zz_filter_sql($filters, $sql, &$filter_active) {
  * @return void
  */
 function zz_filter_invalid_value($filter, $value) {
-	global $zz_conf;
-
 	if (empty($filter['ignore_invalid_filters'])) {
 		wrap_static('page', 'status', 404);
 		wrap_static('page', 'error_type', E_USER_NOTICE);
@@ -369,9 +363,7 @@ function zz_filter_invalid_value($filter, $value) {
 		]);
 	}
 	// remove invalid filter from internal query string
-	$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string(
-		$zz_conf['int']['url']['qs_zzform'], sprintf('filter[%s]', $filter['identifier'])
-	);
+	zzform_url_remove_qs(sprintf('filter[%s]', $filter['identifier']));
 }
 
 /**
@@ -448,8 +440,7 @@ function zz_filter_selection($filter, $filter_active) {
 		'q', 'scope', 'limit', 'mode', 'id', 'add', 'filter', 'delete',
 		'insert', 'update', 'noupdate', 'zzhash', 'merge'
 	];
-	$qs = zz_edit_query_string($zz_conf['int']['url']['qs']
-		.$zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
+	$qs = zzform_url_remove_qs($unwanted_keys, 'qs+qs_zzform');
 
 	$filter_output = false;
 	foreach ($filter as $index => $f) {
@@ -467,7 +458,7 @@ function zz_filter_selection($filter, $filter_active) {
 				unset($other_filters['filter'][$filter[$subfilter]['identifier']]);
 			}
 		}
-		$qs = zz_edit_query_string($qs, [], $other_filters);
+		$qs = zzform_url_add_qs($other_filters, $qs);
 		
 		if (!empty($f['selection'])) {
 			// $f['selection'] might be empty if there's no record in the database

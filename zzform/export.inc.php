@@ -37,7 +37,7 @@ function zz_export_init(&$ops, &$zz) {
 	];
 	foreach ($unwanted_keys as $key) {
 		if (!isset($_GET[$key])) continue;
-		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], $unwanted_keys);
+		zzform_url_remove_qs($unwanted_keys);
 		zz_error_log([
 			'msg' => 'Please don’t mess with the URL parameters. <code>%s</code> is not allowed here.',
 			'msg_args' => [$key],
@@ -78,7 +78,7 @@ function zz_export_init(&$ops, &$zz) {
 			'level' => E_USER_NOTICE,
 			'status' => 404
 		]);
-		$zz_conf['int']['url']['qs_zzform'] = zz_edit_query_string($zz_conf['int']['url']['qs_zzform'], ['export']);
+		zzform_url_remove_qs(['export']);
 		$ops['mode'] = false;
 		return;
 	}
@@ -122,17 +122,15 @@ function zz_export_identifier($mode) {
  * HTML output of links for export
  *
  * @param array $export ($zz['export'])
- * @global array $zz_conf
  * @return array $links array of strings with links for export
  */
 function zz_export_links($export) {
-	global $zz_conf;
 	$links = [];
 	
 	// remove some querystrings which have no effect anyways
 	$unwanted_querystrings = ['nolist', 'debug', 'referer', 'limit', 'order', 'dir'];
-	$qs = zz_edit_query_string($zz_conf['int']['extra_get'], $unwanted_querystrings);
-	$qs = substr($qs, 1);
+	$qs = zzform_url_remove_qs($unwanted_querystrings, 'extra_get');
+	if ($qs) $qs = substr($qs, 1);
 
 	foreach ($export as $type => $mode) {
 		if (is_numeric($type)) $type = $mode;

@@ -14,6 +14,60 @@
 
 
 /**
+ * add query string
+ *
+ * @param $$add array keys of query string to be added
+ * @param string $query (full query string)
+ * @return string
+ */
+function zzform_url_add_qs($add, $query) {
+	return zz_edit_query_string($query, [], $add);
+}
+
+/**
+ * remove query string
+ *
+ * @param $remove array keys of query string to be removed
+ * @param string $key (full query string or shortcut, defaults to 'qs_zzform')
+ * @param string $action
+ * @return string
+ */
+function zzform_url_remove_qs($remove, $key = 'qs_zzform', $action = 'change', $and = '&amp;') {
+	global $zz_conf;
+	
+	switch ($key) {
+		case 'qs_zzform':
+			$query = $zz_conf['int']['url']['qs_zzform'];
+			break;
+		case 'qs+qs_zzform':
+			$query = $zz_conf['int']['url']['qs'];
+			if ($query) $query .= '&';
+			$query .= $zz_conf['int']['url']['qs_zzform'];
+			$action = 'return'; // merged keys, only return possible
+			break;
+		case 'extra_get':
+			$query = $zz_conf['int']['extra_get'];
+			break;
+		default:
+			$query = $key;
+			$action = 'return';
+			break;
+	}
+	$new = zz_edit_query_string($query, $remove, [], $and);
+
+	switch ($action) {
+	case 'change':
+		if ($key === 'extra_get')
+			$zz_conf['int'][$key] = $new;
+		else
+			$zz_conf['int']['url'][$key] = $new;
+		break;
+	case 'return':
+		return $new;
+	}
+}
+
+/**
  * define URL of script
  *
  * @return array $url (= $zz_conf['int']['url'])
@@ -57,13 +111,12 @@ function zz_get_url_self() {
  */
 function zz_edit_query_string($query, $unwanted_keys = [], $new_keys = [], $and = '&amp;') {
 	$query = str_replace('&amp;', '&', $query);
-	if (substr($query, 0, 1) === '?') {
+	if (substr($query, 0, 1) === '?')
 		$query = substr($query, 1);
-	}
-	if (!is_array($unwanted_keys)) $unwanted_keys = [$unwanted_keys];
-	if (!is_array($new_keys)) $new_keys = [$new_keys];
 	parse_str($query, $parts);
+
 	// remove unwanted keys from URI
+	if (!is_array($unwanted_keys)) $unwanted_keys = [$unwanted_keys];
 	foreach (array_keys($parts) as $key) {
 		if (in_array($key, $unwanted_keys)) {
 			unset($parts[$key]);
@@ -77,9 +130,12 @@ function zz_edit_query_string($query, $unwanted_keys = [], $new_keys = [], $and 
 			}
 		}
 	}
+
 	// add new keys or overwrite existing keys
+	if (!is_array($new_keys)) $new_keys = [$new_keys];
 	foreach ($new_keys as $new_key => $new_value)
 		$parts[$new_key] = $new_value; 
+
 	// glue everything back together
 	$query_string = http_build_query($parts, '', $and);
 	if (!$query_string) return false;

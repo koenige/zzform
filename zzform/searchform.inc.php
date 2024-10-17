@@ -618,7 +618,7 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 		];
 		$search['hidden_fields'] = zz_querystring_to_hidden(substr($qs, 1), $unwanted_keys);
 		// remove unwanted keys from link
-		$search['url_qs'] = zz_edit_query_string($qs, $unwanted_keys); 
+		$search['url_qs'] = zzform_url_remove_qs($unwanted_keys, 'qs+qs_zzform'); 
 	}
 	$search['fields'] = [];
 	foreach ($fields as $index => $field) {
