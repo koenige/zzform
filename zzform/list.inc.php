@@ -191,13 +191,9 @@ function zz_list($zz, $list, $ops, $zz_conditions) {
 		if ($list['select_multiple_records']) {
 			wrap_setting_add('extra_http_headers', 'X-Frame-Options: Deny');
 			wrap_setting_add('extra_http_headers', "Content-Security-Policy: frame-ancestors 'self'");
-			$action_url = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs'];
-			if ($zz_conf['int']['extra_get']) {
-				// without first &amp;!
-				$action_url .= $zz_conf['int']['url']['?&'].$zz_conf['int']['extra_get_escaped'];
-			}
+
 			$ops['output'] .= sprintf('<form action="%s" method="POST" accept-charset="%s">'."\n",
-				$action_url, wrap_setting('character_set'));
+				zzform_url('self+extra'), wrap_setting('character_set'));
 			if ($list['multi_edit'])
 				$list['buttons'][] = '<input type="submit" value="'.wrap_text('Edit').'" name="zz_multiple_edit">';
 			if ($list['multi_delete'])
@@ -1591,12 +1587,10 @@ function zz_list_pages($this_limit, $total_rows, $scope = 'body') {
 	// allow access to first page)
 	if ($limit_step >= $total_rows AND $this_limit === $limit_step) return false;
 
-	$url = zz_list_pageurl();
-
 	// set standard links
 	$links = [];
 	$links[] = [
-		'link'	=> zz_list_pagelink(0, $this_limit, $limit_step, $url),
+		'link'	=> zz_list_pagelink(0, $this_limit, $limit_step),
 		'text'	=> '|&lt;',
 		'class' => 'first',
 		'title' => wrap_text('First page')
@@ -1606,14 +1600,14 @@ function zz_list_pages($this_limit, $total_rows, $scope = 'body') {
 		$prev = ceil($total_rows/$limit_step)*$limit_step;
 	}
 	$links[] = [
-		'link'	=> zz_list_pagelink($prev, $this_limit, 0, $url),
+		'link'	=> zz_list_pagelink($prev, $this_limit),
 		'text'	=> '&lt;',
 		'class' => 'prev',
 		'title' => 	wrap_text('Previous page')
 	];
 	if ($total_rows < wrap_setting('zzform_limit_all_max')) {
 		$links[] = [
-			'link'	=> zz_list_pagelink(-1, $this_limit, 0, $url),
+			'link'	=> zz_list_pagelink(-1, $this_limit),
 			'text'	=> wrap_text('all'),
 			'class' => 'all',
 			'title' => 	wrap_text('All records on one page')
@@ -1679,7 +1673,7 @@ function zz_list_pages($this_limit, $total_rows, $scope = 'body') {
 			$text = $i / wrap_setting('zzform_limit') + 1;
 		}
 		$links[] = [
-			'link'	=> zz_list_pagelink($i, $this_limit, $limit_step, $url),
+			'link'	=> zz_list_pagelink($i, $this_limit, $limit_step),
 			'text'	=> $text,
 			'mark_current' => true
 			
@@ -1691,13 +1685,13 @@ function zz_list_pages($this_limit, $total_rows, $scope = 'body') {
 
 	// set more standard links
 	$links[] = [
-		'link'	=> zz_list_pagelink($limit_next, $this_limit, 0, $url),
+		'link'	=> zz_list_pagelink($limit_next, $this_limit),
 		'text'	=> '&gt;',
 		'class' => 'next',
 		'title' => wrap_text('Next page')
 	];
 	$links[] = [
-		'link'	=> zz_list_pagelink($rec_last, $this_limit, 0, $url, 'last'),
+		'link'	=> zz_list_pagelink($rec_last, $this_limit, 0, 'last'),
 		'text'	=> '&gt;|',
 		'class' => 'last',
 		'title' => wrap_text('Last page')
@@ -1707,38 +1701,20 @@ function zz_list_pages($this_limit, $total_rows, $scope = 'body') {
 }
 
 /**
- * creates the URLs for the limit links
- *
- * @global array $zz_conf
- * 		'int'['url']['self'], 'int'['url']['qs'], 'int'['url']['qs_zzform']
- * @return array $url
- *		string 'base' => base URL, string 'query' => query string &?limit=
- */
-function zz_list_pageurl() {
-	global $zz_conf;
-
-	// remove mode, id
-	$unwanted_keys = [
-		'mode', 'id', 'limit', 'add', 'delete', 'insert', 'update', 'noupdate',
-		'zzhash', 'edit', 'show', 'revise', 'merge'
-	];
-	$url['base'] = $zz_conf['int']['url']['self'].zzform_url_remove_qs($unwanted_keys, 'qs+qs_zzform');
-	$url['query'] = sprintf('%slimit=', (parse_url($url['base'], PHP_URL_QUERY) ? '&amp;' : '?'));
-	return $url;
-}
-
-/**
  * creates URLs for links in page navigation
  *
  * @param int $start record no. whith which we start, -1 = show all records
  * @param int $limit current limit
  * @param int $limit_step 
- * @param array $url string 'base' = bare URL without unwanted query strings,
- *		string 'query' = querystring for limit
  * @param string $pos special position
  * @return string $url with limit=n
  */
-function zz_list_pagelink($start, $limit, $limit_step, $url, $pos = '') {
+function zz_list_pagelink($start, $limit, $limit_step = 0, $pos = '') {
+	$url = zzform_url_remove([
+		'mode', 'id', 'limit', 'add', 'delete', 'insert', 'update', 'noupdate',
+		'zzhash', 'edit', 'show', 'revise', 'merge'
+	], zzform_url('self+qs'));
+
 	if ($start == -1) {
 		// all records
 		if (!$limit) return false;
@@ -1753,11 +1729,9 @@ function zz_list_pagelink($start, $limit, $limit_step, $url, $pos = '') {
 			return false;
 		}
 	}
-	$url_out = $url['base'];
-	if ($limit_new != wrap_setting('zzform_limit')) {
-		$url_out .= $url['query'].($pos ? $pos : $limit_new);
-	}
-	return $url_out;
+	if ($limit_new != wrap_setting('zzform_limit'))
+		$url = zzform_url_add(['limit' => ($pos ? $pos : $limit_new)], $url);
+	return $url;
 }
 
 /**
@@ -1818,7 +1792,7 @@ function zz_sql_order($fields, $sql) {
 	}
 	if ($unwanted_keys) {
 		wrap_static('page', 'status', 404);
-		zzform_url_remove_qs($unwanted_keys);
+		zzform_url_remove($unwanted_keys);
 	}
 	
 	if (!$order) return $sql;
@@ -1865,12 +1839,9 @@ function zz_sql_order_check($field, $type, $field_name) {
  *
  * @param array $field
  * @param string $mode 'html' = HTML output, order by; 'nohtml' = plain text
- * @global $zz_conf
  * @return string HTML output
  */
 function zz_list_th($field, $mode = 'html') {
-	global $zz_conf;
-
 	$out = $field['title_tab'] ?? $field['title'];
 	if (!empty($field['dont_sort'])) return $out;
 	if (!isset($field['field_name'])) return $out;
@@ -1885,17 +1856,17 @@ function zz_list_th($field, $mode = 'html') {
 	$unwanted_keys = [
 		'dir', 'delete', 'insert', 'update', 'noupdate', 'zzhash'
 	];
-	$qs = zzform_url_remove_qs($unwanted_keys, 'qs+qs_zzform');
-	$qs = zzform_url_add_qs(['order' => $order_val], $qs);
-	if (zz_list_is_url_self($zz_conf['int']['url']['self'].$qs)) {
-		$qs = zzform_url_add_qs(['dir' => 'desc'], $qs);
+	$url = zzform_url_remove($unwanted_keys, zzform_url('self+qs'));
+	$url = zzform_url_add(['order' => $order_val], $url);
+	if (zz_list_is_url_self($url)) {
+		$url = zzform_url_add(['dir' => 'desc'], $url);
 		$order_dir = wrap_text('descending');
 	} else {
 		$order_dir = wrap_text('ascending');
 	}
-	$html = '<a href="%s" title="%s %s (%s)">%s</a>';
-	return sprintf($html
-		, $zz_conf['int']['url']['self'].$qs, wrap_text('Order by'), strip_tags($field['title']), $order_dir, $out
+	$template = '<a href="%s" title="%s %s (%s)">%s</a>';
+	return sprintf($template
+		, $url, wrap_text('Order by'), strip_tags($field['title']), $order_dir, $out
 	);
 }
 

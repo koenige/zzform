@@ -2181,7 +2181,7 @@ function zz_upload_background($number, $action = 'set') {
 	if (!$fields) return;
 	foreach ($fields as $index => $field) {
 		$url = sprintf('%s?thumbs=%d&field=%s',
-			$zz_conf['int']['url']['full'], $number, $field
+			zzform_url('full'), $number, $field
 		);
 		if (in_array($zz_conf['int']['access'], ['add_only', 'edit_only', 'add_then_edit'])
 			AND empty($zz_conf['int']['where_with_unique_id'])) {

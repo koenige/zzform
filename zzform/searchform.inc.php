@@ -592,7 +592,6 @@ function zz_search_subtable($field, $table) {
  * @return array				HTML output
  */
 function zz_search_form($fields, $table, $total_rows, $count_rows) {
-	global $zz_conf;
 	// Search Form
 	$search_form['top'] = '';
 	$search_form['bottom'] = '';
@@ -610,7 +609,7 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 		$search['q'] = str_replace('%%%', '%\%\%', $search['q']);
 
 	// fields that won't be used for search
-	if ($qs = $zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']) { 
+	if ($qs = zzform_url('qs+qs_zzform')) { 
 		// do not show edited record, limit, ...
 		$unwanted_keys = [
 			'q', 'scope', 'limit', 'mode', 'id', 'add', 'delete', 'insert',
@@ -618,7 +617,7 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 		];
 		$search['hidden_fields'] = zz_querystring_to_hidden(substr($qs, 1), $unwanted_keys);
 		// remove unwanted keys from link
-		$search['url_qs'] = zzform_url_remove_qs($unwanted_keys, 'qs+qs_zzform'); 
+		$search['url_qs'] = zzform_url_remove($unwanted_keys, 'qs+qs_zzform'); 
 	}
 	$search['fields'] = [];
 	foreach ($fields as $index => $field) {

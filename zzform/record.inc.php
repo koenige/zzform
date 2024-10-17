@@ -366,16 +366,13 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple)
 	} elseif (!empty($zz_conf['int']['cancel_url'])) {
 		$cancelurl = $zz_conf['int']['cancel_url'];
 	} else {
-		$cancelurl = $zz_conf['int']['url']['self'];
-		if ($base_qs = $zz_conf['int']['url']['qs'].$zz_conf['int']['url']['qs_zzform']) {
-			$unwanted_keys = [
-				'mode', 'id', 'add', 'delete', 'insert', 'update', 'noupdate',
-				'zzhash', 'edit', 'show', 'revise', 'merge'
-			];
-			$cancelurl .= zzform_url_remove_qs($unwanted_keys, 'qs+qs_zzform');
-		}
+		$unwanted_keys = [
+			'mode', 'id', 'add', 'delete', 'insert', 'update', 'noupdate',
+			'zzhash', 'edit', 'show', 'revise', 'merge'
+		];
+		$cancelurl = zzform_url_remove($unwanted_keys, zzform_url('self+qs'));
 		// do not show cancel URL if it is equal to current URL
-		if ($cancelurl === $zz_conf['int']['url']['self'].$base_qs AND empty($_POST['zz_html_fragment'])) {
+		if ($cancelurl === zzform_url('self+qs') AND empty($_POST['zz_html_fragment'])) {
 			$cancelurl = false;
 		}
 	}
@@ -3024,25 +3021,14 @@ function zz_xhr_add($type, $field) {
  * @global array $zz_conf
  */
 function zz_xhr_url_self() {
-	global $zz_conf;
-	$marker = $zz_conf['int']['url']['?&'];
-	if ($marker === '&amp;') $marker = '&'; // no entity encoding
-	$qs = $zz_conf['int']['url']['qs'];
 	$extra = [];
 	if (!empty($_POST) AND array_key_exists('zz_fields', $_POST) AND $_POST['zz_action'] === 'insert') {
 		foreach ($_POST['zz_fields'] as $field_name => $field_id)
-			$extra[] = sprintf('add[%s]=%s', $field_name, $field_id);
+			$extra['add'][$field_name] = $field_id;
 	}
-	if ($extra) {
-		$qs .= $marker.implode('&', $extra);
-		if (!$zz_conf['int']['url']['qs']) $marker = '&';
-	}
-	return $zz_conf['int']['url']['self']
-		.$qs
-		.($zz_conf['int']['url']['qs_zzform']
-			? $zz_conf['int']['url']['qs_zzform'].'&'
-			: $marker
-		);
+	$url = zzform_url_add($extra, zzform_url('self+qs'), '&');
+	$url .= parse_url($url, PHP_URL_QUERY) ? '&' : '?';
+	return $url;
 }
 
 /**

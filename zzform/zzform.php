@@ -528,10 +528,7 @@ function zzform_exit($ops) {
 	$zz_conf['valid_request'] = zz_valid_request();
 
 	// save correct URL
-	$ops['url'] = $zz_conf['int']['url']['full'].$zz_conf['int']['url']['qs'];
-	if ($zz_conf['int']['url']['qs_zzform']) {
-		$ops['url'] .= $zz_conf['int']['url']['?&'].$zz_conf['int']['url']['qs_zzform'];
-	}
+	$ops['url'] = zzform_url();
 	if (!$zz_conf['valid_request'] AND !empty($_GET['zzhash'])
 		AND (!empty($_GET['insert']) OR !empty($_GET['update']))
 	) {
@@ -584,7 +581,7 @@ function zz_valid_request($action = false) {
 			$dont_log_error = true;
 		}
 		// remove invalid parameters from URL (for XHR requests)
-		zzform_url_remove_qs(['zzhash', 'insert', 'update']);
+		zzform_url_remove(['zzhash', 'insert', 'update']);
 		$zz_conf['int']['id']['value'] = false;
 		return false;
 	}

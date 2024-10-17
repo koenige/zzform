@@ -53,7 +53,7 @@ function zz_filter_defaults(&$zz) {
 	foreach (array_keys($zz['filter_active']) AS $identifier) {
 		if (in_array($identifier, $identifiers)) continue;
 		wrap_static('page', 'status', 404);
-		zzform_url_remove_qs([sprintf('filter[%s]', $identifier)]);
+		zzform_url_remove([sprintf('filter[%s]', $identifier)]);
 		zz_filter_invalid(zz_htmltag_escape($identifier));
 		// get rid of filter
 		unset($zz['filter_active'][$identifier]);
@@ -101,7 +101,6 @@ function zz_filter_list(&$zz, &$ops, &$list) {
  *	$zz 'filter', might be changed)
  */
 function zz_filter_apply(&$zz, &$list) {
-	global $zz_conf;
 	if (!$zz['filter']) return $zz;
 
 	// set filter for complete form
@@ -187,15 +186,7 @@ function zz_filter_apply(&$zz, &$list) {
 			// will be ignored and therefore this hierarchical filter does
 			// not work. think about a better solution.
 		} else {
-			if (str_starts_with($zz_conf['int']['url']['qs_zzform'], '?'))
-				$zz_conf['int']['url']['qs_zzform'] = substr($zz_conf['int']['url']['qs_zzform'], 1);
-			parse_str($zz_conf['int']['url']['qs_zzform'], $qs);
-			unset($qs['filter'][$filter['identifier']]);
-			if (empty($qs['filter'])) unset($qs['filter']);
-			$zz_conf['int']['url']['qs_zzform'] = http_build_query($qs);
-			$link = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
-				.$zz_conf['int']['url']['?&'].$zz_conf['int']['url']['qs_zzform'];
-
+			$link = zzform_url_remove([sprintf('filter[%s]', $filter['identifier'])], zzform_url('self'));
 			zz_error_log([
 				'msg' => ['This filter does not exist: %s', '<a href="%s">List without this filter</a>'],
 				'msg_args' => [zz_htmltag_escape($zz['filter_active'][$filter['identifier']]), $link],
@@ -363,7 +354,7 @@ function zz_filter_invalid_value($filter, $value) {
 		]);
 	}
 	// remove invalid filter from internal query string
-	zzform_url_remove_qs(sprintf('filter[%s]', $filter['identifier']));
+	zzform_url_remove(sprintf('filter[%s]', $filter['identifier']));
 }
 
 /**
@@ -374,7 +365,6 @@ function zz_filter_invalid_value($filter, $value) {
  */
 function zz_filter_invalid($filter = false) {
 	static $invalid_filters = [];
-	global $zz_conf;
 	if ($filter) {
 		$invalid_filters[] = $filter;
 		return true;
@@ -382,15 +372,12 @@ function zz_filter_invalid($filter = false) {
 
 	$error = false;
 	foreach ($invalid_filters AS $identifier) {
-		$filter = zz_htmltag_escape($identifier);
-		$link = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs']
-			.$zz_conf['int']['url']['?&'].$zz_conf['int']['url']['qs_zzform'];
 		zz_error_log([
 			'msg' => [
 				'A filter for the selection “%s” does not exist.',
 				'<a href="%s">List without this filter</a>'
 			],
-			'msg_args' => [$filter, $link],
+			'msg_args' => [zz_htmltag_escape($identifier), zzform_url('self+qs')],
 			'level' => E_USER_NOTICE
 		]);
 		$error = true;
@@ -425,22 +412,16 @@ function zz_filter_or($filter_value, $selections) {
  *		array 'selection'
  *			id => title
  * @param array $filter_active = $zz['filter_active']
- * @global array $zz_conf
- *		$zz_conf['int']['url']
  * @return string HTML output, all filters
  */
 function zz_filter_selection($filter, $filter_active) {
-	global $zz_conf;
-
 	// create base URL for links
-	$self = $zz_conf['int']['url']['self'];
 	// remove unwanted keys from link
 	// do not show edited record, limit
-	$unwanted_keys = [
+	$self = zzform_url_remove([
 		'q', 'scope', 'limit', 'mode', 'id', 'add', 'filter', 'delete',
-		'insert', 'update', 'noupdate', 'zzhash', 'merge'
-	];
-	$qs = zzform_url_remove_qs($unwanted_keys, 'qs+qs_zzform');
+		'insert', 'update', 'noupdate', 'zzhash', 'merge'], zzform_url('self+qs')
+	);
 
 	$filter_output = false;
 	foreach ($filter as $index => $f) {
@@ -458,7 +439,7 @@ function zz_filter_selection($filter, $filter_active) {
 				unset($other_filters['filter'][$filter[$subfilter]['identifier']]);
 			}
 		}
-		$qs = zzform_url_add_qs($other_filters, $qs);
+		$filter_self = zzform_url_add($other_filters, $self);
 		
 		if (!empty($f['selection'])) {
 			// $f['selection'] might be empty if there's no record in the database
@@ -474,10 +455,10 @@ function zz_filter_selection($filter, $filter_active) {
 					AND ((is_array($f['default_selection']) AND key($f['default_selection']) == $id)
 					OR $f['default_selection'] == $id)) {
 					// default selection does not need parameter
-					$link = $self.$qs;
+					$link = $filter_self;
 				} else {
 					// ID might be string as well, so better urlencode it
-					$link = $self.($qs ? $qs.'&amp;' : '?').'filter['.$f['identifier'].']='.urlencode($id);
+					$link = zzform_url_add(['filter' => [$f['identifier'] => urlencode($id)]], $filter_self);
 				}
 				if (!empty($filter[$index]['translate_field_value'])) {
 					$selection = wrap_text($selection, ['source' => wrap_setting('zzform_script_path')]);
@@ -510,10 +491,10 @@ function zz_filter_selection($filter, $filter_active) {
 		// create '- all -'-Link
 		if (!empty($filter[$index]['hide_all_link'])) continue;
 		if (empty($f['default_selection'])) {
-			$link = $self.$qs;
+			$link = $filter_self;
 		} else {
 			// there is a default selection, so we need a parameter = 0!
-			$link = $self.($qs ? $qs.'&amp;' : '?').'filter['.$f['identifier'].']=0';
+			$link = zzform_url_add(['filter' => [$f['identifier'] => 0]], $filter_self);
 		}
 		$link_all = false;
 		if (isset($filter_active[$f['identifier']])) {

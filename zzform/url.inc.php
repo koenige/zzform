@@ -14,14 +14,74 @@
 
 
 /**
- * add query string
+ * get zzform URL
  *
- * @param $$add array keys of query string to be added
- * @param string $query (full query string)
+ * @param string $type (optional)
+ * @param string $new_value (optional)
  * @return string
  */
-function zzform_url_add_qs($add, $query) {
-	return zz_edit_query_string($query, [], $add);
+function zzform_url($type = 'full+qs', $new_value = '') {
+	global $zz_conf;
+	if (empty($zz_conf['int']['url']))
+		$zz_conf['int']['url'] = zz_get_url_self();
+	
+	switch ($type) {
+	case 'extra_get':
+		return $zz_conf['int']['extra_get'];
+	case 'full':
+		return $zz_conf['int']['url']['full'];
+	case 'full+qs':
+		$url = $zz_conf['int']['url']['full'].$zz_conf['int']['url']['qs'];
+		if ($zz_conf['int']['url']['qs'] AND $zz_conf['int']['url']['qs_zzform'])
+			$url .= $zz_conf['int']['url']['?&'];
+		$url .= $zz_conf['int']['url']['qs_zzform'];
+		return $url;
+	case 'full+qs_zzform':
+		return $zz_conf['int']['url']['full'].$zz_conf['int']['url']['qs_zzform'];
+	case 'qs+qs_zzform':
+		$url = $zz_conf['int']['url']['qs'];
+		if ($url AND $zz_conf['int']['url']['qs_zzform'])
+			$url .= '&';
+		$url .= $zz_conf['int']['url']['qs_zzform'];
+		return $url;
+	case 'qs_zzform':
+		return $zz_conf['int']['url']['qs_zzform'];
+	case 'self':
+		return $zz_conf['int']['url']['self'];
+	case 'self+extra':
+		$url = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs'];
+		if ($zz_conf['int']['extra_get']) {
+			$url .= $zz_conf['int']['url']['qs'] ? '&' : '?';
+			$url .= $zz_conf['int']['extra_get'];
+		}
+		return $url;
+	case 'self+qs':
+		$url = $zz_conf['int']['url']['self'].$zz_conf['int']['url']['qs'];
+		if ($zz_conf['int']['url']['qs'] AND $zz_conf['int']['url']['qs_zzform'])
+			$url .= $zz_conf['int']['url']['?&'];
+		$url .= $zz_conf['int']['url']['qs_zzform'];
+		return $url;
+	}
+	return '';
+}
+
+/**
+ * add query string
+ *
+ * @param $add array keys of query string to be added
+ * @param string $url (URL or just query string)
+ * @return string
+ */
+function zzform_url_add($add, $url = NULL, $and = '&amp;') {
+	if (is_null($url)) $url = zzform_url();
+	$build = zzform_url_with_path($url);
+	$url = $build ? parse_url($url) : ['query' => $url];
+	$url['query'] = zz_edit_query_string($url['query'] ?? '', [], $add, $and);
+	if ($build) {
+		if (str_starts_with($url['query'], '?')) $url['query'] = substr($url['query'], 1);
+		return wrap_build_url($url);
+	}
+	return $url['query'];
 }
 
 /**
@@ -32,24 +92,23 @@ function zzform_url_add_qs($add, $query) {
  * @param string $action
  * @return string
  */
-function zzform_url_remove_qs($remove, $key = 'qs_zzform', $action = 'change', $and = '&amp;') {
+function zzform_url_remove($remove, $key = 'qs_zzform', $action = 'change', $and = '&amp;') {
 	global $zz_conf;
 	
 	switch ($key) {
-		case 'qs_zzform':
-			$query = $zz_conf['int']['url']['qs_zzform'];
-			break;
-		case 'qs+qs_zzform':
-			$query = $zz_conf['int']['url']['qs'];
-			if ($query) $query .= '&';
-			$query .= $zz_conf['int']['url']['qs_zzform'];
-			$action = 'return'; // merged keys, only return possible
-			break;
 		case 'extra_get':
-			$query = $zz_conf['int']['extra_get'];
+		case 'qs_zzform':
+		case 'qs+qs_zzform':
+			$query = $zz_conf['int']['url']['qs_zzform'];
+			if (strstr($key, '+')) $action = 'return'; // merged keys, only return possible
 			break;
 		default:
-			$query = $key;
+			if ($build = zzform_url_with_path($key)) {
+				$url = parse_url($key);
+				$query = $url['query'] ?? '';
+			} else {
+				$query = $key;
+			}
 			$action = 'return';
 			break;
 	}
@@ -63,8 +122,37 @@ function zzform_url_remove_qs($remove, $key = 'qs_zzform', $action = 'change', $
 			$zz_conf['int']['url'][$key] = $new;
 		break;
 	case 'return':
-		return $new;
+		if (empty($build)) return $new;
+		$url['query'] = $new;
+		if (str_starts_with($url['query'], '?')) $url['query'] = substr($url['query'], 1);
+		return wrap_build_url($url);
 	}
+}
+
+/**
+ * check if URL has path
+ *
+ * @param string $url
+ * @return bool
+ */
+function zzform_url_with_path($url) {
+	if (str_starts_with($url, '/')) return true;
+	if (preg_match('/^[a-z]+:(.+)/', $url)) return true;
+}
+
+/**
+ * escape URL characters
+ *
+ * @param string $url
+ * @return string
+ */
+function zzform_url_escape($url) {
+	if (!$url) return $url;
+	$url = str_replace('&amp;', '&', $url);
+	$url = str_replace('&', '&amp;', $url);
+	$url = str_replace('[', urlencode('['), $url);
+	$url = str_replace(']', urlencode(']'), $url);
+	return $url;
 }
 
 /**
@@ -133,12 +221,20 @@ function zz_edit_query_string($query, $unwanted_keys = [], $new_keys = [], $and 
 
 	// add new keys or overwrite existing keys
 	if (!is_array($new_keys)) $new_keys = [$new_keys];
-	foreach ($new_keys as $new_key => $new_value)
-		$parts[$new_key] = $new_value; 
+	foreach ($new_keys as $new_key => $new_value) {
+		if (array_key_exists($new_key, $parts) AND is_array($parts[$new_key])) {
+			$parts[$new_key] = array_merge($parts[$new_key], $new_value);
+		} else {
+			$parts[$new_key] = $new_value;
+		}
+	}
 
 	// glue everything back together
 	$query_string = http_build_query($parts, '', $and);
-	if (!$query_string) return false;
+	// set keys without values, too (e. g. delete = NULL)
+	foreach ($parts as $part => $value)
+		if (is_null($value)) $query_string .= ($query_string ? $and : '').$part;
+	if (!$query_string) return '';
 	$query_string = wrap_url_normalize_percent_encoding($query_string, 'query');
 	return '?'.$query_string; // URL without unwanted keys
 }

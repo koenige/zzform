@@ -37,7 +37,7 @@ function zz_export_init(&$ops, &$zz) {
 	];
 	foreach ($unwanted_keys as $key) {
 		if (!isset($_GET[$key])) continue;
-		zzform_url_remove_qs($unwanted_keys);
+		zzform_url_remove($unwanted_keys);
 		zz_error_log([
 			'msg' => 'Please don’t mess with the URL parameters. <code>%s</code> is not allowed here.',
 			'msg_args' => [$key],
@@ -78,7 +78,7 @@ function zz_export_init(&$ops, &$zz) {
 			'level' => E_USER_NOTICE,
 			'status' => 404
 		]);
-		zzform_url_remove_qs(['export']);
+		zzform_url_remove(['export']);
 		$ops['mode'] = false;
 		return;
 	}
@@ -129,7 +129,7 @@ function zz_export_links($export) {
 	
 	// remove some querystrings which have no effect anyways
 	$unwanted_querystrings = ['nolist', 'debug', 'referer', 'limit', 'order', 'dir'];
-	$qs = zzform_url_remove_qs($unwanted_querystrings, 'extra_get');
+	$qs = zzform_url_remove($unwanted_querystrings, 'extra_get');
 	if ($qs) $qs = substr($qs, 1);
 
 	foreach ($export as $type => $mode) {

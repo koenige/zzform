@@ -196,7 +196,7 @@ function zz_details_return($ops, $zz_tab) {
 	if (isset($_SESSION['zzform'][$zz_conf['id']]) AND !$_SESSION['zzform'][$zz_conf['id']]) {
 		unset($_SESSION['zzform'][$zz_conf['id']]);
 		// no more detail forms open, remove zz-ID from URL
-		zzform_url_remove_qs(['zz'], 'qs_zzform', 'change', '&');
+		zzform_url_remove(['zz'], 'qs_zzform', 'change', '&');
 	}
 
 	session_write_close();

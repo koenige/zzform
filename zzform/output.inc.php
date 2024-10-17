@@ -304,51 +304,48 @@ function zz_output_redirect($ops, $zz, $zz_tab) {
 	}
 	// it’s a URL, so replace &amp; with & via substr()
 	// on delete, remove nolist, we don’t want to end with empty list
-	if ($ops['result'] === 'successful_delete') {
-		$qs_zzform = zzform_url_remove_qs(['nolist'], 'qs_zzform', 'return');
-	} else {
-		$qs_zzform = $zz_conf['int']['url']['qs_zzform'];
-	}
-	$self = $zz_conf['int']['url']['full']
-		.$zz_conf['int']['url']['qs'].$qs_zzform
-		.($qs_zzform ? '&' : substr($zz_conf['int']['url']['?&'], 0, 1));
-	$secure = false;
+	if ($ops['result'] === 'successful_delete')
+		zzform_url_remove(['nolist']);
+	$keys = [];
 	if (!empty($zz_conf['int']['hash_id'])) {
 		// secret key has to be recalculated for insert operations
 		// because there did not exist an id value before = hash was different
 		$zz_conf['int']['secret_key'] = zz_secret_key($id_value);
-		$secure = '&zzhash='.$zz_conf['int']['secret_key'];
+		$keys['zzhash'] = $zz_conf['int']['secret_key'];
 	}
 	switch ($ops['result']) {
 	case 'successful_delete':
 		// always redirect to referer if in revision mode
 		if (!empty($_POST['zz_revision_id']) AND isset($_GET['nolist']))
 			$zz['record']['redirect_to_referer_zero_records'] = true;
+		$self = NULL;
 		if (!empty($zz['record']['redirect_to_referer_zero_records'])
 			AND wrap_static('page', 'referer')) {
 			// redirect to referer if there are no records in list
 			$id_field_name = $zz_tab[0]['table'].'.'.$zz_conf['int']['id']['field_name'];
-			if (isset($_GET['nolist']) OR !zz_sql_count_rows($zz_tab[0]['sql'], $id_field_name)) {
+			if (isset($_GET['nolist']) OR !zz_sql_count_rows($zz_tab[0]['sql'], $id_field_name))
 				$self = wrap_static('page', 'referer');
-				$self .= parse_url($self, PHP_URL_QUERY) ? '&' : '?';
-			}
 		}
 		if ($nos) {
-			$nos = '='.$nos;
-			$_GET['delete'] = $nos; // for JS fragment
+			$_GET['delete'] = '='.$nos; // for JS fragment
 		} else {
 			$_GET['delete'] = false;  // for JS fragment
 		}
-		return $self.'delete'.$nos;
+		if ($nos) $keys['delete'] = $nos;
+		else $keys['delete'] = NULL;
+		return zzform_url_add($keys, $self ?? zzform_url());
 	case 'successful_insert':
 		$_GET['insert'] = $id_value;  // for JS fragment
-		return $self.'insert='.$id_value.$secure;
+		$keys['insert'] = $id_value;
+		return zzform_url_add($keys);
 	case 'successful_update':
 		$_GET['update'] = $id_value;  // for JS fragment
-		return $self.'update='.$id_value.$secure;
+		$keys['update'] = $id_value;
+		return zzform_url_add($keys);
 	case 'no_update':
 		$_GET['noupdate'] = $id_value;  // for JS fragment
-		return $self.'noupdate='.$id_value.$secure;
+		$keys['noupdate'] = $id_value;
+		return zzform_url_add($keys);
 	}
 	return false;
 }
@@ -751,7 +748,7 @@ function zz_init_referer() {
 	$url = parse_url(wrap_static('page', 'referer'));
 	if (!empty($url['query'])) {
 		$removes = ['delete', 'insert', 'update', 'noupdate'];
-		$url['query'] = zzform_url_remove_qs($removes, $url['query'], 'return', '&');
+		$url['query'] = zzform_url_remove($removes, $url['query'], 'return', '&');
 	}
 	wrap_static('page', 'referer', (
 		(!empty($url['scheme']) ? $url['scheme'].'://'.$url['host'] : '').$url['path'].($url['query'] ?? '')
@@ -1136,31 +1133,37 @@ function zz_output_upndown_editor() {
 function zz_output_modes($id, $zz_conf_record) {
 	global $zz_conf;
 	
-	if (!empty($zz_conf['int']['where_with_unique_id'])) $id = '';
-	$qs = ($id ? sprintf('=%d', $id) : '').($zz_conf['int']['extra_get_escaped'] ? '&amp;'.$zz_conf['int']['extra_get_escaped'] : '');
-	$qs_extra = $zz_conf['int']['url']['?&'].$zz_conf['int']['extra_get_escaped'];
-	$link = sprintf(
-		'<a href="%s%s%%s%%s%%s">%%s</a>',
-		$zz_conf['int']['url']['self'],
-		$zz_conf['int']['url']['qs']
-	);
+	if (!empty($zz_conf['int']['where_with_unique_id'])) $id = NULL;
 
 	$modes = [];
 	if ($zz_conf_record['edit']) {
 		if ($zz_conf['int']['access'] === 'show_after_edit') {
-			$modes[] = sprintf($link, '', '', $qs_extra, wrap_text('Edit'));
+			$modes[] = zz_output_modes_template([], 'Edit');
 		} else {
-			$modes[] = sprintf($link, $zz_conf['int']['url']['?&'], 'edit', $qs, wrap_text('Edit'));
+			$modes[] = zz_output_modes_template(['edit' => $id], 'Edit');
 		}
 	} elseif ($zz_conf_record['view']) {
-		$modes[] = sprintf($link, $zz_conf['int']['url']['?&'], 'show', $qs, wrap_text('Show'));
+		$modes[] = zz_output_modes_template(['show' => $id], 'Show');
 	}
 	if ($zz_conf_record['copy']) {
-		$modes[] = sprintf($link, $zz_conf['int']['url']['?&'], 'add', $qs, wrap_text('Copy'));
+		$modes[] = zz_output_modes_template(['add' => $id], 'Copy');
 	}
 	if ($zz_conf_record['delete']) {
-		$modes[] = sprintf($link, $zz_conf['int']['url']['?&'], 'delete', $qs, wrap_text('Delete'));
+		$modes[] = zz_output_modes_template(['delete' => $id], 'Delete');
 	}
 	if ($modes) return implode('&nbsp;&middot; ', $modes);
 	else return false;
+}
+
+/**
+ * create HTML anchor elements for modes
+ *
+ * @param array $qs
+ * @param string $text
+ * @return string
+ */
+function zz_output_modes_template($qs, $text) {
+	$url = zzform_url_add($qs, zzform_url('self+extra'));
+	$url = zzform_url_escape($url);
+	return sprintf('<a href="%s">%s</a>', $url, wrap_text($text));
 }
