@@ -571,7 +571,7 @@ function zzform_list_init() {
 	static $init = false;
 	if ($init) return; // just once
 
-	// zzform_url_remove(), zz_get_url_self()
+	// zzform_url_remove()
 	wrap_include('url', 'zzform');
 	// zz_init_limit()
 	wrap_include('output', 'zzform');
@@ -582,7 +582,6 @@ function zzform_list_init() {
 
 	wrap_setting('zzform_search', 'bottom');
 
-	$zz_conf['int']['url'] = zz_get_url_self();
 	zz_init_limit();
 	$init = true;
 }
