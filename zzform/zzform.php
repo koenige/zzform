@@ -520,16 +520,17 @@ function zzform_exit($ops) {
 	if (!wrap_static('page', 'status'))
 		wrap_static('page', 'status', 200);
 
-	// check if request is valid
-	$zz_conf['valid_request'] = zz_valid_request();
+	if ($zz_conf['generate_output']) {
+		// save correct URL
+		$ops['url'] = zzform_url();
 
-	// save correct URL
-	$ops['url'] = zzform_url();
-	if (!$zz_conf['valid_request'] AND !empty($_GET['zzhash'])
-		AND (!empty($_GET['insert']) OR !empty($_GET['update']))
-	) {
-		wrap_static('page', 'redirect', $ops['url']);
-		wrap_quit(301, '', wrap_static('page'));
+		// check if request is valid
+		if (!zz_valid_request() AND !empty($_GET['zzhash'])
+			AND (!empty($_GET['insert']) OR !empty($_GET['update']))
+		) {
+			wrap_static('page', 'redirect', $ops['url']);
+			wrap_quit(301, '', wrap_static('page'));
+		}
 	}
 
 	// get rid of internal variables
