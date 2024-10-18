@@ -104,7 +104,7 @@ function zzform_url_remove($remove, $key = 'qs_zzform', $action = 'change') {
 		case 'extra_get':
 		case 'qs_zzform':
 		case 'qs+qs_zzform':
-			$query = $zz_conf['int']['url']['qs_zzform'];
+			$query = zzform_url($key);
 			if (strstr($key, '+')) $action = 'return'; // merged keys, only return possible
 			break;
 		default:
