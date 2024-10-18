@@ -3025,8 +3025,16 @@ function zz_xhr_url_self() {
 	if (!empty($_POST) AND array_key_exists('zz_fields', $_POST) AND $_POST['zz_action'] === 'insert') {
 		foreach ($_POST['zz_fields'] as $field_name => $field_id)
 			$extra['add'][$field_name] = $field_id;
+	} elseif (!empty($_GET['add'])) {
+		$extra['add'] = $_GET['add'];
 	}
-	$url = zzform_url_add($extra, zzform_url('self+qs+qs_zzform'), '&');
+	// remove single quotes (= escaping for JavaScript)
+	foreach ($extra as $key => $values) {
+		foreach ($values as $field_name => $value)
+			if (is_array($value)) unset($extra[$key][$field_name]);
+			else $extra[$key][$field_name] = str_replace("'", '', $value);
+	}
+	$url = zzform_url_add($extra, zzform_url('self+qs'));
 	$url .= parse_url($url, PHP_URL_QUERY) ? '&' : '?';
 	return $url;
 }
