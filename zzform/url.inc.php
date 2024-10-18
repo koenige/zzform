@@ -22,8 +22,10 @@
  */
 function zzform_url($type = 'full+qs+qs_zzform', $new_value = '') {
 	global $zz_conf;
-	if (empty($zz_conf['int']['url']))
+	if (empty($zz_conf['int']['url'])) {
 		$zz_conf['int']['url'] = zz_get_url_self();
+		zz_extra_get_params();
+	}
 	
 	switch ($type) {
 	case 'extra_get':
@@ -248,9 +250,6 @@ function zz_edit_query_string($query, $unwanted_keys = [], $new_keys = []) {
  */
 function zz_extra_get_params() {
 	global $zz_conf;
-	static $calls = 0;
-	if ($calls) return;
-	$calls++;
 
 	// Extra GET Parameter
 	$keep_query = [];

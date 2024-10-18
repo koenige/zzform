@@ -222,8 +222,6 @@ function zzform($zz) {
 	if (!$zz_conf['generate_output'])
 		return zzform_exit($ops);
 
-	zz_extra_get_params();
-
 	// in case no record is shown, create page info
 	$ops = zz_output_page($ops, $zz);
 
@@ -443,8 +441,6 @@ function zzform_record($zz, $ops, $zz_conditions) {
 		// update $zz_tab, $zz_conditions
 		zz_conditions_before_record($zz, $zz_tab, $zz_conditions, $ops['mode']);
 	}
-
-	zz_extra_get_params();
 
 	// display updated, added or editable Record
 	require_once __DIR__.'/record.inc.php';
@@ -720,7 +716,6 @@ function zz_initialize_int() {
 
 	// initialize internal variables
 	$zz_conf['int'] = [];
-	$zz_conf['int']['url'] = zz_get_url_self();
 }
 
 /**
