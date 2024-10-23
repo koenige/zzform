@@ -3030,6 +3030,7 @@ function zz_xhr_url_self() {
 	}
 	// remove single quotes (= escaping for JavaScript)
 	foreach ($extra as $key => $values) {
+		if (!is_array($values)) continue; // e. g. add = ID for copying
 		foreach ($values as $field_name => $value)
 			if (is_array($value)) unset($extra[$key][$field_name]);
 			else $extra[$key][$field_name] = str_replace("'", '', $value);
