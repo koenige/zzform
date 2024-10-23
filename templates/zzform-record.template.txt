@@ -49,7 +49,7 @@ condition if divert_files %%% data-divert-files="%%% item divert_files %%%"%%% c
 <a href="%%% item link_record zzform_url_escape %%%">%%% text Show %%%</a>%%% condition endif %%%
 %%% condition if modes %%%
 %%% condition if cancel_ok | link_record %%%&nbsp;&middot; %%% condition endif %%%
-%%% item modes %%%
+%%% include zzform-modes %%%
 %%% condition endif %%%
 %%% condition if cancel_url %%%
  <a href="%%% item cancel_url zzform_url_escape %%%">%%% text Cancel %%%</a>

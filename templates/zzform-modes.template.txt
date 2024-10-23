@@ -1,0 +1,19 @@
+# zzform module
+# template for modes
+#
+# https://www.zugzwang.org/projects/zzform
+# Part of »Zugzwang Project«
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2024 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+%%% loop modes %%%
+<a href="%%% item link zzform_url_escape %%%">%%% condition if delete %%%%%% text Delete %%%
+%%% condition elseif edit %%%%%% text Edit %%%
+%%% condition elseif show %%%%%% text Show %%%
+%%% condition elseif copy %%%%%% text Copy %%%
+%%% condition endif %%%
+</a>
+%%% loopposition first|middle "&nbsp;&middot; " %%%
+%%% loop end %%%

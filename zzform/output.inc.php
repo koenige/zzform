@@ -1128,42 +1128,27 @@ function zz_output_upndown_editor() {
  * @param array $zz_conf_record
  *		'edit', 'view', 'copy', 'delete'
  * @global array $zz_conf
- * @return string
+ * @return array
  */
 function zz_output_modes($id, $zz_conf_record) {
 	global $zz_conf;
 	
 	if (!empty($zz_conf['int']['where_with_unique_id'])) $id = NULL;
+	$link = zzform_url('self+extra');
 
 	$modes = [];
-	if ($zz_conf_record['edit']) {
+	if ($zz_conf_record['edit'])
 		if ($zz_conf['int']['access'] === 'show_after_edit') {
-			$modes[] = zz_output_modes_template([], 'Edit');
+			$modes[] = ['link' => zzform_url_add([], $link), 'edit' => 1];
 		} else {
-			$modes[] = zz_output_modes_template(['edit' => $id], 'Edit');
+			$modes[] = ['link' => zzform_url_add(['edit' => $id], $link), 'edit' => 1];
 		}
-	} elseif ($zz_conf_record['view']) {
-		$modes[] = zz_output_modes_template(['show' => $id], 'Show');
-	}
-	if ($zz_conf_record['copy']) {
-		$modes[] = zz_output_modes_template(['add' => $id], 'Copy');
-	}
-	if ($zz_conf_record['delete']) {
-		$modes[] = zz_output_modes_template(['delete' => $id], 'Delete');
-	}
-	if ($modes) return implode('&nbsp;&middot; ', $modes);
-	else return false;
-}
-
-/**
- * create HTML anchor elements for modes
- *
- * @param array $qs
- * @param string $text
- * @return string
- */
-function zz_output_modes_template($qs, $text) {
-	$url = zzform_url_add($qs, zzform_url('self+extra'));
-	$url = zzform_url_escape($url);
-	return sprintf('<a href="%s">%s</a>', zzform_url_escape($url), wrap_text($text));
+	elseif ($zz_conf_record['view'])
+		$modes[] = ['link' => zzform_url_add(['show' => $id], $link), 'show' => 1];
+	if ($zz_conf_record['copy'])
+		$modes[] = ['link' => zzform_url_add(['add' => $id], $link), 'copy' => 1];
+	if ($zz_conf_record['delete'])
+		$modes[] = ['link' => zzform_url_add(['delete' => $id], $link), 'delete' => 1];
+	if ($modes) return $modes;
+	else return [];
 }

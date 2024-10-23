@@ -2295,7 +2295,7 @@ function zz_list_table($list, $rows, $head) {
 		if (!empty($row['modes']) OR !empty($row['details'])) {
 			$output .= '<td class="editbutton">';
 			if (!empty($row['modes'])) {
-				$output .= $row['modes'];
+				$output .= wrap_template('zzform-modes', $row);
 				if (!empty($row['details'])) $output .= '&nbsp;<span class="br">||</span> ';
 			}
 			if (!empty($row['details']))
