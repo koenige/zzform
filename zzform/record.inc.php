@@ -2575,6 +2575,8 @@ function zz_field_set($subtable, $display, $my_tab) {
 			unset($sets[$index][$field['show_hierarchy']]);
 		}
 	}
+	if (!$sets) return;
+
 	$sets = zz_translate($field, $sets);
 	$group = $field['group'] ?? false;
 
