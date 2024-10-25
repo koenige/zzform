@@ -2409,7 +2409,7 @@ function zz_list_ul($list, $rows) {
 					.'>'.$field['text'].'</p>';
 		}
 		if (!empty($row['modes']))
-			$output .= '<p class="editbutton">'.$row['modes'].'</p>';
+			$output .= '<p class="editbutton">'.wrap_template('zzform-modes', $row).'</p>';
 		if (!empty($row['details']))
 			$output .= '<p class="editbutton">'.$row['details'].'</p>';
 		$output .= '</li>'."\n";
