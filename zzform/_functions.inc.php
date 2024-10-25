@@ -235,36 +235,28 @@ function zz_check_id_value_error() {
 function zz_secret_id($mode, $id = '', $hash = '') {
 	global $zz_conf;
 	if (!empty($zz_conf['multi'])) return;
+	
+	// @deprecated
+	if (file_exists(wrap_setting('log_dir').'/zzform-ids.log')) {
+		wrap_mkdir(wrap_setting('log_dir').'/zzform');
+		rename(wrap_setting('log_dir').'/zzform-ids.log', wrap_setting('log_dir').'/zzform/ids.log');
+	}
 
-	$logfile = wrap_setting('log_dir').'/zzform-ids.log';
-	if (!file_exists($logfile)) touch($logfile);
-	$logs = file($logfile);
 	if (!$id) $id = $zz_conf['id'];
-
-	$now = time();
-	// keep IDs for a maximum of one day
-	$keep_max = $now - 60 * 60 * 24;
 	$found = '';
 	$timestamp = 0;
-	$delete_lines = [];
-	foreach ($logs as $index => $line) {
-		// 0 = timestamp, 1 = zz_id, 2 = secret
-		$file = explode(' ', trim($line));
-		if ($file[0] < $keep_max) $delete_lines[] = $index;
-		if ($file[1] !== $id) continue;
-		$found = $file[2];
-		$timestamp = $file[0];
-		break;
-	}
-	if ($delete_lines) {
-		require_once wrap_setting('core').'/file.inc.php';
-		wrap_file_delete_line($logfile, $delete_lines);
-	}
 
+	wrap_include('file', 'zzwrap');
+	$logs = wrap_file_log('zzform/ids');
+	foreach ($logs as $index => $line) {
+		if ($line['zzform_id'] !== $id) continue;
+		$found = $line['zzform_hash'];
+		$timestamp = $line['timestamp'];
+	}
 	if ($mode === 'read') return $found;
 	elseif ($mode === 'timecheck') return $now - $timestamp;
 	if ($found) return;
-	error_log(sprintf("%s %s %s\n", $now, $id, $hash), 3, $logfile);
+	wrap_file_log('zzform/ids', 'write', [time(), $id, $hash]);
 }
 
 /**
