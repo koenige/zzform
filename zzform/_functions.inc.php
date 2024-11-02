@@ -547,10 +547,16 @@ function zzform_copy($table, $foreign_id_field, $source_id, $destination_id) {
  * @param array $field
  * @return string
  */
-function zzform_field_identifier($field) {
+function zzform_field_identifier($field, $cut_numbers = false) {
 	$identifier = $field['field_name'] ?? $field['table_name'] ?? $field['table'] ?? '';
 	if (str_starts_with($identifier, '/*_PREFIX_*/'))
 		$identifier = substr($identifier, strlen('/*_PREFIX_*/'));
+	if ($cut_numbers) {
+		$old_identifier = $identifier;
+		while (is_numeric(substr($identifier, -1)) AND $identifier)
+			$identifier = substr($identifier, 0, -1);
+		$identifier = trim($identifier, '_');
+	}
 	return $identifier;
 }
 
