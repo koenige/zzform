@@ -254,7 +254,7 @@ function zz_secret_id($mode, $id = '', $hash = '') {
 		$timestamp = $line['timestamp'];
 	}
 	if ($mode === 'read') return $found;
-	elseif ($mode === 'timecheck') return $now - $timestamp;
+	elseif ($mode === 'timecheck') return time() - $timestamp;
 	if ($found) return;
 	wrap_file_log('zzform/ids', 'write', [time(), $id, $hash]);
 }
