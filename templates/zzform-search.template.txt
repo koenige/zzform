@@ -14,7 +14,7 @@
 <input type="submit" value="%%% text search %%%"> %%% text in %%% <select name="scope">
 <option value="">%%% text all fields %%%</option>
 %%% loop fields %%%
-<option value="%%% item field_name %%%"%%% condition if selected %%% selected="selected"%%% condition endif %%%>%%% item title strip_tags %%%</option>
+<option value="%%% item field_name %%%"%%% condition if selected %%% selected%%% condition endif %%%>%%% item title strip_tags %%%</option>
 %%% loop end %%%
 </select>
 %%% condition if q %%%

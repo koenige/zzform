@@ -368,15 +368,15 @@ function zzformReplacePage(page, scrollTop = true) {
 	// move to top of page
 	if (scrollTop) scroll(0,0);
 	else if (typeof replaceContent !== 'undefined') {
-		var autoFocusElement = replaceContent.querySelector('input[autofocus="autofocus"]');
+		var autoFocusElement = replaceContent.querySelector('input[autofocus]');
 		if (autoFocusElement) {
 			autoFocusElement.focus();
 		} else {
-			autoFocusElement = replaceContent.querySelector('select[autofocus="autofocus"]');
+			autoFocusElement = replaceContent.querySelector('select[autofocus]');
 			if (autoFocusElement) {
 				autoFocusElement.focus();
 			} else {
-				autoFocusElement = replaceContent.querySelector('textarea[autofocus="autofocus"]');
+				autoFocusElement = replaceContent.querySelector('textarea[autofocus]');
 				if (autoFocusElement) {
 					autoFocusElement.focus();
 				}

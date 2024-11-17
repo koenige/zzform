@@ -621,7 +621,7 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 			}
 			$rows[$z][-1]['text'] = sprintf(
 				'<input type="checkbox" name="zz_record_id[]" value="%s"%s>',
-				$line[$zz_conf['int']['id']['field_name']], ($checked ? ' checked="checked"' : '')
+				$line[$zz_conf['int']['id']['field_name']], ($checked ? ' checked' : '')
 			);
 			$rows[$z][-1]['class'][] = 'select_multiple_records';
 		}

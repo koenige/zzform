@@ -1379,8 +1379,8 @@ function zz_record_add_details($field, $tab, $rec, $fieldkey) {
 				$zz_conf['id'], $fieldkey, $tab, $rec
 			);
 		}
-		$text = ' <input type="submit" name="zz_add_details[%s]" value="%s" formnovalidate="formnovalidate" class="zz_add_details_add">';
-		$text .= ' <input type="submit" name="zz_edit_details[%s]" value="%s" formnovalidate="formnovalidate" class="zz_add_details_edit">';
+		$text = ' <input type="submit" name="zz_add_details[%s]" value="%s" formnovalidate class="zz_add_details_add">';
+		$text .= ' <input type="submit" name="zz_edit_details[%s]" value="%s" formnovalidate class="zz_add_details_edit">';
 		$text = sprintf($text, $name, wrap_text('New …'), $name, wrap_text('Edit …'));
 	} else {
 		$add_details_sep = strstr($field['add_details'], '?') ? '&amp;' : '?';
@@ -1394,7 +1394,7 @@ function zz_record_add_details($field, $tab, $rec, $fieldkey) {
 }
 
 /**
- * sets HTML5 element autofocus=true where appropriate
+ * sets HTML attribute autofocus where appropriate
  * i. e. first element of record; if subrecord is added: first element of
  * subrecord; if subrecord is deleted: first element of previous subrecord
  *
@@ -2675,7 +2675,7 @@ function zz_field_set($subtable, $display, $my_tab) {
 					, $subtable['table_name'], $set['rec_no']
 					, $subtable['table_name'], $set['rec_no'], $field_names['select']
 					, $subtable['table_name'], $set['rec_no'], $set['id']
-					, (!empty($set['checked']) ? ' checked="checked"' : ''), $set['title']
+					, (!empty($set['checked']) ? ' checked' : ''), $set['title']
 				);
 			} elseif (!empty($set['rec_id']) AND !wrap_is_int($set['rec_id'])) {
 				wrap_quit(400, 'Malformed request, ID for a set needs to be numeric');
