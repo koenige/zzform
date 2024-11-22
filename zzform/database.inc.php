@@ -9,6 +9,7 @@
  *
  * Contents:
  * D - Database functions (common functions)
+ *		zz_sql_*()
  * D - Database functions (MySQL-specific functions)
  *		zz_db_*()
  *
@@ -23,46 +24,6 @@
  * D - Database functions (common functions)
  * --------------------------------------------------------------------
  */
-
-/** 
- * Logs SQL operation in logging table in database
- * 
- * @param string $sql = SQL Query
- * @param string $user = Active user
- * @param int $record_id = record ID, optional, if ID shall be logged
- * @return bool = operation successful or not
- */
-function zz_log_sql($sql, $user = '', $record_id = false) {
-	global $zz_conf;
-	if (!wrap_setting('zzform_logging')) return false;
-	$user = wrap_username($user);
-
-	$sql = trim($sql);
-	if ($sql === 'SELECT 1') return false;
-	// check if zzform() set db_main, test against !empty because need not be set
-	// (zz_log_sql() might be called from outside zzform())
-	$logging_table = wrap_sql_table('zzform_logging');
-	if (!strstr($logging_table, '.') AND !empty($zz_conf['int']['db_main'])) {
-		$logging_table = $zz_conf['int']['db_main'].'.'.$logging_table;
-	}
-	if (is_array($record_id)) $record_id = NULL;
-	if (wrap_setting('zzform_logging_id') AND $record_id) {
-		$sql = sprintf(
-			'INSERT INTO %s (query, user, record_id) VALUES (_binary "%s", "%s", %d)',
-			$logging_table, wrap_db_escape($sql), $user, $record_id
-		);
-	} else {
-		// without record_id, only for backwards compatibility
-		$sql = sprintf(
-			'INSERT INTO %s (query, user) VALUES (_binary "%s", "%s")',
-			$logging_table, wrap_db_escape($sql), $user
-		);
-	}
-	$result = mysqli_query(wrap_db_connection(), $sql);
-	if (!$result) return false;
-	else return true;
-	// die if logging is selected but does not work?
-}
 
 /**
  * checks if SQL queries use table prefixes and replace them with current
@@ -185,6 +146,55 @@ function zz_sql_count_rows($sql, $id_field = '') {
  * D - Database functions (MySQL-specific functions)
  * --------------------------------------------------------------------
  */
+
+/**
+ * @deprecated
+ *
+ */
+function zz_log_sql($sql, $user = '', $record_id = false) {
+	wrap_error('Please use `zz_db_log()` instead of `zz_log_sql()`', E_USER_DEPRECATED);
+	return zz_db_log($sql, $user, $record_id);
+}
+
+/** 
+ * Logs SQL operation in logging table in database
+ * 
+ * @param string $sql = SQL Query
+ * @param string $user = Active user
+ * @param int $record_id = record ID, optional, if ID shall be logged
+ * @return bool = operation successful or not
+ */
+function zz_db_log($sql, $user = '', $record_id = false) {
+	global $zz_conf;
+	if (!wrap_setting('zzform_logging')) return false;
+	$user = wrap_username($user);
+
+	$sql = trim($sql);
+	if ($sql === 'SELECT 1') return false;
+	// check if zzform() set db_main, test against !empty because need not be set
+	// (zz_db_log() might be called from outside zzform())
+	$logging_table = wrap_sql_table('zzform_logging');
+	if (!strstr($logging_table, '.') AND !empty($zz_conf['int']['db_main'])) {
+		$logging_table = $zz_conf['int']['db_main'].'.'.$logging_table;
+	}
+	if (is_array($record_id)) $record_id = NULL;
+	if (wrap_setting('zzform_logging_id') AND $record_id) {
+		$sql = sprintf(
+			'INSERT INTO %s (query, user, record_id) VALUES (_binary "%s", "%s", %d)',
+			$logging_table, wrap_db_escape($sql), $user, $record_id
+		);
+	} else {
+		// without record_id, only for backwards compatibility
+		$sql = sprintf(
+			'INSERT INTO %s (query, user) VALUES (_binary "%s", "%s")',
+			$logging_table, wrap_db_escape($sql), $user
+		);
+	}
+	$result = mysqli_query(wrap_db_connection(), $sql);
+	if (!$result) return false;
+	else return true;
+	// die if logging is selected but does not work?
+}
 
 /**
  * sets database name (globally) and checks if a database by that name exists
@@ -409,7 +419,7 @@ function zz_db_change($sql, $id = false) {
 	if ($result) {
 		if (in_array($statement, $no_rows_affected)) {
 			$db['action'] = strtolower($statement);
-			zz_log_sql($sql, '', $db['id_value']);
+			zz_db_log($sql, '', $db['id_value']);
 		} elseif (!mysqli_affected_rows(wrap_db_connection())) {
 			$db['action'] = 'nothing';
 		} else {
@@ -419,7 +429,7 @@ function zz_db_change($sql, $id = false) {
 				$db['id_value'] = mysqli_insert_id(wrap_db_connection());
 			// Logs SQL Query, must be after insert_id was checked
 			if ($db['rows'])
-				zz_log_sql($sql, '', $db['id_value']);
+				zz_db_log($sql, '', $db['id_value']);
 		}
 		$warnings = zz_db_fetch('SHOW WARNINGS', '_dummy_', 'numeric');
 		foreach ($warnings as $warning) {

@@ -67,7 +67,7 @@ function zz_revisions($ops, $zz_tab = [], $rev_only = false) {
 	);
 	$rev_id = wrap_db_query($sql);
 	if (empty($rev_id['id'])) return [];
-	zz_log_sql($sql, '', $rev_id['id']);
+	zz_db_log($sql, '', $rev_id['id']);
 
 	if ($status === 'live') {
 		$sql = 'UPDATE /*_PREFIX_*/_revisions
@@ -79,7 +79,7 @@ function zz_revisions($ops, $zz_tab = [], $rev_only = false) {
 			$ops['return'][0]['id_value'], $rev_id['id']
 		);
 		$rows = wrap_db_query($sql);
-		if ($rows) zz_log_sql($sql);
+		if ($rows) zz_db_log($sql);
 		$open_revisions = [];
 	} else {
 		$open_revisions = zz_revisions_open($ops['return'][0]['table'], $ops['return'][0]['id_value'], $rev_id['id']);
@@ -133,7 +133,7 @@ function zz_revisions_insert_data($data, $id, $open_revisions) {
 		$sql = vsprintf($sql_rev, $line);
 		$rev_data_id = wrap_db_query($sql);
 		if (empty($rev_data_id['id'])) continue;
-		zz_log_sql($sql, '', $rev_data_id['id']);
+		zz_db_log($sql, '', $rev_data_id['id']);
 	}
 }
 
@@ -342,7 +342,7 @@ function zz_revisions_historic_update($id_value) {
 	$sql = sprintf($sql, $id_value);
 	$result = wrap_db_query($sql, $id_value);
 	if (!$result) return;
-	zz_log_sql($sql, '', $id_value);
+	zz_db_log($sql, '', $id_value);
 }
 
 /**
@@ -422,6 +422,6 @@ function zz_revisions_ignore_data($id_value) {
 	$sql = sprintf($sql, $id_value);
 	$result = wrap_db_query($sql);
 	if (!$result) return false;
-	zz_log_sql($sql, '', $id_value);
+	zz_db_log($sql, '', $id_value);
 	return true;
 }
