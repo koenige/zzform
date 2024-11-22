@@ -32,9 +32,6 @@
  * @param array $zz_record = $zz['record']
  * @global array $zz_conf
  * @return array ($ops, $zz_tab, $validation)
- * @see zz_upload_get(), zz_upload_prepare(), zz_set_subrecord_action(),
- *		zz_validate(), zz_integrity_check(), zz_upload_cleanup(), 
- *		zz_prepare_for_db(), zz_log_sql(), zz_foldercheck(), zz_upload_action()
  */
 function zz_action($ops, $zz_tab, $validation, $zz_record) {
 	global $zz_conf;
