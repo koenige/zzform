@@ -141,6 +141,22 @@ function zz_sql_count_rows($sql, $id_field = '') {
 	return zz_return($lines);
 }
 
+/**
+ * replace LIKE asterisks with regular expressions
+ *
+ * @param string $query
+ * @return string
+ */
+function zz_sql_like_to_pcre($query) {
+	$query = str_replace('%d', '\d+', $query);
+	$query = str_replace('%s', '\w+', $query);
+	$query = str_replace('%', '.+', $query);
+	$query = str_replace('(', '\(', $query);
+	$query = str_replace(')', '\)', $query);
+	$pattern = sprintf('/%s/', $query);
+	return $pattern;
+}
+
 /*
  * --------------------------------------------------------------------
  * D - Database functions (MySQL-specific functions)
@@ -179,21 +195,107 @@ function zz_db_log($sql, $user = '', $record_id = false) {
 	}
 	if (is_array($record_id)) $record_id = NULL;
 	if (wrap_setting('zzform_logging_id') AND $record_id) {
-		$sql = sprintf(
+		$log_sql = sprintf(
 			'INSERT INTO %s (query, user, record_id) VALUES (_binary "%s", "%s", %d)',
 			$logging_table, wrap_db_escape($sql), $user, $record_id
 		);
 	} else {
 		// without record_id, only for backwards compatibility
-		$sql = sprintf(
+		$log_sql = sprintf(
 			'INSERT INTO %s (query, user) VALUES (_binary "%s", "%s")',
 			$logging_table, wrap_db_escape($sql), $user
 		);
 	}
-	$result = mysqli_query(wrap_db_connection(), $sql);
+	$result = mysqli_query(wrap_db_connection(), $log_sql);
 	if (!$result) return false;
-	else return true;
+	zz_db_log_hook_call($sql, $record_id);
+	return true;
 	// die if logging is selected but does not work?
+}
+
+/**
+ * check if query matches one of the queries in logging.sql
+ *
+ * @param string $sql
+ * @return array
+ */
+function zz_db_log_hook($sql) {
+	static $hook = [];
+	if (array_key_exists($sql, $hook))
+		return $hook[$sql];
+
+	$files = wrap_collect_files('configuration/logging.sql');
+	if (!$files) return [];
+	foreach ($files as $package => $file)
+		$queries[$package] = wrap_sql_file($file);
+	if (!$queries) return [];
+
+	$hook[$sql] = [];
+	foreach ($queries as $package => $package_queries) {
+		foreach ($package_queries as $index => $query) {
+			$pattern = zz_sql_like_to_pcre($query[0]);
+			if (!preg_match($pattern, $sql)) {
+				if ($error = preg_last_error())
+					wrap_error(sprintf(
+						'Unable to evaluate regular expression for logging hook %s (Error: %s)',
+						$pattern, $error
+					));
+				continue;
+			}
+			$files = wrap_include('zzform/logging', $package);
+			$hook[$sql]['logging'] = NULL;
+			$hook[$sql]['logging_values'] = $query[1];
+			foreach ($files['functions'] as $function) {
+				if ($function['short'] === 'logging')
+					$hook[$sql]['logging'] = $function['function'];
+			}
+		}
+	}
+	return $hook[$sql];
+}
+
+/**
+ * read values for log hook function once only
+ *
+ * @param string $sql
+ * @param int $record_id
+ * @param array $actions
+ * @return mixed
+ */
+function zz_db_log_hook_values($sql, $record_id, $actions = ['insert', 'update', 'delete']) {
+	static $values = [];
+	$sql = trim($sql);
+	if (array_key_exists($sql, $values)) return $values[$sql];
+
+	$statement = strtolower(wrap_sql_statement($sql));
+	if (!in_array($statement, $actions)) return [];
+
+	$values[$sql] = [];
+	$hook = zz_db_log_hook($sql);
+	if (!array_key_exists('logging_values', $hook)) return $values[$sql];
+
+	// $function, $field_query, $record_id
+	$vsql = sprintf($hook['logging_values'], $record_id);
+	$values[$sql] = wrap_db_fetch($vsql);
+	return $values[$sql];
+}
+
+/**
+ * call hook function for logging per query
+ *
+ * @param string $sql
+ * @param int $record_id
+ * @return mixed
+ */
+function zz_db_log_hook_call($sql, $record_id) {
+	$hook = zz_db_log_hook($sql);
+	if (!$hook) return false;
+
+	$log_id = mysqli_insert_id(wrap_db_connection());
+	$values = zz_db_log_hook_values($sql, $record_id);
+	if (!array_key_exists('logging', $hook)) return false;
+	
+	return $hook['logging']($sql, $log_id, $values);
 }
 
 /**
@@ -413,6 +515,9 @@ function zz_db_change($sql, $id = false) {
 		$db['id_value'] = -1; // @todo allow -2, -3
 		return $db;
 	}
+	
+	// get values for logging hook
+	zz_db_log_hook_values($sql, $db['id_value'], ['delete']);
 
 	// check
 	$result = mysqli_query(wrap_db_connection(), $sql);
