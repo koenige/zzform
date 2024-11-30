@@ -41,7 +41,7 @@ function zz_list($zz, $list, $ops, $zz_conditions) {
 	// zz_fill_out must be outside if show_list, because it is necessary for
 	// search results with no resulting records
 	// fill_out, but do not unset conditions
-	$zz['fields'] = zz_fill_out($zz['fields'], wrap_setting('db_name').'.'.$zz['table'], 1);
+	$zz['fields'] = zz_fill_out($zz['fields'], $zz['table'], 1);
 
 	// only if search is allowed and there is something
 	// if q modify $zz['sql']: add search query
@@ -393,7 +393,7 @@ function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $mode) {
 	foreach (array_keys($lines) as $index) {
 		if (empty($line_defs[$index])) continue;
 		if (wrap_setting('debug')) zz_debug('fill_out start');
-		$line_defs[$index] = zz_fill_out($line_defs[$index], wrap_setting('db_name').'.'.$table, 2);
+		$line_defs[$index] = zz_fill_out($line_defs[$index], $table, 2);
 		if (wrap_setting('debug')) zz_debug('fill_out end');
 		foreach ($line_defs[$index] as $fieldindex => $field) {
 			if (in_array($fieldindex, array_keys($old_to_new_index))) {

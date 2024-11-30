@@ -855,7 +855,7 @@ function zz_write_onces(&$zz) {
  * Fills field definitions with default definitions and infos from database
  * 
  * @param array $fields
- * @param string $db_table [i. e. db_name.table]
+ * @param string $db_table [i. e. db_name.table or just table]
  * @param bool $multiple_times marker for conditions
  * @param string $mode (optional, $ops['mode'])
  * @param string $action (optional, $zz['record']['action'])
@@ -866,6 +866,8 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 	if (wrap_setting('debug')) {
 		zz_debug('start', __FUNCTION__.$multiple_times);
 	}
+	if (!strstr($db_table, '.'))
+		$db_table = sprintf('%s.%s', wrap_setting('db_name'), $db_table);
 	static $defs = [];
 	$hash = md5(serialize($fields).$db_table.$multiple_times.$mode.$subtable_no);
 	if (!empty($defs[$hash])) return zz_return($defs[$hash]);
