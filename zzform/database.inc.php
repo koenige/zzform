@@ -262,12 +262,12 @@ function zz_db_log_hook($sql) {
  * @param array $actions
  * @return mixed
  */
-function zz_db_log_hook_values($sql, $record_id, $actions = ['insert', 'update', 'delete']) {
+function zz_db_log_hook_values($sql, $record_id, $actions = ['INSERT INTO', 'UPDATE', 'DELETE FROM']) {
 	static $values = [];
 	$sql = trim($sql);
 	if (array_key_exists($sql, $values)) return $values[$sql];
 
-	$statement = strtolower(wrap_sql_statement($sql));
+	$statement = wrap_sql_statement($sql);
 	if (!in_array($statement, $actions)) return [];
 
 	$values[$sql] = [];
@@ -433,6 +433,8 @@ function zz_db_change($sql, $id = false) {
 	if ($sql === 'SELECT 1') return $db;
 	
 	$statement = wrap_sql_statement($sql);
+	if (in_array($statement, ['INSERT INTO', 'DELETE FROM']))
+		$statement = substr($statement, 0, strpos($statement, ' '));
 	// check if statement is allowed
 	$allowed_statements = [
 		'INSERT', 'DELETE', 'UPDATE', 'CREATE TABLE', 'ALTER TABLE',
@@ -453,13 +455,13 @@ function zz_db_change($sql, $id = false) {
 
 	// revisions only
 	if (!empty($zz_conf['int']['revisions_only'])) {
-		$db['action'] = $statement;
+		$db['action'] = strtolower($statement);
 		$db['id_value'] = -1; // @todo allow -2, -3
 		return $db;
 	}
 	
 	// get values for logging hook
-	zz_db_log_hook_values($sql, $db['id_value'], ['delete']);
+	zz_db_log_hook_values($sql, $db['id_value'], ['DELETE FROM']);
 
 	// check
 	$result = mysqli_query(wrap_db_connection(), $sql);
@@ -508,13 +510,13 @@ function zz_db_change($sql, $id = false) {
  * @param string $db_name (optional, use if db_name is not part of $table)
  * @return array
  */
-function zz_db_table($table, $db_name = false) {
+function zz_db_table($table, $db_name = NULL) {
 	if (strstr($table, '.')) {
 		$table = explode('.', $table);
 		$my['db_name'] = $table[0];
 		$my['table'] = $table[1];
 	} else {
-		$my['db_name'] = $db_name ? $db_name : wrap_setting('db_name');
+		$my['db_name'] = $db_name ?? wrap_setting('db_name');
 		$my['table'] = $table;
 	}
 	return $my;	
