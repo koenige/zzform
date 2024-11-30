@@ -217,7 +217,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 		if ($zz_tab[$tab][$rec]['action'] === 'ignore') continue;
 		
 		// get database name for query
-		$me_db = false;
+		$me_db = '';
 		if ($zz_conf['int']['db_main']) {
 			// the 'main' zzform() database is different from the database for 
 			// the main record, so check against db_main
