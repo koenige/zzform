@@ -26,9 +26,8 @@ function zz_prepare_tables($zz, $mode) {
 
 	$zz_tab = [];
 	// ### variables for main table will be saved in zz_tab[0]
-	$zz_tab[0]['db_name'] = wrap_setting('db_name');
-	$zz_tab[0]['table'] = $zz['table'];
-	$zz_tab[0]['table_name'] = $zz['table'];
+	$zz_tab[0] = zz_db_table($zz['table']); // get db_name + table
+	$zz_tab[0]['table_name'] = $zz_tab[0]['table'];
 	$zz_tab[0]['sql'] = $zz['sqlrecord'];
 	$zz_tab[0]['sql_without_where'] = $zz['sql_without_where'];
 	$zz_tab[0]['sqlextra'] = $zz['sqlextra'];

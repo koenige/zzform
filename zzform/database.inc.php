@@ -181,17 +181,21 @@ function zz_log_sql($sql, $user = '', $record_id = false) {
  * @return bool = operation successful or not
  */
 function zz_db_log($sql, $user = '', $record_id = false) {
-	global $zz_conf;
 	if (!wrap_setting('zzform_logging')) return false;
 	$user = wrap_username($user);
 
 	$sql = trim($sql);
 	if ($sql === 'SELECT 1') return false;
-	// check if zzform() set db_main, test against !empty because need not be set
-	// (zz_db_log() might be called from outside zzform())
+
 	$logging_table = wrap_sql_table('zzform_logging');
-	if (!strstr($logging_table, '.') AND !empty($zz_conf['int']['db_main'])) {
-		$logging_table = $zz_conf['int']['db_main'].'.'.$logging_table;
+	if (!strstr($logging_table, '.')) {
+		// check if table has . in it
+		$statement = wrap_sql_statement($sql);
+		$check_sql = trim(substr($sql, strlen($statement)));
+		$check_sql = explode(' ', $check_sql);
+		$db_table = zz_db_table($check_sql[0]);
+		if ($db_table['db_name'] !== wrap_setting('db_name'))
+			$logging_table = $db_table['db_name'].'.'.$logging_table;
 	}
 	if (is_array($record_id)) $record_id = NULL;
 	if (wrap_setting('zzform_logging_id') AND $record_id) {
@@ -296,40 +300,6 @@ function zz_db_log_hook_call($sql, $record_id) {
 	if (!array_key_exists('logging', $hook)) return false;
 	
 	return $hook['logging']($sql, $log_id, $values);
-}
-
-/**
- * sets database name (globally) and checks if a database by that name exists
- * in case database name is glued to table name, returns table name without db
- *
- * @param string $table table name, might include database name
- * @global array $zz_conf - 'db_name' might be changed or set
- * @return string $table - name of main table
- */
-function zz_db_connection($table) {
-	global $zz_conf;
-
-	// get current db to SELECT it again before exiting
-	$zz_conf['int']['db_current'] = wrap_setting('db_name');
-	
-	// main database normally is the same db that zzform() uses for its
-	// operations, but if you use several databases, this is the one which
-	// is the main db, i. e. the one that will be used if no other database
-	// name is specified
-	$zz_conf['int']['db_main'] = false;
-
-	// foreign db: put it in zz['table']
-	if (preg_match('~(.+)\.(.+)~', $table, $db_name)) { // db_name is already in zz['table']
-		if (wrap_setting('db_name') !== $db_name[1]) {
-			// this database is different from main database, so save it here
-			// for later
-			$zz_conf['int']['db_main'] = wrap_setting('db_name');
-			wrap_setting('db_name', $db_name[1]);
-		}
-		$table = $db_name[2];
-	}
-
-	return $table;
 }
 
 /**
@@ -513,11 +483,11 @@ function zz_db_change($sql, $id = false) {
 function zz_db_table($table, $db_name = NULL) {
 	if (strstr($table, '.')) {
 		$table = explode('.', $table);
-		$my['db_name'] = $table[0];
-		$my['table'] = $table[1];
+		$my['db_name'] = trim($table[0], '`');
+		$my['table'] = trim($table[1], '`');
 	} else {
 		$my['db_name'] = $db_name ?? wrap_setting('db_name');
-		$my['table'] = $table;
+		$my['table'] = trim($table, '`');
 	}
 	return $my;	
 }
@@ -834,16 +804,6 @@ function zz_db_decimal_places($db_table, $field) {
 		if (count($length) === 2) return $length[1];
 	}
 	return false;
-}
-
-/**
- * select a MySQL database
- *
- * @param string $db_name
- * @return bool
- */
-function zz_db_select($db_name) {
-	return mysqli_select_db(wrap_db_connection(), $db_name);
 }
 
 /**

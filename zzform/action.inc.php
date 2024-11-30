@@ -218,17 +218,8 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 		
 		// get database name for query
 		$me_db = '';
-		if ($zz_conf['int']['db_main']) {
-			// the 'main' zzform() database is different from the database for 
-			// the main record, so check against db_main
-			if ($zz_tab[$tab]['db_name'] !== $zz_conf['int']['db_main']) 
-				$me_db = $zz_tab[$tab]['db_name'].'.';
-		} else {
-			// the 'main' zzform() database is equal to the database for the 
-			// main record, so check against db_name
-			if ($zz_tab[$tab]['db_name'] !== wrap_setting('db_name')) 
-				$me_db = $zz_tab[$tab]['db_name'].'.';
-		}
+		if ($zz_tab[$tab]['db_name'] !== wrap_setting('db_name')) 
+			$me_db = $zz_tab[$tab]['db_name'].'.';
 		$me_sql = false;
 		
 	//	### Do nothing with the record, here: main record ###
@@ -349,17 +340,8 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 	if (isset($dependent_ids)) {
 		foreach ($dependent_ids as $db_name => $tables) {
 			$me_db = '';
-			if ($zz_conf['int']['db_main']) {
-				// the 'main' zzform() database is different from the database for 
-				// the main record, so check against db_main
-				if ($db_name !== $zz_conf['int']['db_main']) 
-					$me_db = '`'.$db_name.'`.';
-			} else {
-				// the 'main' zzform() database is equal to the database for the 
-				// main record, so check against db_name
-				if ($db_name !== wrap_setting('db_name')) 
-					$me_db = '`'.$db_name.'`.';
-			}
+			if ($db_name !== wrap_setting('db_name')) 
+				$me_db = '`'.$db_name.'`.';
 			foreach ($tables as $table => $fields) {
 				$id_field = key($fields);
 				$ids = array_shift($fields);

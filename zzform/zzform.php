@@ -131,8 +131,6 @@ function zzform($zz) {
 //
 //	Database connection, set db_name
 //
-	$zz['table'] = zz_db_connection($zz['table']);
-	if (!wrap_setting('db_name')) return zzform_exit($ops); // exits script
 	$zz = zz_sql_prefix($zz);
 	if (wrap_setting('debug')) zz_debug('database connection ok');
 	if (!$zz['sqlrecord']) $zz['sqlrecord'] = $zz['sql'];
@@ -484,9 +482,6 @@ function zzform_exit($ops) {
 		$ops['error_mail'] = $zz_conf['int']['error'];
 	if (!empty($zz_conf['int']['ops_error_msg']))
 		$ops['error'] = array_merge($ops['error'], $zz_conf['int']['ops_error_msg']);
-
-	// return to old database
-	if (!empty($zz_conf['int']['db_current'])) zz_db_select($zz_conf['int']['db_current']);
 
 	// reset changed settings in $zz['setting']
 	zzform_setting($ops['old_settings'] ?? []);
