@@ -310,83 +310,25 @@ function zz_db_connection($table) {
 	global $zz_conf;
 
 	// get current db to SELECT it again before exiting
-	// might be that there was no database connection established so far
-	// therefore the @, but it does not matter because we simply want to
-	// revert to the current database after exiting this script
-	$result = @mysqli_query(wrap_db_connection(), 'SELECT DATABASE()');
-	if ($result) {
-		mysqli_data_seek($result, 0);
-		$line = mysqli_fetch_row($result);
-		$zz_conf['int']['db_current'] = reset($line);
-	} else {
-		$zz_conf['int']['db_current'] = '';
-	}
+	$zz_conf['int']['db_current'] = wrap_setting('db_name');
+	
 	// main database normally is the same db that zzform() uses for its
 	// operations, but if you use several databases, this is the one which
 	// is the main db, i. e. the one that will be used if no other database
 	// name is specified
 	$zz_conf['int']['db_main'] = false;
 
-	// get db_name.
-	// 1. best way: put it in setting `db_name`
-	if (wrap_setting('db_name')) {
-		$db = zz_db_select(wrap_setting('db_name'));
-		if (!$db) {
-			zz_error_log([
-				'db_msg' => mysqli_error(wrap_db_connection()),
-				'query' => 'SELECT DATABASE("'.wrap_setting('db_name').'")',
-				'level' => E_USER_ERROR
-			]);
-			wrap_setting('db_name', '');
-			return false;
-		}
-	// 2. alternative: use current database
-	} else {
-		$result = mysqli_query(wrap_db_connection(), 'SELECT DATABASE()');
-		if (mysqli_error(wrap_db_connection())) {
-			zz_error_log([
-				'db_msg' => mysqli_error(wrap_db_connection()),
-				'query' => 'SELECT DATABASE()',
-				'level' => E_USER_ERROR
-			]);
-			return false;
-		}
-		mysqli_data_seek($result, 0);
-		$line = mysqli_fetch_row($result);
-		wrap_setting('db_name', reset($line));
-	}
-
-	// 3. alternative plus foreign db: put it in zz['table']
+	// foreign db: put it in zz['table']
 	if (preg_match('~(.+)\.(.+)~', $table, $db_name)) { // db_name is already in zz['table']
-		if (wrap_setting('db_name') AND wrap_setting('db_name') !== $db_name[1]) {
+		if (wrap_setting('db_name') !== $db_name[1]) {
 			// this database is different from main database, so save it here
 			// for later
 			$zz_conf['int']['db_main'] = wrap_setting('db_name');
-		} elseif (!wrap_setting('db_name')) { 
-			// no database selected, get one, quick!
-			$dbname = zz_db_select($db_name[1]);
-			if (!$dbname) {
-				zz_error_log([
-					'db_msg' => mysqli_error(wrap_db_connection()),
-					'query' => 'SELECT DATABASE("'.$db_name[1].'")',
-					'level' => E_USER_ERROR
-				]);
-				wrap_setting('db_name', '');
-				return false;
-			}
+			wrap_setting('db_name', $db_name[1]);
 		}
-		wrap_setting('db_name', $db_name[1]);
 		$table = $db_name[2];
 	}
 
-	if (!wrap_setting('db_name')) {
-		zz_error_log([
-			'msg_dev' => 'Please set the setting <code>db_name</code>.'
-				.' It has to be set to the main database name used for zzform.',
-			'level' => E_USER_ERROR
-		]);
-		return false;
-	}
 	return $table;
 }
 
