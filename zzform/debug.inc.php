@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2010, 2014, 2016-2017, 2022-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2010, 2014, 2016-2017, 2022-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -97,32 +97,10 @@ function zz_debug($marker = false, $text = false, $id = false) {
  * @todo use wrap_template()
  */
 function zz_debug_htmlout($data) {
-	$output = '<h1>'.wrap_text('Debug Information').'</h1>';
-	$output .= '<table class="data debugtable"><thead>'."\n".'<tr><th>'
-		.wrap_text('Time').'</th><th>'
-		.wrap_text('Mem').'</th><th>'.wrap_text('Function').'</th><th>'
-		.wrap_text('Marker').'</th><th>'.wrap_text('SQL').'</th></tr>'."\n"
-		.'</thead><tbody>';
-	$i = 0;
-	foreach ($data as $row) {
-		$output .= '<tr class="'.($i & 1 ? 'even': 'uneven').'">';
-		foreach ($row as $key => $val) {
-			if ($key === 'time') {
-				$val = '<dl><dt>'.$val.'</dt>';
-			} elseif ($key === 'time_used') {
-				$val = '<span class="'.wrap_error_sql_class($val).'">'.$val.'</span>';
-				$val = '<dd>'.$val.'</dd></dl>';
-			}
-			if ($key !== 'time_used') $output .= '<td>';
-			$output .= $val;
-			if ($key !== 'time') $output .= '</td>';
-		}
-		$output .= '</tr>'."\n";
-		$i++;
-	}
-	$output .= '</tbody></table>'."\n";
-	$output .= wrap_text('Memory peak usage').': '.memory_get_peak_usage();
-	return $output;
+	foreach ($data as $index => $row)
+		$data[$index]['class'] = wrap_error_sql_class($row['time_used']);
+	$data['memory_peak_usage'] = memory_get_peak_usage();
+	return wrap_template('debug', $data);
 }
 
 /**

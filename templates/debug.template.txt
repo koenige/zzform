@@ -1,0 +1,37 @@
+# zzform module
+# Template for debug data
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/projects/zzform
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2024 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+<h1>%%% text Debug Information %%%</h1>
+
+<table class="data debugtable">
+<thead>
+<tr>
+	<th>%%% text Time %%%</th>
+	<th>%%% text Mem %%%</th>
+	<th>%%% text Function %%%</th>
+	<th>%%% text Marker %%%</th>
+	<th>%%% text SQL %%%</th>
+</tr>
+</thead>
+<tbody>
+%%% loop start %%%
+<tr class="%%% loopposition uneven "un" %%%even">
+	<td><dl><dt>%%% item time %%%</dt><dd><span class="%%% item class %%%">%%% item time_used %%%</span></dd></dl></td>
+	<td>%%% item memory %%%</td>
+	<td>%%% item function %%%</td>
+	<td>%%% item marker %%%</td>
+	<td>%%% item sql %%%</td>
+</tr>
+%%% loop end %%%
+%%% item text %%%
+</tbody>
+</table>
+
+<p>%%% text Memory peak usage %%%: %%% item memory_peak_usage %%%</p>
