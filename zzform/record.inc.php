@@ -1175,7 +1175,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 
 			case 'image':
 			case 'upload_image':
-				$outputf = zz_field_image($field, $field_display, $my_rec['record'], 
+				$outputf = zz_field_file($field, $field_display, $my_rec['record'], 
 					$my_rec['record_saved'], $my_rec['images'], $mode, $fieldkey);
 				zz_error();
 				$outputf .= zz_error_output();
@@ -1285,8 +1285,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 		}
 	}
 	if ($formdisplay === 'inline') return $matrix;
-	$matrix = zz_record_sort_matrix($matrix);
-	$output = zz_output_field_rows($matrix, $formdisplay, $extra_lastcol, $tab);
+	$output = zz_record_fields($matrix, $formdisplay, $extra_lastcol, $tab);
 	// append_next_type is only valid for single table
 	$zz_conf['int']['append_next_type'] = $old_append_next_type;
 	$zz_conf['int']['add_details_where'] = $old_add_details_where;
@@ -1451,7 +1450,7 @@ function zz_record_field_focus($name, $type) {
  * @param int $tab
  * @return string HTML output
  */
-function zz_output_field_rows($matrix, $formdisplay, $extra_lastcol, $tab) {
+function zz_record_fields($matrix, $formdisplay, $extra_lastcol, $tab) {
 	global $zz_conf;
 	static $table_head = [];
 	static $table_separator = [];
@@ -1472,6 +1471,7 @@ function zz_output_field_rows($matrix, $formdisplay, $extra_lastcol, $tab) {
 		'separator' => false
 	];
 	$i = 0;
+	$matrix = zz_record_sort_matrix($matrix);
 	foreach ($matrix as $index => $row) {
 		if (!is_numeric($index)) continue;
 		if ($row['th']['content'] AND $row['th']['show']) $data['th_content'] = true;
@@ -3854,24 +3854,24 @@ function zz_field_select_ignore($line, $field, $type) {
  * @param int $fieldkey
  * @return string
  */
-function zz_field_image($field, $display, $record, $record_saved, $images, $mode, $fieldkey) {				
-	$text = '';
+function zz_field_file($field, $display, $record, $record_saved, $images, $mode, $fieldkey) {				
+	$data = [];
 
 	if (($mode !== 'add' OR $field['type'] !== 'upload_image')
 		AND (empty($field['dont_show_image'])) || !$field['dont_show_image']) {
-		$img = false;
+		$data['image'] = false;
 		if (isset($field['path']))
-			$text = $img = zz_makelink($field['path'], $record, 'image');
-		if (!$img AND !empty($record_saved)) {
-			$text = $img = zz_makelink($field['path'], $record_saved, 'image');
+			$data['image'] = zz_makelink($field['path'], $record, 'image');
+		if (!$data['image'] AND !empty($record_saved)) {
+			$data['image'] = zz_makelink($field['path'], $record_saved, 'image');
 		}
-		if (!$img AND (!isset($field['dont_show_missing']) OR !$field['dont_show_missing'])) {
+		if (!$data['image'] AND (!isset($field['dont_show_missing']) OR !$field['dont_show_missing'])) {
 			if (!isset($field['dont_show_missing_img']) OR !$field['dont_show_missing_img']) {
-				$text = '('.wrap_text('No image').')';
+				$data['no_image'] = true;
 			}
 		}
-		if ($text) $text = '<p class="preview">'.$text.'</p>';
 	}
+	$text = wrap_template('zzform-record-field-file', $data);
 	if (in_array($mode, ['add', 'edit', 'revise']) && $field['type'] === 'upload_image') {
 		if (!isset($field['image'])) {
 			zz_error_log([

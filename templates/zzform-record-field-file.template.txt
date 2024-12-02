@@ -1,0 +1,15 @@
+# zzform module
+# Template for field of type file
+#
+# https://www.zugzwang.org/projects/zzform
+# Part of »Zugzwang Project«
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2024 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+%%% condition if image %%%
+<p class="preview">%%% item image %%%</p>
+%%% condition elseif no_image %%%
+<p class="preview">(%%% text No image %%%)</p>
+%%% condition endif %%%
