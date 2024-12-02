@@ -1,0 +1,32 @@
+# zzform module
+# Template for fields of record (tbody)
+#
+# https://www.zugzwang.org/projects/zzform
+# Part of »Zugzwang Project«
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2024 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+%%% switch form_display %%%
+%%% case lines %%%
+<div%%% condition if error %%% class="error" %%% condition endif %%%>
+%%% loop start %%%
+%%% condition if td_content %%%
+<span%%% item tr_class %%%>
+	<span%%% item td_class %%% title="%%% item th_content strip_tags %%%">%%% item td_content %%%</span>
+</span>
+%%% condition endif %%%
+%%% loop end %%%
+%%% item extra_last_column %%%
+</div>
+
+%%% case vertical %%%
+%%% loop start %%%
+%%% loop end %%%
+
+%%% case horizontal %%%
+%%% loop start %%%
+%%% loop end %%%
+
+%%% switch - %%%

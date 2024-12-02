@@ -1456,52 +1456,57 @@ function zz_output_field_rows($matrix, $formdisplay, $extra_lastcol, $tab) {
 	static $table_head = [];
 	if (!$matrix) return ''; // detail record was deleted: no matrix
 	if (!array_key_exists($tab, $table_head)) $table_head[$tab] = false;
-	$output = '';
-	
-	$th_content = false;
+
+	$matrix['form_display'] = $formdisplay;
+	$matrix['th_content'] = false;
+	$matrix['extra_last_column'] = $extra_lastcol !== '&nbsp;' ? $extra_lastcol : false;
+	$matrix['dummy_last_column'] = $extra_lastcol === '&nbsp;' ? true : false;
+	$matrix['error'] = false;
+
 	$last_row = [
 		'separator_before' => false,
 		'separator' => false
 	];
 	foreach ($matrix as $index => $row) {
-		if ($row['th']['content'] AND $row['th']['show']) $th_content = true;
+		if (!is_numeric($index)) continue;
+		if ($row['th']['content'] AND $row['th']['show']) $matrix['th_content'] = true;
+		// remove duplicate separators
 		if ($row['separator_before'] AND $last_row['separator'] === $row['separator_before'])
 			unset($matrix[$index]['separator_before']);
 		$last_row = $row;
+		foreach ($row['tr']['attr'] as $attr)
+			if (strstr($attr, 'error')) $matrix['error'] = true;
+		$matrix[$index]['tr_class'] = zz_show_class($row['tr']['attr']);
+		$matrix[$index]['th_class'] = zz_show_class($row['th']['attr']);
+		$matrix[$index]['th+tr_class'] = zz_show_class(array_merge($row['th']['attr'], $row['tr']['attr']));
+		$matrix[$index]['td_class'] = zz_show_class($row['td']['attr']);
+		$matrix[$index]['td+tr_class'] = zz_show_class(array_merge($row['td']['attr'], $row['tr']['attr']));
+		$matrix[$index]['td_content'] = $row['td']['content'];
+		$matrix[$index]['th_content'] = $row['th']['content'];
 	}
-	if (!$tab AND !$th_content) $zz_conf['int']['hide_tfoot_th'] = true;
+	if (!$tab AND !$matrix['th_content']) $zz_conf['int']['hide_tfoot_th'] = true;
+
+	$output = '';
+
 	switch ($formdisplay) {
 	case 'lines':
-		$error = false;
-		foreach ($matrix as $index => $row) {
-			foreach ($row['tr']['attr'] as $attr)
-				if (strstr($attr, 'error')) $error = true;
-			if (!$row['td']['content']) continue;
-			$output .= '<span'.zz_show_class($row['tr']['attr']).'>';
-			$output .=	"\t".'<span'.zz_show_class($row['td']['attr'])
-				.' title="'.strip_tags($row['th']['content']).'">'
-				.$row['td']['content'].'</span>'."\n";
-			$output .= '</span>'."\n";
-		}
-		if ($extra_lastcol AND $extra_lastcol !== '&nbsp;')
-			$output .= ' '.$extra_lastcol;
-		$output = '<div'.($error ? ' class="error"' : '').'>'.$output.'</div>'."\n"; // div important for JS!
-		break;
+		return wrap_template('zzform-record-fields', $matrix);
 	case 'vertical':
 		$last_row = [];
 		foreach ($matrix as $index => $row) {
+			if (!is_numeric($index)) continue;
 			if (!empty($last_row['tr']['attr'][0]) AND strstr($last_row['tr']['attr'][0], 'idrow hidden')) $index--;
 			if (!empty($row['separator_before']))
 				$output .= zz_show_separator($row['separator_before'], $index);
-			$output .= '<tr'.zz_show_class($row['tr']['attr']).'>';
-			if ($row['th']['show'] AND $th_content) {
-				$output .= '<th'.zz_show_class($row['th']['attr']).'>'
-					.$row['th']['content'].'</th>'."\n";
+			$output .= '<tr'.$row['tr_class'].'>';
+			if ($row['th']['show'] AND $matrix['th_content']) {
+				$output .= '<th'.$row['th_class'].'>'
+					.$row['th_content'].'</th>'."\n";
 			}
 			$output .=	"\t".'<td'
 				.(!empty($row['td']['id']) ? sprintf(' id="%s"', zz_make_id_fieldname($row['td']['id'])) : '')
-				.zz_show_class($row['td']['attr']).'>'
-				.$row['td']['content'].'</td></tr>'."\n";
+				.$row['td_class'].'>'
+				.$row['td_content'].'</td></tr>'."\n";
 			if ($row['separator'])
 				$output .= zz_show_separator($row['separator'], $index);
 			$last_row = $row;
@@ -1514,24 +1519,23 @@ function zz_output_field_rows($matrix, $formdisplay, $extra_lastcol, $tab) {
 			// just first detail record with values: show head
 			$output .= '<tr>'."\n";
 			foreach ($matrix as $row) { 
-				$output .= '<th'.zz_show_class(array_merge($row['th']['attr'], $row['tr']['attr']))
-					.'>'.$row['th']['content'].'</th>'."\n";
+				$output .= '<th'.$row['th+tr_class']
+					.'>'.$row['th_content'].'</th>'."\n";
 			}
-			if ($extra_lastcol) $output .= '<th class="dummy_column">&nbsp;</th>';
+			if ($matrix['extra_last_column'] OR $matrix['dummy_last_column'])
+				$output .= '<th class="dummy_column">&nbsp;</th>';
 			$output .= '</tr>'."\n";
 			$table_head[$tab] = true;
 		}
 		$output .= '<tr>';
-		foreach ($matrix as $row) {
-			$output .= '<td'.zz_show_class(array_merge($row['td']['attr'], $row['tr']['attr']))
-				.'>'.$row['td']['content'].'</td>'."\n";
+		foreach ($matrix as $index => $row) {
+			if (!is_numeric($index)) continue;
+			$output .= '<td'.$row['td+tr_class'].'>'.$row['td_content'].'</td>'."\n";
 		}
-		if ($extra_lastcol) {
-			if ($extra_lastcol === '&nbsp;')
-				$output .= '<td class="dummy_column">'.$extra_lastcol.'</td>';			
-			else
-				$output .= '<td>'.$extra_lastcol.'</td>';
-		}
+		if ($matrix['dummy_last_column'])
+			$output .= '<td class="dummy_column">&nbsp;</td>';			
+		elseif ($matrix['extra_last_column'])
+			$output .= '<td>'.$matrix['extra_last_column'].'</td>';
 		$output .= '</tr>'."\n";
 		if ($row['separator'])
 			$output .= zz_show_separator($row['separator'], 1, count($matrix));
