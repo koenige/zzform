@@ -13,8 +13,8 @@
 <div%%% condition if error %%% class="error" %%% condition endif %%%>
 %%% loop start %%%
 %%% condition if td_content %%%
-<span%%% item tr_class %%%>
-	<span%%% item td_class %%% title="%%% item th_content strip_tags %%%">%%% item td_content %%%</span>
+<span%%% item tr_class " class='%s'" %%%>
+	<span%%% item td_class " class='%s'" %%% title="%%% item th_content strip_tags %%%">%%% item td_content %%%</span>
 </span>
 %%% condition endif %%%
 %%% loop end %%%
@@ -23,10 +23,55 @@
 
 %%% case vertical %%%
 %%% loop start %%%
+%%% condition if separator_text %%%
+<tr class="separator_row"><td colspan="2" class="separator">
+%%% condition if separator_hr %%%<hr>%%% condition endif %%%
+%%% item separator_text %%%</td></tr>
+%%% condition elseif separator_hr %%%
+<tr class="separator_row"><td colspan="2" class="separator"><hr></td></tr>
+%%% condition elseif separator_column_begin %%%
+<tr class="separator_row"><td><table><tbody>
+%%% condition elseif separator_column %%%
+</tbody></table>
+</td>
+<td class="left_separator"><table><tbody>
+%%% condition elseif separator_column_end %%%
+</tbody></table>
+</td></tr>
+%%% condition else %%%
+<tr%%% item tr_class " class='%s'" %%%>
+%%% condition if th_content %%%
+<th%%% item th_class " class='%s'" %%%>%%% item th_content %%%</th>
+%%% condition endif %%%
+	<td%%% item td_id " id='%s'"%%%%%% item td_class " class='%s'" %%%>%%% item td_content %%%</td>
+</tr>
+%%% condition endif %%%
 %%% loop end %%%
 
 %%% case horizontal %%%
+%%% condition if separator_before %%%
+<tr class="separator_row"><td colspan="%%% item separator_colspan_horizontal %%%" class="separator"><hr></td></tr>
+%%% condition endif %%%
+%%% condition if head %%%
+<tr>
 %%% loop start %%%
+<th%%% item th+tr_class " class='%s'" %%%>%%% item th_content %%%</th>
 %%% loop end %%%
+%%% condition if dummy_last_column | extra_last_column %%%
+<th class="dummy_column">&nbsp;</th>
+%%% condition endif %%%
+</tr>
+%%% condition endif %%%
+<tr>
+%%% loop start %%%
+	<td%%% item td+tr_class " class='%s'" %%%>%%% item td_content %%%</td>
+%%% loop end %%%
+%%% condition if dummy_last_column %%%<td class="dummy_column">&nbsp;</td>%%% condition endif %%%
+%%% condition if extra_last_column %%%<td>%%% item extra_last_column %%%</td>%%% condition endif %%%
+</tr>
+%%% condition endif %%%
+%%% condition if separator %%%
+<tr class="separator_row"><td colspan="%%% item separator_colspan_horizontal %%%" class="separator"><hr></td></tr>
+%%% condition endif %%%
 
 %%% switch - %%%

@@ -1454,94 +1454,78 @@ function zz_record_field_focus($name, $type) {
 function zz_output_field_rows($matrix, $formdisplay, $extra_lastcol, $tab) {
 	global $zz_conf;
 	static $table_head = [];
+	static $table_separator = [];
 	if (!$matrix) return ''; // detail record was deleted: no matrix
-	if (!array_key_exists($tab, $table_head)) $table_head[$tab] = false;
+	if (!array_key_exists($tab, $table_head)) $table_head[$tab] = true;
 
-	$matrix['form_display'] = $formdisplay;
-	$matrix['th_content'] = false;
-	$matrix['extra_last_column'] = $extra_lastcol !== '&nbsp;' ? $extra_lastcol : false;
-	$matrix['dummy_last_column'] = $extra_lastcol === '&nbsp;' ? true : false;
-	$matrix['error'] = false;
+	$data['separator_colspan_horizontal'] = count($matrix);
+	$data['form_display'] = $formdisplay;
+	$data['th_content'] = false;
+	$data['extra_last_column'] = $extra_lastcol !== '&nbsp;' ? $extra_lastcol : false;
+	$data['dummy_last_column'] = $extra_lastcol === '&nbsp;' ? true : false;
+	$data['error'] = false;
+	$data['head'] = $table_head[$tab]; // just first detail record with values: show head
+	$table_head[$tab] = false;
 
 	$last_row = [
 		'separator_before' => false,
 		'separator' => false
 	];
+	$i = 0;
 	foreach ($matrix as $index => $row) {
 		if (!is_numeric($index)) continue;
-		if ($row['th']['content'] AND $row['th']['show']) $matrix['th_content'] = true;
-		// remove duplicate separators
-		if ($row['separator_before'] AND $last_row['separator'] === $row['separator_before'])
-			unset($matrix[$index]['separator_before']);
+		if ($row['th']['content'] AND $row['th']['show']) $data['th_content'] = true;
+		// add separator_before to matrix
+		if ($row['separator_before'] AND $last_row['separator'] !== $row['separator_before']) {
+			$separator = zz_record_separator($row['separator_before']);
+			if (!$index OR (!empty($last_row['tr']['attr'][0]) AND strstr($last_row['tr']['attr'][0], 'idrow') AND $index === 1))
+				$separator['separator_hr'] = false;
+			switch ($data['form_display']) {
+				case 'vertical':
+					$data[$i] = $separator;
+					$i++;
+					break;
+				case 'horizontal':
+					if ($index !== 0) break;
+					if (!empty($table_separator[$tab])) break;
+					$data['separator_before'] = true;
+					break;
+			}
+		}
 		$last_row = $row;
 		foreach ($row['tr']['attr'] as $attr)
-			if (strstr($attr, 'error')) $matrix['error'] = true;
-		$matrix[$index]['tr_class'] = zz_show_class($row['tr']['attr']);
-		$matrix[$index]['th_class'] = zz_show_class($row['th']['attr']);
-		$matrix[$index]['th+tr_class'] = zz_show_class(array_merge($row['th']['attr'], $row['tr']['attr']));
-		$matrix[$index]['td_class'] = zz_show_class($row['td']['attr']);
-		$matrix[$index]['td+tr_class'] = zz_show_class(array_merge($row['td']['attr'], $row['tr']['attr']));
-		$matrix[$index]['td_content'] = $row['td']['content'];
-		$matrix[$index]['th_content'] = $row['th']['content'];
-	}
-	if (!$tab AND !$matrix['th_content']) $zz_conf['int']['hide_tfoot_th'] = true;
-
-	$output = '';
-
-	switch ($formdisplay) {
-	case 'lines':
-		return wrap_template('zzform-record-fields', $matrix);
-	case 'vertical':
-		$last_row = [];
-		foreach ($matrix as $index => $row) {
-			if (!is_numeric($index)) continue;
-			if (!empty($last_row['tr']['attr'][0]) AND strstr($last_row['tr']['attr'][0], 'idrow hidden')) $index--;
-			if (!empty($row['separator_before']))
-				$output .= zz_show_separator($row['separator_before'], $index);
-			$output .= '<tr'.$row['tr_class'].'>';
-			if ($row['th']['show'] AND $matrix['th_content']) {
-				$output .= '<th'.$row['th_class'].'>'
-					.$row['th_content'].'</th>'."\n";
+			if (strstr($attr, 'error')) $data['error'] = true;
+		$data[$i]['tr_class'] = zz_record_field_class($row['tr']['attr']);
+		$data[$i]['th_content'] = $row['th']['content'];
+		if (!$row['th']['show'] AND $data['form_display'] === 'vertical')
+			$data[$i]['th_content'] = NULL;
+		$data[$i]['th_class'] = zz_record_field_class($row['th']['attr']);
+		$data[$i]['th+tr_class'] = zz_record_field_class(array_merge($row['th']['attr'], $row['tr']['attr']));
+		$data[$i]['td_content'] = $row['td']['content'];
+		$data[$i]['td_id'] = !empty($row['td']['id']) ? zz_make_id_fieldname($row['td']['id']) : '';
+		$data[$i]['td_class'] = zz_record_field_class($row['td']['attr']);
+		$data[$i]['td+tr_class'] = zz_record_field_class(array_merge($row['td']['attr'], $row['tr']['attr']));
+		// add separator to matrix
+		if ($row['separator']) {
+			// @todo hide hr for first record, too?
+			$separator = zz_record_separator($row['separator']);
+			if (!$index) $separator['separator_hr'] = false; // no hr before first line
+			switch ($data['form_display']) {
+				case 'vertical':
+					$i++;
+					$data[$i] = $separator;
+					break;
+				case 'horizontal':
+					if ($index !== count($matrix) -1) break;
+					$data['separator'] = true;
+					$table_separator[$tab] = true;
+					break;
 			}
-			$output .=	"\t".'<td'
-				.(!empty($row['td']['id']) ? sprintf(' id="%s"', zz_make_id_fieldname($row['td']['id'])) : '')
-				.$row['td_class'].'>'
-				.$row['td_content'].'</td></tr>'."\n";
-			if ($row['separator'])
-				$output .= zz_show_separator($row['separator'], $index);
-			$last_row = $row;
 		}
-		break;
-	case 'horizontal':
-		if (!empty($matrix) AND $matrix[0]['separator_before'])
-			$output .= zz_show_separator($matrix[0]['separator_before'], 1, count($matrix));
-		if (!$table_head[$tab]) { 
-			// just first detail record with values: show head
-			$output .= '<tr>'."\n";
-			foreach ($matrix as $row) { 
-				$output .= '<th'.$row['th+tr_class']
-					.'>'.$row['th_content'].'</th>'."\n";
-			}
-			if ($matrix['extra_last_column'] OR $matrix['dummy_last_column'])
-				$output .= '<th class="dummy_column">&nbsp;</th>';
-			$output .= '</tr>'."\n";
-			$table_head[$tab] = true;
-		}
-		$output .= '<tr>';
-		foreach ($matrix as $index => $row) {
-			if (!is_numeric($index)) continue;
-			$output .= '<td'.$row['td+tr_class'].'>'.$row['td_content'].'</td>'."\n";
-		}
-		if ($matrix['dummy_last_column'])
-			$output .= '<td class="dummy_column">&nbsp;</td>';			
-		elseif ($matrix['extra_last_column'])
-			$output .= '<td>'.$matrix['extra_last_column'].'</td>';
-		$output .= '</tr>'."\n";
-		if ($row['separator'])
-			$output .= zz_show_separator($row['separator'], 1, count($matrix));
-		break;
+		$i++;
 	}
-	return $output;
+	if (!$tab AND !$data['th_content']) $zz_conf['int']['hide_tfoot_th'] = true;
+	return wrap_template('zzform-record-fields', $data);
 }
 
 /**
@@ -1610,41 +1594,33 @@ function zz_record_filter_as_default($field_name, $filters, $filter_active) {
 }
 
 /**
- * outputs HTML code for the class-attribute from an array of class names
+ * return list of classes, separated by space, from an array of class names
  *
  * @param array class names
- * @return HTML string with class="classes" or ""
+ * @return string
  */
-function zz_show_class($attr) {
+function zz_record_field_class($attr) {
 	if (!$attr) return false;
-	$attr = trim(implode(" ", $attr));
+	$attr = trim(implode(' ', $attr));
 	if (!$attr) return false;
-	return ' class="'.$attr.'"';
+	return $attr;
 }
 
 /**
- * outputs HTML code for a separation line between fields in a record
+ * decides what separator to show
  *
- * @param mixed
+ * @param mixed $separator
  *		1 or true: simple HR line
  *		'column_begin', 'column', 'column_end': allows to put form into two columns
  *		'text '.*** like true, but with text printed behind HR
- * @param int $row index of row, first field will be 0
- * @param int $span colspan
- * @return HTML string
+ * @return array
  */
-function zz_show_separator($separator, $row, $span = 2) {
-	if ($separator == 1 AND $row)
-		return '<tr class="separator_row"><td colspan="'.$span.'" class="separator"><hr></td></tr>'."\n";
-	elseif ($separator === 'column_begin')
-		return '<tr class="separator_row"><td><table><tbody>'."\n";
-	elseif ($separator === 'column')
-		return "</tbody></table>\n</td>\n\n".'<td class="left_separator"><table><tbody>'."\n";
-	elseif ($separator === 'column_end')
-		return "</tbody></table>\n</td></tr>\n";
-	elseif (substr($separator, 0, 5) === 'text ')
-		return '<tr class="separator_row"><td colspan="'.$span.'" class="separator">'
-			.($row ? '<hr>' : '').substr($separator, 4).'</td></tr>'."\n";
+function zz_record_separator($separator) {
+	if (substr($separator, 0, 5) === 'text ')
+		return ['separator_text' => substr($separator, 4), 'separator_hr' => true];
+	elseif ($separator == 1)
+		return ['separator_hr' => true];
+	return ['separator_'.$separator => true];
 }
 
 /**
