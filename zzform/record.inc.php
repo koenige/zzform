@@ -1250,7 +1250,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 				$append_explanation = [];
 			}
 		}
-		$out['explanation'] = $field['explanation'];
+		if ($field['explanation'])
+			$out['explanation'] = $field['explanation'];
 		if (!empty($field['separator'])) {
 			if (!$out) $out = zz_record_init_out($field);
 			$out['separator'] .= $field['separator'];
@@ -1265,6 +1266,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 					if ($out['td']['content'] AND $integrate['td']['content'])
 						$out['td']['content'] = '<div class="subrecord_spacer"></div>'.$out['td']['content'];
 					$out['td']['content'] = $integrate['td']['content']."\n".$out['td']['content'];
+					$out += zz_record_fields_from_matrix($integrate);
 				}
 				$integrate_out = [];
 			}
@@ -1492,12 +1494,7 @@ function zz_record_fields($matrix, $formdisplay, $extra_lastcol, $tab) {
 		$data[$i]['th_class'] = zz_record_field_class($row['th']['attr']);
 		$data[$i]['th+tr_class'] = zz_record_field_class(array_merge($row['th']['attr'], $row['tr']['attr']));
 		// get non-array values from $row, e. g. title_desc, description etc.
-		foreach ($row as $key => $value) {
-			if (is_array($value)) continue;
-			if (!$value) continue;
-			if (in_array($key, ['separator', 'separator_before', 'sequence'])) continue;
-			$data[$i][$key] = $value;	
-		}
+		$data[$i] += zz_record_fields_from_matrix($row);
 		$data[$i]['td_content'] = $row['td']['content'];
 		$data[$i]['td_id'] = !empty($row['td']['id']) ? zz_make_id_fieldname($row['td']['id']) : '';
 		$data[$i]['td_class'] = zz_record_field_class($row['td']['attr']);
@@ -1523,6 +1520,23 @@ function zz_record_fields($matrix, $formdisplay, $extra_lastcol, $tab) {
 	}
 	if (!$tab AND !$data['th_content']) $zz_conf['int']['hide_tfoot_th'] = true;
 	return wrap_template('zzform-record-fields', $data);
+}
+
+/**
+ * get key/value pairs from matrix
+ *
+ * @param array $row
+ * @return array
+ */
+function zz_record_fields_from_matrix($row) {
+	$line = [];
+	foreach ($row as $key => $value) {
+		if (is_array($value)) continue;
+		if (!$value) continue;
+		if (in_array($key, ['separator', 'separator_before', 'sequence'])) continue;
+		$line[$key] = $value;	
+	}
+	return $line;
 }
 
 /**
