@@ -676,7 +676,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 					$out['th']['content'] .= $field['title'];
 				}
 				if (!empty($field['title_desc']) && $field_display === 'form') {
-					$out['th']['content'] .= '<p class="desc">'.$field['title_desc'].'</p>';
+					$out['title_desc'] = $field['title_desc'];
 				}
 			} elseif (!$tab) {
 				// for main record, show empty cells
@@ -1501,6 +1501,7 @@ function zz_output_field_rows($matrix, $formdisplay, $extra_lastcol, $tab) {
 			$data[$i]['th_content'] = NULL;
 		$data[$i]['th_class'] = zz_record_field_class($row['th']['attr']);
 		$data[$i]['th+tr_class'] = zz_record_field_class(array_merge($row['th']['attr'], $row['tr']['attr']));
+		$data[$i]['title_desc'] = $row['title_desc'] ?? '';
 		$data[$i]['td_content'] = $row['td']['content'];
 		$data[$i]['td_id'] = !empty($row['td']['id']) ? zz_make_id_fieldname($row['td']['id']) : '';
 		$data[$i]['td_class'] = zz_record_field_class($row['td']['attr']);

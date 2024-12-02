@@ -41,7 +41,7 @@
 %%% condition else %%%
 <tr%%% item tr_class " class='%s'" %%%>
 %%% condition if th_content %%%
-<th%%% item th_class " class='%s'" %%%>%%% item th_content %%%</th>
+<th%%% item th_class " class='%s'" %%%>%%% item th_content %%%%%% condition if title_desc %%%<p class="desc">%%% item title_desc %%%</p>%%% condition endif %%%</th>
 %%% condition endif %%%
 	<td%%% item td_id " id='%s'"%%%%%% item td_class " class='%s'" %%%>%%% item td_content %%%</td>
 </tr>
@@ -69,7 +69,6 @@
 %%% condition if dummy_last_column %%%<td class="dummy_column">&nbsp;</td>%%% condition endif %%%
 %%% condition if extra_last_column %%%<td>%%% item extra_last_column %%%</td>%%% condition endif %%%
 </tr>
-%%% condition endif %%%
 %%% condition if separator %%%
 <tr class="separator_row"><td colspan="%%% item separator_colspan_horizontal %%%" class="separator"><hr></td></tr>
 %%% condition endif %%%
