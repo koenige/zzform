@@ -3871,7 +3871,7 @@ function zz_field_file($field, $display, $record, $record_saved, $images, $mode,
 			}
 		}
 	}
-	$text = wrap_template('zzform-record-field-file', $data);
+	$text = $data ? wrap_template('zzform-record-field-file', $data) : '';
 	if (in_array($mode, ['add', 'edit', 'revise']) && $field['type'] === 'upload_image') {
 		if (!isset($field['image'])) {
 			zz_error_log([
