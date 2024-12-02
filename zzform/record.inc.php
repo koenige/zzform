@@ -748,8 +748,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 				$lastrow = false;
 				$show_remove = false;
 
-				$dont_delete_records = !empty($field['dont_delete_records'])
-					? $field['dont_delete_records'] : '';
+				$dont_delete_records = $field['dont_delete_records'] ?? false;
 				if (!empty($field['hierarchy'])) {
 					// hierarchy never allows adding/removing of records
 					$dont_delete_records = true;
@@ -793,7 +792,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 					$show_tick = true;
 				}
 
-				if ($field['form_display'] === 'vertical' OR $sub_rec == $firstsubtable_no) {
+				if ($field['form_display'] === 'vertical'
+					OR ($field['form_display'] !== 'lines' AND $sub_rec == $firstsubtable_no)) {
 					$details[$d_index] .= '<div class="detailrecord">';
 				}
 				if (!empty($field['tick_to_save'])) {
@@ -844,16 +844,11 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 				}
 				$d_index++;
 			}
-			if ($field['form_display'] === 'lines' AND $details) {
-				$out['td']['content'] .= '<div class="subrecord_lines">';
-			}
 
 			if ($field['form_display'] !== 'inline') {
 				$out['td']['content'] .= implode('', $details);
 				if ($table_open) {
 					$out['td']['content'] .= '</table></div>'."\n";
-				} elseif ($field['form_display'] === 'lines' AND $details) {
-					$out['td']['content'] .= '</div></div>'."\n";
 				}
 				if (!$c_subtables AND !empty($field['msg_no_subtables'])) {
 					// There are no subtables, optional: show a message here
@@ -1255,12 +1250,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 				$append_explanation = [];
 			}
 		}
-		if ($field['explanation'] AND $formdisplay === 'lines') {
-			$extra_lastcol .= '<p class="explanation">'.$field['explanation'].'</p>';
-			$field['explanation'] = '';
-		}
-		if ($field['explanation'])
-			$out['td']['content'] .= '<p class="explanation">'.$field['explanation'].'</p>';
+		$out['explanation'] = $field['explanation'];
 		if (!empty($field['separator'])) {
 			if (!$out) $out = zz_record_init_out($field);
 			$out['separator'] .= $field['separator'];
@@ -1501,7 +1491,13 @@ function zz_record_fields($matrix, $formdisplay, $extra_lastcol, $tab) {
 			$data[$i]['th_content'] = NULL;
 		$data[$i]['th_class'] = zz_record_field_class($row['th']['attr']);
 		$data[$i]['th+tr_class'] = zz_record_field_class(array_merge($row['th']['attr'], $row['tr']['attr']));
-		$data[$i]['title_desc'] = $row['title_desc'] ?? '';
+		// get non-array values from $row, e. g. title_desc, description etc.
+		foreach ($row as $key => $value) {
+			if (is_array($value)) continue;
+			if (!$value) continue;
+			if (in_array($key, ['separator', 'separator_before', 'sequence'])) continue;
+			$data[$i][$key] = $value;	
+		}
 		$data[$i]['td_content'] = $row['td']['content'];
 		$data[$i]['td_id'] = !empty($row['td']['id']) ? zz_make_id_fieldname($row['td']['id']) : '';
 		$data[$i]['td_class'] = zz_record_field_class($row['td']['attr']);

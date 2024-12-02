@@ -10,6 +10,8 @@
 #
 %%% switch form_display %%%
 %%% case lines %%%
+<div class="subrecord_lines">
+<div class="detailrecord">
 <div%%% condition if error %%% class="error" %%% condition endif %%%>
 %%% loop start %%%
 %%% condition if td_content %%%
@@ -19,6 +21,9 @@
 %%% condition endif %%%
 %%% loop end %%%
 %%% item extra_last_column %%%
+%%% condition if explanation %%%<p class="explanation">%%% item explanation %%%</p>%%% condition endif %%%
+</div>
+</div>
 </div>
 
 %%% case vertical %%%
@@ -41,7 +46,8 @@
 %%% condition else %%%
 <tr%%% item tr_class " class='%s'" %%%>
 <th%%% item th_class " class='%s'" %%%>%%% item th_content %%%%%% condition if title_desc %%%<p class="desc">%%% item title_desc %%%</p>%%% condition endif %%%</th>
-	<td%%% item td_id " id='%s'"%%%%%% item td_class " class='%s'" %%%>%%% item td_content %%%</td>
+	<td%%% item td_id " id='%s'"%%%%%% item td_class " class='%s'" %%%>%%% item td_content %%%
+	%%% condition if explanation %%%<p class="explanation">%%% item explanation %%%</p>%%% condition endif %%%</td>
 </tr>
 %%% condition endif %%%
 %%% loop end %%%
@@ -62,7 +68,8 @@
 %%% condition endif %%%
 <tr>
 %%% loop start %%%
-	<td%%% item td+tr_class " class='%s'" %%%>%%% item td_content %%%</td>
+	<td%%% item td+tr_class " class='%s'" %%%>%%% item td_content %%%
+	%%% condition if explanation %%%<p class="explanation">%%% item explanation %%%</p>%%% condition endif %%%</td>
 %%% loop end %%%
 %%% condition if dummy_last_column %%%<td class="dummy_column">&nbsp;</td>%%% condition endif %%%
 %%% condition if extra_last_column %%%<td>%%% item extra_last_column %%%</td>%%% condition endif %%%
