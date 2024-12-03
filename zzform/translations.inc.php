@@ -37,9 +37,9 @@ function zz_translations_init($table, $fields) {
 
 	// Step 1: get fields which might be translated
 	$sql = 'SELECT translationfield_id, field_name, field_type
-		FROM %s
-		WHERE db_name = "%s" AND table_name = "%s"';
-	$sql = sprintf($sql, wrap_sql_table('default_translationfields'), wrap_setting('db_name'), $table);
+		FROM /*_TABLE default_translationfields _*/
+		WHERE db_name = "/*_SETTING db_name _*/" AND table_name = "%s"';
+	$sql = sprintf($sql, $table);
 	$translationfields = zz_db_fetch($sql, 'field_name');
 
 	$all_indices = array_keys($fields);
@@ -156,7 +156,7 @@ function zz_translations_fields($sql_translate) {
 	if (array_key_exists($key, $tfields)) return $tfields[$key];
 
 	$sql_fields = 'SELECT translationfield_id, field_name, field_type
-		FROM '.wrap_sql_table('default_translationfields').'
+		FROM /*_TABLE default_translationfields _*/
 		WHERE db_name = "%s" AND table_name = "%s"';
 	$tfields[$key]['varchar'] = [];
 	$tfields[$key]['text'] = [];

@@ -326,9 +326,9 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 	$my_tab['foreign_key_field_name'] = $field['foreign_key_field_name']
 		?? $main_tab['table'].'.'.$main_tab[0]['id']['field_name'];
 	$my_tab['translate_field_name_where'] = !empty($field['translate_field_name'])
-		? (wrap_sql_table('default_translationfields').'.db_name = "'.wrap_setting('db_name').'"
-			AND '.wrap_sql_table('default_translationfields').'.table_name = "'.$main_tab['table'].'"
-			AND '.wrap_sql_table('default_translationfields').'.field_name = "'
+		? '/*_TABLE default_translationfields _*/.db_name = "'.wrap_setting('db_name').'"
+			AND /*_TABLE default_translationfields _*/.table_name = "'.$main_tab['table'].'"
+			AND /*_TABLE default_translationfields _*/.field_name = "'
 				.$field['translate_field_name'].'"') : '';
 	$my_tab['unique'] = zz_prepare_unique($field);
 
