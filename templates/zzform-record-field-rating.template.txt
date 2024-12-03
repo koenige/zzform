@@ -1,0 +1,14 @@
+# zzform module
+# Template for field of type rating
+#
+# https://www.zugzwang.org/projects/zzform
+# Part of »Zugzwang Project«
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2024 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+<div class="zz_rating">
+%%% loop start %%%
+<label%%% item selected " class="ratingselected"" %%%>%%% item input %%%<span>%%% setting zzform_rating_symbol %%%</span></label>%%% loop end %%%
+</div>

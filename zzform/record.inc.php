@@ -1811,9 +1811,10 @@ function zz_form_element_attributes($fieldattr) {
 			continue;
 		} elseif ($attr_value === true) {
 			// boolean true
-			$attr_value = $attr_name;
+			$attr[] = $attr_name;
+		} else {
+			$attr[] = sprintf('%s="%s"', $attr_name, $attr_value);
 		}
-		$attr[] = sprintf('%s="%s"', $attr_name, $attr_value);
 	}
 	$attr = implode(' ', $attr);
 	if ($attr) $attr = ' '.$attr;
@@ -2335,23 +2336,22 @@ function zz_field_rating($field, $display, $record) {
 	$value = $record[$field['field_name']] ?? 0;
 	$value = intval($value);
 
-	$text = [];
+	$data = [];
 	$symbols = $field['max'] ?? wrap_setting('zzform_rating_max');
 	for ($i = 1; $i <= $symbols; $i++) {
 		if ($display !== 'form') {
-			$class = $i <= $value ? ' class="ratingselected"' : '';
-			$text[] = sprintf('<label%s><span>%s</span></label>', $class, wrap_setting('zzform_rating_symbol'));
+			$data[]['selected'] = $i <= $value ? true : false;
 		} else {
 			$fieldattr = [
 				'id' => zz_make_id_fieldname($field['f_field_name'].'_'.$i),
 				'checked' => $value === $i ? true : false,
-				'title' => $i
+				'title' => $i,
+				'autofocus' => false
 			];
-			$input = zz_form_element($field['f_field_name'], $i, 'radio', true, $fieldattr);
-			$text[] = sprintf('<label>%s<span>%s</span></label>', $input, wrap_setting('zzform_rating_symbol'));
+			$data[]['input'] = zz_form_element($field['f_field_name'], $i, 'radio', true, $fieldattr);
 		}
 	}
-	return sprintf('<div class="zz_rating">%s</div>', implode("", $text));
+	return wrap_template('zzform-record-field-rating', $data);
 }
 
 /**
@@ -3466,12 +3466,13 @@ function zz_field_select_radio_none($field, $record) {
 	// the empty value is illegal so it will not be shown
 	if ($field['required']) return '';
 
-	$id = zz_make_id_fieldname($field['f_field_name']).'-0';
+	$field['id'] = zz_make_id_fieldname($field['f_field_name']).'-0';
 	if (!isset($field['hide_novalue'])) $field['hide_novalue'] = true;
-	return '<label for="'.$id.'"'
+
+	return '<label for="'.$field['id'].'"'
 		.($field['hide_novalue'] ? ' class="hidden"' : '')
 		.'>'
-		.zz_form_element($field['f_field_name'], '', 'radio', $id, $fieldattr)
+		.zz_form_element($field['f_field_name'], '', 'radio', $field['id'], $fieldattr)
 		.'&nbsp;'.wrap_text('No selection').'</label>'."\n";
 }
 
