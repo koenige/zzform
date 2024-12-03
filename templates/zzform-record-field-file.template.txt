@@ -13,3 +13,42 @@
 %%% condition elseif no_image %%%
 <p class="preview">(%%% text No image %%%)</p>
 %%% condition endif %%%
+
+%%% condition if multiple_uploads %%%
+<table class="upload">
+%%% condition endif %%%
+%%% loop start %%%
+%%% condition if main__multiple_uploads %%%
+<tr><th>%%% item title %%%</th> <td>
+%%% condition endif %%%
+%%% item input %%%
+%%% condition if link & input %%%<br>%%% condition endif %%%
+%%% condition if link %%%
+<a href="%%% item link %%%">%%% item link %%%</a>
+%%% condition if delete_checkbox %%%
+%%% item delete_checkbox %%%
+<small>&nbsp;(<label for="%%% item delete_checkbox_id %%%">%%% text Delete this file %%%</label>)</small>
+%%% condition endif %%%
+%%% condition endif %%%
+%%% condition if error %%%
+<br><small>
+%%% loop error %%%
+%%% loopposition first|middle "<br>" %%%%%% item error_msg %%%
+%%% loop end %%%
+</small>
+%%% condition endif %%%
+%%% condition if size %%%
+<br>%%% text File uploaded: %%% <strong>%%% item filetype strtoupper %%%</strong> (%%% item size wrap_bytes %%%)
+%%% condition endif %%%
+%%% condition if upload_max_filesize %%%
+<br><small class="explanation">%%% text "Maximum allowed filesize is %s." upload_max_filesize wrap_bytes %%%
+ %%% item upload_filetypes %%%</small>
+%%% condition endif %%%
+%%% condition if explanation %%%<p class="explanation">%%% item explanation %%%</p>%%% condition endif %%%
+%%% condition if main__multiple_uploads %%%
+</td></tr>
+%%% condition endif %%%
+%%% loop end %%%
+%%% condition if multiple_uploads %%%
+</table>
+%%% condition endif %%%

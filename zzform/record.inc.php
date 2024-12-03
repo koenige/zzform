@@ -3873,19 +3873,22 @@ function zz_field_file($field, $display, $record, $record_saved, $images, $mode,
 
 	if (($mode !== 'add' OR $field['type'] !== 'upload_image')
 		AND (empty($field['dont_show_image'])) || !$field['dont_show_image']) {
-		$data['image'] = false;
-		if (isset($field['path']))
+		if (isset($field['path'])) {
 			$data['image'] = zz_makelink($field['path'], $record, 'image');
-		if (!$data['image'] AND !empty($record_saved)) {
-			$data['image'] = zz_makelink($field['path'], $record_saved, 'image');
+			if (!$data['image']) unset($data['image']);
 		}
-		if (!$data['image'] AND (!isset($field['dont_show_missing']) OR !$field['dont_show_missing'])) {
+		if (empty($data['image']) AND !empty($record_saved)) {
+			$data['image'] = zz_makelink($field['path'], $record_saved, 'image');
+			if (!$data['image']) unset($data['image']);
+		}
+		if (empty($data['image']) AND (!isset($field['dont_show_missing']) OR !$field['dont_show_missing'])) {
 			if (!isset($field['dont_show_missing_img']) OR !$field['dont_show_missing_img']) {
 				$data['no_image'] = true;
 			}
 		}
 	}
-	$text = $data ? wrap_template('zzform-record-field-file', $data) : '';
+	
+	$uploads = zz_field_file_uploads($field['image'] ?? []);
 	if (in_array($mode, ['add', 'edit', 'revise']) && $field['type'] === 'upload_image') {
 		if (!isset($field['image'])) {
 			zz_error_log([
@@ -3897,86 +3900,78 @@ function zz_field_file($field, $display, $record, $record_saved, $images, $mode,
 				'msg_dev' => 'Configuration error. Missing upload_image details.',
 				'level' => E_USER_WARNING
 			]);
-			return false;
+			return '';
 		}
-
-		$image_uploads = 0;
-		foreach ($field['image'] as $imagekey => $image) {
-			if (!isset($image['source']) AND !isset($image['source_field'])) {
-				$image_uploads++;
-			}
-		}
-		if ($image_uploads > 1) $text .= '<table class="upload">';
-		foreach ($field['image'] as $imagekey => $image) {
-			if (isset($image['source'])) continue;
-			if (isset($image['source_field'])) continue;
+		if (count($uploads) > 1) $data['multiple_uploads'] = true;
+		$i = 0;
+		foreach ($uploads as $imagekey => $image) {
 			// @todo if only one image, table is unnecessary
 			// title and field_name of image might be empty
-			if ($image_uploads > 1) $text .= '<tr><th>'.$image['title'].'</th> <td>';
+			$data[$i]['title'] = $image['title'] ?? '';
 			$elementname = zz_make_id_fieldname($field['f_field_name']).'['.$image['field_name'].']';
-			$text .= zz_form_element($elementname, '', 'file', false);
+			$data[$i]['input'] = zz_form_element($elementname, '', 'file', false);
 			if (empty($field['dont_show_file_link'])
-				AND $link = zz_makelink($image['path'], $record_saved ?? $record)) {
-				$fieldattr = [];
-				$fieldattr['autofocus'] = false;
-				$text .= '<br><a href="'.$link.'">'.$link
-					.'</a>'
-					.(($image_uploads > 1 OR !empty($field['optional_image'])) ?
-					' <small>(<label for="delete-file-'.$fieldkey.'-'.$imagekey
-					.'">'.zz_form_element('zz_delete_file['.$fieldkey.'-'.$imagekey.']', 
-						'', 'checkbox', 'delete-file-'.$fieldkey.'-'.$imagekey, $fieldattr)
-					.'&nbsp;'.wrap_text('Delete this file').'</label>)</small>'
-					: '');
+				AND $data[$i]['link'] = zz_makelink($image['path'], $record_saved ?? $record)) {
+				if (count($uploads) > 1 OR !empty($field['optional_image'])) {
+					$data[$i]['delete_checkbox_id'] = 'delete-file-'.$fieldkey.'-'.$imagekey;
+					$data[$i]['delete_checkbox'] = zz_form_element(
+						'zz_delete_file['.$fieldkey.'-'.$imagekey.']', '', 'checkbox',
+						$data[$i]['delete_checkbox_id'], ['autofocus' => false]
+					);
+				}
 			}
 			if (!empty($images[$fieldkey][$imagekey]['error'])) {
-				$text .= '<br><small>'.implode('<br>', 
-					$images[$fieldkey][$imagekey]['error']).'</small>';
+				foreach ($images[$fieldkey][$imagekey]['error'] as $error_msg)
+					$data[$i]['error'][]['error_msg'] = $error_msg;
 			} else {
-				$file_upload_data = [];
 				if (!empty($images[$fieldkey][$imagekey]['upload']['size'])) {
-					$file_upload_data = $images[$fieldkey][$imagekey]['upload'];
+					$data[$i]['size'] = $images[$fieldkey][$imagekey]['upload']['size'];
+					$data[$i]['filetype'] = $images[$fieldkey][$imagekey]['upload']['filetype'];
 				} elseif (!empty($_FILES)) {
 					$file_key = zz_make_id_fieldname($field['f_field_name']);
 					$img_key = $field['image'][0]['field_name'];
 					if (!empty($_FILES[$file_key]['tmp_name'][$img_key])) {
-						$file_upload_data['size'] = $_FILES[$file_key]['size'][$img_key];
-						$file_upload_data['filetype'] = zz_upload_file_extension($_FILES[$file_key]['tmp_name'][$img_key]);
+						$data[$i]['size'] = $_FILES[$file_key]['size'][$img_key];
+						$data[$i]['filetype'] = zz_upload_file_extension($_FILES[$file_key]['tmp_name'][$img_key]);
 					}
 				}
-				if ($file_upload_data) {
-					$text .= sprintf('<br>%s <strong>%s</strong> (%s)'
-						, wrap_text('File uploaded:')
-						, strtoupper($file_upload_data['filetype'])
-						, wrap_bytes($file_upload_data['size'])
-					);
-				}
-				$text .= '<br><small class="explanation">'.wrap_text('Maximum allowed filesize is %s.',
-					 ['values' => wrap_bytes($field['upload_max_filesize'])]).' '
-					.zz_upload_supported_filetypes($field['input_filetypes']).'</small>';
+				$data[$i]['upload_max_filesize'] = $field['upload_max_filesize'];
+				$data[$i]['upload_filetypes'] = zz_upload_supported_filetypes($field['input_filetypes']);
 			}
 			if ($display === 'form' && !empty($image['explanation'])) 
-				$text .= '<p class="explanation">'.$image['explanation'].'</p>';
-			if ($image_uploads > 1) $text .= '</td></tr>'."\n";
+				$data[$i]['explanation'] = $image['explanation'];
+			$i++;
 		}
-		if ($image_uploads > 1) $text .= '</table>'."\n";
-	} elseif (isset($field['image'])) {
-		$image_uploads = 0;
-		foreach ($field['image'] as $imagekey => $image)
-			if (!isset($image['source'])) $image_uploads++;
-		if ($image_uploads > 1) {
-			$text .= '<table class="upload">';
-			foreach ($field['image'] as $imagekey => $image) {
-				if (isset($image['source'])) continue;
-				if ($link = zz_makelink($image['path'], $record)) {
-					$text .= '<tr><th>'.$image['title'].'</th> <td>'
-						.'<a href="'.$link.'">'.$link.'</a>'
-						.'</td></tr>'."\n";
-				}
-			}
-			$text .= '</table>'."\n";
+	} elseif (isset($field['image']) AND count($uploads) > 1) {
+		$data['multiple_uploads'] = true;
+		$i = 0;
+		foreach ($uploads as $imagekey => $image) {
+			$link = zz_makelink($image['path'], $record);
+			if (!$link) continue;
+			$data[$i]['title'] = $image['title'] ?? '';
+			$data[$i]['link'] = $link;
+			$i++;
 		}
 	}
-	return $text;
+	if (!$data) return '';
+	return wrap_template('zzform-record-field-file', $data);
+}
+
+/**
+ * get uploads from file upload field
+ *
+ * @param array $files
+ * @return array
+ */
+function zz_field_file_uploads($files) {
+	$uploads = [];
+	if (!$files) return $uploads;
+	foreach ($files as $key => $file) {
+		if (isset($file['source'])) continue;
+		if (isset($file['source_field'])) continue;
+		$uploads[$key] = $file;
+	}
+	return $uploads;
 }
 
 /**
