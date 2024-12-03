@@ -20,7 +20,9 @@ condition if divert_files %%% data-divert-files="%%% item divert_files %%%"%%% c
 
 <div id="record">
 %%% condition if formhead %%%
-<h2>%%% item formhead ucfirst %%%</h2>
+<h2>%%% condition if formhead_error %%%<span class="error">%%% condition endif %%%
+%%% item formhead ucfirst %%%
+%%% condition if formhead_error %%%</span>%%% condition endif %%%</h2>
 %%% condition endif %%%
 %%% item form_lead markdown %%%
 

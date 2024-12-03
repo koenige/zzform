@@ -97,8 +97,9 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 
 	// Heading inside HTML form element
 	if (!empty($zz_conf['int']['id']['invalid_value'])) {
-		$record['formhead'] = '<span class="error">'.wrap_text('Invalid ID for a record (must be an integer): %s',
-			['values' => wrap_html_escape($zz_conf['int']['id']['invalid_value'])]).'</span>';
+		$record['formhead'] = wrap_text('Invalid ID for a record (must be an integer): %s',
+			['values' => wrap_html_escape($zz_conf['int']['id']['invalid_value'])]);
+		$record['formhead_error'] = true;
 		wrap_static('page', 'status', 404);
 	} elseif (in_array($ops['mode'], ['edit', 'delete', 'review', 'show', 'revise'])
 		AND !$zz_tab[0][0]['record'] AND $action_before_redirect !== 'delete') {
@@ -106,8 +107,9 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 		$sql = sprintf($sql, $zz_conf['int']['id']['field_name'], $zz_tab[0]['table'], $zz_conf['int']['id']['field_name'], $zz_conf['int']['id']['value']);
 		$id_exists = zz_db_fetch($sql, '', 'single value');
 		if ($id_exists) {
-			$record['formhead'] = '<span class="error">'.wrap_text('Sorry, it is not possible to access the ID %d from here.',
-				['values' => wrap_html_escape($zz_conf['int']['id']['value'])]).'</span>';
+			$record['formhead'] = wrap_text('Sorry, it is not possible to access the ID %d from here.',
+				['values' => wrap_html_escape($zz_conf['int']['id']['value'])]);
+			$record['formhead_error'] = true;
 			wrap_static('page', 'status', 403);
 		} else {
 			$sql = 'SELECT MAX(%s) FROM %s';
@@ -116,12 +118,14 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 			if ($max_id > $zz_conf['int']['id']['value']
 				AND $zz_conf['int']['id']['value'] > 0) {
 				// This of course is only 100% correct if it is an incremental ID
-				$record['formhead'] = '<span class="error">'.wrap_text('The record with the ID %d was already deleted.',
-					['values' => $zz_conf['int']['id']['value']]).'</span>';
+				$record['formhead'] = wrap_text('The record with the ID %d was already deleted.',
+					['values' => $zz_conf['int']['id']['value']]);
+				$record['formhead_error'] = true;
 				wrap_static('page', 'status', 410);
 			} else {
-				$record['formhead'] = '<span class="error">'.wrap_text('A record with the ID %d does not exist.',
-					['values' => $zz_conf['int']['id']['value']]).'</span>';
+				$record['formhead'] = wrap_text('A record with the ID %d does not exist.',
+					['values' => $zz_conf['int']['id']['value']]);
+				$record['formhead_error'] = true;
 				wrap_static('page', 'status', 404);
 			}
 		}
