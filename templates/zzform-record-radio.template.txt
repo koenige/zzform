@@ -1,0 +1,15 @@
+# zzform module
+# Template for radio buttons
+#
+# https://www.zugzwang.org/projects/zzform
+# Part of »Zugzwang Project«
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2024 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+<span id="%%% item id %%%"%%% item attributes %%%>
+%%% loop start %%%
+<label for="%%% item id %%%">%%% item element %%%&nbsp;%%% condition if label_none %%%%%% text No selection %%%%%% condition else %%%%%% item label %%%%%% condition endif %%%</label>
+%%% loop end%%%
+</span>

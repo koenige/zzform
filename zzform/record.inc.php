@@ -3380,7 +3380,6 @@ function zz_field_select_get_record($field, $record, $id_field_name) {
  * @param array $fieldattr (optional)
  * @global array $zz_conf
  * @return string $text
- * @see zz_field_select_radio_none(), zz_field_select_radio_value()
  */
 function zz_field_select_radio($field, $record, $radios, $fieldattr = []) {
 	// variant: only one value with a possible NULL value
@@ -3393,11 +3392,12 @@ function zz_field_select_radio($field, $record, $radios, $fieldattr = []) {
 	// variant: only two or three values next to each other
 	$attr = zz_form_element_attributes($fieldattr);
 	if (empty($field['show_values_as_list'])) {
-		$text = zz_field_select_radio_none($field, $record);
-		foreach ($radios as $radio)
-			$text .= $radio['element']."\n";
-		$text = sprintf('<span id="%s"%s>%s</span>', zz_make_id_fieldname($field['f_field_name']), $attr, $text);
-		return $text;
+		$data = $radios;
+		$data['attributes'] = $attr;
+		$data['id'] = zz_make_id_fieldname($field['f_field_name']);
+		$none = zz_field_radio_none($field, $record);
+		if ($none) array_unshift($data, $none);
+		return wrap_template('zzform-record-radio', $data);
 	}
 
 	// variant: more values as a list
@@ -3478,6 +3478,27 @@ function zz_field_select_radio_none($field, $record) {
 		.'>'
 		.zz_form_element($field['f_field_name'], '', 'radio', $field['id'], $fieldattr)
 		.'&nbsp;'.wrap_text('No selection').'</label>'."\n";
+}
+
+function zz_field_radio_none($field, $record) {
+	$fieldattr = [];
+	if (!$record) {
+		// no value, no default value 
+		// (both would be written in my record fieldname)
+		$fieldattr['checked'] = true;
+	} elseif (!$record[$field['field_name']]) {
+		$fieldattr['checked'] = true;
+	}
+	// if it is required to select one of the radio button values,
+	// the empty value is illegal so it will not be shown
+	if ($field['required']) return [];
+	$line = [
+		'id' => zz_make_id_fieldname($field['f_field_name']).'-0',
+		'attributes' => $field['hide_novalue'] ? ' class="hidden"' : '',
+		'element' => zz_form_element($field['f_field_name'], '', 'radio', $field['id'], $fieldattr),
+		'label_none' => true
+	];
+	return $line;
 }
 
 /**
