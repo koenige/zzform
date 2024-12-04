@@ -3439,36 +3439,41 @@ function zz_field_select_get_record($field, $record, $id_field_name) {
  *
  * @param array $field
  * @param array $record
- * @param array $radios (output of zz_field_select_radio_value())
+ * @param array $data (output of zz_field_select_radio_value())
  * @param array $fieldattr (optional)
  * @global array $zz_conf
  * @return string $text
  */
-function zz_field_select_radio($field, $record, $radios, $fieldattr = []) {
+function zz_field_select_radio($field, $record, $data, $fieldattr = NULL) {
 	// variant: only one value with a possible NULL value
-	if (count($radios) === 1) {
-		$text = sprintf('<input type="hidden" name="%s">', $field['f_field_name']);
-		$text .= str_replace('<input type="radio"', '<input type="checkbox"', $radios[0]['element']);
-		return $text;
+	if (count($data) === 1) {
+		$data[0]['attributes']['type'] = 'checkbox';
+		array_unshift($data, zz_record_element([
+			'type' => 'hidden',
+			'name' => $field['f_field_name']
+		]));
+		return wrap_template('zzform-record-radio', $data);
 	}
 
+	$data['id'] = zz_make_id_fieldname($field['f_field_name']);
+	$data['attributes'] = $fieldattr ?? '';
+
 	// variant: only two or three values next to each other
-	wrap_include('format', 'zzform');
-	$attr = zzform_attributes($fieldattr);
 	if (empty($field['show_values_as_list'])) {
-		$data = $radios;
-		$data['attributes'] = $attr;
-		$data['id'] = zz_make_id_fieldname($field['f_field_name']);
+		$data['inline'] = true;
 		$none = zz_field_radio_none($field, $record);
 		if ($none) array_unshift($data, $none);
 		return wrap_template('zzform-record-radio', $data);
 	}
 
 	// variant: more values as a list
-	$text = "\n".'<ul class="zz_radio_list" id="'.zz_make_id_fieldname($field['f_field_name']).'"'.$attr.'>'."\n";
+	$data['list'] = true;
+	wrap_include('format', 'zzform');
+	$text = "\n".'<ul class="zz_radio_list" id="'.$data['id'].'"'.zzform_attributes($fieldattr).'>'."\n";
 	$none = zz_field_select_radio_none($field, $record);
 	if ($none) $text .= '<li>'.$none."</li>\n";
-	foreach ($radios as $index => $radio) {
+	foreach ($data as $index => $radio) {
+		if (!is_numeric($index)) continue;
 		switch ($radio['level']) {
 		case 1:
 			$text .= "\n<ul><li>";
@@ -3484,7 +3489,7 @@ function zz_field_select_radio($field, $record, $radios, $fieldattr = []) {
 			break;
 		}
 		$text .= $radio['element'];
-		if (!empty($field['enum_textinput']) AND $index + 1 === count($radios)) {
+		if (!empty($field['enum_textinput']) AND $index + 1 === count($data)) {
 			$inputval = '';
 			if (!empty($record[$field['field_name']])) {
 				if (!in_array($record[$field['field_name']], $field['enum'])) {
@@ -3545,22 +3550,30 @@ function zz_field_select_radio_none($field, $record) {
 }
 
 function zz_field_radio_none($field, $record) {
-	$fieldattr = [];
-	if (!$record) {
-		// no value, no default value 
-		// (both would be written in my record fieldname)
-		$fieldattr['checked'] = true;
-	} elseif (!$record[$field['field_name']]) {
-		$fieldattr['checked'] = true;
-	}
 	// if it is required to select one of the radio button values,
 	// the empty value is illegal so it will not be shown
 	if ($field['required']) return [];
+	if (!isset($field['hide_novalue'])) $field['hide_novalue'] = true;
+
+	$element = [
+		'type' => 'radio',
+		'name' => $field['f_field_name'],
+		'id' => zz_make_id_fieldname($field['f_field_name']).'-0'
+	];
+	if (!$record) {
+		// no value, no default value 
+		// (both would be written in my record fieldname)
+		$element['checked'] = true;
+	} elseif (!$record[$field['field_name']]) {
+		$element['checked'] = true;
+	}
+	$element = zz_record_element($element);
 	$line = [
 		'id' => zz_make_id_fieldname($field['f_field_name']).'-0',
-		'attributes' => $field['hide_novalue'] ? ' class="hidden"' : '',
-		'element' => zz_form_element($field['f_field_name'], '', 'radio', $field['id'], $fieldattr),
-		'label_none' => true
+		'label_attributes' => $field['hide_novalue'] ? ['class' => 'hidden'] : NULL,
+		'label_none' => true,
+		'tag' => $element['tag'],
+		'attributes' => $element['attributes']
 	];
 	return $line;
 }
@@ -3590,11 +3603,26 @@ function zz_field_select_radio_value($field, $record, $value, $label, $pos) {
 		$fieldattr['disabled'] = true;
 	}
 	$element = zz_form_element($field['f_field_name'], $internal_value, 'radio', $id, $fieldattr);
-	$level = isset($field['zz_level']) ? $field['zz_level'] : 0;
+	
+	$new_element = [
+		'type' => 'radio',
+		'value' => $internal_value,
+		'checked' => $fieldattr['checked'] ?? false,
+		'required' => $field['required'],
+		'name' => $field['f_field_name'],
+		'id' => $id,
+		'disabled' => !empty($field['disabled']) AND in_array($value, $field['disabled']) ? true : false
+	];
+	$new_element = zz_record_element($new_element);
+	
 	return [
-		'level' => $level,
-		'element' => sprintf('<label for="%s">%s&nbsp;%s</label>', $id, $element, $label),
-		'id' => $id
+		'level' => isset($field['zz_level']) ? $field['zz_level'] : 0,
+		'label' => $label,
+		'id' => $id,
+		'tag' => $new_element['tag'],
+		'attributes' => $new_element['attributes'],
+
+		'element' => sprintf('<label for="%s">%s&nbsp;%s</label>', $id, $element, $label)
 	];
 }
 
