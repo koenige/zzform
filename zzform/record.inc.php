@@ -1724,6 +1724,88 @@ function zz_set_auto_value($field, $sql, $table, $tab, $rec, $main_table) {
 /**
  * creates a HTML form element
  *
+ * @param array $input
+ *		string 'name' name=""
+ *		string 'value' value=""
+ *		string 'type' type="" (default: text)
+ *		string 'id' id=""
+ *		bool 'create_id' will create id for id attribute
+ *		array 'attributes' indexed by name => value
+ * @return string
+ */
+function zz_record_element($input) {
+	if (empty($input['type'])) $input['type'] = 'text';
+
+	// id?
+	if (!empty($input['create_id']))
+		$input['id'] = zz_make_id_fieldname($input['name']);
+	unset($input['create_id']);
+
+	// autocomplete?
+	if (in_array($input['type'], ['password']))
+		$input['autocomplete'] = 'off';
+
+	// autofocus?
+	if (!isset($input['autofocus']))
+		$input['autofocus'] = zz_record_field_focus($input['name'], $input['type']);
+
+	// multiple?
+	if (!isset($input['multiple']) AND in_array($input['type'], ['email']))
+		$input['multiple'] = true;
+	
+	switch ($input['type']) {
+	case 'textarea':
+		$element['tag'] = 'textarea';
+		$element['html'] = '<textarea%s>%s</textarea>';
+		$element['text'] = $input['value'];
+		unset($input['value']);
+		break;
+	case 'select':
+		$element['tag'] = 'select';
+		$element['html'] = '<select%s>';
+		break;
+	case 'option':
+		$element['tag'] = 'option';
+		$element['html'] = '<option%s>%s</option>';
+		$element['text'] = $input['name'];
+		unset($input['name']);
+		break;
+	case 'file':
+		$element['tag'] = 'input';
+		$element['html'] = '<input%s>';
+		unset($input['value']);
+		break;
+	case 'checkbox':
+		$element['tag'] = 'input';
+		$element['html'] = '<input%s>';
+		// value just sometimes? (e. g. tick_to_save does not work with empty value="")
+		if (isset($input['value']) AND !$input['value']) unset($input['value']);
+		break;
+	default:
+		$element['tag'] = 'input';
+		$element['html'] = '<input%s>';
+		// escaping for some 'text' elements, not all
+		// e. g. geo coordinates and reselect-elements don't need &-values
+		// escaped and look better without escaping
+		if ($input['type'] === 'text' AND !empty($input['value']))
+			$input['value'] = str_replace('&', '&amp;', $input['value']);
+		if ($input['type'] === 'text_noescape')
+			$input['type'] = 'text';
+		break;
+	}
+	if (!empty($element['text'])) {
+		$element['text'] = str_replace('&', '&amp;', $element['text']);
+		$element['text'] = str_replace('<', '&lt;', $element['text']);
+	}
+	if (!empty($input['value']))
+		$input['value'] = str_replace('"', '&quot;', $input['value']);
+	$element['attributes'] = $input;
+	return $element;
+}
+ 
+/**
+ * creates a HTML form element
+ *
  * @param string $name name=""
  * @param string $value value=""
  * @param string $type (default: text)
@@ -1735,7 +1817,7 @@ function zz_form_element($name, $value, $type = 'text', $id = false, $fieldattr 
 	// escaping for some 'text' elements, not all
 	// e. g. geo coordinates and reselect-elements don't need &-values
 	// escaped and look better without escaping
-	if ($type === 'text') $value = str_replace('&', '&amp;', $value);
+	if ($type === 'text' AND $value) $value = str_replace('&', '&amp;', $value);
 	if ($type === 'text_noescape') $type = 'text';
 	
 	// name
@@ -1770,7 +1852,8 @@ function zz_form_element($name, $value, $type = 'text', $id = false, $fieldattr 
 		$fieldattr['value'] = $value;
 	}
 
-	$attr = zz_form_element_attributes($fieldattr);
+	wrap_include('format', 'zzform');
+	$attr = zzform_attributes($fieldattr);
 
 	// return HTML depending on type
 	switch ($type) {
@@ -1799,30 +1882,6 @@ function zz_form_element($name, $value, $type = 'text', $id = false, $fieldattr 
 		return sprintf('<input type="%s" value="%s"%s>', $type, $value, $attr);
 	}
 	return '';
-}
-
-/**
- * prepare attributes for HTML
- *
- * @param array $fieldattr
- * @return string
- */
-function zz_form_element_attributes($fieldattr) {
-	$attr = [];
-	foreach ($fieldattr as $attr_name => $attr_value) {
-		if ($attr_value === false) {
-			// boolean false
-			continue;
-		} elseif ($attr_value === true) {
-			// boolean true
-			$attr[] = $attr_name;
-		} else {
-			$attr[] = sprintf('%s="%s"', $attr_name, $attr_value);
-		}
-	}
-	$attr = implode(' ', $attr);
-	if ($attr) $attr = ' '.$attr;
-	return $attr;
 }
 
 /**
@@ -2346,16 +2405,20 @@ function zz_field_rating($field, $display, $record) {
 		if ($display !== 'form') {
 			$data[]['selected'] = $i <= $value ? true : false;
 		} else {
-			$fieldattr = [
+			$element = [
+				'type' => 'radio',
+				'name' => $field['f_field_name'],
+				'value' => $i,
 				'id' => zz_make_id_fieldname($field['f_field_name'].'_'.$i),
 				'checked' => $value === $i ? true : false,
 				'title' => $i,
 				'autofocus' => false
 			];
-			$data[]['input'] = zz_form_element($field['f_field_name'], $i, 'radio', true, $fieldattr);
+			$data[] = zz_record_element($element);
 		}
 	}
-	return wrap_template('zzform-record-field-rating', $data);
+	$text = wrap_template('zzform-record-field-rating', $data);
+	return $text;
 }
 
 /**
@@ -3390,7 +3453,8 @@ function zz_field_select_radio($field, $record, $radios, $fieldattr = []) {
 	}
 
 	// variant: only two or three values next to each other
-	$attr = zz_form_element_attributes($fieldattr);
+	wrap_include('format', 'zzform');
+	$attr = zzform_attributes($fieldattr);
 	if (empty($field['show_values_as_list'])) {
 		$data = $radios;
 		$data['attributes'] = $attr;
