@@ -594,14 +594,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 			$field['f_field_name'] = $field['table_name'];
 		}
 
-		if (!empty($field['format']) AND empty($field['hide_format_in_title_desc'])) { 
-			// formatted fields: show that they are being formatted!
-			if (!isset($field['title_desc'])) $field['title_desc'] = '';
-			$format_link = wrap_setting('zzform_format['.$field['format'].'][link]') ?? NULL;
-			$field['title_desc'] .= ' ['.($format_link ? '<a href="'.$format_link.'" target="help">' : '')
-				.(ucfirst($field['format']))
-				.($format_link ? '</a>' : '').']';
-		}
 		if (!empty($field['js'])) {
 			$field['explanation'] .= zz_record_js($field);
 		}
@@ -613,6 +605,18 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 		// initialize variables
 		if (!$append_next) {
 			$out = zz_record_init_out($field);
+		}
+		if (!empty($field['format']) AND empty($field['hide_format_in_title_desc'])) { 
+			// formatted fields: show that they are being formatted!
+			$out['format'] = $field['format'];
+			$out['format_link'] = wrap_path_helptext($field['format']);
+			if (!$out['format_link']) {
+				$out['format_link'] = wrap_setting('zzform_format['.$field['format'].'][link]');
+				if ($out['format_link'])
+					wrap_error(sprintf(
+						'Please use a file in help folder instead of `zzformat[%s][link]`', $field['format']
+					), E_USER_DEPRECATED);
+			}
 		}
 		
 		if (in_array($field['type'], ['subtable', 'foreign_table'])) {
