@@ -3335,10 +3335,8 @@ function zz_field_select_lines($field, $lines, $id_field_name) {
  */
 function zz_field_select_set_folder($field, $display, $record, $rec) {
 // #2a SELECT with set_folder
-	if (!is_dir($field['set_folder'])) {
-		echo '`'.$field['set_folder'].'` is not a folder. Check `["set_folder"]` definition.';
-		exit;
-	}
+	if (!is_dir($field['set_folder']))
+		wrap_error('`'.$field['set_folder'].'` is not a folder. Check `["set_folder"]` definition.', E_USER_ERROR);
 	$files = [];
 	$handle = opendir($field['set_folder']);
 	while ($file = readdir($handle)) {
