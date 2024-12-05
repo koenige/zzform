@@ -3487,29 +3487,6 @@ function zz_field_select_radio($field, $record, $data, $fieldattr = []) {
  * @param array $record
  * @return string
  */
-function zz_field_select_radio_none($field, $record) {
-	$fieldattr = [];
-	if ($record) {
-		if (!$record[$field['field_name']]) $fieldattr['checked'] = true;
-	} else {
-		// no value, no default value 
-		// (both would be written in my record fieldname)
-		$fieldattr['checked'] = true;
-	}
-	// if it is required to select one of the radio button values,
-	// the empty value is illegal so it will not be shown
-	if ($field['required']) return '';
-
-	$field['id'] = zz_make_id_fieldname($field['f_field_name']).'-0';
-	if (!isset($field['hide_novalue'])) $field['hide_novalue'] = true;
-
-	return '<label for="'.$field['id'].'"'
-		.($field['hide_novalue'] ? ' class="hidden"' : '')
-		.'>'
-		.zz_form_element($field['f_field_name'], '', 'radio', $field['id'], $fieldattr)
-		.'&nbsp;'.wrap_text('No selection').'</label>'."\n";
-}
-
 function zz_field_radio_none($field, $record) {
 	// if it is required to select one of the radio button values,
 	// the empty value is illegal so it will not be shown
