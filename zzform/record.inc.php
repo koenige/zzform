@@ -2706,39 +2706,43 @@ function zz_field_set($subtable, $display, $my_tab) {
 			$sets_indexed[$def]['checked'] = true;
 	}
 	$last_group = '';
-	$outputf = '';
-	foreach ($sets_indexed as $set) {
-		if ($group AND $set['group'] !== $last_group) {
-			if ($outputf) $outputf .= '</ul>'."\n";
-			$outputf .= sprintf(
-				'<li%s> <em>%s</em><ul>'."\n"
-				, ($display === 'form' ? ' class="js-zz_set_group"' : '')
-				, $set['group']
-			);
-			$last_group = $set['group'];
-		}
+	$last_index = NULL;
+	
+	$data = [];
+	foreach ($sets_indexed as $index => $set) {
 		if ($display === 'form') {
+			if ($group AND $set['group'] !== $last_group) {
+				$list_open = true;
+				$last_group = $set['group'];
+				if (!is_null($last_index)) $data[$last_index]['list_close'] = true;
+			} else {
+				$list_open = false;
+			}
+			$last_index = $index;
 			if (!empty($set['rec_id'])) {
-				$outputf .= sprintf(
-					'<input type="hidden" name="%s[%d][%s]" value="%d">'
-					, $subtable['table_name'], $set['rec_no'], $field_names['id']
-					, $set['rec_id']
-				);
-				$outputf .= sprintf(
-					'<input type="hidden" name="%s[%d][%s]" value="">'
-					, $subtable['table_name'], $set['rec_no'], $field_names['select']
-				);
+				$data['hidden'][] = [
+					'table' => $subtable['table_name'],
+					'rec_no' => $set['rec_no'],
+					'name' => $field_names['id'],
+					'value' => $set['rec_id']
+				];
+				$data['hidden'][] = [
+					'table' => $subtable['table_name'],
+					'rec_no' => $set['rec_no'],
+					'name' => $field_names['select']
+				];
 			}
 			if (!empty($set['id'])) {
-				$outputf .= sprintf(
-					'<li><label for="check-%s-%d">'
-					.'<input type="checkbox" name="%s[%d][%s]" id="check-%s-%d" value="%d"%s>&nbsp;%s'
-					.'</label></li>'."\n"
-					, $subtable['table_name'], $set['rec_no']
-					, $subtable['table_name'], $set['rec_no'], $field_names['select']
-					, $subtable['table_name'], $set['rec_no'], $set['id']
-					, (!empty($set['checked']) ? ' checked' : ''), $set['title']
-				);
+				$data[$index] = [
+					'id' => sprintf('check-%s-%d', $subtable['table_name'], $set['rec_no']),
+					'name' => sprintf('%s[%d][%s]', $subtable['table_name'], $set['rec_no'], $field_names['select']),
+					'value' => $set['id'],
+					'title' => $set['title'],
+					'checked' => !empty($set['checked']) ? true : false,
+					'group' => $set['group'],
+					'list_open' => $list_open
+				
+				];
 			} elseif (!empty($set['rec_id']) AND !wrap_is_int($set['rec_id'])) {
 				wrap_quit(400, 'Malformed request, ID for a set needs to be numeric');
 			} else {
@@ -2749,12 +2753,13 @@ function zz_field_set($subtable, $display, $my_tab) {
 			}
 		} elseif (!empty($set['rec_id']) AND !empty($set['title'])) {
 			// title might be empty for non-selectable IDs
-			$outputf .= sprintf("<li>%s</li>\n", $set['title']);
+			$data[$index]['title'] = $set['title'];
 		}
 	}
-	if ($group) $outputf .= '</ul></li>';
-	$outputf = sprintf('<ul class="set">%s</ul>', $outputf);
-	return $outputf;
+	if (!$data) return '';
+	if ($group AND $display === 'form') $data[$last_index]['list_close'] = true;
+	if ($display === 'form') $data['form_display'] = true;
+	return wrap_template('zzform-record-checkbox', $data);
 }
 
 /**
