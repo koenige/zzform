@@ -30,14 +30,14 @@ function zz_copy_records($table, $foreign_id_field_name, $source_id, $destinatio
 	$main_id_field_name = 'main_'.$def['primary_key'];
 
 	// existing records
-	$sql = 'SELECT * FROM `%s` WHERE `%s` = %d';
+	$sql = 'SELECT * FROM %s WHERE `%s` = %d';
 	// does a main id field name exist?
 	// move values with main id to the end
 	if (!empty($def['foreign_keys']) AND in_array($main_id_field_name, $def['foreign_keys']))
 		$sql .= sprintf(' ORDER BY IF(ISNULL(%s), NULL, 1)', $main_id_field_name);
 	else
 		$main_id_field_name = false;
-	$sql = sprintf($sql, $def['table'], $foreign_id_field_name, $source_id);
+	$sql = sprintf($sql, zz_db_table_backticks($def['table']), $foreign_id_field_name, $source_id);
 	$data = wrap_db_fetch($sql, $def['primary_key']);
 	if (!$data) return [];
 	

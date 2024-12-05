@@ -945,7 +945,7 @@ function zz_list_query_hierarchy($zz, $list) {
 		// for performance reasons, we didn't save the full result set,
 		// so we have to requery it again.
 		if ($zz_conf['int']['this_limit'] !== '') {
-			$zz['sql'] = wrap_edit_sql($zz['sql'], 'WHERE', '`'.$zz['table'].'`.'.$zz_conf['int']['id']['field_name']
+			$zz['sql'] = wrap_edit_sql($zz['sql'], 'WHERE', zz_db_table_backticks($zz['table']).'.'.$zz_conf['int']['id']['field_name']
 				.' IN ('.implode(',', array_keys($lines)).')');
 		} // else sql remains same
 		$lines = wrap_array_merge($lines, zz_db_fetch($zz['sql'], $zz_conf['int']['id']['field_name']));
@@ -954,7 +954,7 @@ function zz_list_query_hierarchy($zz, $list) {
 		if (empty($line['zz_hidden_line'])) continue;
 		// get record which is normally beyond our scope via ID
 		$zz['sql'] = wrap_edit_sql($zz['sql'], 'WHERE', 'nothing', 'delete');
-		$zz['sql'] = wrap_edit_sql($zz['sql'], 'WHERE', '`'.$zz['table'].'`.'.$zz_conf['int']['id']['field_name'].' = "'.$line[$zz_conf['int']['id']['field_name']].'"');
+		$zz['sql'] = wrap_edit_sql($zz['sql'], 'WHERE', zz_db_table_backticks($zz['table']).'.'.$zz_conf['int']['id']['field_name'].' = "'.$line[$zz_conf['int']['id']['field_name']].'"');
 		$line = zz_db_fetch($zz['sql']);
 		if ($line) {
 			$lines[$line[$zz_conf['int']['id']['field_name']]] = array_merge($lines[$line[$zz_conf['int']['id']['field_name']]], $line);

@@ -459,7 +459,7 @@ function zz_conditions_record_check($zz, $mode, $zz_conditions) {
 				$sql = wrap_edit_sql($sql, 'SELECT', $zz['table'].'.'.$zz_conf['int']['id']['field_name'], 'replace');
 			// just get this single record
 			$sql = wrap_edit_sql($sql, 'WHERE', sprintf(
-				'`%s`.`%s` = %d', $zz['table'], $zz_conf['int']['id']['field_name'], $zz_conf['int']['id']['value']
+				'%s.`%s` = %d', zz_db_table_backticks($zz['table']), $zz_conf['int']['id']['field_name'], $zz_conf['int']['id']['value']
 			));
 			$lines = zz_db_fetch($sql, $zz_conf['int']['id']['field_name'], 'id as key', 'record-list ['.$index.']');
 			if (zz_error_exit()) return zz_return($zz_conditions); // DB error
@@ -927,7 +927,7 @@ function zz_conditions_list_check($zz, $list, $zz_conditions, $ids, $mode) {
 				// not sure if WHERE .. IN () is slowing things down with
 				// a big number of IDs
 				// this restriction might be removed in later versions of zzform
-				$sql = wrap_edit_sql($sql, 'WHERE', '`'.$zz['table'].'`.'.$zz_conf['int']['id']['field_name'].' IN ('.implode(',', $ids).')');
+				$sql = wrap_edit_sql($sql, 'WHERE', zz_db_table_backticks($zz['table']).'.'.$zz_conf['int']['id']['field_name'].' IN ('.implode(',', $ids).')');
 			}
 			$lines = zz_db_fetch($sql, $zz_conf['int']['id']['field_name'], 'id as key', 'list-record ['.$index.']');
 			if (zz_error_exit()) return zz_return($zz_conditions); // DB error
