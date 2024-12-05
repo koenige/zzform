@@ -2721,15 +2721,15 @@ function zz_field_set($subtable, $display, $my_tab) {
 			$last_index = $index;
 			if (!empty($set['rec_id'])) {
 				$data['hidden'][] = [
-					'table' => $subtable['table_name'],
-					'rec_no' => $set['rec_no'],
-					'name' => $field_names['id'],
+					'name' => sprintf('%s[%d][%s]',
+						$subtable['table_name'], $set['rec_no'], $field_names['id']
+					),
 					'value' => $set['rec_id']
 				];
 				$data['hidden'][] = [
-					'table' => $subtable['table_name'],
-					'rec_no' => $set['rec_no'],
-					'name' => $field_names['select']
+					'name' => sprintf('%s[%d][%s]',
+						$subtable['table_name'], $set['rec_no'], $field_names['select']
+					)
 				];
 			}
 			if (!empty($set['id'])) {
@@ -3698,59 +3698,53 @@ function zz_field_select_radio_levels($data) {
  * @return string $output HTML output for form
  */
 function zz_field_select_set($field, $display, $record, $rec) {
-	$myvalue = [];
-	$output = '';
-	$i = 0;
+	$data = [];
 	$field['id'] = zz_make_id_fieldname($field['f_field_name']);
-	if ($display === 'form') {
+	if ($display === 'form')
 		// send dummy field to get a response if field content should be deleted
-		$myid = 'check-'.$field['id'].'-'.$i;
-		$output .= zz_form_element($field['f_field_name'].'[]', '', 'hidden', $myid);
-	}
+		$data['hidden'][] = ['name' => $field['f_field_name'].'[]'];
+
+	$i = 0;
 	foreach ($field['set'] as $key => $set) {
-		$i++;
-		$internal_value = $set;
-		$myid = 'check-'.$field['id'].'-'.$i;
-		$set_display = zz_print_enum($field, $set, 'full');
 		if ($display === 'form') {
-			$fieldattr = [];
+			$i++;
+			$data[$key] = [
+				'title' => zz_print_enum($field, $set, 'full'),
+				'id' => 'check-'.$field['id'].'-'.$i,
+				'name' => $field['f_field_name'].'[]',
+				'value' => $set,
+			];
 			if ($record AND isset($record[$field['field_name']])) {
 				$selected = zz_field_selected($field, $record, $set);
-				if ($selected !== false) {
-					$fieldattr['checked'] = true;
-					if ($selected !== true) $internal_value = $selected;
-				}
+				if ($selected) $data[$key]['checked'] = true;
+				if (!is_bool($selected)) $data[$key]['value'] = $selected;
 			} elseif (!empty($field['default_select_all'])) {
-				$fieldattr['checked'] = true;
+				$data[$key]['checked'] = true;
 			} else {
-				$fieldattr['checked'] = false;
+				$data[$key]['checked'] = false;
 			}
-			if (empty($fieldattr['checked']) AND !empty($field['disabled_ids']) 
+			if (empty($data[$key]['checked']) AND !empty($field['disabled_ids']) 
 				AND is_array($field['disabled_ids'])
 				AND in_array($set, $field['disabled_ids'])) {
-				$fieldattr['disabled'] = true;
+				$data[$key]['disabled'] = true;
 			}
 			// required does not work at least in Firefox with set
 			// because identical 'name'-attributes are not recognized
-			// if ($field['required']) $fieldattr['required'] = true;
-			$output .= ' <label for="'.$myid.'">'
-				.zz_form_element($field['f_field_name'].'[]', $internal_value, 'checkbox', $myid, $fieldattr)
-				.'&nbsp;'.$set_display.'</label>';
-			if (count($field['set']) >= 4 OR !empty($field['show_values_as_list']))
-				$output .= '<br>';
-		} elseif (empty($field['set_show_all_values'])) {
+			// if ($field['required']) $data[$key]['required'] = true;
+		} elseif (empty($field['set_show_all_values']))  {
 			$selected = zz_field_selected($field, $record, $set);
-			if ($selected) $myvalue[] = $set_display;
+			if (!$selected) continue;
+			$data[$key]['title'] = zz_print_enum($field, $set, 'full');
 		}
 	}
 	if ($display !== 'form' AND !empty($field['set_show_all_values'])) {
-		// @todo use set_title!
-		$myvalue = explode(',', $record[$field['field_name']]);
+		// show folders even if they are deleted
+		$lines = explode(',', $record[$field['field_name']]);
+		foreach ($lines as $line)
+			$data[]['title'] = $line;
 	}
-	if ($myvalue) {
-		$output .= zz_field_concat($field, $myvalue);
-	}
-	return $output;
+
+	return wrap_template('zzform-record-checkbox', $data);
 }
 
 /**

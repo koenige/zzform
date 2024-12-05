@@ -9,14 +9,14 @@
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 %%% loop hidden %%%
-<input type="hidden" name="%%% item table %%%[%%% item rec_no %%%][%%% item name %%%]" value="%%% item value %%%">
+<input type="hidden" name="%%% item name %%%" value="%%% item value %%%">
 %%% loop end %%%
 <ul class="set">
 %%% loop start %%%
 %%% condition if list_open %%%
 <li%%% condition if main__form_display %%% class="js-zz_set_group"%%% condition endif %%%> <em>%%% item group %%%</em><ul>
 %%% condition endif %%%
-<li>%%% condition if id %%%<label for="%%% item id %%%"><input type="checkbox" name="%%% item name %%%" id="%%% item id %%%" value="%%% item value %%%"%%% item checked " checked" %%%>&nbsp;%%% condition endif %%%%%% item title %%%%%% condition if id %%%</label>%%% condition endif %%%</li>
+<li>%%% condition if id %%%<label for="%%% item id %%%"><input type="checkbox" name="%%% item name %%%" id="%%% item id %%%" value="%%% item value %%%"%%% item checked " checked" %%%%%% item disabled " disabled" %%%>&nbsp;%%% condition endif %%%%%% item title %%%%%% condition if id %%%</label>%%% condition endif %%%</li>
 %%% condition if list_close %%%
 </ul></li>
 %%% condition endif %%%
