@@ -3528,39 +3528,26 @@ function zz_field_radio_none($field, $record) {
  */
 function zz_field_select_radio_value($field, $record, $value, $label, $pos) {
 	$id = zz_make_id_fieldname($field['f_field_name']).'-'.$pos;
-	$fieldattr = [];
-	$internal_value = $value;
 	$selected = zz_field_selected($field, $record, $value);
-	if ($selected !== false) {
-		$fieldattr['checked'] = true;
-		if ($selected !== true)
-			$internal_value = $selected;
-	}
-	if ($field['required']) $fieldattr['required'] = true;
-	if (!empty($field['disabled']) AND in_array($value, $field['disabled'])) {
-		$fieldattr['disabled'] = true;
-	}
-	$element = zz_form_element($field['f_field_name'], $internal_value, 'radio', $id, $fieldattr);
-	
-	$new_element = [
+	if (!is_bool($selected)) $value = $selected;
+
+	$element = [
 		'type' => 'radio',
-		'value' => $internal_value,
-		'checked' => $fieldattr['checked'] ?? false,
+		'value' => $value,
+		'checked' => $selected ? true : false,
 		'required' => $field['required'],
 		'name' => $field['f_field_name'],
 		'id' => $id,
 		'disabled' => !empty($field['disabled']) AND in_array($value, $field['disabled']) ? true : false
 	];
-	$new_element = zz_record_element($new_element);
+	$element = zz_record_element($element);
 	
 	return [
 		'level' => $field['zz_level'] ?? 0,
 		'label' => $label,
 		'id' => $id,
-		'tag' => $new_element['tag'],
-		'attributes' => $new_element['attributes'],
-
-		'element' => sprintf('<label for="%s">%s&nbsp;%s</label>', $id, $element, $label)
+		'tag' => $element['tag'],
+		'attributes' => $element['attributes'],
 	];
 }
 
