@@ -187,13 +187,13 @@ function zzformRadios() {
 	var zz_inputs = zzformForm.getElementsByClassName('js-checkable');
 	for (i = 0; i < zz_inputs.length; i++) {
 		(function(counter){
-			zz_inputs[i].addEventListener('keydown', function(){zz_selectRadio(counter)}, false);
+			zz_inputs[i].addEventListener('keydown', function(){zz_selectRadio(counter, zz_inputs)}, false);
 		})(i);
 	}
 }
 
-function zz_selectRadio(counter) {
-	var checkbox = zzformForm.getElementById(zz_inputs[counter].getAttribute('data-check-id'));
+function zz_selectRadio(counter, zz_inputs) {
+	var checkbox = document.getElementById(zz_inputs[counter].getAttribute('data-check-id'));
 	if (!checkbox.checked) checkbox.checked = 'checked';
 }
 
