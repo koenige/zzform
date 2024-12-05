@@ -3614,30 +3614,28 @@ function zz_field_select_radio_text($field, $record, $data) {
 	end($data);
 	$last_index = key($data);
 
-	// get name
-	$input_fieldname = $field['f_field_name'];
-	if (substr($input_fieldname, -1) === ']') {
-		$input_fieldname = substr($input_fieldname, 0, -1).'--text]';
-	} else {
-		$input_fieldname .= '--text';
-	}
-
-	// get value
-	$inputval = '';
-	if (!empty($record[$field['field_name']])) {
-		if (!in_array($record[$field['field_name']], $field['enum'])) {
-			$inputval = $record[$field['field_name']];
-		}
-	}
 	$element = [
 		'type' => 'text',
-		'value' => $inputval,
-		'name' => $input_fieldname,
 		'create_id' => true,
 		'size' => 32,
 		'class' => 'js-checkable',
 		'data-check-id' => $data[$last_index]['id'],
 	];
+	// get name
+	$element['name'] = $field['f_field_name'];
+	if (substr($element['name'], -1) === ']') {
+		$element['name'] = substr($element['name'], 0, -1).'--text]';
+	} else {
+		$element['name'] .= '--text';
+	}
+
+	// get value
+	$element['value'] = '';
+	if (!empty($record[$field['field_name']])) {
+		if (!in_array($record[$field['field_name']], $field['enum'])) {
+			$element['value'] = $record[$field['field_name']];
+		}
+	}
 	$element = zz_record_element($element);
 	$data[$last_index]['append_next'] = true; // no closing list item
 	$data[] = [
