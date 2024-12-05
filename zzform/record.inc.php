@@ -3444,7 +3444,7 @@ function zz_field_select_get_record($field, $record, $id_field_name) {
  * @global array $zz_conf
  * @return string $text
  */
-function zz_field_select_radio($field, $record, $data, $fieldattr = NULL) {
+function zz_field_select_radio($field, $record, $data, $fieldattr = []) {
 	// variant: only one value with a possible NULL value
 	if (count($data) === 1) {
 		$data[0]['attributes']['type'] = 'checkbox';
@@ -3454,69 +3454,30 @@ function zz_field_select_radio($field, $record, $data, $fieldattr = NULL) {
 		]));
 		return wrap_template('zzform-record-radio', $data);
 	}
+	
+	if (!empty($field['enum_textinput']))
+		$data = zz_field_select_radio_text($field, $record, $data);
 
 	$data['id'] = zz_make_id_fieldname($field['f_field_name']);
-	$data['attributes'] = $fieldattr ?? '';
+	$data['attributes'] = $fieldattr ? $fieldattr : ''; // string for zzbrick
+	$none = zz_field_radio_none($field, $record);
+	if ($none) array_unshift($data, $none);
 
-	// variant: only two or three values next to each other
+	$data = zz_field_select_radio_levels($data);
+
 	if (empty($field['show_values_as_list'])) {
+		// variant: only two or three values next to each other
 		$data['inline'] = true;
-		$none = zz_field_radio_none($field, $record);
-		if ($none) array_unshift($data, $none);
-		return wrap_template('zzform-record-radio', $data);
-	}
-
-	// variant: more values as a list
-	$data['list'] = true;
-	wrap_include('format', 'zzform');
-	$text = "\n".'<ul class="zz_radio_list" id="'.$data['id'].'"'.zzform_attributes($fieldattr).'>'."\n";
-	$none = zz_field_select_radio_none($field, $record);
-	if ($none) $text .= '<li>'.$none."</li>\n";
-	foreach ($data as $index => $radio) {
-		if (!is_numeric($index)) continue;
-		switch ($radio['level']) {
-		case 1:
-			$text .= "\n<ul><li>";
-			break;
-		case 0:
-			if ($index) $text .= "</li>\n<li>"; 
-			else $text .= "<li>";
-			break;
-		default:
-			for ($i = 0; $i > $radio['level']; $i--) {
-				$text .= "</li></ul><li>";
-			}
-			break;
-		}
-		$text .= $radio['element'];
-		if (!empty($field['enum_textinput']) AND $index + 1 === count($data)) {
-			$inputval = '';
-			if (!empty($record[$field['field_name']])) {
-				if (!in_array($record[$field['field_name']], $field['enum'])) {
-					$inputval = $record[$field['field_name']];
-				}
-			}
-			$fieldattr['size'] = 32;
-			$fieldattr['class'] = 'js-checkable';
-			$fieldattr['data-check-id'] = $radio['id'];
-			$input_fieldname = $field['f_field_name'];
-			if (substr($input_fieldname, -1) === ']') {
-				$input_fieldname = substr($input_fieldname, 0, -1).'--text]';
-			} else {
-				$input_fieldname .= '--text';
-			}
-			$text .= '<br>'.zz_form_element($input_fieldname, $inputval, 'text', true, $fieldattr);
-		}
-	}
-	$text .= "</li>\n";
-
-	if (empty($field['append_next'])) {
-		$text .= '</ul>'."\n";
 	} else {
-		global $zz_conf;
-		$zz_conf['int']['append_next_type'] = 'list';
+		// variant: more values as a list
+		$data['list'] = true;
+		if (!empty($field['append_next'])) {
+			global $zz_conf;
+			$data['append_next'] = true;
+			$zz_conf['int']['append_next_type'] = 'list';
+		}
 	}
-	return $text;
+	return wrap_template('zzform-record-radio', $data);
 }
 
 /**
@@ -3616,7 +3577,7 @@ function zz_field_select_radio_value($field, $record, $value, $label, $pos) {
 	$new_element = zz_record_element($new_element);
 	
 	return [
-		'level' => isset($field['zz_level']) ? $field['zz_level'] : 0,
+		'level' => $field['zz_level'] ?? 0,
 		'label' => $label,
 		'id' => $id,
 		'tag' => $new_element['tag'],
@@ -3674,6 +3635,91 @@ function zz_field_selected($field, $record, $value) {
 		if ($record[$field['field_name']].'' === $value.'') return true;
 	}
 	return false;
+}
+
+/**
+ * add a text input after the last element for free entry of data
+ * via $zz['fields'][$no]['enum_textinput'] = true;
+ *
+ * @param array $field
+ * @param array $record
+ * @param array $data
+ * @return array
+ */
+function zz_field_select_radio_text($field, $record, $data) {
+	end($data);
+	$last_index = key($data);
+
+	// get name
+	$input_fieldname = $field['f_field_name'];
+	if (substr($input_fieldname, -1) === ']') {
+		$input_fieldname = substr($input_fieldname, 0, -1).'--text]';
+	} else {
+		$input_fieldname .= '--text';
+	}
+
+	// get value
+	$inputval = '';
+	if (!empty($record[$field['field_name']])) {
+		if (!in_array($record[$field['field_name']], $field['enum'])) {
+			$inputval = $record[$field['field_name']];
+		}
+	}
+	$element = [
+		'type' => 'text',
+		'value' => $inputval,
+		'name' => $input_fieldname,
+		'create_id' => true,
+		'size' => 32,
+		'class' => 'js-checkable',
+		'data-check-id' => $data[$last_index]['id'],
+	];
+	$element = zz_record_element($element);
+	$data[$last_index]['append_next'] = true; // no closing list item
+	$data[] = [
+		'level' => $data[$last_index]['level'],
+		'tag' => $element['tag'],
+		'attributes' => $element['attributes'],
+		'extra' => true
+	];
+	return $data;
+}
+
+/**
+ * add markers if elements should be shown in hierarchy
+ * append_next, list_open, list_close
+ *
+ * @param array $data
+ * @return array
+ */
+function zz_field_select_radio_levels($data) {
+	$last_index = NULL;
+	$list_open = 0;
+	foreach ($data as $index => $line) {
+		if (!is_numeric($index)) continue;
+		if (!array_key_exists('level', $line)) $data[$index]['level'] = 0;
+		switch ($line['level']) {
+		case 1:
+			$data[$last]['append_next'] = true;
+			$data[$index]['list_open'] = true;
+			$list_open++;
+			break;
+		case 0:
+			break;
+		default:
+			// negative values
+			for ($i = 0; $i > $line['level']; $i--) {
+				$data[$last]['list_close'][]['close'] = true;
+				$list_open--;
+			}
+		}
+		$last = $index;
+	}
+	while ($list_open) {
+		$data[$last]['list_close'][]['close'] = true;
+		$list_open--;
+	}
+	return $data;
 }
 
 /**

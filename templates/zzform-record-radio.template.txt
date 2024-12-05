@@ -10,14 +10,27 @@
 #
 %%% condition if inline %%%
 <span id="%%% item id %%%"%%% item attributes zzform_attributes %%%>
+%%% condition elseif list %%%
+<ul class="zz_radio_list" id="%%% item id %%%"%%% item attributes zzform_attributes %%%>
 %%% condition endif %%%
 %%% loop start %%%
+%%% condition if list_open %%%<ul>
+%%% condition endif %%%
+%%% condition if main__list %%%%%% condition if extra %%%<br>%%% condition else %%%<li>%%% condition endif %%%%%% condition endif %%%
 %%% condition if label | label_none %%%
 <label for="%%% item id %%%"%%% item label_attributes zzform_attributes %%%>%%% condition endif %%%
 <input%%% item attributes zzform_attributes %%%>%%% condition if label_none %%%&nbsp;%%% text No selection %%%
 %%% condition elseif label %%%&nbsp;%%% item label %%%%%% condition endif %%%
 %%% condition if label | label_none %%%</label>%%% condition endif %%%
+%%% condition if main__list %%%%%% condition unless append_next %%%</li>
+%%% condition endif %%%%%% condition endif %%%
+%%% loop list_close %%%</ul></li>
+%%% loop end %%%
 %%% loop end%%%
 %%% condition if inline %%%
 </span>
+%%% condition elseif list %%%
+%%% condition unless append_next %%%
+</ul>
+%%% condition endif %%%
 %%% condition endif %%%
