@@ -3662,7 +3662,8 @@ function zz_field_select_radio_levels($data) {
 	$list_open = 0;
 	foreach ($data as $index => $line) {
 		if (!is_numeric($index)) continue;
-		if (!array_key_exists('level', $line)) $data[$index]['level'] = 0;
+		if (!array_key_exists('level', $line))
+			$line['level'] = $data[$index]['level'] = 0;
 		switch ($line['level']) {
 		case 1:
 			$data[$last]['append_next'] = true;
