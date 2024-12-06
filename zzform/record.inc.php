@@ -4038,10 +4038,13 @@ function zz_field_file($field, $display, $record, $record_saved, $images, $mode,
 				AND $data[$i]['link'] = zz_makelink($image['path'], $record_saved ?? $record)) {
 				if (count($uploads) > 1 OR !empty($field['optional_image'])) {
 					$data[$i]['delete_checkbox_id'] = 'delete-file-'.$fieldkey.'-'.$imagekey;
-					$data[$i]['delete_checkbox'] = zz_form_element(
-						'zz_delete_file['.$fieldkey.'-'.$imagekey.']', '', 'checkbox',
-						$data[$i]['delete_checkbox_id'], ['autofocus' => false]
-					);
+					$element = zz_record_element([
+						'type' => 'checkbox',
+						'name' => 'zz_delete_file['.$fieldkey.'-'.$imagekey.']',
+						'id' => $data[$i]['delete_checkbox_id'],
+						'autofocus' => false
+ 					]);
+					$data[$i]['delete_checkbox'] = $element['attributes'];
 				}
 			}
 			if (!empty($images[$fieldkey][$imagekey]['error'])) {

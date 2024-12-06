@@ -26,8 +26,7 @@
 %%% condition if link %%%
 <a href="%%% item link %%%">%%% item link %%%</a>
 %%% condition if delete_checkbox %%%
-%%% item delete_checkbox %%%
-<small>&nbsp;(<label for="%%% item delete_checkbox_id %%%">%%% text Delete this file %%%</label>)</small>
+<input%%% item delete_checkbox zzform_attributes %%%><label for="%%% item delete_checkbox_id %%%"><small>&nbsp;(%%% text Delete this file %%%)</small></label>
 %%% condition endif %%%
 %%% condition endif %%%
 %%% condition if error %%%
