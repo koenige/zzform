@@ -2739,7 +2739,7 @@ function zz_field_set($subtable, $display, $my_tab) {
 					'value' => $set['id'],
 					'title' => $set['title'],
 					'checked' => !empty($set['checked']) ? true : false,
-					'group' => $set['group'],
+					'group' => $set['group'] ?? NULL,
 					'list_open' => $list_open
 				
 				];
