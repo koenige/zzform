@@ -1971,7 +1971,7 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 	if (!$display_value) $display_value = $value;
 
 	if ($value AND in_array($field_type, ['number', 'ipv4', 'date', 'datetime', 'time'])) {
-		$text .= zz_field_format($display_value, $field);
+		$text .= zz_htmltag_escape(zz_field_format($display_value, $field));
 	} elseif ($value AND $field_type === 'select') {
 		$detail_key = $display_value ? $display_value : $field['default'];
 		$my_fieldname = $field['key_field_name'] ?? $field['field_name'];
@@ -1999,7 +1999,7 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 				return ['', ''];
 			}
 		} elseif (isset($field['enum'])) {
-			$text .= $display_value;
+			$text .= zz_htmltag_escape($display_value);
 		}
 	} elseif ($record) {
 		if (isset($field['timestamp']) && $field['timestamp']) {
@@ -2020,7 +2020,7 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 			} elseif (!empty($record_saved[$field['field_name']])) {
 				$text .= zz_htmltag_escape($record_saved[$field['field_name']]);
 			} elseif (!empty($field['null'])) {
-				$text .= $display_value;
+				$text .= zz_htmltag_escape($display_value);
 			} else {
 				if (empty($field['append_next']))
 					if (!empty($field['value'])) $text .= $field['value'];
