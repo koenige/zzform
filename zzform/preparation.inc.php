@@ -1489,7 +1489,7 @@ function zz_log_validation_errors($my_rec, $validation) {
 			zz_error_validation_log('msg_dev_args', $field['field_name']);
 			zz_error_validation_log('msg_dev_args', is_array($my_rec['record'][$field['field_name']])
 				? json_encode($my_rec['record'][$field['field_name']])
-				: $my_rec['record'][$field['field_name']]
+				: wrap_html_escape($my_rec['record'][$field['field_name']])
 			);
 			zz_error_validation_log('log_post_data', true);
 			$somelogs = true;
