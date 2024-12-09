@@ -2032,7 +2032,7 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 			if ($field_type === 'select')
 				$text .= zz_field_will_add_auto($field);
 			else
-				$text .= $display_value;
+				$text .= zz_htmltag_escape($display_value);
 		} else $text .= zz_field_will_add_auto($field);
 	}
 	if ($mark_italics) $text = zz_record_mark_italics($text, $mode);
@@ -4120,7 +4120,7 @@ function zz_field_display($field, $record, $record_saved) {
 		if (zz_get_fieldtype($field) === 'number') {
 			$field['display_value'] = zz_number_format($field['display_value'], $field);
 		}
-		return $field['display_value']; 
+		return zz_htmltag_escape($field['display_value']);
 	}
 	// no record
 	if (!$record) {
@@ -4139,6 +4139,7 @@ function zz_field_display($field, $record, $record_saved) {
 		}
 		if (!$value) return '';
 
+		$value = zz_htmltag_escape($value);
 		if (!empty($field['translate_field_value']))
 			$value = wrap_text($value, ['source' => wrap_setting('zzform_script_path')]);
 		return $value;
@@ -4237,6 +4238,8 @@ function zz_field_concat($field, $values) {
 	// only concat existing values
 	$count = count($values);
 	$values = array_values($values);
+	foreach ($values as $index => $value)
+		$values[$index] = zz_htmltag_escape($value);
 
 	// check values for line breaks, existing |
 	// but only if content is displayed as option, not if there are radio buttons
