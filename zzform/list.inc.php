@@ -1124,7 +1124,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 			} elseif (!empty($field['enum'])) {
 				$text = zz_print_enum($field, $row['value']);
 			} else {
-				$text = $row['value'];
+				$text = zz_htmltag_escape($row['value']);
 			}
 			break;
 		case 'number':
@@ -1173,8 +1173,9 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 			break;
 		default:
 			$text = $row['value'];
-			if ($text AND empty($field['list_format']) AND empty($field['export_no_html'])) {
-				$text = nl2br(zz_htmltag_escape($text));
+			if ($text AND empty($field['list_format'])) {
+				if (empty($field['export_no_html']) OR $mode !== 'export')
+					$text = nl2br(zz_htmltag_escape($text));
 			}
 			break;
 		}
