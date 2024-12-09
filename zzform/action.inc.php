@@ -152,6 +152,8 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 		$validation = zz_action_timeframe($zz_record);
 		if (!$validation) $zz_conf['int']['resend_form_required'] = true;
 	}
+	if (!empty($zz_conf['int']['resend_form_required']))
+		$validation = false;
 	
 	if (!$validation) {
 		if (!empty($zz_record['upload_form'])) zz_upload_cleanup($zz_tab, false); 

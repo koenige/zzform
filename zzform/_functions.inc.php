@@ -231,10 +231,11 @@ function zz_check_id_value_error() {
  * @param string $mode ('read', 'write', 'timecheck')
  * @param string $id
  * @param string $hash
+ * @return string
  */
 function zz_secret_id($mode, $id = '', $hash = '') {
 	global $zz_conf;
-	if (!empty($zz_conf['multi'])) return;
+	if (!empty($zz_conf['multi'])) return '';
 	
 	// @deprecated
 	if (file_exists(wrap_setting('log_dir').'/zzform-ids.log')) {
@@ -255,8 +256,29 @@ function zz_secret_id($mode, $id = '', $hash = '') {
 	}
 	if ($mode === 'read') return $found;
 	elseif ($mode === 'timecheck') return time() - $timestamp;
-	if ($found) return;
+	if ($found) return $found;
+	if (!empty($_POST)) // no hash found but POST? resend required, possibly spam
+		$zz_conf['int']['resend_form_required'] = true;
 	wrap_file_log('zzform/ids', 'write', [time(), $id, $hash]);
+}
+
+/**
+ * delete secret ID after successful operation
+ * to avoid reusing zz_id
+ *
+ * @return bool
+ */
+function zz_secret_id_delete() {
+	global $zz_conf;
+	if (empty($zz_conf['id'])) return false;
+	if (empty($zz_conf['int']['secret_key'])) return false;
+
+	wrap_include('file', 'zzwrap');
+	wrap_file_log('zzform/ids', 'delete', [
+		'zzform_id' => $zz_conf['id'],
+		'zzform_hash' => $zz_conf['int']['secret_key']
+	]);
+	return true;
 }
 
 /**

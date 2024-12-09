@@ -370,6 +370,8 @@ function zzform_record($zz, $ops, $zz_conditions) {
 			$ops['exit'] = true;
 			return $ops;
 		} elseif ($ops['result']) {
+			// remove secret
+			zz_secret_id_delete();
 			// Redirect, if wanted.
 			$ops['redirect_url'] = zz_output_redirect($ops, $zz, $zz_tab);
 			if ($ops['redirect_url']) {
