@@ -2838,7 +2838,7 @@ function zz_upload_exec($command, $log_description) {
 		else $out = '[json] '.json_encode($output);
 		$log = "[%s] zzform Upload: %s %s (Output: %s) {%s} [User: %s]\n";
 		$log = sprintf($log, date('d-M-Y H:i:s'), $log_description, $command, $out, $time, $user);
-		error_log($log, 3, wrap_setting('log_dir').'/upload.log');
+		error_log($log, 3, wrap_setting('log_dir').'/zzform/upload.log');
 	}
 	return [$output, $return_var];
 }
