@@ -19,10 +19,10 @@
 %%% condition if main__list %%%%%% condition if extra %%%<br>%%% condition else %%%<li>%%% condition endif %%%%%% condition endif %%%
 %%% condition unless setting html_label_after_input %%%
 %%% condition if label | label_none %%%
-<label for="%%% item id %%%"%%% item label_attributes zzform_attributes %%%>%%% condition endif %%%%%% condition endif %%%
+ <label for="%%% item id %%%"%%% item label_attributes zzform_attributes %%%>%%% condition endif %%%%%% condition endif %%%
 <input%%% item attributes zzform_attributes %%%>%%% condition if setting html_label_after_input %%%
 %%% condition if label | label_none %%%
-<label for="%%% item id %%%"%%% item label_attributes zzform_attributes %%%>%%% condition endif %%%%%% condition endif %%%
+ <label for="%%% item id %%%"%%% item label_attributes zzform_attributes %%%>%%% condition endif %%%%%% condition endif %%%
 %%% condition if label_none %%%&nbsp;%%% text No selection %%%
 %%% condition elseif label %%%&nbsp;%%% item label %%%%%% condition endif %%%
 %%% condition if label | label_none %%%</label>%%% condition endif %%%
