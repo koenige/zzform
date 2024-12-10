@@ -1003,11 +1003,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 				$fields[$no]['max_select'] = wrap_setting('zzform_max_select');
 			if (!isset($fields[$no]['max_select_val_len']))
 				$fields[$no]['max_select_val_len'] = wrap_setting('zzform_max_select_val_len');
-			if (!isset($fields[$no]['key_field_name']) AND str_ends_with($fields[$no]['field_name'], '_id')
-				AND substr_count($fields[$no]['field_name'], '_') > 1) {
-				$pos = strrpos(substr($fields[$no]['field_name'], 0, -3), '_') + 1;
-				$fields[$no]['key_field_name'] = substr($fields[$no]['field_name'], $pos);
-			}
+			$fields[$no]['key_field_name'] = zz_fill_out_key_field_name($fields[$no]);
 			break;
 		case 'time':
 		case 'datetime':
@@ -1068,6 +1064,29 @@ function zz_fill_out_required($field, $db_table) {
 	if (in_array($field['type'], $never_required)) return false;
 
 	return true;
+}
+
+/**
+ * get key_field_name
+ *
+ * @param array $field
+ * @return string
+ */
+function zz_fill_out_key_field_name($field) {
+	if (!empty($field['key_field_name'])) return $field['key_field_name'];
+
+	// check 1: last part of field_name
+	if (str_ends_with($field['field_name'], '_id')
+		AND substr_count($field['field_name'], '_') > 1) {
+		$pos = strrpos(substr($field['field_name'], 0, -3), '_') + 1;
+		return substr($field['field_name'], $pos);
+	}
+
+	// check 2: first field in SQL query
+	if (empty($field['sql'])) return '';
+	$fields = wrap_edit_sql($field['sql'], 'SELECT', '', 'list');
+	if (!isset($fields[0]['field_name'])) return '';
+	return $fields[0]['field_name'];
 }
 
 /**
