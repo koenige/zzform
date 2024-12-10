@@ -3498,8 +3498,10 @@ function zz_field_radio_none($field, $record) {
 
 	$element = [
 		'type' => 'radio',
+		'value' => '', // there needs to be an empty value, or it will be 'on'
 		'name' => $field['f_field_name'],
-		'id' => zz_make_id_fieldname($field['f_field_name']).'-0'
+		'id' => zz_make_id_fieldname($field['f_field_name']).'-0',
+		'class' => $field['hide_novalue'] ? 'hidden' : NULL,
 	];
 	if (!$record) {
 		// no value, no default value 
