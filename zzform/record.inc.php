@@ -636,7 +636,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 			$field['explanation_top'] = '';
 		}
 		if (!empty($field['explanation_top']))
-			$out['td']['content'] .= '<p class="explanation">'.$field['explanation_top'].'</p>';
+			$out['explanation_top'] = $field['explanation_top'];
 
 		// dependencies?
 		if ($field_display === 'form' AND !empty($field['dependencies'])) {
@@ -921,18 +921,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 				}
 			}
 			
-			if ($tab AND $field['required']
-				AND ($zz_tab[$tab]['max_records'] !== $zz_tab[$tab]['min_records_required'] OR !$zz_tab[$tab]['min_records_required'])) {
-				// support for required for subtable is too complicated so far, 
-				// because the whole subtable record may be optional
-				// just allow this for all required subrecords
-				$field['required'] = false;
-			}
-			if ($field['required'] AND !empty($field['upload_value'])) {
-				// in case there is no value, it will come from an upload field
-				$field['required'] = false;
-			}
-
 			// option fields must have type_detail set, these are normal fields in form view
 			// but won't be saved to database
 			if ($field['type'] === 'option') {
@@ -960,39 +948,9 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 				$append_next = false;
 			}
 
-			// field size, maxlength
-			if (!isset($field['size'])) {
-				if (in_array($field['type'], ['number', 'sequence'])) {
-					$field['size'] = 16;
-		 		} elseif (in_array($field['type'], ['datetime', 'timestamp'])) {
-					$field['size'] = 18;
-		 		} else {
-		 			$field['size'] = 32;
-		 		}
-			}
-		 	if ($field['type'] === 'ipv4') {
-		 		$field['size'] = 16;
-		 		$field['maxlength'] = 16;
-			} elseif ($field['type'] === 'time') {
-				$field['size'] = 8;
-			}
-			if ($field['maxlength'] && $field['maxlength'] < $field['size']
-				AND (empty($field['number_type']) OR !in_array($field['number_type'], ['latitude', 'longitude']))) {
-				$field['size'] = $field['maxlength'];
-			}
-			if (!empty($field['formatting_spaces'])) {
-				$field['size'] += $field['formatting_spaces'];
-				if (isset($field['maxlength'])) {
-					$field['maxlength'] += $field['formatting_spaces'];
-				}
-			}
-			if (!empty($field['placeholder'])) {
-				if ($field['placeholder'] === true) $field['placeholder'] = $field['title'];
-				else $field['placeholder'] = wrap_text($field['placeholder'], ['source' => wrap_setting('zzform_script_path')]);
-				$field['placeholder'] = strip_tags($field['placeholder']);
-			} else {
-				$field['placeholder'] = false;
-			}
+			$field['required'] = zz_record_field_required($field, $zz_tab, $tab);
+			$field = zz_record_field_size($field); // size, maxlength
+			$field['placeholder'] = zz_record_field_placeholder($field);
 
 			// apply factor only if there is a value in field
 			// don't apply it if it's a re-edit
@@ -1290,6 +1248,76 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 	$zz_conf['int']['append_next_type'] = $old_append_next_type;
 	$zz_conf['int']['add_details_where'] = $old_add_details_where;
 	return zz_return($output);
+}
+
+/**
+ * set 'required' attribute of a field
+ *
+ * @param array $field
+ * @return bool
+ */
+function zz_record_field_required($field, $zz_tab, $tab) {
+	if (empty($field['required'])) return false;
+	if ($tab AND $field['required']
+		AND ($zz_tab[$tab]['max_records'] !== $zz_tab[$tab]['min_records_required'] OR !$zz_tab[$tab]['min_records_required'])) {
+		// support for required for subtable is too complicated so far, 
+		// because the whole subtable record may be optional
+		// just allow this for all required subrecords
+		return false;
+	}
+	if ($field['required'] AND !empty($field['upload_value']))
+		// in case there is no value, it will come from an upload field
+		return false;
+	return $field['required'];
+}
+
+/**
+ * set 'size' and 'maxlength' of a field
+ *
+ * @param array $field
+ * @return array
+ */
+function zz_record_field_size($field) {
+	// field size, maxlength
+	if (!isset($field['size'])) {
+		if (in_array($field['type'], ['number', 'sequence'])) {
+			$field['size'] = 16;
+		} elseif (in_array($field['type'], ['datetime', 'timestamp'])) {
+			$field['size'] = 18;
+		} else {
+			$field['size'] = 32;
+		}
+	}
+	if ($field['type'] === 'ipv4') {
+		$field['size'] = 16;
+		$field['maxlength'] = 16;
+	} elseif ($field['type'] === 'time') {
+		$field['size'] = 8;
+	}
+	if ($field['maxlength'] && $field['maxlength'] < $field['size']
+		AND (empty($field['number_type']) OR !in_array($field['number_type'], ['latitude', 'longitude']))) {
+		$field['size'] = $field['maxlength'];
+	}
+	if (!empty($field['formatting_spaces'])) {
+		$field['size'] += $field['formatting_spaces'];
+		if (isset($field['maxlength'])) {
+			$field['maxlength'] += $field['formatting_spaces'];
+		}
+	}
+	return $field;
+}
+
+/**
+ * set 'placeholder' of a field
+ *
+ * @param array $field
+ * @return string
+ */
+function zz_record_field_placeholder($field) {
+	if (empty($field['placeholder'])) return false;
+	if ($field['placeholder'] === true) $placeholder = $field['title'];
+	else $placeholder = wrap_text($field['placeholder'], ['source' => wrap_setting('zzform_script_path')]);
+	return strip_tags($placeholder);
 }
 
 /**
