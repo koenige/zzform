@@ -22,7 +22,7 @@
 function zzform_attributes($fieldattr) {
 	$attr = [];
 	foreach ($fieldattr as $attr_name => $attr_value) {
-		if ($attr_value === false) {
+		if ($attr_value === false OR is_null($attr_value)) {
 			// boolean false
 			continue;
 		} elseif ($attr_value === true) {
