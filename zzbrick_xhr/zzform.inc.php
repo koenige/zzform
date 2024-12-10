@@ -98,7 +98,7 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	$ids = zz_hierarchy_subtree_ids($field);
 	if ($ids) {
 		$sql = wrap_edit_sql($sql, 'WHERE', sprintf('%s IN (%s)'
-			, $field['key_field_name'] ?? $field['field_name']
+			, $field['key_field_name']
 			, implode(',', $ids))
 		);
 	}

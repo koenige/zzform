@@ -1004,6 +1004,10 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			if (!isset($fields[$no]['max_select_val_len']))
 				$fields[$no]['max_select_val_len'] = wrap_setting('zzform_max_select_val_len');
 			$fields[$no]['key_field_name'] = zz_fill_out_key_field_name($fields[$no]);
+			// shortcut as key for results
+			$fields[$no]['key_field'] = $fields[$no]['key_field_name'];
+			if ($pos = strrpos($fields[$no]['key_field'], '.'))
+				$fields[$no]['key_field'] = substr($fields[$no]['key_field'], $pos + 1);
 			break;
 		case 'time':
 		case 'datetime':
@@ -1067,26 +1071,33 @@ function zz_fill_out_required($field, $db_table) {
 }
 
 /**
- * get key_field_name
+ * get key_field_name from first field in SQL query
  *
  * @param array $field
  * @return string
  */
 function zz_fill_out_key_field_name($field) {
-	if (!empty($field['key_field_name'])) return $field['key_field_name'];
+	if (!empty($field['key_field_name']))
+		return $field['key_field_name'];
+	if (!empty($field['id_field_name'])) {
+		wrap_error('Please use `key_field_name` instead of `id_field_name`.', E_USER_DEPRECATED);
+		return $field['id_field_name'];
+	}
 
-	// check 1: last part of field_name
+	if (!empty($field['sql'])) {
+		// categories.category_id or category_id
+		$fields = wrap_edit_sql($field['sql'], 'SELECT', '', 'list');
+		if (isset($fields[0]['field_name']))
+			return $fields[0]['field_name'];
+	}
+	// just a backup in case, e. g. media_category_id
 	if (str_ends_with($field['field_name'], '_id')
 		AND substr_count($field['field_name'], '_') > 1) {
 		$pos = strrpos(substr($field['field_name'], 0, -3), '_') + 1;
 		return substr($field['field_name'], $pos);
 	}
-
-	// check 2: first field in SQL query
-	if (empty($field['sql'])) return '';
-	$fields = wrap_edit_sql($field['sql'], 'SELECT', '', 'list');
-	if (!isset($fields[0]['field_name'])) return '';
-	return $fields[0]['field_name'];
+	// category_id
+	return $field['field_name'];
 }
 
 /**
@@ -3388,8 +3399,7 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 	}
 	if ($wheresql) $wheresql .= ')';
 	if (!empty($field['show_hierarchy_same_table']) AND !empty($id['value'])) {
-		$id_field_name = $field['id_field_name'] ?? $id['field_name'];
-		$wheresql .= sprintf(' AND %s != %d', $id_field_name, $id['value']);
+		$wheresql .= sprintf(' AND %s != %d', $field['key_field_name'], $id['value']);
 	}
 	$ids = zz_hierarchy_subtree_ids($field);
 	if ($ids) {
@@ -3397,7 +3407,7 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 		if (empty($field['show_hierarchy_use_top_value_instead_NULL']))
 			unset($ids[0]); // top hierarchy ID
 		$wheresql .= sprintf(' AND %s IN (%s)',
-			$id_field_name, implode(',', $ids)
+			$field['key_field_name'], implode(',', $ids)
 		);
 	}
 	if ($wheresql) {
@@ -3479,8 +3489,7 @@ function zz_check_select_translated($field, $sql_fieldname, $value, $search_equa
 	foreach ($records as $record) {
 		$field_ids[$record['field_id']] = $record['field_id'];
 	}
-	$my_fieldname = $field['key_field_name'] ?? $field['field_name'];
-	return sprintf('%s IN (%s)', $my_fieldname, implode(',', $field_ids));
+	return sprintf('%s IN (%s)', $field['key_field_name'], implode(',', $field_ids));
 }
 
 /**

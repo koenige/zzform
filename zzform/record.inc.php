@@ -1950,9 +1950,8 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 		$text .= zz_htmltag_escape(zz_field_format($display_value, $field));
 	} elseif ($value AND $field_type === 'select') {
 		$detail_key = $display_value ? $display_value : $field['default'];
-		$my_fieldname = $field['key_field_name'] ?? $field['field_name'];
 		if (isset($field['sql'])) {
-			$sql = wrap_edit_sql($field['sql'], 'WHERE', sprintf('%s = %d', $my_fieldname, $detail_key));
+			$sql = wrap_edit_sql($field['sql'], 'WHERE', sprintf('%s = %d', $field['key_field_name'], $detail_key));
 			$select_fields = zz_db_fetch($sql);
 			$select_fields = zz_translate($field, $select_fields);
 			if ($select_fields) {
@@ -2830,7 +2829,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 
 	// first OPTION element
 	// normally don't show a value, unless we only look at a part of a hierarchy
-	$fieldvalue = zz_field_select_value_hierarchy($field, $record, $field['key_field_name']);
+	$fieldvalue = zz_field_select_value_hierarchy($field, $record, $field['key_field']);
 	if (!$fieldvalue) $field['show_hierarchy_use_top_value_instead_NULL'] = false;
 
 	$fieldattr = [];
@@ -2896,15 +2895,15 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 function zz_field_select_single($lines, $record, $field) {
 	$line = array_shift($lines);
 	// compare as strings here!
-	if ($record AND $record[$field['field_name']] AND $line[$field['key_field_name']].'' !== $record[$field['field_name']].'') {
-		$outputf = 'Possible Values: '.$line[$field['key_field_name']]
+	if ($record AND $record[$field['field_name']] AND $line[$field['key_field']].'' !== $record[$field['field_name']].'') {
+		$outputf = 'Possible Values: '.$line[$field['key_field']]
 			.' -- Current Value: '
 			.wrap_html_escape($record[$field['field_name']])
 			.' -- Error --<br>'.wrap_text('No selection possible.');
-	} elseif (!empty($field['disabled']) AND in_array($line[$field['key_field_name']], $field['disabled'])) {
+	} elseif (!empty($field['disabled']) AND in_array($line[$field['key_field']], $field['disabled'])) {
 		$outputf = wrap_text('No selection possible.');
 	} else {
-		$outputf = zz_form_element($field['f_field_name'], $line[$field['key_field_name']],
+		$outputf = zz_form_element($field['f_field_name'], $line[$field['key_field']],
 			'hidden', true).zz_draw_select($field, $record, $line);
 	}
 	return $outputf;
@@ -3139,12 +3138,12 @@ function zz_field_select_hierarchy($field, $lines, $record = []) {
 	foreach ($lines as $line) {
 		// if hierarchy is hierarchy of same table, don't allow to set
 		// IDs in hierarchy or below to avoid recursion
-		if (!empty($field['show_hierarchy_same_table']) AND !empty($record[$field['key_field_name']])) {
-			if ($line[$field['key_field_name']] === $record[$field['key_field_name']]) continue;
-			if ($line[$field['show_hierarchy']] === $record[$field['key_field_name']]) continue;
+		if (!empty($field['show_hierarchy_same_table']) AND !empty($record[$field['key_field']])) {
+			if ($line[$field['key_field']] === $record[$field['key_field']]) continue;
+			if ($line[$field['show_hierarchy']] === $record[$field['key_field']]) continue;
 		}
 		// fill in values, index NULL is for uppermost level
-		$my_select[($line[$field['show_hierarchy']] ?? 'NULL')][$line[$field['key_field_name']]] = $line;
+		$my_select[($line[$field['show_hierarchy']] ?? 'NULL')][$line[$field['key_field']]] = $line;
 	}
 
 	// if there are no values for subtree, set subtree to false
@@ -3266,7 +3265,7 @@ function zz_field_select_lines($field, $lines) {
 		$details = [];
 		// re-index $lines by value from id_field_name
 		foreach ($lines as $line)
-			$details[$line[$field['key_field_name']]] = $line;
+			$details[$line[$field['key_field']]] = $line;
 		return $details;
 	}
 	return $lines;
@@ -3347,30 +3346,25 @@ function zz_field_select_get_record($field, $record) {
 	if (substr($db_value, 0, 1) === '"' && substr($db_value, -1) === '"')
 		$db_value = substr($db_value, 1, -1);
 
-	// allow to set id_field_name
-	$where_field_name = $field['id_field_name'] ?? $field['key_field_name'];
-	if ($pos = strrpos($field['key_field_name'], '.'))
-		$field['key_field_name'] = substr($field['key_field_name'], $pos + 1);
-
 	if (substr($field['sql'], 0, 4) === 'SHOW') {
 		if (strstr($field['sql'], 'LIKE'))
 			$sql = $field['sql'];
 		else
-			$sql = wrap_edit_sql($field['sql'], 'WHERE', $where_field_name
+			$sql = wrap_edit_sql($field['sql'], 'WHERE', $field['key_field_name']
 				.sprintf(' LIKE "%s"', $db_value));
 	} else {
 		// only check numeric values, others won't give a valid result
 		// for these, just display the given values again
 		if (!is_numeric($db_value)) return [];
 		// get SQL query
-		$sql = wrap_edit_sql($field['sql'], 'WHERE', $where_field_name
+		$sql = wrap_edit_sql($field['sql'], 'WHERE', $field['key_field_name']
 			.sprintf(' = %d', $db_value));
 	}
 
 	if (!$sql) $sql = $field['sql'];
 
 	// fetch query
-	$detail_records = zz_db_fetch($sql, $field['key_field_name'], '', "record: "
+	$detail_records = zz_db_fetch($sql, $field['key_field'], '', "record: "
 		.$field['field_name'].' (probably \'id_field_name\' needs to be set)');
 	
 	// only one record?
@@ -3381,7 +3375,7 @@ function zz_field_select_get_record($field, $record) {
 	
 	// check for equal record values
 	foreach ($detail_records as $line) {
-		if ($line[$field['key_field_name']] !== $record[$field['field_name']]) continue;
+		if ($line[$field['key_field']] !== $record[$field['field_name']]) continue;
 		return $line;
 	}
 	return [];
@@ -3872,7 +3866,7 @@ function zz_draw_select($field, $record, $line, $form = false, $addlevel = 0) {
 			$i++;
 		}
 	} else {
-		$key = $field['key_field_name'];
+		$key = $field['key_field'];
 	}
 	// remove empty fields, makes no sense
 	foreach ($details as $my_key => $value)
@@ -3896,18 +3890,18 @@ function zz_draw_select($field, $record, $line, $form = false, $addlevel = 0) {
 		$fieldvalue = strip_tags($fieldvalue);
 		$fieldattr = [];
 		// check == to compare strings with numbers as well
-		if ($record AND $line[$field['key_field_name']] == $record[$field['field_name']]) {
+		if ($record AND $line[$field['key_field']] == $record[$field['field_name']]) {
 			$fieldattr['selected'] = true;
 		} elseif (!empty($field['disabled_ids']) 
 			AND is_array($field['disabled_ids'])
-			AND in_array($line[$field['key_field_name']], $field['disabled_ids'])) {
+			AND in_array($line[$field['key_field']], $field['disabled_ids'])) {
 			$fieldattr['disabled'] = true;
 		}
 		if ($level !== 0) $fieldattr['class'] = 'level'.$level;
 		// database, table or field names which do not come with an ID?
-		if ($line[$field['key_field_name']] === $fieldvalue)
-			$line[$field['key_field_name']] = sprintf(' %s ', $line[$field['key_field_name']]);
-		$output = zz_form_element($fieldvalue, $line[$field['key_field_name']], 'option', true, $fieldattr)."\n";
+		if ($line[$field['key_field']] === $fieldvalue)
+			$line[$field['key_field']] = sprintf(' %s ', $line[$field['key_field']]);
+		$output = zz_form_element($fieldvalue, $line[$field['key_field']], 'option', true, $fieldattr)."\n";
 	} else {
 		$output = $fieldvalue;
 	}
