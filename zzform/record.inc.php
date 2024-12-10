@@ -891,31 +891,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 				}
 			}
 
-			if (!empty($field['dependent_fields'])) {
-				// check if subtable
-				// check if field = write_once
-				foreach ($field['dependent_fields'] as $field_no => $dependent_field) {
-					if (empty($my_fields[$field_no])) continue;
-					$show_dependency = true;
-					// check for write_once fields that cannot change,
-					// change eventListener obviously not working there
-					foreach ($field['fields'] as $subfield) {
-						if ($subfield['field_name'] !== $dependent_field['field_name']) continue;
-						if ($subfield['type'] !== 'write_once') continue;
-						if (empty($my_rec['id']['value'])) continue;
-						$show_dependency = false;
-					}
-					if ($show_dependency) {
-						$zz_conf['int']['js_field_dependencies'][] = [
-							'main_field_id' => zz_make_id_fieldname($field['table_name'].'[0]['.$dependent_field['field_name'].']'),
-							'dependent_field_id' => zz_make_id_fieldname($my_fields[$field_no]['f_field_name']),
-							'required' => !empty($dependent_field['required']) ? true : false,
-							'field_no' => $field_no,
-							'has_translation' => !empty($my_fields[$field_no]['has_translation']) ? true : false
-						];
-					}
-				}
-			}
+			zz_record_subtable_dependencies($field, $my_fields, $my_rec['id']['value'] ?? 0);
 
 		} else {
 			//	"Normal" field
@@ -4348,6 +4324,42 @@ function zz_record_subtable_submit($mode, $field, $tab, $rec = 0) {
 		break;
 	}
 	return zz_form_element($name, $value, 'submit', false, $fieldattr);
+}
+
+/**
+ * prepare JS for dependent fields
+ *
+ * @param array $field
+ * @param array $my_fields
+ * @param int $id_value = $my_rec['id']['value']
+ * @return
+ */
+function zz_record_subtable_dependencies($field, $my_fields, $id_value) {
+	global $zz_conf;
+	if (empty($field['dependent_fields'])) return false;
+
+	// check if subtable
+	// check if field = write_once
+	foreach ($field['dependent_fields'] as $field_no => $dependent_field) {
+		if (empty($my_fields[$field_no])) continue;
+		$show_dependency = true;
+		// check for write_once fields that cannot change,
+		// change eventListener obviously not working there
+		foreach ($field['fields'] as $subfield) {
+			if ($subfield['field_name'] !== $dependent_field['field_name']) continue;
+			if ($subfield['type'] !== 'write_once') continue;
+			if (!$id_value) continue;
+			$show_dependency = false;
+		}
+		if (!$show_dependency) continue;
+		$zz_conf['int']['js_field_dependencies'][] = [
+			'main_field_id' => zz_make_id_fieldname($field['table_name'].'[0]['.$dependent_field['field_name'].']'),
+			'dependent_field_id' => zz_make_id_fieldname($my_fields[$field_no]['f_field_name']),
+			'required' => !empty($dependent_field['required']) ? true : false,
+			'field_no' => $field_no,
+			'has_translation' => !empty($my_fields[$field_no]['has_translation']) ? true : false
+		];
+	}
 }
 
 /**
