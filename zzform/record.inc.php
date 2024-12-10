@@ -235,8 +235,24 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 	if (!in_array($ops['mode'], ['add', 'edit'])) {
 		$record['upload_form'] = false;
 	}
-	zz_output_wmd_editor();
+	zz_record_wmd_editor();
 	return wrap_template('zzform-record', $record);
+}
+
+/**
+ * Settings for WMD Editor
+ *
+ * @global array $zz_conf
+ */
+function zz_record_wmd_editor() {
+	global $zz_conf;
+	
+	if (empty($zz_conf['wmd_editor'])) return '';
+	if ($zz_conf['wmd_editor'] === true) return '';
+	wrap_setting('zzform_wmd_editor_instances', $zz_conf['wmd_editor'] - 1);
+	
+	if (in_array(wrap_setting('lang'), wrap_setting('zzform_wmd_editor_languages')))
+		wrap_setting('zzform_wmd_editor_lang', wrap_setting('lang'));
 }
 
 /**
@@ -711,11 +727,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 			$integrate_in_next = !empty($field['integrate_in_next']) ? true : false;
 			//	Subtable
 			$sub_tab = $field['subtable'];
-			if (empty($field['title_button'])) {
-				$field['title_button'] = strip_tags($field['title']); 
-			} else {
-				$field['title_button'] = wrap_text($field['title_button'], ['source' => wrap_setting('zzform_script_path')]);
-			}
 			$out['th']['attr'][] = 'sub-add';
 			if (empty($field['tick_to_save'])) {
 				// no formatting as a subtable if tick_to_save is used
@@ -826,7 +837,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 				else
 					$h_show_explanation = false;
 				if ($show_remove) {
-					$removebutton = zz_output_subtable_submit('remove', $field, $sub_tab, $sub_rec);
+					$removebutton = zz_record_subtable_submit('remove', $field, $sub_tab, $sub_rec);
 					if (in_array($field['form_display'], ['lines', 'horizontal'])) {
 						$lastrow = $removebutton;	
 					}
@@ -844,9 +855,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 				if ($field['form_display'] === 'vertical') {
 					$details[$d_index] .= '</table></div>'."\n";
 					$table_open = false;
-				}
-				if ($show_remove) {
-					if ($field['form_display'] === 'vertical') {
+					if ($show_remove) {
 						$details[$d_index] .= $removebutton;
 					}
 				}
@@ -869,12 +878,12 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 						$out['td']['content'] .= '<div class="subrecord_spacer"></div>';
 					}
 					if ($mode !== 'revise') {
-						$out['td']['content'] .= zz_output_subtable_submit('add', $field, $sub_tab);
+						$out['td']['content'] .= zz_record_subtable_submit('add', $field, $sub_tab);
 					}
 				}
 			}
 			if ($field['form_display'] === 'lines') {
-				$all_have_errors = zz_record_check_error($zz_tab[$field['subtable']]);
+				$all_have_errors = zz_record_subtable_check_error($zz_tab[$field['subtable']]);
 				if ($all_have_errors) {
 					// mark full table row as having an error
 					$out['th']['attr'][] = 'error';
@@ -1573,43 +1582,6 @@ function zz_record_fields_from_matrix($row) {
 		$line[$key] = $value;	
 	}
 	return $line;
-}
-
-/**
- * outputs input form element for subtable add/remove
- *
- * @param string $mode add | remove
- * @param array $field
- * @param int $tab
- * @param int $rec (optional)
- * @return string HTML
- */
-function zz_output_subtable_submit($mode, $field, $tab, $rec = 0) {
-	$fieldattr = [];
-	// $zz['fields'][2]['select_empty_no_add'] = true;
-	foreach ($field['fields'] as $subfield) {
-		if (empty($subfield['select_empty_no_add'])) continue;
-		if (empty($subfield['sql'])) continue;
-		$records = zz_db_fetch($subfield['sql'], '_dummy_', 'numeric');
-		if (!$records) return '';
-	}
-
-	switch ($mode) {
-	case 'add':
-		$value = wrap_text('Add %s', ['values' => $field['title_button']]);
-		$name = sprintf('zz_subtables[add][%s]', $tab);
-		$fieldattr['class'] = 'sub-add';
-		$fieldattr['formnovalidate'] = true;
-		return zz_form_element($name, $value, 'submit', false, $fieldattr);
-	case 'remove':
-		$value = wrap_text('Remove');
-		$name = sprintf('zz_subtables[remove][%s][%s]', $tab, $rec);
-		$fieldattr['class'] = 'sub-remove-'.$field['form_display'];
-		$fieldattr['formnovalidate'] = true;
-		$fieldattr['title'] = wrap_text('Remove %s', ['values' => $field['title_button']]);
-		return zz_form_element($name, $value, 'submit', false, $fieldattr);
-	}
-	return '';
 }
 
 /**
@@ -4301,39 +4273,6 @@ function zz_record_mark_italics($out, $mode) {
 }
 
 /**
- * check for subtables with form_display = 'lines' if there’s an error somewhere
- * mark full row accordingly
- *
- * @param array $my_tab
- * @return bool
- */
-function zz_record_check_error($my_tab) {
-	$error_found = [];
-	foreach ($my_tab as $no => $rec) {
-		if (!is_numeric($no)) continue;
-		$error_found[$no] = false;
-		foreach ($rec['fields'] as $field) {
-			if (empty($field['class'])) continue;
-			foreach ($field['class'] as $class) {
-				if (strstr($class, 'error')) {
-					$error_found[$no] = true;
-					continue 3;
-				}
-			}
-		}
-	}
-	$all_have_errors = true;
-	if (!$error_found) $all_have_errors = false;
-	foreach ($error_found as $found) {
-		if (!$found) {
-			$all_have_errors = false;
-			break;
-		}
-	}
-	return $all_have_errors;
-}
-
-/**
  * set field attributes for dependent fields for use with JavaScript
  *
  * @param array $field
@@ -4359,6 +4298,89 @@ function zz_field_dependent_fields($field, $lines) {
 			$fieldattr['data-dependent_field_'.$field_no] = implode(',', $fieldattr['data-dependent_field_'.$field_no]);
 	}
 	return $fieldattr;
+}
+
+/**
+ * --------------------------------------------------------------------
+ * S – Subtable functions
+ * --------------------------------------------------------------------
+ */
+
+/**
+ * outputs input form element for subtable add/remove
+ *
+ * @param string $mode add | remove
+ * @param array $field
+ * @param int $tab
+ * @param int $rec (optional)
+ * @return string HTML
+ */
+function zz_record_subtable_submit($mode, $field, $tab, $rec = 0) {
+	$fieldattr = [];
+	// $zz['fields'][2]['select_empty_no_add'] = true;
+	foreach ($field['fields'] as $subfield) {
+		if (empty($subfield['select_empty_no_add'])) continue;
+		if (empty($subfield['sql'])) continue;
+		$records = zz_db_fetch($subfield['sql'], '_dummy_', 'numeric');
+		if (!$records) return '';
+	}
+
+	if (empty($field['title_button']))
+		$field['title_button'] = strip_tags($field['title']); 
+	else
+		$field['title_button'] = wrap_text(
+			$field['title_button'], ['source' => wrap_setting('zzform_script_path')]
+		);
+
+	switch ($mode) {
+	case 'add':
+		$value = wrap_text('Add %s', ['values' => $field['title_button']]);
+		$name = sprintf('zz_subtables[add][%s]', $tab);
+		$fieldattr['class'] = 'sub-add';
+		$fieldattr['formnovalidate'] = true;
+		break;
+	case 'remove':
+		$value = wrap_text('Remove');
+		$name = sprintf('zz_subtables[remove][%s][%s]', $tab, $rec);
+		$fieldattr['class'] = 'sub-remove-'.$field['form_display'];
+		$fieldattr['formnovalidate'] = true;
+		$fieldattr['title'] = wrap_text('Remove %s', ['values' => $field['title_button']]);
+		break;
+	}
+	return zz_form_element($name, $value, 'submit', false, $fieldattr);
+}
+
+/**
+ * check for subtables with form_display = 'lines' if there’s an error somewhere
+ * mark full row accordingly
+ *
+ * @param array $my_tab
+ * @return bool
+ */
+function zz_record_subtable_check_error($my_tab) {
+	$error_found = [];
+	foreach ($my_tab as $no => $rec) {
+		if (!is_numeric($no)) continue;
+		$error_found[$no] = false;
+		foreach ($rec['fields'] as $field) {
+			if (empty($field['class'])) continue;
+			foreach ($field['class'] as $class) {
+				if (strstr($class, 'error')) {
+					$error_found[$no] = true;
+					continue 3;
+				}
+			}
+		}
+	}
+	$all_have_errors = true;
+	if (!$error_found) $all_have_errors = false;
+	foreach ($error_found as $found) {
+		if (!$found) {
+			$all_have_errors = false;
+			break;
+		}
+	}
+	return $all_have_errors;
 }
 
 /**
