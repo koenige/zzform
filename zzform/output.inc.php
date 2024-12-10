@@ -1086,22 +1086,6 @@ function zz_rating_format($value, $field) {
 }
 
 /**
- * Settings for WMD Editor
- *
- * @global array $zz_conf
- */
-function zz_output_wmd_editor() {
-	global $zz_conf;
-	
-	if (empty($zz_conf['wmd_editor'])) return '';
-	if ($zz_conf['wmd_editor'] === true) return '';
-	wrap_setting('zzform_wmd_editor_instances', $zz_conf['wmd_editor'] - 1);
-	
-	if (in_array(wrap_setting('lang'), wrap_setting('zzform_wmd_editor_languages')))
-		wrap_setting('zzform_wmd_editor_lang', wrap_setting('lang'));
-}
-
-/**
  * Output upndown with TinyMCE editor
  *
  * @global array $zz_conf
