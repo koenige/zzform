@@ -756,7 +756,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 			foreach (array_keys($subtables) as $this_rec)
 				if (!is_numeric($subtables[$this_rec])) unset($subtables[$this_rec]);
 			$details = [];
-			$d_index = 0;
 			foreach ($subtables as $sub_rec) {
 				// show all subtables which are not deleted but 1 record as a minimum
 				if ($zz_tab[$sub_tab][$sub_rec]['action'] === 'delete'
@@ -779,13 +778,12 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 				];
 
 				$dont_delete_records = $field['dont_delete_records'] ?? false;
-				if (!empty($field['hierarchy'])) {
+				if (!empty($field['hierarchy']))
 					// hierarchy never allows adding/removing of records
 					$dont_delete_records = true;
-				}
-				if (!empty($field['values'][$sub_rec])) {
-					$dont_delete_records = true; // dont delete records with values set
-				}
+				elseif (!empty($field['values'][$sub_rec])) {
+					// dont delete records with values set
+					$dont_delete_records = true;
 				// just for optical reasons, in case one row allows removing of record
 				// @todo check if this last row is needed dynamically
 				if ($display === 'form' AND !$dont_delete_records)
@@ -815,10 +813,9 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 						$rec_data['dummy_last_column'] = false;	
 					}
 				}
-				$details[$d_index] = zz_show_field_rows(
+				$details[] = zz_show_field_rows(
 					$zz_tab, $subtable_mode, $field_display, $zz_record, $rec_data
 				);
-				$d_index++;
 			}
 
 			$out['td']['content'] .= implode('', $details);
