@@ -625,6 +625,8 @@ function zz_get_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 		if ($my_tab['records'] < $my_tab['min_records']) 
 			$my_tab['records'] = $my_tab['min_records'];
 		// always show one record minimum
+		if (!empty($field['form_display']) AND $field['form_display'] === 'set')
+			$zz_record['always_show_empty_detail_record'] = true;
 		if (!empty($zz_record['always_show_empty_detail_record']))
 			if (!$my_tab['records']) $my_tab['records'] = 1;
 	}
