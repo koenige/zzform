@@ -20,7 +20,7 @@
 </span>
 %%% condition endif %%%
 %%% loop end %%%
-%%% item extra_last_column %%%
+%%% item remove_button %%%
 %%% condition if explanation %%%<p class="explanation">%%% item explanation %%%</p>%%% condition endif %%%
 </div>
 </div>
@@ -80,7 +80,7 @@
 %%% loop start %%%
 <th%%% item th+tr_class " class='%s'" %%%>%%% item th_content %%%</th>
 %%% loop end %%%
-%%% condition if dummy_last_column | extra_last_column %%%
+%%% condition if dummy_last_column | remove_button %%%
 <th class="dummy_column">&nbsp;</th>
 %%% condition endif %%%
 </tr>
@@ -92,7 +92,7 @@
 	%%% condition if explanation %%%<p class="explanation">%%% item explanation %%%</p>%%% condition endif %%%</td>
 %%% loop end %%%
 %%% condition if dummy_last_column %%%<td class="dummy_column">&nbsp;</td>%%% condition endif %%%
-%%% condition if extra_last_column %%%<td>%%% item extra_last_column %%%</td>%%% condition endif %%%
+%%% condition if remove_button %%%<td>%%% item remove_button %%%</td>%%% condition endif %%%
 </tr>
 %%% condition if separator %%%
 <tr class="separator_row"><td colspan="%%% item separator_colspan_horizontal %%%" class="separator"><hr></td></tr>

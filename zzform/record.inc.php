@@ -474,12 +474,11 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple)
  * @param int $tab (optional, default = 0 = main table)
  * @param int $rec (optional, default = 0 = main record)
  * @param string $formdisplay (optional)
- * @param string $extra_lastcol (optional)
  * @param array $data (optional)
  * @return mixed (array, bool, or string HTML output)
  */
 function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec = 0
-	, $formdisplay = 'vertical', $extra_lastcol = false, $data = []) {
+	, $formdisplay = 'vertical', $data = []) {
 
 	global $zz_conf;	// Config variables
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
@@ -770,7 +769,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 
 				$c_subtables++;
 				
-				$lastrow = false;
 				$rec_data = [
 					'remove_button' => '',
 					'tab' => $sub_tab,
@@ -788,9 +786,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 				}
 				// just for optical reasons, in case one row allows removing of record
 				// @todo check if this last row is needed dynamically
-				if ($display === 'form' AND !$dont_delete_records) {
-					$lastrow = '&nbsp;';
-				}
+				if ($display === 'form' AND !$dont_delete_records)
+					$rec_data['dummy_last_column'] = true;	
 				
 				if ($field_display === 'form') {
 					if ($zz_tab[$sub_tab]['min_records'] <= $zz_tab[$sub_tab]['records']
@@ -813,12 +810,12 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 
 				if ($rec_data['remove_button']) {
 					if (in_array($field['form_display'], ['lines', 'horizontal'])) {
-						$lastrow = $rec_data['remove_button'];	
+						$rec_data['dummy_last_column'] = false;	
 					}
 				}
 				$details[$d_index] = zz_show_field_rows($zz_tab, $subtable_mode, 
 					$field_display, $zz_record, $sub_tab, $sub_rec,
-					$field['form_display'], $lastrow, $rec_data
+					$field['form_display'], $rec_data
 				);
 				$d_index++;
 			}
@@ -1181,7 +1178,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 		}
 	}
 	if ($formdisplay === 'inline') return $matrix;
-	$output = zz_record_fields($matrix, $formdisplay, $extra_lastcol, $tab, $data);
+	$output = zz_record_fields($matrix, $formdisplay, $data);
 	// append_next_type is only valid for single table
 	$zz_conf['int']['append_next_type'] = $old_append_next_type;
 	$zz_conf['int']['add_details_where'] = $old_add_details_where;
@@ -1412,27 +1409,23 @@ function zz_record_field_focus($name, $type) {
  *
  * @param array $matrix matrix of rows
  * @param string $formdisplay vertical | horizontal
- * @param string $extra_lastcol (optional)
- * @param int $tab @todo use $data['tab']
  * @param array $data
  * @return string HTML output
  */
-function zz_record_fields($matrix, $formdisplay, $extra_lastcol, $tab, $data = []) {
+function zz_record_fields($matrix, $formdisplay, $data) {
 	global $zz_conf;
 	static $table_head = [];
 	static $table_separator = [];
 	if (!$matrix) return ''; // detail record was deleted: no matrix
-	if (!array_key_exists($tab, $table_head)) $table_head[$tab] = true;
+	if (!array_key_exists($data['tab'], $table_head)) $table_head[$data['tab']] = true;
 
 	$data['separator_colspan_horizontal'] = count($matrix);
 	$data['form_display'] = $formdisplay;
 	$data['th_content'] = false;
-	$data['extra_last_column'] = $extra_lastcol !== '&nbsp;' ? $extra_lastcol : false;
-	$data['dummy_last_column'] = $extra_lastcol === '&nbsp;' ? true : false;
 	$data['error'] = false;
-	$data['head'] = $table_head[$tab]; // just first detail record with values: show head
-	$data['detailrecord'] = $tab ? true : false; // main 0: otherwise 1 … n
-	$table_head[$tab] = false;
+	$data['head'] = $table_head[$data['tab']]; // just first detail record with values: show head
+	$data['detailrecord'] = $data['tab'] ? true : false; // main 0: otherwise 1 … n
+	$table_head[$data['tab']] = false;
 
 	$last_row = [
 		'separator_before' => false,
@@ -1455,7 +1448,7 @@ function zz_record_fields($matrix, $formdisplay, $extra_lastcol, $tab, $data = [
 					break;
 				case 'horizontal':
 					if ($index !== 0) break;
-					if (!empty($table_separator[$tab])) break;
+					if (!empty($table_separator[$data['tab']])) break;
 					$data['separator_before'] = true;
 					break;
 			}
@@ -1488,13 +1481,13 @@ function zz_record_fields($matrix, $formdisplay, $extra_lastcol, $tab, $data = [
 				case 'horizontal':
 					if ($index !== count($matrix) -1) break;
 					$data['separator'] = true;
-					$table_separator[$tab] = true;
+					$table_separator[$data['tab']] = true;
 					break;
 			}
 		}
 		$i++;
 	}
-	if (!$tab AND !$data['th_content']) $zz_conf['int']['hide_tfoot_th'] = true;
+	if (!$data['tab'] AND !$data['th_content']) $zz_conf['int']['hide_tfoot_th'] = true;
 	return wrap_template('zzform-record-fields', $data);
 }
 
