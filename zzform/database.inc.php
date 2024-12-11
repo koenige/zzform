@@ -484,10 +484,10 @@ function zz_db_table($table, $db_name = NULL) {
 	if (strstr($table, '.')) {
 		$table = explode('.', $table);
 		$my['db_name'] = trim($table[0], '`');
-		$my['table'] = trim($table[1], '`');
+		$my['table'] = wrap_db_prefix(trim($table[1], '`'));
 	} else {
 		$my['db_name'] = $db_name ?? wrap_setting('db_name');
-		$my['table'] = trim($table, '`');
+		$my['table'] = wrap_db_prefix(trim($table, '`'));
 	}
 	return $my;	
 }
@@ -843,10 +843,9 @@ function zz_db_numeric_field($db_table, $field_name) {
  * @return array
  */
 function zz_db_table_structure($table) {
-	$def = [];
-	$def['table'] = wrap_db_prefix($table);
-	$sql = 'SHOW COLUMNS FROM `%s`';
-	$sql = sprintf($sql, $def['table']);
+	$def = zz_db_table($table); // db_name + table
+	$sql = 'SHOW COLUMNS FROM `%s`.`%s`';
+	$sql = sprintf($sql, $def['db_name'], $def['table']);
 	$structure = wrap_db_fetch($sql, '_dummy_', 'numeric');
 	$get_unique_keys = false;
 	foreach ($structure as $field) {
@@ -868,7 +867,7 @@ function zz_db_table_structure($table) {
 			AND NON_UNIQUE = 0
 			AND INDEX_NAME != "PRIMARY"
 			GROUP BY INDEX_NAME';
-		$sql = sprintf($sql, wrap_setting('db_name'), $def['table']);
+		$sql = sprintf($sql, $def['db_name'], $def['table']);
 		$uniques = wrap_db_fetch($sql, '_dummy_', 'numeric');
 		foreach ($uniques as $unique) {
 			$columns = explode(',', $unique['columns']);
