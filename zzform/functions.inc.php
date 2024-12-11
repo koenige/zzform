@@ -3190,11 +3190,20 @@ function zz_check_select($my_rec, $f) {
 			$sql = wrap_edit_sql($my_rec['fields'][$f]['sql'], 'WHERE', sprintf(
 				'%s = %d', $sql_fields[0]['field_name'], $my_rec['POST'][$field_name]
 			));
+			$sql = wrap_edit_sql($sql, 'SELECT', $sql_fields[0]['field_name'], 'replace');
 			$exists = wrap_db_fetch($sql, '', 'single value');
+			if (!$exists) {
+				// allow several identical records, too
+				$exists = wrap_db_fetch($sql, '_dummy_', 'numeric');
+				$exists = array_map('reset', $exists);
+				$exists = array_unique($exists);
+				if (count($exists) !== 1) $exists = [];
+			}
 			if (!$exists) {
 				$my_rec['validation'] = false;
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['fields'][$f]['suffix'] = ' '.wrap_text('Please make a different selection.');
+				zz_debug('ID does not exist.', $sql);
 			}
 		}
 	} elseif (count($possible_values) <= $my_rec['fields'][$f]['max_select']) {
