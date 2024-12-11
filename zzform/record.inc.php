@@ -744,7 +744,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 			$out['td']['attr'][] = 'subtable';
 			$out['td']['id'] = $field['f_field_name'];
 			// go through all detail records
-			$table_open = false;
 			$firstsubtable_no = NULL;
 			$c_subtables = 0;
 
@@ -763,7 +762,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 					AND $field_display !== 'form') continue;
 				if ($zz_tab[$sub_tab][$sub_rec]['action'] === 'delete'
 					AND $field_display !== 'form' AND $zz_record['action']) continue;
-				$details[$d_index] = '';
 
 				$c_subtables++;
 
@@ -806,18 +804,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 					$subtable_mode = 'add';
 				}
 
-				if ($field['form_display'] === 'vertical'
-					OR ($field['form_display'] !== 'lines' AND $sub_rec == $firstsubtable_no)) {
-					$details[$d_index] .= '<div class="detailrecord">';
-				}
-				
-				// HTML output depending on form display
-				if ($field['form_display'] === 'vertical'
-					OR ($field['form_display'] === 'horizontal' AND $sub_rec == $firstsubtable_no)) {
-					// show this for vertical display and for first horizontal record
-					$details[$d_index] .= '<table class="'.$field['form_display'].'">';
-					$table_open = true;
-				}
 				if ($field['form_display'] === 'vertical' OR $sub_rec === count($subtables) - 1)
 					$h_show_explanation = true;
 				else
@@ -831,10 +817,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 				$subtable_rows = zz_show_field_rows($zz_tab, $subtable_mode, 
 					$field_display, $zz_record, $sub_tab, $sub_rec,
 					$field['form_display'], $lastrow, $sub_rec, $h_show_explanation);
-				$details[$d_index] .= $subtable_rows;
+				$details[$d_index] = $subtable_rows;
 				if ($field['form_display'] === 'vertical') {
-					$details[$d_index] .= '</table></div>'."\n";
-					$table_open = false;
 					if ($show_remove) {
 						$details[$d_index] .= $removebutton;
 					}
@@ -843,9 +827,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 			}
 
 			$out['td']['content'] .= implode('', $details);
-			if ($table_open) {
-				$out['td']['content'] .= '</table></div>'."\n";
-			}
 			if (!$c_subtables AND !empty($field['msg_no_subtables'])) {
 				// There are no subtables, optional: show a message here
 				$out['td']['content'] .= $field['msg_no_subtables'];
@@ -1455,6 +1436,7 @@ function zz_record_fields($matrix, $formdisplay, $extra_lastcol, $tab) {
 	$data['dummy_last_column'] = $extra_lastcol === '&nbsp;' ? true : false;
 	$data['error'] = false;
 	$data['head'] = $table_head[$tab]; // just first detail record with values: show head
+	$data['detailrecord'] = $tab ? true : false; // main 0: otherwise 1 … n
 	$table_head[$tab] = false;
 
 	$last_row = [

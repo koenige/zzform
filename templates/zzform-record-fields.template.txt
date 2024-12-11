@@ -1,8 +1,8 @@
-# zzform module
+# zzform
 # Template for fields of record (tbody)
 #
-# https://www.zugzwang.org/projects/zzform
 # Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
 # @copyright Copyright © 2024 Gustaf Mossakowski
@@ -27,6 +27,10 @@
 </div>
 
 %%% case vertical %%%
+%%% condition if detailrecord %%%
+<div class="detailrecord">
+<table class="vertical">
+%%% condition endif %%%
 %%% loop start %%%
 %%% condition if separator_text %%%
 <tr class="separator_row"><td colspan="2" class="separator">
@@ -58,12 +62,19 @@
 </tr>
 %%% condition endif %%%
 %%% loop end %%%
+%%% condition if detailrecord %%%
+</table>
+</div>
+%%% condition endif %%%
 
 %%% case horizontal %%%
+<div class="detailrecord">
+<table class="horizontal">
 %%% condition if separator_before %%%
 <tr class="separator_row"><td colspan="%%% item separator_colspan_horizontal %%%" class="separator"><hr></td></tr>
 %%% condition endif %%%
 %%% condition if head %%%
+<thead>
 <tr>
 %%% loop start %%%
 <th%%% item th+tr_class " class='%s'" %%%>%%% item th_content %%%</th>
@@ -72,6 +83,7 @@
 <th class="dummy_column">&nbsp;</th>
 %%% condition endif %%%
 </tr>
+</thead>
 %%% condition endif %%%
 <tr>
 %%% loop start %%%
@@ -84,5 +96,7 @@
 %%% condition if separator %%%
 <tr class="separator_row"><td colspan="%%% item separator_colspan_horizontal %%%" class="separator"><hr></td></tr>
 %%% condition endif %%%
+</table>
+</div>
 
 %%% switch - %%%
