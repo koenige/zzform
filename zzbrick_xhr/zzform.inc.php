@@ -24,6 +24,7 @@
  */
 function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	zz_initialize();
+	$zz['fields'] = zz_fill_out($zz['fields'], $zz['table'], 1);
 
 	if (is_array($xmlHttpRequest['text']))
 		return brick_xhr_error(400, 'malformed request', $xmlHttpRequest);
