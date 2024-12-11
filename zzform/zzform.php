@@ -5,7 +5,7 @@
  * Core script
  *
  * Part of »Zugzwang Project«
- * https://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/modules/zzform
  *
  * List of functions in this file
  *	zzform()				main zzform function

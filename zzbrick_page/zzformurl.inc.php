@@ -1,7 +1,7 @@
 <?php 
 
 /**
- * zzform module
+ * zzform
  * page elements: zzform URL
  *
  * Part of »Zugzwang Project«

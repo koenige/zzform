@@ -5,7 +5,7 @@
  * Image manipulation with ImageMagick
  *
  * Part of »Zugzwang Project«
- * https://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2006-2023 Gustaf Mossakowski

@@ -6,7 +6,7 @@
  * will only be included if $zz_conf['generate_output'] = true
  *
  * Part of »Zugzwang Project«
- * https://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2004-2024 Gustaf Mossakowski

@@ -5,7 +5,7 @@
  * Debugging module
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2009-2010, 2014, 2016-2017, 2022-2024 Gustaf Mossakowski

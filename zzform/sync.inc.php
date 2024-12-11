@@ -5,7 +5,7 @@
  * Synchronisation functions
  *
  * Part of »Zugzwang Project«
- * https://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2011-2018, 2021-2024 Gustaf Mossakowski

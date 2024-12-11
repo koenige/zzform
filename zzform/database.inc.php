@@ -5,7 +5,7 @@
  * Database functions
  *
  * Part of »Zugzwang Project«
- * https://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/modules/zzform
  *
  * Contents:
  * D - Database functions (common functions)

@@ -3,7 +3,7 @@
  * JavaScript for dragging elements
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/modules/zzform
  *
  * @copyright Copyright © 2020 retrofuturistic (https://codepen.io/retrofuturistic/pen/tlbHE)
  * @copyright Copyright © 2020 Gustaf Mossakowski

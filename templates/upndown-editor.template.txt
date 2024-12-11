@@ -1,5 +1,8 @@
-# Zugzwang Project
+# zzform
 # TinyMCE Editor with upndown support
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
 # @copyright Copyright © 2015, 2022 Gustaf Mossakowski

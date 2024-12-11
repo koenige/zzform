@@ -5,7 +5,7 @@
  * Translations
  *
  * Part of »Zugzwang Project«
- * https://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/modules/zzform
  *
  *	main functions (in order in which they are called)
  *	zz_translations_init()		checks whether fields should be translated

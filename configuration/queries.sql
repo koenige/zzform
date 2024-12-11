@@ -1,5 +1,5 @@
 /**
- * zzform module
+ * zzform
  * SQL queries
  *
  * Part of »Zugzwang Project«

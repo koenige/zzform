@@ -5,7 +5,7 @@
  * Miscellaneous functions
  *
  * Part of »Zugzwang Project«
- * https://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/modules/zzform
  * 
  * Contents:
  * C - Core functions

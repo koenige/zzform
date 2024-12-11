@@ -5,7 +5,7 @@
  * Image manipulation with GD library
  *
  * Part of »Zugzwang Project«
- * https://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/modules/zzform
  *
  *	work in progress, not to be seen as a replacment for ImageMagick
  *	- thumbnail: support for jpeg, gif, png

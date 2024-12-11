@@ -5,7 +5,7 @@
  * Conditions, conditional fields
  *
  * Part of »Zugzwang Project«
- * https://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/modules/zzform
  *
  * Contents:
  *	main functions (in order in which they are called)

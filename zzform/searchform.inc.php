@@ -5,7 +5,7 @@
  * Display and evaluation of search form below/above table
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/modules/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2004-2013, 2015-2021, 2023-2024 Gustaf Mossakowski

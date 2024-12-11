@@ -5,7 +5,7 @@
  * XHR request for cfg files
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2020-2021, 2023-2024 Gustaf Mossakowski

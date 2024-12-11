@@ -1,7 +1,7 @@
 <?php
 
 /**
- * zzform module
+ * zzform
  * Synchronisation of data from development and production server
  *
  * Part of »Zugzwang Project«

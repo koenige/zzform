@@ -6,7 +6,7 @@
  * (input, output, transformation DMS - DD and vice versa)
  *
  * Part of »Zugzwang Project«
- * https://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2004-2011, 2015-2017, 2019-2023 Gustaf Mossakowski

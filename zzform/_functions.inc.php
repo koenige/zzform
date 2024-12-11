@@ -5,7 +5,7 @@
  * functions that are always available
  *
  * Part of »Zugzwang Project«
- * https://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/modules/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2022-2024 Gustaf Mossakowski

@@ -5,7 +5,7 @@
  * Validation of user input
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/modules/zzform
  *
  * all functions return false if requirements are not met
  * otherwise they will return the value that was checked

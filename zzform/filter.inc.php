@@ -9,7 +9,7 @@
  * – zz_filter_list() evaluates filter for list query and prepares HTML output
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2010-2024 Gustaf Mossakowski

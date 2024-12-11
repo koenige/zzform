@@ -3,7 +3,7 @@
  * JavaScript to be executed at end of document
  *
  * Part of »Zugzwang Project«
- * https://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2009-2014, 2018, 2020-2022, 2024 Gustaf Mossakowski

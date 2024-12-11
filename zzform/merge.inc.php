@@ -5,7 +5,7 @@
  * Merge functions
  *
  * Part of »Zugzwang Project«
- * https://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/modules/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2014-2015, 2017, 2019-2023 Gustaf Mossakowski

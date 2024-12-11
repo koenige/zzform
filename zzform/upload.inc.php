@@ -5,7 +5,7 @@
  * File upload
  *
  * Part of »Zugzwang Project«
- * https://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/modules/zzform
  *
  *	1. main functions (in order in which they are called)
  *

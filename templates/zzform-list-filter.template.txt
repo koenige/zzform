@@ -1,7 +1,8 @@
-# Zugzwang Project
+# zzform
 # HTML output: zzform list filter
 #
-# http://www.zugzwang.org/projects/zzform
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
 # @copyright Copyright © 2015, 2020, 2024 Gustaf Mossakowski

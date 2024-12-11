@@ -1,5 +1,5 @@
 <!--
-# zzform module
+# zzform
 # about logging hooks
 #
 # Part of »Zugzwang Project«

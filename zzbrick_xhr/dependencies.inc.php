@@ -5,7 +5,7 @@
  * XHR request for dependecies
  *
  * Part of »Zugzwang Project«
- * https://www.zugzwang.org/projects/zzform
+ * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2017, 2020-2021, 2023-2024 Gustaf Mossakowski

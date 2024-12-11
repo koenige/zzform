@@ -1,4 +1,4 @@
-# zzform module
+# zzform
 # Template for maintenance script, logging
 #
 # Part of »Zugzwang Project«
