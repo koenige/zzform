@@ -475,13 +475,11 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple)
  * @param int $rec (optional, default = 0 = main record)
  * @param string $formdisplay (optional)
  * @param string $extra_lastcol (optional)
- * @param int $table_count (optional)
  * @param bool $show_explanation (optional)
  * @return mixed (array, bool, or string HTML output)
  */
 function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec = 0
-	, $formdisplay = 'vertical', $extra_lastcol = false, $table_count = 0
-	, $show_explanation = true) {
+	, $formdisplay = 'vertical', $extra_lastcol = false, $show_explanation = true) {
 
 	global $zz_conf;	// Config variables
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
@@ -816,7 +814,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 				}
 				$subtable_rows = zz_show_field_rows($zz_tab, $subtable_mode, 
 					$field_display, $zz_record, $sub_tab, $sub_rec,
-					$field['form_display'], $lastrow, $sub_rec, $h_show_explanation);
+					$field['form_display'], $lastrow, $h_show_explanation);
 				$details[$d_index] = $subtable_rows;
 				if ($field['form_display'] === 'vertical') {
 					if ($show_remove) {
@@ -857,8 +855,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 			$hidden_element = '';
 
 			// write values into record, if detail record entry shall be preset
-			if (!empty($zz_tab[$tab]['values'][$table_count][$fieldkey])) {
-				$field['value'] = $zz_tab[$tab]['values'][$table_count][$fieldkey];
+			if (!empty($zz_tab[$tab]['values'][$rec][$fieldkey])) {
+				$field['value'] = $zz_tab[$tab]['values'][$rec][$fieldkey];
 				if ($field['type'] === 'select') {
 					$field['type_detail'] = $field['type'];
 					$field['type'] = 'predefined';
