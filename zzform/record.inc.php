@@ -471,27 +471,27 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple)
  * @param string $mode
  * @param string $display
  * @param array $zz_record
- * @param int $tab (optional, default = 0 = main table)
- * @param int $rec (optional, default = 0 = main record)
- * @param string $formdisplay (optional)
  * @param array $data (optional)
  * @return mixed (array, bool, or string HTML output)
  */
-function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec = 0
-	, $formdisplay = 'vertical', $data = []) {
-
+function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 	global $zz_conf;	// Config variables
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
-	$my_rec = $zz_tab[$tab][$rec];
-	if (empty($my_rec['fields'])) zz_return(false);
 	// @todo merge Tab, $rec, $ec_data
-	if (!array_key_exists('tab', $data)) $data['tab'] = $tab;
+	if (!array_key_exists('tab', $data))
+		$data['tab'] = 0;
+	if (!array_key_exists('rec', $data))
+		$data['rec'] = 0;
+	$my_rec = $zz_tab[$data['tab']][$data['rec']];
+	if (empty($my_rec['fields'])) zz_return(false);
+	if (!array_key_exists('form_display', $data))
+		$data['form_display'] = 'vertical';
 
 	$append_next = '';
 	$integrate_in_next = false;
 	$old_append_next_type = '';
 	$old_add_details_where = '';
-	if ($tab) {
+	if ($data['tab']) {
 		if (!empty($zz_conf['int']['append_next_type']))
 			$old_append_next_type = $zz_conf['int']['append_next_type'];
 		if (!empty($zz_conf['int']['add_details_where']))
@@ -502,10 +502,10 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 	$append_explanation = [];
 	$matrix = [];
 
-	zz_record_focus($zz_tab, $tab, $rec);
+	zz_record_focus($zz_tab, $data['tab'], $data['rec']);
 	
 	$firstrow = true;
-	$my_where_fields = $zz_record['where'][$zz_tab[$tab]['table_name']] ?? [];
+	$my_where_fields = $zz_record['where'][$zz_tab[$data['tab']]['table_name']] ?? [];
 	// this is for 0 0 main record:
 	// @todo check if this is correct, if there are other 'access' modes
 	if (in_array($my_rec['access'], ['show', 'none']))
@@ -515,7 +515,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 	else
 		$row_display = $display;
 
-	$dependent_fields_ids = zz_dependent_field_ids($my_rec['fields'], $tab, $rec);
+	$dependent_fields_ids = zz_dependent_field_ids($my_rec['fields'], $data['tab'], $data['rec']);
 	$multiple = !empty($zz_conf['int']['id']['values']) ? true : false;
 	$my_fields = [];
 	$hidden_field_nos = [];
@@ -554,9 +554,9 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 		if (array_key_exists($fieldkey, $dependent_fields_ids)) {
 			$hidden = false;
 			foreach ($dependent_fields_ids[$fieldkey] as $dependency) {
-				if (!empty($zz_record['where'][$zz_tab[$tab]['table_name']][$dependency['source_field_name']])) {
+				if (!empty($zz_record['where'][$zz_tab[$data['tab']]['table_name']][$dependency['source_field_name']])) {
 					// WHERE
-					$source_field_value = $zz_record['where'][$zz_tab[$tab]['table_name']][$dependency['source_field_name']];
+					$source_field_value = $zz_record['where'][$zz_tab[$data['tab']]['table_name']][$dependency['source_field_name']];
 					if (empty($dependency['values']) OR !in_array($source_field_value, $dependency['values']))
 						$hidden = true;
 				} elseif ($my_rec['action'] === 'review') {
@@ -598,10 +598,10 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 			$my_fields[$field['translate_field_index']]['has_translation'] = true;
 		}
 
-		// $tab means subtable, since main table has $tab = 0
-		if ($tab AND !in_array($field['type'], ['subtable', 'foreign_table'])) {
+		// $data['tab'] means subtable, since main table has $data['tab'] = 0
+		if ($data['tab'] AND !in_array($field['type'], ['subtable', 'foreign_table'])) {
 			$field['f_field_name'] =
-			$field['select_field_name'] = zz_long_fieldname($zz_tab[$tab]['table_name'], $rec, $field['field_name']);
+			$field['select_field_name'] = zz_long_fieldname($zz_tab[$data['tab']]['table_name'], $data['rec'], $field['field_name']);
 		} elseif (isset($field['field_name'])) {
 			$field['f_field_name'] =
 			$field['select_field_name'] = $field['field_name'];
@@ -650,7 +650,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 		// show explanation?		
 		if (!empty($field['always_show_explanation'])) $show = true;
 		elseif ($field_display !== 'form') $show = false; // hide explanation if mode = view
-		elseif (in_array($formdisplay, ['horizontal', 'lines']) AND empty($data['is_last_rec'])) $show = false;
+		elseif (in_array($data['form_display'], ['horizontal', 'lines']) AND empty($data['is_last_rec'])) $show = false;
 		else $show = true;
 		if (!$show) {
 			$field['explanation'] = '';
@@ -661,7 +661,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 
 		// dependencies?
 		if ($field_display === 'form' AND !empty($field['dependencies'])) {
-			$field = zz_xhr_dependencies($field, $my_fields, $rec);
+			$field = zz_xhr_dependencies($field, $my_fields, $data['rec']);
 			zz_xhr_add('dependencies', $field);
 		}
 
@@ -676,13 +676,13 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 			$field['class'][] = 'firstrow';
 			$firstrow = false;
 		}
-		if ($tab AND in_array($field['type'], ['id', 'timestamp'])) {
+		if ($data['tab'] AND in_array($field['type'], ['id', 'timestamp'])) {
 			$field['class'][] = 'hidden';
 		}
 
 		if (!$append_next) {
 			$out['tr']['attr'][] = implode(' ', $field['class']);
-			if ($formdisplay === 'horizontal' AND in_array(zz_get_fieldtype($field), ['number', 'sequence'])) {
+			if ($data['form_display'] === 'horizontal' AND in_array(zz_get_fieldtype($field), ['number', 'sequence'])) {
 				$out['td']['attr'][] = 'number';
 			}
 			if (!(isset($field['show_title']) && !$field['show_title'])) {
@@ -707,7 +707,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 							), E_USER_DEPRECATED);
 					}
 				}
-			} elseif (!$tab) {
+			} elseif (!$data['tab']) {
 				// for main record, show empty cells
 				$out['th']['content'] = '';
 			} else {
@@ -731,7 +731,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 
 		} elseif ($field['type'] === 'subtable' AND $field['form_display'] === 'inline') {
 			$subtable_rows = zz_show_field_rows(
-				$zz_tab, $mode, $field_display, $zz_record, $field['subtable'], 0, 'inline'
+				$zz_tab, $mode, $field_display, $zz_record,
+				['tab' => $field['subtable'], 'form_display' => 'inline']
 			);
 			if ($subtable_rows)
 				$matrix = array_merge($matrix, $subtable_rows);
@@ -773,7 +774,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 					'remove_button' => '',
 					'tab' => $sub_tab,
 					'rec' => $sub_rec,
-					'is_last_rec' => ($sub_rec === count($subtables) - 1) ? true : false
+					'is_last_rec' => ($sub_rec === count($subtables) - 1) ? true : false,
+					'form_display' => $field['form_display']
 				];
 
 				$dont_delete_records = $field['dont_delete_records'] ?? false;
@@ -813,9 +815,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 						$rec_data['dummy_last_column'] = false;	
 					}
 				}
-				$details[$d_index] = zz_show_field_rows($zz_tab, $subtable_mode, 
-					$field_display, $zz_record, $sub_tab, $sub_rec,
-					$field['form_display'], $rec_data
+				$details[$d_index] = zz_show_field_rows(
+					$zz_tab, $subtable_mode, $field_display, $zz_record, $rec_data
 				);
 				$d_index++;
 			}
@@ -851,8 +852,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 			$hidden_element = '';
 
 			// write values into record, if detail record entry shall be preset
-			if (!empty($zz_tab[$tab]['values'][$rec][$fieldkey])) {
-				$field['value'] = $zz_tab[$tab]['values'][$rec][$fieldkey];
+			if (!empty($zz_tab[$data['tab']]['values'][$data['rec']][$fieldkey])) {
+				$field['value'] = $zz_tab[$data['tab']]['values'][$data['rec']][$fieldkey];
 				if ($field['type'] === 'select') {
 					$field['type_detail'] = $field['type'];
 					$field['type'] = 'predefined';
@@ -886,7 +887,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 				$append_next = false;
 			}
 
-			$field['required'] = zz_record_field_required($field, $zz_tab, $tab);
+			$field['required'] = zz_record_field_required($field, $zz_tab, $data['tab']);
 			$field = zz_record_field_size($field); // size, maxlength
 			$field['placeholder'] = zz_record_field_placeholder($field);
 
@@ -905,8 +906,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 			
 			// auto values
 			if (isset($field['auto_value'])) {
-				$field['default'] = zz_set_auto_value($field, $zz_tab[$tab]['sql'], 
-					$zz_tab[$tab]['table'], $tab, $rec, $zz_tab[0]['table']);
+				$field['default'] = zz_set_auto_value($field, $zz_tab[$data['tab']]['sql'], 
+					$zz_tab[$data['tab']]['table'], $data['tab'], $data['rec'], $zz_tab[0]['table']);
 			}
 
 			// values, defaults
@@ -952,7 +953,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 
 			switch ($field['type']) {
 			case 'id':
-				$outputf = zz_field_id($field, $my_rec['id']['value'], $mode, $tab);
+				$outputf = zz_field_id($field, $my_rec['id']['value'], $mode, $data['tab']);
 				break;
 
 			case 'predefined':
@@ -1031,11 +1032,11 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 					}
 
 					$outputf = zz_field_select_sql($field, $field_display, $my_rec['record'], 
-						$zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table']);
+						$zz_tab[$data['tab']]['db_name'].'.'.$zz_tab[$data['tab']]['table']);
 
 				} elseif (isset($field['set_folder'])) {
 					// #2a SELECT with set_folder
-					$outputf = zz_field_select_set_folder($field, $field_display, $my_rec['record'], $rec);
+					$outputf = zz_field_select_set_folder($field, $field_display, $my_rec['record'], $data['rec']);
 
 				} elseif (isset($field['set_sql'])) {
 					// #2 SELECT with set_sql
@@ -1044,11 +1045,11 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 					if ($my_where_fields) {
 						$field['sql'] = zz_form_select_sql_where($field, $my_where_fields);
 					}
-					$outputf = zz_field_select_set_sql($field, $field_display, $my_rec['record'], $rec);
+					$outputf = zz_field_select_set_sql($field, $field_display, $my_rec['record'], $data['rec']);
 
 				} elseif (isset($field['set'])) {
 					// #3 SELECT with set
-					$outputf = zz_field_select_set($field, $field_display, $my_rec['record'], $rec);
+					$outputf = zz_field_select_set($field, $field_display, $my_rec['record'], $data['rec']);
 
 				} elseif (isset($field['enum'])) {
 					// #4 SELECT with enum
@@ -1116,7 +1117,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 						$field['add_details'] = zz_details_link($field['add_details'], $zz_tab[0][0]['record']);
 					}
 					if ($field['add_details'])
-						$outputf .= zz_record_add_details($field, $tab, $rec, $fieldkey);
+						$outputf .= zz_record_add_details($field, $data['tab'], $data['rec'], $fieldkey);
 				}
 			}
 			if (($outputf AND trim($outputf)) OR $outputf === '0') {
@@ -1177,8 +1178,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 			$integrate_out[] = $out;
 		}
 	}
-	if ($formdisplay === 'inline') return $matrix;
-	$output = zz_record_fields($matrix, $formdisplay, $data);
+	if ($data['form_display'] === 'inline') return $matrix;
+	$output = zz_record_fields($matrix, $data);
 	// append_next_type is only valid for single table
 	$zz_conf['int']['append_next_type'] = $old_append_next_type;
 	$zz_conf['int']['add_details_where'] = $old_add_details_where;
@@ -1408,11 +1409,10 @@ function zz_record_field_focus($name, $type) {
  * HTML output of table rows for form
  *
  * @param array $matrix matrix of rows
- * @param string $formdisplay vertical | horizontal
  * @param array $data
  * @return string HTML output
  */
-function zz_record_fields($matrix, $formdisplay, $data) {
+function zz_record_fields($matrix, $data) {
 	global $zz_conf;
 	static $table_head = [];
 	static $table_separator = [];
@@ -1420,7 +1420,6 @@ function zz_record_fields($matrix, $formdisplay, $data) {
 	if (!array_key_exists($data['tab'], $table_head)) $table_head[$data['tab']] = true;
 
 	$data['separator_colspan_horizontal'] = count($matrix);
-	$data['form_display'] = $formdisplay;
 	$data['th_content'] = false;
 	$data['error'] = false;
 	$data['head'] = $table_head[$data['tab']]; // just first detail record with values: show head
