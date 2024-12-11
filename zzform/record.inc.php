@@ -715,12 +715,12 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 		}
 
 		if ($field['type'] === 'subtable' AND $field['form_display'] === 'set') {
-			$sub_tab = $field['subtable'];
+			$my_tab = $zz_tab[$field['subtable']];
 			// don't print out anything if record is empty
-			if (array_key_exists(0, $zz_tab[$sub_tab])) {
-				$out['td']['content'] .= zz_field_subtable_set($field, $field_display, $zz_tab[$sub_tab]);
+			if (array_key_exists(0, $my_tab)) {
+				$out['td']['content'] .= zz_field_subtable_set($field, $field_display, $my_tab);
 				// check for errors
-				if (zz_record_subtable_error($zz_tab[$sub_tab]))
+				if (zz_record_subtable_error($my_tab))
 					$out['tr']['attr'][] = 'error'; 
 			}
 
