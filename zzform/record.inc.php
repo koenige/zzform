@@ -475,16 +475,18 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple)
  * @param int $rec (optional, default = 0 = main record)
  * @param string $formdisplay (optional)
  * @param string $extra_lastcol (optional)
- * @param array $rec_data (optional)
+ * @param array $data (optional)
  * @return mixed (array, bool, or string HTML output)
  */
 function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec = 0
-	, $formdisplay = 'vertical', $extra_lastcol = false, $rec_data = []) {
+	, $formdisplay = 'vertical', $extra_lastcol = false, $data = []) {
 
 	global $zz_conf;	// Config variables
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	$my_rec = $zz_tab[$tab][$rec];
 	if (empty($my_rec['fields'])) zz_return(false);
+	// @todo merge Tab, $rec, $ec_data
+	if (!array_key_exists('tab', $data)) $data['tab'] = $tab;
 
 	$append_next = '';
 	$integrate_in_next = false;
@@ -619,6 +621,8 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 		// initialize variables
 		if (!$append_next) {
 			$out = zz_record_init_out($field);
+			if (!empty($data['remove_button']))
+				$out['data']['remove_button'] = $data['remove_button'];
 		}
 		
 		if (in_array($field['type'], ['subtable', 'foreign_table'])) {
@@ -647,14 +651,14 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 		// show explanation?		
 		if (!empty($field['always_show_explanation'])) $show = true;
 		elseif ($field_display !== 'form') $show = false; // hide explanation if mode = view
-		elseif (in_array($formdisplay, ['horizontal', 'lines']) AND empty($rec_data['is_last_rec'])) $show = false;
+		elseif (in_array($formdisplay, ['horizontal', 'lines']) AND empty($data['is_last_rec'])) $show = false;
 		else $show = true;
 		if (!$show) {
 			$field['explanation'] = '';
 			$field['explanation_top'] = '';
 		}
 		if (!empty($field['explanation_top']))
-			$out['explanation_top'] = $field['explanation_top'];
+			$out['data']['explanation_top'] = $field['explanation_top'];
 
 		// dependencies?
 		if ($field_display === 'form' AND !empty($field['dependencies'])) {
@@ -690,15 +694,15 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 					$out['th']['content'] .= $field['title'];
 				}
 				if (!empty($field['title_desc']) && $field_display === 'form') {
-					$out['title_desc'] = $field['title_desc'];
+					$out['data']['title_desc'] = $field['title_desc'];
 				}
 				if (!empty($field['format']) AND empty($field['hide_format_in_title_desc']) AND $field_display === 'form') { 
 					// formatted fields: show that they are being formatted!
-					$out['format'] = $field['format'];
-					$out['format_link'] = wrap_path_helptext($field['format']);
-					if (!$out['format_link']) {
-						$out['format_link'] = wrap_setting('zzform_format['.$field['format'].'][link]');
-						if ($out['format_link'])
+					$out['data']['format'] = $field['format'];
+					$out['data']['format_link'] = wrap_path_helptext($field['format']);
+					if (!$out['data']['format_link']) {
+						$out['data']['format_link'] = wrap_setting('zzform_format['.$field['format'].'][link]');
+						if ($out['data']['format_link'])
 							wrap_error(sprintf(
 								'Please use a file in help folder instead of `zzformat[%s][link]`', $field['format']
 							), E_USER_DEPRECATED);
@@ -816,11 +820,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 					$field_display, $zz_record, $sub_tab, $sub_rec,
 					$field['form_display'], $lastrow, $rec_data
 				);
-				if ($field['form_display'] === 'vertical') {
-					if ($rec_data['remove_button']) {
-						$details[$d_index] .= $rec_data['remove_button'];
-					}
-				}
 				$d_index++;
 			}
 
@@ -1125,9 +1124,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 			}
 			if (($outputf AND trim($outputf)) OR $outputf === '0') {
 				if (isset($field['prefix'])) $out['td']['content'] .= $field['prefix'];
-				if (!empty($field['use_as_label'])) {
-					$outputf = '<label for="zz_tick_'.$tab.'_'.$rec.'">'.$outputf.'</label>';
-				}
 				$out['td']['content'] .= $outputf.$hidden_element;
 				if (isset($field['suffix'])) $out['td']['content'] .= $field['suffix'];
 				else $out['td']['content'] .= ' ';
@@ -1159,7 +1155,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 			}
 		}
 		if ($field['explanation'])
-			$out['explanation'] = $field['explanation'];
+			$out['data']['explanation'] = $field['explanation'];
 		if (!empty($field['separator'])) {
 			if (!$out) $out = zz_record_init_out($field);
 			$out['separator'] .= $field['separator'];
@@ -1174,7 +1170,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 					if ($out['td']['content'] AND $integrate['td']['content'])
 						$out['td']['content'] = '<div class="subrecord_spacer"></div>'.$out['td']['content'];
 					$out['td']['content'] = $integrate['td']['content']."\n".$out['td']['content'];
-					$out += zz_record_fields_from_matrix($integrate);
+					$out += $integrate['data'] ?? [];
 				}
 				$integrate_out = [];
 			}
@@ -1185,7 +1181,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 		}
 	}
 	if ($formdisplay === 'inline') return $matrix;
-	$output = zz_record_fields($matrix, $formdisplay, $extra_lastcol, $tab);
+	$output = zz_record_fields($matrix, $formdisplay, $extra_lastcol, $tab, $data);
 	// append_next_type is only valid for single table
 	$zz_conf['int']['append_next_type'] = $old_append_next_type;
 	$zz_conf['int']['add_details_where'] = $old_add_details_where;
@@ -1417,10 +1413,11 @@ function zz_record_field_focus($name, $type) {
  * @param array $matrix matrix of rows
  * @param string $formdisplay vertical | horizontal
  * @param string $extra_lastcol (optional)
- * @param int $tab
+ * @param int $tab @todo use $data['tab']
+ * @param array $data
  * @return string HTML output
  */
-function zz_record_fields($matrix, $formdisplay, $extra_lastcol, $tab) {
+function zz_record_fields($matrix, $formdisplay, $extra_lastcol, $tab, $data = []) {
 	global $zz_conf;
 	static $table_head = [];
 	static $table_separator = [];
@@ -1473,7 +1470,7 @@ function zz_record_fields($matrix, $formdisplay, $extra_lastcol, $tab) {
 		$data[$i]['th_class'] = zz_record_field_class($row['th']['attr']);
 		$data[$i]['th+tr_class'] = zz_record_field_class(array_merge($row['th']['attr'], $row['tr']['attr']));
 		// get non-array values from $row, e. g. title_desc, description etc.
-		$data[$i] += zz_record_fields_from_matrix($row);
+		$data[$i] += $row['data'] ?? [];
 		$data[$i]['td_content'] = $row['td']['content'];
 		$data[$i]['td_id'] = !empty($row['td']['id']) ? zz_make_id_fieldname($row['td']['id']) : '';
 		$data[$i]['td_class'] = zz_record_field_class($row['td']['attr']);
@@ -1499,23 +1496,6 @@ function zz_record_fields($matrix, $formdisplay, $extra_lastcol, $tab) {
 	}
 	if (!$tab AND !$data['th_content']) $zz_conf['int']['hide_tfoot_th'] = true;
 	return wrap_template('zzform-record-fields', $data);
-}
-
-/**
- * get key/value pairs from matrix
- *
- * @param array $row
- * @return array
- */
-function zz_record_fields_from_matrix($row) {
-	$line = [];
-	foreach ($row as $key => $value) {
-		if (is_array($value)) continue;
-		if (!$value) continue;
-		if (in_array($key, ['separator', 'separator_before', 'sequence'])) continue;
-		$line[$key] = $value;	
-	}
-	return $line;
 }
 
 /**

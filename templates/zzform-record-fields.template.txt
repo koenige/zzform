@@ -65,6 +65,7 @@
 %%% condition if detailrecord %%%
 </table>
 </div>
+%%% condition if remove_button %%%%%% item remove_button %%%%%% condition endif %%%
 %%% condition endif %%%
 
 %%% case horizontal %%%
