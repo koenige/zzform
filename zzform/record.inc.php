@@ -475,11 +475,11 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple)
  * @param int $rec (optional, default = 0 = main record)
  * @param string $formdisplay (optional)
  * @param string $extra_lastcol (optional)
- * @param bool $show_explanation (optional)
+ * @param array $rec_data (optional)
  * @return mixed (array, bool, or string HTML output)
  */
 function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec = 0
-	, $formdisplay = 'vertical', $extra_lastcol = false, $show_explanation = true) {
+	, $formdisplay = 'vertical', $extra_lastcol = false, $rec_data = []) {
 
 	global $zz_conf;	// Config variables
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
@@ -643,9 +643,13 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 				$field_display = 'show';
 			}
 		}
-		if (($field_display !== 'form' OR !$show_explanation)
-			AND empty($field['always_show_explanation'])
-		) {
+
+		// show explanation?		
+		if (!empty($field['always_show_explanation'])) $show = true;
+		elseif ($field_display !== 'form') $show = false; // hide explanation if mode = view
+		elseif (in_array($formdisplay, ['horizontal', 'lines']) AND empty($rec_data['is_last_rec'])) $show = false;
+		else $show = true;
+		if (!$show) {
 			$field['explanation'] = '';
 			$field['explanation_top'] = '';
 		}
@@ -742,7 +746,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 			$out['td']['attr'][] = 'subtable';
 			$out['td']['id'] = $field['f_field_name'];
 			// go through all detail records
-			$firstsubtable_no = NULL;
 			$c_subtables = 0;
 
 			$subtables = array_keys($zz_tab[$sub_tab]);
@@ -762,12 +765,14 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 					AND $field_display !== 'form' AND $zz_record['action']) continue;
 
 				$c_subtables++;
-
-				// get first subtable that will be displayed
-				// in order to be able to say whether horizontal table shall be openend		
-				if (!isset($firstsubtable_no)) $firstsubtable_no = $sub_rec;
+				
 				$lastrow = false;
-				$show_remove = false;
+				$rec_data = [
+					'remove_button' => '',
+					'tab' => $sub_tab,
+					'rec' => $sub_rec,
+					'is_last_rec' => ($sub_rec === count($subtables) - 1) ? true : false
+				];
 
 				$dont_delete_records = $field['dont_delete_records'] ?? false;
 				if (!empty($field['hierarchy'])) {
@@ -791,7 +796,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 						// bit too much
 						if ($zz_tab[$sub_tab]['records'] !== 1 
 							OR ($field['form_display'] !== 'lines' AND $mode !== 'add')) {
-							$show_remove = true;
+							$rec_data['remove_button'] = zz_record_subtable_submit('remove', $field, $sub_tab, $sub_rec);
 						}
 				}
 
@@ -802,23 +807,18 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 					$subtable_mode = 'add';
 				}
 
-				if ($field['form_display'] === 'vertical' OR $sub_rec === count($subtables) - 1)
-					$h_show_explanation = true;
-				else
-					$h_show_explanation = false;
-				if ($show_remove) {
-					$removebutton = zz_record_subtable_submit('remove', $field, $sub_tab, $sub_rec);
+				if ($rec_data['remove_button']) {
 					if (in_array($field['form_display'], ['lines', 'horizontal'])) {
-						$lastrow = $removebutton;	
+						$lastrow = $rec_data['remove_button'];	
 					}
 				}
-				$subtable_rows = zz_show_field_rows($zz_tab, $subtable_mode, 
+				$details[$d_index] = zz_show_field_rows($zz_tab, $subtable_mode, 
 					$field_display, $zz_record, $sub_tab, $sub_rec,
-					$field['form_display'], $lastrow, $h_show_explanation);
-				$details[$d_index] = $subtable_rows;
+					$field['form_display'], $lastrow, $rec_data
+				);
 				if ($field['form_display'] === 'vertical') {
-					if ($show_remove) {
-						$details[$d_index] .= $removebutton;
+					if ($rec_data['remove_button']) {
+						$details[$d_index] .= $rec_data['remove_button'];
 					}
 				}
 				$d_index++;
