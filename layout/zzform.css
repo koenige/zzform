@@ -184,8 +184,6 @@ div.text #zzform, #zzform div.text
 					{ padding-left: 0; }
 #zzform #record .upload
 					{ padding-bottom: 0; margin-bottom: 0; }
-#zzform #record .tick_to_save
-					{ float: left; padding-right: .5rem; margin: 0; }
 #zzform form .hidden_in_form
 					{ display: none; }
 

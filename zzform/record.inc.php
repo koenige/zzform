@@ -728,10 +728,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 			//	Subtable
 			$sub_tab = $field['subtable'];
 			$out['th']['attr'][] = 'sub-add';
-			if (empty($field['tick_to_save'])) {
-				// no formatting as a subtable if tick_to_save is used
-				$out['td']['attr'][] = 'subtable';
-			}
+			$out['td']['attr'][] = 'subtable';
 			$out['td']['id'] = $field['f_field_name'];
 			// go through all detail records
 			$table_open = false;
@@ -751,10 +748,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 				// don't show records which are being ignored
 				if ($zz_tab[$sub_tab][$sub_rec]['action'] === 'ignore'
 					AND $field_display !== 'form') continue;
-				// don't show records which are deleted with tick_to_save
-				if ($zz_tab[$sub_tab][$sub_rec]['action'] === 'delete'
-					AND $field_display !== 'form'
-					AND !empty($field['tick_to_save'])) continue;
 				if ($zz_tab[$sub_tab][$sub_rec]['action'] === 'delete'
 					AND $field_display !== 'form' AND $zz_record['action']) continue;
 				$details[$d_index] = '';
@@ -794,35 +787,15 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $tab = 0, $rec
 				}
 
 				// Mode
-				if (!empty($field['tick_to_save'])) $show_tick = true;
 				$subtable_mode = $mode;
 				if ($subtable_mode === 'edit' AND empty($zz_tab[$sub_tab][$sub_rec]['id']['value'])) {
 					// no saved record exists, so it's add a new record
 					$subtable_mode = 'add';
-					if ($field['form_display'] === 'vertical' AND !empty($field['tick_to_save'])) {
-						$show_tick = false;
-					}
-				} elseif (empty($zz_tab[$sub_tab][$sub_rec]['id']['value'])) {
-					if ($field['form_display'] === 'vertical' AND !empty($field['tick_to_save'])) {
-						$show_tick = false;
-					}
-				}
-				if (!empty($zz_tab[$sub_tab][$sub_rec]['save_record'])) {
-					$show_tick = true;
 				}
 
 				if ($field['form_display'] === 'vertical'
 					OR ($field['form_display'] !== 'lines' AND $sub_rec == $firstsubtable_no)) {
 					$details[$d_index] .= '<div class="detailrecord">';
-				}
-				if (!empty($field['tick_to_save'])) {
-					$fieldattr = [];
-					if ($show_tick) $fieldattr['checked'] = true;
-					if ($field_display !== 'form') $fieldattr['disabled'] = true;
-					
-					$details[$d_index] .= '<p class="tick_to_save">'
-						.zz_form_element('zz_save_record['.$sub_tab.']['.$sub_rec.']',
-							'', 'checkbox', 'zz_tick_'.$sub_tab.'_'.$sub_rec, $fieldattr).'</p>';
 				}
 				
 				// HTML output depending on form display
@@ -1754,7 +1727,7 @@ function zz_record_element($input) {
 	case 'checkbox':
 		$element['tag'] = 'input';
 		$element['html'] = '<input%s>';
-		// value just sometimes? (e. g. tick_to_save does not work with empty value="")
+		// value just sometimes? @todo check if this is still necessary
 		if (isset($input['value']) AND !$input['value']) unset($input['value']);
 		break;
 	default:
@@ -1822,7 +1795,7 @@ function zz_form_element($name, $value, $type = 'text', $id = false, $fieldattr 
 		$fieldattr['multiple'] = true;
 	}
 	
-	// value just sometimes? (e. g. tick_to_save does not work with empty value="")
+	// value just sometimes?
 	$values = ['checkbox'];
 	if ($value AND in_array($type, $values)) {
 		$fieldattr['value'] = $value;

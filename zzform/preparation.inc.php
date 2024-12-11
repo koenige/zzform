@@ -256,7 +256,7 @@ function zz_prepare_hooks($zz) {
  *		'table', 'table_name', 'values', 'fielddefs', 'max_records', 
  *		'min_records', 'records_depend_on_upload', 
  *		'records_depend_on_upload_more_than_one', 'foreign_key_field_name',
- *		'translate_field_name_where', 'detail_key', 'tick_to_save', 'access'
+ *		'translate_field_name_where', 'detail_key', 'access'
  */
 function zz_get_subtable($field, $main_tab, $tab, $no) {
 	// basics for all subrecords of the same table
@@ -364,9 +364,6 @@ function zz_get_subtable($field, $main_tab, $tab, $no) {
 			'rec' => $detail_key_index
 		];
 	}
-
-	// tick to save
-	$my_tab['tick_to_save'] = $field['tick_to_save'] ?? '';
 
 	// access
 	$my_tab['access'] = $field['access'] ?? false;
@@ -1121,8 +1118,7 @@ function zz_get_subrecords_mode($my_tab, $rec_tpl, $existing_ids) {
 		$my_tab[$rec]['id']['value'] = $idval;
 		if (!empty($my_tab['source_values'][$rec]))
 			$my_tab[$rec]['id']['source_value'] = $my_tab['source_values'][$rec];
-		$my_tab[$rec]['save_record'] = isset($my_tab['zz_save_record'][$rec])
-			? $my_tab['zz_save_record'][$rec] : '';
+		$my_tab[$rec]['save_record'] = $my_tab['zz_save_record'][$rec] ?? '';
 
 		$my_tab[$rec]['POST'] = [];
 		if ($my_tab['POST']) {

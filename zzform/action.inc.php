@@ -1009,20 +1009,11 @@ function zz_set_subrecord_action($zz_tab, $tab, $rec) {
 	foreach ($my_tab[$rec]['fields'] as $field) {
 		// depending on ID, set action
 		if ($field['type'] !== 'id') continue;
-		if (($my_tab['tick_to_save'] AND $my_tab[$rec]['save_record'])
-			OR empty($my_tab['tick_to_save'])) {
-			if (!isset($my_tab[$rec]['POST'][$field['field_name']])
-				OR $my_tab[$rec]['POST'][$field['field_name']] === "''")
-				$my_tab[$rec]['action'] = 'insert';
-			else
-				$my_tab[$rec]['action'] = 'update';
-		} elseif ($my_tab['tick_to_save'] AND !$my_tab[$rec]['save_record']) {
-			if (!isset($my_tab[$rec]['POST'][$field['field_name']])
-				OR $my_tab[$rec]['POST'][$field['field_name']] === "''")
-				$my_tab[$rec]['action'] = 'ignore'; // ignore subrecord
-			else
-				$my_tab[$rec]['action'] = 'delete';
-		}
+		if (!isset($my_tab[$rec]['POST'][$field['field_name']])
+			OR $my_tab[$rec]['POST'][$field['field_name']] === "''")
+			$my_tab[$rec]['action'] = 'insert';
+		else
+			$my_tab[$rec]['action'] = 'update';
 	}
 
 	foreach ($my_tab[$rec]['fields'] as $f => $field) {
