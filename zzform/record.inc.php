@@ -749,33 +749,32 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 			$out['th']['attr'][] = 'sub-add';
 			$out['td']['attr'][] = 'subtable';
 			$out['td']['id'] = $field['f_field_name'];
+
 			// go through all detail records
-			$c_subtables = 0;
-
-			$subtables = array_keys($zz_tab[$sub_tab]);
-			foreach (array_keys($subtables) as $this_rec)
-				if (!is_numeric($subtables[$this_rec])) unset($subtables[$this_rec]);
 			$details = [];
-			foreach ($subtables as $sub_rec) {
-				// show all subtables which are not deleted but 1 record as a minimum
-				if ($zz_tab[$sub_tab][$sub_rec]['action'] === 'delete'
-					AND (empty($zz_tab[$sub_tab]['records'])
-						AND ($sub_rec + 1) !== $zz_tab[$sub_tab]['min_records'])) continue;
-				// don't show records which are being ignored
-				if ($zz_tab[$sub_tab][$sub_rec]['action'] === 'ignore'
-					AND $field_display !== 'form') continue;
-				if ($zz_tab[$sub_tab][$sub_rec]['action'] === 'delete'
-					AND $field_display !== 'form' AND $zz_record['action']) continue;
+			$subtables = [];
 
+			foreach ($zz_tab[$sub_tab] as $sub_rec => $rec) {
+				if (!is_numeric($sub_rec)) continue;
+				// show all subtables which are not deleted but 1 record as a minimum
+				if ($rec['action'] === 'delete' AND (empty($zz_tab[$sub_tab]['records'])
+					AND ($sub_rec + 1) !== $zz_tab[$sub_tab]['min_records'])) continue;
+				// don't show records which are being ignored
+				if ($rec['action'] === 'ignore' AND $field_display !== 'form') continue;
+				if ($rec['action'] === 'delete' AND $field_display !== 'form'
+					AND $zz_record['action']) continue;
+				$subtables[] = $sub_rec;
+			}
+
+			foreach ($subtables as $index => $sub_rec) {
 				$rec_data = [
 					'remove_button' => '',
 					'tab' => $sub_tab,
 					'rec' => $sub_rec,
-					'is_last_rec' => ($sub_rec === count($subtables) - 1) ? true : false,
-					'is_first_rec' => $c_subtables ? false : true,
+					'is_last_rec' => ($index === count($subtables) - 1) ? true : false,
+					'is_first_rec' => $index ? false : true,
 					'form_display' => $field['form_display']
 				];
-				$c_subtables++;
 
 				$dont_delete_records = $field['dont_delete_records'] ?? false;
 				if (!empty($field['hierarchy']))
@@ -819,7 +818,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 			}
 
 			$out['td']['content'] .= implode('', $details);
-			if (!$c_subtables AND !empty($field['msg_no_subtables'])) {
+			if (!$details AND !empty($field['msg_no_subtables'])) {
 				// There are no subtables, optional: show a message here
 				$out['td']['content'] .= $field['msg_no_subtables'];
 			}
