@@ -767,21 +767,21 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 				if ($zz_tab[$sub_tab][$sub_rec]['action'] === 'delete'
 					AND $field_display !== 'form' AND $zz_record['action']) continue;
 
-				$c_subtables++;
-				
 				$rec_data = [
 					'remove_button' => '',
 					'tab' => $sub_tab,
 					'rec' => $sub_rec,
 					'is_last_rec' => ($sub_rec === count($subtables) - 1) ? true : false,
+					'is_first_rec' => $c_subtables ? false : true,
 					'form_display' => $field['form_display']
 				];
+				$c_subtables++;
 
 				$dont_delete_records = $field['dont_delete_records'] ?? false;
 				if (!empty($field['hierarchy']))
 					// hierarchy never allows adding/removing of records
 					$dont_delete_records = true;
-				elseif (!empty($field['values'][$sub_rec])) {
+				elseif (!empty($field['values'][$sub_rec]))
 					// dont delete records with values set
 					$dont_delete_records = true;
 				// just for optical reasons, in case one row allows removing of record

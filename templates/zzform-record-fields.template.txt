@@ -69,8 +69,10 @@
 %%% condition endif %%%
 
 %%% case horizontal %%%
+%%% condition if is_first_rec %%%
 <div class="detailrecord">
 <table class="horizontal">
+%%% condition endif %%%
 %%% condition if separator_before %%%
 <tr class="separator_row"><td colspan="%%% item separator_colspan_horizontal %%%" class="separator"><hr></td></tr>
 %%% condition endif %%%
@@ -97,7 +99,9 @@
 %%% condition if separator %%%
 <tr class="separator_row"><td colspan="%%% item separator_colspan_horizontal %%%" class="separator"><hr></td></tr>
 %%% condition endif %%%
+%%% condition if is_last_rec %%%
 </table>
 </div>
+%%% condition endif %%%
 
 %%% switch - %%%
