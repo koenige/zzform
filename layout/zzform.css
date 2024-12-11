@@ -285,14 +285,18 @@ body #zzform .separator hr
 	#zzform #record .subtable .horizontal th.firstrow:before { content: ""; }
 }
 
-#zzform #record .set
+#zzform #record .zz-set
 					{ list-style: none; margin: 0; padding: 0; }
-#zzform #record .set li
-					{ margin: 0; padding: 0; }
-#zzform #record .set li ul
+#zzform #record .zz-set li
+					{ margin: 0 0 .25rem 0; padding: 0; }
+#zzform #record .zz-set li ul.zz-group
 					{ margin: 0 0 .5em; padding: 0; }
-#zzform #record .set li li
+#zzform #record .zz-set li li
 					{ list-style: none; }
+#zzform #record .zz-set p
+					{ margin: 0 0 .5rem 1.75rem; }
+#zzform #record .zz-set li input + p
+					{ margin-top: -1.15rem; }
 
 /* progress bar */
 #zzform_upload_progress_bar

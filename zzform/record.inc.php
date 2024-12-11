@@ -2601,12 +2601,8 @@ function zz_field_subtable_set($subtable, $display, $my_tab) {
 	foreach ($sets as $index => $line)
 		$sets[$index] = zz_field_select_ignore($line, $field, 'sql');
 
-	if (!empty($field['show_hierarchy_subtree'])) {
-		foreach ($sets as $index => $set) {
-			if ($set[$field['show_hierarchy']] === $field['show_hierarchy_subtree']) continue;
-			unset($sets[$index]);
-		}
-	}
+	$sets = zz_field_select_hierarchy($field, $sets);
+
 	if (!empty($field['show_hierarchy'])) {
 		foreach ($sets as $index => $set) {
 			unset($sets[$index][$field['show_hierarchy']]);
@@ -2630,13 +2626,15 @@ function zz_field_subtable_set($subtable, $display, $my_tab) {
 			if (!$set[$set_field_name]) continue;
 			if (!empty($field['sql_replace'][$set_id_field_name]) 
 				AND $set_field_name === $field['sql_replace'][$set_id_field_name]) continue;
+			if ($set_field_name === 'zz_level') continue;
 			$title[] = $set[$set_field_name];
 		}
 		$sets_indexed[$set[$set_id_field_name]] = [
 			'id' => !empty($field['sql_replace'][$set_id_field_name])
 				? $set[$field['sql_replace'][$set_id_field_name]] : $set[$set_id_field_name],
 			'title' => zz_field_concat($field, $title),
-			'group' => $group ? $set[$group] : ''
+			'group' => $group ? $set[$group] : '',
+			'zz_level' => zz_field_select_level_set($set['zz_level'] ?? 0)
 		];
 	}
 	$rec_max = 0;
@@ -2689,7 +2687,7 @@ function zz_field_subtable_set($subtable, $display, $my_tab) {
 			if ($group AND $set['group'] !== $last_group) {
 				$list_open = true;
 				$last_group = $set['group'];
-				if (!is_null($last_index)) $data[$last_index]['list_close'] = true;
+				if (!is_null($last_index)) $data[$last_index]['list_close'][]['close'] = true;
 			} else {
 				$list_open = false;
 			}
@@ -2730,9 +2728,11 @@ function zz_field_subtable_set($subtable, $display, $my_tab) {
 			// title might be empty for non-selectable IDs
 			$data[$index]['title'] = $set['title'];
 		}
+		$data[$index]['level'] = $set['zz_level'];
 	}
 	if (!$data) return '';
-	if ($group AND $display === 'form') $data[$last_index]['list_close'] = true;
+	$data = zz_field_select_levels($data);
+	if ($group AND $display === 'form') $data[$last_index]['list_close'][]['close'] = true;
 	if ($display === 'form') $data['form_display'] = true;
 	return wrap_template('zzform-record-checkbox', $data);
 }
@@ -3143,7 +3143,8 @@ function zz_field_select_hierarchy($field, $lines, $record = []) {
 			if ($line[$field['show_hierarchy']] === $record[$field['key_field']]) continue;
 		}
 		// fill in values, index NULL is for uppermost level
-		$my_select[($line[$field['show_hierarchy']] ?? 'NULL')][$line[$field['key_field']]] = $line;
+		$index = array_key_exists('show_hierarchy', $field) ? ($line[$field['show_hierarchy']] ?? 'NULL') : 'NULL';
+		$my_select[$index][$line[$field['key_field']]] = $line;
 	}
 
 	// if there are no values for subtree, set subtree to false
@@ -3218,7 +3219,6 @@ function zz_field_sethierarchy($field, $lines, $subtree, $level = 0) {
 function zz_field_select_sql_radio($field, $record, $lines) {
 	$pos = 0;
 	$radios = [];
-	$level = 0;
 	$lines = zz_field_unique_ignore($lines, $field);
 	$last_group = '';
 	foreach ($lines as $id => $line) {
@@ -3226,15 +3226,11 @@ function zz_field_select_sql_radio($field, $record, $lines) {
 		array_shift($line); // get rid of ID, is already in $id
 		$line = zz_field_select_ignore($line, $field, 'sql');
 		if ($field['show_hierarchy']) unset($line[$field['show_hierarchy']]);
-		$oldlevel = $level;
-		$level = $line['zz_level'] ?? 0;
-		unset($line['zz_level']);
-		$field['zz_level'] = $level - $oldlevel;
 		// group display
 		if (!empty($field['group']) AND $line[$field['group']]) {
 			if (!$last_group OR $last_group !== $line[$field['group']]) {
 				$radios[] = [
-					'level' => $level,
+					'level' => $line['zz_level'] ?? 0,
 					'element' => $line[$field['group']],
 					'id' => ''
 				];
@@ -3242,12 +3238,28 @@ function zz_field_select_sql_radio($field, $record, $lines) {
 			}
 			unset($line[$field['group']]);
 		}
+		// level
+		$field['zz_level'] = zz_field_select_level_set($line['zz_level'] ?? 0);
+		unset($line['zz_level']);
 		$radios[] = zz_field_select_radio_value($field, $record, $id, zz_field_concat($field, $line), $pos);
 	}
 	if (!empty($field['show_no_option']))
 		$radios[] = zz_field_select_radio_value($field, $record, 0, wrap_text('No selection'), ++$pos);
 	$fieldattr = zz_field_dependent_fields($field, $lines);
 	return zz_field_select_radio($field, $record, $radios, $fieldattr);
+}
+
+/**
+ * calculate relative level of element
+ *
+ * @param int $new_level
+ * @return int
+ */
+function zz_field_select_level_set($new_level = 0) {
+	static $level = 0;
+	$oldlevel = $level;
+	$level = $new_level;
+	return $level - $oldlevel;
 }
 
 /**
@@ -3410,7 +3422,7 @@ function zz_field_select_radio($field, $record, $data, $fieldattr = []) {
 	$none = zz_field_radio_none($field, $record);
 	if ($none) array_unshift($data, $none);
 
-	$data = zz_field_select_radio_levels($data);
+	$data = zz_field_select_levels($data);
 
 	if (empty($field['show_values_as_list'])) {
 		// variant: only two or three values next to each other
@@ -3603,8 +3615,8 @@ function zz_field_select_radio_text($field, $record, $data) {
  * @param array $data
  * @return array
  */
-function zz_field_select_radio_levels($data) {
-	$last_index = NULL;
+function zz_field_select_levels($data) {
+	$last = NULL;
 	$list_open = 0;
 	foreach ($data as $index => $line) {
 		if (!is_numeric($index)) continue;
@@ -3627,7 +3639,7 @@ function zz_field_select_radio_levels($data) {
 		}
 		$last = $index;
 	}
-	while ($list_open) {
+	while ($list_open > 0) {
 		$data[$last]['list_close'][]['close'] = true;
 		$list_open--;
 	}
