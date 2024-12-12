@@ -291,7 +291,8 @@ function zz_record_form($zz_tab, $mode, $display, $zz_record, $zz_conditions) {
 		];
 	}
 	$output['multiple'] = !empty($zz_conf['int']['id']['values']) ? count($zz_conf['int']['id']['values']) : NULL;
-	$output['tbody'] = zz_record_rows($zz_tab, $mode, $display, $zz_record);
+	$data = zz_record_rows($zz_tab, $mode, $display, $zz_record);
+	$output['tbody'] = zz_record_fields($data);
 	$output += zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab);
 	if (zz_error_exit()) return zz_return([]);
 	if ($output['multiple']) {
@@ -454,7 +455,7 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab) {
  * @param string $display
  * @param array $zz_record
  * @param array $data (optional)
- * @return mixed (array, or string HTML output)
+ * @return array
  */
 function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 	global $zz_conf;	// Config variables
@@ -707,7 +708,7 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 				['tab' => $field['subtable'], 'form_display' => 'inline']
 			);
 			if ($subtable_rows)
-				$data['matrix'] = array_merge($data['matrix'], $subtable_rows);
+				$data['matrix'] = array_merge($data['matrix'], $subtable_rows['matrix']);
 			$out = [];
 
 			// @todo check if this would work – inline fields shown as dependency
@@ -784,9 +785,10 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 						$rec_data['dummy_last_column'] = false;	
 					}
 				}
-				$details[] = zz_record_rows(
+				$subdata = zz_record_rows(
 					$zz_tab, $subtable_mode, $field_display, $zz_record, $rec_data
 				);
+				$details[] = zz_record_fields($subdata);
 			}
 
 			$out['td']['content'] .= implode('', $details);
@@ -1139,9 +1141,7 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 			$integrate_out[] = $out;
 		}
 	}
-	if ($data['form_display'] === 'inline') return $data['matrix'];
-	$output = zz_record_fields($data);
-	return zz_return($output);
+	return zz_return($data);
 }
 
 /**
