@@ -471,12 +471,6 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 
 	$append_next = '';
 	$integrate_in_next = false;
-	$old_append_next_type = '';
-	if ($data['tab']) {
-		if (!empty($zz_conf['int']['append_next_type']))
-			$old_append_next_type = $zz_conf['int']['append_next_type'];
-	}
-	$zz_conf['int']['append_next_type'] = '';
 	$append_explanation = [];
 	$matrix = [];
 
@@ -1113,13 +1107,6 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 				$out['td']['content'] .= $outputf.$hidden_element;
 			}
 			if (!empty($close_span)) $out['td']['content'] .= '</span>';
-			if ($zz_conf['int']['append_next_type'] === 'list' && $field_display === 'form') {
-				$out['td']['content'] .= '<li>';
-				$zz_conf['int']['append_next_type'] = 'list_end';
-			} elseif ($zz_conf['int']['append_next_type'] === 'list_end' && $field_display === 'form') {
-				$out['td']['content'] .= '</li>'."\n".'</ul>'."\n";
-				$zz_conf['int']['append_next_type'] = false;
-			}
 			if (!$append_next AND !empty($append_explanation)) {
 				$field['explanation'] = implode('<br>', $append_explanation)
 					.($field['explanation'] ? '<br>'.$field['explanation'] : '');
@@ -1154,8 +1141,6 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 	}
 	if ($data['form_display'] === 'inline') return $matrix;
 	$output = zz_record_fields($matrix, $data);
-	// append_next_type is only valid for single table
-	$zz_conf['int']['append_next_type'] = $old_append_next_type;
 	return zz_return($output);
 }
 
@@ -3304,7 +3289,6 @@ function zz_field_select_get_record($field, $record) {
  * @param array $record
  * @param array $data (output of zz_field_select_radio_value())
  * @param array $fieldattr (optional)
- * @global array $zz_conf
  * @return string $text
  */
 function zz_field_select_radio($field, $record, $data, $fieldattr = []) {
@@ -3334,11 +3318,6 @@ function zz_field_select_radio($field, $record, $data, $fieldattr = []) {
 	} else {
 		// variant: more values as a list
 		$data['list'] = true;
-		if (!empty($field['append_next'])) {
-			global $zz_conf;
-			$data['append_next'] = true;
-			$zz_conf['int']['append_next_type'] = 'list';
-		}
 	}
 	return wrap_template('zzform-record-radio', $data);
 }
@@ -3616,13 +3595,9 @@ function zz_field_select_set($field, $display, $record, $rec) {
  * @param array $field
  * @param string $display
  * @param array $record
- * @global array $zz_conf
- *		string $zz_conf['int']['append_next_type']
  * @return string
  */
 function zz_field_select_enum($field, $display, $record) {
-	global $zz_conf;
-
 	if ($display !== 'form') {
 		$text = '';
 		foreach ($field['enum'] as $key => $set) {
@@ -3632,9 +3607,6 @@ function zz_field_select_enum($field, $display, $record) {
 		}
 		if (!$text AND !empty($field['enum_textinput'])) {
 			$text = $record[$field['field_name']];
-		}
-		if (!empty($field['show_values_as_list'])) {
-			$zz_conf['int']['append_next_type'] = 'list';
 		}
 		return $text;
 	}

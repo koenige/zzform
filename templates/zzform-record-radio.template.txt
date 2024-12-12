@@ -34,7 +34,5 @@
 %%% condition if inline %%%
 </span>
 %%% condition elseif list %%%
-%%% condition unless append_next %%%
 </ul>
-%%% condition endif %%%
 %%% condition endif %%%
