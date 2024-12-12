@@ -290,11 +290,11 @@ function zz_display_records($zz_tab, $mode, $display, $zz_record, $zz_conditions
 			'value' => zz_upload_max_filesize()
 		];
 	}
-	$multiple = !empty($zz_conf['int']['id']['values']) ? true : false;
+	$output['multiple'] = !empty($zz_conf['int']['id']['values']) ? count($zz_conf['int']['id']['values']) : NULL;
 	$output['tbody'] = zz_show_field_rows($zz_tab, $mode, $display, $zz_record);
-	$output += zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple);
+	$output += zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab);
 	if (zz_error_exit()) return zz_return([]);
-	if ($multiple) {
+	if ($output['multiple']) {
 		foreach ($zz_conf['int']['id']['values'] as $id_value) {
 			$output['hidden'][] = [
 				'name' => $zz_conf['int']['id']['field_name'].'[]',
@@ -373,11 +373,10 @@ function zz_record_dynamic_referer($mode, $record) {
  * @param array $zz_record
  * @param array $zz_conf_record
  * @param array $zz_tab
- * @param bool $multiple
  * @global array $zz_conf
  * @return array
  */
-function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple) {
+function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab) {
 	global $zz_conf;
 	$output = [];
 	
@@ -397,35 +396,18 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple)
 		}
 	}
 	if ($mode && !in_array($mode, ['review', 'show'])) {
-		$fieldattr = [];
 		switch ($mode) {
 		case 'revise':
 		case 'edit':
-			if (!$multiple) {
-				$elementvalue = wrap_text('Update record');
-			} else {
-				$elementvalue = wrap_text('Update records');
-			}
-			$fieldattr['accesskey'] = 's';
+			$output['submit'] = 'update';
 			break;
 		case 'delete':
-			if (!$multiple) {
-				$elementvalue = wrap_text('Delete record');
-			} else {
-				$elementvalue = wrap_text('Delete records');
-			}
-			$fieldattr['accesskey'] = 'd';
+			$output['submit'] = 'delete';
 			break;
 		default:
-			if (!$multiple) {
-				$elementvalue = wrap_text('Add record');
-			} else {
-				$elementvalue = wrap_text('Add records');
-			}
-			$fieldattr['accesskey'] = 's';
+			$output['submit'] = 'add';
 			break;
 		}
-		$output['submit'] = zz_form_element('', $elementvalue, 'submit', false, $fieldattr);
 		if (($cancelurl !== wrap_setting('request_uri') OR ($zz_record['action']) OR !empty($_POST))
 			AND $zz_conf_record['cancel_link']) 
 			// only show cancel link if it is possible to hide form 

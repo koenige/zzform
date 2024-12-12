@@ -43,7 +43,26 @@ condition if divert_files %%% data-divert-files="%%% item divert_files %%%"%%% c
 %%% condition unless setting zzform_int_hide_tfoot_th %%%<th>&nbsp;</th> %%% condition endif %%%
 <td%%% item tfoot_class " class='%s'" %%%>
 <div id="zzform_submit">
-%%% item submit %%%
+%%% switch submit %%%
+%%% case add %%%
+%%% condition if multiple %%%
+<input type="submit" value="%%% text Add records %%%" accesskey="s">
+%%% condition else %%%
+<input type="submit" value="%%% text Add record %%%" accesskey="s">
+%%% condition endif %%%
+%%% case update %%%
+%%% condition if multiple %%%
+<input type="submit" value="%%% text Update records %%%" accesskey="s">
+%%% condition else %%%
+<input type="submit" value="%%% text Update record %%%" accesskey="s">
+%%% condition endif %%%
+%%% case delete %%%
+%%% condition if multiple %%%
+<input type="submit" value="%%% text Delete records %%%" accesskey="d">
+%%% condition else %%%
+<input type="submit" value="%%% text Delete record %%%" accesskey="d">
+%%% condition endif %%%
+%%% switch - %%%
 %%% condition if cancel_ok %%%
 <a href="%%% item cancel_ok zzform_url_escape %%%">%%% text OK %%%</a>%%% condition endif %%%
 %%% condition if link_record %%%
