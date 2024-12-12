@@ -472,7 +472,7 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 	$append_next = '';
 	$integrate_in_next = false;
 	$append_explanation = [];
-	$matrix = [];
+	$data['matrix'] = [];
 
 	zz_record_focus($zz_tab, $data['tab'], $data['rec']);
 	
@@ -707,7 +707,7 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 				['tab' => $field['subtable'], 'form_display' => 'inline']
 			);
 			if ($subtable_rows)
-				$matrix = array_merge($matrix, $subtable_rows);
+				$data['matrix'] = array_merge($data['matrix'], $subtable_rows);
 			$out = [];
 
 			// @todo check if this would work – inline fields shown as dependency
@@ -1134,13 +1134,13 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 				$integrate_out = [];
 			}
 			if ($field['type'] === 'id' AND $out['td']['content'] === '') continue;
-			$matrix[] = $out;
+			$data['matrix'][] = $out;
 		} elseif ($integrate_in_next) {
 			$integrate_out[] = $out;
 		}
 	}
-	if ($data['form_display'] === 'inline') return $matrix;
-	$output = zz_record_fields($matrix, $data);
+	if ($data['form_display'] === 'inline') return $data['matrix'];
+	$output = zz_record_fields($data);
 	return zz_return($output);
 }
 
@@ -1367,18 +1367,17 @@ function zz_record_field_focus($name, $type) {
 /**
  * HTML output of table rows for form
  *
- * @param array $matrix matrix of rows
- * @param array $data
+ * @param array $data with matrix of rows
  * @return string HTML output
  */
-function zz_record_fields($matrix, $data) {
+function zz_record_fields($data) {
 	global $zz_conf;
 	static $table_head = [];
 	static $table_separator = [];
-	if (!$matrix) return ''; // detail record was deleted: no matrix
+	if (!$data['matrix']) return ''; // detail record was deleted: no matrix
 	if (!array_key_exists($data['tab'], $table_head)) $table_head[$data['tab']] = true;
 
-	$data['separator_colspan_horizontal'] = count($matrix);
+	$data['separator_colspan_horizontal'] = count($data['matrix']);
 	$data['th_content'] = false;
 	$data['error'] = false;
 	$data['head'] = $table_head[$data['tab']]; // just first detail record with values: show head
@@ -1390,8 +1389,8 @@ function zz_record_fields($matrix, $data) {
 		'separator' => false
 	];
 	$i = 0;
-	$matrix = zz_record_sort_matrix($matrix);
-	foreach ($matrix as $index => $row) {
+	$data['matrix'] = zz_record_sort_matrix($data['matrix']);
+	foreach ($data['matrix'] as $index => $row) {
 		if (!is_numeric($index)) continue;
 		if ($row['th']['content'] AND $row['th']['show']) $data['th_content'] = true;
 		// add separator_before to matrix
@@ -1437,7 +1436,7 @@ function zz_record_fields($matrix, $data) {
 					$data[$i] = $separator;
 					break;
 				case 'horizontal':
-					if ($index !== count($matrix) -1) break;
+					if ($index !== count($data['matrix']) -1) break;
 					$data['separator'] = true;
 					$table_separator[$data['tab']] = true;
 					break;
