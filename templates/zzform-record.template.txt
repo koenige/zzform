@@ -58,7 +58,7 @@ condition if divert_files %%% data-divert-files="%%% item divert_files %%%"%%% c
 %%% condition endif %%%
 %%% condition if actions %%%
 %%% condition if modes %%% || %%% condition endif %%%
-%%% item actions %%%
+%%% include zzform-details %%%
 %%% condition endif %%%
 </div>
 <div id="zzform_save">

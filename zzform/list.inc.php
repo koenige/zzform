@@ -694,7 +694,7 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 		if ($rows[$z]['modes']) $list['modes'] = true; // need a table row for this
 
 		if ($zz_conf_record['details']) {
-			$rows[$z]['details'] = zz_show_more_actions($zz_conf_record, $id, $line);
+			$rows[$z]['details'] = zz_output_details($zz_conf_record, $id, $line);
 			if ($rows[$z]['modes']) {
 				// we need a table row for this
 				$list['details'] = true;
@@ -2300,7 +2300,7 @@ function zz_list_table($list, $rows, $head) {
 				if (!empty($row['details'])) $output .= '&nbsp;<span class="br">||</span> ';
 			}
 			if (!empty($row['details']))
-				$output .= $row['details'];
+				$output .= wrap_template('zzform-details', $row);
 			$output .= '</td>';
 		}
 		$output .= '</tr>'."\n";

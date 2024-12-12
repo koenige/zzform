@@ -237,13 +237,13 @@ function zz_nice_headings($heading, $zz) {
  *  - string 'sql'
  * @param int $id
  * @param array $line
- * @return string HTML output of all detail links
+ * @return array
  */
-function zz_show_more_actions($conf, $id, $line) {
+function zz_output_details($conf, $id, $line) {
 	global $zz_conf;
 
 	$act = [];
-	foreach ($conf['details'] as $key => $detail) {
+	foreach ($conf['details'] as $key => &$detail) {
 		if (!is_array($detail))
 			$detail = ['title' => $detail];
 		if (empty($detail['link'])) {
@@ -257,14 +257,11 @@ function zz_show_more_actions($conf, $id, $line) {
 				'field' => $zz_conf['int']['id']['field_name']
 			];
 		}
-		$target = !empty($detail['target']) ? sprintf(' target="%s"', $detail['target']) : '';
-		$referer = !empty($detail['referer']) ? sprintf('&amp;referer=%s', urlencode(wrap_setting('request_uri'))) : '';
-		$count = (!empty($detail['sql']) AND $no = zz_db_fetch(sprintf($detail['sql'], $id), '', 'single value')) ? sprintf('&nbsp;(%d)', $no) : '';
-		$url = zz_makelink($detail['link'], $line);
-		$act[] = sprintf('<a href="%s%s"%s>%s%s</a>', $url, $referer, $target, wrap_text($detail['title'], ['source' => wrap_setting('zzform_script_path')]), $count);
+		$detail['url'] = zz_makelink($detail['link'], $line);
+		if (!empty($detail['sql']))
+			$detail['count'] = zz_db_fetch(sprintf($detail['sql'], $id), '', 'single value');
 	}
-	$output = implode('&nbsp;&middot; ', $act);
-	return $output;
+	return $conf['details'];
 }
 
 /**

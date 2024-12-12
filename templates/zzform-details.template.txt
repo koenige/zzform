@@ -1,0 +1,15 @@
+# zzform
+# template for actions
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzform
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2024 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+%%% loop details %%%
+<a href="%%% item url %%%%%% condition if referer %%%&amp;referer=%%% setting request_uri %%%%%% condition endif %%%"%%% condition endif %%%%%% condition if target %%% target="%%% item target %%%"%%% condition endif %%%>
+%%% item title wrap_text %%%%%% item count "&nbsp;(%d)" %%%
+</a>%%% loopposition first|middle "&nbsp;&middot; " %%%
+%%% loop end %%%

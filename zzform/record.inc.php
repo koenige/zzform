@@ -450,7 +450,7 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab, $multiple)
 		}
 		if ($zz_conf_record['details']) {
 			$output['tfoot_class'] = 'editbutton';
-			$output['actions'] = zz_show_more_actions($zz_conf_record, $zz_conf['int']['id']['value'], $zz_tab[0][0]['record']);
+			$output['details'] = zz_output_details($zz_conf_record, $zz_conf['int']['id']['value'], $zz_tab[0][0]['record']);
 			$output['tfoot'] = true;
 		}
 		if (!$zz_conf_record['details'] AND !$zz_conf_record['edit']
