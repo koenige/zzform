@@ -3203,7 +3203,7 @@ function zz_check_select($my_rec, $f) {
 				$my_rec['validation'] = false;
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['fields'][$f]['suffix'] = ' '.wrap_text('Please make a different selection.');
-				zz_debug('ID does not exist.', $sql);
+				if (wrap_setting('debug')) zz_debug('ID does not exist.', $sql);
 			}
 		}
 	} elseif (count($possible_values) <= $my_rec['fields'][$f]['max_select']) {
