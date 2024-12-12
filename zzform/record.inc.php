@@ -472,15 +472,11 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 	$append_next = '';
 	$integrate_in_next = false;
 	$old_append_next_type = '';
-	$old_add_details_where = '';
 	if ($data['tab']) {
 		if (!empty($zz_conf['int']['append_next_type']))
 			$old_append_next_type = $zz_conf['int']['append_next_type'];
-		if (!empty($zz_conf['int']['add_details_where']))
-			$old_add_details_where = $zz_conf['int']['add_details_where'];
 	}
 	$zz_conf['int']['append_next_type'] = '';
-	$zz_conf['int']['add_details_where'] = '';
 	$append_explanation = [];
 	$matrix = [];
 
@@ -995,7 +991,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 					if (!empty($field['sql_without_id'])) $field['sql'] .= $my_rec['id']['value'];
 					// check for 'sql_where'
 					if ($my_where_fields) {
-						$field['sql'] = zz_form_select_sql_where($field, $my_where_fields);
+						$field = zz_form_select_sql_where($field, $my_where_fields);
 					}
 					// check for 'sql_where_with_id'
 					if (!empty($field['sql_where_with_id']) AND !empty($zz_conf['int']['id']['value'])) {
@@ -1021,7 +1017,7 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 					$field['sql'] = $field['set_sql'];
 					// check for 'sql_where'
 					if ($my_where_fields) {
-						$field['sql'] = zz_form_select_sql_where($field, $my_where_fields);
+						$field = zz_form_select_sql_where($field, $my_where_fields);
 					}
 					$outputf = zz_field_select_set_sql($field, $field_display, $my_rec['record'], $data['rec']);
 
@@ -1160,7 +1156,6 @@ function zz_show_field_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 	$output = zz_record_fields($matrix, $data);
 	// append_next_type is only valid for single table
 	$zz_conf['int']['append_next_type'] = $old_append_next_type;
-	$zz_conf['int']['add_details_where'] = $old_add_details_where;
 	return zz_return($output);
 }
 
@@ -1324,10 +1319,11 @@ function zz_record_add_details($field, $tab, $rec, $fieldkey) {
 		$text .= ' <input type="submit" name="zz_edit_details[%s]" value="%s" formnovalidate class="zz_add_details_edit">';
 		$text = sprintf($text, $name, wrap_text('New …'), $name, wrap_text('Edit …'));
 	} else {
+		if (empty($field['add_details_where'])) $field['add_details_where'] = '';
 		$add_details_sep = strstr($field['add_details'], '?') ? '&amp;' : '?';
 		$text = ' <a href="'.$field['add_details'].$add_details_sep
 			.'add&amp;referer='.urlencode(wrap_setting('request_uri'))
-			.$zz_conf['int']['add_details_where'].'"'
+			.$field['add_details_where'].'"'
 			.(!empty($field['add_details_target']) ? ' target="'.$field['add_details_target'].'"' : '')
 			.' id="zz_add_details_'.$tab.'_'.$rec.'_'.$fieldkey.'">['. wrap_text('New …').']</a>';
 	}
@@ -3716,17 +3712,15 @@ function zz_field_select_enum($field, $display, $record) {
  * 
  * @param array $field field that will be checked
  * @param array $where_fields = $zz['record']['where'][$table_name]
- * @global array $zz_conf
- *		$zz_conf['int']['add_details_where']
- * @return array string $field['sql']
+ * @return array
  */
 function zz_form_select_sql_where($field, $where_fields) {
-	if (empty($field['sql_where'])) return $field['sql'];
+	if (empty($field['sql_where'])) return $field;
 
-	global $zz_conf;
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	$where_conditions = [];
+	$field['add_details_where'] = '';
 	foreach ($field['sql_where'] as $sql_where) {
 		// might be several where-clauses
 		if (isset($sql_where[2])) {
@@ -3736,7 +3730,7 @@ function zz_form_select_sql_where($field, $where_fields) {
 			$index = zz_db_fetch($sql, '', 'single value');
 			if ($index) {
 				$where_conditions[] = $sql_where[0]." = '".$index."'";
-				$zz_conf['int']['add_details_where'] .= '&amp;where['.$sql_where[0].']='.$index;
+				$field['add_details_where'] .= sprintf('&amp;where[%s]=%s', $sql_where[0], $index);
 			}
 		} elseif (isset($sql_where['where']) AND !empty($where_fields[$sql_where['field_name']])) {
 			$where_conditions[] = sprintf($sql_where['where'], $where_fields[$sql_where['field_name']]);
@@ -3744,7 +3738,7 @@ function zz_form_select_sql_where($field, $where_fields) {
 	}
 	$field['sql'] = wrap_edit_sql($field['sql'], 'WHERE', implode(' AND ', $where_conditions));
 
-	return zz_return($field['sql']);
+	return zz_return($field);
 }
 
 /**
