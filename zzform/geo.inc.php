@@ -9,7 +9,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2011, 2015-2017, 2019-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2011, 2015-2017, 2019-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -406,7 +406,7 @@ function zz_geo_geocode($ops, $zz_tab) {
 	if (count($address) === 1 AND array_key_exists('place', $address)) return [];
 	if (!$address) return [];
 
-	require_once wrap_setting('core').'/syndication.inc.php';
+	wrap_include('syndication', 'zzwrap');
 	$result = wrap_syndication_geocode($address);
 	if (!$result) return [];
 

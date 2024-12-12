@@ -26,7 +26,7 @@ function zz_captcha_code($zz_id, $code = false) {
 		// no need to solve a captcha twice, check code
 		return wrap_check_hash($zz_id, substr($code, 7), '', 'zzform_captcha_key');
 	}
-	require_once wrap_setting('core').'/file.inc.php';
+	wrap_include('file', 'zzwrap');
 	$logfile = wrap_setting('log_dir').'/captcha.log';
 	if (!file_exists($logfile)) touch($logfile);
 

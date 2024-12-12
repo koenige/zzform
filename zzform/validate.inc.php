@@ -623,7 +623,7 @@ function zz_check_username($username, $field) {
 	if (!zz_is_url($url)) return false;
 
 	if (empty($field['dont_check_username_online'])) {
-		require_once wrap_setting('core').'/syndication.inc.php';
+		wrap_include('syndication', 'zzwrap');
 		$success = wrap_syndication_get($url, 'html');
 		if (empty($success['_']['data'])) return false;
 	}
