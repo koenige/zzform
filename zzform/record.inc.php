@@ -724,7 +724,7 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 			$out['td']['id'] = $field['f_field_name'];
 
 			// go through all detail records
-			$details = [];
+			$out['data']['rows'] = [];
 			$subtables = [];
 
 			foreach ($zz_tab[$sub_tab] as $sub_rec => $rec) {
@@ -788,22 +788,21 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 				$subdata = zz_record_rows(
 					$zz_tab, $subtable_mode, $field_display, $zz_record, $rec_data
 				);
-				$details[] = zz_record_fields($subdata);
+				$details[] = $out['data']['rows'][]['row'] = zz_record_fields($subdata);
 			}
 
-			$out['td']['content'] .= implode('', $details);
-			if (!$details AND !empty($field['msg_no_subtables'])) {
+			if (!$out['data']['rows'] AND !empty($field['msg_no_subtables']))
 				// There are no subtables, optional: show a message here
-				$out['td']['content'] .= $field['msg_no_subtables'];
-			}
+				$out['data']['msg_no_subtables'] = $field['msg_no_subtables'];
+
 			if ($field_display === 'form' 
 				AND $zz_tab[$sub_tab]['max_records'] > $zz_tab[$sub_tab]['records']) {
-				if ($field['form_display'] === 'lines' AND $details) {
+				if ($field['form_display'] === 'lines') {
 					// add spacer only if there's something above and below spacer
-					$out['td']['content'] .= '<div class="subrecord_spacer"></div>';
+					$out['data']['spacer'] = true;
 				}
 				if ($mode !== 'revise') {
-					$out['td']['content'] .= zz_record_subtable_submit('add', $field, $sub_tab);
+					$out['data']['add_button'] = zz_record_subtable_submit('add', $field, $sub_tab);
 				}
 			}
 			if ($field['form_display'] === 'lines') {

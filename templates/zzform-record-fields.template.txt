@@ -56,9 +56,18 @@
 </p>
 %%% condition endif %%%
 </th>
-	<td%%% item td_id " id='%s'"%%%%%% item td_class " class='%s'" %%%>%%% condition if explanation_top %%%<p class="explanation">%%% item explanation_top %%%</p>%%% condition endif %%%
-	%%% item td_content %%%
-	%%% condition if explanation %%%<p class="explanation">%%% item explanation %%%</p>%%% condition endif %%%</td>
+<td%%% item td_id " id='%s'"%%%%%% item td_class " class='%s'" %%%>%%% condition if explanation_top %%%<p class="explanation">%%% item explanation_top %%%</p>%%% condition endif %%%
+%%% item td_content %%%
+%%% condition if rows %%%
+%%% loop rows %%%
+%%% item row %%%
+%%% loop end %%%
+%%% condition if spacer %%%<div class="subrecord_spacer"></div>%%% condition endif %%%
+%%% condition else %%%
+%%% item msg_no_subtables %%%
+%%% condition endif %%%
+%%% item add_button %%%
+%%% condition if explanation %%%<p class="explanation">%%% item explanation %%%</p>%%% condition endif %%%</td>
 </tr>
 %%% condition endif %%%
 %%% loop end %%%
