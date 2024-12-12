@@ -14,6 +14,5 @@
 %%% condition elseif show %%%%%% text Show %%%
 %%% condition elseif copy %%%%%% text Copy %%%
 %%% condition endif %%%
-</a>
-%%% loopposition first|middle "&nbsp;&middot; " %%%
+</a>%%% loopposition first|middle "&nbsp;&middot; " %%%
 %%% loop end %%%
