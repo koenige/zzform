@@ -20,7 +20,9 @@
 </span>
 %%% condition endif %%%
 %%% loop end %%%
-%%% item remove_button %%%
+%%% condition if remove_subtable %%%
+<input type="submit"%%% item remove_subtable zzform_attributes %%%>
+%%% condition endif %%%
 %%% condition if explanation %%%<p class="explanation">%%% item explanation %%%</p>%%% condition endif %%%
 </div>
 </div>
@@ -66,7 +68,9 @@
 %%% condition else %%%
 %%% item msg_no_subtables %%%
 %%% condition endif %%%
-%%% item add_button %%%
+%%% condition if add_subtable %%%
+<input type="submit"%%% item add_subtable zzform_attributes %%%>
+%%% condition endif %%%
 %%% condition if explanation %%%<p class="explanation">%%% item explanation %%%</p>%%% condition endif %%%</td>
 </tr>
 %%% condition endif %%%
@@ -74,7 +78,7 @@
 %%% condition if detailrecord %%%
 </table>
 </div>
-%%% condition if remove_button %%%%%% item remove_button %%%%%% condition endif %%%
+%%% condition if remove_subtable %%%<input type="submit"%%% item remove_subtable zzform_attributes %%%>%%% condition endif %%%
 %%% condition endif %%%
 
 %%% case horizontal %%%
@@ -91,7 +95,7 @@
 %%% loop start %%%
 <th%%% item th+tr_class " class='%s'" %%%>%%% item th_content %%%</th>
 %%% loop end %%%
-%%% condition if dummy_last_column | remove_button %%%
+%%% condition if dummy_last_column | remove_subtable %%%
 <th class="dummy_column">&nbsp;</th>
 %%% condition endif %%%
 </tr>
@@ -103,7 +107,7 @@
 	%%% condition if explanation %%%<p class="explanation">%%% item explanation %%%</p>%%% condition endif %%%</td>
 %%% loop end %%%
 %%% condition if dummy_last_column %%%<td class="dummy_column">&nbsp;</td>%%% condition endif %%%
-%%% condition if remove_button %%%<td>%%% item remove_button %%%</td>%%% condition endif %%%
+%%% condition if remove_subtable %%%<td><input type="submit"%%% item remove_subtable zzform_attributes %%%></td>%%% condition endif %%%
 </tr>
 %%% condition if separator %%%
 <tr class="separator_row"><td colspan="%%% item separator_colspan_horizontal %%%" class="separator"><hr></td></tr>
