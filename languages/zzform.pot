@@ -606,7 +606,7 @@ msgid "never show link above list to add a new record"
 msgstr ""
 
 #: configuration/zz.cfg
-msgid "internal marker that multiple records can be selected, e. g. for multi_function or merge"
+msgid "internal marker that multiple records can be selected, e. g. for batch_function or merge"
 msgstr ""
 
 #: configuration/zz.cfg
@@ -1175,34 +1175,42 @@ msgstr ""
 
 # Stop editing this record
 # Record form: bottom
+#: templates/zzform-record.template.txt
 msgid "Cancel"
 msgstr ""
 
 # Record form: bottom
+#: templates/zzform-record.template.txt
 msgid "OK"
 msgstr ""
 
 # Record form: bottom
+#: templates/zzform-record.template.txt
 msgid "Update record"
 msgstr ""
 
 # Record form: bottom
+#: templates/zzform-record.template.txt
 msgid "Update records"
 msgstr ""
 
 # Record form: bottom
+#: templates/zzform-record.template.txt
 msgid "Delete record"
 msgstr ""
 
 # Record form: bottom
+#: templates/zzform-record.template.txt
 msgid "Delete records"
 msgstr ""
 
 # Record form: bottom
+#: templates/zzform-record.template.txt
 msgid "Add record"
 msgstr ""
 
 # Record form: bottom
+#: templates/zzform-record.template.txt
 msgid "Add records"
 msgstr ""
 

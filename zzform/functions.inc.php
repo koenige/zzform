@@ -489,11 +489,11 @@ function zz_init_cfg($cfg_key, $ext, $int = []) {
  *
  * @param string $key
  * @param array $ext existing definition by user
+ * @param array $settings list of variables which might be changed
  * @return array
  */
-function zz_init_cfg_deprecated($cfg_key, &$ext) {
+function zz_init_cfg_deprecated($cfg_key, &$ext, $settings) {
 	$cfg = zz_init_cfg_file($cfg_key);
-	$settings = [];
 	foreach ($cfg as $key => $def) {
 		if (empty($def['deprecated'])) continue;
 		if (empty($def['type'])) $def['type'] = 'text';
@@ -521,6 +521,15 @@ function zz_init_cfg_deprecated($cfg_key, &$ext) {
 				'Deprecated notation $%s["%s"] found. Please use wrap_setting("%s") instead.'
 				, ['values' => [$cfg_key, $key, $new_key]]
 			), E_USER_DEPRECATED);
+		} elseif (!empty($def['moved_to'])) {
+			$new_key = $def['moved_to'];
+			$settings = wrap_array_merge($settings, wrap_setting_key($new_key, $value));
+			$settings = wrap_setting_key_unset($key, $settings);
+			wrap_error(wrap_text(
+				'Deprecated notation $%s["%s"] found. Please use $%s["%s"] instead.'
+				, ['values' => [$cfg_key, $key, $cfg_key, $new_key]]
+			), E_USER_DEPRECATED);
+		
 		}
 		// @todo support keys inside arrays
 		unset($ext[$key]);

@@ -200,8 +200,8 @@ function zz_list($zz, $list, $ops, $zz_conditions) {
 				$list['buttons'][] = '<input type="submit" value="'.wrap_text('Delete').'" name="zz_multiple_delete">';
 			if ($list['merge'])
 				$list['buttons'][] = '<input type="submit" value="'.wrap_text('Merge').'" name="zz_merge">';
-			if ($list['multi_function']) foreach ($list['multi_function'] as $index => $mfunction)
-				$list['buttons'][] = '<input type="submit" value="'.wrap_text($mfunction['title'], ['source' => wrap_setting('zzform_script_path')]).'" name="zz_multifunction['.$index.']">';
+			if ($list['batch_function']) foreach ($list['batch_function'] as $index => $mfunction)
+				$list['buttons'][] = '<input type="submit" value="'.wrap_text($mfunction['title'], ['source' => wrap_setting('zzform_script_path')]).'" name="zz_batch_function['.$index.']">';
 			if ($list['buttons']) {
 				$list['buttons'] = '<input type="hidden" name="zz_action" value="multiple">'.implode(' ', $list['buttons']);
 			}
@@ -435,7 +435,7 @@ function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $mode) {
 function zz_list_set($list, $zz, $count_rows) {
 	global $zz_conf;
 
-	if ($list['multi_edit'] OR $list['multi_delete'] OR $list['merge'] OR $list['multi_function']) {
+	if ($list['multi_edit'] OR $list['multi_delete'] OR $list['merge'] OR $list['batch_function']) {
 		if ($count_rows > 1)
 			$list['select_multiple_records'] = true;
 	}

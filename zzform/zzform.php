@@ -32,10 +32,10 @@ function zzform($zz) {
 // diversion?
 	if (!empty($_GET['request'])) return zzform_exit(zzform_request());
 
-	if (isset($_POST['zz_multifunction'])) {
+	if (isset($_POST['zz_batch_function'])) {
 		wrap_include('zzform/multi', 'custom/active');
-		$index = key($_POST['zz_multifunction']);
-		$function = $zz['list']['multi_function'][$index]['function'];
+		$index = key($_POST['zz_batch_function']);
+		$function = $zz['list']['batch_function'][$index]['function'];
 		$_POST['zz_record_id'] = $_POST['zz_record_id'] ?? [];
 		return $function($_POST['zz_record_id']);
 	}
@@ -48,10 +48,8 @@ function zzform($zz) {
 	zzform_includes();
 
 	// remove and log deprecated variables
-	$settings = zz_init_cfg_deprecated('zz_conf', $zz_conf);
-	if ($settings) $zz = wrap_array_merge($zz, $settings);
-	$settings = zz_init_cfg_deprecated('zz', $zz);
-	if ($settings) $zz = wrap_array_merge($zz, $settings);
+	$zz = zz_init_cfg_deprecated('zz_conf', $zz_conf, $zz);
+	$zz = zz_init_cfg_deprecated('zz', $zz, $zz);
 	
 	// initialise $zz
 	$zz = zz_init_cfg('zz', $zz);

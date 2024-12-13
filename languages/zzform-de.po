@@ -658,7 +658,7 @@ msgstr ""
 #: configuration/zz.cfg
 msgid ""
 "internal marker that multiple records can be selected, e. g. for "
-"multi_function or merge"
+"batch_function or merge"
 msgstr ""
 
 #: configuration/zz.cfg
