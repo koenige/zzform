@@ -51,6 +51,7 @@
 </td></tr>
 %%% condition else %%%
 <tr%%% item tr_class " class='%s'" %%%>
+%%% condition if th_content %%%
 <th%%% item th_class " class='%s'" %%%>%%% item th_content %%%
 %%% condition if title_desc | format %%%<p class="desc">%%% item title_desc %%%
 %%% condition if format_link %%% [<a href="%%% item format_link %%%" target="help">%%% item format ucfirst %%%</a>]
@@ -58,6 +59,9 @@
 </p>
 %%% condition endif %%%
 </th>
+%%% condition elseif main__is_main_table %%%
+<th></th>
+%%% condition endif %%%
 <td%%% item td_id " id='%s'"%%%%%% item td_class " class='%s'" %%%>%%% condition if explanation_top %%%<p class="explanation">%%% item explanation_top %%%</p>%%% condition endif %%%
 %%% item td_content %%%
 %%% condition if rows %%%

@@ -460,6 +460,7 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab) {
 function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 	global $zz_conf;	// Config variables
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
+	if (empty($data['is_subtable'])) $data['is_main_table'] = true;
 	// @todo merge Tab, $rec, $ec_data
 	if (!array_key_exists('tab', $data))
 		$data['tab'] = 0;
@@ -705,7 +706,7 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 		} elseif ($field['type'] === 'subtable' AND $field['form_display'] === 'inline') {
 			$subtable_rows = zz_record_rows(
 				$zz_tab, $mode, $field_display, $zz_record,
-				['tab' => $field['subtable'], 'form_display' => 'inline']
+				['tab' => $field['subtable'], 'form_display' => 'inline', 'is_subtable' => true]
 			);
 			if ($subtable_rows)
 				$data['matrix'] = array_merge($data['matrix'], $subtable_rows['matrix']);
@@ -746,7 +747,8 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 					'rec' => $sub_rec,
 					'is_last_rec' => ($index === count($subtables) - 1) ? true : false,
 					'is_first_rec' => $index ? false : true,
-					'form_display' => $field['form_display']
+					'form_display' => $field['form_display'],
+					'is_subtable' => true
 				];
 
 				$dont_delete_records = $field['dont_delete_records'] ?? false;
@@ -4158,7 +4160,6 @@ function zz_record_subtable_submit($mode, $field, $tab, $rec = 0) {
 		$field['title_button'] = wrap_text(
 			$field['title_button'], ['source' => wrap_setting('zzform_script_path')]
 		);
-
 
 	switch ($mode) {
 	case 'add':
