@@ -9,6 +9,10 @@
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 <div id="zzform">
+%%% condition if finished %%%
+<p>%%% text Synchronization completed. %%%
+
+%%% condition else %%%
 <form method="POST" action="">
 <p>%%% text "Processing entries %s–%s …" begin wrap_number end wrap_number %%%</p>
 
@@ -100,4 +104,5 @@
 <input type="submit" value="%%% text Synchronize %%%">
 %%% condition endif %%%
 </form>
+%%% condition endif %%%
 </div>

@@ -45,28 +45,39 @@ function mod_zzform_make_sync($params) {
 
 	wrap_include('sync', 'zzform');
 	wrap_include('zzform/definition');
-	$data = zz_sync($config[$params[0]]);
-	if (!$data) {
-		$page['status'] = 404;
-		$page['text'] = '';
-		$page['extra']['job'] = 'fail';
-		return $page;
+	if (!isset($_GET['finish'])) {
+		$data = zz_sync($config[$params[0]]);
+		if (!$data) {
+			$page['status'] = 404;
+			$page['text'] = '';
+			$page['extra']['job'] = 'fail';
+			return $page;
+		}
 	}
 	wrap_setting_add('extra_http_headers', 'X-Frame-Options: Deny');
 	wrap_setting_add('extra_http_headers', "Content-Security-Policy: frame-ancestors 'self'");
 
 	$page['extra']['job'] = 'sync';
+	$url_self = parse_url(wrap_setting('request_uri'), PHP_URL_PATH);
+	$url_self = sprintf('%s%s', wrap_setting('host_base'), $url_self);
 	if (isset($_GET['deletable'])) {
 		$page['data'] = [
 			'deleted' => $data['deleted'] ?? 0,
-			'next_url' => ''
+			'next_url' => $url_self.'?finish'
 		];
 		$page['query_strings'] = ['deletable'];
 		$page['title'] = wrap_text('Deletable Records');
 		$page['text'] = wrap_template('sync-deletable', $data);
+	} elseif (isset($_GET['finish'])) {
+		$page['data'] = [
+			'finished' => 1,
+			'next_url' => ''
+		];
+		$page['query_strings'] = ['finish'];
+		$page['title'] = wrap_text('Sync finished');
+		$data['finished'] = true;
+		$page['text'] = wrap_template('sync', $data);
 	} else {
-		$url_self = parse_url(wrap_setting('request_uri'), PHP_URL_PATH);
-		$url_self = sprintf('%s%s', wrap_setting('host_base'), $url_self);
 		$page['data'] = [
 			'updated' => $data['updated'],
 			'inserted' => $data['inserted'],
