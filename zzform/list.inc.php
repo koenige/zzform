@@ -194,9 +194,9 @@ function zz_list($zz, $list, $ops, $zz_conditions) {
 
 			$ops['output'] .= sprintf('<form action="%s" method="POST" accept-charset="%s">'."\n",
 				zzform_url_escape(zzform_url('self+extra')), wrap_setting('character_set'));
-			if ($list['multi_edit'])
+			if ($list['batch_edit'])
 				$list['buttons'][] = '<input type="submit" value="'.wrap_text('Edit').'" name="zz_multiple_edit">';
-			if ($list['multi_delete'])
+			if ($list['batch_delete'])
 				$list['buttons'][] = '<input type="submit" value="'.wrap_text('Delete').'" name="zz_multiple_delete">';
 			if ($list['merge'])
 				$list['buttons'][] = '<input type="submit" value="'.wrap_text('Merge').'" name="zz_merge">';
@@ -435,7 +435,7 @@ function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $mode) {
 function zz_list_set($list, $zz, $count_rows) {
 	global $zz_conf;
 
-	if ($list['multi_edit'] OR $list['multi_delete'] OR $list['merge'] OR $list['batch_function']) {
+	if ($list['batch_edit'] OR $list['batch_delete'] OR $list['merge'] OR $list['batch_function']) {
 		if ($count_rows > 1)
 			$list['select_multiple_records'] = true;
 	}
