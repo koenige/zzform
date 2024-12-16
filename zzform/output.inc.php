@@ -131,33 +131,36 @@ function zz_nice_headings($heading, $zz) {
 	$i = 0;
 	$heading_addition = [];
 	// depending on WHERE-Condition
+	
+	$zz['fields'] = zz_fill_out($zz['fields'], $zz['table']);
 	foreach ($zz['where_condition'] as $where_condition) {
-		foreach (array_keys($where_condition) as $mywh) {
-			$mywh = wrap_db_escape($mywh);
-			$wh = explode('.', $mywh);
+		foreach (array_keys($where_condition) as $field_name) {
+			$field_name = wrap_db_escape($field_name);
+			$wh = explode('.', $field_name);
 			if (!isset($wh[1])) $index = 0; // without .
 			else $index = 1;
 			if (!isset($zz['subtitle'][$wh[$index]])) continue;
 			$subheading = $zz['subtitle'][$wh[$index]];
 			if (!isset($subheading['var']) AND !isset($subheading['value'])) continue;
 			$heading_addition[$i] = [];
-			if (isset($subheading['sql']) AND $where_condition[$mywh]) {
+			if (isset($subheading['sql']) AND $where_condition[$field_name]) {
 				// only if there is a value! (might not be the case if 
 				// write_once-fields come into play)
-				// create sql query, with $mywh instead of $wh[$index] because first 
+				// create sql query, with $field_name instead of $wh[$index] because first 
 				// might be ambiguous
 				// extra space before mywh for replacement with key_field_name
-				$wh_sql = wrap_edit_sql($subheading['sql'], 'WHERE',
-					sprintf(' %s = "%s"', $mywh, wrap_db_escape($where_condition[$mywh]))
-				);
-				$wh_sql .= ' LIMIT 1';
-				//	if key_field_name is set
+				//check if key_field_name is set
+				$key_field_name = $field_name;
 				foreach ($zz['fields'] as $field) {
 					if (!isset($field['field_name'])) continue;
 					if ($field['field_name'] !== $wh[$index]) continue;
 					if (!isset($field['key_field_name'])) continue;
-					$wh_sql = str_replace(' '.$wh[$index].' ', ' '.$field['key_field_name'].' ', $wh_sql);
+					$key_field_name = $field['key_field_name'];
 				}
+				$wh_sql = wrap_edit_sql($subheading['sql'], 'WHERE',
+					sprintf(' %s = "%s"', $key_field_name, wrap_db_escape($where_condition[$field_name]))
+				);
+				$wh_sql .= ' LIMIT 1';
 				// just send a notice if this doesn't work as it's not crucial
 				$heading_values = zz_db_fetch($wh_sql, '', '', '', E_USER_NOTICE);
 				if ($heading_values) {
@@ -165,10 +168,10 @@ function zz_nice_headings($heading, $zz) {
 						$heading_addition[$i][] = $heading_values[$myfield];
 				}
 			} elseif (isset($subheading['enum'])) {
-				$heading_addition[$i][] = zz_htmltag_escape($where_condition[$mywh]);
+				$heading_addition[$i][] = zz_htmltag_escape($where_condition[$field_name]);
 				// @todo insert corresponding value in enum_title
 			} elseif (isset($subheading['value'])) {
-				$heading_addition[$i][] = zz_htmltag_escape($where_condition[$mywh]);
+				$heading_addition[$i][] = zz_htmltag_escape($where_condition[$field_name]);
 			}
 			if (empty($subheading['concat'])) $subheading['concat'] = ' ';
 			if (!empty($subheading['format'])) {
@@ -201,7 +204,7 @@ function zz_nice_headings($heading, $zz) {
 				if (empty($subheading['link_no_append'])) {
 					if (strstr($subheading['link'], '?')) $sep = '&amp;';
 					else $sep = '?';
-					$append = $sep.'show='.urlencode($where_condition[$mywh]);
+					$append = $sep.'show='.urlencode($where_condition[$field_name]);
 				}
 				$heading_addition[$i] = '<a href="'.$subheading['link'].$append.'">'
 					.$heading_addition[$i].'</a>';
