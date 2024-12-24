@@ -10,116 +10,116 @@
 #
 # tfoot must be before thead or hitting ENTER won’t necessarily save the record
 #
-%%% condition if form %%%
+%%% if form %%%
 <form action="%%% page zzformurl type=self+extra encode=1 %%%
-%%% item form_anchor "#%s" %%%" method="POST"%%% condition if upload %%% enctype="multipart/form-data"%%% condition endif %%% accept-charset="%%% setting character_set %%%" id="zzform_form"%%%
-condition if divert_files %%% data-divert-files="%%% item divert_files %%%"%%% condition endif %%%>
+%%% item form_anchor "#%s" %%%" method="POST"%%% if upload %%% enctype="multipart/form-data"%%% endif %%% accept-charset="%%% setting character_set %%%" id="zzform_form"%%%
+if divert_files %%% data-divert-files="%%% item divert_files %%%"%%% endif %%%>
 <input type="hidden" name="zz_id" value="%%% setting zzform_id %%%">
 %%% item hook_output %%%
-%%% condition endif %%%
+%%% endif %%%
 
 <div id="record">
-%%% condition if formhead %%%
-<h2>%%% condition if formhead_error %%%<span class="error">%%% condition endif %%%
+%%% if formhead %%%
+<h2>%%% if formhead_error %%%<span class="error">%%% endif %%%
 %%% item formhead ucfirst %%%
-%%% condition if formhead_error %%%</span>%%% condition endif %%%</h2>
-%%% condition endif %%%
+%%% if formhead_error %%%</span>%%% endif %%%</h2>
+%%% endif %%%
 %%% item form_lead markdown %%%
 
 %%% item reselect_errors %%%
 %%% item errors %%%
-%%% condition if setting zzform_int_resend_form_required %%%
+%%% if setting zzform_int_resend_form_required %%%
 <div class="reselect"><p>%%% text Sorry, an error has occurred.<br>Please send the form again. %%%</p></div>
-%%% condition endif %%%
+%%% endif %%%
 
 %%% loop hidden %%%
 <input type="hidden" name="%%% item name %%%" value="%%% item value wrap_html_escape %%%">
 %%% loop end %%%
-%%% condition if tbody | tfoot %%%
+%%% if tbody | tfoot %%%
 <table>
-%%% condition if tfoot %%%
+%%% if tfoot %%%
 <tfoot>
 <tr>
-%%% condition unless setting zzform_int_hide_tfoot_th %%%<th>&nbsp;</th> %%% condition endif %%%
+%%% unless setting zzform_int_hide_tfoot_th %%%<th>&nbsp;</th> %%% endif %%%
 <td%%% item tfoot_class " class='%s'" %%%>
 <div id="zzform_submit">
 %%% switch submit %%%
 %%% case add %%%
-%%% condition if multiple %%%
+%%% if multiple %%%
 <input type="submit" value="%%% text Add records %%%" accesskey="s">
-%%% condition else %%%
+%%% else %%%
 <input type="submit" value="%%% text Add record %%%" accesskey="s">
-%%% condition endif %%%
+%%% endif %%%
 %%% case update %%%
-%%% condition if multiple %%%
+%%% if multiple %%%
 <input type="submit" value="%%% text Update records %%%" accesskey="s">
-%%% condition else %%%
+%%% else %%%
 <input type="submit" value="%%% text Update record %%%" accesskey="s">
-%%% condition endif %%%
+%%% endif %%%
 %%% case delete %%%
-%%% condition if multiple %%%
+%%% if multiple %%%
 <input type="submit" value="%%% text Delete records %%%" accesskey="d">
-%%% condition else %%%
+%%% else %%%
 <input type="submit" value="%%% text Delete record %%%" accesskey="d">
-%%% condition endif %%%
+%%% endif %%%
 %%% switch - %%%
-%%% condition if cancel_ok %%%
-<a href="%%% item cancel_ok zzform_url_escape %%%">%%% text OK %%%</a>%%% condition endif %%%
-%%% condition if link_record %%%
-%%% condition if cancel_ok %%%&nbsp;&middot; %%% condition endif %%%
-<a href="%%% item link_record zzform_url_escape %%%">%%% text Show %%%</a>%%% condition endif %%%
-%%% condition if modes %%%
-%%% condition if cancel_ok | link_record %%%&nbsp;&middot; %%% condition endif %%%
+%%% if cancel_ok %%%
+<a href="%%% item cancel_ok zzform_url_escape %%%">%%% text OK %%%</a>%%% endif %%%
+%%% if link_record %%%
+%%% if cancel_ok %%%&nbsp;&middot; %%% endif %%%
+<a href="%%% item link_record zzform_url_escape %%%">%%% text Show %%%</a>%%% endif %%%
+%%% if modes %%%
+%%% if cancel_ok | link_record %%%&nbsp;&middot; %%% endif %%%
 %%% include zzform-modes %%%
-%%% condition endif %%%
-%%% condition if cancel_url %%%
+%%% endif %%%
+%%% if cancel_url %%%
  <a href="%%% item cancel_url zzform_url_escape %%%">%%% text Cancel %%%</a>
-%%% condition endif %%%
-%%% condition if actions %%%
-%%% condition if modes %%% || %%% condition endif %%%
+%%% endif %%%
+%%% if actions %%%
+%%% if modes %%% || %%% endif %%%
 %%% include zzform-details %%%
-%%% condition endif %%%
+%%% endif %%%
 </div>
 <div id="zzform_save">
 %%% text Submit data … %%%
 </div>
-%%% condition if upload_form %%%
+%%% if upload_form %%%
 <div id="zzform_upload_progress" class="hidden">
   <progress id="zzform_upload_progress_bar" value="0" max="100"></progress>
   <h3 id="zzform_upload_status"></h3>
   <p id="zzform_loaded"></p>
 </div>
-%%% condition endif %%%
+%%% endif %%%
 
 </td>
 </tr>
 </tfoot>
-%%% condition endif %%%
+%%% endif %%%
 <tbody>
 %%% item tbody %%%
 </tbody>
 </table>
-%%% condition endif %%%
+%%% endif %%%
 </div>
-%%% condition if form %%%
+%%% if form %%%
 </form>
-%%% condition endif %%%
+%%% endif %%%
 %%% item footer %%%
 
 %%% item js_xhr_selects %%%
 %%% item js_xhr_dependencies %%%
 %%% item js_field_dependencies %%%
-%%% condition if form %%%
+%%% if form %%%
 <script data-js="immediately">
 
 var zzformForm = document.getElementById('zzform_form');
 var zzformSubmitButton = '';
-%%% condition if setting zzform_wmd_editor_instances %%%
+%%% if setting zzform_wmd_editor_instances %%%
 var zzformWmdEditorInstances = %%% setting zzform_wmd_editor_instances %%%;
 var zzformWmdEditorLang = '%%% setting zzform_wmd_editor_lang %%%';
-%%% condition endif %%%
+%%% endif %%%
 var zzformActionURL = '%%% page zzformurl type=self+extra %%%';
 %%% item form_anchor "var zzformAnchor = '%s';" %%%
 
 </script>
-%%% condition endif %%%
+%%% endif %%%

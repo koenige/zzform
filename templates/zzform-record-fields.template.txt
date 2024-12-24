@@ -12,113 +12,113 @@
 %%% case lines %%%
 <div class="subrecord_lines">
 <div class="detailrecord">
-<div%%% condition if error %%% class="error" %%% condition endif %%%>
+<div%%% if error %%% class="error" %%% endif %%%>
 %%% loop start %%%
-%%% condition if td_content %%%
+%%% if td_content %%%
 <span%%% item tr_class " class='%s'" %%%>
 	<span%%% item td_class " class='%s'" %%% title="%%% item th_content strip_tags %%%">%%% item td_content %%%</span>
 </span>
-%%% condition endif %%%
+%%% endif %%%
 %%% loop end %%%
-%%% condition if remove_subtable %%%
+%%% if remove_subtable %%%
 <input type="submit"%%% item remove_subtable zzform_attributes %%%>
-%%% condition endif %%%
-%%% condition if explanation %%%<p class="explanation">%%% item explanation %%%</p>%%% condition endif %%%
+%%% endif %%%
+%%% if explanation %%%<p class="explanation">%%% item explanation %%%</p>%%% endif %%%
 </div>
 </div>
 </div>
 
 %%% case vertical %%%
-%%% condition if detailrecord %%%
+%%% if detailrecord %%%
 <div class="detailrecord">
 <table class="vertical">
-%%% condition endif %%%
+%%% endif %%%
 %%% loop start %%%
-%%% condition if separator_text %%%
+%%% if separator_text %%%
 <tr class="separator_row"><td colspan="2" class="separator">
-%%% condition if separator_hr %%%<hr>%%% condition endif %%%
+%%% if separator_hr %%%<hr>%%% endif %%%
 %%% item separator_text %%%</td></tr>
-%%% condition elseif separator_hr %%%
+%%% elseif separator_hr %%%
 <tr class="separator_row"><td colspan="2" class="separator"><hr></td></tr>
-%%% condition elseif separator_column_begin %%%
+%%% elseif separator_column_begin %%%
 <tr class="separator_row"><td><table><tbody>
-%%% condition elseif separator_column %%%
+%%% elseif separator_column %%%
 </tbody></table>
 </td>
 <td class="left_separator"><table><tbody>
-%%% condition elseif separator_column_end %%%
+%%% elseif separator_column_end %%%
 </tbody></table>
 </td></tr>
-%%% condition else %%%
+%%% else %%%
 <tr%%% item tr_class " class='%s'" %%%>
-%%% condition if th_content %%%
+%%% if th_content %%%
 <th%%% item th_class " class='%s'" %%%>%%% item th_content %%%
-%%% condition if title_desc | format %%%<p class="desc">%%% item title_desc %%%
-%%% condition if format_link %%% [<a href="%%% item format_link %%%" target="help">%%% item format ucfirst %%%</a>]
-%%% condition elseif format %%%%%% item format ucfirst %%%%%% condition endif %%%
+%%% if title_desc | format %%%<p class="desc">%%% item title_desc %%%
+%%% if format_link %%% [<a href="%%% item format_link %%%" target="help">%%% item format ucfirst %%%</a>]
+%%% elseif format %%%%%% item format ucfirst %%%%%% endif %%%
 </p>
-%%% condition endif %%%
+%%% endif %%%
 </th>
-%%% condition elseif main__is_main_table %%%
+%%% elseif main__is_main_table %%%
 <th></th>
-%%% condition endif %%%
-<td%%% item td_id " id='%s'"%%%%%% item td_class " class='%s'" %%%>%%% condition if explanation_top %%%<p class="explanation">%%% item explanation_top %%%</p>%%% condition endif %%%
+%%% endif %%%
+<td%%% item td_id " id='%s'"%%%%%% item td_class " class='%s'" %%%>%%% if explanation_top %%%<p class="explanation">%%% item explanation_top %%%</p>%%% endif %%%
 %%% item td_content %%%
-%%% condition if rows %%%
+%%% if rows %%%
 %%% loop rows %%%
 %%% item row %%%
 %%% loop end %%%
-%%% condition if spacer %%%<div class="subrecord_spacer"></div>%%% condition endif %%%
-%%% condition else %%%
+%%% if spacer %%%<div class="subrecord_spacer"></div>%%% endif %%%
+%%% else %%%
 %%% item msg_no_subtables %%%
-%%% condition endif %%%
-%%% condition if add_subtable %%%
+%%% endif %%%
+%%% if add_subtable %%%
 <input type="submit"%%% item add_subtable zzform_attributes %%%>
-%%% condition endif %%%
-%%% condition if explanation %%%<p class="explanation">%%% item explanation %%%</p>%%% condition endif %%%</td>
+%%% endif %%%
+%%% if explanation %%%<p class="explanation">%%% item explanation %%%</p>%%% endif %%%</td>
 </tr>
-%%% condition endif %%%
+%%% endif %%%
 %%% loop end %%%
-%%% condition if detailrecord %%%
+%%% if detailrecord %%%
 </table>
 </div>
-%%% condition if remove_subtable %%%<input type="submit"%%% item remove_subtable zzform_attributes %%%>%%% condition endif %%%
-%%% condition endif %%%
+%%% if remove_subtable %%%<input type="submit"%%% item remove_subtable zzform_attributes %%%>%%% endif %%%
+%%% endif %%%
 
 %%% case horizontal %%%
-%%% condition if is_first_rec %%%
+%%% if is_first_rec %%%
 <div class="detailrecord">
 <table class="horizontal">
-%%% condition endif %%%
-%%% condition if separator_before %%%
+%%% endif %%%
+%%% if separator_before %%%
 <tr class="separator_row"><td colspan="%%% item separator_colspan_horizontal %%%" class="separator"><hr></td></tr>
-%%% condition endif %%%
-%%% condition if head %%%
+%%% endif %%%
+%%% if head %%%
 <thead>
 <tr>
 %%% loop start %%%
 <th%%% item th+tr_class " class='%s'" %%%>%%% item th_content %%%</th>
 %%% loop end %%%
-%%% condition if dummy_last_column | remove_subtable %%%
+%%% if dummy_last_column | remove_subtable %%%
 <th class="dummy_column">&nbsp;</th>
-%%% condition endif %%%
+%%% endif %%%
 </tr>
 </thead>
-%%% condition endif %%%
+%%% endif %%%
 <tr>
 %%% loop start %%%
 	<td%%% item td+tr_class " class='%s'" %%%>%%% item td_content %%%
-	%%% condition if explanation %%%<p class="explanation">%%% item explanation %%%</p>%%% condition endif %%%</td>
+	%%% if explanation %%%<p class="explanation">%%% item explanation %%%</p>%%% endif %%%</td>
 %%% loop end %%%
-%%% condition if dummy_last_column %%%<td class="dummy_column">&nbsp;</td>%%% condition endif %%%
-%%% condition if remove_subtable %%%<td><input type="submit"%%% item remove_subtable zzform_attributes %%%></td>%%% condition endif %%%
+%%% if dummy_last_column %%%<td class="dummy_column">&nbsp;</td>%%% endif %%%
+%%% if remove_subtable %%%<td><input type="submit"%%% item remove_subtable zzform_attributes %%%></td>%%% endif %%%
 </tr>
-%%% condition if separator %%%
+%%% if separator %%%
 <tr class="separator_row"><td colspan="%%% item separator_colspan_horizontal %%%" class="separator"><hr></td></tr>
-%%% condition endif %%%
-%%% condition if is_last_rec %%%
+%%% endif %%%
+%%% if is_last_rec %%%
 </table>
 </div>
-%%% condition endif %%%
+%%% endif %%%
 
 %%% switch - %%%

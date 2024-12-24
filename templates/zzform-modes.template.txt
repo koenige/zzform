@@ -9,10 +9,10 @@
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 %%% loop modes %%%
-<a href="%%% item link zzform_url_escape %%%">%%% condition if delete %%%%%% text Delete %%%
-%%% condition elseif edit %%%%%% text Edit %%%
-%%% condition elseif show %%%%%% text Show %%%
-%%% condition elseif copy %%%%%% text Copy %%%
-%%% condition endif %%%
+<a href="%%% item link zzform_url_escape %%%">%%% if delete %%%%%% text Delete %%%
+%%% elseif edit %%%%%% text Edit %%%
+%%% elseif show %%%%%% text Show %%%
+%%% elseif copy %%%%%% text Copy %%%
+%%% endif %%%
 </a>%%% loopposition first|middle "&nbsp;&middot; " %%%
 %%% loop end %%%

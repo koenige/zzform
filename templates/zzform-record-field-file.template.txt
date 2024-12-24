@@ -8,46 +8,46 @@
 # @copyright Copyright © 2024 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
-%%% condition if image %%%
+%%% if image %%%
 <p class="preview">%%% item image %%%</p>
-%%% condition elseif no_image %%%
+%%% elseif no_image %%%
 <p class="preview">(%%% text No image %%%)</p>
-%%% condition endif %%%
+%%% endif %%%
 
-%%% condition if multiple_uploads %%%
+%%% if multiple_uploads %%%
 <table class="upload">
-%%% condition endif %%%
+%%% endif %%%
 %%% loop start %%%
-%%% condition if main__multiple_uploads %%%
+%%% if main__multiple_uploads %%%
 <tr><th>%%% item title %%%</th> <td>
-%%% condition endif %%%
+%%% endif %%%
 %%% item input %%%
-%%% condition if link & input %%%<br>%%% condition endif %%%
-%%% condition if link %%%
+%%% if link & input %%%<br>%%% endif %%%
+%%% if link %%%
 <a href="%%% item link %%%">%%% item link %%%</a>
-%%% condition if delete_checkbox %%%
+%%% if delete_checkbox %%%
 <input%%% item delete_checkbox zzform_attributes %%%><label for="%%% item delete_checkbox_id %%%"><small>&nbsp;(%%% text Delete this file %%%)</small></label>
-%%% condition endif %%%
-%%% condition endif %%%
-%%% condition if error %%%
+%%% endif %%%
+%%% endif %%%
+%%% if error %%%
 <br><small>
 %%% loop error %%%
 %%% loopposition first|middle "<br>" %%%%%% item error_msg %%%
 %%% loop end %%%
 </small>
-%%% condition endif %%%
-%%% condition if size %%%
+%%% endif %%%
+%%% if size %%%
 <br>%%% text File uploaded: %%% <strong>%%% item filetype strtoupper %%%</strong> (%%% item size wrap_bytes %%%)
-%%% condition endif %%%
-%%% condition if upload_max_filesize %%%
+%%% endif %%%
+%%% if upload_max_filesize %%%
 <br><small class="explanation">%%% text "Maximum allowed filesize is %s." upload_max_filesize wrap_bytes %%%
  %%% item upload_filetypes %%%</small>
-%%% condition endif %%%
-%%% condition if explanation %%%<p class="explanation">%%% item explanation %%%</p>%%% condition endif %%%
-%%% condition if main__multiple_uploads %%%
+%%% endif %%%
+%%% if explanation %%%<p class="explanation">%%% item explanation %%%</p>%%% endif %%%
+%%% if main__multiple_uploads %%%
 </td></tr>
-%%% condition endif %%%
+%%% endif %%%
 %%% loop end %%%
-%%% condition if multiple_uploads %%%
+%%% if multiple_uploads %%%
 </table>
-%%% condition endif %%%
+%%% endif %%%

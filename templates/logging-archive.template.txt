@@ -9,25 +9,25 @@
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 <div id="zzform" class="maintenance">
-%%% condition if archived %%%
+%%% if archived %%%
 <p>%%% text "%d logging records from %s were archived." archived month %%%</p>
-%%% condition elseif just_sorted %%%
+%%% elseif just_sorted %%%
 <p>%%% text Logging table was sorted by ID. %%%</p>
-%%% condition endif %%%
+%%% endif %%%
 
-%%% condition if data_unavailable %%%
+%%% if data_unavailable %%%
 <p class="error">%%% text No logging data available. %%%</p>
 
-%%% condition elseif no_archive_data %%%
+%%% elseif no_archive_data %%%
 <p>%%% text "No logging data available older than %d months." setting zzform_logging_keep_months %%%
  %%% text "The oldest data in the logging table comes from <strong>%s</strong>." oldest_month %%%
 </p>
-%%% condition if archived %%%
+%%% if archived %%%
 <form method="POST" action=""><input type="submit" value="%%% text "Re-sort logging table" %%%"><input type="hidden" name="sort" value=1></form>
-%%% condition endif %%%
+%%% endif %%%
 
-%%% condition else %%%
+%%% else %%%
 <form method="POST" action=""><input type="submit" value="%%% text "Archive logging data from %s" oldest_month%%%"></form>
 
-%%% condition endif %%%
+%%% endif %%%
 </div>

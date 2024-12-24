@@ -16,14 +16,14 @@
 	<dl>
 %%% loop start %%%
 		<dt>%%% text Selection %%% %%% item title %%%:</dt>
-%%% condition if dropdown_filter %%%
+%%% if dropdown_filter %%%
 		<dd class="zzfilter_dropdown" id="zzfilter-%%% item identifier %%%"><strong>– <span class="js_expand">%%% text expand %%%</span> <span class="js_collapse">%%% text collapse %%%</span> –</strong></dd>
-%%% condition endif %%%
+%%% endif %%%
 %%% loop values %%%
-		<dd class="%%% item all filter_all %%%%%% condition unless link %%% zz_active_filter%%% condition endif %%%" id="zzfilter-%%% item identifier %%%-%%% item index %%%">
-%%% condition if link %%%<a href="%%% item link zzform_url_escape %%%">%%% condition else %%%<strong>%%% condition endif %%%
-%%% condition if all %%%–&nbsp;%%% text all %%%&nbsp;–%%% condition else %%%%%% item title %%%%%% condition endif %%%
-%%% condition if link %%%</a>%%% condition else %%%</strong>%%% condition endif %%%
+		<dd class="%%% item all filter_all %%%%%% unless link %%% zz_active_filter%%% endif %%%" id="zzfilter-%%% item identifier %%%-%%% item index %%%">
+%%% if link %%%<a href="%%% item link zzform_url_escape %%%">%%% else %%%<strong>%%% endif %%%
+%%% if all %%%–&nbsp;%%% text all %%%&nbsp;–%%% else %%%%%% item title %%%%%% endif %%%
+%%% if link %%%</a>%%% else %%%</strong>%%% endif %%%
 		</dd>
 %%% loop end %%%
 %%% loop end %%%

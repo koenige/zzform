@@ -8,31 +8,31 @@
 # @copyright Copyright © 2024 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
-%%% condition if inline %%%
+%%% if inline %%%
 <span id="%%% item id %%%"%%% item attributes zzform_attributes %%%>
-%%% condition elseif list %%%
+%%% elseif list %%%
 <ul class="zz_radio_list" id="%%% item id %%%"%%% item attributes zzform_attributes %%%>
-%%% condition endif %%%
+%%% endif %%%
 %%% loop start %%%
-%%% condition if list_open %%%<ul>
-%%% condition endif %%%
-%%% condition if main__list %%%%%% condition if extra %%%<br>%%% condition else %%%<li>%%% condition endif %%%%%% condition endif %%%
-%%% condition unless setting html_label_after_input %%%
-%%% condition if label | label_none %%%
- <label for="%%% item id %%%"%%% item label_attributes zzform_attributes %%%>%%% condition endif %%%%%% condition endif %%%
- <input%%% item attributes zzform_attributes %%%>%%% condition if setting html_label_after_input %%%
-%%% condition if label | label_none %%%
- <label for="%%% item id %%%"%%% item label_attributes zzform_attributes %%%>%%% condition endif %%%%%% condition endif %%%
-%%% condition if label_none %%%&nbsp;%%% text No selection %%%
-%%% condition elseif label %%%&nbsp;%%% item label %%%%%% condition endif %%%
-%%% condition if label | label_none %%%</label>%%% condition endif %%%
-%%% condition if main__list %%%%%% condition unless append_next %%%</li>
-%%% condition endif %%%%%% condition endif %%%
+%%% if list_open %%%<ul>
+%%% endif %%%
+%%% if main__list %%%%%% if extra %%%<br>%%% else %%%<li>%%% endif %%%%%% endif %%%
+%%% unless setting html_label_after_input %%%
+%%% if label | label_none %%%
+ <label for="%%% item id %%%"%%% item label_attributes zzform_attributes %%%>%%% endif %%%%%% endif %%%
+ <input%%% item attributes zzform_attributes %%%>%%% if setting html_label_after_input %%%
+%%% if label | label_none %%%
+ <label for="%%% item id %%%"%%% item label_attributes zzform_attributes %%%>%%% endif %%%%%% endif %%%
+%%% if label_none %%%&nbsp;%%% text No selection %%%
+%%% elseif label %%%&nbsp;%%% item label %%%%%% endif %%%
+%%% if label | label_none %%%</label>%%% endif %%%
+%%% if main__list %%%%%% unless append_next %%%</li>
+%%% endif %%%%%% endif %%%
 %%% loop list_close %%%</ul></li>
 %%% loop end %%%
 %%% loop end%%%
-%%% condition if inline %%%
+%%% if inline %%%
 </span>
-%%% condition elseif list %%%
+%%% elseif list %%%
 </ul>
-%%% condition endif %%%
+%%% endif %%%

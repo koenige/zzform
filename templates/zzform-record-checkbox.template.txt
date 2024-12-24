@@ -13,16 +13,16 @@
 %%% loop end %%%
 <ul class="zz-set">
 %%% loop start %%%
-%%% condition if list_open & group %%%
-<li%%% condition if main__form_display %%% class="js-zz_set_group"%%% condition endif %%%> <em>%%% item group %%%</em><ul class="zz-group">
-%%% condition elseif list_open %%%
+%%% if list_open & group %%%
+<li%%% if main__form_display %%% class="js-zz_set_group"%%% endif %%%> <em>%%% item group %%%</em><ul class="zz-group">
+%%% elseif list_open %%%
 <li><ul>
-%%% condition endif %%%
-<li>%%% condition if id %%%%%% condition unless setting html_label_after_input %%%<label for="%%% item id %%%">%%% condition endif %%%
-<input type="checkbox" name="%%% item name %%%" id="%%% item id %%%" value="%%% item value %%%"%%% item checked " checked" %%%%%% item disabled " disabled" %%%>&nbsp;%%% condition if setting html_label_after_input %%%
-<label for="%%% item id %%%">%%% condition endif %%%
-%%% condition endif %%%
-%%% item title %%%%%% condition if id %%%</label>%%% condition endif %%%</li>
+%%% endif %%%
+<li>%%% if id %%%%%% unless setting html_label_after_input %%%<label for="%%% item id %%%">%%% endif %%%
+<input type="checkbox" name="%%% item name %%%" id="%%% item id %%%" value="%%% item value %%%"%%% item checked " checked" %%%%%% item disabled " disabled" %%%>&nbsp;%%% if setting html_label_after_input %%%
+<label for="%%% item id %%%">%%% endif %%%
+%%% endif %%%
+%%% item title %%%%%% if id %%%</label>%%% endif %%%</li>
 %%% loop list_close %%%</ul></li>%%% loop end %%%
 %%% loop end %%%
 </ul>

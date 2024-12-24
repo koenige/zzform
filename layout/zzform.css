@@ -563,7 +563,7 @@ body #zzform .separator hr
 	#zzform textarea	{ max-height: 240px; }
 }
 
-%%% condition if setting zzform_wmd_editor %%%
+%%% if setting zzform_wmd_editor %%%
 /* WMD Editor */
 
 .wmd-panel li		{ margin: 3px 0 0; }
@@ -595,8 +595,8 @@ body #zzform .separator hr
 					{ border: 1px solid #888888; font-size: 0.8em;
 					font-weight: bold; }
 
-%%% condition endif %%%
-%%% condition if setting zzform_xhr_vxjs %%%
+%%% endif %%%
+%%% if setting zzform_xhr_vxjs %%%
 /* vxJS */
 .vxJS_xhrThrobber	{ width: 21px; height: 21px; z-index: 100; }
 .vxJS_xhrThrobber.active
@@ -628,7 +628,7 @@ ul.vxJS_list		{ margin: 0; padding: 0;  list-style-type: none; }
 .xhr_foot			{ font-size: 80%; color: #999; margin: 0; line-height: 1.3; }
 
 .vxJS_list .hiLite	{ background: yellow; color: black; }
-%%% condition endif %%%
+%%% endif %%%
 
 
 /* drag and drop */
@@ -713,6 +713,6 @@ ul.vxJS_list		{ margin: 0; padding: 0;  list-style-type: none; }
 						{ margin-top: 0; clear: left; }
 }
 
-%%% condition if setting zzform_colours %%%
+%%% if setting zzform_colours %%%
 %%% include zzform/layout/zzform-colours.css %%%
-%%% condition endif %%%
+%%% endif %%%

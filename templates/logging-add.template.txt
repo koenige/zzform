@@ -9,45 +9,45 @@
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 <div id="zzform" class="maintenance">
-%%% condition if no_file %%%
+%%% if no_file %%%
 <p class="error">%%% text Please upload a file. %%%</p>
 
-%%% condition elseif file_error %%%
+%%% elseif file_error %%%
 <p class="error">%%% text There was an error while uploading the file. %%%</p>
 
-%%% condition elseif no_json %%%
+%%% elseif no_json %%%
 <p class="error">%%% text The content of the file was not readable (Format needs to be JSON). %%%</p>
 
-%%% condition elseif max_logs & first_id %%%
+%%% elseif max_logs & first_id %%%
 <p class="error">%%% text "The highest existing log entry is %d, but import starts with %d." max_logs first_id %%%</p>
 
-%%% condition elseif add_error %%%
+%%% elseif add_error %%%
 <p class="error">%%% text "There was an error adding record ID %d." log_id %%%</p>
 
-%%% condition elseif log_add_error %%%
+%%% elseif log_add_error %%%
 <p class="error">%%% text "There was an error adding log for record ID %d." log_id %%%</p>
 
-%%% condition elseif local_log_id %%%
+%%% elseif local_log_id %%%
 <p class="error">%%% text "Record ID %d was added with a different log ID %d." log_id local_log_id %%%</p>
 
-%%% condition else %%%
+%%% else %%%
 <p>%%% text "All %d log entries were added, last ID was %d." total_count log_id %%%</p>
 
-%%% condition endif %%%
+%%% endif %%%
 
-%%% condition if remote_changes %%%
+%%% if remote_changes %%%
 <p>%%% text These changes were applied to the remote server. %%%</p>
-%%% condition else %%%
+%%% else %%%
 <p>%%% text These changes were applied to the local server. %%%</p>
-%%% condition endif %%%
+%%% endif %%%
 
-%%% condition if no_file | file_error | no_json %%%
-%%% condition unless hide_upload_form %%%
+%%% if no_file | file_error | no_json %%%
+%%% unless hide_upload_form %%%
 <form method="POST" action="" enctype="multipart/form-data">
 %%% text Upload SQL log %%%&nbsp; <input type="file" name="sqlfile">&nbsp; <input type="submit" value="%%% text Upload %%%">
 <input type="hidden" name="loggingadd" value="1">
 </form>
 
-%%% condition endif %%%
-%%% condition endif %%%
+%%% endif %%%
+%%% endif %%%
 </div>

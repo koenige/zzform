@@ -9,20 +9,20 @@
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 <div id="zzform" class="maintenance">
-%%% condition if local_only %%%
+%%% if local_only %%%
 <p class="error">%%% text This only works from a local server! %%%</p>
 
-%%% condition elseif status_error %%%
+%%% elseif status_error %%%
 <p class="error">%%% text "The server returned with an error (%d)." status_error %%%</p>
 %%% item error_explanation %%%
 
-%%% condition elseif identical %%%
+%%% elseif identical %%%
 <p>%%% text "Both servers have %s log entries." identical %%% %%% text No synchronisation is necessary. %%%</p>
 
-%%% condition elseif mismatch %%%
+%%% elseif mismatch %%%
 <p>%%% text "The log entries %d do not match." mismatch %%% %%% text A synchronisation is impossible. %%%</p>
 
-%%% condition else %%%
+%%% else %%%
 
-%%% condition endif %%%
+%%% endif %%%
 </div>

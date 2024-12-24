@@ -8,26 +8,26 @@
 # @copyright Copyright © 2017, 2020-2021, 2024 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
-%%% condition if add %%%
+%%% if add %%%
 <div class="add-new"><p>%%% text Add new record %%%:</p>
 <ul>
 %%% loop add %%%
-<li><a href="%%% page zzformurl type=self+extra encode=1 add=add>NULL %%%%%% condition if value %%%
+<li><a href="%%% page zzformurl type=self+extra encode=1 add=add>NULL %%%%%% if value %%%
 [%%% item field_name %%%]=%%% item value %%%
-%%% condition endif %%%"%%% item title " title='%s'" %%%>%%% item type %%%</a>%%% item explanation " (%s)" %%%</li>
+%%% endif %%%"%%% item title " title='%s'" %%%>%%% item type %%%</a>%%% item explanation " (%s)" %%%</li>
 %%% loop end %%%
 </ul>
 </div>
-%%% condition endif %%%
-%%% condition if add_record | export %%%
+%%% endif %%%
+%%% if add_record | export %%%
 <p class="add-new bottom-add-new">
-%%% condition if add_record %%%
+%%% if add_record %%%
 <a accesskey="n" href="%%% page zzformurl type=self+extra encode=1 add=add>NULL %%%">%%% text Add new record %%%</a>
-%%% condition endif %%%
-%%% condition if add_record & export %%% | %%% condition endif %%%
+%%% endif %%%
+%%% if add_record & export %%% | %%% endif %%%
 %%% loop export %%%
 <a href="%%% page zzformurl type=self+qs encode=1 add=export>NULL %%%=%%% item mode %%%%%% item qs "&amp;%s" %%%">%%% text Export %%% (%%% item type %%%)</a>
 %%% loopposition first|middle " | "%%%
 %%% loop end %%%
 </p>
-%%% condition endif %%%
+%%% endif %%%

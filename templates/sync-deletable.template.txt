@@ -9,13 +9,13 @@
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 <div id="zzform">
-%%% condition if deleted %%%
+%%% if deleted %%%
 <ul>
 <li>%%% text "%s deletions were made." deleted wrap_number %%%</li>
 </ul>
 
-%%% condition else %%%
-%%% condition unless no_deletable_records %%%
+%%% else %%%
+%%% unless no_deletable_records %%%
 <table class="data">
 <thead>
 <tr>
@@ -31,13 +31,13 @@
 <tr class='%%% loopposition uneven "un" %%%even'>
 <td class='number'>%%% item no %%%</td>
 <td class='number'>
-%%% condition if id & script_url %%%<a href="%%% item script_url %%%?edit=%%% item id %%%">%%% item id %%%</a>
-%%% condition elseif id %%%%%% item id %%%
-%%% condition endif %%%
+%%% if id & script_url %%%<a href="%%% item script_url %%%?edit=%%% item id %%%">%%% item id %%%</a>
+%%% elseif id %%%%%% item id %%%
+%%% endif %%%
 </td>
 %%% loop fields %%%
 <td>
-%%% condition if my_script_url %%%<a href="%%% item my_script_url %%%?edit=%%% item value %%%">%%% condition endif %%%
+%%% if my_script_url %%%<a href="%%% item my_script_url %%%?edit=%%% item value %%%">%%% endif %%%
 %%% item value %%%
 %%% item my_script_url </a> %%%
 </td>
@@ -46,13 +46,13 @@
 %%% loop end %%%
 </tbody>
 </table>
-%%% condition unless testing %%%
+%%% unless testing %%%
 <form method="POST" action="">
 <input type="submit" value="%%% text Delete records %%%">
 </form>
-%%% condition endif %%%
-%%% condition else %%%
+%%% endif %%%
+%%% else %%%
 %%% text There are no deletable records. %%%
-%%% condition endif %%%
-%%% condition endif %%%
+%%% endif %%%
+%%% endif %%%
 </div>

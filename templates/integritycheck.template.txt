@@ -9,10 +9,10 @@
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 <div id="zzform" class="maintenance">
-%%% condition if nothing_to_check %%%
+%%% if nothing_to_check %%%
 <p>%%% text Nothing to check. %%%</p>
 
-%%% condition else %%%
+%%% else %%%
 <ul>
 %%% loop start %%%
 %%% switch status %%%
@@ -28,5 +28,5 @@
 %%% loop end %%%
 </ul>
 
-%%% condition endif %%%
+%%% endif %%%
 </div>

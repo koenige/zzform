@@ -9,7 +9,7 @@
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 <div id="zzform" class="maintenance">
-%%% condition if max_logs %%%
+%%% if max_logs %%%
 %%% text "Logfile has only %d entries." max_logs %%%</p>
-%%% condition endif %%%
+%%% endif %%%
 </div>

@@ -9,15 +9,15 @@
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 <div id="zzform">
-%%% condition if sync_inexistent %%%
+%%% if sync_inexistent %%%
 <p class="error">%%% text "There is no definition for a synchronization named <code>%s</code>." identifier %%%</p>
 
-%%% condition endif %%%
+%%% endif %%%
 <p>%%% text Please select from one of the following datasets: %%%</p>
 
 <ul>
 %%% loop start %%%
-<li><a href="%%% condition if sync_inexistent %%%../%%% condition endif %%%%%% item identifier %%%/">%%% item title %%%</a></li>
+<li><a href="%%% if sync_inexistent %%%../%%% endif %%%%%% item identifier %%%/">%%% item title %%%</a></li>
 %%% loop end %%%
 </ul>
 </div>

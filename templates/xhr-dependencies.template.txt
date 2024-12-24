@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/modules/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2017, 2020-2022 Gustaf Mossakowski
+# @copyright Copyright © 2017, 2020-2022, 2024 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 # List of fields:
@@ -13,10 +13,10 @@
 # field_id, field_ids { field_id, value }, field_no }, source_field_ids {
 # field_id, field_no }, unrestricted, command, rec }
 #
-%%% condition unless xhr_selects %%%
+%%% unless xhr_selects %%%
 <script src="%%% setting behaviour_path %%%/vxjs/src/core.js"></script>
 <script src="%%% setting behaviour_path %%%/vxjs/src/xhr.js"></script>
-%%% condition endif %%%
+%%% endif %%%
 
 <script>
 %%% loop start %%%
@@ -31,18 +31,18 @@
 			if (this.response) {
 			%%% loop destination_field_ids %%%
 				if (this.response.%%% item field_id %%%) {
-				%%% condition if field_ids %%%
+				%%% if field_ids %%%
 				%%% loop field_ids %%%
 					if (this.response.%%% item field_id %%% == "%%% item value %%%") {
 						document.getElementById('%%% item sub_field_id %%%').checked = true;
 					}
 				%%% loop end %%%
-				%%% condition else %%%
+				%%% else %%%
 					var thisField = document.getElementById('%%% item field_id %%%');
 					if (thisField.tagName !== 'SELECT') {
 					   document.getElementById('%%% item field_id %%%').value = this.response.%%% item field_id %%%;
 					}
-				%%% condition endif %%%
+				%%% endif %%%
 				}
 			%%% loop end %%%
 			}
