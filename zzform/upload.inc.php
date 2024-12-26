@@ -2912,8 +2912,10 @@ function zz_upload_show_warning($file, $type) {
  */
 function zz_upload_binary($command, $log_error = true) {
 	// 1. check if there is a path for this binary
-	if ($path = wrap_setting('zzform_upload_binary_paths['.$command.']'))
-		return sprintf('%s/%s ', $path, $command);
+	// get paths so _local might get applied
+	$paths = wrap_setting('zzform_upload_binary_paths');
+	if (array_key_exists($command, $paths))
+		return sprintf('%s/%s ', $paths[$command], $command);
 	
 	// 2. check if there is a general binary path given
 	if ($path = wrap_setting('zzform_upload_binary_folder'))
