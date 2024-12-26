@@ -1005,6 +1005,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			if (!isset($fields[$no]['maxlength'])) $fields[$no]['maxlength'] = 60;
 			break;
 		case 'upload_image':
+			wrap_include('upload', 'zzform');
 			$fields[$no]['upload_max_filesize'] = zz_upload_max_filesize($fields[$no]['upload_max_filesize'] ?? 0);
 			break;
 		case 'select':
