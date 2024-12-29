@@ -3247,9 +3247,11 @@ function zz_field_select_get_record($field, $record) {
 	if (substr($db_value, 0, 1) === '"' && substr($db_value, -1) === '"')
 		$db_value = substr($db_value, 1, -1);
 
-	if (substr($field['sql'], 0, 4) === 'SHOW') {
+	if (str_starts_with($field['sql'], 'SHOW')) {
 		if (strstr($field['sql'], 'LIKE'))
 			$sql = $field['sql'];
+		elseif (str_starts_with($field['sql'], 'SHOW DATABASES'))
+			$sql = $field['sql'] .= sprintf(' LIKE "%s"', $db_value);
 		else
 			$sql = wrap_edit_sql($field['sql'], 'WHERE', $field['key_field_name']
 				.sprintf(' LIKE "%s"', $db_value));
@@ -3265,8 +3267,14 @@ function zz_field_select_get_record($field, $record) {
 	if (!$sql) $sql = $field['sql'];
 
 	// fetch query
-	$detail_records = zz_db_fetch($sql, $field['key_field'], '', "record: "
-		.$field['field_name'].' (probably \'id_field_name\' needs to be set)');
+	if (str_starts_with($field['sql'], 'SHOW DATABASES')) {
+		$detail_records_unsorted = zz_db_fetch($sql, '_dummy_', 'single value');
+		foreach ($detail_records_unsorted as $detail_record)
+			$detail_records[][$field['field_name']] = $detail_record;
+	} else {
+		$detail_records = zz_db_fetch($sql, $field['key_field'], '', "record: "
+			.$field['field_name'].' (probably \'id_field_name\' needs to be set)');
+	}
 	
 	// only one record?
 	if (count($detail_records) === 1) {

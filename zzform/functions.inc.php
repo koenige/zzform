@@ -1095,6 +1095,8 @@ function zz_fill_out_key_field_name($field) {
 	}
 
 	if (!empty($field['sql'])) {
+		if (str_starts_with($field['sql'], 'SHOW DATABASES'))
+			return 'Database';
 		// categories.category_id or category_id
 		$fields = wrap_edit_sql($field['sql'], 'SELECT', '', 'list');
 		if (isset($fields[0]['field_name']))
