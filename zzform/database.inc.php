@@ -893,9 +893,9 @@ function zz_db_deleted_id($table, $id_field_name, $id_value) {
 
 	$sql = 'SELECT `AUTO_INCREMENT`
 		FROM  INFORMATION_SCHEMA.TABLES
-		WHERE TABLE_SCHEMA = "%s"
+		WHERE TABLE_SCHEMA = "/*_SETTING db_name _*/"
 		AND   TABLE_NAME   = "%s";';
-	$sql = sprintf($sql, wrap_setting('db_name'), $table);
+	$sql = sprintf($sql, $table);
 	$max_increment = wrap_db_fetch($sql, '', 'single value');
 	if ($max_increment > $id_value) return true;
 	return false;

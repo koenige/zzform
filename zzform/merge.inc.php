@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2014-2015, 2017, 2019-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2014-2015, 2017, 2019-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -88,11 +88,11 @@ function zz_merge_records($zz) {
 	$recs = array_reverse($recs);
 	if (!$error OR wrap_setting('debug')) foreach ($recs as $rec) {
 		$sql = 'SELECT rel_id, detail_db, detail_table, detail_field, `delete`, detail_id_field
-			FROM %s
-			WHERE master_db = "%s"
+			FROM /*_TABLE zzform_relations _*/
+			WHERE master_db = "/*_SETTING db_name _*/"
 			AND master_table = "%s"
 			AND master_field = "%s"';
-		$sql = sprintf($sql, wrap_sql_table('zzform_relations'), wrap_setting('db_name'), $rec['table'], $rec['id_field_name']);
+		$sql = sprintf($sql, $rec['table'], $rec['id_field_name']);
 		$dependent_records = zz_db_fetch($sql, 'rel_id');
 
 		$dependent_sql = 'SELECT * FROM %s.%s WHERE %s IN (%s)';

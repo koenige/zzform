@@ -23,8 +23,7 @@ function mod_zzform_loggingread($params) {
 	wrap_include('logging', 'zzform');
 	list($data, $limit) = zz_logging_read($params[0]);
 	if (!$data) {
-		$sql = 'SELECT MAX(log_id) FROM %s';
-		$sql = sprintf($sql, wrap_sql_table('zzform_logging'));
+		$sql = 'SELECT MAX(log_id) FROM /*_TABLE zzform_logging _*/';
 		$data['max_logs'] = wrap_db_fetch($sql, '', 'single value');
 		$page['title'] = ' '.wrap_text('Download SQL log');
 		$page['breadcrumbs'][]['title'] = wrap_text('Download SQL log');

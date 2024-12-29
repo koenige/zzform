@@ -2540,8 +2540,7 @@ function zz_integrity_relations() {
 	static $relations = [];
 	if ($relations) return $relations;
 
-	$sql = 'SELECT * FROM %s';
-	$sql = sprintf($sql, wrap_sql_table('zzform_relations'));
+	$sql = 'SELECT * FROM /*_TABLE zzform_relations _*/';
 	$relations = zz_db_fetch($sql, ['master_db', 'master_table', 'master_field', 'rel_id']);
 	return $relations;
 }
