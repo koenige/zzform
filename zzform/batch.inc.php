@@ -29,7 +29,7 @@ function zzform_batch_delete($zz, $post) {
 	if (empty($post['zz_record_id']))
 		return '';
 
-	$table = wrap_db_prefix_remove($zz['table']);
+	$table = $zz['form_script'] ?? wrap_db_prefix_remove($zz['table']);
 	
 	$data['deleted_ids'] = zzform_delete($table, $post['zz_record_id']);
 	$data['deleted'] = count($data['deleted_ids']);
