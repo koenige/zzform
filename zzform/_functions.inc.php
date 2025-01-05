@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2022-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2022-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -302,7 +302,7 @@ function zzform_batch_def($table, $settings = []) {
 	} else {
 		$def['type'] = 'tables';
 	}
-	$def['table_script'] = str_replace('_', '-', $table);
+	$def['table_script'] = str_replace('_', '-', trim($table, '_'));
 	$def['msg'] = $settings['msg'] ?? '';
 	if ($def['msg']) $def['msg'] .= ' ';
 	$msg_2 = $settings['msg_2'] ?? '';
