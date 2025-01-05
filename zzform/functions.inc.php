@@ -18,7 +18,7 @@
  * V - Validation, preparation for database
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1470,8 +1470,6 @@ function zz_record_access($zz, $ops) {
 			if (!empty($_POST['zz_record_id'])) {
 				if (!empty($_POST['zz_multiple_edit'])) {
 					$ops['mode'] = 'edit';
-				} elseif (!empty($_POST['zz_multiple_delete'])) {
-					$ops['mode'] = 'delete';
 				}
 				$zz_conf['int']['id']['values'] = $_POST['zz_record_id'];
 			}

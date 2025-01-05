@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/modules/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2005-2024 Gustaf Mossakowski
+# @copyright Copyright © 2005-2025 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 msgid ""
@@ -13,7 +13,6 @@ msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform\n"
 "POT-Creation-Date: \n"
 "PO-Revision-Date: \n"
-"Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -1154,12 +1153,18 @@ msgid "Record was deleted"
 msgstr ""
 
 # Record form: Heading
-msgid "1 record was deleted"
-msgstr ""
+#: zzform/batch.inc.php
+msgid "%d record was deleted"
+msgid_plural "%d records were deleted"
+msgstr[] ""
+msgstr[] ""
 
 # Record form: Heading
-msgid "%d records were deleted"
-msgstr ""
+#: zzform/batch.inc.php
+msgid "%d record was deleted, %d not"
+msgid_plural "%d records were deleted, %d not"
+msgstr[] ""
+msgstr[] ""
 
 # Record form: Heading
 msgid "Record was inserted"
@@ -2083,6 +2088,10 @@ msgstr ""
 
 #: zzform/action.inc.php
 msgid "The number %d is too high. Maximum value is %d."
+msgstr ""
+
+#: zzform/batch.inc.php
+msgid "Sorry, multiple deletion is not permitted."
 msgstr ""
 
 #: zzform/debug.inc.php:100

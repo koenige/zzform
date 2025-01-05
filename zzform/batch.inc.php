@@ -8,10 +8,56 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2024 Gustaf Mossakowski
+ * @copyright Copyright © 2024-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
+
+/**
+ * batch delete several records
+ *
+ * @param array $zz
+ * @param array $post
+ * @return string
+ */
+function zzform_batch_delete($zz, $post) {
+	if (empty($zz['list']['batch_delete']))
+		wrap_quit(403, wrap_text('Sorry, multiple deletion is not permitted.'));
+	if (empty($post['zz_action']) OR $post['zz_action'] !== 'multiple')
+		wrap_quit(400);
+
+	if (empty($post['zz_record_id']))
+		return '';
+
+	$table = wrap_db_prefix_remove($zz['table']);
+	
+	$data['deleted_ids'] = zzform_delete($table, $post['zz_record_id']);
+	$data['deleted'] = count($data['deleted_ids']);
+	$data['not_deleted'] = count($post['zz_record_id']) - $data['deleted'];
+	$data['not_deleted_ids'] = array_diff($post['zz_record_id'], $data['deleted_ids']);
+	wrap_session_start();
+	$_SESSION['zzform']['batch'] = $data;
+	wrap_redirect_change();
+}
+
+/**
+ * show result of multiple deletions
+ *
+ * @return string
+ */
+function zzform_batch_delete_result() {
+	global $zz_conf;
+
+	wrap_session_start();
+	$data = $_SESSION['zzform']['batch'];
+	unset($_SESSION['zzform']['batch']);
+	if ($data['not_deleted_ids'])
+		$zz_conf['int']['id']['values'] = $data['not_deleted_ids'];
+
+	if ($data['not_deleted'])
+		return wrap_text('%d records were deleted, %d not', ['values' => [$data['deleted'], $data['not_deleted']]]);
+	return wrap_text('%d records were deleted', ['values' => [$data['deleted']]]);
+}
 
 /**
  * update date if current entry contains incomplete date and new data is better

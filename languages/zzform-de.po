@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/modules/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2005-2024 Gustaf Mossakowski
+# @copyright Copyright © 2005-2025 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 msgid ""
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.4.4\n"
+"X-Generator: Poedit 3.5\n"
 
 #: configuration/settings.cfg
 msgid "folder for fonts used by captchas"
@@ -1263,12 +1263,18 @@ msgid "Record was deleted"
 msgstr "Eintrag wurde gelöscht"
 
 # Record form: Heading
-msgid "1 record was deleted"
-msgstr "1 Eintrag wurde gelöscht"
+#: zzform/batch.inc.php
+msgid "%d record was deleted"
+msgid_plural "%d records were deleted"
+msgstr[0] "1 Eintrag wurde gelöscht"
+msgstr[1] "%d Einträge wurden gelöscht"
 
 # Record form: Heading
-msgid "%d records were deleted"
-msgstr "%d Einträge wurden gelöscht"
+#: zzform/batch.inc.php
+msgid "%d record was deleted, %d not"
+msgid_plural "%d records were deleted, %d not"
+msgstr[0] "%d Eintrag wurde gelöscht, %d nicht"
+msgstr[1] "%d Einträge wurden gelöscht, %d nicht"
 
 # Record form: Heading
 msgid "Record was inserted"
@@ -1284,34 +1290,42 @@ msgstr "Die Konfiguration erlaubt diesen Modus nicht: %s"
 
 # Stop editing this record
 # Record form: bottom
+#: templates/zzform-record.template.txt
 msgid "Cancel"
 msgstr "Abbrechen"
 
 # Record form: bottom
+#: templates/zzform-record.template.txt
 msgid "OK"
 msgstr "OK"
 
 # Record form: bottom
+#: templates/zzform-record.template.txt
 msgid "Update record"
 msgstr "Eintrag aktualisieren"
 
 # Record form: bottom
+#: templates/zzform-record.template.txt
 msgid "Update records"
 msgstr "Einträge aktualisieren"
 
 # Record form: bottom
+#: templates/zzform-record.template.txt
 msgid "Delete record"
 msgstr "Eintrag löschen"
 
 # Record form: bottom
+#: templates/zzform-record.template.txt
 msgid "Delete records"
 msgstr "Einträge löschen"
 
 # Record form: bottom
+#: templates/zzform-record.template.txt
 msgid "Add record"
 msgstr "Eintrag hinzufügen"
 
 # Record form: bottom
+#: templates/zzform-record.template.txt
 msgid "Add records"
 msgstr "Einträge hinzufügen"
 
@@ -2277,6 +2291,10 @@ msgstr "Eintragung in Tabelle %s nicht möglich."
 msgid "The number %d is too high. Maximum value is %d."
 msgstr "Die Zahl %d ist zu hoch. Der maximale Wert ist %d."
 
+#: zzform/batch.inc.php
+msgid "Sorry, multiple deletion is not permitted."
+msgstr "Mehrfache Löschungen sind leider nicht zulässig."
+
 #: zzform/debug.inc.php:100
 msgid "Debug Information"
 msgstr "Debug-Informationen"
@@ -2332,3 +2350,19 @@ msgid "Unable to gzip archive file for database logging for period %s."
 msgstr ""
 "Es war nicht möglich, ein gzip-Archiv der Datenbank-Aufzeichungsdatei für "
 "die Periode %s zu erstellen."
+
+#: configuration/access.cfg
+msgid "synchronize local development and production server"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "time in months to keep logging data in the database before archiving it"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "maximum number of lines that are read from logging table"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "URL to synchronize local development and production server"
+msgstr ""

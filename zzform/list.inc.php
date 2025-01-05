@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -197,7 +197,7 @@ function zz_list($zz, $list, $ops, $zz_conditions) {
 			if ($list['batch_edit'])
 				$list['buttons'][] = '<input type="submit" value="'.wrap_text('Edit').'" name="zz_multiple_edit">';
 			if ($list['batch_delete'])
-				$list['buttons'][] = '<input type="submit" value="'.wrap_text('Delete').'" name="zz_multiple_delete">';
+				$list['buttons'][] = '<input type="submit" value="'.wrap_text('Delete').'" name="zz_batch_delete">';
 			if ($list['merge'])
 				$list['buttons'][] = '<input type="submit" value="'.wrap_text('Merge').'" name="zz_merge">';
 			if ($list['batch_function']) foreach ($list['batch_function'] as $index => $mfunction)
@@ -1914,9 +1914,9 @@ function zz_list_init_subselects($field, $fieldindex) {
 	} else { // $foreign_key_field
 		// if main field name and foreign field name differ, use main ID
 		// for requests
-		if (!empty($foreign_key_field['key_field'])) {
+		if (!empty($foreign_key_field['key_field_name'])) {
 			// different fieldnames
-			$subselect['key_fieldname'] = $foreign_key_field['key_field'];
+			$subselect['key_fieldname'] = $foreign_key_field['key_field_name'];
 		} else {
 			$subselect['key_fieldname'] = $foreign_key_field['field_name'];
 		}

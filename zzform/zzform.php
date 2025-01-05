@@ -13,7 +13,7 @@
  *	zzform_multi()			multi edit for zzform, e. g. import
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -40,6 +40,11 @@ function zzform($zz) {
 		return $function($_POST['zz_record_id']);
 	}
 
+	if (isset($_POST['zz_batch_delete'])) {
+		wrap_include('batch', 'zzform');
+		zzform_batch_delete($zz, $_POST);
+	}
+	
 //
 //	Initialize variables & modules
 //
@@ -85,6 +90,9 @@ function zzform($zz) {
 		$ops['output'] .= sprintf('<h2>%s</h2>',
 			wrap_text('%d records merged successfully', ['values' => substr($_GET['merge'], strrpos($_GET['merge'], '-') + 1)])
 		);
+	} elseif (!empty($_SESSION['zzform']['batch'])) {
+		wrap_include('batch', 'zzform');
+		$ops['output'] .= sprintf('<h2>%s</h2>', zzform_batch_delete_result());
 	}
 	$ops['output'] .= zz_error_output();
 	

@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2016, 2019, 2021, 2023-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2016, 2019, 2021, 2023-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -82,3 +82,5 @@ $zz['filter'][1]['default_selection'] = 'pending';
 $zz['filter'][1]['translate_field_value'] = true;
 
 $zz['list']['no_add_above'] = true;
+
+$zz['list']['batch_delete'] = true;

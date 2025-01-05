@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -65,11 +65,7 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 			$record['formhead'] = wrap_text('Record was updated');
 		} elseif ($record['action'] === 'delete' OR $action_before_redirect === 'delete') {
 			if ($records) {
-				if ($records === 1) {
-					$record['formhead'] = wrap_text('1 record was deleted');
-				} else {
-					$record['formhead'] = wrap_text('%d records were deleted', ['values' => $records]);
-				}
+				$record['formhead'] = wrap_text('%d records were deleted', ['values' => $records]);
 				$action_before_redirect = '';
 			} else {
 				$record['formhead'] = wrap_text('Record was deleted');
