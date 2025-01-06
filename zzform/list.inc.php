@@ -1914,9 +1914,9 @@ function zz_list_init_subselects($field, $fieldindex) {
 	} else { // $foreign_key_field
 		// if main field name and foreign field name differ, use main ID
 		// for requests
-		if (!empty($foreign_key_field['key_field_name'])) {
+		if (!empty($foreign_key_field['key_field'])) {
 			// different fieldnames
-			$subselect['key_fieldname'] = $foreign_key_field['key_field_name'];
+			$subselect['key_fieldname'] = $foreign_key_field['key_field'];
 		} else {
 			$subselect['key_fieldname'] = $foreign_key_field['field_name'];
 		}
