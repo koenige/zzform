@@ -14,7 +14,7 @@
  *		zz_db_*()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -486,7 +486,7 @@ function zz_db_table($table, $db_name = NULL) {
 		$my['db_name'] = trim($table[0], '`');
 		$my['table'] = wrap_db_prefix(trim($table[1], '`'));
 	} else {
-		$my['db_name'] = $db_name ?? wrap_setting('db_name');
+		$my['db_name'] = $db_name ?? wrap_setting('db_name') ?? $_SESSION['db_name_local'];
 		$my['table'] = wrap_db_prefix(trim($table, '`'));
 	}
 	return $my;	

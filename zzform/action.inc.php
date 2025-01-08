@@ -9,7 +9,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -2460,7 +2460,7 @@ function zz_password_set($old, $new1, $new2, $sql, $field) {
  */
 function zz_action_unique_check(&$zz_tab) {
 	$sql = 'SHOW INDEXES FROM `%s`.`%s` WHERE Key_name != "PRIMARY" AND Non_unique = 0';
-	$sql = sprintf($sql, $zz_tab[0]['db_name'], $zz_tab[0]['table']);
+	$sql = sprintf($sql, $zz_tab[0]['db_name'] ?? $_SESSION['db_name_local'], $zz_tab[0]['table']);
 	// Key_name, Column_name, Null
 	$data = wrap_db_fetch($sql, '_dummy_', 'numeric');
 	$uniques = [];
