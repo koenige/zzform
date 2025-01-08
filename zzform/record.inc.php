@@ -1597,6 +1597,7 @@ function zz_set_auto_value($field, $sql, $table, $tab, $rec, $main_table) {
  */
 function zz_record_element($input, $return = 'all') {
 	if (empty($input['type'])) $input['type'] = 'text';
+	if (empty($input['name'])) $input['name'] = ''; // option elements etc.
 
 	// id?
 	if (!empty($input['create_id']))
