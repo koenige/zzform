@@ -1592,9 +1592,10 @@ function zz_set_auto_value($field, $sql, $table, $tab, $rec, $main_table) {
  *		string 'id' id=""
  *		bool 'create_id' will create id for id attribute
  *		array 'attributes' indexed by name => value
- * @return string
+ * @param string $return (optional) return all data or just attributes
+ * @return array
  */
-function zz_record_element($input) {
+function zz_record_element($input, $return = 'all') {
 	if (empty($input['type'])) $input['type'] = 'text';
 
 	// id?
@@ -1620,15 +1621,18 @@ function zz_record_element($input) {
 		$element['html'] = '<textarea%s>%s</textarea>';
 		$element['text'] = $input['value'];
 		unset($input['value']);
+		unset($input['type']);
 		break;
 	case 'select':
 		$element['tag'] = 'select';
 		$element['html'] = '<select%s>';
+		unset($input['type']);
 		break;
 	case 'option':
 		$element['tag'] = 'option';
 		$element['html'] = '<option%s>%s</option>';
 		$element['text'] = $input['name'];
+		unset($input['type']);
 		unset($input['name']);
 		break;
 	case 'file':
@@ -1660,6 +1664,8 @@ function zz_record_element($input) {
 	}
 	if (!empty($input['value']))
 		$input['value'] = str_replace('"', '&quot;', $input['value']);
+
+	if ($return === 'attributes') return $input;
 	$element['attributes'] = $input;
 	return $element;
 }
@@ -3647,40 +3653,39 @@ function zz_field_select_enum($field, $display, $record) {
 		return zz_field_select_radio($field, $record, $radios, $fieldattr);
 	}
 
-	if ($field['required']) $fieldattr['required'] = true;
-	$text = zz_form_element($field['f_field_name'], '', 'select', true, $fieldattr)."\n";
-	$fieldattr = [];
-	if ($record) { 
-		if (!$record[$field['field_name']])
-			$fieldattr['selected'] = true;
-	} else {
-		// no value, no default value (both would be 
-		// written in my record fieldname)
-		$fieldattr['selected'] = true;
-	}
-	if (isset($field['text_none_selected'])) {
-		$display = wrap_text($field['text_none_selected'], ['source' => wrap_setting('zzform_script_path')]);
-	} else {
-		$display = wrap_text('None selected');
-	}
-	$text .= zz_form_element($display, '', 'option', false, $fieldattr)."\n";
+	// select
+	$input = [
+		'type' => 'select',
+		'required' => $field['required'],
+		'name' => $field['f_field_name'],
+		'create_id' => true
+	];
+	$input = array_merge($input, $fieldattr); // @todo check if this is necessary
+	$data['select_attributes'] = zz_record_element($input, 'attributes');
+
+	// option none
+	$input = [
+		'type' => 'option',
+		// no value, no default value (both would be written in my record fieldname)
+		'selected' => !$record ? true : (!$record[$field['field_name']] ? true : false)
+	];
+	$data['option_none_attributes'] = zz_record_element($input, 'attributes');
+	$data['option_none_text'] = isset($field['text_none_selected'])
+		? wrap_text($field['text_none_selected'], ['source' => wrap_setting('zzform_script_path')]) : NULL;
+
+	// options
 	foreach ($field['enum'] as $key => $set) {
-		$fieldattr = [];
 		$selected = zz_field_selected($field, $record, $set);
-		$internal_value = $set;
-		if ($selected !== false) {
-			$fieldattr['selected'] = true;
-			if ($selected !== true) $internal_value = $selected;
-		}
-		if (empty($fieldattr['selected']) AND !empty($field['disabled_ids']) 
-			AND is_array($field['disabled_ids'])
-			AND in_array($set, $field['disabled_ids'])) {
-			$fieldattr['disabled'] = true;
-		}
-		$text .= zz_form_element(zz_print_enum($field, $set, 'full', $key), $internal_value, 'option', false, $fieldattr)."\n";
+		$input = [
+			'type' => 'option',
+			'selected' => $selected ? true : false,
+			'disabled' => $selected ? false : zz_record_field_disabled($set, $field),
+			'value' => !is_bool($selected) ? $selected : $set,
+			'name' => zz_print_enum($field, $set, 'full', $key)
+		];
+		$data['options'][] = zz_record_element($input);
 	}
-	$text .= '</select>'."\n";
-	return $text;
+	return wrap_template('zzform-record-select-enum', $data);
 }
 
 /**
@@ -3796,6 +3801,20 @@ function zz_draw_select($field, $record, $line, $form = false, $addlevel = 0) {
 		$output = $fieldvalue;
 	}
 	return $output;
+}
+
+/**
+ * check if a value is disabled
+ *
+ * @param string $value
+ * @param array $field
+ * @return bool
+ */
+function zz_record_field_disabled($value, $field) {
+	if (empty($field['disabled_ids'])) return false;
+	if (!is_array($field['disabled_ids'])) return false;
+	if (!in_array($value, $field['disabled_ids'])) return false;
+	return true;
 }
 
 /**
