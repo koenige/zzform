@@ -9,7 +9,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1088,18 +1088,13 @@ function zz_rating_format($value, $field) {
 /**
  * Output upndown with TinyMCE editor
  *
- * @global array $zz_conf
  * @return string HTML code for JavaScript
  */
 function zz_output_upndown_editor() {
-	global $zz_conf;
+	if (!wrap_setting('zzform_upndown_editor_instances')) return '';
 
-	if (empty($zz_conf['upndown_editor'])) return '';
-	if ($zz_conf['upndown_editor'] === true) return '';
-
-	for ($i = 1; $i <= $zz_conf['upndown_editor']; $i++) {
+	for ($i = 1; $i <= wrap_setting('zzform_upndown_editor_instances'); $i++)
 		$data[$i]['no'] = $i;
-	}
 
 	$output = wrap_template('upndown-editor', $data);
 	return $output;

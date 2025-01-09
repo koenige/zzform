@@ -231,24 +231,7 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 	if (!in_array($ops['mode'], ['add', 'edit'])) {
 		$record['upload_form'] = false;
 	}
-	zz_record_wmd_editor();
 	return wrap_template('zzform-record', $record);
-}
-
-/**
- * Settings for WMD Editor
- *
- * @global array $zz_conf
- */
-function zz_record_wmd_editor() {
-	global $zz_conf;
-	
-	if (empty($zz_conf['wmd_editor'])) return '';
-	if ($zz_conf['wmd_editor'] === true) return '';
-	wrap_setting('zzform_wmd_editor_instances', $zz_conf['wmd_editor'] - 1);
-	
-	if (in_array(wrap_setting('lang'), wrap_setting('zzform_wmd_editor_languages')))
-		wrap_setting('zzform_wmd_editor_lang', wrap_setting('lang'));
 }
 
 /**
@@ -2369,8 +2352,6 @@ function zz_field_datetime($field, $display, $record) {
  * @return string
  */
 function zz_field_memo($field, $display, $record) {
-	global $zz_conf;
-
 	// get value
 	$value = $record ? $record[$field['field_name']] : '';
 	if ($field['type'] === 'parameter' AND $value) {
@@ -2422,16 +2403,6 @@ function zz_field_memo($field, $display, $record) {
 	if (!empty($field['minlength']))
 		$fieldattr['minlength'] = $field['minlength'];
 	if ($fieldattr['rows'] < 2) $fieldattr['rows'] = 2;
-	if (!empty($field['format']) AND $field['format'] === 'markdown'
-		AND !empty($zz_conf['wmd_editor'])) {
-		$fieldattr['class'] = 'wmd-input';
-		$fieldattr['id'] = 'wmd-input-'.$zz_conf['wmd_editor'];
-	}
-	if (!empty($field['format']) AND $field['format'] === 'markdown'
-		AND !empty($zz_conf['upndown_editor'])) {
-		$fieldattr['class'] = 'markdown';
-		$fieldattr['id'] = 'markdown-'.$zz_conf['upndown_editor'];
-	}
 
 	if (!empty($field['sql'])) {
 		$field['unrestricted'] = true;
@@ -2439,24 +2410,35 @@ function zz_field_memo($field, $display, $record) {
 		zz_xhr_add('selects', $field);
 	}
 
-	$text = zz_form_element($field['f_field_name'], $value, 'textarea', true, $fieldattr);
-	if (!empty($field['format']) AND $field['format'] === 'markdown'
-		AND !empty($zz_conf['wmd_editor'])) {
-		$text = sprintf('<div class="wmd-panel"><div id="wmd-button-bar-%s"></div>', $zz_conf['wmd_editor'])
-			.$text.'</div>'."\n";
-		if ($zz_conf['wmd_editor'] === true) $zz_conf['wmd_editor'] = 1;
-		$zz_conf['wmd_editor']++;
+	$data = [];
+	if (!empty($field['format']) AND $field['format'] === 'markdown') {
+		if (wrap_setting('zzform_wmd_editor')) {
+			// Pagedown Editor
+			$data['wmd_editor'] = wrap_setting('zzform_wmd_editor_instances') + 1;
+			wrap_setting('zzform_wmd_editor_instances', $data['wmd_editor']);
+			$fieldattr['class'] = 'wmd-input';
+			$fieldattr['id'] = 'wmd-input-'.$data['wmd_editor'];
+			if (!wrap_setting('zzform_wmd_editor_lang')
+				AND in_array(wrap_setting('lang'), wrap_setting('zzform_wmd_editor_languages')))
+				wrap_setting('zzform_wmd_editor_lang', wrap_setting('lang'));
+		} elseif (wrap_setting('zzform_upndown_editor')) {
+			// upndown Editor
+			$data['upndown_editor'] = wrap_setting('zzform_upndown_editor_instances') + 1;
+			$data['rows'] = $fieldattr['rows'];
+			$data['cols'] = $fieldattr['cols'];
+			wrap_setting('zzform_upndown_editor_instances', $data['upndown_editor']);
+			$fieldattr['class'] = 'markdown';
+			$fieldattr['id'] = 'markdown-'.$data['upndown_editor'];
+		}
 	}
-	if (!empty($field['format']) AND $field['format'] === 'markdown'
-		AND !empty($zz_conf['upndown_editor'])) {
-		if ($zz_conf['upndown_editor'] === true) $zz_conf['upndown_editor'] = 1;
-		$text = sprintf(
-			'<div id="upndown-wysiwyg-%d"><textarea id="wysiwyg-%d" rows="%d" class="upndown-wysiwyg" cols="%d"></textarea></div>',
-			$zz_conf['upndown_editor'], $zz_conf['upndown_editor'], $fieldattr['rows'], $fieldattr['cols']
-		)."\n".'<div id="upndown-markdown-%d">'.$text.'</div>';
-		$zz_conf['upndown_editor']++;
-	}
-	return $text;
+	
+	$input = [
+		'type' => 'textarea',
+		'name' => $field['f_field_name'],
+		'value' => $value
+	];
+	$data += zz_record_element(array_merge($fieldattr, $input));
+	return wrap_template('zzform-record-textarea', $data);
 }
 
 /**

@@ -1,0 +1,22 @@
+# zzform
+# Template for textarea
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzform
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2025 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+%%% if wmd_editor %%%
+<div class="wmd-panel"><div id="wmd-button-bar-%%% item wmd_editor %%%"></div>
+%%% elseif upndown_editor %%%
+<div id="upndown-wysiwyg-%%% item upndown_editor %%%">
+<textarea id="wysiwyg-%%% item upndown_editor %%%" rows="%%% item rows %%%" class="upndown-wysiwyg" cols="%%% item cols %%%"></textarea>
+</div>
+<div id="upndown-markdown-%%% item upndown_editor %%%">
+%%% endif %%%
+<textarea%%% item attributes zzform_attributes %%%>%%% item text %%%</textarea>
+%%% if wmd_editor | upndown_editor %%%
+</div>
+%%% endif %%%
