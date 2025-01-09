@@ -5,13 +5,15 @@
 # https://www.zugzwang.org/modules/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2024 Gustaf Mossakowski
+# @copyright Copyright © 2024-2025 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 %%% if inline %%%
-<span id="%%% item id %%%"%%% item attributes zzform_attributes %%%>
+<span class="zz_radio_inline" id="%%% item id %%%"%%% item attributes zzform_attributes %%%>
 %%% elseif list %%%
 <ul class="zz_radio_list" id="%%% item id %%%"%%% item attributes zzform_attributes %%%>
+%%% else %%%
+<span class="zz_radio_inline">
 %%% endif %%%
 %%% loop start %%%
 %%% if list_open %%%<ul>
@@ -35,4 +37,6 @@
 </span>
 %%% elseif list %%%
 </ul>
+%%% elseif %%%
+</span>
 %%% endif %%%
