@@ -402,6 +402,7 @@ function zz_db_change($sql, $id = false) {
 	// dummy SQL means nothing will be done
 	if ($sql === 'SELECT 1') return $db;
 	
+	$sql = wrap_sql_placeholders($sql);
 	$statement = wrap_sql_statement($sql);
 	if (in_array($statement, ['INSERT INTO', 'DELETE FROM']))
 		$statement = substr($statement, 0, strpos($statement, ' '));
