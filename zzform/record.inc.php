@@ -825,6 +825,7 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 				$close_span = false;
 			} else {
 				$close_span = true;
+				$out['td']['content'] = trim($out['td']['content']); // no whitespace
 				$out['td']['content'] .= '<span class="'.implode(' ', $field['class']).'">'; 
 			}
 			if (!empty($field['append_next'])) {
