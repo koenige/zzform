@@ -2854,7 +2854,15 @@ function zz_field_query($field) {
 	}
 	if (array_key_exists($sql, $results)) return $results[$sql];
 	// return with warning, don't exit here
-	$results[$sql] = zz_db_fetch($sql, '_dummy_id_', 'numeric', '', E_USER_WARNING);
+	$data = zz_db_fetch($sql, '_dummy_id_', 'numeric', '', E_USER_WARNING);
+	if (str_starts_with($sql, 'SHOW DATABASES')
+		OR str_starts_with($sql, 'SHOW TABLES')) {
+		// format with key_field; there is just one result per record
+		foreach ($data as $index => $line)
+			$results[$sql][$index][$field['key_field']] = reset($line);
+	} else {
+		$results[$sql] = $data;
+	}
 	return $results[$sql];
 }
 
@@ -3236,7 +3244,8 @@ function zz_field_select_get_record($field, $record) {
 	if (str_starts_with($field['sql'], 'SHOW')) {
 		if (strstr($field['sql'], 'LIKE'))
 			$sql = $field['sql'];
-		elseif (str_starts_with($field['sql'], 'SHOW DATABASES'))
+		elseif (str_starts_with($field['sql'], 'SHOW DATABASES')
+			OR str_starts_with($field['sql'], 'SHOW TABLES'))
 			$sql = $field['sql'] .= sprintf(' LIKE "%s"', $db_value);
 		else
 			$sql = wrap_edit_sql($field['sql'], 'WHERE', $field['key_field_name']
@@ -3253,7 +3262,8 @@ function zz_field_select_get_record($field, $record) {
 	if (!$sql) $sql = $field['sql'];
 
 	// fetch query
-	if (str_starts_with($field['sql'], 'SHOW DATABASES')) {
+	if (str_starts_with($field['sql'], 'SHOW DATABASES')
+		OR str_starts_with($field['sql'], 'SHOW TABLES')) {
 		$detail_records_unsorted = zz_db_fetch($sql, '_dummy_', 'single value');
 		foreach ($detail_records_unsorted as $detail_record)
 			$detail_records[][$field['field_name']] = $detail_record;
