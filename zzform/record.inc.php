@@ -2436,7 +2436,8 @@ function zz_field_memo($field, $display, $record) {
 	$input = [
 		'type' => 'textarea',
 		'name' => $field['f_field_name'],
-		'value' => $value
+		'value' => $value,
+		'create_id' => true
 	];
 	$data += zz_record_element(array_merge($fieldattr, $input));
 	return wrap_template('zzform-record-textarea', $data);
