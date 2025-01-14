@@ -24,9 +24,8 @@
  <label for="%%% item id %%%"%%% item label_attributes zzform_attributes %%%>%%% endif %%%%%% endif %%%
  <input%%% item attributes zzform_attributes %%%>%%% if setting html_label_after_input %%%
 %%% if label | label_none %%%
- <label for="%%% item id %%%"%%% item label_attributes zzform_attributes %%%>%%% endif %%%%%% endif %%%
-%%% if label_none %%%&nbsp;%%% text No selection %%%
-%%% elseif label %%%&nbsp;%%% item label %%%%%% endif %%%
+ <label for="%%% item id %%%"%%% item label_attributes zzform_attributes %%%>%%% endif %%%%%% endif %%%%%% if label_none %%%%%% unless setting html_label_after_input %%%&nbsp;%%% endif %%%%%% text No selection %%%
+%%% elseif label %%%%%% unless setting html_label_after_input %%%&nbsp;%%% endif %%%%%% item label %%%%%% endif %%%
 %%% if label | label_none %%%</label>%%% endif %%%
 %%% if main__list %%%%%% unless append_next %%%</li>
 %%% endif %%%%%% endif %%%
