@@ -944,6 +944,16 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 		}		
 		
 		$type = $fields[$no]['type_detail'] ?? $fields[$no]['type'];
+		if (!$subtable_no) {
+			// these do not exist in main record, replace type
+			switch ($type) {
+			case 'translation_key':
+			case 'foreign_key':
+				$fields[$no]['type'] = $fields[$no]['type_detail'] ?? 'number';
+				break;
+			}
+		}
+
 		switch ($type) {
 		case 'write_once':
 			// would not be here if it had a type_detail set
@@ -977,16 +987,6 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 				$mode, $action, !empty($fields[$no]['subtable_no']) ? $fields[$no]['subtable_no'].'-'.$no : $no
 			);
 			break;
-		case 'translation_key':
-		case 'foreign_key':
-			// these do not exist in main record
-			if ($subtable_no) break;
-			if (!empty($fields[$no]['type_detail'])) {
-				$fields[$no]['type'] = $fields[$no]['type_detail'];
-			} else {
-				$fields[$no]['type'] = 'number';
-			}
-			break;
 		case 'captcha':
 			if (!empty($action) AND $action !== 'insert') {
 				unset($fields[$no]);
@@ -1013,6 +1013,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 				$fields[$no]['max_select'] = wrap_setting('zzform_max_select');
 			if (!isset($fields[$no]['max_select_val_len']))
 				$fields[$no]['max_select_val_len'] = wrap_setting('zzform_max_select_val_len');
+		case 'foreign_key':
 			$fields[$no]['key_field_name'] = zz_fill_out_key_field_name($fields[$no]);
 			// shortcut as key for results
 			$fields[$no]['key_field'] = $fields[$no]['key_field_name'];
