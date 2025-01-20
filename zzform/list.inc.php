@@ -66,6 +66,7 @@ function zz_list($zz, $list, $ops, $zz_conditions) {
 	list($lines, $ops['records_total']) = zz_list_query($zz, $list);
 	if (zz_error_exit()) return zz_return($ops);
 	$count_rows = count($lines);
+	zz_filter_redirect($zz['filter'], $count_rows);
 
 	if ($count_rows < 8 AND $list['display'] === 'ul')
 		$list['no_add_above'] = true;

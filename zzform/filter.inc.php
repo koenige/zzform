@@ -517,3 +517,22 @@ function zz_filter_selection($filter, $filter_active) {
 
 	return wrap_template('zzform-list-filter', $filter, 'ignore positions');
 }
+
+/**
+ * redirects to a page without a filter
+ *
+ * @param array $filters
+ * @param int $rows
+ * @return bool
+ */
+function zz_filter_redirect($filters, $rows) {
+	if ($rows) return false;
+	
+	foreach ($filters as $filter) {
+		if (!array_key_exists('default_selection_if_empty', $filter)) continue;
+		if (isset($_GET['filter'][$filter['identifier']])) {
+			if ($_GET['filter'][$filter['identifier']].'' === $filter['default_selection_if_empty'].'') return false;
+		}
+		wrap_redirect(sprintf('?filter[%s]=%s', $filter['identifier'], $filter['default_selection_if_empty']));
+	}
+}
