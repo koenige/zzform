@@ -1584,7 +1584,7 @@ function zz_record_element($input, $return = 'all') {
 	if (empty($input['name'])) $input['name'] = ''; // option elements etc.
 
 	// id?
-	if (!empty($input['create_id']))
+	if (!empty($input['create_id']) AND !array_key_exists('id', $input))
 		$input['id'] = zz_make_id_fieldname($input['name']);
 	unset($input['create_id']);
 
