@@ -2697,8 +2697,22 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 	if (!empty($field['show_values_as_list'])) {
 		return zz_return(zz_field_select_sql_radio($field, $record, $lines));
 	}
-		
+	
 	// 1.3.4: draw a SELECT element
+	return zz_return(zz_field_select($field, $record, $lines, $detail_record, $count_rows));
+}
+
+/**
+ * return a SELECT element
+ *
+ * @param array $field
+ * @param array $record
+ * @param array $lines
+ * @param array $detail_record
+ * @param int $count_rows
+ * @return string
+ */
+function zz_field_select($field, $record, $lines, $detail_record, $count_rows) {
 	$fieldattr = zz_field_dependent_fields($field, $lines);
 	if ($field['required']) $fieldattr['required'] = true;
 	$outputf = zz_form_element($field['f_field_name'], '', 'select', true, $fieldattr)."\n";
@@ -2757,7 +2771,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 	if ($close_select) $outputf .= '</select>'."\n";
 	zz_error();
 	$outputf .= zz_error_output();
-	return zz_return($outputf);
+	return $outputf;
 }
 
 /**
