@@ -2433,13 +2433,13 @@ function zz_field_memo($field, $display, $record) {
 		}
 	}
 	
-	$input = [
+	$element = [
 		'type' => 'textarea',
 		'name' => $field['f_field_name'],
 		'value' => $value,
 		'create_id' => true
 	];
-	$data += zz_record_element(array_merge($fieldattr, $input));
+	$data += zz_record_element(array_merge($fieldattr, $element));
 	return wrap_template('zzform-record-textarea', $data);
 }
 
@@ -2907,7 +2907,7 @@ function zz_field_select_sql_too_long($field, $record, $detail_record) {
 	$value = $record[$field['field_name']] ?? '';
 	// add new record
 	$fieldattr = [];
-	$fieldattr['size'] = !empty($field['size_select_too_long']) ? $field['size_select_too_long'] : 32;
+	$fieldattr['size'] = $field['size_select_too_long'] ?? 32;
 	$fieldattr['placeholder'] = $field['placeholder'];
 	if ($field['required']) $fieldattr['required'] = true;
 	$outputf .= zz_form_element($field['f_field_name'], $value, 'text_noescape', true, $fieldattr);
@@ -3663,36 +3663,37 @@ function zz_field_select_enum($field, $display, $record) {
 	}
 
 	// select
-	$input = [
+	$element = [
 		'type' => 'select',
 		'required' => $field['required'],
 		'name' => $field['f_field_name'],
 		'create_id' => true
 	];
-	$input = array_merge($input, $fieldattr); // @todo check if this is necessary
-	$data['select_attributes'] = zz_record_element($input, 'attributes');
+	$element = array_merge($element, $fieldattr); // @todo check if this is necessary
+	$data['select_attributes'] = zz_record_element($element, 'attributes');
 
 	// option none
-	$input = [
+	$element = [
 		'type' => 'option',
 		// no value, no default value (both would be written in my record fieldname)
-		'selected' => !$record ? true : (!$record[$field['field_name']] ? true : false)
+		'selected' => !$record ? true : (!$record[$field['field_name']] ? true : false),
+		'value' => '' // empty value="" necessary!
 	];
-	$data['option_none_attributes'] = zz_record_element($input, 'attributes');
+	$data['option_none_attributes'] = zz_record_element($element, 'attributes');
 	$data['option_none_text'] = isset($field['text_none_selected'])
 		? wrap_text($field['text_none_selected'], ['source' => wrap_setting('zzform_script_path')]) : NULL;
 
 	// options
 	foreach ($field['enum'] as $key => $set) {
 		$selected = zz_field_selected($field, $record, $set);
-		$input = [
+		$element = [
 			'type' => 'option',
 			'selected' => $selected ? true : false,
 			'disabled' => $selected ? false : zz_record_field_disabled($set, $field),
 			'value' => !is_bool($selected) ? $selected : $set,
 			'name' => zz_print_enum($field, $set, 'full', $key)
 		];
-		$data['options'][] = zz_record_element($input);
+		$data['options'][] = zz_record_element($element);
 	}
 	return wrap_template('zzform-record-select-enum', $data);
 }
@@ -3746,10 +3747,6 @@ function zz_form_select_sql_where($field, $where_fields) {
  * @see zz_field_select_sql()
  */
 function zz_draw_select($field, $record, $line, $form = false, $addlevel = 0) {
-	// initialize variables
-	$i = 1;
-	$details = [];
-	if (!isset($field['show_hierarchy'])) $field['show_hierarchy'] = false;
 	if (isset($line['zz_level'])) {
 		$level = $line['zz_level'];
 		unset($line['zz_level']);
@@ -3757,31 +3754,8 @@ function zz_draw_select($field, $record, $line, $form = false, $addlevel = 0) {
 		$level = 0;
 	}
 	if ($addlevel) $level++;
-	if (empty($field['sql_index_only'])) {
-		$line = zz_field_select_ignore($line, $field, 'sql');
-		$line = zz_field_select_format($line, $field);
-		foreach (array_keys($line) as $key) {	
-			// $i = 1: field['type'] === 'id'!
-			if (is_numeric($key)) continue;
-			if ($key === $field['show_hierarchy']) continue;
-			if ($i > 1 AND $line[$key]) {
-				$details[] = zz_cut_length($line[$key], $field['max_select_val_len']);
-			}
-			$i++;
-		}
-	} else {
-		$key = $field['key_field'];
-	}
-	// remove empty fields, makes no sense
-	foreach ($details as $my_key => $value)
-		if (!$value) unset ($details[$my_key]);
-	// if only the id key is in the query, eg. show databases:
-	if (!$details) $details = $line[$key];
-	if (is_array($details)) $details = zz_field_concat($field, $details);
-	$fieldvalue = $details;
-	// remove linebreaks
-	if ($fieldvalue)
-		$fieldvalue = str_replace("\r\n", " ", $fieldvalue);
+	
+	$fieldvalue = zz_field_select_value($line, $field);
 	if ($form === 'reselect') {
 		$fieldattr = [];
 		$fieldattr['size'] = $field['size_select_too_long'] ?? 32;
@@ -3825,6 +3799,38 @@ function zz_record_field_disabled($value, $field) {
 	if (!in_array($value, $field['disabled_ids'])) return false;
 	return true;
 }
+
+/**
+ * get string value for select from a record with several values, do some formatting
+ *
+ * @param array $line record from database
+ * @param array $field field definition
+ * @return string
+ */
+function zz_field_select_value($line, $field) {
+	if (isset($field['sql']) AND str_starts_with($field['sql'], 'SHOW'))
+		// if only the id key is in the query, eg. show databases:
+		return $line[$field['key_field']] ?? reset($line);
+
+	$line = zz_field_select_ignore($line, $field, 'sql');
+	$line = zz_field_select_format($line, $field);
+
+	$values = [];
+	$id_field_found = false; // first field: field['type'] === 'id'!
+	foreach (array_keys($line) as $key) {	
+		if (is_numeric($key)) continue;
+		if (isset($field['show_hierarchy']) AND $key === $field['show_hierarchy']) continue;
+		if ($id_field_found AND $line[$key]) {
+			$value = zz_cut_length($line[$key], $field['max_select_val_len']);
+			if ($value) $values[] = $value; // only non-empty values
+		}
+		$id_field_found = true;
+	}
+	$value = zz_field_concat($field, $values);
+	if (!$value) return '';
+	// remove linebreaks
+	return str_replace("\r\n", " ", $value);
+}	
 
 /**
  * remove fields from display which should be ignored

@@ -9,7 +9,7 @@
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 <select%%% item select_attributes zzform_attributes %%%>
-<option value=""%%% item option_none_attributes zzform_attributes %%%>%%% if option_none_text %%%%%% item option_none_text %%%%%% else %%%%%% text None selected %%%%%% endif %%%</option>
+<option%%% item option_none_attributes zzform_attributes %%%>%%% if option_none_text %%%%%% item option_none_text %%%%%% else %%%%%% text None selected %%%%%% endif %%%</option>
 %%% loop options %%%
 <option%%% item attributes zzform_attributes %%%>%%% item text %%%</option>
 %%% loop end %%%
