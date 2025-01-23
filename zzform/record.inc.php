@@ -2633,7 +2633,8 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 		$element = [
 			'type' => 'hidden',
 			'name' => $field['f_field_name'],
-			'create_id' => true
+			'create_id' => true,
+			'value' => ''
 		];
 		$data = [
 			'no_selection_possible' => true,
@@ -2770,19 +2771,26 @@ function zz_field_select($field, $record, $lines) {
  * @return string
  */
 function zz_field_select_empty_hierarchy($field) {
+	$element = [
+		'type' => 'hidden',
+		'name' => $field['f_field_name'],
+		'create_id' => true,
+		'value' => ''
+	];
 	if (!empty($field['show_hierarchy_use_top_value_instead_NULL'])) {
-		$outputf = zz_form_element($field['f_field_name'], $field['show_hierarchy_subtree'], 'hidden', true)
-			.wrap_text('will be added automatically');
+		$element['value'] = $field['show_hierarchy_subtree'];
+		$data['add_automatically'] = true;
 	} elseif (!empty($field['show_hierarchy_subtree']) OR ($field['show_hierarchy'])) {
-		$outputf = zz_form_element($field['f_field_name'], '', 'hidden', true)
-			.wrap_text('(This entry is the highest entry in the hierarchy.)');
+		$data['hierarchy_highest_entry'] = true;
 	} else {
-		$outputf = zz_form_element($field['f_field_name'], '', 'hidden', true)
-			.wrap_text('No selection possible.');
+		$data['no_selection_possible'] = true;
 	}
 	zz_error();
-	$outputf .= zz_error_output();
-	return $outputf;
+	$data += [
+		'hidden_attributes' => zz_record_element($element, 'attributes'),
+		'error_block' => zz_error_output()
+	];
+	return wrap_template('zzform-record-select', $data);
 }
 
 /**

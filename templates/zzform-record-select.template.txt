@@ -1,5 +1,5 @@
 # zzform
-# Template for select enum
+# Template for select
 #
 # Part of »Zugzwang Project«
 # https://www.zugzwang.org/modules/zzform
@@ -9,7 +9,7 @@
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 %%% if no_selection_possible %%%
-%%% if hidden_attributes %%%<input value=""%%% item hidden_attributes zzform_attributes %%%>%%% endif %%%
+%%% if hidden_attributes %%%<input%%% item hidden_attributes zzform_attributes %%%>%%% endif %%%
 %%% if error_current_value & error_possible_value %%%
 <p class="error">%%% text "Current value: %s" error_current_value %%% – 
 %%% text "Possible value: %s" error_possible_value %%%</p>
@@ -19,6 +19,14 @@
 %%% elseif single_value %%%
 <input%%% item hidden_attributes zzform_attributes %%%>
 %%% item single_value %%%
+
+%%% elseif add_automatically %%%
+<input%%% item hidden_attributes zzform_attributes %%%>
+%%% text will be added automatically %%%
+
+%%% elseif hierarchy_highest_entry %%%
+<input%%% item hidden_attributes zzform_attributes %%%>
+%%% text (This entry is the highest entry in the hierarchy.) %%%
 
 %%% else %%%
 <select%%% item select_attributes zzform_attributes %%%>
