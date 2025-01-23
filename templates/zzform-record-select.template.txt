@@ -17,7 +17,7 @@
 %%% text No selection possible. %%%
 
 %%% elseif single_value %%%
-<input value=""%%% item hidden_attributes zzform_attributes %%%>
+<input%%% item hidden_attributes zzform_attributes %%%>
 %%% item single_value %%%
 
 %%% else %%%
