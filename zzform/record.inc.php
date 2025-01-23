@@ -3189,7 +3189,7 @@ function zz_field_select_sql_radio($field, $record, $lines) {
 		$pos++;
 		array_shift($line); // get rid of ID, is already in $id
 		$line = zz_field_select_ignore($line, $field, 'sql');
-		if ($field['show_hierarchy']) unset($line[$field['show_hierarchy']]);
+		if (!empty($field['show_hierarchy'])) unset($line[$field['show_hierarchy']]);
 		// group display
 		if (!empty($field['group']) AND $line[$field['group']]) {
 			if (!$last_group OR $last_group !== $line[$field['group']]) {
