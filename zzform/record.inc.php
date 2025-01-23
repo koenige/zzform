@@ -2922,13 +2922,15 @@ function zz_field_query($field) {
  * @todo AJAX typeaheadfind
  */
 function zz_field_select_sql_too_long($field, $record, $selected_record) {
-	$data = [];
 	$element = [
 		'type' => 'hidden',
 		'value' => $field['select_field_name'],
 		'name' => 'zz_check_select[]'
 	];
-	$data['hidden_attributes'] = zz_record_element($element, 'attributes');
+	$data = [
+		'hidden_attributes' => zz_record_element($element, 'attributes'),
+		'select_too_long' => true
+	];
 
 	zz_xhr_add('selects', $field);
 
@@ -2950,7 +2952,7 @@ function zz_field_select_sql_too_long($field, $record, $selected_record) {
 		$element['placeholder'] = $field['placeholder'];
 	}
 	$data['text_attributes'] = zz_record_element($element, 'attributes');
-	return wrap_template('zzform-record-select-too-long', $data);
+	return wrap_template('zzform-record-select', $data);
 }
 
 /**

@@ -28,6 +28,10 @@
 <input%%% item hidden_attributes zzform_attributes %%%>
 %%% text (This entry is the highest entry in the hierarchy.) %%%
 
+%%% elseif select_too_long %%%
+<input%%% item hidden_attributes zzform_attributes %%%>
+<input%%% item text_attributes zzform_attributes %%%>
+
 %%% else %%%
 <select%%% item select_attributes zzform_attributes %%%>
 <option%%% item option_none_attributes zzform_attributes %%%>%%% if option_none_text %%%%%% item option_none_text %%%%%% else %%%%%% text None selected %%%%%% endif %%%</option>
