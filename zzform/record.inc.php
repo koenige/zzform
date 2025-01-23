@@ -2892,27 +2892,35 @@ function zz_field_query($field) {
  * @todo AJAX typeaheadfind
  */
 function zz_field_select_sql_too_long($field, $record, $detail_record) {
-	$outputf = zz_form_element('zz_check_select[]', $field['select_field_name'], 'hidden');
+	$data = [];
+	$element = [
+		'type' => 'hidden',
+		'value' => $field['select_field_name'],
+		'name' => 'zz_check_select[]'
+	];
+	$data['hidden_attributes'] = zz_record_element($element, 'attributes');
 
 	zz_xhr_add('selects', $field);
 
-	// don't show select but text input instead
+	$element = [
+		'type' => 'text_noescape',
+		'size' => $field['size_select_too_long'] ?? 32,
+		'required' => $field['required'] ? true : false,
+		'name' => $field['f_field_name'],
+		'create_id' => true
+	];
 	if ($detail_record) {
-		$outputf .= zz_draw_select($field, $record, $detail_record, 'reselect');
-		return $outputf;
+		// value with extra space, so that there won’t be a LIKE operator that this value
+		// will be checked against!
+		$element['value'] = zz_field_select_value($detail_record, $field).' ';
+	} else {
+		// value will not be checked if one detail record is added because 
+		// in this case validation procedure will be skipped!
+		$element['value'] = $record[$field['field_name']] ?? '';
+		$element['placeholder'] = $field['placeholder'];
 	}
-
-	// value will not be checked if one detail record is added because 
-	// in this case validation procedure will be skipped!
-	$value = $record[$field['field_name']] ?? '';
-	// add new record
-	$fieldattr = [];
-	$fieldattr['size'] = $field['size_select_too_long'] ?? 32;
-	$fieldattr['placeholder'] = $field['placeholder'];
-	if ($field['required']) $fieldattr['required'] = true;
-	$outputf .= zz_form_element($field['f_field_name'], $value, 'text_noescape', true, $fieldattr);
-
-	return $outputf;
+	$data['text_attributes'] = zz_record_element($element, 'attributes');
+	return wrap_template('zzform-record-select-too-long', $data);
 }
 
 /**
@@ -3740,50 +3748,35 @@ function zz_form_select_sql_where($field, $where_fields) {
  * @param array $line record from database
  * @param string $form (optional) 
  *		false => outputs just the selected and saved value
- *		'reselect' => outputs input element in case there are too many elements,
  *		'form' => outputs option fields
  * @param int $addlevel
  * @return string $output HTML output
  * @see zz_field_select_sql()
  */
 function zz_draw_select($field, $record, $line, $form = false, $addlevel = 0) {
-	if (isset($line['zz_level'])) {
-		$level = $line['zz_level'];
-		unset($line['zz_level']);
-	} else {
-		$level = 0;
-	}
+	$level = $line['zz_level'] ?? 0;
+	unset($line['zz_level']);
 	if ($addlevel) $level++;
 	
 	$fieldvalue = zz_field_select_value($line, $field);
-	if ($form === 'reselect') {
-		$fieldattr = [];
-		$fieldattr['size'] = $field['size_select_too_long'] ?? 32;
-		if ($field['required']) $fieldattr['required'] = true;
-		// extra space, so that there won't be a LIKE operator that this value
-		// will be checked against!
-		$output = zz_form_element($field['f_field_name'], $fieldvalue.' ', 'text_noescape', true, $fieldattr);
-	} elseif ($form) {
-		// remove tags, leave &#-Code as is
-		$fieldvalue = strip_tags($fieldvalue);
-		$fieldattr = [];
-		// check == to compare strings with numbers as well
-		if ($record AND $line[$field['key_field']] == $record[$field['field_name']]) {
-			$fieldattr['selected'] = true;
-		} elseif (!empty($field['disabled_ids']) 
-			AND is_array($field['disabled_ids'])
-			AND in_array($line[$field['key_field']], $field['disabled_ids'])) {
-			$fieldattr['disabled'] = true;
-		}
-		if ($level !== 0) $fieldattr['class'] = 'level'.$level;
-		// database, table or field names which do not come with an ID?
-		if ($line[$field['key_field']] === $fieldvalue)
-			$line[$field['key_field']] = sprintf(' %s ', $line[$field['key_field']]);
-		$output = zz_form_element($fieldvalue, $line[$field['key_field']], 'option', true, $fieldattr)."\n";
-	} else {
-		$output = $fieldvalue;
+	if (!$form) return $fieldvalue;
+
+	// remove tags, leave &#-Code as is
+	$fieldvalue = strip_tags($fieldvalue);
+	$fieldattr = [];
+	// check == to compare strings with numbers as well
+	if ($record AND $line[$field['key_field']] == $record[$field['field_name']]) {
+		$fieldattr['selected'] = true;
+	} elseif (!empty($field['disabled_ids']) 
+		AND is_array($field['disabled_ids'])
+		AND in_array($line[$field['key_field']], $field['disabled_ids'])) {
+		$fieldattr['disabled'] = true;
 	}
-	return $output;
+	if ($level !== 0) $fieldattr['class'] = 'level'.$level;
+	// database, table or field names which do not come with an ID?
+	if ($line[$field['key_field']] === $fieldvalue)
+		$line[$field['key_field']] = sprintf(' %s ', $line[$field['key_field']]);
+	return zz_form_element($fieldvalue, $line[$field['key_field']], 'option', true, $fieldattr)."\n";
 }
 
 /**
