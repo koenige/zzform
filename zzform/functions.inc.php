@@ -3365,7 +3365,7 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 		$sql_fieldnames = array_diff($sql_fieldnames, $field['sql_fieldnames_ignore']);
 	}
 	foreach ($postvalues as $value) {
-		// preg_match: "... ", extra space will be added in zz_draw_select!
+		// preg_match: "... ", extra space will be added in zz_field_select_sql_too_long()!
 		$my_likestring = $likestring;
 		if (preg_match('/^(.+?) *… *$/', $value, $short_value)) {
 			// reduces string with dots which come from values which have 

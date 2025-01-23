@@ -2722,46 +2722,72 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
  * @return string
  */
 function zz_field_select($field, $record, $lines) {
-	$fieldattr = zz_field_dependent_fields($field, $lines);
-	if ($field['required']) $fieldattr['required'] = true;
-	$outputf = zz_form_element($field['f_field_name'], '', 'select', true, $fieldattr)."\n";
+	// SELECT
+	$element = [
+		'type' => 'select',
+		'name' => $field['f_field_name'],
+		'create_id' => true,
+		'required' => $field['required'] ? true : false
+	];
+	$element += zz_field_dependent_fields($field, $lines);
+	$data = [
+		'select_attributes' => zz_record_element($element, 'attributes')
+	];
 
 	// first OPTION element
 	// normally don't show a value, unless we only look at a part of a hierarchy
-	$fieldvalue = zz_field_select_value_hierarchy($field, $record, $field['key_field']);
-	if (!$fieldvalue) $field['show_hierarchy_use_top_value_instead_NULL'] = false;
-
-	$fieldattr = [];
-	if ($record) if (!$record[$field['field_name']]) $fieldattr['selected'] = true;
-	if (isset($field['text_none_selected'])) {
-		$display = wrap_text($field['text_none_selected'], ['source' => wrap_setting('zzform_script_path')]);
-	} else {
-		$display = wrap_text('None selected');
-	}
-	$outputf .= zz_form_element($display, $fieldvalue, 'option', '', $fieldattr);
+	$element = [
+		'type' => 'option',
+		'selected' => !$record ? true : (!$record[$field['field_name']] ? true : false),
+		'value' => zz_field_select_value_hierarchy($field, $record, $field['key_field'])
+	];
+	if (!$element['value'])
+		$field['show_hierarchy_use_top_value_instead_NULL'] = false;
+	$data['option_none_attributes'] = zz_record_element($element, 'attributes');
+	$data['option_none_text'] = isset($field['text_none_selected'])
+		? wrap_text($field['text_none_selected'], ['source' => wrap_setting('zzform_script_path')]) : NULL;
 
 	// further OPTION elements
-	if (!empty($field['group']) AND count($lines) > 1) {
-		$optgroup = false;
-		foreach ($lines as $line) {
-			if ($optgroup !== $line[$field['group']]) {
-				if ($optgroup) $outputf .= '</optgroup>'."\n";
-				$optgroup = $line[$field['group']];
-				$outputf .= '<optgroup label="'.$optgroup.'">'."\n";
-			}
-			unset($line[$field['group']]); // not needed anymore
-			$outputf .= zz_draw_select($field, $record, $line, 1);
+	$optgroup = (!empty($field['group']) AND count($lines) > 1) ? true : false;
+	$data['optgroups'] = [];
+	foreach ($lines as $line) {
+		$level = $line['zz_level'] ?? 0;
+		if ($optgroup) {
+			$group = $line[$field['group']];
+			unset($line[$field['group']]);
+			$level++; // indent because of optgroup
 		}
-		$outputf .= '</optgroup>'."\n";
-	} else {
-		foreach ($lines as $line) {
-			$outputf .= zz_draw_select($field, $record, $line);
+		// remove tags, leave &#-Code as is
+		$value = zz_field_select_value($line, $field);
+		if ($value) $value = strip_tags($value);
+		// database, table or field names which do not come with an ID?
+		$key_value = $line[$field['key_field']];
+		if ($key_value === $value) $key_value = sprintf(' %s ', $key_value);
+
+		$element = [
+			'type' => 'option',
+			'name' => $value,
+			'value' => $key_value,
+			'create_id' => true,
+			// check == to compare strings with numbers as well
+			'selected' => ($record AND $key_value
+				== $record[$field['field_name']]) ? true : false,
+			'disabled' => zz_record_field_disabled($key_value, $field),
+			'class' => $level ? sprintf('level%d', $level) : NULL
+		];
+		$option = zz_record_element($element);
+		if ($optgroup) {
+			$data['optgroups'][$group]['optgroup'] = $group;
+			$data['optgroups'][$group]['options'][] = $option;
+		} else {
+			$data['options'][] = $option;
 		}
 	}
-	$outputf .= '</select>'."\n";
+	$data['optgroups'] = array_values($data['optgroups']); // numeric keys
+
 	zz_error();
-	$outputf .= zz_error_output();
-	return $outputf;
+	$data['error_block'] = zz_error_output();
+	return wrap_template('zzform-record-select', $data);
 }
 
 /**
@@ -3769,39 +3795,6 @@ function zz_form_select_sql_where($field, $where_fields) {
 	$field['sql'] = wrap_edit_sql($field['sql'], 'WHERE', implode(' AND ', $where_conditions));
 
 	return zz_return($field);
-}
-
-/**
- * HTML output of values, either in <option>, <input> or as plain text
- *
- * @param array $field field definition
- * @param array $record $my_rec['record']
- * @param array $line record from database
- * @param int $addlevel
- * @return string $output HTML output
- * @see zz_field_select_sql()
- */
-function zz_draw_select($field, $record, $line, $addlevel = 0) {
-	// remove tags, leave &#-Code as is
-	$fieldvalue = zz_field_select_value($line, $field);
-	$fieldvalue = strip_tags($fieldvalue);
-
-	$fieldattr = [];
-	// check == to compare strings with numbers as well
-	if ($record AND $line[$field['key_field']] == $record[$field['field_name']]) {
-		$fieldattr['selected'] = true;
-	} elseif (!empty($field['disabled_ids']) 
-		AND is_array($field['disabled_ids'])
-		AND in_array($line[$field['key_field']], $field['disabled_ids'])) {
-		$fieldattr['disabled'] = true;
-	}
-	$level = $line['zz_level'] ?? 0;
-	if ($addlevel) $level++;
-	if ($level !== 0) $fieldattr['class'] = 'level'.$level;
-	// database, table or field names which do not come with an ID?
-	if ($line[$field['key_field']] === $fieldvalue)
-		$line[$field['key_field']] = sprintf(' %s ', $line[$field['key_field']]);
-	return zz_form_element($fieldvalue, $line[$field['key_field']], 'option', true, $fieldattr)."\n";
 }
 
 /**

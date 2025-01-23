@@ -35,9 +35,21 @@
 %%% else %%%
 <select%%% item select_attributes zzform_attributes %%%>
 <option%%% item option_none_attributes zzform_attributes %%%>%%% if option_none_text %%%%%% item option_none_text %%%%%% else %%%%%% text None selected %%%%%% endif %%%</option>
+%%% if optgroups %%%
+%%% loop optgroups %%%
+%%% if optgroup %%%<optgroup label="%%% item optgroup %%%">%%% endif %%%
 %%% loop options %%%
 <option%%% item attributes zzform_attributes %%%>%%% item text %%%</option>
 %%% loop end %%%
+%%% if optgroup %%%</optgroup>%%% endif %%%
+%%% loop end %%%
+
+%%% else %%%
+%%% loop options %%%
+<option%%% item attributes zzform_attributes %%%>%%% item text %%%</option>
+%%% loop end %%%
+
+%%% endif %%%
 </select>
 
 %%% endif %%%
