@@ -2770,9 +2770,9 @@ function zz_field_select($field, $record, $lines) {
 			'value' => $key_value,
 			'create_id' => true,
 			// check == to compare strings with numbers as well
-			'selected' => ($record AND $key_value
+			'selected' => ($record AND $line[$field['key_field']]
 				== $record[$field['field_name']]) ? true : false,
-			'disabled' => zz_record_field_disabled($key_value, $field),
+			'disabled' => zz_record_field_disabled($line[$field['key_field']], $field),
 			'class' => $level ? sprintf('level%d', $level) : NULL
 		];
 		$option = zz_record_element($element);
