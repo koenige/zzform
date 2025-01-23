@@ -2259,6 +2259,8 @@ function zz_make_id_fieldname($fieldname, $prefix = 'field') {
 	$fieldname = str_replace('][', '_', $fieldname);
 	$fieldname = str_replace('[', '_', $fieldname);
 	$fieldname = str_replace(']', '', $fieldname);
+	$fieldname = wrap_filename($fieldname, '_', ['_' => '_']);
+	$fieldname = strtolower($fieldname);
 	if ($prefix) $fieldname = $prefix.'_'.$fieldname;
 	return $fieldname;
 }
