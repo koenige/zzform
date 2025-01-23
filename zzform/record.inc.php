@@ -2658,8 +2658,7 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 	// 1.3.1: no form display = no selection, just display the values in the record
 	if ($display !== 'form') {
 		if (!$detail_record) return zz_return('');
-		$outputf = zz_draw_select($field, $record, $detail_record);
-		return zz_return($outputf);
+		return zz_return(zz_field_select_value($detail_record, $field));
 	}
 
 	// ok, we display something!
@@ -2743,18 +2742,18 @@ function zz_field_select($field, $record, $lines, $detail_record, $count_rows) {
 					$outputf .= '<optgroup label="'.$optgroup.'">'."\n";
 				}
 				unset($line[$field['group']]); // not needed anymore
-				$outputf .= zz_draw_select($field, $record, $line, 'form', 1);
+				$outputf .= zz_draw_select($field, $record, $line, 1);
 			}
 			$outputf .= '</optgroup>'."\n";
 		} else {
 			foreach ($lines as $line) {
-				$outputf .= zz_draw_select($field, $record, $line, 'form');
+				$outputf .= zz_draw_select($field, $record, $line);
 			}
 		}
 	} elseif ($detail_record) {
 		// re-edit record, something was posted, ignore hierarchy because 
 		// there's only one record coming back
-		$outputf .= zz_draw_select($field, $record, $detail_record, 'form');
+		$outputf .= zz_draw_select($field, $record, $detail_record);
 	} elseif (!empty($field['show_hierarchy_use_top_value_instead_NULL'])) {
 		$outputf = zz_form_element($field['f_field_name'], $field['show_hierarchy_subtree'], 'hidden', true);
 		$close_select = false;
@@ -2794,7 +2793,8 @@ function zz_field_select_single($lines, $record, $field) {
 		$outputf = wrap_text('No selection possible.');
 	} else {
 		$outputf = zz_form_element($field['f_field_name'], $line[$field['key_field']],
-			'hidden', true).zz_draw_select($field, $record, $line);
+			'hidden', true);
+		$outputf .= zz_field_select_value($line, $field);
 	}
 	return $outputf;
 }
@@ -3746,23 +3746,15 @@ function zz_form_select_sql_where($field, $where_fields) {
  * @param array $field field definition
  * @param array $record $my_rec['record']
  * @param array $line record from database
- * @param string $form (optional) 
- *		false => outputs just the selected and saved value
- *		'form' => outputs option fields
  * @param int $addlevel
  * @return string $output HTML output
  * @see zz_field_select_sql()
  */
-function zz_draw_select($field, $record, $line, $form = false, $addlevel = 0) {
-	$level = $line['zz_level'] ?? 0;
-	unset($line['zz_level']);
-	if ($addlevel) $level++;
-	
-	$fieldvalue = zz_field_select_value($line, $field);
-	if (!$form) return $fieldvalue;
-
+function zz_draw_select($field, $record, $line, $addlevel = 0) {
 	// remove tags, leave &#-Code as is
+	$fieldvalue = zz_field_select_value($line, $field);
 	$fieldvalue = strip_tags($fieldvalue);
+
 	$fieldattr = [];
 	// check == to compare strings with numbers as well
 	if ($record AND $line[$field['key_field']] == $record[$field['field_name']]) {
@@ -3772,6 +3764,8 @@ function zz_draw_select($field, $record, $line, $form = false, $addlevel = 0) {
 		AND in_array($line[$field['key_field']], $field['disabled_ids'])) {
 		$fieldattr['disabled'] = true;
 	}
+	$level = $line['zz_level'] ?? 0;
+	if ($addlevel) $level++;
 	if ($level !== 0) $fieldattr['class'] = 'level'.$level;
 	// database, table or field names which do not come with an ID?
 	if ($line[$field['key_field']] === $fieldvalue)
@@ -3805,6 +3799,7 @@ function zz_field_select_value($line, $field) {
 		// if only the id key is in the query, eg. show databases:
 		return $line[$field['key_field']] ?? reset($line);
 
+	unset($line['zz_level']);
 	$line = zz_field_select_ignore($line, $field, 'sql');
 	$line = zz_field_select_format($line, $field);
 
