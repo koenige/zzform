@@ -3703,7 +3703,7 @@ function zz_field_select_enum($field, $display, $record) {
 		];
 		$data['options'][] = zz_record_element($element);
 	}
-	return wrap_template('zzform-record-select-enum', $data);
+	return wrap_template('zzform-record-select', $data);
 }
 
 /**
