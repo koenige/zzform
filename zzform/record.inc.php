@@ -2630,11 +2630,18 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 	$too_many_records = array_key_exists('too_many_records', $lines) ? true : false;
 // #1.4 SELECT has no result
 	if (!$lines) {
-		$outputf = zz_form_element($field['f_field_name'], '', 'hidden', true)
-			.wrap_text('No selection possible.');
 		zz_error();
-		$outputf .= zz_error_output();
-		return zz_return($outputf);
+		$element = [
+			'type' => 'hidden',
+			'name' => $field['f_field_name'],
+			'create_id' => true
+		];
+		$data = [
+			'no_selection_possible' => true,
+			'hidden_attributes' => zz_record_element($element, 'attributes'),
+			'error_block' => zz_error_output()
+		];
+		return zz_return(wrap_template('zzform-record-select', $data));
 	}
 
 	// translate values?
@@ -2785,18 +2792,28 @@ function zz_field_select_single($lines, $record, $field) {
 	$line = array_shift($lines);
 	// compare as strings here!
 	if ($record AND $record[$field['field_name']] AND $line[$field['key_field']].'' !== $record[$field['field_name']].'') {
-		$outputf = 'Possible Values: '.$line[$field['key_field']]
-			.' -- Current Value: '
-			.wrap_html_escape($record[$field['field_name']])
-			.' -- Error --<br>'.wrap_text('No selection possible.');
+		$data = [
+			'no_selection_possible' => true,
+			'error_current_value' => $record[$field['field_name']],
+			'error_possible_value' => $line[$field['key_field']]
+		];
 	} elseif (!empty($field['disabled']) AND in_array($line[$field['key_field']], $field['disabled'])) {
-		$outputf = wrap_text('No selection possible.');
+		$data = [
+			'no_selection_possible' => true
+		];
 	} else {
-		$outputf = zz_form_element($field['f_field_name'], $line[$field['key_field']],
-			'hidden', true);
-		$outputf .= zz_field_select_value($line, $field);
+		$element = [
+			'type' => 'hidden',
+			'name' => $field['f_field_name'],
+			'create_id' => true,
+			'value' => $line[$field['key_field']]
+		];
+		$data = [
+			'single_value' => zz_field_select_value($line, $field),
+			'hidden_attributes' => zz_record_element($element, 'attributes')
+		];
 	}
-	return $outputf;
+	return wrap_template('zzform-record-select', $data);
 }
 
 /**

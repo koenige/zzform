@@ -8,9 +8,25 @@
 # @copyright Copyright © 2025 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
+%%% if no_selection_possible %%%
+%%% if hidden_attributes %%%<input value=""%%% item hidden_attributes zzform_attributes %%%>%%% endif %%%
+%%% if error_current_value & error_possible_value %%%
+<p class="error">%%% text "Current value: %s" error_current_value %%% – 
+%%% text "Possible value: %s" error_possible_value %%%</p>
+%%% endif %%%
+%%% text No selection possible. %%%
+
+%%% elseif single_value %%%
+<input value=""%%% item hidden_attributes zzform_attributes %%%>
+%%% item single_value %%%
+
+%%% else %%%
 <select%%% item select_attributes zzform_attributes %%%>
 <option%%% item option_none_attributes zzform_attributes %%%>%%% if option_none_text %%%%%% item option_none_text %%%%%% else %%%%%% text None selected %%%%%% endif %%%</option>
 %%% loop options %%%
 <option%%% item attributes zzform_attributes %%%>%%% item text %%%</option>
 %%% loop end %%%
 </select>
+
+%%% endif %%%
+%%% item error_block %%%
