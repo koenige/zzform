@@ -2604,7 +2604,7 @@ function zz_field_subtable_set($subtable, $display, $my_tab) {
 			// title might be empty for non-selectable IDs
 			$data[$index]['title'] = $set['title'];
 		}
-		$data[$index]['level'] = $set['zz_level'];
+		$data[$index]['level'] = $set['zz_level'] ?? 0; // 0 for non-selectable value
 	}
 	if (!$data) return '';
 	$data = zz_field_select_levels($data);
