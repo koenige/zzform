@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/modules/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2018, 2020-2024 Gustaf Mossakowski
+# @copyright Copyright © 2018, 2020-2025 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 # tfoot must be before thead or hitting ENTER won’t necessarily save the record
@@ -18,7 +18,7 @@ if divert_files %%% data-divert-files="%%% item divert_files %%%"%%% endif %%%>
 %%% item hook_output %%%
 %%% endif %%%
 
-<div id="record">
+<div id="record"%%% unless form %%% class="record-review" %%% endif %%%>
 %%% if formhead %%%
 <h2>%%% if formhead_error %%%<span class="error">%%% endif %%%
 %%% item formhead ucfirst %%%
