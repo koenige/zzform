@@ -3236,8 +3236,9 @@ function zz_field_select_level_set($new_level = 0) {
  * @return array
  */
 function zz_field_select_lines($field, $lines) {
-	if (count($lines) > $field['max_select']) return $lines;
-	if (empty($field['show_hierarchy_subtree'])) return $lines;
+	if (count($lines) > $field['max_select'] 
+		AND empty($field['show_hierarchy_subtree']))
+		return $lines;
 
 	$details = [];
 	// re-index $lines by value from id_field_name
