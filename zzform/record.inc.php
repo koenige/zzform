@@ -1355,7 +1355,7 @@ function zz_record_fields($data) {
 	global $zz_conf;
 	static $table_head = [];
 	static $table_separator = [];
-	if (!$data['matrix']) return ''; // detail record was deleted: no matrix
+	if (empty($data['matrix'])) return ''; // detail record was deleted: no matrix
 	if (!array_key_exists($data['tab'], $table_head)) $table_head[$data['tab']] = true;
 
 	$data['separator_colspan_horizontal'] = count($data['matrix']);
