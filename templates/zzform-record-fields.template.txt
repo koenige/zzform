@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/modules/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2024 Gustaf Mossakowski
+# @copyright Copyright © 2024-2025 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 %%% switch form_display %%%
@@ -16,7 +16,7 @@
 %%% loop start %%%
 %%% if td_content %%%
 <span%%% item tr_class " class='%s'" %%%>
-	<span%%% item td_class " class='%s'" %%% title="%%% item th_content strip_tags %%%">%%% item td_content %%%</span>
+	<span%%% item td_class " class='%s'" %%% title="%%% item th_content wrap_html_escape %%%">%%% item td_content %%%</span>
 </span>
 %%% endif %%%
 %%% loop end %%%
