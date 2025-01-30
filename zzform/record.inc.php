@@ -2311,12 +2311,13 @@ function zz_field_date($field, $display, $record) {
 
 	// return form element
 	// HTML5 fieldtype date is less flexible for incomplete dates
-	if (wrap_setting('zzform_input_type_date')) {
+	$display_as_date = wrap_setting('zzform_input_type_date') ?? $field['input_type_date'] ?? false;
+	if ($display_as_date) {
 		// needs ISO date
 		$value = $record ? $record[$field['field_name']] : '';
 	}
 	$element = [
-		'type' => wrap_setting('zzform_input_type_date') ? 'date' : 'text_noescape',
+		'type' => $display_as_date ? 'date' : 'text_noescape',
 		'name' => $field['f_field_name'],
 		'create_id' => true,
 		'value' => $value,
