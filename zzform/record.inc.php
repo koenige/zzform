@@ -3926,8 +3926,11 @@ function zz_field_file($field, $display, $record, $record_saved, $images, $mode,
 			// @todo if only one image, table is unnecessary
 			// title and field_name of image might be empty
 			$data[$i]['title'] = $image['title'] ?? '';
-			$elementname = zz_make_id_fieldname($field['f_field_name']).'['.$image['field_name'].']';
-			$data[$i]['input'] = zz_form_element($elementname, '', 'file', false);
+			$element = [
+				'type' => 'file',
+				'name' => zz_make_id_fieldname($field['f_field_name']).'['.$image['field_name'].']'
+			];
+			$data[$i]['input_attributes'] = zz_record_element($element, 'attributes');
 			if (empty($field['dont_show_file_link'])
 				AND $data[$i]['link'] = zz_makelink($image['path'], $record_saved ?? $record)) {
 				if (count($uploads) > 1 OR !empty($field['optional_image'])) {
