@@ -2310,12 +2310,22 @@ function zz_field_date($field, $display, $record) {
 	if ($display !== 'form') return $value;
 
 	// return form element
-	$fieldattr = [];
-	$fieldattr['size'] = 12;
-	$fieldattr['placeholder'] = !empty($field['placeholder']) ? trim($field['placeholder']) : wrap_text('Date');
-	if ($field['required']) $fieldattr['required'] = true;
-	// HTML5 fieldtype date has bad usability in Opera (calendar only!)
-	return zz_form_element($field['f_field_name'], $value, 'text_noescape', true, $fieldattr);
+	// HTML5 fieldtype date is less flexible for incomplete dates
+	if (wrap_setting('zzform_input_type_date')) {
+		// needs ISO date
+		$value = $record ? $record[$field['field_name']] : '';
+	}
+	$element = [
+		'type' => wrap_setting('zzform_input_type_date') ? 'date' : 'text_noescape',
+		'name' => $field['f_field_name'],
+		'create_id' => true,
+		'value' => $value,
+		'size' => 12,
+		'placeholder' => !empty($field['placeholder']) ? trim($field['placeholder']) : wrap_text('Date'),
+		'required' => $field['required'] ? true : false
+	];
+	$data['attributes'] = zz_record_element($element, 'attributes');
+	return wrap_template('zzform-record-field-date', $data);
 }
 
 /**
