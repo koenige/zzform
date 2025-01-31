@@ -11,7 +11,7 @@
  *	zz_translations_init()		checks whether fields should be translated
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2013, 2016-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2013, 2016-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -93,8 +93,13 @@ function zz_translations_init($table, $fields) {
 				foreach ($inherit_defs as $inherit_def) {
 					if (!array_key_exists($inherit_def, $fields[$no])) continue;
 					// do not inherit identifier type
-					if ($inherit_def === 'type' AND $fields[$no][$inherit_def] === 'identifier') continue;
-					$zz['fields'][$key][$inherit_def] = $fields[$no][$inherit_def];
+					if ($inherit_def === 'type' AND $fields[$no]['type'] === 'identifier') continue;
+					if ($inherit_def === 'type' AND $fields[$no]['type'] === 'write_once') {
+						if (!empty($fields[$no]['type_detail']))
+							$zz['fields'][$key]['type'] = $fields[$no]['type_detail'];
+					} else {
+						$zz['fields'][$key][$inherit_def] = $fields[$no][$inherit_def];
+					}
 					if ($inherit_def === 'type' AND $fields[$no][$inherit_def] === 'memo'
 						AND $translationfields[$field_name]['field_type'] === 'varchar') {
 						// varchar form: display below, not inline
