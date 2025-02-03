@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -152,8 +152,14 @@ function zz_session_via_login() {
 	wrap_package_activate('zzform'); // get _functions
 
 	// this function is called from outside zzform!
-	$zz_conf['id'] = zz_check_id_value($_POST['zz_id']);
-	$zz_conf['int']['secret_key'] = zz_secret_id('read');
+	if (array_key_exists('zz_action', $_POST) AND $_POST['zz_action'] === 'multiple'
+		AND !isset($_POST['zz_id'])) {
+		$zz_conf['id'] = wrap_random_hash(6);
+		$zz_conf['int']['secret_key'] = '';
+	} else {
+		$zz_conf['id'] = zz_check_id_value($_POST['zz_id']);
+		$zz_conf['int']['secret_key'] = zz_secret_id('read');
+	}
 
 	zz_session_write('postdata', $_POST);
 	zz_session_write('filedata', $_FILES); // if files, move files to _tmp dir
