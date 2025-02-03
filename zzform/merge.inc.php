@@ -474,6 +474,10 @@ function zz_merge_prepare_record($rec) {
 					foreach ($rec['fields'] as $no => $field) {
 						if (empty($field['field_name'])) continue;
 						if ($field['field_name'] !== $error['field_name']) continue;
+						if (zz_get_fieldtype($field) === 'ip') {
+							$update_errors[$index]['old'] = inet_ntop($update_errors[$index]['old']);
+							$update_errors[$index]['new'] = inet_ntop($update_errors[$index]['new']);
+						}
 						if (empty($field['title'])) {
 							$update_errors[$index]['title'] = $field['field_name'];
 						} else {
