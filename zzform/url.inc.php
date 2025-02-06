@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -110,6 +110,7 @@ function zzform_url_remove($remove, $key = 'qs_zzform', $action = 'change') {
 		default:
 			if ($build = zzform_url_with_path($key)) {
 				$url = parse_url($key);
+				if (!$url) $url = [];
 				$query = $url['query'] ?? '';
 			} else {
 				$query = $key;
