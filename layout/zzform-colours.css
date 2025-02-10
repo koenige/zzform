@@ -23,8 +23,6 @@
 					{ background-color: %%% setting zzform_css_background_color_record_subtable %%%; }
 #zzform #record tfoot th, #zzform #record tfoot td
 					{ background-color: %%% setting zzform_css_background_color_record_foot %%%; }
-td.where, th.where 
-					{ background-color: #EEE; } /* a19884 */
 
 
 /* filter */
@@ -35,15 +33,17 @@ td.where, th.where
 /* list view (table) */
 #zzform table.data thead td, #zzform table.data thead th,
 #zzform table.data tr.group td, #zzform tr.last
-					{ border-color: #BBC; }
+					{ border-color: %%% setting zzform_css_border_color_list %%%; }
 #zzform tr.even		{ background-color: %%% setting zzform_css_background_color_list_even %%%; }
 #zzform tr.uneven	{ background-color: %%% setting zzform_css_background_color_list_uneven %%%; }
 #zzform th.order	{ background-color: %%% setting zzform_css_background_color_list_order_by %%%; }
+#zzform td.where, #zzform th.where 
+					{ background-color: %%% setting zzform_css_background_color_list_where %%%; }
 
-#zzform tfoot td	{ border-color: #7B939D; }
+#zzform tfoot td	{ border-color: %%% setting zzform_css_border_color_list_foot %%%; }
 
 /* list view (page navigation below list) */
-#zzform ul.pages li	{ border-color: #666; }
+#zzform ul.pages li	{ border-color: %%% setting zzform_css_border_color_list_pages %%%; }
 #zzform ul.pages li span
 					{ color: %%% setting zzform_css_color_list_pages %%%; }
 #zzform ul.pages li a:hover
