@@ -6,7 +6,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2014, 2018, 2020-2022, 2024 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2014, 2018, 2020-2022, 2024-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -385,6 +385,7 @@ function zzformReplacePage(page, scrollTop = true) {
 	}
 	if (typeof(zzformAnchor) !== 'undefined')
 		location.hash = "#" + zzformAnchor;
+%%% include behaviour/zzform-foot-replace-page.js %%%
 }
 
 /**
