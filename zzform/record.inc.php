@@ -445,8 +445,10 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 		$data['tab'] = 0;
 	if (!array_key_exists('rec', $data))
 		$data['rec'] = 0;
+	// might not exist: optional subrecord, displayed inline
+	if (!array_key_exists($data['rec'], $zz_tab[$data['tab']])) return zz_return([]);
 	$my_rec = $zz_tab[$data['tab']][$data['rec']];
-	if (empty($my_rec['fields'])) zz_return([]);
+	if (empty($my_rec['fields'])) return zz_return([]);
 	if (!array_key_exists('form_display', $data))
 		$data['form_display'] = 'vertical';
 
