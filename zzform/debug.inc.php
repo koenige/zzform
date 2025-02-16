@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2010, 2014, 2016-2017, 2022-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2010, 2014, 2016-2017, 2022-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -68,6 +68,7 @@ function zz_debug($marker = false, $text = false, $id = false) {
 	$debug['time_used'] = $time - $current['time_start'];
 	// don’t show if time used was below E-5
 	if (str_starts_with($marker, 'end') AND $debug['time_used'] < 0.0001) {
+		if (!$zz_debug[$id]['output']) return true;
 		$last_output = end($zz_debug[$id]['output']);
 		if (!$last_output) return true;
 		if ($last_output['function'] !== $current['function']) return true;
