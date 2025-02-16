@@ -74,7 +74,7 @@
  *		['validated']		validated (yes = tested, no = rely on fileupload i. e. user)
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2006-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2006-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -396,11 +396,7 @@ function zz_upload_check_files($zz_tab) {
 			if (empty($images[$no][$img]['input_filetypes'])) {
 				// if not set, inherit from $zz['fields'][n]['input_filetypes']
 				// or initialize it
-				if (isset($field['input_filetypes'])) {
-					$images[$no][$img]['input_filetypes'] = $field['input_filetypes'];
-				} else {
-					$images[$no][$img]['input_filetypes'] = [];
-				}
+				$images[$no][$img]['input_filetypes'] = $field['input_filetypes'] ?? [];
 			}
 			// input_filetypes must be an array
 			if (!is_array($images[$no][$img]['input_filetypes'])) {
@@ -1657,7 +1653,7 @@ function zz_upload_extension($path, &$my_rec) {
 		else
 			return $path_value;
 	} elseif ($path_key === 'extension' OR substr($path_key, 0, 5) === 'field') {
-		$content = isset($my_rec['POST'][$path_value]) ? $my_rec['POST'][$path_value] : '';
+		$content = $my_rec['POST'][$path_value] ?? '';
 		if (strstr($content, '.'))
 			$extension = substr($content, strrpos($content, '.')+1);
 		else
@@ -1919,7 +1915,7 @@ function zz_val_get_from_upload($field, $images, $post) {
 			if (preg_match('/.+\[.+\]/', $v)) { // construct access to array values
 				$myv = explode('[', $v);
 				if (!isset($images[0])) break;
-				$myval_upload = (isset($images[0]['upload']) ? $images[0]['upload'] : '');
+				$myval_upload = $images[0]['upload'] ?? '';
 				$myval_altern = $images[0];
 				foreach ($myv as $v_var) {
 					if (substr($v_var, -1) === ']') $v_var = substr($v_var, 0, -1);
@@ -1939,15 +1935,11 @@ function zz_val_get_from_upload($field, $images, $post) {
 						$myval_upload = $subkeys;
 						$myval_altern = false;
 					} else {
-						if (isset($myval_upload[$v_var])) {
-							$myval_upload = $myval_upload[$v_var];
-						} else $myval_upload = false;
-						if (isset($myval_altern[$v_var])) {
-							$myval_altern = $myval_altern[$v_var];
-						} else $myval_altern = false;
+						$myval_upload = $myval_upload[$v_var] ?? NULL;
+						$myval_altern = $myval_altern[$v_var] ?? NULL;
 					}
 				}
-				$myval = ($myval_upload ? $myval_upload : $myval_altern);
+				$myval = $myval_upload ? $myval_upload : $myval_altern;
 			} elseif (!empty($images[$v])) {
 				// take value from upload-array
 				$myval = $images[$v];
