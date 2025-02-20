@@ -1527,6 +1527,8 @@ function zz_action_dependent_fields(&$zz_tab) {
 								= $zz_tab[$tab][$rec]['fields'][$f]['required_in_db']
 								= true;
 						}
+						if (!empty($field['subtable']))
+							$zz_tab[$field['subtable']]['min_records_required'] = 1;
 					} elseif (!empty($dependency['set_values']) AND $source_value
 						AND array_key_exists($source_value, $dependency['set_values'])) {
 						$values = $dependency['set_values'][$source_value];
@@ -1580,6 +1582,8 @@ function zz_action_dependent_fields(&$zz_tab) {
 									$zz_tab[$field['subtable']][$sub_rec]['id']['value'] = false;
 								}
 							}
+							// do not require records
+							$zz_tab[$field['subtable']]['min_records_required'] = 0;
 						} else {
 							$zz_tab[$tab][$rec]['POST'][$field_name] = false;
 						}
@@ -1635,24 +1639,23 @@ function zz_action_validate($zz_tab) {
 				$zz_tab[$tab] = zz_set_subrecord_action($zz_tab, $tab, $rec);
 				if ($zz_tab[$tab][$rec]['action'] === 'ignore') continue;
 			}
-			if ($zz_tab[$tab][$rec]['action'] === 'insert' 
-				OR $zz_tab[$tab][$rec]['action'] === 'update') {
-				// don't validate record which only will be shown!!
-				if ($zz_tab[$tab][$rec]['access'] === 'show') continue;
-				// no revalidation of already validated records
-				if (!empty($zz_tab[$tab][$rec]['was_validated'])) continue;
-			
-				// first part of validation where field values are independent
-				// from other field values
-				$zz_tab[$tab][$rec] = zz_validate($zz_tab, $tab, $rec);
-				if ($tab) {
-					// write changed POST values back to main POST array
-					// @todo let the next functions access the main POST array 
-					// differently
-					$zz_tab[0][0]['POST'][$zz_tab[$tab]['table_name']][$rec] = $zz_tab[$tab][$rec]['POST'];
-					foreach ($zz_tab[$tab][$rec]['extra'] AS $key => $value)
-						$zz_tab[0][0]['extra'][$zz_tab[$tab]['table_name'].'['.$rec.']['.$key.']'] = $value;
-				}
+			if (!in_array($zz_tab[$tab][$rec]['action'], ['insert', 'update'])) continue;
+
+			// don't validate record which only will be shown!!
+			if ($zz_tab[$tab][$rec]['access'] === 'show') continue;
+			// no revalidation of already validated records
+			if (!empty($zz_tab[$tab][$rec]['was_validated'])) continue;
+		
+			// first part of validation where field values are independent
+			// from other field values
+			$zz_tab[$tab][$rec] = zz_validate($zz_tab, $tab, $rec);
+			if ($tab) {
+				// write changed POST values back to main POST array
+				// @todo let the next functions access the main POST array 
+				// differently
+				$zz_tab[0][0]['POST'][$zz_tab[$tab]['table_name']][$rec] = $zz_tab[$tab][$rec]['POST'];
+				foreach ($zz_tab[$tab][$rec]['extra'] AS $key => $value)
+					$zz_tab[0][0]['extra'][$zz_tab[$tab]['table_name'].'['.$rec.']['.$key.']'] = $value;
 			}
 		}
 	}
