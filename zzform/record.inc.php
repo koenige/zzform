@@ -1015,13 +1015,7 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 				if (!empty($field['dependent_fields'])) {
 					foreach ($field['dependent_fields'] as $field_no => $dependent_field) {
 						if (empty($my_fields[$field_no])) continue;
-						$zz_conf['int']['js_field_dependencies'][] = [
-							'main_field_id' => zz_make_id_fieldname($field['f_field_name']),
-							'dependent_field_id' => zz_make_id_fieldname($my_fields[$field_no]['f_field_name']),
-							'required' => !empty($dependent_field['required']) ? true : false,
-							'field_no' => $field_no,
-							'has_translation' => !empty($my_fields[$field_no]['has_translation']) ? true : false
-						];
+						zz_record_dependent_js($field, $dependent_field, $my_fields, $field_no);
 					}
 				}
 				break;
@@ -4263,7 +4257,6 @@ function zz_record_subtable_submit($mode, $field, $tab, $rec = 0) {
  * @return
  */
 function zz_record_subtable_dependencies($field, $my_fields, $id_value) {
-	global $zz_conf;
 	if (empty($field['dependent_fields'])) return false;
 
 	// check if subtable
@@ -4280,14 +4273,39 @@ function zz_record_subtable_dependencies($field, $my_fields, $id_value) {
 			$show_dependency = false;
 		}
 		if (!$show_dependency) continue;
-		$zz_conf['int']['js_field_dependencies'][] = [
-			'main_field_id' => zz_make_id_fieldname($field['table_name'].'[0]['.$dependent_field['field_name'].']'),
-			'dependent_field_id' => zz_make_id_fieldname($my_fields[$field_no]['f_field_name']),
-			'required' => !empty($dependent_field['required']) ? true : false,
-			'field_no' => $field_no,
-			'has_translation' => !empty($my_fields[$field_no]['has_translation']) ? true : false
-		];
+		zz_record_dependent_js($field, $dependent_field, $my_fields, $field_no);
 	}
+}
+
+/**
+ * prepare fields for dependency JS
+ *
+ * @param array $field
+ * @param array $dependent_field
+ * @param array $my_fields
+ * @int $field_no
+ */
+function zz_record_dependent_js($field, $dependent_field, $my_fields, $field_no) {
+	global $zz_conf;
+	
+	// source field
+	if ($field['type'] === 'subtable') {
+		$main_field_name = $field['table_name'].'[0]['.$dependent_field['field_name'].']';
+	} else {
+		$main_field_name = $field['f_field_name'];
+	}
+
+	// destination field
+	$dependent_field_name = $my_fields[$field_no]['f_field_name'];
+
+	// dependent_field_id
+	$zz_conf['int']['js_field_dependencies'][] = [
+		'main_field_id' => zz_make_id_fieldname($main_field_name),
+		'dependent_field_id' => zz_make_id_fieldname($dependent_field_name),
+		'required' => !empty($dependent_field['required']) ? true : false,
+		'field_no' => $field_no,
+		'has_translation' => !empty($my_fields[$field_no]['has_translation']) ? true : false
+	];
 }
 
 /**
