@@ -3207,9 +3207,7 @@ function zz_check_select($my_rec, $f) {
 			$exists = wrap_db_fetch($sql, '', 'single value');
 			if (!$exists) {
 				// allow several identical records, too
-				$exists = wrap_db_fetch($sql, '_dummy_', 'numeric');
-				$exists = array_map('reset', $exists);
-				$exists = array_unique($exists);
+				$exists = wrap_db_fetch($sql, '_dummy_', 'single value');
 				if (count($exists) !== 1) $exists = [];
 			}
 			if (!$exists) {
