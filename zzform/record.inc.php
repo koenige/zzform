@@ -4296,7 +4296,20 @@ function zz_record_dependent_js($field, $dependent_field, $my_fields, $field_no)
 	}
 
 	// destination field
-	$dependent_field_name = $my_fields[$field_no]['f_field_name'];
+	if ($my_fields[$field_no]['type'] === 'subtable') {
+		$subtable_field_name = $dependent_field['subtable_field_name'] ?? '';
+		if (!$subtable_field_name) {
+			// not set? take first field that is neither ID nor foreign key
+			foreach ($my_fields[$field_no]['fields'] as $my_field) {
+				if (in_array($my_field['type'], ['id', 'foreign_key'])) continue;
+				$subtable_field_name = $my_field['field_name'];
+				break;
+			}
+		}
+		$dependent_field_name = $my_fields[$field_no]['table_name'].'[0]['.$subtable_field_name.']';
+	} else {
+		$dependent_field_name = $my_fields[$field_no]['f_field_name'];
+	}
 
 	// dependent_field_id
 	$zz_conf['int']['js_field_dependencies'][] = [
