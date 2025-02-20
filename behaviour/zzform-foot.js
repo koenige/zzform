@@ -16,6 +16,7 @@ zzformRemoveSuggestions();
 zzformSelections();
 var zzformLoadedJS = [];
 var zzformStart = true;
+if (typeof zzDependencies !== 'undefined') zzDependencyListeners(zzDependencies);
 
 /**
  * initialize all functions that are in use for the record form
@@ -363,7 +364,11 @@ function zzformReplacePage(page, scrollTop = true) {
 			s.parentNode.insertBefore(g, s);
 			s.remove();
 		}
-	}
+		if (typeof zzDependencies !== 'undefined') {
+			zzProcessAllDependencies(zzDependencies);
+			zzDependencyListeners(zzDependencies);
+		}
+    }
 
 	// move to top of page
 	if (scrollTop) scroll(0,0);
@@ -517,7 +522,6 @@ function zzformDisableElements() {
 	}
 }
 
-
 /**
  * generate instances of the WMD editor
  *
@@ -537,4 +541,82 @@ function zzformWmdEditor() {
 		editor = new Markdown.Editor(converter, instanceNo, options);
 		editor.run();
 	}
+}
+
+/**
+ * process a single dependency
+ *
+ * @param dependency
+ */
+function zzProcessDependency(dependency) {
+    var mainFieldId = dependency[0];
+    var dependentFieldId = dependency[1];
+    var dependentFieldData = 'data-dependent_field_' + dependency[2];
+    var isRequired = dependency[3];
+    var hasTranslation = dependency[4];
+
+    var mainField = document.getElementById(mainFieldId);
+    var dependentField = document.getElementById(dependentFieldId);
+    if (!dependentField) return;
+
+%%% if setting zzform_dependent_row_class %%%
+	var dependentRow = dependentField.closest('.%%% setting zzform_dependent_row_class %%%');
+	var mainFieldRow = mainField.closest('.%%% setting zzform_dependent_row_class %%%');
+%%%	else %%%
+	var dependentRow = dependentField.closest('tr');
+	var mainFieldRow = mainField.closest('tr');
+%%%	endif %%%
+	var dependentFieldShownAttr = mainField.getAttribute(dependentFieldData);
+    if (!dependentFieldShownAttr) return;
+    var dependentFieldShown = dependentFieldShownAttr.split(',');
+
+    var myValue;
+    if (mainField.getElementsByTagName('input').length) {
+        var inputs = mainField.getElementsByTagName('input');
+        for (var j = 0; j < inputs.length; j++) {
+            if (inputs[j].checked) myValue = inputs[j].value;
+        }
+    } else {
+        myValue = mainField.value;
+    }
+
+    if (dependentFieldShown.includes(myValue) && !mainFieldRow.classList.contains('hidden')) {
+        dependentRow.classList.remove('hidden');
+        if (isRequired) dependentField.required = true;
+        if (hasTranslation) dependentRow.nextSibling.nextSibling.classList.remove('hidden'); // space, tr
+    } else {
+        dependentRow.classList.add('hidden');
+        if (isRequired) dependentField.required = false;
+        if (hasTranslation) dependentRow.nextSibling.nextSibling.classList.add('hidden'); // space, tr
+    }
+}
+
+/**
+ * set up all event listeners for dependencies
+ *
+ * @param zzDependencies
+ */
+function zzDependencyListeners(zzDependencies) {
+    for (var i = 0; i < zzDependencies.length; i++) {
+        (function(dependency) {
+            var mainFieldId = dependency[0];
+            var mainField = document.getElementById(mainFieldId);
+            if (mainField) {
+                mainField.addEventListener('change', function() {
+                    zzProcessDependency(dependency);
+                });
+            }
+        })(zzDependencies[i]);
+    }
+}
+
+/**
+ * after page content was replaced, process dependencies to get correct results
+ *
+ * @param zzDependencies
+ */
+function zzProcessAllDependencies(zzDependencies) {
+    for (var i = 0; i < zzDependencies.length; i++) {
+        zzProcessDependency(zzDependencies[i]);
+    }
 }
