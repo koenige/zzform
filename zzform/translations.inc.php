@@ -68,9 +68,14 @@ function zz_translations_init($table, $fields) {
 		$translationsubtable = [];	
 
 		// include and read translation script
-		$zz = zzform_include(sprintf('translations-%s', $translationfields[$field_name]['field_type']));
+		$zz = zzform_include(sprintf(
+			'translations-%s', $translationfields[$field_name]['field_type']
+		));
 		if (!$zz)
-			wrap_error(sprintf('Translations script for `%s` does not exist!', $translationfields[$field_name]['field_type']), E_USER_ERROR);
+			wrap_error(wrap_text(
+				'Translations script for `%s` does not exist!',
+				['values' => [$translationfields[$field_name]['field_type']]]
+			), E_USER_ERROR);
 		$zz = zz_sql_prefix($zz);
 		// change title
 		$zz['title'] = sprintf('%s (%s)'
@@ -126,22 +131,20 @@ function zz_translations_init($table, $fields) {
 				$zz['field_sequence'] = $fields[$no]['field_sequence'].'.1';
 			}
 		}
-		$translationsubtable[$index+$k] = $zz;
-		$translationsubtable[$index+$k]['table_name'] .= '_'.$k;
-		$translationsubtable[$index+$k]['translate_field_name'] = $field_name;
-		$translationsubtable[$index+$k]['translate_field_index'] = $no;
-		if(!empty($fields[$no]['translation'])) {
-			$translationsubtable[$index+$k] = array_merge($translationsubtable[$index+$k], $fields[$no]['translation']);
-		}
-		$zz_fields = array_merge(array_slice($fields, 0, $k+$j), $translationsubtable, array_slice($fields, $k+$j));
-	// old PHP 4 support
-		$zz_fields_keys = array_merge(array_slice(array_keys($fields), 0, $k+$j), array_keys($translationsubtable), array_slice(array_keys($fields), $k+$j));
-		unset($fields);
-		foreach($zz_fields_keys as $f_index => $real_index) {
-			$fields[$real_index] = $zz_fields[$f_index];
-		}
+		$zz['table_name'] .= '_'.$k;
+		$zz['translate_field_name'] = $field_name;
+		$zz['translate_field_index'] = $no;
+		if (!empty($fields[$no]['translation']))
+			$zz = array_merge($zz, $fields[$no]['translation']);
+
+		$offset = $k + $j;
+		$new_no = $index + $k;
+
+		$fields = array_slice($fields, 0, $offset, true)
+			+ [$new_no => $zz]
+			+ array_slice($fields, $offset, null, true);
+		
 		$j++;
-	// old PHP 4 support end, might be replaced by variables in array_slice
 		$k++;
 	}
 	return $fields;
