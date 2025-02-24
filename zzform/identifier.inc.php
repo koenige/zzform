@@ -9,7 +9,7 @@
  * https://www.zugzwang.org/modules/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -644,5 +644,92 @@ function zz_identifier_values_db($sql, $id, $fieldname = false) {
 	} else {
 		if ($line) zz_return($line);
 		zz_return(false);
+	}
+}
+
+/**
+ * prepare translations for identifiers
+ *
+ * @param array $fields
+ * @param array $identifier_fields
+ *
+ */
+function zz_identifier_translation_fields($fields, $identifier_fields) {
+	if (empty($_POST)) return;
+
+	foreach ($identifier_fields as $no => $sub_no) {
+		$field = $fields[$no]['fields'][$sub_no];
+		$table_name = $fields[$no]['table_name'];
+		
+		$post_values = [];
+		// get values
+		foreach ($field['fields'] as $field_name) {
+			if ($pos = strpos($field_name, '{'))
+				$field_name = substr($field_name, 0, $pos);
+			$values = zz_identifier_translation_find($fields, $field_name);
+			$post_values[$field_name] = $values;
+		}
+		// put values together
+		$post = [];
+		foreach ($post_values as $field_name => $field_values) {
+			if (!is_array($field_values)) continue;
+			foreach ($field_values as $record_no => $record_values) {
+				$post[$record_values['language_id']][$field_name] = $record_values['translation'];
+				$post[$record_values['language_id']]['language_id'] = $record_values['language_id'];
+			}
+		}
+		foreach ($post_values as $field_name => $field_values) {
+			if (is_array($field_values)) continue;
+			// set value for translation to avoid record being ignored
+			if ($field_name === 'translation' AND !$field_values)
+				$field_values = '.';
+			foreach (array_keys($post) as $language_id)
+				$post[$language_id][$field_name] = $field_values;
+		}
+		if (!array_key_exists($table_name, $_POST)) {
+			$_POST[$table_name] = array_values($post);
+		} else {
+			foreach ($_POST[$table_name] as $index => $line) {
+				if (array_key_exists('translation_id', $line)) {
+					// get language ID
+					$sql = wrap_edit_sql($fields[$no]['sql'], 'WHERE',
+						sprintf('translation_id = %d', $line['translation_id'])
+					);
+					$line = wrap_db_fetch($sql);
+				}
+				if (!array_key_exists('language_id', $line)) {
+					unset($_POST[$table_name][$index]);
+					continue;
+				} elseif (array_key_exists($line['language_id'], $post)) {
+					$_POST[$table_name][$index] = array_merge($post[$line['language_id']], $line);
+					// set value for translation to avoid record being ignored
+					if (empty($_POST[$table_name][$index]['translation']))
+						$_POST[$table_name][$index]['translation'] = '.';
+					unset($post[$line['language_id']]);
+				}
+			}
+			$_POST[$table_name] = array_merge($_POST[$table_name], $post);
+		}
+	}
+}
+
+/**
+ * get translation or direct value of field
+ *
+ * @param array $fields
+ * @param string $field
+ * @return mixed
+ */
+function zz_identifier_translation_find($fields, $field_name) {
+	foreach ($fields as $no => $field) {
+		$field_identifier = zzform_field_identifier($field);
+		if ($field_identifier !== $field_name) continue;
+		if (array_key_exists('translate_subtable', $field))
+			return $_POST[$fields[$field['translate_subtable']]['table_name']] ?? '';
+		$value = $_POST[$field_name] ?? '';
+		if (!$value) return $value;
+		if ($field['type'] === 'date' OR ($field['type_detail'] ?? '') === 'date')
+			$value = zz_check_date($value);
+		return $value;
 	}
 }
