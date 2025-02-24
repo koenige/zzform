@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -99,7 +99,7 @@ function zz_prepare_tables($zz, $mode) {
 			$zz_tab[$tab]['values'] = [];
 		}
 		if (zz_error_exit()) return [];
-		$zz_tab[$tab] = zz_get_subrecords(
+		$zz_tab[$tab] = zz_prepare_subrecords(
 			$mode, $my_field, $zz_tab, $tab, $zz['record']
 		);
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
@@ -468,7 +468,7 @@ function zz_prepare_post_per_table($table) {
  * @param array $zz_record = $zz['record']
  * @return array $my_tab
  */
-function zz_get_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
+function zz_prepare_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 	global $zz_conf;
 	
 	$my_tab = $zz_tab[$tab];
@@ -665,7 +665,7 @@ function zz_get_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 
 	// check records against database, if we have values, check number of records
 	if ($mode) {
-		$my_tab = zz_get_subrecords_mode(
+		$my_tab = zz_prepare_subrecords_mode(
 			$my_tab, $rec_tpl, $existing_ids
 		);
 	} elseif ($zz_record['action'] AND !empty($my_tab['POST'])) {
@@ -1101,7 +1101,7 @@ function zz_values_get_equal_key(&$values, $record) {
  * @param array $existing_ids
  * @return array $my_tab
  */
-function zz_get_subrecords_mode($my_tab, $rec_tpl, $existing_ids) {
+function zz_prepare_subrecords_mode($my_tab, $rec_tpl, $existing_ids) {
 	// function will be run twice from zzform(), therefore be careful, 
 	// programmer!
 
