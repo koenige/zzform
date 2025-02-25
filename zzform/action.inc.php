@@ -1697,16 +1697,9 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 		}
 	
 	//	check if there are options-fields and put values into table definition
-		if (!empty($field['read_options'])) {
-			$submitted_option = $my_rec['POST'][$my_rec['fields'][$field['read_options']]['field_name']];
-			// if there's something submitted which fits in our scheme, replace 
-			// values corresponding to options-field
-			if (!empty($my_rec['fields'][$field['read_options']]['options'][$submitted_option])) {
-				$my_rec['fields'][$f] = $field = array_merge(
-					$field, $my_rec['fields'][$field['read_options']]['options'][$submitted_option]
-				);
-			}
-		}
+		if (!empty($field['read_options']))
+			$my_rec['fields'][$f] = $field = zz_validate_read_options($field, $zz_tab, $tab, $rec);
+
 	//	set detail types for write_once-Fields
 		if ($field['type'] === 'write_once' 
 			AND empty($my_rec['record'][$field_name])
@@ -2249,6 +2242,31 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 	// finished
 	$my_rec['was_validated'] = true;
 	return zz_return($my_rec);
+}
+
+/**
+ * read options
+ *
+ * @param array $field
+ * @param array $zz_tab
+ * @param int $tab
+ * @param int $rec
+ * @return array
+ */
+function zz_validate_read_options($field, $zz_tab, $tab, $rec) {
+	if (str_starts_with($field['read_options'], '0[')) {
+		$option_no = substr($field['read_options'], 2, -1);
+		$option_field = $zz_tab[0][0]['fields'][$option_no];
+		$submitted_option = $zz_tab[0][0]['POST'][$option_field['field_name']];
+	} else {
+		$option_no = $field['read_options'];
+		$option_field = $zz_tab[$tab][$rec]['fields'][$option_no];
+		$submitted_option = $zz_tab[$tab][$rec]['POST'][$option_field['field_name']];
+	}
+	// if there's something submitted which fits in our scheme, replace 
+	// values corresponding to options-field
+	if (empty($option_field['options'][$submitted_option])) return $field;
+	return array_merge($field, $option_field['options'][$submitted_option]);
 }
 
 /**
