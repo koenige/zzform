@@ -25,9 +25,16 @@
  */
 function zz_identifier($my_rec, $db_table = false, $post = [], $no = 0) {
 	$conf = (!isset($my_rec['fields'][$no])) ? $my_rec : $my_rec['fields'][$no]['identifier'] ?? [];
-	$conf_fields = $conf['fields'] = $my_rec['fields'][$no]['fields'] ?? [];
+	$conf['fields'] = $my_rec['fields'][$no]['fields'] ?? [];
+	if (!empty($conf['replace_fields'])) {
+		foreach ($conf['replace_fields'] as $replace_field => $with_field) {
+			$pos = array_search($replace_field, $conf['fields']);
+			if ($pos !== false) $conf['fields'][$pos] = $with_field;
+		}
+	}
 	$values = $conf['values'] ?? zz_identifier_values($conf, $my_rec, $post);
 	if (!$values) return false;
+	$conf_fields = $conf['fields'];
 
 	// read additional configuration from parameters
 	if (!empty($conf['parameters']) AND !empty($values[$conf['parameters']])) {
@@ -666,7 +673,7 @@ function zz_identifier_translation_fields($fields, $identifier_fields) {
 		foreach ($field['fields'] as $field_name) {
 			if ($pos = strpos($field_name, '{'))
 				$field_name = substr($field_name, 0, $pos);
-			$values = zz_identifier_translation_find($fields, $field_name);
+			$values = zz_identifier_translation_find($fields, $field_name, $no);
 			$post_values[$field_name] = $values;
 		}
 		// put values together
@@ -718,14 +725,17 @@ function zz_identifier_translation_fields($fields, $identifier_fields) {
  *
  * @param array $fields
  * @param string $field
+ * @param int $own_no own field no, to avoid recursion
  * @return mixed
  */
-function zz_identifier_translation_find($fields, $field_name) {
+function zz_identifier_translation_find($fields, $field_name, $own_no) {
 	foreach ($fields as $no => $field) {
 		$field_identifier = zzform_field_identifier($field);
 		if ($field_identifier !== $field_name) continue;
-		if (array_key_exists('translate_subtable', $field))
+		if (array_key_exists('translate_subtable', $field)) {
+			if ($field['translate_subtable'] === $own_no) return '';
 			return $_POST[$fields[$field['translate_subtable']]['table_name']] ?? '';
+		}
 		$value = $_POST[$field_name] ?? '';
 		if (!$value) return $value;
 		if ($field['type'] === 'date' OR ($field['type_detail'] ?? '') === 'date')
