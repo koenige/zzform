@@ -683,6 +683,7 @@ function zz_identifier_translation_fields($fields, $identifier_fields) {
 			foreach ($field_values as $record_no => $record_values) {
 				$post[$record_values['language_id']][$field_name] = $record_values['translation'];
 				$post[$record_values['language_id']]['language_id'] = $record_values['language_id'];
+				$post[$record_values['language_id']]['translation'] = '.';
 			}
 		}
 		foreach ($post_values as $field_name => $field_values) {
