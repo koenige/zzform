@@ -125,12 +125,23 @@ function zz_translations_init($table, $fields) {
 				if (!empty($fields[$no]['rows']))
 					$zz['fields'][$key]['rows'] = $fields[$no]['rows'];
 				if ($zz['fields'][$key]['type'] === 'identifier') {
-					$zz['fields'][$key]['identifier'] = $fields[$no]['identifier'] ?? [];
 					$zz['fields'][$key]['fields'] = $fields[$no]['fields'] ?? [];
-					$pos = array_search($fields[$no]['field_name'], $zz['fields'][$key]['fields']);
-					if ($pos !== false) {
-						// replace identifier field with this field
-						$zz['fields'][$key]['fields'][$pos] = $zz['fields'][$key]['field_name'];
+					$zz['fields'][$key]['identifier'] = $fields[$no]['identifier'] ?? [];
+					$zz['fields'][$key]['identifier']['replace_fields'] = [
+						$fields[$no]['field_name'] => $zz['fields'][$key]['field_name']
+					];
+					// read options?
+					$zz['fields'][$key]['read_options'] = $fields[$no]['read_options'] ?? NULL;
+					$zz['fields'][$key]['if'] = $fields[$no]['if'] ?? [];
+					$zz['fields'][$key]['unless'] = $fields[$no]['unless'] ?? [];
+					if ($zz['fields'][$key]['read_options'])
+						$zz['fields'][$key]['read_options'] = sprintf('0[%s]', $zz['fields'][$key]['read_options']);
+					$conditions = ['if', 'unless'];
+					foreach ($conditions as $condition) {
+						foreach ($zz['fields'][$key][$condition] as $cond_index => $cond) {
+							if (empty($cond['read_options'])) continue;
+							$zz['fields'][$key][$condition][$cond_index]['read_options'] = sprintf('0[%s]', $cond['read_options']);
+						}
 					}
 					// identifier(s) are created automatically
 					$zz['access'] = 'none';
