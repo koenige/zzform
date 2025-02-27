@@ -1024,6 +1024,15 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 		case 'datetime':
 			if (empty($fields[$no]['time_format']))
 				$fields[$no]['time_format'] = 'H:i';
+			// no break here
+		case 'date':
+			if (!empty($fields[$no]['default']) AND $fields[$no]['default'] === 'current_date') {
+				$fields[$no]['default'] = date('Y-m-d H:i:s');
+			}
+			if (!empty($fields[$no]['default']) AND !empty($fields[$no]['round_date'])) {
+				wrap_include('format', 'zzform');
+				$fields[$no]['default'] = zzform_round_date($fields[$no]['default']);
+			}
 			break;
 		case 'identifier':
 			if (!empty($fields[$no]['conf_identifier'])) {
