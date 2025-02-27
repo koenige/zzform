@@ -620,3 +620,76 @@ function zzProcessAllDependencies(zzDependencies) {
         zzProcessDependency(zzDependencies[i]);
     }
 }
+
+/**
+ * Get a date with a rounded time
+ *
+ * @param {string} dateIso - The ISO date string
+ * @param {number} roundToMin - The number of minutes to round to
+ * @returns {string} - The rounded date in 'YYYY-MM-DD HH:mm' format
+ */
+function zzformRoundDate(dateIso = '', roundToMin = null) {
+	let dateTime;
+	if (dateIso) {
+		dateTime = new Date(dateIso);
+	} else {
+		dateTime = new Date();
+	}
+	if (roundToMin === null) {
+		roundToMin = %%% setting zzform_date_round_to_min %%%;
+	}
+
+	// Round seconds and adjust minutes accordingly
+	if (dateTime.getSeconds() > 30) {
+		dateTime.setMinutes(dateTime.getMinutes() + 1);
+	}
+
+	const minutes = dateTime.getMinutes();
+	const roundedMinute = Math.round(minutes / roundToMin) * roundToMin;
+	dateTime.setMinutes(roundedMinute);
+
+	// Format the date to 'YYYY-MM-DD HH:mm'
+	const year = dateTime.getFullYear();
+	const month = String(dateTime.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+	const day = String(dateTime.getDate()).padStart(2, '0');
+	const hours = String(dateTime.getHours()).padStart(2, '0');
+	const minutesFormatted = String(dateTime.getMinutes()).padStart(2, '0');
+
+	// @todo return localized dates
+	return `${year}-${month}-${day} ${hours}:${minutesFormatted}`;
+}
+
+// Loop through the array of fields to create buttons
+if (typeof(zzFieldButtons) !== 'undefined') {
+	zzFieldButtons.forEach(function(fieldData) {
+		const fieldId = fieldData[0];
+		const buttonText = fieldData[1];
+		const functionName = fieldData[2];
+
+		// Create the button dynamically
+		const button = document.createElement('button');
+		button.textContent = buttonText;
+		button.classList.add('zz_field_button');
+		
+		// Add event listener to the button
+		button.addEventListener('click', function(event) {
+			event.preventDefault();
+			const inputField = document.getElementById(fieldId);
+			
+			// Convert function name string to a function reference
+			const functionToCall = window[functionName];
+
+			// Check if functionToCall is a function before calling it
+			if (typeof functionToCall === 'function') {
+				const newValue = functionToCall();
+				inputField.value = newValue;
+			} else {
+				console.error('functionToCall is not a function:', functionToCall);
+			}
+		});
+
+		// Append the button next to the corresponding input field
+		const inputField = document.getElementById(fieldId);
+		inputField.parentNode.insertBefore(button, inputField.nextSibling);
+	});
+}

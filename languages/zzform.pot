@@ -1003,6 +1003,10 @@ msgstr ""
 msgid "A synchronisation is impossible."
 msgstr ""
 
+#: templates/zzform-js-field-buttons.template.txt
+msgid "Current time"
+msgstr ""
+
 #: zzbrick_make/serversync.inc.php
 msgid ""
 "This URL is for synchronising a production and a development server only. No "

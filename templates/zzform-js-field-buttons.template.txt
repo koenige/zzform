@@ -1,0 +1,23 @@
+# zzform module
+# JS code for fields that should get a button to round the date
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzform
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2025 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+<script>
+var zzFieldButtons = [
+%%% loop start %%%
+%%% switch type %%%
+%%% case round_date %%%
+	['%%% item field_id %%%', '%%% text Current time %%%', 'zzformRoundDate']
+%%% default %%%
+	['%%% item field_id %%%', '%%% item button_text %%%', '%%% item function_to_call %%%']
+%%% switch - %%%
+%%% loopposition first|middle "," %%%
+%%% loop end %%%
+];
+</script>

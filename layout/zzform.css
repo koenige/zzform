@@ -521,6 +521,10 @@ body #zzform .separator hr
 #zzform .moretext_hidden
 					{ max-height: 10em; overflow: hidden; text-overflow: ellipsis; }
 
+/* buttons */
+#zzform .zz_field_button
+					{ margin-left: .5rem; }
+
 /* textarea */
 
 @media screen and (max-height: 1500px ) {

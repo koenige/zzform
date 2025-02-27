@@ -109,6 +109,7 @@ if divert_files %%% data-divert-files="%%% item divert_files %%%"%%% endif %%%>
 %%% item js_xhr_selects %%%
 %%% item js_xhr_dependencies %%%
 %%% item js_field_dependencies %%%
+%%% item js_field_buttons %%%
 %%% if form %%%
 <script data-js="immediately">
 

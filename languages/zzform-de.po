@@ -1112,6 +1112,10 @@ msgstr "Die Log-Einträge %d stimmen nicht überein."
 msgid "A synchronisation is impossible."
 msgstr "Eine Synchronisierung ist nicht möglich."
 
+#: templates/zzform-js-field-buttons.template.txt
+msgid "Current time"
+msgstr "Aktuelle Zeit"
+
 #: zzbrick_make/serversync.inc.php
 msgid ""
 "This URL is for synchronising a production and a development server only. No "
@@ -2366,3 +2370,4 @@ msgstr ""
 #: configuration/settings.cfg
 msgid "URL to synchronize local development and production server"
 msgstr ""
+"URL zur Synchronisierung von lokalem Entwicklungs- und Produktionsserver"

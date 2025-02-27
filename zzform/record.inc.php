@@ -227,6 +227,8 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 	}
 	if (!empty($zz_conf['int']['js_field_dependencies']) AND $record['form'])
 		$record['js_field_dependencies'] = wrap_template('zzform-js-field-dependencies', $zz_conf['int']['js_field_dependencies']);
+	if (!empty($record['fields']['buttons']))
+		$record['js_field_buttons'] = wrap_template('zzform-js-field-buttons', $record['fields']['buttons']);
 
 	if (!in_array($ops['mode'], ['add', 'edit'])) {
 		$record['upload_form'] = false;
@@ -271,6 +273,7 @@ function zz_record_form($zz_tab, $mode, $display, $zz_record, $zz_conditions) {
 	}
 	$output['multiple'] = !empty($zz_conf['int']['id']['values']) ? count($zz_conf['int']['id']['values']) : NULL;
 	$data = zz_record_rows($zz_tab, $mode, $display, $zz_record);
+	$output['fields'] = $data['fields'];
 	$output['tbody'] = zz_record_fields($data);
 	$output += zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab);
 	if (zz_error_exit()) return zz_return([]);
@@ -445,6 +448,8 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 		$data['tab'] = 0;
 	if (!array_key_exists('rec', $data))
 		$data['rec'] = 0;
+	if (!array_key_exists('fields', $data))
+		$data['fields'] = [];
 	// might not exist: optional subrecord, displayed inline
 	if (!array_key_exists($data['rec'], $zz_tab[$data['tab']])) return zz_return([]);
 	$my_rec = $zz_tab[$data['tab']][$data['rec']];
@@ -572,6 +577,7 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 	}
 
 	foreach ($my_fields as $fieldkey => $field) {
+		$data['fields'] = zz_record_field_buttons($field, $data['fields']);
 		// initialize variables
 		if (!$append_next) {
 			$out = zz_record_init_out($field);
@@ -689,8 +695,10 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 				$zz_tab, $mode, $field_display, $zz_record,
 				['tab' => $field['subtable'], 'form_display' => 'inline', 'is_subtable' => true]
 			);
-			if ($subtable_rows)
+			if ($subtable_rows) {
+				$data['fields'] = array_merge_recursive($data['fields'], $subtable_rows['fields']);
 				$data['matrix'] = array_merge($data['matrix'], $subtable_rows['matrix']);
+			}
 			$out = [];
 
 			// @todo check if this would work – inline fields shown as dependency
@@ -771,6 +779,7 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 				$subdata = zz_record_rows(
 					$zz_tab, $subtable_mode, $field_display, $zz_record, $rec_data
 				);
+				$data['fields'] = array_merge_recursive($data['fields'], $subdata['fields']);
 				$details[] = $out['data']['rows'][]['row'] = zz_record_fields($subdata);
 			}
 
@@ -1189,6 +1198,22 @@ function zz_record_field_placeholder($field) {
 	if ($field['placeholder'] === true) $placeholder = $field['title'];
 	else $placeholder = wrap_text($field['placeholder'], ['source' => wrap_setting('zzform_script_path')]);
 	return strip_tags($placeholder);
+}
+
+/**
+ * look for field buttons
+ *
+ * @param array $field
+ * @param array $fields_data
+ * @return array
+ */
+function zz_record_field_buttons($field, $fields_data) {
+	if (!array_key_exists('buttons', $field)) return $fields_data;
+	foreach ($field['buttons'] as $button)
+		$fields_data['buttons'][] = [
+			'type' => $button, 'field_id' => zz_make_id_fieldname($field['f_field_name'])
+		];
+	return $fields_data;
 }
 
 /**
