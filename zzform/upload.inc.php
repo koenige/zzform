@@ -1952,7 +1952,7 @@ function zz_val_get_from_upload($field, $images, $post) {
 			// remove empty values
 			if (in_array($myval, $empty_values)) $myval = false;
 			// we don't need whitespace (DateTime field may be set to "    ..."
-			if (!is_array($myval)) $myval = trim($myval);
+			if ($myval AND !is_array($myval)) $myval = trim($myval);
 			if ($myval === ':  :     :  :') $myval = ''; // empty DateTime
 			if (!empty($field['upload_func'])) {
 				$myval = $field['upload_func']($myval);
