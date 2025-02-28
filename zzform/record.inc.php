@@ -779,7 +779,8 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 				$subdata = zz_record_rows(
 					$zz_tab, $subtable_mode, $field_display, $zz_record, $rec_data
 				);
-				$data['fields'] = array_merge_recursive($data['fields'], $subdata['fields']);
+				if ($subdata)
+					$data['fields'] = array_merge_recursive($data['fields'], $subdata['fields']);
 				$details[] = $out['data']['rows'][]['row'] = zz_record_fields($subdata);
 			}
 
