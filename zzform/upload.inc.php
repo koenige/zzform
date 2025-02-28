@@ -1712,12 +1712,12 @@ function zz_upload_check(&$images, $action, $rec = 0) {
 			$images[$img]['upload']['error'] = UPLOAD_ERR_NO_FILE;
 
 		switch ($images[$img]['upload']['error']) {
-			case UPLOAD_ERR_NO_FILE: // no file
+			case UPLOAD_ERR_NO_FILE:
 				if ($images[$img]['required'] && $action == 'insert') // required only for insert
 					$images[$img]['error'][] = wrap_text('Error: ').wrap_text('No file was uploaded.');
 				else continue 2;
 				break;
-			case UPLOAD_ERR_PARTIAL: // partial upload
+			case UPLOAD_ERR_PARTIAL:
 				$images[$img]['error'][] = wrap_text('Error: ').wrap_text('File was only partially uploaded.');
 				break; 
 			case UPLOAD_ERR_FORM_SIZE: // file is too big
@@ -1970,7 +1970,7 @@ function zz_val_get_from_upload($field, $images, $post) {
 					}
 				}
 			}
-			if (substr_count($myval, '/') === 1) {
+			if ($myval AND substr_count($myval, '/') === 1) {
 				// count: dates might also be written 2004/12/31
 				$vals = explode('/', $myval);
 				if (is_numeric($vals[0]) AND is_numeric($vals[1])) {
