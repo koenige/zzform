@@ -368,6 +368,9 @@ function zzformReplacePage(page, scrollTop = true) {
 			zzProcessAllDependencies(zzDependencies);
 			zzDependencyListeners(zzDependencies);
 		}
+		if (typeof(zzFieldButtons) !== 'undefined') {
+			zzCreateFieldButtons(zzFieldButtons);
+		}
     }
 
 	// move to top of page
@@ -659,8 +662,12 @@ function zzformRoundDate(dateIso = '', roundToMin = null) {
 	return `${year}-${month}-${day} ${hours}:${minutesFormatted}`;
 }
 
-// Loop through the array of fields to create buttons
-if (typeof(zzFieldButtons) !== 'undefined') {
+/**
+ * Loop through the array of fields to create buttons
+ *
+ * @param {array} zzFieldButtons - the list of buttons
+ */
+function zzCreateFieldButtons(zzFieldButtons) {
 	zzFieldButtons.forEach(function(fieldData) {
 		const fieldId = fieldData[0];
 		const buttonText = fieldData[1];
@@ -671,10 +678,13 @@ if (typeof(zzFieldButtons) !== 'undefined') {
 		button.textContent = buttonText;
 		button.classList.add('zz_field_button');
 		
+		// Get the input field
+		const inputField = document.getElementById(fieldId);
+		if (!inputField) return;
+
 		// Add event listener to the button
 		button.addEventListener('click', function(event) {
 			event.preventDefault();
-			const inputField = document.getElementById(fieldId);
 			
 			// Convert function name string to a function reference
 			const functionToCall = window[functionName];
@@ -689,7 +699,10 @@ if (typeof(zzFieldButtons) !== 'undefined') {
 		});
 
 		// Append the button next to the corresponding input field
-		const inputField = document.getElementById(fieldId);
 		inputField.parentNode.insertBefore(button, inputField.nextSibling);
 	});
+}
+
+if (typeof(zzFieldButtons) !== 'undefined') {
+	zzCreateFieldButtons(zzFieldButtons);
 }
