@@ -1140,9 +1140,9 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 			if (empty($field['text_field'])) break;
 			$row['value'] = $line[$field['text_field']];
 			if (!$row['value']) break;
-			if (empty($field['geo_format'])) $field['geo_format'] = 'dms';
-			if (empty($field['list_concat_fields'])) $field['list_concat_fields'] = '<br>';
-			$text = zz_geo_coord_sql_out($row['value'], $field['geo_format'], $field['list_concat_fields']);
+			$text = zz_geo_coord_sql_out(
+				$row['value'], $field['geo_format'] ?? 'dms', $field['list_concat_fields'] ?? '<br>'
+			);
 			break;
 		case 'display':
 			if (!empty($field['display_title']) 
