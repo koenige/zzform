@@ -1,0 +1,18 @@
+# zzform
+# Template for field
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzform
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2025 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+# first line needs to be empty = always return content
+
+%%% if output %%%
+%%% if appended %%%%%% unless form_view %%% %%% endif %%%<span class="zz-appended-field %%% item class zzform_classes %%%">%%% endif %%%
+%%% item prefix %%%%%% item output %%%%%% item suffix %%%
+%%% if appended %%%</span>%%% endif %%%
+%%% endif %%%
+%%% item hidden %%%

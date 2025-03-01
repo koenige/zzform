@@ -811,8 +811,6 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 
 		} else {
 			//	"Normal" field
-			$hidden_element = '';
-
 			// write values into record, if detail record entry shall be preset
 			if (!empty($zz_tab[$data['tab']]['values'][$data['rec']][$fieldkey])) {
 				$field['value'] = $zz_tab[$data['tab']]['values'][$data['rec']][$fieldkey];
@@ -830,24 +828,6 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 				$is_option = true;
 			} else {
 				$is_option = false;
-			}
-
-			// append
-			if (!$append_next OR !$field['class']) {
-				$close_span = false;
-			} else {
-				$close_span = true;
-				$out['td']['content'] = trim($out['td']['content']); // no whitespace
-				$out['td']['content'] .= '<span class="'.implode(' ', $field['class']).'">'; 
-			}
-			if (!empty($field['append_next'])) {
-				$append_next = true;
-				if (!empty($field['explanation'])) {
-					$append_explanation[] = $field['explanation'];
-					$field['explanation'] = '';
-				}
-			} else {
-				$append_next = false;
 			}
 
 			$field['required'] = zz_record_field_required($field, $zz_tab, $data['tab']);
@@ -916,13 +896,13 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 
 			switch ($field['type']) {
 			case 'id':
-				$outputf = zz_field_id($field, $my_rec['id']['value'], $mode, $data['tab']);
+				$field['output'] = zz_field_id($field, $my_rec['id']['value'], $mode, $data['tab']);
 				break;
 
 			case 'predefined':
 			case 'identifier':
 			case 'hidden':
-				list($outputf, $hidden_element) = zz_field_hidden($field, $my_rec['record'], $my_rec['record_saved'], $mode);
+				list($field['output'], $field['hidden']) = zz_field_hidden($field, $my_rec['record'], $my_rec['record_saved'], $mode);
 				if (zz_error_exit()) {
 					zz_error();
 					return zz_return([]);
@@ -930,19 +910,19 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 				break;
 
 			case 'timestamp':
-				$outputf = zz_field_timestamp($field, $my_rec['record'], $mode);
+				$field['output'] = zz_field_timestamp($field, $my_rec['record'], $mode);
 				break;
 
 			case 'foreign':
-				$outputf = zz_field_foreign($field, $my_rec['id']['value']);
+				$field['output'] = zz_field_foreign($field, $my_rec['id']['value']);
 				break;
 
 			case 'password':
-				$outputf = zz_field_password($field, $field_display, $my_rec['record'], $zz_record['action']);
+				$field['output'] = zz_field_password($field, $field_display, $my_rec['record'], $zz_record['action']);
 				break;
 
 			case 'password_change':
-				$outputf = zz_field_password_change($field, $field_display);
+				$field['output'] = zz_field_password_change($field, $field_display);
 				break;
 
 			case 'url':
@@ -957,7 +937,7 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 			case 'sequence':
 			case 'phone':
 			case 'username':
-				$outputf = zz_field_text($field, $field_display, $my_rec['record'], !$my_rec['validation'] ? true : $zz_tab[0]['dont_reformat']);
+				$field['output'] = zz_field_text($field, $field_display, $my_rec['record'], !$my_rec['validation'] ? true : $zz_tab[0]['dont_reformat']);
 				break;
 
 			case 'unix_timestamp': // zz_field_unix_timestamp
@@ -967,7 +947,7 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 			case 'datetime': // zz_field_datetime
 			case 'memo': // zz_field_memo
 				$function_name = sprintf('zz_field_%s', $field['type']);
-				$outputf = $function_name($field, $field_display, $my_rec['record'], $zz_tab[0]['dont_reformat']);
+				$field['output'] = $function_name($field, $field_display, $my_rec['record'], $zz_tab[0]['dont_reformat']);
 				break;
 
 			case 'select':
@@ -993,12 +973,12 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 						);
 					}
 
-					$outputf = zz_field_select_sql($field, $field_display, $my_rec['record'], 
+					$field['output'] = zz_field_select_sql($field, $field_display, $my_rec['record'], 
 						$zz_tab[$data['tab']]['db_name'].'.'.$zz_tab[$data['tab']]['table']);
 
 				} elseif (isset($field['set_folder'])) {
 					// #2a SELECT with set_folder
-					$outputf = zz_field_select_set_folder($field, $field_display, $my_rec['record'], $data['rec']);
+					$field['output'] = zz_field_select_set_folder($field, $field_display, $my_rec['record'], $data['rec']);
 
 				} elseif (isset($field['set_sql'])) {
 					// #2 SELECT with set_sql
@@ -1007,19 +987,19 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 					if ($my_where_fields) {
 						$field = zz_form_select_sql_where($field, $my_where_fields);
 					}
-					$outputf = zz_field_select_set_sql($field, $field_display, $my_rec['record'], $data['rec']);
+					$field['output'] = zz_field_select_set_sql($field, $field_display, $my_rec['record'], $data['rec']);
 
 				} elseif (isset($field['set'])) {
 					// #3 SELECT with set
-					$outputf = zz_field_select_set($field, $field_display, $my_rec['record'], $data['rec']);
+					$field['output'] = zz_field_select_set($field, $field_display, $my_rec['record'], $data['rec']);
 
 				} elseif (isset($field['enum'])) {
 					// #4 SELECT with enum
-					$outputf = zz_field_select_enum($field, $field_display, $my_rec['record']);
+					$field['output'] = zz_field_select_enum($field, $field_display, $my_rec['record']);
 
 				} else {
 					// #5 SELECT without any source = that won't work ...
-					$outputf = wrap_text('No source defined').'. '.wrap_text('No selection possible.');
+					$field['output'] = wrap_text('No source defined').'. '.wrap_text('No selection possible.');
 				}
 				if (!empty($field['dependent_fields'])) {
 					foreach ($field['dependent_fields'] as $field_no => $dependent_field) {
@@ -1031,36 +1011,36 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 
 			case 'image':
 			case 'upload_image':
-				$outputf = zz_field_file($field, $field_display, $my_rec['record'], 
+				$field['output'] = zz_field_file($field, $field_display, $my_rec['record'], 
 					$my_rec['record_saved'], $my_rec['images'], $mode, $fieldkey);
 				zz_error();
-				$outputf .= zz_error_output();
+				$field['output'] .= zz_error_output();
 				break;
 
 			case 'write_once':
 			case 'display':
-				$outputf = zz_field_display($field, $my_rec['record'], $my_rec['record_saved']);
+				$field['output'] = zz_field_display($field, $my_rec['record'], $my_rec['record_saved']);
 				break;
 
 			case 'calculated':
-				$outputf = zz_field_calculated($field, $my_rec['record'], $mode);
+				$field['output'] = zz_field_calculated($field, $my_rec['record'], $mode);
 				break;
 
 			case 'captcha':
-				$outputf = zz_field_captcha($field, $my_rec['record'], $mode);
-				if (!$outputf) continue 2;
+				$field['output'] = zz_field_captcha($field, $my_rec['record'], $mode);
+				if (!$field['output']) continue 2;
 				$field['explanation'] = '';
 				break;
 
 			default:
-				$outputf = '';
+				$field['output'] = '';
 			}
 			if (!empty($field['unit'])) {
 				//if ($my_rec['record']) { 
 				//	if ($my_rec['record'][$field['field_name']]) // display unit if record not null
-				//		$outputf .= ' '.$field['unit']; 
+				//		$field['output'] .= ' '.$field['unit']; 
 				//} else {
-					$outputf .= '&nbsp;'.$field['unit']; 
+					$field['output'] .= '&nbsp;'.$field['unit']; 
 				//}
 			}
 			if (!empty($default_value)) // unset $my_rec['record'] so following fields are empty
@@ -1073,18 +1053,22 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 						$field['add_details'] = zz_details_link($field['add_details'], $zz_tab[0][0]['record']);
 					}
 					if ($field['add_details'])
-						$outputf .= zz_record_add_details($field, $data['tab'], $data['rec'], $fieldkey);
+						$field['output'] .= zz_record_add_details($field, $data['tab'], $data['rec'], $fieldkey);
 				}
 			}
-			if (($outputf AND trim($outputf)) OR $outputf === '0') {
-				if (isset($field['prefix'])) $out['td']['content'] .= $field['prefix'];
-				$out['td']['content'] .= $outputf.$hidden_element;
-				if (isset($field['suffix'])) $out['td']['content'] .= $field['suffix'];
-				else $out['td']['content'] .= ' ';
+			// append
+			$field['form_view'] = $field_display === 'form' ? true : false;
+			$field['appended'] = $append_next; // for formatting
+			if (!empty($field['append_next'])) {
+				$append_next = true;
+				if (!empty($field['explanation'])) {
+					$append_explanation[] = $field['explanation'];
+					$field['explanation'] = '';
+				}
 			} else {
-				$out['td']['content'] .= $outputf.$hidden_element;
+				$append_next = false;
 			}
-			if (!empty($close_span)) $out['td']['content'] .= '</span>';
+			$out['td']['content'] .= trim(wrap_template('zzform-record-field', $field), "\n");
 			if (!$append_next AND !empty($append_explanation)) {
 				$field['explanation'] = implode('<br>', $append_explanation)
 					.($field['explanation'] ? '<br>'.$field['explanation'] : '');
