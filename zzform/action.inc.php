@@ -2277,8 +2277,7 @@ function zz_validate_read_options($field, $zz_tab, $tab, $rec) {
  */
 function zz_validate_parameter($fvalue) {
 	// replace multi line notation
-	$fvalue = str_replace("\r\n\r\n", "&", $fvalue);
-	$fvalue = str_replace("\r\n", "&", $fvalue);
+	$fvalue = str_replace(["\r\n\r\n", "\r\n"], "&", $fvalue);
 	// escape + sign
 	$fvalue = str_replace("+", "%2B", $fvalue);
 	// keep %20 encoding
@@ -2301,42 +2300,58 @@ function zz_validate_parameter($fvalue) {
 
 	// check if there's whitespace at the end of one of the keys/values
 	parse_str($fvalue, $parameters);
-	$values = [];
-	foreach ($parameters as $key => $value) {
-		// main key always has to be lowercase, other keys might contain uppercase letters
-		$key = strtolower($key);
-		if (is_array($value)) {
-			foreach ($value as $subkey => $subvalue) {
-				if (is_array($subvalue)) {
-					foreach ($subvalue as $subsubkey => $subsubvalue) {
-						if (is_array($subsubvalue)) {
-							zz_error_log(
-								['msg' => 'Nesting of more than three keys is not supported.']
-							);
-							$values[] = 'error';
-						} else {
-							$subsubvalue = str_replace('&', '%26', $subsubvalue);
-							$values[] = sprintf('%s[%s][%s]=%s', trim($key), trim($subkey), trim($subsubkey), trim($subsubvalue));
-						}
-					}
-				} else {
-					$subvalue = str_replace('&', '%26', $subvalue);
-					$values[] = sprintf('%s[%s]=%s', trim($key), trim($subkey), trim($subvalue));
-				}
-			}
-		} else {
-			$value = str_replace('&', '%26', $value);
-			$values[] = sprintf('%s=%s', trim($key, '_'), trim($value));
-		}
-	}
-	sort($values);
-	$fvalue = implode('&', $values);
+	zz_recursive_ksort($parameters);
+	$fvalue = zz_validate_http_build_query($parameters);
 	if ($fvalue) $fvalue = '&'.$fvalue; // add leading ampersand for simpler queries
 	
 	// escape + sign again	
 	$fvalue = str_replace('+', '%2B', $fvalue);
 	$fvalue = str_replace($percent20, '%20', $fvalue);
 	return $fvalue;
+}
+
+/**
+ * build query string, with some modifications
+ * no key and value escaping, replacing of & values
+ *
+ * @param array $array
+ * @param string $prefix (optional)
+ * @return string
+ */
+function zz_validate_http_build_query($array, $prefix = '') {
+	$qs = [];
+    foreach ($array as $key => $value) {
+        if (!$prefix) {
+			// main key always has to be lowercase, other keys might contain uppercase letters
+			$new_key = strtolower($key);
+        	$new_key = trim($new_key, '_');
+        } else {
+	        $new_key = sprintf('%s[%s]', $prefix, trim($key));
+        }
+
+        if (is_array($value)) {
+            // recursively build the query string for nested arrays
+            $qs[] = zz_validate_http_build_query($value, $new_key);
+        } else {
+			$value = str_replace('&', '%26', $value);
+            $qs[] = sprintf('%s=%s', $new_key, $value);
+        }
+    }
+    return implode('&', $qs);
+}
+
+/**
+ * sort array by key, recursively
+ *
+ * @param array $array
+ */
+function zz_recursive_ksort(&$array) {
+    if (is_array($array)) {
+        ksort($array);
+        foreach ($array as &$value) {
+            zz_recursive_ksort($value);
+        }
+    }
 }
 
 /**
