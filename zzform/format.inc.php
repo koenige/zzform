@@ -38,6 +38,18 @@ function zzform_attributes($fieldattr) {
 }
 
 /**
+ * concatenate list of classes for output
+ *
+ * @param array $classes
+ * @return string
+ */
+function zzform_classes($classes) {
+	if (!$classes) return '';
+	if (!is_array($classes)) return $classes;
+	return implode(' ', $classes);
+}
+
+/**
  * get a date with a rounded time
  *
  * @param string $date_iso
