@@ -1,0 +1,13 @@
+# zzform
+# changelog
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzform
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2024 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+
+2025-03-01-1	removal	record: Remove zz field keys `suffix_function`, `suffix_function_var`, use `buttons` instead (was only used for calendar popup for myREIFF).
+

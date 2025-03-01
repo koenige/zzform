@@ -1081,16 +1081,6 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 				$out['td']['content'] .= $outputf.$hidden_element;
 				if (isset($field['suffix'])) $out['td']['content'] .= $field['suffix'];
 				else $out['td']['content'] .= ' ';
-				if ($field_display === 'form') if (isset($field['suffix_function'])) {
-					$vars = '';
-					if (isset($field['suffix_function_var']))
-						foreach ($field['suffix_function_var'] as $var) {
-							$vars .= $var; 
-							// @todo does this really make sense? 
-							// looks more like $vars[] = $var. maybe use implode.
-						}
-					$out['td']['content'] .= $field['suffix_function']($vars);
-				}
 			} else {
 				$out['td']['content'] .= $outputf.$hidden_element;
 			}
