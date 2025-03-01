@@ -863,7 +863,7 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 					// for incorrect values; !action means only divide once
 					// for review, e. g. if record has been updated, division 
 					// has to be done to show the correct value	
-					$my_rec['record'][$field['field_name']] /=$field['factor'];
+					$my_rec['record'][$field['field_name']] /= $field['factor'];
 				}
 			}
 			
@@ -947,7 +947,6 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 
 			case 'url':
 			case 'url+placeholder':
-				$field['max_select_val_len'] = wrap_setting('zzform_max_select_val_len');
 			case 'text':
 			case 'parameter':
 			case 'time':

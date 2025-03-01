@@ -1092,7 +1092,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 		case 'url':
 		case 'url+placeholder':
 			$text = wrap_punycode_decode($row['value']);
-			$text = zz_cut_length(zz_htmltag_escape($text), wrap_setting('zzform_max_select_val_len'));
+			$text = zz_cut_length(zz_htmltag_escape($text), $field['max_select_val_len']);
 			break;
 		case 'mail':
 		case 'mail+name':

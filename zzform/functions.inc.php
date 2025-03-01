@@ -1040,6 +1040,10 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 				wrap_error('Deprecated: Use key `identifier` instead of `conf_identifier`', E_USER_DEPRECATED);
 			}
 			break;
+		case 'url':
+		case 'url+placeholder':
+			if (!isset($fields[$no]['max_select_val_len']))
+				$fields[$no]['max_select_val_len'] = wrap_setting('zzform_max_select_val_len');
 		}
 
 		if (in_array($mode, ['add', 'edit', 'revise']) OR in_array($action, ['insert', 'update'])) {
