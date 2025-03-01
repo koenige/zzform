@@ -3,7 +3,7 @@
 # about logging hooks
 #
 # Part of »Zugzwang Project«
-# https://www.zugzwang.org/modules/zzwrap
+# https://www.zugzwang.org/modules/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
 # @copyright Copyright © 2024 Gustaf Mossakowski
