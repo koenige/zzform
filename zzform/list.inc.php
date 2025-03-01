@@ -2027,7 +2027,7 @@ function zz_list_get_subselects($lines, $subselects, $mode) {
 				$index = 0;
 				foreach ($linefields as $field_name => $db_fields) {
 					if ($subselect['show_empty_cells'] AND !strlen($db_fields)) $db_fields = '&nbsp;';
-					if (strlen($db_fields)) {
+					if (!is_null($db_fields) AND strlen($db_fields)) {
 						if (!empty($subselect['list_field_format'])) {
 							if (is_array($subselect['list_field_format'])) {
 								if (!empty($subselect['list_field_format'][$field_name])) {
