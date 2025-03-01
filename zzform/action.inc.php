@@ -2303,7 +2303,6 @@ function zz_validate_parameter($fvalue) {
 	parse_str($fvalue, $parameters);
 	$values = [];
 	foreach ($parameters as $key => $value) {
-		$value = str_replace('&', '%26', $value);
 		// main key always has to be lowercase, other keys might contain uppercase letters
 		$key = strtolower($key);
 		if (is_array($value)) {
@@ -2316,14 +2315,17 @@ function zz_validate_parameter($fvalue) {
 							);
 							$values[] = 'error';
 						} else {
+							$subsubvalue = str_replace('&', '%26', $subsubvalue);
 							$values[] = sprintf('%s[%s][%s]=%s', trim($key), trim($subkey), trim($subsubkey), trim($subsubvalue));
 						}
 					}
 				} else {
+					$subvalue = str_replace('&', '%26', $subvalue);
 					$values[] = sprintf('%s[%s]=%s', trim($key), trim($subkey), trim($subvalue));
 				}
 			}
 		} else {
+			$value = str_replace('&', '%26', $value);
 			$values[] = sprintf('%s=%s', trim($key, '_'), trim($value));
 		}
 	}
