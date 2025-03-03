@@ -89,9 +89,8 @@ function zz_translations_init($table, $fields) {
 		// split fields-array
 		// glue together fields-array
 		foreach (array_keys($zz['fields']) as $key) {
-			if (!array_key_exists('type', $zz['fields'][$key]))
-				$zz['fields'][$key]['type'] = '';
- 			switch ($zz['fields'][$key]['type']) {
+			$type = $zz['fields'][$key]['type'] ?? '';
+ 			switch ($type) {
 			case 'id':
 				break;
 
@@ -111,6 +110,9 @@ function zz_translations_init($table, $fields) {
 						if ($inherit_def === 'type' AND $fields[$no]['type'] === 'write_once') {
 							if (!empty($fields[$no]['type_detail']))
 								$zz['fields'][$key]['type'] = $fields[$no]['type_detail'];
+						} elseif ($inherit_def === 'type' AND $fields[$no]['type'] === 'identifier'
+						    AND !empty($fields[$no]['identifier_translate_manually'])) {
+						    // … do not set this field to 'identifier'
 						} else {
 							$zz['fields'][$key][$inherit_def] = $fields[$no][$inherit_def];
 						}
@@ -124,7 +126,7 @@ function zz_translations_init($table, $fields) {
 				}
 				if (!empty($fields[$no]['rows']))
 					$zz['fields'][$key]['rows'] = $fields[$no]['rows'];
-				if ($zz['fields'][$key]['type'] === 'identifier') {
+				if (!empty($zz['fields'][$key]['type']) AND $zz['fields'][$key]['type'] === 'identifier') {
 					$zz['fields'][$key]['fields'] = $fields[$no]['fields'] ?? [];
 					$zz['fields'][$key]['identifier'] = $fields[$no]['identifier'] ?? [];
 					$zz['fields'][$key]['identifier']['replace_fields'] = [
