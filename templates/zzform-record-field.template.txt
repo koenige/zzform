@@ -13,7 +13,7 @@
 %%% if output %%%
 %%% if appended %%%%%% unless form_view %%% %%% endif %%%<span class="zz-appended-field %%% item class zzform_classes %%%">%%% endif %%%
 %%% item prefix %%%%%% item output %%%%%% item unit "&nbsp;%s" %%%%%% item suffix %%%
-%%% if output_details %%%
+%%% if output_details_name %%%
 <input type="submit" name="zz_add_details[%%% item output_details_name %%%]" formnovalidate value="%%% text New … %%%" class="zz_add_details_add">
 <input type="submit" name="zz_edit_details[%%% item output_details_name %%%]" formnovalidate value="%%% text Edit … %%%" class="zz_add_details_edit">
 %%% endif %%%
