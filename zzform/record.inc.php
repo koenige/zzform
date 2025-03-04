@@ -1035,29 +1035,16 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 			default:
 				$field['output'] = '';
 			}
-			if (!empty($field['unit'])) {
-				//if ($my_rec['record']) { 
-				//	if ($my_rec['record'][$field['field_name']]) // display unit if record not null
-				//		$field['output'] .= ' '.$field['unit']; 
-				//} else {
-					$field['output'] .= '&nbsp;'.$field['unit']; 
-				//}
-			}
+
 			if (!empty($default_value)) // unset $my_rec['record'] so following fields are empty
 				unset($my_rec['record'][$field['field_name']]);
-			if ($field_display === 'form' AND !empty($field['add_details'])) {
-				$check = zz_record_add_details_check($field, $mode);
-				if ($check) {
-					if (is_array($field['add_details'])) {
-						require_once __DIR__.'/details.inc.php';
-						$field['add_details'] = zz_details_link($field['add_details'], $zz_tab[0][0]['record']);
-					}
-					if ($field['add_details'])
-						$field['output'] .= zz_record_add_details($field, $data['tab'], $data['rec'], $fieldkey);
-				}
-			}
-			// append
+
 			$field['form_view'] = $field_display === 'form' ? true : false;
+			$field['output_details_name'] = zz_record_add_details(
+				$field, $mode, $data, $fieldkey, $zz_tab[0][0]['record']
+			);
+
+			// append
 			$field['appended'] = $append_next; // for formatting
 			if (!empty($field['append_next'])) {
 				$append_next = true;
@@ -1233,53 +1220,44 @@ function zz_record_sort_matrix($matrix) {
 }
 
 /**
- * check if New … link should be displayed
+ * put new … link next to field to add missing detail records
  *
  * @param array $field
  * @param string $mode
- * @return bool
- */
-function zz_record_add_details_check($field, $mode) {
-	if (!isset($field['add_details'])) return false;
-	if (!$mode) return false;
-	if (in_array($mode, ['delete', 'show', 'review'])) return false;
-	if (in_array($mode, ['edit', 'revise'])) {
-		if (in_array($field['type'], [
-			'hidden', 'predefined', 'write_once', 'display'
-		])) return false;
-	} elseif ($mode === 'add' AND !empty($field['value'])) {
-		// $zz['add'] with 'value'
-		return false;
-	}
-	return true;
-}
-
-/**
- * put new ... link next to field to add missing detail records
- *
- * @param array $field
- * @param int $tab
- * @param int $rec
+ * @param array $data
  * @param int $fieldkey
  * @return string
  */
-function zz_record_add_details($field, $tab, $rec, $fieldkey) {
+function zz_record_add_details($field, $mode, $data, $fieldkey, $record) {
 	global $zz_conf;
-	
-	if (empty($_SESSION['logged_in'])) return '';
-	if ($tab) {
-		$name = sprintf('%s-%d-%d-%d-%d',
-			$zz_conf['id'], $field['subtable_no'], $fieldkey, $tab, $rec
-		);
-	} else {
-		$name = sprintf('%s-%d-%d-%d',
-			$zz_conf['id'], $fieldkey, $tab, $rec
-		);
+
+	if (empty($_SESSION['logged_in'])) return NULL;
+	if (!$field['form_view']) return NULL;
+	if (empty($field['add_details'])) return NULL;
+	if (!$mode) return NULL;
+	if (in_array($mode, ['delete', 'show', 'review'])) return NULL;
+	if (in_array($mode, ['edit', 'revise'])) {
+		if (in_array($field['type'], [
+			'hidden', 'predefined', 'write_once', 'display'
+		])) return NULL;
+	} elseif ($mode === 'add' AND !empty($field['value'])) {
+		// $zz['add'] with 'value'
+		return NULL;
 	}
-	$text = ' <input type="submit" name="zz_add_details[%s]" value="%s" formnovalidate class="zz_add_details_add">';
-	$text .= ' <input type="submit" name="zz_edit_details[%s]" value="%s" formnovalidate class="zz_add_details_edit">';
-	$text = sprintf($text, $name, wrap_text('New …'), $name, wrap_text('Edit …'));
-	return $text;
+
+	if (is_array($field['add_details'])) {
+		require_once __DIR__.'/details.inc.php';
+		$field['add_details'] = zz_details_link($field['add_details'], $record);
+	}
+	if (!$field['add_details']) return NULL;
+
+	if ($data['tab'])
+		return sprintf('%s-%d-%d-%d-%d',
+			$zz_conf['id'], $field['subtable_no'], $fieldkey, $data['tab'], $data['rec']
+		);
+	return sprintf('%s-%d-%d-%d',
+		$zz_conf['id'], $fieldkey, $data['tab'], $data['rec']
+	);
 }
 
 /**
