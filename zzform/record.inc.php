@@ -1266,28 +1266,19 @@ function zz_record_add_details_check($field, $mode) {
 function zz_record_add_details($field, $tab, $rec, $fieldkey) {
 	global $zz_conf;
 	
-	if (!empty($_SESSION['logged_in'])) {
-		if ($tab) {
-			$name = sprintf('%s-%d-%d-%d-%d',
-				$zz_conf['id'], $field['subtable_no'], $fieldkey, $tab, $rec
-			);
-		} else {
-			$name = sprintf('%s-%d-%d-%d',
-				$zz_conf['id'], $fieldkey, $tab, $rec
-			);
-		}
-		$text = ' <input type="submit" name="zz_add_details[%s]" value="%s" formnovalidate class="zz_add_details_add">';
-		$text .= ' <input type="submit" name="zz_edit_details[%s]" value="%s" formnovalidate class="zz_add_details_edit">';
-		$text = sprintf($text, $name, wrap_text('New …'), $name, wrap_text('Edit …'));
+	if (empty($_SESSION['logged_in'])) return '';
+	if ($tab) {
+		$name = sprintf('%s-%d-%d-%d-%d',
+			$zz_conf['id'], $field['subtable_no'], $fieldkey, $tab, $rec
+		);
 	} else {
-		if (empty($field['add_details_where'])) $field['add_details_where'] = '';
-		$add_details_sep = strstr($field['add_details'], '?') ? '&amp;' : '?';
-		$text = ' <a href="'.$field['add_details'].$add_details_sep
-			.'add&amp;referer='.urlencode(wrap_setting('request_uri'))
-			.$field['add_details_where'].'"'
-			.(!empty($field['add_details_target']) ? ' target="'.$field['add_details_target'].'"' : '')
-			.' id="zz_add_details_'.$tab.'_'.$rec.'_'.$fieldkey.'">['. wrap_text('New …').']</a>';
+		$name = sprintf('%s-%d-%d-%d',
+			$zz_conf['id'], $fieldkey, $tab, $rec
+		);
 	}
+	$text = ' <input type="submit" name="zz_add_details[%s]" value="%s" formnovalidate class="zz_add_details_add">';
+	$text .= ' <input type="submit" name="zz_edit_details[%s]" value="%s" formnovalidate class="zz_add_details_edit">';
+	$text = sprintf($text, $name, wrap_text('New …'), $name, wrap_text('Edit …'));
 	return $text;
 }
 
@@ -3783,7 +3774,6 @@ function zz_form_select_sql_where($field, $where_fields) {
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	$where_conditions = [];
-	$field['add_details_where'] = '';
 	foreach ($field['sql_where'] as $sql_where) {
 		// might be several where-clauses
 		if (isset($sql_where[2])) {
@@ -3793,7 +3783,6 @@ function zz_form_select_sql_where($field, $where_fields) {
 			$index = zz_db_fetch($sql, '', 'single value');
 			if ($index) {
 				$where_conditions[] = $sql_where[0]." = '".$index."'";
-				$field['add_details_where'] .= sprintf('&amp;where[%s]=%s', $sql_where[0], $index);
 			}
 		} elseif (isset($sql_where['where']) AND !empty($where_fields[$sql_where['field_name']])) {
 			$where_conditions[] = sprintf($sql_where['where'], $where_fields[$sql_where['field_name']]);
