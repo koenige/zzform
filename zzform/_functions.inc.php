@@ -257,8 +257,11 @@ function zz_secret_id($mode, $id = '', $hash = '') {
 	if ($mode === 'read') return $found;
 	elseif ($mode === 'timecheck') return time() - $timestamp;
 	if ($found) return $found;
-	if (!empty($_POST)) // no hash found but POST? resend required, possibly spam
-		$zz_conf['int']['resend_form_required'] = true;
+	if (!empty($_POST)) { // no hash found but POST? resend required, possibly spam
+		// but first check if it is because of add_details
+		if (empty($_POST['zz_edit_details']) AND empty($_POST['zz_add_details']))
+			$zz_conf['int']['resend_form_required'] = true;
+	}
 	wrap_file_log('zzform/ids', 'write', [time(), $id, $hash]);
 }
 
