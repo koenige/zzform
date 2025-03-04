@@ -608,7 +608,7 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 			}
 		}
 
-		// show explanation?		
+		// show explanation?
 		if (!empty($field['always_show_explanation'])) $show = true;
 		elseif ($field_display !== 'form') $show = false; // hide explanation if mode = view
 		elseif (in_array($data['form_display'], ['horizontal', 'lines']) AND empty($data['is_last_rec'])) $show = false;
@@ -617,8 +617,6 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 			$field['explanation'] = '';
 			$field['explanation_top'] = '';
 		}
-		if (!empty($field['explanation_top']))
-			$out['data']['explanation_top'] = $field['explanation_top'];
 
 		// dependencies?
 		if ($field_display === 'form' AND !empty($field['dependencies'])) {
@@ -698,6 +696,10 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 			if ($subtable_rows) {
 				$data['fields'] = array_merge_recursive($data['fields'], $subtable_rows['fields']);
 				$data['matrix'] = array_merge($data['matrix'], $subtable_rows['matrix']);
+				if (!$subtable_rows['has_input_field']) {
+					$field['explanation'] = '';
+					$field['explanation_top'] = '';
+				}
 			}
 			$out = [];
 
@@ -779,8 +781,13 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 				$subdata = zz_record_rows(
 					$zz_tab, $subtable_mode, $field_display, $zz_record, $rec_data
 				);
-				if ($subdata)
+				if ($subdata) {
+					if (!$subdata['has_input_field']) {
+						$field['explanation'] = '';
+						$field['explanation_top'] = '';
+					}
 					$data['fields'] = array_merge_recursive($data['fields'], $subdata['fields']);
+				}
 				$details[] = $out['data']['rows'][]['row'] = zz_record_fields($subdata);
 			}
 
@@ -810,6 +817,8 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 			zz_record_subtable_dependencies($field, $my_fields, $my_rec['id']['value'] ?? 0);
 
 		} else {
+			$data['has_input_field'] = false;
+
 			//	"Normal" field
 			// write values into record, if detail record entry shall be preset
 			if (!empty($zz_tab[$data['tab']]['values'][$data['rec']][$fieldkey])) {
@@ -919,10 +928,12 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 
 			case 'password':
 				$field['output'] = zz_field_password($field, $field_display, $my_rec['record'], $zz_record['action']);
+				$data['has_input_field'] = true;
 				break;
 
 			case 'password_change':
 				$field['output'] = zz_field_password_change($field, $field_display);
+				$data['has_input_field'] = true;
 				break;
 
 			case 'url':
@@ -938,6 +949,7 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 			case 'phone':
 			case 'username':
 				$field['output'] = zz_field_text($field, $field_display, $my_rec['record'], !$my_rec['validation'] ? true : $zz_tab[0]['dont_reformat']);
+				$data['has_input_field'] = true;
 				break;
 
 			case 'unix_timestamp': // zz_field_unix_timestamp
@@ -948,9 +960,11 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 			case 'memo': // zz_field_memo
 				$function_name = sprintf('zz_field_%s', $field['type']);
 				$field['output'] = $function_name($field, $field_display, $my_rec['record'], $zz_tab[0]['dont_reformat']);
+				$data['has_input_field'] = true;
 				break;
 
 			case 'select':
+				$data['has_input_field'] = true;
 				// SELECT field, might be #1 foreign_key (sql query needed), enum or set
 				if (!empty($field['sql'])) {
 					// #1 SELECT with foreign key
@@ -1015,6 +1029,7 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 					$my_rec['record_saved'], $my_rec['images'], $mode, $fieldkey);
 				zz_error();
 				$field['output'] .= zz_error_output();
+				$data['has_input_field'] = true;
 				break;
 
 			case 'write_once':
@@ -1064,6 +1079,8 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 		}
 		if ($field['explanation'])
 			$out['data']['explanation'] = $field['explanation'];
+		if (!empty($field['explanation_top']))
+			$out['data']['explanation_top'] = $field['explanation_top'];
 		if (!empty($field['separator'])) {
 			if (!$out) $out = zz_record_init_out($field);
 			$out['separator'] .= $field['separator'];
