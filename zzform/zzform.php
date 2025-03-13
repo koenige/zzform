@@ -515,7 +515,7 @@ function zzform_exit($ops) {
 		if (!empty($ops['html_fragment'])) {
 			wrap_static('page', 'template', 'empty');
 			wrap_static('page', 'url', $ops['redirect_url']);
-			wrap_static('page', 'send_as_json', true);
+			wrap_setting('send_as_json', true);
 		}
 	}
 
