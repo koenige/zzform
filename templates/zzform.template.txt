@@ -12,6 +12,11 @@
 %%% item h1 "<h1>%s</h1>" %%% 
 %%% item explanation %%% 
 <div class='explanation_dynamic'></div>
+%%% if password_added %%%
+<p class="error">%%% text Your password has been saved! %%%</p>
+%%% elseif password_changed %%%
+<p class="error">%%% text Your password has been changed! %%%</p>
+%%% endif %%%
 %%% item error_out %%%
 %%% item selection "<h2>%s</h2> %%%
 %%% if record_deleted %%%

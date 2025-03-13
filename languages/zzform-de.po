@@ -1399,6 +1399,12 @@ msgid "(Please enter your new password twice)"
 msgstr "(Bitte geben Sie Ihr Passwort zweimal ein)"
 
 # Record form: Change password
+#: templates/zzform.template.txt
+msgid "Your password has been saved!"
+msgstr "Ihr Passwort wurde gespeichert!"
+
+# Record form: Change password
+#: templates/zzform.template.txt
 msgid "Your password has been changed!"
 msgstr "Ihr Passwort wurde geändert!"
 

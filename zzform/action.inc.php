@@ -478,6 +478,19 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 		if (!$update) $ops['result'] = 'no_update';
 	}
 	if (empty($ops['result'])) $ops['id'] = 0;
+
+	foreach (array_keys($zz_tab) as $tab) {
+		if (!is_numeric($tab)) continue;
+		foreach (array_keys($zz_tab[$tab]) as $rec) {
+			if (!is_numeric($rec)) continue;
+			if (empty($zz_tab[$tab][$rec]['password_change_successful'])) continue;
+			if ($ops['result'] === 'successful_update')
+				$ops['password_changed'] = true;
+			elseif ($ops['result'] === 'successful_insert')
+				$ops['password_added'] = true;
+			unset($zz_tab['password_change_successful']);
+		}
+	}
 	
 	// delete temporary unused files
 	if (!empty($zz_record['upload_form'])) zz_upload_cleanup($zz_tab);
@@ -1909,8 +1922,11 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 					'level' => E_USER_NOTICE
 				]);
 			}
-			if ($pwd) $my_rec['POST'][$field_name] = $pwd;
-			else { 
+			if ($pwd) {
+				$my_rec['POST'][$field_name] = $pwd;
+				$my_rec['password_change_successful'] = true;
+				// @todo message
+			} else { 
 				$my_rec['POST'][$field_name] = false;
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['validation'] = false;
@@ -2477,18 +2493,13 @@ function zz_password_set($old, $new1, $new2, $sql, $field) {
 	}
 	// new1 = new2, old = old, everything is ok
 	$hash = wrap_password_hash($new1);
-	if ($hash) {
-		zz_error_log([
-			'msg' => 'Your password has been changed!',
-			'level' => E_USER_NOTICE
-		]);
-	} else {
-		zz_error_log([
-			'msg' => 'Your new password could not be saved. Please try a different one.',
-			'level' => E_USER_WARNING
-		]);
-	}
-	return $hash;
+	if ($hash) return $hash;
+
+	zz_error_log([
+		'msg' => 'Your new password could not be saved. Please try a different one.',
+		'level' => E_USER_WARNING
+	]);
+	return false;
 }
 
 /**
