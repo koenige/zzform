@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2013, 2015-2021, 2023-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2013, 2015-2021, 2023-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -389,8 +389,14 @@ function zz_search_scope($field, $table, $scope) {
 	} elseif (!empty($field['table']) AND $field['table'] === substr($scope, 0, strpos($scope, '.'))) {
 		$look_for = substr($scope, strpos($scope, '.') + 1);
 		foreach ($field['fields'] as $no => $subfield) {
-			if ($subfield['field_name'] === $look_for) return 'subfield';
-			if (isset($subfield['display_field']) AND $subfield['display_field'] === $look_for) return 'subfield';
+			if ($subfield['field_name'] === $look_for) {
+				if (!empty($field['search_in_subtable_query'])) return 'subtable';
+				return 'subfield';
+			}
+			if (isset($subfield['display_field']) AND $subfield['display_field'] === $look_for) {
+				if (!empty($field['search_in_subtable_query'])) return 'subtable';
+				return 'subfield';
+			}
 		}
 	}
 
