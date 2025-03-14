@@ -1173,7 +1173,9 @@ function zz_field_title($field) {
  */
 function zz_hash($zz = [], $zz_conf = []) {
 	static $hash = '';
-	if ($hash) return $hash;
+	static $id = '';
+	// if zzform ID is known and has changed, re-generate hash
+	if ($hash AND empty($zz_conf['id']) OR $zz_conf['id'] === $id) return $hash;
 
 	// get rid of varying and internal settings
 	// get rid of configuration settings which are not important for

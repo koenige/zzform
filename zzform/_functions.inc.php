@@ -45,7 +45,9 @@ function zzform_multi($definition_file, $values, $type = 'tables') {
 		'conf' => $zz_conf,
 		'GET' => $_GET ?? [],
 		'POST' => $_POST ?? [],
-		'FILES' => $_FILES ?? []
+		'FILES' => $_FILES ?? [],
+		'id' => $zz_conf['id'] ?? NULL,
+		'multi' => $zz_conf['multi'] ?? NULL
 	];
 	unset($_GET);
 	unset($_POST);
@@ -102,6 +104,8 @@ function zzform_multi($definition_file, $values, $type = 'tables') {
 	$_GET = $old['GET'];
 	$_POST = $old['POST'];
 	$_FILES = $old['FILES'];
+	$zz_conf['id'] = $old['id'];
+	$zz_conf['multi'] = $old['multi'];
 
 	$zz_conf['int'] = $int;
 	if (wrap_setting('debug') AND function_exists('zz_debug') AND !empty($id)) {
