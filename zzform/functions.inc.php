@@ -3089,7 +3089,7 @@ function zz_dependent_field_ids($fields, $tab, $rec) {
 						$dependent_ids[$unique][$field_no][$index]['set_values'][reset($record)] = $parameters['value'];
 					}
 				}
-				if (empty($record[$dependent_field['if_selected']])) continue;
+				if (!zz_dependent_selected($record, $dependent_field)) continue;
 				$dependent_ids[$unique][$field_no][$index]['values'][] = reset($record);
 			}
 		}
@@ -3121,6 +3121,22 @@ function zz_dependent_value($dependency, $my_rec, $zz_tab) {
 		}
 	}
 	return '';
+}
+
+/**
+ * check if a select has a value to show a dependent field
+ *
+ * @param array $record
+ * @param array $dependent_field
+ * @return bool
+ */
+function zz_dependent_selected($record, $dependent_field) {
+	$if_selected = $dependent_field['if_selected'];
+	if (!is_array($if_selected)) $if_selected = [$if_selected];
+	$found = false;
+	foreach ($if_selected as $field_name)
+		if (!empty($record[$field_name])) $found = true;
+	return $found;
 }
 
 /*
