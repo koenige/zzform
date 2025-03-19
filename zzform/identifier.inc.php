@@ -162,9 +162,7 @@ function zz_identifier($my_rec, $db_table = false, $post = [], $no = 0) {
 	// ready, last checks
 	if ($db_table) {
 		// check whether identifier exists
-		$idf = zz_identifier_exists(
-			$idf, $conf['start'], $db_table, $field_name, $conf, $conf['max_length_field']
-		);
+		$idf = zz_identifier_exists($idf, $db_table, $field_name, $conf);
 	}
 	return $idf;
 }
@@ -332,15 +330,13 @@ function zz_identifier_random_hash($conf) {
  * until an adequate identifier exists  (john-doe, john-doe-2, john-doe-3 ...)
  *
  * @param string $idf
- * @param mixed $i (integer or letter)
  * @param string $db_table [dbname.table]
  * @param string $field
  * @param array $conf
- * @param int $maxlen
  * @global array $zz_conf
  * @return string $idf
  */
-function zz_identifier_exists($idf, $i, $db_table, $field, $conf, $maxlen = false) {
+function zz_identifier_exists($idf, $db_table, $field, $conf) {
 	global $zz_conf;
 	static $existing = [];
 	if (empty($existing[$zz_conf['id']][$db_table]))
@@ -351,21 +347,21 @@ function zz_identifier_exists($idf, $i, $db_table, $field, $conf, $maxlen = fals
 	$records = zz_db_fetch($sql, $field, 'single value');
 	if ($records OR in_array($idf, $existing[$zz_conf['id']][$db_table])) {
 		$start = false;
-		if (is_numeric($i) AND $i > 2) $start = true;
-		elseif (!is_numeric($i) AND $i > 'b') $start = true;
+		if (is_numeric($conf['start']) AND $conf['start'] > 2) $start = true;
+		elseif (!is_numeric($conf['start']) AND $conf['start'] > 'b') $start = true;
 		elseif ($conf['start_always']) $start = true;
 		if ($start) {
 			// with start_always, we can be sure, that a generated suffix exists
 			// so we can safely remove it. 
-			// for other cases, this is only true for $i > 2.
+			// for other cases, this is only true for $conf['start'] > 2.
 			if ($conf['exists']) {
 				$idf = substr($idf, 0, strrpos($idf, $conf['exists']));
 			} else {
 				// remove last ending, might be 9 in case $i = 10 or
-				// 'z' in case $i = 'aa' so make sure not to remove too much
-				$j = $i;
+				// 'z' in case $conf['start'] = 'aa' so make sure not to remove too much
+				$j = $conf['start'];
 				$j--;
-				if ($j === $i) {
+				if ($j === $conf['start']) {
 					// -- does not work with alphabet
 					if (substr_count($j, 'a') === strlen($j)) {
 						$j = substr($j, 0, -1);
@@ -374,16 +370,14 @@ function zz_identifier_exists($idf, $i, $db_table, $field, $conf, $maxlen = fals
 				$idf = substr($idf, 0, -strlen($j));
 			}
 		}
-		$suffix = $conf['exists'].sprintf($conf['exists_format'], $i);
+		$suffix = $conf['exists'].sprintf($conf['exists_format'], $conf['start']);
 		// in case there is a value for maxlen, make sure that resulting
 		// string won't be longer
-		if ($maxlen && strlen($idf.$suffix) > $maxlen) 
-			$idf = substr($idf, 0, ($maxlen - strlen($suffix))); 
+		if ($conf['max_length_field'] && strlen($idf.$suffix) > $conf['max_length_field']) 
+			$idf = substr($idf, 0, ($conf['max_length_field'] - strlen($suffix))); 
 		$idf = $idf.$suffix;
-		$i++;
-		$idf = zz_identifier_exists(
-			$idf, $i, $db_table, $field, $conf, $maxlen
-		);
+		$conf['start']++;
+		$idf = zz_identifier_exists($idf, $db_table, $field, $conf);
 	}
 	$existing[$zz_conf['id']][$db_table][] = $idf;
 	return zz_return($idf);
