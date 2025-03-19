@@ -16,7 +16,11 @@ zzformRemoveSuggestions();
 zzformSelections();
 var zzformLoadedJS = [];
 var zzformStart = true;
-if (typeof zzDependencies !== 'undefined') zzDependencyListeners(zzDependencies);
+if (typeof zzDependencies !== 'undefined') {
+	zzProcessAllDependencies(zzDependencies);
+	zzDependencyListeners(zzDependencies);
+}
+			
 
 /**
  * initialize all functions that are in use for the record form
@@ -581,6 +585,45 @@ function zzProcessDependency(dependency) {
         }
     } else {
         myValue = mainField.value;
+    }
+
+    // Check if mainField has dataset.dependentOptions and process it
+    if (mainField.dataset.dependentOptions) {
+        var dependencies = JSON.parse(mainField.dataset.dependentOptions);
+        var matchingLabels = [];
+
+        // Find all keys where myValue is included in the value array
+        for (var key in dependencies) {
+            if (dependencies.hasOwnProperty(key) && dependencies[key].includes(parseInt(myValue))) {
+                matchingLabels.push(key);
+            }
+        }
+
+        // Look for all SELECT elements in dependentRow and process the options
+        var selects = dependentRow.querySelectorAll('select');
+        selects.forEach(function(select) {
+            var options = select.querySelectorAll('option');
+            options.forEach(function(option) {
+                var dependenciesAttr = option.getAttribute('data-dependencies');
+                if (dependenciesAttr) {
+                    // Split the data-dependencies into an array and check if it contains any of the matching labels
+                    var dependenciesList = dependenciesAttr.split(' ');
+                    var shouldShow = dependenciesList.some(function(dep) {
+                        return matchingLabels.includes(dep);
+                    });
+
+                    // Show or hide the option and make it unselectable based on the match
+                    if (shouldShow) {
+                        option.removeAttribute('disabled');
+                        option.removeAttribute('hidden');
+                    } else {
+                        option.setAttribute('disabled', 'true');
+                        option.setAttribute('hidden', 'true');
+                        option.removeAttribute('selected');
+                    }
+                }
+            });
+        });
     }
 
     if (dependentFieldShown.includes(myValue) && !mainFieldRow.classList.contains('hidden')) {

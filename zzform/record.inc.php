@@ -2755,6 +2755,15 @@ function zz_field_select($field, $record, $lines) {
 		// database, table or field names which do not come with an ID?
 		$key_value = $line[$field['key_field']];
 		if ($key_value === $value) $key_value = sprintf(' %s ', $key_value);
+		
+		// option elements with dependencies?
+		$dependencies = [];
+		if (!empty($field['option_dependencies'])) {
+			foreach ($field['option_dependencies'] as $field_name) {
+				if (empty($line[$field_name])) continue;
+				$dependencies[] = $field_name;
+			}
+		}
 
 		$element = [
 			'type' => 'option',
@@ -2765,7 +2774,8 @@ function zz_field_select($field, $record, $lines) {
 			'selected' => ($record AND $line[$field['key_field']]
 				== $record[$field['field_name']]) ? true : false,
 			'disabled' => zz_record_field_disabled($line[$field['key_field']], $field),
-			'class' => $level ? sprintf('level%d', $level) : NULL
+			'class' => $level ? sprintf('level%d', $level) : NULL,
+			'data-dependencies' => $dependencies ? implode(' ', $dependencies) : NULL
 		];
 		$option = zz_record_element($element);
 		if ($optgroup) {
@@ -4157,6 +4167,8 @@ function zz_field_dependent_fields($field, $lines) {
 	if (empty($field['dependent_fields'])) return [];
 
 	$fieldattr = [];
+	$options = [];
+	// option_dependencies
 	foreach ($field['dependent_fields'] as $field_no => $dependent_field) {
 		foreach ($lines as $field_id => $line) {
 			if (!is_array($line)) {
@@ -4167,10 +4179,18 @@ function zz_field_dependent_fields($field, $lines) {
 				if (!zz_dependent_selected($line, $dependent_field['if_selected'])) continue;
 			}
 			$fieldattr['data-dependent_field_'.$field_no][] = $field_id;
+			if (!empty($field['option_dependencies'])) {
+				foreach ($field['option_dependencies'] as $field_name => $option_field) {
+					if (!zz_dependent_selected($line, $field_name)) continue;
+					$options[$option_field][] = $field_id;
+				}
+			}
 		}
 		if (!empty($fieldattr['data-dependent_field_'.$field_no]))
 			$fieldattr['data-dependent_field_'.$field_no] = implode(',', $fieldattr['data-dependent_field_'.$field_no]);
 	}
+	if ($options)
+		$fieldattr['data-dependent-options'] = json_encode($options);
 	return $fieldattr;
 }
 
