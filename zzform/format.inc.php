@@ -28,6 +28,8 @@ function zzform_attributes($fieldattr) {
 		} elseif ($attr_value === true) {
 			// boolean true
 			$attr[] = $attr_name;
+		} elseif (strstr($attr_value, '"')) {
+			$attr[] = sprintf("%s='%s'", $attr_name, $attr_value);
 		} else {
 			$attr[] = sprintf('%s="%s"', $attr_name, $attr_value);
 		}
