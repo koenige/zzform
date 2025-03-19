@@ -4164,7 +4164,7 @@ function zz_field_dependent_fields($field, $lines) {
 				if ($dependent_field['if_selected'] !== $line) continue;
 				$field_id = $line;
 			} else {
-				if (!zz_dependent_selected($line, $dependent_field)) continue;
+				if (!zz_dependent_selected($line, $dependent_field['if_selected'])) continue;
 			}
 			$fieldattr['data-dependent_field_'.$field_no][] = $field_id;
 		}
