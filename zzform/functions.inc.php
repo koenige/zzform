@@ -690,8 +690,8 @@ function zz_where_conditions(&$zz) {
 	$zz['record']['where'] = [];
 	zz_apply_where_conditions($zz);
 	if ($zz['record']['where']) {
-		// shortcout sqlcount is no longer possible
-		$zz['sqlcount'] = NULL;
+		// shortcout sql_count is no longer possible
+		$zz['sql_count'] = NULL;
 	}
 
 	// where with unique ID: remove filters, they do not make sense here

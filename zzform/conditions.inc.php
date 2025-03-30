@@ -953,8 +953,8 @@ function zz_conditions_list_check($zz, $list, $zz_conditions, $ids, $mode) {
 			}
 			break;
 		case 'list_empty':
-			if ($zz['sqlcount']) {
-				$total_rows = zz_sql_count_rows($zz['sqlcount']);
+			if ($zz['sql_count']) {
+				$total_rows = zz_sql_count_rows($zz['sql_count']);
 			} else {
 				$total_rows = zz_sql_count_rows($zz['sql'], $zz['table'].'.'.$zz_conf['int']['id']['field_name']);
 			}

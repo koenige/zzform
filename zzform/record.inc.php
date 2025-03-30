@@ -2913,8 +2913,8 @@ function zz_field_query($field) {
 	// so no need to query them (only if show_hierarchy_subtree is empty)
 	if (empty($field['show_hierarchy_subtree']) AND empty($field['show_hierarchy'])
 		AND isset($field['max_select'])) {
-		if (isset($field['sqlcount'])) {
-			$count_records = zz_db_fetch($field['sqlcount']);
+		if (isset($field['sql_count'])) {
+			$count_records = zz_db_fetch($field['sql_count']);
 			if (reset($count_records) > $field['max_select']) {
 				$lines[] = $count_records;
 				$lines['too_many_records'] = true;

@@ -48,7 +48,7 @@ function zz_list($zz, $list, $ops, $zz_conditions) {
 	if (!empty($_GET['q']) AND wrap_setting('zzform_search')) {
 		$old_sql = $zz['sql'];
 		$zz['sql'] = zz_search_sql($zz['fields'], $zz['sql'], $zz['table']);
-		if ($old_sql !== $zz['sql']) $zz['sqlcount'] = NULL;
+		if ($old_sql !== $zz['sql']) $zz['sql_count'] = NULL;
 	}
 
 	if ($zz_conf['int']['access'] === 'search_but_no_list' AND empty($_GET['q'])) 
@@ -835,8 +835,8 @@ function zz_list_group_titles_out($group_titles, $concat = ' – ') {
 function zz_list_query($zz, $list) {
 	global $zz_conf;
 
-	if ($zz['sqlcount'])
-		$total_rows = zz_sql_count_rows($zz['sqlcount']);
+	if ($zz['sql_count'])
+		$total_rows = zz_sql_count_rows($zz['sql_count']);
 	else
 		$total_rows = zz_sql_count_rows($zz['sql'], $zz['table'].'.'.$zz_conf['int']['id']['field_name']);
 	if (!$total_rows) return [[], 0];

@@ -12,7 +12,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2010-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2010-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -77,7 +77,7 @@ function zz_filter_list(&$zz, &$ops, &$list) {
 	// modify SQL query depending on filter
 	$old_sql = $zz['sql'];
 	$zz['sql'] = zz_filter_sql($zz['filter'], $zz['sql'], $zz['filter_active']);
-	if ($old_sql !== $zz['sql']) $zz['sqlcount'] = NULL;
+	if ($old_sql !== $zz['sql']) $zz['sql_count'] = NULL;
 
 	// output filter
 	if (!$zz['filter']) return true;
