@@ -24,7 +24,7 @@
  *	zz_conditions_list_check()		set conditions for list
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2010, 2013-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2010, 2013-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -448,7 +448,7 @@ function zz_conditions_record_check($zz, $mode, $zz_conditions) {
 			}
 			if (empty($zz_conf['int']['id']['value'])) break;
 
-			$sql = $zz['sqlrecord'];
+			$sql = $zz['sql_record'];
 			// for performance, remove force index
 			$sql = wrap_edit_sql($sql, 'FORCE INDEX', ' ', 'delete');
 			if (!empty($condition['where']))
@@ -510,7 +510,7 @@ function zz_conditions_record_check($zz, $mode, $zz_conditions) {
 			} elseif (!empty($zz['record']['where'][$zz['table']][$condition['field_name']])) {
 				$value = $zz['record']['where'][$zz['table']][$condition['field_name']];
 			} else {
-				$sql = $zz['sqlrecord'];
+				$sql = $zz['sql_record'];
 				$sql = wrap_edit_sql($sql, 'WHERE', sprintf(
 					'%s.%s = %d', $zz['table'], $zz_conf['int']['id']['field_name'], $zz_conf['int']['id']['value']
 				));

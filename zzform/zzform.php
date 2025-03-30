@@ -139,7 +139,7 @@ function zzform($zz) {
 //
 	$zz = zz_sql_prefix($zz);
 	if (wrap_setting('debug')) zz_debug('database connection ok');
-	if (!$zz['sqlrecord']) $zz['sqlrecord'] = $zz['sql'];
+	if (!$zz['sql_record']) $zz['sql_record'] = $zz['sql'];
 
 //
 //	Filter, ID, WHERE

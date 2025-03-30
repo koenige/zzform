@@ -87,7 +87,7 @@ function zz_sql_prefix_change_zz(&$item, $key) {
 	// $zz['fields'][n]['image'][n]['options_sql']
 	// $zz['fields'][n]['image'][n]['source_path_sql']
 	// $zz['sql']
-	// $zz['sqlrecord']
+	// $zz['sql_record']
 	// $zz['sqlorder']
 	// $zz['table']
 	// $zz['subtitle'][field]['sql']
@@ -100,7 +100,7 @@ function zz_sql_prefix_change_zz(&$item, $key) {
 		'upload_sql', 'options_sql', 'source_path_sql', 'table',
 		'id_field_name', 'display_field', 'key_field_name', 'order',
 		'foreign_key_field_name', 'sqlcount', 'sqlextra', 'geocode_sql',
-		'min_records_sql', 'max_records_sql', 'sqlrecord', 'sql_join',
+		'min_records_sql', 'max_records_sql', 'sql_record', 'sql_join',
 		'dependent_on_add_sql', 'sql_association'
 	];
 	if (in_array($key, $sql_fields)) return false;

@@ -738,7 +738,7 @@ function zz_apply_where_conditions(&$zz) {
 	$table_for_where = $zz['table_for_where'] ?? [];
 
 	$sql_keys['list'] = 'sql';
-	$sql_keys['record'] = 'sqlrecord';
+	$sql_keys['record'] = 'sql_record';
 
 	// set some keys
 	$zz_conf['int']['where_with_unique_id'] = false;
@@ -1427,7 +1427,7 @@ function zz_record_access($zz, $ops) {
 		$ops['mode'] = 'delete';
 		$id_value = $zz_conf['int']['id']['value'];
 		// was record already deleted?
-		$record_id = wrap_db_fetch($zz['sqlrecord'], '_dummy_', 'single value');
+		$record_id = wrap_db_fetch($zz['sql_record'], '_dummy_', 'single value');
 		if (!$record_id) $ops['mode'] = 'show';
 		break;
 
