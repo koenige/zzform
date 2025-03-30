@@ -762,7 +762,7 @@ msgstr ""
 
 #: configuration/zz.cfg
 msgid ""
-"if SQL query is too complex, additional values can be read via 'sqlextra' "
+"if SQL query is too complex, additional values can be read via 'sql_extra' "
 "queries"
 msgstr ""
 

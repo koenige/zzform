@@ -881,7 +881,7 @@ function zz_list_query_flat($zz) {
 	} else {
 		$lines = zz_db_fetch($zz['sql'], '_dummy_', 'numeric');
 	}
-	$lines = zz_list_query_extras($lines, $zz['sqlextra']);
+	$lines = zz_list_query_extras($lines, $zz['sql_extra']);
 	if ($zz['sql_translate'])
 		$lines = zz_translate($zz, $lines);
 	return zz_return($lines);
@@ -962,7 +962,7 @@ function zz_list_query_hierarchy($zz, $list) {
 			$lines[$line[$zz_conf['int']['id']['field_name']]] = array_merge($lines[$line[$zz_conf['int']['id']['field_name']]], $line);
 		}
 	}
-	$lines = zz_list_query_extras($lines, $zz['sqlextra']);
+	$lines = zz_list_query_extras($lines, $zz['sql_extra']);
 	if ($zz['sql_translate'])
 		$lines = zz_translate($zz, $lines);
 	return zz_return([$lines, $total_rows]);

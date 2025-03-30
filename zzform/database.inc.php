@@ -66,7 +66,7 @@ function zz_sql_prefix_change_zz(&$item, $key) {
 	if (!$success) return false;
 	
 	// numeric keys are okay as well
-	// @todo check if we can exclude them (sqlextra)
+	// @todo check if we can exclude them (sql_extra)
 	if (is_numeric($key)) return false;
 
 	// $zz['conditions'][n]['add']['sql']
@@ -99,7 +99,7 @@ function zz_sql_prefix_change_zz(&$item, $key) {
 		'set_sql', 'sqlorder', 'sql_not_unique', 'sql_password_check',
 		'upload_sql', 'options_sql', 'source_path_sql', 'table',
 		'id_field_name', 'display_field', 'key_field_name', 'order',
-		'foreign_key_field_name', 'sql_count', 'sqlextra', 'geocode_sql',
+		'foreign_key_field_name', 'sql_count', 'sql_extra', 'geocode_sql',
 		'min_records_sql', 'max_records_sql', 'sql_record', 'sql_join',
 		'dependent_on_add_sql', 'sql_association'
 	];

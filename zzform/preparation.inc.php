@@ -30,7 +30,7 @@ function zz_prepare_tables($zz, $mode) {
 	$zz_tab[0]['table_name'] = $zz_tab[0]['table'];
 	$zz_tab[0]['sql'] = $zz['sql_record'];
 	$zz_tab[0]['sql_without_where'] = $zz['sql_without_where'];
-	$zz_tab[0]['sqlextra'] = $zz['sqlextra'];
+	$zz_tab[0]['sql_extra'] = $zz['sql_extra'];
 	$zz_tab[0]['sql_translate'] = $zz['sql_translate'];
 	$zz_tab[0]['folder'] = $zz['folder'];
 	$zz_tab[0]['add_from_source_id'] = $zz['add_from_source_id'];
@@ -121,7 +121,7 @@ function zz_prepare_tables($zz, $mode) {
 
 	if (!empty($zz_conf['int']['id']['value'])) {
 		$zz_tab[0][0]['existing'] = zz_query_single_record(
-			$zz_tab[0]['sql'], $zz_tab[0]['table'], $zz_tab[0]['table'], $zz_conf['int']['id'], $zz_tab[0]['sqlextra']
+			$zz_tab[0]['sql'], $zz_tab[0]['table'], $zz_tab[0]['table'], $zz_conf['int']['id'], $zz_tab[0]['sql_extra']
 		);
 		$zz_tab[0][0]['existing'] = zz_prepare_record($zz_tab[0][0]['existing'], $zz_tab[0][0]['fields']);
 		if ($zz['record']['action'] === 'update' AND !$zz_tab[0][0]['existing']) {
@@ -145,7 +145,7 @@ function zz_prepare_tables($zz, $mode) {
 			$existing_rec = zz_prepare_record($existing_rec, $zz_tab[0][0]['fields']);
 			$zz_tab[0][$index]['existing'] = $existing_rec;
 		}
-		// @todo think about sqlextra
+		// @todo think about sql_extra
 	} else {
 		$zz_tab[0][0]['existing'] = [];
 	}
@@ -1298,7 +1298,7 @@ function zz_query_record($zz_tab, $tab, $rec, $validation, $mode) {
 	$my_rec = &$my_tab[$rec];
 	$table = $my_tab['table'];
 	// detail records don't have 'extra'
-	if (!isset($my_tab['sqlextra'])) $my_tab['sqlextra'] = [];
+	if (!isset($my_tab['sql_extra'])) $my_tab['sql_extra'] = [];
 
 	// in case, record was deleted, query record is not necessary
 	if ($my_rec['action'] === 'delete') {
@@ -1323,7 +1323,7 @@ function zz_query_record($zz_tab, $tab, $rec, $validation, $mode) {
 				$my_rec['record'] = zz_prepare_record($my_rec['record'], $my_rec['fields']);
 			} elseif ($my_rec['id']['value']) {
 				$my_rec['record'] = zz_query_single_record(
-					$my_tab['sql'], $table, $my_tab['table_name'], $my_rec['id'], $my_tab['sqlextra']
+					$my_tab['sql'], $table, $my_tab['table_name'], $my_rec['id'], $my_tab['sql_extra']
 				);
 				$my_rec['record'] = zz_prepare_record($my_rec['record'], $my_rec['fields']);
 			} elseif (!empty($my_rec['id']['values'])) {
@@ -1331,7 +1331,7 @@ function zz_query_record($zz_tab, $tab, $rec, $validation, $mode) {
 					$my_tab['sql'], $table, $my_rec['id']
 				);
 				$my_rec['record'] = zz_prepare_record($my_rec['record'], $my_rec['fields']);
-				// @todo: think about sqlextra
+				// @todo: think about sql_extra
 			} elseif ($my_rec['access'] === 'show' AND !empty($my_rec['POST'])) {
 				$my_rec['record'] = $my_rec['POST'];
 			}
@@ -1343,7 +1343,7 @@ function zz_query_record($zz_tab, $tab, $rec, $validation, $mode) {
 			} else {
 				$sql = $my_tab['add_from_source_id'] ? $my_tab['sql_without_where'] : $my_tab['sql'];
 				$my_rec['record'] = zz_query_single_record(
-					$sql, $table, $my_tab['table_name'], $my_rec['id'], $my_tab['sqlextra'], 'source_value'
+					$sql, $table, $my_tab['table_name'], $my_rec['id'], $my_tab['sql_extra'], 'source_value'
 				);
 				if (empty($my_rec['record'])) {
 					$my_tab['id']['source_value'] = false;
@@ -1371,7 +1371,7 @@ function zz_query_record($zz_tab, $tab, $rec, $validation, $mode) {
 		
 	//	get record for display fields and maybe others
 		$my_rec['record_saved'] = zz_query_single_record(
-			$my_tab['sql'], $table, $my_tab['table_name'], $my_rec['id'], $my_tab['sqlextra']
+			$my_tab['sql'], $table, $my_tab['table_name'], $my_rec['id'], $my_tab['sql_extra']
 		);
 
 	//	display form again			
@@ -1562,11 +1562,11 @@ function zz_log_reselect_errors($field_name = false, $type = 'select') {
  * @param string $sql $zz_tab[tab]['sql']
  * @param string $table $zz['table']
  * @param array $id	id[value] and [id]field_name from record
- * @param array $sqlextra $zz['sqlextra']
+ * @param array $sql_extra $zz['sql_extra']
  * @param string $type
  * @return array
  */
-function zz_query_single_record($sql, $table, $table_name, $id, $sqlextra, $type = 'value') {
+function zz_query_single_record($sql, $table, $table_name, $id, $sql_extra, $type = 'value') {
 	global $zz_conf;
 	if (!$id[$type]) return [];
 	$sql = wrap_edit_sql($sql,
@@ -1577,7 +1577,7 @@ function zz_query_single_record($sql, $table, $table_name, $id, $sqlextra, $type
 	// if record is not yet in database, we will not get extra data because
 	// no ID exists yet
 	if (!$record) return [];
-	foreach ($sqlextra as $sql) {
+	foreach ($sql_extra as $sql) {
 		if (empty($id[$type])) {
 			zz_error_log([
 				'msg_dev' => 'No ID %s found (Query: %s).',

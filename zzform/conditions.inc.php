@@ -519,8 +519,8 @@ function zz_conditions_record_check($zz, $mode, $zz_conditions) {
 				if ($line) {
 					if (isset($line[$condition['field_name']])) {
 						$value = $line[$condition['field_name']];
-					} elseif ($zz['sqlextra']) {
-						foreach ($zz['sqlextra'] as $sql) {
+					} elseif ($zz['sql_extra']) {
+						foreach ($zz['sql_extra'] as $sql) {
 							$sql = sprintf($sql, $zz_conf['int']['id']['value']);
 							$line = zz_db_fetch($sql, '', '', 'value/1b ['.$index.']');
 							if (isset($line[$condition['field_name']])) {
