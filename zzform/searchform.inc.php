@@ -628,7 +628,7 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 	$search['fields'] = [];
 	foreach ($fields as $index => $field) {
 		if (!zz_search_searchable($field)) continue;
-		if ($field['type'] === 'subtable') {
+		if (in_array($field['type'], ['subtable', 'foreign_table'])) {
 			if (empty($field['subselect'])) continue;
 			$fieldname = $field['table_name'];
 		} elseif (!empty($field['row_value'])) {
