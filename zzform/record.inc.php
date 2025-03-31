@@ -3352,7 +3352,7 @@ function zz_field_select_get_record($field, $record) {
 			$detail_records[][$field['field_name']] = $detail_record;
 	} else {
 		$detail_records = zz_db_fetch($sql, $field['key_field'], '', "record: "
-			.$field['field_name'].' (probably \'id_field_name\' needs to be set)');
+			.$field['field_name'].' (probably \'key_field_name\' needs to be set)');
 	}
 	
 	// only one record?
