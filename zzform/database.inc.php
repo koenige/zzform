@@ -670,11 +670,11 @@ function zz_db_field_null($field, $db_table) {
 /**
  * prefix different charset if necessary for LIKE
  *
- * @param string $type 'search', 'reselect', 'xhr'
+ * @param string $type 'search', 'xhr'
  * @param array $field
  *		'character_set'
  * @param string $db_table (optional, for search)
- * @param int $index (optional, for reselect and xhr)
+ * @param int $index (optional, for xhr)
  * @return string
  */
 function zz_db_field_collation($type, $field, $db_table = '', $index = 0) {
@@ -695,13 +695,8 @@ function zz_db_field_collation($type, $field, $db_table = '', $index = 0) {
 		if (isset($field['character_set'])) $charset = $field['character_set'];
 		$tables[] = $db_table;
 		break;
-	case 'reselect':
 	case 'xhr':
-		if ($type === 'xhr') {
-			$collate_fieldname = $field['field_name'];
-		} else {
-			$collate_fieldname = $field['sql_fields'][$index]['field_name'];
-		}
+		$collate_fieldname = $field['field_name'];
 		$error_msg = '';
 		if (isset($field['sql_character_set']) AND
 			isset($field['sql_character_set'][$index])) {

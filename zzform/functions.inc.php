@@ -3421,17 +3421,45 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 		$i = 0;
 		foreach ($sql_fields as $index => $sql_field) {
 			// first field must be id field, so if value is not numeric, ignore it
-			if (!$index AND !is_numeric(trim($value))) continue;
 			// don't trim value here permanently (or you'll have a problem with
 			// reselect)
-			if (is_numeric(trim($value))) {
-				// no character set needed for numeric values
-				$collation = '';
-			} else {
-				$collation = zz_db_field_collation(
-					'reselect', $field, false, $index
-				);
+			if (!$index AND !is_numeric(trim($value))) continue;
+			$collation = '';
+			
+			switch ($sql_field['type']) {
+				case 'varchar':
+				case 'char':
+				case 'tinytext':
+				case 'text':
+				case 'mediumtext':
+				case 'longtext':
+				case 'json':
+				case 'enum':
+				case 'set':
+					// text type: use collation
+					$collation = sprintf('_%s', $sql_field['character_encoding']);
+					break;
+				case 'tinyint':
+				case 'smallint':
+				case 'mediumint':
+				case 'int':
+				case 'bigint':
+				case 'decimal':
+				case 'float':
+				case 'double':
+				case 'vector':
+				case 'year':
+					// not numeric: do not compare against texts
+					if (!is_numeric(trim($value))) continue 2;
+					break;
+				case 'date':
+				case 'datetime':
+				case 'timestamp':
+				case 'time':
+					if (!preg_match('/^[0-9-: ]+$/',trim($value))) continue 2;
+					break;
 			}
+			
 			if (!$wheresql) $wheresql .= '(';
 			elseif (!$i) $wheresql .= ' ) AND (';
 			elseif ($use_single_comparison) $wheresql .= ' AND ';
