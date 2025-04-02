@@ -700,7 +700,7 @@ function zz_db_field_collation($type, $field, $db_table = '', $index = 0) {
 		if ($type === 'xhr') {
 			$collate_fieldname = $field['field_name'];
 		} else {
-			$collate_fieldname = $field['sql_fieldnames'][$index];
+			$collate_fieldname = $field['sql_fields'][$index]['field_name'];
 		}
 		$error_msg = '';
 		if (isset($field['sql_character_set']) AND

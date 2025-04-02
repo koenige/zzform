@@ -3324,45 +3324,45 @@ function zz_field_select_value_hierarchy($field, $record, $id_field_name) {
  * @param array $id = $zz_tab[$tab][$rec]['id'] optional; for hierarchy in same table
  * @global array $zz_conf bool 'multi'
  * @return array $field
- *		'possible_values', 'sql_fieldnames', 'sql_new'
+ *		'possible_values', 'sql_fields', 'sql_new'
  */
 function zz_check_select_id($field, $postvalue, $id = []) {
 	global $zz_conf;
 	
 	if (!empty($field['select_checked'])) return $field;
 	// 1. get field names from SQL query
-	if (empty($field['sql_fieldnames'])) $field['sql_fieldnames'] = [];
-	$sql_fieldnames = wrap_edit_sql($field['sql'], 'SELECT', '', 'list');
-	foreach ($sql_fieldnames as $index => $sql_fieldname) {
+	if (empty($field['sql_fields'])) $field['sql_fields'] = [];
+	$sql_fields = wrap_mysql_fields($field['sql']);
+	foreach ($sql_fields as $index => $sql_field) {
 		if (!empty($field['show_hierarchy'])
-			AND $sql_fieldname['field_name'] === $field['show_hierarchy']) {
+			AND $sql_field['field_name'] === $field['show_hierarchy']) {
 			// do not search in show_hierarchy as this field is there for 
 			// presentation only and might be removed below!
 			continue;
 		}
-		// write trimmed value back to sql_fieldnames
-		$field['sql_fieldnames'][$index] = $sql_fieldname['field_name'];
+		// write trimmed value back to sql_fields
+		$field['sql_fields'][$index] = $sql_field;
 	}
 	if (!empty($field['sql_format'])) {
 		// formatted fields look different, remove
 		foreach (array_keys($field['sql_format']) as $index)
-			unset($field['sql_fieldnames'][$index]);
+			unset($field['sql_fields'][$index]);
 	}
 
 	// 2. get posted values, field by field
 	$concat = zz_select_concat($field);
 	$postvalues = explode($concat, $postvalue);
-	if (!empty($field['sql_format']) AND count($postvalues) === count($field['sql_fieldnames'])) {
+	if (!empty($field['sql_format']) AND count($postvalues) === count($field['sql_fields'])) {
 		foreach (array_keys($postvalues) as $index) {
-			if (array_key_exists($index + 1, $field['sql_fieldnames'])) continue;
+			if (array_key_exists($index + 1, $field['sql_fields'])) continue;
 			unset($postvalues[$index]);
 		}
 	}
 
 	$use_single_comparison = false;
-	if (!empty($field['sql_fieldnames'][0]))
+	if (!empty($field['sql_fields'][0]))
 		// save for later use
-		$id_field_name = $field['sql_fieldnames'][0];
+		$id_field_name = $field['sql_fields'][0]['field_name'];
 	if (substr($postvalue, -1) !== ' ' AND !$zz_conf['multi']) {
 		$search_equal = false;
 		// if there is a space at the end of the string, don't do LIKE 
@@ -3379,20 +3379,23 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 		} else {
 			$likestring = ' = %s"%s"';
 		}
-		if (count($field['sql_fieldnames']) -1 === count($postvalues)
+		if (count($field['sql_fields']) -1 === count($postvalues)
 			AND !$zz_conf['multi']) {
 			// multi normally sends ID
 			// get rid of ID field name, it's first in list
 			// do not use array_shift here because index is needed below
-			unset($field['sql_fieldnames'][0]);
+			unset($field['sql_fields'][0]);
 			$use_single_comparison = true;
 		}
 	}
 
 	$wheresql = '';
-	$sql_fieldnames = $field['sql_fieldnames'];
+	$sql_fields = $field['sql_fields'];
 	if (!empty($field['sql_fieldnames_ignore'])) {
-		$sql_fieldnames = array_diff($sql_fieldnames, $field['sql_fieldnames_ignore']);
+		foreach ($sql_fields as $index => $sql_field) {
+			if (!in_array($sql_field['field_name'], $field['sql_fieldnames_ignore'])) continue;
+			unset($sql_fields[$index]);
+		}
 	}
 	foreach ($postvalues as $value) {
 		// preg_match: "... ", extra space will be added in zz_field_select_sql_too_long()!
@@ -3416,7 +3419,7 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 		}
 		// maybe there is no index 0, therefore we need a new variable $i
 		$i = 0;
-		foreach ($sql_fieldnames as $index => $sql_fieldname) {
+		foreach ($sql_fields as $index => $sql_field) {
 			// first field must be id field, so if value is not numeric, ignore it
 			if (!$index AND !is_numeric(trim($value))) continue;
 			// don't trim value here permanently (or you'll have a problem with
@@ -3434,14 +3437,14 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 			elseif ($use_single_comparison) $wheresql .= ' AND ';
 			else $wheresql .= ' OR ';
 
-			$wheresql .= sprintf($my_likestring, $sql_fieldname, $collation,
+			$wheresql .= sprintf($my_likestring, $sql_field['field_name'], $collation,
 				wrap_db_escape(trim($value)));
 			if (!empty($field['sql_translate'])) {
-				$condition = zz_check_select_translated($field, $sql_fieldname, $value, $search_equal);
+				$condition = zz_check_select_translated($field, $sql_field['field_name'], $value, $search_equal);
 				if ($condition) $wheresql .= sprintf(' OR %s', $condition);
 			}
 			if ($use_single_comparison) {
-				unset ($sql_fieldnames[$index]);
+				unset ($sql_fields[$index]);
 				continue 2;
 			}
 			$i++;
