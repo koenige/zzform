@@ -3426,6 +3426,8 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 			if (!$index AND !is_numeric(trim($value))) continue;
 			$collation = '';
 			
+			// default to varchar (CONCAT fields etc.)
+			if (!isset($sql_field['type'])) $sql_field['type'] = 'varchar';
 			switch ($sql_field['type']) {
 				case 'varchar':
 				case 'char':
