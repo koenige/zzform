@@ -1939,6 +1939,20 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 				// record did not change, so we do not need to check the select value
 				break;
 			}
+			if (!empty($field['select_save_value'])) {
+				if (is_numeric($my_rec['POST'][$field_name])) {
+					$sql = wrap_edit_sql($field['sql'], 'WHERE',
+						sprintf('%s = %d', $field['key_field'], $my_rec['POST'][$field_name])
+					);
+					$line = wrap_db_fetch($sql);
+					array_shift($line); // remove ID
+					$my_rec['POST'][$field_name] = implode(' | ', $line);
+				}
+				if (!$my_rec['POST'][$field_name]) break;
+				// might have all kinds of values
+				$my_rec['fields'][$f]['check_validation'] = true;
+				break;
+			}
 			$my_rec = zz_check_select($my_rec, $f);
 			//	check for correct enum values
 			if (!$my_rec['POST'][$field_name]) break;

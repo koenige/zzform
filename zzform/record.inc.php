@@ -966,7 +966,9 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 			case 'select':
 				$data['has_input_field'] = true;
 				// SELECT field, might be #1 foreign_key (sql query needed), enum or set
-				if (!empty($field['sql'])) {
+				if ($field_display !== 'form' AND !empty($field['select_save_value'])) {
+					$field['output'] = $my_rec['record'][$field['field_name']];
+				} elseif (!empty($field['sql'])) {
 					// #1 SELECT with foreign key
 
 					// set SQL
