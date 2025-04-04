@@ -3505,6 +3505,10 @@ function zz_field_selected($field, $record, $value) {
 		if (!empty($field['enum_translated'])) {
 			$key = array_search($value, $field['enum']);
 			foreach ($field['enum_translated'] as $translations) {
+				if (!array_key_exists($key, $translations)) {
+					wrap_error(sprintf('Mismatch of no. of enum translations in field “%s”', $field['title']));
+					continue;
+				}
 				if ($translations[$key] != $record[$field['field_name']]) continue;
 				return $translations[$key];
 			}
