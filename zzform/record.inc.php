@@ -4012,7 +4012,7 @@ function zz_field_display($field, $record, $record_saved) {
 		if (zz_get_fieldtype($field) === 'number') {
 			$field['display_value'] = zz_number_format($field['display_value'], $field);
 		}
-		return zz_htmltag_escape($field['display_value']);
+		return $field['display_value'];
 	}
 	// no record
 	if (!$record) {
