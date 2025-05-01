@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.6\n"
 
 #: configuration/settings.cfg
 msgid "folder for fonts used by captchas"
@@ -808,8 +808,8 @@ msgstr ""
 
 #: configuration/zz.cfg
 msgid ""
-"Name of database table (might include database name as well, e. g. Database."
-"Table)"
+"Name of database table (might include database name as well, e. g. "
+"Database.Table)"
 msgstr ""
 
 #: configuration/zz.cfg
@@ -2300,6 +2300,17 @@ msgstr "Eintragung in Tabelle %s nicht möglich."
 #: zzform/action.inc.php
 msgid "The number %d is too high. Maximum value is %d."
 msgstr "Die Zahl %d ist zu hoch. Der maximale Wert ist %d."
+
+#: zzform/action.inc.php
+msgid "Array <em>“%s”</em> does not match pattern <em>“%s”</em>"
+msgstr ""
+"Die Liste <em>„%s“</em> stimmt nicht mit Muster <em>„%s“</em> überein"
+
+#: zzform/action.inc.php
+msgid "Value <em>“%s”</em> does not match pattern <em>“%s”</em>"
+msgstr ""
+"Der Wert <em>„%s“</em> stimmt nicht mit dem Muster <em>„%s“</em> überein "
+"<em></em>"
 
 #: zzform/batch.inc.php
 msgid "Sorry, multiple deletion is not permitted."

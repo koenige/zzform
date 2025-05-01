@@ -2100,6 +2100,14 @@ msgstr ""
 msgid "The number %d is too high. Maximum value is %d."
 msgstr ""
 
+#: zzform/action.inc.php
+msgid "Array <em>“%s”</em> does not match pattern <em>“%s”</em>"
+msgstr ""
+
+#: zzform/action.inc.php
+msgid "Value <em>“%s”</em> does not match pattern <em>“%s”</em>"
+msgstr ""
+
 #: zzform/batch.inc.php
 msgid "Sorry, multiple deletion is not permitted."
 msgstr ""
