@@ -9,7 +9,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2011, 2015-2017, 2019-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2011, 2015-2017, 2019-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -32,6 +32,7 @@ function zz_geo_coord_in($value, $orientation = 'lat', $precision = 0) {
 	$my['error'] = '';
 	if (is_null($value)) return $my;
 	if ($value === '') return $my;
+	if ($value === false) return $my;
 
 	// set possible values for hemisphere
 	$hemispheres = [
