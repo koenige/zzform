@@ -1097,7 +1097,7 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 					if ($out['td']['content'] AND $integrate['td']['content'])
 						$out['td']['content'] = '<div class="subrecord_spacer"></div>'.$out['td']['content'];
 					$out['td']['content'] = $integrate['td']['content']."\n".$out['td']['content'];
-					$out += $integrate['data'] ?? [];
+					$out['data'] = array_merge_recursive($out['data'], $integrate['data'] ?? []);
 				}
 				$integrate_out = [];
 			}
