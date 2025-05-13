@@ -1539,9 +1539,9 @@ function zz_action_dependent_fields(&$zz_tab) {
 							$zz_tab[$tab][$rec]['fields'][$f]['required']
 								= $zz_tab[$tab][$rec]['fields'][$f]['required_in_db']
 								= true;
+							if (!empty($field['subtable']))
+								$zz_tab[$field['subtable']]['min_records_required'] = 1;
 						}
-						if (!empty($field['subtable']))
-							$zz_tab[$field['subtable']]['min_records_required'] = 1;
 					} elseif (!empty($dependency['set_values']) AND $source_value
 						AND array_key_exists($source_value, $dependency['set_values'])) {
 						$values = $dependency['set_values'][$source_value];
