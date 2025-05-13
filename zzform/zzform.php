@@ -191,7 +191,7 @@ function zzform($zz) {
 	//	this will be done after conditions were checked for so to be able to
 	//	not include certain fields and not to get translation fields for these
 	if (zz_modules('translations')) {
-		$zz['fields'] = zz_translations_init($zz['table'], $zz['fields']);
+		$zz['fields'] = zz_translations_init($zz['table'], $zz['fields'], $zz['record']['action']);
 		if (zz_error_exit()) {
 			// if an error occured in zz_translations_check_for, return
 			return zzform_exit($ops);

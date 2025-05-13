@@ -21,9 +21,10 @@
  *
  * @param string $table current table name to check which fields to translate
  * @param array $fields
+ * @param string $action
  * @return array $fields
  */
-function zz_translations_init($table, $fields) {
+function zz_translations_init($table, $fields, $action) {
 	if (!wrap_setting('translate_fields')) return $fields;
 	if (!wrap_sql_table('default_translationfields')) {
 		zz_error_log([
@@ -187,7 +188,7 @@ function zz_translations_init($table, $fields) {
 	}
 
 	// was there an identifier?
-	if ($identifier_fields) {
+	if ($identifier_fields AND $action !== 'delete') {
 		require_once __DIR__.'/identifier.inc.php';
 		zz_identifier_translation_fields($fields, $identifier_fields);
 	}
