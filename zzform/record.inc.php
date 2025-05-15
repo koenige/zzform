@@ -817,7 +817,9 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 			zz_record_subtable_dependencies($field, $my_fields, $my_rec['id']['value'] ?? 0);
 
 		} else {
-			$data['has_input_field'] = false;
+			// initialize has_input_field
+			if (!array_key_exists('has_input_field', $data))
+				$data['has_input_field'] = false;
 
 			//	"Normal" field
 			// write values into record, if detail record entry shall be preset
