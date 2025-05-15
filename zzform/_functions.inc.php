@@ -144,6 +144,7 @@ function zzform_include($file, $values = [], $type = 'tables', $brick = []) {
 		wrap_error(sprintf('%s is not a possible type for %s().', ucfirst($type), __FUNCTION__), E_USER_ERROR);
 	
 	$path = in_array($type, ['subs', 'field']) ? 'zzform_%s/%s.php' : 'zzbrick_%s/%s.php';
+	$file = str_replace('_', '-', $file);
 	$files = wrap_collect_files(sprintf($path, $type, $file));
 	if (!$files and strstr($file, '/')) {
 		$parts = explode('/', $file);
@@ -182,9 +183,13 @@ function zzform_include($file, $values = [], $type = 'tables', $brick = []) {
 	include $definition;
 	if (!wrap_setting('zzform_script_path')) wrap_setting('zzform_script_path', $definition);
 
-	$def = $zz ?? $zz_sub ?? [];
-	if (!$def)
-		wrap_error(sprintf('No %s definition in file %s found.', $type, $file), E_USER_ERROR);
+	if ($type === 'field') {
+		$def = $field ?? [];
+	} else {
+		$def = $zz ?? $zz_sub ?? [];
+		if (!$def)
+			wrap_error(sprintf('No %s definition in file %s found.', $type, $file), E_USER_ERROR);
+	}
 	return $def;
 }
 
