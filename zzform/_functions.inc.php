@@ -140,10 +140,10 @@ function zzform_include($file, $values = [], $type = 'tables', $brick = []) {
 		wrap_error('calling zzform_include() with `../zzbrick_forms/` is deprecated', E_USER_DEPRECATED);
 	}
 
-	if (!in_array($type, ['tables', 'forms', 'subs']))
+	if (!in_array($type, ['tables', 'forms', 'subs', 'field']))
 		wrap_error(sprintf('%s is not a possible type for %s().', ucfirst($type), __FUNCTION__), E_USER_ERROR);
 	
-	$path = 'zzbrick_%s/%s.php';
+	$path = in_array($type, ['subs', 'field']) ? 'zzform_%s/%s.php' : 'zzbrick_%s/%s.php';
 	$files = wrap_collect_files(sprintf($path, $type, $file));
 	if (!$files and strstr($file, '/')) {
 		$parts = explode('/', $file);
