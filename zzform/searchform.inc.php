@@ -221,14 +221,14 @@ function zz_search_field($field, $table, $searchop, $searchword) {
 		return sprintf('%s = "%s"', $fieldname, $searchword);
 	case '%LIKE':
 		if (!zz_search_set_enum($searchop, $searchword, $field_type, $field)) return '';
-		$collation = zz_db_field_collation('search', $field, $table);
+		$collation = zz_db_field_collation($field, $table);
 		if ($collation === NULL) return '';
 		if ($field['type'] === 'datetime') // bug in MySQL 
 			$fieldname = sprintf('DATE_FORMAT(%s, "%%Y-%%m-%%d %%H:%%i:%%s")', $fieldname);
 		return sprintf('%s LIKE %s"%%%s"', $fieldname, $collation, $searchword);
 	case 'LIKE%':
 		if (!zz_search_set_enum($searchop, $searchword, $field_type, $field)) return '';
-		$collation = zz_db_field_collation('search', $field, $table);
+		$collation = zz_db_field_collation($field, $table);
 		if ($collation === NULL) return '';
 		if ($field['type'] === 'datetime') // bug in MySQL
 			$fieldname = sprintf('DATE_FORMAT(%s, "%%Y-%%m-%%d %%H:%%i:%%s")', $fieldname);
@@ -240,7 +240,7 @@ function zz_search_field($field, $table, $searchop, $searchword) {
 	case '%LIKE%':
 	default:
 		if (!zz_search_set_enum($searchop, $searchword, $field_type, $field)) return '';
-		$collation = zz_db_field_collation('search', $field, $table);
+		$collation = zz_db_field_collation($field, $table);
 		if ($collation === NULL) return '';
 		if ($field['type'] === 'datetime') // bug in MySQL
 			$fieldname = sprintf('DATE_FORMAT(%s, "%%Y-%%m-%%d %%H:%%i:%%s")', $fieldname);

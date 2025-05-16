@@ -70,7 +70,7 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 		return brick_xhr_error(503, 'No SQL query was found. Values: %s', [json_encode($xmlHttpRequest)]);
 
 	$sql = wrap_db_prefix($sql);
-	$sql_fields = wrap_edit_sql($sql, 'SELECT', false, 'list');
+	$sql_fields = wrap_mysql_fields($sql);
 	$where = [];
 	foreach ($sql_fields as $no => $sql_field) {
 		// get sql_character_set etc.
@@ -78,7 +78,7 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 		foreach ($text as $index => $value) {
 			// first field must be id field, so if value is not numeric, ignore it
 			if (!$no AND !is_numeric($value)) continue;
-			$collation = zz_db_field_collation('xhr', $sql_field, false, $no);
+			$collation = $sql_field['character_encoding'] === zz_db_charset() ? '' : '_'.$sql_field['character_encoding'];
 			$query = $equal ? 'LOWER(%s) = %s"%s"' : 'LOWER(%s) LIKE %s"%%%s%%"';
 			$where[$index][] = sprintf($query, $sql_field['field_name'], $collation, wrap_db_escape($value));
 			if (!empty($field['sql_translate'])) {

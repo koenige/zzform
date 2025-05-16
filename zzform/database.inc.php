@@ -670,47 +670,29 @@ function zz_db_field_null($field, $db_table) {
 /**
  * prefix different charset if necessary for LIKE
  *
- * @param string $type 'search', 'xhr'
  * @param array $field
  *		'character_set'
  * @param string $db_table (optional, for search)
- * @param int $index (optional, for xhr)
  * @return string
+ * @todo use wrap_mysql_fields() instead
  */
-function zz_db_field_collation($type, $field, $db_table = '', $index = 0) {
+function zz_db_field_collation($field, $db_table = '') {
 	global $zz_conf;
 	
 	$charset = '';
 	$collate_fieldname = '';
-	switch ($type) {
-	case 'search':
-		if (isset($field['search'])) {
-			$collate_fieldname = $field['search'];
-		} elseif (isset($field['display_field'])) {
-			$collate_fieldname = $field['display_field'];
-		} elseif (!empty($field['field_name'])) {
-			$collate_fieldname = $field['field_name'];
-		}
-		$error_msg = ' This field will be excluded from search.';
-		if (isset($field['character_set'])) $charset = $field['character_set'];
-		$tables[] = $db_table;
-		break;
-	case 'xhr':
+	if (isset($field['search'])) {
+		$collate_fieldname = $field['search'];
+	} elseif (isset($field['display_field'])) {
+		$collate_fieldname = $field['display_field'];
+	} elseif (!empty($field['field_name'])) {
 		$collate_fieldname = $field['field_name'];
-		$error_msg = '';
-		if (isset($field['sql_character_set']) AND
-			isset($field['sql_character_set'][$index])) {
-			$charset = $field['sql_character_set'][$index];
-			$tables = [];
-		} elseif (isset($field['sql_table']) AND
-			isset($field['sql_table'][$index])) {
-			$tables[] = $field['sql_table'][$index];
-		} else {
-			$tables = wrap_edit_sql($field['sql'], 'FROM', '', 'list');
-		}
-		break;
 	}
 	if (!$collate_fieldname) return '';
+
+	$error_msg = ' This field will be excluded from search.';
+	if (isset($field['character_set'])) $charset = $field['character_set'];
+	$tables[] = $db_table;
 
 	if (!$charset) {
 		$db_tables = [];
