@@ -775,6 +775,7 @@ function zz_db_charset() {
 	if (!$character_set) {
 		$sql = 'SHOW VARIABLES LIKE "character_set_connection"';
 		$character_set = zz_db_fetch($sql);
+		$character_set = $character_set['Value'];
 	}
 	return $character_set;
 }
