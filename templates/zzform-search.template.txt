@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/modules/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2020, 2022, 2024 Gustaf Mossakowski
+# @copyright Copyright © 2020, 2022, 2024-2025 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 <form method="GET" action="%%% page zzformurl type=self %%%" class="zzsearch" accept-charset="%%% setting charset %%%">
@@ -20,4 +20,6 @@
 %%% if q %%%
  &nbsp;<a href="%%% page zzformurl type=self %%%%%% item url_qs %%%">%%% text Show all records (without search filter) %%%</a>
 %%% endif %%%
-</p></form>
+</p>
+%%% helplink Advanced Search Tips for Forms %%%
+</form>
