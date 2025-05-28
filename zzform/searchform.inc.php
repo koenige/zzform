@@ -154,6 +154,8 @@ function zz_search_sql($fields, $sql, $table, $searchword = '') {
 		$q_search = '('.implode(' AND ', $q_search).')';
 	} elseif ($q_search) {
 		$q_search = '('.implode(' OR ', $q_search).')';
+	} elseif (!$fields) {
+		$q_search = 'NULL'; // get empty result, fields not defined
 	} else {
 		$q_search = NULL;
 	}
