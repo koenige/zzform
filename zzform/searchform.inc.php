@@ -250,6 +250,7 @@ function zz_search_field($field, $table, $searchop, $searchword) {
 		return sprintf('%s != "%s" OR ISNULL(%s)', $fieldname, $searchword, $fieldname);
 	case '%NOT LIKE%':
 		if (!zz_search_set_enum($searchop, $searchword, $field_type, $field)) return '';
+		// @todo think about using NOT IN() in query as a result of zz_search_set_enum()
 		$collation = zz_db_field_collation($field, $table);
 		if ($collation === NULL) return '';
 		if ($field['type'] === 'datetime') // bug in MySQL 
@@ -384,16 +385,13 @@ function zz_search_field_datetime($field_type, $searchword, $searchop) {
  */
 function zz_search_set_enum($searchop, $searchword, $field_type, $field) {
 	if ($field_type !== 'select') return true;
-	if (!empty($field['enum'])) $set = $field['enum'];
-	elseif (!empty($field['set'])) $set = $field['set'];
-	else return true;
+	$set = $field['enum'] ?? $field['set'] ?? [];
+	if (!$set) return true;
 	
 	switch ($searchop) {
 	case '=':
-		if (!in_array($searchword, $set)) return false;
-		return true;
 	case '!=':
-		if (in_array($searchword, $set)) return false;
+		if (!in_array($searchword, $set)) return false;
 		return true;
 	case '%LIKE':
 		foreach ($set as $word) {
@@ -406,15 +404,11 @@ function zz_search_set_enum($searchop, $searchword, $field_type, $field) {
 		}
 		return false;
 	case '%LIKE%':
+	case '%NOT LIKE%':
 		foreach ($set as $word) {
 			if (stristr($searchword, strval($word))) return true;
 		}
 		return false;
-	case '%NOT LIKE%':
-		foreach ($set as $word) {
-			if (stristr($searchword, strval($word))) return false;
-		}
-		return true;
 	}
 	return true;
 }
