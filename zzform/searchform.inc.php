@@ -258,7 +258,8 @@ function zz_search_field($field, $table, $searchop, $searchword) {
  * @return array
  */
 function zz_search_field_datetime($field_type, $searchword, $searchop) {
-	if (!in_array($field_type, ['date', 'datetime', 'time', 'timestamp'])) return [$searchword, $searchop];
+	if (!in_array($field_type, ['date', 'datetime', 'time', 'timestamp']))
+		return [$searchword, $searchop];
 	if (!$searchword) return [$searchword, $searchop];
 	if (is_array($searchword)) return [$searchword, $searchop];
 
@@ -274,12 +275,12 @@ function zz_search_field_datetime($field_type, $searchword, $searchop) {
 	case 'datetime':
 	case 'timestamp':
 		if ($timesearch) {
-			$searchword = date('Y-m-d H:i:s', $timesearch);
+			$searchword = date('Y-m-d H:i:s', strtotime($timesearch));
 			switch ($searchop) {
 			case '>':
 			case '<=':
 				if (str_ends_with($searchword, ' 00:00:00'))
-					$searchword = date('Y-m-d', $timesearch).' 23:59:59';
+					$searchword = date('Y-m-d', strtotime($timesearch)).' 23:59:59';
 				break;
 			case '>=':
 			case '<':
@@ -287,8 +288,8 @@ function zz_search_field_datetime($field_type, $searchword, $searchop) {
 			default:
 				if (str_ends_with($searchword, ' 00:00:00')) {
 					$searchword = [
-						date('Y-m-d', $timesearch).' 00:00:00',
-						date('Y-m-d', $timesearch).' 23:59:59'
+						date('Y-m-d', strtotime($timesearch)).' 00:00:00',
+						date('Y-m-d', strtotime($timesearch)).' 23:59:59'
 					];
 					$searchop = 'BETWEEN';
 				}
@@ -302,13 +303,17 @@ function zz_search_field_datetime($field_type, $searchword, $searchop) {
 		}
 		break;
 	case 'time':
-		if ($timesearch) $searchword = date('H:i:s', $timesearch);
+		if ($timesearch) {
+			if (str_ends_with($timesearch, ' 00:00:00') AND strstr($timesearch, ' '))
+				return [false, false];
+			$searchword = date('H:i:s', strtotime($timesearch));
+		}
 		if (preg_match('/^[0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/', $searchword) AND $searchop === '%LIKE%') $searchop = '=';
 		break;
 	case 'date':
 		preg_match('/^([0-9]+)$/', $searchword, $matches);
 		if ($timesearch) {
-			$searchword = date('Y-m-d', $timesearch);
+			$searchword = date('Y-m-d', strtotime($timesearch));
 		} elseif (preg_match('/^([0-9]+)\.([0-9]+)\.$/', $searchword, $matches)) {
 			$searchword = sprintf('%1$02d-%2$02d', $matches[2], $matches[1]);
 		} elseif (preg_match('/^(\d{1,4})-(\d{0,2})$/', $searchword, $matches)) {
@@ -411,15 +416,14 @@ function zz_search_scope($field, $table, $scope) {
  * checks if searchword is date, i. e. usable in searching for time/date 
  *
  * @param mixed $searchword
- * @return int time
+ * @return string
  */
 function zz_search_time($searchword) {
 	// allow searching with strtotime, but do not convert years (2000)
 	// or year-month (2004-12)
 	if (is_array($searchword)) return false;
 	if (preg_match('/^\d{1,4}-*\d{0,2}-*\d{0,2}$/', trim($searchword))) return false;
-	$date = zz_check_datetime($searchword);
-	return strtotime($date);
+	return zz_check_datetime($searchword);
 }
 
 /**
@@ -610,7 +614,7 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 	// show search form only if there are records as a result of this query; 
 	// q: show search form if empty search result occured as well
 	if (!$total_rows AND !isset($_GET['q'])) return $search_form;
-	$search['q'] = isset($_GET['q']) ? $_GET['q'] : NULL;
+	$search['q'] = $_GET['q'] ?? NULL;
 	if ($search['q'] AND strstr($search['q'], '%%%'))
 		$search['q'] = str_replace('%%%', '%\%\%', $search['q']);
 
