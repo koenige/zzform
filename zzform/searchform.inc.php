@@ -161,10 +161,6 @@ function zz_search_sql($fields, $sql, $table) {
  * @return string part of query
  */
 function zz_search_field($field, $table, $searchop, $searchword) {
-	// do not search IDs of detail tables
-	if (!empty($field['type']) AND $field['type'] === 'id' AND !empty($field['subtable_no']))
-		return '';
-	
 	// get field name
 	if (isset($field['search'])) {
 		$fieldname = $field['search'];
@@ -673,6 +669,10 @@ function zz_search_form($fields, $table, $total_rows, $count_rows) {
 function zz_search_searchable($field) {
 	// is it a field explicitly excluded from search?
 	if (!empty($field['exclude_from_search']))
+		return false;
+
+	// do not search IDs of detail tables
+	if ($field['type'] === 'id' AND !empty($field['subtable_no']))
 		return false;
 
 	// is it a field which cannot be searched?
