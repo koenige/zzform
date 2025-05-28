@@ -209,6 +209,9 @@ function zz_search_field($field, $table, $searchop, $searchword) {
 	case '>=':
 		return sprintf('%s >= "%s"', $fieldname, $searchword);
 	case 'BETWEEN':
+		if (in_array($field['type'], ['datetime', 'timestamp'])) {
+			return sprintf('%s BETWEEN "%s" AND "%s"', $fieldname, $searchword[0], $searchword[1]);
+		}
 		return sprintf('%s >= "%s" AND %s <= "%s"', $fieldname, $searchword[0],
 			$fieldname, $searchword[1]);
 	case 'QUARTER':
@@ -239,10 +242,6 @@ function zz_search_field($field, $table, $searchop, $searchword) {
 		if ($field['type'] === 'datetime') // bug in MySQL
 			$fieldname = sprintf('DATE_FORMAT(%s, "%%Y-%%m-%%d %%H:%%i:%%s")', $fieldname);
 		return sprintf('%s LIKE %s"%s%%"', $fieldname, $collation, $searchword);
-	case 'BETWEEN':
-		if (in_array($field['type'], ['datetime', 'timestamp'])) {
-			return sprintf('%s BETWEEN "%s" AND "%s"', $fieldname, $searchword[0], $searchword[1]);
-		}
 	case '%LIKE%':
 	default:
 		if (!zz_search_set_enum($searchop, $searchword, $field_type, $field)) return '';
