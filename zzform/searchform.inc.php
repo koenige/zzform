@@ -599,12 +599,12 @@ function zz_search_subtable($field, $table) {
 		$subsql = 'SELECT %s.%s FROM %s
 			LEFT JOIN %s
 				ON %s.%s = %s.%s
-			WHERE %%s(%s)';
+			WHERE %%s(%s.%s)';
 		$subsql = sprintf($subsql,
 			$table, $zz_conf['int']['id']['field_name'], $table,
 			$field['table'],
 			$table, $zz_conf['int']['id']['field_name'], $field['table'], $foreign_key,
-			$sub_id_fieldname
+			$field['table'], $sub_id_fieldname
 		);
 		if ($_GET['q'] === 'NULL') {
 			$subsql = sprintf($subsql, 'ISNULL');
