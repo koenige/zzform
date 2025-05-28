@@ -155,9 +155,9 @@ function zz_search_sql($fields, $sql, $table, $searchword = '') {
 	} elseif ($q_search) {
 		$q_search = '('.implode(' OR ', $q_search).')';
 	} else {
-		$q_search = 'NULL';
+		$q_search = NULL;
 	}
-	$sql = wrap_edit_sql($sql, 'WHERE', $q_search);
+	if ($q_search) $sql = wrap_edit_sql($sql, 'WHERE', $q_search);
 
 	if (wrap_setting('debug')) zz_debug("end; search query", $sql);
 	return $sql;
