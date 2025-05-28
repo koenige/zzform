@@ -24,7 +24,8 @@
  */
 function zz_search_sql($fields, $sql, $table) {
 	// no changes if there's no query string
-	if (empty($_GET['q'])) return $sql;
+	if (!$searchword) $searchword = $_GET['q'] ?? '';
+	if (!$searchword) return $sql;
 
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	if (wrap_setting('debug')) zz_debug('search query', $sql);
@@ -35,13 +36,12 @@ function zz_search_sql($fields, $sql, $table) {
 	$scope = (!empty($_GET['scope']) AND $calls === 1) ? $_GET['scope'] : '';
 
 	// replace tabs, duplicate spaces	
-	if (strstr($_GET['q'], chr(9)))
-		$_GET['q'] = str_replace(chr(9), ' ', $_GET['q']);
-	while (strstr($_GET['q'], '  '))
-		$_GET['q'] = str_replace('  ', ' ', $_GET['q']);
+	if (strstr($searchword, chr(9)))
+		$searchword = str_replace(chr(9), ' ', $searchword);
+	while (strstr($searchword, '  '))
+		$searchword = str_replace('  ', ' ', $searchword);
 
 	// get search operator, globally for all fields
-	$searchword = $_GET['q'];
 	if (substr($searchword, 0, 1) == ' ' AND substr($searchword, -1) == ' ') {
 		$searchop = '=';
 		$searchword = trim($searchword);
@@ -90,6 +90,7 @@ function zz_search_sql($fields, $sql, $table) {
 	$q_search = [];
 	// fields that won't be used for search
 	$search = false;
+	$search_subtable = [];
 	$found = false;
 	foreach ($fields as $field) {
 		if (empty($field)) continue;
@@ -109,7 +110,9 @@ function zz_search_sql($fields, $sql, $table) {
 			$found = true;
 			break;
 		case 'subtable':
-			$subsearch = zz_search_subtable($field, $table);
+			$return = zz_search_subtable($field, $table);
+			if (!$return) break;
+			$search_subtable[] = $return;
 			$found = true;
 			break;
 		case 'subfield':
@@ -136,6 +139,9 @@ function zz_search_sql($fields, $sql, $table) {
 			$q_search[] = sprintf($field['search_between'], '"'.$searchword.'"', '"'.$searchword.'"');
 		}
 	}
+	
+	if ($search_subtable)
+		$q_search = array_merge($q_search, zz_search_subtable_sql($search_subtable, $searchop));
 
 	if ($scope AND !$found) 
 		wrap_static('page', 'status', 404);
@@ -526,7 +532,7 @@ function zz_search_checkfield($field_name, $table, $searchword) {
  *
  * @param array $field
  * @param string $table
- * @return string part of SQL query
+ * @return array
  */
 function zz_search_subtable($field, $table) {
 	global $zz_conf;
@@ -572,15 +578,13 @@ function zz_search_subtable($field, $table) {
 		}
 		break;
 	default:
-		$sql = '';
-		if (!empty($field['sql'])) $sql = $field['sql'];
-		elseif (!empty($field['subselect']['sql'])) $sql = $field['subselect']['sql'];
-		else return false;
+		$sql = $field['sql'] ?? $field['subselect']['sql'] ?? '';
+		if (!$sql) return [];
 		$subsql = zz_search_sql($field['fields'], $sql, $field['table']);
 		break;
 	}
 	$ids = zz_db_fetch($subsql, $foreign_key, '', 'Search query for subtable.', E_USER_WARNING);
-	if (!$ids) return false;
+	if (!$ids) return [];
 	if (in_array('', array_keys($ids))) {
 		zz_error_log([
 			'msg_dev' => 'Search: empty key for %s found in query',
@@ -589,7 +593,31 @@ function zz_search_subtable($field, $table) {
 		]);
 		unset($ids['']);
 	}
-	return $table.'.'.$zz_conf['int']['id']['field_name'].' IN ('.implode(',', array_keys($ids)).')';
+	return [$table.'.'.$zz_conf['int']['id']['field_name'] => array_keys($ids)];
+}
+
+/**
+ * create query part out of subtable IDs
+ *
+ * @param array $data
+ * @param string $searchop
+ * @return string
+ */
+function zz_search_subtable_sql($data, $searchop) {
+	$new_data = [];
+	foreach ($data as $subtable) {
+		foreach ($subtable as $key => $ids) {
+			$new_data[$key] = array_merge($ids, $new_data[$key] ?? []);
+			$new_data[$key] = array_unique($new_data[$key]);
+		}
+	}
+	$return = [];
+	$template = '%s IN (%s)';
+	foreach ($new_data as $key => $ids) {
+		if (!$ids) continue;
+		$return[] = sprintf($template, $key, implode(',', $ids));
+	}
+	return $return;
 }
 
 /** 
