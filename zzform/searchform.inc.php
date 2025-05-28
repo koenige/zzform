@@ -19,10 +19,11 @@
  * @param array $fields
  * @param string $sql
  * @param string $table
+ * @param string $searchword (optional)
  * @return string $sql (un-)modified SQL query
  * @todo if there are subtables, part of this functions code is run redundantly
  */
-function zz_search_sql($fields, $sql, $table) {
+function zz_search_sql($fields, $sql, $table, $searchword = '') {
 	// no changes if there's no query string
 	if (!$searchword) $searchword = $_GET['q'] ?? '';
 	if (!$searchword) return $sql;
@@ -45,6 +46,9 @@ function zz_search_sql($fields, $sql, $table) {
 	if (substr($searchword, 0, 1) == ' ' AND substr($searchword, -1) == ' ') {
 		$searchop = '=';
 		$searchword = trim($searchword);
+	} elseif (str_starts_with($searchword, '! ')) {
+		$searchop = '%NOT LIKE%';
+		$searchword = trim(substr($searchword, 1));
 	} elseif (substr($searchword, 0, 1) == ' ') {
 		$searchop = 'LIKE%';
 		$searchword = trim($searchword);
@@ -146,7 +150,9 @@ function zz_search_sql($fields, $sql, $table) {
 	if ($scope AND !$found) 
 		wrap_static('page', 'status', 404);
 
-	if ($q_search) {
+	if ($q_search AND zz_search_negative($searchop)) {
+		$q_search = '('.implode(' AND ', $q_search).')';
+	} elseif ($q_search) {
 		$q_search = '('.implode(' OR ', $q_search).')';
 	} else {
 		$q_search = 'NULL';
@@ -209,25 +215,46 @@ function zz_search_field($field, $table, $searchop, $searchword) {
 	case '>=':
 		return sprintf('%s >= "%s"', $fieldname, $searchword);
 	case 'BETWEEN':
-		if (in_array($field['type'], ['datetime', 'timestamp'])) {
+		if (in_array($field['type'], ['datetime', 'timestamp']))
 			return sprintf('%s BETWEEN "%s" AND "%s"', $fieldname, $searchword[0], $searchword[1]);
-		}
 		return sprintf('%s >= "%s" AND %s <= "%s"', $fieldname, $searchword[0],
 			$fieldname, $searchword[1]);
+	case 'NOT BETWEEN':
+		return sprintf('%s NOT BETWEEN "%s" AND "%s"', $fieldname, $searchword[0], $searchword[1]);
 	case 'QUARTER':
 		// @todo: improve to use indices, BETWEEN year_begin and year_end ...
 		return sprintf('(YEAR(%s) = "%s" AND QUARTER(%s) = "%s")', $fieldname, 
 			$searchword[1], $fieldname, $searchword[0]);
+	case 'NOT QUARTER':
+		return sprintf('(YEAR(%s) != "%s" OR QUARTER(%s) != "%s")', $fieldname, 
+			$searchword[1], $fieldname, $searchword[0]);
 	case 'YEAR':
 		return sprintf('YEAR(%s) = %d', $fieldname, $searchword);
+	case 'NOT YEAR':
+		return sprintf('YEAR(%s) != %d', $fieldname, $searchword);
 	case 'YEAR-MONTH':
 		return sprintf('(YEAR(%s) = %d AND MONTH(%s) = %d)', $fieldname, 
 			$searchword[1], $fieldname, $searchword[2]);
+	case 'NOT YEAR-MONTH':
+		return sprintf('(YEAR(%s) != %d AND MONTH(%s) = %d)', $fieldname, 
+			$searchword[1], $fieldname, $searchword[2]);
 	case 'MONTH':
+		return sprintf('MONTH(%s) = %d', $fieldname, $searchword);
+	case 'NOT MONTH':
 		return sprintf('MONTH(%s) = %d', $fieldname, $searchword);
 	case '=':
 		if (!zz_search_set_enum($searchop, $searchword, $field_type, $field)) return '';
 		return sprintf('%s = "%s"', $fieldname, $searchword);
+	case '!=':
+		if (!zz_search_set_enum($searchop, $searchword, $field_type, $field)) return '';
+		return sprintf('%s != "%s" OR ISNULL(%s)', $fieldname, $searchword, $fieldname);
+	case '%NOT LIKE%':
+		if (!zz_search_set_enum($searchop, $searchword, $field_type, $field)) return '';
+		$collation = zz_db_field_collation($field, $table);
+		if ($collation === NULL) return '';
+		if ($field['type'] === 'datetime') // bug in MySQL 
+			$fieldname = sprintf('DATE_FORMAT(%s, "%%Y-%%m-%%d %%H:%%i:%%s")', $fieldname);
+		return sprintf('(%s NOT LIKE %s"%%%s%%" OR ISNULL(%s))', $fieldname, $collation, $searchword, $fieldname);
 	case '%LIKE':
 		if (!zz_search_set_enum($searchop, $searchword, $field_type, $field)) return '';
 		$collation = zz_db_field_collation($field, $table);
@@ -272,7 +299,7 @@ function zz_search_field_datetime($field_type, $searchword, $searchop) {
 	if (preg_match('/q\d(.)[0-9]{4}/i', $searchword, $separator)) {
 		$searchword = trim(substr($searchword, 1));
 		$searchword = explode($separator[1], $searchword);
-		return [$searchword, 'QUARTER'];
+		return [$searchword, zz_search_negative($searchop).'QUARTER'];
 	}
 	
 	$timesearch = zz_search_time($searchword);
@@ -296,15 +323,16 @@ function zz_search_field_datetime($field_type, $searchword, $searchop) {
 						date('Y-m-d', strtotime($timesearch)).' 00:00:00',
 						date('Y-m-d', strtotime($timesearch)).' 23:59:59'
 					];
-					$searchop = 'BETWEEN';
+					$searchop = zz_search_negative($searchop).'BETWEEN';
 				}
 			}
-		} elseif (preg_match('/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/', $searchword) AND $searchop === '%LIKE%') {
+		} elseif (preg_match('/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/', $searchword)
+			AND in_array($searchop,  ['%LIKE%', '%NOT LIKE%'])) {
 			$searchword = [
 				$searchword.' 00:00:00',
 				$searchword.' 23:59:59'
 			];
-			$searchop = 'BETWEEN';
+			$searchop = zz_search_negative($searchop).'BETWEEN';
 		}
 		break;
 	case 'time':
@@ -313,7 +341,10 @@ function zz_search_field_datetime($field_type, $searchword, $searchop) {
 				return [false, false];
 			$searchword = date('H:i:s', strtotime($timesearch));
 		}
-		if (preg_match('/^[0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/', $searchword) AND $searchop === '%LIKE%') $searchop = '=';
+		if (preg_match('/^[0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/', $searchword)) {
+			if ($searchop === '%LIKE%') $searchop = '=';
+			elseif ($searchop === '%NOT LIKE%') $searchop = '!=';
+		}
 		break;
 	case 'date':
 		preg_match('/^([0-9]+)$/', $searchword, $matches);
@@ -322,16 +353,19 @@ function zz_search_field_datetime($field_type, $searchword, $searchop) {
 		} elseif (preg_match('/^([0-9]+)\.([0-9]+)\.$/', $searchword, $matches)) {
 			$searchword = sprintf('%1$02d-%2$02d', $matches[2], $matches[1]);
 		} elseif (preg_match('/^(\d{1,4})-(\d{0,2})$/', $searchword, $matches)) {
-			$searchop = 'YEAR-MONTH';
+			$searchop = zz_search_negative($searchop).'YEAR-MONTH';
 			$searchword = $matches;
 		} elseif (preg_match('/^(\d{1,2})$/', $searchword, $matches)) {
-			$searchop = 'MONTH';
+			$searchop = zz_search_negative($searchop).'MONTH';
 			$searchword = $matches[1];
 		} elseif (preg_match('/^(\d{1,4})$/', $searchword, $matches)) {
-			$searchop = 'YEAR';
+			$searchop = zz_search_negative($searchop).'YEAR';
 			$searchword = $matches[1];
 		}
-		if ($searchop === '%LIKE%' AND preg_match('/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/', $searchword)) $searchop = '=';
+		if (preg_match('/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/', $searchword)) {
+			if ($searchop === '%LIKE%') $searchop = '=';
+			elseif ($searchop === '%NOT LIKE%') $searchop = '!=';
+		} 
 		break;
 	}
 	if (!is_array($searchword) AND !preg_match('/^[0-9:\-% ]+$/', $searchword)) return [false, false];
@@ -358,6 +392,9 @@ function zz_search_set_enum($searchop, $searchword, $field_type, $field) {
 	case '=':
 		if (!in_array($searchword, $set)) return false;
 		return true;
+	case '!=':
+		if (in_array($searchword, $set)) return false;
+		return true;
 	case '%LIKE':
 		foreach ($set as $word) {
 			if (substr($word, -strlen($searchword)) === $searchword) return true;
@@ -373,6 +410,11 @@ function zz_search_set_enum($searchop, $searchword, $field_type, $field) {
 			if (stristr($searchword, strval($word))) return true;
 		}
 		return false;
+	case '%NOT LIKE%':
+		foreach ($set as $word) {
+			if (stristr($searchword, strval($word))) return false;
+		}
+		return true;
 	}
 	return true;
 }
@@ -579,7 +621,9 @@ function zz_search_subtable($field, $table) {
 	default:
 		$sql = $field['sql'] ?? $field['subselect']['sql'] ?? '';
 		if (!$sql) return [];
-		$subsql = zz_search_sql($field['fields'], $sql, $field['table']);
+		$searchword = $_GET['q'];
+		if (str_starts_with($searchword, '! ')) $searchword = substr($searchword, 2);
+		$subsql = zz_search_sql($field['fields'], $sql, $field['table'], $searchword);
 		break;
 	}
 	$ids = zz_db_fetch($subsql, $foreign_key, '', 'Search query for subtable.', E_USER_WARNING);
@@ -611,7 +655,7 @@ function zz_search_subtable_sql($data, $searchop) {
 		}
 	}
 	$return = [];
-	$template = '%s IN (%s)';
+	$template = in_array($searchop, ['%NOT LIKE%']) ? '%s NOT IN (%s)' : '%s IN (%s)';
 	foreach ($new_data as $key => $ids) {
 		if (!$ids) continue;
 		$return[] = sprintf($template, $key, implode(',', $ids));
@@ -714,4 +758,15 @@ function zz_search_searchable($field) {
 
 	// all other fields
 	return true;
+}
+
+/**
+ * check if a search operation is negative
+ *
+ * @param string $searchop
+ * @return string
+ */
+function zz_search_negative($searchop) {
+	if (in_array($searchop, ['%NOT LIKE%'])) return 'NOT ';
+	return '';
 }
