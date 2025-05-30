@@ -31,8 +31,13 @@ function zz_output_page($ops, $zz) {
 	$ops['breadcrumb'] = $ops['heading'];
 	// make nicer headings
 	$ops['heading'] = zz_nice_headings($ops['heading'], $zz);
-	// provisional title, in case errors occur
-	$ops['title'] = strip_tags($ops['heading']);
+	// title, in case errors occur and for export
+	$ops['title'] = $ops['heading'];
+	// add spaces after line breaks
+	if (strstr($ops['title'], '<br>'))
+		$ops['title'] = str_replace('<br>', ' ', $ops['title']);
+	$ops['title'] = strip_tags($ops['title']);
+	$ops['title'] = str_replace('  ', ' ', $ops['title']);
 	if (trim($ops['heading']) AND !$zz['dont_show_h1'])
 		$ops['h1'] = $ops['heading'];
 	$ops['explanation'] = $zz['explanation'];
