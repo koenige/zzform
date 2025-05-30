@@ -1133,7 +1133,8 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 			if (isset($field['factor']) && $row['value']) {
 				$row['value'] /= $field['factor'];
 			}
-			$text = zz_number_format($row['value'], $field);
+			if ($mode === 'export') $text = $row['value'];
+			else $text = zz_number_format($row['value'], $field);
 			break;
 		case 'geo_point':
 			// don't display anything in binary format
@@ -1153,7 +1154,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 			} elseif (!empty($field['display_value'])) {
 				// translations should be done in $zz-definition-file
 				$text = $field['display_value'];
-				if (!empty($field['type_detail']) AND $field['type_detail'] === 'number') {
+				if (!empty($field['type_detail']) AND $field['type_detail'] === 'number' AND $mode !== 'export') {
 					$text = zz_number_format($text, $field);
 				}
 			} else {
