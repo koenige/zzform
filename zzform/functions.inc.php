@@ -3439,7 +3439,7 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 				case 'enum':
 				case 'set':
 					// text type: use collation
-					$collation = sprintf('_%s', $sql_field['character_encoding']);
+					$collation = $sql_field['character_encoding_prefix'];
 					break;
 				case 'tinyint':
 				case 'smallint':

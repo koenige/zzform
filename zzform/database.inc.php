@@ -736,30 +736,14 @@ function zz_db_field_collation($field, $db_table = '') {
 			// column is not in db, we cannot check the collation, therefore we
 			// assume it is the same as the standard collation
 			// attention: might generate errors if this is not the case
-			$charset = zz_db_charset();
+			$charset = wrap_db_encoding();
 		} elseif ($cols['Collation']) {
 			$charset = substr($cols['Collation'], 0, strpos($cols['Collation'], '_'));
 		}
 	}
 	if (!$charset) return '';
-	if ($charset !== zz_db_charset()) return '_'.$charset;
+	if ($charset !== wrap_db_encoding()) return '_'.$charset;
 	return '';	
-}
-
-/**
- * gets character set which is used for current db connection
- *
- * @param void
- * @return string
- */
-function zz_db_charset() {
-	static $character_set = '';
-	if (!$character_set) {
-		$sql = 'SHOW VARIABLES LIKE "character_set_connection"';
-		$character_set = zz_db_fetch($sql);
-		$character_set = $character_set['Value'];
-	}
-	return $character_set;
 }
 
 /**

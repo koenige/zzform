@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2016-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2016-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -78,9 +78,8 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 		foreach ($text as $index => $value) {
 			// first field must be id field, so if value is not numeric, ignore it
 			if (!$no AND !is_numeric($value)) continue;
-			$collation = $sql_field['character_encoding'] === zz_db_charset() ? '' : '_'.$sql_field['character_encoding'];
 			$query = $equal ? 'LOWER(%s) = %s"%s"' : 'LOWER(%s) LIKE %s"%%%s%%"';
-			$where[$index][] = sprintf($query, $sql_field['field_name'], $collation, wrap_db_escape($value));
+			$where[$index][] = sprintf($query, $sql_field['field_name'], $sql_field['character_encoding_prefix'], wrap_db_escape($value));
 			if (!empty($field['sql_translate'])) {
 				$condition = zz_check_select_translated($field, $sql_field['field_name'], $value, $equal);
 				if ($condition) $where[$index][] = $condition;
