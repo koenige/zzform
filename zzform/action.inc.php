@@ -2286,6 +2286,8 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 function zz_validate_read_options($field, $zz_tab, $tab, $rec) {
 	if (str_starts_with($field['read_options'], '0[')) {
 		$option_no = substr($field['read_options'], 2, -1);
+		// check if field exists, was not unset via condition
+		if (!array_key_exists($option_no, $zz_tab[0][0]['fields'])) return $field;
 		$option_field = $zz_tab[0][0]['fields'][$option_no];
 		$submitted_option = $zz_tab[0][0]['POST'][$option_field['field_name']];
 	} else {
