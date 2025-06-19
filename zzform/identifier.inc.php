@@ -34,6 +34,9 @@ function zz_identifier($my_rec, $db_table = false, $post = [], $no = 0) {
 	}
 	$values = $conf['values'] ?? zz_identifier_values($conf, $my_rec, $post);
 	if (!$values) return false;
+	foreach ($values as $key => $var) {
+		if ($var === '[TRANSLATION_DUMMY]') $values[$key] = '';
+	}
 	$conf_fields = $conf['fields'];
 
 	// read additional configuration from parameters
@@ -716,14 +719,14 @@ function zz_identifier_translation_fields($fields, $identifier_fields) {
 			foreach ($field_values as $record_no => $record_values) {
 				$post[$record_values['language_id']][$field_name] = $record_values['translation'];
 				$post[$record_values['language_id']]['language_id'] = $record_values['language_id'];
-				$post[$record_values['language_id']]['translation'] = '.';
+				$post[$record_values['language_id']]['translation'] = '[TRANSLATION_DUMMY]';
 			}
 		}
 		foreach ($post_values as $field_name => $field_values) {
 			if (is_array($field_values)) continue;
 			// set value for translation to avoid record being ignored
 			if ($field_name === 'translation' AND !$field_values)
-				$field_values = '.';
+				$field_values = '[TRANSLATION_DUMMY]';
 			foreach (array_keys($post) as $language_id)
 				$post[$language_id][$field_name] = $field_values;
 		}
@@ -745,7 +748,7 @@ function zz_identifier_translation_fields($fields, $identifier_fields) {
 					$_POST[$table_name][$index] = array_merge($post[$line['language_id']], $line);
 					// set value for translation to avoid record being ignored
 					if (empty($_POST[$table_name][$index]['translation']))
-						$_POST[$table_name][$index]['translation'] = '.';
+						$_POST[$table_name][$index]['translation'] = '[TRANSLATION_DUMMY]';
 					unset($post[$line['language_id']]);
 				}
 			}
