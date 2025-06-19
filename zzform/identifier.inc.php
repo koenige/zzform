@@ -269,7 +269,10 @@ function zz_identifier_sql($db_table, $field_name, $my_rec, $conf) {
 	$wheres = [];
 	// identifier does not have to be unique, add where from other keys
 	foreach ($conf['unique_with'] as $unique_field)
-		$wheres[] = sprintf('%s = "%s"', $unique_field, zz_identifier_val('filetype_id', $my_rec, $my_rec['POST']));
+		$wheres[] = sprintf('%s = "%s"'
+			, $unique_field
+			, zz_identifier_val($unique_field, $my_rec, $my_rec['POST'])
+		);
 	if ($wheres) {
 		if ($conf['where']) $conf['where'] .= ' AND ';
 		$conf['where'] .= implode(' AND ', $wheres);
