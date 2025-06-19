@@ -133,6 +133,9 @@ function zz_translations_init($table, $fields, $action) {
 					$zz['fields'][$key]['identifier']['replace_fields'] = [
 						$fields[$no]['field_name'] => $zz['fields'][$key]['field_name']
 					];
+					// mark all values as required, to avoid incomplete identifiers
+					// if translation is empty
+					$zz['fields'][$key]['identifier']['values_required'] = true;
 					// read options?
 					$zz['fields'][$key]['read_options'] = $fields[$no]['read_options'] ?? NULL;
 					$zz['fields'][$key]['if'] = $fields[$no]['if'] ?? [];
