@@ -70,32 +70,18 @@ function zz_identifier($my_rec, $db_table = false, $post = [], $no = 0) {
 	if ($conf['random_hash'])
 		return zz_identifier_random_hash($conf);
 
+	// @todo check if this is practical, this way, translated identifiers
+	// will not be removed if translation is removed, to keep identifiers stable
+	// move code before if ($db_table) if translated identifiers should be removed even
+	// if said otherwise
+	$values = zz_identifier_values_check($values, $conf);
+	if (!$values) return false;
+
 	$i = 0;
 	$idf_arr = [];
 	$len = 1;
 	foreach ($values as $key => $var) {
 		$i++;
-		if (in_array($key, $conf['ignore'])) continue;
-		if (!empty($conf['ignore_this_if'][$key])) {
-			foreach ($conf['ignore_this_if'][$key] as $my_field_name) {
-				if (!empty($values[$my_field_name])) continue 2;
-			}
-		}
-		if (!empty($conf['ignore_this_if_identical'][$key])) {
-			foreach ($conf['ignore_this_if_identical'][$key] as $my_field_name) {
-				if ($values[$my_field_name] === $values[$key]) continue 2;
-			}
-		}
-		if (!$var AND $var !== '0') {
-			if (!empty($conf['empty'][$key])) {
-				$var = $conf['empty'][$key];
-			} else {
-				if (is_array($conf['concat'])) {
-					$idf_arr[] = ''; // in case concat is an array
-				}
-				continue;
-			}
-		}
 		foreach ($conf['remove_strings'] as $remove_string) {
 			if (strstr($var, $remove_string))
 				$var = str_replace($remove_string, '', $var);
@@ -518,6 +504,59 @@ function zz_identifier_val($field_name, $my_rec, $main_post, $preferred = []) {
 	$id = $my_rec['POST'][$field_names[0]];
 	$sql = zz_get_fielddef($my_rec['fields'], $field_names[0], 'sql');
 	return zz_identifier_values_db($sql, $id, $field_names[1]);
+}
+
+/**
+ * check if values should be ignored or are required
+ *
+ * @param array $values
+ * @param array $conf
+ * @return array
+ */
+function zz_identifier_values_check($values, $conf) {
+	foreach ($values as $key => $var) {
+		// remove ignored values
+		if (in_array($key, $conf['ignore'])) {
+			unset($values[$key]);
+			continue;
+		}
+		if (!empty($conf['ignore_this_if'][$key])) {
+			foreach ($conf['ignore_this_if'][$key] as $my_field_name) {
+				if (!empty($values[$my_field_name])) {
+					unset($values[$key]);
+					continue 2;
+				}
+			}
+		}
+		if (!empty($conf['ignore_this_if_identical'][$key])) {
+			foreach ($conf['ignore_this_if_identical'][$key] as $my_field_name) {
+				if ($values[$my_field_name] === $values[$key]) {
+					unset($values[$key]);
+					continue 2;
+				}
+			}
+		}
+
+		// check if value is not empty
+		if (!$var AND $var !== '0') {
+			if (!empty($conf['empty'][$key])) {
+				$values[$key] = $conf['empty'][$key];
+			} else {
+				// check if value is required
+				// this removes identifier even if there is an existing one that
+				// should be unchanged; important for translations
+				if ($conf['values_required'] === true) return [];
+				if (is_array($conf['values_required']) AND !empty($conf['values_required'][$key])) return [];
+				// remove or keep empty value, in case concat is an array
+				if (is_array($conf['concat'])) {
+					$values[$key] = '';
+				} else {
+					unset($values[$key]);
+				}
+			}
+		}
+	}
+	return $values;
 }
 
 /**
