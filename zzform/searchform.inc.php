@@ -261,28 +261,28 @@ function zz_search_field($field, $table, $operator, $search_term) {
 		return sprintf('%s >= "%s" AND %s <= "%s"', $fieldname, $search_term[0],
 			$fieldname, $search_term[1]);
 	case 'NOT BETWEEN':
-		return sprintf('%s NOT BETWEEN "%s" AND "%s"', $fieldname, $search_term[0], $search_term[1]);
+		return sprintf('(%s NOT BETWEEN "%s" AND "%s" OR ISNULL(%s)', $fieldname, $search_term[0], $search_term[1], $fieldname);
 	case 'QUARTER':
 		// @todo: improve to use indices, BETWEEN year_begin and year_end ...
 		return sprintf('(YEAR(%s) = "%s" AND QUARTER(%s) = "%s")', $fieldname, 
 			$search_term[1], $fieldname, $search_term[0]);
 	case 'NOT QUARTER':
-		return sprintf('(YEAR(%s) != "%s" OR QUARTER(%s) != "%s")', $fieldname, 
-			$search_term[1], $fieldname, $search_term[0]);
+		return sprintf('(YEAR(%s) != "%s" OR QUARTER(%s) != "%s" OR ISNULL(%s))', $fieldname, 
+			$search_term[1], $fieldname, $search_term[0], $fieldname);
 	case 'YEAR':
 		return sprintf('YEAR(%s) = %d', $fieldname, $search_term);
 	case 'NOT YEAR':
-		return sprintf('YEAR(%s) != %d', $fieldname, $search_term);
+		return sprintf('(YEAR(%s) != %d OR ISNULL(%s))', $fieldname, $search_term, $fieldname);
 	case 'YEAR-MONTH':
 		return sprintf('(YEAR(%s) = %d AND MONTH(%s) = %d)', $fieldname, 
 			$search_term[1], $fieldname, $search_term[2]);
 	case 'NOT YEAR-MONTH':
-		return sprintf('(YEAR(%s) != %d AND MONTH(%s) = %d)', $fieldname, 
-			$search_term[1], $fieldname, $search_term[2]);
+		return sprintf('((YEAR(%s) != %d AND MONTH(%s) = %d) OR ISNULL(%s))', $fieldname, 
+			$search_term[1], $fieldname, $search_term[2], $fieldname);
 	case 'MONTH':
 		return sprintf('MONTH(%s) = %d', $fieldname, $search_term);
 	case 'NOT MONTH':
-		return sprintf('MONTH(%s) = %d', $fieldname, $search_term);
+		return sprintf('(MONTH(%s) != %d OR ISNULL(%s))', $fieldname, $search_term, $fieldname);
 	case '=':
 		if (!zz_search_set_enum($operator, $search_term, $field_type, $field)) return '';
 		return sprintf('%s = "%s"', $fieldname, $search_term);
