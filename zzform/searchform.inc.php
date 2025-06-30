@@ -43,7 +43,6 @@ function zz_search_sql($fields, $sql, $table, $search_input = '') {
 	$where = [];
 	$search_detail_table = [];
 	$found = false;
-	$table_ignored = true;
 	foreach ($fields as $field) {
 		if (empty($field)) continue;
 		if (!zz_search_searchable($field)) continue;
@@ -65,7 +64,6 @@ function zz_search_sql($fields, $sql, $table, $search_input = '') {
 			if (!$condition) break;
 			$where[] = $condition;
 			$found = true;
-			$table_ignored = false;
 			break;
 		case 'detail_table':
 			$return = zz_search_detail_table($field, $table);
@@ -104,10 +102,10 @@ function zz_search_sql($fields, $sql, $table, $search_input = '') {
 		$where = '('.implode(' AND ', $where).')';
 	} elseif ($where) {
 		$where = '('.implode(' OR ', $where).')';
-	} elseif (!$fields OR $table_ignored) {
-		$where = 'NULL'; // get empty result, fields not defined
-	} else {
+	} elseif ($search['operator'] === '%NOT LIKE%') {
 		$where = NULL;
+	} else {
+		$where = 'NULL'; // get empty result
 	}
 	if ($where) $sql = wrap_edit_sql($sql, 'WHERE', $where);
 
@@ -261,7 +259,7 @@ function zz_search_field($field, $table, $search) {
 		return sprintf('%s >= "%s" AND %s <= "%s"', $fieldname, $search['term'][0],
 			$fieldname, $search['term'][1]);
 	case 'NOT BETWEEN':
-		return sprintf('(%s NOT BETWEEN "%s" AND "%s" OR ISNULL(%s)', $fieldname, $search['term'][0], $search['term'][1], $fieldname);
+		return sprintf('(%s NOT BETWEEN "%s" AND "%s" OR ISNULL(%s))', $fieldname, $search['term'][0], $search['term'][1], $fieldname);
 	case 'QUARTER':
 		// @todo: improve to use indices, BETWEEN year_begin and year_end ...
 		return sprintf('(YEAR(%s) = "%s" AND QUARTER(%s) = "%s")', $fieldname, 
