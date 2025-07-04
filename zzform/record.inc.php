@@ -688,7 +688,7 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 					$out['tr']['attr'][] = 'error'; 
 			}
 
-		} elseif ($field['type'] === 'subtable' AND $field['form_display'] === 'inline') {
+		} elseif (in_array($field['type'], ['subtable', 'foreign_table']) AND $field['form_display'] === 'inline') {
 			$subtable_rows = zz_record_rows(
 				$zz_tab, $mode, $field_display, $zz_record,
 				['tab' => $field['subtable'], 'form_display' => 'inline', 'is_subtable' => true]
