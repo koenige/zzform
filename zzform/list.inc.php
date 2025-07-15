@@ -230,7 +230,7 @@ function zz_list($zz, $list, $ops, $zz_conditions) {
 			$ops['output'] .= $ops['filter_bottom'] ?? '';
 		$ops['output'] .= zz_output_add_export_links($zz, $ops);
 		$ops['output'] .= zz_list_total_records($ops['records_total']);
-		$ops['output'] .= zz_list_pages($zz_conf['int']['this_limit'], $ops['records_total']);	
+		$ops['output'] .= zz_list_pages($ops['records_total']);	
 		// @todo: NEXT, PREV Links at the end of the page
 		// Search form
 		if (wrap_setting('zzform_search')) {
@@ -1566,15 +1566,17 @@ function zz_list_total_records($total_rows) {
 /**
  * if LIMIT is set, shows different pages for each $step records
  *
- * @param int $limit_step = wrap_setting('zzform_limit') how many records shall be shown on each page
- * @param int $this_limit = $zz_conf['int']['this_limit'] last record no. on this page
  * @param int $total_rows	count of total records that might be shown
  * @param string $scope 'body', @todo: 'head' (not yet implemented)
  * @return string HTML output
  * @todo
  * 	- <link rel="next">, <link rel="previous">
  */
-function zz_list_pages($this_limit, $total_rows, $scope = 'body') {
+function zz_list_pages($total_rows, $scope = 'body') {
+	global $zz_conf;
+	// last record no. on this page
+	$this_limit = $zz_conf['int']['this_limit'];
+	
 	// check whether there are records
 	if (!$total_rows) return false;
 	
