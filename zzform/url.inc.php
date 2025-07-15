@@ -264,9 +264,9 @@ function zz_extra_get_params() {
 	// write some query strings differently
 	if (isset($_GET['nolist'])) 
 		$keep_query['nolist'] = true;
-	if (!empty($zz_conf['int']['this_limit']) AND $zz_conf['int']['this_limit'] != wrap_setting('zzform_limit'))
-		$keep_query['limit'] = $zz_conf['int']['this_limit'];
-	elseif (!empty($zz_conf['int']['limit_last']))
+	if (wrap_page_limit() AND wrap_page_limit() !== wrap_setting('zzform_limit'))
+		$keep_query['limit'] = wrap_page_limit();
+	elseif (wrap_page_limit('last_qs'))
 		$keep_query['limit'] = 'last';
 
 	$zz_conf['int']['extra_get'] = http_build_query($keep_query);

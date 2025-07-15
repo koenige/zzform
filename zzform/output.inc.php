@@ -385,11 +385,8 @@ function zz_nice_title($heading, $fields, $ops, $mode = false) {
 		$title .= wrap_setting('zzform_title_separator').$selection;
 
 	// addition: page
-	if (wrap_setting('zzform_limit') AND $zz_conf['int']['this_limit'] !== '0') {
-		if ($zz_conf['int']['this_limit']) 
-			$page = $zz_conf['int']['this_limit'] / wrap_setting('zzform_limit');
-		else
-			$page = 1;
+	if (wrap_setting('zzform_limit') AND wrap_page_limit() !== 0) {
+		$page = wrap_page_limit('page');
 		// in case someone writes manually limit=85 where `zzform_limit` = 20
 		// don't add limit to page title
 		if (is_int($page) AND $page AND !empty($ops['records_total'])) {
@@ -695,26 +692,10 @@ function zz_nice_tablenames($table) {
  * @global array $zz_conf
  * @return void
  */
-function zz_init_limit($zz = []) {
-	global $zz_conf;
-
+function zz_init_limit($zz) {
 	// set default limit in case 'hierarchy' is used because hierarchies need more memory
 	if (!wrap_setting('zzform_limit') AND !empty($zz['list']['hierarchy']))
 		wrap_setting('zzform_limit', 40);
-
-	// current range which records are shown
-	$zz_conf['int']['this_limit']		= false;
-	// get LIMIT from URI
-	if (wrap_setting('zzform_limit')) 
-		$zz_conf['int']['this_limit'] = wrap_setting('zzform_limit');
-	if (!empty($_GET['limit']) AND $_GET['limit'] === 'last') {
-		$zz_conf['int']['limit_last'] = true;
-	} else {
-		$limit = zz_check_get_array('limit', 'is_int');
-		if ($limit !== '') $zz_conf['int']['this_limit'] = $limit;
-	}
-	if ($zz_conf['int']['this_limit'] AND $zz_conf['int']['this_limit'] < wrap_setting('zzform_limit'))
-		$zz_conf['int']['this_limit'] = wrap_setting('zzform_limit');
 }	
 
 /**

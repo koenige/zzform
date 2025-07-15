@@ -93,15 +93,14 @@ function zz_export_init(&$ops, &$zz) {
 		wrap_db_charset('utf8');
 		// if kml file is called without limit parameter, it does not default
 		// to limit=20 but to no limit instead
-		if (empty($_GET['limit'])) {
-			$zz_conf['int']['this_limit'] = false; 
-		}
+		if (empty($_GET['limit']))
+			wrap_page_limit('remove'); 
 		break;
 	case 'csv':
 	case 'pdf':
 	case 'zip':
 		// always export all records
-		$zz_conf['int']['this_limit'] = false;
+		wrap_page_limit('remove');
 		break;
 	}
 }

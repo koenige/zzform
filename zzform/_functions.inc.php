@@ -603,13 +603,12 @@ function zzform_field_identifier($field, $cut_numbers = false) {
  *
  */
 function zzform_list_init() {
-	global $zz_conf;
 	static $init = false;
 	if ($init) return; // just once
 
 	// zzform_url_remove()
 	wrap_include('url', 'zzform');
-	// zz_init_limit()
+	// zz_querystring_to_hidden()
 	wrap_include('output', 'zzform');
 	// zz_mark_search_string(), zz_list_total_records(), zz_list_pages()
 	wrap_include('list', 'zzform');
@@ -618,6 +617,5 @@ function zzform_list_init() {
 
 	wrap_setting('zzform_search', 'bottom');
 
-	zz_init_limit();
 	$init = true;
 }

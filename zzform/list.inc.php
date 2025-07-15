@@ -847,7 +847,7 @@ function zz_list_query($zz, $list) {
 	$zz['sql'] = zz_sql_order($zz['fields'], $zz['sql']);
 
 	if (!$list['hierarchy']['display_in']) {
-		zz_list_limit_last($total_rows);
+		wrap_page_limit('last', $total_rows);
 		return [zz_list_query_flat($zz), $total_rows];
 	} else {
 		return zz_list_query_hierarchy($zz, $list);
@@ -865,14 +865,12 @@ function zz_list_query_flat($zz) {
 	global $zz_conf;
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
-	if ($zz_conf['int']['this_limit']) { 
+	if (wrap_page_limit()) { 
 		// set a standard value for limit
 		// this standard value will only be used on rare occasions, when NO limit is set
 		// but someone tries to set a limit via URL-parameter
 		$limit = wrap_setting('zzform_limit') ?? 20;
-		$limit_start = $zz_conf['int']['this_limit'] - $limit;
-		if ($limit_start < 0) $limit_start = 0;
-		$zz['sql'] .= sprintf(' LIMIT %d, %d', $limit_start, $limit);
+		$zz['sql'] .= sprintf(' LIMIT %d, %d', wrap_page_limit('start', $limit), $limit);
 	}
 
 	// read rows from database
@@ -924,8 +922,8 @@ function zz_list_query_hierarchy($zz, $list) {
 
 	$list['hierarchy']['id_field_name'] = $zz_conf['int']['id']['field_name'];
 	list($my_lines, $total_rows) = zz_hierarchy($zz['sql'], $list['hierarchy']);
-	zz_list_limit_last($total_rows);
-	if ($zz_conf['int']['this_limit'] - wrap_setting('zzform_limit') >= $total_rows) {
+	wrap_page_limit('last', $total_rows);
+	if (wrap_page_limit('start') >= $total_rows) {
 		wrap_static('page', 'status', 404);
 		return [[], $total_rows];
 	}
@@ -933,12 +931,12 @@ function zz_list_query_hierarchy($zz, $list) {
 	$lines = []; // unset and initialize
 	// but if hierarchy has ID value, not all rows are shown
 	if ($my_lines) {
-		if (!$zz_conf['int']['this_limit']) {
+		if (!wrap_page_limit()) {
 			$start = 0;
-			$end = $total_rows -1;
+			$end = $total_rows - 1;
 		} else {
-			$start = $zz_conf['int']['this_limit'] - wrap_setting('zzform_limit');
-			$end = $zz_conf['int']['this_limit'] -1;
+			$start = wrap_page_limit('start');
+			$end = wrap_page_limit('end');
 		}
 		foreach (range($start, $end) as $index) {
 			if (!empty($my_lines[$index])) 
@@ -946,7 +944,7 @@ function zz_list_query_hierarchy($zz, $list) {
 		}
 		// for performance reasons, we didn't save the full result set,
 		// so we have to requery it again.
-		if ($zz_conf['int']['this_limit'] !== '') {
+		if (!is_null(wrap_page_limit())) {
 			$zz['sql'] = wrap_edit_sql($zz['sql'], 'WHERE', zz_db_table_backticks($zz['table']).'.'.$zz_conf['int']['id']['field_name']
 				.' IN ('.implode(',', array_keys($lines)).')');
 		} // else sql remains same
@@ -1573,9 +1571,8 @@ function zz_list_total_records($total_rows) {
  * 	- <link rel="next">, <link rel="previous">
  */
 function zz_list_pages($total_rows, $scope = 'body') {
-	global $zz_conf;
 	// last record no. on this page
-	$this_limit = $zz_conf['int']['this_limit'];
+	$this_limit = wrap_page_limit();
 	
 	// check whether there are records
 	if (!$total_rows) return false;
@@ -2426,7 +2423,7 @@ function zz_list_ul($list, $rows) {
 		$output .= '<p class="multiple"><input type="checkbox" onclick="zz_set_checkboxes(this.checked);">'
 		.' <em>'.wrap_text('Selection').':</em> '.$list['buttons'].'</p>';
 	}
-	$list['dnd_start'] = $zz_conf['int']['this_limit'] - wrap_setting('zzform_limit');
+	$list['dnd_start'] = wrap_page_limit('start');
 	if (!empty($list['dnd'])) {
 		$output .= '<script>
 			var zz_dnd_id_field = "'.$list['dnd_id_field'].'";
@@ -2455,17 +2452,4 @@ function zz_list_syndication_get($field, $line) {
 	if (!$img) return false;
 	$text = '<img src="'.($field['path_json_base'] ?? '').$img.'"  alt="" class="thumb">';
 	return $text;
-}
-
-/**
- * replace keyword limit=last with the correct numeric value 
- *
- * @param int $total_rows
- * @return void
- */
-function zz_list_limit_last($total_rows) {
-	global $zz_conf;
-	if (empty($zz_conf['int']['limit_last'])) return;
-	if ($total_rows <= $zz_conf['int']['this_limit']) return;
-	$zz_conf['int']['this_limit'] = (ceil($total_rows / wrap_setting('zzform_limit')) * wrap_setting('zzform_limit'));
 }
