@@ -620,10 +620,13 @@ function zz_initialize($mode = false, $old_conf = []) {
 			// We're still in multiple calls
 			$zz_conf['generate_output'] = false;
 			$zz_conf['multi'] = true;
+			wrap_setting('access_global', true);
 		} else {
 			// inside the first call
 			$zz_conf['generate_output'] = $old_conf['generate_output'] ?? true;
 			$zz_conf['multi'] = false;
+			// @todo this disables global access set in other scripts, too
+			wrap_setting('access_global', false);
 		}
 		return true;
 	}

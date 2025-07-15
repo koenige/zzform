@@ -69,6 +69,7 @@ function zzform_multi($definition_file, $values, $type = 'tables') {
 	$zz_conf['generate_output'] = false;
 	// set 'multi' so we know the operation mode for other scripts
 	$zz_conf['multi'] = true;
+	wrap_setting('access_global', true);
 	if (!empty($values['GET'])) $_GET = $values['GET'];
 	if (!empty($values['POST'])) $_POST = $values['POST'];
 	// add some shortcuts easier to remember
@@ -106,6 +107,7 @@ function zzform_multi($definition_file, $values, $type = 'tables') {
 	$_FILES = $old['FILES'];
 	$zz_conf['id'] = $old['id'];
 	$zz_conf['multi'] = $old['multi'];
+	wrap_setting('access_global', $old['multi']);
 
 	$zz_conf['int'] = $int;
 	if (wrap_setting('debug') AND function_exists('zz_debug') AND !empty($id)) {
