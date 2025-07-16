@@ -91,6 +91,8 @@ function mod_zzform_make_serversync_development() {
 		return $page;
 	}
 	$last_log = json_decode($content, true);
+	$defs = ['html', 'title', 'url'];
+	foreach ($defs as $def) unset($last_log[$def]);
 	$last_log_local = zz_logging_last();
 	if ($last_log === $last_log_local) {
 		$out['identical'] = wrap_number($last_log['log_id']);
