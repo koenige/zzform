@@ -1657,6 +1657,14 @@ function zz_action_validate($zz_tab) {
 			}
 		}
 	}
+
+	// handle last fields after all values have been validated
+	foreach (array_keys($zz_tab) as $tab) {
+		foreach (array_keys($zz_tab[$tab]) as $rec) {
+			if (!is_numeric($rec)) continue;
+			$zz_tab[$tab][$rec] = zz_validate_last_fields($zz_tab, $tab, $rec);
+		}
+	}
 	return $zz_tab;
 }
 
@@ -1679,8 +1687,8 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 	
 	// in case validation fails, these values will be sent back to user
 	$my_rec['POST-notvalid'] = $my_rec['POST'];
+	$my_rec['last_fields'] = [];
 	$my_rec['extra'] = [];
-	$last_fields = [];
 
 	foreach ($my_rec['fields'] as $f => $field) {
 	// 	shorthand
@@ -1993,7 +2001,7 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 			break;
 		case 'identifier':
 			// will be dealt with at the end, when all other values are clear
-			$last_fields[] = $f;
+			$my_rec['last_fields'][] = $f;
 			continue 2;
 		case 'url':
 			//	check for correct url
@@ -2254,9 +2262,26 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 		}
 	}
 
-	// these fields have to be handled after others because they might get data 
-	// from other fields (e. g. upload_fields)
-	foreach ($last_fields as $f)
+	// finished
+	$my_rec['was_validated'] = true;
+	return zz_return($my_rec);
+}
+
+/**
+ * handle some fields after all other fields have been validated
+ * because they might get data from these other fields (e. g. upload_fields)
+ *
+ * @param array $zz_tab
+ * @param int $tab
+ * @param int $rec
+ * @return array
+ */
+function zz_validate_last_fields($zz_tab, $tab, $rec) {
+	$my_rec = $zz_tab[$tab][$rec];
+	if (!array_key_exists('last_fields', $my_rec)) return $my_rec;
+	$db_table = $zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table'];
+	
+	foreach ($my_rec['last_fields'] as $f)
 		//	call function: generate ID
 		if ($my_rec['fields'][$f]['type'] === 'identifier') {
 			require_once __DIR__.'/identifier.inc.php';
@@ -2265,10 +2290,7 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 			if (!empty($my_rec['fields'][$f]['log_username']) AND !is_array($my_rec['POST'][$my_rec['fields'][$f]['field_name']]))
 				wrap_setting('log_username_default', $my_rec['POST'][$my_rec['fields'][$f]['field_name']]);
 		}
-	
-	// finished
-	$my_rec['was_validated'] = true;
-	return zz_return($my_rec);
+	return $my_rec;
 }
 
 /**
