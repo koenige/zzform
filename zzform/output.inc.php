@@ -30,7 +30,7 @@ function zz_output_page($ops, $zz) {
 
 	$ops['breadcrumb'] = $ops['heading'];
 	// make nicer headings
-	$ops['heading'] = zz_nice_headings($ops['heading'], $zz);
+	$ops['heading'] = zz_output_heading_nice($ops['heading'], $zz);
 	// title, in case errors occur and for export
 	$ops['title'] = $ops['heading'];
 	// add spaces after line breaks
@@ -131,7 +131,7 @@ function zz_output_heading($heading, $table = '') {
  *		array 'subtitle', 'fields'[n]'field_name' / 'key_field_name'
  * @return string $heading
  */
-function zz_nice_headings($heading, $zz) {
+function zz_output_heading_nice($heading, $zz) {
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	$i = 0;
 	$heading_addition = [];
@@ -169,6 +169,9 @@ function zz_nice_headings($heading, $zz) {
 				// just send a notice if this doesn't work as it's not crucial
 				$heading_values = zz_db_fetch($wh_sql, '', '', '', E_USER_NOTICE);
 				if ($heading_values) {
+					$tables = wrap_edit_sql($wh_sql, 'FROM', '', 'list');
+					if (!empty($tables[0]))
+						$heading_values = wrap_translate($heading_values, $tables[0]);
 					foreach ($subheading['var'] as $myfield)
 						$heading_addition[$i][] = $heading_values[$myfield];
 				}
@@ -227,7 +230,7 @@ function zz_nice_headings($heading, $zz) {
 	if (array_key_exists('text', $zz['subtitle']))
 		$heading_addition[] = $zz['subtitle']['text'];
 	if ($heading_addition)
-		$heading .= ': <br>'.implode(' – ', $heading_addition); 
+		$heading .= ': <br>'.implode(' – ', $heading_addition);
 	return zz_return($heading);
 }
 
