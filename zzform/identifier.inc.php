@@ -23,8 +23,8 @@
  * @param array $post	main POST data
  * @return string identifier
  */
-function zz_identifier($my_rec, $db_table = false, $post = [], $no = 0) {
-	$conf = (!isset($my_rec['fields'][$no])) ? $my_rec : $my_rec['fields'][$no]['identifier'] ?? [];
+function zz_identifier($my_rec, $db_table, $post, $no) {
+	$conf = $my_rec['fields'][$no]['identifier'] ?? [];
 	$conf['fields'] = $my_rec['fields'][$no]['fields'] ?? [];
 	if (!empty($conf['replace_fields'])) {
 		foreach ($conf['replace_fields'] as $replace_field => $with_field) {
@@ -32,7 +32,7 @@ function zz_identifier($my_rec, $db_table = false, $post = [], $no = 0) {
 			if ($pos !== false) $conf['fields'][$pos] = $with_field;
 		}
 	}
-	$values = $conf['values'] ?? zz_identifier_values($conf, $my_rec, $post);
+	$values = zz_identifier_values($conf, $my_rec, $post);
 	if (!$values) return false;
 	foreach ($values as $key => $var) {
 		if ($var === '[TRANSLATION_DUMMY]') $values[$key] = '';
@@ -51,32 +51,30 @@ function zz_identifier($my_rec, $db_table = false, $post = [], $no = 0) {
 	zz_identifier_defaults($conf);
 	$conf['max_length_field'] = $my_rec['fields'][$no]['maxlength'] ?? NULL;
 
-	if ($db_table) {
-		// there's a record, check if identifier is in write_once mode
-		$field_name = $my_rec['fields'][$no]['field_name'];
-		if (in_array($field_name, array_keys($values))) {
-			$keep_idf = false;
-			if ($conf['exists_function'])
-				$keep_idf = $conf['exists_function']($values[$field_name], $values);
-			elseif ($values[$field_name])
-				$keep_idf = true;
-			if ($keep_idf)
-				// do not change anything if there has been a value set once and 
-				// identifier is in vars array
-				return $values[$field_name];
-			else
-				unset($values[$field_name]);
-		}
-		$conf['sql'] = zz_identifier_sql($db_table, $field_name, $my_rec, $conf);
+	// check if identifier is in write_once mode
+	$field_name = $my_rec['fields'][$no]['field_name'];
+	if (in_array($field_name, array_keys($values))) {
+		$keep_idf = false;
+		if ($conf['exists_function'])
+			$keep_idf = $conf['exists_function']($values[$field_name], $values);
+		elseif ($values[$field_name])
+			$keep_idf = true;
+		if ($keep_idf)
+			// do not change anything if there has been a value set once and 
+			// identifier is in vars array
+			return $values[$field_name];
+		else
+			unset($values[$field_name]);
 	}
+	$conf['sql'] = zz_identifier_sql($db_table, $field_name, $my_rec, $conf);
 
 	if ($conf['random_hash'])
 		return zz_identifier_random_hash($conf);
 
 	// @todo check if this is practical, this way, translated identifiers
 	// will not be removed if translation is removed, to keep identifiers stable
-	// move code before if ($db_table) if translated identifiers should be removed even
-	// if said otherwise
+	// move code before check for write_once mode if translated identifiers should be
+	// removed even if said otherwise
 	$values = zz_identifier_values_check($values, $conf);
 	if (!$values) return false;
 
@@ -148,11 +146,8 @@ function zz_identifier($my_rec, $db_table = false, $post = [], $no = 0) {
 	}
 	if ($conf['lowercase']) $idf = strtolower($idf);
 	if ($conf['uppercase']) $idf = strtoupper($idf);
-	// ready, last checks
-	if ($db_table) {
-		// check whether identifier exists
-		$idf = zz_identifier_exists($idf, $db_table, $field_name, $conf);
-	}
+	// check whether identifier already exists
+	$idf = zz_identifier_exists($idf, $db_table, $field_name, $conf);
 	return $idf;
 }
 
@@ -403,9 +398,9 @@ function zz_identifier_substr($field_name) {
  *		fieldname; index not numeric but string: name of function to call
  * @param array $main_post POST values of $zz_tab[0][0]['POST']
  * @return array $values
- * @todo Funktion ist nicht ganz korrekt, da sie auf unvaldierte 
- * 		Detaildatensätze zugreift. Problem: Hauptdatens. wird vor Detaildatens.
- * 		geprüft (andersherum geht wohl auch nicht)
+ * @todo The function is not entirely correct because it accesses unvalidated
+ * 		detail records. Problem: Main data is checked before detail data
+ *		(it probably doesn't work the other way around either).
  */ 
 function zz_identifier_values($conf, $my_rec, $main_post) {
 	$values = [];
@@ -466,7 +461,7 @@ function zz_identifier_val($field_name, $my_rec, $main_post, $preferred = []) {
 			// this might not be correct, because it ignores the table_name
 			$value = $my_rec['POST'][$table][$no][$field_name]; 
 
-			// todo: problem: subrecords are being validated after main record, 
+			// @todo problem: subrecords are being validated after main record, 
 			// so we might get invalid results
 			$field = zz_get_subtable_fielddef($my_rec['fields'], $table);
 			if ($field) {
