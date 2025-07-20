@@ -273,7 +273,7 @@ function zz_record_form($zz_tab, $mode, $display, $zz_record, $zz_conditions) {
 	}
 	$output['multiple'] = !empty($zz_conf['int']['id']['values']) ? count($zz_conf['int']['id']['values']) : NULL;
 	$data = zz_record_rows($zz_tab, $mode, $display, $zz_record);
-	$output['fields'] = $data['fields'];
+	$output['fields'] = $data['fields'] ?? []; // might be empty on error
 	$output['tbody'] = zz_record_fields($data);
 	$output += zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab);
 	if (zz_error_exit()) return zz_return([]);
