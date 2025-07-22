@@ -1662,6 +1662,13 @@ function zz_action_validate($zz_tab) {
 	foreach (array_keys($zz_tab) as $tab) {
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
 			if (!is_numeric($rec)) continue;
+			$zz_tab[$tab][$rec] = zz_validate_last_fields_prepare($zz_tab, $tab, $rec);
+		}
+	}
+
+	foreach (array_keys($zz_tab) as $tab) {
+		foreach (array_keys($zz_tab[$tab]) as $rec) {
+			if (!is_numeric($rec)) continue;
 			$zz_tab[$tab][$rec] = zz_validate_last_fields($zz_tab, $tab, $rec);
 		}
 	}
@@ -2279,17 +2286,39 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 function zz_validate_last_fields($zz_tab, $tab, $rec) {
 	$my_rec = $zz_tab[$tab][$rec];
 	if (!array_key_exists('last_fields', $my_rec)) return $my_rec;
-	$db_table = $zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table'];
 	
-	foreach ($my_rec['last_fields'] as $f)
+	foreach ($my_rec['last_fields'] as $f) {
 		//	call function: generate ID
 		if ($my_rec['fields'][$f]['type'] === 'identifier') {
-			require_once __DIR__.'/identifier.inc.php';
 			$my_rec['POST'][$my_rec['fields'][$f]['field_name']] 
-				= zz_identifier($my_rec, $db_table, $zz_tab[0][0]['POST'], $f);
+				= zz_identifier($my_rec['fields'][$f]);
 			if (!empty($my_rec['fields'][$f]['log_username']) AND !is_array($my_rec['POST'][$my_rec['fields'][$f]['field_name']]))
 				wrap_setting('log_username_default', $my_rec['POST'][$my_rec['fields'][$f]['field_name']]);
 		}
+	}
+	return $my_rec;
+}
+
+/**
+ * prepare last fields
+ *
+ * @param array $zz_tab
+ * @param int $tab
+ * @param int $rec
+ * @return array
+ */
+function zz_validate_last_fields_prepare($zz_tab, $tab, $rec) {
+	$my_rec = $zz_tab[$tab][$rec];
+	if (!array_key_exists('last_fields', $my_rec)) return $my_rec;
+
+	foreach ($my_rec['last_fields'] as $f) {
+		if ($my_rec['fields'][$f]['type'] === 'identifier') {
+			require_once __DIR__.'/identifier.inc.php';
+			$my_rec['fields'][$f] = zz_identifier_prepare(
+				$my_rec, $zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table'], $zz_tab[0][0]['POST'], $f
+			);
+		}
+	}
 	return $my_rec;
 }
 

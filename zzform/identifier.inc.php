@@ -14,18 +14,19 @@
  */
 
 
-/** 
- * Creates identifier field that is unique
- * 
- * @param array $my_rec		$zz_tab[$tab][$rec]
- * @param string $db_table	Name of Table [dbname.table]
- * @param int $no		Number of field definition
- * @param array $post	main POST data
- * @return string identifier
+/**
+ * initialize configuration and field values for identifier field
+ *
+ * @param array $my_rec	= $zz_tab[$tab][$rec]
+ * @param string $db_table = Name of Table [dbname.table]
+ * @param array $post = main POST data
+ * @param int $no = Number of field definition
+ * @return array
  */
-function zz_identifier($my_rec, $db_table, $post, $no) {
-	$conf = $my_rec['fields'][$no]['identifier'] ?? [];
-	$conf['fields'] = $my_rec['fields'][$no]['fields'] ?? [];
+function zz_identifier_prepare($my_rec, $db_table, $post, $no) {
+	$field = $my_rec['fields'][$no]; 
+	$conf = $field['identifier'] ?? [];
+	$conf['fields'] = $field['fields'] ?? [];
 	if (!empty($conf['replace_fields'])) {
 		foreach ($conf['replace_fields'] as $replace_field => $with_field) {
 			$pos = array_search($replace_field, $conf['fields']);
@@ -33,13 +34,12 @@ function zz_identifier($my_rec, $db_table, $post, $no) {
 		}
 	}
 	$values = zz_identifier_values($conf, $my_rec, $post);
-	if (!$values) return false;
-	foreach ($values as $key => $var) {
+	if (!$values) return $field;
+	foreach ($values as $key => $var)
 		if ($var === '[TRANSLATION_DUMMY]') $values[$key] = '';
-	}
-	$conf_fields = $conf['fields'];
 
 	// read additional configuration from parameters
+	$conf_fields = $conf['fields'];
 	if (!empty($conf['parameters']) AND !empty($values[$conf['parameters']])) {
 		$conf = zz_identifier_configuration($conf, $values[$conf['parameters']]);
 		unset($values[$conf['parameters']]);
@@ -49,24 +49,41 @@ function zz_identifier($my_rec, $db_table, $post, $no) {
 	}
 
 	zz_identifier_defaults($conf);
-	$conf['max_length_field'] = $my_rec['fields'][$no]['maxlength'] ?? NULL;
+	$conf['max_length_field'] = $field['maxlength'] ?? NULL;
+	$conf['sql'] = zz_identifier_sql($db_table, $field['field_name'], $my_rec, $conf);
+	
+	$field['idf_configuration'] = $conf;
+	$field['idf_values'] = $values;
+	$field['idf_db_table'] = $db_table;
+	return $field;
+}
+
+/** 
+ * Creates identifier field that is unique
+ * 
+ * @param array $field	= $zz_tab[$tab][$rec]['fields'][$no]
+ * @return string identifier
+ */
+function zz_identifier($field) {
+	if (!array_key_exists('idf_configuration', $field)) return false;
+
+	$conf = $field['idf_configuration'];
+	$values = $field['idf_values'];
 
 	// check if identifier is in write_once mode
-	$field_name = $my_rec['fields'][$no]['field_name'];
-	if (in_array($field_name, array_keys($values))) {
+	if (in_array($field['field_name'], array_keys($values))) {
 		$keep_idf = false;
 		if ($conf['exists_function'])
-			$keep_idf = $conf['exists_function']($values[$field_name], $values);
-		elseif ($values[$field_name])
+			$keep_idf = $conf['exists_function']($values[$field['field_name']], $values);
+		elseif ($values[$field['field_name']])
 			$keep_idf = true;
 		if ($keep_idf)
 			// do not change anything if there has been a value set once and 
 			// identifier is in vars array
-			return $values[$field_name];
+			return $values[$field['field_name']];
 		else
-			unset($values[$field_name]);
+			unset($values[$field['field_name']]);
 	}
-	$conf['sql'] = zz_identifier_sql($db_table, $field_name, $my_rec, $conf);
 
 	if ($conf['random_hash'])
 		return zz_identifier_random_hash($conf);
@@ -147,7 +164,7 @@ function zz_identifier($my_rec, $db_table, $post, $no) {
 	if ($conf['lowercase']) $idf = strtolower($idf);
 	if ($conf['uppercase']) $idf = strtoupper($idf);
 	// check whether identifier already exists
-	$idf = zz_identifier_exists($idf, $db_table, $field_name, $conf);
+	$idf = zz_identifier_exists($idf, $field['idf_db_table'], $field['field_name'], $conf);
 	return $idf;
 }
 
@@ -272,7 +289,7 @@ function zz_identifier_sql($db_table, $field_name, $my_rec, $conf) {
 		if ($conf['where']) $conf['where'] .= ' AND ';
 		$conf['where'] .= implode(' AND ', $wheres);
 	}
-	$sql = 'SELECT %s
+	$sql = 'SELECT %s AS _id
 		FROM %s
 		WHERE %s = "%%s"
 		AND %s != %d
