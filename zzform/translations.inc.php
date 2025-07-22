@@ -133,7 +133,10 @@ function zz_translations_init($table, $fields, $action) {
 					$zz['fields'][$key]['identifier']['replace_fields'] = [
 						$fields[$no]['field_name'] => $zz['fields'][$key]['field_name']
 					];
-					$zz['fields'][$key]['identifier']['unique_with'] = 'translationfield_id';
+					// existing WHERE keys are here not possible
+					$zz['fields'][$key]['identifier']['where'] = sprintf(
+						'translationfield_id = %d', $translationfields[$field_name]['translationfield_id']
+					);
 					// mark all values as required, to avoid incomplete identifiers
 					// if translation is empty
 					$zz['fields'][$key]['identifier']['values_required'] = true;
