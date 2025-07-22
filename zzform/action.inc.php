@@ -1652,8 +1652,6 @@ function zz_action_validate($zz_tab) {
 				$zz_tab[0][0]['POST'][$zz_tab[$tab]['table_name']][$rec] = $zz_tab[$tab][$rec]['POST'];
 				foreach ($zz_tab[$tab][$rec]['extra'] AS $key => $value)
 					$zz_tab[0][0]['extra'][$zz_tab[$tab]['table_name'].'['.$rec.']['.$key.']'] = $value;
-				// translated identifier might have been deleted, so re-evaluate action
-				$zz_tab[$tab] = zz_set_subrecord_action($zz_tab, $tab, $rec);
 			}
 		}
 	}
@@ -1670,6 +1668,8 @@ function zz_action_validate($zz_tab) {
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
 			if (!is_numeric($rec)) continue;
 			$zz_tab[$tab][$rec] = zz_validate_last_fields($zz_tab, $tab, $rec);
+			// translated identifier might have been deleted, so re-evaluate action
+			$zz_tab[$tab] = zz_set_subrecord_action($zz_tab, $tab, $rec);
 		}
 	}
 	return $zz_tab;
