@@ -1627,6 +1627,7 @@ function zz_action_dependent_subtables($field, $post) {
  */
 function zz_action_validate($zz_tab) {
 	foreach (array_keys($zz_tab) as $tab) {
+		if (!is_numeric($tab)) continue;
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
 			if (!is_numeric($rec)) continue;
 			if ($tab) {
@@ -1658,6 +1659,7 @@ function zz_action_validate($zz_tab) {
 
 	// handle last fields after all values have been validated
 	foreach (array_keys($zz_tab) as $tab) {
+		if (!is_numeric($tab)) continue;
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
 			if (!is_numeric($rec)) continue;
 			$zz_tab[$tab][$rec] = zz_validate_last_fields_prepare($zz_tab, $tab, $rec);
@@ -1665,11 +1667,13 @@ function zz_action_validate($zz_tab) {
 	}
 
 	foreach (array_keys($zz_tab) as $tab) {
+		if (!is_numeric($tab)) continue;
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
 			if (!is_numeric($rec)) continue;
 			$zz_tab[$tab][$rec] = zz_validate_last_fields($zz_tab, $tab, $rec);
 			// translated identifier might have been deleted, so re-evaluate action
-			$zz_tab[$tab] = zz_set_subrecord_action($zz_tab, $tab, $rec);
+			if ($tab) // not for main record
+				$zz_tab[$tab] = zz_set_subrecord_action($zz_tab, $tab, $rec);
 		}
 	}
 	return $zz_tab;
