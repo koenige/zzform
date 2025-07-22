@@ -24,7 +24,9 @@
  * @return array
  */
 function zz_identifier_prepare($my_rec, $db_table, $post, $no) {
-	$field = $my_rec['fields'][$no]; 
+	$field = $my_rec['fields'][$no];
+	$field['idf_db_table'] = $db_table;
+
 	$conf = $field['identifier'] ?? [];
 	$conf['fields'] = $field['fields'] ?? [];
 	if (!empty($conf['replace_fields'])) {
@@ -47,14 +49,13 @@ function zz_identifier_prepare($my_rec, $db_table, $post, $no) {
 		if ($conf_fields !== $conf['fields'])
 			$values = zz_identifier_values($conf, $my_rec, $post);
 	}
+	$field['idf_values'] = $values;
 
 	zz_identifier_defaults($conf);
 	$conf['max_length_field'] = $field['maxlength'] ?? NULL;
-	$conf['sql'] = zz_identifier_sql($db_table, $field['field_name'], $my_rec, $conf);
+	$field['idf_conf'] = $conf;
+	$field['idf_conf']['sql'] = zz_identifier_sql($field, $my_rec);
 	
-	$field['idf_configuration'] = $conf;
-	$field['idf_values'] = $values;
-	$field['idf_db_table'] = $db_table;
 	return $field;
 }
 
@@ -65,9 +66,9 @@ function zz_identifier_prepare($my_rec, $db_table, $post, $no) {
  * @return string identifier
  */
 function zz_identifier($field) {
-	if (!array_key_exists('idf_configuration', $field)) return false;
+	if (!array_key_exists('idf_conf', $field)) return false;
 
-	$conf = $field['idf_configuration'];
+	$conf = $field['idf_conf'];
 	$values = $field['idf_values'];
 
 	// check if identifier is in write_once mode
@@ -164,7 +165,7 @@ function zz_identifier($field) {
 	if ($conf['lowercase']) $idf = strtolower($idf);
 	if ($conf['uppercase']) $idf = strtoupper($idf);
 	// check whether identifier already exists
-	$idf = zz_identifier_exists($idf, $field['idf_db_table'], $field['field_name'], $conf);
+	$idf = zz_identifier_exists($idf, $field);
 	return $idf;
 }
 
@@ -271,23 +272,22 @@ function zz_identifier_concat($data, $concat) {
 /**
  * create SQL query to check existing records
  *
- * @param string $db_table
- * @param string $field_name
+ * @param array $field
  * @param array $my_rec
- * @param array $conf
  * @return string
  */
-function zz_identifier_sql($db_table, $field_name, $my_rec, $conf) {
+function zz_identifier_sql($field, $my_rec) {
 	$wheres = [];
 	// identifier does not have to be unique, add where from other keys
-	foreach ($conf['unique_with'] as $unique_field)
+	foreach ($field['idf_conf']['unique_with'] as $unique_field)
 		$wheres[] = sprintf('%s = "%s"'
 			, $unique_field
 			, zz_identifier_val($unique_field, $my_rec, $my_rec['POST'])
 		);
 	if ($wheres) {
-		if ($conf['where']) $conf['where'] .= ' AND ';
-		$conf['where'] .= implode(' AND ', $wheres);
+		if ($field['idf_conf']['where'])
+			$field['idf_conf']['where'] .= ' AND ';
+		$field['idf_conf']['where'] .= implode(' AND ', $wheres);
 	}
 	$sql = 'SELECT %s AS _id
 		FROM %s
@@ -296,11 +296,11 @@ function zz_identifier_sql($db_table, $field_name, $my_rec, $conf) {
 		%s';
 	$sql = sprintf($sql
 		, $my_rec['id']['field_name']
-		, zz_db_table_backticks($db_table)
-		, $field_name
+		, zz_db_table_backticks($field['idf_db_table'])
+		, $field['field_name']
 		, $my_rec['id']['field_name']
 		, $my_rec['POST'][$my_rec['id']['field_name']]
-		, $conf['where'] ? ' AND '.$conf['where'] : ''
+		, $field['idf_conf']['where'] ? ' AND '.$field['idf_conf']['where'] : ''
 	);
 	return $sql;
 }
@@ -333,39 +333,37 @@ function zz_identifier_random_hash($conf) {
  * check if an identifier already exists in database, add nuermical suffix
  * until an adequate identifier exists  (john-doe, john-doe-2, john-doe-3 ...)
  *
- * @param string $idf
- * @param string $db_table [dbname.table]
- * @param string $field
+ * @param array $field
  * @param array $conf
  * @global array $zz_conf
  * @return string $idf
  */
-function zz_identifier_exists($idf, $db_table, $field, $conf) {
+function zz_identifier_exists($idf, $field) {
 	global $zz_conf;
 	static $existing = [];
-	if (empty($existing[$zz_conf['id']][$db_table]))
-		$existing[$zz_conf['id']][$db_table] = [];
+	if (empty($existing[$zz_conf['id']][$field['idf_db_table']]))
+		$existing[$zz_conf['id']][$field['idf_db_table']] = [];
 
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
-	$sql = sprintf($conf['sql'], $idf);
-	$records = zz_db_fetch($sql, $field, 'single value');
-	if ($records OR in_array($idf, $existing[$zz_conf['id']][$db_table])) {
+	$sql = sprintf($field['idf_conf']['sql'], $idf);
+	$records = zz_db_fetch($sql, $field['field_name'], 'single value');
+	if ($records OR in_array($idf, $existing[$zz_conf['id']][$field['idf_db_table']])) {
 		$start = false;
-		if (is_numeric($conf['start']) AND $conf['start'] > 2) $start = true;
-		elseif (!is_numeric($conf['start']) AND $conf['start'] > 'b') $start = true;
-		elseif ($conf['start_always']) $start = true;
+		if (is_numeric($field['idf_conf']['start']) AND $field['idf_conf']['start'] > 2) $start = true;
+		elseif (!is_numeric($field['idf_conf']['start']) AND $field['idf_conf']['start'] > 'b') $start = true;
+		elseif ($field['idf_conf']['start_always']) $start = true;
 		if ($start) {
 			// with start_always, we can be sure, that a generated suffix exists
 			// so we can safely remove it. 
-			// for other cases, this is only true for $conf['start'] > 2.
-			if ($conf['exists']) {
-				$idf = substr($idf, 0, strrpos($idf, $conf['exists']));
+			// for other cases, this is only true for $field['idf_conf']['start'] > 2.
+			if ($field['idf_conf']['exists']) {
+				$idf = substr($idf, 0, strrpos($idf, $field['idf_conf']['exists']));
 			} else {
 				// remove last ending, might be 9 in case $i = 10 or
-				// 'z' in case $conf['start'] = 'aa' so make sure not to remove too much
-				$j = $conf['start'];
+				// 'z' in case $field['idf_conf']['start'] = 'aa' so make sure not to remove too much
+				$j = $field['idf_conf']['start'];
 				$j--;
-				if ($j === $conf['start']) {
+				if ($j === $field['idf_conf']['start']) {
 					// -- does not work with alphabet
 					if (substr_count($j, 'a') === strlen($j)) {
 						$j = substr($j, 0, -1);
@@ -374,16 +372,18 @@ function zz_identifier_exists($idf, $db_table, $field, $conf) {
 				$idf = substr($idf, 0, -strlen($j));
 			}
 		}
-		$suffix = $conf['exists'].sprintf($conf['exists_format'], $conf['start']);
+		$suffix = $field['idf_conf']['exists'].sprintf(
+			$field['idf_conf']['exists_format'], $field['idf_conf']['start']
+		);
 		// in case there is a value for maxlen, make sure that resulting
 		// string won't be longer
-		if ($conf['max_length_field'] && strlen($idf.$suffix) > $conf['max_length_field']) 
-			$idf = substr($idf, 0, ($conf['max_length_field'] - strlen($suffix))); 
+		if ($field['idf_conf']['max_length_field'] && strlen($idf.$suffix) > $field['idf_conf']['max_length_field']) 
+			$idf = substr($idf, 0, ($field['idf_conf']['max_length_field'] - strlen($suffix))); 
 		$idf = $idf.$suffix;
-		$conf['start']++;
-		$idf = zz_identifier_exists($idf, $db_table, $field, $conf);
+		$field['idf_conf']['start']++;
+		$idf = zz_identifier_exists($idf, $field);
 	}
-	$existing[$zz_conf['id']][$db_table][] = $idf;
+	$existing[$zz_conf['id']][$field['idf_db_table']][] = $idf;
 	return zz_return($idf);
 }
 
