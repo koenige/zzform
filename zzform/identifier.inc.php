@@ -383,8 +383,6 @@ function zz_identifier_random_hash($conf) {
 function zz_identifier_exists($idf, $field) {
 	global $zz_conf;
 	static $existing = [];
-	if (empty($existing[$zz_conf['id']][$field['idf_db_table']]))
-		$existing[$zz_conf['id']][$field['idf_db_table']] = [];
 
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	if ($field['idf_conf']['sql_queries']) {
@@ -404,6 +402,9 @@ function zz_identifier_exists($idf, $field) {
 		$sql = sprintf($field['idf_conf']['sql'], $idf);
 		$table_key = $field['idf_db_table'];
 	}
+	if (empty($existing[$zz_conf['id']][$table_key]))
+		$existing[$zz_conf['id']][$table_key] = [];
+
 	$records = zz_db_fetch($sql, $field['field_name'], 'single value');
 	if ($records OR in_array($idf, $existing[$zz_conf['id']][$table_key])) {
 		$start = false;
