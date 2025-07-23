@@ -1665,6 +1665,8 @@ function zz_action_validate($zz_tab) {
 			$zz_tab[$tab][$rec] = zz_validate_last_fields_prepare($zz_tab, $tab, $rec);
 		}
 	}
+	
+	$zz_tab = zz_validate_last_fields_post_prepare($zz_tab);
 
 	foreach (array_keys($zz_tab) as $tab) {
 		if (!is_numeric($tab)) continue;
@@ -2324,6 +2326,28 @@ function zz_validate_last_fields_prepare($zz_tab, $tab, $rec) {
 		}
 	}
 	return $my_rec;
+}
+
+/**
+ * run another prepare loop for last fields, if needed
+ *
+ * @param array $zz_tab
+ * @return array
+ */
+function zz_validate_last_fields_post_prepare($zz_tab) {
+	foreach (array_keys($zz_tab) as $tab) {
+		if (!is_numeric($tab)) continue;
+		foreach (array_keys($zz_tab[$tab]) as $rec) {
+			if (!is_numeric($rec)) continue;
+			if (!array_key_exists('last_fields', $zz_tab[$tab][$rec])) continue;
+			foreach ($zz_tab[$tab][$rec]['last_fields'] as $no) {
+				if ($zz_tab[$tab][$rec]['fields'][$no]['type'] === 'identifier') {
+					zz_identifier_sql_translated($zz_tab[$tab], $zz_tab[$tab][$rec]['fields'][$no]);
+				}
+			}
+		}
+	}
+	return $zz_tab;
 }
 
 /**

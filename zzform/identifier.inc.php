@@ -54,7 +54,8 @@ function zz_identifier_prepare($my_rec, $db_table, $post, $no) {
 	zz_identifier_defaults($conf);
 	$conf['max_length_field'] = $field['maxlength'] ?? NULL;
 	$field['idf_conf'] = $conf;
-	$field['idf_conf']['sql'] = zz_identifier_sql($field, $my_rec);
+	list($field['idf_conf']['sql'], $field['idf_conf']['sql_other'])
+		= zz_identifier_sql($field, $my_rec);
 	
 	return $field;
 }
@@ -274,7 +275,7 @@ function zz_identifier_concat($data, $concat) {
  *
  * @param array $field
  * @param array $my_rec
- * @return string
+ * @return array
  */
 function zz_identifier_sql($field, $my_rec) {
 	$wheres = [];
@@ -302,7 +303,48 @@ function zz_identifier_sql($field, $my_rec) {
 		, $my_rec['POST'][$my_rec['id']['field_name']]
 		, $field['idf_conf']['where'] ? ' AND '.$field['idf_conf']['where'] : ''
 	);
-	return $sql;
+
+	// for translations
+	$sql_other = 'SELECT %s AS _id
+		FROM %s
+		WHERE %s = "%%s"
+		%s';
+	$sql_other = sprintf($sql_other
+		, $my_rec['id']['field_name']
+		, zz_db_table_backticks($field['idf_db_table'])
+		, $field['field_name']
+		, $field['idf_conf']['where'] ? ' AND '.$field['idf_conf']['where'] : ''
+	);
+
+	return [$sql, $sql_other];
+}
+
+/**
+ * get queries for translated identifiers
+ * here, not only the main identifier needs to be unique but tha values both
+ * in the main table and in the translations table need to be
+ *
+ * @param array $my_tab $zz_tab[$tab]
+ * @param array $field field definition, passed by reference so it can get values from later loops
+ * @return void
+ */
+function zz_identifier_sql_translated($my_tab, &$field) {
+	static $queries = [];
+	static $tables = [];
+
+	if (empty($field['translated'])) return;
+	$db_table = sprintf('%s.%s', $my_tab['db_name'], $my_tab['table']);
+
+	if (!empty($field['translate_subtable'])) {
+		$t_key = sprintf('%s-%s', $field['translate_subtable'], $field['translate_subtable_field']);
+		$tables[$t_key] = $db_table;
+	} else {
+		$t_key = sprintf('%s-%s', $field['subtable_no'], $field['field_no']);
+		if (!array_key_exists($t_key, $tables)) $tables[$t_key] = '';
+	}
+	$queries[$t_key][$db_table] = $field['idf_conf']['sql_other'];
+	$field['idf_conf']['sql_queries'] = &$queries[$t_key];
+	$field['idf_conf']['sql_source_table'] = &$tables[$t_key];
 }
 
 /**
@@ -345,9 +387,25 @@ function zz_identifier_exists($idf, $field) {
 		$existing[$zz_conf['id']][$field['idf_db_table']] = [];
 
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
-	$sql = sprintf($field['idf_conf']['sql'], $idf);
+	if ($field['idf_conf']['sql_queries']) {
+		$queries = [];
+		foreach ($field['idf_conf']['sql_queries'] as $table_key => $sql) {
+			if ($table_key === $field['idf_db_table'])
+				// query excluding own record
+				$queries[] = $field['idf_conf']['sql'];
+			else
+				// query without excluding own record
+				$queries[] = $sql;
+		}
+		$sql = implode(' UNION ', $queries);
+		$sql = sprintf($sql, $idf, $idf);
+		$table_key = $field['idf_conf']['sql_source_table'];
+	} else {
+		$sql = sprintf($field['idf_conf']['sql'], $idf);
+		$table_key = $field['idf_db_table'];
+	}
 	$records = zz_db_fetch($sql, $field['field_name'], 'single value');
-	if ($records OR in_array($idf, $existing[$zz_conf['id']][$field['idf_db_table']])) {
+	if ($records OR in_array($idf, $existing[$zz_conf['id']][$table_key])) {
 		$start = false;
 		if (is_numeric($field['idf_conf']['start']) AND $field['idf_conf']['start'] > 2) $start = true;
 		elseif (!is_numeric($field['idf_conf']['start']) AND $field['idf_conf']['start'] > 'b') $start = true;
@@ -383,7 +441,7 @@ function zz_identifier_exists($idf, $field) {
 		$field['idf_conf']['start']++;
 		$idf = zz_identifier_exists($idf, $field);
 	}
-	$existing[$zz_conf['id']][$field['idf_db_table']][] = $idf;
+	$existing[$zz_conf['id']][$table_key][] = $idf;
 	return zz_return($idf);
 }
 
