@@ -536,6 +536,12 @@ function zzform_exit($ops) {
 		}
 	}
 
+	// for use in a template, %%% if form insert %%% etc.
+	wrap_static('zzform', 'insert', zz_valid_request('insert'));
+	wrap_static('zzform', 'delete', zz_valid_request('delete'));
+	wrap_static('zzform', 'update', zz_valid_request('update'));
+	wrap_static('zzform', 'noupdate', zz_valid_request('noupdate'));
+
 	// get rid of internal variables
 	unset($zz_conf['int']);
 
