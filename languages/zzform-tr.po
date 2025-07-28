@@ -1,0 +1,2476 @@
+# zzform
+# Translations, template
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzform
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2005-2025 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Zugzwang Project -- zzform\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
+"Language-Team: \n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.6\n"
+
+#: configuration/settings.cfg
+msgid "folder for fonts used by captchas"
+msgstr "captcha'lar tarafından kullanılan yazı tipleri için klasör"
+
+#: configuration/settings.cfg
+msgid "custom settings for Content-Security-Policy header"
+msgstr "content-Security-Policy başlığı için özel ayarlar"
+
+#: configuration/settings.cfg
+msgid "default graphic for KML styles"
+msgstr "kML stilleri için varsayılan grafik"
+
+#: configuration/settings.cfg
+msgid "list of styles, each with 'id' and 'href', for KML export"
+msgstr ""
+"kML dışa aktarımı için her biri 'id' ve 'href' içeren stillerin listesi"
+
+#: configuration/settings.cfg
+msgid "initial installation date of zzform module (for updates)"
+msgstr "zzform modülünün ilk kurulum tarihi (güncellemeler için)"
+
+#: configuration/settings.cfg
+msgid "page refresh in seconds at the end of sync"
+msgstr "senkronizasyon sonunda saniye cinsinden sayfa yenileme"
+
+#: configuration/settings.cfg
+msgid ""
+"no. of records shown per run; if testing=1, no. will be multiplied by 10"
+msgstr ""
+"çalışma başına gösterilen kayıt sayısı; test=1 ise, kayıt sayısı 10 ile "
+"çarpılacaktır"
+
+#: configuration/settings.cfg
+msgid "action parameters in zzform, 'review' is for internal use only"
+msgstr ""
+"zzform'daki eylem parametreleri, 'inceleme' yalnızca dahili kullanım içindir"
+
+#: configuration/settings.cfg
+msgid "mode parameters in zzform"
+msgstr "zzform'da mod parametreleri"
+
+#: configuration/settings.cfg
+msgid ""
+"set HTML attribute `autofocus` to first input field/first input field of "
+"this type"
+msgstr ""
+"hTML özniteliği `autofocus`u bu türdeki ilk giriş alanına/ilk giriş alanına "
+"ayarlayın"
+
+#: configuration/settings.cfg
+msgid "backup uploaded files that were updated, deleted, etc."
+msgstr "güncellenen, silinen vb. yüklenen dosyaları yedekleyin."
+
+#: configuration/settings.cfg
+msgid "directory where zzform can put files for backup"
+msgstr "zzform'un yedekleme için dosyaları koyabileceği dizin"
+
+#: configuration/settings.cfg
+msgid ""
+"secret key which forms a hash that allows to continue without solving "
+"captcha again"
+msgstr ""
+"captcha'yı tekrar çözmeden devam etmeyi sağlayan bir hash oluşturan gizli "
+"anahtar"
+
+#: configuration/settings.cfg
+msgid "timeframe in minutes during which the zzform_captcha_key is valid"
+msgstr "zzform_captcha_key'in geçerli olduğu dakika cinsinden zaman dilimi"
+
+#: configuration/settings.cfg
+msgid "check referential integrity while performing database operations"
+msgstr ""
+"veritabanı işlemleri gerçekleştirirken referans bütünlüğünü kontrol etme"
+
+#: configuration/settings.cfg
+msgid "include CSS file with colours for zzform forms and tables"
+msgstr "zzform formları ve tabloları için renkleri içeren CSS dosyası ekleyin"
+
+#: configuration/settings.cfg
+msgid "list of field names that are not copied with copy function"
+msgstr "kopyalama işlevi ile kopyalanmayan alan adlarının listesi"
+
+#: configuration/settings.cfg
+msgid "CSS background-color for list view, should be equal to body"
+msgstr "Liste görünümü için CSS arka plan rengi, body'ye eşit olmalıdır"
+
+#: configuration/settings.cfg
+msgid "CSS background-color for record view"
+msgstr "Kayıt görünümü için CSS arka plan rengi"
+
+#: configuration/settings.cfg
+msgid "CSS background-color for record view, footer"
+msgstr "Kayıt görünümü, altbilgi için CSS arka plan rengi"
+
+#: configuration/settings.cfg
+msgid "CSS background-color for record view, subtable"
+msgstr "Kayıt görünümü, alt tablo için CSS arka plan rengi"
+
+#: configuration/settings.cfg
+msgid "CSS background-color for list view, even rows"
+msgstr "Liste görünümü için CSS arka plan rengi, hatta satırlar"
+
+#: configuration/settings.cfg
+msgid "CSS background-color for list view, uneven rows"
+msgstr "Liste görünümü için CSS arka plan rengi, eşit olmayan satırlar"
+
+#: configuration/settings.cfg
+msgid "CSS background-color for list view, order by column header"
+msgstr "Liste görünümü için CSS arka plan rengi, sütun başlığına göre sıralama"
+
+#: configuration/settings.cfg
+msgid "CSS text color in page navigation below list view"
+msgstr "Liste görünümünün altındaki sayfa gezintisinde CSS metin rengi"
+
+#: configuration/settings.cfg
+msgid "add elapsed time per function call to debug log"
+msgstr "hata ayıklama günlüğüne işlev çağrısı başına geçen süreyi ekleyin"
+
+#: configuration/settings.cfg
+msgid "activate debugging for uploads"
+msgstr "yüklemeler için hata ayıklamayı etkinleştirme"
+
+#: configuration/settings.cfg
+msgid "supported formats for exporting data"
+msgstr "verileri dışa aktarmak için desteklenen formatlar"
+
+#: configuration/settings.cfg
+msgid "position of filters related to list data"
+msgstr "liste verileriyle ilgili filtrelerin konumu"
+
+#: configuration/settings.cfg
+msgid "link to the markdown manual"
+msgstr "markdown kılavuzuna bağlantı"
+
+#: configuration/settings.cfg
+msgid "HTML code for headings of groups in tables"
+msgstr "Tablolardaki grup başlıkları için HTML kodu"
+
+#: configuration/settings.cfg
+msgid "graphics library to use with zzform (imagemagick or gd)"
+msgstr "zzform ile kullanılacak grafik kütüphanesi (imagemagick veya gd)"
+
+#: configuration/settings.cfg
+msgid "HTML prefix for all tables before h1 heading"
+msgstr "H1 başlığından önceki tüm tablolar için HTML öneki"
+
+#: configuration/settings.cfg
+msgid "do not show line with no. of total records below list"
+msgstr "toplam kayit sayisi li̇steni̇n altinda olan satiri göstermeyi̇n"
+
+#: configuration/settings.cfg
+msgid ""
+"add host base to action URLs, only needed if HTML base element points to a "
+"different server"
+msgstr ""
+"eylem URL'lerine ana bilgisayar tabanı ekleyin, yalnızca HTML taban öğesi "
+"farklı bir sunucuya işaret ediyorsa gereklidir"
+
+#: configuration/settings.cfg
+msgid "list of ICC profiles in the form of name of profile => path to profile"
+msgstr "profilin adı => profile giden yol şeklinde ICC profillerinin listesi"
+
+#: configuration/settings.cfg
+msgid "marker to read ID for zzform from SESSION"
+msgstr "sESSION'dan zzform için ID okumak için işaretleyici"
+
+#: configuration/settings.cfg
+msgid "fields in POST data that are used by zzform internally"
+msgstr "pOST verilerinde zzform tarafından dahili olarak kullanılan alanlar"
+
+#: configuration/settings.cfg
+msgid "limit of records shown in zzform’s lists"
+msgstr "zzform'un listelerinde gösterilen kayıtların sınırı"
+
+#: configuration/settings.cfg
+msgid "maximum records in list shown on one page (for performance reasons)"
+msgstr "bir sayfada gösterilen listedeki maksimum kayıt (performans nedeniyle)"
+
+#: configuration/settings.cfg
+msgid "display links to limits as page no. or as no. of entries"
+msgstr ""
+"limitlere bağlantıları sayfa numarası veya giriş sayısı olarak görüntüleme"
+
+#: configuration/settings.cfg
+msgid ""
+"range in which links to records in list around current selection will be "
+"shown"
+msgstr ""
+"geçerli seçimin etrafındaki listedeki kayıtlara bağlantıların gösterileceği "
+"aralık"
+
+#: configuration/settings.cfg
+msgid "log database changes?"
+msgstr "günlük veritabanı değişiklikleri?"
+
+#: configuration/settings.cfg
+msgid "use field _logging.record_id (turning off is @deprecated)"
+msgstr "_logging.record_id alanını kullanın (kapatılması @deprecated)"
+
+#: configuration/settings.cfg
+msgid "maximum entries in select/option, if bigger than sub-select"
+msgstr "alt seçimden daha büyükse, seçim/seçenekte maksimum girişler"
+
+#: configuration/settings.cfg
+msgid "maximum length of values in select"
+msgstr "seçimdeki değerlerin maksimum uzunluğu"
+
+#: configuration/settings.cfg
+msgid ""
+"list of fields to ignore when comparing two records while merging "
+"(last_update = for all tables, addresses.last_update = just for table "
+"addresses)"
+msgstr ""
+"birleştirme sırasında iki kaydı karşılaştırırken göz ardı edilecek alanların "
+"listesi (last_update = tüm tablolar için, addresses.last_update = sadece "
+"tablo adresleri için)"
+
+#: configuration/settings.cfg
+msgid "max no. of detail records to add in a record form"
+msgstr "bir kayıt formuna eklenecek maksimum detay kayıt sayısı"
+
+#: configuration/settings.cfg
+msgid "min no. of detail records to add in a record form"
+msgstr "bir kayıt formuna eklenecek en az detay kayıt sayısı"
+
+#: configuration/settings.cfg
+msgid ""
+"list of table name aliases used for better readability if a table name is "
+"displayed, e. g. if a record cannot be deleted because of database "
+"constraints"
+msgstr ""
+"bir tablo adı görüntülendiğinde daha iyi okunabilirlik için kullanılan tablo "
+"adı takma adlarının listesi, örn. bir kayıt veritabanı kısıtlamaları "
+"nedeniyle silinemiyorsa"
+
+#: configuration/settings.cfg
+msgid "packagecss is not used, therefore include zzform.css via zzform"
+msgstr ""
+"packagecss kullanılmaz, bu nedenle zzform.css'yi zzform aracılığıyla ekleyin"
+
+#: configuration/settings.cfg
+msgid "default value for rating fields, if `max` is not set"
+msgstr "max` ayarlanmamışsa, derecelendirme alanları için varsayılan değer"
+
+#: configuration/settings.cfg
+msgid "symbol used for rating fields"
+msgstr "derecelendirme alanları için kullanılan sembol"
+
+#: configuration/settings.cfg
+msgid "text that is displayed on link back to referring page"
+msgstr "yönlendiren sayfaya geri bağlantıda görüntülenen metin"
+
+#: configuration/settings.cfg
+msgid ""
+"if more content than that inside #zzform should be replaced, use this DIV "
+"element with this ID instead."
+msgstr ""
+"zzform içindeki içerikten daha fazlasının değiştirilmesi gerekiyorsa, bunun "
+"yerine bu ID'ye sahip bu DIV öğesini kullanın."
+
+#: configuration/settings.cfg
+msgid ""
+"list with mappings of table to query strings with placeholder for results of "
+"query for editing revisions"
+msgstr ""
+"revizyonları düzenlemek için sorgu sonuçları için yer tutucu ile tabloların "
+"sorgu dizelerine eşlemelerini içeren liste"
+
+#: configuration/settings.cfg
+msgid "list with mappings of table to query for editing revisions"
+msgstr "revizyonları düzenlemek için sorguya tablo eşlemelerini içeren liste"
+
+#: configuration/settings.cfg
+msgid "list with mappings of table to URL for editing revisions"
+msgstr "revizyonları düzenlemek için tablonun URL'ye eşlemelerini içeren liste"
+
+#: configuration/settings.cfg
+msgid "file path to main zzform script that is used"
+msgstr "kullanılan ana zzform betiğinin dosya yolu"
+
+#: configuration/settings.cfg
+msgid "allow to search, where to show search form"
+msgstr "aramaya izin vermek, arama formunun nerede gösterileceği"
+
+#: configuration/settings.cfg
+msgid "always show a search form, even if there are no records"
+msgstr "hiç kayıt olmasa bile her zaman bir arama formu gösterir"
+
+#: configuration/settings.cfg
+msgid "show list of records below record that is edited/deleted/added"
+msgstr ""
+"düzenlenen/silinen/eklenen kaydın altındaki kayıtların listesini göster"
+
+#: configuration/settings.cfg
+msgid "separator between parts of page title"
+msgstr "sayfa başlığının bölümleri arasında ayırıcı"
+
+#: configuration/settings.cfg
+msgid "create thumbnails in zzform as background process?"
+msgstr "zzform'da arka plan işlemi olarak küçük resimler oluşturabilir miyim?"
+
+#: configuration/settings.cfg
+msgid ""
+"if it is not allowed to check the standard directories for binary "
+"executables, enter the path to the directory"
+msgstr ""
+"i̇kili yürütülebilir dosyalar için standart dizinlerin kontrol edilmesine "
+"izin verilmiyorsa, dizinin yolunu girin"
+
+#: configuration/settings.cfg
+msgid ""
+"if it is not allowed to check the standard directories for binary "
+"executables, enter the path to the directory (development server only)"
+msgstr ""
+"ikili yürütülebilir dosyalar için standart dizinlerin kontrol edilmesine "
+"izin verilmiyorsa, dizinin yolunu girin (yalnızca geliştirme sunucusu)"
+
+#: configuration/settings.cfg
+msgid "paths on server to upload binaries (e. g. imagemagick)"
+msgstr "ikili dosyaların yükleneceği sunucudaki yollar (örn. imagemagick)"
+
+#: configuration/settings.cfg
+msgid "paths for each individual binary used in upload"
+msgstr "yüklemede kullanılan her bir ikili için yollar"
+
+#: configuration/settings.cfg
+msgid ""
+"paths for each individual binary used in upload on the development server"
+msgstr "geliştirme sunucusuna yüklemede kullanılan her bir ikili için yollar"
+
+#: configuration/settings.cfg
+msgid "option per binary to get verbose version information"
+msgstr "ayrıntılı sürüm bilgisi almak için ikili başına seçenek"
+
+#: configuration/settings.cfg
+msgid ""
+"in case there are problems renaming files from one mount to another, "
+"activate to copy file and then delete old file"
+msgstr ""
+"dosyaların bir bağdan diğerine yeniden adlandırılmasında sorun olması "
+"durumunda, dosyayı kopyalamak ve ardından eski dosyayı silmek için "
+"etkinleştirin"
+
+#: configuration/settings.cfg
+msgid ""
+"options to use always with all ImageMagick’s convert calls, e. g. for using "
+"a different temporary folder"
+msgstr ""
+"imageMagick'in tüm dönüştürme çağrılarında her zaman kullanılacak "
+"seçenekler, örn. farklı bir geçici klasör kullanmak için"
+
+#: configuration/settings.cfg
+msgid ""
+"options to use with all ImageMagick’s convert calls, only if no custom "
+"options per filetype are defined"
+msgstr ""
+"imageMagick'in tüm dönüştürme çağrılarında kullanılacak seçenekler, yalnızca "
+"dosya türü başına özel seçenekler tanımlanmamışsa"
+
+#: configuration/settings.cfg
+msgid "log system() upload commands for debugging"
+msgstr "hata ayıklama için system() yükleme komutlarını günlüğe kaydetme"
+
+#: configuration/settings.cfg
+msgid "maximum file size in bytes that can be uploaded"
+msgstr "yüklenebilecek bayt cinsinden maksimum dosya boyutu"
+
+#: configuration/settings.cfg
+msgid "unwanted mimetypes and their replacements"
+msgstr "istenmeyen mimetipler ve bunların değiştirilmesi"
+
+#: configuration/settings.cfg
+msgid ""
+"Paths which indicate that a file is on a mounted file system; instead of "
+"rename, copy/unlink is used"
+msgstr ""
+"Bir dosyanın bağlı bir dosya sisteminde olduğunu gösteren yollar; yeniden "
+"adlandırma yerine kopyala/bağlantıyı kaldır kullanılır"
+
+#: configuration/settings.cfg
+msgid "use `exiftool` to get information about file"
+msgstr "dosya hakkında bilgi almak için `exiftool` kullanın"
+
+#: configuration/settings.cfg
+msgid "use `file` to get information about file"
+msgstr "dosya hakkında bilgi almak için `file` kullanın"
+
+#: configuration/settings.cfg
+msgid "use `ghostscript` to get information about file"
+msgstr "dosya hakkında bilgi almak için `ghostscript` kullanın"
+
+#: configuration/settings.cfg
+msgid "use `identify` to get information about file"
+msgstr "dosya hakkında bilgi almak için `identify` kullanın"
+
+#: configuration/settings.cfg
+msgid "use `pdfinfo` to get information about file"
+msgstr "dosya hakkında bilgi almak için `pdfinfo` kullanın"
+
+#: configuration/settings.cfg
+msgid "extensions for images that the browser can display natively"
+msgstr "tarayıcının yerel olarak görüntüleyebileceği görüntüler için uzantılar"
+
+#: configuration/settings.cfg
+msgid "use Pagedown Editor (old: WMD) for Markdown"
+msgstr "markdown için Pagedown Editor (eski: WMD) kullanın"
+
+#: configuration/settings.cfg
+msgid "no. of instances of the Pagedown editor on a webpage"
+msgstr "bir web sayfasındaki Pagedown düzenleyicisinin örnek sayısı"
+
+#: configuration/settings.cfg
+msgid "language used for Pagedown Editor for Markdown"
+msgstr "markdown için Sayfalandırma Düzenleyicisi için kullanılan dil"
+
+#: configuration/settings.cfg
+msgid "possible language(s) for Pagedown Editor for Markdown"
+msgstr "markdown için Sayfalandırma Düzenleyicisi için olası dil(ler)"
+
+#: configuration/settings.cfg
+msgid "maximum characters, longer words are split with zero width in list view"
+msgstr ""
+"maksimum karakter, daha uzun kelimeler liste görünümünde sıfır genişlikle "
+"bölünür"
+
+#: configuration/settings.cfg
+msgid "use XHR for select fields; needs vxJS library"
+msgstr "seçme alanları için XHR kullanın; vxJS kütüphanesine ihtiyaç duyar"
+
+#: configuration/zz.cfg
+msgid ""
+"allows to restrict access to main record, like $zz['fields'][n]['access'] to "
+"subtables"
+msgstr ""
+"alt tablolara $zz['fields'][n]['access'] gibi ana kayda erişimi kısıtlamaya "
+"izin verir"
+
+#: configuration/zz.cfg
+msgid ""
+"Allows to add from source_id even if the access to that ID is restricted by "
+"a $zz['where'] or $_GET['where']"
+msgstr ""
+"Bu kimliğe erişim bir $zz['where'] veya $_GET['where'] ile kısıtlanmış olsa "
+"bile source_id'den eklemeye izin verir"
+
+#: configuration/zz.cfg
+msgid "if set to true, h1 will not be shown"
+msgstr "true olarak ayarlanırsa, h1 gösterilmez"
+
+#: configuration/zz.cfg
+msgid "Textblock after heading"
+msgstr "Başlıktan sonra metin bloğu"
+
+#: configuration/zz.cfg
+msgid "Textblock after heading, only in insert mode"
+msgstr "Başlıktan sonra metin bloğu, yalnızca ekleme modunda"
+
+#: configuration/zz.cfg
+msgid "list of possible export modes"
+msgstr "olası dışa aktarma modlarının listesi"
+
+#: configuration/zz.cfg
+msgid "list of fields per record"
+msgstr "kayıt başına alan listesi"
+
+#: configuration/zz.cfg
+msgid "Filter for records to be shown"
+msgstr "Gösterilecek kayıtlar için filtre"
+
+#: configuration/zz.cfg
+msgid ""
+"list with root, string, field, mode for a folder that must be renamed/"
+"deleted after changing the record"
+msgstr ""
+"kayıt değiştirildikten sonra yeniden adlandırılması/silinmesi gereken bir "
+"klasör için kök, dize, alan, mod içeren liste"
+
+#: configuration/zz.cfg
+msgid ""
+" if set, zzbrick/forms module will include a javascript map (e. g. "
+"OpenLayers) to display the records via a KML export on this map; a map "
+"template and a JavaScript-library is required"
+msgstr ""
+" ayarlanırsa, zzbrick/forms modülü, kayıtları bu harita üzerinde bir KML "
+"dışa aktarımı yoluyla görüntülemek için bir javascript haritası (örn. "
+"OpenLayers) içerecektir; bir harita şablonu ve bir JavaScript kütüphanesi "
+"gereklidir"
+
+#: configuration/zz.cfg
+msgid "hook functions"
+msgstr "kanca işlevleri"
+
+#: configuration/zz.cfg
+msgid ""
+"hook function called after a successful delete, but before files are moved"
+msgstr ""
+"başarılı bir silme işleminden sonra, ancak dosyalar taşınmadan önce çağrılan "
+"kanca işlevi"
+
+#: configuration/zz.cfg
+msgid ""
+"hook function called after a successful insert, but before files are moved"
+msgstr ""
+"kanca işlevi başarılı bir eklemeden sonra, ancak dosyalar taşınmadan önce "
+"çağrılır"
+
+#: configuration/zz.cfg
+msgid ""
+"hook function called after a successful update, but before files are moved"
+msgstr ""
+"başarılı bir güncellemeden sonra, ancak dosyalar taşınmadan önce çağrılan "
+"kanca işlevi"
+
+#: configuration/zz.cfg
+msgid "hook function called after upload is checked, before validation"
+msgstr ""
+"yükleme kontrol edildikten sonra, doğrulamadan önce çağrılan kanca işlevi"
+
+#: configuration/zz.cfg
+msgid "hook function called after record was validated"
+msgstr "kayıt doğrulandıktan sonra çağrılan kanca işlevi"
+
+#: configuration/zz.cfg
+msgid "hook function called before a delete attempt"
+msgstr "silme girişiminden önce çağrılan kanca işlevi"
+
+#: configuration/zz.cfg
+msgid "hook function called before an insert attempt"
+msgstr "bir ekleme girişiminden önce çağrılan kanca işlevi"
+
+#: configuration/zz.cfg
+msgid "hook function called before an update attempt"
+msgstr "güncelleme girişiminden önce çağrılan kanca işlevi"
+
+#: configuration/zz.cfg
+msgid "hook function called before upload is checked"
+msgstr "yükleme kontrol edilmeden önce çağrılan kanca işlevi"
+
+#: configuration/zz.cfg
+msgid "hook function called after a successful delete"
+msgstr "başarılı bir silme işleminden sonra çağrılan kanca işlevi"
+
+#: configuration/zz.cfg
+msgid "hook function called after a successful insert"
+msgstr "başarılı bir eklemeden sonra çağrılan kanca işlevi"
+
+#: configuration/zz.cfg
+msgid "hook function called after a successful update"
+msgstr "başarılı bir güncellemeden sonra çağrılan kanca işlevi"
+
+#: configuration/zz.cfg
+msgid ""
+"keys to ignore for log of unused defintion keys if definition is initalised"
+msgstr ""
+"tanım canlandırılmamışsa kullanılmayan tanımlama anahtarlarının günlüğü için "
+"göz ardı edilecek anahtarlar"
+
+#: configuration/zz.cfg
+msgid "list view definitions"
+msgstr "liste görünümü tanımları"
+
+#: configuration/zz.cfg
+msgid "allows to add a new record"
+msgstr "yeni bir kayıt eklemeye izin verir"
+
+#: configuration/zz.cfg
+msgid "HTML code for submit buttons for several actions below list"
+msgstr ""
+"Listenin altındaki çeşitli eylemler için gönderme düğmeleri için HTML kodu"
+
+#: configuration/zz.cfg
+msgid "definition of all table columns"
+msgstr "tüm tablo sütunlarının tanımı"
+
+#: configuration/zz.cfg
+msgid "ID of currently shown record"
+msgstr "Şu anda gösterilen kaydın kimliği"
+
+#: configuration/zz.cfg
+msgid "IDs of activated records"
+msgstr "Etkinleştirilmiş kayıtların kimlikleri"
+
+#: configuration/zz.cfg
+msgid "don't show a table head for link to details until necessary"
+msgstr "gerekmedikçe ayrıntılara bağlantı için bir tablo başlığı göstermeyin"
+
+#: configuration/zz.cfg
+msgid "how the tabular data is displayed"
+msgstr "tablo verilerinin nasıl görüntülendiği"
+
+#: configuration/zz.cfg
+msgid "use drag and drop in list view to change sort order of records"
+msgstr ""
+"kayıtların sıralama düzenini değiştirmek için liste görünümünde sürükle ve "
+"bırak özelliğini kullanma"
+
+#: configuration/zz.cfg
+msgid "ID field name in table that saves the sort order"
+msgstr "Sıralama düzenini kaydeden tablodaki ID alan adı"
+
+#: configuration/zz.cfg
+msgid "field name in table where the new sort order is saved"
+msgstr "yeni sıralama düzeninin kaydedildiği tablodaki alan adı"
+
+#: configuration/zz.cfg
+msgid "starting value, if records spawn over several pages"
+msgstr "kayıtlar birkaç sayfaya yayılmışsa başlangıç değeri"
+
+#: configuration/zz.cfg
+msgid "URL that is called via XHR to change order of records"
+msgstr "Kayıtların sırasını değiştirmek için XHR aracılığıyla çağrılan URL"
+
+#: configuration/zz.cfg
+msgid ""
+"marker that records should not be marked as checked anymore after e. g. a "
+"merge operation"
+msgstr ""
+"örneğin bir birleştirme işleminden sonra kayıtların artık kontrol edildi "
+"olarak işaretlenmemesi gerektiğini belirten işaretleyici"
+
+#: configuration/zz.cfg
+msgid "definition of additional table columns"
+msgstr "ek tablo sütunlarının tanımı"
+
+#: configuration/zz.cfg
+msgid "list of field names that records in list view use for grouping"
+msgstr ""
+"liste görünümündeki kayıtların gruplama için kullandığı alan adlarının "
+"listesi"
+
+#: configuration/zz.cfg
+msgid "HTML code for group titles"
+msgstr "Grup başlıkları için HTML kodu"
+
+#: configuration/zz.cfg
+msgid ""
+"check all columns in list and hide columns if they are empty, behaviour is "
+"equivalent to 'hide_in_list_if_empty' on a per field basis"
+msgstr ""
+"listedeki tüm sütunları kontrol edin ve boşlarsa sütunları gizleyin, "
+"davranış alan bazında 'hide_in_list_if_empty' ile eşdeğerdir"
+
+#: configuration/zz.cfg
+msgid "do not show message that there are no records if there are none"
+msgstr "kayıt yoksa kayıt olmadığına dair mesaj göstermeyin"
+
+#: configuration/zz.cfg
+msgid "show list with hierarchy"
+msgstr "listeyi hiyerarşi ile göster"
+
+#: configuration/zz.cfg
+msgid "display hierarchy in this field, i. e. this field gets indented"
+msgstr "bu alandaki hiyerarşiyi görüntüler, yani bu alan girintili olur"
+
+#: configuration/zz.cfg
+msgid "do not show uppermost value in list, just subtree"
+msgstr "listedeki en üst değeri göstermez, sadece alt ağacı gösterir"
+
+#: configuration/zz.cfg
+msgid "top ID value if just a subset of the records are shown"
+msgstr "kayıtların sadece bir alt kümesi gösteriliyorsa üst kimlik değeri"
+
+#: configuration/zz.cfg
+msgid "ID field name "
+msgstr "Kimlik alanı adı"
+
+#: configuration/zz.cfg
+msgid "main ID field name"
+msgstr "ana kimlik alan adı"
+
+#: configuration/zz.cfg
+msgid "allow to merge records"
+msgstr "kayıtları birleştirmeye izin ver"
+
+#: configuration/zz.cfg
+msgid "don’t show a table head for link to modes until necessary"
+msgstr "gerekmedikçe modlara bağlantı için bir tablo başlığı göstermeyin"
+
+#: configuration/zz.cfg
+msgid "allow to delete multiple records"
+msgstr "birden fazla kaydın silinmesine izin ver"
+
+#: configuration/zz.cfg
+msgid "allow to edit multiple records"
+msgstr "birden fazla kaydı düzenlemeye izin verir"
+
+#: configuration/zz.cfg
+msgid "allow to call a function on several records at one"
+msgstr "bir fonksiyonu aynı anda birkaç kayıt üzerinde çağırmaya izin verir"
+
+#: configuration/zz.cfg
+msgid "function name"
+msgstr "fonksiyon adı"
+
+#: configuration/zz.cfg
+msgid "HTML: title of button"
+msgstr "HTML: düğmenin başlığı"
+
+#: configuration/zz.cfg
+msgid "never show link above list to add a new record"
+msgstr ""
+"yeni bir kayıt eklemek için listenin üzerindeki bağlantıyı asla gösterme"
+
+#: configuration/zz.cfg
+msgid ""
+"internal marker that multiple records can be selected, e. g. for "
+"batch_function or merge"
+msgstr ""
+"batch_function veya merge gibi birden fazla kaydın seçilebileceği dahili "
+"işaretleyici"
+
+#: configuration/zz.cfg
+msgid "sums per column"
+msgstr "sütun başına toplamlar"
+
+#: configuration/zz.cfg
+msgid "sums per group per column"
+msgstr "sütun başına grup başına toplamlar"
+
+#: configuration/zz.cfg
+msgid "shows table foot, e. g. for sums of individual values"
+msgstr "tablo ayağını gösterir, örneğin tek tek değerlerin toplamları için"
+
+#: configuration/zz.cfg
+msgid ""
+"referer which links back to previous page, overwrites $zz['page']['referer'] "
+"and must be array with field1, string1 etc."
+msgstr ""
+"önceki sayfaya geri bağlantı veren referer, $zz['page']['referer'] üzerine "
+"yazar ve field1, string1 vb. ile dizi olmalıdır."
+
+#: configuration/zz.cfg
+msgid "list of variables that can be used in page template via extra_{key}"
+msgstr ""
+"extra_{key} aracılığıyla sayfa şablonunda kullanılabilecek değişkenlerin "
+"listesi"
+
+#: configuration/zz.cfg
+msgid "set meta tags for webpage"
+msgstr "web sayfası için meta etiketleri ayarlama"
+
+#: configuration/zz.cfg
+msgid ""
+"list of request functions that are called after record form/list is created"
+msgstr ""
+"kayıt formu/listesi oluşturulduktan sonra çağrılan istek fonksiyonlarının "
+"listesi"
+
+#: configuration/zz.cfg
+msgid "page title, set inside zzform"
+msgstr "sayfa başlığı, zzform içinde ayarlanır"
+
+#: configuration/zz.cfg
+msgid "add or do not add data"
+msgstr "veri ekleme veya eklememe"
+
+#: configuration/zz.cfg
+msgid "show action: copy"
+msgstr "eylemi göster: kopyala"
+
+#: configuration/zz.cfg
+msgid "show action: delete"
+msgstr "eylemi göster: sil"
+
+#: configuration/zz.cfg
+msgid "show action: edit"
+msgstr "eylemi göster: düzenle"
+
+#: configuration/zz.cfg
+msgid "anchor (#id) for form, if needed"
+msgstr "gerekirse form için çapa (#id)"
+
+#: configuration/zz.cfg
+msgid "Markdown code for HTML block directly after form heading"
+msgstr "Form başlığından hemen sonra HTML bloğu için Markdown kodu"
+
+#: configuration/zz.cfg
+msgid "key: int, value: $no"
+msgstr "anahtar: int, değer: $no"
+
+#: configuration/zz.cfg
+msgid "save number of subtables, key: $tab, value: $no or $no-$subno"
+msgstr "alt tablo sayısını kaydet, anahtar: $tab, değer: $no veya $no-$subno"
+
+#: configuration/zz.cfg
+msgid "show action: view"
+msgstr "eylem göster: görüntüle"
+
+#: configuration/zz.cfg
+msgid "false: no upload, true: upload possible"
+msgstr "false: yükleme yok, true: yükleme mümkün"
+
+#: configuration/zz.cfg
+msgid ""
+"list of redirects that will be added to the database redirects table if an "
+"identifier is updated or a record with an identifier is deleted. Might be "
+"list of strings (old and new pattern is equal), list of arrays (old and new "
+"patterns differ); field_name may be set optionally if more than one "
+"identifier is in the field list."
+msgstr ""
+"bir tanımlayıcı güncellendiğinde veya bir tanımlayıcıya sahip bir kayıt "
+"silindiğinde veritabanı yönlendirmeleri tablosuna eklenecek yönlendirmelerin "
+"listesi. Dizelerin listesi (eski ve yeni kalıp eşit), dizilerin listesi "
+"(eski ve yeni kalıplar farklı) olabilir; alan listesinde birden fazla "
+"tanımlayıcı varsa isteğe bağlı olarak field_name ayarlanabilir."
+
+#: configuration/zz.cfg
+msgid ""
+"settings that you normally set via wrap_setting() but that won’t be set in "
+"multi()-calls (e. g. disallowing a child script to change zzform_limit for "
+"the main script)"
+msgstr ""
+"normalde wrap_setting() ile ayarladığınız ancak multi()-çağrılarında "
+"ayarlanmayacak ayarlar (örneğin, bir alt betiğin ana betik için "
+"zzform_limit'i değiştirmesine izin vermemek)"
+
+#: configuration/zz.cfg
+msgid "SQL statement for list display and to get field values for form display"
+msgstr ""
+"Liste görüntüleme ve form görüntüleme için alan değerlerini almaya yönelik "
+"SQL deyimi"
+
+#: configuration/zz.cfg
+msgid "separate SQL query for counting records if main query is too heavy"
+msgstr "ana sorgu çok ağırsa kayıtları saymak için ayrı SQL sorgusu"
+
+#: configuration/zz.cfg
+msgid ""
+"if SQL query is too complex, additional values can be read via 'sql_extra' "
+"queries"
+msgstr ""
+"sQL sorgusu çok karmaşıksa, 'sql_extra' sorguları aracılığıyla ek değerler "
+"okunabilir"
+
+#: configuration/zz.cfg
+msgid "SQL statement, part must begin with ' ORDER BY', to sort database table"
+msgstr ""
+"SQL deyimi, veritabanı tablosunu sıralamak için 'ORDER BY' ile başlamalıdır"
+
+#: configuration/zz.cfg
+msgid ""
+"SQL query which will be used only for record view, not for list view, use "
+"`sql` if not set"
+msgstr ""
+"Liste görünümü için değil, yalnızca kayıt görünümü için kullanılacak SQL "
+"sorgusu, ayarlanmamışsa `sql` kullanın"
+
+#: configuration/zz.cfg
+msgid ""
+"Allows translation for this table (or key => table or list of tables or keys "
+"and tables) with wrap_translate()"
+msgstr ""
+"Bu tablo (veya anahtar => tablo veya tablo listesi veya anahtarlar ve "
+"tablolar) için wrap_translate() ile çeviriye izin verir"
+
+#: configuration/zz.cfg
+msgid "do not mark search string in subselect text, e. g. if there’s HTML code"
+msgstr ""
+"alt seçim metninde arama dizesini işaretlemeyin, örneğin HTML kodu varsa"
+
+#: configuration/zz.cfg
+msgid "link just around one of the field values, set by index"
+msgstr ""
+"indeks tarafından ayarlanan alan değerlerinden birinin etrafındaki bağlantı"
+
+#: configuration/zz.cfg
+msgid "HTML code or text which will be shown before the field value"
+msgstr "Alan değerinden önce gösterilecek HTML kodu veya metin"
+
+#: configuration/zz.cfg
+msgid "HTML code or text which will be shown after the field value"
+msgstr "Alan değerinden sonra gösterilecek HTML kodu veya metin"
+
+#: configuration/zz.cfg
+msgid "path for image, created created with makelink() from subselect data"
+msgstr "subselect verilerinden makelink() ile oluşturulan görüntü için yol"
+
+#: configuration/zz.cfg
+msgid "path for link, created with makelink() from subselect data"
+msgstr "subselect verilerinden makelink() ile oluşturulan bağlantı için yol"
+
+#: configuration/zz.cfg
+msgid ""
+"Name of database table (might include database name as well, e. g. "
+"Database.Table)"
+msgstr ""
+"Veritabanı tablosunun adı (veritabanı adını da içerebilir, örn. "
+"Database.Table)"
+
+#: configuration/zz.cfg
+msgid "optional: h1-heading to be used for form instead of $zz['table']"
+msgstr "isteğe bağlı: $zz['table'] yerine form için kullanılacak h1-başlığı"
+
+#: configuration/zz.cfg
+msgid ""
+"describes UNIQUE key for detail tables. For updates via zzform_multi() which "
+"do not know the record ID of the detail table this can be used to avoid "
+"getting this ID first."
+msgstr ""
+"detay tabloları için UNIQUE anahtarını tanımlar. Detay tablosunun kayıt "
+"kimliğini bilmeyen zzform_multi() aracılığıyla yapılan güncellemeler için "
+"bu, önce bu kimliği almaktan kaçınmak için kullanılabilir."
+
+#: configuration/zz.cfg
+msgid ""
+"variables for internal use inside zzform, later available via "
+"wrap_static('zzform')"
+msgstr ""
+"zzform içinde dahili kullanım için değişkenler, daha sonra "
+"wrap_static('zzform') aracılığıyla kullanılabilir"
+
+#: configuration/zz.cfg
+msgid "WHERE condition for record, like via URL where[some_id]=10"
+msgstr "Kayıt için WHERE koşulu, URL aracılığıyla where[some_id]=10 gibi"
+
+#: configuration/zz-fields.cfg
+msgid "requirements for creating identifiers"
+msgstr "tanımlayıcıların oluşturulması için gereklilikler"
+
+#: configuration/zz-fields.cfg
+msgid ""
+"string or array of strings used for concatenation of variables. if array, "
+"values are used in the same order they appear in the array"
+msgstr ""
+"değişkenlerin birleştirilmesi için kullanılan dize veya dizeler dizisi. dizi "
+"ise, değerler dizide göründükleri sırada kullanılır"
+
+#: configuration/zz-fields.cfg
+msgid ""
+"list of values (field_name => value) that are used as a default if there is "
+"no value"
+msgstr ""
+"değer yoksa varsayılan olarak kullanılan değerlerin listesi (field_name => "
+"value)"
+
+#: configuration/zz-fields.cfg
+msgid "string used for concatenation if identifier exists"
+msgstr "tanımlayıcı mevcutsa birleştirme için kullanılan dize"
+
+#: configuration/zz-fields.cfg
+msgid ""
+"sprintf() format for numerical value that is appended if identifier already "
+"exists"
+msgstr "tanımlayıcı zaten mevcutsa eklenen sayısal değer için sprintf() biçimi"
+
+#: configuration/zz-fields.cfg
+msgid ""
+"function to determine whether existing identifiers should change or not (e. "
+"g. for events moved to a different year, change, otherwise not)"
+msgstr ""
+"mevcut tanımlayıcıların değişip değişmeyeceğini belirleyen fonksiyon (örn. "
+"farklı bir yıla taşınan etkinlikler için değişsin, aksi takdirde değişmesin)"
+
+#: configuration/zz-fields.cfg
+msgid ""
+"list of fields used to create the identifier, notation like "
+"category_id[parameters] possible"
+msgstr ""
+"tanımlayıcıyı oluşturmak için kullanılan alanların listesi, "
+"category_id[parameters] gibi gösterim mümkün"
+
+#: configuration/zz-fields.cfg
+msgid "string that will be used for replacing spaces and unknown letters"
+msgstr "boşlukları ve bilinmeyen harfleri değiştirmek için kullanılacak dize"
+
+#: configuration/zz-fields.cfg
+msgid "name of function that identifier will go through finally"
+msgstr "tanımlayıcının son olarak geçeceği fonksiyonun adı"
+
+#: configuration/zz-fields.cfg
+msgid ""
+"up to 4 function parameters to pass to function, if none is set, use "
+"identifier as parameter"
+msgstr ""
+"fonksiyona aktarılacak en fazla 4 fonksiyon parametresi, hiçbiri "
+"ayarlanmamışsa, parametre olarak tanımlayıcıyı kullan"
+
+#: configuration/zz-fields.cfg
+msgid "create hash from identifier and current timestamp"
+msgstr "tanımlayıcıdan ve geçerli zaman damgasından hash oluşturur"
+
+#: configuration/zz-fields.cfg
+msgid ""
+"list of fields that are ignored for creation of identifier (fields were used "
+"before)"
+msgstr ""
+"tanımlayıcının oluşturulması için göz ardı edilen alanların listesi (alanlar "
+"daha önce kullanılıyordu)"
+
+#: configuration/zz-fields.cfg
+msgid ""
+"list of fields (field1 => field2) that are ignored, e. g. field1 is ignored "
+"if field2 has a value"
+msgstr ""
+"göz ardı edilen alanların listesi (alan1 => alan2), örn. alan2 bir değere "
+"sahipse alan1 göz ardı edilir"
+
+#: configuration/zz-fields.cfg
+msgid ""
+"list of fields (field1 => field2) that are ignored, e. g. field1 is ignored "
+"if field2 has an identical value"
+msgstr ""
+"göz ardı edilen alanların listesi (alan1 => alan2), örn. alan2 aynı değere "
+"sahipse alan1 göz ardı edilir"
+
+#: configuration/zz-fields.cfg
+msgid "transform all letters to lowercase?"
+msgstr "tüm harfleri küçük harfe dönüştürmek?"
+
+#: configuration/zz-fields.cfg
+msgid "maximum length of identifier"
+msgstr "maksimum tanımlayıcı uzunluğu"
+
+#: configuration/zz-fields.cfg
+msgid ""
+"name of field in `fields` that contains parameters that are added to "
+"identifier configuration"
+msgstr ""
+"tanımlayıcı yapılandırmasına eklenen parametreleri içeren `fields` içindeki "
+"alanın adı"
+
+#: configuration/zz-fields.cfg
+msgid "prefix that will always be added before identifier"
+msgstr "her zaman tanımlayıcıdan önce eklenecek olan önek"
+
+#: configuration/zz-fields.cfg
+msgid ""
+"if there can be more than one sub record, find preferred sub record via "
+"values, e. g. IDs. example: $zz['fields'][2]['identifier']['preferred']"
+"['objects-Title'] = ['text_language_id' => [wrap_id('languages', '-id'), "
+"wrap_id('languages', '---'), wrap_id('languages', 'eng')]];"
+msgstr ""
+"birden fazla alt kayıt olabiliyorsa, tercih edilen alt kaydı değerler, "
+"örneğin ID'ler aracılığıyla bulun. örnek: $zz['fields'][2]['identifier']"
+"['preferred']['objects-Title'] = ['text_language_id' => "
+"[wrap_id('languages', '-id'), wrap_id('languages', '---'), "
+"wrap_id('languages', 'eng')];"
+
+#: configuration/zz-fields.cfg
+msgid "use a random hash as identifier, length of characters"
+msgstr "tanımlayıcı olarak rastgele bir karma kullanın, karakter uzunluğu"
+
+#: configuration/zz-fields.cfg
+msgid "string with characters used for random_hash"
+msgstr "random_hash için kullanılan karakterleri içeren dize"
+
+#: configuration/zz-fields.cfg
+msgid "list of strings that are removed from values for identifier"
+msgstr "tanımlayıcı için değerlerden kaldırılan dizelerin listesi"
+
+#: configuration/zz-fields.cfg
+msgid "key => value; characters in key will be replaced by value"
+msgstr "key => value; key içindeki karakterler value ile değiştirilecektir"
+
+#: configuration/zz-fields.cfg
+msgid "preserve slashes?"
+msgstr "eğik çizgileri korumak mı?"
+
+#: configuration/zz-fields.cfg
+msgid "SQL query to check if identifier already exists"
+msgstr ""
+"Tanımlayıcının zaten var olup olmadığını kontrol etmek için SQL sorgusu"
+
+#: configuration/zz-fields.cfg
+msgid "value from which the first identical identifier begins to count up"
+msgstr "ilk özdeş tanımlayıcının saymaya başladığı değer"
+
+#: configuration/zz-fields.cfg
+msgid "always append start value, even for first occurence of an identifier"
+msgstr ""
+"bir tanımlayıcının ilk ortaya çıkışı için bile her zaman başlangıç değerini "
+"ekler"
+
+#: configuration/zz-fields.cfg
+msgid "strip HTML tags with strip_tags()"
+msgstr "strip_tags() ile HTML etiketlerini soyun"
+
+#: configuration/zz-fields.cfg
+msgid ""
+"list of extra fields that are needed to create a query with a unique result"
+msgstr ""
+"benzersiz bir sonuca sahip bir sorgu oluşturmak için gereken ekstra "
+"alanların listesi"
+
+#: configuration/zz-fields.cfg
+msgid "transform all letters to uppercase?"
+msgstr "tüm harfleri büyük harfe dönüştürmek?"
+
+#: configuration/zz-fields.cfg
+msgid ""
+"pairs of field_name => value (optional if not called via zzform, normally "
+"via ['fields'])"
+msgstr ""
+"field_name => value çiftleri (zzform aracılığıyla çağrılmazsa isteğe "
+"bağlıdır, normalde ['fields'] aracılığıyla)"
+
+#: configuration/zz-fields.cfg
+msgid ""
+"WHERE-condition to be appended to query that checks existence of identifier "
+"in database"
+msgstr ""
+"Veritabanında tanımlayıcının varlığını kontrol eden sorguya eklenecek WHERE "
+"koşulu"
+
+#: templates/logging-add.template.txt
+msgid "Please upload a file."
+msgstr "Lütfen bir dosya yükleyin."
+
+#: templates/logging-add.template.txt
+msgid "There was an error while uploading the file."
+msgstr "Dosya yüklenirken bir hata oluştu."
+
+#: templates/logging-add.template.txt
+msgid "The content of the file was not readable (Format needs to be JSON)."
+msgstr "Dosyanın içeriği okunamadı (Biçimin JSON olması gerekir)."
+
+#: templates/logging-add.template.txt
+msgid "The highest existing log entry is %d, but import starts with %d."
+msgstr ""
+"Mevcut en yüksek günlük girişi %d'dır, ancak içe aktarma %d ile başlar."
+
+#: templates/logging-add.template.txt
+msgid "Record ID %d was added with a different log ID %d."
+msgstr "Kayıt kimliği %d farklı bir günlük kimliği %d ile eklendi."
+
+#: templates/logging-add.template.txt
+msgid "There was an error adding record ID %d."
+msgstr "Kayıt kimliği %d eklenirken bir hata oluştu."
+
+#: templates/logging-add.template.txt
+msgid "There was an error adding log for record ID %d."
+msgstr "Kayıt kimliği %d için günlük eklerken bir hata oluştu."
+
+#: templates/logging-add.template.txt
+msgid "%d log entry was added, ID was %d."
+msgid_plural "All %d log entries were added, last ID was %d."
+msgstr[0] "%d günlük girişi eklendi, kimlik %d idi."
+msgstr[1] "Tüm %d günlük girdileri eklendi, son kimlik %d idi."
+
+#: templates/logging-add.template.txt
+msgid "These changes were applied to the remote server."
+msgstr "Bu değişiklikler uzak sunucuya uygulandı."
+
+#: templates/logging-add.template.txt
+msgid "These changes were applied to the local server."
+msgstr "Bu değişiklikler yerel sunucuya uygulandı."
+
+#: templates/logging-archive.template.txt
+msgid "No logging data available."
+msgstr "Kayıt verisi mevcut değil."
+
+#: templates/logging-archive.template.txt
+msgid "No logging data available older than %d months."
+msgstr "0] aydan daha eski kayıt verisi mevcut değil."
+
+#: templates/logging-archive.template.txt
+msgid "The oldest data in the logging table comes from <strong>%s</strong>."
+msgstr "Günlük tablosundaki en eski veriler şuradan gelir <strong>%s</strong>."
+
+#: templates/logging-archive.template.txt
+msgid "%d logging records from %s were archived."
+msgstr "%s'den %d günlük kayıtları arşivlendi."
+
+#: templates/logging-archive.template.txt
+msgid "Archive logging data from %s"
+msgstr "0]'dan günlük verilerini arşivleyin"
+
+#: templates/logging-archive.template.txt
+msgid "Re-sort logging table"
+msgstr "Günlük tablosunu yeniden sıralama"
+
+#: templates/logging-archive.template.txt
+msgid "Logging table was sorted by ID."
+msgstr "Günlük tablosu kimliğe göre sıralandı."
+
+#: templates/logging-read.template.txt
+msgid "Logfile has only %d entries."
+msgstr "Günlük dosyasında yalnızca %d girdi var."
+
+#: templates/maintenance-logging.template.txt
+msgid "SQL log"
+msgstr "SQL günlüğü"
+
+#: templates/maintenance-logging.template.txt
+msgid "Download SQL log, starting with ID"
+msgstr "ID ile başlayan SQL günlüğünü indirin"
+
+#: templates/maintenance-logging.template.txt
+#: templates/logging-add.template.txt
+msgid "Upload SQL log"
+msgstr "SQL günlüğünü yükle"
+
+#: templates/maintenance-logging.template.txt
+msgid "Upload"
+msgstr "Yükle"
+
+#: templates/maintenance-logging.template.txt
+msgid "Synchronize local and remote server"
+msgstr "Yerel ve uzak sunucuyu senkronize edin"
+
+#: templates/sync-server.template.txt
+msgid "This only works from a local server!"
+msgstr "Bu yalnızca yerel bir sunucudan çalışır!"
+
+#: templates/sync-server.template.txt
+msgid "The server returned with an error (%d)."
+msgstr "Sunucu bir hata ile geri döndü (%d)."
+
+#: templates/sync-server.template.txt
+msgid "Both servers have %s log entries."
+msgstr "Her iki sunucuda da %s günlük girdisi vardır."
+
+#: templates/sync-server.template.txt
+msgid "No synchronisation is necessary."
+msgstr "Senkronizasyona gerek yoktur."
+
+#: templates/sync-server.template.txt
+msgid "The log entries %d do not match."
+msgstr "Günlük girdileri %d eşleşmiyor."
+
+#: templates/sync-server.template.txt
+msgid "A synchronisation is impossible."
+msgstr "Bir senkronizasyon mümkün değildir."
+
+#: templates/zzform-js-field-buttons.template.txt
+msgid "Current time"
+msgstr "Geçerli zaman"
+
+#: zzbrick_make/serversync.inc.php
+msgid ""
+"This URL is for synchronising a production and a development server only. No "
+"direct access is possible."
+msgstr ""
+"Bu URL yalnızca bir üretim ve geliştirme sunucusunu senkronize etmek "
+"içindir. Doğrudan erişim mümkün değildir."
+
+#: zzbrick_request/integritycheck.inc.php
+msgid "Relational Integrity"
+msgstr "İlişkisel Bütünlük"
+
+#: templates/integritycheck.template.txt
+msgid "Nothing to check."
+msgstr "Kontrol edecek bir şey yok."
+
+#: templates/integritycheck.template.txt
+msgid "Field <code>%s</code> contains only valid values."
+msgstr "Saha <code>%s</code> yalnızca geçerli değerleri içerir."
+
+# Number of records as shown in page TITLE
+# Page elements
+msgid "records"
+msgstr "kayıt"
+
+# Page elements
+msgid "Back to overview"
+msgstr "Genel bakışa geri dön"
+
+# Link to go back to the last form if a new detail record was added
+# Page elements
+msgid "Back to last form"
+msgstr "Son forma geri dön"
+
+# Page elements
+msgid "page"
+msgstr "sayfa"
+
+# Page elements: Heading
+msgid "Search"
+msgstr "Arama"
+
+# Link to add a new value for detail record via dropdown
+# Record form
+msgid "New …"
+msgstr "Yeni .."
+
+# Link to edit a new value for detail record via dropdown
+# Record form
+msgid "Edit …"
+msgstr "Düzenle .."
+
+# Page title
+msgid "Review"
+msgstr "İnceleme"
+
+# Page title
+# List view: Multi function
+msgid "Edit"
+msgstr "Düzenle"
+
+# Page title
+# List view: Multi function
+msgid "Delete"
+msgstr "Sil"
+
+# Page title
+# Record form: bottom
+msgid "Show"
+msgstr "Göster"
+
+# Page title
+msgid "Add"
+msgstr "Ekle"
+
+# List view: Action
+msgid "Copy"
+msgstr "Kopya"
+
+# Record form: Heading
+msgid "Merge"
+msgstr "Birleştir"
+
+# Record form: Heading
+msgid "Add a record"
+msgstr "Kayıt ekleme"
+
+# Record form: Heading
+msgid "Delete a record"
+msgstr "Kayıt silme"
+
+# Record form: Heading
+msgid "Edit a record"
+msgstr "Kayıt düzenleme"
+
+# Record form: Heading
+msgid "Show a record"
+msgstr "Bir kayıt göster"
+
+# Record form: Heading
+msgid "Add several records"
+msgstr "Birkaç kayıt ekleyin"
+
+# Record form: Heading
+msgid "Delete several records"
+msgstr "Birkaç kaydı silme"
+
+# Record form: Heading
+msgid "Edit several records"
+msgstr "Birkaç kaydı düzenleme"
+
+# Record form: Heading
+msgid "Insert failed"
+msgstr "Ekleme başarısız"
+
+# Record form: Heading
+msgid "Delete failed"
+msgstr "Silinemedi"
+
+# Record form: Heading
+msgid "Update failed"
+msgstr "Güncelleme başarısız oldu"
+
+# Record form: Heading
+msgid "The record with the ID %d was already deleted."
+msgstr "Kimliği %d olan kayıt zaten silinmişti."
+
+# Record form: Heading
+msgid "A record with the ID %d does not exist."
+msgstr "ID %d'a sahip bir kayıt mevcut değil."
+
+# Record form: Heading
+msgid "Sorry, it is not possible to access the ID %d from here."
+msgstr "Üzgünüz, ID %d'a buradan erişmek mümkün değildir."
+
+# Record form: Heading
+msgid "Invalid ID for a record (must be an integer): %s"
+msgstr "Bir kayıt için geçersiz kimlik (tam sayı olmalıdır): %s"
+
+# Record form: Heading
+msgid "Record was updated"
+msgstr "Kayıt güncellendi"
+
+# Record form: Heading
+msgid "Record was not updated (no changes were made)"
+msgstr "Kayıt güncellenmedi (hiçbir değişiklik yapılmadı)"
+
+# Record form: Heading
+msgid "Record was deleted"
+msgstr "Kayıt silindi"
+
+# Record form: Heading
+#: zzform/batch.inc.php
+msgid "%d record was deleted"
+msgid_plural "%d records were deleted"
+msgstr[0] "%d kayıt silindi"
+msgstr[1] "%d kayıt silindi"
+
+# Record form: Heading
+#: zzform/batch.inc.php
+msgid "%d record was deleted, %d not"
+msgid_plural "%d records were deleted, %d not"
+msgstr[0] "%d kayıt silindi, %d silinmedi"
+msgstr[1] "%d kayıtlar silindi, %d silinmedi"
+
+# Record form: Heading
+msgid "Record was inserted"
+msgstr "Kayıt eklendi"
+
+# Record form: Heading
+msgid "Configuration does not allow this action: %s"
+msgstr "Yapılandırma bu eyleme izin vermiyor: %s"
+
+# Record form: Heading
+msgid "Configuration does not allow this mode: %s"
+msgstr "Yapılandırma bu moda izin vermez: %s"
+
+# Stop editing this record
+# Record form: bottom
+#: templates/zzform-record.template.txt
+msgid "Cancel"
+msgstr "İptal"
+
+# Record form: bottom
+#: templates/zzform-record.template.txt
+msgid "OK"
+msgstr "Tamam"
+
+# Record form: bottom
+#: templates/zzform-record.template.txt
+msgid "Update record"
+msgstr "Kayıt güncelleme"
+
+# Record form: bottom
+#: templates/zzform-record.template.txt
+msgid "Update records"
+msgstr "Kayıtları güncelleyin"
+
+# Record form: bottom
+#: templates/zzform-record.template.txt
+msgid "Delete record"
+msgstr "Kayıt silme"
+
+# Record form: bottom
+#: templates/zzform-record.template.txt
+msgid "Delete records"
+msgstr "Kayıtları sil"
+
+# Record form: bottom
+#: templates/zzform-record.template.txt
+msgid "Add record"
+msgstr "Kayıt ekle"
+
+# Record form: bottom
+#: templates/zzform-record.template.txt
+msgid "Add records"
+msgstr "Kayıt ekleme"
+
+# Record form: bottom
+msgid "Edit record"
+msgstr "Kaydı düzenle"
+
+# Record form: bottom
+msgid "Edit records"
+msgstr "Kayıtları düzenle"
+
+# no value available for display, should be abbreviated
+# Record form: field output
+msgid "<abbr title=\"Not available\">N/A</abbr>"
+msgstr "<abbr title=\"Not available\">N/A</abbr>"
+
+# Record form: field output
+msgid "will be added automatically"
+msgstr "otomatik olarak eklenecektir"
+
+# Record form: field output
+msgid "calculated field"
+msgstr "hesaplanan alan"
+
+# dropdown, first entry
+# Record form: Select
+msgid "None selected"
+msgstr "Hiçbiri seçilmedi"
+
+# radio buttons, first entry
+# Record form: Select
+msgid "No selection"
+msgstr "Seçim yok"
+
+# Record form: Select
+msgid "No source defined"
+msgstr "Tanımlanmış kaynak yok"
+
+# Record form: Select
+msgid "No selection possible."
+msgstr "Seçim mümkün değildir."
+
+# Record form: Select
+msgid "(This entry is the highest entry in the hierarchy.)"
+msgstr "(Bu giriş hiyerarşideki en yüksek giriştir.)"
+
+# select/deselect checkboxes
+# Record form: Select
+msgid "Select all"
+msgstr "Tümünü seç"
+
+# select/deselect checkboxes
+# Record form: Select
+msgid "Deselect all"
+msgstr "Hiçbirini seçme"
+
+# Record form: Change password
+msgid "Old:"
+msgstr "Eski:"
+
+# Record form: Change password
+msgid "New:"
+msgstr "Yeni:"
+
+# Record form: Change password
+msgid "(Please enter your new password twice)"
+msgstr "(Lütfen yeni şifrenizi iki kez girin)"
+
+# Record form: Change password
+#: templates/zzform.template.txt
+msgid "Your password has been saved!"
+msgstr "Şifreniz kaydedildi!"
+
+# Record form: Change password
+#: templates/zzform.template.txt
+msgid "Your password has been changed!"
+msgstr "Şifreniz değiştirildi!"
+
+# Record form: Change password
+msgid ""
+"Your current password is different from what you entered. Please try again."
+msgstr "Mevcut şifreniz girdiğinizden farklı. Lütfen tekrar deneyin."
+
+# Record form: Change password
+msgid "New passwords do not match. Please try again."
+msgstr "Yeni şifreler eşleşmiyor. Lütfen tekrar deneyin."
+
+# Record form: Change password
+msgid "Please enter your current password and twice your new password."
+msgstr "Lütfen mevcut şifrenizi ve iki kez yeni şifrenizi girin."
+
+# Record form: Change password
+msgid ""
+"New and old password are identical. Please choose a different new password."
+msgstr "Yeni ve eski şifre aynı. Lütfen farklı bir yeni şifre seçin."
+
+# Record form: Change password
+msgid "hidden"
+msgstr "gizli"
+
+# Record form: Change password
+msgid "Your new password could not be saved. Please try a different one."
+msgstr "Yeni şifreniz kaydedilemedi. Lütfen farklı bir tane deneyin."
+
+# Record form: File upload
+msgid "Error: "
+msgstr "Hata: "
+
+# Record form: File upload
+msgid "No file was uploaded."
+msgstr "Dosya yüklenmedi."
+
+# Record form: File upload
+msgid "File was only partially uploaded."
+msgstr "Dosya yalnızca kısmen yüklendi."
+
+# Record form: File upload
+msgid "File is too big."
+msgstr "Dosya çok büyük."
+
+# Record form: File upload
+msgid "Maximum allowed filesize is %s."
+msgstr "İzin verilen maksimum dosya boyutu %s'dır."
+
+# Record form: File upload
+msgid "Unsupported filetype:"
+msgstr "Desteklenmeyen dosya türü:"
+
+# Record form: File upload
+msgid "Supported filetypes:"
+msgstr "Desteklenen dosya türleri:"
+
+# Record form: File upload
+msgid "Could not delete %s."
+msgstr "0] silinemedi."
+
+# Record form: File upload
+msgid "Could not delete %s, file did not exist."
+msgstr "0] silinemedi, dosya mevcut değil."
+
+# prefix for alt-attribute
+# Record form: File upload
+msgid "File: "
+msgstr "Dosya: "
+
+# alt-attribute if there's no image
+# Record form: File upload
+msgid "No image"
+msgstr "Resim Yok"
+
+# Record form: File upload
+msgid "Delete this file"
+msgstr "Bu dosyayı sil"
+
+# Record form: File upload
+msgid "File uploaded:"
+msgstr "Dosya yüklendi:"
+
+# Record form: File upload
+msgid ""
+"File could not be saved. There is a problem with the user rights. We are "
+"working on it."
+msgstr ""
+"Dosya kaydedilemedi. Kullanıcı haklarıyla ilgili bir sorun var. Üzerinde "
+"çalışıyoruz."
+
+# Record form: File upload
+msgid "Minimum width %s was not reached."
+msgstr "Minimum genişliğe %s ulaşılamadı."
+
+# Record form: File upload
+msgid "Minimum height %s was not reached."
+msgstr "Minimum yüksekliğe %s ulaşılamadı."
+
+# Record form: File upload
+msgid "Maximum width %s has been exceeded."
+msgstr "Maksimum genişlik %s aşıldı."
+
+# Record form: File upload
+msgid "Maximum height %s has been exceeded."
+msgstr "Maksimum yükseklik %s aşıldı."
+
+# Record form: File upload
+msgid "The PDF consists of %d pages. Only %d page is allowed."
+msgid_plural "The PDF consists of %d pages. Only %d pages are allowed."
+msgstr[0] "PDF %d sayfadan oluşmaktadır. Yalnızca %d sayfaya izin verilir."
+msgstr[1] "PDF %d sayfadan oluşmaktadır. Yalnızca %d sayfaya izin verilir."
+
+# Record form: File upload
+msgid "Transfer failed. Probably you sent a file that was too large."
+msgstr "Aktarım başarısız oldu. Muhtemelen çok büyük bir dosya gönderdiniz."
+
+# Record form: File upload
+msgid "– You sent: %s data."
+msgstr "- Sen gönderdin: %s veri."
+
+# Record form: File upload
+msgid ""
+"The file %s is empty. If you are uploading from a Mac, please check if the "
+"data is not only available in the so-called “resource fork” of the file."
+msgstr ""
+"0] dosyası boş. Bir Mac'ten yüklüyorsanız, lütfen verilerin yalnızca "
+"dosyanın \"kaynak çatalı\" olarak adlandırılan bölümünde bulunup "
+"bulunmadığını kontrol edin."
+
+# Record form: File upload
+#: zzform/record.inc.php
+msgid "File upload is currently impossible."
+msgstr "Dosya yükleme şu anda mümkün değil."
+
+# e. g. Add Address, Add Phone Number ...
+# Record form: Detail record
+msgid "Add %s"
+msgstr "Ekle %s"
+
+# Record form: Detail record
+msgid "Remove %s"
+msgstr "Sil %s"
+
+# Record form: Detail record
+msgid "Remove"
+msgstr "Kaldır"
+
+# Record form: Detail record
+msgid "Minimum of records for table `%s` was not met (%d)."
+msgstr "Tablo `%s` için minimum kayıt sayısı karşılanmadı (%d)."
+
+# Record form: Validation, displayed inside form
+msgid "Please enter more characters."
+msgstr "Lütfen daha fazla karakter girin."
+
+# Record form: Validation, displayed inside form
+msgid "No entry found. Try less characters."
+msgstr "Giriş bulunamadı. Daha az karakter deneyin."
+
+# Record form: Validation, displayed inside form
+msgid "Text is too long (max. %d characters, %d submitted)."
+msgstr "Metin çok uzun (maks. %d karakter, %d gönderildi)."
+
+# Record form: Validation, displayed inside form
+msgid "Text is too short (min. %d characters, %d submitted)."
+msgstr "Metin çok kısa (min. %d karakter, %d gönderildi)."
+
+# Record form: Validation, displayed inside form
+msgid "Please make a different selection."
+msgstr "Lütfen farklı bir seçim yapınız."
+
+# Record form: Validation, displayed above form
+msgid "These problems occured:"
+msgstr "Bu sorunlar ortaya çıktı:"
+
+# Record form: Validation, displayed above form
+msgid "Value incorrect in field <strong>%s</strong>."
+msgstr "Alandaki değer yanlış <strong>%s</strong>."
+
+# Record form: Validation, displayed above form
+msgid "Value missing in field <strong>%s</strong>."
+msgstr "Alanda eksik değer <strong>%s</strong>."
+
+# Record form: Validation, displayed above form
+msgid "Nothing was uploaded in field <strong>%s</strong>."
+msgstr "Alana hiçbir şey yüklenmedi <strong>%s</strong>."
+
+# Record form: Validation, displayed above form
+msgid "Duplicate entry"
+msgstr "Mükerrer giriş"
+
+# Record form: Validation, displayed above form
+msgid "There was a problem with the detail record."
+msgstr "Detay kaydıyla ilgili bir sorun vardı."
+
+# Record form: Validation, displayed above form
+msgid "String <em>“%s”</em> is not allowed"
+msgstr "<em>\"%s\"</em> dizesine izin verilmez"
+
+# Record form: Validation, displayed above form
+msgid "Value “%s” needs to be greater than “%s”."
+msgstr "\"%s\" değerinin \"%s\" değerinden büyük olması gerekir."
+
+# Record form: Validation, displayed above form
+msgid "Value “%s” needs to be greater than or equal to “%s”."
+msgstr "\"%s\" değerinin \"%s\" değerinden büyük veya eşit olması gerekir."
+
+# Record form: Validation, displayed above form
+msgid "Value “%s” needs to be smaller than “%s”."
+msgstr "\"%s\" değerinin \"%s\" değerinden küçük olması gerekir."
+
+# Record form: Validation, displayed above form
+msgid "Value “%s” needs to be smaller than or equal to “%s”."
+msgstr "\"%s\" değerinin \"%s\" değerinden küçük veya eşit olması gerekir."
+
+# Record form: Validation, displayed above form
+msgid "Please check these values again"
+msgstr "Lütfen bu değerleri tekrar kontrol edin"
+
+# Record form: Validation, displayed above form
+msgid "Please select one of the values for field <strong>%s</strong>."
+msgstr "Lütfen alan için değerlerden birini seçin <strong>%s</strong>."
+
+# Record form: Validation, displayed above form
+msgid "Please check the value for field <strong>%s</strong>."
+msgstr "Lütfen alan değerini kontrol edin <strong>%s</strong>."
+
+# Record form: Validation, displayed above form
+msgid "Creation of directory %s failed: Parent directory is not writable."
+msgstr ""
+"0] dizininin oluşturulması başarısız oldu: Üst dizin yazılabilir değil."
+
+# Record form: Validation, displayed above form
+msgid "Creation of directory %s failed."
+msgstr "0] dizininin oluşturulması başarısız oldu."
+
+# Record form: Validation, displayed above form
+msgid ""
+"Value in field <em>“%s”</em> must not be identical to field <em>“%s”</em>."
+msgstr ""
+"<em>\"%s\"</em> alanındaki değer <em>\"%s\"</em> alanıyla aynı olmamalıdır."
+
+# Record form: Validation of Database Integrity, displayed above form
+msgid "No records in relation table `%s`. Please fill in records."
+msgstr "İlişki tablosu `%s`da kayıt yok. Lütfen kayıtları doldurun."
+
+# Record form: Validation of Database Integrity, displayed above form
+msgid ""
+"This record could not be deleted because it has other data associated with "
+"it."
+msgstr "Bu kayıt silinemedi çünkü kendisiyle ilişkili başka veriler var."
+
+# Record form: Validation, resubmit because of logout
+msgid ""
+"You had been logged out automatically. Therefore, your changes were not yet "
+"saved. Please submit the form again."
+msgstr ""
+"Otomatik olarak oturumu kapatmıştınız. Bu nedenle, değişiklikleriniz henüz "
+"kaydedilmedi. Lütfen formu tekrar gönderin."
+
+# Record form: Resubmit because form was sent too quickly
+msgid "Sorry, an error has occurred.<br>Please send the form again."
+msgstr "Üzgünüz, bir hata oluştu.<br>Lütfen formu tekrar gönderin."
+
+# Record form: foreign record
+msgid "No entry possible. First save this record."
+msgstr "Giriş mümkün değil. Önce bu kaydı kaydedin."
+
+# Record form: foreign record
+msgid "No data available."
+msgstr "Kullanılabilecek bir veri yok."
+
+# Record form: identifier, hidden etc.
+msgid "Record for <strong>%s</strong> does not exist. (ID: %s)"
+msgstr "Kayıt için <strong>%s</strong> mevcut değil. (ID: %s)"
+
+# Record form: identifier, hidden etc.
+msgid "Would be changed on update"
+msgstr "Güncellemede değiştirilecek"
+
+# Record form: Merge
+#: zzform/merge.inc.php
+msgid "Merge: Failed to update record with ID %d in table <code>%s</code>."
+msgstr "Birleştirme: Tabloda %d ID'li kayıt güncellenemedi <code>%s</code>."
+
+# Record form: Merge
+#: zzform/merge.inc.php
+msgid "Merge: Failed to delete record with ID %d in table <code>%s</code>."
+msgstr "Birleştirme: Tabloda %d ID'li kayıt silinemedi <code>%s</code>."
+
+# Record form: Merge
+#: zzform/merge.inc.php
+msgid ""
+"Merge: Update of record with ID %d in table <code>%s</code> was successful."
+msgstr ""
+"Birleştirme: Tabloda %d ID'li kaydın güncellenmesi <code>%s</code> başarılı "
+"oldu."
+
+# Record form: Merge
+#: zzform/merge.inc.php
+msgid ""
+"Merge: Deletion of record with ID %d in table <code>%s</code> was successful."
+msgstr ""
+"Birleştirme: Tabloda %d ID'li kaydın silinmesi <code>%s</code> başarılı oldu."
+
+# Record form: Merge
+msgid "%d records merged successfully"
+msgstr "%d kayıtlar başarıyla birleştirildi"
+
+# Record form: Merge
+msgid "For merging, the field <em>%s</em> has to be equal in all records."
+msgstr ""
+"Birleştirme için alan <em>%s</em> tüm kayıtlarda eşit olmak zorundadır."
+
+# Record form: Merge
+msgid "For merging, the fields %s and %s have to be equal in all records."
+msgstr ""
+"Birleştirme için %s ve %s alanlarının tüm kayıtlarda eşit olması gerekir."
+
+# Record form: Merge
+msgid "Merge not complete, records are different:"
+msgstr "Birleştirme tamamlanmadı, kayıtlar farklı:"
+
+# Record form: Revision
+msgid "Revise a record"
+msgstr "Bir kaydı gözden geçirme"
+
+# Record form: Revision
+msgid "Old value: %s"
+msgstr "Eski değer: %s"
+
+# Record form: Revision
+msgid "– empty –"
+msgstr "- boş -"
+
+# Record form: Revision
+#: zzbrick_tables/revisions.php
+msgid "Revisions"
+msgstr "Düzeltmeler"
+
+# Record form: Revision
+#: zzbrick_tables/revisions.php
+msgid "Data"
+msgstr "Veri"
+
+# Record form: Revision
+#: zzbrick_tables/revisions.php
+msgid "Script URL"
+msgstr "Script URL"
+
+# Record form: Revision
+#: zzbrick_tables/revisiondata.php
+msgid "ignore"
+msgstr "göz ardı et "
+
+# Record form: Revision
+#: zzbrick_tables/revisiondata.php
+msgid "Changed values"
+msgstr "Değişen değerler"
+
+# Record form: Revision
+#: zzbrick_tables/revisiondata.php
+msgid "Complete values"
+msgstr "Eksiksiz değerler"
+
+# Record form: Captcha
+msgid "Please enter the digits from the image."
+msgstr "Lütfen resimdeki rakamları girin."
+
+# Record form: Captcha
+msgid "(Reload image)"
+msgstr "(Resmi yeniden yükle)"
+
+# Record form: Captcha
+msgid "Please enter the following code: %s."
+msgstr "Lütfen aşağıdaki kodu girin: %s."
+
+# Record form: Captcha
+msgid "Please add %s to it."
+msgstr "Lütfen %s ekleyin."
+
+# Record form: Captcha
+msgid "zero"
+msgstr "sıfır"
+
+# Record form: Captcha
+msgid "one"
+msgstr "bir"
+
+# Record form: Captcha
+msgid "two"
+msgstr "iki"
+
+# Record form: Captcha
+msgid "three"
+msgstr "üç"
+
+# Record form: Captcha
+msgid "four"
+msgstr "dört"
+
+# Record form: Captcha
+msgid "five"
+msgstr "beş"
+
+# Record form: Captcha
+msgid "six"
+msgstr "altı"
+
+# Record form: Captcha
+msgid "seven"
+msgstr "yedi"
+
+# Record form: Captcha
+msgid "eight"
+msgstr "sekiz"
+
+# Record form: Captcha
+msgid "nine"
+msgstr "dokuz"
+
+# Record form: Captcha
+msgid "ten"
+msgstr "10"
+
+# Record form: Date field
+msgid "Date"
+msgstr "Tarih"
+
+# Record form: Datetime field
+msgid "Date and time"
+msgstr "Tarih ve saat"
+
+# Record form: foot
+msgid "Submit data …"
+msgstr "Veri gönder .."
+
+# List view: Revision
+msgid "live"
+msgstr "yayında"
+
+# List view: Revision
+msgid "pending"
+msgstr "bekliyor"
+
+# List view: Revision
+msgid "historic"
+msgstr "tarihi"
+
+# List view
+msgid "No entries available"
+msgstr "Mevcut kayıt yok"
+
+# group by unknown
+# List view
+msgid "- unknown -"
+msgstr "- bilinmeyen -"
+
+# List view: Filter
+msgid "Selection"
+msgstr "Seçim"
+
+# List view: Filter
+msgid "all"
+msgstr "tümü"
+
+# List view: Filter
+msgid ""
+"“%s” is not a valid value for the selection “%s”. Please select a different "
+"filter."
+msgstr ""
+"\"%s\", \"%s\" seçimi için geçerli bir değer değildir. Lütfen farklı bir "
+"filtre seçin."
+
+# List view: Filter
+msgid "A filter for the selection “%s” does not exist."
+msgstr "\"%s\" seçimi için bir filtre mevcut değil."
+
+# List view: Filter
+msgid "<a href=\"%s\">List without this filter</a>"
+msgstr "<a href=\"%s\">Bu filtre olmadan liste</a>"
+
+# List view: Filter
+msgid "(no value)"
+msgstr "(değer yok)"
+
+# List view: Filter
+#: zzform/functions.inc.php
+msgid "This filter does not exist: %s"
+msgstr "Bu filtre mevcut değil: %s"
+
+# List view: Table head
+msgid "Order by"
+msgstr "Tarafından sipariş"
+
+# List view: Table head
+msgid "ascending"
+msgstr "artan"
+
+# List view: Table head
+msgid "descending"
+msgstr "azalan"
+
+# List view: Table head
+msgid "Action"
+msgstr "Eylem"
+
+# List view: bottom
+msgid "Add new record"
+msgstr "Kayıt ekle"
+
+# List view: bottom
+msgid "%d record total"
+msgid_plural "%d records total"
+msgstr[0] "%d kayıt toplamı"
+msgstr[1] "%d toplam kayıt"
+
+# List view: bottom
+msgid "All records on one page"
+msgstr "Tüm kayıtlar tek sayfada"
+
+# List view: bottom
+msgid "First page"
+msgstr "İlk sayfa"
+
+# List view: bottom
+msgid "Previous page"
+msgstr "Önceki Sayfa"
+
+# List view: bottom
+msgid "Next page"
+msgstr "Sonraki Sayfa"
+
+# List view: bottom
+msgid "Last page"
+msgstr "Son Sayfa"
+
+# List view: Search form
+msgid "Show all records (without search filter)"
+msgstr "Tüm kayıtları göster (arama filtresi olmadan)"
+
+# List view: Search form
+msgid "in"
+msgstr "içinde"
+
+# List view: Search form
+msgid "all fields"
+msgstr "tüm alanlar"
+
+# Button
+# List view: Search form
+msgid "search"
+msgstr "arama"
+
+# Error handling
+msgid "Attention!"
+msgstr "Dikkat!"
+
+# Error handling
+msgid "Incorrect value: %s"
+msgstr "Yanlış değer: %s"
+
+# Error handling
+msgid "Database error"
+msgstr "Veritabanı sorunu"
+
+# Error handling
+msgid ""
+"An error occured. We are working on the solution of this problem. Sorry for "
+"your inconvenience. Please try again later."
+msgstr ""
+"Bir hata oluştu. Bu sorunun çözümü üzerinde çalışıyoruz. Rahatsızlığınız "
+"için özür dileriz. Lütfen daha sonra tekrar deneyin."
+
+# Export-Link
+# Modules: Export
+msgid "Export"
+msgstr "Dışa Aktar"
+
+# Modules: Export
+msgid ""
+"Please don’t mess with the URL parameters. <code>%s</code> is not allowed "
+"here."
+msgstr ""
+"Lütfen URL parametreleri ile oynamayın. <code>%s</code> burada izin verilmez."
+
+# Modules: Geo
+msgctxt "North"
+msgid "N"
+msgstr "N"
+
+# Modules: Geo
+msgctxt "East"
+msgid "E"
+msgstr "E"
+
+# Modules: Geo
+msgctxt "South"
+msgid "S"
+msgstr "S"
+
+# Modules: Geo
+msgctxt "West"
+msgid "W"
+msgstr "W"
+
+# Modules: Geo
+msgid "North"
+msgstr "Kuzey"
+
+# Modules: Geo
+msgid "East"
+msgstr "Doğu"
+
+# Modules: Geo
+msgid "South"
+msgstr "Güney"
+
+# Modules: Geo
+msgid "West"
+msgstr "Batı"
+
+# Modules: Geo
+msgid ""
+"It looks like this coordinate has a different orientation. Maybe latitude "
+"and longitude were interchanged?"
+msgstr ""
+"Bu koordinatın farklı bir yönü var gibi görünüyor. Belki de enlem ve boylam "
+"yer değiştirmiştir?"
+
+# Modules: Geo
+msgid "Mismatch: %s signals different hemisphere than %s."
+msgstr "Uyuşmazlık: %s, %s'den farklı bir yarım küreye işaret eder."
+
+# Modules: Geo
+msgid "There are too many decimal points (or commas) in this value."
+msgstr "Bu değerde çok fazla ondalık nokta (veya virgül) var."
+
+# Modules: Geo
+msgid "Only the last number might have a decimal point (or comma)."
+msgstr "Yalnızca son sayıda ondalık nokta (veya virgül) olabilir."
+
+# Modules: Geo
+msgid "%s is too small. Please enter for minutes a positive value or 0."
+msgstr "%s çok küçük. Lütfen dakikalar için pozitif bir değer veya 0 girin."
+
+# Modules: Geo
+msgid "%s is too small. Please enter for seconds a positive value or 0."
+msgstr "%s çok küçük. Lütfen saniye için pozitif bir değer veya 0 girin."
+
+# Modules: Geo
+msgid "%s is too big. Please enter for minutes a value smaller than 60."
+msgstr "%s çok büyük. Lütfen dakika için 60'tan küçük bir değer girin."
+
+# Modules: Geo
+msgid "%s is too big. Please enter for seconds a value smaller than 60."
+msgstr "%s çok büyük. Lütfen saniye için 60'tan küçük bir değer girin."
+
+# Modules: Geo
+msgid ""
+"Sorry, there are too many numbers. We cannot interpret what you entered."
+msgstr "Üzgünüz, çok fazla sayı var. Ne girdiğinizi yorumlayamıyoruz."
+
+# Modules: Geo
+msgid ""
+"Minimum value for degrees is %s. The value you entered is too small: %s."
+msgstr "Dereceler için minimum değer %s'dır. Girdiğiniz değer çok küçük: %s."
+
+# Modules: Geo
+msgid "Maximum value for degrees is %s. The value you entered is too big: %s."
+msgstr "Dereceler için maksimum değer %s'dır. Girdiğiniz değer çok büyük: %s."
+
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "Deletable Records"
+msgstr "Silinebilir Kayıtlar"
+
+# Modules: Sync
+#: zzform/sync.inc.php
+msgid "Synchronization: %s"
+msgstr "Senkronizasyon: %s"
+
+# Modules: Sync
+#: templates/sync.template.txt
+msgid "Processing entries %s–%s …"
+msgstr "0]-%s girişleri işleniyor .."
+
+# Modules: Sync
+#: templates/sync.template.txt
+msgid "%s update was made."
+msgid_plural "%s updates were made."
+msgstr[0] "%s güncellemesi yapıldı."
+msgstr[1] "%s güncellemeleri yapıldı."
+
+# Modules: Sync
+#: templates/sync.template.txt
+msgid "%s insert was made."
+msgid_plural "%s inserts were made."
+msgstr[0] "%s ekleme yapıldı."
+msgstr[1] "%s ekleme yapılmıştır."
+
+# Modules: Sync
+#: templates/sync.template.txt
+msgid "%s record was left as is."
+msgid_plural "%s records were left as is."
+msgstr[0] "%s kaydı olduğu gibi bırakıldı."
+msgstr[1] "%s kayıtları olduğu gibi bırakılmıştır."
+
+# Modules: Sync
+#: templates/sync.template.txt
+msgid "%s record had errors."
+msgid_plural "%s records had errors."
+msgstr[0] "%s kaydında hatalar vardı."
+msgstr[1] "%s kayıtlarında hata vardı."
+
+# Modules: Sync
+#: templates/sync.template.txt
+msgid "Go on to next page"
+msgstr "Sonraki sayfaya geç"
+
+# Modules: Sync
+#: templates/sync.template.txt
+msgid "Possibly deletable records"
+msgstr "Muhtemelen silinebilir kayıtlar"
+
+# Modules: Sync
+#: templates/sync.template.txt
+msgid "Finished!"
+msgstr "Bitir!"
+
+# Modules: Sync
+#: templates/sync.template.txt
+msgid "Synchronize"
+msgstr "Eşitle"
+
+# Modules: Sync
+#: templates/sync-overview.template.txt
+msgid "Please select from one of the following datasets:"
+msgstr "Lütfen aşağıdaki veri setlerinden birini seçin:"
+
+# Modules: Sync
+#: templates/sync-overview.template.txt
+msgid "There is no definition for a synchronization named <code>%s</code>."
+msgstr "Adlandırılmış bir senkronizasyon için tanım yoktur <code>%s</code>."
+
+# Modules: Sync
+#: templates/sync-deletable.template.txt
+msgid "There are no deletable records."
+msgstr "Silinebilir kayıt yoktur."
+
+# Modules: Sync
+#: templates/sync-deletable.template.txt
+msgid "%s deletion was made."
+msgid_plural "%s deletions were made."
+msgstr[0] "%s silme işlemi yapıldı."
+msgstr[1] "%s silme işlemi yapılmıştır."
+
+# Modules: Upload (Table filetypes)
+msgid "Filetypes"
+msgstr "Dosya Türleri"
+
+# Modules: Upload (Table filetypes)
+msgid "MIME Content Type"
+msgstr "MIME İçerik Türü"
+
+# Modules: Upload (Table filetypes)
+msgid "MIME Subtype"
+msgstr "MIME Alt Türü"
+
+# Modules: Upload (Table filetypes)
+msgid "Extension"
+msgstr "Uzantı"
+
+# Modules: Upload (Table filetypes)
+msgid "Ext."
+msgstr "Uzantı"
+
+# Modules: Upload (Table filetypes)
+msgid "Count"
+msgstr "Sayı"
+
+# Backend: Development
+msgid "Script configuration error. No display field set."
+msgstr "Komut dosyası yapılandırma hatası. Ayarlanmış görüntüleme alanı yok."
+
+# introduces field name with wrong values
+# Backend: Development
+msgid "Field name"
+msgstr "Alan adı"
+
+# Backend: Development
+msgid "Database error. This query has ambiguous values in ID field."
+msgstr "Veritabanı hatası. Bu sorguda ID alanında belirsiz değerler var."
+
+# Backend: Development, Error mail
+msgid "Database access error"
+msgstr "Veritabanı erişim hatası"
+
+# Backend: Development, Error mail
+msgid "The following error(s) occured in project %s:"
+msgstr "Proje %s'da aşağıdaki hata(lar) meydana geldi:"
+
+# Auto complete
+msgid "No record was found."
+msgstr "Hiçbir kayıt bulunamadı."
+
+# Filter
+#: behaviour/zzform-foot.js
+msgid "expand"
+msgstr "genişlet"
+
+# Filter
+#: behaviour/zzform-foot.js
+msgid "collapse"
+msgstr "başarısız"
+
+# Checks
+#: zzform/zzform.php
+msgid "Merging of record is not allowed."
+msgstr "Kayıtların birleştirilmesine izin verilmez."
+
+#: behaviour/zzform-foot.js
+msgid "Upload Failed"
+msgstr "Yükleme Başarısız"
+
+#: behaviour/zzform-foot.js
+msgid "Upload Aborted"
+msgstr "Yükleme İptal Edildi"
+
+#: behaviour/zzform-foot.js
+msgid "% uploaded … please wait"
+msgstr "% uploaded ... lütfen bekleyin"
+
+#: behaviour/zzform-foot.js
+msgid "Uploaded:"
+msgstr "Yüklendiği yer"
+
+#: behaviour/zzform-foot.js
+msgid "Total:"
+msgstr "Toplam:"
+
+#: behaviour/zzform-foot.js
+msgid "Bytes"
+msgstr "B"
+
+#: zzform/_functions.inc.php:401
+msgid "Unable to insert record into table %s."
+msgstr "Tablo %s'a kayıt eklenemiyor."
+
+#: zzform/action.inc.php
+msgid "The number %d is too high. Maximum value is %d."
+msgstr "0] sayısı çok yüksek. Maksimum değer %d'dir."
+
+#: zzform/action.inc.php
+msgid "Array <em>“%s”</em> does not match pattern <em>“%s”</em>"
+msgstr "<em>\"%s</em> <em>\"</em> dizisi <em>\"%s\"</em> deseniyle eşleşmiyor"
+
+#: zzform/action.inc.php
+msgid "Value <em>“%s”</em> does not match pattern <em>“%s”</em>"
+msgstr "<em>\"%s</em> <em>\"</em> değeri <em>\"%s\"</em> deseniyle eşleşmiyor"
+
+#: zzform/batch.inc.php
+msgid "Sorry, multiple deletion is not permitted."
+msgstr "Üzgünüz, birden fazla silme işlemine izin verilmemektedir."
+
+#: zzform/debug.inc.php:100
+msgid "Debug Information"
+msgstr "Hata Ayıklama Bilgisi"
+
+#: zzform/debug.inc.php:103
+msgid "Mem"
+msgstr "Mem"
+
+#: zzform/debug.inc.php:103
+msgid "Function"
+msgstr "Fonksiyon"
+
+#: zzform/debug.inc.php:104
+msgid "Marker"
+msgstr "İşaretleyici"
+
+#: zzform/debug.inc.php:104
+msgid "SQL"
+msgstr "SQL"
+
+#: zzform/debug.inc.php:124
+msgid "Memory peak usage"
+msgstr "Bellek tepe kullanımı"
+
+#: zzform/export.inc.php
+msgid "The required %s export function <code>%s()</code> does not exist."
+msgstr ""
+"Gerekli %s dışa aktarma işlevi <code>%s(</code> <code>)</code> mevcut değil."
+
+#: zzform/export.inc.php
+msgid ""
+"Standard %s export support is not supported. Please use a custom script."
+msgstr ""
+"Standart %s dışa aktarma desteği desteklenmez. Lütfen özel bir komut dosyası "
+"kullanın."
+
+# Logging
+#: zzform/logging.inc.php
+msgid "Archive file for database logging for period %s already exists."
+msgstr "0] dönemi için veritabanı günlüğü arşiv dosyası zaten mevcut."
+
+# Logging
+#: zzform/logging.inc.php
+msgid "Archive file for database logging for period %s was not created."
+msgstr "0] dönemi için veritabanı günlüğü arşiv dosyası oluşturulmadı."
+
+# Logging
+#: zzform/logging.inc.php
+msgid "Unable to gzip archive file for database logging for period %s."
+msgstr "0] dönemi için veritabanı günlüğü için arşiv dosyası gziplenemiyor."
+
+#: configuration/access.cfg
+msgid "synchronize local development and production server"
+msgstr "yerel geliştirme ve üretim sunucusunu senkronize etme"
+
+#: configuration/settings.cfg
+msgid "time in months to keep logging data in the database before archiving it"
+msgstr ""
+"verileri arşivlemeden önce veritabanında günlüğe kaydetmeye devam etmek için "
+"ay cinsinden süre"
+
+#: configuration/settings.cfg
+msgid "maximum number of lines that are read from logging table"
+msgstr "günlük tablosundan okunan maksimum satır sayısı"
+
+#: configuration/settings.cfg
+msgid "URL to synchronize local development and production server"
+msgstr "Yerel geliştirme ve üretim sunucusunu senkronize etmek için URL"
