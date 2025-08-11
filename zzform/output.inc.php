@@ -170,8 +170,10 @@ function zz_output_heading_nice($heading, $zz) {
 				$heading_values = zz_db_fetch($wh_sql, '', '', '', E_USER_NOTICE);
 				if ($heading_values) {
 					$tables = wrap_edit_sql($wh_sql, 'FROM', '', 'list');
-					if (!empty($tables[0]))
+					if (!empty($tables[0]) AND is_numeric(reset($heading_values)))
 						$heading_values = wrap_translate($heading_values, $tables[0]);
+					elseif (!empty($tables[0]))
+						wrap_error(sprintf('First key of subtitle query needs to be numeric to be translated: %s', $wh_sql), E_USER_NOTICE);
 					foreach ($subheading['var'] as $myfield)
 						$heading_addition[$i][] = $heading_values[$myfield];
 				}
