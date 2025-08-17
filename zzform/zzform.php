@@ -53,11 +53,11 @@ function zzform($zz) {
 	zzform_includes();
 
 	// remove and log deprecated variables
-	$zz = zz_init_cfg_deprecated('zz_conf', $zz_conf, $zz);
-	$zz = zz_init_cfg_deprecated('zz', $zz, $zz);
+	$zz = zz_configuration_deprecated('zz_conf', $zz_conf, $zz);
+	$zz = zz_configuration_deprecated('zz', $zz, $zz);
 	
 	// initialise $zz
-	$zz = zz_init_cfg('zz', $zz);
+	$zz = zz_configuration('zz', $zz);
 
 	$ops = [
 		'result' => '',
@@ -240,7 +240,7 @@ function zzform($zz) {
 		$zz = wrap_array_merge($zz, $ops['list']['unchanged']);
 		unset($ops['list']['unchanged']);
 	}
-	$list = zz_init_cfg('zz[list]', $zz['list'], $ops['list'] ?? []);
+	$list = zz_configuration('zz[list]', $zz['list'], $ops['list'] ?? []);
 	// don't show list in case 'nolist' parameter is set
 	if (isset($_GET['nolist']) AND (!isset($_GET['delete']) OR $_GET['delete']))
 		$list['display'] = false;
@@ -811,6 +811,7 @@ function zzform_post_too_big() {
  */
 function zzform_includes() {
 	wrap_include('zzform/definition'); // also done in zzbrick/form, here for zzform_multi()
+	require_once __DIR__.'/configuration.inc.php';
 	require_once __DIR__.'/functions.inc.php';
 	require_once __DIR__.'/url.inc.php';
 	require_once __DIR__.'/database.inc.php';

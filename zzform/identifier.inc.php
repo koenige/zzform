@@ -212,9 +212,9 @@ function zz_identifier_configuration($vars, $parameters) {
  * @param array $conf
  */
 function zz_identifier_defaults(&$conf) {
-	$conf = zz_init_cfg('zz-fields[identifier]', $conf);
+	$conf = zz_configuration('zz-fields[identifier]', $conf);
 
-	// @todo do this in zz_init_cfg() via max_length = 1
+	// @todo do this in zz_configuration() via max_length = 1
 	$conf_max_length_1 = ['forceFilename', 'exists'];
 	foreach ($conf_max_length_1 as $key)
 		$conf[$key] = substr($conf[$key], 0, 1);

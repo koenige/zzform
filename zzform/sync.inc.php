@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2011-2018, 2021-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2011-2018, 2021-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -25,11 +25,12 @@
 function zz_sync($setting) {
 	$refresh = false;
 	wrap_include('batch', 'zzform');
+	wrap_include('configuration', 'zzform');
 
 	if (!empty($setting['identifier']))
 		$setting += zz_sync_queries($setting['identifier']);
 	
-	$setting = zz_init_cfg('sync-settings', $setting);
+	$setting = zz_configuration('sync-settings', $setting);
 	$setting = zz_sync_defaults($setting);
 
 	if (isset($_GET['deletable'])) {
