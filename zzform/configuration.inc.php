@@ -167,7 +167,7 @@ function zz_configuration_value($key, $def, $ext, $int = []) {
 	elseif (isset($ext) AND (empty($def['scope']) OR !in_array('internal', $def['scope'])))
 		$value = $ext;
 	elseif (isset($def['default']))
-		$value = $def['default'];
+		$value = wrap_setting_value($def['default']);
 	elseif (!empty($def['list']))
 		$value = [];
 	else
