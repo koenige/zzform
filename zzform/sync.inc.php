@@ -32,6 +32,7 @@ function zz_sync($setting) {
 	
 	$setting = zz_configuration('sync-settings', $setting);
 	$setting = zz_sync_defaults($setting);
+	$setting['logfile'] = sprintf($setting['logfile'], $setting['package'], $setting['identifier']);
 
 	if (isset($_GET['deletable'])) {
 		if (!$setting['deletable']) wrap_quit(404, 'Deletions are not possible for this synchronization.');
