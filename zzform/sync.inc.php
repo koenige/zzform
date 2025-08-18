@@ -406,17 +406,6 @@ function zz_sync_zzform($raw, $setting) {
 			// there’s an error
 			$data['errors'][]['error'] = zz_sync_line_errors($line, $setting['fields']);
 			unset($raw[$identifier]);
-		} elseif ($setting['testing'] AND $_SERVER['REQUEST_METHOD'] === 'POST') {
-			$ignore = false;
-			// records need to be activated via checkboxes
-			if (!array_key_exists($identifier, $_POST['action']))
-				$ignore = true;
-			elseif ($_POST['action'][$identifier] !== 'on')
-				$ignore = true;
-			if ($ignore) {
-				unset($raw[$identifier]);
-				$data['nothing']++;
-			}
 		}
 	}
 	if ($data['nothing'] === $raw_count)
@@ -488,9 +477,25 @@ function zz_sync_zzform($raw, $setting) {
 			$data['records'][$identifier]['action'] = 'insert';
 			$data['records'][$identifier]['insert'] = true;
 		}
+		$lines[$identifier] = $line;
+
+		// prepare check for manual ignores, no updates
 		$data['records'][$identifier]['sha1_new'] = sha1(json_encode($line_raw));
 		$data['records'][$identifier]['sha1_existing'] = sha1(json_encode($data['records'][$identifier]['existing']));
-		$lines[$identifier] = $line;
+		if ($setting['testing'] AND $_SERVER['REQUEST_METHOD'] === 'POST'
+			AND $data['records'][$identifier]['action'] !== 'ignore') {
+			$ignore = false;
+			// records need to be activated via checkboxes
+			if (!array_key_exists($identifier, $_POST['action']))
+				$ignore = true;
+			elseif ($_POST['action'][$identifier] !== 'on')
+				$ignore = true;
+			if ($ignore) {
+				unset($raw[$identifier]);
+				$data['nothing']++;
+				zz_sync_log_ignore($data['records'][$identifier], $setting);
+			}
+		}
 	}
 
 	if ($_SERVER['REQUEST_METHOD'] !== 'POST')
@@ -502,13 +507,7 @@ function zz_sync_zzform($raw, $setting) {
 			if ($success) $data['updated']++;
 			else {
 				$data['nothing']++;
-				if ($setting['logfile']) {
-					$line = sprintf("ignore %s %s\n",
-						$data['records'][$identifier]['sha1_existing'],
-						$data['records'][$identifier]['sha1_new']
-					);
-					error_log($line, 3, $setting['logfile']);
-				}
+				zz_sync_log_ignore($data['records'][$identifier], $setting);
 			}
 		} elseif ($data['records'][$identifier]['action'] === 'insert') {
 			$success = zzform_insert($setting['form_script'], $lines[$identifier]);
@@ -978,4 +977,17 @@ function zz_sync_ignore_line($line, $setting) {
 	if (!array_key_exists($line['sha1_existing'], $log['ignore'])) return false;
 	if ($log['ignore'][$line['sha1_existing']] !== $line['sha1_new']) return false;
 	return true;
+}
+
+/**
+ * log records to ignore for next sync
+ *
+ * @param array $record
+ * @param array $setting
+ */
+function zz_sync_log_ignore($record, $setting) {
+	if (!$setting['logfile']) return;
+
+	$line = sprintf("ignore %s %s\n", $record['sha1_existing'], $record['sha1_new']);
+	error_log($line, 3, $setting['logfile']);
 }
