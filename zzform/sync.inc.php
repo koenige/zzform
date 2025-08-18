@@ -488,6 +488,8 @@ function zz_sync_zzform($raw, $setting) {
 			$data['records'][$identifier]['action'] = 'insert';
 			$data['records'][$identifier]['insert'] = true;
 		}
+		$data['records'][$identifier]['sha1_new'] = sha1(json_encode($line_raw));
+		$data['records'][$identifier]['sha1_existing'] = sha1(json_encode($data['records'][$identifier]['existing']));
 		$lines[$identifier] = $line;
 	}
 
@@ -498,7 +500,16 @@ function zz_sync_zzform($raw, $setting) {
 		if ($data['records'][$identifier]['action'] === 'update') {
 			$success = zzform_update($setting['form_script'], $lines[$identifier]);
 			if ($success) $data['updated']++;
-			else $data['nothing']++;
+			else {
+				$data['nothing']++;
+				if ($setting['logfile']) {
+					$line = sprintf("ignore %s %s\n",
+						$data['records'][$identifier]['sha1_existing'],
+						$data['records'][$identifier]['sha1_new']
+					);
+					error_log($line, 3, $setting['logfile']);
+				}
+			}
 		} elseif ($data['records'][$identifier]['action'] === 'insert') {
 			$success = zzform_insert($setting['form_script'], $lines[$identifier]);
 			if ($success) $data['inserted']++;
@@ -964,9 +975,7 @@ function zz_sync_ignore_line($line, $setting) {
 	}
 	if (!array_key_exists('ignore', $log)) return false;
 	
-	$sha1_existing = sha1(json_encode($line['existing']));
-	$sha1_new = sha1(json_encode($line['line_flat']));
-	if (!array_key_exists($sha1_existing, $log['ignore'])) return false;
-	if ($log['ignore'][$sha1_existing] !== $sha1_new) return false;
+	if (!array_key_exists($line['sha1_existing'], $log['ignore'])) return false;
+	if ($log['ignore'][$line['sha1_existing']] !== $line['sha1_new']) return false;
 	return true;
 }
