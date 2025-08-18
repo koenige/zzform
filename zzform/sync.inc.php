@@ -832,6 +832,7 @@ function zz_sync_list($data, $setting) {
 				$line['fields'][$num]['identical'] = $line['identical_fields'][$key] ?? NULL;
 			}
 		}
+		$line['ignore'] = zz_sync_ignore_line($line, $setting);
 		$line['no'] = $j;
 		$line['index'] = $index;
 		$line['script_url'] = zz_sync_script_url($setting);
@@ -939,4 +940,33 @@ function zz_sync_deletable_existing($raw, $setting) {
 function zz_sync_script_url($setting) {
 	if ($setting['script_path']) return wrap_path($setting['script_path']);
 	return $setting['script_url'];
+}
+
+/**
+ * check if line should be ignored for sync
+ * because it was last time the sync was run
+ *
+ * @param array $line
+ * @return bool
+ */
+function zz_sync_ignore_line($line, $setting) {
+	static $log = NULL;
+	if (is_null($log)) {
+		if (!file_exists($setting['logfile'])) return false;
+		$entries = file($setting['logfile']);
+		foreach ($entries as $entry) {
+			$entry = trim($entry);
+			$entry = explode(' ', $entry);
+			$log[$entry[0]][$entry[1]] = $entry[2];
+		}
+	} elseif (!$log) {
+		return false;
+	}
+	if (!array_key_exists('ignore', $log)) return false;
+	
+	$sha1_existing = sha1(json_encode($line['existing']));
+	$sha1_new = sha1(json_encode($line['line_flat']));
+	if (!array_key_exists($sha1_existing, $log['ignore'])) return false;
+	if ($log['ignore'][$sha1_existing] !== $sha1_new) return false;
+	return true;
 }
