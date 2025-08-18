@@ -481,7 +481,10 @@ function zz_sync_zzform($raw, $setting) {
 
 		// prepare check for manual ignores, no updates
 		$data['records'][$identifier]['sha1_new'] = sha1(json_encode($line_raw));
-		$data['records'][$identifier]['sha1_existing'] = sha1(json_encode($data['records'][$identifier]['existing']));
+		if (array_key_exists('existing', $data['records'][$identifier]))
+			$data['records'][$identifier]['sha1_existing'] = sha1(json_encode($data['records'][$identifier]['existing']));
+		else
+			$data['records'][$identifier]['sha1_existing'] = 'new';
 		if ($setting['testing'] AND $_SERVER['REQUEST_METHOD'] === 'POST'
 			AND $data['records'][$identifier]['action'] !== 'ignore') {
 			$ignore = false;
