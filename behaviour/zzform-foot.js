@@ -127,12 +127,51 @@ function zzformMoreTexts() {
 	if (!moretexts.length) return;
 	for (var i = 0; i < moretexts.length; i++) {
 		moretexts[i].className = "moretext moretext_hidden";
-		moretexts[i].onclick = function() {
-			if (this.className == "moretext moretext_hidden") {
-				this.className = "moretext";
-			} else {
-				this.className = "moretext moretext_hidden";
-			}
+		
+		// Check if content overflows (has hidden content)
+		var hasOverflow = moretexts[i].scrollHeight > moretexts[i].clientHeight;
+		
+		// Add down arrow at the beginning for collapsed state (only if there's overflow)
+		var downArrow = document.createElement('span');
+		downArrow.className = 'zzform-arrow-down';
+		downArrow.innerHTML = ' ▼ ';
+		downArrow.style.cursor = 'pointer';
+		downArrow.style.display = hasOverflow ? 'inline' : 'none';
+		moretexts[i].insertBefore(downArrow, moretexts[i].firstChild);
+		
+		// Add up arrow at the end for expanded state (initially hidden)
+		var upArrow = document.createElement('span');
+		upArrow.className = 'zzform-arrow-up';
+		upArrow.innerHTML = ' ▲ ';
+		upArrow.style.cursor = 'pointer';
+		upArrow.style.display = 'none';
+		moretexts[i].appendChild(upArrow);
+		
+		// Add click handlers to the arrows
+		downArrow.onclick = function(event) {
+			event.preventDefault();
+			event.stopPropagation();
+			var moretext = this.closest('.moretext');
+			var downArrow = moretext.querySelector('.zzform-arrow-down');
+			var upArrow = moretext.querySelector('.zzform-arrow-up');
+			
+			// Expand
+			moretext.className = "moretext";
+			downArrow.style.display = 'none';
+			upArrow.style.display = 'inline';
+		};
+		
+		upArrow.onclick = function(event) {
+			event.preventDefault();
+			event.stopPropagation();
+			var moretext = this.closest('.moretext');
+			var downArrow = moretext.querySelector('.zzform-arrow-down');
+			var upArrow = moretext.querySelector('.zzform-arrow-up');
+			
+			// Collapse
+			moretext.className = "moretext moretext_hidden";
+			downArrow.style.display = 'inline';
+			upArrow.style.display = 'none';
 		};
 	}
 }
