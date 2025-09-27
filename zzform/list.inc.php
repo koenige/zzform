@@ -1370,50 +1370,44 @@ function zz_list_word_split($text) {
 	if (!wrap_setting('zzform_word_split')) return $text;
 	if (!$text) return $text;
 
-	$words = explode(' ', $text);
-	if (substr($words[0], 0, 1) === '<') return $text; // no splitting in HTML code
-	foreach ($words as $index => $word) {
-		if (strlen($word) < wrap_setting('zzform_word_split')) continue;
-		if (!strstr($word, '<') AND !strstr($word, '&')) {
-			$parts = mb_str_split($word, wrap_setting('zzform_word_split'));
-		} else {
-			// no break inside entities
-			// no break inside HTML
+	// Process character by character, skipping HTML tags
+	$result = '';
+	$in_html_tag = false;
+	$word_length = 0;
+	$i = 0;
+	$len = mb_strlen($text);
+	
+	while ($i < $len) {
+		$char = mb_substr($text, $i, 1);
+		
+		if ($char === '<' && !$in_html_tag) {
+			$in_html_tag = true;
+			$result .= $char;
+		} elseif ($char === '>' && $in_html_tag) {
+			$in_html_tag = false;
+			$result .= $char;
+		} elseif ($in_html_tag) {
+			// Inside HTML tag, don't split
+			$result .= $char;
+		} elseif ($char === ' ') {
+			// Reset word length on space
 			$word_length = 0;
-			$last_split = -1;
-			$parts = [];
-			$stop_char = false;
-			$remaining = $word;
-			for ($i = 0; $i < mb_strlen($word); $i++) {
-				if (!$stop_char) $word_length++;
-				switch (mb_substr($word, $i, 1)) {
-				case '<':
-					$stop_char = '>';
-					break;
-				case '>':
-					if ($stop_char === '>') $stop_char = false;
-					break;
-				case '&':
-					$stop_char = ';';
-					break;
-				case ';':
-					if ($stop_char === ';') $stop_char = false;
-					break;
-				}
-				if ($word_length === wrap_setting('zzform_word_split')) {
-					$parts[] = mb_substr($remaining, 0, $i - $last_split);
-					$word_length = 0;
-					$remaining = mb_substr($remaining, $i - $last_split);
-					$last_split = $i;
-				}
+			$result .= $char;
+		} else {
+			// Outside HTML tag, count characters and split if needed
+			$word_length++;
+			$result .= $char;
+			
+			// Add <wbr> if we've reached the split length
+			if ($word_length === wrap_setting('zzform_word_split')) {
+				$result .= '<wbr>';
+				$word_length = 0;
 			}
-			if ($remaining) $parts[] = $remaining;
-			$word = [$word];
 		}
-		$words[$index] = implode('<wbr>', $parts);
+		$i++;
 	}
-	$text = implode(' ', $words);
-	return $text;
+	
+	return $result;
 }
 
 /**
