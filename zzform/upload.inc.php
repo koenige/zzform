@@ -442,9 +442,9 @@ function zz_upload_check_files($zz_tab) {
  */
 function zz_upload_remote_file($filename) {
 	if (!$filename) return $filename;
-	if (substr($filename, 0, 7) !== 'http://'
-		AND substr($filename, 0, 8) !== 'https://'
-		AND substr($filename, 0, 6) !== 'ftp://'
+	if (!str_starts_with($filename, 'http://')
+		AND !str_starts_with($filename, 'https://')
+		AND !str_starts_with($filename, 'ftp://')
 	) {
 		return $filename;
 	}

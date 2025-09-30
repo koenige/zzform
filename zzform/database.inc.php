@@ -761,7 +761,7 @@ function zz_db_decimal_places($db_table, $field) {
 		return $n;
 	}
 	$field_def = zz_db_columns($db_table, $field['field_name']);
-	if (substr($field_def['Type'], 0, 7) === 'decimal') {
+	if (str_starts_with($field_def['Type'], 'decimal')) {
 		$length = substr($field_def['Type'], 8, -1);
 		$length = explode(',', $length);
 		if (count($length) === 2) return $length[1];
