@@ -2296,6 +2296,14 @@ function zz_validate_last_fields($zz_tab, $tab, $rec) {
 	foreach ($my_rec['last_fields'] as $f) {
 		//	call function: generate ID
 		if ($my_rec['fields'][$f]['type'] === 'identifier') {
+			wrap_error(json_encode($my_rec['fields'][$f]['idf_conf']));
+			if ($my_rec['fields'][$f]['idf_conf']['dependent']) {
+				// dependent on main record, get values here
+				$my_rec['fields'][$f]['idf_values']
+					= zz_identifier_values(
+						$my_rec['fields'][$f]['idf_conf'], $my_rec, $zz_tab[0][0]['POST']
+					);
+			}
 			$my_rec['POST'][$my_rec['fields'][$f]['field_name']] 
 				= zz_identifier($my_rec['fields'][$f]);
 			if (!empty($my_rec['fields'][$f]['log_username']) AND !is_array($my_rec['POST'][$my_rec['fields'][$f]['field_name']]))
