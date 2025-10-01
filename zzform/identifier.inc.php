@@ -128,8 +128,16 @@ function zz_identifier($field) {
 			// last var will be treated normally, other vars may inherit 
 			// slashes from dir names
 			$dir_vars = explode('/', $var);
-		} else {
+		} elseif ($var) {
 			$dir_vars = [$var];
+		} else {
+			// no value, so remove concat elements for the non-existing value
+			if (is_array($conf['concat'])) {
+				$keys = array_keys($conf['concat']);
+				$remove_key = $keys[$i - 1];
+				unset($conf['concat'][$remove_key]);
+			}
+			continue;
 		}
 		foreach ($dir_vars as $d_var) {
 			if (!$d_var) continue;
@@ -332,7 +340,7 @@ function zz_identifier_sql_translated($my_tab, &$field) {
 	static $queries = [];
 	static $tables = [];
 
-	if (empty($field['translated'])) return;
+	if (empty($field['translate_subtable'])) return;
 	$db_table = sprintf('%s.%s', $my_tab['db_name'], $my_tab['table']);
 
 	if (!empty($field['translate_subtable'])) {
