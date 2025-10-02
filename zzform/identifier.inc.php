@@ -134,8 +134,10 @@ function zz_identifier($field) {
 			// no value, so remove concat elements for the non-existing value
 			if (is_array($conf['concat'])) {
 				$keys = array_keys($conf['concat']);
-				$remove_key = $keys[$i - 1];
-				unset($conf['concat'][$remove_key]);
+				if (array_key_exists($i - 1, $keys)) {
+					$remove_key = $keys[$i - 1];
+					unset($conf['concat'][$remove_key]);
+				}
 			}
 			continue;
 		}
