@@ -938,7 +938,7 @@ function zz_action_change($ops, $zz_tab, $change) {
 		}
 		// revalidate, but not if no validation has taken place before
 		if (!array_key_exists('not_validated', $ops))
-			$zz_tab = zz_action_validate($zz_tab);
+			$zz_tab = zz_action_validate($zz_tab, true);
 	}
 	return [$ops, $zz_tab];
 }
@@ -1623,11 +1623,10 @@ function zz_action_dependent_subtables($field, $post) {
  * Set action for subrecords and call validation for all records
  *
  * @param array $zz_tab
+ * @param bool $revalidate
  * @return array
  */
-function zz_action_validate($zz_tab) {
-	static $calls = 0;
-
+function zz_action_validate($zz_tab, $revalidate = false) {
 	foreach (array_keys($zz_tab) as $tab) {
 		if (!is_numeric($tab)) continue;
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
@@ -1661,7 +1660,7 @@ function zz_action_validate($zz_tab) {
 
 	// handle last fields after all values have been validated
 	// just once, not for re-validation
-	if (!$calls) {
+	if (!$revalidate) {
 		foreach (array_keys($zz_tab) as $tab) {
 			if (!is_numeric($tab)) continue;
 			foreach (array_keys($zz_tab[$tab]) as $rec) {
@@ -1678,14 +1677,13 @@ function zz_action_validate($zz_tab) {
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
 			if (!is_numeric($rec)) continue;
 			// last fields just once, not for re-validation
-			if (!$calls)
+			if (!$revalidate)
 				$zz_tab[$tab][$rec] = zz_validate_last_fields($zz_tab, $tab, $rec);
 			// translated identifier might have been deleted, so re-evaluate action
 			if ($tab) // not for main record
 				$zz_tab[$tab] = zz_set_subrecord_action($zz_tab, $tab, $rec);
 		}
 	}
-	$calls++;
 	return $zz_tab;
 }
 
