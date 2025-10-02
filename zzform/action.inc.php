@@ -1626,6 +1626,8 @@ function zz_action_dependent_subtables($field, $post) {
  * @return array
  */
 function zz_action_validate($zz_tab) {
+	static $calls = 0;
+
 	foreach (array_keys($zz_tab) as $tab) {
 		if (!is_numeric($tab)) continue;
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
@@ -1658,11 +1660,14 @@ function zz_action_validate($zz_tab) {
 	}
 
 	// handle last fields after all values have been validated
-	foreach (array_keys($zz_tab) as $tab) {
-		if (!is_numeric($tab)) continue;
-		foreach (array_keys($zz_tab[$tab]) as $rec) {
-			if (!is_numeric($rec)) continue;
-			$zz_tab[$tab][$rec] = zz_validate_last_fields_prepare($zz_tab, $tab, $rec);
+	// just once, not for re-validation
+	if (!$calls) {
+		foreach (array_keys($zz_tab) as $tab) {
+			if (!is_numeric($tab)) continue;
+			foreach (array_keys($zz_tab[$tab]) as $rec) {
+				if (!is_numeric($rec)) continue;
+				$zz_tab[$tab][$rec] = zz_validate_last_fields_prepare($zz_tab, $tab, $rec);
+			}
 		}
 	}
 	
@@ -1672,12 +1677,15 @@ function zz_action_validate($zz_tab) {
 		if (!is_numeric($tab)) continue;
 		foreach (array_keys($zz_tab[$tab]) as $rec) {
 			if (!is_numeric($rec)) continue;
-			$zz_tab[$tab][$rec] = zz_validate_last_fields($zz_tab, $tab, $rec);
+			// last fields just once, not for re-validation
+			if (!$calls)
+				$zz_tab[$tab][$rec] = zz_validate_last_fields($zz_tab, $tab, $rec);
 			// translated identifier might have been deleted, so re-evaluate action
 			if ($tab) // not for main record
 				$zz_tab[$tab] = zz_set_subrecord_action($zz_tab, $tab, $rec);
 		}
 	}
+	$calls++;
 	return $zz_tab;
 }
 
@@ -2296,7 +2304,6 @@ function zz_validate_last_fields($zz_tab, $tab, $rec) {
 	foreach ($my_rec['last_fields'] as $f) {
 		//	call function: generate ID
 		if ($my_rec['fields'][$f]['type'] === 'identifier') {
-			wrap_error(json_encode($my_rec['fields'][$f]['idf_conf']));
 			if ($my_rec['fields'][$f]['idf_conf']['dependent']) {
 				// dependent on main record, get values here
 				$my_rec['fields'][$f]['idf_values']
