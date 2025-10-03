@@ -306,6 +306,7 @@ function zz_secret_id_delete() {
  */
 function zzform_batch_def($table, $settings = []) {
 	wrap_include('zzform/definition');
+	wrap_include('zzform/helpers');
 	
 	// error handling
 	$def['error_settings'] = [];

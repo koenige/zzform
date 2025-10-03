@@ -811,6 +811,7 @@ function zzform_post_too_big() {
  */
 function zzform_includes() {
 	wrap_include('zzform/definition'); // also done in zzbrick/form, here for zzform_multi()
+	wrap_include('zzform/helpers'); // also done in zzbrick/form, here for zzform_multi()
 	require_once __DIR__.'/configuration.inc.php';
 	require_once __DIR__.'/functions.inc.php';
 	require_once __DIR__.'/url.inc.php';
