@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2024 Gustaf Mossakowski
+ * @copyright Copyright © 2024-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -18,14 +18,10 @@
  * 
  * @param array $params
  * @param array $page
+ * @param array $settings
  * @return string $text
  */
-function page_zzformurl(&$params, $page) {
-	$settings = [];
-	foreach ($params as $param) {
-		parse_str($param, $setting);
-		$settings[key($setting)] = str_replace(' ', '+', reset($setting));
-	}
+function page_zzformurl(&$params, $page, $settings) {
 	$params = [];
 	$url = zzform_url($settings['type'] ?? '');
 	if (!empty($settings['add'])) {
