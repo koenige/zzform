@@ -208,13 +208,25 @@ function zz_filter_apply(&$zz, &$list) {
 function zz_filter_function($filter, $sql) {
 	$sql = wrap_edit_sql($sql, 'SELECT', $filter['where'], 'replace');
 	$record_ids = wrap_db_fetch($sql, '_dummy_', 'single value');
-	$unset = [];
-	foreach ($record_ids as $record_id) {
-		$result = $filter['function']($record_id);
-		if ($result === NULL) unset($record_ids[$record_id]);
-		elseif (!$result) $unset[$record_id] = $record_id;
+	$data = [
+		'all' => [],
+		'unset' => []
+	];
+	if (array_key_exists('function_all', $filter)) {
+		$result = $filter['function_all']($record_ids);
+		foreach ($result as $record_id => $value) {
+			if (!$value) $data['unset'][$record_id] = $record_id;
+			else $data['all'][$record_id] = $record_id;
+		}
+	} else {
+		foreach ($record_ids as $record_id) {
+			$result = $filter['function']($record_id);
+			if ($result === NULL) unset($record_ids[$record_id]);
+			elseif (!$result) $data['unset'][$record_id] = $record_id;
+		}
+		$data['all'] = $record_ids;
 	}
-	return ['all' => $record_ids, 'unset' => $unset];
+	return $data;
 }
 
 /**
