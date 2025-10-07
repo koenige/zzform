@@ -123,22 +123,15 @@ function zz_identifier($field) {
 			AND $i === count($values)) {
 			$var = zz_identifier_cut($var, $conf['max_length']);
 		}
-		if ((strstr($var, '/') AND $i != count($values))
-			OR $conf['slashes']) {
+		if ((strstr($var, '/') AND $i === 1) OR $conf['slashes']) {
 			// last var will be treated normally, other vars may inherit 
 			// slashes from dir names
 			$dir_vars = explode('/', $var);
 		} elseif ($var) {
 			$dir_vars = [$var];
 		} else {
-			// no value, so remove concat elements for the non-existing value
-			if (is_array($conf['concat'])) {
-				$keys = array_keys($conf['concat']);
-				if (array_key_exists($i - 1, $keys)) {
-					$remove_key = $keys[$i - 1];
-					unset($conf['concat'][$remove_key]);
-				}
-			}
+			// no value, keep as placeholder for concat
+			$idf_arr[] = NULL;
 			continue;
 		}
 		foreach ($dir_vars as $d_var) {
