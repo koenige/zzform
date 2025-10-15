@@ -8,7 +8,7 @@
 # @copyright Copyright © 2020, 2022, 2024-2025 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
-<form method="GET" action="%%% page zzformurl type=self %%%" class="zzsearch" accept-charset="%%% setting charset %%%">
+<form method="GET" action="%%% page zzformurl type=self %%%" class="zzsearch" accept-charset="%%% setting character_set %%%">
 %%% item hidden_fields %%%
 <p><input type="search" size="30" name="q" value="%%% item q wrap_html_escape %%%">
 <input type="submit" value="%%% text search %%%"> %%% text in %%% <select name="scope">
