@@ -219,10 +219,7 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 			$record['js_xhr_selects'] = wrap_template('xhr-selects', $zz_conf['int']['selects']);
 		}
 		if (!empty($zz_conf['int']['dependencies'])) {
-			if (!empty($zz_conf['int']['selects'])) {
-				$zz_conf['int']['dependencies']['xhr_selects'] = true;
-			}
-			 $record['js_xhr_dependencies'] = wrap_template('xhr-dependencies', $zz_conf['int']['dependencies']);
+			$record['js_xhr_dependencies'] = wrap_template('xhr-dependencies', $zz_conf['int']['dependencies']);
 		}
 	}
 	if (!empty($zz_conf['int']['js_field_dependencies']) AND $record['form'])

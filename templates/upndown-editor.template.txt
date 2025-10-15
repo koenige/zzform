@@ -5,14 +5,14 @@
 # https://www.zugzwang.org/modules/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2015, 2022 Gustaf Mossakowski
+# @copyright Copyright © 2015, 2022, 2025 Gustaf Mossakowski
 #
 #
-<script src="%%% setting behaviour_path %%%/jquery/jquery-1.10.2.js"></script>
-<script src="%%% setting behaviour_path %%%/htmlparser/htmlparser.js"></script>
-<script src="%%% setting behaviour_path %%%/upndown/upndown.bundle.min.js"></script>
-<script src="%%% setting behaviour_path %%%/marked/marked.js"></script>
-<script src="%%% setting behaviour_path %%%/tinymce/tinymce.min.js"></script>
+%%% script jquery/jquery-1.10.2.js %%%
+%%% script htmlparser/htmlparser.js %%%
+%%% script upndown/upndown.bundle.min.js %%%
+%%% script marked/marked.js %%%
+%%% script tinymce/tinymce.min.js %%%
 <script>
 
 %%% loop start %%%

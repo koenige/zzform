@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/modules/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2017, 2020-2022, 2024 Gustaf Mossakowski
+# @copyright Copyright © 2017, 2020-2022, 2024-2025 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 # List of fields:
@@ -13,10 +13,8 @@
 # field_id, field_ids { field_id, value }, field_no }, source_field_ids {
 # field_id, field_no }, unrestricted, command, rec }
 #
-%%% unless xhr_selects %%%
-<script src="%%% setting behaviour_path %%%/vxjs/src/core.js"></script>
-<script src="%%% setting behaviour_path %%%/vxjs/src/xhr.js"></script>
-%%% endif %%%
+%%% script vxjs/src/core.js %%%
+%%% script vxjs/src/xhr.js %%%
 
 <script>
 %%% loop start %%%
