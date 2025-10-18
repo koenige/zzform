@@ -1,0 +1,50 @@
+# zzform
+# HTML output: zzform list view with ul
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzform
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2025 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+%%% loop row_groups %%%
+%%% if group %%%
+<h2>%%% item group %%%</h2>
+%%% endif %%%
+
+<ul class="data">
+%%% loop rows %%%
+<li class="%%% loopposition uneven un %%%even%%% if current %%% current_record %%% endif %%%
+%%% if last %%% last%%% endif %%%"%%% if main__dnd %%%
+ draggable data-sequence="%%% item sequence %%%" data-id="%%% item dnd_id %%%"%%% endif %%%>
+%%% loop fields %%%
+%%% if field %%%
+<p%%% if class %%% class="%%% item class %%%"%%% endif %%%>%%% item field %%%</p>
+%%% endif %%%
+%%% loop end %%%
+%%% if modes %%%
+<p class="editbutton">%%% include zzform-modes %%%</p>
+%%% endif %%%
+%%% if details %%%
+%%% include zzform-details %%%
+%%% endif %%%
+</li>
+%%% loop end %%%
+</ul>
+%%% loop end %%%
+
+%%% if buttons %%%
+<p class="multiple"><input type="checkbox" onclick="zz_set_checkboxes(this.checked);">
+ <em>%%% text Selection %%%:</em> %%% item buttons %%%</p>
+%%% endif %%%
+
+%%% if dnd %%%
+<script>
+var zz_dnd_id_field = "%%% item dnd_id_field %%%";
+var zz_dnd_sequence_field = "%%% item dnd_sequence_field %%%";
+var zz_dnd_target_url = "%%% item dnd_target_url %%%";
+var zz_dnd_dnd_start = "%%% item dnd_start %%%";
+</script>
+%%% script zzform/drag.js %%%
+%%% endif %%%

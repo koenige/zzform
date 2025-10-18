@@ -2370,63 +2370,43 @@ function zz_list_remove_empty_cols($rows, $head, $zz, $list) {
  *
  * @param array $list
  * @param array $rows
- * @global array $zz_conf
  * @return string
  */
 function zz_list_ul($list, $rows) {
-	global $zz_conf;
-	$output = '';
-	if (!$list['group']) {
-		$output .= '<ul class="data">'."\n";
-	}
-	$rowgroup = false;
-	foreach ($rows as $index => $row) {
-		if ($list['group'] AND $row['group'] != $rowgroup) {
-			if ($rowgroup) {
-				$output .= "</ul>\n";
-			}
-			$output .= sprintf(
-				"\n<h2>%s</h2>\n<ul class='data'>\n",
-				zz_list_group_titles_out($list['group_titles'][$index])
-			);
-			$rowgroup = $row['group'];
-		}
-		$output .= '<li';
-		if (!empty($list['dnd']))
-			$output .= ' draggable="true"';
-		$output .= ' class="'.($index & 1 ? 'uneven':'even')
-			.($list['current_record'] === $index ? ' current_record' : '')
-			.(($index + 1) === count($rows) ? ' last' : '').'"';
-		if ($list['dnd']) 
-			$output .= ' data-sequence="'.$row['sequence'].'" data-id="'.$row['dnd_id'].'"';
-		$output .= '>'; //onclick="Highlight();"
-		foreach ($row as $fieldindex => $field) {
-			if (is_numeric($fieldindex) && $field['text'])
-				$output .= '<p'.($field['class'] ? ' class="'.implode(' ', $field['class']).'"' : '')
-					.'>'.$field['text'].'</p>';
-		}
-		if (!empty($row['modes']))
-			$output .= '<p class="editbutton">'.wrap_template('zzform-modes', $row).'</p>';
-		if (!empty($row['details']))
-			$output .= '<p class="editbutton">'.wrap_template('zzform-details', $row).'</p>';
-		$output .= '</li>'."\n";
-	}
-	$output .= "</ul>\n";
-
-	if ($list['buttons']) {
-		$output .= '<p class="multiple"><input type="checkbox" onclick="zz_set_checkboxes(this.checked);">'
-		.' <em>'.wrap_text('Selection').':</em> '.$list['buttons'].'</p>';
-	}
+	$list['row_groups'] = [];
 	$list['dnd_start'] = wrap_page_limit('start');
-	if (!empty($list['dnd'])) {
-		$output .= '<script>
-			var zz_dnd_id_field = "'.$list['dnd_id_field'].'";
-			var zz_dnd_sequence_field = "'.$list['dnd_sequence_field'].'";
-			var zz_dnd_target_url = "'.$list['dnd_target_url'].'";
-			var zz_dnd_dnd_start = "'.$list['dnd_start'].'";
-		</script>';
-		$output .= '<script src="'.wrap_setting('behaviour_path').'/zzform/drag.js"></script>';
+	$group_index = 0;
+	$row_group = NULL;
+
+	foreach ($rows as $index => $row) {
+		if ($list['group'] AND $row['group'] !== $row_group) {
+			$group_index++;
+			$list['row_groups'][$group_index]['group']
+				= zz_list_group_titles_out($list['group_titles'][$index]);
+			$row_group = $row['group'];
+		}
+		$list['row_groups'][$group_index]['rows'] = [];
+		foreach ($rows as $index => $row) {
+			$list['row_groups'][$group_index]['rows'][$index] = [
+				'dnd_id' => $row['dnd_id'] ?? NULL,
+				'sequence' => $row['sequence'],
+				'modes' => $row['modes'] ?? NULL,
+				'details' => $row['details'] ?? NULL,
+				'fields' => [],
+				'current' => $list['current_record'] === $index ? true : false,
+				'last' => ($index + 1) === count($rows) ? true : false
+			];
+			foreach ($row as $fieldindex => $field) {
+				if (!is_numeric($fieldindex)) continue;
+				$list['row_groups'][$group_index]['rows'][$index]['fields'][] = [
+					'class' => $field['class'] ? implode(' ', $field['class']) : '',
+					'field' => $field['text']
+				];
+			}
+		}
 	}
+
+	$output .= wrap_template('zzform-list-ul', $list);
 	return $output;
 }
 
