@@ -2406,8 +2406,7 @@ function zz_list_ul($list, $rows) {
 		}
 	}
 
-	$output .= wrap_template('zzform-list-ul', $list);
-	return $output;
+	return wrap_template('zzform-list-ul', $list);
 }
 
 /**
