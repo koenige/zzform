@@ -702,7 +702,8 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 				$list['details'] = true;
 			} else {
 				// if there's nothing in 'modes', put it in here as well
-				$list['modes'] = true;
+				if ($list['display'] === 'table')
+					$list['modes'] = true;
 			}
 		}
 		$z++;
@@ -2389,7 +2390,7 @@ function zz_list_ul($list, $rows) {
 		foreach ($rows as $index => $row) {
 			$list['row_groups'][$group_index]['rows'][$index] = [
 				'dnd_id' => $row['dnd_id'] ?? NULL,
-				'sequence' => $row['sequence'],
+				'sequence' => $row['sequence'] ?? NULL,
 				'modes' => $row['modes'] ?? NULL,
 				'details' => $row['details'] ?? NULL,
 				'fields' => [],
