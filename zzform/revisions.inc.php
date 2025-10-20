@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2016-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2016-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -276,6 +276,7 @@ function zz_revisions_read_id($table) {
 		WHERE main_table_name = "%s"
 		AND main_record_id = %d
 		AND rev_status = "pending"
+		ORDER BY revision_id ASC
 		LIMIT 1';
 	$sql = sprintf($sql, $table, $zz_conf['int']['id']['value']);
 	return wrap_db_fetch($sql, '', 'single value');
