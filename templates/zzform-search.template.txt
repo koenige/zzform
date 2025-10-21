@@ -10,7 +10,7 @@
 #
 <form method="GET" action="%%% page zzformurl type=self %%%" class="zzsearch" accept-charset="%%% setting character_set %%%">
 %%% item hidden_fields %%%
-<p><input type="search" size="30" name="q" value="%%% item q wrap_html_escape %%%">
+<p><input type="search" size="30" name="q" value="%%% item q wrap_html_escape %%%" required minlength="1">
 <input type="submit" value="%%% text search %%%"> %%% text in %%% <select name="scope">
 <option value="">%%% text all fields %%%</option>
 %%% loop fields %%%
