@@ -70,7 +70,7 @@ function zz_geo_coord_in($value, $orientation = 'lat', $precision = 0) {
 	default:
 		$my['error'] = wrap_text(
 			'Development error. Orientation %s is not valid.',
-			['values' => zz_htmltag_escape($orientation)]
+			['values' => wrap_html_escape($orientation)]
 		);
 		return $my;
 	}
@@ -96,7 +96,7 @@ function zz_geo_coord_in($value, $orientation = 'lat', $precision = 0) {
 			// mismatch
 			$my['error'] = wrap_text(
 				'Mismatch: %s signals different hemisphere than %s.', 
-				['values' => [$hemisphere_letter, zz_htmltag_escape(substr($value, 0, 1))]]
+				['values' => [$hemisphere_letter, wrap_html_escape(substr($value, 0, 1))]]
 			);
 			return $my;
 		} elseif (!$hemisphere) {
