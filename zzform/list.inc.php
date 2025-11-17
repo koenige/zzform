@@ -628,13 +628,18 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 			$rows[$z][-1]['class'][] = 'select_multiple_records';
 		}
 
-		// check for .cfg file with private = 1, hide list_dependency field
+		// config field?
 		if ($mode !== 'export') {
 			foreach ($table_defs[$def_index] as $fieldindex => $field) {
 				if (!isset($field['cfg'])) continue;
-				if (empty($field['cfg'][$line[$field['field_name']]]['private'])) continue;
 				if (!isset($field['list_dependency'])) continue;
-				$line[$field['list_dependency']] = '********';
+				$line[$field['list_dependency']]
+					= mf_default_setting_format($line[$field['list_dependency']], $field['cfg'][$line[$field['field_name']]]);
+				// Mark dependency field to skip default formatting
+				foreach ($table_defs[$def_index] as $dep_fieldindex => $dep_field) {
+					if (isset($dep_field['field_name']) AND $dep_field['field_name'] === $field['list_dependency'])
+						$table_defs[$def_index][$dep_fieldindex]['list_no_default_format'] = true;
+				}
 			}
 		}
 
@@ -1175,7 +1180,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 			break;
 		default:
 			$text = $row['value'];
-			if ($text AND empty($field['list_format'])) {
+			if ($text AND empty($field['list_format']) AND empty($field['list_no_default_format'])) {
 				if (empty($field['export_no_html']) OR $mode !== 'export')
 					$text = nl2br(zz_htmltag_escape($text));
 			}
