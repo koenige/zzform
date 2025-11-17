@@ -634,7 +634,7 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 				if (!isset($field['cfg'])) continue;
 				if (!isset($field['list_dependency'])) continue;
 				$line[$field['list_dependency']]
-					= mf_default_setting_format($line[$field['list_dependency']], $field['cfg'][$line[$field['field_name']]]);
+					= zz_format_setting($line[$field['list_dependency']], $field['cfg'][$line[$field['field_name']]]);
 				// Mark dependency field to skip default formatting
 				foreach ($table_defs[$def_index] as $dep_fieldindex => $dep_field) {
 					if (isset($dep_field['field_name']) AND $dep_field['field_name'] === $field['list_dependency'])

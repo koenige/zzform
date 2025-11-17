@@ -75,3 +75,33 @@ function zzform_round_date($date_iso = '', $round_to_min = NULL) {
 	
 	return date_format($date_time, 'Y-m-d H:i');
 }
+
+/**
+ * format a setting
+ *
+ * @param string $value
+ * @param array $cfg
+ * @return string
+ */
+function zz_format_setting($value, $cfg = []) {
+	wrap_include('list', 'zzform');
+
+	$value = trim($value);
+	if (array_key_exists('private', $cfg) AND ($cfg['private']))
+		return sprintf('<abbr title="%s">******</abbr>',
+			wrap_text('The value is only visible during editing.')
+		);
+
+	if (str_starts_with($value, '[') AND str_ends_with($value, ']')) {
+		$value = substr($value, 1, -1);
+		$values = explode(',', $value);
+		foreach (array_keys($values) as $index) {
+			$values[$index] = trim($values[$index]);
+			$values[$index] = zz_list_word_split($values[$index]);
+		}
+		$value = implode('</li><li>', $values);
+		return sprintf('<ul class="default-settings"><li>%s</li></ul>', $value);
+	}
+
+	return zz_list_word_split($value);
+}
