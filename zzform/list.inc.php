@@ -1185,7 +1185,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 	if (!empty($field['translate_field_value']))
 		$text = wrap_text($text, ['source' => wrap_setting('zzform_script_path')]);
 	if (!empty($field['list_format']) AND $text)
-		$text = zz_list_format($text, $field['list_format'], $line);
+		$text = zz_list_format($text, $field['list_format']);
 	if (!empty($field['hide_zeros']) AND !$text)
 		$text = '';
 
@@ -1303,14 +1303,13 @@ function zz_field_sum($table_defs, $z, $sum, $list) {
  *
  * @param string $text
  * @param mixed $list_format (array = list of formatting functions)
- * @param array $record data of record
  */
-function zz_list_format($text, $list_format, $record = []) {
+function zz_list_format($text, $list_format) {
 	wrap_page_format_files();
 	if (!is_array($list_format)) $list_format = [$list_format];
 	foreach ($list_format as $format) {
 		if (wrap_setting('debug')) zz_debug('start', $format);
-		$text = $format($text, $record);
+		$text = $format($text);
 		if (wrap_setting('debug')) zz_debug('end');
 	}
 	return $text;
@@ -2063,7 +2062,7 @@ function zz_list_get_subselects($lines, $subselects, $mode) {
 				$subselect_text = $prefix.$subselect_text.$subselect['suffix'];
 			}
 			if (!empty($subselect['list_format'])) {
-				$subselect_text = zz_list_format($subselect_text, $subselect['list_format'], $sub_lines[$id]);
+				$subselect_text = zz_list_format($subselect_text, $subselect['list_format']);
 			}
 			$lines[$no][$subselect['table_name']] = zz_mark_search_string(
 				$subselect_text, $subselect['table_name'], $subselect
