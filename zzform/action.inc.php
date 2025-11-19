@@ -152,6 +152,11 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 		$validation = zz_action_timeframe($zz_record);
 		if (!$validation) $zz_conf['int']['resend_form_required'] = true;
 	}
+	// check referer
+	if ($validation) {
+		$validation = zz_action_referer();
+		if (!$validation) $zz_conf['int']['resend_form_required'] = true;
+	}
 	if (!empty($zz_conf['int']['resend_form_required']))
 		$validation = false;
 	
@@ -988,6 +993,24 @@ function zz_action_timeframe($zz_record) {
 	$min_seconds_per_form = 5;
 	if ($timeframe > $min_seconds_per_form) return true;
 	return false;
+}
+
+/**
+ * check if referer of form is correct
+ *
+ * @return bool
+ */
+function zz_action_referer() {
+	if (!array_key_exists('HTTP_REFERER', $_SERVER)) return true;
+	// empty referer is legal
+	if (!$_SERVER['HTTP_REFERER']) return true;
+	// batch mmode, we do not care about the referer
+	if (!empty($zz_conf['multi'])) return true;
+	// just whatever text as referer, do not care (some antivirus programs do that)
+	if (!str_starts_with($_SERVER['HTTP_REFERER'], 'http')) return true;
+	// ok, now if it is explicitly a wrong referer, ask for the form again
+	if (!str_starts_with($_SERVER['HTTP_REFERER'], wrap_setting('host_base').'/')) return false;
+	return true;
 }
 
 /**
