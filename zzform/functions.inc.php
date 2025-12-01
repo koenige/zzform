@@ -9,7 +9,6 @@
  * 
  * Contents:
  * C - Core functions
- * E - Error functions
  * F - Filesystem functions
  * H - Hierarchy functions
  * I - Internationalisation functions
@@ -2621,6 +2620,8 @@ function zz_check_select($my_rec, $f) {
 				'%s = %d', $sql_fields[0]['field_name'], $my_rec['POST'][$field_name]
 			));
 			$sql = wrap_edit_sql($sql, 'SELECT', $sql_fields[0]['field_name'], 'replace');
+			// ORDER BY not needed and can be problematic with SELECT DISTINCT
+			$sql = wrap_edit_sql($sql, 'ORDER BY', '_dummy_', 'delete');
 			$exists = wrap_db_fetch($sql, '', 'single value');
 			if (!$exists) {
 				// allow several identical records, too
