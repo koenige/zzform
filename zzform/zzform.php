@@ -814,6 +814,7 @@ function zzform_includes() {
 	wrap_include('zzform/helpers'); // also done in zzbrick/form, here for zzform_multi()
 	wrap_include('configuration', 'zzform');
 	wrap_include('errorhandling', 'zzform');
+	wrap_include('format', 'zzform');
 	wrap_include('functions', 'zzform');
 	wrap_include('url', 'zzform');
 	wrap_include('database', 'zzform');
