@@ -976,18 +976,6 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 					if ($my_where_fields) {
 						$field = zz_form_select_sql_where($field, $my_where_fields);
 					}
-					// check for 'sql_where_with_id'
-					if (!empty($field['sql_where_with_id']) AND !empty($zz_conf['int']['id']['value'])) {
-						$field['sql'] = wrap_edit_sql($field['sql'], 'WHERE', 
-							sprintf("%s = %d", $zz_conf['int']['id']['field_name'], $zz_conf['int']['id']['value'])
-						);
-					}
-					if (!empty($field['sql_where_without_id']) AND !empty($zz_conf['int']['id']['value'])) {
-						$field['sql'] = wrap_edit_sql($field['sql'], 'WHERE',
-							sprintf("%s != %d", $zz_conf['int']['id']['field_name'], $zz_conf['int']['id']['value'])
-						);
-					}
-
 					$field['output'] = zz_field_select_sql($field, $field_display, $my_rec['record'], 
 						$zz_tab[$data['tab']]['db_name'].'.'.$zz_tab[$data['tab']]['table']);
 
@@ -2618,6 +2606,8 @@ function zz_field_subtable_set($subtable, $display, $my_tab) {
 function zz_field_select_sql($field, $display, $record, $db_table) {
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
+	zz_field_sql($field, $zz_conf['int']['id']['value'] ?? NULL);
+
 	$lines = zz_field_query($field);
 	$lines = zz_field_unique_ignore($lines, $field);
 // #1.4 SELECT has no result
@@ -2704,6 +2694,31 @@ function zz_field_select_sql($field, $display, $record, $db_table) {
 	
 	// 1.3.4: draw a SELECT element
 	return zz_return(zz_field_select($field, $record, $lines));
+}
+
+/**
+ * prepare SQL query
+ *
+ * @param array $field
+ * @param int $id_value
+ * @return void
+ * @todo move all restrictions from field to this function
+ */
+function zz_field_sql(&$field, $id_value) {
+	global $zz_conf;
+	
+	if (!$id_value) return;
+
+	if (!empty($field['sql_where_with_id'])) {
+		$field['sql'] = wrap_edit_sql($field['sql'], 'WHERE', 
+			sprintf("%s = %d", $zz_conf['int']['id']['field_name'], $id_value)
+		);
+	}
+	if (!empty($field['sql_where_without_id'])) {
+		$field['sql'] = wrap_edit_sql($field['sql'], 'WHERE',
+			sprintf("%s != %d", $zz_conf['int']['id']['field_name'], $id_value)
+		);
+	}
 }
 
 /**
