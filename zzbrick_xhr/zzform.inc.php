@@ -25,6 +25,7 @@
 function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	zz_initialize();
 	$zz['fields'] = zz_fill_out($zz['fields'], $zz['table'], 1);
+	zz_get_unique_fields($zz['fields']);
 
 	if (is_array($xmlHttpRequest['text']))
 		return brick_xhr_error(400, 'malformed request', $xmlHttpRequest);
@@ -61,14 +62,16 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 		$text = [$text];
 	}
 
-	// @todo modify SQL query according to zzform()
-	
-	$sql = $field['sql'];
 	if (array_key_exists('add', $_GET) AND !empty($field['if']['insert']['sql']))
-		$sql = $field['if']['insert']['sql'];
-	if (!$sql)
+		$field['sql'] = $field['if']['insert']['sql'];
+	// @todo modify SQL query according to zzform()
+	wrap_include('record', 'zzform');
+	zz_field_sql($field, $_GET['zz_id_value'] ?? NULL);
+
+	if (!$field['sql'])
 		return brick_xhr_error(503, 'No SQL query was found. Values: %s', [json_encode($xmlHttpRequest)]);
 
+	$sql = $field['sql'];
 	$sql = wrap_db_prefix($sql);
 	$sql_fields = wrap_mysql_fields($sql);
 	$where = [];
