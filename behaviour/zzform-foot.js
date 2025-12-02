@@ -419,20 +419,22 @@ function zzformReplacePage(page, scrollTop = true) {
 	// move to top of page
 	if (scrollTop) scroll(0,0);
 	else if (typeof replaceContent !== 'undefined') {
-		var autoFocusElement = replaceContent.querySelector('input[autofocus]');
-		if (autoFocusElement) {
-			autoFocusElement.focus();
-		} else {
-			autoFocusElement = replaceContent.querySelector('select[autofocus]');
+		setTimeout(function() {
+			var autoFocusElement = replaceContent.querySelector('input[autofocus]');
 			if (autoFocusElement) {
 				autoFocusElement.focus();
 			} else {
-				autoFocusElement = replaceContent.querySelector('textarea[autofocus]');
+				autoFocusElement = replaceContent.querySelector('select[autofocus]');
 				if (autoFocusElement) {
 					autoFocusElement.focus();
+				} else {
+					autoFocusElement = replaceContent.querySelector('textarea[autofocus]');
+					if (autoFocusElement) {
+						autoFocusElement.focus();
+					}
 				}
 			}
-		}
+		}, 0);
 	}
 	if (typeof(zzformAnchor) !== 'undefined')
 		location.hash = "#" + zzformAnchor;
