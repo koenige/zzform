@@ -633,7 +633,7 @@ function zz_db_columns($db_table, $field = false) {
 function zz_db_error($errno) {
 	switch($errno) {
 	case 1062:
-		$msg = wrap_text('Duplicate entry');
+		$msg = wrap_text('Duplicate entry in this table. Please check whether the record you were about to enter already exists or you’ll have to change the values you entered.');
 		/*
 			@todo:
 			1. get table_name

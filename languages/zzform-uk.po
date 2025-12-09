@@ -460,7 +460,7 @@ msgid "Nothing was uploaded in field <strong>%s</strong>."
 msgstr "Нічого не було завантажено в поле <strong>%s</strong>."
 
 # Record form: Validation, displayed above form
-msgid "Duplicate entry"
+msgid "Duplicate entry in this table. Please check whether the record you were about to enter already exists or you’ll have to change the values you entered."
 msgstr "Здублювати запис"
 
 # Record form: Validation, displayed above form

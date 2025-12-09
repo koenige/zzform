@@ -1604,7 +1604,7 @@ msgid "Nothing was uploaded in field <strong>%s</strong>."
 msgstr "Es wurde nichts im Feld <strong>%s</strong> hochgeladen."
 
 # Record form: Validation, displayed above form
-msgid "Duplicate entry"
+msgid "Duplicate entry in this table. Please check whether the record you were about to enter already exists or you’ll have to change the values you entered."
 msgstr ""
 "Doppelter Eintrag in dieser Tabelle. Bitte überprüfen Sie, ob entweder der "
 "gewünschte Eintrag bereits existiert oder ob Sie Ihren Eintrag ändern können."

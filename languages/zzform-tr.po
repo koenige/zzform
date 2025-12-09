@@ -1729,7 +1729,7 @@ msgid "Nothing was uploaded in field <strong>%s</strong>."
 msgstr "Alana hiçbir şey yüklenmedi <strong>%s</strong>."
 
 # Record form: Validation, displayed above form
-msgid "Duplicate entry"
+msgid "Duplicate entry in this table. Please check whether the record you were about to enter already exists or you’ll have to change the values you entered."
 msgstr "Mükerrer giriş"
 
 # Record form: Validation, displayed above form

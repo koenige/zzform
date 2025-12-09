@@ -2675,19 +2675,18 @@ function zz_action_unique_check(&$zz_tab) {
 			, $zz_tab[0][0]['id']['field_name'], $zz_tab[0][0]['id']['value']
 		);
 		$existing_id = wrap_db_fetch($sql, '', 'single value');
-		if ($existing_id) {
-			$zz_tab[0][0]['validation'] = false;
-			foreach ($zz_tab[0][0]['fields'] as $no => $fielddef) {
-				foreach ($fields as $field) {
-					if (empty($fielddef['field_name'])) continue;
-					if ($field['field_name'] !== $fielddef['field_name']) continue;
-					if (!empty($zz_tab[0][0]['fields'][$no]['hide_in_form'])) continue;
-					if (empty($zz_tab[0][0]['fields'][$no]['required_in_db'])) continue;
-					$zz_tab[0][0]['fields'][$no]['check_validation'] = false;
-					$zz_tab[0][0]['fields'][$no]['validation_error'] = [
-						'msg' => 'Duplicate entry',
-					];
-				}
+		if (!$existing_id) continue;
+		$zz_tab[0][0]['validation'] = false;
+		foreach ($zz_tab[0][0]['fields'] as $no => $fielddef) {
+			foreach ($fields as $field) {
+				if (empty($fielddef['field_name'])) continue;
+				if ($field['field_name'] !== $fielddef['field_name']) continue;
+				if (!empty($zz_tab[0][0]['fields'][$no]['hide_in_form'])) continue;
+				if (empty($zz_tab[0][0]['fields'][$no]['required_in_db'])) continue;
+				$zz_tab[0][0]['fields'][$no]['check_validation'] = false;
+				$zz_tab[0][0]['fields'][$no]['validation_error'] = [
+					'msg' => 'Duplicate entry in this table. Please check whether the record you were about to enter already exists or you’ll have to change the values you entered.',
+				];
 			}
 		}
 	}
