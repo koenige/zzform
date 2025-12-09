@@ -2981,7 +2981,7 @@ function zz_remove_local_hostname($tempvar, $field) {
 		return $tempvar;
 	}
 	$removals = [
-		'http://'.$_SERVER['HTTP_HOST'], 'https://'.$_SERVER['HTTP_HOST']
+		'http://'.wrap_setting('hostname'), 'https://'.wrap_setting('hostname')
 	];
 	foreach ($removals as $removal) {
 		if (substr($tempvar, 0, strlen($removal)) !== $removal) continue;
