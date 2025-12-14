@@ -2427,7 +2427,7 @@ function zz_list_syndication_get($field, $line) {
 	wrap_include('syndication', 'zzwrap');
 
 	$img = zz_makelink($field['path_json_request'], $line);
-	$img = wrap_syndication_get($img);
+	$img = wrap_syndication($img);
 	if (!$img) return false;
 	$text = '<img src="'.($field['path_json_base'] ?? '').$img.'"  alt="" class="thumb">';
 	return $text;

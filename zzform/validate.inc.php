@@ -624,7 +624,7 @@ function zz_check_username($username, $field) {
 
 	if (empty($field['dont_check_username_online'])) {
 		wrap_include('syndication', 'zzwrap');
-		$success = wrap_syndication_get($url, 'html');
+		$success = wrap_syndication($url, ['type' => 'html']);
 		if (empty($success['_']['data'])) return false;
 	}
 
