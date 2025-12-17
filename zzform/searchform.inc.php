@@ -402,7 +402,7 @@ function zz_search_field_datetime($field_type, $search) {
 			$search['operator'] = zz_search_negative($search['operator']).'YEAR';
 			$search['term'] = $matches[1];
 		}
-		if (preg_match('/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/', $search['term'])) {
+		if (!is_array($search['term']) AND preg_match('/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/', $search['term'])) {
 			if ($search['operator'] === '%LIKE%') $search['operator'] = '=';
 			elseif ($search['operator'] === '%NOT LIKE%') $search['operator'] = '!=';
 		} 
