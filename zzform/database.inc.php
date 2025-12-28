@@ -854,7 +854,7 @@ function zz_db_deleted_id($table, $id_field_name, $id_value) {
 	$id_exists = wrap_db_fetch($sql, '', 'single value');
 	if ($id_exists) return false;
 
-	$max_increment = wrap_db_increment($table);
+	$max_increment = wrap_mysql_increment($table);
 	if ($max_increment > $id_value) return true;
 	return false;
 }
