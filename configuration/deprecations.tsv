@@ -1,0 +1,21 @@
+# zzform module
+# Deprecated code patterns
+#
+# This file lists deprecated code patterns that should be replaced
+# with newer alternatives. The deprecation checker will scan the
+# codebase and notify developers about occurrences that need updating.
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzform
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2025 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+#: Identifier	Type	Search Text	Message	Exclude Pattern
+# exclude_pattern: files matching this pattern will be excluded from results (multiple patterns separated by semicolon)
+#
+2025-03-30-1	code	sqlrecord	use `sql_record` instead
+2025-03-30-2	code	sqlcount	use `sql_count` instead
+2025-03-30-3	code	sqlextra	use `sql_extra` instead
+2025-05-12-1	code	sql_association	removed
