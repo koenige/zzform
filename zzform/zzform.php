@@ -818,6 +818,7 @@ function zzform_includes() {
 	wrap_include('functions', 'zzform');
 	wrap_include('url', 'zzform');
 	wrap_include('database', 'zzform');
+	wrap_include('sql', 'zzform');
 }
 
 /**
