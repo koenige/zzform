@@ -84,7 +84,7 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 			$query = $equal ? 'LOWER(%s) = %s"%s"' : 'LOWER(%s) LIKE %s"%%%s%%"';
 			$where[$index][] = sprintf($query, $sql_field['field_name'], $sql_field['character_encoding_prefix'], wrap_db_escape($value));
 			if (!empty($field['sql_translate'])) {
-				$condition = zz_check_select_translated($field, $sql_field['field_name'], $value, $equal);
+				$condition = zz_translate_search($field, $sql_field['field_name'], $value, $equal);
 				if ($condition) $where[$index][] = $condition;
 			}
 		}
