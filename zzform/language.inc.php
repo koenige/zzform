@@ -84,7 +84,13 @@ function zz_translate_search($field, $sql_fieldname, $value, $search_equal) {
 			);
 			$sql = wrap_edit_sql($sql, 'WHERE', implode(' OR ', $tconditions));
 			$new_records = wrap_db_fetch($sql, '_dummy_', 'numeric');
+			if ($new_records) {
 				$records += $new_records;
+			} else {
+				// if no records, check .po file
+				$new_records = zz_translate_po(reset($field['sql_translate']), $sql_fieldname, $value, $search_equal);
+				if ($new_records) $records += $new_records;
+			}
 		}
 	}
 	if (!$records) return '';
@@ -125,4 +131,44 @@ function zz_translate_fields_query($sql_translate) {
 		}
 	}
 	return $tfields[$key];	
+}
+
+/**
+ * check .po files if a translated search string exists
+ *
+ * @param string $table
+ * @param string $field_name
+ * @param string $value
+ * @param bool $search_equal
+ * @return array
+ */
+function zz_translate_po($table, $field_name, $value, $search_equal) {
+	// get .po files
+	$files = wrap_translate_po_table_filename($table, wrap_setting('lang'));
+	if (!$files) return;
+	
+	// compare case insensitive
+	$value = trim($value);
+	$value = strtolower($value);
+	
+	// check if search value exists in one of the strings, return ID
+	$data = [];
+	foreach ($files as $file) {
+		$po_text = wrap_po_parse($file);
+		$text = wrap_translate_po_split($table, $po_text);
+		foreach ($text as $id => $line) {
+			if (!array_key_exists($field_name, $line)) continue;
+			$line[$field_name] = strtolower($line[$field_name]);
+			if ($search_equal) {
+				if ($line[$field_name] === $value) $data[$id]['field_id'] = $id;
+			} else {
+				if (version_compare(PHP_VERSION, '8.0.0', '>=')) {
+					if (str_contains($line[$field_name], $value)) $data[$id]['field_id'] = $id;
+				} else {
+					if (strpos($line[$field_name], $value) !== false) $data[$id]['field_id'] = $id;
+				}
+			}
+		}
+	}
+	return $data;
 }
