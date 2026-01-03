@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2018, 2020-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2018, 2020-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -91,7 +91,7 @@ function mod_zzform_make_serversync_development() {
 		return $page;
 	}
 	$last_log = json_decode($content, true);
-	$defs = ['html', 'title', 'url'];
+	$defs = ['html', 'title', 'url', 'json'];
 	foreach ($defs as $def) unset($last_log[$def]);
 	$last_log_local = zz_logging_last();
 	if ($last_log === $last_log_local) {
