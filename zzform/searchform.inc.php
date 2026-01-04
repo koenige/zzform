@@ -659,8 +659,12 @@ function zz_search_detail_table($field, $table) {
 		// search .po files if exist
 		// @todo does not take into account that there might be a different translation in the .po file
 		// but for the time being, this does not really matter
-		$search_equal = str_ends_with($search_term, ' ') ? true : false;
-		$ids_po = zz_translate_po($table, $field['translate_field_name'], trim($search_term), $search_equal);
+		if (array_key_exists('translate_field_name', $field)) {
+			$search_equal = str_ends_with($search_term, ' ') ? true : false;
+			$ids_po = zz_translate_po($table, $field['translate_field_name'], trim($search_term), $search_equal);
+		} else {
+			$ids_po = [];
+		}
 		break;
 	}
 	$ids = zz_db_fetch($detail_sql, $foreign_key, '', 'Search query for detail table.', E_USER_WARNING);
