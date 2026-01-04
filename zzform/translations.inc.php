@@ -63,13 +63,13 @@ function zz_translations_init($table, $fields, $action) {
 		if (!empty($fields[$no]['hide_in_form'])) continue;
 
 		// include new subtable for translations
-		$zz = [];	
-		$translationsubtable = [];	
-
 		// include and read translation script
 		$zz = zzform_include(sprintf(
 			'translations-%s', $translationfields[$field_name]['field_type']
 		));
+		$zz['sql'] = wrap_edit_sql($zz['sql'], 'WHERE',
+			sprintf('translationfield_id = %d', $translationfields[$field_name]['translationfield_id'])
+		);
 		if (!$zz)
 			wrap_error(wrap_text(
 				'Translations script for `%s` does not exist!',
