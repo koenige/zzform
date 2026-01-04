@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2013, 2015-2021, 2023-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2013, 2015-2021, 2023-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -647,6 +647,7 @@ function zz_search_detail_table($field, $table) {
 		} else {
 			$detail_sql = sprintf($detail_sql, 'NOT ISNULL');
 		}
+		$ids_po = [];
 		break;
 	default:
 		$sql = $field['sql'] ?? $field['subselect']['sql'] ?? '';
@@ -654,11 +655,18 @@ function zz_search_detail_table($field, $table) {
 		$search_term = $_GET['q'];
 		if (str_starts_with($search_term, '! ')) $search_term = substr($search_term, 2);
 		$detail_sql = zz_search_sql($field['fields'], $sql, $field['table'], $search_term);
+		
+		// search .po files if exist
+		// @todo does not take into account that there might be a different translation in the .po file
+		// but for the time being, this does not really matter
+		$search_equal = str_ends_with($search_term, ' ') ? true : false;
+		$ids_po = zz_translate_po($table, $field['translate_field_name'], trim($search_term), $search_equal);
 		break;
 	}
 	$ids = zz_db_fetch($detail_sql, $foreign_key, '', 'Search query for detail table.', E_USER_WARNING);
-	if (!$ids) return [];
-	if (in_array('', array_keys($ids))) {
+	
+	if (!$ids AND !$ids_po) return [];
+	if ($ids AND in_array('', array_keys($ids))) {
 		zz_error_log([
 			'msg_dev' => 'Search: empty key for %s found in query',
 			'msg_dev_args' => [$foreign_key],
@@ -666,7 +674,12 @@ function zz_search_detail_table($field, $table) {
 		]);
 		unset($ids['']);
 	}
-	return [$table.'.'.$zz_conf['int']['id']['field_name'] => array_keys($ids)];
+	$keys = array_keys($ids);
+	if ($ids_po) {
+		$keys = array_merge($keys, array_keys($ids_po));
+		$keys = array_unique($keys);
+	}
+	return [$table.'.'.$zz_conf['int']['id']['field_name'] => $keys];
 }
 
 /**
