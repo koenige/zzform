@@ -9,7 +9,7 @@
 # https://www.zugzwang.org/modules/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2025 Gustaf Mossakowski
+# @copyright Copyright © 2025-2026 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 #: Identifier	Type	Search Text	Message	Exclude Pattern
@@ -26,3 +26,17 @@
 2025-03-30-2	code	sqlcount	use `sql_count` instead
 2025-03-30-3	code	sqlextra	use `sql_extra` instead
 2025-05-12-1	code	sql_association	removed
+2026-01-04-1	code	zzform_css_background_color_body	set via CSS --background-color-body	zzform/configuration/settings.cfg;zzform/layout/zzform-colours.css
+2026-01-04-2	code	zzform_css_background_color_error	set via CSS --background-color-error	zzform/configuration/settings.cfg;zzform/layout/zzform-colours.css
+2026-01-04-3	code	zzform_css_color_error	set via CSS --color-error	zzform/configuration/settings.cfg;zzform/layout/zzform-colours.css
+2026-01-04-4	code	zzform_css_background_color_record	set via CSS --background-color-record	zzform/configuration/settings.cfg;zzform/layout/zzform-colours.css
+2026-01-04-5	code	zzform_css_background_color_record_subtable	set via CSS --background-color-record-subtable	zzform/configuration/settings.cfg;zzform/layout/zzform-colours.css
+2026-01-04-6	code	zzform_css_background_color_record_foot	set via CSS --background-color-record-foot	zzform/configuration/settings.cfg;zzform/layout/zzform-colours.css
+2026-01-04-7	code	zzform_css_background_color_list_even	set via CSS --background-color-list-even	zzform/configuration/settings.cfg;zzform/layout/zzform-colours.css
+2026-01-04-8	code	zzform_css_background_color_list_uneven	set via CSS --background-color-list-uneven	zzform/configuration/settings.cfg;zzform/layout/zzform-colours.css
+2026-01-04-9	code	zzform_css_background_color_list_order_by	set via CSS --background-color-list-order-by	zzform/configuration/settings.cfg;zzform/layout/zzform-colours.css
+2026-01-04-10	code	zzform_css_background_color_list_where	set via CSS --background-color-list-where	zzform/configuration/settings.cfg;zzform/layout/zzform-colours.css
+2026-01-04-11	code	zzform_css_border_color_list	set via CSS --border-color-list	zzform/configuration/settings.cfg;zzform/layout/zzform-colours.css
+2026-01-04-12	code	zzform_css_border_color_list_foot	set via CSS --border-color-list-foot	zzform/configuration/settings.cfg;zzform/layout/zzform-colours.css
+2026-01-04-13	code	zzform_css_border_color_list_pages	set via CSS --border-color-list-pages	zzform/configuration/settings.cfg;zzform/layout/zzform-colours.css
+2026-01-04-14	code	zzform_css_color_list_pages	set via CSS --color-list-pages	zzform/configuration/settings.cfg;zzform/layout/zzform-colours.css

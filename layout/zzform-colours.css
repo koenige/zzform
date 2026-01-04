@@ -12,17 +12,96 @@
  */
 
 
+#zzform {
+	/* general */
+%%% if setting zzform_css_background_color_body %%%
+	--background-color-body: %%% setting zzform_css_background_color_body %%%;
+%%% else %%%
+	--background-color-body: #FFF;
+%%% endif %%%
+%%% if setting zzform_css_background_color_error %%%
+	--background-color-error: %%% setting zzform_css_background_color_error %%%;
+%%% else %%%
+	--background-color-error: #C00;
+%%% endif %%%
+%%% if setting zzform_css_color_error %%%
+	--color-error: %%% setting zzform_css_color_error %%%;
+%%% else %%%
+	--color-error: white;
+%%% endif %%%
+
+	/* record view */
+%%% if setting zzform_css_background_color_record %%%
+	--background-color-record: %%% setting zzform_css_background_color_record %%%;
+%%% else %%%
+	--background-color-record: #F3F4F4;
+%%% endif %%%
+%%% if setting zzform_css_background_color_record_subtable %%%
+	--background-color-record-subtable: %%% setting zzform_css_background_color_record_subtable %%%;
+%%% else %%%
+	--background-color-record-subtable: var(--background-color-record);
+%%% endif %%%
+%%% if setting zzform_css_background_color_record_foot %%%
+	--background-color-record-foot: %%% setting zzform_css_background_color_record_foot %%%;
+%%% else %%%
+	--background-color-record-foot: #CCC;
+%%% endif %%%
+
+	/* list view */
+%%% if setting zzform_css_background_color_list_even %%%
+	--background-color-list-even: %%% setting zzform_css_background_color_list_even %%%;
+%%% else %%%
+	--background-color-list-even: var(--background-color-record);
+%%% endif %%%
+%%% if setting zzform_css_background_color_list_uneven %%%
+	--background-color-list-uneven: %%% setting zzform_css_background_color_list_uneven %%%;
+%%% else %%%
+	--background-color-list-uneven: #FAFBFB;
+%%% endif %%%
+%%% if setting zzform_css_background_color_list_order_by %%%
+	--background-color-list-order-by: %%% setting zzform_css_background_color_list_order_by %%%;
+%%% else %%%
+	--background-color-list-order-by: var(--background-color-record);
+%%% endif %%%
+%%% if setting zzform_css_background_color_list_where %%%
+	--background-color-list-where: %%% setting zzform_css_background_color_list_where %%%;
+%%% else %%%
+	--background-color-list-where: #EEE;
+%%% endif %%%
+%%% if setting zzform_css_border_color_list %%%
+	--border-color-list: %%% setting zzform_css_border_color_list %%%;
+%%% else %%%
+	--border-color-list: #BBC;
+%%% endif %%%
+%%% if setting zzform_css_border_color_list_foot %%%
+	--border-color-list-foot: %%% setting zzform_css_border_color_list_foot %%%;
+%%% else %%%
+	--border-color-list-foot: #7B939D;
+%%% endif %%%
+%%% if setting zzform_css_border_color_list_pages %%%
+	--border-color-list-pages: %%% setting zzform_css_border_color_list_pages %%%;
+%%% else %%%
+	--border-color-list-pages: #666;
+%%% endif %%%
+%%% if setting zzform_css_color_list_pages %%%
+	--color-list-pages: %%% setting zzform_css_color_list_pages %%%;
+%%% else %%%
+	--color-list-pages: #CCC;
+%%% endif %%%
+}
+
+
 /* list view, should be equal to body */
 #zzform .editbutton, #zzform td.recordid, #zzform th.recordid 
-					{ background-color: %%% setting zzform_css_background_color_body %%%; }
+					{ background-color: var(--background-color-body); }
 
 /* record view */
 #zzform #record table
-					{ background-color: %%% setting zzform_css_background_color_record %%%; }
+					{ background-color: var(--background-color-record); }
 #zzform #record .subtable th, #zzform #record .subtable td
-					{ background-color: %%% setting zzform_css_background_color_record_subtable %%%; }
+					{ background-color: var(--background-color-record-subtable); }
 #zzform #record tfoot th, #zzform #record tfoot td
-					{ background-color: %%% setting zzform_css_background_color_record_foot %%%; }
+					{ background-color: var(--background-color-record-foot); }
 
 
 /* filter */
@@ -33,19 +112,19 @@
 /* list view (table) */
 #zzform table.data thead td, #zzform table.data thead th,
 #zzform table.data tr.group td, #zzform tr.last
-					{ border-color: %%% setting zzform_css_border_color_list %%%; }
-#zzform tr.even		{ background-color: %%% setting zzform_css_background_color_list_even %%%; }
-#zzform tr.uneven	{ background-color: %%% setting zzform_css_background_color_list_uneven %%%; }
-#zzform th.order	{ background-color: %%% setting zzform_css_background_color_list_order_by %%%; }
+					{ border-color: var(--border-color-list); }
+#zzform tr.even		{ background-color: var(--background-color-list-even); }
+#zzform tr.uneven	{ background-color: var(--background-color-list-uneven); }
+#zzform th.order	{ background-color: var(--background-color-list-order-by); }
 #zzform td.where, #zzform th.where 
-					{ background-color: %%% setting zzform_css_background_color_list_where %%%; }
+					{ background-color: var(--background-color-list-where); }
 
-#zzform tfoot td	{ border-color: %%% setting zzform_css_border_color_list_foot %%%; }
+#zzform tfoot td	{ border-color: var(--border-color-list-foot); }
 
 /* list view (page navigation below list) */
-#zzform ul.pages li	{ border-color: %%% setting zzform_css_border_color_list_pages %%%; }
+#zzform ul.pages li	{ border-color: var(--border-color-list-pages); }
 #zzform ul.pages li span
-					{ color: %%% setting zzform_css_color_list_pages %%%; }
+					{ color: var(--color-list-pages); }
 #zzform ul.pages li a:hover
 					{ background-color: #DDD; }
 
@@ -72,9 +151,9 @@ body #zzform .separator hr
 #zzform .error, #zzform .subtable .horizontal td.error,
 #zzform #record tr.error td, #zzform #record tr.error th, 
 #zzform #record .subtable td.error
-					{ background-color: %%% setting zzform_css_background_color_error %%%; }
+					{ background-color: var(--background-color-error); }
 #zzform .error, #zzform .subtable .horizontal td.error
-					{ color: %%% setting zzform_css_color_error %%%; }
+					{ color: var(--color-error); }
 #zzform .warning	{ background-color: orange; color: black; }
 #zzform .notice		{ background-color: yellow; color: black; }
 
