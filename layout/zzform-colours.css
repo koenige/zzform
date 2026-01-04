@@ -7,7 +7,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright (c) 2005-2011, 2014, 2016-2017, 2020, 2023-2025 Gustaf Mossakowski
+ * @copyright Copyright (c) 2005-2011, 2014, 2016-2017, 2020, 2023-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -81,7 +81,7 @@ body #zzform .separator hr
 
 /* Media */
 #zzform ul.data li	{ max-width: 126px; height: 225px; }
-#zzform ul.data img	{ width: 120px; height: 120px; object-fit: cover; }
+#zzform ul.data img	{ width: 120px; height: 120px; object-fit: contain; }
 
 
 /* record view, rating field */
