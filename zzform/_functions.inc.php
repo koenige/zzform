@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2022-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2022-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -118,7 +118,7 @@ function zzform_multi($definition_file, $values, $type = 'tables') {
 }
 
 /**
- * include $zz- or $zz_sub-table definition and accept changes for $zz_conf
+ * include $zz-table definition and accept changes for $zz_conf
  * all other local variables will be ignored
  * include zzform/forms.inc.php or zzform/tables.inc.php, too
  *

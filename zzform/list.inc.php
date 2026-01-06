@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -568,7 +568,7 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 		if ($subselect) $subselects[] = $subselect;
 		if (!array_key_exists($subselect['key_fieldname'], $line)) {
 			zz_error_log([
-				'msg_dev' => 'Wrong key_field_name `%s`. Please set $zz_sub["fields"][n]["key_field_name"] to something different: %s',
+				'msg_dev' => 'Wrong key_field_name `%s`. Please set $zz["fields"][n]["key_field_name"] to something different: %s',
 				'msg_dev_args' => [$subselect['key_fieldname'], implode(', ', array_keys($line))]
 			]);
 		}
