@@ -1001,6 +1001,8 @@ function zz_action_timeframe($zz_record) {
  * @return bool
  */
 function zz_action_referer() {
+	global $zz_conf;
+
 	if (!array_key_exists('HTTP_REFERER', $_SERVER)) return true;
 	// empty referer is legal
 	if (!$_SERVER['HTTP_REFERER']) return true;
