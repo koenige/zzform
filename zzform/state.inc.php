@@ -256,7 +256,10 @@ function zz_state_pairing($mode, $token = '', $hash = '') {
 	// @deprecated: migrate old log file location
 	if (file_exists(wrap_setting('log_dir').'/zzform-ids.log')) {
 		wrap_mkdir(wrap_setting('log_dir').'/zzform');
-		rename(wrap_setting('log_dir').'/zzform-ids.log', wrap_setting('log_dir').'/zzform/ids.log');
+		rename(wrap_setting('log_dir').'/zzform-ids.log', wrap_setting('log_dir').'/zzform/tokens.log');
+	}
+	if (file_exists(wrap_setting('log_dir').'/zzform/ids.log')) {
+		rename(wrap_setting('log_dir').'/zzform/ids.log', wrap_setting('log_dir').'/zzform/tokens.log');
 	}
 
 	if (!$token) $token = zz_state_token();
@@ -264,9 +267,9 @@ function zz_state_pairing($mode, $token = '', $hash = '') {
 	$timestamp = 0;
 
 	wrap_include('file', 'zzwrap');
-	$logs = wrap_file_log('zzform/ids');
+	$logs = wrap_file_log('zzform/tokens');
 	foreach ($logs as $index => $line) {
-		if ($line['zzform_id'] !== $token) continue;
+		if ($line['zzform_token'] !== $token) continue;
 		$found = $line['zzform_hash'];
 		$timestamp = $line['timestamp'];
 	}
@@ -278,7 +281,7 @@ function zz_state_pairing($mode, $token = '', $hash = '') {
 		if (empty($_POST['zz_edit_details']) AND empty($_POST['zz_add_details']))
 			$zz_conf['int']['resend_form_required'] = true;
 	}
-	wrap_file_log('zzform/ids', 'write', [time(), $token, $hash]);
+	wrap_file_log('zzform/tokens', 'write', [time(), $token, $hash]);
 }
 
 /**
@@ -293,8 +296,8 @@ function zz_state_pairing_delete() {
 	if (!zz_state_hash()) return false;
 
 	wrap_include('file', 'zzwrap');
-	wrap_file_log('zzform/ids', 'delete', [
-		'zzform_id' => zz_state_token(),
+	wrap_file_log('zzform/tokens', 'delete', [
+		'zzform_token' => zz_state_token(),
 		'zzform_hash' => zz_state_hash()
 	]);
 	return true;
