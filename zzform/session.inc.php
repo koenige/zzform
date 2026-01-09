@@ -132,7 +132,7 @@ function zz_session_filename($type) {
 	wrap_mkdir($dir);
 	$filename = sprintf('%s/%s-%s-%s.txt'
 		, $dir
-		, (empty(session_id()) OR wrap_setting('zzform_id_from_session')) ? zz_state_token() : session_id()
+		, (empty(session_id()) OR wrap_setting('zzform_token_from_session')) ? zz_state_token() : session_id()
 		, zz_state_hash()
 		, $type
 	);
@@ -175,10 +175,10 @@ function zz_review_via_login() {
 	zz_state_token($_SESSION['zzform']['review_via_login']);
 	zz_state_hash(zz_state_pairing('read'), 'write');
 
-	wrap_setting('zzform_id_from_session', true);
+	wrap_setting('zzform_token_from_session', true);
 	$_POST = zz_session_read('postdata');
 	$_FILES = zz_session_read('filedata');
-	wrap_setting('zzform_id_from_session', false);
+	wrap_setting('zzform_token_from_session', false);
 	
 	wrap_session_start();
 	unset($_SESSION['zzform']['review_via_login']);
