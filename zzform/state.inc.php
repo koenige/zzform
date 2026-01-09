@@ -2,7 +2,12 @@
 
 /**
  * zzform
- * Instance token and definition hash management
+ * State management: tokens, definition hashing, and anti-replay protection
+ *
+ * This module manages the state of form instances through:
+ * - State tokens: Random 6-character identifiers for each form interaction
+ * - Definition hashing: Structural fingerprints of form definitions
+ * - Token-hash pairing: Anti-replay attack protection
  *
  * Part of »Zugzwang Project«
  * https://www.zugzwang.org/modules/zzform
@@ -19,10 +24,14 @@
  * --------------------------------------------------------------------
  */
 
+
 /**
- * create an ID for zzform for internal purposes
+ * Initialize the state token for this zzform instance
+ * Retrieves token from GET/POST parameters or generates a new random 6-character token
  *
- * @param void
+ * The token is used to identify this specific form interaction across multiple requests
+ *
+ * @return void
  * @global array $zz_conf
  */
 function zz_state_token_set() {
@@ -39,10 +48,11 @@ function zz_state_token_set() {
 }
 
 /**
- * check if ID is valid (if returned via browser), if invalid: create new ID
+ * Validate state token format (must be 6 alphanumeric characters)
+ * If invalid, generates a new token and logs security error
  *
- * @param string
- * @return string
+ * @param string $string token to validate
+ * @return string validated token or new token if validation failed
  */
 function zz_state_token_validate($string) {
 	if (is_array($string))
@@ -56,9 +66,10 @@ function zz_state_token_validate($string) {
 }
 
 /**
- * if ID is invalid, create new ID and if it was received via POST, log as error
+ * Handle invalid state token: log security error, clear POST data, generate new token
+ * If token was received via POST, this indicates a potential security issue
  *
- * @return string
+ * @return string new random token
  */
 function zz_state_token_validate_error() {
 	if (!empty($_POST['zz_id'])) {
@@ -77,25 +88,30 @@ function zz_state_token_validate_error() {
  */
 
 /**
- * get a unique hash for a specific set of table definition ($zz) and
- * configuration ($zz_conf) to be able to save time for zzform_multi() and
- * to get a possible hash for a secret key
+ * Compute a hash of the form definition (structure only, not content)
+ * Creates a SHA1 hash representing the essential structure of the form
+ * Excludes cosmetic elements (titles, explanations) and volatile data (defaults, timestamps)
  *
- * @param array $zz (optional, for creating a hash)
- * @param array $zz_conf (optional, for creating a hash)
- * @return string $hash
+ * This hash is used for:
+ * - Form integrity verification
+ * - Detecting structural changes
+ * - Anti-replay attack protection when paired with token
+ *
+ * @param array $zz (optional) form definition array
+ * @param array $zz_conf (optional) form configuration array
+ * @return string SHA1 hash of the form's structural definition
  * @todo check if $_GET['id'], $_GET['where'] and so on need to be included
  */
 function zz_state_definition($zz = [], $zz_conf = []) {
 	static $hash = '';
-	static $id = '';
-	// if zzform ID is known and has changed, re-generate hash
-	if ($hash AND empty($zz_conf['id']) OR $zz_conf['id'] === $id) return $hash;
+	static $token = '';
+	// if state token is known and unchanged, return cached hash
+	if ($hash AND empty($zz_conf['id']) OR $zz_conf['id'] === $token) return $hash;
 
 	// get rid of varying and internal settings
 	// get rid of configuration settings which are not important for
 	// the definition of the database table(s)
-	$id = $zz_conf['id'];
+	$token = $zz_conf['id'];
 	$uninteresting_zz_conf_keys = [
 		'int', 'id'
 	];
@@ -117,15 +133,17 @@ function zz_state_definition($zz = [], $zz_conf = []) {
 	$my['zz'] = $zz;
 	$my['zz_conf'] = $zz_conf;
 	$hash = sha1(serialize($my));
-	zz_state_pairing('write', $id, $hash);
+	zz_state_pairing('write', $token, $hash);
 	return $hash;
 }
 
 /**
- * remove default values for hash, might be timestamps etc., to get a definition
- * that does not change
+ * Remove volatile default values from field definition before hashing
+ * Defaults may contain timestamps or dynamic values that change between requests
+ * Removing them ensures the definition hash only reflects structural changes
  *
- * @param array $field
+ * @param array &$field field definition array (modified by reference)
+ * @return void
  */
 function zz_state_definition_remove_defaults(&$field) {
 	if (isset($field['default'])) unset($field['default']);
@@ -149,31 +167,35 @@ function zz_state_definition_remove_defaults(&$field) {
  */
 
 /**
- * hash a secret key and make it small, store and retrieve it
+ * Generate or retrieve the state hash (definition hash + additional entropy)
+ * Creates a compact hash derived from the form definition hash combined with additional data
+ * Converted from hex to base62 for shorter representation
  *
- * @param int $id (optional) if provided, generate new secret key
+ * This hash is used for integrity verification and is paired with the token in logs
+ *
+ * @param mixed $value (optional) if provided, generate new hash from this value
  * @param string $action (optional)
- *		'once': generate key without storing (for one-off uses)
- *		'write': write $id as value
- * @return string
+ *		'once': generate hash without storing (for one-off uses)
+ *		'write': directly write $value as the stored hash
+ * @return string current state hash or null if not yet generated
  */
-function zz_state_hash($id = NULL, $action = '') {
-	static $secret_key = NULL;
+function zz_state_hash($value = NULL, $action = '') {
+	static $state_hash = NULL;
 
 	if ($action === 'write')
-		return $secret_key = $id;
+		return $state_hash = $value;
 	
-	// Generate new key if ID provided
-	if ($id !== NULL) {
-		$hash = sha1(zz_state_definition().$id);
+	// Generate new hash if value provided
+	if ($value !== NULL) {
+		$hash = sha1(zz_state_definition().$value);
 		$hash = wrap_base_convert($hash, 16, 62);
-		// return key without storing
+		// return hash without storing
 		if ($action === 'once') return $hash;
-		// store key
-		$secret_key = $hash;
+		// store hash
+		$state_hash = $hash;
 	}
 	
-	return $secret_key;
+	return $state_hash;
 }
 
 
@@ -184,31 +206,36 @@ function zz_state_hash($id = NULL, $action = '') {
  */
 
 /**
- * read or write secret_key connected to zzform ID
+ * Manage token-hash pairings for anti-replay protection
+ * Logs valid combinations of state tokens and their corresponding hashes
+ * Prevents form replay attacks by verifying token-hash pairs match logged values
  *
- * @param string $mode ('read', 'write', 'timecheck')
- * @param string $id
- * @param string $hash
- * @return string
+ * @param string $mode operation mode:
+ *		'read': retrieve hash for given token
+ *		'write': log new token-hash pairing
+ *		'timecheck': return seconds since token was logged
+ * @param string $token (optional) state token, defaults to current token from $zz_conf['id']
+ * @param string $hash (optional) definition hash to pair with token
+ * @return string|int depends on mode: 'read' returns hash, 'timecheck' returns seconds, 'write' returns hash or empty
  */
-function zz_state_pairing($mode, $id = '', $hash = '') {
+function zz_state_pairing($mode, $token = '', $hash = '') {
 	global $zz_conf;
 	if (!empty($zz_conf['multi'])) return '';
 	
-	// @deprecated
+	// @deprecated: migrate old log file location
 	if (file_exists(wrap_setting('log_dir').'/zzform-ids.log')) {
 		wrap_mkdir(wrap_setting('log_dir').'/zzform');
 		rename(wrap_setting('log_dir').'/zzform-ids.log', wrap_setting('log_dir').'/zzform/ids.log');
 	}
 
-	if (!$id) $id = $zz_conf['id'];
+	if (!$token) $token = $zz_conf['id'];
 	$found = '';
 	$timestamp = 0;
 
 	wrap_include('file', 'zzwrap');
 	$logs = wrap_file_log('zzform/ids');
 	foreach ($logs as $index => $line) {
-		if ($line['zzform_id'] !== $id) continue;
+		if ($line['zzform_id'] !== $token) continue;
 		$found = $line['zzform_hash'];
 		$timestamp = $line['timestamp'];
 	}
@@ -220,14 +247,15 @@ function zz_state_pairing($mode, $id = '', $hash = '') {
 		if (empty($_POST['zz_edit_details']) AND empty($_POST['zz_add_details']))
 			$zz_conf['int']['resend_form_required'] = true;
 	}
-	wrap_file_log('zzform/ids', 'write', [time(), $id, $hash]);
+	wrap_file_log('zzform/ids', 'write', [time(), $token, $hash]);
 }
 
 /**
- * delete secret ID after successful operation
- * to avoid reusing zz_id
+ * Delete token-hash pairing after successful form operation
+ * Prevents replay attacks by invalidating the token-hash combination
+ * Should be called after INSERT/UPDATE/DELETE operations complete successfully
  *
- * @return bool
+ * @return bool true if pairing was deleted, false if nothing to delete
  */
 function zz_state_pairing_delete() {
 	global $zz_conf;
