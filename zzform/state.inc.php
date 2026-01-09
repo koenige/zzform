@@ -44,33 +44,34 @@
  */
 function zz_state_token($token = NULL) {
 	global $zz_conf;
+	static $state_token = '';
 	
 	// Setter: force generate new random token
 	if ($token === 'generate') {
-		$zz_conf['id'] = wrap_random_hash(6);
-		return $zz_conf['id'];
+		$state_token = wrap_random_hash(6);
+		return $state_token;
 	}
 	
 	// Setter: set specific token (with validation)
 	if ($token !== NULL) {
-		$zz_conf['id'] = zz_state_token_validate($token);
-		return $zz_conf['id'];
+		$state_token = zz_state_token_validate($token);
+		return $state_token;
 	}
 	
 	// Getter: return existing token if set
-	if (!empty($zz_conf['id'])) return $zz_conf['id'];
+	if ($state_token) return $state_token;
 	if (!empty($zz_conf['multi'])) return '';
 	
 	// Auto-initialize if not set
 	if (!empty($_GET['zz']) AND strlen($_GET['zz']) === 6) {
-		$zz_conf['id'] = zz_state_token_validate($_GET['zz']);
+		$state_token = zz_state_token_validate($_GET['zz']);
 	} elseif (!empty($_POST['zz_id']) AND !is_array($_POST['zz_id']) AND strlen($_POST['zz_id']) === 6) {
-		$zz_conf['id'] = zz_state_token_validate($_POST['zz_id']);
+		$state_token = zz_state_token_validate($_POST['zz_id']);
 	} else {
-		$zz_conf['id'] = wrap_random_hash(6);
+		$state_token = wrap_random_hash(6);
 	}
 	
-	return $zz_conf['id'];
+	return $state_token;
 }
 
 /**
@@ -131,13 +132,17 @@ function zz_state_token_validate_error() {
 function zz_state_definition($zz = [], $zz_conf = []) {
 	static $hash = '';
 	static $token = '';
-	// if state token is known and unchanged, return cached hash
-	if ($hash AND empty($zz_conf['id']) OR $zz_conf['id'] === $token) return $hash;
+	
+	// Return cached hash if no token set
+	if ($hash AND !zz_state_token()) return $hash;
+	
+	// Return cached hash if token unchanged
+	if (zz_state_token() === $token) return $hash;
 
 	// get rid of varying and internal settings
 	// get rid of configuration settings which are not important for
 	// the definition of the database table(s)
-	$token = $zz_conf['id'];
+	$token = zz_state_token();
 	$uninteresting_zz_conf_keys = [
 		'int', 'id'
 	];
@@ -240,7 +245,7 @@ function zz_state_hash($value = NULL, $action = '') {
  *		'read': retrieve hash for given token
  *		'write': log new token-hash pairing
  *		'timecheck': return seconds since token was logged
- * @param string $token (optional) state token, defaults to current token from $zz_conf['id']
+ * @param string $token (optional) state token, defaults to current token from zz_state_token()
  * @param string $hash (optional) definition hash to pair with token
  * @return string|int depends on mode: 'read' returns hash, 'timecheck' returns seconds, 'write' returns hash or empty
  */
