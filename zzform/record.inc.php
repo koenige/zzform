@@ -4124,7 +4124,7 @@ function zz_field_captcha($field, $record, $mode) {
 	if (!empty($field['captcha_solved'])) {
 		$field['captcha_solved'] = wrap_set_hash(zz_state_token(), 'zzform_captcha_key');
 	} else {
-		$field['zz_id'] = zz_state_token();
+		$field['zz_token'] = zz_state_token();
 		$field['alt_text'] = zz_captcha_alt_text(zz_captcha_code());
 	}
 	return wrap_template('zzform-captcha', $field);

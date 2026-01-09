@@ -14,7 +14,7 @@
 <form action="%%% page zzformurl type=self+extra encode=1 %%%
 %%% item form_anchor "#%s" %%%" method="POST"%%% if upload %%% enctype="multipart/form-data"%%% endif %%% accept-charset="%%% setting character_set %%%" id="zzform_form"%%%
 if divert_files %%% data-divert-files="%%% item divert_files %%%"%%% endif %%%>
-<input type="hidden" name="zz_id" value="%%% item state_token %%%">
+<input type="hidden" name="zz_token" value="%%% item state_token %%%">
 %%% item hook_output %%%
 %%% endif %%%
 

@@ -151,11 +151,11 @@ function zz_session_via_login() {
 
 	// this function is called from outside zzform!
 	if (array_key_exists('zz_action', $_POST) AND $_POST['zz_action'] === 'multiple'
-		AND !isset($_POST['zz_id'])) {
+		AND !isset($_POST['zz_token'])) {
 		zz_state_token('generate');
 		zz_state_hash(NULL, 'write');
 	} else {
-		zz_state_token($_POST['zz_id']);
+		zz_state_token($_POST['zz_token']);
 		zz_state_hash(zz_state_pairing('read'), 'write');
 	}
 
@@ -187,7 +187,7 @@ function zz_review_via_login() {
 	if ($_POST['zz_action'] !== 'delete') return true;
 
 	$_SESSION['zzform']['delete_via_login'] = true;
-	unset($_POST['zz_id']);
+	unset($_POST['zz_token']);
 	unset($_POST['zz_action']);
 	$_GET['delete'] = array_shift($_POST);
 	$uri = wrap_setting('request_uri');

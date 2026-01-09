@@ -5,14 +5,14 @@
 # https://www.zugzwang.org/modules/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2019, 2023-2024 Gustaf Mossakowski
+# @copyright Copyright © 2019, 2023-2024, 2026 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 %%% if captcha_solved %%%
 <input type="hidden" name="%%% item f_field_name %%%" value="solved-%%% item captcha_solved %%%">
 %%% else %%%
-<p><img src="%%% page zzformurl type=self %%%?request=captcha&amp;zz=%%% item zz_id %%%" width="120" height="30" border="1" alt="%%% item alt_text %%%" id="%%% item f_field_name %%%_img">
-<a href="#" onclick="document.getElementById('%%% item f_field_name %%%_img').src='%%% page zzformurl type=self %%%?request=captcha&amp;zz=%%% item zz_id %%%&amp;reload' + new Date().getTime(); return false;">%%% text (Reload image) %%%</a></p>
+<p><img src="%%% page zzformurl type=self %%%?request=captcha&amp;zz=%%% item zz_token %%%" width="120" height="30" border="1" alt="%%% item alt_text %%%" id="%%% item f_field_name %%%_img">
+<a href="#" onclick="document.getElementById('%%% item f_field_name %%%_img').src='%%% page zzformurl type=self %%%?request=captcha&amp;zz=%%% item zz_token %%%&amp;reload' + new Date().getTime(); return false;">%%% text (Reload image) %%%</a></p>
 <p><input type="number" size="6" minlength="5" maxlength="5" pattern=".{5,5}" name="%%% item f_field_name %%%" value=""></p>
 <p class="explanation">
 %%% if explanation %%%%%%% item explanation %%%

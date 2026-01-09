@@ -36,7 +36,7 @@
  *
  * If token is not yet set, auto-initializes by:
  * - Checking GET parameter 'zz' for existing token
- * - Checking POST parameter 'zz_id' for existing token
+ * - Checking POST parameter 'zz_token' for existing token
  * - Generating a new random token if none provided
  *
  * @param string $token (optional) token to set, or 'generate' for new random token
@@ -65,8 +65,8 @@ function zz_state_token($token = NULL) {
 	// Auto-initialize if not set
 	if (!empty($_GET['zz']) AND strlen($_GET['zz']) === 6) {
 		$state_token = zz_state_token_validate($_GET['zz']);
-	} elseif (!empty($_POST['zz_id']) AND !is_array($_POST['zz_id']) AND strlen($_POST['zz_id']) === 6) {
-		$state_token = zz_state_token_validate($_POST['zz_id']);
+	} elseif (!empty($_POST['zz_token']) AND !is_array($_POST['zz_token']) AND strlen($_POST['zz_token']) === 6) {
+		$state_token = zz_state_token_validate($_POST['zz_token']);
 	} else {
 		$state_token = wrap_random_hash(6);
 	}
@@ -99,9 +99,9 @@ function zz_state_token_validate($string) {
  * @return string new random token
  */
 function zz_state_token_validate_error() {
-	if (!empty($_POST['zz_id'])) {
+	if (!empty($_POST['zz_token'])) {
 		wrap_setting('log_username_suffix', wrap_setting('remote_ip'));
-		wrap_error(sprintf('POST data removed because of illegal zz_id value `%s`', json_encode($_POST['zz_id'])), E_USER_NOTICE);
+		wrap_error(sprintf('POST data removed because of illegal zz_token value `%s`', json_encode($_POST['zz_token'])), E_USER_NOTICE);
 		unset($_POST);
 	}
 	return wrap_random_hash(6);
