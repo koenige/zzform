@@ -113,7 +113,7 @@ function zzform($zz) {
 	}
 	if (empty($zz_conf['multi'])
 		AND ((!empty($_POST['zz_add_details']) OR !empty($_POST['zz_edit_details']))
-		OR !empty($_SESSION['zzform'][$zz_conf['id']]))
+		OR !empty($_SESSION['zzform'][zz_state_token()]))
 	) {
 		require_once __DIR__.'/details.inc.php';
 		$zz = zz_details($zz);

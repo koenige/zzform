@@ -128,12 +128,11 @@ function zz_session_read($type, $data = []) {
  * @return string
  */
 function zz_session_filename($type) {
-	global $zz_conf;
 	$dir = wrap_setting('tmp_dir').'/zzform-sessions';
 	wrap_mkdir($dir);
 	$filename = sprintf('%s/%s-%s-%s.txt'
 		, $dir
-		, (empty(session_id()) OR wrap_setting('zzform_id_from_session')) ? $zz_conf['id'] : session_id()
+		, (empty(session_id()) OR wrap_setting('zzform_id_from_session')) ? zz_state_token() : session_id()
 		, zz_state_hash()
 		, $type
 	);
@@ -164,7 +163,7 @@ function zz_session_via_login() {
 	zz_session_write('postdata', $_POST);
 	zz_session_write('filedata', $_FILES); // if files, move files to _tmp dir
 
-	$text = sprintf('<input type="hidden" name="zz_review_via_login" value="%s">'."\n", $zz_conf['id']);
+	$text = sprintf('<input type="hidden" name="zz_review_via_login" value="%s">'."\n", zz_state_token());
 	return $text;
 }
 

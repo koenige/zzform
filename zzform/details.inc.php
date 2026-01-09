@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2016-2021, 2023-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2016-2021, 2023-2024, 2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -29,14 +29,14 @@ function zz_details($zz) {
 		return $zz;
 	}
 	if (empty($_SESSION['zzform'])) return $zz;
-	if (!array_key_exists($zz_conf['id'], $_SESSION['zzform'])) return $zz;
+	if (!array_key_exists(zz_state_token(), $_SESSION['zzform'])) return $zz;
 
 	// check position
 	$script_name = zz_url_basename(wrap_setting('request_uri'));
 	$last = NULL;
 	$current = NULL;
 
-	foreach ($_SESSION['zzform'][$zz_conf['id']] as $index => $form) {
+	foreach ($_SESSION['zzform'][zz_state_token()] as $index => $form) {
 		if ($form['destination_script'] === $script_name) {
 			$last = $index;
 		} elseif ($form['source_script'] === $script_name) {
@@ -68,7 +68,6 @@ function zz_details($zz) {
  * @return bool false if there's an error
  */
 function zz_details_start($zz) {
-	global $zz_conf;
 	if (empty($_SESSION['logged_in'])) return false;
 
 	$mode = !empty($_POST['zz_add_details']) ? 'add' : 'edit';
@@ -113,14 +112,14 @@ function zz_details_start($zz) {
 	$redirect_to = $field['add_details'];
 	$redirect_to .= strstr($field['add_details'], '?') ? '&' : '?';
 	if ($mode === 'add')
-		$redirect_to .= sprintf('add&zz=%s', $zz_conf['id']);
+		$redirect_to .= sprintf('add&zz=%s', zz_state_token());
 	else
-		$redirect_to .= sprintf('edit=%d&zz=%s', $posted_value, $zz_conf['id']);
+		$redirect_to .= sprintf('edit=%d&zz=%s', $posted_value, zz_state_token());
 
 	$source = wrap_setting('request_uri');
 	$source .= strstr($source, '?') ? '&' : '?';
 	if (!strstr($source, 'zz=')) {
-		$source .= sprintf('zz=%s&', $zz_conf['id']);
+		$source .= sprintf('zz=%s&', zz_state_token());
 	}
 	if ($_POST['zz_action'] === 'insert') {
 		$source .= 'add';
@@ -186,15 +185,15 @@ function zz_details_return($ops, $zz_tab) {
 		} else {
 			$id = $ops['id'];
 		}
-		$_SESSION['zzform'][$zz_conf['id']][$last]['new_id'] = $id;
+		$_SESSION['zzform'][zz_state_token()][$last]['new_id'] = $id;
 	}
 
 	// remove session entries for this record
 	if (isset($current)) {
-		unset($_SESSION['zzform'][$zz_conf['id']][$current]);
+		unset($_SESSION['zzform'][zz_state_token()][$current]);
 	}
-	if (isset($_SESSION['zzform'][$zz_conf['id']]) AND !$_SESSION['zzform'][$zz_conf['id']]) {
-		unset($_SESSION['zzform'][$zz_conf['id']]);
+	if (isset($_SESSION['zzform'][zz_state_token()]) AND !$_SESSION['zzform'][zz_state_token()]) {
+		unset($_SESSION['zzform'][zz_state_token()]);
 		// no more detail forms open, remove zz-ID from URL
 		zzform_url_remove(['zz'], 'qs_zzform', 'change', '&');
 	}
@@ -215,24 +214,24 @@ function zz_details_return($ops, $zz_tab) {
 function zz_details_show($zz, $current, $last) {
 	global $zz_conf;
 
-	if (!empty($_SESSION['zzform'][$zz_conf['id']][$last])) {
+	if (!empty($_SESSION['zzform'][zz_state_token()][$last])) {
 		// is there a form to return to?
 		$zz['list']['display'] = false;
-		$zz_conf['int']['cancel_url'] = $_SESSION['zzform'][$zz_conf['id']][$last]['source'];
-		wrap_static('page', 'referer', $_SESSION['zzform'][$zz_conf['id']][$last]['source']);
+		$zz_conf['int']['cancel_url'] = $_SESSION['zzform'][zz_state_token()][$last]['source'];
+		wrap_static('page', 'referer', $_SESSION['zzform'][zz_state_token()][$last]['source']);
 		wrap_setting('zzform_referer_text', 'Back to last form');
 		zz_init_referer();
 	}
 
 	if (!empty($_POST)) return $zz;
 
-	if (!empty($_SESSION['zzform'][$zz_conf['id']][$current]['post'])) {
+	if (!empty($_SESSION['zzform'][zz_state_token()][$current]['post'])) {
 		// read saved POST data top populate form if there is data
-		$_POST = $_SESSION['zzform'][$zz_conf['id']][$current]['post'];
-		$_GET = array_merge($_GET, $_SESSION['zzform'][$zz_conf['id']][$current]['get']);
+		$_POST = $_SESSION['zzform'][zz_state_token()][$current]['post'];
+		$_GET = array_merge($_GET, $_SESSION['zzform'][zz_state_token()][$current]['get']);
 		$zz_conf['int']['add_details_return'] = true;
 
-	} elseif (!empty($_SESSION['zzform'][$zz_conf['id']][$last]['new_value'])) {
+	} elseif (!empty($_SESSION['zzform'][zz_state_token()][$last]['new_value'])) {
 		// write string from previous form as a default to this form
 		$found = false;
 		$first = false;
@@ -258,19 +257,19 @@ function zz_details_show($zz, $current, $last) {
 		}
 		if ($found) {
 			if ($subfound) {
-				$zz['fields'][$found]['fields'][$subfound]['default'] = $_SESSION['zzform'][$zz_conf['id']][$last]['new_value'];
+				$zz['fields'][$found]['fields'][$subfound]['default'] = $_SESSION['zzform'][zz_state_token()][$last]['new_value'];
 			} else {
-				$zz['fields'][$found]['default'] = $_SESSION['zzform'][$zz_conf['id']][$last]['new_value'];
+				$zz['fields'][$found]['default'] = $_SESSION['zzform'][zz_state_token()][$last]['new_value'];
 			}
 		}
 	}
 
-	if (!empty($_SESSION['zzform'][$zz_conf['id']][$current]['new_id'])) {
+	if (!empty($_SESSION['zzform'][zz_state_token()][$current]['new_id'])) {
 		// write new ID from next form back to this form
 		$_POST = zz_check_values(
 			$_POST,
-			$_SESSION['zzform'][$zz_conf['id']][$current]['source_field_name'],
-			$_SESSION['zzform'][$zz_conf['id']][$current]['new_id']
+			$_SESSION['zzform'][zz_state_token()][$current]['source_field_name'],
+			$_SESSION['zzform'][zz_state_token()][$current]['new_id']
 		);
 	}
 
@@ -323,10 +322,8 @@ function zz_details_link($details, $record) {
  * @return bool true: show link, false: hide link
  */
 function zz_details_add_link() {
-	global $zz_conf;
-	
-	if (empty($_SESSION['zzform'][$zz_conf['id']][0])) return true;
-	$session = $_SESSION['zzform'][$zz_conf['id']][0];
+	if (empty($_SESSION['zzform'][zz_state_token()][0])) return true;
+	$session = $_SESSION['zzform'][zz_state_token()][0];
 	if (!empty($session['new_id'])) return false;
 	return true;
 }

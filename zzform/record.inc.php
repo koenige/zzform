@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1235,8 +1235,6 @@ function zz_record_sort_matrix($matrix) {
  * @return string
  */
 function zz_record_add_details($field, $mode, $data, $fieldkey, $record) {
-	global $zz_conf;
-
 	if (empty($_SESSION['logged_in'])) return NULL;
 	if (!$field['form_view']) return NULL;
 	if (empty($field['add_details'])) return NULL;
@@ -1259,10 +1257,10 @@ function zz_record_add_details($field, $mode, $data, $fieldkey, $record) {
 
 	if ($data['tab'])
 		return sprintf('%s-%d-%d-%d-%d',
-			$zz_conf['id'], $field['subtable_no'], $fieldkey, $data['tab'], $data['rec']
+			zz_state_token(), $field['subtable_no'], $fieldkey, $data['tab'], $data['rec']
 		);
 	return sprintf('%s-%d-%d-%d',
-		$zz_conf['id'], $fieldkey, $data['tab'], $data['rec']
+		zz_state_token(), $fieldkey, $data['tab'], $data['rec']
 	);
 }
 
@@ -4120,14 +4118,13 @@ function zz_field_calculated($field, $record, $mode) {
  * @return string
  */
 function zz_field_captcha($field, $record, $mode) {
-	global $zz_conf;
 	// captcha only for adding, otherwise hide field
 	if ($mode !== 'add') return '';
 	if (!empty($field['captcha_solved'])) {
-		$field['captcha_solved'] = wrap_set_hash($zz_conf['id'], 'zzform_captcha_key');
+		$field['captcha_solved'] = wrap_set_hash(zz_state_token(), 'zzform_captcha_key');
 	} else {
-		$field['zz_id'] = $zz_conf['id'];
-		$field['alt_text'] = zz_captcha_alt_text(zz_captcha_code($zz_conf['id']));
+		$field['zz_id'] = zz_state_token();
+		$field['alt_text'] = zz_captcha_alt_text(zz_captcha_code(zz_state_token()));
 	}
 	return wrap_template('zzform-captcha', $field);
 }

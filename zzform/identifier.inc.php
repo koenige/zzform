@@ -9,7 +9,7 @@
  * https://www.zugzwang.org/modules/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -380,11 +380,9 @@ function zz_identifier_random_hash($conf) {
  *
  * @param array $field
  * @param array $conf
- * @global array $zz_conf
  * @return string $idf
  */
 function zz_identifier_exists($idf, $field) {
-	global $zz_conf;
 	static $existing = [];
 
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
@@ -405,11 +403,11 @@ function zz_identifier_exists($idf, $field) {
 		$sql = sprintf($field['idf_conf']['sql'], $idf);
 		$table_key = $field['idf_db_table'];
 	}
-	if (empty($existing[$zz_conf['id']][$table_key]))
-		$existing[$zz_conf['id']][$table_key] = [];
+	if (empty($existing[zz_state_token()][$table_key]))
+		$existing[zz_state_token()][$table_key] = [];
 
 	$records = zz_db_fetch($sql, $field['field_name'], 'single value');
-	if ($records OR in_array($idf, $existing[$zz_conf['id']][$table_key])) {
+	if ($records OR in_array($idf, $existing[zz_state_token()][$table_key])) {
 		$start = false;
 		if (is_numeric($field['idf_conf']['start']) AND $field['idf_conf']['start'] > 2) $start = true;
 		elseif (!is_numeric($field['idf_conf']['start']) AND $field['idf_conf']['start'] > 'b') $start = true;
@@ -445,7 +443,7 @@ function zz_identifier_exists($idf, $field) {
 		$field['idf_conf']['start']++;
 		$idf = zz_identifier_exists($idf, $field);
 	}
-	$existing[$zz_conf['id']][$table_key][] = $idf;
+	$existing[zz_state_token()][$table_key][] = $idf;
 	return zz_return($idf);
 }
 

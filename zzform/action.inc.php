@@ -2137,7 +2137,7 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 			if (!$my_rec['POST'][$field_name]) {
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['validation'] = false;
-			} elseif (!zz_captcha_code($zz_conf['id'], $my_rec['POST'][$field_name])) {
+			} elseif (!zz_captcha_code(zz_state_token(), $my_rec['POST'][$field_name])) {
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['validation'] = false;
 			} else {

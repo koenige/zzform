@@ -26,6 +26,17 @@
 
 
 /**
+ * Get the current state token for this zzform instance
+ * Returns the 6-character random token that identifies this form interaction
+ *
+ * @return string current state token or empty string if not set
+ */
+function zz_state_token() {
+	global $zz_conf;
+	return $zz_conf['id'] ?? '';
+}
+
+/**
  * Initialize the state token for this zzform instance
  * Retrieves token from GET/POST parameters or generates a new random 6-character token
  *
@@ -36,7 +47,7 @@
  */
 function zz_state_token_set() {
 	global $zz_conf;
-	if (!empty($zz_conf['id']) AND empty($zz_conf['multi'])) return;
+	if (zz_state_token() AND empty($zz_conf['multi'])) return;
 	if (!empty($_GET['zz']) AND strlen($_GET['zz']) === 6) {
 		$zz_conf['id'] = zz_state_token_validate($_GET['zz']);
 	} elseif (!empty($_POST['zz_id']) AND !is_array($_POST['zz_id']) AND strlen($_POST['zz_id']) === 6) {
@@ -228,7 +239,7 @@ function zz_state_pairing($mode, $token = '', $hash = '') {
 		rename(wrap_setting('log_dir').'/zzform-ids.log', wrap_setting('log_dir').'/zzform/ids.log');
 	}
 
-	if (!$token) $token = $zz_conf['id'];
+	if (!$token) $token = zz_state_token();
 	$found = '';
 	$timestamp = 0;
 
@@ -258,13 +269,12 @@ function zz_state_pairing($mode, $token = '', $hash = '') {
  * @return bool true if pairing was deleted, false if nothing to delete
  */
 function zz_state_pairing_delete() {
-	global $zz_conf;
-	if (empty($zz_conf['id'])) return false;
+	if (!zz_state_token()) return false;
 	if (!zz_state_hash()) return false;
 
 	wrap_include('file', 'zzwrap');
 	wrap_file_log('zzform/ids', 'delete', [
-		'zzform_id' => $zz_conf['id'],
+		'zzform_id' => zz_state_token(),
 		'zzform_hash' => zz_state_hash()
 	]);
 	return true;

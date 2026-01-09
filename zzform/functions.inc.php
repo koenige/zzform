@@ -2302,10 +2302,9 @@ function zz_get_subtable_fielddef($fields, $table) {
  * @return array
  */
 function zz_dependent_field_ids($fields, $tab, $rec) {
-	global $zz_conf;
 	static $dependent_ids = [];
-	$unique = sprintf('%s/%d/%d', $zz_conf['id'], $tab, $rec);
-	// save just for this request, therefore we use $zz_conf['id']
+	$unique = sprintf('%s/%d/%d', zz_state_token(), $tab, $rec);
+	// save just for this request, therefore we use state token
 	if (!empty($dependent_ids[$unique]))
 		return $dependent_ids[$unique];
 
