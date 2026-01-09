@@ -29,25 +29,21 @@
  * Get the current state token for this zzform instance
  * Returns the 6-character random token that identifies this form interaction
  *
- * @return string current state token or empty string if not set
+ * If token is not yet set, initializes it by:
+ * - Checking GET parameter 'zz' for existing token
+ * - Checking POST parameter 'zz_id' for existing token
+ * - Generating a new random token if none provided
+ *
+ * @return string current state token (always 6 characters after first call)
  */
 function zz_state_token() {
 	global $zz_conf;
-	return $zz_conf['id'] ?? '';
-}
-
-/**
- * Initialize the state token for this zzform instance
- * Retrieves token from GET/POST parameters or generates a new random 6-character token
- *
- * The token is used to identify this specific form interaction across multiple requests
- *
- * @return void
- * @global array $zz_conf
- */
-function zz_state_token_set() {
-	global $zz_conf;
-	if (zz_state_token() AND empty($zz_conf['multi'])) return;
+	
+	if (!empty($zz_conf['id'])) return $zz_conf['id'];
+	if (!empty($zz_conf['multi'])) return '';
+	
+	// Auto-initialize if not set (unless in multi mode where it's managed differently)
+	
 	if (!empty($_GET['zz']) AND strlen($_GET['zz']) === 6) {
 		$zz_conf['id'] = zz_state_token_validate($_GET['zz']);
 	} elseif (!empty($_POST['zz_id']) AND !is_array($_POST['zz_id']) AND strlen($_POST['zz_id']) === 6) {
@@ -55,7 +51,8 @@ function zz_state_token_set() {
 	} else {
 		$zz_conf['id'] = wrap_random_hash(6);
 	}
-	return;
+	
+	return $zz_conf['id'];
 }
 
 /**

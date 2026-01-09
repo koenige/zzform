@@ -652,10 +652,8 @@ function zz_initialize($mode = false, $old_conf = []) {
 			}
 		}
 		zz_initialize_int();
-		zz_state_token_set();
 		return true;
 	}
-	zz_state_token_set();
 
 	// Configuration on project level: Core defaults and functions
 	$default['generate_output']	= true;
