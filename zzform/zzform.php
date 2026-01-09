@@ -128,7 +128,7 @@ function zzform($zz) {
 	// get hash from $zz and $zz_conf to get a unique identification of
 	// the settings, e. g. to save time for zzform_multi() or to get a
 	// secret key for some cases
-	zz_hash($zz, $zz_conf);
+	zz_state_definition($zz, $zz_conf);
 
 	if (zz_modules('conditions'))
 		$zz = zz_conditions_access($zz);
@@ -377,7 +377,7 @@ function zzform_record($zz, $ops, $zz_conditions) {
 			return $ops;
 		} elseif ($ops['result']) {
 			// remove secret
-			zz_secret_id_delete();
+			zz_state_pairing_delete();
 			// Redirect, if wanted.
 			$ops['redirect_url'] = zz_output_redirect($ops, $zz, $zz_tab);
 			if ($ops['redirect_url']) {
@@ -577,11 +577,11 @@ function zz_valid_request($action = false) {
 	if (!empty($zz_conf['int']['where_with_unique_id'])) return true;
 	if (empty($_GET['zzhash'])) return false;
 	
-	if ($_GET['zzhash'] !== zzform_secret_key()) {
+	if ($_GET['zzhash'] !== zz_state_hash()) {
 		if (!$dont_log_error) {
 			zz_error_log([
 				'msg_dev' => 'Hash of script and ID differs from secret key (hash %s, secret %s).',
-				'msg_dev_args' => [$_GET['zzhash'], zzform_secret_key()],
+				'msg_dev_args' => [$_GET['zzhash'], zz_state_hash()],
 				'level' => E_USER_NOTICE
 			]);
 			$dont_log_error = true;
@@ -654,10 +654,10 @@ function zz_initialize($mode = false, $old_conf = []) {
 			}
 		}
 		zz_initialize_int();
-		zz_set_id();
+		zz_state_token_set();
 		return true;
 	}
-	zz_set_id();
+	zz_state_token_set();
 
 	// Configuration on project level: Core defaults and functions
 	$default['generate_output']	= true;
@@ -711,7 +711,7 @@ function zz_initialize_int() {
 
 	// initialize internal variables
 	$zz_conf['int'] = [];
-	zzform_secret_key(NULL, 'write');
+	zz_state_hash(NULL, 'write');
 }
 
 /**

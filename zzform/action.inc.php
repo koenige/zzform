@@ -9,7 +9,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -988,7 +988,7 @@ function zz_action_timeframe($zz_record) {
 	if (!empty($_SESSION['logged_in'])) return true; // just for public forms
 	if (!empty($zz_record['no_timeframe'])) return true;
 
-	$timeframe = zz_secret_id('timecheck');
+	$timeframe = zz_state_pairing('timecheck');
 	// @todo calculate timeframe based on required fields, e. g. 2 seconds per field
 	$min_seconds_per_form = 5;
 	if ($timeframe > $min_seconds_per_form) return true;

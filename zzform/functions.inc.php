@@ -1074,12 +1074,12 @@ function zz_record_access($zz, $ops) {
 
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 	// initialize variables
-	$create_new_zzform_secret_key = true;
+	$create_new_state_hash = true;
 	if (!empty($_POST['zz_id'])) {
-		$zz_conf['id'] = zz_check_id_value($_POST['zz_id']);
-		zzform_secret_key(zz_secret_id('read'), 'write');
-		if (zzform_secret_key()) {
-			$create_new_zzform_secret_key = false;
+		$zz_conf['id'] = zz_state_token_validate($_POST['zz_id']);
+		zz_state_hash(zz_state_pairing('read'), 'write');
+		if (zz_state_hash()) {
+			$create_new_state_hash = false;
 			require_once __DIR__.'/session.inc.php';
 			$_FILES = zz_session_read('filedata', $_FILES);
 		}
@@ -1273,8 +1273,8 @@ function zz_record_access($zz, $ops) {
 	} else {
 		$idval = $zz_conf['int']['id']['value'];
 	}
-	if ($create_new_zzform_secret_key)
-		zzform_secret_key($idval);
+	if ($create_new_state_hash)
+		zz_state_hash($idval);
 
 	// if conditions in $zz['if'] -- check them
 	// get conditions if there are any, for access

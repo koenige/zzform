@@ -2177,7 +2177,7 @@ function zz_upload_background($number, $action = 'set') {
 		);
 		if (in_array($zz_conf['int']['access'], ['add_only', 'edit_only', 'add_then_edit'])
 			AND empty($zz_conf['int']['where_with_unique_id'])) {
-			$url .= sprintf('&zzhash=%s', zzform_secret_key($number, 'once'));
+			$url .= sprintf('&zzhash=%s', zz_state_hash($number, 'once'));
 		}
 		$data = [];
 		if (wrap_category_id('jobs/thumbnails', 'check'))

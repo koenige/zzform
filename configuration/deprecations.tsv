@@ -41,4 +41,4 @@
 2026-01-04-13	code	zzform_css_border_color_list_pages	set via CSS --border-color-list-pages	zzform/configuration/settings.cfg;zzform/layout/zzform-colours.css
 2026-01-04-14	code	zzform_css_color_list_pages	set via CSS --color-list-pages	zzform/configuration/settings.cfg;zzform/layout/zzform-colours.css
 2026-01-06-1	code	$zz_sub	use $zz and include files via zzform_include()	zzform/zzform/_functions.inc.php
-2026-01-09-1	code	$zz_conf['int']['secret_key']	use zzform_secret_key()
+2026-01-09-1	code	$zz_conf['int']['secret_key']	use zz_state_hash()

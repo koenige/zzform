@@ -134,7 +134,7 @@ function zz_session_filename($type) {
 	$filename = sprintf('%s/%s-%s-%s.txt'
 		, $dir
 		, (empty(session_id()) OR wrap_setting('zzform_id_from_session')) ? $zz_conf['id'] : session_id()
-		, zzform_secret_key()
+		, zz_state_hash()
 		, $type
 	);
 	return $filename;
@@ -155,10 +155,10 @@ function zz_session_via_login() {
 	if (array_key_exists('zz_action', $_POST) AND $_POST['zz_action'] === 'multiple'
 		AND !isset($_POST['zz_id'])) {
 		$zz_conf['id'] = wrap_random_hash(6);
-		zzform_secret_key(NULL, 'write');
+		zz_state_hash(NULL, 'write');
 	} else {
-		$zz_conf['id'] = zz_check_id_value($_POST['zz_id']);
-		zzform_secret_key(zz_secret_id('read'), 'write');
+		$zz_conf['id'] = zz_state_token_validate($_POST['zz_id']);
+		zz_state_hash(zz_state_pairing('read'), 'write');
 	}
 
 	zz_session_write('postdata', $_POST);
@@ -176,8 +176,8 @@ function zz_session_via_login() {
 function zz_review_via_login() {
 	global $zz_conf;
 
-	$zz_conf['id'] = zz_check_id_value($_SESSION['zzform']['review_via_login']);
-	zzform_secret_key(zz_secret_id('read'), 'write');
+	$zz_conf['id'] = zz_state_token_validate($_SESSION['zzform']['review_via_login']);
+	zz_state_hash(zz_state_pairing('read'), 'write');
 
 	wrap_setting('zzform_id_from_session', true);
 	$_POST = zz_session_read('postdata');

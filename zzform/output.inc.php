@@ -320,7 +320,7 @@ function zz_output_redirect($ops, $zz, $zz_tab) {
 	if (!empty($zz_conf['int']['hash_id'])) {
 		// secret key has to be recalculated for insert operations
 		// because there did not exist an id value before = hash was different
-		$keys['zzhash'] = zzform_secret_key($id_value);
+		$keys['zzhash'] = zz_state_hash($id_value);
 	}
 	switch ($ops['result']) {
 	case 'successful_delete':

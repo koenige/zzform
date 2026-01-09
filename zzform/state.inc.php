@@ -25,13 +25,13 @@
  * @param void
  * @global array $zz_conf
  */
-function zz_set_id() {
+function zz_state_token_set() {
 	global $zz_conf;
 	if (!empty($zz_conf['id']) AND empty($zz_conf['multi'])) return;
 	if (!empty($_GET['zz']) AND strlen($_GET['zz']) === 6) {
-		$zz_conf['id'] = zz_check_id_value($_GET['zz']);
+		$zz_conf['id'] = zz_state_token_validate($_GET['zz']);
 	} elseif (!empty($_POST['zz_id']) AND !is_array($_POST['zz_id']) AND strlen($_POST['zz_id']) === 6) {
-		$zz_conf['id'] = zz_check_id_value($_POST['zz_id']);
+		$zz_conf['id'] = zz_state_token_validate($_POST['zz_id']);
 	} else {
 		$zz_conf['id'] = wrap_random_hash(6);
 	}
@@ -44,13 +44,13 @@ function zz_set_id() {
  * @param string
  * @return string
  */
-function zz_check_id_value($string) {
+function zz_state_token_validate($string) {
 	if (is_array($string))
-		return zz_check_id_value_error();
+		return zz_state_token_validate_error();
 	for ($i = 0; $i < mb_strlen($string); $i++) {
 		$letter = mb_substr($string, $i, 1);
 		if (!strstr('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', $letter))
-			return zz_check_id_value_error();
+			return zz_state_token_validate_error();
 	}
 	return $string;
 }
@@ -60,7 +60,7 @@ function zz_check_id_value($string) {
  *
  * @return string
  */
-function zz_check_id_value_error() {
+function zz_state_token_validate_error() {
 	if (!empty($_POST['zz_id'])) {
 		wrap_setting('log_username_suffix', wrap_setting('remote_ip'));
 		wrap_error(sprintf('POST data removed because of illegal zz_id value `%s`', json_encode($_POST['zz_id'])), E_USER_NOTICE);
@@ -86,7 +86,7 @@ function zz_check_id_value_error() {
  * @return string $hash
  * @todo check if $_GET['id'], $_GET['where'] and so on need to be included
  */
-function zz_hash($zz = [], $zz_conf = []) {
+function zz_state_definition($zz = [], $zz_conf = []) {
 	static $hash = '';
 	static $id = '';
 	// if zzform ID is known and has changed, re-generate hash
@@ -107,17 +107,17 @@ function zz_hash($zz = [], $zz_conf = []) {
 	foreach ($uninteresting_zz_keys as $key) unset($zz[$key]);
 	foreach ($zz['fields'] as $no => &$field) {
 		// defaults might change, e. g. dates
-		zz_hash_remove_defaults($field);
+		zz_state_definition_remove_defaults($field);
 		if (!empty($field['type']) AND in_array($field['type'], ['subtable', 'foreign_table'])) {
 			foreach ($field['fields'] as $sub_no => &$sub_field)
-				zz_hash_remove_defaults($sub_field);
+				zz_state_definition_remove_defaults($sub_field);
 		}
 		// @todo remove if[no][default] too
 	}
 	$my['zz'] = $zz;
 	$my['zz_conf'] = $zz_conf;
 	$hash = sha1(serialize($my));
-	zz_secret_id('write', $id, $hash);
+	zz_state_pairing('write', $id, $hash);
 	return $hash;
 }
 
@@ -127,7 +127,7 @@ function zz_hash($zz = [], $zz_conf = []) {
  *
  * @param array $field
  */
-function zz_hash_remove_defaults(&$field) {
+function zz_state_definition_remove_defaults(&$field) {
 	if (isset($field['default'])) unset($field['default']);
 	$conditions = ['if', 'unless'];
 	foreach ($conditions as $condition) {
@@ -157,7 +157,7 @@ function zz_hash_remove_defaults(&$field) {
  *		'write': write $id as value
  * @return string
  */
-function zzform_secret_key($id = NULL, $action = '') {
+function zz_state_hash($id = NULL, $action = '') {
 	static $secret_key = NULL;
 
 	if ($action === 'write')
@@ -165,7 +165,7 @@ function zzform_secret_key($id = NULL, $action = '') {
 	
 	// Generate new key if ID provided
 	if ($id !== NULL) {
-		$hash = sha1(zz_hash().$id);
+		$hash = sha1(zz_state_definition().$id);
 		$hash = wrap_base_convert($hash, 16, 62);
 		// return key without storing
 		if ($action === 'once') return $hash;
@@ -191,7 +191,7 @@ function zzform_secret_key($id = NULL, $action = '') {
  * @param string $hash
  * @return string
  */
-function zz_secret_id($mode, $id = '', $hash = '') {
+function zz_state_pairing($mode, $id = '', $hash = '') {
 	global $zz_conf;
 	if (!empty($zz_conf['multi'])) return '';
 	
@@ -229,15 +229,15 @@ function zz_secret_id($mode, $id = '', $hash = '') {
  *
  * @return bool
  */
-function zz_secret_id_delete() {
+function zz_state_pairing_delete() {
 	global $zz_conf;
 	if (empty($zz_conf['id'])) return false;
-	if (!zzform_secret_key()) return false;
+	if (!zz_state_hash()) return false;
 
 	wrap_include('file', 'zzwrap');
 	wrap_file_log('zzform/ids', 'delete', [
 		'zzform_id' => $zz_conf['id'],
-		'zzform_hash' => zzform_secret_key()
+		'zzform_hash' => zz_state_hash()
 	]);
 	return true;
 }
