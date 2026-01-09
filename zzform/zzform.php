@@ -49,7 +49,7 @@ function zzform($zz) {
 //	Initialize variables & modules
 //
 
-	// include files
+	// include core functions
 	zzform_includes();
 
 	// remove and log deprecated variables
@@ -612,6 +612,9 @@ function zz_initialize($mode = false, $old_conf = []) {
 	static $zzform_calls = 0;
 	static $zzform_init = false;
 
+	// include core functions
+	zzform_includes();
+
 	switch($mode) {
 	case 'form':
 		$zzform_calls++;
@@ -664,8 +667,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	// modules depending on settings
 	if ($zz_conf['generate_output']) $zz_conf['int_modules'][] = 'output';
 
-	// include core functions
-	zzform_includes();
 	zz_error_exit(false);
 	zz_error_out(false);
 
@@ -697,25 +698,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 		]);
 	}
 	zz_return(true);
-}
-
-/**
- * create an ID for zzform for internal purposes
- *
- * @param void
- * @global array $zz_conf
- */
-function zz_set_id() {
-	global $zz_conf;
-	if (!empty($zz_conf['id']) AND empty($zz_conf['multi'])) return;
-	if (!empty($_GET['zz']) AND strlen($_GET['zz']) === 6) {
-		$zz_conf['id'] = zz_check_id_value($_GET['zz']);
-	} elseif (!empty($_POST['zz_id']) AND !is_array($_POST['zz_id']) AND strlen($_POST['zz_id']) === 6) {
-		$zz_conf['id'] = zz_check_id_value($_POST['zz_id']);
-	} else {
-		$zz_conf['id'] = wrap_random_hash(6);
-	}
-	return;
 }
 
 /**
@@ -811,6 +793,9 @@ function zzform_post_too_big() {
  * includes required files for zzform
  */
 function zzform_includes() {
+	static $included = NULL;
+	if ($included) return;
+
 	wrap_include('zzform/definition'); // also done in zzbrick/form, here for zzform_multi()
 	wrap_include('zzform/helpers'); // also done in zzbrick/form, here for zzform_multi()
 	wrap_include('configuration', 'zzform');
@@ -821,6 +806,8 @@ function zzform_includes() {
 	wrap_include('url', 'zzform');
 	wrap_include('database', 'zzform');
 	wrap_include('sql', 'zzform');
+	wrap_include('state', 'zzform');
+	$included = true;
 }
 
 /**
