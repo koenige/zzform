@@ -230,6 +230,7 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 	if (!in_array($ops['mode'], ['add', 'edit'])) {
 		$record['upload_form'] = false;
 	}
+	$record['state_token'] = zz_state_token();
 	return wrap_template('zzform-record', $record);
 }
 
