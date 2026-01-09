@@ -553,7 +553,7 @@ function zzform_exit($ops) {
  * checks if request is valid while accessing a restricted table
  *
  * @param mixed $action check if this action is matching
- * @global array $zz_conf ($zz_conf['int']['secret_key'])
+ * @global array $zz_conf
  * @return bool 
  *		true: request is valid
  *		false: request is invalid (or no restriction is in place)
@@ -577,11 +577,11 @@ function zz_valid_request($action = false) {
 	if (!empty($zz_conf['int']['where_with_unique_id'])) return true;
 	if (empty($_GET['zzhash'])) return false;
 	
-	if ($_GET['zzhash'] !== $zz_conf['int']['secret_key']) {
+	if ($_GET['zzhash'] !== zzform_secret_key()) {
 		if (!$dont_log_error) {
 			zz_error_log([
 				'msg_dev' => 'Hash of script and ID differs from secret key (hash %s, secret %s).',
-				'msg_dev_args' => [$_GET['zzhash'], $zz_conf['int']['secret_key']],
+				'msg_dev_args' => [$_GET['zzhash'], zzform_secret_key()],
 				'level' => E_USER_NOTICE
 			]);
 			$dont_log_error = true;
@@ -729,6 +729,7 @@ function zz_initialize_int() {
 
 	// initialize internal variables
 	$zz_conf['int'] = [];
+	zzform_secret_key(NULL, 'write');
 }
 
 /**

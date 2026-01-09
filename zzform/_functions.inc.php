@@ -64,6 +64,7 @@ function zzform_multi($definition_file, $values, $type = 'tables') {
 	$ops['id'] = 0;
 	// keep internal variables
 	$int = $zz_conf['int'] ?? [];
+	$secret_key = zzform_secret_key();
 
 	zz_initialize('overwrite');
 	$zz_conf['generate_output'] = false;
@@ -110,6 +111,7 @@ function zzform_multi($definition_file, $values, $type = 'tables') {
 	wrap_setting('access_global', $old['multi']);
 
 	$zz_conf['int'] = $int;
+	zzform_secret_key($secret_key, 'write');
 	if (wrap_setting('debug') AND function_exists('zz_debug') AND !empty($id)) {
 		$zz_conf['id'] = zz_check_id_value($id);
 		zz_debug('end');
@@ -239,6 +241,34 @@ function zz_check_id_value_error() {
 }
 
 /**
+ * hash a secret key and make it small, store and retrieve it
+ *
+ * @param int $id (optional) if provided, generate new secret key
+ * @param string $action (optional)
+ *		'once': generate key without storing (for one-off uses)
+ *		'write': write $id as value
+ * @return string
+ */
+function zzform_secret_key($id = NULL, $action = '') {
+	static $secret_key = NULL;
+
+	if ($action === 'write')
+		return $secret_key = $id;
+	
+	// Generate new key if ID provided
+	if ($id !== NULL) {
+		$hash = sha1(zz_hash().$id);
+		$hash = wrap_base_convert($hash, 16, 62);
+		// return key without storing
+		if ($action === 'once') return $hash;
+		// store key
+		$secret_key = $hash;
+	}
+	
+	return $secret_key;
+}
+
+/**
  * read or write secret_key connected to zzform ID
  *
  * @param string $mode ('read', 'write', 'timecheck')
@@ -287,12 +317,12 @@ function zz_secret_id($mode, $id = '', $hash = '') {
 function zz_secret_id_delete() {
 	global $zz_conf;
 	if (empty($zz_conf['id'])) return false;
-	if (empty($zz_conf['int']['secret_key'])) return false;
+	if (!zzform_secret_key()) return false;
 
 	wrap_include('file', 'zzwrap');
 	wrap_file_log('zzform/ids', 'delete', [
 		'zzform_id' => $zz_conf['id'],
-		'zzform_hash' => $zz_conf['int']['secret_key']
+		'zzform_hash' => zzform_secret_key()
 	]);
 	return true;
 }

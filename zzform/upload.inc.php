@@ -74,7 +74,7 @@
  *		['validated']		validated (yes = tested, no = rely on fileupload i. e. user)
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2006-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2006-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -2177,7 +2177,7 @@ function zz_upload_background($number, $action = 'set') {
 		);
 		if (in_array($zz_conf['int']['access'], ['add_only', 'edit_only', 'add_then_edit'])
 			AND empty($zz_conf['int']['where_with_unique_id'])) {
-			$url .= sprintf('&zzhash=%s', zz_secret_key($number));
+			$url .= sprintf('&zzhash=%s', zzform_secret_key($number, 'once'));
 		}
 		$data = [];
 		if (wrap_category_id('jobs/thumbnails', 'check'))

@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -134,7 +134,7 @@ function zz_session_filename($type) {
 	$filename = sprintf('%s/%s-%s-%s.txt'
 		, $dir
 		, (empty(session_id()) OR wrap_setting('zzform_id_from_session')) ? $zz_conf['id'] : session_id()
-		, $zz_conf['int']['secret_key']
+		, zzform_secret_key()
 		, $type
 	);
 	return $filename;
@@ -155,10 +155,10 @@ function zz_session_via_login() {
 	if (array_key_exists('zz_action', $_POST) AND $_POST['zz_action'] === 'multiple'
 		AND !isset($_POST['zz_id'])) {
 		$zz_conf['id'] = wrap_random_hash(6);
-		$zz_conf['int']['secret_key'] = '';
+		zzform_secret_key(NULL, 'write');
 	} else {
 		$zz_conf['id'] = zz_check_id_value($_POST['zz_id']);
-		$zz_conf['int']['secret_key'] = zz_secret_id('read');
+		zzform_secret_key(zz_secret_id('read'), 'write');
 	}
 
 	zz_session_write('postdata', $_POST);
@@ -177,7 +177,7 @@ function zz_review_via_login() {
 	global $zz_conf;
 
 	$zz_conf['id'] = zz_check_id_value($_SESSION['zzform']['review_via_login']);
-	$zz_conf['int']['secret_key'] = zz_secret_id('read');
+	zzform_secret_key(zz_secret_id('read'), 'write');
 
 	wrap_setting('zzform_id_from_session', true);
 	$_POST = zz_session_read('postdata');

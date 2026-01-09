@@ -17,7 +17,7 @@
  * V - Validation, preparation for database
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1026,18 +1026,6 @@ function zz_hash_remove_defaults(&$field) {
 }
 
 /**
- * hash a secret key and make it small
- *
- * @param int @id
- * @return string
- */
-function zz_secret_key($id) {
-	$hash = sha1(zz_hash().$id);
-	$hash = wrap_base_convert($hash, 16, 62);
-	return $hash;
-}
-
-/**
  * gets unique and id fields for further processing
  *
  * @param array $fields
@@ -1154,8 +1142,8 @@ function zz_record_access($zz, $ops) {
 	$create_new_zzform_secret_key = true;
 	if (!empty($_POST['zz_id'])) {
 		$zz_conf['id'] = zz_check_id_value($_POST['zz_id']);
-		$zz_conf['int']['secret_key'] = zz_secret_id('read');
-		if ($zz_conf['int']['secret_key']) {
+		zzform_secret_key(zz_secret_id('read'), 'write');
+		if (zzform_secret_key()) {
 			$create_new_zzform_secret_key = false;
 			require_once __DIR__.'/session.inc.php';
 			$_FILES = zz_session_read('filedata', $_FILES);
@@ -1351,7 +1339,7 @@ function zz_record_access($zz, $ops) {
 		$idval = $zz_conf['int']['id']['value'];
 	}
 	if ($create_new_zzform_secret_key)
-		$zz_conf['int']['secret_key'] = zz_secret_key($idval);
+		zzform_secret_key($idval);
 
 	// if conditions in $zz['if'] -- check them
 	// get conditions if there are any, for access

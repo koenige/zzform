@@ -9,7 +9,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -320,8 +320,7 @@ function zz_output_redirect($ops, $zz, $zz_tab) {
 	if (!empty($zz_conf['int']['hash_id'])) {
 		// secret key has to be recalculated for insert operations
 		// because there did not exist an id value before = hash was different
-		$zz_conf['int']['secret_key'] = zz_secret_key($id_value);
-		$keys['zzhash'] = $zz_conf['int']['secret_key'];
+		$keys['zzhash'] = zzform_secret_key($id_value);
 	}
 	switch ($ops['result']) {
 	case 'successful_delete':
