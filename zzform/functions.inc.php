@@ -1076,7 +1076,7 @@ function zz_record_access($zz, $ops) {
 	// initialize variables
 	$create_new_state_hash = true;
 	if (!empty($_POST['zz_id'])) {
-		$zz_conf['id'] = zz_state_token_validate($_POST['zz_id']);
+		zz_state_token($_POST['zz_id']);
 		zz_state_hash(zz_state_pairing('read'), 'write');
 		if (zz_state_hash()) {
 			$create_new_state_hash = false;

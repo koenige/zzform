@@ -147,16 +147,15 @@ function zz_session_filename($type) {
  * @return string
  */
 function zz_session_via_login() {
-	global $zz_conf;
 	wrap_package_activate('zzform'); // get _functions
 
 	// this function is called from outside zzform!
 	if (array_key_exists('zz_action', $_POST) AND $_POST['zz_action'] === 'multiple'
 		AND !isset($_POST['zz_id'])) {
-		$zz_conf['id'] = wrap_random_hash(6);
+		zz_state_token('generate');
 		zz_state_hash(NULL, 'write');
 	} else {
-		$zz_conf['id'] = zz_state_token_validate($_POST['zz_id']);
+		zz_state_token($_POST['zz_id']);
 		zz_state_hash(zz_state_pairing('read'), 'write');
 	}
 
@@ -173,9 +172,7 @@ function zz_session_via_login() {
  * return bool
  */
 function zz_review_via_login() {
-	global $zz_conf;
-
-	$zz_conf['id'] = zz_state_token_validate($_SESSION['zzform']['review_via_login']);
+	zz_state_token($_SESSION['zzform']['review_via_login']);
 	zz_state_hash(zz_state_pairing('read'), 'write');
 
 	wrap_setting('zzform_id_from_session', true);

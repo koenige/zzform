@@ -88,14 +88,14 @@ function zzform_multi($definition_file, $values, $type = 'tables') {
 
 	if (wrap_setting('debug') AND function_exists('zz_debug') AND !empty($token)) {
 		$old['token'] = zz_state_token();	
-		$zz_conf['id'] = zz_state_token_validate($token);
+		zz_state_token($token);
 		zz_debug('find definition file', $definition_file);
 	}
 	$zz = zzform_include($definition_file, $values, $type);
 	wrap_setting('log_username_default', wrap_setting('request_uri'));
 	if (wrap_setting('debug') AND function_exists('zz_debug') AND !empty($token)) {
 		zz_debug('got definition file');
-		$zz_conf['id'] = zz_state_token_validate($old['token']);
+		zz_state_token($old['token']);
 	}
 	// return on error in form script
 	if (!empty($ops['error'])) return $ops;
@@ -106,14 +106,14 @@ function zzform_multi($definition_file, $values, $type = 'tables') {
 	$_GET = $old['GET'];
 	$_POST = $old['POST'];
 	$_FILES = $old['FILES'];
-	$zz_conf['id'] = $old['token'];
+	zz_state_token($old['token']);
 	$zz_conf['multi'] = $old['multi'];
 	wrap_setting('access_global', $old['multi']);
 
 	$zz_conf['int'] = $int;
 	zz_state_hash($state_hash, 'write');
 	if (wrap_setting('debug') AND function_exists('zz_debug') AND !empty($token)) {
-		$zz_conf['id'] = zz_state_token_validate($token);
+		zz_state_token($token);
 		zz_debug('end');
 	}
 	return $ops;
