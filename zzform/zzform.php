@@ -464,10 +464,8 @@ function zzform_request() {
 	if (empty($_GET['request'])) wrap_quit(404);
 	switch ($_GET['request']) {
 	case 'captcha':
-		if (empty($_GET['zz'])) wrap_quit(404);
-		require_once __DIR__.'/captcha.inc.php';
-		return zz_captcha_image($_GET['zz']);
-		break;
+		wrap_include('captcha', 'zzform');
+		return zz_captcha_image();
 	}
 	wrap_quit(404);
 }

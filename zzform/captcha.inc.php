@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2019, 2023-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2019, 2023-2024, 2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -16,15 +16,17 @@
 /**
  * log a captcha solution in a logfile or check against given solution
  *
- * format: timestamp zz_id captcha
- * @param int $zz_id
+ * format: timestamp state_token captcha
  * @param int $code existing code
  * @return void
  */
-function zz_captcha_code($zz_id, $code = false) {
+function zz_captcha_code($code = false) {
+	$token = zz_state_token();
+	if (!$token AND !empty($_GET['zz'])) $token = $_GET['zz'];
+
 	if (str_starts_with($code, 'solved-')) {
 		// no need to solve a captcha twice, check code
-		return wrap_check_hash($zz_id, substr($code, 7), '', 'zzform_captcha_key');
+		return wrap_check_hash($token, substr($code, 7), '', 'zzform_captcha_key');
 	}
 	wrap_include('file', 'zzwrap');
 	$logfile = wrap_setting('log_dir').'/captcha.log';
@@ -43,7 +45,7 @@ function zz_captcha_code($zz_id, $code = false) {
 		$line = explode(" ", $line);
 		if (($line[0] + 86400 * 30) < time())
 			$delete_lines[] = $index;
-		if ($line[1].'' !== $zz_id.'') continue;
+		if ($line[1].'' !== $token.'') continue;
 		$existing_digit = $line[2];
 		if ($code) $delete_lines[] = $index;
 		break;
@@ -58,7 +60,7 @@ function zz_captcha_code($zz_id, $code = false) {
 	wrap_file_delete_line($logfile, $delete_lines);
 	if ($existing_digit) return $existing_digit;
 	$digit = wrap_random_hash(5, '0123456789');
-	error_log(sprintf("%s %s %s\n", time(), $zz_id, $digit), 3, $logfile);
+	error_log(sprintf("%s %s %s\n", time(), $token, $digit), 3, $logfile);
 	return $digit;
 }
 
@@ -66,10 +68,11 @@ function zz_captcha_code($zz_id, $code = false) {
  * show a captcha image
  * adapted from The Art of Web: www.the-art-of-web.com
  *
- * @param void
  * @return void
  */
-function zz_captcha_image($zz_id) {
+function zz_captcha_image() {
+	if (empty($_GET['zz'])) wrap_quit(404);
+
 	// initialise image with dimensions of 120 x 30 pixels
 	$image = @imagecreatetruecolor(120, 30) or wrap_quit(503, "Cannot Initialize new GD image stream");
 
@@ -100,7 +103,7 @@ function zz_captcha_image($zz_id) {
 	}
 
 	// add random digits to canvas
-	$digit = str_split(zz_captcha_code($zz_id));
+	$digit = str_split(zz_captcha_code());
 	for ($x = 15; $x <= 95; $x += 20) {
 		$textcolor = (rand() % 2) ? $textcolor1 : $textcolor2;
 		$num = array_shift($digit);
