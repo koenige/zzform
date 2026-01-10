@@ -2336,8 +2336,6 @@ function zz_upload_path($action, $path) {
  * @param bool $validated (optional, true: validation was passed, false: not)
  */
 function zz_upload_cleanup($zz_tab, $validated = true) {
-	global $zz_conf;
-
 	// valid request = destroy session and delete files
 	if ($validated) {
 		foreach (zz_upload_cleanup_files() as $file)

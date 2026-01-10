@@ -692,7 +692,6 @@ function zz_nice_tablenames($table) {
  * initializes 'limit' for display of records
  *
  * @param array $zz (might be empty)
- * @global array $zz_conf
  * @return void
  */
 function zz_init_limit($zz) {

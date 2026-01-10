@@ -43,7 +43,6 @@
  * @return string current state token (always 6 characters after first call)
  */
 function zz_state_token($token = NULL) {
-	global $zz_conf;
 	static $state_token = '';
 	
 	// Setter: force generate new random token
@@ -144,7 +143,7 @@ function zz_state_definition($zz = [], $zz_conf = []) {
 	// the definition of the database table(s)
 	$token = zz_state_token();
 	$uninteresting_zz_conf_keys = [
-		'int', 'id'
+		'int'
 	];
 	foreach ($uninteresting_zz_conf_keys as $key) unset($zz_conf[$key]);
 	$uninteresting_zz_keys = [

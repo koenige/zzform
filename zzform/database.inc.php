@@ -551,8 +551,6 @@ function zz_db_field_null($field, $db_table) {
  * @todo use wrap_mysql_fields() instead
  */
 function zz_db_field_collation($field, $db_table = '') {
-	global $zz_conf;
-	
 	$charset = '';
 	$collate_fieldname = '';
 	if (isset($field['search'])) {

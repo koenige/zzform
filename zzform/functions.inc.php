@@ -2417,13 +2417,10 @@ function zz_dependent_selected($record, $field_names) {
  *
  * @param array $my_rec
  * @param int $f Key of current field
- * @global array $zz_conf
  * @return array $my_rec changed keys:
  *		'fields'[$f], 'POST', 'POST-notvalid', 'validation'
  */
 function zz_check_select($my_rec, $f) {
-	global $zz_conf;
-
 	// only for 'select'-fields with SQL query (not for enums neither for sets)
 	if (empty($my_rec['fields'][$f]['sql'])) return $my_rec;
 	// check if we have a value

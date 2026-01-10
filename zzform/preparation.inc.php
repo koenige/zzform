@@ -469,8 +469,6 @@ function zz_prepare_post_per_table($table) {
  * @return array $my_tab
  */
 function zz_prepare_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
-	global $zz_conf;
-	
 	$my_tab = $zz_tab[$tab];
 
 	if ($my_tab['subtable_ids']) {
