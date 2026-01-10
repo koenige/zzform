@@ -162,7 +162,7 @@ function zzform($zz) {
 //	Check mode, action, access for record;
 //	access for list will be checked later
 //
-	if ($zz_conf['generate_output']) 
+	if (!wrap_static('zzform_output', 'batch_mode'))
 		zz_init_limit($zz);
 
 	// initalize export module
@@ -185,7 +185,7 @@ function zzform($zz) {
 		$ops['output'] .= zz_error_output(); // initialise zz_error
 	}	
 	
-	if ($zz_conf['generate_output'])
+	if (!wrap_static('zzform_output', 'batch_mode'))
 		$ops['heading'] = zz_output_heading($zz['title'], $zz['table']);
 
 	//	Translation module
@@ -225,7 +225,7 @@ function zzform($zz) {
 		if ($ops['exit']) return zzform_exit($ops);
 	}
 
-	if (!$zz_conf['generate_output'])
+	if (wrap_static('zzform_output', 'batch_mode'))
 		return zzform_exit($ops);
 
 	// in case no record is shown, create page info
@@ -310,7 +310,7 @@ function zzform_record($zz, $ops, $zz_conditions) {
 	zz_trigger_error_too_big();
 	zz_error();	// @todo check if this can go into zz_trigger_error_too_big()
 
-	if ($zz_conf['generate_output'])
+	if (!wrap_static('zzform_output', 'batch_mode'))
 		$ops = zz_output_page($ops, $zz);
 
 	if (isset($_POST['zz_merge'])) {
@@ -373,7 +373,7 @@ function zzform_record($zz, $ops, $zz_conditions) {
 			return $ops;
 		}
 		// was action successful?
-		if ($ops['result'] AND !$zz_conf['generate_output']) {
+		if ($ops['result'] AND wrap_static('zzform_output', 'batch_mode')) {
 			// zzform_multi: exit here, rest is for output only
 			$ops['exit'] = true;
 			return $ops;
@@ -432,14 +432,14 @@ function zzform_record($zz, $ops, $zz_conditions) {
 		return $ops;
 	}
 
-	if (!$zz_conf['generate_output']) {
+	if (wrap_static('zzform_output', 'batch_mode')) {
 		$ops['error'] = zz_error_multi($ops['error']);
 		zz_error_validation();
 	}
 	// save record for footer template
 	$ops['record'] = $zz_tab[0][0]['record'];
 
-	if (!$zz_conf['generate_output']) {
+	if (wrap_static('zzform_output', 'batch_mode')) {
 		$ops['exit'] = true;
 		return $ops;
 	}
@@ -505,7 +505,7 @@ function zzform_exit($ops) {
 		zz_debug('_clear');
 	}
 	// prepare HTML output, not for export
-	if ($zz_conf['generate_output'] AND function_exists('zz_output_full')) {
+	if (!wrap_static('zzform_output', 'batch_mode') AND function_exists('zz_output_full')) {
 		$ops['output'] = zz_output_full($ops);
 
 		// HTML head
@@ -527,7 +527,7 @@ function zzform_exit($ops) {
 	if (!wrap_static('page', 'status'))
 		wrap_static('page', 'status', 200);
 
-	if ($zz_conf['generate_output']) {
+	if (!wrap_static('zzform_output', 'batch_mode')) {
 		// save correct URL
 		$ops['url'] = zzform_url();
 
@@ -631,12 +631,10 @@ function zz_initialize($mode = false, $old_conf = []) {
 		}
 		if ($zzform_calls > 1) {
 			// We're still in multiple calls
-			$zz_conf['generate_output'] = false;
 			wrap_static('zzform_output', 'batch_mode', true);
 			wrap_setting('access_global', true);
 		} else {
 			// inside the first call
-			$zz_conf['generate_output'] = $old_conf['generate_output'] ?? true;
 			wrap_static('zzform_output', 'batch_mode', false);
 			// @todo this disables global access set in other scripts, too
 			wrap_setting('access_global', false);
@@ -662,12 +660,12 @@ function zz_initialize($mode = false, $old_conf = []) {
 	}
 
 	// Configuration on project level: Core defaults and functions
-	$default['generate_output']	= true;
 	$default['int_modules'] 	= ['debug', 'validate'];
 	zz_write_conf($default);
 	
 	// modules depending on settings
-	if ($zz_conf['generate_output']) $zz_conf['int_modules'][] = 'output';
+	if (!wrap_static('zzform_output', 'batch_mode'))
+		$zz_conf['int_modules'][] = 'output';
 
 	zz_error_exit(false);
 	zz_error_out(false);
@@ -681,7 +679,7 @@ function zz_initialize($mode = false, $old_conf = []) {
 	if (zz_error_exit()) zz_return(false);
 
 	zz_initialize_int();
-	if ($zz_conf['generate_output'])
+	if (!wrap_static('zzform_output', 'batch_mode'))
 		zz_init_referer();
 
 	$zzform_init = true;

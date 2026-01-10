@@ -67,7 +67,6 @@ function zzform_multi($definition_file, $values, $type = 'tables') {
 	];
 
 	zz_initialize('overwrite');
-	$zz_conf['generate_output'] = false;
 	// set 'batch_mode' so we know the operation mode for other scripts
 	wrap_static('zzform_output', 'batch_mode', true);
 	wrap_setting('access_global', true);

@@ -3,7 +3,6 @@
 /**
  * zzform
  * Output functions
- * will only be included if $zz_conf['generate_output'] = true
  *
  * Part of »Zugzwang Project«
  * https://www.zugzwang.org/modules/zzform

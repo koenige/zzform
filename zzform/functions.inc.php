@@ -77,14 +77,14 @@ function zz_modules($module, $new_modules = []) {
  * @param array $zz Table definition
  *		checking 'conditions', 'fields'
  * @global array $zz_conf
- *		checking 'generate_output'
  * @return void
  */
 function zz_dependent_modules(&$zz) {
 	global $zz_conf;
 
 	// check if POST is too big, then it will be empty
-	$zz_conf['int']['post_too_big'] = $zz_conf['generate_output'] ? zzform_post_too_big() : false;
+	$zz_conf['int']['post_too_big']
+		= !wrap_static('zzform_output', 'batch_mode') ? zzform_post_too_big() : false;
 
 	$modules = [
 		'translations', 'conditions', 'geo', 'export', 'filter', 'upload', 'captcha'
@@ -165,10 +165,8 @@ function zz_dependent_modules(&$zz) {
  * @return bool
  */
 function zz_module_key_check($zz, $module) {
-	global $zz_conf;
-
 	// module is for output only
-	if ($zz_conf['generate_output'] === false) return false;
+	if (wrap_static('zzform_output', 'batch_mode')) return false;
 
 	// check if module is used
 	if (!empty($zz[$module])) return true;
@@ -1430,7 +1428,7 @@ function zz_record_access($zz, $ops) {
 		$zz['record']['delete'] = false;
 		$zz['record']['view'] = false;
 		$zz['list']['display'] = false;
-		$zz_conf['generate_output'] = false;
+		wrap_static('zzform_output', 'batch_mode', true);
 		$zz_conf['int']['record'] = true;
 		$zz['record']['action'] = 'thumbnails';
 		$zz['record']['query_records'] = true;

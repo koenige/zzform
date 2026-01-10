@@ -46,3 +46,4 @@
 2026-01-10-1	code	$zz_conf['multi']	in definitions, use `['if']['batch_mode']`, inside a zzform() call use wrap_static('zzform_output', 'batch_mode')
 2026-01-10-2	code	['if']['multi']		use `['if']['batch_mode']`
 2026-01-10-3	code	['if']['batch']		use `['if']['batch_mode']`
+2026-01-10-4	code	$zz_conf['generate_output']	inside a zzform() call use !wrap_static('zzform_output', 'batch_mode')
