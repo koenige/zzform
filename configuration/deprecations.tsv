@@ -15,6 +15,7 @@
 #: Identifier	Type	Search Text	Message	Exclude Pattern
 # exclude_pattern: files matching this pattern will be excluded from results (multiple patterns separated by semicolon)
 #
+2024-05-10-1	code	$zz_conf['breadcrumbs']	use $zz['page']['breadcrumbs'] instead	zzbrick/zzbrick/forms.inc.php
 2024-10-25-1	code	$zz_conf['url_self']	removed, use setting `request_uri` or other
 2024-11-22-1	code	zz_log_sql	use zz_db_log() instead	zzform/zzform/database.inc.php
 2024-11-24-1	code	tick_to_save	use a detail table with form_display 'set' instead
@@ -22,7 +23,7 @@
 2024-12-13-1	code	multi_function	now `batch_function`	zzform/configuration/zz.cfg;zzform/configuration/zz_conf.cfg
 2024-12-13-2	code	multi_delete	now `batch_delete`	zzform/configuration/zz.cfg;zzform/configuration/zz_conf.cfg
 2024-12-13-3	code	multi_edit	now `batch_edit`	zzform/configuration/zz.cfg;zzform/configuration/zz_conf.cfg
-`2025-03-30-1	code	sqlrecord	use `sql_record` instead
+2025-03-30-1	code	sqlrecord	use `sql_record` instead
 2025-03-30-2	code	sqlcount	use `sql_count` instead
 2025-03-30-3	code	sqlextra	use `sql_extra` instead
 2025-05-12-1	code	sql_association	removed
