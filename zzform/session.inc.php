@@ -18,10 +18,11 @@
  * php session is not locked, so race conditions might occur
  *
  * @param string $type name of the part of the program
- * @param array $session data to write
+ * @param array $data data to write
+ * @param bool $use_token_over_session if true, use state token instead of session_id even if session exists
  * @return bool
  */
-function zz_session_write($type, $data) {
+function zz_session_write($type, $data, $use_token_over_session = false) {
 	switch ($type) {
 	case 'files':
 		// $data = $zz_tab
@@ -68,7 +69,7 @@ function zz_session_write($type, $data) {
 		$session = $data;
 		break;
 	}
-	$fp = fopen(zz_session_filename($type), 'w');
+	$fp = fopen(zz_session_filename($type, $use_token_over_session), 'w');
 	fwrite($fp, json_encode($session, JSON_PRETTY_PRINT));
 	fclose($fp);
 	return true;
@@ -79,10 +80,11 @@ function zz_session_write($type, $data) {
  *
  * @param string $type name of the part of the program
  * @param array $data default empty, if data: check if something else was posted
+ * @param bool $use_token_over_session if true, use state token instead of session_id even if session exists
  * @return array
  */
-function zz_session_read($type, $data = []) {
-	$filename = zz_session_filename($type);
+function zz_session_read($type, $data = [], $use_token_over_session = false) {
+	$filename = zz_session_filename($type, $use_token_over_session);
 	if (!file_exists($filename)) return $data;
 	$session = file_get_contents($filename);
 	$session = json_decode($session, true);
@@ -125,14 +127,15 @@ function zz_session_read($type, $data = []) {
  * current session ID and script ID
  *
  * @param string $type name of the part of the program
+ * @param bool $use_token_over_session if true, use state token instead of session_id even if session exists
  * @return string
  */
-function zz_session_filename($type) {
+function zz_session_filename($type, $use_token_over_session = false) {
 	$dir = wrap_setting('tmp_dir').'/zzform-sessions';
 	wrap_mkdir($dir);
 	$filename = sprintf('%s/%s-%s-%s.txt'
 		, $dir
-		, (empty(session_id()) OR wrap_setting('zzform_token_from_session')) ? zz_state_token() : session_id()
+		, (empty(session_id()) OR $use_token_over_session) ? zz_state_token() : session_id()
 		, zz_state_hash()
 		, $type
 	);
@@ -176,10 +179,8 @@ function zz_review_via_login() {
 	zz_state_token($_SESSION['zzform']['review_via_login']);
 	zz_state_hash(zz_state_pairing('read'), 'write');
 
-	wrap_setting('zzform_token_from_session', true);
-	$_POST = zz_session_read('postdata');
-	$_FILES = zz_session_read('filedata');
-	wrap_setting('zzform_token_from_session', false);
+	$_POST = zz_session_read('postdata', [], true);
+	$_FILES = zz_session_read('filedata', [], true);
 	
 	wrap_session_start();
 	unset($_SESSION['zzform']['review_via_login']);
