@@ -39,7 +39,8 @@ function zzform_multi($definition_file, $values, $type = 'tables') {
 	// unset all variables that are not needed
 	// important because there may be multiple zzform calls
 	global $zz_conf;
-	require_once __DIR__.'/zzform.php';
+
+	zzform_includes();
 	
 	$old = [
 		'conf' => $zz_conf,

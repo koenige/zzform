@@ -148,6 +148,7 @@ function zz_session_filename($type) {
  */
 function zz_session_via_login() {
 	wrap_package_activate('zzform'); // get _functions
+	wrap_include('state', 'zzform');
 
 	// this function is called from outside zzform!
 	if (array_key_exists('zz_action', $_POST) AND $_POST['zz_action'] === 'multiple'

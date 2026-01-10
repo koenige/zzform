@@ -107,7 +107,7 @@ function zzform($zz) {
 
 	$ops['review_via_login'] = false;
 	if (!empty($_SESSION['zzform']['review_via_login'])) {
-		require_once __DIR__.'/session.inc.php';
+		wrap_include('session', 'zzform');
 		zz_review_via_login();
 		$ops['review_via_login'] = true;
 	}
@@ -115,7 +115,7 @@ function zzform($zz) {
 		AND ((!empty($_POST['zz_add_details']) OR !empty($_POST['zz_edit_details']))
 		OR !empty($_SESSION['zzform'][zz_state_token()]))
 	) {
-		require_once __DIR__.'/details.inc.php';
+		wrap_include('details', 'zzform');
 		$zz = zz_details($zz);
 	}
 
@@ -792,6 +792,7 @@ function zzform_includes() {
 	static $included = NULL;
 	if ($included) return;
 
+	wrap_include('zzform.php', 'zzform'); // for batch operations
 	wrap_include('zzform/definition'); // also done in zzbrick/form, here for zzform_multi()
 	wrap_include('zzform/helpers'); // also done in zzbrick/form, here for zzform_multi()
 	wrap_include('configuration', 'zzform');
