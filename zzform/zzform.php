@@ -511,7 +511,11 @@ function zzform_exit($ops) {
 		$ops['output'] = zz_output_full($ops);
 
 		// HTML head
-		wrap_static('page', 'head', wrap_template('zzform-head', [], 'ignore positions'), 'append');
+		$head = [
+			'wmd_editor_instances' => wrap_static('zzform_output', 'wmd_editor_instances') ? true : false,
+			'wmd_editor_lang' => wrap_static('zzform_output', 'wmd_editor_lang')
+		];
+		wrap_static('page', 'head', wrap_template('zzform-head', $head, 'ignore positions'), 'append');
 		wrap_static('page', 'meta', zz_output_meta_tags(), 'add');
 
 		if (!empty($ops['html_fragment'])) {

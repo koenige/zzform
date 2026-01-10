@@ -231,6 +231,8 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 		$record['upload_form'] = false;
 	}
 	$record['state_token'] = zz_state_token();
+	$record['wmd_editor_instances'] = wrap_static('zzform_output', 'wmd_editor_instances');
+	$record['wmd_editor_lang'] = wrap_static('zzform_output', 'wmd_editor_lang');
 	return wrap_template('zzform-record', $record);
 }
 
@@ -2395,13 +2397,13 @@ function zz_field_memo($field, $display, $record) {
 	if (!empty($field['format']) AND $field['format'] === 'markdown') {
 		if (wrap_setting('zzform_wmd_editor')) {
 			// Pagedown Editor
-			$data['wmd_editor'] = wrap_setting('zzform_wmd_editor_instances') + 1;
-			wrap_setting('zzform_wmd_editor_instances', $data['wmd_editor']);
+			$data['wmd_editor'] = wrap_static('zzform_output', 'wmd_editor_instances') + 1;
+			wrap_static('zzform_output', 'wmd_editor_instances', $data['wmd_editor']);
 			$fieldattr['class'] = 'wmd-input';
 			$fieldattr['id'] = 'wmd-input-'.$data['wmd_editor'];
-			if (!wrap_setting('zzform_wmd_editor_lang')
+			if (!wrap_static('zzform_output', 'wmd_editor_lang')
 				AND in_array(wrap_setting('lang'), wrap_setting('zzform_wmd_editor_languages')))
-				wrap_setting('zzform_wmd_editor_lang', wrap_setting('lang'));
+				wrap_static('zzform_output', 'wmd_editor_lang', wrap_setting('lang'));
 		} elseif (wrap_setting('zzform_upndown_editor')) {
 			// upndown Editor
 			$data['upndown_editor'] = wrap_static('zzform_output', 'upndown_editor_instances') + 1;

@@ -115,9 +115,9 @@ if divert_files %%% data-divert-files="%%% item divert_files %%%"%%% endif %%%>
 
 var zzformForm = document.getElementById('zzform_form');
 var zzformSubmitButton = '';
-%%% if setting zzform_wmd_editor_instances %%%
-var zzformWmdEditorInstances = %%% setting zzform_wmd_editor_instances %%%;
-var zzformWmdEditorLang = '%%% setting zzform_wmd_editor_lang %%%';
+%%% if wmd_editor_instances %%%
+var zzformWmdEditorInstances = %%% item wmd_editor_instances %%%;
+var zzformWmdEditorLang = '%%% item wmd_editor_lang %%%';
 %%% endif %%%
 var zzformActionURL = '%%% page zzformurl type=self+extra %%%';
 %%% item form_anchor "var zzformAnchor = '%s';" %%%

@@ -5,12 +5,12 @@
 # https://www.zugzwang.org/modules/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2017, 2021-2022, 2024-2025 Gustaf Mossakowski
+# @copyright Copyright © 2017, 2021-2022, 2024-2026 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 %%% script pagedown/Markdown.Converter.js %%%
 %%% script pagedown/Markdown.Sanitizer.js %%%
 %%% script pagedown/Markdown.Editor.js %%%
-%%% if setting zzform_wmd_editor_lang %%%
-<script src="%%% setting behaviour_path %%%/zzform/Markdown.local.%%% setting zzform_wmd_editor_lang %%%.js" charset="utf-8"></script>
+%%% if wmd_editor_lang %%%
+<script src="%%% setting behaviour_path %%%/zzform/Markdown.local.%%% item wmd_editor_lang %%%.js" charset="utf-8"></script>
 %%% endif %%%
