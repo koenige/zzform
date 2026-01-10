@@ -1081,9 +1081,9 @@ function zz_rating_format($value, $field) {
  * @return string HTML code for JavaScript
  */
 function zz_output_upndown_editor() {
-	if (!wrap_setting('zzform_upndown_editor_instances')) return '';
+	if (!wrap_static('zzform_output', 'upndown_editor_instances')) return '';
 
-	for ($i = 1; $i <= wrap_setting('zzform_upndown_editor_instances'); $i++)
+	for ($i = 1; $i <= wrap_static('zzform_output', 'upndown_editor_instances'); $i++)
 		$data[$i]['no'] = $i;
 
 	$output = wrap_template('upndown-editor', $data);

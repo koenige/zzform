@@ -78,8 +78,12 @@ function zzform($zz) {
 	// internal zzform variables
 	wrap_static('zzform', '', $zz['vars'], 'init');
 	// page variables, general settings
-	if (empty($zz_conf['multi']))
+	if (empty($zz_conf['multi'])) {
+		// static variables for zzwrap page
 		wrap_static('page', '', $zz['page'], 'init');
+		// static variables for zzform output
+		wrap_static('zzform_output', '', $zz['page'], 'init');
+	}
 	zz_error_validation_log('delete');
 
 	// set default configuration variables

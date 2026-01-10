@@ -2404,10 +2404,10 @@ function zz_field_memo($field, $display, $record) {
 				wrap_setting('zzform_wmd_editor_lang', wrap_setting('lang'));
 		} elseif (wrap_setting('zzform_upndown_editor')) {
 			// upndown Editor
-			$data['upndown_editor'] = wrap_setting('zzform_upndown_editor_instances') + 1;
+			$data['upndown_editor'] = wrap_static('zzform_output', 'upndown_editor_instances') + 1;
 			$data['rows'] = $fieldattr['rows'];
 			$data['cols'] = $fieldattr['cols'];
-			wrap_setting('zzform_upndown_editor_instances', $data['upndown_editor']);
+			wrap_static('zzform_output', 'upndown_editor_instances', $data['upndown_editor']);
 			$fieldattr['class'] = 'markdown';
 			$fieldattr['id'] = 'markdown-'.$data['upndown_editor'];
 		}
