@@ -43,7 +43,8 @@ function zz_conditions_set($zz) {
 	// All supported shortcuts
 	$shortcuts = [
 		'list_empty', 'record_mode', 'export_mode', 'where', 'multi', 'batch',
-		'add', 'edit', 'delete', 'upload', 'noid', 'revise', 'insert', 'update'
+		'batch_mode', 'add', 'edit', 'delete', 'upload', 'noid', 'revise', 'insert',
+		'update'
 	];
 	// Some shortcuts depend on a field, get field_name as extra definition
 	$shortcuts_depending_on_fields = ['where'];
@@ -189,9 +190,10 @@ function zz_conditions_check($zz, $mode) {
 				$zz_conditions['bool'][$index] = true;
 			}
 			break;
-		case 'multi':
-		case 'batch':
-			if (!empty($zz_conf['multi'])) {
+		case 'multi': // @deprecated
+		case 'batch': // @deprecated
+		case 'batch_mode':
+			if (wrap_static('zzform_output', 'batch_mode')) {
 				$zz_conditions['bool'][$index] = true;
 			} else {
 				$zz_conditions['bool'][$index] = false;
@@ -907,9 +909,10 @@ function zz_conditions_list_check($zz, $list, $zz_conditions, $ids, $mode) {
 		switch ($condition['scope']) {
 		// case record remains the same as in form view
 		// case query covers more ids
-		case 'multi':
-		case 'batch':
-			if (!empty($zz_conf['multi'])) {
+		case 'multi': // @deprecated
+		case 'batch': // @deprecated
+		case 'batch_mode':
+			if (wrap_static('zzform_output', 'batch_mode')) {
 				$zz_conditions['bool'][$index] = true;
 			} else {
 				$zz_conditions['bool'][$index] = false;
@@ -1004,11 +1007,9 @@ function zz_conditions_before_record($zz, &$zz_tab, &$zz_conditions, $mode) {
  * @return array
  */
 function zz_conditions_access($zz) {
-	global $zz_conf;
-	
-	if (isset($zz['if']['batch']['access']) AND !empty($zz_conf['multi']))
-		$zz['access'] = $zz['if']['batch']['access'];
-	elseif (isset($zz['unless']['batch']['access']) AND empty($zz_conf['multi']))
-		$zz['access'] = $zz['unless']['batch']['access'];
+	if (isset($zz['if']['batch_mode']['access']) AND wrap_static('zzform_output', 'batch_mode'))
+		$zz['access'] = $zz['if']['batch_mode']['access'];
+	elseif (isset($zz['unless']['batch_mode']['access']) AND !wrap_static('zzform_output', 'batch_mode'))
+		$zz['access'] = $zz['unless']['batch_mode']['access'];
 	return $zz;
 }
