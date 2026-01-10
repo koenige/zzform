@@ -49,7 +49,7 @@ function zzform_multi($definition_file, $values, $type = 'tables') {
 		'FILES' => $_FILES ?? [],
 		'token' => zz_state_token(),
 		'hash' => zz_state_hash(),
-		'multi' => $zz_conf['multi'] ?? NULL,
+		'batch_mode' => wrap_static('zzform_output', 'batch_mode'),
 		'int' => $zz_conf['int'] ?? []
 	];
 	unset($_GET);
@@ -68,8 +68,8 @@ function zzform_multi($definition_file, $values, $type = 'tables') {
 
 	zz_initialize('overwrite');
 	$zz_conf['generate_output'] = false;
-	// set 'multi' so we know the operation mode for other scripts
-	$zz_conf['multi'] = true;
+	// set 'batch_mode' so we know the operation mode for other scripts
+	wrap_static('zzform_output', 'batch_mode', true);
 	wrap_setting('access_global', true);
 
 	// set input data
@@ -101,8 +101,8 @@ function zzform_multi($definition_file, $values, $type = 'tables') {
 	$_POST = $old['POST'];
 	$_FILES = $old['FILES'];
 	zz_state_token($old['token']);
-	$zz_conf['multi'] = $old['multi'];
-	wrap_setting('access_global', $old['multi']);
+	wrap_static('zzform_output', 'batch_mode', $old['batch_mode']);
+	wrap_setting('access_global', $old['batch_mode']);
 	$zz_conf['int'] = $old['int'];
 	zz_state_hash($old['hash'], 'write');
 

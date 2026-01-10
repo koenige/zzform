@@ -78,11 +78,9 @@ function zzform($zz) {
 	// internal zzform variables
 	wrap_static('zzform', '', $zz['vars'], 'init');
 	// page variables, general settings
-	if (empty($zz_conf['multi'])) {
+	if (!wrap_static('zzform_output', 'batch_mode')) {
 		// static variables for zzwrap page
 		wrap_static('page', '', $zz['page'], 'init');
-		// static variables for zzform output
-		wrap_static('zzform_output', '', $zz['page'], 'init');
 	}
 	zz_error_validation_log('delete');
 
@@ -115,7 +113,7 @@ function zzform($zz) {
 		zz_review_via_login();
 		$ops['review_via_login'] = true;
 	}
-	if (empty($zz_conf['multi'])
+	if (!wrap_static('zzform_output', 'batch_mode')
 		AND ((!empty($_POST['zz_add_details']) OR !empty($_POST['zz_edit_details']))
 		OR !empty($_SESSION['zzform'][zz_state_token()]))
 	) {
@@ -634,12 +632,12 @@ function zz_initialize($mode = false, $old_conf = []) {
 		if ($zzform_calls > 1) {
 			// We're still in multiple calls
 			$zz_conf['generate_output'] = false;
-			$zz_conf['multi'] = true;
+			wrap_static('zzform_output', 'batch_mode', true);
 			wrap_setting('access_global', true);
 		} else {
 			// inside the first call
 			$zz_conf['generate_output'] = $old_conf['generate_output'] ?? true;
-			$zz_conf['multi'] = false;
+			wrap_static('zzform_output', 'batch_mode', false);
 			// @todo this disables global access set in other scripts, too
 			wrap_setting('access_global', false);
 		}
@@ -682,10 +680,6 @@ function zz_initialize($mode = false, $old_conf = []) {
 	// stop if there were errors while adding modules
 	if (zz_error_exit()) zz_return(false);
 
-	$default['multi'] 				= false;		// zzform_multi
-	
-	zz_write_conf($default);
-	
 	zz_initialize_int();
 	if ($zz_conf['generate_output'])
 		zz_init_referer();
@@ -693,7 +687,7 @@ function zz_initialize($mode = false, $old_conf = []) {
 	$zzform_init = true;
 	$zz_saved['conf'] = $zz_conf;
 
-	if ($mode === 'form' AND $zzform_calls > 1 AND empty($zz_conf['multi'])) { 
+	if ($mode === 'form' AND $zzform_calls > 1 AND !wrap_static('zzform_output', 'batch_mode')) { 
 		// show a warning only if zzform is not explicitly called via zzform_multi()
 		zz_error_log([
 			'msg_dev' => 'zzform has been called as a function more than once. '
@@ -823,10 +817,9 @@ function zzform_includes() {
  * @return array
  */
 function zzform_setting($setting) {
-	global $zz_conf;
 	static $zzform_settings = [];
 	if (!$setting) return [];
-	if (!empty($zz_conf['multi']) AND !$zzform_settings)
+	if (wrap_static('zzform_output', 'batch_mode') AND !$zzform_settings)
 		$zzform_settings = wrap_cfg_files('settings', ['package' => 'zzform']);
 
 	$old_settings = [];
@@ -834,7 +827,7 @@ function zzform_setting($setting) {
 		// are there any changes?
 		if (wrap_setting($key) === $value) continue;
 		// inside batch operations, only allow to change some settings
-		if (!empty($zz_conf['multi']) AND empty($zzform_settings[$key]['batch_setting'])) continue;
+		if (wrap_static('zzform_output', 'batch_mode') AND empty($zzform_settings[$key]['batch_setting'])) continue;
 		// save old setting, write new setting
 		$old_settings[$key] = wrap_setting($key);
 		wrap_setting($key, $value);

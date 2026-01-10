@@ -60,7 +60,7 @@ function zz_state_token($token = NULL) {
 	
 	// Getter: return existing token if set
 	if ($state_token) return $state_token;
-	if (!empty($zz_conf['multi'])) return '';
+	if (wrap_static('zzform_output', 'batch_mode')) return '';
 	
 	// Auto-initialize if not set
 	if (!empty($_GET['zz']) AND strlen($_GET['zz']) === 6) {
@@ -250,8 +250,7 @@ function zz_state_hash($value = NULL, $action = '') {
  * @return string|int depends on mode: 'read' returns hash, 'timecheck' returns seconds, 'write' returns hash or empty
  */
 function zz_state_pairing($mode, $token = '', $hash = '') {
-	global $zz_conf;
-	if (!empty($zz_conf['multi'])) return '';
+	if (wrap_static('zzform_output', 'batch_mode')) return '';
 	
 	// @deprecated: migrate old log file location
 	if (file_exists(wrap_setting('log_dir').'/zzform-ids.log')) {

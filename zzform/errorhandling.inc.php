@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -335,10 +335,9 @@ function zz_error_validation_log($key = false, $value = []) {
  * @return void
  */
 function zz_error_validation() {
-	global $zz_conf;
 	$errors = zz_error_validation_log();
 	if (!$errors['msg']) return false;
-	if (!empty($zz_conf['multi'])) return false;
+	if (wrap_static('zzform_output', 'batch_mode')) return false;
 
 	// user error message, visible to everyone
 	// line breaks \n important for mailing errors
@@ -369,8 +368,7 @@ function zz_error_validation() {
  * @return array $errors
  */
 function zz_error_multi($errors) {
-	global $zz_conf;
-	if (!$zz_conf['multi']) return $errors;
+	if (!wrap_static('zzform_output', 'batch_mode')) return $errors;
 
 	$logged_errors = zz_error_log();
 	foreach ($logged_errors as $index => $error) {

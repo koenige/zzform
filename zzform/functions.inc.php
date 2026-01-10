@@ -2450,7 +2450,7 @@ function zz_check_select($my_rec, $f) {
 	if (empty($my_rec['fields'][$f]['always_check_select'])) {
 		// with zzform_multi(), no form exists, so check per default yes
 		// unless explicitly said not to check; with form its otherway round
-		$check_string = $zz_conf['multi'] ? true : false;
+		$check_string = wrap_static('zzform_output', 'batch_mode') ? true : false;
 		if (in_array($field_name, $my_rec['check_select_fields'])) {
 			$check_string = !$check_string;
 			if ($check_string) {
@@ -2550,7 +2550,7 @@ function zz_check_select($my_rec, $f) {
 		$my_rec['validation'] = false;
 		$error = true;
 	}
-	if ($error AND $zz_conf['multi']) {
+	if ($error AND wrap_static('zzform_output', 'batch_mode')) {
 		if (count($possible_values) > 1) {
 			$errormsg = 'Multiple records matching (maybe set "ids" for zzform_multi?)';
 		} else {
@@ -2593,13 +2593,10 @@ function zz_field_select_value_hierarchy($field, $record, $id_field_name) {
  *		'sql_character_set', 'sql_table'
  * @param string $postvalue
  * @param array $id = $zz_tab[$tab][$rec]['id'] optional; for hierarchy in same table
- * @global array $zz_conf bool 'multi'
  * @return array $field
  *		'possible_values', 'sql_fields', 'sql_new'
  */
 function zz_check_select_id($field, $postvalue, $id = []) {
-	global $zz_conf;
-	
 	if (!empty($field['select_checked'])) return $field;
 	// 1. get field names from SQL query
 	if (empty($field['sql_fields'])) $field['sql_fields'] = [];
@@ -2634,7 +2631,7 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 	if (!empty($field['sql_fields'][0]))
 		// save for later use
 		$id_field_name = $field['sql_fields'][0]['field_name'];
-	if (substr($postvalue, -1) !== ' ' AND !$zz_conf['multi']) {
+	if (substr($postvalue, -1) !== ' ' AND !wrap_static('zzform_output', 'batch_mode')) {
 		$search_equal = false;
 		// if there is a space at the end of the string, don't do LIKE 
 		// with %!
@@ -2651,7 +2648,7 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 			$likestring = ' = %s"%s"';
 		}
 		if (count($field['sql_fields']) -1 === count($postvalues)
-			AND !$zz_conf['multi']) {
+			AND !wrap_static('zzform_output', 'batch_mode')) {
 			// multi normally sends ID
 			// get rid of ID field name, it's first in list
 			// do not use array_shift here because index is needed below

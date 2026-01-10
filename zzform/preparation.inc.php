@@ -563,7 +563,7 @@ function zz_prepare_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 
 	// check if we have a sync or so and there's a detail record with
 	// a unique field: get the existing detail record id if there's one
-	if (!empty($zz_conf['multi']))
+	if (wrap_static('zzform_output', 'batch_mode'))
 		$my_tab['POST'] = zz_subrecord_unique($my_tab, $existing, $field['fields']);
 
 	if ($my_tab['values'] AND $state !== 'delete') {

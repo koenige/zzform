@@ -244,7 +244,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 					// ID is empty anyways and will be set via auto_increment
 					// unless 'import_id_value' is set
 					if (empty($field['import_id_value'])) continue;
-					if (empty($zz_conf['multi'])) continue;
+					if (!wrap_static('zzform_output', 'batch_mode')) continue;
 					if (empty($zz_tab[$tab][$rec]['id']['value'])) continue;
 					$field_list[] = '`'.$field['field_name'].'`';
 					$field_values[] = $zz_tab[$tab][$rec]['id']['value'];
@@ -983,8 +983,7 @@ function zz_action_trigger($triggers) {
  * @return bool false: no validation, resend form
  */
 function zz_action_timeframe($zz_record) {
-	global $zz_conf;
-	if (!empty($zz_conf['multi'])) return true;
+	if (wrap_static('zzform_output', 'batch_mode')) return true;
 	if (!empty($_SESSION['logged_in'])) return true; // just for public forms
 	if (!empty($zz_record['no_timeframe'])) return true;
 
@@ -1001,13 +1000,11 @@ function zz_action_timeframe($zz_record) {
  * @return bool
  */
 function zz_action_referer() {
-	global $zz_conf;
-
 	if (!array_key_exists('HTTP_REFERER', $_SERVER)) return true;
 	// empty referer is legal
 	if (!$_SERVER['HTTP_REFERER']) return true;
 	// batch mmode, we do not care about the referer
-	if (!empty($zz_conf['multi'])) return true;
+	if (wrap_static('zzform_output', 'batch_mode')) return true;
 	// just whatever text as referer, do not care (some antivirus programs do that)
 	if (!str_starts_with($_SERVER['HTTP_REFERER'], 'http')) return true;
 	// ok, now if it is explicitly a wrong referer, ask for the form again
@@ -1718,12 +1715,10 @@ function zz_action_validate($zz_tab, $revalidate = false) {
  * @param array $zz_tab
  * @param int $tab
  * @param int $rec
- * @global array $zz_conf
  * @return array $my_rec with validated values and marker if validation was 
  *		successful ($my_rec['validation'])
  */
 function zz_validate($zz_tab, $tab, $rec = 0) {
-	global $zz_conf;
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	$my_rec = $zz_tab[$tab][$rec];
