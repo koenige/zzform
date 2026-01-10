@@ -203,7 +203,7 @@ function zz_list($zz, $list, $ops, $zz_conditions) {
 			if ($list['merge'])
 				$list['buttons'][] = '<input type="submit" value="'.wrap_text('Merge').'" name="zz_merge">';
 			if ($list['batch_function']) foreach ($list['batch_function'] as $index => $mfunction)
-				$list['buttons'][] = '<input type="submit" value="'.wrap_text($mfunction['title'], ['source' => wrap_setting('zzform_script_path')]).'" name="zz_batch_function['.$index.']">';
+				$list['buttons'][] = '<input type="submit" value="'.wrap_text($mfunction['title'], ['source' => wrap_static('zzform', 'script_path')]).'" name="zz_batch_function['.$index.']">';
 			if ($list['buttons']) {
 				$list['buttons'] = '<input type="hidden" name="zz_action" value="multiple">'.implode(' ', $list['buttons']);
 			}
@@ -1188,7 +1188,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 		}
 	}
 	if (!empty($field['translate_field_value']))
-		$text = wrap_text($text, ['source' => wrap_setting('zzform_script_path')]);
+		$text = wrap_text($text, ['source' => wrap_static('zzform', 'script_path')]);
 	if (!empty($field['list_format']) AND $text)
 		$text = zz_list_format($text, $field['list_format']);
 	if (!empty($field['hide_zeros']) AND !$text)
@@ -1202,7 +1202,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 	if ($text === '' OR $text === false OR $text === NULL) {
 		// always append suffix on last appended field, even if it is empty
 		if ($append_suffix AND empty($append_prefix) AND empty($field['list_append_next'])) {
-			$row['text'] .= wrap_text($append_suffix, ['source' => wrap_setting('zzform_script_path')]);
+			$row['text'] .= wrap_text($append_suffix, ['source' => wrap_static('zzform', 'script_path')]);
 			$append_suffix = '';
 			$append_prefix = '';
 		}
@@ -1218,10 +1218,10 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 
 	// add prefixes etc. to 'text'
 	if (!empty($field['list_append_if_first']) AND !$append_string_first) {
-		$row['text'] .= wrap_text($field['list_append_if_first'], ['source' => wrap_setting('zzform_script_path')]);
+		$row['text'] .= wrap_text($field['list_append_if_first'], ['source' => wrap_static('zzform', 'script_path')]);
 		$append_string_first = true;
 	} elseif (!empty($field['list_append_if_middle']) AND $append_string_first) {
-		$row['text'] .= wrap_text($field['list_append_if_middle'], ['source' => wrap_setting('zzform_script_path')]);
+		$row['text'] .= wrap_text($field['list_append_if_middle'], ['source' => wrap_static('zzform', 'script_path')]);
 	}
 	if (!empty($field['list_append_next'])) {
 		$append_field = true;
@@ -1230,10 +1230,10 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 		$append_string_first = false;
 	}
 	if (!empty($field['list_prefix'])) {
-		$row['text'] .= wrap_text($field['list_prefix'], ['source' => wrap_setting('zzform_script_path')]);
+		$row['text'] .= wrap_text($field['list_prefix'], ['source' => wrap_static('zzform', 'script_path')]);
 	}
 	if (!empty($append_prefix)) {
-		$row['text'] .= wrap_text($append_prefix, ['source' => wrap_setting('zzform_script_path')]);
+		$row['text'] .= wrap_text($append_prefix, ['source' => wrap_static('zzform', 'script_path')]);
 		$append_prefix = '';
 	}
 	if (!empty($field['list_abbr']) AND $mode != 'export') {
@@ -1251,10 +1251,10 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 		$row['text'] .= '&nbsp;'.$field['unit'];
 	}
 	if (!empty($field['list_suffix'])) {
-		$row['text'] .= wrap_text($field['list_suffix'], ['source' => wrap_setting('zzform_script_path')]);
+		$row['text'] .= wrap_text($field['list_suffix'], ['source' => wrap_static('zzform', 'script_path')]);
 	}
 	if (!empty($append_suffix) AND empty($field['list_append_next'])) {
-		$row['text'] .= wrap_text($append_suffix, ['source' => wrap_setting('zzform_script_path')]);
+		$row['text'] .= wrap_text($append_suffix, ['source' => wrap_static('zzform', 'script_path')]);
 		$append_suffix = '';
 	}
 	if (!empty($field['list_abbr']) AND $mode !== 'export') {

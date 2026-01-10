@@ -12,7 +12,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2010-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2010-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -473,7 +473,7 @@ function zz_filter_selection($filter, $filter_active) {
 					$link = zzform_url_add(['filter' => [$f['identifier'] => urlencode($id)]], $filter_self);
 				}
 				if (!empty($filter[$index]['translate_field_value'])) {
-					$selection = wrap_text($selection, ['source' => wrap_setting('zzform_script_path')]);
+					$selection = wrap_text($selection, ['source' => wrap_static('zzform', 'script_path')]);
 				}
 				$filter[$index]['values'][] = [
 					'title' => $selection,

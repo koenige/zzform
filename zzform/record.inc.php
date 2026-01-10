@@ -1164,7 +1164,7 @@ function zz_record_field_size($field) {
 function zz_record_field_placeholder($field) {
 	if (empty($field['placeholder'])) return false;
 	if ($field['placeholder'] === true) $placeholder = $field['title'];
-	else $placeholder = wrap_text($field['placeholder'], ['source' => wrap_setting('zzform_script_path')]);
+	else $placeholder = wrap_text($field['placeholder'], ['source' => wrap_static('zzform', 'script_path')]);
 	return strip_tags($placeholder);
 }
 
@@ -2752,7 +2752,7 @@ function zz_field_select($field, $record, $lines) {
 		$field['show_hierarchy_use_top_value_instead_NULL'] = false;
 	$data['option_none_attributes'] = zz_record_element($element, 'attributes');
 	$data['option_none_text'] = isset($field['text_none_selected'])
-		? wrap_text($field['text_none_selected'], ['source' => wrap_setting('zzform_script_path')]) : NULL;
+		? wrap_text($field['text_none_selected'], ['source' => wrap_static('zzform', 'script_path')]) : NULL;
 
 	// further OPTION elements
 	$optgroup = (!empty($field['group']) AND count($lines) > 1) ? true : false;
@@ -3768,7 +3768,7 @@ function zz_field_select_enum($field, $display, $record) {
 	];
 	$data['option_none_attributes'] = zz_record_element($element, 'attributes');
 	$data['option_none_text'] = isset($field['text_none_selected'])
-		? wrap_text($field['text_none_selected'], ['source' => wrap_setting('zzform_script_path')]) : NULL;
+		? wrap_text($field['text_none_selected'], ['source' => wrap_static('zzform', 'script_path')]) : NULL;
 
 	// options
 	foreach ($field['enum'] as $key => $set) {
@@ -4046,7 +4046,7 @@ function zz_field_display($field, $record, $record_saved) {
 
 		$value = zz_htmltag_escape($value);
 		if (!empty($field['translate_field_value']))
-			$value = wrap_text($value, ['source' => wrap_setting('zzform_script_path')]);
+			$value = wrap_text($value, ['source' => wrap_static('zzform', 'script_path')]);
 		return $value;
 
 	} elseif (isset($field['field_name'])) {
@@ -4240,7 +4240,7 @@ function zz_record_subtable_submit($mode, $field, $tab, $rec = 0) {
 		$field['title_button'] = strip_tags($field['title']); 
 	else
 		$field['title_button'] = wrap_text(
-			$field['title_button'], ['source' => wrap_setting('zzform_script_path')]
+			$field['title_button'], ['source' => wrap_static('zzform', 'script_path')]
 		);
 
 	switch ($mode) {

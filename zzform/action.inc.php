@@ -123,11 +123,11 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 			if (empty($zz_tab[0][0]['fields'][$my_tab['no']]['dont_show_missing'])) {
 				if (empty($zz_tab[0][0]['fields'][$my_tab['no']]['form_display']) OR $zz_tab[0][0]['fields'][$my_tab['no']]['form_display'] !== 'set') {
 					zz_error_validation_log('msg', 'Minimum of records for table `%s` was not met (%d).');
-					zz_error_validation_log('msg_args', wrap_text($zz_tab[0][0]['fields'][$my_tab['no']]['title'], ['source' => wrap_setting('zzform_script_path')]));
+					zz_error_validation_log('msg_args', wrap_text($zz_tab[0][0]['fields'][$my_tab['no']]['title'], ['source' => wrap_static('zzform', 'script_path')]));
 					zz_error_validation_log('msg_args', $my_tab['min_records_required']);
 				} else {
 					zz_error_validation_log('msg', 'Value missing in field <strong>%s</strong>.');
-					zz_error_validation_log('msg_args', wrap_text($zz_tab[0][0]['fields'][$my_tab['no']]['title'], ['source' => wrap_setting('zzform_script_path')]));
+					zz_error_validation_log('msg_args', wrap_text($zz_tab[0][0]['fields'][$my_tab['no']]['title'], ['source' => wrap_static('zzform', 'script_path')]));
 				}
 				zz_error_validation_log('log_post_data', true);
 				if (is_numeric($rec))
@@ -907,7 +907,7 @@ function zz_action_change($ops, $zz_tab, $change) {
 					if (!empty($fields[$field['field_name']]['explanation'])) {
 						if (empty($zz_tab[$tab][$rec]['fields'][$no]['explanation']))
 							$zz_tab[$tab][$rec]['fields'][$no]['explanation'] = '';
-						$zz_tab[$tab][$rec]['fields'][$no]['explanation'] .= wrap_text($fields[$field['field_name']]['explanation'], ['source' => wrap_setting('zzform_script_path')]);
+						$zz_tab[$tab][$rec]['fields'][$no]['explanation'] .= wrap_text($fields[$field['field_name']]['explanation'], ['source' => wrap_static('zzform', 'script_path')]);
 					}
 				}
 			}

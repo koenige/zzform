@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2013, 2016-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2013, 2016-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -79,7 +79,7 @@ function zz_translations_init($table, $fields, $action) {
 		// change title
 		$zz['title'] = sprintf('%s (%s)'
 			, zz_field_title($fields[$no])
-			, wrap_text($zz['title'], ['source' => wrap_setting('zzform_script_path')])
+			, wrap_text($zz['title'], ['source' => wrap_static('zzform', 'script_path')])
 		);
 		$zz['table_name'] .= '_'.$k;
 		$new_no = $index + $k;

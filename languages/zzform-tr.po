@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/modules/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2005-2025 Gustaf Mossakowski
+# @copyright Copyright © 2025-2026 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 msgid ""
@@ -297,10 +297,6 @@ msgstr "revizyonları düzenlemek için sorguya tablo eşlemelerini içeren list
 #: configuration/settings.cfg
 msgid "list with mappings of table to URL for editing revisions"
 msgstr "revizyonları düzenlemek için tablonun URL'ye eşlemelerini içeren liste"
-
-#: configuration/settings.cfg
-msgid "file path to main zzform script that is used"
-msgstr "kullanılan ana zzform betiğinin dosya yolu"
 
 #: configuration/settings.cfg
 msgid "allow to search, where to show search form"

@@ -177,7 +177,7 @@ function zzform_include($file, $values = [], $type = 'tables', $brick = []) {
 	
 	global $zz_conf;
 	include $definition;
-	if (!wrap_setting('zzform_script_path')) wrap_setting('zzform_script_path', $definition);
+	if (!wrap_static('zzform', 'script_path')) wrap_static('zzform', 'script_path', $definition);
 
 	if ($type === 'field') {
 		$def = $field ?? [];

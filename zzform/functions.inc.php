@@ -710,7 +710,7 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			// translate fieldnames, if set
 			foreach ($to_translates as $to_translate) {
 				if (empty($fields[$no][$to_translate])) continue;
-				$fields[$no][$to_translate] = wrap_text($fields[$no][$to_translate], ['source' => wrap_setting('zzform_script_path')]);
+				$fields[$no][$to_translate] = wrap_text($fields[$no][$to_translate], ['source' => wrap_static('zzform', 'script_path')]);
 			}
 			$fields[$no]['translated'] = true;
 		}
@@ -938,7 +938,7 @@ function zz_field_title($field) {
 	if (isset($field['title'])) {
 		$title = $field['title'];
 		if (in_array($title, $translations)) return $title;
-		$title = wrap_text($title, ['source' => wrap_setting('zzform_script_path')]);
+		$title = wrap_text($title, ['source' => wrap_static('zzform', 'script_path')]);
 		$translations[] = $title;
 		return $title;
 	}
@@ -955,7 +955,7 @@ function zz_field_title($field) {
 	$title = str_replace('_id', ' ', $title);
 	$title = str_replace('_', ' ', $title);
 	$title = rtrim($title);
-	$title = wrap_text($title, ['source' => wrap_setting('zzform_script_path')]);
+	$title = wrap_text($title, ['source' => wrap_static('zzform', 'script_path')]);
 	$translations[] = $title;
 	return $title;
 }
@@ -2496,7 +2496,7 @@ function zz_check_select($my_rec, $f) {
 			$my_rec['fields'][$f]['check_validation'] = false;
 			$my_rec['fields'][$f]['suffix'] = ' '.wrap_text('Please make a different selection.');
 			if (!empty($my_rec['fields'][$f]['disabled_ids_error_msg']))
-				$my_rec['fields'][$f]['suffix'] .= ' '.wrap_text($my_rec['fields'][$f]['disabled_ids_error_msg'], ['source' => wrap_setting('zzform_script_path')]);
+				$my_rec['fields'][$f]['suffix'] .= ' '.wrap_text($my_rec['fields'][$f]['disabled_ids_error_msg'], ['source' => wrap_static('zzform', 'script_path')]);
 		} elseif (!$check_string) {
 			$sql_fields = wrap_edit_sql($my_rec['fields'][$f]['sql'], 'SELECT', '', 'list');
 			$sql = wrap_edit_sql($my_rec['fields'][$f]['sql'], 'WHERE', sprintf(

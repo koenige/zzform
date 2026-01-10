@@ -115,7 +115,7 @@ function zz_output_heading($heading, $table = '') {
 		$heading = str_replace('_', ' ', $heading);
 		$heading = ucfirst($heading);
 	}
-	$heading = wrap_text($heading, ['source' => wrap_setting('zzform_script_path')]);
+	$heading = wrap_text($heading, ['source' => wrap_static('zzform', 'script_path')]);
 	if (wrap_setting('zzform_heading_prefix')) {
 		wrap_setting('zzform_heading_prefix', wrap_text(wrap_setting('zzform_heading_prefix'), ['ignore_missing_translation' => true]));
 		$heading = wrap_setting('zzform_heading_prefix').' '.$heading;
@@ -581,7 +581,7 @@ function zz_print_enum($field, $value, $type = 'abbr', $key = false) {
 	if (!empty($field[$ft.'_title'][$key])) {
 		$text = $field[$ft.'_title'][$key];
 	} elseif ($value !== 0) {
-		$text = wrap_text($value, ['source' => wrap_setting('zzform_script_path')]);
+		$text = wrap_text($value, ['source' => wrap_static('zzform', 'script_path')]);
 	} else {
 		$text = $value;
 	}
@@ -669,7 +669,7 @@ function zz_output_backlink() {
 function zz_nice_tablenames($table) {
 	// get it from config
 	if ($table_name = wrap_setting('zzform_nice_tablename['.$table.']'))
-		return wrap_text($table_name, ['source' => wrap_setting('zzform_script_path')]);
+		return wrap_text($table_name, ['source' => wrap_static('zzform', 'script_path')]);
 
 	// or format it here
 	if (wrap_setting('db_prefix')) { // makes the response look nicer
@@ -686,7 +686,7 @@ function zz_nice_tablenames($table) {
 	$table = explode('_', $table);
 	foreach (array_keys($table) as $id) $table[$id] = ucfirst($table[$id]);
 	$table = implode('/', $table);
-	return wrap_text($table, ['source' => wrap_setting('zzform_script_path')]);
+	return wrap_text($table, ['source' => wrap_static('zzform', 'script_path')]);
 }
 
 /**
@@ -762,7 +762,7 @@ function zz_format($text) {
 	$text = trim(substr($text, 8, -3));
 	if (substr($text, 0, 1) === '"' AND substr($text, -1) === '"')
 		$text = trim(substr($text, 1, -1));
-	return wrap_text($text, ['source' => wrap_setting('zzform_script_path')]);
+	return wrap_text($text, ['source' => wrap_static('zzform', 'script_path')]);
 }
 
 /**
