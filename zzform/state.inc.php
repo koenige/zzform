@@ -124,11 +124,10 @@ function zz_state_token_validate_error() {
  * - Anti-replay attack protection when paired with token
  *
  * @param array $zz (optional) form definition array
- * @param array $zz_conf (optional) form configuration array
  * @return string SHA1 hash of the form's structural definition
  * @todo check if $_GET['id'], $_GET['where'] and so on need to be included
  */
-function zz_state_definition($zz = [], $zz_conf = []) {
+function zz_state_definition($zz = []) {
 	static $hash = '';
 	static $token = '';
 	
@@ -142,10 +141,6 @@ function zz_state_definition($zz = [], $zz_conf = []) {
 	// get rid of configuration settings which are not important for
 	// the definition of the database table(s)
 	$token = zz_state_token();
-	$uninteresting_zz_conf_keys = [
-		'int'
-	];
-	foreach ($uninteresting_zz_conf_keys as $key) unset($zz_conf[$key]);
 	$uninteresting_zz_keys = [
 		'title', 'explanation', 'explanation_top', 'subtitle', 'list', 'access',
 		'explanation_insert', 'export', 'details', 'footer', 'page', 'setting'
@@ -160,9 +155,7 @@ function zz_state_definition($zz = [], $zz_conf = []) {
 		}
 		// @todo remove if[no][default] too
 	}
-	$my['zz'] = $zz;
-	$my['zz_conf'] = $zz_conf;
-	$hash = sha1(serialize($my));
+	$hash = sha1(serialize($zz));
 	zz_state_pairing('write', $token, $hash);
 	return $hash;
 }
@@ -249,6 +242,8 @@ function zz_state_hash($value = NULL, $action = '') {
  * @return string|int depends on mode: 'read' returns hash, 'timecheck' returns seconds, 'write' returns hash or empty
  */
 function zz_state_pairing($mode, $token = '', $hash = '') {
+	global $zz_conf;
+
 	if (wrap_static('zzform_output', 'batch_mode')) return '';
 	
 	// @deprecated: migrate old log file location

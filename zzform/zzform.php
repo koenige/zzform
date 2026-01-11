@@ -127,10 +127,10 @@ function zzform($zz) {
 	// include dependent modules
 	zz_dependent_modules($zz);
 
-	// get hash from $zz and $zz_conf to get a unique identification of
+	// get hash from $zz to get a unique identification of
 	// the settings, e. g. to save time for zzform_multi() or to get a
 	// secret key for some cases
-	zz_state_definition($zz, $zz_conf);
+	zz_state_definition($zz);
 
 	if (zz_modules('conditions'))
 		$zz = zz_conditions_access($zz);
