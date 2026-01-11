@@ -242,8 +242,6 @@ function zz_state_hash($value = NULL, $action = '') {
  * @return string|int depends on mode: 'read' returns hash, 'timecheck' returns seconds, 'write' returns hash or empty
  */
 function zz_state_pairing($mode, $token = '', $hash = '') {
-	global $zz_conf;
-
 	if (wrap_static('zzform_output', 'batch_mode')) return '';
 	
 	// @deprecated: migrate old log file location
@@ -272,7 +270,7 @@ function zz_state_pairing($mode, $token = '', $hash = '') {
 	if (!empty($_POST)) { // no hash found but POST? resend required, possibly spam
 		// but first check if it is because of add_details
 		if (empty($_POST['zz_edit_details']) AND empty($_POST['zz_add_details']))
-			$zz_conf['int']['resend_form_required'] = true;
+			wrap_static('zzform_output', 'resend_form_required', true);
 	}
 	wrap_file_log('zzform/tokens', 'write', [time(), $token, $hash]);
 }

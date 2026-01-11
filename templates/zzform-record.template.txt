@@ -28,7 +28,7 @@ if divert_files %%% data-divert-files="%%% item divert_files %%%"%%% endif %%%>
 
 %%% item reselect_errors %%%
 %%% item errors %%%
-%%% if setting zzform_int_resend_form_required %%%
+%%% if form resend_form_required %%%
 <div class="reselect"><p>%%% text Sorry, an error has occurred.<br>Please send the form again. %%%</p></div>
 %%% endif %%%
 

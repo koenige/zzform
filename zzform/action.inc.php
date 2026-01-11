@@ -150,14 +150,14 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 	// check timeframe
 	if ($zz_record['action'] === 'insert' AND $validation) {
 		$validation = zz_action_timeframe($zz_record);
-		if (!$validation) $zz_conf['int']['resend_form_required'] = true;
+		if (!$validation) wrap_static('zzform_output', 'resend_form_required', true);
 	}
 	// check referer
 	if ($validation) {
 		$validation = zz_action_referer();
-		if (!$validation) $zz_conf['int']['resend_form_required'] = true;
+		if (!$validation) wrap_static('zzform_output', 'resend_form_required', true);
 	}
-	if (!empty($zz_conf['int']['resend_form_required']))
+	if (wrap_static('zzform_output', 'resend_form_required'))
 		$validation = false;
 	
 	if (!$validation) {
