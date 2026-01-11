@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -49,6 +49,7 @@ function zz_prepare_tables($zz, $mode) {
 	}
 
 	$zz_conf['int']['revisions_only'] = $zz['revisions_only'];
+	$zz_conf['int']['revisions_url'] = $zz['revisions_url'] ?? NULL;
 	if ($zz['revisions_only'] OR $zz['revisions']) {
 		require_once __DIR__.'/revisions.inc.php';
 	}

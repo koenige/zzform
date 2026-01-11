@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2016-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2016-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -63,7 +63,7 @@ function zz_revisions($ops, $zz_tab = [], $rev_only = false) {
 	$sql = sprintf($sql,
 		$ops['return'][0]['table'],
 		$ops['return'][0]['id_value'], $user_id, $status
-		, (!empty($zz_conf['revisions_url']) ? sprintf('"%s"', $zz_conf['revisions_url']) : 'NULL')
+		, (!empty($zz_conf['int']['revisions_url']) ? sprintf('"%s"', $zz_conf['int']['revisions_url']) : 'NULL')
 	);
 	$rev_id = wrap_db_query($sql);
 	if (empty($rev_id['id'])) return [];
