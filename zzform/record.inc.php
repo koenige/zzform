@@ -222,8 +222,8 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 			$record['js_xhr_dependencies'] = wrap_template('xhr-dependencies', $zz_conf['int']['dependencies']);
 		}
 	}
-	if (!empty($zz_conf['int']['js_field_dependencies']) AND $record['form'])
-		$record['js_field_dependencies'] = wrap_template('zzform-js-field-dependencies', $zz_conf['int']['js_field_dependencies']);
+	if (wrap_static('zzform_output', 'js_field_dependencies') AND $record['form'])
+		$record['js_field_dependencies'] = wrap_template('zzform-js-field-dependencies', wrap_static('zzform_output', 'js_field_dependencies'));
 	if (!empty($record['fields']['buttons']))
 		$record['js_field_buttons'] = wrap_template('zzform-js-field-buttons', $record['fields']['buttons']);
 
@@ -4310,8 +4310,6 @@ function zz_record_subtable_dependencies($field, $my_fields, $id_value) {
  * @int $field_no
  */
 function zz_record_dependent_js($field, $dependent_field, $my_fields, $field_no) {
-	global $zz_conf;
-	
 	// source field
 	if ($field['type'] === 'subtable') {
 		$main_field_name = $field['table_name'].'[0]['.$dependent_field['field_name'].']';
@@ -4336,13 +4334,15 @@ function zz_record_dependent_js($field, $dependent_field, $my_fields, $field_no)
 	}
 
 	// dependent_field_id
-	$zz_conf['int']['js_field_dependencies'][] = [
-		'main_field_id' => zz_make_id_fieldname($main_field_name),
-		'dependent_field_id' => zz_make_id_fieldname($dependent_field_name),
-		'required' => !empty($dependent_field['required']) ? true : false,
-		'field_no' => $field_no,
-		'has_translation' => !empty($my_fields[$field_no]['has_translation']) ? true : false
-	];
+	wrap_static('zzform_output', 'js_field_dependencies',
+		[
+			'main_field_id' => zz_make_id_fieldname($main_field_name),
+			'dependent_field_id' => zz_make_id_fieldname($dependent_field_name),
+			'required' => !empty($dependent_field['required']) ? true : false,
+			'field_no' => $field_no,
+			'has_translation' => !empty($my_fields[$field_no]['has_translation']) ? true : false
+		]
+	);
 }
 
 /**
