@@ -40,7 +40,7 @@ if divert_files %%% data-divert-files="%%% item divert_files %%%"%%% endif %%%>
 %%% if tfoot %%%
 <tfoot>
 <tr>
-%%% unless setting zzform_int_hide_tfoot_th %%%<th>&nbsp;</th> %%% endif %%%
+%%% unless form hide_tfoot_th %%%<th>&nbsp;</th> %%% endif %%%
 <td%%% item tfoot_class " class='%s'" %%%>
 <div id="zzform_submit">
 %%% switch submit %%%

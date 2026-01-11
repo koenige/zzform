@@ -1396,7 +1396,8 @@ function zz_record_fields($data) {
 		}
 		$i++;
 	}
-	if (!$data['tab'] AND !$data['th_content']) $zz_conf['int']['hide_tfoot_th'] = true;
+	if (!$data['tab'] AND !$data['th_content'])
+		wrap_static('zzform_output', 'hide_tfoot_th', true);
 	return wrap_template('zzform-record-fields', $data);
 }
 

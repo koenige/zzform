@@ -538,13 +538,13 @@ function zzform_exit($ops) {
 			wrap_static('page', 'redirect', $ops['url']);
 			wrap_quit(301, '', wrap_static('page'));
 		}
-	}
 
-	// for use in a template, %%% if form insert %%% etc.
-	wrap_static('zzform', 'insert', $ops['result'] === 'successful_insert' ? true : zz_valid_request('insert'));
-	wrap_static('zzform', 'delete', $ops['result'] === 'successful_delete' ? true : zz_valid_request('delete'));
-	wrap_static('zzform', 'update', $ops['result'] === 'successful_update' ? true : zz_valid_request('update'));
-	wrap_static('zzform', 'no_update', $ops['result'] === 'no_update' ? true : zz_valid_request('noupdate'));
+		// for use in a template, %%% if form insert %%% etc.
+		wrap_static('zzform_output', 'insert', $ops['result'] === 'successful_insert' ? true : zz_valid_request('insert'));
+		wrap_static('zzform_output', 'delete', $ops['result'] === 'successful_delete' ? true : zz_valid_request('delete'));
+		wrap_static('zzform_output', 'update', $ops['result'] === 'successful_update' ? true : zz_valid_request('update'));
+		wrap_static('zzform_output', 'no_update', $ops['result'] === 'no_update' ? true : zz_valid_request('noupdate'));
+	}
 
 	// get rid of internal variables
 	unset($zz_conf['int']);
