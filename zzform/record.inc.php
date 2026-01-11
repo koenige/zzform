@@ -215,15 +215,13 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 	}
 
 	if (wrap_setting('zzform_xhr_vxjs')) {
-		if (!empty($zz_conf['int']['selects'])) {
-			$record['js_xhr_selects'] = wrap_template('xhr-selects', $zz_conf['int']['selects']);
-		}
-		if (!empty($zz_conf['int']['dependencies'])) {
-			$record['js_xhr_dependencies'] = wrap_template('xhr-dependencies', $zz_conf['int']['dependencies']);
-		}
+		if ($data = wrap_static('zzform_output', 'xhr_selects'))
+			$record['js_xhr_selects'] = wrap_template('xhr-selects', $data);
+		if ($data = wrap_static('zzform_output', 'xhr_dependencies'))
+			$record['js_xhr_dependencies'] = wrap_template('xhr-dependencies', $data);
 	}
-	if (wrap_static('zzform_output', 'js_field_dependencies') AND $record['form'])
-		$record['js_field_dependencies'] = wrap_template('zzform-js-field-dependencies', wrap_static('zzform_output', 'js_field_dependencies'));
+	if ($data = wrap_static('zzform_output', 'js_field_dependencies') AND $record['form'])
+		$record['js_field_dependencies'] = wrap_template('zzform-js-field-dependencies', $data);
 	if (!empty($record['fields']['buttons']))
 		$record['js_field_buttons'] = wrap_template('zzform-js-field-buttons', $record['fields']['buttons']);
 
@@ -3008,20 +3006,20 @@ function zz_field_select_sql_too_long($field, $record, $selected_record) {
  * @global array $zz_conf
  */
 function zz_xhr_add($type, $field) {
-	global $zz_conf;
-
 	$default_command = ($type === 'selects') ? 'zzform' : 'zzform-'.$type;
-	$zz_conf['int'][$type][] = [
-		'field_no' => $field['field_no'],
-		'subtable_no' => $field['subtable_no'],
-		'field_id' => $field['field_id'] ?? zz_make_id_fieldname($field['f_field_name']),
-		'url_self' => zz_xhr_url_self(),
-		'destination_field_ids' => $field['destination_field_ids'] ?? [],
-		'source_field_ids' => $field['source_field_ids'] ?? [],
-		'unrestricted' => $field['unrestricted'] ?? false,
-		'command' => $field['xhr_command'] ?? $default_command,
-		'rec' => $field['rec'] ?? false
-	];
+	wrap_static('zzform_output', 'xhr_'.$type, 
+		[
+			'field_no' => $field['field_no'],
+			'subtable_no' => $field['subtable_no'],
+			'field_id' => $field['field_id'] ?? zz_make_id_fieldname($field['f_field_name']),
+			'url_self' => zz_xhr_url_self(),
+			'destination_field_ids' => $field['destination_field_ids'] ?? [],
+			'source_field_ids' => $field['source_field_ids'] ?? [],
+			'unrestricted' => $field['unrestricted'] ?? false,
+			'command' => $field['xhr_command'] ?? $default_command,
+			'rec' => $field['rec'] ?? false
+		]
+	);
 }
 
 /**
