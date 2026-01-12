@@ -229,7 +229,7 @@ function zz_search_field($field, $table, $search) {
 		return '';
 	}
 
-	if ($field['type'] === 'number' AND !is_numeric($search['term'])) return '';
+	if ($field['type'] === 'number' AND $search['term'] AND !is_numeric($search['term'])) return '';
 
 	// get searchword/operator, per field type
 	$field_type = zz_get_fieldtype($field);
