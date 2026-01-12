@@ -3008,7 +3008,7 @@ function zz_field_select_sql_too_long($field, $record, $selected_record) {
 function zz_xhr_add($type, $field) {
 	$default_command = ($type === 'selects') ? 'zzform' : 'zzform-'.$type;
 	wrap_static('zzform_output', 'xhr_'.$type, 
-		[
+		[[
 			'field_no' => $field['field_no'],
 			'subtable_no' => $field['subtable_no'],
 			'field_id' => $field['field_id'] ?? zz_make_id_fieldname($field['f_field_name']),
@@ -3018,7 +3018,7 @@ function zz_xhr_add($type, $field) {
 			'unrestricted' => $field['unrestricted'] ?? false,
 			'command' => $field['xhr_command'] ?? $default_command,
 			'rec' => $field['rec'] ?? false
-		]
+		]], 'add'
 	);
 }
 
@@ -4333,13 +4333,13 @@ function zz_record_dependent_js($field, $dependent_field, $my_fields, $field_no)
 
 	// dependent_field_id
 	wrap_static('zzform_output', 'js_field_dependencies',
-		[
+		[[
 			'main_field_id' => zz_make_id_fieldname($main_field_name),
 			'dependent_field_id' => zz_make_id_fieldname($dependent_field_name),
 			'required' => !empty($dependent_field['required']) ? true : false,
 			'field_no' => $field_no,
 			'has_translation' => !empty($my_fields[$field_no]['has_translation']) ? true : false
-		]
+		]], 'add'
 	);
 }
 
