@@ -208,7 +208,7 @@ function zz_state_hash($value = NULL, $action = '') {
 	
 	// Generate new hash if value provided
 	if ($value !== NULL) {
-		$hash = sha1(zz_state_definition().$value);
+		$hash = sha1(wrap_setting('zzform_secret_key').zz_state_definition().$value);
 		$hash = wrap_base_convert($hash, 16, 62);
 		// return hash without storing
 		if ($action === 'once') return $hash;
