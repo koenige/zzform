@@ -59,7 +59,6 @@ function zz_state_token($token = NULL) {
 	
 	// Getter: return existing token if set
 	if ($state_token) return $state_token;
-	if (wrap_static('zzform_output', 'batch_mode')) return '';
 	
 	// Auto-initialize if not set
 	if (!empty($_GET['zz']) AND strlen($_GET['zz']) === 6) {
@@ -128,19 +127,18 @@ function zz_state_token_validate_error() {
  * @todo check if $_GET['id'], $_GET['where'] and so on need to be included
  */
 function zz_state_definition($zz = []) {
-	static $hash = '';
-	static $token = '';
+	static $hashes = [];
+	$token = zz_state_token();
+	if (array_key_exists($token, $hashes))
+		return $hashes[$token];
+	if (!$zz) {
+		wrap_error(sprintf('Unable to find hash for token %s', $token), E_USER_WARNING);
+		return '';
+	}
 	
-	// Return cached hash if no token set
-	if ($hash AND !zz_state_token()) return $hash;
-	
-	// Return cached hash if token unchanged
-	if (zz_state_token() === $token) return $hash;
-
 	// get rid of varying and internal settings
 	// get rid of configuration settings which are not important for
 	// the definition of the database table(s)
-	$token = zz_state_token();
 	$uninteresting_zz_keys = [
 		'title', 'explanation', 'explanation_top', 'subtitle', 'list', 'access',
 		'explanation_insert', 'export', 'details', 'footer', 'page', 'setting'
@@ -155,9 +153,9 @@ function zz_state_definition($zz = []) {
 		}
 		// @todo remove if[no][default] too
 	}
-	$hash = sha1(serialize($zz));
-	zz_state_pairing('write', $token, $hash);
-	return $hash;
+	$hashes[$token] = sha1(serialize($zz));
+	zz_state_pairing('write', $token, $hashes[$token]);
+	return $hashes[$token];
 }
 
 /**
@@ -242,32 +240,29 @@ function zz_state_hash($value = NULL, $action = '') {
  * @return string|int depends on mode: 'read' returns hash, 'timecheck' returns seconds, 'write' returns hash or empty
  */
 function zz_state_pairing($mode, $token = '', $hash = '') {
+	// no need for pairing in batch mode
 	if (wrap_static('zzform_output', 'batch_mode')) return '';
-	
-	// @deprecated: migrate old log file location
-	if (file_exists(wrap_setting('log_dir').'/zzform-ids.log')) {
-		wrap_mkdir(wrap_setting('log_dir').'/zzform');
-		rename(wrap_setting('log_dir').'/zzform-ids.log', wrap_setting('log_dir').'/zzform/tokens.log');
-	}
-	if (file_exists(wrap_setting('log_dir').'/zzform/ids.log')) {
-		rename(wrap_setting('log_dir').'/zzform/ids.log', wrap_setting('log_dir').'/zzform/tokens.log');
-	}
+
+	zz_state_pairing_deprecated();
 
 	if (!$token) $token = zz_state_token();
-	$found = '';
+	$hash_found = '';
 	$timestamp = 0;
 
 	wrap_include('file', 'zzwrap');
 	$logs = wrap_file_log('zzform/tokens');
 	foreach ($logs as $index => $line) {
 		if ($line['zzform_token'] !== $token) continue;
-		$found = $line['zzform_hash'];
+		$hash_found = $line['zzform_hash'];
 		$timestamp = $line['timestamp'];
 	}
-	if ($mode === 'read') return $found;
-	elseif ($mode === 'timecheck') return time() - $timestamp;
-	if ($found) return $found;
-	if (!empty($_POST)) { // no hash found but POST? resend required, possibly spam
+	
+	if ($mode === 'read') return $hash_found;
+	if ($mode === 'timecheck') return time() - $timestamp;
+	// now we have $mode = write
+	if ($hash_found) return $hash_found;
+	if (!empty($_POST)) {
+		// no hash found but POST? resend required, possibly spam
 		// but first check if it is because of add_details
 		if (empty($_POST['zz_edit_details']) AND empty($_POST['zz_add_details']))
 			wrap_static('zzform_output', 'resend_form_required', true);
@@ -292,4 +287,19 @@ function zz_state_pairing_delete() {
 		'zzform_hash' => zz_state_hash()
 	]);
 	return true;
+}
+
+/**
+ * migrate old log file location
+ *
+ * @deprecated
+ */
+function zz_state_pairing_deprecated() {
+	if (file_exists(wrap_setting('log_dir').'/zzform-ids.log')) {
+		wrap_mkdir(wrap_setting('log_dir').'/zzform');
+		rename(wrap_setting('log_dir').'/zzform-ids.log', wrap_setting('log_dir').'/zzform/tokens.log');
+	}
+	if (file_exists(wrap_setting('log_dir').'/zzform/ids.log')) {
+		rename(wrap_setting('log_dir').'/zzform/ids.log', wrap_setting('log_dir').'/zzform/tokens.log');
+	}
 }

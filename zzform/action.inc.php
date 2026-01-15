@@ -774,7 +774,6 @@ function zz_action_hook($ops, $zz_tab, $position, $type) {
  *	after_insert, after_update, after_delete, to be set in $zz['hooks']
  * @param array $ops
  * @param array $zz_tab
- * @global array $zz_conf
  * @return mixed bool true if some action was performed; 
  *	array $change if some values need to be changed
  */
