@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2016, 2019, 2021, 2023-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2016, 2019, 2021, 2023-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -47,7 +47,7 @@ $zz['fields'][5]['show_values_as_list'] = true;
 $zz['fields'][6]['field_name'] = 'created';
 $zz['fields'][6]['type'] = 'write_once';
 $zz['fields'][6]['type_detail'] = 'datetime';
-$zz['fields'][6]['default'] = date('Y-m-d H:i:s');
+$zz['fields'][6]['default'] = 'current_date';
 
 $zz['fields'][7] = zzform_include('revisiondata');
 $zz['fields'][7]['title'] = 'Data';
