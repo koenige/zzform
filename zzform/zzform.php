@@ -786,28 +786,6 @@ function zzform_post_too_big() {
 }
 
 /**
- * includes required files for zzform
- */
-function zzform_includes() {
-	static $included = NULL;
-	if ($included) return;
-
-	wrap_include('zzform.php', 'zzform'); // for batch operations
-	wrap_include('zzform/definition'); // also done in zzbrick/form, here for zzform_multi()
-	wrap_include('zzform/helpers'); // also done in zzbrick/form, here for zzform_multi()
-	wrap_include('configuration', 'zzform');
-	wrap_include('errorhandling', 'zzform');
-	wrap_include('format', 'zzform');
-	wrap_include('functions', 'zzform');
-	wrap_include('language', 'zzform');
-	wrap_include('url', 'zzform');
-	wrap_include('database', 'zzform');
-	wrap_include('sql', 'zzform');
-	wrap_include('state', 'zzform');
-	$included = true;
-}
-
-/**
  * write $zz['setting'] to wrap_setting()
  *
  * allow some settings to be applied for batch operations

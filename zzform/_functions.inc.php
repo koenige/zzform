@@ -112,6 +112,28 @@ function zzform_multi($definition_file, $values, $type = 'tables') {
 }
 
 /**
+ * includes required files for zzform
+ */
+function zzform_includes() {
+	static $included = NULL;
+	if ($included) return;
+
+	wrap_include('zzform.php', 'zzform'); // for batch operations
+	wrap_include('zzform/definition'); // also done in zzbrick/form, here for zzform_multi()
+	wrap_include('zzform/helpers'); // also done in zzbrick/form, here for zzform_multi()
+	wrap_include('configuration', 'zzform');
+	wrap_include('errorhandling', 'zzform');
+	wrap_include('format', 'zzform');
+	wrap_include('functions', 'zzform');
+	wrap_include('language', 'zzform');
+	wrap_include('url', 'zzform');
+	wrap_include('database', 'zzform');
+	wrap_include('sql', 'zzform');
+	wrap_include('state', 'zzform');
+	$included = true;
+}
+
+/**
  * include $zz-table definition and accept changes for $zz_conf
  * all other local variables will be ignored
  * include zzform/forms.inc.php or zzform/tables.inc.php, too
