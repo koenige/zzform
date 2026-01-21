@@ -28,7 +28,6 @@ function zz_error() {
 		wrap_setting('error_handling', 'output');
 	$user = [];
 	$admin = [];
-	$log = [];
 	$message = [];
 	$return = zz_error_exit() ? 'exit' : 'html';
 	
@@ -37,8 +36,6 @@ function zz_error() {
 		zz_error_exit(($return === 'exit') ? true : false);
 		return false;
 	}
-	
-	$log_encoding = wrap_log_encoding();
 	
 	// browse through all errors
 	foreach ($logged_errors as $key => $error) {
@@ -155,24 +152,19 @@ function zz_error() {
 		elseif (!$admin[$key])
 			$admin[$key] = $error['msg'];
 
-		// Log output
-		$log[$key] = trim($admin[$key]);
-		// preserve &lt; for some reasons (Value incorrect in field: ... 
-		// (String "<a href=" is not allowed).)
-		$log[$key] = str_replace('&lt;', '&amp;lt;', $log[$key]);
-		$log[$key] = html_entity_decode($log[$key], ENT_QUOTES, $log_encoding);
-		$log[$key] = str_replace('<br>', "\n\n", $log[$key]);
-		$log[$key] = str_replace('&lt;br class="nonewline_in_mail">', "; ", $log[$key]);
-		$log[$key] = strip_tags($log[$key]);
-		$log[$key] = str_replace('&lt;', '<', $log[$key]);
-		// reformat log output
-		if (wrap_setting('error_log['.$level.']') AND wrap_setting('log_errors')) {
-			wrap_log('['.wrap_setting('request_uri').'] '.$log[$key],  $level, 'zzform');
-			if ($error['log_post_data']) wrap_log('postdata', 'notice', 'zzform');
+		// Convert admin message to plain text for logging and mailing
+		$log = zz_error_html_to_plain($admin[$key]);
+		if (!wrap_error_ignore('zzform', $log)) {
+			// log to file
+			if (wrap_setting('error_log['.$level.']') AND wrap_setting('log_errors')) {
+				wrap_log('['.wrap_setting('request_uri').'] '.$log,  $level, 'zzform');
+				if ($error['log_post_data']) wrap_log('postdata', 'notice', 'zzform');
+			}
+
+			// add to mail queue
+			if (in_array($level, wrap_setting('error_mail_level')))
+				$message[$key] = $log;
 		}
-		// Mail output
-		if (in_array($level, wrap_setting('error_mail_level')))
-			$message[$key] = $log[$key];
 
 		// Heading
 		if (!$user[$key]) {
@@ -196,7 +188,7 @@ function zz_error() {
 		if (!count($message)) break;
 		$mail['message'] = wrap_text('The following error(s) occured in project %s:', ['values' => wrap_setting('project')]);
 		$mail['message'] .= "\n\n".implode("\n\n", $message);
-		$mail['message'] = html_entity_decode($mail['message'], ENT_QUOTES, $log_encoding);		
+		$mail['message'] = html_entity_decode($mail['message'], ENT_QUOTES, wrap_log_encoding());		
 		$mail['message'] .= "\n\n-- \nURL: ".wrap_setting('host_base').wrap_setting('request_uri')
 			."\nIP: ".wrap_setting('remote_ip')
 			.(!empty($_SERVER['HTTP_USER_AGENT']) ? "\nBrowser: ".$_SERVER['HTTP_USER_AGENT'] : '');		
@@ -226,6 +218,25 @@ function zz_error() {
 	zz_error_out($user);
 
 	return true;
+}
+
+/**
+ * Convert HTML error message to plain text for logging and mailing
+ *
+ * @param string $message HTML formatted error message
+ * @return string plain text message suitable for log files and emails
+ */
+function zz_error_html_to_plain($message) {
+	$text = trim($message);
+	// preserve &lt; for some reasons (Value incorrect in field: ... 
+	// (String "<a href=" is not allowed).)
+	$text = str_replace('&lt;', '&amp;lt;', $text);
+	$text = html_entity_decode($text, ENT_QUOTES, wrap_log_encoding());
+	$text = str_replace('<br>', "\n\n", $text);
+	$text = str_replace('&lt;br class="nonewline_in_mail">', "; ", $text);
+	$text = strip_tags($text);
+	$text = str_replace('&lt;', '<', $text);
+	return $text;
 }
 
 /**
