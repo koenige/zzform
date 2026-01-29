@@ -2901,6 +2901,10 @@ function zz_upload_show_warning($file, $type) {
  * @return string
  */
 function zz_upload_binary($command, $log_error = true) {
+	// 0. check if we should use system PATH
+	if (wrap_setting('zzform_upload_binary_use_system_path'))
+		return $command.' ';
+
 	// 1. check if there is a path for this binary
 	// get paths so _local might get applied
 	$paths = wrap_setting('zzform_upload_binary_paths');
