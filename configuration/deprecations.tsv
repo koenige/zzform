@@ -15,8 +15,45 @@
 #: Identifier	Type	Search Text	Message	Exclude Pattern
 # exclude_pattern: files matching this pattern will be excluded from results (multiple patterns separated by semicolon)
 #
+2016-11-28-1	code	$zz_conf['add']	use $zz['record']['add']
 2023-05-01-1	code	zzform_include_table	use zzform_include()	zzform/zzform/zzform.php
 2023-05-10-1	code	$zz_conf['breadcrumbs']	use $zz['page']['breadcrumbs'] instead	zzbrick/zzbrick/forms.inc.php
+2023-05-10-2	code	$zz_conf['dont_show_title_as_breadcrumb']	use $zz['page']['dont_show_title_as_breadcrumb']
+2023-06-23-1	code	$zz_conf['no_timeframe']	use $zz['record']['no_timeframe']
+2023-06-24-1	code	$zz_conf['footer_template']	use $zz['footer']['template']
+2023-06-24-2	code	$zz_conf['footer_text']	use $zz['footer']['text']
+2023-06-24-3	code	$zz_conf['footer_text_insert']	use $zz['footer']['text_insert']
+2023-06-24-4	code	$zz_conf['no_add_above']	use $zz['list']['no_add_above']
+2023-06-26-1	code	$zz_conf['export']	use $zz['export']
+2023-06-26-2	code	$zz_conf['redirect']	use $zz['record']['redirect']
+2023-06-27-1	code	$zz_conf['search']	use $zz['setting']['zzform_search']
+2023-06-27-2	code	$zz_conf['search_form_always']	use $zz['setting']['zzform_search_form_always']
+2023-06-27-3	code	$zz_conf['filter_position']	use $zz['setting']['zzform_filter_position']
+2023-06-27-4	code	$zz_conf['always_show_empty_detail_record']	use $zz['record']['always_show_empty_detail_record']
+2023-06-27-5	code	$zz_conf['export_csv_delimiter']	use $zz['setting']['export_csv_delimiter']
+2023-06-27-6	code	$zz_conf['export_csv_no_head']	use $zz['setting']['export_csv_heading'], but opposite value
+2023-06-27-7	code	$zz_conf['export_csv_replace']	use $zz['setting']['export_csv_replace']
+2023-06-27-8	code	$zz_conf['nice_tablename']	use $zz['setting']['zzform_nice_tablename']
+2023-06-27-9 	code	$zz_conf['list_display']	use $zz['list']['display']
+2023-06-27-10	code	$zz_conf['multi_delete']	use $zz['list']['batch_delete']
+2023-06-27-11	code	$zz_conf['multi_edit']	use $zz['list']['batch_edit']
+2023-06-27-12	code	$zz_conf['multi_function']	use $zz['list']['batch_function']
+2023-06-29-1	code	$zz_conf['max_select']	use $zz['setting']['zzform_max_select']
+2023-06-29-2	code	$zz_conf['max_select_val_len']	use $zz['setting']['zzform_max_select_val_len']
+2023-06-30-1 	code	$zz_conf['cancel_link']	use $zz['record']['cancel_link']
+2023-06-30-2	code	$zz_conf['copy']	use $zz['record']['copy']
+2023-06-30-3	code	$zz_conf['limit']	use $zz['setting']['zzform_limit']
+2023-07-01-1	code	$zz_conf['delete']	use $zz['record']['delete']
+2023-07-01-2	code	$zz_conf['edit']	use $zz['record']['edit']
+2023-07-01-3	code	$zz_conf['view']	use $zz['record']['view']
+2023-07-01-4	code	$zz_conf['no_ok']	use $zz['record']['no_ok']
+2023-07-01-5	code	$zz_conf['referer']	use $zz['page']['referer']
+2023-07-01-6	code	$zz['dynamic_referer']	use $zz['page']['dynamic_referer']
+2023-07-04-1 	code	$zz_conf['dont_show_total_records']	use $zz['setting']['zzform_hide_total_records']
+2023-07-05-1	code	$zz_conf['html_autofocus']	use $zz['setting']['zzform_autofocus'], default is true
+2023-07-05-2	code	$zz_conf['merge']	use $zz['list']['merge']
+2024-02-18-1	code	$zz_conf['format']	use $zz['setting']['zzform_format']
+2024-05-22-1	code	$zz_conf['access']	use $zz['access'] instead
 2024-10-16-1	code	$zz_conf['url_self']	removed, use setting `request_uri` or other
 2024-11-22-1	code	zz_log_sql	use zz_db_log() instead	zzform/zzform/database.inc.php
 2024-11-24-1	code	tick_to_save	use a detail table with form_display 'set' instead

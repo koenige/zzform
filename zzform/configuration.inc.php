@@ -10,7 +10,7 @@
  *  zz_configuration()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2023-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2023-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -47,16 +47,15 @@ function zz_configuration($cfg_key, $ext, $int = []) {
  * rewrite deprecated variables from .cfg file
  *
  * @param string $key
- * @param array $ext existing definition by user
  * @param array $settings list of variables which might be changed
  * @return array
  */
-function zz_configuration_deprecated($cfg_key, &$ext, $settings) {
+function zz_configuration_deprecated($cfg_key, $settings) {
 	$cfg = zz_configuration_file($cfg_key);
 	foreach ($cfg as $key => $def) {
 		if (empty($def['deprecated'])) continue;
 		if (empty($def['type'])) $def['type'] = 'text';
-		$value = zz_configuration_value($key, $def, $ext);
+		$value = zz_configuration_value($key, $def, $settings);
 		if ($value === NULL) continue;
 		if (!empty($def['moved_to_zz'])) {
 			$new_key = $def['moved_to_zz'] === '1' ? $key : $def['moved_to_zz'];
@@ -91,7 +90,7 @@ function zz_configuration_deprecated($cfg_key, &$ext, $settings) {
 		
 		}
 		// @todo support keys inside arrays
-		unset($ext[$key]);
+		unset($settings[$key]);
 	}
 	return $settings;
 }

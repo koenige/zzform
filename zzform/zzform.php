@@ -53,8 +53,7 @@ function zzform($zz) {
 	zzform_includes();
 
 	// remove and log deprecated variables
-	$zz = zz_configuration_deprecated('zz_conf', $zz_conf, $zz);
-	$zz = zz_configuration_deprecated('zz', $zz, $zz);
+	$zz = zz_configuration_deprecated('zz', $zz);
 	
 	// initialise $zz
 	$zz = zz_configuration('zz', $zz);
