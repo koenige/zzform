@@ -61,6 +61,7 @@
 2024-12-13-1	code	multi_function	now `batch_function`	zzform/configuration/zz.cfg;zzform/configuration/zz_conf.cfg
 2024-12-13-2	code	multi_delete	now `batch_delete`	zzform/configuration/zz.cfg;zzform/configuration/zz_conf.cfg
 2024-12-13-3	code	multi_edit	now `batch_edit`	zzform/configuration/zz.cfg;zzform/configuration/zz_conf.cfg
+2025-01-23-1	code	sql_index_only	can be removed
 2025-03-30-1	code	sqlrecord	use `sql_record` instead
 2025-03-30-2	code	sqlcount	use `sql_count` instead
 2025-03-30-3	code	sqlextra	use `sql_extra` instead
