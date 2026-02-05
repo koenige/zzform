@@ -5,13 +5,13 @@
 # https://www.zugzwang.org/modules/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2024-2025 Gustaf Mossakowski
+# @copyright Copyright © 2024-2026 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 %%% if inline %%%
-<span class="zz_radio_inline" id="%%% item id %%%"%%% item attributes zzform_attributes %%%>
+<span class="zz_radio_inline" id="%%% item id %%%"%%% item attributes format=attributes %%%>
 %%% elseif list %%%
-<ul class="zz_radio_list" id="%%% item id %%%"%%% item attributes zzform_attributes %%%>
+<ul class="zz_radio_list" id="%%% item id %%%"%%% item attributes format=attributes %%%>
 %%% else %%%
 <span class="zz_radio_inline">
 %%% endif %%%
@@ -21,10 +21,10 @@
 %%% if main__list %%%%%% if extra %%%<br>%%% else %%%<li>%%% endif %%%%%% endif %%%
 %%% unless setting html_label_after_input %%%
 %%% if label | label_none %%%
- <label for="%%% item id %%%"%%% item label_attributes zzform_attributes %%%>%%% endif %%%%%% endif %%%
- <input%%% item attributes zzform_attributes %%%>%%% if setting html_label_after_input %%%
+ <label for="%%% item id %%%"%%% item label_attributes format=attributes %%%>%%% endif %%%%%% endif %%%
+ <input%%% item attributes format=attributes %%%>%%% if setting html_label_after_input %%%
 %%% if label | label_none %%%
- <label for="%%% item id %%%"%%% item label_attributes zzform_attributes %%%>%%% endif %%%%%% endif %%%%%% if label_none %%%%%% unless setting html_label_after_input %%%&nbsp;%%% endif %%%%%% text No selection %%%
+ <label for="%%% item id %%%"%%% item label_attributes format=attributes %%%>%%% endif %%%%%% endif %%%%%% if label_none %%%%%% unless setting html_label_after_input %%%&nbsp;%%% endif %%%%%% text No selection %%%
 %%% elseif label %%%%%% unless setting html_label_after_input %%%&nbsp;%%% endif %%%%%% item label %%%%%% endif %%%
 %%% if label | label_none %%%</label>%%% endif %%%
 %%% if main__list %%%%%% unless append_next %%%</li>

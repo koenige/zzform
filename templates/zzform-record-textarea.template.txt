@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/modules/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2025 Gustaf Mossakowski
+# @copyright Copyright © 2025-2026 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 %%% if wmd_editor %%%
@@ -16,7 +16,7 @@
 </div>
 <div id="upndown-markdown-%%% item upndown_editor %%%">
 %%% endif %%%
-<textarea%%% item attributes zzform_attributes %%%>%%% item text %%%</textarea>
+<textarea%%% item attributes format=attributes %%%>%%% item text %%%</textarea>
 %%% if wmd_editor | upndown_editor %%%
 </div>
 %%% endif %%%

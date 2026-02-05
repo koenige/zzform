@@ -5,12 +5,12 @@
 # https://www.zugzwang.org/modules/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2024 Gustaf Mossakowski
+# @copyright Copyright © 2024, 2026 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 <div class="zz_rating">
 %%% loop start %%%
 <label%%% item selected " class="ratingselected"" %%%>%%% if tag %%%
-<input%%% item attributes zzform_attributes %%%>%%% endif %%%
+<input%%% item attributes format=attributes %%%>%%% endif %%%
 <span>%%% setting zzform_rating_symbol %%%</span></label>%%% loop end %%%
 </div>

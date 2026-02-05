@@ -5,11 +5,11 @@
 # https://www.zugzwang.org/modules/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2025 Gustaf Mossakowski
+# @copyright Copyright © 2025-2026 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 %%% if no_selection_possible %%%
-%%% if hidden_attributes %%%<input%%% item hidden_attributes zzform_attributes %%%>%%% endif %%%
+%%% if hidden_attributes %%%<input%%% item hidden_attributes format=attributes %%%>%%% endif %%%
 %%% if error_current_value & error_possible_value %%%
 <p class="error">%%% text "Current value: %s" error_current_value %%% – 
 %%% text "Possible value: %s" error_possible_value %%%</p>
@@ -17,36 +17,36 @@
 %%% text No selection possible. %%%
 
 %%% elseif single_value %%%
-<input%%% item hidden_attributes zzform_attributes %%%>
+<input%%% item hidden_attributes format=attributes %%%>
 %%% item single_value %%%
 
 %%% elseif add_automatically %%%
-<input%%% item hidden_attributes zzform_attributes %%%>
+<input%%% item hidden_attributes format=attributes %%%>
 %%% text will be added automatically %%%
 
 %%% elseif hierarchy_highest_entry %%%
-<input%%% item hidden_attributes zzform_attributes %%%>
+<input%%% item hidden_attributes format=attributes %%%>
 %%% text (This entry is the highest entry in the hierarchy.) %%%
 
 %%% elseif select_too_long %%%
-<input%%% item hidden_attributes zzform_attributes %%%>
-<input%%% item text_attributes zzform_attributes %%%>
+<input%%% item hidden_attributes format=attributes %%%>
+<input%%% item text_attributes format=attributes %%%>
 
 %%% else %%%
-<select%%% item select_attributes zzform_attributes %%%>
-<option%%% item option_none_attributes zzform_attributes %%%>%%% if option_none_text %%%%%% item option_none_text %%%%%% else %%%%%% text None selected %%%%%% endif %%%</option>
+<select%%% item select_attributes format=attributes %%%>
+<option%%% item option_none_attributes format=attributes %%%>%%% if option_none_text %%%%%% item option_none_text %%%%%% else %%%%%% text None selected %%%%%% endif %%%</option>
 %%% if optgroups %%%
 %%% loop optgroups %%%
 %%% if optgroup %%%<optgroup label="%%% item optgroup %%%">%%% endif %%%
 %%% loop options %%%
-<option%%% item attributes zzform_attributes %%%>%%% item text %%%</option>
+<option%%% item attributes format=attributes %%%>%%% item text %%%</option>
 %%% loop end %%%
 %%% if optgroup %%%</optgroup>%%% endif %%%
 %%% loop end %%%
 
 %%% else %%%
 %%% loop options %%%
-<option%%% item attributes zzform_attributes %%%>%%% item text %%%</option>
+<option%%% item attributes format=attributes %%%>%%% item text %%%</option>
 %%% loop end %%%
 
 %%% endif %%%

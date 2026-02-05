@@ -5,16 +5,16 @@
 # https://www.zugzwang.org/modules/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2020, 2022, 2024-2025 Gustaf Mossakowski
+# @copyright Copyright © 2020, 2022, 2024-2026 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 <form method="GET" action="%%% page zzformurl type=self %%%" class="zzsearch" accept-charset="%%% setting character_set %%%">
 %%% item hidden_fields %%%
-<p><input type="search" size="30" name="q" value="%%% item q wrap_html_escape %%%" required minlength="1">
+<p><input type="search" size="30" name="q" value="%%% item q format=html_escape %%%" required minlength="1">
 <input type="submit" value="%%% text search %%%"> %%% text in %%% <select name="scope">
 <option value="">%%% text all fields %%%</option>
 %%% loop fields %%%
-<option value="%%% item field_name %%%"%%% if selected %%% selected%%% endif %%%>%%% item title strip_tags %%%</option>
+<option value="%%% item field_name %%%"%%% if selected %%% selected%%% endif %%%>%%% item title format=strip_tags %%%</option>
 %%% loop end %%%
 </select>
 %%% if q %%%

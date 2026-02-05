@@ -21,10 +21,10 @@ if divert_files %%% data-divert-files="%%% item divert_files %%%"%%% endif %%%>
 <div id="record"%%% unless form %%% class="record-review" %%% endif %%%>
 %%% if formhead %%%
 <h2>%%% if formhead_error %%%<span class="error">%%% endif %%%
-%%% item formhead ucfirst %%%
+%%% item formhead format=ucfirst %%%
 %%% if formhead_error %%%</span>%%% endif %%%</h2>
 %%% endif %%%
-%%% item form_lead markdown %%%
+%%% item form_lead format=markdown %%%
 
 %%% item reselect_errors %%%
 %%% item errors %%%
@@ -33,7 +33,7 @@ if divert_files %%% data-divert-files="%%% item divert_files %%%"%%% endif %%%>
 %%% endif %%%
 
 %%% loop hidden %%%
-<input type="hidden" name="%%% item name %%%" value="%%% item value wrap_html_escape %%%">
+<input type="hidden" name="%%% item name %%%" value="%%% item value format=html_escape %%%">
 %%% loop end %%%
 %%% if tbody | tfoot %%%
 <table>
@@ -64,16 +64,16 @@ if divert_files %%% data-divert-files="%%% item divert_files %%%"%%% endif %%%>
 %%% endif %%%
 %%% switch - %%%
 %%% if cancel_ok %%%
-<a href="%%% item cancel_ok zzform_url_escape %%%">%%% text OK %%%</a>%%% endif %%%
+<a href="%%% item cancel_ok format=url_escape %%%">%%% text OK %%%</a>%%% endif %%%
 %%% if link_record %%%
 %%% if cancel_ok %%%&nbsp;&middot; %%% endif %%%
-<a href="%%% item link_record zzform_url_escape %%%">%%% text Show %%%</a>%%% endif %%%
+<a href="%%% item link_record format=url_escape %%%">%%% text Show %%%</a>%%% endif %%%
 %%% if modes %%%
 %%% if cancel_ok | link_record %%%&nbsp;&middot; %%% endif %%%
 %%% include zzform-modes %%%
 %%% endif %%%
 %%% if cancel_url %%%
- <a href="%%% item cancel_url zzform_url_escape %%%">%%% text Cancel %%%</a>
+ <a href="%%% item cancel_url format=url_escape %%%">%%% text Cancel %%%</a>
 %%% endif %%%
 %%% if actions %%%
 %%% if modes %%% || %%% endif %%%

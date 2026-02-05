@@ -5,11 +5,11 @@
 # https://www.zugzwang.org/modules/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2024 Gustaf Mossakowski
+# @copyright Copyright © 2024, 2026 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 %%% loop modes %%%
-<a href="%%% item link zzform_url_escape %%%">%%% if delete %%%%%% text Delete %%%
+<a href="%%% item link format=url_escape %%%">%%% if delete %%%%%% text Delete %%%
 %%% elseif edit %%%%%% text Edit %%%
 %%% elseif show %%%%%% text Show %%%
 %%% elseif copy %%%%%% text Copy %%%

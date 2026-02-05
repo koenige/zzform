@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/modules/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2024-2025 Gustaf Mossakowski
+# @copyright Copyright © 2024-2026 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 %%% if image %%%
@@ -21,12 +21,12 @@
 %%% if main__multiple_uploads %%%
 <tr><th>%%% item title %%%</th> <td>
 %%% endif %%%
-<input%%% item input_attributes zzform_attributes %%%>
+<input%%% item input_attributes format=attributes %%%>
 %%% if link & input_attributes %%%<br>%%% endif %%%
 %%% if link %%%
 <a href="%%% item link %%%">%%% item link %%%</a>
 %%% if delete_checkbox %%%
-<input%%% item delete_checkbox zzform_attributes %%%><label for="%%% item delete_checkbox_id %%%"><small>&nbsp;(%%% text Delete this file %%%)</small></label>
+<input%%% item delete_checkbox format=attributes %%%><label for="%%% item delete_checkbox_id %%%"><small>&nbsp;(%%% text Delete this file %%%)</small></label>
 %%% endif %%%
 %%% endif %%%
 %%% if error %%%
@@ -37,10 +37,10 @@
 </small>
 %%% endif %%%
 %%% if size %%%
-<br>%%% text File uploaded: %%% <strong>%%% item filetype strtoupper %%%</strong> (%%% item size wrap_bytes %%%)
+<br>%%% text File uploaded: %%% <strong>%%% item filetype format=strtoupper %%%</strong> (%%% item size format=bytes %%%)
 %%% endif %%%
 %%% if upload_max_filesize %%%
-<small class="explanation">%%% text "Maximum allowed filesize is %s." upload_max_filesize wrap_bytes %%%
+<small class="explanation">%%% text "Maximum allowed filesize is %s." upload_max_filesize format=bytes %%%
  %%% item upload_filetypes %%%</small>
 %%% endif %%%
 %%% if explanation %%%<p class="explanation">%%% item explanation %%%</p>%%% endif %%%

@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/modules/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2024-2025 Gustaf Mossakowski
+# @copyright Copyright © 2024-2026 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 %%% switch form_display %%%
@@ -16,12 +16,12 @@
 %%% loop start %%%
 %%% if td_content %%%
 <span%%% item tr_class " class='%s'" %%%>
-	<span%%% item td_class " class='%s'" %%% title="%%% item th_content wrap_html_escape %%%">%%% item td_content %%%</span>
+	<span%%% item td_class " class='%s'" %%% title="%%% item th_content format=html_escape %%%">%%% item td_content %%%</span>
 </span>
 %%% endif %%%
 %%% loop end %%%
 %%% if remove_subtable %%%
-<input type="submit"%%% item remove_subtable zzform_attributes %%%>
+<input type="submit"%%% item remove_subtable format=attributes %%%>
 %%% endif %%%
 %%% if explanation %%%<p class="explanation">%%% item explanation %%%</p>%%% endif %%%
 </div>
@@ -54,8 +54,8 @@
 %%% if th_content %%%
 <th%%% item th_class " class='%s'" %%%>%%% item th_content %%%
 %%% if title_desc | format %%%<p class="desc">%%% item title_desc %%%
-%%% if format_link %%% [<a href="%%% item format_link %%%" target="help">%%% item format ucfirst %%%</a>]
-%%% elseif format %%%%%% item format ucfirst %%%%%% endif %%%
+%%% if format_link %%% [<a href="%%% item format_link %%%" target="help">%%% item format format=ucfirst %%%</a>]
+%%% elseif format %%%%%% item format format=ucfirst %%%%%% endif %%%
 </p>
 %%% endif %%%
 </th>
@@ -73,7 +73,7 @@
 %%% item msg_no_subtables %%%
 %%% endif %%%
 %%% if add_subtable %%%
-<input type="submit"%%% item add_subtable zzform_attributes %%%>
+<input type="submit"%%% item add_subtable format=attributes %%%>
 %%% endif %%%
 %%% if explanation %%%<p class="explanation">%%% item explanation %%%</p>%%% endif %%%</td>
 </tr>
@@ -82,7 +82,7 @@
 %%% if detailrecord %%%
 </table>
 </div>
-%%% if remove_subtable %%%<input type="submit"%%% item remove_subtable zzform_attributes %%%>%%% endif %%%
+%%% if remove_subtable %%%<input type="submit"%%% item remove_subtable format=attributes %%%>%%% endif %%%
 %%% endif %%%
 
 %%% case horizontal %%%
@@ -111,7 +111,7 @@
 	%%% if explanation %%%<p class="explanation">%%% item explanation %%%</p>%%% endif %%%</td>
 %%% loop end %%%
 %%% if dummy_last_column %%%<td class="dummy_column">&nbsp;</td>%%% endif %%%
-%%% if remove_subtable %%%<td><input type="submit"%%% item remove_subtable zzform_attributes %%%></td>%%% endif %%%
+%%% if remove_subtable %%%<td><input type="submit"%%% item remove_subtable format=attributes %%%></td>%%% endif %%%
 </tr>
 %%% if separator %%%
 <tr class="separator_row"><td colspan="%%% item separator_colspan_horizontal %%%" class="separator"><hr></td></tr>
