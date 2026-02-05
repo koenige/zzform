@@ -5,11 +5,11 @@
 # https://www.zugzwang.org/modules/zzform
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2024 Gustaf Mossakowski
+# @copyright Copyright © 2024, 2026 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 %%% loop details %%%
 <a href="%%% item url %%%%%% if referer %%%&amp;referer=%%% setting request_uri %%%%%% endif %%%"%%% if target %%% target="%%% item target %%%"%%% endif %%%>
-%%% item title wrap_text %%%%%% item count "&nbsp;(%d)" %%%
+%%% translate item title %%%%%% item count "&nbsp;(%d)" %%%
 </a>%%% loopposition first|middle "&nbsp;&middot; " %%%
 %%% loop end %%%
