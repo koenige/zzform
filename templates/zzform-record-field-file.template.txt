@@ -40,7 +40,7 @@
 <br>%%% text File uploaded: %%% <strong>%%% item filetype format=strtoupper %%%</strong> (%%% item size format=bytes %%%)
 %%% endif %%%
 %%% if upload_max_filesize %%%
-<small class="explanation">%%% text "Maximum allowed filesize is %s." upload_max_filesize format=bytes %%%
+<small class="explanation">%%% text "Maximum allowed filesize is %s." upload_max_filesize wrap_bytes %%%
  %%% item upload_filetypes %%%</small>
 %%% endif %%%
 %%% if explanation %%%<p class="explanation">%%% item explanation %%%</p>%%% endif %%%
