@@ -11,7 +11,7 @@
 <ul class="pages">
 %%% loop start %%%
 <li%%% item class " class='%s'" %%%>%%% if link 
-%%%<a href="%%% item link format=url_escape %%%"%%% item title " title='%s'" %%%>%%% elseif mark_current 
+%%%<a href="%%% item link format=zzform_url_escape %%%"%%% item title " title='%s'" %%%>%%% elseif mark_current 
 %%%<strong>%%% else 
 %%%<span>%%% endif %%%%%% item text %%%%%% if link 
 %%%</a>%%% elseif mark_current 

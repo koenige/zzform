@@ -21,7 +21,7 @@
 %%% endif %%%
 %%% loop end %%%
 %%% if remove_subtable %%%
-<input type="submit"%%% item remove_subtable format=attributes %%%>
+<input type="submit"%%% item remove_subtable format=zzform_attributes %%%>
 %%% endif %%%
 %%% if explanation %%%<p class="explanation">%%% item explanation %%%</p>%%% endif %%%
 </div>
@@ -73,7 +73,7 @@
 %%% item msg_no_subtables %%%
 %%% endif %%%
 %%% if add_subtable %%%
-<input type="submit"%%% item add_subtable format=attributes %%%>
+<input type="submit"%%% item add_subtable format=zzform_attributes %%%>
 %%% endif %%%
 %%% if explanation %%%<p class="explanation">%%% item explanation %%%</p>%%% endif %%%</td>
 </tr>
@@ -82,7 +82,7 @@
 %%% if detailrecord %%%
 </table>
 </div>
-%%% if remove_subtable %%%<input type="submit"%%% item remove_subtable format=attributes %%%>%%% endif %%%
+%%% if remove_subtable %%%<input type="submit"%%% item remove_subtable format=zzform_attributes %%%>%%% endif %%%
 %%% endif %%%
 
 %%% case horizontal %%%
@@ -111,7 +111,7 @@
 	%%% if explanation %%%<p class="explanation">%%% item explanation %%%</p>%%% endif %%%</td>
 %%% loop end %%%
 %%% if dummy_last_column %%%<td class="dummy_column">&nbsp;</td>%%% endif %%%
-%%% if remove_subtable %%%<td><input type="submit"%%% item remove_subtable format=attributes %%%></td>%%% endif %%%
+%%% if remove_subtable %%%<td><input type="submit"%%% item remove_subtable format=zzform_attributes %%%></td>%%% endif %%%
 </tr>
 %%% if separator %%%
 <tr class="separator_row"><td colspan="%%% item separator_colspan_horizontal %%%" class="separator"><hr></td></tr>

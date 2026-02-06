@@ -21,12 +21,12 @@
 %%% if main__multiple_uploads %%%
 <tr><th>%%% item title %%%</th> <td>
 %%% endif %%%
-<input%%% item input_attributes format=attributes %%%>
+<input%%% item input_attributes format=zzform_attributes %%%>
 %%% if link & input_attributes %%%<br>%%% endif %%%
 %%% if link %%%
 <a href="%%% item link %%%">%%% item link %%%</a>
 %%% if delete_checkbox %%%
-<input%%% item delete_checkbox format=attributes %%%><label for="%%% item delete_checkbox_id %%%"><small>&nbsp;(%%% text Delete this file %%%)</small></label>
+<input%%% item delete_checkbox format=zzform_attributes %%%><label for="%%% item delete_checkbox_id %%%"><small>&nbsp;(%%% text Delete this file %%%)</small></label>
 %%% endif %%%
 %%% endif %%%
 %%% if error %%%

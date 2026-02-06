@@ -16,7 +16,7 @@
 </div>
 <div id="upndown-markdown-%%% item upndown_editor %%%">
 %%% endif %%%
-<textarea%%% item attributes format=attributes %%%>%%% item text %%%</textarea>
+<textarea%%% item attributes format=zzform_attributes %%%>%%% item text %%%</textarea>
 %%% if wmd_editor | upndown_editor %%%
 </div>
 %%% endif %%%

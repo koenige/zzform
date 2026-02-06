@@ -21,7 +21,7 @@
 %%% endif %%%
 %%% loop values %%%
 		<dd class="%%% item all filter_all %%%%%% unless link %%% zz_active_filter%%% endif %%%" id="zzfilter-%%% item identifier %%%-%%% item index %%%">
-%%% if link %%%<a href="%%% item link format=url_escape %%%">%%% else %%%<strong>%%% endif %%%
+%%% if link %%%<a href="%%% item link format=zzform_url_escape %%%">%%% else %%%<strong>%%% endif %%%
 %%% if all %%%–&nbsp;%%% text all %%%&nbsp;–%%% else %%%%%% item title %%%%%% endif %%%
 %%% if link %%%</a>%%% else %%%</strong>%%% endif %%%
 		</dd>
