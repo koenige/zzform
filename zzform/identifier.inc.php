@@ -204,8 +204,10 @@ function zz_identifier_cut($str, $max_length) {
 function zz_identifier_configuration($vars, $parameters) {
 	parse_str($parameters, $parameters);
 	if (empty($parameters['identifier'])) return $vars;
-	foreach ($parameters['identifier'] as $key => $value)
-		$vars[$key] = wrap_setting_value($value);
+	foreach ($parameters['identifier'] as $key => $value) {
+		$vars[$key] = wrap_setting_parse($value);
+		$vars[$key] = wrap_setting_list($vars[$key]);
+	}
 	return $vars;
 }
 
