@@ -214,6 +214,7 @@ function zz_revisions_subrecord($my_tab, $records) {
  */
 function zz_revisions_read($table, $record_id) {
 	if (empty($_SESSION)) return [];
+	if (!array_key_exists('user_id', $_SESSION)) return [];
 
 	$sql = 'SELECT revisiondata_id
 			, table_name, record_id, changed_values, complete_values, rev_action
