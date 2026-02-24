@@ -78,7 +78,9 @@ function mod_zzform_make_serversync_development() {
 	}
 
 	$path = wrap_path('zzform_sync_server');
-	$url = sprintf('https://%s%s', substr(wrap_setting('hostname'), 0, -6), $path);
+	$remote_hostname = wrap_setting('staging_hostname')
+		?? wrap_url_dev_remove(wrap_setting('hostname'));
+	$url = sprintf('https://%s%s', $remote_hostname, $path);
 	$data = ['return_last_logging_entry' => 1];
 	$headers_to_send[] = 'Accept: application/json';
 	list($status, $headers, $content) = wrap_get_protected_url($url, $headers_to_send, 'POST', $data);
