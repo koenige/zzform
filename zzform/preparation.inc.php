@@ -659,8 +659,24 @@ function zz_prepare_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 			$my_tab['POST'][$rec], $field['fields'], $existing[$rec], $my_tab['where']
 		);
 	}
-	if ($tempvar)
+	if ($tempvar) {
+		$last_rec = count($records) - 1;
+		$my_tab['POST'][$tempvar] = [];
+		foreach ($field['fields'] as $subfield) {
+			if (empty($subfield['default_next_if_not'])) continue;
+			$field_name = $subfield['field_name'];
+			$last_val = $my_tab['POST'][$last_rec][$field_name] ?? null;
+			if ($last_val === null || (string) $last_val === (string) $subfield['default_next_if_not'])
+				continue;
+			$next_val = zz_prepare_next_select_value($subfield, $last_val);
+			if ($next_val !== null)
+				$my_tab['POST'][$tempvar][$field_name] = $next_val;
+		}
+		$my_tab['POST'][$tempvar] = zz_prepare_def_vals(
+			$my_tab['POST'][$tempvar], $field['fields'], [], $my_tab['where']
+		);
 		$records[] = $tempvar;
+	}
 
 	// check records against database, if we have values, check number of records
 	if ($mode) {
@@ -1670,4 +1686,37 @@ function zz_query_subrecord($my_tab, $id_value, $id_field_name, $deleted_ids = [
 	if (!empty($zz_conf['int']['revisions_only']))
 		$records = zz_revisions_subrecord($my_tab, $records);
 	return zz_return($records);
+}
+
+/**
+ * get next value in select field sequence for default_next_if_not
+ *
+ * @param array $field select/foreign_key field with 'sql', 'key_field'
+ * @param mixed $current_value value to find in list
+ * @return mixed next value or first value if at end, null if not found
+ */
+function zz_prepare_next_select_value($field, $current_value) {
+	if (empty($field['sql']) OR empty($field['key_field'])) return null;
+	$key_field = $field['key_field'];
+	$sql = $field['sql'];
+	if (!empty($field['show_hierarchy_subtree'])) {
+		$ids = zz_hierarchy_subtree_ids($field);
+		if ($ids) {
+			$sql = wrap_edit_sql($sql, 'WHERE',
+				sprintf('%s IN (%s)', $key_field, implode(',', array_map('intval', $ids)))
+			);
+		}
+	}
+	$data = zz_db_fetch($sql, '_dummy_id_', 'numeric', '', E_USER_WARNING);
+	if (!$data) return null;
+	$values = [];
+	foreach ($data as $line) {
+		if (isset($line[$key_field])) {
+			$values[] = $line[$key_field];
+		}
+	}
+	$pos = array_search($current_value, $values);
+	if ($pos === false) return null;
+	$next_pos = $pos + 1;
+	return $values[$next_pos] ?? $values[0];
 }
