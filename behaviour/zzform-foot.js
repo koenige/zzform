@@ -38,22 +38,37 @@ function zzformRecordForm() {
 
 /**
  * When a select with data-default changes, set the target field from
- * the selected option's data-{target} if the target input is empty
+ * the selected option's data-{target}. Fill if empty, or overwrite if current
+ * value equals the value we last set from a previous option.
  */
 function zzformPopulateEmpty() {
 	var selects = zzformForm.querySelectorAll('select[data-default]');
 	for (var i = 0; i < selects.length; i++) {
 		selects[i].addEventListener('change', function(e) {
-			var target = e.target.getAttribute('data-default');
-			if (!target) return;
-			var option = e.target.options[e.target.selectedIndex];
-			var value = option && option.getAttribute('data-' + target.replace(/_/g, '-'));
-			if (!value) return;
-			var row = e.target.closest('tr');
-			if (!row) return;
-			var input = row.querySelector('input[name*="[' + target + ']"], textarea[name*="[' + target + ']"]');
-			if (input && !input.value.trim()) input.value = value;
+			zzformPopulateEmptyFromSelect(e.target);
 		});
+		// also run for pre-selected values (e.g. new row via XHR with default)
+		zzformPopulateEmptyFromSelect(selects[i]);
+	}
+}
+
+function zzformPopulateEmptyFromSelect(select) {
+	var target = select.getAttribute('data-default');
+	if (!target) return;
+	var option = select.options[select.selectedIndex];
+	var value = option && option.getAttribute('data-' + target.replace(/_/g, '-'));
+	if (!value) return;
+	var row = select.closest('tr');
+	if (!row) return;
+	var input = row.querySelector('input[name*="[' + target + ']"], textarea[name*="[' + target + ']"]');
+	if (!input) return;
+	var dataAttr = 'data-populated-' + target.replace(/_/g, '-');
+	var lastSet = select.getAttribute(dataAttr);
+	var shouldUpdate = !input.value.trim()
+		|| (lastSet !== null && input.value === lastSet);
+	if (shouldUpdate) {
+		input.value = value;
+		select.setAttribute(dataAttr, value);
 	}
 }
 
