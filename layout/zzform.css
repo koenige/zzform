@@ -6,7 +6,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2022, 2024-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2022, 2024-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -23,7 +23,7 @@
 #zzform td, #zzform th
 					{ padding: 0 .5rem; vertical-align: top; }
 #zzform th			{ width: auto; text-align: left; }
-#zzform td p		{ margin-top: .5em; margin-bottom: .5em; }
+#zzform td p		{ margin-top: .25em; margin-bottom: .25em; }
 #zzform .nobr		{ white-space: nowrap; }
 div.text #zzform, #zzform div.text
 					{ padding: 1rem; }
