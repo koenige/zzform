@@ -6,7 +6,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2009-2014, 2018, 2020-2022, 2024-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2009-2014, 2018, 2020-2022, 2024-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -32,7 +32,29 @@ function zzformRecordForm() {
 	zzformRadios();
 	zzformAddDetails();
 	zzformWmdEditor();
+	zzformPopulateEmpty();
 	zzformForm.addEventListener('submit', zzformSubmit);
+}
+
+/**
+ * When a select with data-default changes, set the target field from
+ * the selected option's data-{target} if the target input is empty
+ */
+function zzformPopulateEmpty() {
+	var selects = zzformForm.querySelectorAll('select[data-default]');
+	for (var i = 0; i < selects.length; i++) {
+		selects[i].addEventListener('change', function(e) {
+			var target = e.target.getAttribute('data-default');
+			if (!target) return;
+			var option = e.target.options[e.target.selectedIndex];
+			var value = option && option.getAttribute('data-' + target.replace(/_/g, '-'));
+			if (!value) return;
+			var row = e.target.closest('tr');
+			if (!row) return;
+			var input = row.querySelector('input[name*="[' + target + ']"], textarea[name*="[' + target + ']"]');
+			if (input && !input.value.trim()) input.value = value;
+		});
+	}
 }
 
 /**

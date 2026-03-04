@@ -2738,6 +2738,9 @@ function zz_field_select($field, $record, $lines) {
 		'required' => $field['required'] ? true : false
 	];
 	$element += zz_field_dependent_fields($field, $lines);
+	if (!empty($field['data']['default'])) {
+		$element['data-default'] = $field['data']['default'];
+	}
 	$data = [
 		'select_attributes' => zz_record_element($element, 'attributes')
 	];
@@ -2781,6 +2784,15 @@ function zz_field_select($field, $record, $lines) {
 			}
 		}
 
+		// _data_* SQL columns → data-* attributes on options (e.g. _data_position → data-position)
+		$option_data = [];
+		foreach ($line as $column => $val) {
+			if (str_starts_with($column, '_data_') AND $val !== '' AND $val !== null) {
+				$attr_name = 'data-'.str_replace('_', '-', substr($column, 6));
+				$option_data[$attr_name] = $val;
+			}
+		}
+
 		$element = [
 			'type' => 'option',
 			'name' => $value,
@@ -2793,6 +2805,7 @@ function zz_field_select($field, $record, $lines) {
 			'class' => $level ? sprintf('level%d', $level) : NULL,
 			'data-dependencies' => $dependencies ? implode(' ', $dependencies) : NULL
 		];
+		$element = array_merge($element, $option_data);
 		$option = zz_record_element($element);
 		if ($optgroup) {
 			$data['optgroups'][$group]['optgroup'] = $group;
@@ -3874,6 +3887,10 @@ function zz_field_select_value($line, $field) {
  * @return array ($line, modified)
  */
 function zz_field_select_ignore($line, $field, $type) {
+	// always ignore _data_* columns (used for option data attributes only)
+	foreach (array_keys($line) as $key) {
+		if (str_starts_with($key, '_data_')) unset($line[$key]);
+	}
 	$ignore = $type.'_ignore';
 	if (empty($field[$ignore])) return $line;
 	if (!is_array($field[$ignore]))
