@@ -610,7 +610,7 @@ function zz_prepare_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 
 	// first check for review or access, 
 	// first if must be here because access might override mode here!
-	$tempvar = false;
+	$added_rec = false;
 	if (in_array($state, ['add', 'edit']) AND $rec_tpl['access'] !== 'show') {
 		// check if user wants one record more (subtable_remove was already
 		// checked beforehands)
@@ -618,8 +618,7 @@ function zz_prepare_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 			$my_tab['subtable_add'] = [];
 			$my_tab['subtable_focus'] = $my_tab['records'];
 			$my_tab['records']++;
-			$tempvar = array_keys($records);
-			$tempvar = end($tempvar) + 1;
+			$added_rec = end(array_keys($records)) + 1;
 		}
 		if ($my_tab['records'] < $my_tab['min_records']) 
 			$my_tab['records'] = $my_tab['min_records'];
@@ -659,9 +658,9 @@ function zz_prepare_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 			$my_tab['POST'][$rec], $field['fields'], $existing[$rec], $my_tab['where']
 		);
 	}
-	if ($tempvar) {
+	if ($added_rec) {
 		$last_rec = count($records) - 1;
-		$my_tab['POST'][$tempvar] = [];
+		$my_tab['POST'][$added_rec] = [];
 		foreach ($field['fields'] as $subfield) {
 			if (empty($subfield['default_next_if_not'])) continue;
 			$field_name = $subfield['field_name'];
@@ -670,17 +669,17 @@ function zz_prepare_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 				continue;
 			$next_val = zz_prepare_next_select_value($subfield, $last_val);
 			if ($next_val !== null)
-				$my_tab['POST'][$tempvar][$field_name] = $next_val;
+				$my_tab['POST'][$added_rec][$field_name] = $next_val;
 		}
-		$my_tab['POST'][$tempvar] = zz_prepare_def_vals(
-			$my_tab['POST'][$tempvar], $field['fields'], [], $my_tab['where']
+		$my_tab['POST'][$added_rec] = zz_prepare_def_vals(
+			$my_tab['POST'][$added_rec], $field['fields'], [], $my_tab['where']
 		);
-		$records[] = $tempvar;
+		$records[] = $added_rec;
 	}
 
 	// check records against database, if we have values, check number of records
 	if ($mode) {
-		$my_tab = zz_prepare_subrecords_mode(
+		$my_tab = zz_prepare_subrecords_structure(
 			$my_tab, $rec_tpl, $existing_ids
 		);
 	} elseif ($zz_record['action'] AND !empty($my_tab['POST'])) {
@@ -696,7 +695,7 @@ function zz_prepare_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 				? $my_tab['POST'][$rec][$rec_tpl['id']['field_name']]
 				: '';
 			// set values, rewrite POST-Array
-			$my_tab = zz_set_values($my_tab, $rec);
+			$my_tab = zz_prepare_subrecord_values($my_tab, $rec);
 		}
 	} elseif ($zz_record['action'] AND !empty($field['form_display']) AND $field['form_display'] === 'set') {
 		// here, we might need an empty record if field is required (min_records_required = 1)
@@ -1116,17 +1115,17 @@ function zz_values_get_equal_key(&$values, $record) {
  * @param array $existing_ids
  * @return array $my_tab
  */
-function zz_prepare_subrecords_mode($my_tab, $rec_tpl, $existing_ids) {
+function zz_prepare_subrecords_structure($my_tab, $rec_tpl, $existing_ids) {
 	// function will be run twice from zzform(), therefore be careful, 
 	// programmer!
 
 	for ($rec = 0; $rec < $my_tab['records']; $rec++) {
 		// do not change other values if they are already there 
 		// (important for error messages etc.)
-		$continue_fast = (isset($my_tab[$rec]) ? true: false);
+		$continue_fast = (isset($my_tab[$rec]) ? true : false);
 		if (!$continue_fast) // reset fields only if necessary
 			$my_tab[$rec] = $rec_tpl;
-		$my_tab = zz_set_values($my_tab, $rec);
+		$my_tab = zz_prepare_subrecord_values($my_tab, $rec);
 		// ok, after we got the values, continue, rest already exists.
 		if ($continue_fast) continue;
 
@@ -1175,7 +1174,7 @@ function zz_prepare_subrecords_mode($my_tab, $rec_tpl, $existing_ids) {
  * @param int $rec number of detail record
  * @return array $fields
  */
-function zz_set_fielddefs(&$fielddefs, $fields, $rec) {
+function zz_prepare_fields_from_fielddefs(&$fielddefs, $fields, $rec) {
 	if (!array_key_exists($rec, $fielddefs)) return $fields;
 	$my_field_def = $fielddefs[$rec];
 	unset($fielddefs[$rec]);
@@ -1196,7 +1195,7 @@ function zz_set_fielddefs(&$fielddefs, $fields, $rec) {
  * @param int $rec
  * @return array $my_tab
  */
-function zz_set_values($my_tab, $rec) {
+function zz_prepare_subrecord_values($my_tab, $rec) {
 	// isset because might be empty
 	if (!isset($my_tab['values'])) return $my_tab;
 	
@@ -1218,7 +1217,7 @@ function zz_set_values($my_tab, $rec) {
 		);
 	}
 	if (!empty($my_tab['fielddefs'])) {
-		$my_tab[$rec]['fields'] = zz_set_fielddefs(
+		$my_tab[$rec]['fields'] = zz_prepare_fields_from_fielddefs(
 			$my_tab['fielddefs'], $my_tab[$rec]['fields'], $rec
 		);
 	}
