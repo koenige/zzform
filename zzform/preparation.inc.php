@@ -658,29 +658,13 @@ function zz_prepare_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 			$my_tab['POST'][$rec], $field['fields'], $existing[$rec], $my_tab['where']
 		);
 	}
-	if ($added_rec) {
-		$last_rec = count($records) - 1;
-		$my_tab['POST'][$added_rec] = [];
-		foreach ($field['fields'] as $subfield) {
-			if (empty($subfield['default_next_if_not'])) continue;
-			$field_name = $subfield['field_name'];
-			$last_val = $my_tab['POST'][$last_rec][$field_name] ?? null;
-			if ($last_val === null || (string) $last_val === (string) $subfield['default_next_if_not'])
-				continue;
-			$next_val = zz_prepare_next_select_value($subfield, $last_val);
-			if ($next_val !== null)
-				$my_tab['POST'][$added_rec][$field_name] = $next_val;
-		}
-		$my_tab['POST'][$added_rec] = zz_prepare_def_vals(
-			$my_tab['POST'][$added_rec], $field['fields'], [], $my_tab['where']
-		);
+	if ($added_rec)
 		$records[] = $added_rec;
-	}
 
 	// check records against database, if we have values, check number of records
 	if ($mode) {
 		$my_tab = zz_prepare_subrecords_structure(
-			$my_tab, $rec_tpl, $existing_ids
+			$my_tab, $rec_tpl, $existing_ids, $added_rec
 		);
 	} elseif ($zz_record['action'] AND !empty($my_tab['POST'])) {
 		// individual definition
@@ -1113,9 +1097,10 @@ function zz_values_get_equal_key(&$values, $record) {
  * @param array $my_tab = $zz_tab[$tab]
  * @param array $rec_tpl
  * @param array $existing_ids
+ * @param int $added_rec
  * @return array $my_tab
  */
-function zz_prepare_subrecords_structure($my_tab, $rec_tpl, $existing_ids) {
+function zz_prepare_subrecords_structure($my_tab, $rec_tpl, $existing_ids, $added_rec) {
 	// function will be run twice from zzform(), therefore be careful, 
 	// programmer!
 
@@ -1151,6 +1136,19 @@ function zz_prepare_subrecords_structure($my_tab, $rec_tpl, $existing_ids) {
 				$my_tab[$rec]['check_select_fields'] = $my_tab['check_select_fields'][$key] ?? [];
 				unset($my_tab['POST'][$key]);
 			}
+		}
+	}
+	if ($added_rec) {
+		$last_rec = $my_tab['records'] - 2;
+		foreach ($my_tab[$added_rec]['fields'] as $no => $field) {
+			if (empty($field['default_next_if_not'])) continue;
+			$field_name = $field['field_name'];
+			$last_val = $my_tab[$last_rec]['POST'][$field_name] ?? null;
+			if ($last_val === null || (string) $last_val === (string) $subfield['default_next_if_not'])
+				continue;
+			$next_val = zz_prepare_next_select_value($field, $last_val);
+			if ($next_val === null) continue;
+			$my_tab[$added_rec]['fields'][$no]['default'] = $next_val;
 		}
 	}
 	// array_keys(array_flip()) is reported to be faster than array_unique()
