@@ -1282,7 +1282,7 @@ function zz_field_sum($table_defs, $z, $sum, $list) {
 			$tfoot_line .= '<td class="recordid">'.$z.'</td>';
 		} elseif (!empty($field['sum'])) {
 			$tfoot_line .= '<td'.zz_field_class($field, true).'>';
-			$value = $sum[$field['title']];
+			$value = $sum[$field['title']] ?? 0;
 			if (isset($field['calculation']) AND $field['calculation'] === 'hours') {
 				$value = zz_hour_format($value);
 			} elseif (isset($field['number_type'])) {
