@@ -19,3 +19,5 @@
 /* 2023-05-13-1 */	INSERT INTO categories (`category`, `description`, `main_category_id`, `path`, `parameters`, `sequence`, `last_update`) VALUES ('Thumbnails', NULL, (SELECT category_id FROM categories c WHERE path = 'jobs'), 'jobs/thumbnails', '&alias=jobs/thumbnails&max_requests=2', NULL, NOW());
 /* 2024-03-16-1 */	ALTER TABLE `_revisions` CHANGE `last_update` `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP;
 /* 2024-07-29-1 */	UPDATE _settings SET setting_key = 'zzform_sync_server_path' WHERE setting_key = 'default_sync_server_path';
+/* 2026-03-10-1 */	DELETE FROM _settings WHERE setting_key = 'zzform_sync_path';
+/* 2026-03-10-2 */	DELETE FROM _settings WHERE setting_key = 'zzform_sync_server_path';
