@@ -45,7 +45,34 @@ function zz_path_link2($def, $record) {
  * @return string
  */
 function zz_path_image($def, $record) {
-	return zz_makelink($def, $record, 'image');
+	$path = zz_makelink($def, $record, 'image');
+	if (!$path) return '';
+
+	if ($path['root']) {
+		// get filetype from extension
+		if (strstr($path['file'], '.')) {
+			$ext = strtoupper(substr($path['file'], strrpos($path['file'], '.') + 1));
+		} else {
+			$ext = wrap_text('- unknown -');
+		}
+
+		// filesize is 0 = looks like error
+		if (!$size = filesize($path['root'].$path['file'])) return '';
+		// getimagesize tests whether it's a web image
+		$filetype_def = wrap_filetypes(strtolower($ext), 'read-per-extension');
+		if (empty($filetype_def['webimage']) AND !getimagesize($path['root'].$path['file'])) {
+			// if not, return EXT (4.4 MB)
+			return $ext.' ('.wrap_bytes($size).')';
+		}
+	}
+	if (!$path['web']) return '';
+	
+	$srcset = [];
+	foreach ($path['srcset'] as $factor => $path_srcset)
+		$srcset[] = $path_srcset.' '.$factor.'x';
+	$srcset = $srcset ? sprintf(' srcset="%s 1x, %s"', $path['web'], implode(', ', $srcset)) : '';
+	$img = '<img src="'.$path['web'].'"'.$srcset.' alt="'.$path['alt'].'" class="thumb">';
+	return $img;
 }
 
 /**
@@ -84,16 +111,17 @@ function zz_path_file2($def, $record) {
  * @param array $record current record
  * @param string $type (optional) link, path or image, image will be returned in
  *		<img src="" alt="">
- * @return mixed
+ * @return array
  */
 function zz_makelink($def, $record, $type = 'link') {
-	if (empty($def['ignore_record']) AND !$record) return '';
-	if (!$def) return '';
+	if (empty($def['ignore_record']) AND !$record) return [];
+	if (!$def) return [];
 	
 	$path = [
 		'file' => '',
 		'root' => '',
 		'root_alt' => '',
+		'srcset' => [],
 		'web' => ''
 	];
 	$modes = [];
@@ -124,7 +152,7 @@ function zz_makelink($def, $record, $type = 'link') {
 		// check if extension_missing[extension] is webimage, otherwise return false
 		if ($type === 'image' AND !empty($record[$def['extension_missing']['extension']])) {
 			$filetype_def = wrap_filetypes($record[$def['extension_missing']['extension']], 'read-per-extension');
-			if (empty($filetype_def['webimage']) AND empty($filetype_def['php'])) return '';
+			if (empty($filetype_def['webimage']) AND empty($filetype_def['php'])) return [];
 		}
 		$def = array_merge($def, $def['extension_missing']);
 	}
@@ -208,11 +236,11 @@ function zz_makelink($def, $record, $type = 'link') {
 			// we don't have that field or it is NULL, so we can't build the
 			// path and return with nothing
 			// if you need an empty field, use IFNULL(field_name, "")
-			if (!isset($record[$value])) return '';
+			if (!isset($record[$value])) return [];
 			$content = $record[$value];
 			if ($modes) {
 				$content = zz_path_mode($modes, $content, E_USER_ERROR);
-				if (!$content) return '';
+				if (!$content) return [];
 				$modes = [];
 			}
 			if ($part !== 'webfield') {
@@ -256,43 +284,20 @@ function zz_makelink($def, $record, $type = 'link') {
 		}
 	}
 
-	// get filetype from extension
-	if (strstr($path['file'], '.')) {
-		$ext = strtoupper(substr($path['file'], strrpos($path['file'], '.') + 1));
-	} else {
-		$ext = wrap_text('- unknown -');
-	}
-	
 	if ($check_against_root) {
 		// check whether file exists
 		if (!file_exists($path['root'].$path['file'])) {
 			// file does not exist = false
-			if (!$path['root_alt']) return '';
-			if (!file_exists($path['root_alt'].$path['file'])) return '';
+			if (!$path['root_alt']) return [];
+			if (!file_exists($path['root_alt'].$path['file'])) return [];
 			$path['root'] = $path['root_alt'];
-		}
-		if ($type === 'image') {
-			// filesize is 0 = looks like error
-			if (!$size = filesize($path['root'].$path['file'])) return '';
-			// getimagesize tests whether it's a web image
-			$filetype_def = wrap_filetypes(strtolower($ext), 'read-per-extension');
-			if (empty($filetype_def['webimage']) AND !getimagesize($path['root'].$path['file'])) {
-				// if not, return EXT (4.4 MB)
-				return $ext.' ('.wrap_bytes($size).')';
-			}
 		}
 	}
 
-	if ($type === 'image') {
-		if (!$path['web']) return '';
-		$srcset = [];
-		foreach ($sets as $myset) {
-			if ($set[$myset]) $srcset[] = $path['srcset'][$myset].' '.$myset.'x';
-		}
-		$srcset = $srcset ? sprintf(' srcset="%s 1x, %s"', $path['web'], implode(', ', $srcset)) : '';
-		$img = '<img src="'.$path['web'].'"'.$srcset.' alt="'.$path['alt'].'" class="thumb">';
-		return $img;
+	foreach ($sets as $myset) {
+		if (!$set[$myset]) unset($path['srcset'][$myset]);
 	}
+
 	return $path;
 }
 
