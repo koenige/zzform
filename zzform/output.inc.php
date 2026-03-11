@@ -294,7 +294,7 @@ function zz_output_redirect($ops, $zz, $zz_tab) {
 			zz_debug('_time', $ops['return']);
 		if (is_array($redirect)) {
 			$record_new = zz_path_record($redirect, $zz_tab[0]);
-			$redirect = zz_path_link2($redirect, $record_new);
+			$redirect = zz_path_link($redirect, $record_new);
 		}
 		wrap_redirect_change($redirect);
 	}
