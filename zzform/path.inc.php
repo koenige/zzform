@@ -25,17 +25,14 @@ function zz_path_link($path, $record) {
 }
 
 /**
- * get a web path from a path definition and zz_tab data
+ * get a web path from a path definition and a flat record
  *
  * @param array $path
- * @param array $data ($zz_tab or simple line for $record = 'line')
- * @param string $record 'new', 'old', or 'line'
- * @param int $tab (optional)
- * @param int $rec (optional)
+ * @param array $record
  * @return string
  */
-function zz_path_link2($path, $data, $record = 'new', $tab = 0, $rec = 0) {
-	return zz_makepath($path, $data, $record, 'local', $tab, $rec);
+function zz_path_link2($path, $record) {
+	return zz_makepath($path, $record, 'local');
 }
 
 /**
@@ -61,17 +58,14 @@ function zz_path_file($path, $record) {
 }
 
 /**
- * get an absolute filesystem path from a path definition and zz_tab data
+ * get an absolute filesystem path from a path definition and a flat record
  *
  * @param array $path
- * @param array $data ($zz_tab or simple line for $record = 'line')
- * @param string $record 'new', 'old', or 'line'
- * @param int $tab (optional)
- * @param int $rec (optional)
+ * @param array $record
  * @return string
  */
-function zz_path_file2($path, $data, $record = 'new', $tab = 0, $rec = 0) {
-	return zz_makepath($path, $data, $record, 'file', $tab, $rec);
+function zz_path_file2($path, $record) {
+	return zz_makepath($path, $record, 'file');
 }
 
 
@@ -323,15 +317,11 @@ function zz_path_mode($modes, $content, $error = E_USER_WARNING) {
  *		to do something with strings from now on), 'string1...n' (string, number
  *		has no meaning, no sorting will take place, will be shown 1:1),
  *		'field1...n' (field value from record)
- * @param array $data (= $zz_tab or simple line)
- * @param string $record (optional) default 'new', other: 'old' (use updated
- *		record or old record), 'line': use the input data as a complete record
+ * @param array $record (from $zz_tab or simple line)
  * @param bool $do (optional)
- * @param int $tab (optional)
- * @param int $rec (optional)
  * @return string
  */
-function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec = 0) {
+function zz_makepath($path, $record, $do = false) {
 	// set variables
 	$p = false;
 	$modes = false;
@@ -339,19 +329,6 @@ function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec 
 	$rootp = false;		// path just for root
 	$webroot = false;	// web root
 	$sql_fields = [];
-
-	// record data
-	switch ($record) {
-	case 'old':
-		$line = $data[$tab][$rec]['existing'] ?? [];
-		break;
-	case 'new':
-		$line = zz_path_record($path, $data, $tab, $rec);
-		break;
-	case 'line':
-		$line = $data;
-		break;
-	}
 
 	// put path together
 	$alt_locked = false;
@@ -378,7 +355,7 @@ function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec 
 			break;
 
 		case 'sql_field':
-			$sql_fields[] = $line[$pvalue] ?? '';
+			$sql_fields[] = $record[$pvalue] ?? '';
 			break;
 
 		case 'sql':
@@ -391,7 +368,7 @@ function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec 
 
 		case 'extension':
 		case 'field':
-			$content = $line[$pvalue] ?? '';
+			$content = $record[$pvalue] ?? '';
 			if ($modes) {
 				$content = zz_path_mode($modes, $content);
 				if (!$content AND $content !== '0') return '';
@@ -439,26 +416,24 @@ function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec 
  * missing field values needed by the path definition
  *
  * @param array $path path definition
- * @param array $data $zz_tab
- * @param int $tab (optional)
+ * @param array $my_tab $zz_tab[0]
  * @param int $rec (optional)
  * @return array
  */
-function zz_path_record($path, $data, $tab = 0, $rec = 0) {
-	$my_tab = $data[$tab];
-	$line = $my_tab[$rec]['POST'] ?? [];
+function zz_path_record($path, $my_tab, $rec = 0) {
+	$record = $my_tab[$rec]['POST'] ?? [];
 	foreach ($path as $part => $value) {
 		if (!$value) continue;
 		while (is_numeric(substr($part, -1))) $part = substr($part, 0, -1);
 		if ($part !== 'field' AND $part !== 'extension') continue;
-		if (isset($line[$value]) AND ($line[$value] OR $line[$value] === '0')) continue;
+		if (isset($record[$value]) AND ($record[$value] OR $record[$value] === '0')) continue;
 		$content = zz_path_query(
 			$value, $my_tab['sql'], $my_tab[$rec]['id']['value'],
 			$my_tab['table'].'.'.$my_tab[$rec]['id']['field_name']
 		);
-		if ($content !== false) $line[$value] = $content;
+		if ($content !== false) $record[$value] = $content;
 	}
-	return $line;
+	return $record;
 }
 
 /** 
