@@ -144,7 +144,7 @@ function zz_makelink($path, $record, $type = 'link') {
 			if (!isset($record[$value])) return false;
 			$content = $record[$value];
 			if ($modes) {
-				$content = zz_make_mode($modes, $content, E_USER_ERROR);
+				$content = zz_path_mode($modes, $content, E_USER_ERROR);
 				if (!$content) return false;
 				$modes = [];
 			}
@@ -165,7 +165,7 @@ function zz_makelink($path, $record, $type = 'link') {
 			$set[$current_set] = true;
 			$content = $record[$value];
 			if ($modes) {
-				$content = zz_make_mode($modes, $content, E_USER_ERROR);
+				$content = zz_path_mode($modes, $content, E_USER_ERROR);
 				if (!$content) break;
 				$modes = [];
 			}
@@ -237,7 +237,7 @@ function zz_makelink($path, $record, $type = 'link') {
  * @param string $content
  * @return string
  */
-function zz_make_mode($modes, $content, $error = E_USER_WARNING) {
+function zz_path_mode($modes, $content, $error = E_USER_WARNING) {
 	foreach ($modes as $mode) {
 		if (!function_exists($mode)) {
 			zz_error_log([
@@ -333,13 +333,13 @@ function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec 
 		case 'field':
 			$content = $line[$pvalue] ?? '';
 			if (!$content AND $content !== '0' AND $record === 'new') {
-				$content = zz_get_record(
+				$content = zz_path_query(
 					$pvalue, $my_tab['sql'], $my_tab[$rec]['id']['value'], 
 					$my_tab['table'].'.'.$my_tab[$rec]['id']['field_name']
 				);
 			}
 			if ($modes) {
-				$content = zz_make_mode($modes, $content);
+				$content = zz_path_mode($modes, $content);
 				if (!$content AND $content !== '0') return '';
 			}
 			$p .= $content;
@@ -389,7 +389,7 @@ function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec 
  * @param string $idfield (optional)
  * @return string
  */
-function zz_get_record($field_name, $sql, $idvalue = false, $idfield = false) { 
+function zz_path_query($field_name, $sql, $idvalue = false, $idfield = false) { 
 	static $queried = [];
 	$key = sprintf('%s-%s-%s', $sql, $idvalue, $idfield);
 	// if idvalue is not set: note: all values should be the same!
