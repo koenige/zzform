@@ -294,8 +294,6 @@ function zz_output_redirect($ops, $zz, $zz_tab) {
 			zz_debug('_time', $ops['return']);
 		if (is_array($redirect))
 			$redirect = zz_makepath($redirect, $zz_tab);
-		if (substr($redirect, 0, 1) === '/')
-			$redirect = wrap_setting('host_base').$redirect;
 		wrap_redirect_change($redirect);
 	}
 
