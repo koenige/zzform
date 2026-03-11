@@ -16,63 +16,63 @@
 /**
  * get a URL link from a path definition and a flat record
  *
- * @param array $path
+ * @param array $def
  * @param array $record
- * @return mixed
+ * @return string
  */
-function zz_path_link($path, $record) {
-	return zz_makelink($path, $record, 'link');
+function zz_path_link($def, $record) {
+	return zz_makelink($def, $record, 'link');
 }
 
 /**
  * get a web path from a path definition and a flat record
  *
- * @param array $path
+ * @param array $def
  * @param array $record
  * @return string
  */
-function zz_path_link2($path, $record) {
-	return zz_makepath($path, $record, 'local');
+function zz_path_link2($def, $record) {
+	return zz_makepath($def, $record, 'local');
 }
 
 /**
  * get an HTML img element from a path definition and a flat record
  *
- * @param array $path
- * @param array $record
- * @return mixed
- */
-function zz_path_image($path, $record) {
-	return zz_makelink($path, $record, 'image');
-}
-
-/**
- * get an absolute filesystem path from a path definition and a flat record
- *
- * @param array $path
- * @param array $record
- * @return mixed
- */
-function zz_path_file($path, $record) {
-	return zz_makelink($path, $record, 'path');
-}
-
-/**
- * get an absolute filesystem path from a path definition and a flat record
- *
- * @param array $path
+ * @param array $def
  * @param array $record
  * @return string
  */
-function zz_path_file2($path, $record) {
-	return zz_makepath($path, $record, 'file');
+function zz_path_image($def, $record) {
+	return zz_makelink($def, $record, 'image');
+}
+
+/**
+ * get an absolute filesystem path from a path definition and a flat record
+ *
+ * @param array $def
+ * @param array $record
+ * @return string
+ */
+function zz_path_file($def, $record) {
+	return zz_makelink($def, $record, 'path');
+}
+
+/**
+ * get an absolute filesystem path from a path definition and a flat record
+ *
+ * @param array $def
+ * @param array $record
+ * @return string
+ */
+function zz_path_file2($def, $record) {
+	return zz_makepath($def, $record, 'file');
 }
 
 
 /** 
  * Creates link or HTML img from path
  * 
- * @param array $path
+ * @param array $def
  *		'root', 'webroot', 'field1...fieldn', 'string1...stringn', 'mode1...n',
  *		'extension', 'x_field[]', 'x_webfield[]', 'x_extension[]'
  *		'ignore_record' will cause record to be ignored
@@ -82,9 +82,9 @@ function zz_path_file2($path, $record) {
  *		<img src="" alt="">
  * @return string URL or HTML-code for image
  */
-function zz_makelink($path, $record, $type = 'link') {
-	if (empty($path['ignore_record']) AND !$record) return false;
-	if (!$path) return false;
+function zz_makelink($def, $record, $type = 'link') {
+	if (empty($def['ignore_record']) AND !$record) return '';
+	if (!$def) return '';
 
 	$url = '';
 	$modes = [];
@@ -92,7 +92,7 @@ function zz_makelink($path, $record, $type = 'link') {
 	$path_alternate = '';
 	$path_web[1] = '';		// relative path on website
 	$sets = [];
-	foreach (array_keys($path) as $part) {
+	foreach (array_keys($def) as $part) {
 		if (substr($part, 0, 2) !== 'x_') continue;
 		$part = explode('[', $part);
 		$part = substr($part[1], 0, strpos($part[1], ']'));
@@ -110,20 +110,20 @@ function zz_makelink($path, $record, $type = 'link') {
 		// lock if there is something definitely called extension
 		$alt_locked = false; 
 	}
-	if (!is_array($path)) $path = ['string' => $path];
+	if (!is_array($def)) $def = ['string' => $def];
 	
 	// check if extension field is given but has no value
-	if (!empty($path['extension_missing']) AND !empty($path['extension'])
-		AND empty($record[$path['extension']])) {
+	if (!empty($def['extension_missing']) AND !empty($def['extension'])
+		AND empty($record[$def['extension']])) {
 		// check if extension_missing[extension] is webimage, otherwise return false
-		if ($type === 'image' AND !empty($record[$path['extension_missing']['extension']])) {
-			$def = wrap_filetypes($record[$path['extension_missing']['extension']], 'read-per-extension');
-			if (empty($def['webimage']) AND empty($def['php'])) return false;
+		if ($type === 'image' AND !empty($record[$def['extension_missing']['extension']])) {
+			$filetype_def = wrap_filetypes($record[$def['extension_missing']['extension']], 'read-per-extension');
+			if (empty($filetype_def['webimage']) AND empty($filetype_def['php'])) return '';
 		}
-		$path = array_merge($path, $path['extension_missing']);
+		$def = array_merge($def, $def['extension_missing']);
 	}
 	
-	foreach ($path as $part => $value) {
+	foreach ($def as $part => $value) {
 		if (!$value) continue;
 		// remove numbers at the end of the part type
 		while (is_numeric(substr($part, -1))) $part = substr($part, 0, -1);
@@ -134,31 +134,32 @@ function zz_makelink($path, $record, $type = 'link') {
 		switch ($part) {
 		case 'area':
 			$path_values = [];
-			if (empty($path['fields'])) $path['fields'] = [];
-			elseif (!is_array($path['fields'])) $path['fields'] = [$path['fields']];
-			foreach ($path['fields'] as $index => $this_field) {
+			if (empty($def['fields'])) $def['fields'] = [];
+			elseif (!is_array($def['fields'])) $def['fields'] = [$def['fields']];
+			foreach ($def['fields'] as $index => $this_field) {
 				if (empty($record[$this_field])) break 2;
-				if (!empty($path['target'][$index]))
+				if (!empty($def['target'][$index]))
 					// placeholder for later use
 					$path_values[] = '*'.$record[$this_field].'*';
 				else
 					$path_values[] = $record[$this_field];
 			}
-			if (strstr($value, '[%s]') AND !empty($path['area_fields'])) {
+			if (strstr($value, '[%s]') AND !empty($def['area_fields'])) {
 				$area_values = [];
-				foreach ($path['area_fields'] as $this_field)
+				foreach ($def['area_fields'] as $this_field)
 					$area_values[] = $record[$this_field];
 				$value = vsprintf($value, $area_values);
 			}
 			$rights = true;
-			if (!empty($path['restrict_to']) AND !empty($record[$path['restrict_to']]))
-				$rights = sprintf('%s:%d', $path['restrict_to'], $record[$path['restrict_to']]);
+			if (!empty($def['restrict_to']) AND !empty($record[$def['restrict_to']]))
+				$rights = sprintf('%s:%d', $def['restrict_to'], $record[$def['restrict_to']]);
 			$path_web[1] .= wrap_path($value, $path_values, $rights);
 			break;
+
 		case 'function':
-			if (function_exists($value) AND !empty($path['fields'])) {
+			if (function_exists($value) AND !empty($def['fields'])) {
 				$params = [];
-				foreach ($path['fields'] as $function_field) {
+				foreach ($def['fields'] as $function_field) {
 					if (!isset($record[$function_field])) continue;
 					$params[$function_field] = $record[$function_field];
 				}
@@ -168,6 +169,7 @@ function zz_makelink($path, $record, $type = 'link') {
 		case 'fields':
 		case 'restrict_to':
 			break;
+
 		case 'root':
 			$check_against_root = true;
 			// root has to be first element, everything before will be ignored
@@ -175,11 +177,13 @@ function zz_makelink($path, $record, $type = 'link') {
 			if (substr($path_full, -1) !== '/')
 				$path_full .= '/';
 			break;
+
 		case 'alternate_root':
 			$path_alternate = $value;
 			if (substr($path_alternate, -1) !== '/')
 				$path_alternate .= '/';
 			break;
+
 		case 'webroot':
 			// web might come later, ignore parts before for web and add them
 			// to full path
@@ -191,17 +195,18 @@ function zz_makelink($path, $record, $type = 'link') {
 			$path_alternate .= $url;
 			$url = '';
 			break;
+
 		case 'extension':
 		case 'field':
 		case 'webfield':
 			// we don't have that field or it is NULL, so we can't build the
 			// path and return with nothing
 			// if you need an empty field, use IFNULL(field_name, "")
-			if (!isset($record[$value])) return false;
+			if (!isset($record[$value])) return '';
 			$content = $record[$value];
 			if ($modes) {
 				$content = zz_path_mode($modes, $content, E_USER_ERROR);
-				if (!$content) return false;
+				if (!$content) return '';
 				$modes = [];
 			}
 			if ($part !== 'webfield') {
@@ -213,6 +218,7 @@ function zz_makelink($path, $record, $type = 'link') {
 				if ($part === 'extension') $alt_locked = true;
 			}
 			break;
+
 		case 'x_extension':
 		case 'x_field':
 		case 'x_webfield':
@@ -227,14 +233,17 @@ function zz_makelink($path, $record, $type = 'link') {
 			}
 			$path_web[$current_set] .= $content;
 			break;
+
 		case 'string':
 			$url .= $value;
+
 		case 'webstring':
 			$path_web[1] .= $value;
 			foreach ($sets as $myset) {
 				$path_web[$myset] .= $value;
 			}
 			break;
+
 		case 'mode':
 			$modes[] = $value;
 			break;
@@ -252,13 +261,13 @@ function zz_makelink($path, $record, $type = 'link') {
 		// check whether file exists
 		if (!file_exists($path_full.$url)) {
 			// file does not exist = false
-			if (!$path_alternate) return false;
-			if (!file_exists($path_alternate.$url)) return false;
+			if (!$path_alternate) return '';
+			if (!file_exists($path_alternate.$url)) return '';
 			$path_full = $path_alternate;
 		}
 		if ($type === 'image') {
 			// filesize is 0 = looks like error
-			if (!$size = filesize($path_full.$url)) return false;
+			if (!$size = filesize($path_full.$url)) return '';
 			// getimagesize tests whether it's a web image
 			$filetype_def = wrap_filetypes(strtolower($ext), 'read-per-extension');
 			if (empty($filetype_def['webimage']) AND !getimagesize($path_full.$url)) {
@@ -272,7 +281,7 @@ function zz_makelink($path, $record, $type = 'link') {
 	case 'path':
 		return $path_full.$url;
 	case 'image':
-		if (!$path_web[1]) return false;
+		if (!$path_web[1]) return '';
 		$srcset = [];
 		foreach ($sets as $myset) {
 			if ($set[$myset]) $srcset[] = $path_web[$myset].' '.$myset.'x';
@@ -311,17 +320,17 @@ function zz_path_mode($modes, $content, $error = E_USER_WARNING) {
 /** 
  * Construct path from values
  * 
- * @param array $path array with variables which make path
+ * @param array $def array with variables which make path
  *		'root' (DOCUMENT_ROOT), 'webroot' (different root for web, all fields
  *		and strings before webroot will be ignored for this), 'mode' (function  
  *		to do something with strings from now on), 'string1...n' (string, number
  *		has no meaning, no sorting will take place, will be shown 1:1),
  *		'field1...n' (field value from record)
  * @param array $record (from $zz_tab or simple line)
- * @param bool $do (optional)
+ * @param string $type
  * @return string
  */
-function zz_makepath($path, $record, $do = false) {
+function zz_makepath($def, $record, $type) {
 	// set variables
 	$p = false;
 	$modes = false;
@@ -332,7 +341,7 @@ function zz_makepath($path, $record, $do = false) {
 
 	// put path together
 	$alt_locked = false;
-	foreach ($path as $part => $pvalue) {
+	foreach ($def as $part => $pvalue) {
 		if (!$pvalue) continue;
 		while (is_numeric(substr($part, -1))) $part = substr($part, 0, -1);
 		switch ($part) {
@@ -392,37 +401,27 @@ function zz_makepath($path, $record, $do = false) {
 		}
 	}
 
-	switch ($do) {
+	switch ($type) {
 		case 'file':
 			// webroot will be ignored
-			$p = $root.$rootp.$p;
-			break;
+			return $root.$rootp.$p;
 		case 'local':
-			$p = $webroot.$p;
-			// return alt as well
-			break;
-		default:
-
-//	if ($root && !file_exists($root.$link))
-//		return false;
-//	return $link;
-
+			return $webroot.$p;
 	}
-	return $p;
 }
 
 /**
  * extract a new record from a zz_tab data structure, pre-fetching
  * missing field values needed by the path definition
  *
- * @param array $path path definition
+ * @param array $def path definition
  * @param array $my_tab $zz_tab[0]
  * @param int $rec (optional)
  * @return array
  */
-function zz_path_record($path, $my_tab, $rec = 0) {
+function zz_path_record($def, $my_tab, $rec = 0) {
 	$record = $my_tab[$rec]['POST'] ?? [];
-	foreach ($path as $part => $value) {
+	foreach ($def as $part => $value) {
 		if (!$value) continue;
 		while (is_numeric(substr($part, -1))) $part = substr($part, 0, -1);
 		if ($part !== 'field' AND $part !== 'extension') continue;
