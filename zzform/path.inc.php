@@ -45,7 +45,15 @@ function zz_path_link2($def, $record) {
  * @return string
  */
 function zz_path_image($def, $record) {
-	$path = zz_makelink($def, $record, 'image');
+	// reject non-webimage extensions early
+	if (!empty($def['extension_missing']) AND !empty($def['extension'])
+		AND empty($record[$def['extension']])
+		AND !empty($record[$def['extension_missing']['extension']])) {
+		$filetype_def = wrap_filetypes($record[$def['extension_missing']['extension']], 'read-per-extension');
+		if (empty($filetype_def['webimage']) AND empty($filetype_def['php'])) return '';
+	}
+
+	$path = zz_makelink($def, $record);
 	if (!$path) return '';
 
 	if ($path['root']) {
@@ -71,6 +79,7 @@ function zz_path_image($def, $record) {
 	foreach ($path['srcset'] as $factor => $path_srcset)
 		$srcset[] = $path_srcset.' '.$factor.'x';
 	$srcset = $srcset ? sprintf(' srcset="%s 1x, %s"', $path['web'], implode(', ', $srcset)) : '';
+	if (!$path['alt']) $path['alt'] = wrap_text('No image');
 	$img = '<img src="'.$path['web'].'"'.$srcset.' alt="'.$path['alt'].'" class="thumb">';
 	return $img;
 }
@@ -101,23 +110,23 @@ function zz_path_file2($def, $record) {
 
 
 /** 
- * Creates link or HTML img from path
+ * build path components from a path definition and a flat record
  * 
  * @param array $def
  *		'root', 'webroot', 'field1...fieldn', 'string1...stringn', 'mode1...n',
  *		'extension', 'x_field[]', 'x_webfield[]', 'x_extension[]'
  *		'ignore_record' will cause record to be ignored
  *		'alternate_root' will check for an alternate root
- * @param array $record current record
- * @param string $type (optional) link, path or image, image will be returned in
- *		<img src="" alt="">
+ * @param array $record
  * @return array
  */
-function zz_makelink($def, $record, $type = 'link') {
+function zz_makelink($def, $record) {
 	if (empty($def['ignore_record']) AND !$record) return [];
 	if (!$def) return [];
+	if (!is_array($def)) $def = ['string' => $def];
 	
 	$path = [
+		'alt' => '',
 		'file' => '',
 		'root' => '',
 		'root_alt' => '',
@@ -138,22 +147,12 @@ function zz_makelink($def, $record, $type = 'link') {
 	}
 	
 	$check_against_root = false;
+	// lock if there is something definitely called extension
+	$alt_locked = false; 
 
-	if ($type === 'image') {
-		$path['alt'] = wrap_text('No image');
-		// lock if there is something definitely called extension
-		$alt_locked = false; 
-	}
-	if (!is_array($def)) $def = ['string' => $def];
-	
 	// check if extension field is given but has no value
 	if (!empty($def['extension_missing']) AND !empty($def['extension'])
 		AND empty($record[$def['extension']])) {
-		// check if extension_missing[extension] is webimage, otherwise return false
-		if ($type === 'image' AND !empty($record[$def['extension_missing']['extension']])) {
-			$filetype_def = wrap_filetypes($record[$def['extension_missing']['extension']], 'read-per-extension');
-			if (empty($filetype_def['webimage']) AND empty($filetype_def['php'])) return [];
-		}
 		$def = array_merge($def, $def['extension_missing']);
 	}
 	
@@ -247,7 +246,7 @@ function zz_makelink($def, $record, $type = 'link') {
 				$path['file'] .= $content;
 			}
 			$path['web'] .= $content;
-			if ($type === 'image' AND !$alt_locked) {
+			if (!$alt_locked) {
 				$path['alt'] = wrap_text('File: ').$record[$value];
 				if ($part === 'extension') $alt_locked = true;
 			}
