@@ -294,7 +294,7 @@ function zz_url_basename($url) {
  * @return string
  */
 function zz_details_link($details, $record) {
-	$link = zz_makelink($details, $record);
+	$link = zz_path_link($details, $record);
 	if (empty($details['target'])) return $link;
 
 	preg_match('~\*(.+)\*~', $link, $matches);

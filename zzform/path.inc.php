@@ -13,6 +13,39 @@
  */
 
 
+/**
+ * get a URL link from a path definition and a flat record
+ *
+ * @param array $path
+ * @param array $record
+ * @return mixed
+ */
+function zz_path_link($path, $record) {
+	return zz_makelink($path, $record, 'link');
+}
+
+/**
+ * get an HTML img element from a path definition and a flat record
+ *
+ * @param array $path
+ * @param array $record
+ * @return mixed
+ */
+function zz_path_image($path, $record) {
+	return zz_makelink($path, $record, 'image');
+}
+
+/**
+ * get an absolute filesystem path from a path definition and a flat record
+ *
+ * @param array $path
+ * @param array $record
+ * @return mixed
+ */
+function zz_path_file($path, $record) {
+	return zz_makelink($path, $record, 'path');
+}
+
 /** 
  * Creates link or HTML img from path
  * 

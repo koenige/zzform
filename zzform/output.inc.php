@@ -269,7 +269,7 @@ function zz_output_details($conf, $id, $line) {
 				'field' => $zz_conf['int']['id']['field_name']
 			];
 		}
-		$detail['url'] = zz_makelink($detail['link'], $line);
+		$detail['url'] = zz_path_link($detail['link'], $line);
 		if (!empty($detail['sql']))
 			$detail['count'] = zz_db_fetch(sprintf($detail['sql'], $id), '', 'single value');
 	}

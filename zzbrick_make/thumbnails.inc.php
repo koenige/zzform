@@ -97,7 +97,7 @@ function mod_zzform_make_thumbnails($params) {
 			if (!isset($file['source'])) continue;
 
 			// check if destination file exists
-			$dest = zz_makelink($file['path'], $line, 'path');
+			$dest = zz_path_file($file['path'], $line);
 			// don't write a new file if old one already exists
 			if ($dest AND $mode === 'existing') continue;
 
@@ -154,7 +154,7 @@ function mod_zzform_make_thumbnails_makelink($source_path, $line, $mode = false)
 		if ($mode === 'inexistent')
 			unset($source_path['root']);
 	}
-	$source = zz_makelink($source_path, $line, 'path');
+	$source = zz_path_file($source_path, $line);
 	if (!$source) return false;
 	if ($mode === 'inexistent')
 		$source = $root.$source;

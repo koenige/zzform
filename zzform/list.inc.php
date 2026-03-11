@@ -802,7 +802,7 @@ function zz_list_group_titles($list, $fields, $line) {
 		// Formatting of fields
 		$group[$pos] = zz_field_format($group[$pos], $field);
 		if (!empty($field['link'])) {
-			$link = zz_makelink($field['link'], $line);
+			$link = zz_path_link($field['link'], $line);
 			if ($link) {
 				$group[$pos] = sprintf('<a href="%s">%s</a>', zzform_url_escape($link), $group[$pos]);
 			}
@@ -1062,23 +1062,24 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 		case 'image':
 		case 'upload_image':
 			$mark_search_string = false;
-			$type = $mode === 'export' ? 'link' : 'image';
-			if (isset($field['path'])) {
-				if ($img = zz_makelink($field['path'], $line, $type)) {
+			if (isset($field['path']) AND $mode === 'export') {
+				$text .= zz_path_link($field['path'], $line);
+			} elseif (isset($field['path'])) {
+				if ($img = zz_path_image($field['path'], $line)) {
 					$text .= $link.$img.($link ? '</a>' : '');
-				} elseif (isset($field['default_image']) AND $type === 'image') {
+				} elseif (isset($field['default_image'])) {
 					if (is_array($field['default_image'])) {
-						$default_image = zz_makelink($field['default_image'], $line);
+						$default_image = zz_path_link($field['default_image'], $line);
 					} else {
 						$default_image = $field['default_image'];
 					}
 					$text .= $link.'<img src="'.$default_image
 						.'"  alt="'.wrap_text('No image').'" class="thumb">'.($link ? '</a>' : '');
 				}
-				if (!empty($field['image']) AND $mode != 'export') {
+				if (!empty($field['image'])) {
 					foreach ($field['image'] as $image) {
 						if (empty($image['show_link'])) continue;
-						if ($imglink = zz_makelink($image['path'], $line))
+						if ($imglink = zz_path_link($image['path'], $line))
 							$text .= ' <a href="'.$imglink.'">'.$image['title'].'</a><br>';
 					}
 				}
@@ -1342,7 +1343,7 @@ function zz_set_link($field, $line) {
 		// mailto-Link only if there is an address in that field
 		$link = 'mailto:'.rawurlencode($line[$field['field_name']]);
 	} elseif (isset($field['link']) AND is_array($field['link'])) {
-		$link = zz_makelink($field['link'], $line);
+		$link = zz_path_link($field['link'], $line);
 	} elseif (!empty($field['link'])) {
 		$link = $field['link'].$line[$field['field_name']];
 	}
@@ -1354,7 +1355,7 @@ function zz_set_link($field, $line) {
 	$link_title = false;
 	if (!empty($field['link_title'])) {
 		if (is_array($field['link_title']))
-			$link_title = zz_makelink($field['link_title'], $line);
+			$link_title = zz_path_link($field['link_title'], $line);
 		else
 			$link_title = $field['link_title'];
 	}
@@ -1999,19 +2000,28 @@ function zz_list_get_subselects($lines, $subselects, $mode) {
 			if (empty($sub_lines[$id])) continue;
 			$linetext = [];
 			foreach ($sub_lines[$id] as $linefields) {
-				$link = $subselect['link'] ? zz_makelink($subselect['link'], $linefields) : '';
-				$type = $mode === 'export' ? 'link' : 'image';
-				$image = isset($subselect['image']) ? zz_makelink($subselect['image'], $linefields, $type) : '';
+				if ($mode === 'export') {
+					$link = NULL;
+					$image = isset($subselect['image']) ? zz_path_link($subselect['image'], $linefields) : '';
+					if ($image) {
+						$image = wrap_setting('host_base').$image;
+					}
+				} else {
+					$link = $subselect['link'] ? zz_path_link($subselect['link'], $linefields) : '';
+					$image = isset($subselect['image']) ? zz_path_image($subselect['image'], $linefields) : '';
+					if ($image) {
+						if ($link) $image = sprintf('<a href="%s">%s</a>', $link, $image);
+					
+					}
+				}
 				if ($image) {
-					if ($link AND $mode !== 'export') $image = sprintf('<a href="%s">%s</a>', $link, $image);
-					elseif ($mode === 'export') $image = wrap_setting('host_base').$image;
 					$linetext[] = $image;
 					$subselect['dont_mark_search_string'] = true; // no search marking here
 					continue;
 				}
 				if (isset($subselect['field_link']))
 					foreach ($subselect['field_link'] as $index => $field_link)
-						$subselect['field_link_parsed'][$index] = zz_makelink($field_link, $linefields);
+						$subselect['field_link_parsed'][$index] = zz_path_link($field_link, $linefields);
 				foreach ($subselect['sql_ignore'] as $ignored_fieldname)
 					unset($linefields[$ignored_fieldname]); 
 				if (!empty($subselect['display_inline'])) {
@@ -2426,7 +2436,7 @@ function zz_list_ul($list, $rows) {
 function zz_list_syndication_get($field, $line) {
 	wrap_include('syndication', 'zzwrap');
 
-	$img = zz_makelink($field['path_json_request'], $line);
+	$img = zz_path_link($field['path_json_request'], $line);
 	$img = wrap_syndication($img);
 	if (!$img) return false;
 	$text = '<img src="'.($field['path_json_base'] ?? '').$img.'"  alt="" class="thumb">';

@@ -668,8 +668,8 @@ function zz_identifier_redirect($ops, $zz_tab) {
 			// will not change the corresponding path
 			// maybe make full record available in 'new', too?
 			$record_new = $ops['record_new'][0] + $ops['record_old'][0];
-			$old = zz_makelink($redirect['old'], $ops['record_old'][0]);
-			$new = zz_makelink($redirect['new'], $record_new);
+			$old = zz_path_link($redirect['old'], $ops['record_old'][0]);
+			$new = zz_path_link($redirect['new'], $record_new);
 		}
 		if (empty($field_name)) {
 			foreach ($zz_tab[0][0]['fields'] as $field) {
