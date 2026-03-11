@@ -2090,7 +2090,7 @@ function zz_upload_action($zz_tab) {
 				elseif (!empty($val['optional_image'])) $show_filename = false;
 				elseif (!empty($val['on_request'])) $show_filename = false;
 				if ($show_filename)
-					$show_filename = zz_path_link2($val['path'], $zz_tab[$tab][$rec]['existing'] ?? []);
+					$show_filename = zz_path_link($val['path'], $zz_tab[$tab][$rec]['existing'] ?? [], ['skip_file_check' => true]);
 				// delete file
 				if (str_ends_with($filename, '.') AND !empty($val['no_action_unless_thumb_extension'])) {
 					continue; // there is no file

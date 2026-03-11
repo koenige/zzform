@@ -18,23 +18,17 @@
  *
  * @param array $def
  * @param array $record
+ * @param array $settings
  * @return string
  */
-function zz_path_link($def, $record) {
-	$path = zz_makelink($def, $record);
+function zz_path_link($def, $record, $settings = []) {
+	$path = zz_path($def, $record);
 	if (!$path) return '';
+	if (empty($settings['skip_file_check'])) {
+		$path = zz_path_exists($path);
+		if (!$path) return '';
+	}
 	return $path['web'];
-}
-
-/**
- * get a web path from a path definition and a flat record
- *
- * @param array $def
- * @param array $record
- * @return string
- */
-function zz_path_link2($def, $record) {
-	return zz_makepath($def, $record, 'local');
 }
 
 /**
@@ -53,7 +47,9 @@ function zz_path_image($def, $record) {
 		if (empty($filetype_def['webimage']) AND empty($filetype_def['php'])) return '';
 	}
 
-	$path = zz_makelink($def, $record);
+	$path = zz_path($def, $record);
+	if (!$path) return '';
+	$path = zz_path_exists($path);
 	if (!$path) return '';
 
 	if ($path['root']) {
@@ -92,7 +88,9 @@ function zz_path_image($def, $record) {
  * @return string
  */
 function zz_path_file($def, $record) {
-	$path = zz_makelink($def, $record);
+	$path = zz_path($def, $record);
+	if (!$path) return '';
+	$path = zz_path_exists($path);
 	if (!$path) return '';
 	return $path['root'].$path['file'];
 }
@@ -120,7 +118,7 @@ function zz_path_file2($def, $record) {
  * @param array $record
  * @return array
  */
-function zz_makelink($def, $record) {
+function zz_path($def, $record) {
 	if (empty($def['ignore_record']) AND !$record) return [];
 	if (!$def) return [];
 	if (!is_array($def)) $def = ['string' => $def];
@@ -147,7 +145,6 @@ function zz_makelink($def, $record) {
 		$set[$myset] = NULL;			// show 2x image
 	}
 	
-	$check_against_root = false;
 	// lock if there is something definitely called extension
 	$alt_locked = false; 
 
@@ -205,7 +202,6 @@ function zz_makelink($def, $record) {
 			break;
 
 		case 'root':
-			$check_against_root = true;
 			// root has to be first element, everything before will be ignored
 			$path['root'] = $value;
 			if (substr($path['root'], -1) !== '/')
@@ -309,20 +305,30 @@ function zz_makelink($def, $record) {
 		}
 	}
 
-	if ($check_against_root) {
-		// check whether file exists
-		if (!file_exists($path['root'].$path['file'])) {
-			// file does not exist = false
-			if (!$path['root_alt']) return [];
-			if (!file_exists($path['root_alt'].$path['file'])) return [];
-			$path['root'] = $path['root_alt'];
-		}
-	}
-
 	foreach ($sets as $myset) {
 		if (!$set[$myset]) unset($path['srcset'][$myset]);
 	}
 
+	return $path;
+}
+
+/**
+ * check whether file exist
+ * 
+ * @param array $path
+ * @return array
+ */
+function zz_path_exists($path) {
+	// no root = no check possible
+	if (!$path['root']) return $path;
+
+	// if file exists, perfect!
+	if (file_exists($path['root'].$path['file'])) return $path;
+
+	// alternative root?
+	if (!$path['root_alt']) return [];
+	if (!file_exists($path['root_alt'].$path['file'])) return [];
+	$path['root'] = $path['root_alt'];
 	return $path;
 }
 
