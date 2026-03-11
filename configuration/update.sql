@@ -6,7 +6,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2021-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2021-2024, 2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -21,3 +21,4 @@
 /* 2024-07-29-1 */	UPDATE _settings SET setting_key = 'zzform_sync_server_path' WHERE setting_key = 'default_sync_server_path';
 /* 2026-03-10-1 */	DELETE FROM _settings WHERE setting_key = 'zzform_sync_path';
 /* 2026-03-10-2 */	DELETE FROM _settings WHERE setting_key = 'zzform_sync_server_path';
+/* 2026-03-11-1 */	UPDATE webpages SET content = REPLACE(content, '%%% request thumbnails ', '%%% make thumbnails ') WHERE content LIKE '%\%\%\% request thumbnails %';

@@ -1,0 +1,59 @@
+# zzform
+# Translations for admins, template
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzform
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2026 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Zugzwang Project -- default module\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Thumbnail creation"
+msgstr ""
+
+#: zzbrick_make/thumbnails.inc.php
+msgid ""
+"Here, you can create either missing thumbnails, if they were not created on "
+"upload. Or you can create completely new thumbnails if you changed the pixel "
+"size."
+msgstr ""
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Sorry, but the table script %s could not be found."
+msgstr ""
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "The original file does not exist."
+msgstr ""
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "The function %s does not exist."
+msgstr ""
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Thumbnail for %s × %s px was created."
+msgstr ""
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Thumbnail for %s × %s px could not be created."
+msgstr ""
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "No missing thumbnails were found."
+msgstr ""
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "The original file does not contain any data."
+msgstr ""

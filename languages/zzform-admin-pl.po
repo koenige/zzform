@@ -1,0 +1,62 @@
+# zzform
+# Translations for admins, pl language
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzform
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2026 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Zugzwang Project -- zzform module\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
+"Language-Team: \n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
+"|| n%100>=20) ? 1 : 2);\n"
+"X-Generator: Poedit 1.7.1\n"
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Thumbnail creation"
+msgstr "Tworzenie miniatur"
+
+#: zzbrick_make/thumbnails.inc.php
+msgid ""
+"Here, you can create either missing thumbnails, if they were not created on "
+"upload. Or you can create completely new thumbnails if you changed the pixel "
+"size."
+msgstr ""
+"Tutaj można utworzyć brakujące miniatury, jeśli nie zostały one stworzone "
+"podczas przesyłania pliku. Lub można utworzyć zupełnie nowe miniatury, po "
+"zmianie rozmiaru piksela."
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Sorry, but the table script %s could not be found."
+msgstr "Przepraszam, ale skrypt tabeli %s nie został znaleziony."
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "The original file does not exist."
+msgstr "Plik nie istnieje."
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "The function %s does not exist."
+msgstr "Funkcja %s nie istnieje."
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Thumbnail for %s × %s px was created."
+msgstr "Utworzono miniaturę dla %s × %s px."
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Thumbnail for %s × %s px could not be created."
+msgstr "Nie utworzono miniatury dla %s × %s px."
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "No missing thumbnails were found."
+msgstr "Nie brakuje żadnych miniatur."

@@ -1,0 +1,65 @@
+# zzform
+# Translations for admins, tr language
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzform
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2026 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Zugzwang Project -- zzform module\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
+"Language-Team: \n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.6\n"
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Thumbnail creation"
+msgstr "Küçük resim oluşturma"
+
+#: zzbrick_make/thumbnails.inc.php
+msgid ""
+"Here, you can create either missing thumbnails, if they were not created on "
+"upload. Or you can create completely new thumbnails if you changed the pixel "
+"size."
+msgstr ""
+"Burada, yükleme sırasında oluşturulmamışlarsa eksik küçük resimler "
+"oluşturabilirsiniz. Veya piksel boyutunu değiştirdiyseniz tamamen yeni küçük "
+"resimler oluşturabilirsiniz."
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Sorry, but the table script %s could not be found."
+msgstr "Üzgünüz, ancak tablo komut dosyası %s bulunamadı."
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "The original file does not exist."
+msgstr "Orijinal dosya mevcut değil."
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "The function %s does not exist."
+msgstr "0] işlevi mevcut değildir."
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Thumbnail for %s × %s px was created."
+msgstr "0] × %s piksel için küçük resim oluşturuldu."
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Thumbnail for %s × %s px could not be created."
+msgstr "0] × %s piksel için küçük resim oluşturulamadı."
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "No missing thumbnails were found."
+msgstr "Eksik küçük resim bulunamadı."
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "The original file does not contain any data."
+msgstr "Orijinal dosya herhangi bir veri içermez."
