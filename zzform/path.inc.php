@@ -103,7 +103,7 @@ function zz_path_file($def, $record) {
  * @return string
  */
 function zz_path_file2($def, $record) {
-	return zz_makepath($def, $record, 'file');
+	return zz_makepath($def, $record);
 }
 
 
@@ -364,47 +364,44 @@ function zz_path_mode($modes, $content, $error = E_USER_WARNING) {
  *		has no meaning, no sorting will take place, will be shown 1:1),
  *		'field1...n' (field value from record)
  * @param array $record (from $zz_tab or simple line)
- * @param string $type
  * @return string
  */
-function zz_makepath($def, $record, $type) {
+function zz_makepath($def, $record) {
 	// set variables
 	$path['file'] = '';
-	$modes = false;
 	$path['root'] = '';
-	$rootp = false;		// path just for root
-	$webroot = false;	// web root
+	$modes = [];
 	$sql_fields = [];
+	$rootp = false;		// path just for root
 
 	// put path together
-	foreach ($def as $part => $pvalue) {
-		if (!$pvalue) continue;
+	foreach ($def as $part => $value) {
+		if (!$value) continue;
 		while (is_numeric(substr($part, -1))) $part = substr($part, 0, -1);
 		switch ($part) {
 		case 'root':
-			$path['root'] = $pvalue;
+			$path['root'] = $value;
 			break;
 
 		case 'webroot':
-			$webroot = $pvalue;
 			$rootp = $path['file'];
 			$path['file'] = '';
 			break;
 
 		case 'mode':
-			$modes[] = $pvalue;
+			$modes[] = $value;
 			break;
 		
 		case 'string':
-			$path['file'] .= $pvalue;
+			$path['file'] .= $value;
 			break;
 
 		case 'sql_field':
-			$sql_fields[] = $record[$pvalue] ?? '';
+			$sql_fields[] = $record[$value] ?? '';
 			break;
 
 		case 'sql':
-			$sql = $pvalue;
+			$sql = $value;
 			if ($sql_fields) $sql = vsprintf($sql, $sql_fields);
 			$result = wrap_db_fetch($sql, '', 'single value');
 			if ($result) $path['file'] .= $result;
@@ -413,13 +410,13 @@ function zz_makepath($def, $record, $type) {
 
 		case 'extension':
 		case 'field':
-			$content = $record[$pvalue] ?? '';
+			$content = $record[$value] ?? '';
 			if ($modes) {
 				$content = zz_path_mode($modes, $content);
 				if (!$content AND $content !== '0') return '';
 			}
 			$path['file'] .= $content;
-			$modes = false;
+			$modes = [];
 			break;
 
 		case 'webstring':
@@ -433,13 +430,7 @@ function zz_makepath($def, $record, $type) {
 		}
 	}
 
-	switch ($type) {
-		case 'file':
-			// webroot will be ignored
-			return $path['root'].$rootp.$path['file'];
-		case 'local':
-			return $webroot.$path['file'];
-	}
+	return $path['root'].$rootp.$path['file'];
 }
 
 /**
