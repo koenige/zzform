@@ -314,12 +314,10 @@ function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec 
 	// record data
 	switch ($record) {
 	case 'old':
-		$my_tab = $data[$tab];
-		$line = $my_tab[$rec]['existing'] ?? [];
+		$line = $data[$tab][$rec]['existing'] ?? [];
 		break;
 	case 'new':
-		$my_tab = $data[$tab];
-		$line = $my_tab[$rec]['POST'] ?? [];
+		$line = zz_path_record($path, $data, $tab, $rec);
 		break;
 	case 'line':
 		$line = $data;
@@ -365,12 +363,6 @@ function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec 
 		case 'extension':
 		case 'field':
 			$content = $line[$pvalue] ?? '';
-			if (!$content AND $content !== '0' AND $record === 'new') {
-				$content = zz_path_query(
-					$pvalue, $my_tab['sql'], $my_tab[$rec]['id']['value'], 
-					$my_tab['table'].'.'.$my_tab[$rec]['id']['field_name']
-				);
-			}
 			if ($modes) {
 				$content = zz_path_mode($modes, $content);
 				if (!$content AND $content !== '0') return '';
@@ -411,6 +403,33 @@ function zz_makepath($path, $data, $record = 'new', $do = false, $tab = 0, $rec 
 
 	}
 	return $p;
+}
+
+/**
+ * extract a new record from a zz_tab data structure, pre-fetching
+ * missing field values needed by the path definition
+ *
+ * @param array $path path definition
+ * @param array $data $zz_tab
+ * @param int $tab (optional)
+ * @param int $rec (optional)
+ * @return array
+ */
+function zz_path_record($path, $data, $tab = 0, $rec = 0) {
+	$my_tab = $data[$tab];
+	$line = $my_tab[$rec]['POST'] ?? [];
+	foreach ($path as $part => $value) {
+		if (!$value) continue;
+		while (is_numeric(substr($part, -1))) $part = substr($part, 0, -1);
+		if ($part !== 'field' AND $part !== 'extension') continue;
+		if (isset($line[$value]) AND ($line[$value] OR $line[$value] === '0')) continue;
+		$content = zz_path_query(
+			$value, $my_tab['sql'], $my_tab[$rec]['id']['value'],
+			$my_tab['table'].'.'.$my_tab[$rec]['id']['field_name']
+		);
+		if ($content !== false) $line[$value] = $content;
+	}
+	return $line;
 }
 
 /** 
