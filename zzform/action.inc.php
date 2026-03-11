@@ -1479,8 +1479,8 @@ function zz_foldercheck($zz_tab) {
 	if ($zz_tab[0][0]['action'] !== 'update') return $folders;
 
 	foreach ($zz_tab[0]['folder'] as $folder) {
-		$path = zz_makepath($folder, $zz_tab, 'new', 'file');
-		$old_path = zz_makepath($folder, $zz_tab, 'old', 'file');
+		$path = zz_path_file2($folder, $zz_tab);
+		$old_path = zz_path_file2($folder, $zz_tab, 'old');
 		if ($old_path === $path) continue;
 		if (!file_exists($old_path)) continue;
 		if (!file_exists($path)) {
@@ -2951,7 +2951,7 @@ function zz_integrity_check_files($dependent_ids) {
 				
 				foreach ($field['image'] as $image) {
 					foreach ($data as $line) {
-						$path = zz_makepath($image['path'], $line, 'line', 'file');
+						$path = zz_path_file2($image['path'], $line, 'line');
 						if (!$path) continue;
 						zz_upload_cleanup_files($path);
 						$return = true;

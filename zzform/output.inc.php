@@ -293,7 +293,7 @@ function zz_output_redirect($ops, $zz, $zz_tab) {
 		if (wrap_setting('debug'))
 			zz_debug('_time', $ops['return']);
 		if (is_array($redirect))
-			$redirect = zz_makepath($redirect, $zz_tab);
+			$redirect = zz_path_link2($redirect, $zz_tab);
 		wrap_redirect_change($redirect);
 	}
 

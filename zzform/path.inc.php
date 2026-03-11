@@ -25,6 +25,20 @@ function zz_path_link($path, $record) {
 }
 
 /**
+ * get a web path from a path definition and zz_tab data
+ *
+ * @param array $path
+ * @param array $data ($zz_tab or simple line for $record = 'line')
+ * @param string $record 'new', 'old', or 'line'
+ * @param int $tab (optional)
+ * @param int $rec (optional)
+ * @return string
+ */
+function zz_path_link2($path, $data, $record = 'new', $tab = 0, $rec = 0) {
+	return zz_makepath($path, $data, $record, 'local', $tab, $rec);
+}
+
+/**
  * get an HTML img element from a path definition and a flat record
  *
  * @param array $path
@@ -45,6 +59,21 @@ function zz_path_image($path, $record) {
 function zz_path_file($path, $record) {
 	return zz_makelink($path, $record, 'path');
 }
+
+/**
+ * get an absolute filesystem path from a path definition and zz_tab data
+ *
+ * @param array $path
+ * @param array $data ($zz_tab or simple line for $record = 'line')
+ * @param string $record 'new', 'old', or 'line'
+ * @param int $tab (optional)
+ * @param int $rec (optional)
+ * @return string
+ */
+function zz_path_file2($path, $data, $record = 'new', $tab = 0, $rec = 0) {
+	return zz_makepath($path, $data, $record, 'file', $tab, $rec);
+}
+
 
 /** 
  * Creates link or HTML img from path
