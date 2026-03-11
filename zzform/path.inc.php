@@ -21,7 +21,9 @@
  * @return string
  */
 function zz_path_link($def, $record) {
-	return zz_makelink($def, $record, 'link');
+	$path = zz_makelink($def, $record);
+	if (!$path) return '';
+	return $path['web'];
 }
 
 /**
@@ -54,7 +56,9 @@ function zz_path_image($def, $record) {
  * @return string
  */
 function zz_path_file($def, $record) {
-	return zz_makelink($def, $record, 'path');
+	$path = zz_makelink($def, $record);
+	if (!$path) return '';
+	return $path['root'].$path['file'];
 }
 
 /**
@@ -80,17 +84,19 @@ function zz_path_file2($def, $record) {
  * @param array $record current record
  * @param string $type (optional) link, path or image, image will be returned in
  *		<img src="" alt="">
- * @return string URL or HTML-code for image
+ * @return mixed
  */
 function zz_makelink($def, $record, $type = 'link') {
 	if (empty($def['ignore_record']) AND !$record) return '';
 	if (!$def) return '';
-
-	$url = '';
+	
+	$path = [
+		'file' => '',
+		'root' => '',
+		'root_alt' => '',
+		'web' => ''
+	];
 	$modes = [];
-	$path_full = '';		// absolute path in filesystem
-	$path_alternate = '';
-	$path_web[1] = '';		// relative path on website
 	$sets = [];
 	foreach (array_keys($def) as $part) {
 		if (substr($part, 0, 2) !== 'x_') continue;
@@ -99,14 +105,14 @@ function zz_makelink($def, $record, $type = 'link') {
 		$sets[$part] = $part;
 	}
 	foreach ($sets as $myset) {
-		$path_web[$myset] = '';		// relative path to retina image on website
+		$path['srcset'][$myset] = '';		// relative path to retina image on website
 		$set[$myset] = NULL;			// show 2x image
 	}
 	
 	$check_against_root = false;
 
 	if ($type === 'image') {
-		$alt = wrap_text('No image');
+		$path['alt'] = wrap_text('No image');
 		// lock if there is something definitely called extension
 		$alt_locked = false; 
 	}
@@ -153,7 +159,7 @@ function zz_makelink($def, $record, $type = 'link') {
 			$rights = true;
 			if (!empty($def['restrict_to']) AND !empty($record[$def['restrict_to']]))
 				$rights = sprintf('%s:%d', $def['restrict_to'], $record[$def['restrict_to']]);
-			$path_web[1] .= wrap_path($value, $path_values, $rights);
+			$path['web'] .= wrap_path($value, $path_values, $rights);
 			break;
 
 		case 'function':
@@ -163,7 +169,7 @@ function zz_makelink($def, $record, $type = 'link') {
 					if (!isset($record[$function_field])) continue;
 					$params[$function_field] = $record[$function_field];
 				}
-				$path_web[1] .= $value($params);
+				$path['web'] .= $value($params);
 			}
 			break;
 		case 'fields':
@@ -173,27 +179,27 @@ function zz_makelink($def, $record, $type = 'link') {
 		case 'root':
 			$check_against_root = true;
 			// root has to be first element, everything before will be ignored
-			$path_full = $value;
-			if (substr($path_full, -1) !== '/')
-				$path_full .= '/';
+			$path['root'] = $value;
+			if (substr($path['root'], -1) !== '/')
+				$path['root'] .= '/';
 			break;
 
 		case 'alternate_root':
-			$path_alternate = $value;
-			if (substr($path_alternate, -1) !== '/')
-				$path_alternate .= '/';
+			$path['root_alt'] = $value;
+			if (substr($path['root_alt'], -1) !== '/')
+				$path['root_alt'] .= '/';
 			break;
 
 		case 'webroot':
 			// web might come later, ignore parts before for web and add them
 			// to full path
-			$path_web[1] = $value;
+			$path['web'] = $value;
 			foreach ($sets as $myset) {
-				$path_web[$myset] = $value;
+				$path['srcset'][$myset] = $value;
 			}
-			$path_full .= $url;
-			$path_alternate .= $url;
-			$url = '';
+			$path['root'] .= $path['file'];
+			$path['root_alt'] .= $path['file'];
+			$path['file'] = '';
 			break;
 
 		case 'extension':
@@ -210,11 +216,11 @@ function zz_makelink($def, $record, $type = 'link') {
 				$modes = [];
 			}
 			if ($part !== 'webfield') {
-				$url .= $content;
+				$path['file'] .= $content;
 			}
-			$path_web[1] .= $content;
+			$path['web'] .= $content;
 			if ($type === 'image' AND !$alt_locked) {
-				$alt = wrap_text('File: ').$record[$value];
+				$path['alt'] = wrap_text('File: ').$record[$value];
 				if ($part === 'extension') $alt_locked = true;
 			}
 			break;
@@ -231,16 +237,16 @@ function zz_makelink($def, $record, $type = 'link') {
 				if (!$content) break;
 				$modes = [];
 			}
-			$path_web[$current_set] .= $content;
+			$path['srcset'][$current_set] .= $content;
 			break;
 
 		case 'string':
-			$url .= $value;
+			$path['file'] .= $value;
 
 		case 'webstring':
-			$path_web[1] .= $value;
+			$path['web'] .= $value;
 			foreach ($sets as $myset) {
-				$path_web[$myset] .= $value;
+				$path['srcset'][$myset] .= $value;
 			}
 			break;
 
@@ -251,48 +257,43 @@ function zz_makelink($def, $record, $type = 'link') {
 	}
 
 	// get filetype from extension
-	if (strstr($url, '.')) {
-		$ext = strtoupper(substr($url, strrpos($url, '.') + 1));
+	if (strstr($path['file'], '.')) {
+		$ext = strtoupper(substr($path['file'], strrpos($path['file'], '.') + 1));
 	} else {
 		$ext = wrap_text('- unknown -');
 	}
 	
 	if ($check_against_root) {
 		// check whether file exists
-		if (!file_exists($path_full.$url)) {
+		if (!file_exists($path['root'].$path['file'])) {
 			// file does not exist = false
-			if (!$path_alternate) return '';
-			if (!file_exists($path_alternate.$url)) return '';
-			$path_full = $path_alternate;
+			if (!$path['root_alt']) return '';
+			if (!file_exists($path['root_alt'].$path['file'])) return '';
+			$path['root'] = $path['root_alt'];
 		}
 		if ($type === 'image') {
 			// filesize is 0 = looks like error
-			if (!$size = filesize($path_full.$url)) return '';
+			if (!$size = filesize($path['root'].$path['file'])) return '';
 			// getimagesize tests whether it's a web image
 			$filetype_def = wrap_filetypes(strtolower($ext), 'read-per-extension');
-			if (empty($filetype_def['webimage']) AND !getimagesize($path_full.$url)) {
+			if (empty($filetype_def['webimage']) AND !getimagesize($path['root'].$path['file'])) {
 				// if not, return EXT (4.4 MB)
 				return $ext.' ('.wrap_bytes($size).')';
 			}
 		}
 	}
 
-	switch ($type) {
-	case 'path':
-		return $path_full.$url;
-	case 'image':
-		if (!$path_web[1]) return '';
+	if ($type === 'image') {
+		if (!$path['web']) return '';
 		$srcset = [];
 		foreach ($sets as $myset) {
-			if ($set[$myset]) $srcset[] = $path_web[$myset].' '.$myset.'x';
+			if ($set[$myset]) $srcset[] = $path['srcset'][$myset].' '.$myset.'x';
 		}
-		$srcset = $srcset ? sprintf(' srcset="%s 1x, %s"', $path_web[1], implode(', ', $srcset)) : '';
-		$img = '<img src="'.$path_web[1].'"'.$srcset.' alt="'.$alt.'" class="thumb">';
+		$srcset = $srcset ? sprintf(' srcset="%s 1x, %s"', $path['web'], implode(', ', $srcset)) : '';
+		$img = '<img src="'.$path['web'].'"'.$srcset.' alt="'.$path['alt'].'" class="thumb">';
 		return $img;
-	default:
-	case 'link':
-		return $path_web[1];
 	}
+	return $path;
 }
 
 /**
@@ -332,27 +333,26 @@ function zz_path_mode($modes, $content, $error = E_USER_WARNING) {
  */
 function zz_makepath($def, $record, $type) {
 	// set variables
-	$p = false;
+	$path['file'] = '';
 	$modes = false;
-	$root = false;		// root
+	$path['root'] = '';
 	$rootp = false;		// path just for root
 	$webroot = false;	// web root
 	$sql_fields = [];
 
 	// put path together
-	$alt_locked = false;
 	foreach ($def as $part => $pvalue) {
 		if (!$pvalue) continue;
 		while (is_numeric(substr($part, -1))) $part = substr($part, 0, -1);
 		switch ($part) {
 		case 'root':
-			$root = $pvalue;
+			$path['root'] = $pvalue;
 			break;
 
 		case 'webroot':
 			$webroot = $pvalue;
-			$rootp = $p;
-			$p = '';
+			$rootp = $path['file'];
+			$path['file'] = '';
 			break;
 
 		case 'mode':
@@ -360,7 +360,7 @@ function zz_makepath($def, $record, $type) {
 			break;
 		
 		case 'string':
-			$p .= $pvalue;
+			$path['file'] .= $pvalue;
 			break;
 
 		case 'sql_field':
@@ -371,7 +371,7 @@ function zz_makepath($def, $record, $type) {
 			$sql = $pvalue;
 			if ($sql_fields) $sql = vsprintf($sql, $sql_fields);
 			$result = wrap_db_fetch($sql, '', 'single value');
-			if ($result) $p .= $result;
+			if ($result) $path['file'] .= $result;
 			$sql_fields = [];
 			break;
 
@@ -382,11 +382,7 @@ function zz_makepath($def, $record, $type) {
 				$content = zz_path_mode($modes, $content);
 				if (!$content AND $content !== '0') return '';
 			}
-			$p .= $content;
-			if (!$alt_locked) {
-				$alt = wrap_text('File: ').$content;
-				if ($part === 'extension') $alt_locked = true;
-			}
+			$path['file'] .= $content;
 			$modes = false;
 			break;
 
@@ -404,9 +400,9 @@ function zz_makepath($def, $record, $type) {
 	switch ($type) {
 		case 'file':
 			// webroot will be ignored
-			return $root.$rootp.$p;
+			return $path['root'].$rootp.$path['file'];
 		case 'local':
-			return $webroot.$p;
+			return $webroot.$path['file'];
 	}
 }
 
