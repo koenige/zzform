@@ -134,6 +134,7 @@ function zz_makelink($def, $record) {
 		'web' => ''
 	];
 	$modes = [];
+	$sql_fields = [];
 	$sets = [];
 	foreach (array_keys($def) as $part) {
 		if (substr($part, 0, 2) !== 'x_') continue;
@@ -279,6 +280,31 @@ function zz_makelink($def, $record) {
 
 		case 'mode':
 			$modes[] = $value;
+			break;
+
+		case 'sql_field':
+			$sql_fields[] = $record[$value] ?? '';
+			break;
+
+		case 'sql':
+			$sql = $value;
+			if ($sql_fields) $sql = vsprintf($sql, $sql_fields);
+			$result = wrap_db_fetch($sql, '', 'single value');
+			if ($result) {
+				$path['file'] .= $result;
+				$path['web'] .= $result;
+			}
+			$sql_fields = [];
+			break;
+
+		case 'area_fields':
+		case 'extension_missing':
+		case 'ignore_record':
+		case 'target':
+			break;
+
+		default:
+			wrap_error(sprintf('Unknown definition key %s in %s', $part, __FUNCTION__), E_USER_NOTICE);
 			break;
 		}
 	}
