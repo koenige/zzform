@@ -1181,7 +1181,7 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 	$image = zz_upload_merge_options($image, $zz_tab[$tab], $rec);
 	if (!empty($image['on_request'])) {
 		// on request = do not create file, just update it if it was created on request
-		$source_filename = zz_path_file2($image['path'], $zz_tab[$tab][$rec]['existing'] ?? []);
+		$source_filename = zz_path_file($image['path'], $zz_tab[$tab][$rec]['existing'] ?? [], ['skip_file_check' => true]);
 		if (!file_exists($source_filename)) return $image;
 	}
 	if (!empty($image['ignore'])) return $image;
@@ -1230,7 +1230,7 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
 				// no new file was uploaded, nothing to do
 				// but: check if all thumbnails already exist (due to errors or
 				// change in thumbnail definition!)
-				$thumb_filename = zz_path_file2($image['path'], $zz_tab[$tab][$rec]['existing'] ?? []);
+				$thumb_filename = zz_path_file($image['path'], $zz_tab[$tab][$rec]['existing'] ?? [], ['skip_file_check' => true]);
 				if (!file_exists($thumb_filename)) {
 					list($image, $source_filename) = zz_upload_create_source($image, $src_image['path'], $zz_tab);
 				} else {
@@ -1320,7 +1320,7 @@ function zz_upload_prepare_file($zz_tab, $tab, $rec, $no, $img) {
  * @return array
  */
 function zz_upload_create_source($image, $path, $zz_tab, $tab = 0, $rec = 0) {
-	$source_filename = zz_path_file2($path, $zz_tab[$tab][$rec]['existing'] ?? []);
+	$source_filename = zz_path_file($path, $zz_tab[$tab][$rec]['existing'] ?? [], ['skip_file_check' => true]);
 	if (!file_exists($source_filename)) {
 		$image['upload'] = [];
 		if (empty($image['optional_image'])) {
@@ -1384,7 +1384,7 @@ function zz_upload_prepare_source_file($image, $my_rec, $zz_tab, $tab, $rec) {
 	$old_record = zz_db_fetch($sql);
 	if (!$old_record) {
 		// does file exist?
-		$thumb_filename = zz_path_file2($image['path'], $zz_tab[$tab][$rec]['existing'] ?? []);
+		$thumb_filename = zz_path_file($image['path'], $zz_tab[$tab][$rec]['existing'] ?? [], ['skip_file_check' => true]);
 		if (file_exists($thumb_filename)) return false;
 		$old_record = zz_db_fetch($old_sql);
 	}
@@ -2017,14 +2017,14 @@ function zz_upload_delete_file($zz_tab) {
 		}
 		$val = &$zz_tab[0][0]['images'][$no][$image];
 		// new path is not interesting, old picture shall be deleted
-		$old_path = zz_path_file2($val['path'], $zz_tab[0][0]['existing'] ?? []);
+		$old_path = zz_path_file($val['path'], $zz_tab[0][0]['existing'] ?? [], ['skip_file_check' => true]);
 		$success = zz_upload_delete($old_path, false, $action);
 		if (!$success) return zz_return($zz_tab);
 		foreach ($zz_tab[0][0]['images'][$no] as $img => $other_image) {
 			if (!is_numeric($img)) continue;
 			if (!isset($other_image['source'])) continue;
 			if ($other_image['source'] != $image) continue;
-			$old_path = zz_path_file2($other_image['path'], $zz_tab[0][0]['existing'] ?? []);
+			$old_path = zz_path_file($other_image['path'], $zz_tab[0][0]['existing'] ?? [], ['skip_file_check' => true]);
 			$success = zz_upload_delete($old_path, false, $action);
 			if (!$success) return zz_return($zz_tab);
 		}
@@ -2081,7 +2081,7 @@ function zz_upload_action($zz_tab) {
 
 		// 	delete
 			if ($action === 'delete') {
-				$filename = zz_path_file2($val['path'], $zz_tab[$tab][$rec]['existing'] ?? []);
+				$filename = zz_path_file($val['path'], $zz_tab[$tab][$rec]['existing'] ?? [], ['skip_file_check' => true]);
 				$show_filename = true;
 				// optional files: don't show error message!
 				if (!$filename) $show_filename = false;
@@ -2108,8 +2108,8 @@ function zz_upload_action($zz_tab) {
 			$old_path = ''; // initialize here, will be used later with delete_thumbnail
 			if ($action === 'update' AND !empty($my_rec['existing'])) {
 				$record_new = zz_path_record($val['path'], $zz_tab[$tab], $rec);
-				$path = zz_path_file2($val['path'], $record_new);
-				$old_path = zz_path_file2($val['path'], $zz_tab[$tab][$rec]['existing'] ?? []);
+				$path = zz_path_file($val['path'], $record_new, ['skip_file_check' => true]);
+				$old_path = zz_path_file($val['path'], $zz_tab[$tab][$rec]['existing'] ?? [], ['skip_file_check' => true]);
 				if ($zz_tab[0]['folder']) {
 					foreach ($zz_tab[0]['folder'] as $folder) {
 						// escape foldername, preg_match delimiters will
@@ -2132,7 +2132,7 @@ function zz_upload_action($zz_tab) {
 		// insert, update
 			if ($uploaded_file) {
 				$record_new = zz_path_record($val['path'], $zz_tab[$tab], $rec);
-				$image['files']['destination'] = zz_path_file2($val['path'], $record_new);
+				$image['files']['destination'] = zz_path_file($val['path'], $record_new, ['skip_file_check' => true]);
 				$success = zz_upload_insert($uploaded_file, $image['files']['destination'], $action);
 				if (!$success) zz_return($zz_tab);
 				$zz_tab['files'][] = ['filename' => $image['files']['destination'], 'action' => $action];

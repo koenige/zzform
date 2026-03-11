@@ -18,16 +18,14 @@
  *
  * @param array $def
  * @param array $record
- * @param array $settings
+ * @param array $settings (optional)
  * @return string
  */
 function zz_path_link($def, $record, $settings = []) {
 	$path = zz_path($def, $record);
 	if (!$path) return '';
-	if (empty($settings['skip_file_check'])) {
-		$path = zz_path_exists($path);
-		if (!$path) return '';
-	}
+	$path = zz_path_exists($path, $settings);
+	if (!$path) return '';
 	return $path['web'];
 }
 
@@ -85,27 +83,16 @@ function zz_path_image($def, $record) {
  *
  * @param array $def
  * @param array $record
+ * @param array $settings (optional)
  * @return string
  */
-function zz_path_file($def, $record) {
+function zz_path_file($def, $record, $settings = []) {
 	$path = zz_path($def, $record);
 	if (!$path) return '';
-	$path = zz_path_exists($path);
+	$path = zz_path_exists($path, $settings);
 	if (!$path) return '';
 	return $path['root'].$path['file'];
 }
-
-/**
- * get an absolute filesystem path from a path definition and a flat record
- *
- * @param array $def
- * @param array $record
- * @return string
- */
-function zz_path_file2($def, $record) {
-	return zz_makepath($def, $record);
-}
-
 
 /** 
  * build path components from a path definition and a flat record
@@ -318,7 +305,10 @@ function zz_path($def, $record) {
  * @param array $path
  * @return array
  */
-function zz_path_exists($path) {
+function zz_path_exists($path, $settings = []) {
+	// no check wanted?
+	if (!empty($settings['skip_file_check'])) return $path;
+
 	// no root = no check possible
 	if (!$path['root']) return $path;
 
@@ -352,85 +342,6 @@ function zz_path_mode($modes, $content, $error = E_USER_WARNING) {
 		$content = $mode($content);
 	}
 	return $content;
-}
-
-/** 
- * Construct path from values
- * 
- * @param array $def array with variables which make path
- *		'root' (DOCUMENT_ROOT), 'webroot' (different root for web, all fields
- *		and strings before webroot will be ignored for this), 'mode' (function  
- *		to do something with strings from now on), 'string1...n' (string, number
- *		has no meaning, no sorting will take place, will be shown 1:1),
- *		'field1...n' (field value from record)
- * @param array $record (from $zz_tab or simple line)
- * @return string
- */
-function zz_makepath($def, $record) {
-	// set variables
-	$path['file'] = '';
-	$path['root'] = '';
-	$modes = [];
-	$sql_fields = [];
-	$rootp = false;		// path just for root
-
-	// put path together
-	foreach ($def as $part => $value) {
-		if (!$value) continue;
-		while (is_numeric(substr($part, -1))) $part = substr($part, 0, -1);
-		switch ($part) {
-		case 'root':
-			$path['root'] = $value;
-			break;
-
-		case 'webroot':
-			$rootp = $path['file'];
-			$path['file'] = '';
-			break;
-
-		case 'mode':
-			$modes[] = $value;
-			break;
-		
-		case 'string':
-			$path['file'] .= $value;
-			break;
-
-		case 'sql_field':
-			$sql_fields[] = $record[$value] ?? '';
-			break;
-
-		case 'sql':
-			$sql = $value;
-			if ($sql_fields) $sql = vsprintf($sql, $sql_fields);
-			$result = wrap_db_fetch($sql, '', 'single value');
-			if ($result) $path['file'] .= $result;
-			$sql_fields = [];
-			break;
-
-		case 'extension':
-		case 'field':
-			$content = $record[$value] ?? '';
-			if ($modes) {
-				$content = zz_path_mode($modes, $content);
-				if (!$content AND $content !== '0') return '';
-			}
-			$path['file'] .= $content;
-			$modes = [];
-			break;
-
-		case 'webstring':
-		case 'webfield':
-		case 'extension_missing':
-			break;
-
-		default:
-			wrap_error(sprintf('Unknown mode %s in %s', $part, __FUNCTION__), E_USER_NOTICE);
-			break;
-		}
-	}
-
-	return $path['root'].$rootp.$path['file'];
 }
 
 /**
