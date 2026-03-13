@@ -618,7 +618,8 @@ function zz_prepare_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 			$my_tab['subtable_add'] = [];
 			$my_tab['subtable_focus'] = $my_tab['records'];
 			$my_tab['records']++;
-			$added_rec = end(array_keys($records)) + 1;
+			$added_rec = array_keys($records);
+			$added_rec = end($added_rec) + 1;
 		}
 		if ($my_tab['records'] < $my_tab['min_records']) 
 			$my_tab['records'] = $my_tab['min_records'];
