@@ -1,9 +1,9 @@
 # zzform module
-# Deprecated code patterns
+# Deprecated code patterns and breaking changes
 #
-# This file lists deprecated code patterns that should be replaced
-# with newer alternatives. The deprecation checker will scan the
-# codebase and notify developers about occurrences that need updating.
+# This file lists deprecated code patterns (replace with newer alternatives)
+# and breaking changes (migration notes). The checker scans the codebase
+# for deprecations; breaking changes are shown as informational only.
 #
 # Part of »Zugzwang Project«
 # https://www.zugzwang.org/modules/zzform
@@ -88,3 +88,5 @@
 2026-01-10-3	code	['if']['batch']	use `['if']['batch_mode']`
 2026-01-10-4	code	$zz_conf['generate_output']	inside a zzform() call use !wrap_static('zzform_output', 'batch_mode')
 2026-01-11-1	code	$zz_conf['revisions_url']	use $zz['revisions_url']
+2026-03-14-1	code	zzform_sync_path	removed, paths from routes; use wrap_path()
+2026-03-14-2	code	zzform_sync_server_path	removed, paths from routes; use wrap_path()
