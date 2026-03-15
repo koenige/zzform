@@ -168,10 +168,10 @@ function zz_path($def, $record) {
 					$area_values[] = $record[$this_field];
 				$value = vsprintf($value, $area_values);
 			}
-			$rights = true;
+			$settings = ['hide_missing' => true];
 			if (!empty($def['restrict_to']) AND !empty($record[$def['restrict_to']]))
-				$rights = sprintf('%s:%d', $def['restrict_to'], $record[$def['restrict_to']]);
-			$path['web'] .= wrap_path($value, $path_values, $rights);
+				$settings['details'] = sprintf('%s:%d', $def['restrict_to'], $record[$def['restrict_to']]);
+			$path['web'] .= wrap_path($value, $path_values, $settings);
 			break;
 
 		case 'function':
