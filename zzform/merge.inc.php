@@ -146,12 +146,13 @@ function zz_merge_records($zz) {
 					];
 					$uncheck = true;
 				} else {
+					$table_name = str_replace('_', '-', $record['detail_table']);
 					$msg[] = [
 						'fail_'.$action => true,
 						'table' => $record['detail_table'],
 						'record_id' => $record_id,
 						'db_msg' => $result['error']['db_msg'], 
-						'action' => wrap_path('default_tables', str_replace('_', '-', $record['detail_table']))
+						'action' => wrap_path('default_tables', $table_name)
 					];
 					$error = true;
 				}
