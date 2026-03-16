@@ -617,9 +617,8 @@ function zz_prepare_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 		if ($my_tab['subtable_add']) {
 			$my_tab['subtable_add'] = [];
 			$my_tab['subtable_focus'] = $my_tab['records'];
+			$added_rec = $my_tab['records']; // 'record' count is 1-based, use as 0-based index
 			$my_tab['records']++;
-			$added_rec = array_keys($records);
-			$added_rec = end($added_rec) + 1;
 		}
 		if ($my_tab['records'] < $my_tab['min_records']) 
 			$my_tab['records'] = $my_tab['min_records'];
@@ -1145,7 +1144,7 @@ function zz_prepare_subrecords_structure($my_tab, $rec_tpl, $existing_ids, $adde
 			if (empty($field['default_next_if_not'])) continue;
 			$field_name = $field['field_name'];
 			$last_val = $my_tab[$last_rec]['POST'][$field_name] ?? null;
-			if ($last_val === null || (string) $last_val === (string) $subfield['default_next_if_not'])
+			if ($last_val === null || (string) $last_val === (string) $field['default_next_if_not'])
 				continue;
 			$next_val = zz_prepare_next_select_value($field, $last_val);
 			if ($next_val === null) continue;
