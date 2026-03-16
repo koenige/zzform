@@ -829,6 +829,18 @@ function zz_fill_out($fields, $db_table, $multiple_times = false, $mode = false,
 			if (!empty($fields[$no]['value']) AND $fields[$no]['value'] === 'current_date') {
 				$fields[$no]['value'] = date('Y-m-d H:i:s');
 			}
+			// same for if/unless (merged later, so replace placeholder here)
+			foreach (['if', 'unless'] as $cond_key) {
+				if (empty($fields[$no][$cond_key])) continue;
+				foreach ($fields[$no][$cond_key] as $condition => $cond_values) {
+					if (!is_array($cond_values)) continue;
+					foreach (['default', 'value'] as $key) {
+						if (!empty($cond_values[$key]) AND $cond_values[$key] === 'current_date') {
+							$fields[$no][$cond_key][$condition][$key] = date('Y-m-d H:i:s');
+						}
+					}
+				}
+			}
 			if (!empty($fields[$no]['default']) AND !empty($fields[$no]['round_date'])) {
 				wrap_include('format', 'zzform');
 				$fields[$no]['default'] = zzform_round_date($fields[$no]['default']);
