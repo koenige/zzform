@@ -1467,6 +1467,16 @@ function zz_record_access($zz, $ops) {
 	$modes = ['add' => 'insert', 'edit' => 'update', 'delete' => 'delete'];
 	foreach ($modes as $mode => $action) {
 		if (!$zz['record'][$mode] AND $ops['mode'] === $mode) {
+			if ($mode === 'delete' AND $zz_conf['int']['id']['value']) {
+				$sql = sprintf('SELECT %s FROM %s WHERE %s = %d',
+					$zz_conf['int']['id']['field_name'], $zz['table'],
+					$zz_conf['int']['id']['field_name'], $zz_conf['int']['id']['value']
+				);
+				if (!zz_db_fetch($sql, '', 'single value')) {
+					$ops['mode'] = 'show';
+					continue;
+				}
+			}
 			$ops['mode'] = false;
 			zz_error_log([
 				'msg_dev' => 'Configuration does not allow this mode: %s',

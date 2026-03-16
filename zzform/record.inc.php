@@ -46,7 +46,7 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 	} elseif (is_array($zz_conf['int']['id']['value'])) {
 		$records = count($zz_conf['int']['id']['value']);
 	}
-	if (isset($_GET['delete'])) {
+	if (isset($_GET['delete']) AND empty($_GET['delete'])) {
 		$action_before_redirect = 'delete';
 	} elseif (isset($_GET['insert'])) {
 		$action_before_redirect = 'insert';
