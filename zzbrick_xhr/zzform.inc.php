@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2016-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2016-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -223,5 +223,8 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 		$data['entries'][$i]['text'] = implode($concat, $text).' ';
 		$i++;
 	}
+	$data['_query_strings'] = [
+		'field_no', 'subtable_no', 'unrestricted', 'add', 'zz_id_value'
+	];
 	return $data;
 }

@@ -1172,6 +1172,7 @@ function zz_record_access($zz, $ops) {
 
 	case !empty($_GET['mode']):
 		// standard case, get mode from URL
+		// @deprecated
 		if (in_array($_GET['mode'], wrap_setting('zzform_allowed_modes'))) {
 			$ops['mode'] = $_GET['mode']; // set mode from URL
 			if (in_array($ops['mode'], ['edit', 'delete', 'show'])
@@ -1508,6 +1509,67 @@ function zz_record_access($zz, $ops) {
 		$zz_conf['int']['record'] = false;	// don't show record
 
 	return zz_return([$zz, $ops]);
+}
+
+/**
+ * Allowed URL query strings for zzform, by what is actually allowed
+ * (build from zzform_search, $zz['record'], $zz['list'], $zz['filter'] etc.)
+ *
+ * @param array $zz form definition after zz_record_access()
+ * @return array
+ */
+function zz_query_strings_allowed($zz) {
+	// form internals (submission, redirects, uploads)
+	$strings = [
+		'referer', 'nolist', 'zz',
+		'where', // @todo check if this should be disallowed on some forms
+		'file', // @todo 'file' what is this for?
+		'thumbs', 'field' // @todo 'thumbs', 'fields' better use separate script for thumbnails?
+	];
+	if (wrap_setting('zzform_search')) {
+		$strings[] = 'q';
+		$strings[] = 'scope';
+	}
+	if (!empty($zz['record']['add'])
+		OR !empty($zz['record']['edit'])
+		OR !empty($zz['record']['view'])
+		OR !empty($zz['record']['delete'])
+	) {
+		$strings[] = 'mode'; // @deprecated
+		$strings[] = 'id'; // @deprecated
+		$strings[] = 'zzhash';
+		$strings[] = 'focus';
+	}
+	if (!empty($zz['record']['add'])) {
+		$strings[] = 'add';
+		$strings[] = 'insert';
+		if (!empty($zz['record']['copy']))
+			$strings[] = 'source_id';
+	}
+	if (!empty($zz['record']['edit'])) {
+		$strings[] = 'edit';
+		$strings[] = 'update';
+		$strings[] = 'noupdate';
+		$strings[] = 'revise'; // @todo check if revisions are allowed
+	}
+	if (!empty($zz['record']['view'])) {
+		$strings[] = 'show';
+	}
+	if (!empty($zz['record']['delete'])) {
+		$strings[] = 'delete';
+	}
+	if (!empty($zz['list']['display'])) {
+		$strings[] = 'filter';
+		$strings[] = 'order';
+		$strings[] = 'dir';
+		$strings[] = 'group';
+		$strings[] = 'limit';
+		$strings[] = 'export';
+		if (!empty($zz['list']['merge'])) {
+			$strings[] = 'merge';
+		}
+	}
+	return $strings;
 }
 
 /** 

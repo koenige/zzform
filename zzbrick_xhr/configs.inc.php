@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2020-2021, 2023-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2020-2021, 2023-2024, 2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -24,6 +24,7 @@
  */
 function mod_zzform_xhr_configs($xmlHttpRequest, $zz) {
 	$data = [];
+	$data['_query_strings'] = ['field_no', 'subtable_no', 'unrestricted'];
 	$text = mb_strtolower($xmlHttpRequest['text']);
 	$limit = $xmlHttpRequest['limit'] + 1;
 	

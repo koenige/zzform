@@ -172,6 +172,10 @@ function zzform($zz) {
 	list($zz, $ops) = zz_record_access($zz, $ops);
 	$ops['error'] = zz_error_multi($ops['error']);
 
+	if (!wrap_static('zzform_output', 'batch_mode')) {
+		wrap_static('page', 'query_strings', zz_query_strings_allowed($zz));
+	}
+
 	// mode won't be changed anymore before record operations
 	// action won't be changed before record operations
 	// (there it will be changed depending on outcome of db operations)

@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2017, 2020-2021, 2023-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2017, 2020-2021, 2023-2024, 2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -22,6 +22,8 @@
  */
 function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 	zz_initialize();
+	$data = [];
+	$data['_query_strings'] = ['field_no', 'subtable_no', 'rec'];
 
 	// might be forms, request, ... => process usual way and get script name from there
 	$field_no = $_GET['field_no'] ?? 0;
@@ -43,14 +45,14 @@ function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 		$field = $zz['fields'][$field_no];
 	}
 
-	if (empty($field['dependencies'])) return []; // would not make sense
+	if (empty($field['dependencies'])) return $data; // would not make sense
 	$sources = [$_GET['field_no']];
 	if (!empty($field['dependencies_sources'])) {
 		$sources = array_merge($sources, $field['dependencies_sources']);
 	}
 	$input = $xmlHttpRequest['text'];
 	foreach ($sources as $source) {
-		if (empty($input[$source])) return []; // not enough data
+		if (empty($input[$source])) return $data; // not enough data
 		if (is_array($input[$source]))
 			return brick_xhr_error(400, 'malformed request', $xmlHttpRequest);
 	}
@@ -65,8 +67,8 @@ function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 		}
 		if (!empty($my_field['sql'])) {
 			$select = zz_check_select_id($my_field, $input[$source]);
-			if (empty($select['possible_values'])) return [];
-			if (count($select['possible_values']) !== 1) return [];
+			if (empty($select['possible_values'])) return $data;
+			if (count($select['possible_values']) !== 1) return $data;
 			$values[] = reset($select['possible_values']);
 		} elseif (!empty($my_field['cfg'])) {
 			if (array_key_exists(trim($input[$source]), $my_field['cfg']))
@@ -79,7 +81,6 @@ function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 		$values = $field['dependencies_function']($values);
 	}
 	
-	$data = [];
 	foreach ($field['dependencies'] as $index => $dependency) {
 		$this_subtable_no = !empty($subtable_no) ? $subtable_no : false;
 		if (strstr($dependency, '.'))
