@@ -296,6 +296,14 @@ body #zzform .separator hr
 #zzform #record .zz-set li input + p
 					{ margin-top: -1.15rem; }
 
+
+/* record view, key_value table */
+#zzform #record .zz-key-value th
+					{ padding: .25rem .5rem 0 0; }
+#zzform #record .zz-key-value td
+					{ padding: .25rem .5rem 0 0; }
+
+
 /* progress bar */
 #zzform_upload_progress_bar
 					{ width: 300px; }

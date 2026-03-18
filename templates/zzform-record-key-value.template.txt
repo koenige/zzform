@@ -1,0 +1,28 @@
+# zzform
+# Template for key-value subtables
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzform
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2026 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+%%% loop hidden %%%
+<input type="hidden" name="%%% item name %%%" value="%%% item value %%%">
+%%% loop end %%%
+<table class="zz-key-value">
+%%% loop start %%%
+<tr>
+%%% if main__form_display %%%
+<th><label for="%%% item id %%%">%%% item title %%%</label></th>
+<td><input type="hidden" name="%%% item key_name %%%" value="%%% item key_value %%%"><input type="%%% item input_type %%%" name="%%% item input_name %%%" id="%%% item id %%%" value="%%% item input_value %%%"%%% item size " size=\"%s\"" %%%%%% item placeholder " placeholder=\"%s\"" %%%>%%% item unit %%%</td>
+%%% else %%%
+%%% if input_value %%%
+<th>%%% item title %%%</th>
+<td>%%% item input_value %%%</td>
+%%% endif %%%
+%%% endif %%%
+</tr>
+%%% loop end %%%
+</table>

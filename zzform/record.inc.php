@@ -686,6 +686,14 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 					$out['tr']['attr'][] = 'error'; 
 			}
 
+		} elseif ($field['type'] === 'subtable' AND $field['form_display'] === 'key_value') {
+			$my_tab = $zz_tab[$field['subtable']];
+			if (array_key_exists(0, $my_tab)) {
+				$out['td']['content'] .= zz_field_subtable_key_value($field, $field_display, $my_tab);
+				if (zz_record_subtable_error($my_tab))
+					$out['tr']['attr'][] = 'error';
+			}
+
 		} elseif (in_array($field['type'], ['subtable', 'foreign_table']) AND $field['form_display'] === 'inline') {
 			$subtable_rows = zz_record_rows(
 				$zz_tab, $mode, $field_display, $zz_record,
@@ -2592,6 +2600,149 @@ function zz_field_subtable_set($subtable, $display, $my_tab) {
 	if ($group AND $display === 'form') $data[$last_index]['list_close'][]['close'] = true;
 	if ($display === 'form') $data['form_display'] = true;
 	return wrap_template('zzform-record-checkbox', $data);
+}
+
+/**
+ * Output subtable with form_display = 'key_value'
+ * shows all categories as labels with an input field for the value;
+ * a record is saved if the value field is non-empty
+ *
+ * @param array $subtable field definition of subtable
+ * @param string $display 'form' or display mode
+ * @param array $my_tab subtable data
+ * @return string HTML output
+ */
+function zz_field_subtable_key_value($subtable, $display, $my_tab) {
+	global $zz_conf;
+
+	$key_field = [];
+	$value_field = [];
+	$field_names = [];
+	foreach ($my_tab[0]['fields'] as $index => $my_field) {
+		$field_names[$my_field['type']] = $my_field['field_name'];
+		if (!empty($my_field['subtable_key'])) {
+			$key_field = $my_field;
+			$key_field_name = $my_field['field_name'];
+		}
+		if (!empty($my_field['subtable_value'])) {
+			$value_field = $my_field;
+			$value_field_name = $my_field['field_name'];
+		}
+	}
+	if (!$key_field) {
+		zz_error_log([
+			'msg_dev' => 'For a subtable with form_display = `key_value`, a field with `subtable_key` = true is required.',
+			'level' => E_USER_ERROR
+		]);
+		zz_error();
+		return '';
+	}
+	if (!$value_field) {
+		zz_error_log([
+			'msg_dev' => 'For a subtable with form_display = `key_value`, a field with `subtable_value` = true is required.',
+			'level' => E_USER_ERROR
+		]);
+		zz_error();
+		return '';
+	}
+
+	$sets = zz_field_query($key_field);
+	if (!$sets) return '';
+	foreach ($sets as $index => $line)
+		$sets[$index] = zz_field_select_ignore($line, $key_field, 'sql');
+
+	$sets = zz_field_select_hierarchy($key_field, $sets);
+
+	if (!empty($key_field['show_hierarchy'])) {
+		foreach ($sets as $index => $set)
+			unset($sets[$index][$key_field['show_hierarchy']]);
+	}
+	if (!$sets) return '';
+
+	$sets = zz_translate($key_field, $sets);
+
+	$exemplary_set = reset($sets);
+	$set_id_field_name = '';
+	$set_field_names = [];
+	foreach (array_keys($exemplary_set) as $key) {
+		if (!$set_id_field_name) $set_id_field_name = $key;
+		else $set_field_names[] = $key;
+	}
+	foreach ($sets as $set) {
+		$title = [];
+		foreach ($set_field_names as $set_field_name) {
+			if (!$set[$set_field_name]) continue;
+			if ($set_field_name === 'zz_level') continue;
+			$title[] = $set[$set_field_name];
+		}
+		$sets_indexed[$set[$set_id_field_name]] = [
+			'id' => $set[$set_id_field_name],
+			'title' => zz_field_concat($key_field, $title),
+			'zz_level' => zz_field_select_level_set($set['zz_level'] ?? 0)
+		];
+	}
+
+	$rec_max = 0;
+	foreach ($my_tab as $rec_no => $rec) {
+		if (!is_numeric($rec_no)) continue;
+		if (!empty($rec['record'])) {
+			$rec_data = $rec['record'];
+			if (array_key_exists($key_field_name, $rec_data)
+				AND array_key_exists($rec_data[$key_field_name], $sets_indexed)) {
+				$sets_indexed[$rec_data[$key_field_name]]['rec_id'] = $rec_data[$field_names['id']] ?? '';
+				$sets_indexed[$rec_data[$key_field_name]]['input_value'] = $rec_data[$value_field_name] ?? '';
+				$sets_indexed[$rec_data[$key_field_name]]['rec_no'] = $rec_no;
+			}
+			if ($rec_no > $rec_max) $rec_max = $rec_no;
+		}
+	}
+	foreach ($sets_indexed as $index => $set) {
+		if (isset($set['rec_no'])) continue;
+		$sets_indexed[$index]['rec_no'] = ++$rec_max;
+	}
+
+	$input_type = 'text';
+	if (!empty($value_field['type']) AND in_array($value_field['type'], ['number', 'url', 'mail']))
+		$input_type = $value_field['type'];
+
+	$data = [];
+	foreach ($sets_indexed as $index => $set) {
+		if ($display === 'form') {
+			if (!empty($set['rec_id'])) {
+				$data['hidden'][] = [
+					'name' => sprintf('%s[%d][%s]',
+						$subtable['table_name'], $set['rec_no'], $field_names['id']
+					),
+					'value' => $set['rec_id']
+				];
+			}
+			$data[$index] = [
+				'id' => sprintf('kv-%s-%d', $subtable['table_name'], $set['rec_no']),
+				'title' => $set['title'],
+				'key_name' => sprintf('%s[%d][%s]', $subtable['table_name'], $set['rec_no'], $key_field_name),
+				'key_value' => $set['id'],
+				'input_name' => sprintf('%s[%d][%s]', $subtable['table_name'], $set['rec_no'], $value_field_name),
+				'input_value' => $set['input_value'] ?? '',
+				'input_type' => $input_type
+			];
+			if (!empty($value_field['size']))
+				$data[$index]['size'] = $value_field['size'];
+			if (!empty($value_field['placeholder']))
+				$data[$index]['placeholder'] = $value_field['placeholder'];
+			if (!empty($value_field['unit']))
+				$data[$index]['unit'] = ' '.$value_field['unit'];
+		} elseif (!empty($set['rec_id']) AND !empty($set['title'])) {
+			$data[$index] = [
+				'title' => $set['title'],
+				'input_value' => $set['input_value'] ?? ''
+			];
+		}
+		$data[$index]['level'] = $set['zz_level'] ?? 0;
+	}
+	if (!$data) return '';
+	$data = zz_field_select_levels($data);
+	if ($display === 'form') $data['form_display'] = true;
+	return wrap_template('zzform-record-key-value', $data);
 }
 
 /**

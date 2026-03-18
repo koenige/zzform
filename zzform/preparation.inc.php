@@ -623,7 +623,7 @@ function zz_prepare_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 		if ($my_tab['records'] < $my_tab['min_records']) 
 			$my_tab['records'] = $my_tab['min_records'];
 		// always show one record minimum
-		if (!empty($field['form_display']) AND $field['form_display'] === 'set')
+		if (!empty($field['form_display']) AND in_array($field['form_display'], ['set', 'key_value']))
 			$zz_record['always_show_empty_detail_record'] = true;
 		if (!empty($zz_record['always_show_empty_detail_record']))
 			if (!$my_tab['records']) $my_tab['records'] = 1;
@@ -643,6 +643,12 @@ function zz_prepare_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 				$field['fields'][$no] = array_merge($field['fields'][$no], $subfield['if_single_record']);
 				$rec_tpl['fields'][$no] = $field['fields'][$no];
 			}
+		}
+	}
+	foreach ($field['fields'] as $no => $subfield) {
+		if (!empty($subfield['subtable_key'])) {
+			$field['fields'][$no]['for_action_ignore'] = true;
+			$rec_tpl['fields'][$no] = $field['fields'][$no];
 		}
 	}
 	
@@ -681,7 +687,7 @@ function zz_prepare_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 			// set values, rewrite POST-Array
 			$my_tab = zz_prepare_subrecord_values($my_tab, $rec);
 		}
-	} elseif ($zz_record['action'] AND !empty($field['form_display']) AND $field['form_display'] === 'set') {
+	} elseif ($zz_record['action'] AND !empty($field['form_display']) AND in_array($field['form_display'], ['set', 'key_value'])) {
 		// here, we might need an empty record if field is required (min_records_required = 1)
 		$my_tab[0] = $rec_tpl;
 		$my_tab[0]['save_record'] = '';

@@ -121,7 +121,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 			$zz_tab[0][0]['fields'][$my_tab['no']]['check_validation'] = false;
 			// show error message
 			if (empty($zz_tab[0][0]['fields'][$my_tab['no']]['dont_show_missing'])) {
-				if (empty($zz_tab[0][0]['fields'][$my_tab['no']]['form_display']) OR $zz_tab[0][0]['fields'][$my_tab['no']]['form_display'] !== 'set') {
+				if (empty($zz_tab[0][0]['fields'][$my_tab['no']]['form_display']) OR !in_array($zz_tab[0][0]['fields'][$my_tab['no']]['form_display'], ['set', 'key_value'])) {
 					zz_error_validation_log('msg', 'Minimum of records for table `%s` was not met (%d).');
 					zz_error_validation_log('msg_args', wrap_text($zz_tab[0][0]['fields'][$my_tab['no']]['title'], ['source' => wrap_static('zzform', 'script_path')]));
 					zz_error_validation_log('msg_args', $my_tab['min_records_required']);
