@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2006-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2006-2023, 2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  * @todo
  *	identify -list Format
@@ -130,16 +130,25 @@ function zz_imagick_identify($filename, $file) {
 }
 
 /**
- * checks whether filetype has multiple pages
+ * Select a single input frame/page for ImageMagick convert
+ *
+ * Types with multipage = 1 in filetypes.cfg get path[n] (default frame 0).
+ * so convert emits one output file.
  *
  * @param string $source
  * @param string $filetype
- * @param return $source
+ * @param array $image
+ * @return string
  */
 function zz_imagick_check_multipage($source, $filetype, $image) {
 	if (!$filetype)
-		$filetype = substr($source, strrpos($source, '.') +1);
+		$filetype = substr($source, strrpos($source, '.') + 1);
 	$filetype_def = wrap_filetypes($filetype);
+
+	// does an input frame already exist?
+	if (preg_match('/\[\d+]$/', $source))
+		return $source;
+
 	if (empty($filetype_def['multipage']))
 		return $source;
 
@@ -152,10 +161,9 @@ function zz_imagick_check_multipage($source, $filetype, $image) {
 		}
 	} else {
 		// setting? if not, convert only first page or top layer
-		$source_frame = $filetype['multipage_thumbnail_frame'] ?? 0;
+		$source_frame = $filetype_def['multipage_thumbnail_frame'] ?? 0;
 	}
-	$source = sprintf('%s[%d]', $source, $source_frame);
-	return $source;
+	return sprintf('%s[%d]', $source, $source_frame);
 }
 
 /**
