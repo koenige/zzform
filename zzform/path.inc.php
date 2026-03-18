@@ -81,9 +81,12 @@ function zz_path_image($def, $record) {
 /**
  * get an absolute filesystem path from a path definition and a flat record
  *
+ * If the file was verified to exist (default), the path is passed through
+ * realpath() so callers get a canonical path without symlink segments.
+ *
  * @param array $def
  * @param array $record
- * @param array $settings (optional)
+ * @param array $settings (optional) skip_file_check: do not resolve with realpath
  * @return string
  */
 function zz_path_file($def, $record, $settings = []) {
@@ -91,7 +94,14 @@ function zz_path_file($def, $record, $settings = []) {
 	if (!$path) return '';
 	$path = zz_path_exists($path, $settings);
 	if (!$path) return '';
-	return $path['root'].$path['file'];
+	$full = $path['root'].$path['file'];
+	if (empty($settings['skip_file_check'])) {
+		$resolved = realpath($full);
+		if ($resolved !== false) {
+			$full = $resolved;
+		}
+	}
+	return $full;
 }
 
 /** 
