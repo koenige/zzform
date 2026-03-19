@@ -22,21 +22,17 @@
  *		[0]: name of script
  *		[1]: mode (default false: only missing images are created; 'overwrite':
  *			existing images are being deleted)
- * @global array $zz_conf configuration variables
  * @return array $page
  *		'text' => page content, 'title', 'breadcrumbs', ...
  * @todo support $zz['conditions']
  */
 function mod_zzform_make_thumbnails($params) {
-	global $zz_conf;
-	
 	if (count($params) > 2) return false;
 	if (count($params) > 1 AND $params[1] !== 'overwrite') return false;
 	$mode = empty($params[1]) ? 'existing' : $params[1];
 	if (strstr($params[0], '..')) return false;
 
 	wrap_include('zzform.php', 'zzform');
-	$saved_conf = $zz_conf;
 	zz_initialize();
 	zz_modules_load('upload');
 	zz_upload_load_graphics_library();
@@ -131,8 +127,6 @@ function mod_zzform_make_thumbnails($params) {
 	} else {
 		$page['text'] .= "<ul>\n<li>".(implode("</li>\n<li>", $output))."</li>\n</ul>\n";
 	}
-	
-	$zz_conf = $saved_conf;
 	return $page;
 }
 
