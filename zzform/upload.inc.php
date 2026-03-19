@@ -21,6 +21,7 @@
  *			zz_upload_filecheck()	gets filetype from list
  *			...
  *		zz_upload_check_recreate()
+ *		zz_upload_image_derivative_defaults() ensures convert_options keys for zz_image_*
  *	zz_upload_prepare()			prepares files for upload (resize, rotate etc.)
  *		zz_upload_extension()	gets extension
  *		zz_upload_create_source()
@@ -252,9 +253,7 @@ function zz_upload_check_files($zz_tab) {
 			$images[$no][$img]['optional_image'] = $field['optional_image'] ?? false;
 			$images[$no][$img]['upload_max_filesize'] = $field['upload_max_filesize'];
 
-			// initialize convert_options
-			if (!isset($images[$no][$img]['convert_options']))
-				$images[$no][$img]['convert_options'] = '';
+			zz_upload_image_derivative_defaults($images[$no][$img]);
 
 			// check if thumbnail image might have to be recreated
 			if (!empty($images[$no][$img]['recreate_on_change'])) {
@@ -1396,6 +1395,22 @@ function zz_upload_prepare_source_file($image, $my_rec, $zz_tab, $tab, $rec) {
 }
 
 /**
+ * Sets default keys for derivative image records before zz_image_* (ImageMagick/GD)
+ *
+ * $image may come from field config, session, or merged options; those paths do
+ * not guarantee convert_options / convert_options_append.
+ *
+ * @param array $image
+ * @return void
+ */
+function zz_upload_image_derivative_defaults(array &$image) {
+	if (!array_key_exists('convert_options', $image))
+		$image['convert_options'] = '';
+	if (!array_key_exists('convert_options_append', $image))
+		$image['convert_options_append'] = '';
+}
+
+/**
  * file operations (thumbnails etc.) for images
  *
  * @param string $filename
@@ -1408,6 +1423,8 @@ function zz_upload_prepare_source_file($image, $my_rec, $zz_tab, $tab, $rec) {
  */
 function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 	if (empty($image['action'])) return false;
+
+	zz_upload_image_derivative_defaults($image);
 
 	if (!file_exists($filename)) {
 		if (empty($image['optional_image'])) {
