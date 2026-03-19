@@ -781,7 +781,7 @@ function zz_upload_getimagesize($filename, $file) {
 	if (is_dir($filename)) return $file;
 	$sizes = getimagesize($filename);
 	if (!$sizes) return $file;
-	$found = zz_upload_filetype_php($file, $sizes[2]);
+	$found = zz_upload_filetype_php($sizes[2]);
 	if (!$found) return $file;
 	$file['width'] = $sizes[0];
 	$file['height'] = $sizes[1];
