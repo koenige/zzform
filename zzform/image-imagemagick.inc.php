@@ -142,7 +142,7 @@ function zz_imagick_identify($filename, $file) {
  */
 function zz_imagick_check_multipage($source, $filetype, $image) {
 	if (!$filetype)
-		$filetype = substr($source, strrpos($source, '.') + 1);
+		$filetype = strtolower(substr($source, strrpos($source, '.') + 1));
 	$filetype_def = wrap_filetypes($filetype);
 
 	// does an input frame already exist?
