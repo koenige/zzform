@@ -91,3 +91,5 @@
 2026-03-14-1	code	zzform_sync_path	removed, paths from routes; use wrap_path()
 2026-03-14-2	code	zzform_sync_server_path	removed, paths from routes; use wrap_path()
 2026-03-19-1	code	$zz_conf['int_modules']	removed, use zz_modules_load() per module instead
+2026-03-19-2	code	$zz_saved	is a static variable now, not accessible	zzform/zzform/zzform.php
+2026-03-19-3	code	$GLOBALS['zz_saved']	is a static variable now, not accessible

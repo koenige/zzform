@@ -602,20 +602,18 @@ function zz_valid_request($action = false) {
 }
 
 /**
- * initalize zzform, sets default configuration variables if not set by user
- * includes modules
+ * initalize zzform, includes modules
  *
  * @param string $mode (optional)
  *		default: false; 
- *		'overwrite': overwrites $zz_conf array with $zz_saved
- *		'old_conf': writes $zz_saved['old_conf'] back to $zz_conf
+ *		'overwrite': overwrites $zz_conf array with saved copy from nested call
+ *		'old_conf': restores $zz_saved['old_conf'] back to $zz_conf
  * @param array $old_conf (optional)
  * @global array $zz_conf
- * @global array $zz_saved (needs global status, access as well from zz_write_conf())
  */
 function zz_initialize($mode = false, $old_conf = []) {
 	global $zz_conf;
-	global $zz_saved;
+	static $zz_saved;
 	static $zzform_calls = 0;
 	static $zzform_init = false;
 
@@ -720,46 +718,6 @@ function zz_initialize_int() {
  */
 function zzform_include_table($definition_file, $values = []) {
 	return zzform_include($definition_file, $values, 'tables');
-}
-
-/**
- * Create config variables from defaults
- *
- * @param array $variables	default configuration variables
- * @param bool $overwrite	overwrite existing variables? default = no
- * @global $zz_conf
- * @return bool
- */
-function zz_write_conf($variables, $overwrite = false) {
-	global $zz_conf;
-	zz_write_conf_vars($variables, $zz_conf, $overwrite);
-	if (!empty($GLOBALS['zz_saved']['conf'])) {
-		zz_write_conf_vars($variables, $GLOBALS['zz_saved']['conf'], $overwrite);
-	}
-	return true;
-}
-
-function zz_write_conf_vars($variables, &$conf, $overwrite) {
-	if ($overwrite) {
-		$conf = wrap_array_merge($conf, $variables);
-		return true;
-	}
-	foreach (array_keys($variables) as $key) {
-		if (!isset($conf[$key])) {
-			// no key set, so write default values in configuration
-			$conf[$key] = $variables[$key];
-		} elseif (is_array($variables[$key])) {
-			// check if it's an array, it might be that some of the subkeys
-			// are already set, others not
-			foreach (array_keys($variables[$key]) as $subkey) {
-				if (is_numeric($subkey)) continue;
-				if (!isset($conf[$key][$subkey])) {
-					$conf[$key][$subkey] = $variables[$key][$subkey];
-				}
-			}
-		}
-	}
-	return true;
 }
 
 /**
