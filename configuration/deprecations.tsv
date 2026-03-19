@@ -90,3 +90,4 @@
 2026-01-11-1	code	$zz_conf['revisions_url']	use $zz['revisions_url']
 2026-03-14-1	code	zzform_sync_path	removed, paths from routes; use wrap_path()
 2026-03-14-2	code	zzform_sync_server_path	removed, paths from routes; use wrap_path()
+2026-03-19-1	code	$zz_conf['int_modules']	removed, use zz_modules_load() per module instead

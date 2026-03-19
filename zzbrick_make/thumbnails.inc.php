@@ -37,8 +37,8 @@ function mod_zzform_make_thumbnails($params) {
 
 	wrap_include('zzform.php', 'zzform');
 	$saved_conf = $zz_conf;
-	$zz_conf['int_modules'] = ['debug', 'validate', 'upload'];
 	zz_initialize();
+	zz_modules_load('upload');
 	zz_upload_load_graphics_library();
 
 	$page = [];

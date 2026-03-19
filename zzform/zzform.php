@@ -662,21 +662,17 @@ function zz_initialize($mode = false, $old_conf = []) {
 		return true;
 	}
 
-	// Configuration on project level: Core defaults and functions
-	$default['int_modules'] 	= ['debug', 'validate'];
-	zz_write_conf($default);
-	
-	// modules depending on settings
-	if (!wrap_static('zzform_output', 'batch_mode'))
-		$zz_conf['int_modules'][] = 'output';
-
 	zz_error_exit(false);
 	zz_error_out(false);
 
 	// Modules on project level
 	// debug module must come first because of debugging reasons!
-	zz_modules_load($zz_conf['int_modules']);
+	zz_modules_load('debug');
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
+	zz_modules_load('validate');
+	// modules depending on settings
+	if (!wrap_static('zzform_output', 'batch_mode'))
+		zz_modules_load('output');
 
 	// stop if there were errors while adding modules
 	if (zz_error_exit()) zz_return(false);
