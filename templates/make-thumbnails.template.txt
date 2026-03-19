@@ -1,0 +1,32 @@
+# zzform
+# Template: batch thumbnail creation with XHR progress
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzform
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2026 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+<div id="make-thumbnails-app" class="maintenance zz-thumbnails" data-mode="%%% item mode %%%">
+<p>%%% text Here, you can create either missing thumbnails, if they were not created on upload. Or you can create completely new thumbnails if you changed the pixel size. %%%</p>
+<p><strong>%%% text Form %%%:</strong> <code>%%% item script %%%</code>
+%%% switch mode %%%
+%%% case overwrite %%%
+<br><strong>%%% text Mode %%%:</strong> %%% text Overwrite (existing thumbnail files are replaced). %%%
+%%% default %%%
+<br><strong>%%% text Mode %%%:</strong> %%% text Only missing thumbnails. %%%
+%%% switch - %%%</p>
+
+<p><button type="button" id="make-thumbnails-start" class="button">%%% text Start thumbnail creation %%%</button>
+<button type="button" id="make-thumbnails-stop" class="button" disabled>%%% text Stop %%%</button></p>
+
+<div id="make-thumbnails-status" hidden>
+	<p><strong>%%% text Progress %%%:</strong> <span id="make-thumbnails-count">0 / 0</span></p>
+	<progress id="make-thumbnails-progress" max="1" value="0">0%</progress>
+</div>
+
+<p id="make-thumbnails-summary" hidden></p>
+<ul id="make-thumbnails-log"></ul>
+</div>
+%%% script zzform/make-thumbnails.js %%%

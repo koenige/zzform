@@ -46,8 +46,8 @@ msgid "The original file does not exist."
 msgstr "Plik nie istnieje."
 
 #: zzbrick_make/thumbnails.inc.php
-msgid "The function %s does not exist."
-msgstr "Funkcja %s nie istnieje."
+msgid "The function `%s` does not exist."
+msgstr "Funkcja `%s` nie istnieje."
 
 #: zzbrick_make/thumbnails.inc.php
 msgid "Thumbnail for %s × %s px was created."

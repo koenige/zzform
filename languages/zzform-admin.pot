@@ -19,19 +19,121 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: zzbrick_make/thumbnails.inc.php
-msgid "Thumbnail creation"
+#: behaviour/make-thumbnails.js
+msgid "Response has no `json` key."
 msgstr ""
 
-#: zzbrick_make/thumbnails.inc.php
+#: behaviour/make-thumbnails.js
+msgid "`json` value is not valid JSON."
+msgstr ""
+
+#: behaviour/make-thumbnails.js
+msgid "`json` value is not an object."
+msgstr ""
+
+#: behaviour/make-thumbnails.js
+msgid "Invalid JSON."
+msgstr ""
+
+#: behaviour/make-thumbnails.js
+msgid "Init failed."
+msgstr ""
+
+#: behaviour/make-thumbnails.js
+msgid "Step failed."
+msgstr ""
+
+#: templates/make-thumbnails.template.txt
 msgid ""
 "Here, you can create either missing thumbnails, if they were not created on "
 "upload. Or you can create completely new thumbnails if you changed the pixel "
 "size."
 msgstr ""
 
+#: templates/make-thumbnails.template.txt
+msgid "Form"
+msgstr ""
+
+#: templates/make-thumbnails.template.txt
+msgid "Mode"
+msgstr ""
+
+#: templates/make-thumbnails.template.txt
+msgid "Overwrite (existing thumbnail files are replaced)."
+msgstr ""
+
+#: templates/make-thumbnails.template.txt
+msgid "Only missing thumbnails."
+msgstr ""
+
+#: templates/make-thumbnails.template.txt
+msgid "Start thumbnail creation"
+msgstr ""
+
+#: templates/make-thumbnails.template.txt
+msgid "Stop"
+msgstr ""
+
+#: templates/make-thumbnails.template.txt
+msgid "Progress"
+msgstr ""
+
 #: zzbrick_make/thumbnails.inc.php
-msgid "Sorry, but the table script %s could not be found."
+msgid "Thumbnail creation"
+msgstr ""
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Invalid thumbnails request."
+msgstr ""
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Session expired or invalid. Please start again."
+msgstr ""
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Form script or mode does not match."
+msgstr ""
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Invalid processed count."
+msgstr ""
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Invalid thumbnails finalize request."
+msgstr ""
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Stopped after %d of %d."
+msgstr ""
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Finished with %d error (see log)."
+msgid_plural "Finished with %d errors (see log)."
+msgstr[0] ""
+msgstr[1] ""
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "All thumbnails processed."
+msgstr ""
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "No upload image field found in this form."
+msgstr ""
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "No missing thumbnails were found."
+msgstr ""
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Invalid step index."
+msgstr ""
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Record not found."
+msgstr ""
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Upload field not found."
 msgstr ""
 
 #: zzbrick_make/thumbnails.inc.php
@@ -39,7 +141,15 @@ msgid "The original file does not exist."
 msgstr ""
 
 #: zzbrick_make/thumbnails.inc.php
-msgid "The function %s does not exist."
+msgid "The original file does not contain any data."
+msgstr ""
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Could not build destination path."
+msgstr ""
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "The function `%s` does not exist."
 msgstr ""
 
 #: zzbrick_make/thumbnails.inc.php
@@ -48,12 +158,4 @@ msgstr ""
 
 #: zzbrick_make/thumbnails.inc.php
 msgid "Thumbnail for %s × %s px could not be created."
-msgstr ""
-
-#: zzbrick_make/thumbnails.inc.php
-msgid "No missing thumbnails were found."
-msgstr ""
-
-#: zzbrick_make/thumbnails.inc.php
-msgid "The original file does not contain any data."
 msgstr ""

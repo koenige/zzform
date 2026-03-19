@@ -22,11 +22,31 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.8\n"
 
-#: zzbrick_make/thumbnails.inc.php
-msgid "Thumbnail creation"
-msgstr "Erstellen von Vorschaubildern"
+#: behaviour/make-thumbnails.js
+msgid "Response has no `json` key."
+msgstr "Die Antwort enthält keinen Schlüssel `json`."
 
-#: zzbrick_make/thumbnails.inc.php
+#: behaviour/make-thumbnails.js
+msgid "`json` value is not valid JSON."
+msgstr "Der Wert von `json` ist kein gültiges JSON."
+
+#: behaviour/make-thumbnails.js
+msgid "`json` value is not an object."
+msgstr "Der Wert von `json` ist kein Objekt."
+
+#: behaviour/make-thumbnails.js
+msgid "Invalid JSON."
+msgstr "Ungültiges JSON."
+
+#: behaviour/make-thumbnails.js
+msgid "Init failed."
+msgstr "Initialisierung fehlgeschlagen."
+
+#: behaviour/make-thumbnails.js
+msgid "Step failed."
+msgstr "Schritt fehlgeschlagen."
+
+#: templates/make-thumbnails.template.txt
 msgid ""
 "Here, you can create either missing thumbnails, if they were not created on "
 "upload. Or you can create completely new thumbnails if you changed the pixel "
@@ -34,33 +54,114 @@ msgid ""
 msgstr ""
 "Hier können Sie entweder fehlende Vorschaubilder erstellen, falls diese "
 "nicht beim Hochladen erstellt wurden. Oder Sie können komplett neue "
-"Vorschaubilder erstellen, z. B. falls Sie die Bildgröße geändert haben."
+"Vorschaubilder erstellen, z. B. falls Sie die Bildgröße geändert haben."
+
+#: templates/make-thumbnails.template.txt
+msgid "Form"
+msgstr "Formular"
+
+#: templates/make-thumbnails.template.txt
+msgid "Mode"
+msgstr "Modus"
+
+#: templates/make-thumbnails.template.txt
+msgid "Overwrite (existing thumbnail files are replaced)."
+msgstr "Überschreiben (vorhandene Vorschaubilddateien werden ersetzt)."
+
+#: templates/make-thumbnails.template.txt
+msgid "Only missing thumbnails."
+msgstr "Nur fehlende Vorschaubilder."
+
+#: templates/make-thumbnails.template.txt
+msgid "Start thumbnail creation"
+msgstr "Vorschaubilder erstellen"
+
+#: templates/make-thumbnails.template.txt
+msgid "Stop"
+msgstr "Stopp"
+
+#: templates/make-thumbnails.template.txt
+msgid "Progress"
+msgstr "Fortschritt"
 
 #: zzbrick_make/thumbnails.inc.php
-msgid "Sorry, but the table script %s could not be found."
-msgstr ""
-"Entschuldigung, aber das Tabellenskript %s konnte nicht gefunden werden."
+msgid "Thumbnail creation"
+msgstr "Erstellen von Vorschaubildern"
 
 #: zzbrick_make/thumbnails.inc.php
-msgid "The original file does not exist."
-msgstr "Die Originaldatei existiert nicht."
+msgid "Invalid thumbnails request."
+msgstr "Ungültige Anfrage für Vorschaubilder."
 
 #: zzbrick_make/thumbnails.inc.php
-msgid "The function %s does not exist."
-msgstr "Die Funktion %s existiert nicht."
+msgid "Session expired or invalid. Please start again."
+msgstr "Sitzung abgelaufen oder ungültig. Bitte erneut starten."
 
 #: zzbrick_make/thumbnails.inc.php
-msgid "Thumbnail for %s × %s px was created."
-msgstr "Ja! Ein Vorschaubild für %s × %s px wurde erstellt."
+msgid "Form script or mode does not match."
+msgstr "Formularskript oder Modus passt nicht."
 
 #: zzbrick_make/thumbnails.inc.php
-msgid "Thumbnail for %s × %s px could not be created."
-msgstr "Nein. Ein Vorschaubild für %s × %s px konnte nicht erstellt werden."
+msgid "Invalid processed count."
+msgstr "Ungültige Anzahl verarbeiteter Einträge."
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Invalid thumbnails finalize request."
+msgstr "Ungültige Abschluss-Anfrage für Vorschaubilder."
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Stopped after %d of %d."
+msgstr "Gestoppt nach %d von %d."
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Finished with %d error (see log)."
+msgid_plural "Finished with %d errors (see log)."
+msgstr[0] "Abgeschlossen mit %d Fehler (siehe Protokoll)."
+msgstr[1] "Abgeschlossen mit %d Fehlern (siehe Protokoll)."
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "All thumbnails processed."
+msgstr "Alle Vorschaubilder verarbeitet."
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "No upload image field found in this form."
+msgstr "In diesem Formular wurde kein Bild-Upload-Feld gefunden."
 
 #: zzbrick_make/thumbnails.inc.php
 msgid "No missing thumbnails were found."
 msgstr "Es wurden keine fehlenden Vorschaubilder gefunden."
 
 #: zzbrick_make/thumbnails.inc.php
+msgid "Invalid step index."
+msgstr "Ungültiger Schritt-Index."
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Record not found."
+msgstr "Datensatz nicht gefunden."
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Upload field not found."
+msgstr "Upload-Feld nicht gefunden."
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "The original file does not exist."
+msgstr "Die Originaldatei existiert nicht."
+
+#: zzbrick_make/thumbnails.inc.php
 msgid "The original file does not contain any data."
 msgstr "Die Originaldatei enthält keine Daten."
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Could not build destination path."
+msgstr "Zielpfad konnte nicht erzeugt werden."
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "The function `%s` does not exist."
+msgstr "Die Funktion `%s` existiert nicht."
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Thumbnail for %s × %s px was created."
+msgstr "Ein Vorschaubild für %s × %s px wurde erstellt."
+
+#: zzbrick_make/thumbnails.inc.php
+msgid "Thumbnail for %s × %s px could not be created."
+msgstr "Ein Vorschaubild für %s × %s px konnte nicht erstellt werden."

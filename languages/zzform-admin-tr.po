@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.6\n"
+"X-Generator: Poedit 3.9\n"
 
 #: zzbrick_make/thumbnails.inc.php
 msgid "Thumbnail creation"
@@ -45,16 +45,16 @@ msgid "The original file does not exist."
 msgstr "Orijinal dosya mevcut değil."
 
 #: zzbrick_make/thumbnails.inc.php
-msgid "The function %s does not exist."
-msgstr "0] işlevi mevcut değildir."
+msgid "The function `%s` does not exist."
+msgstr "`%s` işlevi mevcut değil."
 
 #: zzbrick_make/thumbnails.inc.php
 msgid "Thumbnail for %s × %s px was created."
-msgstr "0] × %s piksel için küçük resim oluşturuldu."
+msgstr "%s × %s piksel boyutunda bir küçük resim oluşturuldu."
 
 #: zzbrick_make/thumbnails.inc.php
 msgid "Thumbnail for %s × %s px could not be created."
-msgstr "0] × %s piksel için küçük resim oluşturulamadı."
+msgstr "%s × %s piksel boyutunda küçük resim oluşturulamadı."
 
 #: zzbrick_make/thumbnails.inc.php
 msgid "No missing thumbnails were found."
