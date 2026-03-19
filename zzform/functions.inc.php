@@ -29,46 +29,71 @@
  */
 
 /**
- * check and add modules
+ * Registry of loaded zzform modules
+ *
+ * Keys are module names; values are true.
+ *
+ * @return array<string, true>
+ */
+function &zz_modules_active_registry(): array {
+	static $active_modules = [];
+	return $active_modules;
+}
+
+/**
+ * Check whether a zzform module was successfully loaded
  *
  * @param string $module
- * @param array $new_modules
  * @return bool
  */
-function zz_modules($module, $new_modules = []) {
-	static $active_modules = [];
+function zz_modules(string $module): bool {
+	$active_modules = &zz_modules_active_registry();
+	return $module !== '' && isset($active_modules[$module]);
+}
+
+/**
+ * Load one or more zzform modules (require_once), idempotent per module name
+ *
+ * @param string|array $modules Single module name or list
+ * @return void
+ */
+function zz_modules_load($modules): void {
+	if (is_string($modules)) {
+		$modules = $modules === '' ? [] : [$modules];
+	} elseif (!is_array($modules)) {
+		return;
+	}
+
+	$active_modules = &zz_modules_active_registry();
 
 	$debug_started = false;
 	if (wrap_setting('debug') AND function_exists('zz_debug')) {
 		zz_debug('start', __FUNCTION__);
 		$debug_started = true;
 	}
-	
-	foreach ($new_modules as $new_module) {
-		// do we have that module already?
-		if (array_key_exists($new_module, $active_modules) AND $active_modules[$new_module]) continue;
-		// debug only if setting is true
+
+	foreach ($modules as $new_module) {
+		if (!is_string($new_module) || $new_module === '') continue;
+		if (isset($active_modules[$new_module])) continue;
 		if ($new_module === 'debug' AND !wrap_setting('debug')) continue;
-		if (!file_exists(__DIR__.'/'.$new_module.'.inc.php')) {
-			if (wrap_setting('debug') AND function_exists('zz_debug'))
-				zz_debug(sprintf('Module %s not included', $new_module));
-			continue;
-		}
-		require_once __DIR__.'/'.$new_module.'.inc.php';
+			
+		$included = wrap_include($new_module, 'zzform');
 		if (wrap_setting('debug') AND function_exists('zz_debug')) {
 			if (!$debug_started) {
 				zz_debug('start', __FUNCTION__);
 				$debug_started = true;
 			}
-			zz_debug(sprintf('Module %s included', $new_module));
+			if (!$included) {
+				zz_debug(sprintf('Module %s not included', $new_module));
+			} else {
+				zz_debug(sprintf('Module %s included', $new_module));
+			}
 		}
+		if (!$included) continue;
 		$active_modules[$new_module] = true;
 	}
 
 	if ($debug_started) zz_debug('end');
-	
-	if ($module and !empty($active_modules[$module])) return true;
-	return false;
 }
 
 /**
@@ -152,7 +177,7 @@ function zz_dependent_modules(&$zz) {
 			break;
 		}
 	}
-	zz_modules('', $modules);
+	zz_modules_load($modules);
 	return true;
 }
 

@@ -675,7 +675,7 @@ function zz_initialize($mode = false, $old_conf = []) {
 
 	// Modules on project level
 	// debug module must come first because of debugging reasons!
-	zz_modules('', $zz_conf['int_modules']);
+	zz_modules_load($zz_conf['int_modules']);
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	// stop if there were errors while adding modules
