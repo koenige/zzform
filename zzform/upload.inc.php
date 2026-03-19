@@ -170,8 +170,7 @@ function zz_upload_thumbnail($ops, $zz_tab) {
  */
 function zz_upload_get($zz_tab) {
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
-	if ($graphics_library = wrap_setting('zzform_graphics_library'))
-		include_once __DIR__.'/image-'.$graphics_library.'.inc.php';
+	zz_upload_load_graphics_library();
 
 	zz_upload_cleanup_files([], 'init');
 
@@ -1058,6 +1057,17 @@ function zz_upload_check_recreate($image, $zz_tab) {
 		}
 	}
 	return $recreate;
+}
+
+/**
+ * include graphics library
+ *
+ * @return void
+ */
+function zz_upload_load_graphics_library() {
+	if (!wrap_setting('zzform_graphics_library')) return;
+	$lib = sprintf('image-'.wrap_setting('zzform_graphics_library'));
+	wrap_include($lib, 'zzform');
 }
 
 /**

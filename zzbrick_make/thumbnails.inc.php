@@ -33,15 +33,13 @@ function mod_zzform_make_thumbnails($params) {
 	if (count($params) > 2) return false;
 	if (count($params) > 1 AND $params[1] !== 'overwrite') return false;
 	$mode = empty($params[1]) ? 'existing' : $params[1];
+	if (strstr($params[0], '..')) return false;
 
-	$saved_conf = $zz_conf;
 	wrap_include('zzform.php', 'zzform');
+	$saved_conf = $zz_conf;
 	$zz_conf['int_modules'] = ['debug', 'validate', 'upload'];
 	zz_initialize();
-	if ($graphics_library = wrap_setting('zzform_graphics_library'))
-		wrap_include('image-'.$graphics_library, 'zzform');
-	
-	if (strstr($params[0], '..')) return false;
+	zz_upload_load_graphics_library();
 
 	$page = [];
 	$page['title'] = wrap_text('Thumbnail creation');
