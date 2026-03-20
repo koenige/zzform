@@ -9,7 +9,7 @@
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 %%% if cancel_ok | link_record | modes | cancel_url | actions %%%
-<nav class="zz-actions">
+<nav class="zz-actions%%% if setting zzform_action_icons_hide_labels %%% zz-actions--icon-only%%% endif %%%">
 %%% if cancel_ok | link_record | modes | cancel_url %%%
 <ul>
 %%% if cancel_ok %%%
@@ -20,12 +20,12 @@
 %%% endif %%%
 %%% if modes %%%
 %%% loop modes %%%
-<li><a href="%%% item link format=zzform_url_escape %%%">%%% if delete %%%%%% text Delete %%%
-%%% elseif edit %%%%%% text Edit %%%
-%%% elseif show %%%%%% text Show %%%
-%%% elseif copy %%%%%% text Copy %%%
+<li>%%% if delete %%%<a href="%%% item link format=zzform_url_escape %%%" title="%%% text Delete %%%">%%% if setting zzform_action_icons %%%%%% icon zzform-action-delete %%%%%% endif %%%<span class="zz-action-label">%%% text Delete %%%</span></a>
+%%% elseif edit %%%<a href="%%% item link format=zzform_url_escape %%%" title="%%% text Edit %%%">%%% if setting zzform_action_icons %%%%%% icon zzform-action-edit %%%%%% endif %%%<span class="zz-action-label">%%% text Edit %%%</span></a>
+%%% elseif show %%%<a href="%%% item link format=zzform_url_escape %%%" title="%%% text Show %%%">%%% if setting zzform_action_icons %%%%%% icon zzform-action-show %%%%%% endif %%%<span class="zz-action-label">%%% text Show %%%</span></a>
+%%% elseif copy %%%<a href="%%% item link format=zzform_url_escape %%%" title="%%% text Copy %%%">%%% if setting zzform_action_icons %%%%%% icon zzform-action-copy %%%%%% endif %%%<span class="zz-action-label">%%% text Copy %%%</span></a>
 %%% endif %%%
-</a></li>
+</li>
 %%% loop end %%%
 %%% endif %%%
 %%% if cancel_url %%%
@@ -35,7 +35,7 @@
 %%% if actions %%%&nbsp;<span class="br">||</span> %%% endif %%%
 %%% endif %%%
 %%% if actions %%%
-<ul class="zz-actions">
+<ul>
 %%% loop details %%%
 <li><a href="%%% item url %%%%%% if referer %%%&amp;referer=%%% setting request_uri %%%%%% endif %%%"%%% if target %%% target="%%% item target %%%"%%% endif %%%>
 %%% translate item title %%%%%% item count "&nbsp;(%d)" %%%

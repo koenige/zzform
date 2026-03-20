@@ -432,14 +432,17 @@ body #zzform .separator hr
 						{ padding-left: 15rem; }
 }
 
+
 /* list view (ul) */
 #zzform ul.data		{ padding: 0; margin: 1rem 0; overflow: hidden; }
 #zzform ul.data li	{ float: left; overflow: hidden; list-style: none;
 					margin: 0 1em 1em 0; padding: 0; } 
 #zzform ul.data img	{ vertical-align: middle; margin: 0; border: 0; padding: 0; }
 #zzform ul.data p	{ margin: 0; font-size: 90%; }
+#zzform ul.data nav	{ display: block; }
 #zzform ul.data nav li
 					{ overflow: auto; height: auto; max-width: none; margin: 0; }
+
 
 /* list view (add new below list) */
 #zzform .add-new	{ overflow: hidden; margin: 1em 0; }
@@ -452,6 +455,7 @@ body #zzform .separator hr
 					{ border-left: none; }
 #zzform .add-new li a
 					{ padding: 0 .5rem ; }
+
 
 /* list view (page navigation below list) */
 #zzform .pages .last
@@ -672,6 +676,21 @@ ul.vxJS_list		{ margin: 0; padding: 0;  list-style-type: none; }
 					list-style: none; }
 .zz-actions li:not(:last-child)::after
 					{ content: '·'; margin-inline: 0.35em; speak: never; }
+.zz-actions.zz-actions--icon-only li:not(:last-child)::after
+					{ content: ''; }
+.zz-actions a		{ position: relative; }
+.zz-actions a .svg-title
+					{ position: absolute; width: 1px; height: 1px; padding: 0;
+					margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0);
+					white-space: nowrap; border: 0; }
+.zz-actions a svg	{ width: 1em; height: 1em; margin-inline-end: .25em;
+					vertical-align: -0.125em; }
+.zz-actions.zz-actions--icon-only .zz-action-label
+					{ position: absolute; width: 1px; height: 1px; padding: 0;
+					margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0);
+					white-space: nowrap; border: 0; }
+.zz-actions.zz-actions--icon-only a svg
+					{ margin-inline-end: 0; }
 
 
 @media print {
@@ -688,6 +707,9 @@ ul.vxJS_list		{ margin: 0; padding: 0;  list-style-type: none; }
 						{ display: none; }
 	#zzform .add-new	{ display: none; }
 	#zzform .pages		{ display: none; }
+	#zzform .zz-actions.zz-actions--icon-only .zz-action-label
+					{ position: static; width: auto; height: auto; margin: 0;
+					clip: auto; overflow: visible; white-space: normal; }
 	#zzform .zzsearch	{ display: none; }
 	#zzform .zzfilter dd
 						{ border: none; margin: 0; padding: 0; }
