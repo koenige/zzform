@@ -698,17 +698,17 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 		$lastline = $line;
 
 		$rows[$z]['modes'] = zz_output_modes($id, $zz_conf_record);
-		if ($rows[$z]['modes']) $list['modes'] = true; // need a table row for this
+		if ($rows[$z]['modes']) $list['has_modes'] = true; // need a table row for this
 
 		if ($zz_conf_record['details']) {
 			$rows[$z]['details'] = zz_output_details($zz_conf_record, $id, $line);
 			if ($rows[$z]['modes']) {
 				// we need a table row for this
-				$list['details'] = true;
+				$list['has_details'] = true;
 			} else {
 				// if there's nothing in 'modes', put it in here as well
 				if ($list['display'] === 'table')
-					$list['modes'] = true;
+					$list['has_modes'] = true;
 			}
 		}
 		$z++;
@@ -2237,7 +2237,7 @@ function zz_list_table($list, $rows, $head) {
 		$list['thead'][] = $col;
 		$list['columns_buttons']++;
 	}
-	if ($list['modes'] OR $list['details'])
+	if ($list['has_modes'] OR $list['has_details'])
 		$list['columns_buttons']++;
 
 	//
