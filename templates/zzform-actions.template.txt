@@ -1,0 +1,48 @@
+# zzform
+# Actions per record
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzform
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2024, 2026 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+%%% if cancel_ok | link_record | modes | cancel_url | actions %%%
+<nav class="zz-actions">
+%%% if cancel_ok | link_record | modes | cancel_url %%%
+<ul>
+%%% if cancel_ok %%%
+<li><a href="%%% item cancel_ok format=zzform_url_escape %%%">%%% text OK %%%</a></li>
+%%% endif %%%
+%%% if link_record %%%
+<li><a href="%%% item link_record format=zzform_url_escape %%%">%%% text Show %%%</a></li>
+%%% endif %%%
+%%% if modes %%%
+%%% loop modes %%%
+<li><a href="%%% item link format=zzform_url_escape %%%">%%% if delete %%%%%% text Delete %%%
+%%% elseif edit %%%%%% text Edit %%%
+%%% elseif show %%%%%% text Show %%%
+%%% elseif copy %%%%%% text Copy %%%
+%%% endif %%%
+</a></li>
+%%% loop end %%%
+%%% endif %%%
+%%% if cancel_url %%%
+<li><a href="%%% item cancel_url format=zzform_url_escape %%%">%%% text Cancel %%%</a></li>
+%%% endif %%%
+</ul>
+%%% if actions %%%&nbsp;<span class="br">||</span> %%% endif %%%
+%%% endif %%%
+%%% if actions %%%
+<ul class="zz-actions">
+%%% loop details %%%
+<li><a href="%%% item url %%%%%% if referer %%%&amp;referer=%%% setting request_uri %%%%%% endif %%%"%%% if target %%% target="%%% item target %%%"%%% endif %%%>
+%%% translate item title %%%%%% item count "&nbsp;(%d)" %%%
+</a></li>
+%%% loop end %%%
+</ul>
+%%% endif %%%
+</nav>
+%%% else %%%&nbsp;
+%%% endif %%%

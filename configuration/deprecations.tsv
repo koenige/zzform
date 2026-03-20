@@ -93,3 +93,5 @@
 2026-03-19-1	code	$zz_conf['int_modules']	removed, use zz_modules_load() per module instead
 2026-03-19-2	code	$zz_saved	is a static variable now, not accessible	zzform/zzform/zzform.php
 2026-03-19-3	code	$GLOBALS['zz_saved']	is a static variable now, not accessible
+2026-03-20-1	filename	zzform-details.template.txt	integrated into zzform-action.template.txt, make modifications there
+2026-03-20-2	filename	zzform-modes.template.txt	integrated into zzform-action.template.txt, make modifications there

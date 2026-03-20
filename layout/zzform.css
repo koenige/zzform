@@ -438,9 +438,8 @@ body #zzform .separator hr
 					margin: 0 1em 1em 0; padding: 0; } 
 #zzform ul.data img	{ vertical-align: middle; margin: 0; border: 0; padding: 0; }
 #zzform ul.data p	{ margin: 0; font-size: 90%; }
-#zzform ul.data p.editbutton
-					{ padding: 0; }
-
+#zzform ul.data nav li
+					{ overflow: auto; height: auto; max-width: none; margin: 0; }
 
 /* list view (add new below list) */
 #zzform .add-new	{ overflow: hidden; margin: 1em 0; }
@@ -665,6 +664,15 @@ ul.vxJS_list		{ margin: 0; padding: 0;  list-style-type: none; }
 					{ display: none; }
 .db_ignore input[type=checkbox]
 					{ display: none; }
+
+
+/* zzform-actions.template.txt */
+.zz-actions			{ display: inline-block; }
+.zz-actions ul		{ display: flex; flex-wrap: wrap; margin: 0; padding: 0;
+					list-style: none; }
+.zz-actions li:not(:last-child)::after
+					{ content: '·'; margin-inline: 0.35em; speak: never; }
+
 
 @media print {
 	/* black text, 11pt */

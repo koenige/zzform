@@ -23,12 +23,7 @@
 <p%%% if class %%% class="%%% item class %%%"%%% endif %%%>%%% item field %%%</p>
 %%% endif %%%
 %%% loop end %%%
-%%% if modes %%%
-<p class="editbutton">%%% include zzform-modes %%%</p>
-%%% endif %%%
-%%% if details %%%
-%%% include zzform-details %%%
-%%% endif %%%
+%%% include zzform-actions %%%
 </li>
 %%% loop end %%%
 </ul>

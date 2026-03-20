@@ -63,22 +63,7 @@ if divert_files %%% data-divert-files="%%% item divert_files %%%"%%% endif %%%>
 <input type="submit" value="%%% text Delete record %%%" accesskey="d">
 %%% endif %%%
 %%% switch - %%%
-%%% if cancel_ok %%%
-<a href="%%% item cancel_ok format=zzform_url_escape %%%">%%% text OK %%%</a>%%% endif %%%
-%%% if link_record %%%
-%%% if cancel_ok %%%&nbsp;&middot; %%% endif %%%
-<a href="%%% item link_record format=zzform_url_escape %%%">%%% text Show %%%</a>%%% endif %%%
-%%% if modes %%%
-%%% if cancel_ok | link_record %%%&nbsp;&middot; %%% endif %%%
-%%% include zzform-modes %%%
-%%% endif %%%
-%%% if cancel_url %%%
- <a href="%%% item cancel_url format=zzform_url_escape %%%">%%% text Cancel %%%</a>
-%%% endif %%%
-%%% if actions %%%
-%%% if modes %%% || %%% endif %%%
-%%% include zzform-details %%%
-%%% endif %%%
+%%% include zzform-actions %%%
 </div>
 <div id="zzform_save">
 %%% text Submit data … %%%
