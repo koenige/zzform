@@ -44,5 +44,4 @@
 </ul>
 %%% endif %%%
 </nav>
-%%% else %%%&nbsp;
 %%% endif %%%

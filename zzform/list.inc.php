@@ -2225,102 +2225,76 @@ function zz_field_class($field, $html = false) {
  * @return string
  */
 function zz_list_table($list, $rows, $head) {
-	// Header
-	$output = '<div class="list"><table class="data"><thead>'."\n".'<tr>';
-	if ($list['select_multiple_records']) $output .= '<th></th>';
-
-	// Rest cannot be set yet because we do not now details/mode-links
-	// of individual records
-	$columns = 0;
+	$list['columns_buttons'] = 0;
+	$list['columns_group'] = count(reset($rows)) - 1;
+	$list['thead'] = [];
 	foreach ($head as $no => $col) {
 		if (!$col['show_field']) continue;
-		if ($col['class']) $col['class'] = ' class="'.implode(' ', $col['class']).'"';
-		else $col['class'] = '';
-		$output .= '<th'.$col['class'].'>'.$col['th'].'</th>';
-		$columns++;
+		$list['thead'][] = $col;
+		$list['columns_buttons']++;
 	}
-	if ($list['modes'] OR $list['details']) {
-		$output .= ' <th class="editbutton">'.wrap_text('Action').'</th>';
-		$columns++;
-	}
-	$output .= '</tr></thead>'."\n";
+	if ($list['modes'] OR $list['details'])
+		$list['columns_buttons']++;
 
 	//
 	// Table footer
 	//
-	if (($list['tfoot'] AND $list['sum'])
-		OR $list['select_multiple_records']) {
-		$output .= '<tfoot>'."\n";
-		if ($list['sum']) {
-			$output .= '<tr class="sum">';
-			$output .= zz_field_sum($head, count($rows), $list['sum'], $list);
-			if ($list['modes'] OR $list['details'])
-				$output .= '<td class="editbutton">&nbsp;</td>';
-			$output .= '</tr>'."\n";
-		}
-		if ($list['buttons']) {
-			$output .= '<tr class="multiple"><td>'
-			.'<input type="checkbox" onclick="zz_set_checkboxes(this.checked);"></td>'
-			.'<td colspan="'.$columns.'"><em>'.wrap_text('Selection').':</em> '
-			.$list['buttons']
-			.'</td></tr>';
-		}
-		$output .= '</tfoot>'."\n";
-	}
+	if ($list['select_multiple_records']) $list['tfoot'] = true;
+	elseif ($list['tfoot'] AND !$list['sum']) $list['tfoot'] = false;
+	if ($list['sum'])
+		$list['sum'] = zz_field_sum($head, count($rows), $list['sum'], $list);
 
-	$output .= '<tbody>'."\n";
 	$rowgroup = false;
+	$tbody_index = 0;
+	$list['tbody'][$tbody_index] = [];
 	foreach ($rows as $index => $row) {
 		if ($list['group'] AND $row['group'] != $rowgroup) {
 			if ($rowgroup) {
 				$my_groups = $rowgroup;
 				$my_old_groups = $row['group'];
 				while ($my_groups) {
-					if ($list['tfoot'])
-						$output .= zz_list_group_foot($my_groups, $head, count($rows), $list);
+					if ($list['tfoot']) {
+						$list['tbody'][$tbody_index]['group_foot'] = zz_list_group_foot($my_groups, $head, count($rows), $list);
+					}
 					array_pop($my_groups);
 					array_pop($my_old_groups);
 					if ($my_groups == $my_old_groups) break;
 				}
-				$output .= '</tbody><tbody>'."\n";
+				$tbody_index++;
 			}
-			$output .= '<tr class="group"><td colspan="'.(count($row)-1)
-				.'">'.sprintf(wrap_setting('zzform_group_html_table'), zz_list_group_titles_out($list['group_titles'][$index]))
-				.'</td></tr>'."\n";
+			$list['tbody'][$tbody_index] = [];
+			$list['tbody'][$tbody_index]['group_colspan'] = count($row) - 1;
+			$list['tbody'][$tbody_index]['group_head']
+				= sprintf(wrap_setting('zzform_group_html_table'), zz_list_group_titles_out($list['group_titles'][$index]));
 			$rowgroup = $row['group'];
 		}
-		$current_field = false;
+		$row['class'] = [];
 		if (isset($list['current_record']) AND $list['current_record'] == $index) {
-			$current_field = true;
+			$row['class'][] = 'current_record';
 		} elseif (isset($list['current_records']) AND in_array($index, $list['current_records'])) {
-			$current_field = true;
+			$row['class'][] = 'current_record';
 		}
-		$output .= '<tr class="'.($index & 1 ? 'uneven':'even')
-			.(($index + 1) === count($rows) ? ' last' : '')
-			.($current_field ? ' current_record' : '')
-			.'">'; //onclick="Highlight();"
+		if ($index + 1 === count($rows))
+			$row['class'][] = 'last';
+
 		foreach ($row as $fieldindex => $field) {
 			if (!is_numeric($fieldindex)) continue;
-			$output .= '<td'
-				.($field['class'] ? ' class="'.implode(' ', array_unique($field['class'])).'"' : '')
-				.'>'.$field['text'].'</td>';
+			if ($field['class'])
+				$field['class'] = array_unique($field['class']);
+			$row['fields'][] = $field;
+			unset($row[$fieldindex]);
 		}
-		if (!empty($row['modes']) OR !empty($row['details'])) {
-			$output .= '<td class="editbutton">';
-			$output .= wrap_template('zzform-actions', $row);
-			$output .= '</td>';
-		}
-		$output .= '</tr>'."\n";
+
+		$list['tbody'][$tbody_index]['rows'][] = $row;
 	}
 	if ($list['tfoot'] AND $rowgroup) {
 		$my_groups = $rowgroup;
 		while ($my_groups) {
-			$output .= zz_list_group_foot($my_groups, $head, count($rows), $list);
+			$list['tbody'][$tbody_index]['group_foot'] = zz_list_group_foot($my_groups, $head, count($rows), $list);
 			array_pop($my_groups);
 		}
 	}
-	$output .= "</tbody>\n</table></div>\n";
-	return $output;
+	return wrap_template('zzform-list-table', $list);
 }
 
 /**

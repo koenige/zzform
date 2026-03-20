@@ -1,0 +1,66 @@
+# zzform
+# HTML output: zzform list view (table)
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzform
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2026 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+<div class="list"><table class="data">
+<thead>
+<tr>
+%%% if select_multiple_records %%%
+<th></th>
+%%% endif %%%
+%%% loop thead %%%
+<th%%% if class %%% class="%%% item class format=zzform_classes %%%"%%% endif %%%>%%% item th %%%</th>
+%%% loop end %%%
+%%% if modes | details %%%
+<th class="editbutton">%%% text Action %%%</th>
+%%% endif %%%
+</tr></thead>
+%%% if tfoot %%%
+<tfoot>
+%%% if sum %%%
+<tr class="sum">
+%%% item sum %%%
+%%% if modes | details %%%
+<td class="editbutton">&nbsp;</td>
+%%% endif %%%
+</tr>
+%%% if buttons %%%
+<tr class="multiple">
+<td><input type="checkbox" onclick="zz_set_checkboxes(this.checked);"></td>
+<td colspan="%%% item columns_buttons %%%"><em>%%% text Selection %%%:</em> 
+%%% item buttons %%%</td>
+</tr>
+%%% endif %%%
+</tfoot>
+%%% endif %%%
+%%% loop tbody %%%
+<tbody>
+%%% if group_head %%%
+<tr class="group">
+<td colspan="%%% item main__columns_group %%%">
+%%% item group_head %%%
+</td>
+</tr>
+%%% endif %%%
+%%% loop rows %%%
+<tr class="%%% loopposition uneven un %%%even %%% item class format=zzform_classes %%%">
+%%% loop fields %%%
+<td%%% if class %%% class="%%% item class format=zzform_classes %%%"%%% endif %%%>%%% item text %%%</td>
+%%% loop end %%%
+%%% if modes | details %%%
+<td class="editbutton">%%% include zzform-actions %%%</td>
+%%% endif %%%
+</tr>
+%%% loop end %%%
+%%% if group_foot %%%
+%%% item group_foot %%%
+%%% endif %%%
+</tbody>
+%%% loop end %%%
+</table></div>
