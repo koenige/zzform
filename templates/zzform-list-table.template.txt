@@ -58,9 +58,9 @@
 %%% endif %%%
 </tr>
 %%% loop end %%%
-%%% if group_foot %%%
-%%% item group_foot %%%
-%%% endif %%%
+%%% loop group_foot %%%
+<tr class="group_sum">%%% item columns %%%</tr>
+%%% loop end %%%
 </tbody>
 %%% loop end %%%
 </table></div>

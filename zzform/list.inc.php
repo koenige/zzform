@@ -1545,9 +1545,7 @@ function zz_list_group_foot($rowgroup, $main_table_query, $z, $list) {
 		else $my_index = $my_group;
 	}
 	if (empty($list['sum_group'][$my_index])) return false;
-	return '<tr class="group_sum">'
-		.zz_field_sum($main_table_query, $z, $list['sum_group'][$my_index], $list)
-		.'</tr>'."\n";
+	return zz_field_sum($main_table_query, $z, $list['sum_group'][$my_index], $list);
 }
 
 /**
@@ -2254,7 +2252,8 @@ function zz_list_table($list, $rows, $head) {
 				$my_old_groups = $row['group'];
 				while ($my_groups) {
 					if ($list['tfoot']) {
-						$list['tbody'][$tbody_index]['group_foot'] = zz_list_group_foot($my_groups, $head, count($rows), $list);
+						$list['tbody'][$tbody_index]['group_foot'][]['columns']
+							= zz_list_group_foot($my_groups, $head, count($rows), $list);
 					}
 					array_pop($my_groups);
 					array_pop($my_old_groups);
@@ -2290,7 +2289,8 @@ function zz_list_table($list, $rows, $head) {
 	if ($list['tfoot'] AND $rowgroup) {
 		$my_groups = $rowgroup;
 		while ($my_groups) {
-			$list['tbody'][$tbody_index]['group_foot'] = zz_list_group_foot($my_groups, $head, count($rows), $list);
+			$list['tbody'][$tbody_index]['group_foot'][]['columns']
+				= zz_list_group_foot($my_groups, $head, count($rows), $list);
 			array_pop($my_groups);
 		}
 	}
