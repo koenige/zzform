@@ -1266,23 +1266,25 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 }
 
 /**
- * adds values, outputs HTML table foot
+ * adds values, outputs fields for table
  *
  * @param array $table_defs
  * @param int $z
  * @param array $sum (field_name => value)
  * @param array $list
- * @return string HTML output of table foot
+ * @return array
  */
 function zz_field_sum($table_defs, $z, $sum, $list) {
-	$tfoot_line = '';
+	$fields = [];
 	foreach ($table_defs as $index => $field) {
 		if (!$field['show_field']) continue;
 		if (in_array($index, $list['group_field_no'])) continue;
 		if ($field['type'] === 'id' && empty($field['show_id'])) {
-			$tfoot_line .= '<td class="recordid">'.$z.'</td>';
+			$fields[] = [
+				'text' => $z,
+				'class' => ['recordid']
+			];
 		} elseif (!empty($field['sum'])) {
-			$tfoot_line .= '<td'.zz_field_class($field, true).'>';
 			$value = $sum[$field['title']] ?? 0;
 			if (isset($field['calculation']) AND $field['calculation'] === 'hours') {
 				$value = zz_hour_format($value);
@@ -1293,15 +1295,19 @@ function zz_field_sum($table_defs, $z, $sum, $list) {
 				$value = zz_list_format($value, $field['list_format']);
 			}
 
-			$tfoot_line.= $value;
-			if (isset($field['unit']) && $value) 
-				$tfoot_line .= '&nbsp;'.$field['unit'];	
-			$tfoot_line .= '</td>';
+			$fields[] = [
+				'text' => $value,
+				'unit' => isset($field['unit']) && $value ? $field['unit'] : NULL,
+				'class' => zz_field_class($field)
+			];
 		} else {
-			$tfoot_line .= '<td'.zz_field_class($field, true).'>&nbsp;</td>';
+			$fields[] = [
+				'text' => '&nbsp;',
+				'class' => zz_field_class($field)
+			];
 		}
 	}
-	return $tfoot_line;
+	return $fields;
 }
 
 /**
@@ -2240,7 +2246,7 @@ function zz_list_table($list, $rows, $head) {
 	if ($list['select_multiple_records']) $list['tfoot'] = true;
 	elseif ($list['tfoot'] AND !$list['sum']) $list['tfoot'] = false;
 	if ($list['sum'])
-		$list['sum'] = zz_field_sum($head, count($rows), $list['sum'], $list);
+		$list['sum_fields'] = zz_field_sum($head, count($rows), $list['sum'], $list);
 
 	$rowgroup = false;
 	$tbody_index = 0;
@@ -2252,7 +2258,7 @@ function zz_list_table($list, $rows, $head) {
 				$my_old_groups = $row['group'];
 				while ($my_groups) {
 					if ($list['tfoot']) {
-						$list['tbody'][$tbody_index]['group_foot'][]['columns']
+						$list['tbody'][$tbody_index]['group_foot'][]['sum_fields']
 							= zz_list_group_foot($my_groups, $head, count($rows), $list);
 					}
 					array_pop($my_groups);
@@ -2289,7 +2295,7 @@ function zz_list_table($list, $rows, $head) {
 	if ($list['tfoot'] AND $rowgroup) {
 		$my_groups = $rowgroup;
 		while ($my_groups) {
-			$list['tbody'][$tbody_index]['group_foot'][]['columns']
+			$list['tbody'][$tbody_index]['group_foot'][]['sum_fields']
 				= zz_list_group_foot($my_groups, $head, count($rows), $list);
 			array_pop($my_groups);
 		}

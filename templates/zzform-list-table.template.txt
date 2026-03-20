@@ -23,13 +23,16 @@
 </tr></thead>
 %%% if tfoot %%%
 <tfoot>
-%%% if sum %%%
+%%% if sum_fields %%%
 <tr class="sum">
-%%% item sum %%%
+%%% loop sum_fields %%%
+<td%%% if class %%% class="%%% item class format=zzform_classes %%%"%%% endif %%%>%%% item text %%%%%% item unit "&nbsp;%s" %%%</td>
+%%% loop end %%%
 %%% if modes | details %%%
 <td class="editbutton">&nbsp;</td>
 %%% endif %%%
 </tr>
+%%% endif %%%
 %%% if buttons %%%
 <tr class="multiple">
 <td><input type="checkbox" onclick="zz_set_checkboxes(this.checked);"></td>
@@ -59,7 +62,11 @@
 </tr>
 %%% loop end %%%
 %%% loop group_foot %%%
-<tr class="group_sum">%%% item columns %%%</tr>
+<tr class="group_sum">
+%%% loop sum_fields %%%
+<td%%% if class %%% class="%%% item class format=zzform_classes %%%"%%% endif %%%>%%% item text %%%%%% item unit "&nbsp;%s" %%%</td>
+%%% loop end %%%
+</tr>
 %%% loop end %%%
 </tbody>
 %%% loop end %%%
