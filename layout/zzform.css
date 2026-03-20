@@ -674,11 +674,15 @@ ul.vxJS_list		{ margin: 0; padding: 0;  list-style-type: none; }
 .zz-actions			{ display: inline-block; }
 .zz-actions ul		{ display: flex; flex-wrap: wrap; margin: 0; padding: 0;
 					list-style: none; }
+/* inline-flex + nowrap: keep middot with the link (no orphaned · on next line) */
+.zz-actions li		{ display: inline-flex; flex-wrap: nowrap; align-items: center;
+					min-width: 0; }
 .zz-actions li:not(:last-child)::after
-					{ content: '·'; margin-inline: 0.35em; speak: never; }
+					{ content: '·'; margin-inline: 0.35em; speak: never;
+					white-space: nowrap; flex-shrink: 0; }
 .zz-actions.zz-actions--icon-only li:not(:last-child)::after
 					{ content: ''; }
-.zz-actions a		{ position: relative; }
+.zz-actions a		{ position: relative; min-width: 0; }
 .zz-actions a .svg-title
 					{ position: absolute; width: 1px; height: 1px; padding: 0;
 					margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0);
