@@ -13,7 +13,7 @@
  * - MySQL schema metadata: zz_db_table*(), zz_db_field*(), zz_db_columns()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -111,10 +111,8 @@ function zz_db_log_hook($sql) {
 			$files = wrap_include('zzform/logging', $package);
 			$hook[$sql]['logging'] = NULL;
 			$hook[$sql]['logging_values'] = $query[1];
-			foreach ($files['functions'] as $function) {
-				if ($function['short'] === 'logging')
-					$hook[$sql]['logging'] = $function['function'];
-			}
+			foreach (wrap_functions($files, 'logging') as $function)
+				$hook[$sql]['logging'] = $function['function'];
 		}
 	}
 	return $hook[$sql];
