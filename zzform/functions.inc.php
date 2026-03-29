@@ -1587,6 +1587,7 @@ function zz_query_strings_allowed($zz) {
 		$strings[] = 'edit';
 		$strings[] = 'update';
 		$strings[] = 'noupdate';
+		$strings[] = 'show';
 		$strings[] = 'revise'; // @todo check if revisions are allowed
 	}
 	if (!empty($zz['record']['view'])) {
