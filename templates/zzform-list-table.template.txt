@@ -17,7 +17,7 @@
 %%% loop thead %%%
 <th%%% if class %%% class="%%% item class format=zzform_classes %%%"%%% endif %%%>%%% item th %%%</th>
 %%% loop end %%%
-%%% if modes | details %%%
+%%% if has_modes | has_details %%%
 <th class="editbutton">%%% text Action %%%</th>
 %%% endif %%%
 </tr></thead>
