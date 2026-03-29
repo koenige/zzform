@@ -671,29 +671,33 @@ ul.vxJS_list		{ margin: 0; padding: 0;  list-style-type: none; }
 
 
 /* zzform-actions.template.txt */
-.zz-actions			{ display: inline-block; }
-.zz-actions ul		{ display: flex; flex-wrap: wrap; margin: 0; padding: 0;
+#zzform .zz-actions	{ display: inline-block; }
+#zzform .zz-actions ul
+					{ display: flex; flex-wrap: wrap; margin: 0; padding: 0;
 					list-style: none; }
 /* inline-flex + nowrap: keep middot with the link (no orphaned · on next line) */
-.zz-actions li		{ display: inline-flex; flex-wrap: nowrap; align-items: center;
-					min-width: 0; }
-.zz-actions li:not(:last-child)::after
+#zzform .zz-actions li
+					{ display: inline-flex; flex-wrap: nowrap; align-items: center;
+					min-width: 0; hyphens: none; }
+#zzform .zz-actions li:not(:last-child)::after
 					{ content: '·'; margin-inline: 0.35em; speak: never;
 					white-space: nowrap; flex-shrink: 0; }
-.zz-actions.zz-actions--icon-only li:not(:last-child)::after
+#zzform .zz-actions.zz-actions--icon-only li:not(:last-child)::after
 					{ content: ''; }
-.zz-actions a		{ position: relative; min-width: 0; }
-.zz-actions a .svg-title
+#zzform .zz-actions a
+					{ position: relative; min-width: 0; }
+#zzform .zz-actions a .svg-title
 					{ position: absolute; width: 1px; height: 1px; padding: 0;
 					margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0);
 					white-space: nowrap; border: 0; }
-.zz-actions a svg	{ width: 1em; height: 1em; margin-inline-end: .25em;
+#zzform .zz-actions a svg
+					{ width: 1em; height: 1em; margin-inline-end: .25em;
 					vertical-align: -0.125em; }
-.zz-actions.zz-actions--icon-only .zz-action-label
+#zzform .zz-actions.zz-actions--icon-only .zz-action-label
 					{ position: absolute; width: 1px; height: 1px; padding: 0;
 					margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0);
 					white-space: nowrap; border: 0; }
-.zz-actions.zz-actions--icon-only a svg
+#zzform .zz-actions.zz-actions--icon-only a svg
 					{ margin-inline-end: 0; }
 
 
