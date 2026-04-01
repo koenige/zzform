@@ -445,7 +445,9 @@ function zz_search_set_enum($search, $field_type, $field) {
 	case '%LIKE%':
 	case '%NOT LIKE%':
 		foreach ($set as $word) {
-			if (stristr($search['term'], strval($word))) return true;
+			$word = strval($word);
+			if (!$word) continue;
+			if (stristr($search['term'], $word)) return true;
 		}
 		return false;
 	}
