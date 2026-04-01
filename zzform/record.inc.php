@@ -3822,7 +3822,7 @@ function zz_field_select_set($field, $display, $record, $rec) {
 		if ($display === 'form') {
 			$i++;
 			$data[$key] = [
-				'title' => zz_print_enum($field, $set, 'full'),
+				'title' => zz_field_enum_set($field, $set, 'full'),
 				'id' => 'check-'.$field['id'].'-'.$i,
 				'name' => $field['f_field_name'].'[]',
 				'value' => $set,
@@ -3847,7 +3847,7 @@ function zz_field_select_set($field, $display, $record, $rec) {
 		} elseif (empty($field['set_show_all_values']))  {
 			$selected = zz_field_selected($field, $record, $set);
 			if (!$selected) continue;
-			$data[$key]['title'] = zz_print_enum($field, $set, 'full');
+			$data[$key]['title'] = zz_field_enum_set($field, $set, 'full');
 		}
 	}
 	if ($display !== 'form' AND !empty($field['set_show_all_values'])) {
@@ -3874,7 +3874,7 @@ function zz_field_select_enum($field, $display, $record) {
 		foreach ($field['enum'] as $key => $set) {
 			$selected = zz_field_selected($field, $record, $set);
 			if (!$selected) continue;
-			$text = zz_print_enum($field, $set, 'full', $key);
+			$text = zz_field_enum_set($field, $set, 'full', $key);
 		}
 		if (!$text AND !empty($field['enum_textinput'])) {
 			$text = $record[$field['field_name']];
@@ -3902,7 +3902,7 @@ function zz_field_select_enum($field, $display, $record) {
 		$radios = [];
 		foreach ($field['enum'] as $key => $set) {
 			$myi++;
-			$label = zz_print_enum($field, $set, 'full', $key);
+			$label = zz_field_enum_set($field, $set, 'full', $key);
 			if (!empty($field['enum_textinput']) AND $key + 1 === count($field['enum'])
 				AND !empty($record[$field['field_name']])
 				AND !in_array($record[$field['field_name']], $field['enum'])) {
@@ -3943,7 +3943,7 @@ function zz_field_select_enum($field, $display, $record) {
 			'selected' => $selected ? true : false,
 			'disabled' => $selected ? false : zz_record_field_disabled($set, $field),
 			'value' => !is_bool($selected) ? $selected : $set,
-			'name' => zz_print_enum($field, $set, 'full', $key)
+			'name' => zz_field_enum_set($field, $set, 'full', $key)
 		];
 		$data['options'][] = zz_record_element($element);
 	}

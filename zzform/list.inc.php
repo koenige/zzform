@@ -795,7 +795,7 @@ function zz_list_group_titles($list, $fields, $line) {
 			$group[$pos] = $line[$field['display_field']];
 			// @todo group
 		} elseif (!empty($field['enum']) AND $field['type'] === 'select') {
-			$group[$pos] = zz_print_enum($field, $line[$field['field_name']], 'full');
+			$group[$pos] = zz_field_enum_set($field, $line[$field['field_name']], 'full');
 		} elseif (!empty($field['field_name'])) {
 			$group[$pos] = $line[$field['field_name']];
 		}
@@ -1125,11 +1125,11 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 				$values_old = explode(',', $row['value']);
 				$values_new = [];
 				foreach ($values_old as $value) {
-					$values_new[] = zz_print_enum($field, $value);
+					$values_new[] = zz_field_enum_set($field, $value);
 				}
 				$text = implode(', ', $values_new);
 			} elseif (!empty($field['enum'])) {
-				$text = zz_print_enum($field, $row['value']);
+				$text = zz_field_enum_set($field, $row['value']);
 			} else {
 				$text = zz_htmltag_escape($row['value']);
 			}

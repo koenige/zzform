@@ -557,7 +557,7 @@ function zz_print_multiarray($array, $parent_key = '') {
 }
 
 /**
- * formats an enum field
+ * formats an enum/set field for display (list and record)
  *
  * @param array $field
  *		enum_abbr, set_abbr, enum_title, set_title, …
@@ -565,9 +565,8 @@ function zz_print_multiarray($array, $parent_key = '') {
  * @param string $type 'full', 'abbr'
  * @param string $key (optional)
  * @return string
- * @todo rename this function
  */
-function zz_print_enum($field, $value, $type = 'abbr', $key = false) {
+function zz_field_enum_set($field, $value, $type = 'abbr', $key = false) {
 	if (!empty($field['enum'])) {
 		$ft = 'enum';
 	} elseif (!empty($field['set'])) {

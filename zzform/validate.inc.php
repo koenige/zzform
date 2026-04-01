@@ -96,8 +96,8 @@ function zz_check_mail($e_mail, $type = 'mail') {
  * @param string $db_table [db_name.table]
  * @return mixed string $enum_value if correct, bool false if not
  */
-function zz_check_enumset($enum_value, $field, $db_table) {
-	$values = zz_db_get_enumset($field['field_name'], $db_table);
+function zz_check_enum_set($enum_value, $field, $db_table) {
+	$values = zz_mysql_enum_set_values($field['field_name'], $db_table);
 	if ($values) {
 		// it's in the table definition, go for it!
 		if (in_array($enum_value, $values)) return $enum_value;
@@ -115,15 +115,15 @@ function zz_check_enumset($enum_value, $field, $db_table) {
 }
 
 /**
- * gets values for enum/set-fields from database
+ * MySQL: allowed literals for ENUM/SET column from column Type
  *
  * @param string $column Name of column
  * @param string $db_table [db_name.table]
  * @return mixed array $values, bool false if no values
  */
-function zz_db_get_enumset($colum, $db_table) {
+function zz_mysql_enum_set_values($column, $db_table) {
 	$values = [];
-	$column_definition = zz_db_columns($db_table, $colum);
+	$column_definition = zz_db_columns($db_table, $column);
 	if (!$column_definition) return false;
 	if (str_starts_with($column_definition['Type'], "set('")
 		AND str_ends_with($column_definition['Type'], "')")) {

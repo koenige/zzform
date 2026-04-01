@@ -1995,7 +1995,7 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 					} else {
 						$my_rec['POST'][$field_name] = '';
 					}
-				} elseif (!$tempvar = zz_check_enumset($my_rec['POST'][$field_name], $field, $db_table)) {
+				} elseif (!$tempvar = zz_check_enum_set($my_rec['POST'][$field_name], $field, $db_table)) {
 					$my_rec['validation'] = false;
 					$my_rec['fields'][$f]['check_validation'] = false;
 				} else {
