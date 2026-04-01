@@ -136,7 +136,7 @@ function zz_output_heading_nice($heading, $zz) {
 	$heading_addition = [];
 	// depending on WHERE-Condition
 	
-	$zz['fields'] = zz_fill_out($zz['fields'], $zz['table']);
+	$zz['fields'] = zz_prepare_fields($zz['fields'], $zz['table']);
 	foreach ($zz['where_condition'] as $where_condition) {
 		foreach (array_keys($where_condition) as $field_name) {
 			$field_name = wrap_db_escape($field_name);

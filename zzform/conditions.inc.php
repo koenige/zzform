@@ -809,7 +809,7 @@ function zz_conditions_merge($array, $bool_conditions, $record_id, $reverse = fa
 			}
 		}
 	}
-	// fill_out
+	// prepare_fields
 	if (!empty($array['class']) AND !is_array($array['class'])) {
 		$array['class'] = [$array['class']];
 	}

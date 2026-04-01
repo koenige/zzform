@@ -24,7 +24,7 @@
  */
 function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	zz_initialize();
-	$zz['fields'] = zz_fill_out($zz['fields'], $zz['table'], 1);
+	$zz['fields'] = zz_prepare_fields($zz['fields'], $zz['table'], 1);
 	zz_get_unique_fields($zz['fields']);
 
 	if (is_array($xmlHttpRequest['text']))

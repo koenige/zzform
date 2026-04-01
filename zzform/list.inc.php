@@ -38,10 +38,10 @@ function zz_list($zz, $list, $ops, $zz_conditions) {
 	if (!empty($_GET['q']) AND wrap_setting('zzform_search'))
 		$list['hierarchy']['display_in'] = '';
 
-	// zz_fill_out must be outside if show_list, because it is necessary for
+	// zz_prepare_fields must be outside if show_list, because it is necessary for
 	// search results with no resulting records
-	// fill_out, but do not unset conditions
-	$zz['fields'] = zz_fill_out($zz['fields'], $zz['table'], 1);
+	// prepare_fields, but do not unset conditions
+	$zz['fields'] = zz_prepare_fields($zz['fields'], $zz['table'], 1);
 
 	// only if search is allowed and there is something
 	// if q modify $zz['sql']: add search query
@@ -330,7 +330,7 @@ function zz_list_inline($fields, $lines, $mode) {
 }
 
 /**
- * set table definitions (applies conditions and fill_out function)
+ * set table definitions (applies conditions and zz_prepare_fields())
  *
  * check conditions, these might lead to different field definitions for every
  * line in the list output!
@@ -394,9 +394,9 @@ function zz_list_defs($lines, $zz_conditions, $fields_in_list, $table, $mode) {
 	$old_to_new_index = [];
 	foreach (array_keys($lines) as $index) {
 		if (empty($line_defs[$index])) continue;
-		if (wrap_setting('debug')) zz_debug('fill_out start');
-		$line_defs[$index] = zz_fill_out($line_defs[$index], $table, 2);
-		if (wrap_setting('debug')) zz_debug('fill_out end');
+		if (wrap_setting('debug')) zz_debug('prepare_fields start');
+		$line_defs[$index] = zz_prepare_fields($line_defs[$index], $table, 2);
+		if (wrap_setting('debug')) zz_debug('prepare_fields end');
 		foreach ($line_defs[$index] as $fieldindex => $field) {
 			if (in_array($fieldindex, array_keys($old_to_new_index))) {
 				$fi = $old_to_new_index[$fieldindex];
