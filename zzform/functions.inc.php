@@ -835,6 +835,7 @@ function zz_prepare_fields($fields, $db_table, $multiple_times = false, $mode = 
 				$fields[$no]['max_select'] = wrap_setting('zzform_max_select');
 			if (!isset($fields[$no]['max_select_val_len']))
 				$fields[$no]['max_select_val_len'] = wrap_setting('zzform_max_select_val_len');
+			zz_prepare_fields_enum_set($fields[$no]);
 		case 'foreign_key':
 			$fields[$no]['key_field_name'] = zz_prepare_fields_key_field_name($fields[$no]);
 			// shortcut as key for results
@@ -961,6 +962,38 @@ function zz_prepare_fields_key_field_name($field) {
 	}
 	// category_id
 	return $field['field_name'];
+}
+
+/**
+ * build enum/set + enum_abbr/set_abbr from configuration/*.tsv (replaces manual lists)
+ * Only for type = select (with enum and/or set).
+ *
+ * @param array $field field definition (by reference)
+ * @return void
+ */
+function zz_prepare_fields_enum_set(&$field) {
+	$specs = [
+		['set_tsv', 'set_tsv_package', 'set'],
+		['enum_tsv', 'enum_tsv_package', 'enum'],
+	];
+	foreach ($specs as $spec) {
+		list($key_files, $key_package, $which) = $spec;
+		if (empty($field[$key_files])) continue;
+		$files = $field[$key_files];
+		if (!is_array($files)) $files = [$files];
+		$package = $field[$key_package] ?? '';
+		$map = [];
+		foreach ($files as $file) {
+			$map = array_merge($map, wrap_tsv_parse($file, $package));
+		}
+		$field[$which] = [];
+		$field[$which.'_abbr'] = [];
+		foreach ($map as $key => $english) {
+			$field[$which][] = $key;
+			$field[$which.'_abbr'][] = wrap_text($english);
+		}
+		unset($field[$key_files], $field[$key_package]);
+	}
 }
 
 /**
