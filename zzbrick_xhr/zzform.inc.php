@@ -122,6 +122,9 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	$records = array_values($records);
 
 	$data = [];
+	$data['_query_strings'] = [
+		'field_no', 'subtable_no', 'unrestricted', 'add', 'zz_id_value'
+	];
 	if (count($records) > $limit) {
 		// more records than we might show
 		$data['entries'] = [];
@@ -223,8 +226,5 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 		$data['entries'][$i]['text'] = implode($concat, $text).' ';
 		$i++;
 	}
-	$data['_query_strings'] = [
-		'field_no', 'subtable_no', 'unrestricted', 'add', 'zz_id_value'
-	];
 	return $data;
 }
