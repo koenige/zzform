@@ -118,7 +118,6 @@ function zz_captcha_image() {
 	header('Content-type: image/png');
 	header('Cache-Control: private, max-age=0, must-revalidate');
 	imagepng($image);
-	imagedestroy($image);
 	exit;
 }
 
