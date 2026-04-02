@@ -7,7 +7,7 @@
  * Part of »Zugzwang Project«
  * https://www.zugzwang.org/modules/zzform
  *
- *	work in progress, not to be seen as a replacment for ImageMagick
+ *	work in progress, not to be seen as a replacement for ImageMagick
  *	- thumbnail: support for jpeg, gif, png
  *	
  *	Functions:
@@ -17,7 +17,7 @@
  *	-	zz_image_crop()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2014, 2017 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2014, 2017, 2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -56,6 +56,13 @@ function zz_imagegd($source, $destination, $params, $dest_extension, $image) {
 	}
 	$imagecreatefromfunction = 'ImageCreateFrom'.$source_filetype;
 	$destination_image = ImageCreateTrueColor($params['dst_w'], $params['dst_h']);
+	if ($destination_image === false) {
+		$return = [
+			'error' => true,
+			'error_msg' => 'GD Library: could not create destination image (check width and height).'
+		];
+		return zz_return($return);
+	}
 	// Filetype, either set different by zzform or don't change the filetype
 	$filetype = ($dest_extension ? $dest_extension : $image['upload']['filetype']);	
 	switch ($filetype) {
@@ -64,6 +71,13 @@ function zz_imagegd($source, $destination, $params, $dest_extension, $image) {
 		$jpeg_quality = 75; // set the jpeg quality, around 60 is good enough for web
 		// Create Image
 		$source_image = $imagecreatefromfunction($source);
+		if ($source_image === false) {
+			$return = [
+				'error' => true,
+				'error_msg' => 'GD Library: could not read source image (JPEG).'
+			];
+			return zz_return($return);
+		}
 		Imagefill($destination_image, 0, 0, imagecolorallocate($destination_image, 255, 255, 255));
 		$source_image = zz_imagegd_crop($source_image, $params);
 		// Resizing the Image
@@ -73,8 +87,6 @@ function zz_imagegd($source, $destination, $params, $dest_extension, $image) {
 		// Outputting the image, save it to $destination
 		ImageJPEG($destination_image, $destination, $jpeg_quality);
 		// we are finished!
-		ImageDestroy($source_image);
-		ImageDestroy($destination_image);
 		if (file_exists($destination)) return zz_return(true);
 		$return = [
 			'error' => true,
@@ -85,6 +97,13 @@ function zz_imagegd($source, $destination, $params, $dest_extension, $image) {
 	case 'gif':
 		// Create Image
 		$source_image = $imagecreatefromfunction($source);
+		if ($source_image === false) {
+			$return = [
+				'error' => true,
+				'error_msg' => 'GD Library: could not read source image (GIF).'
+			];
+			return zz_return($return);
+		}
 		// Transparency
 		$transparent_index = imagecolortransparent($source_image);
 		if ($transparent_index >= 0) { //it is transparent
@@ -103,8 +122,6 @@ function zz_imagegd($source, $destination, $params, $dest_extension, $image) {
 		// Outputting the image, save it to $destination
 		ImageGIF($destination_image, $destination);
 		// we are finished!
-		ImageDestroy($source_image);
-		ImageDestroy($destination_image);
 		if (file_exists($destination)) return zz_return(true);
 		$return = [
 			'error' => true,
@@ -115,6 +132,13 @@ function zz_imagegd($source, $destination, $params, $dest_extension, $image) {
 	case 'png':
 		// Create Image
 		$source_image = $imagecreatefromfunction($source);
+		if ($source_image === false) {
+			$return = [
+				'error' => true,
+				'error_msg' => 'GD Library: could not read source image (PNG).'
+			];
+			return zz_return($return);
+		}
 		// Transparency
 		imagealphablending($destination_image, false);
 		$colorTransparent = imagecolorallocatealpha($destination_image, 0, 0, 0, 127);
@@ -128,8 +152,6 @@ function zz_imagegd($source, $destination, $params, $dest_extension, $image) {
 		// Outputting the image, save it to $destination
 		ImagePNG($destination_image, $destination);
 		// we are finished!
-		ImageDestroy($destination_image);
-		ImageDestroy($source_image);
 		if (file_exists($destination)) return zz_return(true);
 		$return = [
 			'error' => true,
@@ -138,7 +160,6 @@ function zz_imagegd($source, $destination, $params, $dest_extension, $image) {
 		];
 		return zz_return($return);
 	}
-	ImageDestroy($destination_image);
 	$return = [
 		'error' => true,
 		'error_msg' => sprintf('GD Library: filetype not yet supported (%s).', $filetype)
@@ -188,6 +209,9 @@ function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
 	}
 	// full image
 	$source_image = getimagesize($source);
+	if ($source_image === false) {
+		return false;
+	}
 	$params['dst_x'] = 0;
 	$params['dst_y'] = 0;
 	$params['src_x'] = 0;
@@ -207,8 +231,8 @@ function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
  * @param string $clipping (defaults to center)
  * @return bool true/false true: image creation was successful, false: unsuccessful
  */
- function zz_image_crop($source, $destination, $dest_extension, $image, $clipping = 'center') {
- 	// Image will be resized exactly to the size as wanted
+function zz_image_crop($source, $destination, $dest_extension, $image, $clipping = 'center') {
+	// Image will be resized exactly to the size as wanted
 	$params['dst_w'] = $image['width'];
 	$params['dst_h'] = $image['height'];
 
@@ -232,22 +256,30 @@ function zz_image_thumbnail($source, $destination, $dest_extension, $image) {
 	$params['src_x'] = 0;	// full image
 	$params['src_y'] = 0;
 
- 	if ($clipping === 'custom' AND empty($image['crop'])) $clipping = 'center';
- 	if ($clipping === 'custom') {
- 		$crop_area = explode(',', $image['crop']); // left top right bottom
- 		$params['crop'] = [
- 			'x' => $crop_area[0] * $params['src_w'],
- 			'y' => $crop_area[1] * $params['src_h'],
- 			'width' => ($crop_area[2] - $crop_area[0]) * $params['src_w'],
- 			'height' => ($crop_area[3] - $crop_area[1]) * $params['src_h']
- 		];
- 		$params['src_w'] = $params['crop']['width'];
- 		$params['src_h'] = $params['crop']['height'];
-	 	return zz_imagegd($source, $destination, $params, $dest_extension, $image);
- 	}
- 	
- 	// @todo use $params['crop'] instead of the following code
- 	// for other clippings, too
+	if ($clipping === 'custom' AND empty($image['crop'])) $clipping = 'center';
+	if ($clipping === 'custom') {
+		$crop_area = explode(',', $image['crop']); // left top right bottom
+		if (count($crop_area) !== 4
+			OR !is_numeric($crop_area[0]) OR !is_numeric($crop_area[1])
+			OR !is_numeric($crop_area[2]) OR !is_numeric($crop_area[3])) {
+			return false;
+		}
+		$params['crop'] = [
+			'x' => (int) round($crop_area[0] * $params['src_w']),
+			'y' => (int) round($crop_area[1] * $params['src_h']),
+			'width' => (int) round(($crop_area[2] - $crop_area[0]) * $params['src_w']),
+			'height' => (int) round(($crop_area[3] - $crop_area[1]) * $params['src_h'])
+		];
+		if ($params['crop']['width'] < 1 OR $params['crop']['height'] < 1) {
+			return false;
+		}
+		$params['src_w'] = $params['crop']['width'];
+		$params['src_h'] = $params['crop']['height'];
+		return zz_imagegd($source, $destination, $params, $dest_extension, $image);
+	}
+
+	// @todo use $params['crop'] instead of the following code
+	// for other clippings, too
 
 	// get ratio of images
 	$dest_ratio = $params['dst_w']/$params['dst_h'];
@@ -294,7 +326,6 @@ function zz_imagegd_crop($image, $params) {
 	$cropped_image = imagecrop($image, $params['crop']);
 	if ($cropped_image !== false) {
 		$image = $cropped_image;
-		ImageDestroy($cropped_image);
 	}
 	return $image;
 }
