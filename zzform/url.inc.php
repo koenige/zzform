@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  * 
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -171,9 +171,7 @@ function zzform_url_escape($url) {
  *		'full' = full URL with base and request path
  */
 function zz_get_url_self() {
-	global $zz_page;
-	
-	$my_uri = $zz_page['url']['full'];
+	$my_uri = wrap_url();
 	if (!empty($my_uri['path_forwarded']) AND str_starts_with($my_uri['path'], $my_uri['path_forwarded'])) {
 		$my_uri['path'] = substr($my_uri['path'], strlen($my_uri['path_forwarded']));
 	}
