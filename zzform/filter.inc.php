@@ -52,7 +52,7 @@ function zz_filter_defaults(&$zz) {
 	// check for invalid filters
 	foreach (array_keys($zz['filter_active']) AS $identifier) {
 		if (in_array($identifier, $identifiers)) continue;
-		wrap_static('page', 'status', 404);
+		wrap_static('zzform_page', 'status', 404);
 		zzform_url_remove([sprintf('filter[%s]', $identifier)]);
 		zz_filter_invalid(zz_htmltag_escape($identifier));
 		// get rid of filter
@@ -357,8 +357,8 @@ function zz_filter_sql($filters, $sql, &$filter_active) {
  */
 function zz_filter_invalid_value($filter, $value) {
 	if (empty($filter['ignore_invalid_filters'])) {
-		wrap_static('page', 'status', 404);
-		wrap_static('page', 'error_type', E_USER_NOTICE);
+		wrap_static('zzform_page', 'status', 404);
+		wrap_static('zzform_page', 'error_type', E_USER_NOTICE);
 		zz_error_log([
 			'msg' => '“%s” is not a valid value for the selection “%s”. Please select a different filter.', 
 			'msg_args' => [zz_htmltag_escape($value), $filter['title']],

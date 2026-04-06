@@ -54,7 +54,7 @@ function zz_error() {
 
 		// page http status
 		if ($error['status'] !== 200)
-			wrap_static('page', 'status', $error['status']);
+			wrap_static('zzform_page', 'status', $error['status']);
 
 		// initialize and translate error messages
 		if (!empty($error['msg'])) {

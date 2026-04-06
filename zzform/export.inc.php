@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2024, 2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -49,7 +49,7 @@ function zz_export_init(&$ops, &$zz) {
 	}
 	// do not export anything if it's a 404 in export mode
 	// and e. g. limit is incorrect
-	if (wrap_static('page', 'status') === 404) {
+	if (wrap_static('zzform_page', 'status') === 404) {
 		$ops['mode'] = false;
 		return;
 	}

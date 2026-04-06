@@ -218,7 +218,7 @@ function zz_details_show($zz, $current, $last) {
 		// is there a form to return to?
 		$zz['list']['display'] = false;
 		$zz_conf['int']['cancel_url'] = $_SESSION['zzform'][zz_state_token()][$last]['source'];
-		wrap_static('page', 'referer', $_SESSION['zzform'][zz_state_token()][$last]['source']);
+		wrap_static('zzform_page', 'referer', $_SESSION['zzform'][zz_state_token()][$last]['source']);
 		wrap_setting('zzform_referer_text', 'Back to last form');
 		zz_init_referer();
 	}

@@ -79,7 +79,7 @@ function zzform($zz) {
 	// page variables, general settings
 	if (!wrap_static('zzform_output', 'batch_mode')) {
 		// static variables for zzwrap page
-		wrap_static('page', '', $zz['page'], 'init');
+		wrap_static('zzform_page', '', $zz['page'], 'init');
 	}
 	zz_error_validation_log('delete');
 
@@ -173,7 +173,7 @@ function zzform($zz) {
 	$ops['error'] = zz_error_multi($ops['error']);
 
 	if (!wrap_static('zzform_output', 'batch_mode')) {
-		wrap_static('page', 'query_strings', zz_query_strings_allowed($zz));
+		wrap_static('zzform_page', 'query_strings', zz_query_strings_allowed($zz));
 	}
 
 	// mode won't be changed anymore before record operations
@@ -257,20 +257,20 @@ function zzform($zz) {
 		// and add/nav if limit/search buttons
 		require_once __DIR__.'/list.inc.php';
 		$ops = zz_list($zz, $list, $ops, $zz_conditions);
-		if (empty($ops['mode']) AND (wrap_static('page', 'status') OR !empty($ops['status'])) AND isset($ops['text'])) {
+		if (empty($ops['mode']) AND (wrap_static('zzform_page', 'status') OR !empty($ops['status'])) AND isset($ops['text'])) {
 			// return of a request script (mode alone might be empty for empty exports, too)
 			$ops['mode'] = '';
 			$ops['output'] = $ops['text'];
 			$ops['heading'] = $ops['title'];
 			$ops['explanation'] = '';
-			if (!wrap_static('page', 'status'))
-				wrap_static('page', 'status', $ops['status']);
+			if (!wrap_static('zzform_page', 'status'))
+				wrap_static('zzform_page', 'status', $ops['status']);
 			// @todo show error message if status != 200
 			// @todo breadcrumbs, head, etc.
 		}
 	} elseif (!$zz_conf['int']['record']) {
 		// no list, no record? redirect to referer
-		if ($referer = wrap_static('page', 'referer')) wrap_redirect($referer);
+		if ($referer = wrap_static('zzform_page', 'referer')) wrap_redirect($referer);
 	}
 	$zz['fields'] = zz_prepare_fields($zz['fields'], $zz['table']);
 	if ($ops['mode'] !== 'export') {
@@ -516,19 +516,19 @@ function zzform_exit($ops) {
 			'wmd_editor_instances' => wrap_static('zzform_output', 'wmd_editor_instances') ? true : false,
 			'wmd_editor_lang' => wrap_static('zzform_output', 'wmd_editor_lang')
 		];
-		wrap_static('page', 'head', wrap_template('zzform-head', $head, 'ignore positions'), 'append');
-		wrap_static('page', 'meta', zz_output_meta_tags(), 'add');
+		wrap_static('zzform_page', 'head', wrap_template('zzform-head', $head, 'ignore positions'), 'append');
+		wrap_static('zzform_page', 'meta', zz_output_meta_tags(), 'add');
 
 		if (!empty($ops['html_fragment'])) {
-			wrap_static('page', 'template', 'empty');
-			wrap_static('page', 'url', $ops['redirect_url']);
+			wrap_static('zzform_page', 'template', 'empty');
+			wrap_static('zzform_page', 'url', $ops['redirect_url']);
 			wrap_setting('send_as_json', true);
 		}
 	}
 
 	// HTTP status
-	if (!wrap_static('page', 'status'))
-		wrap_static('page', 'status', 200);
+	if (!wrap_static('zzform_page', 'status'))
+		wrap_static('zzform_page', 'status', 200);
 
 	if (!wrap_static('zzform_output', 'batch_mode')) {
 		// save correct URL
@@ -538,8 +538,8 @@ function zzform_exit($ops) {
 		if (!zz_valid_request() AND !empty($_GET['zzhash'])
 			AND (!empty($_GET['insert']) OR !empty($_GET['update']))
 		) {
-			wrap_static('page', 'redirect', $ops['url']);
-			wrap_quit(301, '', wrap_static('page'));
+			wrap_static('zzform_page', 'redirect', $ops['url']);
+			wrap_quit(301, '', wrap_static('zzform_page'));
 		}
 
 		// for use in a template, %%% if form insert %%% etc.
@@ -552,7 +552,7 @@ function zzform_exit($ops) {
 	// get rid of internal variables
 	unset($zz_conf['int']);
 
-	$ops['page'] = wrap_static('page');
+	$ops['page'] = wrap_static('zzform_page');
 	return $ops;
 }
 

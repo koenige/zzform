@@ -159,7 +159,7 @@ function zz_dependent_modules(&$zz) {
 			$zz[$module] = [];
 			unset($modules[$index]);
 			if (isset($_GET[$module])) {
-				wrap_static('page', 'status', 404);
+				wrap_static('zzform_page', 'status', 404);
 				zzform_url_remove($module);
 			}
 			break;
@@ -424,7 +424,7 @@ function zz_check_get_array($key, $type, $values = [], $exit_on_error = true) {
 	if (!$error_in) return $_GET[$key];
 	if (!$exit_on_error) return $return;
 
-	wrap_static('page', 'status', 404);
+	wrap_static('zzform_page', 'status', 404);
 	$unwanted_keys = [];
 	foreach ($error_in as $key => $values) {
 		if (is_array($values)) {
@@ -1251,7 +1251,7 @@ function zz_record_access($zz, $ops) {
 			}
 		} else {
 			// illegal parameter, don't set a mode at all
-			wrap_static('page', 'status', 404);
+			wrap_static('zzform_page', 'status', 404);
 			$keys = ['id', 'mode'];
 		}
 		break;
@@ -1271,7 +1271,7 @@ function zz_record_access($zz, $ops) {
 			$found++;
 		}
 		if ($found > 1) {
-			wrap_static('page', 'status', 404);
+			wrap_static('zzform_page', 'status', 404);
 		}
 		break;
 
@@ -1297,7 +1297,7 @@ function zz_record_access($zz, $ops) {
 		$ops['mode'] = 'thumbnails';
 		$id_value = zz_check_get_array('thumbs', 'is_int');
 		if (empty($_GET['field'])) {
-			wrap_static('page', 'status', 404);
+			wrap_static('zzform_page', 'status', 404);
 			break;
 		}
 		break;
@@ -1310,7 +1310,7 @@ function zz_record_access($zz, $ops) {
 
 	case !empty($_GET['field']):
 		$keys = ['thumbs', 'field'];
-		wrap_static('page', 'status', 404);
+		wrap_static('zzform_page', 'status', 404);
 		break;
 
 	default:
@@ -1320,7 +1320,7 @@ function zz_record_access($zz, $ops) {
 		break;
 	}
 	
-	if (wrap_static('page', 'status') === 404) {
+	if (wrap_static('zzform_page', 'status') === 404) {
 		$id_value = false;
 		zzform_url_remove($keys);
 		$ops['mode'] = false;
@@ -1412,7 +1412,7 @@ function zz_record_access($zz, $ops) {
 			$zz_conf['int']['access'] = 'thumbnails';
 		} else {
 			$zz_conf['int']['access'] = 'forbidden';
-			wrap_static('page', 'status', 403);
+			wrap_static('zzform_page', 'status', 403);
 			wrap_notice('You are not allowed to create these thumbnails.', 'error');
 			$ops['mode'] = false;
 			$zz['record']['action'] = false;

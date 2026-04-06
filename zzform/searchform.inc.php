@@ -96,7 +96,7 @@ function zz_search_sql($fields, $sql, $table, $search_input = '') {
 		if (!$cond) unset($where[$index]);
 
 	if ($scope AND !$found) 
-		wrap_static('page', 'status', 404);
+		wrap_static('zzform_page', 'status', 404);
 
 	if ($where AND zz_search_negative($search['operator'])) {
 		$where = '('.implode(' AND ', $where).')';

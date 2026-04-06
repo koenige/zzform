@@ -328,11 +328,11 @@ function zz_output_redirect($ops, $zz, $zz_tab) {
 			$zz['record']['redirect_to_referer_zero_records'] = true;
 		$self = NULL;
 		if (!empty($zz['record']['redirect_to_referer_zero_records'])
-			AND wrap_static('page', 'referer')) {
+			AND wrap_static('zzform_page', 'referer')) {
 			// redirect to referer if there are no records in list
 			$id_field_name = $zz_tab[0]['table'].'.'.$zz_conf['int']['id']['field_name'];
 			if (isset($_GET['nolist']) OR !zz_sql_count_rows($zz_tab[0]['sql'], $id_field_name))
-				$self = wrap_static('page', 'referer');
+				$self = wrap_static('zzform_page', 'referer');
 		}
 		if ($nos) {
 			$_GET['delete'] = '='.$nos; // for JS fragment
@@ -651,7 +651,7 @@ function zz_output_add_export_links($zz, $ops, $position = 'below') {
  * @return string HTML output Back to overview
  */
 function zz_output_backlink() {
-	if (!$link = wrap_static('page', 'referer_esc')) return '';
+	if (!$link = wrap_static('zzform_page', 'referer_esc')) return '';
 	return sprintf(
 		'<p id="back-overview"><a href="%s">%s</a></p>'."\n",
 		$link, wrap_text(wrap_setting('zzform_referer_text'))
@@ -724,25 +724,25 @@ function zz_cut_length($string, $max_length) {
  */
 function zz_init_referer() {
 	// get referer // @todo add support for SESSIONs as well
-	if (is_null(wrap_static('page', 'referer'))) {
-		wrap_static('page', 'referer', false);
-		if (isset($_GET['referer'])) wrap_static('page', 'referer', $_GET['referer']);
-		if (isset($_POST['zz_referer'])) wrap_static('page', 'referer', $_POST['zz_referer']);
+	if (is_null(wrap_static('zzform_page', 'referer'))) {
+		wrap_static('zzform_page', 'referer', false);
+		if (isset($_GET['referer'])) wrap_static('zzform_page', 'referer', $_GET['referer']);
+		if (isset($_POST['zz_referer'])) wrap_static('zzform_page', 'referer', $_POST['zz_referer']);
 	} elseif (isset($_POST['zz_referer'])) {
-		wrap_static('page', 'referer', $_POST['zz_referer']);
+		wrap_static('zzform_page', 'referer', $_POST['zz_referer']);
 	}
 	// remove actions from referer if set
-	$url = parse_url(wrap_static('page', 'referer'));
+	$url = parse_url(wrap_static('zzform_page', 'referer'));
 	if (!empty($url['query'])) {
 		$removes = ['delete', 'insert', 'update', 'noupdate'];
 		$url['query'] = zzform_url_remove($removes, $url['query'], 'return', '&');
 	}
-	wrap_static('page', 'referer', (
+	wrap_static('zzform_page', 'referer', (
 		(!empty($url['scheme']) ? $url['scheme'].'://'.$url['host'] : '').$url['path'].($url['query'] ?? '')
 	));
-	if (!wrap_static('page', 'referer')) return;
-	wrap_static('page', 'referer_esc', str_replace('&', '&amp;', wrap_static('page', 'referer')));
-	wrap_static('page', 'zz_referer', true);
+	if (!wrap_static('zzform_page', 'referer')) return;
+	wrap_static('zzform_page', 'referer_esc', str_replace('&', '&amp;', wrap_static('zzform_page', 'referer')));
+	wrap_static('zzform_page', 'zz_referer', true);
 }
 
 /**

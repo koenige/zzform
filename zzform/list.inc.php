@@ -89,13 +89,13 @@ function zz_list($zz, $list, $ops, $zz_conditions) {
 			// because there is no content
 			// @todo: output the same page with links, filters etc.
 			// as if no export were selected
-			wrap_static('page', 'status', 404);
+			wrap_static('zzform_page', 'status', 404);
 			$ops['mode'] = false;
 			unset($ops['headers']);
 			return zz_return($ops);
 		} elseif ($ops['records_total']) {
 			// 404 if limit is too large
-			wrap_static('page', 'status', 404);
+			wrap_static('zzform_page', 'status', 404);
 		}
 	}
 
@@ -930,7 +930,7 @@ function zz_list_query_hierarchy($zz, $list) {
 	list($my_lines, $total_rows) = zz_hierarchy($zz['sql'], $list['hierarchy']);
 	wrap_page_limit('last', $total_rows);
 	if (wrap_page_limit('start') >= $total_rows) {
-		wrap_static('page', 'status', 404);
+		wrap_static('zzform_page', 'status', 404);
 		return [[], $total_rows];
 	}
 
@@ -1799,7 +1799,7 @@ function zz_sql_order($fields, $sql) {
 		if (isset($_GET[$type]) AND !$get_used[$type]) $unwanted_keys[] = $type;
 	}
 	if ($unwanted_keys) {
-		wrap_static('page', 'status', 404);
+		wrap_static('zzform_page', 'status', 404);
 		zzform_url_remove($unwanted_keys);
 	}
 	

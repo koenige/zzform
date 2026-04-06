@@ -94,21 +94,21 @@
 function zz_upload_thumbnail($ops, $zz_tab) {
 	global $zz_conf;
 
-	wrap_static('page', 'content_type', 'json');
+	wrap_static('zzform_page', 'content_type', 'json');
 
 	if (empty($zz_tab[0][0]['existing'])) {
 		$ops['error'][] = sprintf('ID %s not found', $zz_conf['int']['id']['value']);
-		wrap_static('page', 'status', 404);
+		wrap_static('zzform_page', 'status', 404);
 		return $ops;
 	}
 	$ops['thumb_field'] = explode('-', $_GET['field']);
 	if (count($ops['thumb_field']) !== 2) {
-		wrap_static('page', 'status', 404);
+		wrap_static('zzform_page', 'status', 404);
 		return $ops;
 	}
 
 	if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-		wrap_static('page', 'status', 404);
+		wrap_static('zzform_page', 'status', 404);
 		return $ops;
 	}
 
@@ -143,7 +143,7 @@ function zz_upload_thumbnail($ops, $zz_tab) {
 		$ops['error'][] = sprintf('Thumbnail information for field %d (No. %d) not found',
 			$ops['thumb_field'][0], $ops['thumb_field'][1]
 		);
-		wrap_static('page', 'status', 404);
+		wrap_static('zzform_page', 'status', 404);
 	}
 	$ops['output'] = json_encode([
 		'result' => $ops['result'] ?? '',

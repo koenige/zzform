@@ -96,7 +96,7 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 		$record['formhead'] = wrap_text('Invalid ID for a record (must be an integer): %s',
 			['values' => wrap_html_escape($zz_conf['int']['id']['invalid_value'])]);
 		$record['formhead_error'] = true;
-		wrap_static('page', 'status', 404);
+		wrap_static('zzform_page', 'status', 404);
 	} elseif (in_array($ops['mode'], ['edit', 'delete', 'review', 'show', 'revise'])
 		AND !$zz_tab[0][0]['record'] AND $action_before_redirect !== 'delete') {
 		$sql = 'SELECT %s FROM %s WHERE %s = %d';
@@ -106,7 +106,7 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 			$record['formhead'] = wrap_text('Sorry, it is not possible to access the ID %d from here.',
 				['values' => wrap_html_escape($zz_conf['int']['id']['value'])]);
 			$record['formhead_error'] = true;
-			wrap_static('page', 'status', 403);
+			wrap_static('zzform_page', 'status', 403);
 		} else {
 			$sql = 'SELECT MAX(%s) FROM %s';
 			$sql = sprintf($sql, $zz_conf['int']['id']['field_name'], $zz_tab[0]['table']);
@@ -117,12 +117,12 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 				$record['formhead'] = wrap_text('The record with the ID %d was already deleted.',
 					['values' => $zz_conf['int']['id']['value']]);
 				$record['formhead_error'] = true;
-				wrap_static('page', 'status', 410);
+				wrap_static('zzform_page', 'status', 410);
 			} else {
 				$record['formhead'] = wrap_text('A record with the ID %d does not exist.',
 					['values' => $zz_conf['int']['id']['value']]);
 				$record['formhead_error'] = true;
-				wrap_static('page', 'status', 404);
+				wrap_static('zzform_page', 'status', 404);
 			}
 		}
 	} elseif (!empty($zz_tab[0]['integrity']['msg_args'])) {
@@ -309,9 +309,9 @@ function zz_record_form($zz_tab, $mode, $display, $zz_record, $zz_conditions) {
 				];
 			}
 		}
-		if (wrap_static('page', 'referer') AND wrap_static('page', 'zz_referer'))
+		if (wrap_static('zzform_page', 'referer') AND wrap_static('zzform_page', 'zz_referer'))
 			$output['hidden'][] = [
-				'name' => 'zz_referer', 'value' => wrap_static('page', 'referer')
+				'name' => 'zz_referer', 'value' => wrap_static('zzform_page', 'referer')
 			];
 		if (isset($_GET['file']) && $_GET['file']) 
 			$output['hidden'][] = [
@@ -340,10 +340,10 @@ function zz_record_form($zz_tab, $mode, $display, $zz_record, $zz_conditions) {
 function zz_record_dynamic_referer($mode, $record) {
 	if (!$record) return false;
 	if (!array_key_exists('nolist', $_GET)) return false;
-	if (!wrap_static('page', 'dynamic_referer')) return false;
-	wrap_static('page', 'referer', zz_path_link(wrap_static('page', 'dynamic_referer'), $record));
-	wrap_static('page', 'referer_esc', str_replace('&', '&amp;', wrap_static('page', 'referer')));
-	if ($mode === 'delete') wrap_static('page', 'zz_referer', false);
+	if (!wrap_static('zzform_page', 'dynamic_referer')) return false;
+	wrap_static('zzform_page', 'referer', zz_path_link(wrap_static('zzform_page', 'dynamic_referer'), $record));
+	wrap_static('zzform_page', 'referer_esc', str_replace('&', '&amp;', wrap_static('zzform_page', 'referer')));
+	if ($mode === 'delete') wrap_static('zzform_page', 'zz_referer', false);
 	return true;
 }
 
@@ -361,8 +361,8 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab) {
 	global $zz_conf;
 	$output = [];
 	
-	if (wrap_static('page', 'referer') AND array_key_exists('nolist', $_GET)) {
-		$cancelurl = wrap_static('page', 'referer');
+	if (wrap_static('zzform_page', 'referer') AND array_key_exists('nolist', $_GET)) {
+		$cancelurl = wrap_static('zzform_page', 'referer');
 	} elseif (!empty($zz_conf['int']['cancel_url'])) {
 		$cancelurl = $zz_conf['int']['cancel_url'];
 	} else {
