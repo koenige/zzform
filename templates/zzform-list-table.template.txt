@@ -28,7 +28,7 @@
 %%% loop sum_fields %%%
 <td%%% if class %%% class="%%% item class format=zzform_classes %%%"%%% endif %%%>%%% item text %%%%%% item unit "&nbsp;%s" %%%</td>
 %%% loop end %%%
-%%% if modes | details %%%
+%%% if has_modes | has_details %%%
 <td class="editbutton">&nbsp;</td>
 %%% endif %%%
 </tr>
