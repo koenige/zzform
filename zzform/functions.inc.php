@@ -829,6 +829,16 @@ function zz_prepare_fields($fields, $db_table, $multiple_times = false, $mode = 
 		case 'upload_image':
 			wrap_include('upload', 'zzform');
 			$fields[$no]['upload_max_filesize'] = zz_upload_max_filesize($fields[$no]['upload_max_filesize'] ?? 0);
+			if (!empty($fields[$no]['image'])) {
+				foreach ($fields[$no]['image'] as $img => &$image) {
+					if (!empty($image['path'])) continue;
+					if (!empty($fields[$no]['path']))
+						$image['path'] = $fields[$no]['path'];
+					if (!empty($fields[$no]['link']))
+						$image['link'] = $fields[$no]['link'];
+				}
+				unset($image);
+			}
 			break;
 		case 'select':
 			if (!isset($fields[$no]['max_select']))

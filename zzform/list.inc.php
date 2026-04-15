@@ -1079,7 +1079,8 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 				if (!empty($field['image'])) {
 					foreach ($field['image'] as $image) {
 						if (empty($image['show_link'])) continue;
-						if ($imglink = zz_path_link($image['path'], $line))
+						if ((!isset($image['link']) OR zz_path_file($image['path'], $line))
+							AND $imglink = zz_path_link($image['link'] ?? $image['path'], $line))
 							$text .= ' <a href="'.$imglink.'">'.$image['title'].'</a><br>';
 					}
 				}

@@ -4109,7 +4109,8 @@ function zz_field_file($field, $display, $record, $record_saved, $images, $mode,
 			];
 			$data[$i]['input_attributes'] = zz_record_element($element, 'attributes');
 			if (empty($field['dont_show_file_link'])
-				AND $data[$i]['link'] = zz_path_link($image['path'], $record_saved ?? $record)) {
+				AND (!isset($image['link']) OR zz_path_file($image['path'], $record_saved ?? $record))
+				AND $data[$i]['link'] = zz_path_link($image['link'] ?? $image['path'], $record_saved ?? $record)) {
 				if (count($uploads) > 1 OR !empty($field['optional_image'])) {
 					$data[$i]['delete_checkbox_id'] = 'delete-file-'.$fieldkey.'-'.$imagekey;
 					$element = zz_record_element([
@@ -4147,7 +4148,8 @@ function zz_field_file($field, $display, $record, $record_saved, $images, $mode,
 		$data['multiple_uploads'] = true;
 		$i = 0;
 		foreach ($uploads as $imagekey => $image) {
-			$link = zz_path_link($image['path'], $record);
+			if (isset($image['link']) AND !zz_path_file($image['path'], $record)) continue;
+			$link = zz_path_link($image['link'] ?? $image['path'], $record);
 			if (!$link) continue;
 			$data[$i]['title'] = $image['title'] ?? '';
 			$data[$i]['link'] = $link;
