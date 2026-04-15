@@ -671,10 +671,14 @@ ul.vxJS_list		{ margin: 0; padding: 0;  list-style-type: none; }
 
 
 /* zzform-actions.template.txt */
-#zzform .zz-actions	{ display: inline-block; }
+#zzform .zz-actions	{ display: inline-flex; flex-wrap: wrap;
+					align-items: center; gap: 0 .5em; }
 #zzform .zz-actions ul
 					{ display: flex; flex-wrap: wrap; margin: 0; padding: 0;
 					list-style: none; }
+#zzform .zz-actions ul + ul::before
+					{ content: '||'; margin-inline-end: .5em;
+					speak: never; white-space: nowrap; }
 /* inline-flex + nowrap: keep middot with the link (no orphaned · on next line) */
 #zzform .zz-actions li
 					{ display: inline-flex; flex-wrap: nowrap; align-items: center;
