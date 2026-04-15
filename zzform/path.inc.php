@@ -172,6 +172,11 @@ function zz_path($def, $record) {
 				else
 					$path_values[] = $record[$this_field];
 			}
+			if (empty($def['strings'])) $def['strings'] = [];
+			elseif (!is_array($def['strings'])) $def['strings'] = [$def['strings']];
+			foreach ($def['strings'] as $this_field)
+				$path_values[] = $this_field;
+
 			if (strstr($value, '[%s]') AND !empty($def['area_fields'])) {
 				$area_values = [];
 				foreach ($def['area_fields'] as $this_field)
@@ -294,6 +299,7 @@ function zz_path($def, $record) {
 		case 'extension_missing':
 		case 'ignore_record':
 		case 'target':
+		case 'strings':
 			break;
 
 		default:
