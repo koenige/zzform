@@ -172,8 +172,12 @@ function zz_path($def, $record) {
 				else
 					$path_values[] = $record[$this_field];
 			}
+			if (empty($def['strings_append'])) $def['strings_append'] = [];
+			foreach ($def['strings_append'] as $index => $this_field) {
+				if (!array_key_exists($index, $path_values)) continue;
+				$path_values[$index] .= $this_field;
+			}
 			if (empty($def['strings'])) $def['strings'] = [];
-			elseif (!is_array($def['strings'])) $def['strings'] = [$def['strings']];
 			foreach ($def['strings'] as $this_field)
 				$path_values[] = $this_field;
 
@@ -300,6 +304,7 @@ function zz_path($def, $record) {
 		case 'ignore_record':
 		case 'target':
 		case 'strings':
+		case 'strings_append':
 			break;
 
 		default:
