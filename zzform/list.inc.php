@@ -1073,8 +1073,11 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 					} else {
 						$default_image = $field['default_image'];
 					}
+					$default_img_class = 'thumb';
+					if (!empty($field['default_image_class']))
+						$default_img_class .= ' '.zz_htmltag_escape($field['default_image_class']);
 					$text .= $link.'<img src="'.$default_image
-						.'"  alt="'.wrap_text('No image').'" class="thumb">'.($link ? '</a>' : '');
+						.'"  alt="'.wrap_text('No image').'" class="'.$default_img_class.'">'.($link ? '</a>' : '');
 				}
 				if (!empty($field['image'])) {
 					foreach ($field['image'] as $image) {
