@@ -37,7 +37,12 @@
 <ul>
 %%% loop details %%%
 <li><a href="%%% item url %%%%%% if referer %%%&amp;referer=%%% setting request_uri %%%%%% endif %%%"%%% if target %%% target="%%% item target %%%"%%% endif %%%>
+%%% if icon %%%
+%%% if setting zzform_action_icons %%%%%% icon field=icon %%%%%% endif %%%
+<span class="zz-action-label">%%% translate item title %%%%%% item count "&nbsp;(%d)" %%%</span>
+%%% else %%%
 %%% translate item title %%%%%% item count "&nbsp;(%d)" %%%
+%%% endif %%%
 </a></li>
 %%% loop end %%%
 </ul>
