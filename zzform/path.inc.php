@@ -411,3 +411,14 @@ function zz_path_query($field_name, $sql, $idvalue = false, $idfield = false) {
 	}
 	return $queried[$key][$field_name] ?? false;
 }
+
+/**
+ * One flat array for zz_path_link: DB row plus current values (e.g. POST), so
+ * SELECT-only fields stay available while edited keys win on duplicates.
+ *
+ * @param array $my_rec $zz_tab[$tab][$rec]
+ * @return array
+ */
+function zz_path_record_flat($my_rec) {
+	return array_merge($my_rec['record_saved'] ?? [], $my_rec['record'] ?? []);
+}

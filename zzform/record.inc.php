@@ -28,7 +28,7 @@
 function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 	global $zz_conf;
 
-	zz_record_dynamic_referer($ops['mode'], $ops['record']);
+	zz_record_dynamic_referer($ops['mode'], zz_path_record_flat($zz_tab[0][0]));
 
 	// there might be now a where value for this record
 	if (!empty($record['where'][$zz_tab[0]['table']])) {
@@ -406,14 +406,14 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab) {
 			// record link?
 			foreach ($zz_tab[0][0]['fields'] as $field) {
 				if (empty($field['link_record']) OR empty($field['link'])) continue;
-				$output['link_record'] = zz_path_link($field['link'], $zz_tab[0][0]['record']);
+				$output['link_record'] = zz_path_link($field['link'], zz_path_record_flat($zz_tab[0][0]));
 			}
 			$output['modes'] = zz_output_modes($zz_conf['int']['id']['value'], $zz_conf_record);
 			$output['tfoot'] = true;
 		}
 		if ($zz_conf_record['details']) {
 			$output['tfoot_class'] = 'editbutton';
-			$output['details'] = zz_output_details($zz_conf_record, $zz_conf['int']['id']['value'], $zz_tab[0][0]['record']);
+			$output['details'] = zz_output_details($zz_conf_record, $zz_conf['int']['id']['value'], zz_path_record_flat($zz_tab[0][0]));
 			$output['tfoot'] = true;
 		}
 		if (!$zz_conf_record['details'] AND !$zz_conf_record['edit']
@@ -1054,7 +1054,7 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 
 			$field['form_view'] = $field_display === 'form' ? true : false;
 			$field['output_details_name'] = zz_record_add_details(
-				$field, $mode, $data, $fieldkey, $zz_tab[0][0]['record']
+				$field, $mode, $data, $fieldkey, zz_path_record_flat($zz_tab[0][0])
 			);
 
 			// append
