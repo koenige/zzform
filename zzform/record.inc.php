@@ -2755,6 +2755,8 @@ function zz_field_subtable_key_value($subtable, $display, $my_tab) {
  * @return string HTML output for form
  */
 function zz_field_select_sql($field, $display, $record, $db_table) {
+	global $zz_conf;
+
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
 	zz_field_sql($field, $zz_conf['int']['id']['value'] ?? NULL);
