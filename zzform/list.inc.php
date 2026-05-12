@@ -1065,7 +1065,8 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 			if (isset($field['path']) AND $mode === 'export') {
 				$text .= zz_path_link($field['path'], $line);
 			} elseif (isset($field['path'])) {
-				if ($img = zz_path_image($field['path'], $line)) {
+				if ((!isset($field['link']) OR zz_path_file($field['path'], $line))
+					AND $img = zz_path_image($field['link'] ?? $field['path'], $line)) {
 					$text .= $link.$img.($link ? '</a>' : '');
 				} elseif (isset($field['default_image'])) {
 					if (is_array($field['default_image'])) {
