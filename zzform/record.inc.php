@@ -4071,12 +4071,14 @@ function zz_field_file($field, $display, $record, $record_saved, $images, $mode,
 	if (($mode !== 'add' OR $field['type'] !== 'upload_image')
 		AND (empty($field['dont_show_image'])) || !$field['dont_show_image']) {
 		if (isset($field['path'])) {
-			$data['image'] = ((!isset($field['link']) OR zz_path_file($field['path'], $record))
+			$image = ((!isset($field['link']) OR zz_path_file($field['path'], $record))
 				? zz_path_image($field['link'] ?? $field['path'], $record) : '');
+			if ($image) $data['image'] = $image;
 		}
 		if (empty($data['image']) AND !empty($record_saved) AND isset($field['path'])) {
-			$data['image'] = ((!isset($field['link']) OR zz_path_file($field['path'], $record_saved))
+			$image = ((!isset($field['link']) OR zz_path_file($field['path'], $record_saved))
 				? zz_path_image($field['link'] ?? $field['path'], $record_saved) : '');
+			if ($image) $data['image'] = $image;
 		}
 		if (empty($data['image']) AND (!isset($field['dont_show_missing']) OR !$field['dont_show_missing'])) {
 			if (!isset($field['dont_show_missing_img']) OR !$field['dont_show_missing_img']) {
