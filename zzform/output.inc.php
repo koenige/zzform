@@ -741,8 +741,6 @@ function zz_init_referer() {
 	wrap_static('zzform_page', 'referer', (
 		(!empty($url['scheme']) ? $url['scheme'].'://'.$url['host'] : '').$url['path'].($url['query'] ?? '')
 	));
-	if (!wrap_static('zzform_page', 'referer')) return;
-	wrap_static('zzform_page', 'zz_referer', true);
 }
 
 /**

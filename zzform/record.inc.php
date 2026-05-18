@@ -28,7 +28,7 @@
 function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 	global $zz_conf;
 
-	zz_record_dynamic_referer($ops['mode'], zz_path_record_flat($zz_tab[0][0]));
+	zz_record_dynamic_referer(zz_path_record_flat($zz_tab[0][0]));
 
 	// there might be now a where value for this record
 	if (!empty($record['where'][$zz_tab[0]['table']])) {
@@ -309,10 +309,12 @@ function zz_record_form($zz_tab, $mode, $display, $zz_record, $zz_conditions) {
 				];
 			}
 		}
-		if (wrap_static('zzform_page', 'referer') AND wrap_static('zzform_page', 'zz_referer'))
-			$output['hidden'][] = [
-				'name' => 'zz_referer', 'value' => wrap_static('zzform_page', 'referer')
-			];
+		if ($referer = wrap_static('zzform_page', 'referer')) {
+			if (!($mode === 'delete' AND wrap_static('zzform_page', 'dynamic_referer')))
+				$output['hidden'][] = [
+					'name' => 'zz_referer', 'value' => $referer
+				];
+		}
 		if (isset($_GET['file']) && $_GET['file']) 
 			$output['hidden'][] = [
 				'name' => 'file', 'value' => wrap_html_escape($_GET['file'])
@@ -333,16 +335,14 @@ function zz_record_form($zz_tab, $mode, $display, $zz_record, $zz_conditions) {
 /**
  * as soon as we got the updated record, create dynamic_referer
  *
- * @param string $mode
  * @param array $record
  * @return bool
  */
-function zz_record_dynamic_referer($mode, $record) {
+function zz_record_dynamic_referer($record) {
 	if (!$record) return false;
 	if (!array_key_exists('nolist', $_GET)) return false;
 	if (!wrap_static('zzform_page', 'dynamic_referer')) return false;
 	wrap_static('zzform_page', 'referer', zz_path_link(wrap_static('zzform_page', 'dynamic_referer'), $record));
-	if ($mode === 'delete') wrap_static('zzform_page', 'zz_referer', false);
 	return true;
 }
 
