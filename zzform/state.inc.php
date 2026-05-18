@@ -132,7 +132,7 @@ function zz_state_definition($zz = []) {
 	if (array_key_exists($token, $hashes))
 		return $hashes[$token];
 	if (!$zz) {
-		wrap_error(sprintf('Unable to find hash for token %s', $token), E_USER_WARNING);
+		wrap_error(sprintf('Unable to find hash for token %s', $token), E_USER_NOTICE);
 		return '';
 	}
 	
