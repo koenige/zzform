@@ -342,7 +342,6 @@ function zz_record_dynamic_referer($mode, $record) {
 	if (!array_key_exists('nolist', $_GET)) return false;
 	if (!wrap_static('zzform_page', 'dynamic_referer')) return false;
 	wrap_static('zzform_page', 'referer', zz_path_link(wrap_static('zzform_page', 'dynamic_referer'), $record));
-	wrap_static('zzform_page', 'referer_esc', str_replace('&', '&amp;', wrap_static('zzform_page', 'referer')));
 	if ($mode === 'delete') wrap_static('zzform_page', 'zz_referer', false);
 	return true;
 }

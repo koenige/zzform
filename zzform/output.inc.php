@@ -651,7 +651,8 @@ function zz_output_add_export_links($zz, $ops, $position = 'below') {
  * @return string HTML output Back to overview
  */
 function zz_output_backlink() {
-	if (!$link = wrap_static('zzform_page', 'referer_esc')) return '';
+	if (!$link = wrap_static('zzform_page', 'referer')) return '';
+	$link = str_replace('&', '&amp;', $link);
 	return sprintf(
 		'<p id="back-overview"><a href="%s">%s</a></p>'."\n",
 		$link, wrap_text(wrap_setting('zzform_referer_text'))
@@ -741,7 +742,6 @@ function zz_init_referer() {
 		(!empty($url['scheme']) ? $url['scheme'].'://'.$url['host'] : '').$url['path'].($url['query'] ?? '')
 	));
 	if (!wrap_static('zzform_page', 'referer')) return;
-	wrap_static('zzform_page', 'referer_esc', str_replace('&', '&amp;', wrap_static('zzform_page', 'referer')));
 	wrap_static('zzform_page', 'zz_referer', true);
 }
 
