@@ -725,19 +725,38 @@ function zz_cut_length($string, $max_length) {
  */
 function zz_init_referer() {
 	// get referer // @todo add support for SESSIONs as well
+	$new_referer = null;
 	if (is_null(wrap_static('zzform_page', 'referer'))) {
 		wrap_static('zzform_page', 'referer', false);
-		if (isset($_GET['referer'])) wrap_static('zzform_page', 'referer', $_GET['referer']);
-		if (isset($_POST['zz_referer'])) wrap_static('zzform_page', 'referer', $_POST['zz_referer']);
+		if (isset($_GET['referer'])) $new_referer = wrap_http_value('referer');
+		if (isset($_POST['zz_referer'])) $new_referer = wrap_http_value('zz_referer', 'POST');
 	} elseif (isset($_POST['zz_referer'])) {
-		wrap_static('zzform_page', 'referer', $_POST['zz_referer']);
+		$new_referer = wrap_http_value('zz_referer', 'POST');
+	}
+	if ($new_referer) {
+		$ok = str_starts_with($new_referer, '/')
+			|| str_starts_with($new_referer, 'http://')
+			|| str_starts_with($new_referer, 'https://');
+		if ($ok) {
+			wrap_static('zzform_page', 'referer', $new_referer);
+		}
+		// do not allow to index pages like these
+		wrap_setting('cache', false);
+		// @todo avoid duplicate meta robots tags
+		wrap_static('zzform_page', 'meta', [['name' => 'robots', 'content' => 'noindex, follow']], 'add');
 	}
 	// remove actions from referer if set
+	if (!wrap_static('zzform_page', 'referer')) return;
 	$url = parse_url(wrap_static('zzform_page', 'referer'));
+	if (!$url) {
+		wrap_static('zzform_page', 'referer', false);
+		return;
+	}
 	if (!empty($url['query'])) {
 		$removes = ['delete', 'insert', 'update', 'noupdate'];
 		$url['query'] = zzform_url_remove($removes, $url['query'], 'return', '&');
 	}
+	if (empty($url['path'])) $url['path'] = '/';
 	wrap_static('zzform_page', 'referer', (
 		(!empty($url['scheme']) ? $url['scheme'].'://'.$url['host'] : '').$url['path'].($url['query'] ?? '')
 	));
