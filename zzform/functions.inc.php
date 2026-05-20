@@ -2429,18 +2429,21 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 	foreach ($postvalues as $value) {
 		// preg_match: "... ", extra space will be added in zz_field_select_sql_too_long()!
 		$my_likestring = $likestring;
-		if (preg_match('/^(.+?) *… *$/', $value, $short_value)) {
+		if (preg_match('/^(.+?)(?: *… *)+$/', $value, $short_value)) {
 			// reduces string with dots which come from values which have 
 			// been cut beforehands, use LIKE!
+			// consume repeated trailing ellipses (e. g. when value already
+			// ended in … and another … got appended by zz_cut_length())
 			$value = $short_value[1];
 			$my_likestring = ' LIKE %s"%s%%"';
 		}
 		if (str_starts_with($my_likestring, ' ')) {
 			if (strstr(trim($value), ' ')) {
-				// remove tags, remove line breaks when comparing
+				// normalize whitespace in column like zz_select_escape_value() on input
 				$my_likestring = sprintf(
-					'REPLACE(REPLACE(REPLACE(%%s, "\r\n", " "), "\n", " "), "%s", " ") %s'
-					, $concat, $my_likestring
+					'%s %s',
+					zz_check_select_normalize_field_sql('%s', $concat),
+					$my_likestring
 				);
 			} else {
 				$my_likestring = sprintf('%%s %s', $my_likestring);
@@ -2535,6 +2538,25 @@ function zz_check_select_id($field, $postvalue, $id = []) {
 	);
 	$field['select_checked'] = true;
 	return $field;
+}
+
+/**
+ * SQL expression: collapse whitespace in a column (MySQL 5.7 compatible)
+ *
+ * @param string $field column or sprintf placeholder (e. g. "%s")
+ * @param string $concat select concat separator
+ * @return string
+ */
+function zz_check_select_normalize_field_sql($field, $concat) {
+	$expr = sprintf('REPLACE(%s, "%s", " ")', $field, wrap_db_escape($concat));
+	foreach (["\r\n", "\n", "\r", "\t"] as $whitespace) {
+		$expr = sprintf('REPLACE(%s, "%s", " ")', $expr, wrap_db_escape($whitespace));
+	}
+	// eight passes collapse up to 256 consecutive spaces
+	for ($pass = 0; $pass < 8; $pass++) {
+		$expr = sprintf('REPLACE(%s, "  ", " ")', $expr);
+	}
+	return $expr;
 }
 
 /**
