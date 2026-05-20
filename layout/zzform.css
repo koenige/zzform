@@ -673,6 +673,9 @@ ul.vxJS_list		{ margin: 0; padding: 0;  list-style-type: none; }
 /* zzform-actions.template.txt */
 #zzform .zz-actions	{ display: inline-flex; flex-wrap: wrap;
 					align-items: center; gap: 0 .5em; }
+/* table action column: block-level flex avoids inline strut gap above nav */
+#zzform td.editbutton .zz-actions
+					{ display: flex; }
 #zzform .zz-actions ul
 					{ display: flex; flex-wrap: wrap; margin: 0; padding: 0;
 					list-style: none; }
