@@ -36,7 +36,7 @@ function zz_path_link($def, $record, $settings = []) {
  * @param array $record
  * @return string
  */
-function zz_path_image($def, $record) {
+function zz_path_image($def, $record, $path_web = null) {
 	// reject non-webimage extensions early
 	if (!empty($def['extension_missing']) AND !empty($def['extension'])
 		AND empty($record[$def['extension']])
@@ -66,6 +66,12 @@ function zz_path_image($def, $record) {
 			// if not, return EXT (4.4 MB)
 			return $ext.' ('.wrap_bytes($size).')';
 		}
+	}
+	if ($path_web) {
+		$path_web = zz_path($path_web, $record);
+		if (!$path_web OR !$path_web['web']) return '';
+		$path['web'] = $path_web['web'];
+		$path['srcset'] = $path_web['srcset'];
 	}
 	if (!$path['web']) return '';
 	

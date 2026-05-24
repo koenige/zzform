@@ -4072,12 +4072,12 @@ function zz_field_file($field, $display, $record, $record_saved, $images, $mode,
 		AND (empty($field['dont_show_image'])) || !$field['dont_show_image']) {
 		if (isset($field['path'])) {
 			$image = ((!isset($field['path_web']) OR zz_path_file($field['path'], $record))
-				? zz_path_image($field['path_web'] ?? $field['path'], $record) : '');
+				? zz_path_image($field['path'], $record, $field['path_web'] ?? null) : '');
 			if ($image) $data['image'] = $image;
 		}
 		if (empty($data['image']) AND !empty($record_saved) AND isset($field['path'])) {
 			$image = ((!isset($field['path_web']) OR zz_path_file($field['path'], $record_saved))
-				? zz_path_image($field['path_web'] ?? $field['path'], $record_saved) : '');
+				? zz_path_image($field['path'], $record_saved, $field['path_web'] ?? null) : '');
 			if ($image) $data['image'] = $image;
 		}
 		if (empty($data['image']) AND (!isset($field['dont_show_missing']) OR !$field['dont_show_missing'])) {

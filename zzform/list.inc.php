@@ -1066,7 +1066,7 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 				$text .= zz_path_link($field['path'], $line);
 			} elseif (isset($field['path'])) {
 				if ((!isset($field['path_web']) OR zz_path_file($field['path'], $line))
-					AND $img = zz_path_image($field['path_web'] ?? $field['path'], $line)) {
+					AND $img = zz_path_image($field['path'], $line, $field['path_web'] ?? null)) {
 					$text .= $link.$img.($link ? '</a>' : '');
 				} elseif (isset($field['default_image'])) {
 					if (is_array($field['default_image'])) {
