@@ -834,8 +834,8 @@ function zz_prepare_fields($fields, $db_table, $multiple_times = false, $mode = 
 					if (!empty($image['path'])) continue;
 					if (!empty($fields[$no]['path']))
 						$image['path'] = $fields[$no]['path'];
-					if (!empty($fields[$no]['link']))
-						$image['link'] = $fields[$no]['link'];
+					if (!empty($fields[$no]['path_web']))
+						$image['path_web'] = $fields[$no]['path_web'];
 				}
 				unset($image);
 			}

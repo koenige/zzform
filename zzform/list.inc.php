@@ -1065,8 +1065,8 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 			if (isset($field['path']) AND $mode === 'export') {
 				$text .= zz_path_link($field['path'], $line);
 			} elseif (isset($field['path'])) {
-				if ((!isset($field['link']) OR zz_path_file($field['path'], $line))
-					AND $img = zz_path_image($field['link'] ?? $field['path'], $line)) {
+				if ((!isset($field['path_web']) OR zz_path_file($field['path'], $line))
+					AND $img = zz_path_image($field['path_web'] ?? $field['path'], $line)) {
 					$text .= $link.$img.($link ? '</a>' : '');
 				} elseif (isset($field['default_image'])) {
 					if (is_array($field['default_image'])) {
@@ -1083,8 +1083,8 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 				if (!empty($field['image'])) {
 					foreach ($field['image'] as $image) {
 						if (empty($image['show_link'])) continue;
-						if ((!isset($image['link']) OR zz_path_file($image['path'], $line))
-							AND $imglink = zz_path_link($image['link'] ?? $image['path'], $line))
+						if ((!isset($image['path_web']) OR zz_path_file($image['path'], $line))
+							AND $imglink = zz_path_link($image['path_web'] ?? $image['path'], $line))
 							$text .= ' <a href="'.$imglink.'">'.$image['title'].'</a><br>';
 					}
 				}

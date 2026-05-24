@@ -404,7 +404,8 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab) {
 				$output['cancel_ok'] = $cancelurl;
 			// record link?
 			foreach ($zz_tab[0][0]['fields'] as $field) {
-				if (empty($field['link_record']) OR empty($field['link'])) continue;
+				if (empty($field['link_record'])) continue;
+				if (empty($field['link'])) continue;
 				$output['link_record'] = zz_path_link($field['link'], zz_path_record_flat($zz_tab[0][0]));
 			}
 			$output['modes'] = zz_output_modes($zz_conf['int']['id']['value'], $zz_conf_record);
@@ -4070,13 +4071,13 @@ function zz_field_file($field, $display, $record, $record_saved, $images, $mode,
 	if (($mode !== 'add' OR $field['type'] !== 'upload_image')
 		AND (empty($field['dont_show_image'])) || !$field['dont_show_image']) {
 		if (isset($field['path'])) {
-			$image = ((!isset($field['link']) OR zz_path_file($field['path'], $record))
-				? zz_path_image($field['link'] ?? $field['path'], $record) : '');
+			$image = ((!isset($field['path_web']) OR zz_path_file($field['path'], $record))
+				? zz_path_image($field['path_web'] ?? $field['path'], $record) : '');
 			if ($image) $data['image'] = $image;
 		}
 		if (empty($data['image']) AND !empty($record_saved) AND isset($field['path'])) {
-			$image = ((!isset($field['link']) OR zz_path_file($field['path'], $record_saved))
-				? zz_path_image($field['link'] ?? $field['path'], $record_saved) : '');
+			$image = ((!isset($field['path_web']) OR zz_path_file($field['path'], $record_saved))
+				? zz_path_image($field['path_web'] ?? $field['path'], $record_saved) : '');
 			if ($image) $data['image'] = $image;
 		}
 		if (empty($data['image']) AND (!isset($field['dont_show_missing']) OR !$field['dont_show_missing'])) {
@@ -4112,8 +4113,8 @@ function zz_field_file($field, $display, $record, $record_saved, $images, $mode,
 			];
 			$data[$i]['input_attributes'] = zz_record_element($element, 'attributes');
 			if (empty($field['dont_show_file_link'])
-				AND ((!isset($image['link']) AND !isset($field['link'])) OR zz_path_file($image['path'], $record_saved ?? $record))
-				AND $data[$i]['link'] = zz_path_link($image['link'] ?? $field['link'] ?? $image['path'], $record_saved ?? $record)) {
+				AND ((!isset($image['path_web']) AND !isset($field['path_web'])) OR zz_path_file($image['path'], $record_saved ?? $record))
+				AND $data[$i]['link'] = zz_path_link($image['path_web'] ?? $field['path_web'] ?? $image['path'], $record_saved ?? $record)) {
 				if (count($uploads) > 1 OR !empty($field['optional_image'])) {
 					$data[$i]['delete_checkbox_id'] = 'delete-file-'.$fieldkey.'-'.$imagekey;
 					$element = zz_record_element([
@@ -4151,8 +4152,8 @@ function zz_field_file($field, $display, $record, $record_saved, $images, $mode,
 		$data['multiple_uploads'] = true;
 		$i = 0;
 		foreach ($uploads as $imagekey => $image) {
-			if ((isset($image['link']) OR isset($field['link'])) AND !zz_path_file($image['path'], $record)) continue;
-			$link = zz_path_link($image['link'] ?? $field['link'] ?? $image['path'], $record);
+			if ((isset($image['path_web']) OR isset($field['path_web'])) AND !zz_path_file($image['path'], $record)) continue;
+			$link = zz_path_link($image['path_web'] ?? $field['path_web'] ?? $image['path'], $record);
 			if (!$link) continue;
 			$data[$i]['title'] = $image['title'] ?? '';
 			$data[$i]['link'] = $link;
