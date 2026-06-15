@@ -2917,9 +2917,9 @@ function zz_field_select($field, $record, $lines) {
 	foreach ($lines as $line) {
 		$level = $line['zz_level'] ?? 0;
 		if ($optgroup) {
-			$group = $line[$field['group']];
+			$group = $line[$field['group']] ?? '';
 			unset($line[$field['group']]);
-			$level++; // indent because of optgroup
+			if ($group) $level++; // indent because of optgroup
 		}
 		// remove tags, leave &#-Code as is
 		$value = zz_field_select_value($line, $field);
