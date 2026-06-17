@@ -207,14 +207,14 @@ function zz_details_return($ops, $zz_tab) {
  * show saved data, add new ID from next record or add new values from last
  * record, don't show list if it's a detail form
  *
- * @param int $current
- * @param int $last
+ * @param int|null $current
+ * @param int|null $last
  * @return array $zz
  */
 function zz_details_show($zz, $current, $last) {
 	global $zz_conf;
 
-	if (!empty($_SESSION['zzform'][zz_state_token()][$last])) {
+	if (isset($last) AND !empty($_SESSION['zzform'][zz_state_token()][$last])) {
 		// is there a form to return to?
 		$zz['list']['display'] = false;
 		$zz_conf['int']['cancel_url'] = $_SESSION['zzform'][zz_state_token()][$last]['source'];
@@ -225,13 +225,13 @@ function zz_details_show($zz, $current, $last) {
 
 	if (!empty($_POST)) return $zz;
 
-	if (!empty($_SESSION['zzform'][zz_state_token()][$current]['post'])) {
+	if (isset($current) AND !empty($_SESSION['zzform'][zz_state_token()][$current]['post'])) {
 		// read saved POST data top populate form if there is data
 		$_POST = $_SESSION['zzform'][zz_state_token()][$current]['post'];
 		$_GET = array_merge($_GET, $_SESSION['zzform'][zz_state_token()][$current]['get']);
 		$zz_conf['int']['add_details_return'] = true;
 
-	} elseif (!empty($_SESSION['zzform'][zz_state_token()][$last]['new_value'])) {
+	} elseif (isset($last) AND !empty($_SESSION['zzform'][zz_state_token()][$last]['new_value'])) {
 		// write string from previous form as a default to this form
 		$found = false;
 		$first = false;
@@ -264,7 +264,7 @@ function zz_details_show($zz, $current, $last) {
 		}
 	}
 
-	if (!empty($_SESSION['zzform'][zz_state_token()][$current]['new_id'])) {
+	if (isset($current) AND !empty($_SESSION['zzform'][zz_state_token()][$current]['new_id'])) {
 		// write new ID from next form back to this form
 		$_POST = zz_check_values(
 			$_POST,
