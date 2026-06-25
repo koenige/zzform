@@ -29,16 +29,23 @@ function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 	$field_no = $_GET['field_no'] ?? 0;
 	if (!wrap_is_int($field_no)) return brick_xhr_error(400, 'Malformed field number: %s', $field_no);
 	$subtable_no = $_GET['subtable_no'] ?? 0;
-	if (!wrap_is_int($subtable_no)) return brick_xhr_error(400, 'Malformed subtable number: %s', $subtable_no);
+	$subtable_parts = zz_xhr_subtable_parse($subtable_no);
+	if ($subtable_parts === false)
+		return brick_xhr_error(400, 'Malformed subtable number: %s', $subtable_no);
 
 	// @todo use part of zzform to check access rights
-	
-	if (!empty($subtable_no)) {
-		if (!array_key_exists($subtable_no, $zz['fields']) OR !array_key_exists('fields', $zz['fields'][$subtable_no]))
+
+	$subtable_fields = $zz['fields'];
+	$subtable_definition = NULL;
+	if ($subtable_parts) {
+		$resolved = zz_xhr_subtable_resolve($subtable_parts, $zz['fields']);
+		if (!$resolved)
 			return brick_xhr_error(503, 'Subtable %s requested, but it is not in the table definition', [$subtable_no]);
-		if (!array_key_exists($field_no, $zz['fields'][$subtable_no]['fields']))
+		$subtable_fields = $resolved['fields'];
+		$subtable_definition = $resolved['definition'];
+		if (!array_key_exists($field_no, $subtable_fields))
 			return brick_xhr_error(503, 'Field %s in subtable %s requested, but it is not in the table definition', [$field_no, $subtable_no]);
-		$field = $zz['fields'][$subtable_no]['fields'][$field_no];
+		$field = $subtable_fields[$field_no];
 	} else {
 		if (!array_key_exists($field_no, $zz['fields']))
 			return brick_xhr_error(503, 'Field %s requested, but it is not in the table definition', [$field_no]);
@@ -61,7 +68,7 @@ function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 	foreach ($sources as $source) {
 		// get IDs
 		if (!empty($subtable_no)) {
-			$my_field = $zz['fields'][$subtable_no]['fields'][$source];
+			$my_field = $subtable_fields[$source];
 		} else {
 			$my_field = $zz['fields'][$source];
 		}
@@ -80,16 +87,19 @@ function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 	if (!empty($field['dependencies_function'])) {
 		$values = $field['dependencies_function']($values);
 	}
-	
+
 	foreach ($field['dependencies'] as $index => $dependency) {
-		$this_subtable_no = !empty($subtable_no) ? $subtable_no : false;
-		if (strstr($dependency, '.'))
-			list ($this_subtable_no, $dependency) = explode('.', $dependency);
-		if ($this_subtable_no) {
-			$my_field = $zz['fields'][$this_subtable_no]['fields'][$dependency];
-		} else {
-			$my_field = $zz['fields'][$dependency];
+		$dep_fields = !empty($subtable_no) ? $subtable_fields : $zz['fields'];
+		$dep_definition = $subtable_definition;
+		if (strstr($dependency, '.')) {
+			list ($dep_subtable_no, $dependency) = explode('.', $dependency);
+			if (array_key_exists(intval($dep_subtable_no), $zz['fields']) AND !empty($zz['fields'][intval($dep_subtable_no)]['fields'])) {
+				$dep_fields = $zz['fields'][intval($dep_subtable_no)]['fields'];
+				$dep_definition = $zz['fields'][intval($dep_subtable_no)];
+			}
 		}
+		if (!array_key_exists(intval($dependency), $dep_fields)) continue;
+		$my_field = $dep_fields[intval($dependency)];
 		if (!empty($my_field['sql_dependency'][$_GET['field_no']])) {
 			foreach ($values as $index => $value)
 				$values[$index] = wrap_db_escape($value);
@@ -101,12 +111,12 @@ function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 					$value = wrap_translate($value, $t_table, $t_id_field);
 				}
 			}
-			$value = reset($value);			
+			$value = reset($value);
 		} elseif (count($values) === count($field['dependencies'])) {
 			$value = $values[$index];
 		}
-		if ($this_subtable_no AND isset($_GET['rec'])) {
-			$table_name = $zz['fields'][$this_subtable_no]['table_name'] ?? wrap_db_prefix($zz['fields'][$this_subtable_no]['table']);
+		if ($dep_definition AND isset($_GET['rec'])) {
+			$table_name = $dep_definition['table_name'] ?? wrap_db_prefix($dep_definition['table']);
 			$rec = intval($_GET['rec']);
 			$id_field_name = zz_long_fieldname($table_name, $rec, $my_field['field_name']);
 			$id_field_name = zz_make_id_fieldname($id_field_name);

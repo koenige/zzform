@@ -32,17 +32,20 @@ function mod_zzform_xhr_configs($xmlHttpRequest, $zz) {
 	$field_no = $_GET['field_no'] ?? 0;
 	if (!wrap_is_int($field_no)) return brick_xhr_error(400, 'Malformed field number: %s', $field_no);
 	$subtable_no = $_GET['subtable_no'] ?? 0;
-	if (!wrap_is_int($subtable_no)) return brick_xhr_error(400, 'Malformed subtable number: %s', $subtable_no);
+	$subtable_parts = zz_xhr_subtable_parse($subtable_no);
+	if ($subtable_parts === false)
+		return brick_xhr_error(400, 'Malformed subtable number: %s', $subtable_no);
 	$unrestricted = !empty($_GET['unrestricted']) ? true : false;
 
 	// @todo use part of zzform to check access rights
-	
-	if (!empty($subtable_no)) {
-		if (!array_key_exists($subtable_no, $zz['fields']))
+
+	if ($subtable_parts) {
+		$resolved = zz_xhr_subtable_resolve($subtable_parts, $zz['fields']);
+		if (!$resolved)
 			return brick_xhr_error(503, 'Subtable %s requested, but it is not in the table definition', [$subtable_no]);
-		if (!array_key_exists($field_no, $zz['fields'][$subtable_no]['fields']))
+		if (!array_key_exists($field_no, $resolved['fields']))
 			return brick_xhr_error(503, 'Field %s in subtable %s requested, but it is not in the table definition', [$field_no, $subtable_no]);
-		$field = $zz['fields'][$subtable_no]['fields'][$field_no];
+		$field = $resolved['fields'][$field_no];
 	} else {
 		if (!array_key_exists($field_no, $zz['fields']))
 			return brick_xhr_error(503, 'Field %s requested, but it is not in the table definition', [$field_no]);
