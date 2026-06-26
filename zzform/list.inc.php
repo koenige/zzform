@@ -1411,6 +1411,16 @@ function zz_list_word_split($text) {
 			// Reset word length on space
 			$word_length = 0;
 			$result .= $char;
+		} elseif ($char === '&' && preg_match('/^&[^;>\s]+;/u', mb_substr($text, $i), $match)) {
+			// HTML entity — copy whole, do not split inside
+			$result .= $match[0];
+			$word_length += mb_strlen($match[0]);
+			if ($word_length >= wrap_setting('zzform_word_split')) {
+				$result .= '<wbr>';
+				$word_length = 0;
+			}
+			$i += mb_strlen($match[0]);
+			continue;
 		} else {
 			// Outside HTML tag, count characters and split if needed
 			$word_length++;
