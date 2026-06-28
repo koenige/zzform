@@ -168,6 +168,7 @@ function zz_check_url($url) {
 	}
 	$parts = zz_is_url($url);
 	if (!$parts) {
+		if (strstr($url, '://')) return false;
 		$url = 'http://'.$url;
 		$parts = zz_is_url($url);
 		if (!$parts) return false;
