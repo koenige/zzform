@@ -19,7 +19,7 @@
 %%% elseif fail_delete %%%
 %%% text "Merge: Failed to delete record with ID %d in table <code>%s</code>." record_id table %%%
 %%% elseif success_update %%%
-%%% text "Merge: Update of record with ID %d in table <code>%s</code> was successful."" record_id table %%%
+%%% text "Merge: Update of record with ID %d in table <code>%s</code> was successful." record_id table %%%
 %%% elseif success_delete %%%
 %%% text "Merge: Deletion of record with ID %d in table <code>%s</code> was successful." record_id table %%%
 %%% elseif fail_field %%%
