@@ -16,6 +16,7 @@
 # exclude_pattern: files matching this pattern will be excluded from results (multiple patterns separated by semicolon)
 #
 2016-11-28-1	code	$zz_conf['add']	use $zz['record']['add']
+2023-03-21-1	code	zzform_translations_of_fields	use setting `translate_fields` instead
 2023-05-01-1	code	zzform_include_table	use zzform_include()	zzform/zzform/zzform.php
 2023-05-10-1	code	$zz_conf['breadcrumbs']	use $zz['page']['breadcrumbs'] instead	zzbrick/zzbrick/forms.inc.php
 2023-05-10-2	code	$zz_conf['dont_show_title_as_breadcrumb']	use $zz['page']['dont_show_title_as_breadcrumb']
