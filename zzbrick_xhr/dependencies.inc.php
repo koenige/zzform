@@ -21,6 +21,7 @@
  * @return array
  */
 function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
+	wrap_include('xhr', 'zzform');
 	zz_initialize();
 	$data = [];
 	$data['_query_strings'] = ['field_no', 'subtable_no', 'rec'];

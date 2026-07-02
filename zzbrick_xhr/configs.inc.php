@@ -23,6 +23,7 @@
  * @return array
  */
 function mod_zzform_xhr_configs($xmlHttpRequest, $zz) {
+	wrap_include('xhr', 'zzform');
 	$data = [];
 	$data['_query_strings'] = ['field_no', 'subtable_no', 'unrestricted'];
 	$text = mb_strtolower($xmlHttpRequest['text']);
