@@ -497,9 +497,9 @@ function zz_db_columns($db_table, $field = false) {
 }
 
 /**
- * Outputs error text depending on mySQL error number
+ * Outputs error text depending on MySQL error number
  *
- * @param int $errno mySQL error number
+ * @param int $errno MySQL error number
  * @return string $msg Error message
  */
 function zz_db_error($errno) {

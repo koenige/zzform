@@ -292,7 +292,7 @@ function zz_conditions_record($zz, $zz_conditions, $is_zz_tab = false) {
 			$found = true;
 		}
 		if (!$found AND wrap_setting('debug'))
-			zz_debug('conditions', 'Notice: `values`-condition was set, but there’s no field using it! (Waste of ressources)');
+			zz_debug('conditions', 'Notice: `values`-condition was set, but there’s no field using it! (Waste of resources)');
 	}
 	
 	// check if there are any bool-conditions
