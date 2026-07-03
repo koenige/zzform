@@ -8,6 +8,9 @@
 # @copyright Copyright © 2026 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
+# Variables
+# translate_pot = admin
+#
 <div id="make-thumbnails-app" class="maintenance zz-thumbnails" data-mode="%%% item mode %%%">
 <p>%%% text Here, you can create either missing thumbnails, if they were not created on upload. Or you can create completely new thumbnails if you changed the pixel size. %%%</p>
 <p><strong>%%% text Form %%%:</strong> <code>%%% item script %%%</code>
