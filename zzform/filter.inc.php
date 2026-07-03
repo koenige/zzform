@@ -188,8 +188,8 @@ function zz_filter_apply(&$zz, &$list) {
 		} else {
 			$link = zzform_url_remove([sprintf('filter[%s]', $filter['identifier'])], zzform_url('self'));
 			zz_error_log([
-				'msg' => ['This filter does not exist: %s', '<a href="%s">List without this filter</a>'],
-				'msg_args' => [zz_htmltag_escape($zz['filter_active'][$filter['identifier']]), zzform_url_escape($link)],
+				'_msg' => ['This filter does not exist: %s', '<a href="%s">List without this filter</a>'],
+				'_msg_values' => [zz_htmltag_escape($zz['filter_active'][$filter['identifier']]), zzform_url_escape($link)],
 				'level' => E_USER_NOTICE,
 				'status' => 404
 			]);
@@ -360,8 +360,8 @@ function zz_filter_invalid_value($filter, $value) {
 		wrap_static('zzform_page', 'status', 404);
 		wrap_static('zzform_page', 'error_type', E_USER_NOTICE);
 		zz_error_log([
-			'msg' => '“%s” is not a valid value for the selection “%s”. Please select a different filter.', 
-			'msg_args' => [zz_htmltag_escape($value), $filter['title']],
+			'_msg' => '“%s” is not a valid value for the selection “%s”. Please select a different filter.', 
+			'_msg_values' => [zz_htmltag_escape($value), $filter['title']],
 			'level' => E_USER_NOTICE
 		]);
 	}
@@ -385,11 +385,11 @@ function zz_filter_invalid($filter = false) {
 	$error = false;
 	foreach ($invalid_filters AS $identifier) {
 		zz_error_log([
-			'msg' => [
+			'_msg' => [
 				'A filter for the selection “%s” does not exist.',
 				'<a href="%s">List without this filter</a>'
 			],
-			'msg_args' => [zz_htmltag_escape($identifier), zzform_url_escape(zzform_url('self+qs+qs_zzform'))],
+			'_msg_values' => [zz_htmltag_escape($identifier), zzform_url_escape(zzform_url('self+qs+qs_zzform'))],
 			'level' => E_USER_NOTICE
 		]);
 		$error = true;

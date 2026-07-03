@@ -57,65 +57,65 @@ function zz_error() {
 			wrap_static('zzform_page', 'status', $error['status']);
 
 		// initialize and translate error messages
-		if (!empty($error['msg'])) {
-			// allow 'msg' to be an array to translate each sentence individually
-			if (!is_array($error['msg'])) $error['msg'] = [$error['msg']];
-			foreach ($error['msg'] as $index => $msg) {
+		if (!empty($error['_msg'])) {
+			// allow '_msg' to be an array to translate each sentence individually
+			if (!is_array($error['_msg'])) $error['_msg'] = [$error['_msg']];
+			foreach ($error['_msg'] as $index => $msg) {
 				if (is_array($msg)) {
 					$mymsg = [];
 					foreach ($msg as $submsg) {
 						$mymsg[] = wrap_text(trim($submsg));
 					}
-					$error['msg'][$index] = implode(' ', $mymsg);
+					$error['_msg'][$index] = implode(' ', $mymsg);
 				} else {
-					$error['msg'][$index] = wrap_text(trim($msg));
+					$error['_msg'][$index] = wrap_text(trim($msg));
 				}
 			}
 			if (empty($error['html'])) {
-				$error['msg'] = implode(' ', $error['msg']);
+				$error['_msg'] = implode(' ', $error['_msg']);
 			} else {
 				$mymsg = [];
 				foreach ($error['html'] as $index => $html) {
-					if (array_key_exists($index, $error['msg'])) {
-						$mymsg[] = sprintf($html, $error['msg'][$index]);
+					if (array_key_exists($index, $error['_msg'])) {
+						$mymsg[] = sprintf($html, $error['_msg'][$index]);
 					} else {
 						$mymsg[] = $html;
 					}
 				}
-				$error['msg'] = implode(' ', $mymsg);
+				$error['_msg'] = implode(' ', $mymsg);
 			}
 		} else {
-			$error['msg'] = '';
+			$error['_msg'] = '';
 		}
-		if (!empty($error['msg_args'])) {
-			// flatten msg_args because msg is concatenated already
+		if (!empty($error['_msg_values'])) {
+			// flatten _msg_values because _msg is concatenated already
 			$args = [];
-			foreach ($error['msg_args'] as $arg) {
+			foreach ($error['_msg_values'] as $arg) {
 				if (is_array($arg)) $args = array_merge($args, $arg);
 				else $args[] = $arg;
 			}
-			$error['msg'] = vsprintf($error['msg'], $args);
+			$error['_msg'] = vsprintf($error['_msg'], $args);
 		}
 		// @todo think about translating dev messages for administrators
 		// in a centrally set (not user defined) language
-		$error['msg_dev'] = $error['msg_dev'] ?? '';
-		if (is_array($error['msg_dev'])) $error['msg_dev'] = implode(' ', $error['msg_dev']);
-		$error['msg_dev'] = trim($error['msg_dev']);
-		if (!empty($error['msg_dev_args'])) {
-			$error['msg_dev'] = vsprintf($error['msg_dev'], $error['msg_dev_args']);
+		$error['_msg_dev'] = $error['_msg_dev'] ?? '';
+		if (is_array($error['_msg_dev'])) $error['_msg_dev'] = implode(' ', $error['_msg_dev']);
+		$error['_msg_dev'] = trim($error['_msg_dev']);
+		if (!empty($error['_msg_dev_values'])) {
+			$error['_msg_dev'] = vsprintf($error['_msg_dev'], $error['_msg_dev_values']);
 		}
 
 		$user[$key] = false;
 		$admin[$key] = false;
 
 		if (!empty($error['db_errno'])) {
-			$error['msg'] = zz_db_error($error['db_errno'])
-				.($error['msg'] ? '<br>'.$error['msg'] : '');
+			$error['_msg'] = zz_db_error($error['db_errno'])
+				.($error['_msg'] ? '<br>'.$error['_msg'] : '');
 		}
 
 		switch ($error['level']) {
 		case E_USER_ERROR:
-			if (!$error['msg']) $user[$key] .= wrap_text('An error occured.'
+			if (!$error['_msg']) $user[$key] .= wrap_text('An error occured.'
 				.' We are working on the solution of this problem. '
 				.'Sorry for your inconvenience. Please try again later.');
 			$level = 'error';
@@ -134,11 +134,11 @@ function zz_error() {
 		}
 
 		// User output
-		$user[$key] .= $error['msg'];
+		$user[$key] .= $error['_msg'];
 
 		// Admin output
-		if ($error['msg_dev']) 
-			$admin[$key] .= $error['msg_dev'].'<br>';
+		if ($error['_msg_dev']) 
+			$admin[$key] .= $error['_msg_dev'].'<br>';
 		if (!empty($error['db_msg'])) 
 			$admin[$key] .= $error['db_msg'].':<br>';
 		if (!empty($error['query'])) {
@@ -147,10 +147,10 @@ function zz_error() {
 			$error['log_post_data'] = false;
 			$admin[$key] .= preg_replace("/\s+/", " ", $error['query']).'<br>';
 		}
-		if ($admin[$key] AND $error['msg'])
-			$admin[$key] = $error['msg'].'<br>'.$admin[$key];
+		if ($admin[$key] AND $error['_msg'])
+			$admin[$key] = $error['_msg'].'<br>'.$admin[$key];
 		elseif (!$admin[$key])
-			$admin[$key] = $error['msg'];
+			$admin[$key] = $error['_msg'];
 
 		// Convert admin message to plain text for logging and mailing
 		$log = zz_error_html_to_plain($admin[$key]);
@@ -244,11 +244,11 @@ function zz_error_html_to_plain($message) {
  *
  * @param array $msg
  *		array for each error:
- * 		mixed 'msg' message(s) that always will be sent back to browser
- *		array 'msg_args' vsprintf arguments for msg
- * 		string 'msg_dev' message that will be sent to browser, log and mail, 
+ * 		mixed '_msg' message(s) that always will be sent back to browser
+ *		array '_msg_values' vsprintf arguments for _msg
+ * 		string '_msg_dev' message that will be sent to browser, log and mail, 
  * 			depending on settings
- *		array 'msg_dev_args' vsprintf arguments for msg_dev
+ *		array '_msg_dev_values' vsprintf arguments for _msg_dev
  * 		int 'level' for error level: currently implemented:
  * 			- E_USER_ERROR: critical error, action could not be finished,
  *				unrecoverable error
@@ -317,7 +317,7 @@ function zz_error_output() {
  * log validation errors
  *
  * @param string $key
- *		'msg', 'msg_args', 'msg_dev', 'msg_dev_args', log_post_data' => log for this key
+ *		'_msg', '_msg_values', '_msg_dev', '_msg_dev_values', log_post_data' => log for this key
  *		'delete' => delete all values
  * @param mixed $value
  *		bool, array, string
@@ -327,8 +327,8 @@ function zz_error_validation_log($key = false, $value = []) {
 	static $errors = [];
 	if (!$errors OR $key === 'delete') {
 		$errors = [
-			'msg' => [], 'msg_args' => [], 'msg_dev' => [],
-			'msg_dev_args' => [], 'log_post_data' => false
+			'_msg' => [], '_msg_values' => [], '_msg_dev' => [],
+			'_msg_dev_values' => [], 'log_post_data' => false
 		];
 		if ($key === 'delete') $key = false;
 	}
@@ -347,23 +347,23 @@ function zz_error_validation_log($key = false, $value = []) {
  */
 function zz_error_validation() {
 	$errors = zz_error_validation_log();
-	if (!$errors['msg']) return false;
+	if (!$errors['_msg']) return false;
 	if (wrap_static('zzform_output', 'batch_mode')) return false;
 
 	// user error message, visible to everyone
 	// line breaks \n important for mailing errors
 	$errors['html'][] = "<p>%s</p>\n<ul>";
-	foreach ($errors['msg'] as $msg) {
+	foreach ($errors['_msg'] as $msg) {
 		$errors['html'][] = "<li>%s</li>\n";
 	}
 	$errors['html'][] = "</ul>\n";
-	array_unshift($errors['msg'], 'These problems occured:');
+	array_unshift($errors['_msg'], 'These problems occured:');
 	// if we got wrong values entered, put this into a developer message
-	$dev_msgs = $errors['msg_dev'];
-	unset($errors['msg_dev']);
+	$dev_msgs = $errors['_msg_dev'];
+	unset($errors['_msg_dev']);
 	foreach ($dev_msgs as $msg_dev) {
-		$errors['msg_dev'][] = 'Field name: %s / ';
-		$errors['msg_dev'][] = $msg_dev;
+		$errors['_msg_dev'][] = 'Field name: %s / ';
+		$errors['_msg_dev'][] = $msg_dev;
 	}
 	$errors['level'] = E_USER_NOTICE;
 	zz_error_log($errors);
@@ -383,23 +383,23 @@ function zz_error_multi($errors) {
 
 	$logged_errors = zz_error_log();
 	foreach ($logged_errors as $index => $error) {
-		if (empty($error['msg_dev'])) continue;
-		if (!empty($error['msg_dev_args'])) {
-			$error['msg_dev'] = vsprintf($error['msg_dev'], $error['msg_dev_args']);
+		if (empty($error['_msg_dev'])) continue;
+		if (!empty($error['_msg_dev_values'])) {
+			$error['_msg_dev'] = vsprintf($error['_msg_dev'], $error['_msg_dev_values']);
 		}
-		$errors[] = $error['msg_dev'];
+		$errors[] = $error['_msg_dev'];
 	}
 	$validation_errors = zz_error_validation_log();
-	if ($validation_errors['msg']) {
-		foreach ($validation_errors['msg'] as $index => $msg)
-			$validation_errors['msg'][$index] = strip_tags($msg);
-		if (!empty($validation_errors['msg_args'])) {
+	if ($validation_errors['_msg']) {
+		foreach ($validation_errors['_msg'] as $index => $msg)
+			$validation_errors['_msg'][$index] = strip_tags($msg);
+		if (!empty($validation_errors['_msg_values'])) {
 			$glue = 'SOME_NEVER_APPEARING_SEQUENCE_IN_ERROR_MSG';
-			$msgs = implode($glue, $validation_errors['msg']);
-			$msgs = vsprintf($msgs, $validation_errors['msg_args']);
-			$validation_errors['msg'] = explode($glue, $msgs);
+			$msgs = implode($glue, $validation_errors['_msg']);
+			$msgs = vsprintf($msgs, $validation_errors['_msg_values']);
+			$validation_errors['_msg'] = explode($glue, $msgs);
 		}
-		$errors = array_merge($errors, $validation_errors['msg']);
+		$errors = array_merge($errors, $validation_errors['_msg']);
 	}
 	return $errors;
 }
@@ -414,13 +414,13 @@ function zz_trigger_error_too_big() {
 	
 	if (empty($zz_conf['int']['post_too_big'])) return true;
 	zz_error_log([
-		'msg' => [
+		'_msg' => [
 			'Transfer failed. Probably you sent a file that was too large.',
 			'<br>',
 			'Maximum allowed filesize is %s.',
 			' – You sent: %s data.'
 		],
-		'msg_args' => [
+		'_msg_values' => [
 			wrap_bytes(zz_upload_max_filesize()),
 			wrap_bytes($_SERVER['CONTENT_LENGTH'])
 		],

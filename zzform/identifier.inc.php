@@ -679,7 +679,7 @@ function zz_identifier_redirect($ops, $zz_tab) {
 			}
 		}
 		if (empty($field_name)) {
-			zz_error_log(['msg_dev' => 'Missing field name for redirect']);
+			zz_error_log(['_msg_dev' => 'Missing field name for redirect']);
 			continue;
 		}
 		if ($action === 'update') {

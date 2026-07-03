@@ -99,7 +99,7 @@ function zzform($zz) {
 	
 	if (!$zz['fields']) {
 		zz_error_log([
-			'msg_dev' => 'There is no table definition available (\'fields\'). Please check.',
+			'_msg_dev' => 'There is no table definition available (\'fields\'). Please check.',
 			'level' => E_USER_NOTICE
 		]);
 		zz_error();
@@ -355,7 +355,7 @@ function zzform_record($zz, $ops, $zz_conditions) {
 	if ($ops['review_via_login']) $validation = false;
 	if ($ops['review_via_login'] OR !empty($_SESSION['zzform']['delete_via_login'])) {
 		zz_error_log([
-			'msg' => 'You had been logged out automatically. Therefore, your changes were not yet saved. Please submit the form again.',
+			'_msg' => 'You had been logged out automatically. Therefore, your changes were not yet saved. Please submit the form again.',
 			'level' => E_USER_NOTICE
 		]);
 	}
@@ -587,8 +587,8 @@ function zz_valid_request($action = false) {
 	if ($_GET['zzhash'] !== zz_state_hash()) {
 		if (!$dont_log_error) {
 			zz_error_log([
-				'msg_dev' => 'Hash of script and ID differs from secret key (hash %s, secret %s).',
-				'msg_dev_args' => [$_GET['zzhash'], zz_state_hash()],
+				'_msg_dev' => 'Hash of script and ID differs from secret key (hash %s, secret %s).',
+				'_msg_dev_values' => [$_GET['zzhash'], zz_state_hash()],
 				'level' => E_USER_NOTICE
 			]);
 			$dont_log_error = true;
@@ -685,7 +685,7 @@ function zz_initialize($mode = false, $old_conf = []) {
 	if ($mode === 'form' AND $zzform_calls > 1 AND !wrap_static('zzform_output', 'batch_mode')) { 
 		// show a warning only if zzform is not explicitly called via zzform_multi()
 		zz_error_log([
-			'msg_dev' => 'zzform has been called as a function more than once. '
+			'_msg_dev' => 'zzform has been called as a function more than once. '
 				.'You might want to check if this is correct.',
 			'level' => E_USER_NOTICE
 		]);

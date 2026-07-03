@@ -39,8 +39,8 @@ function zz_export_init(&$ops, &$zz) {
 		if (!isset($_GET[$key])) continue;
 		zzform_url_remove($unwanted_keys);
 		zz_error_log([
-			'msg' => 'Please don’t mess with the URL parameters. <code>%s</code> is not allowed here.',
-			'msg_args' => [$key],
+			'_msg' => 'Please don’t mess with the URL parameters. <code>%s</code> is not allowed here.',
+			'_msg_values' => [$key],
 			'level' => E_USER_NOTICE,
 			'status' => 404
 		]);
@@ -73,8 +73,8 @@ function zz_export_init(&$ops, &$zz) {
 	$export_param = strpos($export, '-') ? substr($export, 0, strpos($export, '-')) : $export;
 	if (!in_array($export_param, wrap_setting('zzform_export_formats'))) {
 		zz_error_log([
-			'msg_dev' => 'Export parameter not allowed: `%s`',
-			'msg_dev_args' => [$export ? $export : zz_htmltag_escape($_GET['export'])],
+			'_msg_dev' => 'Export parameter not allowed: `%s`',
+			'_msg_dev_values' => [$export ? $export : zz_htmltag_escape($_GET['export'])],
 			'level' => E_USER_NOTICE,
 			'status' => 404
 		]);

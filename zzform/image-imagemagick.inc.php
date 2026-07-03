@@ -347,8 +347,8 @@ function zz_imagick_add_options($filetype, $image = []) {
 		if ($image['upload']['icc_profile'] === 'Artifex Software sRGB ICC Profile') continue;
 		if (!wrap_setting('zzform_icc_profiles['.$image['upload']['icc_profile'].']')) {
 			zz_error_log([
-				'msg_dev' => 'No ICC profile found for %s',
-				'msg_dev_args' => [$image['upload']['icc_profile']],
+				'_msg_dev' => 'No ICC profile found for %s',
+				'_msg_dev_values' => [$image['upload']['icc_profile']],
 				'log_post_data' => false,
 				'level' => E_USER_NOTICE
 			]);

@@ -519,8 +519,8 @@ function zz_search_check_field($field_name, $table, $search_term) {
 	$column = zz_db_columns($table, $field_name);
 	if (!$column) {
 		zz_error_log([
-			'msg_dev' => 'Column definition for field `%s.%s` cannot be read.',
-			'msg_dev_args' => [$table, $field_name],
+			'_msg_dev' => 'Column definition for field `%s.%s` cannot be read.',
+			'_msg_dev_values' => [$table, $field_name],
 			'log_post_data' => false,
 			'level' => E_USER_NOTICE
 		]);
@@ -625,7 +625,7 @@ function zz_search_detail_table($field, $table) {
 	}
 	if (!$foreign_key) {
 		zz_error_log([
-			'msg_dev' => 'Subtable definition is wrong. There must be a field which is defined as "foreign_key".'
+			'_msg_dev' => 'Subtable definition is wrong. There must be a field which is defined as "foreign_key".'
 		]);
 		zz_error();
 		exit;
@@ -674,8 +674,8 @@ function zz_search_detail_table($field, $table) {
 	if (!$ids AND !$ids_po) return [];
 	if ($ids AND in_array('', array_keys($ids))) {
 		zz_error_log([
-			'msg_dev' => 'Search: empty key for %s found in query',
-			'msg_dev_args' => [$foreign_key],
+			'_msg_dev' => 'Search: empty key for %s found in query',
+			'_msg_dev_values' => [$foreign_key],
 			'query' => $detail_sql
 		]);
 		unset($ids['']);

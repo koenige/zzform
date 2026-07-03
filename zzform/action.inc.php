@@ -91,7 +91,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 				return zz_return([$ops, $zz_tab, $validation]);
 			// if something was returned, validation failed because there 
 			// probably are records
-			if (is_array($zz_tab[0]['integrity']) AND $zz_tab[0]['integrity']['msg_args']) {
+			if (is_array($zz_tab[0]['integrity']) AND $zz_tab[0]['integrity']['_msg_values']) {
 				$validation = false;
 			} elseif ($zz_record['upload_form']) {
 				zz_integrity_check_files($dependent_ids);
@@ -122,12 +122,12 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 			// show error message
 			if (empty($zz_tab[0][0]['fields'][$my_tab['no']]['dont_show_missing'])) {
 				if (empty($zz_tab[0][0]['fields'][$my_tab['no']]['form_display']) OR !in_array($zz_tab[0][0]['fields'][$my_tab['no']]['form_display'], ['set', 'key_value'])) {
-					zz_error_validation_log('msg', 'Minimum of records for table `%s` was not met (%d).');
-					zz_error_validation_log('msg_args', wrap_text($zz_tab[0][0]['fields'][$my_tab['no']]['title'], ['source' => wrap_static('zzform', 'script_path')]));
-					zz_error_validation_log('msg_args', $my_tab['min_records_required']);
+					zz_error_validation_log('_msg', 'Minimum of records for table `%s` was not met (%d).');
+					zz_error_validation_log('_msg_values', wrap_text($zz_tab[0][0]['fields'][$my_tab['no']]['title'], ['source' => wrap_static('zzform', 'script_path')]));
+					zz_error_validation_log('_msg_values', $my_tab['min_records_required']);
 				} else {
-					zz_error_validation_log('msg', 'Value missing in field <strong>%s</strong>.');
-					zz_error_validation_log('msg_args', wrap_text($zz_tab[0][0]['fields'][$my_tab['no']]['title'], ['source' => wrap_static('zzform', 'script_path')]));
+					zz_error_validation_log('_msg', 'Value missing in field <strong>%s</strong>.');
+					zz_error_validation_log('_msg_values', wrap_text($zz_tab[0][0]['fields'][$my_tab['no']]['title'], ['source' => wrap_static('zzform', 'script_path')]));
 				}
 				zz_error_validation_log('log_post_data', true);
 				if (is_numeric($rec))
@@ -336,7 +336,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 			if ($result['action']) {
 				$del_msg[] = 'integrity update: '.$me_sql.'<br>';
 			} else {
-				$result['error']['msg'] = 'Detail record could not be updated';
+				$result['error']['_msg'] = 'Detail record could not be updated';
 				zz_error_log($result['error']);
 			}
 		}
@@ -362,7 +362,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 				if ($result['action']) {
 					$del_msg[] = 'integrity delete: '.$me_sql.'<br>';
 				} else {
-					$result['error']['msg'] = 'Detail record could not be deleted';
+					$result['error']['_msg'] = 'Detail record could not be deleted';
 					zz_error_log($result['error']);
 				}
 			}
@@ -383,7 +383,7 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 					// save record values for use outside of zzform()
 					$ops = zz_record_info($ops, $zz_tab, $tab, $rec);
 				} else { // something went wrong, but why?
-					$result['error']['msg'] = 'Detail record could not be deleted';
+					$result['error']['_msg'] = 'Detail record could not be deleted';
 					zz_error_log($result['error']);
 					$zz_tab[$tab][$rec]['error'] = $result['error'];
 					// @todo not sure whether to cancel any further operations here
@@ -525,8 +525,8 @@ function zz_action_last_update($zz_tab, $action) {
 		$result = zz_db_change($sql, $zz_tab[0][0]['id']['value']);
 		if ($result['action'] !== 'update') {
 			zz_error_log([
-				'msg_dev' => 'Update of timestamp failed (ID %d), query: %s',
-				'msg_dev_args' => [$zz_tab[0][0]['id']['value'], $sql]
+				'_msg_dev' => 'Update of timestamp failed (ID %d), query: %s',
+				'_msg_dev_values' => [$zz_tab[0][0]['id']['value'], $sql]
 			]);
 		}
 	}
@@ -617,8 +617,8 @@ function zz_action_equals($my_rec) {
 		} else {
 			// we have an update but no existing record
 			zz_error_log([
-				'msg_dev' => 'Update without existing record? Record: %s',
-				'msg_dev_args' => [json_encode($my_rec)]
+				'_msg_dev' => 'Update without existing record? Record: %s',
+				'_msg_dev_values' => [json_encode($my_rec)]
 			]);
 			$update = true;
 		}
@@ -679,10 +679,10 @@ function zz_action_details($detail_sqls, $zz_tab, $validation, $ops, $foreign_id
 				// This should never occur, since all checks say that 
 				// this change is possible
 				// only if duplicate entry
-				$result['error']['msg'] = 'There was a problem with the detail record.';
+				$result['error']['_msg'] = 'There was a problem with the detail record.';
 				$result['error']['level'] = E_USER_WARNING;
-				$result['error']['msg_dev'] = 'Query: %s';
-				$result['error']['msg_dev_args'][] = $sql;
+				$result['error']['_msg_dev'] = 'Query: %s';
+				$result['error']['_msg_dev_values'][] = $sql;
 				if (empty($result['error']['query']))
 					$result['error']['query'] = $sql;
 				zz_error_log($result['error']);
@@ -818,8 +818,8 @@ function zz_action_function($type, $ops, $zz_tab) {
 			}
 			if (!$found) {
 				zz_error_log([
-					'msg_dev' => 'Hook function %s was not found. Continuing without hook.',
-					'msg_dev_args' => [$hook],
+					'_msg_dev' => 'Hook function %s was not found. Continuing without hook.',
+					'_msg_dev_values' => [$hook],
 					'level' => E_USER_WARNING
 				]);
 				return false;
@@ -842,8 +842,8 @@ function zz_action_function($type, $ops, $zz_tab) {
 			AND !empty($change['record_replace'])) {
 			unset($change['record_replace']);
 			zz_error_log([
-				'msg_dev' => 'Function for hook (%s) tries to set record_replace. Will not be evaluated at this point.',
-				'msg_dev_args' => [$type]
+				'_msg_dev' => 'Function for hook (%s) tries to set record_replace. Will not be evaluated at this point.',
+				'_msg_dev_values' => [$type]
 			]);
 		}
 	}
@@ -1493,13 +1493,13 @@ function zz_foldercheck($zz_tab) {
 				$folders[] = ['old' => $old_path, 'new' => $path];
 			} else {
 				zz_error_log([
-					'msg_dev' => 'Folder cannot be renamed.'
+					'_msg_dev' => 'Folder cannot be renamed.'
 				]);
 				zz_error();
 			}
 		} else {
 			zz_error_log([
-				'msg_dev' => 'There is already a folder by that name.'
+				'_msg_dev' => 'There is already a folder by that name.'
 			]);
 			zz_error();
 		}
@@ -1862,8 +1862,8 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 					$my_rec['POST'][$field_name], $field['number_type'], $precision
 				);
 				if ($coord['error']) {
-					zz_error_validation_log('msg_dev', $coord['error']);
-					zz_error_validation_log('msg_dev_args', $field_name);
+					zz_error_validation_log('_msg_dev', $coord['error']);
+					zz_error_validation_log('_msg_dev_values', $field_name);
 					zz_error_validation_log('log_post_data', true);
 					$my_rec['fields'][$f]['explanation'] = $coord['error'];
 					$my_rec['fields'][$f]['check_validation'] = false;
@@ -1884,8 +1884,8 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 					if (!empty($field['max_int_value']) AND $n_val > $field['max_int_value']) {
 						$my_rec['validation'] = false;
 						$my_rec['fields'][$f]['check_validation'] = false;
-						$my_rec['fields'][$f]['validation_error']['msg'] = 'The number %d is too high. Maximum value is %d.';
-						$my_rec['fields'][$f]['validation_error']['msg_args'] = [$n_val, $field['max_int_value']];
+						$my_rec['fields'][$f]['validation_error']['_msg'] = 'The number %d is too high. Maximum value is %d.';
+						$my_rec['fields'][$f]['validation_error']['_msg_values'] = [$n_val, $field['max_int_value']];
 					}
 				} else {
 					$my_rec['fields'][$f]['check_validation'] = false;
@@ -1902,8 +1902,8 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 			} elseif (!empty($field['max_int_value']) AND $value > $field['max_int_value']) {
 				$my_rec['validation'] = false;
 				$my_rec['fields'][$f]['check_validation'] = false;
-				$my_rec['fields'][$f]['validation_error']['msg'] = 'The number %d is too high. Maximum value is %d.';
-				$my_rec['fields'][$f]['validation_error']['msg_args'] = [$value, $field['max_int_value']];
+				$my_rec['fields'][$f]['validation_error']['_msg'] = 'The number %d is too high. Maximum value is %d.';
+				$my_rec['fields'][$f]['validation_error']['_msg_values'] = [$value, $field['max_int_value']];
 			}
 			break;
 		case 'password':
@@ -1950,7 +1950,7 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 					$my_rec['POST'][$field_name.'_new_2'], $my_sql, $field);
 			} else {
 				zz_error_log([
-					'msg' => 'Please enter your current password and twice your new password.',
+					'_msg' => 'Please enter your current password and twice your new password.',
 					'level' => E_USER_NOTICE
 				]);
 			}
@@ -2096,8 +2096,8 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 				if (!is_numeric($key)) continue;
 				if (empty($image['error'])) continue;
 				foreach ($image['error'] as $error) {
-					zz_error_validation_log('msg_dev', $error);
-					zz_error_validation_log('msg_dev_args', $field_name);
+					zz_error_validation_log('_msg_dev', $error);
+					zz_error_validation_log('_msg_dev_values', $field_name);
 				}
 			}
 			break;
@@ -2215,8 +2215,8 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 			if (($length = mb_strlen($my_rec['POST'][$field_name])) > $field['maxlength']) {
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['fields'][$f]['validation_error'] = [
-					'msg' => 'Text is too long (max. %d characters, %d submitted).',
-					'msg_args' => [$field['maxlength'], $length]
+					'_msg' => 'Text is too long (max. %d characters, %d submitted).',
+					'_msg_values' => [$field['maxlength'], $length]
 				];
 				$my_rec['validation'] = false;
 			}
@@ -2227,8 +2227,8 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 			if (($length = mb_strlen($my_rec['POST'][$field_name])) < $field['minlength']) {
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['fields'][$f]['validation_error'] = [
-					'msg' => 'Text is too short (min. %d characters, %d submitted).',
-					'msg_args' => [$field['minlength'], $length]
+					'_msg' => 'Text is too short (min. %d characters, %d submitted).',
+					'_msg_values' => [$field['minlength'], $length]
 				];
 				$my_rec['validation'] = false;
 			}
@@ -2251,15 +2251,15 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 				$my_rec['validation'] = false;
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['fields'][$f]['validation_error'] = [
-					'msg' => 'Array <em>“%s”</em> does not match pattern <em>“%s”</em>',
-					'msg_args' => [json_encode($my_rec['POST'][$field_name]), $field['pattern']]
+					'_msg' => 'Array <em>“%s”</em> does not match pattern <em>“%s”</em>',
+					'_msg_values' => [json_encode($my_rec['POST'][$field_name]), $field['pattern']]
 				];
 			} elseif (!zz_validate_pattern($my_rec['POST'][$field_name], $field['pattern'])) {
 				$my_rec['validation'] = false;
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['fields'][$f]['validation_error'] = [
-					'msg' => 'Value <em>“%s”</em> does not match pattern <em>“%s”</em>',
-					'msg_args' => [zz_htmltag_escape($my_rec['POST'][$field_name]), $field['pattern']]
+					'_msg' => 'Value <em>“%s”</em> does not match pattern <em>“%s”</em>',
+					'_msg_values' => [zz_htmltag_escape($my_rec['POST'][$field_name]), $field['pattern']]
 				];
 			}
 		}
@@ -2290,8 +2290,8 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 				$my_rec['validation'] = false;
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['fields'][$f]['validation_error'] = [
-					'msg' => 'Value in field <em>“%s”</em> must not be identical to field <em>“%s”</em>.',
-					'msg_args' => [$my_rec['fields'][$f]['title'], $second_field_name]
+					'_msg' => 'Value in field <em>“%s”</em> must not be identical to field <em>“%s”</em>.',
+					'_msg_values' => [$my_rec['fields'][$f]['title'], $second_field_name]
 				];
 				$my_rec['POST'][$field['not_identical_with']] = false;
 				$my_rec['POST'][$field_name] = false;
@@ -2542,8 +2542,8 @@ function zz_check_rules($value, $field, $post) {
 			foreach ($data as $needle) {
 				if (stripos($value, $needle) === false) continue; // might be 0
 				return [
-					'msg' => $field['validate_msg'][$type] ?? 'String <em>“%s”</em> is not allowed',
-					'msg_args' => zz_htmltag_escape($needle)
+					'_msg' => $field['validate_msg'][$type] ?? 'String <em>“%s”</em> is not allowed',
+					'_msg_values' => [zz_htmltag_escape($needle)]
 				];
 			}
 			break;
@@ -2552,20 +2552,26 @@ function zz_check_rules($value, $field, $post) {
 		case '<':
 		case '<=':
 			if (!is_array($data)) $data = [$data];
-			foreach ($data as $field) {
-				if (empty($post[$field])) continue;
-				if ($type === '>' AND $value > $post[$field]) continue;
-				if ($type === '>=' AND $value >= $post[$field]) continue;
-				if ($type === '<' AND $value < $post[$field]) continue;
-				if ($type === '<=' AND $value <= $post[$field]) continue;
-				$msg['>'] = 'greater than';
-				$msg['>='] = 'greater than or equal to';
-				$msg['<'] = 'smaller than';
-				$msg['<='] = 'smaller than or equal to';
-				return [
-					'msg' => $field['validate_msg'][$type] ?? 'Value “%s” needs to be '.$msg[$type].' “%s”.',
-					'msg_args' => [zz_htmltag_escape($value), zz_htmltag_escape($post[$field])]
+			foreach ($data as $field_name) {
+				if (empty($post[$field_name])) continue;
+				if ($type === '>' AND $value > $post[$field_name]) continue;
+				if ($type === '>=' AND $value >= $post[$field_name]) continue;
+				if ($type === '<' AND $value < $post[$field_name]) continue;
+				if ($type === '<=' AND $value <= $post[$field_name]) continue;
+				$error = [
+					'_msg_values' => [zz_htmltag_escape($value), zz_htmltag_escape($post[$field_name])]
 				];
+				if (!empty($field['validate_msg'][$type]))
+					$error['_msg'] = $field['validate_msg'][$type];
+				elseif ($type === '>')
+					$error['_msg'] = 'Value “%s” needs to be greater than “%s”.';
+				elseif ($type === '>=')
+					$error['_msg'] = 'Value “%s” needs to be greater than or equal to “%s”.';
+				elseif ($type === '<')
+					$error['_msg'] = 'Value “%s” needs to be smaller than “%s”.';
+				elseif ($type === '<=')
+					$error['_msg'] = 'Value “%s” needs to be smaller than or equal to “%s”.';
+				return $error;
 			}
 			break;
 		}
@@ -2589,7 +2595,7 @@ function zz_password_set($old, $new1, $new2, $sql, $field) {
 	if ($new1 !== $new2) {
 		// new passwords do not match
 		zz_error_log([
-			'msg' => 'New passwords do not match. Please try again.',
+			'_msg' => 'New passwords do not match. Please try again.',
 			'level' => E_USER_NOTICE
 		]);
 		return false;
@@ -2598,7 +2604,7 @@ function zz_password_set($old, $new1, $new2, $sql, $field) {
 		// old password eq new password - this is against identity theft if 
 		// someone interferes a password mail
 		zz_error_log([
-			'msg' => 'New and old password are identical. Please choose a different new password.',
+			'_msg' => 'New and old password are identical. Please choose a different new password.',
 			'level' => E_USER_NOTICE
 		]);
 		return false; 
@@ -2608,9 +2614,9 @@ function zz_password_set($old, $new1, $new2, $sql, $field) {
 		if (!$old_hash) return false;
 		if (!wrap_password_check($old, $old_hash)) {
 			zz_error_log([
-				'msg' => 'Your current password is different from what you entered. Please try again.',
-				'msg_dev' => '(Encryption: %s, existing hash: %s, entered hash: %s)',
-				'msg_dev_args' => [wrap_setting('hash_password'), $old_hash, wrap_password_hash($old)],
+				'_msg' => 'Your current password is different from what you entered. Please try again.',
+				'_msg_dev' => '(Encryption: %s, existing hash: %s, entered hash: %s)',
+				'_msg_dev_values' => [wrap_setting('hash_password'), $old_hash, wrap_password_hash($old)],
 				'level' => E_USER_NOTICE
 			]);
 			return false;
@@ -2621,7 +2627,7 @@ function zz_password_set($old, $new1, $new2, $sql, $field) {
 	if ($hash) return $hash;
 
 	zz_error_log([
-		'msg' => 'Your new password could not be saved. Please try a different one.',
+		'_msg' => 'Your new password could not be saved. Please try a different one.',
 		'level' => E_USER_WARNING
 	]);
 	return false;
@@ -2682,7 +2688,7 @@ function zz_action_unique_check(&$zz_tab) {
 				if (empty($zz_tab[0][0]['fields'][$no]['required_in_db'])) continue;
 				$zz_tab[0][0]['fields'][$no]['check_validation'] = false;
 				$zz_tab[0][0]['fields'][$no]['validation_error'] = [
-					'msg' => 'Duplicate entry in this table. Please check whether the record you were about to enter already exists or you’ll have to change the values you entered.',
+					'_msg' => 'Duplicate entry in this table. Please check whether the record you were about to enter already exists or you’ll have to change the values you entered.',
 				];
 			}
 		}
@@ -2724,19 +2730,19 @@ function zz_integrity_relations() {
  * @param array $deletable_ids
  * @param array $relations
  * @return mixed bool false: deletion of record possible, integrity will remain
- *		array: 'msg' (error message), 'msg_args' (optional, names of tables
+ *		array: '_msg' (error message), '_msg_values' (optional, names of tables
  *		which have a relation to the current record)
  */
 function zz_integrity_check($deletable_ids, $relations) {
 	if (!$relations) {
-		$response['msg'] = 'No records in relation table `%s`. Please fill in records.';
-		$response['msg_args'] = [wrap_sql_table('zzform_relations')];
+		$response['_msg'] = 'No records in relation table `%s`. Please fill in records.';
+		$response['_msg_values'] = [wrap_sql_table('zzform_relations')];
 		$response['msg_no_list'] = true;
 		return $response;
 	}
 
 	$response = [];
-	$response['msg_args'] = [];
+	$response['_msg_values'] = [];
 	$response['updates'] = [];
 	foreach ($deletable_ids as $master_db => $tables) {
 		foreach ($tables as $master_table => $fields) {
@@ -2769,22 +2775,22 @@ function zz_integrity_check($deletable_ids, $relations) {
 							'ids' => $remaining_ids,
 							'field' => $field
 						];
-					} elseif (!array_key_exists($field['detail_table'], $response['msg_args'])) {
+					} elseif (!array_key_exists($field['detail_table'], $response['_msg_values'])) {
 						// there are still IDs which cannot be deleted
 						// check which record they belong to
 						// only get unique values
-						$response['msg_args'][$field['detail_table']]
+						$response['_msg_values'][$field['detail_table']]
 							= zz_nice_tablenames($field['detail_table']).sprintf(' (%s)', wrap_number(count($detail_ids)));
 					}
 				}
 			}
 		}
 	}
-	if ($response['msg_args'] OR $response['updates']) {
-		if ($response['msg_args']) {
+	if ($response['_msg_values'] OR $response['updates']) {
+		if ($response['_msg_values']) {
 			// we still have detail records
-			$response['msg_args'] = array_values($response['msg_args']);
-			$response['msg'] = '';
+			$response['_msg_values'] = array_values($response['_msg_values']);
+			$response['_msg'] = '';
 		}
 		return $response;
 	} else {
@@ -3093,8 +3099,8 @@ function zz_sequence_normalize($ops, $zz_tab) {
 				}
 				if (empty($field_def['max_int_value'])) {
 					zz_error_log([
-						'msg_dev' => 'Field has no maximum integer value (is it an integer?): %s.%s.%s',
-						'msg_dev_args' => [$zz_tab[$tab]['db_name'], $zz_tab[$tab]['table'], $my_field['field_name']]
+						'_msg_dev' => 'Field has no maximum integer value (is it an integer?): %s.%s.%s',
+						'_msg_dev_values' => [$zz_tab[$tab]['db_name'], $zz_tab[$tab]['table'], $my_field['field_name']]
 					]);
 					continue;
 				}

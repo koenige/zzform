@@ -479,8 +479,8 @@ function zz_check_number($number) {
 	$result = wrap_calc($number);
 	if ($result === false) {
 		zz_error_log([
-			'msg_dev' => '%s(): calculation did not work. [%s]',
-			'msg_dev_args' => [__FUNCTION__, $number],
+			'_msg_dev' => '%s(): calculation did not work. [%s]',
+			'_msg_dev_values' => [__FUNCTION__, $number],
 			'level' => E_USER_NOTICE
 		]);
 		return NULL;

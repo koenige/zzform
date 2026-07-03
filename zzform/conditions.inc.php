@@ -532,8 +532,8 @@ function zz_conditions_record_check($zz, $mode, $zz_conditions) {
 						}
 					} else {
 						zz_error_log([
-							'msg_dev' => 'Value condition can’t get corresponding value from database (field %s)',
-							'msg_dev_args' => [$condition['field_name']]
+							'_msg_dev' => 'Value condition can’t get corresponding value from database (field %s)',
+							'_msg_dev_values' => [$condition['field_name']]
 						]);
 						return zz_return($zz_conditions);
 					}
@@ -544,8 +544,8 @@ function zz_conditions_record_check($zz, $mode, $zz_conditions) {
 			}
 			if (!$value) {
 				zz_error_log([
-					'msg_dev' => 'Value condition has empty value in database (field %s)',
-					'msg_dev_args' => [$condition['field_name']]
+					'_msg_dev' => 'Value condition has empty value in database (field %s)',
+					'_msg_dev_values' => [$condition['field_name']]
 				]);
 				return zz_return($zz_conditions);
 			}

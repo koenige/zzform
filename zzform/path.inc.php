@@ -360,8 +360,8 @@ function zz_path_mode($modes, $content, $error = E_USER_WARNING) {
 	foreach ($modes as $mode) {
 		if (!function_exists($mode)) {
 			zz_error_log([
-				'msg_dev' => 'Configuration Error: mode with non-existing function `%s`',
-				'msg_dev_args' => [$mode],
+				'_msg_dev' => 'Configuration Error: mode with non-existing function `%s`',
+				'_msg_dev_values' => [$mode],
 				'level' => $error
 			]);
 			return false;

@@ -219,19 +219,19 @@ function zz_db_fetch($sql, $id_field_name = false, $format = false, $info = fals
 	if ($error) {
 		$debug = debug_backtrace();
 		$msg_dev = 'Error in SQL query';
-		$msg_dev_args = [];
+		$msg_dev_values = [];
 		if (!empty($debug[1]['function'])) {
 			$msg_dev .= ' in function %s';
-			$msg_dev_args[] = $debug[1]['function'];
+			$msg_dev_values[] = $debug[1]['function'];
 		}
 		if ($info) {
 			$msg_dev .= ' - %s.';
-			$msg_dev_args[] = $info;
+			$msg_dev_values[] = $info;
 		}
 
 		zz_error_log([
-			'msg_dev' => $msg_dev,
-			'msg_dev_args' => $msg_dev_args,
+			'_msg_dev' => $msg_dev,
+			'_msg_dev_values' => $msg_dev_values,
 			'db_msg' => mysqli_error(wrap_db_connection()), 
 			'query' => $sql,
 			'level' => $error_type,
@@ -284,8 +284,8 @@ function zz_db_change($sql, $id = false) {
 		$db['action'] = '';
 		$db['error'] = [
 			'query' => $sql,
-			'msg_dev' => 'Statement not supported: %s',
-			'msg_dev_args' => [$statement]
+			'_msg_dev' => 'Statement not supported: %s',
+			'_msg_dev_values' => [$statement]
 		];
 		return $db;
 	}
@@ -320,7 +320,7 @@ function zz_db_change($sql, $id = false) {
 		$warnings = zz_db_fetch('SHOW WARNINGS', '_dummy_', 'numeric');
 		foreach ($warnings as $warning) {
 			zz_error_log([
-				'msg_dev' => 'MySQL reports a problem.',
+				'_msg_dev' => 'MySQL reports a problem.',
 				'query' => $sql,
 				'db_msg' => $warning['Level'].': '.$warning['Message'],
 				'level' => E_USER_WARNING
@@ -651,8 +651,8 @@ function zz_db_numeric_field($db_table, $field_name) {
 	if (empty($fielddef)) {
 		// field not available
 		zz_error_log([
-			'msg_dev' => 'Field %s not found in table %s.',
-			'msg_dev_args' => [$field_name, $db_table]
+			'_msg_dev' => 'Field %s not found in table %s.',
+			'_msg_dev_values' => [$field_name, $db_table]
 		]);
 		return false;
 	}

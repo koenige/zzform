@@ -324,8 +324,8 @@ function zz_get_where_conditions(&$zz) {
 			$error_value = $error_fieldname ? $_POST['zz_fields'][$error_fieldname] : '';
 			// illegal add here, quit 403
 			zz_error_log([
-				'msg' => 'Adding value %s in field %s is forbidden here',
-				'msg_args' => [$error_value, $error_fieldname],
+				'_msg' => 'Adding value %s in field %s is forbidden here',
+				'_msg_values' => [$error_value, $error_fieldname],
 				'level' => E_USER_WARNING,
 				'status' => 403
 			]);
@@ -1058,7 +1058,7 @@ function zz_get_unique_fields($fields) {
 		// set ID fieldname
 		if (!empty($field['type']) AND $field['type'] === 'id') {
 			if ($zz_conf['int']['id']['field_name']) {
-				zz_error_log(['msg' => 'Only one field may be defined as `id`!']);
+				zz_error_log(['_msg' => 'Only one field may be defined as `id`!']);
 				return false;
 			}
 			$zz_conf['int']['id']['field_name'] = $field['field_name'];
@@ -1559,8 +1559,8 @@ function zz_record_access($zz, $ops) {
 			}
 			$ops['mode'] = false;
 			zz_error_log([
-				'msg_dev' => 'Configuration does not allow this mode: %s',
-				'msg_dev_args' => [$mode],
+				'_msg_dev' => 'Configuration does not allow this mode: %s',
+				'_msg_dev_values' => [$mode],
 				'status' => 403,
 				'level' => E_USER_NOTICE
 			]);
@@ -1569,8 +1569,8 @@ function zz_record_access($zz, $ops) {
 		if (!$zz['record'][$mode] AND $zz['record']['action'] === $action) {
 			$zz['record']['action'] = false;
 			zz_error_log([
-				'msg_dev' => 'Configuration does not allow this action: %s',
-				'msg_dev_args' => [$action],
+				'_msg_dev' => 'Configuration does not allow this action: %s',
+				'_msg_dev_values' => [$action],
 				'status' => 403,
 				'level' => E_USER_NOTICE
 			]);
@@ -1809,8 +1809,8 @@ function zz_create_topfolders($dir) {
 	if ($success) {
 		if (!is_writable($upper_dir)) {
 			zz_error_log([
-				'msg_dev' => 'Creation of directory %s failed: Parent directory is not writable.',
-				'msg_dev_args' => [$dir],
+				'_msg_dev' => 'Creation of directory %s failed: Parent directory is not writable.',
+				'_msg_dev_values' => [$dir],
 				'level' => E_USER_ERROR
 			]);
 			zz_error_exit(true);
@@ -1823,8 +1823,8 @@ function zz_create_topfolders($dir) {
 	}
 
 	zz_error_log([
-		'msg_dev' => 'Creation of directory %s failed.',
-		'msg_dev_args' => [$dir],
+		'_msg_dev' => 'Creation of directory %s failed.',
+		'_msg_dev_values' => [$dir],
 		'level' => E_USER_ERROR
 	]);
 	zz_error_exit(true);
@@ -2090,8 +2090,8 @@ function zz_dependent_field_ids($fields, $tab, $rec) {
 			$field_names = array_unique($field_names);
 			if (count($field_names) > 1) {
 				zz_error_log([
-					'msg_dev' => 'It is not possible to depend on different fields in a single subtable (%s). Second field is ignored.',
-					'msg_dev_args' => [implode(', ', $field_names)]
+					'_msg_dev' => 'It is not possible to depend on different fields in a single subtable (%s). Second field is ignored.',
+					'_msg_dev_values' => [implode(', ', $field_names)]
 				]);
 			}
 			$field_names = reset($field_names);
@@ -2313,14 +2313,16 @@ function zz_check_select($my_rec, $f) {
 	}
 	if ($error AND wrap_static('zzform_output', 'batch_mode')) {
 		if (count($possible_values) > 1) {
-			$errormsg = 'Multiple records matching (maybe set "ids" for zzform_multi?)';
+			zz_error_log([
+				'_msg_dev' => 'Multiple records matching (maybe set "ids" for zzform_multi?): value %s in field %s. <br>SQL: %s',
+				'_msg_dev_values' => [$my_rec['POST'][$field_name], $field_name, $my_rec['fields'][$f]['sql_new']]
+			]);
 		} else {
-			$errormsg = 'No entry found';
+			zz_error_log([
+				'_msg_dev' => 'No entry found: value %s in field %s. <br>SQL: %s',
+				'_msg_dev_values' => [$my_rec['POST'][$field_name], $field_name, $my_rec['fields'][$f]['sql_new']]
+			]);
 		}
-		zz_error_log([
-			'msg_dev' => '%s: value %s in field %s. <br>SQL: %s',
-			'msg_dev_args' => [$errormsg, $my_rec['POST'][$field_name], $field_name, $my_rec['fields'][$f]['sql_new']]
-		]);
 	}
 	return zz_return($my_rec);
 }

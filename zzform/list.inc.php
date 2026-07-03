@@ -308,8 +308,8 @@ function zz_list_inline($fields, $lines, $mode) {
 				// @todo remove following 7 lines, table_name prefix should be unique
 				if (!empty($lines[$index][$fn_key])) {
 					zz_error_log([
-						'msg_dev' => 'Identical field name would be overwritten: %s',
-						'msg_dev_args' => $fn
+						'_msg_dev' => 'Identical field name would be overwritten: %s',
+						'_msg_dev_values' => $fn
 					]);
 					continue;
 				}
@@ -568,8 +568,8 @@ function zz_list_data($list, $lines, $table_defs, $zz, $zz_conditions, $table, $
 		if ($subselect) $subselects[] = $subselect;
 		if (!array_key_exists($subselect['key_fieldname'], $line)) {
 			zz_error_log([
-				'msg_dev' => 'Wrong key_field_name `%s`. Please set $zz["fields"][n]["key_field_name"] to something different: %s',
-				'msg_dev_args' => [$subselect['key_fieldname'], implode(', ', array_keys($line))]
+				'_msg_dev' => 'Wrong key_field_name `%s`. Please set $zz["fields"][n]["key_field_name"] to something different: %s',
+				'_msg_dev_values' => [$subselect['key_fieldname'], implode(', ', array_keys($line))]
 			]);
 		}
 	}

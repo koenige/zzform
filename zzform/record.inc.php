@@ -125,28 +125,28 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 				wrap_static('zzform_page', 'status', 404);
 			}
 		}
-	} elseif (!empty($zz_tab[0]['integrity']['msg_args'])) {
-		// check for 'msg', 'updates' might contain values
+	} elseif (!empty($zz_tab[0]['integrity']['_msg_values'])) {
+		// check for '_msg', 'updates' might contain values
 		$record['formhead'] = wrap_text('Attention!');
 		if (!empty($zz_tab[0]['integrity']['msg_no_list'])) {
 			zz_error_log([
-				'msg' => $zz_tab[0]['integrity']['msg'],
-				'msg_args' => $zz_tab[0]['integrity']['msg_args']
+				'_msg' => $zz_tab[0]['integrity']['_msg'],
+				'_msg_values' => $zz_tab[0]['integrity']['_msg_values']
 			]);
 		} else {
-			if (isset($zz_tab[0]['integrity']['msg_args'])) {
+			if (isset($zz_tab[0]['integrity']['_msg_values'])) {
 				$tmp_error_msg = sprintf(
 					"<ul>\n<li>%s</li>\n</ul>\n",
-					implode("</li>\n<li>", $zz_tab[0]['integrity']['msg_args'])
+					implode("</li>\n<li>", $zz_tab[0]['integrity']['_msg_values'])
 				);
 			} else {
 				$tmp_error_msg = '';
 			}
 			zz_error_log([
-				'msg' => [
+				'_msg' => [
 					'This record could not be deleted because it has other data associated with it.',
-					$zz_tab[0]['integrity']['msg'], "\n%s"],
-				'msg_args' => [$tmp_error_msg]
+					$zz_tab[0]['integrity']['_msg'], "\n%s"],
+				'_msg_values' => [$tmp_error_msg]
 			]);
 		}
 	} elseif (in_array($ops['mode'], $record_form) OR 
@@ -1821,8 +1821,8 @@ function zz_field_hidden($field, $record, $record_saved, $mode) {
 				$text .= zz_field_concat($field, $select_fields);
 			} else {
 				zz_error_log([
-					'msg' => 'Record for <strong>%s</strong> does not exist. (ID: %s)',
-					'msg_args' => [$field['title'], wrap_html_escape($value)]
+					'_msg' => 'Record for <strong>%s</strong> does not exist. (ID: %s)',
+					'_msg_values' => [$field['title'], wrap_html_escape($value)]
 				]);
 				zz_error_exit(true);
 				return ['', ''];
@@ -2454,7 +2454,7 @@ function zz_field_subtable_set($subtable, $display, $my_tab) {
 	}
 	if (!$field) {
 		zz_error_log([
-			'msg_dev' => 'For a subtable with a form_display = `set`, there needs to be a field with a field type `select`.',
+			'_msg_dev' => 'For a subtable with a form_display = `set`, there needs to be a field with a field type `select`.',
 			'level' => E_USER_ERROR
 		]);
 		zz_error();
@@ -2585,8 +2585,8 @@ function zz_field_subtable_set($subtable, $display, $my_tab) {
 				wrap_quit(400, 'Malformed request, ID for a set needs to be numeric');
 			} else {
 				zz_error_log([
-					'msg_dev' => 'Found a value selected that is set to non-selectable (table %s, ID %d)',
-					'msg_dev_args' => [$subtable['table'], $set['rec_id']]
+					'_msg_dev' => 'Found a value selected that is set to non-selectable (table %s, ID %d)',
+					'_msg_dev_values' => [$subtable['table'], $set['rec_id']]
 				]);
 			}
 		} elseif (!empty($set['rec_id']) AND !empty($set['title'])) {
@@ -2631,7 +2631,7 @@ function zz_field_subtable_key_value($subtable, $display, $my_tab) {
 	}
 	if (!$key_field) {
 		zz_error_log([
-			'msg_dev' => 'For a subtable with form_display = `key_value`, a field with `subtable_key` = true is required.',
+			'_msg_dev' => 'For a subtable with form_display = `key_value`, a field with `subtable_key` = true is required.',
 			'level' => E_USER_ERROR
 		]);
 		zz_error();
@@ -2639,7 +2639,7 @@ function zz_field_subtable_key_value($subtable, $display, $my_tab) {
 	}
 	if (!$value_field) {
 		zz_error_log([
-			'msg_dev' => 'For a subtable with form_display = `key_value`, a field with `subtable_value` = true is required.',
+			'_msg_dev' => 'For a subtable with form_display = `key_value`, a field with `subtable_value` = true is required.',
 			'level' => E_USER_ERROR
 		]);
 		zz_error();
@@ -3305,8 +3305,8 @@ function zz_field_select_hierarchy($field, $lines, $record = []) {
 		}
 		if (empty($lines[$field['show_hierarchy_subtree']])) {
 			zz_error_log([
-				'msg_dev' => 'Subtree with ID %s does not exist.',
-				'msg_dev_args' => [$field['show_hierarchy_subtree']],
+				'_msg_dev' => 'Subtree with ID %s does not exist.',
+				'_msg_dev_values' => [$field['show_hierarchy_subtree']],
 				'error' => E_USER_WARNING
 			]);
 		}
@@ -4091,12 +4091,12 @@ function zz_field_file($field, $display, $record, $record_saved, $images, $mode,
 	if (in_array($mode, ['add', 'edit', 'revise']) && $field['type'] === 'upload_image') {
 		if (!isset($field['image'])) {
 			zz_error_log([
-				'msg' => [
+				'_msg' => [
 					'File upload is currently impossible.',
 					'An error occured. We are working on the '
 					.'solution of this problem. Sorry for your '
 					.'inconvenience. Please try again later.'],
-				'msg_dev' => 'Configuration error. Missing upload_image details.',
+				'_msg_dev' => 'Configuration error. Missing upload_image details.',
 				'level' => E_USER_WARNING
 			]);
 			return '';

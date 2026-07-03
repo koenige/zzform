@@ -350,9 +350,9 @@ function zz_upload_check_files($zz_tab) {
 				// file is too small or 0, might occur while incorrect refresh of browser
 				$images[$no][$img]['upload']['error'] = UPLOAD_ERR_NO_FILE;
 				if ($images[$no][$img]['upload']['name'] AND $images[$no][$img]['upload']['type']) {
-					$images[$no][$img]['upload']['msg']
+					$images[$no][$img]['upload']['_msg']
 						= 'The file %s is empty. If you are uploading from a Mac, please check if the data is not only available in the so-called “resource fork” of the file.';
-					$images[$no][$img]['upload']['msg_args']
+					$images[$no][$img]['upload']['_msg_values']
 						= [wrap_html_escape($images[$no][$img]['upload']['name'])];
 				}
 				if (file_exists($images[$no][$img]['upload']['tmp_name'])) {
@@ -549,8 +549,8 @@ function zz_upload_fileinfo($file, $extension = false) {
 	if (!empty($file['warnings'])) {
 		foreach ($file['warnings'] as $function => $warnings) {
 			zz_error_log([
-				'msg_dev' => "%s returns with a warning:\n\n%s",
-				'msg_dev_args' => [$function, implode("\n", $warnings)],
+				'_msg_dev' => "%s returns with a warning:\n\n%s",
+				'_msg_dev_values' => [$function, implode("\n", $warnings)],
 				'log_post_data' => false,
 				'level' => E_USER_NOTICE
 			]);
@@ -923,8 +923,8 @@ function zz_upload_unix_file($filename, $file) {
 	if (!in_array($file['filetype'], $possible_filetypes)) {
 		if ($file['filetype'] !== 'unknown') {
 			zz_error_log([
-				'msg_dev' => 'File type %s does not match MIME type %s as found by file() for %s',
-				'msg_dev_args' => [$file['filetype'], $file['mime'], $file['name']],
+				'_msg_dev' => 'File type %s does not match MIME type %s as found by file() for %s',
+				'_msg_dev_values' => [$file['filetype'], $file['mime'], $file['name']],
 				'log_post_data' => false
 			]);
 		}
@@ -985,44 +985,44 @@ function zz_upload_error_with_file($filename, $file, $return = []) {
 		zz_error_exit($my_error);
 	}
 	
-	if (empty($return['msg_dev_args'])) {
-		$return['msg_dev_args'] = [];
+	if (empty($return['_msg_dev_values'])) {
+		$return['_msg_dev_values'] = [];
 	}
 	if (empty($return['error_msg'])) {
 		$return['error_msg'] = 'Action `%s` returned no file.';
-		$return['msg_dev_args'][] = $file['action'];
+		$return['_msg_dev_values'][] = $file['action'];
 	} elseif (!empty($file['action'])) { // e. g. if filetype unknown
 		$return['error_msg'] .= "\r\nAction: %s";
-		$return['msg_dev_args'][] = $file['action'];
+		$return['_msg_dev_values'][] = $file['action'];
 	}
 	$return['error_msg'] .= "\r\n";
 	if (!empty($return['command'])) {
 		$return['error_msg'] .= "\r\nCommand: %s";
-		$return['msg_dev_args'][] = $return['command'];
+		$return['_msg_dev_values'][] = $return['command'];
 	}
 	if (!empty($return['output'])) {
 		$return['error_msg'] .= "\r\nOutput: %s";
-		$return['msg_dev_args'][] = json_encode($return['output']);
+		$return['_msg_dev_values'][] = json_encode($return['output']);
 	}
 	if (!empty($return['exit_status'])) {
 		$return['error_msg'] .= "\r\nExit status: %s";
-		$return['msg_dev_args'][] = $return['exit_status'];
+		$return['_msg_dev_values'][] = $return['exit_status'];
 	}
 	if (!empty($file['upload'])) { // e. g. if filetype unknown
 		$err_upload = $file['upload'];
 		unset($err_upload['exif']); // too much information for log
 		unset($err_upload['exiftool']); // too much information for log
 		$return['error_msg'] .= "\r\n%s";
-		$return['msg_dev_args'][] = var_export($err_upload, true);
+		$return['_msg_dev_values'][] = var_export($err_upload, true);
 	}
 	if ($error_filename) {
 		$return['error_msg'] .= "\r\nThe source file was temporarily saved under: %s";
-		$return['msg_dev_args'][] = $error_filename;
+		$return['_msg_dev_values'][] = $error_filename;
 	}
 
 	zz_error_log([
-		'msg_dev' => $return['error_msg'],
-		'msg_dev_args' => $return['msg_dev_args'],
+		'_msg_dev' => $return['error_msg'],
+		'_msg_dev_values' => $return['_msg_dev_values'],
 		'log_post_data' => false,
 		'level' => E_USER_NOTICE
 	]);
@@ -1334,8 +1334,8 @@ function zz_upload_create_source($image, $path, $zz_tab, $tab = 0, $rec = 0) {
 		$image['upload'] = [];
 		if (empty($image['optional_image'])) {
 			zz_error_log([
-				'msg_dev' => 'Error: Source file %s does not exist.',
-				'msg_dev_args' => [$source_filename],
+				'_msg_dev' => 'Error: Source file %s does not exist.',
+				'_msg_dev_values' => [$source_filename],
 				'log_post_data' => false
 			]);
 		}
@@ -1439,8 +1439,8 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 	if (!file_exists($filename)) {
 		if (empty($image['optional_image'])) {
 			zz_error_log([
-				'msg_dev' => 'Error: Source file %s does not exist.',
-				'msg_dev_args' => [$filename],
+				'_msg_dev' => 'Error: Source file %s does not exist.',
+				'_msg_dev_values' => [$filename],
 				'log_post_data' => false
 			]);
 		}
@@ -1496,8 +1496,8 @@ function zz_upload_create_thumbnails($filename, $image, $my_rec, $no, $img) {
 	$return = $action($source_filename, $tmp_filename, $dest_extension, $image);
 	if (!file_exists($tmp_filename)) {
 		zz_error_log([
-			'msg_dev' => 'Error: File %s does not exist. Temporary Directory: %s',
-			'msg_dev_args' => [$tmp_filename, wrap_setting('tmp_dir')],
+			'_msg_dev' => 'Error: File %s does not exist. Temporary Directory: %s',
+			'_msg_dev_values' => [$tmp_filename, wrap_setting('tmp_dir')],
 			'log_post_data' => false
 		]);
 		return false;
@@ -1569,8 +1569,8 @@ function zz_upload_merge_options($image, $my_tab, $rec = 0) {
 			parse_str($my_tab[$rec]['POST'][$my_tab[$rec]['fields'][$no]['field_name']], $options[$option_value]);
 		} else {
 			zz_error_log([
-				'msg_dev' => 'No options for field %s were found.',
-				'msg_dev_args' => [$my_tab[$rec]['fields'][$no]['field_name']]
+				'_msg_dev' => 'No options for field %s were found.',
+				'_msg_dev_values' => [$my_tab[$rec]['fields'][$no]['field_name']]
 			]);
 			$options[$option_value] = [];
 		}
@@ -1638,8 +1638,8 @@ function zz_upload_auto_image($image) {
 	$autofunc = 'zz_image_auto_'.$image['auto'];
 	if (!function_exists($autofunc)) {
 		zz_error_log([
-			'msg_dev' => 'Configuration error: function <code>%s()</code> for image upload does not exist.',
-			'msg_dev_args' => [$autofunc],
+			'_msg_dev' => 'Configuration error: function <code>%s()</code> for image upload does not exist.',
+			'_msg_dev_values' => [$autofunc],
 			'log_post_data' => false,
 			'level' => E_USER_ERROR
 		]);
@@ -1706,7 +1706,7 @@ function zz_upload_extension($path, &$my_rec) {
 		return -1;		
 	}
 	zz_error_log([
-		'msg_dev' => 'Error. Could not determine file ending',
+		'_msg_dev' => 'Error. Could not determine file ending',
 		'log_post_data' => false,
 		'level' => E_USER_ERROR
 	]);
@@ -1771,24 +1771,32 @@ function zz_upload_check(&$images, $action, $rec = 0) {
 		}
 
 //	check if minimal image size is reached: min_width, min_height
-		$width_height = ['width', 'height'];
-		foreach ($width_height as $which)
-			if (!empty($images[$img]['min_'.$which]) 
-				&& $images[$img]['min_'.$which] > $images[$img]['upload'][$which])
-				$images[$img]['error'][] = wrap_text('Error: ')
-					.wrap_text('Minimum '.$which.' %s was not reached.'
-						, ['values' => '('.$images[$img]['min_'.$which].'px)']
-					).' ('.$images[$img]['upload'][$which].'px)';
+		if (!empty($images[$img]['min_width']) 
+			&& $images[$img]['min_width'] > $images[$img]['upload']['width'])
+			$images[$img]['error'][] = wrap_text('Error: ')
+				.wrap_text('Minimum width must be at least %s px.', ['values' => [$images[$img]['min_width']]])
+				.' '
+				.wrap_text('Uploaded width is %s px.', ['values' => [$images[$img]['upload']['width']]]);
+		if (!empty($images[$img]['min_height']) 
+			&& $images[$img]['min_height'] > $images[$img]['upload']['height'])
+			$images[$img]['error'][] = wrap_text('Error: ')
+				.wrap_text('Minimum height must be at least %s px.', ['values' => [$images[$img]['min_height']]])
+				.' '
+				.wrap_text('Uploaded height is %s px.', ['values' => [$images[$img]['upload']['height']]]);
 
 //	check if maximal image size has not been exceeded: max_width, max_height
-		$width_height = ['width', 'height'];
-		foreach ($width_height as $which)
-			if (!empty($images[$img]['max_'.$which])
-				&& $images[$img]['max_'.$which] < $images[$img]['upload'][$which])
-				$images[$img]['error'][] = wrap_text('Error: ')
-					.wrap_text('Maximum '.$which.' %s has been exceeded.'
-						, ['values' => '('.$images[$img]['max_'.$which].'px)']
-					).' ('.$images[$img]['upload'][$which].'px)';
+		if (!empty($images[$img]['max_width'])
+			&& $images[$img]['max_width'] < $images[$img]['upload']['width'])
+			$images[$img]['error'][] = wrap_text('Error: ')
+				.wrap_text('Maximum width must be at most %s px.', ['values' => [$images[$img]['max_width']]])
+				.' '
+				.wrap_text('Uploaded width is %s px.', ['values' => [$images[$img]['upload']['width']]]);
+		if (!empty($images[$img]['max_height'])
+			&& $images[$img]['max_height'] < $images[$img]['upload']['height'])
+			$images[$img]['error'][] = wrap_text('Error: ')
+				.wrap_text('Maximum height must be at most %s px.', ['values' => [$images[$img]['max_height']]])
+				.' '
+				.wrap_text('Uploaded height is %s px.', ['values' => [$images[$img]['upload']['height']]]);
 
 //	check if maximal number of pages is not exceeded
 		if (!empty($images[$img]['max_pages']) AND $images[$img]['upload']['filetype'] === 'pdf') {
@@ -1804,7 +1812,7 @@ function zz_upload_check(&$images, $action, $rec = 0) {
 				}
 			} else {
 				zz_error_log([
-					'msg_dev' => '`max_pages` can only be used with PDF filetypes and `pdfinfo` as upload tool.'
+					'_msg_dev' => '`max_pages` can only be used with PDF filetypes and `pdfinfo` as upload tool.'
 				]);
 			}
 		}
@@ -1841,8 +1849,8 @@ function zz_write_upload_fields($zz_tab, $f, $tab = 0, $rec = 0) {
 		// check if definition is correct
 		if (count($nos) !== 4) {
 			zz_error_log([
-				'msg_dev' => 'Error in $zz definition for upload_field: [%d]',
-				'msg_dev_args' => [$f],
+				'_msg_dev' => 'Error in $zz definition for upload_field: [%d]',
+				'_msg_dev_values' => [$f],
 				'log_post_data' => false,
 				'level' => E_USER_NOTICE
 			]);
@@ -2231,8 +2239,8 @@ function zz_upload_delete($filename, $show_filename = false, $action = 'delete')
 	// just a precaution for e. g. simultaneous access
 		if ($show_filename) {
 			zz_error_log([
-				'msg' => 'Could not delete %s, file did not exist.',
-				'msg_args' => [$show_filename],
+				'_msg' => 'Could not delete %s, file did not exist.',
+				'_msg_values' => [$show_filename],
 				'log_post_data' => false,
 				'level' => E_USER_NOTICE
 			]);
@@ -2241,8 +2249,8 @@ function zz_upload_delete($filename, $show_filename = false, $action = 'delete')
 	}
 	if (!is_file($filename)) {
 		zz_error_log([
-			'msg_dev' => 'File %s exists, but is not a file.',
-			'msg_dev_args' => $filename,
+			'_msg_dev' => 'File %s exists, but is not a file.',
+			'_msg_dev_values' => [$filename],
 			'log_post_data' => false,
 			'level' => E_USER_ERROR
 		]);
@@ -2259,8 +2267,8 @@ function zz_upload_delete($filename, $show_filename = false, $action = 'delete')
 	}
 	if (!$success) {
 		zz_error_log([
-			'msg' => 'Could not delete %s.',
-			'msg_args' => [$filename],
+			'_msg' => 'Could not delete %s.',
+			'_msg_values' => [$filename],
 			'log_post_data' => false,
 			'level' => E_USER_NOTICE
 		]);
@@ -2313,8 +2321,8 @@ function zz_upload_insert($source, $dest, $action = '-') {
 	if (file_exists($dest)) {
 		if (!is_file($dest)) {
 			zz_error_log([
-				'msg_dev' => 'Insert: `%s` exists, but is not a file.',
-				'msg_dev_args' => [$dest],
+				'_msg_dev' => 'Insert: `%s` exists, but is not a file.',
+				'_msg_dev_values' => [$dest],
 				'level' => E_USER_ERROR
 			]);
 			zz_error();
@@ -2725,15 +2733,15 @@ function zz_upload_file_extension($filename) {
 function zz_rename($source, $destination, $fail_error_code = E_USER_NOTICE) {
 	if (!$destination) {
 		zz_error_log([
-			'msg_dev' => 'zz_rename(): No new filename given.',
+			'_msg_dev' => 'zz_rename(): No new filename given.',
 			'level' => E_USER_WARNING
 		]);
 		return false;
 	}
 	if (!file_exists($source)) {
 		zz_error_log([
-			'msg_dev' => 'zz_rename(): File %s does not exist.',
-			'msg_dev_args' => [$source],
+			'_msg_dev' => 'zz_rename(): File %s does not exist.',
+			'_msg_dev_values' => [$source],
 			'level' => E_USER_WARNING
 		]);
 		return false;
@@ -2783,21 +2791,20 @@ function zz_rename($source, $destination, $fail_error_code = E_USER_NOTICE) {
 	if (file_exists($destination) AND sha1_file($destination) === $source_sha1) return true;
 
 	// error handling
-	if (!is_writeable(dirname($destination))) {
-		$msg_dev = 'Insufficient rights. Directory `%s` is not writable.';
-		$msg_dev_args[] = dirname($destination);
-	} else { 
-		$msg_dev = 'Unknown error. Copying of file not successful. <br>From: %s <br>To: %s<br>';
-		$msg_dev_args = [$source, $destination];
-	}
-	zz_error_log([
-		'msg' => 'File could not be saved. There is a problem with '
+	$error = [
+		'_msg' => 'File could not be saved. There is a problem with '
 			.'the user rights. We are working on it.',
-		'msg_dev' => $msg_dev,
-		'msg_dev_args' => $msg_dev_args,
 		'log_post_data' => false,
 		'level' => $fail_error_code
-	]);
+	];
+	if (!is_writeable(dirname($destination))) {
+		$error['_msg_dev'] = 'Insufficient rights. Directory `%s` is not writable.';
+		$error['_msg_dev_values'] = [dirname($destination)];
+	} else { 
+		$error['_msg_dev'] =  'Unknown error. Copying of file not successful. <br>From: %s <br>To: %s<br>';
+		$error['_msg_dev_values'] = [$source, $destination];
+	}
+	zz_error_log($error);
 	return false;
 }
 
@@ -2820,7 +2827,7 @@ function zz_upload_max_filesize($size = 0) {
 	if ($size <= $ini_upload_max) return $size;
 	
 	zz_error_log([
-		'msg_dev' => 'Value for upload_max_filesize from php.ini is '
+		'_msg_dev' => 'Value for upload_max_filesize from php.ini is '
 			.'smaller than value which is set in the script. The '
 			.'value from php.ini will be used. To upload bigger files'
 			.', please adjust your configuration settings.',

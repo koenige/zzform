@@ -9,7 +9,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2011, 2015-2017, 2019-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2011, 2015-2017, 2019-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -136,19 +136,17 @@ function zz_geo_coord_in($value, $orientation = 'lat', $precision = 0) {
 			// test range, 0-59.9999 is allowed
 			if ($part < 0) {
 				$part = wrap_html_escape($part);
-				$type = ($index === 2) ? 'seconds' : 'minutes';
-				$my['error'] = wrap_text(
-					'%s is too small. Please enter for '.$type.' a positive value or 0.',
-					['values' => $part]
-				);
+				if ($index === 2)
+					$my['error'] = wrap_text('%s is too small. Seconds must be 0 or greater.', ['values' => $part]);
+				else
+					$my['error'] = wrap_text('%s is too small. Minutes must be 0 or greater.', ['values' => $part]);
 				return $my;
 			} elseif ($part >= 60) {
 				$part = wrap_html_escape($part);
-				$type = ($index === 2) ? 'seconds' : 'minutes';
-				$my['error'] = wrap_text(
-					'%s is too big. Please enter for '.$type.' a value smaller than 60.',
-					['values' => $part]
-				);
+				if ($index === 2)
+					$my['error'] = wrap_text('%s is too large. Seconds must be less than 60.', ['values' => $part]);
+				else
+					$my['error'] = wrap_text('%s is too large. Minutes must be less than 60.', ['values' => $part]);
 				return $my;
 			}			
 			// add or substract correct value to/from degrees
@@ -469,7 +467,7 @@ function zz_geo_geocode_fields($list, $new, $zz_tab) {
 	if (empty($geocoding['latlon'])) return [];
 	if (count($geocoding['latlon']) !== 2) {
 		zz_error_log([
-			'msg_dev' => 'Record definition incorrect, only one of latitude/longitude present.'
+			'_msg_dev' => 'Record definition incorrect, only one of latitude/longitude present.'
 		]);
 		return [];
 	}
@@ -500,8 +498,8 @@ function zz_geo_geocode_address($geocoding, $zz_tab, $new) {
 			$type = substr($type, 0, -3);
 			if (!isset($my_field['geocode_sql'])) {
 				zz_error_log([
-					'msg_dev' => 'Error: geocode_sql not defined for field no %d',
-					'msg_dev_args' => [$f['no']]
+					'_msg_dev' => 'Error: geocode_sql not defined for field no %d',
+					'_msg_dev_values' => [$f['no']]
 				]);
 				continue;
 			}

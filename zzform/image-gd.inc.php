@@ -317,8 +317,8 @@ function zz_image_crop($source, $destination, $dest_extension, $image, $clipping
  */
 function zz_imagegd_crop($image, $params) {
 	if (version_compare(PHP_VERSION, '8.0.0', '<')) {
-		zz_error_msg([
-			'msg_dev' => 'No support for GD image cropping below PHP 8 implemented.'
+		zz_error_log([
+			'_msg_dev' => 'No support for GD image cropping below PHP 8 implemented.'
 		]);
 		return $image;
 	}

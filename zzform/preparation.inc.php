@@ -131,8 +131,8 @@ function zz_prepare_tables($zz, $mode) {
 				'WHERE', sprintf('%s.%s = %d',$zz_tab[0]['table'], $zz_conf['int']['id']['field_name'], $zz_conf['int']['id']['value'])
 			);
 			zz_error_log([
-				'msg_dev' => 'Trying to update a non-existent record in table `%s` with ID %d.',
-				'msg_dev_args' => [$zz_tab[0]['table'], $zz_conf['int']['id']['value']],
+				'_msg_dev' => 'Trying to update a non-existent record in table `%s` with ID %d.',
+				'_msg_dev_values' => [$zz_tab[0]['table'], $zz_conf['int']['id']['value']],
 				'level' => E_USER_ERROR,
 				'query' => $sql
 			]);
@@ -771,8 +771,8 @@ function zz_subrecords_post(&$my_tab, &$records, &$existing, $existing_ids, $mod
 			if ($key === false) {
 				// illegal ID, this will only occur if user manipulated the form
 				zz_error_log([
-					'msg_dev' => 'Detail record with invalid ID was posted (ID of table_name %s was said to be %s, main record was ID %s)',
-					'msg_dev_args' => [$my_tab['table_name'], $posted[$my_tab['id_field_name']], $zz_conf['int']['id']['value']],
+					'_msg_dev' => 'Detail record with invalid ID was posted (ID of table_name %s was said to be %s, main record was ID %s)',
+					'_msg_dev_values' => [$my_tab['table_name'], $posted[$my_tab['id_field_name']], $zz_conf['int']['id']['value']],
 					'level' => E_USER_NOTICE
 				]);
 				continue;
@@ -880,8 +880,8 @@ function zz_subrecord_unique($my_tab, $existing, $fields) {
 				$my_tab['POST'][$no][$my_tab['id_field_name']] = key($existing_recs); 
 			} elseif (count($existing_recs)) {
 				zz_error_log([
-					'msg_dev' => 'Field marked as unique, but value appears more than once in record: %s (SQL %s)',
-					'msg_dev_args' => [$value, $sql],
+					'_msg_dev' => 'Field marked as unique, but value appears more than once in record: %s (SQL %s)',
+					'_msg_dev_values' => [$value, $sql],
 					'level' => E_USER_NOTICE
 				]);
 			}
@@ -915,8 +915,8 @@ function zz_prepare_unique_record($my_tab, $existing, $fields, $unique) {
 				}
 				if (empty($record[$field_name])) {
 					zz_error_log([
-						'msg_dev' => 'UNIQUE was set but field %s is not in POST',
-						'msg_dev_args' => [$field_name]
+						'_msg_dev' => 'UNIQUE was set but field %s is not in POST',
+						'_msg_dev_values' => [$field_name]
 					]);
 					continue;
 				}
@@ -988,8 +988,8 @@ function zz_prepare_unique_field_value($field, $id_field_name, $record) {
 
 	// @todo check if this error message is useful on `tab` level
 	zz_error_log([
-		'msg_dev' => 'Field marked as unique, but could not find corresponding value: %s',
-		'msg_dev_args' => [$field['field_name']],
+		'_msg_dev' => 'Field marked as unique, but could not find corresponding value: %s',
+		'_msg_dev_values' => [$field['field_name']],
 		'level' => E_USER_NOTICE
 	]);
 	return 0;
@@ -1492,23 +1492,23 @@ function zz_log_validation_errors($my_rec, $validation) {
 				$error = $field['error_msg'];
 			} else {
 				$error = 'Value incorrect in field <strong>%s</strong>.'; 
-				zz_error_validation_log('msg_args', $field['title']);
+				zz_error_validation_log('_msg_values', $field['title']);
 			}
 			if (!empty($field['validation_error'])) {
 				$error = [$error];
-				$error[] = $field['validation_error']['msg'];
-				if (!empty($field['validation_error']['msg_args'])) {
-					zz_error_validation_log('msg_args', $field['validation_error']['msg_args']);
+				$error[] = $field['validation_error']['_msg'];
+				if (!empty($field['validation_error']['_msg_values'])) {
+					zz_error_validation_log('_msg_values', $field['validation_error']['_msg_values']);
 				}
 			}
-			zz_error_validation_log('msg', $error);
-			zz_error_validation_log('msg_dev_args', $field['field_name']);
+			zz_error_validation_log('_msg', $error);
+			zz_error_validation_log('_msg_dev_values', $field['field_name']);
 			if (is_array($my_rec['POST-notvalid'][$field['field_name']])) {
-				zz_error_validation_log('msg_dev', 'Illegal value: %s');
-				zz_error_validation_log('msg_dev_args', json_encode($my_rec['POST-notvalid'][$field['field_name']]));
+				zz_error_validation_log('_msg_dev', 'Illegal value: %s');
+				zz_error_validation_log('_msg_dev_values', json_encode($my_rec['POST-notvalid'][$field['field_name']]));
 			} else {
-				zz_error_validation_log('msg_dev', 'Incorrect value: %s');
-				zz_error_validation_log('msg_dev_args', is_array($my_rec['record'][$field['field_name']])
+				zz_error_validation_log('_msg_dev', 'Incorrect value: %s');
+				zz_error_validation_log('_msg_dev_values', is_array($my_rec['record'][$field['field_name']])
 					? json_encode($my_rec['record'][$field['field_name']])
 					: wrap_html_escape($my_rec['record'][$field['field_name']])
 				);
@@ -1517,18 +1517,23 @@ function zz_log_validation_errors($my_rec, $validation) {
 			$somelogs = true;
 		} elseif (empty($field['dont_show_missing'])) {
 			if ($field['type'] === 'upload_image') {
-				$msg = 'Nothing was uploaded in field <strong>%s</strong>.';
-				zz_error_validation_log('msg_args', $field['title']);
-				if (!empty($my_rec['images'][$no][0]['upload']['msg'])) {
-					$msg = [$msg];
-					$msg[] = $my_rec['images'][$no][0]['upload']['msg'];
-					zz_error_validation_log('msg_args', $my_rec['images'][$no][0]['upload']['msg_args']);
+				if (!empty($my_rec['images'][$no][0]['upload']['_msg'])) {
+					zz_error_validation_log('_msg', [
+						'Nothing was uploaded in field <strong>%s</strong>.',
+						$my_rec['images'][$no][0]['upload']['_msg']
+					]);
+					zz_error_validation_log('_msg_values', [
+						$field['title'],
+						$my_rec['images'][$no][0]['upload']['_msg_values']
+					]);
+				} else {
+					zz_error_validation_log('_msg', 'Nothing was uploaded in field <strong>%s</strong>.');
+					zz_error_validation_log('_msg_values', $field['title']);
 				}
-				zz_error_validation_log('msg', $msg);
 			} else {
 				// there's a value missing
-				zz_error_validation_log('msg', 'Value missing in field <strong>%s</strong>.');
-				zz_error_validation_log('msg_args', $field['title']);
+				zz_error_validation_log('_msg', 'Value missing in field <strong>%s</strong>.');
+				zz_error_validation_log('_msg_values', $field['title']);
 				zz_error_validation_log('log_post_data', true);
 			}
 			$somelogs = true;
@@ -1544,13 +1549,13 @@ function zz_log_validation_errors($my_rec, $validation) {
 		// show dev error message if there's some error but nothing is shown
 		if (!empty($dev_msg['field'])) {
 			zz_error_log([
-				'msg_dev' => 'Validation error, value missing in field `%s`. Error was hidden (table misconfiguration?).',
-				'msg_dev_args' => $dev_msg['field']
+				'_msg_dev' => 'Validation error, value missing in field `%s`. Error was hidden (table misconfiguration?).',
+				'_msg_dev_values' => $dev_msg['field']
 			]);
 		} elseif (!empty($dev_msg['upload'])) {
 			zz_error_log([
-				'msg_dev' => 'Validation error, image upload missing in field `%s`. Error was hidden (table misconfiguration?).',
-				'msg_dev_args' => $dev_msg['upload']
+				'_msg_dev' => 'Validation error, image upload missing in field `%s`. Error was hidden (table misconfiguration?).',
+				'_msg_dev_values' => $dev_msg['upload']
 			]);
 		}
 	}
@@ -1598,8 +1603,8 @@ function zz_query_single_record($sql, $table, $table_name, $id, $sql_extra, $typ
 	foreach ($sql_extra as $sql) {
 		if (empty($id[$type])) {
 			zz_error_log([
-				'msg_dev' => 'No ID %s found (Query: %s).',
-				'msg_dev_args' => [$type, $sql]
+				'_msg_dev' => 'No ID %s found (Query: %s).',
+				'_msg_dev_values' => [$type, $sql]
 			]);
 			continue;
 		}

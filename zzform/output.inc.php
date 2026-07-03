@@ -676,8 +676,8 @@ function zz_nice_tablenames($table) {
 			$table = substr($table, strlen(wrap_setting('db_prefix')));
 		else {
 			zz_error_log([
-				'msg_dev' => 'Table prefix is incorrect somehow: %s',
-				'msg_dev_args' => [substr($table, 0, strlen(wrap_setting('db_prefix')))]
+				'_msg_dev' => 'Table prefix is incorrect somehow: %s',
+				'_msg_dev_values' => [substr($table, 0, strlen(wrap_setting('db_prefix')))]
 			]);
 		}
 	}
