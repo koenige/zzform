@@ -29,7 +29,7 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	zz_get_unique_fields($zz['fields']);
 
 	if (is_array($xmlHttpRequest['text']))
-		return brick_xhr_error(400, 'malformed request', $xmlHttpRequest);
+		return brick_xhr_error(400, 'Malformed values: (%s)', json_encode($xmlHttpRequest));
 
 	$text = mb_strtolower($xmlHttpRequest['text']);
 	$limit = $xmlHttpRequest['limit'] + 1;

@@ -62,7 +62,7 @@ function mod_zzform_xhr_dependencies($xmlHttpRequest, $zz) {
 	foreach ($sources as $source) {
 		if (empty($input[$source])) return $data; // not enough data
 		if (is_array($input[$source]))
-			return brick_xhr_error(400, 'malformed request', $xmlHttpRequest);
+			return brick_xhr_error(400, 'Malformed values: (%s)', json_encode($xmlHttpRequest));
 	}
 
 	$values = [];
